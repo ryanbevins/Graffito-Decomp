@@ -828,7 +828,7 @@ config.libs = [
         "cflags": cflags_system,
         "objects": [
             Object(Matching, "System/BaseParam.cpp"),
-            Object(NonMatching, "System/EmitterViewObj.cpp"),
+            Object(NonMatching, "System/EmitterViewObj.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "System/EventWatcher.cpp"),
             Object(
                 Matching,
@@ -836,7 +836,7 @@ config.libs = [
                 cflags=[*cflags_system, "-inline all,level=1,deferred"],
             ),
             Object(NonMatching, "System/GCLogoDir.cpp"),
-            Object(NonMatching, "System/J3DSysFlag.cpp"),
+            Object(Matching, "System/J3DSysFlag.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "System/MarDirector.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "System/MarDirectorDirect.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "System/MarDirectorEvent.cpp", extra_cflags=["-inline deferred"]),
@@ -854,7 +854,7 @@ config.libs = [
             Object(NonMatching, "System/TalkCursor.cpp"),
             Object(Matching, "System/TexCache.cpp"),
             Object(Matching, "System/ZBufferCatch.cpp", extra_cflags=["-inline deferred"]),
-            Object(NonMatching, "System/Application.cpp"),
+            Object(NonMatching, "System/Application.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "System/ScenarioArchiveName.cpp"),
             Object(NonMatching, "System/MarioGamePad.cpp"),
             Object(NonMatching, "System/StageEventInfo.cpp"),
