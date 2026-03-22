@@ -3710,14 +3710,14 @@ void TMario::checkWet()
 	if (onYoshiFlag)
 		return;
 
-	s16 wetTimer = unk362;
+	s32 wetTimer = unk362;
 	if (wetTimer <= 0)
 		return;
 	unk362 = wetTimer - 1;
 
 	const TBGCheckData* check;
-	f32 posZ = mPosition.z;
 	f32 posX = mPosition.x;
+	f32 posZ = mPosition.z;
 	f32 groundY;
 	checkGroundPlane(posX, 320.0f + mPosition.y, posZ, &groundY, &check);
 
@@ -3748,15 +3748,19 @@ void TMario::checkWet()
 
 	TWaterEmitInfo* emitInfo = unk158;
 	*(JGeometry::TVec3<f32>*)((u8*)emitInfo + 0x70) = mPosition;
-	*(f32*)((u8*)emitInfo + 0x74) += 5.0f;
 
-	JGeometry::TVec3<f32> vel(*(JGeometry::TVec3<f32>*)&dummyMactorStringValue1);
+	TWaterEmitInfo* emitInfo2 = unk158;
+	*(f32*)((u8*)emitInfo2 + 0x74) += 5.0f;
+
+	const char* strPtr = dummyMactorStringValue1;
+	JGeometry::TVec3<f32> vel(*(JGeometry::TVec3<f32>*)strPtr);
 	vel.x = 0.3f * mVel.x;
 	vel.y = 0.3f * mVel.y;
 	vel.z = 0.3f * mVel.z;
-	*(JGeometry::TVec3<f32>*)((u8*)emitInfo + 0x8C) = vel;
+	TWaterEmitInfo* emitInfo3 = unk158;
+	*(JGeometry::TVec3<f32>*)((u8*)emitInfo3 + 0x8C) = vel;
 
-	gpModelWaterManager->emitRequest(*emitInfo);
+	gpModelWaterManager->emitRequest(*unk158);
 }
 
 void TMario::checkEnforceJump()
