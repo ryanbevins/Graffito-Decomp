@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Inline Solver v3 - Differential Compilation Matrix Builder + Solver
+Inline Solver v4 - Automated Inline Discovery
 
-Tests each candidate inline accessor by replacing ALL read occurrences
-in the source, compiling, and measuring stack frame changes.
+Scans source code for field accesses, generates candidate accessors
+automatically, tests each via differential compilation, validates
+against match percentage and regressions.
 
 Usage:
   python tools/inline_solver.py Player/MarioMove
-  python tools/inline_solver.py Player/MarioMove --apply  # apply found solutions
+  python tools/inline_solver.py Player/MarioMove --apply
 """
 
 import subprocess
@@ -16,10 +17,15 @@ import sys
 import os
 import time
 import json
+import hashlib
 
 OBJDUMP = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                         'build', 'binutils', 'powerpc-eabi-objdump.exe')
 
+
+# ============================================================
+# LOW-LEVEL HELPERS
+# ============================================================
 
 def get_stack_frames(obj_path):
     r = subprocess.run([OBJDUMP, '-d', obj_path], capture_output=True, text=True, timeout=60)
@@ -36,42 +42,230 @@ def get_stack_frames(obj_path):
     return frames
 
 
+def get_match_percentages(tu_name):
+    """Get function match percentages from check_match.py."""
+    r = subprocess.run(
+        ['python', 'tools/claude/check_match.py', tu_name],
+        capture_output=True, text=True, timeout=30
+    )
+    matches = {}
+    for line in r.stdout.split('\n'):
+        m = re.match(r'\s+(.+?):\s+(MATCH|[\d.]+%)\s+\((\d+) bytes\)', line)
+        if m:
+            func_name = m.group(1).strip()
+            pct = 100.0 if m.group(2) == 'MATCH' else float(m.group(2).replace('%', ''))
+            matches[func_name] = pct
+    return matches
+
+
 def build():
     subprocess.run(['python', 'configure.py'], capture_output=True, text=True, timeout=30)
     r = subprocess.run(['python', '-m', 'ninja'], capture_output=True, text=True, timeout=60)
     return r.returncode == 0
 
 
+def get_weak_symbols(obj_path):
+    r = subprocess.run([OBJDUMP, '-t', obj_path], capture_output=True, text=True, timeout=60)
+    weaks = {}
+    for line in r.stdout.split('\n'):
+        if '  w  ' in line and ' F ' in line:
+            parts = line.split()
+            if len(parts) >= 6:
+                weaks[parts[5]] = int(parts[4], 16)
+    return weaks
+
+
+def file_hash(path):
+    with open(path, 'rb') as f:
+        return hashlib.md5(f.read()).hexdigest()
+
+
+# ============================================================
+# FIELD SCANNER - Auto-discover fields from source
+# ============================================================
+
+def scan_fields(src_file):
+    """Scan source file for all `this->field` access patterns.
+    Returns dict: field_name -> {read_count, write_count, lines}
+    """
+    with open(src_file) as f:
+        src = f.read()
+
+    fields = {}
+
+    # Pattern 1: Direct member access (mFieldName, unkXXX)
+    # These are fields accessed as bare names (implicit this->)
+    for m in re.finditer(r'\b(m[A-Z]\w+|unk[0-9A-Fa-f]+)\b', src):
+        name = m.group(1)
+        # Skip common non-field patterns
+        if name in ('mPosition', 'mVel', 'mFaceAngle', 'mFloorPosition',
+                     'mLastSafePos', 'mLastGroundPos', 'mRideLocalPos',
+                     'mRidePrevLocalPos', 'mJointPos', 'mGroundMtx',
+                     'mJointMtx0', 'mJointMtx1', 'mJointMtx2', 'mJointMtx3'):
+            continue  # These are structs/arrays, not simple fields
+        if name.startswith('mDe') or name.startswith('mJump') or name.startswith('mRun'):
+            continue  # TParams blocks
+        if name.startswith('mSlip') or name.startswith('mSwim') or name.startswith('mWire'):
+            continue  # More TParams
+        if name.startswith('mSurfing') or name.startswith('mHover') or name.startswith('mDiving'):
+            continue
+        if name.startswith('mGraffito') or name.startswith('mDirty') or name.startswith('mMotor'):
+            continue
+        if name.startswith('mController') or name.startswith('mYoshi') and name != 'mYoshi':
+            continue
+        if name.startswith('mBar') or name.startswith('mHanging') or name.startswith('mOption'):
+            continue
+        if name.startswith('mParticle') or name.startswith('mEffect') or name.startswith('mSound'):
+            continue
+        if name.startswith('mWaterEffect') or name.startswith('mBodyAngle') or name.startswith('mAttackParams'):
+            continue
+        if name.startswith('mPull') or name.startswith('mHangRoof') or name.startswith('mDmg'):
+            continue
+        if name.startswith('mUpper'):
+            continue
+
+        if name not in fields:
+            fields[name] = {'reads': 0, 'writes': 0}
+
+    # Pattern 2: Dotted member access (mPosition.y, mVel.x, etc.)
+    for m in re.finditer(r'\b(m\w+\.[xyz])\b', src):
+        name = m.group(1)
+        if name not in fields:
+            fields[name] = {'reads': 0, 'writes': 0}
+
+    # Count reads vs writes for each field
+    lines = src.split('\n')
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith('//') or stripped.startswith('/*'):
+            continue
+        if '/* 0x' in line or 'PARAM_INIT' in line:
+            continue
+
+        for name in list(fields.keys()):
+            if name not in line:
+                continue
+
+            # Check next line for multi-line assignment
+            next_line = lines[i + 1].lstrip() if i + 1 < len(lines) else ''
+
+            for fm in re.finditer(re.escape(name), line):
+                rest = line[fm.end():].lstrip()
+
+                is_write = False
+                if rest and rest[0] == '=' and (len(rest) < 2 or rest[1] != '='):
+                    is_write = True
+                elif len(rest) >= 2 and rest[0] in '+-|&*' and rest[1] == '=':
+                    is_write = True
+                elif not rest and next_line:
+                    if next_line.startswith('=') and not next_line.startswith('=='):
+                        is_write = True
+                    elif len(next_line) >= 2 and next_line[0] in '+-|&*' and next_line[1] == '=':
+                        is_write = True
+
+                if is_write:
+                    fields[name]['writes'] += 1
+                else:
+                    fields[name]['reads'] += 1
+
+    # Filter: only fields with reads (worth making accessor for)
+    return {k: v for k, v in fields.items() if v['reads'] > 0}
+
+
+def infer_type(field_name, header_content):
+    """Try to infer the type of a field from the header."""
+    # Search for field declaration in header
+    pattern = r'/\*\s*0x[0-9A-Fa-f]+\s*\*/\s+(\S+(?:\s*\*)?)\s+' + re.escape(field_name) + r'\b'
+    m = re.search(pattern, header_content)
+    if m:
+        return m.group(1)
+
+    # Dotted fields - infer from parent type
+    if '.x' in field_name or '.y' in field_name or '.z' in field_name:
+        return 'f32'
+
+    # Common patterns
+    if field_name.startswith('unk') and len(field_name) <= 6:
+        return 'u32'  # safe default
+
+    return None
+
+
+def generate_candidates_auto(src_file, header_file):
+    """Auto-generate candidates from field scan."""
+    fields = scan_fields(src_file)
+
+    with open(header_file) as f:
+        header = f.read()
+
+    candidates = []
+    seen_names = set()
+
+    # Check which accessors already exist in the header
+    existing = set(re.findall(r'\b(get\w+)\s*\(', header))
+
+    for field, info in sorted(fields.items(), key=lambda x: -x[1]['reads']):
+        # Generate accessor name
+        if '.' in field:
+            parts = field.replace('.', '_').split('_')
+            name = 'get' + ''.join(p.capitalize() for p in parts)
+        else:
+            name = 'get' + field[0].upper() + field[1:]
+            if field.startswith('m'):
+                name = 'get' + field[1:]
+            elif field.startswith('unk'):
+                name = 'get' + field.capitalize()
+
+        if name in seen_names or name in existing:
+            continue
+        seen_names.add(name)
+
+        # Infer type
+        ret_type = infer_type(field, header)
+        if ret_type is None:
+            continue
+
+        # Skip if only 1 read (unlikely to be useful)
+        if info['reads'] < 2:
+            continue
+
+        candidates.append({
+            'name': name,
+            'field': field,
+            'call': name + '()',
+            'header': f'\t{ret_type} {name}() const {{ return {field}; }}',
+            'reads': info['reads'],
+            'writes': info['writes'],
+        })
+
+    return candidates
+
+
+# ============================================================
+# REPLACEMENT ENGINE
+# ============================================================
+
 def replace_reads(source, field, accessor):
-    """Replace all READ occurrences of field with accessor, skip writes."""
+    """Replace all READ occurrences of field with accessor."""
     lines = source.split('\n')
     result = []
     count = 0
 
     for idx, line in enumerate(lines):
         stripped = line.strip()
-
-        # Skip comments
         if stripped.startswith('//') or stripped.startswith('/*'):
             result.append(line)
             continue
-
-        # Skip declarations, PARAM_INIT, header markers
         if '/* 0x' in line or 'PARAM_INIT' in line or 'const {' in line:
             result.append(line)
             continue
+        if 'return ' + field in line and '()' not in line.split(field)[0][-5:]:
+            # Likely inside the accessor definition itself
+            if 'get' in line.lower() and '{' in line:
+                result.append(line)
+                continue
 
-        # For dotted fields like mFloorPosition.y, we need exact match
-        # Replace only READ occurrences, skip writes
-        # A write is: field immediately followed by assignment op (=, +=, -=, etc.)
-        # A read is everything else (comparisons, function args, RHS of assignments)
-
-        # Join with next line to detect multi-line assignments like:
-        #   mVel.y
-        #       = expr;
-        next_stripped = ''
-        if idx + 1 < len(lines):
-            next_stripped = lines[idx + 1].lstrip()
+        next_stripped = lines[idx + 1].lstrip() if idx + 1 < len(lines) else ''
 
         if '.' in field:
             pattern = re.escape(field)
@@ -83,22 +277,16 @@ def replace_reads(source, field, accessor):
         for m in re.finditer(pattern, line):
             start, end = m.start(), m.end()
 
-            # Skip if preceded by -> (other object's field)
             if start >= 2 and line[start-2:start] == '->':
                 continue
 
-            # Check what follows on THIS line
             rest = line[end:].lstrip()
-
-            # Check for assignment on same line
             is_write = False
             if rest and rest[0] == '=' and (len(rest) < 2 or rest[1] != '='):
                 is_write = True
             elif len(rest) >= 2 and rest[0] in '+-|&*' and rest[1] == '=':
                 is_write = True
-
-            # Check for assignment on NEXT line (multi-line pattern)
-            if not is_write and not rest:
+            elif not rest:
                 if next_stripped.startswith('=') and not next_stripped.startswith('=='):
                     is_write = True
                 elif len(next_stripped) >= 2 and next_stripped[0] in '+-|&*' and next_stripped[1] == '=':
@@ -118,8 +306,12 @@ def replace_reads(source, field, accessor):
     return '\n'.join(result), count
 
 
-def test_candidate(tu_name, src_file, header_file, candidate, baseline):
-    """Test a candidate accessor. Returns {func: delta} or None on failure."""
+# ============================================================
+# TESTING ENGINE
+# ============================================================
+
+def test_candidate(tu_name, src_file, header_file, candidate, baseline_frames, baseline_matches):
+    """Test a candidate. Returns (stack_deltas, match_deltas, regressions) or None."""
     with open(src_file) as f:
         src_orig = f.read()
     with open(header_file) as f:
@@ -129,19 +321,19 @@ def test_candidate(tu_name, src_file, header_file, candidate, baseline):
         # Add accessor to header
         hdr = hdr_orig
         tmario_idx = hdr.find('class TMario')
-        fab_idx = hdr.find('// Fabricated', tmario_idx)
-        if tmario_idx == -1 or fab_idx == -1:
+        if tmario_idx == -1:
             return None
+        fab_idx = hdr.find('// Fabricated', tmario_idx)
+        if fab_idx == -1:
+            fab_idx = hdr.find('};', tmario_idx)
         pos = hdr.rfind('\n', 0, fab_idx) + 1
         hdr = hdr[:pos] + candidate['header'] + '\n' + hdr[pos:]
 
-        # Replace reads in source
+        # Replace reads
         src, count = replace_reads(src_orig, candidate['field'], candidate['call'])
-
         if count == 0:
-            return {}
+            return {'stacks': {}, 'matches': {}, 'regressions': [], 'replacements': 0}
 
-        # Write and build
         with open(header_file, 'w') as f:
             f.write(hdr)
         with open(src_file, 'w') as f:
@@ -150,13 +342,31 @@ def test_candidate(tu_name, src_file, header_file, candidate, baseline):
         if not build():
             return None
 
-        # Measure
+        # Measure stacks
         new_frames = get_stack_frames(f'build/GMSJ01/src/{tu_name}.o')
-        deltas = {}
-        for func in baseline:
-            if func in new_frames and baseline[func] != new_frames[func]:
-                deltas[func] = new_frames[func] - baseline[func]
-        return deltas
+        stack_deltas = {}
+        for func in baseline_frames:
+            if func in new_frames and baseline_frames[func] != new_frames[func]:
+                stack_deltas[func] = new_frames[func] - baseline_frames[func]
+
+        # Measure match percentages
+        new_matches = get_match_percentages(tu_name)
+        match_deltas = {}
+        regressions = []
+        for func in baseline_matches:
+            if func in new_matches:
+                delta = new_matches[func] - baseline_matches[func]
+                if abs(delta) > 0.01:
+                    match_deltas[func] = delta
+                    if delta < -0.1:
+                        regressions.append((func, baseline_matches[func], new_matches[func]))
+
+        return {
+            'stacks': stack_deltas,
+            'matches': match_deltas,
+            'regressions': regressions,
+            'replacements': count,
+        }
 
     finally:
         with open(src_file, 'w') as f:
@@ -165,191 +375,172 @@ def test_candidate(tu_name, src_file, header_file, candidate, baseline):
             f.write(hdr_orig)
 
 
-def generate_candidates():
-    """All candidate inline accessors."""
-    C = []
-
-    def add(name, field, ret, body=None):
-        if body is None:
-            body = f'return {field};'
-        C.append({
-            'name': name,
-            'field': field,
-            'call': name + '()',
-            'header': f'\t{ret} {name}() const {{ {body} }}',
-        })
-
-    # TMario fields
-    add('getHealth', 'mHealth', 's32', 'return (s32)mHealth;')
-    add('getAnimId', 'mAnimationId', 'u16')
-    add('getYoshiPtr', 'mYoshi', 'TYoshi*')
-    add('getGamePad', 'mGamePad', 'TMarioGamePad*')
-    add('getHeldObj', 'mHeldObject', 'void*')
-    add('getColRadius', 'unk15C', 'f32')
-    add('getWallPl', 'mWallPlane', 'const TBGCheckData*')
-    add('getRideAct', 'mRidingActor', 'TLiveActor*')
-    add('getDashSp', 'mDashSpeed', 'f32')
-    add('getDashTm', 'mDashTimer', 's16')
-    add('getLastGndY', 'mLastGroundY', 'f32')
-    add('getHolderHDiff', 'mHolderHeightDiff', 'f32')
-    add('getPollType', 'unk350', 's32')
-    add('getHeightAbv', 'unk370', 'f32')
-    add('getMaxHeight', 'unk36C', 'f32')
-    add('getDirtyAmt', 'unk134', 'f32')
-    add('getSpeedBonus', 'unk368', 'f32')
-    add('getFootTimer', 'unk360', 's16')
-    add('getWetTimer', 'unk362', 's16')
-    add('getDmgTimer', 'unk2BA', 's16')
-    add('getSlideAng', 'mSlideAngle', 's16')
-    add('getFlags78', 'unk78', 'u32')
-    add('getWaterFl', 'mWaterFloor', 'const TBGCheckData*')
-
-    # Dotted field accessors (struct member access)
-    add('getFloorY', 'mFloorPosition.y', 'f32')
-    add('getFloorZ', 'mFloorPosition.z', 'f32')
-    add('getFloorX', 'mFloorPosition.x', 'f32')
-    add('getPosX', 'mPosition.x', 'f32')
-    add('getPosY', 'mPosition.y', 'f32')
-    add('getPosZ', 'mPosition.z', 'f32')
-    add('getVelX', 'mVel.x', 'f32')
-    add('getVelY', 'mVel.y', 'f32')
-    add('getVelZ', 'mVel.z', 'f32')
-    add('getFaceY', 'mFaceAngle.y', 's16')
-    add('getFaceX', 'mFaceAngle.x', 's16')
-
-    # unk fields commonly accessed
-    add('getUnk12C', 'unk12C', 'f32')
-    add('getUnk130', 'unk130', 'f32')
-    add('getUnk138', 'unk138', 'f32')
-    add('getUnk13C', 'unk13C', 'f32')
-    add('getUnk374', 'unk374', 'f32')
-    add('getUnk378', 'unk378', 'f32')
-    add('getUnk104', 'unk104', 'f32')
-    add('getUnk9C', 'unk9C', 's16')
-    add('getUnkA0', 'unkA0', 's16')
-
-    return C
-
+# ============================================================
+# MAIN SOLVER
+# ============================================================
 
 def run(tu_name, apply_mode=False):
     src_file = f'src/{tu_name}.cpp'
     header_file = 'include/Player/MarioMain.hpp'
 
     print(f"{'='*70}")
-    print(f"INLINE SOLVER v3: {tu_name}")
+    print(f"INLINE SOLVER v4: {tu_name}")
     print(f"{'='*70}")
 
     if not build():
         print("ERROR: baseline build failed!")
         return
 
-    baseline = get_stack_frames(f'build/GMSJ01/src/{tu_name}.o')
-    orig = get_stack_frames(f'build/GMSJ01/obj/{tu_name}.o')
+    # Baselines
+    baseline_frames = get_stack_frames(f'build/GMSJ01/src/{tu_name}.o')
+    orig_frames = get_stack_frames(f'build/GMSJ01/obj/{tu_name}.o')
+    baseline_matches = get_match_percentages(tu_name)
 
     gaps = {}
-    for func in orig:
-        if func in baseline and orig[func] != baseline[func]:
-            gap = orig[func] - baseline[func]
+    for func in orig_frames:
+        if func in baseline_frames and orig_frames[func] != baseline_frames[func]:
+            gap = orig_frames[func] - baseline_frames[func]
             if gap < 0:
                 gaps[func] = gap
 
-    print(f"\nFunctions with gaps: {len(gaps)}")
     total_gap = sum(abs(g) for g in gaps.values())
-    for func, gap in sorted(gaps.items(), key=lambda x: x[1]):
-        print(f"  {func}: {gap} ({abs(gap)//8} inlines)")
-    print(f"  Total: {total_gap} bytes ({total_gap//8} inlines)")
+    print(f"\nStack gaps: {len(gaps)} functions, {total_gap} bytes total")
 
-    candidates = generate_candidates()
+    # Auto-generate candidates
+    candidates = generate_candidates_auto(src_file, header_file)
+    print(f"Auto-discovered {len(candidates)} candidate accessors from field scan")
+    print(f"\nTop candidates by read count:")
+    for c in candidates[:10]:
+        print(f"  {c['name']:<25} {c['field']:<20} reads={c['reads']:>3} writes={c['writes']:>3}")
+
     print(f"\nTesting {len(candidates)} candidates...\n")
 
-    matrix = {}
-    useful = {}
+    results = {}
     start = time.time()
 
     for i, cand in enumerate(candidates):
         elapsed = time.time() - start
         eta = (elapsed / max(i, 1)) * (len(candidates) - i)
-        print(f"  [{i+1:>2}/{len(candidates)}] {cand['name']:<20}", end='', flush=True)
+        print(f"  [{i+1:>2}/{len(candidates)}] {cand['name']:<25}", end='', flush=True)
 
-        deltas = test_candidate(tu_name, src_file, header_file, cand, baseline)
+        result = test_candidate(tu_name, src_file, header_file, cand,
+                                baseline_frames, baseline_matches)
 
-        if deltas is None:
+        if result is None:
             print(f" FAILED")
-        elif deltas:
-            affected = {f: d for f, d in deltas.items() if f in gaps}
-            if affected:
-                total_reduction = sum(abs(d) for d in affected.values())
-                print(f" -> {len(affected)} funcs, -{total_reduction} bytes")
-                useful[cand['name']] = {'deltas': affected, 'candidate': cand}
-            else:
-                other = len(deltas)
-                print(f" -> {other} non-gap funcs only")
+        elif result['replacements'] == 0:
+            print(f" (no reads found)")
         else:
-            print(f" -> no effect")
+            gap_stacks = {f: d for f, d in result['stacks'].items() if f in gaps}
+            improved = [f for f, d in result['matches'].items() if d > 0]
+            regressed = result['regressions']
+
+            parts = []
+            if gap_stacks:
+                total_d = sum(abs(d) for d in gap_stacks.values())
+                parts.append(f"-{total_d}b stack in {len(gap_stacks)} funcs")
+            if improved:
+                parts.append(f"+match in {len(improved)}")
+            if regressed:
+                parts.append(f"REGRESS {len(regressed)}!")
+
+            if parts:
+                print(f" -> {', '.join(parts)}")
+                results[cand['name']] = {**result, 'candidate': cand}
+            else:
+                print(f" -> no effect ({result['replacements']} replacements)")
 
     build()  # restore baseline
     total_time = time.time() - start
     print(f"\nDone in {total_time:.0f}s ({total_time/len(candidates):.1f}s each)")
 
-    if not useful:
-        print("\nNo useful candidates found.")
-        return
+    # Filter to useful results (stack improvement with no regressions)
+    useful = {}
+    for name, r in results.items():
+        gap_stacks = {f: d for f, d in r['stacks'].items() if f in gaps}
+        if gap_stacks and not r['regressions']:
+            useful[name] = r
 
-    # Results
+    risky = {}
+    for name, r in results.items():
+        gap_stacks = {f: d for f, d in r['stacks'].items() if f in gaps}
+        if gap_stacks and r['regressions']:
+            risky[name] = r
+
     print(f"\n{'='*70}")
-    print(f"FOUND {len(useful)} USEFUL ACCESSORS")
+    print(f"RESULTS: {len(useful)} safe, {len(risky)} risky")
     print(f"{'='*70}")
 
-    for name, info in sorted(useful.items(), key=lambda x: -sum(abs(d) for d in x[1]['deltas'].values())):
-        total_d = sum(abs(d) for d in info['deltas'].values())
-        print(f"\n  {name} (-{total_d} total):")
-        for func, d in sorted(info['deltas'].items()):
-            remain = gaps[func] - d
-            print(f"    {func}: {d:+d} (gap {gaps[func]} -> {remain})")
+    for name, r in sorted(useful.items(), key=lambda x: -sum(abs(d) for d in x[1]['stacks'].values())):
+        gap_stacks = {f: d for f, d in r['stacks'].items() if f in gaps}
+        total_d = sum(abs(d) for d in gap_stacks.values())
+        print(f"\n  {name} (-{total_d}b, {r['replacements']} replacements, no regressions):")
+        for func, d in sorted(gap_stacks.items()):
+            match_d = r['matches'].get(func, 0)
+            match_str = f" match {match_d:+.1f}%" if match_d else ""
+            print(f"    {func}: stack {d:+d}{match_str}")
+
+    if risky:
+        print(f"\n  --- RISKY (would cause regressions) ---")
+        for name, r in risky.items():
+            print(f"  {name}: regressions in {[f for f,_,_ in r['regressions']]}")
 
     # Projection
-    print(f"\n{'='*70}")
-    print(f"PROJECTED IMPACT")
-    print(f"{'='*70}")
+    combined_stack = {}
+    combined_match = {}
+    for name, r in useful.items():
+        for func, d in r['stacks'].items():
+            if func in gaps:
+                combined_stack[func] = combined_stack.get(func, 0) + d
+        for func, d in r['matches'].items():
+            combined_match[func] = combined_match.get(func, 0) + d
 
-    combined = {}
-    for name, info in useful.items():
-        for func, d in info['deltas'].items():
-            combined[func] = combined.get(func, 0) + d
+    print(f"\n{'='*70}")
+    print(f"PROJECTED (all {len(useful)} safe accessors applied)")
+    print(f"{'='*70}")
 
     solved = 0
     reduced = 0
     for func in sorted(gaps.keys(), key=lambda x: gaps[x]):
         g = gaps[func]
-        r = combined.get(func, 0)
+        r = combined_stack.get(func, 0)
         new_g = g - r
+        match_imp = combined_match.get(func, 0)
         if new_g == 0:
-            print(f"  {func}: {g} -> SOLVED!")
+            print(f"  {func}: SOLVED!")
             solved += 1
+        elif new_g > 0:
+            print(f"  {func}: {g} -> OVERSHOOT +{new_g}")
         else:
             print(f"  {func}: {g} -> {new_g}")
-        reduced += abs(r)
+        reduced += min(abs(r), abs(g))
 
-    print(f"\n  Solved: {solved}/{len(gaps)} functions")
-    print(f"  Reduced: {reduced}/{total_gap} bytes ({100*reduced/total_gap:.0f}%)")
+    print(f"\n  Solved: {solved}/{len(gaps)}")
+    print(f"  Reduced: {reduced}/{total_gap} bytes ({100*reduced//total_gap}%)")
 
     # Cache
-    cache_file = f'tools/inline_cache_{tu_name.replace("/", "_")}.json'
     cache = {
-        'tu': tu_name, 'gaps': gaps, 'useful': {
-            k: {'deltas': v['deltas'], 'header': v['candidate']['header'],
-                'field': v['candidate']['field'], 'call': v['candidate']['call']}
-            for k, v in useful.items()
-        }
+        'tu': tu_name,
+        'src_hash': file_hash(src_file),
+        'header_hash': file_hash(header_file),
+        'gaps': gaps,
+        'useful': {k: {
+            'stacks': v['stacks'],
+            'matches': v['matches'],
+            'header': v['candidate']['header'],
+            'field': v['candidate']['field'],
+            'call': v['candidate']['call'],
+            'replacements': v['replacements'],
+        } for k, v in useful.items()},
     }
+    cache_file = f'tools/inline_cache_{tu_name.replace("/", "_")}.json'
     with open(cache_file, 'w') as f:
         json.dump(cache, f, indent=2)
-    print(f"\nCached to {cache_file}")
 
     # Apply mode
     if apply_mode and useful:
         print(f"\n{'='*70}")
-        print(f"APPLYING {len(useful)} ACCESSORS")
+        print(f"APPLYING {len(useful)} SAFE ACCESSORS")
         print(f"{'='*70}")
 
         with open(header_file) as f:
@@ -357,53 +548,34 @@ def run(tu_name, apply_mode=False):
         with open(src_file) as f:
             src = f.read()
 
-        # Add all headers
         tmario_idx = hdr.find('class TMario')
         fab_idx = hdr.find('// Fabricated', tmario_idx)
         pos = hdr.rfind('\n', 0, fab_idx) + 1
-        header_block = '\t// Auto-discovered inline accessors\n'
+        block = '\t// Auto-discovered inline accessors (inline_solver v4)\n'
         for name, info in useful.items():
-            header_block += info['candidate']['header'] + '\n'
-        hdr = hdr[:pos] + header_block + '\n' + hdr[pos:]
+            block += info['candidate']['header'] + '\n'
+        hdr = hdr[:pos] + block + '\n' + hdr[pos:]
 
-        # Apply all replacements
-        total_replacements = 0
+        total_rep = 0
         for name, info in useful.items():
             src, n = replace_reads(src, info['candidate']['field'], info['candidate']['call'])
-            total_replacements += n
-            print(f"  {name}: {n} replacements")
+            total_rep += n
 
         with open(header_file, 'w') as f:
             f.write(hdr)
         with open(src_file, 'w') as f:
             f.write(src)
 
-        print(f"\n  Total: {total_replacements} replacements")
-        print(f"  Building...")
-
         if build():
-            print(f"  BUILD OK!")
-            new_frames = get_stack_frames(f'build/GMSJ01/src/{tu_name}.o')
-            print(f"\n  Updated gaps:")
-            new_total = 0
-            for func in sorted(gaps.keys(), key=lambda x: gaps[x]):
-                if func in new_frames and func in orig:
-                    new_gap = orig[func] - new_frames[func]
-                    old_gap = gaps[func]
-                    if new_gap < 0:
-                        new_total += abs(new_gap)
-                    status = "SOLVED!" if new_gap == 0 else f"{new_gap}"
-                    if new_gap != old_gap:
-                        print(f"    {func}: {old_gap} -> {new_gap} {status}")
-                    else:
-                        print(f"    {func}: {old_gap} (unchanged)")
-            print(f"\n  Remaining gap: {new_total} bytes (was {total_gap})")
+            new_matches = get_match_percentages(tu_name)
+            print(f"\n  Applied {total_rep} replacements. Results:")
+            for func in sorted(baseline_matches.keys()):
+                old = baseline_matches.get(func, 0)
+                new = new_matches.get(func, 0)
+                if abs(new - old) > 0.01:
+                    print(f"    {func}: {old:.1f}% -> {new:.1f}%")
         else:
-            print(f"  BUILD FAILED! Reverting...")
-            with open(header_file, 'w') as f:
-                f.write(cache['hdr_orig'])
-            with open(src_file, 'w') as f:
-                f.write(cache['src_orig'])
+            print("  BUILD FAILED!")
 
 
 if __name__ == '__main__':
