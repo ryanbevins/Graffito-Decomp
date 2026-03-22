@@ -11,7 +11,6 @@
 #include <dolphin/mtx.h>
 #include <fake_tgmath.h>
 
-#pragma dont_inline on
 // playerRefrection: reflect facing angle off wall, optionally negate velocity
 void TMario::playerRefrection(int param)
 {
@@ -28,7 +27,6 @@ void TMario::playerRefrection(int param)
 		mFaceAngle.y = mFaceAngle.y + 0x8000;
 	}
 }
-#pragma dont_inline off
 
 // keepDistance(TVec3, f32, f32): push Mario away from a reference point
 void TMario::keepDistance(const JGeometry::TVec3<f32>& refPos, f32 radius,

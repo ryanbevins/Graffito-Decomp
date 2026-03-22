@@ -2807,7 +2807,6 @@ void TMario::checkCurrentPlane()
 	// Clear bit 20 of mState
 	*(u32*)((u8*)this + 0x118) = *(u32*)((u8*)this + 0x118) & ~0x800;
 }
-#pragma dont_inline on
 TMario::TEParams* TMario::getDmgMapCode(int code) const
 {
 	switch (code) {
@@ -2824,7 +2823,6 @@ TMario::TEParams* TMario::getDmgMapCode(int code) const
 	default: return (TEParams*)((u8*)this + 0x3BD4);
 	}
 }
-#pragma dont_inline off
 
 void TMario::thinkParams()
 {
