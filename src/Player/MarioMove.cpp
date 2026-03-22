@@ -1436,8 +1436,8 @@ void TMario::makeHistory()
 		unk534 = unk534 + 1;
 
 		if ((s32)unk534 >= mControllerParams.mStickRotateTime.get()) {
-			int i = 0;
 			int offset = 0;
+			int i = 0;
 			while (i < mControllerParams.mStickRotateTime.get()) {
 				s16* p = (s16*)((u8*)unk530 + offset);
 				*p = *(s16*)((u8*)p + 2);
@@ -2010,28 +2010,27 @@ bool TMario::isInvincible() const
 		return true;
 
 	u8 areaID = *(u8*)((u8*)gpMarDirector + 0x124);
-	if (areaID == 3 || areaID == 4)
-		return true;
+	if (areaID == 3 || areaID == 4) {
+	} else {
+		u8 isEvent = 1;
+		if (areaID != 1) {
+			if (areaID != 2)
+				isEvent = 0;
+		}
 
-	u8 isEvent = 1;
-	if (areaID != 1) {
-		if (areaID != 2)
-			isEvent = 0;
+		if (!isEvent) {
+			u8 hasBit;
+			if (mAction & 0x1000)
+				hasBit = 1;
+			else
+				hasBit = 0;
+
+			if (!hasBit)
+				return false;
+		}
 	}
 
-	if (isEvent)
-		return true;
-
-	u8 hasBit;
-	if (mAction & 0x1000)
-		hasBit = 1;
-	else
-		hasBit = 0;
-
-	if (hasBit)
-		return true;
-
-	return false;
+	return true;
 }
 
 BOOL TMario::isForceSlip()
@@ -3882,12 +3881,10 @@ BOOL TMario::checkStickRotate(int* outDirection)
 {
 	int increasing = 0;
 	int decreasing = 0;
-	int count      = unk534;
 
 	volatile int q[4];
-	for (int i = 0; i < count - 1; i++) {
-		s16 angle = unk530[i];
-		f32 val   = (f32)angle;
+	for (int i = 0; i < (int)unk534 - 1; i++) {
+		f32 val = (f32)unk530[i];
 
 		if (val < -24576.0f || val > 24576.0f)
 			q[0] = 1;
@@ -3898,8 +3895,7 @@ BOOL TMario::checkStickRotate(int* outDirection)
 		if (8192.0f <= val && val <= 24576.0f)
 			q[3] = 1;
 
-		f32 next = (f32)unk530[i + 1];
-		if (val < next)
+		if (val < (f32)unk530[i + 1])
 			increasing++;
 		else
 			decreasing++;
@@ -4276,8 +4272,8 @@ void TMario::thinkHeight()
 		const TBGCheckData* groundPlane;
 		f32 sinV = JMASSin(mFaceAngle.y);
 		f32 cosV = JMASCos(mFaceAngle.y);
-		f32 dx = 100.0f * sinV;
 		f32 dz = 100.0f * cosV;
+		f32 dx = 100.0f * sinV;
 		f32 groundHeight = gpMap->checkGround(
 		    mPosition.x + dx,
 		    100.0f + mPosition.y,
@@ -4543,8 +4539,8 @@ void TMario::playerControl(JDrama::TGraphics* gfx)
 			const TBGCheckData* groundPlane;
 			f32 sinV = JMASSin(mFaceAngle.y);
 			f32 cosV = JMASCos(mFaceAngle.y);
-			f32 dx = 100.0f * sinV;
 			f32 dz = 100.0f * cosV;
+			f32 dx = 100.0f * sinV;
 			f32 groundHeight = gpMap->checkGround(
 			    mPosition.x + dx,
 			    100.0f + mPosition.y,
