@@ -516,8 +516,8 @@ void TMario::boardJumping()
 BOOL TMario::rocketCheck()
 {
 	u8 cr = 1;
-	if (mAction == 0x088B) cr = 0;
-	if (mAction == 0x088D) cr = 0;
+	if (mAction == ACTION_ROCKETING) cr = 0;
+	if (mAction == ACTION_ROCKET_END) cr = 0;
 	u8 hf; if (mState & MARIO_FLAG_IN_SHALLOW_WATER) hf = 1; else hf = 0;
 	if (hf) {
 		// Pointer math slop
@@ -534,23 +534,22 @@ BOOL TMario::rocketCheck()
 	} else cr = 0;
 	if ((u8)cr == 1) {
 		mRocketTargetY = mPosition.y + mWaterGun->mWatergunParams.mHoverHeight.get();
-		changePlayerStatus(0x088B, 0, false);
+		changePlayerStatus(ACTION_ROCKETING, 0, false);
 	}
 	return 0;
 }
 
 void TMario::rocketing()
 {
-	u8 hf; if (mState & 0x10000) hf = 1; else hf = 0;
-	if (!hf) { changePlayerStatus(0x088D, 0, false); return; }
+	u8 hf; if (mState & MARIO_FLAG_IN_SHALLOW_WATER) hf = 1; else hf = 0;
+	if (!hf) { changePlayerStatus(ACTION_ROCKET_END, 0, false); return; }
 	// Pointer math slop
-	if (*(u8*)((u8*)mWaterGun->getCurrentNozzle() + 0x18) != 1) { changePlayerStatus(0x088D, 0, false); return; }
+	if (*(u8*)((u8*)mWaterGun->getCurrentNozzle() + 0x18) != 1) { changePlayerStatus(ACTION_ROCKET_END, 0, false); return; }
 	u8 nw; if (mPumpState == 0) nw = 1; else nw = 0;
-	if (nw) { changePlayerStatus(0x088D, 0, false); return; }
+	if (nw) { changePlayerStatus(ACTION_ROCKET_END, 0, false); return; }
 	if (mInput & 1) {
-		// Pointer math slop
-		u8 rp = *(u8*)((u8*)mWaterGun + 0x1C84);
-		if (rp == 4) {
+		u8 rp = mWaterGun->mCurrentNozzle;
+		if (rp == TWaterGun::Hover) {
 			s16 ad = mIntendedYaw - mFaceAngle.y;
 			f32 im = mIntendedMag;
 			s16 ade = (s16)ad;
@@ -561,7 +560,7 @@ void TMario::rocketing()
 				f32 ac = *(f32*)((u8*)this + 0x0B8C) * (-im);
 				u16 au = (u16)ad;
 				s16 ra = (s16)(ac * (f32)fa2 * JMASSin(au));
-				u8 fo; if (mState & 0x10000) fo = 1; else fo = 0;
+				u8 fo; if (mState & MARIO_FLAG_IN_SHALLOW_WATER) fo = 1; else fo = 0;
 				if (fo) {
 					mWaterGun->unk1CC2 = -ra;
 					mWaterGun->unk1CC4 = ra;
@@ -585,14 +584,13 @@ void TMario::rocketing()
 	u16 fa = mFaceAngle.y;
 	mSlideVelX = mForwardVel * JMASSin(fa); mSlideVelZ = mForwardVel * JMASCos(fa);
 	mVel.x = mSlideVelX; mVel.z = mSlideVelZ;
-	// Pointer math slop
 	u8 rp2 = mWaterGun->mCurrentNozzle;
-	if (rp2 == 4) {
+	if (rp2 == TWaterGun::Hover) {
 		mVel.y = (mRocketTargetY - mPosition.y) * mHoverParams.mAccelRate.value;
 		mForwardVel *= mHoverParams.mBrake.value;
 	}
 	int res = jumpProcess(2);
-	if (res >= 3 && res < 5) { rumbleStart(21, mMotorParams.mMotorWall.value); changePlayerStatus(0x08200348, 0, false); }
+	if (res >= 3 && res < 5) { rumbleStart(21, mMotorParams.mMotorWall.value); changePlayerStatus(ACTION_ROOF_CHECK, 0, false); }
 	if (mRoofPlane) {
 		f32 c = mJumpParams.mJumpJumpCatchSp.value;
 		if (c + mPosition.y > mFloorPosition.y) mPosition.y = mFloorPosition.y - c;
