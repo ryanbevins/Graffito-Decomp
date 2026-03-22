@@ -259,7 +259,7 @@ int TMario::checkGroundAtWalking(Vec* pos)
 	}
 
 	if (fabsf(mPosition.y - groundY) > 100000.0f) {
-		mPosition = unk29C;
+		mPosition = mLastSafePos;
 	} else {
 		mPosition.x = pos->x;
 		mPosition.y = groundY;
@@ -315,7 +315,7 @@ int TMario::waitProcess()
 	f32 posY = mPosition.y;
 	f32 floorY = mFloorPosition.y;
 	if (fabsf(posY - floorY) > 4.0f) {
-		mPosition = unk29C;
+		mPosition = mLastSafePos;
 		changePlayerStatus(0x088D, 0, false);
 	} else {
 		mPosition.y = floorY;
@@ -560,7 +560,7 @@ int TMario::checkGroundAtJumping(const Vec& pos, int flags)
 		isIllegal = 0;
 
 	if (isIllegal) {
-		mPosition = unk29C;
+		mPosition = mLastSafePos;
 		groundResult = 2;
 	} else {
 		u16 bgType = mGroundPlane->mBGType;

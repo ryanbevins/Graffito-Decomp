@@ -69,9 +69,9 @@ bool TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 	unk160[0].y += delta.y;
 	unk160[0].z += delta.z;
 
-	unk29C.x += delta.x;
-	unk29C.y += delta.y;
-	unk29C.z += delta.z;
+	mLastSafePos.x += delta.x;
+	mLastSafePos.y += delta.y;
+	mLastSafePos.z += delta.z;
 
 	mWireStartPos.x += delta.x;
 	mWireStartPos.y += delta.y;
@@ -81,11 +81,11 @@ bool TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 	mWireEndPos.y += delta.y;
 	mWireEndPos.z += delta.z;
 
-	unk2A8.x += delta.x;
-	unk2A8.y += delta.y;
-	unk2A8.z += delta.z;
+	mLastGroundPos.x += delta.x;
+	mLastGroundPos.y += delta.y;
+	mLastGroundPos.z += delta.z;
 
-	unk2BC += delta.y;
+	mLastGroundY += delta.y;
 
 	unk1CC += delta.x;
 	unk1DC += delta.y;
@@ -112,10 +112,10 @@ bool TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 		}
 		PSMTXInverse(localMtx, localMtx);
 
-		unk300 = unk2F4;
+		mRidePrevLocalPos = mRideLocalPos;
 
 		PSMTXMultVec(localMtx, (Vec*)&mPosition,
-		             (Vec*)&unk2F4);
+		             (Vec*)&mRideLocalPos);
 	}
 
 	return true;
@@ -596,7 +596,7 @@ void TMario::calcGroundMtx(const JGeometry::TVec3<f32>& inPos)
 
 u32 TMario::setStatusToJumping(u32 status, u32 arg)
 {
-	unk2BC = mPosition.y;
+	mLastGroundY = mPosition.y;
 
 	s16 health = unk360;
 	s32 halfMaxHealth = mDeParams.mFootPrintTimerMax.value / 2;
@@ -1015,10 +1015,10 @@ void TMario::checkRideReCalc()
 		}
 		PSMTXInverse(localMtx, localMtx);
 
-		unk300 = unk2F4;
+		mRidePrevLocalPos = mRideLocalPos;
 
 		PSMTXMultVec(localMtx, (Vec*)&mPosition,
-		             (Vec*)&unk2F4);
+		             (Vec*)&mRideLocalPos);
 	}
 }
 
@@ -1915,8 +1915,8 @@ void TMario::checkGraffito()
 		break;
 	case 3:
 		if (isPolluted == 1) {
-			mPosition.x = unk29C.x;
-			mPosition.z = unk29C.z;
+			mPosition.x = mLastSafePos.x;
+			mPosition.z = mLastSafePos.z;
 		}
 		break;
 	default:
@@ -2314,11 +2314,11 @@ void TMario::checkRideMovement()
 			}
 
 			PSMTXMultVec(stackMtx,
-			             (Vec*)&unk2F4,
+			             (Vec*)&mRideLocalPos,
 			             (Vec*)&mPosition);
 
 			TLiveActor* ride = mRidingActor;
-			f32 savedRot = unk30C;
+			f32 savedRot = mRidePrevRotY;
 			f32 currentRot = ride->mRotation.y;
 			f32 delta = currentRot - savedRot;
 			s16 faceAngle = mFaceAngle.y;
@@ -2326,13 +2326,13 @@ void TMario::checkRideMovement()
 			    faceAngle + (int)(32768.0f * delta / 180.0f);
 
 			ride = mRidingActor;
-			unk30C = ride->mRotation.y;
+			mRidePrevRotY = ride->mRotation.y;
 		} else {
 			// newRide
 			mRidingActor = rideActor;
 
 			TLiveActor* ride = mRidingActor;
-			unk30C = ride->mRotation.y;
+			mRidePrevRotY = ride->mRotation.y;
 
 			ride = mRidingActor;
 			if (ride != 0) {
@@ -2345,11 +2345,11 @@ void TMario::checkRideMovement()
 
 				PSMTXInverse(stackMtx, stackMtx);
 
-				unk300 = unk2F4;
+				mRidePrevLocalPos = mRideLocalPos;
 
 				PSMTXMultVec(stackMtx,
 				             (Vec*)&mPosition,
-				             (Vec*)&unk2F4);
+				             (Vec*)&mRideLocalPos);
 			}
 		}
 	} else {
@@ -3016,7 +3016,7 @@ void TMario::thinkWaterSurface()
 
 	// Check height above ground with offset
 	{
-		f32 heightDiff = mPosition.y - unk29C.y;
+		f32 heightDiff = mPosition.y - mLastSafePos.y;
 		f32 clampedDiff = heightDiff;
 		if (heightDiff > 0.0f)
 			clampedDiff = 0.0f;
@@ -3589,7 +3589,7 @@ void TMario::thinkSituation()
 		else
 			isAirborne = 0;
 		if (!isAirborne) {
-			unk2BC = mPosition.y;
+			mLastGroundY = mPosition.y;
 		}
 	}
 
@@ -3878,7 +3878,7 @@ void TMario::checkReturn()
 	if (!isSafe)
 		return;
 
-	*(JGeometry::TVec3<f32>*)&unk2A8 = mPosition;
+	*(JGeometry::TVec3<f32>*)&mLastGroundPos = mPosition;
 	unk2B4 = *(u32*)((u8*)this + 0x94);
 	unk2B8 = (u16)mFaceAngle.z;
 }
@@ -4573,10 +4573,10 @@ void TMario::playerControl(JDrama::TGraphics* gfx)
 		}
 		PSMTXInverse(localMtx, localMtx);
 
-		unk300 = unk2F4;
+		mRidePrevLocalPos = mRideLocalPos;
 
 		PSMTXMultVec(localMtx, (Vec*)&mPosition,
-		             (Vec*)&unk2F4);
+		             (Vec*)&mRideLocalPos);
 	}
 
 	checkWet();

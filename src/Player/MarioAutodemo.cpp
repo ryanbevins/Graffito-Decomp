@@ -255,7 +255,7 @@ BOOL TMario::rollingStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation)
 
 			checkGroundPlane(mPosition.x, mPosition.y + 25.0f, mPosition.z,
 			                 &mFloorPosition.y, &mGroundPlane);
-			unk2BC = mFloorPosition.y;
+			mLastGroundY = mFloorPosition.y;
 			setAnimation(0xC3, 1.0f);
 			changePlayerStatus(0x1337, 0x200, true);
 			return TRUE;
@@ -277,7 +277,7 @@ BOOL TMario::returnStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation,
 			}
 			checkGroundPlane(mPosition.x, mPosition.y + 25.0f, mPosition.z,
 			                 &mFloorPosition.y, &mGroundPlane);
-			unk2BC = mFloorPosition.y;
+			mLastGroundY = mFloorPosition.y;
 			setAnimation(0xC3, 1.0f);
 			changePlayerStatus(0x1337, offsetPlayerStatus | 2, true);
 		} else {
@@ -289,7 +289,7 @@ BOOL TMario::returnStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation,
 			}
 			checkGroundPlane(mPosition.x, mPosition.y + 25.0f, mPosition.z,
 			                 &mFloorPosition.y, &mGroundPlane);
-			unk2BC = mFloorPosition.y;
+			mLastGroundY = mFloorPosition.y;
 			setAnimation(0xC3, 1.0f);
 			changePlayerStatus(0x1337, offsetPlayerStatus | 1, true);
 		}
@@ -312,7 +312,7 @@ BOOL TMario::waitingStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation)
 
 		checkGroundPlane(mPosition.x, mPosition.y + 25.0f, mPosition.z,
 		                 &mFloorPosition.y, &mGroundPlane);
-		unk2BC = mFloorPosition.y;
+		mLastGroundY = mFloorPosition.y;
 		setAnimation(0xC3, 1.0f);
 		mSubState |= 2;
 		changePlayerStatus(0xC400201, 0, true);

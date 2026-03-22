@@ -639,10 +639,10 @@ void TMario::fenceMove()
 	if (mRidingActor == NULL) {
 		f32 fenceSin = JMASSin(mFaceAngle.y);
 		f32 fenceCos = JMASCos(mFaceAngle.y);
-		f30 = mPosition.y - unk29C.y;
+		f30 = mPosition.y - mLastSafePos.y;
 
 		JGeometry::TVec3<f32> posOffset(mPosition);
-		posOffset.sub(unk29C);
+		posOffset.sub(mLastSafePos);
 
 		JGeometry::TVec3<f32> posOffset2(posOffset);
 
@@ -845,12 +845,12 @@ void TMario::pulling()
 	JGeometry::TVec3<f32> diff;
 	if (isTree) {
 		diff = nextPos;
-		diff.sub(unk29C);
+		diff.sub(mLastSafePos);
 	} else {
 		diff.x = mPosition.x;
 		diff.y = mPosition.y;
 		diff.z = mPosition.z;
-		diff.sub(unk29C);
+		diff.sub(mLastSafePos);
 	}
 
 	// Compute distance using Newton-Raphson sqrt
@@ -1941,8 +1941,8 @@ void TMario::hanging()
 	mModelFaceAngle = mFaceAngle.y;
 
 	if (movedToWall != 1) {
-		f32 dz = mPosition.z - unk29C.z;
-		f32 dx = mPosition.x - unk29C.x;
+		f32 dz = mPosition.z - mLastSafePos.z;
+		f32 dx = mPosition.x - mLastSafePos.x;
 		f32 distSq = dz * dz + dx * dx;
 		f32 dist;
 		if (distSq <= zero) {
@@ -2026,9 +2026,9 @@ void TMario::moveRoof()
 
 	JGeometry::TVec3<f32> diff;
 	diff = mPosition;
-	diff.x -= unk29C.x;
-	diff.y -= unk29C.y;
-	diff.z -= unk29C.z;
+	diff.x -= mLastSafePos.x;
+	diff.y -= mLastSafePos.y;
+	diff.z -= mLastSafePos.z;
 
 	JGeometry::TVec3<f32> dir = diff;
 	f32 dist = JGeometry::TUtil<f32>::sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);

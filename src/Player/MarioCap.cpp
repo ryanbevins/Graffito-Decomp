@@ -134,7 +134,7 @@ void TMarioCap::perform(unsigned long param_1, JDrama::TGraphics* param_2)
 
 			// Missing a copy of TVec3, i still suspect that operations should
 			// do a copy
-			f32 distance = (mMario->mPosition - mMario->unk29C).length();
+			f32 distance = (mMario->mPosition - mMario->mLastSafePos).length();
 			if (mMario->mAction == 0x810446 && distance > 20.0f) {
 				doTremble = true;
 			}

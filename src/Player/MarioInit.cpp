@@ -704,10 +704,10 @@ void TMario::loadAfter()
 
 	if (isMario()) {
 		MtxPtr mtx = (MtxPtr)((u8*)mModel->unk8->mNodeMatrices + 0x30);
-		gpMSound->setPlayerInfo(&mPosition, &unk29C, mtx, true);
+		gpMSound->setPlayerInfo(&mPosition, &mLastSafePos, mtx, true);
 	} else {
 		MtxPtr mtx = (MtxPtr)((u8*)mModel->unk8->mNodeMatrices + 0x30);
-		gpMSound->setPlayerInfo(&mPosition, &unk29C, mtx, false);
+		gpMSound->setPlayerInfo(&mPosition, &mLastSafePos, mtx, false);
 	}
 
 	finalDrawInitialize();

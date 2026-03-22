@@ -518,7 +518,7 @@ BOOL TMario::rocketCheck()
 	u8 cr = 1;
 	if (mAction == 0x088B) cr = 0;
 	if (mAction == 0x088D) cr = 0;
-	u8 hf; if (mState & 0x10000) hf = 1; else hf = 0;
+	u8 hf; if (mState & MARIO_FLAG_IN_SHALLOW_WATER) hf = 1; else hf = 0;
 	if (hf) {
 		// Pointer math slop
 		if (*(u8*)((u8*)mWaterGun->getCurrentNozzle() + 0x18) != 1) cr = 0;
@@ -528,7 +528,7 @@ BOOL TMario::rocketCheck()
 		if (g->mCurrentWater == 0) cr = 0;
 		else {
 			s32 k = g->getCurrentNozzle()->getNozzleKind();
-			if (k == 1) { TNozzleTrigger* t = (TNozzleTrigger*)g->getCurrentNozzle(); if (t->unk385 != 1) cr = 0; }
+			if (k == 1) { TNozzleTrigger* t = (TNozzleTrigger*)g->getCurrentNozzle(); if (t->unk385 != TNozzleTrigger::ACTIVE) cr = 0; }
 			else { if (g->getCurrentNozzle()->unk378 <= 0.0f) cr = 0; }
 		}
 	} else cr = 0;
