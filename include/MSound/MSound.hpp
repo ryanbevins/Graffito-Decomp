@@ -129,7 +129,6 @@ public:
 	void startForceJumpSound(Vec*, u32, f32, u32);
 };
 
-#pragma dont_inline on
 void MSound::startForceJumpSound(Vec* pos, u32 groundType, f32 height,
                                  u32 dist)
 {
@@ -161,7 +160,6 @@ void MSound::startForceJumpSound(Vec* pos, u32 groundType, f32 height,
 		}
 	}
 }
-#pragma dont_inline off
 
 extern MSound* MSGMSound;
 extern JAIBasic* MSGBasic;
