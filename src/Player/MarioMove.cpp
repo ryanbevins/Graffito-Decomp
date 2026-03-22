@@ -440,10 +440,8 @@ void TMario::setPlayerVelocity(f32 speed)
 
 void TMario::setNormalAttackArea()
 {
-	mAttackRadius = mDeParams.mHoldRadius.value;
-	calcEntryRadius();
-	mAttackHeight = mDeParams.mAttackHeight.value;
-	calcEntryRadius();
+	setAttackRadius(mDeParams.mHoldRadius.value);
+	setAttackHeight(mDeParams.mAttackHeight.value);
 }
 
 BOOL TMario::canBendBody()
