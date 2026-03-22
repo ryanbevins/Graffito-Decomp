@@ -1305,7 +1305,6 @@ public:
 	TLiveActor* getRidingActor() const { return mRidingActor; }
 	TYoshi* getYoshi() const { return mYoshi; }
 	f32 getForwardVel() const { return mForwardVel; }
-	s16 getSlopeAngle() const { return mSlopeAngle; }
 
 	// fabricated
 	bool isTouchGround4cm() const

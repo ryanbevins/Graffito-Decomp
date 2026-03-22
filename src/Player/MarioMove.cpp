@@ -355,13 +355,13 @@ BOOL TMario::changePlayerDropping(u32 status, u32 arg)
 BOOL TMario::changePlayerStatus(u32 status, u32 arg, bool force)
 {
 	if (!force) {
-		if (status == mAction)
+		if (status == getAction())
 			return 0;
 		if (checkActionThing())
 			return 0;
 	}
 
-	if (mAction == 0x20467)
+	if (getAction() == 0x20467)
 		return 0;
 
 	if (SMS_isDivingMap()) {
@@ -406,7 +406,7 @@ BOOL TMario::changePlayerStatus(u32 status, u32 arg, bool force)
 		break;
 	}
 
-	mPrevAction = mAction;
+	mPrevAction = getAction();
 	mAction = status;
 	mActionArg = arg;
 	mActionState = 0;
@@ -3617,7 +3617,7 @@ void TMario::thinkSituation()
 
 void TMario::getOffYoshi(bool knockedOff)
 {
-	mInput &= ~0x8000;
+	mInput = getInput() & ~0x8000;
 	if (knockedOff) {
 		changePlayerStatus(0x89C, 0, false);
 		getYoshi()->getOff(true);
@@ -3763,7 +3763,7 @@ void TMario::checkWet()
 void TMario::checkEnforceJump()
 {
 	u8 groundFlag;
-	if (mGroundPlane->mFlags & 0x10)
+	if (getGroundPlane()->getFlags() & 0x10)
 		groundFlag = 1;
 	else
 		groundFlag = 0;
