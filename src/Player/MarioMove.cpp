@@ -87,21 +87,21 @@ bool TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 
 	mLastGroundY += delta.y;
 
-	unk1CC += delta.x;
-	unk1DC += delta.y;
-	unk1EC += delta.z;
+	mJointMtx0[0][3] += delta.x;
+	mJointMtx0[1][3] += delta.y;
+	mJointMtx0[2][3] += delta.z;
 
-	unk1FC += delta.x;
-	unk20C += delta.y;
-	unk21C += delta.z;
+	mJointMtx1[0][3] += delta.x;
+	mJointMtx1[1][3] += delta.y;
+	mJointMtx1[2][3] += delta.z;
 
-	unk22C += delta.x;
-	unk23C += delta.y;
-	unk24C += delta.z;
+	mJointMtx2[0][3] += delta.x;
+	mJointMtx2[1][3] += delta.y;
+	mJointMtx2[2][3] += delta.z;
 
-	unk324 += delta.x;
-	unk334 += delta.y;
-	unk344 += delta.z;
+	mJointMtx3[0][3] += delta.x;
+	mJointMtx3[1][3] += delta.y;
+	mJointMtx3[2][3] += delta.z;
 
 	if (mRidingActor != NULL) {
 		Mtx localMtx;

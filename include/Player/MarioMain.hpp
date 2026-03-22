@@ -1282,29 +1282,10 @@ public:
 	/* 0x194 */ u32 unk194;
 	/* 0x198 */ u32 unk198;
 	/* 0x19C */ JGeometry::TVec3<f32> unk19C; // damage pos
-	/* 0x1A8 */ char unk1A8[0x1CC - 0x1A8];
-	/* 0x1CC */ f32 unk1CC;
-	/* 0x1D0 */ u32 unk1D0;
-	/* 0x1D4 */ u32 unk1D4;
-	/* 0x1D8 */ u32 unk1D8;
-	/* 0x1DC */ f32 unk1DC;
-	/* 0x1E0 */ u32 unk1E0;
-	/* 0x1E4 */ u32 unk1E4;
-	/* 0x1E8 */ u32 unk1E8;
-	/* 0x1EC */ f32 unk1EC;
-	/* 0x1F0 */ char unk1F0[0x1FC - 0x1F0];
-	/* 0x1FC */ f32 unk1FC;
-	/* 0x200 */ char unk200[0x20C - 0x200];
-	/* 0x20C */ f32 unk20C;
-	/* 0x210 */ char unk210[0x21C - 0x210];
-	/* 0x21C */ f32 unk21C;
-	/* 0x220 */ f32 unk220;
-	/* 0x224 */ char unk224[0x22C - 0x224];
-	/* 0x22C */ f32 unk22C;
-	/* 0x230 */ char unk230[0x23C - 0x230];
-	/* 0x23C */ f32 unk23C;
-	/* 0x240 */ char unk240[0x24C - 0x240];
-	/* 0x24C */ f32 unk24C;
+	/* 0x1A8 */ char unk1A8[0x1C0 - 0x1A8];
+	/* 0x1C0 */ Mtx mJointMtx0;  // joint matrix 0 (prev root)
+	/* 0x1F0 */ Mtx mJointMtx1;  // joint matrix 1 (prev center)
+	/* 0x220 */ Mtx mJointMtx2;  // joint matrix 2 (prev taking)
 	/* 0x250 */ Mtx mGroundMtx;
 	/* 0x280 */ char unk280[0x29C - 0x280];
 	/* 0x29C */ JGeometry::TVec3<f32> mLastSafePos;
@@ -1320,12 +1301,7 @@ public:
 	/* 0x30C */ f32 mRidePrevRotY;
 	/* 0x310 */ u32 unk310;
 	/* 0x314 */ f32 mRocketTargetY;
-	/* 0x318 */ char unk318[0x324 - 0x318];
-	/* 0x324 */ f32 unk324;
-	/* 0x328 */ char unk328[0x334 - 0x328];
-	/* 0x334 */ f32 unk334;
-	/* 0x338 */ char unk338[0x344 - 0x338];
-	/* 0x344 */ f32 unk344;
+	/* 0x318 */ Mtx mJointMtx3;  // joint matrix 3
 	/* 0x348 */ f32 unk348;
 	/* 0x34C */ u16 unk34C;
 	/* 0x34E */ u16 unk34E;
