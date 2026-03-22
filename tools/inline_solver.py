@@ -48,7 +48,7 @@ def replace_reads(source, field, accessor):
     result = []
     count = 0
 
-    for line in lines:
+    for idx, line in enumerate(lines):
         stripped = line.strip()
 
         # Skip comments
@@ -62,30 +62,57 @@ def replace_reads(source, field, accessor):
             continue
 
         # For dotted fields like mFloorPosition.y, we need exact match
-        # Check if this line has the field as an assignment TARGET
-        # Pattern: field followed by optional whitespace then = (but not ==)
-        is_write = bool(re.search(
-            re.escape(field) + r'\s*(?:[+\-|&*]?=(?!=))',
-            line
-        ))
+        # Replace only READ occurrences, skip writes
+        # A write is: field immediately followed by assignment op (=, +=, -=, etc.)
+        # A read is everything else (comparisons, function args, RHS of assignments)
 
-        if is_write:
-            result.append(line)
-            continue
+        # Join with next line to detect multi-line assignments like:
+        #   mVel.y
+        #       = expr;
+        next_stripped = ''
+        if idx + 1 < len(lines):
+            next_stripped = lines[idx + 1].lstrip()
 
-        # Replace all read occurrences
-        # For simple fields: word boundary match
-        # For dotted fields (mFloorPosition.y): exact string match
         if '.' in field:
-            # Dotted field: exact string replacement, but not when preceded by ->
-            # (e.g., don't replace emitInfo->mFloorPosition.y)
-            pattern = r'(?<!->)(?<!\w)\b' + re.escape(field) + r'\b'
+            pattern = re.escape(field)
         else:
-            # Simple field: word boundary
             pattern = r'(?<![.\w])' + re.escape(field) + r'(?![.\w(])'
 
-        new_line, n = re.subn(pattern, accessor, line)
-        count += n
+        new_line = line
+        offset = 0
+        for m in re.finditer(pattern, line):
+            start, end = m.start(), m.end()
+
+            # Skip if preceded by -> (other object's field)
+            if start >= 2 and line[start-2:start] == '->':
+                continue
+
+            # Check what follows on THIS line
+            rest = line[end:].lstrip()
+
+            # Check for assignment on same line
+            is_write = False
+            if rest and rest[0] == '=' and (len(rest) < 2 or rest[1] != '='):
+                is_write = True
+            elif len(rest) >= 2 and rest[0] in '+-|&*' and rest[1] == '=':
+                is_write = True
+
+            # Check for assignment on NEXT line (multi-line pattern)
+            if not is_write and not rest:
+                if next_stripped.startswith('=') and not next_stripped.startswith('=='):
+                    is_write = True
+                elif len(next_stripped) >= 2 and next_stripped[0] in '+-|&*' and next_stripped[1] == '=':
+                    is_write = True
+
+            if is_write:
+                continue
+
+            adj_start = start + offset
+            adj_end = end + offset
+            new_line = new_line[:adj_start] + accessor + new_line[adj_end:]
+            offset += len(accessor) - (end - start)
+            count += 1
+
         result.append(new_line)
 
     return '\n'.join(result), count

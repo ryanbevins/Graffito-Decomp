@@ -87,6 +87,14 @@
       "field": "mDashSpeed",
       "call": "getDashSp()"
     },
+    "getDashTm": {
+      "deltas": {
+        "checkController__6TMarioFPQ26JDrama9TGraphics": -8
+      },
+      "header": "\ts16 getDashTm() const { return mDashTimer; }",
+      "field": "mDashTimer",
+      "call": "getDashTm()"
+    },
     "getPollType": {
       "deltas": {
         "checkSink__6TMarioFv": -8
@@ -136,6 +144,18 @@
       "field": "unk2BA",
       "call": "getDmgTimer()"
     },
+    "getFloorY": {
+      "deltas": {
+        "checkSink__6TMarioFv": -8,
+        "thinkSituation__6TMarioFv": -16,
+        "checkCurrentPlane__6TMarioFv": -8,
+        "checkGraffitoSlip__6TMarioFv": -8,
+        "checkGraffitoFire__6TMarioFv": -8
+      },
+      "header": "\tf32 getFloorY() const { return mFloorPosition.y; }",
+      "field": "mFloorPosition.y",
+      "call": "getFloorY()"
+    },
     "getFloorZ": {
       "deltas": {
         "checkWet__6TMarioFv": -8,
@@ -145,6 +165,25 @@
       "header": "\tf32 getFloorZ() const { return mFloorPosition.z; }",
       "field": "mFloorPosition.z",
       "call": "getFloorZ()"
+    },
+    "getFloorX": {
+      "deltas": {
+        "checkCurrentPlane__6TMarioFv": -8
+      },
+      "header": "\tf32 getFloorX() const { return mFloorPosition.x; }",
+      "field": "mFloorPosition.x",
+      "call": "getFloorX()"
+    },
+    "getPosX": {
+      "deltas": {
+        "checkWet__6TMarioFv": -8,
+        "thinkSituation__6TMarioFv": -8,
+        "checkCurrentPlane__6TMarioFv": -32,
+        "checkGraffitoFire__6TMarioFv": -8
+      },
+      "header": "\tf32 getPosX() const { return mPosition.x; }",
+      "field": "mPosition.x",
+      "call": "getPosX()"
     },
     "getPosY": {
       "deltas": {
@@ -162,6 +201,16 @@
       "field": "mPosition.y",
       "call": "getPosY()"
     },
+    "getPosZ": {
+      "deltas": {
+        "checkWet__6TMarioFv": -8,
+        "checkCurrentPlane__6TMarioFv": -32,
+        "checkGraffitoFire__6TMarioFv": -8
+      },
+      "header": "\tf32 getPosZ() const { return mPosition.z; }",
+      "field": "mPosition.z",
+      "call": "getPosZ()"
+    },
     "getVelX": {
       "deltas": {
         "checkWet__6TMarioFv": -8
@@ -170,6 +219,15 @@
       "field": "mVel.x",
       "call": "getVelX()"
     },
+    "getVelY": {
+      "deltas": {
+        "checkWet__6TMarioFv": -8,
+        "checkGraffitoFire__6TMarioFv": -8
+      },
+      "header": "\tf32 getVelY() const { return mVel.y; }",
+      "field": "mVel.y",
+      "call": "getVelY()"
+    },
     "getVelZ": {
       "deltas": {
         "checkWet__6TMarioFv": -8
@@ -177,6 +235,23 @@
       "header": "\tf32 getVelZ() const { return mVel.z; }",
       "field": "mVel.z",
       "call": "getVelZ()"
+    },
+    "getFaceY": {
+      "deltas": {
+        "playerControl__6TMarioFPQ26JDrama9TGraphics": -16,
+        "thinkYoshiHeadCollision__6TMarioFv": -8,
+        "thinkParams__6TMarioFv": -8,
+        "checkCurrentPlane__6TMarioFv": -24,
+        "checkRideMovement__6TMarioFv": -8,
+        "checkGraffitoFire__6TMarioFv": -8,
+        "checkController__6TMarioFPQ26JDrama9TGraphics": -8,
+        "setStatusToJumping__6TMarioFUlUl": -16,
+        "changePlayerJumping__6TMarioFUlUl": -16,
+        "changePlayerTriJump__6TMarioFv": -16
+      },
+      "header": "\ts16 getFaceY() const { return mFaceAngle.y; }",
+      "field": "mFaceAngle.y",
+      "call": "getFaceY()"
     },
     "getUnk12C": {
       "deltas": {
