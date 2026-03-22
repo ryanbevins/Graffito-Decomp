@@ -3718,13 +3718,8 @@ void TMario::checkWet()
 	const TBGCheckData* check;
 	f32 posZ = mPosition.z;
 	f32 posX = mPosition.x;
-	f32 groundY =
-	    gpMap->checkGround(posX, 320.0f + mPosition.y, posZ, &check);
-
-	if (check->isMarioThrough()) {
-		groundY =
-		    gpMap->checkGround(posX, groundY - 1.0f, posZ, &check);
-	}
+	f32 groundY;
+	checkGroundPlane(posX, 320.0f + mPosition.y, posZ, &groundY, &check);
 
 	u16 bgType = check->mBGType;
 	u8 isWater;
@@ -3751,7 +3746,7 @@ void TMario::checkWet()
 	if (unk362 & 7)
 		return;
 
-	TWaterEmitInfo* emitInfo = (TWaterEmitInfo*)*(u32*)((u8*)this + 0x158);
+	TWaterEmitInfo* emitInfo = unk158;
 	*(JGeometry::TVec3<f32>*)((u8*)emitInfo + 0x70) = mPosition;
 	*(f32*)((u8*)emitInfo + 0x74) += 5.0f;
 
