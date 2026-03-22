@@ -2259,7 +2259,7 @@ void TMario::checkRideMovement()
 	    checkWallPlane(&pos, 10.0f, *(f32*)((u8*)this + 0x15C));
 
 	TLiveActor* groundActor =
-	    (TLiveActor*)mGroundPlane->mActor;
+	    *(TLiveActor**)((u8*)mGroundPlane + 0x44);
 
 	if (groundActor != 0) {
 		u8 actionBit;
@@ -2859,7 +2859,7 @@ void TMario::thinkParams()
 			u8 belowThreshold;
 			if (!nonZero) {
 				belowThreshold = 0;
-			} else if (*(f32*)((u8*)this + 0x170)
+			} else if (unk160[1].y
 			           < mFloorPosition.z - mSwimParams.mCanBreathDepth.get()) {
 				belowThreshold = 1;
 			} else {

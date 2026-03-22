@@ -1436,8 +1436,9 @@ public:
 	/* 0x12C */ u32 unk12C;
 	/* 0x130 */ u32 unk130;
 	/* 0x134 */ f32 unk134; // Amount of dirty?
-	/* 0x138 */ u32 unk138;
-	/* 0x13C */ u32 unk13C;
+	/* 0x138 */ f32 unk138; // braking start value
+	/* 0x13C */ s16 unk13C; // dirty timer
+	/* 0x13E */ u16 unk13E;
 	/* 0x140 */ u32 unk140;
 	/* 0x144 */ u32 unk144;
 	/* 0x148 */ u32 unk148;
