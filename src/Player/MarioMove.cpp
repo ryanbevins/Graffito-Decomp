@@ -3613,7 +3613,6 @@ void TMario::thinkSituation()
 void TMario::getOffYoshi(bool knockedOff)
 {
 	mInput &= ~0x8000;
-	mWaterGun->hasWater();
 	if (knockedOff) {
 		changePlayerStatus(0x89C, 0, false);
 		mYoshi->getOff(true);
