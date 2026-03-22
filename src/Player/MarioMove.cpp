@@ -440,8 +440,8 @@ void TMario::setPlayerVelocity(f32 speed)
 
 void TMario::setNormalAttackArea()
 {
-	setAttackRadius(mDeParams.mHoldRadius.value);
-	setAttackHeight(mDeParams.mAttackHeight.value);
+	setAttackRadius(mDeParams.mHoldRadius.get());
+	setAttackHeight(mDeParams.mAttackHeight.get());
 }
 
 BOOL TMario::canBendBody()
@@ -456,7 +456,7 @@ BOOL TMario::canBendBody()
 
 void TMario::checkThrowObject()
 {
-	if (mModel->unkC->checkPass(4.0f)) {
+	if (mModel->getFrameCtrl(0).checkPass(4.0f)) {
 		startVoice(0x788F);
 		dropObject();
 	}
@@ -482,7 +482,7 @@ BOOL TMario::checkGroundPlane(f32 x, f32 y, f32 z, f32* outHeight,
 	}
 
 	u8 isWall;
-	if ((*outPlane)->mFlags & 0x10)
+	if ((*outPlane)->getFlags() & 0x10)
 		isWall = 1;
 	else
 		isWall = 0;
@@ -2126,13 +2126,9 @@ f32 TMario::getJumpAccelControl() const
 f32 TMario::getJumpSlideControl() const
 {
 	if (mAction == 0x892)
-		return mWireParams.mWireJumpSlideControl.value;
+		return mWireParams.mWireJumpSlideControl.get();
 
-	u8 riding = 0;
-	if (mYoshi != NULL) {
-		if (mYoshi->onYoshi())
-			riding = 1;
-	}
+	u8 riding = onYoshi();
 
 	if (riding) {
 		u8 fluttering;
@@ -2142,10 +2138,10 @@ f32 TMario::getJumpSlideControl() const
 			fluttering = 0;
 
 		if (fluttering)
-			return mYoshiParams.mHoldOutSldCtrl.value;
+			return mYoshiParams.mHoldOutSldCtrl.get();
 	}
 
-	return mJumpParams.mJumpSlideControl.value;
+	return mJumpParams.mJumpSlideControl.get();
 }
 
 BOOL TMario::considerRotateJumpStart()
@@ -3617,12 +3613,13 @@ void TMario::thinkSituation()
 void TMario::getOffYoshi(bool knockedOff)
 {
 	mInput &= ~0x8000;
+	mWaterGun->hasWater();
 	if (knockedOff) {
 		changePlayerStatus(0x89C, 0, false);
 		mYoshi->getOff(true);
 	} else {
 		changePlayerStatus(0x883, 0, false);
-		mVel.y = mJumpParams.mGetOffYoshiY.value;
+		mVel.y = mJumpParams.mGetOffYoshiY.get();
 		mYoshi->getOff(false);
 	}
 	setAnimation(0x4D, 1.0f);
@@ -3633,7 +3630,7 @@ void TMario::getOffYoshi(bool knockedOff)
 	normalizeNozzle();
 	TWaterGun* gun = mWaterGun;
 	TNozzleBase* nozzle = gun->getCurrentNozzle();
-	*(s32*)((u8*)gun + 0x1C80) = *(s32*)((u8*)nozzle + 0xCC);
+	gun->mCurrentWater = nozzle->mEmitParams.mAmountMax.value;
 }
 
 void TMario::thinkYoshiHeadCollision()
