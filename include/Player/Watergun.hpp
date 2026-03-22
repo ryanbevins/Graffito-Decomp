@@ -158,6 +158,9 @@ public:
 	TNozzleBase* getNozzle(u8 index) { return mNozzleList[index]; }
 
 	// Fabricated
+	u8 getCurrentNozzleType() const { return mCurrentNozzle; }
+
+	// Fabricated
 	bool hasWater() const { return mCurrentWater > 0; }
 
 	// Fabricated

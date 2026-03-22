@@ -2169,17 +2169,17 @@ BOOL TMario::considerRotateJumpStart()
 BOOL TMario::canSquat() const
 {
 	u8 hasFludd;
-	if (mState & 0x8000)
+	if (getState() & 0x8000)
 		hasFludd = 1;
 	else
 		hasFludd = 0;
 
 	if (hasFludd) {
-		if (mWaterGun != NULL) {
-			TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-			if (*(u8*)((u8*)nozzle + 0x18) != 1) {
-				if ((s32)mWaterGun->mCurrentNozzle != 5) {
-					if (mInput & 0x200) {
+		if (getWaterGun() != NULL) {
+			TNozzleBase* nozzle = getWaterGun()->getCurrentNozzle();
+			if (nozzle->mEmitParams.mRocketType.get() != 1) {
+				if ((s32)getWaterGun()->getCurrentNozzleType() != 5) {
+					if (getInput() & 0x200) {
 						return true;
 					}
 				}
@@ -2995,7 +2995,7 @@ void TMario::thinkWaterSurface()
 	mState &= ~0x20000;
 
 	// Check if ground plane is a pool type
-	u16 bgType = mGroundPlane->mBGType;
+	u16 bgType = mGroundPlane->getBGType();
 	u8 isPool;
 	if (bgType == BG_TYPE_POOL || bgType == BG_TYPE_INDOOR_POOL
 	    || bgType == BG_TYPE_SHADED_POOL)
@@ -3620,17 +3620,17 @@ void TMario::getOffYoshi(bool knockedOff)
 	mInput &= ~0x8000;
 	if (knockedOff) {
 		changePlayerStatus(0x89C, 0, false);
-		mYoshi->getOff(true);
+		getYoshi()->getOff(true);
 	} else {
 		changePlayerStatus(0x883, 0, false);
 		mVel.y = mJumpParams.mGetOffYoshiY.get();
-		mYoshi->getOff(false);
+		getYoshi()->getOff(false);
 	}
 	setAnimation(0x4D, 1.0f);
 	unk78 &= ~0x100;
 	mPosition.y += 100.0f;
 	mForwardVel = -8.0f;
-	mWaterGun->changeNozzle(TWaterGun::Hover, true);
+	getWaterGun()->changeNozzle(TWaterGun::Hover, true);
 	normalizeNozzle();
 	TWaterGun* gun = mWaterGun;
 	TNozzleBase* nozzle = gun->getCurrentNozzle();
@@ -4231,7 +4231,7 @@ const TBGCheckData* TMario::checkWallPlane(Vec* pos, f32 height, f32 radius)
 		int numWalls = record.mResultWallsNum;
 		for (int i = 0; i < numWalls; i++) {
 			TBGCheckData* wall = record.mResultWalls[i];
-			if (wall->mActor == mRidingActor) {
+			if (wall->mActor == getRidingActor()) {
 				result = wall;
 				break;
 			}

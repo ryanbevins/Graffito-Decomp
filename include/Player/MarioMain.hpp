@@ -1299,6 +1299,13 @@ public:
 	u32 getPrevAction() const { return mPrevAction; }
 	u32 getSoundFlags() const { return mSoundFlags; }
 	u32 getAction() const { return mAction; }
+	u32 getState() const { return mState; }
+	u32 getInput() const { return mInput; }
+	TWaterGun* getWaterGun() const { return mWaterGun; }
+	TLiveActor* getRidingActor() const { return mRidingActor; }
+	TYoshi* getYoshi() const { return mYoshi; }
+	f32 getForwardVel() const { return mForwardVel; }
+	s16 getSlopeAngle() const { return mSlopeAngle; }
 
 	// fabricated
 	bool isTouchGround4cm() const
