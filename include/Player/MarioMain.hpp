@@ -1429,8 +1429,10 @@ public:
 
 	/* 0x122 */ u16 unk122;
 
-	/* 0x124 */ u32 unk124;
-	/* 0x128 */ u32 unk128;
+	/* 0x124 */ u16 unk124;
+	/* 0x126 */ u16 unk126; // sunburn counter
+	/* 0x128 */ s16 unk128_s16; // sunburn timer
+	/* 0x12A */ u16 unk12A;
 	/* 0x12C */ u32 unk12C;
 	/* 0x130 */ u32 unk130;
 	/* 0x134 */ f32 unk134; // Amount of dirty?

@@ -378,10 +378,13 @@ BOOL TMario::changePlayerStatus(u32 status, u32 arg, bool force)
 		else
 			speed = 8.0f;
 
-		if (status == 0x04000440) {
+		switch (status) {
+		case 0x04000440: {
 			if (0.0f <= mForwardVel && mForwardVel < speed)
 				mForwardVel = speed;
-		} else if (status == 0x50) {
+			break;
+		}
+		case 0x50: {
 			u8 facing = 0;
 			s16 angleDiff = (s16)(mSlopeAngle - mFaceAngle.y);
 			if (angleDiff > -16384 && angleDiff < 16384)
@@ -393,6 +396,8 @@ BOOL TMario::changePlayerStatus(u32 status, u32 arg, bool force)
 				status = 0x00840453;
 
 			startVoice(0x78CF);
+			break;
+		}
 		}
 		break;
 	}
@@ -1758,7 +1763,7 @@ void TMario::checkGraffito()
 {
 	// Early exit: ground plane has graffito flag
 	u8 hasGrafFlag;
-	if (mGroundPlane->mFlags & 0x10)
+	if (mGroundPlane->getFlags() & 0x10)
 		hasGrafFlag = 1;
 	else
 		hasGrafFlag = 0;
@@ -1953,7 +1958,7 @@ void TMario::checkGraffito()
 
 	unk360 = footTimer - 1;
 
-	s16 halfDuration = mDeParams.mFootPrintTimerMax.get();
+	s16 halfDuration = mDeParams.mFootPrintTimerMax.value;
 	halfDuration = halfDuration / 2;
 	if (unk360 <= halfDuration)
 		return;
@@ -2861,7 +2866,7 @@ void TMario::thinkParams()
 				belowThreshold = 0;
 			}
 			if (!belowThreshold) {
-				u16 bgType = *(u16*)((u8*)mWaterFloor);
+				u16 bgType = mWaterFloor->mBGType;
 				u8 isWaterGround;
 				if (bgType == 0x0B || bgType == 0x800B || bgType == 0x103
 				    || bgType == 0x101)
@@ -2885,7 +2890,7 @@ void TMario::thinkParams()
 							actionBit = 0;
 
 						if (!actionBit) {
-							s16 data = mWaterFloor->mData;
+							s16 data = mWaterFloor->getData();
 							TEParams* params;
 							switch (data) {
 							case 0: params = (TEParams*)((u8*)this + 0x3BD4); break;
@@ -2907,11 +2912,11 @@ void TMario::thinkParams()
 			}
 
 			// resetCounters
-			*(u16*)((u8*)this + 0x126) = 0;
-			*(s16*)((u8*)this + 0x128) = mDeParams.mHotTimer.get();
+			unk126 = 0;
+			unk128_s16 = mDeParams.mHotTimer.get();
 		} else {
 			// capBranch
-			TMarioCap* cap = *(TMarioCap**)((u8*)this + 0x3E0);
+			TMarioCap* cap = mCap;
 			if (cap != 0) {
 				u8 hatOn;
 				if (*(u16*)((u8*)cap + 4) & 1)
@@ -2919,19 +2924,19 @@ void TMario::thinkParams()
 				else
 					hatOn = 0;
 				if (!hatOn) {
-					*(u16*)((u8*)this + 0x126) = *(u16*)((u8*)this + 0x126) + 1;
-					if ((u16)*(u16*)((u8*)this + 0x126)
-					    > (s16)*(s16*)((u8*)this + 0x128)) {
+					unk126 = unk126 + 1;
+					if ((u16)unk126
+					    > (s16)unk128_s16) {
 						decHP(1);
 						if (gpMSound->gateCheck(0x480C)) {
 							MSoundSESystem::MSoundSE::startSoundSystemSE(
 							    0x480C, 0, (JAISound**)0, 0);
 						}
 
-						*(s16*)((u8*)this + 0x128) = mDeParams.mHotTimer.get();
-						*(u16*)((u8*)this + 0x126) = 0;
+						unk128_s16 = mDeParams.mHotTimer.get();
+						unk126 = 0;
 						rumbleStart(20, mMotorParams.mMotorWall.get());
-						*(u16*)&unk14C = (int)*(f32*)((u8*)this + 0x55C);
+						*(u16*)&unk14C = (int)unk55C;
 					}
 				}
 			}
@@ -2939,11 +2944,11 @@ void TMario::thinkParams()
 		}
 	}
 	{
-		const TBGCheckData* ground = mGroundPlane;
+		const TBGCheckData* ground = getGroundPlane();
 		if (ground != 0) {
-			const TLiveActor* actor = ground->mActor;
+			const TLiveActor* actor = ground->getActor();
 			if (actor != 0) {
-				if (*(u32*)((u8*)actor + 0x4C) == 0x400002C7) {
+				if (actor->getActorType() == 0x400002C7) {
 					emitFootPrintWithEffect(-1, 66);
 				}
 			}
@@ -3648,8 +3653,10 @@ void TMario::thinkYoshiHeadCollision()
 
 	f32 headOffset = mYoshiParams.mHeadFront.get();
 	u32 angleIdx   = static_cast<u16>(mFaceAngle.y) >> jmaSinShift;
-	tempPos.x += jmaSinTable[angleIdx] * headOffset;
-	tempPos.z += jmaCosTable[angleIdx] * headOffset;
+	f32 sinVal = jmaSinTable[angleIdx];
+	tempPos.x += sinVal * headOffset;
+	f32 cosVal = jmaCosTable[angleIdx];
+	tempPos.z += cosVal * headOffset;
 
 	TBGWallCheckRecord wallCheck;
 	wallCheck.mCenter.x = tempPos.x;
@@ -3666,11 +3673,9 @@ void TMario::thinkYoshiHeadCollision()
 	f32 dz    = wallCheck.mCenter.z - savedZ;
 	f32 dx    = wallCheck.mCenter.x - tempPos.x;
 	f32 distSq = dz * dz + dx * dx;
-	f32 dist;
+	f32 dist = distSq;
 	if (distSq > 0.0f)
 		dist = sqrtf(distSq);
-	else
-		dist = distSq;
 
 	f32 pushDist = dist;
 	if (dist <= 0.0f)
@@ -3794,14 +3799,13 @@ void TMario::checkEnforceJump()
 		return;
 
 	gpMSound->startForceJumpSound((Vec*)&mPosition, *(u32*)((u8*)this + 0x4E8),
-	                              0.0f, (u32)*(s16*)((u8*)mGroundPlane + 2));
+	                              0.0f, (u32)mGroundPlane->getData());
 	startVoice(0x78B9);
 	changePlayerStatus(0x884, 0, false);
 	rumbleStart(0x15, mMotorParams.mMotorWall.get());
 
-	TLiveActor* groundActor = (TLiveActor*)mGroundPlane->mActor;
-	if (groundActor != NULL) {
-		((THitActor*)groundActor)->receiveMessage((THitActor*)this, 0);
+	if (mGroundPlane->mActor != NULL) {
+		((THitActor*)mGroundPlane->mActor)->receiveMessage((THitActor*)this, 0);
 	}
 }
 
@@ -3880,7 +3884,7 @@ BOOL TMario::checkStickRotate(int* outDirection)
 	int decreasing = 0;
 	int count      = unk534;
 
-	int q[4];
+	volatile int q[4];
 	for (int i = 0; i < count - 1; i++) {
 		s16 angle = unk530[i];
 		f32 val   = (f32)angle;
