@@ -427,8 +427,7 @@ void TMario::throwMario(const JGeometry::TVec3<f32>& throwVec, f32 speed)
 	mFaceAngle.y = matan(dirZ, dir.x) + 0x8000;
 	mModelFaceAngle = mFaceAngle.y;
 
-	f32 hMagSq = dir.x * dir.x + dirZ * dirZ;
-	f32 hMag = std::sqrtf(hMagSq);
+	f32 hMag = std::sqrtf(dir.x * dir.x + dirZ * dirZ);
 
 	mForwardVel = speed * -hMag;
 	mVel.y = dir.y * speed;
@@ -4231,7 +4230,8 @@ const TBGCheckData* TMario::checkWallPlane(Vec* pos, f32 height, f32 radius)
 				result = wall;
 				break;
 			}
-			f32 dist = wall->getNormal().y * pos->y + wall->getNormal().x * pos->x
+			f32 dist = wall->getNormal().y * pos->y
+			           + wall->getNormal().x * pos->x
 			           + wall->getNormal().z * pos->z + wall->getPlaneDistance();
 			if (dist < 0.0f)
 				dist = -dist;
