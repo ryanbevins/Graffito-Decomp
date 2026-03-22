@@ -123,6 +123,8 @@ public:
 	bool checkFlag(u32 flag) const { return mFlags & flag ? true : false; }
 	// fabricated
 	u16 getFlags() const { return mFlags; }
+	// fabricated
+	u16 getBGType() const { return mBGType; }
 
 	bool isLegal() const
 	{

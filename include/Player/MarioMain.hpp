@@ -1296,6 +1296,9 @@ public:
 	// fabricated
 	f32 getIntendedMag() const { return mIntendedMag; }
 	f32 getIntendedYaw() const { return mIntendedYaw * (360.0f / 65536.0f); }
+	u32 getPrevAction() const { return mPrevAction; }
+	u32 getSoundFlags() const { return mSoundFlags; }
+	u32 getAction() const { return mAction; }
 
 	// fabricated
 	bool isTouchGround4cm() const
@@ -1383,7 +1386,8 @@ public:
 	/* 0x9A */ s16 mModelFaceAngle;
 	/* 0x9C */ s16 unk9C;
 	/* 0x9E */ s16 mSlideAngle; // direction of sliding velocity (from matan(velZ, velX))
-	/* 0xA0 */ u32 unkA0;
+	/* 0xA0 */ s16 unkA0; // dizzy timer
+	/* 0xA2 */ s16 unkA2;
 	/* 0xA4 */ JGeometry::TVec3<f32> mVel;
 
 	/* 0xB0 */ f32 mForwardVel;
@@ -1413,11 +1417,11 @@ public:
 
 	/* 0x100 */ s16 unk100;
 	/* 0x102 */ s16 unk102;
-	/* 0x104 */ void* mController; // TMarioControllerWork
+	/* 0x104 */ f32 unk104; // jump start Y position
 
 	/* 0x108 */ u32 unk108;
-	/* 0x10C */ u32 unk10C;
-	/* 0x110 */ u32 unk110;
+	/* 0x10C */ f32 unk10C; // analog L interpolated
+	/* 0x110 */ f32 unk110; // analog R interpolated
 
 	/* 0x114 */ u16 mSubState;
 	/* 0x116 */ u16 mSubStateTimer;
@@ -1433,8 +1437,8 @@ public:
 	/* 0x126 */ u16 unk126; // sunburn counter
 	/* 0x128 */ s16 unk128_s16; // sunburn timer
 	/* 0x12A */ u16 unk12A;
-	/* 0x12C */ u32 unk12C;
-	/* 0x130 */ u32 unk130;
+	/* 0x12C */ f32 unk12C; // air supply
+	/* 0x130 */ f32 unk130; // max air supply
 	/* 0x134 */ f32 unk134; // Amount of dirty?
 	/* 0x138 */ f32 unk138; // braking start value
 	/* 0x13C */ s16 unk13C; // dirty timer
@@ -1450,9 +1454,9 @@ public:
 	/* 0x15C */ f32 unk15C;
 	/* 0x160 */ JGeometry::TVec3<f32>
 	    unk160[4]; // Bone position, probably larger array
-	/* 0x190 */ u32 unk190;
-	/* 0x194 */ u32 unk194;
-	/* 0x198 */ u32 unk198;
+	/* 0x190 */ f32 unk190;
+	/* 0x194 */ f32 unk194;
+	/* 0x198 */ f32 unk198;
 	/* 0x19C */ JGeometry::TVec3<f32> unk19C; // damage pos
 	/* 0x1A8 */ char unk1A8[0x1C0 - 0x1A8];
 	/* 0x1C0 */ Mtx mJointMtx0;  // joint matrix 0 (prev root)
@@ -1485,8 +1489,8 @@ public:
 	/* 0x368 */ f32 unk368;
 	/* 0x36C */ f32 unk36C;
 	/* 0x370 */ f32 unk370;
-	/* 0x374 */ u32 unk374;
-	/* 0x378 */ u32 unk378;
+	/* 0x374 */ f32 unk374; // sink gravity velocity
+	/* 0x378 */ f32 unk378; // sink Y offset
 	/* 0x37C */ u16 unk37C;
 	/* 0x37E */ u16 unk37E;
 	/* 0x380 */ u32 mPumpState;    // FLUDD pump phase (0=idle, 1=requested, 2=active, 3=holding)
