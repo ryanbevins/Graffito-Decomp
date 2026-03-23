@@ -2855,10 +2855,8 @@ void TMario::thinkParams()
 				nonZero = 0;
 
 			u8 belowThreshold;
-			if (!nonZero) {
-				belowThreshold = 0;
-			} else if (unk160[1].y
-			           < mFloorPosition.z - mSwimParams.mCanBreathDepth.get()) {
+			if (nonZero
+			    && unk160[1].y < mFloorPosition.z - mSwimParams.mCanBreathDepth.get()) {
 				belowThreshold = 1;
 			} else {
 				belowThreshold = 0;
