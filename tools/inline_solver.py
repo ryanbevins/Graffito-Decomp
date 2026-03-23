@@ -58,6 +58,47 @@ def get_match_percentages(tu_name):
     return matches
 
 
+def get_exact_matches(tu_name):
+    """Count exact byte-matching functions by comparing object files."""
+    orig_obj = f'build/GMSJ01/obj/{tu_name}.o'
+    comp_obj = f'build/GMSJ01/src/{tu_name}.o'
+
+    orig_out = subprocess.run([OBJDUMP, '-d', orig_obj], capture_output=True, text=True, timeout=60).stdout
+    comp_out = subprocess.run([OBJDUMP, '-d', comp_obj], capture_output=True, text=True, timeout=60).stdout
+
+    def extract_functions(text):
+        funcs = {}
+        current = None
+        insns = []
+        for line in text.split('\n'):
+            m = re.match(r'^[0-9a-f]+ <(.+)>:', line)
+            if m:
+                if current:
+                    funcs[current] = insns
+                current = m.group(1)
+                insns = []
+            elif current:
+                # Extract raw bytes
+                bm = re.match(r'\s+[0-9a-f]+:\s+((?:[0-9a-f]{2} )+)', line)
+                if bm:
+                    insns.append(bm.group(1).strip())
+        if current:
+            funcs[current] = insns
+        return funcs
+
+    orig_funcs = extract_functions(orig_out)
+    comp_funcs = extract_functions(comp_out)
+
+    exact = {}
+    for func in orig_funcs:
+        if func in comp_funcs:
+            if orig_funcs[func] == comp_funcs[func]:
+                exact[func] = True
+            else:
+                exact[func] = False
+    return exact
+
+
 def build():
     subprocess.run(['python', 'configure.py'], capture_output=True, text=True, timeout=30)
     r = subprocess.run(['python', '-m', 'ninja'], capture_output=True, text=True, timeout=60)
@@ -310,8 +351,9 @@ def replace_reads(source, field, accessor):
 # TESTING ENGINE
 # ============================================================
 
-def test_candidate(tu_name, src_file, header_file, candidate, baseline_frames, baseline_matches):
-    """Test a candidate. Returns (stack_deltas, match_deltas, regressions) or None."""
+def test_candidate(tu_name, src_file, header_file, candidate,
+                   baseline_frames, baseline_exact):
+    """Test a candidate. Returns result dict or None on build failure."""
     with open(src_file) as f:
         src_orig = f.read()
     with open(header_file) as f:
@@ -332,7 +374,7 @@ def test_candidate(tu_name, src_file, header_file, candidate, baseline_frames, b
         # Replace reads
         src, count = replace_reads(src_orig, candidate['field'], candidate['call'])
         if count == 0:
-            return {'stacks': {}, 'matches': {}, 'regressions': [], 'replacements': 0}
+            return {'stacks': {}, 'new_matches': [], 'broken_matches': [], 'replacements': 0}
 
         with open(header_file, 'w') as f:
             f.write(hdr)
@@ -349,22 +391,21 @@ def test_candidate(tu_name, src_file, header_file, candidate, baseline_frames, b
             if func in new_frames and baseline_frames[func] != new_frames[func]:
                 stack_deltas[func] = new_frames[func] - baseline_frames[func]
 
-        # Measure match percentages
-        new_matches = get_match_percentages(tu_name)
-        match_deltas = {}
-        regressions = []
-        for func in baseline_matches:
-            if func in new_matches:
-                delta = new_matches[func] - baseline_matches[func]
-                if abs(delta) > 0.01:
-                    match_deltas[func] = delta
-                    if delta < -0.1:
-                        regressions.append((func, baseline_matches[func], new_matches[func]))
+        # Byte-exact match comparison
+        new_exact = get_exact_matches(tu_name)
+        new_matches = []
+        broken_matches = []
+        for func in baseline_exact:
+            if func in new_exact:
+                if not baseline_exact[func] and new_exact[func]:
+                    new_matches.append(func)
+                elif baseline_exact[func] and not new_exact[func]:
+                    broken_matches.append(func)
 
         return {
             'stacks': stack_deltas,
-            'matches': match_deltas,
-            'regressions': regressions,
+            'new_matches': new_matches,
+            'broken_matches': broken_matches,
             'replacements': count,
         }
 
@@ -394,7 +435,9 @@ def run(tu_name, apply_mode=False):
     # Baselines
     baseline_frames = get_stack_frames(f'build/GMSJ01/src/{tu_name}.o')
     orig_frames = get_stack_frames(f'build/GMSJ01/obj/{tu_name}.o')
-    baseline_matches = get_match_percentages(tu_name)
+    baseline_exact = get_exact_matches(tu_name)
+    n_exact = sum(1 for v in baseline_exact.values() if v)
+    print(f"Baseline: {n_exact} exact matches")
 
     gaps = {}
     for func in orig_frames:
@@ -424,7 +467,7 @@ def run(tu_name, apply_mode=False):
         print(f"  [{i+1:>2}/{len(candidates)}] {cand['name']:<25}", end='', flush=True)
 
         result = test_candidate(tu_name, src_file, header_file, cand,
-                                baseline_frames, baseline_matches)
+                                baseline_frames, baseline_exact)
 
         if result is None:
             print(f" FAILED")
@@ -432,17 +475,17 @@ def run(tu_name, apply_mode=False):
             print(f" (no reads found)")
         else:
             gap_stacks = {f: d for f, d in result['stacks'].items() if f in gaps}
-            improved = [f for f, d in result['matches'].items() if d > 0]
-            regressed = result['regressions']
+            new_m = result['new_matches']
+            broken = result['broken_matches']
 
             parts = []
             if gap_stacks:
                 total_d = sum(abs(d) for d in gap_stacks.values())
                 parts.append(f"-{total_d}b stack in {len(gap_stacks)} funcs")
-            if improved:
-                parts.append(f"+match in {len(improved)}")
-            if regressed:
-                parts.append(f"REGRESS {len(regressed)}!")
+            if new_m:
+                parts.append(f"NEW MATCH: {new_m}")
+            if broken:
+                parts.append(f"BREAKS: {broken}")
 
             if parts:
                 print(f" -> {', '.join(parts)}")
@@ -454,49 +497,61 @@ def run(tu_name, apply_mode=False):
     total_time = time.time() - start
     print(f"\nDone in {total_time:.0f}s ({total_time/len(candidates):.1f}s each)")
 
-    # Filter to useful results (stack improvement with no regressions)
-    useful = {}
-    for name, r in results.items():
-        gap_stacks = {f: d for f, d in r['stacks'].items() if f in gaps}
-        if gap_stacks and not r['regressions']:
-            useful[name] = r
-
+    # Categorize results
+    # Priority 1: produces new MATCH without breaking anything
+    match_makers = {}
+    # Priority 2: closes stack gaps without breaking matches
+    safe = {}
+    # Priority 3: closes gaps but breaks some matches
     risky = {}
+
     for name, r in results.items():
         gap_stacks = {f: d for f, d in r['stacks'].items() if f in gaps}
-        if gap_stacks and r['regressions']:
+        if r['new_matches'] and not r['broken_matches']:
+            match_makers[name] = r
+        elif gap_stacks and not r['broken_matches']:
+            safe[name] = r
+        elif gap_stacks and r['broken_matches']:
             risky[name] = r
 
     print(f"\n{'='*70}")
-    print(f"RESULTS: {len(useful)} safe, {len(risky)} risky")
+    print(f"RESULTS: {len(match_makers)} MATCH-MAKERS, {len(safe)} safe, {len(risky)} risky")
     print(f"{'='*70}")
 
-    for name, r in sorted(useful.items(), key=lambda x: -sum(abs(d) for d in x[1]['stacks'].values())):
+    if match_makers:
+        print(f"\n  *** MATCH-MAKERS (produce new 100% byte-matches!) ***")
+        for name, r in match_makers.items():
+            print(f"\n  {name} -> NEW MATCHES: {r['new_matches']}")
+            gap_stacks = {f: d for f, d in r['stacks'].items() if f in gaps}
+            for func, d in sorted(gap_stacks.items()):
+                print(f"    {func}: stack {d:+d}")
+
+    print(f"\n  --- Safe (stack improvement, no broken matches) ---")
+    for name, r in sorted(safe.items(), key=lambda x: -sum(abs(d) for d in x[1]['stacks'].values())):
         gap_stacks = {f: d for f, d in r['stacks'].items() if f in gaps}
         total_d = sum(abs(d) for d in gap_stacks.values())
-        print(f"\n  {name} (-{total_d}b, {r['replacements']} replacements, no regressions):")
-        for func, d in sorted(gap_stacks.items()):
-            match_d = r['matches'].get(func, 0)
-            match_str = f" match {match_d:+.1f}%" if match_d else ""
-            print(f"    {func}: stack {d:+d}{match_str}")
+        nm = f" +MATCH:{r['new_matches']}" if r['new_matches'] else ""
+        print(f"  {name}: -{total_d}b in {len(gap_stacks)} funcs{nm}")
 
     if risky:
-        print(f"\n  --- RISKY (would cause regressions) ---")
+        print(f"\n  --- Risky (breaks matches) ---")
         for name, r in risky.items():
-            print(f"  {name}: regressions in {[f for f,_,_ in r['regressions']]}")
+            print(f"  {name}: breaks {r['broken_matches']}")
 
-    # Projection
+    # Projection using only match-makers + safe
+    all_good = {**match_makers, **safe}
     combined_stack = {}
-    combined_match = {}
-    for name, r in useful.items():
+    for name, r in all_good.items():
         for func, d in r['stacks'].items():
             if func in gaps:
                 combined_stack[func] = combined_stack.get(func, 0) + d
-        for func, d in r['matches'].items():
-            combined_match[func] = combined_match.get(func, 0) + d
+
+    all_new_matches = set()
+    for name, r in all_good.items():
+        all_new_matches.update(r['new_matches'])
 
     print(f"\n{'='*70}")
-    print(f"PROJECTED (all {len(useful)} safe accessors applied)")
+    print(f"PROJECTED (all {len(all_good)} safe accessors)")
     print(f"{'='*70}")
 
     solved = 0
@@ -505,7 +560,6 @@ def run(tu_name, apply_mode=False):
         g = gaps[func]
         r = combined_stack.get(func, 0)
         new_g = g - r
-        match_imp = combined_match.get(func, 0)
         if new_g == 0:
             print(f"  {func}: SOLVED!")
             solved += 1
@@ -515,8 +569,10 @@ def run(tu_name, apply_mode=False):
             print(f"  {func}: {g} -> {new_g}")
         reduced += min(abs(r), abs(g))
 
-    print(f"\n  Solved: {solved}/{len(gaps)}")
-    print(f"  Reduced: {reduced}/{total_gap} bytes ({100*reduced//total_gap}%)")
+    print(f"\n  Stack solved: {solved}/{len(gaps)}")
+    print(f"  Stack reduced: {reduced}/{total_gap} bytes ({100*reduced//total_gap}%)")
+    if all_new_matches:
+        print(f"  New EXACT matches: {all_new_matches}")
 
     # Cache
     cache = {
@@ -524,23 +580,30 @@ def run(tu_name, apply_mode=False):
         'src_hash': file_hash(src_file),
         'header_hash': file_hash(header_file),
         'gaps': gaps,
-        'useful': {k: {
+        'match_makers': {k: {
             'stacks': v['stacks'],
-            'matches': v['matches'],
+            'new_matches': v['new_matches'],
             'header': v['candidate']['header'],
             'field': v['candidate']['field'],
             'call': v['candidate']['call'],
-            'replacements': v['replacements'],
-        } for k, v in useful.items()},
+        } for k, v in match_makers.items()},
+        'safe': {k: {
+            'stacks': v['stacks'],
+            'header': v['candidate']['header'],
+            'field': v['candidate']['field'],
+            'call': v['candidate']['call'],
+        } for k, v in safe.items()},
     }
     cache_file = f'tools/inline_cache_{tu_name.replace("/", "_")}.json'
     with open(cache_file, 'w') as f:
         json.dump(cache, f, indent=2)
 
-    # Apply mode
-    if apply_mode and useful:
+    # Apply mode - only apply match-makers (guaranteed to produce new matches)
+    to_apply = match_makers if match_makers else (all_good if apply_mode else {})
+
+    if apply_mode and to_apply:
         print(f"\n{'='*70}")
-        print(f"APPLYING {len(useful)} SAFE ACCESSORS")
+        print(f"APPLYING {len(to_apply)} ACCESSORS")
         print(f"{'='*70}")
 
         with open(header_file) as f:
@@ -552,12 +615,12 @@ def run(tu_name, apply_mode=False):
         fab_idx = hdr.find('// Fabricated', tmario_idx)
         pos = hdr.rfind('\n', 0, fab_idx) + 1
         block = '\t// Auto-discovered inline accessors (inline_solver v4)\n'
-        for name, info in useful.items():
+        for name, info in to_apply.items():
             block += info['candidate']['header'] + '\n'
         hdr = hdr[:pos] + block + '\n' + hdr[pos:]
 
         total_rep = 0
-        for name, info in useful.items():
+        for name, info in to_apply.items():
             src, n = replace_reads(src, info['candidate']['field'], info['candidate']['call'])
             total_rep += n
 
