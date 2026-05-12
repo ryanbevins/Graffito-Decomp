@@ -101,7 +101,7 @@ public:
 	s16 getOffsetAngleY() const;
 	void getFinalAngleZ() const;
 	~CPolarSubCamera();
-	void controlByCameraCode_(int*);
+	int controlByCameraCode_(int*);
 	void getLButtonCameraModeByNozzle_();
 	void getCameraInbetweenFrame_(int);
 	void setUpToLButtonCamera_(int);
@@ -131,9 +131,13 @@ public:
 
 public:
 	/* 0x50 */ int mMode;
-	/* 0x54 */ char unk54[0xA4 - 0x54];
+	/* 0x54 */ char unk54[0x70 - 0x54];
+	/* 0x70 */ TCameraMapTool* unk70;
+	/* 0x74 */ char unk74[0xA4 - 0x74];
 	/* 0xA4 */ s16 unkA4;
-	/* 0xA6 */ char unkA6[0x120 - 0xA6];
+	/* 0xA6 */ char unkA6[0xA8 - 0xA6];
+	/* 0xA8 */ f32 unkA8;
+	/* 0xAC */ char unkAC[0x120 - 0xAC];
 	/* 0x120 */ TMarioGamePad* unk120;
 	/* 0x124 */ JGeometry::TVec3<f32> unk124;
 	/* 0x130 */ char unk130[0xC];

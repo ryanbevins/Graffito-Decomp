@@ -9,6 +9,7 @@
 
 class TCubeManagerBase;
 
+extern TCubeManagerBase* gpCubeCamera;
 extern TCubeManagerBase* gpCubeStream;
 extern TCubeManagerBase* gpCubeShadow;
 extern TCubeManagerBase* gpCubeSoundChange;
