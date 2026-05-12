@@ -79,8 +79,8 @@ public:
 	void getToroccoMtx_() const;
 	void setMarioLookat_();
 	JGeometry::TVec3<f32> getUsualLookat() const;
-	void calcAngleXFromXRotRatio_() const;
-	void calcDistFromXRotRatio_() const;
+	s16 calcAngleXFromXRotRatio_() const;
+	f32 calcDistFromXRotRatio_() const;
 	void calcNowTargetFromPosAndAt_(const Vec&, const Vec&);
 	void rotateX_ByStickY_(f32);
 	void rotateY_ByStickX_(f32);
