@@ -68,7 +68,7 @@ public:
 	void getNozzleTopPos_(JGeometry::TVec3<f32>*) const;
 	void ctrlLButtonCamera_();
 	void killHeightPanWhenChangeCamMode_();
-	void isNotHeightPanCamMode_() const;
+	bool isNotHeightPanCamMode_() const;
 	void execHeightPan_();
 	void killHeightPan_();
 
