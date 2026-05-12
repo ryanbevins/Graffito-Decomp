@@ -17,6 +17,12 @@ Patterns detected:
 Usage:
   python tools/code_differ.py Player/MarioMove funcName
   python tools/code_differ.py Player/MarioMove --all
+
+Patterns detected:
+1-7. (original patterns)
+8. INLINED_CALL: Original calls X out-of-line but compiled inlines it
+9. MISSING_CALL: Compiled calls X but original doesn't (should be inlined)
+10. BLOCK_REORDER: Code blocks are reordered vs structurally different
 """
 
 import subprocess
@@ -24,6 +30,8 @@ import re
 import sys
 import os
 import difflib
+import hashlib
+from collections import Counter
 
 OBJDUMP = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                         'build', 'binutils', 'powerpc-eabi-objdump.exe')
@@ -254,8 +262,219 @@ def suggest_fix(diff_type, detail, orig_insn, comp_insn):
         'OPERAND_DIFF': 'Same instruction, different operands. Check constant values and field offsets.',
         'OPCODE_DIFF': 'Different instruction entirely. Structural code difference.',
         'REG_SWAP': 'Both GPR and FPR registers differ. Major register allocation mismatch.',
+        'INLINED_CALL': 'Original calls this function out-of-line but compiled inlines it. Use #pragma dont_inline on/off around the called function, or ensure it is not defined in a header visible to this TU.',
+        'MISSING_CALL': 'Compiled calls this function but original inlines it. Move the function definition into a header visible to this TU, or define it in the same TU so MWCC can inline it.',
     }
     return suggestions.get(diff_type, 'Unknown difference type.')
+
+
+# ============================================================
+# RELOCATION-AWARE DIFFING
+# ============================================================
+
+def parse_relocations(objdump_dr_output, func_name):
+    """Extract relocation entries for a function from `objdump -dr` output.
+
+    Returns a dict with:
+      'calls': list of (offset, target_symbol) for R_PPC_REL24 (bl calls)
+      'data_refs': list of (offset, reloc_type, target_symbol) for addr refs
+    """
+    calls = []
+    data_refs = []
+    in_func = False
+
+    lines = objdump_dr_output.split('\n')
+    last_insn_offset = None
+
+    for line in lines:
+        # Function header: "00000abc <funcName>:"
+        m = re.match(r'^([0-9a-f]+) <(.+)>:', line)
+        if m:
+            if in_func:
+                break  # hit next function
+            if m.group(2) == func_name:
+                in_func = True
+            continue
+
+        if not in_func:
+            continue
+
+        # Empty line ends function
+        if line.strip() == '':
+            break
+
+        # Instruction line
+        m_insn = re.match(r'\s+([0-9a-f]+):\s+((?:[0-9a-f]{2} )+)\s+(\S+)\s*(.*)', line)
+        if m_insn:
+            last_insn_offset = m_insn.group(1)
+            continue
+
+        # Relocation line: "    offset: R_PPC_REL24  symbol_name"
+        # or: "                         offset: R_PPC_ADDR16_HA  symbol_name"
+        m_reloc = re.match(r'\s+([0-9a-f]+):\s+(R_PPC_\S+)\s+(\S+)', line)
+        if m_reloc:
+            rel_offset = m_reloc.group(1)
+            rel_type = m_reloc.group(2)
+            rel_target = m_reloc.group(3)
+
+            if rel_type == 'R_PPC_REL24':
+                calls.append((rel_offset, rel_target))
+            elif rel_type in ('R_PPC_ADDR16_HA', 'R_PPC_ADDR16_LO',
+                              'R_PPC_ADDR16_HI', 'R_PPC_ADDR32'):
+                data_refs.append((rel_offset, rel_type, rel_target))
+
+    return {'calls': calls, 'data_refs': data_refs}
+
+
+def analyze_relocations(tu_name, func_name, verbose=True):
+    """Compare relocations between original and compiled object files.
+
+    Detects:
+      INLINED_CALL: original calls X out-of-line but compiled inlines it
+      MISSING_CALL: compiled calls X but original doesn't (should be inlined)
+
+    Returns list of (diff_type, detail_string) tuples.
+    """
+    orig_o = f'build/GMSJ01/obj/{tu_name}.o'
+    comp_o = f'build/GMSJ01/src/{tu_name}.o'
+
+    try:
+        orig_dr = subprocess.run(
+            [OBJDUMP, '-dr', orig_o],
+            capture_output=True, text=True, timeout=60
+        ).stdout
+        comp_dr = subprocess.run(
+            [OBJDUMP, '-dr', comp_o],
+            capture_output=True, text=True, timeout=60
+        ).stdout
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return []
+
+    orig_relocs = parse_relocations(orig_dr, func_name)
+    comp_relocs = parse_relocations(comp_dr, func_name)
+
+    # Compare call targets (bl instructions via R_PPC_REL24)
+    orig_call_targets = [target for _, target in orig_relocs['calls']]
+    comp_call_targets = [target for _, target in comp_relocs['calls']]
+
+    # Build multisets (a symbol can be called multiple times)
+    orig_counts = Counter(orig_call_targets)
+    comp_counts = Counter(comp_call_targets)
+
+    diffs = []
+
+    # Calls in original but not compiled = we're inlining something that should be out-of-line
+    for sym in sorted(set(orig_counts.keys()) | set(comp_counts.keys())):
+        o_count = orig_counts.get(sym, 0)
+        c_count = comp_counts.get(sym, 0)
+
+        if o_count > c_count:
+            diff = o_count - c_count
+            detail = f'Original calls {sym} {o_count}x but compiled only {c_count}x (inlining {diff} call(s) that should be out-of-line)'
+            diffs.append(('INLINED_CALL', detail))
+        elif c_count > o_count:
+            diff = c_count - o_count
+            detail = f'Compiled calls {sym} {c_count}x but original only {o_count}x ({diff} call(s) should be inlined)'
+            diffs.append(('MISSING_CALL', detail))
+
+    if verbose and diffs:
+        print(f"\n  Relocation diffs:")
+        for dtype, detail in diffs:
+            suggestion = suggest_fix(dtype, detail, None, None)
+            print(f"    [{dtype}] {detail}")
+            print(f"      FIX: {suggestion}")
+
+    return diffs
+
+
+# ============================================================
+# BLOCK-REORDERING DETECTION
+# ============================================================
+
+def split_basic_blocks(insns):
+    """Split an instruction list into basic blocks.
+
+    A new block starts after a branch instruction, or at a branch target.
+    Returns list of lists of Insn.
+    """
+    if not insns:
+        return []
+
+    # Collect branch target offsets
+    branch_targets = set()
+    for insn in insns:
+        if insn.opcode in BRANCHES and insn.operands:
+            # Extract hex target from operands like "0x1234" or "0xabc <label>"
+            m = re.search(r'(?:^|,\s*)([0-9a-f]+)\b', insn.operands)
+            if m:
+                branch_targets.add(m.group(1))
+
+    blocks = []
+    current = []
+
+    for insn in insns:
+        # Start new block if this offset is a branch target (and current block non-empty)
+        if insn.offset in branch_targets and current:
+            blocks.append(current)
+            current = []
+
+        current.append(insn)
+
+        # End block after a branch instruction
+        if insn.opcode in BRANCHES:
+            blocks.append(current)
+            current = []
+
+    if current:
+        blocks.append(current)
+
+    return blocks
+
+
+def hash_block(block):
+    """Hash a basic block by its opcodes only (ignoring registers/operands).
+
+    This allows detecting reordered blocks that have the same structure.
+    """
+    opcodes = ' '.join(insn.opcode for insn in block)
+    return hashlib.md5(opcodes.encode()).hexdigest()
+
+
+def detect_block_reorder(orig_insns, comp_insns):
+    """Detect if compiled code is a permutation of original basic blocks.
+
+    Returns (is_reordered, summary_string) tuple.
+    """
+    if not orig_insns or not comp_insns:
+        return False, ''
+
+    orig_blocks = split_basic_blocks(orig_insns)
+    comp_blocks = split_basic_blocks(comp_insns)
+
+    # If block counts differ significantly, not a simple reorder
+    if len(orig_blocks) != len(comp_blocks):
+        return False, ''
+
+    # Need at least 2 blocks to have a reordering
+    if len(orig_blocks) < 2:
+        return False, ''
+
+    orig_hashes = [hash_block(b) for b in orig_blocks]
+    comp_hashes = [hash_block(b) for b in comp_blocks]
+
+    # Check if it's a permutation (same multiset of hashes)
+    if sorted(orig_hashes) == sorted(comp_hashes) and orig_hashes != comp_hashes:
+        # Find which blocks moved
+        moved = []
+        for i, (oh, ch) in enumerate(zip(orig_hashes, comp_hashes)):
+            if oh != ch:
+                moved.append(i)
+
+        summary = (f'Code blocks appear reordered — likely if/else or branch ordering difference. '
+                   f'{len(moved)} of {len(orig_blocks)} blocks in different positions.')
+        return True, summary
+
+    return False, ''
 
 
 # ============================================================
@@ -338,12 +557,25 @@ def analyze_function(tu_name, func_name, verbose=True):
             print(f"    COMP: {comp_str}")
             print(f"    FIX:  {suggest_fix(dtype, detail, oi, ci)}")
 
+    # Block-reorder detection
+    is_reordered, reorder_summary = detect_block_reorder(orig_insns, comp_insns)
+    if verbose and is_reordered:
+        print(f"\n  [BLOCK_REORDER] {reorder_summary}")
+
+    # Relocation-aware diffing
+    reloc_diffs = analyze_relocations(tu_name, func_name, verbose=verbose)
+    for dtype, detail in reloc_diffs:
+        type_counts[dtype] = type_counts.get(dtype, 0) + 1
+
     return {
         'status': 'DIFFERS',
         'orig_count': len(orig_insns),
         'comp_count': len(comp_insns),
         'diffs': diffs,
         'type_counts': type_counts,
+        'reloc_diffs': reloc_diffs,
+        'block_reorder': is_reordered,
+        'block_reorder_summary': reorder_summary if is_reordered else '',
     }
 
 
@@ -377,9 +609,24 @@ def analyze_all(tu_name):
 
     print(f"\nNon-matching: {len(non_matching)}/{len(all_funcs)}")
 
+    # Get objdump -dr output for relocation analysis
+    try:
+        orig_dr = subprocess.run(
+            [OBJDUMP, '-dr', f'build/GMSJ01/obj/{tu_name}.o'],
+            capture_output=True, text=True, timeout=60
+        ).stdout
+        comp_dr = subprocess.run(
+            [OBJDUMP, '-dr', f'build/GMSJ01/src/{tu_name}.o'],
+            capture_output=True, text=True, timeout=60
+        ).stdout
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        orig_dr = ''
+        comp_dr = ''
+
     # Aggregate all diff types across all functions
     global_types = {}
     actionable = []
+    block_reordered = []
 
     for func in non_matching:
         orig = parse_function(orig_out, func)
@@ -400,9 +647,34 @@ def analyze_all(tu_name):
             type_counts[d] = type_counts.get(d, 0) + 1
             global_types[d] = global_types.get(d, 0) + 1
 
+        # Relocation analysis (inline vs out-of-line call mismatches)
+        if orig_dr and comp_dr:
+            orig_relocs = parse_relocations(orig_dr, func)
+            comp_relocs = parse_relocations(comp_dr, func)
+
+            orig_call_counts = Counter(t for _, t in orig_relocs['calls'])
+            comp_call_counts = Counter(t for _, t in comp_relocs['calls'])
+
+            for sym in sorted(set(orig_call_counts.keys()) | set(comp_call_counts.keys())):
+                o_count = orig_call_counts.get(sym, 0)
+                c_count = comp_call_counts.get(sym, 0)
+                if o_count > c_count:
+                    dtype = 'INLINED_CALL'
+                    type_counts[dtype] = type_counts.get(dtype, 0) + (o_count - c_count)
+                    global_types[dtype] = global_types.get(dtype, 0) + (o_count - c_count)
+                elif c_count > o_count:
+                    dtype = 'MISSING_CALL'
+                    type_counts[dtype] = type_counts.get(dtype, 0) + (c_count - o_count)
+                    global_types[dtype] = global_types.get(dtype, 0) + (c_count - o_count)
+
+        # Block-reorder detection
+        is_reordered, reorder_summary = detect_block_reorder(orig, comp)
+        if is_reordered:
+            block_reordered.append((func, reorder_summary))
+
         # Determine if actionable
         fixable_types = {'SIGN_MISMATCH', 'TYPE_NARROW_COMP', 'EXTRA_NARROW_COMP',
-                         'BRANCH_FLIP', 'FABS_MISSING'}
+                         'BRANCH_FLIP', 'FABS_MISSING', 'INLINED_CALL', 'MISSING_CALL'}
         fixable = set(type_counts.keys()) & fixable_types
         if fixable:
             actionable.append((func, type_counts, fixable))
@@ -424,7 +696,384 @@ def analyze_all(tu_name):
             for t in fixable:
                 print(f"    {t}: {counts[t]}x -> {suggest_fix(t, '', None, None)}")
 
+    if block_reordered:
+        print(f"\n{'='*70}")
+        print(f"BLOCK-REORDERED FUNCTIONS ({len(block_reordered)})")
+        print(f"{'='*70}")
+        for func, summary in block_reordered:
+            print(f"\n  {func}:")
+            print(f"    {summary}")
+
     return non_matching, global_types, actionable
+
+
+# ============================================================
+# AUTO-FIX ENGINE
+# ============================================================
+
+def find_function_in_source(src_lines, func_mangled):
+    """Find the source line range for a function."""
+    base = func_mangled.split('__')[0]
+    start = None
+    brace_depth = 0
+
+    for i, line in enumerate(src_lines):
+        if start is None:
+            if re.search(r'\b' + re.escape(base) + r'\s*\(', line):
+                if '{' in line or (i + 1 < len(src_lines) and '{' in src_lines[i + 1]):
+                    start = i
+                    brace_depth = line.count('{') - line.count('}')
+                    continue
+        else:
+            brace_depth += line.count('{') - line.count('}')
+            if brace_depth <= 0:
+                return start, i
+
+    return None, None
+
+
+def build():
+    subprocess.run(['python', 'configure.py'], capture_output=True, text=True, timeout=30)
+    r = subprocess.run(['python', '-m', 'ninja'], capture_output=True, text=True, timeout=60)
+    return r.returncode == 0
+
+
+def get_exact_match_count(tu_name):
+    """Count exact byte-matching functions."""
+    orig_out = subprocess.run([OBJDUMP, '-d', f'build/GMSJ01/obj/{tu_name}.o'],
+                              capture_output=True, text=True, timeout=60).stdout
+    comp_out = subprocess.run([OBJDUMP, '-d', f'build/GMSJ01/src/{tu_name}.o'],
+                              capture_output=True, text=True, timeout=60).stdout
+
+    orig_funcs = {}
+    comp_funcs = {}
+
+    for output, store in [(orig_out, orig_funcs), (comp_out, comp_funcs)]:
+        cur = None
+        for line in output.split('\n'):
+            m = re.match(r'^[0-9a-f]+ <(.+)>:', line)
+            if m:
+                cur = m.group(1)
+                store[cur] = []
+            elif cur:
+                bm = re.match(r'\s+[0-9a-f]+:\s+((?:[0-9a-f]{2} )+)', line)
+                if bm:
+                    store[cur].append(bm.group(1).strip())
+
+    count = 0
+    for func in orig_funcs:
+        if func in comp_funcs and orig_funcs[func] == comp_funcs[func]:
+            count += 1
+    return count
+
+
+def get_func_diff_count(tu_name, func_name):
+    """Count differing bytes for a specific function."""
+    orig_out = subprocess.run([OBJDUMP, '-d', f'build/GMSJ01/obj/{tu_name}.o'],
+                              capture_output=True, text=True, timeout=60).stdout
+    comp_out = subprocess.run([OBJDUMP, '-d', f'build/GMSJ01/src/{tu_name}.o'],
+                              capture_output=True, text=True, timeout=60).stdout
+
+    orig = parse_function(orig_out, func_name)
+    comp = parse_function(comp_out, func_name)
+
+    if not orig or not comp:
+        return 999
+
+    if len(orig) != len(comp):
+        return abs(len(orig) - len(comp)) + \
+               sum(1 for a, b in zip(orig[:min(len(orig), len(comp))],
+                                      comp[:min(len(orig), len(comp))]) if a.raw != b.raw)
+
+    return sum(1 for a, b in zip(orig, comp) if a.raw != b.raw)
+
+
+def try_sign_fix(tu_name, src_file, func_name, diffs):
+    """Try fixing SIGN_MISMATCH by changing s16 <-> u16, s32 <-> u32."""
+    with open(src_file) as f:
+        original = f.read()
+
+    src_lines = original.split('\n')
+    func_start, func_end = find_function_in_source(src_lines, func_name)
+    if func_start is None:
+        return False
+
+    baseline = get_func_diff_count(tu_name, func_name)
+
+    # For each SIGN_MISMATCH diff, look for the variable type
+    sign_diffs = [d for d in diffs if d[0] == 'SIGN_MISMATCH']
+    if not sign_diffs:
+        return False
+
+    # Try type swaps in the function region
+    type_swaps = [
+        ('s16', 'u16'), ('u16', 's16'),
+        ('s32', 'u32'), ('u32', 's32'),
+        ('s8', 'u8'), ('u8', 's8'),
+    ]
+
+    best_content = None
+    best_diffs = baseline
+
+    for old_type, new_type in type_swaps:
+        modified = original
+        # Only modify within the function
+        for i in range(func_start, func_end + 1):
+            line = src_lines[i]
+            # Match type declarations: "s16 varName" or "(s16)" casts
+            new_line = re.sub(r'\b' + old_type + r'\b', new_type, line)
+            if new_line != line:
+                modified = modified.replace(line, new_line, 1)
+
+        if modified == original:
+            continue
+
+        with open(src_file, 'w') as f:
+            f.write(modified)
+
+        if build():
+            new_diffs = get_func_diff_count(tu_name, func_name)
+            if new_diffs < best_diffs:
+                print(f"      IMPROVED: {old_type}->{new_type}: {baseline}->{new_diffs} diffs")
+                best_diffs = new_diffs
+                best_content = modified
+
+    if best_content and best_diffs < baseline:
+        with open(src_file, 'w') as f:
+            f.write(best_content)
+        build()
+        return True
+
+    # Revert
+    with open(src_file, 'w') as f:
+        f.write(original)
+    return False
+
+
+def try_branch_flip_fix(tu_name, src_file, func_name, diffs):
+    """Try fixing BRANCH_FLIP by swapping if/else blocks."""
+    with open(src_file) as f:
+        original = f.read()
+
+    src_lines = original.split('\n')
+    func_start, func_end = find_function_in_source(src_lines, func_name)
+    if func_start is None:
+        return False
+
+    baseline = get_func_diff_count(tu_name, func_name)
+
+    # Find if/else blocks and try inverting the condition + swapping blocks
+    # Look for simple if (!cond) -> if (cond) inversions
+    improved = False
+    for i in range(func_start, func_end + 1):
+        line = src_lines[i].strip()
+
+        # Simple negation: if (!x) -> if (x) and vice versa
+        m = re.match(r'(\s*)if\s*\(\s*!(.*)\s*\)', src_lines[i])
+        if m:
+            indent = m.group(1)
+            cond = m.group(2).strip()
+            new_line = f'{indent}if ({cond})'
+            old_line = src_lines[i]
+            src_lines[i] = new_line
+
+            test = '\n'.join(src_lines)
+            with open(src_file, 'w') as f:
+                f.write(test)
+
+            if build():
+                new_diffs = get_func_diff_count(tu_name, func_name)
+                if new_diffs < baseline:
+                    print(f"      IMPROVED: negate condition at line {i+1}: {baseline}->{new_diffs} diffs")
+                    baseline = new_diffs
+                    improved = True
+                    continue
+
+            # Revert this attempt
+            src_lines[i] = old_line
+
+        # Also try adding negation: if (x) -> if (!x)
+        m = re.match(r'(\s*)if\s*\(\s*([^!].*)\s*\)', src_lines[i])
+        if m and 'else' not in src_lines[i]:
+            indent = m.group(1)
+            cond = m.group(2).strip()
+            if not cond.startswith('!'):
+                new_line = f'{indent}if (!({cond}))'
+                old_line = src_lines[i]
+                src_lines[i] = new_line
+
+                test = '\n'.join(src_lines)
+                with open(src_file, 'w') as f:
+                    f.write(test)
+
+                if build():
+                    new_diffs = get_func_diff_count(tu_name, func_name)
+                    if new_diffs < baseline:
+                        print(f"      IMPROVED: add negation at line {i+1}: {baseline}->{new_diffs} diffs")
+                        baseline = new_diffs
+                        improved = True
+                        continue
+
+                # Revert
+                src_lines[i] = old_line
+
+    if improved:
+        with open(src_file, 'w') as f:
+            f.write('\n'.join(src_lines))
+        build()
+        return True
+
+    # Revert
+    with open(src_file, 'w') as f:
+        f.write(original)
+    return False
+
+
+def try_type_narrow_fix(tu_name, src_file, func_name, diffs):
+    """Try fixing TYPE_NARROW_COMP by widening variable types (u8->s32, s16->s32)."""
+    with open(src_file) as f:
+        original = f.read()
+
+    src_lines = original.split('\n')
+    func_start, func_end = find_function_in_source(src_lines, func_name)
+    if func_start is None:
+        return False
+
+    baseline = get_func_diff_count(tu_name, func_name)
+
+    # Try widening narrow types to s32/u32
+    widen_map = {
+        'u8': ['s32', 'u32', 'int'],
+        's8': ['s32', 'int'],
+        's16': ['s32', 'int'],
+        'u16': ['u32', 's32'],
+    }
+
+    best_content = None
+    best_diffs = baseline
+
+    for narrow_type, wide_types in widen_map.items():
+        for wide_type in wide_types:
+            modified_lines = src_lines[:]
+            changed = False
+            for i in range(func_start, func_end + 1):
+                line = modified_lines[i].strip()
+                # Only modify LOCAL VARIABLE DECLARATIONS (type varname = ...; or type varname;)
+                # Do NOT modify casts like (u8*), pointer types, or other uses
+                decl_pattern = r'^(\s*)' + narrow_type + r'(\s+\w+\s*[;=])'
+                new_line = re.sub(decl_pattern, r'\1' + wide_type + r'\2', modified_lines[i])
+                if new_line != modified_lines[i]:
+                    modified_lines[i] = new_line
+                    changed = True
+
+            if not changed:
+                continue
+
+            modified = '\n'.join(modified_lines)
+            with open(src_file, 'w') as f:
+                f.write(modified)
+
+            if build():
+                new_diffs = get_func_diff_count(tu_name, func_name)
+                if new_diffs < best_diffs:
+                    print(f"      IMPROVED: {narrow_type}->{wide_type}: {baseline}->{new_diffs} diffs")
+                    best_diffs = new_diffs
+                    best_content = modified
+
+    if best_content and best_diffs < baseline:
+        with open(src_file, 'w') as f:
+            f.write(best_content)
+        build()
+        return True
+
+    with open(src_file, 'w') as f:
+        f.write(original)
+    return False
+
+
+def autofix_function(tu_name, func_name, verbose=True):
+    """Auto-fix actionable diffs in a function."""
+    src_file = f'src/{tu_name}.cpp'
+    result = analyze_function(tu_name, func_name, verbose=False)
+    if not result or result['status'] != 'DIFFERS':
+        return False
+
+    type_counts = result['type_counts']
+    diffs = result['diffs']
+
+    fixable = set(type_counts.keys()) & {'SIGN_MISMATCH', 'TYPE_NARROW_COMP',
+                                          'EXTRA_NARROW_COMP', 'BRANCH_FLIP'}
+    if not fixable:
+        if verbose:
+            short = func_name.split('__')[0]
+            print(f"  {short}: no auto-fixable patterns ({list(type_counts.keys())})")
+        return False
+
+    short = func_name.split('__')[0]
+    print(f"  {short}: trying to fix {fixable}")
+
+    improved = False
+
+    if 'SIGN_MISMATCH' in fixable:
+        if try_sign_fix(tu_name, src_file, func_name, diffs):
+            improved = True
+
+    if 'BRANCH_FLIP' in fixable:
+        if try_branch_flip_fix(tu_name, src_file, func_name, diffs):
+            improved = True
+
+    if 'TYPE_NARROW_COMP' in fixable or 'EXTRA_NARROW_COMP' in fixable:
+        if try_type_narrow_fix(tu_name, src_file, func_name, diffs):
+            improved = True
+
+    return improved
+
+
+def autofix_all(tu_name):
+    """Auto-fix all actionable functions in a TU."""
+    print(f"\n{'='*70}")
+    print(f"AUTO-FIX: {tu_name}")
+    print(f"{'='*70}")
+
+    if not build():
+        print("ERROR: baseline build failed!")
+        return
+
+    baseline_matches = get_exact_match_count(tu_name)
+    print(f"Baseline: {baseline_matches} exact matches")
+
+    non_matching, global_types, actionable = analyze_all(tu_name)
+
+    if not actionable:
+        print("\nNo auto-fixable functions found.")
+        return
+
+    print(f"\n{'='*70}")
+    print(f"ATTEMPTING FIXES ON {len(actionable)} FUNCTIONS")
+    print(f"{'='*70}")
+
+    fixed = 0
+    for func, counts, fixable in actionable:
+        if autofix_function(tu_name, func):
+            # Regression check
+            new_matches = get_exact_match_count(tu_name)
+            if new_matches < baseline_matches:
+                short = func.split('__')[0]
+                print(f"  ** REGRESSION: {short} broke {baseline_matches - new_matches} matches! Reverting...")
+                subprocess.run(['git', 'checkout', '--', f'src/{tu_name}.cpp'],
+                              capture_output=True, text=True)
+                build()
+            else:
+                fixed += 1
+                if new_matches > baseline_matches:
+                    print(f"  ** NEW MATCHES: {baseline_matches} -> {new_matches}")
+                    baseline_matches = new_matches
+
+    final_matches = get_exact_match_count(tu_name)
+    print(f"\n{'='*70}")
+    print(f"RESULTS: {fixed}/{len(actionable)} functions improved")
+    print(f"Matches: {baseline_matches} -> {final_matches}")
+    print(f"{'='*70}")
 
 
 if __name__ == '__main__':
@@ -432,11 +1081,27 @@ if __name__ == '__main__':
         print("Usage:")
         print("  python tools/code_differ.py Player/MarioMove --all")
         print("  python tools/code_differ.py Player/MarioMove functionName")
+        print("  python tools/code_differ.py Player/MarioMove --fix        # auto-fix all")
+        print("  python tools/code_differ.py Player/MarioMove funcName --fix")
         sys.exit(1)
 
     tu = sys.argv[1]
+    fix_mode = '--fix' in sys.argv
 
-    if '--all' in sys.argv:
+    if fix_mode:
+        target = None
+        for arg in sys.argv[2:]:
+            if not arg.startswith('--'):
+                target = arg
+                break
+        if target:
+            if not build():
+                print("Build failed!")
+                sys.exit(1)
+            autofix_function(tu, target)
+        else:
+            autofix_all(tu)
+    elif '--all' in sys.argv:
         analyze_all(tu)
     elif len(sys.argv) >= 3 and not sys.argv[2].startswith('--'):
         analyze_function(tu, sys.argv[2])

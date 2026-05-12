@@ -136,7 +136,7 @@ void TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 				else { u8 w; if (bg == 0x09 || bg == 0x8009) w = 1; else w = 0; if (w) shouldCatch = 0; }
 			}
 		}
-		if (mVel.y > 0.0f) shouldCatch = 0;
+		if (!(mVel.y > 0.0f))
 		if (shouldCatch) {
 			u8 cf; if (mState & 0x80000) cf = 1; else cf = 0;
 			if (cf) {
@@ -207,7 +207,7 @@ void TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 			}
 			break;
 		}
-		if (mVel.y > 0.0f) mVel.y = 0.0f;
+		if (!(mVel.y > 0.0f))
 		changePlayerStatus(0x000208B0, 0, false);
 		break;
 	}
@@ -342,7 +342,7 @@ void TMario::stayWall()
 		mVel.y = 0.0f;
 		mFaceAngle.y = mFaceAngle.y + 0x8000;
 		f32 c = mJumpParams.mJumpJumpCatchSp.value;
-		if (mVel.y + c + mPosition.y >= mFloorPosition.y) mVel.y = 0.0f;
+		if (!(mVel.y + c + mPosition.y >= mFloorPosition.y))
 		changePlayerStatus(0x02000886, 0, false);
 		return;
 	}
@@ -502,9 +502,9 @@ void TMario::boardJumping()
 	else if (r == 2) {
 		if (!mWallPlane) { setPlayerVelocity(0.0f); loserExec(); }
 		else {
-			s16 wa = matan(mWallPlane->getNormal().z, mWallPlane->getNormal().x);
-			s16 d = wa - mFaceAngle.y;
-			s16 mx = mSurfingParamsWaterRed.mClashAngle.value;
+			s32 wa = matan(mWallPlane->getNormal().z, mWallPlane->getNormal().x);
+			s32 d = wa - mFaceAngle.y;
+			s32 mx = mSurfingParamsWaterRed.mClashAngle.value;
 			if ((s16)d < -mx || (s16)d > mx) {
 				if (mForwardVel > mSurfingParamsWaterRed.mClashSpeed.value) startJumpWall();
 				else setPlayerVelocity(0.0f);
@@ -515,14 +515,14 @@ void TMario::boardJumping()
 
 BOOL TMario::rocketCheck()
 {
-	u8 cr = 1;
+	s32 cr = 1;
 	if (mAction == ACTION_ROCKETING) cr = 0;
 	if (mAction == ACTION_ROCKET_END) cr = 0;
-	u8 hf; if (mState & MARIO_FLAG_IN_SHALLOW_WATER) hf = 1; else hf = 0;
+	s32 hf; if (mState & MARIO_FLAG_IN_SHALLOW_WATER) hf = 1; else hf = 0;
 	if (hf) {
 		// Pointer math slop
 		if (*(u8*)((u8*)mWaterGun->getCurrentNozzle() + 0x18) != 1) cr = 0;
-		u8 nw; if (mPumpState == 0) nw = 1; else nw = 0;
+		s32 nw; if (mPumpState == 0) nw = 1; else nw = 0;
 		if (nw) cr = 0;
 		TWaterGun* g = mWaterGun;
 		if (g->mCurrentWater == 0) cr = 0;

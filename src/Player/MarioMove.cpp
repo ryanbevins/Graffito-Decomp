@@ -406,7 +406,7 @@ BOOL TMario::changePlayerStatus(u32 status, u32 arg, bool force)
 		break;
 	}
 
-	mPrevAction = getAction();
+	mPrevAction = mAction;
 	mAction = status;
 	mActionArg = arg;
 	mActionState = 0;
@@ -418,7 +418,7 @@ void TMario::throwMario(const JGeometry::TVec3<f32>& throwVec, f32 speed)
 {
 	JGeometry::TVec3<f32> dir(throwVec);
 
-	if (dir.squared() <= 0.0f)
+	if (dir.squared() <= JGeometry::TUtil<f32>::epsilon())
 		dir.y = 0.0f;
 
 	dir.normalize();
@@ -524,10 +524,10 @@ bool TMario::isFrontSlip(int param)
 
 void TMario::dirtyLimitCheck()
 {
-	if (unk134 < 0.0f)
+	if (getUnk134() < 0.0f)
 		unk134 = 0.0f;
 	f32 maxDirty = mDirtyParams.mDirtyMax.get();
-	if (maxDirty < unk134)
+	if (maxDirty < getUnk134())
 		unk134 = maxDirty;
 }
 
@@ -603,7 +603,7 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 	s16 health = unk360;
 	s32 halfMaxHealth = mDeParams.mFootPrintTimerMax.get() / 2;
 	if (health > halfMaxHealth) {
-		gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z,
+		gpPollution->stamp(1, getMpositionX(), mPosition.y, mPosition.z,
 		                   mDirtyParams.mPolSizeJump.get());
 	}
 
@@ -652,7 +652,7 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 				jumpAdj = 0.0f;
 			}
 			f32 gravity = unkBC;
-			mVel.y = mVel.y + (-gravity + jumpAdj);
+			mVel.y = getMvelY() + (-gravity + jumpAdj);
 
 			TLiveActor* groundActor =
 			    (TLiveActor*)mGroundPlane->mActor;
@@ -766,7 +766,7 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		// Hip-drop-to-slide: check ground type
 		startVoice(0x78AB);
 		const TBGCheckData* groundResult;
-		gpMap->checkGround(mPosition.x, mPosition.y, mPosition.z,
+		gpMap->checkGround(getMpositionX(), mPosition.y, mPosition.z,
 		                   &groundResult);
 		u16 gType = groundResult->mBGType;
 		u8 isBeach;
@@ -1435,13 +1435,8 @@ void TMario::makeHistory()
 		unk534 = unk534 + 1;
 
 		if ((s32)unk534 >= mControllerParams.mStickRotateTime.get()) {
-			int offset = 0;
-			int i = 0;
-			while (i < mControllerParams.mStickRotateTime.get()) {
-				s16* p = (s16*)((u8*)unk530 + offset);
-				*p = *(s16*)((u8*)p + 2);
-				i++;
-				offset += 2;
+			for (int i = 0; i < mControllerParams.mStickRotateTime.get(); i++) {
+				unk530[i] = unk530[i + 1];
 			}
 			unk534 = (u8)(mControllerParams.mStickRotateTime.get() - 1);
 		}
@@ -1511,7 +1506,7 @@ BOOL TMario::checkAllMotions()
 void TMario::checkGraffitoFire()
 {
 	u8 shouldSkip;
-	if (unk14C > 0) {
+	if (getUnk14c() > 0) {
 		shouldSkip = 1;
 	} else {
 		u8 flagCheck;
@@ -1567,13 +1562,13 @@ void TMario::checkGraffitoFire()
 	}
 
 	f32 savedForwardVel = mForwardVel;
-	f32 savedVelY = mVel.y;
+	f32 savedVelY = getMvelY();
 
 	u8* fireType     = (u8*)this + 0x3930;
 	u8* fireDamage   = (u8*)this + 0x3944;
 	s16* fireRadius  = (s16*)((u8*)this + 0x3980);
 
-	mFloorHitActor.mPosition.x = mPosition.x + JMASSin(mFaceAngle.y);
+	mFloorHitActor.mPosition.x = getMpositionX() + JMASSin(mFaceAngle.y);
 	mFloorHitActor.mPosition.z = mPosition.z + JMASCos(mFaceAngle.y);
 
 	damageExec((THitActor*)((u8*)this + 0x474),
@@ -1699,7 +1694,7 @@ void TMario::checkGraffitoElec()
 	}
 
 	u8 shouldSkip;
-	if (unk14C > 0) {
+	if (getUnk14c() > 0) {
 		shouldSkip = 1;
 	} else {
 		u8 flagCheck;
@@ -1787,7 +1782,7 @@ void TMario::checkGraffito()
 
 	// Get pollution type at current position
 	s32 isPolluted = 0;
-	unk350 = gpPollution->getPollutionType(mPosition.x, mPosition.y,
+	unk350 = gpPollution->getPollutionType(getMpositionX(), mPosition.y,
 	                                       mPosition.z);
 
 	switch (unk350) {
@@ -1841,7 +1836,7 @@ void TMario::checkGraffito()
 		// Cross pattern check (5 points)
 		isPolluted = 1;
 		JGeometry::TVec3<f32> pos;
-		pos.x = mPosition.x;
+		pos.x = getMpositionX();
 		pos.y = mFloorPosition.y;
 		pos.z = mPosition.z;
 
@@ -1868,7 +1863,7 @@ void TMario::checkGraffito()
 	case 4: {
 		// Single point check
 		JGeometry::TVec3<f32> pos;
-		pos.x = mPosition.x;
+		pos.x = getMpositionX();
 		pos.y = mFloorPosition.y;
 		pos.z = mPosition.z;
 
@@ -1993,7 +1988,7 @@ void TMario::checkGraffito()
 
 bool TMario::isInvincible() const
 {
-	if (unk14C > 0)
+	if (getUnk14c() > 0)
 		return true;
 
 	u8 hasFlag;
@@ -2073,7 +2068,7 @@ bool TMario::isUnderWater() const
 		inWater = 0;
 
 	if (inWater) {
-		f32 floorZ = mFloorPosition.z;
+		f32 floorZ = getMfloorpositionZ();
 		f32 param = mSwimParams.mCanBreathDepth.get();
 		f32 val = unk160[1].y;
 		if (val < floorZ - param)
@@ -2215,7 +2210,7 @@ void TMario::thinkDirty()
 		inWater = 0;
 
 	if (inWater) {
-		f32 waterLevel = mFloorPosition.z;
+		f32 waterLevel = getMfloorpositionZ();
 		if (mPosition.y > waterLevel - 200.0f)
 			meltInWaterEffect();
 		unk360 = 0;
@@ -2357,7 +2352,7 @@ void TMario::checkRideMovement()
 void TMario::checkCurrentPlane()
 {
 	u8 bit19;
-	if (mAction & 0x1000) {
+	if (getAction() & 0x1000) {
 		bit19 = 1;
 	} else {
 		bit19 = 0;
@@ -2367,8 +2362,8 @@ void TMario::checkCurrentPlane()
 
 	// Check if on Yoshi
 	u8 r28 = 0;
-	if (mYoshi != nullptr) {
-		if (((TYoshi*)mYoshi)->onYoshi()) {
+	if (getYoshi() != nullptr) {
+		if (((TYoshi*)getYoshi())->onYoshi()) {
 			r28 = 1;
 		}
 	}
@@ -2382,10 +2377,10 @@ void TMario::checkCurrentPlane()
 	// First wall check
 	TBGWallCheckRecord wallCheck;
 	r28 = 0;
-	wallCheck.mCenter.x    = mPosition.x;
-	wallCheck.mCenter.y    = 60.0f + mPosition.y;
-	wallCheck.mCenter.z    = mPosition.z;
-	wallCheck.mRadius      = unk15C;
+	wallCheck.mCenter.x    = getMpositionX();
+	wallCheck.mCenter.y    = 60.0f + getMpositionY();
+	wallCheck.mCenter.z    = getMpositionZ();
+	wallCheck.mRadius      = getUnk15c();
 	wallCheck.mMaxResults  = 2;
 	wallCheck.mFlags       = 0;
 	gpMap->isTouchedWallsAndMoveXZ(&wallCheck);
@@ -2393,16 +2388,16 @@ void TMario::checkCurrentPlane()
 	// First skip check
 	{
 		u8 skip;
-		if (unk14C > 0) {
+		if (getUnk14c() > 0) {
 			skip = 1;
 		} else {
-			if (mState & 0x8) {
+			if (getState() & 0x8) {
 				r28 = 1;
 			}
 			if (r28) {
 				skip = 1;
 			} else {
-				u32 action = mAction;
+				u32 action = getAction();
 				if (action == 0x89C) {
 					skip = 1;
 				} else {
@@ -2421,7 +2416,7 @@ void TMario::checkCurrentPlane()
 						if (isDemo) {
 							skip = 1;
 						} else {
-							u8 b19;
+							s32 b19;
 							if (action & 0x1000) {
 								b19 = 1;
 							} else {
@@ -2453,9 +2448,9 @@ void TMario::checkCurrentPlane()
 
 				TEParams* dmg = getDmgMapCode(wall->mData);
 				mFloorHitActor.mPosition.x
-				    = mPosition.x + JMASSin((u16)mFaceAngle.y);
+				    = getMpositionX() + JMASSin((u16)getMfaceangleY());
 				mFloorHitActor.mPosition.z
-				    = mPosition.z + JMASCos((u16)mFaceAngle.y);
+				    = getMpositionZ() + JMASCos((u16)getMfaceangleY());
 				damageExec(&mFloorHitActor,
 				           dmg->mDamage.get(), dmg->mDownType.get(),
 				           dmg->mWaterEmit.get(), dmg->mMinSpeed.get(),
@@ -2467,24 +2462,15 @@ void TMario::checkCurrentPlane()
 			if (wallCheck.mResultWallsNum == 2) {
 				TBGCheckData* wall0 = wallCheck.mResultWalls[0];
 				TBGCheckData* wall1 = wallCheck.mResultWalls[1];
-				f32 dot = wall0->mNormal.y * wall1->mNormal.y
-				          + wall0->mNormal.x * wall1->mNormal.x
-				          + wall0->mNormal.z * wall1->mNormal.z;
+				f32 dot = wall0->mNormal.dot(wall1->mNormal);
 				if (dot < -0.9f) {
 					// Copy position
-					JGeometry::TVec3<f32> pos;
-					pos.x = mPosition.x;
-					pos.y = mPosition.y;
-					pos.z = mPosition.z;
+					JGeometry::TVec3<f32> pos(mPosition);
 
 					// Compute plane distances
-					f32 dist0 = wall0->mNormal.y * pos.y
-					            + wall0->mNormal.x * pos.x
-					            + wall0->mNormal.z * pos.z
+					f32 dist0 = wall0->mNormal.dot(pos)
 					            + wall0->mPlaneDistance;
-					f32 dist1 = wall1->mNormal.y * pos.y
-					            + wall1->mNormal.x * pos.x
-					            + wall1->mNormal.z * pos.z
+					f32 dist1 = wall1->mNormal.dot(pos)
 					            + wall1->mPlaneDistance;
 
 					// Check actor type - either wall must be type 0x2BD
@@ -2518,27 +2504,27 @@ void TMario::checkCurrentPlane()
 	// Second wall check (lower, smaller radius)
 	u8 r26 = 1;
 	r28     = 0;
-	wallCheck.mCenter.x   = mPosition.x;
-	wallCheck.mCenter.y   = 4.0f + mPosition.y;
-	wallCheck.mCenter.z   = mPosition.z;
-	wallCheck.mRadius     = 0.5f * unk15C;
+	wallCheck.mCenter.x   = getMpositionX();
+	wallCheck.mCenter.y   = 4.0f + getMpositionY();
+	wallCheck.mCenter.z   = getMpositionZ();
+	wallCheck.mRadius     = 0.5f * getUnk15c();
 	wallCheck.mMaxResults = 1;
 	wallCheck.mFlags      = 0;
 	gpMap->isTouchedWallsAndMoveXZ(&wallCheck);
 
 	// Skip check for second walls (slightly different logic)
-	if (unk14C > 0) {
+	if (getUnk14c() > 0) {
 		r26 = 1;
 	} else {
-		if (!(mState & 0x8)) {
+		if (!(getState() & 0x8)) {
 			r26 = r28;
 		}
 		if (!r26) {
-			u32 action2 = mAction;
+			u32 action2 = getAction();
 			if (action2 == 0x89C) {
 				r26 = 1;
 			} else {
-				u8 dirState2 = *(u8*)((u8*)gpMarDirector + 0x124);
+				s32 dirState2 = *(u8*)((u8*)gpMarDirector + 0x124);
 				if (dirState2 == 3 || dirState2 == 4) {
 					r26 = 1;
 				} else {
@@ -2583,10 +2569,10 @@ void TMario::checkCurrentPlane()
 				continue;
 
 			TEParams* dmg = getDmgMapCode(wall->mData);
-			mFloorHitActor.mPosition.x = mPosition.x
-			    + JMASSin((u16)mFaceAngle.y);
-			mFloorHitActor.mPosition.z = mPosition.z
-			    + JMASCos((u16)mFaceAngle.y);
+			mFloorHitActor.mPosition.x = getMpositionX()
+			    + JMASSin((u16)getMfaceangleY());
+			mFloorHitActor.mPosition.z = getMpositionZ()
+			    + JMASCos((u16)getMfaceangleY());
 			damageExec(
 			    &mFloorHitActor,
 			    dmg->mDamage.get(), dmg->mDownType.get(),
@@ -2597,29 +2583,29 @@ void TMario::checkCurrentPlane()
 	}
 
 	// Ground check
-	f32 f30 = mPosition.z;
-	f32 f31 = mPosition.x;
+	f32 f30 = getMpositionZ();
+	f32 f31 = getMpositionX();
 	mFloorPosition.y
-	    = gpMap->checkGround(f31, 25.0f + mPosition.y, f30, &mGroundPlane);
+	    = gpMap->checkGround(f31, 25.0f + getMpositionY(), f30, &mGroundPlane);
 
-	if (mGroundPlane->isMarioThrough()) {
+	if (getGroundPlane()->isMarioThrough()) {
 		mFloorPosition.y = gpMap->checkGround(
-		    f31, mFloorPosition.y - 1.0f, f30, &mGroundPlane);
+		    f31, getFloorPositionY() - 1.0f, f30, &mGroundPlane);
 	}
 
 	// Roof check
 	mFloorPosition.x
-	    = gpMap->checkRoof(mPosition.x, 80.0f + mPosition.y, mPosition.z,
+	    = gpMap->checkRoof(getMpositionX(), 80.0f + mPosition.y, getMpositionZ(),
 	                       &mRoofPlane);
 
 	// Ground damage check (third skip check)
 	{
 		u8 skip3;
-		if (unk14C > 0) {
+		if (getUnk14c() > 0) {
 			skip3 = 1;
 		} else {
 			u8 mStatebit;
-			if (mState & 0x8) {
+			if (getState() & 0x8) {
 				mStatebit = 1;
 			} else {
 				mStatebit = 0;
@@ -2627,7 +2613,7 @@ void TMario::checkCurrentPlane()
 			if (mStatebit) {
 				skip3 = 1;
 			} else {
-				u32 action3 = mAction;
+				u32 action3 = getAction();
 				if (action3 == 0x89C) {
 					skip3 = 1;
 				} else {
@@ -2666,13 +2652,13 @@ void TMario::checkCurrentPlane()
 		if (!skip3) {
 			// Check ground damage
 			u8 nearGround;
-			if (mPosition.y <= 4.0f + mFloorPosition.y) {
+			if (getMpositionY() <= 4.0f + getFloorPositionY()) {
 				nearGround = 1;
 			} else {
 				nearGround = 0;
 			}
 			if (nearGround) {
-				TBGCheckData* ground = mGroundPlane;
+				TBGCheckData* ground = getGroundPlane();
 				u16 gt = ground->mBGType;
 				u8 isDmgG;
 				if (gt == 0xB || gt == 0x800B || gt == 0x103
@@ -2683,7 +2669,7 @@ void TMario::checkCurrentPlane()
 				}
 				if (isDmgG) {
 					u8 bit15;
-					if (mAction & 0x10000) {
+					if (getAction() & 0x10000) {
 						bit15 = 1;
 					} else {
 						bit15 = 0;
@@ -2692,16 +2678,13 @@ void TMario::checkCurrentPlane()
 						TEParams* dmg
 						    = getDmgMapCode(ground->mData);
 						mFloorHitActor.mPosition.x
-						    = mPosition.x
-						      + JMASSin(*(u16*)((u8*)this
-						                        + 0x96));
+						    = getMpositionX()
+						      + JMASSin((u16)getMfaceangleY());
 						mFloorHitActor.mPosition.z
-						    = mPosition.z
-						      + JMASCos(*(u16*)((u8*)this
-						                        + 0x96));
+						    = getMpositionZ()
+						      + JMASCos((u16)getMfaceangleY());
 						damageExec(
-						    (THitActor*)*(u32*)((u8*)this
-						                       + 0x474),
+						    &mFloorHitActor,
 						    dmg->mDamage.get(),
 						    dmg->mDownType.get(),
 						    dmg->mWaterEmit.get(),
@@ -2714,8 +2697,8 @@ void TMario::checkCurrentPlane()
 			}
 
 			// Check roof damage
-			if (160.0f + mPosition.y > mFloorPosition.x) {
-				TBGCheckData* roof = mRoofPlane;
+			if (160.0f + getMpositionY() > getFloorPositionX()) {
+				TBGCheckData* roof = getRoofPlane();
 				u16 rt = roof->mBGType;
 				u8 isDmgR;
 				if (rt == 0xB || rt == 0x800B || rt == 0x103
@@ -2727,13 +2710,13 @@ void TMario::checkCurrentPlane()
 				if (isDmgR) {
 					TEParams* dmg = getDmgMapCode(roof->mData);
 					mFloorHitActor.mPosition.x
-					    = mPosition.x
+					    = getMpositionX()
 					      + JMASSin(
-					          (u16)mFaceAngle.y);
+					          (u16)getMfaceangleY());
 					mFloorHitActor.mPosition.z
-					    = mPosition.z
+					    = getMpositionZ()
 					      + JMASCos(
-					          (u16)mFaceAngle.y);
+					          (u16)getMfaceangleY());
 					damageExec(
 					    &mFloorHitActor,
 					    dmg->mDamage.get(),
@@ -2749,8 +2732,8 @@ void TMario::checkCurrentPlane()
 
 	// Slope detection
 	{
-		TBGCheckData* ground = mGroundPlane;
-		u8 isLegal;
+		TBGCheckData* ground = getGroundPlane();
+		s32 isLegal;
 		if (ground->mFlags & 0x10) {
 			isLegal = 1;
 		} else {
@@ -2789,13 +2772,13 @@ void TMario::checkCurrentPlane()
 			}
 
 			if (slipResult != 0
-			    || (mState & 0x800)) {
+			    || (getState() & 0x800)) {
 				mInput |= 0x8;
 			}
 
 			// High slope check
-			if (mPosition.y
-			    > 100.0f + mFloorPosition.y) {
+			if (getMpositionY()
+			    > 100.0f + getFloorPositionY()) {
 				mInput |= 0x4;
 			}
 		}
@@ -2804,22 +2787,24 @@ void TMario::checkCurrentPlane()
 	// Clear bit 20 of mState
 	mState = mState & ~0x800;
 }
+#pragma dont_inline on
 TMario::TEParams* TMario::getDmgMapCode(int code) const
 {
 	switch (code) {
-	case 0: return (TEParams*)((u8*)this + 0x3BD4);
-	case 1: return (TEParams*)((u8*)this + 0x3C68);
-	case 2: return (TEParams*)((u8*)this + 0x3CFC);
-	case 3: return (TEParams*)((u8*)this + 0x3D90);
-	case 4: return (TEParams*)((u8*)this + 0x3E24);
-	case 5: return (TEParams*)((u8*)this + 0x3EB8);
-	case 6: return (TEParams*)((u8*)this + 0x3F4C);
-	case 7: return (TEParams*)((u8*)this + 0x3FE0);
-	case 8: return (TEParams*)((u8*)this + 0x4074);
-	case 9: return (TEParams*)((u8*)this + 0x4108);
-	default: return (TEParams*)((u8*)this + 0x3BD4);
+	case 0: return &mDmgMapParams0;
+	case 1: return &mDmgMapParams1;
+	case 2: return &mDmgMapParams2;
+	case 3: return &mDmgMapParams3;
+	case 4: return &mDmgMapParams4;
+	case 5: return &mDmgMapParams5;
+	case 6: return &mDmgMapParams6;
+	case 7: return &mDmgMapParams7;
+	case 8: return &mDmgMapParams8;
+	case 9: return &mDmgMapParams9;
+	default: return &mDmgMapParams0;
 	}
 }
+#pragma dont_inline reset
 
 void TMario::thinkParams()
 {
@@ -2827,7 +2812,7 @@ void TMario::thinkParams()
 	    (f32)mFaceAngle.y * (360.0f / 65536.0f);
 
 	{
-		s32 invTimer = unk14C;
+		s32 invTimer = getUnk14c();
 		if (invTimer > 0) {
 			unk14C = invTimer - 1;
 		}
@@ -2856,7 +2841,7 @@ void TMario::thinkParams()
 
 			u8 belowThreshold;
 			if (nonZero
-			    && unk160[1].y < mFloorPosition.z - mSwimParams.mCanBreathDepth.get()) {
+			    && unk160[1].y < getMfloorpositionZ() - mSwimParams.mCanBreathDepth.get()) {
 				belowThreshold = 1;
 			} else {
 				belowThreshold = 0;
@@ -2889,17 +2874,17 @@ void TMario::thinkParams()
 							s16 data = mWaterFloor->getData();
 							TEParams* params;
 							switch (data) {
-							case 0: params = (TEParams*)((u8*)this + 0x3BD4); break;
-							case 1: params = (TEParams*)((u8*)this + 0x3C68); break;
-							case 2: params = (TEParams*)((u8*)this + 0x3CFC); break;
-							case 3: params = (TEParams*)((u8*)this + 0x3D90); break;
-							case 4: params = (TEParams*)((u8*)this + 0x3E24); break;
-							case 5: params = (TEParams*)((u8*)this + 0x3EB8); break;
-							case 6: params = (TEParams*)((u8*)this + 0x3F4C); break;
-							case 7: params = (TEParams*)((u8*)this + 0x3FE0); break;
-							case 8: params = (TEParams*)((u8*)this + 0x4074); break;
-							case 9: params = (TEParams*)((u8*)this + 0x4108); break;
-							default: params = (TEParams*)((u8*)this + 0x3BD4); break;
+							case 0: params = &mDmgMapParams0; break;
+							case 1: params = &mDmgMapParams1; break;
+							case 2: params = &mDmgMapParams2; break;
+							case 3: params = &mDmgMapParams3; break;
+							case 4: params = &mDmgMapParams4; break;
+							case 5: params = &mDmgMapParams5; break;
+							case 6: params = &mDmgMapParams6; break;
+							case 7: params = &mDmgMapParams7; break;
+							case 8: params = &mDmgMapParams8; break;
+							case 9: params = &mDmgMapParams9; break;
+							default: params = &mDmgMapParams0; break;
 							}
 							floorDamageExec(*params);
 						}
@@ -2955,7 +2940,7 @@ void TMario::thinkParams()
 void TMario::thinkWaterSurface()
 {
 	// Early out if on water (bit 16 of mAction)
-	u8 onWater;
+	s32 onWater;
 	if (mAction & 0x10000)
 		onWater = 1;
 	else
@@ -2965,16 +2950,16 @@ void TMario::thinkWaterSurface()
 
 	// Check if currently in water (bits 14-15 of mState)
 	u32 waterBits = mState & 0x30000;
-	u8 wasInWater;
+	s32 wasInWater;
 	if (waterBits)
 		wasInWater = 1;
 	else
 		wasInWater = 0;
 
-	u8 r31 = wasInWater;
-	u8 r30 = 0;
+	s32 r31 = wasInWater;
+	s32 r30 = 0;
 
-	u8 wasOnSurface;
+	s32 wasOnSurface;
 	if (waterBits != 0)
 		wasOnSurface = 1;
 	else
@@ -2991,8 +2976,8 @@ void TMario::thinkWaterSurface()
 	mState &= ~0x20000;
 
 	// Check if ground plane is a pool type
-	u16 bgType = mGroundPlane->getBGType();
-	u8 isPool;
+	u32 bgType = mGroundPlane->getBGType();
+	s32 isPool;
 	if (bgType == BG_TYPE_POOL || bgType == BG_TYPE_INDOOR_POOL
 	    || bgType == BG_TYPE_SHADED_POOL)
 		isPool = 1;
@@ -3001,7 +2986,7 @@ void TMario::thinkWaterSurface()
 
 	if (isPool) {
 		mFloorPosition.z = gpPoolManager->getWaterLevel(mGroundPlane);
-		if (mFloorPosition.z > mPosition.y) {
+		if (getMfloorpositionZ() > mPosition.y) {
 			r30 = 1;
 			mState |= 0x10000;
 		}
@@ -3015,14 +3000,14 @@ void TMario::thinkWaterSurface()
 			clampedDiff = 0.0f;
 
 		f32 checkHeight
-		    = mFloorPosition.z - clampedDiff
+		    = getMfloorpositionZ() - clampedDiff
 		      + mSwimParams.mWaterLevelCheckHeight.get();
 		f32 groundHeight = gpMap->checkGround(
-		    mPosition.x, checkHeight, mPosition.z, &mWaterFloor);
+		    getMpositionX(), checkHeight, mPosition.z, &mWaterFloor);
 
 		// Check if ground at water level is a water surface type
-		u16 groundType = mWaterFloor->mBGType;
-		u8 isWaterSurface;
+		u32 groundType = mWaterFloor->mBGType;
+		s32 isWaterSurface;
 		if (groundType == BG_TYPE_WATER
 		    || groundType == BG_TYPE_DAMAGING_WATER
 		    || (u16)(groundType - BG_TYPE_SEA_WATER) <= 3
@@ -3033,16 +3018,16 @@ void TMario::thinkWaterSurface()
 
 		if (isWaterSurface) {
 			mFloorPosition.z = groundHeight;
-			if (mFloorPosition.z >= mPosition.y) {
+			if (getMfloorpositionZ() >= mPosition.y) {
 				r30 = 1;
 				mState |= 0x20000;
 			}
 		} else {
 			// Check ground at current position
 			const TBGCheckData* groundCheck2;
-			gpMap->checkGround(mPosition.x, mPosition.y, mPosition.z,
+			gpMap->checkGround(getMpositionX(), mPosition.y, mPosition.z,
 			                   &groundCheck2);
-			u8 isSpecialType;
+			s32 isSpecialType;
 			if (groundCheck2->mBGType == 0x810B)
 				isSpecialType = 1;
 			else
@@ -3058,7 +3043,7 @@ void TMario::thinkWaterSurface()
 	if (r30 != 0) {
 		// Water surface logic
 		f32 posY2 = mPosition.y;
-		f32 waterLvl = mFloorPosition.z;
+		f32 waterLvl = getMfloorpositionZ();
 		if (posY2 < waterLvl) {
 
 		// Check deep water threshold
@@ -3082,15 +3067,15 @@ void TMario::thinkWaterSurface()
 
 			// Check ripple height
 			f32 rippleCheck = 160.0f + mPosition.y;
-			if (rippleCheck <= mFloorPosition.z)
+			if (rippleCheck <= getMfloorpositionZ())
 				rippleEffect();
 
 			swimmingBubbleEffect();
 
 			// Determine if should enter water
-			u8 shouldEnter = 1;
+			s32 shouldEnter = 1;
 			u32 action7C = mAction;
-			u8 isBit18;
+			s32 isBit18;
 			if (action7C & 0x2000)
 				isBit18 = 1;
 			else
@@ -3101,7 +3086,7 @@ void TMario::thinkWaterSurface()
 				shouldEnter = 0;
 
 			// Swimming status range checks
-			u8 isSwimming;
+			s32 isSwimming;
 			if (statusLow >= 0x168 && statusLow <= 0x16C)
 				isSwimming = 1;
 			else
@@ -3116,7 +3101,7 @@ void TMario::thinkWaterSurface()
 				shouldEnter = 0;
 
 			// Check held object
-			u8 holdingObj;
+			s32 holdingObj;
 			if (mHolder != 0)
 				holdingObj = 1;
 			else
@@ -3127,10 +3112,10 @@ void TMario::thinkWaterSurface()
 			if ((u8)shouldEnter == 1) {
 				// Apply water drag
 			mForwardVel = mForwardVel * mSwimParams.mStartVMult.get();
-			mVel.y = mVel.y * mSwimParams.mStartVYMult.get();
+			mVel.y = getMvelY() * mSwimParams.mStartVYMult.get();
 
 			// Check if falling from air
-			u8 isFalling;
+			s32 isFalling;
 			if (mAction & 0x20000)
 				isFalling = 1;
 			else
@@ -3141,7 +3126,7 @@ void TMario::thinkWaterSurface()
 				changePlayerStatus(0x24DA, 0, true);
 			} else {
 				// Check if running on ground
-				u8 isRunning;
+				s32 isRunning;
 				if (mState & 0x4000)
 					isRunning = 1;
 				else
@@ -3151,7 +3136,7 @@ void TMario::thinkWaterSurface()
 					// Wading
 					changePlayerStatus(0x24D5, 0, true);
 					mVel.y = 0.0f;
-					mPosition.y = mFloorPosition.z;
+					mPosition.y = getMfloorpositionZ();
 					startSoundActor(0x828);
 				} else {
 					// Shallow water entry
@@ -3181,8 +3166,8 @@ void TMario::thinkWaterSurface()
 
 	// Check wet ground type
 	{
-		u16 gndBGType = mGroundPlane->mBGType;
-		u8 isWetGround;
+		u32 gndBGType = mGroundPlane->mBGType;
+		s32 isWetGround;
 		if (gndBGType == 0x4 || gndBGType == 0x4004
 		    || gndBGType == 0x8004 || gndBGType == 0xC004)
 			isWetGround = 1;
@@ -3208,17 +3193,17 @@ void TMario::thinkWaterSurface()
 			r30 = 0;
 
 		s16 rotY = mModelFaceAngle;
-		J3DGetTranslateRotateMtx(0, rotY, 0, mPosition.x, mFloorPosition.z, mPosition.z,
+		J3DGetTranslateRotateMtx(0, rotY, 0, getMpositionX(), getMfloorpositionZ(), mPosition.z,
 		                         mJointMtx2);
 
 		// Store water position
-		unk190 = mPosition.x;
-		unk194 = mFloorPosition.z;
+		unk190 = getMpositionX();
+		unk194 = getMfloorpositionZ();
 		unk198 = mPosition.z;
 
 		// Copy joint matrix
 		u32 modelPtr = (u32)mModel;
-		u8 jointIdx = mBoneIDs[10];
+		s32 jointIdx = mBoneIDs[10];
 		u32 modelData = *(u32*)(modelPtr + 0x8);
 		u32 jointMtxArr = *(u32*)(modelData + 0x58);
 		MtxPtr anmMtx = (MtxPtr)(jointMtxArr + jointIdx * 0x30);
@@ -3226,8 +3211,8 @@ void TMario::thinkWaterSurface()
 
 		// Check if water state changed
 		if (r30 != r31) {
-			inOutWaterEffect(mFloorPosition.z);
-			f32 splashHeight = mFloorPosition.z - mFloorPosition.y;
+			inOutWaterEffect(getMfloorpositionZ());
+			f32 splashHeight = getMfloorpositionZ() - mFloorPosition.y;
 
 			if (r31 == 1 && r30 == 0) {
 				// Entering water
@@ -3276,22 +3261,22 @@ void TMario::thinkWaterSurface()
 
 	// Drowning/air recovery logic
 	{
-		u8 shouldDrown = 0;
+		s32 shouldDrown = 0;
 
-		u8 isInWater2;
+		s32 isInWater2;
 		if (mState & 0x30000)
 			isInWater2 = 1;
 		else
 			isInWater2 = 0;
 
 		if (isInWater2) {
-			f32 airThreshold = mFloorPosition.z - mSwimParams.mCanBreathDepth.get();
+			f32 airThreshold = getMfloorpositionZ() - mSwimParams.mCanBreathDepth.get();
 			if (unk160[1].y < airThreshold) {
 				shouldDrown = 1;
 			}
 		}
 		if (!shouldDrown) {
-			u8 isDiving;
+			s32 isDiving;
 			if (mState & 0x8000)
 				isDiving = 1;
 			else
@@ -3301,8 +3286,8 @@ void TMario::thinkWaterSurface()
 		}
 
 		if (shouldDrown) {
-			f32 prevAir = unk12C;
-			u8 isHelm;
+			f32 prevAir = getUnk12c();
+			s32 isHelm;
 			isHelm = isWearingHelm();
 			if (isHelm) {
 				u32 actionVal = mAction;
@@ -3312,7 +3297,7 @@ void TMario::thinkWaterSurface()
 			} else {
 				unk12C -= mSwimParams.mAirDec.get();
 			}
-			f32 currentAir = unk12C;
+			f32 currentAir = getUnk12c();
 
 			// Compare truncated values to detect crossing
 			s32 prevInt;
@@ -3333,7 +3318,7 @@ void TMario::thinkWaterSurface()
 				unk14C = (s16)truncHP;
 			}
 
-			if (unk12C < 1.0f) {
+			if (getUnk12c() < 1.0f) {
 				unk12C = 0.0f;
 				loserExec();
 				changePlayerStatus(0x000224E0, 0, false);
@@ -3341,8 +3326,8 @@ void TMario::thinkWaterSurface()
 			return;
 		} else {
 			unk12C += mSwimParams.mAirInc.get();
-			if (unk12C >= unk130) {
-				unk12C = unk130;
+			if (getUnk12c() >= getUnk130()) {
+				unk12C = getUnk130();
 			}
 		}
 	}
@@ -3470,7 +3455,7 @@ void TMario::thinkSituation()
 	{
 		const TBGCheckData* checkPlane;
 		f32 groundHeight = gpMap->checkGround(
-		    mPosition.x, mPosition.y - mVel.y, mPosition.z, &checkPlane);
+		    getMpositionX(), mPosition.y - getMvelY(), mPosition.z, &checkPlane);
 
 		u8 isDeathPlane;
 		if (checkPlane->mBGType == 0x800)
@@ -3497,7 +3482,7 @@ void TMario::thinkSituation()
 	}
 
 	// Ground collision matrix setup
-	J3DGetTranslateRotateMtx(0, mModelFaceAngle, 0, mPosition.x, mPosition.y,
+	J3DGetTranslateRotateMtx(0, mModelFaceAngle, 0, getMpositionX(), mPosition.y,
 	                         mPosition.z, mJointMtx1);
 
 	// Light/shadow setup
@@ -3568,9 +3553,9 @@ void TMario::thinkSituation()
 	// Option map position constraints
 	if (SMS_isOptionMap()) {
 		mPosition.z = mOptionParams.mZ.get();
-		if (mPosition.x < mOptionParams.mXMin.get())
+		if (getMpositionX() < mOptionParams.mXMin.get())
 			mPosition.x = mOptionParams.mXMin.get();
-		if (mPosition.x > mOptionParams.mXMax.get())
+		if (getMpositionX() > mOptionParams.mXMax.get())
 			mPosition.x = mOptionParams.mXMax.get();
 	}
 
@@ -3709,7 +3694,7 @@ void TMario::checkWet()
 	unk362 = wetTimer - 1;
 
 	const TBGCheckData* check;
-	f32 posX = mPosition.x;
+	f32 posX = getMpositionX();
 	f32 posZ = mPosition.z;
 	f32 groundY;
 	checkGroundPlane(posX, 320.0f + mPosition.y, posZ, &groundY, &check);
@@ -3725,7 +3710,7 @@ void TMario::checkWet()
 	if (isWater)
 		return;
 
-	if (mFloorPosition.z > mPosition.y)
+	if (getMfloorpositionZ() > mPosition.y)
 		return;
 
 	u8 actionCheck;
@@ -3739,21 +3724,21 @@ void TMario::checkWet()
 	if (unk362 & 7)
 		return;
 
-	TWaterEmitInfo* emitInfo = unk158;
+	TWaterEmitInfo* emitInfo = getUnk158();
 	*(JGeometry::TVec3<f32>*)((u8*)emitInfo + 0x70) = mPosition;
 
-	TWaterEmitInfo* emitInfo2 = unk158;
+	TWaterEmitInfo* emitInfo2 = getUnk158();
 	*(f32*)((u8*)emitInfo2 + 0x74) += 5.0f;
 
 	const char* strPtr = dummyMactorStringValue1;
 	JGeometry::TVec3<f32> vel(*(JGeometry::TVec3<f32>*)strPtr);
 	vel.x = 0.3f * mVel.x;
-	vel.y = 0.3f * mVel.y;
+	vel.y = 0.3f * getMvelY();
 	vel.z = 0.3f * mVel.z;
-	TWaterEmitInfo* emitInfo3 = unk158;
+	TWaterEmitInfo* emitInfo3 = getUnk158();
 	*(JGeometry::TVec3<f32>*)((u8*)emitInfo3 + 0x8C) = vel;
 
-	gpModelWaterManager->emitRequest(*unk158);
+	gpModelWaterManager->emitRequest(*getUnk158());
 }
 
 void TMario::checkEnforceJump()
@@ -3809,7 +3794,7 @@ void TMario::checkReturn()
 {
 	u8 shouldReturn;
 
-	if (unk14C > 0) {
+	if (getUnk14c() > 0) {
 		shouldReturn = 1;
 	} else {
 		u8 hasFlag;
@@ -4262,7 +4247,7 @@ void TMario::thinkHeight()
 	}
 
 	JGeometry::TVec3<f32> forwardPos;
-	forwardPos.x = mPosition.x + unk15C * JMASSin(mFaceAngle.y);
+	forwardPos.x = getMpositionX() + unk15C * JMASSin(mFaceAngle.y);
 	forwardPos.y = mPosition.y;
 	forwardPos.z = mPosition.z + unk15C * JMASCos(mFaceAngle.y);
 
@@ -4273,7 +4258,7 @@ void TMario::thinkHeight()
 		f32 dz = 100.0f * cosV;
 		f32 dx = 100.0f * sinV;
 		f32 groundHeight = gpMap->checkGround(
-		    mPosition.x + dx,
+		    getMpositionX() + dx,
 		    100.0f + mPosition.y,
 		    mPosition.z + dz,
 		    &groundPlane);
@@ -4286,7 +4271,7 @@ void TMario::thinkHeight()
 void TMario::checkSink()
 {
 	u8 shouldSkip;
-	if (unk14C > 0) {
+	if (getUnk14c() > 0) {
 		shouldSkip = 1;
 	} else {
 		u8 flagCheck;
@@ -4529,7 +4514,7 @@ void TMario::playerControl(JDrama::TGraphics* gfx)
 		}
 
 		JGeometry::TVec3<f32> forwardPos;
-		forwardPos.x = mPosition.x + unk15C * JMASSin(mFaceAngle.y);
+		forwardPos.x = getMpositionX() + unk15C * JMASSin(mFaceAngle.y);
 		forwardPos.y = mPosition.y;
 		forwardPos.z = mPosition.z + unk15C * JMASCos(mFaceAngle.y);
 
@@ -4540,7 +4525,7 @@ void TMario::playerControl(JDrama::TGraphics* gfx)
 			f32 dz = 100.0f * cosV;
 			f32 dx = 100.0f * sinV;
 			f32 groundHeight = gpMap->checkGround(
-			    mPosition.x + dx,
+			    getMpositionX() + dx,
 			    100.0f + mPosition.y,
 			    mPosition.z + dz,
 			    &groundPlane);

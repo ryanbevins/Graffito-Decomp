@@ -6,7 +6,13 @@
 #include <System/MSoundMainSide.hpp>
 #include <System/MarioGamePad.hpp>
 #include <System/PerformList.hpp>
-#include <System/StageUtil.hpp>
+// Forward declarations only - avoid pulling in scScenarioNameTable static data
+u8 SMS_getShineIDofExStage(u8);
+u8 SMS_getShineStage(u8);
+bool SMS_isOptionMap();
+bool SMS_isDivingMap();
+bool SMS_isMultiPlayerMap();
+bool SMS_isExMap();
 #include <System/FlagManager.hpp>
 #include <System/CardManager.hpp>
 #include <Player/MarioMain.hpp>

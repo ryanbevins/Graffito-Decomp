@@ -365,7 +365,7 @@ BOOL TMario::swimMain()
 			changePlayerStatus(0x22D2, 0, false);
 		}
 		doSwimming();
-		if (checkActionFlag(0x2000))
+		if (!(checkActionFlag(0x2000)))
 			return 1;
 		return FALSE;
 	}

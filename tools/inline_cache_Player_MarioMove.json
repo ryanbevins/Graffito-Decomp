@@ -1,23 +1,20 @@
 {
   "tu": "Player/MarioMove",
-  "src_hash": "c2bc98c238d3f4543126e148918e4267",
-  "header_hash": "37da11597c68dc3b8b440d80f43205c1",
+  "src_hash": "f0bbb0a9416c13e84d5c73cb049387f5",
+  "header_hash": "4a7ccc4a849fe571786c87cc6ae9bf66",
   "gaps": {
     "playerControl__6TMarioFPQ26JDrama9TGraphics": -48,
     "gunExec__6TMarioFv": -120,
-    "checkWet__6TMarioFv": -32,
+    "checkWet__6TMarioFv": -8,
     "thinkYoshiHeadCollision__6TMarioFv": -16,
-    "thinkParams__6TMarioFv": -56,
-    "thinkWaterSurface__6TMarioFv": -56,
-    "thinkSituation__6TMarioFv": -144,
+    "thinkParams__6TMarioFv": -48,
+    "thinkSituation__6TMarioFv": -136,
     "checkRideMovement__6TMarioFv": -24,
-    "checkCurrentPlane__6TMarioFv": -368,
     "checkController__6TMarioFPQ26JDrama9TGraphics": -272,
-    "checkSink__6TMarioFv": -96,
-    "thinkDirty__6TMarioFv": -8,
-    "checkGraffitoElec__6TMarioFv": -72,
+    "checkSink__6TMarioFv": -88,
+    "checkGraffitoElec__6TMarioFv": -64,
     "checkGraffitoSlip__6TMarioFv": -16,
-    "checkGraffitoFire__6TMarioFv": -64,
+    "checkGraffitoFire__6TMarioFv": -48,
     "changePlayerJumping__6TMarioFUlUl": -32,
     "changePlayerTriJump__6TMarioFv": -32,
     "setStatusToJumping__6TMarioFUlUl": -160,
@@ -25,38 +22,16 @@
     "moveRequest__6TMarioFRCQ29JGeometry8TVec3<f>": -16,
     "canSquat__6TMarioCFv": -16
   },
-  "match_makers": {
-    "getUnk134": {
-      "stacks": {
-        "thinkDirty__6TMarioFv": -8
-      },
-      "new_matches": [
-        "thinkDirty__6TMarioFv"
-      ],
-      "header": "\tf32 getUnk134() const { return unk134; }",
-      "field": "unk134",
-      "call": "getUnk134()"
-    }
-  },
+  "match_makers": {},
   "safe": {
-    "getMpositionX": {
-      "stacks": {
-        "checkWet__6TMarioFv": -8,
-        "thinkSituation__6TMarioFv": -8,
-        "checkCurrentPlane__6TMarioFv": -32,
-        "checkGraffito__6TMarioFv": -8,
-        "checkGraffitoFire__6TMarioFv": -8
-      },
-      "header": "\tf32 getMpositionX() const { return mPosition.x; }",
-      "field": "mPosition.x",
-      "call": "getMpositionX()"
-    },
     "getMpositionZ": {
       "stacks": {
+        "playerControl__6TMarioFPQ26JDrama9TGraphics": -8,
+        "thinkHeight__6TMarioFv": -8,
         "checkWet__6TMarioFv": -8,
+        "thinkWaterSurface__6TMarioFv": -8,
         "checkCurrentPlane__6TMarioFv": -32,
-        "checkGraffito__6TMarioFv": -8,
-        "checkGraffitoFire__6TMarioFv": -8
+        "checkGraffito__6TMarioFv": -8
       },
       "header": "\tf32 getMpositionZ() const { return mPosition.z; }",
       "field": "mPosition.z",
@@ -64,29 +39,12 @@
     },
     "getGamePad": {
       "stacks": {
+        "playerControl__6TMarioFPQ26JDrama9TGraphics": -8,
         "checkController__6TMarioFPQ26JDrama9TGraphics": -72
       },
       "header": "\tTMarioGamePad* getGamePad() const { return mGamePad; }",
       "field": "mGamePad",
       "call": "getGamePad()"
-    },
-    "getMfloorpositionZ": {
-      "stacks": {
-        "checkWet__6TMarioFv": -8,
-        "thinkWaterSurface__6TMarioFv": -32,
-        "thinkParams__6TMarioFv": -8
-      },
-      "header": "\tf32 getMfloorpositionZ() const { return mFloorPosition.z; }",
-      "field": "mFloorPosition.z",
-      "call": "getMfloorpositionZ()"
-    },
-    "getFloorHitActor": {
-      "stacks": {
-        "checkCurrentPlane__6TMarioFv": -320
-      },
-      "header": "\tTHitActor getFloorHitActor() const { return mFloorHitActor; }",
-      "field": "mFloorHitActor",
-      "call": "getFloorHitActor()"
     },
     "getSlopeAngle": {
       "stacks": {
@@ -96,18 +54,6 @@
       "header": "\ts16 getSlopeAngle() const { return mSlopeAngle; }",
       "field": "mSlopeAngle",
       "call": "getSlopeAngle()"
-    },
-    "getUnk14c": {
-      "stacks": {
-        "checkSink__6TMarioFv": -8,
-        "thinkParams__6TMarioFv": -8,
-        "checkCurrentPlane__6TMarioFv": -16,
-        "checkGraffitoElec__6TMarioFv": -8,
-        "checkGraffitoFire__6TMarioFv": -8
-      },
-      "header": "\ts16 getUnk14c() const { return unk14C; }",
-      "field": "unk14C",
-      "call": "getUnk14c()"
     },
     "getUnk15c": {
       "stacks": {
@@ -121,7 +67,7 @@
     },
     "getSlideVelX": {
       "stacks": {
-        "setStatusToJumping__6TMarioFUlUl": -16,
+        "setStatusToJumping__6TMarioFUlUl": -24,
         "changePlayerJumping__6TMarioFUlUl": -8,
         "changePlayerTriJump__6TMarioFv": -8
       },
@@ -131,21 +77,13 @@
     },
     "getSlideVelZ": {
       "stacks": {
-        "setStatusToJumping__6TMarioFUlUl": -16,
+        "setStatusToJumping__6TMarioFUlUl": -24,
         "changePlayerJumping__6TMarioFUlUl": -8,
         "changePlayerTriJump__6TMarioFv": -8
       },
       "header": "\tf32 getSlideVelZ() const { return mSlideVelZ; }",
       "field": "mSlideVelZ",
       "call": "getSlideVelZ()"
-    },
-    "getUnk350": {
-      "stacks": {
-        "checkSink__6TMarioFv": -8
-      },
-      "header": "\ts32 getUnk350() const { return unk350; }",
-      "field": "unk350",
-      "call": "getUnk350()"
     },
     "getDashSpeed": {
       "stacks": {
@@ -158,25 +96,16 @@
     "getUnk368": {
       "stacks": {
         "checkSink__6TMarioFv": -8,
-        "setStatusToJumping__6TMarioFUlUl": -8
+        "setStatusToJumping__6TMarioFUlUl": -16
       },
       "header": "\tf32 getUnk368() const { return unk368; }",
       "field": "unk368",
       "call": "getUnk368()"
     },
-    "getMvelY": {
-      "stacks": {
-        "checkWet__6TMarioFv": -8,
-        "checkGraffitoFire__6TMarioFv": -8
-      },
-      "header": "\tf32 getMvelY() const { return mVel.y; }",
-      "field": "mVel.y",
-      "call": "getMvelY()"
-    },
     "getUnk360": {
       "stacks": {
         "checkGraffito__6TMarioFv": -8,
-        "checkGraffitoElec__6TMarioFv": -8
+        "setStatusToJumping__6TMarioFUlUl": -8
       },
       "header": "\ts16 getUnk360() const { return unk360; }",
       "field": "unk360",
@@ -184,6 +113,7 @@
     },
     "getUnk108": {
       "stacks": {
+        "playerControl__6TMarioFPQ26JDrama9TGraphics": -8,
         "checkController__6TMarioFPQ26JDrama9TGraphics": -216
       },
       "header": "\tu32 getUnk108() const { return unk108; }",
@@ -198,22 +128,6 @@
       "field": "unkA0",
       "call": "getUnka0()"
     },
-    "getUnk12c": {
-      "stacks": {
-        "thinkWaterSurface__6TMarioFv": -16
-      },
-      "header": "\tf32 getUnk12c() const { return unk12C; }",
-      "field": "unk12C",
-      "call": "getUnk12c()"
-    },
-    "getUnk158": {
-      "stacks": {
-        "checkWet__6TMarioFv": -16
-      },
-      "header": "\tTWaterEmitInfo* getUnk158() const { return unk158; }",
-      "field": "unk158",
-      "call": "getUnk158()"
-    },
     "getPumpState": {
       "stacks": {
         "gunExec__6TMarioFv": -8
@@ -224,8 +138,8 @@
     },
     "getUnk55c": {
       "stacks": {
-        "thinkParams__6TMarioFv": -8,
-        "checkGraffitoFire__6TMarioFv": -8
+        "thinkWaterSurface__6TMarioFv": -8,
+        "thinkParams__6TMarioFv": -8
       },
       "header": "\tf32 getUnk55c() const { return unk55C; }",
       "field": "unk55C",
@@ -233,7 +147,6 @@
     },
     "getUnk34e": {
       "stacks": {
-        "checkGraffitoElec__6TMarioFv": -8,
         "checkGraffitoSlip__6TMarioFv": -8
       },
       "header": "\tu16 getUnk34e() const { return unk34E; }",
@@ -250,7 +163,8 @@
     },
     "getUnkbc": {
       "stacks": {
-        "thinkSituation__6TMarioFv": -8
+        "thinkSituation__6TMarioFv": -8,
+        "setStatusToJumping__6TMarioFUlUl": -8
       },
       "header": "\tf32 getUnkbc() const { return unkBC; }",
       "field": "unkBC",
@@ -258,7 +172,8 @@
     },
     "getAnimationId": {
       "stacks": {
-        "thinkSituation__6TMarioFv": -8
+        "thinkSituation__6TMarioFv": -8,
+        "setStatusToJumping__6TMarioFUlUl": -8
       },
       "header": "\tu16 getAnimationId() const { return mAnimationId; }",
       "field": "mAnimationId",
@@ -296,14 +211,6 @@
       "field": "unk362",
       "call": "getUnk362()"
     },
-    "getUnk130": {
-      "stacks": {
-        "thinkWaterSurface__6TMarioFv": -8
-      },
-      "header": "\tf32 getUnk130() const { return unk130; }",
-      "field": "unk130",
-      "call": "getUnk130()"
-    },
     "getPrevState": {
       "stacks": {
         "thinkSituation__6TMarioFv": -8
@@ -319,6 +226,15 @@
       "header": "\ts16 getUnk2ba() const { return unk2BA; }",
       "field": "unk2BA",
       "call": "getUnk2ba()"
+    },
+    "getUnk36c": {
+      "stacks": {
+        "playerControl__6TMarioFPQ26JDrama9TGraphics": -8,
+        "thinkHeight__6TMarioFv": -8
+      },
+      "header": "\tf32 getUnk36c() const { return unk36C; }",
+      "field": "unk36C",
+      "call": "getUnk36c()"
     }
   }
 }

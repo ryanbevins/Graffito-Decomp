@@ -362,12 +362,13 @@ def test_candidate(tu_name, src_file, header_file, candidate,
     try:
         # Add accessor to header
         hdr = hdr_orig
-        tmario_idx = hdr.find('class TMario')
-        if tmario_idx == -1:
+        cls_name = detect_class_name(header_file)
+        cls_idx = hdr.find(f'class {cls_name}')
+        if cls_idx == -1:
             return None
-        fab_idx = hdr.find('// Fabricated', tmario_idx)
+        fab_idx = hdr.find('// Fabricated', cls_idx)
         if fab_idx == -1:
-            fab_idx = hdr.find('};', tmario_idx)
+            fab_idx = hdr.find('};', cls_idx)
         pos = hdr.rfind('\n', 0, fab_idx) + 1
         hdr = hdr[:pos] + candidate['header'] + '\n' + hdr[pos:]
 
@@ -420,9 +421,33 @@ def test_candidate(tu_name, src_file, header_file, candidate,
 # MAIN SOLVER
 # ============================================================
 
-def run(tu_name, apply_mode=False):
+def detect_header(tu_name):
+    """Auto-detect the primary header for a TU."""
     src_file = f'src/{tu_name}.cpp'
-    header_file = 'include/Player/MarioMain.hpp'
+    with open(src_file) as f:
+        for line in f:
+            m = re.match(r'#include\s*<(.+\.hpp)>', line)
+            if m:
+                path = f'include/{m.group(1)}'
+                if os.path.exists(path):
+                    return path
+    # Fallback
+    return 'include/Player/MarioMain.hpp'
+
+
+def detect_class_name(header_file):
+    """Detect the primary class name in a header."""
+    with open(header_file) as f:
+        for line in f:
+            m = re.match(r'\s*class\s+(\w+)\s*[:{]', line)
+            if m:
+                return m.group(1)
+    return 'TMario'
+
+
+def run(tu_name, apply_mode=False, header_override=None):
+    src_file = f'src/{tu_name}.cpp'
+    header_file = header_override or detect_header(tu_name)
 
     print(f"{'='*70}")
     print(f"INLINE SOLVER v4: {tu_name}")
@@ -611,10 +636,13 @@ def run(tu_name, apply_mode=False):
         with open(src_file) as f:
             src = f.read()
 
-        tmario_idx = hdr.find('class TMario')
-        fab_idx = hdr.find('// Fabricated', tmario_idx)
+        cls_name = detect_class_name(header_file)
+        cls_idx = hdr.find(f'class {cls_name}')
+        fab_idx = hdr.find('// Fabricated', cls_idx if cls_idx != -1 else 0)
+        if fab_idx == -1:
+            fab_idx = hdr.find('};', cls_idx if cls_idx != -1 else 0)
         pos = hdr.rfind('\n', 0, fab_idx) + 1
-        block = '\t// Auto-discovered inline accessors (inline_solver v4)\n'
+        block = f'\t// Auto-discovered inline accessors (inline_solver v4)\n'
         for name, info in to_apply.items():
             block += info['candidate']['header'] + '\n'
         hdr = hdr[:pos] + block + '\n' + hdr[pos:]
@@ -630,20 +658,29 @@ def run(tu_name, apply_mode=False):
             f.write(src)
 
         if build():
-            new_matches = get_match_percentages(tu_name)
-            print(f"\n  Applied {total_rep} replacements. Results:")
-            for func in sorted(baseline_matches.keys()):
-                old = baseline_matches.get(func, 0)
-                new = new_matches.get(func, 0)
-                if abs(new - old) > 0.01:
-                    print(f"    {func}: {old:.1f}% -> {new:.1f}%")
+            new_exact = get_exact_matches(tu_name)
+            new_n = sum(1 for v in new_exact.values() if v)
+            print(f"\n  Applied {total_rep} replacements.")
+            print(f"  Exact matches: {n_exact} -> {new_n}")
+
+            # Show changed functions
+            for func in sorted(baseline_exact.keys()):
+                was = baseline_exact.get(func, False)
+                now = new_exact.get(func, False)
+                if was != now:
+                    status = "MATCH!" if now else "BROKEN"
+                    print(f"    {func}: {status}")
         else:
             print("  BUILD FAILED!")
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Usage: python tools/inline_solver.py <TU> [--apply]")
+        print("Usage: python tools/inline_solver.py <TU> [--apply] [--header=path]")
         sys.exit(1)
     apply_mode = '--apply' in sys.argv
-    run(sys.argv[1], apply_mode)
+    header = None
+    for arg in sys.argv[2:]:
+        if arg.startswith('--header='):
+            header = arg.split('=', 1)[1]
+    run(sys.argv[1], apply_mode, header)

@@ -520,7 +520,7 @@ int TMario::doSliding(f32 stopThreshold)
 			u16 type = ground->mBGType;
 
 			u8 isOil;
-			if (type == 0x0c || type == 0x800c || type == 0xa00c)
+			if (!(type == 0x0c || type == 0x800c || type == 0xa00c))
 				isOil = 1;
 			else
 				isOil = 0;
@@ -863,7 +863,7 @@ void TMario::doSurfing()
 	checkGroundPlane(mPosition.x, waterHeight, mPosition.z, nullptr,
 	                 &waterPlane);
 
-	u16 groundType = waterPlane ? *(u16*)waterPlane : 0;
+	s32 groundType = waterPlane ? *(u16*)waterPlane : 0;
 
 	u8 isSurfType;
 	if (groundType == 0x100 || groundType == 0x101
@@ -926,7 +926,7 @@ void TMario::doSurfing()
 		mForwardVel = fwdVel + rotMin;
 	} else if (fwdVel <= speedInput) {
 		// Under target speed - check ground and accelerate
-		u16 gt2 = mGroundPlane ? *(u16*)mGroundPlane : 0;
+		s32 gt2 = mGroundPlane ? *(u16*)mGroundPlane : 0;
 		u8 isSurf2;
 		if (gt2 == 0x100 || gt2 == 0x101
 		    || (u16)(gt2 - 0x102) <= 3
@@ -976,7 +976,7 @@ void TMario::doSurfing()
 	slopeProcess();
 
 	// Check if on surfing ground for special handling
-	u16 gt3 = waterPlane ? *(u16*)waterPlane : 0;
+	s32 gt3 = waterPlane ? *(u16*)waterPlane : 0;
 	u8 isSurf3;
 	if (gt3 == 0x100 || gt3 == 0x101
 	    || (u16)(gt3 - 0x102) <= 3
@@ -1364,8 +1364,8 @@ void TMario::fireDashing()
 	mForwardVel = FConverge(mForwardVel, 48.0f, 32.0f, 4.0f);
 
 	if (mInput & 0x01) {
-		s16 yawDiff = mIntendedYaw - mFaceAngle.y;
-		s16 result = IConverge((s16)yawDiff, 0, 1536, 1536);
+		s32 yawDiff = mIntendedYaw - mFaceAngle.y;
+		s32 result = IConverge((s16)yawDiff, 0, 1536, 1536);
 		mFaceAngle.y = mIntendedYaw - result;
 	}
 
@@ -1502,9 +1502,9 @@ void TMario::surfing()
 
 		f32 nz = wall->mNormal.z;
 		f32 nx = wall->mNormal.x;
-		s16 wallAngle = matan(nz, nx);
+		s32 wallAngle = matan(nz, nx);
 
-		s16 faceDiff = wallAngle - mFaceAngle.y;
+		s32 faceDiff = wallAngle - mFaceAngle.y;
 
 		const TBGCheckData* ground = mGroundPlane;
 		u16 groundType = ground->mBGType;
@@ -1517,7 +1517,7 @@ void TMario::surfing()
 		else
 			isSurfType = 0;
 
-		s16 clashAngle;
+		s32 clashAngle;
 		f32 clashSpeed;
 		if (isSurfType) {
 			u8 color = *(u8*)((u8*)this + 0x389);
@@ -1583,7 +1583,7 @@ void TMario::surfing()
 			}
 		}
 
-		s16 negClash = -clashAngle;
+		s32 negClash = -clashAngle;
 		if (faceDiff < negClash || clashAngle < faceDiff) {
 			if (mForwardVel > clashSpeed) {
 				decHP(mDeParams.mHpMax.value);

@@ -1333,6 +1333,24 @@ public:
 	}
 
 	const TBGCheckData* getGroundPlane() const { return mGroundPlane; }
+	const TBGCheckData* getRoofPlane() const { return mRoofPlane; }
+
+	// Inline combinator accessors
+	THitActor getFloorHitActor() const { return mFloorHitActor; }
+	f32 getMfloorpositionZ() const { return mFloorPosition.z; }
+	f32 getMpositionX() const { return mPosition.x; }
+	f32 getMpositionY() const { return mPosition.y; }
+	f32 getMpositionZ() const { return mPosition.z; }
+	f32 getMvelY() const { return mVel.y; }
+	f32 getUnk12c() const { return unk12C; }
+	f32 getUnk130() const { return unk130; }
+	f32 getUnk134() const { return unk134; }
+	s16 getUnk14c() const { return unk14C; }
+	s16 getMfaceangleY() const { return mFaceAngle.y; }
+	f32 getFloorPositionY() const { return mFloorPosition.y; }
+	f32 getFloorPositionX() const { return mFloorPosition.x; }
+	f32 getUnk15c() const { return unk15C; }
+	TWaterEmitInfo* getUnk158() const { return unk158; }
 
 	// Fabricated
 	bool checkFlag(u32 attribute) const
