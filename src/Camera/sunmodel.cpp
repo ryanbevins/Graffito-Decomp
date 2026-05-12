@@ -1,6 +1,30 @@
 #include <Camera/SunModel.hpp>
 #include <Camera/CameraMarioData.hpp>
+#include <Camera/cameralib.hpp>
+#include <System/Resolution.hpp>
+#include <JSystem/JGeometry.hpp>
 #include <dolphin/gx.h>
+
+template <class S, class F>
+void CLBScreenFPosToSPos(JGeometry::TVec2<S>* dst, const JGeometry::TVec2<F>& src)
+{
+	if (src.x < -1.0f || src.x > 1.0f) {
+		dst->x = -1;
+	} else {
+		s32 w  = (s32)SMSGetGameRenderWidth();
+		dst->x = (S)CLBRoundf<S>(0.5f * (1.0f + src.x) * (f32)(w - 1));
+	}
+	if (src.y < -1.0f || src.y > 1.0f) {
+		dst->y = -1;
+	} else {
+		s32 h  = (s32)SMSGetGameRenderHeight();
+		dst->y = (S)CLBRoundf<S>(-0.5f * (src.y - 1.0f) * (f32)(h - 1));
+	}
+}
+
+template void CLBScreenFPosToSPos<s16, f32>(JGeometry::TVec2<s16>*,
+                                            const JGeometry::TVec2<f32>&);
+
 
 TSunModel* gpSunModel;
 
