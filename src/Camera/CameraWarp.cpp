@@ -11,27 +11,36 @@ public:
 	void copySaveParam(const TCamSaveKindParam&);
 };
 
+static inline void addVec3At(void* base, u32 off, const Vec& d)
+{
+	f32* p = (f32*)((u8*)base + off);
+	p[0] += d.x;
+	p[1] += d.y;
+	p[2] += d.z;
+}
+
 void CPolarSubCamera::addMoveCameraAndMario(const Vec& delta)
 {
-	// Add delta to multiple Vec3 fields scattered through the camera
-	static const u32 kOffsets[]
-	    = { 0x10, 0x3C, 0x124, 0x148, 0x80, 0x8C, 0x98, 0xB4, 0xC0, 0xCC };
-	for (u32 i = 0; i < sizeof(kOffsets) / sizeof(kOffsets[0]); i++) {
-		f32* p = (f32*)((u8*)this + kOffsets[i]);
-		p[0] += delta.x;
-		p[1] += delta.y;
-		p[2] += delta.z;
-	}
+	addVec3At(this, 0x10, delta);
+	addVec3At(this, 0x3C, delta);
+	addVec3At(this, 0x124, delta);
+	addVec3At(this, 0x148, delta);
 
-	// Apply to gpCameraMario position
-	gpCameraMario->mPosX += delta.x;
-	gpCameraMario->mPosY += delta.y;
-	gpCameraMario->mPosZ += delta.z;
+	Vec tmp;
+	JGeometry::TVec3<f32>(delta.x, delta.y, delta.z).set((Vec&)tmp);
+	gpCameraMario->mPosX += tmp.x;
+	gpCameraMario->mPosY += tmp.y;
+	gpCameraMario->mPosZ += tmp.z;
 
-	// Apply to camera inbetween
 	TCameraInbetween* inb = *(TCameraInbetween**)((u8*)this + 0x6C);
-	if (inb)
-		inb->addMoveCameraAndMario(delta);
+	inb->addMoveCameraAndMario(delta);
+
+	addVec3At(this, 0x80, delta);
+	addVec3At(this, 0x8C, delta);
+	addVec3At(this, 0x98, delta);
+	addVec3At(this, 0xB4, delta);
+	addVec3At(this, 0xC0, delta);
+	addVec3At(this, 0xCC, delta);
 }
 
 void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
