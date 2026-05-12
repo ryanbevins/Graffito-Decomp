@@ -53,7 +53,7 @@ public:
 	void ctrlOptionCamera_();
 	void ctrlJetCoasterCamera_();
 	void createMultiPlayer(u8);
-	void addMultiPlayer(const JGeometry::TVec3<f32>*, f32, f32);
+	bool addMultiPlayer(const JGeometry::TVec3<f32>*, f32, f32);
 	void removeMultiPlayer(const JGeometry::TVec3<f32>*);
 	void ctrlMultiPlayerCamera_();
 	void makeMtxForTalk(const TBaseNPC*);
