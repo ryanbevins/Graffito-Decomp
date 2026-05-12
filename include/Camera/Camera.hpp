@@ -18,7 +18,7 @@ public:
 	bool isLButtonCameraSpecifyMode(int) const;
 	void isLButtonCameraInbetween() const;
 	bool isJetCoaster1stCamera() const;
-	void isTalkCameraSpecifyMode(int) const;
+	bool isTalkCameraSpecifyMode(int) const;
 	void isTalkCameraInbetween() const;
 	void isNormalCameraSpecifyMode(int) const;
 	void isNormalCameraCompletely() const;
@@ -103,7 +103,7 @@ public:
 	~CPolarSubCamera();
 	int controlByCameraCode_(int*);
 	void getLButtonCameraModeByNozzle_();
-	void getCameraInbetweenFrame_(int);
+	int getCameraInbetweenFrame_(int);
 	void setUpToLButtonCamera_(int);
 	void setUpFromLButtonCamera_();
 	void changeCamModeSub_(int, int, bool);
@@ -131,13 +131,20 @@ public:
 
 public:
 	/* 0x50 */ int mMode;
-	/* 0x54 */ char unk54[0x70 - 0x54];
+	/* 0x54 */ char unk54[0x58 - 0x54];
+	/* 0x58 */ u32 unk58;
+	/* 0x5C */ char unk5C[0x70 - 0x5C];
 	/* 0x70 */ TCameraMapTool* unk70;
-	/* 0x74 */ char unk74[0xA4 - 0x74];
+	/* 0x74 */ char unk74[0x7C - 0x74];
+	/* 0x7C */ u32 unk7C;
+	/* 0x80 */ char unk80[0x8C - 0x80];
+	/* 0x8C */ JGeometry::TVec3<f32> unk8C;
+	/* 0x98 */ char unk98[0xA4 - 0x98];
 	/* 0xA4 */ s16 unkA4;
-	/* 0xA6 */ char unkA6[0xA8 - 0xA6];
+	/* 0xA6 */ s16 unkA6;
 	/* 0xA8 */ f32 unkA8;
-	/* 0xAC */ char unkAC[0x120 - 0xAC];
+	/* 0xAC */ s16 unkAC;
+	/* 0xAE */ char unkAE[0x120 - 0xAE];
 	/* 0x120 */ TMarioGamePad* unk120;
 	/* 0x124 */ JGeometry::TVec3<f32> unk124;
 	/* 0x130 */ char unk130[0xC];

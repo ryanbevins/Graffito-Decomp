@@ -77,7 +77,7 @@ public:
 	void isMadNpc() const;
 	void isBeTrampledNpc() const;
 	void isPollutionNpc() const;
-	void isSmallNpc() const;
+	bool isSmallNpc() const;
 	void isChild() const;
 	void isSunflower() const;
 	void isJellyFishMare() const;
