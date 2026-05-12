@@ -86,11 +86,11 @@ public:
 	void rotateY_ByStickX_(f32);
 	void offMoveApproach_();
 	void onMoveApproach_();
-	void isMarioReadyGun_() const;
-	void isMarioAimWithGun_() const;
-	void isMarioCrabWalk_() const;
+	bool isMarioReadyGun_() const;
+	bool isMarioAimWithGun_() const;
+	bool isMarioCrabWalk_() const;
 	void execInvalidAutoChase_();
-	void isMomentDefinite_() const;
+	bool isMomentDefinite_() const;
 	void calcSlopeAngleX_(s16*);
 	void calcPosAndAt_();
 	void calcFinalPosAndAt_();
