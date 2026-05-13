@@ -350,8 +350,8 @@ BOOL TBellDolpic::receiveMessage(THitActor* sender, u32 message)
 				    mPosition.z);
 			} else {
 				gpItemManager->makeShineAppearWithDemo(
-				    "シャイン（ドルピック鐘テャレビ局用）",
-				    "ドルピック鐘テャレビ局カメラ", mPosition.x, mPosition.y,
+				    "シャイン（ドルピック鐘テレビ局用）",
+				    "ドルピック鐘テレビ局カメラ", mPosition.x, mPosition.y,
 				    mPosition.z);
 			}
 
