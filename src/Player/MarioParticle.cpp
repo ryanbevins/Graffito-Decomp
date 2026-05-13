@@ -91,6 +91,22 @@ void TMario::emitRotateShootEffect()
 	gpMarioParticleManager->emitAndBindToPosPtr(0x115, &unk160[2], 1, this);
 }
 
+void TMario::wallSlipEffect()
+{
+	gpMarioParticleManager->emitAndBindToPosPtr(0x102, &mPosition, 1, this);
+}
+
+void TMario::emitGetWaterEffect()
+{
+	gpMarioParticleManager->emitAndBindToPosPtr(0xF, &unk160[0], 0, nullptr);
+}
+
+void TMario::emitGetEffect()
+{
+	gpMarioParticleManager->emitAndBindToPosPtr(0xE, &unk160[0], 0, nullptr);
+	startSoundActor(0x1989);
+}
+
 void TMario::kickFruitEffect()
 {
 	JPABaseEmitter* emitter
