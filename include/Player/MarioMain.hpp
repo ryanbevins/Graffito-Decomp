@@ -786,7 +786,6 @@ public:
 	virtual MtxPtr getTakingMtx();
 	virtual bool moveRequest(const JGeometry::TVec3<f32>&);
 
-	void drawSyncCallback(u16);
 	virtual void initValues();
 	virtual void checkReturn();
 	virtual void checkController(JDrama::TGraphics*);
@@ -799,6 +798,7 @@ public:
 	                        f32 pollutionAmount, s16 invincibilityFrames);
 	virtual void checkCollision();
 	virtual void getVoiceStatus();
+	void drawSyncCallback(u16);
 
 	BOOL actnMain();
 	void pitching();
