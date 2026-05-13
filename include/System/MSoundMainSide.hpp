@@ -59,6 +59,12 @@ public:
 
 class MSMainProc {
 public:
+	class MSStageInfo {
+	public:
+		static bool bossNotDamaged;
+		static bool bossLives;
+	};
+
 	static void startStageBGM(u8, u8);
 	static void endStageEntranceDemo(u8, u8);
 	static void entranceDemoLoop(u32);
