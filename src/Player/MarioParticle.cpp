@@ -26,3 +26,16 @@ void TMario::sinkInSandEffect()
 		emitter->unk174.z = 0.0f;
 	}
 }
+
+void TMario::sleepingEffect()
+{
+	gpMarioParticleManager->emitAndBindToPosPtr(0x124, &mSleepPos, 1, this);
+}
+
+void TMario::sleepingEffectKill()
+{
+	JPABaseEmitter* emitter
+	    = gpMarioParticleManager->emitAndBindToPosPtr(0x124, &mSleepPos, 1, this);
+	if (emitter)
+		emitter->deleteAllParticle();
+}

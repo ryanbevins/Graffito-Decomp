@@ -1484,7 +1484,8 @@ public:
 	/* 0x194 */ f32 unk194;
 	/* 0x198 */ f32 unk198;
 	/* 0x19C */ JGeometry::TVec3<f32> unk19C; // damage pos
-	/* 0x1A8 */ char unk1A8[0x1C0 - 0x1A8];
+	/* 0x1A8 */ JGeometry::TVec3<f32> unk1A8;
+	/* 0x1B4 */ JGeometry::TVec3<f32> mSleepPos;
 	/* 0x1C0 */ Mtx mJointMtx0;  // joint matrix 0 (prev root)
 	/* 0x1F0 */ Mtx mJointMtx1;  // joint matrix 1 (prev center)
 	/* 0x220 */ Mtx mJointMtx2;  // joint matrix 2 (prev taking)
