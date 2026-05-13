@@ -72,3 +72,15 @@ void TMario::warpInLight()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(0x51, &unk160[2], 0, this);
 }
+
+void TMario::elecEndEffect()
+{
+	gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &unk160[2], 0, this);
+}
+
+void TMario::elecEffect()
+{
+	gpMarioParticleManager->emitAndBindToPosPtr(0x116, &unk160[2], 1, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x118, &unk160[2], 1, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x117, &unk160[2], 1, this);
+}
