@@ -63,6 +63,7 @@ public:
 	public:
 		static bool bossNotDamaged;
 		static bool bossLives;
+		static bool bossLives2;
 	};
 
 	static void startStageBGM(u8, u8);
