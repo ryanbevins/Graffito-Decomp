@@ -14,15 +14,15 @@ void MSSetSound::init()
 	    0x6809, "落書き消し音", 2, 4, 7, 5, 100.0f, 1, 11.0f, 17000.0f, 0.52f,
 	    0.9f, 221.78f, 0x16, 8000.0f, 0xfa, 0.81f, 1.35f, 153.73f, true);
 
-	smSetSound[2] = new MSSetSound(0x6807, "ヒノクリ汚染着地音", 2, 9, 15, 12,
+	smSetSound[2] = new MSSetSound(0x6807, "ヒノクリ汚染着地音", 2, 9, 15, 18,
 	                               100.0f, 1, 44.0f, 3.0f, 1.0f, 1.0f, 0.0f,
 	                               0xf, 200.0f, 0xb4, 1.0f, 1.0f, 0.0f, false);
 
-	smSetSound[3] = new MSSetSound(0x3803, "火柱", 2, 9, 15, 12, 100.0f, 1,
+	smSetSound[3] = new MSSetSound(0x3803, "火柱", 2, 9, 15, 18, 100.0f, 1,
 	                               44.0f, 3.0f, 1.0f, 1.0f, 0.0f, 0xf, 200.0f,
 	                               0xb4, 1.0f, 1.0f, 0.0f, false);
 
-	smSetSound[4] = new MSSetSound(0x3805, "電気柱", 2, 9, 15, 12, 100.0f, 1,
+	smSetSound[4] = new MSSetSound(0x3805, "電気柱", 2, 9, 15, 18, 100.0f, 1,
 	                               44.0f, 3.0f, 1.0f, 1.0f, 0.0f, 0xf, 200.0f,
 	                               0xb4, 1.0f, 1.0f, 0.0f, false);
 
