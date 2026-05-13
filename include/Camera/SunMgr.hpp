@@ -23,6 +23,7 @@ public:
 public:
 	/* 0x14 */ u8 unk14;
 	/* 0x15 */ u8 unk15;
+	/* 0x16 */ u16 unk16;
 	/* 0x18 */ GXColor unk18;
 	/* 0x1C */ GXColor unk1C;
 	/* 0x20 */ f32 unk20;
