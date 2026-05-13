@@ -1,4 +1,5 @@
 #include <System/MSoundMainSide.hpp>
+#include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
 bool MSMainProc::MSStageInfo::bossNotDamaged;
@@ -30,3 +31,5 @@ void MSMainProc::setBossLivesFlag(bool flag)
 	MSBgm::setTrackVolume(0, 1.0f, 18, 0);
 	MSStageInfo::bossLives = flag;
 }
+
+void MSMainProc::fromTalkingCameraDemo(bool) { gpMSound->talkModeIn(false); }
