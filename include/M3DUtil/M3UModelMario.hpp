@@ -21,11 +21,7 @@ public:
 	/* 0x3 */ u8 mMtxCalcIdx;
 	/* 0x4 */ u16 mAnmTransformIdx[2];
 	/* 0x8 */ u8 mFrameCtrlIdx;
-	/* 0xA */ u16 unkA;
-	/* 0xC */ u16 unkC;
-	/* 0xE */ u16 unkE;
-	/* 0x10 */ u16 unk10;
-	/* 0x12 */ u16 unk12;
+	/* 0x9 */ u8 unk9;
 };
 
 class M3UModelMario : public M3UModel {
