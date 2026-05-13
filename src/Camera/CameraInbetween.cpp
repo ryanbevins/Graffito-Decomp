@@ -32,7 +32,7 @@ void TCameraInbetween::initCameraInbetween(
 	mPrevAt.x    = prev.x;
 	mPrevAt.y    = prev.y;
 	mPrevAt.z    = prev.z;
-	CLBCrossToPolar(mTargetPos, mTargetAt, &mDist, &mAngleX, &mAngleY);
+	CLBCrossToPolar(mTargetAt, mTargetPos, &mDist, &mAngleX, &mAngleY);
 	CLBCrossToPolar(mPrevAt, mTargetAt, &mSubDist, &mSubAngleX, &mSubAngleY);
 }
 
@@ -41,7 +41,7 @@ void TCameraInbetween::startCameraInbetween(int frames)
 	mFrameCount         = frames;
 	mFrameTotal         = frames;
 	mUseAngularVelocity = 0;
-	CLBCrossToPolar(mTargetPos, mTargetAt, &mDist, &mAngleX, &mAngleY);
+	CLBCrossToPolar(mTargetAt, mTargetPos, &mDist, &mAngleX, &mAngleY);
 	CLBCrossToPolar(mPrevAt, mTargetAt, &mSubDist, &mSubAngleX, &mSubAngleY);
 }
 
