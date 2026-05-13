@@ -1,6 +1,7 @@
 #include <Player/MarioMain.hpp>
 #include <Player/MarioEffect.hpp>
 #include <System/EmitterViewObj.hpp>
+#include <System/MarDirector.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 
 bool TMario::askJumpIntoWaterEffectExist() const
@@ -105,6 +106,13 @@ void TMario::emitGetEffect()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(0xE, &unk160[0], 0, nullptr);
 	startSoundActor(0x1989);
+}
+
+void TMario::emitSweatSometimes()
+{
+	s16 yaw = mFaceAngle.y;
+	if ((gpMarDirector->unk58 & 0xF) == 0)
+		emitSweat(yaw);
 }
 
 void TMario::kickFruitEffect()
