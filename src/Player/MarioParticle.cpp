@@ -39,3 +39,6 @@ void TMario::sleepingEffectKill()
 	if (emitter)
 		emitter->deleteAllParticle();
 }
+
+void TMario::emitSandEffect() { emitFootPrintWithEffect(0x3b, 0x3a); }
+void TMario::emitDirtyFootPrint() { emitFootPrintWithEffect(0x50, -1); }
