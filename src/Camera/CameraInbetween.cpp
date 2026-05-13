@@ -68,7 +68,7 @@ void TCameraInbetween::warpPosAndAt(const Vec& pos, const Vec& at)
 	mTargetAt.x  = at.x;
 	mTargetAt.y  = at.y;
 	mTargetAt.z  = at.z;
-	CLBCrossToPolar(mTargetPos, mTargetAt, &mDist, &mAngleX, &mAngleY);
+	CLBCrossToPolar(mTargetAt, mTargetPos, &mDist, &mAngleX, &mAngleY);
 	CLBCrossToPolar(mPrevAt, mTargetAt, &mSubDist, &mSubAngleX, &mSubAngleY);
 }
 
