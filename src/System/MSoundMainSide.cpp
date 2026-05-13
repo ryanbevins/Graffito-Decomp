@@ -33,3 +33,6 @@ void MSMainProc::setBossLivesFlag(bool flag)
 }
 
 void MSMainProc::fromTalkingCameraDemo(bool) { gpMSound->talkModeIn(false); }
+
+void MSMainProc::fromInnerCameraDemo() { gpMSound->unkCA = 0; }
+void MSMainProc::toInnerCameraDemo() { gpMSound->unkCA = 1; }
