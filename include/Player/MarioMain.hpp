@@ -230,6 +230,8 @@ struct TRidingInfo {
 };
 
 struct TMarioSoundValues {
+	TMarioSoundValues();
+
 	/* 0x00 */ int unk00;
 	/* 0x04 */ int unk04;
 	/* 0x08 */ int unk08;
