@@ -84,3 +84,9 @@ void TMario::elecEffect()
 	gpMarioParticleManager->emitAndBindToPosPtr(0x118, &unk160[2], 1, this);
 	gpMarioParticleManager->emitAndBindToPosPtr(0x117, &unk160[2], 1, this);
 }
+
+void TMario::emitRotateShootEffect()
+{
+	gpMarioParticleManager->emitAndBindToPosPtr(0x114, &unk160[2], 1, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x115, &unk160[2], 1, this);
+}
