@@ -1124,7 +1124,31 @@ void TRoulette::calcRootMatrix()
 	               mRotation.x, mRotation.y, mRotation.z);
 	model->unk14 = (Vec&)mScaling;
 }
-void TRoulette::initMapObj() { TMapObjBase::initMapObj(); }
+void TRoulette::initMapObj()
+{
+	mPosition.y += 500.0f;
+	TMapObjBase::initMapObj();
+	J3DModel* model = getModel();
+	for (u16 i = 0; i < model->mModelData->mMaterialNum; ++i) {
+		const char* name = model->mModelData->mMaterialName->getName(i);
+		if (strstr(name, "_switch")) {
+			SMS_InitPacket_OneTevColor(model, i, (GXTevRegID)1,
+			                           (GXColorS10*)((u8*)this + 0x148));
+		}
+	}
+	TRouletteSw* sw = new TRouletteSw("ルーレットスイッチ");
+	sw->unk68 = this;
+	sw->unk6C = 0;
+	unk150 = sw;
+	// list registration omitted (JGadget complexity)
+	if (gpApplication.mCurrArea.getStage() == 14) {
+		sw->initHitActor(0x4000019A, 2, 0x80000000, 40.0f, 80.0f, 40.0f, 80.0f);
+	} else {
+		sw->initHitActor(0x4000019A, 2, 0x80000000, 500.0f, 100.0f, 500.0f,
+		                 100.0f);
+	}
+	sw->unk64 &= ~1;
+}
 
 void TCloset::initMapObj()
 {
