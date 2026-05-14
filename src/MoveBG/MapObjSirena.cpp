@@ -752,11 +752,12 @@ void TItemSlotDrum::calcRootMatrix()
 {
 	gpCurObject = this;
 	u8 anyNonZero = 0;
-	if (unk138[0] != 0.0f)
+	f32 zero = 0.0f;
+	if (zero != unk138[0])
 		anyNonZero = 1;
-	if (unk138[1] != 0.0f)
+	if (zero != unk138[1])
 		anyNonZero = 1;
-	if (unk138[2] != 0.0f)
+	if (zero != unk138[2])
 		anyNonZero = 1;
 	if (anyNonZero) {
 		if (gpMSound->gateCheck(0x308D))
