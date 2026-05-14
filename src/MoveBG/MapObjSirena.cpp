@@ -458,7 +458,32 @@ BOOL TRouletteSw::receiveMessage(THitActor* sender, u32 message)
 	return FALSE;
 }
 
-void TRoulette::switchStop() { }
+void TRoulette::switchStop()
+{
+	if (unk150->unk6C != 0) {
+		f32 ground = SMS_GetMarioGrLevel();
+		if (gpMarioPos->y < ground + 20.0f && unk13C != 0.0f) {
+			unk150->unk6C = 0;
+			unk13C = 0.0f;
+			unk148 = 0;
+			unk14A = 0;
+			unk14C = 0;
+			if (gpMSound->gateCheck(0x2924))
+				MSoundSESystem::MSoundSE::startSoundActor(0x2924, mPosition, 0,
+				                                          nullptr, 0, 4);
+		}
+	}
+	if (unk150->unk6C != 0 && unk141 != 0) {
+		unk150->unk6C = 0;
+		unk148 = 0;
+		unk14A = 0;
+		unk14C = 0;
+		if (gpMSound->gateCheck(0x2924))
+			MSoundSESystem::MSoundSE::startSoundActor(0x2924, mPosition, 0,
+			                                          nullptr, 0, 4);
+		unk140 = 1;
+	}
+}
 
 void TRoulette::setRollSp(f32 sp)
 {
