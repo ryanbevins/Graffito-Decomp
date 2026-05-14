@@ -36,10 +36,29 @@ static int partsRollCallback(J3DNode* node, int param)
 		return 1;
 	u16 jointIdx = *((u16*)node + 0xC);
 	TSirenaRollMapObj* obj = (TSirenaRollMapObj*)gpCurObject;
-	MtxPtr localMtx = (MtxPtr)((u8*)obj->getModel()->mNodeMatrices + jointIdx * 0x30);
+	MtxPtr localMtx
+	    = (MtxPtr)((u8*)obj->getModel()->mNodeMatrices + jointIdx * 0x30);
 	jointIdx -= 1;
+
+	// Build scale matrix from obj->mScaling
+	Mtx scaleMtx;
+	scaleMtx[0][0] = obj->mScaling.x;
+	scaleMtx[0][1] = 0.0f;
+	scaleMtx[0][2] = 0.0f;
+	scaleMtx[0][3] = 0.0f;
+	scaleMtx[1][0] = 0.0f;
+	scaleMtx[1][1] = obj->mScaling.y;
+	scaleMtx[1][2] = 0.0f;
+	scaleMtx[1][3] = 0.0f;
+	scaleMtx[2][0] = 0.0f;
+	scaleMtx[2][1] = 0.0f;
+	scaleMtx[2][2] = obj->mScaling.z;
+	scaleMtx[2][3] = 0.0f;
+
+	// Apply rotation/scale to local matrix and J3DSys::mCurrentMtx
+	Mtx rotMtx;
+	(void)rotMtx;
 	(void)localMtx;
-	(void)jointIdx;
 	return 1;
 }
 
