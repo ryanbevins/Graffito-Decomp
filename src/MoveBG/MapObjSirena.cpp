@@ -822,7 +822,14 @@ u32 TItemSlotDrum::touchWater(THitActor* sender)
 		return 1;
 	int range = 0x96 - 0x64;
 	unk1A4 = 0x64 + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)range);
-	return 0;
+	for (s32 i = 0; i < unk148; ++i) {
+		*((u8*)this + 0x19F + i) = 1;
+		*((u8*)this + 0x19C + i) = 0;
+		f32 t = (f32)rand() * (1.0f / 32768.0f);
+		unk138[i] = unk158 * (0.5f + t * (0.8f - 0.5f));
+	}
+	unk1A2 = 0;
+	return 1;
 }
 void TItemSlotDrum::generateItem()
 {
