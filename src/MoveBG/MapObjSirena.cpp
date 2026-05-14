@@ -743,6 +743,75 @@ void TCasinoPanelGate::moveObject()
 					                                             nullptr, 0);
 			}
 		}
+		return;
+	}
+
+	// Per-slot animation loop
+	bool allStopped = true;
+	for (s32 i = 0; i < unk148; ++i) {
+		f32 cur = unk138[i];
+		if (cur == 0.0f) {
+			if (unk13C[i] < 180.0f)
+				allStopped = false;
+			continue;
+		}
+		allStopped = false;
+		if (fabsf(cur) > unk160) {
+			unk13C[i] += cur;
+			if (cur > 0.0f)
+				unk138[i] = cur - unk15C;
+			else
+				unk138[i] = cur + unk15C;
+			bool changed = false;
+			while (unk13C[i] >= 360.0f) {
+				unk13C[i] -= 360.0f;
+				changed = true;
+			}
+			while (unk13C[i] < 0.0f) {
+				unk13C[i] += 360.0f;
+				changed = true;
+			}
+			if (changed) {
+				if (gpMSound->gateCheck(0x389E))
+					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+					    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
+					    nullptr, 0, 4);
+			}
+		} else {
+			unk13C[i] += cur;
+			bool changed = false;
+			while (unk13C[i] >= 360.0f) {
+				unk13C[i] -= 360.0f;
+				changed = true;
+			}
+			while (unk13C[i] < 0.0f) {
+				unk13C[i] += 360.0f;
+				changed = true;
+			}
+			if (changed) {
+				if (gpMSound->gateCheck(0x389E))
+					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+					    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
+					    nullptr, 0, 4);
+			}
+			s32 angInt = (s32)fabsf(unk13C[i]);
+			if ((angInt % 180) == 0) {
+				if (unk13C[i] >= 0.0f && unk13C[i] <= 180.0f)
+					unk13C[i] = 0.0f;
+				else
+					unk13C[i] = 180.0f;
+				unk138[i] = 0.0f;
+			}
+		}
+	}
+	if (allStopped) {
+		unk16D = 1;
+		mMActor->setBck("pazul");
+		MSBgm::startBGM(0x80010025);
+		if (gpMSound->gateCheck(0x4849))
+			MSoundSESystem::MSoundSE::startSoundActor(0x4849, mPosition, 0,
+			                                          nullptr, 0, 4);
+		removeMapCollision();
 	}
 }
 void TCasinoPanelGate::calcRootMatrix()
