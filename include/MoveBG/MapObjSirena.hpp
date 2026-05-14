@@ -162,6 +162,7 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 
 	void switchStop();
+	void setRollSp(f32);
 
 public:
 	/* 0x138 */ f32 unk138;
@@ -181,6 +182,8 @@ public:
 class TItemSlotDrum : public TSlotDrum {
 public:
 	TItemSlotDrum(const char*);
+
+	int getResultFromAng(f32);
 
 public:
 	/* 0x198 */ u32 unk198;

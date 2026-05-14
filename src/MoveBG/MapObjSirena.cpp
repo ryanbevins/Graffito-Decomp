@@ -303,6 +303,26 @@ BOOL TRouletteSw::receiveMessage(THitActor* sender, u32 message)
 
 void TRoulette::switchStop() { }
 
+void TRoulette::setRollSp(f32 sp)
+{
+	unk13C = sp;
+	unk148 = 0;
+	unk14A = 0;
+	unk14C = 0xFF;
+	unk150->unk6C = 0;
+}
+
+int TItemSlotDrum::getResultFromAng(f32 ang)
+{
+	if (ang < 89.0f)
+		return 0;
+	if (ang < 179.0f)
+		return 1;
+	if (ang < 269.0f)
+		return 2;
+	return 3;
+}
+
 f32 TCloset::getRollAngY(int i) const { return unk13C[i]; }
 f32 TCasinoPanelGate::getRollAngX(int i) const { return unk13C[i]; }
 f32 TSlotDrum::getRollAngX(int i) const { return unk13C[i]; }
