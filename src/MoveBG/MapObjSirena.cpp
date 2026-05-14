@@ -67,13 +67,15 @@ void TSirenaCasinoRoof::initMapObj()
 	TMapObjBase::initMapObj();
 	mMActor->offMakeDL();
 
-	MActorAnmDataEach<J3DAnmTextureSRTKey>* btkData
-	    = mMActorKeeper->getMActorAnmData()->getUnk38();
+	MActorAnmData* anmData = mMActorKeeper->getMActorAnmData();
 	unk138 = new TMultiBtk(3, getModel()->getModelData());
 	for (int i = 0; i <= 2; ++i) {
-		J3DAnmTextureSRTKey* anm
-		    = (i < btkData->unk0) ? (J3DAnmTextureSRTKey*)btkData->unkC[i]
-		                          : nullptr;
+		MActorAnmDataEach<J3DAnmTextureSRTKey>* btk = anmData->getUnk38();
+		J3DAnmTextureSRTKey* anm;
+		if (i < btk->unk0)
+			anm = (J3DAnmTextureSRTKey*)btk->unkC[i];
+		else
+			anm = nullptr;
 		unk138->setNthData(i, anm);
 	}
 	mMActor->setBrk("casino_lighting");
@@ -98,13 +100,15 @@ void TSirenabossWall::initMapObj()
 	TMapObjBase::initMapObj();
 	mMActor->offMakeDL();
 
-	MActorAnmDataEach<J3DAnmTextureSRTKey>* btkData
-	    = mMActorKeeper->getMActorAnmData()->getUnk38();
+	MActorAnmData* anmData = mMActorKeeper->getMActorAnmData();
 	unk138 = new TMultiBtk(3, getModel()->getModelData());
 	for (int i = 0; i <= 2; ++i) {
-		J3DAnmTextureSRTKey* anm
-		    = (i < btkData->unk0) ? (J3DAnmTextureSRTKey*)btkData->unkC[i]
-		                          : nullptr;
+		MActorAnmDataEach<J3DAnmTextureSRTKey>* btk = anmData->getUnk38();
+		J3DAnmTextureSRTKey* anm;
+		if (i < btk->unk0)
+			anm = (J3DAnmTextureSRTKey*)btk->unkC[i];
+		else
+			anm = nullptr;
 		unk138->setNthData(i, anm);
 	}
 }
