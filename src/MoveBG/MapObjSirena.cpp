@@ -787,11 +787,25 @@ void TItemSlotDrum::generateItem()
 }
 int TItemSlotDrum::getForcastResult(int idx)
 {
-	f32 ang1 = unk13C[idx];
-	f32 ang2 = unk138[idx];
-	(void)ang1;
-	(void)ang2;
-	return getResultFromAng(0.0f);
+	f32 ang = unk13C[idx];
+	f32 cur = unk138[idx];
+	while (fabsf(cur) > unk160) {
+		ang += cur;
+		if (cur > 0.0f)
+			cur -= unk15C;
+		else
+			cur += unk15C;
+		while (ang >= 360.0f)
+			ang -= 360.0f;
+		while (ang < 0.0f)
+			ang += 360.0f;
+	}
+	ang += cur;
+	while (ang >= 360.0f)
+		ang -= 360.0f;
+	while (ang < 0.0f)
+		ang += 360.0f;
+	return getResultFromAng(ang);
 }
 
 void TRoulette::moveObject()
