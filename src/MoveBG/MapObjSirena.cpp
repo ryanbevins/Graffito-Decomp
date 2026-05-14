@@ -28,7 +28,20 @@
 
 static void* gpCurObject;
 
-static int partsRollCallback(J3DNode*, int) { return 1; }
+static int partsRollCallback(J3DNode* node, int param)
+{
+	if (param != 0)
+		return 1;
+	if (gpCurObject == nullptr)
+		return 1;
+	u16 jointIdx = *((u16*)node + 0xC);
+	TSirenaRollMapObj* obj = (TSirenaRollMapObj*)gpCurObject;
+	MtxPtr localMtx = (MtxPtr)((u8*)obj->getModel()->mNodeMatrices + jointIdx * 0x30);
+	jointIdx -= 1;
+	(void)localMtx;
+	(void)jointIdx;
+	return 1;
+}
 
 TWaterHitPictureHideObj::~TWaterHitPictureHideObj() { }
 #pragma dont_inline on
