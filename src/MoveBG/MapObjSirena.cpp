@@ -502,6 +502,112 @@ void TCasinoPanelGate::initMapObj()
 	}
 }
 
+// Stub implementations — partial matches expected, started for completeness
+
+void TDonchou::calcRootMatrix()
+{
+	J3DModel* model = getModel();
+	Mtx mtx;
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk140, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	PSMTXCopy(mtx, model->unk20);
+	model->unk14 = (Vec&)mScaling;
+}
+
+void TCloset::moveObject() { TMapObjBase::moveObject(); }
+void TCloset::calcRootMatrix()
+{
+	J3DModel* model = getModel();
+	Mtx mtx;
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk140, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	PSMTXCopy(mtx, model->unk20);
+	model->unk14 = (Vec&)mScaling;
+}
+u32 TCloset::touchWater(THitActor* sender)
+{
+	if (unk16C != 0)
+		return 0;
+	if (fabsf(mPosition.z - sender->mPosition.z) >= 50.0f)
+		return 0;
+	return 1;
+}
+
+void TCasinoPanelGate::moveObject() { TMapObjBase::moveObject(); }
+void TCasinoPanelGate::calcRootMatrix()
+{
+	J3DModel* model = getModel();
+	Mtx mtx;
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk140, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	PSMTXCopy(mtx, model->unk20);
+	model->unk14 = (Vec&)mScaling;
+}
+u32 TCasinoPanelGate::touchWater(THitActor* sender)
+{
+	if (unk16D != 0)
+		return 1;
+	if (fabsf(mPosition.z - sender->mPosition.z) >= 50.0f)
+		return 0;
+	return 1;
+}
+
+void TSlotDrum::moveObject() { TMapObjBase::moveObject(); }
+void TSlotDrum::calcRootMatrix()
+{
+	J3DModel* model = getModel();
+	Mtx mtx;
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk140, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	PSMTXCopy(mtx, model->unk20);
+	model->unk14 = (Vec&)mScaling;
+}
+u32 TSlotDrum::touchWater(THitActor* sender)
+{
+	if (unk194 != 0)
+		return 0;
+	return 1;
+}
+void TSlotDrum::initMapObj()
+{
+	unk148 = 3;
+	unk14C = 90.0f;
+	unk150 = mPosition.y;
+	unk194 = 0;
+	TMapObjBase::initMapObj();
+}
+void TSlotDrum::initNeonMatColor() { }
+
+void TItemSlotDrum::moveObject() { TSlotDrum::moveObject(); }
+void TItemSlotDrum::calcRootMatrix()
+{
+	TSlotDrum::calcRootMatrix();
+}
+u32 TItemSlotDrum::touchWater(THitActor* sender)
+{
+	return TSlotDrum::touchWater(sender);
+}
+void TItemSlotDrum::generateItem() { }
+int TItemSlotDrum::getForcastResult(int idx)
+{
+	f32 ang1 = unk13C[idx];
+	f32 ang2 = unk138[idx];
+	(void)ang1;
+	(void)ang2;
+	return getResultFromAng(0.0f);
+}
+
+void TRoulette::moveObject() { TMapObjBase::moveObject(); }
+void TRoulette::calcRootMatrix()
+{
+	J3DModel* model = getModel();
+	Mtx mtx;
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
+	               mRotation.y, mRotation.z);
+	PSMTXCopy(mtx, model->unk20);
+}
+void TRoulette::initMapObj() { TMapObjBase::initMapObj(); }
+
 void TCloset::initMapObj()
 {
 	unk148 = 4;

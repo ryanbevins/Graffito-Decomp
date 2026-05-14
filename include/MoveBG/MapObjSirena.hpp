@@ -168,7 +168,10 @@ class TCloset : public TSirenaRollMapObj {
 public:
 	TCloset(const char*);
 
+	virtual void calcRootMatrix();
 	virtual void initMapObj();
+	virtual void moveObject();
+	virtual u32 touchWater(THitActor*);
 
 	f32 getRollAngY(int i) const;
 
@@ -182,7 +185,10 @@ class TCasinoPanelGate : public TSirenaRollMapObj {
 public:
 	TCasinoPanelGate(const char*);
 
+	virtual void calcRootMatrix();
 	virtual void initMapObj();
+	virtual void moveObject();
+	virtual u32 touchWater(THitActor*);
 
 	f32 getRollAngX(int i) const;
 
@@ -196,6 +202,12 @@ class TSlotDrum : public TSirenaRollMapObj {
 public:
 	TSlotDrum(const char*);
 
+	virtual void calcRootMatrix();
+	virtual void initMapObj();
+	virtual void moveObject();
+	virtual u32 touchWater(THitActor*);
+
+	void initNeonMatColor();
 	f32 getRollAngX(int i) const;
 
 public:
@@ -220,6 +232,9 @@ public:
 	TRoulette(const char*);
 
 	virtual void perform(u32, JDrama::TGraphics*);
+	virtual void calcRootMatrix();
+	virtual void initMapObj();
+	virtual void moveObject();
 
 	void switchStop();
 	void setRollSp(f32);
@@ -244,7 +259,12 @@ public:
 	TItemSlotDrum(const char*);
 
 	virtual void loadAfter();
+	virtual void calcRootMatrix();
+	virtual void moveObject();
+	virtual u32 touchWater(THitActor*);
 
+	void generateItem();
+	int getForcastResult(int);
 	int getResultFromAng(f32);
 
 public:
