@@ -477,6 +477,7 @@ void TItemSlotDrum::loadAfter()
 	}
 }
 
+#pragma dont_inline on
 int TItemSlotDrum::getResultFromAng(f32 ang)
 {
 	if (ang < 89.0f)
@@ -487,6 +488,7 @@ int TItemSlotDrum::getResultFromAng(f32 ang)
 		return 2;
 	return 3;
 }
+#pragma dont_inline off
 
 void TCasinoPanelGate::initMapObj()
 {
@@ -704,7 +706,21 @@ u32 TItemSlotDrum::touchWater(THitActor* sender)
 	unk1A4 = 0x64 + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)range);
 	return 0;
 }
-void TItemSlotDrum::generateItem() { }
+void TItemSlotDrum::generateItem()
+{
+	int firstResult = getResultFromAng(unk13C[0]);
+	int allMatch = firstResult;
+	for (int i = 1; i < 3; ++i) {
+		if (getResultFromAng(unk13C[i]) != firstResult) {
+			allMatch = -1;
+			break;
+		}
+	}
+	if (allMatch == 0) {
+		MSBgm::startBGM(0x80010025);
+		unk194 = 1;
+	}
+}
 int TItemSlotDrum::getForcastResult(int idx)
 {
 	f32 ang1 = unk13C[idx];
