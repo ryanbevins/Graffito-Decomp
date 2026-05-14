@@ -709,6 +709,8 @@ void TSlotDrum::initMapObj()
 		*(u8*)((u8*)this + 0x188 + i) = 0;
 	}
 	TMapObjBase::initMapObj();
+	for (u8 k = 0; k < *(u16*)((u8*)getModel() + 0x1C); ++k) {
+	}
 	for (u8 j = 1; (s32)j <= unk148; ++j) {
 		mMActor->setJointCallback(j, partsRollCallback);
 	}
