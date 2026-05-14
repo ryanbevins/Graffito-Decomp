@@ -654,6 +654,10 @@ u32 TCloset::touchWater(THitActor* sender)
 void TCasinoPanelGate::moveObject()
 {
 	TLiveActor::moveObject();
+	mPosition.y = unk150 - unk14C;
+	if (unk16D != 0) {
+		// stub: anim frame-based logic
+	}
 }
 void TCasinoPanelGate::calcRootMatrix()
 {
