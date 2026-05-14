@@ -17,6 +17,7 @@
 #include <JSystem/J3D/J3DGraphBase/J3DPacket.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <MoveBG/MapObjManager.hpp>
+#include <stdlib.h>
 
 // rogue includes needed for matching sinit
 #include <MSound/MSound.hpp>
@@ -684,6 +685,8 @@ u32 TItemSlotDrum::touchWater(THitActor* sender)
 {
 	if (unk194 != 0 || unk1A2 != 0)
 		return 1;
+	int range = 0x96 - 0x64;
+	unk1A4 = 0x64 + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)range);
 	return 0;
 }
 void TItemSlotDrum::generateItem() { }
