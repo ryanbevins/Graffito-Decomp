@@ -675,7 +675,22 @@ void TCasinoPanelGate::moveObject()
 	TLiveActor::moveObject();
 	mPosition.y = unk150 - unk14C;
 	if (unk16D != 0) {
-		// stub: anim frame-based logic
+		J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
+		f32 endFrame = (f32)*((s16*)fc + 4);
+		f32 curFrame = fc->getFrame();
+		if (curFrame < endFrame - 8.0f) {
+			if (gpMSound->gateCheck(0x4058))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(0x4058, 0, nullptr,
+				                                             0);
+		}
+		if (unk16C == 0) {
+			if (fc->checkPass(endFrame - 2.0f)) {
+				unk16C = 1;
+				if (gpMSound->gateCheck(0x484D))
+					MSoundSESystem::MSoundSE::startSoundSystemSE(0x484D, 0,
+					                                             nullptr, 0);
+			}
+		}
 	}
 }
 void TCasinoPanelGate::calcRootMatrix()
