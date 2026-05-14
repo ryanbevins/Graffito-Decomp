@@ -607,10 +607,29 @@ u32 TSlotDrum::touchWater(THitActor* sender)
 void TSlotDrum::initMapObj()
 {
 	unk148 = 3;
-	unk14C = 90.0f;
+	unk14C = 400.0f;
 	unk150 = mPosition.y;
 	unk194 = 0;
+	unk154 = 2.0f;
+	unk158 = 10.0f;
+	unk15C = 0.1f;
+	unk160 = 0.5f;
+	unk164 = 0;
+	*(u32*)(unkSlotDrum + 0) = 0; // unk168
+	unk138 = (f32*)operator new[](unk148 * sizeof(f32));
+	unk13C = (f32*)operator new[](unk148 * sizeof(f32));
+	for (s32 i = 0; i < unk148; ++i) {
+		unk138[i] = 0.0f;
+		unk13C[i] = (f32)(i + 1) * 90.0f;
+		*(u8*)((u8*)this + 0x188 + i) = 0;
+	}
 	TMapObjBase::initMapObj();
+	for (u8 j = 1; (s32)j <= unk148; ++j) {
+		mMActor->setJointCallback(j, partsRollCallback);
+	}
+	unk140 = mDamageRadius / 3.0f;
+	unk144 = mDamageHeight;
+	initNeonMatColor();
 }
 void TSlotDrum::initNeonMatColor() { }
 

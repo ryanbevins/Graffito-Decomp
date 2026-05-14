@@ -207,7 +207,7 @@ public:
 	virtual void moveObject();
 	virtual u32 touchWater(THitActor*);
 
-	void initNeonMatColor();
+	virtual void initNeonMatColor();
 	f32 getRollAngX(int i) const;
 
 public:
