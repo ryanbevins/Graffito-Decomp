@@ -578,7 +578,11 @@ void TCloset::calcRootMatrix()
 	model->unk14 = (Vec&)mScaling;
 	mtxPtr[1][3] += unk14C;
 	if (unk16C != 0) {
-		// stub for additional state logic
+		if (mMActor->checkCurAnm("closetopen", 0)) {
+			if (mMActor->curAnmEndsNext(0, 0)) {
+				unk168->remove();
+			}
+		}
 	}
 }
 u32 TCloset::touchWater(THitActor* sender)
