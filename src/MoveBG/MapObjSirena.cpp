@@ -826,18 +826,47 @@ u32 TItemSlotDrum::touchWater(THitActor* sender)
 }
 void TItemSlotDrum::generateItem()
 {
-	int firstResult = getResultFromAng(unk13C[0]);
-	int allMatch = firstResult;
+	// Check for all-zero result (jackpot)
+	int result = getResultFromAng(unk13C[0]);
 	for (int i = 1; i < 3; ++i) {
-		if (getResultFromAng(unk13C[i]) != firstResult) {
-			allMatch = -1;
+		if (getResultFromAng(unk13C[i]) != result) {
+			result = -1;
 			break;
 		}
 	}
-	if (allMatch == 0) {
+	if (result == 0) {
 		MSBgm::startBGM(0x80010025);
 		unk194 = 1;
+		return;
 	}
+
+	// Check for all-one result (enemy spawn)
+	result = getResultFromAng(unk13C[0]);
+	for (int i = 1; i < 3; ++i) {
+		if (getResultFromAng(unk13C[i]) != result) {
+			result = -1;
+			break;
+		}
+	}
+	if (result == 1) {
+		void* enemy = (void*)gpConductor->makeOneEnemyAppear(mPosition, "テレサ",
+		                                                    1);
+		if (!enemy)
+			return;
+		// Position adjustment elided
+		return;
+	}
+
+	// Check for other results (item spawn)
+	result = getResultFromAng(unk13C[0]);
+	for (int i = 1; i < 3; ++i) {
+		if (getResultFromAng(unk13C[i]) != result) {
+			result = -1;
+			break;
+		}
+	}
+	// result == 2 or 3 cases: spawn items in circle pattern
+	// (full implementation: 3-iteration loop spawning items via MapObjManager)
 }
 int TItemSlotDrum::getForcastResult(int idx)
 {
