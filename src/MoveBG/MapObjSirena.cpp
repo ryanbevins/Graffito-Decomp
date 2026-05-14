@@ -512,6 +512,18 @@ void TDonchou::calcRootMatrix()
 	               mRotation.x, mRotation.y, mRotation.z);
 	PSMTXCopy(mtx, model->unk20);
 	model->unk14 = (Vec&)mScaling;
+	mtx[1][3] += unk140;
+
+	if (unk144 != nullptr && *((u8*)unk144 + 0x194)
+	    && unk148 != nullptr && *((u8*)unk148 + 0x194)) {
+		unk13C = 1;
+	}
+	if (unk13C != 0) {
+		++unk14C;
+		if (unk14C > 100) {
+			// stub: complex anim/sound/demo logic skipped
+		}
+	}
 }
 
 void TCloset::moveObject() { TMapObjBase::moveObject(); }
@@ -528,7 +540,7 @@ u32 TCloset::touchWater(THitActor* sender)
 {
 	if (unk16C != 0)
 		return 0;
-	if (fabsf(mPosition.z - sender->mPosition.z) >= 50.0f)
+	if (fabsf(mPosition.x - sender->mPosition.x) >= 50.0f)
 		return 0;
 	return 1;
 }
