@@ -150,6 +150,26 @@ void TSakuCasino::initMapObj()
 	warp->setUp();
 }
 
+void TSakuCasino::calcRootMatrix()
+{
+	Mtx mtx;
+	J3DModel* model = getModel();
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk140, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	PSMTXCopy(mtx, model->unk20);
+	model->unk14 = (Vec&)mScaling;
+	mtx[1][3] += unk140;
+
+	if (unk144 != nullptr && *((const u8*)unk144 + 0x16D)) {
+		unk13C = 1;
+		unk138->remove();
+	}
+	if (unk13C != 0) {
+		unk140 -= 1.0f;
+		mScaling.y *= 0.99f;
+	}
+}
+
 TDonchou::TDonchou(const char* name)
     : TMapObjBase(name)
     , unk138(nullptr)
