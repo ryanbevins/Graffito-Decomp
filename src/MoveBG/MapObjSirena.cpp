@@ -526,7 +526,10 @@ void TDonchou::calcRootMatrix()
 	}
 }
 
-void TCloset::moveObject() { TMapObjBase::moveObject(); }
+void TCloset::moveObject()
+{
+	TLiveActor::moveObject();
+}
 void TCloset::calcRootMatrix()
 {
 	J3DModel* model = getModel();
@@ -545,7 +548,10 @@ u32 TCloset::touchWater(THitActor* sender)
 	return 1;
 }
 
-void TCasinoPanelGate::moveObject() { TMapObjBase::moveObject(); }
+void TCasinoPanelGate::moveObject()
+{
+	TLiveActor::moveObject();
+}
 void TCasinoPanelGate::calcRootMatrix()
 {
 	J3DModel* model = getModel();
@@ -561,10 +567,15 @@ u32 TCasinoPanelGate::touchWater(THitActor* sender)
 		return 1;
 	if (fabsf(mPosition.z - sender->mPosition.z) >= 50.0f)
 		return 0;
+	unk164 = 1;
 	return 1;
 }
 
-void TSlotDrum::moveObject() { TMapObjBase::moveObject(); }
+void TSlotDrum::moveObject()
+{
+	TLiveActor::moveObject();
+	mPosition.y = unk150 + unk14C;
+}
 void TSlotDrum::calcRootMatrix()
 {
 	J3DModel* model = getModel();
@@ -577,6 +588,8 @@ void TSlotDrum::calcRootMatrix()
 u32 TSlotDrum::touchWater(THitActor* sender)
 {
 	if (unk194 != 0)
+		return 1;
+	if (fabsf(mPosition.x - sender->mPosition.x) >= 150.0f)
 		return 0;
 	return 1;
 }
@@ -597,7 +610,9 @@ void TItemSlotDrum::calcRootMatrix()
 }
 u32 TItemSlotDrum::touchWater(THitActor* sender)
 {
-	return TSlotDrum::touchWater(sender);
+	if (unk194 != 0 || unk1A2 != 0)
+		return 1;
+	return 0;
 }
 void TItemSlotDrum::generateItem() { }
 int TItemSlotDrum::getForcastResult(int idx)
@@ -609,7 +624,17 @@ int TItemSlotDrum::getForcastResult(int idx)
 	return getResultFromAng(0.0f);
 }
 
-void TRoulette::moveObject() { TMapObjBase::moveObject(); }
+void TRoulette::moveObject()
+{
+	TLiveActor::moveObject();
+	if (unk142 != 0) {
+		mRotation.y += unk13C;
+	}
+	if (unk141 != 0 && unk140 != 0) {
+		// stub for game-pad / sound triggers
+		mPosition.y -= 1.0f;
+	}
+}
 void TRoulette::calcRootMatrix()
 {
 	J3DModel* model = getModel();
