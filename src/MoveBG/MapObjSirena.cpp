@@ -587,6 +587,25 @@ u32 TCloset::touchWater(THitActor* sender)
 		return 0;
 	if (fabsf(mPosition.x - sender->mPosition.x) >= 50.0f)
 		return 0;
+	f32 hZ = 1.1f * unk140;
+	f32 senderZ = sender->mPosition.z;
+	f32 myZ = mPosition.z;
+	int dir;
+	if (senderZ < myZ - hZ) {
+		dir = (mRotation.y < 0.0f) ? 0 : 3;
+	} else if (senderZ < myZ) {
+		dir = (mRotation.y < 0.0f) ? 1 : 2;
+	} else if (senderZ < myZ + hZ) {
+		dir = (mRotation.y < 0.0f) ? 2 : 1;
+	} else {
+		dir = (mRotation.y < 0.0f) ? 3 : 0;
+	}
+	unk164 = 1;
+	f32 sign = (f32)(s16)unk164;
+	unk138[dir] += unk154 * sign;
+	if (fabsf(unk138[dir]) > unk158) {
+		unk138[dir] = unk158 * sign;
+	}
 	return 1;
 }
 
