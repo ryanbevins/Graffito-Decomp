@@ -26,10 +26,22 @@ static void* gpCurObject;
 static int partsRollCallback(J3DNode*, int) { return 1; }
 
 TWaterHitPictureHideObj::~TWaterHitPictureHideObj() { }
+#pragma dont_inline on
+void TWaterHitPictureHideObj::control() { }
+void TWaterHitPictureHideObj::touchActor(THitActor*) { }
+#pragma dont_inline off
 
 Vec* TWaterHitPictureHideObj::getObjAppearPos() const
 {
 	return (Vec*)&mPosition;
+}
+
+void TPictureTelesa::control()
+{
+	TWaterHitPictureHideObj::control();
+	if (unk174 != 0 && mColCount == 0) {
+		unk174 = 0;
+	}
 }
 
 void TChestRevolve::control()

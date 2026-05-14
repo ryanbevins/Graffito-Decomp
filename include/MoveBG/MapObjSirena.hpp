@@ -13,7 +13,25 @@ public:
 	}
 
 	virtual ~TWaterHitPictureHideObj();
+	virtual void control();
+	virtual void touchActor(THitActor*);
 	virtual Vec* getObjAppearPos() const;
+
+public:
+	/* 0x150 */ char unkWaterHit[0x174 - 0x150];
+};
+
+class TPictureTelesa : public TWaterHitPictureHideObj {
+public:
+	TPictureTelesa(const char* name)
+	    : TWaterHitPictureHideObj(name)
+	{
+	}
+
+	virtual void control();
+
+public:
+	/* 0x174 */ u8 unk174;
 };
 
 class TChestRevolve : public TMapObjBase {
@@ -174,8 +192,6 @@ public:
 class TSlotDrum : public TSirenaRollMapObj {
 public:
 	TSlotDrum(const char*);
-
-	virtual void initMapObj();
 
 	f32 getRollAngX(int i) const;
 
