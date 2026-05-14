@@ -17,6 +17,7 @@
 #include <JSystem/J3D/J3DGraphBase/J3DPacket.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <MoveBG/MapObjManager.hpp>
+#include <System/MarioGamePad.hpp>
 #include <stdlib.h>
 
 // rogue includes needed for matching sinit
@@ -817,7 +818,11 @@ void TRoulette::moveObject()
 		mRotation.y += unk13C;
 	}
 	if (unk141 != 0 && unk140 != 0) {
-		// stub for game-pad / sound triggers
+		gpMarioOriginal->mGamePad->onNeutralMarioKey();
+		gpMarioOriginal->mGamePad->mDisabledFrames = 5;
+		if (gpMSound->gateCheck(0x2125))
+			MSoundSESystem::MSoundSE::startSoundActor(0x2125, mPosition, 0,
+			                                          nullptr, 0, 4);
 		mPosition.y -= 1.0f;
 	}
 	J3DModel* model = mMActor->getModel();
