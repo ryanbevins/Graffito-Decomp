@@ -1,13 +1,18 @@
 #include <MoveBG/MapObjSirena.hpp>
 #include <Map/Map.hpp>
+#include <Map/MapCollisionEntry.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Player/MarioAccess.hpp>
 #include <MarioUtil/ModelUtil.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorAnm.hpp>
 #include <M3DUtil/MActorData.hpp>
 #include <Strategic/ObjModel.hpp>
+#include <System/Application.hpp>
+#include <System/MarDirector.hpp>
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
 
 // rogue includes needed for matching sinit
 #include <MSound/MSound.hpp>
@@ -110,5 +115,31 @@ void TSirenabossWall::initMapObj()
 		else
 			anm = nullptr;
 		unk138->setNthData(i, anm);
+	}
+}
+
+TDonchou::TDonchou(const char* name)
+    : TMapObjBase(name)
+    , unk138(nullptr)
+    , unk13C(0)
+    , unk140(0.0f)
+    , unk14C(0)
+{
+}
+
+u32 TDonchou::touchWater(THitActor* sender)
+{
+	if (fabsf(mPosition.z - sender->mPosition.z) < 50.0f)
+		return 1;
+	return 0;
+}
+
+void TDonchou::loadAfter()
+{
+	TMapObjBase::loadAfter();
+	if (gpApplication.mCurrArea.getStage() == 14
+	    && gpMarDirector->getCurrentStage() == 0) {
+		unk144 = JDrama::TNameRefGen::search<THitActor>("srotdram");
+		unk148 = JDrama::TNameRefGen::search<THitActor>("itemsrotdram");
 	}
 }

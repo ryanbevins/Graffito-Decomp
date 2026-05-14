@@ -51,4 +51,24 @@ public:
 	/* 0x138 */ TMultiBtk* unk138;
 };
 
+class TMapCollisionWarp;
+
+class TDonchou : public TMapObjBase {
+public:
+	TDonchou(const char*);
+
+	virtual void loadAfter();
+	virtual void calcRootMatrix();
+	virtual void initMapObj();
+	virtual u32 touchWater(THitActor*);
+
+public:
+	/* 0x138 */ TMapCollisionWarp* unk138;
+	/* 0x13C */ u8 unk13C;
+	/* 0x140 */ f32 unk140;
+	/* 0x144 */ THitActor* unk144;
+	/* 0x148 */ THitActor* unk148;
+	/* 0x14C */ s32 unk14C;
+};
+
 #endif
