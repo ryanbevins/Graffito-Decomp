@@ -118,6 +118,21 @@ void TSirenabossWall::initMapObj()
 	}
 }
 
+TSakuCasino::TSakuCasino(const char* name)
+    : TMapObjBase(name)
+    , unk138(nullptr)
+    , unk13C(0)
+    , unk140(0.0f)
+    , unk144(nullptr)
+{
+}
+
+void TSakuCasino::loadAfter()
+{
+	TMapObjBase::loadAfter();
+	unk144 = JDrama::TNameRefGen::search<THitActor>("pazul");
+}
+
 TDonchou::TDonchou(const char* name)
     : TMapObjBase(name)
     , unk138(nullptr)
@@ -142,4 +157,23 @@ void TDonchou::loadAfter()
 		unk144 = JDrama::TNameRefGen::search<THitActor>("srotdram");
 		unk148 = JDrama::TNameRefGen::search<THitActor>("itemsrotdram");
 	}
+}
+
+void TDonchou::initMapObj()
+{
+	unk140 = 0.0f;
+	unk13C = 0;
+	unk148 = nullptr;
+	unk144 = nullptr;
+	TMapObjBase::initMapObj();
+	getModel();
+
+	Mtx mtx;
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + 2.0f * unk140, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	unk138 = new TMapCollisionWarp;
+	unk138->init("/mapObj/Donchou", 0, this);
+	TMapCollisionWarp* warp = unk138;
+	PSMTXCopy(mtx, warp->unk20);
+	warp->setUp();
 }

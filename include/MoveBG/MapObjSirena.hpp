@@ -53,6 +53,21 @@ public:
 
 class TMapCollisionWarp;
 
+class TSakuCasino : public TMapObjBase {
+public:
+	TSakuCasino(const char*);
+
+	virtual void loadAfter();
+	virtual void calcRootMatrix();
+	virtual void initMapObj();
+
+public:
+	/* 0x138 */ TMapCollisionWarp* unk138;
+	/* 0x13C */ u8 unk13C;
+	/* 0x140 */ f32 unk140;
+	/* 0x144 */ THitActor* unk144;
+};
+
 class TDonchou : public TMapObjBase {
 public:
 	TDonchou(const char*);
