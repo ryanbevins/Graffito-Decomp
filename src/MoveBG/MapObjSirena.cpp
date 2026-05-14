@@ -711,7 +711,7 @@ void TSlotDrum::initMapObj()
 	TMapObjBase::initMapObj();
 	for (u8 k = 0; k < *(u16*)((u8*)getModel() + 0x1C); ++k) {
 	}
-	for (u8 j = 1; (s32)j <= unk148; ++j) {
+	for (s32 j = 1; j <= unk148; ++j) {
 		mMActor->setJointCallback(j, partsRollCallback);
 	}
 	unk140 = mDamageRadius / 3.0f;
