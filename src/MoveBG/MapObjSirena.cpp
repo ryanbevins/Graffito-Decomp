@@ -50,7 +50,7 @@ void TChestRevolve::control()
 
 u32 TChestRevolve::touchWater(THitActor* sender)
 {
-	if (mState == 1) {
+	if (isState(1)) {
 		mState = 2;
 		startAnim(1);
 		setUpMapCollision(1);
@@ -62,7 +62,7 @@ void TPanelRevolve::someAction() { }
 
 void TPanelRevolve::touchPlayer(THitActor* sender)
 {
-	if (marioHipAttack() && mState == 1) {
+	if (marioHipAttack() && isState(1)) {
 		if (gpMSound->gateCheck(0x385D)) {
 			MSoundSESystem::MSoundSE::startSoundActor(0x385D, mPosition, 0,
 			                                          nullptr, 0, 4);
@@ -75,7 +75,7 @@ void TPanelRevolve::touchPlayer(THitActor* sender)
 
 BOOL TPanelRevolve::receiveMessage(THitActor* sender, u32 msg)
 {
-	if (mState == 1) {
+	if (isState(1)) {
 		if (gpMSound->gateCheck(0x385D)) {
 			MSoundSESystem::MSoundSE::startSoundActor(0x385D, mPosition, 0,
 			                                          nullptr, 0, 4);
