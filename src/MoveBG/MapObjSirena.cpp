@@ -822,10 +822,11 @@ void TSlotDrum::moveObject()
 	TLiveActor::moveObject();
 	mPosition.y = unk150 + unk14C;
 	for (s32 i = 0; i < unk148; ++i) {
-		if (unk138[i] == 0.0f)
+		f32 cur = unk138[i];
+		if (cur == 0.0f)
 			continue;
 		f32* abs_counter = (f32*)((u8*)this + 0x188 + i * 4);
-		*abs_counter += fabsf(unk138[i]);
+		*abs_counter += fabsf(cur);
 		if (*abs_counter > 180.0f / 3.0f) {
 			*abs_counter = 0.0f;
 			if (i == 1) {
@@ -842,6 +843,16 @@ void TSlotDrum::moveObject()
 					                                          0, nullptr, 0, 4);
 			}
 		}
+		// Update angle for the slot
+		unk13C[i] += cur;
+		if (cur > 0.0f)
+			unk138[i] = cur - unk15C;
+		else
+			unk138[i] = cur + unk15C;
+		while (unk13C[i] >= 360.0f)
+			unk13C[i] -= 360.0f;
+		while (unk13C[i] < 0.0f)
+			unk13C[i] += 360.0f;
 	}
 }
 void TSlotDrum::calcRootMatrix()
