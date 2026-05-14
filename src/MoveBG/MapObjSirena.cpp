@@ -928,9 +928,59 @@ void TItemSlotDrum::moveObject()
 		if (unk1A4 > 160) {
 			unk1A4 = 0;
 			s32 lo = 0, hi = 2;
-			s32 r0 = lo + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)(hi - lo));
+			s32 r0
+			    = lo + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)(hi - lo));
 			*((u8*)this + 0x19C + lo + r0) = 1;
 		}
+	}
+	// Per-slot animation loop
+	for (s32 i = 0; i < unk148; ++i) {
+		f32 cur = unk138[i];
+		if (cur == 0.0f)
+			continue;
+		if (fabsf(cur) > unk160) {
+			unk13C[i] += cur;
+			if (cur > 0.0f)
+				unk138[i] = cur - unk15C;
+			else
+				unk138[i] = cur + unk15C;
+			while (unk13C[i] >= 360.0f)
+				unk13C[i] -= 360.0f;
+			while (unk13C[i] < 0.0f)
+				unk13C[i] += 360.0f;
+			if (gpMSound->gateCheck(0x389E))
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0, nullptr,
+				    0, 4);
+		} else {
+			unk13C[i] += cur;
+			while (unk13C[i] >= 360.0f)
+				unk13C[i] -= 360.0f;
+			while (unk13C[i] < 0.0f)
+				unk13C[i] += 360.0f;
+			if (gpMSound->gateCheck(0x389E))
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0, nullptr,
+				    0, 4);
+			s32 angInt = (s32)fabsf(unk13C[i]);
+			s32 stepDeg = *(s32*)(unkSlotDrum + 0); // unk168
+			if (stepDeg != 0 && (angInt % stepDeg) == 0) {
+				unk138[i] = 0.0f;
+			}
+		}
+	}
+
+	// Check all stopped — trigger generateItem
+	bool allStopped = true;
+	for (s32 i = 0; i < unk148; ++i) {
+		if (unk138[i] != 0.0f) {
+			allStopped = false;
+			break;
+		}
+	}
+	if (allStopped) {
+		unk1A2 = 1;
+		generateItem();
 	}
 }
 void TItemSlotDrum::calcRootMatrix()
