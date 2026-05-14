@@ -255,6 +255,54 @@ TSlotDrum::TSlotDrum(const char* name)
 {
 }
 
+TRoulette::TRoulette(const char* name)
+    : TMapObjBase(name)
+    , unk138(500.0f)
+    , unk13C(0.0f)
+    , unk140(0)
+    , unk141(0)
+    , unk142(0)
+    , unk144(0.2f)
+{
+	unk150 = nullptr;
+	unk148 = 0;
+	unk14A = 0;
+	unk14C = 0;
+	unk14E = 0xFF;
+	if (gpApplication.mCurrArea.getStage() == 14
+	    && gpMarDirector->getCurrentStage() == 1) {
+		unk141 = 1;
+		unk14C = 0xFF;
+	}
+	if (gpApplication.mCurrArea.getStage() == 56) {
+		unk14C = 0xFF;
+		unk142 = 1;
+	}
+}
+
+void TRoulette::perform(u32 flags, JDrama::TGraphics* gfx)
+{
+	TMapObjBase::perform(flags, gfx);
+	unk150->perform(flags, gfx);
+}
+
+void TRouletteSw::perform(u32 flags, JDrama::TGraphics* gfx)
+{
+	THitActor::perform(flags, gfx);
+	((TRoulette*)unk68)->switchStop();
+}
+
+BOOL TRouletteSw::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == 1) {
+		unk6C = 1;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void TRoulette::switchStop() { }
+
 f32 TCloset::getRollAngY(int i) const { return unk13C[i]; }
 f32 TCasinoPanelGate::getRollAngX(int i) const { return unk13C[i]; }
 f32 TSlotDrum::getRollAngX(int i) const { return unk13C[i]; }

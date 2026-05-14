@@ -143,6 +143,41 @@ public:
 	/* 0x194 */ u8 unk194;
 };
 
+class TRouletteSw : public THitActor {
+public:
+	TRouletteSw(const char*);
+
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+
+public:
+	/* 0x68 */ void* unk68;
+	/* 0x6C */ u8 unk6C;
+};
+
+class TRoulette : public TMapObjBase {
+public:
+	TRoulette(const char*);
+
+	virtual void perform(u32, JDrama::TGraphics*);
+
+	void switchStop();
+
+public:
+	/* 0x138 */ f32 unk138;
+	/* 0x13C */ f32 unk13C;
+	/* 0x140 */ u8 unk140;
+	/* 0x141 */ u8 unk141;
+	/* 0x142 */ u8 unk142;
+	/* 0x143 */ u8 unk143;
+	/* 0x144 */ f32 unk144;
+	/* 0x148 */ s16 unk148;
+	/* 0x14A */ s16 unk14A;
+	/* 0x14C */ s16 unk14C;
+	/* 0x14E */ s16 unk14E;
+	/* 0x150 */ TRouletteSw* unk150;
+};
+
 class TItemSlotDrum : public TSlotDrum {
 public:
 	TItemSlotDrum(const char*);
