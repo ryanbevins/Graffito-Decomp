@@ -13,6 +13,9 @@
 #include <System/MarDirector.hpp>
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JUtility/JUTNameTab.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DPacket.hpp>
+#include <MarioUtil/PacketUtil.hpp>
 #include <MoveBG/MapObjManager.hpp>
 
 // rogue includes needed for matching sinit
@@ -631,7 +634,20 @@ void TSlotDrum::initMapObj()
 	unk144 = mDamageHeight;
 	initNeonMatColor();
 }
-void TSlotDrum::initNeonMatColor() { }
+void TSlotDrum::initNeonMatColor()
+{
+	static const char* names[] = { "_NEON_C", "_NEON_B", "_NEON_A" };
+	for (int i = 0; i < 3; ++i) {
+		GXColorS10* col = (GXColorS10*)((u8*)this + 0x170 + i * 8);
+		col->r = 0x78;
+		col->g = 0xE6;
+		col->b = 0xFF;
+		col->a = 0xFF;
+		J3DModel* model = mMActor->getModel();
+		u16 idx = model->getModelData()->getMaterialName()->getIndex(names[i]);
+		SMS_InitPacket_OneTevColor(model, idx, (GXTevRegID)1, col);
+	}
+}
 
 void TItemSlotDrum::moveObject()
 {
