@@ -22,6 +22,8 @@
 
 static void* gpCurObject;
 
+static int partsRollCallback(J3DNode*, int) { return 1; }
+
 TWarpAreaActor::TWarpAreaActor(const char* name)
     : THitActor(name)
 {
@@ -321,6 +323,28 @@ int TItemSlotDrum::getResultFromAng(f32 ang)
 	if (ang < 269.0f)
 		return 2;
 	return 3;
+}
+
+void TCasinoPanelGate::initMapObj()
+{
+	unk148 = 16;
+	unk14C = 410.0f;
+	unk150 = mPosition.y;
+	unk154 = 4.0f;
+	unk158 = 15.0f;
+	unk15C = 0.2f;
+	unk160 = 1.0f;
+	unk164 = 0;
+	unk138 = new f32[unk148];
+	unk13C = new f32[unk148];
+	for (int i = 0; i < unk148; ++i) {
+		unk138[i] = 0.0f;
+		unk13C[i] = 0.0f;
+	}
+	TMapObjBase::initMapObj();
+	for (u16 j = 1; (s32)j <= unk148; ++j) {
+		mMActor->setJointCallback(j, partsRollCallback);
+	}
 }
 
 f32 TCloset::getRollAngY(int i) const { return unk13C[i]; }

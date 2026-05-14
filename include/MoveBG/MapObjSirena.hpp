@@ -122,6 +122,8 @@ class TCasinoPanelGate : public TSirenaRollMapObj {
 public:
 	TCasinoPanelGate(const char*);
 
+	virtual void initMapObj();
+
 	f32 getRollAngX(int i) const;
 
 public:
