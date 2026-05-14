@@ -981,9 +981,13 @@ u32 TSlotDrum::touchWater(THitActor* sender)
 	f32 hZ = 0.6f * unk140;
 	int dir;
 	if (sender->mPosition.z < mPosition.z - hZ) {
-		dir = (mRotation.y < 0.0f) ? 0 : 2;
+		dir = 2;
+		if (mRotation.y < 0.0f)
+			dir = 0;
 	} else if (sender->mPosition.z > mPosition.z + hZ) {
-		dir = (mRotation.y < 0.0f) ? 2 : 0;
+		dir = 0;
+		if (mRotation.y < 0.0f)
+			dir = 2;
 	} else {
 		dir = 1;
 	}
