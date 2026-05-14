@@ -15,6 +15,7 @@ public:
 	virtual ~TWaterHitPictureHideObj();
 	virtual void control();
 	virtual void touchActor(THitActor*);
+	virtual void afterFinishedAnim();
 	virtual Vec* getObjAppearPos() const;
 
 public:
@@ -29,6 +30,7 @@ public:
 	}
 
 	virtual void control();
+	virtual void afterFinishedAnim();
 
 public:
 	/* 0x174 */ u8 unk174;

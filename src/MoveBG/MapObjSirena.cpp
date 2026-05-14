@@ -29,6 +29,7 @@ TWaterHitPictureHideObj::~TWaterHitPictureHideObj() { }
 #pragma dont_inline on
 void TWaterHitPictureHideObj::control() { }
 void TWaterHitPictureHideObj::touchActor(THitActor*) { }
+void TWaterHitPictureHideObj::afterFinishedAnim() { }
 #pragma dont_inline off
 
 Vec* TWaterHitPictureHideObj::getObjAppearPos() const
@@ -41,6 +42,23 @@ void TPictureTelesa::control()
 	TWaterHitPictureHideObj::control();
 	if (unk174 != 0 && mColCount == 0) {
 		unk174 = 0;
+	}
+}
+
+void TPictureTelesa::afterFinishedAnim()
+{
+	TWaterHitPictureHideObj::afterFinishedAnim();
+	u8 result;
+	if ((mActorType - 0x40000000) == 0x1A2)
+		result = 1;
+	else
+		result = 0;
+	if (result) {
+		if (gpMSound->gateCheck(0x484D))
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x484D, 0, nullptr, 0);
+		if (gpMSound->gateCheck(0x28D9))
+			MSoundSESystem::MSoundSE::startSoundActor(0x28D9, mPosition, 0,
+			                                          nullptr, 0, 4);
 	}
 }
 
