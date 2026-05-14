@@ -595,6 +595,14 @@ void TDonchou::calcRootMatrix()
 void TCloset::moveObject()
 {
 	TLiveActor::moveObject();
+	if (unk16C != 0) {
+		if (!mMActor->checkCurAnm("closetopen", 0)) {
+			++unk16D;
+			if (unk16D >= 60) {
+				// stub: animation trigger
+			}
+		}
+	}
 }
 void TCloset::calcRootMatrix()
 {
