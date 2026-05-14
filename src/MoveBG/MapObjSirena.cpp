@@ -671,6 +671,28 @@ void TSlotDrum::moveObject()
 {
 	TLiveActor::moveObject();
 	mPosition.y = unk150 + unk14C;
+	for (s32 i = 0; i < unk148; ++i) {
+		if (unk138[i] == 0.0f)
+			continue;
+		f32* abs_counter = (f32*)((u8*)this + 0x188 + i * 4);
+		*abs_counter += fabsf(unk138[i]);
+		if (*abs_counter > 360.0f / 3.0f) {
+			*abs_counter = 0.0f;
+			if (i == 1) {
+				if (gpMSound->gateCheck(0x3890))
+					MSoundSESystem::MSoundSE::startSoundActor(0x3890, mPosition,
+					                                          0, nullptr, 0, 4);
+			} else if (i == 0) {
+				if (gpMSound->gateCheck(0x388E))
+					MSoundSESystem::MSoundSE::startSoundActor(0x388E, mPosition,
+					                                          0, nullptr, 0, 4);
+			} else if (i < 3) {
+				if (gpMSound->gateCheck(0x388F))
+					MSoundSESystem::MSoundSE::startSoundActor(0x388F, mPosition,
+					                                          0, nullptr, 0, 4);
+			}
+		}
+	}
 }
 void TSlotDrum::calcRootMatrix()
 {
