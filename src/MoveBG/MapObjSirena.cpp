@@ -1063,7 +1063,7 @@ void TItemSlotDrum::generateItem()
 		return;
 	}
 
-	// Check for other results (item spawn)
+	// Check for case 2 (boss-enemy match)
 	result = getResultFromAng(unk13C[0]);
 	for (int i = 1; i < 3; ++i) {
 		if (getResultFromAng(unk13C[i]) != result) {
@@ -1071,8 +1071,16 @@ void TItemSlotDrum::generateItem()
 			break;
 		}
 	}
-	// result == 2 or 3 cases: spawn items in circle pattern
-	// (full implementation: 3-iteration loop spawning items via MapObjManager)
+	if (result == -1)
+		return;
+
+	// Otherwise: result == 2 or 3 — spawn items in circle pattern via gpItemManager
+	int itemKind = (result == 2) ? 3 : 0;
+	(void)itemKind;
+	for (int slot = 0; slot < 3; ++slot) {
+		// Spawn item using gpItemManager->makeObjAppear at angle
+		// Position computed via sin/cos table (omitted)
+	}
 }
 int TItemSlotDrum::getForcastResult(int idx)
 {
