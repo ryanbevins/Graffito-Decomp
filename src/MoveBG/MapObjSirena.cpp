@@ -133,6 +133,23 @@ void TSakuCasino::loadAfter()
 	unk144 = JDrama::TNameRefGen::search<THitActor>("pazul");
 }
 
+void TSakuCasino::initMapObj()
+{
+	unk140 = 0.0f;
+	unk13C = 0;
+	TMapObjBase::initMapObj();
+	getModel();
+
+	Mtx mtx;
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + 2.0f * unk140, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	unk138 = new TMapCollisionWarp;
+	unk138->init("/mapObj/SakuCasino", 0, this);
+	TMapCollisionWarp* warp = unk138;
+	PSMTXCopy(mtx, warp->unk20);
+	warp->setUp();
+}
+
 TDonchou::TDonchou(const char* name)
     : TMapObjBase(name)
     , unk138(nullptr)
