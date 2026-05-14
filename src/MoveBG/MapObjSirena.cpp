@@ -618,9 +618,61 @@ void TCloset::moveObject()
 		if (!mMActor->checkCurAnm("closetopen", 0)) {
 			++unk16D;
 			if (unk16D >= 60) {
-				// stub: animation trigger
+				if (gpMSound->gateCheck(0x484D))
+					MSoundSESystem::MSoundSE::startSoundSystemSE(0x484D, 0,
+					                                             nullptr, 0);
+				return;
 			}
 		}
+		return;
+	}
+	// Slot iteration loop — for each slot, accumulate angle, normalize, sound
+	bool allStopped = true;
+	for (s32 i = 0; i < unk148; ++i) {
+		f32 cur = unk138[i];
+		if (cur == 0.0f) {
+			if (unk13C[i] >= 180.0f)
+				allStopped = false;
+			continue;
+		}
+		allStopped = false;
+		if (fabsf(cur) > unk160) {
+			unk13C[i] += cur;
+			if (cur > 0.0f)
+				unk138[i] = cur - unk15C;
+			else
+				unk138[i] = cur + unk15C;
+			while (unk13C[i] >= 360.0f)
+				unk13C[i] -= 360.0f;
+			while (unk13C[i] < 0.0f)
+				unk13C[i] += 360.0f;
+			if (gpMSound->gateCheck(0x389E))
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
+				    nullptr, 0, 4);
+		} else {
+			unk13C[i] += cur;
+			while (unk13C[i] >= 360.0f)
+				unk13C[i] -= 360.0f;
+			while (unk13C[i] < 0.0f)
+				unk13C[i] += 360.0f;
+			if (gpMSound->gateCheck(0x389E))
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
+				    nullptr, 0, 4);
+			s32 angInt = (s32)fabsf(unk13C[i]);
+			if ((angInt % 180) == 0) {
+				if (unk13C[i] >= 180.0f)
+					unk13C[i] = 0.0f;
+				else
+					unk13C[i] = 180.0f;
+				unk138[i] = 0.0f;
+			}
+		}
+	}
+	if (allStopped) {
+		MSBgm::startBGM(0x80010025);
+		unk16C = 1;
 	}
 }
 void TCloset::calcRootMatrix()
