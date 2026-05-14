@@ -759,13 +759,13 @@ void TSlotDrum::moveObject()
 			continue;
 		f32* abs_counter = (f32*)((u8*)this + 0x188 + i * 4);
 		*abs_counter += fabsf(unk138[i]);
-		if (*abs_counter > 360.0f / 3.0f) {
+		if (*abs_counter > 180.0f / 3.0f) {
 			*abs_counter = 0.0f;
 			if (i == 1) {
 				if (gpMSound->gateCheck(0x3890))
 					MSoundSESystem::MSoundSE::startSoundActor(0x3890, mPosition,
 					                                          0, nullptr, 0, 4);
-			} else if (i == 0) {
+			} else if (i < 1) {
 				if (gpMSound->gateCheck(0x388E))
 					MSoundSESystem::MSoundSE::startSoundActor(0x388E, mPosition,
 					                                          0, nullptr, 0, 4);
