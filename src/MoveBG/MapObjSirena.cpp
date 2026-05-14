@@ -695,6 +695,58 @@ u32 TCasinoPanelGate::touchWater(THitActor* sender)
 	if (fabsf(mPosition.z - sender->mPosition.z) >= 50.0f)
 		return 0;
 	unk164 = 1;
+	f32 hY = unk144;
+	f32 dx = sender->mPosition.x - mPosition.x;
+	f32 my_hX = unk140;
+	int dir;
+	if (sender->mPosition.y > mPosition.y + 3.0f * hY) {
+		if (dx < -my_hX)
+			dir = 0xC;
+		else if (dx < 0.0f)
+			dir = 0xD;
+		else if (dx > my_hX)
+			dir = 0xF;
+		else
+			dir = 0xE;
+		if (sender->mPosition.y >= mPosition.y + 3.5f * hY)
+			unk164 = -1;
+	} else if (sender->mPosition.y <= mPosition.y + 2.0f * hY) {
+		if (sender->mPosition.y > mPosition.y + hY) {
+			if (dx < -my_hX)
+				dir = 4;
+			else if (dx < 0.0f)
+				dir = 5;
+			else if (dx > my_hX)
+				dir = 7;
+			else
+				dir = 6;
+		} else {
+			if (dx < -my_hX)
+				dir = 0;
+			else if (dx < 0.0f)
+				dir = 1;
+			else if (dx > my_hX)
+				dir = 3;
+			else
+				dir = 2;
+		}
+	} else {
+		if (dx < -my_hX)
+			dir = 8;
+		else if (dx < 0.0f)
+			dir = 9;
+		else if (dx > my_hX)
+			dir = 0xB;
+		else
+			dir = 0xA;
+		if (sender->mPosition.y < mPosition.y + 2.5f * hY)
+			unk164 = -1;
+	}
+	f32 sign = (f32)(s16)unk164;
+	unk138[dir] += unk154 * sign;
+	if (fabsf(unk138[dir]) > unk158) {
+		unk138[dir] = unk158 * sign;
+	}
 	return 1;
 }
 
