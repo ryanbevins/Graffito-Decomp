@@ -532,12 +532,17 @@ void TCloset::moveObject()
 }
 void TCloset::calcRootMatrix()
 {
+	gpCurObject = this;
 	J3DModel* model = getModel();
 	Mtx mtx;
-	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk140, mPosition.z,
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk14C, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
 	PSMTXCopy(mtx, model->unk20);
 	model->unk14 = (Vec&)mScaling;
+	mtx[1][3] += unk14C;
+	if (unk16C != 0) {
+		// stub for additional state logic
+	}
 }
 u32 TCloset::touchWater(THitActor* sender)
 {
@@ -554,12 +559,13 @@ void TCasinoPanelGate::moveObject()
 }
 void TCasinoPanelGate::calcRootMatrix()
 {
+	gpCurObject = this;
 	J3DModel* model = getModel();
-	Mtx mtx;
-	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk140, mPosition.z,
+	MsMtxSetXYZRPH(model->unk20, mPosition.x, mPosition.y + unk14C, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
-	PSMTXCopy(mtx, model->unk20);
 	model->unk14 = (Vec&)mScaling;
+	unk140 = 0.25f * mDamageRadius;
+	unk144 = 0.25f * mDamageHeight;
 }
 u32 TCasinoPanelGate::touchWater(THitActor* sender)
 {
@@ -578,11 +584,10 @@ void TSlotDrum::moveObject()
 }
 void TSlotDrum::calcRootMatrix()
 {
+	gpCurObject = this;
 	J3DModel* model = getModel();
-	Mtx mtx;
-	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk140, mPosition.z,
+	MsMtxSetXYZRPH(model->unk20, mPosition.x, mPosition.y - unk14C, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
-	PSMTXCopy(mtx, model->unk20);
 	model->unk14 = (Vec&)mScaling;
 }
 u32 TSlotDrum::touchWater(THitActor* sender)
@@ -606,7 +611,23 @@ void TSlotDrum::initNeonMatColor() { }
 void TItemSlotDrum::moveObject() { TSlotDrum::moveObject(); }
 void TItemSlotDrum::calcRootMatrix()
 {
-	TSlotDrum::calcRootMatrix();
+	gpCurObject = this;
+	u8 anyNonZero = 0;
+	if (unk138[0] != 0.0f)
+		anyNonZero = 1;
+	if (unk138[1] != 0.0f)
+		anyNonZero = 1;
+	if (unk138[2] != 0.0f)
+		anyNonZero = 1;
+	if (anyNonZero) {
+		if (gpMSound->gateCheck(0x308D))
+			MSoundSESystem::MSoundSE::startSoundActor(0x308D, mPosition, 0,
+			                                          nullptr, 0, 4);
+	}
+	J3DModel* model = getModel();
+	MsMtxSetXYZRPH(model->unk20, mPosition.x, mPosition.y - unk14C, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	model->unk14 = (Vec&)mScaling;
 }
 u32 TItemSlotDrum::touchWater(THitActor* sender)
 {
@@ -638,10 +659,9 @@ void TRoulette::moveObject()
 void TRoulette::calcRootMatrix()
 {
 	J3DModel* model = getModel();
-	Mtx mtx;
-	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
-	               mRotation.y, mRotation.z);
-	PSMTXCopy(mtx, model->unk20);
+	MsMtxSetXYZRPH(model->unk20, mPosition.x, mPosition.y, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	model->unk14 = (Vec&)mScaling;
 }
 void TRoulette::initMapObj() { TMapObjBase::initMapObj(); }
 
