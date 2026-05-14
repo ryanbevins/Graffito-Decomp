@@ -24,6 +24,86 @@ static void* gpCurObject;
 
 static int partsRollCallback(J3DNode*, int) { return 1; }
 
+TWaterHitPictureHideObj::~TWaterHitPictureHideObj() { }
+
+Vec* TWaterHitPictureHideObj::getObjAppearPos() const
+{
+	return (Vec*)&mPosition;
+}
+
+void TChestRevolve::control()
+{
+	TMapObjBase::control();
+	switch (mState) {
+	case 0:
+		break;
+	case 1:
+		break;
+	case 2:
+		if (animIsFinished()) {
+			mState = 1;
+			setUpMapCollision(0);
+		}
+		break;
+	}
+}
+
+u32 TChestRevolve::touchWater(THitActor* sender)
+{
+	if (mState == 1) {
+		mState = 2;
+		startAnim(1);
+		setUpMapCollision(1);
+	}
+	return 1;
+}
+
+void TPanelRevolve::someAction() { }
+
+void TPanelRevolve::touchPlayer(THitActor* sender)
+{
+	if (marioHipAttack() && mState == 1) {
+		if (gpMSound->gateCheck(0x385D)) {
+			MSoundSESystem::MSoundSE::startSoundActor(0x385D, mPosition, 0,
+			                                          nullptr, 0, 4);
+		}
+		mState = 2;
+		startAnim(1);
+		removeMapCollision();
+	}
+}
+
+BOOL TPanelRevolve::receiveMessage(THitActor* sender, u32 msg)
+{
+	if (mState == 1) {
+		if (gpMSound->gateCheck(0x385D)) {
+			MSoundSESystem::MSoundSE::startSoundActor(0x385D, mPosition, 0,
+			                                          nullptr, 0, 4);
+		}
+		mState = 2;
+		startAnim(1);
+		removeMapCollision();
+	}
+	return TRUE;
+}
+
+void TPanelRevolve::control()
+{
+	TMapObjBase::control();
+	switch (mState) {
+	case 0:
+		break;
+	case 1:
+		break;
+	case 2:
+		if (animIsFinished()) {
+			mState = 1;
+			someAction();
+		}
+		break;
+	}
+}
+
 TWarpAreaActor::TWarpAreaActor(const char* name)
     : THitActor(name)
 {

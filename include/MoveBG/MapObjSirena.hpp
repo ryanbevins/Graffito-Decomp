@@ -2,7 +2,44 @@
 #define MOVE_BG_MAP_OBJ_SIRENA_HPP
 
 #include <MoveBG/MapObjBase.hpp>
+#include <MoveBG/MapObjHide.hpp>
 #include <Strategic/HitActor.hpp>
+
+class TWaterHitPictureHideObj : public THideObjBase {
+public:
+	TWaterHitPictureHideObj(const char* name)
+	    : THideObjBase(name)
+	{
+	}
+
+	virtual ~TWaterHitPictureHideObj();
+	virtual Vec* getObjAppearPos() const;
+};
+
+class TChestRevolve : public TMapObjBase {
+public:
+	TChestRevolve(const char* name)
+	    : TMapObjBase(name)
+	{
+	}
+
+	virtual u32 touchWater(THitActor*);
+	virtual void control();
+};
+
+class TPanelRevolve : public TMapObjBase {
+public:
+	TPanelRevolve(const char* name)
+	    : TMapObjBase(name)
+	{
+	}
+
+	virtual BOOL receiveMessage(THitActor*, u32);
+	virtual void touchPlayer(THitActor*);
+	virtual void control();
+
+	virtual void someAction();
+};
 
 class TMultiBtk;
 
