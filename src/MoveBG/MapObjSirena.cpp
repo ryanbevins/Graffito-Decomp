@@ -69,10 +69,13 @@ void TPictureTelesa::touchActor(THitActor* sender)
 		r3v = 0;
 	if (r3v)
 		return;
-	JGeometry::TVec3<f32> diff = sender->mPosition;
-	diff.sub(mPosition);
-	f32 dist = JGeometry::TUtil<f32>::sqrt(diff.squared());
-	if (dist < 200.0f) {
+	f32 dx = sender->mPosition.x - mPosition.x;
+	f32 dy = sender->mPosition.y - mPosition.y;
+	f32 dz = sender->mPosition.z - mPosition.z;
+	f32 sq = dx * dx + dy * dy + dz * dz;
+	if (sq > 0.0f)
+		sq = JGeometry::TUtil<f32>::sqrt(sq);
+	if (sq < 200.0f) {
 		unk104 = 0x3C;
 		if (gpMSound->gateCheck(0x28D5))
 			MSoundSESystem::MSoundSE::startSoundActor(0x28D5, mPosition, 0,
@@ -611,7 +614,17 @@ void TSlotDrum::initMapObj()
 }
 void TSlotDrum::initNeonMatColor() { }
 
-void TItemSlotDrum::moveObject() { TSlotDrum::moveObject(); }
+void TItemSlotDrum::moveObject()
+{
+	TLiveActor::moveObject();
+	mPosition.y = unk150 + unk14C;
+	if (unk1A4 > 0) {
+		++unk1A4;
+		if (unk1A4 > 160) {
+			unk1A4 = 0;
+		}
+	}
+}
 void TItemSlotDrum::calcRootMatrix()
 {
 	gpCurObject = this;
