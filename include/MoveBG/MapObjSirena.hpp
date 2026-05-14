@@ -30,6 +30,7 @@ public:
 	}
 
 	virtual void control();
+	virtual void touchActor(THitActor*);
 	virtual void afterFinishedAnim();
 
 public:

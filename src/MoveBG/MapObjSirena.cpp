@@ -45,6 +45,42 @@ void TPictureTelesa::control()
 	}
 }
 
+void TPictureTelesa::touchActor(THitActor* sender)
+{
+	TWaterHitPictureHideObj::touchActor(sender);
+	u8 r1, r2, r3v;
+	if ((sender->mActorType - 0x40000000) == 0x1A2)
+		r1 = 1;
+	else
+		r1 = 0;
+	if (!r1)
+		return;
+	if (unk174 != 0)
+		return;
+	if (mState == 3)
+		r2 = 1;
+	else
+		r2 = 0;
+	if (!r2)
+		return;
+	if (unk104 > 0)
+		r3v = 1;
+	else
+		r3v = 0;
+	if (r3v)
+		return;
+	JGeometry::TVec3<f32> diff = sender->mPosition;
+	diff.sub(mPosition);
+	f32 dist = JGeometry::TUtil<f32>::sqrt(diff.squared());
+	if (dist < 200.0f) {
+		unk104 = 0x3C;
+		if (gpMSound->gateCheck(0x28D5))
+			MSoundSESystem::MSoundSE::startSoundActor(0x28D5, mPosition, 0,
+			                                          nullptr, 0, 4);
+		unk174 = 1;
+	}
+}
+
 void TPictureTelesa::afterFinishedAnim()
 {
 	TWaterHitPictureHideObj::afterFinishedAnim();
