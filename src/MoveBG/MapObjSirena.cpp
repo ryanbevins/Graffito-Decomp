@@ -922,6 +922,46 @@ void TSlotDrum::moveObject()
 			unk13C[i] -= 360.0f;
 		while (unk13C[i] < 0.0f)
 			unk13C[i] += 360.0f;
+
+		// Color update based on whether angle is in valid range
+		s32 step = *(s32*)(unkSlotDrum + 0); // unk168
+		GXColorS10* col = (GXColorS10*)((u8*)this + 0x170 + i * 8);
+		if (unk13C[i] < (f32)(step - 180) || unk13C[i] > 180.0f) {
+			// Red indicator + sound on first transition
+			col->r = 0xFF;
+			col->g = 0xFF;
+			col->b = 0x46;
+			col->a = 0xFF;
+			if (gpMSound->gateCheck(0x4849))
+				MSoundSESystem::MSoundSE::startSoundActor(0x4849, mPosition, 0,
+				                                          nullptr, 0, 4);
+		} else {
+			// Green/neon indicator
+			col->r = 0x78;
+			col->g = 0xE6;
+			col->b = 0xFF;
+			col->a = 0xFF;
+		}
+
+		// Check all-stopped win condition
+		bool allValid = true;
+		for (s32 j = 0; j < unk148; ++j) {
+			if (j == i)
+				continue;
+			if (unk138[j] != 0.0f) {
+				allValid = false;
+				break;
+			}
+			if (unk13C[j] > (f32)(step - 180) && unk13C[j] < 180.0f) {
+				continue;
+			}
+			allValid = false;
+			break;
+		}
+		if (allValid) {
+			MSBgm::startBGM(0x80010025);
+			unk194 = 1;
+		}
 	}
 }
 void TSlotDrum::calcRootMatrix()
