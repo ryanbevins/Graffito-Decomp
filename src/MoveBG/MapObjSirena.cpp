@@ -20,6 +20,8 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+static void* gpCurObject;
+
 TWarpAreaActor::TWarpAreaActor(const char* name)
     : THitActor(name)
 {
@@ -213,4 +215,57 @@ void TDonchou::initMapObj()
 	TMapCollisionWarp* warp = unk138;
 	PSMTXCopy(mtx, warp->unk20);
 	warp->setUp();
+}
+
+TSirenaRollMapObj::TSirenaRollMapObj(const char* name)
+    : TMapObjBase(name)
+    , unk138(nullptr)
+    , unk13C(nullptr)
+    , unk148(0)
+    , unk14C(0.0f)
+    , unk150(0.0f)
+    , unk154(1.0f)
+    , unk158(10.0f)
+    , unk15C(0.1f)
+    , unk160(0.2f)
+    , unk164(1)
+{
+	gpCurObject = nullptr;
+}
+
+TCloset::TCloset(const char* name)
+    : TSirenaRollMapObj(name)
+    , unk168(0)
+    , unk16C(0)
+    , unk16D(0)
+{
+}
+
+TCasinoPanelGate::TCasinoPanelGate(const char* name)
+    : TSirenaRollMapObj(name)
+    , unk168(0)
+    , unk16C(0)
+    , unk16D(0)
+{
+}
+
+TSlotDrum::TSlotDrum(const char* name)
+    : TSirenaRollMapObj(name)
+    , unk194(0)
+{
+}
+
+TItemSlotDrum::TItemSlotDrum(const char* name)
+    : TSlotDrum(name)
+    , unk198(0)
+    , unk1A4(0)
+    , unk1A8(5.0f)
+{
+	unk19C = 0;
+	unk19F = 1;
+	unk19D = 0;
+	unk1A0 = 1;
+	unk19E = 0;
+	unk1A1 = 1;
+	unk1A2 = 1;
 }

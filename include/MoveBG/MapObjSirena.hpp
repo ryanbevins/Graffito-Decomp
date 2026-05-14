@@ -86,4 +86,73 @@ public:
 	/* 0x14C */ s32 unk14C;
 };
 
+class TSirenaRollMapObj : public TMapObjBase {
+public:
+	TSirenaRollMapObj(const char*);
+
+public:
+	/* 0x138 */ f32* unk138;
+	/* 0x13C */ f32* unk13C;
+	/* 0x140 */ f32 unk140;
+	/* 0x144 */ f32 unk144;
+	/* 0x148 */ s32 unk148;
+	/* 0x14C */ f32 unk14C;
+	/* 0x150 */ f32 unk150;
+	/* 0x154 */ f32 unk154;
+	/* 0x158 */ f32 unk158;
+	/* 0x15C */ f32 unk15C;
+	/* 0x160 */ f32 unk160;
+	/* 0x164 */ s16 unk164;
+	/* 0x166 */ u16 unk166;
+};
+
+class TCloset : public TSirenaRollMapObj {
+public:
+	TCloset(const char*);
+
+public:
+	/* 0x168 */ u32 unk168;
+	/* 0x16C */ u8 unk16C;
+	/* 0x16D */ u8 unk16D;
+};
+
+class TCasinoPanelGate : public TSirenaRollMapObj {
+public:
+	TCasinoPanelGate(const char*);
+
+public:
+	/* 0x168 */ u32 unk168;
+	/* 0x16C */ u8 unk16C;
+	/* 0x16D */ u8 unk16D;
+};
+
+class TSlotDrum : public TSirenaRollMapObj {
+public:
+	TSlotDrum(const char*);
+
+	virtual void initMapObj();
+
+public:
+	/* 0x168 */ char unkSlotDrum[0x194 - 0x168];
+	/* 0x194 */ u8 unk194;
+};
+
+class TItemSlotDrum : public TSlotDrum {
+public:
+	TItemSlotDrum(const char*);
+
+public:
+	/* 0x198 */ u32 unk198;
+	/* 0x19C */ u8 unk19C;
+	/* 0x19D */ u8 unk19D;
+	/* 0x19E */ u8 unk19E;
+	/* 0x19F */ u8 unk19F;
+	/* 0x1A0 */ u8 unk1A0;
+	/* 0x1A1 */ u8 unk1A1;
+	/* 0x1A2 */ u8 unk1A2;
+	/* 0x1A3 */ u8 unk1A3;
+	/* 0x1A4 */ u32 unk1A4;
+	/* 0x1A8 */ f32 unk1A8;
+};
+
 #endif
