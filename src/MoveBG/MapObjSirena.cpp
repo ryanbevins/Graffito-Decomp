@@ -347,6 +347,43 @@ void TCasinoPanelGate::initMapObj()
 	}
 }
 
+void TCloset::initMapObj()
+{
+	unk148 = 4;
+	unk14C = 0.0f;
+	unk150 = mPosition.y;
+	unk154 = 2.5f;
+	unk158 = 8.0f;
+	unk15C = 0.1f;
+	unk160 = 0.5f;
+	unk164 = 0;
+	unk16C = 0;
+	unk16D = 0;
+	unk138 = new f32[unk148];
+	unk13C = new f32[unk148];
+	for (int i = 0; i < unk148; ++i) {
+		unk138[i] = 0.0f;
+		unk13C[i] = 180.0f;
+	}
+	TMapObjBase::initMapObj();
+	for (u16 j = 1; (s32)j <= unk148; ++j) {
+		mMActor->setJointCallback(j, partsRollCallback);
+	}
+	unk140 = 0.25f * mDamageRadius;
+	unk144 = mDamageHeight;
+	getModel();
+
+	Mtx mtx;
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + 2.0f * unk140, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	unk168 = new TMapCollisionWarp;
+	unk168->init("/mapObj/Closet", 0, this);
+	TMapCollisionWarp* warp = unk168;
+	PSMTXCopy(mtx, warp->unk20);
+	warp->setUp();
+	initAnmSound();
+}
+
 f32 TCloset::getRollAngY(int i) const { return unk13C[i]; }
 f32 TCasinoPanelGate::getRollAngX(int i) const { return unk13C[i]; }
 f32 TSlotDrum::getRollAngX(int i) const { return unk13C[i]; }

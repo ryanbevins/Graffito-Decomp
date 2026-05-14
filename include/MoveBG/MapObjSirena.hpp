@@ -110,10 +110,12 @@ class TCloset : public TSirenaRollMapObj {
 public:
 	TCloset(const char*);
 
+	virtual void initMapObj();
+
 	f32 getRollAngY(int i) const;
 
 public:
-	/* 0x168 */ u32 unk168;
+	/* 0x168 */ TMapCollisionWarp* unk168;
 	/* 0x16C */ u8 unk16C;
 	/* 0x16D */ u8 unk16D;
 };
