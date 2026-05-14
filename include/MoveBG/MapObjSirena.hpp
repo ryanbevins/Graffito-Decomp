@@ -224,6 +224,8 @@ class TItemSlotDrum : public TSlotDrum {
 public:
 	TItemSlotDrum(const char*);
 
+	virtual void loadAfter();
+
 	int getResultFromAng(f32);
 
 public:

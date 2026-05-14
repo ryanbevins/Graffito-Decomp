@@ -13,6 +13,7 @@
 #include <System/MarDirector.hpp>
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <MoveBG/MapObjManager.hpp>
 
 // rogue includes needed for matching sinit
 #include <MSound/MSound.hpp>
@@ -392,6 +393,14 @@ void TRoulette::setRollSp(f32 sp)
 	unk14A = 0;
 	unk14C = 0xFF;
 	unk150->unk6C = 0;
+}
+
+void TItemSlotDrum::loadAfter()
+{
+	TMapObjBase::loadAfter();
+	for (int i = 0; i < 6; ++i) {
+		TMapObjBaseManager::newAndRegisterObj("coin");
+	}
 }
 
 int TItemSlotDrum::getResultFromAng(f32 ang)
