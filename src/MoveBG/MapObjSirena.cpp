@@ -728,7 +728,7 @@ void TSlotDrum::initNeonMatColor()
 		col->b = 0xFF;
 		col->a = 0xFF;
 		J3DModel* model = mMActor->getModel();
-		u16 idx = model->getModelData()->getMaterialName()->getIndex(names[i]);
+		u16 idx = model->mModelData->mMaterialName->getIndex(names[i]);
 		SMS_InitPacket_OneTevColor(model, idx, (GXTevRegID)1, col);
 	}
 }
