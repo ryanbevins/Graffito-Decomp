@@ -303,13 +303,14 @@ void TSakuCasino::initMapObj()
 
 void TSakuCasino::calcRootMatrix()
 {
-	Mtx mtx;
 	J3DModel* model = getModel();
-	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk140, mPosition.z,
+	Mtx mtx;
+	MtxPtr mtxPtr = mtx;
+	MsMtxSetXYZRPH(mtxPtr, mPosition.x, mPosition.y + unk140, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
-	PSMTXCopy(mtx, model->unk20);
+	PSMTXCopy(mtxPtr, model->unk20);
 	model->unk14 = (Vec&)mScaling;
-	mtx[1][3] += unk140;
+	mtxPtr[1][3] += unk140;
 
 	if (unk144 != nullptr && *((const u8*)unk144 + 0x16D)) {
 		unk13C = 1;
@@ -508,11 +509,12 @@ void TDonchou::calcRootMatrix()
 {
 	J3DModel* model = getModel();
 	Mtx mtx;
-	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk140, mPosition.z,
+	MtxPtr mtxPtr = mtx;
+	MsMtxSetXYZRPH(mtxPtr, mPosition.x, mPosition.y + unk140, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
-	PSMTXCopy(mtx, model->unk20);
+	PSMTXCopy(mtxPtr, model->unk20);
 	model->unk14 = (Vec&)mScaling;
-	mtx[1][3] += unk140;
+	mtxPtr[1][3] += unk140;
 
 	if (unk144 != nullptr && *((u8*)unk144 + 0x194)
 	    && unk148 != nullptr && *((u8*)unk148 + 0x194)) {
@@ -535,11 +537,12 @@ void TCloset::calcRootMatrix()
 	gpCurObject = this;
 	J3DModel* model = getModel();
 	Mtx mtx;
-	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + unk14C, mPosition.z,
+	MtxPtr mtxPtr = mtx;
+	MsMtxSetXYZRPH(mtxPtr, mPosition.x, mPosition.y + unk14C, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
-	PSMTXCopy(mtx, model->unk20);
+	PSMTXCopy(mtxPtr, model->unk20);
 	model->unk14 = (Vec&)mScaling;
-	mtx[1][3] += unk14C;
+	mtxPtr[1][3] += unk14C;
 	if (unk16C != 0) {
 		// stub for additional state logic
 	}
