@@ -255,6 +255,10 @@ TSlotDrum::TSlotDrum(const char* name)
 {
 }
 
+f32 TCloset::getRollAngY(int i) const { return unk13C[i]; }
+f32 TCasinoPanelGate::getRollAngX(int i) const { return unk13C[i]; }
+f32 TSlotDrum::getRollAngX(int i) const { return unk13C[i]; }
+
 TItemSlotDrum::TItemSlotDrum(const char* name)
     : TSlotDrum(name)
     , unk198(0)

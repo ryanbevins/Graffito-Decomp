@@ -110,6 +110,8 @@ class TCloset : public TSirenaRollMapObj {
 public:
 	TCloset(const char*);
 
+	f32 getRollAngY(int i) const;
+
 public:
 	/* 0x168 */ u32 unk168;
 	/* 0x16C */ u8 unk16C;
@@ -119,6 +121,8 @@ public:
 class TCasinoPanelGate : public TSirenaRollMapObj {
 public:
 	TCasinoPanelGate(const char*);
+
+	f32 getRollAngX(int i) const;
 
 public:
 	/* 0x168 */ u32 unk168;
@@ -131,6 +135,8 @@ public:
 	TSlotDrum(const char*);
 
 	virtual void initMapObj();
+
+	f32 getRollAngX(int i) const;
 
 public:
 	/* 0x168 */ char unkSlotDrum[0x194 - 0x168];
