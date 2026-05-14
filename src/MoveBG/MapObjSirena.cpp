@@ -1051,37 +1051,56 @@ void TItemSlotDrum::moveObject()
 			s32 r0
 			    = lo + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)(hi - lo));
 			*((u8*)this + 0x19C + lo + r0) = 1;
+
+			// Pick jackpot result based on random + unk1A8
+			f32 lo2 = 0.0f;
+			f32 hi2 = 100.0f;
+			f32 spread = hi2 - lo2;
+			f32 t = (f32)rand() * (1.0f / 32768.0f);
+			f32 picked = lo2 + spread * t;
+			if (picked >= unk1A8 && unk1A8 <= 10.0f) {
+				unk198 = 0;
+			} else if (picked < 30.0f) {
+				unk198 = 2;
+			} else if (picked < 70.0f) {
+				unk198 = 3;
+			} else {
+				unk198 = 1;
+			}
+			unk1A8 += 2.0f;
 		}
 	}
-	// Per-slot animation loop
+	// Per-slot animation loop with forcast result check
 	for (s32 i = 0; i < unk148; ++i) {
+		if (*((u8*)this + 0x19C + i) != 0) {
+			if ((u32)getForcastResult(i) == unk198) {
+				*((u8*)this + 0x19C + i) = 0;
+				*((u8*)this + 0x19F + i) = 0;
+			}
+		}
 		f32 cur = unk138[i];
 		if (cur == 0.0f)
 			continue;
 		if (fabsf(cur) > unk160) {
 			unk13C[i] += cur;
-			if (cur > 0.0f)
-				unk138[i] = cur - unk15C;
-			else
-				unk138[i] = cur + unk15C;
+			if (*((u8*)this + 0x19F + i) == 0) {
+				if (cur > 0.0f)
+					unk138[i] = cur - unk15C;
+				else
+					unk138[i] = cur + unk15C;
+			}
 			while (unk13C[i] >= 360.0f)
 				unk13C[i] -= 360.0f;
 			while (unk13C[i] < 0.0f)
 				unk13C[i] += 360.0f;
-			if (gpMSound->gateCheck(0x389E))
-				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0, nullptr,
-				    0, 4);
 		} else {
 			unk13C[i] += cur;
 			while (unk13C[i] >= 360.0f)
 				unk13C[i] -= 360.0f;
 			while (unk13C[i] < 0.0f)
 				unk13C[i] += 360.0f;
-			if (gpMSound->gateCheck(0x389E))
-				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0, nullptr,
-				    0, 4);
+			if (*((u8*)this + 0x19F + i) != 0)
+				continue;
 			s32 angInt = (s32)fabsf(unk13C[i]);
 			s32 stepDeg = *(s32*)(unkSlotDrum + 0); // unk168
 			if (stepDeg != 0 && (angInt % stepDeg) == 0) {
