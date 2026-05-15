@@ -1,6 +1,7 @@
 #include <MoveBG/MapObjBall.hpp>
 #include <MoveBG/MapObjBase.hpp>
 #include <Strategic/HitActor.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
@@ -104,6 +105,22 @@ BOOL TCoverFruit::receiveMessage(THitActor* sender, u32 message)
 		return 1;
 	}
 	return 0;
+}
+
+void TCoverFruit::calcRootMatrix()
+{
+	if (mHolder != nullptr) {
+		MtxPtr src = mHolder->getTakingMtx();
+		PSMTXCopy(src, getModel()->unk20);
+		mPosition.x = src[0][3];
+		mPosition.y = src[1][3];
+		mPosition.z = src[2][3];
+	} else {
+		MsMtxSetXYZRPH(getModel()->unk20, mPosition.x,
+		               mPosition.y - mYOffset, mPosition.z, mRotation.x,
+		               mRotation.y, mRotation.z);
+	}
+	getModel()->unk14 = mScaling;
 }
 
 void TCoverFruit::loadAfter()
