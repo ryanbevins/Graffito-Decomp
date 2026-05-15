@@ -15,6 +15,7 @@
 #include <Map/Map.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
+#include <Map/PollutionManager.hpp>
 #include <Player/MarioAccess.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
@@ -615,6 +616,77 @@ void TMapObjBall::checkWallCollision(JGeometry::TVec3<f32>* pos)
 		touchWall(pos, &record);
 	} else {
 		unk138 = nullptr;
+	}
+}
+
+void TMapObjBall::touchGround(JGeometry::TVec3<f32>* pos)
+{
+	JGeometry::TVec3<f32> v = mVelocity;
+	f32 mag = JGeometry::TUtil<f32>::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+	f32 absMag              = fabsf(mag);
+	if (absMag > 0.05f) {
+		if (isActorType(0x400000D0)) {
+			if (mScaling.y >= 5.0f) {
+				if (gpMSound->gateCheck(0x308A)) {
+					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+					    0x308A, (Vec*)&mPosition, nullptr, absMag, 0, 0,
+					    nullptr, 0, 4);
+				}
+			} else {
+				if (gpMSound->gateCheck(0x308B)) {
+					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+					    0x308B, (Vec*)&mPosition, nullptr, absMag, 0, 0,
+					    nullptr, 0, 4);
+				}
+			}
+		}
+	}
+	u16 type = mGroundPlane->mBGType;
+	bool isWater;
+	if (type == 0x100)
+		isWater = true;
+	else if (type == 0x101)
+		isWater = true;
+	else if ((u16)(type - 0x102) <= 3)
+		isWater = true;
+	else if (type == 0x4104)
+		isWater = true;
+	else
+		isWater = false;
+	if (isWater) {
+		touchWaterSurface();
+		pos->x = mPosition.x;
+		pos->y = mPosition.y;
+		pos->z = mPosition.z;
+	} else if (gpPollution->isPolluted(pos->x, pos->y, pos->z)) {
+		touchPollution();
+		pos->x = mPosition.x;
+		pos->y = mPosition.y;
+		pos->z = mPosition.z;
+	} else {
+		if (mVelocity.y > -unk188) {
+			mLiveFlag &= ~0x80;
+			mVelocity.y = 0.0f;
+			pos->y      = mGroundHeight;
+		} else {
+			rebound(pos);
+		}
+	}
+	if (!(mLiveFlag & 0x80)) {
+		mVelocity.x = unk180 * mGroundPlane->mNormal.x + mVelocity.x;
+		mVelocity.z = unk180 * mGroundPlane->mNormal.z + mVelocity.z;
+	}
+	f32 fric    = mMapObjData->mPhysical->unk4->unk10;
+	mVelocity.x = mVelocity.x * fric;
+	mVelocity.z = mVelocity.z * fric;
+	if (isActorType(0x400000D0)) {
+		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
+		if (fabsf(mVelocity.x) > thresh || fabsf(mVelocity.z) > thresh) {
+			if (gpMSound->gateCheck(0x1009)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x1009, (Vec*)&mPosition, 0, nullptr, 0, 4);
+			}
+		}
 	}
 }
 
