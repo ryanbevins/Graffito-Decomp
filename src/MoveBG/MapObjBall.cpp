@@ -1089,7 +1089,7 @@ void TMapObjBall::boundByActor(THitActor* actor)
 	if (isActorType(0x400000D0))
 		r = mAttackRadius + actor->mDamageRadius;
 	else
-		r = actor->mDamageRadius;
+		r = mDamageRadius;
 	if (r * r < diff.x * diff.x + diff.z * diff.z)
 		return;
 	if (diff.x != 0.0f && diff.z != 0.0f) {
@@ -1110,10 +1110,10 @@ void TMapObjBall::boundByActor(THitActor* actor)
 			} else {
 				mVelocity.y = mVelocity.y + unk154;
 			}
-			mVelocity.x = mVelocity.x + diff.x * unk14C
-			              - unk148 * (*gpMarioSpeedX);
-			mVelocity.z = mVelocity.z + diff.z * unk14C
-			              - unk148 * (*gpMarioSpeedZ);
+			mVelocity.x = mVelocity.x - diff.x * unk14C
+			              + unk148 * (*gpMarioSpeedX);
+			mVelocity.z = mVelocity.z - diff.z * unk14C
+			              + unk148 * (*gpMarioSpeedZ);
 			actor->receiveMessage(this, 0xE);
 		}
 	} else {
@@ -1121,7 +1121,7 @@ void TMapObjBall::boundByActor(THitActor* actor)
 		JGeometry::TVec3<f32> v2 = v;
 		f32 dot                  = v2.x * diff.x + v2.z * diff.z;
 		bool bigBounce           = false;
-		if (dot <= 0.0f) {
+		if (dot >= 0.0f) {
 			JGeometry::TVec3<f32> v3 = v;
 			f32 thresh = mMapObjData->mPhysical->unk4->unkC;
 			if (fabsf(v3.x) > thresh && fabsf(v3.z) > thresh) {
