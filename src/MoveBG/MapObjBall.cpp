@@ -1,6 +1,7 @@
 #include <MoveBG/MapObjBall.hpp>
 #include <MoveBG/MapObjBase.hpp>
 #include <Strategic/HitActor.hpp>
+#include <MarioUtil/MapUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <Camera/CubeManagerBase.hpp>
@@ -961,6 +962,62 @@ void TBigWatermelon::touchActor(THitActor* actor)
 		kicked();
 	} else {
 		boundByActor(actor);
+	}
+}
+
+void TBigWatermelon::control()
+{
+	TMapObjGeneral::control();
+	if (unk194 != 0) {
+		unk194 = unk194 - 1;
+	}
+	if (isState(6)) {
+		Mtx tmp;
+		PSMTXCopy(mHolder->getTakingMtx(), tmp);
+		tmp[1][3] = tmp[1][3] + unk190;
+		PSMTXCopy(tmp, getModel()->mNodeMatrices[0]);
+	} else {
+		JGeometry::TVec3<f32> v = mVelocity;
+		f32 sq = v.x * v.x + v.y * v.y + v.z * v.z;
+		if (sq > 0.0000038146973f || mGroundPlane->mActor != nullptr) {
+			calcCurrentMtx();
+		}
+	}
+	switch (mState) {
+	case 1: {
+		if (mLiveFlag & 0x10) {
+			mLiveFlag &= ~0x10;
+		}
+		f32 thresh           = mGroundHeight + 200.0f;
+		TLiveActor* gpActor  = (TLiveActor*)mGroundPlane->mActor;
+		if (mPosition.y >= thresh)
+			break;
+		if (gpActor == nullptr)
+			break;
+		if (!gpActor->isActorType(0x400000CD)
+		    && !gpActor->isActorType(0x400000CD))
+			break;
+		f32 prev = unk1A0;
+		unk1A0   = SMS_GetSandRiseUpRatio(this);
+		if (unk1A0 <= 0.05f)
+			break;
+		if (unk1A0 <= prev)
+			break;
+		mVelocity.y = mVelocity.y + 20.0f;
+	} break;
+	case 0xD: {
+		if (unk104 <= 0) {
+			JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
+			emitAndScale(0x6B, 0, &mPosition, scale);
+			emitAndScale(0x6C, 0, &mPosition, scale);
+			unk104 = 30;
+		}
+		if (animIsFinished()) {
+			makeObjDead();
+		}
+	} break;
+	default:
+		break;
 	}
 }
 
