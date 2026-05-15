@@ -850,6 +850,60 @@ void TMapObjBall::rebound(JGeometry::TVec3<f32>* pos)
 	}
 }
 
+void TMapObjBall::touchWall(JGeometry::TVec3<f32>* pos,
+                            TBGWallCheckRecord* record)
+{
+	if (!(mLiveFlag & 0x80) && !isActorType(0x400000D0)) {
+		JGeometry::TVec3<f32> v = mVelocity;
+		f32 mag
+		    = JGeometry::TUtil<f32>::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+		mVelocity.y = unk184 * mag + mVelocity.y;
+	}
+	for (int i = 0; i < record->mResultWallsNum; i++) {
+		TBGCheckData* wall      = record->mResultWalls[i];
+		JGeometry::TVec3<f32> v = mVelocity;
+		f32 dot = v.x * wall->mNormal.x + v.y * wall->mNormal.y
+		          + v.z * wall->mNormal.z;
+		if (dot >= 0.0f)
+			continue;
+		f32 sd = pos->x * wall->mNormal.x + pos->y * wall->mNormal.y
+		         + pos->z * wall->mNormal.z + wall->mPlaneDistance;
+		f32 push = mBodyRadius - sd;
+		pos->x   = push * wall->mNormal.x + pos->x;
+		pos->z   = push * wall->mNormal.z + pos->z;
+		f32 bf   = -(1.0f + mMapObjData->mPhysical->unk4->unk8);
+		f32 bd   = dot * bf;
+		mVelocity.x = bd * wall->mNormal.x + mVelocity.x;
+		mVelocity.z = bd * wall->mNormal.z + mVelocity.z;
+		if (isActorType(0x400000D0)) {
+			JGeometry::TVec3<f32> v2 = mVelocity;
+			f32 mag2                 = JGeometry::TUtil<f32>::sqrt(
+                v2.x * v2.x + v2.y * v2.y + v2.z * v2.z);
+			f32 absMag = fabsf(mag2);
+			if (mScaling.y >= 5.0f) {
+				if (gpMSound->gateCheck(0x308A)) {
+					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+					    0x308A, (Vec*)&mPosition, nullptr, absMag, 0, 0,
+					    nullptr, 0, 4);
+				}
+			} else {
+				if (gpMSound->gateCheck(0x308B)) {
+					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+					    0x308B, (Vec*)&mPosition, nullptr, absMag, 0, 0,
+					    nullptr, 0, 4);
+				}
+			}
+		} else {
+			u32 soundId = mMapObjData->mSound->unk4->unk0[4];
+			if (gpMSound->gateCheck(soundId)) {
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    soundId, (Vec*)&mPosition, (Vec*)&mVelocity, 0.0f, 0, 0,
+				    nullptr, 0, 4);
+			}
+		}
+	}
+}
+
 void TMapObjBall::touchPollution()
 {
 	kill();
