@@ -1585,7 +1585,12 @@ void TBigWatermelon::touchActor(THitActor* actor)
 		}
 	}
 	if (actor->isActorType(0x80000001)) {
-		if (mPosition.distance(actor->mPosition) < 0.6f * mBodyRadius) {
+		f32 dx   = mPosition.x - actor->mPosition.x;
+		f32 dy   = mPosition.y - actor->mPosition.y;
+		f32 dz   = mPosition.z - actor->mPosition.z;
+		f32 sq   = dx * dx + dy * dy + dz * dz;
+		f32 dist = JGeometry::TUtil<f32>::sqrt(sq);
+		if (dist < 0.6f * mBodyRadius) {
 			kill();
 			return;
 		}
