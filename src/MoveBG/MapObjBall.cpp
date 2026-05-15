@@ -8,6 +8,8 @@
 #include <System/Particles.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <stdio.h>
+#include <Map/Map.hpp>
+#include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
 #include <Player/MarioAccess.hpp>
 #include <MSound/MSound.hpp>
@@ -467,6 +469,24 @@ void TMapObjBall::touchActor(THitActor* actor)
 		kicked();
 	} else {
 		boundByActor(actor);
+	}
+}
+
+void TMapObjBall::checkWallCollision(JGeometry::TVec3<f32>* pos)
+{
+	JGeometry::TVec3<f32> tmp;
+	tmp.x = pos->x;
+	tmp.y = pos->y + mBodyRadius;
+	tmp.z = pos->z;
+	TBGWallCheckRecord record(tmp, mBodyRadius, 4,
+	                          mMapObjData->mPhysical->mWallCheckFlags);
+	if (gpMap->isTouchedWallsAndMoveXZ(&record)) {
+		unk138 = record.mResultWalls[0];
+		pos->x = record.mCenter.x;
+		pos->z = record.mCenter.z;
+		touchWall(pos, &record);
+	} else {
+		unk138 = nullptr;
 	}
 }
 
