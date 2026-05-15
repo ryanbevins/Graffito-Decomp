@@ -244,6 +244,39 @@ void TResetFruit::breaking()
 	}
 }
 
+void TResetFruit::checkGroundCollision(JGeometry::TVec3<f32>* pos)
+{
+	u8 stage = gpMarDirector->mMap;
+	if (stage != 7 && stage != 4) {
+		TMapObjGeneral::checkGroundCollision(pos);
+		return;
+	}
+	if (stage == 4) {
+		mGroundHeight = gpMap->checkGround(pos->x, pos->y + 200.0f, pos->z,
+		                                   &mGroundPlane);
+		mGroundHeight = mGroundHeight + 1.0f;
+		if (pos->y <= mGroundHeight) {
+			touchGround(pos);
+		} else {
+			mLiveFlag |= 0x80;
+		}
+	} else {
+		mGroundHeight = gpMap->checkGround(pos->x, pos->y + mHeadHeight,
+		                                   pos->z, &mGroundPlane);
+		u16 type = mGroundPlane->mBGType;
+		if (type == 0x801 || type == 0x203) {
+			mGroundHeight = gpMap->checkGroundExactY(
+			    pos->x, mGroundHeight - 200.0f, pos->z, &mGroundPlane);
+		}
+		mGroundHeight = mGroundHeight + 1.0f;
+		if (pos->y <= mGroundHeight) {
+			touchGround(pos);
+		} else {
+			mLiveFlag |= 0x80;
+		}
+	}
+}
+
 void TResetFruit::touchGround(JGeometry::TVec3<f32>* pos)
 {
 	if (mGroundPlane->mBGType == 0x800) {
