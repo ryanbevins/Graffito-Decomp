@@ -1091,6 +1091,45 @@ void TBigWatermelon::control()
 	}
 }
 
+void TBigWatermelon::startEvent()
+{
+	if (strcmp(getName(), "スイカ（大）") == 0) {
+		mPosition.x = -4660.0f;
+		mPosition.y = 1300.0f;
+		mPosition.z = 13600.0f;
+		unkF8 &= ~0x100;
+		mLiveFlag |= 0x10;
+		mVelocity.x = 0.0f;
+		mVelocity.y = 0.0f;
+		mVelocity.z = 0.0f;
+		mLiveFlag |= 0x10;
+		startAnim(7);
+		JDrama::TFlagT<u16> flagT;
+		flagT.set(0);
+		gpMarDirector->fireStartDemoCamera("スイカコールカメラ", &mPosition, -1,
+		                                   0.0f, true, nullptr, 0, nullptr,
+		                                   flagT);
+		gpItemManager->makeShineAppearWithDemoOffset(
+		    "ジャジャン（おばけスイカ）", "スイカシャインカメラ", 0.0f, 0.0f, 0.0f);
+		unk104 = 0x17C;
+		mState = 0xD;
+	} else {
+		for (int i = 0; i < 10; i++) {
+			TMapObjBase* obj = gpItemManager->makeObjAppear(
+			    gpMarioPos->x, gpMarioPos->y, gpMarioPos->z, 0x2000000E, true);
+			if (obj != nullptr) {
+				obj->mVelocity.x
+				    = (MsRandF() - 0.5f) * 20.0f;
+				obj->mVelocity.y = MsRandF() * 20.0f + 20.0f;
+				obj->mVelocity.z = (1.0f - 0.5f) * 20.0f;
+				obj->mLiveFlag &= ~0x10;
+				*(u32*)((char*)obj + 0x14C) = 0x3C0;
+			}
+		}
+		makeObjDead();
+	}
+}
+
 void TBigWatermelon::touchWaterSurface()
 {
 	emitColumnWater();
