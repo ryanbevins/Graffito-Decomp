@@ -153,6 +153,21 @@ void TResetFruit::hold(TTakeActor* taker)
 	}
 }
 
+void TResetFruit::makeObjWaitingToAppear()
+{
+	mState = 0xB;
+	makeObjDefault();
+	makeObjDead();
+	calcRootMatrix();
+	getModel()->calc();
+	unk104 = mFruitWaitTimeToAppear;
+	unkF8 &= ~0x40000;
+	mState = 0xA;
+	if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
+		makeObjDead();
+	}
+}
+
 void TResetFruit::touchPollution()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &mPosition, 0, nullptr);
