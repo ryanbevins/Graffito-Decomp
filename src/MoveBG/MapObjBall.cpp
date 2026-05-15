@@ -2,6 +2,8 @@
 #include <MoveBG/MapObjBase.hpp>
 #include <Strategic/HitActor.hpp>
 #include <MarioUtil/PacketUtil.hpp>
+#include <MarioUtil/RandomUtil.hpp>
+#include <stdio.h>
 #include <Map/MapData.hpp>
 #include <Player/MarioAccess.hpp>
 #include <MSound/MSound.hpp>
@@ -67,7 +69,18 @@ TRandomFruit::TRandomFruit(const char* name)
 
 void TRandomFruit::initMapObj()
 {
-	TResetFruit::initMapObj();
+	int r = (int)(MsRandF() * 5.0f);
+	switch (r) {
+	case 0: snprintf(mFruitName, 32, "FruitCoconut"); break;
+	case 1: snprintf(mFruitName, 32, "FruitDurian"); break;
+	case 2: snprintf(mFruitName, 32, "FruitPapaya"); break;
+	case 3: snprintf(mFruitName, 32, "FruitPine"); break;
+	default: snprintf(mFruitName, 32, "FruitPine"); break;
+	}
+	unkF4 = mFruitName;
+	TMapObjBall::initMapObj();
+	SMS_InitPacket_OneTevColor(getModel(), 0, GX_TEVREG0,
+	                           (GXColorS10*)&unk19C);
 }
 
 void TCoverFruit::loadAfter()

@@ -106,7 +106,7 @@ public:
 	virtual ~TRandomFruit() { }
 	virtual void initMapObj();
 
-	/* 0x1A8 */ u8 _pad1A8[0x1C8 - 0x1A8];
+	/* 0x1A8 */ char mFruitName[0x1C8 - 0x1A8];
 };
 
 class TCoverFruit : public TMapObjBase {
