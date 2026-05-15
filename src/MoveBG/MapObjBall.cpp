@@ -2,6 +2,8 @@
 #include <MoveBG/MapObjBase.hpp>
 #include <Strategic/HitActor.hpp>
 #include <MarioUtil/PacketUtil.hpp>
+#include <MoveBG/ItemManager.hpp>
+#include <MoveBG/MapObjManager.hpp>
 #include <Player/ModelWaterManager.hpp>
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
@@ -579,9 +581,9 @@ void TMapObjBall::touchWaterSurface()
 TBigWatermelon::TBigWatermelon(const char* name)
     : TMapObjBall(name)
 {
-	unk198 = 0;
-	unk19C = 0;
-	unk1A0 = 0.0f;
+	mWaterEmitInfo = nullptr;
+	mItemCount     = 0;
+	unk1A0         = 0.0f;
 }
 
 u32 TResetFruit::getLivingTime() const
@@ -645,7 +647,35 @@ void TBigWatermelon::initMapObj()
 		gpResourceManager->load("/scene/mapObj/watermelon_shrink_b.jpa", 0x6c);
 		gParticleFlagLoaded[0x6c] = 1;
 	}
-	unk198 = (u32) new TWaterEmitInfo("/watermelon.prm");
+	mWaterEmitInfo = new TWaterEmitInfo("/watermelon.prm");
+}
+
+void TBigWatermelon::kill()
+{
+	emitAndScale(0x5D, 0, &mPosition);
+	emitAndScale(0x5E, 0, &mPosition);
+	emitAndScale(0x5F, 0, &mPosition);
+	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
+	emitAndScale(0x6B, 0, &mPosition, scale);
+	emitAndScale(0x6C, 0, &mPosition, scale);
+	mWaterEmitInfo->mPos.value = mPosition;
+	gpModelWaterManager->emitRequest(*mWaterEmitInfo);
+	if (gpMSound->gateCheck(0x38A3)) {
+		MSoundSESystem::MSoundSE::startSoundActor(0x38A3, (Vec*)&mPosition, 0,
+		                                          nullptr, 0, 4);
+	}
+	if (mItemCount < 10) {
+		TMapObjBase* obj = gpItemManager->makeObjAppear(
+		    mPosition.x, mPosition.y, mPosition.z, 0x2000000E, true);
+		if (obj != nullptr) {
+			obj->mVelocity.x = 0.0f;
+			obj->mVelocity.y = 25.0f;
+			obj->mVelocity.z = 0.0f;
+			obj->mLiveFlag &= ~0x10;
+			mItemCount = mItemCount + 1;
+		}
+	}
+	TMapObjGeneral::kill();
 }
 
 BOOL TBigWatermelon::receiveMessage(THitActor* sender, u32 message)
