@@ -3,6 +3,7 @@
 #include <Strategic/HitActor.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <Player/ModelWaterManager.hpp>
+#include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <MarioUtil/RandomUtil.hpp>
@@ -84,6 +85,21 @@ void TRandomFruit::initMapObj()
 	TMapObjBall::initMapObj();
 	SMS_InitPacket_OneTevColor(getModel(), 0, GX_TEVREG0,
 	                           (GXColorS10*)&unk19C);
+}
+
+BOOL TCoverFruit::receiveMessage(THitActor* sender, u32 message)
+{
+	if (sender->isActorType(0x08000083) && message == 4) {
+		unk64 |= 0x1;
+		mHolder = (TTakeActor*)sender;
+		return 1;
+	}
+	if (message == 0xB) {
+		kill();
+		TFlagManager::smInstance->setBool(1, 0x1038B);
+		return 1;
+	}
+	return 0;
 }
 
 void TCoverFruit::loadAfter()
