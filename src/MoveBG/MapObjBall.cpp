@@ -853,6 +853,27 @@ void TMapObjBall::kicked()
 	}
 }
 
+#pragma dont_inline on
+void TMapObjBall::boundByActor(THitActor* actor)
+{
+	JGeometry::TVec3<f32> diff;
+	diff.x = actor->mPosition.x - mPosition.x;
+	diff.y = 0.0f;
+	diff.z = actor->mPosition.z - mPosition.z;
+	f32 r;
+	if (isActorType(0x400000D0))
+		r = mAttackRadius + actor->mDamageRadius;
+	else
+		r = actor->mDamageRadius;
+	if (r * r < diff.x * diff.x + diff.z * diff.z)
+		return;
+	if (diff.x != 0.0f && diff.z != 0.0f) {
+		MsVECNormalize((Vec*)&diff, (Vec*)&diff);
+	}
+	mLiveFlag |= 0x80;
+}
+#pragma dont_inline off
+
 void TMapObjBall::touchActor(THitActor* actor)
 {
 	if (unk194 != 0)
