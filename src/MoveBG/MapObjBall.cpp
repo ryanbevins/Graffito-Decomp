@@ -973,18 +973,18 @@ void TMapObjBall::kicked()
 void TMapObjBall::calcCurrentMtx()
 {
 	Mtx rotMtx;
-	rotMtx[0][0] = 1.0f;
-	rotMtx[0][1] = 0.0f;
-	rotMtx[0][2] = 0.0f;
-	rotMtx[0][3] = 0.0f;
-	rotMtx[1][0] = 0.0f;
-	rotMtx[1][1] = 1.0f;
-	rotMtx[1][2] = 0.0f;
-	rotMtx[1][3] = 0.0f;
-	rotMtx[2][0] = 0.0f;
-	rotMtx[2][1] = 0.0f;
-	rotMtx[2][2] = 1.0f;
 	rotMtx[2][3] = 0.0f;
+	rotMtx[1][3] = 0.0f;
+	rotMtx[0][3] = 0.0f;
+	rotMtx[1][2] = 0.0f;
+	rotMtx[0][2] = 0.0f;
+	rotMtx[2][1] = 0.0f;
+	rotMtx[0][1] = 0.0f;
+	rotMtx[2][0] = 0.0f;
+	rotMtx[1][0] = 0.0f;
+	rotMtx[2][2] = 1.0f;
+	rotMtx[1][1] = 1.0f;
+	rotMtx[0][0] = 1.0f;
 
 	{
 		JGeometry::TVec3<f32> v = mVelocity;
