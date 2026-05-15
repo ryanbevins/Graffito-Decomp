@@ -537,25 +537,142 @@ void TResetFruit::makeObjAppeared()
 void TResetFruit::control()
 {
 	switch (mState) {
-	case 1:
-		living();
-		break;
+	case 1: {
+		unk64 &= ~0x1;
+		for (int i = 0; i < mColCount; i++) {
+			THitActor* col = mCollisions[i];
+			u16 st         = mState;
+			if (st == 2 || st == 3 || st == 0xC || st == 0xA)
+				continue;
+			TMapObjBall::touchActor(col);
+			if (unkF8 & 0x04000000)
+				continue;
+			if (!isState(1))
+				continue;
+			if (mLiveFlag & 0x10)
+				continue;
+			if (!isUnk104Positive()) {
+				unkF8 |= 0x40000;
+				unk104 = getLivingTime();
+			}
+			mLiveFlag &= ~0x10;
+			mState = 0xB;
+		}
+		if (mGroundPlane->mActor != nullptr) {
+			calcCurrentMtx();
+		}
+	} break;
 	case 2:
-	case 3:
-		waitingToAppear();
-		break;
-	case 6:
-		rotting();
-		break;
-	case 0xB:
-		appearing();
-		break;
-	case 0xC:
-		breaking();
-		break;
-	case 0xD:
-		waitEffect();
-		break;
+	case 3: {
+		TMapObjGeneral::control();
+		if (unk194 != 0) {
+			unk194 = unk194 - 1;
+		}
+		if (isState(6)) {
+			Mtx tmp;
+			PSMTXCopy(mHolder->getTakingMtx(), tmp);
+			tmp[1][3] = tmp[1][3] + unk190;
+			PSMTXCopy(tmp, getModel()->mNodeMatrices[0]);
+		} else {
+			JGeometry::TVec3<f32> v = mVelocity;
+			f32 sq = v.x * v.x + v.y * v.y + v.z * v.z;
+			if (sq > 0.0000038146973f
+			    || mGroundPlane->mActor != nullptr) {
+				calcCurrentMtx();
+			}
+		}
+	} break;
+	case 6: {
+		TMapObjBall::control();
+		if (unkF8 & 0x04000000)
+			break;
+		if (isUnk104Positive())
+			break;
+		if (mHolder != nullptr) {
+			mHolder->receiveMessage(this, 8);
+			mHolder->mHeldObject = nullptr;
+			mHolder              = nullptr;
+		}
+		mVelocity.x = 0.0f;
+		mVelocity.y = 0.0f;
+		mVelocity.z = 0.0f;
+		mState      = 0xC;
+	} break;
+	case 0xB: {
+		unk64 &= ~0x1;
+		if (gpMarDirector->mMap == 4) {
+			if (mLiveFlag & 0x10) {
+				mLiveFlag &= ~0x10;
+			}
+		}
+		if (mGroundPlane->mActor == nullptr) {
+			unk198 = 0.0f;
+		} else {
+			if (mLiveFlag & 0x10) {
+				mLiveFlag &= ~0x10;
+			}
+			if (mPosition.y < 200.0f + mGroundHeight) {
+				TLiveActor* act = (TLiveActor*)mGroundPlane->mActor;
+				if (act->isActorType(0x400000CD)
+				    || act->isActorType(0x400000CD)) {
+					f32 prev = unk198;
+					unk198   = SMS_GetSandRiseUpRatio(this);
+					if (unk198 > 0.05f) {
+						if (unk198 > prev) {
+							mVelocity.y = mVelocity.y + 20.0f;
+						}
+					}
+				}
+			}
+		}
+		TMapObjBall::control();
+		if (unkF8 & 0x04000000)
+			break;
+		if (isUnk104Positive())
+			break;
+		if (mHolder != nullptr) {
+			mHolder->receiveMessage(this, 8);
+			mHolder->mHeldObject = nullptr;
+			mHolder              = nullptr;
+		}
+		mVelocity.x = 0.0f;
+		mVelocity.y = 0.0f;
+		mVelocity.z = 0.0f;
+		mState      = 0xC;
+	} break;
+	case 0xC: {
+		mPosition.y = mBodyRadius * 0.5f + mPosition.y;
+		mScaling.x  = mInitialScaling.x;
+		mScaling.y  = mInitialScaling.y;
+		mScaling.z  = mInitialScaling.z;
+		emitAndScale(0xE5, 0, &mPosition);
+		if (gpMSound->gateCheck(0x387D)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x387D, (Vec*)&mPosition, 0, nullptr, 0, 4);
+		}
+		unk104 = 0xF0;
+		sleep();
+		mState = 0xD;
+	} break;
+	case 0xD: {
+		if (isUnk104Positive())
+			break;
+		unk19C = 0xFF;
+		unk19E = 0xFF;
+		unk1A0 = 0xFF;
+		awake();
+		mState = 0xB;
+		makeObjDefault();
+		makeObjDead();
+		calcRootMatrix();
+		getModel()->calc();
+		unk104 = mFruitWaitTimeToAppear;
+		unkF8 &= ~0x40000;
+		mState = 0xA;
+		if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
+			makeObjDead();
+		}
+	} break;
 	default:
 		break;
 	}
