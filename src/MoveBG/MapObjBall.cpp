@@ -260,6 +260,31 @@ void TResetFruit::makeObjWaitingToAppear()
 	}
 }
 
+u32 TResetFruit::touchWater(THitActor* actor)
+{
+	if (isState(6))
+		return 0;
+	if (isState(2))
+		return 0;
+	JGeometry::TVec3<f32> vel = mVelocity;
+	JGeometry::TVec3<f32>* speed = getWaterSpeed(actor);
+	f32 factor                   = unk17C;
+	vel.x                        = speed->x * factor + vel.x;
+	vel.y                        = speed->y * factor + vel.y;
+	vel.z                        = speed->z * factor + vel.z;
+	mVelocity.x                  = vel.x;
+	mVelocity.y                  = vel.y;
+	mVelocity.z                  = vel.z;
+	mLiveFlag &= ~0x10;
+	if (!isUnk104Positive()) {
+		unkF8 |= 0x40000;
+		unk104 = getLivingTime();
+	}
+	mLiveFlag &= ~0x10;
+	mState = 0xB;
+	return 1;
+}
+
 void TResetFruit::touchPollution()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &mPosition, 0, nullptr);
