@@ -199,6 +199,30 @@ void TResetFruit::appearing()
 	}
 }
 
+void TResetFruit::breaking()
+{
+	Mtx scaleMtx;
+	PSMTXScale(scaleMtx, 1.0f, mBreakingScaleSpeed, 1.0f);
+	Mtx* nm = getModel()->mNodeMatrices;
+	concatOnlyRotFromLeft(scaleMtx, nm[0], nm[0]);
+	mScaling.y  = mScaling.y * mBreakingScaleSpeed;
+	(*nm)[1][3] = mBodyRadius * mScaling.y + mPosition.y;
+	if (mScaling.y < 0.2f) {
+		mPosition.y = mBodyRadius * 0.5f + mPosition.y;
+		mScaling.x  = mInitialScaling.x;
+		mScaling.y  = mInitialScaling.y;
+		mScaling.z  = mInitialScaling.z;
+		emitAndScale(0xE5, 0, &mPosition);
+		if (gpMSound->gateCheck(0x387D)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x387D, (Vec*)&mPosition, 0, nullptr, 0, 4);
+		}
+		unk104 = 0xF0;
+		sleep();
+		mState = 0xD;
+	}
+}
+
 void TResetFruit::touchGround(JGeometry::TVec3<f32>* pos)
 {
 	if (mGroundPlane->mBGType == 0x800) {
