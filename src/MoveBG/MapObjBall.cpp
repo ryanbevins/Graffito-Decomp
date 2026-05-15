@@ -132,6 +132,55 @@ void TCoverFruit::loadAfter()
 	TMapObjBase::loadAfter();
 }
 
+BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == 0xB) {
+		if (isState(1) || isState(6) || isState(0xB)) {
+			mState = 0xB;
+			makeObjDefault();
+			makeObjDead();
+			calcRootMatrix();
+			getModel()->calc();
+			unk104 = mFruitWaitTimeToAppear;
+			unkF8 &= ~0x40000;
+			mState = 0xA;
+			if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
+				makeObjDead();
+			}
+			return 1;
+		}
+		return 0;
+	}
+	if (message == 0xD) {
+		kill();
+		return 1;
+	}
+	if (!isState(1) && !isState(6) && !isState(0xB)) {
+		if (!isState(2) && !isState(3) && !isState(0xC) && !isState(0xA)) {
+			TMapObjBall::touchActor(sender);
+			if (!(unkF8 & 0x04000000) && isState(1)
+			    && !(mLiveFlag & 0x10) && !isUnk104Positive()) {
+				unkF8 |= 0x40000;
+				unk104 = getLivingTime();
+				mLiveFlag &= ~0x10;
+				mState = 0xB;
+			}
+		}
+	}
+	if (TMapObjGeneral::receiveMessage(sender, message))
+		return 1;
+	if (message == 4 && (unkF8 & 0x100000)) {
+		hold((TTakeActor*)sender);
+		return 1;
+	}
+	if (sender->isActorType(0x80000001) && !isActorType(0x400000D0)
+	    && message != 4) {
+		kicked();
+		return 1;
+	}
+	return 0;
+}
+
 void TResetFruit::touchActor(THitActor* actor)
 {
 	if (isState(2))
