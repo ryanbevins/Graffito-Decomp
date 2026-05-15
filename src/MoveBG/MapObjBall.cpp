@@ -3,6 +3,7 @@
 #include <Strategic/HitActor.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
+#include <Camera/CubeManagerBase.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <Player/ModelWaterManager.hpp>
@@ -377,6 +378,44 @@ void TResetFruit::touchWaterSurface()
 	mState = 0xA;
 	if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
 		makeObjDead();
+	}
+}
+
+void TResetFruit::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (gpMarDirector->mMap == 7) {
+		bool resetCheck = false;
+		if (!isState(6)) {
+			JGeometry::TVec3<f32> v = mVelocity;
+			f32 sq = v.x * v.x + v.y * v.y + v.z * v.z;
+			if (sq <= 0.0000038146973f) {
+				resetCheck = true;
+			}
+		}
+		if (!resetCheck) {
+			if (mLiveFlag & 0x200) {
+				mLiveFlag &= ~0x200;
+			}
+		} else {
+			if (!gpCubeArea->isInAreaCube(mPosition) && isState(0xB)) {
+				if (mPosition.x != mInitialPosition.x
+				    || mPosition.z != mInitialPosition.z) {
+					mState = 0xB;
+					makeObjDefault();
+					makeObjDead();
+					calcRootMatrix();
+					getModel()->calc();
+					unk104 = mFruitWaitTimeToAppear;
+					unkF8 &= ~0x40000;
+					mState = 0xA;
+					if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
+						makeObjDead();
+					}
+				}
+			}
+		}
+	} else {
+		TMapObjGeneral::perform(flags, graphics);
 	}
 }
 
