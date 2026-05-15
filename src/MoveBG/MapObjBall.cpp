@@ -854,6 +854,17 @@ void TMapObjBall::kicked()
 }
 
 #pragma dont_inline on
+void TMapObjBall::calcCurrentMtx()
+{
+	JGeometry::TVec3<f32> v = mVelocity;
+	f32 thresh              = mMapObjData->mPhysical->unk4->unkC;
+	if (fabsf(v.x) <= thresh && fabsf(v.z) <= thresh
+	    && mGroundPlane->mNormal.y == 1.0f) {
+		mVelocity.x = 0.0f;
+		mVelocity.z = 0.0f;
+	}
+}
+
 void TMapObjBall::boundByActor(THitActor* actor)
 {
 	JGeometry::TVec3<f32> diff;
