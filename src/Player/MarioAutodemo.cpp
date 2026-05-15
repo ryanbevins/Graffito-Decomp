@@ -15,13 +15,13 @@ BOOL TMario::winDemo()
 	switch (mActionState) {
 	case 0:
 		if (mHeldObject != nullptr) {
-			mHeldObject->receiveMessage(mHeldObject, 0xD);
+			mHeldObject->receiveMessage(mHeldObject, HIT_MESSAGE_UNKD);
 			mHeldObject = nullptr;
 		}
 		gpConductor->killEnemiesWithin(mPosition, 2000.0f);
 		if (jumpProcess(0) == TRUE) {
 			gpMarDirector->fireGetStar((TShine*)unk384);
-			unk384->receiveMessage(this, 0x4);
+			unk384->receiveMessage(this, HIT_MESSAGE_TAKE);
 			mActionState = 1;
 		}
 		break;
@@ -42,7 +42,7 @@ BOOL TMario::readBillboard()
 
 	TBaseNPC* talkingNpc = gpMarDirector->unkA0;
 	switch (mActionState) {
-	case 0:
+	case 0: {
 		const JGeometry::TVec3<f32>& targetPos = talkingNpc->getPosition();
 		f32 dx                                 = mPosition.x - targetPos.x;
 		f32 dz                                 = mPosition.z - targetPos.z;
@@ -59,7 +59,8 @@ BOOL TMario::readBillboard()
 		}
 		setAnimation(0xD9, 1.0f);
 		mActionState = 1;
-	case 1:
+	}
+	case 1: {
 		s16 attackAngle = getAttackAngle(talkingNpc);
 		s16 diffAngle   = attackAngle - mFaceAngle.y;
 		s32 convAngle
@@ -72,6 +73,7 @@ BOOL TMario::readBillboard()
 			mActionState          = 2;
 		}
 		break;
+	}
 	case 2:
 		if (gpMarDirector->unk124 == 0 || gpMarDirector->unk124 == 5) {
 			changePlayerStatus(0xC400201, 0, true);
@@ -97,23 +99,23 @@ BOOL TMario::jumpingDemoCommon(u32 playerStatus, int animationId, f32 velocity)
 BOOL TMario::warpIn()
 {
 	// Missing stack space
-	volatile u32 padding[10];
+	// volatile u32 padding[10];
 	mActionTimer += 1;
 	const JGeometry::TVec3<f32>& gatePosOffset = ((TModelGate*)mHolder)->unkAC;
 	JGeometry::TVec3<f32> holderPosOffset(((TModelGate*)mHolder)->unkAC);
 	holderPosOffset.y -= 80.0f;
 	switch (mActionState) {
-	case 0:
+	case 0: {
 		if (mActionTimer <= 1) {
 			if (onYoshi() != FALSE) {
 				getOffYoshi(true);
 			}
 			TModelGate* gate  = (TModelGate*)mHolder;
 			MtxPtr nodeMatrix = gate->unk78->getModel()->getAnmMtx(gate->unk72);
-			unk45C.x          = nodeMatrix[0][3] - gatePosOffset.x;
-			unk45C.y          = nodeMatrix[1][3] - gatePosOffset.y;
-			unk45C.z          = nodeMatrix[2][3] - gatePosOffset.z;
-			unk45C.normalize();
+			mWarpInDir.x      = nodeMatrix[0][3] - gatePosOffset.x;
+			mWarpInDir.y      = nodeMatrix[1][3] - gatePosOffset.y;
+			mWarpInDir.z      = nodeMatrix[2][3] - gatePosOffset.z;
+			mWarpInDir.normalize();
 			warpInLight();
 
 			u8 nextStage   = 2;
@@ -132,9 +134,9 @@ BOOL TMario::warpIn()
 			gpMarDirector->setNextStage(nextStage, mHolder);
 		}
 
-		unk114 |= 2;
-		J3DFrameCtrl* frameCtrl = getMotionFrameCtrl();
-		frameCtrl->setSpeed(0.0f);
+		mSubState |= 2;
+		J3DFrameCtrl& frameCtrl = getMotionFrameCtrl();
+		frameCtrl.setRate(0.0f);
 
 		// Possibly TVec3 inaccuracies?
 		JGeometry::TVec3<f32> marioDist = holderPosOffset - mPosition;
@@ -143,7 +145,7 @@ BOOL TMario::warpIn()
 		f32 dist
 		    = mAutoDemoParams.mWarpInTremble.get() - marioDist.length() * 0.1f;
 		if (dist > 0.0f) {
-			unk53C->clash(dist);
+			mTrembleModelEffect->clash(dist);
 		}
 
 		if (0x78 < mActionTimer) {
@@ -155,9 +157,10 @@ BOOL TMario::warpIn()
 			startVoice(-0x2);
 		}
 		break;
-	case 1:
+	}
+	case 1: {
 		if ((f32)mActionTimer > mAutoDemoParams.mWarpInBallsDispTime.get()) {
-			unk114 &= ~(1 << 1);
+			mSubState &= ~(1 << 1);
 			rumbleStart(0x15, 0x14);
 		}
 		if (mAutoDemoParams.mWarpInBallsTime.get() > (f32)mActionTimer) {
@@ -167,20 +170,21 @@ BOOL TMario::warpIn()
 		}
 
 		break;
+	}
 	case 2:
-		unk114 &= ~(1 << 1);
+		mSubState &= ~(1 << 1);
 		rumbleStart(0x14, mMotorParams.mMotorWall.get() / 2);
 
 		if ((f32)mActionTimer > mAutoDemoParams.mWarpInCapturedTime.get()) {
-			unk114 &= ~(1 << 1);
+			mSubState &= ~(1 << 1);
 			mActionTimer = 0;
-			mHolder->receiveMessage(this, 0xE);
+			mHolder->receiveMessage(this, HIT_MESSAGE_ATTACK);
 			mActionState = 3;
 		}
 
 		break;
 	case 3:
-		unk118 |= MARIO_FLAG_IS_PERFORMING;
+		mState |= MARIO_FLAG_IS_PERFORMING;
 		break;
 	}
 
@@ -196,35 +200,35 @@ BOOL TMario::isUnUsualStageStart()
 	if ((gpMarDirector->mMap == 0x3A)
 	    && (gpMarDirector->unk7D == 0 || gpMarDirector->unk7D == 1)) {
 		changePlayerStatus(0x800447, 0, true);
-		unk114 |= 2;
-		if (unk3FC != nullptr) {
-			unk3FC->setBckFromIndex(0);
-			unk3FC->getFrameCtrl(0)->setSpeed(0.5f);
-			unk3FC->getFrameCtrl(0)->setFrame(0.0f);
+		mSubState |= 2;
+		if (mPinaRail != nullptr) {
+			mPinaRail->setBckFromIndex(0);
+			mPinaRail->getFrameCtrl(0)->setRate(0.5f);
+			mPinaRail->getFrameCtrl(0)->setFrame(0.0f);
 		}
-		if (unk400 != nullptr) {
-			unk400->setBckFromIndex(0);
-			unk400->getFrameCtrl(0)->setSpeed(0.5f);
-			unk400->getFrameCtrl(0)->setFrame(0.0f);
+		if (mKoopaRail != nullptr) {
+			mKoopaRail->setBckFromIndex(0);
+			mKoopaRail->getFrameCtrl(0)->setRate(0.5f);
+			mKoopaRail->getFrameCtrl(0)->setFrame(0.0f);
 		}
 		return TRUE;
 	}
 
 	if (SMS_isDivingMap()) {
-		unk114 |= 2;
+		mSubState |= 2;
 
 		// I suspect some inline stuff here, weird to check right after you set
 		// it
-		unk118 |= MARIO_FLAG_HELMET_FLW_CAMERA;
-		unk118 |= MARIO_FLAG_HELMET;
-		unk118 |= MARIO_FLAG_HAS_FLUDD;
+		mState |= MARIO_FLAG_HELMET_FLW_CAMERA;
+		mState |= MARIO_FLAG_HELMET;
+		mState |= MARIO_FLAG_HAS_FLUDD;
 
 		if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-			mWaterGun->changeNozzle(2, true);
+			mWaterGun->changeNozzle((TWaterGun::TNozzleType)2, true);
 		}
 
 		if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-			mWaterGun->changeNozzle(mWaterGun->mSecondNozzle, true);
+			mWaterGun->changeNozzle((TWaterGun::TNozzleType)mWaterGun->mSecondNozzle, true);
 		}
 
 		if (mCap != nullptr) {
@@ -243,7 +247,7 @@ BOOL TMario::rollingStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation)
 		return TRUE;
 	} else {
 		if (mAction == 0x133f) {
-			unk114 &= ~2;
+			mSubState &= ~2;
 			if (warpPos != nullptr) {
 				warpRequest(*warpPos, rotation);
 				mFaceAngle.set(0, DEG2SHORTANGLE(rotation), 0);
@@ -251,7 +255,7 @@ BOOL TMario::rollingStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation)
 
 			checkGroundPlane(mPosition.x, mPosition.y + 25.0f, mPosition.z,
 			                 &mFloorPosition.y, &mGroundPlane);
-			unk2BC = mFloorPosition.y;
+			mLastGroundY = mFloorPosition.y;
 			setAnimation(0xC3, 1.0f);
 			changePlayerStatus(0x1337, 0x200, true);
 			return TRUE;
@@ -266,18 +270,18 @@ BOOL TMario::returnStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation,
 	if (mAction == 0x133f) {
 		int offsetPlayerStatus = playerStatus << 8;
 		if (flag == TRUE) {
-			unk114 &= ~2;
+			mSubState &= ~2;
 			if (warpPos != nullptr) {
 				warpRequest(*warpPos, rotation);
 				mFaceAngle.set(0, DEG2SHORTANGLE(rotation), 0);
 			}
 			checkGroundPlane(mPosition.x, mPosition.y + 25.0f, mPosition.z,
 			                 &mFloorPosition.y, &mGroundPlane);
-			unk2BC = mFloorPosition.y;
+			mLastGroundY = mFloorPosition.y;
 			setAnimation(0xC3, 1.0f);
 			changePlayerStatus(0x1337, offsetPlayerStatus | 2, true);
 		} else {
-			unk114 &= ~2;
+			mSubState &= ~2;
 			if (warpPos != nullptr) {
 				f32 flippedAngle = rotation + 180.0f;
 				warpRequest(*warpPos, flippedAngle);
@@ -285,7 +289,7 @@ BOOL TMario::returnStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation,
 			}
 			checkGroundPlane(mPosition.x, mPosition.y + 25.0f, mPosition.z,
 			                 &mFloorPosition.y, &mGroundPlane);
-			unk2BC = mFloorPosition.y;
+			mLastGroundY = mFloorPosition.y;
 			setAnimation(0xC3, 1.0f);
 			changePlayerStatus(0x1337, offsetPlayerStatus | 1, true);
 		}
@@ -300,7 +304,7 @@ BOOL TMario::waitingStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation)
 	if (result != 0) {
 		return TRUE;
 	} else {
-		unk114 &= ~2;
+		mSubState &= ~2;
 		if (warpPos != nullptr) {
 			warpRequest(*warpPos, rotation);
 			mFaceAngle.set(0, DEG2SHORTANGLE(rotation), 0);
@@ -308,9 +312,9 @@ BOOL TMario::waitingStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation)
 
 		checkGroundPlane(mPosition.x, mPosition.y + 25.0f, mPosition.z,
 		                 &mFloorPosition.y, &mGroundPlane);
-		unk2BC = mFloorPosition.y;
+		mLastGroundY = mFloorPosition.y;
 		setAnimation(0xC3, 1.0f);
-		unk114 |= 2;
+		mSubState |= 2;
 		changePlayerStatus(0xC400201, 0, true);
 		return TRUE;
 	}
@@ -320,16 +324,16 @@ BOOL TMario::waitingStart(const JGeometry::TVec3<f32>* warpPos, f32 rotation)
 BOOL TMario::toroccoStart()
 {
 	changePlayerStatus(0x800447, 0, true);
-	unk114 |= 2;
-	if (unk3FC != nullptr) {
-		unk3FC->setBckFromIndex(0);
-		unk3FC->getFrameCtrl(0)->setSpeed(0.5f);
-		unk3FC->getFrameCtrl(0)->setFrame(0.0f);
+	mSubState |= 2;
+	if (mPinaRail != nullptr) {
+		mPinaRail->setBckFromIndex(0);
+		mPinaRail->getFrameCtrl(0)->setRate(0.5f);
+		mPinaRail->getFrameCtrl(0)->setFrame(0.0f);
 	}
-	if (unk400 != nullptr) {
-		unk400->setBckFromIndex(0);
-		unk400->getFrameCtrl(0)->setSpeed(0.5f);
-		unk400->getFrameCtrl(0)->setFrame(0.0f);
+	if (mKoopaRail != nullptr) {
+		mKoopaRail->setBckFromIndex(0);
+		mKoopaRail->getFrameCtrl(0)->setRate(0.5f);
+		mKoopaRail->getFrameCtrl(0)->setFrame(0.0f);
 	}
 	return TRUE;
 }
@@ -340,10 +344,10 @@ BOOL TMario::warpOut()
 	// volatile u32 padding[4];
 
 	mActionTimer += 1;
-	unk114 |= 2;
+	mSubState |= 2;
 	switch (mActionState) {
 	case 0:
-		unk114 |= 2;
+		mSubState |= 2;
 		if ((mActionArg & 0xff) == 2) {
 			setAnimation(0x13B, 1.0f);
 		} else {
@@ -364,14 +368,14 @@ BOOL TMario::warpOut()
 		}
 		if (mActionTimer >= unkDelay) {
 			if (checkFlag(MARIO_FLAG_HELMET_FLW_CAMERA)) {
-				unk114 |= 2;
+				mSubState |= 2;
 				return changePlayerStatus(0x891, 0, true);
 			}
 			mActionState = 2;
 		}
 		break;
 	case 2:
-		unk114 |= 2;
+		mSubState |= 2;
 		if ((mActionArg & 0xff) == 2) {
 			setAnimation(0x13C, 1.0f);
 		} else {
@@ -382,7 +386,7 @@ BOOL TMario::warpOut()
 		}
 		break;
 	case 3:
-		unk114 |= 2;
+		mSubState |= 2;
 		switch (mActionArg & 0xff) {
 		case 0:
 			return changePlayerStatus(0xC000230, 0, true);
@@ -418,30 +422,24 @@ BOOL TMario::electricDamage()
 	mActionTimer += 1;
 	if (mActionTimer > 0x78) {
 
-		J3DFrameCtrl* frameCtrl = getMotionFrameCtrl();
-		frameCtrl->setFrame(0.0f);
+		J3DFrameCtrl& frameCtrl = getMotionFrameCtrl();
+		frameCtrl.setFrame(0.0f);
 		mActionTimer += 1;
 		startVoice(0x7852);
 
-		if (unk53C != nullptr) {
-			unk53C->tremble(5.0f, 2.0f, 0.99f, 600);
+		if (mTrembleModelEffect != nullptr) {
+			mTrembleModelEffect->tremble(5.0f, 2.0f, 0.99f, 600);
 		}
 
 		elecEndEffect();
 
-		unk484.x = mPosition.x + JMASSin(mFaceAngle.y);
-		unk484.z = mPosition.z + JMASCos(mFaceAngle.y);
+		mFloorHitActor.mPosition.x = mPosition.x + JMASSin(mFaceAngle.y);
+		mFloorHitActor.mPosition.z = mPosition.z + JMASCos(mFaceAngle.y);
 
-		// This matches, but i am pretty certain it is wrong
-		// damageExec((THitActor*)&unk474, 0, 3,
-		//            mDmgParamsGraffitoElec.mWaterEmit.get(),
-		//            mDmgParamsGraffitoElec.mMinSpeed.get(),
-		//            mDmgParamsGraffitoElec.mMotor.get(), 0.0f, 0x3C);
-		// I am pretty certain this is the correct parameters to be passed
-		damageExec((THitActor*)&unk474, 0, 3,
-		           mDmgParamsGraffitoElec.mDamage.get(),
+		damageExec(&mFloorHitActor, 0, 3,
 		           mDmgParamsGraffitoElec.mWaterEmit.get(),
-		           mDmgParamsGraffitoElec.mMinSpeed.get(), 0.0f, 0x3C);
+		           mDmgParamsGraffitoElec.mMinSpeed.get(),
+		           mDmgParamsGraffitoElec.mMotor.get(), 0.0f, 0x3C);
 
 		return changePlayerStatus(0xC400201, 0, true);
 	}
@@ -471,8 +469,8 @@ BOOL TMario::footDowning()
 		break;
 	case 3:
 		setAnimation(0x124, 1.0f);
-		J3DFrameCtrl* frameCtrl = getMotionFrameCtrl();
-		if (frameCtrl->checkPass(24.0f) != FALSE) {
+		J3DFrameCtrl& frameCtrl = getMotionFrameCtrl();
+		if (frameCtrl.checkPass(24.0f) != FALSE) {
 			sinkInSandEffect();
 		}
 		if (isLast1AnimeFrame()) {
@@ -514,7 +512,8 @@ BOOL TMario::demoMain()
 		}
 		stopProcess();
 		if (isLast1AnimeFrame()) {
-			if ((unk0FA == 0x5f) || (unk0FA == 0x60) || (unk0FA == 0xe9)) {
+			if ((mAnimationId == 0x5f) || (mAnimationId == 0x60)
+			    || (mAnimationId == 0xe9)) {
 				mPosition.x += JMASSin(mFaceAngle.y) * 150.0f;
 				mPosition.z += JMASCos(mFaceAngle.y) * 150.0f;
 			} else {
@@ -558,7 +557,7 @@ BOOL TMario::demoMain()
 		result = FALSE;
 		break;
 	case 0x133F:
-		unk114 &= ~2;
+		mSubState &= ~2;
 		result = FALSE;
 		break;
 	}

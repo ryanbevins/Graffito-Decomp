@@ -1,4 +1,3 @@
-#include "JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp"
 #include <Enemy/NameKuri.hpp>
 #include <Enemy/Walker.hpp>
 #include <Enemy/Graph.hpp>
@@ -29,6 +28,7 @@
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -479,7 +479,7 @@ void TNameKuri::moveObject()
 			                                          nullptr, 0, 4);
 	}
 
-	if (!checkLiveFlag(LIVE_FLAG_UNK2)) {
+	if (!checkLiveFlag(LIVE_FLAG_HIDDEN)) {
 		++unk194;
 		int aliveTime = unk1A4->mSLAliveTime.get();
 		if (unk194 + 100 > aliveTime && mScaling.x < mBodyScale * 2.0f) {

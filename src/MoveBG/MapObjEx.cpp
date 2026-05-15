@@ -22,7 +22,7 @@ f32 TMapObjNail::mDownHeight = 50.0f;
 
 BOOL TMapObjNail::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == 1 && !isUnk104Positive() && unk150 < 3) {
+	if (message == HIT_MESSAGE_HIP_DROP && !isUnk104Positive() && unk150 < 3) {
 		mPosition.y -= mDownHeight;
 		removeMapCollision();
 		setUpCurrentMapCollision();
@@ -96,7 +96,7 @@ TMapObjBase* TJointCoin::makeObj(const char* name, u16 i)
 	unk140[unk13C]->onMapObjFlag(0x100);
 	unk140[unk13C]->offMapObjFlag(0x40000);
 	unk140[unk13C]->offLiveFlag(LIVE_FLAG_UNK100);
-	unk140[unk13C]->offHitFlag(HIT_FLAG_UNK1);
+	unk140[unk13C]->offHitFlag(HIT_FLAG_NO_COLLISION);
 	unk144[unk13C] = i;
 	++unk13C;
 	return pTVar2;
@@ -127,8 +127,8 @@ void TJointCoin::loadAfter()
 		makeObjFromJointName(name, i);
 	}
 
-	mMActor->getFrameCtrl(0)->setSpeed(SMSGetAnmFrameRate() * 0.25f);
-	unk138->getFrameCtrl(0)->setSpeed(SMSGetAnmFrameRate() * 0.25f);
+	mMActor->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate() * 0.25f);
+	unk138->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate() * 0.25f);
 }
 
 bool TJointCoin::nameIsObj(const char* name)

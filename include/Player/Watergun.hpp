@@ -83,10 +83,9 @@ extern TNozzleBmdData nozzleBmdData;
 
 class TWaterGun {
 public:
-	// TODO: I wish these could be combined
-	// If i make it a named enum, it defaults to 4 bytes size (i think)
-	typedef s8 TNozzleType;
-	enum { Spray = 0, Rocket, Underwater, Yoshi, Hover, Turbo };
+#pragma enumsalwaysint off
+	enum TNozzleType { Spray = 0, Rocket, Underwater, Yoshi, Hover, Turbo };
+#pragma enumsalwaysint reset
 
 	TWaterGun(TMario* mario);
 
@@ -95,7 +94,7 @@ public:
 	void changeBackup();
 	void calcAnimation(JDrama::TGraphics*);
 	void changeNozzle(TNozzleType, bool);
-	bool damage();
+	BOOL damage();
 	void emit();
 	TNozzleBase* getCurrentNozzle() const;
 	MtxPtr getEmitMtx(int);
@@ -159,7 +158,33 @@ public:
 	TNozzleBase* getNozzle(u8 index) { return mNozzleList[index]; }
 
 	// Fabricated
+	u8 getCurrentNozzleType() const { return mCurrentNozzle; }
+
+	// Fabricated
 	bool hasWater() const { return mCurrentWater > 0; }
+
+	// Fabricated
+	bool canSpray() const
+	{
+		if (mCurrentWater == 0) {
+			return false;
+		} else {
+			s32 kind = getCurrentNozzle()->getNozzleKind();
+			if (kind == 1) {
+				TNozzleTrigger* triggerNozzle
+				    = (TNozzleTrigger*)getCurrentNozzle();
+				if (triggerNozzle->unk385 == TNozzleTrigger::ACTIVE) {
+					return true;
+				} else {
+					return false;
+				}
+			} else if (getCurrentNozzle()->unk378 > 0.0f) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
 
 	/* 0x0000 */ u16 mFlags;
 	/* 0x0008 */ TMario* mMario;
@@ -175,7 +200,7 @@ public:
 	/* 0x1C85 */ u8 mSecondNozzle;
 	/* 0x1C86 */ bool mIsEmitWater;
 	/* 0x1C87 */ u8 unk1C87;
-	/* 0x1C88 */ u32 unk1C88;
+	/* 0x1C88 */ f32 unk1C88;
 	/* 0x1C8C */ u8 mCurrentPressure;
 	/* 0x1C8D */ u8 mPreviousPressure;
 	/* 0x1C8E */ u8 unk1C8E;
@@ -193,7 +218,7 @@ public:
 	/* 0x1CD8 */ u8 unk1CD8;          // mCurFluddTransformIdx
 	/* 0x1CD9 */ u8 unk1CD9;
 	/* 0x1CDA */ u16 unk1CDA;
-	/* 0x1CDC */ f32 unk1CDC;
+	/* 0x1CDC */ TMultiMtxEffect* unk1CDC;
 	/* 0x1CE0 */ f32 unk1CE0;
 	/* 0x1CE4 */ u32 unk1CE4;
 	/* 0x1CE8 */ u32 unk1CE8;
@@ -211,5 +236,26 @@ public:
 	/* 0x1D10 */ TMirrorActor* unk1D10;
 	/* 0x1D14 */ TWaterGunParams mWatergunParams;
 };
+
+bool TWaterGun::isEmitting()
+{
+	if (mCurrentWater == 0) {
+		return false;
+	}
+	s32 kind = getCurrentNozzle()->getNozzleKind();
+	if (kind == 1) {
+		TNozzleTrigger* triggerNozzle
+		    = (TNozzleTrigger*)getCurrentNozzle();
+		if (triggerNozzle->unk385 == TNozzleTrigger::ACTIVE) {
+			return true;
+		} else {
+			return false;
+		}
+	} else if (getCurrentNozzle()->unk378 > 0.0f) {
+		return true;
+	} else {
+		return false;
+	}
+}
 
 #endif

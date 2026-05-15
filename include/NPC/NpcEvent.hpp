@@ -8,6 +8,8 @@ public:
 	static void reviveOneSunflower();
 	void initDownSunflowerNum();
 	static void initNpcBuiltin(TSpcTypedBinary<TEventWatcher>*);
+
+	static u32 mDownSunflowerNum;
 };
 
 #endif

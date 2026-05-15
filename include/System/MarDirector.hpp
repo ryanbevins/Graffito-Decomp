@@ -31,6 +31,9 @@ class TGuide;
 class TCardLoad;
 class JKRMemArchive;
 class TStageEventInfo;
+class TSunGlass;
+class TShineFader;
+class TDemoCannon;
 
 class TMarDirector;
 
@@ -43,7 +46,7 @@ public:
 		/* 0x4 */ const JGeometry::TVec3<f32>* unk4;
 		/* 0x8 */ u32 unk8;
 		/* 0xC */ f32 unkC;
-		/* 0x10 */ u8 unk10;
+		/* 0x10 */ bool unk10;
 		/* 0x14 */ s32 (*unk14)(u32, u32);
 		/* 0x18 */ u32 unk18;
 		/* 0x1C */ JDrama::TActor* unk1C;
@@ -113,9 +116,10 @@ public:
 	u8 getCurrentStage() { return unk7D; }
 	bool checkUnk4CFlag(int flag) { return unk4C & flag; }
 	void onUnk4CFlag(int flag) { unk4C |= flag; }
+	void offUnk4CFlag(int flag) { unk4C &= ~flag; }
 	TGCConsole2* getConsole() { return mConsole; }
 
-	bool checkUnk124Thing1() const
+	bool isTalkModeNow() const
 	{
 		if (unk124 == 1 || unk124 == 2)
 			return true;
@@ -129,7 +133,33 @@ public:
 		return false;
 	}
 
+	void* getUnkD4() { return unkD4; }
+	TBaseNPC* getTalkingNPC() { return unkA0; }
+
+	int getRestTime()
+	{
+		s64 ticks = OSCheckStopwatch(&unkE8);
+		int time  = OSTicksToMilliseconds(ticks) / 10;
+		return unk120 - time;
+	}
+
+	void startTimer() { unkC8 = OSCheckStopwatch(&unkE8); }
+
 public:
+	enum {
+		STATE_UNK0  = 0,
+		STATE_UNK1  = 1,
+		STATE_UNK2  = 2,
+		STATE_UNK3  = 3,
+		STATE_UNK4  = 4,
+		STATE_UNK5  = 5,
+		STATE_UNK7  = 7,
+		STATE_UNK9  = 9,
+		STATE_UNK10 = 10,
+		STATE_UNK11 = 11,
+		STATE_UNK12 = 12,
+	};
+
 	/* 0x18 */ TMarioGamePad** unk18;
 	/* 0x1C */ TPerformList* mPerformListGX;
 	/* 0x20 */ TPerformList* mPerformListSilhouette;
@@ -143,13 +173,13 @@ public:
 	/* 0x40 */ TPerformList* unk40;
 	/* 0x44 */ TPerformList* mShinePfLstMov;
 	/* 0x48 */ TPerformList* mShinePfLstAnm;
-	/* 0x4C */ volatile u16 unk4C;
+	/* 0x4C */ u16 unk4C;
 	/* 0x4E */ u16 unk4E;
 	/* 0x50 */ u16 unk50;
 	/* 0x54 */ int unk54;
 	/* 0x58 */ int unk58;
-	/* 0x5C */ u32 unk5C;
-	/* 0x60 */ u32 unk60;
+	/* 0x5C */ int unk5C;
+	/* 0x60 */ int unk60;
 	/* 0x64 */ u8 mState;
 	/* 0x68 */ u32 unk68;
 	/* 0x6C */ f32 unk6C;
@@ -157,14 +187,15 @@ public:
 	/* 0x74 */ TGCConsole2* mConsole;
 	/* 0x78 */ TGuide* unk78;
 	/* 0x7C */ u8 mMap;
-	/* 0x7D */ u8 unk7D;
+	/* 0x7D */ u8 unk7D; // Scenario
 	/* 0x7E */ u8 unk7E;
 	/* 0x7F */ u8 unk7F;
 	/* 0x80 */ JDrama::TViewObjPtrListT<JDrama::TViewObj>* unk80;
 	/* 0x84 */ TTalkCursor* unk84;
 	/* 0x88 */ JGadget::TVector_pointer<TBaseNPC> unk88;
 	/* 0xA0 */ TBaseNPC* unkA0; // talking NPC
-	/* 0xA4 */ char unkA4[0x8];
+	/* 0xA4 */ u32 unkA4;
+	/* 0xA8 */ char unkA8[0x4];
 	/* 0xAC */ TPauseMenu2* unkAC;
 	/* 0xB0 */ TTalk2D2* unkB0;
 	/* 0xB4 */ u8 unkB4;
@@ -172,17 +203,16 @@ public:
 	/* 0xBC */ TNameRefAryT<TStageEventInfo>* unkBC;
 	/* 0xC0 */ JDrama::TDisplay* unkC0;
 	/* 0xC4 */ char unkC4[0x4];
-	/* 0xC8 */ u32 unkC8;
-	/* 0xCC */ u32 unkCC;
+	/* 0xC8 */ s64 unkC8;
 	/* 0xD0 */ u8 unkD0;
 	/* 0xD1 */ u8 unkD1;
 	/* 0xD4 */ void* unkD4;
 	/* 0xD8 */ JKRMemArchive* unkD8;
-	/* 0xDC */ TSMSFader* unkDC;
-	/* 0xE0 */ TSMSFader* unkE0; // TODO: type unconfirmed
+	/* 0xDC */ TShineFader* unkDC;
+	/* 0xE0 */ TSunGlass* unkE0;
 	/* 0xE4 */ u32 unkE4;
 	/* 0xE8 */ OSStopwatch unkE8;
-	/* 0x120 */ char unk120[0x4];
+	/* 0x120 */ int unk120;
 	/* 0x124 */ u8 unk124; // Game state, paused, shine animation, 2=talking
 	/* 0x125 */ u8 unk125;
 	/* 0x126 */ u8 unk126; // Next game state
@@ -190,8 +220,8 @@ public:
 	/* 0x12C */ TDemoInfo unk12C[8];
 	/* 0x24C */ u8 unk24C;
 	/* 0x24D */ u8 unk24D;
-	/* 0x250 */ u32 unk250;
-	/* 0x254 */ JDrama::TNameRef* unk254;
+	/* 0x250 */ JDrama::TActor* unk250;
+	/* 0x254 */ TDemoCannon* unk254;
 	/* 0x258 */ MSStage* unk258;
 	/* 0x25C */ TShine* unk25C;
 	/* 0x260 */ u8 unk260;

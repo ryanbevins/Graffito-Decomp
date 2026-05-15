@@ -11,6 +11,8 @@
 #include <M3DUtil/M3UModelMario.hpp>
 #include <Player/Yoshi.hpp>
 #include <MarioUtil/DrawUtil.hpp>
+#include <MSound/MAnmSound.hpp>
+#include <MarioUtil/MtxUtil.hpp>
 
 class TLiveActor;
 class TWaterGun;
@@ -20,6 +22,8 @@ class J3DModelData;
 class J3DAnmTransform;
 struct TBGWallCheckRecord;
 class TMarioCap;
+class TWaterEmitInfo;
+class TBaseNPC;
 
 // TODO: where should this be?
 enum E_SIDEWALK_TYPE { };
@@ -29,6 +33,7 @@ enum E_MARIO_FLAG {
 	MARIO_FLAG_VISIBLE             = (1 << 1),
 	MARIO_FLAG_NPC_TALKING         = (1 << 3),
 	MARIO_FLAG_RECENTLY_LEFT_WATER = (1 << 4),
+	MARIO_FLAG_UNK_40              = (1 << 6),
 	MARIO_FLAG_GAME_OVER           = (1 << 10),
 	MARIO_FLAG_GROUND_POUND_SIT_UP = (1 << 11),
 	MARIO_FLAG_HELMET_FLW_CAMERA   = (1 << 12),
@@ -41,6 +46,182 @@ enum E_MARIO_FLAG {
 	MARIO_FLAG_IS_PERFORMING       = (1 << 21),
 };
 
+enum E_MARIO_RAIL_TYPE {
+	MARIO_RAIL_TYPE_PINNA_RAIL = 0,
+	MARIO_RAIL_TYPE_KOOPA_RAIL = 1,
+
+	MARIO_RAIL_TYPE_MAX
+};
+
+// Mario action/status codes used by changePlayerStatus() and mAction.
+// Upper bits encode flags (airborne, grounded, etc.), lower bits are the action ID.
+enum E_MARIO_ACTION {
+	// Idle / Wait
+	ACTION_IDLE              = 0x0C400201,
+	ACTION_IDLE_LOOK         = 0x0C400202,
+	ACTION_IDLE_STRETCH      = 0x0C000203,
+	ACTION_IDLE_SLEEP        = 0x0C000204,
+
+	// Walk / Run
+	ACTION_WALK_STOP         = 0x0C00023D,
+	ACTION_WALK_STOP_SLIP    = 0x0C00023E,
+	ACTION_RUNNING           = 0x04000440,
+	ACTION_ROTATING          = 0x0441,
+	ACTION_ROTATING_LEFT     = 0x0442,
+	ACTION_TURNING           = 0x0443,
+	ACTION_TURN_END          = 0x0444,
+	ACTION_WALK_DECEL        = 0x04000445,
+	ACTION_WALK_END          = 0x0400044A,
+	ACTION_SLIDING           = 0x044C,
+	ACTION_OIL_RUN           = 0x0004045C,
+	ACTION_OIL_SLIP          = 0x0084045D,
+	ACTION_OIL_DIRTY_SLIP    = 0x0004045E,
+
+	// Catching / Grabbing
+	ACTION_CATCHING          = 0x00800456,
+	ACTION_CATCH_SLIP        = 0x04808459,
+
+	// Jump
+	ACTION_JUMP              = 0x02000880,
+	ACTION_SECOND_JUMP       = 0x02000881,
+	ACTION_SOMERSAULT        = 0x0882,
+	ACTION_SIDE_SOMERSAULT   = 0x0883,
+	ACTION_GROUND_POUND_BOUNCE = 0x0884,
+	ACTION_JUMP_FROM_STATE   = 0x02000885,
+	ACTION_SPECIAL_JUMP      = 0x02000886,
+	ACTION_SPIN_JUMP         = 0x08000887,
+	ACTION_WALL_KICK         = 0x0888,
+	ACTION_LONG_JUMP         = 0x02000889,
+	ACTION_DIVE_RECOVERY     = 0x0080088A,
+	ACTION_ROCKETING         = 0x088B,
+	ACTION_SLIP_FALLING      = 0x088C,
+	ACTION_ROCKET_END        = 0x088D,
+	ACTION_JUMP_BASIC_88E    = 0x088E,
+	ACTION_TRAMPOLINE        = 0x02000890,
+	ACTION_JUMP_BASIC_0891   = 0x0891,
+	ACTION_DIRECTIONAL_AIR   = 0x0892,
+	ACTION_POLE_JUMP         = 0x0893,
+	ACTION_SLIDE_JUMP        = 0x0894,
+	ACTION_BACKFLIP          = 0x0895,
+	ACTION_BACKFLIP_LEFT     = 0x0896,
+	ACTION_SPIN_JUMP_AIR     = 0x0897,
+	ACTION_BOARD_JUMP        = 0x0281089A,
+	ACTION_BOARD_JUMP_ALT    = 0x0081089B,
+	ACTION_JUMP_BASIC_089C   = 0x089C,
+
+	// Hip Attacks
+	ACTION_HIP_ATTACK        = 0x008008A9,
+	ACTION_HIP_ATTACK_LAND   = 0x0080023C,
+
+	// Jump Catch
+	ACTION_JUMP_CATCH        = 0x008008A6,
+	ACTION_CATCH_STOP        = 0x000208B8,
+
+	// Falling / Downing
+	ACTION_ZERO_VEL_JUMP     = 0x000208B4,
+	ACTION_FIRE_DOWNING      = 0x000208B0,
+	ACTION_THROWN_DOWNING     = 0x000208B1,
+	ACTION_BOARD_JUMPING     = 0x000208B3,
+	ACTION_JUMP_DOWN         = 0x000208B6,
+	ACTION_WALL_SLIDE_JUMP   = 0x000208B7,
+	ACTION_JUMP_DOWN_ALT     = 0x000208BA,
+	ACTION_DOWNING_1         = 0x00020460,
+	ACTION_DOWNING_2         = 0x00020461,
+	ACTION_DOWNING_3         = 0x00020462,
+	ACTION_DOWNING_4         = 0x00020463,
+	ACTION_DOWNING_5         = 0x00020464,
+	ACTION_DOWNING_6         = 0x00020465,
+	ACTION_DOWNING_7         = 0x00020466,
+	ACTION_LOSER_DOWN        = 0x00020467,
+
+	// Surfing / Rail
+	ACTION_SURFING           = 0x00810446,
+	ACTION_TOROCCO           = 0x00800447,
+	ACTION_FIRE_DASHING      = 0x00020449,
+	ACTION_SLIP_FORE         = 0x00840452,
+	ACTION_SLIP_BACK         = 0x00840453,
+
+	// Jump Slip
+	ACTION_JUMP_SLIP_0       = 0x04000470,
+	ACTION_JUMP_SLIP_1       = 0x04000471,
+	ACTION_JUMP_SLIP_2       = 0x04000472,
+	ACTION_JUMP_SLIP_3       = 0x04000473,
+	ACTION_JUMP_SLIP_4       = 0x04000478,
+	ACTION_JUMP_SLIP_5       = 0x0479,
+
+	// Special / Bar / Roof / Fence / Hanging
+	ACTION_BAR_WAIT          = 0x18100340,
+	ACTION_BAR_CLIMB_ENTER   = 0x10100341,
+	ACTION_BAR_CLIMB         = 0x10100344,
+	ACTION_KICK_ROOF         = 0x00200345,
+	ACTION_FENCE_SLIDE       = 0x00200346,
+	ACTION_FENCE_KICK        = 0x00200347,
+	ACTION_ROOF_CHECK        = 0x08200348,
+	ACTION_ROOF_HANG         = 0x00200349,
+	ACTION_MOVE_ROOF         = 0x0020054a,
+	ACTION_HANGING           = 0x3800034b,
+	ACTION_HANG_LANDING      = 0x3000054c,
+	ACTION_HANG_LANDING_2    = 0x3000054e,
+	ACTION_HANG_LANDING_3    = 0x30000550,
+
+	// Wire
+	ACTION_WIRE_WAIT         = 0x350,
+	ACTION_WIRE_SWAIT        = 0x351,
+	ACTION_WIRE_HANG_R       = 0x352,
+	ACTION_WIRE_HANG_L       = 0x353,
+	ACTION_WIRE_SHANG_R      = 0x10000554,
+	ACTION_WIRE_SHANG_L      = 0x10000555,
+	ACTION_WIRE_SWING_ENTER  = 0x10000556,
+	ACTION_WIRE_SWING_HOLD   = 0x10000357,
+
+	// Rope
+	ACTION_ROPE_POSITION     = 0x10020370,
+
+	// Swimming
+	ACTION_SWIM_IDLE         = 0x22D1,
+	ACTION_SWIM_JUMP_CHECK   = 0x22D2,
+	ACTION_SWIM_PADDLE_START = 0x24D3,
+	ACTION_SWIM_PADDLE_ACCEL = 0x24D4,
+	ACTION_SWIM_PADDLE       = 0x24D5,
+	ACTION_SWIM_STROKE_START = 0x24D6,
+	ACTION_SWIM_STROKE       = 0x24D7,
+	ACTION_SWIM_FLOAT_UP     = 0x24D8,
+	ACTION_SWIM_DIVE         = 0x24D9,
+	// Note: diving dispatches share codes with ACTION_JUMP (0x02000880)
+	// and ACTION_TRAMPOLINE (0x02000890) in MarioMove's switch
+
+	// Demo / Cutscene
+	ACTION_WIN_DEMO          = 0x1302,
+	ACTION_READ_BILLBOARD    = 0x10001308,
+	ACTION_DEMO_POSE         = 0x1310,
+	ACTION_DEMO_ANIM         = 0x21313,
+	ACTION_DEMO_STOP_1       = 0x1320,
+	ACTION_DEMO_STOP_2       = 0x1321,
+	ACTION_DEMO_FALL         = 0x10001123,
+	ACTION_DEMO_FALL_2       = 0x1000192a,
+	ACTION_WARP_OUT          = 0x1337,
+	ACTION_WARP_IN           = 0x1336,
+	ACTION_ELECTRIC_DAMAGE   = 0x20338,
+	ACTION_FOOT_DOWNING      = 0x2033c,
+	ACTION_DEMO_FREEZE       = 0x133E,
+	ACTION_DEMO_UNFREEZE     = 0x133F,
+
+	// Damage / Squish
+	ACTION_GROUND_POUND_DROP = 0x0C000230,
+	ACTION_DAMAGE_FALL       = 0x0C008220,
+	ACTION_DAMAGE_KNOCKBACK  = 0x0C018220,
+	ACTION_DAMAGE_KNOCKBACK2 = 0x0C018222,
+
+	// Yoshi / NPC
+	ACTION_NPC_TALK          = 0x80000387,
+	ACTION_YOSHI_TONGUE      = 0x80000588,
+
+	// Misc
+	ACTION_SLIP_START        = 0x384,
+	ACTION_UNKNOWN_50        = 0x50,
+	ACTION_SQUISH_RECOVER    = 0x0C000227,
+};
+
 struct TRidingInfo {
 	const TLiveActor* unk0;
 	Vec localPos;
@@ -48,11 +229,40 @@ struct TRidingInfo {
 	// maybe more
 };
 
+struct TMarioSoundValues {
+	TMarioSoundValues();
+
+	/* 0x00 */ int unk00;
+	/* 0x04 */ int unk04;
+	/* 0x08 */ int unk08;
+	/* 0x0C */ int unk0C;
+	/* 0x10 */ int unk10;
+	/* 0x14 */ int unk14;
+	/* 0x18 */ u8 unk18;
+	/* 0x1C */ int unk1C;
+	/* 0x20 */ u8 unk20;
+	/* 0x22 */ u16 unk22;
+	/* 0x24 */ u8 unk24;
+	/* 0x26 */ u16 unk26;
+	/* 0x28 */ u8 unk28;
+	/* 0x29 */ u8 unk29;
+	/* 0x2A */ u8 unk2A;
+	/* 0x2B */ u8 unk2B;
+	/* 0x2C */ u8 unk2C;
+};
+
 class TMarioGamePad;
 
 class TMario : public TTakeActor, public TDrawSyncCallback {
 public:
-	struct JumpSlipRecord;
+	struct JumpSlipRecord {
+		s16 mTimer;
+		u16 _pad;
+		u32 mStatus;
+		u32 mJumpStatus;
+		u32 mFallbackStatus;
+		u32 _unk10;
+	};
 
 	class TOptionParams : public TParams {
 	public:
@@ -578,16 +788,19 @@ public:
 	virtual MtxPtr getTakingMtx();
 	virtual bool moveRequest(const JGeometry::TVec3<f32>&);
 
-	virtual void drawSyncCallback(u16);
 	virtual void initValues();
 	virtual void checkReturn();
 	virtual void checkController(JDrama::TGraphics*);
 	virtual void playerControl(JDrama::TGraphics*);
 	virtual void initModel();
 	virtual void drawSpecial(JDrama::TGraphics*);
-	virtual void damageExec(THitActor*, int, int, int, f32, int, f32, s16);
+	virtual void damageExec(THitActor* hittingActor, int damage,
+	                        int damageAnimType, int waterEmit,
+	                        f32 knockbackSpeed, int rumbleFrames,
+	                        f32 pollutionAmount, s16 invincibilityFrames);
 	virtual void checkCollision();
 	virtual void getVoiceStatus();
+	void drawSyncCallback(u16);
 
 	BOOL actnMain();
 	void pitching();
@@ -623,8 +836,8 @@ public:
 	void loserExec();
 	void normalizeNozzle();
 	void resetNozzle();
-	void trampleExec(THitActor*);
-	void canTake(THitActor*);
+	bool trampleExec(THitActor*);
+	bool canTake(THitActor*);
 	bool isTakeSituation(THitActor*);
 	void dropObject();
 	s16 getAttackAngle(const THitActor*);
@@ -650,37 +863,37 @@ public:
 	void calcBaseMtxPole(f32 (*)[4]);
 	void calcBaseMtxTorocco(f32 (*)[4]);
 	void considerWaist();
-	void isUpperPumpingStyle() const;
+	bool isUpperPumpingStyle() const;
 	void finalDrawInitialize();
 	void initMirrorModel();
 	void loadAnmTexPattern(J3DAnmTexPattern**, char*, J3DModelData*);
 	void loadBas(void**, const char*);
 	void loadAnm(J3DAnmTransform**, const char*);
-	void setReverseAnimation(int, f32);
-	void setAnimation(int, f32);
+	f32 setReverseAnimation(int, f32);
+	f32 setAnimation(int, f32);
 	void changeHandByRate(f32);
 	void changeHand(int);
-	void isAnimeLoopOrStop();
+	BOOL isAnimeLoopOrStop();
 	BOOL isLast1AnimeFrame();
-	J3DFrameCtrl* getMotionFrameCtrl();
-	void getCurrentFrame(int);
+	J3DFrameCtrl& getMotionFrameCtrl();
+	f32 getCurrentFrame(int);
 	void getRailMtx() const;
-	void getTakenMtx();
+	MtxPtr getTakenMtx();
 	void calcBodyPos(JGeometry::TVec3<f32>*);
-	void getTrampleCt();
+	u32 getTrampleCt();
 	void setPositions();
 	void takeOffGlass();
 	void wearGlass();
 	bool isWearingHelm();
 	bool isWearingCap();
 	void setDivHelm();
-	void getWallAngle() const;
+	s16 getWallAngle() const;
 	f32 getPumpFrame() const;
-	void getCenterAnmMtx();
-	void getRootAnmMtx();
+	MtxPtr getCenterAnmMtx();
+	Mtx* getRootAnmMtx();
 	void getHeadRot();
 	void getJumpIntoWaterModelData();
-	void jumpMain();
+	BOOL jumpMain();
 	void fallDead();
 	void diving();
 	void hipAttacking();
@@ -688,7 +901,7 @@ public:
 	void wireJumping();
 	void rotateJumping();
 	void rocketing();
-	void rocketCheck();
+	BOOL rocketCheck();
 	void boardJumping();
 	void rotateBroadJumping();
 	void broadJumping();
@@ -731,7 +944,7 @@ public:
 	void thinkAloha();
 	void thinkCube();
 	void thinkFreeze();
-	void isMario();
+	BOOL isMario();
 	void gunExec();
 	void checkWet();
 	void thinkSound();
@@ -754,11 +967,11 @@ public:
 	void checkRideMovement();
 	void getActorMtx(const THitActor&, f32 (*)[4]);
 	void checkCurrentPlane();
-	void getDmgMapCode(int) const;
-	void checkGroundPlane(f32, f32, f32, f32*, const TBGCheckData**);
+	TEParams* getDmgMapCode(int code) const;
+	BOOL checkGroundPlane(f32 x, f32 y, f32 z, f32* outHeight, const TBGCheckData** outPlane);
 	void makeHistory();
 	void checkStickSmash();
-	void checkStickRotate(int*);
+	BOOL checkStickRotate(int*);
 	void getLRLevel(unsigned char);
 	void getDizzyPower();
 	void getDizzyAngle();
@@ -776,14 +989,14 @@ public:
 	void checkGraffitoFire();
 	void checkGraffitoDamage();
 	void makeGraffitoDamage(const TMario::TEParams&);
-	void checkAllMotions();
+	BOOL checkAllMotions();
 	BOOL changePlayerDropping(u32, u32);
 	BOOL changePlayerJumping(u32, u32);
-	void changePlayerTriJump();
+	BOOL changePlayerTriJump();
 	BOOL changePlayerStatus(u32, u32, bool);
 	void throwMario(const JGeometry::TVec3<f32>&, f32);
 	void setStatusToRunning(u32, u32);
-	void setStatusToJumping(u32, u32);
+	u32 setStatusToJumping(u32, u32);
 	void setPlayerJumpSpeed(f32, f32);
 	void setMissJumping();
 	void isTurnning();
@@ -791,18 +1004,18 @@ public:
 	void checkPlayerAround(int, f32);
 	void isJumpMiss();
 	void isSlipLimit();
-	void getSlideStopCatch();
-	void getSlideStopNormal();
-	void canSlipJump();
-	void isSlipStart();
-	void isFrontSlip(int);
-	void checkRoofPlane(const Vec&, f32, const TBGCheckData**);
-	void checkWallPlane(Vec*, f32, f32);
+	f32 getSlideStopCatch();
+	f32 getSlideStopNormal();
+	BOOL canSlipJump();
+	BOOL isSlipStart();
+	bool isFrontSlip(int);
+	f32 checkRoofPlane(const Vec&, f32, const TBGCheckData**);
+	const TBGCheckData* checkWallPlane(Vec*, f32, f32);
 	void setPlayerVelocity(f32);
 	void setNormalAttackArea();
 	void changePos(const Vec&);
 	void isSpeedZero();
-	void canBendBody();
+	BOOL canBendBody();
 	BOOL considerRotateJumpStart();
 	void addVelocity(f32);
 	BOOL onYoshi() const;
@@ -810,36 +1023,36 @@ public:
 	void windMove(const JGeometry::TVec3<f32>&);
 	void flowMove(const JGeometry::TVec3<f32>&);
 	void warpRequest(const JGeometry::TVec3<f32>&, f32);
-	void isForceSlip();
+	BOOL isForceSlip();
 	void getRidingMtx(f32 (*)[4]);
-	void isWallInFront() const;
+	bool isWallInFront() const;
 	bool isInvincible() const;
-	void isUnderWater() const;
-	void canSquat() const;
-	void getJumpSlideControl() const;
-	void getJumpAccelControl() const;
-	BOOL jumpProcess(int);
+	bool isUnderWater() const;
+	BOOL canSquat() const;
+	f32 getJumpSlideControl() const;
+	f32 getJumpAccelControl() const;
+	int jumpProcess(int);
 	void fallProcess();
 	void isFallCancel();
-	void checkGroundAtJumping(const Vec&, int);
-	void hangonCheck(const TBGCheckData*, const Vec&, const Vec&);
-	void barProcess();
-	void walkProcess();
-	void waitProcess();
+	int checkGroundAtJumping(const Vec&, int);
+	int hangonCheck(const TBGCheckData*, const Vec&, const Vec&);
+	int barProcess();
+	int walkProcess();
+	int waitProcess();
 	void stopProcess();
-	void checkGroundAtWalking(Vec*);
+	int checkGroundAtWalking(Vec*);
 	void checkDescent();
 	void keepDistance(const THitActor&, f32);
 	void keepDistance(const JGeometry::TVec3<f32>&, f32, f32);
 	void playerRefrection(int);
-	void moveMain();
+	BOOL moveMain();
 	void broadJumpSlip();
 	void ultraJumpSlip();
 	void uTurnJumpSlip();
 	void secJumpSlip();
 	void landSlip();
 	void jumpSlip();
-	void jumpSlipEvents(TMario::JumpSlipRecord*);
+	BOOL jumpSlipEvents(TMario::JumpSlipRecord*);
 	void jumpSlipCommon(short, u32);
 	void loserDown();
 	void catchDown();
@@ -849,7 +1062,7 @@ public:
 	void shortBackDown();
 	void foreDown();
 	void backDown();
-	void downingCommon(int, f32, int);
+	f32 downingCommon(int, f32, int);
 	void oilSlope();
 	void oilSlip();
 	void oilRun();
@@ -874,31 +1087,31 @@ public:
 	void changePlayerWaiting();
 	void doBraking(f32);
 	void doSurfing();
-	void getSurfingParamsGround();
-	void getSurfingParamsWater();
+	TSurfingParams& getSurfingParamsGround(); // UNUSED
+	TSurfingParams& getSurfingParamsWater();
 	void doRunning();
 	void doStopping();
 	void doSlipping(f32);
 	void slopeProcess();
-	void doSliding(f32);
+	int doSliding(f32);
 	void slideProcess(f32, f32);
-	void getSlideStickMult();
-	void getChangeAngleSpeed();
+	f32 getSlideStickMult();
+	f32 getChangeAngleSpeed();
 	void getSlopeSlideAccele(f32*, f32*);
 	void getSlopeNormalAccele(f32*, f32*);
 	void doRunningAnimation();
 	void getRunningInWaterBrake();
-	void isRunningInWater();
+	BOOL isRunningInWater();
 	void changePlayerCatching();
-	void isRunningTurnning();
-	void isRunningSlipStart();
+	BOOL isRunningTurnning();
+	BOOL isRunningSlipStart();
 	void changePlayerPower(f32, u32, u32);
 	void clashStandard(u32, u32);
 	void postureControl();
-	void isThrowStart();
-	void considerRotateStart();
-	void specMain();
-	void fencePunch();
+	BOOL isThrowStart();
+	BOOL considerRotateStart();
+	BOOL specMain();
+	BOOL fencePunch();
 	void fenceMove();
 	void fenceJumpCatch();
 	void fenceCatch();
@@ -909,7 +1122,7 @@ public:
 	void wireSWaitToWaitR();
 	void wireSWaitToWaitL();
 	void wireRolling();
-	void getNozzleEmitVX();
+	void getNozzleEmitVX(); // UNUSED
 	void wireHanging();
 	void wireReturn();
 	void wireSWaitToHang();
@@ -919,7 +1132,7 @@ public:
 	void wireWaitToSWaitL();
 	void wireSWait();
 	void wireWait();
-	void wireMove(f32);
+	int wireMove(f32);
 	void getOnWirePosAngle(JGeometry::TVec3<f32>*, short*);
 	void taken();
 	void hangJumping();
@@ -935,18 +1148,18 @@ public:
 	void moveRoof();
 	void waitRoof();
 	void hangRoof();
-	void roofCommonEvents();
+	BOOL roofCommonEvents();
 	void doRoofWaitingProcess();
-	void doRoofMovingProcess();
-	void hangingCheckRoof(JGeometry::TVec3<f32>*);
+	int doRoofMovingProcess();
+	int hangingCheckRoof(JGeometry::TVec3<f32>*);
 	void barHang();
 	void barClimb();
 	void barWait();
 	void barJumpSetting();
 	void stateMachineUpper();
-	void checkPumpEnable();
+	BOOL checkPumpEnable();
 	void checkPumping();
-	u32 askJumpIntoWaterEffectExist() const;
+	bool askJumpIntoWaterEffectExist() const;
 	void sinkInSandEffect();
 	void kickFruitEffect();
 	void toroccoEffect();
@@ -999,7 +1212,7 @@ public:
 	void emitParticle(int);
 	void moveParticle();
 	void initParticle();
-	void waitMain();
+	BOOL waitMain();
 	void slipEnd();
 	void brakeEnd();
 	void hipAttackEnd();
@@ -1011,25 +1224,25 @@ public:
 	void landEnd();
 	void secJumpEnd();
 	void jumpEnd();
-	void jumpEndEvents(u32);
-	void jumpEndCommon(int, int);
+	BOOL jumpEndEvents(u32);
+	BOOL jumpEndCommon(int, int);
 	void pullEnd();
-	void squatStandup();
+	BOOL squatStandup();
 	void squatStart();
-	void squating();
+	BOOL squating();
 	void getSideWalkValues(E_SIDEWALK_TYPE*, f32*, f32*);
 	void wakeup();
-	void sleeping();
-	void sleepily();
-	void waiting();
+	BOOL sleeping();
+	BOOL sleepily();
+	BOOL waiting();
 	void changeMontemanWaitingAnim();
 	void stopCommon(int, int);
-	void waitingCommonEvents();
+	BOOL waitingCommonEvents();
 	void checkPutStart();
-	void canPut();
-	void canSleep();
-	void startTalking();
-	void swimMain();
+	BOOL canPut();
+	BOOL canSleep();
+	BOOL startTalking();
+	BOOL swimMain();
 	void swimPDown();
 	void swimDown();
 	void swimPDamage();
@@ -1042,8 +1255,8 @@ public:
 	void swimWaitToPaddle();
 	void swimWait();
 	void swimStart();
-	void checkSwimToHangFence();
-	void checkSwimJump();
+	BOOL checkSwimToHangFence();
+	BOOL checkSwimJump();
 	void doSwimming();
 	void isSwimWaiting();
 	void setGamePad(TMarioGamePad*);
@@ -1085,6 +1298,15 @@ public:
 	// fabricated
 	f32 getIntendedMag() const { return mIntendedMag; }
 	f32 getIntendedYaw() const { return mIntendedYaw * (360.0f / 65536.0f); }
+	u32 getPrevAction() const { return mPrevAction; }
+	u32 getSoundFlags() const { return mSoundFlags; }
+	u32 getAction() const { return mAction; }
+	u32 getState() const { return mState; }
+	u32 getInput() const { return mInput; }
+	TWaterGun* getWaterGun() const { return mWaterGun; }
+	TLiveActor* getRidingActor() const { return mRidingActor; }
+	TYoshi* getYoshi() const { return mYoshi; }
+	f32 getForwardVel() const { return mForwardVel; }
 
 	// fabricated
 	bool isTouchGround4cm() const
@@ -1101,12 +1323,68 @@ public:
 		return false;
 	}
 
-	TBGCheckData* getGroundPlane() const { return mGroundPlane; }
+	bool checkActionThing() { return mAction & 0x1000 ? true : false; }
+	bool checkActionThing2() { return mAction & 0x800 ? true : false; }
+	bool checkActionThing3()
+	{
+		if (checkFlag(0x1000))
+			return true;
+		if (checkActionThing2())
+			return false;
+		return true;
+	}
+
+	const TBGCheckData* getGroundPlane() const { return mGroundPlane; }
+	const TBGCheckData* getRoofPlane() const { return mRoofPlane; }
+
+	// Inline combinator accessors
+	THitActor getFloorHitActor() const { return mFloorHitActor; }
+	f32 getMfloorpositionZ() const { return mFloorPosition.z; }
+	f32 getMpositionX() const { return mPosition.x; }
+	f32 getMpositionY() const { return mPosition.y; }
+	f32 getMpositionZ() const { return mPosition.z; }
+	f32 getMvelY() const { return mVel.y; }
+	f32 getUnk12c() const { return unk12C; }
+	f32 getUnk130() const { return unk130; }
+	f32 getUnk134() const { return unk134; }
+	s16 getUnk14c() const { return unk14C; }
+	s16 getMfaceangleY() const { return mFaceAngle.y; }
+	f32 getFloorPositionY() const { return mFloorPosition.y; }
+	f32 getFloorPositionX() const { return mFloorPosition.x; }
+	f32 getUnk15c() const { return unk15C; }
+	TWaterEmitInfo* getUnk158() const { return unk158; }
 
 	// Fabricated
 	bool checkFlag(u32 attribute) const
 	{
-		return unk118 & attribute ? true : false;
+		return mState & attribute ? true : false;
+	}
+
+	// Fabricated
+	bool fabricatedIsPumping() const
+	{
+		return checkFlag(MARIO_FLAG_HAS_FLUDD) && isUpperPumpingStyle() != 0;
+	}
+
+	// Fabricated
+	bool checkActionFlag(u32 actionFlag) const
+	{
+		return mAction & actionFlag ? true : false;
+	}
+
+	// Fabricated
+	bool checkPumpState(u32 state) const
+	{
+		return mPumpState == state ? true : false;
+	}
+
+	// Fabricated
+	bool isPumpIdle() const
+	{
+		if (mPumpState == 0 || mPumpState == 1) {
+			return true;
+		}
+		return false;
 	}
 
 	// Fabricated
@@ -1132,20 +1410,25 @@ public:
 
 	/* 0x94 */ JGeometry::TVec3<s16> mFaceAngle;
 	/* 0x9A */ s16 mModelFaceAngle;
-	/* 0x9C */ u32 unk9C;
-	/* 0xA0 */ u32 unkA0;
+	/* 0x9C */ s16 unk9C;
+	/* 0x9E */ s16 mSlideAngle; // direction of sliding velocity (from matan(velZ, velX))
+	/* 0xA0 */ s16 unkA0; // dizzy timer
+	/* 0xA2 */ s16 unkA2;
 	/* 0xA4 */ JGeometry::TVec3<f32> mVel;
 
 	/* 0xB0 */ f32 mForwardVel;
 	/* 0xB4 */ f32 mSlideVelX;
 	/* 0xB8 */ f32 mSlideVelZ;
 
-	/* 0xBC */ char unkBC[0x1C];
+	/* 0xBC */ f32 unkBC;
+	/* 0xC0 */ f32 mDashSpeed;
+	/* 0xC4 */ s16 mDashTimer;
+	/* 0xC6 */ char unkC6[0xD8 - 0xC6];
 
-	/* 0xD8 */ TBGCheckData* mWallPlane;   // TBGCheckData 0xD8
-	/* 0xDC */ TBGCheckData* mRoofPlane;   // TBGCheckData 0xDC
-	/* 0xE0 */ TBGCheckData* mGroundPlane; // TBGCheckData 0xE0
-	/* 0xE4 */ TBGCheckData* mWaterFloor;  // TBGCheckData 0xE4
+	/* 0xD8 */ const TBGCheckData* mWallPlane;   // TBGCheckData 0xD8
+	/* 0xDC */ const TBGCheckData* mRoofPlane;   // TBGCheckData 0xDC
+	/* 0xE0 */ const TBGCheckData* mGroundPlane; // TBGCheckData 0xE0
+	/* 0xE4 */ const TBGCheckData* mWaterFloor;  // TBGCheckData 0xE4
 
 	/* 0xE8 */ JGeometry::TVec3<f32> mFloorPosition;
 
@@ -1153,36 +1436,95 @@ public:
 	/* 0xF6 */ u16 unkF6;
 
 	/* 0xF8 */ u16 mLightID;
-	/* 0xFA */ u16 unk0FA;
+	/* 0xFA */ u16 mAnimationId;
 
-	/* 0xFC */ u32 unkFC[2];
+	/* 0xFC */ s16 unkFC;
+	/* 0xFA */ s16 unkFA;
 
-	/* 0x104 */ void* mController; // TMarioControllerWork
+	/* 0x100 */ s16 unk100;
+	/* 0x102 */ s16 unk102;
+	/* 0x104 */ f32 unk104; // jump start Y position
 
 	/* 0x108 */ u32 unk108;
-	/* 0x10C */ u32 unk10C;
-	/* 0x110 */ u32 unk110;
+	/* 0x10C */ f32 unk10C; // analog L interpolated
+	/* 0x110 */ f32 unk110; // analog R interpolated
 
-	/* 0x114 */ u16 unk114;
-	/* 0x116 */ u16 unk116;
-	/* 0x118 */ u32 unk118; // some flag / attribute
+	/* 0x114 */ u16 mSubState;
+	/* 0x116 */ u16 mSubStateTimer;
+	/* 0x118 */ u32 mState; // E_MARIO_FLAG bitfield, tested via checkFlag()
 
-	/* 0x11C */ u32 unk11C;
+	/* 0x11C */ u32 mPrevState; // previous frame's mState
 
 	/* 0x120 */ s16 mHealth;
 
 	/* 0x122 */ u16 unk122;
 
-	/* 0x124 */ char unk124[0x2BC - 0x124];
-	/* 0x2BC */ f32 unk2BC;
-	/* 0x2C0 */ char unk2C0[0x37C - 0x2C0];
+	/* 0x124 */ u16 unk124;
+	/* 0x126 */ u16 unk126; // sunburn counter
+	/* 0x128 */ s16 unk128_s16; // sunburn timer
+	/* 0x12A */ u16 unk12A;
+	/* 0x12C */ f32 unk12C; // air supply
+	/* 0x130 */ f32 unk130; // max air supply
+	/* 0x134 */ f32 unk134; // Amount of dirty?
+	/* 0x138 */ f32 unk138; // braking start value
+	/* 0x13C */ s16 unk13C; // dirty timer
+	/* 0x13E */ u16 unk13E;
+	/* 0x140 */ u32 unk140;
+	/* 0x144 */ u32 unk144;
+	/* 0x148 */ u32 unk148;
+	/* 0x14C */ s16 unk14C;
+	/* 0x14E */ u16 unk14E;
+	/* 0x150 */ u32 unk150;
+	/* 0x154 */ TWaterEmitInfo* unk154;
+	/* 0x158 */ TWaterEmitInfo* unk158;
+	/* 0x15C */ f32 unk15C;
+	/* 0x160 */ JGeometry::TVec3<f32>
+	    unk160[4]; // Bone position, probably larger array
+	/* 0x190 */ f32 unk190;
+	/* 0x194 */ f32 unk194;
+	/* 0x198 */ f32 unk198;
+	/* 0x19C */ JGeometry::TVec3<f32> unk19C; // damage pos
+	/* 0x1A8 */ JGeometry::TVec3<f32> unk1A8;
+	/* 0x1B4 */ JGeometry::TVec3<f32> mSleepPos;
+	/* 0x1C0 */ Mtx mJointMtx0;  // joint matrix 0 (prev root)
+	/* 0x1F0 */ Mtx mJointMtx1;  // joint matrix 1 (prev center)
+	/* 0x220 */ Mtx mJointMtx2;  // joint matrix 2 (prev taking)
+	/* 0x250 */ Mtx mGroundMtx;
+	/* 0x280 */ char unk280[0x29C - 0x280];
+	/* 0x29C */ JGeometry::TVec3<f32> mLastSafePos;
+	/* 0x2A8 */ JGeometry::TVec3<f32> mLastGroundPos;
+	/* 0x2B4 */ u32 unk2B4;
+	/* 0x2B8 */ u16 unk2B8;
+	/* 0x2BA */ s16 unk2BA;
+	/* 0x2BC */ f32 mLastGroundY;
+	/* 0x2C0 */ TLiveActor* mRidingActor;
+	/* 0x2C4 */ char unk2C4[0x2F4 - 0x2C4];
+	/* 0x2F4 */ JGeometry::TVec3<f32> mRideLocalPos;
+	/* 0x300 */ JGeometry::TVec3<f32> mRidePrevLocalPos;
+	/* 0x30C */ f32 mRidePrevRotY;
+	/* 0x310 */ u32 unk310;
+	/* 0x314 */ f32 mRocketTargetY;
+	/* 0x318 */ Mtx mJointMtx3;  // joint matrix 3
+	/* 0x348 */ f32 unk348;
+	/* 0x34C */ u16 unk34C;
+	/* 0x34E */ u16 unk34E;
+	/* 0x350 */ s32 unk350;
+	/* 0x354 */ char unk354[0x360 - 0x354];
+	/* 0x360 */ s16 unk360;
+	/* 0x362 */ s16 unk362;
+	/* 0x364 */ u32 unk364;
+	/* 0x368 */ f32 unk368;
+	/* 0x36C */ f32 unk36C;
+	/* 0x370 */ f32 unk370;
+	/* 0x374 */ f32 unk374; // sink gravity velocity
+	/* 0x378 */ f32 unk378; // sink Y offset
 	/* 0x37C */ u16 unk37C;
 	/* 0x37E */ u16 unk37E;
-	/* 0x380 */ u32 unk380;
+	/* 0x380 */ u32 mPumpState;    // FLUDD pump phase (0=idle, 1=requested, 2=active, 3=holding)
 	/* 0x384 */ THitActor* unk384; // Last receiveMessage sender
-
+	/* 0x388 */ u8 unk388;
 	// TODO: Make enum (0 = red, 1 = yellow, 2 = green)
-	/* 0x388 */ u16 mBlooperColor;
+	/* 0x389 */ u8 unk389; // Blooper color
 	/* 0x38A */ u16 unk38A;
 	/* 0x38C */ f32 mHolderHeightDiff;
 	/* 0x390 */ u32 unk390;
@@ -1190,21 +1532,18 @@ public:
 	/* 0x398 */ J3DDrawBuffer* unk398;
 	/* 0x39C */ u32 unk39C;
 	/* 0x3A0 */ u32 unk3A0;
-	/* 0x3A4 */ u32 unk3A4;
-	/* 0x3A8 */ M3UModelMario* unk3A8; // Full model data
-	/* 0x3AC */ J3DModelData* unk3AC;  // Body model data
-	/* 0x3B0 */ J3DModel* unk3B0;      // R Hand 2nd model
-	/* 0x3B4 */ J3DModel* unk3B4;      // L Hand 2nd model
-	/* 0x3B8 */ J3DModel* unk3B8;      // R Hand 3nd model
-	/* 0x3BC */ J3DModel* unk3BC;      // L Hand 3nd model
-	/* 0x3C0 */ J3DModel* unk3C0;      // R Hand 4nd model
-	/* 0x3C4 */ u8 unk3C4;
-	/* 0x3C5 */ u8 unk3C5[12]; // Array of bone ids
+	/* 0x3A4 */ SampleCtrlModelData* unk3A4;
+	/* 0x3A8 */ M3UModelMario* mModel;        // Full model data
+	/* 0x3AC */ J3DModelData* mBodyModelData; // Body model data
+	/* 0x3B0 */ J3DModel* mHandModels[2][2];  // Hand models
+	/* 0x3C0 */ J3DModel* mRHand4ndModel;
+	/* 0x3C4 */ u8 unk3C4;       // Cemter Anm mtx idx
+	/* 0x3C5 */ u8 mBoneIDs[12]; // Array of bone ids
 	/* 0x3D1 */ u8 unk3D1;
 	/* 0x3D2 */ u8 unk3D2;
 	/* 0x3D3 */ u8 unk3D3;
-	/* 0x3D4 */ u16 unk3D4;
-	/* 0x3D6 */ u16 unk3D6;
+	/* 0x3D4 */ u16 unk3D4; // _mat_eye_L idx
+	/* 0x3D6 */ u16 unk3D6; // _mat_eye_R idx
 	/* 0x3D8 */ f32 unk3D8;
 	/* 0x3DC */ f32 unk3DC;
 	/* 0x3E0 */ TMarioCap* mCap;
@@ -1215,74 +1554,67 @@ public:
 	/* 0x3EC */ u32 unk3EC;
 
 	/* 0x3F0 */ TYoshi* mYoshi;
-
-	/* 0x3F4 */ u32 unk3F4;
-	/* 0x3F8 */ u32 unk3F8;
-	/* 0x3FC */ MActor* unk3FC; // Pinna_rail model actor
-	/* 0x400 */ MActor* unk400; // Koopa_rail model actor
-	/* 0x404 */ u32 unk404;
-	/* 0x408 */ u32 unk408;
-	/* 0x40C */ u32 unk40C;
-	/* 0x410 */ u32 unk410;
-	/* 0x414 */ u32 unk414;
-	/* 0x418 */ u32 unk418;
-	/* 0x41C */ u32 unk41C;
-	/* 0x420 */ u32 unk420;
-	/* 0x424 */ u32 unk424;
-	/* 0x428 */ u32 unk428;
-	/* 0x42C */ u32 unk42C;
-	/* 0x430 */ u32 unk430;
-	/* 0x434 */ u32 unk434;
-	/* 0x438 */ u32 unk438;
-	/* 0x43C */ u32 unk43C;
-	/* 0x440 */ u32 unk440;
-	/* 0x444 */ u32 unk444;
-	/* 0x448 */ u32 unk448;
-	/* 0x44C */ u32 unk44C;
-	/* 0x450 */ u32 unk450;
-	/* 0x454 */ u32 unk454;
-	/* 0x458 */ u32 unk458;
-	/* 0x45C */ JGeometry::TVec3<f32> unk45C;
+	/* 0x3F4 */ MActor* mSurfGesso;
+	/* 0x3F8 */ MActor* mTorocco;                  // pinna rail coaster actor
+	/* 0x3FC */ MActor* mPinaRail;                 // Pinna_rail model actor
+	/* 0x400 */ MActor* mKoopaRail;                // Koopa_rail model actor
+	/* 0x404 */ JGeometry::TVec3<f32> mToroccoPos; // position of coaster
+	/* 0x410 */ s16 mToroccoAngle;                 // angle of coaster
+	/* 0x412 */ s16 mRailType;                     // type of rail
+	/* 0x414 */ JGeometry::TVec3<f32> unk414;
+	/* 0x420 */ TMultiMtxEffect* mMultiMtxEffect;
+	/* 0x424 */ void* mMarioEffect; // TMarioEffect*
+	/* 0x428 */ JGeometry::TVec3<f32> mWireStartPos;
+	/* 0x434 */ JGeometry::TVec3<f32> mWireEndPos;
+	/* 0x440 */ f32 mWirePosRatio; // ratio from 0.0 to 1.0 of mario on the wire
+	/* 0x444 */ f32 mWireBounceVel;     // current wire bounce velocity
+	/* 0x448 */ f32 mWireBounceVelPrev; // previous wire bounce velocity
+	/* 0x44C */ f32 mWireSag;           // wire Y sag amount
+	/* 0x450 */ JGeometry::TVec3<f32>
+	    mMarioScreenPos; // position of mario on screen
+	/* 0x45C */ JGeometry::TVec3<f32>
+	    mWarpInDir; // direction of the warp in effect
 	/* 0x468 */ f32 unk468;
-	/* 0x46C */ u32 unk46C;
-	/* 0x470 */ u32 unk470;
-	/* 0x474 */ THitActor* unk474;
-	/* 0x478 */ u32 unk478;
-	/* 0x47C */ u32 unk47C;
-	/* 0x480 */ u32 unk480;
-	/* 0x484 */ JGeometry::TVec3<f32> unk484;
-	/* 0x490 */ u32 unk490;
-	/* 0x494 */ u32 unk494;
-	/* 0x498 */ u32 unk498;
-	/* 0x49C */ u32 unk49C;
-	/* 0x4A0 */ u32 unk4A0;
-	/* 0x4A4 */ u32 unk4A4;
-	/* 0x4A8 */ u32 unk4A8;
-	/* 0x4AC */ u32 unk4AC;
-	/* 0x4B0 */ u32 unk4B0;
-	/* 0x4B4 */ u32 unk4B4;
-	/* 0x4B8 */ u32 unk4B8;
-	/* 0x4BC */ u32 unk4BC;
-	/* 0x4C0 */ u32 unk4C0;
-	/* 0x4C4 */ u32 unk4C4;
-	/* 0x4C8 */ u32 unk4C8;
-	/* 0x4CC */ u32 unk4CC;
-	/* 0x4D0 */ u32 unk4D0;
-	/* 0x4D4 */ u32 unk4D4;
-	/* 0x4D8 */ u32 unk4D8;
-	/* 0x4DC */ u32 unk4DC;
-	/* 0x4E0 */ u32 unk4E0;
-	/* 0x4E4 */ u32 unk4E4;
-	/* 0x4E8 */ u32 unk4E8;
-	/* 0x4EC */ u32 unk4EC;
-
+	/* 0x46C */ f32 unk46C;
+	/* 0x470 */ ResTIMG* mBodyPollutionTex;
+	/* 0x474 */ THitActor mFloorHitActor;
+	/* 0x4DC */ MAnmSound* mAnmSound;
+	/* 0x4E0 */ JAIAnimeSound** mAnmSoundTbl;
+	/* 0x4E4 */ JAISound* mSound;
+	/* 0x4E8 */ u32 mSoundFlags;
+	/* 0x4EC */ s8 unk4EC; // Bool if should do draw logic?
+	/* 0x4ED */ u8 mBlendLogicOp;
+	/* 0x4EE */ u16 mWaterWakeAlpha; // should be verified
 	/* 0x4F0 */ JGeometry::TVec3<f32> unk4F0;
-
 	/* 0x4FC */ TMarioGamePad* mGamePad;
-
-	/* 0x500 */ char unk500[0x3C];
-	/* 0x53C */ TTrembleModelEffect* unk53C;
-	/* 0x540 */ char unk540[0x34];
+	/* 0x500 */ TMarioSoundValues mSoundValues;
+	/* 0x530 */ s16* unk530;
+	/* 0x534 */ u8 unk534;
+	/* 0x535 */ u8 unk535;
+	/* 0x536 */ u16 unk536;
+	/* 0x538 */ u16 unk538;
+	/* 0x53A */ u8 unk53A;
+	/* 0x53B */ u8 unk53B;
+	/* 0x53C */ TTrembleModelEffect* mTrembleModelEffect;
+	/* 0x540 */ f32 mWireSfx0MinVel; // minimum velocity for wire sfx0
+	/* 0x544 */ f32 mWireSfx1MinVel; // minimum velocity for wire sfx1
+	/* 0x548 */ u32 mWireQueuedSfxID;
+	/* 0x54C */ u8 mWireSfxTimer;
+	/* 0x54D */ u8 mWireSfxDelay; // initial value for mWireSfxTimer
+	/* 0x54E */ s16 unk54E;
+	/* 0x550 */ s16 mWireSwingPosAngle; // positive angle on wire to play sfx
+	/* 0x552 */ s16 mWireSwingNegAngle; // negative angle on wire to play sfx
+	/* 0x554 */ s16 mWireRollAngle;     // roll angle to play roll sfx on wire
+	/* 0x556 */ s16 unk556;
+	/* 0x558 */ int
+	    mCoinCount; // number of coins mario has collected (write only?)
+	/* 0x55C */ f32
+	    unk55C; // might be something like body radius but I'm not sure enough
+	/* 0x560 */ f32 unk560;
+	/* 0x564 */ f32 unk564;
+	/* 0x568 */ f32 unk568;
+	/* 0x56C */ f32 unk56C;
+	/* 0x570 */ f32 unk570;
 
 	/* 0x574 */ TDeParams mDeParams;
 

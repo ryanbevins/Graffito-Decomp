@@ -58,14 +58,14 @@ void SMS_EmitSinkInPollutionEffect(const JGeometry::TVec3<float>& arg0,
 	TVec3<f32> B;
 	B.cross(fwd, arg1);
 
-	TMtx34f matrix;
+	TPosition3f matrix;
 
 	TVec3<f32> C;
 	C.cross(arg1, B);
 	TVec3<f32> Cnorm;
-	Cnorm.setLength(C, 1);
+	Cnorm.normalize(C);
 	TVec3<f32> Bnorm;
-	Bnorm.setLength(B, 1);
+	Bnorm.normalize(B);
 
 	matrix.mMtx[0][0] = Cnorm.x;
 	matrix.mMtx[1][0] = Cnorm.y;

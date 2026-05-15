@@ -126,7 +126,7 @@ TBGBeakHit::TBGBeakHit(TBossGesso* owner, const char* name)
 	initHitActor(0x8000008, 1, -0x80000000, 0.0f, 0.0f,
 	             mOwner->getSaveParam()->mSLBeakDamageRadius.get(),
 	             mOwner->getSaveParam()->mSLBeakDamageHeight.get());
-	offHitFlag(HIT_FLAG_UNK1);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 	unkA4.zero();
 }
 
@@ -177,7 +177,7 @@ BOOL TBGBeakHit::receiveMessage(THitActor* sender, u32 message)
 		return false;
 
 	if (sender->getActorType() == 0x80000001) {
-		if (message == 4) {
+		if (message == HIT_MESSAGE_TAKE) {
 			TTakeActor* actor = (TTakeActor*)sender;
 			if (actor->mHeldObject != nullptr && actor->mHeldObject != this)
 				return false;
@@ -190,7 +190,7 @@ BOOL TBGBeakHit::receiveMessage(THitActor* sender, u32 message)
 			return true;
 		}
 
-		if (message == 7 || message == 8) {
+		if (message == HIT_MESSAGE_UNK7 || message == HIT_MESSAGE_UNK8) {
 			// TODO: inlined from TBossGesso?
 			JGeometry::TVec3<f32> delta = mPosition;
 			TBossGesso* gesso           = mOwner;
@@ -234,7 +234,8 @@ void TBGBeakHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 			JGeometry::TVec3<f32> offset = us2mario;
 			JGeometry::TVec3<f32> perp;
 			// TODO: cross is incorrect?
-			perp.cross(offset, JGeometry::TVec3<f32>(0.0f, 1.0f, 1.0f));
+			JGeometry::TVec3<f32> up(0.0f, 1.0f, 1.0f);
+			perp.cross(offset, up);
 			if (!perp.isZero())
 				VECNormalize(&perp, &perp);
 			else
@@ -262,12 +263,12 @@ void TBGBeakHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 			f32 lenPollute = mOwner->getSaveParam()->mSLBeakLengthPollute.get();
 			if (mOwner->unk190.color.a != 0 && beakPullDist >= lenPollute) {
-				mHolder->receiveMessage(this, 0x8);
+				mHolder->receiveMessage(this, HIT_MESSAGE_UNK8);
 			}
 
 			f32 lenLimit = mOwner->getSaveParam()->mSLBeakLengthLimit.get();
 			if (beakPullDist >= lenLimit) {
-				mHolder->receiveMessage(this, 0x8);
+				mHolder->receiveMessage(this, HIT_MESSAGE_UNK8);
 				mOwner->gotBeakDamage();
 			}
 		}
@@ -286,7 +287,7 @@ TBGEyeHit::TBGEyeHit(TBossGesso* owner, int joint_index, const char* name)
 	initHitActor(0x8000009, 1, 0x1000000, 0.0f, 0.0f,
 	             mOwner->getSaveParam()->mSLEyeDamageRadius.get(),
 	             mOwner->getSaveParam()->mSLEyeDamageHeight.get());
-	offHitFlag(HIT_FLAG_UNK1);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 BOOL TBGEyeHit::receiveMessage(THitActor* sender, u32 message)
@@ -294,7 +295,8 @@ BOOL TBGEyeHit::receiveMessage(THitActor* sender, u32 message)
 	if (mOwner->getAttackMode() == 3)
 		return false;
 
-	if (sender->getActorType() == 0x1000001 && message == 15) {
+	if (sender->getActorType() == 0x1000001
+	    && message == HIT_MESSAGE_SPRAYED_BY_WATER) {
 		mOwner->gotEyeDamage();
 		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
 		return true;
@@ -319,12 +321,13 @@ TBGBodyHit::TBGBodyHit(TBossGesso* owner, int joint_index, const char* name)
 	    .push_back(this);
 
 	initHitActor(0x8000005, 1, -0x7f000000, 300.0f, 300.0f, 300.0f, 300.0f);
-	offHitFlag(HIT_FLAG_UNK1);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 BOOL TBGBodyHit::receiveMessage(THitActor* sender, u32 message)
 {
-	if (sender->getActorType() == 0x1000001 && message == 0xf) {
+	if (sender->getActorType() == 0x1000001
+	    && message == HIT_MESSAGE_SPRAYED_BY_WATER) {
 		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
 		return true;
 	}
@@ -574,7 +577,7 @@ void TBossGesso::init(TLiveManager* param_1)
 	mBody     = new TBGBodyHit(this, 0);
 
 	initHitActor(0x8000005, 5, -0x7f000000, 300.0f, 300.0f, 300.0f, 300.0f);
-	onHitFlag(HIT_FLAG_UNK1);
+	onHitFlag(HIT_FLAG_NO_COLLISION);
 
 	mSpine->initWith(&TNerveBGWait::theNerve());
 	mMtxCalc = new TBossGessoMtxCalc(this);
@@ -702,7 +705,7 @@ void TBossGesso::changeBck(int param_1)
 
 	J3DFrameCtrl* ctrl = getMActor()->getFrameCtrl(0);
 	if (ctrl != nullptr)
-		unk188 = 10.0f / ctrl->getEndFrame();
+		unk188 = 10.0f / ctrl->getEnd();
 
 	const char** table = getBasNameTable();
 	setAnmSound(!table ? nullptr : table[param_1]);
@@ -883,7 +886,8 @@ const char** TBossGesso::getBasNameTable() const { return bgeso_bastable; }
 
 BOOL TBossGesso::receiveMessage(THitActor* sender, u32 message)
 {
-	if (sender->getActorType() == 0x1000001 && message == 0xf) {
+	if (sender->getActorType() == 0x1000001
+	    && message == HIT_MESSAGE_SPRAYED_BY_WATER) {
 		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
 		return true;
 	}
@@ -902,8 +906,7 @@ void TBossGesso::doAttackSingle()
 	if (gpMarDirector->unk58 < 0x1E0)
 		return;
 
-	if (gpMarDirector->checkUnk124Thing1()
-	    || gpMarDirector->checkUnk124Thing2())
+	if (gpMarDirector->isTalkModeNow() || gpMarDirector->checkUnk124Thing2())
 		return;
 
 	if (unk1A8 > 0) {
@@ -1346,7 +1349,7 @@ DEFINE_NERVE(TNerveBGEyeDamage, TLiveActor)
 		self->getMActor()->setBtpFromIndex(1);
 		J3DFrameCtrl* ctrl = self->getMActor()->getFrameCtrl(3);
 		ctrl->setFrame(1.5f);
-		ctrl->setSpeed(0.0f);
+		ctrl->setRate(0.0f);
 		self->getMActor()->resetDL();
 	}
 
@@ -1388,14 +1391,14 @@ DEFINE_NERVE(TNerveBGBeakDamage, TLiveActor)
 		self->changeAllTentacleState(8);
 
 		J3DFrameCtrl* ctrl4 = self->getMActor()->getFrameCtrl(4);
-		ctrl4->setSpeed(1.0f);
+		ctrl4->setRate(1.0f);
 		ctrl4->setFrame(0.0f);
 
 		self->getMActor()->setBtpFromIndex(1);
 
 		J3DFrameCtrl* ctrl3 = self->getMActor()->getFrameCtrl(3);
 		ctrl3->setFrame(1.5f);
-		ctrl3->setSpeed(0.0f);
+		ctrl3->setRate(0.0f);
 
 		self->getMActor()->resetDL();
 
@@ -1454,7 +1457,7 @@ DEFINE_NERVE(TNerveBGBeakDamage, TLiveActor)
 		self->forceAllTentacleState(0);
 
 		J3DFrameCtrl* ctrl4 = self->getMActor()->getFrameCtrl(4);
-		ctrl4->setSpeed(0.0f);
+		ctrl4->setRate(0.0f);
 		ctrl4->setFrame(0.0f);
 
 		spine->pushAfterCurrent(&TNerveBGPollute::theNerve());
@@ -1531,7 +1534,7 @@ DEFINE_NERVE(TNerveBGTug, TLiveActor)
 
 			J3DFrameCtrl* ctrl3 = self->getMActor()->getFrameCtrl(3);
 			ctrl3->setFrame(1.5f);
-			ctrl3->setSpeed(0.0f);
+			ctrl3->setRate(0.0f);
 
 			self->getMActor()->resetDL();
 			if (!self->getMActor()->checkCurBckFromIndex(9))
@@ -1561,7 +1564,7 @@ DEFINE_NERVE(TNerveBGDie, TLiveActor)
 
 		J3DFrameCtrl* ctrl3 = self->getMActor()->getFrameCtrl(3);
 		ctrl3->setFrame(1.5f);
-		ctrl3->setSpeed(0.0f);
+		ctrl3->setRate(0.0f);
 
 		self->getMActor()->resetDL();
 
@@ -1656,7 +1659,7 @@ DEFINE_NERVE(TNerveBGDie, TLiveActor)
 		    "マーレボスゲッソー用ブロック");
 
 		if (block != nullptr) {
-			block->receiveMessage(self, 14);
+			block->receiveMessage(self, HIT_MESSAGE_ATTACK);
 			MSBgm::stopTrackBGM(1, 10);
 			MSBgm::setTrackVolume(0, 1.0f, 5, 0);
 		}
@@ -1724,7 +1727,7 @@ DEFINE_NERVE(TNerveBGPolDrop, TLiveActor)
 	}
 
 	J3DFrameCtrl* ctrl0 = self->getMActor()->getFrameCtrl(0);
-	if (83.0f < ctrl0->getCurrentFrame() && ctrl0->getCurrentFrame() < 87.0f) {
+	if (83.0f < ctrl0->getFrame() && ctrl0->getFrame() < 87.0f) {
 		self->launchPolDrop();
 	}
 

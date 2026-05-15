@@ -15,7 +15,7 @@ public:
 	// fabricated
 	TFlagT& operator=(const TFlagT<T>& other)
 	{
-		set(other.get());
+		set(other.mValue);
 		return *this;
 	}
 
@@ -29,6 +29,10 @@ public:
 		else
 			mValue &= ~bit;
 	}
+
+	bool check(T bit) const { return (mValue & bit) != 0; }
+	void on(T bit) { mValue |= bit; }
+	void off(T bit) { mValue &= ~bit; }
 
 public:
 	T mValue;

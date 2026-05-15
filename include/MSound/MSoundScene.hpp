@@ -12,6 +12,8 @@ public:
 	void calcPosPanSR(Vec*, f32);
 	void calcPosPanLR(Vec*, f32);
 	void calcPosVolume(Vec*, f32*, u8);
+
+	u8 _pad[1100];
 };
 
 #endif

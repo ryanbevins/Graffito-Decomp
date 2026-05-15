@@ -3,9 +3,12 @@
 
 #include <MoveBG/MapObjGeneral.hpp>
 
+class TWaterEmitInfo;
+
 class TMapObjBall : public TMapObjGeneral {
 public:
 	TMapObjBall(const char*);
+	virtual ~TMapObjBall() { }
 
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
 	virtual void control();
@@ -28,11 +31,34 @@ public:
 	virtual void calcCurrentMtx();
 
 	void boundByActor(THitActor*);
+
+public:
+	/* 0x148 */ f32 unk148;
+	/* 0x14C */ f32 unk14C;
+	/* 0x150 */ f32 unk150;
+	/* 0x154 */ f32 unk154;
+	/* 0x158 */ f32 unk158;
+	/* 0x15C */ f32 unk15C;
+	/* 0x160 */ f32 unk160;
+	/* 0x164 */ f32 unk164;
+	/* 0x168 */ f32 unk168;
+	/* 0x16C */ f32 unk16C;
+	/* 0x170 */ f32 unk170;
+	/* 0x174 */ f32 unk174;
+	/* 0x178 */ f32 unk178;
+	/* 0x17C */ f32 unk17C;
+	/* 0x180 */ f32 unk180;
+	/* 0x184 */ f32 unk184;
+	/* 0x188 */ f32 unk188;
+	/* 0x18C */ f32 unk18C;
+	/* 0x190 */ f32 unk190;
+	/* 0x194 */ s32 unk194;
 };
 
 class TResetFruit : public TMapObjBall {
 public:
 	TResetFruit(const char*);
+	virtual ~TResetFruit() { }
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
@@ -61,23 +87,34 @@ public:
 	void makeObjLiving();
 	void makeObjWaitingToAppear();
 
-	u32 mFruitLivingTime;
-	u32 mScaleUpSpeed;
-	u32 mRottingScaleSpeed;
-	u32 mBreakingScaleSpeed;
-	u32 mFruitWaitTimeToAppear;
-	u32 mRottenColor;
+	/* 0x198 */ f32 unk198;
+	/* 0x19C */ u16 unk19C;
+	/* 0x19E */ u16 unk19E;
+	/* 0x1A0 */ u16 unk1A0;
+	/* 0x1A2 */ u16 unk1A2;
+	/* 0x1A4 */ u8 unk1A4;
+
+	static s32 mFruitLivingTime;
+	static f32 mScaleUpSpeed;
+	static f32 mRottingScaleSpeed;
+	static f32 mBreakingScaleSpeed;
+	static s32 mFruitWaitTimeToAppear;
+	static u32 mRottenColor;
 };
 
 class TRandomFruit : public TResetFruit {
 public:
 	TRandomFruit(const char*);
+	virtual ~TRandomFruit() { }
 	virtual void initMapObj();
+
+	/* 0x1A8 */ char mFruitName[0x1C8 - 0x1A8];
 };
 
 class TCoverFruit : public TMapObjBase {
 public:
 	TCoverFruit();
+	virtual ~TCoverFruit() { }
 	virtual void loadAfter();
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
 
@@ -87,10 +124,11 @@ public:
 class TBigWatermelon : public TMapObjBall {
 public:
 	TBigWatermelon(const char*);
+	virtual ~TBigWatermelon() { }
 
 	virtual void loadAfter();
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
-	virtual void control() { }
+	virtual void control();
 	virtual void kill();
 	virtual void initMapObj();
 	virtual void touchActor(THitActor*);
@@ -102,6 +140,10 @@ public:
 	virtual void touchWaterSurface();
 
 	void startEvent();
+
+	/* 0x198 */ TWaterEmitInfo* mWaterEmitInfo;
+	/* 0x19C */ s32 mItemCount;
+	/* 0x1A0 */ f32 unk1A0;
 };
 
 #endif

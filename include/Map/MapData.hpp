@@ -74,7 +74,7 @@ class TBGCheckData {
 public:
 	TBGCheckData();
 
-	const JGeometry::TVec3<f32>& getNormal() const { return mNormal; };
+	const JGeometry::TVec3<f32>& getNormal() const { return mNormal; }
 	bool isIllegalData() const
 	{
 		return mFlags & BG_CHECK_FLAG_ILLEGAL ? true : false;
@@ -97,7 +97,8 @@ public:
 	}
 	bool isMarioThrough() const // matching
 	{
-		if (mBGType == BG_TYPE_ONLY_MARIO_PHASES_THROUGH || mBGType == 0x8400
+		if (mBGType == BG_TYPE_ONLY_MARIO_PHASES_THROUGH
+		    || mBGType == BG_TYPE_CAM_NOCLIP_ONLY_MARIO_PHASES_THROUGH
 		    || mBGType == BG_TYPE_WATER || mBGType == BG_TYPE_DAMAGING_WATER
 		    || mBGType == BG_TYPE_SEA_WATER
 		    || mBGType == BG_TYPE_DAMAGING_SEA_WATER
@@ -120,6 +121,10 @@ public:
 
 	// fabricated
 	bool checkFlag(u32 flag) const { return mFlags & flag ? true : false; }
+	// fabricated
+	u16 getFlags() const { return mFlags; }
+	// fabricated
+	u16 getBGType() const { return mBGType; }
 
 	bool isLegal() const
 	{
@@ -131,6 +136,15 @@ public:
 		if (mBGType == BG_TYPE_SAND || mBGType == BG_TYPE_SHADED_SAND
 		    || mBGType == BG_TYPE_CAM_NOCLIP_SAND
 		    || mBGType == BG_TYPE_CAM_NOCLIP_SHADED_SAND)
+			return true;
+		else
+			return false;
+	}
+
+	bool isSea() const
+	{
+		if (mBGType == BG_TYPE_SEA_WATER
+		    || mBGType == BG_TYPE_DAMAGING_SEA_WATER)
 			return true;
 		else
 			return false;
@@ -181,7 +195,7 @@ public:
 		else
 			return false;
 	}
-	bool checkSomething7() const
+	bool isEnemyThrough() const
 	{
 		if (mBGType == BG_TYPE_EVERYTHING_BUT_MAP_OBJECTS_PHASE_THROUGH
 		    || mBGType == BG_TYPE_ONLY_ENEMIES_PHASE_THROUGH)
@@ -196,6 +210,14 @@ public:
 		    || mBGType == BG_TYPE_EVERYTHING_BUT_MAP_OBJECTS_PHASE_THROUGH
 		    || mBGType == BG_TYPE_CLIMBABLE_FENCE
 		    || mBGType == BG_TYPE_CAM_NOCLIP_ONLY_MARIO_PHASES_THROUGH)
+			return true;
+		else
+			return false;
+	}
+
+	bool isFence() const
+	{
+		if (mBGType == BG_TYPE_CLIMBABLE_FENCE)
 			return true;
 		else
 			return false;

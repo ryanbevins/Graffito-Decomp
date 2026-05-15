@@ -28,7 +28,7 @@ void TItem::appeared()
 {
 	if (checkMapObjFlag(0x40000) && !isUnk104Positive()) {
 		if (unk148)
-			unk148->receiveMessage(this, 5);
+			unk148->receiveMessage(this, HIT_MESSAGE_UNK5);
 
 		if (isActorType(0x2000000f) || isActorType(0x20000010)) {
 			if (gpMSound->gateCheck(0x484C))
@@ -42,7 +42,7 @@ void TItem::appeared()
 
 void TItem::taken(THitActor* param_1)
 {
-	param_1->receiveMessage(this, 0xE);
+	param_1->receiveMessage(this, HIT_MESSAGE_ATTACK);
 	kill();
 	if (checkMapObjFlag(0x80000)) {
 		makeObjDefault();
@@ -53,16 +53,16 @@ void TItem::taken(THitActor* param_1)
 void TItem::touchPlayer(THitActor* param_1)
 {
 	if ((param_1->isActorType(0x80000001) || param_1->isActorType(0x8000083))
-	    && !checkHitFlag(HIT_FLAG_UNK1))
+	    && !checkHitFlag(HIT_FLAG_NO_COLLISION))
 		taken(param_1);
 }
 
 BOOL TItem::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == 0xF)
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER)
 		return false;
 
-	if (message == 0xb) {
+	if (message == HIT_MESSAGE_UNKB) {
 		taken(sender);
 		return true;
 	}
@@ -130,14 +130,14 @@ void TItem::killByTimer(int param_1)
 	unk104 = unk150;
 
 	offMapObjFlag(0x10000000);
-	onHitFlag(HIT_FLAG_UNK1);
+	onHitFlag(HIT_FLAG_NO_COLLISION);
 	offMapObjFlag(0x40000);
 }
 
 void TItem::appear()
 {
 	TMapObjGeneral::appear();
-	onHitFlag(HIT_FLAG_UNK1);
+	onHitFlag(HIT_FLAG_NO_COLLISION);
 	unk104 = unk150;
 	offMapObjFlag(0x40000);
 }
@@ -147,8 +147,9 @@ void TItem::perform(u32 param_1, JDrama::TGraphics* param_2)
 	if (checkLiveFlag(LIVE_FLAG_DEAD))
 		return;
 
-	if ((param_1 & 1) && checkHitFlag(HIT_FLAG_UNK1) && !isUnk104Positive()) {
-		offHitFlag(HIT_FLAG_UNK1);
+	if ((param_1 & 1) && checkHitFlag(HIT_FLAG_NO_COLLISION)
+	    && !isUnk104Positive()) {
+		offHitFlag(HIT_FLAG_NO_COLLISION);
 		if (!checkMapObjFlag(0x10000000)) {
 			onMapObjFlag(0x40000);
 			unk104 = unk14C;
@@ -189,7 +190,7 @@ void TCoin::taken(THitActor* param_1)
 		                                          0, 4);
 
 	if (unk148)
-		unk148->receiveMessage(this, 8);
+		unk148->receiveMessage(this, HIT_MESSAGE_UNK8);
 
 	if (TFlagManager::smInstance->getFlag(0x40002) == 100) {
 		TShine* shine = JDrama::TNameRefGen::search<TShine>(
@@ -225,12 +226,9 @@ void TCoin::appear()
 	if (isActorType(0x20000010)) {
 		if (!TFlagManager::smInstance->getBlueCoinFlag(
 		        gpMarDirector->getCurrentMap(), unk134))
-			if (gpMSound->gateCheck(0x4843))
-				MSoundSESystem::MSoundSE::startSoundSystemSE(0x4843, 0, nullptr,
-				                                             0);
+			SMSGetMSound()->startSoundSystemSE(0x4843, 0, nullptr, 0);
 	} else {
-		if (gpMSound->gateCheck(0x4813))
-			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4813, 0, nullptr, 0);
+		SMSGetMSound()->startSoundSystemSE(0x4813, 0, nullptr, 0);
 	}
 
 	appearWithoutSound();
@@ -265,8 +263,8 @@ void TCoin::perform(u32 param_1, JDrama::TGraphics* param_2)
 		if (isUnk104Positive()) {
 			--unk104;
 		} else {
-			if (checkHitFlag(HIT_FLAG_UNK1)) {
-				offHitFlag(HIT_FLAG_UNK1);
+			if (checkHitFlag(HIT_FLAG_NO_COLLISION)) {
+				offHitFlag(HIT_FLAG_NO_COLLISION);
 				if (!checkMapObjFlag(0x10000000)) {
 					onMapObjFlag(0x40000);
 					unk104 = unk14C;
@@ -274,7 +272,7 @@ void TCoin::perform(u32 param_1, JDrama::TGraphics* param_2)
 			} else {
 				if (!checkMapObjFlag(0x10000000)) {
 					if (unk148 != 0)
-						unk148->receiveMessage(this, 5);
+						unk148->receiveMessage(this, HIT_MESSAGE_UNK5);
 					makeObjDead();
 				}
 			}
@@ -350,7 +348,7 @@ void TCoinRed::taken(THitActor* param_1)
 		                                          0, 4);
 
 	if (unk148)
-		unk148->receiveMessage(this, 8);
+		unk148->receiveMessage(this, HIT_MESSAGE_UNK8);
 
 	TItem::taken(param_1);
 }
@@ -374,7 +372,7 @@ void TCoinBlue::taken(THitActor* param_1)
 	gpMarDirector->fireGetBlueCoin(this);
 
 	if (unk148)
-		unk148->receiveMessage(this, 8);
+		unk148->receiveMessage(this, HIT_MESSAGE_UNK8);
 
 	TItem::taken(param_1);
 }

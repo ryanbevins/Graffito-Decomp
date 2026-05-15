@@ -1,6 +1,6 @@
 #include <Enemy/TamaNoko.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
-#include <System/EmitterViewObj.hpp>
+#include <System/Particles.hpp>
 #include <System/Particles.hpp>
 #include <System/MarDirector.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -70,21 +70,10 @@ TTamaNokoFlower::TTamaNokoFlower(const TLiveActor* param_1, int param_2,
 	unk2C->initAnmSound(nullptr, 1, 0.0f);
 }
 
-// TODO: is this TPosition3 or am I trippin
-struct Magic : TRotation3f {
-	void translate(f32 x, f32 y, f32 z)
-	{
-		identity33();
-		this->mMtx[0][3] = x;
-		this->mMtx[1][3] = y;
-		this->mMtx[2][3] = z;
-	}
-};
-
 void TTamaNokoFlower::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (param_1 & 1) {
-		if (gpMarDirector->checkUnk124Thing1()) {
+		if (gpMarDirector->isTalkModeNow()) {
 			if (unk35 != 0 && unk1C == 0) {
 				if (gpMarDirector->checkUnk124Thing2()) {
 					unk1C = 1;
@@ -136,22 +125,20 @@ void TTamaNokoFlower::perform(u32 param_1, JDrama::TGraphics* param_2)
 	}
 
 	if (param_1 & 2) {
-		Magic magic;
-		magic.translate(unk10->mPosition.x, unk10->mPosition.y,
-		                unk10->mPosition.z);
+		TPosition3f magic;
+		magic.translation(unk10->mPosition.x, unk10->mPosition.y,
+		                  unk10->mPosition.z);
 		unk18->getModel()->setBaseTRMtx(magic);
 		if (unk2C != nullptr && unk30 != 0) {
 			J3DFrameCtrl* ctrl = unk18->getFrameCtrl(0);
 
 			unk20 = unk10->mPosition;
 
-			unk2C->animeLoop(&unk20, ctrl->getCurrentFrame(), ctrl->getRate(),
-			                 0, 4);
+			unk2C->animeLoop(&unk20, ctrl->getFrame(), ctrl->getRate(), 0, 4);
 		}
 	}
 
-	if (gpMarDirector->checkUnk124Thing2()
-	    && gpMarDirector->checkUnk124Thing1()) {
+	if (gpMarDirector->checkUnk124Thing2() && gpMarDirector->isTalkModeNow()) {
 		if (param_1 & 0x4)
 			unk18->viewCalc();
 
@@ -383,7 +370,7 @@ void TTamaNoko::behaveToRelease()
 
 BOOL TTamaNoko::receiveMessage(THitActor* param_1, u32 param_2)
 {
-	if (param_2 == 0 || param_2 == HIT_MESSAGE_HIP_DROP) {
+	if (param_2 == HIT_MESSAGE_TRAMPLE || param_2 == HIT_MESSAGE_HIP_DROP) {
 		if (isHitValid(param_2)) {
 			unk184 = 0;
 			kill();
@@ -391,14 +378,15 @@ BOOL TTamaNoko::receiveMessage(THitActor* param_1, u32 param_2)
 		return true;
 	}
 
-	if (param_2 == 13) {
+	if (param_2 == HIT_MESSAGE_UNKD) {
 		mHitPoints = 0;
 		onLiveFlag(LIVE_FLAG_DEAD);
-		onHitFlag(HIT_FLAG_UNK1);
+		onHitFlag(HIT_FLAG_NO_COLLISION);
 	}
 
 	if (param_2 == HIT_MESSAGE_SPRAYED_BY_WATER) {
-		gpMarioParticleManager->emit(0xE7, &param_1->mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(PARTICLE_MS_ENM_WATHIT,
+		                             &param_1->mPosition, 0, nullptr);
 		gpMSound->startSoundSet(0x6802, &mPosition, 0, 0.0f, 0, 0, 4);
 
 		if (mSprayedByWaterCooldown == 0) {
@@ -448,27 +436,25 @@ bool TTamaNoko::doKeepDistance()
 
 void TTamaNoko::calcRootMatrix()
 {
-	if (isBckAnm(16)) {
+	if (isBckAnm(16))
 		if (JPABaseEmitter* emitter
-		    = gpMarioParticleManager->emitAndBindToPosPtr(0x185, &mPosition, 1,
-		                                                  this)) {
+		    = gpMarioParticleManager->emitAndBindToPosPtr(
+		        PARTICLE_MS_TAMA_HIT, &mPosition, 1, this)) {
 			emitter->setScale(mScaling);
 		}
-	}
 
-	if (isBckAnm(11) && mMActor->getFrameCtrl(0)->getCurrentFrame() > 90.0f) {
+	if (isBckAnm(11) && mMActor->getFrameCtrl(0)->getFrame() > 90.0f)
 		if (JPABaseEmitter* emitter
-		    = gpMarioParticleManager->emitAndBindToPosPtr(0x185, &mPosition, 1,
-		                                                  this)) {
+		    = gpMarioParticleManager->emitAndBindToPosPtr(
+		        PARTICLE_MS_TAMA_HIT, &mPosition, 1, this)) {
 			emitter->setScale(mScaling);
 		}
-	}
 
 	if (isBckAnm(1)) {
 		if (mMActor->getFrameCtrl(0)->checkPass(0.0f)
 		    || mMActor->getFrameCtrl(0)->checkPass(46.0f)) {
-			gpMarioParticleManager->emitAndBindToPosPtr(0x11, &mPosition, 0,
-			                                            nullptr);
+			gpMarioParticleManager->emitAndBindToPosPtr(PARTICLE_MS_JUMP_ED_B,
+			                                            &mPosition, 0, nullptr);
 		}
 
 		if (mMActor->getFrameCtrl(0)->checkPass(25.0f)) {
@@ -477,12 +463,13 @@ void TTamaNoko::calcRootMatrix()
 			} else {
 				gpCameraShake->startShake(CAM_SHAKE_MODE_UNK7, 1.0f);
 				SMSRumbleMgr->start(8, 1, (float*)nullptr);
+
 				if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
-				        0xB6, &mPosition, 0, nullptr)) {
+				        PARTICLE_MS_SMB_AP_ROCK, &mPosition, 0, nullptr)) {
 					emitter->setScale(JGeometry::TVec3<f32>(2.0f, 2.0f, 2.0f));
 				}
 				if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
-				        0xB7, &mPosition, 0, nullptr)) {
+				        PARTICLE_MS_SMB_AP_SMOKE, &mPosition, 0, nullptr)) {
 					emitter->setScale(JGeometry::TVec3<f32>(2.0f, 2.0f, 2.0f));
 				}
 			}
@@ -497,27 +484,25 @@ void TTamaNoko::calcRootMatrix()
 			const TBGCheckData* local_18;
 			gpMap->checkGround(mPosition.x, mPosition.y + 500.0f, mPosition.z,
 			                   &local_18);
-			if (local_18 && !local_18->isWaterSurface()) {
-				gpMarioParticleManager->emitAndBindToPosPtr(0x11, &mPosition, 0,
-				                                            nullptr);
-			}
+			if (local_18 && !local_18->isWaterSurface())
+				gpMarioParticleManager->emitAndBindToPosPtr(
+				    PARTICLE_MS_JUMP_ED_B, &mPosition, 0, nullptr);
 		}
 	}
 
-	if (mSpine->getCurrentNerve() == &TNerveTamaNokoSleep::theNerve()) {
+	if (mSpine->getCurrentNerve() == &TNerveTamaNokoSleep::theNerve())
 		if (JPABaseEmitter* emitter
-		    = gpMarioParticleManager->emitAndBindToPosPtr(0x124, &mPosition, 1,
-		                                                  this)) {
+		    = gpMarioParticleManager->emitAndBindToPosPtr(
+		        PARTICLE_MS_POI_ZZZ, &mPosition, 1, this)) {
 			emitter->setScale(mScaling);
 		}
-	}
 
 	TSpineEnemy::calcRootMatrix();
 }
 
 void TTamaNoko::requestShadow()
 {
-	if (!checkLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_UNK8 | LIVE_FLAG_UNK2)) {
+	if (!checkLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_UNK8 | LIVE_FLAG_HIDDEN)) {
 		if (!checkLiveFlag(LIVE_FLAG_UNK200 | LIVE_FLAG_CLIPPED_OUT)
 		    || checkLiveFlag(LIVE_FLAG_UNK400)) {
 			TCircleShadowRequest local_2c;
@@ -562,12 +547,12 @@ void TTamaNoko::requestShadow()
 void TTamaNoko::landEffect()
 {
 	if (mGroundPlane->isSand()) {
-		if (JPABaseEmitter* emitter
-		    = gpMarioParticleManager->emit(0x14, &mPosition, 0, nullptr)) {
+		if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+		        PARTICLE_MS_HIPDROP_C, &mPosition, 0, nullptr)) {
 			emitter->setScale(mScaling);
 		}
-		if (JPABaseEmitter* emitter
-		    = gpMarioParticleManager->emit(0x53, &mPosition, 0, nullptr)) {
+		if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+		        PARTICLE_MS_POI_SAND, &mPosition, 0, nullptr)) {
 			emitter->setScale(mScaling);
 		}
 	}
@@ -578,12 +563,12 @@ void TTamaNoko::landEffect()
 	if (local_10 && local_10->isWaterSurface()) {
 		generateEffectColumWater();
 	} else {
-		if (JPABaseEmitter* emitter
-		    = gpMarioParticleManager->emit(0x14, &mPosition, 0, nullptr)) {
+		if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+		        PARTICLE_MS_HIPDROP_C, &mPosition, 0, nullptr)) {
 			emitter->setScale(mScaling);
 		}
-		if (JPABaseEmitter* emitter
-		    = gpMarioParticleManager->emit(0x13, &mPosition, 0, nullptr)) {
+		if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+		        PARTICLE_MS_HIPDROP_B, &mPosition, 0, nullptr)) {
 			emitter->setScale(mScaling);
 		}
 	}
@@ -612,7 +597,8 @@ void TTamaNoko::setAfterDeadEffect()
 	unk19C->unk34 = 1;
 	unk19C->setBckAnm(0);
 
-	gpMarioParticleManager->emitAndBindToPosPtr(0xCC, &mPosition, 0, nullptr);
+	gpMarioParticleManager->emitAndBindToPosPtr(PARTICLE_MS_TAMA_FLOWER,
+	                                            &mPosition, 0, nullptr);
 	if (gpMSound->gateCheck(0x295F))
 		MSoundSESystem::MSoundSE::startSoundActor(0x295F, &mPosition, 0,
 		                                          nullptr, 0, 4);
@@ -655,7 +641,7 @@ bool TTamaNoko::isCollidMove(THitActor* param_1)
 		return true;
 
 	if (mSpine->getCurrentNerve() == &TNerveTamaNokoSleep::theNerve()) {
-		param_1->receiveMessage(this, 0);
+		param_1->receiveMessage(this, HIT_MESSAGE_TRAMPLE);
 		return true;
 	}
 
@@ -693,7 +679,8 @@ DEFINE_NERVE(TNerveTamaNokoAttack, TLiveActor)
 	if (local_48.y < -1.0f) {
 		if (JPABaseEmitter* emitter
 		    = gpMarioParticleManager->emitAndBindToMtxPtr(
-		        0x186, self->getMActor()->getModel()->getAnmMtx(1), 1, self)) {
+		        PARTICLE_MS_TAMA_BLUR,
+		        self->getMActor()->getModel()->getAnmMtx(1), 1, self)) {
 			emitter->setScale(self->mScaling);
 		}
 	}
@@ -714,7 +701,7 @@ DEFINE_NERVE(TNerveTamaNokoAttack, TLiveActor)
 			self->unk1AC.set(mtx[0][3], mtx[1][3] - 200.0f, mtx[2][3]);
 			if (JPABaseEmitter* emitter
 			    = gpMarioParticleManager->emitAndBindToPosPtr(
-			        0x105, &self->unk1AC, 1, self)) {
+			        PARTICLE_MS_M_BLUR2, &self->unk1AC, 1, self)) {
 				emitter->setScale(self->mScaling);
 			}
 

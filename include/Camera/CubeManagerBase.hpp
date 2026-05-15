@@ -9,6 +9,7 @@
 
 class TCubeManagerBase;
 
+extern TCubeManagerBase* gpCubeCamera;
 extern TCubeManagerBase* gpCubeStream;
 extern TCubeManagerBase* gpCubeShadow;
 extern TCubeManagerBase* gpCubeSoundChange;
@@ -27,7 +28,7 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 
 	s32 getDataNo(s32) const;
-	u32 getInCubeNo(const Vec&) const;
+	int getInCubeNo(const Vec&) const;
 	bool isInCube(const Vec&, s32) const;
 	bool isInCube(const Vec&, const char*) const;
 	void calcPointInCubeRatio(const Vec&, s32, float*, float*, float*) const;

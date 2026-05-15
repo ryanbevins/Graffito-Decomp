@@ -42,7 +42,7 @@ public:
 	void startAppearTelop(bool);
 	void startDisappearTelop();
 	void startDisappearTimer();
-	void startAppearTimer(int, long);
+	void startAppearTimer(int, s32);
 	void startInsertTimer();
 	void startAppearJetBalloon(int, int);
 	void startInsertJetBalloon();
@@ -58,7 +58,7 @@ public:
 	void startAppearMario(bool);
 	void processMoveNozzle();
 	void changeNum(TBlendPane*, int, int);
-	void setTimer(long);
+	void setTimer(s32);
 	void startMoveTimer(int);
 	void stopMoveTimer();
 	int getFinishedTime();
@@ -93,7 +93,7 @@ public:
 	static JUTPoint cCoinBotPoint;
 
 public:
-	/* 0x10 */ u32 unk10;
+	/* 0x10 */ int unk10;
 	/* 0x14 */ u32 unk14;
 	/* 0x18 */ u32 unk18;
 	/* 0x1C */ u16 unk1C;

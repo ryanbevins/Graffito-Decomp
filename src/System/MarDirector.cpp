@@ -35,7 +35,6 @@ TMarDirector::TMarDirector()
     , unkA0(nullptr)
     , unkB8(nullptr)
     , unkBC(nullptr)
-    , unkCC(0)
     , unkC8(0)
     , unkD4(0)
     , unkD8(0)
@@ -50,7 +49,7 @@ TMarDirector::TMarDirector()
 	gpMarDirector = this;
 	unk58         = 0;
 	unk5C         = 0;
-	mState        = 0;
+	mState        = STATE_UNK0;
 	unk88.reserve(100);
 	initLoadParticle();
 	unk126 = 0;

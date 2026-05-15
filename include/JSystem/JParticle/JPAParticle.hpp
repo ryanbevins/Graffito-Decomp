@@ -11,7 +11,7 @@ class JPABaseEmitter;
 
 // fabricated
 struct JPADrawParams {
-	/* 0x0 */ Vec unk0;
+	/* 0x0 */ JGeometry::TVec3<f32> unk0;
 	/* 0x8 */ f32 unkC;
 	/* 0x10 */ f32 unk10;
 	/* 0x14 */ f32 unk14;
@@ -34,10 +34,10 @@ public:
 	/* 0x14 */ JGeometry::TVec3<f32> unk14;
 	/* 0x20 */ JGeometry::TVec3<f32> mLocalPosition;
 	/* 0x2C */ JGeometry::TVec3<f32> mGlobalPosition;
-	/* 0x38 */ JGeometry::TVec3<f32> unk38;
-	/* 0x44 */ f32 unk44;
-	/* 0x48 */ f32 unk48;
-	/* 0x4C */ f32 unk4C;
+	/* 0x38 */ JGeometry::TVec3<f32> mVelocity;
+	/* 0x44 */ f32 mAge;
+	/* 0x48 */ f32 mLifeProgress;
+	/* 0x4C */ f32 mLifetime;
 	/* 0x50 */ JPACallBackBase2<JPABaseEmitter*, JPABaseParticle*>* unk50;
 	/* 0x54 */ u32 unk54;
 	/* 0x58 */ // vt
@@ -92,10 +92,25 @@ public:
 		out.set(mLocalPosition);
 	}
 
-	// fabricated
-	bool checkFlag(u32 flag) const { return (unk10 & flag) ? true : false; }
-	s32 getAge() const { return unk44; } // TODO: name might be wrong
-	bool isInvisibleParticle() { return checkFlag(8); }
+	// From TP
+	s32 getAge() const { return mAge; }
+
+	enum {
+		FLAG_JUST_BORN      = 0x1,
+		FLAG_DELETE         = 0x2,
+		FLAG_UNK4           = 0x4,
+		FLAG_INVISIBLE      = 0x8,
+		FLAG_FOLLOW_EMITTER = 0x20,
+		FLAG_IGNORE_FIELDS  = 0x40,
+		FLAG_DEAD           = 0x80,
+	};
+
+	void setStatus(u32 flag) { unk10 |= flag; }
+	void setInvisibleParticleFlag() { setStatus(FLAG_INVISIBLE); }
+	void setDeleteParticleFlag() { setStatus(FLAG_DELETE); }
+
+	bool checkStatus(u32 flag) const { return (unk10 & flag) ? true : false; }
+	bool isInvisibleParticle() { return checkStatus(FLAG_INVISIBLE); }
 };
 
 class JPAParticle : public JPABaseParticle {
@@ -107,8 +122,8 @@ public:
 	/* 0x7C */ f32 mAirResistance;
 	/* 0x80 */ f32 mDragForce;
 	/* 0x84 */ f32 mCurrentDragForce;
-	/* 0x88 */ JGeometry::TVec3<f32> mVelocity;
-	/* 0x94 */ JGeometry::TVec3<f32> mAcceleration;
+	/* 0x88 */ JGeometry::TVec3<f32> mFieldVelocity;
+	/* 0x94 */ JGeometry::TVec3<f32> mFieldAcceleration;
 	/* 0xA0 */ JPADrawParams mDrawParams;
 
 public:
@@ -120,9 +135,15 @@ public:
 	virtual void setVelocity();
 	virtual bool checkCreateChildParticle();
 
-	virtual JGeometry::TVec3<f32>& accessFVelVec() { return mVelocity; }
-	virtual JGeometry::TVec3<f32>& accessFAccVec() { return mAcceleration; }
-	virtual void getBaseVelVec(JGeometry::TVec3<float>&) const;
+	virtual JGeometry::TVec3<f32>& accessFVelVec() { return mFieldVelocity; }
+	virtual JGeometry::TVec3<f32>& accessFAccVec()
+	{
+		return mFieldAcceleration;
+	}
+	virtual void getBaseVelVec(JGeometry::TVec3<float>& out) const
+	{
+		out.set(mBaseVelocity);
+	}
 	virtual JGeometry::TVec3<f32>& accessBaseVelVec() { return mBaseVelocity; }
 	virtual void setBaseVelVec(const JGeometry::TVec3<float>& v)
 	{

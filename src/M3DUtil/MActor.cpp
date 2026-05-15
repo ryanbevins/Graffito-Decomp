@@ -8,6 +8,8 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DMaterialAnm.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <MarioUtil/DrawUtil.hpp>
+#include <Camera/CubeManagerBase.hpp>
+#include <Map/MapData.hpp>
 
 MActor::MActor(MActorAnmData* param_1)
 {
@@ -153,17 +155,16 @@ void MActor::setModel(J3DModel* param_1, u32 param_2)
 
 bool MActor::isCurAnmAlreadyEnd(int param_1)
 {
-	bool ret = true;
+	bool result = true;
 
 	J3DFrameCtrl* ctrl = getFrameCtrl(param_1);
 	if (ctrl) {
-		if (!ctrl->checkFlag(1) && !ctrl->checkFlag(2))
-			ret = false;
-		if (!ret && !(ctrl->mCurrentFrame + 0.1f >= ctrl->mEndFrame))
-			ret = false;
+		result = ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+		         || ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+		         || ctrl->getFrame() + 0.1f >= ctrl->getEnd();
 	}
 
-	return ret;
+	return result;
 }
 
 BOOL MActor::curAnmEndsNext(int anm_idx, char* part_name)
@@ -315,7 +316,28 @@ void MActor::setLightID(short light_id)
 	unk3C = light_id;
 }
 
-void MActor::setLightData(const TBGCheckData*, const JGeometry::TVec3<f32>&) { }
+void MActor::setLightData(const TBGCheckData* param_1,
+                          const JGeometry::TVec3<f32>& param_2)
+{
+	if (unk40 == 0)
+		return;
+
+	if (gpCubeShadow != nullptr && gpCubeShadow->getInCubeNo(param_2) != -1) {
+		unk3C = 1;
+		return;
+	}
+
+	if (param_1 == nullptr)
+		return;
+
+	unk3C = 0;
+	if (param_1->isShadow()) {
+		s16 data = param_1->getData();
+
+		unk3C = 0;
+		unk3C = data;
+	}
+}
 
 void MActor::setLightType(int param_1)
 {
@@ -378,7 +400,7 @@ void MActor::perform(u32 param_1, JDrama::TGraphics* param_2)
 		entry();
 }
 
-bool MActor::checkCurAnm(const char* param_1, int param_2)
+BOOL MActor::checkCurAnm(const char* param_1, int param_2)
 {
 	if (!unk28[param_2])
 		return false;
@@ -440,7 +462,7 @@ void MActor::setFrameRate(float param_1, int param_2)
 	if (!unk28[param_2])
 		return;
 
-	unk28[param_2]->unk4.setSpeed(param_1);
+	unk28[param_2]->unk4.setRate(param_1);
 }
 
 void MActor::setBck(const char* name)

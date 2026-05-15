@@ -8,6 +8,10 @@ class J2DTextBox;
 class JMSMesgEntry;
 class TBaseNPC;
 
+class TTalk2D2;
+
+extern TTalk2D2* gpTalk2D;
+
 class TTalk2D2 : public JDrama::TViewObj {
 public:
 	TTalk2D2(const char* name = "<TTalk2D2>");
@@ -39,6 +43,13 @@ public:
 	void openWindow(s8, f32);
 
 	static void* cColorTable;
+
+	int getTalkMode() const { return unk248; }
+
+public:
+	/* 0x10 */ char unk10[0x248 - 0x10];
+	/* 0x248 */ u32 unk248; // talk mode
+	/* 0x24C */ char unk24C[0x344 - 0x24C];
 };
 
 #endif

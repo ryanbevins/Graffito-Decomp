@@ -121,10 +121,10 @@ void TCoasterEnemy::moveCoaster()
 		right.normalize();
 
 		JGeometry::TQuat4<f32> tiltQuat;
-		tiltQuat.setRotate(right, PI / 2.0f);
+		tiltQuat.setRotate(right, M_PI / 2.0f);
 
 		JGeometry::TVec3<f32> curUp;
-		tiltQuat.transform(forward, curUp);
+		tiltQuat.rotate(forward, curUp);
 
 		steer.setRotate(up, curUp, 0.1f);
 		mQuat.mul(steer);
@@ -137,8 +137,7 @@ void TCoasterEnemy::calcRootMatrix()
 {
 	TPosition3f pos;
 
-	pos.setQuat(mQuat);
-	pos.setTrans(mPosition);
+	pos.setQT(mQuat, mPosition);
 	getModel()->setBaseScale(mScaling);
 	getModel()->setBaseTRMtx(pos);
 }
@@ -220,8 +219,7 @@ void TCoasterKiller::perform(u32 param_1, JDrama::TGraphics* param_2)
 	TCoasterEnemy::perform(param_1, param_2);
 
 	if ((param_1 * 2) && (param_1 & 1) == 0) {
-		mParticlePos.setQuat(getQuat());
-		mParticlePos.setTrans(mPosition);
+		mParticlePos.setQT(getQuat(), mPosition);
 		gpMarioParticleManager->emitAndBindToMtxPtr(0x174, mParticlePos.mMtx, 1,
 		                                            this);
 
@@ -349,7 +347,7 @@ DEFINE_NERVE(TNerveCoasterKillerExplosion, TLiveActor)
 	if (self->unk190 < self->get1AC()) {
 		self->unk190 *= 1.3f;
 	} else {
-		self->onHitFlag(HIT_FLAG_UNK1);
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
 		if (self->checkCurAnmEnd(0)) {
 			self->onLiveFlag(LIVE_FLAG_DEAD);
 			self->onLiveFlag(LIVE_FLAG_UNK8);

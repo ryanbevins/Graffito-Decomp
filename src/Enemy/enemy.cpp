@@ -7,6 +7,7 @@
 #include <Player/MarioAccess.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/MtxUtil.hpp>
 #include <Strategic/Spine.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -175,7 +176,7 @@ void TSpineEnemy::resetToPosition(const JGeometry::TVec3<f32>& position)
 	offLiveFlag(LIVE_FLAG_DEAD);
 	reset();
 	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
-	offHitFlag(HIT_FLAG_UNK1);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 	mVelocity = JGeometry::TVec3<f32>(0.0f, 5.0f, 0.0f);
 	onLiveFlag(LIVE_FLAG_UNK8000);
 	onLiveFlag(LIVE_FLAG_AIRBORNE);
@@ -194,7 +195,7 @@ void TSpineEnemy::resetSRTV(const JGeometry::TVec3<f32>& position,
 	mRotation  = rotation;
 	mScaling   = scaling;
 	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
-	offHitFlag(HIT_FLAG_UNK1);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 	mVelocity = velocity;
 	onLiveFlag(LIVE_FLAG_UNK8000);
 	onLiveFlag(LIVE_FLAG_AIRBORNE);
@@ -248,12 +249,12 @@ void TSpineEnemy::updateSquareToMario()
 
 BOOL TSpineEnemy::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == 4 && mHolder == nullptr) {
+	if (message == HIT_MESSAGE_TAKE && mHolder == nullptr) {
 		mHolder = (TTakeActor*)sender;
 		return true;
 	}
 
-	if (message <= 2) {
+	if (message <= HIT_MESSAGE_UNK2) {
 		kill();
 		return true;
 	}
@@ -605,11 +606,11 @@ f32 TSpineEnemy::getCurAnmFrameNo(int param_1) const
 	int iVar1             = getMActor()->getCurAnmIdx(param_1);
 	TSharedMActorSet* set = mgr->getSharedMActorSet(iVar1);
 	if (set == nullptr) {
-		return getMActor()->getFrameCtrl(param_1)->getCurrentFrame();
+		return getMActor()->getFrameCtrl(param_1)->getFrame();
 	} else {
 		return set->getMActor(getInstanceIndex())
 		    ->getFrameCtrl(param_1)
-		    ->getCurrentFrame();
+		    ->getFrame();
 	}
 }
 
@@ -633,7 +634,7 @@ void TSpineEnemy::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 	if (mgr != nullptr) {
 		if ((param_1 & 2)
-		    && !checkLiveFlag(LIVE_FLAG_UNK2 | LIVE_FLAG_CLIPPED_OUT)
+		    && !checkLiveFlag(LIVE_FLAG_HIDDEN | LIVE_FLAG_CLIPPED_OUT)
 		    && TEnemyManager::mIsCopyAnmMtx && mgr->unk4C >= 0) {
 			if (checkLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_UNK200))
 				return;
@@ -643,7 +644,7 @@ void TSpineEnemy::perform(u32 param_1, JDrama::TGraphics* param_2)
 		}
 	} else {
 		if ((param_1 & 2)
-		    && !checkLiveFlag(LIVE_FLAG_UNK2 | LIVE_FLAG_CLIPPED_OUT)
+		    && !checkLiveFlag(LIVE_FLAG_HIDDEN | LIVE_FLAG_CLIPPED_OUT)
 		    && checkLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_UNK200)) {
 			return;
 		}

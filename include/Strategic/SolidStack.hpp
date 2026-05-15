@@ -37,8 +37,13 @@ public:
 		}
 	}
 
+	// fabricated and wrong
+	T top() const { return operator[](mSize - 1); }
+	// fabricated and wrong
+	T operator[](int index) const { return mData[index]; }
+
 	// fabricated
-	bool contain(const T& value) const
+	BOOL contain(const T& value) const
 	{
 		for (int i = 0; i < mSize; ++i)
 			if (mData[mSize - 1 - i] == value)

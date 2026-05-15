@@ -9,12 +9,15 @@
 #include <JSystem/JAudio/JASystem/JASWaveArcLoader.hpp>
 #include <JSystem/JAudio/JAInterface/JAISound.hpp>
 #include <JSystem/JAudio/JAInterface/JAIBasic.hpp>
+#include <MSound/MSoundSE.hpp>
 
 class JAIActor;
 class JAICamera;
 class JAIAnimeFrameSoundData;
 
 enum MS_SCENE_WAVE {
+	MS_WAVE_UNK0         = 0,
+	MS_WAVE_UNK128       = 128,
 	MS_WAVE_DEFAULT      = 256,
 	MS_WAVE_DOLPIC       = 513,
 	MS_WAVE_BIANCO       = 514,
@@ -26,6 +29,7 @@ enum MS_SCENE_WAVE {
 	MS_WAVE_SHILENA      = 519,
 	MS_WAVE_RICO         = 520,
 	MS_WAVE_CLEAR        = 521,
+	MS_WAVE_UNK528       = 528,
 };
 
 class MSSeCallBack {
@@ -68,7 +72,7 @@ public:
 	void enterStage(MS_SCENE_WAVE, u8, u8);
 	void loadWave(MS_SCENE_WAVE);
 	void cleanUpAramWave(u8);
-	BOOL checkWaveOnAram(MS_SCENE_WAVE);
+	bool checkWaveOnAram(MS_SCENE_WAVE);
 	bool checkSeqOnMemory(u32);
 
 	void stopAllSound();
@@ -110,11 +114,58 @@ public:
 	static u32 getSwitch(u32, u32, u32);
 	bool gateCheck(u32);
 
-	void resetAudioAll(u16);
+	bool resetAudioAll(u16);
+
+	// real
+	void startSoundSystemSE(u32 param_1, u32 param_2, JAISound** param_3,
+	                        u32 param_4)
+	{
+		if (gateCheck(param_1))
+			MSoundSESystem::MSoundSE::startSoundSystemSE(param_1, param_2,
+			                                             param_3, param_4);
+	}
+	// TODO: startSoundActor was also very likely here
+
+	void startForceJumpSound(Vec*, u32, f32, u32);
 };
+
+void MSound::startForceJumpSound(Vec* pos, u32 groundType, f32 height,
+                                 u32 dist)
+{
+	u32 soundID;
+	u8 type = (u8)groundType;
+
+	switch (type) {
+	case 21:
+	case 23:
+	case 29:
+		soundID = 0x180A;
+		break;
+	case 30:
+	default:
+		if (dist < 6000) {
+			soundID = 0x1810;
+		} else if (dist < 12000) {
+			soundID = 0x1811;
+		} else {
+			soundID = 0x1812;
+		}
+		break;
+	}
+
+	if (gateCheck(soundID)) {
+		if (gateCheck(soundID)) {
+			MSoundSESystem::MSoundSE::startSoundActor(soundID, pos, 0,
+			                                          (JAISound**)NULL, 0, 4);
+		}
+	}
+}
 
 extern MSound* MSGMSound;
 extern JAIBasic* MSGBasic;
 extern MSound* gpMSound;
+
+// real
+MSound* SMSGetMSound() { return gpMSound; }
 
 #endif // MSOUND_HPP

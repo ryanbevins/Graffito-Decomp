@@ -7,8 +7,8 @@ BOOL TMario::taking()
 	}
 
 	setAnimation(0x6B, 1.0f);
-	if (unk384 != nullptr && unk3A8->getFrameCtrl()->checkPass(11.0f)) {
-		if (unk384->receiveMessage(this, 0x4) == true) {
+	if (unk384 != nullptr && mModel->getFrameCtrl(0).checkPass(11.0f)) {
+		if (unk384->receiveMessage(this, HIT_MESSAGE_TAKE) == true) {
 			startVoice(0x788F);
 			mHeldObject = (TTakeActor*)unk384;
 		} else {
@@ -17,7 +17,7 @@ BOOL TMario::taking()
 		unk384 = nullptr;
 	}
 	if (isLast1AnimeFrame()) {
-		unk380 = 2;
+		mPumpState = 2;
 		unk37E = 0;
 		return changePlayerStatus(0xC400201, 0, false);
 	} else {
@@ -76,8 +76,8 @@ BOOL TMario::actnMain()
 		} else {
 			stopCommon(0x6E, 0xC400201);
 			if (mHeldObject != nullptr
-			    && unk3A8->getFrameCtrl()->checkPass(20.0f)) {
-				mHeldObject->receiveMessage(this, 0x6);
+			    && mModel->getFrameCtrl(0).checkPass(20.0f)) {
+				mHeldObject->receiveMessage(this, HIT_MESSAGE_UNK6);
 				mHeldObject = nullptr;
 			}
 			result = FALSE;

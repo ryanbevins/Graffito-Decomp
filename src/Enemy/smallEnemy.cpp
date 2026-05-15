@@ -175,7 +175,7 @@ void TSmallEnemy::init(TLiveManager* param_1)
 	onLiveFlag(LIVE_FLAG_DEAD);
 	if (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 0)
 		onLiveFlag(LIVE_FLAG_UNK2000);
-	onHitFlag(HIT_FLAG_UNK1);
+	onHitFlag(HIT_FLAG_NO_COLLISION);
 	unk158 = 1.0f;
 
 	// TODO: are these f32 pairs some kind of rng interval class?
@@ -275,7 +275,7 @@ void TSmallEnemy::reset()
 	offLiveFlag(LIVE_FLAG_DEAD);
 	offLiveFlag(LIVE_FLAG_UNK20000);
 	offLiveFlag(LIVE_FLAG_UNK10000);
-	offLiveFlag(LIVE_FLAG_UNK2);
+	offLiveFlag(LIVE_FLAG_HIDDEN);
 
 	if (getSaveParam2()->mSLGenerateOnlyDead.get())
 		offLiveFlag(LIVE_FLAG_UNK800);
@@ -284,7 +284,7 @@ void TSmallEnemy::reset()
 
 	unk124->mPrevIdx = -1;
 	goToShortestNextGraphNode();
-	offHitFlag(HIT_FLAG_UNK1);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 	mSpine->reset();
 	mSpine->pushAfterCurrent(mSpine->getDefault());
 	mScaling.set(mBodyScale, mBodyScale, mBodyScale);
@@ -529,22 +529,24 @@ void TSmallEnemy::updateAnmSound() { TSpineEnemy::updateAnmSound(); }
 
 BOOL TSmallEnemy::receiveMessage(THitActor* sender, u32 message)
 {
-	if (isEatenByYosshi() && message == 4 && !mHolder) {
-		onHitFlag(HIT_FLAG_UNK1);
+	if (isEatenByYosshi() && message == HIT_MESSAGE_TAKE && !mHolder) {
+		onHitFlag(HIT_FLAG_NO_COLLISION);
 		mHolder = (TTakeActor*)sender;
 		behaveToTaken(sender);
 		return true;
 	}
 
-	if ((message == 6 || message == 7) && mHolder == sender) {
+	if ((message == HIT_MESSAGE_UNK6 || message == HIT_MESSAGE_UNK7)
+	    && mHolder == sender) {
 		mHolder = nullptr;
 		behaveToRelease();
-		offHitFlag(HIT_FLAG_UNK1);
+		offHitFlag(HIT_FLAG_NO_COLLISION);
 		return true;
 	}
 
-	if (message == 0 || message == 1 || message == 3 || message == 11
-	    || (mActorType == 0x10000021 && message == 0xC)) {
+	if (message == HIT_MESSAGE_TRAMPLE || message == HIT_MESSAGE_HIP_DROP
+	    || message == HIT_MESSAGE_UNK3 || message == HIT_MESSAGE_UNKB
+	    || (mActorType == 0x10000021 && message == HIT_MESSAGE_PUNCH)) {
 		if (isHitValid(message)) {
 			unk184 = 0;
 			kill();
@@ -552,10 +554,10 @@ BOOL TSmallEnemy::receiveMessage(THitActor* sender, u32 message)
 		return true;
 	}
 
-	if (message == 13) {
+	if (message == HIT_MESSAGE_UNKD) {
 		mHitPoints = 0;
 		onLiveFlag(LIVE_FLAG_DEAD);
-		onHitFlag(HIT_FLAG_UNK1);
+		onHitFlag(HIT_FLAG_NO_COLLISION);
 	}
 
 	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
@@ -596,9 +598,9 @@ bool TSmallEnemy::changeByJuice()
 		mJuiceBlock->mRotation.set(0.0f, mRotation.y, 0.0f);
 
 		mJuiceBlock->unk14C = this;
-		mJuiceBlock->offLiveFlag(LIVE_FLAG_UNK2);
-		onHitFlag(HIT_FLAG_UNK1);
-		onLiveFlag(LIVE_FLAG_UNK2);
+		mJuiceBlock->offLiveFlag(LIVE_FLAG_HIDDEN);
+		onHitFlag(HIT_FLAG_NO_COLLISION);
+		onLiveFlag(LIVE_FLAG_HIDDEN);
 		onLiveFlag(LIVE_FLAG_UNK10);
 
 		mSpine->pushNerve(&TNerveSmallEnemyChange::theNerve());
@@ -651,9 +653,9 @@ bool TSmallEnemy::changeMove()
 		if (mSpine->getTime() > TSmallEnemyManager::mBlockWaitTime) {
 			if (mSpine->getTime() > getChangeBlockTime() - 200) {
 				if (mSpine->getTime() % 20 < 10) {
-					mJuiceBlock->onLiveFlag(LIVE_FLAG_UNK2);
+					mJuiceBlock->onLiveFlag(LIVE_FLAG_HIDDEN);
 				} else {
-					mJuiceBlock->offLiveFlag(LIVE_FLAG_UNK2);
+					mJuiceBlock->offLiveFlag(LIVE_FLAG_HIDDEN);
 				}
 			}
 
@@ -772,7 +774,7 @@ void TSmallEnemy::decHpByWater(THitActor* param_1)
 
 void TSmallEnemy::kill()
 {
-	if (!checkLiveFlag(LIVE_FLAG_DEAD))
+	if (checkLiveFlag(LIVE_FLAG_DEAD))
 		return;
 
 	mHitPoints = 1;
@@ -780,9 +782,9 @@ void TSmallEnemy::kill()
 		mSpine->reset();
 		mSpine->setNext(&TNerveSmallEnemyDie::theNerve());
 		mSpine->pushAfterCurrent(&TNerveSmallEnemyDie::theNerve());
-
-		onLiveFlag(LIVE_FLAG_UNK40);
 	}
+
+	onLiveFlag(LIVE_FLAG_UNK40);
 }
 
 bool TSmallEnemy::isFindMario(float param_1)
@@ -924,7 +926,7 @@ bool TSmallEnemy::isHitWallInBound()
 		mRotation.y = sVar2;
 
 		onLiveFlag(LIVE_FLAG_UNK10);
-		onHitFlag(HIT_FLAG_UNK1);
+		onHitFlag(HIT_FLAG_NO_COLLISION);
 
 		return true;
 	}
@@ -980,7 +982,7 @@ DEFINE_NERVE(TNerveSmallEnemyDie, TLiveActor)
 		self->decHitPoints();
 
 		if (self->getHitPoints() == 0) {
-			self->onHitFlag(HIT_FLAG_UNK1);
+			self->onHitFlag(HIT_FLAG_NO_COLLISION);
 			if (self->getGroundPlane()->isWaterSurface() && !self->isAirborne())
 				self->generateEffectColumWater();
 		}
@@ -1012,13 +1014,13 @@ DEFINE_NERVE(TNerveSmallEnemyDie, TLiveActor)
 
 	if (self->checkCurAnmEnd(0)
 	        && spine->getTime()
-	               > uVar8 + self->getMActor()->getFrameCtrl(0)->getEndFrame()
+	               > uVar8 + self->getMActor()->getFrameCtrl(0)->getEnd()
 	    || spine->getTime() > 360 || self->getUnk184() != 0) {
 		self->genRandomItem();
-		self->onHitFlag(HIT_FLAG_UNK1);
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
 		self->onLiveFlag(LIVE_FLAG_DEAD);
 		self->onLiveFlag(LIVE_FLAG_UNK8);
-		self->offLiveFlag(LIVE_FLAG_UNK2);
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
 		self->offLiveFlag(LIVE_FLAG_UNK10000);
 		self->mHolder = nullptr;
 		self->stopAnmSound();

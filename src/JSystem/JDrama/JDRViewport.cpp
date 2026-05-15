@@ -22,9 +22,7 @@ void TViewport::perform(u32 param_1, TGraphics* param_2)
 
 	TRect rect(param_2->getUnk44());
 	rect.intersect(unk10);
-	param_2->unk64 = rect;
-	GXSetScissor(param_2->unk64.x1, param_2->unk64.y1,
-	             param_2->unk64.getWidth(), param_2->unk64.getHeight());
+	param_2->setScissor(rect);
 }
 
 void TViewport::load(JSUMemoryInputStream& stream)

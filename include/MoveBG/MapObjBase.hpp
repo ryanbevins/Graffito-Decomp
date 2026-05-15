@@ -225,7 +225,7 @@ public:
 	                           const JGeometry::TVec3<f32>&,
 	                           const JGeometry::TVec3<f32>&);
 	void emitColumnWater();
-	void marioHipAttack() const;
+	bool marioHipAttack() const;
 	bool marioHeadAttack() const;
 	bool marioIsOn() const;
 	static bool marioIsOn(const TLiveActor*);

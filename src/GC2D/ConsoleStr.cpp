@@ -12,6 +12,7 @@
 #include <JSystem/J2D/J2DOrthoGraph.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JParticle/JPAEmitterManager.hpp>
+#include <JSystem/JUtility/JUTResFont.hpp>
 #include <dolphin/gx/GXCull.h>
 #include <stdio.h>
 
@@ -218,9 +219,9 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 	}
 
 	if ((param_1 & 0x8) && unk2B8 != 0) {
-		const JDrama::TRect& rect = param_2->getUnk64();
+		const JDrama::TRect& rect = param_2->getScissor();
 
-		J2DOrthoGraph local_1a0(param_2->getUnk54());
+		J2DOrthoGraph local_1a0(param_2->getViewport());
 		local_1a0.setup2D();
 
 		if (unk2B8 == 1 && unk18 > 60.0f) {
@@ -260,9 +261,7 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 		}
 
 		local_1a0.setup2D();
-		param_2->unk64 = rect;
-		GXSetScissor(param_2->unk64.x1, param_2->unk64.y1,
-		             param_2->unk64.getWidth(), param_2->unk64.getHeight());
+		param_2->setScissor(rect);
 	}
 }
 
@@ -349,9 +348,9 @@ void TConsoleStr::startAppearScenario()
 	}
 
 	unk290[0]->setPaneOffset(0x1E, 0.0f, 0.0f, 0.0f,
-	                         -(unk290[0]->getUnk4().y2 + 1));
+	                         -(unk290[0]->getInitialBounds().y2 + 1));
 	unk290[1]->setPaneOffset(0x1E, 0.0f, 0.0f, 0.0f,
-	                         465 - unk290[1]->getUnk4().y1);
+	                         465 - unk290[1]->getInitialBounds().y1);
 }
 
 #pragma dont_inline on
@@ -611,7 +610,7 @@ void TConsoleStr::startCloseWipe(bool param_1)
 		unk290[0]->setPaneAlpha(30, 100, 255);
 
 		unk290[1]->setPaneOffset(0x2D, 0, 224 - local_74.y1, 0,
-		                         465 - unk290[1]->unk4.y1);
+		                         465 - unk290[1]->getInitialBounds().y1);
 		unk290[1]->setPaneSize(0x2D, local_74.getWidth(), 0,
 		                       local_74.getHeight(), 0);
 		unk290[1]->setPaneAlpha(30, 100, 255);
@@ -627,7 +626,7 @@ void TConsoleStr::startCloseWipe(bool param_1)
 		unk290[0]->setPaneAlpha(30, 100, 255);
 
 		unk290[1]->setPaneOffset(0x2D, 0, 224 - local_88.y1, 0,
-		                         465 - unk290[1]->unk4.y1);
+		                         465 - unk290[1]->getInitialBounds().y1);
 		unk290[1]->setPaneSize(0x2D, local_88.getWidth(), 0,
 		                       local_88.getHeight(), 0);
 		unk290[1]->setPaneAlpha(30, 100, 255);

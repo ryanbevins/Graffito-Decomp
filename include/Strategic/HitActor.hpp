@@ -4,6 +4,7 @@
 #include <JSystem/JDrama/JDRActor.hpp>
 
 enum TActorTypeBits {
+	ACTOR_TYPE_UNK4000000  = 0x4000000,
 	ACTOR_TYPE_BOSS        = 0x8000000,
 	ACTOR_TYPE_ENEMY       = 0x10000000,
 	ACTOR_TYPE_UNK40000000 = 0x40000000,
@@ -13,19 +14,31 @@ enum TActorTypeBits {
 };
 
 enum THitMessageType {
+	HIT_MESSAGE_TRAMPLE          = 0,
 	HIT_MESSAGE_HIP_DROP         = 1,
+	HIT_MESSAGE_UNK2             = 2,
+	HIT_MESSAGE_UNK3             = 3,
+	HIT_MESSAGE_TAKE             = 4,
+	HIT_MESSAGE_UNK5             = 5,
+	HIT_MESSAGE_UNK6             = 6,
 	HIT_MESSAGE_UNK7             = 7,
-	HIT_MESSAGE_ATTACK           = 14,
-	HIT_MESSAGE_SPRAYED_BY_WATER = 15,
+	HIT_MESSAGE_UNK8             = 8,
+	HIT_MESSAGE_UNKA             = 0xA,
+	HIT_MESSAGE_UNKB             = 0xB,
+	HIT_MESSAGE_PUNCH            = 0xC,
+	HIT_MESSAGE_UNKD             = 0xD,
+	HIT_MESSAGE_ATTACK           = 0xE, // TODO: attack -> touch?!
+	HIT_MESSAGE_SPRAYED_BY_WATER = 0xF,
+	HIT_MESSAGE_UNK10            = 0x10,
 };
 
 enum THitFlagBits {
-	HIT_FLAG_UNK1        = 0x1,
-	HIT_FLAG_UNK2        = 0x2,
-	HIT_FLAG_UNK4        = 0x4,
-	HIT_FLAG_UNK8000000  = 0x8000000,
-	HIT_FLAG_UNK10000000 = 0x10000000,
-	HIT_FLAG_UNK40000000 = 0x40000000,
+	HIT_FLAG_NO_COLLISION = 0x1,
+	HIT_FLAG_UNK2         = 0x2,
+	HIT_FLAG_UNK4         = 0x4,
+	HIT_FLAG_UNK8000000   = 0x8000000,
+	HIT_FLAG_UNK10000000  = 0x10000000,
+	HIT_FLAG_UNK40000000  = 0x40000000,
 };
 
 class THitActor : public JDrama::TActor {
@@ -95,6 +108,21 @@ public:
 		mDamageHeight = v;
 		calcEntryRadius();
 	}
+	void setDamageParams(f32 damage_radius, f32 damage_height)
+	{
+		mDamageRadius = damage_radius;
+		mDamageHeight = damage_height;
+		calcEntryRadius();
+	}
+	void setHitParams(f32 attack_radius, f32 attack_height, f32 damage_radius,
+	                  f32 damage_height)
+	{
+		mAttackRadius = attack_radius;
+		mAttackHeight = attack_height;
+		mDamageRadius = damage_radius;
+		mDamageHeight = damage_height;
+		calcEntryRadius();
+	}
 	f32 getEntryRadius() const { return mEntryRadius; }
 
 public:
@@ -102,11 +130,11 @@ public:
 	/* 0x48 */ u16 mColCount;
 	/* 0x4A */ u16 mColCapacity;
 	/* 0x4C */ u32 mActorType;
-	/* 0x50 */ float mAttackRadius;
-	/* 0x54 */ float mAttackHeight;
-	/* 0x58 */ float mDamageRadius;
-	/* 0x5C */ float mDamageHeight;
-	/* 0x60 */ float mEntryRadius;
+	/* 0x50 */ f32 mAttackRadius;
+	/* 0x54 */ f32 mAttackHeight;
+	/* 0x58 */ f32 mDamageRadius;
+	/* 0x5C */ f32 mDamageHeight;
+	/* 0x60 */ f32 mEntryRadius;
 	/* 0x64 */ u32 unk64;
 };
 

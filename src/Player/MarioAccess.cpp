@@ -11,7 +11,7 @@ f32 *gpMarioSpeedX, *gpMarioSpeedY, *gpMarioSpeedZ;
 u16* gpMarioLightID;
 u32* gpMarioFlag;
 f32* gpMarioThrowPower;
-TBGCheckData** gpMarioGroundPlane;
+const TBGCheckData** gpMarioGroundPlane;
 
 bool SMS_IsMarioRoofing()
 {
@@ -45,11 +45,20 @@ bool SMS_IsMarioFencing()
 
 u32 SMS_GetMarioStatus(THitActor* actor) { return ((TMario*)actor)->mAction; }
 
-TBGCheckData* SMS_GetMarioRfPlane() { return gpMarioOriginal->mRoofPlane; }
+const TBGCheckData* SMS_GetMarioRfPlane()
+{
+	return gpMarioOriginal->mRoofPlane;
+}
 
-TBGCheckData* SMS_GetMarioWlPlane() { return gpMarioOriginal->mWallPlane; }
+const TBGCheckData* SMS_GetMarioWlPlane()
+{
+	return gpMarioOriginal->mWallPlane;
+}
 
-TBGCheckData* SMS_GetMarioGrPlane() { return gpMarioOriginal->mGroundPlane; }
+const TBGCheckData* SMS_GetMarioGrPlane()
+{
+	return gpMarioOriginal->mGroundPlane;
+}
 
 u32 SMS_GetMarioStatus() { return gpMarioOriginal->mAction; }
 
@@ -77,7 +86,7 @@ bool SMS_IsMarioDashing()
 {
 	bool ret;
 
-	if ((gpMarioOriginal->unk118 & 0x4000) != 0) {
+	if ((gpMarioOriginal->mState & 0x4000) != 0) {
 		ret = true;
 	} else {
 		ret = false;
@@ -215,7 +224,7 @@ TLiveActor* SMS_GetMarioLiveActor() { return (TLiveActor*)gpMarioAddress; }
 
 THitActor* SMS_GetMarioHitActor() { return (THitActor*)gpMarioAddress; }
 
-u32 SMS_AskJumpIntoWaterEffectExist() // bool?
+bool SMS_AskJumpIntoWaterEffectExist()
 {
 	return gpMarioOriginal->askJumpIntoWaterEffectExist();
 }
@@ -244,7 +253,7 @@ void SMS_SetMarioAccessParams()
 	gpMarioSpeedZ = speed + 2;
 
 	gpMarioLightID = &gpMarioOriginal->mLightID;
-	gpMarioFlag    = &gpMarioOriginal->unk118;
+	gpMarioFlag    = &gpMarioOriginal->mState;
 
 	gpMarioThrowPower  = &gpMarioOriginal->mDeParams.mThrowPower.value;
 	gpMarioGroundPlane = &gpMarioOriginal->mGroundPlane;

@@ -48,7 +48,7 @@ void TBGPolDrop::move()
 			unk44.zero();
 			if (!unk50->checkCurBckFromIndex(12)) {
 				unk50->setBckFromIndex(12);
-				unk50->setBckFromIndex(13);
+				unk54->setBckFromIndex(13);
 			}
 
 			gpMarioParticleManager->emit(0x9E, &local_14, 0, nullptr);

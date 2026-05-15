@@ -198,7 +198,7 @@ TBGTakeHit::TBGTakeHit(TBGTentacle* owner, const char* name)
 	initHitActor(0x8000006, 1, -0x80000000, pTVar3->mAttackRadius.get(),
 	             pTVar3->mAttackHeight.get(), pTVar3->mDamageRadius.get(),
 	             pTVar3->mDamageHeight.get());
-	offHitFlag(HIT_FLAG_UNK1);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 	unk74.zero();
 }
 
@@ -359,13 +359,13 @@ void TBGTakeHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 				else if (mOwner->mOwner->getAttackMode() == 4)
 					mOwner->throwMario(col, mOwner->mOwner);
 				else
-					col->receiveMessage(this, 0xE);
+					col->receiveMessage(this, HIT_MESSAGE_ATTACK);
 			}
 		}
 
 		if (mOwner->getState() != 3 && mOwner->getState() != 4
 		    && mHolder != nullptr)
-			mHolder->receiveMessage(this, 0x8);
+			mHolder->receiveMessage(this, HIT_MESSAGE_UNK8);
 	}
 }
 
@@ -379,7 +379,7 @@ TBGAttackHit::TBGAttackHit(TBGTentacle* owner, f32 pos_on_spline,
 	    ->getChildren()
 	    .push_back(this);
 	initHitActor(0x8000007, 1, -0x80000000, 50.0f, 50.0f, 50.0f, 50.0f);
-	offHitFlag(HIT_FLAG_UNK1);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 void TBGAttackHit::perform(u32 param_1, JDrama::TGraphics* param_2)
@@ -401,7 +401,7 @@ void TBGAttackHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 				else if (mOwner->mOwner->getAttackMode() == 4)
 					mOwner->throwMario(col, mOwner->mOwner);
 				else
-					col->receiveMessage(this, 0xE);
+					col->receiveMessage(this, HIT_MESSAGE_ATTACK);
 			}
 		}
 	}
@@ -728,7 +728,7 @@ void TBGTentacle::setAttackTarget()
 	}
 
 	J3DFrameCtrl* ctrl = unk80->getFrameCtrl(0);
-	ctrl->setSpeed(mOwner->getAttackSpeed() * SMSGetAnmFrameRate());
+	ctrl->setRate(mOwner->getAttackSpeed() * SMSGetAnmFrameRate());
 	unk4C = 0;
 }
 
@@ -811,9 +811,9 @@ void TBGTentacle::changeStateAndFixNodes(int new_state)
 	}
 
 	if (mState == 6)
-		mTakeHit->onHitFlag(HIT_FLAG_UNK1);
+		mTakeHit->onHitFlag(HIT_FLAG_NO_COLLISION);
 	else
-		mTakeHit->offHitFlag(HIT_FLAG_UNK1);
+		mTakeHit->offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	if (mState == 9)
 		mTakeHit->onHitFlag(HIT_FLAG_UNK2);
@@ -1075,7 +1075,7 @@ void TBGTentacle::decideOwnState()
 		if (mTimeInCurrentState >= amputeeTime - 240
 		    && mTakeHit->getHolder() != nullptr) {
 			TTakeActor* holder = mTakeHit->getHolder();
-			holder->receiveMessage(mTakeHit, 8);
+			holder->receiveMessage(mTakeHit, HIT_MESSAGE_UNK8);
 		}
 		break;
 	}
@@ -1100,7 +1100,7 @@ void TBGTentacle::calcAtkParticleAndSE()
 {
 	if ((unk80->checkCurBckFromIndex(20) || unk80->checkCurBckFromIndex(23))
 	    && unk4C == 0) {
-		f32 frame = unk80->getFrameCtrl(0)->getCurrentFrame();
+		f32 frame = unk80->getFrameCtrl(0)->getFrame();
 		if ((unk80->checkCurBckFromIndex(20) && 118.0f <= frame
 		     && frame <= 160.0f)
 		    || (unk80->checkCurBckFromIndex(23) && 75.0f <= frame
@@ -1161,7 +1161,7 @@ void TBGTentacle::calcAtkParticleAndSE()
 	}
 
 	f32 atkSoundTime = mParams->mAtkSoundTime.get();
-	s16 endFrame     = unk80->getFrameCtrl(0)->getEndFrame();
+	s16 endFrame     = unk80->getFrameCtrl(0)->getEnd();
 	if (unk80->checkBckPass(endFrame - atkSoundTime)) {
 		if (mState != 10) {
 			const JGeometry::TVec3<f32>& p = mTakeHit->getPosition();
@@ -1185,7 +1185,7 @@ void TBGTentacle::decideAtkColExists()
 {
 	mTakeHit->onHitFlag(HIT_FLAG_UNK2);
 
-	f32 frame = unk80->getFrameCtrl(0)->getCurrentFrame();
+	f32 frame = unk80->getFrameCtrl(0)->getFrame();
 
 	BOOL shouldCollisionExist = false;
 
@@ -1329,7 +1329,8 @@ void TBGTentacle::calcAttackGuideAnm()
 void TBGTentacle::resetAllNodes(const JGeometry::TVec3<f32>& param_1)
 {
 	JGeometry::TVec3<f32> local_78 = param_1;
-	JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
+	JGeometry::TVec3<f32> zero;
+	zero.zero();
 
 	getFirstNode()->onUnk24();
 

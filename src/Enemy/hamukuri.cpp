@@ -244,7 +244,7 @@ void THamuKuriManager::setSearchHamuKuri()
 		if (!bVar6)
 			continue;
 
-		if (kuri->checkLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_UNK2
+		if (kuri->checkLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_HIDDEN
 		                        | LIVE_FLAG_CLIPPED_OUT))
 			continue;
 
@@ -575,7 +575,7 @@ void TFireHamuKuriManager::createModelData()
 void TDoroHige::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (!unk1C->isUnk198()
-	    || unk1C->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT | LIVE_FLAG_UNK2
+	    || unk1C->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT | LIVE_FLAG_HIDDEN
 	                            | LIVE_FLAG_DEAD))
 		return;
 
@@ -759,7 +759,7 @@ bool THamuKuri::isFindMario(f32 param_1)
 	if (unk198)
 		return false;
 
-	if (gpMarioOriginal->unk380 == 0
+	if (gpMarioOriginal->mPumpState == 0
 	    && !*(int*)((u8*)gpMarioOriginal->mWaterGun + 0x1C80) /* TODO: */) {
 		unk194 = unk1F4->mSLGiveUpLength.get();
 		unk194 *= 3.0f;
@@ -846,16 +846,16 @@ void THamuKuri::moveObject()
 	if (unk198) {
 		offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
 		if (!isAirborne()) {
-			if (checkLiveFlag(LIVE_FLAG_UNK2)) {
+			if (checkLiveFlag(LIVE_FLAG_HIDDEN)) {
 				mSpine->reset();
 				mSpine->setNext(&TNerveWalkerGenerate::theNerve());
 				TLiveActor* heldObj = (TLiveActor*)mHeldObject;
 				if (heldObj)
-					heldObj->onLiveFlag(LIVE_FLAG_UNK2);
+					heldObj->onLiveFlag(LIVE_FLAG_HIDDEN);
 			}
 
-			offLiveFlag(LIVE_FLAG_UNK2);
-			offHitFlag(HIT_FLAG_UNK1);
+			offLiveFlag(LIVE_FLAG_HIDDEN);
+			offHitFlag(HIT_FLAG_NO_COLLISION);
 		}
 	}
 
@@ -940,16 +940,16 @@ void THamuKuri::makeCapFly(TMapObjBase* param_1)
 		mPosition.y += 100.0f;
 		param_1->mPosition.y = mPosition.y;
 
-		if (param_1->receiveMessage(this, 0x4)) {
+		if (param_1->receiveMessage(this, HIT_MESSAGE_TAKE)) {
 			onLiveFlag(LIVE_FLAG_DEAD);
 		} else {
 			reset();
 			onHaveCap();
 			mHeldObject = param_1;
-			onLiveFlag(LIVE_FLAG_UNK2);
+			onLiveFlag(LIVE_FLAG_HIDDEN);
 			offLiveFlag(LIVE_FLAG_DEAD);
 			offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
-			onHitFlag(HIT_FLAG_UNK1);
+			onHitFlag(HIT_FLAG_NO_COLLISION);
 			getManager()->unk70 = this;
 
 			// TODO: this is an inline
@@ -980,7 +980,7 @@ void THamuKuri::makeCapFly(TMapObjBase* param_1)
 
 f32 THamuKuri::getGravityY() const
 {
-	if (checkLiveFlag(LIVE_FLAG_UNK2))
+	if (checkLiveFlag(LIVE_FLAG_HIDDEN))
 		return mCapGravityY;
 
 	if (mSpine->getCurrentNerve() == &TNerveWalkerGenerate::theNerve()
@@ -1044,13 +1044,13 @@ void THamuKuri::setWalkAnm() { setBckAnm(4); }
 void THamuKuri::setDeadAnm()
 {
 	if (unk198 && mHeldObject != nullptr
-	    && mHeldObject->receiveMessage(this, 6)) {
+	    && mHeldObject->receiveMessage(this, HIT_MESSAGE_UNK6)) {
 		TMapObjBase* heldObj = (TMapObjBase*)mHeldObject;
 		heldObj->mHolder     = nullptr;
-		heldObj->offLiveFlag(LIVE_FLAG_UNK2);
+		heldObj->offLiveFlag(LIVE_FLAG_HIDDEN);
 		heldObj->mPosition   = mPosition;
 		heldObj->mPosition.y = mGroundHeight;
-		heldObj->offHitFlag(HIT_FLAG_UNK1);
+		heldObj->offHitFlag(HIT_FLAG_NO_COLLISION);
 		heldObj->makeObjDead();
 		mHeldObject = nullptr;
 	}
@@ -1077,13 +1077,13 @@ void THamuKuri::setRollAnm() { setBckAnm(7); }
 void THamuKuri::setCrashAnm()
 {
 	if (unk198 && mHeldObject != nullptr
-	    && mHeldObject->receiveMessage(this, 6)) {
+	    && mHeldObject->receiveMessage(this, HIT_MESSAGE_UNK6)) {
 		TMapObjBase* heldObj = (TMapObjBase*)mHeldObject;
 		heldObj->mHolder     = nullptr;
-		heldObj->offLiveFlag(LIVE_FLAG_UNK2);
+		heldObj->offLiveFlag(LIVE_FLAG_HIDDEN);
 		heldObj->mPosition   = mPosition;
 		heldObj->mPosition.y = mGroundHeight;
-		heldObj->offHitFlag(HIT_FLAG_UNK1);
+		heldObj->offHitFlag(HIT_FLAG_NO_COLLISION);
 		heldObj->makeObjDead();
 		mHeldObject = nullptr;
 	}
@@ -1118,14 +1118,16 @@ MtxPtr THamuKuri::getTakingMtx()
 	f32 dVar4 = gpMap->checkGround(mPosition.x, mPosition.y + mHeadHeight,
 	                               mPosition.z, &mGroundPlane);
 
-	mHeldObject->onHitFlag(HIT_FLAG_UNK1);
+	mHeldObject->onHitFlag(HIT_FLAG_NO_COLLISION);
 
 	TPosition3f mat;
-	mat.translation(mPosition.x, mPosition.y, mPosition.z);
+	mat.translation(mPosition.x, dVar4, mPosition.z);
 
 	Mtx afStack_84;
 	MsMtxSetRotRPH(afStack_84, 0.0f, 0.0f, 0.0f);
-	MTXConcat(mat.mMtx, afStack_84, mat.mMtx);
+	MTXConcat(mat, afStack_84, mat);
+
+	// TODO: identity33 but order is transposed?!
 	unk1B0[0][0] = 1.0f;
 	unk1B0[0][1] = 0.0f;
 	unk1B0[0][2] = 0.0f;
@@ -1137,7 +1139,10 @@ MtxPtr THamuKuri::getTakingMtx()
 	unk1B0[2][0] = 0.0f;
 	unk1B0[2][1] = 0.0f;
 	unk1B0[2][2] = 1.0f;
-	MTXConcat(mat.mMtx, unk1B0, unk1B0);
+
+	MTXConcat(mat, unk1B0, unk1B0);
+
+	return unk1B0;
 }
 
 bool THamuKuri::isResignationAttack()
@@ -1162,7 +1167,7 @@ bool THamuKuri::isHitValid(u32 param_1)
 		return true;
 	}
 
-	if (checkLiveFlag(LIVE_FLAG_UNK2))
+	if (checkLiveFlag(LIVE_FLAG_HIDDEN))
 		return false;
 
 	return true;
@@ -1172,7 +1177,7 @@ bool THamuKuri::isCollidMove(THitActor* param_1)
 {
 	if (param_1->isActorType(0x8000013))
 		if (mSpine->getCurrentNerve() == &TNerveHamuKuriBoundFreeze::theNerve())
-			param_1->receiveMessage(this, 0);
+			param_1->receiveMessage(this, HIT_MESSAGE_TRAMPLE);
 
 	if (param_1->isActorType(0x10000002) || param_1->isActorType(0x1000000F)
 	    || param_1->isActorType(0x10000013)
@@ -1360,13 +1365,13 @@ void THaneHamuKuri::setCrashAnm() { setBckAnm(0); }
 void THaneHamuKuri::setDeadAnm()
 {
 	if (unk198 && mHeldObject != nullptr
-	    && mHeldObject->receiveMessage(this, 6)) {
+	    && mHeldObject->receiveMessage(this, HIT_MESSAGE_UNK6)) {
 		TMapObjBase* heldObj = (TMapObjBase*)mHeldObject;
 		heldObj->mHolder     = nullptr;
-		heldObj->offLiveFlag(LIVE_FLAG_UNK2);
+		heldObj->offLiveFlag(LIVE_FLAG_HIDDEN);
 		heldObj->mPosition   = mPosition;
 		heldObj->mPosition.y = mGroundHeight;
-		heldObj->offHitFlag(HIT_FLAG_UNK1);
+		heldObj->offHitFlag(HIT_FLAG_NO_COLLISION);
 		heldObj->makeObjDead();
 		mHeldObject = nullptr;
 	}
@@ -1380,7 +1385,7 @@ bool THaneHamuKuri::isCollidMove(THitActor* param_1)
 
 bool THaneHamuKuri::isHitValid(u32)
 {
-	if (checkLiveFlag(LIVE_FLAG_UNK2))
+	if (checkLiveFlag(LIVE_FLAG_HIDDEN))
 		return false;
 	else
 		return true;
@@ -1463,13 +1468,13 @@ void TDoroHaneKuri::behaveToWater(THitActor*)
 void TDoroHaneKuri::setBehavior()
 {
 	if (mSpine->getCurrentNerve() == &TNerveSmallEnemyDie::theNerve()
-	    && mHeldObject && mHeldObject->receiveMessage(this, 0x6)) {
+	    && mHeldObject && mHeldObject->receiveMessage(this, HIT_MESSAGE_UNK6)) {
 		TMapObjBase* held = (TMapObjBase*)mHeldObject;
 		held->mHolder     = nullptr;
 		held->offLiveFlag(0x2);
 		held->mPosition   = mPosition;
 		held->mPosition.y = mGroundHeight;
-		held->offHitFlag(HIT_FLAG_UNK1);
+		held->offHitFlag(HIT_FLAG_NO_COLLISION);
 		held->makeObjDead();
 		mHeldObject = nullptr;
 	}
@@ -1716,21 +1721,23 @@ void TDangoHamuKuri::reset()
 
 BOOL TDangoHamuKuri::receiveMessage(THitActor* param_1, u32 param_2)
 {
-	if (param_2 == 4 && mHolder == nullptr && mBoss != this) {
-		onHitFlag(HIT_FLAG_UNK1);
+	if (param_2 == HIT_MESSAGE_TAKE && mHolder == nullptr && mBoss != this) {
+		onHitFlag(HIT_FLAG_NO_COLLISION);
 		mHolder = (TLiveActor*)param_1;
 		behaveToTaken(param_1);
 		return true;
 	}
 
-	if ((param_2 == 6 || param_2 == 7) && mHolder == param_1) {
+	if ((param_2 == HIT_MESSAGE_UNK6 || param_2 == HIT_MESSAGE_UNK7)
+	    && mHolder == param_1) {
 		mHolder = nullptr;
 		behaveToRelease();
-		offHitFlag(HIT_FLAG_UNK1);
+		offHitFlag(HIT_FLAG_NO_COLLISION);
 		return true;
 	}
 
-	if (param_2 == 0 || param_2 == 1 || param_2 == 3 || param_2 == 11) {
+	if (param_2 == HIT_MESSAGE_TRAMPLE || param_2 == HIT_MESSAGE_HIP_DROP
+	    || param_2 == HIT_MESSAGE_UNK3 || param_2 == HIT_MESSAGE_UNKB) {
 		if (isHitValid(param_2)) {
 			unk184 = 0;
 			kill();
@@ -1738,13 +1745,13 @@ BOOL TDangoHamuKuri::receiveMessage(THitActor* param_1, u32 param_2)
 		return true;
 	}
 
-	if (param_2 == 13) {
+	if (param_2 == HIT_MESSAGE_UNKD) {
 		mHitPoints = 0;
 		onLiveFlag(LIVE_FLAG_DEAD);
-		onHitFlag(HIT_FLAG_UNK1);
+		onHitFlag(HIT_FLAG_NO_COLLISION);
 	}
 
-	if (param_2 == 15) {
+	if (param_2 == HIT_MESSAGE_SPRAYED_BY_WATER) {
 		gpMarioParticleManager->emit(0xE7, &mPosition, 0, nullptr);
 		gpMSound->startSoundSet(0x6802, &mPosition, 0.0f, 0.0f, 0, 0, 4);
 		if (mSprayedByWaterCooldown == 0) {
@@ -1793,7 +1800,8 @@ void TDangoHamuKuri::behaveToWater(THitActor* param_1)
 	if (!mNext) {
 		if (!mPrev) {
 			THamuKuri::behaveToWater(param_1);
-		} else if (mSprayedByWaterCooldown <= 1 && receiveMessage(mPrev, 6)) {
+		} else if (mSprayedByWaterCooldown <= 1
+		           && receiveMessage(mPrev, HIT_MESSAGE_UNK6)) {
 			mHolder            = nullptr;
 			mPrev->mHeldObject = nullptr;
 			mPrev->mNext       = nullptr;
@@ -1958,7 +1966,7 @@ void TBossDangoHamuKuri::generateBody()
 		if (!currHamu->mNext) {
 			currHamu->mNext = newHamu;
 			newHamu->mPrev  = currHamu;
-			if (newHamu->receiveMessage(currHamu, 4))
+			if (newHamu->receiveMessage(currHamu, HIT_MESSAGE_TAKE))
 				currHamu->mHeldObject = newHamu;
 			newHamu->mBoss = this;
 			break;
@@ -1966,7 +1974,7 @@ void TBossDangoHamuKuri::generateBody()
 		currHamu = currHamu->mNext;
 	}
 
-	newHamu->offHitFlag(HIT_FLAG_UNK1);
+	newHamu->offHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 void TBossDangoHamuKuri::isNowAttack() { }
@@ -2112,7 +2120,7 @@ bool TFireHamuKuri::isHitValid(u32 param_1)
 		return true;
 	}
 
-	if (checkLiveFlag(LIVE_FLAG_UNK2))
+	if (checkLiveFlag(LIVE_FLAG_HIDDEN))
 		return false;
 
 	return true;
@@ -2265,9 +2273,9 @@ bool TDoroHamuKuri::isCollidMove(THitActor* param_1)
 					return true;
 				}
 
-				if (receiveMessage(param_1, 6)) {
+				if (receiveMessage(param_1, HIT_MESSAGE_UNK6)) {
 					pTVar1->mPosition = param_1->mPosition;
-					if (pTVar1->receiveMessage(this, 4)) {
+					if (pTVar1->receiveMessage(this, HIT_MESSAGE_TAKE)) {
 						other->unk198      = 0;
 						other->mHeldObject = nullptr;
 						onHaveCap();
@@ -2408,14 +2416,14 @@ DEFINE_NERVE(TNerveHamuKuriWallDie, TLiveActor)
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x2804, &self->getPosition(), 0, nullptr, 0, 4);
 
-		self->onHitFlag(HIT_FLAG_UNK1);
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
 		self->mHitPoints = 0;
 	} else {
 		int pTVar7 = self->getManager()->unk5C;
 		if (self->checkCurAnmEnd(0)) {
 			J3DFrameCtrl* ctrl = self->getMActor()->getFrameCtrl(0);
 
-			if (spine->getTime() > pTVar7 + ctrl->getEndFrame()) {
+			if (spine->getTime() > pTVar7 + ctrl->getEnd()) {
 				self->onLiveFlag(LIVE_FLAG_DEAD);
 				self->onLiveFlag(LIVE_FLAG_UNK8);
 				self->onLiveFlag(LIVE_FLAG_UNK20000);
@@ -2442,7 +2450,7 @@ DEFINE_NERVE(TNerveHamuKuriLand, TLiveActor)
 		self->setBckAnm(5);
 
 	if (self->checkCurAnmEnd(0)) {
-		self->offHitFlag(HIT_FLAG_UNK1);
+		self->offHitFlag(HIT_FLAG_NO_COLLISION);
 		self->unk1F0 = 0;
 		return true;
 	}
