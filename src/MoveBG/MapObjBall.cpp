@@ -136,6 +136,31 @@ void TResetFruit::hold(TTakeActor* taker)
 	}
 }
 
+void TResetFruit::makeObjAppeared()
+{
+	if (unkF8 & 0x04000000) {
+		makeObjDefault();
+	}
+	TMapObjBase::makeObjAppeared();
+	calcCurrentMtx();
+	Mtx* m       = getModel()->mNodeMatrices;
+	(*m)[0][3]   = mPosition.x;
+	(*m)[1][3]   = mPosition.y + mBodyRadius;
+	(*m)[2][3]   = mPosition.z;
+	if (isActorType(0x40000394)) {
+		if ((*m)[1][1] > 0.0f) {
+			(*m)[1][3] = (*m)[1][3] - 50.0f * (*m)[1][1];
+		}
+	}
+	if (isActorType(0x40000392)) {
+		(*m)[1][3] = (*m)[1][3] - 10.0f * (1.0f - (*m)[1][1]);
+	}
+	unkE8 = 0;
+	if (unkF8 & 0x04000000) {
+		mState = 0xB;
+	}
+}
+
 void TResetFruit::makeObjLiving()
 {
 	u8 hasTimer;
