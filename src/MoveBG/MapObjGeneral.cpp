@@ -53,12 +53,14 @@ void TMapObjGeneral::waitingToAppear()
 		return;
 
 	if (isActorType(0x4000005a)) {
-		if (distToMario(mInitialPosition)
-		    > SMS_GetMarioDamageRadius() + mDamageRadius + 100.0f)
+		f32 r    = mDamageRadius;
+		f32 dist = distToMario(mInitialPosition);
+		if (dist > SMS_GetMarioDamageRadius() + r + 100.0f)
 			appear();
 	} else {
-		if (distToMario(mInitialPosition)
-		    > SMS_GetMarioDamageRadius() + mDamageRadius)
+		f32 r    = mDamageRadius;
+		f32 dist = distToMario(mInitialPosition);
+		if (dist > SMS_GetMarioDamageRadius() + r)
 			appear();
 	}
 }
@@ -91,6 +93,7 @@ void TMapObjGeneral::sink()
 void TMapObjGeneral::put()
 {
 	mHolder    = nullptr;
+	mHolder    = nullptr;
 	int saved  = unk104;
 	makeObjAppeared();
 	unk104       = saved;
@@ -111,7 +114,7 @@ void TMapObjGeneral::put()
 
 void TMapObjGeneral::thrown()
 {
-	mPosition.set(*gpMarioPos);
+	mPosition.set<f32>(gpMarioPos->x, gpMarioPos->y, gpMarioPos->z);
 
 	mRotation.set<f32>((f32)*gpMarioAngleX, (f32)*gpMarioAngleY,
 	                   (f32)*gpMarioAngleZ);
@@ -122,11 +125,14 @@ void TMapObjGeneral::thrown()
 	mHolder = nullptr;
 
 	const TMapObjPhysicalData* phys = mMapObjData->mPhysical->unk4;
-	mVelocity.x = JMASSin(*gpMarioAngleY) * phys->unk2C * (*gpMarioThrowPower)
-	              + mNormalThrowSpeedRate * (*gpMarioSpeedX);
+	s16 angleY                      = *gpMarioAngleY;
+	f32 vx = JMASSin(angleY) * phys->unk2C * (*gpMarioThrowPower)
+	         + mNormalThrowSpeedRate * (*gpMarioSpeedX);
+	f32 vz = JMASCos(angleY) * phys->unk2C * (*gpMarioThrowPower)
+	         + mNormalThrowSpeedRate * (*gpMarioSpeedZ);
+	mVelocity.x = vx;
 	mVelocity.y = phys->unk30;
-	mVelocity.z = JMASCos(*gpMarioAngleY) * phys->unk2C * (*gpMarioThrowPower)
-	              + mNormalThrowSpeedRate * (*gpMarioSpeedZ);
+	mVelocity.z = vz;
 
 	offLiveFlag(LIVE_FLAG_UNK10);
 
