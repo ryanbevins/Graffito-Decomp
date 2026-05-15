@@ -211,13 +211,13 @@ void TResetFruit::hold(TTakeActor* taker)
 	JGeometry::TVec3<f32> v = mVelocity;
 	if (v.length() > 10.0f) {
 		TMapObjGeneral::hold(taker);
-		mVelocity.x = 0.0f;
-		mVelocity.y = 0.0f;
 		mVelocity.z = 0.0f;
+		mVelocity.y = 0.0f;
+		mVelocity.x = 0.0f;
 	}
-	mVelocity.x = 0.0f;
-	mVelocity.y = 0.0f;
 	mVelocity.z = 0.0f;
+	mVelocity.y = 0.0f;
+	mVelocity.x = 0.0f;
 	mLiveFlag |= 0x10;
 	if (mLiveFlag & 0x04000000)
 		return;
@@ -743,9 +743,9 @@ void TMapObjBall::hold(TTakeActor* taker)
 	JGeometry::TVec3<f32> v = mVelocity;
 	if (v.length() > 10.0f) {
 		TMapObjGeneral::hold(taker);
-		mVelocity.x = 0.0f;
-		mVelocity.y = 0.0f;
 		mVelocity.z = 0.0f;
+		mVelocity.y = 0.0f;
+		mVelocity.x = 0.0f;
 	}
 }
 
