@@ -4,6 +4,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <Camera/CubeManagerBase.hpp>
+#include <Enemy/PoiHana.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <Player/ModelWaterManager.hpp>
@@ -914,6 +915,52 @@ void TBigWatermelon::rebound(JGeometry::TVec3<f32>* pos)
 			    soundId, (Vec*)&mPosition, (Vec*)&mVelocity, 0.0f, 0, 0,
 			    nullptr, 0, 4);
 		}
+	}
+}
+
+void TBigWatermelon::touchActor(THitActor* actor)
+{
+	if (isState(2))
+		return;
+	if (isState(1)) {
+		JGeometry::TVec3<f32> v = mVelocity;
+		if (v.y < 0.0f) {
+			kill();
+			return;
+		}
+	}
+	if (actor->isActorType(0x80000001)) {
+		if (mPosition.distance(actor->mPosition) < 0.6f * mBodyRadius) {
+			kill();
+			return;
+		}
+	}
+	if (actor->isActorType(0x10000015)
+	    && ((TPoiHana*)actor)->isMoving()) {
+		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
+		if (fabsf(mVelocity.y) >= thresh)
+			return;
+		mVelocity.y = mVelocity.y + 30.0f;
+		mState      = 0xB;
+		return;
+	}
+	if (unk194 != 0)
+		return;
+	if (isState(6))
+		return;
+	if (isHideObj(actor))
+		return;
+	if (actor->isActorType(0x08000083))
+		return;
+	if (actor->isActorType(0x400000CA))
+		return;
+	if (actor->isActorType(0x400000CC))
+		return;
+	if (actor->isActorType(0x80000001) && !isActorType(0x400000D0)
+	    && *gpMarioSpeedY != 0.0f) {
+		kicked();
+	} else {
+		boundByActor(actor);
 	}
 }
 
