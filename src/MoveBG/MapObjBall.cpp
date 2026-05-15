@@ -179,6 +179,28 @@ void TResetFruit::waitingToAppear()
 	}
 }
 
+void TResetFruit::touchGround(JGeometry::TVec3<f32>* pos)
+{
+	if (mGroundPlane->mBGType == 0x800) {
+		mState = 0xB;
+		makeObjDefault();
+		makeObjDead();
+		calcRootMatrix();
+		getModel()->calc();
+		unk104 = mFruitWaitTimeToAppear;
+		unkF8 &= ~0x40000;
+		mState = 0xA;
+		if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
+			makeObjDead();
+		}
+		pos->x = mPosition.x;
+		pos->y = mPosition.y;
+		pos->z = mPosition.z;
+	} else {
+		TMapObjBall::touchGround(pos);
+	}
+}
+
 void TResetFruit::makeObjWaitingToAppear()
 {
 	mState = 0xB;
