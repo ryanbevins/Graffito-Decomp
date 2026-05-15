@@ -853,16 +853,112 @@ void TMapObjBall::kicked()
 	}
 }
 
-#pragma dont_inline on
 void TMapObjBall::calcCurrentMtx()
 {
-	JGeometry::TVec3<f32> v = mVelocity;
-	f32 thresh              = mMapObjData->mPhysical->unk4->unkC;
-	if (fabsf(v.x) <= thresh && fabsf(v.z) <= thresh
-	    && mGroundPlane->mNormal.y == 1.0f) {
-		mVelocity.x = 0.0f;
-		mVelocity.z = 0.0f;
+	Mtx rotMtx;
+	rotMtx[0][0] = 1.0f;
+	rotMtx[0][1] = 0.0f;
+	rotMtx[0][2] = 0.0f;
+	rotMtx[0][3] = 0.0f;
+	rotMtx[1][0] = 0.0f;
+	rotMtx[1][1] = 1.0f;
+	rotMtx[1][2] = 0.0f;
+	rotMtx[1][3] = 0.0f;
+	rotMtx[2][0] = 0.0f;
+	rotMtx[2][1] = 0.0f;
+	rotMtx[2][2] = 1.0f;
+	rotMtx[2][3] = 0.0f;
+
+	{
+		JGeometry::TVec3<f32> v = mVelocity;
+		f32 thresh              = mMapObjData->mPhysical->unk4->unkC;
+		if (fabsf(v.x) < thresh) {
+			JGeometry::TVec3<f32> v2 = mVelocity;
+			if (fabsf(v2.z) < thresh && mGroundPlane->mNormal.y == 1.0f) {
+				mVelocity.x = 0.0f;
+				mVelocity.z = 0.0f;
+			}
+		}
 	}
+
+	{
+		JGeometry::TVec3<f32> v3 = mVelocity;
+		f32 thresh               = mMapObjData->mPhysical->unk4->unkC;
+		bool computeRot          = false;
+		if (fabsf(v3.x) > thresh) {
+			computeRot = true;
+		} else {
+			JGeometry::TVec3<f32> v4 = mVelocity;
+			if (fabsf(v4.z) > thresh)
+				computeRot = true;
+		}
+
+		if (computeRot) {
+			JGeometry::TVec3<f32> v5 = mVelocity;
+			JGeometry::TVec3<f32> v6 = mVelocity;
+			JGeometry::TVec3<f32> result;
+			getVerticalVecToTargetXZ(mPosition.x + v6.x,
+			                         mPosition.z + v6.z, &result);
+
+			JGeometry::TVec3<f32> v7 = mVelocity;
+			JGeometry::TVec3<f32> v8(v7.x, v7.y, v7.z);
+			f32 sq = v8.y * v8.y + v8.z * v8.z;
+			f32 mag;
+			if (sq > 0.0f)
+				mag = JGeometry::TUtil<f32>::sqrt(sq);
+			else
+				mag = sq;
+
+			f32 angle = 2.0f * (mag / mBodyRadius);
+
+			JGeometry::TVec3<f32> axis;
+			f32 dot = result.dot(result);
+			if (dot < 0.0000038146973f) {
+				axis.x = 0.0f;
+				axis.y = 0.0f;
+				axis.z = 0.0f;
+			} else {
+				axis.scale(1.0f * JGeometry::TUtil<f32>::inv_sqrt(dot),
+				           result);
+			}
+
+			f32 sn = sinf(angle);
+			f32 cs = cosf(angle);
+			f32 om = 1.0f - cs;
+
+			rotMtx[0][0] = om * (axis.x * axis.x) + cs;
+			rotMtx[0][1] = (om * axis.x) * axis.y - sn * axis.z;
+			rotMtx[0][2] = (om * axis.x) * axis.z + sn * axis.y;
+			rotMtx[1][0] = (om * axis.x) * axis.y + sn * axis.z;
+			rotMtx[1][1] = om * (axis.y * axis.y) + cs;
+			rotMtx[1][2] = (om * axis.y) * axis.z - sn * axis.x;
+			rotMtx[2][0] = (om * axis.x) * axis.z - sn * axis.y;
+			rotMtx[2][1] = (om * axis.y) * axis.z + sn * axis.x;
+			rotMtx[2][2] = om * (axis.z * axis.z) + cs;
+		}
+	}
+
+	Mtx animMtx;
+	JGeometry::gekko_ps_copy12(animMtx, getModel()->mNodeMatrices);
+	animMtx[0][3] = 0.0f;
+	animMtx[1][3] = 0.0f;
+	animMtx[2][3] = 0.0f;
+	PSMTXConcat(rotMtx, animMtx, rotMtx);
+
+	rotMtx[0][3] = mPosition.x;
+	rotMtx[1][3] = mPosition.y + mBodyRadius;
+	rotMtx[2][3] = mPosition.z;
+
+	if (isActorType(0x40000394)) {
+		if (rotMtx[1][1] > 0.0f) {
+			rotMtx[1][3] = rotMtx[1][3] - 50.0f * rotMtx[1][1];
+		}
+	}
+	if (isActorType(0x40000392)) {
+		rotMtx[1][3] = rotMtx[1][3] - 10.0f * (1.0f - rotMtx[1][1]);
+	}
+
+	PSMTXCopy(rotMtx, getModel()->mNodeMatrices[0]);
 }
 
 void TMapObjBall::boundByActor(THitActor* actor)
