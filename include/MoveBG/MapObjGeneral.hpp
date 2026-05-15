@@ -65,10 +65,10 @@ public:
 	static f32 mNormalThrowSpeedRate;
 
 public:
-	/* 0x138 */ const TBGCheckData* unk138; // TODO: maybe not const
-	/* 0x13C */ const TBGCheckData* unk13C;
-	/* 0x140 */ f32 unk140;
-	/* 0x144 */ f32 unk144;
+	/* 0x138 */ const TBGCheckData* mWallPlane;
+	/* 0x13C */ const TBGCheckData* mRoofPlane;
+	/* 0x140 */ f32 mRoofHeight;
+	/* 0x144 */ f32 mSavedY;
 };
 
 #endif

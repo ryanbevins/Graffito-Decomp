@@ -85,7 +85,7 @@ void TMapObjGeneral::sink()
 	mVelocity.x = mVelocity.y = mVelocity.z = 0.0f;
 	onLiveFlag(LIVE_FLAG_UNK10);
 	mState = 7;
-	unk144 = mPosition.y;
+	mSavedY = mPosition.y;
 	setUpMapCollision(1);
 	startSound(6);
 }
@@ -121,7 +121,7 @@ void TMapObjGeneral::thrown()
 
 	mGroundHeight = gpMap->checkGround(mPosition, &mGroundPlane);
 
-	unk138  = nullptr;
+	mWallPlane  = nullptr;
 	mHolder = nullptr;
 
 	const TMapObjPhysicalData* phys = mMapObjData->mPhysical->unk4;
@@ -173,15 +173,15 @@ void TMapObjGeneral::recovering()
 	if (hasModelOrAnimData(6)) {
 		J3DModel* model = getModel();
 		MtxPtr mat      = model->getAnmMtx(0);
-		f32 fVar1       = mat[1][3] - unk144;
+		f32 fVar1       = mat[1][3] - mSavedY;
 		mDamageHeight += fVar1;
 		calcEntryRadius();
 		if (mHeldObject)
 			mHeldObject->mPosition.y += fVar1;
-		unk144 = mat[1][3];
+		mSavedY = mat[1][3];
 		if (!animIsFinished())
 			return;
-	} else if (mPosition.y < unk144) {
+	} else if (mPosition.y < mSavedY) {
 		mPosition.y += mMapObjData->mSink->unk4;
 		if (mHeldObject)
 			mHeldObject->mPosition.y += mMapObjData->mSink->unk4;
@@ -202,7 +202,7 @@ void TMapObjGeneral::sinking()
 		}
 	}
 
-	if (mPosition.y + mMapObjData->mHit->unkC[2].unk4 < unk144) {
+	if (mPosition.y + mMapObjData->mHit->unkC[2].unk4 < mSavedY) {
 		if (mPosition.x != mInitialPosition.x
 		    || mPosition.z != mInitialPosition.z) {
 			makeObjDefault();
@@ -264,7 +264,7 @@ void TMapObjGeneral::makeObjRecovered()
 
 void TMapObjGeneral::makeObjBuried()
 {
-	unk144 = mPosition.y;
+	mSavedY = mPosition.y;
 	mPosition.y -= mMapObjData->mHit->unkC[2].unkC;
 	unk64 |= 1;
 	removeMapCollision();
@@ -299,7 +299,7 @@ void TMapObjGeneral::touchPlayer(THitActor* player)
 
 void TMapObjGeneral::recover()
 {
-	gpPollution->clean(mPosition.x, unk144, mPosition.z,
+	gpPollution->clean(mPosition.x, mSavedY, mPosition.z,
 	                   (u16)(mMapObjData->mHit->unkC[2].unk0 / 6.0f));
 
 	setUpMapCollision(1);
@@ -312,8 +312,8 @@ void TMapObjGeneral::recover()
 	unk64 &= ~0x1;
 	if (hasModelOrAnimData(6)) {
 		f32 tmp     = mPosition.y;
-		mPosition.y = unk144;
-		unk144      = tmp;
+		mPosition.y = mSavedY;
+		mSavedY      = tmp;
 		getModel();
 	}
 }
@@ -424,23 +424,23 @@ void TMapObjGeneral::checkWallCollision(JGeometry::TVec3<f32>* param_1)
 	param_1->y -= mMapObjData->mPhysical->unk4->unk1C;
 
 	if (touched) {
-		unk138 = check.mResultWalls[0];
+		mWallPlane = check.mResultWalls[0];
 		touchWall(param_1, &check);
 	} else {
-		unk138 = 0;
+		mWallPlane = 0;
 	}
 }
 
 void TMapObjGeneral::touchRoof(JGeometry::TVec3<f32>* param_1)
 {
-	param_1->y = unk140;
+	param_1->y = mRoofHeight;
 }
 
 void TMapObjGeneral::checkRoofCollision(JGeometry::TVec3<f32>* param_1)
 {
-	unk140 = gpMap->checkRoof(param_1->x, param_1->y + mHeadHeight, param_1->z,
-	                          &unk13C);
-	if (param_1->y + mHeadHeight >= unk140)
+	mRoofHeight = gpMap->checkRoof(param_1->x, param_1->y + mHeadHeight, param_1->z,
+	                          &mRoofPlane);
+	if (param_1->y + mHeadHeight >= mRoofHeight)
 		touchRoof(param_1);
 }
 
@@ -663,9 +663,9 @@ void TMapObjGeneral::loadAfter()
 
 TMapObjGeneral::TMapObjGeneral(const char* name)
     : TMapObjBase(name)
-    , unk138(0)
-    , unk13C(0)
-    , unk140(0.0f)
-    , unk144(0.0f)
+    , mWallPlane(0)
+    , mRoofPlane(0)
+    , mRoofHeight(0.0f)
+    , mSavedY(0.0f)
 {
 }

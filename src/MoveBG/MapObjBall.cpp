@@ -1213,12 +1213,12 @@ void TMapObjBall::checkWallCollision(JGeometry::TVec3<f32>* pos)
 	TBGWallCheckRecord record(tmp, mBodyRadius, 4,
 	                          mMapObjData->mPhysical->mWallCheckFlags);
 	if (gpMap->isTouchedWallsAndMoveXZ(&record)) {
-		unk138 = record.mResultWalls[0];
+		mWallPlane = record.mResultWalls[0];
 		pos->x = record.mCenter.x;
 		pos->z = record.mCenter.z;
 		touchWall(pos, &record);
 	} else {
-		unk138 = nullptr;
+		mWallPlane = nullptr;
 	}
 }
 
@@ -1295,10 +1295,10 @@ void TMapObjBall::touchGround(JGeometry::TVec3<f32>* pos)
 
 void TMapObjBall::touchRoof(JGeometry::TVec3<f32>* pos)
 {
-	if (pos->y > unk140) {
-		pos->y = unk140;
+	if (pos->y > mRoofHeight) {
+		pos->y = mRoofHeight;
 	}
-	calcReflectingVelocity(unk13C, mMapObjData->mPhysical->unk4->unk4,
+	calcReflectingVelocity(mRoofPlane, mMapObjData->mPhysical->unk4->unk4,
 	                       &mVelocity);
 }
 
