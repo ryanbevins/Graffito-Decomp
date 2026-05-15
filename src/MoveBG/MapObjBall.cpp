@@ -3,6 +3,7 @@
 #include <Strategic/HitActor.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <Player/ModelWaterManager.hpp>
+#include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <stdio.h>
@@ -133,6 +134,26 @@ void TResetFruit::hold(TTakeActor* taker)
 	if (!isUnk104Positive()) {
 		unkF8 |= 0x40000;
 		unk104 = getLivingTime();
+	}
+}
+
+void TResetFruit::touchWaterSurface()
+{
+	emitColumnWater();
+	if (gpMSound->gateCheck(0x3875)) {
+		MSoundSESystem::MSoundSE::startSoundActor(0x3875, (Vec*)&mPosition, 0,
+		                                          nullptr, 0, 4);
+	}
+	mState = 0xB;
+	makeObjDefault();
+	makeObjDead();
+	calcRootMatrix();
+	getModel()->calc();
+	unk104 = mFruitWaitTimeToAppear;
+	unkF8 &= ~0x40000;
+	mState = 0xA;
+	if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
+		makeObjDead();
 	}
 }
 
