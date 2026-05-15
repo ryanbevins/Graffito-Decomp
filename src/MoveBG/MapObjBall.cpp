@@ -881,6 +881,27 @@ void TMapObjBall::boundByActor(THitActor* actor)
 	if (diff.x != 0.0f && diff.z != 0.0f) {
 		MsVECNormalize((Vec*)&diff, (Vec*)&diff);
 	}
+	if (actor->isActorType(0x80000001)) {
+		if (unkF8 & 0x02000000)
+			return;
+		if (fabsf(*gpMarioSpeedX) > mMapObjData->mPhysical->unk4->unkC
+		    || fabsf(*gpMarioSpeedZ) > mMapObjData->mPhysical->unk4->unkC) {
+			mVelocity.y = mVelocity.y + unk150;
+			if (!isActorType(0x400000D0)) {
+				if (gpMSound->gateCheck(0x194F)) {
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x194F, (Vec*)&mPosition, 0, nullptr, 0, 4);
+				}
+			}
+		} else {
+			mVelocity.y = mVelocity.y + unk154;
+		}
+		mVelocity.x
+		    = mVelocity.x - unk148 * (*gpMarioSpeedX) * diff.x;
+		mVelocity.z
+		    = mVelocity.z - unk148 * (*gpMarioSpeedZ) * diff.z;
+		actor->receiveMessage(this, 0xE);
+	}
 	mLiveFlag |= 0x80;
 }
 #pragma dont_inline off
