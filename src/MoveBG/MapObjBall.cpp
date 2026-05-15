@@ -426,6 +426,26 @@ void TMapObjBall::makeObjAppeared()
 	unkE8 = 0;
 }
 
+void TMapObjBall::control()
+{
+	TMapObjGeneral::control();
+	if (unk194 != 0) {
+		unk194 = unk194 - 1;
+	}
+	if (isState(6)) {
+		Mtx tmp;
+		PSMTXCopy(mHolder->getTakingMtx(), tmp);
+		tmp[1][3] = tmp[1][3] + unk190;
+		PSMTXCopy(tmp, getModel()->mNodeMatrices[0]);
+	} else {
+		JGeometry::TVec3<f32> v = mVelocity;
+		f32 sq                  = v.x * v.x + v.y * v.y + v.z * v.z;
+		if (sq > 0.0000038146973f || mGroundPlane->mActor != nullptr) {
+			calcCurrentMtx();
+		}
+	}
+}
+
 BOOL TMapObjBall::receiveMessage(THitActor* sender, u32 message)
 {
 	if (TMapObjGeneral::receiveMessage(sender, message))
