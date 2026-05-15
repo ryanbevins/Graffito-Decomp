@@ -190,6 +190,41 @@ void TMapObjBall::hold(TTakeActor* taker)
 	}
 }
 
+void TMapObjBall::makeObjAppeared()
+{
+	TMapObjBase::makeObjAppeared();
+	calcCurrentMtx();
+	Mtx* m       = getModel()->mNodeMatrices;
+	(*m)[0][3]   = mPosition.x;
+	(*m)[1][3]   = mPosition.y + mBodyRadius;
+	(*m)[2][3]   = mPosition.z;
+	if (isActorType(0x40000394)) {
+		if ((*m)[1][1] > 0.0f) {
+			(*m)[1][3] = (*m)[1][3] - 50.0f * (*m)[1][1];
+		}
+	}
+	if (isActorType(0x40000392)) {
+		(*m)[1][3] = (*m)[1][3] - 10.0f * (1.0f - (*m)[1][1]);
+	}
+	unkE8 = 0;
+}
+
+BOOL TMapObjBall::receiveMessage(THitActor* sender, u32 message)
+{
+	if (TMapObjGeneral::receiveMessage(sender, message))
+		return 1;
+	if (message == 4 && (unkF8 & 0x100000)) {
+		hold((TTakeActor*)sender);
+		return 1;
+	}
+	if (sender->isActorType(0x80000001) && !isActorType(0x400000D0)
+	    && message != 4) {
+		kicked();
+		return 1;
+	}
+	return 0;
+}
+
 void TMapObjBall::touchActor(THitActor* actor)
 {
 	if (unk194 != 0)
