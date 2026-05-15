@@ -880,6 +880,43 @@ void TBigWatermelon::appearing()
 	}
 }
 
+void TBigWatermelon::rebound(JGeometry::TVec3<f32>* pos)
+{
+	if (isState(0xC)) {
+		kill();
+		pos->x = mPosition.x;
+		pos->y = mPosition.y;
+		pos->z = mPosition.z;
+		return;
+	}
+	calcReflectingVelocity(mGroundPlane,
+	                       mMapObjData->mPhysical->unk4->unk4, &mVelocity);
+	pos->y = mGroundHeight;
+	mLiveFlag |= 0x80;
+	if (isActorType(0x400000D0)) {
+		if (mScaling.y >= 5.0f) {
+			f32 vol = fabsf(mGroundPlane->mNormal.y);
+			if (gpMSound->gateCheck(0x3889)) {
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x3889, (Vec*)&mPosition, nullptr, vol, 0, 0, nullptr, 0, 4);
+			}
+		} else {
+			f32 vol = fabsf(mGroundPlane->mNormal.y);
+			if (gpMSound->gateCheck(0x388C)) {
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x388C, (Vec*)&mPosition, nullptr, vol, 0, 0, nullptr, 0, 4);
+			}
+		}
+	} else {
+		u32 soundId = mMapObjData->mSound->unk4->unk0[4];
+		if (gpMSound->gateCheck(soundId)) {
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    soundId, (Vec*)&mPosition, (Vec*)&mVelocity, 0.0f, 0, 0,
+			    nullptr, 0, 4);
+		}
+	}
+}
+
 void TBigWatermelon::touchWaterSurface()
 {
 	emitColumnWater();
