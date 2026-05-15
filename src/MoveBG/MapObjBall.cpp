@@ -1019,7 +1019,7 @@ void TMapObjBall::calcCurrentMtx()
 
 			JGeometry::TVec3<f32> v7 = mVelocity;
 			JGeometry::TVec3<f32> v8(v7.x, v7.y, v7.z);
-			f32 sq = v8.y * v8.y + v8.z * v8.z;
+			f32 sq = v8.x * v8.x + v8.z * v8.z;
 			f32 mag;
 			if (sq > 0.0f)
 				mag = JGeometry::TUtil<f32>::sqrt(sq);
