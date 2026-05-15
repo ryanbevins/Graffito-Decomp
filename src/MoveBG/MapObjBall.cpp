@@ -573,6 +573,38 @@ BOOL TMapObjBall::receiveMessage(THitActor* sender, u32 message)
 	return 0;
 }
 
+void TMapObjBall::kicked()
+{
+	JGeometry::TVec3<f32> v = mVelocity;
+	JGeometry::TVec3<f32> w(v.x, v.y, v.z);
+	if (w.y > 0.0f) {
+		// fall through to common tail
+	} else {
+		if (v.y == 0.0f) {
+			mVelocity.y = unk178;
+		} else {
+			mVelocity.y = unk174 * (*gpMarioSpeedY) - unk160 * v.y;
+		}
+		mVelocity.x = unk170 * (*gpMarioSpeedX) + mVelocity.x;
+		mVelocity.z = unk170 * (*gpMarioSpeedZ) + mVelocity.z;
+		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
+		if (fabsf(mVelocity.x) < thresh && fabsf(mVelocity.z) < thresh) {
+			mVelocity.x = 50.0f * (MsRandF() - 0.5f) * 2.0f;
+			mVelocity.z = 50.0f * (MsRandF() - 0.5f) * 2.0f;
+		}
+		unk194 = 10;
+		mLiveFlag &= ~0x10;
+		mLiveFlag |= 0x80;
+		SMS_GetMarioHitActor()->receiveMessage(this, 0xE);
+		if (!isActorType(0x400000D0)) {
+			if (gpMSound->gateCheck(0x194F)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x194F, (Vec*)&mPosition, 0, nullptr, 0, 4);
+			}
+		}
+	}
+}
+
 void TMapObjBall::touchActor(THitActor* actor)
 {
 	if (unk194 != 0)
