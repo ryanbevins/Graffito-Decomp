@@ -153,6 +153,32 @@ void TResetFruit::hold(TTakeActor* taker)
 	}
 }
 
+void TResetFruit::waitingToAppear()
+{
+	if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
+		makeObjDead();
+	}
+	if (unkF8 & 0x04000000)
+		return;
+	if (isUnk104Positive())
+		return;
+	if (mColCount != 0)
+		return;
+	unkF8 |= 0x40000;
+	makeObjAppeared();
+	Mtx scaleMtx;
+	PSMTXScale(scaleMtx, 0.2f, 0.2f, 0.2f);
+	concatOnlyRotFromLeft(scaleMtx, getModel()->mNodeMatrices[0],
+	                      getModel()->mNodeMatrices[0]);
+	mScaling.y = 0.2f;
+	unk64 |= 0x1;
+	mState = 2;
+	if (gpMSound->gateCheck(0x3802)) {
+		MSoundSESystem::MSoundSE::startSoundActor(0x3802, (Vec*)&mPosition, 0,
+		                                          nullptr, 0, 4);
+	}
+}
+
 void TResetFruit::makeObjWaitingToAppear()
 {
 	mState = 0xB;
