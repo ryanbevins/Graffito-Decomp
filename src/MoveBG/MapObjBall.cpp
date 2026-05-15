@@ -396,6 +396,23 @@ void TMapObjBall::put()
 	calcCurrentMtx();
 }
 
+u32 TMapObjBall::touchWater(THitActor* actor)
+{
+	if (isState(6) || isState(2))
+		return 1;
+	JGeometry::TVec3<f32> v      = mVelocity;
+	JGeometry::TVec3<f32>* speed = getWaterSpeed(actor);
+	f32 factor                   = unk17C;
+	v.x                          = speed->x * factor + v.x;
+	v.y                          = speed->y * factor + v.y;
+	v.z                          = speed->z * factor + v.z;
+	mVelocity.x                  = v.x;
+	mVelocity.y                  = v.y;
+	mVelocity.z                  = v.z;
+	mLiveFlag &= ~0x10;
+	return 1;
+}
+
 void TMapObjBall::hold(TTakeActor* taker)
 {
 	JGeometry::TVec3<f32> v = mVelocity;
