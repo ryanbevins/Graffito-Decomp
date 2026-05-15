@@ -479,6 +479,27 @@ BOOL TBigWatermelon::receiveMessage(THitActor* sender, u32 message)
 	return 0;
 }
 
+void TBigWatermelon::appearing()
+{
+	TMapObjGeneral::appearing();
+	Mtx* m = getModel()->mNodeMatrices;
+	calcRootMatrix();
+	getModel()->calc();
+	(*m)[1][3] = mBodyRadius * (mScaling.y / mInitialScaling.y) + mPosition.y;
+	mScaledBodyRadius = 50.0f * mScaling.x;
+	mDamageRadius     = 50.0f * mScaling.x;
+	calcEntryRadius();
+	if (isState(1)) {
+		mActorType    = 0x400000D0;
+		mAttackRadius = 50.0f * mScaling.x;
+		calcEntryRadius();
+	} else {
+		mActorType    = 0x400000DB;
+		mAttackRadius = 0.0f;
+		calcEntryRadius();
+	}
+}
+
 void TBigWatermelon::touchWaterSurface()
 {
 	emitColumnWater();
