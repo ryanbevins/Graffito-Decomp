@@ -2,6 +2,8 @@
 #include <MoveBG/MapObjBase.hpp>
 #include <Strategic/HitActor.hpp>
 #include <MarioUtil/PacketUtil.hpp>
+#include <Player/ModelWaterManager.hpp>
+#include <System/Particles.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <stdio.h>
 #include <Map/MapData.hpp>
@@ -111,6 +113,27 @@ void TResetFruit::touchActor(THitActor* actor)
 	}
 	mLiveFlag &= ~0x10;
 	mState = 0xB;
+}
+
+void TResetFruit::hold(TTakeActor* taker)
+{
+	JGeometry::TVec3<f32> v = mVelocity;
+	if (v.length() > 10.0f) {
+		TMapObjGeneral::hold(taker);
+		mVelocity.x = 0.0f;
+		mVelocity.y = 0.0f;
+		mVelocity.z = 0.0f;
+	}
+	mVelocity.x = 0.0f;
+	mVelocity.y = 0.0f;
+	mVelocity.z = 0.0f;
+	mLiveFlag |= 0x10;
+	if (mLiveFlag & 0x04000000)
+		return;
+	if (!isUnk104Positive()) {
+		unkF8 |= 0x40000;
+		unk104 = getLivingTime();
+	}
 }
 
 void TResetFruit::makeObjLiving()
@@ -290,6 +313,52 @@ void TBigWatermelon::loadAfter()
 	shine->mPosition.x = -4659.0f;
 	shine->mPosition.y = 460.0f;
 	shine->mPosition.z = 13620.0f;
+}
+
+void TBigWatermelon::initMapObj()
+{
+	TMapObjBall::initMapObj();
+	if (!gParticleFlagLoaded[0x5d]) {
+		gpResourceManager->load("/scene/mapObj/watermelon_bomb.jpa", 0x5d);
+		gParticleFlagLoaded[0x5d] = 1;
+	}
+	if (!gParticleFlagLoaded[0x5e]) {
+		gpResourceManager->load("/scene/mapObj/watermelon_bomb_a.jpa", 0x5e);
+		gParticleFlagLoaded[0x5e] = 1;
+	}
+	if (!gParticleFlagLoaded[0x5f]) {
+		gpResourceManager->load("/scene/mapObj/watermelon_bomb_b.jpa", 0x5f);
+		gParticleFlagLoaded[0x5f] = 1;
+	}
+	if (!gParticleFlagLoaded[0x6b]) {
+		gpResourceManager->load("/scene/mapObj/watermelon_shrink_a.jpa", 0x6b);
+		gParticleFlagLoaded[0x6b] = 1;
+	}
+	if (!gParticleFlagLoaded[0x6c]) {
+		gpResourceManager->load("/scene/mapObj/watermelon_shrink_b.jpa", 0x6c);
+		gParticleFlagLoaded[0x6c] = 1;
+	}
+	unk198 = (u32) new TWaterEmitInfo("/watermelon.prm");
+}
+
+BOOL TBigWatermelon::receiveMessage(THitActor* sender, u32 message)
+{
+	if (sender->isActorType(0x80000001)) {
+		boundByActor(sender);
+		return 1;
+	}
+	if (TMapObjGeneral::receiveMessage(sender, message))
+		return 1;
+	if (message == 4 && (unkF8 & 0x100000)) {
+		hold((TTakeActor*)sender);
+		return 1;
+	}
+	if (sender->isActorType(0x80000001) && !isActorType(0x400000D0)
+	    && message != 4) {
+		kicked();
+		return 1;
+	}
+	return 0;
 }
 
 void TBigWatermelon::touchWaterSurface()
