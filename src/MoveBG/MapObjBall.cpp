@@ -1349,9 +1349,8 @@ void TMapObjBall::touchWall(JGeometry::TVec3<f32>* pos,
 			continue;
 		f32 sd = pos->x * wall->mNormal.x + pos->y * wall->mNormal.y
 		         + pos->z * wall->mNormal.z + wall->mPlaneDistance;
-		f32 push = mBodyRadius - sd;
-		pos->x   = push * wall->mNormal.x + pos->x;
-		pos->z   = push * wall->mNormal.z + pos->z;
+		pos->x = (mBodyRadius - sd) * wall->mNormal.x + pos->x;
+		pos->z = (mBodyRadius - sd) * wall->mNormal.z + pos->z;
 		f32 bf   = -(1.0f + mMapObjData->mPhysical->unk4->unk8);
 		f32 bd   = dot * bf;
 		mVelocity.x = bd * wall->mNormal.x + mVelocity.x;
