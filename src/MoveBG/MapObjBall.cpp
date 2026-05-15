@@ -1095,26 +1095,80 @@ void TMapObjBall::boundByActor(THitActor* actor)
 		MsVECNormalize((Vec*)&diff, (Vec*)&diff);
 	}
 	if (actor->isActorType(0x80000001)) {
-		if (unkF8 & 0x02000000)
-			return;
-		if (fabsf(*gpMarioSpeedX) > mMapObjData->mPhysical->unk4->unkC
-		    || fabsf(*gpMarioSpeedZ) > mMapObjData->mPhysical->unk4->unkC) {
-			mVelocity.y = mVelocity.y + unk150;
-			if (!isActorType(0x400000D0)) {
-				if (gpMSound->gateCheck(0x194F)) {
+		if (!(unkF8 & 0x02000000)) {
+			f32 thresh = mMapObjData->mPhysical->unk4->unkC;
+			if (fabsf(*gpMarioSpeedX) > thresh
+			    || fabsf(*gpMarioSpeedZ) > thresh) {
+				mVelocity.y = mVelocity.y + unk150;
+				if (!isActorType(0x400000D0)) {
+					if (gpMSound->gateCheck(0x194F)) {
+						MSoundSESystem::MSoundSE::startSoundActor(
+						    0x194F, (Vec*)&mPosition, 0, nullptr, 0, 4);
+					}
+				}
+			} else {
+				mVelocity.y = mVelocity.y + unk154;
+			}
+			mVelocity.x = mVelocity.x + diff.x * unk14C
+			              - unk148 * (*gpMarioSpeedX);
+			mVelocity.z = mVelocity.z + diff.z * unk14C
+			              - unk148 * (*gpMarioSpeedZ);
+			actor->receiveMessage(this, 0xE);
+		}
+	} else {
+		JGeometry::TVec3<f32> v  = mVelocity;
+		JGeometry::TVec3<f32> v2 = v;
+		f32 dot                  = v2.x * diff.x + v2.z * diff.z;
+		bool bigBounce           = false;
+		if (dot <= 0.0f) {
+			JGeometry::TVec3<f32> v3 = v;
+			f32 thresh = mMapObjData->mPhysical->unk4->unkC;
+			if (fabsf(v3.x) > thresh && fabsf(v3.z) > thresh) {
+				bigBounce = true;
+			}
+		}
+		if (bigBounce) {
+			f32 add     = 1.0f + unk16C;
+			mVelocity.x = mVelocity.x - add * (diff.x * dot);
+			mVelocity.y = mVelocity.y + unk168;
+			mVelocity.z = mVelocity.z - add * (diff.z * dot);
+			actor->receiveMessage(this, 0x10);
+			if (isActorType(0x400000D0)) {
+				if (gpMSound->gateCheck(0x3862)) {
 					MSoundSESystem::MSoundSE::startSoundActor(
-					    0x194F, (Vec*)&mPosition, 0, nullptr, 0, 4);
+					    0x3862, (Vec*)&mPosition, 0, nullptr, 0, 4);
 				}
 			}
 		} else {
-			mVelocity.y = mVelocity.y + unk154;
+			mVelocity.x = mVelocity.x - diff.x * unk164;
+			mVelocity.y = mVelocity.y + unk168;
+			mVelocity.z = mVelocity.z - diff.z * unk164;
 		}
-		mVelocity.x
-		    = mVelocity.x - unk148 * (*gpMarioSpeedX) * diff.x;
-		mVelocity.z
-		    = mVelocity.z - unk148 * (*gpMarioSpeedZ) * diff.z;
-		actor->receiveMessage(this, 0xE);
 	}
+	if (actor->isActorType(0x80000001) && !(unkF8 & 0x02000000)) {
+		JGeometry::TVec3<f32> vc  = mVelocity;
+		JGeometry::TVec3<f32> vc2 = vc;
+		if (vc2.y < 0.0f) {
+			if (mPosition.y + mBodyRadius
+			    > 130.0f + actor->mPosition.y) {
+				mVelocity.y = unk160 * (-vc.y);
+				mVelocity.x
+				    = mVelocity.x + unk158 * (*gpMarioSpeedX);
+				mVelocity.y
+				    = mVelocity.y + unk15C * (*gpMarioSpeedY);
+				mVelocity.z
+				    = mVelocity.z + unk158 * (*gpMarioSpeedZ);
+				if (!isActorType(0x400000D0)) {
+					if (gpMSound->gateCheck(0x194F)) {
+						MSoundSESystem::MSoundSE::startSoundActor(
+						    0x194F, (Vec*)&mPosition, 0, nullptr, 0, 4);
+					}
+				}
+			}
+		}
+	}
+	unk194 = 10;
+	mLiveFlag &= ~0x10;
 	mLiveFlag |= 0x80;
 }
 #pragma dont_inline off
