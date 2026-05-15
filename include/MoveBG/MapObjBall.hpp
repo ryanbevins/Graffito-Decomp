@@ -92,11 +92,11 @@ public:
 	/* 0x1A2 */ u16 unk1A2;
 	/* 0x1A4 */ u8 unk1A4;
 
-	static u32 mFruitLivingTime;
-	static u32 mScaleUpSpeed;
-	static u32 mRottingScaleSpeed;
-	static u32 mBreakingScaleSpeed;
-	static u32 mFruitWaitTimeToAppear;
+	static s32 mFruitLivingTime;
+	static f32 mScaleUpSpeed;
+	static f32 mRottingScaleSpeed;
+	static f32 mBreakingScaleSpeed;
+	static s32 mFruitWaitTimeToAppear;
 	static u32 mRottenColor;
 };
 

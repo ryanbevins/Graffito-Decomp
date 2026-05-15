@@ -20,11 +20,11 @@
 #include <MSound/MSSetSound.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
-u32 TResetFruit::mFruitLivingTime;
-u32 TResetFruit::mScaleUpSpeed;
-u32 TResetFruit::mRottingScaleSpeed;
-u32 TResetFruit::mBreakingScaleSpeed;
-u32 TResetFruit::mFruitWaitTimeToAppear;
+s32 TResetFruit::mFruitLivingTime;
+f32 TResetFruit::mScaleUpSpeed;
+f32 TResetFruit::mRottingScaleSpeed;
+f32 TResetFruit::mBreakingScaleSpeed;
+s32 TResetFruit::mFruitWaitTimeToAppear;
 u32 TResetFruit::mRottenColor;
 
 TMapObjBall::TMapObjBall(const char* name)
@@ -176,6 +176,26 @@ void TResetFruit::waitingToAppear()
 	if (gpMSound->gateCheck(0x3802)) {
 		MSoundSESystem::MSoundSE::startSoundActor(0x3802, (Vec*)&mPosition, 0,
 		                                          nullptr, 0, 4);
+	}
+}
+
+void TResetFruit::appearing()
+{
+	Mtx scaleMtx;
+	PSMTXScale(scaleMtx, mScaleUpSpeed, mScaleUpSpeed, mScaleUpSpeed);
+	Mtx* nm = getModel()->mNodeMatrices;
+	concatOnlyRotFromLeft(scaleMtx, nm[0], nm[0]);
+	mScaling.y        = mScaling.y * mScaleUpSpeed;
+	mScaledBodyRadius = mBodyRadius * mScaling.y;
+	(*nm)[1][3]       = mBodyRadius * mScaling.y + mPosition.y;
+	if (mScaling.y >= mInitialScaling.y) {
+		mScaling.x = mInitialScaling.x;
+		mScaling.y = mInitialScaling.y;
+		mScaling.z = mInitialScaling.z;
+		getModel()->calc();
+		unk64 &= ~0x1;
+		makeObjAppeared();
+		mState = 1;
 	}
 }
 
