@@ -14,6 +14,7 @@
 #include <System/Particles.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <stdio.h>
+#include <string.h>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
@@ -78,6 +79,7 @@ TResetFruit::TResetFruit(const char* name)
 TRandomFruit::TRandomFruit(const char* name)
     : TResetFruit(name)
 {
+	memset(mFruitName, 0, sizeof(mFruitName));
 }
 
 void TRandomFruit::initMapObj()
@@ -130,6 +132,9 @@ void TCoverFruit::calcRootMatrix()
 void TCoverFruit::loadAfter()
 {
 	TMapObjBase::loadAfter();
+	if (TFlagManager::smInstance->getBool(0x1038B)) {
+		makeObjDead();
+	}
 }
 
 BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
@@ -155,16 +160,17 @@ BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
 		kill();
 		return 1;
 	}
-	if (!isState(1) && !isState(6) && !isState(0xB)) {
-		if (!isState(2) && !isState(3) && !isState(0xC) && !isState(0xA)) {
-			TMapObjBall::touchActor(sender);
-			if (!(unkF8 & 0x04000000) && isState(1)
-			    && !(mLiveFlag & 0x10) && !isUnk104Positive()) {
+	if (!isState(1) && !isState(6) && !isState(0xB))
+		return 0;
+	if (!isState(2) && !isState(3) && !isState(0xC) && !isState(0xA)) {
+		TMapObjBall::touchActor(sender);
+		if (!(unkF8 & 0x04000000) && isState(1) && !(mLiveFlag & 0x10)) {
+			if (!isUnk104Positive()) {
 				unkF8 |= 0x40000;
 				unk104 = getLivingTime();
-				mLiveFlag &= ~0x10;
-				mState = 0xB;
 			}
+			mLiveFlag &= ~0x10;
+			mState = 0xB;
 		}
 	}
 	if (TMapObjGeneral::receiveMessage(sender, message))
@@ -192,7 +198,7 @@ void TResetFruit::touchActor(THitActor* actor)
 	if (isState(0xA))
 		return;
 	TMapObjBall::touchActor(actor);
-	if (mLiveFlag & 0x04000000)
+	if (unkF8 & 0x04000000)
 		return;
 	if (!isState(1))
 		return;
@@ -209,7 +215,7 @@ void TResetFruit::touchActor(THitActor* actor)
 void TResetFruit::hold(TTakeActor* taker)
 {
 	JGeometry::TVec3<f32> v = mVelocity;
-	if (v.length() > 10.0f) {
+	if (v.length() <= 10.0f) {
 		TMapObjGeneral::hold(taker);
 		mVelocity.z = 0.0f;
 		mVelocity.y = 0.0f;
@@ -219,7 +225,7 @@ void TResetFruit::hold(TTakeActor* taker)
 	mVelocity.y = 0.0f;
 	mVelocity.x = 0.0f;
 	mLiveFlag |= 0x10;
-	if (mLiveFlag & 0x04000000)
+	if (unkF8 & 0x04000000)
 		return;
 	if (!isUnk104Positive()) {
 		unkF8 |= 0x40000;
@@ -299,8 +305,8 @@ void TResetFruit::kicked()
 	mVelocity.z = unk170 * (*gpMarioSpeedZ) + mVelocity.z;
 	f32 thresh = mMapObjData->mPhysical->unk4->unkC;
 	if (fabsf(mVelocity.x) < thresh && fabsf(mVelocity.z) < thresh) {
-		mVelocity.x = 50.0f * (MsRandF() - 0.5f) * 2.0f;
-		mVelocity.z = 50.0f * (MsRandF() - 0.5f) * 2.0f;
+		mVelocity.x = (MsRandF() - 0.5f) * 2.0f;
+		mVelocity.z = (MsRandF() - 0.5f) * 2.0f;
 	}
 	unk194 = 10;
 	mLiveFlag &= ~0x10;
@@ -407,20 +413,18 @@ void TResetFruit::makeObjWaitingToAppear()
 
 u32 TResetFruit::touchWater(THitActor* actor)
 {
-	if (isState(6))
-		return 0;
-	if (isState(2))
-		return 0;
-	JGeometry::TVec3<f32> vel = mVelocity;
-	JGeometry::TVec3<f32>* speed = getWaterSpeed(actor);
-	f32 factor                   = unk17C;
-	vel.x                        = speed->x * factor + vel.x;
-	vel.y                        = speed->y * factor + vel.y;
-	vel.z                        = speed->z * factor + vel.z;
-	mVelocity.x                  = vel.x;
-	mVelocity.y                  = vel.y;
-	mVelocity.z                  = vel.z;
-	mLiveFlag &= ~0x10;
+	if (!isState(6) && !isState(2)) {
+		JGeometry::TVec3<f32> vel    = mVelocity;
+		JGeometry::TVec3<f32>* speed = getWaterSpeed(actor);
+		f32 factor                   = unk17C;
+		vel.x                        = speed->x * factor + vel.x;
+		vel.y                        = speed->y * factor + vel.y;
+		vel.z                        = speed->z * factor + vel.z;
+		mVelocity.x                  = vel.x;
+		mVelocity.y                  = vel.y;
+		mVelocity.z                  = vel.z;
+		mLiveFlag &= ~0x10;
+	}
 	if (!isUnk104Positive()) {
 		unkF8 |= 0x40000;
 		unk104 = getLivingTime();
@@ -482,31 +486,28 @@ void TResetFruit::perform(u32 flags, JDrama::TGraphics* graphics)
 				resetCheck = true;
 			}
 		}
-		if (!resetCheck) {
-			if (mLiveFlag & 0x200) {
-				mLiveFlag &= ~0x200;
+		if (resetCheck && !gpCubeArea->isInAreaCube(mPosition)
+		    && isState(0xB)
+		    && (mPosition.x != mInitialPosition.x
+		        || mPosition.z != mInitialPosition.z)) {
+			mState = 0xB;
+			makeObjDefault();
+			makeObjDead();
+			calcRootMatrix();
+			getModel()->calc();
+			unk104 = mFruitWaitTimeToAppear;
+			unkF8 &= ~0x40000;
+			mState = 0xA;
+			if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
+				makeObjDead();
 			}
-		} else {
-			if (!gpCubeArea->isInAreaCube(mPosition) && isState(0xB)) {
-				if (mPosition.x != mInitialPosition.x
-				    || mPosition.z != mInitialPosition.z) {
-					mState = 0xB;
-					makeObjDefault();
-					makeObjDead();
-					calcRootMatrix();
-					getModel()->calc();
-					unk104 = mFruitWaitTimeToAppear;
-					unkF8 &= ~0x40000;
-					mState = 0xA;
-					if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
-						makeObjDead();
-					}
-				}
-			}
+			return;
 		}
-	} else {
-		TMapObjGeneral::perform(flags, graphics);
+		if (!resetCheck && (mLiveFlag & 0x200)) {
+			mLiveFlag &= ~0x200;
+		}
 	}
+	TMapObjGeneral::perform(flags, graphics);
 }
 
 void TResetFruit::makeObjAppeared()
@@ -741,7 +742,7 @@ u32 TMapObjBall::touchWater(THitActor* actor)
 void TMapObjBall::hold(TTakeActor* taker)
 {
 	JGeometry::TVec3<f32> v = mVelocity;
-	if (v.length() > 10.0f) {
+	if (v.length() <= 10.0f) {
 		TMapObjGeneral::hold(taker);
 		mVelocity.z = 0.0f;
 		mVelocity.y = 0.0f;
@@ -954,8 +955,8 @@ void TMapObjBall::kicked()
 		mVelocity.z = unk170 * (*gpMarioSpeedZ) + mVelocity.z;
 		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
 		if (fabsf(mVelocity.x) < thresh && fabsf(mVelocity.z) < thresh) {
-			mVelocity.x = 50.0f * (MsRandF() - 0.5f) * 2.0f;
-			mVelocity.z = 50.0f * (MsRandF() - 0.5f) * 2.0f;
+			mVelocity.x = (MsRandF() - 0.5f) * 2.0f;
+			mVelocity.z = (MsRandF() - 0.5f) * 2.0f;
 		}
 		unk194 = 10;
 		mLiveFlag &= ~0x10;
@@ -1195,7 +1196,7 @@ void TMapObjBall::touchActor(THitActor* actor)
 	if (actor->isActorType(0x400000CC))
 		return;
 
-	if (actor->isActorType(0x80000001) && isActorType(0x400000D0)
+	if (actor->isActorType(0x80000001) && !isActorType(0x400000D0)
 	    && *gpMarioSpeedY != 0.0f) {
 		kicked();
 	} else {
@@ -1328,6 +1329,9 @@ void TMapObjBall::rebound(JGeometry::TVec3<f32>* pos)
 			    soundId, (Vec*)&mPosition, (Vec*)&mVelocity, 0.0f, 0, 0,
 			    nullptr, 0, 4);
 		}
+	}
+	if (isState(0xB)) {
+		mState = 0xC;
 	}
 }
 
@@ -1576,7 +1580,7 @@ void TBigWatermelon::touchActor(THitActor* actor)
 {
 	if (isState(2))
 		return;
-	if (isState(1)) {
+	if (!isState(1)) {
 		JGeometry::TVec3<f32> v = mVelocity;
 		if (v.y < 0.0f) {
 			kill();
@@ -1709,7 +1713,7 @@ void TBigWatermelon::startEvent()
 				obj->mVelocity.x
 				    = (MsRandF() - 0.5f) * 20.0f;
 				obj->mVelocity.y = MsRandF() * 20.0f + 20.0f;
-				obj->mVelocity.z = (1.0f - 0.5f) * 20.0f;
+				obj->mVelocity.z = (MsRandF() - 0.5f) * 20.0f;
 				obj->mLiveFlag &= ~0x10;
 				*(u32*)((char*)obj + 0x14C) = 0x3C0;
 			}
