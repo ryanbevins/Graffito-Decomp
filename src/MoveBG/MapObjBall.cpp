@@ -534,6 +534,33 @@ void TResetFruit::makeObjAppeared()
 	}
 }
 
+void TResetFruit::control()
+{
+	switch (mState) {
+	case 1:
+		living();
+		break;
+	case 2:
+	case 3:
+		waitingToAppear();
+		break;
+	case 6:
+		rotting();
+		break;
+	case 0xB:
+		appearing();
+		break;
+	case 0xC:
+		breaking();
+		break;
+	case 0xD:
+		waitEffect();
+		break;
+	default:
+		break;
+	}
+}
+
 void TResetFruit::makeObjLiving()
 {
 	u8 hasTimer;
