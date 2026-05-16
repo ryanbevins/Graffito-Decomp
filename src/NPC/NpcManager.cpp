@@ -556,6 +556,14 @@ void TNPCManager::perform(u32 flags, JDrama::TGraphics* gfx)
 	TEnemyManager::perform(flags, gfx);
 }
 
+TMareJellyFishManager::TMareJellyFishManager(const char* name)
+    : TObjManager(name)
+{
+	gpMareJellyFishManager = this;
+}
+
+void TMareJellyFishManager::perform(u32, JDrama::TGraphics*) { }
+
 SDLModelData* TNPCManager::getPartsSDLModelData(const char* name) const
 {
 	SDLModelData* result = (SDLModelData*)NULL;
