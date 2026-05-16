@@ -31,16 +31,11 @@ f32 SMSGetAnmFrameRate();
 namespace {
 const int cRandomAnims[5] = { 7, 4, 0, 2, 8 };
 
-struct ColorEntry {
-	GXColorS10 c1;
-	GXColorS10 c2;
-};
-
-const ColorEntry cColorTable[4] = {
-	{ { 0, 0, 0, 0x64 }, { 0xFF, 0, 0, 0 } },
-	{ { 0, 0, 0, 0xC8 }, { 0, 0, 0, 0 } },
-	{ { 0, 0xFF, 0, 0xC8 }, { 0, 0, 0, 0 } },
-	{ { 0, 0xFF, 0, 0 }, { 0, 0, 0, 0 } },
+const GXColorS10 cColorTable[4] = {
+	{ 0, 0x64, (s16)0xFF, 0 },
+	{ 0, (s16)0xC8, 0, 0 },
+	{ (s16)0xFF, (s16)0xC8, 0, 0 },
+	{ (s16)0xFF, 0, 0, 0 },
 };
 
 const char* cMatName = "_mat_body1";
@@ -147,7 +142,7 @@ void TAnimalBird::load(JSUMemoryInputStream& stream)
 	u16 matIdx
 	    = (u16)model->getModelData()->getMaterialName()->getIndex(cMatName);
 	SMS_InitPacket_OneTevColor(model, matIdx, GX_TEVREG2,
-	                           (const GXColorS10*)&cColorTable[variant]);
+	                           &cColorTable[variant]);
 }
 
 void TAnimalBird::loadAfter()
