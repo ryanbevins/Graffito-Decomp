@@ -226,13 +226,30 @@ TBathtubKillerManager::TBathtubKillerManager(const char* name)
 {
 }
 
-void TBathtubKillerManager::load(JSUMemoryInputStream&) { }
+void TBathtubKillerManager::load(JSUMemoryInputStream& stream)
+{
+	TSmallEnemyManager::load(stream);
+	unk38 = new TBathtubKillerParams("/enemy/bathtubkiller.prm");
+}
 
 void TBathtubKillerManager::loadAfter() { }
 
 void TBathtubKillerManager::generateMushroom(JGeometry::TVec3<f32>) { }
 
-int TBathtubKillerManager::countActiveKillers() { return 0; }
+int TBathtubKillerManager::countActiveKillers()
+{
+	int count = 0;
+	for (int i = 0;
+	     i < (unk38 == NULL ? mObjNum
+	                        : (unk38->mSLActiveEnemyNum.value > mObjNum
+	                               ? mObjNum
+	                               : unk38->mSLActiveEnemyNum.value));
+	     i++) {
+		if (!(((TLiveActor*)unk18[i])->mLiveFlag & 1))
+			count++;
+	}
+	return count;
+}
 
 int TBathtubKillerManager::countActiveShineKillers() { return 0; }
 
