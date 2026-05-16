@@ -21,6 +21,7 @@
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <stdlib.h>
+#include <math.h>
 
 extern JGeometry::TVec3<f32>* gpMarioPos;
 
@@ -379,19 +380,18 @@ void TAnimalBird::initParams()
 
 BOOL TAnimalBird::isFindMario() const
 {
-	f32 diffY = mPosition.y - gpMarioPos->y;
-	if (diffY < 0)
-		diffY = -diffY;
-	TAnimalBirdParams* p = (TAnimalBirdParams*)getSaveParam();
-	if (p->mSearchHeight.value < diffY)
+	f32 diffY = __fabsf(gpMarioPos->y - mPosition.y);
+	if (((TAnimalBirdParams*)getSaveParam())->mSearchHeight.value < diffY)
 		return FALSE;
 
 	f32 scale = unk174;
-	return isInSight(*gpMarioPos, scale * p->mSearchLength.value,
-	                 scale * p->mSearchAngle.value,
-	                 scale * p->mSearchAware.value)
-	    ? 1
-	    : 0;
+	return isInSight(
+	           *gpMarioPos,
+	           scale * ((TAnimalBirdParams*)getSaveParam())->mSearchLength.value,
+	           scale * ((TAnimalBirdParams*)getSaveParam())->mSearchAngle.value,
+	           scale * ((TAnimalBirdParams*)getSaveParam())->mSearchAware.value)
+	    ? TRUE
+	    : FALSE;
 }
 
 void TAnimalBird::doFlyToCurPathNode()
