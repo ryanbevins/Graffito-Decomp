@@ -52,6 +52,24 @@ Ninja is used for most workflows. Simply running `ninja` in the root of the repo
 
 To check changes against a baseline, `ninja baseline` can be used to generate a baseline report on the current state of the work tree, after which `ninja.exe changes_all` can be used to show how the current changes to work tree influence matching progress, including a per-symbol report.
 
+### Windows single-object compile fallback
+
+On this Windows workspace, `python -m ninja` may hang indefinitely or leave an idle `ninja.exe` process behind. For agent-driven single-object checks, prefer this workflow:
+
+1. Use `ninja -n -v build\GMSJ01\src\<path>\<file>.o` only to print the exact compile command.
+2. Run the printed MWCC command directly through `build\tools\sjiswrap.exe`.
+3. In PowerShell, pass arguments with an array so comma-containing flags such as `-O4,p` and `-str reuse,readonly` stay single arguments:
+
+```powershell
+$args=@('build\compilers\GC\1.2.5\mwcceppc.exe', ...,
+        '-O4,p', '-str', 'reuse,readonly', ...,
+        '-c', 'src\MoveBG\MapObjMare.cpp',
+        '-o', 'build\GMSJ01\src\MoveBG')
+& build\tools\sjiswrap.exe @args
+```
+
+Then verify with `python tools\decomp-diff.py -u mario/<path>`. Do not wait on a stuck `python -m ninja`; stop the idle `ninja.exe` and use the direct compile fallback.
+
 The underlying utility used for splitting the binary is `dtk` (`build/tools/dtk`).
 
 The main diffing tool used by humans is **objdiff** (`encounter/objdiff`). It compares the compiled `.o` from our source against the original `.o` extracted from the DOL, function by function, showing PPC assembly side-by-side. It automatically rebuilds on file changes.

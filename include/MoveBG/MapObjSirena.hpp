@@ -12,11 +12,13 @@ public:
 	{
 	}
 
-	virtual ~TWaterHitPictureHideObj();
+	virtual ~TWaterHitPictureHideObj() { }
 	virtual void control();
 	virtual void touchActor(THitActor*);
-	virtual void afterFinishedAnim();
+	virtual u32 touchWater(THitActor*);
 	virtual Vec* getObjAppearPos() const;
+	virtual void afterFinishedAnim();
+	virtual void forward(f32);
 
 public:
 	/* 0x150 */ char unkWaterHit[0x174 - 0x150];
@@ -58,8 +60,6 @@ public:
 	virtual BOOL receiveMessage(THitActor*, u32);
 	virtual void touchPlayer(THitActor*);
 	virtual void control();
-
-	virtual void someAction();
 };
 
 class TMultiBtk;
@@ -148,6 +148,10 @@ class TSirenaRollMapObj : public TMapObjBase {
 public:
 	TSirenaRollMapObj(const char*);
 
+	virtual f32 getRollAngX(int) const;
+	virtual f32 getRollAngY(int) const;
+	virtual f32 getRollAngZ(int) const;
+
 public:
 	/* 0x138 */ f32* unk138;
 	/* 0x13C */ f32* unk13C;
@@ -172,8 +176,7 @@ public:
 	virtual void initMapObj();
 	virtual void moveObject();
 	virtual u32 touchWater(THitActor*);
-
-	f32 getRollAngY(int i) const;
+	virtual f32 getRollAngY(int i) const;
 
 public:
 	/* 0x168 */ TMapCollisionWarp* unk168;
@@ -189,8 +192,7 @@ public:
 	virtual void initMapObj();
 	virtual void moveObject();
 	virtual u32 touchWater(THitActor*);
-
-	f32 getRollAngX(int i) const;
+	virtual f32 getRollAngX(int i) const;
 
 public:
 	/* 0x168 */ u32 unk168;
@@ -208,16 +210,28 @@ public:
 	virtual u32 touchWater(THitActor*);
 
 	virtual void initNeonMatColor();
-	f32 getRollAngX(int i) const;
+	virtual f32 getRollAngX(int i) const;
 
 public:
-	/* 0x168 */ char unkSlotDrum[0x194 - 0x168];
+	/* 0x168 */ s32 unk168;
+	/* 0x16C */ u8 unk16C;
+	/* 0x16D */ u8 unk16D;
+	/* 0x16E */ u8 unk16E;
+	/* 0x16F */ u8 unk16F;
+	/* 0x170 */ GXColorS10 unk170[3];
+	/* 0x188 */ u8 unk188[4];
+	/* 0x18C */ u8 unk18C[8];
 	/* 0x194 */ u8 unk194;
 };
 
 class TRouletteSw : public THitActor {
 public:
-	TRouletteSw(const char*);
+	TRouletteSw(const char* name)
+	    : THitActor(name)
+	    , unk68(nullptr)
+	    , unk6C(0)
+	{
+	}
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
@@ -235,9 +249,9 @@ public:
 	virtual void calcRootMatrix();
 	virtual void initMapObj();
 	virtual void moveObject();
+	virtual void setRollSp(f32);
 
 	void switchStop();
-	void setRollSp(f32);
 
 public:
 	/* 0x138 */ f32 unk138;
@@ -247,10 +261,7 @@ public:
 	/* 0x142 */ u8 unk142;
 	/* 0x143 */ u8 unk143;
 	/* 0x144 */ f32 unk144;
-	/* 0x148 */ s16 unk148;
-	/* 0x14A */ s16 unk14A;
-	/* 0x14C */ s16 unk14C;
-	/* 0x14E */ s16 unk14E;
+	/* 0x148 */ GXColorS10 unk148;
 	/* 0x150 */ TRouletteSw* unk150;
 };
 

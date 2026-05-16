@@ -84,6 +84,7 @@ public:
 
 class THideObjInfo : public JDrama::TViewObj {
 public:
+	virtual void perform(u32, JDrama::TGraphics*);
 	void action(long);
 	void load(JSUMemoryInputStream&);
 	THideObjInfo(const char*);

@@ -15,8 +15,14 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DPacket.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/JMath.hpp>
+#include <Enemy/Telesa.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <MoveBG/MapObjManager.hpp>
+#include <MoveBG/ItemManager.hpp>
 #include <System/MarioGamePad.hpp>
 #include <stdlib.h>
 
@@ -25,6 +31,17 @@
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+// Subset of InfectiousStrings -- without MtxCalcTypeName (matches original .o)
+static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE   = "ƒƒ‚ƒŠ‚ª‘«‚è‚Ü‚¹‚ñ\n";
+static const char* MtxCalcTypeName_Basic
+    = "MActorMtxCalcType_Basic ƒNƒ‰ƒVƒbƒNƒXƒP[ƒ‹‚n‚m";
+static const char* MtxCalcTypeName_Softimage
+    = "MActorMtxCalcType_Softimage ƒNƒ‰ƒVƒbƒNƒXƒP[ƒ‹‚n‚e‚e";
+static const char* MtxCalcTypeName_MotionBlend
+    = "MActorMtxCalcType_MotionBlend ƒ‚[ƒVƒ‡ƒ“ƒuƒŒƒ“ƒh";
+static const char* MtxCalcTypeName_User
+    = "MActorMtxCalcType_User ƒ†[ƒU[’è‹`";
 
 static void* gpCurObject;
 
@@ -34,13 +51,11 @@ static int partsRollCallback(J3DNode* node, int param)
 		return 1;
 	if (gpCurObject == nullptr)
 		return 1;
-	u16 jointIdx = *((u16*)node + 0xC);
+	u16 jointIdx = ((J3DJoint*)node)->mJntNo;
 	TSirenaRollMapObj* obj = (TSirenaRollMapObj*)gpCurObject;
-	MtxPtr localMtx
-	    = (MtxPtr)((u8*)obj->getModel()->mNodeMatrices + jointIdx * 0x30);
+	MtxPtr localMtx = obj->getModel()->mNodeMatrices[jointIdx];
 	jointIdx -= 1;
 
-	// Build scale matrix from obj->mScaling
 	Mtx scaleMtx;
 	scaleMtx[0][0] = obj->mScaling.x;
 	scaleMtx[0][1] = 0.0f;
@@ -55,19 +70,18 @@ static int partsRollCallback(J3DNode* node, int param)
 	scaleMtx[2][2] = obj->mScaling.z;
 	scaleMtx[2][3] = 0.0f;
 
-	// Apply rotation/scale to local matrix and J3DSys::mCurrentMtx
 	Mtx rotMtx;
-	(void)rotMtx;
-	(void)localMtx;
+	f32 angZ = obj->getRollAngZ(jointIdx);
+	f32 angY = obj->getRollAngY(jointIdx);
+	MsMtxSetRotRPH(rotMtx, obj->getRollAngX(jointIdx), angY, angZ);
+
+	PSMTXConcat(localMtx, rotMtx, localMtx);
+	PSMTXConcat(localMtx, scaleMtx, localMtx);
+	PSMTXConcat(J3DSys::mCurrentMtx, rotMtx, J3DSys::mCurrentMtx);
+	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
+
 	return 1;
 }
-
-TWaterHitPictureHideObj::~TWaterHitPictureHideObj() { }
-#pragma dont_inline on
-void TWaterHitPictureHideObj::control() { }
-void TWaterHitPictureHideObj::touchActor(THitActor*) { }
-void TWaterHitPictureHideObj::afterFinishedAnim() { }
-#pragma dont_inline off
 
 Vec* TWaterHitPictureHideObj::getObjAppearPos() const
 {
@@ -109,7 +123,7 @@ void TPictureTelesa::touchActor(THitActor* sender)
 	f32 dx = sender->mPosition.x - mPosition.x;
 	f32 dy = sender->mPosition.y - mPosition.y;
 	f32 dz = sender->mPosition.z - mPosition.z;
-	f32 sq = dx * dx + dy * dy + dz * dz;
+	f32 sq = dz * dz + (dx * dx + dy * dy);
 	if (sq > 0.0f)
 		sq = JGeometry::TUtil<f32>::sqrt(sq);
 	if (sq < 200.0f) {
@@ -165,8 +179,6 @@ u32 TChestRevolve::touchWater(THitActor* sender)
 	return 1;
 }
 
-void TPanelRevolve::someAction() { }
-
 void TPanelRevolve::touchPlayer(THitActor* sender)
 {
 	if (marioHipAttack() && isState(1)) {
@@ -205,7 +217,7 @@ void TPanelRevolve::control()
 	case 2:
 		if (animIsFinished()) {
 			mState = 1;
-			someAction();
+			updateObjMtx();
 		}
 		break;
 	}
@@ -455,17 +467,17 @@ TRoulette::TRoulette(const char* name)
     , unk144(0.2f)
 {
 	unk150 = nullptr;
-	unk148 = 0;
-	unk14A = 0;
-	unk14C = 0;
-	unk14E = 0xFF;
+	unk148.r = 0;
+	unk148.g = 0;
+	unk148.b = 0;
+	unk148.a = 0xFF;
 	if (gpApplication.mCurrArea.getStage() == 14
 	    && gpMarDirector->getCurrentStage() == 1) {
 		unk141 = 1;
-		unk14C = 0xFF;
+		unk148.b = 0xFF;
 	}
 	if (gpApplication.mCurrArea.getStage() == 56) {
-		unk14C = 0xFF;
+		unk148.b = 0xFF;
 		unk142 = 1;
 	}
 }
@@ -494,13 +506,14 @@ BOOL TRouletteSw::receiveMessage(THitActor* sender, u32 message)
 void TRoulette::switchStop()
 {
 	if (unk150->unk6C != 0) {
+		JGeometry::TVec3<f32>* mario = gpMarioPos;
 		f32 ground = SMS_GetMarioGrLevel();
-		if (gpMarioPos->y < ground + 20.0f && unk13C != 0.0f) {
+		if (mario->y < ground + 20.0f && unk13C != 0.0f) {
 			unk150->unk6C = 0;
 			unk13C = 0.0f;
-			unk148 = 0;
-			unk14A = 0;
-			unk14C = 0;
+			unk148.r = 0;
+			unk148.g = 0;
+			unk148.b = 0;
 			if (gpMSound->gateCheck(0x2924))
 				MSoundSESystem::MSoundSE::startSoundActor(0x2924, mPosition, 0,
 				                                          nullptr, 0, 4);
@@ -508,9 +521,9 @@ void TRoulette::switchStop()
 	}
 	if (unk150->unk6C != 0 && unk141 != 0) {
 		unk150->unk6C = 0;
-		unk148 = 0;
-		unk14A = 0;
-		unk14C = 0;
+		unk148.r = 0;
+		unk148.g = 0;
+		unk148.b = 0;
 		if (gpMSound->gateCheck(0x2924))
 			MSoundSESystem::MSoundSE::startSoundActor(0x2924, mPosition, 0,
 			                                          nullptr, 0, 4);
@@ -521,9 +534,9 @@ void TRoulette::switchStop()
 void TRoulette::setRollSp(f32 sp)
 {
 	unk13C = sp;
-	unk148 = 0;
-	unk14A = 0;
-	unk14C = 0xFF;
+	unk148.r = 0;
+	unk148.g = 0;
+	unk148.b = 0xFF;
 	unk150->unk6C = 0;
 }
 
@@ -570,7 +583,7 @@ void TCasinoPanelGate::initMapObj()
 	}
 }
 
-// Stub implementations â€” partial matches expected, started for completeness
+// Stub implementations -- partial matches expected, started for completeness
 
 void TDonchou::calcRootMatrix()
 {
@@ -601,7 +614,7 @@ void TDonchou::calcRootMatrix()
 				mMActor->setBck("donchou");
 				JDrama::TFlagT<u16> flag;
 				flag = 0;
-				gpMarDirector->fireStartDemoCamera("ã©ã‚“å¸³ã‚«ãƒ¡ãƒ©", &mPosition,
+				gpMarDirector->fireStartDemoCamera("‚Ç‚ñ’ ƒJƒƒ‰", &mPosition,
 				                                   -1, 0.0f, true, nullptr, 0,
 				                                   nullptr, flag);
 				J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
@@ -615,64 +628,76 @@ void TCloset::moveObject()
 {
 	TLiveActor::moveObject();
 	if (unk16C != 0) {
-		if (!mMActor->checkCurAnm("closetopen", 0)) {
+		if (mMActor->checkCurAnm("closetopen", 0) == 0) {
 			++unk16D;
-			if (unk16D >= 60) {
-				if (gpMSound->gateCheck(0x484D))
-					MSoundSESystem::MSoundSE::startSoundSystemSE(0x484D, 0,
-					                                             nullptr, 0);
-				return;
+			if (unk16D == 60) {
+				mMActor->setBck("closetopen");
+				setAnmSound("/scene/mapObj/closetopen.bas");
 			}
+			return;
 		}
-		return;
 	}
-	// Slot iteration loop â€” for each slot, accumulate angle, normalize, sound
-	bool allStopped = true;
 	for (s32 i = 0; i < unk148; ++i) {
 		f32 cur = unk138[i];
-		if (cur == 0.0f) {
-			if (unk13C[i] >= 180.0f)
-				allStopped = false;
+		if (cur == 0.0f)
 			continue;
-		}
-		allStopped = false;
 		if (fabsf(cur) > unk160) {
 			unk13C[i] += cur;
 			if (cur > 0.0f)
 				unk138[i] = cur - unk15C;
 			else
 				unk138[i] = cur + unk15C;
-			while (unk13C[i] >= 360.0f)
+			bool changed = false;
+			if (unk13C[i] >= 360.0f) {
 				unk13C[i] -= 360.0f;
-			while (unk13C[i] < 0.0f)
-				unk13C[i] += 360.0f;
-			if (gpMSound->gateCheck(0x389E))
-				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
-				    nullptr, 0, 4);
-		} else {
-			unk13C[i] += cur;
-			while (unk13C[i] >= 360.0f)
-				unk13C[i] -= 360.0f;
-			while (unk13C[i] < 0.0f)
-				unk13C[i] += 360.0f;
-			if (gpMSound->gateCheck(0x389E))
-				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
-				    nullptr, 0, 4);
-			s32 angInt = (s32)fabsf(unk13C[i]);
-			if ((angInt % 180) == 0) {
-				if (unk13C[i] >= 180.0f)
-					unk13C[i] = 0.0f;
-				else
-					unk13C[i] = 180.0f;
-				unk138[i] = 0.0f;
+				changed = true;
 			}
+			if (unk13C[i] < 0.0f) {
+				unk13C[i] += 360.0f;
+				changed = true;
+			}
+			if (changed) {
+				if (gpMSound->gateCheck(0x389C))
+					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+					    0x389C, &mPosition, nullptr, fabsf(unk138[i]),
+					    0, 0, nullptr, 0, 4);
+			}
+			continue;
 		}
-	}
-	if (allStopped) {
-		MSBgm::startBGM(0x80010025);
+		unk13C[i] += cur;
+		bool changed = false;
+		if (unk13C[i] >= 360.0f) {
+			unk13C[i] -= 360.0f;
+			changed = true;
+		}
+		if (unk13C[i] < 0.0f) {
+			unk13C[i] += 360.0f;
+			changed = true;
+		}
+		if (changed) {
+			if (gpMSound->gateCheck(0x389C))
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x389C, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
+				    nullptr, 0, 4);
+		}
+		s32 angInt = (s32)fabsf(unk13C[i]);
+		if ((angInt % 180) != 0)
+			continue;
+		unk138[i] = 0.0f;
+		if (unk13C[i] > 180.0f && unk13C[i] < 360.0f)
+			continue;
+		for (s32 j = 0; j < unk148; ++j) {
+			if (j == i)
+				continue;
+			if (unk138[j] != 0.0f)
+				return;
+			if (unk13C[j] >= 180.0f && unk13C[j] < 360.0f)
+				return;
+		}
 		unk16C = 1;
+		if (gpMSound->gateCheck(0x484D))
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x484D, 0,
+			                                             nullptr, 0);
 	}
 }
 void TCloset::calcRootMatrix()
@@ -754,7 +779,6 @@ void TCasinoPanelGate::moveObject()
 		return;
 	}
 
-	// Per-slot animation loop
 	bool allStopped = true;
 	for (s32 i = 0; i < unk148; ++i) {
 		f32 cur = unk138[i];
@@ -763,7 +787,6 @@ void TCasinoPanelGate::moveObject()
 				allStopped = false;
 			continue;
 		}
-		allStopped = false;
 		if (fabsf(cur) > unk160) {
 			unk13C[i] += cur;
 			if (cur > 0.0f)
@@ -771,45 +794,45 @@ void TCasinoPanelGate::moveObject()
 			else
 				unk138[i] = cur + unk15C;
 			bool changed = false;
-			while (unk13C[i] >= 360.0f) {
+			if (unk13C[i] >= 360.0f) {
 				unk13C[i] -= 360.0f;
 				changed = true;
 			}
-			while (unk13C[i] < 0.0f) {
+			if (unk13C[i] < 0.0f) {
 				unk13C[i] += 360.0f;
 				changed = true;
 			}
 			if (changed) {
 				if (gpMSound->gateCheck(0x389E))
 					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-					    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
-					    nullptr, 0, 4);
+					    0x389E, &mPosition, nullptr, fabsf(unk138[i]),
+					    0, 0, nullptr, 0, 4);
 			}
-		} else {
-			unk13C[i] += cur;
-			bool changed = false;
-			while (unk13C[i] >= 360.0f) {
-				unk13C[i] -= 360.0f;
-				changed = true;
-			}
-			while (unk13C[i] < 0.0f) {
-				unk13C[i] += 360.0f;
-				changed = true;
-			}
-			if (changed) {
-				if (gpMSound->gateCheck(0x389E))
-					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-					    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
-					    nullptr, 0, 4);
-			}
-			s32 angInt = (s32)fabsf(unk13C[i]);
-			if ((angInt % 180) == 0) {
-				if (unk13C[i] >= 0.0f && unk13C[i] <= 180.0f)
-					unk13C[i] = 0.0f;
-				else
-					unk13C[i] = 180.0f;
-				unk138[i] = 0.0f;
-			}
+			continue;
+		}
+		unk13C[i] += cur;
+		bool changed = false;
+		if (unk13C[i] >= 360.0f) {
+			unk13C[i] -= 360.0f;
+			changed = true;
+		}
+		if (unk13C[i] < 0.0f) {
+			unk13C[i] += 360.0f;
+			changed = true;
+		}
+		if (changed) {
+			if (gpMSound->gateCheck(0x389E))
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
+				    nullptr, 0, 4);
+		}
+		s32 angInt = (s32)fabsf(unk13C[i]);
+		if ((angInt % 180) == 0) {
+			if (unk13C[i] < 180.0f || unk13C[i] >= 360.0f)
+				unk13C[i] = 0.0f;
+			else
+				unk13C[i] = 180.0f;
+			unk138[i] = 0.0f;
 		}
 	}
 	if (allStopped) {
@@ -840,50 +863,52 @@ u32 TCasinoPanelGate::touchWater(THitActor* sender)
 		return 0;
 	unk164 = 1;
 	f32 hY = unk144;
+	f32 hX = unk140;
 	f32 dx = sender->mPosition.x - mPosition.x;
-	f32 my_hX = unk140;
 	int dir;
 	if (sender->mPosition.y > mPosition.y + 3.0f * hY) {
-		if (dx < -my_hX)
+		if (dx < -hX)
 			dir = 0xC;
 		else if (dx < 0.0f)
 			dir = 0xD;
-		else if (dx > my_hX)
+		else if (dx > hX)
 			dir = 0xF;
 		else
 			dir = 0xE;
-		if (sender->mPosition.y >= mPosition.y + 3.5f * hY)
+		if (sender->mPosition.y < mPosition.y + 3.5f * hY)
 			unk164 = -1;
-	} else if (sender->mPosition.y <= mPosition.y + 2.0f * hY) {
-		if (sender->mPosition.y > mPosition.y + hY) {
-			if (dx < -my_hX)
-				dir = 4;
-			else if (dx < 0.0f)
-				dir = 5;
-			else if (dx > my_hX)
-				dir = 7;
-			else
-				dir = 6;
-		} else {
-			if (dx < -my_hX)
-				dir = 0;
-			else if (dx < 0.0f)
-				dir = 1;
-			else if (dx > my_hX)
-				dir = 3;
-			else
-				dir = 2;
-		}
-	} else {
-		if (dx < -my_hX)
+	} else if (sender->mPosition.y > mPosition.y + 2.0f * hY) {
+		if (dx < -hX)
 			dir = 8;
 		else if (dx < 0.0f)
 			dir = 9;
-		else if (dx > my_hX)
+		else if (dx > hX)
 			dir = 0xB;
 		else
 			dir = 0xA;
 		if (sender->mPosition.y < mPosition.y + 2.5f * hY)
+			unk164 = -1;
+	} else if (sender->mPosition.y > mPosition.y + hY) {
+		if (dx < -hX)
+			dir = 4;
+		else if (dx < 0.0f)
+			dir = 5;
+		else if (dx > hX)
+			dir = 7;
+		else
+			dir = 6;
+		if (sender->mPosition.y < mPosition.y + 1.5f * hY)
+			unk164 = -1;
+	} else {
+		if (dx < -hX)
+			dir = 0;
+		else if (dx < 0.0f)
+			dir = 1;
+		else if (dx > hX)
+			dir = 3;
+		else
+			dir = 2;
+		if (sender->mPosition.y < mPosition.y + 0.5f * hY)
 			unk164 = -1;
 	}
 	f32 sign = (f32)(s16)unk164;
@@ -904,72 +929,67 @@ void TSlotDrum::moveObject()
 			continue;
 		f32* abs_counter = (f32*)((u8*)this + 0x188 + i * 4);
 		*abs_counter += fabsf(cur);
-		if (*abs_counter > 180.0f / 3.0f) {
+		if (*abs_counter > 360.0f / (f32)unk168) {
 			*abs_counter = 0.0f;
 			if (i == 1) {
 				if (gpMSound->gateCheck(0x3890))
-					MSoundSESystem::MSoundSE::startSoundActor(0x3890, mPosition,
-					                                          0, nullptr, 0, 4);
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x3890, mPosition, 0, nullptr, 0, 4);
 			} else if (i < 1) {
 				if (gpMSound->gateCheck(0x388E))
-					MSoundSESystem::MSoundSE::startSoundActor(0x388E, mPosition,
-					                                          0, nullptr, 0, 4);
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x388E, mPosition, 0, nullptr, 0, 4);
 			} else if (i < 3) {
 				if (gpMSound->gateCheck(0x388F))
-					MSoundSESystem::MSoundSE::startSoundActor(0x388F, mPosition,
-					                                          0, nullptr, 0, 4);
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x388F, mPosition, 0, nullptr, 0, 4);
 			}
 		}
-		// Update angle for the slot
-		unk13C[i] += cur;
-		if (cur > 0.0f)
-			unk138[i] = cur - unk15C;
-		else
-			unk138[i] = cur + unk15C;
-		while (unk13C[i] >= 360.0f)
-			unk13C[i] -= 360.0f;
-		while (unk13C[i] < 0.0f)
-			unk13C[i] += 360.0f;
-
-		// Color update based on whether angle is in valid range
-		s32 step = *(s32*)(unkSlotDrum + 0); // unk168
-		GXColorS10* col = (GXColorS10*)((u8*)this + 0x170 + i * 8);
-		if (unk13C[i] < (f32)(step - 180) || unk13C[i] > 180.0f) {
-			// Red indicator + sound on first transition
-			col->r = 0xFF;
-			col->g = 0xFF;
-			col->b = 0x46;
-			col->a = 0xFF;
-			if (gpMSound->gateCheck(0x4849))
-				MSoundSESystem::MSoundSE::startSoundActor(0x4849, mPosition, 0,
-				                                          nullptr, 0, 4);
-		} else {
-			// Green/neon indicator
-			col->r = 0x78;
-			col->g = 0xE6;
-			col->b = 0xFF;
-			col->a = 0xFF;
+		if (fabsf(cur) > unk160) {
+			unk13C[i] += cur;
+			if (cur > 0.0f)
+				unk138[i] = cur - unk15C;
+			else
+				unk138[i] = cur + unk15C;
+			if (unk13C[i] >= 360.0f)
+				unk13C[i] -= 360.0f;
+			if (unk13C[i] < 0.0f)
+				unk13C[i] += 360.0f;
+			continue;
 		}
-
-		// Check all-stopped win condition
-		bool allValid = true;
+		unk13C[i] += cur;
+		if (unk13C[i] >= 360.0f)
+			unk13C[i] -= 360.0f;
+		if (unk13C[i] < 0.0f)
+			unk13C[i] += 360.0f;
+		s32 angInt = (s32)fabsf(unk13C[i]);
+		if ((angInt % unk168) != 0)
+			continue;
+		unk138[i] = 0.0f;
+		if (unk13C[i] < (f32)unk168) {
+			unk170[i].r = 0xFF;
+			unk170[i].g = 0xFF;
+			unk170[i].b = 0x46;
+			if (gpMSound->gateCheck(0x4849))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x4849, mPosition, 0, nullptr, 0, 4);
+		} else {
+			unk170[i].r = 0x78;
+			unk170[i].g = 0xE6;
+			unk170[i].b = 0xFF;
+		}
+		if (unk13C[i] >= (f32)unk168 && unk13C[i] < 360.0f)
+			return;
 		for (s32 j = 0; j < unk148; ++j) {
 			if (j == i)
 				continue;
-			if (unk138[j] != 0.0f) {
-				allValid = false;
-				break;
-			}
-			if (unk13C[j] > (f32)(step - 180) && unk13C[j] < 180.0f) {
-				continue;
-			}
-			allValid = false;
-			break;
+			if (unk138[j] != 0.0f)
+				return;
+			if (unk13C[j] >= (f32)unk168 && unk13C[j] < 360.0f)
+				return;
 		}
-		if (allValid) {
-			MSBgm::startBGM(0x80010025);
-			unk194 = 1;
-		}
+		MSBgm::startBGM(0x80010025);
+		unk194 = 1;
 	}
 }
 void TSlotDrum::calcRootMatrix()
@@ -1018,7 +1038,7 @@ void TSlotDrum::initMapObj()
 	unk15C = 0.1f;
 	unk160 = 0.5f;
 	unk164 = 0;
-	*(u32*)(unkSlotDrum + 0) = 0; // unk168
+	unk168 = 0;
 	unk138 = (f32*)operator new[](unk148 * sizeof(f32));
 	unk13C = (f32*)operator new[](unk148 * sizeof(f32));
 	for (s32 i = 0; i < unk148; ++i) {
@@ -1038,16 +1058,16 @@ void TSlotDrum::initMapObj()
 }
 void TSlotDrum::initNeonMatColor()
 {
-	static const char* names[] = { "_NEON_C", "_NEON_B", "_NEON_A" };
+	const char* names[] = { "_NEON_C", "_NEON_B", "_NEON_A" };
 	for (int i = 0; i < 3; ++i) {
-		GXColorS10* col = (GXColorS10*)((u8*)this + 0x170 + i * 8);
+		GXColorS10* col = &unk170[i];
 		col->r = 0x78;
 		col->g = 0xE6;
 		col->b = 0xFF;
 		col->a = 0xFF;
-		J3DModel* model = mMActor->getModel();
-		u16 idx = model->mModelData->mMaterialName->getIndex(names[i]);
-		SMS_InitPacket_OneTevColor(model, idx, (GXTevRegID)1, col);
+		u16 idx = getModel()->mModelData->mMaterialName->getIndex(names[i]);
+		SMS_InitPacket_OneTevColor(mMActor->getModel(), idx,
+		                           (GXTevRegID)1, col);
 	}
 }
 
@@ -1059,18 +1079,18 @@ void TItemSlotDrum::moveObject()
 		++unk1A4;
 		if (unk1A4 > 160) {
 			unk1A4 = 0;
-			s32 lo = 0, hi = 2;
-			s32 r0
-			    = lo + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)(hi - lo));
-			*((u8*)this + 0x19C + lo + r0) = 1;
+			s32 lo = 0;
+			s32 hi = 2;
+			s32 r = lo
+			    + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)(hi - lo));
+			*((u8*)this + 0x19C + lo + r) = 1;
 
-			// Pick jackpot result based on random + unk1A8
 			f32 lo2 = 0.0f;
 			f32 hi2 = 100.0f;
 			f32 spread = hi2 - lo2;
-			f32 t = (f32)rand() * (1.0f / 32768.0f);
-			f32 picked = lo2 + spread * t;
-			if (picked >= unk1A8 && unk1A8 <= 10.0f) {
+			f32 picked
+			    = lo2 + (f32)rand() * (1.0f / 32768.0f) * spread;
+			if (picked < unk1A8 && unk1A8 > 10.0f) {
 				unk198 = 0;
 			} else if (picked < 30.0f) {
 				unk198 = 2;
@@ -1082,7 +1102,6 @@ void TItemSlotDrum::moveObject()
 			unk1A8 += 2.0f;
 		}
 	}
-	// Per-slot animation loop with forcast result check
 	for (s32 i = 0; i < unk148; ++i) {
 		if (*((u8*)this + 0x19C + i) != 0) {
 			if ((u32)getForcastResult(i) == unk198) {
@@ -1101,37 +1120,59 @@ void TItemSlotDrum::moveObject()
 				else
 					unk138[i] = cur + unk15C;
 			}
-			while (unk13C[i] >= 360.0f)
+			if (unk13C[i] >= 360.0f)
 				unk13C[i] -= 360.0f;
-			while (unk13C[i] < 0.0f)
+			if (unk13C[i] < 0.0f)
 				unk13C[i] += 360.0f;
-		} else {
-			unk13C[i] += cur;
-			while (unk13C[i] >= 360.0f)
-				unk13C[i] -= 360.0f;
-			while (unk13C[i] < 0.0f)
-				unk13C[i] += 360.0f;
-			if (*((u8*)this + 0x19F + i) != 0)
+			continue;
+		}
+		unk13C[i] += cur;
+		if (unk13C[i] >= 360.0f)
+			unk13C[i] -= 360.0f;
+		if (unk13C[i] < 0.0f)
+			unk13C[i] += 360.0f;
+		if (*((u8*)this + 0x19F + i) != 0)
+			continue;
+		s32 angInt = (s32)fabsf(unk13C[i]);
+		if ((angInt % unk168) != 0)
+			continue;
+		unk13C[i] = (f32)((s32)(unk13C[i] / (f32)unk168) * unk168);
+		unk138[i] = 0.0f;
+		if (gpMSound->gateCheck(0x292C))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x292C, mPosition, 0, nullptr, 0, 4);
+		bool allStopped = (unk138[0] == 0.0f) && (unk138[1] == 0.0f)
+		    && (unk138[2] == 0.0f);
+		if (allStopped) {
+			unk1A2 = 1;
+			generateItem();
+		}
+		for (s32 j = 0; j < unk148; ++j) {
+			if (*((u8*)this + 0x19F + j) == 0)
 				continue;
-			s32 angInt = (s32)fabsf(unk13C[i]);
-			s32 stepDeg = *(s32*)(unkSlotDrum + 0); // unk168
-			if (stepDeg != 0 && (angInt % stepDeg) == 0) {
-				unk138[i] = 0.0f;
+			f32 lo = 0.0f;
+			f32 hi = 1.0f;
+			f32 spread = hi - lo;
+			f32 picked = lo
+			    + spread * ((f32)rand() * (1.0f / 32768.0f));
+			if (picked < 0.9f) {
+				*((u8*)this + 0x19C + j) = 1;
+				continue;
 			}
+			*((u8*)this + 0x19F + j) = 0;
 		}
-	}
-
-	// Check all stopped â€” trigger generateItem
-	bool allStopped = true;
-	for (s32 i = 0; i < unk148; ++i) {
-		if (unk138[i] != 0.0f) {
-			allStopped = false;
-			break;
+		if (unk13C[i] < (f32)unk168) {
+			unk170[i].r = 0xFF;
+			unk170[i].g = 0xFF;
+			unk170[i].b = 0x46;
+			if (gpMSound->gateCheck(0x4849))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x4849, mPosition, 0, nullptr, 0, 4);
+		} else {
+			unk170[i].r = 0x78;
+			unk170[i].g = 0xE6;
+			unk170[i].b = 0xFF;
 		}
-	}
-	if (allStopped) {
-		unk1A2 = 1;
-		generateItem();
 	}
 }
 void TItemSlotDrum::calcRootMatrix()
@@ -1157,17 +1198,23 @@ void TItemSlotDrum::calcRootMatrix()
 }
 u32 TItemSlotDrum::touchWater(THitActor* sender)
 {
-	if (unk194 != 0 || unk1A2 != 0)
-		return 1;
-	int range = 0x96 - 0x64;
-	unk1A4 = 0x64 + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)range);
-	for (s32 i = 0; i < unk148; ++i) {
-		*((u8*)this + 0x19F + i) = 1;
-		*((u8*)this + 0x19C + i) = 0;
-		f32 t = (f32)rand() * (1.0f / 32768.0f);
-		unk138[i] = unk158 * (0.5f + t * (0.8f - 0.5f));
+	if (unk194 == 0 && unk1A2 != 0) {
+		s32 lo = 100;
+		s32 hi = 150;
+		s32 range = hi - lo;
+		unk1A4 = lo
+		    + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)range);
+		for (s32 i = 0; i < unk148; ++i) {
+			*((u8*)this + 0x19F + i) = 1;
+			*((u8*)this + 0x19C + i) = 0;
+			f32 lo2 = 0.5f;
+			f32 hi2 = 0.8f;
+			f32 spread = hi2 - lo2;
+			unk138[i] = unk158
+			    * (lo2 + spread * ((f32)rand() * (1.0f / 32768.0f)));
+		}
+		unk1A2 = 0;
 	}
-	unk1A2 = 0;
 	return 1;
 }
 void TItemSlotDrum::generateItem()
@@ -1195,15 +1242,38 @@ void TItemSlotDrum::generateItem()
 		}
 	}
 	if (result == 1) {
-		void* enemy = (void*)gpConductor->makeOneEnemyAppear(mPosition, "ãƒ†ãƒ¬ã‚µ",
-		                                                    1);
+		TSpineEnemy* enemy
+		    = gpConductor->makeOneEnemyAppear(mPosition, "ƒeƒŒƒT", 1);
 		if (!enemy)
 			return;
-		// Position adjustment elided
+		Mtx rot;
+		Vec offset;
+		offset.x = 0.0f;
+		offset.y = -350.0f;
+		offset.z = 300.0f;
+		s16 angleY = (s16)(mRotation.y * 182.04445f);
+		f32 sinY = JMASSin(angleY);
+		f32 cosY = JMASCos(angleY);
+		rot[0][0] = cosY;
+		rot[0][1] = 0.0f;
+		rot[0][2] = sinY;
+		rot[0][3] = 0.0f;
+		rot[1][0] = 0.0f;
+		rot[1][1] = 1.0f;
+		rot[1][2] = 0.0f;
+		rot[1][3] = 0.0f;
+		rot[2][0] = -sinY;
+		rot[2][1] = 0.0f;
+		rot[2][2] = cosY;
+		rot[2][3] = 0.0f;
+		PSMTXMultVec(rot, &offset, &offset);
+		enemy->mPosition.x += offset.x;
+		enemy->mPosition.y += offset.y;
+		enemy->mPosition.z += offset.z;
+		((TTelesa*)enemy)->initItemAttacker(this);
 		return;
 	}
 
-	// Check for case 2 (boss-enemy match)
 	result = getResultFromAng(unk13C[0]);
 	for (int i = 1; i < 3; ++i) {
 		if (getResultFromAng(unk13C[i]) != result) {
@@ -1211,38 +1281,95 @@ void TItemSlotDrum::generateItem()
 			break;
 		}
 	}
-	if (result == -1)
+	if (result == -1) {
+		if (gpMSound->gateCheck(0x483D))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x483D, mPosition, 0, nullptr, 0, 4);
 		return;
+	}
 
-	// Otherwise: result == 2 or 3 â€” spawn items in circle pattern via gpItemManager
-	int itemKind = (result == 2) ? 3 : 0;
-	(void)itemKind;
-	for (int slot = 0; slot < 3; ++slot) {
-		// Spawn item using gpItemManager->makeObjAppear at angle
-		// Position computed via sin/cos table (omitted)
+	int count = 1;
+	f32 angIncr = 0.0f;
+	if (result == 2) {
+		count = 3;
+		angIncr = 20.0f;
+	}
+	for (int i = 0; i < count; ++i) {
+		f32 ang = mRotation.y + angIncr * ((f32)i - 1.0f);
+		s16 angleY = (s16)(ang * 182.04445f);
+		f32 sinY = JMASSin(angleY);
+		f32 cosY = JMASCos(angleY);
+		Mtx rot;
+		rot[0][0] = cosY;
+		rot[0][1] = 0.0f;
+		rot[0][2] = sinY;
+		rot[0][3] = 0.0f;
+		rot[1][0] = 0.0f;
+		rot[1][1] = 1.0f;
+		rot[1][2] = 0.0f;
+		rot[1][3] = 0.0f;
+		rot[2][0] = -sinY;
+		rot[2][1] = 0.0f;
+		rot[2][2] = cosY;
+		rot[2][3] = 0.0f;
+		Vec offset;
+		offset.x = 0.0f;
+		offset.y = -350.0f;
+		offset.z = 200.0f;
+		PSMTXMultVec(rot, &offset, &offset);
+		TMapObjBase* item = (TMapObjBase*)gpItemManager->makeObjAppear(
+		    mPosition.x + offset.x, mPosition.y,
+		    mPosition.z + offset.z, 0x2000000E, false);
+		if (!item)
+			continue;
+		item->mPosition.x += offset.x;
+		item->mPosition.y += offset.y;
+		item->mPosition.z += offset.z;
+		MsVECNormalize(&offset, &offset);
+		f32 lo2 = 5.0f;
+		f32 hi2 = 10.0f;
+		f32 vz = offset.z * 12.0f;
+		f32 spread = hi2 - lo2;
+		item->mVelocity.x = offset.x * 12.0f;
+		item->mVelocity.y = lo2 + spread * ((f32)rand() * (1.0f / 32768.0f));
+		item->mVelocity.z = vz;
+		item->mLiveFlag &= ~0x10;
 	}
 }
 int TItemSlotDrum::getForcastResult(int idx)
 {
 	f32 ang = unk13C[idx];
 	f32 cur = unk138[idx];
-	while (fabsf(cur) > unk160) {
+	s32 angInt;
+	while (true) {
+		while (fabsf(cur) > unk160) {
+			ang += cur;
+			if (cur > 0.0f)
+				cur -= unk15C;
+			else
+				cur += unk15C;
+			if (ang >= 360.0f)
+				ang -= 360.0f;
+			if (ang < 0.0f)
+				ang += 360.0f;
+		}
 		ang += cur;
-		if (cur > 0.0f)
-			cur -= unk15C;
-		else
-			cur += unk15C;
-		while (ang >= 360.0f)
+		if (ang >= 360.0f)
 			ang -= 360.0f;
-		while (ang < 0.0f)
+		if (ang < 0.0f)
 			ang += 360.0f;
+		angInt = (s32)fabsf(ang);
+		if ((angInt % unk168) == 0)
+			break;
 	}
-	ang += cur;
-	while (ang >= 360.0f)
-		ang -= 360.0f;
-	while (ang < 0.0f)
-		ang += 360.0f;
-	return getResultFromAng(ang);
+	f32 floorStep = (f32)((s32)(ang / (f32)unk168) * unk168);
+	if (floorStep < 89.0f)
+		return 0;
+	if (floorStep < 179.0f)
+		return 1;
+	if (floorStep < 269.0f)
+		return 2;
+	return 3;
 }
 
 void TRoulette::moveObject()
@@ -1276,19 +1403,18 @@ void TRoulette::initMapObj()
 {
 	mPosition.y += 500.0f;
 	TMapObjBase::initMapObj();
-	J3DModel* model = getModel();
-	for (u16 i = 0; i < model->mModelData->mMaterialNum; ++i) {
-		const char* name = model->mModelData->mMaterialName->getName(i);
+	for (u16 i = 0; i < getModel()->mModelData->mMaterialNum; ++i) {
+		const char* name = getModel()->mModelData->mMaterialName->getName(i);
 		if (strstr(name, "_switch")) {
-			SMS_InitPacket_OneTevColor(model, i, (GXTevRegID)1,
-			                           (GXColorS10*)((u8*)this + 0x148));
+			SMS_InitPacket_OneTevColor(getMActor()->getModel(), i,
+			                           (GXTevRegID)1, &unk148);
 		}
 	}
-	TRouletteSw* sw = new TRouletteSw("ãƒ«ãƒ¼ãƒ¬ãƒƒãƒˆã‚¹ã‚¤ãƒƒãƒ");
+	TRouletteSw* sw = new TRouletteSw("ƒ‹[ƒŒƒbƒgƒXƒCƒbƒ`");
 	sw->unk68 = this;
-	sw->unk6C = 0;
 	unk150 = sw;
-	// list registration omitted (JGadget complexity)
+	TConductor* cond = JDrama::TNameRefGen::search<TConductor>("TConductor");
+	cond->unk10.insert(cond->unk10.end(), (TLiveManager*)unk150);
 	if (gpApplication.mCurrArea.getStage() == 14) {
 		sw->initHitActor(0x4000019A, 2, 0x80000000, 40.0f, 80.0f, 40.0f, 80.0f);
 	} else {

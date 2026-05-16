@@ -5,6 +5,19 @@
 #include <System/MarDirector.hpp>
 #include <System/MarioGamePad.hpp>
 #include <Strategic/Spine.hpp>
+#include <Strategic/LiveActor.hpp>
+#include <M3DUtil/MActor.hpp>
+
+class TEMario : public TLiveActor {
+public:
+	BOOL isGoal();
+	BOOL isDownWaitingToTalk() const;
+	BOOL isReachedToGate() const;
+	void startMonteReplay(u32);
+	void forceDisappear();
+	void startGateDrawing();
+	void startRunAway();
+};
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -15,6 +28,7 @@
 #include <NPC/NpcEvent.hpp>
 #include <Map/MapEventSink.hpp>
 #include <Map/PollutionManager.hpp>
+#include <Map/PollutionLayer.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/ModelGate.hpp>
 #include <MoveBG/Item.hpp>
@@ -23,7 +37,9 @@
 #include <Enemy/Conductor.hpp>
 #include <Player/MarioMain.hpp>
 #include <Player/Watergun.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Camera/CubeManagerBase.hpp>
+#include <GC2D/SunGlass.hpp>
 
 // rogue includes needed for matching sinit & bss
 #include <M3DUtil/InfectiousStrings.hpp>
@@ -102,22 +118,59 @@ static void evGetNameRefName(TSpcTypedInterp<TEventWatcher>* interp,
 
 static void getNameRefPtr(TSpcSlice) { }
 
-static void evGetNPCType(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num) {
+static void evGetNPCType(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
+{
+	interp->verifyArgNum(1, &arg_num);
+	int type        = -1;
+	THitActor* hit  = get_name_ref<THitActor>(interp->pop());
+	if (hit)
+		type = hit->mActorType - 0x04000001;
+	interp->push(type);
 }
 
 static void evSetFlagNPCDontTalk(TSpcTypedInterp<TEventWatcher>* interp,
                                  u32 arg_num)
 {
+	interp->verifyArgNum(2, &arg_num);
+	bool value      = interp->pop().getDataInt() != 0;
+	TLiveActor* npc = get_name_ref<TLiveActor>(interp->pop());
+	if (npc) {
+		if (value)
+			npc->onLiveFlag(LIVE_FLAG_UNK10000);
+		else
+			npc->offLiveFlag(LIVE_FLAG_UNK10000);
+	}
+	interp->push();
 }
 
 static void evSetFlagNPCDontThrow(TSpcTypedInterp<TEventWatcher>* interp,
                                   u32 arg_num)
 {
+	interp->verifyArgNum(2, &arg_num);
+	bool value      = interp->pop().getDataInt() != 0;
+	TLiveActor* npc = get_name_ref<TLiveActor>(interp->pop());
+	if (npc) {
+		if (value)
+			npc->mLiveFlag |= 0x20000000;
+		else
+			npc->mLiveFlag &= ~0x20000000;
+	}
+	interp->push();
 }
 
 static void evSetFlagNPCDead(TSpcTypedInterp<TEventWatcher>* interp,
                              u32 arg_num)
 {
+	interp->verifyArgNum(2, &arg_num);
+	bool value      = interp->pop().getDataInt() != 0;
+	TLiveActor* npc = get_name_ref<TLiveActor>(interp->pop());
+	if (npc) {
+		if (value)
+			npc->onLiveFlag(LIVE_FLAG_DEAD);
+		else
+			npc->offLiveFlag(LIVE_FLAG_DEAD);
+	}
+	interp->push();
 }
 
 static void evIsNearSameActors(TSpcTypedInterp<TEventWatcher>* interp,
@@ -174,11 +227,17 @@ static void evGetTalkMode(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evGetTalkSelectedValue(TSpcTypedInterp<TEventWatcher>* interp,
                                    u32 arg_num)
 {
+	interp->verifyArgNum(0, &arg_num);
+	interp->push((s32)*(s8*)((u8*)gpTalk2D + 0x214));
 }
 
 static void evSetValue2TalkVariable(TSpcTypedInterp<TEventWatcher>* interp,
                                     u32 arg_num)
 {
+	interp->verifyArgNum(2, &arg_num);
+	interp->pop();
+	interp->pop();
+	interp->push();
 }
 
 static void evIsTalkModeNow(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
@@ -191,6 +250,17 @@ static void evIsTalkModeNow(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evSetFlagNPCCanTaken(TSpcTypedInterp<TEventWatcher>* interp,
                                  u32 arg_num)
 {
+	interp->verifyArgNum(2, &arg_num);
+	int value        = interp->pop().getDataInt();
+	const char* name = interp->pop().getDataString();
+	TLiveActor* npc  = JDrama::TNameRefGen::search<TLiveActor>(name);
+	if (npc) {
+		if (value)
+			npc->onLiveFlag(LIVE_FLAG_UNK100000);
+		else
+			npc->offLiveFlag(LIVE_FLAG_UNK100000);
+	}
+	interp->push();
 }
 
 // TODO: removeme
@@ -357,6 +427,16 @@ static void evIsGraffitoCoverage0(TSpcTypedInterp<TEventWatcher>* interp,
 static void evSetGraffitoMultiplied(TSpcTypedInterp<TEventWatcher>* interp,
                                     u32 arg_num)
 {
+	interp->verifyArgNum(1, &arg_num);
+	int value = interp->pop().getDataInt();
+	if (value != 0) {
+		for (int i = 0; i < gpPollution->getJointModelNum(); ++i)
+			((TPollutionLayer*)gpPollution->getJointModel(i))->unk32 |= 1;
+	} else {
+		for (int i = 0; i < gpPollution->getJointModelNum(); ++i)
+			((TPollutionLayer*)gpPollution->getJointModel(i))->unk32 &= ~1;
+	}
+	interp->push();
 }
 
 static void evIsBossDefeated(TSpcTypedInterp<TEventWatcher>* interp,
@@ -379,26 +459,44 @@ static void evLaunchEventClearDemo(TSpcTypedInterp<TEventWatcher>* interp,
 static void evIsEMarioReachedToGoal(TSpcTypedInterp<TEventWatcher>* interp,
                                     u32 arg_num)
 {
+	interp->verifyArgNum(1, &arg_num);
+	TEMario* m = get_name_ref<TEMario>(interp->pop());
+	interp->push((int)m->isReachedToGate());
 }
 
 static void evIsEMarioDownWaitingToTalk(TSpcTypedInterp<TEventWatcher>* interp,
                                         u32 arg_num)
 {
+	interp->verifyArgNum(1, &arg_num);
+	TEMario* m = get_name_ref<TEMario>(interp->pop());
+	interp->push((int)m->isDownWaitingToTalk());
 }
 
 static void evStartEMarioRunAway(TSpcTypedInterp<TEventWatcher>* interp,
                                  u32 arg_num)
 {
+	interp->verifyArgNum(1, &arg_num);
+	TEMario* m = get_name_ref<TEMario>(interp->pop());
+	m->startRunAway();
+	interp->push();
 }
 
 static void evStartEMarioGateDrawing(TSpcTypedInterp<TEventWatcher>* interp,
                                      u32 arg_num)
 {
+	interp->verifyArgNum(1, &arg_num);
+	TEMario* m = get_name_ref<TEMario>(interp->pop());
+	m->startGateDrawing();
+	interp->push();
 }
 
 static void evStartEMarioDisappear(TSpcTypedInterp<TEventWatcher>* interp,
                                    u32 arg_num)
 {
+	interp->verifyArgNum(1, &arg_num);
+	TEMario* m = get_name_ref<TEMario>(interp->pop());
+	m->forceDisappear();
+	interp->push();
 }
 
 static void evStartOpenModelGate(TSpcTypedInterp<TEventWatcher>* interp,
@@ -477,6 +575,12 @@ static void evStartTimer(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 
 static void evStartMonteman(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
+	interp->verifyArgNum(1, &arg_num);
+	TEMario* mario = JDrama::TNameRefGen::search<TEMario>("モンテマン");
+	u32 value      = interp->pop().getDataInt();
+	if (mario)
+		mario->startMonteReplay(value);
+	interp->push();
 }
 
 static void evStopTimer(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
@@ -489,6 +593,12 @@ static void evStopTimer(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evMonteManReachFlag(TSpcTypedInterp<TEventWatcher>* interp,
                                 u32 arg_num)
 {
+	interp->verifyArgNum(0, &arg_num);
+	TEMario* mario = JDrama::TNameRefGen::search<TEMario>("モンテマン");
+	int result     = 0;
+	if (mario->isGoal())
+		result = 1;
+	interp->push(result);
 }
 
 static void evGetTime(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
@@ -553,6 +663,15 @@ static void evAppearShineFromNPCWithoutDemo(TSpcTypedInterp<TEventWatcher>*,
 static void evAppearShineFromKageMario(TSpcTypedInterp<TEventWatcher>* interp,
                                        u32 arg_num)
 {
+	interp->verifyArgNum(3, &arg_num);
+	int shineNum     = interp->pop().getDataInt();
+	const char* src  = interp->pop().getDataString();
+	const char* dst  = interp->pop().getDataString();
+	TLiveActor* from = JDrama::TNameRefGen::search<TLiveActor>(dst);
+	TShine* shine    = JDrama::TNameRefGen::search<TShine>(src);
+	shine->mPosition = from->mPosition;
+	shine->appearSimple(shineNum);
+	interp->push();
 }
 
 static void evAppearShineForWoodBox(TSpcTypedInterp<TEventWatcher>* interp,
@@ -691,11 +810,23 @@ static void evSetMarioWaiting(TSpcTypedInterp<TEventWatcher>* interp,
 static void evStartMareBottleDemo(TSpcTypedInterp<TEventWatcher>* interp,
                                   u32 arg_num)
 {
+	interp->verifyArgNum(0, &arg_num);
+	TLiveActor* obj = JDrama::TNameRefGen::search<TLiveActor>("ＥＸビン");
+	obj->getMActor()->setBck("exbottle_bottle_in");
+	gpMarioOriginal->mPosition = obj->mPosition;
+	gpMarioOriginal->changePlayerStatus(0x1310, 0, true);
+	interp->push();
 }
 
 static void evIsFinishMareBottleDemo(TSpcTypedInterp<TEventWatcher>* interp,
                                      u32 arg_num)
 {
+	interp->verifyArgNum(0, &arg_num);
+	interp->push(JDrama::TNameRefGen::search<TLiveActor>("ＥＸビン")
+	                     ->getMActor()
+	                     ->curAnmEndsNext(0, nullptr)
+	                 ? 1
+	                 : 0);
 }
 
 static void evIsInsideFastCube(TSpcTypedInterp<TEventWatcher>* interp,
@@ -778,8 +909,7 @@ static void evEggYoshiStartFruit(TSpcTypedInterp<TEventWatcher>* interp,
                                  u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
-	TSpcSlice eggSlice = interp->pop();
-	TEggYoshi* egg     = get_name_ref<TEggYoshi>(eggSlice);
+	TEggYoshi* egg = get_name_ref<TEggYoshi>(interp->pop());
 	if (!egg->checkLiveFlag(LIVE_FLAG_DEAD))
 		egg->startFruit();
 	interp->push();
@@ -820,6 +950,21 @@ static void evStartMiss(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evChangeSunglass(TSpcTypedInterp<TEventWatcher>* interp,
                              u32 arg_num)
 {
+	interp->verifyArgNum(1, &arg_num);
+	int value = interp->pop().getDataInt();
+	TSunGlass* glass = JDrama::TNameRefGen::search<TSunGlass>("TSunGlass");
+	if (value == 0) {
+		glass->startFade(2, true);
+		gpMarioOriginal->wearGlass();
+		if (TFlagManager::smInstance->getShineFlag(0x77))
+			gpMarioOriginal->mState |= 0x100000;
+	} else {
+		glass->startFade(3, true);
+		gpMarioOriginal->takeOffGlass();
+		if (TFlagManager::smInstance->getShineFlag(0x77))
+			gpMarioOriginal->mState &= ~0x100000;
+	}
+	interp->push();
 }
 
 static void evSetCollision(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
@@ -838,7 +983,17 @@ static void evSetCollision(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 	interp->push();
 }
 
-static void evWarpMario(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num) { }
+static void evWarpMario(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
+{
+	interp->verifyArgNum(4, &arg_num);
+	int angle = interp->pop().getDataInt();
+	int z     = interp->pop().getDataInt();
+	int y     = interp->pop().getDataInt();
+	int x     = interp->pop().getDataInt();
+	SMS_MarioWarpRequest(JGeometry::TVec3<f32>((f32)x, (f32)y, (f32)z),
+	                     (f32)angle);
+	interp->push();
+}
 
 static void evStartAppearJetBalloon(TSpcTypedInterp<TEventWatcher>* interp,
                                     u32 arg_num)
@@ -915,6 +1070,14 @@ static void evInvalidatePad(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evIsWaterMelonIsReached(TSpcTypedInterp<TEventWatcher>* interp,
                                     u32 arg_num)
 {
+	interp->verifyArgNum(1, &arg_num);
+	THitActor* actor = (THitActor*)interp->pop().getDataInt();
+	int result       = 0;
+	f32 dx           = -4660.0f - actor->mPosition.x;
+	f32 dz           = 12000.0f - actor->mPosition.z;
+	if (dx * dx + dz * dz <= 90000.0f)
+		result = 1;
+	interp->push(result);
 }
 
 template <> void TSpcTypedBinary<TEventWatcher>::initUserBuiltin()

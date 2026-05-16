@@ -5,7 +5,10 @@
 
 class TGateShadow : public JDrama::TViewObj {
 public:
-	TGateShadow();
+	TGateShadow(const char* name = "<TGateShadow>")
+	    : JDrama::TViewObj(name)
+	{
+	}
 	void perform(u32, JDrama::TGraphics*);
 };
 

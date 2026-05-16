@@ -15,10 +15,13 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <System/MarDirector.hpp>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+
+void TMapCollisionBase::setMtx(MtxPtr mtx) { PSMTXCopy(mtx, unk20); }
 
 void TMapObjBase::changeObjMtx(MtxPtr mtx)
 {
@@ -60,7 +63,16 @@ void TMapObjBase::sleep()
 {
 	onLiveFlag(LIVE_FLAG_UNK4000);
 	unk64 |= 1;
-	removeMapCollision();
+	TMapCollisionManager* mgr = mMapCollisionManager;
+	if (!mgr)
+		return;
+	TMapCollisionBase* col = mgr->unk8;
+	if (!col)
+		return;
+	if (!col->getUnk8())
+		return;
+	if (col)
+		mgr->unk8->remove();
 }
 
 void TMapObjBase::setObjHitData(u16 param_1)
@@ -75,25 +87,26 @@ void TMapObjBase::setObjHitData(u16 param_1)
 
 	if (table->unk0 >= 0.0f) {
 		f32 fVar2     = mScaling.x > mScaling.z ? mScaling.x : mScaling.z;
-		f32 fVar3     = mScaling.y;
 		mAttackRadius = table->unk0 * fVar2;
-		mAttackHeight = table->unk4 * fVar3;
+		mAttackHeight = table->unk4 * mScaling.y;
 		mDamageRadius = table->unk8 * fVar2;
-		mDamageHeight = table->unkC * fVar3;
+		mDamageHeight = table->unkC * mScaling.y;
 		calcEntryRadius();
 	}
 }
 
 void TMapObjBase::removeMapCollision()
 {
-	if (!mMapCollisionManager)
+	TMapCollisionManager* mgr = mMapCollisionManager;
+	if (!mgr)
 		return;
-
-	if (!mMapCollisionManager->unk8)
+	TMapCollisionBase* col = mgr->unk8;
+	if (!col)
 		return;
-
-	if (mMapCollisionManager->unk8 && mMapCollisionManager)
-		mMapCollisionManager->unk8->remove();
+	if (!col->getUnk8())
+		return;
+	if (col)
+		mgr->unk8->remove();
 }
 
 void TMapObjBase::setUpCurrentMapCollision()
@@ -222,7 +235,58 @@ void TMapObjBase::startBck(const char* param_1)
 	mMActor->setBck(param_1);
 }
 
-void TMapObjBase::startAnim(u16 param_1) { }
+void TMapObjBase::startAnim(u16 param_1)
+{
+	if (mAnmSound)
+		setAnmSound(nullptr);
+	if (!mMActor) {
+		if (mMapObjData->mAnim->unk0 != 0) {
+			mMActor = mMActorKeeper->getMActor(
+			    mMapObjData->mAnim->unk4->unk0);
+		}
+	}
+	if (!mMapObjData->mAnim)
+		return;
+	if (mMapObjData->mAnim->unk0 <= param_1)
+		return;
+	const TMapObjAnimData* anim = &mMapObjData->mAnim->unk4[param_1];
+	if (anim->unk8 == 0) {
+		if (unkFE != 0xffff && mMapObjData->mAnim
+		    && mMapObjData->mAnim->unk0 != 0) {
+			const TMapObjAnimData* prev
+			    = &mMapObjData->mAnim->unk4[unkFE];
+			if (prev->unk4) {
+				u8 track = prev->unk8;
+				mMActor->getFrameCtrl(track)->setRate(0.0f);
+				mMActor->getFrameCtrl(track)->setFrame(0.0f);
+				*((u32*)mMActor->getUnk28(track)) = 0xffffffff;
+				unkFE = 0xffff;
+			}
+		}
+		stopAnmSound();
+		if (unkFE != param_1) {
+			unkFE = param_1;
+			if (anim->unk0) {
+				mMActor = mMActorKeeper->getMActor(anim->unk0);
+			}
+		}
+	}
+	if (anim->unk4 != 0) {
+		unkF8 &= ~0x140;
+		mMActor->setAnimation(anim->unk4, anim->unk8);
+		if (unkF8 & 0x400)
+			unkF8 &= ~0x140;
+		if (anim->unk10) {
+			setAnmSound(anim->unk10);
+		}
+	} else {
+		MActor* m = mMActor;
+		J3DModel* mdl = m->getModel();
+		u32 v = (u32)m->unk8;
+		*(u32*)((char*)mdl->mModelData + 0x20 - 4 + 0x58 + 4)
+		    = v;
+	}
+}
 
 void TMapObjBase::makeObjDefault()
 {
@@ -276,7 +340,69 @@ void TMapObjBase::makeObjDead()
 		SMS_HideAllShapePacket(getModel());
 }
 
-void TMapObjBase::makeObjAppeared() { }
+void TMapObjBase::makeObjAppeared()
+{
+	mLiveFlag &= ~0xA;
+	mVelocity.x = 0.0f;
+	mVelocity.y = 0.0f;
+	mVelocity.z = 0.0f;
+	mLiveFlag |= 0x10;
+	mLifeTimer = 0;
+	mLiveFlag &= ~1;
+	appear();
+	if (unk100 != 0)
+		unk100 = 0;
+	if (mMapObjData->mSound == nullptr) {
+		u32 snd = TMapObjGeneral::mDefaultSound.unk0[unk100];
+		if (snd != 0xffffffff) {
+			if (gpMSound->gateCheck(snd))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    snd, mPosition, 0, nullptr, 0, 4);
+		}
+	} else {
+		u32 snd = mMapObjData->mSound->unk4->unk0[unk100];
+		if (snd != 0xffffffff) {
+			if (gpMSound->gateCheck(snd))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    snd, mPosition, 0, nullptr, 0, 4);
+		}
+	}
+	mGroundHeight = gpMap->checkGround(mPosition, &mGroundPlane);
+	if (mLiveFlag & 0x10)
+		mLiveFlag |= 0x80;
+	if (mMapObjData->mMove != nullptr) {
+		J3DFrameCtrl* fc = mMapObjData->mMove->unk8;
+		fc->setFrame((f32)fc->getStart());
+		fc->setRate(1.0f);
+		mMapObjData->mMove->unk8->setRate(SMSGetAnmFrameRate());
+	}
+	startAnim(0);
+	if (mMActor)
+		SMS_ShowAllShapePacket(getModel());
+	mPosition.y -= mYOffset;
+	if (mMapObjData->mCollision
+	    && mMapObjData->mCollision->unk4[0].unk0) {
+		f32 px = mPosition.x;
+		f32 py = mPosition.y;
+		f32 pz = mPosition.z;
+		mMapCollisionManager->changeCollision(0);
+		if (unkF8 & 0x10) {
+			J3DModel* model = getModel();
+			TMapCollisionBase* col = mMapCollisionManager->unk8;
+			PSMTXCopy(model->getAnmMtx(0), col->unk20);
+			col->setUp();
+		} else {
+			Mtx mtx;
+			MsMtxSetTRS(mtx, px, py, pz, mRotation.x, mRotation.y,
+			            mRotation.z, mScaling.x, mScaling.y, mScaling.z);
+			TMapCollisionBase* col = mMapCollisionManager->unk8;
+			col->setMtx(mtx);
+			col->setUp();
+		}
+	}
+	mPosition.y += mYOffset;
+	mState = 1;
+}
 
 void TMapObjBase::moveByBck() { }
 
@@ -345,9 +471,154 @@ void TMapObjBase::control()
 	}
 }
 
-void TMapObjBase::setGroundCollision() { }
+void TMapObjBase::setGroundCollision()
+{
+	TMapCollisionManager* colman = mMapCollisionManager;
+	if (!colman)
+		return;
+	TMapCollisionBase* col = colman->unk8;
+	if (col->getUnk8() != 1)
+		return;
+	if (unkF8 & 0x2) {
+		if (mColCount == 0 && unk102 == 0)
+			return;
+		unk102 -= 1;
+		if (mColCount != 0)
+			unk102 = 4;
+	}
+	if (unkF8 & 0x8) {
+		J3DModel* model = getModel();
+		TMapCollisionBase* col2 = mMapCollisionManager->unk8;
+		if (!col2)
+			return;
+		col2->moveMtx(model->getAnmMtx(0));
+		return;
+	}
+	JGeometry::TVec3<f32> pos;
+	pos.x = mPosition.x;
+	pos.y = mPosition.y - mYOffset;
+	pos.z = mPosition.z;
+	if (unkF8 & 0x4) {
+		TMapCollisionBase* col2 = mMapCollisionManager->unk8;
+		col2->unk5C &= ~0x8000;
+		TMapCollisionBase* col3 = mMapCollisionManager->unk8;
+		col3->unk5C &= ~0x4000;
+		TMapCollisionBase* col4 = mMapCollisionManager->unk8;
+		if (!col4)
+			return;
+		col4->moveSRT(pos, mRotation, mScaling);
+	} else {
+		TMapCollisionBase* col2 = mMapCollisionManager->unk8;
+		col2->unk5C &= ~0x4000;
+		TMapCollisionBase* col3 = mMapCollisionManager->unk8;
+		if (!col3)
+			return;
+		col3->moveTrans(pos);
+	}
+}
 
-void TMapObjBase::perform(u32, JDrama::TGraphics*) { }
+void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
+{
+	u8 state1;
+	if (gpMarDirector->unk124 == 1 || gpMarDirector->unk124 == 2)
+		state1 = 1;
+	else
+		state1 = 0;
+	if (state1) {
+		u8 state2;
+		if (gpMarDirector->unk124 == 3 || gpMarDirector->unk124 == 4)
+			state2 = 1;
+		else
+			state2 = 0;
+		if (state2)
+			return;
+	}
+	if (mLiveFlag & 1)
+		return;
+	u8 isType3B;
+	if ((mActorType - 0x40000000) == 0x3B)
+		isType3B = 1;
+	else
+		isType3B = 0;
+	if (isType3B)
+		return;
+	if (param_1 & 1) {
+		control();
+		param_1 &= ~1;
+	}
+	if ((param_1 & 2) && mMActor) {
+		if (mLiveFlag & 0x204) {
+			if (getModel()->mShapePackets->unk30 != 0)
+				SMS_HideAllShapePacket(getModel());
+		} else {
+			if (getModel()->mShapePackets->unk30 == 0)
+				SMS_ShowAllShapePacket(getModel());
+		}
+	}
+	if (mLiveFlag & 0x400)
+		return;
+	moveObject();
+	if (param_1 & 1) {
+		if (mLifeTimer > 0)
+			mLifeTimer -= 1;
+		if (unk100 != 0) {
+			u32 sound;
+			if (mMapObjData->mSound == nullptr) {
+				sound = TMapObjGeneral::mDefaultSound.unk0[unk100];
+			} else {
+				sound = mMapObjData->mSound->unk4->unk0[unk100];
+			}
+			if (sound != 0xffffffff && gpMSound->gateCheck(sound))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    sound, mPosition, 0, nullptr, 0, 4);
+		}
+		if (mLiveFlag & 1)
+			dead();
+	}
+	if (mLiveFlag & 1)
+		return;
+	if (param_1 & 8)
+		draw();
+	if (mLiveFlag & 0x4000) {
+		if (param_1 & 2)
+			param_1 &= ~2;
+		if (param_1 & 0x400)
+			param_1 &= ~0x400;
+		if (param_1 & 4)
+			param_1 &= ~4;
+	}
+	if (param_1 & 2) {
+		setUpCurrentMapCollision();
+		if (mMActor) {
+			if (mLiveFlag & 0x204) {
+				if (getModel()->mShapePackets->unk30 != 0)
+					SMS_HideAllShapePacket(getModel());
+			} else {
+				if (getModel()->mShapePackets->unk30 == 0)
+					SMS_ShowAllShapePacket(getModel());
+			}
+		}
+		if (unkF8 & 0x100) {
+			param_1 &= ~2;
+		} else if ((unkF8 & 0x200) && mMActor
+		           && mMActor->curAnmEndsNext(0, nullptr)) {
+			unkF8 |= 0x100;
+		}
+	}
+	if (param_1 & 0x400) {
+		if (unkF8 & 0x1000)
+			param_1 &= ~0x400;
+		if (unkF8 & 0x800)
+			param_1 &= ~0x400;
+	}
+	if ((param_1 & 4) && mMActor && (unkF8 & 0x400)) {
+		J3DModel* model = getModel();
+		model->calc();
+		calc();
+		param_1 &= ~4;
+	}
+	TLiveActor::perform(param_1, gfx);
+}
 
 u32 TMapObjBase::getShadowType()
 {

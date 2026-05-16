@@ -232,11 +232,11 @@ public:
 	void actorIsOn(TLiveActor*) const;
 	void sendMsgToAll(u32);
 	void sendMsg(u32, u32);
-	void waterHitPlane(THitActor*);
-	void getWaterPos(THitActor*);
-	void getWaterSpeed(THitActor*);
-	static void getWaterPlane(THitActor*);
-	void getWaterID(THitActor*);
+	static bool waterHitPlane(THitActor*);
+	JGeometry::TVec3<f32>* getWaterPos(THitActor*);
+	JGeometry::TVec3<f32>* getWaterSpeed(THitActor*);
+	static const TBGCheckData* getWaterPlane(THitActor*);
+	static int getWaterID(THitActor*);
 	f32 getDistance(const JGeometry::TVec3<f32>&) const;
 	f32 getDistanceXZ(const JGeometry::TVec3<f32>&) const;
 	f32 getRotYFromAxisZ(const JGeometry::TVec3<f32>&) const;
@@ -321,7 +321,7 @@ public:
 	                            long*);
 	static bool isDemo();
 	static bool isHideObj(THitActor*);
-	void getObjCollisionHeightOffset() const { }
+	f32 getObjCollisionHeightOffset() const;
 
 	// fabricated
 	bool checkMapObjFlag(u32 flag) const { return unkF8 & flag; }

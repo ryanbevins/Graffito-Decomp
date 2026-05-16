@@ -6,6 +6,7 @@
 #include <MoveBG/MapObjWave.hpp>
 #include <MoveBG/MapObjTown.hpp>
 #include <Enemy/Conductor.hpp>
+#include <Enemy/EffectObj.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
 #include <Player/MarioAccess.hpp>
@@ -584,20 +585,51 @@ f32 TMapObjBase::getDistanceXZ(const JGeometry::TVec3<f32>& param_1) const
 
 f32 TMapObjBase::getDistance(const JGeometry::TVec3<f32>& param_1) const
 {
+	JGeometry::TVec3<f32> myPos(mPosition.x, mPosition.y - mYOffset,
+	                            mPosition.z);
 	JGeometry::TVec3<f32> diff;
-	diff.sub(param_1, mPosition);
+	diff.sub(param_1, myPos);
 	return diff.length();
 }
 
-void TMapObjBase::getWaterID(THitActor*) { }
+int TMapObjBase::getWaterID(THitActor* hit_actor)
+{
+	return ((TWaterHitActor*)hit_actor)->unk68;
+}
 
-void TMapObjBase::getWaterPlane(THitActor*) { }
+const TBGCheckData* TMapObjBase::getWaterPlane(THitActor* hit_actor)
+{
+	return gpModelWaterManager->unk2914[getWaterID(hit_actor)];
+}
 
-void TMapObjBase::getWaterSpeed(THitActor*) { }
+JGeometry::TVec3<f32>* TMapObjBase::getWaterSpeed(THitActor* hit_actor)
+{
+	return &gpModelWaterManager
+	            ->mParticleVelocitySOA[getWaterID(hit_actor)];
+}
 
-void TMapObjBase::getWaterPos(THitActor*) { }
+JGeometry::TVec3<f32>* TMapObjBase::getWaterPos(THitActor* hit_actor)
+{
+	return &gpModelWaterManager
+	            ->mParticlePositionSOA[getWaterID(hit_actor)];
+}
 
-void TMapObjBase::waterHitPlane(THitActor*) { }
+bool TMapObjBase::waterHitPlane(THitActor* hit_actor)
+{
+	int water_id            = ((TWaterHitActor*)hit_actor)->unk68;
+	const TBGCheckData* pln = gpModelWaterManager->unk2914[water_id];
+	if (!pln)
+		return false;
+	JGeometry::TVec3<f32>& vel
+	    = gpModelWaterManager->mParticleVelocitySOA[water_id];
+	if (vel.x == 0.0f && vel.z == 0.0f)
+		return false;
+	if (vel.x * pln->getNormal().x > 0.0f)
+		return false;
+	if (vel.z * pln->getNormal().z > 0.0f)
+		return false;
+	return true;
+}
 
 void TMapObjBase::sendMsg(u32 param_1, u32 param_2)
 {
@@ -630,11 +662,38 @@ bool TMapObjBase::marioIsOn() const
 	return false;
 }
 
-bool TMapObjBase::marioHeadAttack() const { }
+bool TMapObjBase::marioHeadAttack() const
+{
+	if (gpMarioPos->y >= mPosition.y - mYOffset)
+		return false;
+	if (!SMS_IsMarioStatusTypeJumping())
+		return false;
+	if (*gpMarioSpeedY <= 0.0f)
+		return false;
+	return true;
+}
 
-bool TMapObjBase::marioHipAttack() const { return false; }
+bool TMapObjBase::marioHipAttack() const
+{
+	if (SMS_GetMarioGrPlane()->getActor() != this)
+		return false;
+	if (!SMS_IsMarioStatusHipDrop())
+		return false;
+	f32 ground = SMS_GetMarioGrLevel();
+	if (gpMarioPos->y + *gpMarioSpeedY < ground)
+		return true;
+	return false;
+}
 
-void TMapObjBase::emitColumnWater() { }
+void TMapObjBase::emitColumnWater()
+{
+	TEffectColumWater* effect
+	    = (TEffectColumWater*)gpConductor->makeOneEnemyAppear(
+	        mPosition, "エフェクト水柱", 0);
+	if (effect != nullptr) {
+		effect->generate(mPosition, mRotation);
+	}
+}
 
 JPABaseEmitter* TMapObjBase::emitAndSRT(s32 param_1, u8 param_2,
                                         const JGeometry::TVec3<f32>* param_3,
