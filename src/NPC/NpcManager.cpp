@@ -7,6 +7,9 @@
 #include <JSystem/ResTIMG.hpp>
 #include <Enemy/Conductor.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <Camera/Camera.hpp>
+#include <Camera/CubeManagerBase.hpp>
+#include <MarioUtil/DrawUtil.hpp>
 #include <NPC/NpcSave.hpp>
 #include <NPC/NpcInitData.hpp>
 #include <System/MarDirector.hpp>
@@ -551,6 +554,50 @@ void TNPCManager::perform(u32 flags, JDrama::TGraphics* gfx)
 		}
 	}
 	TEnemyManager::perform(flags, gfx);
+}
+
+void TNPCManager::clipEnemies(JDrama::TGraphics* gfx)
+{
+	f32 farClip            = unk54;
+	f32 farClipFromUnk58   = *unk58;
+
+	if (gpMarDirector->mMap == 1) {
+		bool isParaCam = gpCamera->isSimpleDemoCamera()
+		                 || (gpCamera->mMode == 0x49);
+		bool ext       = isParaCam || (gpCamera->mMode == 0xd)
+		                 || (*(int*)gpCamera->unk54 == 0xd
+		                     && (gpCamera->isNowInbetween()
+		                         || gpCamera->mMode == 0x13));
+		if (ext && farClipFromUnk58 < 15000.0f)
+			farClipFromUnk58 = 15000.0f;
+	}
+
+	SetViewFrustumClipCheckPerspective(gpCamera->getFovy(),
+	                                   gpCamera->getAspect(), farClip,
+	                                   farClipFromUnk58);
+
+	int n = mObjNum;
+	for (int i = 0; i < n; i++) {
+		TLiveActor* actor = (TLiveActor*)unk18[i];
+		Vec pos;
+		pos.x = actor->mPosition.x;
+		pos.y = actor->mPosition.y;
+		pos.z = actor->mPosition.z;
+		pos.y += 75.0f;
+
+		if (actor->mLiveFlag & 0x2000) {
+			if (SMS_IsInOtherFastCube(pos)) {
+				actor->mLiveFlag |= 4;
+				continue;
+			}
+		}
+
+		if (ViewFrustumClipCheck(gfx, (Vec*)&actor->mPosition, unk3C)) {
+			actor->mLiveFlag &= ~6;
+		} else {
+			actor->mLiveFlag |= 4;
+		}
+	}
 }
 
 void TNPCManager::makePartsModelData_(u32 actorType, u32 flags,
