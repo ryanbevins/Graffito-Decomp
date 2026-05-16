@@ -197,6 +197,8 @@ BOOL TAnimalBird::receiveMessage(THitActor* sender, u32 msg)
 		if (mSpine->getLatestNerve()
 		    != &TNerveAnimalBirdChangeToCoin::theNerve()) {
 			mSpine->setNext(&TNerveAnimalBirdChangeToCoin::theNerve());
+		} else {
+			kill();
 		}
 		return TRUE;
 	}
@@ -299,7 +301,7 @@ void TAnimalBird::moveObject()
 	                      || cur == &TNerveAnimalBirdActionOnGround::theNerve()
 	                      || cur == &TNerveAnimalBirdWalkOnGround::theNerve());
 
-	if (inGroundState && (unk64 & 1)) {
+	if (inGroundState && (mLiveFlag & 0x80)) {
 		TAnimalBirdParams* p = (TAnimalBirdParams*)getSaveParam();
 		unk17C++;
 		if (p->mFloatingTimerMax.value < unk17C + 1) {
@@ -490,12 +492,11 @@ bool TAnimalBird::doLanding(bool initFrame)
 		gpMap->checkGround(mPosition, &mGroundPlane);
 	}
 
-	BOOL grounded = TRUE;
-	if (mLiveFlag & 0x01000000) {
+	BOOL grounded = FALSE;
+	if (mLiveFlag & 0x80) {
 		deltaV.y = -((TAnimalBirdParams*)getSaveParam())->mLandingGravityY.value;
 	} else {
-		grounded = FALSE;
-		(void)0;
+		grounded = TRUE;
 	}
 
 	mRotation.x = unk164.x;
