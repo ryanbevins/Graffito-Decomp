@@ -8,6 +8,7 @@
 #include <Enemy/Conductor.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <NPC/NpcSave.hpp>
+#include <NPC/NpcInitData.hpp>
 #include <System/MarDirector.hpp>
 
 class J3DMaterialTable;
@@ -550,6 +551,58 @@ void TNPCManager::perform(u32 flags, JDrama::TGraphics* gfx)
 		}
 	}
 	TEnemyManager::perform(flags, gfx);
+}
+
+void TNPCManager::makePartsModelData_(u32 actorType, u32 flags,
+                                      TModelDataKeeper* keeper)
+{
+	const TNpcInitInfo* info = SMSGetNpcInitData(actorType);
+
+	for (int i = 0; i < 12; i++) {
+		const TNpcModelData* model = info->unk4[i];
+		if (model == NULL)
+			continue;
+
+		u32 localFlags = flags;
+		if (model->unk2A) {
+			localFlags &= ~0x00070000;
+			localFlags |= 0x00100000;
+		}
+
+		for (int j = 0; j < 2; j++) {
+			const char* name = model->unk8[j];
+			if (name == NULL)
+				continue;
+
+			char fname[256];
+			snprintf(fname, 256, "%s/%s", keeper->mFolder, name);
+
+			void* res = JKRFileLoader::getGlbResource(fname);
+			if (res == NULL)
+				continue;
+
+			SDLModelData* sdlModel
+			    = keeper->createAndKeepData(model->unk8[j], localFlags);
+
+			if (model->unk2B) {
+				J3DMaterialTable* bmt = getBmt_(model->unk2A);
+				if (bmt != NULL) {
+					sdlModel->unk0->setMaterialTable(
+					    bmt, (J3DMaterialCopyFlag)3);
+				}
+			}
+
+			if (model->unk2A) {
+				const ResTIMG* tex
+				    = (const ResTIMG*)JKRFileLoader::getGlbResource(
+				        cRealPollutionTexName);
+				if (tex != NULL) {
+					SMS_ChangeTextureAll(sdlModel->unk0,
+					                     cDummyPollutionTexName, *tex);
+				}
+			}
+		}
+	}
 }
 
 // =====================================================================
