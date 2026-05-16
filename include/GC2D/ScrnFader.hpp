@@ -90,6 +90,7 @@ class TShineFader : public TSmplFader {
 public:
 	TShineFader(f32 param_1, const char* name = "<ShineFader>")
 	    : TSmplFader(param_1, name)
+	    , mFadeoutDelay(0)
 	{
 	}
 
@@ -98,7 +99,10 @@ public:
 
 	virtual void update();
 
-	void registFadeout(u16, u16);
+	BOOL registFadeout(u16, u16);
+
+public:
+	/* 0x38 */ u16 mFadeoutDelay;
 };
 
 #endif
