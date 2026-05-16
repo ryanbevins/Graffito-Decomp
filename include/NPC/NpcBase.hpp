@@ -118,8 +118,8 @@ public:
 	void isNerveCanGoToTalk() const;
 	void isNerveMaybeDontCalcAnim1() const;
 	void isNerveMaybeDontCalcAnim0() const;
-	void isNerveMaybeDontMovement() const;
-	void isNerveWalk() const;
+	BOOL isNerveMaybeDontMovement() const;
+	BOOL isNerveWalk() const;
 	void emitParticle_();
 	void isPolWaitCEffectEmitTime_() const;
 	void emitHappyEffect_();
