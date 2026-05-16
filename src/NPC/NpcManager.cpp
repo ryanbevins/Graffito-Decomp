@@ -6,6 +6,7 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/ResTIMG.hpp>
 #include <Enemy/Conductor.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 
 class J3DMaterialTable;
 
@@ -17,6 +18,10 @@ const char* cMonteMRealStrawTexName   = "/scene/monteMCommon/I_mom_mino_rgba.bti
 const char* cMonteWRealStrawTexName   = "/scene/monteWCommon/I_mow_mino_rgba.bti";
 const char* cMonteMCommonVolumeName   = "/scene/monteMCommon";
 const char* cMonteWCommonVolumeName   = "/scene/monteWCommon";
+const char* cMareMCommonVolumeName    = "/scene/mareM";
+const char* cMareWCommonVolumeName    = "/scene/mareW";
+const char* cMareCommonNormalBmtName  = "/scene/mareCommon/mare.bmt";
+const char* cMareCommonPollutionBmtName = "/scene/mareCommon/mare_yogore.bmt";
 
 TModelDataKeeper* TMonteMBaseManager::mStaticCommonKeeper;
 TModelDataKeeper* TMonteWBaseManager::mStaticCommonKeeper;
@@ -543,6 +548,41 @@ TMonteMBaseManager::TMonteMBaseManager(const char* name)
 		unk5C = new TModelDataKeeper(cMonteMCommonVolumeName);
 		mStaticCommonKeeper = unk5C;
 		makePartsModelData_(0, 0x10210000, unk5C);
+	}
+}
+
+TMareBaseManager::TMareBaseManager(const char* name)
+    : TNPCManager(name)
+{
+	if (mStaticBmtNormal == NULL) {
+		mStaticBmtNormal = J3DModelLoaderDataBase::loadMaterialTable(
+		    JKRFileLoader::getGlbResource(cMareCommonNormalBmtName));
+	}
+	if (mStaticBmtPollution == NULL) {
+		mStaticBmtPollution = J3DModelLoaderDataBase::loadMaterialTable(
+		    JKRFileLoader::getGlbResource(cMareCommonPollutionBmtName));
+	}
+}
+
+TMareMBaseManager::TMareMBaseManager(const char* name)
+    : TMareBaseManager(name)
+{
+	unk5C = mStaticCommonKeeper;
+	if (unk5C == NULL) {
+		unk5C = new TModelDataKeeper(cMareMCommonVolumeName);
+		mStaticCommonKeeper = unk5C;
+		makePartsModelData_(0xd, 0x10210000, unk5C);
+	}
+}
+
+TMareWBaseManager::TMareWBaseManager(const char* name)
+    : TMareBaseManager(name)
+{
+	unk5C = mStaticCommonKeeper;
+	if (unk5C == NULL) {
+		unk5C = new TModelDataKeeper(cMareWCommonVolumeName);
+		mStaticCommonKeeper = unk5C;
+		makePartsModelData_(0x12, 0x10210000, unk5C);
 	}
 }
 
