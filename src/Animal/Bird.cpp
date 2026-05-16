@@ -428,6 +428,20 @@ void TAnimalBird::doLanding(bool initFrame)
 		mVelocity.z = q.z;
 	}
 
+	JGeometry::TVec3<f32> deltaV(0.0f, 0.0f, 0.0f);
+	if (mBinder2 != NULL) {
+		((TWireBinder*)mBinder2)->getPoint(&deltaV, mPosition);
+	} else {
+		const TBGCheckData* ground = (const TBGCheckData*)NULL;
+		gpMap->checkGround(mPosition, &ground);
+	}
+
+	bool grounded = true;
+	if (mLiveFlag & 0x01000000) {
+		deltaV.y = -p->mLandingGravityY.value;
+		grounded = false;
+	}
+
 	mRotation.x = unk164.x;
 	mRotation.z = unk164.z;
 
@@ -439,7 +453,9 @@ void TAnimalBird::doLanding(bool initFrame)
 	else if (wrapped > torque)
 		wrapped = torque;
 
-	mRotation.y = MsWrap<f32>(mRotation.y + wrapped, 0.0f, 360.0f);
+	mRotation.y     = MsWrap<f32>(mRotation.y + wrapped, 0.0f, 360.0f);
+	mLinearVelocity = deltaV;
+	(void)grounded;
 }
 
 // ---- Nerves ----
