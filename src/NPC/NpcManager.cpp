@@ -536,12 +536,12 @@ TNPCManager::TNPCManager(const char* name)
 	case 3:  unk58 = &far->mSLFarRiccoHarbor.value; break;
 	case 4:  unk58 = &far->mSLFarMammaBeach.value; break;
 	case 5:  unk58 = &far->mSLFarPinnaBeach.value; break;
+	case 13: unk58 = &far->mSLFarPinnaParco.value; break;
 	case 6:  unk58 = &far->mSLFarSirenaBeach.value; break;
 	case 7:  unk58 = &far->mSLFarHotelDelfino.value; break;
-	case 8:  unk58 = &far->mSLFarMonteVillage.value; break;
 	case 9:  unk58 = &far->mSLFarMareVillage.value; break;
+	case 8:  unk58 = &far->mSLFarMonteVillage.value; break;
 	case 10: unk58 = &far->mSLFarCoronaMountain.value; break;
-	case 13: unk58 = &far->mSLFarPinnaParco.value; break;
 	default: unk58 = &far->mSLFarOthers.value; break;
 	}
 }
