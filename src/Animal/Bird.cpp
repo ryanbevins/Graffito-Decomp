@@ -370,7 +370,7 @@ void TAnimalBird::initParams()
 	unk17C = 0;
 	unk170 = 1.0f;
 
-	mLiveFlag &= ~0x180;
+	mLiveFlag &= ~0x80;
 
 	unk174 = 1.0f - 0.1f * (MsRandF() - 0.5f);
 
