@@ -33,15 +33,15 @@
 #include <MSound/MSoundBGM.hpp>
 // Subset of InfectiousStrings -- without MtxCalcTypeName (matches original .o)
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
-static const char* SMS_NO_MEMORY_MESSAGE   = "ƒƒ‚ƒŠ‚ª‘«‚è‚Ü‚¹‚ñ\n";
+static const char* SMS_NO_MEMORY_MESSAGE   = "ãƒ¡ãƒ¢ãƒªãŒè¶³ã‚Šã¾ã›ã‚“\n";
 static const char* MtxCalcTypeName_Basic
-    = "MActorMtxCalcType_Basic ƒNƒ‰ƒVƒbƒNƒXƒP[ƒ‹‚n‚m";
+    = "MActorMtxCalcType_Basic ã‚¯ãƒ©ã‚·ãƒƒã‚¯ã‚¹ã‚±ãƒ¼ãƒ«ï¼¯ï¼®";
 static const char* MtxCalcTypeName_Softimage
-    = "MActorMtxCalcType_Softimage ƒNƒ‰ƒVƒbƒNƒXƒP[ƒ‹‚n‚e‚e";
+    = "MActorMtxCalcType_Softimage ã‚¯ãƒ©ã‚·ãƒƒã‚¯ã‚¹ã‚±ãƒ¼ãƒ«ï¼¯ï¼¦ï¼¦";
 static const char* MtxCalcTypeName_MotionBlend
-    = "MActorMtxCalcType_MotionBlend ƒ‚[ƒVƒ‡ƒ“ƒuƒŒƒ“ƒh";
+    = "MActorMtxCalcType_MotionBlend ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ãƒ–ãƒ¬ãƒ³ãƒ‰";
 static const char* MtxCalcTypeName_User
-    = "MActorMtxCalcType_User ƒ†[ƒU[’è‹`";
+    = "MActorMtxCalcType_User ãƒ¦ãƒ¼ã‚¶ãƒ¼å®šç¾©";
 
 static void* gpCurObject;
 
@@ -614,7 +614,7 @@ void TDonchou::calcRootMatrix()
 				mMActor->setBck("donchou");
 				JDrama::TFlagT<u16> flag;
 				flag = 0;
-				gpMarDirector->fireStartDemoCamera("‚Ç‚ñ’ ƒJƒƒ‰", &mPosition,
+				gpMarDirector->fireStartDemoCamera("ã©ã‚“å¸³ã‚«ãƒ¡ãƒ©", &mPosition,
 				                                   -1, 0.0f, true, nullptr, 0,
 				                                   nullptr, flag);
 				J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
@@ -1243,7 +1243,7 @@ void TItemSlotDrum::generateItem()
 	}
 	if (result == 1) {
 		TSpineEnemy* enemy
-		    = gpConductor->makeOneEnemyAppear(mPosition, "ƒeƒŒƒT", 1);
+		    = gpConductor->makeOneEnemyAppear(mPosition, "ãƒ†ãƒ¬ã‚µ", 1);
 		if (!enemy)
 			return;
 		Mtx rot;
@@ -1410,7 +1410,7 @@ void TRoulette::initMapObj()
 			                           (GXTevRegID)1, &unk148);
 		}
 	}
-	TRouletteSw* sw = new TRouletteSw("ƒ‹[ƒŒƒbƒgƒXƒCƒbƒ`");
+	TRouletteSw* sw = new TRouletteSw("ãƒ«ãƒ¼ãƒ¬ãƒƒãƒˆã‚¹ã‚¤ãƒƒãƒ");
 	sw->unk68 = this;
 	unk150 = sw;
 	TConductor* cond = JDrama::TNameRefGen::search<TConductor>("TConductor");

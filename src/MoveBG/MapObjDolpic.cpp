@@ -133,7 +133,7 @@ BOOL TMonumentShine::receiveMessage(THitActor* sender, u32 message)
 	f32 _pad[2];
 	(void)_pad;
 
-	if (isActorTypeOf(sender, 0x01000000)) {
+	if (::isActorTypeOf(sender, 0x01000000)) {
 		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
 		SMSGetMSound()->startSoundSet(0x6802, (const Vec*)&sender->mPosition, 0,
 		                              0.0f, 0, 0, 4);
@@ -328,11 +328,11 @@ BOOL TBellDolpic::receiveMessage(THitActor* sender, u32 message)
 	f32 _pad[2];
 	(void)_pad;
 
-	if (isActorTypeOf(sender, 0x80000000)) {
+	if (::isActorTypeOf(sender, 0x80000000)) {
 		ring(sender->mPosition);
 	}
 
-	if (isActorTypeOf(sender, 0x01000000)) {
+	if (::isActorTypeOf(sender, 0x01000000)) {
 		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
 
 		if (unk154 == 0)
