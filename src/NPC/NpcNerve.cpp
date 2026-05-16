@@ -16,7 +16,16 @@ DEFINE_NERVE(TNerveNPCWaitMarioApproach, TLiveActor) { }
 
 DEFINE_NERVE(TNerveNPCTurnToMario, TLiveActor) { }
 
-DEFINE_NERVE(TNerveNPCWet, TLiveActor) { }
+DEFINE_NERVE(TNerveNPCWet, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (spine->getTime() == 0) {
+		npc->npcWetIn();
+	}
+	if (npc->npcWetting())
+		return TRUE;
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveNPCSink, TLiveActor)
 {
@@ -38,10 +47,37 @@ DEFINE_NERVE(TNerveNPCSetPosAfterSinkBottom, TLiveActor)
 
 DEFINE_NERVE(TNerveNPCTalk, TLiveActor) { }
 
-DEFINE_NERVE(TNerveNPCThrow, TLiveActor) { }
+DEFINE_NERVE(TNerveNPCThrow, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (spine->getTime() == 0) {
+		npc->npcThrowIn();
+	}
+	if (npc->npcThrowing())
+		return TRUE;
+	return FALSE;
+}
 
-DEFINE_NERVE(TNerveNPCMad, TLiveActor) { }
+DEFINE_NERVE(TNerveNPCMad, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (spine->getTime() == 0) {
+		npc->npcMadIn();
+	}
+	if (npc->npcMadding())
+		return TRUE;
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveNPCBlown, TLiveActor) { }
 
-DEFINE_NERVE(TNerveNPCMareStand, TLiveActor) { }
+DEFINE_NERVE(TNerveNPCMareStand, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (spine->getTime() == 0) {
+		npc->npcMareStandIn();
+	}
+	if (npc->npcMareStanding())
+		return TRUE;
+	return FALSE;
+}
