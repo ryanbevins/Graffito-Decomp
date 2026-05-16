@@ -375,7 +375,7 @@ void TKinopioManager::load(JSUMemoryInputStream& stream)
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
-	makePartsModelData_(0x12, 0x10010000, unk60);
+	makePartsModelData_(0x15, 0x10210000, unk60);
 }
 
 void TKinojiiManager::load(JSUMemoryInputStream& stream)
@@ -383,7 +383,7 @@ void TKinojiiManager::load(JSUMemoryInputStream& stream)
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
-	makePartsModelData_(0x12, 0x10010000, unk60);
+	makePartsModelData_(0x16, 0x10010000, unk60);
 }
 
 void TRaccoonDogManager::load(JSUMemoryInputStream& stream)
@@ -391,5 +391,85 @@ void TRaccoonDogManager::load(JSUMemoryInputStream& stream)
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
-	makePartsModelData_(0x12, 0x10010000, unk60);
+	makePartsModelData_(0x18, 0x10210000, unk60);
+}
+
+void TMonteMFManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x6, 0x10210000, unk60);
+}
+
+void TMonteMGManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x7, 0x10210000, unk60);
+}
+
+void TMonteMHManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x8, 0x10210000, unk60);
+}
+
+void TMonteWCManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0xc, 0x10210000, unk60);
+}
+
+void TMareMAManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0xe, 0x10210000, unk60);
+}
+
+void TMareMBManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0xf, 0x10210000, unk60);
+}
+
+void TMareMCManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x10, 0x10210000, unk60);
+}
+
+void TMareMDManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x11, 0x10210000, unk60);
+}
+
+void TMareWAManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x13, 0x10210000, unk60);
+}
+
+void TMareWBManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x14, 0x10210000, unk60);
 }
