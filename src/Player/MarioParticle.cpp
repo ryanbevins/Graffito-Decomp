@@ -69,6 +69,11 @@ void TMario::emitBlurHipDrop()
 	gpMarioParticleManager->emitAndBindToMtxPtr(0x104, getCenterAnmMtx(), 1, this);
 }
 
+void TMario::blurEffect()
+{
+	gpMarioParticleManager->emitAndBindToMtxPtr(0x10E, getCenterAnmMtx(), 1, this);
+}
+
 void TMario::warpInLight()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(0x51, &unk160[2], 0, this);
