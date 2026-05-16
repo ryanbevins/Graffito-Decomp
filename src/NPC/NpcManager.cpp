@@ -556,6 +556,23 @@ void TNPCManager::perform(u32 flags, JDrama::TGraphics* gfx)
 	TEnemyManager::perform(flags, gfx);
 }
 
+SDLModelData* TNPCManager::getPartsSDLModelData(const char* name) const
+{
+	SDLModelData* result = (SDLModelData*)NULL;
+	if (unk5C != NULL) {
+		result = unk5C->getDataByName(name);
+	}
+	if (result == NULL && unk60 != NULL) {
+		result = unk60->getDataByName(name);
+	}
+	return result;
+}
+
+J3DMaterialTable* TNPCManager::getBmt_(bool)
+{
+	return (J3DMaterialTable*)NULL;
+}
+
 void TNPCManager::clipEnemies(JDrama::TGraphics* gfx)
 {
 	f32 farClip            = unk54;
