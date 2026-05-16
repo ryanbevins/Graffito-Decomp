@@ -7,6 +7,8 @@
 #include <JSystem/ResTIMG.hpp>
 #include <Enemy/Conductor.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <NPC/NpcSave.hpp>
+#include <System/MarDirector.hpp>
 
 class J3DMaterialTable;
 
@@ -514,6 +516,31 @@ void TMonteMBaseManager::createAnmData()
 // =====================================================================
 // TNPCManager virtual methods
 // =====================================================================
+
+TNPCManager::TNPCManager(const char* name)
+    : TEnemyManager(name)
+{
+	unk54 = 350.0f;
+	unk58 = (const f32*)NULL;
+	unk5C = (TModelDataKeeper*)NULL;
+	unk60 = (TModelDataKeeper*)NULL;
+	TNpcSaveStageFarClip* far = gpConductor->unkF4->unk0;
+	switch (gpMarDirector->mMap) {
+	case 0:  unk58 = &far->mSLFarAirport.value; break;
+	case 1:  unk58 = &far->mSLFarDolpicTown.value; break;
+	case 2:  unk58 = &far->mSLFarBiancoHills.value; break;
+	case 3:  unk58 = &far->mSLFarRiccoHarbor.value; break;
+	case 4:  unk58 = &far->mSLFarMammaBeach.value; break;
+	case 5:  unk58 = &far->mSLFarPinnaBeach.value; break;
+	case 6:  unk58 = &far->mSLFarSirenaBeach.value; break;
+	case 7:  unk58 = &far->mSLFarHotelDelfino.value; break;
+	case 8:  unk58 = &far->mSLFarMonteVillage.value; break;
+	case 9:  unk58 = &far->mSLFarMareVillage.value; break;
+	case 10: unk58 = &far->mSLFarCoronaMountain.value; break;
+	case 13: unk58 = &far->mSLFarPinnaParco.value; break;
+	default: unk58 = &far->mSLFarOthers.value; break;
+	}
+}
 
 void TNPCManager::perform(u32 flags, JDrama::TGraphics* gfx)
 {
