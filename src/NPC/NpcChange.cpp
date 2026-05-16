@@ -4,6 +4,8 @@
 #include <NPC/NpcNerve.hpp>
 #include <Strategic/Spine.hpp>
 
+void TBaseNPC::kill() { }
+
 BOOL TBaseNPC::isNerveWalk() const
 {
 	BOOL result                       = FALSE;
@@ -22,7 +24,7 @@ BOOL TBaseNPC::isNerveMaybeDontMovement() const
 	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
 	if (cur == &TNerveNPCWaitContinue::theNerve()
 	    || cur == &TNerveNPCWaitMarioApproach::theNerve()
-	    || cur == &TNerveNPCTurnToMario::theNerve()) {
+	    || cur == &TNerveNPCSink::theNerve()) {
 		result = TRUE;
 	}
 	return result;
