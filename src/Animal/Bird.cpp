@@ -647,8 +647,7 @@ DEFINE_NERVE(TNerveAnimalBirdWalkOnGround, TLiveActor)
 	JGeometry::TQuat4<f32> q;
 	SMS_Eular2Quat(bird->mRotation, &q);
 
-	f32 speed = bird->unk174
-	          * ((TAnimalBirdParams*)bird->getSaveParam())
+	f32 speed = ((TAnimalBirdParams*)bird->getSaveParam())
 	                ->mWalkingSpeed.value;
 
 	JGeometry::TVec3<f32> forward(0.0f, 0.0f, speed);
@@ -711,10 +710,10 @@ DEFINE_NERVE(TNerveAnimalBirdGraphWander, TLiveActor)
 	TAnimalBird* bird = (TAnimalBird*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		bird->mVelocity.x        = 0.0f;
-		bird->mVelocity.y        = 0.0f;
-		bird->mVelocity.z        = 0.0f;
-		*(int*)((char*)bird + 0x12C) = -1;
+		bird->mVelocity.x  = 0.0f;
+		bird->mVelocity.y  = 0.0f;
+		bird->mVelocity.z  = 0.0f;
+		bird->getTracer()->reset();
 		bird->goToShortestNextGraphNode();
 	}
 
@@ -736,7 +735,7 @@ DEFINE_NERVE(TNerveAnimalBirdGraphWander, TLiveActor)
 		bird->unk104.unk0 = (THitActor*)NULL;
 		bird->unk104.unk4 = pt;
 
-		if (bird->unkF4.getPoint().y < bird->mPosition.y) {
+		if (bird->mPosition.y <= bird->unkF4.getPoint().y) {
 			bird->mMActor->setBckFromIndex(1);
 			bird->setCurAnmSound();
 		} else {
@@ -916,9 +915,9 @@ DEFINE_NERVE(TNerveAnimalBirdChangeToCoin, TLiveActor)
 	((void (*)(TMapObjBase*, const Vec*))(*(u32**)spawned)[35])(
 	    spawned, (const Vec*)&bird->mPosition);
 
-	((TLiveActor*)spawned)->mLinearVelocity.x = 0.0f;
-	((TLiveActor*)spawned)->mLinearVelocity.y = -10.0f;
-	((TLiveActor*)spawned)->mLinearVelocity.z = 0.0f;
+	((TLiveActor*)spawned)->mVelocity.x = 0.0f;
+	((TLiveActor*)spawned)->mVelocity.y = -10.0f;
+	((TLiveActor*)spawned)->mVelocity.z = 0.0f;
 
 	((TLiveActor*)spawned)->mLiveFlag &= ~0x10;
 	((TLiveActor*)spawned)->mLiveFlag |= 0x80;
