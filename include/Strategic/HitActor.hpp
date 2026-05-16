@@ -136,7 +136,6 @@ public:
 	/* 0x5C */ f32 mDamageHeight;
 	/* 0x60 */ f32 mEntryRadius;
 	/* 0x64 */ u32 unk64;
-	/* 0x68 */ char unk68[8];
 };
 
 #endif

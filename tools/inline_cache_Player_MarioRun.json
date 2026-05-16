@@ -1,0 +1,148 @@
+{
+  "tu": "Player/MarioRun",
+  "src_hash": "5f8168f673894357211d957c9618b437",
+  "header_hash": "4a7ccc4a849fe571786c87cc6ae9bf66",
+  "gaps": {
+    "moveMain__6TMarioFv": -64,
+    "jumpSlipCommon__6TMarioFsUl": -8,
+    "loserDown__6TMarioFv": -8,
+    "downingCommon__6TMarioFifi": -8,
+    "oilSlip__6TMarioFv": -8,
+    "oilRun__6TMarioFv": -24,
+    "catching__6TMarioFv": -16,
+    "slippingBasic__6TMarioFiii": -56,
+    "isEmitting__9TWaterGunFv": -16,
+    "surfing__6TMarioFv": -64,
+    "turnning__6TMarioFv": -8,
+    "running__6TMarioFv": -56,
+    "doSurfing__6TMarioFv": -104,
+    "doRunning__6TMarioFv": -80,
+    "slopeProcess__6TMarioFv": -72,
+    "getSlideStickMult__6TMarioFv": -32,
+    "getChangeAngleSpeed__6TMarioFv": -40,
+    "getSlopeSlideAccele__6TMarioFPfPf": -64,
+    "getSlopeNormalAccele__6TMarioFPfPf": -64,
+    "doRunningAnimation__6TMarioFv": -72,
+    "considerRotateStart__6TMarioFv": -24
+  },
+  "match_makers": {},
+  "safe": {
+    "getMfaceangleY": {
+      "stacks": {
+        "moveMain__6TMarioFv": -24,
+        "oilSlip__6TMarioFv": -32,
+        "oilRun__6TMarioFv": -64,
+        "turnning__6TMarioFv": -40,
+        "surfing__6TMarioFv": -24,
+        "fireDashing__6TMarioFv": -24,
+        "running__6TMarioFv": -32,
+        "doPushingAnimation__6TMarioFRC3Vec": -24,
+        "doSurfing__6TMarioFv": -32,
+        "slopeProcess__6TMarioFv": -64,
+        "slideProcess__6TMarioFff": -8
+      },
+      "header": "\tf32 getMfaceangleY() const { return mFaceAngle.y; }",
+      "field": "mFaceAngle.y",
+      "call": "getMfaceangleY()"
+    },
+    "getSlideVelX": {
+      "stacks": {
+        "slippingBasic__6TMarioFiii": -8,
+        "doSliding__6TMarioFf": -24,
+        "slideProcess__6TMarioFff": -32
+      },
+      "header": "\tf32 getSlideVelX() const { return mSlideVelX; }",
+      "field": "mSlideVelX",
+      "call": "getSlideVelX()"
+    },
+    "getSlideVelZ": {
+      "stacks": {
+        "slippingBasic__6TMarioFiii": -8,
+        "doSliding__6TMarioFf": -24,
+        "slideProcess__6TMarioFff": -32
+      },
+      "header": "\tf32 getSlideVelZ() const { return mSlideVelZ; }",
+      "field": "mSlideVelZ",
+      "call": "getSlideVelZ()"
+    },
+    "getSlideAngle": {
+      "stacks": {
+        "slippingBasic__6TMarioFiii": -8,
+        "slideProcess__6TMarioFff": -8
+      },
+      "header": "\ts16 getSlideAngle() const { return mSlideAngle; }",
+      "field": "mSlideAngle",
+      "call": "getSlideAngle()"
+    },
+    "getMpositionY": {
+      "stacks": {
+        "running__6TMarioFv": -8,
+        "doSurfing__6TMarioFv": -8,
+        "doRunning__6TMarioFv": -16,
+        "doRunningAnimation__6TMarioFv": -16
+      },
+      "header": "\tf32 getMpositionY() const { return mPosition.y; }",
+      "field": "mPosition.y",
+      "call": "getMpositionY()"
+    },
+    "getModel": {
+      "stacks": {
+        "doRunningAnimation__6TMarioFv": -8
+      },
+      "header": "\tM3UModelMario* getModel() const { return mModel; }",
+      "field": "mModel",
+      "call": "getModel()"
+    },
+    "getMfloorpositionY": {
+      "stacks": {
+        "running__6TMarioFv": -8,
+        "doRunning__6TMarioFv": -8,
+        "doRunningAnimation__6TMarioFv": -8
+      },
+      "header": "\tf32 getMfloorpositionY() const { return mFloorPosition.y; }",
+      "field": "mFloorPosition.y",
+      "call": "getMfloorpositionY()"
+    },
+    "getPumpState": {
+      "stacks": {
+        "turnning__6TMarioFv": -8,
+        "doRunning__6TMarioFv": -8
+      },
+      "header": "\tu32 getPumpState() const { return mPumpState; }",
+      "field": "mPumpState",
+      "call": "getPumpState()"
+    },
+    "getMvelX": {
+      "stacks": {
+        "oilRun__6TMarioFv": -8
+      },
+      "header": "\tf32 getMvelX() const { return mVel.x; }",
+      "field": "mVel.x",
+      "call": "getMvelX()"
+    },
+    "getMvelZ": {
+      "stacks": {
+        "oilRun__6TMarioFv": -8
+      },
+      "header": "\tf32 getMvelZ() const { return mVel.z; }",
+      "field": "mVel.z",
+      "call": "getMvelZ()"
+    },
+    "getModelFaceAngle": {
+      "stacks": {
+        "moveMain__6TMarioFv": -8
+      },
+      "header": "\ts16 getModelFaceAngle() const { return mModelFaceAngle; }",
+      "field": "mModelFaceAngle",
+      "call": "getModelFaceAngle()"
+    },
+    "getUnk389": {
+      "stacks": {
+        "doSurfing__6TMarioFv": -24
+      },
+      "header": "\tu8 getUnk389() const { return unk389; }",
+      "field": "unk389",
+      "call": "getUnk389()"
+    }
+  }
+}

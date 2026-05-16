@@ -1,0 +1,62 @@
+{
+  "tu": "Player/MarioWait",
+  "src_hash": "50de6c296ffabb8b10af1e0e8af1cdd8",
+  "header_hash": "4a7ccc4a849fe571786c87cc6ae9bf66",
+  "gaps": {
+    "waitMain__6TMarioFv": -48,
+    "squating__6TMarioFv": -64,
+    "waiting__6TMarioFv": -40,
+    "stopCommon__6TMarioFii": -8,
+    "waitingCommonEvents__6TMarioFv": -24,
+    "canPut__6TMarioFv": -8,
+    "canSleep__6TMarioFv": -16
+  },
+  "match_makers": {},
+  "safe": {
+    "getMfaceangleY": {
+      "stacks": {
+        "squating__6TMarioFv": -24,
+        "getSideWalkValues__6TMarioFP15E_SIDEWALK_TYPEPfPf": -16,
+        "waiting__6TMarioFv": -16,
+        "waitingCommonEvents__6TMarioFv": -32,
+        "canPut__6TMarioFv": -24
+      },
+      "header": "\tf32 getMfaceangleY() const { return mFaceAngle.y; }",
+      "field": "mFaceAngle.y",
+      "call": "getMfaceangleY()"
+    },
+    "getMfloorpositionY": {
+      "stacks": {
+        "waitingCommonEvents__6TMarioFv": -8,
+        "canSleep__6TMarioFv": -8
+      },
+      "header": "\tf32 getMfloorpositionY() const { return mFloorPosition.y; }",
+      "field": "mFloorPosition.y",
+      "call": "getMfloorpositionY()"
+    },
+    "getAnimationId": {
+      "stacks": {
+        "waiting__6TMarioFv": -8
+      },
+      "header": "\tu16 getAnimationId() const { return mAnimationId; }",
+      "field": "mAnimationId",
+      "call": "getAnimationId()"
+    },
+    "getPumpState": {
+      "stacks": {
+        "waiting__6TMarioFv": -8
+      },
+      "header": "\tu32 getPumpState() const { return mPumpState; }",
+      "field": "mPumpState",
+      "call": "getPumpState()"
+    },
+    "getGamePad": {
+      "stacks": {
+        "squating__6TMarioFv": -8
+      },
+      "header": "\tTMarioGamePad* getGamePad() const { return mGamePad; }",
+      "field": "mGamePad",
+      "call": "getGamePad()"
+    }
+  }
+}

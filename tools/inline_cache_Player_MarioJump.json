@@ -1,0 +1,132 @@
+{
+  "tu": "Player/MarioJump",
+  "src_hash": "6e5b78326c82b096eea5797fde285749",
+  "header_hash": "4a7ccc4a849fe571786c87cc6ae9bf66",
+  "gaps": {
+    "jumpMain__6TMarioFv": -56,
+    "diving__6TMarioFv": -184,
+    "hipAttacking__6TMarioFv": -64,
+    "rocketing__6TMarioFv": -152,
+    "rocketCheck__6TMarioFv": -48,
+    "boardJumping__6TMarioFv": -24,
+    "thrownDowning__6TMarioFv": -8,
+    "fireDowning__6TMarioFv": -16,
+    "slipFalling__6TMarioFv": -24,
+    "stayWall__6TMarioFv": -24,
+    "jumpCatch__6TMarioFv": -24,
+    "jumpingBasic__6TMarioFiii": -88,
+    "doJumping__6TMarioFv": -80
+  },
+  "match_makers": {},
+  "safe": {
+    "getMfaceangleY": {
+      "stacks": {
+        "hipAttacking__6TMarioFv": -8,
+        "rocketing__6TMarioFv": -32,
+        "boardJumping__6TMarioFv": -40,
+        "thrownDowning__6TMarioFv": -48,
+        "fireDowning__6TMarioFv": -32,
+        "slipFalling__6TMarioFv": -32,
+        "stayWall__6TMarioFv": -16,
+        "jumpingBasic__6TMarioFiii": -24,
+        "doJumping__6TMarioFv": -40,
+        "startJumpWall__6TMarioFv": -24
+      },
+      "header": "\tf32 getMfaceangleY() const { return mFaceAngle.y; }",
+      "field": "mFaceAngle.y",
+      "call": "getMfaceangleY()"
+    },
+    "getActionTimer": {
+      "stacks": {
+        "hipAttacking__6TMarioFv": -8,
+        "stayWall__6TMarioFv": -16,
+        "landing__6TMarioFv": -8
+      },
+      "header": "\tu16 getActionTimer() const { return mActionTimer; }",
+      "field": "mActionTimer",
+      "call": "getActionTimer()"
+    },
+    "getActionState": {
+      "stacks": {
+        "hipAttacking__6TMarioFv": -16,
+        "catchStop__6TMarioFv": -8
+      },
+      "header": "\tu16 getActionState() const { return mActionState; }",
+      "field": "mActionState",
+      "call": "getActionState()"
+    },
+    "getMpositionY": {
+      "stacks": {
+        "hipAttacking__6TMarioFv": -16,
+        "rocketing__6TMarioFv": -8,
+        "rocketCheck__6TMarioFv": -8,
+        "boardJumping__6TMarioFv": -8,
+        "stayWall__6TMarioFv": -8,
+        "jumpCatch__6TMarioFv": -8,
+        "jumpingBasic__6TMarioFiii": -8,
+        "startJumpWall__6TMarioFv": -8
+      },
+      "header": "\tf32 getMpositionY() const { return mPosition.y; }",
+      "field": "mPosition.y",
+      "call": "getMpositionY()"
+    },
+    "getMfloorpositionY": {
+      "stacks": {
+        "hipAttacking__6TMarioFv": -8,
+        "rocketing__6TMarioFv": -8,
+        "boardJumping__6TMarioFv": -8,
+        "stayWall__6TMarioFv": -8,
+        "startJumpWall__6TMarioFv": -8
+      },
+      "header": "\tf32 getMfloorpositionY() const { return mFloorPosition.y; }",
+      "field": "mFloorPosition.y",
+      "call": "getMfloorpositionY()"
+    },
+    "getGamePad": {
+      "stacks": {
+        "jumpMain__6TMarioFv": -24,
+        "stayWall__6TMarioFv": -8,
+        "jumpCatch__6TMarioFv": -8,
+        "landing__6TMarioFv": -8,
+        "checkBackTrig__6TMarioFv": -8
+      },
+      "header": "\tTMarioGamePad* getGamePad() const { return mGamePad; }",
+      "field": "mGamePad",
+      "call": "getGamePad()"
+    },
+    "getSlideVelX": {
+      "stacks": {
+        "rocketing__6TMarioFv": -8
+      },
+      "header": "\tf32 getSlideVelX() const { return mSlideVelX; }",
+      "field": "mSlideVelX",
+      "call": "getSlideVelX()"
+    },
+    "getSlideVelZ": {
+      "stacks": {
+        "rocketing__6TMarioFv": -8
+      },
+      "header": "\tf32 getSlideVelZ() const { return mSlideVelZ; }",
+      "field": "mSlideVelZ",
+      "call": "getSlideVelZ()"
+    },
+    "getSubState": {
+      "stacks": {
+        "jumpCatch__6TMarioFv": -8,
+        "jumpingBasic__6TMarioFiii": -8
+      },
+      "header": "\tu16 getSubState() const { return mSubState; }",
+      "field": "mSubState",
+      "call": "getSubState()"
+    },
+    "getPumpState": {
+      "stacks": {
+        "rocketing__6TMarioFv": -8,
+        "rocketCheck__6TMarioFv": -8
+      },
+      "header": "\tu32 getPumpState() const { return mPumpState; }",
+      "field": "mPumpState",
+      "call": "getPumpState()"
+    }
+  }
+}

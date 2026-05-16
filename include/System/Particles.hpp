@@ -10,7 +10,7 @@ extern bool gParticleFlagLoaded[0x201];
 extern JPAResourceManager* gpResourceManager;
 
 // fabricated
-inline static void SMS_LoadParticle(const char* path, u32 id)
+inline static void SMS_LoadParticle(const char* path, u16 id)
 {
 	if (!gParticleFlagLoaded[id]) {
 		gpResourceManager->load(path, id);
