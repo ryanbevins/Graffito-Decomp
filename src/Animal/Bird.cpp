@@ -128,7 +128,39 @@ void TAnimalBird::calcRootMatrix()
 	getModel()->unk20[1][3] += 35.0f;
 }
 
-void TAnimalBird::bind() { }
+void TAnimalBird::bind()
+{
+	BOOL useWire = FALSE;
+	if (mBinder2 != NULL) {
+		BOOL cond1 = TRUE;
+		BOOL cond2 = TRUE;
+		BOOL cond3 = TRUE;
+		TSpineBase<TLiveActor>* sp = mSpine;
+		if (sp->getLatestNerve() != &TNerveAnimalBirdWaitOnGround::theNerve()) {
+			if (sp->getLatestNerve()
+			    != &TNerveAnimalBirdActionOnGround::theNerve())
+				cond3 = FALSE;
+		}
+		if (!cond3) {
+			if (sp->getLatestNerve()
+			    != &TNerveAnimalBirdWalkOnGround::theNerve())
+				cond2 = FALSE;
+		}
+		if (!cond2) {
+			if (mSpine->getLatestNerve()
+			    != &TNerveAnimalBirdPreLanding::theNerve())
+				cond1 = FALSE;
+		}
+		if (cond1)
+			useWire = TRUE;
+	}
+
+	if (!useWire) {
+		TLiveActor::bind();
+	} else {
+		mBinder2->bind(this);
+	}
+}
 
 void TAnimalBird::moveObject() { }
 
