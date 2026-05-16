@@ -1,10 +1,14 @@
-// cameragc.cpp — main CPolarSubCamera implementation. Large TU (~12KB).
+// cameragc.cpp -- main CPolarSubCamera implementation. Large TU (~12KB).
 // Stub for portability; key functions need full decomp:
 // - perform, ctrlGameCamera_, calcPosAndAt_, calcFinalPosAndAt_,
 //   calcNowTargetFromPosAndAt_, calcSlopeAngleX_, rotateX/Y_ByStickXY_,
 //   __ct__, ~CPolarSubCamera, loadAfter
 
 #include <Camera/Camera.hpp>
+#include <Player/MarioMain.hpp>
+#include <Player/MarioAccess.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 
 CPolarSubCamera::CPolarSubCamera(const char* name)
     : JDrama::TLookAtCamera()
@@ -57,7 +61,10 @@ JGeometry::TVec3<f32> CPolarSubCamera::getUsualLookat() const
 	return v;
 }
 
-void CPolarSubCamera::getToroccoMtx_() const { }
+MtxPtr CPolarSubCamera::getToroccoMtx_() const
+{
+	return gpMarioOriginal->mTorocco->unk4->mNodeMatrices[2];
+}
 bool CPolarSubCamera::isNowInbetween() const { return false; }
 
 void CPolarSubCamera::loadAfter() { }

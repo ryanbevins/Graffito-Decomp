@@ -76,7 +76,7 @@ public:
 	void startJetCoasterCam1();
 	void loadAfter();
 	bool isNowInbetween() const;
-	void getToroccoMtx_() const;
+	MtxPtr getToroccoMtx_() const;
 	void setMarioLookat_();
 	JGeometry::TVec3<f32> getUsualLookat() const;
 	s16 calcAngleXFromXRotRatio_() const;
