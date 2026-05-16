@@ -23,7 +23,7 @@ public:
 	void peachParasolIn_();
 	void npcMareStanding();
 	void npcMareStandIn();
-	void npcBlowning();
+	BOOL npcBlowning();
 	void npcBlownIn();
 	void npcMadding();
 	void npcMadIn();
