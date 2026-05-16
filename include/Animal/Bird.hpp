@@ -61,7 +61,7 @@ public:
 	void doFlyToCurPathNode();
 	void doLanding(bool);
 
-	/* 0x150 */ int unk150;
+	/* 0x150 */ class TMapObjBase* unk150;
 	/* 0x154 */ class TBinder* mBinder2;
 	/* 0x158 */ JGeometry::TVec3<f32> unk158;
 	/* 0x164 */ JGeometry::TVec3<f32> unk164;
