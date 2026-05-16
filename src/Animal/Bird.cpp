@@ -628,11 +628,7 @@ DEFINE_NERVE(TNerveAnimalBirdWalkOnGround, TLiveActor)
 		bird->setCurAnmSound();
 	}
 
-	BOOL wantTakeoff = TRUE;
-	if (bird->unk178 <= 0) {
-		if (!bird->isFindMario())
-			wantTakeoff = FALSE;
-	}
+	bool wantTakeoff = (bird->unk178 > 0) || bird->isFindMario();
 	if (wantTakeoff && MsRandF() < 0.5f) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdTakeoff::theNerve());
 		return TRUE;
