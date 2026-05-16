@@ -265,17 +265,17 @@ void TAnimalBird::bind()
 {
 	BOOL useWire = FALSE;
 	if (mBinder2 != NULL) {
-		BOOL cond1                 = TRUE;
-		BOOL cond2                 = TRUE;
-		BOOL cond3                 = TRUE;
-		TSpineBase<TLiveActor>* sp = mSpine;
-		if (sp->getLatestNerve() != &TNerveAnimalBirdWaitOnGround::theNerve()) {
-			if (sp->getLatestNerve()
+		BOOL cond1 = TRUE;
+		BOOL cond2 = TRUE;
+		BOOL cond3 = TRUE;
+		if (mSpine->getLatestNerve()
+		    != &TNerveAnimalBirdWaitOnGround::theNerve()) {
+			if (mSpine->getLatestNerve()
 			    != &TNerveAnimalBirdActionOnGround::theNerve())
 				cond3 = FALSE;
 		}
 		if (!cond3) {
-			if (sp->getLatestNerve()
+			if (mSpine->getLatestNerve()
 			    != &TNerveAnimalBirdWalkOnGround::theNerve())
 				cond2 = FALSE;
 		}
