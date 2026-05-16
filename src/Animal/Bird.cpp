@@ -426,37 +426,37 @@ void TAnimalBird::doFlyToCurPathNode()
 	SMS_Eular2Quat(mRotation, &q);
 
 	JGeometry::TVec3<f32> forward(0.0f, 0.0f, speed);
-	JGeometry::TVec3<f32> rotated;
+	JGeometry::TVec4<f32> tmp;
 	{
 		f32 qx = q.x, qy = q.y, qz = q.z, qw = q.w;
 		f32 fx = forward.x, fy = forward.y, fz = forward.z;
-		rotated.x = (qw * qw + qx * qx - qy * qy - qz * qz) * fx
-		          + 2.0f * (qx * qy - qw * qz) * fy
-		          + 2.0f * (qx * qz + qw * qy) * fz;
-		rotated.y = 2.0f * (qx * qy + qw * qz) * fx
-		          + (qw * qw - qx * qx + qy * qy - qz * qz) * fy
-		          + 2.0f * (qy * qz - qw * qx) * fz;
-		rotated.z = 2.0f * (qx * qz - qw * qy) * fx
-		          + 2.0f * (qy * qz + qw * qx) * fy
-		          + (qw * qw - qx * qx - qy * qy + qz * qz) * fz;
+		f32 rx = (qw * qw + qx * qx - qy * qy - qz * qz) * fx
+		       + 2.0f * (qx * qy - qw * qz) * fy
+		       + 2.0f * (qx * qz + qw * qy) * fz;
+		f32 ry = 2.0f * (qx * qy + qw * qz) * fx
+		       + (qw * qw - qx * qx + qy * qy - qz * qz) * fy
+		       + 2.0f * (qy * qz - qw * qx) * fz;
+		f32 rz = 2.0f * (qx * qz - qw * qy) * fx
+		       + 2.0f * (qy * qz + qw * qx) * fy
+		       + (qw * qw - qx * qx - qy * qy + qz * qz) * fz;
+		forward.set<f32>(rx, ry, rz);
 	}
+	mLinearVelocity = forward;
 
 	f32 wetRatio
 	    = 1.0f
 	    - (f32)unk178
 	          / (f32)((TAnimalBirdParams*)getSaveParam())
 	                ->mWaterproofTimerMax.value;
-	rotated.x *= wetRatio;
-	rotated.y *= wetRatio;
-	rotated.z *= wetRatio;
+	mLinearVelocity.x *= wetRatio;
+	mLinearVelocity.y *= wetRatio;
+	mLinearVelocity.z *= wetRatio;
 
 	f32 fallRatio
 	    = (f32)unk178
 	    / (f32)((TAnimalBirdParams*)getSaveParam())->mWaterproofTimerMax.value;
-	rotated.y
+	mLinearVelocity.y
 	    -= ((TAnimalBirdParams*)getSaveParam())->mWaterPowerY.value * fallRatio;
-
-	mLinearVelocity = rotated;
 }
 
 bool TAnimalBird::doLanding(bool initFrame)
