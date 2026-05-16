@@ -9,6 +9,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <Enemy/WireBinder.hpp>
 #include <Enemy/PathNode.hpp>
+#include <Enemy/Graph.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
@@ -174,9 +175,9 @@ BOOL TAnimalBird::receiveMessage(THitActor* sender, u32 msg)
 	}
 
 	if (msg == 4) {
-		if (*(THitActor**)((char*)this + 0x68) == NULL) {
+		if (mHolder == NULL) {
 			unk64 |= 1;
-			*(THitActor**)((char*)this + 0x68) = sender;
+			mHolder = (TTakeActor*)sender;
 			JGeometry::TVec3<f32> scale2(1.0f, 1.0f, 1.0f);
 			SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xE7,
 			                     &sender->mPosition, (const void*)NULL, scale2);
@@ -185,15 +186,15 @@ BOOL TAnimalBird::receiveMessage(THitActor* sender, u32 msg)
 	}
 
 	if (msg == 6 || msg == 7) {
-		if (*(THitActor**)((char*)this + 0x68) == sender) {
-			*(THitActor**)((char*)this + 0x68) = (THitActor*)NULL;
+		if (mHolder == (TTakeActor*)sender) {
+			mHolder = (TTakeActor*)NULL;
 			unk64 &= ~1;
 		}
 		return TRUE;
 	}
 
 	if (msg == 0xB) {
-		*(THitActor**)((char*)this + 0x68) = (THitActor*)NULL;
+		mHolder = (TTakeActor*)NULL;
 		if (mSpine->getLatestNerve()
 		    != &TNerveAnimalBirdChangeToCoin::theNerve()) {
 			mSpine->setNext(&TNerveAnimalBirdChangeToCoin::theNerve());
