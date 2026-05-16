@@ -99,10 +99,10 @@ void TAnimalBirdManager::loadAfter()
 // ---- TAnimalBird ----
 
 TAnimalBird::TAnimalBird(const char* name)
-    : TAnimalBase(0x10000032, name)
+    : TSpineEnemy(name)
 {
-	mFrameTimer = (int*)NULL;
-	mBinder2    = (TBinder*)NULL;
+	unk150   = (TMapObjBase*)NULL;
+	mBinder2 = (TBinder*)NULL;
 }
 
 void TAnimalBird::load(JSUMemoryInputStream& stream)
@@ -118,7 +118,7 @@ void TAnimalBird::load(JSUMemoryInputStream& stream)
 	} else {
 		item = TMapObjBaseManager::newAndRegisterObjByEventID(0x64, "");
 	}
-	mFrameTimer = (int*)item;
+	unk150 = item;
 
 	u32 actorType = item->mActorType;
 	int variant;
@@ -420,7 +420,7 @@ void TAnimalBird::doFlyToCurPathNode()
 		turn = calcTurnSpeedToReach(speed, 0.5f * dist);
 	}
 
-	getRotationFlyToDir(&mRotation, toTarget, speed, turn);
+	TAnimalBase::getRotationFlyToDir(&mRotation, toTarget, speed, turn);
 
 	JGeometry::TQuat4<f32> q;
 	SMS_Eular2Quat(mRotation, &q);
@@ -890,7 +890,7 @@ DEFINE_NERVE(TNerveAnimalBirdChangeToCoin, TLiveActor)
 
 	bird->mLiveFlag |= 1;
 
-	TMapObjBase* item = (TMapObjBase*)bird->mFrameTimer;
+	TMapObjBase* item = bird->unk150;
 	if (item == NULL)
 		return TRUE;
 
