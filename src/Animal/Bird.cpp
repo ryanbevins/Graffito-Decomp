@@ -248,7 +248,7 @@ public:
 
 void TAnimalBird::calcRootMatrix()
 {
-	TBirdMount* mount = *(TBirdMount**)((char*)this + 0x68);
+	TBirdMount* mount = (TBirdMount*)mHolder;
 	if (mount != NULL) {
 		typedef MtxPtr (*MtxFn)(TBirdMount*);
 		MtxFn fn  = *(MtxFn*)(*(char**)mount + 0xA4);
