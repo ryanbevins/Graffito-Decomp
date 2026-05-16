@@ -20,10 +20,10 @@ public:
 
 class TMarioInputReplay {
 public:
-	void init(u8* iData);
+	void reset();
 	bool play(f32* outIntendedMag, s16* outIntendedYaw, u32* outPressedBtns,
 	          u32* outJustPressedBtns, u8*, u8*);
-	void reset();
+	void init(u8* iData);
 
 private:
 	s16 mUnk0;                         // 0x0

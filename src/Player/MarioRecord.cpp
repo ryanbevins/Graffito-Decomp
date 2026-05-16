@@ -21,11 +21,6 @@ template <typename T> bool TRecordValueManager<T>::get(T* outValue)
 	return false;
 }
 
-template class TRecordValueManager<u8>;
-template class TRecordValueManager<u16>;
-template class TRecordValueManager<s16>;
-template class TRecordValueManager<f32>;
-
 void TMarioInputReplay::reset()
 {
 	mCanPlay      = 0;
@@ -52,9 +47,10 @@ bool TMarioInputReplay::play(f32* outIntendedMag, s16* outIntendedYaw,
 
 	u16 btnMask;
 	mBtnMask.get(&btnMask);
-	*outPressedBtns      = btnMask;
-	*outJustPressedBtns  = btnMask & ~mPrevBtnMask;
+	u16 just             = btnMask & ~mPrevBtnMask;
 	mPrevBtnMask         = btnMask;
+	((u16*)outPressedBtns)[1]     = btnMask;
+	((u16*)outJustPressedBtns)[1] = just;
 
 	mUnk64.get(a);
 	mUnk80.get(b);
@@ -91,3 +87,8 @@ void TMarioInputReplay::init(u8* iData)
 	mUnk80.mFirstValuePtr    = (u8*)(iData + *(u32*)(iData + 0x38));
 	mUnk80.reset();
 }
+
+template class TRecordValueManager<u8>;
+template class TRecordValueManager<u16>;
+template class TRecordValueManager<s16>;
+template class TRecordValueManager<f32>;
