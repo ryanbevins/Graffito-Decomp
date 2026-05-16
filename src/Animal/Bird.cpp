@@ -711,11 +711,45 @@ DEFINE_NERVE(TNerveAnimalBirdGraphWander, TLiveActor)
 	TAnimalBird* bird = (TAnimalBird*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		bird->mLinearVelocity.x = 0.0f;
-		bird->mLinearVelocity.y = 0.0f;
-		bird->mLinearVelocity.z = 0.0f;
-		bird->unkF4.unk0        = (THitActor*)NULL;
+		bird->mVelocity.x        = 0.0f;
+		bird->mVelocity.y        = 0.0f;
+		bird->mVelocity.z        = 0.0f;
+		*(int*)((char*)bird + 0x12C) = -1;
 		bird->goToShortestNextGraphNode();
+	}
+
+	if (spine->getTime() == 0 || bird->isReachedToGoal()) {
+		bird->goToRandomNextGraphNode();
+
+		JGeometry::TVec3<f32> pt;
+		if (bird->unkF4.unk0 != NULL) {
+			pt = bird->unkF4.unk0->mPosition;
+		} else {
+			pt = bird->unkF4.unk4;
+		}
+		pt.x += 200.0f * (MsRandF() - 0.5f);
+		pt.y += 200.0f * (MsRandF() - 0.5f);
+		pt.z += 200.0f * (MsRandF() - 0.5f);
+
+		bird->unkF4.unk0  = (THitActor*)NULL;
+		bird->unkF4.unk4  = pt;
+		bird->unk104.unk0 = (THitActor*)NULL;
+		bird->unk104.unk4 = pt;
+
+		if (bird->unkF4.getPoint().y < bird->mPosition.y) {
+			bird->mMActor->setBckFromIndex(1);
+			bird->setCurAnmSound();
+		} else {
+			bird->mMActor->setBckFromIndex(3);
+			bird->setCurAnmSound();
+		}
+	}
+
+	if (bird->checkCurAnmEnd(0)
+	    && ((TAnimalBirdParams*)bird->getSaveParam())->mReturnTimer.value
+	           < (s32)spine->getTime()) {
+		spine->pushAfterCurrent(&TNerveAnimalBirdComeback::theNerve());
+		return TRUE;
 	}
 
 	bird->doFlyToCurPathNode();
