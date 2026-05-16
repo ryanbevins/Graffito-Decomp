@@ -1,5 +1,6 @@
 #include <Enemy/BathtubKiller.hpp>
 #include <Strategic/ObjModel.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
