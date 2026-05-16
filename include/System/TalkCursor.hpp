@@ -5,6 +5,8 @@
 
 class TBaseNPC;
 
+class MActor;
+
 class TTalkCursor : public JDrama::TViewObj {
 public:
 	TTalkCursor() { }
@@ -13,6 +15,8 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 
 	void associateNPC(TBaseNPC*);
+
+	/* 0x10 */ MActor* unk10;
 };
 
 #endif
