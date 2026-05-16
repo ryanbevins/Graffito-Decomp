@@ -1,5 +1,7 @@
 #include <Animal/AnimalBase.hpp>
 #include <Animal/Realoid.hpp>
+#include <Enemy/EnemyManager.hpp>
+#include <Strategic/ObjManager.hpp>
 
 class TButterfly : public TAnimalBase {
 public:
@@ -17,16 +19,27 @@ public:
 	virtual void init(class TLiveManager*);
 };
 
-class TButterfloidManager {
+class TButterfloidManager : public TEnemyManager {
 public:
 	TButterfloidManager(const char*);
-	~TButterfloidManager();
-	void createModelData();
+	virtual void createModelData();
 };
 
-TButterfloidManager::TButterfloidManager(const char* name) { (void)name; }
-TButterfloidManager::~TButterfloidManager() { }
-void TButterfloidManager::createModelData() { }
+TButterfloidManager::TButterfloidManager(const char* name)
+    : TEnemyManager(name)
+{
+}
+
+void TButterfloidManager::createModelData()
+{
+	static TModelDataLoadEntry entry[] = {
+		{ "butterflyA.bmd", 0x10210000, 0 },
+		{ "butterflyB.bmd", 0x10210000, 0 },
+		{ "butterflyC.bmd", 0x10210000, 0 },
+		{ nullptr, 0, 0 },
+	};
+	createModelDataArray(entry);
+}
 
 TButterfloid::TButterfloid(int count, const char* name)
     : TRealoid(name)
