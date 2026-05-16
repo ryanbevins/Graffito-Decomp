@@ -16,6 +16,7 @@
 #include <Map/Map.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjBase.hpp>
+#include <MoveBG/Item.hpp>
 #include <System/Particles.hpp>
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
@@ -677,5 +678,39 @@ DEFINE_NERVE(TNerveAnimalBirdChangeToCoin, TLiveActor)
 		return TRUE;
 
 	bird->mLiveFlag |= 1;
+
+	TMapObjBase* item = bird->unk150;
+	if (item == NULL)
+		return TRUE;
+
+	u32 actorType = item->mActorType;
+
+	if (actorType == 0x20000013) {
+		((void (*)(TMapObjBase*, const Vec*))(*(u32**)item)[35])(
+		    item, (const Vec*)&bird->mPosition);
+		((TShine*)item)->appearWithDemo("");
+		return TRUE;
+	}
+
+	TMapObjBase* spawned;
+	if (actorType == 0x2000000E) {
+		spawned = gpItemManager->makeObjAppear(0x2000000E);
+	} else {
+		spawned = item;
+	}
+
+	if (spawned == NULL)
+		return TRUE;
+
+	(*(void (**)(TMapObjBase*))((*(u32**)spawned)[63]))(spawned);
+	((void (*)(TMapObjBase*, const Vec*))(*(u32**)spawned)[35])(
+	    spawned, (const Vec*)&bird->mPosition);
+
+	((TLiveActor*)spawned)->mLinearVelocity.x = 0.0f;
+	((TLiveActor*)spawned)->mLinearVelocity.y = -10.0f;
+	((TLiveActor*)spawned)->mLinearVelocity.z = 0.0f;
+
+	((TLiveActor*)spawned)->mLiveFlag &= ~1;
+	((TLiveActor*)spawned)->mLiveFlag |= 0x80;
 	return TRUE;
 }
