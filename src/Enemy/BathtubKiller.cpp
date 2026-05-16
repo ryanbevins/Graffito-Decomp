@@ -102,13 +102,35 @@ TBathtubKiller::TBathtubKiller(const char* name)
 	unk1CC = (TBathtub*)NULL;
 }
 
-void TBathtubKiller::init(TLiveManager*) { }
+void TBathtubKiller::init(TLiveManager* manager)
+{
+	TSmallEnemy::init(manager);
+	mActorType = 0x08000024;
+	unk150     = 0x11;
+	onLiveFlag(LIVE_FLAG_UNK10);
+	onLiveFlag(LIVE_FLAG_DEAD);
+	onLiveFlag(LIVE_FLAG_UNK8);
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+	unk194 = 0;
+	resetBathtubKiller();
+}
 
 void TBathtubKiller::setMActorAndKeeper() { }
 
-void TBathtubKiller::reset() { }
+void TBathtubKiller::reset()
+{
+	TSmallEnemy::reset();
+	offLiveFlag(LIVE_FLAG_DEAD);
+	offLiveFlag(LIVE_FLAG_UNK8);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+	offHitFlag(HIT_FLAG_UNK2);
+	offHitFlag(HIT_FLAG_UNK4);
+	resetBathtubKiller();
+}
 
+#pragma dont_inline on
 void TBathtubKiller::resetBathtubKiller() { }
+#pragma dont_inline off
 
 void TBathtubKiller::generateItemBathtubKiller() { }
 
@@ -175,7 +197,10 @@ void TBathtubKiller::makeQuat(JGeometry::TVec3<f32> axis, f32 moveAmountY,
 
 void TBathtubKiller::makeScrewQuat(JGeometry::TVec3<f32>, f32, f32) { }
 
-f32 TBathtubKiller::getGravityY() const { return 0.0f; }
+f32 TBathtubKiller::getGravityY() const
+{
+	return getSaveParam2()->mSLFlyingGravityY.value;
+}
 
 void TBathtubKiller::calcRootMatrix() { }
 
