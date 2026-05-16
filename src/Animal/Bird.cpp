@@ -111,6 +111,41 @@ TAnimalBird::TAnimalBird(const char* name)
 void TAnimalBird::load(JSUMemoryInputStream& stream)
 {
 	TSpineEnemy::load(stream);
+
+	s32 itemId;
+	stream.read(&itemId, 4);
+
+	TMapObjBase* item;
+	if (itemId >= 0) {
+		item = TMapObjBaseManager::newAndRegisterObjByEventID((u32)itemId, "鳥");
+	} else {
+		item = TMapObjBaseManager::newAndRegisterObjByEventID(0x64, "");
+	}
+	unk150 = item;
+
+	u32 actorType = item->mActorType;
+	int variant;
+	if (actorType == 0x20000010) {
+		variant   = 0;
+		bool flag = TFlagManager::smInstance->getBlueCoinFlag(
+		    gpMarDirector->mMap, (u8)itemId);
+		if (flag) {
+			mLiveFlag |= 1;
+		}
+	} else if (actorType == 0x20000013) {
+		variant = 2;
+	} else if (actorType >= 0x2000000F) {
+		variant = 3;
+	} else {
+		variant = 1;
+	}
+	*(int*)((char*)this + 0x180) = variant;
+
+	J3DModel* model = getModel();
+	u16 matIdx
+	    = (u16)model->getModelData()->getMaterialName()->getIndex(cMatName);
+	SMS_InitPacket_OneTevColor(model, matIdx, GX_TEVREG2,
+	                           (const GXColorS10*)&cColorTable[variant]);
 }
 
 void TAnimalBird::loadAfter()
@@ -229,13 +264,27 @@ void TAnimalBird::bind()
 {
 	BOOL useWire = FALSE;
 	if (mBinder2 != NULL) {
-		const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
-		if (nerve == &TNerveAnimalBirdWaitOnGround::theNerve()
-		    || nerve == &TNerveAnimalBirdActionOnGround::theNerve()
-		    || nerve == &TNerveAnimalBirdWalkOnGround::theNerve()
-		    || nerve == &TNerveAnimalBirdPreLanding::theNerve()) {
-			useWire = TRUE;
+		BOOL cond1                 = TRUE;
+		BOOL cond2                 = TRUE;
+		BOOL cond3                 = TRUE;
+		TSpineBase<TLiveActor>* sp = mSpine;
+		if (sp->getLatestNerve() != &TNerveAnimalBirdWaitOnGround::theNerve()) {
+			if (sp->getLatestNerve()
+			    != &TNerveAnimalBirdActionOnGround::theNerve())
+				cond3 = FALSE;
 		}
+		if (!cond3) {
+			if (sp->getLatestNerve()
+			    != &TNerveAnimalBirdWalkOnGround::theNerve())
+				cond2 = FALSE;
+		}
+		if (!cond2) {
+			if (mSpine->getLatestNerve()
+			    != &TNerveAnimalBirdPreLanding::theNerve())
+				cond1 = FALSE;
+		}
+		if (cond1)
+			useWire = TRUE;
 	}
 
 	if (!useWire) {
