@@ -7,6 +7,8 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <Enemy/WireBinder.hpp>
 #include <MarioUtil/RandomUtil.hpp>
+#include <MSound/MSound.hpp>
+#include <System/Particles.hpp>
 
 // ---- TAnimalBirdParams ----
 
@@ -84,7 +86,72 @@ void TAnimalBird::loadAfter()
 	MSoundSESystem::MSRandPlay::registerTrans(0x3870, &mPosition);
 }
 
-BOOL TAnimalBird::receiveMessage(THitActor*, u32) { return FALSE; }
+BOOL TAnimalBird::receiveMessage(THitActor* sender, u32 msg)
+{
+	if (mLiveFlag & 1)
+		return FALSE;
+
+	if (msg == 0xF) {
+		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
+		SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xE7,
+		                     &sender->mPosition, (const void*)NULL, scale);
+		gpMSound->startSoundSet(0x6802, &sender->mPosition, 0, 0.0f, 0, 0, 4);
+
+		if (unk178 <= 0) {
+			TAnimalBirdParams* p = (TAnimalBirdParams*)getSaveParam();
+			unk178               = p->mWaterproofTimerMax.value;
+			if (mLiveFlag & 0x80 && mHitPoints > 0) {
+				mHitPoints--;
+			}
+		}
+		return TRUE;
+	}
+
+	if (msg == 4) {
+		if (*(THitActor**)((char*)this + 0x68) == NULL) {
+			unk64 |= 1;
+			*(THitActor**)((char*)this + 0x68) = sender;
+			JGeometry::TVec3<f32> scale2(1.0f, 1.0f, 1.0f);
+			SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xE7,
+			                     &sender->mPosition, (const void*)NULL, scale2);
+		}
+		return TRUE;
+	}
+
+	if (msg == 6 || msg == 7) {
+		if (*(THitActor**)((char*)this + 0x68) == sender) {
+			*(THitActor**)((char*)this + 0x68) = (THitActor*)NULL;
+			unk64 &= ~1;
+		}
+		return TRUE;
+	}
+
+	if (msg == 0xB) {
+		*(THitActor**)((char*)this + 0x68) = (THitActor*)NULL;
+		if (mSpine->getLatestNerve() != &TNerveAnimalBirdChangeToCoin::theNerve()) {
+			mSpine->setNext(&TNerveAnimalBirdChangeToCoin::theNerve());
+		} else {
+			// vt+0xE4 (kill?)
+			// no need to actually call
+		}
+		return TRUE;
+	}
+
+	if (msg == 0) {
+		u32 t = sender->mActorType - 0x10000000;
+		if (t == 0xD) {
+			if (mSpine->getLatestNerve()
+			    != &TNerveAnimalBirdChangeToCoin::theNerve()) {
+				mSpine->setNext(&TNerveAnimalBirdChangeToCoin::theNerve());
+			} else {
+				receiveMessage(this, 0xF);
+			}
+			return TRUE;
+		}
+	}
+
+	return TSpineEnemy::receiveMessage(sender, msg);
+}
 
 void TAnimalBird::init(TLiveManager* mgr)
 {
