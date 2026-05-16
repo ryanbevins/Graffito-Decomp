@@ -114,7 +114,7 @@ void TAnimalBird::load(JSUMemoryInputStream& stream)
 
 	TMapObjBase* item;
 	if (itemId >= 0) {
-		item = TMapObjBaseManager::newAndRegisterObjByEventID((u32)itemId, "鳥");
+		item = TMapObjBaseManager::newAndRegisterObjByEventID((u32)itemId, "鳥用");
 	} else {
 		item = TMapObjBaseManager::newAndRegisterObjByEventID(0x64, "");
 	}
@@ -307,6 +307,12 @@ void TAnimalBird::moveObject()
 		}
 	} else if (inGroundState) {
 		unk17C = 0;
+	}
+
+	if (mSpine->getLatestNerve()
+	        == &TNerveAnimalBirdChangeToCoin::theNerve()
+	    && *(u8*)((char*)this + 0x13C) == 0) {
+		mSpine->setNext(&TNerveAnimalBirdChangeToCoin::theNerve());
 	}
 
 	const TNerveBase<TLiveActor>* cur2 = mSpine->getLatestNerve();
