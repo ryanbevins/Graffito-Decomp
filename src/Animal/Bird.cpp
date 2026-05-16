@@ -458,45 +458,96 @@ void TAnimalBird::doFlyToCurPathNode()
 	mLinearVelocity = rotated;
 }
 
-void TAnimalBird::doLanding(bool initFrame)
+bool TAnimalBird::doLanding(bool initFrame)
 {
-	TAnimalBirdParams* p = (TAnimalBirdParams*)getSaveParam();
 	if (initFrame) {
+		f32 speed
+		    = unk174
+		    * ((TAnimalBirdParams*)getSaveParam())->mMarchSpeed.value
+		    * SMSGetAnmFrameRate();
+
 		JGeometry::TQuat4<f32> q;
 		SMS_Eular2Quat(mRotation, &q);
-		mVelocity.x = q.x;
-		mVelocity.y = q.y;
-		mVelocity.z = q.z;
+
+		f32 qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+		f32 fx = 0.0f, fy = 0.0f, fz = speed;
+		mVelocity.x = (qw * qw + qx * qx - qy * qy - qz * qz) * fx
+		            + 2.0f * (qx * qy - qw * qz) * fy
+		            + 2.0f * (qx * qz + qw * qy) * fz;
+		mVelocity.y = 2.0f * (qx * qy + qw * qz) * fx
+		            + (qw * qw - qx * qx + qy * qy - qz * qz) * fy
+		            + 2.0f * (qy * qz - qw * qx) * fz;
+		mVelocity.z = 2.0f * (qx * qz - qw * qy) * fx
+		            + 2.0f * (qy * qz + qw * qx) * fy
+		            + (qw * qw - qx * qx - qy * qy + qz * qz) * fz;
 	}
 
 	JGeometry::TVec3<f32> deltaV(0.0f, 0.0f, 0.0f);
 	if (mBinder2 != NULL) {
-		((TWireBinder*)mBinder2)->getPoint(&deltaV, mPosition);
+		((TWireBinder*)mBinder2)->getPoint(&deltaV, unk158);
 	} else {
-		const TBGCheckData* ground = (const TBGCheckData*)NULL;
-		gpMap->checkGround(mPosition, &ground);
+		gpMap->checkGround(mPosition, &mGroundPlane);
 	}
 
-	bool grounded = true;
+	BOOL grounded = TRUE;
 	if (mLiveFlag & 0x01000000) {
-		deltaV.y = -p->mLandingGravityY.value;
-		grounded = false;
+		deltaV.y = -((TAnimalBirdParams*)getSaveParam())->mLandingGravityY.value;
+	} else {
+		grounded = FALSE;
+		(void)0;
 	}
 
 	mRotation.x = unk164.x;
 	mRotation.z = unk164.z;
 
-	f32 torque  = p->mLandingTorqueY.value * unk174 * SMSGetAnmFrameRate();
-	f32 deltaY  = unk164.y - mRotation.y;
-	f32 wrapped = MsWrap<f32>(deltaY, -180.0f, 180.0f);
-	if (wrapped < -torque)
-		wrapped = -torque;
-	else if (wrapped > torque)
-		wrapped = torque;
+	f32 torque
+	    = ((TAnimalBirdParams*)getSaveParam())->mLandingTorqueY.value
+	    * SMSGetAnmFrameRate();
 
-	mRotation.y     = MsWrap<f32>(mRotation.y + wrapped, 0.0f, 360.0f);
+	f32 savedY  = unk164.y;
+	f32 wrappedY
+	    = MsWrap<f32>(mRotation.y, savedY - 180.0f, savedY + 180.0f);
+	f32 delta = savedY - wrappedY;
+	f32 clamped;
+	if (delta < -torque)
+		clamped = -torque;
+	else if (delta > torque)
+		clamped = torque;
+	else
+		clamped = delta;
+
+	mRotation.y     = MsWrap<f32>(wrappedY + clamped, 0.0f, 360.0f);
 	mLinearVelocity = deltaV;
-	(void)grounded;
+
+	JGeometry::TVec3<f32> velCopy = mVelocity;
+	f32 mag = JGeometry::TUtil<f32>::sqrt(velCopy.x * velCopy.x
+	                                      + velCopy.y * velCopy.y
+	                                      + velCopy.z * velCopy.z);
+
+	f32 fric = ((TAnimalBirdParams*)getSaveParam())->mLandingFric.value;
+	JGeometry::TVec3<f32> forward(0.0f, 0.0f, mag * fric);
+	(void)forward.x;
+	{
+		JGeometry::TQuat4<f32> q;
+		SMS_Eular2Quat(mRotation, &q);
+		f32 qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+		f32 fx = 0.0f, fy = 0.0f, fz = mag * fric;
+		mVelocity.x = (qw * qw + qx * qx - qy * qy - qz * qz) * fx
+		            + 2.0f * (qx * qy - qw * qz) * fy
+		            + 2.0f * (qx * qz + qw * qy) * fz;
+		mVelocity.y = 2.0f * (qx * qy + qw * qz) * fx
+		            + (qw * qw - qx * qx + qy * qy - qz * qz) * fy
+		            + 2.0f * (qy * qz - qw * qx) * fz;
+		mVelocity.z = 2.0f * (qx * qz - qw * qy) * fx
+		            + 2.0f * (qy * qz + qw * qx) * fy
+		            + (qw * qw - qx * qx - qy * qy + qz * qz) * fz;
+	}
+
+	if (!grounded)
+		return false;
+	if (__fabsf(clamped) < 0.01f)
+		return true;
+	return false;
 }
 
 // ---- Nerves ----
