@@ -15,6 +15,9 @@ public:
 	void move();
 	void makeDL(JDrama::TGraphics*) const;
 	void draw() const;
+
+public:
+	/* 0x10 */ u16 mFlags;
 };
 
 #endif

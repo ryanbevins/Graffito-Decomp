@@ -4,8 +4,14 @@ void TSplashManager::load(JSUMemoryInputStream& stream) { (void)stream; }
 
 void TSplashManager::perform(u32 flags, JDrama::TGraphics* gfx)
 {
-	(void)flags;
-	(void)gfx;
+	if (flags & 2)
+		move();
+	if (mFlags & 1) {
+		if (flags & 4)
+			makeDL(gfx);
+		if (flags & 8)
+			draw();
+	}
 }
 
 void TSplashManager::newSplash(JGeometry::TVec3<f32> pos, f32 size)
@@ -14,8 +20,10 @@ void TSplashManager::newSplash(JGeometry::TVec3<f32> pos, f32 size)
 	(void)size;
 }
 
+#pragma dont_inline on
 void TSplashManager::move() { }
 
 void TSplashManager::makeDL(JDrama::TGraphics* gfx) const { (void)gfx; }
 
 void TSplashManager::draw() const { }
+#pragma dont_inline off
