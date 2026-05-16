@@ -25,7 +25,7 @@
 
 extern JGeometry::TVec3<f32>* gpMarioPos;
 
-void SMS_Eular2Quat(const JGeometry::TVec3<f32>&, JGeometry::TQuat4<f32>*);
+JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
 f32 SMSGetAnmFrameRate();
 
 namespace {
@@ -424,8 +424,7 @@ void TAnimalBird::doFlyToCurPathNode()
 
 	TAnimalBase::getRotationFlyToDir(&mRotation, toTarget, speed, turn);
 
-	JGeometry::TQuat4<f32> q;
-	SMS_Eular2Quat(mRotation, &q);
+	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(mRotation);
 
 	JGeometry::TVec3<f32> forward(0.0f, 0.0f, speed);
 	JGeometry::TVec4<f32> tmp;
@@ -469,8 +468,7 @@ bool TAnimalBird::doLanding(bool initFrame)
 		    * ((TAnimalBirdParams*)getSaveParam())->mMarchSpeed.value
 		    * SMSGetAnmFrameRate();
 
-		JGeometry::TQuat4<f32> q;
-		SMS_Eular2Quat(mRotation, &q);
+		JGeometry::TQuat4<f32> q = SMS_Eular2Quat(mRotation);
 
 		f32 qx = q.x, qy = q.y, qz = q.z, qw = q.w;
 		f32 fx = 0.0f, fy = 0.0f, fz = speed;
@@ -530,8 +528,7 @@ bool TAnimalBird::doLanding(bool initFrame)
 	JGeometry::TVec3<f32> forward(0.0f, 0.0f, mag * fric);
 	(void)forward.x;
 	{
-		JGeometry::TQuat4<f32> q;
-		SMS_Eular2Quat(mRotation, &q);
+		JGeometry::TQuat4<f32> q = SMS_Eular2Quat(mRotation);
 		f32 qx = q.x, qy = q.y, qz = q.z, qw = q.w;
 		f32 fx = 0.0f, fy = 0.0f, fz = mag * fric;
 		mVelocity.x = (qw * qw + qx * qx - qy * qy - qz * qz) * fx
@@ -644,8 +641,7 @@ DEFINE_NERVE(TNerveAnimalBirdWalkOnGround, TLiveActor)
 	              * SMSGetAnmFrameRate(),
 	    0.0f, 360.0f);
 
-	JGeometry::TQuat4<f32> q;
-	SMS_Eular2Quat(bird->mRotation, &q);
+	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(bird->mRotation);
 
 	f32 speed = ((TAnimalBirdParams*)bird->getSaveParam())
 	                ->mWalkingSpeed.value;
@@ -873,7 +869,7 @@ DEFINE_NERVE(TNerveAnimalBirdLanding, TLiveActor)
 		return TRUE;
 	}
 
-	if (fc->getAttribute() & 1) {
+	if (fc->checkState(1)) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdWaitOnGround::theNerve());
 		return TRUE;
 	}
