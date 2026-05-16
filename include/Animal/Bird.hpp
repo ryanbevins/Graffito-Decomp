@@ -1,6 +1,7 @@
 #ifndef ANIMAL_BIRD_HPP
 #define ANIMAL_BIRD_HPP
 
+#include <Animal/AnimalBase.hpp>
 #include <Animal/AnimalManager.hpp>
 #include <Enemy/Enemy.hpp>
 #include <Strategic/Nerve.hpp>
@@ -42,7 +43,7 @@ public:
 	virtual void createModelData();
 };
 
-class TAnimalBird : public TSpineEnemy {
+class TAnimalBird : public TAnimalBase {
 public:
 	TAnimalBird(const char* name);
 
@@ -61,7 +62,6 @@ public:
 	void doFlyToCurPathNode();
 	void doLanding(bool);
 
-	/* 0x150 */ class TMapObjBase* unk150;
 	/* 0x154 */ class TBinder* mBinder2;
 	/* 0x158 */ JGeometry::TVec3<f32> unk158;
 	/* 0x164 */ JGeometry::TVec3<f32> unk164;

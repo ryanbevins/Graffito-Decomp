@@ -104,10 +104,10 @@ void TAnimalBirdManager::loadAfter()
 // ---- TAnimalBird ----
 
 TAnimalBird::TAnimalBird(const char* name)
-    : TSpineEnemy(name)
+    : TAnimalBase(0x10000032, name)
 {
-	unk150   = (TMapObjBase*)NULL;
-	mBinder2 = (TBinder*)NULL;
+	mFrameTimer = (int*)NULL;
+	mBinder2    = (TBinder*)NULL;
 }
 
 void TAnimalBird::load(JSUMemoryInputStream& stream)
@@ -123,7 +123,7 @@ void TAnimalBird::load(JSUMemoryInputStream& stream)
 	} else {
 		item = TMapObjBaseManager::newAndRegisterObjByEventID(0x64, "");
 	}
-	unk150 = item;
+	mFrameTimer = (int*)item;
 
 	u32 actorType = item->mActorType;
 	int variant;
@@ -396,25 +396,66 @@ BOOL TAnimalBird::isFindMario() const
 
 void TAnimalBird::doFlyToCurPathNode()
 {
-	TAnimalBirdParams* p         = (TAnimalBirdParams*)getSaveParam();
-	JGeometry::TVec3<f32> target = unkF4.getPoint();
-	JGeometry::TVec3<f32> toTarget;
-	toTarget.x = target.x - mPosition.x;
-	toTarget.y = target.y - mPosition.y;
-	toTarget.z = target.z - mPosition.z;
+	JGeometry::TVec3<f32> toTarget = unkF4.getPoint();
+	toTarget.x -= mPosition.x;
+	toTarget.y -= mPosition.y;
+	toTarget.z -= mPosition.z;
 
 	f32 dist2 = toTarget.x * toTarget.x + toTarget.y * toTarget.y
 	          + toTarget.z * toTarget.z;
 	f32 dist = JGeometry::TUtil<f32>::sqrt(dist2);
 
-	if (dist > 0.0f) {
-		f32 speed  = p->mMarchSpeed.value * unk174;
-		toTarget.x = toTarget.x / dist * speed;
-		toTarget.y = toTarget.y / dist * speed;
-		toTarget.z = toTarget.z / dist * speed;
+	if (dist < 100.0f)
+		return;
+
+	f32 speed
+	    = unk174 * ((TAnimalBirdParams*)getSaveParam())->mMarchSpeed.value
+	    * SMSGetAnmFrameRate();
+	f32 turn = ((TAnimalBirdParams*)getSaveParam())->mTurnSpeed.value
+	         * SMSGetAnmFrameRate();
+
+	f32 turnRadius = calcMinimumTurnRadius(speed, turn);
+	if (dist <= 2.0f * turnRadius) {
+		turn = calcTurnSpeedToReach(speed, 0.5f * dist);
 	}
 
-	mLinearVelocity = toTarget;
+	getRotationFlyToDir(&mRotation, toTarget, speed, turn);
+
+	JGeometry::TQuat4<f32> q;
+	SMS_Eular2Quat(mRotation, &q);
+
+	JGeometry::TVec3<f32> forward(0.0f, 0.0f, speed);
+	JGeometry::TVec3<f32> rotated;
+	{
+		f32 qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+		f32 fx = forward.x, fy = forward.y, fz = forward.z;
+		rotated.x = (qw * qw + qx * qx - qy * qy - qz * qz) * fx
+		          + 2.0f * (qx * qy - qw * qz) * fy
+		          + 2.0f * (qx * qz + qw * qy) * fz;
+		rotated.y = 2.0f * (qx * qy + qw * qz) * fx
+		          + (qw * qw - qx * qx + qy * qy - qz * qz) * fy
+		          + 2.0f * (qy * qz - qw * qx) * fz;
+		rotated.z = 2.0f * (qx * qz - qw * qy) * fx
+		          + 2.0f * (qy * qz + qw * qx) * fy
+		          + (qw * qw - qx * qx - qy * qy + qz * qz) * fz;
+	}
+
+	f32 wetRatio
+	    = 1.0f
+	    - (f32)unk178
+	          / (f32)((TAnimalBirdParams*)getSaveParam())
+	                ->mWaterproofTimerMax.value;
+	rotated.x *= wetRatio;
+	rotated.y *= wetRatio;
+	rotated.z *= wetRatio;
+
+	f32 fallRatio
+	    = (f32)unk178
+	    / (f32)((TAnimalBirdParams*)getSaveParam())->mWaterproofTimerMax.value;
+	rotated.y
+	    -= ((TAnimalBirdParams*)getSaveParam())->mWaterPowerY.value * fallRatio;
+
+	mLinearVelocity = rotated;
 }
 
 void TAnimalBird::doLanding(bool initFrame)
@@ -692,7 +733,7 @@ DEFINE_NERVE(TNerveAnimalBirdChangeToCoin, TLiveActor)
 
 	bird->mLiveFlag |= 1;
 
-	TMapObjBase* item = bird->unk150;
+	TMapObjBase* item = (TMapObjBase*)bird->mFrameTimer;
 	if (item == NULL)
 		return TRUE;
 
