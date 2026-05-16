@@ -506,6 +506,46 @@ void TMonteMBaseManager::createAnmData()
 	unk20 = p;
 }
 
+// =====================================================================
+// TNPCManager virtual methods
+// =====================================================================
+
+void TNPCManager::perform(u32 flags, JDrama::TGraphics* gfx)
+{
+	if (flags & 0x200) {
+		for (int i = 0; i < mObjNum; i++) {
+			((TLiveActor*)unk18[i])->mLiveFlag |= 0x01000000;
+		}
+	}
+	TEnemyManager::perform(flags, gfx);
+}
+
+// =====================================================================
+// Constructors
+// =====================================================================
+
+TMonteWBaseManager::TMonteWBaseManager(const char* name)
+    : TNPCManager(name)
+{
+	unk5C = mStaticCommonKeeper;
+	if (unk5C == NULL) {
+		unk5C = new TModelDataKeeper(cMonteWCommonVolumeName);
+		mStaticCommonKeeper = unk5C;
+		makePartsModelData_(9, 0x10210000, unk5C);
+	}
+}
+
+TMonteMBaseManager::TMonteMBaseManager(const char* name)
+    : TNPCManager(name)
+{
+	unk5C = mStaticCommonKeeper;
+	if (unk5C == NULL) {
+		unk5C = new TModelDataKeeper(cMonteMCommonVolumeName);
+		mStaticCommonKeeper = unk5C;
+		makePartsModelData_(0, 0x10210000, unk5C);
+	}
+}
+
 J3DMaterialTable* TMareBaseManager::getBmt_(bool isPollution)
 {
 	if (isPollution)
