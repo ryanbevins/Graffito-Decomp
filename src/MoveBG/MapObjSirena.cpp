@@ -100,7 +100,7 @@ void TPictureTelesa::touchActor(THitActor* sender)
 		r2 = 0;
 	if (!r2)
 		return;
-	if (unk104 > 0)
+	if (mLifeTimer > 0)
 		r3v = 1;
 	else
 		r3v = 0;
@@ -113,7 +113,7 @@ void TPictureTelesa::touchActor(THitActor* sender)
 	if (sq > 0.0f)
 		sq = JGeometry::TUtil<f32>::sqrt(sq);
 	if (sq < 200.0f) {
-		unk104 = 0x3C;
+		mLifeTimer = 0x3C;
 		if (gpMSound->gateCheck(0x28D5))
 			MSoundSESystem::MSoundSE::startSoundActor(0x28D5, mPosition, 0,
 			                                          nullptr, 0, 4);

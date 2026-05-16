@@ -146,7 +146,7 @@ BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
 			makeObjDead();
 			calcRootMatrix();
 			getModel()->calc();
-			unk104 = mFruitWaitTimeToAppear;
+			mLifeTimer = mFruitWaitTimeToAppear;
 			unkF8 &= ~0x40000;
 			mState = 0xA;
 			if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
@@ -165,9 +165,9 @@ BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
 	if (!isState(2) && !isState(3) && !isState(0xC) && !isState(0xA)) {
 		TMapObjBall::touchActor(sender);
 		if (!(unkF8 & 0x04000000) && isState(1) && !(mLiveFlag & 0x10)) {
-			if (!isUnk104Positive()) {
+			if (!isLifeTimerActive()) {
 				unkF8 |= 0x40000;
-				unk104 = getLivingTime();
+				mLifeTimer = getLivingTime();
 			}
 			mLiveFlag &= ~0x10;
 			mState = 0xB;
@@ -204,9 +204,9 @@ void TResetFruit::touchActor(THitActor* actor)
 		return;
 	if (mLiveFlag & 0x10)
 		return;
-	if (!isUnk104Positive()) {
+	if (!isLifeTimerActive()) {
 		unkF8 |= 0x40000;
-		unk104 = getLivingTime();
+		mLifeTimer = getLivingTime();
 	}
 	mLiveFlag &= ~0x10;
 	mState = 0xB;
@@ -227,9 +227,9 @@ void TResetFruit::hold(TTakeActor* taker)
 	mLiveFlag |= 0x10;
 	if (unkF8 & 0x04000000)
 		return;
-	if (!isUnk104Positive()) {
+	if (!isLifeTimerActive()) {
 		unkF8 |= 0x40000;
-		unk104 = getLivingTime();
+		mLifeTimer = getLivingTime();
 	}
 }
 
@@ -240,7 +240,7 @@ void TResetFruit::waitingToAppear()
 	}
 	if (unkF8 & 0x04000000)
 		return;
-	if (isUnk104Positive())
+	if (isLifeTimerActive())
 		return;
 	if (mColCount != 0)
 		return;
@@ -335,7 +335,7 @@ void TResetFruit::breaking()
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x387D, (Vec*)&mPosition, 0, nullptr, 0, 4);
 		}
-		unk104 = 0xF0;
+		mLifeTimer = 0xF0;
 		sleep();
 		mState = 0xD;
 	}
@@ -382,7 +382,7 @@ void TResetFruit::touchGround(JGeometry::TVec3<f32>* pos)
 		makeObjDead();
 		calcRootMatrix();
 		getModel()->calc();
-		unk104 = mFruitWaitTimeToAppear;
+		mLifeTimer = mFruitWaitTimeToAppear;
 		unkF8 &= ~0x40000;
 		mState = 0xA;
 		if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
@@ -403,7 +403,7 @@ void TResetFruit::makeObjWaitingToAppear()
 	makeObjDead();
 	calcRootMatrix();
 	getModel()->calc();
-	unk104 = mFruitWaitTimeToAppear;
+	mLifeTimer = mFruitWaitTimeToAppear;
 	unkF8 &= ~0x40000;
 	mState = 0xA;
 	if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
@@ -425,9 +425,9 @@ u32 TResetFruit::touchWater(THitActor* actor)
 		mVelocity.z                  = vel.z;
 		mLiveFlag &= ~0x10;
 	}
-	if (!isUnk104Positive()) {
+	if (!isLifeTimerActive()) {
 		unkF8 |= 0x40000;
-		unk104 = getLivingTime();
+		mLifeTimer = getLivingTime();
 	}
 	mLiveFlag &= ~0x10;
 	mState = 0xB;
@@ -447,7 +447,7 @@ void TResetFruit::touchPollution()
 	makeObjDead();
 	calcRootMatrix();
 	getModel()->calc();
-	unk104 = mFruitWaitTimeToAppear;
+	mLifeTimer = mFruitWaitTimeToAppear;
 	unkF8 &= ~0x40000;
 	mState = 0xA;
 	if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
@@ -467,7 +467,7 @@ void TResetFruit::touchWaterSurface()
 	makeObjDead();
 	calcRootMatrix();
 	getModel()->calc();
-	unk104 = mFruitWaitTimeToAppear;
+	mLifeTimer = mFruitWaitTimeToAppear;
 	unkF8 &= ~0x40000;
 	mState = 0xA;
 	if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
@@ -495,7 +495,7 @@ void TResetFruit::perform(u32 flags, JDrama::TGraphics* graphics)
 			makeObjDead();
 			calcRootMatrix();
 			getModel()->calc();
-			unk104 = mFruitWaitTimeToAppear;
+			mLifeTimer = mFruitWaitTimeToAppear;
 			unkF8 &= ~0x40000;
 			mState = 0xA;
 			if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
@@ -552,9 +552,9 @@ void TResetFruit::control()
 				continue;
 			if (mLiveFlag & 0x10)
 				continue;
-			if (!isUnk104Positive()) {
+			if (!isLifeTimerActive()) {
 				unkF8 |= 0x40000;
-				unk104 = getLivingTime();
+				mLifeTimer = getLivingTime();
 			}
 			mLiveFlag &= ~0x10;
 			mState = 0xB;
@@ -587,7 +587,7 @@ void TResetFruit::control()
 		TMapObjBall::control();
 		if (unkF8 & 0x04000000)
 			break;
-		if (isUnk104Positive())
+		if (isLifeTimerActive())
 			break;
 		if (mHolder != nullptr) {
 			mHolder->receiveMessage(this, 8);
@@ -629,7 +629,7 @@ void TResetFruit::control()
 		TMapObjBall::control();
 		if (unkF8 & 0x04000000)
 			break;
-		if (isUnk104Positive())
+		if (isLifeTimerActive())
 			break;
 		if (mHolder != nullptr) {
 			mHolder->receiveMessage(this, 8);
@@ -651,12 +651,12 @@ void TResetFruit::control()
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x387D, (Vec*)&mPosition, 0, nullptr, 0, 4);
 		}
-		unk104 = 0xF0;
+		mLifeTimer = 0xF0;
 		sleep();
 		mState = 0xD;
 	} break;
 	case 0xD: {
-		if (isUnk104Positive())
+		if (isLifeTimerActive())
 			break;
 		unk19C = 0xFF;
 		unk19E = 0xFF;
@@ -667,7 +667,7 @@ void TResetFruit::control()
 		makeObjDead();
 		calcRootMatrix();
 		getModel()->calc();
-		unk104 = mFruitWaitTimeToAppear;
+		mLifeTimer = mFruitWaitTimeToAppear;
 		unkF8 &= ~0x40000;
 		mState = 0xA;
 		if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
@@ -682,13 +682,13 @@ void TResetFruit::control()
 void TResetFruit::makeObjLiving()
 {
 	u8 hasTimer;
-	if (unk104 > 0)
+	if (mLifeTimer > 0)
 		hasTimer = 1;
 	else
 		hasTimer = 0;
 	if (!hasTimer) {
 		unkF8 |= 0x40000;
-		unk104 = getLivingTime();
+		mLifeTimer = getLivingTime();
 	}
 	mLiveFlag &= ~0x10;
 	mState = 0xB;
@@ -1413,7 +1413,7 @@ u32 TResetFruit::getLivingTime() const
 
 void TResetFruit::killByTimer(int timer)
 {
-	unk104 = timer;
+	mLifeTimer = timer;
 	unkF8 |= 0x40000;
 	mState = 0xB;
 }
@@ -1668,11 +1668,11 @@ void TBigWatermelon::control()
 		mVelocity.y = mVelocity.y + 20.0f;
 	} break;
 	case 0xD: {
-		if (unk104 <= 0) {
+		if (mLifeTimer <= 0) {
 			JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 			emitAndScale(0x6B, 0, &mPosition, scale);
 			emitAndScale(0x6C, 0, &mPosition, scale);
-			unk104 = 30;
+			mLifeTimer = 30;
 		}
 		if (animIsFinished()) {
 			makeObjDead();
@@ -1703,7 +1703,7 @@ void TBigWatermelon::startEvent()
 		                                   flagT);
 		gpItemManager->makeShineAppearWithDemoOffset(
 		    "ジャジャン（おばけスイカ）", "スイカシャインカメラ", 0.0f, 0.0f, 0.0f);
-		unk104 = 0x17C;
+		mLifeTimer = 0x17C;
 		mState = 0xD;
 	} else {
 		for (int i = 0; i < 10; i++) {
