@@ -18,6 +18,7 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JGadget/std-list.hpp>
 #include <Map/Map.hpp>
+#include <JSystem/JGeometry/JGUtil.hpp>
 #include <stdlib.h>
 #include <math.h>
 
@@ -148,7 +149,96 @@ BOOL TAnimalBase::receiveMessage(THitActor* sender, u32 msg)
 
 void TAnimalBase::calcRootMatrix() { }
 
-void TAnimalBase::execWalk(bool flag) { (void)flag; }
+void TAnimalBase::execWalk(bool moving)
+{
+	TAnimalSaveIndividual* save
+	    = ((TAnimalManagerBase*)mManager)->mAnimalSave;
+
+	if (moving) {
+		f32 accel  = save->mSLMarchAccel.value * SMSGetAnmFrameRate();
+		f32 chase  = accel * SMSGetAnmFrameRate();
+		f32 target = save->mSLMaxMarchSpeed.value * SMSGetAnmFrameRate();
+		CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, target, chase);
+	} else {
+		f32 dec    = save->mSLMarchDecrease.value * SMSGetAnmFrameRate();
+		f32 chase  = dec * SMSGetAnmFrameRate();
+		CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, 0.0f, chase);
+	}
+
+	if (mMarchSpeed < 0.001f) {
+		mTurnSpeed = save->mSLWaitTurnSpeed.value * SMSGetAnmFrameRate();
+	} else {
+		mTurnSpeed = save->mSLWalkTurnSpeed.value * SMSGetAnmFrameRate();
+	}
+
+	JGeometry::TVec3<f32> diff;
+	if (unkF4.unk0 != NULL) {
+		diff.x = unkF4.unk0->mPosition.x;
+		diff.y = unkF4.unk0->mPosition.y;
+		diff.z = unkF4.unk0->mPosition.z;
+	} else {
+		diff.x = unkF4.unk4.x;
+		diff.y = unkF4.unk4.y;
+		diff.z = unkF4.unk4.z;
+	}
+	diff.x -= mPosition.x;
+	diff.y -= mPosition.y;
+	diff.z -= mPosition.z;
+
+	f32 distSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+	if (distSq <= 0.0f)
+		return;
+
+	f32 dist = JGeometry::TUtil<f32>::sqrt(distSq);
+	if (dist < 100.0f)
+		return;
+
+	f32 radius = calcMinimumTurnRadius(mMarchSpeed, mTurnSpeed);
+	if (dist <= 2.0f * radius) {
+		mTurnSpeed = calcTurnSpeedToReach(mMarchSpeed, 0.5f * dist);
+	}
+
+	JGeometry::TVec3<f32> targetRot = MsGetRotFromZaxis(diff);
+	f32 wrappedTargetY = MsWrap<f32>(targetRot.y, 0.0f, 360.0f);
+	f32 currY          = MsWrap<f32>(mRotation.y, wrappedTargetY - 180.0f,
+	                                  wrappedTargetY + 180.0f);
+
+	f32 deltaY = wrappedTargetY - currY;
+	f32 clampedDelta;
+	if (deltaY < -mTurnSpeed)
+		clampedDelta = -mTurnSpeed;
+	else if (deltaY > mTurnSpeed)
+		clampedDelta = mTurnSpeed;
+	else
+		clampedDelta = deltaY;
+
+	mRotation.y += clampedDelta;
+	mRotation.y = MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
+
+	f32 tilt = -clampedDelta * 30.0f;
+	if (tilt > 45.0f)
+		tilt = 45.0f;
+	else if (tilt < -45.0f)
+		tilt = -45.0f;
+	f32 chaseSpeed = 0.1f * mTurnSpeed;
+	CLBChaseGeneralConstantSpecifySpeed<f32>(&mRotation.z, tilt, chaseSpeed);
+
+	f32 wrappedTargetX = MsWrap<f32>(targetRot.x, -180.0f, 180.0f);
+	mRotation.x        = MsWrap<f32>(mRotation.x, -180.0f, 180.0f);
+	CLBChaseGeneralConstantSpecifySpeed<f32>(&mRotation.x, wrappedTargetX,
+	                                          chaseSpeed);
+
+	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(mRotation);
+	// Rotate (0, 0, mMarchSpeed) by quaternion q
+	// v' = q * (0,0,m) * q.conj()
+	f32 m  = mMarchSpeed;
+	f32 vx = 2.0f * (q.x * q.z + q.w * q.y) * m;
+	f32 vy = 2.0f * (q.y * q.z - q.w * q.x) * m;
+	f32 vz = (1.0f - 2.0f * (q.x * q.x + q.y * q.y)) * m;
+	mLinearVelocity.x = vx;
+	mLinearVelocity.y = vy;
+	mLinearVelocity.z = vz;
+}
 
 void TAnimalBase::getRotationFlyToDir(JGeometry::TVec3<f32>* outRot,
                                       const JGeometry::TVec3<f32>& dir,
