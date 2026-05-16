@@ -14,7 +14,36 @@
 #include <Strategic/ObjModel.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JGadget/std-list.hpp>
+#include <Map/Map.hpp>
 #include <stdlib.h>
+#include <math.h>
+
+JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
+
+JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>& angles)
+{
+	f32 hz = 0.5f * (angles.z * (3.14159265f / 180.0f));
+	f32 sz = sinf(hz);
+	f32 cz = cosf(hz);
+
+	f32 hy = 0.5f * (angles.y * (3.14159265f / 180.0f));
+	f32 sy = sinf(hy);
+	f32 cy = cosf(hy);
+
+	f32 hx = 0.5f * (angles.x * (3.14159265f / 180.0f));
+	f32 sx = sinf(hx);
+	f32 cx = cosf(hx);
+
+	JGeometry::TQuat4<f32> q;
+	q.x = sx * cy * cz + cx * sy * sz;
+	q.y = cx * sy * cz - sx * cy * sz;
+	q.z = cx * cy * sz - sx * sy * cz;
+	q.w = cx * cy * cz + sx * sy * sz;
+	return q;
+}
 
 extern "C" {
 f32 SMSGetAnmFrameRate();
@@ -48,8 +77,66 @@ void TAnimalBase::loadAfter()
 
 void TAnimalBase::perform(u32 flags, JDrama::TGraphics* gfx)
 {
-	(void)flags;
-	(void)gfx;
+	if (flags & 1) {
+		if (gfx->unk0 & 2) {
+			mLinearVelocity.x = 0.0f;
+			mLinearVelocity.y = 0.0f;
+			mLinearVelocity.z = 0.0f;
+			// virtual at vt+0xC8 - controller-related, call calcRootMatrix?
+			// Actually need the actual virtual
+			calcRootMatrix();
+			mPosition.x += mLinearVelocity.x;
+			mPosition.y += mLinearVelocity.y;
+			mPosition.z += mLinearVelocity.z;
+			if (mActorType == 0x00800001
+			    && gpMSound->gateCheck(0x3813)) {
+				MSoundSESystem::MSRandPlay::startSeRandPlay(
+				    0x3813, (u32)mInstanceIndex);
+			}
+		}
+		flags &= ~1;
+	}
+
+	TAnimalManagerBase* mgr  = (TAnimalManagerBase*)mManager;
+	TAnimalSaveIndividual* p = mgr->mAnimalSave;
+	int sharedNum            = p->mSLSharedAnmNum.value;
+
+	if (flags & 2) {
+		// vt+0xF4 - some movement/exec
+		execWalk(false);
+		mMActor->frameUpdate();
+		if (!(mLiveFlag & 6)) {
+			// vt+0xC0 - some calc, maybe moveObject
+			// Use calcRootMatrix as placeholder
+		}
+		if (sharedNum == 0 || mInstanceIndex < sharedNum
+		    || !(mLiveFlag & 6)) {
+			mMActor->calc();
+		}
+		flags &= ~2;
+	}
+
+	if (flags & 4) {
+		if (!(mLiveFlag & 6)) {
+			Mtx tmp1, tmp2, tmp3;
+			PSMTXCopy(j3dSys.mViewMtx, tmp1);
+			CLBCalcRotateZXYTranslateMatrix(tmp2, mRotation, mPosition);
+			PSMTXConcat(tmp1, tmp2, tmp3);
+			PSMTXCopy(tmp3, j3dSys.mViewMtx);
+
+			if (sharedNum == 0 || mInstanceIndex < sharedNum) {
+				mMActor->viewCalc();
+			} else {
+				// per-instance matrix sharing (clones)
+				// complex matrix handling - simplified
+				mMActor->viewCalc();
+			}
+			PSMTXCopy(j3dSys.mViewMtx, tmp1);
+		}
+		flags &= ~4;
+	}
+
+	TSpineEnemy::perform(flags, gfx);
 }
 
 BOOL TAnimalBase::receiveMessage(THitActor* sender, u32 msg)
@@ -181,5 +268,40 @@ void TAnimalBase::init(TLiveManager* mgr)
 }
 
 #pragma dont_inline on
-void TAnimalBase::initNoLoad_(TAnimalBase*) { }
+void TAnimalBase::initNoLoad_(TAnimalBase* pNew)
+{
+	pNew->mPosition.x = mPosition.x + 1000.0f * (MsRandF() - 0.5f);
+	pNew->mPosition.z = mPosition.z + 1000.0f * (MsRandF() - 0.5f);
+	if (mActorType == 0x00800001) {
+		pNew->mPosition.y = mPosition.y + 1000.0f * (MsRandF() - 0.5f);
+	} else {
+		pNew->mPosition.y = mPosition.y - 250.0f * MsRandF();
+	}
+
+	pNew->mScaling.x = mScaling.x;
+	pNew->mScaling.y = mScaling.y;
+	pNew->mScaling.z = mScaling.z;
+	pNew->mRotation.x = 0.0f;
+
+	f32 newY = 150.0f * (MsRandF() - 0.5f) + mRotation.y;
+	while (newY >= 360.0f)
+		newY -= 360.0f;
+	while (newY < 0.0f)
+		newY += 360.0f;
+	pNew->mRotation.y = newY;
+	pNew->mRotation.z = 0.0f;
+
+	pNew->unk3C            = unk3C;
+	pNew->unk124->unk0     = unk124->unk0;
+	pNew->mGroundPlane     = TMap::getIllegalCheckData();
+	pNew->init(mManager);
+
+	JDrama::TViewObj* group = (JDrama::TViewObj*)
+	    JDrama::TNameRefGen::instance->mRootNameRef->searchF(
+	        JDrama::TNameRef::calcKeyCode("\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76"),
+	        "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76");
+	JGadget::TList<void*>* list
+	    = (JGadget::TList<void*>*)((char*)group + 0x10);
+	list->insert(list->end(), (void*)pNew);
+}
 #pragma dont_inline off

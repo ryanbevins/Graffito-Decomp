@@ -53,7 +53,7 @@ public:
 	void createRandPlayVecDynamic(u16);
 	static void registerTrans(u32, const Vec*);
 	void registerTransDynamic(const Vec*);
-	void startSeRandPlay(u32, u32);
+	static void startSeRandPlay(u32, u32);
 	static JSUList<MSRandPlay> smList;
 
 public:
