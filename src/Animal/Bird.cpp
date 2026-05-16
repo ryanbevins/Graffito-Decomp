@@ -2,6 +2,11 @@
 #include <Animal/AnimalSave.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <Player/MarioAccess.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <Enemy/WireBinder.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 
 // ---- TAnimalBirdParams ----
 
@@ -51,15 +56,20 @@ void TAnimalBirdManager::load(JSUMemoryInputStream& stream)
 	TEnemyManager::load(stream);
 }
 
-void TAnimalBirdManager::loadAfter() { JDrama::TNameRef::loadAfter(); }
+void TAnimalBirdManager::loadAfter()
+{
+	JDrama::TNameRef::loadAfter();
+	MSoundSESystem::MSRandPlay::createRandPlayVec(0x3869, (u16)mObjNum);
+	MSoundSESystem::MSRandPlay::createRandPlayVec(0x3870, (u16)mObjNum);
+}
 
 // ---- TAnimalBird ----
 
 TAnimalBird::TAnimalBird(const char* name)
     : TSpineEnemy(name)
 {
-	unk150 = 0;
-	unk154 = 0;
+	unk150   = 0;
+	mBinder2 = (TBinder*)NULL;
 }
 
 void TAnimalBird::load(JSUMemoryInputStream& stream)
@@ -67,13 +77,56 @@ void TAnimalBird::load(JSUMemoryInputStream& stream)
 	TSpineEnemy::load(stream);
 }
 
-void TAnimalBird::loadAfter() { JDrama::TNameRef::loadAfter(); }
+void TAnimalBird::loadAfter()
+{
+	JDrama::TNameRef::loadAfter();
+	MSoundSESystem::MSRandPlay::registerTrans(0x3869, &mPosition);
+	MSoundSESystem::MSRandPlay::registerTrans(0x3870, &mPosition);
+}
 
 BOOL TAnimalBird::receiveMessage(THitActor*, u32) { return FALSE; }
 
-void TAnimalBird::init(TLiveManager* mgr) { TSpineEnemy::init(mgr); }
+void TAnimalBird::init(TLiveManager* mgr)
+{
+	mManager = mgr;
+	mgr->manageActor(this);
 
-void TAnimalBird::calcRootMatrix() { }
+	mMActorKeeper = new TMActorKeeper(mgr, (u16)1);
+	mMActor       = mMActorKeeper->createMActor("bird_man.bmd", 0);
+
+	mSpine->initWith(&TNerveAnimalBirdWaitOnGround::theNerve());
+
+	initParams();
+	initHitActor(0x10000032, 0, 0, 50.0f, 50.0f, 70.0f, 80.0f);
+
+	onHitFlag(2);
+	offHitFlag(1);
+
+	mScaledBodyRadius = 35.0f;
+
+	initAnmSound();
+}
+
+// Class with virtual MtxPtr-returning method at vt+0xA4 (mount object)
+class TBirdMount {
+public:
+	virtual MtxPtr getRiderMtx() = 0;
+};
+
+void TAnimalBird::calcRootMatrix()
+{
+	TBirdMount* mount = *(TBirdMount**)((char*)this + 0x68);
+	if (mount != NULL) {
+		// vt+0xA4 = getRiderMtx
+		typedef MtxPtr (*MtxFn)(TBirdMount*);
+		MtxFn fn = *(MtxFn*)(*(char**)mount + 0xA4);
+		MtxPtr m = fn(mount);
+		PSMTXCopy(m, getModel()->unk20);
+	} else {
+		TSpineEnemy::calcRootMatrix();
+	}
+	getModel()->unk20[1][3] += 35.0f;
+}
 
 void TAnimalBird::bind() { }
 
@@ -91,9 +144,52 @@ const char** TAnimalBird::getBasNameTable() const
 	return bastable;
 }
 
-void TAnimalBird::initParams() { }
+void TAnimalBird::initParams()
+{
+	unk158 = mPosition;
+	unk158.y += 90.0f;
+	unk164 = mRotation;
 
-BOOL TAnimalBird::isFindMario() const { return FALSE; }
+	TSpineEnemyParams* p = getSaveParam();
+	u8 v;
+	if (p != NULL) {
+		v = (u8)getSaveParam()->mSLHitPointMax.value;
+	} else {
+		v = 1;
+	}
+	mHitPoints = v;
+
+	unk178 = 0;
+	unk17C = 0;
+	unk170 = 1.0f;
+
+	mLiveFlag &= ~0x180;
+
+	unk174 = 1.0f - 0.1f * (MsRandF() - 0.5f);
+
+	if (TWireBinder::isOnWire(mPosition)) {
+		TWireBinder* wb = new TWireBinder();
+		mBinder2        = wb;
+		wb->init(mPosition);
+	}
+}
+
+BOOL TAnimalBird::isFindMario() const
+{
+	f32 diffY = mPosition.y - gpMarioPos->y;
+	if (diffY < 0)
+		diffY = -diffY;
+	TAnimalBirdParams* p = (TAnimalBirdParams*)getSaveParam();
+	if (p->mSearchHeight.value < diffY)
+		return FALSE;
+
+	f32 scale = unk174;
+	return isInSight(*gpMarioPos, scale * p->mSearchLength.value,
+	                 scale * p->mSearchAngle.value,
+	                 scale * p->mSearchAware.value)
+	    ? 1
+	    : 0;
+}
 
 void TAnimalBird::doFlyToCurPathNode() { }
 

@@ -5,7 +5,7 @@
 #include <Strategic/Binder.hpp>
 #include <Strategic/LiveActor.hpp>
 
-class TWireBinder : TBinder {
+class TWireBinder : public TBinder {
 public:
 	bool init(const JGeometry::TVec3<f32>&);
 	void bind(TLiveActor*);

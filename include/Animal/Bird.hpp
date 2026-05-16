@@ -62,8 +62,14 @@ public:
 	void doLanding(bool);
 
 	/* 0x150 */ int unk150;
-	/* 0x154 */ int unk154;
-	/* 0x158 */ char unk158[0x210 - 0x158];
+	/* 0x154 */ class TBinder* mBinder2;
+	/* 0x158 */ JGeometry::TVec3<f32> unk158;
+	/* 0x164 */ JGeometry::TVec3<f32> unk164;
+	/* 0x170 */ f32 unk170;
+	/* 0x174 */ f32 unk174;
+	/* 0x178 */ int unk178;
+	/* 0x17C */ int unk17C;
+	/* 0x180 */ char unk180[0x210 - 0x180];
 };
 
 DECLARE_NERVE(TNerveAnimalBirdLanding, TLiveActor);
