@@ -18,13 +18,23 @@ DEFINE_NERVE(TNerveNPCTurnToMario, TLiveActor) { }
 
 DEFINE_NERVE(TNerveNPCWet, TLiveActor) { }
 
-DEFINE_NERVE(TNerveNPCSink, TLiveActor) { }
+DEFINE_NERVE(TNerveNPCSink, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	npc->npcSinking();
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveNPCRecoverFromSink, TLiveActor) { }
 
 DEFINE_NERVE(TNerveNPCRecoverAfter, TLiveActor) { }
 
-DEFINE_NERVE(TNerveNPCSetPosAfterSinkBottom, TLiveActor) { }
+DEFINE_NERVE(TNerveNPCSetPosAfterSinkBottom, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	npc->setPosAndInitAfterSinkBottom();
+	return TRUE;
+}
 
 DEFINE_NERVE(TNerveNPCTalk, TLiveActor) { }
 
