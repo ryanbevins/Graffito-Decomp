@@ -694,9 +694,10 @@ DEFINE_NERVE(TNerveAnimalBirdComeback, TLiveActor)
 	TAnimalBird* bird = (TAnimalBird*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		bird->unkF4.unk0  = (THitActor*)NULL;
+		int zero          = 0;
+		bird->unkF4.unk0  = (THitActor*)zero;
 		bird->unkF4.unk4  = bird->unk158;
-		bird->unk104.unk0 = (THitActor*)NULL;
+		bird->unk104.unk0 = (THitActor*)zero;
 		bird->unk104.unk4 = bird->unk158;
 		bird->unk114.clear();
 		bird->mMActor->setBckFromIndex(3);
@@ -705,18 +706,25 @@ DEFINE_NERVE(TNerveAnimalBirdComeback, TLiveActor)
 
 	bird->doFlyToCurPathNode();
 
-	if (bird->isFindMario()) {
-		spine->pushAfterCurrent(&TNerveAnimalBirdGraphWander::theNerve());
-		return TRUE;
+	f32 diffY = __fabsf(gpMarioPos->y - bird->mPosition.y);
+	if (((TAnimalBirdParams*)bird->getSaveParam())->mSearchHeight.value
+	    >= diffY) {
+		f32 scale = bird->unk174;
+		if (bird->isInSight(
+		        *gpMarioPos,
+		        scale * ((TAnimalBirdParams*)bird->getSaveParam())
+		                    ->mSearchLength.value,
+		        scale * ((TAnimalBirdParams*)bird->getSaveParam())
+		                    ->mSearchAngle.value,
+		        scale * ((TAnimalBirdParams*)bird->getSaveParam())
+		                    ->mSearchAware.value)) {
+			spine->pushAfterCurrent(
+			    &TNerveAnimalBirdGraphWander::theNerve());
+			return TRUE;
+		}
 	}
 
-	JGeometry::TVec3<f32> diff;
-	diff.x = bird->unk158.x - bird->mPosition.x;
-	diff.y = bird->unk158.y - bird->mPosition.y;
-	diff.z = bird->unk158.z - bird->mPosition.z;
-	f32 d2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-	TAnimalBirdParams* p = (TAnimalBirdParams*)bird->getSaveParam();
-	if (d2 < p->mMarchSpeed.value * p->mMarchSpeed.value) {
+	if (bird->isReachedToGoal()) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdPreLanding::theNerve());
 		return TRUE;
 	}
