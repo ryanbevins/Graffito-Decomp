@@ -743,13 +743,25 @@ DEFINE_NERVE(TNerveAnimalBirdPreLanding, TLiveActor)
 		bird->doLanding(true);
 	}
 
-	if (bird->isFindMario()) {
-		spine->pushAfterCurrent(&TNerveAnimalBirdGraphWander::theNerve());
-		return TRUE;
+	f32 diffY = __fabsf(gpMarioPos->y - bird->mPosition.y);
+	if (((TAnimalBirdParams*)bird->getSaveParam())->mSearchHeight.value
+	    >= diffY) {
+		f32 scale = bird->unk174;
+		if (bird->isInSight(
+		        *gpMarioPos,
+		        scale * ((TAnimalBirdParams*)bird->getSaveParam())
+		                    ->mSearchLength.value,
+		        scale * ((TAnimalBirdParams*)bird->getSaveParam())
+		                    ->mSearchAngle.value,
+		        scale * ((TAnimalBirdParams*)bird->getSaveParam())
+		                    ->mSearchAware.value)) {
+			spine->pushAfterCurrent(
+			    &TNerveAnimalBirdGraphWander::theNerve());
+			return TRUE;
+		}
 	}
 
-	bird->doLanding(false);
-	if (bird->checkCurAnmEnd(0)) {
+	if (bird->doLanding(false)) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdLanding::theNerve());
 		return TRUE;
 	}
@@ -762,9 +774,9 @@ DEFINE_NERVE(TNerveAnimalBirdLanding, TLiveActor)
 	J3DFrameCtrl* fc  = bird->mMActor->getFrameCtrl(0);
 
 	if (spine->getTime() == 0) {
-		bird->mLinearVelocity.x = 0.0f;
-		bird->mLinearVelocity.y = 0.0f;
-		bird->mLinearVelocity.z = 0.0f;
+		bird->mVelocity.x = 0.0f;
+		bird->mVelocity.y = 0.0f;
+		bird->mVelocity.z = 0.0f;
 		bird->mMActor->setBckFromIndex(5);
 		bird->setCurAnmSound();
 		fc->setAttribute(1);
@@ -772,7 +784,25 @@ DEFINE_NERVE(TNerveAnimalBirdLanding, TLiveActor)
 		fc->setRate(-fc->getRate());
 	}
 
-	if (bird->isFindMario()) {
+	f32 diffY = __fabsf(gpMarioPos->y - bird->mPosition.y);
+	bool inSight = false;
+	if (((TAnimalBirdParams*)bird->getSaveParam())->mSearchHeight.value
+	    >= diffY) {
+		f32 scale = bird->unk174;
+		inSight   = bird->isInSight(
+		    *gpMarioPos,
+		    scale
+		        * ((TAnimalBirdParams*)bird->getSaveParam())
+		              ->mSearchLength.value,
+		    scale
+		        * ((TAnimalBirdParams*)bird->getSaveParam())
+		              ->mSearchAngle.value,
+		    scale
+		        * ((TAnimalBirdParams*)bird->getSaveParam())
+		              ->mSearchAware.value);
+	}
+
+	if (inSight) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdGraphWander::theNerve());
 		return TRUE;
 	}
