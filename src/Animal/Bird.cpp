@@ -291,7 +291,7 @@ void TAnimalBird::bind()
 	if (!useWire) {
 		TLiveActor::bind();
 	} else {
-		((TWireBinder*)mBinder2)->bind(this);
+		mBinder2->bind(this);
 	}
 }
 
