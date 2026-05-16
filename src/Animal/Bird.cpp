@@ -627,19 +627,52 @@ DEFINE_NERVE(TNerveAnimalBirdWalkOnGround, TLiveActor)
 		bird->setCurAnmSound();
 	}
 
-	bool wantTakeoff = (bird->unk178 > 0) || bird->isFindMario();
+	BOOL wantTakeoff = TRUE;
+	if (bird->unk178 <= 0) {
+		if (!bird->isFindMario())
+			wantTakeoff = FALSE;
+	}
 	if (wantTakeoff && MsRandF() < 0.5f) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdTakeoff::theNerve());
 		return TRUE;
 	}
 
-	TAnimalBirdParams* p    = (TAnimalBirdParams*)bird->getSaveParam();
-	bird->mLinearVelocity.y = 0.15f;
-	f32 turnRate
-	    = bird->unk170 * p->mWalkingTorqueY.value * SMSGetAnmFrameRate();
-	bird->mRotation.y = MsWrap<f32>(bird->mRotation.y + turnRate, 0.0f, 360.0f);
+	bird->mGravity = 0.15f;
+	bird->mRotation.y = MsWrap<f32>(
+	    bird->mRotation.y
+	        + bird->unk170
+	              * ((TAnimalBirdParams*)bird->getSaveParam())
+	                    ->mWalkingTorqueY.value
+	              * SMSGetAnmFrameRate(),
+	    0.0f, 360.0f);
 
-	if (spine->getTime() >= p->mWalkTimer.value) {
+	JGeometry::TQuat4<f32> q;
+	SMS_Eular2Quat(bird->mRotation, &q);
+
+	f32 speed = bird->unk174
+	          * ((TAnimalBirdParams*)bird->getSaveParam())
+	                ->mWalkingSpeed.value;
+
+	JGeometry::TVec3<f32> forward(0.0f, 0.0f, speed);
+	JGeometry::TVec4<f32> tmp;
+	{
+		f32 qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+		f32 fx = forward.x, fy = forward.y, fz = forward.z;
+		f32 rx = (qw * qw + qx * qx - qy * qy - qz * qz) * fx
+		       + 2.0f * (qx * qy - qw * qz) * fy
+		       + 2.0f * (qx * qz + qw * qy) * fz;
+		f32 ry = 2.0f * (qx * qy + qw * qz) * fx
+		       + (qw * qw - qx * qx + qy * qy - qz * qz) * fy
+		       + 2.0f * (qy * qz - qw * qx) * fz;
+		f32 rz = 2.0f * (qx * qz - qw * qy) * fx
+		       + 2.0f * (qy * qz + qw * qx) * fy
+		       + (qw * qw - qx * qx - qy * qy + qz * qz) * fz;
+		forward.set<f32>(rx, ry, rz);
+	}
+	bird->mLinearVelocity = forward;
+
+	if (((TAnimalBirdParams*)bird->getSaveParam())->mWalkTimer.value
+	    < (s32)spine->getTime()) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdWaitOnGround::theNerve());
 		return TRUE;
 	}
