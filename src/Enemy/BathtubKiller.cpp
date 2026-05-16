@@ -99,6 +99,7 @@ TBathtubKillerParams::TBathtubKillerParams(const char* prm)
 TBathtubKiller::TBathtubKiller(const char* name)
     : TSmallEnemy(name)
 {
+	unk1CC = (TBathtub*)NULL;
 }
 
 void TBathtubKiller::init(TLiveManager*) { }
@@ -265,5 +266,7 @@ void TBathtubKillerManager::createModelData()
 
 TSpineEnemy* TBathtubKillerManager::createEnemyInstance()
 {
-	return new TBathtubKiller;
+	TBathtubKiller* k = new TBathtubKiller;
+	MTXIdentity(k->unk220);
+	return k;
 }
