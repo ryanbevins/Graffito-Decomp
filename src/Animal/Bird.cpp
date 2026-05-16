@@ -685,6 +685,7 @@ DEFINE_NERVE(TNerveAnimalBirdTakeoff, TLiveActor)
 		bird->mMActor->setBckFromIndex(5);
 		bird->setCurAnmSound();
 		bird->mLiveFlag |= 0x80;
+		bird->mGravity   = 0.0f;
 		bird->unk17C     = 0;
 		J3DFrameCtrl* fc = bird->mMActor->getFrameCtrl(0);
 		fc->setRate(fc->getRate() * 3.0f);
@@ -698,7 +699,8 @@ DEFINE_NERVE(TNerveAnimalBirdTakeoff, TLiveActor)
 	if (bird->checkCurAnmEnd(0)) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdGraphWander::theNerve());
 		bird->mLiveFlag |= 0x80;
-		bird->unk17C = 0;
+		bird->mGravity  = 0.0f;
+		bird->unk17C    = 0;
 		return TRUE;
 	}
 	return FALSE;
@@ -918,7 +920,7 @@ DEFINE_NERVE(TNerveAnimalBirdChangeToCoin, TLiveActor)
 	((TLiveActor*)spawned)->mLinearVelocity.y = -10.0f;
 	((TLiveActor*)spawned)->mLinearVelocity.z = 0.0f;
 
-	((TLiveActor*)spawned)->mLiveFlag &= ~1;
+	((TLiveActor*)spawned)->mLiveFlag &= ~0x10;
 	((TLiveActor*)spawned)->mLiveFlag |= 0x80;
 	return TRUE;
 }
