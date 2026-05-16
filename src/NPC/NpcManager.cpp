@@ -350,3 +350,46 @@ void TMareJellyFishManager::createModelData()
 	};
 	createModelDataArray(entry);
 }
+
+// =====================================================================
+// load functions
+// =====================================================================
+
+void TSunflowerLManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk3C = 500.0f;
+}
+
+void TPeachManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x17, 0x10010000, unk60);
+}
+
+void TKinopioManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x12, 0x10010000, unk60);
+}
+
+void TKinojiiManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x12, 0x10010000, unk60);
+}
+
+void TRaccoonDogManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
+	unk60 = new TModelDataKeeper(unk1C->mFolder);
+	makePartsModelData_(0x12, 0x10010000, unk60);
+}
