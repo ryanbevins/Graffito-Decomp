@@ -1,9 +1,11 @@
 #include <NPC/NpcManager.hpp>
 #include <Strategic/ObjModel.hpp>
+#include <M3DUtil/MActorData.hpp>
 #include <M3DUtil/SDLModel.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/ResTIMG.hpp>
+#include <Enemy/Conductor.hpp>
 
 class J3DMaterialTable;
 
@@ -13,6 +15,8 @@ const char* cMonteMDummyStrawTexName  = "I_mom_mino_dummyI4";
 const char* cMonteWDummyStrawTexName  = "I_mow_mino_dummyI4";
 const char* cMonteMRealStrawTexName   = "/scene/monteMCommon/I_mom_mino_rgba.bti";
 const char* cMonteWRealStrawTexName   = "/scene/monteWCommon/I_mow_mino_rgba.bti";
+const char* cMonteMCommonVolumeName   = "/scene/monteMCommon";
+const char* cMonteWCommonVolumeName   = "/scene/monteWCommon";
 
 TModelDataKeeper* TMonteMBaseManager::mStaticCommonKeeper;
 TModelDataKeeper* TMonteWBaseManager::mStaticCommonKeeper;
@@ -472,4 +476,44 @@ void TMareWBManager::load(JSUMemoryInputStream& stream)
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
 	makePartsModelData_(0x14, 0x10210000, unk60);
+}
+
+// =====================================================================
+// Misc small functions
+// =====================================================================
+
+void TMonteMSpecialManager::createAnmData()
+{
+	TObjManager::createAnmData();
+}
+
+void TMonteWSpecialManager::createAnmData()
+{
+	TObjManager::createAnmData();
+}
+
+void TMonteWBaseManager::createAnmData()
+{
+	MActorAnmData* p = new MActorAnmData();
+	p->init(cMonteWCommonVolumeName, (const char**)NULL);
+	unk20 = p;
+}
+
+void TMonteMBaseManager::createAnmData()
+{
+	MActorAnmData* p = new MActorAnmData();
+	p->init(cMonteMCommonVolumeName, (const char**)NULL);
+	unk20 = p;
+}
+
+J3DMaterialTable* TMareBaseManager::getBmt_(bool isPollution)
+{
+	if (isPollution)
+		return mStaticBmtPollution;
+	return mStaticBmtNormal;
+}
+
+void TBoardNpcManager::clipActors(JDrama::TGraphics* gfx)
+{
+	clipActorsAux(gfx, *(f32*)((char*)gpConductor + 0x9C), 200.0f);
 }
