@@ -40,7 +40,31 @@ _(empty — populate as observations confirm)_
 
 ## Hypotheses under investigation
 
-_(empty — populate as patterns emerge)_
+### `#pragma dont_inline` is TU-global, not lexical
+
+**Hypothesis:** `#pragma dont_inline on/off` in MWCC 1.2.5 (GameCube) is applied
+to every function in the TU using the **final** pragma state seen by the parser,
+not lexically scoped around the function definition. Multiple positions of `on`/`off`
+in the same file all produced the same compilation outcome — the state at
+end-of-file is what stuck.
+
+**Where observed:** `src/JSystem/JDrama/JDRDStageGroup.cpp`. Tried wrapping only
+`perform()` in `#pragma dont_inline on ... off`. Either both functions saw `on`
+(when the file ended with `on`) or both saw `off` (when the file ended with `off`
+or `reset`). Could not pin one function to `on` and another to `off`.
+
+**Experiment to confirm:** Reproduce in a second TU. Best candidate would be a TU
+where two functions need different inlining decisions (one calls a large inline
+that should *not* expand, the other has an auto-generated dtor that *should* inline
+its base subobject dtors). If both follow the file-end pragma state, this is
+confirmed.
+
+**Consequence if true:** When a TU needs both a `dont_inline on` function and an
+auto-generated dtor that inlines empty base dtors, **we cannot have both match**
+through pragma alone. A different mechanism (e.g. `__noinline` attribute,
+declaration trick, or moving inline source out of header) is required.
+
+## Open questions
 
 ## Open questions
 
