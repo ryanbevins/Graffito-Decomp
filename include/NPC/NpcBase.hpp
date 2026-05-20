@@ -73,10 +73,10 @@ public:
 	void isNeedNeckStraight() const;
 	void isPartsAnmNpc() const;
 	void isBehaveToHitNpc() const;
-	void isBehaveToWaterNpc() const;
+	BOOL isBehaveToWaterNpc() const;
 	void isMadNpc() const;
 	void isBeTrampledNpc() const;
-	void isPollutionNpc() const;
+	BOOL isPollutionNpc() const;
 	bool isSmallNpc() const;
 	BOOL isChild() const;
 	BOOL isSunflower() const;

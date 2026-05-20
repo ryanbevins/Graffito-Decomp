@@ -1,5 +1,45 @@
 #include <NPC/NpcBase.hpp>
 
+BOOL TBaseNPC::isBehaveToWaterNpc() const
+{
+	BOOL result = TRUE;
+	switch (mActorType) {
+	case 0x04000007:
+	case 0x04000008:
+	case 0x0400000F:
+	case 0x04000014:
+	case 0x0400001C:
+	case 0x0400001D:
+		result = FALSE;
+	}
+	return result;
+}
+
+BOOL TBaseNPC::isPollutionNpc() const
+{
+	BOOL result = FALSE;
+	switch (mActorType) {
+	case 0x04000001:
+	case 0x04000002:
+	case 0x04000004:
+	case 0x0400000A:
+	case 0x0400000B:
+	case 0x0400000E:
+	case 0x04000013:
+	case 0x04000016:
+		result = TRUE;
+	}
+	return result;
+}
+
+BOOL TBaseNPC::isChild() const
+{
+	BOOL result = FALSE;
+	if (mScaling.x < 0.7f && mScaling.y < 0.7f && mScaling.z < 0.7f)
+		result = TRUE;
+	return result;
+}
+
 BOOL TBaseNPC::isSunflower() const
 {
 	BOOL result = FALSE;
