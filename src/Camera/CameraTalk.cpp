@@ -5,32 +5,6 @@
 #include <System/MarDirector.hpp>
 #include <System/MarioGamePad.hpp>
 
-void CPolarSubCamera::ctrlTalkCamera_()
-{
-	if (unk7C == 0) {
-		unk8C.x = gpCameraMario->mPosX;
-		unk8C.y = gpCameraMario->mPosY;
-		unk8C.z = gpCameraMario->mPosZ;
-	}
-	calcPosAndAt_();
-}
-
-void CPolarSubCamera::makeMtxForPrevTalk()
-{
-	if (isTalkCameraSpecifyMode(mMode)) {
-		unkA6        = unkAC;
-		int oldMode  = unk58;
-		s16 frame    = (s16)getCameraInbetweenFrame_(oldMode);
-		changeCamModeSpecifyFrame_(oldMode, frame);
-		unk120->onNeutralMarioKey();
-
-		JGadget::TVector_pointer<TBaseNPC>& npcs = gpMarDirector->unk88;
-		for (TBaseNPC** it = npcs.begin(); it != npcs.end(); ++it) {
-			(*it)->npcTalkOut();
-		}
-	}
-}
-
 void CPolarSubCamera::makeMtxForTalk(const TBaseNPC* npc)
 {
 	killHeightPan_();
@@ -58,4 +32,31 @@ void CPolarSubCamera::makeMtxForTalk(const TBaseNPC* npc)
 
 	s16 frame = (s16)getCameraInbetweenFrame_(mode);
 	changeCamModeSpecifyFrame_(mode, frame);
+}
+
+void CPolarSubCamera::makeMtxForPrevTalk()
+{
+	if (isTalkCameraSpecifyMode(mMode)) {
+		unkA6        = unkAC;
+		int oldMode  = unk58;
+		s16 frame    = (s16)getCameraInbetweenFrame_(oldMode);
+		changeCamModeSpecifyFrame_(oldMode, frame);
+		unk120->onNeutralMarioKey();
+
+		JGadget::TVector_pointer<TBaseNPC>& npcs = gpMarDirector->unk88;
+		for (TBaseNPC** it = npcs.begin(); it != npcs.end(); ++it) {
+			(*it)->npcTalkOut();
+		}
+	}
+}
+
+void CPolarSubCamera::ctrlTalkCamera_()
+{
+	if (unk7C == 0) {
+		TCameraMarioData* mario = gpCameraMario;
+		unk8C.x                 = mario->mPosX;
+		unk8C.y                 = mario->mPosY;
+		unk8C.z                 = mario->mPosZ;
+	}
+	calcPosAndAt_();
 }
