@@ -74,13 +74,16 @@ bool CPolarSubCamera::isTowerCameraSpecifyMode(int mode) const
 
 bool CPolarSubCamera::isTalkCameraSpecifyMode(int mode) const
 {
-	if (mode == 0x2D)
-		return true;
-	if (mode == 0x0C)
-		return true;
-	if (mode == 0x3F || mode == 0x40)
-		return true;
-	return false;
+	bool result = false;
+	switch (mode) {
+	case 0x0A:
+	case 0x0C:
+	case 0x2D:
+	case 0x3F:
+	case 0x40:
+		result = true;
+	}
+	return result;
 }
 
 bool CPolarSubCamera::isLButtonCameraSpecifyMode(int mode) const
