@@ -74,7 +74,7 @@ public:
 	BOOL isPartsAnmNpc() const;
 	void isBehaveToHitNpc() const;
 	BOOL isBehaveToWaterNpc() const;
-	void isMadNpc() const;
+	BOOL isMadNpc() const;
 	void isBeTrampledNpc() const;
 	BOOL isPollutionNpc() const;
 	bool isSmallNpc() const;

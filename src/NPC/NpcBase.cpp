@@ -1,5 +1,37 @@
 #include <NPC/NpcBase.hpp>
 
+#pragma dont_inline on
+
+BOOL TBaseNPC::isMadNpc() const
+{
+	BOOL result  = FALSE;
+	bool partA   = false;
+	BOOL helper  = TRUE;
+	switch (mActorType) {
+	case 0x04000001:
+	case 0x04000002:
+	case 0x04000003:
+	case 0x04000004:
+	case 0x04000005:
+		partA = true;
+	}
+	if (!partA) {
+		if (!isNormalMonteW())
+			helper = FALSE;
+	}
+	if (helper) {
+		result = TRUE;
+	} else {
+		switch (mActorType) {
+		case 0x04000006:
+		case 0x04000007:
+		case 0x0400000D:
+			result = TRUE;
+		}
+	}
+	return result;
+}
+
 BOOL TBaseNPC::isPartsAnmNpc() const
 {
 	BOOL result   = FALSE;
