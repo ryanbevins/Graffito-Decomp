@@ -14,20 +14,20 @@ void CPolarSubCamera::makeMtxForTalk(const TBaseNPC* npc)
 	unk58      = mMode;
 
 	int npcCode = npc->mActorType;
-	if (npcCode == 0x400001A) {
+	switch (npcCode) {
+	case 0x400001A:
 		mode = 0x40;
-	} else if (npcCode < 0x400001A) {
-		if (npcCode == 0x4000007) {
-			mode = 0xA;
-		}
-	} else if (npcCode < 0x400001C) {
-		mode = 0x3F;
-	}
-
-	if (mode == 0xC) {
-		if (npc->isSmallNpc()) {
+		break;
+	case 0x4000007:
+		mode = 0xA;
+		break;
+	default:
+		if (npcCode > 0x400001A && npcCode < 0x400001C) {
+			mode = 0x3F;
+		} else if (npc->isSmallNpc()) {
 			mode = 0x2D;
 		}
+		break;
 	}
 
 	s16 frame = (s16)getCameraInbetweenFrame_(mode);
