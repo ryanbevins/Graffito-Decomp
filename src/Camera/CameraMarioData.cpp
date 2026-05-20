@@ -21,54 +21,72 @@ TCameraMarioData::TCameraMarioData()
 
 bool TCameraMarioData::isMarioClimb(u32 status) const
 {
-	if (status == 0x18100340)
-		return true;
-	if (status >= 0x10100344)
-		return false;
-	if (status < 0x10100341)
-		return false;
-	return true;
+	bool result = false;
+	switch (status) {
+	case 0x18100340:
+	case 0x10100341:
+	case 0x10100342:
+	case 0x10100343:
+		result = true;
+	}
+	return result;
 }
 
 bool TCameraMarioData::isMarioLeanMirror() const
 {
-	if (SMS_GetMarioGrPlane() == nullptr)
-		return false;
-	const TLiveActor* actor = SMS_GetMarioGrPlane()->mActor;
-	if (actor == nullptr)
-		return false;
-	return ((const THitActor*)actor)->mActorType == 0x400000CF;
+	bool result = false;
+	if (SMS_GetMarioGrPlane() != nullptr) {
+		const TLiveActor* actor = SMS_GetMarioGrPlane()->mActor;
+		if (actor != nullptr) {
+			if (((const THitActor*)actor)->mActorType == 0x400000CF)
+				result = true;
+		}
+	}
+	return result;
 }
 
 bool TCameraMarioData::isMarioSlider() const
 {
-	if (SMS_GetMarioGrPlane() == nullptr)
-		return false;
-	u16 type = SMS_GetMarioGrPlane()->mBGType;
-	return type == 0xC || type == 0x800C || type == 0xA00C;
+	bool result = false;
+	if (SMS_GetMarioGrPlane() != nullptr) {
+		u16 type = SMS_GetMarioGrPlane()->mBGType;
+		bool match;
+		if (type == 0xC || type == 0x800C || type == 0xA00C) {
+			match = true;
+		} else {
+			match = false;
+		}
+		result = match;
+	}
+	return result;
 }
 
 bool TCameraMarioData::isMarioIndoor() const
 {
-	if (SMS_GetMarioGrPlane() == nullptr)
-		return false;
-	u16 type = SMS_GetMarioGrPlane()->mBGType;
-	if (type == 0x106 || type == 0x105)
-		return true;
-	u16 offset = (u16)(type - 0x108);
-	return offset <= 1;
+	bool result = false;
+	if (SMS_GetMarioGrPlane() != nullptr) {
+		u16 type = SMS_GetMarioGrPlane()->mBGType;
+		bool match;
+		if (type == 0x106 || type == 0x105 || (u16)(type - 0x108) <= 1) {
+			match = true;
+		} else {
+			match = false;
+		}
+		result = match;
+	}
+	return result;
 }
 
 bool TCameraMarioData::isMarioRocketing() const
 {
-	u32 status = SMS_GetMarioStatus();
-	if (status == 0x88C)
-		return true;
-	if (status >= 0x88E)
-		return false;
-	if (status >= 0x88B)
-		return true;
-	return false;
+	bool result = false;
+	switch (SMS_GetMarioStatus()) {
+	case 0x88B:
+	case 0x88C:
+	case 0x88D:
+		result = true;
+	}
+	return result;
 }
 
 bool TCameraMarioData::isMarioGoDown() const
