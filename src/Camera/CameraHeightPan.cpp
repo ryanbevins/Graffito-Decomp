@@ -24,14 +24,18 @@ void CPolarSubCamera::killHeightPan_()
 
 bool CPolarSubCamera::isNotHeightPanCamMode_() const
 {
-	if (isLButtonCameraSpecifyMode(mMode))
-		return true;
-	if (isRailCameraSpecifyMode(mMode))
-		return true;
-	int idx = mMode - 8;
-	if ((u32)idx > 0x39)
-		return false;
-	return isHeightPanModeIndex(idx);
+	bool result = false;
+	if (isLButtonCameraSpecifyMode(mMode) || isRailCameraSpecifyMode(mMode)) {
+		result = true;
+	} else {
+		int idx = mMode - 8;
+		switch (idx) {
+		case 0: case 5: case 7: case 10: case 11:
+		case 35: case 41: case 43: case 54: case 57:
+			result = true;
+		}
+	}
+	return result;
 }
 
 void CPolarSubCamera::execHeightPan_()
