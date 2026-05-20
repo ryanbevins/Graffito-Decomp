@@ -44,7 +44,31 @@ _(empty — populate as patterns emerge)_
 
 ## Open questions
 
-_(empty — populate as new mysteries appear)_
+_Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *Hypotheses
+under investigation* the moment you have a testable theory, and to *Settled* once
+confirmed in ≥2 TUs._
+
+- **`TTimeRec::startTimer` callers gain +16 bytes of stack frame.** Symptom: any
+  function that calls `startTimer__9TTimeRecFv` (or `endTimer`) inflates its frame by
+  exactly 0x10. The offending bytes don't correspond to any local in the source. Is
+  this an inline-expansion artifact in MWCC's frame allocator? Does the inflation
+  disappear if `startTimer` is reconstructed as a non-inline call?
+- **`addi rN, rM, 0` vs `mr rN, rM`.** Two ways to encode the same operation; the
+  target picks one, our build often picks the other. What source-level cue drives the
+  choice? Is it register-class hinting? Lifetime analysis? Has anyone reproduced the
+  flip by changing variable order alone?
+- **f30/f31 register swap.** In some floating-point-heavy functions, target and ours
+  agree on every instruction but the two callee-saved FPRs are swapped. Likely an
+  interaction between expression order, live-range overlap, and MWCC's allocator
+  preferences — but the exact lever is unknown.
+- **Redundant field reloads under inline expansion.** When an inline accesses a field
+  twice, MWCC sometimes emits two loads where common-subexpression elimination should
+  have collapsed them. What inhibits CSE here? Is it the inline's parameter aliasing
+  assumption? A `this`-pointer barrier?
+- **Block ordering in boolean-return functions.** Compiler picks fall-through-through-true
+  vs fall-through-through-false. The choice may correlate with branch-prediction hints,
+  expression nesting, or the position of the `return` in the source AST. Reduce to a
+  rule by varying source structure on a minimal test case.
 
 ## Refuted / wrong turns
 

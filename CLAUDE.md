@@ -292,10 +292,12 @@ static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 - **`MsRandF()`** from `<MarioUtil/RandomUtil.hpp>` — Use instead of writing `(f32)rand() * (1.0f / 32768.0f)` inline. Fabricated helper that produces identical code.
 - **`calcDist(const TVec3<f32>&, const TVec3<f32>&)`** — For distance between two points, use a static helper: `TVec3 diff = a; diff.sub(b); return TUtil<f32>::sqrt(diff.squared());`. Matches better than inline distance computation because MWCC generates different register allocation for the helper call vs inline expansion.
 
-## Known Unsolvable Patterns (Skip These)
+## Currently-Hard Patterns
 
-- `TTimeRec::startTimer` causing +16 stack frame inflation in callers
-- `addi rN, rM, 0` vs `mr rN, rM` — compiler encoding choice
-- FPR (floating-point register) f30/f31 swap — not controllable from C
-- Redundant field reloads from MWCC inline expansion bug
-- Block ordering in boolean return functions — compiler decision
+Nothing here is "unsolvable" — every byte of difference has a mechanical cause inside MWCC, and the project's job is to keep peeling them back. These are the recurring patterns whose root cause we don't yet have a tested theory for. Treat them as open problems, not skip-list entries. As theories form, write them up in `docs/MWCC.md` under *Hypotheses under investigation* with an experiment that would confirm or refute them; promote to *Settled* once confirmed across multiple TUs; then move the rule into this file.
+
+- `TTimeRec::startTimer` introducing +16 bytes of stack frame inflation in callers — root cause unconfirmed.
+- `addi rN, rM, 0` vs `mr rN, rM` — looks like a compiler encoding choice we haven't found a source-level lever for yet.
+- FPR (floating-point register) f30/f31 swap — likely an interaction between register allocation, callee-saved set, and expression order we haven't fully characterised.
+- Redundant field reloads under inline expansion — appears MWCC-specific; the conditions that trigger and inhibit it are under investigation.
+- Block ordering in boolean-return functions — fall-through vs branch choice; pattern not yet reduced to a source-level rule.

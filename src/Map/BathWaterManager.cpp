@@ -2,6 +2,67 @@
 
 #include <dolphin/mtx.h>
 #include <dolphin/gx.h>
+#include <dolphin/gd/GDBase.h>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTevs.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <JSystem/JKernel/JKRHeap.hpp>
+#include <JSystem/JUtility/JUTTexture.hpp>
+#include <Camera/Camera.hpp>
+#include <MarioUtil/MtxUtil.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <System/Resolution.hpp>
+#include <dolphin/os/OSCache.h>
+#include <math.h>
+
+// rogue includes needed for matching sinit & bss
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
+
+extern void OSReport(const char*, ...);
+extern JGeometry::TVec3<f32>* gpMarioPos;
+extern u32* gpMarioFlag;
+THitActor* SMS_GetMarioHitActor();
+void SMS_ThrowMario(const JGeometry::TVec3<f32>&, f32);
+f32 SMS_GetMarioGravity();
+class TScreenTexture;
+class MSound {
+public:
+	bool gateCheck(u32);
+};
+extern MSound* gpMSound;
+
+static inline JUTTexture* screenTexture(TScreenTexture* texture)
+{
+	return *(JUTTexture**)((u8*)texture + 0x10);
+}
+
+const char* TBathWaterManager::fileNames[] = {
+	"MapObj/bathwater_wave.prm",
+	"MapObj/bathwater_overflow.prm",
+};
+
+#pragma dont_inline on
+static void init_tobj_resource(GXTexObj* obj, void* resource)
+{
+	ResTIMG* timg = (ResTIMG*)resource;
+	void* image = (u8*)resource + timg->imageDataOffset;
+	DCStoreRange(image, GXGetTexBufferSize(timg->width, timg->height,
+	                                       (GXTexFmt)timg->format, 0, 0));
+	GXInitTexObj(obj, image, timg->width, timg->height,
+	             (GXTexFmt)timg->format, (GXTexWrapMode)timg->wrapS,
+	             (GXTexWrapMode)timg->wrapT, GX_FALSE);
+	GXInitTexObjLOD(obj, (GXTexFilter)timg->minFilter,
+	                (GXTexFilter)timg->magFilter, 0.0f, 0.0f, 0.0f, GX_FALSE,
+	                GX_FALSE, GX_ANISO_1);
+}
+#pragma dont_inline off
 
 static void draw_mist(u16 x, u16 y, u16 wd, u16 ht, void* buffer)
 {
@@ -173,4 +234,1633 @@ static void draw_mist(u16 x, u16 y, u16 wd, u16 ht, void* buffer)
 	GXTexCoord2f32(0.0f, 1.0f - offset_y);
 	GXTexCoord2f32(0.0f, 1.0f + offset_y);
 	GXEnd();
+}
+
+namespace {
+void clearEFB_alpha(s16 x, s16 y, s16 width, s16 height, u8 alpha)
+{
+	Mtx matrix;
+	Mtx44 projection;
+
+	if (width <= 0)
+		width = SMSGetGameRenderWidth();
+	if (height <= 0)
+		height = SMSGetGameRenderHeight();
+
+	f32 left   = x;
+	f32 top    = y;
+	f32 wd     = width;
+	f32 ht     = height;
+	f32 right  = left + wd;
+	f32 bottom = top + ht;
+
+	C_MTXOrtho(projection, top, bottom, left, right, 0.0f, 1.0f);
+	PSMTXIdentity(matrix);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_S16, 0);
+	GXSetNumChans(1);
+	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetNumTexGens(0);
+	GXSetNumTevStages(1);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+	              GX_COLOR_NULL);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO,
+	                GX_CA_ZERO);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+	GXSetProjection(projection, GX_ORTHOGRAPHIC);
+	GXSetViewport(left, top, wd, ht, 0.0f, 1.0f);
+	GXSetScissor(x, y, width, height);
+	GXSetBlendMode(GX_BM_NONE, GX_BL_ZERO, GX_BL_ZERO, GX_LO_NOOP);
+	GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
+	GXSetColorUpdate(GX_FALSE);
+	GXSetAlphaUpdate(GX_TRUE);
+	GXSetDstAlpha(GX_TRUE, alpha);
+	GXLoadPosMtxImm(matrix, GX_PNMTX0);
+	GXSetCurrentMtx(GX_PNMTX0);
+	GXSetCullMode(GX_CULL_NONE);
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition2s16(x, y);
+	GXPosition2s16(x + width, y);
+	GXPosition2s16(x + width, y + height);
+	GXPosition2s16(x, y + height);
+	GXEnd();
+
+	GXSetColorUpdate(GX_TRUE);
+	GXSetDstAlpha(GX_FALSE, alpha);
+}
+} // namespace
+
+static void drawCap(const JGeometry::TVec3<f32>& center, f32 radius)
+{
+	static f32 delta = 0.20943952f;
+
+	f32 drawRadius = radius / cosf(0.5f * delta);
+	f32 angle      = 0.0f;
+	GXBegin(GX_TRIANGLEFAN, GX_VTXFMT0, 0x1e);
+	for (int i = 0; i < 0x1e; ++i) {
+		f32 sinAngle = sinf(angle);
+		f32 cosAngle = cosf(angle);
+		f32 x        = center.x + drawRadius * cosAngle;
+		f32 z        = center.z + drawRadius * sinAngle;
+		angle += delta;
+		GXPosition3f32(x, center.y, z);
+		GXTexCoord2u8(0x40, 0x40);
+	}
+	GXEnd();
+}
+
+JGeometry::TVec3<f32> TBathtubData::getPos(int index, int count,
+                                           f32 height) const
+{
+	JGeometry::TVec3<f32> result = unk0;
+	f32 t                         = (f32)index / (f32)count;
+	f32 radius                    = t * (unk3C - height);
+	f32 angle                     = (f32)index * 0.31415927f;
+	f32 s                         = radius * sinf(angle);
+
+	result.x += unk18.x * s;
+	result.y += unk18.y * s;
+	result.z += unk18.z * s;
+
+	f32 c = radius * cosf(angle);
+	result.x += unk30.x * c;
+	result.y += unk30.y * c;
+	result.z += unk30.z * c;
+
+	f32 down = (1.0f - t) * -(unk44 - height);
+	result.x += unk24.x * down;
+	result.y += unk24.y * down;
+	result.z += unk24.z * down;
+
+	return result;
+}
+
+JGeometry::TVec3<f32> TBathtubData::getGravityDir(f32 rate) const
+{
+	JGeometry::TVec3<f32> result(0.0f, 1.0f, 0.0f);
+
+	if (unk65 != 0)
+		return result;
+
+	f32 axisX = -unkC.z;
+	f32 axisY = 0.0f;
+	f32 axisZ = unkC.x;
+	f32 len   = JGeometry::TUtil<f32>::sqrt(
+        axisX * axisX + axisY * axisY + axisZ * axisZ);
+
+	f32 qx, qy, qz, qw;
+	if (len <= JGeometry::TUtil<f32>::epsilon()) {
+		qx = 0.0f;
+		qy = 0.0f;
+		qz = 0.0f;
+		qw = 1.0f;
+	} else {
+		f32 angle = rate * (0.5f * atan2f(len, unkC.y));
+		f32 s     = sinf(angle) / len;
+		qx        = axisX * s;
+		qy        = axisY * s;
+		qz        = axisZ * s;
+		qw        = cosf(angle);
+	}
+
+	f32 x = result.x;
+	f32 y = result.y;
+	f32 z = result.z;
+
+	f32 t0 = qw * y + (-qx * z + qz * x);
+	f32 t1 = qw * x + (qy * z - qz * y);
+	f32 t2 = qw * z + (qx * y - qy * x);
+	f32 t3 = -((qx * x + qy * y) + qz * z);
+
+	result.x = t3 * -qx + (t2 * qy + (t1 * qw - t0 * qz));
+	result.y = t3 * -qy + (t2 * -qx + (t1 * qz + t0 * qw));
+	result.z = t3 * -qz + (t2 * qw + (t1 * -qy + t0 * qx));
+	return result;
+}
+
+static inline void addDropToAverage(const TBathWater::TDrop& drop, int& count,
+                                    JGeometry::TVec3<f32>& average)
+{
+	count += 1;
+	average.x += drop.unk0.x;
+	average.y += drop.unk0.y;
+	average.z += drop.unk0.z;
+}
+
+void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
+                                    const JGeometry::TVec3<f32>& minClamp,
+                                    const JGeometry::TVec3<f32>& maxClamp,
+                                    int& count,
+                                    JGeometry::TVec3<f32>& average)
+{
+	f32 dx       = unk0.x - data.unk0.x;
+	f32 dy       = unk0.y - data.unk0.y;
+	f32 dz       = unk0.z - data.unk0.z;
+	f32 distSq   = dx * dx + dy * dy + dz * dz;
+	f32 outer    = data.unk40 + radius;
+	f32 inner    = data.unk3C - radius;
+	f32 outerSq  = outer * outer;
+	f32 innerSq  = inner * inner;
+	f32 wallDist = data.unk24.x * dx + data.unk24.y * dy + data.unk24.z * dz;
+
+	if (distSq <= outerSq) {
+		if (wallDist < 0.0f) {
+			if (distSq >= innerSq) {
+				f32 dist = JGeometry::TUtil<f32>::sqrt(distSq);
+				f32 inv  = -1.0f / dist;
+				JGeometry::TVec3<f32> normal(dx * inv, dy * inv, dz * inv);
+				JGeometry::TVec3<f32> push(normal.x * (dist - inner),
+				                           normal.y * (dist - inner),
+				                           normal.z * (dist - inner));
+				unk18.setMin(push);
+				unk24.setMax(push);
+
+				f32 speed = -(normal.x * unkC.x + normal.y * unkC.y
+				              + normal.z * unkC.z);
+				if (speed < 0.0f)
+					speed = 0.0f;
+
+				JGeometry::TVec3<f32> bounce(data.unk58.x + normal.x * speed,
+				                             data.unk58.y + normal.y * speed,
+				                             data.unk58.z + normal.z * speed);
+				unk30.setMin(bounce);
+				unk3C.setMax(bounce);
+			} else {
+				f32 floor = radius + (data.unk0.y - data.unk44);
+				if (unk0.y < floor) {
+					f32 pushY = floor - unk0.y;
+					JGeometry::TVec3<f32> push(0.0f, pushY, 0.0f);
+					unk18.setMin(push);
+					unk24.setMax(push);
+
+					JGeometry::TVec3<f32> bounce(data.unk58.x,
+					                             data.unk58.y - unkC.y,
+					                             data.unk58.z);
+					unk30.setMin(bounce);
+					unk3C.setMax(bounce);
+				} else {
+					addDropToAverage(*this, count, average);
+				}
+			}
+		} else {
+			addDropToAverage(*this, count, average);
+		}
+
+		unk30.setMin(minClamp);
+		unk3C.setMax(minClamp);
+	} else if (wallDist > 0.0f && wallDist < radius + data.unk48
+	           && distSq > innerSq && distSq < outerSq) {
+		f32 depth = radius + data.unk48 - wallDist;
+		JGeometry::TVec3<f32> push(data.unk24.x * depth,
+		                           data.unk24.y * depth,
+		                           data.unk24.z * depth);
+		unk18.setMin(push);
+		unk24.setMax(push);
+
+		f32 speed = 1.5f
+		    * -(data.unk24.x * unkC.x + data.unk24.y * unkC.y
+		        + data.unk24.z * unkC.z);
+		JGeometry::TVec3<f32> bounce(data.unk24.x * speed,
+		                             data.unk24.y * speed,
+		                             data.unk24.z * speed);
+
+		if (distSq > JGeometry::TUtil<f32>::epsilon()) {
+			f32 scale = 0.01f * radius * JGeometry::TUtil<f32>::inv_sqrt(distSq);
+			bounce.x += dx * scale;
+			bounce.y += dy * scale;
+			bounce.z += dz * scale;
+		}
+
+		unk30.setMin(bounce);
+		unk3C.setMax(bounce);
+		unk30.setMin(maxClamp);
+		unk3C.setMax(maxClamp);
+	} else {
+		unk30.setMin(maxClamp);
+		unk3C.setMax(maxClamp);
+		addDropToAverage(*this, count, average);
+	}
+}
+
+static inline TBathtubData& bathData(u8* bathtub)
+{
+	return *(TBathtubData*)(bathtub + 0x170);
+}
+
+static inline f32& rawF32(u8* base, u32 offset) { return *(f32*)(base + offset); }
+static inline u8& rawU8(u8* base, u32 offset) { return *(u8*)(base + offset); }
+
+static inline void clearDropForces(TBathWater::TDrop& drop)
+{
+	drop.unk18.zero();
+	drop.unk24.zero();
+	drop.unk30.zero();
+	drop.unk3C.zero();
+}
+
+static inline void initDrop(TBathWater::TDrop& drop,
+                            const JGeometry::TVec3<f32>& position, f32 rand)
+{
+	drop.unk48 = rand;
+	drop.unk0  = position;
+	drop.unkC.zero();
+	clearDropForces(drop);
+	drop.unk4C = 0;
+}
+
+static inline void applyDropForces(TBathWater::TDrop& drop, f32 damp)
+{
+	drop.unk0 += drop.unk18;
+	drop.unk0 += drop.unk24;
+	drop.unkC.scale(damp);
+	drop.unkC += drop.unk30;
+	drop.unkC += drop.unk3C;
+}
+
+static inline bool removeDrop(TBathWater& water, int index)
+{
+	if (index >= water.unk74)
+		return false;
+
+	water.unk74 -= 1;
+	if (index < water.unk74)
+		water.unk88[index] = water.unk88[water.unk74];
+	return true;
+}
+
+static void simulateBathWater(TBathWater& water, const TBathtubData& data)
+{
+	TBathWaterParams* params = water.unk8C;
+	f32 gravity             = params->gravity.get();
+	JGeometry::TVec3<f32> gravityDir
+	    = data.getGravityDir(params->overGravity.get());
+	JGeometry::TVec3<f32> gravityForce(gravityDir.x * -gravity,
+	                                   gravityDir.y * -gravity,
+	                                   gravityDir.z * -gravity);
+	JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
+	f32 radius = params->dropRadius.get();
+	int active = 0;
+	JGeometry::TVec3<f32> average(0.0f, 0.0f, 0.0f);
+
+	TBathWater::TDrop* end = water.unk88 + water.unk74;
+	if (data.unk24.y > 0.0f) {
+		for (TBathWater::TDrop* drop = water.unk88; drop < end; ++drop) {
+			drop->unk0 += drop->unkC;
+			clearDropForces(*drop);
+			drop->calcBathtub(data, radius, gravityForce, zero, active, average);
+		}
+	} else {
+		for (TBathWater::TDrop* drop = water.unk88; drop < end; ++drop) {
+			drop->unk0 += drop->unkC;
+			clearDropForces(*drop);
+			drop->unk30.setMin(zero);
+			drop->unk3C.setMax(zero);
+			addDropToAverage(*drop, active, average);
+		}
+	}
+
+	water.unk84 = 0.0f;
+	if (active * 30 > water.unk74) {
+		f32 inv = 1.0f / (f32)active;
+		average.scale(inv);
+		f32 volume = JGeometry::TUtil<f32>::sqrt(
+		    (3.0f * (f32)active) / (f32)water.unk74);
+		if (volume > 1.0f)
+			volume = 1.0f;
+		water.unk84 = volume;
+	}
+	water.unk78 = average;
+
+	u8 stride = params->intersects.get();
+	if (stride != 0) {
+		for (TBathWater::TDrop* drop = water.unk88; drop < end; ++drop) {
+			TBathWater::TDrop* other = drop + stride;
+			for (; other < end; other += stride) {
+				JGeometry::TVec3<f32> diff(other->unk0.x - drop->unk0.x,
+				                           other->unk0.y - drop->unk0.y,
+				                           other->unk0.z - drop->unk0.z);
+				f32 distSq = diff.squared();
+				if (distSq > 4.0f * (radius * radius))
+					continue;
+
+				f32 dist = JGeometry::TUtil<f32>::sqrt(distSq);
+				f32 inv  = 1.0f / dist;
+				JGeometry::TVec3<f32> normal(diff.x * inv, diff.y * inv,
+				                             diff.z * inv);
+				f32 overlap = 2.0f * radius - dist;
+				f32 half    = 0.5f * overlap;
+				f32 yMove   = half * normal.y;
+
+				JGeometry::TVec3<f32> push(normal.x * half,
+				                           (1.0f + normal.y) * yMove,
+				                           normal.z * half);
+				other->unk18.setMin(push);
+				other->unk24.setMax(push);
+
+				push.x = -push.x;
+				push.y = (normal.y - 1.0f) * yMove;
+				push.z = -push.z;
+				drop->unk18.setMin(push);
+				drop->unk24.setMax(push);
+
+				if (yMove < overlap)
+					yMove = overlap;
+
+				JGeometry::TVec3<f32> bounce(
+				    normal.x * yMove * params->bounceXZ.get(),
+				    normal.y * yMove * params->bounceY.get(),
+				    normal.z * yMove * params->bounceXZ.get());
+				other->unk30.setMin(bounce);
+				other->unk3C.setMax(bounce);
+
+				bounce.negate();
+				drop->unk30.setMin(bounce);
+				drop->unk3C.setMax(bounce);
+			}
+		}
+	}
+
+	f32 floorY = data.unk0.y - data.unk3C;
+	if (data.unk65 != 0)
+		floorY = -((8.0f * data.unk3C) - data.unk0.y);
+
+	int respawnIndex = 0;
+	for (int i = 0; i < water.unk74; ++i) {
+		TBathWater::TDrop& drop = water.unk88[i];
+		if (drop.unk0.y < floorY) {
+			if (params->suppliesDrops.get() && data.unk65 == 0) {
+				initDrop(drop, data.getPos(respawnIndex, water.unk70, radius),
+				         water.unk68.get_ufloat_1());
+				respawnIndex += 1;
+			} else if (removeDrop(water, i)) {
+				end = water.unk88 + water.unk74;
+				applyDropForces(drop, params->damp.get());
+			}
+		} else {
+			applyDropForces(drop, params->damp.get());
+		}
+	}
+
+	if (params->lifeTime.get() > 0) {
+		for (int i = 0; i < water.unk74; ++i) {
+			TBathWater::TDrop& drop = water.unk88[i];
+			drop.unk4C += 1;
+			if (drop.unk4C > params->lifeTime.get()) {
+				removeDrop(water, i);
+				end = water.unk88 + water.unk74;
+			}
+		}
+	}
+
+	if (water.unk74 < params->numDrops.get()) {
+		if (params->suppliesDrops.get() && data.unk65 == 0) {
+			TBathWater::TDrop& drop = water.unk88[water.unk74++];
+			initDrop(drop, data.getPos(respawnIndex, water.unk70, radius),
+			         water.unk68.get_ufloat_1());
+		}
+	} else if (water.unk74 > params->numDrops.get()) {
+		water.unk74 = params->numDrops.get();
+	}
+}
+
+TBathWaterGlobalParams::TBathWaterGlobalParams()
+    : TParams("/MapObj/bathwaterglobal.prm")
+    , PARAM_INIT(regR, 0)
+    , PARAM_INIT(regG, 0)
+    , PARAM_INIT(regB, 0)
+    , PARAM_INIT(regA, 0xff)
+    , PARAM_INIT(kRegR, 0x90)
+    , PARAM_INIT(kRegG, 0x18)
+    , PARAM_INIT(kRegB, 0)
+    , PARAM_INIT(kRegA, 0xff)
+    , PARAM_INIT(polygonR, 0xff)
+    , PARAM_INIT(polygonG, 0xff)
+    , PARAM_INIT(polygonB, 0x97)
+    , PARAM_INIT(indTexScale, 1.5f)
+    , PARAM_INIT(showsCap, 1)
+    , PARAM_INIT(bendsNormal, 0)
+    , PARAM_INIT(showsMist, 0)
+    , PARAM_INIT(clearsAlpha, 1)
+    , PARAM_INIT(alpha, 0xc8)
+    , PARAM_INIT(scrolls, 1)
+    , PARAM_INIT(displaysMesh, 0)
+    , PARAM_INIT(mode, 0)
+    , PARAM_INIT(mask, 1)
+    , PARAM_INIT(indirectScale, -3)
+    , PARAM_INIT(scrollSpan, 60)
+    , PARAM_INIT(meshTexWidth, 80)
+    , PARAM_INIT(envMapScale, 0.6f)
+    , PARAM_INIT(capHeight, 150.0f)
+    , PARAM_INIT(meshWidth, 7000.0f)
+{
+	TParams::load(mPrmPath);
+}
+
+TBathWaterParams::TBathWaterParams(const char* path)
+    : TParams(path)
+    , PARAM_INIT(suppliesDrops, 1)
+    , PARAM_INIT(bathtubGravity, 1)
+    , PARAM_INIT(intersects, 1)
+    , PARAM_INIT(isVisible, 1)
+    , PARAM_INIT(checksMario, 1)
+    , PARAM_INIT(numDrops, 120)
+    , PARAM_INIT(dropRadius, 300.0f)
+    , PARAM_INIT(texScale, 3.0f)
+    , PARAM_INIT(hitScale, 5.0f)
+    , PARAM_INIT(modelScale, 1.5f)
+    , PARAM_INIT(modelScale2, 1.0f)
+    , PARAM_INIT(modelScaleY, 1.0f)
+    , PARAM_INIT(gravity, 18.0f)
+    , PARAM_INIT(bounceY, 0.05f)
+    , PARAM_INIT(bounceXZ, 0.5f)
+    , PARAM_INIT(damp, 0.985f)
+    , PARAM_INIT(jump, 65.0f)
+    , PARAM_INIT(overGravity, 0.0f)
+    , PARAM_INIT(emitVel, 20.0f)
+    , PARAM_INIT(lifeTime, 0)
+{
+	TParams::load(mPrmPath);
+}
+
+TBathWater::TDrop::TDrop() { }
+
+TBathWater::TBathWater()
+    : THitActor("HitActor")
+    , unk68(0)
+{
+	unk70 = 500;
+	unk88 = new TDrop[unk70];
+	unk8C = 0;
+}
+
+TBathWaterPreprocessor::TBathWaterPreprocessor(TBathWaterManager* manager)
+    : JDrama::TViewObj("<TViewObj>")
+    , unk10(manager)
+{
+}
+
+void TBathWaterPreprocessor::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (!(flags & 8))
+		return;
+
+	TBathWaterManager* manager = unk10;
+	if (manager->unk24 && manager->unk30)
+		manager->unk30->prerender(graphics, *(TBathtubData*)(manager->unk24 + 0x170),
+		                           manager->unk20, manager->unk14, 2);
+}
+
+TBathWaterManager::TBathWaterManager()
+    : JDrama::TViewObj("\x83\x6F\x83\x58\x83\x5E\x83\x75\x82\xCC\x90\x85")
+    , unk10(0)
+    , unk34(this)
+{
+	unk14 = new TBathWaterParams*[2];
+	unk18 = 0;
+	unk1C = 0;
+	unk20 = new TBathWater*[2];
+	for (int i = 0; i < 2; ++i)
+		unk20[i] = new TBathWater;
+	unk24 = 0;
+	unk30 = 0;
+}
+
+void TBathWaterManager::initializeIfYet_()
+{
+	if (unk24 != 0)
+		return;
+
+	u8* bathtub = (u8*)JDrama::TNameRefGen::search<JDrama::TNameRef>(
+	    "\x83\x6F\x83\x58\x83\x5E\x83\x75");
+	if (bathtub == 0 || rawU8(bathtub, 0x298) == 0)
+		return;
+
+	TBathtubData& data = bathData(bathtub);
+	for (int i = 0; i < 2; ++i) {
+		TBathWater* water       = unk20[i];
+		TBathWaterParams* params = unk14[i];
+		water->unk8C            = params;
+		water->unk74            = params->numDrops.get();
+
+		for (int j = 0; j < water->unk70; ++j) {
+			initDrop(water->unk88[j],
+			         data.getPos(j, water->unk70, params->dropRadius.get()),
+			         water->unk68.get_ufloat_1());
+		}
+
+		water->initHitActor(0x4000025b, 1, 0x80000000,
+		                    params->dropRadius.get(),
+		                    params->dropRadius.get() * 2.0f, 0.0f, 0.0f);
+		water->unk64 |= 1;
+		water->unk64 |= 4;
+		water->unk78.zero();
+		water->unk84 = 0.0f;
+
+		for (int step = 0; step < 200; ++step)
+			simulateBathWater(*water, data);
+	}
+
+	unk24 = bathtub;
+}
+
+void TBathWaterManager::throwMario(f32 jump)
+{
+	u8* bathtub               = unk24;
+	const TBathtubData& data  = bathData(bathtub);
+	JGeometry::TVec3<f32> diff(gpMarioPos->x - data.unk0.x,
+	                           gpMarioPos->y - data.unk0.y,
+	                           gpMarioPos->z - data.unk0.z);
+	JGeometry::TVec3<f32> local(
+	    rawF32(bathtub, 0x188) * diff.x + rawF32(bathtub, 0x18c) * diff.y
+	        + rawF32(bathtub, 0x190) * diff.z,
+	    rawF32(bathtub, 0x194) * diff.x + rawF32(bathtub, 0x198) * diff.y
+	        + rawF32(bathtub, 0x19c) * diff.z,
+	    rawF32(bathtub, 0x1a0) * diff.x + rawF32(bathtub, 0x1a4) * diff.y
+	        + rawF32(bathtub, 0x1a8) * diff.z);
+
+	local.y = 0.0f;
+	f32 dist = JGeometry::TUtil<f32>::sqrt(local.squared());
+
+	JGeometry::TVec3<f32> throwSpeed;
+	if (dist < 4500.0) {
+		if (local.squared() <= JGeometry::TUtil<f32>::epsilon()) {
+			local.zero();
+		} else {
+			local.scale(4150.0f * JGeometry::TUtil<f32>::inv_sqrt(
+			                         local.squared()));
+		}
+
+		f32 targetX = data.unk0.x + data.unk18.x * local.x
+		              + data.unk30.x * local.z;
+		f32 targetY = data.unk0.y + data.unk18.y * local.x
+		              + data.unk30.y * local.z + 120.0f;
+		f32 targetZ = data.unk0.z + data.unk18.z * local.x
+		              + data.unk30.z * local.z;
+
+		f32 gravity = SMS_GetMarioGravity();
+		int frames  = 1;
+		f32 velY    = 100.0f;
+		f32 y       = gpMarioPos->y;
+		while (true) {
+			y += velY;
+			if (velY < 0.0f && y <= targetY)
+				break;
+			velY -= gravity;
+			if (velY < -75.0f)
+				velY = -75.0f;
+			frames += 1;
+		}
+
+		throwSpeed.x = (targetX - gpMarioPos->x) / (f32)frames;
+		throwSpeed.y = 100.0f;
+		throwSpeed.z = (targetZ - gpMarioPos->z) / (f32)frames;
+	} else {
+		throwSpeed.x = 0.0f;
+		throwSpeed.y = jump;
+		throwSpeed.z = 0.0f;
+	}
+
+	SMS_ThrowMario(throwSpeed, JGeometry::TUtil<f32>::sqrt(throwSpeed.squared()));
+}
+
+void TBathWaterManager::load(JSUMemoryInputStream& stream)
+{
+	JDrama::TViewObj::load(stream);
+	unk18 = new TBathWaterGlobalParams;
+	for (int i = 0; i < 2; ++i)
+		unk14[i] = new TBathWaterParams(fileNames[i]);
+}
+
+void TBathWaterManager::loadAfter()
+{
+	TScreenTexture* screen = (TScreenTexture*)JDrama::TNameRefGen::search<
+	    JDrama::TNameRef>(
+	    "\x83\x58\x83\x4E\x83\x8A\x81\x5B\x83\x93\x83\x65\x83\x4E\x83\x58\x83\x60\x83\x83");
+	JUTTexture* texture = screenTexture(screen);
+	unk28               = new TBathWaterFlatRenderer(unk18);
+	unk2C               = new TBathWaterMeshRenderer(unk18, texture);
+	unk30               = unk2C;
+}
+
+void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (unk24 == 0) {
+		initializeIfYet_();
+		return;
+	}
+
+	if (flags & 1) {
+		TBathWaterRenderer** renderers = &unk28;
+		unk30                          = renderers[unk18->mode.get()];
+		unk1C += 1;
+
+		if ((unk1C & 3) == 0) {
+			TBathtubData& data = bathData(unk24);
+			for (int i = 0; i < 2; ++i)
+				simulateBathWater(*unk20[i], data);
+
+			if (rawU8(unk24, 0x29a) == 0) {
+				for (int i = 0; i < 2; ++i) {
+					if ((*gpMarioFlag & 0x400) != 0 || !unk14[i]->checksMario.get())
+						continue;
+
+					THitActor* mario = SMS_GetMarioHitActor();
+					TBathWater* water = unk20[i];
+					TBathWaterParams* params = water->unk8C;
+					f32 radius = params->dropRadius.get() * params->hitScale.get();
+					f32 maxUp  = mario->mDamageRadius + radius;
+					f32 maxDown = mario->mDamageHeight + radius;
+					bool touched = false;
+					for (int j = 0; j < water->unk74; ++j) {
+						TBathWater::TDrop& drop = water->unk88[j];
+						f32 dy = drop.unk0.y - mario->mPosition.y;
+						if (dy > maxDown || dy < -radius)
+							continue;
+
+						f32 dx = mario->mPosition.x - drop.unk0.x;
+						f32 dz = mario->mPosition.z - drop.unk0.z;
+						if (dx * dx + dz * dz < maxUp * maxUp) {
+							water->mAttackRadius = params->dropRadius.get();
+							water->calcEntryRadius();
+							water->mAttackRadius = params->dropRadius.get() * 2.0f;
+							water->calcEntryRadius();
+							water->mPosition = drop.unk0;
+							water->mPosition.y -= params->dropRadius.get();
+							mario->receiveMessage(water, 0xa);
+							touched = true;
+							break;
+						}
+					}
+
+					if (touched)
+						throwMario(unk14[i]->jump.get());
+				}
+
+				if ((*gpMarioFlag & 0x400) == 0) {
+					THitActor* mario = SMS_GetMarioHitActor();
+					TBathWater* water = unk20[0];
+					JGeometry::TVec3<f32> center(
+					    data.unk0.x, data.unk0.y - data.unk44, data.unk0.z);
+					f32 radiusSq = data.unk3C * data.unk3C
+					               - data.unk44 * data.unk44;
+					f32 radius = JGeometry::TUtil<f32>::sqrt(radiusSq);
+					f32 waterDepth = data.unk3C - data.unk44;
+					bool inside = false;
+
+					if (center.y >= mario->mPosition.y
+					    && mario->mPosition.y + mario->mDamageHeight
+					        >= center.y - waterDepth) {
+						f32 dx = mario->mPosition.x - center.x;
+						f32 dz = mario->mPosition.z - center.z;
+						inside = (dx * dx + dz * dz) <= radius * radius;
+					}
+
+					if (inside) {
+						water->mAttackRadius = radius;
+						water->calcEntryRadius();
+						water->mPosition = center;
+						water->mPosition.y -= waterDepth;
+						water->mAttackHeight = waterDepth;
+						water->calcEntryRadius();
+						mario->receiveMessage(water, 0xa);
+						throwMario(unk14[0]->jump.get());
+					}
+				}
+			}
+		}
+
+		if ((unk1C & 7) == 4 && rawU8(unk24, 0x1d4) != 0) {
+			TBathWater* overflow = unk20[1];
+			if (overflow->unk74 < overflow->unk8C->numDrops.get()) {
+				TBathtubData& data = bathData(unk24);
+				JGeometry::TVec3<f32> dir(rawF32(unk24, 0x194), 0.0f,
+				                           rawF32(unk24, 0x19c));
+				if (!dir.isZero()) {
+					dir.normalize();
+					JGeometry::TVec3<f32> side;
+					side.cross(dir, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
+					side.normalize();
+					side.scale(0.18f
+					           * (-1.0f + 2.0f * unk10.get_ufloat_1()));
+					dir += side;
+					dir.setLength(0.9f
+					              * (data.unk3C
+					                 - overflow->unk8C->dropRadius.get()));
+					JGeometry::TVec3<f32> pos(data.unk0.x + dir.x,
+					                           data.unk0.y - data.unk44
+					                               + overflow->unk8C->dropRadius.get()
+					                               + dir.y,
+					                           data.unk0.z + dir.z);
+					TBathWater::TDrop& drop = overflow->unk88[overflow->unk74];
+					initDrop(drop, pos, overflow->unk68.get_ufloat_1());
+					drop.unkC.y = 10.0f * (unk10.get_ufloat_1() - 1.0f);
+					OSReport("BathWaterManager.cpp(%d): ...\n", 0x28f,
+					         overflow->unk74, 0.0f);
+					overflow->unk74 += 1;
+				}
+			}
+		}
+
+		JGeometry::TVec3<f32> soundPos = unk20[0]->unk78;
+		if (unk20[0]->unk84 > 0.0f && gpMSound->gateCheck(0x819d))
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x819d, (Vec*)&soundPos, 0, unk20[0]->unk84, 0, 0, 0, 4, 0);
+	}
+
+	if ((flags & 8) && unk30 != 0)
+		unk30->render(graphics, bathData(unk24), unk20, unk14, 2);
+}
+
+TBathWaterFlatRenderer::TBathWaterFlatRenderer(TBathWaterGlobalParams* params)
+    : unk2C(params)
+{
+	unk28 = new (0x20) u8[0x14a000];
+	unk24 = JKRGetResource("/scene/map/map/ball.bti");
+	init_tobj_resource(&unk4, unk24);
+}
+
+void TBathWaterFlatRenderer::prerender(JDrama::TGraphics*,
+                                       const TBathtubData&, TBathWater**,
+                                       TBathWaterParams**, int)
+{
+}
+
+f32 TBathWaterFlatRenderer::getHeight(f32, f32) const { return 0.0f; }
+
+void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
+                                    const TBathtubData& data,
+                                    TBathWater** waters,
+                                    TBathWaterParams** params, int count)
+{
+	s16 renderWidth  = SMSGetGameRenderWidth();
+	s16 renderHeight = SMSGetGameRenderHeight();
+
+	if (unk2C->clearsAlpha.get())
+		clearEFB_alpha(0, 0, 0, 0, 0);
+
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetNumChans(0);
+	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_U8, 7);
+	GXSetNumChans(0);
+	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetNumTexGens(1);
+	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
+	                  GX_FALSE, GX_PTIDENTITY);
+	GXLoadTexObj(&unk4, GX_TEXMAP0);
+	GXSetNumTevStages(1);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_TEXC);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO,
+	                GX_CA_TEXA);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+	GXSetZMode(GX_TRUE, GX_LESS, GX_FALSE);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ONE, GX_LO_NOOP);
+	GXSetColorUpdate(GX_FALSE);
+	GXSetAlphaUpdate(GX_TRUE);
+	GXSetCullMode(GX_CULL_NONE);
+	GXSetProjection(graphics->mProjMtx.mMtx, GX_PERSPECTIVE);
+	GXLoadPosMtxImm(graphics->mViewMtx.mMtx, GX_PNMTX0);
+	GXSetCurrentMtx(GX_PNMTX0);
+
+	f32 xAxisX = graphics->mViewMtx.mMtx[0][0];
+	f32 xAxisY = graphics->mViewMtx.mMtx[0][1];
+	f32 xAxisZ = graphics->mViewMtx.mMtx[0][2];
+	f32 yAxisX = graphics->mViewMtx.mMtx[1][0];
+	f32 yAxisY = graphics->mViewMtx.mMtx[1][1];
+	f32 yAxisZ = graphics->mViewMtx.mMtx[1][2];
+
+	for (int i = 0; i < count; ++i) {
+		if (!params[i]->isVisible.get())
+			continue;
+
+		TBathWater* water = waters[i];
+		f32 scale         = params[i]->dropRadius.get() * params[i]->texScale.get();
+		f32 x0            = xAxisX * scale;
+		f32 y0            = xAxisY * scale;
+		f32 z0            = xAxisZ * scale;
+		f32 x1            = yAxisX * scale;
+		f32 y1            = yAxisY * scale;
+		f32 z1            = yAxisZ * scale;
+
+		GXBegin(GX_QUADS, GX_VTXFMT0, (water->unk74 * 4) & 0xfffc);
+		for (TBathWater::TDrop* drop = water->unk88;
+		     drop < water->unk88 + water->unk74; ++drop) {
+			f32 x = drop->unk0.x;
+			f32 y = drop->unk0.y;
+			f32 z = drop->unk0.z;
+			GXPosition3f32(x + x0, y + y0, z + z0);
+			GXTexCoord2u8(0, 0);
+			GXPosition3f32(x + x1, y + y1, z + z1);
+			GXTexCoord2u8(0, 0x80);
+			GXPosition3f32(x - x0, y - y0, z - z0);
+			GXTexCoord2u8(0x80, 0x80);
+			GXPosition3f32(x - x1, y - y1, z - z1);
+			GXTexCoord2u8(0x80, 0);
+		}
+		GXEnd();
+	}
+
+	if (unk2C->showsCap.get() && data.unk65 == 0) {
+		f32 radius = JGeometry::TUtil<f32>::sqrt(data.unk3C * data.unk3C
+		                                         - data.unk44 * data.unk44);
+		JGeometry::TVec3<f32> center(data.unk0.x, data.unk0.y - data.unk44,
+		                              data.unk0.z);
+		drawCap(center, radius);
+	}
+
+	GXTexObj texObj;
+	GXColor color = { 0x78, 0xfa, 0x14, unk2C->alpha.get() };
+	GXInitTexObj(&texObj, unk28, renderWidth, renderHeight, GX_TF_I8, GX_CLAMP,
+	             GX_CLAMP, GX_FALSE);
+	GXInitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, GX_FALSE,
+	                GX_FALSE, GX_ANISO_1);
+	GXSetTexCopySrc(0, 0, renderWidth, renderHeight);
+	GXSetTexCopyDst(renderWidth, renderHeight, GX_TF_A8, GX_FALSE);
+	GXSetCopyFilter(GX_FALSE, 0, GX_FALSE, 0);
+	GXCopyTex(unk28, GX_FALSE);
+	GXPixModeSync();
+
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_U16, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+	GXSetNumChans(0);
+	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetNumTexGens(1);
+	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
+	                  GX_FALSE, GX_PTIDENTITY);
+	GXLoadTexObj(&texObj, GX_TEXMAP0);
+	GXSetNumTevStages(1);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_TEXC);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_TEXA, GX_CA_A0, GX_CA_KONST,
+	                GX_CA_ZERO);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_COMP_A8_GT, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+	GXSetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_5_8);
+	GXSetTevColor(GX_TEVREG1, color);
+
+	s16 overlayWidth  = SMSGetGameRenderWidth();
+	s16 overlayHeight = SMSGetGameRenderHeight();
+	JGeometry::SMatrix34C<f32> matrix;
+	matrix.set(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+	           1.0f, 0.0f);
+	Mtx44 projection;
+	C_MTXOrtho(projection, 0.0f, (f32)overlayHeight, 0.0f, (f32)overlayWidth,
+	           -1.0f, 1.0f);
+	GXSetProjection(projection, GX_ORTHOGRAPHIC);
+	GXSetViewport(0.0f, 0.0f, (f32)overlayWidth, (f32)overlayHeight, 0.0f, 1.0f);
+	GXSetScissor(0, 0, overlayWidth, overlayHeight);
+	GXLoadPosMtxImm(matrix.mMtx, GX_PNMTX0);
+	GXSetCurrentMtx(GX_PNMTX0);
+	GXSetCullMode(GX_CULL_BACK);
+	GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+	               GX_LO_NOOP);
+	GXSetColorUpdate(GX_TRUE);
+	GXSetAlphaUpdate(GX_FALSE);
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition2u16(0, 0);
+	GXTexCoord2f32(0.0f, 0.0f);
+	GXPosition2u16(overlayWidth, 0);
+	GXTexCoord2f32(1.0f, 0.0f);
+	GXPosition2u16(overlayWidth, overlayHeight);
+	GXTexCoord2f32(1.0f, 1.0f);
+	GXPosition2u16(0, overlayHeight);
+	GXTexCoord2f32(0.0f, 1.0f);
+	GXEnd();
+
+	if (unk2C->showsMist.get())
+		draw_mist(0, 0, renderWidth, renderHeight, unk28);
+
+	GXSetProjection(graphics->mProjMtx.mMtx, GX_PERSPECTIVE);
+}
+
+TBathWaterMeshRenderer::TBathWaterMeshRenderer(TBathWaterGlobalParams* params,
+                                               JUTTexture* screen_texture)
+    : unk80134(params)
+    , unk80138(screen_texture)
+{
+	static u32 clear_z_TX[16] __attribute__((aligned(0x20))) = {
+		0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF,
+		0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF,
+		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+	};
+
+	unk800AE = 0;
+	unk80150 = new (0x20) u8[0x55668];
+	unk80154 = new (0x20) u8[0x30023];
+	unk800A4 = new (0x20) u8[0x10000];
+	unk800A8 = new (0x20) u8[0x55668];
+
+	unk80144 = J3DModelLoaderDataBase::load(
+	    JKRGetResource("/scene/map/map/ball.bmd"), 0x240000);
+	unk80148 = J3DModelLoaderDataBase::load(
+	    JKRGetResource("/scene/map/map/water.bmd"), 0x240000);
+	unk8013C
+	    = new JUTTexture((ResTIMG*)JKRGetResource("/scene/map/map/water_ball.bti"));
+	unk8013C->unk50 = 0;
+	unk80140
+	    = new JUTTexture((ResTIMG*)JKRGetResource("/scene/map/map/water_warp.bti"));
+	unk80140->unk50 = 0;
+
+	init_tobj_resource(&unk800B4, JKRGetResource("/scene/map/map/ball.bti"));
+	init_tobj_resource(&unk800F4, JKRGetResource("/scene/map/map/mesh.bti"));
+
+	ResTIMG* source = (ResTIMG*)screen_texture->getTexInfo();
+	ResTIMG* target = unk80148->getTexture()->getResTIMG(1);
+	*target         = *source;
+	target->imageDataOffset
+	    = source->imageDataOffset + (u32)source - (u32)target;
+	target->paletteOffset = source->paletteOffset + (u32)source - (u32)target;
+
+	unk80148->getMaterialNodePointer(0)->makeDisplayList();
+	unk8014C = new J3DModel(unk80148, 0, 1);
+
+	GXInitTexObj(&unk80114, clear_z_TX, 4, 4, GX_TF_Z24X8, GX_CLAMP, GX_CLAMP,
+	             GX_FALSE);
+	GXInitTexObjLOD(&unk80114, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, GX_FALSE,
+	                GX_FALSE, GX_ANISO_1);
+	clearHeightMap();
+}
+
+void TBathWaterMeshRenderer::makeHeightMap(f32 scale)
+{
+	s16 blockCount = unk800AC >> 2;
+	u8* image      = (u8*)unk800A4;
+
+	for (s16 bx = 0; bx < blockCount; ++bx) {
+		for (s16 bz = 0; bz < blockCount; ++bz) {
+			u8* block = image + ((bx + bz * blockCount) << 6);
+			for (s16 x = 0; x < 4; ++x) {
+				for (s16 z = 0; z < 4; ++z) {
+					u8* texel  = block + x * 2 + z * 8;
+					u16 high   = *(u16*)texel;
+					u16 low    = *(u16*)(texel + 0x20);
+					s32 sample = low | ((high << 16) & 0x00ff0000);
+					unk20[(x + bx * 4) * 0x80 + (z + bz * 4)].y
+					    = scale * (5.9604645e-8f * (f32)sample);
+				}
+			}
+		}
+	}
+}
+
+void TBathWaterMeshRenderer::makeNormalMap()
+{
+	f32 scale = -unk80134->meshWidth.get() / (f32)unk800AC;
+	if (unk80134->bendsNormal.get() == 0)
+		scale *= 2.0f;
+
+	for (s32 x = 0; x < unk800AC; ++x) {
+		for (s32 z = 0; z < unk800AC; ++z) {
+			s32 x0 = x > 0 ? x - 1 : x;
+			s32 x1 = x < unk800AC - 1 ? x + 1 : x;
+			s32 z0 = z > 0 ? z - 1 : z;
+			s32 z1 = z < unk800AC - 1 ? z + 1 : z;
+
+			JGeometry::TVec3<f32>& normal = unk30020[x * 0x80 + z];
+			normal.x = scale
+			           * (unk20[x1 * 0x80 + z].y - unk20[x0 * 0x80 + z].y);
+			normal.y = scale * scale;
+			normal.z = scale
+			           * (unk20[x * 0x80 + z1].y - unk20[x * 0x80 + z0].y);
+
+			f32 lenSq = normal.squared();
+			if (lenSq <= JGeometry::TUtil<f32>::epsilon())
+				normal.zero();
+			else
+				normal.scale(JGeometry::TUtil<f32>::inv_sqrt(lenSq));
+		}
+	}
+}
+
+void TBathWaterMeshRenderer::calcCoord()
+{
+	if (unk800AE == unk800AC)
+		return;
+
+	unk800AE = unk800AC;
+
+	for (s32 x = 0; x < unk800AE; ++x) {
+		for (s32 z = 0; z < unk800AE; ++z) {
+			unk60020[x * 0x80 + z].x = (f32)x * unk800B0;
+			unk60020[x * 0x80 + z].y = (f32)z * unk800B0;
+		}
+	}
+	DCStoreRange(unk60020, 0x20000);
+
+	for (s32 x = 0; x < unk800AE; ++x) {
+		for (s32 z = 0; z < unk800AE; ++z) {
+			unk20[x * 0x80 + z].x = unk80080[0] * (f32)x;
+			unk20[x * 0x80 + z].z = unk80080[2] * (f32)z;
+		}
+	}
+
+	GDLObj dl;
+	GDInitGDLObj(&dl, unk80154, 0x30040);
+	GDSetCurrent(&dl);
+	u16 count = (unk800AC * (unk800AC - 1) * 2) & 0xfffe;
+	GDWrite_u8(GX_TRIANGLESTRIP);
+	GDWrite_u16(count);
+	for (s32 z = unk800AC - 1; z > 0; --z) {
+		for (s32 x = 0; x < unk800AC; ++x) {
+			u16 index0 = z + x * 0x80;
+			u16 index1 = z - 1 + x * 0x80;
+			GDWrite_u16(index0);
+			GDWrite_u16(index0);
+			GDWrite_u16(index0);
+			GDWrite_u16(index1);
+			GDWrite_u16(index1);
+			GDWrite_u16(index1);
+		}
+	}
+	GDPadCurr32();
+	GDFlushCurrToMem();
+	unk80158 = GDGetCurrOffset();
+	GDSetCurrent(0);
+}
+
+void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
+                                    const TBathtubData& data,
+                                    TBathWater** waters,
+                                    TBathWaterParams** params, int count)
+{
+	s16 renderWidth  = SMSGetGameRenderWidth();
+	s16 renderHeight = SMSGetGameRenderHeight();
+	MtxPtr projMtx   = (MtxPtr)((u8*)gpCamera + 0x16C);
+	MtxPtr viewMtx   = (MtxPtr)((u8*)gpCamera + 0x1EC);
+
+	clearEFB_alpha(0, 0, 0, 0, 0);
+
+	s16 copyWidth  = SMSGetGameRenderWidth();
+	s16 copyHeight = SMSGetGameRenderHeight();
+	GXSetProjection(projMtx, GX_PERSPECTIVE);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_U8, 7);
+	GXSetNumChans(0);
+	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG,
+	              GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG,
+	              GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+	GXSetNumTexGens(1);
+	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
+	                  GX_FALSE, GX_PTIDENTITY);
+	GXLoadTexObj(&unk800B4, GX_TEXMAP0);
+	GXSetNumTevStages(1);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO,
+	                GX_CA_TEXA);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+	GXSetZMode(GX_TRUE, GX_LESS, GX_FALSE);
+	GXSetZCompLoc(GX_TRUE);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ONE, GX_LO_NOOP);
+	GXSetColorUpdate(GX_FALSE);
+	GXSetAlphaUpdate(GX_TRUE);
+	GXSetCullMode(GX_CULL_NONE);
+	GXLoadPosMtxImm(viewMtx, GX_PNMTX0);
+	GXSetCurrentMtx(GX_PNMTX0);
+
+	f32 xAxisX = viewMtx[0][0];
+	f32 xAxisY = viewMtx[0][1];
+	f32 xAxisZ = viewMtx[0][2];
+	f32 yAxisX = viewMtx[1][0];
+	f32 yAxisY = viewMtx[1][1];
+	f32 yAxisZ = viewMtx[1][2];
+
+	for (int i = 0; i < count; ++i) {
+		TBathWater* water = waters[i];
+		f32 scale         = params[i]->dropRadius.get() * params[i]->texScale.get();
+		f32 x0            = xAxisX * scale;
+		f32 y0            = xAxisY * scale;
+		f32 z0            = xAxisZ * scale;
+		f32 x1            = yAxisX * scale;
+		f32 y1            = yAxisY * scale;
+		f32 z1            = yAxisZ * scale;
+
+		GXBegin(GX_QUADS, GX_VTXFMT0, (water->unk74 * 4) & 0xfffc);
+		for (TBathWater::TDrop* drop = water->unk88;
+		     drop < water->unk88 + water->unk74; ++drop) {
+			f32 x = drop->unk0.x;
+			f32 y = drop->unk0.y;
+			f32 z = drop->unk0.z;
+			GXPosition3f32(x + x0, y + y0, z + z0);
+			GXTexCoord2u8(0, 0);
+			GXPosition3f32(x + x1, y + y1, z + z1);
+			GXTexCoord2u8(0, 0x80);
+			GXPosition3f32(x - x0, y - y0, z - z0);
+			GXTexCoord2u8(0x80, 0x80);
+			GXPosition3f32(x - x1, y - y1, z - z1);
+			GXTexCoord2u8(0x80, 0);
+		}
+		GXEnd();
+	}
+
+	if (unk80134->showsCap.get() && data.unk65 == 0) {
+		f32 radiusSq = data.unk3C * data.unk3C - data.unk44 * data.unk44;
+		f32 capRadius = JGeometry::TUtil<f32>::sqrt(radiusSq);
+		JGeometry::TVec3<f32> center(data.unk0.x, data.unk0.y - data.unk44,
+		                              data.unk0.z);
+		drawCap(center, capRadius);
+	}
+
+	GXInitTexObj(&unk800D4, unk800A8, copyWidth, copyHeight, GX_TF_I8,
+	             GX_CLAMP, GX_CLAMP, GX_FALSE);
+	GXInitTexObjLOD(&unk800D4, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, GX_FALSE,
+	                GX_FALSE, GX_ANISO_1);
+	GXSetCopyFilter(GX_FALSE, 0, GX_FALSE, 0);
+	GXSetTexCopySrc(0, 0, copyWidth, copyHeight);
+	GXSetTexCopyDst(copyWidth, copyHeight, GX_TF_A8, GX_FALSE);
+	GXCopyTex(unk800A8, GX_FALSE);
+	GXPixModeSync();
+	GXSetProjection(projMtx, GX_PERSPECTIVE);
+
+	GXColor mat = { unk80134->polygonR.get(), unk80134->polygonG.get(),
+	                unk80134->polygonB.get(), 0xff };
+	GXColor amb = { 0xff, 0xff, 0xff, 0xff };
+	GXSetNumChans(1);
+	GXSetChanCtrl(GX_COLOR0, GX_TRUE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT0,
+	              GX_DF_CLAMP, GX_AF_NONE);
+	GXSetChanCtrl(GX_ALPHA0, GX_FALSE, GX_SRC_REG, GX_SRC_REG,
+	              GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+	GXSetChanAmbColor(GX_COLOR0A0, amb);
+	GXSetChanMatColor(GX_COLOR0A0, mat);
+	GXSetNumTexGens(4);
+	unk80138->load(GX_TEXMAP0);
+	unk8013C->load(GX_TEXMAP1);
+	unk80140->load(GX_TEXMAP2);
+	GXLoadTexObj(&unk800D4, GX_TEXMAP3);
+	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX0,
+	                  GX_FALSE, GX_PTIDENTITY);
+	GXSetTexCoordGen2(GX_TEXCOORD1, GX_TG_MTX3x4, GX_TG_NRM, GX_TEXMTX1,
+	                  GX_FALSE, GX_PTIDENTITY);
+	GXSetTexCoordGen2(GX_TEXCOORD2, GX_TG_MTX3x4, GX_TG_TEX0, GX_TEXMTX2,
+	                  GX_FALSE, GX_PTIDENTITY);
+	GXSetTexCoordGen2(GX_TEXCOORD3, GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX0,
+	                  GX_FALSE, GX_PTIDENTITY);
+
+	f32 cell       = unk800B0 * unk80134->meshWidth.get();
+	unk80080[0]   = cell;
+	unk80080[1]   = -4.0f * data.unk3C;
+	unk80080[2]   = cell;
+	unk80050.mMtx[0][0] = 1.0f;
+	unk80050.mMtx[0][1] = 0.0f;
+	unk80050.mMtx[0][2] = 0.0f;
+	unk80050.mMtx[1][0] = 0.0f;
+	unk80050.mMtx[1][1] = 1.0f;
+	unk80050.mMtx[1][2] = 0.0f;
+	unk80050.mMtx[2][0] = 0.0f;
+	unk80050.mMtx[2][1] = 0.0f;
+	unk80050.mMtx[2][2] = 1.0f;
+	unk80050.mMtx[0][3] = data.unk0.x - 0.5f * unk80134->meshWidth.get();
+	unk80050.mMtx[1][3] = data.unk0.y - data.unk44 + 3.0f * data.unk3C;
+	unk80050.mMtx[2][3] = data.unk0.z - 0.5f * unk80134->meshWidth.get();
+
+	PSMTXCopy(viewMtx, j3dSys.mViewMtx);
+	J3DTexGenBlock* texGenBlock
+	    = unk80148->getMaterialNodePointer(0)->getTexGenBlock();
+	J3DTexMtx* texMtx0 = texGenBlock->getTexMtx(0);
+	texMtx0->mSRT.mScaleX = 1.0f;
+	texMtx0->mSRT.mScaleY = 1.0f;
+	texMtx0->mSRT.mTranslationX = 0.0f;
+	texMtx0->mCenter.x = 0.5f;
+	texMtx0->mCenter.y = 0.5f;
+	J3DTexMtx* texMtx1 = texGenBlock->getTexMtx(1);
+	texMtx1->mSRT.mScaleX = unk80134->envMapScale.get();
+	texMtx1->mSRT.mScaleY = unk80134->envMapScale.get();
+	texMtx1->mSRT.mTranslationX = 0.0f;
+	texMtx1->mSRT.mTranslationY = 0.0f;
+	texMtx1->mCenter.x = 0.5f;
+	texMtx1->mCenter.y = 0.5f;
+	J3DTexMtx* texMtx2 = texGenBlock->getTexMtx(2);
+	texMtx2->mSRT.mScaleX = unk80134->indTexScale.get();
+	texMtx2->mSRT.mScaleY = unk80134->indTexScale.get();
+	u32 frame = waters[0]->unk6C % (u32)unk80134->scrollSpan.get();
+	texMtx2->mSRT.mTranslationY
+	    = (f32)frame / (f32)unk80134->scrollSpan.get();
+	texMtx2->mCenter.x = 0.5f;
+	texMtx2->mCenter.y = 0.5f;
+
+	Mtx effectMtx;
+	SMS_GetLightPerspectiveForEffectMtx(effectMtx);
+	texMtx0->setEffectMtx(effectMtx);
+	texGenBlock->calc(unk80050.mMtx);
+	GXLoadTexMtxImm(texMtx0->mTotalMtx, GX_TEXMTX0, GX_MTX3x4);
+	GXLoadTexMtxImm(texMtx1->mTotalMtx, GX_TEXMTX1, GX_MTX3x4);
+	GXLoadTexMtxImm(texMtx2->mTotalMtx, GX_TEXMTX2, GX_MTX3x4);
+
+	GXSetNumIndStages(1);
+	GXSetIndTexCoordScale(GX_INDTEXSTAGE0, GX_ITS_1, GX_ITS_1);
+	GXSetIndTexOrder(GX_INDTEXSTAGE0, GX_TEXCOORD2, GX_TEXMAP2);
+	f32 indMtx[2][3] = {
+		{ 0.6f, 0.0f, 0.0f },
+		{ 0.0f, 0.6f, 0.0f },
+	};
+	GXSetIndTexMtx(GX_ITM_0, indMtx, (s8)unk80134->indirectScale.get());
+
+	if (unk80134->mode.get() == 2)
+		GXSetNumTevStages(1);
+	else
+		GXSetNumTevStages(3);
+
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR0A0);
+	switch (unk80134->mode.get()) {
+	case 0:
+		GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_C0,
+		                GX_CC_KONST);
+		break;
+	case 1:
+		GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
+		                GX_CC_ZERO);
+		break;
+	case 2:
+		GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_TEXC, GX_CC_ZERO, GX_CC_ZERO,
+		                GX_CC_ZERO);
+		break;
+	}
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevIndWarp(GX_TEVSTAGE0, GX_INDTEXSTAGE0, 1, 0, GX_ITM_0);
+	GXSetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
+	GXColor kColor = { unk80134->kRegR.get(), unk80134->kRegG.get(),
+		               unk80134->kRegB.get(), unk80134->kRegA.get() };
+	GXSetTevKColor(GX_KCOLOR0, kColor);
+	GXColor regColor = { unk80134->regR.get(), unk80134->regG.get(),
+		                 unk80134->regB.get(), unk80134->regA.get() };
+	GXSetTevColor(GX_TEVREG0, regColor);
+
+	GXSetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+	GXSetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_TEXC, GX_CC_RASC,
+	                GX_CC_CPREV);
+	GXSetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevIndWarp(GX_TEVSTAGE1, GX_INDTEXSTAGE0, 1, 0, GX_ITM_0);
+
+	GXSetTevOrder(GX_TEVSTAGE2, GX_TEXCOORD3, GX_TEXMAP3, GX_COLOR0A0);
+	GXSetTevColorIn(GX_TEVSTAGE2, GX_CC_CPREV, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE2, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaIn(GX_TEVSTAGE2, GX_CA_TEXA, GX_CA_ZERO, GX_CA_ZERO,
+	                GX_CA_ZERO);
+	GXSetTevAlphaOp(GX_TEVSTAGE2, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevDirect(GX_TEVSTAGE2);
+	GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+	GXSetZCompLoc(GX_FALSE);
+	GXSetZMode(GX_TRUE, GX_LESS, GX_TRUE);
+	GXSetColorUpdate(GX_TRUE);
+	GXSetAlphaUpdate(GX_FALSE);
+	GXSetCullMode(GX_CULL_NONE);
+
+	Mtx drawMtx;
+	PSMTXConcat(viewMtx, unk80050.mMtx, drawMtx);
+	DCInvalidateRange(unk800A4, unk800AC * (unk800AC * 4));
+	GXLoadPosMtxImm(drawMtx, GX_PNMTX0);
+	GXLoadNrmMtxImm(viewMtx, GX_PNMTX0);
+	GXSetCurrentMtx(GX_PNMTX0);
+	GXSetCullMode(GX_CULL_BACK);
+	GXSetBlendMode(GX_BM_NONE, GX_BL_ONE, GX_BL_ZERO, GX_LO_NOOP);
+	if (unk80134->mask.get())
+		GXSetAlphaCompare(GX_GEQUAL, unk80134->alpha.get(), GX_AOP_AND,
+		                  GX_ALWAYS, 0);
+	else
+		GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+
+	makeHeightMap(unk80080[1]);
+	makeNormalMap();
+	calcCoord();
+	DCStoreRange(unk20, 0x30000);
+	DCStoreRange(unk30020, 0x30000);
+
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_INDEX16);
+	GXSetVtxDesc(GX_VA_NRM, GX_INDEX16);
+	GXSetVtxDesc(GX_VA_TEX0, GX_INDEX16);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+	GXSetArray(GX_VA_POS, unk20, 0xC);
+	GXSetArray(GX_VA_NRM, unk30020, 0xC);
+	GXSetArray(GX_VA_TEX0, unk60020, 8);
+	GXCallDisplayList(unk80154, unk80158);
+
+	if (unk80134->showsMist.get())
+		draw_mist(0, 0, renderWidth, renderHeight, unk80150);
+
+	GXSetProjection(graphics->mProjMtx.mMtx, GX_PERSPECTIVE);
+}
+
+void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
+                                        const TBathtubData& data,
+                                        TBathWater** waters,
+                                        TBathWaterParams** params, int count)
+{
+	unk800AC = unk80134->meshTexWidth.get() & ~3;
+	unk800B0 = 1.0f / (f32)unk800AC;
+
+	f32 radius = data.unk3C;
+	JGeometry::TVec3<f32> center(data.unk0.x, data.unk0.y - data.unk44,
+	                              data.unk0.z);
+	JGeometry::TVec3<f32> eye(center.x, center.y + radius * 3.0f, center.z);
+	JGeometry::TVec3<f32> dir(0.0f, -radius * 4.0f, 0.0f);
+	JGeometry::TVec3<f32> up(0.0f, 0.0f, -1.0f);
+	unk80020.setLookDir(dir, up);
+	unk80020.mMtx[0][3]
+	    = -((eye.x * unk80020.mMtx[0][0])
+	        + (eye.y * unk80020.mMtx[0][1])
+	        + (eye.z * unk80020.mMtx[0][2]));
+	unk80020.mMtx[1][3]
+	    = -((eye.x * unk80020.mMtx[1][0])
+	        + (eye.y * unk80020.mMtx[1][1])
+	        + (eye.z * unk80020.mMtx[1][2]));
+	unk80020.mMtx[2][3]
+	    = -((eye.x * unk80020.mMtx[2][0])
+	        + (eye.y * unk80020.mMtx[2][1])
+	        + (eye.z * unk80020.mMtx[2][2]));
+
+	MtxPtr oldProjection = (MtxPtr)((u8*)gpCamera + 0x16C);
+	j3dSys.drawInit();
+	s16 renderWidth  = SMSGetGameRenderWidth();
+	s16 renderHeight = SMSGetGameRenderHeight();
+	GXSetViewport(0.0f, 0.0f, (f32)renderWidth, (f32)renderHeight, 0.0f,
+	              1.0f);
+
+	JGeometry::SMatrix44C<f32> projection;
+	f32 meshWidth = unk80134->meshWidth.get();
+	f32 halfWidth = meshWidth * 0.5f;
+	f32 top       = halfWidth - (unk800B0 * meshWidth * (f32)renderHeight);
+	f32 right     = (unk800B0 * meshWidth * (f32)renderWidth) - halfWidth;
+	f32 depth     = (radius * 3.0f) - (-radius);
+	projection.mMtx[0][0] = 2.0f / (right + halfWidth);
+	projection.mMtx[0][1] = 0.0f;
+	projection.mMtx[0][2] = 0.0f;
+	projection.mMtx[0][3]
+	    = -0.5f * projection.mMtx[0][0] * (right - halfWidth);
+	projection.mMtx[1][0] = 0.0f;
+	projection.mMtx[1][1] = 2.0f / (halfWidth - top);
+	projection.mMtx[1][2] = 0.0f;
+	projection.mMtx[1][3]
+	    = -0.5f * projection.mMtx[1][1] * (halfWidth + top);
+	projection.mMtx[2][0] = 0.0f;
+	projection.mMtx[2][1] = 0.0f;
+	projection.mMtx[2][2] = -1.0f / depth;
+	projection.mMtx[2][3] = projection.mMtx[2][2] * depth;
+	projection.mMtx[3][0] = 0.0f;
+	projection.mMtx[3][1] = 0.0f;
+	projection.mMtx[3][2] = 0.0f;
+	projection.mMtx[3][3] = 1.0f;
+
+	GXSetProjection(projection.mMtx, GX_ORTHOGRAPHIC);
+	GXSetScissor(0, 0, unk800AC, unk800AC);
+	GXSetNumChans(0);
+	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG,
+	              GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG,
+	              GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+	GXSetNumTexGens(1);
+	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
+	                  GX_FALSE, GX_PTIDENTITY);
+	GXLoadTexObj(&unk80114, GX_TEXMAP0);
+	GXSetNumTevStages(1);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_TEXC);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO,
+	                GX_CA_ZERO);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+	GXSetZMode(GX_TRUE, GX_LESS, GX_TRUE);
+	GXSetBlendMode(GX_BM_NONE, GX_BL_ZERO, GX_BL_ZERO, GX_LO_NOOP);
+	GXSetColorUpdate(GX_FALSE);
+	GXSetAlphaUpdate(GX_FALSE);
+	GXSetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
+	GXSetCullMode(GX_CULL_BACK);
+	J3DVertexData& vertexData = unk80144->getVertexData();
+	J3DLoadArrayBasePtr(GX_VA_POS, vertexData.getVtxPosArray());
+	J3DLoadArrayBasePtr(GX_VA_NRM, vertexData.getVtxNormArray());
+	J3DLoadArrayBasePtr(GX_VA_CLR0, vertexData.getVtxColorArray(0));
+	GXCallDisplayList(unk80144->getShapeNodePointer(0)->getDrawList(),
+	                  J3DShape::kVcdVatDLSize);
+	GXLoadNrmMtxImm(unk80020.mMtx, GX_PNMTX0);
+	GXSetCurrentMtx(GX_PNMTX0);
+
+	for (int i = 0; i < count; ++i) {
+		if (!params[i]->isVisible.get())
+			continue;
+
+		TBathWater* water = waters[i];
+
+		for (TBathWater::TDrop* drop = water->unk88;
+		     drop < water->unk88 + water->unk74; ++drop) {
+			TBathWaterParams* param = params[i];
+			f32 dropRadius          = param->dropRadius.get();
+			f32 modelScale
+			    = dropRadius
+			      * (drop->unk48 * param->modelScale.get()
+			         + (1.0f - drop->unk48) * param->modelScale2.get());
+			JGeometry::TVec3<f32> pos = drop->unk0;
+			pos.y += param->modelScaleY.get() * dropRadius - modelScale;
+
+			JGeometry::SMatrix34C<f32> dropMtx;
+			dropMtx.set(
+			    unk80020.mMtx[0][0] * modelScale,
+			    unk80020.mMtx[0][1] * modelScale,
+			    unk80020.mMtx[0][2] * modelScale,
+			    unk80020.mMtx[0][3]
+			        + (unk80020.mMtx[0][0] * pos.x)
+			        + (unk80020.mMtx[0][1] * pos.y)
+			        + (unk80020.mMtx[0][2] * pos.z),
+			    unk80020.mMtx[1][0] * modelScale,
+			    unk80020.mMtx[1][1] * modelScale,
+			    unk80020.mMtx[1][2] * modelScale,
+			    unk80020.mMtx[1][3]
+			        + (unk80020.mMtx[1][0] * pos.x)
+			        + (unk80020.mMtx[1][1] * pos.y)
+			        + (unk80020.mMtx[1][2] * pos.z),
+			    unk80020.mMtx[2][0] * modelScale,
+			    unk80020.mMtx[2][1] * modelScale,
+			    unk80020.mMtx[2][2] * modelScale,
+			    unk80020.mMtx[2][3]
+			        + (unk80020.mMtx[2][0] * pos.x)
+			        + (unk80020.mMtx[2][1] * pos.y)
+			        + (unk80020.mMtx[2][2] * pos.z));
+			GXLoadPosMtxImm(dropMtx.mMtx, GX_PNMTX0);
+
+			for (u16 shapeIndex = 0; shapeIndex < unk80144->getShapeNum();
+			     ++shapeIndex) {
+				J3DShape* shape = unk80144->getShapeNodePointer(shapeIndex);
+				for (u16 drawIndex = 0; drawIndex < shape->getMtxGroupNum();
+				     ++drawIndex) {
+					J3DShapeDraw* draw = shape->getShapeDraw(drawIndex);
+					if (draw)
+						draw->draw();
+				}
+			}
+		}
+	}
+
+	if (unk80134->showsCap.get() && data.unk65 == 0) {
+		GXLoadPosMtxImm(unk80020.mMtx, GX_PNMTX0);
+		GXClearVtxDesc();
+		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+		GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_U8, 7);
+
+		f32 radiusSq = data.unk3C * data.unk3C - data.unk44 * data.unk44;
+		f32 capRadius = JGeometry::TUtil<f32>::sqrt(radiusSq);
+		JGeometry::TVec3<f32> capCenter(center.x, center.y, center.z);
+		drawCap(capCenter, capRadius);
+		capCenter.y += 0.5f * -radius;
+		drawCap(capCenter, capRadius + unk800B0 * unk80134->meshWidth.get());
+	}
+
+	GXSetCopyFilter(GX_FALSE, 0, GX_FALSE, 0);
+	GXSetTexCopySrc(0, 0, unk800AC, unk800AC);
+	GXSetTexCopyDst(unk800AC, unk800AC, GX_TF_Z24X8, GX_FALSE);
+	GXCopyTex(unk800A4, GX_FALSE);
+	GXSetPixelFmt(GX_PF_RGBA6_Z24, GX_ZC_LINEAR);
+	GXSetProjection(oldProjection, GX_PERSPECTIVE);
+	GXSetScissor(0, 0, renderWidth, renderHeight);
+}
+
+f32 TBathWaterMeshRenderer::getHeight(f32 x, f32 z) const
+{
+	if (unk800AC < 1)
+		return 0.0f;
+
+	s32 ix = (s32)((x - unk80050.mMtx[0][3]) / unk80080[0]);
+	if (ix < 0)
+		ix = 0;
+	else if (ix >= unk800AC)
+		ix = unk800AC - 1;
+
+	s32 iz = (s32)((z - unk80050.mMtx[2][3]) / unk80080[2]);
+	if (iz < 0)
+		iz = 0;
+	else if (iz >= unk800AC)
+		iz = unk800AC - 1;
+
+	return unk20[ix * 0x80 + iz].y + unk80050.mMtx[1][3];
+}
+
+void TBathWaterMeshRenderer::clearHeightMap()
+{
+	for (int i = 0; i < 0x4000; ++i)
+		unk20[i].y = 0.0f;
+
+	unk80050.mMtx[0][0] = 1.0f;
+	unk80050.mMtx[0][1] = 0.0f;
+	unk80050.mMtx[0][2] = 0.0f;
+	unk80050.mMtx[0][3] = 0.0f;
+	unk80050.mMtx[1][0] = 0.0f;
+	unk80050.mMtx[1][1] = 1.0f;
+	unk80050.mMtx[1][2] = 0.0f;
+	unk80050.mMtx[1][3] = 0.0f;
+	unk80050.mMtx[2][0] = 0.0f;
+	unk80050.mMtx[2][1] = 0.0f;
+	unk80050.mMtx[2][2] = 1.0f;
+	unk80050.mMtx[2][3] = 0.0f;
+	unk80080[0]         = 1.0f;
+	unk80080[1]         = 1.0f;
+	unk80080[2]         = 1.0f;
+}
+
+f32 TBathWaterManager::getWaterHeight(f32 x, f32 z) const
+{
+	if (unk24 && unk30)
+		return unk30->getHeight(x, z);
+	return 0.0f;
 }
