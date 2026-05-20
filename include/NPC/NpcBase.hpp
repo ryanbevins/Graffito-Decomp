@@ -71,7 +71,7 @@ public:
 	void isInMadSearchRange() const;
 	void isInBodyTurnSearchRange() const;
 	void isNeedNeckStraight() const;
-	void isPartsAnmNpc() const;
+	BOOL isPartsAnmNpc() const;
 	void isBehaveToHitNpc() const;
 	BOOL isBehaveToWaterNpc() const;
 	void isMadNpc() const;

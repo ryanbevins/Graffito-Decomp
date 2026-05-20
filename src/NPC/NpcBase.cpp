@@ -1,5 +1,28 @@
 #include <NPC/NpcBase.hpp>
 
+BOOL TBaseNPC::isPartsAnmNpc() const
+{
+	BOOL result   = FALSE;
+	bool isGroupA = false;
+	u32 type      = mActorType;
+	switch (type) {
+	case 0x0400000F:
+	case 0x04000014:
+		isGroupA = true;
+	}
+	if (isGroupA) {
+		result = TRUE;
+	} else {
+		switch (type) {
+		case 0x04000010:
+		case 0x04000015:
+		case 0x04000018:
+			result = TRUE;
+		}
+	}
+	return result;
+}
+
 BOOL TBaseNPC::isBehaveToWaterNpc() const
 {
 	BOOL result = TRUE;
