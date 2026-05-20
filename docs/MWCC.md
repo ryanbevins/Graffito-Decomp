@@ -36,37 +36,87 @@ them in future ticks.
 
 ## Settled
 
-_(empty — populate as observations confirm)_
+### `switch` defeats fusion of multiple equality compares
+
+**Rule:** When source has multiple equality compares of an int against
+distinct constants — whether the high bits share (`subis` fusion) or the
+constants are consecutive (`subi + cmplwi range` fusion) — MWCC's optimiser
+will fold them into range-bisection arithmetic that doesn't match target's
+clean `cmpwi + beq/bge` tree. Rewriting the dispatch as
+`switch (x) { case a: case b: ...: result = true; } return result;`
+reliably defeats the fusion and produces target's binary-search comparison
+pattern.
+
+**Companion rule — initializing a `bool result = false` upfront** hoists
+`li r3, 0` to BEFORE the comparison tree and unlocks MWCC's
+conditional-return idiom: false paths emit `beqlr`/`bltlr`/`bgelr` instead
+of a unified `li r3, 0; blr` block. Target consistently uses this pattern
+for predicate functions.
+
+**Where observed:**
+- `src/Camera/CameraTalk.cpp::makeMtxForTalk` — high-bits-shared constants
+  `0x400001A`, `0x4000007` → `subis r4, r5, 0x400 ; cmplwi r4, 0x1a ; ...
+  cmplwi r4, 0x7`. Switch rewrite produced `cmpw + beq + bge`. 74.7% → 84.4%.
+- `src/Camera/CameraMode.cpp` — six independent predicate functions
+  (`isTalkCameraSpecifyMode`, `isFixCameraSpecifyMode`,
+  `isDefiniteCameraSpecifyMode`, `isFollowCameraSpecifyMode`,
+  `isTowerCameraSpecifyMode`, `isLButtonCameraSpecifyMode`) all went from
+  39–55% → 100% by converting `if (x == A) return true; ...` chains to
+  `bool result = false; switch (x) { case A: ...: result = true; } return result;`.
+  Consecutive-value fusion (`subi + cmplwi range`) and range checks
+  (`mode >= A && mode < B` rewritten as explicit case enumeration) also
+  matched after the switch rewrite.
+
+**Consequences:**
+- When target shows a binary-search `cmpwi/beq/bge` tree and our build
+  emits `subi*+cmplwi range`, the switch rewrite is the correct source
+  structure — even when the function "looks like" an if/else chain in
+  intent. Range checks `x >= A && x < B` are best expressed as explicit
+  `case A: case A+1: ... case B-1:` enumeration if they are part of a
+  switch-like dispatch.
+- For boolean predicates whose target loads `li r3, 0` upfront and uses
+  `*lr` conditional returns, write `bool result = false; ... result = true; return result;`
+  rather than `if (...) return true; ... return false;`.
 
 ## Hypotheses under investigation
 
-### `switch` defeats subis-fusion of two equality compares
+### MWCC sometimes inlines a call selectively within the same TU
 
-**Hypothesis:** When source has two equality compares of an int against
-constants `a` and `b` such that `a - b` fits in a signed 16-bit field,
-MWCC will (often) fold them into `subis rX, rY, hi(a); cmplwi rX, lo(a)`
-and `cmplwi rX, lo(b)` — a shared `r5-0x4000000` base reused across both
-equality compares. Rewriting the dispatch as `switch (x) { case a: ...;
-case b: ...; default: ...; }` reliably defeats the fusion: MWCC then emits
-the natural `cmpw + beq + bge` (signed) pattern for switch branching,
-matching what the original source presumably used.
+**Hypothesis:** Even with `#pragma dont_inline on` set TU-wide (or the
+helper otherwise visible only via the same flag environment), MWCC's
+`-inline deferred,auto` (or `-inline deferred` for game code) can inline
+*some* call sites of a function while keeping others as `bl` calls.
 
-**Where observed:** `src/Camera/CameraTalk.cpp::makeMtxForTalk`. The
-if/else chain with `npcCode == 0x400001A` and inner `npcCode == 0x4000007`
-emitted `subis r4, r5, 0x400 ; cmplwi r4, 0x1a ; ... cmplwi r4, 0x7`.
-Rewriting as `switch(npcCode){ case 0x400001A: ; case 0x4000007: ; default: ;}`
-emitted the target's `cmpw r4, r0 ; beq ; bge ; addi r0, r3, 0x7 ; cmpw r4, r0 ; beq`.
-Fuzzy went from 74.7% → 84.4%.
+**Where observed:**
+- `mario/Camera/CameraMode::isNormalCameraCompletely` — target has the
+  first `isNormalCameraSpecifyMode(mMode)` as `bl`, but the second
+  `isNormalCameraSpecifyMode(prevMode)` *inlined* as a jump-table
+  switch. With our `#pragma dont_inline on`, both calls become `bl`,
+  capping the function at 94.3% match.
+- `mario/Camera/CameraMode::isTalkCameraInbetween` and `isLButtonCameraInbetween`
+  — target inlines the dispatch helper twice (once for `mMode`, once for
+  `prevMode`); with `dont_inline on`, both become `bl` and these
+  functions stay at 30% / 0%.
+- `mario/Camera/CameraMode::isOverHipAttackSpecifyMode` — target keeps
+  both helper calls as `bl` (no inlining); without `dont_inline on`, MWCC
+  auto-inlines the now-tiny helpers, dropping it to 20%; with
+  `dont_inline on`, matches.
 
-**Experiment to confirm:** Find another TU where the target has a clean
-`cmpw + beq + bge` branching tree on two equality constants and our build
-emits `subis + cmplwi`. Try the switch rewrite and check whether it
-reliably produces target's pattern.
+**Experiment to confirm:** Determine what source-level cue distinguishes
+inline-here from no-inline-there. Candidates:
+- The first call is at the top of the function and is the gating
+  condition for an early return; the second is buried deeper. Position-
+  in-CFG hint to inliner?
+- Calls inside an `if (X)` short-circuit chain might inline more readily
+  than calls in standalone `if (X) { ... }` blocks.
+- Number of remaining call sites at deferred-inlining time (the first
+  one may be on a "hot" CFG path; the second on a "cold" path).
 
-**Consequence if true:** Whenever target shows `cmpw r,r ; beq ; bge`
-on two equality constants and we're emitting subis-fusion, the switch
-rewrite is the correct source structure even when the original looks
-like an if/else.
+**Consequence if true:** When a TU exhibits this pattern, write the
+*inlined* call sites with the dispatch logic in-place (explicit switch
+or comparison) rather than calling the helper; keep the *non-inlined*
+calls as proper helper invocations. This avoids the `dont_inline`
+all-or-nothing trap.
 
 ### `#pragma dont_inline` is TU-global, not lexical
 
