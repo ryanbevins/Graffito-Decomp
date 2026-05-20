@@ -2,32 +2,33 @@
 
 #pragma dont_inline on
 
-static const bool kNormalCameraTable[73] = {
-	1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-	0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0,
-	1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1
-};
-
-static const bool kSlopeCameraTable[73] = {
-	1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0,
-	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-	1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1
-};
-
 bool CPolarSubCamera::isSlopeCameraMode() const
 {
-	if ((u32)mMode > 0x48)
-		return false;
-	return kSlopeCameraTable[mMode];
+	bool result = false;
+	switch (mMode) {
+	case 0x00: case 0x01: case 0x04: case 0x0B: case 0x0E: case 0x14:
+	case 0x26: case 0x27: case 0x28: case 0x29: case 0x2A: case 0x2C:
+	case 0x2F: case 0x35: case 0x36: case 0x37: case 0x38: case 0x41:
+	case 0x42: case 0x45: case 0x46: case 0x47: case 0x48:
+		result = true;
+	}
+	return result;
 }
 
 bool CPolarSubCamera::isNormalCameraSpecifyMode(int mode) const
 {
-	if ((u32)mode > 0x48)
-		return false;
-	return kNormalCameraTable[mode];
+	bool result = false;
+	switch (mode) {
+	case 0x00: case 0x01: case 0x03: case 0x04: case 0x05: case 0x06:
+	case 0x08: case 0x0B: case 0x0D: case 0x0E: case 0x0F: case 0x10:
+	case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x26:
+	case 0x2A: case 0x2B: case 0x2C: case 0x2F: case 0x30: case 0x31:
+	case 0x32: case 0x33: case 0x34: case 0x35: case 0x36: case 0x38:
+	case 0x39: case 0x3C: case 0x3D: case 0x3E: case 0x42: case 0x43:
+	case 0x44: case 0x45: case 0x46: case 0x47: case 0x48:
+		result = true;
+	}
+	return result;
 }
 
 bool CPolarSubCamera::isDefiniteCameraSpecifyMode(int mode) const
@@ -113,18 +114,24 @@ bool CPolarSubCamera::isTalkCameraSpecifyMode(int mode) const
 
 bool CPolarSubCamera::isLButtonCameraSpecifyMode(int mode) const
 {
-	return mode == 7;
+	bool result = false;
+	if (mode == 7)
+		result = true;
+	return result;
 }
 
 bool CPolarSubCamera::isJetCoaster1stCamera() const
 {
-	if (mMode != 0x2E)
-		return false;
-	void* p = *(void**)((u8*)this + 0x2B8);
-	if (p == nullptr)
-		return false;
-	u8 flag = *(u8*)((u8*)p + 0xC);
-	return (flag & 1) != 0;
+	bool result = false;
+	if (mMode == 0x2E) {
+		void* p = *(void**)((u8*)this + 0x2B8);
+		if (p != nullptr) {
+			u8 flag = *(u8*)((u8*)p + 0xC);
+			if (flag & 1)
+				result = true;
+		}
+	}
+	return result;
 }
 
 bool CPolarSubCamera::isOverHipAttackSpecifyMode(int mode) const
@@ -151,14 +158,28 @@ bool CPolarSubCamera::isOverHipAttackSpecifyMode(int mode) const
 
 bool CPolarSubCamera::isNormalCameraCompletely() const
 {
-	if (!isNormalCameraSpecifyMode(mMode))
-		return false;
-	if (!isNowInbetween())
-		return true;
-	u32 prevMode = *(u32*)((u8*)this + 0x54);
-	if (prevMode > 0x48)
-		return false;
-	return kNormalCameraTable[prevMode];
+	bool result = false;
+	if (isNormalCameraSpecifyMode(mMode)) {
+		if (isNowInbetween()) {
+			int prevMode = *(int*)((u8*)this + 0x54);
+			bool found = false;
+			switch (prevMode) {
+			case 0x00: case 0x01: case 0x03: case 0x04: case 0x05: case 0x06:
+			case 0x08: case 0x0B: case 0x0D: case 0x0E: case 0x0F: case 0x10:
+			case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x26:
+			case 0x2A: case 0x2B: case 0x2C: case 0x2F: case 0x30: case 0x31:
+			case 0x32: case 0x33: case 0x34: case 0x35: case 0x36: case 0x38:
+			case 0x39: case 0x3C: case 0x3D: case 0x3E: case 0x42: case 0x43:
+			case 0x44: case 0x45: case 0x46: case 0x47: case 0x48:
+				found = true;
+			}
+			if (found)
+				result = true;
+		} else {
+			result = true;
+		}
+	}
+	return result;
 }
 
 bool CPolarSubCamera::isTalkCameraInbetween() const
