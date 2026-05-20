@@ -2,75 +2,89 @@
 
 BOOL TBaseNPC::isSunflower() const
 {
-	if ((s32)mActorType >= 0x0400001C)
-		return FALSE;
-	if ((s32)mActorType < 0x0400001A)
-		return FALSE;
-	return TRUE;
+	BOOL result = FALSE;
+	if ((s32)mActorType < 0x0400001C && (s32)mActorType >= 0x0400001A)
+		result = TRUE;
+	return result;
+}
+
+BOOL TBaseNPC::isJellyFishMare() const
+{
+	BOOL result = FALSE;
+	switch (mActorType) {
+	case 0x0400000F:
+	case 0x04000014:
+		result = TRUE;
+	}
+	return result;
 }
 
 BOOL TBaseNPC::isSpecialMareW() const
 {
-	if ((s32)mActorType >= 0x04000016)
-		return FALSE;
-	if ((s32)mActorType < 0x04000014)
-		return FALSE;
-	return TRUE;
+	BOOL result = FALSE;
+	if ((s32)mActorType < 0x04000016 && (s32)mActorType >= 0x04000014)
+		result = TRUE;
+	return result;
 }
 
 BOOL TBaseNPC::isSpecialMareM() const
 {
-	if ((s32)mActorType >= 0x04000013)
-		return FALSE;
-	if ((s32)mActorType < 0x0400000F)
-		return FALSE;
-	return TRUE;
+	BOOL result = FALSE;
+	if ((s32)mActorType < 0x04000013 && (s32)mActorType >= 0x0400000F)
+		result = TRUE;
+	return result;
 }
 
 BOOL TBaseNPC::isNormalMareW() const
 {
-	if (mActorType != 0x04000013)
-		return FALSE;
-	return TRUE;
+	BOOL result = FALSE;
+	switch (mActorType) {
+	case 0x04000013:
+		result = TRUE;
+	}
+	return result;
 }
 
 BOOL TBaseNPC::isNormalMareM() const
 {
-	if (mActorType != 0x0400000E)
-		return FALSE;
-	return TRUE;
+	BOOL result = FALSE;
+	switch (mActorType) {
+	case 0x0400000E:
+		result = TRUE;
+	}
+	return result;
 }
 
 BOOL TBaseNPC::isSpecialMonteW() const
 {
-	if (mActorType != 0x0400000D)
-		return FALSE;
-	return TRUE;
+	BOOL result = FALSE;
+	switch (mActorType) {
+	case 0x0400000D:
+		result = TRUE;
+	}
+	return result;
 }
 
 BOOL TBaseNPC::isSpecialMonteM() const
 {
-	if ((s32)mActorType >= 0x0400000A)
-		return FALSE;
-	if ((s32)mActorType < 0x04000006)
-		return FALSE;
-	return TRUE;
+	BOOL result = FALSE;
+	if ((s32)mActorType < 0x0400000A && (s32)mActorType >= 0x04000006)
+		result = TRUE;
+	return result;
 }
 
 BOOL TBaseNPC::isNormalMonteW() const
 {
-	if ((s32)mActorType >= 0x0400000D)
-		return FALSE;
-	if ((s32)mActorType < 0x0400000A)
-		return FALSE;
-	return TRUE;
+	BOOL result = FALSE;
+	if ((s32)mActorType < 0x0400000D && (s32)mActorType >= 0x0400000A)
+		result = TRUE;
+	return result;
 }
 
 BOOL TBaseNPC::isNormalMonteM() const
 {
-	if ((s32)mActorType >= 0x04000006)
-		return FALSE;
-	if ((s32)mActorType < 0x04000001)
-		return FALSE;
-	return TRUE;
+	BOOL result = FALSE;
+	if ((s32)mActorType < 0x04000006 && (s32)mActorType >= 0x04000001)
+		result = TRUE;
+	return result;
 }
