@@ -1,33 +1,24 @@
-Super Mario Sunshine
-[![Build Status]][actions] [![Code Progress]][progress] [![Discord Badge]][discord]
-=============
-[<img src="https://decomp.dev/doldecomp/sms.svg?w=512&h=256" width="512" height="256">][Progress]
-=============
+Graffito
+========
 
-[Build Status]: https://github.com/doldecomp/sms/actions/workflows/build.yml/badge.svg
-[actions]: https://github.com/doldecomp/sms/actions/workflows/build.yml
-[Code Progress]: https://decomp.dev/doldecomp/sms.svg?mode=shield&measure=code&label=Code
-[progress]: https://decomp.dev/doldecomp/sms
-[Discord Badge]: https://img.shields.io/discord/727908905392275526?color=%237289DA&logo=discord&logoColor=%23FFFFFF
-[discord]: https://discord.gg/hKx3FJJgrV
+A private, byte-identical decompilation of Super Mario Sunshine (`GMSJ01`, JPN Rev 0), descended from [doldecomp/sms](https://github.com/doldecomp/sms) and developed as a standalone project.
 
-A work-in-progress decompilation of Super Mario Sunshine.
+The goal is the same as any matching decomp: produce C/C++ source that compiles to the exact original object code under the original Metrowerks CodeWarrior compiler. The name comes from `graffito` (Italian, sing. of *graffiti*) — what Mario spends the game cleaning, and what this project spends its time scrubbing off.
 
 This repository does **not** contain any game assets or assembly whatsoever. An existing copy of the game is required.
 
 Supported versions:
 
 - `GMSJ01`: Rev 0 (JPN)
-- ~~`GMSP01`: Rev 0 (PAL)~~ slightly broken, feel free to fix
+- ~~`GMSP01`: Rev 0 (PAL)~~ partially broken — fixes welcome
 
 Dependencies
 ============
 
 Windows
---------
+-------
 
-On Windows, it's **highly recommended** to use native tooling. WSL or msys2 are **not** required.  
-When running under WSL, [objdiff](#diffing) is unable to get filesystem notifications for automatic rebuilds.
+Native tooling is **highly recommended**. WSL and msys2 are **not** required, and under WSL [objdiff](#diffing) cannot get filesystem notifications for automatic rebuilds.
 
 - Install [Python](https://www.python.org/downloads/) and add it to `%PATH%`.
   - Also available from the [Windows Store](https://apps.microsoft.com/store/detail/python-311/9NRWMJP3717K).
@@ -35,7 +26,7 @@ When running under WSL, [objdiff](#diffing) is unable to get filesystem notifica
   - Quick install via pip: `pip install ninja`
 
 macOS
-------
+-----
 
 - Install [ninja](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages):
 
@@ -49,18 +40,18 @@ macOS
   brew install --cask --no-quarantine gcenx/wine/wine-crossover
   ```
 
-After OS upgrades, if macOS complains about `Wine Crossover.app` being unverified, you can unquarantine it using:
+After OS upgrades, if macOS complains about `Wine Crossover.app` being unverified, unquarantine it:
 
 ```sh
 sudo xattr -rd com.apple.quarantine '/Applications/Wine Crossover.app'
 ```
 
 Linux
-------
+-----
 
 - Install [ninja](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages).
-- For non-x86(_64) platforms: Install wine from your package manager.
-  - For x86(_64), [wibo](https://github.com/decompals/wibo), a minimal 32-bit Windows binary wrapper, will be automatically downloaded and used.
+- For non-x86(_64) platforms: install wine from your package manager.
+  - For x86(_64), [wibo](https://github.com/decompals/wibo) (a minimal 32-bit Windows binary wrapper) is downloaded automatically.
 
 Building
 ========
@@ -68,12 +59,12 @@ Building
 - Clone the repository:
 
   ```sh
-  git clone https://github.com/doldecomp/sms.git
+  git clone https://github.com/ryanbevins/graffito.git
   ```
 
-- Copy your game's disc image to `orig/GMSJ01`. (Or the appropriate version folder.)
+- Copy your game's disc image to `orig/GMSJ01` (or the appropriate version folder).
   - Supported formats: ISO (GCM), RVZ, WIA, WBFS, CISO, NFS, GCZ, TGC
-  - After the initial build, the disc image can be deleted to save space.
+  - After the initial build the disc image can be deleted to save space.
 
 - Configure:
 
@@ -81,7 +72,7 @@ Building
   python configure.py
   ```
 
-  To use a version other than `GMSJ01` (JPN), specify it with `--version`.
+  Use `--version` to build a non-`GMSJ01` revision.
 
 - Build:
 
@@ -92,10 +83,34 @@ Building
 Diffing
 =======
 
-Once the initial build succeeds, an `objdiff.json` should exist in the project root.
+After the first successful build an `objdiff.json` will exist at the project root.
 
-Download the latest release from [encounter/objdiff](https://github.com/encounter/objdiff). Under project settings, set `Project directory`. The configuration should be loaded automatically.
-
-Select an object from the left sidebar to begin diffing. Changes to the project will rebuild automatically: changes to source files, headers, `configure.py`, `splits.txt` or `symbols.txt`.
+Grab the latest release of [encounter/objdiff](https://github.com/encounter/objdiff), point its **Project directory** at this repo, and the configuration loads automatically. Select an object from the sidebar to start diffing — source/header changes, `configure.py`, `splits.txt`, and `symbols.txt` all trigger automatic rebuilds.
 
 ![](assets/objdiff.png)
+
+Workflow tools
+==============
+
+Project-specific helpers live under `tools/claude/`:
+
+| Tool | Purpose |
+|------|---------|
+| `check_match.py <path>` | Per-function match percentages for a TU |
+| `compare_asm.py <path> [symbol]` | Diff original vs compiled assembly |
+| `find_easy_targets.py` | Surface small non-matching files |
+| `get_symbols.py <path>` | List symbols for a source file |
+
+See [`CLAUDE.md`](./CLAUDE.md) for the full matching playbook — MWCC quirks, common near-match patterns, the TParams framework, and the list of known-unsolvable patterns to skip.
+
+Lineage
+=======
+
+Graffito branched off from [doldecomp/sms](https://github.com/doldecomp/sms) and is no longer part of its fork network. Upstream commits can still be cherry-picked via the `upstream` remote:
+
+```sh
+git remote add upstream https://github.com/doldecomp/sms.git
+git fetch upstream
+```
+
+Thanks to the doldecomp community for the foundations.
