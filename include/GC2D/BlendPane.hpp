@@ -9,7 +9,7 @@ class TBlendPane : public TBoundPane {
 public:
 	TBlendPane(J2DScreen*, u32);
 
-	virtual void update();
+	virtual bool update();
 	void setPaneBlend(s32 time, JUTTexture* tex0, JUTTexture* tex1)
 	{
 		if (tex1 == nullptr) {
