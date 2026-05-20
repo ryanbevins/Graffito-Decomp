@@ -40,6 +40,34 @@ _(empty — populate as observations confirm)_
 
 ## Hypotheses under investigation
 
+### `switch` defeats subis-fusion of two equality compares
+
+**Hypothesis:** When source has two equality compares of an int against
+constants `a` and `b` such that `a - b` fits in a signed 16-bit field,
+MWCC will (often) fold them into `subis rX, rY, hi(a); cmplwi rX, lo(a)`
+and `cmplwi rX, lo(b)` — a shared `r5-0x4000000` base reused across both
+equality compares. Rewriting the dispatch as `switch (x) { case a: ...;
+case b: ...; default: ...; }` reliably defeats the fusion: MWCC then emits
+the natural `cmpw + beq + bge` (signed) pattern for switch branching,
+matching what the original source presumably used.
+
+**Where observed:** `src/Camera/CameraTalk.cpp::makeMtxForTalk`. The
+if/else chain with `npcCode == 0x400001A` and inner `npcCode == 0x4000007`
+emitted `subis r4, r5, 0x400 ; cmplwi r4, 0x1a ; ... cmplwi r4, 0x7`.
+Rewriting as `switch(npcCode){ case 0x400001A: ; case 0x4000007: ; default: ;}`
+emitted the target's `cmpw r4, r0 ; beq ; bge ; addi r0, r3, 0x7 ; cmpw r4, r0 ; beq`.
+Fuzzy went from 74.7% → 84.4%.
+
+**Experiment to confirm:** Find another TU where the target has a clean
+`cmpw + beq + bge` branching tree on two equality constants and our build
+emits `subis + cmplwi`. Try the switch rewrite and check whether it
+reliably produces target's pattern.
+
+**Consequence if true:** Whenever target shows `cmpw r,r ; beq ; bge`
+on two equality constants and we're emitting subis-fusion, the switch
+rewrite is the correct source structure even when the original looks
+like an if/else.
+
 ### `#pragma dont_inline` is TU-global, not lexical
 
 **Hypothesis:** `#pragma dont_inline on/off` in MWCC 1.2.5 (GameCube) is applied
