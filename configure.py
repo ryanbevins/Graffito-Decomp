@@ -1188,7 +1188,7 @@ config.libs = [
             Object(NonMatching, "Enemy/hauntLeg.cpp"),
             Object(NonMatching, "Enemy/areacylinder.cpp"),
             Object(NonMatching, "Enemy/wireTrap.cpp"),
-            Object(NonMatching, "Enemy/BossHanachanSound.cpp"),
+            Object(Matching, "Enemy/BossHanachanSound.cpp"),
             Object(NonMatching, "Enemy/rocket.cpp"),
             Object(NonMatching, "Enemy/Kazekun.cpp"),
             Object(NonMatching, "Enemy/bossManta.cpp"),
