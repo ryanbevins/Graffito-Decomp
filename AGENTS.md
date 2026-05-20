@@ -215,7 +215,7 @@ Each `.o` file maps 1:1 to a `.cpp` file. The path is listed in `configure.py` u
 - Dead code elimination is limited — unused `static` variables and functions may still be emitted.
 - BSS ordering is affected by include order — "rogue includes" are sometimes needed just to match BSS/SBSS layout. These are marked with comments like `// rogue includes needed for matching sinit & bss`.
 
-For detailed codegen patterns and matching tips, see **[docs/AGENT_MATCHING_TIPS.md](docs/AGENT_MATCHING_TIPS.md)**. Expand this document as you notice new patterns, but always ask for human review afterwards — some patterns might be red herrings.
+For detailed codegen patterns and matching tips, see the matching-tips sections in **[CLAUDE.md](CLAUDE.md)** (MWCC Reordering and Store/Load Rules, Stack Padding Bugs, Control Flow Codegen, Inline Tracking, Reference Locals, Constant Hoisting, Local Symbol Mangling, Symbol Order with `-inline deferred`, TVec3 Codegen). Expand those sections as you notice new patterns, but always ask for human review afterwards — some patterns might be red herrings.
 
 ## Key Data Files
 
@@ -365,4 +365,4 @@ UNUSED functions must still be reconstructed in the source because:
 - **Focus on one part of the function at a time**. Identify what exact lines in the source code a non-matching part of the disassembly corresponds. Use `--range` argument of the diff tool to only see the asm for the part being worked on.
 - **Use temporary marker calls to map source to asm when anchors are missing**. If there are no obvious anchors (for example, no calls to known functions nearby), temporarily add a fake external marker like `extern void marker__();` and call it at a candidate point in the function. The call will show up clearly in diff output and helps bracket surrounding instructions, and you can repeat this process to narrow correspondence precisely.
 - **Always remove marker calls after mapping**. Any extra call can change register allocation/scheduling and inhibit matching, so markers are strictly temporary debugging aids.
-- **Read [docs/AGENT_MATCHING_TIPS.md](docs/AGENT_MATCHING_TIPS.md)** for detailed MWCC codegen patterns that come up repeatedly.
+- **Read the matching-tips sections in [CLAUDE.md](CLAUDE.md)** for detailed MWCC codegen patterns that come up repeatedly.
