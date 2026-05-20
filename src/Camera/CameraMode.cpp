@@ -1,5 +1,7 @@
 #include <Camera/Camera.hpp>
 
+#pragma dont_inline on
+
 static const bool kNormalCameraTable[73] = {
 	1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
@@ -30,46 +32,69 @@ bool CPolarSubCamera::isNormalCameraSpecifyMode(int mode) const
 
 bool CPolarSubCamera::isDefiniteCameraSpecifyMode(int mode) const
 {
-	if (mode == 9)
-		return true;
-	if (mode >= 0x1E && mode < 0x26)
-		return true;
-	if (mode == 0x3B)
-		return true;
-	return false;
+	bool result = false;
+	switch (mode) {
+	case 0x09:
+	case 0x1E:
+	case 0x1F:
+	case 0x20:
+	case 0x21:
+	case 0x22:
+	case 0x23:
+	case 0x24:
+	case 0x25:
+	case 0x3B:
+		result = true;
+	}
+	return result;
 }
 
 bool CPolarSubCamera::isFixCameraSpecifyMode(int mode) const
 {
-	if (mode == 0x3A)
-		return true;
-	if (mode >= 0x16 && mode < 0x1E)
-		return true;
-	return false;
+	bool result = false;
+	switch (mode) {
+	case 0x16:
+	case 0x17:
+	case 0x18:
+	case 0x19:
+	case 0x1A:
+	case 0x1B:
+	case 0x1C:
+	case 0x1D:
+	case 0x3A:
+		result = true;
+	}
+	return result;
 }
 
 bool CPolarSubCamera::isRailCameraSpecifyMode(int) const { return false; }
 
 bool CPolarSubCamera::isFollowCameraSpecifyMode(int mode) const
 {
-	if (mode == 0)
-		return true;
-	if (mode >= 0x35 && mode < 0x37)
-		return true;
-	if (mode >= 0x45 && mode < 0x47)
-		return true;
-	return false;
+	bool result = false;
+	switch (mode) {
+	case 0x00:
+	case 0x35:
+	case 0x36:
+	case 0x45:
+	case 0x46:
+		result = true;
+	}
+	return result;
 }
 
 bool CPolarSubCamera::isTowerCameraSpecifyMode(int mode) const
 {
-	if (mode == 0x37)
-		return true;
-	if (mode == 0x41)
-		return true;
-	if (mode >= 0x27 && mode < 0x2A)
-		return true;
-	return false;
+	bool result = false;
+	switch (mode) {
+	case 0x27:
+	case 0x28:
+	case 0x29:
+	case 0x37:
+	case 0x41:
+		result = true;
+	}
+	return result;
 }
 
 bool CPolarSubCamera::isTalkCameraSpecifyMode(int mode) const
@@ -104,19 +129,24 @@ bool CPolarSubCamera::isJetCoaster1stCamera() const
 
 bool CPolarSubCamera::isOverHipAttackSpecifyMode(int mode) const
 {
-	if (isFixCameraSpecifyMode(mode))
-		return true;
-	if (isDefiniteCameraSpecifyMode(mode))
-		return true;
-	// Otherwise check explicit mode list
-	switch (mode) {
-	case 0x08: case 0x0B: case 0x0D: case 0x0E: case 0x11: case 0x14:
-	case 0x26: case 0x27: case 0x28: case 0x29: case 0x2A: case 0x2F:
-	case 0x33: case 0x37: case 0x38: case 0x39: case 0x41: case 0x42:
-	case 0x43: case 0x47: case 0x48:
-		return true;
+	bool helper_match = true;
+	bool result = false;
+	if (!isFixCameraSpecifyMode(mode)) {
+		if (!isDefiniteCameraSpecifyMode(mode))
+			helper_match = false;
 	}
-	return false;
+	if (helper_match) {
+		result = true;
+	} else {
+		switch (mode) {
+		case 0x08: case 0x0B: case 0x0D: case 0x0E: case 0x11: case 0x14:
+		case 0x26: case 0x27: case 0x28: case 0x29: case 0x2A: case 0x2F:
+		case 0x33: case 0x37: case 0x38: case 0x39: case 0x41: case 0x42:
+		case 0x43: case 0x47: case 0x48:
+			result = true;
+		}
+	}
+	return result;
 }
 
 bool CPolarSubCamera::isNormalCameraCompletely() const
