@@ -36,6 +36,65 @@ them in future ticks.
 
 ## Settled
 
+### Intermediate `bool match` local produces target's r0→r31 pattern
+
+**Rule:** When target uses an intermediate result register
+(typically r0) for an inner expression's outcome, then `mr r31, r0`
+at the end — declaring the result as a SEPARATE local that is
+assigned in both branches of an if/else and then copied to the
+final result produces this code shape. The simpler
+`bool result = false; if (cond) result = true;` form (without the
+intermediate temp) produces `li r31, 1` direct stores instead.
+
+**Pattern (target asm):**
+```
+... bunch of compares + beq to TRUE block ...
+TRUE:  li r0, 1; b L_SET
+FALSE: li r0, 0
+L_SET: mr r31, r0
+```
+
+**Source that matches:**
+```cpp
+bool match;
+if (test) {
+    match = true;
+} else {
+    match = false;
+}
+result = match;
+```
+
+**Where observed:**
+- `src/Camera/CameraMarioData.cpp::isMarioSlider` — adding the
+  intermediate `bool match` after the OR-chain test took the
+  function from 95.8% (with direct `result = true` in the
+  if-block) to 100%.
+- Implicitly used as the standard NPC-predicate pattern in
+  `src/NPC/NpcBase.cpp` for all isXxx functions added this tick
+  (isPollutionNpc, isChild, isBehaveToWaterNpc, etc).
+
+### Single-equality `switch` defeats subis fusion too
+
+**Rule:** Even when there's only ONE equality check against a
+constant with shared high bits (e.g. `mActorType == 0x04000013`),
+MWCC will compile `if (x == K) ...` with subis-fusion
+(`subis r4, r5, 0x400; cmplwi r4, 0x13`) instead of the target's
+direct `addi r0, r4, 0x13; cmpw r5, r0`. Wrapping the single case
+in a `switch (x) { case K: ... }` defeats the fusion and produces
+the target's two-instruction comparison.
+
+This is a refinement of the broader switch-defeats-fusion rule
+below — even single-case switches help when the constant has
+high bits that would otherwise trigger fusion.
+
+**Where observed:**
+- `src/NPC/NpcBase.cpp` — `isNormalMareW`, `isNormalMareM`,
+  `isSpecialMonteW` each check one mActorType value (0x04000013,
+  0x0400000E, 0x0400000D). Direct `if` form gave 22.5%–59% match
+  after the bool-result rewrite; wrapping in a 1-case switch took
+  them all to 100%.
+
 ### `switch` defeats fusion of multiple equality compares
 
 **Rule:** When source has multiple equality compares of an int against
@@ -126,16 +185,22 @@ not lexically scoped around the function definition. Multiple positions of `on`/
 in the same file all produced the same compilation outcome — the state at
 end-of-file is what stuck.
 
-**Where observed:** `src/JSystem/JDrama/JDRDStageGroup.cpp`. Tried wrapping only
-`perform()` in `#pragma dont_inline on ... off`. Either both functions saw `on`
-(when the file ended with `on`) or both saw `off` (when the file ended with `off`
-or `reset`). Could not pin one function to `on` and another to `off`.
+**Where observed:**
+- `src/JSystem/JDrama/JDRDStageGroup.cpp`. Tried wrapping only `perform()` in
+  `#pragma dont_inline on ... off`. Either both functions saw `on` (when the
+  file ended with `on`) or both saw `off`. Could not pin one function on and
+  another off.
+- `src/NPC/NpcBase.cpp` (this tick, supporting evidence). Adding
+  `#pragma dont_inline on` at top of file made isMadNpc's call to
+  `isNormalMonteW` a `bl` (matching target). The previously-100%-matching
+  isXxx predicates (which had no calls) were unaffected. The pragma applied
+  TU-wide as expected.
 
-**Experiment to confirm:** Reproduce in a second TU. Best candidate would be a TU
-where two functions need different inlining decisions (one calls a large inline
-that should *not* expand, the other has an auto-generated dtor that *should* inline
-its base subobject dtors). If both follow the file-end pragma state, this is
-confirmed.
+**Experiment to confirm a different scope mechanism:** A TU where two
+functions need different inlining decisions (one needs `on`, the other an
+auto-generated dtor that needs `off`) and we successfully control them
+independently using e.g. `__noinline` attribute, declaration trick, or
+moving inline source out of header.
 
 **Consequence if true:** When a TU needs both a `dont_inline on` function and an
 auto-generated dtor that inlines empty base dtors, **we cannot have both match**
