@@ -247,34 +247,34 @@ void CPolarSubCamera::ctrlLButtonCamera_()
 	f32 stickY         = -pad->mCompSPos[5];
 
 	if (unk7C == 0) {
-		if (SMS_CheckMarioFlag(0x8000)) {
-			if (SMS_GetMarioWaterGun() == nullptr) {
-				TCameraMarioData* mario = gpCameraMario;
-				unk8C.x                 = mario->mPosX;
-				unk8C.y                 = mario->mPosY;
-				unk8C.z                 = mario->mPosZ;
-			} else {
-				MtxPtr m = ((TWaterGun*)SMS_GetMarioWaterGun())->getNozzleMtx();
-				unk8C.x  = m[0][3];
-				unk8C.y  = m[1][3];
-				unk8C.z  = m[2][3];
-
-				JGeometry::TVec3<f32> up(m[0][1], m[1][1], m[2][1]);
-				up.normalize();
-				up.x *= 30.0f;
-				up.y *= 30.0f;
-				up.z *= 30.0f;
-				unk8C.x += up.x;
-				unk8C.y += up.y;
-				unk8C.z += up.z;
-			}
-		} else {
+		if (!SMS_CheckMarioFlag(0x8000)) {
 			TCameraMarioData* mario = gpCameraMario;
 			unk8C.x                 = mario->mPosX;
 			unk8C.y                 = mario->mPosY;
 			unk8C.z                 = mario->mPosZ;
-		}
+		} else if (SMS_GetMarioWaterGun() == nullptr) {
+			TCameraMarioData* mario = gpCameraMario;
+			unk8C.x                 = mario->mPosX;
+			unk8C.y                 = mario->mPosY;
+			unk8C.z                 = mario->mPosZ;
+		} else {
+			MtxPtr m = ((TWaterGun*)SMS_GetMarioWaterGun())->getNozzleMtx();
+			unk8C.x  = m[0][3];
+			unk8C.y  = m[1][3];
+			unk8C.z  = m[2][3];
 
+			JGeometry::TVec3<f32> up(m[0][1], m[1][1], m[2][1]);
+			up.normalize();
+			up.x *= 30.0f;
+			up.y *= 30.0f;
+			up.z *= 30.0f;
+			unk8C.x += up.x;
+			unk8C.y += up.y;
+			unk8C.z += up.z;
+		}
+	}
+
+	if (*(s32*)((u8*)this + 0x78) == 0) {
 		u16& flags = *(u16*)((u8*)this + 0x64);
 		if ((flags & 0x20) != 0) {
 			void* notice = *(void**)((u8*)this + 0x2A4);
