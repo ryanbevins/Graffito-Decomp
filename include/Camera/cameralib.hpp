@@ -75,6 +75,8 @@ template <class T> T CLBRoundf(f32 param_1)
 	return (T)(param_1 + (param_1 > 0.0f ? 0.5f : -0.5f));
 }
 
+template <class T> T CLBSquared(T param_1) { return param_1 * param_1; }
+
 template <class T> T CLBPalFrame(T param_1)
 {
 	f32 rate = SMSGetAnmFrameRate();
