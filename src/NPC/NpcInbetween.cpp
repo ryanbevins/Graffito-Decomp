@@ -1,5 +1,46 @@
 #include <NPC/NpcInbetween.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+
+void TNpcInbetween::execMotionBlend(MActor* mactor)
+{
+	f32 ratio = 0.0f;
+	if (isForcedBlendRatio()) {
+		mMotionBlendTimer = 0;
+		J3DAnmTransform* old_ptr;
+		if (mactor->unkC)
+			old_ptr = mactor->unkC->getOldMotionBlendAnmPtr();
+		else
+			old_ptr = nullptr;
+		if (old_ptr) {
+			J3DFrameCtrl local = *mactor->getFrameCtrl(0);
+			local.update();
+			old_ptr->setFrame(local.getFrame());
+			ratio = mForcedBlendRatio;
+		}
+	} else if (isMotionBlending()) {
+		if (mMotionBlendTimer > 0)
+			mMotionBlendTimer -= 1;
+		if (mMotionBlendTimer > 0) {
+			J3DAnmTransform* old_ptr;
+			if (mactor->unkC)
+				old_ptr = mactor->unkC->getOldMotionBlendAnmPtr();
+			else
+				old_ptr = nullptr;
+			if (old_ptr) {
+				f32 frame;
+				if (mactor->unkC)
+					frame = mactor->unkC->getOldMotionBlendFrame();
+				else
+					frame = 0.0f;
+				old_ptr->setFrame(frame);
+			}
+			ratio = (f32)mMotionBlendTimer / (f32)mMotionBlendFrame;
+		}
+	}
+	if (mactor->unkC)
+		mactor->unkC->setMotionBlendRatio(ratio);
+}
 
 void TNpcInbetween::execPosInbetween(JGeometry::TVec3<f32>* cur_pos)
 {
@@ -9,8 +50,8 @@ void TNpcInbetween::execPosInbetween(JGeometry::TVec3<f32>* cur_pos)
 
 	if (mPosInbetweenTimer >= 2) {
 		mPosInbetweenTimer -= 1;
-		f32 ratio  = 1.0f / ((f32)mPosInbetweenFrame - 1.0f);
-		f32 t      = ratio * ((f32)mPosInbetweenTimer - 1.0f);
+		f32 ratio  = 1.0f / (f32)mPosInbetweenFrame;
+		f32 t      = ratio * (f32)mPosInbetweenTimer;
 		cur_pos->x = t * (mTargetPos.x - mCurrentPos.x) + mCurrentPos.x;
 		cur_pos->y = t * (mTargetPos.y - mCurrentPos.y) + mCurrentPos.y;
 		cur_pos->z = t * (mTargetPos.z - mCurrentPos.z) + mCurrentPos.z;
