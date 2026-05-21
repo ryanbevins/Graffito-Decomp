@@ -135,15 +135,15 @@ void CPolarSubCamera::execNoticeOnOffProc_(EnumNoticeOnOffMode mode)
 {
 	switch ((int)mode) {
 	case 0:
-		*(u32*)((u8*)this + 0x2A4) = 0;
-		*(u16*)((u8*)this + 0x64) &= ~0x40;
+		*(void**)((u8*)this + 0x2A4) = nullptr;
+		*(u16*)((u8*)this + 0x64) &= ~0x20;
 		break;
 
 	case 1: {
 		void* actor = getNoticeActor_();
 		if (actor != *(void**)((u8*)this + 0x2A4) && actor == nullptr) {
-			*(u32*)((u8*)this + 0x2A4) = 0;
-			*(u16*)((u8*)this + 0x64) &= ~0x40;
+			*(void**)((u8*)this + 0x2A4) = nullptr;
+			*(u16*)((u8*)this + 0x64) &= ~0x20;
 		}
 		break;
 	}
@@ -213,9 +213,10 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 void CPolarSubCamera::getNozzleTopPos_(JGeometry::TVec3<f32>* out) const
 {
 	if (SMS_GetMarioWaterGun() == nullptr) {
-		out->x = gpCameraMario->mPosX;
-		out->y = gpCameraMario->mPosY;
-		out->z = gpCameraMario->mPosZ;
+		TCameraMarioData* mario = gpCameraMario;
+		out->x                  = mario->mPosX;
+		out->y                  = mario->mPosY;
+		out->z                  = mario->mPosZ;
 	} else {
 		MtxPtr m = ((TWaterGun*)SMS_GetMarioWaterGun())->getNozzleMtx();
 		out->x   = m[0][3];
@@ -242,9 +243,10 @@ void CPolarSubCamera::ctrlLButtonCamera_()
 	if (unk7C == 0) {
 		if (SMS_CheckMarioFlag(0x8000)) {
 			if (SMS_GetMarioWaterGun() == nullptr) {
-				unk8C.x = gpCameraMario->mPosX;
-				unk8C.y = gpCameraMario->mPosY;
-				unk8C.z = gpCameraMario->mPosZ;
+				TCameraMarioData* mario = gpCameraMario;
+				unk8C.x                 = mario->mPosX;
+				unk8C.y                 = mario->mPosY;
+				unk8C.z                 = mario->mPosZ;
 			} else {
 				MtxPtr m = ((TWaterGun*)SMS_GetMarioWaterGun())->getNozzleMtx();
 				unk8C.x  = m[0][3];
@@ -261,9 +263,10 @@ void CPolarSubCamera::ctrlLButtonCamera_()
 				unk8C.z += up.z;
 			}
 		} else {
-			unk8C.x = gpCameraMario->mPosX;
-			unk8C.y = gpCameraMario->mPosY;
-			unk8C.z = gpCameraMario->mPosZ;
+			TCameraMarioData* mario = gpCameraMario;
+			unk8C.x                 = mario->mPosX;
+			unk8C.y                 = mario->mPosY;
+			unk8C.z                 = mario->mPosZ;
 		}
 
 		u16& flags = *(u16*)((u8*)this + 0x64);
