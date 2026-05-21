@@ -36,6 +36,54 @@ them in future ticks.
 
 ## Settled
 
+### `isLegal()` style: nested `? true : false` is the double-normalize lever
+
+**Rule:** When the target asm shows the *double* bool-normalize pattern
+(two consecutive `li r0, 1; b; li r0, 0` blocks separated by
+`clrlwi r0, r0, 24; cmplwi r0, 1; bne ...`), the original source
+constructed the bool by *nesting* two ternary `? true : false`
+expressions, not by writing `bool x = ...; if (!x)`.
+
+The reference pattern is `TBGCheckData::isLegal()` in
+`include/Map/MapData.hpp`:
+```cpp
+// checkFlag returns first ? true : false  (normalize #1)
+bool checkFlag(u32 flag) const { return mFlags & flag ? true : false; }
+// isLegal compares the bool with 1, then ? false : true  (normalize #2)
+bool isLegal() const {
+    return checkFlag(BG_CHECK_FLAG_ILLEGAL) == 1 ? false : true;
+}
+```
+When `isLegal()` is inlined at a call site, the call site emits the
+characteristic
+```
+lhz r0, 4(rX); rlwinm. r0, r0, 0, 27, 27   # mFlags & ILLEGAL
+beq L1; li r0, 1; b L2                      # normalize #1: bool conv
+L1: mr r0, r3 (or li r0, 0)
+L2: clrlwi r0, r0, 24; cmplwi r0, 1; bne L3 # negate the bool
+li r0, 0; b L4
+L3: li r0, 1                                 # normalize #2: !bool
+L4: clrlwi. r0, r0, 24; beq end             # finally, test
+```
+
+In contrast, the natural-looking source `bool b = expr; if (!b)`
+collapses to a single `cmpwi r0, 0; bne` — *one* normalize, no
+roundtrip. So when matching, swap to the nested-ternary form (or
+call the existing `isLegal()` / similar helper).
+
+A single-normalize sibling pattern — one `li 1; b; li 0` block,
+no `cmplwi r0, 1` afterwards — comes from one explicit
+`int_expr & MASK ? true : false`. Used at the same call site for
+e.g. `data->mBGType & BG_PROPERTY_FLAG_CAMERA_WONT_CLIP ? true : false`.
+
+**Citations:**
+- `CameraBGCheck.cpp::isValidCamClip` (tick 22) — `data->isLegal()`
+  + `data->mBGType & WONT_CLIP ? true : false` together produced the
+  full target asm for the validity check inlined into
+  execGroundCheck_ / execRoofCheck_ / execWallCheck_, +30pp combined.
+- `MapData.hpp::isLegal` is itself the canonical example (its
+  callers across the codebase emit the same shape).
+
 ### Inner parens around the divisor expose `fdivs+fmadds` fusion
 
 **Rule:** With `-fp_contract on`, MWCC fuses `a + b * c` into `fmadds`.

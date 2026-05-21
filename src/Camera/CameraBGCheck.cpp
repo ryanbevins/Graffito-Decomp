@@ -203,8 +203,8 @@ bool CPolarSubCamera::isNeedRoofCheck_() const
 			if (!isNowInbetween())
 				kill = true;
 		}
-		if (kill || isRailCameraSpecifyMode(mMode) || mMode == 2
-		    || *(u16*)((u8*)this + 0x27A) != 0) {
+		if ((kill ? true : false) || isRailCameraSpecifyMode(mMode)
+		    || mMode == 2 || *(u16*)((u8*)this + 0x27A) != 0) {
 			result = false;
 		}
 	}
@@ -222,8 +222,8 @@ bool CPolarSubCamera::isNeedGroundCheck_()
 			if (!isNowInbetween())
 				kill = true;
 		}
-		if (kill || isRailCameraSpecifyMode(mMode) || mMode == 2
-		    || *(u16*)((u8*)this + 0x278) != 0) {
+		if ((kill ? true : false) || isRailCameraSpecifyMode(mMode)
+		    || mMode == 2 || *(u16*)((u8*)this + 0x278) != 0) {
 			result = false;
 		} else if (mMode != 0x2A) {
 			if (isNormalCameraSpecifyMode(mMode)
