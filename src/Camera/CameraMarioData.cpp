@@ -82,7 +82,6 @@ bool TCameraMarioData::isMarioRocketing() const
 	bool result = false;
 	switch (SMS_GetMarioStatus()) {
 	case 0x88B:
-	case 0x88C:
 	case 0x88D:
 		result = true;
 	}
