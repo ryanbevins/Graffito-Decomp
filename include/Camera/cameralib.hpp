@@ -62,8 +62,8 @@ BOOL CLBChaseGeneralConstantSpecifySpeed(T* param_1, T param_2, T param_3)
 
 	return true;
 }
-template <class T> void CLBEaseInInbetween(T, T, T);
-template <class T> void CLBEaseOutInbetween(T, T, T);
+template <class T> T CLBEaseInInbetween(T, T, f32);
+template <class T> T CLBEaseOutInbetween(T, T, T);
 
 template <class T> T CLBLinearInbetween(T a, T b, f32 f)
 {
@@ -84,7 +84,7 @@ template <class T> T CLBPalFrame(T param_1)
 }
 
 template <class T> void CLBPalIntSpeed(T);
-template <class T> void CLBTwoDegreeGeneralInbetween(T, T, f32, f32);
+template <class T> T CLBTwoDegreeGeneralInbetween(T, T, f32, f32);
 
 template <class T> f32 CLBCalcRatio(T a, T b, T c)
 {
