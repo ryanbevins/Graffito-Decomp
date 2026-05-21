@@ -12,6 +12,9 @@
 #include <Map/StickyStainManager.hpp>
 #include <Map/BathWaterManager.hpp>
 
+const char* cSunVolumeName    = "/scene/sun";
+const char* cSunsetVolumeName = "/scene/sunset";
+
 JDrama::TNameRef* TMarNameRefGen::getNameRef_Map(const char* name) const
 {
 	if (strcmp(name, "Map") == 0)
