@@ -1441,18 +1441,16 @@ void TMario::initModel()
 
 	frameCtrl[2].setRate(SMSGetAnmFrameRate());
 
-	// Something weird is going on around here
-	// M3UMarioMtxCalcSetInfo might be a wrong assumption?
-	M3UMarioMtxCalcSetInfo* setInfo = new M3UMarioMtxCalcSetInfo();
-	setInfo->mJointIdx              = 0;
-	setInfo->unk2                   = 2;
-	setInfo->mMtxCalcIdx            = 0;
-	setInfo->mAnmTransformIdx[0]    = 0x14;
-	setInfo->mAnmTransformIdx[1]    = 0x41;
-	setInfo->mFrameCtrlIdx          = 0;
-	setInfo->unkA                   = mBoneIDs[0]; // Probably wrong?
-	setInfo->unkE                   = 0;
-	setInfo->unk12                  = 0x100;
+	M3UMarioMtxCalcSetInfo* setInfo = new M3UMarioMtxCalcSetInfo[2];
+	setInfo[0].mJointIdx            = 0;
+	setInfo[0].unk2                 = 2;
+	setInfo[0].mMtxCalcIdx          = 0;
+	setInfo[0].mAnmTransformIdx[0]  = 0x14;
+	setInfo[0].mAnmTransformIdx[1]  = 0x41;
+	setInfo[0].mFrameCtrlIdx        = 0;
+	setInfo[1].mJointIdx            = mBoneIDs[0];
+	setInfo[1].mAnmTransformIdx[0]  = 0;
+	setInfo[1].mFrameCtrlIdx        = 1;
 	modelMario->unk10               = 2;
 	modelMario->unk24               = setInfo;
 
