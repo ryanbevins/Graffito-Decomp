@@ -36,6 +36,95 @@ them in future ticks.
 
 ## Settled
 
+### Cache global-pointer-via-stores: introduce a local to silence reload
+
+**Rule:** When the same global pointer is dereferenced multiple times in a
+row, with intervening stores to memory through *another* pointer, MWCC
+pessimistically reloads the global (`lwz r3, gFoo@sda21`) before each
+deref because the store could alias the global. Caching the pointer
+into a local `T* foo = gFoo;` before the first use lets MWCC keep
+the pointer in a single register across all the reads.
+
+**Pattern in source:**
+
+```cpp
+// Pessimistic — emits 3× `lwz r3, gpCameraMario@sda21`:
+out->x = gpCameraMario->mPosX;
+out->y = gpCameraMario->mPosY;
+out->z = gpCameraMario->mPosZ;
+
+// Cached — single `lwz r3, gpCameraMario@sda21`:
+TCameraMarioData* mario = gpCameraMario;
+out->x = mario->mPosX;
+out->y = mario->mPosY;
+out->z = mario->mPosZ;
+```
+
+The relevant signal in the target is whether `lwz rN, gFoo@sda21`
+appears once or repeatedly across consecutive stores to a different
+pointer. Repeated reloads => no local; single load => cached local.
+
+**Where observed:**
+- `src/Camera/CameraTalk.cpp::ctrlTalkCamera_` (100% match) — uses
+  the cached `TCameraMarioData* mario = gpCameraMario;` pattern.
+- `src/Camera/CameraNotice.cpp::getNozzleTopPos_` — 96.90% → 99.84%
+  applying the same cache for the non-watergun branch.
+- `src/Camera/CameraNotice.cpp::ctrlLButtonCamera_` — same lever
+  applied twice (3 separate `gpCameraMario->mPos*` blocks), part of
+  61.18% → 73.25% gain.
+
+### `if (!cond)` to flip block-ordering when target's branch is on TRUE
+
+**Rule:** MWCC always emits the source's THEN-block before the
+ELSE-block (per CLAUDE.md). So when target's asm shows
+`bne THEN_LABEL` (jump *on true*) with the THEN block placed AFTER
+the unconditional fall-through ELSE block, the original source
+wrote the condition INVERTED. I.e., `if (!cond) ELSE_body else
+THEN_body`, with the labels named from the diff's perspective.
+
+**Pattern (target asm):**
+```
+test
+bne LABEL_X     ; jump on TRUE
+... block A ... ; fall-through (this is the ELSE branch of original src!)
+b END
+LABEL_X: ... block B ...   ; reached only if test was TRUE
+END:
+```
+
+**Source that matches:**
+```cpp
+// NOT: if (cond) { block_B } else { block_A }
+// (would emit `beq LABEL_A; block_B; b END; LABEL_A: block_A; END:`)
+//
+// YES:
+if (!cond) {
+    block_A
+} else {
+    block_B
+}
+// emits `bne LABEL_B; block_A; b END; LABEL_B: block_B; END:` — match.
+```
+
+In other words: invert the condition AND swap the branches if you
+want the textual order of THEN/ELSE in asm to swap.
+
+**Where observed:**
+- `src/Camera/CameraNotice.cpp::ctrlLButtonCamera_` — outer test
+  `SMS_CheckMarioFlag(0x8000)`. Target emits `bne 0x84` (jump on
+  true to the watergun-path). Natural `if (flag) { watergun } else
+  { copy }` emits `beq` to the else; rewriting as
+  `if (!flag) { copy } else if (gun == null) { copy } else { watergun }`
+  swaps the layout and matches target. +8pp this fn alone.
+- `mario/Camera/CameraBGCheck::isValidCamClip` (tick 22) — also
+  uses this lever indirectly via the nested-ternary form of
+  `isLegal()`. The `?:` chain creates similar branch-order inversions.
+
+This is a refinement of the broader CLAUDE.md "compiler NEVER swaps
+the true/false block" rule — combined with the observation that
+target's branch direction (`bne` vs `beq`) tells you whether the
+THEN block lives at the fall-through or at the labeled position.
+
 ### `isLegal()` style: nested `? true : false` is the double-normalize lever
 
 **Rule:** When the target asm shows the *double* bool-normalize pattern
