@@ -159,22 +159,17 @@ void CPolarSubCamera::endDemoCamera()
 			    ->onNeutralMarioKey();
 		}
 	} else if (isSimpleDemoCamera()) {
-		endSimpleDemoCamera_();
+		if (isSimpleDemoCamera()) {
+			void* save                = *(void**)((u8*)this + 0x2B4);
+			*(int*)((u8*)save + 0x10) = 0;
+			*(int*)((u8*)save + 0x14) = 0;
+			void* save2               = *(void**)((u8*)this + 0x2B4);
+			*(u8*)((u8*)save2 + 0xC) &= ~1;
+			((TMarioGamePad*)*(void**)((u8*)this + 0x120))
+			    ->onNeutralMarioKey();
+		}
 	}
 	*(u32*)((u8*)*(void**)((u8*)this + 0x2B4) + 0x0) = 0;
-}
-
-void CPolarSubCamera::endSimpleDemoCamera_()
-{
-	if (isSimpleDemoCamera()) {
-		void* save                = *(void**)((u8*)this + 0x2B4);
-		*(int*)((u8*)save + 0x10) = 0;
-		*(int*)((u8*)save + 0x14) = 0;
-		void* save2               = *(void**)((u8*)this + 0x2B4);
-		*(u8*)((u8*)save2 + 0xC) &= ~1;
-		((TMarioGamePad*)*(void**)((u8*)this + 0x120))
-		    ->onNeutralMarioKey();
-	}
 }
 
 void CPolarSubCamera::startDemoCamera(const char* name,

@@ -35,7 +35,6 @@ public:
 	void startReproduceDemoCamera_(const char*, const JGeometry::TVec3<f32>*);
 	void restartReproduceDemoCamera_();
 	void endReproduceDemoCamera_();
-	void endSimpleDemoCamera_();
 	void updateDemoCamera_(bool);
 	void updateGateDemoCamera_();
 	void startGateDemoCamera(const JDrama::TActor*);
