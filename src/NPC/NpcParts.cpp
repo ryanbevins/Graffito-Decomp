@@ -49,8 +49,8 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 		if ((mask & (1 << level)) == 0)
 			continue;
 
-		s16 unifyIdx                  = ((s16*)color_info)[modelData->unk28];
 		const GXColor* pollutionColor = nullptr;
+		s16 unifyIdx                  = ((s16*)color_info)[modelData->unk28];
 		if (modelData->unk2A) {
 			pollutionColor = unk60->getPtrInitPollutionColor();
 		}
@@ -173,6 +173,7 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 
 void TNpcParts::addJellyFishParts(f32 frame)
 {
+	TSharedParts** dest = &unk0[0][11];
 	int numData = gpMareJellyFishManager->getModelDataKeeper()
 	    ->getModelDataNum();
 	int randIdx = (int)(MsRandF() * (f32)numData);
@@ -181,9 +182,7 @@ void TNpcParts::addJellyFishParts(f32 frame)
 	SDLModel* model = new SDLModel(sdlData, 0, 1);
 	MActor* mactor = new MActor(gpMareJellyFishManager->getMActorAnmData());
 	mactor->setModel(model, 0);
-	TSharedParts* parts = new TSharedParts(unk60, -1, mactor,
-	    "<TSharedParts>");
-	unk0[0][11] = parts;
+	*dest = new TSharedParts(unk60, -1, mactor, "<TSharedParts>");
 	mactor->setBckFromIndex(0);
 	mactor->setBrkFromIndex(randIdx);
 	mactor->getFrameCtrl(0)->setFrame(frame);
