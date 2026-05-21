@@ -309,7 +309,7 @@ void CLBCalcScaleTranslateMatrix(MtxPtr mtx, const Vec& scale,
  * @param invSpeed a constant inversely proportional to the rate of change
  * @return whether another iteration may refine the angle even further
  */
-bool CLBChaseAngleDecrease(s16* out, s16 target, s16 invSpeed)
+BOOL CLBChaseAngleDecrease(s16* out, s16 target, s16 invSpeed)
 {
 	if (invSpeed == 0) {
 		*out = target;

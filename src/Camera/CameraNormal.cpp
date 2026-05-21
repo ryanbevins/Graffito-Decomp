@@ -16,38 +16,69 @@ static const char* sPositionNameTable[] = {
 	"塔カメラＤ中心", "塔カメラＥ中心",
 };
 
-void CPolarSubCamera::ctrlNormalOrTowerCamera_()
+template <> s16 CLBEaseInInbetween<s16>(s16 a, s16 b, f32 ratio)
 {
-	TMarioGamePad* pad           = unk120;
-	f32 stickX                   = pad->mCompSPos[6];
-	f32 stickY                   = pad->mCompSPos[7];
-	*(f32*)((u8*)this + 0x250)   = 0.0f;
+	return CLBTwoDegreeGeneralInbetween<s16>(a, b, ratio, (f32)(b - a));
+}
 
-	if (unk7C == 0) {
-		unk8C.x = gpCameraMario->mPosX;
-		unk8C.y = gpCameraMario->mPosY;
-		unk8C.z = gpCameraMario->mPosZ;
+void CPolarSubCamera::calcTowerCenterPos_(Vec* out)
+{
+	const char* name = nullptr;
+	switch (mMode) {
+	case 0x27: name = sPositionNameTable[0]; break;
+	case 0x28: name = sPositionNameTable[1]; break;
+	case 0x29: name = sPositionNameTable[2]; break;
+	case 0x37: name = sPositionNameTable[3]; break;
+	case 0x41: name = sPositionNameTable[4]; break;
+	default:
+		out->x = 0.0f;
+		out->y = 0.0f;
+		out->z = 0.0f;
+		return;
 	}
 
-	if (*(s32*)((u8*)this + 0x78) == 0) {
-		u16& flags = *(u16*)((u8*)this + 0x64);
+	TStagePositionInfo* info = (TStagePositionInfo*)gpPositionHolder->searchF(
+	    JDrama::TNameRef::calcKeyCode(name), name);
+	if (info != nullptr) {
+		*out = info->unkC;
+	} else {
+		out->x = 0.0f;
+		out->y = 0.0f;
+		out->z = 0.0f;
+	}
+}
 
-		if (flags & 0x4) {
+void CPolarSubCamera::ctrlNormalOrTowerCamera_()
+{
+	TMarioGamePad* pad         = unk120;
+	f32 stickX                 = pad->mCompSPos[6];
+	f32 stickY                 = pad->mCompSPos[7];
+	*(f32*)((u8*)this + 0x250) = 0.0f;
+
+	if (unk7C == 0) {
+		TCameraMarioData* mario = gpCameraMario;
+		unk8C.x                 = mario->mPosX;
+		unk8C.y                 = mario->mPosY;
+		unk8C.z                 = mario->mPosZ;
+	}
+
+	if (*(u32*)((u8*)this + 0x78) == 0) {
+		if (*(u16*)((u8*)this + 0x64) & 0x4) {
 			if (!CLBChaseAngleDecrease(
 			        &unkA6, *(s16*)((u8*)this + 0x274),
 			        *(s16*)((u8*)this + 0x276))) {
-				flags &= ~0x4;
-				if (flags & 0x8) {
-					flags &= ~0x8;
-					flags |= 0x10;
+				*(u16*)((u8*)this + 0x64) &= ~0x4;
+				if (*(u16*)((u8*)this + 0x64) & 0x8) {
+					*(u16*)((u8*)this + 0x64) &= ~0x8;
+					*(u16*)((u8*)this + 0x64) |= 0x10;
 				}
 			}
 		} else if (isTowerCameraSpecifyMode(mMode)) {
 			if (stickX != 0.0f) {
 				rotateY_ByStickX_(stickX);
 				execInvalidAutoChase_();
-				flags |= 0x80;
-			} else if (!(flags & 0x80) && !isMarioCrabWalk_()) {
+				*(u16*)((u8*)this + 0x64) |= 0x80;
+			} else if (!(*(u16*)((u8*)this + 0x64) & 0x80) && !isMarioCrabWalk_()) {
 				Vec center;
 				calcTowerCenterPos_(&center);
 				calcNoticeTargetYrot_(center);
@@ -80,7 +111,7 @@ void CPolarSubCamera::ctrlNormalOrTowerCamera_()
 			if (isMomentDefinite_()) {
 				unkA6 = matan(*(f32*)((u8*)this + 0xBC) - unk8C.z,
 				              *(f32*)((u8*)this + 0xB4) - unk8C.x);
-			} else if (!(flags & 0x80) && !isMarioCrabWalk_()) {
+			} else if (!(*(u16*)((u8*)this + 0x64) & 0x80) && !isMarioCrabWalk_()) {
 				bool doSpeedCalc;
 				if (isMarioAimWithGun_()) {
 					if (isChangeToParallelCameraByMoveBG_()
@@ -158,38 +189,4 @@ void CPolarSubCamera::ctrlNormalOrTowerCamera_()
 	}
 
 	calcPosAndAt_();
-}
-
-void CPolarSubCamera::calcTowerCenterPos_(Vec* out)
-{
-	const char* name = nullptr;
-	switch (mMode) {
-	case 0x27: name = sPositionNameTable[0]; break;
-	case 0x28: name = sPositionNameTable[1]; break;
-	case 0x29: name = sPositionNameTable[2]; break;
-	case 0x37: name = sPositionNameTable[3]; break;
-	case 0x41: name = sPositionNameTable[4]; break;
-	default:
-		out->x = 0.0f;
-		out->y = 0.0f;
-		out->z = 0.0f;
-		return;
-	}
-
-	TStagePositionInfo* info = (TStagePositionInfo*)gpPositionHolder->searchF(
-	    JDrama::TNameRef::calcKeyCode(name), name);
-	if (info != nullptr) {
-		out->x = info->unkC.x;
-		out->y = info->unkC.y;
-		out->z = info->unkC.z;
-	} else {
-		out->x = 0.0f;
-		out->y = 0.0f;
-		out->z = 0.0f;
-	}
-}
-
-template <> s16 CLBEaseInInbetween<s16>(s16 a, s16 b, f32 ratio)
-{
-	return CLBTwoDegreeGeneralInbetween<s16>(a, b, ratio, (f32)(b - a));
 }
