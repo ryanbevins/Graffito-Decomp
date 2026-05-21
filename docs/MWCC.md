@@ -36,6 +36,85 @@ them in future ticks.
 
 ## Settled
 
+### Multiple bools live simultaneously: declare and init up-front to get separate registers
+
+**Rule:** When target's asm shows multiple boolean variables initialized
+to 0 BEFORE any test runs (e.g. `addi r4, r3, 0; addi r0, r3, 0` —
+two distinct registers being zeroed at the top of an inline) and each
+later conditionally set to 1 via `li rN, 1`, the original source
+declared each bool up front with `bool x = false;` and used a
+SEPARATE `if (cond) x = true;` for each.
+
+The naive chained form `bool b = a && extraCheck;` puts each bool's
+register-life into a tight window (alive only briefly between
+assignment and use) so MWCC reuses ONE register across all of them —
+producing extra `li r0, 0` re-inits and redundant `clrlwi.` normalize
+steps.
+
+**Symptom in our build:** Function inlines `inViewCone`-like helpers
+with 4+ normalize positions (vs target's 3) and 1-2 extra
+`li rN, 0; clrlwi. r0, ...` reinitializations between each `&&`
+check. Match drops 15-25pp depending on how many times the inline is
+expanded.
+
+**Pattern (target asm) for a 3-bool chain like inViewCone:**
+```
+addi r4, r3, 0          ; b = 0 (initialized BEFORE any check)
+addi r0, r3, 0          ; a = 0
+... a-check ...
+li r0, 1                 ; a = 1 if check passed
+clrlwi. r0, r0, 24       ; test a
+beq L_skip_b             ; if !a, b stays 0
+... b-check ...
+li r4, 1                 ; b = 1
+L_skip_b:
+clrlwi. r0, r4, 24       ; test b
+beq L_skip_c             ; if !b, c stays 0
+... c-check ...
+li r3, 1                 ; c = 1
+```
+
+Note: 3 distinct registers (r0, r4, r3) for a/b/c, each only zeroed
+ONCE at the top. No re-initialization between checks.
+
+**Source that matches:**
+```cpp
+bool a = false;
+bool b = false;
+bool c = false;
+if (firstCheck()) a = true;
+if (a && secondCheck()) b = true;
+if (b && thirdCheck()) c = true;
+return c ? true : false;
+```
+
+**Source that does NOT match (extra re-inits + 1 register reused):**
+```cpp
+bool a = firstCheck();
+bool b = a && secondCheck();
+bool c = b && thirdCheck();
+return c ? true : false;
+```
+
+The chained form makes each bool short-lived → MWCC coalesces them
+into one register, requiring `li r0, 0` before each use to "reset" the
+register's contents.
+
+The final `return c ? true : false` keeps the trailing
+intermediate-byte normalize (see Settled rule
+[[Ternary `? true : false` produces intermediate-byte sequence]]).
+
+**Where observed:**
+- `src/Camera/CameraNotice.cpp::inViewCone` — namespace-anonymous
+  inline used twice in `getNoticeActor_`. With the chained `bool a =
+  X && Y;` form, both inline expansions had 4 normalize steps and 1
+  reused register, capping the function at ~72.4%. Switching to the
+  up-front-init + `if` form gave 3 normalize steps and 3 distinct
+  registers per inline — `getNoticeActor_` 72.43% → 75.88% (+3.45pp)
+  in one commit, with the second inline expansion confirming the
+  same delta. Together with the `? true : false` removal on each
+  bool, +22.14pp across the function.
+
 ### Cache global-pointer-via-stores: introduce a local to silence reload
 
 **Rule:** When the same global pointer is dereferenced multiple times in a
