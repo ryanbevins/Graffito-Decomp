@@ -17,11 +17,9 @@ void TNpcThrow::throwMario(THitActor* mario)
 	}
 
 	s16 yawShort = CLBDegToShortAngle(mario->mRotation.y);
-	f32 sin_a    = JMASSin(yawShort);
-	f32 cos_a    = JMASCos(yawShort);
 	f32 oldX     = dir.x;
-	dir.x        = oldX * cos_a + dir.z * sin_a;
-	dir.z        = -oldX * sin_a + dir.z * cos_a;
+	dir.x        = oldX * JMASCos(yawShort) + dir.z * JMASSin(yawShort);
+	dir.z        = -oldX * JMASSin(yawShort) + dir.z * JMASCos(yawShort);
 	SMS_SendMessageToMario(mario, HIT_MESSAGE_UNK7);
 	SMS_ThrowMario(dir, unk0);
 }
