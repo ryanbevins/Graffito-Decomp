@@ -123,9 +123,9 @@ public:
 	bool isNeedGroundCheck_();
 	bool isNeedRoofCheck_() const;
 	bool isNeedWallCheck_() const;
-	void execWallCheck_(Vec*);
-	void execRoofCheck_(Vec);
-	void execGroundCheck_(Vec);
+	bool execWallCheck_(Vec*);
+	bool execRoofCheck_(Vec);
+	bool execGroundCheck_(Vec);
 
 	s16 getUnk2C8() const { return unk2C8; }
 

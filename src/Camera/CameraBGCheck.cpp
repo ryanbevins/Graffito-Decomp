@@ -64,14 +64,14 @@ inline bool isValidCamClip(const TBGCheckData* data)
 
 } // namespace
 
-void CPolarSubCamera::execGroundCheck_(Vec p)
+bool CPolarSubCamera::execGroundCheck_(Vec p)
 {
 	bool didSnap                 = false;
 	void* opt                    = getKindOpt(this);
 	JGeometry::TVec3<f32>* track = getTrackPos(this);
 	f32 baseGap                  = *(f32*)((u8*)opt + 0xA4);
-	f32 interpA                  = *(f32*)((u8*)opt + 0xB8);
 	f32 interpB                  = *(f32*)((u8*)opt + 0xCC);
+	f32 interpA                  = *(f32*)((u8*)opt + 0xB8);
 	f32 interp = CLBLinearInbetween<f32>(interpA, interpB, track->z);
 	if (mMode == 0x2A) {
 		f32 a = 200.0f;
@@ -96,10 +96,10 @@ void CPolarSubCamera::execGroundCheck_(Vec p)
 			didSnap                   = true;
 		}
 	}
-	(void)didSnap;
+	return didSnap;
 }
 
-void CPolarSubCamera::execRoofCheck_(Vec p)
+bool CPolarSubCamera::execRoofCheck_(Vec p)
 {
 	bool didSnap             = false;
 	bool inMonte             = false;
@@ -128,96 +128,74 @@ void CPolarSubCamera::execRoofCheck_(Vec p)
 			didSnap                   = true;
 		}
 	}
-	(void)didSnap;
+	return didSnap;
 }
 
-void CPolarSubCamera::execWallCheck_(Vec* p)
+bool CPolarSubCamera::execWallCheck_(Vec* p)
 {
 	bool didSnap = false;
 	f32 radius   = *(f32*)((u8*)this + 0x7C);
-	if (radius <= 0.0f) {
-		return;
+	if (radius > 0.0f) {
+		TBGWallCheckRecord record;
+		record.mCenter.x   = *(f32*)((u8*)this + 0x80);
+		record.mCenter.y   = 10.0f + *(f32*)((u8*)this + 0xB8);
+		record.mCenter.z   = *(f32*)((u8*)this + 0x88);
+		record.mRadius     = radius;
+		record.mMaxResults = 4;
+		record.mFlags      = 0;
+
+		if (gpMap->isTouchedWallsAndMoveXZ(&record)) {
+			int count = record.mResultWallsNum;
+					for (int i = 0; i < count; ++i) {
+				TBGCheckData* wall = record.mResultWalls[i];
+				if (!isValidCamClip(wall))
+					continue;
+
+				f32 cx = *(f32*)((u8*)this + 0x80);
+				f32 cy = *(f32*)((u8*)this + 0x84);
+				f32 cz = *(f32*)((u8*)this + 0x88);
+				f32 tx = cx;
+				f32 ty = cy;
+				f32 tz = cz;
+
+				f32 nx    = wall->mNormal.x;
+				f32 ny    = wall->mNormal.y;
+				f32 nz    = wall->mNormal.z;
+				f32 sdist = tx * nx + ty * ny + tz * nz
+				            + wall->mPlaneDistance;
+				f32 absD = sdist >= 0.0f ? sdist : -sdist;
+				if (absD >= radius)
+					continue;
+
+				void* opt   = getKindOpt(this);
+				f32 push    = radius - sdist;
+				f32 camRate = *(f32*)((u8*)opt + 0x90);
+				f32 camPush = push * camRate;
+				tx += camPush * nx;
+				tz += camPush * nz;
+				*(f32*)((u8*)this + 0x80) = tx;
+				*(f32*)((u8*)this + 0x88) = tz;
+
+				cx += push * nx;
+				cz += push * nz;
+				p->x    = cx;
+				p->z    = cz;
+				didSnap = true;
+			}
+		}
 	}
-
-	TBGWallCheckRecord record;
-	record.mCenter.x   = *(f32*)((u8*)this + 0x80);
-	record.mCenter.y   = 10.0f + *(f32*)((u8*)this + 0xB8);
-	record.mCenter.z   = *(f32*)((u8*)this + 0x88);
-	record.mRadius     = radius;
-	record.mMaxResults = 4;
-	record.mFlags      = 0;
-
-	if (!gpMap->isTouchedWallsAndMoveXZ(&record)) {
-		return;
-	}
-
-	int count = record.mResultWallsNum;
-	if (count <= 0) {
-		return;
-	}
-
-	for (int i = 0; i < count; ++i) {
-		TBGCheckData* wall = record.mResultWalls[i];
-		if (!isValidCamClip(wall))
-			continue;
-
-		f32 cx = *(f32*)((u8*)this + 0x80);
-		f32 cy = *(f32*)((u8*)this + 0x84);
-		f32 cz = *(f32*)((u8*)this + 0x88);
-		f32 tx = cx;
-		f32 ty = cy;
-		f32 tz = cz;
-
-		f32 nx    = wall->mNormal.x;
-		f32 ny    = wall->mNormal.y;
-		f32 nz    = wall->mNormal.z;
-		f32 sdist = tx * nx + ty * ny + tz * nz + wall->mPlaneDistance;
-		f32 absD  = sdist >= 0.0f ? sdist : -sdist;
-		if (absD >= radius)
-			continue;
-
-		void* opt   = getKindOpt(this);
-		f32 push    = radius - sdist;
-		f32 camRate = *(f32*)((u8*)opt + 0x90);
-		f32 camPush = push * camRate;
-		tx += camPush * nx;
-		tz += camPush * nz;
-		*(f32*)((u8*)this + 0x80) = tx;
-		*(f32*)((u8*)this + 0x88) = tz;
-
-		cx += push * nx;
-		cz += push * nz;
-		p->x    = cx;
-		p->z    = cz;
-		didSnap = true;
-	}
-	(void)didSnap;
+	return didSnap;
 }
 
 bool CPolarSubCamera::isNeedWallCheck_() const
 {
 	bool result = true;
-	int mode    = mMode;
-	if (mode == 0x49) {
+	if (mMode == 0x49 || isLButtonCameraSpecifyMode(mMode)
+	    || isLButtonCameraInbetween() || isTalkCameraSpecifyMode(mMode)
+	    || isTalkCameraInbetween() || isRailCameraSpecifyMode(mMode)
+	    || mMode == 2 || mMode == 0xD
+	    || (*(u16*)((u8*)this + 0x64) & 4) != 0) {
 		result = false;
-	} else if (isLButtonCameraSpecifyMode(mode)) {
-		result = false;
-	} else if (isLButtonCameraInbetween()) {
-		result = false;
-	} else if (isTalkCameraSpecifyMode(mMode)) {
-		result = false;
-	} else if (isTalkCameraInbetween()) {
-		result = false;
-	} else if (isRailCameraSpecifyMode(mMode)) {
-		result = false;
-	} else if (mMode == 2) {
-		result = false;
-	} else if (mMode == 0xD) {
-		result = false;
-	} else {
-		u16 flags = *(u16*)((u8*)this + 0x64);
-		if ((flags & 4) != 0)
-			result = false;
 	}
 	return result;
 }
@@ -233,13 +211,8 @@ bool CPolarSubCamera::isNeedRoofCheck_() const
 			if (!isNowInbetween())
 				kill = true;
 		}
-		if (kill) {
-			result = false;
-		} else if (isRailCameraSpecifyMode(mMode)) {
-			result = false;
-		} else if (mMode == 2) {
-			result = false;
-		} else if (*(u16*)((u8*)this + 0x27A) != 0) {
+		if (kill || isRailCameraSpecifyMode(mMode) || mMode == 2
+		    || *(u16*)((u8*)this + 0x27A) != 0) {
 			result = false;
 		}
 	}
@@ -257,22 +230,12 @@ bool CPolarSubCamera::isNeedGroundCheck_()
 			if (!isNowInbetween())
 				kill = true;
 		}
-		if (kill) {
-			result = false;
-		} else if (isRailCameraSpecifyMode(mMode)) {
-			result = false;
-		} else if (mMode == 2) {
-			result = false;
-		} else if (*(u16*)((u8*)this + 0x278) != 0) {
+		if (kill || isRailCameraSpecifyMode(mMode) || mMode == 2
+		    || *(u16*)((u8*)this + 0x278) != 0) {
 			result = false;
 		} else if (mMode != 0x2A) {
-			bool eligible = false;
-			if (isNormalCameraSpecifyMode(mMode)) {
-				eligible = true;
-			} else if (isTowerCameraSpecifyMode(mMode)) {
-				eligible = true;
-			}
-			if (eligible) {
+			if (isNormalCameraSpecifyMode(mMode)
+			    || isTowerCameraSpecifyMode(mMode)) {
 				TCameraKindParam* pad = getActiveKindParam(this);
 				f32 sX                = pad->unk08 * JMASSin(pad->unk18);
 				f32 sY                = pad->unk0C * JMASSin(pad->unk1A);
