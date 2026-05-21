@@ -285,8 +285,6 @@ declaration trick, or moving inline source out of header) is required.
 
 ## Open questions
 
-## Open questions
-
 _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *Hypotheses
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
