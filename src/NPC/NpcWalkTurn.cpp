@@ -197,11 +197,19 @@ BOOL TBaseNPC::isTurnToMarioWhenTalk() const
 	s32 t        = mActorType;
 	BOOL allowed = TRUE;
 
-	if ((t >= 0x4000007 && t < 0x4000009)
-	    || (t >= 0x400001A && t < 0x400001C) || t == 0x400001D) {
+	switch (t) {
+	case 0x4000007:
+	case 0x4000008:
+	case 0x400001A:
+	case 0x400001B:
+	case 0x400001D:
 		allowed = FALSE;
-	} else if ((mActionFlag & 0xC01) != 0) {
-		allowed = FALSE;
+		break;
+	default:
+		if ((mActionFlag & 0xC01) != 0) {
+			allowed = FALSE;
+		}
+		break;
 	}
 	return allowed;
 }
