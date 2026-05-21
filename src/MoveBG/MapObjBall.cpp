@@ -118,9 +118,7 @@ void TCoverFruit::calcRootMatrix()
 	if (mHolder != nullptr) {
 		MtxPtr src = mHolder->getTakingMtx();
 		PSMTXCopy(src, getModel()->unk20);
-		mPosition.x = src[0][3];
-		mPosition.y = src[1][3];
-		mPosition.z = src[2][3];
+		mPosition.set(src[0][3], src[1][3], src[2][3]);
 	} else {
 		MsMtxSetXYZRPH(getModel()->unk20, mPosition.x,
 		               mPosition.y - mYOffset, mPosition.z, mRotation.x,
