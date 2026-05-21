@@ -91,12 +91,12 @@ bool TCameraMarioData::isMarioRocketing() const
 
 bool TCameraMarioData::isMarioGoDown() const
 {
-	if (mDistY != 0.0f) {
-		f32 diff = gpMarioPos->y - gpMarioOriginal->mLastSafePos.y;
-		if (diff < 0.0f)
-			return true;
+	bool result = false;
+	if (mDistY != 0.0f
+	    && gpMarioPos->y - gpMarioOriginal->mLastSafePos.y < 0.0f) {
+		result = true;
 	}
-	return false;
+	return result;
 }
 
 void TCameraMarioData::calcAndSetMarioData()
