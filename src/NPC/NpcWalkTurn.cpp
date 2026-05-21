@@ -168,13 +168,15 @@ BOOL TBaseNPC::isNeedTurnToFirstState() const
 	if (unk178 != 0.0f || (mActionFlag & 0x200) != 0)
 		return FALSE;
 
-	BOOL result   = FALSE;
-	u32 actorType = mActorType;
+	BOOL result = FALSE;
+	s32 t       = mActorType;
 
-	if (actorType == 0x4000008)
+	if (t >= 0x400001C) {
+		if (t < 0x400001E)
+			goto end;
+	} else if (t == 0x4000008) {
 		goto end;
-	if (actorType >= 0x400001C && actorType < 0x400001E)
-		goto end;
+	}
 
 	{
 		const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
@@ -191,11 +193,11 @@ end:
 
 BOOL TBaseNPC::isTurnToMarioWhenTalk() const
 {
-	u32 t        = mActorType;
+	s32 t        = mActorType;
 	BOOL allowed = TRUE;
 
-	if (t == 0x4000007 || t == 0x4000008 || t == 0x400001A || t == 0x400001B
-	    || t == 0x400001D) {
+	if ((t >= 0x4000007 && t < 0x4000009)
+	    || (t >= 0x400001A && t < 0x400001C) || t == 0x400001D) {
 		allowed = FALSE;
 	} else if ((mActionFlag & 0xC01) != 0) {
 		allowed = FALSE;
@@ -208,8 +210,8 @@ BOOL TBaseNPC::isTurnToMarioWhenApproach() const
 	if (unk178 != 0.0f || (mActionFlag & 0x200) != 0)
 		return FALSE;
 
-	u32 t = mActorType;
-	if (t == 0x4000016 || t == 0x4000017 || t == 0x4000018) {
+	s32 t = mActorType;
+	if (t < 0x4000019 && t >= 0x4000016) {
 		if ((mActionFlag & 0x7E7F) == 0)
 			return TRUE;
 	}
