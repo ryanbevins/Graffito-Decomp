@@ -1,4 +1,10 @@
 #include <MSound/MSHandle.hpp>
+#include <JSystem/JAudio/JAInterface/JAIConst.hpp>
+#include <JSystem/JAudio/JAInterface/JAIGlobalParameter.hpp>
+#include <JSystem/JAudio/JALibrary/JALCalc.hpp>
+#include <JSystem/JAudio/JALibrary/JALSystem.hpp>
+#include <JSystem/JAudio/JAInterface/JAIBasic.hpp>
+#include <math.h>
 
 f32 MSHandle::smACosPrm[101] = {
 	3.141592,   2.941258,   2.857799,   2.793427,   2.738877,   2.690566,
@@ -46,26 +52,186 @@ f32 MSHandle::cDol_0Rad             = 1.0316f;
 f32 MSHandle::cDol_HalfRad          = 1.5707999f;
 f32 MSHandle::cDol_FullRad          = 2.1099999f;
 
-f32 MSHandle::setDistanceVolumeCommon(f32 volume, u8 param) { }
+static u8 computeCategoryIdx(u32 unk8)
+{
+	u32 top = unk8 >> 30;
+	if (top == 0)
+		return (u8)((unk8 >> 12) & 0xF);
+	if (top == 2)
+		return 0x10;
+	if (top == 3)
+		return 0x11;
+	return 0xFF;
+}
 
-void MSHandle::setSeDistancePitch(u8 param) { }
+f32 MSHandle::setDistanceVolumeCommon(f32 volume, u8 param)
+{
+	f32 distance = unk1C->unk18;
+	f32 maxDist  = JAIGlobalParameter::getParamMaxVolumeDistance();
+	u8 idx       = computeCategoryIdx(unk8);
+	return calcVolume(distance, volume, maxDist, param, idx);
+}
 
-void MSHandle::setSeDistanceVolume(u8 param) { }
+void MSHandle::setSeDistancePitch(u8 param)
+{
+	f32 pitch = 1.0f;
+	if (getSwBit() & 0x10) {
+		s32 r = (s32)(JAIConst::random.get_ufloat_1() * 16.0f) & 0xF;
+		pitch = 1.0f - (f32)r / 192.0f;
+	}
+	if (getSwBit() & 0xC0) {
+		pitch += (f32)unk3 / 192.0f;
+	}
+	setSeInterPitch(param, pitch, 4, 0.0f);
+}
 
-void MSHandle::setSeDistanceDolby(u8 param) { }
+void MSHandle::setSeDistanceVolume(u8 param)
+{
+	u32 sw = getSwBit();
+	f32 vol;
+	if (sw & 0x200000) {
+		vol = JALSystem::processModDistVolume(unk8, unk1C->unk18);
+	} else if (sw & 0x2) {
+		vol = 1.0f;
+	} else {
+		u8 curve = (u8)((getSwBit() >> 16) & 0x7);
+		u8 idx   = computeCategoryIdx(unk8);
+		vol      = ((MSHandle*)this)->setDistanceVolumeCommon(
+            smSeCategory[idx].unk4, curve);
+	}
+	setSeInterVolume(param, vol, 4, 0);
+}
 
-void MSHandle::setSeDistancePan(u8 param) { }
+void MSHandle::setSeDistanceDolby(u8 param)
+{
+	f32 dolby = calcDolby(unk1C->unk0, unk1C->unk18);
+	setSeInterDolby(param, dolby, 4, 0);
+}
 
-void MSHandle::setSeDistanceParameters() { }
+void MSHandle::setSeDistancePan(u8 param)
+{
+	u8 idx  = computeCategoryIdx(unk8);
+	f32 pan = calcPan(unk1C->unk0, unk1C->unk18, smSeCategory[idx].unk4);
+	setSeInterPan(param, pan, 4, 0);
+}
+
+void MSHandle::setSeDistanceParameters()
+{
+	u8 idx  = computeCategoryIdx(unk8);
+	u8 type = ((u8*)&smSeCategory[idx])[0];
+	if (unk1 == 2)
+		type = 0;
+
+	setSeDistanceVolume(type);
+	setSeDistancePan(type);
+	setSeDistancePitch(type);
+	setSePositionDopplar();
+	setSeDistanceFxmix(type);
+
+	if (!(getSwBit() & 0x400)) {
+		setFxmix(interPointer->getMapInfoFxParameter(unk18), 0, 2);
+	}
+	setSeDistanceDolby(type);
+}
 
 f32 MSHandle::calcVolume(f32 param1, f32 param2, f32 param3, u8 param4,
                          u8 param5)
 {
-	return 0.0f;
+	if (param1 < param3)
+		return 1.0f;
+
+	f32 x     = param1 - param3;
+	f32 range = param2 - param3;
+	switch (param4) {
+	case 0:
+		break;
+	case 1:
+		range = 4.0f * range / 3.0f;
+		break;
+	case 2:
+		range = 5.0f * range / 3.0f;
+		break;
+	case 3:
+		range = 2.0f * range;
+		break;
+	case 4:
+		range = 3.0f * range * 0.25f;
+		break;
+	case 5:
+		range = 0.5f * range;
+		break;
+	case 6:
+		range = 0.25f * range;
+		break;
+	case 7:
+		range = smSeCategory[param5].unkC;
+		break;
+	}
+	return JALCalc::linearTransform(x, 0.0f, range, 1.0f, 0.0f, false);
 }
 
-f32 MSHandle::calcPan(const Vec& vec, f32 param1, f32 param2) { return 0.0f; }
+f32 MSHandle::calcPan(const Vec& vec, f32 param1, f32 param2)
+{
+	f32 angle = (param1 > 0.0f) ? MSACos(-vec.x / param1) : 0.0f;
+	f32 x     = cPan_CAdjust + 2.0f * cPan_MaxAmp * angle / 3.14159265f
+	        - cPan_MaxAmp - cPan_CAdjust;
 
-f32 MSHandle::calcDolby(const Vec& vec, f32 param) { return 0.0f; }
+	f32 amp;
+	if (x < 0.0f) {
+		amp = -cPan_MaxAmp * powf(-x / cPan_MaxAmp, cPan_CShift);
+	} else {
+		amp = cPan_MaxAmp * powf(x / cPan_MaxAmp, cPan_CShift);
+	}
 
-f32 MSHandle::MSACos(f32 param) { return 0.0f; }
+	if (param1 < cPan_HiSence_Dist) {
+		amp *= param1 / cPan_HiSence_Dist;
+	} else {
+		amp *= 1.0f
+		    + (cMS_DistanceMax_Sence - 1.0f) / (param2 - cPan_HiSence_Dist)
+		          * (param1 - cPan_HiSence_Dist);
+	}
+
+	f32 result = amp + cPan_MaxAmp;
+	if (result > 1.0f)
+		result = 1.0f;
+	if (result < 0.0f)
+		result = 0.0f;
+	return result;
+}
+
+f32 MSHandle::calcDolby(const Vec& vec, f32 param)
+{
+	f32 angle = (param > 0.0f) ? MSACos(-vec.z / param) : 0.0f;
+
+	f32 d;
+	if (angle < cDol_0Rad) {
+		d = 0.0f;
+	} else if (angle < cDol_HalfRad) {
+		d = 0.5f * (angle - cDol_0Rad) / (cDol_HalfRad - cDol_0Rad);
+	} else if (angle < cDol_FullRad) {
+		d = 0.5f
+		    + 0.5f / (cDol_FullRad - cDol_HalfRad) * (angle - cDol_HalfRad);
+	} else {
+		d = 1.0f;
+	}
+
+	if (param < cPan_HiSence_Dist) {
+		d = 0.5f + param * (d - 0.5f) / cPan_HiSence_Dist;
+	}
+
+	if (d > 1.0f)
+		d = 1.0f;
+	if (d < 0.0f)
+		d = 0.0f;
+	return d;
+}
+
+f32 MSHandle::MSACos(f32 param)
+{
+	s32 idx = (s32)(50.0f * (1.0f + param));
+	if (idx < 0)
+		return smACosPrm[0];
+	if (idx >= 101)
+		return smACosPrm[100];
+	return smACosPrm[idx];
+}
