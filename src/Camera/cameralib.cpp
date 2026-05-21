@@ -356,7 +356,7 @@ bool CLBChaseDecrease(f32* dstValue, f32 targetValue, f32 ratio, f32 threshold)
 	}
 }
 
-bool CLBChaseSpecialDecrease(f32* param_1, f32 param_2, f32 param_3,
+BOOL CLBChaseSpecialDecrease(f32* param_1, f32 param_2, f32 param_3,
                              f32 param_4)
 {
 	if (param_3 > 1.0f) {

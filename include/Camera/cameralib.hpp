@@ -24,7 +24,7 @@ void CLBCalcRotateZXYTranslateMatrix(MtxPtr, const Vec&, const Vec&);
 void CLBCalcScaleTranslateMatrix(MtxPtr, const Vec&, const Vec&);
 bool CLBChaseAngleDecrease(s16*, s16, s16);
 bool CLBChaseDecrease(f32*, f32, f32, f32);
-bool CLBChaseSpecialDecrease(f32*, f32, f32, f32);
+BOOL CLBChaseSpecialDecrease(f32*, f32, f32, f32);
 void CLBCrossToPolar(const Vec&, const Vec&, f32*, s16*, s16*);
 bool CLBIsPointInCube(const Vec&, const Vec&, const Vec&, const Vec&);
 void CLBPolarToCross(const Vec&, Vec*, f32, s16, s16);
@@ -37,7 +37,7 @@ void CLBScreenFPosToSPos(JGeometry::TVec2<s16>*, const JGeometry::TVec2<f32>&);
 
 template <class T> void CLBChaseConstantSpecifyFrame(T*, T, T);
 template <class T>
-bool CLBChaseGeneralConstantSpecifySpeed(T* param_1, T param_2, T param_3)
+BOOL CLBChaseGeneralConstantSpecifySpeed(T* param_1, T param_2, T param_3)
 {
 	T sVar1 = param_2 - *param_1;
 	if (param_3 < 0)
