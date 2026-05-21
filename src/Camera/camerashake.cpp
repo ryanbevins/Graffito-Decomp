@@ -6,6 +6,13 @@
 
 extern const char* mCamShakeNameSave__12TCameraShake[];
 
+static inline void fakeSetRotate(
+    JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >* rot,
+    const JGeometry::TVec3<f32>& axis, f32 angle)
+{
+	rot->setRotate(axis, angle);
+}
+
 TCameraShake::TCameraShake()
 {
 	mYaw = 0;
@@ -59,8 +66,8 @@ TCameraShake::TCamShakeInfo* TCameraShake::getUseShakeData_()
 void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 {
 	TCamSaveShake* save = mShakeSaveData[(s32)mode];
-	u16 duration = *(const u16*)((const u8*)save + 0x18);
-	if (duration == 0) {
+	s16 duration = *(const s16*)((const u8*)save + 0x18);
+	if ((u16)duration == 0) {
 		return;
 	}
 
@@ -82,7 +89,7 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleX.mPhase     = phase;
-		info->mAngleX.mDecrement = phase / (f32)duration;
+		info->mAngleX.mDecrement = phase / (f32)(u16)duration;
 		info->mAngleX.mAngle     = angle;
 	}
 
@@ -95,7 +102,7 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleY.mPhase     = phase;
-		info->mAngleY.mDecrement = phase / (f32)duration;
+		info->mAngleY.mDecrement = phase / (f32)(u16)duration;
 		info->mAngleY.mAngle     = angle;
 	}
 
@@ -108,7 +115,7 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleZ.mPhase     = phase;
-		info->mAngleZ.mDecrement = phase / (f32)duration;
+		info->mAngleZ.mDecrement = phase / (f32)(u16)duration;
 		info->mAngleZ.mAngle     = angle;
 	}
 }
@@ -116,8 +123,8 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 {
 	TCamSaveShake* save = mShakeSaveData[(s32)mode];
-	u16 duration = *(const u16*)((const u8*)save + 0x18);
-	if (duration == 0) {
+	s16 duration = *(const s16*)((const u8*)save + 0x18);
+	if ((u16)duration == 0) {
 		return;
 	}
 
@@ -149,7 +156,7 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleX.mPhase     = phase;
-		info->mAngleX.mDecrement = phase / (f32)duration;
+		info->mAngleX.mDecrement = phase / (f32)(u16)duration;
 		info->mAngleX.mAngle     = angle;
 	}
 
@@ -162,7 +169,7 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleY.mPhase     = phase;
-		info->mAngleY.mDecrement = phase / (f32)duration;
+		info->mAngleY.mDecrement = phase / (f32)(u16)duration;
 		info->mAngleY.mAngle     = angle;
 	}
 
@@ -175,7 +182,7 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleZ.mPhase     = phase;
-		info->mAngleZ.mDecrement = phase / (f32)duration;
+		info->mAngleZ.mDecrement = phase / (f32)(u16)duration;
 		info->mAngleZ.mAngle     = angle;
 	}
 }
@@ -254,26 +261,18 @@ void TCameraShake::execShake(const JGeometry::TVec3<f32>& center,
 		CLBPolarToCross(center, outPos, dist, polarY, polarX);
 	}
 
-	// Compute axis = (saved - center) normalized
+	// Compute axis = normalize(saved - center)
 	JGeometry::TVec3<f32> axis;
 	axis.x = saved.x - center.x;
 	axis.y = saved.y - center.y;
 	axis.z = saved.z - center.z;
-
-	f32 lenSq = axis.dot(axis);
-	if (lenSq <= 0.0000038146973f) {
-		axis.x = 0.0f;
-		axis.y = 0.0f;
-		axis.z = 0.0f;
-	} else {
-		axis.scale(1.0f * JGeometry::TUtil<f32>::inv_sqrt(lenSq), axis);
-	}
+	axis.normalize();
 
 	// Build rotation matrix for mYaw degrees about 'axis'.
 	JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > > rot;
 	rot.identity();
 	f32 angleRad = -((f32)mYaw * 0.005493164f * 0.017453294f);
-	rot.setRotate(axis, angleRad);
+	fakeSetRotate(&rot, axis, angleRad);
 
 	// outAt' = rot^T * outAt (column-vector convention via column dot)
 	JGeometry::TVec3<f32> saved_at = *outAt;
