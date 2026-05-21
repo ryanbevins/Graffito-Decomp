@@ -52,23 +52,23 @@ f32 MSHandle::cDol_0Rad             = 1.0316f;
 f32 MSHandle::cDol_HalfRad          = 1.5707999f;
 f32 MSHandle::cDol_FullRad          = 2.1099999f;
 
-static u8 computeCategoryIdx(u32 unk8)
+static s32 computeCategoryIdx(u32 unk8)
 {
 	u32 top = unk8 >> 30;
 	if (top == 0)
-		return (u8)((unk8 >> 12) & 0xF);
+		return (unk8 >> 12) & 0xF;
 	if (top == 2)
 		return 0x10;
 	if (top == 3)
 		return 0x11;
-	return 0xFF;
+	return -1;
 }
 
 f32 MSHandle::setDistanceVolumeCommon(f32 volume, u8 param)
 {
 	f32 distance = unk1C->unk18;
 	f32 maxDist  = JAIGlobalParameter::getParamMaxVolumeDistance();
-	u8 idx       = computeCategoryIdx(unk8);
+	s32 idx      = computeCategoryIdx(unk8);
 	return calcVolume(distance, volume, maxDist, param, idx);
 }
 
@@ -94,8 +94,8 @@ void MSHandle::setSeDistanceVolume(u8 param)
 	} else if (sw & 0x2) {
 		vol = 1.0f;
 	} else {
-		u8 curve = (u8)((getSwBit() >> 16) & 0x7);
-		u8 idx   = computeCategoryIdx(unk8);
+		u8 curve  = (u8)((getSwBit() >> 16) & 0x7);
+		s32 idx   = computeCategoryIdx(unk8);
 		vol      = setDistanceVolumeCommon(smSeCategory[idx].unk4, curve);
 	}
 	setSeInterVolume(4, vol, param, 0);
@@ -116,7 +116,7 @@ void MSHandle::setSeDistancePan(u8 param)
 
 void MSHandle::setSeDistanceParameters()
 {
-	u8 idx  = computeCategoryIdx(unk8);
+	s32 idx = computeCategoryIdx(unk8);
 	u8 type = ((u8*)&smSeCategory[idx])[0];
 	if (unk1 == 2)
 		type = 0;
@@ -171,15 +171,16 @@ f32 MSHandle::calcVolume(f32 param1, f32 param2, f32 param3, u8 param4,
 
 f32 MSHandle::calcPan(const Vec& vec, f32 param1, f32 param2)
 {
-	f32 angle = (param1 > 0.0f) ? MSACos(-vec.x / param1) : 0.0f;
-	f32 x     = cPan_CAdjust + 2.0f * cPan_MaxAmp * angle / 3.14159265f
-	        - cPan_MaxAmp - cPan_CAdjust;
+	f32 maxAmp = cPan_MaxAmp;
+	f32 angle  = (param1 > 0.0f) ? MSACos(-vec.x / param1) : 0.0f;
+	f32 x = cPan_CAdjust + 2.0f * maxAmp * angle / 3.14159265f - maxAmp
+	    - cPan_CAdjust;
 
 	f32 amp;
 	if (x < 0.0f) {
-		amp = -cPan_MaxAmp * powf(-x / cPan_MaxAmp, cPan_CShift);
+		amp = -maxAmp * powf(-x / maxAmp, cPan_CShift);
 	} else {
-		amp = cPan_MaxAmp * powf(x / cPan_MaxAmp, cPan_CShift);
+		amp = maxAmp * powf(x / maxAmp, cPan_CShift);
 	}
 
 	if (param1 < cPan_HiSence_Dist) {
@@ -190,7 +191,7 @@ f32 MSHandle::calcPan(const Vec& vec, f32 param1, f32 param2)
 		          * (param1 - cPan_HiSence_Dist);
 	}
 
-	f32 result = amp + cPan_MaxAmp;
+	f32 result = amp + maxAmp;
 	if (result > 1.0f)
 		result = 1.0f;
 	if (result < 0.0f)
@@ -206,7 +207,7 @@ f32 MSHandle::calcDolby(const Vec& vec, f32 param)
 	if (angle < cDol_0Rad) {
 		d = 0.0f;
 	} else if (angle < cDol_HalfRad) {
-		d = 0.5f * (angle - cDol_0Rad) / (cDol_HalfRad - cDol_0Rad);
+		d = 0.5f / (cDol_HalfRad - cDol_0Rad) * (angle - cDol_0Rad);
 	} else if (angle < cDol_FullRad) {
 		d = 0.5f
 		    + 0.5f / (cDol_FullRad - cDol_HalfRad) * (angle - cDol_HalfRad);
@@ -215,7 +216,7 @@ f32 MSHandle::calcDolby(const Vec& vec, f32 param)
 	}
 
 	if (param < cPan_HiSence_Dist) {
-		d = 0.5f + param * (d - 0.5f) / cPan_HiSence_Dist;
+		d = 0.5f + param * ((d - 0.5f) / cPan_HiSence_Dist);
 	}
 
 	if (d > 1.0f)
