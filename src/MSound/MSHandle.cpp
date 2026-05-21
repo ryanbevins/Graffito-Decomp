@@ -54,14 +54,21 @@ f32 MSHandle::cDol_FullRad          = 2.1099999f;
 
 static s32 computeCategoryIdx(u32 unk8)
 {
+	s32 idx = (unk8 >> 12) & 0xF;
 	u32 top = unk8 >> 30;
-	if (top == 0)
-		return (unk8 >> 12) & 0xF;
-	if (top == 2)
-		return 0x10;
-	if (top == 3)
-		return 0x11;
-	return -1;
+	switch (top) {
+	case 0:
+		break;
+	default:
+		if (top == 2)
+			idx = 0x10;
+		else if (top == 3)
+			idx = 0x11;
+		else
+			idx = -1;
+		break;
+	}
+	return idx;
 }
 
 f32 MSHandle::setDistanceVolumeCommon(f32 volume, u8 param)
@@ -112,8 +119,10 @@ void MSHandle::setSeDistanceDolby(u8 param)
 
 void MSHandle::setSeDistancePan(u8 param)
 {
-	u8 idx  = computeCategoryIdx(unk8);
-	f32 pan = calcPan(unk1C->unk0, unk1C->unk18, smSeCategory[idx].unk4);
+	JAISound::FabricatedPositionInfo* basic = unk1C;
+	f32 dist = basic->unk18;
+	s32 idx  = computeCategoryIdx(unk8);
+	f32 pan = calcPan(basic->unk0, dist, smSeCategory[idx].unk4);
 	setSeInterPan(4, pan, param, 0);
 }
 
