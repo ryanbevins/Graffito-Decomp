@@ -36,6 +36,52 @@ them in future ticks.
 
 ## Settled
 
+### `static inline` wrapper trick defeats auto-inlining of one call site
+
+**Rule:** When target keeps a header-defined inline function as a `bl` weak
+call but MWCC's `-inline auto` (or `-inline deferred`) is recursively
+inlining it at the call site, wrap the call in a `static inline` helper
+inside the same TU:
+
+```cpp
+// In NpcParts.cpp (the TU that's losing match):
+static inline void setEffectMtxOnTex0(J3DMaterial* mat, MtxPtr mtx)
+{
+    mat->getTexGenBlock()->getTexMtx(0)->setEffectMtx(mtx);
+}
+
+// Then at the call site:
+setEffectMtxOnTex0(mdata->getMaterialNodePointer(j), effectMtx);
+```
+
+MWCC inlines the wrapper at the call site, but does NOT recursively
+inline through it — so the contained `bl setEffectMtx` survives as a
+direct call to the weak symbol. The weak symbol itself is still emitted
+in the TU (whichever way the inline body is reached), so the linker
+deduplicates across TUs.
+
+This is **selective** in a way `#pragma dont_inline on` is not: only the
+specific call site routed through the wrapper is affected. Other inlines
+in the same TU (accessor inlines, `getModel()`/`getModelData()` chains,
+etc.) continue to inline as before.
+
+**Where observed:**
+- `src/Map/MapModel.cpp` ships with a `static inline void fake(J3DMaterial*,
+  MtxPtr)` helper (line 16) wrapping `setEffectMtx`. This is the original
+  source pattern — confirmed by 99.97% match on the whole TU.
+- `src/NPC/NpcParts.cpp::partsPerform` was at 56.73% with MWCC inlining
+  the matrix copy + adding f30/f31 callee-saved spills. Adding the same
+  wrapper pattern (`setEffectMtxOnTex0`) lifted match to 92.56% (+35.83pp)
+  with the bl call restored. The previous IMPLEMENTATION tick's attempt
+  with `#pragma dont_inline on` matched setEffectMtx but regressed the
+  ctor 62.5% → 43.3% and addJellyFishParts 89.5% → 76.5% by breaking
+  unrelated accessor inlines.
+
+**Related:** see also the `MWCC sometimes inlines a call selectively`
+hypothesis in this file — the wrapper trick is the source-level lever
+to control selective inlining, and may resolve that hypothesis once
+applied broadly.
+
 ### Vtable order in headers must match target asm one-for-one
 
 **Rule:** MWCC emits `virtual` methods into the vtable in their lexical order
