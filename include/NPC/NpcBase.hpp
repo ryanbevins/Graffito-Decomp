@@ -5,6 +5,7 @@
 #include <JSystem/JUtility/JUTNameTab.hpp>
 
 class TNpcSaveIndividual;
+class TNpcSaveNormal;
 
 // TODO: should this be here?
 enum EnumNpcAnmKind { };
@@ -145,6 +146,8 @@ public:
 	void setVariableDamageRadius_();
 	void execNpcObjCollision_();
 	void initNpcObjCollision_(const TNpcInitInfo*);
+
+	static TNpcSaveNormal* mPtrSaveNormal;
 
 public:
 	/* 0x150 */ char unk150[0x1C];
