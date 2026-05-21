@@ -217,7 +217,7 @@ void TPanelRevolve::control()
 	case 2:
 		if (animIsFinished()) {
 			mState = 1;
-			updateObjMtx();
+			setUpCurrentMapCollision();
 		}
 		break;
 	}
