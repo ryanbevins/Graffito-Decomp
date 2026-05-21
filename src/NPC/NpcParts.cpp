@@ -195,32 +195,34 @@ void TNpcParts::addJellyFishParts(f32 frame)
 
 void TNpcParts::setPartsAnmFrame(f32 frame)
 {
+	MActor* m;
+	J3DFrameCtrl* fc;
+
 	switch (unk60->getActorType()) {
 	case 0x04000010: { // Sunflower
-		MActor* mactor = getPartsMActor(9, 0);
-		if (mactor == nullptr)
+		TSharedParts* parts = unk0[0][9];
+		m                   = nullptr;
+		if (parts != nullptr)
+			m = parts->unk18;
+		if (m != nullptr) {
+			fc = m->getFrameCtrl(0);
+			if (fc != nullptr)
+				fc->setFrame(frame);
+		}
+		break;
+	}
+	case 0x04000015:
+		m = getPartsMActor(10, 0);
+		if (m == nullptr)
 			break;
-		J3DFrameCtrl* fc = mactor->getFrameCtrl(0);
+		fc = m->getFrameCtrl(0);
+		if (fc != nullptr)
+			fc->setFrame(frame);
+		fc = m->getFrameCtrl(3);
 		if (fc != nullptr)
 			fc->setFrame(frame);
 		break;
-	}
-	case 0x04000015: {
-		MActor* mactor = getPartsMActor(10, 0);
-		if (mactor == nullptr)
-			break;
-		J3DFrameCtrl* fc = mactor->getFrameCtrl(0);
-		if (fc != nullptr)
-			fc->setFrame(frame);
-		fc = mactor->getFrameCtrl(3);
-		if (fc != nullptr)
-			fc->setFrame(frame);
-		break;
-	}
-	case 0x04000018: { // Peach
-		MActor* m;
-		J3DFrameCtrl* fc;
-
+	case 0x04000018: // Peach
 		m = getPartsMActor(0, 0);
 		if (m != nullptr) {
 			fc = m->getFrameCtrl(0);
@@ -240,7 +242,6 @@ void TNpcParts::setPartsAnmFrame(f32 frame)
 				fc->setFrame(frame);
 		}
 		break;
-	}
 	}
 }
 
