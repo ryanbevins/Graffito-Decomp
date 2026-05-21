@@ -34,6 +34,11 @@ static const char* cNpcPartsNameRootJointStringInfectious
 void SMS_InitChangeNpcColor(const MActor*, const TColorChangeInfo*,
                             const GXColor*);
 
+static inline void setEffectMtxOnTex0(J3DMaterial* mat, MtxPtr mtx)
+{
+	mat->getTexGenBlock()->getTexMtx(0)->setEffectMtx(mtx);
+}
+
 TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
                      TBaseNPC* base_npc)
 {
@@ -274,9 +279,9 @@ void TNpcParts::partsPerform(u32 flag, JDrama::TGraphics* graphics)
 		if (parts[i] == nullptr)
 			continue;
 
-		bool show = true;
 		if (unk60->getActorType() == 0x04000018) {
-			u8 state = unk60->unk1D8;
+			bool show = true;
+			u8 state  = unk60->unk1D8;
 			if (state & 0x4) {
 				switch (i) {
 				case 1:
@@ -301,9 +306,9 @@ void TNpcParts::partsPerform(u32 flag, JDrama::TGraphics* graphics)
 					break;
 				}
 			}
+			if (!show)
+				continue;
 		}
-		if (!show)
-			continue;
 
 		if (doTexMtx) {
 			if (unk60->isJellyFishMare() && i == 11) {
@@ -318,10 +323,9 @@ void TNpcParts::partsPerform(u32 flag, JDrama::TGraphics* graphics)
 				for (u16 j = 0; j < numTexMtx; j++) {
 					if ((int)j == starglowIdx)
 						continue;
-					mdata->getMaterialNodePointer(j)
-					    ->getTexGenBlock()
-					    ->getTexMtx(0)
-					    ->setEffectMtx(effectMtx);
+					setEffectMtxOnTex0(
+					    mdata->getMaterialNodePointer(j),
+					    effectMtx);
 				}
 			}
 		}
