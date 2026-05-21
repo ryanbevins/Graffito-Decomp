@@ -114,11 +114,7 @@ bool CPolarSubCamera::execRoofCheck_(Vec p)
 		roofY        = gpMap->checkRoof(p.x, camBaseY - offset, p.z, &roof);
 	}
 
-	bool valid = inMonte;
-	if (!inMonte) {
-		valid = isValidCamClip(roof);
-	}
-	if (valid) {
+	if (inMonte || isValidCamClip(roof)) {
 		void* opt = getKindOpt(this);
 		f32 shift = *(f32*)((u8*)opt + 0xF4);
 		f32 newY  = roofY - shift;
@@ -145,22 +141,19 @@ bool CPolarSubCamera::execWallCheck_(Vec* p)
 
 		if (gpMap->isTouchedWallsAndMoveXZ(&record)) {
 			int count = record.mResultWallsNum;
-					for (int i = 0; i < count; ++i) {
+			for (int i = 0; i < count; ++i) {
 				TBGCheckData* wall = record.mResultWalls[i];
 				if (!isValidCamClip(wall))
 					continue;
 
-				f32 cx = *(f32*)((u8*)this + 0x80);
-				f32 cy = *(f32*)((u8*)this + 0x84);
-				f32 cz = *(f32*)((u8*)this + 0x88);
-				f32 tx = cx;
-				f32 ty = cy;
-				f32 tz = cz;
+				JGeometry::TVec3<f32> cam
+				    = *(JGeometry::TVec3<f32>*)((u8*)this + 0x80);
+				JGeometry::TVec3<f32> trg = cam;
 
 				f32 nx    = wall->mNormal.x;
 				f32 ny    = wall->mNormal.y;
 				f32 nz    = wall->mNormal.z;
-				f32 sdist = tx * nx + ty * ny + tz * nz
+				f32 sdist = trg.x * nx + trg.y * ny + trg.z * nz
 				            + wall->mPlaneDistance;
 				f32 absD = sdist >= 0.0f ? sdist : -sdist;
 				if (absD >= radius)
@@ -170,15 +163,15 @@ bool CPolarSubCamera::execWallCheck_(Vec* p)
 				f32 push    = radius - sdist;
 				f32 camRate = *(f32*)((u8*)opt + 0x90);
 				f32 camPush = push * camRate;
-				tx += camPush * nx;
-				tz += camPush * nz;
-				*(f32*)((u8*)this + 0x80) = tx;
-				*(f32*)((u8*)this + 0x88) = tz;
+				trg.x += camPush * nx;
+				trg.z += camPush * nz;
+				*(f32*)((u8*)this + 0x80) = trg.x;
+				*(f32*)((u8*)this + 0x88) = trg.z;
 
-				cx += push * nx;
-				cz += push * nz;
-				p->x    = cx;
-				p->z    = cz;
+				cam.x += push * nx;
+				cam.z += push * nz;
+				p->x    = cam.x;
+				p->z    = cam.z;
 				didSnap = true;
 			}
 		}
