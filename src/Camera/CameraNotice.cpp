@@ -41,7 +41,7 @@ inline bool inViewCone(const JGeometry::TVec2<f32>& screen, f32 tan)
 void CPolarSubCamera::setNoticeInfo()
 {
 	*(void***)((u8*)this + 0x2A0) = new void*[16];
-	*(void**)((u8*)this + 0x2A4)  = nullptr;
+	this->unk2A4  = nullptr;
 	*(s32*)((u8*)this + 0x29C)    = 0;
 
 	for (int i = 0; sNoticeActorManagerName[i] != nullptr; i++) {
@@ -64,16 +64,16 @@ void CPolarSubCamera::setNoticeInfo()
 
 void* CPolarSubCamera::getNoticeActor_()
 {
-	if (*(void**)((u8*)this + 0x2A4) != nullptr) {
+	if (this->unk2A4 != nullptr) {
 		u32 status
-		    = *(u32*)((u8*)*(void**)((u8*)this + 0x2A4) + 0xF0);
+		    = *(u32*)((u8*)this->unk2A4 + 0xF0);
 		if ((status & 1) == 0 && (status & 2) == 0) {
 			Vec diff;
-			diff.x = *(f32*)((u8*)*(void**)((u8*)this + 0x2A4) + 0x10)
+			diff.x = *(f32*)((u8*)this->unk2A4 + 0x10)
 			         - gpMarioPos->x;
-			diff.y = *(f32*)((u8*)*(void**)((u8*)this + 0x2A4) + 0x14)
+			diff.y = *(f32*)((u8*)this->unk2A4 + 0x14)
 			         - gpMarioPos->y;
-			diff.z = *(f32*)((u8*)*(void**)((u8*)this + 0x2A4) + 0x18)
+			diff.z = *(f32*)((u8*)this->unk2A4 + 0x18)
 			         - gpMarioPos->z;
 			f32 distSq  = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 			f32 nearLim = CLBSquared<f32>(
@@ -85,10 +85,10 @@ void* CPolarSubCamera::getNoticeActor_()
 				CLBCalc2DFPos(
 				    &screen, (MtxPtr)((u8*)this + 0x1EC),
 				    (MtxPtr)((u8*)this + 0x16C),
-				    *(const Vec*)((u8*)*(void**)((u8*)this + 0x2A4) + 0x10),
+				    *(const Vec*)((u8*)this->unk2A4 + 0x10),
 				    nullptr, false);
 				if (inViewCone(screen, tan))
-					return *(void**)((u8*)this + 0x2A4);
+					return this->unk2A4;
 			}
 		}
 	}
@@ -105,8 +105,8 @@ void* CPolarSubCamera::getNoticeActor_()
 		if ((status & 2) != 0)
 			continue;
 
-		if (*(void**)((u8*)this + 0x2A4) != nullptr
-		    && *(void**)((u8*)this + 0x2A4) == a)
+		if (this->unk2A4 != nullptr
+		    && this->unk2A4 == a)
 			continue;
 
 		Vec diff;
@@ -146,14 +146,14 @@ void CPolarSubCamera::execNoticeOnOffProc_(EnumNoticeOnOffMode mode)
 {
 	switch ((int)mode) {
 	case 0:
-		*(void**)((u8*)this + 0x2A4) = nullptr;
+		this->unk2A4 = nullptr;
 		*(u16*)((u8*)this + 0x64) &= ~0x20;
 		break;
 
 	case 1: {
 		void* actor = getNoticeActor_();
-		if (actor != *(void**)((u8*)this + 0x2A4) && actor == nullptr) {
-			*(void**)((u8*)this + 0x2A4) = nullptr;
+		if (actor != this->unk2A4 && actor == nullptr) {
+			this->unk2A4 = nullptr;
 			*(u16*)((u8*)this + 0x64) &= ~0x20;
 		}
 		break;
@@ -161,8 +161,8 @@ void CPolarSubCamera::execNoticeOnOffProc_(EnumNoticeOnOffMode mode)
 
 	case 2: {
 		void* actor = getNoticeActor_();
-		if (actor != *(void**)((u8*)this + 0x2A4) && actor != nullptr) {
-			*(void**)((u8*)this + 0x2A4) = actor;
+		if (actor != this->unk2A4 && actor != nullptr) {
+			this->unk2A4 = actor;
 			*(u16*)((u8*)this + 0x64) |= 0x20;
 		}
 		break;
@@ -288,7 +288,7 @@ void CPolarSubCamera::ctrlLButtonCamera_()
 	if (*(s32*)((u8*)this + 0x78) == 0) {
 		u16& flags = *(u16*)((u8*)this + 0x64);
 		if ((flags & 0x20) != 0) {
-			void* notice = *(void**)((u8*)this + 0x2A4);
+			void* notice = this->unk2A4;
 			if (notice == nullptr) {
 				rotateY_ByStickX_(stickX);
 			} else {
