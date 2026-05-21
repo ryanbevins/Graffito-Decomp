@@ -58,6 +58,7 @@ public:
 	void chaseOptionCamera_(f32);
 	void ctrlOptionCamera_();
 	void ctrlJetCoasterCamera_();
+	inline void drawJetCoasterBalloonMessage_();
 	void createMultiPlayer(u8);
 	bool addMultiPlayer(const JGeometry::TVec3<f32>*, f32, f32);
 	void removeMultiPlayer(const JGeometry::TVec3<f32>*);
@@ -103,7 +104,7 @@ public:
 	void calcExternalData_();
 	void ctrlGameCamera_();
 	void perform(u32, JDrama::TGraphics*);
-	void getOffsetAngleX() const;
+	s16 getOffsetAngleX() const;
 	s16 getOffsetAngleY() const;
 	void getFinalAngleZ() const;
 	~CPolarSubCamera();

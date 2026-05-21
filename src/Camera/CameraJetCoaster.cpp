@@ -1,4 +1,18 @@
 #include <Camera/Camera.hpp>
+#include <Camera/cameralib.hpp>
+#include <GC2D/GCConsole2.hpp>
+#include <JSystem/JGeometry.hpp>
+#include <JSystem/JGeometry/JGRotation3.hpp>
+#include <JSystem/JMath.hpp>
+#include <MarioUtil/MathUtil.hpp>
+#include <MoveBG/ItemManager.hpp>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <Player/MarioAccess.hpp>
+#include <Player/MarioMain.hpp>
+#include <System/FlagManager.hpp>
+#include <System/MarDirector.hpp>
+#include <System/MarioGamePad.hpp>
 
 class TCamSaveJetCoaster {
 public:
@@ -49,4 +63,391 @@ TCameraJetCoaster::TCameraJetCoaster()
 	unk0  = new TCamSaveJetCoaster();
 }
 
-void CPolarSubCamera::ctrlJetCoasterCamera_() { }
+void CPolarSubCamera::drawJetCoasterBalloonMessage_()
+{
+	static const Vec sFixCameraPos = { 3005.0f, 4024.0f, -9560.0f };
+	gpMarioOriginal->loserExec();
+	*(u32*)((u8*)this + 0x78) = 0xE10;
+	*(u32*)((u8*)this + 0x7C) = 0;
+	warpPosAndAt(sFixCameraPos, *(const Vec*)((u8*)this + 0x3C));
+	((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unk38 = 1;
+}
+
+void CPolarSubCamera::ctrlJetCoasterCamera_()
+{
+	if (gpMarDirector->mMap == 0x3A && gpMarDirector->unk7D == 0) {
+		s32 flagState = TFlagManager::smInstance->getFlag(0x60001);
+		int balloonCount
+		    = gpItemManager->getObjNumWithActorType(0x40000132);
+
+		TCameraJetCoaster* jc = (TCameraJetCoaster*)
+		    *(void**)((u8*)this + 0x2B8);
+		if (jc->unk38 > 2) {
+			((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unk38--;
+			if (((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unk38
+			    == 2) {
+				((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unk38
+				    = 1;
+				gpMarDirector->setNextStage(0xE05, nullptr);
+			}
+		} else if (jc->unk38 != 1) {
+			s32 msgId = -1;
+			if (flagState == balloonCount) {
+				TFlagManager::smInstance->setBool(true, 0x30005);
+				((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unk38
+				    = 0x12C;
+				msgId = 0xE002D;
+			} else {
+				int scene = gpMarDirector->unk58;
+				switch (scene) {
+				case 0x3C:
+					gpMarDirector->mConsole->startAppearJetBalloon(
+					    0, balloonCount);
+					break;
+				case 0x1DB:
+					msgId = 0xE0029;
+					break;
+				case 0x1D4C:
+					msgId = 0xE002A;
+					break;
+				case 0x3A98:
+					if ((balloonCount - flagState) >= 7)
+						msgId = 0xE002B;
+					else
+						msgId = 0xE002C;
+					break;
+				case 0x57E4:
+					drawJetCoasterBalloonMessage_();
+					break;
+				}
+			}
+
+			if (msgId != -1) {
+				gpMarDirector->mConsole->startAppearBalloon(msgId, true);
+			}
+		}
+	}
+
+	bool isJet1stCamPressed = false;
+	if (unk120->mEnabledFrameMeaning & 0x4000) {
+		isJet1stCamPressed = true;
+		s32 soundId        = 0x4825;
+		((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unkC ^= 1;
+		if (((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unkC & 1) {
+			soundId = 0x4824;
+		}
+		if (gpMSound->gateCheck(soundId)) {
+			MSoundSESystem::MSoundSE::startSoundSystemSE(soundId, 0, nullptr,
+			                                             0);
+		}
+	}
+
+	if (((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unkC & 1) {
+		// 1st-person camera mode
+		if (isJet1stCamPressed) {
+			setUpToLButtonCamera_(0x2E);
+		}
+
+		f32 stickInput = -*(f32*)((u8*)unk120 + 0xAC);
+
+		if (*(u32*)((u8*)this + 0x7C) == 0) {
+			getNozzleTopPos_(&unk8C);
+		}
+
+		if (*(u32*)((u8*)this + 0x78) == 0) {
+			rotateX_ByStickY_(stickInput);
+			unkA4 = calcAngleXFromXRotRatio_();
+			unkA6 = *(s16*)((u8*)gpMarioOriginal + 0x410);
+		}
+
+		JGeometry::TVec3<f32> at;
+		at.x = unk8C.x;
+		at.y = unk8C.y;
+		at.z = unk8C.z;
+
+		s16 yawAngle   = unkA4 + getOffsetAngleX();
+		s16 pitchAngle = unkA6 + getOffsetAngleY();
+
+		MtxPtr mtx = getToroccoMtx_();
+
+		JGeometry::TVec3<f32> col0;
+		col0.x = mtx[0][0];
+		col0.y = mtx[1][0];
+		col0.z = mtx[2][0];
+		JGeometry::TVec3<f32> col1;
+		col1.x = mtx[0][1];
+		col1.y = mtx[1][1];
+		col1.z = mtx[2][1];
+
+		*(f32*)((u8*)this + 0x30) = col1.x;
+		*(f32*)((u8*)this + 0x34) = col1.y;
+		*(f32*)((u8*)this + 0x38) = col1.z;
+
+		f32 nd = -calcDistFromXRotRatio_();
+
+		*(f32*)((u8*)this + 0x98) = at.x + nd * mtx[0][2];
+		*(f32*)((u8*)this + 0x9C) = at.y + nd * mtx[1][2];
+		*(f32*)((u8*)this + 0xA0) = at.z + nd * mtx[2][2];
+
+		CLBRotatePosAndUp(yawAngle, pitchAngle, col0, col1, at,
+		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x98),
+		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x30));
+
+		JGeometry::TVec3<f32> fwd;
+		fwd.x = at.x - *(f32*)((u8*)this + 0x98);
+		fwd.y = at.y - *(f32*)((u8*)this + 0x9C);
+		fwd.z = at.z - *(f32*)((u8*)this + 0xA0);
+		fwd.normalize(fwd);
+
+		JGeometry::TVec3<f32> upAxis;
+		upAxis.x = *(f32*)((u8*)this + 0x30);
+		upAxis.y = *(f32*)((u8*)this + 0x34);
+		upAxis.z = *(f32*)((u8*)this + 0x38);
+
+		JGeometry::TRotation3<
+		    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >
+		    rot;
+		rot.identity33();
+		rot.setRotate(upAxis, -1.570796f);
+
+		f32 sx = rot.at(0, 0) * upAxis.x + rot.at(1, 0) * upAxis.y
+		         + rot.at(2, 0) * upAxis.z;
+		f32 sy = rot.at(0, 1) * upAxis.x + rot.at(1, 1) * upAxis.y
+		         + rot.at(2, 1) * upAxis.z;
+		f32 sz = rot.at(0, 2) * upAxis.x + rot.at(1, 2) * upAxis.y
+		         + rot.at(2, 2) * upAxis.z;
+
+		f32 chainScale = unkA8 * *(f32*)((u8*)*(u8**)((u8*)this + 0x68) + 0x28)
+		                 + *(f32*)((u8*)*(u8**)((u8*)this + 0x68) + 0x24);
+		sx *= chainScale;
+		sy *= chainScale;
+		sz *= chainScale;
+
+		f32 sideScale = *(f32*)((u8*)*(u8**)((u8*)this + 0x68) + 0x5C);
+		sx *= sideScale;
+		sy *= sideScale;
+		sz *= sideScale;
+
+		*(f32*)((u8*)this + 0x98) += sx;
+		*(f32*)((u8*)this + 0x9C) += sy;
+		*(f32*)((u8*)this + 0xA0) += sz;
+		at.x += sx;
+		at.y += sy;
+		at.z += sz;
+
+		f32 angleDeg;
+		if (0.0f == col1.y) {
+			if (col1.x >= 0.0f) {
+				angleDeg = -90.0f;
+			} else {
+				angleDeg = 90.0f;
+			}
+		} else if (col1.y >= 0.0f) {
+			angleDeg = -((f32)matan(col1.x, col1.y) * (360.0f / 65536.0f));
+		} else {
+			angleDeg
+			    = 180.0f + (f32)matan(-col1.x, col1.y) * (360.0f / 65536.0f);
+		}
+
+		*(s16*)((u8*)this + 0x254)
+		    = CLBRoundf<s16>(angleDeg * (65536.0f / 360.0f));
+
+		*(f32*)((u8*)this + 0x48) = *(f32*)*(u8**)((u8*)this + 0x68);
+
+		// Tail snap/chase
+		*(f32*)((u8*)this + 0x80) = *(f32*)((u8*)this + 0x98);
+		*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0x9C);
+		*(f32*)((u8*)this + 0x88) = *(f32*)((u8*)this + 0xA0);
+
+		if (isJet1stCamPressed) {
+			// snap
+			if (*(u32*)((u8*)this + 0x78) == 0) {
+				*(f32*)((u8*)this + 0x10) = *(f32*)((u8*)this + 0x80);
+				*(f32*)((u8*)this + 0x14) = *(f32*)((u8*)this + 0x84);
+				*(f32*)((u8*)this + 0x18) = *(f32*)((u8*)this + 0x88);
+			}
+			if (*(u32*)((u8*)this + 0x7C) == 0) {
+				*(f32*)((u8*)this + 0x3C) = at.x;
+				*(f32*)((u8*)this + 0x40) = at.y;
+				*(f32*)((u8*)this + 0x44) = at.z;
+			}
+		} else {
+			u8* p68 = *(u8**)((u8*)this + 0x68);
+			if (*(u32*)((u8*)this + 0x78) == 0) {
+				CLBChaseDecrease((f32*)((u8*)this + 0x10),
+				                 *(f32*)((u8*)this + 0x80),
+				                 *(f32*)(p68 + 0x94), 0.0f);
+				CLBChaseDecrease((f32*)((u8*)this + 0x14),
+				                 *(f32*)((u8*)this + 0x84),
+				                 *(f32*)(p68 + 0x9C), 0.0f);
+				CLBChaseDecrease((f32*)((u8*)this + 0x18),
+				                 *(f32*)((u8*)this + 0x88),
+				                 *(f32*)(p68 + 0x94), 0.0f);
+			}
+			if (*(u32*)((u8*)this + 0x7C) == 0) {
+				CLBChaseDecrease((f32*)((u8*)this + 0x3C), at.x,
+				                 *(f32*)(p68 + 0xA4), 0.0f);
+				CLBChaseDecrease((f32*)((u8*)this + 0x40), at.y,
+				                 *(f32*)(p68 + 0xA8), 0.0f);
+				CLBChaseDecrease((f32*)((u8*)this + 0x44), at.z,
+				                 *(f32*)(p68 + 0xA4), 0.0f);
+			}
+		}
+	} else {
+		// 3rd-person camera mode
+		if (isJet1stCamPressed) {
+			setUpFromLButtonCamera_();
+		}
+
+		// Accumulate stick into jc->unk8 (yaw) and unk0A (pitch)
+		{
+			TCameraJetCoaster* jc = (TCameraJetCoaster*)
+			    *(void**)((u8*)this + 0x2B8);
+			s32 stickRateY
+			    = (s32)(s16)*(u16*)((u8*)jc->unk0 + 0x40);
+			s32 stickRateX
+			    = (s32)(s16)*(u16*)((u8*)jc->unk0 + 0x54);
+			f32 stickY = *(f32*)((u8*)unk120 + 0xC4);
+			f32 stickX = *(f32*)((u8*)unk120 + 0xC0);
+			jc->unk8
+			    = (s16)(s32)((f32)(s16)jc->unk8 - stickY * (f32)stickRateY);
+			jc->unkA
+			    = (s16)(s32)((f32)(s16)jc->unkA + stickX * (f32)stickRateX);
+		}
+
+		// Clamp jc->unk8 to ±save->unk18 and jc->unkA to ±save->unk2C
+		{
+			TCameraJetCoaster* jc = (TCameraJetCoaster*)
+			    *(void**)((u8*)this + 0x2B8);
+			s32 hi  = (s32)(s16)*(u16*)((u8*)jc->unk0 + 0x18);
+			s32 v8  = (s32)(s16)jc->unk8;
+			if (v8 > hi)
+				jc->unk8 = (s16)hi;
+			else if (v8 < -hi)
+				jc->unk8 = (s16)-hi;
+		}
+		{
+			TCameraJetCoaster* jc = (TCameraJetCoaster*)
+			    *(void**)((u8*)this + 0x2B8);
+			s32 hi  = (s32)(s16)*(u16*)((u8*)jc->unk0 + 0x2C);
+			s32 vA  = (s32)(s16)jc->unkA;
+			if (vA > hi)
+				jc->unkA = (s16)hi;
+			else if (vA < -hi)
+				jc->unkA = (s16)-hi;
+		}
+
+		// Chase jc->unk4 toward jc->unk8, jc->unk6 toward jc->unkA
+		{
+			TCameraJetCoaster* jc = (TCameraJetCoaster*)
+			    *(void**)((u8*)this + 0x2B8);
+			CLBChaseAngleDecrease((s16*)&jc->unk4, (s16)jc->unk8,
+			                      *(s16*)((u8*)jc->unk0 + 0x68));
+			CLBChaseAngleDecrease((s16*)&jc->unk6, (s16)jc->unkA,
+			                      *(s16*)((u8*)jc->unk0 + 0x7C));
+		}
+
+		// Copy save vectors to this
+		JGeometry::TVec3<f32> at;
+		{
+			TCameraJetCoaster* jc = (TCameraJetCoaster*)
+			    *(void**)((u8*)this + 0x2B8);
+			*(u32*)((u8*)this + 0x98) = *(u32*)((u8*)jc + 0x10);
+			*(u32*)((u8*)this + 0x9C) = *(u32*)((u8*)jc + 0x14);
+			*(u32*)((u8*)this + 0xA0) = *(u32*)((u8*)jc + 0x18);
+		}
+		{
+			TCameraJetCoaster* jc = (TCameraJetCoaster*)
+			    *(void**)((u8*)this + 0x2B8);
+			*(u32*)((u8*)this + 0x8C) = *(u32*)((u8*)jc + 0x1C);
+			*(u32*)((u8*)this + 0x90) = *(u32*)((u8*)jc + 0x20);
+			*(u32*)((u8*)this + 0x94) = *(u32*)((u8*)jc + 0x24);
+		}
+		{
+			TCameraJetCoaster* jc = (TCameraJetCoaster*)
+			    *(void**)((u8*)this + 0x2B8);
+			*(u32*)((u8*)this + 0x30) = *(u32*)((u8*)jc + 0x28);
+			*(u32*)((u8*)this + 0x34) = *(u32*)((u8*)jc + 0x2C);
+			*(u32*)((u8*)this + 0x38) = *(u32*)((u8*)jc + 0x30);
+		}
+		{
+			TCameraJetCoaster* jc = (TCameraJetCoaster*)
+			    *(void**)((u8*)this + 0x2B8);
+			*(f32*)((u8*)this + 0x48) = *(f32*)((u8*)jc + 0x34);
+		}
+
+		// at = this->unk8C
+		at.x = *(f32*)((u8*)this + 0x8C);
+		at.y = *(f32*)((u8*)this + 0x90);
+		at.z = *(f32*)((u8*)this + 0x94);
+
+		// fwd = mario - pos, normalize
+		JGeometry::TVec3<f32> fwd;
+		fwd.x = gpMarioPos->x - *(f32*)((u8*)this + 0x98);
+		fwd.y = gpMarioPos->y - *(f32*)((u8*)this + 0x9C);
+		fwd.z = gpMarioPos->z - *(f32*)((u8*)this + 0xA0);
+		fwd.normalize(fwd);
+
+		// side = cross(up, fwd) normalized
+		f32 ux = *(f32*)((u8*)this + 0x30);
+		f32 uy = *(f32*)((u8*)this + 0x34);
+		f32 uz = *(f32*)((u8*)this + 0x38);
+		JGeometry::TVec3<f32> side;
+		side.x = uy * fwd.z - uz * fwd.y;
+		side.y = uz * fwd.x - ux * fwd.z;
+		side.z = ux * fwd.y - uy * fwd.x;
+		MsVECNormalize((Vec*)&side, (Vec*)&side);
+
+		JGeometry::TVec3<f32> up;
+		up.x = ux;
+		up.y = uy;
+		up.z = uz;
+		{
+			TCameraJetCoaster* jc = (TCameraJetCoaster*)
+			    *(void**)((u8*)this + 0x2B8);
+			CLBRotatePosAndUp((s16)jc->unk4, (s16)jc->unk6, side, up,
+			                  *gpMarioPos,
+			                  (JGeometry::TVec3<f32>*)((u8*)this + 0x30),
+			                  (JGeometry::TVec3<f32>*)((u8*)this + 0x98));
+		}
+
+		// Tail snap/chase
+		*(f32*)((u8*)this + 0x80) = *(f32*)((u8*)this + 0x98);
+		*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0x9C);
+		*(f32*)((u8*)this + 0x88) = *(f32*)((u8*)this + 0xA0);
+
+		if (isJet1stCamPressed) {
+			if (*(u32*)((u8*)this + 0x78) == 0) {
+				*(f32*)((u8*)this + 0x10) = *(f32*)((u8*)this + 0x80);
+				*(f32*)((u8*)this + 0x14) = *(f32*)((u8*)this + 0x84);
+				*(f32*)((u8*)this + 0x18) = *(f32*)((u8*)this + 0x88);
+			}
+			if (*(u32*)((u8*)this + 0x7C) == 0) {
+				*(f32*)((u8*)this + 0x3C) = at.x;
+				*(f32*)((u8*)this + 0x40) = at.y;
+				*(f32*)((u8*)this + 0x44) = at.z;
+			}
+		} else {
+			u8* p68 = *(u8**)((u8*)this + 0x68);
+			if (*(u32*)((u8*)this + 0x78) == 0) {
+				CLBChaseDecrease((f32*)((u8*)this + 0x10),
+				                 *(f32*)((u8*)this + 0x80),
+				                 *(f32*)(p68 + 0x94), 0.0f);
+				CLBChaseDecrease((f32*)((u8*)this + 0x14),
+				                 *(f32*)((u8*)this + 0x84),
+				                 *(f32*)(p68 + 0x9C), 0.0f);
+				CLBChaseDecrease((f32*)((u8*)this + 0x18),
+				                 *(f32*)((u8*)this + 0x88),
+				                 *(f32*)(p68 + 0x94), 0.0f);
+			}
+			if (*(u32*)((u8*)this + 0x7C) == 0) {
+				CLBChaseDecrease((f32*)((u8*)this + 0x3C), at.x,
+				                 *(f32*)(p68 + 0xA4), 0.0f);
+				CLBChaseDecrease((f32*)((u8*)this + 0x40), at.y,
+				                 *(f32*)(p68 + 0xA8), 0.0f);
+				CLBChaseDecrease((f32*)((u8*)this + 0x44), at.z,
+				                 *(f32*)(p68 + 0xA4), 0.0f);
+			}
+		}
+	}
+}

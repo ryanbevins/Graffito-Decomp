@@ -27,7 +27,7 @@ void CPolarSubCamera::perform(u32 flags, JDrama::TGraphics* gfx)
 
 void CPolarSubCamera::getFinalAngleZ() const { }
 s16 CPolarSubCamera::getOffsetAngleY() const { return 0; }
-void CPolarSubCamera::getOffsetAngleX() const { }
+s16 CPolarSubCamera::getOffsetAngleX() const { return 0; }
 
 void CPolarSubCamera::ctrlGameCamera_() { }
 void CPolarSubCamera::calcFinalPosAndAt_() { }
