@@ -20,15 +20,15 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_Map(const char* name) const
 	if (strcmp(name, "Map") == 0)
 		return new TMap("Map");
 	if (strcmp(name, "MapDrawWall") == 0)
-		return new TMapDrawWall("MapDrawWall");
+		return new TMapDrawWall("\x83\x4a\x83\x81\x83\x89\x90\x48\x82\xa2\x8d\x9e\x82\xdd\x95\xc7");
 	if (strcmp(name, "Sky") == 0)
 		return new TSky("Sky");
 	if (strcmp(name, "Shimmer") == 0)
 		return new TShimmer("<Shimmer>");
 	if (strcmp(name, "Pollution") == 0)
-		return new TPollutionManager("Pollution");
+		return new TPollutionManager("\x97\x8e\x8f\x91\x82\xab\x8a\xc7\x97\x9d");
 	if (strcmp(name, "PollutionTest") == 0)
-		return new TPollutionTest("PollutionTest");
+		return new TPollutionTest("\x97\x8e\x8f\x91\x82\xab\x83\x65\x83\x58\x83\x67");
 	if (strcmp(name, "SunMgr") == 0)
 		return new TSunMgr("<TSunMgr>");
 	if (strcmp(name, "SunModel") == 0)
