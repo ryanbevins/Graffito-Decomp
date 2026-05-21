@@ -1,6 +1,37 @@
 #include <NPC/NpcBase.hpp>
+#include <NPC/NpcSave.hpp>
+#include <Player/MarioAccess.hpp>
+#include <math.h>
 
 #pragma dont_inline on
+
+BOOL TBaseNPC::isInBodyTurnSearchRange() const
+{
+	BOOL result = FALSE;
+	if (__fabsf(gpMarioPos->y - mPosition.y)
+	    < mNpcSaveIndividual->mBodyTurnSearchHeight.value) {
+		if (isInSight(*gpMarioPos, mNpcSaveIndividual->mBodyTurnSearchDist.value,
+		              mNpcSaveIndividual->mBodyTurnSearchDegree.value,
+		              mNpcSaveIndividual->mBodyTurnSearchAware.value)) {
+			result = TRUE;
+		}
+	}
+	return result;
+}
+
+BOOL TBaseNPC::isInMadSearchRange() const
+{
+	BOOL result = FALSE;
+	if (__fabsf(gpMarioPos->y - mPosition.y)
+	    < mNpcSaveIndividual->mMadSearchHeight.value) {
+		if (isInSight(*gpMarioPos, mNpcSaveIndividual->mMadSearchDist.value,
+		              mNpcSaveIndividual->mMadSearchDegree.value,
+		              mNpcSaveIndividual->mMadSearchAware.value)) {
+			result = TRUE;
+		}
+	}
+	return result;
+}
 
 BOOL TBaseNPC::isMadNpc() const
 {

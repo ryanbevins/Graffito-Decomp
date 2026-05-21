@@ -4,6 +4,8 @@
 #include <Enemy/Enemy.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 
+class TNpcSaveIndividual;
+
 // TODO: should this be here?
 enum EnumNpcAnmKind { };
 enum EnumNpcStopMotionBlendOnOff { };
@@ -68,8 +70,8 @@ public:
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
 	Vec getFocalPoint() const;
 	void getCursorPos() const;
-	void isInMadSearchRange() const;
-	void isInBodyTurnSearchRange() const;
+	BOOL isInMadSearchRange() const;
+	BOOL isInBodyTurnSearchRange() const;
 	void isNeedNeckStraight() const;
 	BOOL isPartsAnmNpc() const;
 	void isBehaveToHitNpc() const;
@@ -148,7 +150,9 @@ public:
 	/* 0x150 */ char unk150[0x1C];
 	/* 0x16C */ s32 _16C;
 	/* 0x170 */ u32 mActionFlag;
-	/* 0x174 */ char unk174[0x234 - 0x174];
+	/* 0x174 */ char unk174[0x228 - 0x174];
+	/* 0x228 */ TNpcSaveIndividual* mNpcSaveIndividual;
+	/* 0x22C */ char unk22C[0x234 - 0x22C];
 };
 
 #endif
