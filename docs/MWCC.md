@@ -36,6 +36,67 @@ them in future ticks.
 
 ## Settled
 
+### 1-case `switch` defeats the bne-skip optimization for `if (x == K) call();`
+
+**Rule:** Source `if (x == K) call();` produces a 3-instruction
+optimized sequence:
+```
+cmpwi r0, K
+bne SKIP
+bl call
+SKIP:
+```
+Target sometimes emits the 4-instruction "literal if-then" form instead:
+```
+cmpwi r0, K
+beq DO_CALL
+b SKIP
+DO_CALL: bl call
+SKIP:
+```
+
+To force the 4-instruction form, wrap the call in a 1-case switch:
+```cpp
+switch (x) {
+case K:
+    call();
+    break;
+}
+```
+
+This is a refinement of the broader rule that `switch` defeats
+optimization patterns (see "switch defeats fusion of multiple equality
+compares"); even single-case switches can shift codegen.
+
+**Where observed:**
+- `src/System/MarDirectorEvent.cpp::movement` — target uses 4-instruction
+  `beq;b;bl` layout for `if (mState == 4) movement_game();`. The bare
+  `if` form gave 91% (3-instruction `bne;bl`); switching to
+  `switch (mState) { case 4: movement_game(); break; }` matched 100%.
+
+### Direct `this->[OFFSET]` field access vs static helper with hit_actor arg
+
+**Rule:** When a non-static method calls a static helper that accesses
+`((CastT*)arg)->field`, and the calling method's compiled body needs
+to access `this->[OFFSET]` (not `arg->[OFFSET]`), the original source
+likely does NOT call the helper — it directly accesses the field via
+`this`. Even though the helper's body looks identical, calling
+`helper(arg)` produces `lwz r?, OFFSET(r4)` (uses the arg in r4) while
+direct `((CastT*)this)->field` produces `lwz r?, OFFSET(r3)` (uses
+this).
+
+Pattern: when target's body has `lwz r0, 0x68(r3)` (r3=this) but our
+source calls a helper that takes a hit_actor arg, rewrite the body to
+access the field directly via `((CastT*)this)->field`.
+
+**Where observed:**
+- `src/MoveBG/MapObjLib.cpp::getWaterPos/getWaterSpeed/getWaterPlane`
+  — target accessed `this->[0x68]` (the TTakeActor::mHolder field
+  slot, treated as a TWaterHitActor::unk68 water-ID). Previously we
+  called `getWaterID(hit_actor)` which inlined to use the arg in r4.
+  Replacing with `((TWaterHitActor*)this)->unk68` matched all three
+  100%.
+
 ### 2-case fused switch produces midpoint-excluded bisection
 
 **Rule:** A switch with exactly two case labels falling into one block:
