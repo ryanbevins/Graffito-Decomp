@@ -16,7 +16,10 @@
 
 class TCamSaveJetCoaster {
 public:
-	TCamSaveJetCoaster() { }
+	TCamSaveJetCoaster();
+
+private:
+	u8 _pad[0x80];
 };
 
 class TCameraJetCoaster {
