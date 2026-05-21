@@ -7,11 +7,9 @@ void TNpcInbetween::execMotionBlend(MActor* mactor)
 	f32 ratio = 0.0f;
 	if (isForcedBlendRatio()) {
 		mMotionBlendTimer = 0;
-		J3DAnmTransform* old_ptr;
+		J3DAnmTransform* old_ptr = nullptr;
 		if (mactor->unkC)
 			old_ptr = mactor->unkC->getOldMotionBlendAnmPtr();
-		else
-			old_ptr = nullptr;
 		if (old_ptr) {
 			J3DFrameCtrl local = *mactor->getFrameCtrl(0);
 			local.update();
