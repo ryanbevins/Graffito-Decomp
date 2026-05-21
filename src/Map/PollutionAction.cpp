@@ -32,3 +32,10 @@ void TPollutionLayer::glassWall() { }
 void TPollutionLayer::fire() { }
 
 void TPollutionLayer::action() { }
+
+bool TPollutionLayer::isInArea(f32 x, f32, f32 z) const
+{
+	if (x < unk38 || unk3C < x || z < unk40 || unk44 < z)
+		return false;
+	return true;
+}
