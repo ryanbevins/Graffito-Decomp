@@ -82,7 +82,7 @@ void MSHandle::setSeDistancePitch(u8 param)
 	if (getSwBit() & 0xC0) {
 		pitch += (f32)unk3 / 192.0f;
 	}
-	setSeInterPitch(param, pitch, 4, 0.0f);
+	setSeInterPitch(4, pitch, param, 0.0f);
 }
 
 void MSHandle::setSeDistanceVolume(u8 param)
@@ -96,23 +96,22 @@ void MSHandle::setSeDistanceVolume(u8 param)
 	} else {
 		u8 curve = (u8)((getSwBit() >> 16) & 0x7);
 		u8 idx   = computeCategoryIdx(unk8);
-		vol      = ((MSHandle*)this)->setDistanceVolumeCommon(
-            smSeCategory[idx].unk4, curve);
+		vol      = setDistanceVolumeCommon(smSeCategory[idx].unk4, curve);
 	}
-	setSeInterVolume(param, vol, 4, 0);
+	setSeInterVolume(4, vol, param, 0);
 }
 
 void MSHandle::setSeDistanceDolby(u8 param)
 {
 	f32 dolby = calcDolby(unk1C->unk0, unk1C->unk18);
-	setSeInterDolby(param, dolby, 4, 0);
+	setSeInterDolby(4, dolby, param, 0);
 }
 
 void MSHandle::setSeDistancePan(u8 param)
 {
 	u8 idx  = computeCategoryIdx(unk8);
 	f32 pan = calcPan(unk1C->unk0, unk1C->unk18, smSeCategory[idx].unk4);
-	setSeInterPan(param, pan, 4, 0);
+	setSeInterPan(4, pan, param, 0);
 }
 
 void MSHandle::setSeDistanceParameters()
