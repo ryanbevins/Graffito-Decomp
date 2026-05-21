@@ -691,7 +691,7 @@ void TMapObjBase::emitColumnWater()
 	    = (TEffectColumWater*)gpConductor->makeOneEnemyAppear(
 	        mPosition, "エフェクト水柱", 0);
 	if (effect != nullptr) {
-		effect->generate(mPosition, mRotation);
+		effect->generate(mPosition, mScaling);
 	}
 }
 
