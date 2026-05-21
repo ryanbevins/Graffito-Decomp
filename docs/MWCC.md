@@ -36,6 +36,45 @@ them in future ticks.
 
 ## Settled
 
+### Vtable order in headers must match target asm one-for-one
+
+**Rule:** MWCC emits `virtual` methods into the vtable in their lexical order
+of declaration in the class definition. Even a single virtual swap in the
+header shifts every later slot by 4 bytes, causing all virtual-call sites
+that dispatch the later methods to use the wrong vtable index. The symptom
+at the call site is a `lwz r12, OFFSET(r12)` whose `OFFSET` differs from
+target by exactly 4 bytes (or a multiple of 4 if multiple slots are wrong),
+with no other instruction differences.
+
+A non-`virtual` method declared between `virtual` methods does NOT consume
+a vtable slot but does NOT shift later slots either — but if a method
+should be virtual and isn't, it's missing from the vtable entirely.
+
+**How to detect:** Diff the function's asm against the target; if the only
+mismatch is a single virtual-call `lwz r12, OFFSET(r12)` (and possibly a
+trailing `bne 0xXXX` whose only difference is the branch target shifted
+by 4 due to the size mismatch), it's a vtable-order bug. The fix is in the
+class header, not the .cpp file. The class's own vtable (`__vt__<class>`)
+will also appear in the original .o; reading off the symbol order there
+gives the canonical order.
+
+**Tool:** `tools/agent/find_vtable_diffs.py` scans `report.json` for
+near-match functions with exactly this pattern and prints them as
+single-line fixes.
+
+**Where observed:**
+- `mario/Player/MarioCollision::floorDamageExec` — target used
+  `lwz r12, 0xdc(r12)` (damageExec); ours used `0xd8` (checkCollision).
+  TMario header had `damageExec` declared BEFORE `checkCollision`; target's
+  vtable order is `checkCollision`, `damageExec`, `getVoiceStatus`,
+  `drawSyncCallback`. Also, `drawSyncCallback` was declared non-virtual in
+  the header but appears in target's vtable. Fix: swap declaration order
+  and add `virtual` to `drawSyncCallback`. Net: +3 matched functions.
+- `mario/MoveBG/MapObjSirena::TPanelRevolve::control` — target used
+  `lwz r12, 0x114(r12)` (`setUpCurrentMapCollision`); source called
+  `updateObjMtx()` (`0x110`). Method name in source was wrong, not vtable
+  order — same diagnostic signature.
+
 ### Splitting `a + b * c` into two statements defeats `-fp_contract on` fusion
 
 **Rule:** Under the project-wide `-fp_contract on` flag, MWCC fuses
