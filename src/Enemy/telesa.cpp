@@ -35,6 +35,11 @@
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
+static inline void setEffectMtxOnTex2(J3DMaterial* mat, MtxPtr mtx)
+{
+	mat->getTexGenBlock()->getTexMtx(2)->setEffectMtx(mtx);
+}
+
 static const char* telesa_bastable[] = {
 	nullptr,
 	"/scene/telesa/bas/telesa_clush.bas",
@@ -439,12 +444,9 @@ void TTelesa::calcRootMatrix()
 		     i < mMActor->getModel()->getModelData()->getMaterialNum(); ++i) {
 			Mtx afStack_94;
 			SMS_GetLightPerspectiveForEffectMtx(afStack_94);
-			mMActor->getModel()
-			    ->getModelData()
-			    ->getMaterialNodePointer(i)
-			    ->getTexGenBlock()
-			    ->getTexMtx(2)
-			    ->setEffectMtx(afStack_94);
+			setEffectMtxOnTex2(
+			    mMActor->getModel()->getModelData()->getMaterialNodePointer(i),
+			    afStack_94);
 		}
 
 		if (JPABaseEmitter* emitter

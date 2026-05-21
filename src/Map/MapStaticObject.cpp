@@ -42,6 +42,11 @@ static void dummy(Vec& v)
 	v = (Vec) { 1.0f, 1.0f, 1.0f };
 }
 
+static inline void setEffectMtxOnTex1(J3DMaterial* mat, MtxPtr mtx)
+{
+	mat->getTexGenBlock()->getTexMtx(1)->setEffectMtx(mtx);
+}
+
 static const TMapStaticObj::ActorDataTableEntry actor_data_table[] = {
 	{ "SeaIndirect", 0x0, 0x0, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, "SeaIndirect",
 	  0x11210000, nullptr, 0x0, 0xFFFFFFFF, 0x0, 0x0, 0x0, 0x41 },
@@ -182,12 +187,9 @@ void TMapStaticObj::perform(u32 param_1, JDrama::TGraphics* param_2)
 		Mtx afStack_7c;
 		SMS_GetLightPerspectiveForEffectMtx(afStack_7c);
 
-		unk70->getModel()
-		    ->getModelData()
-		    ->getMaterialNodePointer(0)
-		    ->getTexGenBlock()
-		    ->getTexMtx(1)
-		    ->setEffectMtx(afStack_7c);
+		setEffectMtxOnTex1(
+		    unk70->getModel()->getModelData()->getMaterialNodePointer(0),
+		    afStack_7c);
 	}
 
 	if ((param_1 & 0x200) && ((unk68->unk40 & 0x8) || (unk68->unk40 & 0x20))) {

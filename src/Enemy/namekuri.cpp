@@ -40,6 +40,11 @@ int TNameKuriManager::mStopMinScaleFrame = 8;
 
 static TNameKuri* gpCurNameKuri;
 
+static inline void setEffectMtxOnTex2(J3DMaterial* mat, MtxPtr mtx)
+{
+	mat->getTexGenBlock()->getTexMtx(2)->setEffectMtx(mtx);
+}
+
 const char* namekuri2_bastable[] = {
 	nullptr, nullptr, nullptr, "/scene/namekuri2/bas/name_jump_start.base",
 	nullptr, nullptr, nullptr, nullptr,
@@ -452,13 +457,9 @@ void TNameKuri::perform(u32 param_1, JDrama::TGraphics* param_2)
 		Mtx afStack_50;
 		SMS_GetLightPerspectiveForEffectMtx(afStack_50);
 
-		// TODO: need one more inline here somewhere?
-		mMActor->getModel()
-		    ->getModelData()
-		    ->getMaterialNodePointer(0)
-		    ->getTexGenBlock()
-		    ->getTexMtx(2)
-		    ->setEffectMtx(afStack_50);
+		setEffectMtxOnTex2(
+		    mMActor->getModel()->getModelData()->getMaterialNodePointer(0),
+		    afStack_50);
 	}
 }
 

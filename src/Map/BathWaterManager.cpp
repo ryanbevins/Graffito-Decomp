@@ -38,6 +38,11 @@ public:
 };
 extern MSound* gpMSound;
 
+static inline void doSetEffectMtx(J3DTexMtxInfo* info, MtxPtr mtx)
+{
+	info->setEffectMtx(mtx);
+}
+
 static inline JUTTexture* screenTexture(TScreenTexture* texture)
 {
 	return *(JUTTexture**)((u8*)texture + 0x10);
@@ -1531,7 +1536,7 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 
 	Mtx effectMtx;
 	SMS_GetLightPerspectiveForEffectMtx(effectMtx);
-	texMtx0->setEffectMtx(effectMtx);
+	doSetEffectMtx(texMtx0, effectMtx);
 	texGenBlock->calc(unk80050.mMtx);
 	GXLoadTexMtxImm(texMtx0->mTotalMtx, GX_TEXMTX0, GX_MTX3x4);
 	GXLoadTexMtxImm(texMtx1->mTotalMtx, GX_TEXMTX1, GX_MTX3x4);

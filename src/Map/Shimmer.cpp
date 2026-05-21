@@ -21,6 +21,11 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+static inline void setEffectMtxOnTex1(J3DMaterial* mat, MtxPtr mtx)
+{
+	mat->getTexGenBlock()->getTexMtx(1)->setEffectMtx(mtx);
+}
+
 void TShimmer::near() { }
 
 void TShimmer::far() { }
@@ -47,12 +52,9 @@ void TShimmer::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 		Mtx effectMtx;
 		SMS_GetLightPerspectiveForEffectMtx(effectMtx);
-		// TODO: how do we make setEffectMtx not inline
-		unk48->getModelData()
-		    ->getMaterialNodePointer(0)
-		    ->getTexGenBlock()
-		    ->getTexMtx(1)
-		    ->setEffectMtx(effectMtx);
+		setEffectMtxOnTex1(
+		    unk48->getModelData()->getMaterialNodePointer(0),
+		    effectMtx);
 
 		J3DTransformInfo info;
 		info.mScale.x    = 1.0f;
