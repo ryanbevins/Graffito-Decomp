@@ -794,13 +794,13 @@ public:
 	virtual void playerControl(JDrama::TGraphics*);
 	virtual void initModel();
 	virtual void drawSpecial(JDrama::TGraphics*);
+	virtual void checkCollision();
 	virtual void damageExec(THitActor* hittingActor, int damage,
 	                        int damageAnimType, int waterEmit,
 	                        f32 knockbackSpeed, int rumbleFrames,
 	                        f32 pollutionAmount, s16 invincibilityFrames);
-	virtual void checkCollision();
 	virtual void getVoiceStatus();
-	void drawSyncCallback(u16);
+	virtual void drawSyncCallback(u16);
 
 	BOOL actnMain();
 	void pitching();
