@@ -221,13 +221,16 @@ BOOL TBaseNPC::isTurnToMarioWhenApproach() const
 
 	s32 t       = mActorType;
 	BOOL result = TRUE;
-	if (t >= 0x4000019)
-		goto fail;
-	if (t < 0x4000016)
-		goto fail;
-	if ((mActionFlag & 0x7E7F) != 0)
+	switch (t) {
+	case 0x4000016:
+	case 0x4000017:
+	case 0x4000018:
+		if ((mActionFlag & 0x7E7F) != 0)
+			result = FALSE;
+		break;
+	default:
 		result = FALSE;
+		break;
+	}
 	return result;
-fail:
-	return FALSE;
 }
