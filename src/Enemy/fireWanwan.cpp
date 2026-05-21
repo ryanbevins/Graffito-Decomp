@@ -1536,7 +1536,7 @@ void TFireWanwan::attackToMario()
 	TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
 	if (nerve != &TNerveFireWanwanFly::theNerve()
 	    && nerve != &TNerveFireWanwanEscape::theNerve()
-	    && nerve != &TNerveFireWanwanRecover::theNerve()) {
+	    && nerve != &TNerveFireWanwanRecoverGraph::theNerve()) {
 		if (isFreeze()) {
 			(void)nerve;
 		} else {
