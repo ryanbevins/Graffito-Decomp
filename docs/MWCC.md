@@ -36,6 +36,49 @@ them in future ticks.
 
 ## Settled
 
+### 2-case fused switch produces midpoint-excluded bisection
+
+**Rule:** A switch with exactly two case labels falling into one block:
+```cpp
+switch (x) {
+case A:
+case B:
+    result = true;
+}
+```
+compiles to a "midpoint-excluded" binary search:
+```
+cmpwi r, MID    ; MID = (A+B)/2
+beq END         ; midpoint → false (since MID ∉ {A, B} when A,B differ by 2)
+bge UPPER       ; > MID → check B
+cmpwi r, A
+bge SET         ; ≥ A and < MID → SET (only A matches here)
+b END
+UPPER:
+cmpwi r, B+1
+bge END         ; ≥ B+1 → false
+SET: li r, 1    ; ≤ B and > MID → true (only B)
+END:
+```
+
+Critically, this is **NOT** the same as `if (x == A || x == B)`, which
+MWCC tends to compile to two flat `cmplwi`/`beq` pairs. The switch form
+is what produces the bisection.
+
+When the target asm shows the `cmpwi midpoint; beq END; bge UPPER; ...`
+pattern, it's a 2-case switch — even if the two values look like they
+could be a range (e.g. 0x88B/0x88D with 0x88C "missing" between them).
+The midpoint is mechanically excluded; do not add it as a third case.
+
+**Where observed:**
+- `src/Camera/CameraMarioData.cpp::isMarioRocketing` — target had
+  `cmpwi r3, 0x88c; beq END; bge UPPER; cmpwi 0x88b; bge SET; b END;
+  UPPER: cmpwi 0x88e; bge END; SET: li r31, 1`. Looked like a range
+  check 0x88B–0x88D but was actually `case 0x88B: case 0x88D:`. The
+  3-case form (with 0x88C added) compiled to a clean range check
+  `cmpwi 0x88e; bge END; cmpwi 0x88b; bge SET; b END` (85.4% match);
+  removing 0x88C gave the midpoint-excluded bisection → 100%.
+
 ### `bool` vs `BOOL` local must match the function's return type
 
 **Rule:** When a function returns `bool` (u8) and uses a local result variable,
