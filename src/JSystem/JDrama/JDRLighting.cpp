@@ -102,10 +102,11 @@ void TLightAry::perform(u32 param_1, TGraphics* param_2)
 	if (!(param_1 & 0x20))
 		return;
 
+	MtxPtr viewMtx = param_2->mViewMtx.mMtx;
 	for (int i = 0; i < mLightCount; ++i) {
 		TIdxLight& light = mLights[i];
 		Vec pos;
-		MTXMultVec(param_2->mViewMtx.mMtx, &light.mPosition, &pos);
+		MTXMultVec(viewMtx, &light.mPosition, &pos);
 		GXInitLightPos(&light.unk24, pos.x, pos.y, pos.z);
 	}
 
