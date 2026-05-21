@@ -17,7 +17,7 @@ void CPolarSubCamera::killHeightPan_()
 {
 	u16& flags = *(u16*)((u8*)this + 0x64);
 	flags &= ~1;
-	flags &= ~6;
+	flags &= ~2;
 	*(f32*)((u8*)this + 0x84)  = *(f32*)((u8*)this + 0x9C);
 	*(f32*)((u8*)this + 0x24C) = 0.0f;
 }
