@@ -196,10 +196,13 @@ void TCameraShake::execShake(const JGeometry::TVec3<f32>& center,
 
 	mYaw = 0;
 
-	for (s32 i = 0; i < 32; i++) {
-		if (mShakeInfos[i].isActive()) {
-			anyActive = true;
-			break;
+	{
+		TCamShakeInfo* p = mShakeInfos;
+		for (s32 i = 0; i < 32; i++, p++) {
+			if (p->isActive()) {
+				anyActive = true;
+				break;
+			}
 		}
 	}
 

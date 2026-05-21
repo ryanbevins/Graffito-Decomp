@@ -36,6 +36,72 @@ them in future ticks.
 
 ## Settled
 
+### Repeated `a / b` divisions: rewrite as `a * (1.0f / b)` to enable reciprocal CSE
+
+**Rule:** When the same integer→float divisor `b` is used in multiple
+floating-point divisions, MWCC's `-O4,p` optimiser does **not** CSE the
+`(1/b)` automatically — each `a / b` emits the full int→float magic
+sequence (`lis 0x4330`, `stw`/`stw`, `lfd`, `fsubs` from magic constant)
+plus a `fdivs`. Rewriting as `a * (1.0f / b)` with the literal `1.0f`
+DOES trigger CSE: the entire reciprocal expression is hoisted once and
+the result is reused via `fmuls` at each call site.
+
+**Pattern (target asm, ONE reciprocal computed, reused):**
+```
+clrlwi r4, r30, 16          ; u16 cast of duration
+stfs   ...                   ; (some unrelated store)
+lis    r0, 0x4330
+stw    r4, OFFSET(r1)
+lfd    f1, magic_dbl@sda21
+stw    r0, OFFSET-4(r1)
+lfs    f2, 1.0f@sda21
+lfd    f0, OFFSET-4(r1)
+fsubs  f0, f0, f1            ; (double)dur
+fdivs  f2, f2, f0            ; f2 = 1.0 / dur     <-- computed once
+fmuls  f0, f3, f2            ; phase_X * (1/dur)
+... (Y axis later) ...
+fmuls  f0, f1, f2            ; phase_Y * (1/dur)  <-- reuses f2!
+... (Z axis later) ...
+fmuls  f0, f1, f2            ; phase_Z * (1/dur)  <-- reuses f2 again
+```
+
+**Source that does NOT CSE (3 separate int→float→fdivs sequences):**
+```cpp
+mAngleX.mDecrement = phase_X / (f32)(u16)duration;
+mAngleY.mDecrement = phase_Y / (f32)(u16)duration;
+mAngleZ.mDecrement = phase_Z / (f32)(u16)duration;
+```
+
+**Source that DOES CSE (1 reciprocal, 3 multiplies):**
+```cpp
+mAngleX.mDecrement = phase_X * (1.0f / (f32)(u16)duration);
+mAngleY.mDecrement = phase_Y * (1.0f / (f32)(u16)duration);
+mAngleZ.mDecrement = phase_Z * (1.0f / (f32)(u16)duration);
+```
+
+Important caveats observed:
+- Pre-computing `f32 inv_dur = 1.0f / (f32)(u16)duration;` as a function-
+  scope local **does not** match: MWCC computes inv_dur EARLY (at the
+  declaration site) and uses a callee-saved register to carry it
+  across the rest of the function, growing the stack by 4 bytes. The
+  target instead computes the reciprocal LAZILY at the first use site
+  and keeps it in a volatile fp register. Writing the literal `1.0f / b`
+  expression INSIDE each axis's compound expression triggers CSE
+  WITHOUT promoting it to a saved local.
+- Pre-computing `f32 dur_f = (f32)(u16)duration;` then using `phase / dur_f`
+  also fails — MWCC sees three separate divisions and emits three fdivs.
+  The literal `1.0f` and the divide it controls must appear in the
+  source AT each axis site.
+
+**Where observed:**
+- `src/Camera/camerashake.cpp::startShake` — 75.3% → 99.68% (+24.4pp).
+  Three axis blocks each computing `phase / (f32)(u16)duration` rewritten
+  to `phase * (1.0f / (f32)(u16)duration)`. Stack frame shrank from
+  0x38 → 0x50 to match target's 0x50.
+- `src/Camera/camerashake.cpp::keepShake` — 75.9% → 87.3% (+11.4pp).
+  Same rewrite, three axis blocks. Remaining 13% from unrelated
+  pointer-walk pattern in the dispatch loop.
+
 ### Multiple bools live simultaneously: declare and init up-front to get separate registers
 
 **Rule:** When target's asm shows multiple boolean variables initialized
