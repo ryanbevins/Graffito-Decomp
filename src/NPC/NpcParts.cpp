@@ -22,11 +22,14 @@
 #include <JSystem/J3D/J3DGraphBase/J3DStruct.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <string.h>
 
 extern const char* cNpcPartsNameRootJoint;
-extern const char* cPeachPartsTextureName;
-extern const char* cPeachHostTextureName;
+const char* cPeachPartsTextureName              = "H_peach_main_dummy";
+const char* cPeachHostTextureName               = "H_peach_main_s3tc";
+static const char* cNpcPartsNameRootJointStringInfectious
+    = "__ROOT_JOINT__";
 
 void SMS_InitChangeNpcColor(const MActor*, const TColorChangeInfo*,
                             const GXColor*);
