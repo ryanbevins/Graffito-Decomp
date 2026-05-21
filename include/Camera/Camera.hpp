@@ -62,7 +62,7 @@ public:
 	void calcTowerCenterPos_(Vec*);
 	void ctrlNormalOrTowerCamera_();
 	void setNoticeInfo();
-	void getNoticeActor_();
+	void* getNoticeActor_();
 	void execNoticeOnOffProc_(CPolarSubCamera::EnumNoticeOnOffMode);
 	void calcNoticeTargetYrot_(const Vec&);
 	void getNozzleTopPos_(JGeometry::TVec3<f32>*) const;
