@@ -248,7 +248,7 @@ bool CPolarSubCamera::isNeedGroundCheck_()
 
 void CPolarSubCamera::calcInHouseNo_(bool flag)
 {
-	bool forced = flag;
+	bool needsRecalc = true;
 	if (!flag) {
 		bool match1 = (*(f32*)((u8*)this + 0x13C) == *(f32*)((u8*)this + 0x124)
 		               && *(f32*)((u8*)this + 0x140)
@@ -263,11 +263,11 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 			       && *(f32*)((u8*)this + 0x168)
 			              == *(f32*)((u8*)this + 0x150));
 			if (match2)
-				forced = true;
+				needsRecalc = false;
 		}
 	}
 
-	if (forced) {
+	if (!needsRecalc) {
 		updateInHouseTimer(this);
 		return;
 	}
