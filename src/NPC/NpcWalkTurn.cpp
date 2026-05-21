@@ -211,10 +211,15 @@ BOOL TBaseNPC::isTurnToMarioWhenApproach() const
 	if (unk178 != 0.0f || (mActionFlag & 0x200) != 0)
 		return FALSE;
 
-	s32 t = mActorType;
-	if (t < 0x4000019 && t >= 0x4000016) {
-		if ((mActionFlag & 0x7E7F) == 0)
-			return TRUE;
-	}
+	s32 t       = mActorType;
+	BOOL result = TRUE;
+	if (t >= 0x4000019)
+		goto fail;
+	if (t < 0x4000016)
+		goto fail;
+	if ((mActionFlag & 0x7E7F) != 0)
+		result = FALSE;
+	return result;
+fail:
 	return FALSE;
 }
