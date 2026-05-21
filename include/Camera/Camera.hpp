@@ -43,6 +43,13 @@ public:
 	                     bool);
 	void endDemoCamera();
 	bool isSimpleDemoCamera() const;
+	// fabricated inline — actual definition unknown, always inlined.
+	// The `? true : false` trick forces bool materialization when inlined
+	// (otherwise MWCC inlines straight to cmpwi/beq).
+	bool isOnGoingDemoCamera() const
+	{
+		return (mMode == 0x49) ? true : false;
+	}
 	void getTotalDemoFrames() const;
 	int getRestDemoFrames() const;
 	void ctrlNormalDeadDemo_();
