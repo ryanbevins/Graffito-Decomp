@@ -1121,8 +1121,8 @@ BOOL TMareEventPoint::receiveMessage(THitActor* sender, u32 message)
 	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
 		if (!gpModelWaterManager->checkFlagBottom4Bits(
 		        TMapObjBase::getWaterID(sender), 1)) {
-			if (TMapObjBase::getWaterPlane(sender)) {
-				if (TMapObjBase::getWaterPlane(sender)->getNormal().y < 0.1f) {
+			if (((TMapObjBase*)sender)->getWaterPlane(sender)) {
+				if (((TMapObjBase*)sender)->getWaterPlane(sender)->getNormal().y < 0.1f) {
 					if (unk68->startEvent()) {
 						gpMarioParticleManager->emit(0xE7, &sender->mPosition,
 						                             0, nullptr);

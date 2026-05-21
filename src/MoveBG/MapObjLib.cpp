@@ -597,26 +597,26 @@ int TMapObjBase::getWaterID(THitActor* hit_actor)
 	return ((TWaterHitActor*)hit_actor)->unk68;
 }
 
-const TBGCheckData* TMapObjBase::getWaterPlane(THitActor* hit_actor)
+const TBGCheckData* TMapObjBase::getWaterPlane(THitActor*)
 {
-	return gpModelWaterManager->unk2914[getWaterID(hit_actor)];
+	return gpModelWaterManager->unk2914[((TWaterHitActor*)this)->unk68];
 }
 
-JGeometry::TVec3<f32>* TMapObjBase::getWaterSpeed(THitActor* hit_actor)
+JGeometry::TVec3<f32>* TMapObjBase::getWaterSpeed(THitActor*)
 {
 	return &gpModelWaterManager
-	            ->mParticleVelocitySOA[getWaterID(hit_actor)];
+	            ->mParticleVelocitySOA[((TWaterHitActor*)this)->unk68];
 }
 
-JGeometry::TVec3<f32>* TMapObjBase::getWaterPos(THitActor* hit_actor)
+JGeometry::TVec3<f32>* TMapObjBase::getWaterPos(THitActor*)
 {
 	return &gpModelWaterManager
-	            ->mParticlePositionSOA[getWaterID(hit_actor)];
+	            ->mParticlePositionSOA[((TWaterHitActor*)this)->unk68];
 }
 
-bool TMapObjBase::waterHitPlane(THitActor* hit_actor)
+bool TMapObjBase::waterHitPlane(THitActor*)
 {
-	int water_id            = ((TWaterHitActor*)hit_actor)->unk68;
+	int water_id            = ((TWaterHitActor*)this)->unk68;
 	const TBGCheckData* pln = gpModelWaterManager->unk2914[water_id];
 	if (!pln)
 		return false;
