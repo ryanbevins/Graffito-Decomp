@@ -842,6 +842,75 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### `addi rN, rM, OFFSET` field-address caching across calls
+
+**Hypothesis:** When a `this`-relative field at a given offset is accessed
+≥ 2 times AND at least one of the accesses follows a `bl` call, MWCC
+hoists `addi rN, rM, offset` into a non-volatile register and uses
+`offset 0` for subsequent loads/stores. This is net-zero or net-negative
+on instruction count (the `addi` setup costs +1 vs. using the immediate
+offset directly each time), but consumes a callee-saved register and
+inflates the stack frame by 4 bytes per cached address.
+
+**Symptom (target vs ours):** Target reads `lwz rA, 0xOFF(rThis)` two
+times across a `bl` boundary. Ours does:
+```
+addi rN, rThis, 0xOFF       ; cache
+lwz rA, 0xOFF(rThis)        ; (still uses immediate offset! quirky)
+bl ...
+lwz rA, 0x0(rN)              ; uses the cache
+```
+Net: +1 `addi`, +1 callee-save spill, +8 bytes stack (1 reg save + 1
+restore + frame padding). Match drops 1-5pp per cached address.
+
+**Where observed:**
+- `src/Camera/CameraDemo.cpp::execDeadDemoProc_` — 4 accesses to
+  `(this + 0x27c)`; ours caches into r5 (`addi r5, r3, 0x27c`), target
+  doesn't. The cache also indirectly forces shouldReturn/firstMatches
+  into different registers (r4/r0 vs target's r4/r5), preventing the
+  multi-bool `addi r5, r4, 0` copy pattern.
+- `src/Camera/CameraDemo.cpp::endDemoCamera` — 3 accesses to
+  `(this + 0x2B4)`; ours caches into r3 (`addi r3, r31, 0x2b4`), target
+  doesn't. Cost: ~1.5pp.
+- `src/Camera/CameraDemo.cpp::updateGateDemoCamera_` — accesses to
+  `(this + 0x2B4)` and `(this + 0x70)` both cached (`addi r31, r29, 0x2b4;
+  addi r30, r29, 0x70`); target uses just r31 = this. Cost: ~19pp; stack
+  grows from 0x30 → 0x40 to spill the extra regs.
+- `src/Camera/CameraDemo.cpp::startGateDemoCamera` — `(this + 0x2B0)`
+  and `(this + 0x2B4)` cached. Target uses 2 non-volatile regs; ours
+  uses 4 (r28-r31). Cost: ~21pp.
+- `src/Camera/CameraDemo.cpp::ctrlNormalDeadDemo_` — most aggressive
+  case observed: 5 cached field addresses (`&this[0x3c]`, `&this[0x40]`,
+  `&this[0x44]`, `&this[0x10]`, `&this[0x280]`) in r26-r29. Uses `stmw r26`
+  to save 6 callee-saved registers; target uses just `stw r30, r31`.
+
+**What I tried that did NOT prevent caching:**
+- Replacing `void* save = ...; ... void* save2 = ...;` with reassign
+  to the same variable.
+- Using scoped `{ }` blocks to limit each local's lifetime.
+- Adding a typed cast in the second access.
+
+The cache decision appears to be made before instruction scheduling
+and isn't affected by source-level variable lifetimes. It correlates
+with **number of accesses ≥ 2** plus **at least one access following a
+`bl` call** (so a non-volatile register is what's needed to survive
+the call).
+
+**Experiment to confirm/refute:** Reduce one of the `(this + OFFSET)`
+access pairs to a single access by hoisting the value into a local
+variable that's used across both call sites. If the cache disappears,
+the trigger is access count. If it persists, the trigger is something
+else (maybe address-of computations in the AST?).
+
+Alternatively: write a minimal test where a struct field is accessed
+exactly twice across a call. If MWCC caches in our test but target's
+version (if reconstructable) doesn't, we may be hitting a compiler
+flag difference (`-inline auto` vs `-inline deferred` heuristic?).
+
+**Consequence if true:** Many Camera/ functions are capped 75-95%
+because of this single MWCC quirk. If we find the lever, a sweep
+could lift dozens of functions at once.
+
 ### MWCC sometimes inlines a call selectively within the same TU
 
 **Hypothesis:** Even with `#pragma dont_inline on` set TU-wide (or the
