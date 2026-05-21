@@ -36,6 +36,57 @@ them in future ticks.
 
 ## Settled
 
+### Inner parens around the divisor expose `fdivs+fmadds` fusion
+
+**Rule:** With `-fp_contract on`, MWCC fuses `a + b * c` into `fmadds`.
+When the multiplicand involves a division, the *position of the division*
+in the expression decides whether the multiply (and thus the fusion) is
+the top-level rightmost operation.
+
+```cpp
+// Outer division — division is the LAST op at top level.
+// Compiles as: fmuls tmp, b, (c-d); fdivs tmp, tmp, e; fadds r, a, tmp
+//   → 3 instructions, no fusion.
+f32 r = a + b * (c - d) / e;
+
+// Inner-parens division — division is buried inside the multiplicand,
+// so the multiply is the top-level rightmost op.
+// Compiles as: fdivs tmp, (c-d), e; fmadds r, b, tmp, a
+//   → 2 instructions, fused.
+f32 r = a + b * ((c - d) / e);
+```
+
+The same logic explains a sister shape:
+
+```cpp
+// Left-to-right `b/c*d` parses as `(b/c)*d`; the multiply is rightmost.
+// Compiles as: fdivs tmp, b, c; fmadds r, tmp, d, a (= fdivs + fmadds).
+f32 r = a + b / c * d;
+```
+
+When the target asm shows `fdivs` immediately followed by `fmadds` (no
+intervening `fmuls`), the source has the division *inside* the multiplicand
+(via inner parens, or via left-associative `/` placement that puts the
+multiply last). When the target shows `fmuls; fdivs; fadds` instead, the
+source has the division as the top-level last op (`a + b*(c-d)/e` shape).
+
+This is the inverse of [[Splitting `a + b * c` into two statements
+defeats -fp_contract on fusion]] — that one shows how to BREAK fusion;
+this one shows how to PROMOTE it from a 3-instruction unfused chain to
+the 2-instruction fused pair.
+
+**Where observed:**
+- `src/MSound/MSHandle.cpp::calcDolby` HiSence_Dist interpolation
+  (tick 19): `0.5f + param * ((d - 0.5f) / cPan_HiSence_Dist)` —
+  inner-parens form — compiled to `fdivs; fmadds` matching target.
+  Without the inner parens (the natural `a + b*(c-d)/e` form), MWCC
+  emits `fmuls; fdivs; fadds`. +6pp on calcDolby.
+- `src/MSound/MSHandle.cpp::calcDolby` cDol_HalfRad branch (tick 19,
+  same TU, different expression shape):
+  `0.5f + 0.5f / (cDol_FullRad - cDol_HalfRad) * (angle - cDol_HalfRad)`
+  — left-associative `/` so it parses as `0.5f + ((0.5f / (FR-HR)) * (angle-HR))`,
+  putting the multiply last. Compiles to `fdivs + fmadds` matching target.
+
 ### `static inline` wrapper trick defeats auto-inlining of one call site
 
 **Rule:** When target keeps a header-defined inline function as a `bl` weak
