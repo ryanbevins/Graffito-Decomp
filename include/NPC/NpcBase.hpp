@@ -3,6 +3,7 @@
 
 #include <Enemy/Enemy.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
+#include <NPC/NpcInitData.hpp>
 
 class TNpcSaveIndividual;
 class TNpcSaveNormal;
@@ -11,7 +12,6 @@ class TNpcSaveNormal;
 enum EnumNpcAnmKind { };
 enum EnumNpcStopMotionBlendOnOff { };
 enum EnumHitNpcObjectKind { };
-struct TNpcInitInfo { };
 
 class TBaseNPC : public TSpineEnemy {
 public:
@@ -58,7 +58,7 @@ public:
 	void offStopMotionBlend();
 	void isNowMotionBlend() const;
 	~TBaseNPC();
-	void getPtrInitPollutionColor() const;
+	const GXColor* getPtrInitPollutionColor() const;
 	void setBalloonMessage(u32, long);
 	void setDummyConnectActor(const JDrama::TActor*);
 	void perform(u32, JDrama::TGraphics*);
@@ -157,7 +157,9 @@ public:
 	/* 0x178 */ f32 unk178;
 	/* 0x17C */ char unk17C[0x1A4 - 0x17C];
 	/* 0x1A4 */ f32 unk1A4;
-	/* 0x1A8 */ char unk1A8[0x1DA - 0x1A8];
+	/* 0x1A8 */ char unk1A8[0x1D8 - 0x1A8];
+	/* 0x1D8 */ u8 unk1D8;
+	/* 0x1D9 */ u8 unk1D9;
 	/* 0x1DA */ u8 unk1DA;
 	/* 0x1DB */ char unk1DB[0x1E2 - 0x1DB];
 	/* 0x1E2 */ u16 unk1E2;
