@@ -36,6 +36,105 @@ them in future ticks.
 
 ## Settled
 
+### Splitting `a + b * c` into two statements defeats `-fp_contract on` fusion
+
+**Rule:** Under the project-wide `-fp_contract on` flag, MWCC fuses
+`a + b * c` (or `a - b * c`) into a single `fmadds`/`fmsubs`
+instruction. To force the unfused `fmuls; fadds` pair the target
+emits, split the expression across two statements with an
+intermediate `f32` local:
+
+```cpp
+// Fused — produces fmadds f0, b, c, a (1 instr)
+f32 r = a + b * c;
+
+// Unfused — produces fmuls tmp, b, c ; fadds r, a, tmp (2 instrs)
+f32 r = b * c;
+r = a + r;
+```
+
+The intermediate store/reload of the multiply result through the
+named local introduces a sequence point that MWCC respects: it will
+not fuse across the assignment.
+
+**Where observed:**
+- `src/NPC/NpcTrample.cpp::updateTrample` —
+  `*out = dt * (1.0f + unk0 * (-JMASSin(angle)))` produced
+  `fmadds` instead of target's `fmuls; fadds; fmuls`. Splitting
+  into `f32 mod = unk0 * (-JMASSin(angle)); mod = 1.0f + mod;
+  *out = dt * mod;` produced the target's unfused pair (90.9%→99.2%).
+
+### `JMASSin(idx) + JMASCos(idx)` inline at use site → shared address bases
+
+**Rule:** When the same `s16` index is passed to both `JMASSin` and
+`JMASCos`, inlining the lookups *at the assignment-site expression*
+(rather than caching `sin_a`/`cos_a` as `f32` locals) causes MWCC to
+share the index computation via CSE and to precompute the per-table
+addresses (`add r6, sin_table, idx*4`; `add r5, cos_table, idx*4`)
+once for reuse across the dependent expressions.
+
+```cpp
+// Locals — MWCC emits `lfsx fN, base, idx` indexed loads, possibly
+// reloading the table base each time.
+f32 sin_a = JMASSin(yawShort);
+f32 cos_a = JMASCos(yawShort);
+dst.x = a * cos_a + b * sin_a;
+dst.z = -a * sin_a + b * cos_a;
+
+// Inlined at use — `add rA, table, idx*4; lfs fN, 0(rA)`. The
+// shifted-index register can be reused for the second expression's
+// table loads.
+dst.x = a * JMASCos(yaw) + b * JMASSin(yaw);
+dst.z = -a * JMASSin(yaw) + b * JMASCos(yaw);
+```
+
+**Where observed:**
+- `src/NPC/NpcThrow.cpp::throwMario` — caching `sin_a`/`cos_a` gave
+  88.6% (lfsx form, with `lwz r4, table` reloaded between the two
+  rotation expressions). Inlining `JMASSin/JMASCos` directly in the
+  two assignments gave 100% (target's `add; lfs 0(rN)` form, with
+  the indices/table-bases reused across both expressions).
+
+### Initialise pointer to NULL before the if to fall through the null path
+
+**Rule:** Target prefers `Type* p = NULL; if (cond) p = call();` (init
++ conditional override) over `Type* p; if (cond) p = call(); else
+p = NULL;` (explicit else). The init form produces:
+
+```
+li r28, 0              ; init NULL
+... test ...
+bne CALL               ; if non-null, jump to call
+b MERGE                ; fall-through past NULL path
+CALL: bl getter
+mr r28, r3
+MERGE:
+```
+
+The explicit-else form produces an extra `li r28, 0` in the else
+branch:
+
+```
+... test ...
+beq SETZERO
+bl getter
+mr r28, r3
+b MERGE
+SETZERO: li r28, 0
+MERGE:
+```
+
+The init form drops 1-2 instructions and matches target's typical
+layout.
+
+**Where observed:**
+- `src/NPC/NpcInbetween.cpp::execMotionBlend` — first occurrence of
+  `J3DAnmTransform* old_ptr;` inside the forced-blend branch went
+  82.3%→84.3% when rewritten as `J3DAnmTransform* old_ptr = nullptr;
+  if (mactor->unkC) old_ptr = ...;`. Note the second occurrence in
+  the same function keeps the explicit if/else — so the choice is
+  per-call-site, not TU-wide.
+
 ### 1-case `switch` defeats the bne-skip optimization for `if (x == K) call();`
 
 **Rule:** Source `if (x == K) call();` produces a 3-instruction
