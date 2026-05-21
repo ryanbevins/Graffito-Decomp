@@ -53,20 +53,21 @@ void CPolarSubCamera::execDeadDemoProc_()
 	if (!SMS_CheckMarioFlag(0x400))
 		return;
 
-	bool ok = true;
-	{
-		u8 state = gpMarDirector->unk124;
-		if (state != 1 && state != 2)
-			ok = false;
-	}
-	if (!ok) {
-		u8 state2  = gpMarDirector->unk124;
-		bool inner = true;
+	bool shouldReturn  = true;
+	bool firstMatches  = true;
+	u8 state           = gpMarDirector->unk124;
+	if (state != 1 && state != 2)
+		firstMatches = false;
+	if (!firstMatches) {
+		u8 state2          = gpMarDirector->unk124;
+		bool secondMatches = true;
 		if (state2 != 3 && state2 != 4)
-			inner = false;
-		if (!inner)
-			return;
+			secondMatches = false;
+		if (!secondMatches)
+			shouldReturn = false;
 	}
+	if (shouldReturn)
+		return;
 	*(u16*)((u8*)this + 0x27C) = 0x10;
 }
 
