@@ -26,8 +26,8 @@ public:
 	/* 0x00 */ TCamSaveJetCoaster* unk0;
 	/* 0x04 */ u16 unk4;
 	/* 0x06 */ u16 unk6;
-	/* 0x08 */ u16 unk8;
-	/* 0x0A */ u16 unkA;
+	/* 0x08 */ s16 unk8;
+	/* 0x0A */ s16 unkA;
 	/* 0x0C */ u8 unkC;
 	/* 0x10 */ f32 unk10;
 	/* 0x14 */ f32 unk14;
@@ -70,7 +70,7 @@ void CPolarSubCamera::drawJetCoasterBalloonMessage_()
 	*(u32*)((u8*)this + 0x78) = 0xE10;
 	*(u32*)((u8*)this + 0x7C) = 0;
 	warpPosAndAt(sFixCameraPos, *(const Vec*)((u8*)this + 0x3C));
-	((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unk38 = 1;
+	unk2B8->unk38 = 1;
 }
 
 void CPolarSubCamera::ctrlJetCoasterCamera_()
@@ -80,23 +80,17 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		int balloonCount
 		    = gpItemManager->getObjNumWithActorType(0x40000132);
 
-		TCameraJetCoaster* jc = (TCameraJetCoaster*)
-		    *(void**)((u8*)this + 0x2B8);
-		if (jc->unk38 > 2) {
-			((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unk38--;
-			if (((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unk38
-			    == 2) {
-				((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unk38
-				    = 1;
+		if (unk2B8->unk38 > 2) {
+			if (--unk2B8->unk38 == 2) {
+				unk2B8->unk38 = 1;
 				gpMarDirector->setNextStage(0xE05, nullptr);
 			}
-		} else if (jc->unk38 != 1) {
+		} else if (unk2B8->unk38 != 1) {
 			s32 msgId = -1;
 			if (flagState == balloonCount) {
 				TFlagManager::smInstance->setBool(true, 0x30005);
-				((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unk38
-				    = 0x12C;
-				msgId = 0xE002D;
+				unk2B8->unk38 = 0x12C;
+				msgId         = 0xE002D;
 			} else {
 				int scene = gpMarDirector->unk58;
 				switch (scene) {
@@ -132,8 +126,8 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 	if (unk120->mEnabledFrameMeaning & 0x4000) {
 		isJet1stCamPressed = true;
 		s32 soundId        = 0x4825;
-		((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unkC ^= 1;
-		if (((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unkC & 1) {
+		unk2B8->unkC ^= 1;
+		if (unk2B8->unkC & 1) {
 			soundId = 0x4824;
 		}
 		if (gpMSound->gateCheck(soundId)) {
@@ -142,7 +136,7 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		}
 	}
 
-	if (((TCameraJetCoaster*)*(void**)((u8*)this + 0x2B8))->unkC & 1) {
+	if (unk2B8->unkC & 1) {
 		// 1st-person camera mode
 		if (isJet1stCamPressed) {
 			setUpToLButtonCamera_(0x2E);
@@ -217,13 +211,14 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		f32 sz = rot.at(0, 2) * upAxis.x + rot.at(1, 2) * upAxis.y
 		         + rot.at(2, 2) * upAxis.z;
 
-		f32 chainScale = unkA8 * *(f32*)((u8*)*(u8**)((u8*)this + 0x68) + 0x28)
-		                 + *(f32*)((u8*)*(u8**)((u8*)this + 0x68) + 0x24);
+		u8* p68 = *(u8**)((u8*)this + 0x68);
+		f32 chainScale
+		    = unkA8 * *(f32*)(p68 + 0x28) + *(f32*)(p68 + 0x24);
 		sx *= chainScale;
 		sy *= chainScale;
 		sz *= chainScale;
 
-		f32 sideScale = *(f32*)((u8*)*(u8**)((u8*)this + 0x68) + 0x5C);
+		f32 sideScale = *(f32*)(p68 + 0x5C);
 		sx *= sideScale;
 		sy *= sideScale;
 		sz *= sideScale;
@@ -252,7 +247,7 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		*(s16*)((u8*)this + 0x254)
 		    = CLBRoundf<s16>(angleDeg * (65536.0f / 360.0f));
 
-		*(f32*)((u8*)this + 0x48) = *(f32*)*(u8**)((u8*)this + 0x68);
+		*(f32*)((u8*)this + 0x48) = *(f32*)p68;
 
 		// Tail snap/chase
 		*(f32*)((u8*)this + 0x80) = *(f32*)((u8*)this + 0x98);
@@ -260,7 +255,6 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		*(f32*)((u8*)this + 0x88) = *(f32*)((u8*)this + 0xA0);
 
 		if (isJet1stCamPressed) {
-			// snap
 			if (*(u32*)((u8*)this + 0x78) == 0) {
 				*(f32*)((u8*)this + 0x10) = *(f32*)((u8*)this + 0x80);
 				*(f32*)((u8*)this + 0x14) = *(f32*)((u8*)this + 0x84);
@@ -272,7 +266,6 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 				*(f32*)((u8*)this + 0x44) = at.z;
 			}
 		} else {
-			u8* p68 = *(u8**)((u8*)this + 0x68);
 			if (*(u32*)((u8*)this + 0x78) == 0) {
 				CLBChaseDecrease((f32*)((u8*)this + 0x10),
 				                 *(f32*)((u8*)this + 0x80),
@@ -299,96 +292,63 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 			setUpFromLButtonCamera_();
 		}
 
-		// Accumulate stick into jc->unk8 (yaw) and unk0A (pitch)
+		f32 stickX = *(f32*)((u8*)unk120 + 0xC0);
+		f32 stickY = *(f32*)((u8*)unk120 + 0xC4);
+
+		unk2B8->unk8 = (s16)(s32)((f32)(s32)unk2B8->unk8
+		                          - stickY
+		                                * (f32)(s32)(s16)*(u16*)(
+		                                    (u8*)unk2B8->unk0 + 0x40));
+		unk2B8->unkA = (s16)(s32)((f32)(s32)unk2B8->unkA
+		                          + stickX
+		                                * (f32)(s32)(s16)*(u16*)(
+		                                    (u8*)unk2B8->unk0 + 0x54));
+
 		{
-			TCameraJetCoaster* jc = (TCameraJetCoaster*)
-			    *(void**)((u8*)this + 0x2B8);
-			s32 stickRateY
-			    = (s32)(s16)*(u16*)((u8*)jc->unk0 + 0x40);
-			s32 stickRateX
-			    = (s32)(s16)*(u16*)((u8*)jc->unk0 + 0x54);
-			f32 stickY = *(f32*)((u8*)unk120 + 0xC4);
-			f32 stickX = *(f32*)((u8*)unk120 + 0xC0);
-			jc->unk8
-			    = (s16)(s32)((f32)(s16)jc->unk8 - stickY * (f32)stickRateY);
-			jc->unkA
-			    = (s16)(s32)((f32)(s16)jc->unkA + stickX * (f32)stickRateX);
+			s32 hi = (s32)(s16)*(u16*)((u8*)unk2B8->unk0 + 0x18);
+			if ((s32)unk2B8->unk8 > hi)
+				unk2B8->unk8 = (s16)hi;
+			else if ((s32)unk2B8->unk8 < -hi)
+				unk2B8->unk8 = (s16)-hi;
+		}
+		{
+			s32 hi = (s32)(s16)*(u16*)((u8*)unk2B8->unk0 + 0x2C);
+			if ((s32)unk2B8->unkA > hi)
+				unk2B8->unkA = (s16)hi;
+			else if ((s32)unk2B8->unkA < -hi)
+				unk2B8->unkA = (s16)-hi;
 		}
 
-		// Clamp jc->unk8 to ±save->unk18 and jc->unkA to ±save->unk2C
-		{
-			TCameraJetCoaster* jc = (TCameraJetCoaster*)
-			    *(void**)((u8*)this + 0x2B8);
-			s32 hi  = (s32)(s16)*(u16*)((u8*)jc->unk0 + 0x18);
-			s32 v8  = (s32)(s16)jc->unk8;
-			if (v8 > hi)
-				jc->unk8 = (s16)hi;
-			else if (v8 < -hi)
-				jc->unk8 = (s16)-hi;
-		}
-		{
-			TCameraJetCoaster* jc = (TCameraJetCoaster*)
-			    *(void**)((u8*)this + 0x2B8);
-			s32 hi  = (s32)(s16)*(u16*)((u8*)jc->unk0 + 0x2C);
-			s32 vA  = (s32)(s16)jc->unkA;
-			if (vA > hi)
-				jc->unkA = (s16)hi;
-			else if (vA < -hi)
-				jc->unkA = (s16)-hi;
-		}
+		CLBChaseAngleDecrease((s16*)&unk2B8->unk4, unk2B8->unk8,
+		                      *(s16*)((u8*)unk2B8->unk0 + 0x68));
+		CLBChaseAngleDecrease((s16*)&unk2B8->unk6, unk2B8->unkA,
+		                      *(s16*)((u8*)unk2B8->unk0 + 0x7C));
 
-		// Chase jc->unk4 toward jc->unk8, jc->unk6 toward jc->unkA
-		{
-			TCameraJetCoaster* jc = (TCameraJetCoaster*)
-			    *(void**)((u8*)this + 0x2B8);
-			CLBChaseAngleDecrease((s16*)&jc->unk4, (s16)jc->unk8,
-			                      *(s16*)((u8*)jc->unk0 + 0x68));
-			CLBChaseAngleDecrease((s16*)&jc->unk6, (s16)jc->unkA,
-			                      *(s16*)((u8*)jc->unk0 + 0x7C));
-		}
+		*(u32*)((u8*)this + 0x98) = *(u32*)((u8*)unk2B8 + 0x10);
+		*(u32*)((u8*)this + 0x9C) = *(u32*)((u8*)unk2B8 + 0x14);
+		*(u32*)((u8*)this + 0xA0) = *(u32*)((u8*)unk2B8 + 0x18);
 
-		// Copy save vectors to this
+		*(u32*)((u8*)this + 0x8C) = *(u32*)((u8*)unk2B8 + 0x1C);
+		*(u32*)((u8*)this + 0x90) = *(u32*)((u8*)unk2B8 + 0x20);
+		*(u32*)((u8*)this + 0x94) = *(u32*)((u8*)unk2B8 + 0x24);
+
+		*(u32*)((u8*)this + 0x30) = *(u32*)((u8*)unk2B8 + 0x28);
+		*(u32*)((u8*)this + 0x34) = *(u32*)((u8*)unk2B8 + 0x2C);
+		*(u32*)((u8*)this + 0x38) = *(u32*)((u8*)unk2B8 + 0x30);
+
+		*(f32*)((u8*)this + 0x48) = *(f32*)((u8*)unk2B8 + 0x34);
+
 		JGeometry::TVec3<f32> at;
-		{
-			TCameraJetCoaster* jc = (TCameraJetCoaster*)
-			    *(void**)((u8*)this + 0x2B8);
-			*(u32*)((u8*)this + 0x98) = *(u32*)((u8*)jc + 0x10);
-			*(u32*)((u8*)this + 0x9C) = *(u32*)((u8*)jc + 0x14);
-			*(u32*)((u8*)this + 0xA0) = *(u32*)((u8*)jc + 0x18);
-		}
-		{
-			TCameraJetCoaster* jc = (TCameraJetCoaster*)
-			    *(void**)((u8*)this + 0x2B8);
-			*(u32*)((u8*)this + 0x8C) = *(u32*)((u8*)jc + 0x1C);
-			*(u32*)((u8*)this + 0x90) = *(u32*)((u8*)jc + 0x20);
-			*(u32*)((u8*)this + 0x94) = *(u32*)((u8*)jc + 0x24);
-		}
-		{
-			TCameraJetCoaster* jc = (TCameraJetCoaster*)
-			    *(void**)((u8*)this + 0x2B8);
-			*(u32*)((u8*)this + 0x30) = *(u32*)((u8*)jc + 0x28);
-			*(u32*)((u8*)this + 0x34) = *(u32*)((u8*)jc + 0x2C);
-			*(u32*)((u8*)this + 0x38) = *(u32*)((u8*)jc + 0x30);
-		}
-		{
-			TCameraJetCoaster* jc = (TCameraJetCoaster*)
-			    *(void**)((u8*)this + 0x2B8);
-			*(f32*)((u8*)this + 0x48) = *(f32*)((u8*)jc + 0x34);
-		}
-
-		// at = this->unk8C
 		at.x = *(f32*)((u8*)this + 0x8C);
 		at.y = *(f32*)((u8*)this + 0x90);
 		at.z = *(f32*)((u8*)this + 0x94);
 
-		// fwd = mario - pos, normalize
 		JGeometry::TVec3<f32> fwd;
 		fwd.x = gpMarioPos->x - *(f32*)((u8*)this + 0x98);
 		fwd.y = gpMarioPos->y - *(f32*)((u8*)this + 0x9C);
 		fwd.z = gpMarioPos->z - *(f32*)((u8*)this + 0xA0);
 		fwd.normalize(fwd);
 
-		// side = cross(up, fwd) normalized
 		f32 ux = *(f32*)((u8*)this + 0x30);
 		f32 uy = *(f32*)((u8*)this + 0x34);
 		f32 uz = *(f32*)((u8*)this + 0x38);
@@ -402,14 +362,10 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		up.x = ux;
 		up.y = uy;
 		up.z = uz;
-		{
-			TCameraJetCoaster* jc = (TCameraJetCoaster*)
-			    *(void**)((u8*)this + 0x2B8);
-			CLBRotatePosAndUp((s16)jc->unk4, (s16)jc->unk6, side, up,
-			                  *gpMarioPos,
-			                  (JGeometry::TVec3<f32>*)((u8*)this + 0x30),
-			                  (JGeometry::TVec3<f32>*)((u8*)this + 0x98));
-		}
+
+		CLBRotatePosAndUp(unk2B8->unk4, unk2B8->unk6, side, up, *gpMarioPos,
+		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x30),
+		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x98));
 
 		// Tail snap/chase
 		*(f32*)((u8*)this + 0x80) = *(f32*)((u8*)this + 0x98);

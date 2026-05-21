@@ -9,6 +9,8 @@ class TBaseNPC;
 class TCameraMapTool;
 class TMarioGamePad;
 
+class TCameraJetCoaster;
+
 class CPolarSubCamera : public JDrama::TLookAtCamera {
 public:
 	enum EnumNoticeOnOffMode { };
@@ -160,7 +162,9 @@ public:
 	/* 0x1EC */ Mtx unk1EC;
 	/* 0x21C */ char unk21C[0x2A4 - 0x21C];
 	/* 0x2A4 */ void* unk2A4;
-	/* 0x2A8 */ char unk2A8[0x2C8 - 0x2A8];
+	/* 0x2A8 */ char unk2A8[0x2B8 - 0x2A8];
+	/* 0x2B8 */ TCameraJetCoaster* unk2B8;
+	/* 0x2BC */ char unk2BC[0x2C8 - 0x2BC];
 	/* 0x2C8 */ s16 unk2C8;
 };
 
