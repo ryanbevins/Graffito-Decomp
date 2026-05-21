@@ -35,23 +35,18 @@ TCameraShake::TCameraShake()
 TCameraShake::TCamShakeInfo* TCameraShake::getUseShakeData_()
 {
 	TCamShakeInfo* fallback = &mShakeInfos[0];
-	u32 best_delta = 0xFFFF;
+	u16 best_delta = 0xFFFF;
 
-	// First pass: find first inactive entry
 	for (s32 i = 0; i < 32; i++) {
-		TCamShakeInfo& info = mShakeInfos[i];
-		bool active = info.mDuration != 0 ? true : false;
-		if (!active) {
+		if (!mShakeInfos[i].isActive()) {
 			return &mShakeInfos[i];
 		}
 	}
 
-	// Second pass: pick entry with smallest (mDuration - mCurFrame) among active ones
 	for (s32 i = 0; i < 32; i++) {
-		TCamShakeInfo& info = mShakeInfos[i];
-		if (info.mActiveSet) {
-			u16 remain = (u16)(info.mDuration - (u16)info.mCurFrame);
-			if (remain < (u16)best_delta) {
+		if (mShakeInfos[i].mActiveSet) {
+			u16 remain = (u16)(mShakeInfos[i].mDuration - mShakeInfos[i].mCurFrame);
+			if (remain < best_delta) {
 				best_delta = remain;
 				fallback   = &mShakeInfos[i];
 			}
@@ -59,38 +54,6 @@ TCameraShake::TCamShakeInfo* TCameraShake::getUseShakeData_()
 	}
 
 	return fallback;
-}
-
-void TCameraShake::setShakeAngleOne_(TCameraShake::TCamShakeAngle* angle,
-                                     f32 phase, s16 initAngle, u16 duration,
-                                     f32 strength)
-{
-	f32 phaseSigned;
-	s16 angleSigned;
-
-	if (strength < 0.0f) {
-		phaseSigned = -phase;
-		angleSigned = -initAngle;
-	} else {
-		phaseSigned = phase;
-		angleSigned = initAngle;
-	}
-	angle->mPhase     = phaseSigned;
-	angle->mDecrement = phaseSigned / (f32)duration;
-	angle->mAngle     = angleSigned;
-}
-
-void TCameraShake::setShakeAngleAll_(TCameraShake::TCamShakeInfo* info,
-                                     const TCamSaveShake* save, u16 duration,
-                                     f32 strength)
-{
-	const u8* sd = (const u8*)save;
-	setShakeAngleOne_(&info->mAngleX, *(const f32*)(sd + 0x2C) * strength,
-	                  *(const s16*)(sd + 0x40), duration, strength);
-	setShakeAngleOne_(&info->mAngleY, *(const f32*)(sd + 0x54) * strength,
-	                  *(const s16*)(sd + 0x68), duration, strength);
-	setShakeAngleOne_(&info->mAngleZ, *(const f32*)(sd + 0x7C) * strength,
-	                  *(const s16*)(sd + 0x90), duration, strength);
 }
 
 void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
@@ -108,7 +71,46 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 	info->mDuration  = duration;
 	info->mCurFrame  = 0;
 
-	setShakeAngleAll_(info, save, duration, strength);
+	const u8* sd = (const u8*)save;
+
+	// X axis
+	{
+		f32 phase = *(const f32*)(sd + 0x2C) * strength;
+		s16 angle = *(const s16*)(sd + 0x40);
+		if (strength < 0.0f) {
+			phase = -phase;
+			angle = -angle;
+		}
+		info->mAngleX.mPhase     = phase;
+		info->mAngleX.mDecrement = phase / (f32)duration;
+		info->mAngleX.mAngle     = angle;
+	}
+
+	// Y axis
+	{
+		f32 phase = *(const f32*)(sd + 0x54) * strength;
+		s16 angle = *(const s16*)(sd + 0x68);
+		if (strength < 0.0f) {
+			phase = -phase;
+			angle = -angle;
+		}
+		info->mAngleY.mPhase     = phase;
+		info->mAngleY.mDecrement = phase / (f32)duration;
+		info->mAngleY.mAngle     = angle;
+	}
+
+	// Z axis
+	{
+		f32 phase = *(const f32*)(sd + 0x7C) * strength;
+		s16 angle = *(const s16*)(sd + 0x90);
+		if (strength < 0.0f) {
+			phase = -phase;
+			angle = -angle;
+		}
+		info->mAngleZ.mPhase     = phase;
+		info->mAngleZ.mDecrement = phase / (f32)duration;
+		info->mAngleZ.mAngle     = angle;
+	}
 }
 
 void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
@@ -136,7 +138,46 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 	info->mDuration  = duration;
 	info->mCurFrame  = 0;
 
-	setShakeAngleAll_(info, save, duration, strength);
+	const u8* sd = (const u8*)save;
+
+	// X axis
+	{
+		f32 phase = *(const f32*)(sd + 0x2C) * strength;
+		s16 angle = *(const s16*)(sd + 0x40);
+		if (strength < 0.0f) {
+			phase = -phase;
+			angle = -angle;
+		}
+		info->mAngleX.mPhase     = phase;
+		info->mAngleX.mDecrement = phase / (f32)duration;
+		info->mAngleX.mAngle     = angle;
+	}
+
+	// Y axis
+	{
+		f32 phase = *(const f32*)(sd + 0x54) * strength;
+		s16 angle = *(const s16*)(sd + 0x68);
+		if (strength < 0.0f) {
+			phase = -phase;
+			angle = -angle;
+		}
+		info->mAngleY.mPhase     = phase;
+		info->mAngleY.mDecrement = phase / (f32)duration;
+		info->mAngleY.mAngle     = angle;
+	}
+
+	// Z axis
+	{
+		f32 phase = *(const f32*)(sd + 0x7C) * strength;
+		s16 angle = *(const s16*)(sd + 0x90);
+		if (strength < 0.0f) {
+			phase = -phase;
+			angle = -angle;
+		}
+		info->mAngleZ.mPhase     = phase;
+		info->mAngleZ.mDecrement = phase / (f32)duration;
+		info->mAngleZ.mAngle     = angle;
+	}
 }
 
 void TCameraShake::execShake(const JGeometry::TVec3<f32>& center,
@@ -149,7 +190,7 @@ void TCameraShake::execShake(const JGeometry::TVec3<f32>& center,
 	mYaw = 0;
 
 	for (s32 i = 0; i < 32; i++) {
-		if (mShakeInfos[i].mDuration != 0) {
+		if (mShakeInfos[i].isActive()) {
 			anyActive = true;
 			break;
 		}
@@ -163,7 +204,7 @@ void TCameraShake::execShake(const JGeometry::TVec3<f32>& center,
 
 		for (s32 i = 0; i < 32; i++) {
 			TCamShakeInfo& info = mShakeInfos[i];
-			if (info.mDuration == 0) {
+			if (!info.isActive()) {
 				continue;
 			}
 

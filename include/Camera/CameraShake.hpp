@@ -44,13 +44,42 @@ public:
 		/* 0x0C */ TCamShakeAngle mAngleX;
 		/* 0x18 */ TCamShakeAngle mAngleY;
 		/* 0x24 */ TCamShakeAngle mAngleZ;
+
+		bool isActive() const { return mDuration ? true : false; }
 	};
 
 	TCameraShake();
 	TCamShakeInfo* getUseShakeData_();
-	void setShakeAngleOne_(TCameraShake::TCamShakeAngle*, f32, s16, u16, f32);
-	void setShakeAngleAll_(TCameraShake::TCamShakeInfo*, const TCamSaveShake*,
-	                       u16, f32);
+
+	inline void setShakeAngleOne_(TCamShakeAngle* angle, f32 phase,
+	                              s16 initAngle, u16 duration, f32 strength)
+	{
+		f32 phaseSigned;
+		s16 angleSigned;
+		if (strength < 0.0f) {
+			phaseSigned = -phase;
+			angleSigned = -initAngle;
+		} else {
+			phaseSigned = phase;
+			angleSigned = initAngle;
+		}
+		angle->mPhase     = phaseSigned;
+		angle->mDecrement = phaseSigned / (f32)duration;
+		angle->mAngle     = angleSigned;
+	}
+
+	inline void setShakeAngleAll_(TCamShakeInfo* info, const TCamSaveShake* save,
+	                              u16 duration, f32 strength)
+	{
+		const u8* sd = (const u8*)save;
+		setShakeAngleOne_(&info->mAngleX, *(const f32*)(sd + 0x2C) * strength,
+		                  *(const s16*)(sd + 0x40), duration, strength);
+		setShakeAngleOne_(&info->mAngleY, *(const f32*)(sd + 0x54) * strength,
+		                  *(const s16*)(sd + 0x68), duration, strength);
+		setShakeAngleOne_(&info->mAngleZ, *(const f32*)(sd + 0x7C) * strength,
+		                  *(const s16*)(sd + 0x90), duration, strength);
+	}
+
 	void startShake(EnumCamShakeMode, f32);
 	void keepShake(EnumCamShakeMode, f32);
 	void execShake(const JGeometry::TVec3<f32>&, JGeometry::TVec3<f32>*,
