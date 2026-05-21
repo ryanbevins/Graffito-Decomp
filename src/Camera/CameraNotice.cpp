@@ -167,12 +167,12 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 	JGeometry::TVec3<f32> marioPos
 	    = *(const JGeometry::TVec3<f32>*)gpCameraMario;
 
-	void* params = *(void**)((u8*)this + 0x2D0);
-
-	f32 sqDZ   = CLBSquared<f32>(marioPos.z - target.z);
-	f32 sqXZ   = CLBSquared<f32>(marioPos.x - target.x) + sqDZ;
-	f32 farSq  = CLBSquared<f32>(*(f32*)((u8*)params + 0x90));
-	f32 nearSq = CLBSquared<f32>(*(f32*)((u8*)params + 0xA4));
+	f32 sqDZ  = CLBSquared<f32>(marioPos.z - target.z);
+	f32 sqXZ  = CLBSquared<f32>(marioPos.x - target.x) + sqDZ;
+	f32 farSq = CLBSquared<f32>(
+	    *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x90));
+	f32 nearSq = CLBSquared<f32>(
+	    *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0xA4));
 
 	if (sqXZ > farSq) {
 		Vec diff;
@@ -186,7 +186,11 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 		s16 ang = matan(dz - unk8C.z, dx - unk8C.x);
 
 		s16 diffAng = unkA6 - ang;
-		s16 absAng  = (s16)diffAng < 0 ? -diffAng : diffAng;
+		s16 absAng;
+		if ((s16)diffAng < 0)
+			absAng = -(s16)diffAng;
+		else
+			absAng = (s16)diffAng;
 		f32 fAbsAng = (f32)absAng * (1.0f / 32768.0f);
 
 		f32 ratio;
@@ -197,9 +201,11 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 		}
 
 		f32 inb = CLBLinearInbetween<f32>(
-		    1.0f, *(f32*)((u8*)params + 0xB8), unkA8);
+		    1.0f, *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0xB8),
+		    unkA8);
 
-		f32 deg   = (f32) * (s16*)((u8*)params + 0x7C);
+		f32 deg
+		    = (f32) * (s16*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x7C);
 		f32 speed = fAbsAng * deg * ratio * inb
 		           * *(f32*)((u8*)this + 0x288);
 		if (speed > 32766.998f)
