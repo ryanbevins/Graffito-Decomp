@@ -6,6 +6,9 @@
 class TCamSaveShake {
 public:
 	TCamSaveShake(const char*);
+
+private:
+	u8 _pad[0x94];
 };
 
 enum EnumCamShakeMode {

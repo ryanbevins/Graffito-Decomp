@@ -89,7 +89,7 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleX.mPhase     = phase;
-		info->mAngleX.mDecrement = phase / (f32)(u16)duration;
+		info->mAngleX.mDecrement = phase * (1.0f / (f32)(u16)duration);
 		info->mAngleX.mAngle     = angle;
 	}
 
@@ -102,7 +102,7 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleY.mPhase     = phase;
-		info->mAngleY.mDecrement = phase / (f32)(u16)duration;
+		info->mAngleY.mDecrement = phase * (1.0f / (f32)(u16)duration);
 		info->mAngleY.mAngle     = angle;
 	}
 
@@ -115,7 +115,7 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleZ.mPhase     = phase;
-		info->mAngleZ.mDecrement = phase / (f32)(u16)duration;
+		info->mAngleZ.mDecrement = phase * (1.0f / (f32)(u16)duration);
 		info->mAngleZ.mAngle     = angle;
 	}
 }
@@ -156,7 +156,7 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleX.mPhase     = phase;
-		info->mAngleX.mDecrement = phase / (f32)(u16)duration;
+		info->mAngleX.mDecrement = phase * (1.0f / (f32)(u16)duration);
 		info->mAngleX.mAngle     = angle;
 	}
 
@@ -169,7 +169,7 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleY.mPhase     = phase;
-		info->mAngleY.mDecrement = phase / (f32)(u16)duration;
+		info->mAngleY.mDecrement = phase * (1.0f / (f32)(u16)duration);
 		info->mAngleY.mAngle     = angle;
 	}
 
@@ -182,7 +182,7 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 			angle = -angle;
 		}
 		info->mAngleZ.mPhase     = phase;
-		info->mAngleZ.mDecrement = phase / (f32)(u16)duration;
+		info->mAngleZ.mDecrement = phase * (1.0f / (f32)(u16)duration);
 		info->mAngleZ.mAngle     = angle;
 	}
 }
