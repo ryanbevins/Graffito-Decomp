@@ -36,6 +36,82 @@ them in future ticks.
 
 ## Settled
 
+### `bool` vs `BOOL` local must match the function's return type
+
+**Rule:** When a function returns `bool` (u8) and uses a local result variable,
+declare it as `bool result = false` — NOT `BOOL result = FALSE`. The latter
+forces MWCC to emit an int→bool cast at return:
+`neg r3, r0; addic r0, r3, -1; subfe r0, r0, r3; clrlwi r3, r0, 24`.
+With `bool result = false`, the function returns the local directly
+(`mr r3, r0; blr` or equivalent) with no cast.
+
+Symmetrically, a `BOOL`-returning function should use `BOOL result = FALSE` —
+mismatched bool↔BOOL in either direction creates a cast at the boundary.
+
+**Where observed:**
+- `src/Camera/CameraMarioData.cpp::isMarioGoDown` — function returns `bool`.
+  With `BOOL result = FALSE`, ended at 76% (4 extra instructions for the
+  cast). Changing to `bool result = false` → 100%.
+
+### Ternary `? true : false` produces intermediate-byte sequence
+
+**Rule:** `return cond ? true : false` (with `bool` literals) compiles to
+`li r0, 1 / b set / li r0, 0 / set: clrlwi r3, r0, 24` — an
+intermediate-byte materialisation followed by a u8 mask. The cleaner
+`if (cond) return TRUE; return FALSE;` (with `BOOL` literals and a
+`BOOL`-returning signature) compiles to two separate `li r3, K; blr`
+return blocks — direct int returns.
+
+Choose the form by matching the target's exit pattern:
+- Target has shared exit with mask → use ternary with `bool`.
+- Target has split exit blocks with `li r3, 0/1; blr` directly → use
+  `if/return` with `BOOL`.
+
+**Where observed:**
+- `src/Enemy/bossgesso.cpp::is2ndFightNow` — `return cond ? true : false`
+  gave 78.7%. Switching to `if (cond) return TRUE; return FALSE;` (and
+  matching `BOOL` return type behaviour) → 100%.
+
+### `__fabsf` intrinsic survives `#pragma dont_inline on`
+
+**Rule:** Under TU-global `#pragma dont_inline on`, MWCC does NOT inline
+the `fabsf(x)` library wrapper from `<math.h>` — it emits a `bl fabsf`
+call instead of the single `fabs f1, f1` PowerPC instruction. The
+`__fabsf` compiler intrinsic, by contrast, is *not* an inline function
+but a builtin: it lowers directly to `fabs f1, f1` regardless of any
+inlining pragmas.
+
+When a TU has `dont_inline on` set, always use `__fabsf` rather than
+`fabsf` (and likewise `__fabs` for double). Without it, callers gain a
+`bl` call plus extra stack frame for the call.
+
+**Where observed:**
+- `src/NPC/NpcBase.cpp::isInMadSearchRange`/`isInBodyTurnSearchRange`
+  with `fabsf` and `dont_inline on` produced a `bl ` call and 48-byte
+  stack frame. Switching to `__fabsf` produced the inline `fabs`
+  instruction and dropped to 24-byte stack frame, jumping from ~24% to
+  98% match.
+- Cross-confirmed in `src/Animal/Bird.cpp` and several Enemy/ files —
+  they all use `__fabsf` explicitly, suggesting this is a known
+  workaround.
+
+**Related:** This is a special case of the broader rule that `.get()`
+accessors on `TParamRT<T>` get blocked from inlining under
+`dont_inline on`. Bypass it by accessing `.value` directly.
+
+### TParamRT<T>::value direct access under `#pragma dont_inline`
+
+**Rule:** Under TU-global `#pragma dont_inline on`, the inline
+`get()` accessor on `TParamT<T>` cannot be inlined — MWCC emits a
+`bl` call to a stub returning the address of `value`. Accessing
+`param->mField.value` directly skips the accessor and produces the
+expected `lfs f0, OFFSET(rN)` instruction.
+
+**Where observed:**
+- `src/NPC/NpcBase.cpp::isInMadSearchRange` — `param->mMadSearchHeight.get()`
+  with `dont_inline on` produced a `bl ...` call; switching to
+  `param->mMadSearchHeight.value` eliminated the call.
+
 ### Intermediate `bool match` local produces target's r0→r31 pattern
 
 **Rule:** When target uses an intermediate result register
