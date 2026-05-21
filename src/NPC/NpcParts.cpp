@@ -245,9 +245,11 @@ void TNpcParts::setPartsAnmFrame(f32 frame)
 MActor* TNpcParts::getPartsMActor(int joint, int layer)
 {
 	TSharedParts* parts = unk0[layer][joint];
-	if (parts == nullptr)
-		return nullptr;
-	return parts->unk18;
+	MActor* result      = nullptr;
+	if (parts != nullptr) {
+		result = parts->unk18;
+	}
+	return result;
 }
 
 void TNpcParts::partsFrameUpdate()
