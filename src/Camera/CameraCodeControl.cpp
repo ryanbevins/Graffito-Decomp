@@ -19,11 +19,9 @@ int CPolarSubCamera::controlByCameraCode_(int* outCode)
 		unk120->onNeutralMarioKey();
 		result = 0;
 	} else {
-		Vec pos;
-		pos.x          = gpMarioPos->x;
-		pos.y          = gpMarioPos->y + 75.0f;
-		pos.z          = gpMarioPos->z;
 		s32 cubeCount  = gpCubeCamera->unk10;
+		Vec pos = *gpMarioPos;
+		pos.y += 75.0f;
 
 		for (s32 i = 0; i < cubeCount; i++) {
 			if (gpCubeCamera->isInCube(pos, i)) {
