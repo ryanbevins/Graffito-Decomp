@@ -194,7 +194,7 @@ void CPolarSubCamera::startDemoCamera(const char* name,
 		*(s32*)((u8*)s2 + 0x10) = total;
 		*(s32*)((u8*)s2 + 0x14) = total;
 		changeCamModeSpecifyFrame_(0x49, 1);
-		mFar = *(f32*)((u8*)*(void**)((u8*)this + 0x2D4) + 0x158);
+		mNear = *(f32*)((u8*)*(void**)((u8*)this + 0x2D4) + 0x158);
 		didStart = true;
 	}
 
@@ -235,7 +235,7 @@ void CPolarSubCamera::startGateDemoCamera(const JDrama::TActor* actor)
 {
 	char buf[128];
 	snprintf(buf, 128, "%s\x91\x4F\x83\x4A\x83\x81\x83\x89",
-	         *(const char**)((u8*)actor + 0x4));
+	         actor->getName());
 	u16 keyCode          = JDrama::TNameRef::calcKeyCode(buf);
 	TCameraMapTool* tool = (TCameraMapTool*)gpCamMapToolTable->searchF(
 	    keyCode, buf);
@@ -254,7 +254,7 @@ void CPolarSubCamera::startGateDemoCamera(const JDrama::TActor* actor)
 	}
 
 	snprintf(buf, 128, "%s\x83\x4A\x83\x81\x83\x89",
-	         *(const char**)((u8*)actor + 0x4));
+	         actor->getName());
 	u16 keyCode2 = JDrama::TNameRef::calcKeyCode(buf);
 	TCameraMapTool* tool2
 	    = (TCameraMapTool*)gpCamMapToolTable->searchF(keyCode2, buf);
