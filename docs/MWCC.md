@@ -36,6 +36,68 @@ them in future ticks.
 
 ## Settled
 
+### TVec2/TVec3 copy-ctor needs explicit POD-cast operator= for `lwz/stw` pattern
+
+**Rule:** MWCC's auto-generated copy ctor for a class containing a
+`JGeometry::TVec2<f32>` or `TVec3<f32>` member walks the floats
+field-by-field, emitting interleaved `lfs`/`stfs` pairs — even though
+the target asm uses batched `lwz`/`stw` integer-move pairs. To force
+the integer pattern for these vector members, the vector type itself
+must override copy ctor + `operator=` with a *POD struct cast*:
+
+```cpp
+struct _POD { T x, y; };       // or T x, y, z for TVec3
+*(_POD*)this = *(const _POD*)&other;
+```
+
+MWCC lowers POD struct assignment to memcpy-like integer loads/stores;
+field-by-field assignment respects the float types. The existing trick
+in `TVec3<f32>` uses `*(Vec*)this = *(Vec*)&other` (where `Vec` is the
+dolphin SDK POD); for `TVec2` we synthesise an inline POD struct.
+
+**Where observed:**
+- `TVec3<f32>::operator=` in `include/JSystem/JGeometry/JGVec3.hpp`
+  has carried this trick since project start; comments explicitly note
+  "yes, this has to use lwz/stw and not lfs/stf".
+- `TVec2<T>::operator=` added in this tick → `TCameraMapTool` copy
+  ctor 91.7% → 100% (the only `TVec2<f32>` member of TCameraMapTool's
+  layout had been emitting float pattern; everything else integer).
+
+**Caveat:** The POD cast emits 2× `lwz` then 2× `stw` (or 3 of each for
+TVec3) in a *batched* shape. For the trick to take effect, the vector
+member must be reached through an auto-generated whole-class copy
+ctor; explicit field-by-field assignment in user code still uses the
+float pattern. If you want batched int moves at a *specific call
+site*, write `node.mPos = src.mPos;` (assignment) rather than
+`node.mPos.set(src.mPos);` (the `set` overload uses float pattern).
+
+### Typed class field beats `*(T*)((u8*)this + OFFSET)` cast for store sites
+
+**Rule:** Writing to a `void*`-typed class field via the cast form
+`*(void**)((u8*)this + 0x2A4) = nullptr;` emits a two-instruction
+sequence (`addi rN, rThis, 0x2A4; stw r0, 0(rN)`) — MWCC materialises
+the address into a scratch register before the store. The same field
+declared as `void* unkXXX` on the class produces the natural
+single-instruction `stw r0, 0x2a4(rThis)`.
+
+Loads tend to be unaffected (MWCC happily emits `lwz r3, 0x2a4(r4)`
+in either form), so the gain shows up mostly on store sites and on
+addresses passed to subsequent calls.
+
+**Where observed:**
+- `CPolarSubCamera::execNoticeOnOffProc_` in `CameraNotice.cpp`
+  95.67% → 100% after splitting the `unk21C` char-array into
+  `unk21C[0x88]` + `void* unk2A4` + `unk2A8[0x20]` and rewriting all
+  12 `*(void**)((u8*)this + 0x2A4)` sites to `this->unk2A4`. Also
+  lifted `getNoticeActor_` 77.8% → 78.5% in the same TU.
+
+**Caveat:** This is *not* the same as the addi-field-address caching
+anti-pattern (where MWCC pre-computes `addi rN, rThis, OFFSET` once
+and reuses across many accesses). That happens when the SAME field is
+accessed ≥2 times across a function — and `this->field` doesn't fix
+it. The fix here is the *single-access* case where each cast site
+gets its own scratch-register-materialise + store.
+
 ### Repeated `a / b` divisions: rewrite as `a * (1.0f / b)` to enable reciprocal CSE
 
 **Rule:** When the same integer→float divisor `b` is used in multiple
