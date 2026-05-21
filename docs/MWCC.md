@@ -278,6 +278,78 @@ The midpoint is mechanically excluded; do not add it as a third case.
   `cmpwi 0x88e; bge END; cmpwi 0x88b; bge SET; b END` (85.4% match);
   removing 0x88C gave the midpoint-excluded bisection → 100%.
 
+### Callee return type `bool` → callers emit `clrlwi r0, r3, 24` on the result
+
+**Rule:** Helper / template functions declared to return `bool` (u8 in this
+ABI) cause every caller that consumes the return value in an integer or
+BOOL context to mask the result with `clrlwi r0, r3, 24` before testing it.
+Target asm typically uses the raw `r3` directly (e.g. `cmpwi r3, 0` or
+`mr/cmpw`-style chains), meaning the original declaration was `BOOL`/`int`,
+not `bool`.
+
+If multiple callers exist, change both the helper's return type AND any
+forwarding function that returns its result. A helper that returns `BOOL`
+but is wrapped by a `bool`-returning function still emits a BOOL→bool
+convert at the wrapper's `return` (`neg r3, r3; subic r0, r3, 0x1;
+subfe r0, r0, r3; clrlwi r3, r0, 24`).
+
+**How to detect:** target shows the call followed by a direct cmpwi/cmpw,
+ours shows `bl helper; clrlwi r0, r3, 24; ...`. Or the wrapper function
+shows the four-instruction BOOL→bool convert sequence right after a call.
+
+**Where observed:**
+- `include/Camera/cameralib.hpp::CLBChaseGeneralConstantSpecifySpeed<T>`
+  was declared `bool`. Changing it to `BOOL` (and matching its forwarder
+  `CLBChaseSpecialDecrease`) closed `clrlwi` mismatches in
+  `TBaseNPC::execTurnToFirstState` (97.98% → 99.04%),
+  `TBaseNPC::execUTurn` (97.97% → 98.84%), and
+  `CPolarSubCamera::execHeightPan_` (51.4% → 52.3%).
+  Confirmed in two TUs (NpcWalkTurn, CameraHeightPan).
+
+### `switch` + `default:` wraps follow-up logic when target jumps past it
+
+**Rule:** When source has the shape
+
+```cpp
+switch (x) { case A: case B: result = FALSE; break; }
+if (some_other_condition) result = FALSE;
+return result;
+```
+
+— and target's case bodies end with `b END_OF_FUNCTION` (skipping the
+follow-up `if` entirely) — the original source moved the trailing
+`if (some_other_condition)` into the `default:` branch. With:
+
+```cpp
+switch (x) {
+case A: case B:
+    result = FALSE;
+    break;
+default:
+    if (some_other_condition) result = FALSE;
+    break;
+}
+return result;
+```
+
+the case bodies emit `li r6, 0; b end` instead of `li r6, 0` followed by
+fall-through into the always-run condition. This is the difference between
+"case sets result, conditionally also runs follow-up" and "case OR
+default, never both" — semantically equivalent when the case body sets
+result FALSE (since the follow-up only ever sets FALSE too) but
+structurally distinct in MWCC's output.
+
+**How to detect:** target's last switch case ends with `li rN, 0; b END;`
+where END is past a conditional block your build runs unconditionally.
+
+**Where observed:**
+- `TBaseNPC::isTurnToMarioWhenTalk` — switch on 5 actor-type cases
+  followed by an `mActionFlag & 0xC01` check. Moving the flag check
+  into `default:` closed 96.55% → 100%.
+- `TBaseNPC::isTurnToMarioWhenApproach` — range `0x16..0x18` enumerated
+  as cases, follow-up flag check (`mActionFlag & 0x7E7F`) moved to
+  `default:`. 87.96% → 100%.
+
 ### `bool` vs `BOOL` local must match the function's return type
 
 **Rule:** When a function returns `bool` (u8) and uses a local result variable,
