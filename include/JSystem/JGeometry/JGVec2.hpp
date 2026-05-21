@@ -9,6 +9,21 @@ template <typename T> struct TVec2 {
 	TVec2() { }
 	TVec2(T x, T y) { set(x, y); }
 
+	TVec2(const TVec2& other)
+	{
+		// NOTE: POD-cast to force integer move pattern (lwz/stw) instead
+		// of float pattern (lfs/stfs); same trick as TVec3<f32>.
+		struct _POD { T x, y; };
+		*(_POD*)this = *(const _POD*)&other;
+	}
+
+	TVec2& operator=(const TVec2& other)
+	{
+		struct _POD { T x, y; };
+		*(_POD*)this = *(const _POD*)&other;
+		return *this;
+	}
+
 	void set(T x, T y)
 	{
 		this->x = x;
