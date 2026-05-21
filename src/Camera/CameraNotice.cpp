@@ -24,9 +24,15 @@ namespace {
 
 inline bool inViewCone(const JGeometry::TVec2<f32>& screen, f32 tan)
 {
-	bool a = -tan <= screen.x && screen.x <= tan ? true : false;
-	bool b = a && -tan <= screen.y ? true : false;
-	bool c = b && screen.y <= tan ? true : false;
+	bool a = false;
+	bool b = false;
+	bool c = false;
+	if (-tan <= screen.x && screen.x <= tan)
+		a = true;
+	if (a && -tan <= screen.y)
+		b = true;
+	if (b && screen.y <= tan)
+		c = true;
 	return c ? true : false;
 }
 
