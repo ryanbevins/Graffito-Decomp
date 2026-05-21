@@ -52,10 +52,10 @@ inline void updateInHouseTimer(CPolarSubCamera* cam)
 inline bool isValidCamClip(const TBGCheckData* data)
 {
 	bool ok = false;
-	if (data) {
-		bool illegal = (data->mFlags & BG_CHECK_FLAG_ILLEGAL) != 0;
-		if (!illegal) {
-			if (data->mBGType & BG_PROPERTY_FLAG_CAMERA_WONT_CLIP)
+	if (data != nullptr) {
+		if (data->isLegal()) {
+			if (data->mBGType & BG_PROPERTY_FLAG_CAMERA_WONT_CLIP ? true
+			                                                     : false)
 				ok = true;
 		}
 	}
@@ -70,9 +70,8 @@ bool CPolarSubCamera::execGroundCheck_(Vec p)
 	void* opt                    = getKindOpt(this);
 	JGeometry::TVec3<f32>* track = getTrackPos(this);
 	f32 baseGap                  = *(f32*)((u8*)opt + 0xA4);
-	f32 interpB                  = *(f32*)((u8*)opt + 0xCC);
-	f32 interpA                  = *(f32*)((u8*)opt + 0xB8);
-	f32 interp = CLBLinearInbetween<f32>(interpA, interpB, track->z);
+	f32 interp                   = CLBLinearInbetween<f32>(
+        *(f32*)((u8*)opt + 0xB8), *(f32*)((u8*)opt + 0xCC), track->z);
 	if (mMode == 0x2A) {
 		f32 a = 200.0f;
 		if (baseGap > a)
@@ -86,7 +85,7 @@ bool CPolarSubCamera::execGroundCheck_(Vec p)
 	}
 
 	f32 camBaseY            = *(f32*)((u8*)this + 0xB8);
-	const TBGCheckData* gnd = nullptr;
+	const TBGCheckData* gnd;
 	f32 groundY             = gpMap->checkGroundIgnoreWaterSurface(
         p.x, camBaseY + baseGap, p.z, &gnd);
 	if (isValidCamClip(gnd)) {
