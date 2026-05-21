@@ -34,19 +34,20 @@ inline bool inViewCone(const JGeometry::TVec2<f32>& screen, f32 tan)
 
 void CPolarSubCamera::setNoticeInfo()
 {
-	void** arr                    = new void*[16];
-	*(void***)((u8*)this + 0x2A0) = arr;
+	*(void***)((u8*)this + 0x2A0) = new void*[16];
 	*(void**)((u8*)this + 0x2A4)  = nullptr;
 	*(s32*)((u8*)this + 0x29C)    = 0;
 
-	for (const char** name = sNoticeActorManagerName; *name != nullptr;
-	     name++) {
-		TLiveManager* mgr = (TLiveManager*)gpConductor->getManagerByName(*name);
+	for (int i = 0; sNoticeActorManagerName[i] != nullptr; i++) {
+		TLiveManager* mgr = (TLiveManager*)gpConductor->getManagerByName(
+		    sNoticeActorManagerName[i]);
 		if (mgr == nullptr)
 			continue;
 		int n = mgr->mObjNum;
 		for (int j = 0; j < n; j++) {
-			arr[(*(s32*)((u8*)this + 0x29C))++] = (void*)mgr->getObj(j);
+			(*(void***)((u8*)this + 0x2A0))[*(s32*)((u8*)this + 0x29C)]
+			    = (void*)mgr->getObj(j);
+			(*(s32*)((u8*)this + 0x29C))++;
 		}
 	}
 
