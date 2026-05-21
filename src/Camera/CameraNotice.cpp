@@ -64,46 +64,49 @@ void CPolarSubCamera::setNoticeInfo()
 
 void* CPolarSubCamera::getNoticeActor_()
 {
-	void* params = *(void**)((u8*)this + 0x2D0);
-
-	void* current = *(void**)((u8*)this + 0x2A4);
-	if (current != nullptr) {
-		u32 status = *(u32*)((u8*)current + 0xF0);
+	if (*(void**)((u8*)this + 0x2A4) != nullptr) {
+		u32 status
+		    = *(u32*)((u8*)*(void**)((u8*)this + 0x2A4) + 0xF0);
 		if ((status & 1) == 0 && (status & 2) == 0) {
 			Vec diff;
-			diff.x = *(f32*)((u8*)current + 0x10) - gpMarioPos->x;
-			diff.y = *(f32*)((u8*)current + 0x14) - gpMarioPos->y;
-			diff.z = *(f32*)((u8*)current + 0x18) - gpMarioPos->z;
+			diff.x = *(f32*)((u8*)*(void**)((u8*)this + 0x2A4) + 0x10)
+			         - gpMarioPos->x;
+			diff.y = *(f32*)((u8*)*(void**)((u8*)this + 0x2A4) + 0x14)
+			         - gpMarioPos->y;
+			diff.z = *(f32*)((u8*)*(void**)((u8*)this + 0x2A4) + 0x18)
+			         - gpMarioPos->z;
 			f32 distSq  = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-			f32 nearLim = CLBSquared<f32>(*(f32*)((u8*)params + 0x2C));
+			f32 nearLim = CLBSquared<f32>(
+			    *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x2C));
 			if (distSq < nearLim) {
 				JGeometry::TVec2<f32> screen;
-				f32 tan = *(f32*)((u8*)params + 0x54);
-				CLBCalc2DFPos(&screen,
-				              (MtxPtr)((u8*)this + 0x1EC),
-				              (MtxPtr)((u8*)this + 0x16C),
-				              *(const Vec*)((u8*)current + 0x10),
-				              nullptr, false);
+				f32 tan
+				    = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x54);
+				CLBCalc2DFPos(
+				    &screen, (MtxPtr)((u8*)this + 0x1EC),
+				    (MtxPtr)((u8*)this + 0x16C),
+				    *(const Vec*)((u8*)*(void**)((u8*)this + 0x2A4) + 0x10),
+				    nullptr, false);
 				if (inViewCone(screen, tan))
-					return current;
+					return *(void**)((u8*)this + 0x2A4);
 			}
 		}
 	}
 
 	void* picked   = nullptr;
-	f32 bestDistSq = CLBSquared<f32>(*(f32*)((u8*)params + 0x18));
-	void** arr     = *(void***)((u8*)this + 0x2A0);
-	int count      = *(int*)((u8*)this + 0x29C);
+	f32 bestDistSq = CLBSquared<f32>(
+	    *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x18));
+	int count = *(int*)((u8*)this + 0x29C);
 	for (int i = 0; i < count; i++) {
-		void* a    = arr[i];
+		void* a = (*(void***)((u8*)this + 0x2A0))[i];
 		u32 status = *(u32*)((u8*)a + 0xF0);
 		if ((status & 1) != 0)
 			continue;
 		if ((status & 2) != 0)
 			continue;
 
-		void* cur = *(void**)((u8*)this + 0x2A4);
-		if (cur != nullptr && cur == a)
+		if (*(void**)((u8*)this + 0x2A4) != nullptr
+		    && *(void**)((u8*)this + 0x2A4) == a)
 			continue;
 
 		Vec diff;
@@ -114,7 +117,7 @@ void* CPolarSubCamera::getNoticeActor_()
 		if (distSq >= bestDistSq)
 			continue;
 
-		f32 tan = *(f32*)((u8*)params + 0x40);
+		f32 tan = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x40);
 		JGeometry::TVec2<f32> screen;
 		CLBCalc2DFPos(&screen,
 		              (MtxPtr)((u8*)this + 0x1EC),
@@ -126,7 +129,8 @@ void* CPolarSubCamera::getNoticeActor_()
 
 		s16 marioAng = *gpMarioAngleY;
 		f32 deg      = (f32)(s16)(marioAng ^ 0x8000) * (360.0f / 65536.0f);
-		f32 farClip  = *(f32*)((u8*)params + 0x68);
+		f32 farClip
+		    = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x68);
 		if (MsIsInSight(*gpMarioPos, deg,
 		                *(const JGeometry::TVec3<f32>*)((u8*)a + 0x10),
 		                farClip, distSq, -1.0f)) {
