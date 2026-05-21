@@ -171,12 +171,11 @@ BOOL TBaseNPC::isNeedTurnToFirstState() const
 	BOOL result = FALSE;
 	s32 t       = mActorType;
 
-	if (t < 0x400001C) {
-		if (t == 0x4000008)
-			goto end;
-	} else {
-		if (t < 0x400001E)
-			goto end;
+	switch (t) {
+	case 0x4000008:
+	case 0x400001C:
+	case 0x400001D:
+		goto end;
 	}
 
 	{
