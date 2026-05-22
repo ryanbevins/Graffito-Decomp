@@ -36,6 +36,133 @@ them in future ticks.
 
 ## Settled
 
+### `static const GXColor c = {...}` + `GXColor local = c;` preserves the intermediate stash–reload pattern
+
+**Rule:** When passing a small (≤ 4-byte) struct by value through a stack
+argument slot, MWCC emits a stash-then-copy through a local stack temp —
+**but only when the source is a real symbol load**, not a folded
+immediate.
+
+```cpp
+static const GXColor cAmbColor = { 0xFF, 0xFF, 0xFF, 0xFF };
+GXColor ambColor = cAmbColor;             // local
+GXSetChanAmbColor(GX_COLOR0A0, ambColor); // by-value pass
+```
+
+lowers to:
+
+```
+lwz r0, cAmbColor@sda21(r0)   ; load const
+stw r0, 0x54(r1)               ; store to local
+lwz r0, 0x54(r1)               ; reload
+stw r0, 0x50(r1)               ; store to arg slot
+bl GXSetChanAmbColor
+```
+
+The redundant stash+reload at 0x54 is the by-value copy of the local
+into the arg slot. MWCC does NOT eliminate the dead store to 0x54
+(stores aren't reordered/elided), so this remains visible.
+
+**The anti-pattern:** writing the constant as a u32 and casting through:
+
+```cpp
+static const u32 cAmbColor = 0xFFFFFFFFu;
+GXColor ambColor;
+*(u32*)&ambColor = cAmbColor;   // folded by MWCC: const u32 → li r0, -1
+GXSetChanAmbColor(GX_COLOR0A0, ambColor);
+```
+
+MWCC inlines the const value (`li r0, -1`) instead of emitting the sda
+load, breaking the match against rodata.
+
+**Where observed:**
+- `src/GC2D/SelectMenu.cpp::TSelectGrad::perform` ambient color setup —
+  the `GXColor cAmbColor` form produces the target's sda21 load +
+  stash+reload pattern; the u32 cast form folds to `li -1`.
+
+### `s8 result` (not `s32 result`) for int functions that compute via `(s8)idx`
+
+**Rule:** A function whose semantic return type is `int` but whose
+"hit" value comes from casting a small unsigned index produces target's
+`extsb r_result, r_idx` directly when the result local is declared
+`s8`, not `s32`:
+
+```cpp
+int func() {
+    u32 idx = mField;
+    s8 result = -1;          // not s32!
+    if (idx == 0) return -1;
+    ...
+    for (...) {
+        if (cond) {
+            result = idx;    // implicit (s8) cast on store
+            break;
+        }
+    }
+    return result;           // implicit sign-extend on return
+}
+```
+
+With `s8 result`, MWCC emits `extsb r_result, r_idx` (one
+instruction). With `s32 result; result = (s8)idx;`, MWCC emits two
+instructions: `extsb r_temp, r_idx; mr r_result, r_temp`. The s8 form
+also keeps function byte-size correct.
+
+**Trade-off:** The `s8 result` form emits `extsb r3, r5` at return
+(implicit sign-extend of s8→int) instead of `mr r3, r5`. So you trade
+the loop-body extra `mr` for a return-path `extsb`. Net byte count
+matches target; one byte-position remains mismatched. There is no
+known way to get both extsb-direct in the loop AND mr-at-return
+simultaneously.
+
+**Where observed:**
+- `src/GC2D/SelectMenu.cpp::TSelectMenu::getNextIndex` 92.83% →
+  97.39% with `s8 result` (and `u32 idx`).
+- `src/GC2D/SelectMenu.cpp::TSelectMenu::getPrevIndex` 91.32% →
+  87.50% match but **byte size matches target** (88 vs 88) with same
+  treatment — `s8 result` gives correct frame, marginal-% drop is the
+  return-path extsb-vs-mr swap noted above. Prefer correct frame.
+
+### `u32 idx` for unsigned array-index loops produces `cmplwi` (not `cmpwi`)
+
+**Rule:** Loop counters/indices that come from a u8 field (`lbz`-loaded,
+always non-negative) should be declared `u32` in source if the target
+asm uses `cmplwi` (unsigned compare) for the loop-entry / loop-exit
+checks. Declaring `s32 idx` produces signed `cmpwi`.
+
+**Where observed:**
+- `src/GC2D/SelectMenu.cpp::TSelectMenu::getNextIndex`,
+  `getPrevIndex` — `lbz r4, 0x13b(r3)` followed by target's
+  `cmplwi r4, 0x8` (or `r4, 0x0`) settled by changing
+  `s32 idx = mScenarioIndex;` to `u32 idx = mScenarioIndex;`.
+
+### `switch (mode) { case 0: ...; case 3: ...; default: }` for sparse two-case dispatch
+
+**Rule:** For an if/else-if cascade over two integer constants (e.g.
+`if (mode == 0) ... else if (mode == 3) ...`), MWCC emits a flat
+sequence of `cmpwi; bne; cmpwi; bne` — but the target asm sometimes
+shows a **switch-table-ish branch tree**:
+
+```
+cmpwi r0, 0x3
+beq case_3
+bge default       ; mode > 3 → skip
+cmpwi r0, 0x0
+beq case_0
+b default
+```
+
+That tree (test the largest case first, then `bge default` to bail on
+out-of-range high, then test smaller cases) is what MWCC emits for a
+`switch` statement with two non-contiguous cases — even when only two
+cases exist. Rewriting `if (mode == 0) ... else if (mode == 3) ...`
+as a `switch (mode) { case 0: ...; case 3: ...; }` yields the tree.
+
+**Where observed:**
+- `src/GC2D/SelectMenu.cpp::TSelectGrad::perform` — color-byte
+  inc/dec dispatch (74.13% → 87.35% just from this switch rewrite,
+  applied twice).
+
 ### `JUtility::TColor color;` triggers default-ctor `set(0xffffffff)` stw — use ctor form instead
 
 **Rule:** The default constructor for `JUtility::TColor` runs
