@@ -36,6 +36,50 @@ them in future ticks.
 
 ## Settled
 
+### Reference-typed arguments: bind to a local reference BEFORE the call to control argument-eval order
+
+**Rule:** When a function takes a reference-typed argument
+(`T&` / `const T&`) and our source passes a struct field of
+`this` directly (e.g. `foo(this->field)`), MWCC may emit a
+spurious "save `this` to a callee-saved register first" sequence
+before computing the reference address. Binding the reference
+to a local **before** the call forces MWCC to compute the
+reference's address from `r3` (`this`) directly, in the order
+the original code expects.
+
+**Symptom:** Diff shows our build doing `addi rN, r3, 0x0`
+(save this) then `addi rM, rN, OFFSET` (compute field-ref via
+saved this), while target does `addi rM, r3, OFFSET` directly
+(compute field-ref from this in one shot, before clobbering r3
+with the first argument).
+
+**How to apply:**
+
+```cpp
+// before:
+foo(param_1, this->matrix_field, this->vec_field);
+
+// after (when foo signature ends with a `T&` reference arg):
+JGeometry::TVec3<f32>& v = this->vec_field;
+foo(param_1, this->matrix_field, v);
+```
+
+For functions with **multiple** trailing reference arguments,
+bind each one in the order they appear (reverse-bind also
+works — the order of `T& ref = field;` statements doesn't seem
+to matter; MWCC computes addresses from `r3` in argument-list
+order at the call site).
+
+**Where observed:**
+
+- `JSystem/JPABaseEmitter::setGlobalRTMatrix` (one
+  `TVec3<f32>&` arg) — 91.17% → 100%. Binding `v = unk160` to
+  a local reference eliminated the `addi r5, r3, 0x0` (save
+  `this`) instruction.
+- `JSystem/JPABaseEmitter::setGlobalSRTMatrix` (two
+  `TVec3<f32>&` args) — 90.15% → 100%. Same fix applied to both
+  the `unk154` and `unk160` parameters.
+
 ### `TVec3::zero()` writes z,y,x (descending) — `TVec3::set(0,0,0)` writes x,y,z (ascending)
 
 **Rule:** The inline `void zero() { x = y = z = 0.0f; }` in
