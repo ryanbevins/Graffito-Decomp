@@ -8,8 +8,11 @@
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
+#include <MarioUtil/ReinitGX.hpp>
+#include <MarioUtil/DrawUtil.hpp>
 #include <JSystem/JDrama/JDRNameRef.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
+#include <JSystem/J2D/J2DOrthoGraph.hpp>
 #include <JSystem/J2D/J2DPane.hpp>
 #include <JSystem/J2D/J2DPicture.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
@@ -99,13 +102,8 @@ s8 TSelectMenu::getNextIndex()
 
 void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 {
-	if (!(flags & 1))
-		return;
-	if (mState > 9)
-		return;
+	if (flags & 1 && mState <= 9) {
 	switch (mState) {
-	case 0:
-		break;
 	case 1: {
 		bool done = true;
 		done &= m24ExPane->update();
@@ -247,6 +245,21 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 		break;
 	case 8:
 		break;
+	case 0:
+		_14A = 1;
+		break;
+	}
+	}
+
+	if (flags & 8) {
+		if (mState < 10 && (s32)mState >= 0) {
+			ReInitializeGX();
+			SMS_DrawInit();
+			J2DOrthoGraph ortho(gfx->mViewportRect);
+			ortho.setup2D();
+			ortho.setup2D();
+			mScreen->draw(0, 0, &ortho);
+		}
 	}
 }
 
