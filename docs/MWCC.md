@@ -36,6 +36,76 @@ them in future ticks.
 
 ## Settled
 
+### `TVec3::zero()` writes z,y,x (descending) — `TVec3::set(0,0,0)` writes x,y,z (ascending)
+
+**Rule:** The inline `void zero() { x = y = z = 0.0f; }` in
+`JSystem/JGeometry/JGVec3.hpp` uses C++ right-to-left chained
+assignment, which MWCC compiles to **descending** stfs order
+(0xC, 0x8, 0x4 — i.e., z first, then y, then x). In contrast,
+`set(0.0f, 0.0f, 0.0f)` (the 3-arg template `set<TY>`) assigns
+x = x_; y = y_; z = z_; in source order, producing **ascending**
+stfs (0x4, 0x8, 0xC).
+
+**How to apply:** look at the target diff for the TVec3 store
+group. If the asm hits offsets in ascending order (lowest first),
+the source used `set(0,0,0)` or explicit `x = 0; y = 0; z = 0;`.
+If descending, the source used `zero()`. The choice may differ
+between TUs and even between functions within a TU — don't
+mass-rewrite, fix only where the diff demands.
+
+**Where observed:**
+- `Strategic/TLiveActor::ctor` — three TVec3 stores in ascending
+  order; changing `mLinearVelocity.zero(); mAngularVelocity.zero();`
+  to `set(0.0f,0.0f,0.0f)` brought 99.88% → 99.93% (rest is
+  unrelated stack phantom).
+- `Strategic/TLiveActor::moveObject` — descending order in target;
+  source uses `zero()` and matches at 100% — confirming zero()
+  produces descending.
+- `Enemy/beam::TConeBeam::ctor` — descending in target; source
+  uses `zero()`, matches at 100%.
+
+### Excess field init: drop the source assignment when target asm skips that offset
+
+**Rule:** The inverse of the missing-field-init pattern below.
+If target asm stores zero/0.0f at a contiguous block of offsets
+but **skips** one specific offset that our source initializes
+(via initializer list or body assignment), **delete that
+assignment**. The original source left the field uninitialized.
+
+This often surfaces when a class has a declared `int`/`float`
+field at a "natural" zero-init position but the original code
+didn't explicitly assign it (despite our intuition saying it
+should).
+
+**Where observed:**
+- `Enemy/bossManta::TBossMantaManager::ctor` — diff showed our
+  build had an EXTRA `stw r0, 0x84(r30)` (the
+  `mShadowAlphaTimer` field, initialized as `mShadowAlphaTimer(0)`
+  in our init list). Target asm wrote 0 at 0x7c, 0x80, 0x88, 0x8c
+  (skipping 0x84). Removing `mShadowAlphaTimer(0)` from the init
+  list took it 97.66% → 100%.
+
+### Derived class adds own fields at parent's "next" offset — declare and init
+
+**Rule:** Subclasses that inherit from a parent ending at offset
+`OFFSET` will store their *own* fields starting at `OFFSET`. If
+target asm stores 0 at those offsets in the derived ctor (after
+the parent ctor's bl), but the derived class has no fields
+declared in our header, add them.
+
+This differs from the "missing-field-init" pattern in that the
+fields don't exist in our header yet — they must be **added** to
+the class definition, not just initialized.
+
+**Where observed:**
+- `MoveBG/Item::TEggYoshi::ctor` — TEggYoshi inherits from
+  TMapObjGeneral (size 0x148). Target ctor stored 0 at 0x148,
+  0x14C, 0x150 after `bl __ct__14TMapObjGeneralFPCc`. Adding
+  3 `u32 unk148/14C/150` fields to TEggYoshi's class + init body
+  took ctor 77.62% → 100%. (Note: these are *different* fields
+  from TItem's same-offset fields; TEggYoshi inherits directly
+  from TMapObjGeneral, not TItem.)
+
 ### Empty-body ctor with declared fields — fields MUST be initialized in body or init list to match
 
 **Rule:** An empty ctor body (`Foo::Foo() { }` or `Foo::Foo(...) : Parent(...) { }`)
