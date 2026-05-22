@@ -1,5 +1,6 @@
 #include <GC2D/Guide.hpp>
 #include <GC2D/BoundPane.hpp>
+#include <GC2D/ExPane.hpp>
 #include <Player/MarioAccess.hpp>
 #include <System/Application.hpp>
 #include <System/FlagManager.hpp>
@@ -14,9 +15,47 @@
 
 static u8 setup_wait;
 
+static const u32 scNormalStageTable[] = {
+	0x0, 0x1, 0x2, 0x3, 0x4, 0xD, 0x6, 0x8, 0x9, 0xA,
+};
+
 void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx) { }
 
-void TGuide::appearGuidePane(int idx) { }
+void TGuide::appearGuidePane(int idx)
+{
+	JUTRect rect1(_218[idx]);
+	_424 = _1C0[idx];
+	_428 = _378[idx];
+	JUTRect rect2(_168[idx]->unk14);
+
+	_424->mPane->mVisible = true;
+
+	int widthR1  = rect1.x2 - rect1.x1;
+	int heightR1 = rect1.y2 - rect1.y1;
+	_424->setCenteredSize(20, widthR1, heightR1, 0, 0);
+
+	_424->setPaneOffset(20, 0, 0, rect2.x1 - rect1.x1,
+	                    rect2.y1 - rect1.x1 - 40);
+
+	_428->mPane->mAlpha   = 0;
+	_428->mPane->mVisible = true;
+	_428->setPaneAlpha(20, 255, 0);
+
+	_128->setPaneAlpha(20, 0, 255);
+	_12C->setPaneAlpha(20, 0, 80);
+
+	if (idx == 1)
+		placeMario();
+
+	gpMSound->startSoundSystemSE(0x4804, 0, nullptr, 0);
+
+	_42C   = (s16)idx;
+	mState = 1;
+	if (idx != -1 && idx < 10) {
+		unk164             = 0;
+		_44C[idx]->mAlpha = 255;
+	}
+}
 
 void TGuide::placeMario()
 {
@@ -117,7 +156,116 @@ JKRMemArchive* TGuide::setup(JKRMemArchive* archive)
 
 void TGuide::resetScore() { }
 
-void TGuide::resetObjects() { }
+#pragma dont_inline on
+void TGuide::resetObjects()
+{
+	int totalAccum = 0;
+
+	for (int stage = 0; stage < 13; stage++) {
+		if (stage >= 10)
+			continue;
+
+		u8* stageData = (u8*)this + 0x14 + stage * 8;
+		stageData[0]  = 0;
+
+		int shineCount = 0;
+		if (stage != 0 && stage != 1) {
+			for (int i = 0; i < 8; i++) {
+				s16 sid = SMS_getShineID(stage, i, false);
+				u8 got  = (sid == -1)
+				             ? 0
+				             : TFlagManager::smInstance->getShineFlag((u8)sid);
+				if (got)
+					shineCount++;
+			}
+		}
+		u8 clampedShine = (shineCount >= 100) ? 99 : (u8)shineCount;
+		stageData[1]    = clampedShine;
+		totalAccum += clampedShine;
+
+		int redCoin = 0;
+		if (stage != 0 && stage != 1) {
+			s16 sid1 = SMS_getShineID(stage, 1, true);
+			u8 got1  = (sid1 == -1)
+			              ? (u8)redCoin
+			              : TFlagManager::smInstance->getShineFlag((u8)sid1);
+			if (got1)
+				redCoin = 1;
+
+			s16 sid2 = SMS_getShineID(stage, 2, true);
+			u8 got2  = (sid2 == -1)
+			              ? 0
+			              : TFlagManager::smInstance->getShineFlag((u8)sid2);
+			if (got2)
+				redCoin++;
+		}
+		if (redCoin >= 10)
+			redCoin = 9;
+		stageData[2] = (u8)redCoin;
+		totalAccum += redCoin;
+
+		u16 deaths = (u16)TFlagManager::smInstance->getFlag(stage + 0x20005);
+		if (deaths >= 1000)
+			deaths = 999;
+		*(s16*)(stageData + 4) = (s16)deaths;
+
+		s16 bossID  = SMS_getShineID(stage, 0, true);
+		u8 bossFlag = (bossID == -1)
+		                 ? 0
+		                 : TFlagManager::smInstance->getShineFlag((u8)bossID);
+		stageData[6] = bossFlag;
+		if (stageData[6] != 0)
+			totalAccum++;
+
+		int blueCount = 0;
+		if (stage != 0) {
+			for (u8 c = 0; c < 50; c++) {
+				if (TFlagManager::smInstance->getBlueCoinFlag(
+				        (u8)scNormalStageTable[stage], c))
+					blueCount++;
+			}
+		}
+		if (blueCount >= 1000)
+			blueCount = 999;
+		stageData[7] = (u8)blueCount;
+
+		if (TFlagManager::smInstance->getBool(stage + 0x103A5)) {
+			((J2DPane*)_44C[stage])->mVisible = true;
+			((J2DPane*)_168[stage])->mVisible = true;
+		} else {
+			((J2DPane*)_44C[stage])->mVisible = false;
+			((J2DPane*)_168[stage])->mVisible = false;
+		}
+	}
+
+	*((u8*)this + 0x5C) = 1;
+
+	int sirenaBlue = 0;
+	for (u8 c = 0; c < 50; c++) {
+		if (TFlagManager::smInstance->getBlueCoinFlag(
+		        (u8)scNormalStageTable[9], c))
+			sirenaBlue++;
+	}
+	*((u8*)this + 0x63) = (u8)sirenaBlue;
+
+	int u22 = 0;
+	if (TFlagManager::smInstance->getBool(0x10056))
+		u22 = 1;
+	if (TFlagManager::smInstance->getBool(0x10058))
+		u22++;
+	*((u8*)this + 0x15) = (u8)u22;
+	totalAccum += (s16)u22;
+
+	s32 maxFlag         = TFlagManager::smInstance->getFlag(0x40000);
+	*((u8*)this + 0x1D) = (u8)(maxFlag - totalAccum);
+
+	changeBotStatus(-1);
+	resetScore();
+
+	_128->mPane->mVisible = true;
+	_12C->mPane->mVisible = true;
+}
+#pragma dont_inline off
 
 void TGuide::load(JSUMemoryInputStream& stream) { }
 
