@@ -59,9 +59,7 @@ public:
 	/* 0xA8 */ f32 unkA8;
 };
 
-// TCamSaveKindParam — TParamRT-based save struct. Field offsets at +0x18, +0x2C,
-// +0x40... (each TParamRT<T>::value at offset 0x10 within a 0x14-byte slot).
-// Treat as opaque for now.
+// TCamSaveKindParam: TParamRT-based save struct. Defined in camerasave.cpp.
 class TCamSaveKindParam;
 
 #endif

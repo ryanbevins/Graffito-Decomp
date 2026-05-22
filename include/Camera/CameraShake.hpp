@@ -2,13 +2,20 @@
 #define CAMERA_CAMERA_SHAKE_HPP
 
 #include <JSystem/JGeometry.hpp>
+#include <System/ParamInst.hpp>
+#include <System/Params.hpp>
 
-class TCamSaveShake {
+class TCamSaveShake : public TParams {
 public:
 	TCamSaveShake(const char*);
 
-private:
-	u8 _pad[0x94];
+	/* 0x08 */ TParamRT<s16> mShakeTime;
+	/* 0x1C */ TParamRT<f32> mShakeAmpX;
+	/* 0x30 */ TParamRT<s16> mShakeVelX;
+	/* 0x44 */ TParamRT<f32> mShakeAmpY;
+	/* 0x58 */ TParamRT<s16> mShakeVelY;
+	/* 0x6C */ TParamRT<f32> mShakeAmpZ;
+	/* 0x80 */ TParamRT<s16> mShakeVelZ;
 };
 
 enum EnumCamShakeMode {
