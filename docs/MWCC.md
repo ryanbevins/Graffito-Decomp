@@ -36,6 +36,38 @@ them in future ticks.
 
 ## Settled
 
+### `JUtility::TColor color;` triggers default-ctor `set(0xffffffff)` stw — use ctor form instead
+
+**Rule:** The default constructor for `JUtility::TColor` runs
+`set(0xffffffff)` which lowers to `li r0, -1; stw r0, 0(slot)` —
+visible in the prologue of the local's stack slot. If a function
+then immediately overwrites the color with `color.set(r,g,b,a)`
+(byte-by-byte), the int store from the default ctor remains in the
+asm because **MWCC never eliminates stores to memory** (CLAUDE.md
+*MWCC can eliminate redundant reads, but not writes*).
+
+If the target asm has no early `stw -1` for the color slot, the
+source did **not** default-construct the local. Two patterns avoid
+the default ctor:
+
+1. Direct-init with the 4-arg ctor: `JUtility::TColor color(r,g,b,a);`
+2. Pass a ternary of TColor temporaries directly to the call site:
+   `gpApplication.mFader->setColor(cond ? TColor(a,b,c,d) : TColor(e,f,g,h));`
+   — this avoids both the default ctor AND the extra "anonymous prvalue
+   temp → named local" copy step that `T color = cond ? T(...) : T(...);`
+   produces.
+
+**Where observed:**
+- `src/GC2D/SelectDir.cpp::direct` 91.0% → 95.5% by switching both
+  TColor uses from `JUtility::TColor color; color.set(...)` to (a) a
+  ternary passed directly to setColor and (b) a `TColor(...)` ctor.
+  Each removed the corresponding default-ctor `li -1; stw` prologue.
+
+**Caveat:** The auto-generated TColor copy (`stw` of the loaded u32)
+is still emitted at the call-site argument-slot copy (4-byte by-value
+pass), which is the desired pattern. The fix removes only the
+default-ctor's extra store, not legitimate copies.
+
 ### Two-step pointer init `p = base; p += off;` vs combined `p = base + off;`
 
 **Rule:** When you want MWCC to emit an **in-place** `add rDst, rA, rB`
