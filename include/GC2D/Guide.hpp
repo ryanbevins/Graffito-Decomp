@@ -12,26 +12,19 @@ class TMarioGamePad;
 class TGuide : public JDrama::TViewObj {
 public:
 	TGuide(const char* name = "<Guide>");
-	void load(JSUMemoryInputStream& stream);
+
+	virtual void load(JSUMemoryInputStream& stream);
+	virtual void perform(unsigned long, JDrama::TGraphics*);
+
 	void resetObjects();
 	void resetScore();
 	void setup(JKRMemArchive*);
-	void setup2(JKRMemArchive*);
 	void startMoveCursor();
-	void startMoveCursor2();
 	void linkSelect();
-	void changePattern(J2DPicture*, short, unsigned long);
-	void mirrorPattern(J2DPicture*, short, unsigned long);
-	void rotatePattern(J2DPicture*, short, unsigned long, short);
-	void shinePattern(TBoundPane*, short, unsigned long);
-	void mmarkPattern(TExPane*, short, unsigned long);
-	void searchNearPoint(short*, short*, short, short);
-	void checkPoint(int, int);
+	int checkPoint(int, int);
 	void changeBotStatus(int);
 	void placeMario();
 	void appearGuidePane(int);
-	void disappearGuidePane(int);
-	void perform(unsigned long, JDrama::TGraphics*);
 
 public:
 	/* 0x10 */ char unk10[0xC0 - 0x10];
