@@ -13,6 +13,10 @@
 #include <JSystem/J2D/J2DPane.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
 #include <JSystem/JUtility/JUTRect.hpp>
+#include <JSystem/JUtility/JUTTexture.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <GC2D/MessageUtil.hpp>
+#include <stdio.h>
 #include <dolphin/gx.h>
 #include <dolphin/mtx.h>
 
@@ -136,6 +140,33 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 	*(J2DPane**)((u8*)this + 0x74) = mScreen->search('0_2b');
 	*(J2DPane**)((u8*)this + 0x50) = mScreen->search('s_2b');
 	*(J2DPane**)((u8*)this + 0x78) = mScreen->search('0_2b');
+
+	for (s32 i = 0; i < 8; i++) {
+		char buf[256];
+		snprintf(buf, 0xfe, "/select/timg/sc_number_%d.bti", i + 1);
+		JUTTexture* tex = new JUTTexture(
+		    (const ResTIMG*)JKRFileLoader::getGlbResource(buf));
+		*(JUTTexture**)((u8*)this + 0x80 + i * 4) = tex;
+	}
+
+	*(J2DTextBox**)((u8*)this + 0x44) = (J2DTextBox*)mScreen->search('sttx');
+	SMSMakeTextBuffer(*(J2DTextBox**)((u8*)this + 0x44), 0x80);
+	*(J2DTextBox**)((u8*)this + 0x6C) = (J2DTextBox*)mScreen->search('0ttx');
+	SMSMakeTextBuffer(*(J2DTextBox**)((u8*)this + 0x6C), 0x80);
+
+	*(s16*)((u8*)this + 0x7C)
+	    = (s16)(m68ExPane->mPane->mBounds.x1 - m40ExPane->mPane->mBounds.x1);
+
+	mA0Pane = mScreen->search('i_0');
+	mA4Pane = mScreen->search('sc_0');
+
+	for (s32 i = 0; i < 10; i++) {
+		char buf[256];
+		snprintf(buf, 0x100, "/select/timg/coin_number_%d.bti", i);
+		JUTTexture* tex = new JUTTexture(
+		    (const ResTIMG*)JKRFileLoader::getGlbResource(buf));
+		*(JUTTexture**)((u8*)this + 0xA8 + i * 4) = tex;
+	}
 }
 
 TSelectMenu::TSelectMenu(const char* name)
