@@ -390,13 +390,14 @@ static u8* nextSrcData(u8* src)
 	else
 		dest = szpBuf;
 	memcpy(dest, src, size);
-	dest += size;
-	u32 transSize = szpEnd - dest;
+	u8* readPos = dest;
+	readPos += size;
+	u32 transSize = szpEnd - readPos;
 	if (transSize > transLeft) {
 		transSize = transLeft;
 	}
 	while (true) {
-		s32 result = DVDReadPrio(srcFile->getFileInfo(), dest, transSize,
+		s32 result = DVDReadPrio(srcFile->getFileInfo(), readPos, transSize,
 		                         srcOffset, 2);
 		if (result >= 0) {
 			break;
@@ -409,7 +410,7 @@ static u8* nextSrcData(u8* src)
 	srcOffset += transSize;
 	transLeft -= transSize;
 	if (transLeft == 0) {
-		srcLimit = dest + transSize;
+		srcLimit = readPos + transSize;
 	}
 	return dest;
 }
