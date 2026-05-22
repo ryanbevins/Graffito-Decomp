@@ -12,7 +12,7 @@ template <typename T> bool TRecordValueManager<T>::get(T* outValue)
 {
 	*outValue = *mCurrentValuePtr;
 	mElapsedFrames++;
-	if (mElapsedFrames >= (s32)*mCurrentDurationPtr) {
+	if ((u32)mElapsedFrames >= *mCurrentDurationPtr) {
 		mCurrentDurationPtr++;
 		mCurrentValuePtr++;
 		mElapsedFrames = 0;
