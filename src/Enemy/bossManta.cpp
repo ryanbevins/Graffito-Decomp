@@ -504,7 +504,7 @@ void TBossManta::moveObject()
 	}
 }
 
-BOOL TBossManta::collidedWithWater()
+bool TBossManta::collidedWithWater()
 {
 	if (unk1A0 > 0)
 		return false;

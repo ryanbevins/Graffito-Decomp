@@ -129,7 +129,7 @@ public:
 
 	void initNthGeneration(int);
 	BOOL getIntoGraphVec(JGeometry::TVec3<f32>*);
-	BOOL collidedWithWater();
+	bool collidedWithWater();
 	f32 getPolluteRadius();
 	void updateAttractor();
 
