@@ -154,8 +154,9 @@ void TPauseMenu2::appearWindow()
 {
 	if (unkEC <= 45.0f) {
 		for (int i = 0; i < 5; i++) {
-			drawAppearPane((J2DPicture*)unk20[i], (f32)i, unk34[i],
-			               180.0f + unk84[i] - 5.0f * ((f32)i - (45.0f - unkEC)) - 9.0f * unkEC);
+			f32 t = unkEC - 5.0f * (f32)i;
+			drawAppearPane((J2DPicture*)unk20[i], t, unk34[i],
+			               180.0f + unk84[i] - 9.0f * t);
 		}
 
 		s32 alpha = (s32)(unkF4 * unkEC * 1.5f);
