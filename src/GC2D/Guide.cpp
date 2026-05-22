@@ -61,13 +61,14 @@ void TGuide::startMoveCursor()
 	unk164 = 0;
 }
 
-void TGuide::setup(JKRMemArchive* archive)
+JKRMemArchive* TGuide::setup(JKRMemArchive* archive)
 {
 	if (archive)
 		SMSMountAramArchive(archive, gArBkGuide);
 	else
 		setup_wait = 0x10;
 	unkC4 = 0;
+	return archive;
 }
 
 void TGuide::resetScore() { }

@@ -20,7 +20,7 @@ public:
 
 	void resetObjects();
 	void resetScore();
-	void setup(JKRMemArchive*);
+	JKRMemArchive* setup(JKRMemArchive*);
 	void startMoveCursor();
 	void linkSelect();
 	int checkPoint(int, int);
