@@ -2,6 +2,9 @@
 #include <GC2D/BoundPane.hpp>
 #include <System/Application.hpp>
 #include <System/StageUtil.hpp>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundBGM.hpp>
+#include <MSound/MSoundSE.hpp>
 #include <JSystem/JUtility/JUTRect.hpp>
 
 static u8 setup_wait;
