@@ -108,20 +108,66 @@ instruction). With `s32 result; result = (s8)idx;`, MWCC emits two
 instructions: `extsb r_temp, r_idx; mr r_result, r_temp`. The s8 form
 also keeps function byte-size correct.
 
-**Trade-off:** The `s8 result` form emits `extsb r3, r5` at return
-(implicit sign-extend of s8→int) instead of `mr r3, r5`. So you trade
-the loop-body extra `mr` for a return-path `extsb`. Net byte count
-matches target; one byte-position remains mismatched. There is no
-known way to get both extsb-direct in the loop AND mr-at-return
-simultaneously.
+**Companion lever — return type must also be `s8`.** With `int func()`
+returning `int`, MWCC emits `extsb r3, r5` at the return path to
+sign-extend the s8-result variable into int. Target uses `mr r3, r5`,
+which means **the function actually returns `s8`** — the EABI/PPC
+convention delegates s8 sign-extension to the *caller*, so an s8
+return needs no callee extsb. The combination is `s8 func() { s8
+result; ... result = idx; ... return result; }` — gives `extsb r5,
+r4` in-loop AND `mr r3, r5` at tail. (Earlier ticks misread the
+single-extsb-at-return as an unavoidable trade-off; that was wrong.)
 
 **Where observed:**
-- `src/GC2D/SelectMenu.cpp::TSelectMenu::getNextIndex` 92.83% →
-  97.39% with `s8 result` (and `u32 idx`).
-- `src/GC2D/SelectMenu.cpp::TSelectMenu::getPrevIndex` 91.32% →
-  87.50% match but **byte size matches target** (88 vs 88) with same
-  treatment — `s8 result` gives correct frame, marginal-% drop is the
-  return-path extsb-vs-mr swap noted above. Prefer correct frame.
+- `src/GC2D/SelectMenu.cpp::TSelectMenu::getNextIndex` reached 100%
+  with `s8 return type + s8 result + u32 idx + s32 i` (separate loop
+  counter for signed `i < 8` while idx keeps unsigned compare for
+  early-return).
+- `src/GC2D/SelectMenu.cpp::TSelectMenu::getPrevIndex` reached 100%
+  with `s8 return + s8 result + u32 idx`, plus a single-variable loop
+  `for (s32 i = idx - 1; i >= 0; i--)` that lets MWCC set CR0 via
+  `subic.` on the decrement (vs `addic.` on the loop-count). See
+  separate Settled rule on `subic.; addi; blt` vs `subi; addic.; ble`
+  below.
+
+### Single-var loop `for (s32 i = base - 1; i >= 0; i--)` flips MWCC's flag-on-which-op choice
+
+**Rule:** When a CTR-loop counts down from `(base - 1)` to `0`
+inclusive, **two semantically-equivalent ways** to source it produce
+different prologue patterns:
+
+```cpp
+// A — separate count + decremented base
+base--;
+for (s32 i = base + 1; i > 0; i--) {
+    ... mStageStates[base] ...
+    base--;
+}
+// → subi r4, r4, 1
+//   addic. r0, r4, 1        ← flag on the count (i+1)
+//   mtctr r0
+//   ble .end                ← test "i+1 <= 0"
+
+// B — single variable, "loop while i >= 0"
+for (s32 i = base - 1; i >= 0; i--) {
+    ... mStageStates[i] ...
+}
+// → subic. r4, r4, 1        ← flag on the decrement (i)
+//   addi r0, r4, 1
+//   mtctr r0
+//   blt .end                ← test "i < 0"
+```
+
+Both produce a valid CTR loop with the same iteration count. The
+difference is which operation sets CR0 and which signed branch tests
+the result. To match a target asm that shows `subic.; addi; blt`, use
+the single-variable form (B). The `i >= 0` loop check and the use of
+`i` directly for array indexing are the cues MWCC reads.
+
+**Where observed:**
+- `src/GC2D/SelectMenu.cpp::TSelectMenu::getPrevIndex` — Form A at
+  ~88-90% with `subi; addic.; ble`; switching to Form B gave the
+  target's `subic.; addi; blt` and the final 10pp to 100%.
 
 ### `u32 idx` for unsigned array-index loops produces `cmplwi` (not `cmpwi`)
 
