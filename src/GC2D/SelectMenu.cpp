@@ -146,8 +146,31 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 		mState = 3;
 		break;
 	}
-	case 3:
+	case 3: {
+		bool done = true;
+		done &= ((TBoundPane*)m34ExPane)->update();
+		done &= ((TBoundPane*)m38ExPane)->update();
+		if (!done)
+			break;
+
+		JUTRect rect = ((TBoundPane*)m34ExPane)->unk0->mBounds;
+		s32 frame    = (s32)(20.0f * _14C);
+
+		((TBoundPane*)m34ExPane)
+		    ->setPanePosition(frame, JUTPoint(0, -10), JUTPoint(0, -6),
+		                      JUTPoint(0, 4));
+		((TBoundPane*)m34ExPane)
+		    ->setPaneSize(frame, JUTPoint(-160, 20),
+		                  JUTPoint(-110, 12), JUTPoint(40, -8));
+		((TBoundPane*)m38ExPane)
+		    ->setPanePosition(frame, JUTPoint(0, -10), JUTPoint(0, -6),
+		                      JUTPoint(0, 4));
+		((TBoundPane*)m38ExPane)
+		    ->setPaneSize(frame, JUTPoint(-160, 20),
+		                  JUTPoint(-110, 12), JUTPoint(40, -8));
+		mState = 4;
 		break;
+	}
 	case 4:
 		break;
 	case 5:
