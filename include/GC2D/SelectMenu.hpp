@@ -10,6 +10,9 @@ class JKRArchive;
 class TSelectShineManager;
 class TSelectDir;
 class TMarioGamePad;
+class TExPane;
+class TBoundPane;
+class J2DPane;
 
 namespace JDrama {
 class TGraphics;
@@ -31,9 +34,19 @@ public:
 
 public:
 	/* 0x10 */ u32 mState;
-	/* 0x14 */ u8 _14[0x58 - 0x14];
+	/* 0x14 */ u8 _14[0x24 - 0x14];
+	/* 0x24 */ TExPane* m24ExPane;
+	/* 0x28 */ TExPane* m28ExPane;
+	/* 0x2C */ J2DPane* m2CPane;
+	/* 0x30 */ TBoundPane* m30Box;
+	/* 0x34 */ u8 _34[0x40 - 0x34];
+	/* 0x40 */ TBoundPane* m40Box;
+	/* 0x44 */ u8 _44[0x58 - 0x44];
 	/* 0x58 */ u8 _58[0x68 - 0x58]; // JUTRect, set() in body
-	/* 0x68 */ u8 _68[0x100 - 0x68];
+	/* 0x68 */ u8 _68[0xA0 - 0x68];
+	/* 0xA0 */ J2DPane* mA0Pane;
+	/* 0xA4 */ J2DPane* mA4Pane;
+	/* 0xA8 */ u8 _A8[0x100 - 0xA8];
 	/* 0x100 */ TMarioGamePad* mGamePad;
 	/* 0x104 */ u8 _104[0x110 - 0x104];
 	/* 0x110 */ u8 _110[0x120 - 0x110]; // JUTRect, set() in body

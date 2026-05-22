@@ -1,5 +1,7 @@
 #include <GC2D/SelectMenu.hpp>
 #include <GC2D/SelectShine2.hpp>
+#include <GC2D/ExPane.hpp>
+#include <GC2D/BoundPane.hpp>
 #include <System/SelectDir.hpp>
 #include <System/StageUtil.hpp>
 #include <MSound/MSound.hpp>
@@ -7,6 +9,7 @@
 #include <MSound/MSoundSE.hpp>
 #include <JSystem/JDrama/JDRNameRef.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
+#include <JSystem/J2D/J2DPane.hpp>
 #include <JSystem/JUtility/JUTRect.hpp>
 #include <dolphin/gx.h>
 #include <dolphin/mtx.h>
@@ -19,10 +22,34 @@ static const u32 scNormalStageTable[] = {
 
 void TSelectMenu::startOpenWindow()
 {
-	// TODO: full implementation pending — large fn (0x24C bytes), defer.
-	if (mState != 0)
+	if (_14A != 0)
 		return;
+
 	mState = 1;
+
+	m2CPane->mVisible      = false;
+	m30Box->unk0->mVisible = false;
+	m40Box->unk0->mVisible = false;
+	mA0Pane->mVisible      = false;
+	mA4Pane->mVisible      = false;
+
+	s32 frame = (s32)(30.0f * _14C);
+
+	JUTRect rect = m24ExPane->mPane->mBounds;
+	s32 w1       = rect.x2 - rect.x1;
+	s32 h1       = rect.y2 - rect.y1;
+	m24ExPane->setPaneSize(frame, w1, h1, w1, 0);
+
+	rect       = m28ExPane->mPane->mBounds;
+	s32 w2     = rect.x2 - rect.x1;
+	s32 h2     = rect.y2 - rect.y1;
+	m28ExPane->setPaneSize(frame, w2, h2, w2, 0);
+
+	s32 h3 = rect.y2 - rect.y1;
+	m28ExPane->setPaneOffset(frame, 0, 0, 0, h3);
+
+	MSBgm::startBGM(0x80010024);
+	_138 = 0;
 }
 
 int TSelectMenu::getPrevIndex()
@@ -86,13 +113,13 @@ TSelectMenu::TSelectMenu(const char* name)
 {
 	mState = 0;
 	*(u32*)((u8*)this + 0x20) = 0;
-	*(u32*)((u8*)this + 0x24) = 0;
-	*(u32*)((u8*)this + 0x28) = 0;
-	*(u32*)((u8*)this + 0x2C) = 0;
-	*(u32*)((u8*)this + 0x30) = 0;
+	m24ExPane                 = nullptr;
+	m28ExPane                 = nullptr;
+	m2CPane                   = nullptr;
+	m30Box                    = nullptr;
 	*(u32*)((u8*)this + 0x38) = 0;
 	*(u32*)((u8*)this + 0x3C) = 0;
-	*(u32*)((u8*)this + 0x40) = 0;
+	m40Box                    = nullptr;
 	*(u32*)((u8*)this + 0x44) = 0;
 	*(u32*)((u8*)this + 0x48) = 0;
 	*(u32*)((u8*)this + 0x4C) = 0;
@@ -106,8 +133,8 @@ TSelectMenu::TSelectMenu(const char* name)
 	*(u32*)((u8*)this + 0x74) = 0;
 	*(u32*)((u8*)this + 0x78) = 0;
 	*(u16*)((u8*)this + 0x7C) = 0;
-	*(u32*)((u8*)this + 0xA0) = 0;
-	*(u32*)((u8*)this + 0xA4) = 0;
+	mA0Pane                   = nullptr;
+	mA4Pane                   = nullptr;
 	*(u32*)((u8*)this + 0xD0) = 0;
 	*(u32*)((u8*)this + 0xD4) = 0;
 	*(u8*)((u8*)this + 0xD8)  = 1;
