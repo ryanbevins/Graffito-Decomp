@@ -144,41 +144,62 @@ void TSelectGrad::perform(u32 flags, JDrama::TGraphics* gfx)
 	if (flags & 2) {
 		bool changed = false;
 		for (s32 i = 0; i < 3; i++) {
-			u8* col2_byte = (&mColor2.r) + i;
-			s32 mode = (&_10)[i];
+			u8* col2_byte;
+			if (i == 0)
+				col2_byte = &mColor2.r;
+			else if (i == 1)
+				col2_byte = &mColor2.g;
+			else
+				col2_byte = &mColor2.b;
 
-			if (mode == 0) {
+			switch ((&_10)[i]) {
+			case 0: {
 				s32 v = (s16)((u8)*col2_byte + 2);
 				if (v > 0xff) {
-					v        = 0xff;
-					changed  = true;
+					v       = 0xff;
+					changed = true;
 				}
 				*col2_byte = (u8)v;
-			} else if (mode == 3) {
-				s32 v = (s16)(s32)(*col2_byte - 2);
-				v     = (s16)v;
+				break;
+			}
+			case 3: {
+				s16 v = (s16)(*col2_byte - 2);
 				if (v < 0) {
-					v        = 0;
-					changed  = true;
+					v       = 0;
+					changed = true;
 				}
 				*col2_byte = (u8)v;
+				break;
+			}
 			}
 
-			s32 mode2 = (&_10)[i];
-			if (mode2 - 1 < 0)
+			s32 mode2 = (&_10)[i] - 1;
+			if (mode2 < 0)
 				mode2 = 5;
-			u8* col1_byte = (&mColor1.r) + i;
-			if (mode2 == 0) {
+
+			u8* col1_byte;
+			if (i == 0)
+				col1_byte = &mColor1.r;
+			else if (i == 1)
+				col1_byte = &mColor1.g;
+			else
+				col1_byte = &mColor1.b;
+
+			switch (mode2) {
+			case 0: {
 				s32 v = (s16)((u8)*col1_byte + 2);
 				if (v > 0xff)
 					v = 0xff;
 				*col1_byte = (u8)v;
-			} else if (mode2 == 3) {
-				s32 v = (s16)(s32)(*col1_byte - 2);
-				v     = (s16)v;
+				break;
+			}
+			case 3: {
+				s16 v = (s16)(*col1_byte - 2);
 				if (v < 0)
 					v = 0;
 				*col1_byte = (u8)v;
+				break;
+			}
 			}
 		}
 
@@ -200,22 +221,22 @@ void TSelectGrad::perform(u32 flags, JDrama::TGraphics* gfx)
 		Mtx mtx;
 		PSMTXIdentity(mtx);
 		GXLoadPosMtxImm(mtx, 0);
-		GXSetCullMode(GX_CULL_NONE);
+		GXSetCullMode(GX_CULL_BACK);
 		GXSetNumTexGens(0);
 		GXSetNumTevStages(1);
 		GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
 		GXSetNumChans(1);
 		GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_VTX, 0,
-		              GX_DF_NONE, GX_AF_SPEC);
+		              GX_DF_NONE, GX_AF_NONE);
 		GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
-		              GX_DF_NONE, GX_AF_SPEC);
+		              GX_DF_NONE, GX_AF_NONE);
 
-		GXColor ambColor;
-		*(u32*)&ambColor = 0xFFFFFFFFu;
+		static const GXColor cAmbColor = { 0xFF, 0xFF, 0xFF, 0xFF };
+		GXColor ambColor = cAmbColor;
 		GXSetChanAmbColor(GX_COLOR0A0, ambColor);
 
 		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGB, GX_RGB8, 0);
 		GXClearVtxDesc();
 		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
 		GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
@@ -225,14 +246,14 @@ void TSelectGrad::perform(u32 flags, JDrama::TGraphics* gfx)
 		u8 bmid = (u8)((mColor2.b + mColor1.b) >> 1);
 
 		GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
-		GXPosition3f32(0.0f, 0.0f, 0.0f);
-		GXColor4u8(mColor1.r, mColor1.g, mColor1.b, 0xFF);
-		GXPosition3f32(600.0f, 0.0f, 0.0f);
-		GXColor4u8(rmid, gmid, bmid, 0xFF);
-		GXPosition3f32(0.0f, 480.0f, 0.0f);
-		GXColor4u8(rmid, gmid, bmid, 0xFF);
-		GXPosition3f32(600.0f, 480.0f, 0.0f);
-		GXColor4u8(mColor2.r, mColor2.g, mColor2.b, 0xFF);
+		GXPosition3f32(0.0f, 16.0f, -100.0f);
+		GXColor3u8(mColor1.r, mColor1.g, mColor1.b);
+		GXPosition3f32(600.0f, 16.0f, -100.0f);
+		GXColor3u8(rmid, gmid, bmid);
+		GXPosition3f32(600.0f, 464.0f, -100.0f);
+		GXColor3u8(mColor2.r, mColor2.g, mColor2.b);
+		GXPosition3f32(0.0f, 464.0f, -100.0f);
+		GXColor3u8(rmid, gmid, bmid);
 	}
 }
 
