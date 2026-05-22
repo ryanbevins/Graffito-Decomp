@@ -22,21 +22,21 @@ JGeometry::TVec3<f32> TSelectShineManager::cCenter(300.0f, 160.0f, -9000.0f);
 
 TSelectShineManager::TSelectShineManager(const char* name)
     : JDrama::TViewObj(name)
+    , mDrawBufOpa(nullptr)
+    , mDrawBufXlu(nullptr)
+    , unk78(0.0f)
+    , unk7C(0.0f)
+    , mShineCount(0)
+    , unk90(0.0f)
+    , unk94(0.0f)
+    , unk98(0)
+    , unk9C(0)
+    , unkA0(0.0f)
+    , unkA4(0)
+    , unkA5(0)
+    , unkA6(0)
+    , unkA7(0)
 {
-	mDrawBufOpa = nullptr;
-	mDrawBufXlu = nullptr;
-	unk78       = 0.0f;
-	unk7C       = 0.0f;
-	mShineCount = 0;
-	unk90       = 0.0f;
-	unk94       = 0.0f;
-	unk98       = 0;
-	unk9C       = 0;
-	unkA0       = 0.0f;
-	unkA4       = 0;
-	unkA5       = 0;
-	unkA6       = 0;
-	unkA7       = 0;
 }
 
 void TSelectShineManager::initData(u8* shineTypes, u8 startIdx, u8 count,
