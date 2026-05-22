@@ -239,20 +239,6 @@ void TSelectGrad::perform(u32 flags, JDrama::TGraphics* gfx)
 void TSelectGrad::setStageColor(u8 cup)
 {
 	switch (cup) {
-	case 4:
-		_10 = 2;
-		_14 = 0;
-		_18 = 4;
-		mColor1.set(0xFF, 0x00, 0x00, 0xFF);
-		mColor2.set(0xFF, 0xFF, 0x00, 0xFF);
-		break;
-	case 13:
-		_10 = 0;
-		_14 = 4;
-		_18 = 2;
-		mColor1.set(0x00, 0x00, 0xFF, 0xFF);
-		mColor2.set(0xFF, 0x00, 0xFF, 0xFF);
-		break;
 	case 2:
 		_10 = 3;
 		_14 = 1;
@@ -266,6 +252,20 @@ void TSelectGrad::setStageColor(u8 cup)
 		_18 = 0;
 		mColor1.set(0x00, 0xFF, 0x00, 0xFF);
 		mColor2.set(0x00, 0xFF, 0xFF, 0xFF);
+		break;
+	case 4:
+		_10 = 2;
+		_14 = 0;
+		_18 = 4;
+		mColor1.set(0xFF, 0x00, 0x00, 0xFF);
+		mColor2.set(0xFF, 0xFF, 0x00, 0xFF);
+		break;
+	case 13:
+		_10 = 0;
+		_14 = 4;
+		_18 = 2;
+		mColor1.set(0x00, 0x00, 0xFF, 0xFF);
+		mColor2.set(0xFF, 0x00, 0xFF, 0xFF);
 		break;
 	default:
 		break;
