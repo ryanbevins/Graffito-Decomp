@@ -7,6 +7,7 @@
 #include <System/FlagManager.hpp>
 #include <System/PositionHolder.hpp>
 #include <MSound/MSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <Player/MarioAccess.hpp>
 #include <JSystem/JAudio/JAInterface/JAISound.hpp>
 
