@@ -58,25 +58,23 @@ void TSelectMenu::startOpenWindow()
 	_138 = 0;
 }
 
-int TSelectMenu::getPrevIndex()
+s8 TSelectMenu::getPrevIndex()
 {
 	u32 idx = mScenarioIndex;
 	s8 result = -1;
 	if (idx == 0)
 		return -1;
-	idx--;
-	for (s32 i = idx + 1; i > 0; i--) {
-		u8 state = mStageStates[idx];
+	for (s32 i = idx - 1; i >= 0; i--) {
+		u8 state = mStageStates[i];
 		if (state == 2 || state == 3) {
-			result = idx;
+			result = i;
 			break;
 		}
-		idx--;
 	}
 	return result;
 }
 
-int TSelectMenu::getNextIndex()
+s8 TSelectMenu::getNextIndex()
 {
 	u32 idx = mScenarioIndex;
 	s8 result = -1;

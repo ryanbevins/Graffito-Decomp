@@ -30,8 +30,8 @@ public:
 	              TSelectDir* dir);
 	void startMove();
 	void startOpenWindow();
-	int getNextIndex();
-	int getPrevIndex();
+	s8 getNextIndex();
+	s8 getPrevIndex();
 
 public:
 	/* 0x10 */ u32 mState;
