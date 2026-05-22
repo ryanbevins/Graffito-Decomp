@@ -73,6 +73,11 @@ class TCoinRed : public TCoin {
 public:
 	TCoinRed(const char*);
 	virtual void taken(THitActor*);
+
+public:
+	/* 0x158 */ f32 unk158;
+	/* 0x15C */ f32 unk15C;
+	/* 0x160 */ f32 unk160;
 };
 
 class TCoinBlue : public TCoin {
