@@ -142,8 +142,9 @@ TSelectMenu::TSelectMenu(const char* name)
 void TSelectGrad::perform(u32 flags, JDrama::TGraphics* gfx)
 {
 	if (flags & 2) {
+		s32 i;
 		bool changed = false;
-		for (s32 i = 0; i < 3; i++) {
+		for (i = 0; i < 3; i++) {
 			u8* col2_byte;
 			if (i == 0)
 				col2_byte = &mColor2.r;
