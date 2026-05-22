@@ -478,8 +478,128 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			mState = 7;
 		}
 	}
-	case 7:
+	case 7: {
+		if (_13C > 1) {
+			J2DPane* p104 = *(J2DPane**)((u8*)this + 0x104);
+			if (p104->mVisible) {
+				f32 fr = SMSGetAnmFrameRate();
+				s32 d  = (s32)(0.5f * (f32)(u32) *
+				              ((u8*)this + 0x10D) * fr);
+				JUTRect* rc = (JUTRect*)((u8*)this + 0x110);
+				p104->move(rc->x1 - d, rc->y1);
+			}
+			J2DPane* p108 = *(J2DPane**)((u8*)this + 0x108);
+			if (p108->mVisible) {
+				f32 fr = SMSGetAnmFrameRate();
+				s32 d  = (s32)(0.5f * (f32)(u32) *
+				              ((u8*)this + 0x10D) * fr);
+				JUTRect* rc = (JUTRect*)((u8*)this + 0x120);
+				p108->move(rc->x1 + d, rc->y1);
+			}
+
+			if (*((u8*)this + 0x10C) != 0) {
+				*((u8*)this + 0x10D) += 1;
+				if (*((u8*)this + 0x10D) > 10)
+					*((u8*)this + 0x10C) = 0;
+			} else {
+				*((u8*)this + 0x10D) -= 1;
+				if (*((u8*)this + 0x10D) == 0)
+					*((u8*)this + 0x10C) = 1;
+			}
+
+			{
+				J2DPane* pn = *(J2DPane**)((u8*)this + 0x104);
+				u8       a  = pn->mAlpha;
+				if (mScenarioIndex == 0) {
+					if (a != 0) {
+						s32 na = a - 4;
+						if (na < 0) {
+							na           = 0;
+							pn->mVisible = false;
+						}
+						(*(J2DPane**)((u8*)this + 0x104))
+						    ->mAlpha
+						    = na;
+					}
+				} else {
+					if (a < _149) {
+						s32 na = a + 4;
+						if (na > _149)
+							na = _149;
+						pn->mAlpha = na;
+					}
+				}
+			}
+
+			{
+				J2DPane* pn  = *(J2DPane**)((u8*)this + 0x108);
+				u8       a   = pn->mAlpha;
+				s8       nxt = getNextIndex();
+				if (nxt == -1) {
+					if (a != 0) {
+						s32 na = a - 4;
+						if (na < 0) {
+							na = 0;
+							(*(J2DPane**)((u8*)this
+							              + 0x108))
+							    ->mVisible
+							    = false;
+						}
+						(*(J2DPane**)((u8*)this + 0x108))
+						    ->mAlpha
+						    = na;
+					}
+				} else {
+					if (a < _149) {
+						s32 na = a + 4;
+						if (na > _149)
+							na = _149;
+						(*(J2DPane**)((u8*)this + 0x108))
+						    ->mAlpha
+						    = na;
+					}
+				}
+			}
+		}
+
+		if (mState != 6) {
+			bool done = true;
+			done &= m40ExPane->update();
+			done &= m68ExPane->update();
+			if (done) {
+				m40ExPane->mPane->mVisible = false;
+				mState                     = 6;
+			}
+		}
+
+		{
+			J2DPane* pn = *(J2DPane**)(
+			    (u8*)this + 0xDC + (u32)mScenarioIndex * 4);
+			u8 a = pn->mAlpha;
+			if (*((u8*)this + 0xD8) != 0) {
+				s32 na = a + 6;
+				if (na > _148) {
+					*((u8*)this + 0xD8) = 0;
+					na                  = _148;
+				}
+				(*(J2DPane**)((u8*)this + 0xDC
+				              + (u32)mScenarioIndex * 4))
+				    ->mAlpha
+				    = na;
+			} else {
+				s32 na = a - 6;
+				if (na < 0x40) {
+					*((u8*)this + 0xD8) = 1;
+					na                  = 0x40;
+				}
+				(*(J2DPane**)((u8*)this + 0xDC
+				              + (u32)mScenarioIndex * 4))
+				    ->mAlpha
+				    = na;
+			}
+		}
 		break;
+	}
 	case 8:
 		break;
 	case 0:
