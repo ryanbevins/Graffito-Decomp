@@ -7,6 +7,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MSound/MSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
