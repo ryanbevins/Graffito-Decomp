@@ -721,9 +721,10 @@ TMareBaseManager::TMareBaseManager(const char* name)
 TMareMBaseManager::TMareMBaseManager(const char* name)
     : TMareBaseManager(name)
 {
+	const char* commonName = cMareMCommonVolumeName;
 	unk5C = mStaticCommonKeeper;
 	if (unk5C == NULL) {
-		unk5C = new TModelDataKeeper(cMareMCommonVolumeName);
+		unk5C = new TModelDataKeeper(commonName);
 		mStaticCommonKeeper = unk5C;
 		makePartsModelData_(0xd, 0x10210000, unk5C);
 	}
@@ -732,9 +733,10 @@ TMareMBaseManager::TMareMBaseManager(const char* name)
 TMareWBaseManager::TMareWBaseManager(const char* name)
     : TMareBaseManager(name)
 {
+	const char* commonName = cMareWCommonVolumeName;
 	unk5C = mStaticCommonKeeper;
 	if (unk5C == NULL) {
-		unk5C = new TModelDataKeeper(cMareWCommonVolumeName);
+		unk5C = new TModelDataKeeper(commonName);
 		mStaticCommonKeeper = unk5C;
 		makePartsModelData_(0x12, 0x10210000, unk5C);
 	}
