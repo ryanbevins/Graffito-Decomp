@@ -206,15 +206,46 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 		mState = 5;
 		break;
 	}
-	case 5:
+	case 5: {
+		bool done = true;
+		done &= ((TBoundPane*)m34ExPane)->update();
+		done &= ((TBoundPane*)m38ExPane)->update();
+
+		u32 a2c = (u32)m2CPane->mAlpha;
+		s32 newAlpha
+		    = (s32)((f32)a2c + 6.0f * SMSGetAnmFrameRate());
+		if ((u16)newAlpha > 0xff)
+			newAlpha = 0xff;
+		m2CPane->mAlpha = (u8)newAlpha;
+
+		s32 alpha2 = 0;
+		if ((u16)newAlpha > 0x80) {
+			s32 a40 = (s32)m40ExPane->mPane->mAlpha;
+			alpha2  = (s32)(((f32)a40 + 6.0f * SMSGetAnmFrameRate()
+			                  > 255.0f)
+			                    ? 255.0f
+			                    : (f32)a40
+			                          + 6.0f * SMSGetAnmFrameRate());
+			m40ExPane->mPane->mAlpha = (u8)alpha2;
+			mA0Pane->mAlpha          = (u8)alpha2;
+			mA4Pane->mAlpha          = (u8)alpha2;
+		}
+
+		if (done && alpha2 == 0xff) {
+			mState = 6;
+		}
+		break;
+	}
+	case 9:
+		if (_139 > _16C)
+			mState = 0;
+		_139++;
 		break;
 	case 6:
 		break;
 	case 7:
 		break;
 	case 8:
-		break;
-	case 9:
 		break;
 	}
 }
