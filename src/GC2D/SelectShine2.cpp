@@ -162,7 +162,7 @@ void TSelectShineManager::startIncrease(int delta)
 	}
 
 	unkA4 = 1;
-	unkA0 = (f32)(delta * -40);
+	unkA0 = (f32)((delta * -40) / 10);
 	unk8C += delta;
 
 	TSelectShine* next = mShines[unk8C];
@@ -187,7 +187,7 @@ void TSelectShineManager::startDecrease(int delta)
 	}
 
 	unkA5 = 1;
-	unkA0 = (f32)(delta * 40);
+	unkA0 = (f32)((delta * 40) / 10);
 	unk8C -= delta;
 
 	TSelectShine* next = mShines[unk8C];
