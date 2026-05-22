@@ -44,9 +44,10 @@ void CPolarSubCamera::setNoticeInfo()
 	this->unk2A4  = nullptr;
 	*(s32*)((u8*)this + 0x29C)    = 0;
 
-	for (int i = 0; sNoticeActorManagerName[i] != nullptr; i++) {
-		TLiveManager* mgr = (TLiveManager*)gpConductor->getManagerByName(
-		    sNoticeActorManagerName[i]);
+	for (const char** name = sNoticeActorManagerName; *name != nullptr;
+	     ++name) {
+		TLiveManager* mgr
+		    = (TLiveManager*)gpConductor->getManagerByName(*name);
 		if (mgr == nullptr)
 			continue;
 		int n = mgr->mObjNum;
