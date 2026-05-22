@@ -17,6 +17,11 @@ public:
 	virtual TRealoidActor* createRealoidActor(MActor*);
 	virtual void load(JSUMemoryInputStream&);
 	virtual void init(class TLiveManager*);
+
+public:
+	/* 0x158 */ int unk158;
+	/* 0x15C */ int unk15C;
+	/* 0x160 */ int unk160;
 };
 
 class TButterfloidManager : public TEnemyManager {
@@ -44,7 +49,9 @@ void TButterfloidManager::createModelData()
 TButterfloid::TButterfloid(int count, const char* name)
     : TRealoid(name)
 {
-	(void)count;
+	unk158 = count;
+	unk15C = 0;
+	unk160 = 0;
 }
 
 TRealoidActor* TButterfloid::createRealoidActor(MActor* actor)
