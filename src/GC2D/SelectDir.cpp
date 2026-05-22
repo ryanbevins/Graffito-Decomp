@@ -203,13 +203,9 @@ int TSelectDir::direct()
 
 		gpApplication.mFader->startWipe(14, 0.4f, 0.0f);
 
-		JUtility::TColor color;
-		if (mCupId == 9) {
-			color.set(0xff, 0xff, 0xff, 0xff);
-		} else {
-			color.set(0, 0, 0, 0xff);
-		}
-		gpApplication.mFader->setColor(color);
+		gpApplication.mFader->setColor(mCupId == 9
+		    ? JUtility::TColor(0xff, 0xff, 0xff, 0xff)
+		    : JUtility::TColor(0, 0, 0, 0xff));
 		gpMSound->initSound();
 		return 0;
 	}
@@ -230,8 +226,7 @@ int TSelectDir::direct()
 			    0x40003, mMenu->_104[0x13B - 0x104]);
 			gpApplication.mFader->startWipe(15, 1.0f, 0.0f);
 
-			JUtility::TColor color;
-			color.set(0xff, 0xff, 0xff, 0xff);
+			JUtility::TColor color(0xff, 0xff, 0xff, 0xff);
 			gpApplication.mFader->setColor(color);
 			gpMSound->fadeOutAllSound(
 			    (u32)((f32)SMSGetVSyncTimesPerSec()));
