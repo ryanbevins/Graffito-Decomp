@@ -21,8 +21,7 @@ extern MSound* gpMSound;
 extern "C" void init__12TMarioEffectFP6TMario(void*, TMario*);
 
 // TODO: stuff from other rogue includes
-static JGeometry::TVec3<f32> cDeformedTerrainCenter
-    = JGeometry::TVec3<f32>(0.0f, 5000.0f, 0.0f);
+static JGeometry::TVec3<f32> cDeformedTerrainCenter(0.0f, 5000.0f, 0.0f);
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
