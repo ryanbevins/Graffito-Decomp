@@ -62,6 +62,12 @@ template <typename T> struct TVec2 {
 		y += other.y;
 	}
 
+	void sub(const TVec2<T>& other)
+	{
+		x -= other.x;
+		y -= other.y;
+	}
+
 	void scale(f32 scale)
 	{
 		x *= scale;
