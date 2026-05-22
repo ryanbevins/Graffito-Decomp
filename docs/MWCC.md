@@ -1432,6 +1432,80 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Inline pointer-arithmetic computes per-iteration; hoisted `(this + OFFSET)` reserves a register
+
+**Hypothesis:** Two equivalent source forms for indexing into a field-offset
+array generate different MWCC codegen. Form A hoists `this + OFFSET` into a
+callee-saved register before the loop; Form B computes `(OFFSET + i*4)`
+inline each iteration without a hoist.
+
+```cpp
+// Form A — base-pointer cast then array index:
+//   addi rH, r3, OFFSET   ; outside loop
+//   lwzx r4, rH, rI       ; inside loop (rI = i*4)
+TBoundPane* p = ((TBoundPane**)((u8*)this + OFFSET))[i];
+
+// Form B — single-expression pointer arithmetic:
+//   addi r0, rI, OFFSET   ; inside loop
+//   lwzx r4, r3, r0       ; inside loop
+TBoundPane* p = *(TBoundPane**)((u8*)this + OFFSET + i * 4);
+```
+
+Form A consumes one extra callee-saved register (extending `stmw`/`stwu`);
+Form B uses no extra register but adds one `addi` per iteration.
+
+**Observed:** `GC2D/Guide::checkPoint` — two loops at `_168` and `_44C`.
+Form A → Form B closed codegen 95.44% → 99.80% (only phantom stack
+padding left).
+
+**Experiment to confirm/refute:** Find another TU with a small loop indexing
+a field-offset array where target's loop body shows
+`addi r0, rIdx, OFFSET; lwzx`. Test Form B vs Form A; confirm Form B
+matches when target uses the inline form.
+
+### Copy-construct on declaration skips the default constructor's body
+
+**Hypothesis:** When a class with a non-trivial default constructor (e.g.
+`JUTRect() { set(0, 0, 0, 0); }`) is used as a local, copy-construction
+emits only the copy ctor's body, while default-ctor + assignment emits both.
+
+```cpp
+// Form A — emits `bl set__7JUTRectFiiii` (default ctor) then `bl copy`:
+JUTRect rect;
+rect.copy(*src);
+
+// Form B — emits only `bl copy__7JUTRectFRC7JUTRect`:
+JUTRect rect(*src);
+```
+
+(This is standard C++ semantics, but the matching lever is worth tracking.)
+
+**Observed:** `GC2D/Guide::checkPoint` — two `JUTRect` locals in two loops.
+Switching to Form B removed the upfront `bl set__7JUTRectFiiii` call and
+contributed to 87.65% → 99.80%.
+
+**Experiment to confirm/refute:** Find another near-100% function where
+target lacks a default-ctor call that our build emits. Switch the local's
+declaration to copy-construction; confirm the call drops.
+
+### Function returning its pointer argument: declare the return type even when callers ignore it
+
+**Hypothesis:** When the target's epilogue is `mr r3, rN; blr` where rN is
+a callee-saved register holding a pointer arg or pointer field, the source
+declared the function with that pointer as its return type. A `void`
+declaration generates no such `mr`. C++ mangling doesn't encode return
+type, so callers that ignore the return value still match.
+
+**Observed:** `GC2D/Guide::setup(JKRMemArchive*)` — target ends
+`mr r3, r31; blr` where r31 = saved `archive` arg. Declaring
+`JKRMemArchive* setup(JKRMemArchive*)` with `return archive;` closed
+77.09% → 100%. Sole caller `MarDirectorDirect` ignores the return value.
+
+**Experiment to confirm/refute:** Find another `void`-declared function
+whose epilogue has `mr r3, rN; blr` with rN holding an arg or
+field-of-this. Re-declare and add `return rN;` to all paths; confirm the
+function moves toward 100%.
+
 ### MWCC -O4,p folds `0.0f * (expr)` to constant 0 in some TUs, not others
 
 **Hypothesis:** Under `-O4,p`, MWCC's constant folder eliminates
