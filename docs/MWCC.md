@@ -36,6 +36,47 @@ them in future ticks.
 
 ## Settled
 
+### Two-step pointer init `p = base; p += off;` vs combined `p = base + off;`
+
+**Rule:** When you want MWCC to emit an **in-place** `add rDst, rA, rB`
+(where rDst is a callee-saved register that already held one of the
+operands), declare the local with a base assignment and then add into
+it as a separate statement:
+
+```cpp
+u8* readPos = dest;
+readPos += size;
+```
+
+The combined form `u8* readPos = dest + size;` routes the result
+through a volatile scratch register first, producing
+`add r3, r30, r31; addi r31, r3, 0` (or `mr r31, r3`) — one extra
+instruction and a different register layout. The two-step form lets
+the allocator reuse the same register the operand `size` already
+lived in (e.g. r31 in the example), giving `add r31, r30, r31`.
+
+Required conditions for the lever:
+- One operand is already in a callee-saved register (e.g. `size` was
+  the third arg in r5 and got mr'd into r31 to survive a `bl memcpy`).
+- The destination local will be **used multiple times across calls**
+  (otherwise it stays in a volatile and the rule is moot).
+- No reads of the original base after the add (so reusing the operand's
+  register is safe).
+
+**Where observed:**
+- `src/JSystem/JKernel/JKRDvdAramRipper.cpp::nextSrcData` —
+  `u8* readPos = dest + size;` capped the function at 98.02% with an
+  extra `addi r31, r3, 0`. Switching to
+  `u8* readPos = dest; readPos += size;` → 100%. The same two-step
+  pattern also separates `origDest` (returned) from `readPos` (used
+  for DVDReadPrio + srcLimit), letting the allocator give them
+  distinct r30/r31 lives.
+
+**Related but distinct:** This is NOT the same as the `addi rN, rM,
+0` vs `mr rN, rM` open question — that one is about how a *move*
+gets encoded. This is about whether an *arithmetic op* uses an
+in-place destination or a temp + move.
+
 ### Static TVec3 init: direct-init `T x(args)` vs copy-init `T x = T(args)`
 
 **Rule:** A file-scope `static JGeometry::TVec3<f32> name(a, b, c);`
