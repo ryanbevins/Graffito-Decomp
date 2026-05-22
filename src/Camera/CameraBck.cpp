@@ -70,14 +70,18 @@ void TCameraBck::endDemo() { mActor->setBckFromIndex(-1); }
 
 s32 TCameraBck::getTotalDemoFrames() const
 {
+	s32 result = 0;
 	J3DFrameCtrl* ctrl = mActor->getFrameCtrl(0);
-	if (ctrl == nullptr)
-		return 0;
-	u8 mode = *((u8*)ctrl + 4);
-	if (mode != 0)
-		return -1;
-	s16 end = *(s16*)((u8*)ctrl + 8);
-	return (end + 1) << 1;
+	if (ctrl != nullptr) {
+		u8 mode = *((u8*)ctrl + 4);
+		if (mode != 0) {
+			result = -1;
+		} else {
+			s16 end = *(s16*)((u8*)ctrl + 8);
+			result = (end + 1) << 1;
+		}
+	}
+	return result;
 }
 
 void TCameraBck::startDemo(const char* name,
