@@ -66,34 +66,34 @@ void TPauseMenu2::load(JSUMemoryInputStream& stream)
 	}
 
 	unk18 = unk14->search('mask');
-	unk1C = unk14->search(0x745f6b00); // 'tk_\0' approx — placeholder
+	unk1C = unk14->search('t_0');
 
 	for (int i = 0; i < 5; i++) {
-		unk20[i] = unk14->search(('pa' << 16) | 0x3030 | (i << 16));
+		unk20[i] = unk14->search('pa00' + i);
 	}
 
 	for (int i = 0; i < 3; i++) {
-		unk98[i] = (J2DPicture*)unk14->search(('tx' << 16) | 0x5f31 | (i << 16));
+		unk98[i] = (J2DPicture*)unk14->search('tx_1' + i);
 		if (unk104 == 2) {
-			((J2DPane*)unk98[i])->resize(0, 0x14);
+			((J2DPane*)unk98[i])->add(0, 0x14);
 		}
 		unk98[i]->mVisible = false;
 	}
 
-	unkD4 = (J2DTextBox*)unk14->search('mapn');
+	unkD4 = (J2DTextBox*)unk14->search('map');
 	unkD4->setFont((JUTFont*)gpSystemFont);
 	unkDC = (J2DTextBox*)unk14->search('task');
 	SMSMakeTextBuffer(unkDC, 0x80);
 	unkDC->setFont((JUTFont*)gpSystemFont);
 	unkD8 = unk14->search('brek');
 
-	u8 shineStage  = (u8)SMS_getShineStage(gpMarDirector->unk7D);
+	u32 shineStage  = (u8)SMS_getShineStage(gpMarDirector->mMap);
 	s32 ehasFlag   = TFlagManager::smInstance->getFlag(0x40003);
 	void* stagename = JKRFileLoader::getGlbResource("/common/2d/stagename.bmg");
 	const char* msg = (const char*)SMSGetMessageData(stagename, shineStage);
 	unkD4->setString(msg);
 
-	if (gpMarDirector->unk7D == 0xF) {
+	if (gpMarDirector->mMap == 0xF) {
 		return;
 	}
 
@@ -102,9 +102,11 @@ void TPauseMenu2::load(JSUMemoryInputStream& stream)
 	s16 idx = SMS_getShineID(shineStage, ehasFlag, false);
 
 	const char* scenStr;
-	if (scenarioname == nullptr || idx == -1 || shineStage == 0) {
-		unkD4->setString("");
-		unkDC->setString("");
+	if (scenarioname == nullptr || idx == -1) {
+		if (shineStage == 0) {
+			((J2DPane*)unkD4)->add(0, 0xF);
+			unk1C->add(0, 0x1E);
+		}
 		scenStr = "";
 	} else {
 		u32 nameIdx = SMS_getNormalStage(idx);
