@@ -923,12 +923,15 @@ void JPABaseEmitter::setGlobalRMatrix(MtxPtr) { }
 
 void JPABaseEmitter::setGlobalRTMatrix(MtxPtr param_1)
 {
-	JPAGetRMtxTVecElement(param_1, unk124, unk160);
+	JGeometry::TVec3<f32>& v = unk160;
+	JPAGetRMtxTVecElement(param_1, unk124, v);
 }
 
 void JPABaseEmitter::setGlobalSRTMatrix(MtxPtr param_1)
 {
-	JPAGetRMtxSTVecElement(param_1, unk124, unk154, unk160);
+	JGeometry::TVec3<f32>& v160 = unk160;
+	JGeometry::TVec3<f32>& v154 = unk154;
+	JPAGetRMtxSTVecElement(param_1, unk124, v154, v160);
 }
 
 void JPABaseEmitter::getPivotX() { }
