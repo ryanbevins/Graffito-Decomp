@@ -684,9 +684,10 @@ void TNPCManager::makePartsModelData_(u32 actorType, u32 flags,
 TMonteWBaseManager::TMonteWBaseManager(const char* name)
     : TNPCManager(name)
 {
+	const char* commonName = cMonteWCommonVolumeName;
 	unk5C = mStaticCommonKeeper;
 	if (unk5C == NULL) {
-		unk5C = new TModelDataKeeper(cMonteWCommonVolumeName);
+		unk5C = new TModelDataKeeper(commonName);
 		mStaticCommonKeeper = unk5C;
 		makePartsModelData_(9, 0x10210000, unk5C);
 	}
@@ -695,9 +696,10 @@ TMonteWBaseManager::TMonteWBaseManager(const char* name)
 TMonteMBaseManager::TMonteMBaseManager(const char* name)
     : TNPCManager(name)
 {
+	const char* commonName = cMonteMCommonVolumeName;
 	unk5C = mStaticCommonKeeper;
 	if (unk5C == NULL) {
-		unk5C = new TModelDataKeeper(cMonteMCommonVolumeName);
+		unk5C = new TModelDataKeeper(commonName);
 		mStaticCommonKeeper = unk5C;
 		makePartsModelData_(0, 0x10210000, unk5C);
 	}
