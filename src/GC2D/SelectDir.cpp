@@ -157,7 +157,7 @@ int TSelectDir::rsetup()
 	stageDisp->getUnk14()->getChildren().push_back(screen2d);
 	screen2d->assignCamera(proj2d);
 	screen2d->assignViewObj(group2d);
-	mScreenGrad = screen2d;
+	mScreen2D = screen2d;
 
 	JDrama::TLookAtCamera* lookCam = new JDrama::TLookAtCamera();
 	lookCam->mNear   = 50.0f;
@@ -172,10 +172,10 @@ int TSelectDir::rsetup()
 	stageDisp->getUnk14()->getChildren().push_back(screen3d);
 	screen3d->assignCamera(lookCam);
 	screen3d->assignViewObj(group3d);
-	mScreen2D = screen3d;
+	mScreenGrad = screen3d;
 
-	mScreen2D->unkC.off(0xc);
-	mScreenGrad->unkC.on(0xb);
+	mScreenGrad->unkC.off(0xb);
+	mScreen2D->unkC.on(0xb);
 
 	return 0;
 }
@@ -183,7 +183,7 @@ int TSelectDir::rsetup()
 void TSelectDir::changeOrder()
 {
 	mScreenGrad->unkC.on(0xb);
-	mScreen2D->unkC.off(0xc);
+	mScreen2D->unkC.off(0xb);
 }
 
 int TSelectDir::direct()
