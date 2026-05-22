@@ -13,6 +13,7 @@ class TMarioGamePad;
 class TExPane;
 class TBoundPane;
 class J2DPane;
+class J2DSetScreen;
 
 namespace JDrama {
 class TGraphics;
@@ -34,16 +35,20 @@ public:
 
 public:
 	/* 0x10 */ u32 mState;
-	/* 0x14 */ u8 _14[0x24 - 0x14];
+	/* 0x14 */ u8 _14[0x20 - 0x14];
+	/* 0x20 */ J2DSetScreen* mScreen;
 	/* 0x24 */ TExPane* m24ExPane;
 	/* 0x28 */ TExPane* m28ExPane;
 	/* 0x2C */ J2DPane* m2CPane;
-	/* 0x30 */ TBoundPane* m30Box;
-	/* 0x34 */ u8 _34[0x40 - 0x34];
-	/* 0x40 */ TBoundPane* m40Box;
+	/* 0x30 */ TExPane* m30ExPane;
+	/* 0x34 */ TExPane* m34ExPane;
+	/* 0x38 */ TExPane* m38ExPane;
+	/* 0x3C */ u8 _3C[0x40 - 0x3C];
+	/* 0x40 */ TExPane* m40ExPane;
 	/* 0x44 */ u8 _44[0x58 - 0x44];
 	/* 0x58 */ u8 _58[0x68 - 0x58]; // JUTRect, set() in body
-	/* 0x68 */ u8 _68[0xA0 - 0x68];
+	/* 0x68 */ TExPane* m68ExPane;
+	/* 0x6C */ u8 _6C[0xA0 - 0x6C];
 	/* 0xA0 */ J2DPane* mA0Pane;
 	/* 0xA4 */ J2DPane* mA4Pane;
 	/* 0xA8 */ u8 _A8[0x100 - 0xA8];

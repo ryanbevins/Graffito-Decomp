@@ -4,12 +4,14 @@
 #include <GC2D/BoundPane.hpp>
 #include <System/SelectDir.hpp>
 #include <System/StageUtil.hpp>
+#include <System/Application.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <JSystem/JDrama/JDRNameRef.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
 #include <JSystem/J2D/J2DPane.hpp>
+#include <JSystem/J2D/J2DScreen.hpp>
 #include <JSystem/JUtility/JUTRect.hpp>
 #include <dolphin/gx.h>
 #include <dolphin/mtx.h>
@@ -27,11 +29,11 @@ void TSelectMenu::startOpenWindow()
 
 	mState = 1;
 
-	m2CPane->mVisible      = false;
-	m30Box->unk0->mVisible = false;
-	m40Box->unk0->mVisible = false;
-	mA0Pane->mVisible      = false;
-	mA4Pane->mVisible      = false;
+	m2CPane->mVisible         = false;
+	m30ExPane->mPane->mVisible = false;
+	m40ExPane->mPane->mVisible = false;
+	mA0Pane->mVisible         = false;
+	mA4Pane->mVisible         = false;
 
 	s32 frame = (s32)(30.0f * _14C);
 
@@ -103,23 +105,51 @@ void TSelectMenu::startMove()
 void TSelectMenu::initData(u8 cup, JKRArchive* archive,
                            TSelectShineManager* shineMgr, TSelectDir* dir)
 {
-	// TODO: full implementation pending — very large fn (0xFE4 bytes).
+	_13A          = cup;
 	mShineManager = shineMgr;
 	mDir          = dir;
+
+	_14C = 1.0f / SMSGetAnmFrameRate();
+
+	switch (_13A) {
+	case 0:
+	case 1:
+	case 10:
+		_14A           = 1;
+		mScenarioIndex = 0xFF;
+		return;
+	}
+
+	// TODO: full implementation of main path pending — large (~3500B).
+	mScreen   = new J2DSetScreen("scenario_select_1.blo", archive);
+	m24ExPane = new TExPane(mScreen, 'msk1');
+	m28ExPane = new TExPane(mScreen, 'msk2');
+	m2CPane   = mScreen->search('map');
+	m40ExPane = new TExPane(mScreen, 's_0');
+	m68ExPane = new TExPane(mScreen, '0_0');
+	m68ExPane->mPane->mVisible = false;
+	*(JUTRect*)_58             = m40ExPane->mPane->mBounds;
+
+	*(J2DPane**)((u8*)this + 0x48) = mScreen->search('s_2a');
+	*(J2DPane**)((u8*)this + 0x4C) = mScreen->search('s_2b');
+	*(J2DPane**)((u8*)this + 0x70) = mScreen->search('0_2a');
+	*(J2DPane**)((u8*)this + 0x74) = mScreen->search('0_2b');
+	*(J2DPane**)((u8*)this + 0x50) = mScreen->search('s_2b');
+	*(J2DPane**)((u8*)this + 0x78) = mScreen->search('0_2b');
 }
 
 TSelectMenu::TSelectMenu(const char* name)
     : JDrama::TViewObj(name)
 {
-	mState = 0;
-	*(u32*)((u8*)this + 0x20) = 0;
+	mState                    = 0;
+	mScreen                   = nullptr;
 	m24ExPane                 = nullptr;
 	m28ExPane                 = nullptr;
 	m2CPane                   = nullptr;
-	m30Box                    = nullptr;
-	*(u32*)((u8*)this + 0x38) = 0;
+	m30ExPane                 = nullptr;
+	m38ExPane                 = nullptr;
 	*(u32*)((u8*)this + 0x3C) = 0;
-	m40Box                    = nullptr;
+	m40ExPane                 = nullptr;
 	*(u32*)((u8*)this + 0x44) = 0;
 	*(u32*)((u8*)this + 0x48) = 0;
 	*(u32*)((u8*)this + 0x4C) = 0;
