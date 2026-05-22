@@ -54,8 +54,8 @@ void TGuide::linkSelect() { }
 
 void TGuide::startMoveCursor()
 {
-	*(u32*)((u8*)this + 0x10) = 9;
-	*((u8*)this + 0x164)      = 0;
+	mState  = 9;
+	unk164 = 0;
 }
 
 void TGuide::setup(JKRMemArchive* archive)
@@ -75,5 +75,13 @@ void TGuide::load(JSUMemoryInputStream& stream) { }
 
 TGuide::TGuide(const char* name)
     : JDrama::TViewObj(name)
+    , mState(8)
+    , unkBC(nullptr)
+    , unkC0(nullptr)
+    , unkC4(0)
+    , unkC5(0)
+    , unk160(0xFF)
+    , unk164(1)
+    , _480(-1)
 {
 }
