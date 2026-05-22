@@ -356,9 +356,9 @@ TCamSaveJetCoaster::TCamSaveJetCoaster()
     : TParams("/Camera/camera_jetCoaster.prm")
     , PARAM_INIT(mSLOffsetAngleXLimit, 10000)
     , PARAM_INIT(mSLOffsetAngleYLimit, 10000)
-    , PARAM_INIT(mSLOffsetAngleXManualSpeed, 10000)
+    , PARAM_INIT(mSLOffsetAngleXManualSpeed, 250)
     , PARAM_INIT(mSLOffsetAngleYManualSpeed, 250)
-    , PARAM_INIT(mSLOffsetAngleXChase, 250)
+    , PARAM_INIT(mSLOffsetAngleXChase, 25)
     , PARAM_INIT(mSLOffsetAngleYChase, 25)
 {
 	TParams::load(mPrmPath);
