@@ -1,4 +1,5 @@
 #include <MSound/MAnmSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 
 MAnmSound::MAnmSound(MSound* sound) { }
 

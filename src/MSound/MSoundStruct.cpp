@@ -1,4 +1,5 @@
 #include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundStruct.hpp>
 #include <MSound/MSound.hpp>
 

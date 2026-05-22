@@ -1,4 +1,5 @@
 #include <NPC/NpcEvent.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <NPC/NpcBase.hpp>
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>

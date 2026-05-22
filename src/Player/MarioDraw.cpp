@@ -1,4 +1,5 @@
 #include <Player/MarioMain.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <Player/MarioAnimeData.hpp>
 #include <Player/MarioCap.hpp>
 #include <Player/Watergun.hpp>

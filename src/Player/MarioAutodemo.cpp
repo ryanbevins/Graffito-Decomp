@@ -1,4 +1,5 @@
 #include <Player/MarioMain.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <Enemy/Conductor.hpp>
 #include <System/MarDirector.hpp>
 #include <NPC/NpcBase.hpp>

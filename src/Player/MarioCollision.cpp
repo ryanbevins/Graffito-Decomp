@@ -1,4 +1,5 @@
 #include <Player/MarioMain.hpp>
+#include <MSound/MSoundBGM.hpp>
 
 #include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/MathUtil.hpp>

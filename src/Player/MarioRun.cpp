@@ -1,4 +1,5 @@
 #include <Player/MarioMain.hpp>
+#include <MSound/MSoundBGM.hpp>
 
 #include <M3DUtil/M3UJoint.hpp>
 #include <Map/Map.hpp>

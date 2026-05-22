@@ -1,4 +1,5 @@
 #include <Animal/AnimalBase.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <Enemy/PathNode.hpp>
 #include <Strategic/SolidStack.hpp>
 #include <MSound/MSound.hpp>

@@ -1,4 +1,5 @@
 #include <Player/MarioMain.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 
