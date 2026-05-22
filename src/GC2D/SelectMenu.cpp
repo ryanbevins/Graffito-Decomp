@@ -68,8 +68,8 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 
 void TSelectMenu::startMove()
 {
-	mShineManager->initData(&mStageStates[0], _13C, mScenarioIndex,
-	                        mDir->mEmitterMgr1);
+	JPAEmitterManager* em = mDir->mEmitterMgr1;
+	mShineManager->initData(&mStageStates[0], _13C, mScenarioIndex, em);
 	mShineManager->mShines[mScenarioIndex]->unk24 = 1;
 }
 
