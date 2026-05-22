@@ -77,6 +77,7 @@ public:
 	/* 0xA6 */ u8 unkA6;
 	/* 0xA7 */ u8 unkA7;
 	/* 0xA8 */ JGeometry::TVec3<f32> unkA8[8];
+	/* 0x108 */ u8 _108[0x120 - 0x108];
 };
 
 #endif
