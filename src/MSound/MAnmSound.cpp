@@ -1,7 +1,7 @@
 #include <MSound/MAnmSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
-MAnmSound::MAnmSound(MSound* sound) { }
+MAnmSound::MAnmSound(MSound* sound) { mData = nullptr; }
 
 void MAnmSound::animeLoop(Vec* vec, f32 f1, f32 f2, u32 ul, u8 uc) { }
 
