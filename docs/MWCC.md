@@ -36,6 +36,58 @@ them in future ticks.
 
 ## Settled
 
+### Static TVec3 init: direct-init `T x(args)` vs copy-init `T x = T(args)`
+
+**Rule:** A file-scope `static JGeometry::TVec3<f32> name(a, b, c);`
+(direct-initialization) lowers to three direct `stfs` into the
+global's bss slot. The copy-initialization form
+`static JGeometry::TVec3<f32> name = JGeometry::TVec3<f32>(a, b, c);`
+materialises a temporary on the stack and then copies it word-by-word
+via the auto-generated copy ctor — producing 3× `stfs` to stack +
+3× `lwz`/`stw` from stack to global + the stack-frame inflation that
+the temp implies. The two are NOT equivalent in MWCC despite being
+semantically identical in C++98.
+
+**Where observed:**
+- `src/Player/MarioInit.cpp::__sinit` — `cDeformedTerrainCenter`
+  rewritten 94.95% → 99.95% by changing copy-init to direct-init.
+  Stack frame shrunk from 0x20 → 0x10 (the temp was 12 bytes plus
+  padding).
+- `src/Player/Atom.cpp::__sinit` already used direct-init form,
+  matching. The MarioInit form was the outlier.
+
+**How to spot:** `__sinit` shows 3 `stfs` into a stack offset followed
+by 3 `lwz` / `stw` from that stack offset into the bss slot. Target's
+asm has just the 3 direct `stfs` into the bss slot.
+
+### Header-include controls __sinit JALList chain offsets
+
+**Rule:** Each `JALListHioNode<T,...>`-derived class T defined in a
+header instantiates a static `JALList<T>` singleton at TU scope when
+that header is `#include`d. Missing the include causes the
+TU-local bss to start its JALList chain at a different offset,
+shifting EVERY downstream `addi r5, r31, OFFSET` and breaking
+`__sinit` match.
+
+`<MSound/MSoundBGM.hpp>` is the most common missing include for
+TUs that need `JALList<MSBgm>` at bss offset 0. Without it, MWCC
+puts `JALList<MSSetSoundGrp>` at offset 0 instead, shifting the
+chain by exactly 0xC.
+
+**Where observed:** 15+ TUs lifted 91.5% → 100% by adding
+`#include <MSound/MSoundBGM.hpp>`. Recent ticks:
+- `Camera/CameraJetCoaster` (tick 34)
+- `Camera/sunmgr` (tick 36)
+- `Player/Mario{Action,Autodemo,Collision,Draw,Jump,Run,Sound,Special,Wait,WaterGun,Main}.cpp`
+- `MSound/{MAnmSound,MSoundStruct}.cpp`
+- `NPC/NpcEvent.cpp`
+- `Animal/AnimalBase.cpp`
+
+**Caveat:** Some TUs have additional missing items beyond JALList<MSBgm>
+(MarioMain needed `cDeformedTerrainCenter` static; MarioParticle
+needs TBubbleCallBack/TWarpInCallBack vtables — these are TU-specific
+classes not yet reconstructed).
+
 ### TVec2/TVec3 copy-ctor needs explicit POD-cast operator= for `lwz/stw` pattern
 
 **Rule:** MWCC's auto-generated copy ctor for a class containing a
