@@ -38,8 +38,8 @@ TLiveActor::TLiveActor(const char* name)
 	mSpine         = nullptr;
 	unk90          = nullptr;
 
-	mLinearVelocity.zero();
-	mAngularVelocity.zero();
+	mLinearVelocity.set(0.0f, 0.0f, 0.0f);
+	mAngularVelocity.set(0.0f, 0.0f, 0.0f);
 
 	mVelocity.set(0.0f, 0.0f, 0.0f);
 
