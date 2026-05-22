@@ -241,11 +241,11 @@ void TSelectGrad::perform(u32 flags, JDrama::TGraphics* gfx)
 		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
 		GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
 
-		u8 rmid = (u8)((mColor2.r + mColor1.r) >> 1);
-		u8 gmid = (u8)((mColor2.g + mColor1.g) >> 1);
 		u8 bmid = (u8)((mColor2.b + mColor1.b) >> 1);
+		u8 gmid = (u8)((mColor2.g + mColor1.g) >> 1);
+		u8 rmid = (u8)((mColor2.r + mColor1.r) >> 1);
 
-		GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 		GXPosition3f32(0.0f, 16.0f, -100.0f);
 		GXColor3u8(mColor1.r, mColor1.g, mColor1.b);
 		GXPosition3f32(600.0f, 16.0f, -100.0f);
