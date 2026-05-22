@@ -600,8 +600,82 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 		}
 		break;
 	}
-	case 8:
+	case 8: {
+		bool done = true;
+		s16  newA = (s16)((s32)m2CPane->mAlpha - 16);
+		if (newA > 0) {
+			done = false;
+		} else {
+			newA = 0;
+		}
+		m2CPane->mAlpha               = (u8)newA;
+		m34ExPane->mPane->mAlpha      = (u8)newA;
+		if (newA < (s32)m38ExPane->mPane->mAlpha)
+			m38ExPane->mPane->mAlpha = (u8)newA;
+		m40ExPane->mPane->mAlpha      = (u8)newA;
+		m68ExPane->mPane->mAlpha      = (u8)newA;
+		mA0Pane->mAlpha               = (u8)newA;
+		mA4Pane->mAlpha               = (u8)newA;
+
+		done &= m24ExPane->update();
+		done &= m28ExPane->update();
+
+		{
+			J2DPicture* pic
+			    = (J2DPicture*)m24ExPane->mPane;
+			s32 alphaT
+			    = (s32)(u8)pic->mCornerColor[0].a + 0x10;
+			s32 alphaB
+			    = (s32)(u8)pic->mCornerColor[2].a + 0x10;
+			if (alphaT > 0xFF)
+				alphaT = 0xFF;
+			else
+				done = false;
+			if (alphaB > 0xFF)
+				alphaB = 0xFF;
+			else
+				done = false;
+			JUtility::TColor c3(0, 0, 0, (u8)alphaB);
+			JUtility::TColor c2(0, 0, 0, (u8)alphaB);
+			JUtility::TColor c1(0, 0, 0, (u8)alphaT);
+			JUtility::TColor c0(0, 0, 0, (u8)alphaT);
+			pic->mCornerColor[0] = c0;
+			pic->mCornerColor[1] = c1;
+			pic->mCornerColor[2] = c2;
+			pic->mCornerColor[3] = c3;
+		}
+
+		{
+			J2DPicture* pic
+			    = (J2DPicture*)m28ExPane->mPane;
+			s32 alphaT
+			    = (s32)(u8)pic->mCornerColor[0].a + 0x10;
+			s32 alphaB
+			    = (s32)(u8)pic->mCornerColor[2].a + 0x10;
+			if (alphaT > 0xFF)
+				alphaT = 0xFF;
+			else
+				done = false;
+			if (alphaB > 0xFF)
+				alphaB = 0xFF;
+			else
+				done = false;
+			JUtility::TColor c3(0, 0, 0, (u8)alphaB);
+			JUtility::TColor c2(0, 0, 0, (u8)alphaB);
+			JUtility::TColor c1(0, 0, 0, (u8)alphaT);
+			JUtility::TColor c0(0, 0, 0, (u8)alphaT);
+			pic->mCornerColor[0] = c0;
+			pic->mCornerColor[1] = c1;
+			pic->mCornerColor[2] = c2;
+			pic->mCornerColor[3] = c3;
+		}
+
+		if (done) {
+			mState = 9;
+			_139   = 0;
+		}
 		break;
+	}
 	case 0:
 		_14A = 1;
 		break;
