@@ -273,11 +273,34 @@ void TPauseMenu2::perform(u32 param_1, JDrama::TGraphics* param_2)
 				unk109 = 0;
 				unk10  = 1;
 			}
-			s8 a = unk1C->mAlpha - 16;
+			s16 a = unk1C->mAlpha - 16;
 			if (a < 0) a = 0;
-			unk1C->mAlpha = a;
+			unk1C->mAlpha = (u8)a;
 		}
-	} else if (param_1 & 1) {
+
+		if (param_1 & 8) {
+			if (unk10 == 0) {
+				J2DOrthoGraph graph(param_2->mViewportRect);
+				graph.setup2D();
+				unk14->draw(0, 0, &graph);
+				GXSetScissor(param_2->mScissorRect.x1, param_2->mScissorRect.y1,
+				             param_2->mScissorRect.x2 - param_2->mScissorRect.x1,
+				             param_2->mScissorRect.y2 - param_2->mScissorRect.y1);
+			} else if (unk10 < 0) {
+			} else if (unk10 >= 5) {
+			} else {
+				J2DOrthoGraph graph(param_2->mViewportRect);
+				graph.setup2D();
+				unk14->draw(0, 0, &graph);
+				GXSetScissor(param_2->mScissorRect.x1, param_2->mScissorRect.y1,
+				             param_2->mScissorRect.x2 - param_2->mScissorRect.x1,
+				             param_2->mScissorRect.y2 - param_2->mScissorRect.y1);
+			}
+		}
+		return;
+	}
+
+	if (param_1 & 1) {
 		switch (unk10) {
 		case 0:
 			appearWindow();
