@@ -369,11 +369,11 @@ TCogwheel::TCogwheel(const char* name)
 	unk148 = 0.0f;
 	unk14C = 0.0f;
 	unk150 = nullptr;
-	unk154.zero();
 	unk160 = 0.0f;
 	unk164 = nullptr;
-	unk168.zero();
 	unk174 = 0.0f;
+	unk154.zero();
+	unk168.zero();
 }
 void TMapObjElasticCode::draw() const
 {
