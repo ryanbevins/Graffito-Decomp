@@ -30,7 +30,9 @@ static void initDolpic() { }
 
 static void initStageCommon() { }
 
+#pragma dont_inline on
 static void initStage() { }
+#pragma dont_inline off
 
 void TMap::updateDelfino() { }
 
