@@ -471,6 +471,9 @@ void TEggYoshi::load(JSUMemoryInputStream&) { }
 TEggYoshi::TEggYoshi(const char* name)
     : TMapObjGeneral(name)
 {
+	unk148 = 0;
+	unk14C = 0;
+	unk150 = 0;
 }
 
 void TItemNozzle::touchPlayer(THitActor*) { }

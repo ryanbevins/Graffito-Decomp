@@ -165,6 +165,11 @@ public:
 	void touchFruit(THitActor*);
 	void startBalloonAnim();
 	void decideRandomLoveFruit();
+
+public:
+	/* 0x148 */ u32 unk148;
+	/* 0x14C */ u32 unk14C;
+	/* 0x150 */ u32 unk150;
 };
 
 class TItemNozzle : public TItem {
