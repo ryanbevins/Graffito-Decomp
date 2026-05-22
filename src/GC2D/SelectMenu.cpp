@@ -106,8 +106,20 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 	switch (mState) {
 	case 0:
 		break;
-	case 1:
+	case 1: {
+		bool done = true;
+		done &= m24ExPane->update();
+		done &= m28ExPane->update();
+		if (done || _138 > (s32)(20.0f * _14C)) {
+			m30ExPane->mPane->mVisible = true;
+			m30ExPane->setPaneOffset(
+			    (s32)(20.0f * _14C), 0, 0,
+			    0x259 - m30ExPane->mInitialBounds.x1, 0);
+			mState = 2;
+		}
+		_138++;
 		break;
+	}
 	case 2:
 		break;
 	case 3:
