@@ -104,7 +104,8 @@ void TMario::wallSlipEffect()
 
 void TMario::emitGetWaterEffect()
 {
-	gpMarioParticleManager->emitAndBindToPosPtr(0xF, &unk160[0], 0, nullptr);
+	JGeometry::TVec3<f32>* p = &unk160[0];
+	gpMarioParticleManager->emitAndBindToPosPtr(0xF, p, 0, nullptr);
 }
 
 void TMario::emitGetEffect()
