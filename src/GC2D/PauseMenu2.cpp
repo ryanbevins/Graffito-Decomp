@@ -217,27 +217,26 @@ void TPauseMenu2::disappearWindow()
 		gpEmitterManager4D2->forceDeleteEmitter(unk110);
 
 		u8 idx              = unkE0;
-		unk20[idx]->mBounds = unkA4[idx];
+		unk98[idx]->mBounds = unkA4[idx];
 	}
 
 	if (unkEC <= 10.0f) {
-		s8 cc1 = unk1C->mAlpha - 12;
+		s32 cc1 = unk1C->mAlpha - 12;
 		if (cc1 < 0) cc1 = 0;
-		unk1C->mAlpha = cc1;
+		unk1C->mAlpha = (u8)cc1;
 
-		if ((s8)cc1 < (s8)unk18->mAlpha) {
-			unk18->mAlpha = cc1;
+		if (cc1 < unk18->mAlpha) {
+			unk18->mAlpha = (u8)cc1;
 		}
 
-		if ((s8)cc1 < (s8)unkD8->mAlpha) {
-			unkD8->mAlpha = cc1;
+		if (cc1 < unkD8->mAlpha) {
+			unkD8->mAlpha = (u8)cc1;
 		}
 
 		for (int i = 0; i < 5; i++) {
-			JUTRect r;
-			r.copy(unk20[i]->mBounds);
-			s32 dx = (s32)(0.025f * 0.01f * (f32)(r.x2 - r.x1));
-			s32 dy = (s32)(0.025f * 0.01f * (f32)(r.y2 - r.y1));
+			JUTRect r = unk20[i]->mBounds;
+			s32 dx = (s32)(-0.025f * (f32)r.x1 + 0.01f * (f32)(r.x2 - r.x1));
+			s32 dy = (s32)(-0.025f * (f32)r.y1 + 0.01f * (f32)(r.y2 - r.y1));
 			r.add(dx, dy);
 			r.resize((s32)(0.98f * (f32)(r.x2 - r.x1)),
 			         (s32)(0.98f * (f32)(r.y2 - r.y1)));
@@ -245,10 +244,9 @@ void TPauseMenu2::disappearWindow()
 		}
 
 		for (int i = 0; i < unk104; i++) {
-			JUTRect r;
-			r.copy(unk98[i]->mBounds);
-			s32 dx = (s32)(0.025f * 0.01f * (f32)(r.x2 - r.x1));
-			s32 dy = (s32)(0.025f * 0.01f * (f32)(r.y2 - r.y1));
+			JUTRect r = unk98[i]->mBounds;
+			s32 dx = (s32)(-0.025f * (f32)r.x1 + 0.01f * (f32)(r.x2 - r.x1));
+			s32 dy = (s32)(-0.025f * (f32)r.y1 + 0.01f * (f32)(r.y2 - r.y1));
 			r.add(dx, dy);
 			r.resize((s32)(0.98f * (f32)(r.x2 - r.x1)),
 			         (s32)(0.98f * (f32)(r.y2 - r.y1)));
