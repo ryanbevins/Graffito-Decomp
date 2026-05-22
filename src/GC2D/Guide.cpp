@@ -156,7 +156,6 @@ JKRMemArchive* TGuide::setup(JKRMemArchive* archive)
 
 void TGuide::resetScore() { }
 
-#pragma dont_inline on
 void TGuide::resetObjects()
 {
 	int totalAccum = 0;
@@ -265,7 +264,6 @@ void TGuide::resetObjects()
 	_128->mPane->mVisible = true;
 	_12C->mPane->mVisible = true;
 }
-#pragma dont_inline off
 
 void TGuide::load(JSUMemoryInputStream& stream) { }
 
