@@ -89,7 +89,7 @@ s32 JKRStdHeap::getFreeSize()
 
 void JKRStdHeap::state_register(TState* state, u32 param_1) const
 {
-	state->_0C        = param_1;
+	state->mId        = param_1;
 	state->mUsedSize  = 0;
 	state->mCheckCode = 0;
 }

@@ -27,30 +27,30 @@ public:
 		};
 
 		struct TArgument {
-			TArgument(const JKRHeap* heap, u32 p2, bool p3)
+			TArgument(const JKRHeap* heap, bool p3)
 			    : mHeap((heap) ? heap : JKRHeap::sCurrentHeap)
-			    , mId(p2)
 			    , mIsCompareOnDestructed(p3)
 			{
 			}
 
 			const JKRHeap* mHeap;        // _00
-			u32 mId;                     // _04
-			bool mIsCompareOnDestructed; // _08
+			bool mIsCompareOnDestructed; // _04
 		};
 
 		TState(const JKRHeap* heap, u32 id, bool isCompareOnDestructed)
 		    : mUsedSize(0)
 		    , mCheckCode(0)
-		    , mArgument(heap, id, isCompareOnDestructed)
+		    , mId(id)
+		    , mArgument(heap, isCompareOnDestructed)
 		{
-			mArgument.mHeap->state_register(this, mArgument.mId);
+			mArgument.mHeap->state_register(this, mId);
 		}
 
 		TState(JKRHeap* heap)
 		    : mUsedSize(0)
 		    , mCheckCode(0)
-		    , mArgument(heap, 0xFFFFFFFF, true)
+		    , mId(0xFFFFFFFF)
+		    , mArgument(heap, true)
 		{
 		}
 
@@ -64,7 +64,7 @@ public:
 		u32 getUsedSize() const { return mUsedSize; }
 		u32 getCheckCode() const { return mCheckCode; }
 		const JKRHeap* getHeap() const { return mArgument.mHeap; }
-		u32 getId() const { return mArgument.mId; }
+		u32 getId() const { return mId; }
 
 		// unused/inlined:
 		TState(const JKRHeap::TState::TArgument& arg,
@@ -75,13 +75,12 @@ public:
 
 		static bool bVerbose_;
 
-		// TODO: this is all wrong
 		u32 mBuf;            // _00
 		u32 mUsedSize;       // _04
 		u32 mCheckCode;      // _08
-		u32 _0C;             // _0C
+		u32 mId;             // _0C
 		TArgument mArgument; // _10
-		TLocation mLocation; // _1C
+		TLocation mLocation; // _18
 	};
 
 public:
@@ -168,7 +167,7 @@ public:
 	} // might instead be a pointer to a next state?
 	static void setState_u32ID_(TState* state, u32 id)
 	{
-		state->mArgument.mId = id;
+		state->mId = id;
 	}
 	static void setState_uUsedSize_(TState* state, u32 usedSize)
 	{
