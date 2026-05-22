@@ -32,7 +32,11 @@ void TPollutionLayerWallPlusX::stamp(u16, f32, f32, f32, f32) { }
 
 void TPollutionLayerWallPlusX::initLayerInfo(const TPollutionLayerInfo*) { }
 
-TPollutionLayerWallBase::TPollutionLayerWallBase() { }
+TPollutionLayerWallBase::TPollutionLayerWallBase()
+{
+	unkAC = 0.0f;
+	unkB0 = 0.0f;
+}
 
 void TPollutionLayer::stampModel(J3DModel*) { }
 
