@@ -1063,6 +1063,52 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### MWCC -O4,p folds `0.0f * (expr)` to constant 0 in some TUs, not others
+
+**Hypothesis:** Under `-O4,p`, MWCC's constant folder eliminates
+multiply-by-zero terms (`0.0f * X`) including the entire subexpression
+`X`, even when X is non-trivial. The target's compile of the same TU
+sometimes PRESERVES the `0.0 * X` term, emitting `fmadds f0, 0.0, X, acc`
+as a no-op addition. The trigger appears TU-local, not just expression-
+local.
+
+**Symptom (target vs ours), `move__12TSelectShineFv` spline block:**
+Source:
+```cpp
+splineY = 0.0f * (omt * omt) + amp9 * (2.0f * omt * t) + amp * (t * t);
+```
+Target asm (preserves all terms):
+```
+fmuls f2, f2, f2       ; f2 = omt^2
+... compute amp9 * (2*omt*t) into f0 ...
+fmadds f0, f3, f2, f0  ; f0 = 0.0 * omt^2 + acc   <-- preserves the 0 term
+fmadds f0, f5, f4, f0  ; f0 = amp * t^2 + acc
+```
+Our asm (folds away the 0 term and its dead operand):
+```
+... compute amp9 * (2*omt*t) into f0 ...
+fmadds f0, f2, f1, f0  ; only amp * t^2 + amp9*(2*omt*t)   <-- no omt^2 anywhere
+```
+The entire `omt * omt` computation is eliminated as dead code.
+
+**What I tried that did NOT change folding:**
+- Reordering source terms (amp9 first, 0 term last). Same fold.
+- All four spline branches show identical fold behavior.
+
+**Experiment to confirm/refute:** Find another GC2D / Player TU where
+target asm shows a literal `0.0 * X` survives constant folding under
+`-O4,p`. Compare TU-level pragmas / inline directives. If folding
+correlates with `-inline deferred` vs `-inline auto`, write a minimal
+test to confirm.
+
+Alternatively: try a non-literal zero, e.g. `(amp - amp)` or a `volatile
+const f32 z = 0;` — does that preserve the `fmadds 0, X, acc`?
+
+**Cost:** `move__12TSelectShineFv` capped at 83% partly due to this
+(plus the bigger out-of-line `bl add__TVec3` issue). Many of the
+mismatched instructions in the spline cascade through to register
+coloring downstream.
+
 ### `addi rN, rM, OFFSET` field-address caching across calls
 
 **Hypothesis:** When a `this`-relative field at a given offset is accessed
