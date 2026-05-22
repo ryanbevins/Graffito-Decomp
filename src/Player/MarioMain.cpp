@@ -1,5 +1,9 @@
 #include <Player/MarioMain.hpp>
 #include <Player/MarioAccess.hpp>
+#include <MSound/MSoundBGM.hpp>
+#include <JSystem/JGeometry.hpp>
+
+static JGeometry::TVec3<f32> cDeformedTerrainCenter(0.0f, 5000.0f, 0.0f);
 
 void TMario::drawSyncCallback(u16 token) { (void)token; }
 
