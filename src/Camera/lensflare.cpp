@@ -51,8 +51,7 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 
 template <class T> T CLBEaseOutInbetween(T a, T b, T t)
 {
-	CLBTwoDegreeGeneralInbetween<T>(a, b, t, a - b);
-	return (T)0;
+	return CLBTwoDegreeGeneralInbetween<T>(a, b, t, a - b);
 }
 
 template f32 CLBEaseOutInbetween<f32>(f32, f32, f32);
