@@ -11,16 +11,21 @@
 #include <JSystem/JDrama/JDRNameRef.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
 #include <JSystem/J2D/J2DPane.hpp>
+#include <JSystem/J2D/J2DPicture.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
+#include <JSystem/J2D/J2DTextBox.hpp>
 #include <JSystem/JUtility/JUTRect.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <GC2D/MessageUtil.hpp>
+#include <System/FlagManager.hpp>
 #include <stdio.h>
+#include <string.h>
 #include <dolphin/gx.h>
 #include <dolphin/mtx.h>
 
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
 static const u32 scNormalStageTable[] = {
 	0x0, 0x1, 0x2, 0x3, 0x4, 0xD, 0x6, 0x8, 0x9, 0xA,
@@ -164,6 +169,299 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 		JUTTexture* tex = new JUTTexture(
 		    (const ResTIMG*)JKRFileLoader::getGlbResource(buf));
 		*(JUTTexture**)((u8*)this + 0xA8 + i * 4) = tex;
+	}
+
+	J2DPicture* scenarioPics[3];
+	for (s32 i = 0; i < 3; i++) {
+		scenarioPics[i] = (J2DPicture*)mScreen->search(0x73635F31 + i);
+	}
+
+	const u32 stagePrefixes[11] = {
+		0,          0,          0x0062695F, 0x0072635F, 0x006D6D5F,
+		0x0070695F, 0x0073725F, 0,          0x006D6F5F, 0x006D725F,
+		0,
+	};
+	const u32 stageMsgOffsets[11] = {
+		0, 0, 2, 3, 4, 5, 6, 0, 7, 8, 0,
+	};
+	const u8* stageShineTables[11] = {
+		nullptr,
+		nullptr,
+		scShineTableBiancoEtc,
+		scShineTableRiccoEtc,
+		scShineTableMammaEtc,
+		scShineTablePinnaEtc,
+		scShineTableSirenaEtc,
+		nullptr,
+		scShineTableMonteEtc,
+		scShineTableMareEtc,
+		nullptr,
+	};
+
+	TFlagManager* flagMgr = TFlagManager::smInstance;
+	u32 coins = flagMgr->getFlag(
+	    ((u32)SMS_getShineStage(_13A) << 16) + 0x20005);
+	if (coins > 999)
+		coins = 999;
+	if (coins < 0)
+		coins = 0;
+
+	J2DPane* p100 = mScreen->search('sc_s');
+	p100->mVisible = false;
+	if (coins < 100) {
+		s32 d10 = coins / 10;
+		((J2DPicture*)scenarioPics[1])
+		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
+		                                                    + 0xA8))[d10]
+		                        ->mTexInfo,
+		                    0);
+		s32 d1 = coins - d10 * 10;
+		((J2DPicture*)scenarioPics[2])
+		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
+		                                                    + 0xA8))[d1]
+		                        ->mTexInfo,
+		                    0);
+		((J2DPicture*)scenarioPics[0])->mVisible = false;
+	} else {
+		s32 d100 = coins / 100;
+		((J2DPicture*)scenarioPics[0])
+		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
+		                                                    + 0xA8))[d100]
+		                        ->mTexInfo,
+		                    0);
+		s32 rem  = coins - d100 * 100;
+		s32 d10  = rem / 10;
+		((J2DPicture*)scenarioPics[1])
+		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
+		                                                    + 0xA8))[d10]
+		                        ->mTexInfo,
+		                    0);
+		s32 d1 = rem - d10 * 10;
+		((J2DPicture*)scenarioPics[2])
+		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
+		                                                    + 0xA8))[d1]
+		                        ->mTexInfo,
+		                    0);
+		if (flagMgr->getShineFlag(stageShineTables[_13A][0])) {
+			J2DPane* p = mScreen->search('sc_s');
+			p->mVisible = true;
+		}
+	}
+
+	s8 shines = 0;
+	for (s32 i = 1; i < 3; i++) {
+		if (flagMgr->getShineFlag(stageShineTables[_13A][i]))
+			shines++;
+	}
+	if (shines == 0) {
+		J2DPane* p = mScreen->search('sc_0');
+		// vtable+0x10 second virtual: probably setVisible or similar
+		(*(void (**)(J2DPane*, s32, s32))(*(u32*)p + 0x10))(p, 0x53, 0);
+		J2DPane* pi = mScreen->search('r_i');
+		pi->mVisible = false;
+	} else if (shines == 1) {
+		J2DPane* p = mScreen->search('r_s2');
+		p->mVisible = false;
+	}
+
+	// 'sc_mark_1.bti' / 'sc_mark_0.bti'
+	JUTTexture* tex1 = new JUTTexture(
+	    (const ResTIMG*)JKRFileLoader::getGlbResource(
+	        "/select/timg/sc_mark_1.bti"));
+	*(JUTTexture**)((u8*)this + 0xD0) = tex1;
+	JUTTexture* tex0 = new JUTTexture(
+	    (const ResTIMG*)JKRFileLoader::getGlbResource(
+	        "/select/timg/sc_mark_0.bti"));
+	*(JUTTexture**)((u8*)this + 0xD4) = tex0;
+
+	*(u8*)((u8*)this + 0x160) = 0xFF;
+	*(u8*)((u8*)this + 0x161) = 0;
+	*(u8*)((u8*)this + 0x162) = 0;
+	*(u8*)((u8*)this + 0x163) = 0xFF;
+	*(u8*)((u8*)this + 0x164) = 0xFF;
+	*(u8*)((u8*)this + 0x165) = 0xFF;
+	*(u8*)((u8*)this + 0x166) = 0;
+	*(u8*)((u8*)this + 0x167) = 0xFF;
+	*(s32*)((u8*)this + 0x14) = 2;
+	*(s32*)((u8*)this + 0x18) = 0;
+	*(s32*)((u8*)this + 0x1C) = 4;
+
+	mScreen->search(0x62695F30)->mVisible = false;
+
+	TExPane* exA = new TExPane(
+	    mScreen, (stagePrefixes[_13A] << 8) + 0x30);
+	m30ExPane                  = exA;
+	m30ExPane->mPane->mVisible = true;
+
+	TBoundPane* boundA = new TBoundPane(
+	    mScreen, (stagePrefixes[_13A] << 8) + 0x61);
+	m34ExPane                  = (TExPane*)boundA;
+	m34ExPane->mPane->mVisible = true;
+
+	TBoundPane* boundB = new TBoundPane(
+	    mScreen, (stagePrefixes[_13A] << 8) + 0x62);
+	m38ExPane                  = (TExPane*)boundB;
+	m38ExPane->mPane->mVisible = true;
+
+	_158 = (s32)JKRFileLoader::getGlbResource("/common/2d/stagename.bmg");
+	const char* stageName
+	    = SMSGetMessageData((void*)_158, (u16)stageMsgOffsets[_13A]);
+	strncpy(((J2DTextBox*)m2CPane)->getStringPtr(), stageName, 0x11);
+	((J2DTextBox*)m2CPane)->setFont((JUTFont*)gpSystemFont);
+
+	mStageStates[0] = 2;
+	mStageStates[1] = 2;
+	mStageStates[2] = 2;
+	mStageStates[3] = 2;
+	mStageStates[4] = 2;
+	mStageStates[5] = 2;
+	mStageStates[6] = 2;
+	mStageStates[7] = 2;
+	{
+		s8 i;
+		for (i = 0; i < 8; i++) {
+			s16 shineId = SMS_getShineID(SMS_getShineStage(_13A),
+			                             (u32)i, false);
+			bool flag;
+			if (shineId == -1)
+				flag = false;
+			else
+				flag = TFlagManager::smInstance->getShineFlag(
+				    (u8)shineId);
+			if (flag) {
+				mStageStates[i] = 3;
+				_13C            = (u8)(i + 2);
+			}
+		}
+	}
+	if (_13C > 8)
+		_13C = 8;
+	if (_13C == 0)
+		_13C = 1;
+	{
+		s32 idx = (s32)_13C - 1;
+		if (idx < 0)
+			idx = 0;
+		mScenarioIndex = (u8)idx;
+	}
+
+	{
+		s32 i;
+		for (i = _13C; i < 8; i++)
+			mStageStates[i] = 0;
+	}
+
+	if (_13C > 1) {
+		J2DPane* paneL = mScreen->search(0x615F6C30 + _13C);
+		*(J2DPane**)((u8*)this + 0x104) = paneL;
+		J2DPane* paneR = mScreen->search(0x615F7230 + _13C);
+		*(J2DPane**)((u8*)this + 0x108) = paneR;
+		*(u32*)((u8*)this + 0x110) = *(u32*)((u8*)paneL + 0x14);
+		*(u32*)((u8*)this + 0x114) = *(u32*)((u8*)paneL + 0x18);
+		*(u32*)((u8*)this + 0x118) = *(u32*)((u8*)paneL + 0x1C);
+		*(u32*)((u8*)this + 0x11C) = *(u32*)((u8*)paneL + 0x20);
+		*(u32*)((u8*)this + 0x120) = *(u32*)((u8*)paneR + 0x14);
+		*(u32*)((u8*)this + 0x124) = *(u32*)((u8*)paneR + 0x18);
+		*(u32*)((u8*)this + 0x128) = *(u32*)((u8*)paneR + 0x1C);
+		*(u32*)((u8*)this + 0x12C) = *(u32*)((u8*)paneR + 0x20);
+		if (mScenarioIndex != 0)
+			paneL->mVisible = true;
+		if ((s32)mScenarioIndex != (s32)_13C - 1)
+			paneR->mVisible = true;
+	}
+
+	*(u32*)((u8*)this + 0xDC) = 0;
+	*(u32*)((u8*)this + 0xE0) = 0;
+	*(u32*)((u8*)this + 0xE4) = 0;
+	*(u32*)((u8*)this + 0xE8) = 0;
+	*(u32*)((u8*)this + 0xEC) = 0;
+	*(u32*)((u8*)this + 0xF0) = 0;
+	*(u32*)((u8*)this + 0xF4) = 0;
+	*(u32*)((u8*)this + 0xF8) = 0;
+	if (_13C & 1) {
+		s32 start   = (7 - _13C) / 2;
+		s32 end     = start + (_13C - 1);
+		s32 paneIdx = 0;
+		for (s32 i = start; i <= end; i++) {
+			J2DPane* pane = mScreen->search(0x695F6F30 + i);
+			*(J2DPane**)((u8*)this + 0xDC + paneIdx * 4) = pane;
+			pane->mVisible = true;
+			u8 state = mStageStates[paneIdx];
+			if (state == 2 || state == 1) {
+				((J2DPicture*)pane)
+				    ->insert(*(JUTTexture**)((u8*)this + 0xD4), 0,
+				             1.0f);
+				((J2DPicture*)pane)->remove(1);
+			} else if (state == 0) {
+				pane->mVisible = false;
+			}
+			paneIdx++;
+		}
+	} else {
+		s32 start   = (8 - _13C) / 2;
+		s32 end     = start + (_13C - 1);
+		s32 paneIdx = 0;
+		for (s32 i = start; i <= end; i++) {
+			J2DPane* pane = mScreen->search(0x695F6530 + i);
+			*(J2DPane**)((u8*)this + 0xDC + paneIdx * 4) = pane;
+			pane->mVisible = true;
+			u8 state = mStageStates[paneIdx];
+			if (state == 2 || state == 1) {
+				((J2DPicture*)pane)
+				    ->insert(*(JUTTexture**)((u8*)this + 0xD4), 0,
+				             1.0f);
+				((J2DPicture*)pane)->remove(1);
+			} else if (state == 0) {
+				pane->mVisible = false;
+			}
+			paneIdx++;
+		}
+	}
+
+	_140 = *(s32*)((u8*)mScreen->search(0x695F6F30) + 0x13C);
+	*(u8*)((u8*)this + 0x148) = 0xFF;
+	_144 = *(s32*)((u8*)mScreen->search(0x695F6F32) + 0x13C);
+	*(u8*)((u8*)this + 0x149)
+	    = *(u8*)((u8*)mScreen->search(0x695F6F32) + 0xCC);
+	*(s32*)((u8*)mScreen->search(0x695F6F30) + 0x13C) = _144;
+	*(u8*)((u8*)mScreen->search(0x695F6F30) + 0xCC)
+	    = *(u8*)((u8*)this + 0x149);
+
+	*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC + mScenarioIndex * 4))
+	        + 0x13C)
+	    = _140;
+	*(u8*)((u8*)(*(J2DPane**)((u8*)this + 0xDC + mScenarioIndex * 4))
+	       + 0xCC)
+	    = *(u8*)((u8*)this + 0x148);
+
+	((J2DPicture*)*(J2DPane**)((u8*)this + 0x48))
+	    ->insert(*(JUTTexture**)((u8*)this + 0x80 + mScenarioIndex * 4),
+	             0, 1.0f);
+	((J2DPicture*)*(J2DPane**)((u8*)this + 0x48))->remove(1);
+	((J2DPicture*)*(J2DPane**)((u8*)this + 0x4C))
+	    ->insert(*(JUTTexture**)((u8*)this + 0x80 + mScenarioIndex * 4),
+	             0, 1.0f);
+	((J2DPicture*)*(J2DPane**)((u8*)this + 0x4C))->remove(1);
+
+	{
+		char buf[256];
+		snprintf(buf, 0xFE, "/common/2d/scenarioname.bmg");
+		_15C = (s32)JKRFileLoader::getGlbResource(buf);
+	}
+	((J2DTextBox*)*(J2DPane**)((u8*)this + 0x44))
+	    ->setFont((JUTFont*)gpSystemFont);
+	((J2DTextBox*)*(J2DPane**)((u8*)this + 0x6C))
+	    ->setFont((JUTFont*)gpSystemFont);
+
+	{
+		u8 scIdx = mScenarioIndex;
+		s16 shineId
+		    = SMS_getShineID(SMS_getShineStage(_13A), (u32)scIdx, false);
+		const char* scName = SMSGetMessageData(
+		    (void*)_15C, (u16)scScenarioNameTable[shineId]);
+		strncpy(((J2DTextBox*)*(J2DPane**)((u8*)this + 0x44))
+		            ->getStringPtr(),
+		        scName, 0x7F);
 	}
 }
 
