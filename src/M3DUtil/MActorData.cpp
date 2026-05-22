@@ -70,6 +70,7 @@ void MActorAnmDataBase::sortByFileNameRaw(void** param_1)
 }
 
 MActorAnmData::MActorAnmData()
+    : unk0(0)
 {
 	unk2C = nullptr;
 	unk30 = nullptr;
