@@ -59,8 +59,8 @@ TCameraOption::TCameraOption(JGeometry::TVec3<f32> center,
 	unk30.z   = 0.0f;
 	unk3C     = outPos;
 
-	s16 yaw   = CLBRoundf<s16>(-13289.245f);
-	s16 pitch = CLBRoundf<s16>(9830.4f);
+	s16 pitch = CLBRoundf<s16>(-13289.245f);
+	s16 yaw   = CLBRoundf<s16>(9830.4f);
 	CLBPolarToCross(center, &unk18, 1000.0f, yaw, pitch);
 
 	outPos->x = unk18.x;
@@ -74,9 +74,9 @@ TCameraOption::TCameraOption(JGeometry::TVec3<f32> center,
 	if (mapTool != nullptr) {
 		JGeometry::TVec3<f32> tmp;
 		mapTool->calcPosAndAt(&tmp, &unk24);
-		s16 ang = CLBRoundf<s16>(182.04445f * mapTool->unk18.y);
+		s16 ang = CLBRoundf<s16>(mapTool->unk18.y * 182.04445f);
 		s16 pi  = CLBRoundf<s16>(10922.667f);
-		CLBPolarToCross(tmp, &unk30, 1000.0f, ang, pi);
+		CLBPolarToCross(tmp, &unk30, 1000.0f, pi, ang);
 	}
 }
 
