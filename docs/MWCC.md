@@ -36,6 +36,56 @@ them in future ticks.
 
 ## Settled
 
+### Empty-body ctor with declared fields — fields MUST be initialized in body or init list to match
+
+**Rule:** An empty ctor body (`Foo::Foo() { }` or `Foo::Foo(...) : Parent(...) { }`)
+will NOT initialize declared member fields. Target asm consistently shows
+explicit `stw`/`stfs` stores at field offsets after the parent ctor call —
+those stores require **explicit assignments in the source**. Skipping
+fields (even if the class declares them) is a top cause of 60-90% near-matches
+on small ctors.
+
+When the field is at offset 0 (i.e., before the vtable / before any inherited
+fields), it must be in the **initializer list** to fire before parent member
+inits (e.g., before an embedded TList's ctor). Body assignments are too late
+in this case.
+
+When the field is at higher offset, body assignments are fine — MWCC emits
+them in source order.
+
+Heuristic for what to add: in the diff, find missing stw/stfs/stb instructions
+at offsets that map to declared member fields. The source code IS missing
+those assignments. Check the field type to pick the right init value:
+- ptr/int slot stored as `0`: `field = nullptr` or `= 0`
+- `lfs f0, @const_zero` stored as 0.0f: `field = 0.0f`
+- Non-zero literal (like `li r0, 0x3`): use that literal value
+- Stored argument register value: use the constructor parameter
+
+**Where observed:**
+- `Enemy/hamukuri::TBossDangoHamuKuri::TBossDangoHamuKuri` — `unk238(0)`
+  added to init list, ctor 97.22% → 100% and inlined caller
+  `createEnemyInstance` 91.76% → 100%.
+- `M3DUtil/MActorData::MActorAnmData::MActorAnmData` — `unk0` (offset 0,
+  before TList unk1C) added to **init list**, 83.88% → 99.88%. Body
+  assignment was wrong because TList ctor must run AFTER unk0 = 0.
+- `MSound/MAnmSound::MAnmSound` — inherited field `mData = nullptr`
+  (offset 0x90 in JAIAnimeSound), 84.71% → 100%.
+- `Animal/fishoid::TRealoid::TRealoid` — also revealed pattern of `mActors`
+  init that was wrong; real ctor was `onLiveFlag(0x38)`, 90.86% → 100%.
+- `MoveBG/Item::TCoinRed::TCoinRed` — 3 new f32 fields at 0x158-0x160
+  (only on TCoinRed, not TCoin / TFlowerCoin), 88.89% → 96.67%.
+- `Map/PollutionLayer::TPollutionLayerWallBase::ctor` — unkAC, unkB0,
+  83.33% → 100%.
+- `MoveBG/MapObjTrap::TLampTrapSpike::ctor` — unk138=3, unk13C/140=0,
+  74.55% → 100%.
+- `Animal/Butterfly::TButterfloid::ctor` — 3 fields including
+  `unk158 = count` (ctor arg), 60.12% → 100%.
+- `MoveBG/MapObjMare::TCogwheel::ctor` — same fields all initialized,
+  but **field-init order** matters: reordering body to put scalar
+  fields BEFORE the TVec3::zero() calls 94.06% → 100%. (TVec3 zero
+  produces multiple stfs in source-line position; non-TVec3 stores
+  hoisted by MWCC if before/after a function call differs.)
+
 ### `static const GXColor c = {...}` + `GXColor local = c;` preserves the intermediate stash–reload pattern
 
 **Rule:** When passing a small (≤ 4-byte) struct by value through a stack
