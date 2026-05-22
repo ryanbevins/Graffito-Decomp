@@ -85,32 +85,58 @@ TSelectMenu::TSelectMenu(const char* name)
     : JDrama::TViewObj(name)
 {
 	mState = 0;
-	_58    = JUTRect();
-	_110   = JUTRect();
-	_120   = JUTRect();
+	*(u32*)((u8*)this + 0x20) = 0;
+	*(u32*)((u8*)this + 0x24) = 0;
+	*(u32*)((u8*)this + 0x28) = 0;
+	*(u32*)((u8*)this + 0x2C) = 0;
+	*(u32*)((u8*)this + 0x30) = 0;
+	*(u32*)((u8*)this + 0x38) = 0;
+	*(u32*)((u8*)this + 0x3C) = 0;
+	*(u32*)((u8*)this + 0x40) = 0;
+	*(u32*)((u8*)this + 0x44) = 0;
+	*(u32*)((u8*)this + 0x48) = 0;
+	*(u32*)((u8*)this + 0x4C) = 0;
+	*(u32*)((u8*)this + 0x50) = 0;
+	*(u8*)((u8*)this + 0x54)  = 0;
+	((JUTRect*)_58)->set(0, 0, 0, 0);
 
-	mShineManager = nullptr;
-	mDir          = nullptr;
-	mGamePad      = nullptr;
-	_138          = 0;
-	_139          = 0;
-	_13A          = 0;
+	*(u32*)((u8*)this + 0x68) = 0;
+	*(u32*)((u8*)this + 0x6C) = 0;
+	*(u32*)((u8*)this + 0x70) = 0;
+	*(u32*)((u8*)this + 0x74) = 0;
+	*(u32*)((u8*)this + 0x78) = 0;
+	*(u16*)((u8*)this + 0x7C) = 0;
+	*(u32*)((u8*)this + 0xA0) = 0;
+	*(u32*)((u8*)this + 0xA4) = 0;
+	*(u32*)((u8*)this + 0xD0) = 0;
+	*(u32*)((u8*)this + 0xD4) = 0;
+	*(u8*)((u8*)this + 0xD8)  = 1;
+	*(u32*)((u8*)this + 0x104) = 0;
+	*(u32*)((u8*)this + 0x108) = 0;
+	*(u8*)((u8*)this + 0x10C)  = 1;
+	*(u8*)((u8*)this + 0x10D)  = 0;
+	((JUTRect*)_110)->set(0, 0, 0, 0);
+
+	((JUTRect*)_120)->set(0, 0, 0, 0);
+	_138 = 0;
+	_139 = 0;
+	_13A = 0;
 	mScenarioIndex = 0;
-	_13C          = 0;
-	_140          = -1;
-	_144          = -1;
-	_148          = 0;
-	_149          = 0;
-	_14A          = 0;
-	_14B          = 0;
-	_14C          = 0.0f;
-	_158          = 0;
-	_15C          = 0;
-	_160          = -1;
-	_164          = -1;
-	_168          = 200;
-	_16A          = 200;
-	_16C          = 10;
+	_13C = 0;
+	_140 = -1;
+	_144 = -1;
+	_148 = 0;
+	_149 = 0;
+	_14A = 0;
+	_14B = 0;
+	_14C = 0.0f;
+	_158 = 0;
+	_15C = 0;
+	_160 = -1;
+	_164 = -1;
+	_168 = 200;
+	_16A = 200;
+	_16C = 10;
 }
 
 void TSelectGrad::perform(u32 flags, JDrama::TGraphics* gfx)

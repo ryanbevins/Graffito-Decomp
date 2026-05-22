@@ -32,12 +32,12 @@ public:
 public:
 	/* 0x10 */ u32 mState;
 	/* 0x14 */ u8 _14[0x58 - 0x14];
-	/* 0x58 */ JUTRect _58;
+	/* 0x58 */ u8 _58[0x68 - 0x58]; // JUTRect, set() in body
 	/* 0x68 */ u8 _68[0x100 - 0x68];
 	/* 0x100 */ TMarioGamePad* mGamePad;
 	/* 0x104 */ u8 _104[0x110 - 0x104];
-	/* 0x110 */ JUTRect _110;
-	/* 0x120 */ JUTRect _120;
+	/* 0x110 */ u8 _110[0x120 - 0x110]; // JUTRect, set() in body
+	/* 0x120 */ u8 _120[0x130 - 0x120]; // JUTRect, set() in body
 	/* 0x130 */ TSelectShineManager* mShineManager;
 	/* 0x134 */ TSelectDir* mDir;
 	/* 0x138 */ u8 _138;
