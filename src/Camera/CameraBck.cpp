@@ -19,7 +19,7 @@ static const char* sAddBckFileNameTable[] = {
 
 void TCameraBck::setFrame(f32 frame)
 {
-	if (mActor->getCurAnmIdx(0) != -1) {
+	if ((mActor->getCurAnmIdx(0) != -1) ? true : false) {
 		J3DFrameCtrl* ctrl = mActor->getFrameCtrl(0);
 		if (ctrl != nullptr) {
 			ctrl->setFrame(frame);
