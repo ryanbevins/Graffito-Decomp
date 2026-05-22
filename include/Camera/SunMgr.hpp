@@ -13,7 +13,7 @@ public:
 	TSunMgr(const char*);
 	void load(JSUMemoryInputStream&);
 	void perform(unsigned long, JDrama::TGraphics*);
-	void getAddColor() const;
+	s32 getAddColor() const;
 	void drawSyncCallback(unsigned short);
 	~TSunMgr();
 

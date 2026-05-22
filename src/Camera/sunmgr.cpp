@@ -33,13 +33,12 @@ TSunMgr::~TSunMgr() { }
 
 void TSunMgr::drawSyncCallback(unsigned short token) { (void)token; }
 
-void TSunMgr::getAddColor() const
+s32 TSunMgr::getAddColor() const
 {
-	if (unk14) {
-		f32 alpha = gpSunModel->unkAC;
-		(void)alpha;
-		// Original returns via r3 as int (color packed?)
-	}
+	s32 alpha = 0;
+	if (unk14)
+		alpha = (s32)gpSunModel->unkAC;
+	return alpha;
 }
 
 void TSunMgr::perform(unsigned long flags, JDrama::TGraphics* gfx)
