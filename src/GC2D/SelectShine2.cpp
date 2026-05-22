@@ -292,8 +292,8 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 TSelectShine::TSelectShine(J3DModelData* modelData, J3DAnmColor* anmColor,
                            JPAEmitterManager* emitterMgr,
                            JGeometry::TVec3<f32>& position, s16 angle,
-                           u8 type, f32 unk28Init, f32 unk2CInit,
-                           f32 unk30Init)
+                           u8 type, f32 unk28Init, f32 unk30Init,
+                           f32 unk2CInit)
 {
 	unk24       = 0;
 	unk28       = 0.0f;
@@ -317,7 +317,7 @@ TSelectShine::TSelectShine(J3DModelData* modelData, J3DAnmColor* anmColor,
 	mModel    = new J3DModel(modelData, 0, 1);
 	mAnmColor = anmColor;
 	mPos.set(position);
-	unk18.zero();
+	unk18.set(0.0f, 0.0f, 0.0f);
 	mEmitterMgr = emitterMgr;
 	unk30       = unk30Init;
 	unk2C       = unk2CInit;
