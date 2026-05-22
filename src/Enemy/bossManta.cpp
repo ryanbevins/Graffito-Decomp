@@ -1023,7 +1023,6 @@ TBossMantaManager::TBossMantaManager(const char* name)
     : TEnemyManager(name)
     , mEfbAlpha(nullptr)
     , unk80(0)
-    , mShadowAlphaTimer(0)
     , mBattleState(this)
     , mMessageState(this)
 {
