@@ -1113,6 +1113,27 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Local-static `$localstatic0$<fn>` mangling on a non-inlined function.**
+  Symptom: target's `calcTowerCenterPos___15CPolarSubCameraFP3Vec`
+  is a 296-byte OUT-OF-LINE function (not inlined into its sole
+  caller) yet its local static is mangled with the
+  `<varname>$localstatic0$<funcname>` form — the same suffix used
+  by symbols inside *successfully-inlined* functions like
+  `drawJetCoasterBalloonMessage_`'s `sFixCameraPos`. In our build,
+  the same source produces `<varname>$<counter>` (e.g.
+  `sPositionNameTable$562`) for a non-inlined function. Adding
+  `inline` to the declaration **does** flip mangling to
+  `$localstatic0$<fn>`, but it ALSO causes MWCC to fully inline the
+  function into its caller — losing the out-of-line copy and
+  regressing the caller's match by ~20pp. `#pragma dont_inline on`
+  around the definition does not prevent the inlining when `inline`
+  is on the declaration. So we have a forced choice between
+  *correct symbol mangling* and *correct codegen layout*. What
+  source pattern in the target preserves both? Candidates worth
+  trying: `__inline` (MWCC-extension keyword?), inline-then-extern-template,
+  defining within an anonymous namespace, or some `-inline` flag we
+  haven't tested. Affected TUs: CameraNormal (calcTowerCenterPos +
+  caller ctrlNormalOrTowerCamera_, ~20-byte rodata/data mismatch).
 - **`TTimeRec::startTimer` callers gain +16 bytes of stack frame.** Symptom: any
   function that calls `startTimer__9TTimeRecFv` (or `endTimer`) inflates its frame by
   exactly 0x10. The offending bytes don't correspond to any local in the source. Is

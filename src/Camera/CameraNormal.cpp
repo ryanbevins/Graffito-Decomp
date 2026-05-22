@@ -11,11 +11,6 @@
 #include <System/MarioGamePad.hpp>
 #include <System/PositionHolder.hpp>
 
-static const char* sPositionNameTable[] = {
-	"塔カメラＡ中心", "塔カメラＢ中心", "塔カメラＣ中心",
-	"塔カメラＤ中心", "塔カメラＥ中心",
-};
-
 template <> s16 CLBEaseInInbetween<s16>(s16 a, s16 b, f32 ratio)
 {
 	return CLBTwoDegreeGeneralInbetween<s16>(a, b, ratio, (f32)(b - a));
@@ -23,6 +18,10 @@ template <> s16 CLBEaseInInbetween<s16>(s16 a, s16 b, f32 ratio)
 
 void CPolarSubCamera::calcTowerCenterPos_(Vec* out)
 {
+	static const char* sPositionNameTable[] = {
+		"塔カメラＡ中心", "塔カメラＢ中心", "塔カメラＣ中心",
+		"塔カメラＤ中心", "塔カメラＥ中心",
+	};
 	const char* name = nullptr;
 	switch (mMode) {
 	case 0x27: name = sPositionNameTable[0]; break;
