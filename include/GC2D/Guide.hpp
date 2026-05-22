@@ -5,6 +5,7 @@
 #include <JSystem/JUtility/JUTRect.hpp>
 
 class JKRMemArchive;
+class J2DPane;
 class J2DScreen;
 class J2DPicture;
 class TBoundPane;
@@ -40,7 +41,8 @@ public:
 	/* 0x164 */ u8 unk164;
 	/* 0x165 */ u8 _165[0x218 - 0x165];
 	/* 0x218 */ JUTRect _218[22];
-	/* 0x378 */ u8 _378[0x434 - 0x378];
+	/* 0x378 */ u8 _378[0x430 - 0x378];
+	/* 0x430 */ J2DPane* _430;
 	/* 0x434 */ JUTRect _434;
 	/* 0x444 */ u8 _444[0x480 - 0x444];
 	/* 0x480 */ s32 _480;

@@ -1,10 +1,15 @@
 #include <GC2D/Guide.hpp>
 #include <GC2D/BoundPane.hpp>
+#include <Player/MarioAccess.hpp>
 #include <System/Application.hpp>
+#include <System/FlagManager.hpp>
+#include <System/MarDirector.hpp>
 #include <System/StageUtil.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
+#include <JSystem/J2D/J2DPane.hpp>
+#include <JSystem/J2D/J2DScreen.hpp>
 #include <JSystem/JUtility/JUTRect.hpp>
 
 static u8 setup_wait;
@@ -13,7 +18,47 @@ void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx) { }
 
 void TGuide::appearGuidePane(int idx) { }
 
-void TGuide::placeMario() { }
+void TGuide::placeMario()
+{
+	if (SMS_getShineStage(gpMarDirector->mMap) != 1) {
+		_430->mVisible = false;
+		return;
+	}
+
+	JGeometry::TVec3<f32> mpos = *gpMarioPos;
+	int rangeX                 = _434.x2 - _434.x1;
+	int rangeY                 = _434.y2 - _434.y1;
+	mpos.x                     = mpos.x * (f32)rangeX / 25000.0f;
+	mpos.y                     = 0.0f;
+	mpos.z                     = mpos.z * (f32)rangeY / 21200.0f;
+
+	J2DPane* pane = _430;
+	int paneW     = pane->mBounds.x2 - pane->mBounds.x1;
+	int paneH     = pane->mBounds.y2 - pane->mBounds.y1;
+	int destX
+	    = (int)(mpos.x + 0.5f * (f32)rangeX - 0.5f * (f32)paneW - 2.0f);
+	int destY = (int)(mpos.z + 0.5f * (f32)rangeY + 0.5f * (f32)paneH);
+
+	if (destX > rangeX - paneW)
+		destX = rangeX - paneW;
+	if (destX < 0)
+		destX = 0;
+	if (destY > rangeY - paneH)
+		destY = rangeY - paneH;
+	if (destY < 0)
+		destY = 0;
+
+	pane->mVisible = true;
+	_430->move(destX, destY);
+
+	for (int i = 2; i < 10; i++) {
+		if (TFlagManager::smInstance->getBool(0x103A5 + i)) {
+			unkBC->search('01g1' + (i - 2))->mVisible = true;
+		} else {
+			unkBC->search('01g1' + (i - 2))->mVisible = false;
+		}
+	}
+}
 
 void TGuide::changeBotStatus(int idx) { }
 
