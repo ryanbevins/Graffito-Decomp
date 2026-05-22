@@ -375,6 +375,7 @@ void THaneHamuKuriManager::createAnmData() { TObjManager::createAnmData(); }
 TDoroHaneKuriManager::TDoroHaneKuriManager(const char* name)
     : THaneHamuKuriManager(name)
 {
+	unk74 = nullptr;
 }
 
 void TDoroHaneKuriManager::load(JSUMemoryInputStream& stream)
