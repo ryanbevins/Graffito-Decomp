@@ -85,7 +85,8 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		    = gpItemManager->getObjNumWithActorType(0x40000132);
 
 		if (unk2B8->unk38 > 2) {
-			if (--unk2B8->unk38 == 2) {
+			--unk2B8->unk38;
+			if (unk2B8->unk38 == 2) {
 				unk2B8->unk38 = 1;
 				gpMarDirector->setNextStage(0xE05, nullptr);
 			}
@@ -109,7 +110,7 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 					msgId = 0xE002A;
 					break;
 				case 0x3A98:
-					if ((balloonCount - flagState) >= 7)
+					if ((u32)(balloonCount - flagState) >= 7)
 						msgId = 0xE002B;
 					else
 						msgId = 0xE002C;
@@ -159,23 +160,15 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		}
 
 		JGeometry::TVec3<f32> at;
-		at.x = unk8C.x;
-		at.y = unk8C.y;
-		at.z = unk8C.z;
+		at = unk8C;
 
 		s16 yawAngle   = unkA4 + getOffsetAngleX();
 		s16 pitchAngle = unkA6 + getOffsetAngleY();
 
 		MtxPtr mtx = getToroccoMtx_();
 
-		JGeometry::TVec3<f32> col0;
-		col0.x = mtx[0][0];
-		col0.y = mtx[1][0];
-		col0.z = mtx[2][0];
-		JGeometry::TVec3<f32> col1;
-		col1.x = mtx[0][1];
-		col1.y = mtx[1][1];
-		col1.z = mtx[2][1];
+		JGeometry::TVec3<f32> col0(mtx[0][0], mtx[1][0], mtx[2][0]);
+		JGeometry::TVec3<f32> col1(mtx[0][1], mtx[1][1], mtx[2][1]);
 
 		*(f32*)((u8*)this + 0x30) = col1.x;
 		*(f32*)((u8*)this + 0x34) = col1.y;
