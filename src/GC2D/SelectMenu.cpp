@@ -282,7 +282,104 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			mState = 8;
 			break;
 		}
-		break;
+
+		if (buttons & 0x8) {
+			if (getPrevIndex() < 0)
+				break;
+			if (gpMSound->gateCheck(0x4856))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(
+				    0x4856, 0, nullptr, 0);
+			s8  newIdx = getPrevIndex();
+			s32 dist   = (s32)mScenarioIndex - (s32)(u8)newIdx;
+			mShineManager->startDecrease(dist);
+			*(u8*)((u8*)this + 0x54) = 0;
+
+			m68ExPane->mPane->mVisible = true;
+			m68ExPane->mPane->mAlpha   = 0;
+			m68ExPane->setPaneAlpha(10, 255, 0);
+			s16 d = *(s16*)((u8*)this + 0x7C);
+			m68ExPane->setPaneOffset(10, -d, 0, -2 * d, 0);
+
+			m40ExPane->mPane->mVisible = true;
+			m40ExPane->mPane->mAlpha   = 0xFF;
+			m40ExPane->setPaneAlpha(10, 0, 255);
+			m40ExPane->setPaneOffset(10, d, 0, 0, 0);
+
+			J2DPicture* p70
+			    = *(J2DPicture**)((u8*)this + 0x70);
+			JUTTexture* tNew = *(JUTTexture**)((u8*)this + 0x80
+			                                   + (u32)(u8)newIdx * 4);
+			p70->insert(tNew, 0, 1.0f);
+			p70->remove(1);
+			J2DPicture* p74
+			    = *(J2DPicture**)((u8*)this + 0x74);
+			p74->insert(tNew, 0, 1.0f);
+			p74->remove(1);
+			J2DPicture* p48
+			    = *(J2DPicture**)((u8*)this + 0x48);
+			JUTTexture* tCur = *(JUTTexture**)(
+			    (u8*)this + 0x80 + (u32)mScenarioIndex * 4);
+			p48->insert(tCur, 0, 1.0f);
+			p48->remove(1);
+			J2DPicture* p4C
+			    = *(J2DPicture**)((u8*)this + 0x4C);
+			p4C->insert(tCur, 0, 1.0f);
+			p4C->remove(1);
+
+			s16 shineCur = SMS_getShineID(
+			    SMS_getShineStage(_13A), mScenarioIndex, false);
+			const char* msgCur = (const char*)SMSGetMessageData(
+			    (void*)_15C, (u16)scScenarioNameTable[shineCur]);
+			strncpy(
+			    (*(J2DTextBox**)((u8*)this + 0x44))->getStringPtr(),
+			    msgCur, 0x7F);
+
+			*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			                            + (u32)mScenarioIndex * 4))
+			        + 0x13C)
+			    = _144;
+			*(u8*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			                           + (u32)mScenarioIndex * 4))
+			       + 0xCC)
+			    = _149;
+			mShineManager->mShines[mScenarioIndex]->unk24 = 0;
+
+			mScenarioIndex = (u8)newIdx;
+
+			s16 shineNew = SMS_getShineID(
+			    SMS_getShineStage(_13A), mScenarioIndex, false);
+			const char* msgNew = (const char*)SMSGetMessageData(
+			    (void*)_15C, (u16)scScenarioNameTable[shineNew]);
+			strncpy(
+			    (*(J2DTextBox**)((u8*)this + 0x6C))->getStringPtr(),
+			    msgNew, 0x7F);
+
+			*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			                            + (u32)mScenarioIndex * 4))
+			        + 0x13C)
+			    = _140;
+			*(u8*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			                           + (u32)mScenarioIndex * 4))
+			       + 0xCC)
+			    = _148;
+
+			if (_13C > 1) {
+				if (mScenarioIndex != 0) {
+					u8* p
+					    = (u8*)*(u32*)((u8*)this + 0x104) + 0xC;
+					if (*p == 0)
+						*p = 1;
+				}
+				if (mScenarioIndex != _13C - 1) {
+					u8* p
+					    = (u8*)*(u32*)((u8*)this + 0x108) + 0xC;
+					if (*p == 0)
+						*p = 1;
+				}
+			}
+
+			mState = 7;
+		}
 	}
 	case 7:
 		break;
