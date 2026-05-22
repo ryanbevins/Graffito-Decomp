@@ -1876,6 +1876,7 @@ void TDangoHamuKuri::swingBody()
 
 TBossDangoHamuKuri::TBossDangoHamuKuri(const char* name)
     : TDangoHamuKuri(name)
+    , unk238(0)
 {
 }
 
