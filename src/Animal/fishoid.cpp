@@ -51,7 +51,7 @@ TRealoid::TRealoid(const char* name)
     : TSpineEnemy(name)
 {
 	mBoidLeader = nullptr;
-	mActors     = nullptr;
+	onLiveFlag(0x38);
 }
 
 void TRealoid::loadDefault(JSUMemoryInputStream& stream, const char* name,
