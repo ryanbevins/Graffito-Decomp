@@ -154,7 +154,7 @@ void TPauseMenu2::appearWindow()
 {
 	if (unkEC <= 45.0f) {
 		for (int i = 0; i < 5; i++) {
-			drawAppearPane(nullptr, (f32)i, unk34[i],
+			drawAppearPane((J2DPicture*)unk20[i], (f32)i, unk34[i],
 			               180.0f + unk84[i] - 5.0f * ((f32)i - (45.0f - unkEC)) - 9.0f * unkEC);
 		}
 
@@ -524,8 +524,7 @@ void TPauseMenu2::drawAppearPane(J2DPicture* pic, f32 time, JUTRect& rect,
 	}
 
 	if (time == 2.0f) {
-		JUTRect local;
-		local.copy(rect);
+		JUTRect local = ((J2DPane*)pic)->mGlobalBounds;
 		JGeometry::TVec3<f32> pos;
 		pos.set((f32)local.x1 + 0.5f * (f32)(local.x2 - local.x1),
 		        (f32)local.y1 + 0.5f * (f32)(local.y2 - local.y1), 0.0f);
@@ -544,7 +543,7 @@ void TPauseMenu2::drawAppearPane(J2DPicture* pic, f32 time, JUTRect& rect,
 	pic->mBounds   = r;
 
 	s32 alpha = (s32)(12.8f * time);
-	if (alpha > 0xff) {
+	if ((u16)alpha > 0xff) {
 		alpha = 0xff;
 	}
 	pic->mAlpha = (u8)alpha;
