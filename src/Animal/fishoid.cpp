@@ -63,7 +63,7 @@ void TRealoid::loadDefault(JSUMemoryInputStream& stream, const char* name,
 }
 
 TRealoidActor::TRealoidActor(MActor* actor)
-    : TTakeActor(nullptr)
+    : TTakeActor("boid")
 {
 	(void)actor;
 	mMActor = actor;
