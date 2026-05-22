@@ -82,8 +82,9 @@ TBasicWaveBank::TWaveHandle* TBasicWaveBank::getWaveHandle(u32 id) const
 	if (id >= unk8)
 		return nullptr;
 
-	if (unk4[id])
-		return &unk4[id]->mWaveHandle;
+	TWaveInfo* info = unk4[id];
+	if (info != nullptr)
+		return (TWaveHandle*)info;
 
 	return nullptr;
 }
