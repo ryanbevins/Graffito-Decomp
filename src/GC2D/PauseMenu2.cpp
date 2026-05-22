@@ -119,7 +119,8 @@ void TPauseMenu2::loadAfter()
 	unk118 = JDrama::TNameRefGen::search<TCardSave>(
 	    "\x83\x66\x81\x5B\x83\x5E\x83\x5A\x81\x5B\x83\x75");
 
-	unkE4 = unk98[0]->mWhite.toUInt32();
+	JUtility::TColor tmpW(unk98[0]->mWhite.toUInt32());
+	unkE4 = tmpW.toUInt32();
 
 	for (int i = 0; i < unk104; i++) {
 		unkA4[i] = unk98[i]->mBounds;
