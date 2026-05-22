@@ -154,6 +154,11 @@ void TMapWireManager::load(JSUMemoryInputStream& stream)
 TMapWireManager::TMapWireManager(const char* name)
     : JDrama::TViewObj(name)
 {
+	unk10            = 0;
+	unk18            = nullptr;
+	unk1C            = 0;
+	unk24            = nullptr;
+	unk28            = 0;
 	gpMapWireManager = this;
 	mUpperSurface.r  = 0x78;
 	mUpperSurface.g  = 0x78;
