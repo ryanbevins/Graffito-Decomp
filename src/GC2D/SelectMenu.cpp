@@ -20,7 +20,10 @@
 #include <JSystem/JUtility/JUTRect.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <JSystem/JParticle/JPAEmitterManager.hpp>
+#include <JSystem/JGeometry.hpp>
 #include <GC2D/MessageUtil.hpp>
+#include <System/MarioGamePad.hpp>
 #include <System/FlagManager.hpp>
 #include <stdio.h>
 #include <string.h>
@@ -239,8 +242,48 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			mState = 0;
 		_139++;
 		break;
-	case 6:
+	case 6: {
+		u32 buttons = mGamePad->mEnabledFrameMeaning;
+
+		if (buttons & 0x20) {
+			if (gpMSound->gateCheck(0x4855))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(
+				    0x4855, 0, nullptr, 0);
+
+			JUTRect rect = m24ExPane->mPane->mBounds;
+			s32 w1       = rect.x2 - rect.x1;
+			s32 h1       = rect.y2 - rect.y1;
+			s32 frame    = (s32)(30.0f * _14C);
+			m24ExPane->setPaneSize(frame, w1, 224, w1, h1);
+			m24ExPane->setPaneAlpha(frame, 255,
+			                       m24ExPane->mPane->mAlpha);
+
+			rect      = m28ExPane->mPane->mBounds;
+			s32 w2    = rect.x2 - rect.x1;
+			s32 h2    = rect.y2 - rect.y1;
+			m28ExPane->setPaneSize(frame, w2, rect.y2 - 224, w2,
+			                       h2);
+			m28ExPane->setPaneOffset(frame, 0, 224 - rect.y1, 0, 0);
+			m28ExPane->setPaneAlpha(frame, 255,
+			                       m28ExPane->mPane->mAlpha);
+
+			mDir->changeOrder();
+			mShineManager->startClose();
+
+			JGeometry::TVec3<f32> pos(300.0f, 244.0f, 0.0f);
+			JPAEmitterManager*    em = mDir->mEmitterMgr2;
+			s32 firstId
+			    = (mStageStates[mScenarioIndex] == 3) ? 5 : 4;
+			em->createEmitter(pos, firstId, nullptr, nullptr);
+			em->createEmitter(pos, 6, nullptr, nullptr);
+			em->createEmitter(pos, 7, nullptr, nullptr);
+			em->createEmitter(pos, 8, nullptr, nullptr);
+
+			mState = 8;
+			break;
+		}
 		break;
+	}
 	case 7:
 		break;
 	case 8:
