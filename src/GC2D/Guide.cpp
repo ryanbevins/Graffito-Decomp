@@ -718,7 +718,8 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	for (int i = 0; i < 10; i++) {
 		char buf[0xff];
 		snprintf(buf, 0xff, "/guide/timg/coin_number_%d.bti", i);
-		JUTTexture* tex = new JUTTexture();
+		JUTTexture* tex
+		    = (JUTTexture*)::operator new(sizeof(JUTTexture));
 		if (tex != nullptr) {
 			const ResTIMG* img
 			    = (ResTIMG*)JKRFileLoader::getGlbResource(buf);
@@ -756,7 +757,8 @@ void TGuide::load(JSUMemoryInputStream& stream)
 		*(J2DPicture**)((u8*)this + 0x11C + i * 4) = p;
 	}
 
-	JUTTexture* cuiTex = new JUTTexture();
+	JUTTexture* cuiTex
+	    = (JUTTexture*)::operator new(sizeof(JUTTexture));
 	if (cuiTex != nullptr) {
 		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
 		    "/guide/timg/guide_cursor_2.bti");
@@ -812,7 +814,7 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	_474 = JKRFileLoader::getGlbResource("/common/2d/stagename.bmg");
 
 	_134 = (J2DPicture*)unkBC->search('10');
-	JUTTexture* texSun = new JUTTexture();
+	JUTTexture* texSun = (JUTTexture*)::operator new(sizeof(JUTTexture));
 	if (texSun != nullptr) {
 		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
 		    "/guide/timg/guide_draw_sun_2.bti");
@@ -823,7 +825,7 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	_134->insert(texSun, _134->mTextureNum, 0.0f);
 
 	_138 = (J2DPicture*)unkBC->search('13');
-	JUTTexture* texShip = new JUTTexture();
+	JUTTexture* texShip = (JUTTexture*)::operator new(sizeof(JUTTexture));
 	if (texShip != nullptr) {
 		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
 		    "/guide/timg/guide_draw_ship_2.bti");
@@ -834,7 +836,7 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	_138->insert(texShip, _138->mTextureNum, 0.0f);
 
 	_13C = (J2DPicture*)unkBC->search('16');
-	JUTTexture* texPalm2 = new JUTTexture();
+	JUTTexture* texPalm2 = (JUTTexture*)::operator new(sizeof(JUTTexture));
 	if (texPalm2 != nullptr) {
 		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
 		    "/guide/timg/guide_draw_palmtree_2.bti");
@@ -845,7 +847,7 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	_13C->insert(texPalm2, _13C->mTextureNum, 0.0f);
 
 	_140 = (J2DPicture*)unkBC->search('17');
-	JUTTexture* texPalm1 = new JUTTexture();
+	JUTTexture* texPalm1 = (JUTTexture*)::operator new(sizeof(JUTTexture));
 	if (texPalm1 != nullptr) {
 		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
 		    "/guide/timg/guide_draw_palmtree_1.bti");
@@ -856,7 +858,7 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	_140->insert(texPalm1, _140->mTextureNum, 0.0f);
 
 	_144 = (J2DPicture*)unkBC->search('18');
-	JUTTexture* texFish = new JUTTexture();
+	JUTTexture* texFish = (JUTTexture*)::operator new(sizeof(JUTTexture));
 	if (texFish != nullptr) {
 		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
 		    "/guide/timg/guide_draw_fish_2.bti");
