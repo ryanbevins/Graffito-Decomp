@@ -2,6 +2,7 @@
 #define ENEMY_AREA_CYLINDER_HPP
 
 #include <JSystem/JDrama/JDRViewObj.hpp>
+#include <JSystem/JGadget/std-list.hpp>
 
 class TAreaCylinder : public JDrama::TViewObj {
 public:
@@ -21,13 +22,18 @@ public:
 
 class TAreaCylinderManager : public JDrama::TViewObj {
 public:
-	TAreaCylinderManager(const char* name);
+	TAreaCylinderManager(const char* name)
+	    : JDrama::TViewObj(name)
+	{
+	}
 
 	virtual void perform(u32, JDrama::TGraphics*);
 
-	void registerCylinder(TAreaCylinder*);
-	void contain(const JGeometry::TVec3<f32>&);
+	bool contain(const JGeometry::TVec3<f32>&);
 	TAreaCylinder* getCylinderContains(const JGeometry::TVec3<f32>&);
+
+public:
+	/* 0x10 */ JGadget::TList<TAreaCylinder*> mList;
 };
 
 #endif
