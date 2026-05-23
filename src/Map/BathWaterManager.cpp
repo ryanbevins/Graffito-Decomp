@@ -1303,9 +1303,9 @@ void TBathWaterMeshRenderer::makeNormalMap()
 
 	for (s32 x = 0; x < unk800AC; ++x) {
 		for (s32 z = 0; z < unk800AC; ++z) {
-			s32 x0 = x > 0 ? x - 1 : x;
+			s32 x0 = x > 0 ? x - 1 : 0;
 			s32 x1 = x < unk800AC - 1 ? x + 1 : x;
-			s32 z0 = z > 0 ? z - 1 : z;
+			s32 z0 = z > 0 ? z - 1 : 0;
 			s32 z1 = z < unk800AC - 1 ? z + 1 : z;
 
 			JGeometry::TVec3<f32>& normal = unk30020[x * 0x80 + z];
