@@ -9,11 +9,14 @@
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
+#include <GC2D/MessageUtil.hpp>
 #include <JSystem/J2D/J2DPane.hpp>
 #include <JSystem/J2D/J2DPicture.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
+#include <JSystem/J2D/J2DTextBox.hpp>
 #include <JSystem/JUtility/JUTRect.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
+#include <string.h>
 
 static u8 setup_wait;
 
@@ -101,7 +104,128 @@ void TGuide::placeMario()
 	}
 }
 
-void TGuide::changeBotStatus(int idx) { }
+void TGuide::changeBotStatus(int idx)
+{
+	if (idx == -1 || idx >= 10) {
+		_124->mVisible = false;
+		return;
+	}
+
+	u8* stageData = (u8*)this + 0x14 + idx * 8;
+
+	if (stageData[0] != 0) {
+		_124->mVisible = true;
+		_F4->mVisible  = false;
+
+		s32 blueCount = (s8)stageData[7];
+		if (blueCount < 0)
+			blueCount = 0;
+		if (blueCount > 99)
+			blueCount = 99;
+
+		if (blueCount < 10) {
+			_120->mVisible = false;
+			_11C->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
+		} else {
+			_120->mVisible = true;
+			_11C->changeTexture(_C8[blueCount / 10]->mTexInfo, 0);
+			_120->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
+		}
+
+		unkBC->search('sb_i')->show();
+		unkBC->search('sc_t')->hide();
+		unkBC->search('sq_i')->hide();
+
+		const char* msg = SMSGetMessageData(_474, idx);
+		strncpy(_124->getStringPtr(), msg, 0x1A);
+		return;
+	}
+
+	_124->mVisible = true;
+	_F4->mVisible  = true;
+
+	const char* msg = SMSGetMessageData(_474, idx);
+	strncpy(_124->getStringPtr(), msg, 0x1A);
+
+	s32 shineCount = (s8)stageData[1];
+	if (shineCount < 0)
+		shineCount = 0;
+	if (shineCount > 99)
+		shineCount = 99;
+
+	if (shineCount < 10) {
+		_FC->mVisible = false;
+		_F8->changeTexture(_C8[shineCount]->mTexInfo, 0);
+	} else {
+		_FC->mVisible = true;
+		_FC->changeTexture(_C8[shineCount / 10]->mTexInfo, 0);
+		_F8->changeTexture(_C8[shineCount % 10]->mTexInfo, 0);
+	}
+
+	if (idx > 1 && stageData[2] != 0) {
+		if (stageData[2] == 1) {
+			_100->mVisible = true;
+			_104->mVisible = true;
+			_108->mVisible = false;
+		} else {
+			_100->mVisible = true;
+			_104->mVisible = true;
+			_108->mVisible = true;
+		}
+	} else {
+		_100->mVisible = false;
+		_104->mVisible = false;
+		_108->mVisible = false;
+	}
+
+	s32 deaths = *(s16*)(stageData + 4);
+	if (deaths < 0)
+		deaths = 0;
+	if (deaths > 999)
+		deaths = 999;
+
+	if (deaths < 100) {
+		_114->mVisible = false;
+		_10C->changeTexture(_C8[deaths / 10]->mTexInfo, 0);
+		_110->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
+	} else {
+		_114->mVisible = true;
+		s32 hundreds = deaths / 100;
+		_10C->changeTexture(_C8[hundreds]->mTexInfo, 0);
+		s32 rem = deaths - hundreds * 100;
+		_110->changeTexture(_C8[rem / 10]->mTexInfo, 0);
+		_114->changeTexture(_C8[rem % 10]->mTexInfo, 0);
+	}
+
+	if (stageData[6] != 0) {
+		_118->mVisible = true;
+	} else {
+		_118->mVisible = false;
+	}
+
+	s32 blueCount = (s8)stageData[7];
+	if (blueCount < 0)
+		blueCount = 0;
+	if (blueCount > 99)
+		blueCount = 99;
+
+	if (idx == 0) {
+		unkBC->search('sb_i')->hide();
+		unkBC->search('sc_t')->hide();
+	} else {
+		unkBC->search('sb_i')->show();
+		unkBC->search('sc_t')->show();
+	}
+
+	if (blueCount < 10) {
+		_120->mVisible = false;
+		_11C->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
+	} else {
+		_120->mVisible = true;
+		_11C->changeTexture(_C8[blueCount / 10]->mTexInfo, 0);
+		_120->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
+	}
+}
 
 int TGuide::checkPoint(int x, int y)
 {
