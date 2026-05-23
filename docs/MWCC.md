@@ -36,6 +36,65 @@ them in future ticks.
 
 ## Settled
 
+### `inline static void dummy(Vec* v) { *v = (Vec){...}; }` emits a `Vec` rodata constant *without* a `.text` symbol
+
+**Rule:** A compound-literal `(Vec){a,b,c}` inside an `inline static`
+function body causes MWCC to emit `a`, `b`, `c` as a 12-byte
+rodata constant — *even though the inline function is never called
+and its body is fully DCE'd from `.text`*. Use this as the canonical
+"infectious" lever for materialising unreferenced `Vec`/`TVec3` rodata
+constants that the target ships but our build is missing.
+
+The form `static` (without `inline`) ALSO emits the rodata constant
+but additionally leaves the dummy as a visible local function in
+`.text`, which is the wrong shape for matching most TUs.
+
+```cpp
+// emits {0,0,0} into .rodata; no .text symbol
+inline static void dummy(Vec* v)  { *v = (Vec){ 0.0f, 0.0f, 0.0f }; }
+// emits {1,1,1} into .rodata; no .text symbol
+inline static void dummy2(Vec* v) { *v = (Vec){ 1.0f, 1.0f, 1.0f }; }
+```
+
+**Where observed:**
+- `MoveBG/MapObjManager.cpp:33-34` — original use of the trick;
+  ships `{0,0,0}` (`@2760`) and `{1,1,1}` (`@2762`) in target's
+  rodata at `.rodata:0xE0/0xEC`, unreferenced from `.text`. Note:
+  the source there uses plain `static` (not `inline static`); our
+  build does also emit a visible `dummy/dummy2` function as a
+  result. Worth a future cleanup test (does adding `inline`
+  break MapObjManager's match?).
+- `Map/MapEventSirena.cpp` — adopted **`inline static`** form,
+  added after `M3DUtil/InfectiousStrings.hpp` include. Emits
+  `{0,0,0}`/`{1,1,1}` at `.rodata:0xE0/0xEC` matching target,
+  with NO dummy/dummy2 symbols in `.text`. Promoted from Open
+  questions (tick 70 closed the mystery).
+
+**How it works (mechanism, partly confirmed):**
+The compound literal `(Vec){a,b,c}` is treated by MWCC as a Vec
+*aggregate constant* — it materialises the 12 bytes into rodata
+at parse time. `*v = literal` then becomes `lwz/stw` copies from
+the rodata block. When the function is `inline` and never called,
+MWCC DCEs the body but keeps the rodata (since the rodata isn't
+attributable to the function symbol; it sits in the TU's anonymous
+rodata pool).
+
+**Caveats:**
+- Position of dummies in source does NOT cleanly determine rodata
+  ordering. MWCC numbers rodata symbols by an internal scheme
+  that depends on context (parsing event order, possibly per-TU
+  state), not strictly by source line. Attempting to use this in
+  `MapEventSink.cpp` (added dummies after `InfectiousStrings.hpp`,
+  same as MapObjManager.cpp/MapEventSirena.cpp) placed the new
+  zero/ones constants at `.rodata:0xC/0x18/0x24/0x30` —
+  *before* the `MtxCalcType` strings — making the layout wrong
+  for that TU. The same source-text-level recipe does NOT
+  guarantee the same rodata ordering across different TUs.
+- For TUs where the dummies land in the wrong rodata position,
+  the lever is *not* useful as-is — you need a different way to
+  push the constants past the MtxCalcType strings, or a separate
+  IMPLEMENTATION strategy.
+
 ### Hoist a struct-field read into a local INSIDE a loop, BEFORE a function call, to lock it into a NV-FPR across the call
 
 **Rule:** When the loop body needs `obj.field` *after* a `bl` call but the
@@ -2194,24 +2253,6 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
-- **Unreferenced TVec3 `{0,0,0}` and `{1,1,1}` constants in rodata
-  on MapEventSink-family TUs.** Symptom: target's
-  `mario/Map/MapEventSink.o` rodata has at `.rodata:0xE0` a 12-byte
-  zero block (`@2604`) and at `.rodata:0xEC` a 12-byte block of
-  three `0x3F800000` (1.0f) values (`@2606`). Same pair appears in
-  `MapEventSirena.o` at the same relative positions (`@2585`, `@2587`).
-  Neither constant is referenced from `.text` — they're rodata-only.
-  Our builds of both TUs don't emit them. Effect: rodata above 0xE0
-  shifts 24 bytes earlier in our build, which breaks the `@<zero>+
-  0x140` peephole-trick MWCC uses in watch__19TMapEventSirenaSinkFv
-  to address subsequent rodata strings. Costs ~3pp on watch and
-  similar on parent TU. Mechanism unknown — likely an inline expansion
-  that consumes a TVec3 literal then gets fully eliminated, leaving
-  only the rodata constant. Investigation candidates: TPlacement
-  (and below) initializer-list inline expansion paths, any
-  `JGeometry::TVec3<f>(0.f, 0.f, 0.f)` / `(1.f, 1.f, 1.f)` static-
-  const or temporary in a header reachable from MapEventSink.hpp.
-  Tick 69.
 - **Local-static `$localstatic0$<fn>` mangling on a non-inlined function.**
   Symptom: target's `calcTowerCenterPos___15CPolarSubCameraFP3Vec`
   is a 296-byte OUT-OF-LINE function (not inlined into its sole

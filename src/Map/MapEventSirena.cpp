@@ -17,6 +17,12 @@
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
+// infectious dummies — emit {0,0,0} and {1,1,1} Vec constants into rodata.
+// Mirrors src/MoveBG/MapObjManager.cpp:33-34 and matches target's MapEventSink-
+// family rodata layout (@2585 zero + @2587 ones at .rodata:0xE0/0xEC).
+inline static void dummy(Vec* v) { *v = (Vec) { 0.0f, 0.0f, 0.0f }; }
+inline static void dummy2(Vec* v) { *v = (Vec) { 1.0f, 1.0f, 1.0f }; }
+
 bool TMapEventSirenaSink::watch()
 {
 	if (unk64) {
