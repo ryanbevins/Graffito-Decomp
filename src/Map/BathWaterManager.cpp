@@ -1274,20 +1274,18 @@ inline TBathWaterMeshRenderer::TBathWaterMeshRenderer(TBathWaterGlobalParams* pa
 void TBathWaterMeshRenderer::makeHeightMap(f32 scale)
 {
 	s16 blockCount = unk800AC >> 2;
-	u8* image      = (u8*)unk800A4;
 
-	JGeometry::TVec3<f32> (*grid)[0x80]
-	    = (JGeometry::TVec3<f32>(*)[0x80])unk20;
 	for (s16 bx = 0; bx < blockCount; ++bx) {
 		for (s16 bz = 0; bz < blockCount; ++bz) {
-			u8* block = image + ((bx + bz * blockCount) << 6);
+			u8* block
+			    = (u8*)unk800A4 + ((bx + bz * blockCount) << 6);
 			for (s16 x = 0; x < 4; ++x) {
 				for (s16 z = 0; z < 4; ++z) {
 					u8* texel  = block + x * 2 + z * 8;
 					u16 high   = *(u16*)texel;
 					u16 low    = *(u16*)(texel + 0x20);
 					s32 sample = low | ((high << 16) & 0x00ff0000);
-					grid[x + bx * 4][z + bz * 4].y
+					unk20[(x + bx * 4) * 0x80 + (z + bz * 4)].y
 					    = scale * (5.9604645e-8f * (f32)sample);
 				}
 			}
