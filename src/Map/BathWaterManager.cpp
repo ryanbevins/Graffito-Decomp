@@ -1222,7 +1222,7 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
 	GXSetProjection(graphics->mProjMtx.mMtx, GX_PERSPECTIVE);
 }
 
-TBathWaterMeshRenderer::TBathWaterMeshRenderer(TBathWaterGlobalParams* params,
+inline TBathWaterMeshRenderer::TBathWaterMeshRenderer(TBathWaterGlobalParams* params,
                                                JUTTexture* screen_texture)
     : unk80134(params)
     , unk80138(screen_texture)
