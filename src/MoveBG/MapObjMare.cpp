@@ -1021,7 +1021,8 @@ TMuddyBoat::TMuddyBoat(const char* name)
 }
 void TMareFall::calc()
 {
-	if (gpMSound->gateCheck(0x3007))
+	MSound* sound = gpMSound;
+	if (sound->gateCheck(0x3007))
 		MSoundSESystem::MSoundSE::startSoundActor(
 		    0x3007, (const Vec*)&mPosition, 0, nullptr, 0, 4);
 	if (gpMSound->gateCheck(0x30A2))

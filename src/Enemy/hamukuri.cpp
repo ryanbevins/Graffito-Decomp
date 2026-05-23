@@ -1339,7 +1339,8 @@ BOOL THaneHamuKuri::isReachedToGoal() const
 
 void THaneHamuKuri::attackToMario()
 {
-	if (gpMSound->gateCheck(0x2965))
+	MSound* sound = gpMSound;
+	if (sound->gateCheck(0x2965))
 		MSoundSESystem::MSoundSE::startSoundActor(0x2965, &mPosition, 0,
 		                                          nullptr, 0, 4);
 	sendAttackMsgToMario();

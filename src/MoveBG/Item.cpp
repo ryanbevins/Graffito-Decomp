@@ -372,7 +372,8 @@ void TCoinBlue::makeObjAppeared()
 
 void TCoinBlue::taken(THitActor* param_1)
 {
-	gpMarDirector->fireGetBlueCoin(this);
+	TMarDirector* director = gpMarDirector;
+	director->fireGetBlueCoin(this);
 
 	if (unk148)
 		unk148->receiveMessage(this, HIT_MESSAGE_UNK8);

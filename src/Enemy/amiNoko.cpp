@@ -543,7 +543,8 @@ bool TAmiNoko::isHitValid(u32 msg)
 void TAmiNoko::calcRootMatrix()
 {
 	// Sound check
-	if (gpMSound->gateCheck(0x20F1)) {
+	MSound* sound = gpMSound;
+	if (sound->gateCheck(0x20F1)) {
 		MSoundSESystem::MSoundSE::startSoundActor(
 		    0x20F1, (const Vec*)&mPosition, 0, nullptr, 0, 4);
 	}

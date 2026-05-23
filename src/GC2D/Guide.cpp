@@ -870,7 +870,7 @@ void TGuide::resetObjects()
 				s16 sid = getShineID(stage, i, false);
 				u8 got  = (sid == -1)
 				             ? 0
-				             : TFlagManager::smInstance->getShineFlag((u8)sid);
+				             : TFlagManager::getInstance()->getShineFlag((u8)sid);
 				if (got)
 					shineCount++;
 			}
@@ -884,14 +884,14 @@ void TGuide::resetObjects()
 			s16 sid1 = getShineID(stage, 1, true);
 			u8 got1  = (sid1 == -1)
 			              ? (u8)redCoin
-			              : TFlagManager::smInstance->getShineFlag((u8)sid1);
+			              : TFlagManager::getInstance()->getShineFlag((u8)sid1);
 			if (got1)
 				redCoin = 1;
 
 			s16 sid2 = getShineID(stage, 2, true);
 			u8 got2  = (sid2 == -1)
 			              ? 0
-			              : TFlagManager::smInstance->getShineFlag((u8)sid2);
+			              : TFlagManager::getInstance()->getShineFlag((u8)sid2);
 			if (got2)
 				redCoin++;
 		}
@@ -908,7 +908,7 @@ void TGuide::resetObjects()
 		s16 bossID  = getShineID(stage, 0, true);
 		u8 bossFlag = (bossID == -1)
 		                 ? 0
-		                 : TFlagManager::smInstance->getShineFlag((u8)bossID);
+		                 : TFlagManager::getInstance()->getShineFlag((u8)bossID);
 		stageData[0x1A] = bossFlag;
 		if (stageData[0x1A] != 0)
 			totalAccum++;

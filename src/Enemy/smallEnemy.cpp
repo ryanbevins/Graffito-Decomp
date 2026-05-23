@@ -743,7 +743,8 @@ void TSmallEnemy::scalingChangeActor()
 
 void TSmallEnemy::changeOut()
 {
-	if (gpMSound->gateCheck(0x293D))
+	MSound* sound = gpMSound;
+	if (sound->gateCheck(0x293D))
 		MSoundSESystem::MSoundSE::startSoundActor(0x293D, &mPosition, 0,
 		                                          nullptr, 0, 4);
 
