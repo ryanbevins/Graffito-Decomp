@@ -26,7 +26,8 @@ TMarioSoundValues::TMarioSoundValues()
 
 void TMario::startSoundActor(u32 soundID)
 {
-	if (gpMSound->gateCheck(soundID))
+	MSound* sound = gpMSound;
+	if (sound->gateCheck(soundID))
 		MSoundSESystem::MSoundSE::startSoundActor(soundID, (const Vec*)&mPosition,
 		                                          0, nullptr, 0, 4);
 }
