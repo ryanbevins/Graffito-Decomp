@@ -68,7 +68,7 @@ public:
 	// fabricated
 	TWalkerEnemyParams* getSaveParam2() const
 	{
-		return (TWalkerEnemyParams*)TSpineEnemy::getSaveParam();
+		return (TWalkerEnemyParams*)getSaveParam();
 	}
 
 	// fabricated

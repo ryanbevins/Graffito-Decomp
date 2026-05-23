@@ -171,7 +171,7 @@ public:
 	// fabricated
 	TSmallEnemyParams* getSaveParam2() const
 	{
-		return (TSmallEnemyParams*)TSpineEnemy::getSaveParam();
+		return (TSmallEnemyParams*)getSaveParam();
 	}
 	f32 getUnk158() const { return unk158; }
 	u8 getUnk184() const { return unk184; }

@@ -434,8 +434,9 @@ void TSmallEnemy::setAfterDeadEffect()
 
 void TSmallEnemy::generateItem()
 {
-	if (MsRandF(0.0f, 100.0f) < getSaveParam2()->mSLGenEggRate.get()
-	                                + getSaveParam2()->mSLGenItemRate.get()
+	TSmallEnemyParams* params = getSaveParam2();
+	if (MsRandF(0.0f, 100.0f) < params->mSLGenEggRate.get()
+	                                + params->mSLGenItemRate.get()
 
 	    && !mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL))
 		gpMapObjManager->makeObjAppear(mPosition.x, mGroundHeight, mPosition.z,
@@ -878,10 +879,11 @@ void TSmallEnemy::setBckAnm(int index)
 
 void TSmallEnemy::expandCollision()
 {
-	f32 attackRadius = getSaveParam2()->getSLAttackRadius();
-	f32 attackHeight = getSaveParam2()->getSLAttackHeight();
-	f32 damageRadius = getSaveParam2()->getSLDamageRadius();
-	f32 damageHeight = getSaveParam2()->getSLDamageHeight();
+	TSmallEnemyParams* params = getSaveParam2();
+	f32 attackRadius = params->getSLAttackRadius();
+	f32 attackHeight = params->getSLAttackHeight();
+	f32 damageRadius = params->getSLDamageRadius();
+	f32 damageHeight = params->getSLDamageHeight();
 
 	f32 expansionFactor = unk190 / unk154;
 
