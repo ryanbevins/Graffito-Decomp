@@ -71,9 +71,7 @@ void TAreaCylinder::perform(u32, JDrama::TGraphics*) { }
 static inline bool insideCylinder(const TAreaCylinder* cyl,
                                   const JGeometry::TVec3<f32>& pos)
 {
-	if (pos.y < cyl->unk14)
-		return false;
-	if (cyl->unk14 + cyl->unk20 < pos.y)
+	if (pos.y < cyl->unk14 || cyl->unk14 + cyl->unk20 < pos.y)
 		return false;
 	f32 dx   = pos.x - cyl->unk10;
 	f32 dxSq = dx * dx;
