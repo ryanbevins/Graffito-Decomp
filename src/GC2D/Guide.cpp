@@ -23,9 +23,9 @@ void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx) { }
 
 void TGuide::appearGuidePane(int idx)
 {
-	JUTRect rect1(_218[idx]);
 	_424 = _1C0[idx];
 	_428 = _378[idx];
+	JUTRect rect1(_218[idx]);
 	JUTRect rect2(_168[idx]->unk14);
 
 	_424->mPane->mVisible = true;
