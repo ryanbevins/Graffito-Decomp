@@ -44,7 +44,8 @@ void TAreaCylinder::load(JSUMemoryInputStream& stream)
 
 	int count;
 	stream.read(&count, 4);
-	for (int i = 0; i < count; ++i) {
+	int loopMax = count;
+	for (int i = 0; i < loopMax; ++i) {
 		int v;
 		stream.read(&v, 4);
 		stream.readString();
