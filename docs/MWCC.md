@@ -36,6 +36,56 @@ them in future ticks.
 
 ## Settled
 
+### Use 2D array casts for `arr[i * stride + j]` flat indexing into row-major data
+
+**Rule:** When source has a 1D-declared array member `T arr[N*N]`
+but the original code clearly treats it as a 2D `arr[i][j]` grid,
+MWCC compiles `arr[i * N + j].field` differently from `arr2d[i][j].field`:
+
+- `arr[i * N + j].field` produces: one combined `mulli (i*N+j)*sizeof(T)`
+  followed by `add this + offset` and `lfs/stfs +4(reg)` (only the `.field`
+  byte offset folded into lfs).
+- `arr2d[i][j].field` produces: two separate `mulli i*0x600` and
+  `mulli j*sizeof(T)`, an `add` of both into `this`, and `lfs/stfs
+  +0x24(reg)` (the full `&this->arr[0].field` offset folded — base of arr
+  in `this` + field offset).
+
+The two-mulli + offset-folding pattern is what the original code emits
+when the source was `T arr[N][N]; arr[i][j].field;`. To match without
+changing the header type (which may break sibling accesses), cast a
+local pointer:
+
+```cpp
+JGeometry::TVec3<f32> (*grid)[0x80]
+    = (JGeometry::TVec3<f32>(*)[0x80])unk20;
+for (int x = 0; x < 0x80; ++x)
+    for (int z = 0; z < 0x80; ++z)
+        grid[x][z].y = 0.0f;
+```
+
+**Caveat:** the local pointer bakes in the `arr`'s base offset (e.g.
+`+0x20`), so MWCC folds `.field` only (`+0x4`). For full match parity
+target produces `+0x24` because the original source uses arr as a member
+(no local). To get the full match, change the header type to 2D. The
+local cast alone closes 80-90% of the gap.
+
+**How to apply:**
+- Read target asm for the access — if you see two separate `mulli`s and
+  `+0xN` offset that includes the array-base offset, the original was 2D.
+- Add a local pointer cast `T (*grid)[INNER_DIM] = (T(*)[INNER_DIM])arr;`
+- Replace `arr[i * INNER + j]` with `grid[i][j]`
+
+**Where observed:**
+- `Map/BathWaterManager.cpp::TBathWaterMeshRenderer::getHeight` —
+  82.76% → 86.44% with grid cast alone, then 90.92% with an additional
+  `cell = &grid[ix][iz]` local pointer.
+- `Map/BathWaterManager.cpp::TBathWaterMeshRenderer::clearHeightMap` —
+  84.96% → 97.68% combining 2D nested loops with the cast.
+- `Map/BathWaterManager.cpp::TBathWaterMeshRenderer::makeHeightMap` —
+  70.66% → 92.41% via grid cast applied to the inner-loop store.
+- `Map/BathWaterManager.cpp::TBathWaterMeshRenderer::calcCoord` —
+  88.87% → 91.87% via grid casts on both unk20 (TVec3) and unk60020 (TVec2).
+
 ### Hoist `param->field.member` to a local pointer when used across multiple `bl` calls
 
 **Rule:** When a function uses the same `param->field.member` address
