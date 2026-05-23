@@ -1376,16 +1376,17 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
                                     TBathWater** waters,
                                     TBathWaterParams** params, int count)
 {
-	s16 renderWidth  = SMSGetGameRenderWidth();
-	s16 renderHeight = SMSGetGameRenderHeight();
-	MtxPtr projMtx   = (MtxPtr)((u8*)gpCamera + 0x16C);
 	MtxPtr viewMtx   = (MtxPtr)((u8*)gpCamera + 0x1EC);
+	MtxPtr projMtx   = (MtxPtr)((u8*)gpCamera + 0x16C);
+	int renderWidth  = SMSGetGameRenderWidth();
+	int renderHeight = SMSGetGameRenderHeight();
 
 	clearEFB_alpha(0, 0, 0, 0, 0);
 
-	s16 copyWidth  = SMSGetGameRenderWidth();
-	s16 copyHeight = SMSGetGameRenderHeight();
-	GXSetProjection(projMtx, GX_PERSPECTIVE);
+	MtxPtr viewMtx2 = (MtxPtr)((u8*)gpCamera + 0x1EC);
+	int copyWidth   = SMSGetGameRenderWidth();
+	int copyHeight  = SMSGetGameRenderHeight();
+	GXSetProjection((MtxPtr)((u8*)gpCamera + 0x16C), GX_PERSPECTIVE);
 	GXClearVtxDesc();
 	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
 	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
@@ -1417,25 +1418,25 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 	GXSetColorUpdate(GX_FALSE);
 	GXSetAlphaUpdate(GX_TRUE);
 	GXSetCullMode(GX_CULL_NONE);
-	GXLoadPosMtxImm(viewMtx, GX_PNMTX0);
+	GXLoadPosMtxImm(viewMtx2, GX_PNMTX0);
 	GXSetCurrentMtx(GX_PNMTX0);
 
-	f32 xAxisX = viewMtx[0][0];
-	f32 xAxisY = viewMtx[0][1];
-	f32 xAxisZ = viewMtx[0][2];
-	f32 yAxisX = viewMtx[1][0];
-	f32 yAxisY = viewMtx[1][1];
-	f32 yAxisZ = viewMtx[1][2];
+	f32 xAxisX = viewMtx2[0][0];
+	f32 xAxisY = viewMtx2[0][1];
+	f32 xAxisZ = viewMtx2[0][2];
+	f32 yAxisX = viewMtx2[1][0];
+	f32 yAxisY = viewMtx2[1][1];
+	f32 yAxisZ = viewMtx2[1][2];
 
 	for (int i = 0; i < count; ++i) {
-		TBathWater* water = waters[i];
-		f32 scale         = params[i]->dropRadius.get() * params[i]->texScale.get();
-		f32 x0            = xAxisX * scale;
-		f32 y0            = xAxisY * scale;
-		f32 z0            = xAxisZ * scale;
+		TBathWater*& water = waters[i];
+		f32 scale         = params[i]->texScale.get() * params[i]->dropRadius.get();
 		f32 x1            = yAxisX * scale;
 		f32 y1            = yAxisY * scale;
 		f32 z1            = yAxisZ * scale;
+		f32 x0            = xAxisX * scale;
+		f32 y0            = xAxisY * scale;
+		f32 z0            = xAxisZ * scale;
 
 		GXBegin(GX_QUADS, GX_VTXFMT0, (water->unk74 * 4) & 0xfffc);
 		for (TBathWater::TDrop* drop = water->unk88;
@@ -1474,16 +1475,16 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 	GXPixModeSync();
 	GXSetProjection(projMtx, GX_PERSPECTIVE);
 
+	GXColor amb = { 0xff, 0xff, 0xff, 0xff };
 	GXColor mat = { unk80134->polygonR.get(), unk80134->polygonG.get(),
 	                unk80134->polygonB.get(), 0xff };
-	GXColor amb = { 0xff, 0xff, 0xff, 0xff };
 	GXSetNumChans(1);
 	GXSetChanCtrl(GX_COLOR0, GX_TRUE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT0,
 	              GX_DF_CLAMP, GX_AF_NONE);
 	GXSetChanCtrl(GX_ALPHA0, GX_FALSE, GX_SRC_REG, GX_SRC_REG,
 	              GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
-	GXSetChanAmbColor(GX_COLOR0A0, amb);
 	GXSetChanMatColor(GX_COLOR0A0, mat);
+	GXSetChanAmbColor(GX_COLOR0A0, amb);
 	GXSetNumTexGens(4);
 	unk80138->load(GX_TEXMAP0);
 	unk8013C->load(GX_TEXMAP1);
@@ -1503,13 +1504,13 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 	unk80080[1]   = -4.0f * data.unk3C;
 	unk80080[2]   = cell;
 	unk80050.mMtx[0][0] = 1.0f;
-	unk80050.mMtx[0][1] = 0.0f;
-	unk80050.mMtx[0][2] = 0.0f;
 	unk80050.mMtx[1][0] = 0.0f;
-	unk80050.mMtx[1][1] = 1.0f;
-	unk80050.mMtx[1][2] = 0.0f;
 	unk80050.mMtx[2][0] = 0.0f;
+	unk80050.mMtx[0][1] = 0.0f;
+	unk80050.mMtx[1][1] = 1.0f;
 	unk80050.mMtx[2][1] = 0.0f;
+	unk80050.mMtx[0][2] = 0.0f;
+	unk80050.mMtx[1][2] = 0.0f;
 	unk80050.mMtx[2][2] = 1.0f;
 	unk80050.mMtx[0][3] = data.unk0.x - 0.5f * unk80134->meshWidth.get();
 	unk80050.mMtx[1][3] = data.unk0.y - data.unk44 + 3.0f * data.unk3C;
