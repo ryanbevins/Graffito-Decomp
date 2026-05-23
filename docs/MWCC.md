@@ -36,6 +36,116 @@ them in future ticks.
 
 ## Settled
 
+### Char-array row pointer: avoid pre-adding the constant struct offset to the base
+
+**Rule:** When a function iterates over a fixed-stride per-stage
+(or per-row) block of bytes within `this`, MWCC matches better
+when the source uses `(u8*)this + stage * stride` as the row
+pointer and accesses fields via literal byte offsets within
+the struct — NOT `(u8*)this + base_offset + stage * stride`
+with offset-relative access.
+
+**Symptom:** Diff shows target computing the row pointer
+without the +0x14 (or whatever the struct's static offset is),
+e.g. `add r19, r31, r18` (this + stage*8), then reading via
+`lbz r0, 0x15(r19)`. Our build computes `addi rN, rStage, 0x14;
+add rM, r31, rN; lbz r0, 0x1(rM)`. Same effective address but
+extra `addi` to fold the static offset into the address compute.
+
+**How to apply:**
+
+```cpp
+// Before — pre-add the static offset to the base:
+u8* stageData = (u8*)this + 0x14 + stage * 8;
+... stageData[1] ...;  // shineCount
+... stageData[2] ...;  // redCoin
+... *(u16*)(stageData + 4) ...;  // deaths
+
+// After — keep the row pointer canonical, fold offset into the access:
+u8* stageData = (u8*)this + stage * 8;
+... stageData[0x15] ...;  // shineCount  (= 0x14 + 1)
+... stageData[0x16] ...;  // redCoin     (= 0x14 + 2)
+... *(u16*)(stageData + 0x18) ...;  // deaths (= 0x14 + 4)
+```
+
+The C ABI guarantees these two forms produce identical addresses,
+but MWCC's address-arithmetic lowering emits a single `add`
+instruction for the row pointer plus a load with the full offset,
+rather than two `add`s for "row pointer + static base" and a load
+with the small offset.
+
+The lever may also affect register allocation around the row
+pointer (canonical row pointer can be reused across nested blocks
+with offset-relative loads, vs needing to recompute when adding
+varying offsets).
+
+**Where observed:**
+- `GC2D/Guide::resetScore` — 89.22% → 90.00% (also folded in
+  with other lever changes for total 90.93%).
+- `GC2D/Guide::changeBotStatus` — combined with the if/else
+  inversion below, 45.67% → 95.73%.
+- `GC2D/Guide::resetObjects` — combined with the static-inline
+  wrapper trick, 73.32% → 89.89%.
+
+### Top-level if/else order: target's `bne label` always means the LATER block
+
+**Rule:** MWCC NEVER swaps the THEN and ELSE blocks. If target
+asm shows `bne .L_X` (or `beq .L_X`) at a top-level branch,
+where .L_X is LATER in the function body, then the jumped-to
+block is the LATER body in source order. Specifically:
+
+- `if (cond) A else B` → compiles to `test cond; beq label_B;
+  A; b end; label_B: B; end:` — so the FIRST block emitted
+  is the THEN.
+- `bne label` jumping FORWARD to a later block means the THEN
+  block IS the fall-through (the FIRST block).
+
+When a function has an early-return pattern like
+`if (cond) { ... return; } /* rest */`, MWCC emits THEN
+(the early-return body) first, then a `b end` to skip over
+"rest". If target instead emits "rest" first and the early-
+return body LATER, the source must be rewritten as
+`if (!cond) { rest } else { early-return body }`.
+
+**How to apply:**
+
+```cpp
+// Before — early-return pattern produces THEN-first emission:
+if (stageData[0] != 0) {
+    /* completed-stage block: lots of code, return */
+    ...
+    return;
+}
+/* active-stage block: lots of code */
+...
+
+// After — explicit if/else produces correct order:
+if (stageData[0] == 0) {
+    /* active-stage block: lots of code */
+    ...
+} else {
+    /* completed-stage block: lots of code */
+    ...
+}
+```
+
+Same logic applies to inner branches:
+- Target `bne .L_X` where X is the LATER block → source has the
+  LATER block as the ELSE.
+- Target `beq .L_X` where X is the LATER block → source has the
+  LATER block as the THEN (if cond is the negation).
+
+**Where observed:**
+- `GC2D/Guide::changeBotStatus` — top-level `if (stageData[0x14]
+  != 0)` early-return was inverted to `if (== 0) { active } else
+  { completed }`. Combined with three inner-block inversions
+  (`if (idx <= 1 || stageData[0x16] == 0) { hide } else if
+  (stageData[0x16] == 1) ...`, and `if (idx != 0) { show } else
+  { hide }`), changeBotStatus went 45.67% → 95.73%.
+- `GC2D/Guide::resetScore` — `if ((u8)redCoinTotal == 0) hide
+  else show` matched target's `bne show_block` pattern (the show
+  block is the LATER one in the function body).
+
 ### Field stores hoisted before a copy-ctor bl: source has assignment BEFORE the local declaration
 
 **Rule:** When target asm shows `stw rVal, OFF(rThis)` field
