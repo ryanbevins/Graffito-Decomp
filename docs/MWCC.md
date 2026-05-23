@@ -36,6 +36,52 @@ them in future ticks.
 
 ## Settled
 
+### Bind a global pointer to a typed local before a method call to emit `lwz rTMP; mr r3, rTMP` instead of `lwz r3, gFoo@sda21`
+
+**Rule:** When source writes `Foo::sInstance->method(args);` directly,
+MWCC emits `lwz r3, sInstance@sda21; bl method` — loading the global
+straight into the arg register. Two source patterns produce the
+*indirect* form `lwz rTMP, sInstance@sda21; mr r3, rTMP; bl method`
+(one extra `mr` instruction):
+
+1. **Explicit typed local:** `Foo* p = Foo::sInstance; p->method(args);`
+2. **getInstance() wrapper:** `Foo::getInstance()->method(args);`
+   when `getInstance()` is an inline `static T* getInstance() { return sInstance; }`.
+
+As a *secondary effect* the first lever frequently also flips the
+encoding of the preceding `this`-save from `mr r31, r3` to
+`addi r31, r3, 0x0`. The two effects usually appear together — when
+the target uses `addi rN, r3, 0` for the this-save AND has the extra
+`mr r3, rTMP` pattern, declare the local.
+
+**How to identify the target pattern:**
+- Target asm contains `lwz rN, gFoo@sda21; mr r3, rN; bl method` where
+  `rN` is *not* r3 (typically r0 or another scratch).
+- For the typed-local lever, target's stack-prolog uses
+  `addi r31, r3, 0x0` rather than `mr r31, r3` to save the implicit `this`.
+
+**Source that matches (typed-local form):**
+```cpp
+TFlagManager* fm = TFlagManager::smInstance;
+if (fm->getBool(0x10384)) { ... }
+```
+
+**Where observed:**
+- `Map/MapEventDolpic.cpp::watch__22TDolpicEventBiancoGateFv` — 88.93% → **100%**
+  by declaring `TFlagManager* fm = TFlagManager::smInstance;` before the
+  `if (fm->getBool(0x10384))`. Both the extra `mr r3, r0` and the
+  `mr r31, r3` → `addi r31, r3, 0x0` flip happened in lockstep.
+- `GC2D/CardLoad.cpp::setupScoreScreen__9TCardLoadFv` — already matches
+  via the `getInstance()` form (`TFlagManager::getInstance()->getFlag(0x40000)`),
+  emitting `lwz r0, smInstance@sda21; mr r3, r0; bl getFlag` as expected.
+  Confirms the rule from the second source pattern.
+
+**Caveat:** This is contextual. Watch__Ricco in the same TU uses
+`if (!TFlagManager::smInstance->getBool(unk2C))` with target emitting
+the *direct* `lwz r3, smInstance@sda21` pattern — no local needed.
+Only apply when the target's asm shows the indirect `lwz rN; mr r3, rN`
+shape.
+
 ### `inline static void dummy(Vec* v) { *v = (Vec){...}; }` emits a `Vec` rodata constant *without* a `.text` symbol
 
 **Rule:** A compound-literal `(Vec){a,b,c}` inside an `inline static`

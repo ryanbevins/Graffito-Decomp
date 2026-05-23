@@ -70,7 +70,8 @@ bool TDolpicEventBiancoGate::control()
 
 bool TDolpicEventBiancoGate::watch()
 {
-	if (TFlagManager::smInstance->getBool(0x10384)) {
+	TFlagManager* fm = TFlagManager::smInstance;
+	if (fm->getBool(0x10384)) {
 		unk20->reset();
 		((TMapObjBase*)unk20)->setUpMapCollision(1);
 		return true;
