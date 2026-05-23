@@ -19,6 +19,7 @@
 #include <JSystem/J2D/J2DScreen.hpp>
 #include <JSystem/J2D/J2DTextBox.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <JSystem/JUtility/JUTPoint.hpp>
 #include <JSystem/JUtility/JUTRect.hpp>
 #include <JSystem/JUtility/JUTResFont.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
@@ -407,7 +408,237 @@ int TGuide::checkPoint(int x, int y)
 	return result;
 }
 
-void TGuide::linkSelect() { }
+void TGuide::linkSelect()
+{
+	unkC0->mFlags |= 0x80;
+
+	if ((unkC0->mEnabledFrameMeaning & 0x40)
+	    || (unkC0->mButton.mTrigger & 0x10)) {
+		mState = 7;
+	}
+
+	J2DPane* pane128 = _128->mPane;
+	s32 cx
+	    = pane128->mBounds.x1 + (s16)(s32)(3.2f * unkC0->mCompSPos[8]);
+	s32 cy
+	    = pane128->mBounds.y1 + (s16)(s32)(-3.2f * unkC0->mCompSPos[9]);
+	if (cx > 0x238)
+		cx = 0x238;
+	if (cx < 0)
+		cx = 0;
+	if (cy > 0x168)
+		cy = 0x168;
+	if (cy < 0x38)
+		cy = 0x38;
+
+	pane128->move(cx, cy);
+	_12C->mPane->move(cx + 7, cy + 4);
+
+	int idx = checkPoint(cx - 2, cy + 10);
+	if (idx != -1 && (unkC0->mMeaning & 0x20)) {
+		appearGuidePane(idx);
+	}
+
+	if (idx != -1 && idx < 10) {
+		int newAlpha;
+		if (unk164 != 0) {
+			newAlpha = _44C[idx]->mAlpha + 4;
+		} else {
+			newAlpha = _44C[idx]->mAlpha - 4;
+		}
+		if (newAlpha < 0x1e) {
+			unk164   = 1;
+			newAlpha = 0x1e;
+		} else if (newAlpha > 0xff) {
+			unk164   = 0;
+			newAlpha = 0xff;
+		}
+		_44C[idx]->mAlpha = newAlpha;
+	}
+
+	if (_F0 % 45 == 0) {
+		J2DPicture* pic = (J2DPicture*)_128->mPane;
+		if ((_F0 / 45) % 2 == 0) {
+			pic->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
+			pic->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
+		} else {
+			pic->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
+			pic->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+	}
+
+	if (_F0 % 45 == 0) {
+		J2DPicture* pic = (J2DPicture*)_12C->mPane;
+		if ((_F0 / 45) % 2 == 0) {
+			pic->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
+			pic->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
+		} else {
+			pic->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
+			pic->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+	}
+
+	if (_480 != idx) {
+		changeBotStatus(idx);
+		if (_480 != -1 && _480 < 10) {
+			_44C[_480]->mAlpha = 0xff;
+		}
+		if (idx == -1) {
+			J2DPicture* pic128 = (J2DPicture*)_128->mPane;
+			pic128->setBlendKonstColor(1.0f, 0.0f, 0.0f, 0.0f);
+			pic128->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
+			J2DPicture* pic12C = (J2DPicture*)_12C->mPane;
+			pic12C->setBlendKonstColor(1.0f, 0.0f, 0.0f, 0.0f);
+			pic12C->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
+		}
+		unk164 = 0;
+		_480   = idx;
+	}
+
+	if (_F0 % 90 == 0) {
+		if ((_F0 / 90) % 2 == 0) {
+			_134->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
+			_134->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
+		} else {
+			_134->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
+			_134->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+	}
+
+	if (_F0 % 90 == 0) {
+		if ((_F0 / 90) % 2 == 0) {
+			((J2DPicture*)_148)->mMirror = (J2DMirror)0;
+		} else {
+			((J2DPicture*)_148)->mMirror = J2DMirror_X;
+		}
+	}
+
+	if (_F0 % 90 == 0) {
+		if ((_F0 / 90) % 2 == 0) {
+			_154->mRotation = 0.0f;
+		} else {
+			_154->mRotation = 30.0f;
+		}
+	}
+
+	if (_F0 % 90 == 0) {
+		if ((_F0 / 90) % 2 == 0) {
+			_138->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
+			_138->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
+		} else {
+			_138->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
+			_138->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+	}
+
+	if (_F0 % 90 == 0) {
+		if ((_F0 / 90) % 2 == 0) {
+			((J2DPicture*)_14C)->mMirror = (J2DMirror)0;
+		} else {
+			((J2DPicture*)_14C)->mMirror = J2DMirror_X;
+		}
+	}
+
+	if (_F0 % 90 == 0) {
+		if ((_F0 / 90) % 2 == 0) {
+			_13C->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
+			_13C->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
+		} else {
+			_13C->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
+			_13C->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+	}
+
+	if (_F0 % 90 == 0) {
+		if ((_F0 / 90) % 2 == 0) {
+			_140->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
+			_140->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
+		} else {
+			_140->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
+			_140->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+	}
+
+	if (_F0 % 90 == 0) {
+		if ((_F0 / 90) % 2 == 0) {
+			((J2DPicture*)_150)->mMirror = (J2DMirror)0;
+		} else {
+			((J2DPicture*)_150)->mMirror = J2DMirror_X;
+		}
+	}
+
+	if (_F0 % 90 == 0) {
+		if ((_F0 / 90) % 2 == 0) {
+			_144->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
+			_144->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
+		} else {
+			_144->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
+			_144->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+	}
+
+	if (_F0 % 90 == 0) {
+		if ((_F0 / 90) % 2 == 0) {
+			_158->mRotation = 0.0f;
+		} else {
+			_158->mRotation = -45.0f;
+		}
+	}
+
+	if (_F0 % 90 == 0) {
+		JUTPoint p1(0, 0);
+		JUTPoint p2(0, -5);
+		JUTPoint p3(0, 0);
+		_444->setPanePosition(45, p1, p2, p3);
+	} else if (_F0 % 90 == 45) {
+		JUTPoint p1(0, 0);
+		JUTPoint p2(0, 5);
+		JUTPoint p3(0, 0);
+		_444->setPanePosition(45, p1, p2, p3);
+	}
+
+	_448->mAlpha = (_F0 % 180 < 0x82) ? 0xff : 0;
+	_444->update();
+
+	if (_F0 % 270 == 0) {
+		if ((_F0 / 270) % 2 == 0) {
+			_478->setPaneAlpha(270, 0, _47C);
+		} else {
+			_478->setPaneAlpha(270, _47C, 0);
+		}
+	}
+	_478->update();
+
+	if (_15C != 0) {
+		unk160 += 3;
+		if (unk160 > 0x12c) {
+			_15C = 0;
+		}
+	} else {
+		unk160 -= 3;
+		if (unk160 < 0x1e) {
+			_15C = 1;
+		}
+	}
+
+	int alpha;
+	if ((int)unk160 < 0x1e) {
+		alpha = 0x1e;
+	} else if ((int)unk160 > 0xff) {
+		alpha = 0xff;
+	} else {
+		alpha = (u8)unk160;
+	}
+
+	for (int i = 0; i < 10; i++) {
+		((J2DPane*)_168[i])->mAlpha = alpha;
+	}
+
+	_F0++;
+	if (_F0 > 0x21c) {
+		_F0 = 0;
+	}
+}
 
 void TGuide::startMoveCursor()
 {
