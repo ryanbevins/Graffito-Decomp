@@ -1845,24 +1845,27 @@ f32 TBathWaterMeshRenderer::getHeight(f32 x, f32 z) const
 
 void TBathWaterMeshRenderer::clearHeightMap()
 {
-	for (int i = 0; i < 0x4000; ++i)
-		unk20[i].y = 0.0f;
+	JGeometry::TVec3<f32> (*grid)[0x80]
+	    = (JGeometry::TVec3<f32>(*)[0x80])unk20;
+	for (int x = 0; x < 0x80; ++x)
+		for (int z = 0; z < 0x80; ++z)
+			grid[x][z].y = 0.0f;
 
-	unk80050.mMtx[0][0] = 1.0f;
-	unk80050.mMtx[0][1] = 0.0f;
-	unk80050.mMtx[0][2] = 0.0f;
-	unk80050.mMtx[0][3] = 0.0f;
-	unk80050.mMtx[1][0] = 0.0f;
-	unk80050.mMtx[1][1] = 1.0f;
-	unk80050.mMtx[1][2] = 0.0f;
-	unk80050.mMtx[1][3] = 0.0f;
-	unk80050.mMtx[2][0] = 0.0f;
-	unk80050.mMtx[2][1] = 0.0f;
-	unk80050.mMtx[2][2] = 1.0f;
-	unk80050.mMtx[2][3] = 0.0f;
 	unk80080[0]         = 1.0f;
 	unk80080[1]         = 1.0f;
 	unk80080[2]         = 1.0f;
+	unk80050.mMtx[2][3] = 0.0f;
+	unk80050.mMtx[1][3] = 0.0f;
+	unk80050.mMtx[0][3] = 0.0f;
+	unk80050.mMtx[0][2] = 0.0f;
+	unk80050.mMtx[1][2] = 0.0f;
+	unk80050.mMtx[2][1] = 0.0f;
+	unk80050.mMtx[0][1] = 0.0f;
+	unk80050.mMtx[2][0] = 0.0f;
+	unk80050.mMtx[1][0] = 0.0f;
+	unk80050.mMtx[2][2] = 1.0f;
+	unk80050.mMtx[1][1] = 1.0f;
+	unk80050.mMtx[0][0] = 1.0f;
 }
 
 f32 TBathWaterManager::getWaterHeight(f32 x, f32 z) const
