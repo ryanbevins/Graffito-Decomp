@@ -1838,8 +1838,9 @@ f32 TBathWaterMeshRenderer::getHeight(f32 x, f32 z) const
 	else if (iz >= unk800AC)
 		iz = unk800AC - 1;
 
-	JGeometry::TVec3<f32>* row = unk20 + ix * 0x80;
-	return row[iz].y + unk80050.mMtx[1][3];
+	JGeometry::TVec3<f32> (*grid)[0x80] = (JGeometry::TVec3<f32>(*)[0x80])unk20;
+	JGeometry::TVec3<f32>* cell        = &grid[ix][iz];
+	return cell->y + unk80050.mMtx[1][3];
 }
 
 void TBathWaterMeshRenderer::clearHeightMap()
