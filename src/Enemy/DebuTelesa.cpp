@@ -39,9 +39,9 @@ void TDebuTelesa::init(TLiveManager* manager)
 	initAnmSound();
 
 	mJntNullYodare
-	    = getModel()->getModelData()->getMaterialName()->getIndex("null_yodare");
+	    = getModel()->getModelData()->getJointName()->getIndex("null_yodare");
 	mJntRhand
-	    = getModel()->getModelData()->getMaterialName()->getIndex("jnt_Rhand");
+	    = getModel()->getModelData()->getJointName()->getIndex("jnt_Rhand");
 }
 
 void TDebuTelesa::reset() { }
