@@ -36,6 +36,121 @@ them in future ticks.
 
 ## Settled
 
+### Hoist a struct-field read into a local INSIDE a loop, BEFORE a function call, to lock it into a NV-FPR across the call
+
+**Rule:** When the loop body needs `obj.field` *after* a `bl` call but the
+field's address is the same each iteration, reading it into a local
+**before** the `bl` (still inside the loop) forces MWCC to allocate a
+callee-saved FPR (`f31` etc.) for it, so the value survives the call.
+
+Without the explicit local, MWCC re-reads `lfs frV, off(rN)` *after*
+the call returns, paying a load per iteration but freeing the NV-FPR.
+With the local declared just before the `bl`, MWCC computes the load
+*before* the call and keeps the value in `f31`, then stores from `f31`
+after the call. This shifts one NV-FPR slot to the field, increasing
+the function's NV-FPR count by one (which itself can match or mismatch
+the target — verify the count first).
+
+```cpp
+// Before — MWCC reloads center.y after cosf returns:
+for (int i = 0; i < N; ++i) {
+    f32 sinAngle = sinf(angle);
+    f32 z        = center.z + drawRadius * sinAngle;
+    f32 cosAngle = cosf(angle);            // <-- bl
+    f32 x        = center.x + drawRadius * cosAngle;
+    GXPosition3f32(x, center.y, z);        // center.y reloaded here
+}
+
+// After — MWCC pins center.y into f31 across the cosf bl:
+for (int i = 0; i < N; ++i) {
+    f32 sinAngle = sinf(angle);
+    f32 z        = center.z + drawRadius * sinAngle;
+    f32 cy       = center.y;               // <-- hoist BEFORE the bl
+    f32 cosAngle = cosf(angle);
+    f32 x        = center.x + drawRadius * cosAngle;
+    GXPosition3f32(x, cy, z);
+}
+```
+
+**How to identify the target pattern:**
+- Target's loop body has `lfs frV, off(rN)` to a callee-saved FPR
+  (f24-f31) *before* the `bl`, and the same `frV` is used *after*
+  the call.
+- Our build has `lfs frV, off(rN)` *after* the `bl` instead.
+- Stack frame includes an extra `stfd/lfd f{V}, off(r1)` save/restore
+  for the additional NV-FPR.
+
+**Where observed:**
+- `Map/BathWaterManager.cpp::drawCap` — 92.14% → 98.30% by hoisting
+  `center.y` into a `cy` local immediately before `cosf` inside the
+  outer `for (i < 0x1e)` loop. Target also pre-loads `lfs f31, 0x4(r28)`
+  pre-`bl cosf`; ours did `lfs f1, 0x4(r28)` post-call. Hoisting added
+  one NV-FPR (f28 was used by target but not us) and matched the loop
+  layout. Remaining gap is NV-FPR allocation order (target uses
+  f28..f31 in reverse).
+
+### Hoist a scalar pre-computation BEFORE a `lwz`/`stw` integer-copy block
+
+**Rule:** When a function does both (a) a scalar arithmetic expression
+involving struct-field loads and (b) an integer-copy `result = src;` of
+another struct, putting the scalar expression *first* in source forces
+MWCC to interleave its loads/computes with the integer copy. This
+matches target's layout when target's prologue mixes
+`lfs/fsubs/fmuls` with `lwz/stw`.
+
+The mechanism: MWCC tries to schedule the float load early to hide
+the load latency. If source puts the scalar after the copy, MWCC may
+still schedule the float load early — but it ends up *between* the
+`lwz/stw` pair-sequence (which target does), OR *after* them entirely
+(which is what we get with the float expression at source-bottom). The
+ambiguity is resolved by the source order: explicit early declaration
+locks in the early scheduling.
+
+```cpp
+// Before — MWCC schedules unk3C load late:
+JGeometry::TVec3<f32> result = unk0;            // 3x lwz/stw
+f32 t      = (f32)index / (f32)count;
+f32 radius = t * (unk3C - height);              // unk3C loaded LATE
+
+// After — fsubs scheduled BEFORE the lwz/stw chain:
+f32 radiusFactor = unk3C - height;              // fsubs early
+JGeometry::TVec3<f32> result = unk0;            // 3x lwz/stw, interleaved
+f32 t       = (f32)index / (f32)count;
+f32 radius  = t * radiusFactor;
+```
+
+**Where observed:**
+- `Map/BathWaterManager.cpp::TBathtubData::getPos` — 88.40% → 92.95%
+  by hoisting `f32 radiusFactor = unk3C - height;` to the first
+  statement above `JGeometry::TVec3<f32> result = unk0;`. Target's
+  prolog interleaves `lfs f0, 0x3c(r4); fsubs f0, f0, f30; lwz r3,
+  0x0(r4); ...` while ours had the lwz/stw block come before any
+  unk3C load. The radiusFactor local survives until used in `t *
+  radiusFactor` later. Caveat: putting the assignment *between*
+  result-copy and t/radius does NOT help — must be FIRST.
+
+### Avoid hoisting a member-array base pointer when the loop is unrolled or short
+
+**Rule:** The 2D-array-cast lever (above) is *not* always a win.
+When the loop iterates a known small count and MWCC fully unrolls,
+or when there is only one access site per iteration, hoisting the
+grid pointer into a local can cause MWCC to allocate a register that
+target does *not* use. Target uses `this` directly with the full
+`+0x20+field` offset folded into the access.
+
+The asymmetry: the 2D cast helps when target's asm shows a single
+`+0x4` (field-only) offset, indicating target also has a local. It
+hurts when target's asm shows `+0x20`, `+0x24`, `+0x28` etc.
+(this-relative including the array base).
+
+**Where observed:**
+- `Map/BathWaterManager.cpp::TBathWaterMeshRenderer::calcCoord` —
+  first loop on `unk60020` (TVec2): 91.87% → 92.42% by *removing*
+  the 2D cast and using `unk60020[x * 0x80 + z].x` directly. Target
+  has `addis r5, r5, 0x6` + `stw f1, 0x20(r8)` (this-relative).
+  Second loop on `unk20` (TVec3) keeps the 2D cast (regression
+  test: removing it drops to 88.87%).
+
 ### Use 2D array casts for `arr[i * stride + j]` flat indexing into row-major data
 
 **Rule:** When source has a 1D-declared array member `T arr[N*N]`
