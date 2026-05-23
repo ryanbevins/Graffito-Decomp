@@ -121,4 +121,22 @@ public:
 	/* 0x68 */ const char** unk68;
 };
 
+class TMapEventSirenaSink : public TMapEventSink {
+public:
+	TMapEventSirenaSink(const char* name = "イベント（建物沈むシレナ）");
+
+	virtual void load(JSUMemoryInputStream&);
+	virtual void loadAfter();
+	virtual bool watch();
+
+	virtual void initPollution();
+	virtual void makePollutionRecovered(u32);
+
+public:
+	/* 0x64 */ u8 unk64;
+	/* 0x68 */ JGeometry::TVec3<f32> mShinePos;
+	/* 0x74 */ JGeometry::TVec3<f32> mWarpPos;
+	/* 0x80 */ f32 mWarpY;
+};
+
 #endif
