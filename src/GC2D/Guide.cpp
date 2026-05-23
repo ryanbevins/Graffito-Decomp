@@ -83,7 +83,7 @@ void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx)
 				gpApplication.mFader->startWipe(5, 1.0f, 0.0f);
 				mState = 10;
 			}
-			s16 stage = SMS_getShineStage(gpMarDirector->mMap);
+			u8 stage = SMS_getShineStage(gpMarDirector->mMap);
 			JUTRect rect(_168[stage]->unk14);
 			_128->mPane->move(rect.x1 + 6, rect.y1 - 1);
 			_12C->mPane->move(rect.x1 + 6, rect.y1 - 1);
@@ -782,9 +782,8 @@ void TGuide::load(JSUMemoryInputStream& stream)
 
 		_168[i] = (TBoundPane*)unkBC->search(ddTag);
 
-		TExPane* p0 = new TExPane(unkBC, baseTag + 0x5f30);
-		_1C0[i]     = p0;
-		_218[i]     = p0->getInitialBounds();
+		_1C0[i] = new TExPane(unkBC, baseTag + 0x5f30);
+		_218[i] = _1C0[i]->getPane()->mBounds;
 
 		_378[i] = new TExPane(unkBC, baseTag + 0x5f31);
 
