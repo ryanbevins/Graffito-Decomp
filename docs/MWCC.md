@@ -2194,6 +2194,24 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Unreferenced TVec3 `{0,0,0}` and `{1,1,1}` constants in rodata
+  on MapEventSink-family TUs.** Symptom: target's
+  `mario/Map/MapEventSink.o` rodata has at `.rodata:0xE0` a 12-byte
+  zero block (`@2604`) and at `.rodata:0xEC` a 12-byte block of
+  three `0x3F800000` (1.0f) values (`@2606`). Same pair appears in
+  `MapEventSirena.o` at the same relative positions (`@2585`, `@2587`).
+  Neither constant is referenced from `.text` — they're rodata-only.
+  Our builds of both TUs don't emit them. Effect: rodata above 0xE0
+  shifts 24 bytes earlier in our build, which breaks the `@<zero>+
+  0x140` peephole-trick MWCC uses in watch__19TMapEventSirenaSinkFv
+  to address subsequent rodata strings. Costs ~3pp on watch and
+  similar on parent TU. Mechanism unknown — likely an inline expansion
+  that consumes a TVec3 literal then gets fully eliminated, leaving
+  only the rodata constant. Investigation candidates: TPlacement
+  (and below) initializer-list inline expansion paths, any
+  `JGeometry::TVec3<f>(0.f, 0.f, 0.f)` / `(1.f, 1.f, 1.f)` static-
+  const or temporary in a header reachable from MapEventSink.hpp.
+  Tick 69.
 - **Local-static `$localstatic0$<fn>` mangling on a non-inlined function.**
   Symptom: target's `calcTowerCenterPos___15CPolarSubCameraFP3Vec`
   is a 296-byte OUT-OF-LINE function (not inlined into its sole
