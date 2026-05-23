@@ -363,11 +363,9 @@ JGeometry::TVec3<f32> TBathtubData::getGravityDir(f32 rate) const
 	if (unk65 != 0)
 		return result;
 
-	f32 axisX = -unkC.z;
-	f32 axisY = 0.0f;
-	f32 axisZ = unkC.x;
-	f32 len   = JGeometry::TUtil<f32>::sqrt(
-        axisX * axisX + axisY * axisY + axisZ * axisZ);
+	JGeometry::TVec3<f32> axis;
+	axis.cross(unkC, result);
+	f32 len = JGeometry::TUtil<f32>::sqrt(axis.squared());
 
 	f32 qx, qy, qz, qw;
 	if (len <= JGeometry::TUtil<f32>::epsilon()) {
@@ -376,11 +374,11 @@ JGeometry::TVec3<f32> TBathtubData::getGravityDir(f32 rate) const
 		qz = 0.0f;
 		qw = 1.0f;
 	} else {
-		f32 angle = rate * (0.5f * atan2f(len, unkC.y));
+		f32 angle = rate * (0.5f * atan2f(len, unkC.dot(result)));
 		f32 s     = sinf(angle) / len;
-		qx        = axisX * s;
-		qy        = axisY * s;
-		qz        = axisZ * s;
+		qx        = axis.x * s;
+		qy        = axis.y * s;
+		qz        = axis.z * s;
 		qw        = cosf(angle);
 	}
 
@@ -1300,6 +1298,7 @@ void TBathWaterMeshRenderer::makeNormalMap()
 	f32 scale = -unk80134->meshWidth.get() / (f32)unk800AC;
 	if (unk80134->bendsNormal.get() == 0)
 		scale *= 2.0f;
+	f32 scaleSq = scale * scale;
 
 	for (s32 x = 0; x < unk800AC; ++x) {
 		for (s32 z = 0; z < unk800AC; ++z) {
@@ -1311,15 +1310,11 @@ void TBathWaterMeshRenderer::makeNormalMap()
 			JGeometry::TVec3<f32>& normal = unk30020[x * 0x80 + z];
 			normal.x = scale
 			           * (unk20[x1 * 0x80 + z].y - unk20[x0 * 0x80 + z].y);
-			normal.y = scale * scale;
+			normal.y = scaleSq;
 			normal.z = scale
 			           * (unk20[x * 0x80 + z1].y - unk20[x * 0x80 + z0].y);
 
-			f32 lenSq = normal.squared();
-			if (lenSq <= JGeometry::TUtil<f32>::epsilon())
-				normal.zero();
-			else
-				normal.scale(JGeometry::TUtil<f32>::inv_sqrt(lenSq));
+			normal.normalize();
 		}
 	}
 }
