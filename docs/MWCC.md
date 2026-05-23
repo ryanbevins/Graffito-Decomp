@@ -36,6 +36,84 @@ them in future ticks.
 
 ## Settled
 
+### `TVec3<f32>::set<f32>(x, y, z)` template form batches float loads
+
+**Rule:** When source needs to copy three float values from a base
+pointer (e.g. `mtx[i][3]`) into a `TVec3<f32>` member, writing it as
+
+```cpp
+mTipPos.set<f32>(mtx[0][3], mtx[1][3], mtx[2][3]);
+```
+
+(template `set` with **explicit `<f32>` argument**) produces the
+batched pattern:
+
+```
+lfs f2, 0x2c(rN)    ; load z first (reverse-order load)
+lfs f1, 0x1c(rN)    ; load y
+lfs f0, 0xc(rN)     ; load x
+stfs f0, X+0(rDest) ; then batched stores
+stfs f1, X+4(rDest)
+stfs f2, X+8(rDest)
+```
+
+The three lfs go to f0/f1/f2 separately so MWCC's scheduler can
+interleave them with surrounding ALU work, and stores follow in
+order. This contrasts with the **component-by-component** form
+
+```cpp
+mTipPos.x = mtx[0][3];
+mTipPos.y = mtx[1][3];
+mTipPos.z = mtx[2][3];
+```
+
+which compiles to interleaved `lfs f0; stfs f0` x3 using a single
+FPR, with NO scheduler reordering. Target's batched form is the
+common case when 3 floats are copied from a base pointer.
+
+**How to identify:** Target asm shows 3 `lfs frX, off(rN)` to three
+different FPRs (f0/f1/f2 typically), in reverse offset order, then
+3 `stfs frX, off(rDst)` in normal order. Component-by-component
+source produces a single FPR (`lfs f0; stfs f0` x3) and won't
+match.
+
+**Why the `<f32>` template arg matters:** `TVec3<f32>::set` is a
+template:
+```cpp
+template <class TY> void set(TY x_, TY y_, TY z_) {
+    x = x_; y = y_; z = z_;
+}
+```
+Without the explicit `<f32>`, deduction picks `TY` from arg types.
+The 3-arg `set()` overload (non-template `set(f32, f32, f32)`)
+does NOT exist — only the template. So `mTipPos.set(a, b, c)`
+deduces `TY=f32` and produces the same template instance as the
+explicit form. The two forms SHOULD be identical — pending check
+of whether the explicit-template-arg form is necessary or just a
+stylistic preference. (Open question.)
+
+**Caveat — supersedes CLAUDE.md claim:** CLAUDE.md "TVec3 / Vector
+Codegen Patterns" says ".set(x, y, z) (3-arg form) — generates
+lfs/stfs like component assignment". That is INCORRECT for the
+mtx-load case. The 3-arg template `set` produces BATCHED loads,
+not interleaved. The component-by-component form is what produces
+interleaved loads. Test with both before committing.
+
+**Citations:**
+- `Enemy/DebuTelesa.cpp::calcRootMatrix` — 83.82% → **99.88%**
+  (tick 82). Switched `mTipPos.x = mtx[0][3]; mTipPos.y = ...;
+  mTipPos.z = ...;` to `mTipPos.set<f32>(mtx[0][3], mtx[1][3],
+  mtx[2][3])`. Combined with `getCurrentNerve` → `getLatestNerve`
+  fix that restored 4 inlined-fallback instructions. Remaining
+  0.12% is just stack-temp slot allocation order (different
+  unsolved MWCC quirk).
+
+**Where to try it next:** Any `TVec3` member being filled from
+three matrix-cell or struct-field reads using component assignment,
+where target shows batched lfs to multiple FPRs. Especially in
+`calcRootMatrix`, position-emit, and matrix-derived position
+patterns across the Enemy module.
+
 ### `bool` return type (not `BOOL`) for pointer-nonnull tail when target lacks `clrlwi` narrow
 
 **Rule:** When a function's tail in target asm is the branchless
@@ -2288,6 +2366,60 @@ for predicate functions.
   rather than `if (...) return true; ... return false;`.
 
 ## Hypotheses under investigation
+
+### `new T(args)` expression may spill the result to a stack-0x10 scratch slot
+
+**Hypothesis:** When a `T* p = new T(args)` expression is followed by
+method calls that take `p` as `this`, MWCC sometimes emits a
+spill-and-reload sequence using a stack slot at +0x10 even though `p`
+already lives in a callee-saved register (e.g. r29):
+
+```
+mr.  r29, r3        ; r29 = new() return value
+beq  SKIP
+stw  r29, 0x10(r1)  ; spill to stack 0x10
+... arg setup ...
+lwz  r3,  0x10(r1)  ; reload to r3 — but r29 already has it!
+bl   __ct__T...
+lwz  r3,  0x10(r1)  ; reload again
+... use ...
+bl   method
+SKIP:
+```
+
+Our build for the same source skips the spill and uses
+`mr r3, r29` / `addi r3, r29, 0x0` directly. This costs us 5pp
+match in `Enemy/DebuTelesa::load` (94.57% with no spill, can't
+reach 100% without it). Adds +8 bytes to the stack frame (slot
+0x10 reserved).
+
+**Observed symptoms:**
+- Target stack frame is +8 bytes vs ours
+- Target has `stw rN, 0x10(r1)` immediately after the `beq` of the
+  null-check
+- Two subsequent `lwz r3, 0x10(r1)` reloads before the ctor and
+  before the method call
+- After the method call, target uses `r29` directly for field
+  accesses (so r29 was always live; the spill is redundant)
+
+**Why might MWCC do this:** Possibly exception-safety paranoia
+(if ctor throws, the unconstructed pointer must remain reachable
+for cleanup) — but SMS has exceptions off. Or possibly a specific
+source-level pattern triggers it.
+
+**Experiment to test:** Find another TU where this `new T(...)` spill
+pattern appears in target and try source variants:
+1. Cast the new result to base class: `TParams* p = new TFoo(...)`.
+2. Use `void* mem = ::operator new(sizeof(T)); new(mem) T(...);
+   T* p = static_cast<T*>(mem); ...`
+3. Move the local declaration outside the function (impossible).
+4. Add a redundant `volatile` qualifier to the local.
+5. Place the call in a try-block (if exceptions can be locally
+   enabled).
+
+Citation: `Enemy/DebuTelesa::load` 94.57% (stuck — spill not
+reproducible from any straightforward source pattern tested in
+tick 82).
 
 ### Inline pointer-arithmetic computes per-iteration; hoisted `(this + OFFSET)` reserves a register
 
