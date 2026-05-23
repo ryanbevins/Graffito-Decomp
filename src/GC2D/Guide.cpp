@@ -92,9 +92,9 @@ void TGuide::placeMario()
 
 	for (int i = 2; i < 10; i++) {
 		if (TFlagManager::smInstance->getBool(0x103A5 + i)) {
-			unkBC->search('01g1' + (i - 2))->mVisible = true;
+			unkBC->search('01g1' + (i - 2))->show();
 		} else {
-			unkBC->search('01g1' + (i - 2))->mVisible = false;
+			unkBC->search('01g1' + (i - 2))->hide();
 		}
 	}
 }
