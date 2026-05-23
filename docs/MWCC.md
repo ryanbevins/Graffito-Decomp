@@ -36,6 +36,71 @@ them in future ticks.
 
 ## Settled
 
+### `bool` return type (not `BOOL`) for pointer-nonnull tail when target lacks `clrlwi` narrow
+
+**Rule:** When a function's tail in target asm is the branchless
+pointer-to-int idiom
+
+```
+lwz   r0, OFF(rThis)
+neg   r3, r0
+subic r0, r3, 0x1
+subfe r3, r0, r3        ; result directly in r3 — NO clrlwi
+blr
+```
+
+the source returns **`bool`**, not `BOOL`. Declaring the function
+as `BOOL` makes MWCC route the bool intermediate (`p != nullptr`)
+through a clrlwi-narrowing step:
+
+```
+subfe r0, r0, r3        ; into r0
+clrlwi r3, r0, 24       ; narrow into r3  <-- extra insn
+blr
+```
+
+The C++ semantics are identical (both return 0/1), but the
+return-type's "width semantics" controls whether MWCC bothers
+narrowing the bool intermediate before placing it in the
+return-value register.
+
+**Mirror rule:** When target's tail HAS the `clrlwi r3, r0, 24`
+(e.g. `beakHeld__10TBossGessoCFv`), the source returns `BOOL`.
+Both forms exist in the original — pick the one whose tail matches.
+
+**Why:** MWCC treats `bool` as "byte-wide" but propagates that bit
+directly when the destination is also bool-typed. Casting `bool` →
+`BOOL` (int) inserts an explicit "narrow-to-byte then zero-extend"
+sequence (the clrlwi). When the destination is `bool`, no
+narrow needed — the subfe writes directly to r3.
+
+**How to identify:** look for any function currently declared
+`BOOL` that returns a runtime bool expression (`p != nullptr`,
+`x != 0`, `(BOOL)(...)` cast on bool). Diff vs target — if target's
+tail is `subic; subfe r3, r0, r3; blr` (no clrlwi), flip the
+declared return type to `bool` in both header and `.cpp`.
+
+**Citations:**
+- `Enemy/BathtubBinder.cpp::init` — 98.58% → **100%** by changing
+  `BOOL init(...)` to `bool init(...)`. Body was
+  `return (BOOL)(mBathtub != nullptr);`. Removed clrlwi.
+- `Enemy/Amenbo.cpp::isCollidMove` (already matching) — declared
+  `bool`, body `return param_1 != this;`. Target tail is
+  `subic; subfe r3, r0, r3; blr` — confirms the rule.
+- `Enemy/bossgesso.cpp::beakHeld` (already matching) — declared
+  `BOOL`, body `return !!mBeak->mHolder;`. Target tail HAS
+  `clrlwi r3, r0, 24` — confirms the mirror.
+
+**Where to try it next:** any other `BOOL fn() { return expr;`
+where `expr` is a bool-typed runtime expression (pointer-nonnull,
+inequality test) currently sitting near-100% with a single
+trailing clrlwi diff.
+
+**Caveat:** Only applies when the bool expression is computed at
+runtime. Functions whose body is `return true;` / `return false;`
+already emit `li r3, 0x1` / `li r3, 0x0` without any narrow, so
+the return type doesn't matter for matching there.
+
 ### Explicit `Base::method()` qualifier in fabricated forwarders suppresses virtual dispatch
 
 **Rule:** A fabricated forwarder method like
