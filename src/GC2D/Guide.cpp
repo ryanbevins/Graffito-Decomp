@@ -60,7 +60,7 @@ void TGuide::appearGuidePane(int idx)
 void TGuide::placeMario()
 {
 	if (SMS_getShineStage(gpMarDirector->mMap) != 1) {
-		_430->mVisible = false;
+		_430->hide();
 		return;
 	}
 
@@ -87,7 +87,7 @@ void TGuide::placeMario()
 	if (destY < 0)
 		destY = 0;
 
-	pane->mVisible = true;
+	pane->show();
 	_430->move(destX, destY);
 
 	for (int i = 2; i < 10; i++) {

@@ -36,6 +36,94 @@ them in future ticks.
 
 ## Settled
 
+### Field stores hoisted before a copy-ctor bl: source has assignment BEFORE the local declaration
+
+**Rule:** When target asm shows `stw rVal, OFF(rThis)` field
+stores happening BEFORE a `bl copy__7JUTRectFRC7JUTRect` (or any
+copy-ctor bl) but our build emits them AFTER the bl, the original
+source has the assignments LITERALLY BEFORE the local-variable
+declaration that triggers the copy-ctor. MWCC respects source
+order in this case.
+
+**Symptom:** Diff shows our build with `bl copy__7JUTRectFRC7JUTRect`
+followed by `lwz rA, OFF1(rThis); stw rA, OFF2(rThis); ...`, while
+target has the loads/stores first, then the bl. Effective ordering
+is reversed.
+
+**How to apply:**
+
+```cpp
+// Before (our build defers stores until after the bl):
+JUTRect rect1(_218[idx]);   // bl copy
+_424 = _1C0[idx];           // ← MWCC schedules these after the bl
+_428 = _378[idx];
+
+// After (matches target):
+_424 = _1C0[idx];           // stores hoisted before the bl
+_428 = _378[idx];
+JUTRect rect1(_218[idx]);   // bl copy
+```
+
+This is purely a source-order lever — MWCC's scheduler treats the
+copy-ctor `bl` as a barrier and never reorders explicit field
+stores around it in either direction. The original author chose
+the order; you just have to find it.
+
+**Where observed:**
+
+- `GC2D/Guide::appearGuidePane` — moving the `_424 = _1C0[idx]; _428 = _378[idx];`
+  assignments BEFORE the `JUTRect rect1(_218[idx]);` declaration took it
+  from 95.20% → 98.60%. Diff showed our build doing the stores after the
+  first `bl copy__7JUTRectFRC7JUTRect`; target does them before.
+
+### `J2DPane::show()` / `hide()` vs direct `mVisible = true/false` literal assignment
+
+**Rule:** Even though `J2DPane::show()` and `hide()` are inline
+methods whose bodies are `mVisible = true;` and `mVisible = false;`
+respectively, using the inline-helper form changes MWCC's scheduling
+of the surrounding code. Specifically, around an `if/else` whose
+branches each end in a `mVisible = literal` assignment that follows
+a `bl` (e.g. `unkBC->search(tag)->mVisible = true;`), calling
+`show()`/`hide()` produces different scheduling than the direct
+assignment.
+
+**Symptom (before):** Direct `unkBC->search(tag)->mVisible = true;`
+emits `bl search; li r0, 0x1; stb r0, 0xc(r3)`. Target shows the
+same sequence — but the surrounding stack frame size, branch
+offsets, and constant-pool offsets differ. Match drifts ~5pp.
+
+**How to apply:**
+
+```cpp
+// before:
+if (flag) {
+    unkBC->search(tag)->mVisible = true;
+} else {
+    unkBC->search(tag)->mVisible = false;
+}
+
+// after (use the inline helpers):
+if (flag) {
+    unkBC->search(tag)->show();
+} else {
+    unkBC->search(tag)->hide();
+}
+```
+
+Both forms produce the same final `li r0, 0x1; stb r0, 0xc(r3)`
+sequence at the call site, but `show()/hide()` is what the original
+authors used and MWCC produces matching scheduling of the
+surrounding code (loop counter, prologue/epilogue offsets, branch
+targets) when the source uses the helpers.
+
+**Where observed:**
+
+- `GC2D/Guide::placeMario` — switching the 8-iteration loop body
+  from `pane->mVisible = true/false` to `pane->show()/pane->hide()`
+  jumped match 76.89% → 82.02% (~5pp). Loop body asm is byte-identical
+  in both forms; the gain comes from scheduling drift in adjacent
+  basic blocks settling into target's layout.
+
 ### Reference-typed arguments: bind to a local reference BEFORE the call to control argument-eval order
 
 **Rule:** When a function takes a reference-typed argument
