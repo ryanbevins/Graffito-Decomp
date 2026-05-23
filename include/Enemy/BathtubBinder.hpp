@@ -14,7 +14,7 @@ public:
 	virtual ~TBathtubBinder();
 	virtual void bind(TLiveActor* actor);
 
-	BOOL init(f32 a, f32 b, f32 c, f32 d, f32 e);
+	bool init(f32 a, f32 b, f32 c, f32 d, f32 e);
 	void float_(TLiveActor* actor);
 
 public:

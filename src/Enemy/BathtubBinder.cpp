@@ -17,7 +17,7 @@ TBathtubBinder::TBathtubBinder()
 
 TBathtubBinder::~TBathtubBinder() { }
 
-BOOL TBathtubBinder::init(f32 a, f32 b, f32 c, f32 d, f32 e)
+bool TBathtubBinder::init(f32 a, f32 b, f32 c, f32 d, f32 e)
 {
 	mBathtub      = JDrama::TNameRefGen::search<TBathtub>("\x83\x6F\x83\x58\x83\x5E\x83\x75");
 	mBathWaterMgr = JDrama::TNameRefGen::search<TBathWaterManager>(
@@ -33,7 +33,7 @@ BOOL TBathtubBinder::init(f32 a, f32 b, f32 c, f32 d, f32 e)
 	if (mBathtub == nullptr)
 		mBathWaterMgr = nullptr;
 
-	return (BOOL)(mBathtub != nullptr);
+	return mBathtub != nullptr;
 }
 
 void TBathtubBinder::bind(TLiveActor* actor)
