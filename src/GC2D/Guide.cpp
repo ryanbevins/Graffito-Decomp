@@ -10,8 +10,10 @@
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <JSystem/J2D/J2DPane.hpp>
+#include <JSystem/J2D/J2DPicture.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
 #include <JSystem/JUtility/JUTRect.hpp>
+#include <JSystem/JUtility/JUTTexture.hpp>
 
 static u8 setup_wait;
 
@@ -154,7 +156,163 @@ JKRMemArchive* TGuide::setup(JKRMemArchive* archive)
 	return archive;
 }
 
-void TGuide::resetScore() { }
+void TGuide::resetScore()
+{
+	int redCoinTotal = 0;
+	int totalAccum   = 0;
+
+	for (int stage = 0; stage < 10; stage++) {
+		if (stage == 9)
+			continue;
+
+		u8* stageData = (u8*)this + 0x14 + stage * 8;
+
+		if (TFlagManager::smInstance->getBool(stage + 0x103A5)) {
+			unkBC->search('0_mn' + (stage << 24))->show();
+		} else {
+			unkBC->search('0_mn' + (stage << 24))->hide();
+		}
+
+		if (stage <= 1)
+			continue;
+
+		for (int i = 0; i < 8; i++) {
+			if (i < stageData[1]) {
+				unkBC->search('0ss1' + (stage << 24) + i)->show();
+			} else {
+				unkBC->search('0ss1' + (stage << 24) + i)->hide();
+			}
+		}
+
+		J2DPane* sq1 = unkBC->search('0sq1' + (stage << 24));
+		sq1->hide();
+		J2DPane* sq2 = unkBC->search('0sq2' + (stage << 24));
+		sq2->hide();
+
+		u8* p_red = &stageData[2];
+		if (*p_red != 0)
+			sq1->show();
+		if (*p_red > 1)
+			sq2->show();
+		redCoinTotal += *p_red;
+		totalAccum += stageData[1];
+	}
+
+	totalAccum += redCoinTotal;
+	if ((u8)redCoinTotal != 0) {
+		unkBC->search('lqus')->show();
+	} else {
+		unkBC->search('lqus')->hide();
+	}
+
+	for (int stage = 1; stage < 10; stage++) {
+		_3D0[stage]
+		    = (J2DPicture*)unkBC->search('mi00' + stage);
+
+		if (stage == 9)
+			continue;
+
+		u8* stageData = (u8*)this + 0x14 + stage * 8;
+		u16 deaths    = *(u16*)(stageData + 4);
+		if (deaths > 999)
+			deaths = 999;
+
+		J2DPicture* h
+		    = (J2DPicture*)unkBC->search('0c_1' + (stage << 24));
+		J2DPicture* t
+		    = (J2DPicture*)unkBC->search('0c_2' + (stage << 24));
+		J2DPicture* o
+		    = (J2DPicture*)unkBC->search('0c_3' + (stage << 24));
+
+		if (deaths < 100) {
+			h->mVisible = false;
+			t->changeTexture(_C8[deaths / 10]->mTexInfo, 0);
+			o->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
+		} else {
+			h->mVisible    = true;
+			u16 hundreds = deaths / 100;
+			h->changeTexture(_C8[hundreds]->mTexInfo, 0);
+			u16 rem = deaths - hundreds * 100;
+			t->changeTexture(_C8[rem / 10]->mTexInfo, 0);
+			o->changeTexture(_C8[rem % 10]->mTexInfo, 0);
+		}
+
+		if (stageData[6] != 0) {
+			unkBC->search('0c_s' + (stage << 24))->show();
+			totalAccum++;
+		} else {
+			unkBC->search('0c_s' + (stage << 24))->hide();
+		}
+	}
+
+	_3D0[0] = (J2DPicture*)unkBC->search('mi00');
+	_448    = (J2DPicture*)unkBC->search('clic');
+
+	s16 u22 = 0;
+	if (TFlagManager::smInstance->getBool(0x10056))
+		u22 = 1;
+	if (TFlagManager::smInstance->getBool(0x10058))
+		u22++;
+
+	((J2DPicture*)unkBC->search('0s_1'))
+	    ->changeTexture(_C8[u22]->mTexInfo, 0);
+	totalAccum += u22;
+
+	s32 totalFlag = TFlagManager::smInstance->getFlag(0x40000);
+	u8 remaining  = (u8)(totalFlag - (u8)totalAccum);
+	if (remaining > 99)
+		remaining = 99;
+
+	((J2DPicture*)unkBC->search('1s_1'))
+	    ->changeTexture(_C8[remaining / 10]->mTexInfo, 0);
+	((J2DPicture*)unkBC->search('1s_2'))
+	    ->changeTexture(_C8[remaining % 10]->mTexInfo, 0);
+
+	s32 totalClamped = totalFlag;
+	if (totalClamped > 999)
+		totalClamped = 999;
+
+	J2DPicture* lh = (J2DPicture*)unkBC->search('lt_1');
+	J2DPicture* lt = (J2DPicture*)unkBC->search('lt_2');
+	J2DPicture* lo = (J2DPicture*)unkBC->search('lt_3');
+
+	if (totalClamped < 100) {
+		lh->mVisible = false;
+		lt->changeTexture(_C8[totalClamped / 10]->mTexInfo, 0);
+		lo->changeTexture(_C8[totalClamped % 10]->mTexInfo, 0);
+	} else {
+		lh->mVisible    = true;
+		s32 lhundreds = totalClamped / 100;
+		lh->changeTexture(_C8[lhundreds]->mTexInfo, 0);
+		s32 lrem = totalClamped - lhundreds * 100;
+		lt->changeTexture(_C8[lrem / 10]->mTexInfo, 0);
+		lo->changeTexture(_C8[lrem % 10]->mTexInfo, 0);
+	}
+
+	switch (gpApplication.mSaveFile) {
+	case 0:
+		unkBC->search('ld_a')->show();
+		unkBC->search('ld_b')->hide();
+		unkBC->search('ld_c')->hide();
+		break;
+	case 1:
+		unkBC->search('ld_a')->hide();
+		unkBC->search('ld_b')->show();
+		unkBC->search('ld_c')->hide();
+		break;
+	case 2:
+		unkBC->search('ld_a')->hide();
+		unkBC->search('ld_b')->hide();
+		unkBC->search('ld_c')->show();
+		break;
+	}
+
+	s32 finalFlag = TFlagManager::smInstance->getFlag(0x40000);
+	f32 alphaF
+	    = 255.0f * (1.0f - (f32)(finalFlag / 30) * 0.25f);
+	_47C                  = (u8)alphaF;
+	_478->mPane->mAlpha = _47C;
+}
 
 void TGuide::resetObjects()
 {
