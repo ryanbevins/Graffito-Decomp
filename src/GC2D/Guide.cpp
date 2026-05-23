@@ -5,11 +5,14 @@
 #include <System/Application.hpp>
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
+#include <System/MarioGamePad.hpp>
 #include <System/StageUtil.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <GC2D/MessageUtil.hpp>
+#include <GC2D/ScrnFader.hpp>
+#include <JSystem/J2D/J2DOrthoGraph.hpp>
 #include <JSystem/J2D/J2DPane.hpp>
 #include <JSystem/J2D/J2DPicture.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
@@ -32,7 +35,138 @@ static inline s16 getShineID(u32 stage, u32 scenario, bool is_etc)
 	return SMS_getShineID(stage, scenario, is_etc);
 }
 
-void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx) { }
+void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx)
+{
+	if (setup_wait != 0) {
+		setup_wait--;
+		if (setup_wait == 0) {
+			SMSSwitch2DArchive("game_6", gArBkGuide);
+			unkC4 = 0;
+			s16 stage = SMS_getShineStage(gpMarDirector->mMap);
+			_42C     = stage;
+			resetObjects();
+			changeBotStatus((int)stage);
+			for (int i = 0; i < 8; i++) {
+				if (i == (int)stage) {
+					_3D0[i]->mVisible = true;
+				} else {
+					_3D0[i]->mVisible = false;
+				}
+			}
+			unk164 = 0;
+		} else {
+			return;
+		}
+	}
+
+	if (flags & 0x8) {
+		if (mState != 9 && mState != 8) {
+			J2DOrthoGraph graph(gfx->mViewportRect);
+			graph.setup2D();
+			unkBC->draw(0, 0, &graph);
+		}
+	}
+
+	if (flags & 0x1) {
+		bool ok = true;
+		if (mState > 0xB)
+			return;
+		switch (mState) {
+		case 9: {
+			if (unkC5 != 0 && gpApplication.mFader->mFadeStatus == 0) {
+				gpApplication.mFader->startWipe(5, 1.0f, 0.0f);
+				mState = 10;
+			}
+			s16 stage = SMS_getShineStage(gpMarDirector->mMap);
+			JUTRect rect(_168[stage]->unk14);
+			_128->mPane->move(rect.x1 + 6, rect.y1 - 1);
+			_12C->mPane->move(rect.x1 + 6, rect.y1 - 1);
+			break;
+		}
+		case 10: {
+			if (gpApplication.mFader->mFadeStatus != 1)
+				break;
+			mState              = 0;
+			_428                = nullptr;
+			_424                = nullptr;
+			_128->mPane->mAlpha = 0xFF;
+			_12C->mPane->mAlpha = 0x50;
+			break;
+		}
+		case 0:
+			linkSelect();
+			break;
+		case 1: {
+			ok &= _424->update();
+			for (int i = 0; i < 2; i++) {
+				ok &= (&_128)[i]->update();
+			}
+			if (!ok)
+				break;
+			if (!_428->update())
+				break;
+			mState = 2;
+			break;
+		}
+		case 2: {
+			if (unkC0->mEnabledFrameMeaning & 0x60) {
+				s16 idx = _42C;
+				_428->setPaneAlpha(20, 0, 0xFF);
+				JUTRect rect1(_218[idx]);
+				JUTRect rect2(_168[idx]->unk14);
+				gpMSound->startSoundSystemSE(0x4805, 0, nullptr, 0);
+				int widthR1  = rect1.x2 - rect1.x1;
+				int heightR1 = rect1.y2 - rect1.y1;
+				_424->setCenteredSize(20, 0, 0, widthR1, heightR1);
+				_424->setPaneOffset(20, rect2.x1 - rect1.x1,
+				                    rect2.y1 - rect1.x1 - 40, 0, 0);
+				_128->setPaneAlpha(20, 0xFF, 0);
+				_12C->setPaneAlpha(20, 0x50, 0);
+				mState = 3;
+			} else if (unkC0->mButton.mTrigger & 0x10) {
+				mState = 7;
+			}
+			break;
+		}
+		case 3: {
+			if (!_428->update())
+				break;
+			ok &= _424->update();
+			for (int i = 0; i < 2; i++) {
+				ok &= (&_128)[i]->update();
+			}
+			if (!ok)
+				break;
+			_424->mPane->mVisible = false;
+			_428->mPane->mVisible = false;
+			mState                = 0;
+			_F0                   = 0;
+			break;
+		}
+		case 7: {
+			gpApplication.mFader->startWipe(6, 1.0f, 0.0f);
+			unkC0->mFlags &= ~0x80;
+			gpMSound->startSoundSystemSE(0x4818, 0, nullptr, 0);
+			mState = 11;
+			break;
+		}
+		case 11: {
+			if (gpApplication.mFader->mFadeStatus != 0)
+				break;
+			gpApplication.mFader->startWipe(5, 1.0f, 0.0f);
+			if (_424 != nullptr && _424->mPane->mVisible) {
+				_424->mPane->mVisible = false;
+			}
+			if (_428 != nullptr && _428->mPane->mVisible) {
+				_428->mPane->mVisible = false;
+			}
+			unkC4  = 1;
+			mState = 8;
+			break;
+		}
+		}
+	}
+}
 
 void TGuide::appearGuidePane(int idx)
 {
