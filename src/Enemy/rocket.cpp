@@ -37,46 +37,49 @@ f32 TRocket::mTestAng_x;
 f32 TRocket::mTestAng_z;
 
 static const char* rocket_bastable[] = {
-	// Empty bas table
-	"\0\0\0\0",
+	nullptr,
+	nullptr,
+	nullptr,
+	nullptr,
 };
 
-BOOL TNerveRocketWait::execute(TSpineBase<TLiveActor>* spine) const
+DEFINE_NERVE(TNerveRocketWait, TLiveActor)
 {
 	TRocket* self = (TRocket*)spine->getBody();
 	if (spine->getTime() == 0) {
 		self->mLiveFlag |= LIVE_FLAG_UNK10;
+		self->setBckAnm(3);
 	}
 	return FALSE;
 }
 
-BOOL TNerveRocketFly::execute(TSpineBase<TLiveActor>* spine) const
+DEFINE_NERVE(TNerveRocketFly, TLiveActor)
 {
 	TRocket* self = (TRocket*)spine->getBody();
 	if (spine->getTime() == 0) {
-		self->setBckAnm(3);
+		self->setBckAnm(1);
 
 		TWaterGun* wg = (TWaterGun*)SMS_GetMarioWaterGun();
 		MtxPtr mtx    = wg->getEmitMtx(0);
 
 		f32 speed = self->mParams->mSLReleaseSpeed.value;
-		self->mVelocity.x = speed * mtx[0][0];
-		self->mVelocity.y = speed * mtx[1][0];
-		self->mVelocity.z = speed * mtx[2][0];
+		JGeometry::TVec3<f32> v;
+		v.x             = speed * mtx[0][0];
+		v.y             = speed * mtx[1][0];
+		v.z             = speed * mtx[2][0];
+		self->mVelocity = v;
 
 		self->mLiveFlag |= LIVE_FLAG_AIRBORNE;
 		((TRocketManager*)self->mManager)->mActiveFlag = 1;
 		self->mUnk1A0                                  = 0;
 
-		f32 vx    = self->mVelocity.x;
-		f32 vz    = self->mVelocity.z;
-		f32 angle = 0.0f;
-		if (vz == 0.0f) {
-			angle = vx <= 0.0f ? -90.0f : 90.0f;
-		} else if (vz > 0.0f) {
-			angle = matan(vx, vz) * (360.0f / 65536.0f);
+		f32 angle;
+		if (v.z == 0.0f) {
+			angle = v.x >= 0.0f ? 90.0f : -90.0f;
+		} else if (v.z > 0.0f) {
+			angle = matan(v.x, v.z) * (360.0f / 65536.0f);
 		} else {
-			angle = 180.0f - matan(vx, -vz) * (360.0f / 65536.0f);
+			angle = 180.0f - matan(v.x, -v.z) * (360.0f / 65536.0f);
 		}
 		self->mRotation.y = MsWrap<f32>(angle, 0.0f, 360.0f);
 		self->mRotation.x = 0.0f;
@@ -88,8 +91,7 @@ BOOL TNerveRocketFly::execute(TSpineBase<TLiveActor>* spine) const
 	if (self->mCurrentBckAnm == 1)
 		self->setBckAnm(1);
 
-	JGeometry::TVec3<f32> vel(self->mVelocity.x, self->mVelocity.y,
-	                          self->mVelocity.z);
+	JGeometry::TVec3<f32> vel = self->mVelocity;
 	JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(vel);
 	self->mRotation.x         = rot.x;
 
@@ -105,7 +107,7 @@ BOOL TNerveRocketFly::execute(TSpineBase<TLiveActor>* spine) const
 	return FALSE;
 }
 
-BOOL TNerveRocketPossessedNozzle::execute(TSpineBase<TLiveActor>* spine) const
+DEFINE_NERVE(TNerveRocketPossessedNozzle, TLiveActor)
 {
 	TRocket* self = (TRocket*)spine->getBody();
 	if (spine->getTime() == 0) {
@@ -198,8 +200,7 @@ void TRocket::setDeadAnm()
 
 	mLiveFlag |= 0x20000;
 
-	J3DModel* model = getModel();
-	MtxPtr mtx      = (MtxPtr)((u8*)model->mModelData + 0x20);
+	MtxPtr mtx = (MtxPtr)((u8*)mMActor->getModel() + 0x20);
 	gpMarioParticleManager->emitAndBindToMtxPtr(0xc1, mtx, 0, nullptr);
 	gpMarioParticleManager->emitAndBindToMtxPtr(0xc2, mtx, 0, nullptr);
 }
@@ -262,9 +263,7 @@ void TRocket::reset()
 	TSmallEnemy::reset();
 
 	if (mInitialPosSaved) {
-		mPosition.x = mInitialPos.x;
-		mPosition.y = mInitialPos.y;
-		mPosition.z = mInitialPos.z;
+		mPosition = mInitialPos;
 	}
 
 	mLiveFlag |= LIVE_FLAG_UNK10;
@@ -366,9 +365,7 @@ void TRocket::init(TLiveManager* manager)
 void TRocket::load(JSUMemoryInputStream& stream)
 {
 	TSmallEnemy::load(stream);
-	mInitialPos.x    = mPosition.x;
-	mInitialPos.y    = mPosition.y;
-	mInitialPos.z    = mPosition.z;
+	mInitialPos      = mPosition;
 	mInitialPosSaved = 1;
 	loadAfter();
 }
@@ -383,16 +380,22 @@ TRocket::TRocket(const char* name)
 void TRocketManager::perform(u32 param, JDrama::TGraphics* graphics)
 {
 	if (param & 1) {
-		int count = mObjNum;
-		if (unk38) {
-			s32 maxAct = ((TSpineEnemyParams*)unk38)->mSLActiveEnemyNum.value;
-			if (maxAct < mObjNum)
-				count = maxAct;
-		}
-		for (int i = 0; i < count; ++i) {
+		int i = 0;
+		while (true) {
+			int limit;
+			if (!unk38) {
+				limit = mObjNum;
+			} else {
+				int aen
+				    = ((TSpineEnemyParams*)unk38)->mSLActiveEnemyNum.value;
+				limit = aen <= mObjNum ? aen : mObjNum;
+			}
+			if (i >= limit)
+				break;
 			TRocket* a = (TRocket*)unk18[i];
 			if (!(a->mLiveFlag & LIVE_FLAG_DEAD))
 				a->reset();
+			++i;
 		}
 	}
 	TEnemyManager::perform(param, graphics);
@@ -431,6 +434,8 @@ void TRocketManager::initSetEnemies()
 void TRocketManager::createEnemyInstance() { new TRocket("ロケット"); }
 
 void TRocketManager::loadAfter() { JDrama::TNameRef::loadAfter(); }
+
+void TRocketManager::clipEnemies(JDrama::TGraphics* graphics) { }
 
 void TRocketManager::load(JSUMemoryInputStream& stream)
 {
