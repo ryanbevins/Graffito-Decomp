@@ -36,6 +36,69 @@ them in future ticks.
 
 ## Settled
 
+### Explicit `Base::method()` qualifier in fabricated forwarders suppresses virtual dispatch
+
+**Rule:** A fabricated forwarder method like
+
+```cpp
+TFooParams* getSaveParam2() const {
+    return (TFooParams*)TSpineEnemy::getSaveParam();   // direct call
+}
+```
+
+is compiled by MWCC to a single `bl getSaveParam__11TSpineEnemyCFv`.
+Dropping the explicit qualifier:
+
+```cpp
+TFooParams* getSaveParam2() const {
+    return (TFooParams*)getSaveParam();                // virtual call
+}
+```
+
+restores virtual dispatch and emits the 4-instruction vtable
+sequence `lwz r12, 0(this); lwz r12, VTOFFSET(r12); mtlr r12; blrl`.
+
+This is just C++ semantics (explicit qualification suppresses
+virtual), but in matching contexts it's the most impactful one-line
+lever found this quarter: many "fabricated" save-param accessors
+across the Enemy module use the qualifier-disabled form while target
+asm uses the virtual form.
+
+**Secondary effect — CSE behavior flips:** MWCC treats direct calls
+to `const` methods as pure and CSE's repeated calls in the same
+expression. Virtual calls are NOT CSE'd (the dispatch could differ).
+So `getSaveParam2()->a + getSaveParam2()->b` becomes 1 call with
+direct, 2 calls with virtual. If target shows the 1-call form
+(direct + CSE) but the caller you're editing now has multiple
+calls (post-flip), cache to a local:
+
+```cpp
+TFooParams* params = getSaveParam2();
+x = params->a + params->b;
+```
+
+**Citations:**
+- `Enemy/launcher::resetLaunchTimer` 82.86 → **100%** (tick 76). Same
+  4-line vtable diff vanished. Plus init, stateLaunch, stateDie,
+  CommonLauncher::stateDie all reached 100%.
+- `Enemy/walkerEnemy` TU 97.75 → **99.71%** (tick 76). moveObject,
+  reset, isResignationAttack, behaveToFindMario, multiple
+  TNerveWalker::execute fns improved.
+- `Enemy/smallEnemy` TU 90.99 → **92.91%** (tick 76). init 78→92%,
+  reset 65→77%. Two callers needed the local-cache fix per CSE
+  caveat above.
+
+**Where to try it next:**
+- `Hinokuri2.hpp:167` — same pattern but local override is named
+  `getSaveParam` (same as base), so dropping qualifier causes
+  infinite recursion. Rename to `getSaveParam2` first.
+- Any other `(TFoo*)TBase::method()` forwarder in `include/`.
+
+**Don't apply if** target asm shows the direct `bl funcName` form
+(no vtable lookup). Verify before flipping.
+
+---
+
 ### `BOOL` (typedef int) return type on inline helpers avoids `clrlwi.` narrowing and changes instruction scheduling
 
 **Rule:** Changing an `inline` helper's return type from `bool` to
