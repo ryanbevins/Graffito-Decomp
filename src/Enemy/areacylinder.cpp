@@ -76,9 +76,12 @@ static inline bool insideCylinder(const TAreaCylinder* cyl,
 		return false;
 	if (cyl->unk14 + cyl->unk20 < pos.y)
 		return false;
-	f32 dx = pos.x - cyl->unk10;
-	f32 dz = pos.z - cyl->unk18;
-	return dx * dx + dz * dz <= cyl->unk1C * cyl->unk1C;
+	f32 dx   = pos.x - cyl->unk10;
+	f32 dxSq = dx * dx;
+	f32 dz   = pos.z - cyl->unk18;
+	f32 dzSq = dz * dz;
+	f32 rSq  = cyl->unk1C * cyl->unk1C;
+	return dxSq + dzSq <= rSq;
 }
 
 bool TAreaCylinderManager::contain(const JGeometry::TVec3<f32>& pos)
