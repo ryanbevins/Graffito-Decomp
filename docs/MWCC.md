@@ -36,6 +36,96 @@ them in future ticks.
 
 ## Settled
 
+### Multi-char tag literals: `+ i` not `+ (i << 24)` for per-iteration suffix increment
+
+**Rule:** When iterating over pane/tag names that differ only in
+the last character (e.g. `ss_1`, `ss_2`), the source should use
+`'ss_1' + i` — NOT `'ss_1' + (i << 24)`. MWCC packs 4-char literals
+big-endian (`'X1X2X3X4'` = `(X1<<24)|(X2<<16)|(X3<<8)|X4`), so the
+last char sits in the LOW byte and `+ i` correctly increments it.
+
+**Symptom:** Diff shows target asm doing a 2-instruction tag build:
+
+```
+addis r4, rIdx, 0xHHHH
+addi  r4, r4,   0xLLLL
+```
+
+(where `(0xHHHH << 16) + 0xLLLL` = `'X1X2X3X4'`). Our build does
+3 instructions because of the spurious shift:
+
+```
+slwi  r4, rIdx, 24
+addis r4, r4,   0xHHHH
+addi  r4, r4,   0xLLLL
+```
+
+The `(i << 24)` form would correctly increment the FIRST char (high
+byte) — producing tags like 'ss_1', 'ts_1', 'us_1', not 'ss_1',
+'ss_2', 'ss_3'. The names with shifted high byte rarely exist in
+the BLO file, so this is both a codegen AND correctness bug.
+
+**How to apply:** look for source patterns like `'XXXX' + (i << N)`
+for N in {8,16,24}; nearly always the correct form is just `+ i`,
+unless the iteration genuinely changes the high byte (rare —
+typically only for stage-prefix tags like `'0c_1' + (stage << 24)`
+in resetScore-like code where the stage digit IS the high byte).
+
+**Where observed:**
+
+- `GC2D/Guide::load` — fixing six per-loop tag patterns (ss_1/sq_1/
+  sc_1/sb_1/cu_a/pn00) lifted load 89.57% → 93.70% (+4.13pp).
+- Also applies to single-tag stage-prefixed literals where target's
+  asm uses `lis r24, 0xHHHH; addi r4, r24, 0xLLLL` with the literal
+  not matching naive interpretation of the source's `'XXXX' + (... shift)`.
+  See `'mi09' → '01mi'` fix in Guide::load — original source used
+  the actual BLO pane name (`'01mi'`, stage-prefixed) directly.
+
+### Combined `clrlwi+slwi` → `clrlslwi` requires unsigned source type
+
+**Rule:** When indexing an array by a u8-returning function result
+(e.g. `array[SMS_getShineStage(...)]`), the result variable's
+declared type controls the codegen:
+
+- `u8 stage = SMS_getShineStage(...)` → MWCC fuses zero-extend +
+  shift into one `clrlslwi r0, r3, 24, 2` (for *4 indexing).
+- `s16 stage = ...` → MWCC emits `clrlwi r0, r3, 24; extsh r0, r0;
+  slwi r0, r0, 2` (3 insns: zero-extend, sign-extend, shift).
+
+The s16 cast forces an unnecessary `extsh` between the zero-extend
+and the shift, breaking the `clrlslwi` fusion.
+
+**How to apply:** use the natural unsigned type for the function's
+return value. If the function returns `u8`, store in `u8`. Don't
+widen to `s16`/`s32` unless the value is genuinely used signed later.
+
+**Where observed:**
+
+- `GC2D/Guide::perform` case 9 — changing `s16 stage` to
+  `u8 stage` shaved 2 insns and lifted match 67.52% → 68.11%.
+- See also `feedback_s32_intermediate_vs_u8.md` for the opposite
+  case (when storing TO a u8 field, `s32` intermediate beats `u8`).
+
+### Unsigned div magic differs from signed: drop `(u32)` cast to get signed `/10`
+
+**Rule:** Dividing an `int` by a constant 10 emits MWCC's signed
+magic `lis 0x6666; addi 0x6667 → mulhw → srawi 2 → srwi 31 → add`.
+If the source casts the dividend to `u32`, MWCC uses the unsigned
+magic `lis 0xcccd; subi 0x3333 → mulhwu → srwi 3` instead. These
+produce identical instruction COUNTS but different opcodes — break
+the match for any TU that originally used signed division.
+
+**How to apply:** prefer `int x = ...; int q = x / 10;` over
+`u32 x = ...; u32 q = x / 10;` unless the dividend is genuinely
+unsigned (e.g., from a u8 zero-extend that could exceed INT_MAX —
+extremely rare for index math).
+
+**Where observed:**
+
+- `GC2D/Guide::load` 13-loop — changing `u32 hi = (u32)i / 10;`
+  to `int hi = i / 10;` matched target's `lis 0x6666` signed magic
+  and gained +1.91pp (93.70% → 95.61%).
+
 ### Char-array row pointer: avoid pre-adding the constant struct offset to the base
 
 **Rule:** When a function iterates over a fixed-stride per-stage
