@@ -695,8 +695,8 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	unkC5 = 0;
 	JDrama::TNameRef::load(stream);
 
-	JKRMemArchive* archive = gpMarDirector->unkD8;
-	if (archive != nullptr) {
+	JKRMemArchive* archive;
+	if ((archive = gpMarDirector->unkD8) != nullptr) {
 		SMSMountAramArchive(archive, gArBkGuide);
 	} else {
 		setup_wait = 0x10;
@@ -775,8 +775,8 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	}
 
 	for (int i = 0; i < 13; i++) {
-		u32 hi      = (u32)i / 10;
-		u32 lo      = (u32)i % 10;
+		int hi      = i / 10;
+		int lo      = i % 10;
 		u32 ddTag   = (hi << 8) + lo + 0x3030;
 		u32 baseTag = ddTag << 16;
 
@@ -809,8 +809,8 @@ void TGuide::load(JSUMemoryInputStream& stream)
 		*(J2DPane**)((u8*)this + 0x44C + i * 4) = p;
 	}
 
-	_430 = unkBC->search('mi09');
-	_434 = unkBC->search('mi_9')->mBounds;
+	_430 = unkBC->search('01mi');
+	_434 = unkBC->search('01_9')->mBounds;
 	_474 = JKRFileLoader::getGlbResource("/common/2d/stagename.bmg");
 
 	_134 = (J2DPicture*)unkBC->search('10');
@@ -879,8 +879,8 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	void* msgData = JKRFileLoader::getGlbResource("/guide/guidemess.bmg");
 
 	for (int i = 0; i < 13; i++) {
-		u32 hi      = (u32)i / 10;
-		u32 lo      = (u32)i % 10;
+		int hi      = i / 10;
+		int lo      = i % 10;
 		u32 ddTag   = (hi << 8) + lo + 0x3030;
 		u32 baseTag = ddTag << 16;
 
