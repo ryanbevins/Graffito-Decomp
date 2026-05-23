@@ -1327,12 +1327,10 @@ void TBathWaterMeshRenderer::calcCoord()
 
 	unk800AE = unk800AC;
 
-	JGeometry::TVec2<f32> (*uv)[0x80]
-	    = (JGeometry::TVec2<f32>(*)[0x80])unk60020;
 	for (s32 x = 0; x < unk800AE; ++x) {
 		for (s32 z = 0; z < unk800AE; ++z) {
-			uv[x][z].x = (f32)x * unk800B0;
-			uv[x][z].y = (f32)z * unk800B0;
+			unk60020[x * 0x80 + z].x = (f32)x * unk800B0;
+			unk60020[x * 0x80 + z].y = (f32)z * unk800B0;
 		}
 	}
 	DCStoreRange(unk60020, 0x20000);
