@@ -76,11 +76,40 @@ if (fm->getBool(0x10384)) { ... }
   emitting `lwz r0, smInstance@sda21; mr r3, r0; bl getFlag` as expected.
   Confirms the rule from the second source pattern.
 
-**Caveat:** This is contextual. Watch__Ricco in the same TU uses
+**Caveat 1 — context dependent:** Watch__Ricco in the same TU uses
 `if (!TFlagManager::smInstance->getBool(unk2C))` with target emitting
 the *direct* `lwz r3, smInstance@sda21` pattern — no local needed.
 Only apply when the target's asm shows the indirect `lwz rN; mr r3, rN`
 shape.
+
+**Caveat 2 — the addi/mr flip is a side-effect, NOT a control knob.**
+The typed-local extraction couples `mr r31, r3 → addi r31, r3, 0` to
+the lwz-indirect change. They flip together. Some target functions
+have `lwz r0; mr r3, r0` AND `mr r31, r3` (the standard `this`-save).
+Applying the local-extract lever to such a function will flip the
+`mr r31, r3` to `addi r31, r3, 0` — *regressing* the encoding. Verify
+the target's `this`-save form before applying:
+- target `addi r31, r3, 0x0` + indirect-lwz → apply lever
+- target `mr r31, r3` + indirect-lwz → SKIP (lever breaks encoding)
+
+Observed in `JSystem/JAudio/JALibrary/JALModSe.cpp::processModDistVolume`:
+the indirect lwz was already produced *without* the local. Adding the
+typed local extraction regressed match from 97.56% → 95.12% by
+flipping `mr r31, r3` → `addi r31, r3, 0x0`. Reverted.
+
+**Applied successfully** (committed wins this rule has produced):
+- `Map/MapEventDolpic.cpp::watch__22TDolpicEventBiancoGateFv` 88.93→100%
+- `MoveBG/Item.cpp::taken__9TCoinBlueFP9THitActor` 96.63→99.86%
+- `MoveBG/MapObjMare.cpp::calc__9TMareFallFv` 93.44→99.90%
+- `Enemy/smallEnemy.cpp::changeOut__11TSmallEnemyFv` 89.85→95.49%
+- `Enemy/hamukuri.cpp::attackToMario__13THaneHamuKuriFv` 88.75→99.82%
+- `Player/MarioSound.cpp::startSoundActor__6TMarioFUl` 90.72→99.72%
+- `System/Application.cpp::checkAdditionalMovie__12TApplicationFv` 99.06→99.93%
+  (this one extracted a struct field, not a global — the lever generalises
+  to any single-use value that flows into an arg register)
+- `GC2D/Guide.cpp::resetObjects__6TGuideFv` 89.89→92.50%
+  (partial: only the 4 ternary-RHS smInstance refs converted to getInstance();
+  the other 7 non-ternary refs stay direct because target wants them direct)
 
 ### `inline static void dummy(Vec* v) { *v = (Vec){...}; }` emits a `Vec` rodata constant *without* a `.text` symbol
 
