@@ -35,9 +35,7 @@ void TAreaCylinder::load(JSUMemoryInputStream& stream)
 
 	stream.read(&unk1C, 4);
 	stream.read(&unk20, 4);
-
-	f32 dummyF;
-	stream.read(&dummyF, 4);
+	stream.read(&tmp.z, 4);
 
 	unk1C *= 50.0f;
 	unk20 *= 50.0f;
