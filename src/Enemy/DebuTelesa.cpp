@@ -53,17 +53,13 @@ void TDebuTelesa::calcRootMatrix()
 	if (isTaken())
 		return;
 
-	if (mSpine->getCurrentNerve() == &TNerveSmallEnemyDie::theNerve())
+	if (mSpine->getLatestNerve() == &TNerveSmallEnemyDie::theNerve())
 		return;
 
-	{
-		MtxPtr mtx = getModel()->getAnmMtx(mJntRhand);
-		mTipPos.x  = mtx[0][3];
-		mTipPos.y  = mtx[1][3];
-		mTipPos.z  = mtx[2][3];
-		SMS_EasyEmitParticle(PARTICLE_MS_POI_ZZZ, &mTipPos, this,
-		                     JGeometry::TVec3<f32>(1.5f, 1.5f, 1.5f));
-	}
+	MtxPtr mtx = getModel()->getAnmMtx(mJntRhand);
+	mTipPos.set<f32>(mtx[0][3], mtx[1][3], mtx[2][3]);
+	SMS_EasyEmitParticle(PARTICLE_MS_POI_ZZZ, &mTipPos, this,
+	                     JGeometry::TVec3<f32>(1.5f, 1.5f, 1.5f));
 
 	SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x187,
 	                     getModel()->getAnmMtx(mJntNullYodare), this,
