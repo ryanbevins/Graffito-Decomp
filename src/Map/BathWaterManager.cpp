@@ -320,9 +320,9 @@ static void drawCap(const JGeometry::TVec3<f32>& center, f32 radius)
 	GXBegin(GX_TRIANGLEFAN, GX_VTXFMT0, 0x1e);
 	for (int i = 0; i < 0x1e; ++i) {
 		f32 sinAngle = sinf(angle);
+		f32 z        = center.z + drawRadius * sinAngle;
 		f32 cosAngle = cosf(angle);
 		f32 x        = center.x + drawRadius * cosAngle;
-		f32 z        = center.z + drawRadius * sinAngle;
 		angle += delta;
 		GXPosition3f32(x, center.y, z);
 		GXTexCoord2u8(0x40, 0x40);
