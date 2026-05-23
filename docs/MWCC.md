@@ -36,6 +36,88 @@ them in future ticks.
 
 ## Settled
 
+### `BOOL` (typedef int) return type on inline helpers avoids `clrlwi.` narrowing and changes instruction scheduling
+
+**Rule:** Changing an `inline` helper's return type from `bool` to
+`BOOL` (typedef int) eliminates MWCC's bool-narrowing cast at the
+caller and can simultaneously re-schedule surrounding loads. Two
+distinct symptoms appear together:
+
+1. **Bool-narrowing test:** When the caller does
+   `if (inlineHelper(...)) { ... }`, target emits `cmpwi rN, 0x0; beq`
+   after the helper's final `mfcr/extrwi` sequence; our `bool`-return
+   version emits `clrlwi. rN, rN, 24; beq` (clear-left-24 with record).
+   Both work but only the `cmpwi` form matches target.
+2. **Instruction-scheduling side-effect:** Changing the return type
+   *also* lets MWCC delay one or more `lfs` loads past intervening
+   `fsubs` operations. Confirmed on `insideCylinder` (areacylinder):
+   the `lfs f0, 0x18(r3)` load for `cyl->unk18` moved from BEFORE
+   `fsubs f2, f3, f2` (dx computation) to AFTER it — matching target
+   schedule — purely by flipping `bool` → `BOOL` on the helper.
+
+**How to identify the target pattern:**
+- Target asm shows `cmpwi rN, 0x0; beq` after `mfcr; extrwi rN, rN, 1, 2`.
+- Our build shows `clrlwi. rN, rN, 24; beq` at the same position.
+- Helper currently declared as `bool` and called from `if (helper(...))`.
+
+**Source that matches (BOOL form):**
+```cpp
+static inline BOOL insideCylinder(...) {
+    if (cond) return FALSE;
+    ...
+    return (someCmp);  // bool->BOOL implicit conversion
+}
+```
+
+**Where observed:**
+- `Enemy/areacylinder.cpp::contain__20TAreaCylinderManagerFRCQ29JGeometry8TVec3<f>`
+  — 94.72% → **99.82%** by changing `static inline bool insideCylinder(...)`
+  to `static inline BOOL insideCylinder(...)` and `return false;` to
+  `return FALSE;`. Both the `clrlwi.` → `cmpwi` flip AND the `lfs f0, 0x18`
+  scheduling flip happened together.
+- `Enemy/areacylinder.cpp::getCylinderContains__20TAreaCylinderManagerFRCQ29JGeometry8TVec3<f>`
+  — 94.68% → **99.88%** by the same change to the same helper.
+
+**Mechanism (hypothesis):** MWCC's bool type triggers an extra
+"narrow to bit" semantic at every implicit `bool` → `int` conversion
+point. The narrowing inserts a `clrlwi.` *and* counts as an extra
+node in the dependency graph, perturbing the instruction scheduler's
+choice for surrounding `lfs` loads. `BOOL` (typedef int) skips both.
+
+**Where to try it:** Any inline helper currently returning `bool`
+whose target asm shows `cmpwi rN, 0x0; beq` after `mfcr/extrwi` while
+our build shows `clrlwi. rN, rN, 24; beq`. Especially common in
+small predicate helpers called from `if (helper(...))` loops.
+
+### Disjunction (`||`) merges two `return false` early-exits into one shared fail block
+
+**Rule:** When a helper has multiple sequential guard clauses each
+producing `return false`, MWCC emits a separate `li rN, 0; b end`
+fail block for each. Merging the guards into a single `||`
+disjunction produces ONE shared fail block reached by `blt`/`bge`
+from each compare — matching target's typical schedule for inline
+predicate helpers.
+
+```cpp
+// ours: 2 fail blocks
+if (cond1) return false;
+if (cond2) return false;
+
+// target shape: 1 shared fail block
+if (cond1 || cond2) return false;
+```
+
+**Where observed:**
+- `Enemy/areacylinder.cpp::insideCylinder` y-range check — 90.6% → 94.7%
+  on the two outer functions (contain, getCylinderContains) by merging
+  `if (pos.y < cyl->unk14) return false; if (cyl->unk14 + cyl->unk20 < pos.y) return false;`
+  into `if (pos.y < unk14 || unk14 + unk20 < pos.y) return false;`.
+
+**How to identify:** Target shows `blt fail_label` falling straight
+into the next test, where `fail_label` is the SAME `li rN, 0; b end`
+block reached by both `blt` from the first test AND `bge` from the
+second. Our build has two distinct fail blocks instead.
+
 ### Bind a global pointer to a typed local before a method call to emit `lwz rTMP; mr r3, rTMP` instead of `lwz r3, gFoo@sda21`
 
 **Rule:** When source writes `Foo::sInstance->method(args);` directly,
