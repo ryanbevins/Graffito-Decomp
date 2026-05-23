@@ -2253,6 +2253,20 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Dead-but-kept TMatrix34 stack stores under MWCC -O4,p.** Symptom: target
+  `watch__26TDolpicEventRiccoMammaGateFv` (and equivalent code shapes in other
+  TUs) emits 12 stfs stores at `r1+0x60..+0x8C` initialising a `TMatrix34`
+  identity + `mMtx[1][1] = scale`, but no subsequent read or pass-by-reference
+  occurs — the next instruction is `lwz r3, 0x24(r31); ... vtbl[6] = setUp()`,
+  which takes no args. The matrix is purely dead from source view. Yet MWCC
+  emits the stores. Our build of the same source pattern DCE's the stores
+  entirely. What forces MWCC to keep them? Theories worth testing: (1) the
+  matrix variable was the `this` of an inlined helper whose body got DCE'd
+  but the prologue/epilogue ctor stores survived (e.g. `auto coll = ...; (void)
+  coll;` with `coll`'s ctor non-trivial); (2) `volatile` somewhere in the
+  matrix's source path; (3) the matrix was passed-by-reference to an inline
+  empty body and the compiler kept the prep stores. Affected TU:
+  `mario/Map/MapEventDolpic` watch__Ricco at 77.55% (filed tick 71).
 - **Local-static `$localstatic0$<fn>` mangling on a non-inlined function.**
   Symptom: target's `calcTowerCenterPos___15CPolarSubCameraFP3Vec`
   is a 296-byte OUT-OF-LINE function (not inlined into its sole

@@ -29,6 +29,7 @@
 #include <GC2D/Guide.hpp>
 #include <GC2D/SunGlass.hpp>
 #include <Map/MapMirror.hpp>
+#include <Map/MapEventDolpic.hpp>
 #include <Map/MapEventSink.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EffectObj.hpp>
@@ -248,15 +249,14 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef(const char* name) const
 	if (strcmp(name, "MapEventSinkBianco") == 0)
 		return new TMapEventSinkBianco;
 
-	// TODO:
-	// if (strcmp(name, "DolpicEventBiancoGate") == 0)
-	// 	return new TDolpicEventBiancoGate;
+	if (strcmp(name, "DolpicEventBiancoGate") == 0)
+		return new TDolpicEventBiancoGate;
 
-	// if (strcmp(name, "DolpicEventRiccoGate") == 0)
-	// 	return new TDolpicEventRiccoMammaGate;
+	if (strcmp(name, "DolpicEventRiccoGate") == 0)
+		return new TDolpicEventRiccoMammaGate;
 
-	// if (strcmp(name, "DolpicEventMammaGate") == 0)
-	// 	return new TDolpicEventRiccoMammaGate;
+	if (strcmp(name, "DolpicEventMammaGate") == 0)
+		return new TDolpicEventRiccoMammaGate;
 
 	// if (strcmp(name, "MareEventBumpyWall") == 0)
 	// 	return new TMareEventBumpyWall;
