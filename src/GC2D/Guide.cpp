@@ -797,6 +797,106 @@ void TGuide::load(JSUMemoryInputStream& stream)
 
 	_168[13] = (TBoundPane*)unkBC->search(0x3230);
 
+	_1C0[13] = new TExPane(unkBC, 'lwin');
+	_218[13] = _1C0[13]->getPane()->mBounds;
+
+	_378[13] = new TExPane(unkBC, 'llin');
+
+	for (int i = 0; i < 10; i++) {
+		J2DPane* p = unkBC->search('pn00' + (i << 16));
+		*(J2DPane**)((u8*)this + 0x44C + i * 4) = p;
+	}
+
+	_430 = unkBC->search('mi09');
+	_434 = unkBC->search('mi_9')->mBounds;
+	_474 = JKRFileLoader::getGlbResource("/common/2d/stagename.bmg");
+
+	_134 = (J2DPicture*)unkBC->search('10');
+	JUTTexture* texSun = new JUTTexture();
+	if (texSun != nullptr) {
+		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
+		    "/guide/timg/guide_draw_sun_2.bti");
+		texSun->mEmbPalette = nullptr;
+		texSun->storeTIMG(img);
+		texSun->unk50 = 0;
+	}
+	_134->insert(texSun, _134->mTextureNum, 0.0f);
+
+	_138 = (J2DPicture*)unkBC->search('13');
+	JUTTexture* texShip = new JUTTexture();
+	if (texShip != nullptr) {
+		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
+		    "/guide/timg/guide_draw_ship_2.bti");
+		texShip->mEmbPalette = nullptr;
+		texShip->storeTIMG(img);
+		texShip->unk50 = 0;
+	}
+	_138->insert(texShip, _138->mTextureNum, 0.0f);
+
+	_13C = (J2DPicture*)unkBC->search('16');
+	JUTTexture* texPalm2 = new JUTTexture();
+	if (texPalm2 != nullptr) {
+		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
+		    "/guide/timg/guide_draw_palmtree_2.bti");
+		texPalm2->mEmbPalette = nullptr;
+		texPalm2->storeTIMG(img);
+		texPalm2->unk50 = 0;
+	}
+	_13C->insert(texPalm2, _13C->mTextureNum, 0.0f);
+
+	_140 = (J2DPicture*)unkBC->search('17');
+	JUTTexture* texPalm1 = new JUTTexture();
+	if (texPalm1 != nullptr) {
+		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
+		    "/guide/timg/guide_draw_palmtree_1.bti");
+		texPalm1->mEmbPalette = nullptr;
+		texPalm1->storeTIMG(img);
+		texPalm1->unk50 = 0;
+	}
+	_140->insert(texPalm1, _140->mTextureNum, 0.0f);
+
+	_144 = (J2DPicture*)unkBC->search('18');
+	JUTTexture* texFish = new JUTTexture();
+	if (texFish != nullptr) {
+		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
+		    "/guide/timg/guide_draw_fish_2.bti");
+		texFish->mEmbPalette = nullptr;
+		texFish->storeTIMG(img);
+		texFish->unk50 = 0;
+	}
+	_144->insert(texFish, _144->mTextureNum, 0.0f);
+
+	_148 = unkBC->search('11');
+	_14C = unkBC->search('14');
+	_150 = unkBC->search('15');
+	_154 = unkBC->search('12');
+	_154->setBasePosition((J2DBasePosition)4);
+	_158 = unkBC->search('19');
+	_158->setBasePosition((J2DBasePosition)4);
+
+	void* msgData = JKRFileLoader::getGlbResource("/guide/guidemess.bmg");
+
+	for (int i = 0; i < 13; i++) {
+		u32 hi      = (u32)i / 10;
+		u32 lo      = (u32)i % 10;
+		u32 ddTag   = (hi << 8) | lo | 0x3030;
+		u32 baseTag = ddTag << 16;
+
+		J2DTextBox* tb1
+		    = (J2DTextBox*)unkBC->search(baseTag | 0x5f33);
+		SMSMakeTextBuffer(tb1, 0x1e);
+		tb1->setFont(gpSystemFont);
+		const char* msg1 = SMSGetMessageData(msgData, i + 0xd);
+		strncpy(tb1->getStringPtr(), msg1, 0x1e);
+
+		J2DTextBox* tb2
+		    = (J2DTextBox*)unkBC->search(baseTag | 0x5f35);
+		SMSMakeTextBuffer(tb2, 0x200);
+		tb2->setFont(gpSystemFont);
+		const char* msg2 = SMSGetMessageData(msgData, i);
+		strncpy(tb2->getStringPtr(), msg2, 0x200);
+	}
+
 	_478 = new TExPane(unkBC, 'mark');
 	_444 = new TBoundPane(unkBC, 0x3230);
 
