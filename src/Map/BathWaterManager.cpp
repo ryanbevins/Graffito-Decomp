@@ -333,9 +333,10 @@ static void drawCap(const JGeometry::TVec3<f32>& center, f32 radius)
 JGeometry::TVec3<f32> TBathtubData::getPos(int index, int count,
                                            f32 height) const
 {
+	f32 radiusFactor              = unk3C - height;
 	JGeometry::TVec3<f32> result = unk0;
 	f32 t                         = (f32)index / (f32)count;
-	f32 radius                    = t * (unk3C - height);
+	f32 radius                    = t * radiusFactor;
 	f32 angle                     = (f32)index * 0.31415927f;
 	f32 s                         = radius * sinf(angle);
 
