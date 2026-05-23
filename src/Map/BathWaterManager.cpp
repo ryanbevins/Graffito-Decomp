@@ -1051,8 +1051,8 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
                                     TBathWater** waters,
                                     TBathWaterParams** params, int count)
 {
-	int renderWidth  = SMSGetGameRenderWidth();
-	int renderHeight = SMSGetGameRenderHeight();
+	s16 renderWidth  = SMSGetGameRenderWidth();
+	s16 renderHeight = SMSGetGameRenderHeight();
 
 	if (unk2C->clearsAlpha.get())
 		clearEFB_alpha(0, 0, 0, 0, 0);
@@ -1370,8 +1370,8 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
                                     TBathWater** waters,
                                     TBathWaterParams** params, int count)
 {
-	int renderWidth  = SMSGetGameRenderWidth();
-	int renderHeight = SMSGetGameRenderHeight();
+	s16 renderWidth  = SMSGetGameRenderWidth();
+	s16 renderHeight = SMSGetGameRenderHeight();
 	MtxPtr projMtx   = (MtxPtr)((u8*)gpCamera + 0x16C);
 	MtxPtr viewMtx   = (MtxPtr)((u8*)gpCamera + 0x1EC);
 
@@ -1674,8 +1674,8 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 
 	MtxPtr oldProjection = (MtxPtr)((u8*)gpCamera + 0x16C);
 	j3dSys.drawInit();
-	int renderWidth  = SMSGetGameRenderWidth();
-	int renderHeight = SMSGetGameRenderHeight();
+	s16 renderWidth  = SMSGetGameRenderWidth();
+	s16 renderHeight = SMSGetGameRenderHeight();
 	GXSetViewport(0.0f, 0.0f, (f32)renderWidth, (f32)renderHeight, 0.0f,
 	              1.0f);
 
