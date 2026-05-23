@@ -68,11 +68,11 @@ void TAreaCylinder::load(JSUMemoryInputStream& stream)
 
 void TAreaCylinder::perform(u32, JDrama::TGraphics*) { }
 
-static inline bool insideCylinder(const TAreaCylinder* cyl,
+static inline BOOL insideCylinder(const TAreaCylinder* cyl,
                                   const JGeometry::TVec3<f32>& pos)
 {
 	if (pos.y < cyl->unk14 || cyl->unk14 + cyl->unk20 < pos.y)
-		return false;
+		return FALSE;
 	f32 dx   = pos.x - cyl->unk10;
 	f32 dxSq = dx * dx;
 	f32 dz   = pos.z - cyl->unk18;
