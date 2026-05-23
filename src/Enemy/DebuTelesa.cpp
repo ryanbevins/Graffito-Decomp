@@ -71,16 +71,16 @@ void TDebuTelesa::kill() { TSmallEnemy::kill(); }
 BOOL TDebuTelesa::receiveMessage(THitActor* sender, u32 message)
 {
 	switch (message) {
+	case 0:
+	case 1:
+	case 12:
+		return 0;
 	case 11:
 		if (gpMSound->gateCheck(0x2938)) {
 			MSoundSESystem::MSoundSE::startSoundActor(0x2938, &mPosition, 0,
 			                                          nullptr, 0, 4);
 		}
 		break;
-	case 0:
-	case 1:
-	case 12:
-		return 0;
 	}
 	return TSmallEnemy::receiveMessage(sender, message);
 }
