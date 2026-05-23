@@ -910,7 +910,7 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (flags & 1) {
 		TBathWaterRenderer** renderers = &unk28;
-		unk30                          = renderers[unk18->mode.get()];
+		unk30                          = renderers[unk18->displaysMesh.get()];
 		unk1C += 1;
 
 		if ((unk1C & 3) == 0) {
