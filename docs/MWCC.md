@@ -89,13 +89,27 @@ x = params->a + params->b;
   caveat above.
 
 **Where to try it next:**
-- `Hinokuri2.hpp:167` — same pattern but local override is named
-  `getSaveParam` (same as base), so dropping qualifier causes
-  infinite recursion. Rename to `getSaveParam2` first.
 - Any other `(TFoo*)TBase::method()` forwarder in `include/`.
 
 **Don't apply if** target asm shows the direct `bl funcName` form
 (no vtable lookup). Verify before flipping.
+
+**Refuted on Hinokuri2** (tick 78): Hinokuri2.hpp:165 had a forwarder
+named `getSaveParam` (same name as the base virtual). Renamed to
+`getSaveParam2`, dropped qualifier, updated 29 call sites in
+hinokuri2.cpp + 6 in the header. **Net regression:** TU 99.23% →
+99.18%. Per-fn breakdown: 3 functions gained (perform_Mask +0.18,
+moveObject +0.05, execute_PrePol +0.79), 6 functions lost (reset
+-0.08, execute_GraphWander/Pollute/Damage -0.04 each,
+execute_Burst -2.46, execute_Stamp -0.07). Reverted. The Burst
+regression came from register-coloring reorder (r30↔r31 swap),
+not from CSE/local-cache issues — caches wouldn't fix it. Conclusion:
+in TUs with very many call sites (~30+) and complex nerve-execute
+schedules, the qualifier-drop's NV-register-allocation side effect
+becomes a coin-flip per function. Apply this only where ALL or
+MOST callers visibly need virtual dispatch AND you've audited
+each affected function for register-order survivability — or skip
+the TU entirely. Hinokuri2 is now in the "skip" category.
 
 ---
 
