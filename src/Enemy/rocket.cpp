@@ -157,7 +157,7 @@ DEFINE_NERVE(TNerveRocketPossessedNozzle, TLiveActor)
 	}
 
 	if (firePressed)
-		spine->setNext(&TNerveRocketFly::theNerve());
+		spine->pushNerve(&TNerveRocketFly::theNerve());
 
 	return firePressed ? TRUE : FALSE;
 }
@@ -253,7 +253,7 @@ void TRocket::attackToMario()
 {
 	if (mSpine->getCurrentNerve() == &TNerveRocketWait::theNerve()
 	    && ((TRocketManager*)mManager)->mActiveFlag) {
-		mSpine->setNext(&TNerveRocketPossessedNozzle::theNerve());
+		mSpine->pushNerve(&TNerveRocketPossessedNozzle::theNerve());
 	}
 }
 
@@ -367,7 +367,7 @@ void TRocket::load(JSUMemoryInputStream& stream)
 	TSmallEnemy::load(stream);
 	mInitialPos      = mPosition;
 	mInitialPosSaved = 1;
-	loadAfter();
+	reset();
 }
 
 TRocket::TRocket(const char* name)
@@ -415,23 +415,21 @@ void TRocketManager::initSetEnemies()
 	for (int i = 0; i < mObjNum; ++i) {
 		TGraphWeb* web  = gpConductor->getGraphByName("main");
 		TRocket* rocket = (TRocket*)unk18[i];
-		if (!(rocket->mLiveFlag & LIVE_FLAG_DEAD) && !web->isDummy()) {
+		if ((rocket->mLiveFlag & LIVE_FLAG_DEAD) && !web->isDummy()) {
 			int nodeCount = web->unk8;
-			f32 randVal   = MsRandF();
-			int idx       = (int)(randVal * (f32)nodeCount);
+			int idx = (int)(rand() * 0.000030517578f * (f32)nodeCount);
 
 			Vec p;
 			web->unk0[idx].getPoint(&p);
-			rocket->mPosition.x = p.x;
-			rocket->mPosition.y = p.y + 5.0f;
-			rocket->mPosition.z = p.z;
+			rocket->mPosition = *(JGeometry::TVec3<f32>*)&p;
+			rocket->mPosition.y += 5.0f;
 			rocket->mLiveFlag |= LIVE_FLAG_AIRBORNE;
 			rocket->reset();
 		}
 	}
 }
 
-void TRocketManager::createEnemyInstance() { new TRocket("ロケット"); }
+TSmallEnemy* TRocketManager::createEnemyInstance() { return new TRocket("ロケット"); }
 
 void TRocketManager::loadAfter() { JDrama::TNameRef::loadAfter(); }
 

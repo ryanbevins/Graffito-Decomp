@@ -56,7 +56,7 @@ public:
 	virtual void load(JSUMemoryInputStream&);
 	virtual void loadAfter();
 	virtual void createModelData();
-	virtual void createEnemyInstance();
+	virtual TSmallEnemy* createEnemyInstance();
 	virtual void initSetEnemies();
 	virtual void clipEnemies(JDrama::TGraphics*);
 
