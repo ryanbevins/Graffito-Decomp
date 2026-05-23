@@ -36,6 +36,52 @@ them in future ticks.
 
 ## Settled
 
+### Hoist `param->field.member` to a local pointer when used across multiple `bl` calls
+
+**Rule:** When a function uses the same `param->field.member` address
+twice across `bl` calls (e.g. as a first argument to two different
+library functions), MWCC re-emits `addi rN, rParam, OFFSET` at each
+use site by default. Hoisting the address into a typed local pointer
+causes MWCC to pre-compute the offset once into a callee-saved
+register (target's `addi r31, r30, 0x74`) and reuse via `addi r3, r31, 0x0`
+or `mr r3, r31` at subsequent sites.
+
+This is closely related to the existing "Reference-typed arguments"
+rule but applies to plain pointer arguments — no reference type
+needed. The trigger is **multiple bl calls** consuming the same
+field-address as a leading argument.
+
+**How to apply:**
+
+```cpp
+// Before (recomputes addi rN, rParam, OFFSET twice):
+C_MTXPerspective(param_2->mProjMtx.mMtx, fovY, aspect, n, f);
+...
+GXSetProjection(param_2->mProjMtx.mMtx, GX_PERSPECTIVE);
+
+// After (single addi at top, reused via mr):
+MtxPtr projMtx = param_2->mProjMtx.mMtx;
+C_MTXPerspective(projMtx, fovY, aspect, n, f);
+...
+GXSetProjection(projMtx, GX_PERSPECTIVE);
+```
+
+The local must be a typed pointer (`MtxPtr`, `T*`, `T&`) so MWCC keeps
+it in a register rather than spilling each component. If the field
+is accessed only once between the two `bl` calls AND nowhere else,
+MWCC may already hoist it, so the lever applies mainly when there's
+intervening computation that would otherwise cause re-materialization.
+
+**Where observed:**
+- `JSystem/JDrama/JDRCamera.cpp::TLookAtCamera::perform` —
+  85.12% → 99.73% by hoisting `param_2->mProjMtx.mMtx` to a single
+  `MtxPtr projMtx` local. Diff revealed target's `addi r31, r30, 0x74`
+  + `mr r3, r31` + later `addi r3, r31, 0x0` pattern. Adds one extra
+  callee-saved register slot.
+- `JSystem/JDrama/JDRCamera.cpp::TOrthoProj::perform` — 85.58% → 99.74%
+  via identical fix. Both functions share the structure
+  `C_MTX*(projMtx, ...); ...; GXSetProjection(projMtx, MODE);`.
+
 ### Multi-char tag literals: `+ i` not `+ (i << 24)` for per-iteration suffix increment
 
 **Rule:** When iterating over pane/tag names that differ only in
