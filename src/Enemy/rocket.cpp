@@ -1,1 +1,460 @@
+#include <Enemy/Rocket.hpp>
+#include <Enemy/Conductor.hpp>
+#include <Enemy/Graph.hpp>
+#include <Camera/Camera.hpp>
+#include <Map/Map.hpp>
+#include <Map/MapCollisionData.hpp>
+#include <Map/MapData.hpp>
+#include <Strategic/Spine.hpp>
+#include <System/Particles.hpp>
+#include <System/MarDirector.hpp>
+#include <System/EmitterViewObj.hpp>
+#include <Player/MarioAccess.hpp>
+#include <Player/MarioMain.hpp>
+#include <Player/ModelWaterManager.hpp>
+#include <Player/Watergun.hpp>
+#include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/RandomUtil.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <Strategic/ObjModel.hpp>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/JGeometry/JGRotation3.hpp>
+#include <JSystem/JGeometry/JGUtil.hpp>
+#include <dolphin/mtx.h>
 
+// rogue includes needed for matching sinit & bss
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
+
+f32 TRocket::mTestAng_y     = 90.0f;
+f32 TRocket::mNozzleOffsetZ = 25.0f;
+f32 TRocket::mColOffsetY    = 20.0f;
+f32 TRocket::mTestAng_x;
+f32 TRocket::mTestAng_z;
+
+static const char* rocket_bastable[] = {
+	// Empty bas table
+	"\0\0\0\0",
+};
+
+BOOL TNerveRocketWait::execute(TSpineBase<TLiveActor>* spine) const
+{
+	TRocket* self = (TRocket*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->mLiveFlag |= LIVE_FLAG_UNK10;
+	}
+	return FALSE;
+}
+
+BOOL TNerveRocketFly::execute(TSpineBase<TLiveActor>* spine) const
+{
+	TRocket* self = (TRocket*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setBckAnm(3);
+
+		TWaterGun* wg = (TWaterGun*)SMS_GetMarioWaterGun();
+		MtxPtr mtx    = wg->getEmitMtx(0);
+
+		f32 speed = self->mParams->mSLReleaseSpeed.value;
+		self->mVelocity.x = speed * mtx[0][0];
+		self->mVelocity.y = speed * mtx[1][0];
+		self->mVelocity.z = speed * mtx[2][0];
+
+		self->mLiveFlag |= LIVE_FLAG_AIRBORNE;
+		((TRocketManager*)self->mManager)->mActiveFlag = 1;
+		self->mUnk1A0                                  = 0;
+
+		f32 vx    = self->mVelocity.x;
+		f32 vz    = self->mVelocity.z;
+		f32 angle = 0.0f;
+		if (vz == 0.0f) {
+			angle = vx <= 0.0f ? -90.0f : 90.0f;
+		} else if (vz > 0.0f) {
+			angle = matan(vx, vz) * (360.0f / 65536.0f);
+		} else {
+			angle = 180.0f - matan(vx, -vz) * (360.0f / 65536.0f);
+		}
+		self->mRotation.y = MsWrap<f32>(angle, 0.0f, 360.0f);
+		self->mRotation.x = 0.0f;
+		self->mRotation.z = 0.0f;
+
+		self->unk64 &= ~1u;
+	}
+
+	if (self->mCurrentBckAnm == 1)
+		self->setBckAnm(1);
+
+	JGeometry::TVec3<f32> vel(self->mVelocity.x, self->mVelocity.y,
+	                          self->mVelocity.z);
+	JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(vel);
+	self->mRotation.x         = rot.x;
+
+	gpMarioParticleManager->emitAndBindToPosPtr(0x179, &self->mPosition, 1,
+	                                            self);
+
+	if (spine->getTime() > self->mParams->mSLFlyLimitTime.value)
+		self->kill();
+
+	if (!self->checkLiveFlag(LIVE_FLAG_UNK10))
+		self->getModel();
+
+	return FALSE;
+}
+
+BOOL TNerveRocketPossessedNozzle::execute(TSpineBase<TLiveActor>* spine) const
+{
+	TRocket* self = (TRocket*)spine->getBody();
+	if (spine->getTime() == 0) {
+		SMSRumbleMgr->start(0x15, 0xa, (f32*)nullptr);
+		if (gpMSound->gateCheck(0x180c)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x180c, &self->mPosition, 0, nullptr, 0, 4);
+		}
+		if (gpMSound->gateCheck(0x825)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x825, &self->mPosition, 0, nullptr, 0, 4);
+		}
+		((TRocketManager*)self->mManager)->mActiveFlag = 0;
+		self->mLiveFlag &= ~LIVE_FLAG_UNK10;
+		self->mUnk1A0 = 1;
+		self->setBckAnm(0);
+	}
+
+	SMS_SendMessageToMario((THitActor*)self, 5);
+
+	u8* gamepad = *(u8**)((u8*)gpMarDirector + 0x18);
+	gamepad     = *(u8**)gamepad;
+
+	int marioJumpFrames = (int)*(f32*)(gamepad + 0xb4);
+	if (marioJumpFrames > 0x14) {
+		if (self->mHitPoints > 1)
+			self->mHitPoints -= 1;
+	}
+
+	if (self->mCurrentBckAnm == 2) {
+		if (gpMSound->gateCheck(0x4807)) {
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4807, 0, nullptr, 0);
+		}
+		self->setBckAnm(2);
+	}
+
+	bool firePressed = false;
+	if (*(u32*)(gamepad + 0xd4) & 0x400) {
+		self->unk190 = 0.0f;
+		self->expandCollision();
+		if (gpMSound->gateCheck(3)) {
+			MSoundSESystem::MSoundSE::startSoundActor(3, &self->mPosition, 0,
+			                                          nullptr, 0, 4);
+		}
+		SMSRumbleMgr->start(0x15, 5, (f32*)nullptr);
+		firePressed = true;
+	}
+
+	if (firePressed)
+		spine->setNext(&TNerveRocketFly::theNerve());
+
+	return firePressed ? TRUE : FALSE;
+}
+
+const char** TRocket::getBasNameTable() const { return rocket_bastable; }
+
+bool TRocket::isAttack()
+{
+	return mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve();
+}
+
+bool TRocket::isCollidMove(THitActor* other)
+{
+	if (mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve()) {
+		if (other->receiveMessage((THitActor*)this, 0)) {
+			kill();
+		}
+	}
+	return false;
+}
+
+f32 TRocket::getGravityY() const
+{
+	f32 g = mGravity;
+	if (mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve())
+		g = mParams->mSLFlyGravity.value;
+	return g;
+}
+
+void TRocket::setDeadAnm()
+{
+	TWaterEmitInfo* ei                                = ((TRocketManager*)mManager)->mWaterEmitInfo;
+	ei->mPos.value                                    = mPosition;
+	gpModelWaterManager->emitRequest(*ei);
+
+	if (mUnk1A0) {
+		((TRocketManager*)mManager)->mActiveFlag = 1;
+		mUnk1A0                                  = 0;
+	}
+
+	mLiveFlag |= 0x20000;
+
+	J3DModel* model = getModel();
+	MtxPtr mtx      = (MtxPtr)((u8*)model->mModelData + 0x20);
+	gpMarioParticleManager->emitAndBindToMtxPtr(0xc1, mtx, 0, nullptr);
+	gpMarioParticleManager->emitAndBindToMtxPtr(0xc2, mtx, 0, nullptr);
+}
+
+void TRocket::bind()
+{
+	if (checkLiveFlag(LIVE_FLAG_UNK10))
+		return;
+
+	bool isPossessed
+	    = mSpine->getCurrentNerve() == &TNerveRocketPossessedNozzle::theNerve();
+	bool isFly = mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve();
+
+	if (!isPossessed && !isFly) {
+		TLiveActor::bind();
+		return;
+	}
+
+	TBGWallCheckRecord rec(mPosition.x, mPosition.y, mPosition.z,
+	                       mBodyScale * mWallRadius, 1, 0);
+	if (gpMap->isTouchedWallsAndMoveXZ(&rec)) {
+		TBGCheckData* wall = rec.mResultWalls[0];
+		if (wall) {
+			THitActor* owner = *(THitActor**)((u8*)wall + 0x44);
+			if (owner)
+				owner->receiveMessage((THitActor*)this, 0xe);
+		}
+		kill();
+		return;
+	}
+
+	if (!isFly)
+		return;
+
+	TLiveActor::bind();
+	if (checkLiveFlag(LIVE_FLAG_UNK100))
+		return;
+
+	if (mGroundPlane) {
+		THitActor* gowner = *(THitActor**)((u8*)mGroundPlane + 0x44);
+		if (gowner)
+			gowner->receiveMessage((THitActor*)this, 0xe);
+	}
+	kill();
+}
+
+void TRocket::behaveToWater(THitActor* p) { TSmallEnemy::behaveToWater(p); }
+
+void TRocket::attackToMario()
+{
+	if (mSpine->getCurrentNerve() == &TNerveRocketWait::theNerve()
+	    && ((TRocketManager*)mManager)->mActiveFlag) {
+		mSpine->setNext(&TNerveRocketPossessedNozzle::theNerve());
+	}
+}
+
+void TRocket::reset()
+{
+	mUnk1A0 = 0;
+	TSmallEnemy::reset();
+
+	if (mInitialPosSaved) {
+		mPosition.x = mInitialPos.x;
+		mPosition.y = mInitialPos.y;
+		mPosition.z = mInitialPos.z;
+	}
+
+	mLiveFlag |= LIVE_FLAG_UNK10;
+	mLiveFlag &= ~LIVE_FLAG_UNK800;
+	mLiveFlag |= LIVE_FLAG_UNK8;
+
+	mSpine->initWith(&TNerveRocketWait::theNerve());
+}
+
+void TRocket::setMActorAndKeeper()
+{
+	mMActorKeeper = new TMActorKeeper(mManager, 1);
+	mMActor       = mMActorKeeper->createMActor("rocket.bmd", 3);
+}
+
+void TRocket::calcRootMatrix()
+{
+	if (!mUnk1A0) {
+		TSpineEnemy::calcRootMatrix();
+	} else {
+		J3DModel* model = getModel();
+		// model->unk14 (mBaseScale) = mScaling
+		((f32*)((u8*)model + 0x14))[0] = mScaling.x;
+		((f32*)((u8*)model + 0x14))[1] = mScaling.y;
+		((f32*)((u8*)model + 0x14))[2] = mScaling.z;
+
+		Mtx tmp;
+		if (mSpine->getCurrentNerve() != &TNerveRocketFly::theNerve()) {
+			JGeometry::TRotation3<
+			    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >
+			    r;
+			r.identity33();
+			f32* tm = (f32*)tmp;
+			for (int i = 0; i < 12; ++i)
+				tm[i] = ((f32*)&r)[i];
+			tmp[0][3] = mPosition.x;
+			tmp[1][3] = mPosition.y;
+			tmp[2][3] = mPosition.z;
+		} else {
+			TWaterGun* wg = (TWaterGun*)SMS_GetMarioWaterGun();
+			MtxPtr emit   = wg->getEmitMtx(0);
+			PSMTXCopy(emit, tmp);
+
+			for (int col = 0; col < 3; ++col) {
+				f32 x   = tmp[0][col];
+				f32 y   = tmp[1][col];
+				f32 z   = tmp[2][col];
+				f32 sq  = x * x + y * y + z * z;
+				f32 len = 0.0f;
+				if (sq > 0.0f)
+					len = JGeometry::TUtil<f32>::sqrt(sq);
+				if (len != 0.0f) {
+					tmp[0][col] /= len;
+					tmp[1][col] /= len;
+					tmp[2][col] /= len;
+				}
+			}
+
+			Mtx rotOff;
+			JGeometry::TRotation3<
+			    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >
+			    r;
+			r.identity33();
+			f32* tr = (f32*)rotOff;
+			for (int i = 0; i < 12; ++i)
+				tr[i] = ((f32*)&r)[i];
+			rotOff[0][3] = 0.0f;
+			rotOff[1][3] = 0.0f;
+			rotOff[2][3] = mNozzleOffsetZ;
+			PSMTXConcat(tmp, rotOff, tmp);
+
+			mPosition.x = tmp[0][3];
+			mPosition.y = tmp[1][3] - mColOffsetY;
+			mPosition.z = tmp[2][3];
+		}
+
+		Mtx rot;
+		MsMtxSetRotRPH(rot, mTestAng_x, mTestAng_y, mTestAng_z);
+		PSMTXConcat(tmp, rot, tmp);
+		PSMTXCopy(tmp, (MtxPtr)((u8*)getModel() + 0x20));
+	}
+
+	if (mCurrentBckAnm == 1 && gpMSound->gateCheck(3)) {
+		MSoundSESystem::MSoundSE::startSoundActor(3, &mPosition, 0, nullptr, 0,
+		                                          4);
+	}
+}
+
+void TRocket::init(TLiveManager* manager)
+{
+	TSmallEnemy::init(manager);
+	mActorType = 0x1000002b;
+	unk150     = 0x11;
+	mParams    = (TRocketParams*)getSaveParam();
+	mSpine->initWith(&TNerveRocketWait::theNerve());
+	unk64 |= 0x08000000;
+}
+
+void TRocket::load(JSUMemoryInputStream& stream)
+{
+	TSmallEnemy::load(stream);
+	mInitialPos.x    = mPosition.x;
+	mInitialPos.y    = mPosition.y;
+	mInitialPos.z    = mPosition.z;
+	mInitialPosSaved = 1;
+	loadAfter();
+}
+
+TRocket::TRocket(const char* name)
+    : TSmallEnemy(name)
+{
+	mUnk1A0          = 0;
+	mInitialPosSaved = 0;
+}
+
+void TRocketManager::perform(u32 param, JDrama::TGraphics* graphics)
+{
+	if (param & 1) {
+		int count = mObjNum;
+		if (unk38) {
+			s32 maxAct = ((TSpineEnemyParams*)unk38)->mSLActiveEnemyNum.value;
+			if (maxAct < mObjNum)
+				count = maxAct;
+		}
+		for (int i = 0; i < count; ++i) {
+			TRocket* a = (TRocket*)unk18[i];
+			if (!(a->mLiveFlag & LIVE_FLAG_DEAD))
+				a->reset();
+		}
+	}
+	TEnemyManager::perform(param, graphics);
+}
+
+void TRocketManager::createModelData()
+{
+	static TModelDataLoadEntry entry[] = {
+		{ "rocket.bmd", 0x10210000, 0 },
+		{ nullptr, 0, 0 },
+	};
+	createModelDataArray(entry);
+}
+
+void TRocketManager::initSetEnemies()
+{
+	for (int i = 0; i < mObjNum; ++i) {
+		TGraphWeb* web  = gpConductor->getGraphByName("main");
+		TRocket* rocket = (TRocket*)unk18[i];
+		if (!(rocket->mLiveFlag & LIVE_FLAG_DEAD) && !web->isDummy()) {
+			int nodeCount = web->unk8;
+			f32 randVal   = MsRandF();
+			int idx       = (int)(randVal * (f32)nodeCount);
+
+			Vec p;
+			web->unk0[idx].getPoint(&p);
+			rocket->mPosition.x = p.x;
+			rocket->mPosition.y = p.y + 5.0f;
+			rocket->mPosition.z = p.z;
+			rocket->mLiveFlag |= LIVE_FLAG_AIRBORNE;
+			rocket->reset();
+		}
+	}
+}
+
+void TRocketManager::createEnemyInstance() { new TRocket("ロケット"); }
+
+void TRocketManager::loadAfter() { JDrama::TNameRef::loadAfter(); }
+
+void TRocketManager::load(JSUMemoryInputStream& stream)
+{
+	TSmallEnemyManager::load(stream);
+
+	TRocketParams* params = new TRocketParams("/enemy/rocket.prm");
+	unk38                 = params;
+
+	mWaterEmitInfo = new TWaterEmitInfo("/enemy/rocketexpwater.prm");
+}
+
+TRocketManager::TRocketManager(const char* name)
+    : TSmallEnemyManager(name)
+{
+	mActiveFlag    = 1;
+	unk64          = 0;
+	mWaterEmitInfo = nullptr;
+}
+
+TRocketParams::TRocketParams(const char* path)
+    : TSmallEnemyParams(path)
+    , PARAM_INIT(mSLReleaseSpeed, 10.0f)
+    , PARAM_INIT(mSLFlyGravity, 0.0f)
+    , PARAM_INIT(mSLFlyLimitTime, 300)
+{
+	load(mPrmPath);
+}

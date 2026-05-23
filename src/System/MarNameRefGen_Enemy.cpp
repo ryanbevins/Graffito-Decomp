@@ -309,12 +309,6 @@ public:
 	char _stub[0x1ec];
 };
 
-class TRocketManager : public JDrama::TNameRef {
-public:
-	TRocketManager(const char*);
-	char _stub[0x64];
-};
-
 class TSamboFlower : public JDrama::TNameRef {
 public:
 	TSamboFlower(const char*);
