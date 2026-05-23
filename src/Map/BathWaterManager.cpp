@@ -258,8 +258,8 @@ void clearEFB_alpha(s16 x, s16 y, s16 width, s16 height, u8 alpha)
 		height = SMSGetGameRenderHeight();
 
 	f32 left   = x;
-	f32 top    = y;
 	f32 wd     = width;
+	f32 top    = y;
 	f32 ht     = height;
 	f32 right  = left + wd;
 	f32 bottom = top + ht;
@@ -268,7 +268,7 @@ void clearEFB_alpha(s16 x, s16 y, s16 width, s16 height, u8 alpha)
 	PSMTXIdentity(matrix);
 	GXClearVtxDesc();
 	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_S16, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_U16, 0);
 	GXSetNumChans(1);
 	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
 	              GX_DF_NONE, GX_AF_NONE);
