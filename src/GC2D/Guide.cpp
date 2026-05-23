@@ -10,6 +10,7 @@
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
+#include <GC2D/BoundPane.hpp>
 #include <GC2D/MessageUtil.hpp>
 #include <GC2D/ScrnFader.hpp>
 #include <JSystem/J2D/J2DOrthoGraph.hpp>
@@ -17,9 +18,14 @@
 #include <JSystem/J2D/J2DPicture.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
 #include <JSystem/J2D/J2DTextBox.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JUtility/JUTRect.hpp>
+#include <JSystem/JUtility/JUTResFont.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
+#include <stdio.h>
 #include <string.h>
+
+static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 
 static u8 setup_wait;
 
@@ -684,7 +690,119 @@ void TGuide::resetObjects()
 	_12C->mPane->mVisible = true;
 }
 
-void TGuide::load(JSUMemoryInputStream& stream) { }
+void TGuide::load(JSUMemoryInputStream& stream)
+{
+	unkC5 = 0;
+	JDrama::TNameRef::load(stream);
+
+	JKRMemArchive* archive = gpMarDirector->unkD8;
+	if (archive != nullptr) {
+		SMSMountAramArchive(archive, gArBkGuide);
+	} else {
+		setup_wait = 0x10;
+	}
+	unkC4 = 0;
+
+	unkBC = new J2DSetScreen("guide_1.blo", (JKRArchive*)archive);
+
+	((J2DTextBox*)unkBC->search('a_ic'))->setFont(gpSystemFont);
+	((J2DTextBox*)unkBC->search('a_tx'))->setFont(gpSystemFont);
+	((J2DTextBox*)unkBC->search('b_ic'))->setFont(gpSystemFont);
+	((J2DTextBox*)unkBC->search('b_tx'))->setFont(gpSystemFont);
+
+	_124 = nullptr;
+	_124 = (J2DTextBox*)unkBC->search('s_mn');
+	SMSMakeTextBuffer(_124, 0x1a);
+	_124->setFont(gpSystemFont);
+
+	for (int i = 0; i < 10; i++) {
+		char buf[0xff];
+		snprintf(buf, 0xff, "/guide/timg/coin_number_%d.bti", i);
+		JUTTexture* tex = new JUTTexture();
+		if (tex != nullptr) {
+			const ResTIMG* img
+			    = (ResTIMG*)JKRFileLoader::getGlbResource(buf);
+			tex->mEmbPalette = nullptr;
+			tex->storeTIMG(img);
+			tex->unk50 = 0;
+		}
+		_C8[i] = tex;
+	}
+
+	_F4 = (J2DPicture*)unkBC->search('ss_i');
+	for (int i = 0; i < 2; i++) {
+		J2DPicture* p
+		    = (J2DPicture*)unkBC->search('ss_1' + (i << 24));
+		*(J2DPicture**)((u8*)this + 0xF8 + i * 4) = p;
+	}
+
+	_100 = unkBC->search('sq_i');
+	for (int i = 0; i < 2; i++) {
+		J2DPane* p = unkBC->search('sq_1' + (i << 24));
+		*(J2DPane**)((u8*)this + 0x104 + i * 4) = p;
+	}
+
+	for (int i = 0; i < 3; i++) {
+		J2DPicture* p
+		    = (J2DPicture*)unkBC->search('sc_1' + (i << 24));
+		*(J2DPicture**)((u8*)this + 0x10C + i * 4) = p;
+	}
+
+	_118 = (J2DPicture*)unkBC->search('sc_s');
+
+	for (int i = 0; i < 2; i++) {
+		J2DPicture* p
+		    = (J2DPicture*)unkBC->search('sb_1' + (i << 24));
+		*(J2DPicture**)((u8*)this + 0x11C + i * 4) = p;
+	}
+
+	JUTTexture* cuiTex = new JUTTexture();
+	if (cuiTex != nullptr) {
+		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
+		    "/guide/timg/guide_cursor_2.bti");
+		cuiTex->mEmbPalette = nullptr;
+		cuiTex->storeTIMG(img);
+		cuiTex->unk50 = 0;
+	}
+
+	for (int i = 0; i < 2; i++) {
+		TExPane* p = new TExPane(unkBC, 'cu_a' + (i << 16));
+		*(TExPane**)((u8*)this + 0x128 + i * 4) = p;
+		J2DPicture* pic = (J2DPicture*)p->getPane();
+		pic->insert(cuiTex, pic->mTextureNum, 0.0f);
+	}
+
+	for (int i = 0; i < 13; i++) {
+		u32 hi      = (u32)i / 10;
+		u32 lo      = (u32)i % 10;
+		u32 ddTag   = (hi << 8) | lo | 0x3030;
+		u32 baseTag = ddTag << 16;
+
+		_168[i] = (TBoundPane*)unkBC->search(ddTag);
+
+		TExPane* p0 = new TExPane(unkBC, baseTag | 0x5f30);
+		_1C0[i]     = p0;
+		_218[i]     = p0->getInitialBounds();
+
+		_378[i] = new TExPane(unkBC, baseTag | 0x5f31);
+
+		J2DTextBox* tb1
+		    = (J2DTextBox*)unkBC->search(baseTag | 0x5f33);
+		tb1->setFont(gpSystemFont);
+
+		J2DTextBox* tb2
+		    = (J2DTextBox*)unkBC->search(baseTag | 0x5f35);
+		tb2->setFont(gpSystemFont);
+	}
+
+	_168[13] = (TBoundPane*)unkBC->search(0x3230);
+
+	_478 = new TExPane(unkBC, 'mark');
+	_444 = new TBoundPane(unkBC, 0x3230);
+
+	resetObjects();
+	unkC5 = 1;
+}
 
 TGuide::TGuide(const char* name)
     : JDrama::TViewObj(name)

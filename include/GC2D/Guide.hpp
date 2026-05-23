@@ -57,7 +57,18 @@ public:
 	/* 0x124 */ J2DTextBox* _124;
 	/* 0x128 */ TExPane* _128;
 	/* 0x12C */ TExPane* _12C;
-	/* 0x130 */ u8 _130[0x160 - 0x130];
+	/* 0x130 */ J2DPicture* _130;
+	/* 0x134 */ J2DPicture* _134;
+	/* 0x138 */ J2DPicture* _138;
+	/* 0x13C */ J2DPicture* _13C;
+	/* 0x140 */ J2DPicture* _140;
+	/* 0x144 */ J2DPicture* _144;
+	/* 0x148 */ J2DPane* _148;
+	/* 0x14C */ J2DPane* _14C;
+	/* 0x150 */ J2DPane* _150;
+	/* 0x154 */ J2DPane* _154;
+	/* 0x158 */ J2DPane* _158;
+	/* 0x15C */ u8 _15C[0x160 - 0x15C];
 	/* 0x160 */ u32 unk160;
 	/* 0x164 */ u8 unk164;
 	/* 0x165 */ u8 _165[0x168 - 0x165];
@@ -74,7 +85,7 @@ public:
 	/* 0x42E */ u8 _42E[0x430 - 0x42E];
 	/* 0x430 */ J2DPane* _430;
 	/* 0x434 */ JUTRect _434;
-	/* 0x444 */ u8 _444[0x448 - 0x444];
+	/* 0x444 */ TBoundPane* _444;
 	/* 0x448 */ J2DPicture* _448;
 	/* 0x44C */ J2DPane* _44C[10];
 	/* 0x474 */ void* _474;
