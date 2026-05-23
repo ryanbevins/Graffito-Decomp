@@ -134,11 +134,12 @@ void TDebuTelesaManager::clipEnemies(JDrama::TGraphics* graphics)
 	    gpCamera->getFovy(), gpCamera->getAspect(), 350.0f,
 	    ((TSmallEnemyParams*)unk38)->mSLFarClip.get());
 
-	for (s32 i = 0; i < mObjNum; ++i) {
+	s32 num = mObjNum;
+	for (s32 i = 0; i < num; ++i) {
 		TLiveActor* actor = (TLiveActor*)unk18[i];
 		Vec pos           = actor->mPosition;
 
-		if (actor->checkLiveFlag(LIVE_FLAG_UNK4000)) {
+		if (actor->checkLiveFlag(LIVE_FLAG_UNK2000)) {
 			if (SMS_IsInOtherFastCube(pos)) {
 				actor->onLiveFlag(LIVE_FLAG_CLIPPED_OUT);
 				continue;
