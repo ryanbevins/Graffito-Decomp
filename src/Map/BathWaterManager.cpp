@@ -57,7 +57,7 @@ const char* TBathWaterManager::fileNames[] = {
 static void init_tobj_resource(GXTexObj* obj, void* resource)
 {
 	ResTIMG* timg = (ResTIMG*)resource;
-	u8 format    = timg->format;
+	GXTexFmt format = (GXTexFmt)timg->format;
 	u16 width    = timg->width;
 	u16 height   = timg->height;
 	u8 wrapS     = timg->wrapS;
@@ -65,10 +65,9 @@ static void init_tobj_resource(GXTexObj* obj, void* resource)
 	u8 minFilter = timg->minFilter;
 	u8 magFilter = timg->magFilter;
 	void* image  = (u8*)resource + timg->imageDataOffset;
-	DCStoreRange(image,
-	             GXGetTexBufferSize(width, height, (GXTexFmt)format, 0, 0));
-	GXInitTexObj(obj, image, width, height, (GXTexFmt)format,
-	             (GXTexWrapMode)wrapS, (GXTexWrapMode)wrapT, GX_FALSE);
+	DCStoreRange(image, GXGetTexBufferSize(width, height, format, 0, 0));
+	GXInitTexObj(obj, image, width, height, format, (GXTexWrapMode)wrapS,
+	             (GXTexWrapMode)wrapT, GX_FALSE);
 	GXInitTexObjLOD(obj, (GXTexFilter)minFilter, (GXTexFilter)magFilter, 0.0f,
 	                0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
 }
@@ -321,10 +320,11 @@ static void drawCap(const JGeometry::TVec3<f32>& center, f32 radius)
 	for (int i = 0; i < 0x1e; ++i) {
 		f32 sinAngle = sinf(angle);
 		f32 z        = center.z + drawRadius * sinAngle;
+		f32 cy       = center.y;
 		f32 cosAngle = cosf(angle);
 		f32 x        = center.x + drawRadius * cosAngle;
 		angle += delta;
-		GXPosition3f32(x, center.y, z);
+		GXPosition3f32(x, cy, z);
 		GXTexCoord2u8(0x40, 0x40);
 	}
 	GXEnd();
