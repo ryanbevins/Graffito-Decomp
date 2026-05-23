@@ -57,15 +57,20 @@ const char* TBathWaterManager::fileNames[] = {
 static void init_tobj_resource(GXTexObj* obj, void* resource)
 {
 	ResTIMG* timg = (ResTIMG*)resource;
-	void* image = (u8*)resource + timg->imageDataOffset;
-	DCStoreRange(image, GXGetTexBufferSize(timg->width, timg->height,
-	                                       (GXTexFmt)timg->format, 0, 0));
-	GXInitTexObj(obj, image, timg->width, timg->height,
-	             (GXTexFmt)timg->format, (GXTexWrapMode)timg->wrapS,
-	             (GXTexWrapMode)timg->wrapT, GX_FALSE);
-	GXInitTexObjLOD(obj, (GXTexFilter)timg->minFilter,
-	                (GXTexFilter)timg->magFilter, 0.0f, 0.0f, 0.0f, GX_FALSE,
-	                GX_FALSE, GX_ANISO_1);
+	u8 format    = timg->format;
+	u16 width    = timg->width;
+	u16 height   = timg->height;
+	u8 wrapS     = timg->wrapS;
+	u8 wrapT     = timg->wrapT;
+	u8 minFilter = timg->minFilter;
+	u8 magFilter = timg->magFilter;
+	void* image  = (u8*)resource + timg->imageDataOffset;
+	DCStoreRange(image,
+	             GXGetTexBufferSize(width, height, (GXTexFmt)format, 0, 0));
+	GXInitTexObj(obj, image, width, height, (GXTexFmt)format,
+	             (GXTexWrapMode)wrapS, (GXTexWrapMode)wrapT, GX_FALSE);
+	GXInitTexObjLOD(obj, (GXTexFilter)minFilter, (GXTexFilter)magFilter, 0.0f,
+	                0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
 }
 #pragma dont_inline off
 
