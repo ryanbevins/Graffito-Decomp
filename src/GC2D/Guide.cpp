@@ -24,6 +24,14 @@ static const u32 scNormalStageTable[] = {
 	0x0, 0x1, 0x2, 0x3, 0x4, 0xD, 0x6, 0x8, 0x9, 0xA,
 };
 
+// Wrapper to defeat MWCC's auto-inlining of SMS_getShineID in resetObjects.
+// MWCC inlines this wrapper at the call site, but does NOT recursively inline
+// through it, so the contained SMS_getShineID call survives as a bl.
+static inline s16 getShineID(u32 stage, u32 scenario, bool is_etc)
+{
+	return SMS_getShineID(stage, scenario, is_etc);
+}
+
 void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx) { }
 
 void TGuide::appearGuidePane(int idx)
@@ -111,13 +119,96 @@ void TGuide::changeBotStatus(int idx)
 		return;
 	}
 
-	u8* stageData = (u8*)this + 0x14 + idx * 8;
+	u8* stageData = (u8*)this + idx * 8;
 
-	if (stageData[0] != 0) {
+	if (stageData[0x14] == 0) {
+		_124->mVisible = true;
+		_F4->mVisible  = true;
+
+		const char* msg = SMSGetMessageData(_474, idx);
+		strncpy(_124->getStringPtr(), msg, 0x1A);
+
+		s32 shineCount = stageData[0x15];
+		if (shineCount < 0)
+			shineCount = 0;
+		if (shineCount > 99)
+			shineCount = 99;
+
+		if (shineCount < 10) {
+			_FC->mVisible = false;
+			_F8->changeTexture(_C8[shineCount]->mTexInfo, 0);
+		} else {
+			_FC->mVisible = true;
+			_FC->changeTexture(_C8[shineCount / 10]->mTexInfo, 0);
+			_F8->changeTexture(_C8[shineCount % 10]->mTexInfo, 0);
+		}
+
+		if (idx <= 1 || stageData[0x16] == 0) {
+			_100->mVisible = false;
+			_104->mVisible = false;
+			_108->mVisible = false;
+		} else if (stageData[0x16] == 1) {
+			_100->mVisible = true;
+			_104->mVisible = true;
+			_108->mVisible = false;
+		} else {
+			_100->mVisible = true;
+			_104->mVisible = true;
+			_108->mVisible = true;
+		}
+
+		s32 deaths = *(u16*)(stageData + 0x18);
+		if (deaths < 0)
+			deaths = 0;
+		if (deaths > 999)
+			deaths = 999;
+
+		if (deaths < 100) {
+			_114->mVisible = false;
+			_10C->changeTexture(_C8[deaths / 10]->mTexInfo, 0);
+			_110->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
+		} else {
+			_114->mVisible = true;
+			s32 hundreds = deaths / 100;
+			_10C->changeTexture(_C8[hundreds]->mTexInfo, 0);
+			deaths -= hundreds * 100;
+			_110->changeTexture(_C8[deaths / 10]->mTexInfo, 0);
+			_114->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
+		}
+
+		if (stageData[0x1A] != 0) {
+			_118->mVisible = true;
+		} else {
+			_118->mVisible = false;
+		}
+
+		s32 blueCount = stageData[0x1B];
+		if (blueCount < 0)
+			blueCount = 0;
+		if (blueCount > 99)
+			blueCount = 99;
+
+		if (idx != 0) {
+			unkBC->search('sb_i')->show();
+			unkBC->search('sc_t')->show();
+		} else {
+			unkBC->search('sb_i')->hide();
+			unkBC->search('sc_t')->hide();
+		}
+
+		if (blueCount < 10) {
+			_120->mVisible = false;
+			_11C->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
+		} else {
+			_120->mVisible = true;
+			_11C->changeTexture(_C8[blueCount / 10]->mTexInfo, 0);
+			_120->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
+		}
+	} else {
 		_124->mVisible = true;
 		_F4->mVisible  = false;
 
-		s32 blueCount = (s8)stageData[7];
+		s32 blueCount = stageData[0x1B];
 		if (blueCount < 0)
 			blueCount = 0;
 		if (blueCount > 99)
@@ -138,92 +229,6 @@ void TGuide::changeBotStatus(int idx)
 
 		const char* msg = SMSGetMessageData(_474, idx);
 		strncpy(_124->getStringPtr(), msg, 0x1A);
-		return;
-	}
-
-	_124->mVisible = true;
-	_F4->mVisible  = true;
-
-	const char* msg = SMSGetMessageData(_474, idx);
-	strncpy(_124->getStringPtr(), msg, 0x1A);
-
-	s32 shineCount = (s8)stageData[1];
-	if (shineCount < 0)
-		shineCount = 0;
-	if (shineCount > 99)
-		shineCount = 99;
-
-	if (shineCount < 10) {
-		_FC->mVisible = false;
-		_F8->changeTexture(_C8[shineCount]->mTexInfo, 0);
-	} else {
-		_FC->mVisible = true;
-		_FC->changeTexture(_C8[shineCount / 10]->mTexInfo, 0);
-		_F8->changeTexture(_C8[shineCount % 10]->mTexInfo, 0);
-	}
-
-	if (idx > 1 && stageData[2] != 0) {
-		if (stageData[2] == 1) {
-			_100->mVisible = true;
-			_104->mVisible = true;
-			_108->mVisible = false;
-		} else {
-			_100->mVisible = true;
-			_104->mVisible = true;
-			_108->mVisible = true;
-		}
-	} else {
-		_100->mVisible = false;
-		_104->mVisible = false;
-		_108->mVisible = false;
-	}
-
-	s32 deaths = *(s16*)(stageData + 4);
-	if (deaths < 0)
-		deaths = 0;
-	if (deaths > 999)
-		deaths = 999;
-
-	if (deaths < 100) {
-		_114->mVisible = false;
-		_10C->changeTexture(_C8[deaths / 10]->mTexInfo, 0);
-		_110->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
-	} else {
-		_114->mVisible = true;
-		s32 hundreds = deaths / 100;
-		_10C->changeTexture(_C8[hundreds]->mTexInfo, 0);
-		s32 rem = deaths - hundreds * 100;
-		_110->changeTexture(_C8[rem / 10]->mTexInfo, 0);
-		_114->changeTexture(_C8[rem % 10]->mTexInfo, 0);
-	}
-
-	if (stageData[6] != 0) {
-		_118->mVisible = true;
-	} else {
-		_118->mVisible = false;
-	}
-
-	s32 blueCount = (s8)stageData[7];
-	if (blueCount < 0)
-		blueCount = 0;
-	if (blueCount > 99)
-		blueCount = 99;
-
-	if (idx == 0) {
-		unkBC->search('sb_i')->hide();
-		unkBC->search('sc_t')->hide();
-	} else {
-		unkBC->search('sb_i')->show();
-		unkBC->search('sc_t')->show();
-	}
-
-	if (blueCount < 10) {
-		_120->mVisible = false;
-		_11C->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
-	} else {
-		_120->mVisible = true;
-		_11C->changeTexture(_C8[blueCount / 10]->mTexInfo, 0);
-		_120->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
 	}
 }
 
@@ -440,17 +445,17 @@ void TGuide::resetObjects()
 {
 	int totalAccum = 0;
 
-	for (int stage = 0; stage < 13; stage++) {
+	for (u32 stage = 0; stage < 13; stage++) {
 		if (stage >= 10)
 			continue;
 
-		u8* stageData = (u8*)this + 0x14 + stage * 8;
-		stageData[0]  = 0;
+		u8* stageData = (u8*)this + stage * 8;
+		stageData[0x14] = 0;
 
 		int shineCount = 0;
 		if (stage != 0 && stage != 1) {
 			for (int i = 0; i < 8; i++) {
-				s16 sid = SMS_getShineID(stage, i, false);
+				s16 sid = getShineID(stage, i, false);
 				u8 got  = (sid == -1)
 				             ? 0
 				             : TFlagManager::smInstance->getShineFlag((u8)sid);
@@ -458,20 +463,20 @@ void TGuide::resetObjects()
 					shineCount++;
 			}
 		}
-		u8 clampedShine = (shineCount >= 100) ? 99 : (u8)shineCount;
-		stageData[1]    = clampedShine;
+		int clampedShine = (shineCount >= 100) ? 99 : shineCount;
+		stageData[0x15] = (u8)clampedShine;
 		totalAccum += clampedShine;
 
 		int redCoin = 0;
 		if (stage != 0 && stage != 1) {
-			s16 sid1 = SMS_getShineID(stage, 1, true);
+			s16 sid1 = getShineID(stage, 1, true);
 			u8 got1  = (sid1 == -1)
 			              ? (u8)redCoin
 			              : TFlagManager::smInstance->getShineFlag((u8)sid1);
 			if (got1)
 				redCoin = 1;
 
-			s16 sid2 = SMS_getShineID(stage, 2, true);
+			s16 sid2 = getShineID(stage, 2, true);
 			u8 got2  = (sid2 == -1)
 			              ? 0
 			              : TFlagManager::smInstance->getShineFlag((u8)sid2);
@@ -480,20 +485,20 @@ void TGuide::resetObjects()
 		}
 		if (redCoin >= 10)
 			redCoin = 9;
-		stageData[2] = (u8)redCoin;
+		stageData[0x16] = (u8)redCoin;
 		totalAccum += redCoin;
 
 		u16 deaths = (u16)TFlagManager::smInstance->getFlag(stage + 0x20005);
 		if (deaths >= 1000)
 			deaths = 999;
-		*(s16*)(stageData + 4) = (s16)deaths;
+		*(s16*)(stageData + 0x18) = (s16)deaths;
 
-		s16 bossID  = SMS_getShineID(stage, 0, true);
+		s16 bossID  = getShineID(stage, 0, true);
 		u8 bossFlag = (bossID == -1)
 		                 ? 0
 		                 : TFlagManager::smInstance->getShineFlag((u8)bossID);
-		stageData[6] = bossFlag;
-		if (stageData[6] != 0)
+		stageData[0x1A] = bossFlag;
+		if (stageData[0x1A] != 0)
 			totalAccum++;
 
 		int blueCount = 0;
@@ -506,7 +511,7 @@ void TGuide::resetObjects()
 		}
 		if (blueCount >= 1000)
 			blueCount = 999;
-		stageData[7] = (u8)blueCount;
+		stageData[0x1B] = (u8)blueCount;
 
 		if (TFlagManager::smInstance->getBool(stage + 0x103A5)) {
 			((J2DPane*)_44C[stage])->mVisible = true;
