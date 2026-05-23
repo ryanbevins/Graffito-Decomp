@@ -289,8 +289,6 @@ void TGuide::resetScore()
 		if (stage == 9)
 			continue;
 
-		u8* stageData = (u8*)this + 0x14 + stage * 8;
-
 		if (TFlagManager::smInstance->getBool(stage + 0x103A5)) {
 			unkBC->search('0_mn' + (stage << 24))->show();
 		} else {
@@ -300,8 +298,10 @@ void TGuide::resetScore()
 		if (stage <= 1)
 			continue;
 
+		u8* stageData = (u8*)this + stage * 8;
+
 		for (int i = 0; i < 8; i++) {
-			if (i < stageData[1]) {
+			if (i < stageData[0x15]) {
 				unkBC->search('0ss1' + (stage << 24) + i)->show();
 			} else {
 				unkBC->search('0ss1' + (stage << 24) + i)->hide();
@@ -313,20 +313,20 @@ void TGuide::resetScore()
 		J2DPane* sq2 = unkBC->search('0sq2' + (stage << 24));
 		sq2->hide();
 
-		u8* p_red = &stageData[2];
+		u8* p_red = &stageData[0x16];
 		if (*p_red != 0)
 			sq1->show();
 		if (*p_red > 1)
 			sq2->show();
 		redCoinTotal += *p_red;
-		totalAccum += stageData[1];
+		totalAccum += stageData[0x15];
 	}
 
 	totalAccum += redCoinTotal;
-	if ((u8)redCoinTotal != 0) {
-		unkBC->search('lqus')->show();
-	} else {
+	if ((u8)redCoinTotal == 0) {
 		unkBC->search('lqus')->hide();
+	} else {
+		unkBC->search('lqus')->show();
 	}
 
 	for (int stage = 1; stage < 10; stage++) {
@@ -336,17 +336,15 @@ void TGuide::resetScore()
 		if (stage == 9)
 			continue;
 
-		u8* stageData = (u8*)this + 0x14 + stage * 8;
-		u16 deaths    = *(u16*)(stageData + 4);
+		u8* stageData = (u8*)this + stage * 8;
+		u16 deaths    = *(u16*)(stageData + 0x18);
 		if (deaths > 999)
 			deaths = 999;
 
-		J2DPicture* h
-		    = (J2DPicture*)unkBC->search('0c_1' + (stage << 24));
-		J2DPicture* t
-		    = (J2DPicture*)unkBC->search('0c_2' + (stage << 24));
-		J2DPicture* o
-		    = (J2DPicture*)unkBC->search('0c_3' + (stage << 24));
+		u32 cTag = '0c_1' + (stage << 24);
+		J2DPicture* h = (J2DPicture*)unkBC->search(cTag);
+		J2DPicture* t = (J2DPicture*)unkBC->search(cTag + 1);
+		J2DPicture* o = (J2DPicture*)unkBC->search(cTag + 2);
 
 		if (deaths < 100) {
 			h->mVisible = false;
@@ -354,14 +352,14 @@ void TGuide::resetScore()
 			o->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
 		} else {
 			h->mVisible    = true;
-			u16 hundreds = deaths / 100;
+			int hundreds = deaths / 100;
 			h->changeTexture(_C8[hundreds]->mTexInfo, 0);
-			u16 rem = deaths - hundreds * 100;
-			t->changeTexture(_C8[rem / 10]->mTexInfo, 0);
-			o->changeTexture(_C8[rem % 10]->mTexInfo, 0);
+			deaths -= hundreds * 100;
+			t->changeTexture(_C8[deaths / 10]->mTexInfo, 0);
+			o->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
 		}
 
-		if (stageData[6] != 0) {
+		if (stageData[0x1A] != 0) {
 			unkBC->search('0c_s' + (stage << 24))->show();
 			totalAccum++;
 		} else {
@@ -383,14 +381,14 @@ void TGuide::resetScore()
 	totalAccum += u22;
 
 	s32 totalFlag = TFlagManager::smInstance->getFlag(0x40000);
-	u8 remaining  = (u8)(totalFlag - (u8)totalAccum);
-	if (remaining > 99)
+	s32 remaining = totalFlag - (u8)totalAccum;
+	if ((u8)remaining > 99)
 		remaining = 99;
 
 	((J2DPicture*)unkBC->search('1s_1'))
-	    ->changeTexture(_C8[remaining / 10]->mTexInfo, 0);
+	    ->changeTexture(_C8[(u8)remaining / 10]->mTexInfo, 0);
 	((J2DPicture*)unkBC->search('1s_2'))
-	    ->changeTexture(_C8[remaining % 10]->mTexInfo, 0);
+	    ->changeTexture(_C8[(u8)remaining % 10]->mTexInfo, 0);
 
 	s32 totalClamped = totalFlag;
 	if (totalClamped > 999)
