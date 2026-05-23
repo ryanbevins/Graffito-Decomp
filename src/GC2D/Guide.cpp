@@ -440,11 +440,12 @@ void TGuide::linkSelect()
 	}
 
 	if (idx != -1 && idx < 10) {
+		J2DPane*& slot = _44C[idx];
 		int newAlpha;
 		if (unk164 != 0) {
-			newAlpha = _44C[idx]->mAlpha + 4;
+			newAlpha = slot->mAlpha + 4;
 		} else {
-			newAlpha = _44C[idx]->mAlpha - 4;
+			newAlpha = slot->mAlpha - 4;
 		}
 		if (newAlpha < 0x1e) {
 			unk164   = 1;
@@ -453,28 +454,32 @@ void TGuide::linkSelect()
 			unk164   = 0;
 			newAlpha = 0xff;
 		}
-		_44C[idx]->mAlpha = newAlpha;
+		slot->mAlpha = newAlpha;
 	}
 
-	if (_F0 % 45 == 0) {
+	{
 		J2DPicture* pic = (J2DPicture*)_128->mPane;
-		if ((_F0 / 45) % 2 == 0) {
-			pic->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
-			pic->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
-		} else {
-			pic->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
-			pic->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+		if ((u32)_F0 % 45 == 0) {
+			if (((u32)_F0 / 45) % 2 == 0) {
+				pic->setBlendKonstColor(0.0f, 1.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(0.0f, 1.0f, 0.0f, 0.0f);
+			} else {
+				pic->setBlendKonstColor(1.0f, 0.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
+			}
 		}
 	}
 
-	if (_F0 % 45 == 0) {
+	{
 		J2DPicture* pic = (J2DPicture*)_12C->mPane;
-		if ((_F0 / 45) % 2 == 0) {
-			pic->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
-			pic->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
-		} else {
-			pic->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
-			pic->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+		if ((u32)_F0 % 45 == 0) {
+			if (((u32)_F0 / 45) % 2 == 0) {
+				pic->setBlendKonstColor(0.0f, 1.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(0.0f, 1.0f, 0.0f, 0.0f);
+			} else {
+				pic->setBlendKonstColor(1.0f, 0.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
+			}
 		}
 	}
 
@@ -495,119 +500,155 @@ void TGuide::linkSelect()
 		_480   = idx;
 	}
 
-	if (_F0 % 90 == 0) {
-		if ((_F0 / 90) % 2 == 0) {
-			_134->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
-			_134->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
-		} else {
-			_134->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
-			_134->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+	{
+		J2DPicture* pic = _134;
+		if ((u32)_F0 % 90 == 0) {
+			if (((u32)_F0 / 90) % 2 == 0) {
+				pic->setBlendKonstColor(0.0f, 1.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(0.0f, 1.0f, 0.0f, 0.0f);
+			} else {
+				pic->setBlendKonstColor(1.0f, 0.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
+			}
 		}
 	}
 
-	if (_F0 % 90 == 0) {
-		if ((_F0 / 90) % 2 == 0) {
-			((J2DPicture*)_148)->mMirror = (J2DMirror)0;
-		} else {
-			((J2DPicture*)_148)->mMirror = J2DMirror_X;
+	{
+		J2DPicture* p = (J2DPicture*)_148;
+		if ((u32)_F0 % 90 == 0) {
+			if (((u32)_F0 / 90) % 2 == 0) {
+				p->mMirror = (J2DMirror)0;
+			} else {
+				p->mMirror = J2DMirror_X;
+			}
 		}
 	}
 
-	if (_F0 % 90 == 0) {
-		if ((_F0 / 90) % 2 == 0) {
-			_154->mRotation = 0.0f;
-		} else {
-			_154->mRotation = 30.0f;
+	{
+		J2DPane* p = _154;
+		if ((u32)_F0 % 90 == 0) {
+			if (((u32)_F0 / 90) % 2 == 0) {
+				p->mRotation = 0.0f;
+			} else {
+				p->mRotation = 30.0f;
+			}
 		}
 	}
 
-	if (_F0 % 90 == 0) {
-		if ((_F0 / 90) % 2 == 0) {
-			_138->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
-			_138->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
-		} else {
-			_138->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
-			_138->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+	{
+		J2DPicture* pic = _138;
+		if ((u32)_F0 % 90 == 0) {
+			if (((u32)_F0 / 90) % 2 == 0) {
+				pic->setBlendKonstColor(0.0f, 1.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(0.0f, 1.0f, 0.0f, 0.0f);
+			} else {
+				pic->setBlendKonstColor(1.0f, 0.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
+			}
 		}
 	}
 
-	if (_F0 % 90 == 0) {
-		if ((_F0 / 90) % 2 == 0) {
-			((J2DPicture*)_14C)->mMirror = (J2DMirror)0;
-		} else {
-			((J2DPicture*)_14C)->mMirror = J2DMirror_X;
+	{
+		J2DPicture* p = (J2DPicture*)_14C;
+		if ((u32)_F0 % 90 == 0) {
+			if (((u32)_F0 / 90) % 2 == 0) {
+				p->mMirror = (J2DMirror)0;
+			} else {
+				p->mMirror = J2DMirror_X;
+			}
 		}
 	}
 
-	if (_F0 % 90 == 0) {
-		if ((_F0 / 90) % 2 == 0) {
-			_13C->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
-			_13C->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
-		} else {
-			_13C->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
-			_13C->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+	{
+		J2DPicture* p = (J2DPicture*)_150;
+		if ((u32)_F0 % 90 == 0) {
+			if (((u32)_F0 / 90) % 2 == 0) {
+				p->mMirror = (J2DMirror)0;
+			} else {
+				p->mMirror = J2DMirror_X;
+			}
 		}
 	}
 
-	if (_F0 % 90 == 0) {
-		if ((_F0 / 90) % 2 == 0) {
-			_140->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
-			_140->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
-		} else {
-			_140->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
-			_140->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+	{
+		J2DPicture* pic = _13C;
+		if ((u32)_F0 % 90 == 0) {
+			if (((u32)_F0 / 90) % 2 == 0) {
+				pic->setBlendKonstColor(0.0f, 1.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(0.0f, 1.0f, 0.0f, 0.0f);
+			} else {
+				pic->setBlendKonstColor(1.0f, 0.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
+			}
 		}
 	}
 
-	if (_F0 % 90 == 0) {
-		if ((_F0 / 90) % 2 == 0) {
-			((J2DPicture*)_150)->mMirror = (J2DMirror)0;
-		} else {
-			((J2DPicture*)_150)->mMirror = J2DMirror_X;
+	{
+		J2DPicture* pic = _140;
+		if ((u32)_F0 % 90 == 0) {
+			if (((u32)_F0 / 90) % 2 == 0) {
+				pic->setBlendKonstColor(0.0f, 1.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(0.0f, 1.0f, 0.0f, 0.0f);
+			} else {
+				pic->setBlendKonstColor(1.0f, 0.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
+			}
 		}
 	}
 
-	if (_F0 % 90 == 0) {
-		if ((_F0 / 90) % 2 == 0) {
-			_144->setBlendKonstColor(1.0f, 0.0f, 1.0f, 1.0f);
-			_144->setBlendKonstAlpha(1.0f, 0.0f, 1.0f, 1.0f);
-		} else {
-			_144->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
-			_144->setBlendKonstAlpha(0.0f, 0.0f, 0.0f, 0.0f);
+	{
+		J2DPicture* pic = _144;
+		if ((u32)_F0 % 90 == 0) {
+			if (((u32)_F0 / 90) % 2 == 0) {
+				pic->setBlendKonstColor(0.0f, 1.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(0.0f, 1.0f, 0.0f, 0.0f);
+			} else {
+				pic->setBlendKonstColor(1.0f, 0.0f, 0.0f, 0.0f);
+				pic->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
+			}
 		}
 	}
 
-	if (_F0 % 90 == 0) {
-		if ((_F0 / 90) % 2 == 0) {
-			_158->mRotation = 0.0f;
-		} else {
-			_158->mRotation = -45.0f;
+	{
+		J2DPane* p = _158;
+		if ((u32)_F0 % 90 == 0) {
+			if (((u32)_F0 / 90) % 2 == 0) {
+				p->mRotation = 0.0f;
+			} else {
+				p->mRotation = -45.0f;
+			}
 		}
 	}
 
-	if (_F0 % 90 == 0) {
-		JUTPoint p1(0, 0);
-		JUTPoint p2(0, -5);
-		JUTPoint p3(0, 0);
-		_444->setPanePosition(45, p1, p2, p3);
-	} else if (_F0 % 90 == 45) {
-		JUTPoint p1(0, 0);
-		JUTPoint p2(0, 5);
-		JUTPoint p3(0, 0);
-		_444->setPanePosition(45, p1, p2, p3);
-	}
-
-	_448->mAlpha = (_F0 % 180 < 0x82) ? 0xff : 0;
-	_444->update();
-
-	if (_F0 % 270 == 0) {
-		if ((_F0 / 270) % 2 == 0) {
-			_478->setPaneAlpha(270, 0, _47C);
-		} else {
-			_478->setPaneAlpha(270, _47C, 0);
+	{
+		TBoundPane* bp = _444;
+		if ((u32)_F0 % 90 == 0) {
+			JUTPoint p1(0, 0);
+			JUTPoint p2(0, -5);
+			JUTPoint p3(0, 0);
+			bp->setPanePosition(45, p1, p2, p3);
+		} else if ((u32)_F0 % 90 == 45) {
+			JUTPoint p1(0, 0);
+			JUTPoint p2(0, 5);
+			JUTPoint p3(0, 0);
+			bp->setPanePosition(45, p1, p2, p3);
 		}
+
+		_448->mAlpha = ((u32)_F0 % 180 < 0x82) ? 0xff : 0;
+		bp->update();
 	}
-	_478->update();
+
+	{
+		TExPane* ep = _478;
+		if ((u32)_F0 % 270 == 0) {
+			if (((u32)_F0 / 270) % 2 == 0) {
+				ep->setPaneAlpha(270, 0, _47C);
+			} else {
+				ep->setPaneAlpha(270, _47C, 0);
+			}
+		}
+		ep->update();
+	}
 
 	if (_15C != 0) {
 		unk160 += 3;
