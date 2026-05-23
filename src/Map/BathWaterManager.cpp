@@ -547,7 +547,7 @@ static inline bool removeDrop(TBathWater& water, int index)
 	return true;
 }
 
-static void simulateBathWater(TBathWater& water, const TBathtubData& data)
+static inline void simulateBathWater(TBathWater& water, const TBathtubData& data)
 {
 	TBathWaterParams* params = water.unk8C;
 	f32 gravity             = params->gravity.get();
