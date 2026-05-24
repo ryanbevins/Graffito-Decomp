@@ -148,25 +148,25 @@ void TSeal::calcRootMatrix()
 
 BOOL TSeal::receiveMessage(THitActor* sender, u32 msg)
 {
-	if (!sender->isActorTypeOf(0xFF000000)
-	    || msg != HIT_MESSAGE_SPRAYED_BY_WATER)
-		return false;
+	if ((sender->mActorType - 0x01000000) == 1
+	    && msg == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
+		gpMSound->startSoundSet(0x6802, &sender->mPosition, 0, 0.0f, 0, 0, 4);
 
-	gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
-	gpMSound->startSoundSet(0x6802, &sender->mPosition, 0, 0.0f, 0, 0, 4);
+		if (gpModelWaterManager->unk5D5F) {
+			gpMSound->startSoundSet(0x6809, &sender->mPosition, 0, 0.0f, 0, 0,
+			                        4);
 
-	if (!gpModelWaterManager->unk5D5F)
+			if (mSpine->getLatestNerve() != &TNerveSealDie::theNerve()) {
+				if (mMapCollisionManager->getUnk8())
+					mMapCollisionManager->getUnk8()->remove();
+				mSpine->pushNerve(&TNerveSealDie::theNerve());
+			}
+			mDamageCount += 1;
+		}
 		return true;
-
-	gpMSound->startSoundSet(0x6809, &sender->mPosition, 0, 0.0f, 0, 0, 4);
-
-	if (mSpine->getLatestNerve() != &TNerveSealDie::theNerve()) {
-		if (mMapCollisionManager->getUnk8())
-			mMapCollisionManager->getUnk8()->remove();
-		mSpine->pushNerve(&TNerveSealDie::theNerve());
 	}
-	mDamageCount += 1;
-	return true;
+	return false;
 }
 
 void TSeal::init(TLiveManager* manager)
