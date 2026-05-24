@@ -135,24 +135,26 @@ DEFINE_NERVE(TNerveRocketPossessedNozzle, TLiveActor)
 
 	SMS_SendMessageToMario((THitActor*)self, 5);
 
-	u8* gamepad = *(u8**)((u8*)gpMarDirector + 0x18);
-	gamepad     = *(u8**)gamepad;
+	u8* gamepad = *(u8**)*(u8**)((u8*)gpMarDirector + 0x18);
 
-	int marioJumpFrames = (int)*(f32*)(gamepad + 0xb4);
+	u8 marioJumpFrames = (u8)(int)*(f32*)(gamepad + 0xb4);
 	if (marioJumpFrames > 0x14) {
-		if (self->mHitPoints > 1)
+		u8 hp = self->mHitPoints;
+		if (hp > 1)
 			self->mHitPoints -= 1;
 	}
 
-	if (self->mCurrentBckAnm == 2) {
+	bool bckMatch = (self->mCurrentBckAnm == 2) ? true : false;
+	if (!bckMatch) {
 		if (gpMSound->gateCheck(0x4807)) {
 			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4807, 0, nullptr, 0);
 		}
 		self->setBckAnm(2);
 	}
 
-	bool firePressed = false;
-	if (*(u32*)(gamepad + 0xd4) & 0x400) {
+	bool firePressed;
+	u8* gamepad2 = *(u8**)*(u8**)((u8*)gpMarDirector + 0x18);
+	if (*(u32*)(gamepad2 + 0xd4) & 0x400) {
 		self->unk190 = 0.0f;
 		self->expandCollision();
 		if (gpMSound->gateCheck(3)) {
@@ -161,6 +163,8 @@ DEFINE_NERVE(TNerveRocketPossessedNozzle, TLiveActor)
 		}
 		SMSRumbleMgr->start(0x15, 5, (f32*)nullptr);
 		firePressed = true;
+	} else {
+		firePressed = false;
 	}
 
 	if (firePressed)
