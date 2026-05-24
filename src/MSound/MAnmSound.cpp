@@ -30,8 +30,8 @@ void MAnmSound::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 	if (!MSGMSound->gateCheck(ul))
 		return;
 
-	s32 cat        = (ul >> 12) & 0xf;
-	u32 topBits    = ul >> 30;
+	u32 topBits = ul >> 30;
+	s32 cat     = (ul >> 12) & 0xf;
 	if (topBits != 0) {
 		if (topBits == 2)
 			cat = 0x10;
@@ -42,15 +42,17 @@ void MAnmSound::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 	}
 
 	switch (cat) {
-	case 7:
-		MSGMSound->startMarioVoice(ul,
-		                           (s16)((actor->unkC >> 24) & 0xf),
-		                           actor->unkC >> 28);
-		break;
 	case 0:
 		if ((actor->unkC & 0x1000) == 0x1000)
 			break;
-		// fall through
+		MSoundSESystem::MSoundSE::startSoundActorInner(ul, sound, actor, 0,
+		                                               uc);
+		break;
+	case 7: {
+		s16 voiceIdx = (actor->unkC >> 24) & 0xf;
+		MSGMSound->startMarioVoice(ul, voiceIdx, actor->unkC >> 28);
+		break;
+	}
 	default:
 		MSoundSESystem::MSoundSE::startSoundActorInner(ul, sound, actor, 0,
 		                                               uc);
