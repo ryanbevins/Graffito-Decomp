@@ -10,21 +10,21 @@
 
 class TSimpleEffect : public JDrama::TActor {
 public:
-	TSimpleEffect(const char* name);
+	TSimpleEffect(const char* name) : JDrama::TActor(name), unk44(true) { }
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void emitEffect() = 0;
 
-	MtxPtr getUnk48() { return unk48; }
+	MtxPtr getUnk48() { return unk48.mMtx; }
 
 public:
-	/* 0x44 */ u32 unk44;
-	/* 0x48 */ Mtx unk48;
+	/* 0x44 */ u8 unk44;
+	/* 0x48 */ TRotation3f unk48;
 };
 
 class TEffectPinnaFunsui : public TSimpleEffect {
 public:
-	TEffectPinnaFunsui(const char*);
+	TEffectPinnaFunsui(const char* name) : TSimpleEffect(name) { }
 
 	virtual void loadAfter();
 	virtual void emitEffect();
@@ -32,7 +32,7 @@ public:
 
 class TEffectBiancoFunsui : public TSimpleEffect {
 public:
-	TEffectBiancoFunsui(const char*);
+	TEffectBiancoFunsui(const char* name) : TSimpleEffect(name) { }
 
 	virtual void loadAfter();
 	virtual void emitEffect();

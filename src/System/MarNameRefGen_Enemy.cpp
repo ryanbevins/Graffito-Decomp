@@ -26,6 +26,7 @@
 #include <Enemy/Telesa.hpp>
 #include <Enemy/TypicalEnemy.hpp>
 #include <JSystem/JDrama/JDRActor.hpp>
+#include <JSystem/JGeometry.hpp>
 
 // Forward declarations for classes whose headers don't exist yet.
 // Sizes are pinned to match what the original asm passed to operator new.
@@ -672,8 +673,8 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_Enemy(const char* name) const
 	if (strcmp(name, "Kazekun") == 0)
 		return new TKazekun("かぜくん");
 	if (strcmp(name, "EffectPinnaFunsui") == 0)
-		return new JDrama::TActor("ピンナ噴水エフェクト");
+		return new TEffectPinnaFunsui("ピンナ噴水エフェクト");
 	if (strcmp(name, "EffectBiancoFunsui") == 0)
-		return new JDrama::TActor("ビアンコ噴水エフェクト");
+		return new TEffectBiancoFunsui("ビアンコ噴水エフェクト");
 	return nullptr;
 }
