@@ -201,8 +201,9 @@ f32 TRocket::getGravityY() const
 
 void TRocket::setDeadAnm()
 {
-	TWaterEmitInfo* ei                                = ((TRocketManager*)mManager)->mWaterEmitInfo;
-	ei->mPos.value                                    = mPosition;
+	JGeometry::TVec3<f32> p = mPosition;
+	TWaterEmitInfo* ei = ((TRocketManager*)mManager)->mWaterEmitInfo;
+	ei->mPos.value     = p;
 	gpModelWaterManager->emitRequest(*ei);
 
 	if (mUnk1A0) {
