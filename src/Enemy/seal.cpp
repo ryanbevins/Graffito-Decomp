@@ -157,7 +157,7 @@ BOOL TSeal::receiveMessage(THitActor* sender, u32 msg)
 			gpMSound->startSoundSet(0x6809, &sender->mPosition, 0, 0.0f, 0, 0,
 			                        4);
 
-			if (mSpine->getLatestNerve() != &TNerveSealDie::theNerve()) {
+			if (&TNerveSealDie::theNerve() != mSpine->getLatestNerve()) {
 				if (mMapCollisionManager->getUnk8())
 					mMapCollisionManager->getUnk8()->remove();
 				mSpine->pushNerve(&TNerveSealDie::theNerve());
