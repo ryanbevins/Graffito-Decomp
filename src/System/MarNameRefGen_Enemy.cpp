@@ -276,11 +276,31 @@ public:
 	char _stub[0x1ec];
 };
 
-class TSamboFlower : public JDrama::TNameRef {
+class TSamboFlower : public TSpineEnemy {
 public:
-	TSamboFlower(const char*);
-	char _stub[0x168];
+	TSamboFlower(const char* name);
+
+	/* 0x150 */ u8 unk150;
+	/* 0x154 */ s32 unk154;
+	/* 0x158 */ s32 unk158;
+	/* 0x15c */ s32 unk15c;
+	/* 0x160 */ u8 unk160;
+	/* 0x164 */ s32 unk164;
+	/* 0x168 */ s32 unk168;
+	/* 0x16c */ s32 unk16c;
 };
+
+TSamboFlower::TSamboFlower(const char* name)
+    : TSpineEnemy(name)
+    , unk150(0)
+    , unk154(0)
+    , unk158(-1)
+    , unk15c(-1)
+    , unk160(0)
+    , unk164(0)
+    , unk168(0)
+{
+}
 
 class TSamboFlowerManager : public TEnemyManager {
 public:
