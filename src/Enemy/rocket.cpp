@@ -229,9 +229,9 @@ void TRocket::bind()
 		                       mBodyScale * mWallRadius, 1, 0);
 		if (gpMap->isTouchedWallsAndMoveXZ(&rec)) {
 			TBGCheckData* wall = rec.mResultWalls[0];
-			THitActor* owner   = *(THitActor**)((u8*)wall + 0x44);
-			if (owner)
-				owner->receiveMessage((THitActor*)this, 0xe);
+			if (*(THitActor**)((u8*)wall + 0x44))
+				(*(THitActor**)((u8*)wall + 0x44))
+				    ->receiveMessage((THitActor*)this, 0xe);
 			kill();
 			return;
 		}
@@ -243,9 +243,9 @@ void TRocket::bind()
 		if (checkLiveFlag(LIVE_FLAG_AIRBORNE) ? 1 : 0)
 			return;
 
-		THitActor* gowner = *(THitActor**)((u8*)mGroundPlane + 0x44);
-		if (gowner)
-			gowner->receiveMessage((THitActor*)this, 0xe);
+		if (*(THitActor**)((u8*)mGroundPlane + 0x44))
+			(*(THitActor**)((u8*)mGroundPlane + 0x44))
+			    ->receiveMessage((THitActor*)this, 0xe);
 		kill();
 		return;
 	}
