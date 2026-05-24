@@ -167,7 +167,7 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 	return ret;
 }
 
-void TBossHanachanPartsHead::setAnm_(
+BOOL TBossHanachanPartsHead::setAnm_(
     EnumBossHanachanAnmKind anmKind,
     EnumBossHanachanStopMotionBlendOnOff stopMotionBlend)
 {
@@ -179,39 +179,41 @@ void TBossHanachanPartsHead::setAnm_(
 	static const int sHeadBtkIndex[18] = { 0, 0, 0, 1, 0, 1, 1, 0, 0,
 		                                   0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-	if (mCurAnm == anmKind)
-		return;
+	BOOL ret = FALSE;
+	if (mCurAnm != anmKind) {
+		mPrevAnm = mCurAnm;
+		mCurAnm  = anmKind;
 
-	mPrevAnm = mCurAnm;
-	mCurAnm  = anmKind;
-
-	if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BCK)
-	    != sHeadBckIndex[anmKind]) {
-		getMActor()->setBckFromIndex(sHeadBckIndex[anmKind]);
-		if (stopMotionBlend == 1) {
-			mPalFrame->unk24 = mPalFrame->mFrame;
-		} else {
-			mPalFrame->unk24 = 0;
+		if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BCK)
+		    != sHeadBckIndex[anmKind]) {
+			getMActor()->setBckFromIndex(sHeadBckIndex[anmKind]);
+			ret = TRUE;
+			if (stopMotionBlend == 1) {
+				mPalFrame->unk24 = mPalFrame->mFrame;
+			} else {
+				mPalFrame->unk24 = 0;
+			}
+			setCurAnmSound();
 		}
-		setCurAnmSound();
-	}
 
-	if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BTP)
-	    != sHeadBtpIndex[anmKind]) {
-		getMActor()->setBtpFromIndex(sHeadBtpIndex[anmKind]);
-	}
-	if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BTK)
-	    != sHeadBtkIndex[anmKind]) {
-		getMActor()->setBtkFromIndex(sHeadBtkIndex[anmKind]);
-	}
+		if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BTP)
+		    != sHeadBtpIndex[anmKind]) {
+			getMActor()->setBtpFromIndex(sHeadBtpIndex[anmKind]);
+		}
+		if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BTK)
+		    != sHeadBtkIndex[anmKind]) {
+			getMActor()->setBtkFromIndex(sHeadBtkIndex[anmKind]);
+		}
 
-	if (anmKind == 0xF) {
-		getMActor()->setBrkFromIndex(1);
-		getMActor()->getFrameCtrl(5)->setAttribute(0);
+		if (anmKind == 0xF) {
+			getMActor()->setBrkFromIndex(1);
+			getMActor()->getFrameCtrl(5)->setAttribute(0);
+		}
 	}
+	return ret;
 }
 
-void TBossHanachanPartsBody::setAnm_(
+BOOL TBossHanachanPartsBody::setAnm_(
     EnumBossHanachanAnmKind anmKind,
     EnumBossHanachanStopMotionBlendOnOff stopMotionBlend)
 {
@@ -219,35 +221,43 @@ void TBossHanachanPartsBody::setAnm_(
 		                                   0x09, 0x02, 0x03, 0x04, 0x05, 0x06,
 		                                   0x07, 0x08, 0x10, 0x01, 0x11, 0x12 };
 
-	if (mCurAnm == anmKind)
-		return;
+	BOOL ret = FALSE;
+	if (mCurAnm != anmKind) {
+		mPrevAnm = mCurAnm;
+		mCurAnm  = anmKind;
 
-	mPrevAnm = mCurAnm;
-	mCurAnm  = anmKind;
-
-	int idx = sBodyBckIndex[anmKind];
-	if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BCK) != idx) {
-		if (unk114 == mOwner->unk174) {
-			if (anmKind == 2) {
-				idx = 0xB;
-			} else if (anmKind == 3) {
-				idx = 0xE;
+		if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BCK)
+		    != sBodyBckIndex[anmKind]) {
+			int idx = sBodyBckIndex[anmKind];
+			if (unk114 == mOwner->unk174) {
+				switch (anmKind) {
+				case 2:
+					idx = 0xB;
+					break;
+				case 3:
+					idx = 0xE;
+					break;
+				default:
+					break;
+				}
 			}
+			getMActor()->setBckFromIndex(idx);
+			ret = TRUE;
+			if (stopMotionBlend == 1) {
+				mPalFrame->unk24 = mPalFrame->mFrame;
+			} else {
+				mPalFrame->unk24 = 0;
+			}
+			setCurAnmSound();
 		}
-		getMActor()->setBckFromIndex(idx);
-		if (stopMotionBlend == 1) {
-			mPalFrame->unk24 = mPalFrame->mFrame;
-		} else {
-			mPalFrame->unk24 = 0;
-		}
-		setCurAnmSound();
-	}
 
-	if (anmKind == 0xF) {
-		getMActor()->setBrkFromIndex(0);
-		getMActor()->getFrameCtrl(5)->setAttribute(0);
-		getMActor()->getModel()->unlock();
+		if (anmKind == 0xF) {
+			getMActor()->setBrkFromIndex(0);
+			getMActor()->getFrameCtrl(5)->setAttribute(0);
+			getMActor()->getModel()->unlock();
+		}
 	}
+	return ret;
 }
 
 void TBossHanachanPartsBase::considerSetAnm_(
@@ -387,12 +397,17 @@ void TBossHanachanPartsBase::calcRotateZWhenGetUp_()
 {
 	if (mAnmCounter != 0)
 		return;
-	if (mCurAnm != 8 && mCurAnm != 0xB)
+	switch (mCurAnm) {
+	case 8:
+	case 0xB:
+		break;
+	default:
 		return;
+	}
 
 	J3DFrameCtrl* fc = getMActor()->getFrameCtrl(0);
 	f32 remain       = ((f32)fc->getEnd() - fc->getFrame()) * 2.0f;
-	if (remain <= 0.001f) {
+	if (remain < 0.001f) {
 		mRotation.x = 0.0f;
 	} else {
 		CLBChaseConstantSpecifyFrame<f32>(&mRotation.x, 0.0f, remain);
@@ -480,10 +495,8 @@ void TBossHanachanPartsBase::entryCircleShadow_()
 
 void TBossHanachanPartsBase::moveMapCollision_()
 {
-	JGeometry::TVec3<f32> p;
-	p.x = mCenterJointMtx[0][3];
-	p.y = mCenterJointMtx[1][3];
-	p.z = mCenterJointMtx[2][3];
+	JGeometry::TVec3<f32> p(mCenterJointMtx[0][3], mCenterJointMtx[1][3],
+	                        mCenterJointMtx[2][3]);
 	mMapCollision->moveTrans(p);
 }
 
