@@ -36,6 +36,121 @@ them in future ticks.
 
 ## Settled
 
+### Two-term sum `unk3C * sinf(...) + unk40 * sinf(...)` — split each term into a named local to defeat fused fmadds
+
+**Rule.** When target asm computes a sum-of-two-products as
+
+```
+fmuls fX, fA, fSin1       ; X = unk3C * sin1 (saved to NV-FPR)
+... second sinf call ...
+fmuls f0, fB, fSin2        ; 0 = unk40 * sin2
+fadds f1, fX, f0          ; final = X + 0
+```
+
+but our build collapses the second multiply-add into a single
+`fmadds f1, fB, fSin2, fX`, force separation by giving **both**
+products an explicit local name:
+
+```cpp
+// BEFORE — MWCC fuses the second multiply into fmadds:
+return unk3C * sinf(unk24 * (invTwoPi * x) + unk64)
+     + unk40 * sinf(unk28 * (invTwoPi * z) + unk68);
+
+// AFTER — separate fmuls + fadds:
+f32 wave1 = unk3C * sinf(unk24 * (invTwoPi * x) + unk64);
+f32 wave2 = unk40 * sinf(unk28 * (invTwoPi * z) + unk68);
+return wave1 + wave2;
+```
+
+**Why.** With `a + b*c` MWCC's peephole sees a fused multiply-add
+opportunity and emits `fmadds`. Naming `b*c` as a local (`wave2`)
+materializes the multiplication as a distinct subexpression that
+must be stored to its named slot first; the final `+` then has no
+multiply opportunity left to fuse.
+
+**Important:** naming only ONE term (e.g. `wave1`) is insufficient
+— MWCC still fuses the unnamed second product. Both must be named
+locals.
+
+**Citations.**
+
+- `MoveBG/MapObjWave::getWaveHeight` (tick 106): wave1+wave2 split
+  took 94.69% → **100%**. Target uses `fmuls f31, f4, f1; ... bl
+  sinf; fmuls f0, f0, f1; fadds f1, f31, f0`. Single-named wave1
+  alone left fmadds (96-ish%); naming both wave1+wave2 cleaned the
+  full sequence.
+- `MoveBG/MapObjWave::getHeight` (tick 106): same split, 73.45 →
+  78.37%. Side-benefit: also dropped a spurious `+ height` term
+  and reduced FPR saves from 4 to 3 (stack 0x48 → 0x40).
+- `MoveBG/MapObjWave::draw` (tick 106): split applied to both
+  `y0` and `y1` inner-loop sin sums, 89.12% → 93.73%.
+
+**Where to try it next.** Any function computing `coeff_a * f(...) +
+coeff_b * g(...)` where target asm has `fmuls + fadds` but ours has
+`fmadds`. Common in physics integrators, transform compositions, any
+2-term linear blend. Even more likely if both terms are sin/cos.
+
+### Inverted `||` form for shared-true assignment dedups duplicate assignment blocks
+
+**Rule.** When source has the pattern "in two separate cases, run
+the same assignment block; in the remaining case, run the ratio
+branch", do **not** write it as nested `if-else` with duplicated
+assignment blocks, and do **not** write it as `if (cond_a &&
+cond_b) { ratio } else { assign }`. Target uses the
+**disjunctive** form with the "either case" combined via `||`:
+
+```cpp
+// BEFORE — duplicates the assign block, generates 3 basic blocks
+// (assign-inline, ratio, assign-fallthrough):
+if (dist >= 0.0f) {
+    if (bgType == 0x700) {
+        unk3C = unk2C; unk40 = unk30;    // assign
+    } else {
+        ratio compute;                   // ratio
+    }
+} else {
+    unk3C = unk2C; unk40 = unk30;        // assign (duplicate)
+}
+
+// AFTER — single assign block, target's exact basic-block layout:
+if (dist < 0.0f || bgType == 0x700) {
+    unk3C = unk2C; unk40 = unk30;        // assign (ONE place)
+} else {
+    ratio compute;                       // ratio
+}
+```
+
+**Why.** The disjunctive `||` form short-circuits: `blt assign;
+cmplwi bgType, 0x700; beq assign; b ratio; assign: ...; b end;
+ratio: ...; end:`. The duplicated-assign form lays out two
+separate assignment blocks, increasing function size and producing
+a `bne` (combined `cror eq, gt, eq` for the `>= AND ==` test)
+which is wrong shape. Note the **branch direction is inverted**:
+`>=` becomes `<`, `==` becomes equality short-circuit to true
+side, etc.
+
+**How to apply.** Look at the target asm's first comparison after
+the cond setup. If it's `blt label` jumping to the assignment
+block, the source must start with `dist < 0.0f || ...` (the
+disjunction with the FAIL side of `>=`). If it's `bge`, source
+starts with `dist >= 0.0f || ...`.
+
+**Citations.**
+
+- `MoveBG/MapObjWave::updateHeightAndAlpha` (tick 106): rewriting
+  the dist+bgType branch as `if (dist < 0.0f || bgType == 0x700) {
+  assign } else { ratio }` (instead of the original `if (dist >=
+  0.0f && bgType == 0x700) { assign } else { ratio }`) jumped from
+  82.37% → 87.57%. The original used wrong logic (matching the
+  WRONG branch as the assign side) AND wrong shape. Same fix
+  applied to the alphaDist branch.
+
+**Where to try it next.** Any function with target asm pattern
+`fcmpo + blt asgn_label` followed by a second comparison whose
+match-equal branch ALSO jumps to `asgn_label`. The shared label is
+the smoking gun for `cond_a || cond_b`. Also flag any "elseif
+chain with duplicated body" — likely should be `||`.
+
 ### Static-init order is reverse-of-include-order under `-inline deferred`
 
 **Rule.** In a TU compiled with `-inline deferred`, the order MWCC
