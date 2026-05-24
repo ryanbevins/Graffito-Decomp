@@ -2878,6 +2878,37 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **u32-vs-s32 int-to-float conversion path: how to coax MWCC into the
+  u32 path?** Symptom: target's `MAnmSoundNPC::startAnimSound` inlines
+  the equivalent of `(u8)((b2+1) * random.get_ufloat_1())` using the
+  *u32* int-to-double bias (`0x4330_0000_0000_xxxx`, with `clrlwi r0,
+  r0, 24` truncating to byte BEFORE the conversion). Our build emits
+  the *s32* path (`0x4330_0000_8000_xxxx`, with `xoris r3, r0, 0x8000`
+  flipping the sign bit). Both compute the same result for 0..255,
+  but use different scratch layouts and 1 instruction difference.
+  Tried: (a) inline expression `(u8)((b2+1) * get_ufloat_1())` — s32
+  path; (b) static helper `static inline u8 npc_get_uint8(u8 limit)`
+  — identical s32 path. Hypotheses to test in INVESTIGATION ticks:
+  (a) `JAIConst::random` is actually `TRandom_<TRandom_fast_>` (which
+  has a built-in `get_uint8(u8)` method) not `TRandom_fast_` directly —
+  changing the header type would let `random.get_uint8(b2+1)` inline
+  with u8-typed param, forcing the u32 conversion path; (b) explicit
+  `(u32)(b2 + 1)` cast at the call site might suffice. Observed in
+  `MAnmSoundNPC::startAnimSound` (tick 101). Worth ~3-5pp on that fn
+  if solved.
+- **MAnmSound::startAnimSound switch fall-through body order.** Target
+  asm orders switch case bodies as: `case 0; case 7; default`. Source
+  with case 0 falling through to default produces our order: `case 7;
+  case 0+default merged`. Putting case 0 first produces: `case 0;
+  default; case 7`. Target's order can't be achieved with a simple
+  switch + fall-through (would require case 7 between case 0 and
+  default in source, but case 0 falling through would land in case 7
+  not default). Target's case 0 body ends with an *explicit* `bne
+  default_label` to jump to default — i.e. it's a goto, not a
+  fall-through. Hypotheses to test: (a) source uses `goto
+  default_label;` with a `default_label:` placed just before
+  `default:`; (b) source duplicates the default body inline in case 0
+  and MWCC tail-merges. Observed in tick 101.
 - **MWCC per-call-site inline decision is *not* TU-wide.** Symptom: in
   `Enemy/BossHanachanSub::moveHead`, target inlines `TVec3::add` and
   `TVec3::scale` in loop1 (`mPos.y += g; mPos.add(mVel)`) and the first
