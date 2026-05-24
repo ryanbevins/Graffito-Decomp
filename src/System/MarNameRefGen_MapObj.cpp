@@ -233,7 +233,7 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_MapObj(const char* name) const
 	if (strcmp(name, "MapObjChangeStage") == 0)
 		return new TMapObjChangeStage("ステージ切り替え");
 	if (strcmp(name, "MapObjChangeStageHipDrop") == 0)
-		return new TMapObjChangeStage("ステージ切り替え（ヒップドロップ）");
+		return new TMapObjChangeStageHipDrop("ステージ切り替え（ヒップドロップ）");
 	if (strcmp(name, "MapObjStartDemo") == 0)
 		return new TMapObjBase("デモ開始オブジェ");
 	if (strcmp(name, "DamageObj") == 0)
@@ -389,11 +389,11 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_MapObj(const char* name) const
 	if (strcmp(name, "SandBird") == 0)
 		return new TSandBird("おおすな鳥");
 	if (strcmp(name, "SandLeafBase") == 0)
-		return new TSandBase("すなやまの芽の土台");
+		return new TSandLeafBase("すなやまの芽の土台");
 	if (strcmp(name, "SandBombBase") == 0)
 		return new TSandBombBase("すなやま爆弾の土台");
 	if (strcmp(name, "SandBomb") == 0)
-		return new TMapObjBase("すなやま爆弾");
+		return new TSandBomb;
 	if (strcmp(name, "LeanMirror") == 0)
 		return new TLeanMirror("ぐらぐら鏡");
 	if (strcmp(name, "WaterMelon") == 0)

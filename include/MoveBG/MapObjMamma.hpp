@@ -33,6 +33,10 @@ public:
 	void control();
 	void initMapObj();
 	TSandLeafBase();
+	TSandLeafBase(const char* name)
+	    : TSandBase(name)
+	{
+	}
 };
 
 class TSandBomb : public TSandLeaf {
