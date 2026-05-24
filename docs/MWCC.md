@@ -2878,6 +2878,46 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **MWCC per-call-site inline decision is *not* TU-wide.** Symptom: in
+  `Enemy/BossHanachanSub::moveHead`, target inlines `TVec3::add` and
+  `TVec3::scale` in loop1 (`mPos.y += g; mPos.add(mVel)`) and the first
+  half of loop2's `dir.scale()`, but emits `bl sub`/`bl add`/`bl scale`
+  for the same TVec3 helpers in loop2's `diff = mPos - mPrev`, loop2's
+  `newPos.add(dir)`, and loop3's `(mPos-mPrev)*m08`. Our build inlines
+  ALL of them, losing the bl-with-stack-temp pattern target uses. The
+  same TU's `setDegreeZAndRevisionPosXZ` also has `bl sub` for its one
+  `delta.sub(p.mPos)`. No `#pragma dont_inline` in source. Other TUs
+  (cameralib, bossgesso, amiNoko) call out-of-line `sub` without any
+  pragma either. Hypotheses worth testing: (a) MWCC's inline-cost
+  budget is *per function* and gets exhausted at later call sites once
+  enough size has been emitted (loop1 came first, was cheap → inlined;
+  loop2/3 added bl's because the budget was used up); (b) register
+  pressure at the call site shifts the budget calculation; (c) the
+  decision is influenced by what's on the live-range list at that
+  point. A clean experiment: take a single function with two identical
+  `vec.add(other)` calls; insert dummy bloat between them; check
+  whether the second flips from inline → bl. Affected TUs:
+  `Enemy/BossHanachanSub::moveHead` at 61.74%, `setDegreeZ` at 79.59%
+  (tick 100).
+- **Dead-code preservation in `Hino2Landing::execute` (`fctiwz; stfd;
+  lwz` without consumer).** Symptom: target asm contains the canonical
+  `lfs; fctiwz; stfd; lwz` f32→s32 conversion sequence with the loaded
+  int going into `r0` which is immediately overwritten by the next
+  unrelated `lwz` — i.e. the conversion result is dead but emitted.
+  Same with an inline `checkLiveFlag(LIVE_FLAG_HIDDEN)` expansion
+  (`lwz; rlwinm.`) whose flag result is unused. Our source has bare
+  `self->getMActor()->getFrameCtrl(0)->getFrame();` and
+  `self->checkLiveFlag(LIVE_FLAG_HIDDEN);` (called but result
+  discarded); our build DCE's them. Adding `(s32)` cast alone is
+  insufficient. Adding `volatile s32 frame = (s32)...; (void)frame;`
+  emits both ops AND match size goes from 168 → 192 (matching target),
+  but volatile forces an extra `stw r0, 0x2c(r1)` write-back that
+  target doesn't have. What source pattern produces the in-register
+  conversion *without* a write-back? Likely candidates: register-only
+  storage class (not supported in MWCC C++), an inline empty function
+  taking the value by value, or a missing `JUT_ASSERT_F` whose body got
+  optimized but the eval kept. Affected TU: `Enemy/hinokuri2`
+  `execute__TNerveHino2LandingC...` at 87.40% (tick 100).
 - **Multi-stream-register-copy in stream-read loops.** Symptom: target's
   `load__17TMarioPositionObjFR20JSUMemoryInputStream` copies the stream
   parameter `r4` into SIX callee-saved registers (r24..r29 all = r4)
