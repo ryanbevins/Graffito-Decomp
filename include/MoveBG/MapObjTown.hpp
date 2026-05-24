@@ -72,6 +72,10 @@ public:
 	void init(unsigned long);
 	void load(JSUMemoryInputStream&);
 	TDamageObj();
+	TDamageObj(const char* name)
+	    : THitActor(name)
+	{
+	}
 };
 
 class TShadowObj {

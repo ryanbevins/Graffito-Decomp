@@ -41,6 +41,7 @@
 #include <MoveBG/Pool.hpp>
 #include <MoveBG/WoodBarrel.hpp>
 #include <Strategic/HitActor.hpp>
+#include <Strategic/TakeActor.hpp>
 
 // Forward declarations for classes whose headers don't exist yet.
 // Sizes are pinned to match what the original asm passed to operator new.
@@ -160,10 +161,13 @@ public:
 	virtual ~TSirenaGate() {}
 };
 
-class TTelesaSlot : public JDrama::TNameRef {
+class TTelesaSlot : public TSlotDrum {
 public:
-	TTelesaSlot(const char*);
-	char _stub[0x1e8];
+	TTelesaSlot(const char* name)
+	    : TSlotDrum(name)
+	{
+	}
+	char _stub[0x1f0 - 0x198];
 };
 
 class TWaterHitHideObj : public THideObjBase {
@@ -180,6 +184,12 @@ public:
 class TWoodLog : public TMapObjFloatOnSea {
 public:
 	TWoodLog(const char* name) : TMapObjFloatOnSea(name) {}
+};
+
+class TModelGate : public TTakeActor {
+public:
+	TModelGate(const char* name) : TTakeActor(name) {}
+	virtual MtxPtr getTakingMtx() { return nullptr; }
 };
 
 JDrama::TNameRef* TMarNameRefGen::getNameRef_MapObj(const char* name) const
@@ -221,9 +231,9 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_MapObj(const char* name) const
 	if (strcmp(name, "MapObjFlag") == 0)
 		return new TMapObjFlag("旗");
 	if (strcmp(name, "RockPlane") == 0)
-		return new TMapObjPlane("岩平面");
+		return new TRockPlane("岩平面");
 	if (strcmp(name, "SandPlane") == 0)
-		return new TMapObjPlane("砂平面");
+		return new TSandPlane("砂平面");
 	if (strcmp(name, "MapObjGrassManager") == 0)
 		return new TMapObjGrassManager("草管理");
 	if (strcmp(name, "MapObjGrassGroup") == 0)
@@ -237,7 +247,7 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_MapObj(const char* name) const
 	if (strcmp(name, "MapObjStartDemo") == 0)
 		return new TMapObjBase("デモ開始オブジェ");
 	if (strcmp(name, "DamageObj") == 0)
-		return new THitActor("ダメージオブジェ");
+		return new TDamageObj("ダメージオブジェ");
 	if (strcmp(name, "MapObjSmoke") == 0)
 		return new TMapObjSmoke("黒煙");
 	if (strcmp(name, "MapObjWaterSpray") == 0)
@@ -319,7 +329,7 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_MapObj(const char* name) const
 	if (strcmp(name, "AirportEventSink") == 0)
 		return new TAirportEventSink("水場スイッチ");
 	if (strcmp(name, "JellyGate") == 0)
-		return new THitActor("<TModelGate>");
+		return new TModelGate("<TModelGate>");
 	if (strcmp(name, "GateShadow") == 0)
 		return new TGateShadow("シャドウ球");
 	if (strcmp(name, "IceCar") == 0)
