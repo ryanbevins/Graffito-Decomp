@@ -46,7 +46,9 @@ void SMS_InitChangeNpcColor(const MActor* mActor, const TColorChangeInfo* info,
 			else
 				SMS_InitPacket_TwoTevColor(model, nameIdx,
 				    GX_TEVREG1, c8, GX_TEVREG2, cC);
-		} else if (info->unk8 != NULL) {
+			break;
+		}
+		if (info->unk8 != NULL && info->unkC == NULL) {
 			const GXColorS10* col = &info->unk8[idx];
 			if (dstColor != NULL)
 				SMS_InitPacket_OneTevColorAndOneTevKColor(model,
@@ -54,7 +56,9 @@ void SMS_InitChangeNpcColor(const MActor* mActor, const TColorChangeInfo* info,
 			else
 				SMS_InitPacket_OneTevColor(model, nameIdx,
 				    GX_TEVREG1, col);
-		} else if (info->unkC != NULL) {
+			break;
+		}
+		if (info->unk8 == NULL && info->unkC != NULL) {
 			const GXColorS10* col = &info->unkC[idx];
 			if (dstColor != NULL)
 				SMS_InitPacket_OneTevColorAndOneTevKColor(model,
