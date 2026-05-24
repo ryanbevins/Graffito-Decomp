@@ -17,7 +17,7 @@ public:
 	    , unk1D(1)
 	    , unk20(0.0f)
 	{
-		unk0.zero();
+		unk0.set(0.0f, 0.0f, 0.0f);
 	}
 
 public:

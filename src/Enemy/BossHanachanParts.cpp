@@ -78,7 +78,7 @@ BOOL TBossHanachanPartsHead::receiveMessage(THitActor* sender, u32 message)
 	bool isTumble                     = false;
 	if (cur == &TNerveBossHanachanTumble::theNerve()
 	    || cur == &TNerveBossHanachanDown::theNerve()) {
-		if (mActorType == 0x80000015) {
+		if (mActorType == 0x08000015) {
 			if (mRotation.x == -179.0f || mRotation.x == 179.0f)
 				isTumble = true;
 		} else {
@@ -121,7 +121,7 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 	bool isTumble                     = false;
 	if (cur == &TNerveBossHanachanTumble::theNerve()
 	    || cur == &TNerveBossHanachanDown::theNerve()) {
-		if (mActorType == 0x80000015) {
+		if (mActorType == 0x08000015) {
 			if (mRotation.x == -179.0f || mRotation.x == 179.0f)
 				isTumble = true;
 		} else {
@@ -293,7 +293,7 @@ void TBossHanachanPartsBase::considerSetAnm_(
 		if (inGetUp) {
 			if (!BHPartsIsCurBckDone(getMActor()))
 				return;
-			if (mActorType == 0x80000015 && hipDropping) {
+			if (mActorType == 0x08000015 && hipDropping) {
 				setAnm_((EnumBossHanachanAnmKind)2, (EnumBossHanachanStopMotionBlendOnOff)1);
 			} else {
 				setAnm_((EnumBossHanachanAnmKind)3, (EnumBossHanachanStopMotionBlendOnOff)0);
@@ -301,7 +301,7 @@ void TBossHanachanPartsBase::considerSetAnm_(
 			return;
 		}
 
-		if (mActorType != 0x80000015)
+		if (mActorType != 0x08000015)
 			return;
 
 		bool fastAnm = false;
@@ -451,15 +451,13 @@ bool TBossHanachanPartsBase::isCurBckAlreadyEnd_() const
 void TBossHanachanPartsBase::setDamageFog_(JDrama::TGraphics* graphics)
 {
 	bool isBody = true;
-	if (mActorType == 0x80000014)
+	if (mActorType == 0x08000014)
 		isBody = false;
 
 	J3DModelData* modelData = getMActor()->getModel()->mModelData;
 	u16 matCount            = modelData->mMaterialNum;
-	JGeometry::TVec3<f32> pos;
-	pos.x = mCenterJointMtx[0][3];
-	pos.y = mCenterJointMtx[1][3];
-	pos.z = mCenterJointMtx[2][3];
+	JGeometry::TVec3<f32> pos(mCenterJointMtx[0][3], mCenterJointMtx[1][3],
+	                          mCenterJointMtx[2][3]);
 
 	const TNerveBase<TLiveActor>* cur = mOwner->mSpine->getLatestNerve();
 	if (cur == &TNerveBossHanachanDamage::theNerve()) {
@@ -485,11 +483,9 @@ void TBossHanachanPartsBase::entryCircleShadow_()
 		return;
 	}
 	TCircleShadowRequest req;
-	req.unk0.x = mCenterJointMtx[0][3];
-	req.unk0.y = mCenterJointMtx[1][3];
-	req.unk0.z = mCenterJointMtx[2][3];
-	req.unk10  = mScaledBodyRadius;
-	req.unkC   = mScaledBodyRadius;
+	req.unk0.set(mCenterJointMtx[0][3], mCenterJointMtx[1][3],
+	             mCenterJointMtx[2][3]);
+	req.unkC = req.unk10 = mScaledBodyRadius;
 	gpBindShadowManager->forceRequest(req, mActorType);
 }
 
@@ -503,16 +499,20 @@ void TBossHanachanPartsBase::moveMapCollision_()
 void TBossHanachanPartsBase::changeTumbleAnmRate_()
 {
 	J3DFrameCtrl* fc = getMActor()->getFrameCtrl(0);
-	if (mCurAnm == 0x10 || mCurAnm == 0x11) {
-		if (fc->getFrame() < 40.0f) {
+	switch (mCurAnm) {
+	case 0x10:
+	case 0x11:
+		if (fc->getFrame() > 40.0f) {
 			f32 remain = (f32)fc->getEnd() - fc->getFrame();
 			f32 rate   = SMSGetAnmFrameRate();
 			f32 cur    = fc->getRate();
 			CLBChaseConstantSpecifyFrame<f32>(&cur, rate, remain);
 			fc->setRate(cur);
 		}
-	} else {
+		break;
+	default:
 		fc->setRate(SMSGetAnmFrameRate());
+		break;
 	}
 }
 
@@ -546,14 +546,14 @@ void TBossHanachanPartsBase::initMapCollisionAndHitActor_(TIdxGroupObj* group)
 	    offY = 0.0f;
 
 	TBossHanachanCommonSaveParams* params = mOwner->mParams;
-	if (mActorType == 0x80000015) {
+	if (mActorType == 0x08000015) {
 		filename = cBodyMapCollisionFileName;
 		attRad   = params->mSLBodyAttackRadius.value;
 		attHei   = params->mSLBodyAttackHeight.value;
 		damRad   = params->mSLBodyDamageRadius.value;
 		damHei   = params->mSLBodyDamageHeight.value;
 		offY     = params->mSLBodyHitOffsetY.value;
-	} else if (mActorType == 0x80000014) {
+	} else if (mActorType == 0x08000014) {
 		filename = cHeadMapCollisionFileName;
 		attRad   = params->mSLHeadAttackRadius.value;
 		attHei   = params->mSLHeadAttackHeight.value;
@@ -602,9 +602,9 @@ TBossHanachanPartsBase::TBossHanachanPartsBase(TBossHanachan* owner,
 
 	initHitActor(actorType, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f);
 	unk64 |= 1;
-	if (actorType == 0x80000015) {
+	if (actorType == 0x08000015) {
 		mScaledBodyRadius = owner->mParams->mSLBodyShadowSize.value;
-	} else if (actorType == 0x80000014) {
+	} else if (actorType == 0x08000014) {
 		mScaledBodyRadius = owner->mParams->mSLHeadShadowSize.value;
 	}
 	mLiveFlag |= 8;
@@ -631,7 +631,7 @@ TBossHanachanPartsBase::TBossHanachanPartsBase(TBossHanachan* owner,
 
 TBossHanachanPartsHead::TBossHanachanPartsHead(TBossHanachan* owner,
                                                const char* name)
-    : TBossHanachanPartsBase(owner, 0x80000014, 1, name)
+    : TBossHanachanPartsBase(owner, 0x08000014, 1, name)
 {
 	MActor* a       = getMActor();
 	JUTNameTab* tab = a->getModel()->mModelData->unkB0;
@@ -645,7 +645,7 @@ TBossHanachanPartsHead::TBossHanachanPartsHead(TBossHanachan* owner,
 
 TBossHanachanPartsBody::TBossHanachanPartsBody(TBossHanachan* owner,
                                                const char* name)
-    : TBossHanachanPartsBase(owner, 0x80000015, 0, name)
+    : TBossHanachanPartsBase(owner, 0x08000015, 0, name)
 {
 	unk114 = 0;
 	unk120 = 0.0f;
