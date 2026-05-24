@@ -70,7 +70,7 @@ BOOL TBossHanachanPartsHead::receiveMessage(THitActor* sender, u32 message)
 		if (gpMarDirector->unk124 != 4)
 			inOk = false;
 	}
-	if (!inOk)
+	if (inOk)
 		return FALSE;
 
 	BOOL ret                          = FALSE;
@@ -87,17 +87,22 @@ BOOL TBossHanachanPartsHead::receiveMessage(THitActor* sender, u32 message)
 	}
 
 	if (isTumble) {
-		if (message == 1) {
-			setAnm_((EnumBossHanachanAnmKind)6, (EnumBossHanachanStopMotionBlendOnOff)0);
-			mWaterHit->onWaterHitCounter();
-			ret = TRUE;
-		} else if (message == 0) {
+		switch (message) {
+		case 0:
 			if (mCurAnm == 5) {
 				getMActor()->getFrameCtrl(0)->setFrame(0.0f);
 			} else {
 				setAnm_((EnumBossHanachanAnmKind)5, (EnumBossHanachanStopMotionBlendOnOff)0);
 			}
 			ret = TRUE;
+			break;
+		case 1:
+			setAnm_((EnumBossHanachanAnmKind)6, (EnumBossHanachanStopMotionBlendOnOff)0);
+			mWaterHit->onWaterHitCounter();
+			ret = TRUE;
+			break;
+		default:
+			break;
 		}
 	}
 	return ret;
@@ -113,7 +118,7 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 		if (gpMarDirector->unk124 != 4)
 			inOk = false;
 	}
-	if (!inOk)
+	if (inOk)
 		return FALSE;
 
 	BOOL ret                          = FALSE;
@@ -130,14 +135,16 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 	}
 
 	if (isTumble) {
-		if (message == 0) {
+		switch (message) {
+		case 0:
 			if (mCurAnm == 5) {
 				getMActor()->getFrameCtrl(0)->setFrame(0.0f);
 			} else {
 				setAnm_((EnumBossHanachanAnmKind)5, (EnumBossHanachanStopMotionBlendOnOff)0);
 			}
 			ret = TRUE;
-		} else if (message == 1) {
+			break;
+		case 1: {
 			bool same = (unk114 == mOwner->unk174);
 			if (mCurAnm <= 0x11) {
 				switch (mCurAnm) {
@@ -162,6 +169,9 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 					break;
 				}
 			}
+		} break;
+		default:
+			break;
 		}
 	}
 	return ret;
