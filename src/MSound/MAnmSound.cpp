@@ -7,7 +7,7 @@
 
 static inline u8 npc_get_uint8(u8 limit)
 {
-	return limit * JAIConst::random.get_ufloat_1();
+	return JAIConst::random.get_ufloat_1() * limit;
 }
 
 MAnmSound::MAnmSound(MSound* sound) { mData = nullptr; }
@@ -63,7 +63,8 @@ void MAnmSound::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 void MAnmSound::setSpeedModifySound(JAISound* sound,
                                     JAIAnimeFrameSoundData* data, f32 f)
 {
-	if (MSound::getSwitch(sound->unk8, 0x100000, 0x14)) {
+	u32 sw = sound->unk8;
+	if (MSound::getSwitch(sw, 0x100000, 0x14)) {
 		JAIAnimeSound::setSpeedModifySound(sound, data, f);
 	}
 }
