@@ -36,6 +36,72 @@ them in future ticks.
 
 ## Settled
 
+### Weak destructor emission in MarNameRefGen TUs requires correct base class + inline derived ctor
+
+**Rule:** When a TU emits a `bl __ct__Foo` for `new Foo(...)` (where
+`Foo` has out-of-line ctor declared but inline-defined body, e.g. in
+its header as `Foo(const char* name) : Bar(name) {}`), MWCC also
+emits `__dt__FooFv` as a weak symbol in that TU. The inline ctor's
+visible inheritance is the trigger — MWCC needs the parent's vtable
+slot for the derived `Foo`'s vtable, which forces emission of the
+derived dtor weak.
+
+Conversely, when `Foo` is a header-declared class whose ctor is
+out-of-line (declared `Foo(const char*);` only) AND `Foo` has no
+derived classes with inline ctors in the current TU, MWCC will NOT
+emit `__dt__FooFv`. The call `bl __ct__Foo` and any vtable refs
+become external dependencies.
+
+**To trigger weak emission of a base class's dtor:** add a derived
+class with inline ctor in the same TU. The simplest pattern is a
+local placeholder class:
+
+```cpp
+class TMewManager : public TAnimalManagerBase {
+public:
+    TMewManager(const char* name) : TAnimalManagerBase(name) {}
+};
+// ... and use it for `new TMewManager(...)`.
+```
+
+If the derived class exists in a header but with an out-of-line
+ctor, promote the ctor to inline body in the header (verify
+symbols.txt has no `__ct__Derived` symbol first — if absent, the
+original code was inline).
+
+**Important:** if the local class uses `: TSpineEnemy(name) {}` but
+the TARGET's asm calls `bl __ct__11TSmallEnemyFPCc` after a vtable
+write to TSmallEnemy, the placeholder must inherit TSmallEnemy
+(NOT TSpineEnemy). The vtable cascade in the dtor reveals the
+correct base chain — read the dtor's `lis r3, __vt__X@ha` sequence.
+
+**Citations:**
+- `System/MarNameRefGen_BossEnemy` — TBEelTears dtor emitted by
+  switching TOilBall (TNameRef → TBEelTears) with inline ctor. TU
+  88.21% → 93.54% in tick 87, then 93.54% → 96.41% in this tick.
+- `System/MarNameRefGen_Enemy` — TPakkun dtor 81.82% → 100% by
+  changing base from TSpineEnemy → TSmallEnemy (match dtor cascade).
+- `System/MarNameRefGen_Enemy` — TTobiPuku family (4 dtors) +
+  MoePuku derived chain. TU 87.35% → 89.60%.
+- `System/MarNameRefGen_Enemy` — TNameKuriManager dtor via inline
+  TDiffusionNameKuriManager ctor promotion (NameKuri.hpp). TU →
+  90.83%.
+- `System/MarNameRefGen_Enemy` — TGesso dtor via inline TSurfGesso
+  / TLandGesso ctors (Gesso.hpp). TU → 92.72%.
+- `System/MarNameRefGen_Enemy` — TAnimalManagerBase dtor via inline
+  TMewManager ctor (AnimalManager.hpp). TU → 93.79%.
+- `System/MarNameRefGen_Enemy` — TSimpleEffect dtor via inline
+  TSimpleEffect/TEffectPinnaFunsui/TEffectBiancoFunsui ctors
+  (EffectObj.hpp). TU → 96.96%.
+
+**Where to try it next:** Every other `MarNameRefGen_*` TU
+(MarNameRefGen_MapObj, _NPC, _Map) has many missing weak dtors with
+the same pattern. Survey the strcmp branches → for each `new T(...)`
+where `T` has a header-out-of-line ctor + no derived class in TU,
+check target asm for which derived classes are constructed (look for
+`bl __ct__TBase` immediately followed by `lis r3, __vt__TDerived`).
+Add a local placeholder OR promote header ctor to inline.
+
 ### `TVec3<f32>::set<f32>(x, y, z)` template form batches float loads
 
 **Rule:** When source needs to copy three float values from a base
