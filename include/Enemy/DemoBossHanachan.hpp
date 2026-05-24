@@ -14,7 +14,10 @@ public:
 
 class TDemoBossHanachan : public TSpineEnemy {
 public:
-	TDemoBossHanachan(const char*);
+	TDemoBossHanachan(const char* name)
+	    : TSpineEnemy(name)
+	{
+	}
 
 	virtual BOOL receiveMessage(THitActor*, u32);
 
@@ -23,7 +26,10 @@ public:
 
 class TDemoBossHanachanManager : public TEnemyManager {
 public:
-	TDemoBossHanachanManager(const char*);
+	TDemoBossHanachanManager(const char* name)
+	    : TEnemyManager(name)
+	{
+	}
 
 	virtual void clipEnemies(JDrama::TGraphics*);
 

@@ -3,9 +3,11 @@
 #include <Enemy/BathtubKiller.hpp>
 #include <Enemy/BossGesso.hpp>
 #include <Enemy/CoasterKiller.hpp>
+#include <Enemy/DemoBossHanachan.hpp>
 #include <Enemy/Enemy.hpp>
 #include <Enemy/EnemyManager.hpp>
 #include <Enemy/Hinokuri2.hpp>
+#include <Enemy/SleepBossHanachan.hpp>
 // Rogue includes for static init (matches original sinit block)
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSSetSound.hpp>
@@ -112,30 +114,6 @@ class TBubbleManager : public JDrama::TNameRef {
 public:
 	TBubbleManager(const char*);
 	char _stub[0x58];
-};
-
-class TDemoBossHanachan : public TSpineEnemy {
-public:
-	TDemoBossHanachan(const char* name) : TSpineEnemy(name) {}
-	virtual ~TDemoBossHanachan() {}
-};
-
-class TSleepBossHanachan : public TDemoBossHanachan {
-public:
-	TSleepBossHanachan(const char* name) : TDemoBossHanachan(name) {}
-	virtual ~TSleepBossHanachan() {}
-};
-
-class TDemoBossHanachanManager : public TEnemyManager {
-public:
-	TDemoBossHanachanManager(const char* name) : TEnemyManager(name) {}
-	virtual ~TDemoBossHanachanManager() {}
-};
-
-class TSleepBossHanachanManager : public TDemoBossHanachanManager {
-public:
-	TSleepBossHanachanManager(const char* name) : TDemoBossHanachanManager(name) {}
-	virtual ~TSleepBossHanachanManager() {}
 };
 
 class TEMario : public JDrama::TNameRef {
