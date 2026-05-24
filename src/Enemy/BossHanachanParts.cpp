@@ -79,8 +79,8 @@ BOOL TBossHanachanPartsHead::receiveMessage(THitActor* sender, u32 message)
 	if (cur == &TNerveBossHanachanTumble::theNerve()
 	    || cur == &TNerveBossHanachanDown::theNerve()) {
 		if (mActorType == 0x08000015) {
-			if (mRotation.x == -179.0f || mRotation.x == 179.0f)
-				isTumble = true;
+			bool isFlipped = (mRotation.x == 179.0f || mRotation.x == -179.0f) ? true : false;
+			if (isFlipped) isTumble = true;
 		} else {
 			isTumble = true;
 		}
@@ -127,8 +127,8 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 	if (cur == &TNerveBossHanachanTumble::theNerve()
 	    || cur == &TNerveBossHanachanDown::theNerve()) {
 		if (mActorType == 0x08000015) {
-			if (mRotation.x == -179.0f || mRotation.x == 179.0f)
-				isTumble = true;
+			bool isFlipped = (mRotation.x == 179.0f || mRotation.x == -179.0f) ? true : false;
+			if (isFlipped) isTumble = true;
 		} else {
 			isTumble = true;
 		}
