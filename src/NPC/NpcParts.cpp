@@ -31,7 +31,7 @@ const char* cPeachHostTextureName               = "H_peach_main_s3tc";
 static const char* cNpcPartsNameRootJointStringInfectious
     = "__ROOT_JOINT__";
 
-void SMS_InitChangeNpcColor(const MActor*, const TColorChangeInfo*,
+void SMS_InitChangeNpcColor(const MActor*, const TColorChangeInfo*, s16,
                             const GXColor*);
 
 static inline void setEffectMtxOnTex0(J3DMaterial* mat, MtxPtr mtx)
@@ -153,7 +153,7 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 				    = modelData->unk10[ci].unk0;
 				if (colorInfo != nullptr) {
 					SMS_InitChangeNpcColor(parts->unk18,
-					    colorInfo, pollutionColor);
+					    colorInfo, unifyIdx, pollutionColor);
 				}
 			}
 
