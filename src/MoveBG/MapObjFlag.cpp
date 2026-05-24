@@ -195,18 +195,11 @@ TMapObjFlag::TMapObjFlag(const char* name)
 	mPhase        = 360.0f * ((f32)rand() * 0.000030517578f);
 	mStepSize     = 1;
 
-	mLocalMtx[0][0] = 1.0f;
-	mLocalMtx[0][1] = 0.0f;
-	mLocalMtx[0][2] = 0.0f;
-	mLocalMtx[0][3] = 0.0f;
-	mLocalMtx[1][0] = 0.0f;
-	mLocalMtx[1][1] = 1.0f;
-	mLocalMtx[1][2] = 0.0f;
-	mLocalMtx[1][3] = 0.0f;
-	mLocalMtx[2][0] = 0.0f;
-	mLocalMtx[2][1] = 0.0f;
-	mLocalMtx[2][2] = 1.0f;
-	mLocalMtx[2][3] = 0.0f;
+	mLocalMtx[0][3] = mLocalMtx[1][3] = mLocalMtx[2][3] = 0.0f;
+	mLocalMtx[0][2] = mLocalMtx[1][2] = 0.0f;
+	mLocalMtx[0][1] = mLocalMtx[2][1] = 0.0f;
+	mLocalMtx[1][0] = mLocalMtx[2][0] = 0.0f;
+	mLocalMtx[0][0] = mLocalMtx[1][1] = mLocalMtx[2][2] = 1.0f;
 }
 
 TMapObjFlag::~TMapObjFlag() { }
@@ -257,7 +250,7 @@ void TMapObjFlag::init(const char* name)
 		}
 	}
 
-	JKRHeap::getCurrentHeap();
+	JKRHeap::getCurrentHeap()->getTotalFreeSize();
 
 	gpMapObjFlagManager->registerObj(this, name);
 
@@ -267,19 +260,18 @@ void TMapObjFlag::init(const char* name)
 void TMapObjFlag::updateVertex()
 {
 	for (int col = 0; col < mNumCols; col += mStepSize) {
-		f32 colRatio = (f32)col * (mFlagWidth);
+		f32 colTerm = (f32)col * mFlagHeight;
 		for (int row = 0; row < mNumRows; row += mStepSize) {
 			f32 rowRatio = (f32)row / (f32)(mNumRows - 1);
-			f32 phase = mPhase + (((f32)col / (f32)(mNumCols - 1))) * colRatio;
+			f32 phase    = mPhase + (f32)(-row) * mFlagWidth + colTerm;
 
 			while (phase > 360.0f)
 				phase -= 360.0f;
 			while (phase < -180.0f)
 				phase += 360.0f;
 
-			f32 sinVal     = JMASSin(static_cast<s16>(phase * 182.04445f));
-			f32 amplitude  = mSegmentSize * rowRatio;
-			mVertexGrid[col][row].x = amplitude * sinVal;
+			f32 sinVal              = JMASSin((s16)(phase * 182.04445f));
+			mVertexGrid[col][row].x = mSegmentSize * rowRatio * sinVal;
 		}
 	}
 }
