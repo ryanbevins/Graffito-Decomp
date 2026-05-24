@@ -261,7 +261,65 @@ void TMapObjWave::updateHeightAndAlpha()
 
 void TMapObjWave::draw()
 {
-	// TODO: complex GX vertex emission loop with double-row strip
+	f32 invTwoPi = 0.15915507f;
+
+	for (f32 outerZ = -mHalfWaveSize;
+	     outerZ <= mHalfWaveSize - mGridSize; outerZ += mGridSize) {
+		f32 z0 = outerZ + gpMarioPos->z;
+		f32 z1 = z0 + mGridSize;
+		GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, (u16)(mGridCount * 2));
+		f32 invTwoPiZ0 = invTwoPi * z0;
+		f32 invTwoPiZ1 = invTwoPi * z1;
+		f32 absOuter   = fabsf(outerZ);
+
+		for (f32 innerX = -mHalfWaveSize;
+		     innerX <= mHalfWaveSize - mGridSize; innerX += mGridSize) {
+			f32 absInner = fabsf(innerX);
+			f32 x0       = innerX + gpMarioPos->x;
+			int alpha0;
+			if (absInner > absOuter) {
+				alpha0 = (int)(unk54
+				               * (1.0f - mInvHalfWaveSize * absInner));
+			} else {
+				alpha0 = (int)(unk54
+				               * (1.0f - mInvHalfWaveSize * absOuter));
+			}
+
+			f32 absOuterNext = fabsf(outerZ + mGridSize);
+			int alpha1;
+			if (absInner > absOuterNext) {
+				alpha1 = (int)(unk54
+				               * (1.0f - mInvHalfWaveSize * absInner));
+			} else {
+				alpha1 = (int)(unk54
+				               * (1.0f - mInvHalfWaveSize * absOuterNext));
+			}
+
+			f32 y0;
+			if (mTexInfo == nullptr) {
+				y0 = 0.0f;
+			} else {
+				y0 = unk3C * sinf(unk24 * (invTwoPi * x0) + unk64)
+				   + unk40 * sinf(unk28 * invTwoPiZ0 + unk68);
+			}
+			GXPosition3f32(x0, y0, z0);
+			GXColor4u8(sColor.r, sColor.g, sColor.b, alpha0);
+			GXTexCoord2f32(unk6C + x0 * unk74, z0 * unk74);
+			GXTexCoord2f32(0.8f * (x0 * unk78), unk70 + z0 * unk78);
+
+			f32 y1;
+			if (mTexInfo == nullptr) {
+				y1 = 0.0f;
+			} else {
+				y1 = unk3C * sinf(unk24 * (invTwoPi * x0) + unk64)
+				   + unk40 * sinf(unk28 * invTwoPiZ1 + unk68);
+			}
+			GXPosition3f32(x0, y1, z1);
+			GXColor4u8(sColor.r, sColor.g, sColor.b, alpha1);
+			GXTexCoord2f32(unk6C + x0 * unk74, z1 * unk74);
+			GXTexCoord2f32(0.8f * (x0 * unk78), unk70 + z1 * unk78);
+		}
+	}
 }
 
 void TMapObjWave::noWave()
