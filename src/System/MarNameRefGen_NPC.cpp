@@ -66,62 +66,62 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_NPC(const char* name) const
 		return new TBaseNPC(0x0400001D, "?");
 
 	if (strcmp(name, "MonteMManager") == 0)
-		return new TMonteMBaseManager("MonteMManager");
+		return new TMonteMManager;
 	if (strcmp(name, "MonteMAManager") == 0)
-		return new TMonteMBaseManager("MonteMAManager");
+		return new TMonteMAManager;
 	if (strcmp(name, "MonteMBManager") == 0)
-		return new TMonteMBaseManager("MonteMBManager");
+		return new TMonteMBManager;
 	if (strcmp(name, "MonteMCManager") == 0)
-		return new TMonteMBaseManager("MonteMCManager");
+		return new TMonteMCManager;
 	if (strcmp(name, "MonteMDManager") == 0)
-		return new TMonteMBaseManager("MonteMDManager");
+		return new TMonteMDManager;
 	if (strcmp(name, "MonteMEManager") == 0)
-		return new TMonteMBaseManager("MonteMEManager");
+		return new TMonteMEManager;
 	if (strcmp(name, "MonteMFManager") == 0)
-		return new TMonteMBaseManager("MonteMFManager");
+		return new TMonteMFManager;
 	if (strcmp(name, "MonteMGManager") == 0)
-		return new TMonteMBaseManager("MonteMGManager");
+		return new TMonteMGManager;
 	if (strcmp(name, "MonteMHManager") == 0)
-		return new TMonteMBaseManager("MonteMHManager");
+		return new TMonteMHManager;
 	if (strcmp(name, "MonteWManager") == 0)
-		return new TMonteWBaseManager("MonteWManager");
+		return new TMonteWManager;
 	if (strcmp(name, "MonteWAManager") == 0)
-		return new TMonteWBaseManager("MonteWAManager");
+		return new TMonteWAManager;
 	if (strcmp(name, "MonteWBManager") == 0)
-		return new TMonteWBaseManager("MonteWBManager");
+		return new TMonteWBManager;
 	if (strcmp(name, "MonteWCManager") == 0)
-		return new TMonteWBaseManager("MonteWCManager");
+		return new TMonteWCManager;
 	if (strcmp(name, "MareMManager") == 0)
-		return new TMareMBaseManager("MareMManager");
+		return new TMareMManager;
 	if (strcmp(name, "MareMAManager") == 0)
-		return new TMareMBaseManager("MareMAManager");
+		return new TMareMAManager;
 	if (strcmp(name, "MareMBManager") == 0)
-		return new TMareMBaseManager("MareMBManager");
+		return new TMareMBManager;
 	if (strcmp(name, "MareMCManager") == 0)
-		return new TMareMBaseManager("MareMCManager");
+		return new TMareMCManager;
 	if (strcmp(name, "MareMDManager") == 0)
-		return new TMareMBaseManager("MareMDManager");
+		return new TMareMDManager;
 	if (strcmp(name, "MareWManager") == 0)
-		return new TMareWBaseManager("MareWManager");
+		return new TMareWManager;
 	if (strcmp(name, "MareWAManager") == 0)
-		return new TMareWBaseManager("MareWAManager");
+		return new TMareWAManager;
 	if (strcmp(name, "MareWBManager") == 0)
-		return new TMareWBaseManager("MareWBManager");
+		return new TMareWBManager;
 	if (strcmp(name, "KinopioManager") == 0)
-		return new TNPCManager("KinopioManager");
+		return new TKinopioManager;
 	if (strcmp(name, "KinojiiManager") == 0)
-		return new TNPCManager("KinojiiManager");
+		return new TKinojiiManager;
 	if (strcmp(name, "PeachManager") == 0)
-		return new TNPCManager("PeachManager");
+		return new TPeachManager;
 	if (strcmp(name, "RaccoonDogManager") == 0)
-		return new TNPCManager("RaccoonDogManager");
+		return new TRaccoonDogManager;
 	if (strcmp(name, "SunflowerLManager") == 0)
-		return new TNPCManager("SunflowerLManager");
+		return new TSunflowerLManager;
 	if (strcmp(name, "SunflowerSManager") == 0)
-		return new TNPCManager("SunflowerSManager");
+		return new TSunflowerSManager;
 	if (strcmp(name, "MareJellyFish") == 0)
 		return new TMareJellyFishManager("MareJellyFish");
 	if (strcmp(name, "BoardNpcManager") == 0)
-		return new TLiveManager("BoardNpcManager");
+		return new TBoardNpcManager;
 	return nullptr;
 }
