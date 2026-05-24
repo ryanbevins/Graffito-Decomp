@@ -18,7 +18,6 @@
 class TBEelTears : public TSpineEnemy {
 public:
 	TBEelTears(const char* name) : TSpineEnemy(name) {}
-	virtual ~TBEelTears() {}
 };
 
 class TBEelTearsManager : public JDrama::TNameRef {
@@ -188,10 +187,10 @@ public:
 	char _stub[0x4c];
 };
 
-class TOilBall : public JDrama::TNameRef {
+class TOilBall : public TBEelTears {
 public:
-	TOilBall(const char*);
-	char _stub[0x168];
+	TOilBall(const char* name) : TBEelTears(name) {}
+	char _stub[0x20];
 };
 
 class TTinKoopa : public JDrama::TNameRef {

@@ -10,9 +10,9 @@ class TSleepBossHanachan : public TDemoBossHanachan {
 public:
 	TSleepBossHanachan(const char* name)
 	    : TDemoBossHanachan(name)
+	    , mFallPos(0.0f, 0.0f, 0.0f)
+	    , mMirrorActor(nullptr)
 	{
-		mFallPos.set<f32>(0.0f, 0.0f, 0.0f);
-		mMirrorActor = nullptr;
 	}
 
 	virtual void init(TLiveManager*);
