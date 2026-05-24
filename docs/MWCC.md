@@ -2433,6 +2433,44 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Comparison operand order schedules static-init guard inline expansion
+
+**Hypothesis:** When a `!=` (or `==`) comparison contains an inline call
+that expands to a static-init guard block (e.g. `DEFINE_NERVE`'s
+`theNerve()` accessor), MWCC schedules the guard at the source position
+of the call. Swapping the operands of the comparison can move the
+guard relative to the other operand's evaluation. This is independent
+of the C++ "evaluation order is unspecified" rule — MWCC consistently
+places the inline expansion at the source position.
+
+**Observed:** `Enemy/seal::receiveMessage` had
+`mSpine->getLatestNerve() != &TNerveSealDie::theNerve()`. Target's
+asm shows theNerve's init guard BEFORE the getLatestNerve load. Our
+build had the guard AFTER, with getLatestNerve's result cached in r30
+across the guard (extra lwz/cmplwi/beq/b/lwz). Swapping operands
+(`&theNerve() != mSpine->getLatestNerve()`) moved our guard before
+getLatestNerve, lifting match 87.91% → 97.25% (+9.34pp).
+
+**Counter-example:** `Enemy/Amenbo::forceKill` has the same pattern
+(`mSpine->getLatestNerve() != &TNerveSmallEnemyDie::theNerve()`) and
+matches at 100% with the ORIGINAL operand order. So the swap is
+context-specific, not universal.
+
+**Experiment to confirm/refute:** Sweep all `getLatestNerve() != &T::theNerve()`
+callsites in non-matching functions. For each, check whether target's
+asm shows the init-guard-before or init-guard-after pattern. If
+before, try the swap. If the rule holds, this should be a reliable
++5-15pp lever in similar cases. If it doesn't (e.g. the swap regresses
+some), need a finer rule for what triggers MWCC to put the guard
+first.
+
+**Cost when applied:** 1 instruction difference (the `cmplw` operand
+order flips), but trades that for 5-15 instructions of scheduling
+match. Usually worthwhile.
+
+**Cited:** `Enemy/seal::receiveMessage` (this file, tick 92).
+Counter-example: `Enemy/Amenbo::forceKill` (matched at 100% without).
+
 ### `new T(args)` expression may spill the result to a stack-0x10 scratch slot
 
 **Hypothesis:** When a `T* p = new T(args)` expression is followed by
