@@ -298,8 +298,10 @@ void TMapObjWave::draw()
 			if (mTexInfo == nullptr) {
 				y0 = 0.0f;
 			} else {
-				y0 = unk3C * sinf(unk24 * (invTwoPi * x0) + unk64)
-				   + unk40 * sinf(unk28 * invTwoPiZ0 + unk68);
+				f32 wave1
+				    = unk3C * sinf(unk24 * (invTwoPi * x0) + unk64);
+				f32 wave2 = unk40 * sinf(unk28 * invTwoPiZ0 + unk68);
+				y0        = wave1 + wave2;
 			}
 			GXPosition3f32(x0, y0, z0);
 			GXColor4u8(sColor.r, sColor.g, sColor.b, alpha0);
@@ -310,8 +312,10 @@ void TMapObjWave::draw()
 			if (mTexInfo == nullptr) {
 				y1 = 0.0f;
 			} else {
-				y1 = unk3C * sinf(unk24 * (invTwoPi * x0) + unk64)
-				   + unk40 * sinf(unk28 * invTwoPiZ1 + unk68);
+				f32 wave1
+				    = unk3C * sinf(unk24 * (invTwoPi * x0) + unk64);
+				f32 wave2 = unk40 * sinf(unk28 * invTwoPiZ1 + unk68);
+				y1        = wave1 + wave2;
 			}
 			GXPosition3f32(x0, y1, z1);
 			GXColor4u8(sColor.r, sColor.g, sColor.b, alpha1);
