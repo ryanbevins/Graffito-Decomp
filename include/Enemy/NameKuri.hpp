@@ -116,7 +116,7 @@ public:
 
 class TDiffusionNameKuriManager : public TNameKuriManager {
 public:
-	TDiffusionNameKuriManager(const char*);
+	TDiffusionNameKuriManager(const char* name) : TNameKuriManager(name) {}
 
 	virtual void load(JSUMemoryInputStream&);
 	virtual TSmallEnemy* createEnemyInstance();

@@ -21,6 +21,7 @@
 #include <Enemy/RiccoHook.hpp>
 #include <Enemy/Rocket.hpp>
 #include <Enemy/SmallEnemy.hpp>
+#include <Enemy/WalkerEnemy.hpp>
 #include <Enemy/TamaNoko.hpp>
 #include <Enemy/Telesa.hpp>
 #include <Enemy/TypicalEnemy.hpp>
@@ -238,29 +239,6 @@ public:
 	char _stub[0x5c];
 };
 
-class TMoePuku : public JDrama::TNameRef {
-public:
-	TMoePuku(const char*);
-	char _stub[0x1ec];
-};
-
-class TMoePukuLaunchPad : public JDrama::TNameRef {
-public:
-	TMoePukuLaunchPad(const char*);
-	char _stub[0x1a4];
-};
-
-class TMoePukuLaunchPadManager : public JDrama::TNameRef {
-public:
-	TMoePukuLaunchPadManager(const char*);
-	char _stub[0x5c];
-};
-
-class TMoePukuManager : public JDrama::TNameRef {
-public:
-	TMoePukuManager(const char*);
-	char _stub[0x58];
-};
 
 class TNameKuriLauncherManager : public TLauncherManager {
 public:
@@ -268,10 +246,9 @@ public:
 	virtual ~TNameKuriLauncherManager() {}
 };
 
-class TPakkun : public TSpineEnemy {
+class TPakkun : public TSmallEnemy {
 public:
-	TPakkun(const char* name) : TSpineEnemy(name) {}
-	virtual ~TPakkun() {}
+	TPakkun(const char* name) : TSmallEnemy(name) {}
 };
 
 class TPakkunManager : public JDrama::TNameRef {
@@ -352,28 +329,44 @@ public:
 	char _stub[0x58];
 };
 
-class TTobiPuku : public TSpineEnemy {
+class TTobiPuku : public TWalkerEnemy {
 public:
-	TTobiPuku(const char* name) : TSpineEnemy(name) {}
-	virtual ~TTobiPuku() {}
+	TTobiPuku(const char* name) : TWalkerEnemy(name) {}
 };
 
-class TTobiPukuLaunchPad : public TSpineEnemy {
+class TTobiPukuLaunchPad : public TSmallEnemy {
 public:
-	TTobiPukuLaunchPad(const char* name) : TSpineEnemy(name) {}
-	virtual ~TTobiPukuLaunchPad() {}
+	TTobiPukuLaunchPad(const char* name) : TSmallEnemy(name) {}
 };
 
-class TTobiPukuLaunchPadManager : public TEnemyManager {
+class TTobiPukuLaunchPadManager : public TSmallEnemyManager {
 public:
-	TTobiPukuLaunchPadManager(const char* name) : TEnemyManager(name) {}
-	virtual ~TTobiPukuLaunchPadManager() {}
+	TTobiPukuLaunchPadManager(const char* name) : TSmallEnemyManager(name) {}
 };
 
-class TTobiPukuManager : public TEnemyManager {
+class TTobiPukuManager : public TSmallEnemyManager {
 public:
-	TTobiPukuManager(const char* name) : TEnemyManager(name) {}
-	virtual ~TTobiPukuManager() {}
+	TTobiPukuManager(const char* name) : TSmallEnemyManager(name) {}
+};
+
+class TMoePuku : public TTobiPuku {
+public:
+	TMoePuku(const char* name) : TTobiPuku(name) {}
+};
+
+class TMoePukuLaunchPad : public TTobiPukuLaunchPad {
+public:
+	TMoePukuLaunchPad(const char* name) : TTobiPukuLaunchPad(name) {}
+};
+
+class TMoePukuLaunchPadManager : public TTobiPukuLaunchPadManager {
+public:
+	TMoePukuLaunchPadManager(const char* name) : TTobiPukuLaunchPadManager(name) {}
+};
+
+class TMoePukuManager : public TTobiPukuManager {
+public:
+	TMoePukuManager(const char* name) : TTobiPukuManager(name) {}
 };
 
 class TWireTrap : public JDrama::TNameRef {
@@ -431,7 +424,7 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_Enemy(const char* name) const
 	if (strcmp(name, "AnimalMew") == 0)
 		return new TAnimalBase(0, "?");
 	if (strcmp(name, "MewManager") == 0)
-		return new TAnimalManagerBase("?");
+		return new TMewManager("?");
 	if (strcmp(name, "AnimalBird") == 0)
 		return new TAnimalBird("(幸せの青い)鳥");
 	if (strcmp(name, "AnimalBirdManager") == 0)
