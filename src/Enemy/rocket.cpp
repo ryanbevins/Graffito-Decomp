@@ -211,41 +211,34 @@ void TRocket::bind()
 	if (checkLiveFlag(LIVE_FLAG_UNK10))
 		return;
 
-	bool isPossessed
-	    = mSpine->getCurrentNerve() == &TNerveRocketPossessedNozzle::theNerve();
-	bool isFly = mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve();
-
-	if (!isPossessed && !isFly) {
-		TLiveActor::bind();
-		return;
-	}
-
-	TBGWallCheckRecord rec(mPosition.x, mPosition.y, mPosition.z,
-	                       mBodyScale * mWallRadius, 1, 0);
-	if (gpMap->isTouchedWallsAndMoveXZ(&rec)) {
-		TBGCheckData* wall = rec.mResultWalls[0];
-		if (wall) {
-			THitActor* owner = *(THitActor**)((u8*)wall + 0x44);
+	if (mSpine->getCurrentNerve() == &TNerveRocketPossessedNozzle::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve()) {
+		TBGWallCheckRecord rec(mPosition.x, mPosition.y, mPosition.z,
+		                       mBodyScale * mWallRadius, 1, 0);
+		if (gpMap->isTouchedWallsAndMoveXZ(&rec)) {
+			TBGCheckData* wall = rec.mResultWalls[0];
+			THitActor* owner   = *(THitActor**)((u8*)wall + 0x44);
 			if (owner)
 				owner->receiveMessage((THitActor*)this, 0xe);
+			kill();
+			return;
 		}
+
+		if (mSpine->getCurrentNerve() != &TNerveRocketFly::theNerve())
+			return;
+
+		TLiveActor::bind();
+		if (checkLiveFlag(LIVE_FLAG_AIRBORNE) ? 1 : 0)
+			return;
+
+		THitActor* gowner = *(THitActor**)((u8*)mGroundPlane + 0x44);
+		if (gowner)
+			gowner->receiveMessage((THitActor*)this, 0xe);
 		kill();
 		return;
 	}
 
-	if (!isFly)
-		return;
-
 	TLiveActor::bind();
-	if (checkLiveFlag(LIVE_FLAG_UNK100))
-		return;
-
-	if (mGroundPlane) {
-		THitActor* gowner = *(THitActor**)((u8*)mGroundPlane + 0x44);
-		if (gowner)
-			gowner->receiveMessage((THitActor*)this, 0xe);
-	}
-	kill();
 }
 
 void TRocket::behaveToWater(THitActor* p) { attackToMario(); }
