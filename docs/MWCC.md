@@ -2878,6 +2878,23 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Multi-stream-register-copy in stream-read loops.** Symptom: target's
+  `load__17TMarioPositionObjFR20JSUMemoryInputStream` copies the stream
+  parameter `r4` into SIX callee-saved registers (r24..r29 all = r4)
+  before entering its read loop, then dispatches the 10 per-iteration
+  `stream.read(...)` calls across all six registers in a non-obvious
+  pattern (24,24,26,29,24,25,28,24,24,27). Our build with plain
+  `stream.read(...)` calls keeps `stream` in a single register
+  (matching JDRActor::load, TCubeStreamInfo::load which are non-looped
+  and match cleanly). Hypotheses to test: (a) the source had an
+  inlined `TVec3<f32>::read(JSUInputStream&)` helper that rebound
+  `stream` to a fresh reference at each expansion, forcing the
+  allocator to spill into fresh callee-saved regs; (b) chained
+  `operator>>(JSUInputStream&, JGeometry::TVec3<f32>&)` returning
+  fresh refs at each link; (c) some macro that captured stream
+  into a local. Need a minimal test case. Affected TUs:
+  `Player/MarioPositionObj` load at 87.48% (filed tick 99) — see
+  `state/notes/MarioPositionObj.md`.
 - **Dead-but-kept TMatrix34 stack stores under MWCC -O4,p.** Symptom: target
   `watch__26TDolpicEventRiccoMammaGateFv` (and equivalent code shapes in other
   TUs) emits 12 stfs stores at `r1+0x60..+0x8C` initialising a `TMatrix34`
