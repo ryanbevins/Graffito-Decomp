@@ -44,20 +44,25 @@ const char* cNoseHallJointName_R      = "R_hall";
 
 template s16 CLBPalFrame<s16>(s16);
 
-static bool BHPartsIsCurBckDone(MActor* a)
+static inline bool BHPartsIsCurBckDone(MActor* a)
 {
+	bool result = true;
 	if (a == nullptr)
-		return true;
+		return result;
 	J3DFrameCtrl* fc = a->getFrameCtrl(0);
 	if (fc == nullptr)
-		return true;
-	if (fc->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE))
-		return true;
-	if (fc->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE))
-		return true;
-	if (fc->getFrame() + 0.1f > (f32)fc->getEnd())
-		return true;
-	return false;
+		return result;
+	bool skip = result;
+	if (fc->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE) ? result : false) {
+	} else if (fc->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE) ? true : false) {
+	} else {
+		skip = false;
+	}
+	if (!skip) {
+		if (!(fc->getFrame() + 0.1f > (f32)fc->getEnd()))
+			result = false;
+	}
+	return result;
 }
 
 BOOL TBossHanachanPartsHead::receiveMessage(THitActor* sender, u32 message)
@@ -274,13 +279,16 @@ void TBossHanachanPartsBase::considerSetAnm_(
     EnumBossHanachanNerveAnm nerveAnm)
 {
 	if (nerveAnm == 0) {
-		bool inRange = false;
-		if (mCurAnm == 5 || mCurAnm == 6 || mCurAnm == 0x10
-		    || mCurAnm == 0x11 || mCurAnm == 0xD) {
-			inRange = true;
-		}
-		if (!inRange)
+		switch (mCurAnm) {
+		case 5:
+		case 6:
+		case 0xD:
+		case 0x10:
+		case 0x11:
+			break;
+		default:
 			return;
+		}
 		if (BHPartsIsCurBckDone(getMActor()))
 			setAnm_((EnumBossHanachanAnmKind)3, (EnumBossHanachanStopMotionBlendOnOff)0);
 		return;
@@ -295,9 +303,14 @@ void TBossHanachanPartsBase::considerSetAnm_(
 			}
 		}
 		bool inGetUp = false;
-		if (mCurAnm == 5 || mCurAnm == 6 || mCurAnm == 0x10
-		    || mCurAnm == 0x11 || mCurAnm == 0xD) {
+		switch (mCurAnm) {
+		case 5:
+		case 6:
+		case 0xD:
+		case 0x10:
+		case 0x11:
 			inGetUp = true;
+			break;
 		}
 
 		if (inGetUp) {
