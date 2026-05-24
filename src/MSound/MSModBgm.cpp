@@ -1,8 +1,8 @@
 #include <MSound/MSModBgm.hpp>
-#include <MSound/MSoundBGM.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <JSystem/JAudio/JAInterface/JAISound.hpp>
 #include <JSystem/JAudio/JALibrary/JALModSe.hpp>
+#include <MSound/MSoundBGM.hpp>
 
 static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
 static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
