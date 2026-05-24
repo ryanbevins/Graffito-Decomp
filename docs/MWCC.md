@@ -36,6 +36,52 @@ them in future ticks.
 
 ## Settled
 
+### Static-init order is reverse-of-include-order under `-inline deferred`
+
+**Rule.** In a TU compiled with `-inline deferred`, the order MWCC
+emits per-template-instantiation `__sinit` blocks is **reverse** of
+the order in which the templates' classes are first declared
+(typically by header includes). To make `JALList<X>::smList` (or
+any other template static) initialize **first** in `__sinit`, move
+the header that declares class `X` to the **last** position in the
+include block.
+
+```cpp
+// BEFORE — JALList<MSBgm>::smList initialized LAST in __sinit
+#include <MSound/MSoundBGM.hpp>    // declares MSBgm (first)
+#include <MSound/MSSetSound.hpp>   // declares MSSetSoundGrp/MSSetSound
+#include <JSystem/JAudio/JALibrary/JALModSe.hpp>   // declares JALSeMod* (last)
+
+// AFTER — JALList<MSBgm>::smList initialized FIRST in __sinit
+#include <MSound/MSSetSound.hpp>
+#include <JSystem/JAudio/JALibrary/JALModSe.hpp>
+#include <MSound/MSoundBGM.hpp>    // moved to last → its template fires first
+```
+
+**Why.** With `-inline deferred`, MWCC defers compilation of
+template instantiations until after the TU body is parsed, then
+processes them in reverse declaration-encounter order. The result
+is that the LAST template referenced gets emitted FIRST in
+`__sinit`.
+
+**How to verify.** If `__sinit` is < 100% match with the diff
+showing template names shifted in a rotation pattern (e.g. our
+build's first template is target's second, target's last is ours
+N-1, etc.), the order is rotated. Move the "missing-from-start"
+template's header to the end of the include block.
+
+**Citations.**
+- `MSound/MSModBgm` (tick 104): moving `<MSound/MSoundBGM.hpp>` from
+  position 2 to position 5 (last) of the include block flipped
+  `JALList<5MSBgm>::smList` from `__sinit` end to start. `__sinit`
+  97.64% → 100%, TU 91% → 97.2% fuzzy. Confirmed for a TU with
+  `-inline deferred` set via the `MSound` lib block in `configure.py`.
+
+**Where to try it next.** Any TU with `__sinit` matching < 100%
+where the diff shows a one-off rotation in template instantiation
+order. Common in MSound, Player, Strategic, System TUs (all
+`-inline deferred` libs per `configure.py`).
+
 ### Bit-mask test (`if (v & MASK)`) vs extract-then-test (`if (b != 0)`) — prefer mask for direct CR0-only test
 
 **Rule.** When target tests a byte/bitfield non-zero with `clrrwi.`

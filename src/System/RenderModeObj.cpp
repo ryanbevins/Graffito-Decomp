@@ -4,6 +4,10 @@
 #include <JSystem/JDrama/JDRRenderMode.hpp>
 #include <System/Resolution.hpp>
 
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
 u8 SMSAASamplePattern_non[12][2] = {
 	{ 6, 6 }, { 6, 6 }, { 6, 6 }, { 6, 6 }, { 6, 6 }, { 6, 6 },
 	{ 6, 6 }, { 6, 6 }, { 6, 6 }, { 6, 6 }, { 6, 6 }, { 6, 6 },
