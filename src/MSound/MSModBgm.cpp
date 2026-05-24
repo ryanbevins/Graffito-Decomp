@@ -4,6 +4,10 @@
 #include <JSystem/JAudio/JAInterface/JAISound.hpp>
 #include <JSystem/JAudio/JALibrary/JALModSe.hpp>
 
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
 void MSBgmXFade::xFadeBgmForce(f32 timing)
 {
 	u8 idx;
@@ -95,28 +99,31 @@ void MSModBgm::loop()
 
 JAISound* MSModBgm::modBgm(u8 param1, u8 bgmId)
 {
-	if (param1 < 2) {
+	switch (param1) {
+	case 0:
+	case 1:
 		mState = 1;
+		break;
 	}
 	JAISound* handle = MSBgm::getHandle(bgmId);
 	if (!handle) {
 		mState = 0;
-		return nullptr;
-	}
-	switch (mCounter) {
-	case 0:
-		handle->setTempoProportion(1.3f, 0xA);
-		handle->setPitch(1.3f, 0xA, 0);
-		break;
-	case 5:
-		handle->setTempoProportion(0.3f, 0xB4);
-		handle->setPitch(0.2f, 0xB4, 0);
-		break;
-	case 0xB4:
-		handle->stop(1);
-		handle = nullptr;
-		mState = 0;
-		break;
+	} else {
+		switch (mCounter) {
+		case 0:
+			handle->setTempoProportion(1.3f, 0xA);
+			handle->setPitch(1.3f, 0xA, 0);
+			break;
+		case 5:
+			handle->setTempoProportion(0.3f, 0xB4);
+			handle->setPitch(0.2f, 0xB4, 0);
+			break;
+		case 0xB4:
+			handle->stop(1);
+			handle = nullptr;
+			mState = 0;
+			break;
+		}
 	}
 	return handle;
 }
