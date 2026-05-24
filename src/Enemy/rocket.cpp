@@ -166,7 +166,8 @@ const char** TRocket::getBasNameTable() const { return rocket_bastable; }
 
 bool TRocket::isAttack()
 {
-	return mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve();
+	return (mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve()) ? true
+	                                                                   : false;
 }
 
 bool TRocket::isCollidMove(THitActor* other)
@@ -247,7 +248,7 @@ void TRocket::bind()
 	kill();
 }
 
-void TRocket::behaveToWater(THitActor* p) { TSmallEnemy::behaveToWater(p); }
+void TRocket::behaveToWater(THitActor* p) { attackToMario(); }
 
 void TRocket::attackToMario()
 {
