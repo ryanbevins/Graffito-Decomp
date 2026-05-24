@@ -76,15 +76,13 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 
 	u32 v = *(u32*)((u8*)mData + mDataCounter * 0x20 + 0x18);
 	if (v & 0xFFFF0000) {
-		u8 b3 = (v >> 24) & 0xff;
-		if (b3 != 0 && mLoopCount != 0) {
-			u32 mod = b3 + 1;
+		if ((v & 0xFF000000) && mLoopCount != 0) {
+			u32 mod = (v >> 24) + 1;
 			if ((mLoopCount + unk98 % mod) % mod != 0)
 				return;
 		}
-		u8 b2 = (v >> 16) & 0xff;
-		if (b2 != 0) {
-			if (npc_get_uint8(b2 + 1) != 0)
+		if (v & 0x00FF0000) {
+			if (npc_get_uint8(((v >> 16) & 0xff) + 1) != 0)
 				return;
 		}
 	}
