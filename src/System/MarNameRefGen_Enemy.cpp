@@ -6,6 +6,7 @@
 #include <Animal/AnimalManager.hpp>
 #include <Enemy/Amenbo.hpp>
 #include <Enemy/Beam.hpp>
+#include <Enemy/EffectEnemy.hpp>
 #include <Enemy/EffectObj.hpp>
 #include <Enemy/EggGen.hpp>
 #include <Enemy/EnemyManager.hpp>
@@ -127,18 +128,6 @@ class TDebuTelesaManager : public JDrama::TNameRef {
 public:
 	TDebuTelesaManager(const char*);
 	char _stub[0x58];
-};
-
-class TEffectEnemy : public JDrama::TNameRef {
-public:
-	TEffectEnemy(const char*);
-	char _stub[0x190];
-};
-
-class TEffectEnemyManager : public TSmallEnemyManager {
-public:
-	TEffectEnemyManager(const char* name) : TSmallEnemyManager(name) {}
-	virtual ~TEffectEnemyManager() {}
 };
 
 class TElecNokonoko : public JDrama::TNameRef {
