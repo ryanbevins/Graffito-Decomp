@@ -214,16 +214,20 @@ BOOL TSphereLink::setDegreeZAndRevisionPosXZ(int index, f32 newDeg)
 			JGeometry::TVec3<f32> delta = mPoints[index - 1].mPos;
 			delta.sub(p.mPos);
 			baseAngle = MsGetRotFromZaxisY(delta);
-			baseAngle = MsAngleWrap(baseAngle);
+			while (baseAngle >= 360.0f)
+				baseAngle -= 360.0f;
+			while (baseAngle < 0.0f)
+				baseAngle += 360.0f;
 		}
 
 		f32 magnitude = m14 * (newDeg - oldDeg);
 		s16 angle = CLBRoundf<s16>(baseAngle * (65536.0f / 360.0f));
 		f32 sinV  = jmaSinTable[(u16)angle >> jmaSinShift];
 		f32 cosV  = jmaCosTable[(u16)angle >> jmaSinShift];
+		f32 zero  = 0.0f;
 
-		p.mPos.x += magnitude * cosV;
-		p.mPos.z += -magnitude * sinV;
+		p.mPos.x += magnitude * cosV + zero * sinV;
+		p.mPos.z += -magnitude * sinV + zero * cosV;
 	}
 	return ok;
 }
