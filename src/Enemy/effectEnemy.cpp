@@ -48,13 +48,13 @@ void TEffectEnemy::behaveToWater(THitActor* hit)
 
 void TEffectEnemy::sendAttackMsgToMario()
 {
-	if (mUnk194 == 1) {
-		SMS_SendMessageToMario(this, 9);
-	} else if (mUnk194 < 0 || mUnk194 > 1) {
-		SMS_SendMessageToMario(this, 0xE);
-	} else {
+	switch (mUnk194) {
+	case 0:
 		SMS_SendMessageToMario(this, 0xA);
 		kill();
+		break;
+	case 1: SMS_SendMessageToMario(this, 9); break;
+	default: SMS_SendMessageToMario(this, 0xE); break;
 	}
 }
 
@@ -72,30 +72,43 @@ void TEffectEnemy::kill()
 {
 	setDeadAnm();
 	mLiveFlag |= LIVE_FLAG_DEAD;
-	mActorType |= 1;
+	unk64 |= 1;
 }
 
 void TEffectEnemy::forceKill()
 {
-	bool flag = mGroundPlane->isIllegalData() ? true : false;
-	if (!flag) {
-		u16 t = mGroundPlane->mBGType;
-		flag  = (t == BG_TYPE_DEATH_PLANE) ? true : false;
-		if (!flag) {
-			flag = (t == BG_TYPE_POOL || t == BG_TYPE_INDOOR_POOL
-			        || t == BG_TYPE_SHADED_POOL)
-			    ? true
-			    : false;
-			if (!flag) {
-				flag = (t == BG_TYPE_WATER || t == BG_TYPE_DAMAGING_WATER
-				        || (u16)(t - BG_TYPE_SEA_WATER) <= 3
-				        || t == BG_TYPE_SHADED_POOL)
-				    ? true
-				    : false;
-				if (!flag) {
-					u32 lf       = mLiveFlag;
-					bool airborn = (lf & LIVE_FLAG_AIRBORNE) ? true : false;
-					if (!airborn) {
+	if (!mGroundPlane->isIllegalData()) {
+		u16 t;
+		bool flg;
+		t = mGroundPlane->mBGType;
+		if (t == BG_TYPE_DEATH_PLANE)
+			flg = true;
+		else
+			flg = false;
+		if (!flg) {
+			if (t == 0x104)
+				flg = true;
+			else if (t == 0x105)
+				flg = true;
+			else if (t == 0x4104)
+				flg = true;
+			else
+				flg = false;
+			if (!flg) {
+				if (t == 0x100)
+					flg = true;
+				else if (t == 0x101)
+					flg = true;
+				else if ((u16)(t - 0x102) <= 3)
+					flg = true;
+				else if (t == 0x4104)
+					flg = true;
+				else
+					flg = false;
+				if (!flg) {
+					u32 lf      = mLiveFlag;
+					int airborn = (lf & LIVE_FLAG_AIRBORNE) ? 1 : 0;
+					if (airborn == 0) {
 						if (!(lf & LIVE_FLAG_UNK10)) {
 							kill();
 							return;
@@ -117,11 +130,11 @@ void TEffectEnemy::perform(u32 param_1, JDrama::TGraphics* gfx)
 			TWalkerEnemy::moveObject();
 		}
 		if ((param_1 & 2) && !(mLiveFlag & LIVE_FLAG_CLIPPED_OUT)) {
-			u32 maxHp = getSaveParam() ? getSaveParam()->mSLHitPointMax.value
-			                           : 1;
+			u8 maxHp
+			    = getSaveParam() ? getSaveParam()->mSLHitPointMax.value : 1;
 			Vec scaled;
 			PSVECScale((Vec*)&mScaling, &scaled,
-			           (f32)(int)((u32)mHitPoints / maxHp));
+			           (f32)((int)mHitPoints / (int)maxHp));
 			gpMarioParticleManager->emitAndBindToPosPtr(0x1ED, &mPosition, 3,
 			                                            this);
 			gpMarioParticleManager->emitAndBindToPosPtr(0x135, &mPosition, 1,
