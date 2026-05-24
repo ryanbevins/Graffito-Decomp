@@ -286,9 +286,7 @@ void TRocket::setMActorAndKeeper()
 
 void TRocket::calcRootMatrix()
 {
-	if (!mUnk1A0) {
-		TSpineEnemy::calcRootMatrix();
-	} else {
+	if (mUnk1A0) {
 		J3DModel* model = getModel();
 		// model->unk14 (mBaseScale) = mScaling
 		((f32*)((u8*)model + 0x14))[0] = mScaling.x;
@@ -349,11 +347,16 @@ void TRocket::calcRootMatrix()
 		MsMtxSetRotRPH(rot, mTestAng_x, mTestAng_y, mTestAng_z);
 		PSMTXConcat(tmp, rot, tmp);
 		PSMTXCopy(tmp, (MtxPtr)((u8*)getModel() + 0x20));
+	} else {
+		TSpineEnemy::calcRootMatrix();
 	}
 
-	if (mCurrentBckAnm == 1 && gpMSound->gateCheck(3)) {
-		MSoundSESystem::MSoundSE::startSoundActor(3, &mPosition, 0, nullptr, 0,
-		                                          4);
+	bool bckMatch = (mCurrentBckAnm == 1) ? true : false;
+	if (bckMatch) {
+		if (gpMSound->gateCheck(3)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    3, &mPosition, 0, nullptr, 0, 4);
+		}
 	}
 }
 
