@@ -36,6 +36,96 @@ them in future ticks.
 
 ## Settled
 
+### Zero-fmadds rotation pattern: explicit `+ 0 * sin/cos` terms force fmadds with zero addend
+
+**Rule:** When target's asm computes a 2D rotation as
+
+```
+lfs   f0, @zero@sda21     ; f0 = 0.0
+fmuls f2, f0, fSin        ; f2 = 0 * sin (zero addend)
+fmuls f0, f0, fCos        ; f0 = 0 * cos (zero addend)
+fmadds f2, fA, fCos, f2   ; f2 = a * cos + (0 * sin)
+fmadds f0, fB, fSin, f0   ; f0 = b * sin + (0 * cos)
+```
+
+instead of the simpler `fmuls f2, fA, fCos; fmuls f0, fB, fSin`, the
+source has explicit `+ 0 * sin/cos` terms. Write the source as:
+
+```cpp
+f32 zero = 0.0f;
+*outX = a * cosV + zero * sinV;
+*outZ = -b * sinV + zero * cosV;
+```
+
+(or `pos.x += a * cosV + zero * sinV;` if accumulating into a Vec3).
+MWCC does NOT constant-fold the `0 * x` away when written this way;
+instead it emits both the zero-multiply and the fmadds, exactly
+matching target's instruction sequence.
+
+This is a real lever for matching the rotation-style code that
+appears in chain physics (TSphereLink), particle systems, and any
+"rotate vector by Z angle" helper that ends up looking like a
+general 2D rotation matrix.
+
+**Why:** MWCC sees the source `a * cos + 0 * sin` and treats the
+multiplication of a runtime variable (sin) by literal 0 as a real
+floating-point op (since 0 * NaN != 0 etc.). The constant-fold
+pass keeps it. The `fmadds` opcode (a*b + c) is the natural way to
+write `a*cos + (0*sin)` since the 0*sin term has already been
+computed into a register.
+
+**Citations:**
+- `Enemy/BossHanachanSub.cpp::BHSCalcRevisionDistXZByRotateZ` —
+  89.74% → 92.60% (tick 94). Pattern: `*outX = c * cosV + zero * sinV;`,
+  `*outZ = -c * sinV + zero * cosV;`. Bare `*outX = c * cosV;` produces
+  just fmuls with no fmadds — won't match.
+- `Enemy/BossHanachanSub.cpp::setDegreeZAndRevisionPosXZ` —
+  71.07% → 79.59% (tick 94). Same `+ zero * sinV/cosV` pattern in
+  the position-update at function end. Combined with manual MsWrap
+  expansion (separate lever) for the larger gain.
+
+**Where to try it next:** Any rotation calculation in chain physics,
+2D rotation helpers in particle systems (e.g., effect TUs), or any
+`pos.x += a * cosV; pos.z += b * sinV` pair where target emits
+fmadds instead of fmuls. Inspect asm for `lfs frX, @zero@sda21`
+followed by `fmuls frY, frX, frSin` — that's the signature.
+
+### Manual expansion of `MsWrap` while loops defeats forced bl-emit
+
+**Rule:** When `MsAngleWrap(angle)` (which calls inline template
+`MsWrap<f>(angle, 0.0f, 360.0f)`) gets emitted as `bl MsWrap<f>__Ffff`
+in our build but target inlines the while loops, manually inline
+the body in source:
+
+```cpp
+// Before — emits bl MsWrap<f>__Ffff + weak instance:
+baseAngle = MsAngleWrap(baseAngle);
+
+// After — inlined while loops match target:
+while (baseAngle >= 360.0f)
+    baseAngle -= 360.0f;
+while (baseAngle < 0.0f)
+    baseAngle += 360.0f;
+```
+
+MWCC inlines the manually-written while loops but apparently chose
+not to inline the template instance through `MsAngleWrap` →
+`MsWrap<f>`. Manual expansion produces identical inlined code to
+target's preference and removes the weak `MsWrap<f>__Ffff` symbol
+from the TU's .text.
+
+**Citations:**
+- `Enemy/BossHanachanSub.cpp::setDegreeZAndRevisionPosXZ` —
+  71.07% → 76.81% (tick 94, before zero-fmadds polish). The remaining
+  `bl MsWrap<f>__Ffff` and the weak `MsWrap<f>__Ffff` body in our TU
+  both went away. Target's setDegreeZ has the wrapping while loops
+  inlined at the same location.
+
+**Where to try it next:** Any TU showing a weak `MsWrap<f>__Ffff` or
+`MsWrap<l>__Flll` symbol in its `.text` while target asm has neither.
+Common in nerve-execute functions that wrap an angle and in chain
+physics that wrap rotation degrees.
+
 ### Weak destructor emission in MarNameRefGen TUs requires correct base class + inline derived ctor
 
 **Rule:** When a TU emits a `bl __ct__Foo` for `new Foo(...)` (where
