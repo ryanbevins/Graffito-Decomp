@@ -205,11 +205,10 @@ void TMapObjWave::updateHeightAndAlpha()
 
 	if (inWater || isWaterBg(groundExact->mBGType)
 	    || isWaterBg(groundBelow->mBGType)) {
-		f32 marioX = gpMarioPos->x;
 		f32 groundY = gpMap->checkGroundIgnoreWaterSurface(
 		    gpMarioPos->x, 0.0f, gpMarioPos->z, &groundExact);
-		f32 dist = unk4C + marioX;
-		if (dist >= 0.0f && groundExact->mBGType == 0x700) {
+		f32 dist = unk4C + groundY;
+		if (dist < 0.0f || groundExact->mBGType == 0x700) {
 			unk3C = unk2C;
 			unk40 = unk30;
 		} else {
@@ -218,8 +217,8 @@ void TMapObjWave::updateHeightAndAlpha()
 			unk40     = (unk30 - unk38) * ratio + unk38;
 		}
 
-		f32 alphaDist = unk50 + marioX;
-		if (alphaDist >= 0.0f && groundExact->mBGType == 0x700) {
+		f32 alphaDist = unk50 + groundY;
+		if (alphaDist < 0.0f || groundExact->mBGType == 0x700) {
 			unk54 = unk58;
 		} else {
 			unk54
