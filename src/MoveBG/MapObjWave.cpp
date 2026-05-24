@@ -49,8 +49,8 @@ TMapObjWave::TMapObjWave(const char* name)
 	unk60            = 0.0f;
 	unk64            = MsRandF() * 360.0f;
 	unk68            = MsRandF() * 360.0f;
-	unk6C            = MsRandF() * 360.0f;
-	unk70            = MsRandF() * 360.0f;
+	unk6C            = MsRandF();
+	unk70            = MsRandF();
 	unk74            = 0.0f;
 	unk78            = 0.0f;
 	mTexInfo         = nullptr;
@@ -201,7 +201,7 @@ void TMapObjWave::updateHeightAndAlpha()
 	gpMap->checkGroundExactY(gpMarioPos->x, 10.0f, gpMarioPos->z,
 	                         &groundExact);
 
-	bool inWater = (*gpMarioFlag & (1 << (31 - 15))) != 0;
+	bool inWater = SMS_CheckMarioFlag(0x10000);
 
 	if (inWater || isWaterBg(groundExact->mBGType)
 	    || isWaterBg(groundBelow->mBGType)) {
@@ -344,9 +344,8 @@ f32 TMapObjWave::getHeight(f32 x, f32 y, f32 z) const
 	if (mTexInfo == nullptr)
 		return 0.0f;
 
-	f32 sx = sinf(unk24 * 0.15915507f * x + unk64) * unk3C;
-	f32 sz = sinf(unk28 * 0.15915507f * z + unk68);
-	return sx + unk40 * sz + height;
+	return unk3C * sinf(unk24 * (0.15915507f * x) + unk64)
+	     + unk40 * sinf(unk28 * (0.15915507f * z) + unk68) + height;
 }
 
 f32 TMapObjWave::getWaveHeight(f32 x, f32 z) const
@@ -354,9 +353,8 @@ f32 TMapObjWave::getWaveHeight(f32 x, f32 z) const
 	if (mTexInfo == nullptr)
 		return 0.0f;
 
-	f32 sx = sinf(unk24 * 0.15915507f * x + unk64) * unk3C;
-	f32 sz = sinf(unk28 * 0.15915507f * z + unk68);
-	return sx + unk40 * sz;
+	return unk3C * sinf(unk24 * (0.15915507f * x) + unk64)
+	     + unk40 * sinf(unk28 * (0.15915507f * z) + unk68);
 }
 
 void TMapObjWave::initDraw()
