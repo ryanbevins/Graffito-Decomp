@@ -353,8 +353,9 @@ f32 TMapObjWave::getWaveHeight(f32 x, f32 z) const
 	if (mTexInfo == nullptr)
 		return 0.0f;
 
-	return unk3C * sinf(unk24 * (0.15915507f * x) + unk64)
-	     + unk40 * sinf(unk28 * (0.15915507f * z) + unk68);
+	f32 wave1 = unk3C * sinf(unk24 * (0.15915507f * x) + unk64);
+	f32 wave2 = unk40 * sinf(unk28 * (0.15915507f * z) + unk68);
+	return wave1 + wave2;
 }
 
 void TMapObjWave::initDraw()
