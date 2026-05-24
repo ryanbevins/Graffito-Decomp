@@ -3,11 +3,16 @@
 
 #include <dolphin/types.h>
 
+class JAISound;
+
 class MSModBgm {
 public:
-	void modBgm(u8, u8);
+	JAISound* modBgm(u8, u8);
 	void changeTempo(u8, u8);
 	void loop();
+
+	/* 0x0 */ u8 mState;
+	/* 0x4 */ u32 mCounter;
 };
 
 class MSBgmXFade {
@@ -19,6 +24,8 @@ public:
 	void xFadeBgmForce(f32);
 	f32 getTimingForce(f32);
 	void getTiming(f32, u32*);
+
+	/* 0x0 */ f32 mLastTiming;
 };
 
 #endif // MSMODBGM_HPP

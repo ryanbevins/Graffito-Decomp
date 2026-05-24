@@ -1,10 +1,50 @@
 #include <MSound/MSModBgm.hpp>
+#include <MSound/MSoundBGM.hpp>
+#include <MSound/MSSetSound.hpp>
+#include <JSystem/JAudio/JAInterface/JAISound.hpp>
+#include <JSystem/JAudio/JALibrary/JALModSe.hpp>
 
-void MSModBgm::modBgm(u8 param1, u8 param2) { }
+void MSBgmXFade::xFadeBgmForce(f32 timing)
+{
+	u8 idx;
+	for (idx = 0; idx < 0x11; ++idx) {
+		if (timing >= scTiming[idx] && timing < scTiming[idx + 1]) {
+			break;
+		}
+	}
+	if (idx == 0x11) {
+		idx = 0xff;
+	}
+	if (idx != 0xff) {
+		MSBgm::setTrackVolume(0, scExp[0x11 - idx], 0, 0);
+		MSBgm::setTrackVolume(1, scExp[idx], 0, 0);
+		mLastTiming = timing;
+	}
+}
 
-void MSModBgm::changeTempo(u8 param1, u8 param2) { }
-
-void MSModBgm::loop() { }
+void MSBgmXFade::xFadeBgm(f32 timing)
+{
+	f32 last = mLastTiming;
+	u8 idx;
+	for (idx = 0; idx < 0x12; ++idx) {
+		f32 threshold = scTiming[idx];
+		if (timing > threshold && last <= threshold) {
+			break;
+		}
+		if (timing < threshold && last >= threshold) {
+			break;
+		}
+	}
+	if (idx == 0x12) {
+		idx = 0xff;
+	}
+	bool inRange = idx >= 1 && idx <= 0x10;
+	if (inRange) {
+		MSBgm::setTrackVolume(0, scExp[0x11 - idx], 2, 0);
+		MSBgm::setTrackVolume(1, scExp[idx], 2, 0);
+	}
+	mLastTiming = timing;
+}
 
 f32 MSBgmXFade::scTiming[18] = {
 	0.052632,   0.105263,   0.157895, 0.210526,   0.26315799, 0.315789,
@@ -17,10 +57,66 @@ f32 MSBgmXFade::scExp[18] = {
 	0.57563,  0.666377, 0.766667,   0.877505, 1.0,      1.0,
 };
 
-void MSBgmXFade::xFadeBgm(f32 param) { }
+void MSModBgm::changeTempo(u8 kind, u8 bgmId)
+{
+	JAISound* handle = MSBgm::getHandle(bgmId);
+	if (handle) {
+		f32 tempo = 1.0f;
+		u32 frames = 5;
+		switch (kind) {
+		case 0:
+			tempo = 1.07894f;
+			break;
+		case 1:
+			tempo = 1.15789f;
+			break;
+		case 2:
+			tempo  = 1.2f;
+			frames = 0x14;
+			break;
+		}
+		handle->setTempoProportion(tempo, frames);
+	}
+}
 
-void MSBgmXFade::xFadeBgmForce(f32 param) { }
+void MSModBgm::loop()
+{
+	switch (mState) {
+	case 1:
+		mCounter++;
+		break;
+	case 0:
+	default:
+		mCounter = 0;
+		return;
+	}
+	mState = 0;
+}
 
-f32 MSBgmXFade::getTimingForce(f32 param) { return 0.0f; }
-
-void MSBgmXFade::getTiming(f32 param1, u32* param2) { }
+JAISound* MSModBgm::modBgm(u8 param1, u8 bgmId)
+{
+	if (param1 < 2) {
+		mState = 1;
+	}
+	JAISound* handle = MSBgm::getHandle(bgmId);
+	if (!handle) {
+		mState = 0;
+		return nullptr;
+	}
+	switch (mCounter) {
+	case 0:
+		handle->setTempoProportion(1.3f, 0xA);
+		handle->setPitch(1.3f, 0xA, 0);
+		break;
+	case 5:
+		handle->setTempoProportion(0.3f, 0xB4);
+		handle->setPitch(0.2f, 0xB4, 0);
+		break;
+	case 0xB4:
+		handle->stop(1);
+		handle = nullptr;
+		mState = 0;
+		break;
+	}
+	return handle;
+}
