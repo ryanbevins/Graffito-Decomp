@@ -542,9 +542,9 @@ void TBossHanachanPartsBase::changeTumbleAnmRate_()
 void TBossHanachanPartsBody::initFootHitActor_(TIdxGroupObj* group)
 {
 	TBossHanachanCommonSaveParams* params = mOwner->mParams;
+	MActor* a       = getMActor();
+	JUTNameTab* tab = a->getModel()->mModelData->unkB0;
 	for (int i = 0; i < 2; ++i) {
-		MActor* a       = getMActor();
-		JUTNameTab* tab = a->getModel()->mModelData->unkB0;
 		u16 idx         = tab->getIndex(sFootJointName[i]);
 		TFootHitActor* foot = new TFootHitActor("ボスハナチャンの足");
 		mFeet[i]            = foot;
