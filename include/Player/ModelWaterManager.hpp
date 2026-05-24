@@ -49,6 +49,12 @@ public:
 
 class TWaterHitActor : public THitActor {
 public:
+	TWaterHitActor() { unk68 = 0; }
+	TWaterHitActor(const char* name)
+	    : THitActor(name)
+	{
+		unk68 = 0;
+	}
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
 	void onWaterHitCounter();
 
