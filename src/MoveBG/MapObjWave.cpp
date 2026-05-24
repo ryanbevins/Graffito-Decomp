@@ -344,7 +344,8 @@ f32 TMapObjWave::getHeight(f32 x, f32 y, f32 z) const
 		return 0.0f;
 
 	f32 wave1 = unk3C * sinf(unk24 * (0.15915507f * x) + unk64);
-	return wave1 + unk40 * sinf(unk28 * (0.15915507f * z) + unk68);
+	f32 wave2 = unk40 * sinf(unk28 * (0.15915507f * z) + unk68);
+	return wave1 + wave2;
 }
 
 f32 TMapObjWave::getWaveHeight(f32 x, f32 z) const
