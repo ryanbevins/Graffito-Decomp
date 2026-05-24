@@ -61,6 +61,18 @@ public:
 	void initMapCollisionData();
 	void initMapObj();
 	TFenceWater();
+	TFenceWater(const char* name)
+	    : TFence(name)
+	    , unk13C(0.0f)
+	    , unk140(0.0f)
+	    , unk144(0)
+	{
+	}
+
+public:
+	/* 0x13C */ f32 unk13C;
+	/* 0x140 */ f32 unk140;
+	/* 0x144 */ u32 unk144;
 };
 
 class TFenceWaterH : public TFenceWater {
@@ -68,6 +80,10 @@ public:
 	void control();
 	void changeStatusToGo();
 	void changeStatusToWait();
+	TFenceWaterH(const char* name)
+	    : TFenceWater(name)
+	{
+	}
 };
 
 class TRailFence : public TFence {

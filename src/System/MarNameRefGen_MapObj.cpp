@@ -259,9 +259,9 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_MapObj(const char* name) const
 	if (strcmp(name, "FenceInner") == 0)
 		return new TFence("フェンス内側");
 	if (strcmp(name, "FenceWaterH") == 0)
-		return new TFence("水回転フェンス（水平）");
+		return new TFenceWaterH("水回転フェンス（水平）");
 	if (strcmp(name, "FenceWaterV") == 0)
-		return new TFence("水回転フェンス（垂直）");
+		return new TFenceWater("水回転フェンス（垂直）");
 	if (strcmp(name, "RailFence") == 0)
 		return new TRailFence("レールフェンス");
 	if (strcmp(name, "Football") == 0)
