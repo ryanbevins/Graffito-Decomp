@@ -495,7 +495,7 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_MapObj(const char* name) const
 	if (strcmp(name, "PanelRevolve") == 0)
 		return new TPanelRevolve("回転棚");
 	if (strcmp(name, "TelesaBlock") == 0)
-		return new TJuiceBlock("テレサブロック");
+		return new TTelesaBlock;
 	if (strcmp(name, "MonteRoot") == 0)
 		return new TMapObjBase("根っこ");
 	if (strcmp(name, "JumpMushroom") == 0)
@@ -579,13 +579,13 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_MapObj(const char* name) const
 	if (strcmp(name, "HideObjPictureTwin") == 0)
 		return new THideObjPictureTwin("ふたご落書き");
 	if (strcmp(name, "FlowerCoin") == 0)
-		return new TCoin("コイン(フラワー用)");
+		return new TFlowerCoin("コイン(フラワー用)");
 	if (strcmp(name, "Shine") == 0)
 		return new TShine("シャイン");
 	if (strcmp(name, "NozzleBox") == 0)
 		return new TNozzleBox("ノズルボックス");
 	if (strcmp(name, "ItemNozzle") == 0)
-		return new TItem("ノズル");
+		return new TItemNozzle;
 	if (strcmp(name, "Mushroom1up") == 0)
 		return new TMushroom1up(0, "１ＵＰキノコ");
 	if (strcmp(name, "Mushroom1upR") == 0)
@@ -597,13 +597,13 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_MapObj(const char* name) const
 	if (strcmp(name, "NormalBlock") == 0)
 		return new TMapObjBase("地形オブジェ基底");
 	if (strcmp(name, "SuperHipDropBlock") == 0)
-		return new THideObjBase("スーパーヒップドロップブロック");
+		return new TSuperHipDropBlock("スーパーヒップドロップブロック");
 	if (strcmp(name, "IceBlock") == 0)
-		return new TMapObjBase("アイスブロック");
+		return new TIceBlock("アイスブロック");
 	if (strcmp(name, "BreakableBlock") == 0)
-		return new TMapObjGeneral("壊れるブロック");
+		return new TBreakableBlock;
 	if (strcmp(name, "BrickBlock") == 0)
-		return new THideObjBase("レンガブロック");
+		return new TBrickBlock("レンガブロック");
 	if (strcmp(name, "WatermelonBlock") == 0)
 		return new THideObjBase("壊れる隠しオブジェ");
 	if (strcmp(name, "SandBlock") == 0)

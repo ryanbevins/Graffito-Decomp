@@ -51,6 +51,11 @@ public:
 class TFlowerCoin : public TCoin {
 public:
 	TFlowerCoin();
+	TFlowerCoin(const char* name)
+	    : TCoin(name)
+	    , unk158(0)
+	{
+	}
 
 	virtual void load(JSUMemoryInputStream&);
 

@@ -49,6 +49,10 @@ public:
 class TIceBlock : public TMapObjBase {
 public:
 	TIceBlock();
+	TIceBlock(const char* name)
+	    : TMapObjBase(name)
+	{
+	}
 	void initMapObj();
 	void calc();
 	void control();
@@ -60,6 +64,10 @@ public:
 class TBrickBlock : public THideObjBase {
 public:
 	TBrickBlock();
+	TBrickBlock(const char* name)
+	    : THideObjBase(name)
+	{
+	}
 	void initMapObj();
 	BOOL receiveMessage(THitActor* sender, u32 message);
 	void kill();
@@ -100,8 +108,16 @@ public:
 
 class TSuperHipDropBlock : public TBreakHideObj {
 public:
+	TSuperHipDropBlock(const char* name)
+	    : TBreakHideObj(name)
+	    , unk150(0)
+	{
+	}
 	void loadAfter();
 	BOOL receiveMessage(THitActor* sender, u32 message);
+
+public:
+	/* 0x150 */ u8 unk150;
 };
 
 #endif
