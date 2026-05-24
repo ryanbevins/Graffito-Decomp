@@ -30,6 +30,11 @@
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
 f32 TRocket::mTestAng_y     = 90.0f;
 f32 TRocket::mNozzleOffsetZ = 25.0f;
 f32 TRocket::mColOffsetY    = 20.0f;
@@ -79,29 +84,31 @@ DEFINE_NERVE(TNerveRocketFly, TLiveActor)
 		} else if (v.z > 0.0f) {
 			angle = matan(v.x, v.z) * (360.0f / 65536.0f);
 		} else {
-			angle = 180.0f - matan(v.x, -v.z) * (360.0f / 65536.0f);
+			f32 m = matan(v.x, -v.z) * (360.0f / 65536.0f);
+			angle = 180.0f - m;
 		}
-		self->mRotation.y = MsWrap<f32>(angle, 0.0f, 360.0f);
+		f32 wrapped       = callMsWrap(angle, 0.0f, 360.0f);
 		self->mRotation.x = 0.0f;
+		self->mRotation.y = wrapped;
 		self->mRotation.z = 0.0f;
 
 		self->unk64 &= ~1u;
 	}
 
-	if (self->mCurrentBckAnm == 1)
+	bool match = (self->mCurrentBckAnm == 1) ? true : false;
+	if (!match)
 		self->setBckAnm(1);
 
 	JGeometry::TVec3<f32> vel = self->mVelocity;
-	JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(vel);
-	self->mRotation.x         = rot.x;
+	self->mRotation.x         = MsGetRotFromZaxis(vel).x;
 
 	gpMarioParticleManager->emitAndBindToPosPtr(0x179, &self->mPosition, 1,
 	                                            self);
 
-	if (spine->getTime() > self->mParams->mSLFlyLimitTime.value)
+	if (self->mSpine->getTime() > self->mParams->mSLFlyLimitTime.value)
 		self->kill();
 
-	if (!self->checkLiveFlag(LIVE_FLAG_UNK10))
+	if (!self->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
 		self->getModel();
 
 	return FALSE;
