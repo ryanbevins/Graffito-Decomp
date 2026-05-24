@@ -10,8 +10,6 @@
 #include <System/MarDirector.hpp>
 #include <dolphin/mtx.h>
 
-#include <M3DUtil/InfectiousStrings.hpp>
-
 f32 BHSCalcCentrifugalForce(const JGeometry::TVec3<f32>& a,
                             const JGeometry::TVec3<f32>& b,
                             const JGeometry::TVec3<f32>& c, f32 d)
@@ -79,8 +77,9 @@ void BHSCalcRevisionDistXZByRotateZ(f32 angleDeg, f32 a, f32 b, f32* outX,
 	s16 ang  = CLBRoundf<s16>(angleDeg * (65536.0f / 360.0f));
 	f32 sinV = jmaSinTable[(u16)ang >> jmaSinShift];
 	f32 cosV = jmaCosTable[(u16)ang >> jmaSinShift];
-	*outX    = c * cosV;
-	*outZ    = -c * sinV;
+	f32 zero = 0.0f;
+	*outX    = c * cosV + zero * sinV;
+	*outZ    = -c * sinV + zero * cosV;
 }
 
 void TWaterHitActor::onWaterHitCounter() { unk68 = 0x3C; }
@@ -209,13 +208,13 @@ BOOL TSphereLink::setDegreeZAndRevisionPosXZ(int index, f32 newDeg)
 		ok        = TRUE;
 
 		f32 baseAngle;
-		if (index != 0) {
+		if (index == 0) {
+			baseAngle = mAngleOffset;
+		} else {
 			JGeometry::TVec3<f32> delta = mPoints[index - 1].mPos;
 			delta.sub(p.mPos);
 			baseAngle = MsGetRotFromZaxisY(delta);
 			baseAngle = MsAngleWrap(baseAngle);
-		} else {
-			baseAngle = mAngleOffset;
 		}
 
 		f32 magnitude = m14 * (newDeg - oldDeg);
