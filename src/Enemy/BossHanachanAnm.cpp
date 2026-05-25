@@ -218,8 +218,9 @@ void TBossHanachan::setTumbleAnm(EnumBossHanachanStopMotionBlendOnOff blend)
 
 	mHead->setAnm_((EnumBossHanachanAnmKind)anmKind, blend);
 	{
-		J3DFrameCtrl* fc = mHead->mMActor->getFrameCtrl(0);
-		f32 diff         = unk194 - mHead->getRotation().z;
+		TBossHanachanPartsBase* head = mHead;
+		J3DFrameCtrl* fc             = head->mMActor->getFrameCtrl(0);
+		f32 diff                     = unk194 - head->getRotation().z;
 		if (diff < 0.0f)
 			diff = -diff;
 		f32 rateForDelta = (1.0f / unk198) * diff;
