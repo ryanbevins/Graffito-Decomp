@@ -16,6 +16,9 @@ public:
 	MtxPtr getSubmarineMtxInDemo();
 	MtxPtr getPeachMtxInDemo();
 	MtxPtr getKoopaJrMtxInDemo();
+	// fabricated
+	u8 getUnk29A() const { return *((u8*)this + 0x29A); }
+	u8 getUnk1D4() const { return *((u8*)this + 0x1D4); }
 	BOOL receiveMessage(THitActor* sender, u32 message);
 	Mtx* getRootJointMtx() const;
 	void perform(u32, JDrama::TGraphics*);

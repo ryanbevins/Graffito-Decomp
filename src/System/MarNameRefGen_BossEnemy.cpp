@@ -1,6 +1,7 @@
 #include <System/MarNameRefGen.hpp>
 #include <string.h>
 #include <Enemy/BathtubKiller.hpp>
+#include <Enemy/BathtubPeach.hpp>
 #include <Enemy/BossGesso.hpp>
 #include <Enemy/CoasterKiller.hpp>
 #include <Enemy/DemoBossHanachan.hpp>
@@ -24,18 +25,6 @@ class TBEelTearsManager : public JDrama::TNameRef {
 public:
 	TBEelTearsManager(const char*);
 	char _stub[0xc4];
-};
-
-class TBathtubPeach : public JDrama::TNameRef {
-public:
-	TBathtubPeach(const char*);
-	char _stub[0x16c];
-};
-
-class TBathtubPeachManager : public JDrama::TNameRef {
-public:
-	TBathtubPeachManager(const char*);
-	char _stub[0x4c];
 };
 
 class TBossEel : public JDrama::TNameRef {
