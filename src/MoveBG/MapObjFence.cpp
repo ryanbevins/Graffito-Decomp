@@ -272,7 +272,13 @@ void TFenceWater::changeStatusToGo()
 
 BOOL TFenceWater::receiveMessage(THitActor* sender, u32 message)
 {
-	if (mState == 3 && message == 15) {
+	bool is3;
+	if (mState == 3)
+		is3 = true;
+	else
+		is3 = false;
+
+	if (!is3 && message == 15) {
 		unk13C = mWaterAccel;
 		if (unk13C > 0.0f)
 			changeStatusToGo();
