@@ -65,17 +65,41 @@ void TWoodBox::kill()
 		MSoundSESystem::MSoundSE::startSoundActor(0x380a, (Vec*)&mPosition, 0, 0,
 		                                          0, 4);
 
-	const f32 offs[4][2] = { { -50.0f, 50.0f }, { 50.0f, 50.0f },
-		                      { 50.0f, -50.0f }, { -50.0f, -50.0f } };
-	for (int i = 0; i < 4; i++) {
-		const TBGCheckData* bg;
-		f32 gy = gpMap->checkGround(gpMarioPos->x + offs[i][0],
-		                            gpMarioPos->y + 10.0f,
-		                            gpMarioPos->z + offs[i][1], &bg);
-		if (gy + 10.0f > gpMarioPos->y && bg->mActor && bg->mActor != this
-		    && bg->mActor->mActorType == 0x4000001c) {
-			((TMapObjBase*)bg->mActor)->kill();
-		}
+	const TBGCheckData* bg0;
+	f32 gy0 = gpMap->checkGround(gpMarioPos->x + -50.0f,
+	                             gpMarioPos->y + 1000.0f,
+	                             gpMarioPos->z + -50.0f, &bg0);
+	if (10.0f + gy0 > gpMarioPos->y && bg0->mActor && bg0->mActor != this) {
+		bool is1c = (bg0->mActor->mActorType == 0x4000001c) ? true : false;
+		if (is1c)
+			((TMapObjBase*)bg0->mActor)->kill();
+	}
+	const TBGCheckData* bg1;
+	f32 gy1 = gpMap->checkGround(gpMarioPos->x + 50.0f,
+	                             gpMarioPos->y + 1000.0f,
+	                             gpMarioPos->z + -50.0f, &bg1);
+	if (10.0f + gy1 > gpMarioPos->y && bg1->mActor && bg1->mActor != this) {
+		bool is1c = (bg1->mActor->mActorType == 0x4000001c) ? true : false;
+		if (is1c)
+			((TMapObjBase*)bg1->mActor)->kill();
+	}
+	const TBGCheckData* bg2;
+	f32 gy2 = gpMap->checkGround(gpMarioPos->x + -50.0f,
+	                             gpMarioPos->y + 1000.0f,
+	                             gpMarioPos->z + 50.0f, &bg2);
+	if (10.0f + gy2 > gpMarioPos->y && bg2->mActor && bg2->mActor != this) {
+		bool is1c = (bg2->mActor->mActorType == 0x4000001c) ? true : false;
+		if (is1c)
+			((TMapObjBase*)bg2->mActor)->kill();
+	}
+	const TBGCheckData* bg3;
+	f32 gy3 = gpMap->checkGround(gpMarioPos->x + 50.0f,
+	                             gpMarioPos->y + 1000.0f,
+	                             gpMarioPos->z + 50.0f, &bg3);
+	if (10.0f + gy3 > gpMarioPos->y && bg3->mActor && bg3->mActor != this) {
+		bool is1c = (bg3->mActor->mActorType == 0x4000001c) ? true : false;
+		if (is1c)
+			((TMapObjBase*)bg3->mActor)->kill();
 	}
 }
 
