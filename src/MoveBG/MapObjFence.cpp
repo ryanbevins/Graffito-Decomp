@@ -564,7 +564,7 @@ void TFence::initMapCollisionData()
 	mMapCollisionManager
 	    = new TMapCollisionManager(1, "mapObj", (const TLiveActor*)this);
 
-	if (strcmp(unkF4, "fence3x3") == 0) {
+	if (strcmp(unkF4, "fence3x3") != 0) {
 		if (fabsf(mRotation.x) < 1.0f && fabsf(mRotation.z) < 1.0f)
 			mMapCollisionManager->init("fence_normal_v_tool", 0, nullptr);
 		else
