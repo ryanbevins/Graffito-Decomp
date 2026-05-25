@@ -59,8 +59,8 @@ void TCraneRotY::control()
 		}
 		break;
 	case 1:
-		if (mLifeTimer <= 0) {
-			mState = 2;
+		if (!(mLifeTimer > 0 ? true : false)) {
+			mState = 0;
 		}
 		break;
 	case 2:
@@ -71,8 +71,8 @@ void TCraneRotY::control()
 		}
 		break;
 	case 3:
-		if (mLifeTimer <= 0) {
-			mState = 0;
+		if (!(mLifeTimer > 0 ? true : false)) {
+			mState = 2;
 		}
 		break;
 	}
@@ -111,7 +111,7 @@ void TCraneUpDown::control()
 		}
 		break;
 	case 1:
-		if (mLifeTimer <= 0) {
+		if (!(mLifeTimer > 0 ? true : false)) {
 			mState = 0;
 		}
 		break;
@@ -123,7 +123,7 @@ void TCraneUpDown::control()
 		}
 		break;
 	case 3:
-		if (mLifeTimer <= 0) {
+		if (!(mLifeTimer > 0 ? true : false)) {
 			mState = 2;
 		}
 		break;
