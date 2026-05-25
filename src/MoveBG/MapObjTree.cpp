@@ -250,7 +250,7 @@ void TMapObjTreeScale::loadAfter()
 	TMapObjGeneral::loadAfter();
 	if (gpMarDirector->mMap == 4
 	    || gpPollution->isPolluted(mPosition.x, mPosition.y, mPosition.z)) {
-		mScaling.x = mScaling.y = mScaling.z = mScaleMin;
+		mScaling.z = mScaling.y = mScaling.x = mScaleMin;
 		sleep();
 		unk64 &= ~1;
 		unk64 |= 2;
@@ -306,7 +306,7 @@ void TMapObjTreeScale::control()
 			mScaling.z = 1.0f;
 			unkF8 |= 0x100;
 			getModel()->calc();
-			unk64 &= 0xFFFFFFFA;
+			unk64 &= ~2;
 			setUpCurrentMapCollision();
 			mState = 1;
 		}
@@ -340,13 +340,12 @@ void TMapObjTreeScale::control()
 	}
 
 	if (mWaitTimer > sWaitTime) {
-		JGeometry::TVec3<f32> pos;
-		pos.x = (rand() * (1.0f / 32768.0f) * 200.0f + mPosition.x) - 100.0f;
-		pos.y = mPosition.y;
-		pos.z = (rand() * (1.0f / 32768.0f) * 200.0f + mPosition.z) - 100.0f;
-		mParticlePos[mParticleIndex] = pos;
+		mParticlePos[mParticleIndex].set(
+		    (rand() * (1.0f / 32768.0f) * 200.0f + mPosition.x) - 100.0f,
+		    mPosition.y,
+		    (rand() * (1.0f / 32768.0f) * 200.0f + mPosition.z) - 100.0f);
 		gpMarioParticleManager->emit(
-		    0x1db, &mParticlePos[mParticleIndex], 2, NULL);
+		    0x1db, &mParticlePos[mParticleIndex], 2, this);
 		mParticleIndex++;
 		if (mParticleIndex >= 30)
 			mParticleIndex = 0;
