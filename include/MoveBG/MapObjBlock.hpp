@@ -22,6 +22,12 @@ public:
 	void initMapObj();
 	void control();
 	void touchPlayer(THitActor*);
+
+	static const f32 sSandScaleUp;
+	static const f32 sSandScaleDown;
+	static const f32 sSandScaleMin;
+	static const s32 sWaitTimeToFall;
+	static const s32 sSandWaitTime;
 };
 
 class TLeanBlock : public TMapObjBase {
@@ -59,6 +65,10 @@ public:
 
 	u32 touchWater(THitActor*);
 	u32 getSDLModelFlag() const;
+
+	static const f32 sMeltSpeedWater;
+	static const f32 sMeltSpeedAuto;
+	static const f32 sAutoMeltScale;
 };
 
 class TBrickBlock : public THideObjBase {
