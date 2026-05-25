@@ -36,6 +36,73 @@ them in future ticks.
 
 ## Settled
 
+### Multiple `return FALSE` paths share `li r3, 0` epilogue only under a positive `if`-block
+
+**Rule.** A function shape like
+
+```cpp
+BOOL foo() {
+    if (early-return-condition-A) return FALSE;
+    if (early-return-condition-B) return FALSE;
+    if (early-return-condition-C) return FALSE;
+    // ... main body ...
+    return TRUE;
+}
+```
+
+generates **per-statement** `li r3, 0; b epilogue` blocks for each
+early return — every `return FALSE` repeats the two instructions.
+MWCC does **not** consolidate them across separate `if`-statements
+when the function has any other code path (here, the `return TRUE`).
+
+To force consolidation, wrap the body in a single positive `if`
+covering all the conditions and put one `return FALSE` after it:
+
+```cpp
+BOOL foo() {
+    if (cond-A) {
+        if (!cond-B && !cond-C) {
+            // ... main body ...
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+// or equivalently, with && short-circuit on false:
+BOOL foo() {
+    if (positive-A && positive-B && positive-C) {
+        // ... main body ...
+        return TRUE;
+    }
+    return FALSE;
+}
+```
+
+Now each "fail" condition is the inverse short-circuit edge of `&&`,
+and MWCC emits a direct conditional branch (`bge`, `bne`, etc.)
+straight to the **single** `li r3, 0` at the function tail. Net
+savings: ~8 bytes per saved early-return (the inline `li r3, 0; b end`
+pair).
+
+**Diagnostic signature.** Target asm shows several conditional
+branches all targeting the same address ending in `li r3, 0; <epilogue>`,
+without any `cror eq, gt, eq; beq/bne` short-circuit lattice in
+between. Our build emits one `li r3, 0; b end` per `return FALSE`
+statement.
+
+**Citations.**
+
+- `MoveBG/ModelGate::receiveMessage` (tick 118): 86.46 → **99.86%**
+  after wrapping body in `if (sender->mActorType == 0x01000001u)
+  { ... if (a && b && c) { ... return TRUE; } } return FALSE`.
+  Target's three distance/z-range `bge` instructions all jump to the
+  single `li r3, 0` at .L_801C3690.
+
+**Where to try it next.** Any BOOL/bool function at <100% match with
+multiple `if (cond) return FALSE` early-exits before a "do work and
+return TRUE" body. Common in `receiveMessage`, `isXxx`, validator
+predicates.
+
 ### `TVec3<f>::set(x, y, z)` — right-to-left arg eval batches stores at end
 
 **Rule.** When target asm shows a TVec3 being written with the THREE
