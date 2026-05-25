@@ -92,7 +92,7 @@ void TMushroom1up::initMapObj()
 {
 	TMapObjBase::initMapObj();
 	mGravity = 0.35f;
-	mLiveFlag &= ~0x94;
+	mLiveFlag &= ~0x93;
 	if (mType == 2) {
 		mLiveFlag |= 0x10;
 		makeObjAppeared();
@@ -105,7 +105,7 @@ void TMushroom1up::initMapObj()
 void TMushroom1up::load(JSUMemoryInputStream& s)
 {
 	TMapObjBase::load(s);
-	mLiveFlag &= ~0x91;
+	mLiveFlag &= ~0x90;
 }
 
 void TMushroom1up::control()
@@ -179,9 +179,9 @@ void TMushroom1up::control()
 
 void TMushroom1up::perform(u32 param_1, JDrama::TGraphics* graphics)
 {
-	if (mType != 2 && mLifeTimer < 0xf0 && (param_1 & 0x400)) {
+	if (mType != 2 && mLifeTimer < 0xf0 && (param_1 & 0x200)) {
 		if (gpMarDirector->unk58 % 6 > 2)
-			param_1 &= ~0x400;
+			param_1 &= ~0x200;
 	}
 	if ((param_1 & 1) && mTaken == 0 && mType != 2 && mLifeTimer <= 0) {
 		kill();
@@ -213,14 +213,14 @@ void TJumpBase::ensureTakeSituation()
 		mHeldObject = 0;
 	if (!mHolder)
 		return;
-	if (mHolder->mHeldObject != this)
+	if (mHolder->mHeldObject == this)
 		return;
 	mHolder = 0;
 }
 
 BOOL TJumpBase::receiveMessage(THitActor* sender, u32 message)
 {
-	if (sender->mActorType == 0x80000001u) {
+	if (sender->isActorTypeOf(0x80000000)) {
 		if (message == 4) {
 			if (mState == 0) {
 				mHolder = (TTakeActor*)sender;
@@ -256,7 +256,7 @@ BOOL TJumpBase::receiveMessage(THitActor* sender, u32 message)
 			return TRUE;
 		}
 	}
-	if (sender->mActorType == 0x01000001u) {
+	if (sender->isActorTypeOf(0x01000000)) {
 		if (mState == 3) {
 			mTimer = 0;
 			mState = 1;
