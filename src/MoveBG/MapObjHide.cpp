@@ -174,10 +174,43 @@ void THideObjPictureTwin::afterFinishedAnim()
 {
 	removeMapCollision();
 	unk64 |= 1;
+	TMapObjBase* obj = unk138;
 	if (unk138 && unk14C) {
-		unk138->makeObjAppeared();
-		mState = 3;
+		if (TMapObjBase::isCoin(unk138)) {
+			bool isPlainCoin = (unk138->mActorType == 0x2000000e) ? true : false;
+			if (isPlainCoin) {
+				obj = gpItemManager->makeObjAppear(0x2000000e);
+				if (!obj)
+					return;
+			}
+			((TCoin*)obj)->appearWithoutSound();
+		} else {
+			obj->appear();
+		}
+		obj->mPosition.set(unk174->mPosition);
+		Mtx localMtx;
+		MsMtxSetRotRPH(localMtx, unk174->mRotation.x, unk174->mRotation.y,
+		               unk174->mRotation.z);
+		f32 fwd = unk13C;
+		f32 mx  = localMtx[0][2];
+		f32 my  = localMtx[1][2];
+		f32 vy  = unk140;
+		f32 mz  = localMtx[2][2];
+		obj->mVelocity.x = mx * fwd;
+		obj->mVelocity.y = my * fwd + vy;
+		obj->mVelocity.z = mz * fwd;
+		obj->mLiveFlag &= ~0x10;
+		if (TMapObjBase::isCoin(obj)) {
+			((TItem*)obj)->unk148 = (THitActor*)this;
+			((TItem*)obj)->unk14C = unk148;
+		}
+		if (gpMSound->gateCheck(0x4843))
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4843, 0, 0, 0);
+		gpMarDirector->fireStartDemoCamera(unk178, (JGeometry::TVec3<f32>*)&obj->mPosition,
+		                                   -1, 0.0f, true, 0, 0, 0,
+		                                   JDrama::TFlagT<u16>(0));
 	}
+	mState = 3;
 }
 
 Vec* THideObjPictureTwin::getObjAppearPos() const { return (Vec*)&mPosition; }
