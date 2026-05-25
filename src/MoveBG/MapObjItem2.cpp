@@ -21,6 +21,13 @@
 #include <dolphin/mtx.h>
 #include <stdlib.h>
 
+#include <M3DUtil/InfectiousStrings.hpp>
+
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
 TMushroom1up::TMushroom1up(int type, const char* name)
     : TMapObjBase(name)
 {
@@ -104,93 +111,79 @@ void TMushroom1up::load(JSUMemoryInputStream& s)
 void TMushroom1up::control()
 {
 	TMapObjBase::control();
-	if (mState == 1) {
+	if (mTaken == 1) {
+		if (180 - mTimer < 0) {
+			kill();
+			return;
+		}
+	} else {
 		mTimer += 1;
 		if (mType == 2) {
-			mLinearVelocity.x = 0.0f;
-			mLinearVelocity.y = 0.0f;
-			mLinearVelocity.z = 0.0f;
 			mVelocity.x       = 0.0f;
 			mVelocity.y       = 0.0f;
 			mVelocity.z       = 0.0f;
+			mLinearVelocity.x = 0.0f;
+			mLinearVelocity.y = 0.0f;
+			mLinearVelocity.z = 0.0f;
 			return;
 		}
-		if (mTaken == 0 && (mLiveFlag & 0x80))
-			mTaken = 1;
-		JGeometry::TVec3<f32> diff;
-		diff.x = gpMarioPos->x - mPosition.x;
-		diff.y = 0.0f;
-		diff.z = gpMarioPos->z - mPosition.z;
-		f32 distSq
-		    = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-		if (distSq <= 0.0000038146973f) {
-			diff.x = 1.0f;
-		}
-		if (mType == 1) {
-			diff.x = -diff.x;
-			diff.y = -diff.y;
-			diff.z = -diff.z;
-		}
-		f32 angle;
-		if (diff.z == 0.0f) {
-			if (diff.x > 0.0f)
-				angle = 90.0f;
-			else
-				angle = -90.0f;
-		} else if (diff.z > 0.0f) {
-			angle = 0.005493164f * (f32)matan(diff.x, diff.z);
-		} else {
-			angle = 180.0f - 0.005493164f * (f32)matan(diff.x, -diff.z);
-		}
-		f32 wrapped = MsWrap<f32>(angle, angle - 180.0f, angle + 180.0f);
-		f32 delta   = wrapped - mRotation.y;
-		f32 clamped;
-		if (delta > 0.0f) {
-			clamped = (delta > 1.0f) ? 1.0f : delta;
-		} else {
-			clamped = (delta < -1.0f) ? -1.0f : delta;
-		}
-		f32 newRotY = mRotation.y + clamped;
-		while (newRotY >= 360.0f)
-			newRotY -= 360.0f;
-		while (newRotY < 0.0f)
-			newRotY += 360.0f;
-		mRotation.y = newRotY;
-		PSVECNormalize((Vec*)&diff, (Vec*)&diff);
-		diff.x *= 3.8f;
-		diff.y *= 3.8f;
-		diff.z *= 3.8f;
-		mLinearVelocity.x += diff.x;
-		mLinearVelocity.y += diff.y;
-		mLinearVelocity.z += diff.z;
-		return;
-	}
-	mTimer += 1;
-	if (mTaken == 2) {
-		mLinearVelocity.x = 0.0f;
-		mLinearVelocity.y = 0.0f;
-		mLinearVelocity.z = 0.0f;
-		mVelocity.x       = 0.0f;
-		mVelocity.y       = 0.0f;
-		mVelocity.z       = 0.0f;
-		return;
-	}
-	if (mState == 0) {
-		if (mLiveFlag & 0x80) {
-			// already airborne
-		} else {
+		if (mState == 0 && !(mLiveFlag & 0x80))
 			mState = 1;
-		}
 	}
+	JGeometry::TVec3<f32> diff;
+	diff.x = gpMarioPos->x - mPosition.x;
+	diff.y = 0.0f;
+	diff.z = gpMarioPos->z - mPosition.z;
+	f32 distSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+	if (distSq <= 0.0000038146973f) {
+		diff.x = 1.0f;
+	}
+	if (mType == 1) {
+		diff.x = -diff.x;
+		diff.y = -diff.y;
+		diff.z = -diff.z;
+	}
+	f32 angle;
+	if (diff.z == 0.0f) {
+		if (diff.x > 0.0f)
+			angle = 90.0f;
+		else
+			angle = -90.0f;
+	} else if (diff.z > 0.0f) {
+		angle = 0.005493164f * (f32)matan(diff.x, diff.z);
+	} else {
+		angle = 180.0f - 0.005493164f * (f32)matan(diff.x, -diff.z);
+	}
+	f32 wrapped = callMsWrap(angle, angle - 180.0f, angle + 180.0f);
+	f32 delta   = wrapped - mRotation.y;
+	f32 clamped;
+	if (delta > 0.0f) {
+		clamped = (delta > 1.0f) ? 1.0f : delta;
+	} else {
+		clamped = (delta < -1.0f) ? -1.0f : delta;
+	}
+	f32 newRotY = mRotation.y + clamped;
+	while (newRotY >= 360.0f)
+		newRotY -= 360.0f;
+	while (newRotY < 0.0f)
+		newRotY += 360.0f;
+	mRotation.y = newRotY;
+	PSVECNormalize((Vec*)&diff, (Vec*)&diff);
+	diff.x *= 3.8f;
+	diff.y *= 3.8f;
+	diff.z *= 3.8f;
+	mLinearVelocity.x += diff.x;
+	mLinearVelocity.y += diff.y;
+	mLinearVelocity.z += diff.z;
 }
 
 void TMushroom1up::perform(u32 param_1, JDrama::TGraphics* graphics)
 {
-	if (mTaken != 2 && mLifeTimer < 0xf0 && (param_1 & 0x400)) {
+	if (mType != 2 && mLifeTimer < 0xf0 && (param_1 & 0x400)) {
 		if (gpMarDirector->unk58 % 6 > 2)
 			param_1 &= ~0x400;
 	}
-	if ((param_1 & 1) && mTaken == 0 && mTaken != 2 && mLifeTimer <= 0) {
+	if ((param_1 & 1) && mTaken == 0 && mType != 2 && mLifeTimer <= 0) {
 		kill();
 	}
 	TMapObjBase::perform(param_1, graphics);
