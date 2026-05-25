@@ -75,7 +75,85 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 	J3DFrameCtrl* frameCtrl = mactor->getFrameCtrl(0);
 	frameCtrl->setRate(0.5f * (2.0f * SMSGetAnmFrameRate()));
 
-	(void)bathtub; // remainder of escape logic not yet decompiled
+	Mtx* btMtx   = bathtub->getRootJointMtx();
+	f32 bathtubX = (*btMtx)[0][3];
+	f32 bathtubZ = (*btMtx)[2][3];
+
+	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
+	f32 marioDeg = SHORTANGLE2DEG(
+	    (s16)-matan(marioPos.z - bathtubZ, marioPos.x - bathtubX));
+
+	f32 peachDeg = SHORTANGLE2DEG((s16)-matan(peach->mPosition.z - bathtubZ,
+	                                          peach->mPosition.x - bathtubX));
+	f32 angleDiff
+	    = fmodf(360.0f + peachDeg - marioDeg - -180.0f, 360.0f) + -180.0f;
+
+	TBathtubPeachParams* params
+	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
+	f32 angleParam = params->mAngle.value;
+	f32 newAngle;
+	if (angleDiff < 0.0f) {
+		newAngle
+		    = fmodf(360.0f + (marioDeg - angleParam) - -180.0f, 360.0f) + -180.0f;
+	} else {
+		newAngle
+		    = fmodf(360.0f + (marioDeg + angleParam) - -180.0f, 360.0f) + -180.0f;
+	}
+
+	TBathtubPeachParams* params2
+	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
+	f32 radius  = params2->mRadius.value;
+	f32 targetX = bathtubX + radius * JMASin(newAngle);
+	f32 targetZ = bathtubZ + radius * JMACos(newAngle);
+
+	JGeometry::TVec2<f32> delta;
+	delta.x = targetX - peach->mPosition.x;
+	delta.y = targetZ - peach->mPosition.z;
+
+	TBathtubPeachParams* params3
+	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
+	f32 speed = params3->mSpeed.value;
+	if (delta.x * delta.x + delta.y * delta.y <= speed * speed) {
+		f32 lenSq = delta.dot(delta);
+		if (lenSq <= 3.8146973e-6f) {
+			delta.y = 0.0f;
+			delta.x = 0.0f;
+		} else {
+			f32 invLen = JGeometry::TUtil<f32>::inv_sqrt(lenSq);
+			delta.x *= speed * invLen;
+			delta.y *= speed * invLen;
+		}
+	}
+
+	peach->mPosition.x += delta.x;
+	peach->mPosition.z += delta.y;
+
+	f32 dx                       = gpMarioPos->x - peach->mPosition.x;
+	f32 dz                       = gpMarioPos->z - peach->mPosition.z;
+	TBathtubPeachParams* params4
+	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
+	f32 turnSpeed2 = params4->mTurnSpeed2.value;
+	if (dx * dx + dz * dz > 3.8146973e-6f) {
+		f32 targetRot
+		    = SHORTANGLE2DEG((s16)-matan(dz, dx)) - 90.0f;
+		f32 diff = fmodf(360.0f + (targetRot - peach->mRotation.y) - -180.0f,
+		                 360.0f)
+		           + -180.0f;
+		if (diff < -turnSpeed2) {
+			peach->mRotation.y
+			    = fmodf(360.0f + (peach->mRotation.y - turnSpeed2) - -180.0f,
+			            360.0f)
+			      + -180.0f;
+		} else if (diff > turnSpeed2) {
+			peach->mRotation.y
+			    = fmodf(360.0f + (peach->mRotation.y + turnSpeed2) - -180.0f,
+			            360.0f)
+			      + -180.0f;
+		} else {
+			peach->mRotation.y = targetRot;
+		}
+	}
+
 	return FALSE;
 }
 
@@ -175,16 +253,4 @@ void TBathtubPeachManager::load(JSUMemoryInputStream& stream)
 {
 	TEnemyManager::load(stream);
 	unk38 = new TBathtubPeachParams("/enemy/bathtubpeach.prm");
-}
-
-TBathtubPeachParams::TBathtubPeachParams(const char* prm)
-    : TSpineEnemyParams(prm)
-    , PARAM_INIT(mTurnSpeed, 8.0f)
-    , PARAM_INIT(mTurnSpeed2, 1.0f)
-    , PARAM_INIT(mSpeed, 16.0f)
-    , PARAM_INIT(mAngle, 72.0f)
-    , PARAM_INIT(mRange, 100.0f)
-    , PARAM_INIT(mRadius, 2200.0f)
-{
-	TParams::load(mPrmPath);
 }

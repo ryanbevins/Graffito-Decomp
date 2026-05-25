@@ -8,7 +8,17 @@
 
 class TBathtubPeachParams : public TSpineEnemyParams {
 public:
-	TBathtubPeachParams(const char* prm = "/enemy/bathtubpeach.prm");
+	TBathtubPeachParams(const char* prm = "/enemy/bathtubpeach.prm")
+	    : TSpineEnemyParams(prm)
+	    , PARAM_INIT(mTurnSpeed, 8.0f)
+	    , PARAM_INIT(mTurnSpeed2, 1.0f)
+	    , PARAM_INIT(mSpeed, 16.0f)
+	    , PARAM_INIT(mAngle, 72.0f)
+	    , PARAM_INIT(mRange, 100.0f)
+	    , PARAM_INIT(mRadius, 2200.0f)
+	{
+		TParams::load(mPrmPath);
+	}
 
 	/* 0x0A8 */ TParamRT<f32> mTurnSpeed;
 	/* 0x0BC */ TParamRT<f32> mTurnSpeed2;
