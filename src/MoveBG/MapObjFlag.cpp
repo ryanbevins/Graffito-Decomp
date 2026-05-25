@@ -234,17 +234,17 @@ void TMapObjFlag::init(const char* name)
 	MsMtxSetXYZRPH(mLocalMtx, mPosition.x, mPosition.y, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
 
+	f32 stepHeight = mScaledHeight / (f32)(mNumRows - 1);
+	f32 stepWidth  = mScaledWidth / (f32)(mNumCols - 1);
+
+	JKRHeap::sCurrentHeap->getTotalFreeSize();
 	mVertexGrid = (Vec**)new u8[mNumCols * sizeof(Vec*)];
 
-	f32 invRowsMinus1 = 1.0f / (f32)(mNumRows - 1);
-	f32 invColsMinus1 = 1.0f / (f32)(mNumCols - 1);
-	f32 stepHeight    = mScaledHeight * invRowsMinus1;
-	f32 stepWidth     = mScaledWidth * invColsMinus1;
-
 	for (int col = 0; col < mNumCols; col++) {
-		Vec* rowArr = new Vec[mNumRows];
+		JGeometry::TVec3<f32>* rowArr
+		    = new JGeometry::TVec3<f32>[mNumRows];
 		mVertexGrid[col] = rowArr;
-		f32 colCoord = (f32)col * stepWidth;
+		f32 colCoord     = (f32)col * stepWidth;
 		for (int row = 0; row < mNumRows; row++) {
 			rowArr[row].x = 0.0f;
 			rowArr[row].y = colCoord;
@@ -252,7 +252,8 @@ void TMapObjFlag::init(const char* name)
 		}
 	}
 
-	JKRHeap::getCurrentHeap()->getTotalFreeSize();
+	static u32 total_use_size = 0;
+	JKRHeap::sCurrentHeap->getTotalFreeSize();
 
 	gpMapObjFlagManager->registerObj(this, name);
 
