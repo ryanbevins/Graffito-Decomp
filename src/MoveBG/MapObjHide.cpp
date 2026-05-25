@@ -125,8 +125,8 @@ void TBreakHideObj::control()
 	switch (mState) {
 	case 2:
 		if (animIsFinished()) {
-			emitEffect();
-			kill();
+			appearObj(0.0f);
+			makeObjDead();
 		}
 		break;
 	}
