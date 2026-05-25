@@ -352,7 +352,7 @@ void TIceBlock::initMapObj()
 
 void TBrickBlock::kill()
 {
-	THideObjBase::kill();
+	makeObjDead();
 	emitAndScale(0x60, 0, &mPosition);
 	emitAndScale(0x61, 0, &mPosition);
 	emitAndScale(0x62, 0, &mPosition);
@@ -361,7 +361,7 @@ void TBrickBlock::kill()
 		    0x3878, (Vec*)&mPosition, 0, 0, 0, 4);
 	}
 	SMSRumbleMgr->start(0x15, 0x14, (Vec*)&mPosition);
-	makeObjDead();
+	appearObj(100.0f);
 }
 
 BOOL TBrickBlock::receiveMessage(THitActor* sender, u32 message)
