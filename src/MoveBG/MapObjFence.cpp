@@ -368,33 +368,33 @@ void TRevolvingFenceInner::controlWall()
 	case 3: {
 		unk13C += mSpeed;
 		if (unk13C > 180.0f) {
-			unk13C = 180.0f;
-			mRotation.x = unk13C + mRotation.y;
-			mState = 2;
+			unk13C      = 180.0f;
+			mRotation.y = unk13C + mInitialRotation.y;
+			mState      = 2;
 		}
-		mRotation.x = unk13C + mRotation.y;
-		f32 rot = MsWrap(mRotation.x, 0.0f, 360.0f);
+		mRotation.y = unk13C + mInitialRotation.y;
+		f32 rot     = MsWrap(mRotation.y, 0.0f, 360.0f);
 		MsMtxSetRotY(getModel()->getBaseTRMtx(), rot);
 		MtxPtr m = getModel()->getBaseTRMtx();
-		m[0][3] = mPosition.x;
-		m[1][3] = mPosition.y - mYOffset;
-		m[2][3] = mPosition.z;
+		m[0][3]  = mPosition.x;
+		m[1][3]  = mPosition.y - mYOffset;
+		m[2][3]  = mPosition.z;
 		break;
 	}
 	case 5: {
 		unk13C -= mSpeed;
 		if (unk13C < -180.0f) {
-			unk13C = -180.0f;
-			mRotation.x = unk13C + mRotation.y;
-			mState = 1;
+			unk13C      = -180.0f;
+			mRotation.y = unk13C + mInitialRotation.y;
+			mState      = 1;
 		}
-		mRotation.x = unk13C + mRotation.y;
-		f32 rot = MsWrap(mRotation.x, 0.0f, 360.0f);
+		mRotation.y = unk13C + mInitialRotation.y;
+		f32 rot     = MsWrap(mRotation.y, 0.0f, 360.0f);
 		MsMtxSetRotY(getModel()->getBaseTRMtx(), rot);
 		MtxPtr m = getModel()->getBaseTRMtx();
-		m[0][3] = mPosition.x;
-		m[1][3] = mPosition.y - mYOffset;
-		m[2][3] = mPosition.z;
+		m[0][3]  = mPosition.x;
+		m[1][3]  = mPosition.y - mYOffset;
+		m[2][3]  = mPosition.z;
 		break;
 	}
 	case 4:
