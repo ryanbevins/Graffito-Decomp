@@ -1,1 +1,348 @@
-// MoveBG/ModelGate.cpp — stub for portability (9 fns).
+#include <MoveBG/ModelGate.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <M3DUtil/MActorUtil.hpp>
+#include <M3DUtil/SampleCtrlModel.hpp>
+#include <MarioUtil/MtxUtil.hpp>
+#include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/ScreenUtil.hpp>
+#include <Player/MarioAccess.hpp>
+#include <JSystem/JGeometry/JGUtil.hpp>
+#include <Strategic/LiveActor.hpp>
+#include <System/EmitterViewObj.hpp>
+#include <System/FlagManager.hpp>
+#include <System/Particles.hpp>
+#include <JSystem/JParticle/JPAResourceManager.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <THPPlayer/THPPlayer.h>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <dolphin/mtx.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// dummy data anchors that produce @1431/@1411/@1210 anchors in .data
+static void dummy() { static Vec data_2100 = { 1.0f, 1.0f, 1.0f }; }
+static void dummy2() { static Vec data_2100 = { 1.0f, 1.0f, 1.0f }; }
+static void dummy3() { static u32 data_2100[] = { 0, 2, 1, 3 }; }
+
+#include <M3DUtil/InfectiousStrings.hpp>
+
+static const char* gateMActorNames[] = {
+	"05_gate01",       "05_gate02rico", "05_gate03manma",
+	"05_gate04monte",  "05_gate05mare",
+};
+
+static const char* gateNames[] = {
+	"Gate",         "GateToRicco", "GateToMamma",
+	"GateToMonte",  "GateToMare",  nullptr,
+};
+
+MtxPtr TModelGate::getTakingMtx() { return nullptr; }
+
+void TModelGate::startOpen()
+{
+	unk70 |= 1;
+	unkC4 = 0;
+	unk78->setBpk(gateMActorNames[unk71]);
+	unk64 &= ~1;
+	unk70 |= 2;
+}
+
+BOOL TModelGate::receiveMessage(THitActor* sender, u32 message)
+{
+	if (sender->mActorType == 0x80000001u && message == 0xE) {
+		unkC8 = 0;
+		unkC4 = 2;
+		return TRUE;
+	}
+
+	if (sender->mActorType != 0xFF000001u)
+		return FALSE;
+
+	JGeometry::TVec3<f32> localPos;
+	PSMTXMultVec(unk7C, &sender->mPosition, &localPos);
+
+	Mtx tmp;
+	PSMTXCopy(unk78->getModel()->getAnmMtx(unk72), tmp);
+
+	if ((localPos.x * localPos.x + localPos.y * localPos.y) >= 40000.0f)
+		return FALSE;
+
+	if (-100.0f >= localPos.z)
+		return FALSE;
+	if (localPos.z >= unkFC)
+		return FALSE;
+
+	if (unk70 & 2) {
+		unkD0 += unkD4;
+		if (unkD0 > 1.0f) {
+			unkCA = unkC8;
+			unkD0 = 1.0f;
+			unk70 &= ~2;
+		}
+	}
+
+	f32 randf = (f32)(rand() * 0.000030517578f);
+	if (randf < unkF8) {
+		gpMarioParticleManager->emitWithRotate(0x1DD, &sender->mPosition, unk74,
+		                                       0, 0, 2, nullptr);
+		gpMarioParticleManager->emitWithRotate(0x1DE, &sender->mPosition, unk74,
+		                                       0, 0, 2, nullptr);
+	}
+	return TRUE;
+}
+
+void TModelGate::screenBlur(JDrama::TGraphics* graphics)
+{
+	JGeometry::TVec3<f32> diff;
+	diff.x = gpMarioPos->x - mPosition.x;
+	diff.y = 0.0f;
+	diff.z = gpMarioPos->z - mPosition.z;
+	PSVECNormalize(&diff, &diff);
+
+	JGeometry::TVec3<f32> rotated;
+	(void)rotated;
+	(void)diff;
+	(void)graphics;
+
+	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
+	JGeometry::TVec3<f32> localPos;
+	PSMTXMultVec(unk7C, &marioPos, &localPos);
+
+	f32 alpha = 0.0f;
+	if (-250.0f < localPos.x && localPos.x < 250.0f && -250.0f < localPos.y
+	    && localPos.y < 250.0f && 0.0f < localPos.z && localPos.z < unkF4) {
+		alpha = 1.0f;
+		if (localPos.z < unkF0) {
+			alpha = 0.0f;
+		}
+		if (unkF0 < localPos.z && localPos.z < unkF4) {
+			alpha = 1.0f - (localPos.z - unkF0) / (unkF4 - unkF0);
+		}
+		if (unkF4 < localPos.z) {
+			alpha = 0.0f;
+		}
+	}
+
+	unkE4 = unkE8 * (alpha - unkE4) + unkE4;
+}
+
+void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
+{
+	if (!(unk70 & 1))
+		return;
+
+	unk78->perform(perf_flags, graphics);
+
+	if (perf_flags & 1) {
+		if (!(unk70 & 2)) {
+			JGeometry::TVec3<f32> rel;
+			rel.x = gpMarioPos->x - mPosition.x;
+			rel.y = gpMarioPos->y - mPosition.y;
+			rel.z = gpMarioPos->z - mPosition.z;
+			f32 dist
+			    = JGeometry::TUtil<f32>::sqrt(rel.x * rel.x + rel.y * rel.y + rel.z * rel.z);
+			if (dist < 1000.0f) {
+				unkD0 += 0.01f;
+				if (unkD0 > 1.0f) {
+					unkD0 = 1.0f;
+					unkCA = unkC8;
+				}
+			} else {
+				unkCA -= 1;
+				if (unkCA < 0)
+					unkCA = 0;
+				unkD0 = (f32)unkCA / 1000.0f;
+			}
+		}
+
+		JGeometry::TVec3<f32> localMario;
+		PSMTXMultVec(unk7C, gpMarioPos, &localMario);
+		if (-unk104 < localMario.x && localMario.x < unk104
+		    && unk108 < localMario.y && localMario.y < unk10C
+		    && unk110 < localMario.z && localMario.z < unk114) {
+			if (unkCA > 0) {
+				bool jumping = SMS_IsMarioStatusTypeJumping();
+				if (jumping) {
+					TLiveActor* mario = SMS_GetMarioLiveActor();
+					if (mario->receiveMessage(this, 4) == 1) {
+						mHolder = (TTakeActor*)SMS_GetMarioLiveActor();
+					}
+				}
+			}
+		}
+	}
+
+	if (perf_flags & 2) {
+		switch (unkC4) {
+		case 0: {
+			J3DFrameCtrl* fc = unk78->getFrameCtrl(2);
+			if (fc->checkState(3)) {
+				unkC4 = 1;
+			}
+			break;
+		}
+		case 1: {
+			if (unkCA > 0) {
+				for (int i = 0; i < 4; ++i) {
+					gpMarioParticleManager->emitAndBindToMtxPtr(
+					    0x131 + i, unk78->getModel()->getAnmMtx(unk72), 1,
+					    this);
+				}
+				unkCA -= 1;
+				unkCC += 1;
+				if (gpMSound->gateCheck(0x3076)) {
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x3076, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+				}
+				if (gpMSound->gateCheck(0x3077)) {
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x3077, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+				}
+			} else {
+				unkCA = 0;
+				unkCC = 0;
+				unkD0 -= unkD8;
+				if (unkD0 < 0.0f)
+					unkD0 = 0.0f;
+			}
+			break;
+		}
+		case 2:
+		default:
+			unkD0 -= unkDC;
+			break;
+		}
+
+		if (unkD0 > 1.0f)
+			unkD0 = 1.0f;
+		if (unkD0 < 0.0f)
+			unkD0 = 0.0f;
+
+		J3DFrameCtrl* fcBpk = unk78->getFrameCtrl(5);
+		fcBpk->setEnd((s16)(unkD0 * 4.0f));
+	}
+
+	if (perf_flags & 4) {
+		screenBlur(graphics);
+	}
+
+	THitActor::perform(perf_flags, graphics);
+}
+
+void TModelGate::loadAfter()
+{
+	initHitActor(0, 5, 0, 300.0f, 400.0f, 300.0f, 400.0f);
+	unk64 |= 1;
+	unk70 = 0;
+	unk71 = 0;
+
+	for (u8 i = 0; i < 5; ++i) {
+		if (strcmp(gateNames[i], mName) == 0) {
+			unk71 = i;
+			break;
+		}
+	}
+
+	char buf[256];
+	snprintf(buf, sizeof(buf), "/scene/map/map/gate/%s.bmd",
+	         gateMActorNames[unk71]);
+	unk78 = SMS_MakeMActor(buf, "/scene/map/map/gate", 0, 0x11100000);
+	// resolve "center" bone (stubbed — index is set up via name table lookup)
+	unk72 = 0;
+
+	(void)ActivePlayer; // THP video setup stub
+
+	unkB8 = 0;
+	unkB9 = 0;
+	unkBA = 0;
+	unkBE = 0xF0;
+	unkBC = unkBE;
+
+	unk78->setBtk(gateMActorNames[unk71]);
+	unk78->setBrk(gateMActorNames[unk71]);
+	unk78->getFrameCtrl(5)->setRate(0.0f);
+
+	unkC0 = new SampleCtrlModelData(unk78->getModel()->getModelData());
+
+	unkC5  = 0x20;
+	unkC6  = 0xFF;
+	unkC4  = 1;
+	unkC8  = 0x168;
+	unkCA  = 0;
+	unkCC  = 0;
+	unkCE  = 0x3C;
+	unkD0  = 0.0f;
+	unkD4  = 0.1f;
+	unkD8  = 0.02f;
+	unkDC  = 0.025f;
+	unkAC.x = 0.0f;
+	unkAC.y = 0.0f;
+	unkAC.z = 0.0f;
+
+	unkE0  = 0;
+	unkE4  = 0.0f;
+	unkE8  = 0.01f;
+	unkEC  = 0.02f;
+	unkF0  = 500.0f;
+	unkF4  = 1000.0f;
+	unkF8  = 0.7f;
+	unkFC  = 0.0f;
+	unk100 = 200.0f;
+	unk104 = 150.0f;
+	unk108 = -1000.0f;
+	unk10C = 150.0f;
+	unk110 = 0.0f;
+	unk114 = 300.0f;
+
+	static const char* particleNames[] = {
+		"/scene/map/map/gate/ms_mariowp_body.jpa",
+		"/scene/map/map/gate/ms_mariowp_head.jpa",
+		"/scene/map/map/gate/ms_mariowp_cap.jpa",
+		"/scene/map/map/gate/ms_mariowp_rhand.jpa",
+		"/scene/map/map/gate/ms_mariowp_lhand.jpa",
+		"/scene/map/map/gate/ms_mariowp_rleg.jpa",
+		"/scene/map/map/gate/ms_mariowp_rfoot.jpa",
+		"/scene/map/map/gate/ms_mariowp_lleg.jpa",
+		"/scene/map/map/gate/ms_mariowp_lfoot.jpa",
+		"/scene/map/map/gate/ms_mariowp_watgun.jpa",
+		"/scene/map/map/gate/ms_mariowp_dust.jpa",
+		"/scene/map/map/gate/ms_mariowp_senko.jpa",
+	};
+	static const u16 particleIds[] = {
+		0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x50, 0x51,
+	};
+	for (int i = 0; i < 12; ++i)
+		SMS_LoadParticle(particleNames[i], particleIds[i]);
+
+	SMS_LoadParticle("/scene/map/map/gate/ms_gatewind_a.jpa", 0x131);
+	SMS_LoadParticle("/scene/map/map/gate/ms_gatewind_a2.jpa", 0x132);
+	SMS_LoadParticle("/scene/map/map/gate/ms_gatewind_a3.jpa", 0x133);
+	SMS_LoadParticle("/scene/map/map/gate/ms_gatewind_b.jpa", 0x134);
+	SMS_LoadParticle("/scene/map/map/gate/ms_gatehit_a.jpa", 0x1DD);
+	SMS_LoadParticle("/scene/map/map/gate/ms_gatehit_b.jpa", 0x1DE);
+
+	bool opened;
+	switch (unk71) {
+	case 0:  opened = TFlagManager::smInstance->getBool(0x10385); break;
+	case 2:  opened = TFlagManager::smInstance->getBool(0x10387); break;
+	case 1:  opened = TFlagManager::smInstance->getBool(0x10386); break;
+	case 3:  opened = TFlagManager::smInstance->getBool(0x10387); break;
+	case 4:  opened = TFlagManager::smInstance->getBool(0x10387); break;
+	default: opened = false; break;
+	}
+
+	if (opened) {
+		unk70 |= 1;
+		unk64 &= ~1;
+	} else {
+		unk70 &= ~1;
+		unk70 |= 2;
+		unk64 |= 1;
+	}
+}
+
+// rogue includes for static init (JALList<*> instantiations)
+#include <MSound/MSoundBGM.hpp>
+#include <MSound/MSSetSound.hpp>
