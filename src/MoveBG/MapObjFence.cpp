@@ -443,7 +443,12 @@ void TRevolvingFenceInner::controlWall()
 BOOL TRevolvingFenceInner::receiveMessage(THitActor* sender, u32 message)
 {
 	if (message == 3 && unk140 == 0) {
-		if (mState == 1) {
+		bool s1;
+		if (mState == 1)
+			s1 = true;
+		else
+			s1 = false;
+		if (s1) {
 			if (gpMSound->gateCheck(0x3824))
 				MSoundSESystem::MSoundSE::startSoundActor(
 				    0x3824, (const Vec*)&mPosition, 0, nullptr, 0, 4);
@@ -452,7 +457,13 @@ BOOL TRevolvingFenceInner::receiveMessage(THitActor* sender, u32 message)
 			offMapObjFlag(0x100);
 			return TRUE;
 		}
-		if (mState == 2) {
+
+		bool s2;
+		if (mState == 2)
+			s2 = true;
+		else
+			s2 = false;
+		if (s2) {
 			if (gpMSound->gateCheck(0x3825))
 				MSoundSESystem::MSoundSE::startSoundActor(
 				    0x3825, (const Vec*)&mPosition, 0, nullptr, 0, 4);
@@ -464,20 +475,35 @@ BOOL TRevolvingFenceInner::receiveMessage(THitActor* sender, u32 message)
 	}
 	if (message == 3 && unk140 != 0) {
 		f32 angle = getRotYFromAxisZ(*gpMarioPos);
-		f32 deg   = 180.0f * (angle / 3.14f) + mRotation.y;
+		f32 deg   = 180.0f * (angle / 3.14f) + mInitialRotation.y;
 		deg       = MsWrap(deg, -180.0f, 180.0f);
-		bool fwd = (deg > -180.0f && deg < -90.0f)
-		           || (deg > 0.0f && deg < 90.0f);
-		if (fwd) {
+		if ((deg > -180.0f && deg < -90.0f)
+		    || (deg > 0.0f && deg < 90.0f)) {
 			if (gpMSound->gateCheck(0x3824))
 				MSoundSESystem::MSoundSE::startSoundActor(
 				    0x3824, (const Vec*)&mPosition, 0, nullptr, 0, 4);
-			mState = (mState == 1) ? 3 : 4;
+			bool s1;
+			if (mState == 1)
+				s1 = true;
+			else
+				s1 = false;
+			if (s1)
+				mState = 3;
+			else
+				mState = 4;
 		} else {
 			if (gpMSound->gateCheck(0x3825))
 				MSoundSESystem::MSoundSE::startSoundActor(
 				    0x3825, (const Vec*)&mPosition, 0, nullptr, 0, 4);
-			mState = (mState == 1) ? 5 : 6;
+			bool s1;
+			if (mState == 1)
+				s1 = true;
+			else
+				s1 = false;
+			if (s1)
+				mState = 5;
+			else
+				mState = 6;
 		}
 		return TRUE;
 	}
