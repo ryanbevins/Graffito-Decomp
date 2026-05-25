@@ -314,10 +314,62 @@ void TWaterHitPictureHideObj::loadAfter()
 		if (isShine) {
 			int nlen = strlen(mName);
 			unk144   = (u32) new char[nlen + 0x13];
-			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
+			snprintf((char*)unk144, nlen + 0x13, "シャッン（%s）カメラ", mName);
 		}
 	}
-	unk160 = unk150 ? unk168 : unk164;
+	if (unk138 && unk138->mActorType == 0x20000010
+	    && TFlagManager::smInstance->getBlueCoinFlag(gpMarDirector->mMap,
+	                                                  (u8)unk134)) {
+		makeObjDead();
+	} else {
+		switch (mActorType) {
+		case 0x40000012:
+			unk164 = 32.0f;
+			unk168 = 100.0f;
+			if ((*getModel()->mNodeMatrices)[1][2] > 0.7f)
+				unk154 = 1.5f;
+			else
+				unk154 = 0.48f;
+			unk15C = 0.2f;
+			unk150 = 0;
+			break;
+		case 0x40000013:
+		case 0x40000018:
+		case 0x40000019:
+		case 0x4000001a:
+			unk164 = 20.0f;
+			unk150 = 1;
+			break;
+		case 0x40000020:
+			unk154 = 1.2f;
+			unk164 = 30.0f;
+			unk168 = 170.0f;
+			unk150 = 0;
+			break;
+		case 0x400001a1:
+			unk164 = 0.0f;
+			unk168 = 255.0f;
+			unk150 = 1;
+			break;
+		case 0x400001a2:
+			unk164 = 0.0f;
+			unk168 = 200.0f;
+			unk154 = 0.4f;
+			unk150 = 0;
+			break;
+		}
+		unk160 = unk150 ? unk168 : unk164;
+		if (unk138) {
+			if (TMapObjBase::isCoin(unk138))
+				unk138->unkF8 &= ~0x10000000;
+			if (unk138->mActorType == 0x20000013
+			    && TFlagManager::smInstance->getShineFlag((u8)unk138->unk134)) {
+				unk160 = unk150 ? unk164 : unk168;
+				unk172 = (u16)(u8)(s32)unk160;
+				mState = 3;
+			}
+		}
+	}
 }
 #pragma dont_inline off
 
