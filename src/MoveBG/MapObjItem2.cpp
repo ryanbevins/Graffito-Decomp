@@ -127,7 +127,7 @@ void TMushroom1up::control()
 			mLinearVelocity.z = 0.0f;
 			return;
 		}
-		if (mState == 0 && !(mLiveFlag & 0x80))
+		if (mState == 0 && !isAirborne())
 			mState = 1;
 	}
 	JGeometry::TVec3<f32> diff;
@@ -288,7 +288,7 @@ void TJumpBase::calcRootMatrix()
 void TJumpBase::control()
 {
 	int prevState = mState;
-	if (!(mLiveFlag & 0x80))
+	if (!isAirborne())
 		mLiveFlag |= 0x10;
 	switch (mState) {
 	case 0:
@@ -374,7 +374,7 @@ void TJumpBase::control()
 			mPosition.z += mAngularVelocity.z;
 			mLiveFlag &= ~0x10;
 		}
-		if (!(mLiveFlag & 0x80)) {
+		if (!isAirborne()) {
 			mTimer = 0;
 			mState = 2;
 		}
