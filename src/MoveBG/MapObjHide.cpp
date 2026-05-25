@@ -321,7 +321,11 @@ void TWaterHitPictureHideObj::loadAfter()
 			snprintf((char*)unk144, nlen + 0x13, "シャッン（%s）カメラ", mName);
 		}
 	}
-	if (unk138 && unk138->mActorType == 0x20000010
+	bool isBlueCoin2 = false;
+	if (unk138) {
+		isBlueCoin2 = (unk138->mActorType == 0x20000010) ? true : false;
+	}
+	if (isBlueCoin2
 	    && TFlagManager::smInstance->getBlueCoinFlag(gpMarDirector->mMap,
 	                                                  (u8)unk134)) {
 		makeObjDead();
