@@ -468,17 +468,18 @@ void TTelesaBlock::setGroundCollision()
 
 BOOL TSuperHipDropBlock::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message != 3)
-		return FALSE;
-	emitEffect();
-	if (unk150) {
-		TFlagManager::smInstance->setBool(1, 0x1038C);
+	if (message == 3) {
+		kill();
+		if (unk150) {
+			TFlagManager::smInstance->setBool(1, 0x1038C);
+		}
+		if (gpMSound->gateCheck(0x3821)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x3821, (Vec*)&mPosition, 0, 0, 0, 4);
+		}
+		return TRUE;
 	}
-	if (gpMSound->gateCheck(0x3821)) {
-		MSoundSESystem::MSoundSE::startSoundActor(
-		    0x3821, (Vec*)&mPosition, 0, 0, 0, 4);
-	}
-	return TRUE;
+	return FALSE;
 }
 
 void TSuperHipDropBlock::loadAfter()
