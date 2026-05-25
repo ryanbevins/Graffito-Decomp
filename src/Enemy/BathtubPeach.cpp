@@ -51,10 +51,10 @@ DEFINE_NERVE(TNervePeachStagger, TLiveActor)
 
 DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 {
-	TBathtubPeach* peach = (TBathtubPeach*)spine->getBody();
-	TBathtub* bathtub    = (TBathtub*)JDrama::TNameRefGen::instance->mRootNameRef
-	                       ->searchF(JDrama::TNameRef::calcKeyCode("バスタブ"),
-	                                 "バスタブ");
+	TBathtubPeach* peach   = (TBathtubPeach*)spine->getBody();
+	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
+	TBathtub* bathtub      = (TBathtub*)root->searchF(
+        JDrama::TNameRef::calcKeyCode("バスタブ"), "バスタブ");
 	if (bathtub->getUnk29A())
 		return FALSE;
 
