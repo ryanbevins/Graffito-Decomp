@@ -83,7 +83,8 @@ void TWoodBox::kill()
 void TBreakHideObj::initMapObj()
 {
 	TMapObjBase::initMapObj();
-	if (mActorType == 0x400002c3) {
+	bool isWaterMelon = (mActorType == 0x400002c3) ? true : false;
+	if (isWaterMelon) {
 		SMS_LoadParticle("/scene/mapObj/WaterMelonBlockA.jpa", 0x6b);
 		SMS_LoadParticle("/scene/mapObj/WaterMelonBlockB.jpa", 0x6c);
 	}
@@ -105,7 +106,8 @@ void TBreakHideObj::control()
 BOOL TBreakHideObj::receiveMessage(THitActor* sender, u32 message)
 {
 	if (message == 1) {
-		if (mActorType == 0x400002c3) {
+		bool isWaterMelon = (mActorType == 0x400002c3) ? true : false;
+		if (isWaterMelon) {
 			emitAndScale(0x6b, 0, &mPosition);
 			emitAndScale(0x6c, 0, &mPosition);
 			if (gpMSound->gateCheck(0x38a3))
