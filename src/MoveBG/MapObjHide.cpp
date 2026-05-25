@@ -18,6 +18,7 @@
 #include <JSystem/JSupport/JSUInputStream.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -278,6 +279,23 @@ void TWaterHitPictureHideObj::load(JSUMemoryInputStream& stream)
 	unk154 = 1.8f;
 	unk158 = 1.0f;
 	unk15C = 0.4f;
+	if ((*getModel()->mNodeMatrices)[1][2] > 0.7f) {
+		mYOffset      = 0.0f;
+		mDamageHeight = 40.0f;
+		calcEntryRadius();
+		mPosition.y = mInitialPosition.y + mYOffset;
+		unk154      = 2.8f;
+	} else if ((*getModel()->mNodeMatrices)[1][2] < -0.7f) {
+		mYOffset      = -10.0f * mScaling.y;
+		mDamageHeight = 30.0f;
+		calcEntryRadius();
+		mPosition.y = mInitialPosition.y + mYOffset;
+		unk154      = 2.5f;
+	} else {
+		unk154 = 1.8f;
+	}
+	TMapObjBase::initPacketMatColor(getModel(), (GXTevRegID)1,
+	                                (GXColorS10*)&unk16C);
 }
 
 #pragma dont_inline on
