@@ -20,6 +20,7 @@
 #include <dolphin/mtx.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <MSound/MSoundBGM.hpp>
 
 static int sWaitTime = 5;
 
@@ -69,8 +70,8 @@ TMapObjTree::TMapObjTree(const char* name)
 f32 TMapObjTree::getRadiusAtY(f32 y) const
 {
 	return unk148
-	     + (unk14C - unk148)
-	           * ((mPosition.y + mDamageHeight - y) / mDamageHeight);
+	     + (unk14C - unk148) * (mPosition.y + mDamageHeight - y)
+	           / mDamageHeight;
 }
 
 void TMapObjTree::initMapObj()
@@ -78,7 +79,7 @@ void TMapObjTree::initMapObj()
 	TMapObjGeneral::initMapObj();
 	initEach();
 	mLeaves = new TMapObjLeaf[mLeafCount];
-	char buf[0x100];
+	char buf[0x40];
 	for (int i = 0; i < mLeafCount; i++) {
 		TMapObjLeaf& leaf = mLeaves[i];
 		leaf.mCollision = new TMapCollisionMove();
@@ -180,7 +181,22 @@ int TMapObjTree::controlLeaf(int i)
 	leaf.mAngleVel *= mDamping;
 
 	Mtx rot;
-	Vec axis = { 0.0f, 1.0f, 0.0f };
+	rot[2][3] = 0.0f;
+	rot[1][3] = 0.0f;
+	rot[0][3] = 0.0f;
+	rot[1][2] = 0.0f;
+	rot[0][2] = 0.0f;
+	rot[2][1] = 0.0f;
+	rot[0][1] = 0.0f;
+	rot[2][0] = 0.0f;
+	rot[1][0] = 0.0f;
+	rot[2][2] = 1.0f;
+	Vec axis;
+	axis.x = 1.0f;
+	axis.y = 0.0f;
+	rot[1][1] = 1.0f;
+	rot[0][0] = 1.0f;
+	axis.z = 0.0f;
 	PSMTXRotAxisRad(rot, &axis, leaf.mAngle);
 
 	Mtx tmp;
