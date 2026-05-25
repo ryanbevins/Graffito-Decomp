@@ -80,10 +80,10 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 
 	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
 	f32 marioDeg = SHORTANGLE2DEG(
-	    (s16)-matan(marioPos.z - bathtubZ, marioPos.x - bathtubX));
+	    (s16)matan(marioPos.z - bathtubZ, marioPos.x - bathtubX));
 
-	f32 peachDeg = SHORTANGLE2DEG((s16)-matan(peach->mPosition.z - bathtubZ,
-	                                          peach->mPosition.x - bathtubX));
+	f32 peachDeg = SHORTANGLE2DEG((s16)matan(peach->mPosition.z - bathtubZ,
+	                                         peach->mPosition.x - bathtubX));
 	f32 angleDiff
 	    = fmodf(360.0f + peachDeg - marioDeg - -180.0f, 360.0f) + -180.0f;
 
@@ -134,7 +134,7 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 	f32 turnSpeed2 = params4->mTurnSpeed2.value;
 	if (dx * dx + dz * dz > 3.8146973e-6f) {
 		f32 targetRot
-		    = SHORTANGLE2DEG((s16)-matan(dz, dx)) - 90.0f;
+		    = SHORTANGLE2DEG((s16)matan(dz, dx)) - 90.0f;
 		f32 diff = fmodf(360.0f + (targetRot - peach->mRotation.y) - -180.0f,
 		                 360.0f)
 		           + -180.0f;
