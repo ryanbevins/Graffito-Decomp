@@ -3098,6 +3098,24 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **`JGeometry::gekko_ps_copy12` inlined in our build but called via `bl` in
+  target.** Symptom: target asm has `bl gekko_ps_copy12__9JGeometryFPvPv`,
+  ours emits 12 `psq_l`/`psq_st` instructions at the call site. Confirmed
+  on `MoveBG/MapObjFlag::draw` and `MoveBG/MapObjBall::calcCurrentMtx`;
+  asm files for MapObjBall/Block/Cloud/Fence/Flag/Monte/Pinna/RailBlock/Tree
+  all contain `bl` calls; MapObjBlock emits the weak symbol. The function
+  is `inline` in `include/JSystem/JGeometry/JGMatrix34.hpp` and uses an
+  `asm {}` block with `register f32` locals. Our build inlines despite
+  `-inline deferred` flag for the `MoveBG` lib. Tried (all no effect):
+  (a) `#pragma inline_max_size(0)` + `inline_max_total_size(0)` before
+  draw definition; (b) wrapping arg as `j3dSys.getViewMtx()` to add an
+  inline forwarder; (c) explicit `(void*)` casts at call site. Hypotheses:
+  (1) MWCC under `-inline deferred` decides per-TU based on something
+  about parse order that we're not replicating; (2) a specific local-decl
+  ordering before the call inhibits inlining; (3) the original source uses
+  a non-inline wrapper we haven't found. Affected: `MoveBG/MapObjFlag::draw`
+  at 71.82%, `MoveBG/MapObjBall::calcCurrentMtx` at 62.32%. Risk: if the
+  lever is found, it could lift 8+ TUs simultaneously.
 - **MAnmSoundNPC::startAnimSound: `lwzx` indexed-load vs target's
   `add+lwz`.** Target loads v as `add r3, r31, r5; lwz r3, 0x18(r3)`
   (mData held in NV r31, regular lwz at constant offset 0x18). Ours
