@@ -91,7 +91,7 @@ void TCraneRotY::load(JSUMemoryInputStream& stream)
 	stream.read(&unk140, 4);
 	unk138 = mRotation.y;
 	unk144 = 0.5f + MsRandF() * 0.3f;
-	if (strcmp(unkF4, "crane90 0") == 0) {
+	if (strcmp(mName, "crane90 0") == 0) {
 		unk148 = 0x3034;
 	} else {
 		unk148 = 0x3035;
@@ -190,7 +190,7 @@ void TCraneUpDown::initMapObj()
 	    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
 	    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 	unk138->appear();
-	if (strcmp(unkF4, "craneUpDown 0") == 0) {
+	if (strcmp(mName, "craneUpDown 0") == 0) {
 		unk144 = 30.0f;
 		unk140 = -30.0f;
 		unk13C = 0x3036;
