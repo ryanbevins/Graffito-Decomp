@@ -8,6 +8,7 @@
 #include <Map/MapData.hpp>
 #include <Strategic/HitActor.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/ModelWaterManager.hpp>
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
@@ -442,15 +443,23 @@ void TWaterHitPictureHideObj::touchActor(THitActor* sender)
 u32 TWaterHitPictureHideObj::touchWater(THitActor* sender)
 {
 	JGeometry::TVec3<f32>* speed = TMapObjBase::getWaterSpeed(sender);
-	J3DModel* model              = getModel();
-	Mtx* nm                      = (Mtx*)model->mNodeMatrices;
-	f32 dot                      = (*nm)[1][0] * speed->x + (*nm)[1][1] * speed->y
-	          + (*nm)[1][2] * speed->z;
+	Mtx* nm                      = (Mtx*)getModel()->mNodeMatrices;
+	f32 dot                      = (*nm)[0][2] * speed->x + (*nm)[1][2] * speed->y
+	          + (*nm)[2][2] * speed->z;
 	if (dot > 0.0f)
 		return 0;
+	int waterID = TMapObjBase::getWaterID(sender);
+	bool isFlag1
+	    = ((gpModelWaterManager->mParticleFlagSOA[waterID] & 0xF) == 1) ? true
+	                                                                    : false;
+	if (isFlag1) {
+		gpMarioParticleManager->emit(0xe7, &sender->mPosition, 0, 0);
+		gpMSound->startSoundSet(0x6802, (Vec*)&mPosition, 0, 0.0f, 0, 0, 4);
+	}
 	forward(unk154);
-	if (mActorType == 0x400001a1)
-		soundBas(0x296e, unk154, 200.0f);
+	bool is1a1 = (mActorType == 0x400001a1) ? true : false;
+	if (is1a1)
+		soundBas(0x296e, 200.0f, unk154);
 	return 1;
 }
 
@@ -478,6 +487,14 @@ void TWaterHitPictureHideObj::forward(f32 amt)
 
 void TWaterHitPictureHideObj::afterFinishedAnim()
 {
+	bool is1a1 = (mActorType == 0x400001a1) ? true : false;
+	if (is1a1) {
+		if (gpMSound->gateCheck(0x296f))
+			MSoundSESystem::MSoundSE::startSoundActor(0x296f, (Vec*)&mPosition, 0,
+			                                          0, 0, 4);
+		if (gpMSound->gateCheck(0x484d))
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x484d, 0, 0, 0);
+	}
 	removeMapCollision();
 	unk64 |= 4;
 	Vec* pos = getObjAppearPos();
