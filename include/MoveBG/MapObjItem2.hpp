@@ -3,6 +3,25 @@
 
 #include <MoveBG/MapObjBase.hpp>
 
+class TJumpBase : public TMapObjBase {
+public:
+	TJumpBase(const char*);
+
+	virtual void control();
+	virtual void calcRootMatrix();
+	virtual Mtx* getRootJointMtx() const;
+	virtual BOOL receiveMessage(THitActor*, u32);
+	virtual void ensureTakeSituation();
+	virtual void initMapObj();
+
+public:
+	/* 0x138 */ s8 mState;
+	/* 0x139 */ u8 unk139;
+	/* 0x13A */ u8 unk13A;
+	/* 0x13B */ u8 unk13B;
+	/* 0x13C */ int mTimer;
+};
+
 class TMushroom1up : public TMapObjBase {
 public:
 	TMushroom1up(int, const char*);
@@ -15,22 +34,11 @@ public:
 	virtual void touchPlayer(THitActor*);
 
 public:
-	/* 0x138 */ u8 unk138;
-	/* 0x139 */ u8 unk139;
-	/* 0x13A */ u8 unk13A;
-	/* 0x13C */ int unk13C;
-};
-
-class TJumpBase : public TMapObjBase {
-public:
-	TJumpBase(const char*);
-
-	virtual BOOL receiveMessage(THitActor*, u32);
-	virtual void ensureTakeSituation();
-	virtual Mtx* getRootJointMtx() const;
-	virtual void calcRootMatrix();
-	virtual void control();
-	virtual void initMapObj();
+	/* 0x138 */ s8 mState;
+	/* 0x139 */ s8 mType;
+	/* 0x13A */ s8 mTaken;
+	/* 0x13B */ u8 unk13B;
+	/* 0x13C */ int mTimer;
 };
 
 #endif
