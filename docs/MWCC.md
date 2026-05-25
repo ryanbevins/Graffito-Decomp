@@ -36,6 +36,58 @@ them in future ticks.
 
 ## Settled
 
+### Cache a pointer-chain receiver into a local before a call-argument call to force callee-saved allocation
+
+**Rule.** When a method call has the shape `a->b->method(otherCall(...))`, MWCC
+evaluates the receiver chain (`a->b`) right where it appears in the source —
+**after** the argument call, which means it lives in r3/r4 and gets reloaded
+later. If the target asm shows the receiver loaded into a **callee-saved
+register (r28-r31) BEFORE** the argument call, the original source stored it
+in a local so its live range crossed the call:
+
+```cpp
+// BEFORE (our build): receiver loaded after calcKeyCode, into r3:
+//   bl calcKeyCode
+//   lwz r5, instance@sda21(r0)
+//   mr r4, r3
+//   lwz r3, 0x4(r5)         ; mRootNameRef → r3 (no callee-save)
+unk13C = (TMapObjBase*)JDrama::TNameRefGen::instance->mRootNameRef->searchF(
+    JDrama::TNameRef::calcKeyCode("submarine"), "submarine");
+
+// AFTER (target): mRootNameRef into r30 BEFORE bl calcKeyCode:
+//   lwz r4, instance@sda21(r0)
+//   lwz r30, 0x4(r4)         ; mRootNameRef → r30 (callee-saved)
+//   bl calcKeyCode
+JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
+unk13C = (TMapObjBase*)root->searchF(
+    JDrama::TNameRef::calcKeyCode("submarine"), "submarine");
+```
+
+The local creates a sequence point that forces the receiver evaluation to
+land before the argument's `bl`. The local's live range crosses the call, so
+MWCC allocates a callee-saved register. The pattern repeats per call site;
+reuse the same local (`root = ...;`) at the start of each block.
+
+**Diagnostic signature.** Target prologue saves r28/r29/r30 etc.; the
+receiver `lwz` lands BEFORE the `bl calcKeyCode`/`bl <arg>` instruction;
+asm uses a callee-saved register as the `this` for the actual method call.
+
+**Citations.**
+
+- `MoveBG/MapObjRicco::TRiccoWatermill::loadAfter` (tick 124): 75.3 →
+  **99.5%** by caching `mRootNameRef` before both searchF calls.
+- `MoveBG/MapObjRicco::TFruitLauncher::loadAfter` (tick 124): 84.7 →
+  **94.0%** by caching `mRootNameRef` before each of the two trailing
+  searchF calls.
+
+**Where to try it next.** Any `lookup`-style call chain through a global
+singleton:
+`SingletonGen::instance->root->searchF(calcKeyCode(name), name)` — the
+JDrama name-ref pattern is ubiquitous across `loadAfter` and `init` of
+TMapObjBase subclasses in MoveBG/, NPC/, Enemy/. Also `gpItemManager`,
+`gpMapObjManager`, `gpStageEventManager` chains. If target asm preserves
+something into r28-r31 across a `bl <arg-of-call>`, suspect this pattern.
+
 ### Same-TU `static const` class members are inlined at the use site — drop `const` to force the sdata load
 
 **Rule.** When a class declares `static const T m_name;` and the definition
