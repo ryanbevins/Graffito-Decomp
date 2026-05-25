@@ -387,10 +387,13 @@ void TFruitBasketEvent::countFruit(THitActor* sender)
 	case 0x40000394:
 		mFruitCounts[4]++;
 		break;
+	case 0x40000395:
+		break;
 	default:
 		return;
 	}
-	unkFE = 0;
+	((TResetFruit*)sender)->makeObjWaitingToAppear();
+	mColCount = 0;
 }
 
 //
@@ -432,27 +435,30 @@ void TFruitBasket::countFruit(THitActor* sender)
 {
 	mMActor->setBck("basket");
 	if (unk138) {
-		emitEffect();
+		appearObj(0.0f);
 		if (gpMSound->gateCheck(0x3809))
 			MSoundSESystem::MSoundSE::startSoundActor(0x3809, (Vec*)&mPosition, 0,
 			                                          0, 0, 4);
 		if (gpMSound->gateCheck(0x480a))
 			MSoundSESystem::MSoundSE::startSoundSystemSE(0x480a, 0, 0, 0);
-		return;
-	}
-	if (!unk150) {
+	} else if (!unk150) {
 		if (gpMSound->gateCheck(0x384e))
 			MSoundSESystem::MSoundSE::startSoundActor(0x384e, (Vec*)&mPosition, 0,
 			                                          0, 0, 4);
-		return;
+	} else {
+		bool match = (sender->mActorType == unk150) ? true : false;
+		if (match) {
+			if (gpMSound->gateCheck(0x3809))
+				MSoundSESystem::MSoundSE::startSoundActor(0x3809, (Vec*)&mPosition,
+				                                          0, 0, 0, 4);
+			if (gpMSound->gateCheck(0x480a))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(0x480a, 0, 0, 0);
+		} else {
+			if (gpMSound->gateCheck(0x483d))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(0x483d, 0, 0, 0);
+		}
 	}
-	if (sender->mActorType == unk150) {
-		if (gpMSound->gateCheck(0x3809))
-			MSoundSESystem::MSoundSE::startSoundActor(0x3809, (Vec*)&mPosition, 0,
-			                                          0, 0, 4);
-		if (gpMSound->gateCheck(0x480a))
-			MSoundSESystem::MSoundSE::startSoundSystemSE(0x480a, 0, 0, 0);
-	}
+	((TResetFruit*)sender)->makeObjWaitingToAppear();
 }
 
 //
