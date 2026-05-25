@@ -4,6 +4,7 @@
 #include <MoveBG/Item.hpp>
 #include <MoveBG/MapObjBall.hpp>
 #include <Map/Map.hpp>
+#include <Map/MapData.hpp>
 #include <Strategic/HitActor.hpp>
 #include <Player/MarioAccess.hpp>
 #include <System/FlagManager.hpp>
@@ -60,6 +61,19 @@ void TWoodBox::kill()
 	if (gpMSound->gateCheck(0x380a))
 		MSoundSESystem::MSoundSE::startSoundActor(0x380a, (Vec*)&mPosition, 0, 0,
 		                                          0, 4);
+
+	const f32 offs[4][2] = { { -50.0f, 50.0f }, { 50.0f, 50.0f },
+		                      { 50.0f, -50.0f }, { -50.0f, -50.0f } };
+	for (int i = 0; i < 4; i++) {
+		const TBGCheckData* bg;
+		f32 gy = gpMap->checkGround(gpMarioPos->x + offs[i][0],
+		                            gpMarioPos->y + 10.0f,
+		                            gpMarioPos->z + offs[i][1], &bg);
+		if (gy + 10.0f > gpMarioPos->y && bg->mActor && bg->mActor != this
+		    && bg->mActor->mActorType == 0x4000001c) {
+			((TMapObjBase*)bg->mActor)->kill();
+		}
+	}
 }
 
 //
@@ -192,6 +206,19 @@ void TWaterHitPictureHideObj::loadAfter()
 {
 	TMapObjBase::loadAfter();
 	unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(unk134, mName);
+	if (unk138) {
+		if (unk138->mActorType == 0x20000010) {
+			if (TFlagManager::smInstance->getBlueCoinFlag(
+			        gpMarDirector->mMap, (u8)unk134))
+				unk14C = 0;
+		}
+		if (unk138->mActorType == 0x20000013) {
+			int nlen = strlen(mName);
+			unk144   = (u32) new char[nlen + 0x13];
+			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
+		}
+	}
+	unk160 = unk150 ? unk168 : unk164;
 }
 
 BOOL TWaterHitPictureHideObj::receiveMessage(THitActor* sender, u32 message)
@@ -247,7 +274,16 @@ void TWaterHitPictureHideObj::touchActor(THitActor* sender)
 
 u32 TWaterHitPictureHideObj::touchWater(THitActor* sender)
 {
+	JGeometry::TVec3<f32>* speed = TMapObjBase::getWaterSpeed(sender);
+	J3DModel* model              = getModel();
+	Mtx* nm                      = (Mtx*)model->mNodeMatrices;
+	f32 dot                      = (*nm)[1][0] * speed->x + (*nm)[1][1] * speed->y
+	          + (*nm)[1][2] * speed->z;
+	if (dot > 0.0f)
+		return 0;
 	forward(unk154);
+	if (mActorType == 0x400001a1)
+		soundBas(0x296e, unk154, 200.0f);
 	return 1;
 }
 
@@ -354,6 +390,24 @@ void TFruitBasket::loadAfter()
 {
 	TMapObjBase::loadAfter();
 	unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(unk134, mName);
+	if (unk138) {
+		if (unk138->mActorType == 0x20000010) {
+			if (TFlagManager::smInstance->getBlueCoinFlag(
+			        gpMarDirector->mMap, (u8)unk134))
+				unk14C = 0;
+		}
+		if (unk138->mActorType == 0x20000013) {
+			int nlen = strlen(mName);
+			unk144   = (u32) new char[nlen + 0x13];
+			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
+		}
+	}
+	if (mRotation.x != 0.0f) {
+		mAttackRadius = 400.0f;
+		calcEntryRadius();
+		mAttackHeight = 200.0f;
+		calcEntryRadius();
+	}
 }
 
 void TFruitBasket::touchFruit(THitActor* sender)
@@ -363,8 +417,23 @@ void TFruitBasket::touchFruit(THitActor* sender)
 
 void TFruitBasket::countFruit(THitActor* sender)
 {
+	mMActor->setBck("basket");
 	if (unk138) {
 		emitEffect();
+		if (gpMSound->gateCheck(0x3809))
+			MSoundSESystem::MSoundSE::startSoundActor(0x3809, (Vec*)&mPosition, 0,
+			                                          0, 0, 4);
+		if (gpMSound->gateCheck(0x480a))
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x480a, 0, 0, 0);
+		return;
+	}
+	if (!unk150) {
+		if (gpMSound->gateCheck(0x384e))
+			MSoundSESystem::MSoundSE::startSoundActor(0x384e, (Vec*)&mPosition, 0,
+			                                          0, 0, 4);
+		return;
+	}
+	if (sender->mActorType == unk150) {
 		if (gpMSound->gateCheck(0x3809))
 			MSoundSESystem::MSoundSE::startSoundActor(0x3809, (Vec*)&mPosition, 0,
 			                                          0, 0, 4);
@@ -463,6 +532,18 @@ void THideObjBase::loadAfter()
 {
 	TMapObjBase::loadAfter();
 	unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(unk134, mName);
+	if (unk138) {
+		if (unk138->mActorType == 0x20000010) {
+			if (TFlagManager::smInstance->getBlueCoinFlag(
+			        gpMarDirector->mMap, (u8)unk134))
+				unk14C = 0;
+		}
+		if (unk138->mActorType == 0x20000013) {
+			int nlen = strlen(mName);
+			unk144   = (u32) new char[nlen + 0x13];
+			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
+		}
+	}
 }
 
 BOOL THideObjBase::receiveMessage(THitActor* sender, u32 message)

@@ -76,6 +76,9 @@ public:
 	virtual void loadAfter();
 	virtual void touchFruit(THitActor*);
 	virtual void countFruit(THitActor*);
+
+public:
+	/* 0x150 */ u32 unk150;
 };
 
 class TFruitBasketEvent : public TFruitBasket {
@@ -88,7 +91,6 @@ public:
 	int getFruitNum(int) const;
 
 public:
-	/* 0x150 */ u32 unk150;
 	/* 0x154 */ int mFruitCounts[5];
 };
 
