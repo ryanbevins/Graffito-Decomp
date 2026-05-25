@@ -22,8 +22,8 @@ DEFINE_NERVE(TNerveBossHanachanDead, TLiveActor)
 DEFINE_NERVE(TNerveBossHanachanSnort, TLiveActor)
 {
 	TBossHanachan* boss = (TBossHanachan*)spine->getBody();
-	if (spine->getTime() == 200 && (boss->mLiveFlag & 0x20000)) {
-		boss->mLiveFlag &= ~0x20000;
+	if (spine->getTime() == 200 && boss->checkLiveFlag(0x20000)) {
+		boss->offLiveFlag(0x20000);
 		MSBgm::startBGM(0x80010029);
 		switch (boss->mTempo) {
 		case 2:
