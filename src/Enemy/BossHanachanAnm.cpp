@@ -1,1 +1,258 @@
+#include <Enemy/BossHanachan.hpp>
+#include <Enemy/BossHanachanSaveParams.hpp>
 
+#include <Camera/cameralib.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <Strategic/Spine.hpp>
+#include <System/Application.hpp>
+
+void TBossHanachan::changeAnmRateAndFrameUpdate_()
+{
+	bool shouldSetRate = true;
+	f32 rate           = SMSGetAnmFrameRate();
+
+	if (mSpine->getLatestNerve() == &TNerveBossHanachanTumble::theNerve()) {
+		mHead->mPalFrame->unk28 = 0.0f;
+		for (int i = 0; i < 8; i++)
+			mBody[i]->mPalFrame->unk28 = 0.0f;
+		mHead->changeTumbleAnmRate_();
+		for (int i = 0; i < 8; i++)
+			mBody[i]->changeTumbleAnmRate_();
+		shouldSetRate = false;
+	} else if (mHead->mCurAnm < 2 && mHead->mCurAnm >= 0) {
+		f32 walkSpeed = mChangeParams->mSLWalkAnmMarchSpeed.value;
+		if (unk140 <= walkSpeed) {
+			mHead->mPalFrame->unk28 = 0.0f;
+			for (int i = 0; i < 8; i++)
+				mBody[i]->mPalFrame->unk28 = 0.0f;
+			if (mHead->mCurAnm == 0) {
+				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_OFF);
+				mHead->copyFrameFromOldAnmToNewAnm_();
+				for (int i = 0; i < 8; i++)
+					mBody[i]->copyFrameFromOldAnmToNewAnm_();
+			} else {
+				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
+			}
+		} else if (unk140 >= mChangeParams->mSLRunAnmMarchSpeed.value) {
+			mHead->mPalFrame->unk28 = 0.0f;
+			for (int i = 0; i < 8; i++)
+				mBody[i]->mPalFrame->unk28 = 0.0f;
+			if (mHead->mCurAnm == 0) {
+				setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_OFF);
+				mHead->copyFrameFromOldAnmToNewAnm_();
+				for (int i = 0; i < 8; i++)
+					mBody[i]->copyFrameFromOldAnmToNewAnm_();
+			} else if (mHead->mCurAnm != 1) {
+				setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_ON);
+			}
+		} else {
+			f32 ratio = CLBCalcRatio<f32>(walkSpeed,
+			                              mChangeParams->mSLRunAnmMarchSpeed.value,
+			                              unk140);
+			if (mHead->mCurAnm == 0) {
+				if (mHead->mPrevAnm != 1) {
+					setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_OFF);
+					mHead->copyFrameFromOldAnmToNewAnm_();
+					for (int i = 0; i < 8; i++)
+						mBody[i]->copyFrameFromOldAnmToNewAnm_();
+					ratio = 1.0f - ratio;
+				}
+				mHead->mPalFrame->unk28 = ratio;
+				for (int i = 0; i < 8; i++)
+					mBody[i]->mPalFrame->unk28 = ratio;
+			} else if (mHead->mCurAnm == 1) {
+				if (mHead->mPrevAnm == 0) {
+					ratio = 1.0f - ratio;
+				} else {
+					setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_OFF);
+					mHead->copyFrameFromOldAnmToNewAnm_();
+					for (int i = 0; i < 8; i++)
+						mBody[i]->copyFrameFromOldAnmToNewAnm_();
+				}
+				mHead->mPalFrame->unk28 = ratio;
+				for (int i = 0; i < 8; i++)
+					mBody[i]->mPalFrame->unk28 = ratio;
+			} else {
+				mHead->mPalFrame->unk28 = 0.0f;
+				for (int i = 0; i < 8; i++)
+					mBody[i]->mPalFrame->unk28 = 0.0f;
+				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
+			}
+		}
+		rate = SMSGetAnmFrameRate() * unk140 * mChangeParams->mSLWalkBckRateMagnif.value;
+		f32 minRate = mChangeParams->mSLWalkBckRateMin.value;
+		if (rate < minRate)
+			rate = minRate;
+	} else {
+		mHead->mPalFrame->unk28 = 0.0f;
+		for (int i = 0; i < 8; i++)
+			mBody[i]->mPalFrame->unk28 = 0.0f;
+		rate = SMSGetAnmFrameRate();
+	}
+
+	{
+		MActor* m = mHead->mMActor;
+		if (shouldSetRate)
+			m->getFrameCtrl(0)->setRate(rate);
+		mHead->updateAnmSound();
+		m->frameUpdate();
+	}
+	for (int i = 0; i < 8; i++) {
+		MActor* m = mBody[i]->mMActor;
+		if (shouldSetRate)
+			m->getFrameCtrl(0)->setRate(rate);
+		mBody[i]->updateAnmSound();
+		m->frameUpdate();
+	}
+}
+
+bool TBossHanachan::isAllBckAlreadyEnd(EnumBossHanachanAnmKind anmKind) const
+{
+	bool result = true;
+	bool found  = false;
+	if (mHead->mCurAnm == anmKind && mHead->isCurBckAlreadyEnd_())
+		found = true;
+	if (!found)
+		return false;
+	for (int i = 0; i < 8; i++) {
+		bool partDone = false;
+		if (mBody[i]->mCurAnm == anmKind && mBody[i]->isCurBckAlreadyEnd_())
+			partDone = true;
+		if (!partDone)
+			return false;
+	}
+	return result;
+}
+
+bool TBossHanachan::isFinishedGetUp() const
+{
+	bool result = false;
+	int cur     = mHead->mCurAnm;
+	if ((cur == 0x9 || cur == 0xC) && mHead->isCurBckAlreadyEnd_())
+		result = true;
+	return result;
+}
+
+void TBossHanachan::considerSetAnm(EnumBossHanachanNerveAnm nerveAnm)
+{
+	mHead->considerSetAnm_(nerveAnm);
+	for (int i = 0; i < 8; i++)
+		mBody[i]->considerSetAnm_(nerveAnm);
+}
+
+static inline int absDist(int a, int b)
+{
+	int d = a - b;
+	if (d < 0)
+		d = -d;
+	return d;
+}
+
+void TBossHanachan::setAnmTimerWhenDead()
+{
+	u8 frameDiff = mChangeParams->mSLDeadFrameDiff.value;
+	mBody[0]->mAnmCounter = frameDiff * absDist(unk174, 0);
+	mBody[1]->mAnmCounter = frameDiff * absDist(unk174, 1);
+	mBody[2]->mAnmCounter = frameDiff * absDist(unk174, 2);
+	mBody[3]->mAnmCounter = frameDiff * absDist(unk174, 3);
+	mBody[4]->mAnmCounter = frameDiff * absDist(unk174, 4);
+	mBody[5]->mAnmCounter = frameDiff * absDist(unk174, 5);
+	mBody[6]->mAnmCounter = frameDiff * absDist(unk174, 6);
+	mBody[7]->mAnmCounter = frameDiff * absDist(unk174, 7);
+	mHead->mAnmCounter    = frameDiff * absDist(unk174, -1);
+}
+
+void TBossHanachan::setAnmTimerWhenDamage()
+{
+	u8 frameDiff = mChangeParams->mSLDamageFrameDiff.value;
+	mBody[0]->mAnmCounter = frameDiff * absDist(unk174, 0);
+	mBody[1]->mAnmCounter = frameDiff * absDist(unk174, 1);
+	mBody[2]->mAnmCounter = frameDiff * absDist(unk174, 2);
+	mBody[3]->mAnmCounter = frameDiff * absDist(unk174, 3);
+	mBody[4]->mAnmCounter = frameDiff * absDist(unk174, 4);
+	mBody[5]->mAnmCounter = frameDiff * absDist(unk174, 5);
+	mBody[6]->mAnmCounter = frameDiff * absDist(unk174, 6);
+	mBody[7]->mAnmCounter = frameDiff * absDist(unk174, 7);
+	mHead->mAnmCounter    = frameDiff * absDist(unk174, -1);
+}
+
+void TBossHanachan::setAnmTimerWhenSnort()
+{
+	u8 frameDiff          = mChangeParams->mSLSnortFrameDiff.value;
+	mHead->mAnmCounter    = 0;
+	mBody[0]->mAnmCounter = frameDiff;
+	mBody[1]->mAnmCounter = frameDiff * 2;
+	mBody[2]->mAnmCounter = frameDiff * 3;
+	mBody[3]->mAnmCounter = frameDiff * 4;
+	mBody[4]->mAnmCounter = frameDiff * 5;
+	mBody[5]->mAnmCounter = frameDiff * 6;
+	mBody[6]->mAnmCounter = frameDiff * 7;
+	mBody[7]->mAnmCounter = frameDiff * 8;
+}
+
+void TBossHanachan::setAnmTimerWhenGetUp()
+{
+	u8 frameDiff          = mChangeParams->mSLGetUpFrameDiff.value;
+	mBody[7]->mAnmCounter = 0;
+	mBody[6]->mAnmCounter = frameDiff;
+	mBody[5]->mAnmCounter = frameDiff * 2;
+	mBody[4]->mAnmCounter = frameDiff * 3;
+	mBody[3]->mAnmCounter = frameDiff * 4;
+	mBody[2]->mAnmCounter = frameDiff * 5;
+	mBody[1]->mAnmCounter = frameDiff * 6;
+	mBody[0]->mAnmCounter = frameDiff * 7;
+	mHead->mAnmCounter    = frameDiff * 8;
+}
+
+void TBossHanachan::setTumbleAnm(EnumBossHanachanStopMotionBlendOnOff blend)
+{
+	int anmKind;
+	if (179.0f == unk194) {
+		anmKind = 0x11;
+	} else if (-179.0f == unk194) {
+		anmKind = 0x10;
+	} else {
+		return;
+	}
+
+	mHead->setAnm_((EnumBossHanachanAnmKind)anmKind, blend);
+	{
+		J3DFrameCtrl* fc = mHead->mMActor->getFrameCtrl(0);
+		f32 diff         = unk194 - mHead->getRotation().z;
+		if (diff < 0.0f)
+			diff = -diff;
+		f32 rateForDelta = (1.0f / unk198) * diff;
+		fc->setRate((1.0f / rateForDelta) * 40.0f * SMSGetAnmFrameRate() * 2.0f);
+	}
+	for (int i = 0; i < 8; i++) {
+		mBody[i]->setAnm_((EnumBossHanachanAnmKind)anmKind, blend);
+		J3DFrameCtrl* fc = mBody[i]->mMActor->getFrameCtrl(0);
+		f32 diff         = unk194 - mBody[i]->getRotation().z;
+		if (diff < 0.0f)
+			diff = -diff;
+		f32 rateForDelta = (1.0f / unk198) * diff;
+		fc->setRate((1.0f / rateForDelta) * 40.0f * SMSGetAnmFrameRate() * 2.0f);
+	}
+}
+
+void TBossHanachan::setHeadAndBodyAnm(EnumBossHanachanAnmKind kind,
+                                      EnumBossHanachanStopMotionBlendOnOff blend)
+{
+	mHead->setAnm_(kind, blend);
+	for (int i = 0; i < 8; i++) {
+		TBossHanachanPartsBase* part = mBody[i];
+		if (part->setAnm_(kind, blend)) {
+			J3DFrameCtrl* fc = part->mMActor->getFrameCtrl(0);
+			int t = (mChangeParams->mSLNormalBckFrameDiff.value * i) % fc->getEnd();
+			fc->setFrame((f32)(u32)t);
+			f32 ft            = (f32)(u32)t;
+			J3DFrameCtrl* fc3 = part->mMActor->getFrameCtrl(3);
+			if (fc3 != 0)
+				fc3->setFrame(ft);
+			J3DFrameCtrl* fc4 = part->mMActor->getFrameCtrl(4);
+			if (fc4 != 0)
+				fc4->setFrame(ft);
+		}
+	}
+}
