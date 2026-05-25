@@ -36,6 +36,88 @@ them in future ticks.
 
 ## Settled
 
+### Predicates that materialize a 0/1 BOOL force inline-then-test even for `&&` short-circuit
+
+**Rule.** Direct comparisons like `if (sender->mActorType == 0x80000001u)`
+or `if (mLiveFlag & 0x80)` compile to a **single** compare-and-branch
+(`addis+cmplwi+bne` or `rlwinm.+beq` etc.). The target asm often shows
+a **5-instruction materialization** instead:
+
+```
+addis r0, r6, 0x8000        ; compute mActorType + 0x80000000
+cmplwi r0, 1                 ; compare with 1
+bne after_false              ; if not equal, branch
+li r0, 1                     ; bool = TRUE
+b after
+after_false: li r0, 0        ; bool = FALSE
+after:
+clrlwi. r0, r0, 24           ; mask to byte AND set CR0
+beq fail_branch              ; if bool=0, fail
+```
+
+The source uses an inline helper whose body **explicitly** materializes
+`0` or `1` via a ternary or if/else; calling the helper inlines this
+pattern, and even the `&&` operator preserves the materialization
+because the boolean result of the helper is already a 0/1 byte.
+
+Two known helpers in this codebase use the pattern:
+
+```cpp
+// include/Strategic/HitActor.hpp
+u8 isActorTypeOf(u32 base) const {
+    u8 result;
+    if ((mActorType - base) == 1) { result = 1; } else { result = 0; }
+    return result;
+}
+
+// include/Strategic/LiveActor.hpp
+bool isAirborne() const {
+    return checkLiveFlag(LIVE_FLAG_AIRBORNE) ? 1 : 0;
+}
+```
+
+**How to apply.** Look for the diagnostic signature in target asm: an
+`addis`/`subis`/`rlwinm.` test followed by `bne+li 1+b+li 0` materialize
+sequence, then `cmpwi r0, 0`/`clrlwi.`+conditional branch. Replace
+direct `==`/`&` comparisons with the helper call:
+
+```cpp
+// BEFORE:
+if (sender->mActorType == 0x80000001u) { ... }
+// AFTER (note: helper is `mActorType - base == 1`, so pass base = 0x80000000):
+if (sender->isActorTypeOf(0x80000000)) { ... }
+
+// BEFORE:
+if (mState == 0 && !(mLiveFlag & 0x80)) mState = 1;
+// AFTER:
+if (mState == 0 && !isAirborne()) mState = 1;
+```
+
+The `0x80000000` base for `isActorTypeOf` produces `addis r0, mActorType,
+0x8000` (since `+0x80000000` == `-0x80000000` in 32-bit arithmetic). For
+`0x01000000` base, it produces `subis r0, mActorType, 0x100`.
+
+**Citations.**
+
+- `MoveBG/MapObjItem2::TJumpBase::receiveMessage` (tick 120):
+  88.72 → **99.94%** by replacing two direct `sender->mActorType ==
+  0x{80,01}000001u` checks with `sender->isActorTypeOf(0x{80,01}000000)`.
+  Each saves ~+40 bytes of code matching the materialize-then-test
+  sequence (target 360B vs our previous 320B before the change).
+- `MoveBG/MapObjItem2::TJumpBase::control` + `::TMushroom1up::control`
+  (tick 120): 72.0 → 77.6% and 59.8 → 61.7% respectively by replacing
+  `!(mLiveFlag & 0x80)` with `!isAirborne()`. The inline ternary
+  `?1:0` materializes 0/1 from the bit test even inside an `&&`
+  short-circuit.
+
+**Where to try it next.** Any function with target asm that does a
+direct compare-and-branch shape replaced by the 5-instruction
+materialize-then-test shape. Common indicators: `addis`/`subis` for
+hi-bit comparisons (actor types, sentinel values); `rlwinm.` for
+bit tests on flags. Look for `?1:0` style helpers on the containing
+class — `THitActor::isActorTypeOf/checkActorType/isActorType`,
+`TLiveActor::isAirborne/checkLiveFlag2`, etc.
+
 ### Multiple `return FALSE` paths share `li r3, 0` epilogue only under a positive `if`-block
 
 **Rule.** A function shape like
