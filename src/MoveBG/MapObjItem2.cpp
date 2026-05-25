@@ -274,15 +274,12 @@ Mtx* TJumpBase::getRootJointMtx() const
 void TJumpBase::calcRootMatrix()
 {
 	if (mHolder) {
-		J3DModel* model  = getModel();
-		MtxPtr holderMtx = mHolder->getTakingMtx();
+		TTakeActor* holder = mHolder;
+		J3DModel* model    = getModel();
+		MtxPtr holderMtx   = holder->getTakingMtx();
 		PSMTXCopy(holderMtx, model->unk20);
-		model->unk14.x = mScaling.x;
-		model->unk14.y = mScaling.y;
-		model->unk14.z = mScaling.z;
-		mPosition.x    = holderMtx[0][3];
-		mPosition.y    = holderMtx[1][3];
-		mPosition.z    = holderMtx[2][3];
+		model->unk14 = (Vec&)mScaling;
+		mPosition.set(holderMtx[0][3], holderMtx[1][3], holderMtx[2][3]);
 	} else {
 		TMapObjBase::calcRootMatrix();
 	}
