@@ -76,7 +76,7 @@ void TCraneRotY::control()
 		}
 		break;
 	}
-	if (mState == 0 || mState == 2) {
+	if ((mState == 0 ? true : false) || (mState == 2 ? true : false)) {
 		u32 sound = unk148;
 		if (gpMSound->gateCheck(sound)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
@@ -172,7 +172,7 @@ void TCraneUpDown::control()
 		unk138->mPosition.y += mPosition.y - mYOffset + unk138->mYOffset;
 		unk138->mPosition.z += mPosition.z;
 	}
-	if (mState == 0 || mState == 2) {
+	if ((mState == 0 ? true : false) || (mState == 2 ? true : false)) {
 		u32 sound = unk13C;
 		if (gpMSound->gateCheck(sound)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
@@ -186,11 +186,10 @@ void TCraneUpDown::initMapObj()
 	TMapObjBase::initMapObj();
 	mMapCollisionManager->unk8->setAllActor(0);
 	unk138 = TMapObjBaseManager::newAndRegisterObj(
-	    "craneCargoUpDown",
-	    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+	    "craneCargoUpDown", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
 	    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
 	    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
-	(*(void (**)(TMapObjBase*))((*(void***)unk138)[0xFC / 4]))(unk138);
+	unk138->appear();
 	if (strcmp(unkF4, "craneUpDown 0") == 0) {
 		unk144 = 30.0f;
 		unk140 = -30.0f;
@@ -217,11 +216,11 @@ void TCraneCargo::calc()
 
 u32 TRiccoWatermill::touchWater(THitActor* sender)
 {
-	if (mState == 5) {
+	if ((mState == 5) ? true : false) {
 		return 1;
 	}
 	unk140 = 5;
-	if (mState == 1) {
+	if ((mState == 1) ? true : false) {
 		unk13C->setUpMapCollision(1);
 	}
 	unkF8 &= ~0x100;
@@ -241,7 +240,8 @@ u32 TRiccoWatermill::touchWater(THitActor* sender)
 void TRiccoWatermill::control()
 {
 	TMapObjBase::control();
-	if (mState == 2 || mState == 3 || mState == 4) {
+	if ((mState == 2 ? true : false) || (mState == 3 ? true : false)
+	    || (mState == 4 ? true : false)) {
 		if (0.0f != unk138) {
 			mRotation.z -= unk138;
 			if (gpMSound->gateCheck(0x3031)) {
@@ -338,10 +338,10 @@ void TRiccoWatermill::loadAfter()
 	unk148 = (TMapObjBase*)JDrama::TNameRefGen::instance->mRootNameRef->searchF(
 	    JDrama::TNameRef::calcKeyCode("水中スイッチ・押す擬似"),
 	    "水中スイッチ・押す擬似");
-	(*(void (**)(TMapObjBase*))((*(void***)unk148)[0x104 / 4]))(unk148);
+	unk148->makeObjDead();
 	unk13C->mPosition.y = mSubmarineBottomTransY;
 	unk13C->removeMapCollision();
-	(*(void (**)(TMapObjBase*))((*(void***)unk13C)[0x114 / 4]))(unk13C);
+	unk13C->setUpCurrentMapCollision();
 }
 
 TRiccoWatermill::TRiccoWatermill(const char* name)
