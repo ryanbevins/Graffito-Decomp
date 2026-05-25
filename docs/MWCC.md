@@ -3098,6 +3098,32 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **`gekko_ps_copy12` inlined in our build but emitted as a callable
+  function in target.** Symptom (tick 115, `MoveBG/MapObjTree`):
+  target asm calls `bl gekko_ps_copy12__9JGeometryFPvPv` at 3 sites
+  (controlLeaf, initMapObj, plus another in controlLeaf). Our build
+  inlines the 12 `psq_l` + 12 `psq_st` op pairs at every call site,
+  ballooning function size by ~120 bytes and dragging controlLeaf
+  to 69.82%, initMapObj to 78.28%.
+  - Function definition is in `include/JSystem/JGeometry/JGMatrix34.hpp`,
+    marked `inline`, and uses an asm block (~24 paired-single ops).
+  - Both our and target compilation use same flags: `-O4,p
+    -inline auto -inline deferred`. Same compiler version (MWCC 1.2.5).
+  - Other TUs (MapObjFlag, MapObjFence) also call `gekko_ps_copy12`
+    as a function in target — pattern is consistent.
+  - Tried in this TU: `#pragma inline_max_size 0` at TU-top — no
+    effect; gekko_ps_copy12 still inlines.
+  - Suspect causes (untested): (a) reference / address-of in target
+    forces emission; (b) some other TU in the build references it
+    non-inline and the linker pulls a deferred version; (c) the
+    `register` keyword on params + `asm` block plays differently with
+    `-inline deferred` than expected; (d) total TU code-size threshold
+    in `-inline deferred` heuristic.
+  - Next experiment ideas: try `void (*p)(void*, void*) =
+    &JGeometry::gekko_ps_copy12;` somewhere to force address-of; try
+    `#pragma inline_depth(0)` (different from inline_max_size); try
+    defining a TU-local non-inline wrapper that calls the inline (but
+    that creates a new symbol — won't match unless target also has one).
 - **Vtables in target asm get per-vtable @ha/@l individual relocations;
   ours coalesces multiple vtables under one `...data.0@ha` base + offset.**
   Symptom: dtors at 86-89% diff at the vtable-chain unwind:
