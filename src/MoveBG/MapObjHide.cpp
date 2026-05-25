@@ -135,6 +135,7 @@ void TBreakHideObj::kill()
 THideObjPictureTwin::THideObjPictureTwin(const char* name)
     : TWaterHitPictureHideObj(name)
 {
+	unk174 = 0;
 	memset(unk178, 0, 0x19);
 }
 
@@ -298,10 +299,14 @@ void TWaterHitPictureHideObj::forward(f32 amt)
 		if (unk160 > unk168)
 			afterFinishedAnim();
 	}
-	if (unk160 > unk168)
-		unk160 = unk168;
-	else if (unk160 < unk164)
-		unk160 = unk164;
+	f32 hi      = unk168;
+	f32 clamped = unk160;
+	f32 lo      = unk164;
+	if (clamped > hi)
+		clamped = hi;
+	else if (clamped < lo)
+		clamped = lo;
+	unk160 = clamped;
 	unk172 = (u16)(u8)(s32)unk160;
 }
 
