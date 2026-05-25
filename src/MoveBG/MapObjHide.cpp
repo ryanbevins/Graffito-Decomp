@@ -325,9 +325,9 @@ Vec* TWaterHitPictureHideObj::getObjAppearPos() const
 
 void THipDropHideObj::touchPlayer(THitActor* sender)
 {
-	if (SMS_IsMarioStatusHipDrop() && unk138) {
+	if (SMS_IsMarioStatusHipDrop()) {
 		appearObj(0.0f);
-		kill();
+		makeObjDead();
 	}
 }
 
@@ -466,8 +466,9 @@ void TFruitHitHideObj::touchFruit(THitActor* sender)
 	if (unk138) {
 		appearObj(50.0f);
 		emitEffect();
-		kill();
+		makeObjDead();
 	}
+	((TMapObjBase*)sender)->kill();
 }
 
 //
@@ -487,7 +488,7 @@ u32 TWaterHitHideObj::touchWater(THitActor* sender)
 {
 	if (unk138) {
 		appearObj(50.0f);
-		kill();
+		makeObjDead();
 	}
 	return 1;
 }
@@ -500,7 +501,7 @@ void THideObj::touchPlayer(THitActor* sender)
 {
 	if (marioHeadAttack() && unk138) {
 		appearObj(100.0f);
-		kill();
+		makeObjDead();
 	}
 }
 
