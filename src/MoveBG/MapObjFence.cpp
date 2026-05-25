@@ -78,6 +78,8 @@ void TRailFence::control()
 {
 	TMapObjBase::control();
 	switch (mState) {
+	case 1:
+		break;
 	case 2:
 		goOnRail();
 		break;
@@ -97,7 +99,7 @@ void TRailFence::control()
 		if (mVelocity.y < -100.0f)
 			mVelocity.y = -100.0f;
 		if (mPosition.y < mInitialPosition.y - mFallHeight) {
-			mPosition = mInitialPosition;
+			mPosition.set(mInitialPosition);
 			setUpMapCollision(0);
 			unk13C->setTo(
 			    unk13C->unk0->findNearestNodeIndex(mPosition, 0xffffffff));
