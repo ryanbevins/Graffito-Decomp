@@ -518,7 +518,18 @@ void TFruitBasket::loadAfter()
 
 void TFruitBasket::touchFruit(THitActor* sender)
 {
-	TFruitHitHideObj::touchFruit(sender);
+	if (fabsf(mRotation.x) < 45.0f) {
+		if (((TLiveActor*)sender)->mGroundPlane->mActor != this)
+			return;
+	} else {
+		const TBGCheckData* bg;
+		gpMap->checkRoof(((TLiveActor*)sender)->mPosition.x,
+		                 ((TLiveActor*)sender)->mPosition.y,
+		                 ((TLiveActor*)sender)->mPosition.z, &bg);
+		if (bg->mActor != this)
+			return;
+	}
+	countFruit(sender);
 }
 
 void TFruitBasket::countFruit(THitActor* sender)
