@@ -230,24 +230,38 @@ void TWaterHitPictureHideObj::loadAfter()
 
 BOOL TWaterHitPictureHideObj::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == 5
-	    && (sender->mActorType == 0x2000000e || sender->mActorType == 0x2000000f
-	        || sender->mActorType == 0x20000010)) {
-		unk64 &= ~0x7;
-		mState = 1;
-		unk14C = 1;
-		return TRUE;
+	if (message == 5) {
+		bool any = (sender->mActorType == 0x2000000e) ? true : false;
+		if (!any)
+			any = (sender->mActorType == 0x2000000f) ? true : false;
+		if (!any)
+			any = (sender->mActorType == 0x20000010) ? true : false;
+		if (any) {
+			offHitFlag(0x1);
+			offHitFlag(0x4);
+			offHitFlag(0x2);
+			mState = 1;
+			unk14C = 1;
+			return TRUE;
+		}
 	}
-	if (mState == 3)
+	bool isS3 = (mState == 3) ? true : false;
+	if (isS3)
 		return FALSE;
-	if (sender->mActorType == 0x4000005a) {
+	bool is5a = (sender->mActorType == 0x4000005a) ? true : false;
+	if (is5a) {
 		mState = 2;
 		return TRUE;
 	}
-	if (message == 5
-	    && (sender->mActorType == 0x2000000e || sender->mActorType == 0x2000000f
-	        || sender->mActorType == 0x20000010))
-		unk14C = 1;
+	if (message == 5) {
+		bool any = (sender->mActorType == 0x2000000e) ? true : false;
+		if (!any)
+			any = (sender->mActorType == 0x2000000f) ? true : false;
+		if (!any)
+			any = (sender->mActorType == 0x20000010) ? true : false;
+		if (any)
+			unk14C = 1;
+	}
 	return TMapObjBase::receiveMessage(sender, message);
 }
 
