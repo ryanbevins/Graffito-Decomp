@@ -3098,6 +3098,37 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Vtables in target asm get per-vtable @ha/@l individual relocations;
+  ours coalesces multiple vtables under one `...data.0@ha` base + offset.**
+  Symptom: dtors at 86-89% diff at the vtable-chain unwind:
+  target `lis r3, __vt__TDerived@ha; addi r3, r3, __vt__TDerived@l; stw r3, 0(this); addi r0, r3, 0x24; stw r0, 0x20(this); ... lis r3, __vt__TParent@ha; ...`
+  ours: `lis r3, ...data.0@ha; addi r3, r3, ...data.0@l; addi r0, r3, 0x714; stw r0, 0(this); addi r0, r3, 0x738; ...; addi r0, r3, 0x10; ...`
+  Both objects have `.obj __vt__TFence, global` etc. as separate symbol
+  declarations. The difference is the relocation TYPE chosen by the
+  compiler: target uses `R_PPC_ADDR16_HA` + `R_PPC_ADDR16_LO` per-vtable;
+  ours uses section-relative `...data.0@ha`. Also target's vtables are
+  ordered RailFence, WaterH, Water, Inner, Outer, TFence in `.data`;
+  ours: TFence, Outer, Inner, Water, WaterH, RailFence. Affected: 4
+  MapObjFence dtors at 86-89%, likely affects MANY other dtor-heavy
+  TUs. Suspect cause: section attribute (each vtable should go to its
+  own COMDAT-style group). Lever search: tried no source-level fixes
+  yet. Worth investigating whether a per-class flag, a `__weak__`
+  attribute, or a specific class structure forces separate sections.
+- **`MsWrap<f>__Ffff` template instantiation inlined despite all defeat
+  attempts.** Symptom: target asm `.fn "MsWrap<f>__Ffff", local` with
+  4 callers via `bl`. Our build inlines the body at each call site,
+  no out-of-line emission. Tried: (a) `#pragma dont_inline on/off`
+  around caller (controlWall); (b) `#pragma dont_inline on/off` around
+  explicit specialization `template <> f32 MsWrap<f32>(...)` at TU
+  scope; (c) calling with explicit template arg `MsWrap<f32>(...)`.
+  All ineffective — MWCC continues to inline. Hypothesis: the explicit
+  specialization is dead-code-stripped because no external reference
+  forces emission. Possible fix to try: `static MsWrap_fn dummy = &MsWrap<f32>;`
+  taking the address forces emission. Affected: `MoveBG/MapObjFence::controlWall`
+  (loses ~5pp from 4 inlined calls). Other TUs that use MsWrap inline
+  it too (e.g. `Enemy/enemy.cpp::moveTo*`) and DO get the weak-emit
+  pattern — so something about the *caller* context controls it.
+
 - **`JGeometry::gekko_ps_copy12` inlined in our build but called via `bl` in
   target.** Symptom: target asm has `bl gekko_ps_copy12__9JGeometryFPvPv`,
   ours emits 12 `psq_l`/`psq_st` instructions at the call site. Confirmed
