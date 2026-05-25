@@ -5,6 +5,7 @@
 #include <MarioUtil/MtxUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
+#include <Camera/Camera.hpp>
 #include <Player/MarioAccess.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
 #include <Strategic/LiveActor.hpp>
@@ -99,22 +100,20 @@ void TModelGate::screenBlur(JDrama::TGraphics* graphics)
 	PSVECNormalize(&diff, &diff);
 
 	JGeometry::TVec3<f32> rotated;
-	(void)rotated;
-	(void)diff;
-	(void)graphics;
+	PSMTXMultVecSR(graphics->getUnkB4(), &diff, &rotated);
 
 	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
 	JGeometry::TVec3<f32> localPos;
 	PSMTXMultVec(unk7C, &marioPos, &localPos);
 
 	f32 alpha = 0.0f;
-	if (-250.0f < localPos.x && localPos.x < 250.0f && -250.0f < localPos.y
-	    && localPos.y < 250.0f && 0.0f < localPos.z && localPos.z < unkF4) {
+	if (-250.0f <= localPos.x && localPos.x <= 250.0f && -250.0f <= localPos.y
+	    && localPos.y <= 250.0f && 0.0f <= localPos.z && localPos.z <= unkF4) {
 		alpha = 1.0f;
 		if (localPos.z < unkF0) {
 			alpha = 0.0f;
 		}
-		if (unkF0 < localPos.z && localPos.z < unkF4) {
+		if (unkF0 <= localPos.z && localPos.z <= unkF4) {
 			alpha = 1.0f - (localPos.z - unkF0) / (unkF4 - unkF0);
 		}
 		if (unkF4 < localPos.z) {
@@ -122,7 +121,20 @@ void TModelGate::screenBlur(JDrama::TGraphics* graphics)
 		}
 	}
 
-	unkE4 = unkE8 * (alpha - unkE4) + unkE4;
+	f32 mult       = (f32)unkE0 * alpha;
+	s16 relAngle   = (s16)(182.04445f * mRotation.y - (f32)gpCamera->unk258);
+	if (relAngle < -0x2AAA || relAngle > 0x2AAA) {
+		mult = 0.0f;
+	}
+	unkE4 = unkE8 * (mult - unkE4) + unkE4;
+
+	f32 blurFactor = unkE4 * (1.0f - gpCamera->unk270);
+	JGeometry::TVec3<f32> tmp(rotated.x, rotated.y, rotated.z);
+	TAfterEffect* effect = gpAfterEffect;
+	effect->unk15        = 2;
+	effect->unk1C        = (u8)(s32)blurFactor;
+	effect->unk50        = unkEC;
+	effect->unk5C        = tmp;
 }
 
 void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)

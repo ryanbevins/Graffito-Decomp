@@ -44,7 +44,7 @@ public:
 	                     bool);
 	void endDemoCamera();
 	bool isSimpleDemoCamera() const;
-	// fabricated inline — actual definition unknown, always inlined.
+	// fabricated inline -- actual definition unknown, always inlined.
 	// The `? true : false` trick forces bool materialization when inlined
 	// (otherwise MWCC inlines straight to cmpwi/beq).
 	bool isOnGoingDemoCamera() const
@@ -160,7 +160,11 @@ public:
 	/* 0x13C */ JGeometry::TVec3<f32> unk13C;
 	/* 0x148 */ char unk148[0x1EC - 0x148];
 	/* 0x1EC */ Mtx unk1EC;
-	/* 0x21C */ char unk21C[0x2A4 - 0x21C];
+	/* 0x21C */ char unk21C[0x258 - 0x21C];
+	/* 0x258 */ s16 unk258;
+	/* 0x25A */ char unk25A[0x270 - 0x25A];
+	/* 0x270 */ f32 unk270;
+	/* 0x274 */ char unk274[0x2A4 - 0x274];
 	/* 0x2A4 */ void* unk2A4;
 	/* 0x2A8 */ char unk2A8[0x2B8 - 0x2A8];
 	/* 0x2B8 */ TCameraJetCoaster* unk2B8;
