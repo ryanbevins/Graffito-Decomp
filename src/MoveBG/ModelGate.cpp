@@ -57,7 +57,7 @@ BOOL TModelGate::receiveMessage(THitActor* sender, u32 message)
 		return TRUE;
 	}
 
-	if (sender->mActorType != 0xFF000001u)
+	if (sender->mActorType != 0x01000001u)
 		return FALSE;
 
 	JGeometry::TVec3<f32> localPos;
@@ -141,12 +141,13 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 
 	if (perf_flags & 1) {
 		if (!(unk70 & 2)) {
-			JGeometry::TVec3<f32> rel;
-			rel.x = gpMarioPos->x - mPosition.x;
-			rel.y = gpMarioPos->y - mPosition.y;
-			rel.z = gpMarioPos->z - mPosition.z;
+			JGeometry::TVec3<f32> rel  = *gpMarioPos;
+			rel.x                      -= mPosition.x;
+			rel.y                      -= mPosition.y;
+			rel.z                      -= mPosition.z;
+			JGeometry::TVec3<f32> sqv  = rel;
 			f32 dist
-			    = JGeometry::TUtil<f32>::sqrt(rel.x * rel.x + rel.y * rel.y + rel.z * rel.z);
+			    = JGeometry::TUtil<f32>::sqrt(sqv.x * sqv.x + sqv.y * sqv.y + sqv.z * sqv.z);
 			if (dist < 1000.0f) {
 				unkD0 += 0.01f;
 				if (unkD0 > 1.0f) {
@@ -155,7 +156,7 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 				}
 			} else {
 				unkCA -= 1;
-				if (unkCA < 0)
+				if (unkCA <= 0)
 					unkCA = 0;
 				unkD0 = (f32)unkCA / 1000.0f;
 			}
@@ -174,6 +175,26 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 						mHolder = (TTakeActor*)SMS_GetMarioLiveActor();
 					}
 				}
+			} else {
+				JGeometry::TVec3<f32> diff;
+				diff.x = gpMarioPos->x - mPosition.x;
+				diff.z = gpMarioPos->z - mPosition.z;
+				f32 sqd  = diff.x * diff.x + diff.z * diff.z;
+				f32 dist;
+				if (sqd > 0.0f) {
+					dist = JGeometry::TUtil<f32>::sqrt(sqd);
+				} else {
+					dist = 0.0f;
+				}
+				if (sqd < unk100) {
+					f32 nx                       = diff.x / sqd;
+					f32 nz                       = diff.z / sqd;
+					JGeometry::TVec3<f32> outPos = *gpMarioPos;
+					outPos.x                     = outPos.x + 10.0f * nx;
+					outPos.z                     = outPos.z + 10.0f * nz;
+					SMS_MarioMoveRequest(outPos);
+				}
+				(void)dist;
 			}
 		}
 	}
