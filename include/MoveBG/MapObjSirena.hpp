@@ -5,25 +5,6 @@
 #include <MoveBG/MapObjHide.hpp>
 #include <Strategic/HitActor.hpp>
 
-class TWaterHitPictureHideObj : public THideObjBase {
-public:
-	TWaterHitPictureHideObj(const char* name)
-	    : THideObjBase(name)
-	{
-	}
-
-	virtual ~TWaterHitPictureHideObj() { }
-	virtual void control();
-	virtual void touchActor(THitActor*);
-	virtual u32 touchWater(THitActor*);
-	virtual Vec* getObjAppearPos() const;
-	virtual void afterFinishedAnim();
-	virtual void forward(f32);
-
-public:
-	/* 0x150 */ char unkWaterHit[0x174 - 0x150];
-};
-
 class TPictureTelesa : public TWaterHitPictureHideObj {
 public:
 	TPictureTelesa(const char* name)

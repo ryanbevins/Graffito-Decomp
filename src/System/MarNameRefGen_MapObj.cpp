@@ -86,34 +86,6 @@ public:
 	virtual ~TCasinoRoulette() {}
 };
 
-class TFruitBasketEvent : public JDrama::TNameRef {
-public:
-	TFruitBasketEvent(const char*);
-	char _stub[0x160];
-};
-
-class TFruitHitHideObj : public THideObjBase {
-public:
-	TFruitHitHideObj(const char* name) : THideObjBase(name) {}
-	virtual ~TFruitHitHideObj() {}
-};
-
-class THideObj : public THideObjBase {
-public:
-	THideObj(const char* name) : THideObjBase(name) {}
-};
-
-class THideObjPictureTwin : public JDrama::TNameRef {
-public:
-	THideObjPictureTwin(const char*);
-	char _stub[0x18c];
-};
-
-class THipDropHideObj : public THideObjBase {
-public:
-	THipDropHideObj(const char* name) : THideObjBase(name) {}
-};
-
 class TLampSeesaw : public JDrama::TNameRef {
 public:
 	TLampSeesaw(const char*);
@@ -168,17 +140,6 @@ public:
 	{
 	}
 	char _stub[0x1f0 - 0x198];
-};
-
-class TWaterHitHideObj : public THideObjBase {
-public:
-	TWaterHitHideObj(const char* name) : THideObjBase(name) {}
-};
-
-class TWoodBox : public JDrama::TNameRef {
-public:
-	TWoodBox(const char*);
-	char _stub[0x148];
 };
 
 class TWoodLog : public TMapObjFloatOnSea {
