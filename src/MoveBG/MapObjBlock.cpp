@@ -210,7 +210,7 @@ void TLeanBlock::calcLeanMtx(MtxPtr out)
 
 void TLeanBlock::calcDefaultMtx()
 {
-	JGeometry::gekko_ps_copy12(unk164, getModel()->unk20);
+	JGeometry::gekko_ps_copy12(unk164, getModel()->mNodeMatrices);
 }
 
 void TLeanBlock::initMapObj()
