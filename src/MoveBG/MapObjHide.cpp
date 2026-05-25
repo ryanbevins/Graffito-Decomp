@@ -449,13 +449,13 @@ void TWaterHitPictureHideObj::touchActor(THitActor* sender)
 
 u32 TWaterHitPictureHideObj::touchWater(THitActor* sender)
 {
-	JGeometry::TVec3<f32>* speed = TMapObjBase::getWaterSpeed(sender);
+	JGeometry::TVec3<f32>* speed = ((TMapObjBase*)sender)->getWaterSpeed(sender);
 	Mtx* nm                      = (Mtx*)getModel()->mNodeMatrices;
 	f32 dot                      = (*nm)[0][2] * speed->x + (*nm)[1][2] * speed->y
 	          + (*nm)[2][2] * speed->z;
 	if (dot > 0.0f)
 		return 0;
-	int waterID = TMapObjBase::getWaterID(sender);
+	int waterID = ((TMapObjBase*)sender)->getWaterID(sender);
 	bool isFlag1
 	    = ((gpModelWaterManager->mParticleFlagSOA[waterID] & 0xF) == 1) ? true
 	                                                                    : false;
