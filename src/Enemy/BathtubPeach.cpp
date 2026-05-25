@@ -64,15 +64,14 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 		return FALSE;
 	}
 
-	MActor* mactor = peach->getMActor();
-	if (!mactor->checkCurBckFromIndex(1)) {
-		mactor->setBckFromIndex(1);
+	if (!peach->getMActor()->checkCurBckFromIndex(1)) {
+		peach->getMActor()->setBckFromIndex(1);
 		const char** table = peach->getBasNameTable();
 		peach->setAnmSound(table ? table[1] : nullptr);
 	}
-	if (mactor->getCurAnmIdx(3) != 1)
-		mactor->setBtpFromIndex(1);
-	J3DFrameCtrl* frameCtrl = mactor->getFrameCtrl(0);
+	if (peach->getMActor()->getCurAnmIdx(3) != 1)
+		peach->getMActor()->setBtpFromIndex(1);
+	J3DFrameCtrl* frameCtrl = peach->getMActor()->getFrameCtrl(0);
 	frameCtrl->setRate(0.5f * (2.0f * SMSGetAnmFrameRate()));
 
 	Mtx* btMtx   = bathtub->getRootJointMtx();
