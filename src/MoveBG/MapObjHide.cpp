@@ -35,12 +35,14 @@ void TWoodBox::loadAfter()
 	TMapObjBase::loadAfter();
 	unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(unk134, mName);
 	if (unk138) {
-		if (unk138->mActorType == 0x20000010) {
+		bool isBlueCoin = (unk138->mActorType == 0x20000010) ? true : false;
+		if (isBlueCoin) {
 			if (TFlagManager::smInstance->getBlueCoinFlag(
 			        gpMarDirector->mMap, (u8)unk134))
 				unk14C = 0;
 		}
-		if (unk138->mActorType == 0x20000013) {
+		bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
+		if (isShine) {
 			int nlen = strlen(mName);
 			unk144   = (u32) new char[nlen + 0x13];
 			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
@@ -210,12 +212,14 @@ void TWaterHitPictureHideObj::loadAfter()
 	TMapObjBase::loadAfter();
 	unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(unk134, mName);
 	if (unk138) {
-		if (unk138->mActorType == 0x20000010) {
+		bool isBlueCoin = (unk138->mActorType == 0x20000010) ? true : false;
+		if (isBlueCoin) {
 			if (TFlagManager::smInstance->getBlueCoinFlag(
 			        gpMarDirector->mMap, (u8)unk134))
 				unk14C = 0;
 		}
-		if (unk138->mActorType == 0x20000013) {
+		bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
+		if (isShine) {
 			int nlen = strlen(mName);
 			unk144   = (u32) new char[nlen + 0x13];
 			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
@@ -398,12 +402,14 @@ void TFruitBasket::loadAfter()
 	TMapObjBase::loadAfter();
 	unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(unk134, mName);
 	if (unk138) {
-		if (unk138->mActorType == 0x20000010) {
+		bool isBlueCoin = (unk138->mActorType == 0x20000010) ? true : false;
+		if (isBlueCoin) {
 			if (TFlagManager::smInstance->getBlueCoinFlag(
 			        gpMarDirector->mMap, (u8)unk134))
 				unk14C = 0;
 		}
-		if (unk138->mActorType == 0x20000013) {
+		bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
+		if (isShine) {
 			int nlen = strlen(mName);
 			unk144   = (u32) new char[nlen + 0x13];
 			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
@@ -541,12 +547,14 @@ void THideObjBase::loadAfter()
 	TMapObjBase::loadAfter();
 	unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(unk134, mName);
 	if (unk138) {
-		if (unk138->mActorType == 0x20000010) {
+		bool isBlueCoin = (unk138->mActorType == 0x20000010) ? true : false;
+		if (isBlueCoin) {
 			if (TFlagManager::smInstance->getBlueCoinFlag(
 			        gpMarDirector->mMap, (u8)unk134))
 				unk14C = 0;
 		}
-		if (unk138->mActorType == 0x20000013) {
+		bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
+		if (isShine) {
 			int nlen = strlen(mName);
 			unk144   = (u32) new char[nlen + 0x13];
 			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
