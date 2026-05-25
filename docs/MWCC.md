@@ -36,6 +36,65 @@ them in future ticks.
 
 ## Settled
 
+### `TVec3<f>::set(x, y, z)` — right-to-left arg eval batches stores at end
+
+**Rule.** When target asm shows a TVec3 being written with the THREE
+stores batched at the end (after all three RHS expressions have been
+computed and held in registers across function calls), prefer
+`vec.set(x_expr, y_expr, z_expr)` over component-by-component
+assignment to a TVec3 local. MWCC evaluates function args
+right-to-left at -O4,p, so:
+
+- the **z arg** is computed FIRST (its bl-call result is saved across
+  later arg compute via a non-volatile FPR)
+- the **y arg** is computed SECOND (likewise saved)
+- the **x arg** is computed LAST (result in volatile f0/f1)
+- the inlined `.set` body then issues three back-to-back `stfs` in
+  source-field order (x, y, z) to the addressed slot
+
+```cpp
+// BEFORE — interleaved load/store via stack local + final struct copy:
+JGeometry::TVec3<f32> pos;
+pos.x = (rand() * (1.0f / 32768.0f) * 200.0f + mPosition.x) - 100.0f;
+pos.y = mPosition.y;
+pos.z = (rand() * (1.0f / 32768.0f) * 200.0f + mPosition.z) - 100.0f;
+mParticlePos[mParticleIndex] = pos;  // lwz/stw struct-copy
+
+// AFTER — batched stfs to target slot directly:
+mParticlePos[mParticleIndex].set(
+    (rand() * (1.0f / 32768.0f) * 200.0f + mPosition.x) - 100.0f,
+    mPosition.y,
+    (rand() * (1.0f / 32768.0f) * 200.0f + mPosition.z) - 100.0f);
+```
+
+**Why.** The right-to-left arg-eval order means:
+1. Compute the z-arg (one bl rand → arithmetic → result stored in f30 NV).
+2. Compute the y-arg (load mPosition.y → stored in f31 NV).
+3. Compute the x-arg (second bl rand → arithmetic → result in f0).
+4. Inlined `.set` body: `stfs f0, 0(rA); stfs f31, 4(rA); stfs f30, 8(rA)`.
+
+Component-by-component to a local pos forces interleaved compute/store
+per-field, AND the final struct-copy to mParticlePos uses `lwz/stw`
+(integer copy — see CLAUDE.md note on float fields copied as ints) which
+is worse codegen for the consumer.
+
+**Diagnostic signature.** Target shows the pattern: `bl X; ... lfs fN, mPos.y(this); bl X; ... stfs three values in field order`. If the
+target keeps `f30`/`f31` alive across a `bl` between two argument
+computations, that's the tell.
+
+**Citations.**
+
+- `MoveBG/MapObjTree::control` (tick 116): 97.96 → ... after .set() form
+  applied. Together with `emit(..., this)` (4th arg) and `unk64 &= ~2`
+  mask correction, lifted from 84.37% → 98.90%. Target keeps
+  `lfs f31, 0x14(r31)` (mPosition.y) alive across the second bl rand;
+  store batch `stfs f0/f31/f30, 0(r3)/4(r3)/8(r3)`.
+
+**Where to try it next.** Any function that writes a TVec3 (or other
+small POD) with values derived from `rand()` / `bl`-bearing
+expressions interleaved with a simple load. Look for: `bl X; ... bl X;
+... batched stfs to a field-addressed slot` in target.
+
 ### Two-term sum `unk3C * sinf(...) + unk40 * sinf(...)` — split each term into a named local to defeat fused fmadds
 
 **Rule.** When target asm computes a sum-of-two-products as
