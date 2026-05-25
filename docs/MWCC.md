@@ -36,6 +36,67 @@ them in future ticks.
 
 ## Settled
 
+### Same-TU `static const` class members are inlined at the use site — drop `const` to force the sdata load
+
+**Rule.** When a class declares `static const T m_name;` and the definition
+`const T C::m_name = literal;` lives **in the same TU** as the use site,
+MWCC at `-O4,p` inlines the literal at every use:
+
+```cpp
+// In header:
+class C { static const s32 mWaitTimeToFall; };
+// In .cpp (same TU as the use site):
+const s32 C::mWaitTimeToFall = 60;
+
+void C::touch() { mLifeTimer = mWaitTimeToFall; }
+//                            ^^^^^^^^^^^^^^^^ generates `li r0, 0x3c` then store
+```
+
+Target's asm instead reads from `.sdata` via `@sda21`:
+
+```
+lwz r3, mWaitTimeToFall__C@sda21
+stw r3, 0x104(r31)
+```
+
+Drop the `const` on **both** the declaration and the definition; the
+member becomes a plain mutable static, MWCC can no longer constant-fold,
+and the read goes through `.sdata` exactly like the target:
+
+```cpp
+class C { static s32 mWaitTimeToFall; };       // no `const`
+s32 C::mWaitTimeToFall = 60;                    // no `const`
+```
+
+**Diagnostic signature.** Target asm shows `lwz` / `lfs` from
+`@sda21` for a class-scope static; our build shows the literal
+materialised inline (`li r0, N`, `lfs ..., @anchor@sda21` of the
+literal value, etc.). Symbols.txt is the smoking gun — if the
+member shows up as `mFoo__Class = .sdata:...`, it's a runtime read,
+which means the original code did NOT declare it `const`.
+
+**Naming convention caveat.** SMS classes use an `m`-prefix for both
+instance fields AND class-level statics (e.g. `mWaitTimeToFall__10TSandBlock`).
+Don't assume `s` prefix just because it looks like a "static". Match
+the symbol name from `symbols.txt`.
+
+**Citations.**
+
+- `MoveBG/MapObjBlock::TSandBlock::touchPlayer` (tick 122):
+  89.5 → **99.8%** by dropping `const` on `mWaitTimeToFall` (also fixed
+  the `s` → `m` prefix per symbols.txt). With `const`, MWCC emitted
+  `li r0, 0x3c`; without, the sdata load matched target exactly.
+- `MoveBG/MapObjBlock::TIceBlock::control` (tick 122):
+  92.1 → **95.1%** by the same fix on `mMeltSpeedWater` / `mMeltSpeedAuto`
+  / `mAutoMeltScale`. Multiple `lfs` uses of these floats picked up
+  the sdata pointer instead of inline rodata anchors.
+
+**Where to try it next.** Every TU that declares `static const T foo`
+class members where `symbols.txt` lists the symbol in `.sdata` (not
+`.sdata2`/rodata). Common in physics constants, gameplay tunables,
+animation parameters across `Enemy/`, `MoveBG/`, `Player/` — anywhere
+the original game programmer used class-scoped tweakable constants.
+
 ### Predicates that materialize a 0/1 BOOL force inline-then-test even for `&&` short-circuit
 
 **Rule.** Direct comparisons like `if (sender->mActorType == 0x80000001u)`
@@ -109,6 +170,27 @@ The `0x80000000` base for `isActorTypeOf` produces `addis r0, mActorType,
   `!(mLiveFlag & 0x80)` with `!isAirborne()`. The inline ternary
   `?1:0` materializes 0/1 from the bit test even inside an `&&`
   short-circuit.
+- `MoveBG/MapObjBlock::TBrickBlock::receiveMessage` (tick 122):
+  98.0 → **100%** by `sender->isActorType(0x08000005)` (the
+  `mActorType == flag ? true : false` variant, not the `(mActorType
+  - base) == 1` variant). For actor types where high+low halves both
+  matter, the **exact-match `isActorType(flag)`** helper folds the
+  comparison into the `subis r0, rN, hi; cmplwi r0, low` merged form
+  that target uses (e.g. `subis r0, r3, 0x800; cmplwi r0, 5` for
+  0x08000005); the `(mActorType - base) == 1` helper does NOT merge
+  the constants for non-trivial bases like 0x80000800 → produces a
+  three-insn `addis + subi + cmplwi 1` instead.
+
+**Helper variant choice.** Two helpers in `THitActor` produce the
+same materialize-then-test shape; pick by what the target asm
+encodes:
+
+- `isActorTypeOf(u32 base)` → `subis/addis + (optional subi) + cmplwi N+1`.
+  Good when the asm shows a single `addis r0, rN, X; cmplwi r0, 1`
+  (low part of comparand is 0).
+- `isActorType(u32 flag)` → `subis + cmplwi low` merged whenever low
+  is small. Good when the asm shows `subis r0, rN, hi; cmplwi r0, low`
+  with a non-zero low half.
 
 **Where to try it next.** Any function with target asm that does a
 direct compare-and-branch shape replaced by the 5-instruction
