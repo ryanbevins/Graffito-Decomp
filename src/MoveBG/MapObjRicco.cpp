@@ -333,9 +333,11 @@ void TRiccoWatermill::calc()
 void TRiccoWatermill::loadAfter()
 {
 	TMapObjBase::loadAfter();
-	unk13C = (TMapObjBase*)JDrama::TNameRefGen::instance->mRootNameRef->searchF(
+	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
+	unk13C = (TMapObjBase*)root->searchF(
 	    JDrama::TNameRef::calcKeyCode("submarine"), "submarine");
-	unk148 = (TMapObjBase*)JDrama::TNameRefGen::instance->mRootNameRef->searchF(
+	root = JDrama::TNameRefGen::instance->mRootNameRef;
+	unk148 = (TMapObjBase*)root->searchF(
 	    JDrama::TNameRef::calcKeyCode("水中スイッチ・押す擬似"),
 	    "水中スイッチ・押す擬似");
 	unk148->makeObjDead();
@@ -558,10 +560,12 @@ void TFruitLauncher::loadAfter()
 	    ->unk1A4
 	    = 1;
 
-	unk138 = (TFruitSwitch*)JDrama::TNameRefGen::instance->mRootNameRef->searchF(
+	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
+	unk138 = (TFruitSwitch*)root->searchF(
 	    JDrama::TNameRef::calcKeyCode("テレサスイッチ0"), "テレサスイッチ0");
 	unk138->unk138 = (TMapObjBase*)this;
-	unk13C = (TFruitSwitch*)JDrama::TNameRefGen::instance->mRootNameRef->searchF(
+	root = JDrama::TNameRefGen::instance->mRootNameRef;
+	unk13C = (TFruitSwitch*)root->searchF(
 	    JDrama::TNameRef::calcKeyCode("テレサスイッチ1"), "テレサスイッチ1");
 	unk13C->unk138 = (TMapObjBase*)this;
 	unk140         = 1;
