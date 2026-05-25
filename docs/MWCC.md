@@ -36,6 +36,74 @@ them in future ticks.
 
 ## Settled
 
+### Inline helper pairs `checkLiveFlag`/`offLiveFlag` force a redundant load of the same field (defeats CSE)
+
+**Rule.** When the target asm reads a single field TWICE in immediate
+succession — once for a bit test (`rlwinm.`/`beq`), then again to
+modify-and-store (`rlwinm`/`stw`) — MWCC's CSE would normally collapse
+these to a single load. To prevent the CSE, the original source must
+have used **two separate inline helpers** for the test and the modify,
+not a direct `v & MASK` + `v &= ~MASK` pair. Each helper expands
+into its own self-contained inline body, and MWCC treats the two
+expansions as independent IR sequences without CSE'ing across them.
+
+```cpp
+// BEFORE (our build): direct ops → MWCC CSEs the load:
+//   lwz r3, 0xf0(r30)
+//   rlwinm. r0, r3, 0, 14, 14
+//   beq ...
+//   rlwinm r0, r3, 0, 15, 13      ; reuses r3
+//   stw r0, 0xf0(r30)
+//   bl startBGM
+if (spine->getTime() == 200 && (boss->mLiveFlag & 0x20000)) {
+    boss->mLiveFlag &= ~0x20000;
+    MSBgm::startBGM(0x80010029);
+    ...
+}
+
+// AFTER (target): inline-helper pair → MWCC reloads:
+//   lwz r0, 0xf0(r30)             ; load #1 from checkLiveFlag
+//   rlwinm. r0, r0, 0, 14, 14
+//   beq ...
+//   lwz r0, 0xf0(r30)             ; load #2 from offLiveFlag — REDUNDANT
+//   lis r3, 0x8001                ; arg setup interleaved
+//   addi r3, r3, 0x29
+//   rlwinm r0, r0, 0, 15, 13
+//   stw r0, 0xf0(r30)
+//   bl startBGM
+if (spine->getTime() == 200 && boss->checkLiveFlag(0x20000)) {
+    boss->offLiveFlag(0x20000);
+    MSBgm::startBGM(0x80010029);
+    ...
+}
+```
+
+The helper-pair lever also tends to fix instruction scheduling around
+the modify-store-call sequence (the `lis/addi` arg setup gets
+interleaved between the reload and `stw`, exactly as target).
+
+**Diagnostic signature.** Target asm shows two consecutive `lwz rN,
+OFF(rBASE)` of the **same** field — one before the bit test, one
+right after the conditional branch, with no intervening function
+call or memory write that could plausibly alias. CSE *should* have
+collapsed them; the inline helper boundary breaks the CSE.
+
+**Citations.**
+
+- `Enemy/BossHanachanNerve::TNerveBossHanachanSnort::execute` (tick 126):
+  93.5 → **99.5%** by replacing `boss->mLiveFlag & 0x20000` /
+  `boss->mLiveFlag &= ~0x20000` with `boss->checkLiveFlag(0x20000)` /
+  `boss->offLiveFlag(0x20000)`. Target shows `lwz r0, 0xf0(r30)`
+  exactly twice; using the helper pair reproduces both loads.
+
+**Where to try it next.** Any `lwz X, OFF(Y); rlwinm. ...; beq ...;
+lwz X, OFF(Y); rlwinm/ori/...; stw X, OFF(Y)` pattern in target.
+Common in `mLiveFlag`/`unk64` test-then-clear/set sequences across
+Enemy nerves, MoveBG state machines, NPC behavior code. Both
+`TLiveActor` (`checkLiveFlag`/`onLiveFlag`/`offLiveFlag`) and
+`THitActor` (`checkHitFlag`/`onHitFlag`/`offHitFlag`) provide the
+helper pair.
+
 ### Cache a pointer-chain receiver into a local before a call-argument call to force callee-saved allocation
 
 **Rule.** When a method call has the shape `a->b->method(otherCall(...))`, MWCC
