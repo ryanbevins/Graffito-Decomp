@@ -172,7 +172,7 @@ void TCraneUpDown::control()
 		unk138->mPosition.y += mPosition.y - mYOffset + unk138->mYOffset;
 		unk138->mPosition.z += mPosition.z;
 	}
-	if ((mState == 0 ? true : false) || (mState == 2 ? true : false)) {
+	if ((mState == 2 ? true : false) || (mState == 0 ? true : false)) {
 		u32 sound = unk13C;
 		if (gpMSound->gateCheck(sound)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
