@@ -3315,6 +3315,69 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Inline `obj->member.value` at use sites (no intermediate locals) lands the load directly in the consumer FPR/GPR
+
+**Hypothesis.** When the same `obj->member.value` (or any non-trivial
+member chain) is read for both a comparison and a subsequent function
+call argument, **inlining the chain at each use site** lets MWCC pick
+the FPR/GPR for each load based on its immediate next consumer.
+Caching the value into a local f32/int forces MWCC to allocate a
+"neutral" register first and then `fmr`/`mr` to the consumer FPR,
+adding an instruction per use.
+
+**Cached-local symptom (our build):**
+```
+lwz   r3, OFFSET(this)        ; r3 = mParams
+lfs   f0, MEMBER_OFFSET(r3)   ; load into f0 (the "neutral" reg)
+fmr   f1, f0                  ; copy to the FPR the next compare wants
+fcmpo cr0, fDist, f1          ; compare
+```
+
+**Inline-at-use form (target):**
+```
+lwz   r3, OFFSET(this)        ; r3 = mParams, kept alive across the if/elseif
+lfs   f1, MEMBER_OFFSET(r3)   ; load straight into f1 (next consumer)
+fcmpo cr0, fDist, f1
+```
+The same `r3` survives across the if/else-if branches so the next
+`lfs fM, OTHER_OFFSET(r3)` for a different member can happen without
+reloading the base.
+
+**Counterpart.** This is the mirror of the existing
+`feedback_lazy_local_for_post_call_load` (in `state/memory/`) which
+introduces a typed local *LATE* specifically to defer a load past a
+call. Both rules emerge from the same MWCC truth: the register where
+a value ends up is determined by the next consuming instruction, not
+by where the C++ declared it.
+
+**Observation.** `Enemy/BossHanachanEffect::TBossHanachan::emitCamShake_`
+(tick 130): removed `f32 maxDist = mParams->mSLCamShakeMaxDist.value;`
+and `f32 zeroDist = mParams->mSLCamShakeZeroDist.value;` locals,
+inlined the chain at the comparison sites and at the
+`CLBCalcRatio<f32>(…ZeroDist.value, …MaxDist.value, dist)` call.
+Combined with using a separate `f32 r` for the clamp chain (so the
+join's `fmr f31, f1` happens once at the end instead of immediately
+after the call), match rose 95.46% → 97.79%. Single-TU; needs second
+confirmation to promote.
+
+**Experiment to confirm/refute.** Sweep functions stuck at 90-99% match
+where the diff shows an `lfs f0, …; fmr fN, f0` pair for a chained
+member load. Candidates: anywhere using `TParamRT<T>::value` plus a
+comparison plus a downstream call with the same value. Try inlining,
+measure the delta. If the rule holds across ≥2 independent TUs,
+promote to Settled. If counterexamples appear (e.g. inlining
+*regresses* match because MWCC doesn't have an inline-call lever to
+keep the base pointer alive), document the boundary condition here.
+
+**Caveats observed so far.**
+
+- Only safe if no calls fall between the inline reads. A call would
+  force MWCC to spill/restore the base pointer, defeating the trick.
+- Multi-arg template helpers like `CLBCalcRatio<f32>(a, b, c)` need
+  each inline load to land in the right FPR (f1/f2/f3). If `c`
+  is already in f3 (or f4 with an `fmr` planned), inlining `a` into
+  f1 and `b` into f2 lets the call go through with zero arg shuffles.
+
 ### Comparison operand order schedules static-init guard inline expansion
 
 **Hypothesis:** When a `!=` (or `==`) comparison contains an inline call
