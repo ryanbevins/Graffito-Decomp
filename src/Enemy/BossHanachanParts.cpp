@@ -9,6 +9,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorAnm.hpp>
 #include <MarioUtil/DrawUtil.hpp>
@@ -431,9 +432,9 @@ void TBossHanachanPartsBase::calcRotateZWhenGetUp_()
 	J3DFrameCtrl* fc = getMActor()->getFrameCtrl(0);
 	f32 remain       = ((f32)fc->getEnd() - fc->getFrame()) * 2.0f;
 	if (remain < 0.001f) {
-		mRotation.x = 0.0f;
+		mRotation.z = 0.0f;
 	} else {
-		CLBChaseConstantSpecifyFrame<f32>(&mRotation.x, 0.0f, remain);
+		CLBChaseConstantSpecifyFrame<f32>(&mRotation.z, 0.0f, remain);
 	}
 }
 
