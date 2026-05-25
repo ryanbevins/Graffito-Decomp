@@ -151,7 +151,7 @@ static inline int absDist(int a, int b)
 
 void TBossHanachan::setAnmTimerWhenDead()
 {
-	u8 frameDiff = mChangeParams->mSLDeadFrameDiff.value;
+	u8 frameDiff          = mChangeParams->mSLDeadFrameDiff.value;
 	mBody[0]->mAnmCounter = frameDiff * absDist(unk174, 0);
 	mBody[1]->mAnmCounter = frameDiff * absDist(unk174, 1);
 	mBody[2]->mAnmCounter = frameDiff * absDist(unk174, 2);
@@ -165,7 +165,7 @@ void TBossHanachan::setAnmTimerWhenDead()
 
 void TBossHanachan::setAnmTimerWhenDamage()
 {
-	u8 frameDiff = mChangeParams->mSLDamageFrameDiff.value;
+	u8 frameDiff          = mChangeParams->mSLDamageFrameDiff.value;
 	mBody[0]->mAnmCounter = frameDiff * absDist(unk174, 0);
 	mBody[1]->mAnmCounter = frameDiff * absDist(unk174, 1);
 	mBody[2]->mAnmCounter = frameDiff * absDist(unk174, 2);
@@ -179,16 +179,11 @@ void TBossHanachan::setAnmTimerWhenDamage()
 
 void TBossHanachan::setAnmTimerWhenSnort()
 {
-	u8 frameDiff          = mChangeParams->mSLSnortFrameDiff.value;
-	mHead->mAnmCounter    = 0;
-	mBody[0]->mAnmCounter = frameDiff;
-	mBody[1]->mAnmCounter = frameDiff * 2;
-	mBody[2]->mAnmCounter = frameDiff * 3;
-	mBody[3]->mAnmCounter = frameDiff * 4;
-	mBody[4]->mAnmCounter = frameDiff * 5;
-	mBody[5]->mAnmCounter = frameDiff * 6;
-	mBody[6]->mAnmCounter = frameDiff * 7;
-	mBody[7]->mAnmCounter = frameDiff * 8;
+	u8 frameDiff       = mChangeParams->mSLSnortFrameDiff.value;
+	mHead->mAnmCounter = 0;
+	for (int i = 0; i < 8; i++) {
+		mBody[i]->mAnmCounter = frameDiff * (i + 1);
+	}
 }
 
 void TBossHanachan::setAnmTimerWhenGetUp()
