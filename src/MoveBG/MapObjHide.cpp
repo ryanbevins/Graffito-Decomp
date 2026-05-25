@@ -371,7 +371,8 @@ void TWaterHitPictureHideObj::loadAfter()
 		if (unk138) {
 			if (TMapObjBase::isCoin(unk138))
 				unk138->unkF8 &= ~0x10000000;
-			if (unk138->mActorType == 0x20000013
+			bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
+			if (isShine
 			    && TFlagManager::smInstance->getShineFlag((u8)unk138->unk134)) {
 				unk160 = unk150 ? unk164 : unk168;
 				unk172 = (u16)(u8)(s32)unk160;
