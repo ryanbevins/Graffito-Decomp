@@ -3,6 +3,7 @@
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/Item.hpp>
 #include <MoveBG/MapObjBall.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
 #include <Strategic/HitActor.hpp>
@@ -152,6 +153,21 @@ void THideObjPictureTwin::initMapObj()
 void THideObjPictureTwin::loadAfter()
 {
 	TWaterHitPictureHideObj::loadAfter();
+	if (strstr(mName, "ふたご落書きＡ")) {
+		char buf[0x40];
+		int len   = strlen("ふたご落書きＡ");
+		char c0   = mName[len];
+		char c1   = mName[len + 1];
+		char c2   = mName[len + 2];
+		char c3   = mName[len + 3];
+		snprintf(buf, 0x40, "ふたご落書きＢ００");
+		buf[len]     = c0;
+		buf[len + 1] = c1;
+		buf[len + 2] = c2;
+		buf[len + 3] = c3;
+		unk174 = (TMapObjBase*)JDrama::TNameRefGen::instance->mRootNameRef->search(buf);
+		((THideObjPictureTwin*)unk174)->unk174 = (TMapObjBase*)this;
+	}
 }
 
 void THideObjPictureTwin::afterFinishedAnim()
@@ -207,6 +223,7 @@ void TWaterHitPictureHideObj::load(JSUMemoryInputStream& stream)
 	unk15C = 0.4f;
 }
 
+#pragma dont_inline on
 void TWaterHitPictureHideObj::loadAfter()
 {
 	TMapObjBase::loadAfter();
@@ -227,6 +244,7 @@ void TWaterHitPictureHideObj::loadAfter()
 	}
 	unk160 = unk150 ? unk168 : unk164;
 }
+#pragma dont_inline off
 
 BOOL TWaterHitPictureHideObj::receiveMessage(THitActor* sender, u32 message)
 {
@@ -605,8 +623,30 @@ void THideObjBase::emitEffect()
 void THideObjBase::appearObjFromPoint(const JGeometry::TVec3<f32>& pt)
 {
 	if (unk138 && unk14C) {
-		TMapObjBase::throwObjToFrontFromPoint(unk138, pt, unk13C, unk140);
-		emitEffect();
+		bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
+		if (isShine) {
+			unk138->mLiveFlag |= 0x10;
+			unk138->mPosition.set(mPosition);
+			((TShine*)unk138)->appearWithDemo((const char*)unk144);
+		} else {
+			bool isCoin = (unk138->mActorType == 0x2000000e) ? true : false;
+			TMapObjBase* obj;
+			if (isCoin) {
+				obj = gpItemManager->makeObjAppear(0x2000000e);
+				if (!obj)
+					return;
+			} else {
+				obj = unk138;
+			}
+			TMapObjBase::throwObjToFrontFromPoint(obj, pt, unk13C, unk140);
+			if (TMapObjBase::isCoin(obj)) {
+				((TItem*)obj)->unk148 = (THitActor*)this;
+				((TItem*)obj)->unk14C = unk148;
+			}
+			if (TMapObjBase::isFruit(obj))
+				((TResetFruit*)obj)->makeObjLiving();
+			emitEffect();
+		}
 		unk14C = 0;
 	}
 }
