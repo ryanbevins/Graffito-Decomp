@@ -239,7 +239,10 @@ void THideObjPictureTwin::afterFinishedAnim()
 	mState = 3;
 }
 
-Vec* THideObjPictureTwin::getObjAppearPos() const { return (Vec*)&mPosition; }
+Vec* THideObjPictureTwin::getObjAppearPos() const
+{
+	return (Vec*)&unk174->mPosition;
+}
 
 //
 // TWaterHitPictureHideObj
