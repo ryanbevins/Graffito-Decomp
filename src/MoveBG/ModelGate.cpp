@@ -133,6 +133,10 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 	if (!(unk70 & 1))
 		return;
 
+	if (perf_flags & 8) {
+		// hold-position adjustment (stubbed)
+	}
+
 	unk78->perform(perf_flags, graphics);
 
 	if (perf_flags & 1) {
@@ -220,8 +224,9 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 		if (unkD0 < 0.0f)
 			unkD0 = 0.0f;
 
-		J3DFrameCtrl* fcBpk = unk78->getFrameCtrl(5);
-		fcBpk->setEnd((s16)(unkD0 * 4.0f));
+		s16 endFrame = unk78->getFrameCtrl(5)->getEnd();
+		f32 frame    = unkD0 * (f32)endFrame;
+		unk78->getFrameCtrl(5)->setFrame(frame);
 	}
 
 	if (perf_flags & 4) {
@@ -249,8 +254,7 @@ void TModelGate::loadAfter()
 	snprintf(buf, sizeof(buf), "/scene/map/map/gate/%s.bmd",
 	         gateMActorNames[unk71]);
 	unk78 = SMS_MakeMActor(buf, "/scene/map/map/gate", 0, 0x11100000);
-	// resolve "center" bone (stubbed — index is set up via name table lookup)
-	unk72 = 0;
+	unk72 = unk78->getModel()->getModelData()->getJointName()->getIndex("center");
 
 	(void)ActivePlayer; // THP video setup stub
 
@@ -264,7 +268,9 @@ void TModelGate::loadAfter()
 	unk78->setBrk(gateMActorNames[unk71]);
 	unk78->getFrameCtrl(5)->setRate(0.0f);
 
-	unkC0 = new SampleCtrlModelData(unk78->getModel()->getModelData());
+	SampleCtrlModelData* ctrl
+	    = new SampleCtrlModelData(unk78->getModel()->getModelData());
+	unkC0 = ctrl;
 
 	unkC5  = 0x20;
 	unkC6  = 0xFF;
@@ -277,9 +283,21 @@ void TModelGate::loadAfter()
 	unkD4  = 0.1f;
 	unkD8  = 0.02f;
 	unkDC  = 0.025f;
-	unkAC.x = 0.0f;
-	unkAC.y = 0.0f;
-	unkAC.z = 0.0f;
+	{
+		Mtx tmp;
+		SMS_GetActorMtx(*this, tmp);
+		PSMTXCopy(tmp, unk78->getModel()->unk20);
+		unk78->getModel()->calc();
+		PSMTXTrans(tmp, 0.0f, 0.0f, 250.0f);
+		PSMTXConcat(unk78->getModel()->getAnmMtx(unk72), tmp, tmp);
+		unkAC.x = 0.0f;
+		unkAC.y = 0.0f;
+		unkAC.z = 0.0f;
+		PSMTXMultVec(tmp, &unkAC, &unkAC);
+		PSMTXInverse(unk78->getModel()->getAnmMtx(unk72), unk7C);
+		unk74 = matan(unk78->getModel()->getAnmMtx(unk72)[2][2],
+		              unk78->getModel()->getAnmMtx(unk72)[0][2]);
+	}
 
 	unkE0  = 0;
 	unkE4  = 0.0f;
@@ -296,26 +314,18 @@ void TModelGate::loadAfter()
 	unk110 = 0.0f;
 	unk114 = 300.0f;
 
-	static const char* particleNames[] = {
-		"/scene/map/map/gate/ms_mariowp_body.jpa",
-		"/scene/map/map/gate/ms_mariowp_head.jpa",
-		"/scene/map/map/gate/ms_mariowp_cap.jpa",
-		"/scene/map/map/gate/ms_mariowp_rhand.jpa",
-		"/scene/map/map/gate/ms_mariowp_lhand.jpa",
-		"/scene/map/map/gate/ms_mariowp_rleg.jpa",
-		"/scene/map/map/gate/ms_mariowp_rfoot.jpa",
-		"/scene/map/map/gate/ms_mariowp_lleg.jpa",
-		"/scene/map/map/gate/ms_mariowp_lfoot.jpa",
-		"/scene/map/map/gate/ms_mariowp_watgun.jpa",
-		"/scene/map/map/gate/ms_mariowp_dust.jpa",
-		"/scene/map/map/gate/ms_mariowp_senko.jpa",
-	};
-	static const u16 particleIds[] = {
-		0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x50, 0x51,
-	};
-	for (int i = 0; i < 12; ++i)
-		SMS_LoadParticle(particleNames[i], particleIds[i]);
-
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_body.jpa", 0x1A);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_head.jpa", 0x1B);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_cap.jpa", 0x1C);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_rhand.jpa", 0x1D);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_lhand.jpa", 0x1E);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_rleg.jpa", 0x1F);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_rfoot.jpa", 0x20);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_lleg.jpa", 0x21);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_lfoot.jpa", 0x22);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_watgun.jpa", 0x23);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_dust.jpa", 0x50);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_senko.jpa", 0x51);
 	SMS_LoadParticle("/scene/map/map/gate/ms_gatewind_a.jpa", 0x131);
 	SMS_LoadParticle("/scene/map/map/gate/ms_gatewind_a2.jpa", 0x132);
 	SMS_LoadParticle("/scene/map/map/gate/ms_gatewind_a3.jpa", 0x133);
