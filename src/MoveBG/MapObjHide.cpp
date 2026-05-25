@@ -550,8 +550,11 @@ void TFruitBasketEvent::countFruit(THitActor* sender)
 {
 	TFruitBasket::countFruit(sender);
 	switch (sender->mActorType) {
-	case 0x40000390:
+	case 0x40000394:
 		mFruitCounts[0]++;
+		break;
+	case 0x40000393:
+		mFruitCounts[1]++;
 		break;
 	case 0x40000391:
 		mFruitCounts[2]++;
@@ -559,10 +562,7 @@ void TFruitBasketEvent::countFruit(THitActor* sender)
 	case 0x40000392:
 		mFruitCounts[3]++;
 		break;
-	case 0x40000393:
-		mFruitCounts[1]++;
-		break;
-	case 0x40000394:
+	case 0x40000390:
 		mFruitCounts[4]++;
 		break;
 	case 0x40000395:
