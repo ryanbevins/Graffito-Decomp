@@ -139,11 +139,9 @@ void TLeanBlock::touchPlayer(THitActor* sender)
 	if (marioIsOn()) {
 		f32 dx = gpMarioPos->x - mPosition.x;
 		f32 dz = gpMarioPos->z - mPosition.z;
-		f32 nx = unk140 * (dx / unk138);
-		f32 nz = unk140 * (dz / unk13C);
-		unk158.x += nx;
-		unk158.y += 0.0f;
-		unk158.z += nz;
+		JGeometry::TVec3<f32> delta(unk140 * (dx / unk138), 0.0f,
+		                             unk140 * (dz / unk13C));
+		unk158.add(delta);
 		unk158.y -= unk144;
 	}
 }
