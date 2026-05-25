@@ -95,6 +95,12 @@ collapsed them; the inline helper boundary breaks the CSE.
   `boss->mLiveFlag &= ~0x20000` with `boss->checkLiveFlag(0x20000)` /
   `boss->offLiveFlag(0x20000)`. Target shows `lwz r0, 0xf0(r30)`
   exactly twice; using the helper pair reproduces both loads.
+- `Enemy/hamukuri::THamuKuri::moveObject` (existing match, ~99.94%):
+  source already uses `offLiveFlag` + `checkLiveFlag` + `isAirborne`
+  chain in sequence; target's asm shows the corresponding multiple
+  consecutive loads of `mLiveFlag` (offset 0xf0) with no CSE. This
+  is the supporting-evidence case — the helper-pair lever is in
+  active use here and produces matching output.
 
 **Where to try it next.** Any `lwz X, OFF(Y); rlwinm. ...; beq ...;
 lwz X, OFF(Y); rlwinm/ori/...; stw X, OFF(Y)` pattern in target.
