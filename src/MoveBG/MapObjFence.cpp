@@ -174,14 +174,14 @@ void TFenceWaterH::control()
 	TMapObjBase::control();
 	controlRotation();
 
-	f32 phase = unk140 + mRotation.y;
+	f32 phase = unk140 + mInitialRotation.z;
 	while (phase >= 360.0f)
 		phase -= 360.0f;
 	while (phase < 0.0f)
 		phase += 360.0f;
-	mRotation.x = phase;
+	mRotation.y = phase;
 
-	s16 a = (s16)(mRotation.x * 182.04445f);
+	s16 a              = (s16)(mRotation.y * 182.04445f);
 	unk144->mPosition.x = 500.0f * JMASCos(a) + mPosition.x;
 	unk144->mPosition.z = -500.0f * JMASSin(a) + mPosition.z;
 }
@@ -212,14 +212,14 @@ void TFenceWater::control()
 	TMapObjBase::control();
 	controlRotation();
 
-	f32 phase = unk140 + mRotation.x;
+	f32 phase = unk140 + mInitialRotation.y;
 	while (phase >= 360.0f)
 		phase -= 360.0f;
 	while (phase < 0.0f)
 		phase += 360.0f;
 	mRotation.y = phase;
 
-	s16 a = (s16)(mRotation.y * 182.04445f);
+	s16 a               = (s16)(mRotation.y * 182.04445f);
 	unk144->mPosition.x = 500.0f * JMASCos(a) + mPosition.x;
 	unk144->mPosition.z = -500.0f * JMASSin(a) + mPosition.z;
 }

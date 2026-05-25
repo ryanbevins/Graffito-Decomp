@@ -8,9 +8,9 @@ class TMapObjMessenger;
 
 class TFence : public TMapObjBase {
 public:
-	BOOL receiveMessage(THitActor* sender, u32 message);
-	void initMapCollisionData();
-	void initMapObj();
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual void initMapObj();
+	virtual void initMapCollisionData();
 	TFence(const char* name)
 	    : TMapObjBase(name)
 	    , unk138(0)
@@ -23,8 +23,8 @@ public:
 
 class TRevolvingFenceOuter : public TFence {
 public:
-	BOOL receiveMessage(THitActor* sender, u32 message);
-	void initMapCollisionData();
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual void initMapCollisionData();
 	TRevolvingFenceOuter(const char* name = "\x83\x74\x83\x46\x83\x93\x83\x58\x8a\x4f\x91\xa4")
 	    : TFence(name)
 	    , unk13C(nullptr)
@@ -37,14 +37,14 @@ public:
 
 class TRevolvingFenceInner : public TFence {
 public:
-	BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual void setGroundCollision();
+	virtual void control();
+	virtual void initMapObj();
+	virtual void initMapCollisionData();
 	void calcCurrentMtx();
 	void controlWall();
 	void controlGroundRoof();
-	void setGroundCollision();
-	void control();
-	void initMapCollisionData();
-	void initMapObj();
 
 	TRevolvingFenceInner(const char* name = "\x83\x74\x83\x46\x83\x93\x83\x58\x93\xe0\x91\xa4")
 	    : TFence(name)
@@ -62,14 +62,14 @@ public:
 
 class TFenceWater : public TFence {
 public:
-	void draw() const;
-	BOOL receiveMessage(THitActor* sender, u32 message);
-	void changeStatusToGo();
-	void changeStatusToWait();
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual void control();
+	virtual void initMapObj();
+	virtual void initMapCollisionData();
+	virtual void draw() const;
+	virtual void changeStatusToGo();
+	virtual void changeStatusToWait();
 	void controlRotation();
-	void control();
-	void initMapCollisionData();
-	void initMapObj();
 	TFenceWater(const char* name)
 	    : TFence(name)
 	    , unk13C(0.0f)
@@ -90,9 +90,9 @@ public:
 
 class TFenceWaterH : public TFenceWater {
 public:
-	void control();
-	void changeStatusToGo();
-	void changeStatusToWait();
+	virtual void control();
+	virtual void changeStatusToGo();
+	virtual void changeStatusToWait();
 	TFenceWaterH(const char* name)
 	    : TFenceWater(name)
 	{
@@ -101,11 +101,11 @@ public:
 
 class TRailFence : public TFence {
 public:
-	BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual void load(JSUMemoryInputStream&);
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual void control();
+	virtual void initMapCollisionData();
 	void goOnRail();
-	void control();
-	void initMapCollisionData();
-	void load(JSUMemoryInputStream&);
 	TRailFence(const char* name);
 
 	static f32 mFallHeight;
