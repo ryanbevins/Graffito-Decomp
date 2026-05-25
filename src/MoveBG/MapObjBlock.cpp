@@ -240,19 +240,12 @@ TLeanBlock::TLeanBlock(const char* name)
 	unk14C.y = 1.0f;
 	unk14C.z = 0.0f;
 
-	// init unk164 to identity Mtx
-	unk164[2][3] = 0.0f;
-	unk164[2][2] = 1.0f;
-	unk164[2][1] = 0.0f;
-	unk164[2][0] = 0.0f;
-	unk164[1][3] = 0.0f;
-	unk164[1][2] = 0.0f;
-	unk164[1][1] = 1.0f;
-	unk164[1][0] = 0.0f;
-	unk164[0][3] = 0.0f;
-	unk164[0][2] = 0.0f;
-	unk164[0][1] = 0.0f;
-	unk164[0][0] = 1.0f;
+	// init unk164 to identity Mtx (matches JGeometry::TMatrix34::identity())
+	unk164[0][3] = unk164[1][3] = unk164[2][3] = 0.0f;
+	unk164[0][2] = unk164[1][2] = 0.0f;
+	unk164[0][1] = unk164[2][1] = 0.0f;
+	unk164[1][0] = unk164[2][0] = 0.0f;
+	unk164[0][0] = unk164[1][1] = unk164[2][2] = 1.0f;
 }
 
 u32 TIceBlock::getSDLModelFlag() const { return 0; }
