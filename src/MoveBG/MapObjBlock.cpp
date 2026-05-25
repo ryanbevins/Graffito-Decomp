@@ -36,9 +36,9 @@ f32 TSandBlock::mSandScaleMin   = 0.01f;
 s32 TSandBlock::mWaitTimeToFall = 60;
 s32 TSandBlock::mSandWaitTime   = 120;
 
-const f32 TIceBlock::sMeltSpeedWater = 0.01f;
-const f32 TIceBlock::sMeltSpeedAuto  = 0.0005f;
-const f32 TIceBlock::sAutoMeltScale  = 0.8f;
+f32 TIceBlock::mMeltSpeedWater = 0.01f;
+f32 TIceBlock::mMeltSpeedAuto  = 0.0005f;
+f32 TIceBlock::mAutoMeltScale  = 0.8f;
 
 void TBreakableBlock::touchPlayer(THitActor* sender)
 {
@@ -264,9 +264,9 @@ u32 TIceBlock::touchWater(THitActor* sender)
 		MSoundSESystem::MSoundSE::startSoundActor(
 		    0x3079, (Vec*)&sender->mPosition, 0, 0, 0, 4);
 	}
-	mScaling.x -= sMeltSpeedWater;
-	mScaling.y -= sMeltSpeedWater;
-	mScaling.z -= sMeltSpeedWater;
+	mScaling.x -= mMeltSpeedWater;
+	mScaling.y -= mMeltSpeedWater;
+	mScaling.z -= mMeltSpeedWater;
 	mScaledBodyRadius = mScaling.x * mMapObjData->unk30;
 	if (mScaling.y > mInitialScaling.y) {
 		mScaling.y = mInitialScaling.y;
@@ -300,10 +300,10 @@ void TIceBlock::control()
 	calcEntryRadius();
 	mScaling.z = 250.0f * mScaling.y;
 	calcEntryRadius();
-	if (mScaling.y < sAutoMeltScale * mInitialScaling.y) {
-		mScaling.x -= sMeltSpeedAuto;
-		mScaling.y -= sMeltSpeedAuto;
-		mScaling.z -= sMeltSpeedAuto;
+	if (mScaling.y < mAutoMeltScale * mInitialScaling.y) {
+		mScaling.x -= mMeltSpeedAuto;
+		mScaling.y -= mMeltSpeedAuto;
+		mScaling.z -= mMeltSpeedAuto;
 		if (mScaling.y > mInitialScaling.y) {
 			mScaling.y = mInitialScaling.y;
 		} else if (mScaling.y < 0.01f) {

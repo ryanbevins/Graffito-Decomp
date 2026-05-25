@@ -66,9 +66,9 @@ public:
 	u32 touchWater(THitActor*);
 	u32 getSDLModelFlag() const;
 
-	static const f32 sMeltSpeedWater;
-	static const f32 sMeltSpeedAuto;
-	static const f32 sAutoMeltScale;
+	static f32 mMeltSpeedWater;
+	static f32 mMeltSpeedAuto;
+	static f32 mAutoMeltScale;
 };
 
 class TBrickBlock : public THideObjBase {
