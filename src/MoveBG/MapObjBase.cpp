@@ -342,13 +342,13 @@ void TMapObjBase::makeObjDead()
 
 void TMapObjBase::makeObjAppeared()
 {
-	mLiveFlag &= ~0xA;
-	mVelocity.x = 0.0f;
-	mVelocity.y = 0.0f;
+	mLiveFlag &= ~0x9;
 	mVelocity.z = 0.0f;
+	mVelocity.y = 0.0f;
+	mVelocity.x = 0.0f;
 	mLiveFlag |= 0x10;
 	mLifeTimer = 0;
-	mLiveFlag &= ~1;
+	unk64 &= ~1;
 	appear();
 	if (unk100 != 0)
 		unk100 = 0;
