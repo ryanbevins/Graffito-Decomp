@@ -372,7 +372,7 @@ BOOL TBrickBlock::receiveMessage(THitActor* sender, u32 message)
 			return TRUE;
 		}
 	}
-	if (sender->isActorTypeOf(0x80000800)) {
+	if (sender->isActorType(0x08000005)) {
 		if (message == 0xE) {
 			kill();
 			return TRUE;
