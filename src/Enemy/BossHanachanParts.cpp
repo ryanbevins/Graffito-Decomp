@@ -183,52 +183,6 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 	return ret;
 }
 
-BOOL TBossHanachanPartsHead::setAnm_(
-    EnumBossHanachanAnmKind anmKind,
-    EnumBossHanachanStopMotionBlendOnOff stopMotionBlend)
-{
-	static const int sHeadBckIndex[18] = { 0x24, 0x20, 0x1D, 0x1F, 0x14, 0x1E,
-		                                   0x1C, 0x16, 0x17, 0x18, 0x19, 0x1A,
-		                                   0x1B, 0x1C, 0x21, 0x15, 0x22, 0x23 };
-	static const int sHeadBtpIndex[18] = { 0, 0, 1, 2, 1, 2, 2, 0, 0,
-		                                   0, 0, 0, 0, 2, 0, 0, 1, 1 };
-	static const int sHeadBtkIndex[18] = { 0, 0, 0, 1, 0, 1, 1, 0, 0,
-		                                   0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-	BOOL ret = FALSE;
-	if (mCurAnm != anmKind) {
-		mPrevAnm = mCurAnm;
-		mCurAnm  = anmKind;
-
-		if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BCK)
-		    != sHeadBckIndex[anmKind]) {
-			getMActor()->setBckFromIndex(sHeadBckIndex[anmKind]);
-			ret = TRUE;
-			if (stopMotionBlend == 1) {
-				mPalFrame->unk24 = mPalFrame->mFrame;
-			} else {
-				mPalFrame->unk24 = 0;
-			}
-			setCurAnmSound();
-		}
-
-		if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BTP)
-		    != sHeadBtpIndex[anmKind]) {
-			getMActor()->setBtpFromIndex(sHeadBtpIndex[anmKind]);
-		}
-		if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BTK)
-		    != sHeadBtkIndex[anmKind]) {
-			getMActor()->setBtkFromIndex(sHeadBtkIndex[anmKind]);
-		}
-
-		if (anmKind == 0xF) {
-			getMActor()->setBrkFromIndex(1);
-			getMActor()->getFrameCtrl(5)->setAttribute(0);
-		}
-	}
-	return ret;
-}
-
 BOOL TBossHanachanPartsBody::setAnm_(
     EnumBossHanachanAnmKind anmKind,
     EnumBossHanachanStopMotionBlendOnOff stopMotionBlend)
@@ -271,6 +225,52 @@ BOOL TBossHanachanPartsBody::setAnm_(
 			getMActor()->setBrkFromIndex(0);
 			getMActor()->getFrameCtrl(5)->setAttribute(0);
 			getMActor()->getModel()->unlock();
+		}
+	}
+	return ret;
+}
+
+BOOL TBossHanachanPartsHead::setAnm_(
+    EnumBossHanachanAnmKind anmKind,
+    EnumBossHanachanStopMotionBlendOnOff stopMotionBlend)
+{
+	static const int sHeadBckIndex[18] = { 0x24, 0x20, 0x1D, 0x1F, 0x14, 0x1E,
+		                                   0x1C, 0x16, 0x17, 0x18, 0x19, 0x1A,
+		                                   0x1B, 0x1C, 0x21, 0x15, 0x22, 0x23 };
+	static const int sHeadBtpIndex[18] = { 0, 0, 1, 2, 1, 2, 2, 0, 0,
+		                                   0, 0, 0, 0, 2, 0, 0, 1, 1 };
+	static const int sHeadBtkIndex[18] = { 0, 0, 0, 1, 0, 1, 1, 0, 0,
+		                                   0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+	BOOL ret = FALSE;
+	if (mCurAnm != anmKind) {
+		mPrevAnm = mCurAnm;
+		mCurAnm  = anmKind;
+
+		if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BCK)
+		    != sHeadBckIndex[anmKind]) {
+			getMActor()->setBckFromIndex(sHeadBckIndex[anmKind]);
+			ret = TRUE;
+			if (stopMotionBlend == 1) {
+				mPalFrame->unk24 = mPalFrame->mFrame;
+			} else {
+				mPalFrame->unk24 = 0;
+			}
+			setCurAnmSound();
+		}
+
+		if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BTP)
+		    != sHeadBtpIndex[anmKind]) {
+			getMActor()->setBtpFromIndex(sHeadBtpIndex[anmKind]);
+		}
+		if (getMActor()->getCurAnmIdx(MActor::ANM_TYPE_BTK)
+		    != sHeadBtkIndex[anmKind]) {
+			getMActor()->setBtkFromIndex(sHeadBtkIndex[anmKind]);
+		}
+
+		if (anmKind == 0xF) {
+			getMActor()->setBrkFromIndex(1);
+			getMActor()->getFrameCtrl(5)->setAttribute(0);
 		}
 	}
 	return ret;
