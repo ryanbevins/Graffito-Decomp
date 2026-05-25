@@ -275,7 +275,8 @@ void TWaterHitPictureHideObj::control()
 
 void TWaterHitPictureHideObj::touchActor(THitActor* sender)
 {
-	if (sender->mActorType == 0x4000005a)
+	bool match = (sender->mActorType == 0x4000005a) ? true : false;
+	if (match)
 		mState = 2;
 }
 
@@ -570,10 +571,15 @@ void THideObjBase::loadAfter()
 
 BOOL THideObjBase::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == 5
-	    && (sender->mActorType == 0x2000000e || sender->mActorType == 0x2000000f
-	        || sender->mActorType == 0x20000010))
-		unk14C = 1;
+	if (message == 5) {
+		bool any = (sender->mActorType == 0x2000000e) ? true : false;
+		if (!any)
+			any = (sender->mActorType == 0x2000000f) ? true : false;
+		if (!any)
+			any = (sender->mActorType == 0x20000010) ? true : false;
+		if (any)
+			unk14C = 1;
+	}
 	return TMapObjBase::receiveMessage(sender, message);
 }
 
