@@ -28,7 +28,8 @@ int TFenceWater::mTurnedWaitTime = 600;
 
 f32 TRevolvingFenceInner::mSpeed = 4.0f;
 
-static inline void MsMtxSetRotY(MtxPtr m, f32 deg)
+#pragma dont_inline on
+static void MsMtxSetRotY(MtxPtr m, f32 deg)
 {
 	s16 a = (s16)(deg * 182.04445f);
 	f32 s = JMASSin(a);
@@ -46,6 +47,7 @@ static inline void MsMtxSetRotY(MtxPtr m, f32 deg)
 	m[2][2] = c;
 	m[2][3] = 0.0f;
 }
+#pragma dont_inline off
 
 TRailFence::TRailFence(const char* name)
     : TFence(name)
@@ -373,33 +375,62 @@ void TRevolvingFenceInner::controlWall()
 			mState      = 2;
 		}
 		mRotation.y = unk13C + mInitialRotation.y;
-		f32 rot     = MsWrap(mRotation.y, 0.0f, 360.0f);
-		MsMtxSetRotY(getModel()->getBaseTRMtx(), rot);
-		MtxPtr m = getModel()->getBaseTRMtx();
-		m[0][3]  = mPosition.x;
-		m[1][3]  = mPosition.y - mYOffset;
-		m[2][3]  = mPosition.z;
+		MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
+		MtxPtr m = getModel()->getAnmMtx(0);
+		MsMtxSetRotY(m, mRotation.y);
+		m[0][3] = mPosition.x;
+		m[1][3] = mPosition.y - mYOffset;
+		m[2][3] = mPosition.z;
+		break;
+	}
+	case 4: {
+		unk13C += mSpeed;
+		if (unk13C > 360.0f) {
+			unk13C      = 0.0f;
+			mRotation.y = unk13C + mInitialRotation.y;
+			mState      = 1;
+		}
+		mRotation.y = unk13C + mInitialRotation.y;
+		MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
+		MtxPtr m = getModel()->getAnmMtx(0);
+		MsMtxSetRotY(m, mRotation.y);
+		m[0][3] = mPosition.x;
+		m[1][3] = mPosition.y - mYOffset;
+		m[2][3] = mPosition.z;
 		break;
 	}
 	case 5: {
 		unk13C -= mSpeed;
 		if (unk13C < -180.0f) {
-			unk13C      = -180.0f;
+			unk13C      = 180.0f;
+			mRotation.y = unk13C + mInitialRotation.y;
+			mState      = 2;
+		}
+		mRotation.y = unk13C + mInitialRotation.y;
+		MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
+		MtxPtr m = getModel()->getAnmMtx(0);
+		MsMtxSetRotY(m, mRotation.y);
+		m[0][3] = mPosition.x;
+		m[1][3] = mPosition.y - mYOffset;
+		m[2][3] = mPosition.z;
+		break;
+	}
+	case 6: {
+		unk13C -= mSpeed;
+		if (unk13C < 0.0f) {
+			unk13C      = 0.0f;
 			mRotation.y = unk13C + mInitialRotation.y;
 			mState      = 1;
 		}
 		mRotation.y = unk13C + mInitialRotation.y;
-		f32 rot     = MsWrap(mRotation.y, 0.0f, 360.0f);
-		MsMtxSetRotY(getModel()->getBaseTRMtx(), rot);
-		MtxPtr m = getModel()->getBaseTRMtx();
-		m[0][3]  = mPosition.x;
-		m[1][3]  = mPosition.y - mYOffset;
-		m[2][3]  = mPosition.z;
+		MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
+		MtxPtr m = getModel()->getAnmMtx(0);
+		MsMtxSetRotY(m, mRotation.y);
+		m[0][3] = mPosition.x;
+		m[1][3] = mPosition.y - mYOffset;
+		m[2][3] = mPosition.z;
 		break;
 	}
-	case 4:
-	case 6:
-		break;
 	}
 }
 
