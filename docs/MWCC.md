@@ -36,7 +36,163 @@ them in future ticks.
 
 ## Settled
 
-### Inline helper pairs `checkLiveFlag`/`offLiveFlag` force a redundant load of the same field (defeats CSE)
+### Loop form `for (int i = 0; i < N; i++) arr[i] = K * (i+1);` unrolls and forces per-store register materialization (incl. `clrrwi r,r,0` for *1)
+
+**Rule.** When target asm shows an unrolled N-store sequence where the
+"× 1" store materializes the multiplier into a **fresh register** via
+`clrrwi rD, rS, 0` (== `slwi rD, rS, 0` == identity copy), rather than
+storing the source register directly, the source must use a **loop**
+that MWCC unrolls. Hand-unrolled stores with the literal coefficient
+constant-fold so the `× 1` store collapses to a direct `stw rS, …`.
+
+The loop variant treats each `(i + 1)` as its own runtime expression
+evaluated per (unrolled) iteration, even though all eight unrolled
+values are compile-time constants. So `i=0` produces a multiply-by-1
+that lowers to "copy `rS` into a fresh `rD`" (since `× 1` is a 0-bit
+shift), and subsequent iterations get `slwi`/`mulli` against `rS` as
+expected.
+
+```cpp
+// BEFORE (our build): hand-unrolled — '× 1' folds to direct stw rS:
+//   stw r9, 0x10c(r4)   ; mBody[0]->mAnmCounter = frameDiff (uses r9 directly)
+mBody[0]->mAnmCounter = frameDiff;
+mBody[1]->mAnmCounter = frameDiff * 2;
+...
+mBody[7]->mAnmCounter = frameDiff * 8;
+
+// AFTER (target): loop form — MWCC unrolls AND materializes × 1 via clrrwi:
+//   clrrwi r6, r9, 0    ; r6 = r9 (fresh reg for × 1)
+//   stw r6, 0x10c(r4)
+//   slwi r5, r9, 1      ; × 2
+//   stw r5, ...
+//   mulli r0, r9, 0x3   ; × 3
+//   stw r0, ...
+for (int i = 0; i < 8; i++) {
+    mBody[i]->mAnmCounter = frameDiff * (i + 1);
+}
+```
+
+**Caveats.**
+
+- Only works for **patterns where every iteration has a unique
+  multiplier or scaled value derived from `i`**. If all iterations
+  share an identical expression (`arr[i] = K;` with no `i` in the
+  RHS), MWCC won't unroll — it'll keep the loop.
+- The unroll trigger seems to require the loop body to be very small
+  (one store) and the bound to be a compile-time constant.
+
+**Citations.**
+
+- `Enemy/BossHanachanAnm::TBossHanachan::setAnmTimerWhenSnort` (tick 128):
+  hand-unrolled at **80.7%**; loop form `mBody[i]->mAnmCounter =
+  frameDiff * (i + 1)` → **100%**. The matching pair `setAnmTimerWhenGetUp`
+  (already at 100%) uses the *opposite* form — hand-unrolled DESCENDING
+  body order — because its `× 1` slot (`mBody[6]`) is sandwiched between
+  other already-emitted reg-materialized values, so the `stw r9` direct
+  is the natural lowering there.
+
+### Deferred pointer-fetch pattern: `T** pp = &arr[i]; (*pp)->m(); T* x = *pp;` defers the dereference past a virtual call
+
+**Rule.** When target asm computes the array element ADDRESS via
+`addi/add` (3-instruction sequence: byte-offset + base-add), and only
+later — AFTER a virtual call — loads the dereferenced pointer with
+`lwz rN, 0(rN)` (overwriting the same register that held the address),
+the source must hold the **address-of-element** in a `**` local first
+and dereference *after* the call. Plain `arr[i]->method()` folds the
+address+load into a single indexed load (`lwzx`) with the loaded
+pointer in a separate register, then re-loads it from memory at every
+subsequent use (since the indexed load destination isn't necessarily
+callee-saved).
+
+```cpp
+// BEFORE (our build): direct subscript → lwzx + reloads:
+//   addi r0, r31, 0x150
+//   lwzx r27, r25, r0      ; r27 = mBody[i] directly
+//   bl setAnm_              ; r27 callee-saved survives but address path scattered
+for (int i = 0; i < 8; i++) {
+    mBody[i]->setAnm_(anmKind, blend);
+    J3DFrameCtrl* fc = mBody[i]->mMActor->getFrameCtrl(0);  // mBody[i] reloaded
+    f32 diff = unk194 - mBody[i]->getRotation().z;          // and again
+    ...
+}
+
+// AFTER (target): deferred fetch — address held, value loaded post-call:
+//   addi r29, r31, 0x150
+//   add  r29, r25, r29     ; r29 = &mBody[i]
+//   lwz  r3, 0(r29)        ; r3 = mBody[i] (transient — for the call)
+//   bl setAnm_
+//   lwz  r29, 0(r29)       ; r29 = mBody[i] (cached now, reusing r29)
+//   ... uses of r29 ...
+for (int i = 0; i < 8; i++) {
+    TBossHanachanPartsBase** pp = &mBody[i];
+    (*pp)->setAnm_(anmKind, blend);
+    TBossHanachanPartsBase* part = *pp;       // deferred deref
+    J3DFrameCtrl* fc = part->mMActor->getFrameCtrl(0);
+    f32 diff = unk194 - part->getRotation().z;
+    ...
+}
+```
+
+**Diagnostic signature.** Target shows `addi rN, rOFF, 0xCONST; add
+rN, rTHIS, rN; lwz r3, 0(rN); bl ...; lwz rN, 0(rN)` — the same
+non-volatile reg holds the address pre-call and the dereferenced
+pointer post-call.
+
+**Citations.**
+
+- `Enemy/BossHanachanAnm::TBossHanachan::setTumbleAnm` (tick 128):
+  92.73 → **95.81%**. Direct `mBody[i]->setAnm_(...)` was generating
+  `lwzx r27` with separate cache reg; the `&mBody[i]` + `*pp` rewrite
+  recovers target's `add r29` + post-call `lwz r29, 0(r29)` shape.
+
+### Rewrite `if (v == K1 || v == K2)` as `switch (v) { case K1: case K2: ... break; }` when target asm shows the switch-branch order
+
+**Rule.** Per `CLAUDE.md` ("Switches" subsection), MWCC compiles some
+switches into branching form: `cmpwi K_big; beq match; bge end; cmpwi
+K_small; beq match; b end`. The `||` form of the same logic produces
+the **reversed** test order (smallest first) because the disjunction
+evaluates left-to-right. Rewrite as a `switch` with all keys as case
+labels (no body per case, shared block) to recover the target's
+"largest-first, range-guarded" emission order.
+
+```cpp
+// BEFORE (our build): tests 9 first, then 12:
+//   cmpwi r0, 0x9
+//   beq target_block
+//   cmpwi r0, 0xc
+//   bne end
+//   target_block: bl isCurBckAlreadyEnd_; ...
+if ((cur == 0x9 || cur == 0xC) && mHead->isCurBckAlreadyEnd_())
+    result = true;
+
+// AFTER (target): tests 0xC first, range-guard with bge:
+//   cmpwi r0, 0xc
+//   beq target_block
+//   bge end           ; if cur > 0xc, no match
+//   cmpwi r0, 0x9
+//   beq target_block
+//   b end
+switch (cur) {
+case 0x9:
+case 0xC:
+    if (mHead->isCurBckAlreadyEnd_())
+        result = true;
+    break;
+}
+```
+
+**When to apply.** Any 2-3-way `if (v == K1 || v == K2 [|| v == K3])`
+where target shows `cmpwi K_largest; beq; bge end; cmpwi K_next; beq; ...`.
+Don't apply to single-test ifs or large disjunctions (MWCC chooses
+the optimized "subtract-and-range" form per CLAUDE.md for those).
+
+**Citations.**
+
+- `Enemy/BossHanachanAnm::TBossHanachan::isFinishedGetUp` (tick 128):
+  90.78 → **100%**. Two-key `||` rewritten as 2-case fall-through
+  switch reproduces target byte-for-byte.
+
+
 
 **Rule.** When the target asm reads a single field TWICE in immediate
 succession — once for a bit test (`rlwinm.`/`beq`), then again to
