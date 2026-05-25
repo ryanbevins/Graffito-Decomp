@@ -384,12 +384,9 @@ void TWaterHitPictureHideObj::loadAfter()
 BOOL TWaterHitPictureHideObj::receiveMessage(THitActor* sender, u32 message)
 {
 	if (message == 5) {
-		bool any = (sender->mActorType == 0x2000000e) ? true : false;
-		if (!any)
-			any = (sender->mActorType == 0x2000000f) ? true : false;
-		if (!any)
-			any = (sender->mActorType == 0x20000010) ? true : false;
-		if (any) {
+		if (((sender->mActorType == 0x2000000e) ? true : false)
+		    || ((sender->mActorType == 0x2000000f) ? true : false)
+		    || ((sender->mActorType == 0x20000010) ? true : false)) {
 			offHitFlag(0x1);
 			offHitFlag(0x4);
 			offHitFlag(0x2);
@@ -407,12 +404,9 @@ BOOL TWaterHitPictureHideObj::receiveMessage(THitActor* sender, u32 message)
 		return TRUE;
 	}
 	if (message == 5) {
-		bool any = (sender->mActorType == 0x2000000e) ? true : false;
-		if (!any)
-			any = (sender->mActorType == 0x2000000f) ? true : false;
-		if (!any)
-			any = (sender->mActorType == 0x20000010) ? true : false;
-		if (any)
+		if (((sender->mActorType == 0x2000000e) ? true : false)
+		    || ((sender->mActorType == 0x2000000f) ? true : false)
+		    || ((sender->mActorType == 0x20000010) ? true : false))
 			unk14C = 1;
 	}
 	return TMapObjBase::receiveMessage(sender, message);
@@ -766,12 +760,9 @@ void THideObjBase::loadAfter()
 BOOL THideObjBase::receiveMessage(THitActor* sender, u32 message)
 {
 	if (message == 5) {
-		bool any = (sender->mActorType == 0x2000000e) ? true : false;
-		if (!any)
-			any = (sender->mActorType == 0x2000000f) ? true : false;
-		if (!any)
-			any = (sender->mActorType == 0x20000010) ? true : false;
-		if (any)
+		if (((sender->mActorType == 0x2000000e) ? true : false)
+		    || ((sender->mActorType == 0x2000000f) ? true : false)
+		    || ((sender->mActorType == 0x20000010) ? true : false))
 			unk14C = 1;
 	}
 	return TMapObjBase::receiveMessage(sender, message);
