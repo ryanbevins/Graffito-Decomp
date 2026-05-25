@@ -108,6 +108,8 @@ public:
 	    : TWaterHitActor(name)
 	{
 	}
+
+	/* 0x6C */ MtxPtr unk6C;
 };
 
 class TBossHanachanPartsBody : public TBossHanachanPartsBase {
