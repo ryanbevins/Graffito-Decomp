@@ -244,22 +244,25 @@ void TRiccoWatermill::control()
 	    || (mState == 4 ? true : false)) {
 		if (0.0f != unk138) {
 			mRotation.z -= unk138;
+			f32 absRot = __fabsf(unk138);
 			if (gpMSound->gateCheck(0x3031)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x3031, (Vec*)&mPosition, (Vec*)NULL, __fabsf(unk138), 0, 0,
+				    0x3031, (Vec*)&mPosition, (Vec*)NULL, absRot, 0, 0,
 				    (JAISound**)&unk14C, 0, 4);
 			}
-			f32 rate = unk138 * mSubmarineMoveRate;
+			f32 rate    = unk138 * mSubmarineMoveRate;
 			unk13C->mPosition.y += rate;
+			f32 absRate = __fabsf(rate);
 			if (gpMSound->gateCheck(0x3030)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 				    0x3030, &submarineCranePos_forSound, (Vec*)NULL,
-				    __fabsf(rate), 0, 0, (JAISound**)&unk150, 0, 4);
+				    absRate, 0, 0, (JAISound**)&unk150, 0, 4);
 			}
+			absRate = __fabsf(rate);
 			if (gpMSound->gateCheck(0x3023)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 				    0x3023, &submarineCranePos_forSound, (Vec*)NULL,
-				    __fabsf(rate), 0, 0, (JAISound**)&unk154, 0, 4);
+				    absRate, 0, 0, (JAISound**)&unk154, 0, 4);
 			}
 		}
 		if (unk140 == 0) {
@@ -275,7 +278,7 @@ void TRiccoWatermill::control()
 	case 2:
 		if (unk13C->mPosition.y > mSubmarineMaxTransY) {
 			unk13C->mPosition.y = mSubmarineMaxTransY;
-			if (!(mLifeTimer > 0) && !unk144) {
+			if (!(mLifeTimer > 0 ? true : false) && !unk144) {
 				if (gpMSound->gateCheck(0x3832)) {
 					MSoundSESystem::MSoundSE::startSoundActor(
 					    0x3832, (Vec*)&unk13C->mPosition, 0, 0, 0, 4);
