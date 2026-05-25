@@ -57,40 +57,37 @@ BOOL TModelGate::receiveMessage(THitActor* sender, u32 message)
 		return TRUE;
 	}
 
-	if (sender->mActorType != 0x01000001u)
-		return FALSE;
+	if (sender->mActorType == 0x01000001u) {
+		JGeometry::TVec3<f32> localPos;
+		PSMTXMultVec(unk7C, &sender->mPosition, &localPos);
 
-	JGeometry::TVec3<f32> localPos;
-	PSMTXMultVec(unk7C, &sender->mPosition, &localPos);
+		Mtx tmp;
+		PSMTXCopy(unk78->getModel()->getAnmMtx(unk72), tmp);
 
-	Mtx tmp;
-	PSMTXCopy(unk78->getModel()->getAnmMtx(unk72), tmp);
+		if ((localPos.x * localPos.x + localPos.y * localPos.y) < 40000.0f
+		    && -100.0f < localPos.z && localPos.z < unkFC) {
+			if (unk70 & 2) {
+				unkD0 += unkD4;
+				if (unkD0 > 1.0f) {
+					unkCA = unkC8;
+					unkD0 = 1.0f;
+					unk70 &= ~2;
+				}
+			}
 
-	if ((localPos.x * localPos.x + localPos.y * localPos.y) >= 40000.0f)
-		return FALSE;
-
-	if (-100.0f >= localPos.z)
-		return FALSE;
-	if (localPos.z >= unkFC)
-		return FALSE;
-
-	if (unk70 & 2) {
-		unkD0 += unkD4;
-		if (unkD0 > 1.0f) {
-			unkCA = unkC8;
-			unkD0 = 1.0f;
-			unk70 &= ~2;
+			f32 randf = (f32)(rand() * 0.000030517578f);
+			if (randf < unkF8) {
+				gpMarioParticleManager->emitWithRotate(
+				    0x1DD, &sender->mPosition, 0, unk74, 0, 2,
+				    nullptr);
+				gpMarioParticleManager->emitWithRotate(
+				    0x1DE, &sender->mPosition, 0, unk74, 0, 2,
+				    nullptr);
+			}
+			return TRUE;
 		}
 	}
-
-	f32 randf = (f32)(rand() * 0.000030517578f);
-	if (randf < unkF8) {
-		gpMarioParticleManager->emitWithRotate(0x1DD, &sender->mPosition, unk74,
-		                                       0, 0, 2, nullptr);
-		gpMarioParticleManager->emitWithRotate(0x1DE, &sender->mPosition, unk74,
-		                                       0, 0, 2, nullptr);
-	}
-	return TRUE;
+	return FALSE;
 }
 
 void TModelGate::screenBlur(JDrama::TGraphics* graphics)
