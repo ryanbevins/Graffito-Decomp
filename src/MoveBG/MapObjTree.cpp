@@ -219,16 +219,12 @@ void TMapObjTree::touchPlayer(THitActor* sender)
 	mIsResting = false;
 	const TBGCheckData* gp = *gpMarioGroundPlane;
 	s16 leafIdx            = gp->mData;
-	if (gp->mActor != this)
-		return;
-	if (leafIdx < 0)
-		return;
-	if (leafIdx >= mLeafCount)
-		return;
-	if (marioHipAttack()) {
-		mLeaves[leafIdx].mAngleVel += mHipAttackRotImpulse;
-	} else if (marioIsOn()) {
-		mLeaves[leafIdx].mAngleVel += mMarioIsOnRotImpulse;
+	if (gp->mActor == this && leafIdx >= 0 && leafIdx < mLeafCount) {
+		if (marioHipAttack()) {
+			mLeaves[leafIdx].mAngleVel += mHipAttackRotImpulse;
+		} else if (marioIsOn()) {
+			mLeaves[leafIdx].mAngleVel += mMarioIsOnRotImpulse;
+		}
 	}
 }
 
