@@ -260,12 +260,12 @@ void TMapObjFlag::init(const char* name)
 void TMapObjFlag::updateVertex()
 {
 	for (int col = 0; col < mNumCols; col += mStepSize) {
-		f32 colTerm = (f32)col * mFlagHeight;
+		f32 colTerm = (f32)col * mFlagWidth;
 		for (int row = 0; row < mNumRows; row += mStepSize) {
-			f32 rowRatio = (f32)row / (f32)(mNumRows - 1);
-			f32 phase    = mPhase + (f32)(-row) * mFlagWidth + colTerm;
+			f32 rowRatio = (f32)row / (f32)mNumRows;
+			f32 phase    = mPhase + (f32)(-row) * mFlagHeight + colTerm;
 
-			while (phase > 360.0f)
+			while (phase >= 360.0f)
 				phase -= 360.0f;
 			while (phase < -180.0f)
 				phase += 360.0f;
