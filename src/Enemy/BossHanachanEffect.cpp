@@ -7,6 +7,7 @@
 #include <Camera/cameralib.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -20,8 +21,8 @@
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 
-static f32 sEmitSandFrameFoot[2] = { 14.0f, 34.0f };
-static f32 sSnortStepFrames[3]   = { 21.0f, 36.0f, 55.0f };
+static const f32 sSnortStepFrames[3]   = { 21.0f, 36.0f, 55.0f };
+static f32 sEmitSandFrameFoot[2]       = { 14.0f, 34.0f };
 
 void TBossHanachan::emitCamShake_()
 {
@@ -44,20 +45,18 @@ void TBossHanachan::emitCamShake_()
 		}
 
 		f32 ratio;
-		f32 maxDist = mParams->mSLCamShakeMaxDist.value;
-		if (dist <= maxDist) {
+		if (dist <= mParams->mSLCamShakeMaxDist.value) {
 			ratio = 1.0f;
+		} else if (dist >= mParams->mSLCamShakeZeroDist.value) {
+			ratio = 0.0f;
 		} else {
-			f32 zeroDist = mParams->mSLCamShakeZeroDist.value;
-			if (dist >= zeroDist) {
-				ratio = 0.0f;
-			} else {
-				ratio = CLBCalcRatio<f32>(zeroDist, maxDist, dist);
-				if (ratio > 1.0f)
-					ratio = 1.0f;
-				else if (ratio < 0.0f)
-					ratio = 0.0f;
-			}
+			f32 r = CLBCalcRatio<f32>(mParams->mSLCamShakeZeroDist.value,
+			                          mParams->mSLCamShakeMaxDist.value, dist);
+			if (r > 1.0f)
+				r = 1.0f;
+			else if (r < 0.0f)
+				r = 0.0f;
+			ratio = r;
 		}
 
 		for (int i = 0; i < 2; i++) {
