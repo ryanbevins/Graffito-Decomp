@@ -30,11 +30,11 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 
 // Static const class members (matching mAutoMeltScale__9TIceBlock etc in sdata)
-const f32 TSandBlock::sSandScaleUp    = 0.005f;
-const f32 TSandBlock::sSandScaleDown  = 0.0125f;
-const f32 TSandBlock::sSandScaleMin   = 0.01f;
-const s32 TSandBlock::sWaitTimeToFall = 60;
-const s32 TSandBlock::sSandWaitTime   = 120;
+f32 TSandBlock::mSandScaleUp    = 0.005f;
+f32 TSandBlock::mSandScaleDown  = 0.0125f;
+f32 TSandBlock::mSandScaleMin   = 0.01f;
+s32 TSandBlock::mWaitTimeToFall = 60;
+s32 TSandBlock::mSandWaitTime   = 120;
 
 const f32 TIceBlock::sMeltSpeedWater = 0.01f;
 const f32 TIceBlock::sMeltSpeedAuto  = 0.0005f;
@@ -51,7 +51,7 @@ void TBreakableBlock::touchPlayer(THitActor* sender)
 void TSandBlock::touchPlayer(THitActor* sender)
 {
 	if (marioIsOn() && mState == 1) {
-		mLifeTimer = sWaitTimeToFall;
+		mLifeTimer = mWaitTimeToFall;
 		mState     = 3;
 	}
 }
@@ -61,9 +61,9 @@ void TSandBlock::control()
 	TMapObjBase::control();
 	switch (mState) {
 	case 1: {
-		mScaling.x += sSandScaleUp;
-		mScaling.y += sSandScaleUp;
-		mScaling.z += sSandScaleUp;
+		mScaling.x += mSandScaleUp;
+		mScaling.y += mSandScaleUp;
+		mScaling.z += mSandScaleUp;
 		if (mScaling.y >= mInitialScaling.y) {
 			mScaling.x = mInitialScaling.x;
 			mScaling.y = mInitialScaling.y;
@@ -73,7 +73,7 @@ void TSandBlock::control()
 		break;
 	}
 	case 2: {
-		mScaling.y -= sSandScaleDown;
+		mScaling.y -= mSandScaleDown;
 		if (gpMSound->gateCheck(0x30aa)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x30aa, (Vec*)&mPosition, 0, 0, 0, 4);
@@ -84,11 +84,11 @@ void TSandBlock::control()
 		baseScale.z = mScaling.z;
 		emitAndScale(0x147, 1, &mPosition, baseScale);
 		emitAndScale(0x148, 1, &mPosition, baseScale);
-		if (mScaling.y < sSandScaleMin) {
+		if (mScaling.y < mSandScaleMin) {
 			mScaling.x = mScaling.y;
 			mScaling.z = mScaling.y;
 			sleep();
-			mLifeTimer = sSandWaitTime;
+			mLifeTimer = mSandWaitTime;
 			mState     = 5;
 		}
 		break;

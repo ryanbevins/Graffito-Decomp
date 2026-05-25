@@ -23,11 +23,11 @@ public:
 	void control();
 	void touchPlayer(THitActor*);
 
-	static const f32 sSandScaleUp;
-	static const f32 sSandScaleDown;
-	static const f32 sSandScaleMin;
-	static const s32 sWaitTimeToFall;
-	static const s32 sSandWaitTime;
+	static f32 mSandScaleUp;
+	static f32 mSandScaleDown;
+	static f32 mSandScaleMin;
+	static s32 mWaitTimeToFall;
+	static s32 mSandWaitTime;
 };
 
 class TLeanBlock : public TMapObjBase {
