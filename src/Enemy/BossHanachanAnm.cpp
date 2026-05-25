@@ -113,14 +113,18 @@ bool TBossHanachan::isAllBckAlreadyEnd(EnumBossHanachanAnmKind anmKind) const
 	bool found  = false;
 	if (mHead->mCurAnm == anmKind && mHead->isCurBckAlreadyEnd_())
 		found = true;
-	if (!found)
-		return false;
-	for (int i = 0; i < 8; i++) {
-		bool partDone = false;
-		if (mBody[i]->mCurAnm == anmKind && mBody[i]->isCurBckAlreadyEnd_())
-			partDone = true;
-		if (!partDone)
-			return false;
+	if (!found) {
+		result = false;
+	} else {
+		for (int i = 0; i < 8; i++) {
+			bool partDone = false;
+			if (mBody[i]->mCurAnm == anmKind && mBody[i]->isCurBckAlreadyEnd_())
+				partDone = true;
+			if (!partDone) {
+				result = false;
+				break;
+			}
+		}
 	}
 	return result;
 }
@@ -129,8 +133,13 @@ bool TBossHanachan::isFinishedGetUp() const
 {
 	bool result = false;
 	int cur     = mHead->mCurAnm;
-	if ((cur == 0x9 || cur == 0xC) && mHead->isCurBckAlreadyEnd_())
-		result = true;
+	switch (cur) {
+	case 0x9:
+	case 0xC:
+		if (mHead->isCurBckAlreadyEnd_())
+			result = true;
+		break;
+	}
 	return result;
 }
 
