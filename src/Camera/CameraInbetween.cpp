@@ -107,26 +107,18 @@ void TCameraInbetween::execCameraInbetween(
 			                      * (1.0f / frames));
 		}
 		f32 dx = prev.x - at.x;
-		if (dx < 0.0f) {
+		if (!(dx >= 0.0f)) {
 			dx = -dx;
 		}
-		if (dx > 0.1f) {
+		f32 dz = prev.z - at.z;
+		if (!(dz >= 0.0f)) {
+			dz = -dz;
+		}
+		if (dx > 0.1f || dz > 0.1f) {
 			Vec warp;
 			CLBPolarToCross(prev, &warp, mSubDist, mSubAngleX, mSubAngleY);
 			mTargetAt.x = warp.x;
 			mTargetAt.z = warp.z;
-		} else {
-			f32 dz = prev.z - at.z;
-			if (dz < 0.0f) {
-				dz = -dz;
-			}
-			if (dz > 0.1f) {
-				Vec warp;
-				CLBPolarToCross(prev, &warp, mSubDist, mSubAngleX,
-				                mSubAngleY);
-				mTargetAt.x = warp.x;
-				mTargetAt.z = warp.z;
-			}
 		}
 		CLBCrossToPolar(mTargetAt, pos, &localDist, &localAngleX, &localAngleY);
 		CLBChaseConstantSpecifyFrame(&mDist, localDist, frames);
