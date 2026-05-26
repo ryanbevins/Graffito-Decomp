@@ -8,18 +8,16 @@ static bool checkLinesCollision(f32 ax, f32 ay, f32 bx, f32 by, f32 cx, f32 cy,
 	f32 daby    = by - ay;
 	f32 cross_c = daby * (cx - bx) - dabx * (cy - by);
 	f32 cross_d = daby * (dx - bx) - dabx * (dy - by);
-	if (cross_c >= 0.0f && cross_d >= 0.0f)
-		return false;
-	if (cross_c < 0.0f && cross_d < 0.0f)
+	if ((cross_c >= 0.0f && cross_d >= 0.0f)
+	    || (cross_c < 0.0f && cross_d < 0.0f))
 		return false;
 
 	f32 dcdx    = dx - cx;
 	f32 dcdy    = dy - cy;
 	f32 cross_a = dcdy * (ax - dx) - dcdx * (ay - dy);
 	f32 cross_b = dcdy * (bx - dx) - dcdx * (by - dy);
-	if (cross_a >= 0.0f && cross_b >= 0.0f)
-		return false;
-	if (cross_a < 0.0f && cross_b < 0.0f)
+	if ((cross_a >= 0.0f && cross_b >= 0.0f)
+	    || (cross_a < 0.0f && cross_b < 0.0f))
 		return false;
 
 	return true;
