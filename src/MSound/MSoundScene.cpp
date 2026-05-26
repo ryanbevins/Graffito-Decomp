@@ -22,8 +22,27 @@ void MSSceneSE::frameLoop(u32 id, Vec* trans, u8 count)
 	if (count > 256)
 		return;
 
-	for (int i = 0; i < count; i++) {
-		mPosPtrs[i] = &trans[i];
+	Vec* p = trans;
+	u8 i   = 0;
+	if (count > 8) {
+		u8 lim = count - 8;
+		while (i < lim) {
+			mPosPtrs[i + 0] = p;
+			mPosPtrs[i + 1] = p + 1;
+			mPosPtrs[i + 2] = p + 2;
+			mPosPtrs[i + 3] = p + 3;
+			mPosPtrs[i + 4] = p + 4;
+			mPosPtrs[i + 5] = p + 5;
+			mPosPtrs[i + 6] = p + 6;
+			mPosPtrs[i + 7] = p + 7;
+			p += 8;
+			i += 8;
+		}
+	}
+	while (i < count) {
+		mPosPtrs[i] = p;
+		p++;
+		i++;
 	}
 
 	u8 s = 0;
