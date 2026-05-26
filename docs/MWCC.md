@@ -3719,6 +3719,116 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Naked `(bvar ? true : false)` ternary at the test site forces MWCC's bool-materialize-then-test pattern without a helper function
+
+**Hypothesis.** The existing Settled rule
+[[Predicates that materialize a 0/1 BOOL force inline-then-test even
+for `&&` short-circuit]] documents the 5-instruction
+materialize-then-test sequence (test → `li r0, 1; b; li r0, 0` →
+`clrlwi. r0, r0, 24; beq`) and traces it to inline helpers that
+return `... ? 1 : 0`. **The same pattern also fires WITHOUT any
+helper — just write the ternary inline at the use site:**
+
+```cpp
+bool ok = false;
+if (cond) ok = true;
+
+// BAD: single test+branch, omits the materialize-then-test pair
+if (!ok) return;            // clrlwi. r0, rN, 24; beq exit
+
+// GOOD: target's full 5-insn materialize+retest
+if (!(ok ? true : false))   // clrlwi. r0, rN, 24
+    return;                 // beq SKIP; li r0, 1; b CONT; SKIP: li r0, 0;
+                            // CONT: clrlwi. r0, r0, 24; beq exit
+```
+
+The ternary `ok ? true : false` is a no-op semantically (bool→bool)
+but it forces MWCC to first canonicalize `ok` to a true 0-or-1 value
+in r0, then re-test r0 for the branch. That's the same materialize
++ test cascade the helper-call form produces, just spelled inline.
+
+**Diagnostic signature in target asm.** Look for the exact sequence
+between two CR-clobbering instructions on the same bool:
+```
+clrlwi. r0, rN, 24     # first test of the stored bool
+beq L_zero
+li r0, 0x1
+b L_test
+L_zero: li r0, 0x0
+L_test: clrlwi. r0, r0, 24
+beq EXIT
+```
+If our build emits just the first `clrlwi. + beq` and skips the
+middle 5 instructions, the source needs the inline ternary.
+
+**Where to try it next.** Any spot where:
+1. Target has the 5-insn materialize-then-test signature above
+2. Source uses a stored `bool` (not `BOOL/int`) tested via `if (!var)`
+   or `if (var)` after one or more conditional `var = true;` assignments
+3. There's no obvious inline helper to point to
+
+**Citation.**
+
+- `Camera/sunmgr::perform` (tick 144): 77.8 → **98.07%** in this tick
+  (cumulative with other levers). Two independent in-function sites
+  (the `inMode` early-return at ~+0xC0 and the `c`-after-warp-gate
+  early-return at ~+0x178) both gained the materialize-then-test
+  cascade after switching `if (!ok) return;` to `if (!(ok ? true :
+  false)) return;`. The two are independent because they sit in
+  different basic blocks with no shared bool flow, so this is two
+  observations of the same lever within one TU.
+
+**Promote to Settled when.** A second TU (any function) confirms the
+ternary lever produces the materialize cascade. Until then this is a
+naked-ternary variant of the existing isAirborne/isActorTypeOf
+Settled rule rather than a separate phenomenon.
+
+### `if (!(dist < K))` emits `bge`, while `if (dist >= K)` emits the `cror eq, gt, eq; beq` lattice (inverse of the !(>=) hypothesis)
+
+**Hypothesis.** Mirror of the `!(>=)` lever below. For a "fail-if-dist-too-big"
+test where the target asm shows a single ordered branch (`bge SKIP`) instead
+of the cror lattice, the source uses `!(dist < K)` rather than `dist >= K`:
+
+```cpp
+// BAD: emits cror lattice
+if (dist >= 160000.0f) return;
+// fcmpo cr0, fDist, fK
+// cror eq, gt, eq
+// beq EXIT
+
+// GOOD: emits single bge
+if (!(dist < 160000.0f)) return;
+// fcmpo cr0, fDist, fK
+// bge EXIT
+```
+
+Semantically equivalent for non-NaN floats. MWCC compiles `>=` through
+the cror-lattice path (treating it as ordered-strict), but `!(<)` through
+the simpler `bge` (which for floats includes "unordered"). The two produce
+different NaN behavior but identical results for real arithmetic.
+
+**Diagnostic signature.** Target's `fcmpo cr0, fX, fY` is immediately
+followed by a single `bge LBL`, while our build emits `cror eq, gt, eq;
+beq LBL` (one extra instruction).
+
+**Citation.**
+
+- `Camera/sunmgr::perform` (tick 144) Mario-distance gate
+  (`dx*dx + dz*dz >= 160000.0f` → `!(dx*dx + dz*dz < 160000.0f)`):
+  +1pp on the function (within the cumulative 77.8 → 98.07 above).
+  Confirmed the rewrite produces target's `bge EXIT` instead of
+  `cror eq, gt, eq; beq EXIT`.
+
+**Note vs the `!(>=)` Hypothesis.** This is the polarity-flipped
+sibling: `!(>=)` SUMMONS the cror lattice (for abs-by-sign blocks),
+while `!(<)` BANISHES it (for distance-threshold returns). Same
+underlying MWCC mechanism — the explicit `!` around the strict
+comparison forces a different branch-form lowering than the
+non-negated convex form.
+
+**Promote to Settled when.** A second TU confirms the `!(<)` rewrite
+swaps cror+beq for a single bge.
+
 ### `if (!(x >= 0.0f))` triggers `cror eq, gt, eq` lattice, while `if (x < 0.0f)` emits a plain `bge`
 
 **Hypothesis.** When the target asm shows a `cror eq, gt, eq` followed by
