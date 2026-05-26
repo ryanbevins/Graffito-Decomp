@@ -2,11 +2,26 @@
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMarioData.hpp>
 #include <Camera/cameralib.hpp>
+#include <Map/MapStaticObject.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <System/Resolution.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DMaterialAnm.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DAnmLoader.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <JSystem/JGadget/std-list.hpp>
 #include <JSystem/JGeometry.hpp>
 #include <dolphin/gx.h>
 #include <dolphin/mtx.h>
+#include <stdio.h>
+
+extern const char* cSunVolumeName;
+extern const char* cSunsetVolumeName;
+extern f32 SMSGetAnmFrameRate();
 
 TSunModel* gpSunModel;
 
@@ -56,8 +71,83 @@ TSunModel::TSunModel(bool sunset, const char* name)
 void TSunModel::load(JSUMemoryInputStream& stream)
 {
 	JDrama::TActor::load(stream);
-	// TODO: full body
-	(void)stream;
+	mScaling.x *= 0.4f;
+	mScaling.y *= 0.4f;
+	mScaling.z *= 0.4f;
+
+	const char* volName  = cSunVolumeName;
+	u32         loadFlags = 0x10020000;
+	if ((mFlags & 4) != 0) {
+		loadFlags |= 0x01000000;
+		volName    = cSunsetVolumeName;
+	}
+
+	char path[0x100];
+	snprintf(path, 0x100, "%s/%s", volName, "model.bmd");
+	void* bmd = JKRFileLoader::getGlbResource(path);
+	mModelData = (J3DModelData*)J3DModelLoaderDataBase::load(bmd, loadFlags);
+
+	J3DModel* model = new J3DModel();
+	if (model) {
+		model = new (model) J3DModel(mModelData, 0, 1);
+	}
+	mModel = model;
+
+	snprintf(path, 0x100, "%s/%s", volName, "model.btk");
+	void* btk    = JKRFileLoader::getGlbResource(path);
+	mAnmTexSRT   = (J3DAnmTextureSRTKey*)J3DAnmLoaderDataBase::load(btk);
+	mAnmTexSRT->searchUpdateMaterialID(mModelData);
+
+	for (u16 i = 0; i < mModelData->getMaterialNum(); i++) {
+		J3DMaterialAnm* anm = new J3DMaterialAnm;
+		mModelData->getMaterialNodePointer(i)->change();
+		mModelData->getMaterialNodePointer(i)->setMaterialAnm(anm);
+	}
+	mModelData->entryTexMtxAnimator(mAnmTexSRT);
+
+	// Two indirect virtual calls copy 8 bytes each into mUnk8C..0x98
+	// (likely material-related render data); store as int pairs.
+	{
+		J3DMaterial* mat0 = mModelData->getMaterialNodePointer(0);
+		// (mat->vtable[0x34/4])(mat) returns pointer to 8-byte data
+		u32* p0 = (u32*)( (*(u32*(**)(J3DMaterial*))((*(u32**)(*(u32**)((u32*)mat0 + 10))) + 13))(mat0) );
+		*(u32*)((u8*)this + 0x8C) = p0[0];
+		*(u32*)((u8*)this + 0x90) = p0[1];
+	}
+	{
+		J3DMaterial* mat1 = mModelData->getMaterialNodePointer(1);
+		u32* p1 = (u32*)( (*(u32*(**)(J3DMaterial*))((*(u32**)(*(u32**)((u32*)mat1 + 10))) + 13))(mat1) );
+		*(u32*)((u8*)this + 0x94) = p1[0];
+		*(u32*)((u8*)this + 0x98) = p1[1];
+	}
+
+	mUnkA4 = (f32)(u8)mUnk68;
+	mUnk9C = mUnkA4;
+	mUnkA8 = (f32)(u8)mUnk74;
+	mUnkA0 = mUnkA8;
+
+	mFrameCtrl.init(*(s16*)((u8*)mAnmTexSRT + 2));
+	mFrameCtrl.setRate(SMSGetAnmFrameRate());
+	mFrameCtrl.setAttribute(J3DFrameCtrl::ATTR_LOOP);
+
+	mPos198 = *(const Vec*)&mPosition;
+
+	TMapStaticObj* obj = new TMapStaticObj("sun_mirror");
+	mMapStaticObj      = obj;
+	mMapStaticObj->init("sun_mirror");
+
+	*(Vec*)((u8*)mMapStaticObj + 0x10) = *(const Vec*)&mPosition;
+	*(Vec*)((u8*)mMapStaticObj + 0x30) = *(const Vec*)&mRotation;
+	*(Vec*)((u8*)mMapStaticObj + 0x24) = *(const Vec*)&mScaling;
+
+	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
+	const char* sceneName  = "\x8B\xBE\x83\x56\x81\x5B\x83\x93"; // JIS string
+	JDrama::TNameRef* sceneRef
+	    = root->searchF(JDrama::TNameRef::calcKeyCode(sceneName), sceneName);
+
+	JGadget::TList<void*>* list
+	    = (JGadget::TList<void*>*)((u8*)sceneRef + 0x10);
+	list->insert(list->end(), *(void**)&mMapStaticObj);
 }
 
 void TSunModel::calcOtherFPosFromCenterAndRadius_(
