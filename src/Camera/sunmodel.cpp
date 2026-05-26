@@ -87,11 +87,7 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 	void* bmd = JKRFileLoader::getGlbResource(path);
 	mModelData = (J3DModelData*)J3DModelLoaderDataBase::load(bmd, loadFlags);
 
-	J3DModel* model = new J3DModel();
-	if (model) {
-		model = new (model) J3DModel(mModelData, 0, 1);
-	}
-	mModel = model;
+	mModel = new J3DModel(mModelData, 0, 1);
 
 	snprintf(path, 0x100, "%s/%s", volName, "model.btk");
 	void* btk    = JKRFileLoader::getGlbResource(path);
@@ -132,8 +128,7 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 
 	mPos198 = *(const Vec*)&mPosition;
 
-	TMapStaticObj* obj = new TMapStaticObj("sun_mirror");
-	mMapStaticObj      = obj;
+	mMapStaticObj = new TMapStaticObj("sun_mirror");
 	mMapStaticObj->init("sun_mirror");
 
 	*(Vec*)((u8*)mMapStaticObj + 0x10) = *(const Vec*)&mPosition;
