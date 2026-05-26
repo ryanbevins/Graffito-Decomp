@@ -36,6 +36,59 @@ them in future ticks.
 
 ## Settled
 
+### `PARAM_INIT(field, default)` stringifies `field` — pick the field name to match target's rodata key strings, even if it breaks `m`-prefix convention
+
+**Rule.** `PARAM_INIT(member, default)` expands to
+`member(this, default, calcKeyCode(#member), #member)`. The stringified
+member name lands in `.rodata`/`.sdata2` AND becomes part of the keycode
+hash used to look up params in the .prm file at runtime. If the original
+target's rodata shows an unprefixed string (`"turnSpeed"`, `"speed"`,
+`"angle"`, `"radius"`), the source field MUST also be unprefixed —
+otherwise the `m`-prefixed string (`"mTurnSpeed"`) lands in rodata and
+no amount of register/codegen tweaking will fix the rodata mismatch or
+shift downstream offsets. The mismatch also breaks runtime behavior:
+the keycode hashed from `"mTurnSpeed"` won't match the disc's `.prm`
+entry keyed by `"turnSpeed"`, so the param load silently keeps the
+default.
+
+```cpp
+// BEFORE (our convention, rodata "mTurnSpeed"):
+PARAM_INIT(mTurnSpeed, 8.0f)
+// member declared: TParamRT<f32> mTurnSpeed;
+
+// AFTER (target rodata "turnSpeed"):
+PARAM_INIT(turnSpeed, 8.0f)
+// member declared: TParamRT<f32> turnSpeed;
+```
+
+**Diagnostic signature.** Look at the asm `.string` entries inside the
+TU's rodata + sdata2 sections. If they're lowercase / unprefixed but our
+header uses `m`-prefix, that's the lever. Strings ≤ 8 bytes land in
+sdata2 (small data area, e.g. `"speed"`, `"angle"`, `"range"`,
+`"radius"`); longer ones in rodata (e.g. `"turnSpeed"`, `"turnSpeed2"`).
+The break is structural — *every* `addi rN, r27, OFF` to those rodata
+chunks downshifts in our build, dragging match% down everywhere they're
+referenced.
+
+**Citations.**
+
+- `Enemy/BathtubPeach` `TBathtubPeachParams` (tick 132): renamed
+  `mTurnSpeed`/`mTurnSpeed2`/`mSpeed`/`mAngle`/`mRange`/`mRadius` →
+  unprefixed. Rodata strings match exactly; downstream addi offsets
+  to the param strings drop their shift. TU rose 89.42 → 89.46% and
+  unblocks further codegen work in `load`, `escape`, `stagger`.
+- Re-confirms a partial citation from the t122 `static const` entry
+  below — naming convention is **not** uniformly `m`-prefixed in the
+  original. Cross-check `symbols.txt` AND rodata `.string` entries
+  before assuming the convention.
+
+**Where to try it next.** Run the rename-sweep heuristic over every
+`PARAM_INIT(m...)` use and grep the matching TU's asm for the
+stripped-prefix lowercase variant. False-positive risk is moderate
+(`brake` / `acc` etc. are also common animation-key strings), so
+verify the rodata section + nearby `lfs` defaults match the param's
+default value before committing the rename.
+
 ### Loop form `for (int i = 0; i < N; i++) arr[i] = K * (i+1);` unrolls and forces per-store register materialization (incl. `clrrwi r,r,0` for *1)
 
 **Rule.** When target asm shows an unrolled N-store sequence where the
