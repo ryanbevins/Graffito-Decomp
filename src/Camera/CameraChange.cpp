@@ -4,11 +4,13 @@
 #include <Camera/cameralib.hpp>
 #include <Enemy/BossGesso.hpp>
 #include <MarioUtil/MapUtil.hpp>
+#include <MSound/MSound.hpp>
 #include <Map/MapData.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
 #include <Strategic/HitActor.hpp>
 #include <Strategic/TakeActor.hpp>
+#include <System/MarioGamePad.hpp>
 
 #pragma dont_inline on
 
@@ -86,8 +88,58 @@ bool CPolarSubCamera::isChangeToBossGesoCamera_() const
 	return result;
 }
 
-void CPolarSubCamera::doLButtonCameraOff_(bool flag) { (void)flag; }
-void CPolarSubCamera::execFrontRotate_() { }
+void CPolarSubCamera::doLButtonCameraOff_(bool flag)
+{
+	bool ready = false;
+	if (isLButtonCameraSpecifyMode(mMode)) {
+		if (!isNowInbetween()) {
+			ready = true;
+		}
+	}
+	bool go = ready ? true : false;
+	if (go) {
+		*(s16*)((u8*)this + 0x282) = 0x3C;
+		if (flag) {
+			*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+			unk70 = nullptr;
+			changeCamModeSub_(-1, 1, false);
+		} else {
+			gpMSound->startSoundSystemSE(0x4825, 0, nullptr, 0);
+			s16 frame = (s16)getCameraInbetweenFrame_(-1);
+			*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+			unk70 = nullptr;
+			changeCamModeSub_(-1, frame, false);
+		}
+		if (*(u16*)((u8*)this + 0x64) & 0x20) {
+			execNoticeOnOffProc_((EnumNoticeOnOffMode)0);
+		}
+	}
+}
+
+void CPolarSubCamera::execFrontRotate_()
+{
+	if (isLButtonCameraSpecifyMode(mMode))
+		return;
+	if (SMS_GetMarioStatus() == 0x8008A9)
+		return;
+
+	*(u16*)((u8*)this + 0x64) &= ~0x10;
+	*(u16*)((u8*)this + 0x64) |= 0x4;
+
+	*(s16*)((u8*)this + 0x274) = *gpMarioAngleY + (s16)0x8000;
+
+	u32 m = unk120->mEnabledFrameMeaning;
+	if (m & 0x4000) {
+		s16 v = *(s16*)((u8*)*(void**)((u8*)this + 0x2D4) + 0x11C);
+		*(s16*)((u8*)this + 0x276) = v;
+		*(u16*)((u8*)this + 0x64) |= 0x8;
+	} else if (m & 0x8000) {
+		s16 v = *(s16*)((u8*)*(void**)((u8*)this + 0x2D4) + 0x130);
+		*(s16*)((u8*)this + 0x276) = v;
+		*(u16*)((u8*)this + 0x64) &= ~0x8;
+		gpMSound->startSoundSystemSE(0x4826, 0, nullptr, 0);
+	}
+}
 
 void CPolarSubCamera::changeCamModeSpecifyCamMapToolAndFrame_(
     const TCameraMapTool* tool, int frame)
