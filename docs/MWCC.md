@@ -36,6 +36,85 @@ them in future ticks.
 
 ## Settled
 
+### Explicit out-of-line `operator=` is the only reliable way to make MWCC emit a callable `__as__` symbol; `inline` always gets fully inlined under `-inline deferred`
+
+**Rule.** When the target shows a `bl __as__<class>` to a weak
+auto-generated `operator=`, we cannot reproduce a callable version
+of that operator via the compiler-generated default — MWCC's
+auto-gen `operator=` is *always* inlined at the call site (even with
+`#pragma dont_inline on`). The only reliable way to force MWCC to
+emit `__as__` as a separate function and `bl` to it is to declare
+the operator= **without `inline`** with an **out-of-line definition**:
+
+```cpp
+class TTargetCamera {
+public:
+    Vec mPos, mTgt, mUp;  // 0x00, 0x0C, 0x18
+    s16 unk24, unk26;     // 0x24, 0x26
+    f32 unk28;            // 0x28
+    s16 unk2C;            // 0x2C
+    f32 unk30;            // 0x30  (size 0x34)
+
+    TTargetCamera& operator=(const TTargetCamera& other);  // decl only
+};
+
+// Out-of-line, NO `inline` keyword. Body uses Vec assignments
+// (not field-by-field x/y/z) so MWCC emits the same auto-gen
+// interleaved lwz/lwz/stw/stw pattern as the target.
+TTargetCamera& TTargetCamera::operator=(const TTargetCamera& other)
+{
+    mPos  = other.mPos;
+    mTgt  = other.mTgt;
+    mUp   = other.mUp;
+    unk24 = other.unk24;
+    unk26 = other.unk26;
+    unk28 = other.unk28;
+    unk2C = other.unk2C;
+    unk30 = other.unk30;
+    return *this;
+}
+```
+
+**Caveat.** This produces GLOBAL linkage, not WEAK. The target's
+`__as__` is `weak`. We have not found a way to get WEAK + bl + the
+asymmetric "first-call-bl, second-call-inlined" pattern that MWCC
+actually emits for genuine auto-gen `operator=`. Function body
+itself matches 100% at instruction level. Adding `inline` (either
+in-class or to the out-of-line definition) immediately drops the
+function to "missing" — MWCC inlines both call sites.
+
+**For the SECOND call site** (when target has an inlined copy of
+`__as__`), use a mix of `Vec` struct copies and scalar field copies:
+
+```cpp
+// Target's inlined op= produces interleaved lwz/lwz/stw/stw for each
+// Vec3 (auto-gen Vec op= inlining). Reproduce by using Vec struct
+// copies (NOT component-by-component x/y/z assignments):
+*(Vec*)((u8*)this + 0xB4) = *(Vec*)&dst.mPos;
+*(Vec*)((u8*)this + 0xC0) = *(Vec*)&dst.mTgt;
+*(Vec*)((u8*)this + 0xCC) = *(Vec*)&dst.mUp;
+*(s16*)((u8*)this + 0xD8) = dst.unk24;
+*(s16*)((u8*)this + 0xDA) = dst.unk26;
+*(f32*)((u8*)this + 0xDC) = dst.unk28;
+*(s16*)((u8*)this + 0xE0) = dst.unk2C;
+*(f32*)((u8*)this + 0xE4) = dst.unk30;
+```
+
+**Citations.**
+
+- `Camera/CameraChange::changeCamModeSub_` (tick 140):
+  71.3 → **78.7%**. Target had `bl __as__13TTargetCamera` + one
+  inlined copy. Out-of-line `operator=` declaration + Vec struct
+  copies at the second site matched both call sites' instruction
+  patterns. TU 71.5 → 74.9% fuzzy. Function-level match 100% for
+  `__as__13TTargetCameraFRC13TTargetCamera`, though linkage is
+  GLOBAL vs target's WEAK.
+
+**Where to try it next.** Any near-match function whose diff shows
+target calling `__as__<SomeClass>` (weak auto-gen op=) but our build
+emits a sequence of lwz/stw without the bl. Common pattern in TUs
+that copy state structs (camera, lighting, transform, anim state).
+
 ### Hoist `base + idx` (without the constant offset) into a `u8*` local to force `add+lwz(CONST)` instead of `lwzx`
 
 **Rule.** When the target asm computes a struct-field access by adding
