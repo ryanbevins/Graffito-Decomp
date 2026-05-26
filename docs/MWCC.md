@@ -36,6 +36,72 @@ them in future ticks.
 
 ## Settled
 
+### Use `Vec` (not component x/y/z) for save-restore-around-call temporaries to force stack spill instead of non-volatile FPR spill
+
+**Rule.** When a function reads three contiguous f32 fields into a
+temporary, calls into something, then restores the fields — and the
+target asm saves/restores via stack (`stw/lwz` to `r1+offset`) rather
+than non-volatile FPRs (`stfd f29-f31` in prologue) — the source must
+use a **`Vec` temporary assigned via struct copy**, not a
+`JGeometry::TVec3<f32>` temporary with component-by-component
+assignment:
+
+```cpp
+// BAD: produces stfd f29-31 + restore via stfs, inflates stack 24B
+JGeometry::TVec3<f32> tmp;
+if (cond) {
+    tmp.x = *(f32*)((u8*)this + 0x80);
+    tmp.y = *(f32*)((u8*)this + 0x84);
+    tmp.z = *(f32*)((u8*)this + 0x88);
+}
+tool->call(...);
+if (cond) {
+    *(f32*)((u8*)this + 0x80) = tmp.x;
+    *(f32*)((u8*)this + 0x84) = tmp.y;
+    *(f32*)((u8*)this + 0x88) = tmp.z;
+}
+
+// GOOD: produces lwz/stw save (integer) + lfs/stfs restore (float)
+Vec tmp;
+if (cond) {
+    tmp = *(Vec*)((u8*)this + 0x80);   // Vec struct copy → lwz/stw
+}
+tool->call(...);
+if (cond) {
+    *(f32*)((u8*)this + 0x80) = tmp.x; // component float restore
+    *(f32*)((u8*)this + 0x84) = tmp.y;
+    *(f32*)((u8*)this + 0x88) = tmp.z;
+}
+```
+
+**Why it works.** `Vec` (plain C struct of 3 floats) struct-copy
+compiles to lwz/stw via auto-gen op=, forcing tmp to live in stack
+memory across the function call. Component-by-component f32
+assignment uses lfs/stfs, and MWCC tries to keep the values in float
+registers; if they need to survive a call, it spills to non-volatile
+FPRs f29-f31 (24B prologue inflation). Mixing INT save and FLOAT
+restore matches the target's pattern exactly:
+
+```
+# Save (integer copy from struct to stack)
+lwz r4, 0x80(r29); lwz r0, 0x84(r29)
+stw r4, 0xe8(r1);  stw r0, 0xec(r1)
+lwz r0, 0x88(r29); stw r0, 0xf0(r1)
+# ... function call ...
+# Restore (float copy from stack back to struct)
+lfs f0, 0xe8(r1); stfs f0, 0x80(r29)
+lfs f0, 0xec(r1); stfs f0, 0x84(r29)
+lfs f0, 0xf0(r1); stfs f0, 0x88(r29)
+```
+
+**Citations.**
+
+- `Camera/CameraChange::changeCamModeSub_` (tick 140):
+  78.7 → **82.1%** (+3.4pp). Replacing `JGeometry::TVec3<f32> tmp`
+  with `Vec tmp` and using struct-copy for the save eliminated all
+  3 `stfd` saves in the prologue, dropped stack from 0x120 to
+  0x108, matching target. TU 74.9 → 75.7%.
+
 ### Explicit out-of-line `operator=` is the only reliable way to make MWCC emit a callable `__as__` symbol; `inline` always gets fully inlined under `-inline deferred`
 
 **Rule.** When the target shows a `bl __as__<class>` to a weak
