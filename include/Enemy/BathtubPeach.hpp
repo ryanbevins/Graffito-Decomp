@@ -10,22 +10,22 @@ class TBathtubPeachParams : public TSpineEnemyParams {
 public:
 	TBathtubPeachParams(const char* prm = "/enemy/bathtubpeach.prm")
 	    : TSpineEnemyParams(prm)
-	    , PARAM_INIT(mTurnSpeed, 8.0f)
-	    , PARAM_INIT(mTurnSpeed2, 1.0f)
-	    , PARAM_INIT(mSpeed, 16.0f)
-	    , PARAM_INIT(mAngle, 72.0f)
-	    , PARAM_INIT(mRange, 100.0f)
-	    , PARAM_INIT(mRadius, 2200.0f)
+	    , PARAM_INIT(turnSpeed, 8.0f)
+	    , PARAM_INIT(turnSpeed2, 1.0f)
+	    , PARAM_INIT(speed, 16.0f)
+	    , PARAM_INIT(angle, 72.0f)
+	    , PARAM_INIT(range, 100.0f)
+	    , PARAM_INIT(radius, 2200.0f)
 	{
 		TParams::load(mPrmPath);
 	}
 
-	/* 0x0A8 */ TParamRT<f32> mTurnSpeed;
-	/* 0x0BC */ TParamRT<f32> mTurnSpeed2;
-	/* 0x0D0 */ TParamRT<f32> mSpeed;
-	/* 0x0E4 */ TParamRT<f32> mAngle;
-	/* 0x0F8 */ TParamRT<f32> mRange;
-	/* 0x10C */ TParamRT<f32> mRadius;
+	/* 0x0A8 */ TParamRT<f32> turnSpeed;
+	/* 0x0BC */ TParamRT<f32> turnSpeed2;
+	/* 0x0D0 */ TParamRT<f32> speed;
+	/* 0x0E4 */ TParamRT<f32> angle;
+	/* 0x0F8 */ TParamRT<f32> range;
+	/* 0x10C */ TParamRT<f32> radius;
 };
 
 class TBathtubPeach : public TSpineEnemy {

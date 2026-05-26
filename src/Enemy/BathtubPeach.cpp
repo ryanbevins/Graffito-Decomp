@@ -89,7 +89,7 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 
 	TBathtubPeachParams* params
 	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
-	f32 angleParam = params->mAngle.value;
+	f32 angleParam = params->angle.value;
 	f32 newAngle;
 	if (angleDiff < 0.0f) {
 		newAngle
@@ -101,7 +101,7 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 
 	TBathtubPeachParams* params2
 	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
-	f32 radius  = params2->mRadius.value;
+	f32 radius  = params2->radius.value;
 	f32 targetX = bathtubX + radius * JMASin(newAngle);
 	f32 targetZ = bathtubZ + radius * JMACos(newAngle);
 
@@ -111,7 +111,7 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 
 	TBathtubPeachParams* params3
 	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
-	f32 speed = params3->mSpeed.value;
+	f32 speed = params3->speed.value;
 	if (delta.x * delta.x + delta.y * delta.y <= speed * speed) {
 		f32 lenSq = delta.dot(delta);
 		if (lenSq <= 3.8146973e-6f) {
@@ -131,7 +131,7 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 	f32 dz                       = gpMarioPos->z - peach->mPosition.z;
 	TBathtubPeachParams* params4
 	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
-	f32 turnSpeed2 = params4->mTurnSpeed2.value;
+	f32 turnSpeed2 = params4->turnSpeed2.value;
 	if (dx * dx + dz * dz > 3.8146973e-6f) {
 		f32 targetRot
 		    = SHORTANGLE2DEG((s16)matan(dz, dx)) - 90.0f;
@@ -241,7 +241,7 @@ TSpineEnemy* TBathtubPeachManager::createEnemyInstance() { return nullptr; }
 
 void TBathtubPeachManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "ahiru_peach.bmd", 0x14240000, 0 },
 		{ nullptr, 0, 0 },
 	};
