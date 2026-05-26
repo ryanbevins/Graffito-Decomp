@@ -691,12 +691,10 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 				useBlock1 = false;
 			}
 
-			JGeometry::TVec3<f32> tmp;
+			Vec tmp;
 			if (useBlock1) {
 				if (useVecB) {
-					tmp.x = *(f32*)((u8*)this + 0x80);
-					tmp.y = *(f32*)((u8*)this + 0x84);
-					tmp.z = *(f32*)((u8*)this + 0x88);
+					tmp = *(Vec*)((u8*)this + 0x80);
 				}
 				tool->calcPosAndAt(
 				    (JGeometry::TVec3<f32>*)((u8*)this + 0x80),
@@ -708,9 +706,7 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 				}
 			} else {
 				if (useVecB) {
-					tmp.x = *(f32*)((u8*)this + 0x10);
-					tmp.y = *(f32*)((u8*)this + 0x14);
-					tmp.z = *(f32*)((u8*)this + 0x18);
+					tmp = *(Vec*)((u8*)this + 0x10);
 				}
 				tool->calcPosAndAt(
 				    (JGeometry::TVec3<f32>*)((u8*)this + 0x10),
