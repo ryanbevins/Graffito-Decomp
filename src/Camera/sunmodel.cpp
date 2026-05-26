@@ -23,6 +23,8 @@ extern const char* cSunVolumeName;
 extern const char* cSunsetVolumeName;
 extern f32 SMSGetAnmFrameRate();
 
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+
 TSunModel* gpSunModel;
 
 TSunModel::TSunModel(bool sunset, const char* name)
@@ -168,7 +170,8 @@ void TSunModel::calcOtherFPosFromCenterAndRadius_(
 }
 
 template <class S, class F>
-inline void CLBScreenFPosToSPos(JGeometry::TVec2<S>* dst, const JGeometry::TVec2<F>& src)
+inline void CLBScreenFPosToSPos(JGeometry::TVec2<S>* dst,
+                                const JGeometry::TVec2<F>& src)
 {
 	if (src.x < -1.0f || src.x > 1.0f) {
 		dst->x = -1;
