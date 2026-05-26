@@ -86,14 +86,15 @@ void TSunMgr::perform(unsigned long flags, JDrama::TGraphics* gfx)
 		return;
 
 	TSunModel* sm = gpSunModel;
+	f32* uv = &sm->unkF8;
 	bool c = false;
 	bool b = c;
 	bool a = c;
-	if (-0.3f <= sm->unkF8 && sm->unkF8 <= 0.3f)
+	if (-0.3f <= uv[0] && uv[0] <= 0.3f)
 		a = true;
-	if (a && -0.3f <= sm->unkFC)
+	if (a && -0.3f <= uv[1])
 		b = true;
-	if (b && sm->unkFC <= 0.3f)
+	if (b && uv[1] <= 0.3f)
 		c = true;
 	if (!(c ? true : false))
 		return;
