@@ -30,9 +30,11 @@ bool CPolarSubCamera::isChangeToParallelCameraByMoveBG_() const
 	bool result = false;
 	TTakeActor* holder = gpMarioOriginal->mHolder;
 	if (holder != nullptr) {
-		u32 type = holder->getActorType();
-		if (type == 0x400000BB || type == 0x40000049) {
+		switch (holder->getActorType()) {
+		case 0x400000BB:
+		case 0x40000049:
 			result = true;
+			break;
 		}
 	}
 	if (!result) {
