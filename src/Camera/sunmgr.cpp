@@ -28,9 +28,9 @@ TSunMgr::TSunMgr(const char* name)
 	*(s32*)&unk18 = -1;
 	*(s32*)&unk1C = -1;
 	unk20    = 0.0f;
-	unk24    = 0.0f;
-	unk28    = 0.0f;
-	unk2C    = 0.0f;
+	unk24.x  = 0.0f;
+	unk24.y  = 0.0f;
+	unk24.z  = 0.0f;
 	gpSunMgr = this;
 }
 
@@ -59,9 +59,7 @@ void TSunMgr::load(JSUMemoryInputStream& stream)
 		unk15 |= 0x1;
 		TStagePositionInfo* p = static_cast<TStagePositionInfo*>(
 		    gpPositionHolder->search(cSunWarpPointName));
-		unk24 = p->unkC.x;
-		unk28 = p->unkC.y;
-		unk2C = p->unkC.z;
+		unk24 = p->unkC;
 	}
 }
 
@@ -74,37 +72,38 @@ void TSunMgr::perform(unsigned long flags, JDrama::TGraphics* gfx)
 	if (!(gfx->unk0 & 0x2))
 		return;
 
-	BOOL inMode = FALSE;
-	if (gpCamera->isLButtonCameraSpecifyMode(gpCamera->mMode)
-	    && !gpCamera->isNowInbetween())
-		inMode = TRUE;
-	if (!inMode)
+	CPolarSubCamera* cam = gpCamera;
+	bool inMode = false;
+	if (cam->isLButtonCameraSpecifyMode(cam->mMode)
+	    && !cam->isNowInbetween())
+		inMode = true;
+	if (!(inMode ? true : false))
 		return;
 
-	f32 dz = gpMarioPos->z - unk2C;
-	f32 dx = gpMarioPos->x - unk24;
-	if (dx * dx + dz * dz >= 160000.0f)
+	f32 dz = gpMarioPos->z - unk24.z;
+	f32 dx = gpMarioPos->x - unk24.x;
+	if (!(dx * dx + dz * dz < 160000.0f))
 		return;
 
 	TSunModel* sm = gpSunModel;
-	BOOL a = FALSE;
-	BOOL b = FALSE;
-	BOOL c = FALSE;
-	if (sm->unkF8 >= -0.3f && sm->unkF8 <= 0.3f)
-		a = TRUE;
-	if (a && sm->unkFC >= -0.3f)
-		b = TRUE;
+	bool c = false;
+	bool b = c;
+	bool a = c;
+	if (-0.3f <= sm->unkF8 && sm->unkF8 <= 0.3f)
+		a = true;
+	if (a && -0.3f <= sm->unkFC)
+		b = true;
 	if (b && sm->unkFC <= 0.3f)
-		c = TRUE;
-	if (!c)
+		c = true;
+	if (!(c ? true : false))
 		return;
 
 	gpMarDirector->setNextStage(9, nullptr);
-	JAISound* snd = (JAISound*)gpMSound->unk7C;
-	if (snd == nullptr)
+	MSound* ms = gpMSound;
+	if (ms->unk7C == nullptr)
 		return;
-	snd->setVolume(0.0f, 0x64, 0);
-	((JAISound*)gpMSound->unk7C)->setPitch(1.3f, 0x64, 0);
+	((JAISound*)ms->unk7C)->setVolume(0.0f, 0x64, 0);
+	((JAISound*)ms->unk7C)->setPitch(1.3f, 0x64, 0);
 }
 
 s32 TSunMgr::getAddColor() const
