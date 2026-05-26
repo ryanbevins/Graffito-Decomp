@@ -84,7 +84,7 @@ void TCameraInbetween::execCameraInbetween(
 	mTargetAt.z  = at.z;
 	if (mFrameCount > 0) {
 		f32 frames = (f32)mFrameCount;
-		if (mChaseFrame != 0.0f) {
+		if ((mChaseFrame != 0.0f) ? true : false) {
 			CLBChaseConstantSpecifyFrame(&mChaseFrame, 0.0f, frames);
 		}
 		f32 localDist;
