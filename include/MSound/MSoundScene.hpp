@@ -9,11 +9,11 @@ public:
 	MSSceneSE(u32);
 	void frameLoop(u32, Vec*, u8);
 	void sortMaxTrans(Vec*, u8, u8);
-	void calcPosPanSR(Vec*, f32);
-	void calcPosPanLR(Vec*, f32);
-	void calcPosVolume(Vec*, f32*, u8);
 
-	u8 _pad[1100];
+	/* 0x000 */ u8 mFlag;
+	/* 0x004 */ Vec* mPosPtrs[256];
+	/* 0x404 */ Vec mSumPos[3];
+	/* 0x428 */ Vec* mPool[3][3];
 };
 
 #endif
