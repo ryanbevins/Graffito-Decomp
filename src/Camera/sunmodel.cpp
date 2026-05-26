@@ -44,8 +44,10 @@ TSunModel::TSunModel(bool sunset, const char* name)
 		mZBufCoords[i][1] = -1;
 		mZBufVisible[i]   = 0;
 	}
-	for (u32 i = 0; i < sizeof(_F8); i++) {
-		_F8[i] = 0;
+	unkF8 = 0.0f;
+	unkFC = 0.0f;
+	for (u32 i = 0; i < sizeof(_100); i++) {
+		_100[i] = 0;
 	}
 	for (u32 i = 0; i < sizeof(_191); i++) {
 		_191[i] = 0;

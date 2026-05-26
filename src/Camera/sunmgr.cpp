@@ -11,8 +11,13 @@
 #include <Player/MarioAccess.hpp>
 #include <JSystem/JAudio/JAInterface/JAISound.hpp>
 
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
+static const char cSunSceneName[]           = "/scene/sun";
+static const char cSunsetSceneName[]        = "/scene/sunset";
+const char* cSunWarpPointName               = "太陽ワープポイント";
+
 TSunMgr* gpSunMgr;
-extern const char* cSunWarpPointName;
 
 TSunMgr::TSunMgr(const char* name)
     : JDrama::TViewObj(name)
@@ -29,41 +34,6 @@ TSunMgr::TSunMgr(const char* name)
 	gpSunMgr = this;
 }
 
-TSunMgr::~TSunMgr() { }
-
-void TSunMgr::drawSyncCallback(unsigned short token) { (void)token; }
-
-s32 TSunMgr::getAddColor() const
-{
-	s32 alpha = 0;
-	if (unk14)
-		alpha = (s32)gpSunModel->unkAC;
-	return alpha;
-}
-
-void TSunMgr::perform(unsigned long flags, JDrama::TGraphics* gfx)
-{
-	if (!(unk15 & 1))
-		return;
-	if (!(flags & 1))
-		return;
-	(void)gfx;
-
-	if (!(gpCamera->isLButtonCameraSpecifyMode(gpCamera->mMode)
-	      && !gpCamera->isNowInbetween()))
-		return;
-
-	f32 dx = gpMarioPos->x - unk24;
-	f32 dz = gpMarioPos->z - unk2C;
-	if (dx * dx + dz * dz >= 0.0f)
-		return;
-
-	(void)dx;
-	(void)dz;
-
-	// Sun warp logic (TODO match exactly)
-}
-
 void TSunMgr::load(JSUMemoryInputStream& stream)
 {
 	JDrama::TNameRef::load(stream);
@@ -77,9 +47,79 @@ void TSunMgr::load(JSUMemoryInputStream& stream)
 	*(u32*)&unk18 = (r << 8) | g;
 	*(u32*)&unk1C = (b << 8) | a;
 
-	if (JDrama::TNameRefGen::search<JDrama::TNameRef>(
-	        "\x90\xBC\x82\xCC\x91\xBE\x97\x7A")) {
+	if (JDrama::TNameRefGen::search<JDrama::TNameRef>("太陽モデル")) {
 		unk14 = 1;
+	} else if (JDrama::TNameRefGen::search<JDrama::TNameRef>("夕日モデル")) {
+		unk14 = 1;
+		unk15 |= 0x2;
 	}
-	// TODO sun warp lookup
+
+	if (unk14 && gpMarDirector->mMap == 1
+	    && TFlagManager::smInstance->getBool(0x50004)) {
+		unk15 |= 0x1;
+		TStagePositionInfo* p = static_cast<TStagePositionInfo*>(
+		    gpPositionHolder->search(cSunWarpPointName));
+		unk24 = p->unkC.x;
+		unk28 = p->unkC.y;
+		unk2C = p->unkC.z;
+	}
 }
+
+void TSunMgr::perform(unsigned long flags, JDrama::TGraphics* gfx)
+{
+	if (!(unk15 & 1))
+		return;
+	if (!(flags & 1))
+		return;
+	if (!(gfx->unk0 & 0x2))
+		return;
+
+	BOOL inMode = FALSE;
+	if (gpCamera->isLButtonCameraSpecifyMode(gpCamera->mMode)
+	    && !gpCamera->isNowInbetween())
+		inMode = TRUE;
+	if (!inMode)
+		return;
+
+	f32 dz = gpMarioPos->z - unk2C;
+	f32 dx = gpMarioPos->x - unk24;
+	if (dx * dx + dz * dz >= 160000.0f)
+		return;
+
+	TSunModel* sm = gpSunModel;
+	BOOL a = FALSE;
+	BOOL b = FALSE;
+	BOOL c = FALSE;
+	if (sm->unkF8 >= -0.3f && sm->unkF8 <= 0.3f)
+		a = TRUE;
+	if (a && sm->unkFC >= -0.3f)
+		b = TRUE;
+	if (b && sm->unkFC <= 0.3f)
+		c = TRUE;
+	if (!c)
+		return;
+
+	gpMarDirector->setNextStage(9, nullptr);
+	JAISound* snd = (JAISound*)gpMSound->unk7C;
+	if (snd == nullptr)
+		return;
+	snd->setVolume(0.0f, 0x64, 0);
+	((JAISound*)gpMSound->unk7C)->setPitch(1.3f, 0x64, 0);
+}
+
+s32 TSunMgr::getAddColor() const
+{
+	s32 alpha = 0;
+	if (unk14)
+		alpha = (s32)gpSunModel->unkAC;
+	return alpha;
+}
+
+void TSunMgr::drawSyncCallback(unsigned short token)
+{
+	(void)token;
+	if (unk14)
+		gpSunModel->getZBufValue();
+}
+
+TSunMgr::~TSunMgr() { }
