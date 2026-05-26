@@ -9,10 +9,10 @@
 
 MSSceneSE::MSSceneSE(u32 param)
 {
-	mFlag = 0;
 	for (int i = 0; i < 256; i++) {
 		mPosPtrs[i] = 0;
 	}
+	mFlag = 0;
 }
 
 void MSSceneSE::frameLoop(u32 id, Vec* trans, u8 count)
