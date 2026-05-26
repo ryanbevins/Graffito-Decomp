@@ -2,6 +2,7 @@
 #include <Camera/CameraInbetween.hpp>
 #include <Camera/CameraKindParam.hpp>
 #include <Camera/CameraMapTool.hpp>
+#include <Camera/CameraMarioData.hpp>
 #include <Camera/cameralib.hpp>
 #include <Enemy/BossGesso.hpp>
 #include <MarioUtil/MapUtil.hpp>
@@ -12,11 +13,301 @@
 #include <Player/MarioMain.hpp>
 #include <Strategic/HitActor.hpp>
 #include <Strategic/TakeActor.hpp>
+#include <System/MarDirector.hpp>
 #include <System/MarioGamePad.hpp>
+#include <System/StageUtil.hpp>
 
 #pragma dont_inline on
 
-void CPolarSubCamera::execCameraModeChangeProc_(int mode) { (void)mode; }
+void CPolarSubCamera::execCameraModeChangeProc_(int mode)
+{
+	if (SMS_isMultiPlayerMap()) {
+		s16 frame = (s16)getCameraInbetweenFrame_(2);
+		*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+		unk70                                  = nullptr;
+		changeCamModeSub_(2, frame, false);
+		return;
+	}
+	if (SMS_GetMarioStatus() - 0x80000000 == 0x447) {
+		s16 frame = (s16)getCameraInbetweenFrame_(0x2E);
+		*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+		unk70                                  = nullptr;
+		changeCamModeSub_(0x2E, frame, false);
+		return;
+	}
+
+	bool isFixOrDef = true;
+	if (!isFixCameraSpecifyMode(mode)
+	    && !isDefiniteCameraSpecifyMode(mode)) {
+		isFixOrDef = false;
+	}
+	if (isFixOrDef)
+		return;
+
+	if (*(u16*)((u8*)this + 0x64) & 0x20) {
+		execNoticeOnOffProc_((EnumNoticeOnOffMode)1);
+	}
+
+	u32 origState = gpMarioOriginal->mState;
+	int  prevMode = mMode;
+	bool hipAttackCancel
+	    = (origState - 0xC400000 == 0x202) || (origState - 0xC000000 == 0x203);
+
+	if (!hipAttackCancel
+	    && !(*gpMarioFlag & 0x4)
+	    && !(SMS_GetMarioStatus() & 0x20000)
+	    && !gpCameraMario->isMarioRocketing()
+	    && !(gpMarioOriginal->mPrevState & 0x4000)
+	    && !gpCameraMario->isMarioClimb(SMS_GetMarioStatus())) {
+		// non-Mario-state-driven block (climb/jump-cancel handling)
+		if (!isLButtonCameraSpecifyMode(mMode)) {
+			if (!isNormalCameraSpecifyMode(mMode)
+			    && !isTowerCameraSpecifyMode(mMode))
+				goto end_mode_picker;
+			u16 flags = *(u16*)((u8*)this + 0x64);
+			if (flags & 0x20) {
+				*(u16*)((u8*)this + 0x64) = (u16)(flags & ~0x20);
+				if (isLButtonCameraSpecifyMode(mMode))
+					goto end_mode_picker;
+				if (isLButtonCameraInbetween())
+					goto end_mode_picker;
+				*(s16*)((u8*)this + 0x282) = 0x3C;
+				if (gpMSound->gateCheck(0x4824)) {
+					gpMSound->startSoundSystemSE(0x4824, 0, nullptr, 0);
+				}
+				s16 frame = (s16)getCameraInbetweenFrame_(7);
+				changeCamModeSpecifyFrame_(7, frame);
+				goto end_mode_picker;
+			}
+			u32 padFlags = unk120->mEnabledFrameMeaning;
+			if (!(padFlags & 0xC000))
+				goto end_mode_picker;
+			if (padFlags & 0x4000) {
+				if (*(u16*)((u8*)this + 0x282) != 0)
+					goto end_mode_picker;
+				execNoticeOnOffProc_((EnumNoticeOnOffMode)2);
+			}
+			if (*(u16*)((u8*)this + 0x64) & 0x20) {
+				if (isLButtonCameraSpecifyMode(mMode))
+					goto end_mode_picker;
+				if (isLButtonCameraInbetween())
+					goto end_mode_picker;
+				*(s16*)((u8*)this + 0x282) = 0x3C;
+				if (gpMSound->gateCheck(0x4824)) {
+					gpMSound->startSoundSystemSE(0x4824, 0, nullptr, 0);
+				}
+				s16 frame = (s16)getCameraInbetweenFrame_(7);
+				changeCamModeSpecifyFrame_(7, frame);
+			} else if (!isLButtonCameraInbetween()) {
+				execFrontRotate_();
+			}
+			goto end_mode_picker;
+		}
+		if (SMS_GetMarioStatus() & 0x40000) {
+			doLButtonCameraOff_(true);
+			goto end_mode_picker;
+		}
+		if (isLButtonCameraInbetween())
+			goto end_mode_picker;
+		if (!(unk120->mEnabledFrameMeaning & 0x14000))
+			goto end_mode_picker;
+		if (*(u16*)((u8*)this + 0x282) != 0)
+			goto end_mode_picker;
+		doLButtonCameraOff_(false);
+		goto end_mode_picker;
+	}
+
+	{
+		if (isLButtonCameraSpecifyMode(mMode)) {
+			doLButtonCameraOff_(true);
+			goto end_mode_picker;
+		}
+		if (unk120->mEnabledFrameMeaning & 0x10000) {
+			execFrontRotate_();
+		}
+	}
+
+end_mode_picker:
+	if (mMode != prevMode)
+		return;
+	if (isLButtonCameraSpecifyMode(mMode))
+		return;
+
+	u32 status        = SMS_GetMarioStatus();
+	u32 prevStateFlag = gpMarioOriginal->mPrevState;
+	u32 origGround    = *(u32*)((u8*)gpMarioOriginal + 0x80);
+	u8  stage         = *(u8*)((u8*)gpMarDirector + 0x7C);
+
+	int newMode = 0;
+	bool decided = false;
+
+	if (prevStateFlag & 0x1000) {
+		newMode = 0x2B;
+		decided = true;
+	} else if (*gpMarioFlag & 0x4) {
+		newMode = (stage == 9) ? 0x8 : 0xD;
+		decided = true;
+	} else if (prevStateFlag & 0x4000) {
+		if (stage == 7
+		    || ((status & 0x2000)
+		        && (!(origGround & 0x2000) || !(status & 0x800)))) {
+			newMode = 0x2C;
+		} else {
+			newMode = 0x44;
+		}
+		decided = true;
+	} else if (stage == 7 || (status & 0x2000)) {
+		newMode = 0x31;
+		decided = true;
+	} else if (SMS_IsMarioOnWire()) {
+		u32 s = status - 0x10000000;
+		if (s == 0x554 || (u32)(s - 0x357) <= 1) {
+			newMode = 0x10;
+			decided = true;
+		}
+	}
+	if (!decided && !SMS_IsMarioOnWire()
+	    && (status == 0x892 || (origGround == 0x892 && status - 0x800000 == 0x8A9))) {
+		newMode = 0x6;
+		decided = true;
+	}
+	if (!decided && (status & 0x20000)) {
+		newMode = 0x30;
+		decided = true;
+	}
+	if (!decided && (status & 0x40000000)) {
+		const TLiveActor* held = (const TLiveActor*)*(void**)((u8*)gpMarioOriginal + 0x2C0);
+		if (held != nullptr) {
+			u32 type = *(u32*)((u8*)held + 0x4C);
+			if (type - 0x40000000 == 0x6C) {
+				newMode = 0x34;
+				decided = true;
+			}
+		}
+	}
+	if (!decided) {
+		u32 s = SMS_GetMarioStatus();
+		bool flagB = (s == 0x30000569)
+		    || (s >= 0x30000569 && s < 0x3800368)
+		    || (s >= 0x30000369 && s < 0x30000369)
+		    || (s == 0x38000368);
+		if (flagB) {
+			newMode = (stage == 8) ? 0x3D : 0x3C;
+			decided = true;
+		}
+	}
+	if (!decided && gpCameraMario->isMarioSlider()) {
+		newMode = 0x2A;
+		decided = true;
+	}
+	if (!decided && gpCameraMario->isMarioLeanMirror()) {
+		newMode = 0xB;
+		decided = true;
+	}
+	if (!decided && gpCameraMario->isMarioIndoor()) {
+		newMode = (mode >= 0 && mode < 0x49) ? mode
+		         : (stage == 7)              ? 0x14
+		                                     : 0xE;
+		decided = true;
+	}
+	if (!decided && gpCameraMario->isMarioRocketing() && mode != 0x41) {
+		void* gun = SMS_GetMarioWaterGun();
+		newMode   = (*(u8*)((u8*)gun + 0x1C84) == 4) ? 0x12 : 0x5;
+		decided = true;
+	}
+	if (!decided && (status & 0x200000)
+	    && (status - 0x200000 != 0x345)) {
+		newMode = (stage == 8) ? 0x3E : 0xF;
+		decided = true;
+	}
+	if (!decided && isChangeToBossGesoCamera_()) {
+		newMode = 0x39;
+		decided = true;
+	}
+	if (!decided) {
+		bool holderCheck = false;
+		const TTakeActor* h = gpMarioOriginal->mHolder;
+		if (h != nullptr) {
+			u32 type = *(u32*)((u8*)h + 0x4C);
+			if (type - 0x10000000 == 0x28) {
+				holderCheck = true;
+			}
+		}
+		if (holderCheck) {
+			newMode = 0x43;
+			decided = true;
+		}
+	}
+	if (!decided
+	    && SMS_GetGroundActor(SMS_GetMarioGrPlane(), 0x400002C9) != nullptr) {
+		newMode = 0x11;
+		decided = true;
+	}
+	if (!decided && (stage == 7 || status == 0x884)) {
+		newMode = 0x13;
+		decided = true;
+	}
+	if (!decided && isChangeToParallelCameraByMoveBG_()) {
+		newMode = 1;
+		decided = true;
+	}
+	if (!decided
+	    && SMS_GetGroundActor(SMS_GetMarioGrPlane(), 0x4000012F) != nullptr) {
+		newMode = 0x47;
+		decided = true;
+	}
+	if (!decided && (status - 0x800000 == 0x8A9)) {
+		if (isOverHipAttackSpecifyMode(mode)) {
+			newMode = mode;
+			decided = true;
+		} else {
+			bool ex = SMS_isExMap() && (stage < 0x1F && stage >= 0x1D);
+			newMode = ex ? 0x26 : 4;
+			decided = true;
+		}
+	}
+	if (!decided && mode >= 0 && mode < 0x49
+	    && !isFollowCameraSpecifyMode(mode)) {
+		newMode = mode;
+		decided = true;
+	}
+	if (!decided && gpCameraMario->isMarioClimb(status)) {
+		newMode = 0x15;
+		decided = true;
+	}
+	if (!decided) {
+		if (status == 0x200886 || status == 0x8A7) {
+			if (gpCameraMario->isMarioClimb(origGround)
+			    && (mMode == 0x15
+			        || *(int*)((u8*)this + 0x54) == 0x15)) {
+				newMode = 0x32;
+				decided = true;
+			} else {
+				bool ex = SMS_isExMap() && (stage < 0x1F && stage >= 0x1D);
+				newMode = ex ? 0x26 : 3;
+				decided = true;
+			}
+		}
+	}
+	if (!decided) {
+		bool ex = SMS_isExMap() && (stage < 0x1F && stage >= 0x1D);
+		if (ex) {
+			newMode = 0x26;
+			decided = true;
+		}
+	}
+	if (!decided && isFollowCameraSpecifyMode(mode)) {
+		newMode = mode;
+		decided = true;
+	}
+
+	{
+		s16 frame = (s16)getCameraInbetweenFrame_(newMode);
+		*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+		unk70                                  = nullptr;
+		changeCamModeSub_(newMode, frame, false);
+	}
+}
 
 bool CPolarSubCamera::isChangeToParallelCameraCByMoveBG_() const
 {
