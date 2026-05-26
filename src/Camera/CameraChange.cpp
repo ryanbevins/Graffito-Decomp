@@ -188,12 +188,12 @@ void CPolarSubCamera::setUpFromLButtonCamera_()
 
 void CPolarSubCamera::setUpToLButtonCamera_(int mode)
 {
-	*(f32*)((u8*)this + 0xB0) = *(f32*)((u8*)this + 0xA8);
+	*(f32*)((u8*)this + 0xB0) = unkA8;
 
 	TCameraKindParam buf;
-	TCameraKindParam* kind
-	    = *(TCameraKindParam**)((u8*)this + 0x2D8 + mode * 4);
-	buf.copySaveParam(*(const TCamSaveKindParam*)kind);
+	u8* p = (u8*)this + mode * 4;
+	buf.copySaveParam(*(const TCamSaveKindParam*)
+	    *(TCameraKindParam**)(p + 0x2D8));
 
 	f32 ratio = CLBCalcRatio<s16>(buf.unk18, buf.unk1A, -buf.unk58);
 	if (ratio > 1.0f) {
@@ -201,7 +201,7 @@ void CPolarSubCamera::setUpToLButtonCamera_(int mode)
 	} else if (ratio < 0.0f) {
 		ratio = 0.0f;
 	}
-	*(f32*)((u8*)this + 0xA8) = ratio;
+	unkA8 = ratio;
 	*(f32*)((u8*)this + 0xDC) = ratio;
 }
 
