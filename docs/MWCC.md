@@ -1070,6 +1070,14 @@ starts with `dist >= 0.0f || ...`.
   82.37% → 87.57%. The original used wrong logic (matching the
   WRONG branch as the assign side) AND wrong shape. Same fix
   applied to the alphaDist branch.
+- `Camera/CameraInbetween::execCameraInbetween` (tick 142): rewriting
+  the dx/dz xz-threshold warp check from nested if-else with two
+  duplicated `CLBPolarToCross` call sites to `if (dx > 0.1f ||
+  dz > 0.1f) { single call }` consolidated the warp to one site and
+  matched target's stack frame (0x60 → 0x50). 84.6 → 87.4% on its
+  own; +0.2pp more with the `!(>=)` abs lever. The eager-`||` form
+  (dz always computed) was used because C++98 doesn't allow declaring
+  `dz` inside the `||` RHS.
 
 **Where to try it next.** Any function with target asm pattern
 `fcmpo + blt asgn_label` followed by a second comparison whose
@@ -3710,6 +3718,60 @@ for predicate functions.
   rather than `if (...) return true; ... return false;`.
 
 ## Hypotheses under investigation
+
+### `if (!(x >= 0.0f))` triggers `cror eq, gt, eq` lattice, while `if (x < 0.0f)` emits a plain `bge`
+
+**Hypothesis.** When the target asm shows a `cror eq, gt, eq` followed by
+`bne`/`beq` between a `fcmpo` and the body of an "abs-by-sign-flip" block
+(`if-neg then -x`), the source uses `!(x >= 0.0f)` rather than `x < 0.0f`.
+The two are semantically equivalent for non-NaN floats, but MWCC compiles
+them with different CR-bit patterns:
+
+```cpp
+// Plain less-than — emits bge:
+if (dx < 0.0f) {                // fcmpo; bge skip; fneg
+    dx = -dx;
+}
+
+// Negated >= — emits cror lattice:
+if (!(dx >= 0.0f)) {            // fcmpo; cror eq, gt, eq; bne fneg_lbl; b skip; fneg_lbl: fneg
+    dx = -dx;
+}
+```
+
+**Diagnostic signature.** Target's `fcmpo cr0, fX, f0` is immediately
+followed by `cror eq, gt, eq; bne LBL_FNEG; b SKIP; LBL_FNEG: fneg fX, fX`,
+while our build emits a single `bge SKIP; fneg fX, fX`. The cror lattice
+produces an extra `b` instruction so any function with this pattern will
+have a small (8B) instruction count delta in the abs block.
+
+**Experiment.** Rewrite the `if (x < 0.0f)` to `if (!(x >= 0.0f))`. If the
+cror pattern emerges, the hypothesis holds for that TU. To promote to
+Settled, need a 2nd independent confirmation in another TU.
+
+**Citations.**
+
+- `Camera/CameraInbetween::execCameraInbetween` (tick 142): 87.6 → **87.8%**
+  (+0.2pp). Both the dx and dz fabs blocks switched to the `!(>=)` form
+  and the cror lattice appeared, matching target.
+
+**Counter-evidence (don't blindly apply).** Same lever applied to
+`Camera/CameraSecureView::execSecureView_` (tick 142) **reduced**
+match 71.9 → 71.6% even though the cror pattern emerged. Reason:
+the `bne` (target) vs `beq` (ours after rewrite) branch direction
+differed, and MWCC chose different FPR coloring for `sum`, adding
+a wasteful `fmr f0, f2` and inverting the fnmadds path. Confirms
+the rule only helps when the **surrounding register coloring stays
+stable**. Symptom of cascade failure: extra `fmr fA, fB` after the
+fcmpo in our build vs target.
+
+**Where to try it next.** Any function with target asm showing
+`cror eq, gt, eq; bne/beq` after a float comparison-to-zero, where the
+sign-flip is "make positive". Common in distance/displacement code,
+clamp-to-positive predicates, and CLBChase-style angle wrap helpers.
+**Verify** that ours's current build already uses the same FPR for
+sum as target; if there's an existing `fmr` shuffle right before the
+fcmpo, the rewrite likely won't help.
 
 ### Inline `obj->member.value` at use sites (no intermediate locals) lands the load directly in the consumer FPR/GPR
 
