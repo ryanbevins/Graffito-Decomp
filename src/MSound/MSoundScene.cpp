@@ -26,14 +26,24 @@ void MSSceneSE::frameLoop(u32 id, Vec* trans, u8 count)
 		mPosPtrs[i] = &trans[i];
 	}
 
-	for (int i = 0; i < 3; i++) {
-		mSumPos[i].x = 0.0f;
-		mSumPos[i].y = 0.0f;
-		mSumPos[i].z = 0.0f;
-		mPool[i][0]  = 0;
-		mPool[i][1]  = 0;
-		mPool[i][2]  = 0;
-	}
+	mSumPos[0].x = 0.0f;
+	mSumPos[0].y = 0.0f;
+	mSumPos[0].z = 0.0f;
+	mPool[0][0]  = 0;
+	mPool[0][1]  = 0;
+	mPool[0][2]  = 0;
+	mSumPos[1].x = 0.0f;
+	mSumPos[1].y = 0.0f;
+	mSumPos[1].z = 0.0f;
+	mPool[1][0]  = 0;
+	mPool[1][1]  = 0;
+	mPool[1][2]  = 0;
+	mSumPos[2].x = 0.0f;
+	mSumPos[2].y = 0.0f;
+	mSumPos[2].z = 0.0f;
+	mPool[2][0]  = 0;
+	mPool[2][1]  = 0;
+	mPool[2][2]  = 0;
 
 	MtxPtr camMtx = MSGMSound->unk8->unk8;
 
@@ -72,14 +82,15 @@ void MSSceneSE::frameLoop(u32 id, Vec* trans, u8 count)
 	}
 
 	for (int sector = 0; sector < 3; sector++) {
-		u8 n = 0;
+		int n = 0;
 		for (int j = 0; j < 3; j++) {
-			if (mPool[sector][j] == 0)
+			Vec* p = mPool[sector][j];
+			if (p == 0)
 				break;
-			mSumPos[sector].x += mPool[sector][j]->x;
-			n++;
-			mSumPos[sector].y += mPool[sector][j]->y;
-			mSumPos[sector].z += mPool[sector][j]->z;
+			mSumPos[sector].x += p->x;
+			n = j + 1;
+			mSumPos[sector].y += p->y;
+			mSumPos[sector].z += p->z;
 		}
 		if (n != 0) {
 			f32 fn = (f32)n;
