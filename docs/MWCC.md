@@ -1333,11 +1333,53 @@ if (cond1 || cond2) return false;
   on the two outer functions (contain, getCylinderContains) by merging
   `if (pos.y < cyl->unk14) return false; if (cyl->unk14 + cyl->unk20 < pos.y) return false;`
   into `if (pos.y < unk14 || unk14 + unk20 < pos.y) return false;`.
+- `Map/MapArea.cpp::checkLinesCollision` (tick 134) — 92.1% → 99.9%
+  by merging two `if (A && B) return false; if (C && D) return false;`
+  into a single `if ((A && B) || (C && D)) return false;`. Confirmed
+  the second test is laid out between the first test's `beq` and the
+  shared `li r3, 0; b end` block, with the second test's polarity
+  auto-inverted to fall through correctly.
+
+**Variant — single-bool materialization via De Morgan on `&&` chains.**
+A predicate body of the form
+
+```cpp
+return a <= px && px <= c && b <= pz && pz <= d;
+```
+
+inlined into a caller materializes an **incremental** boolean (one
+`li rN, 0/1; clrlwi. rN; bne next_pair` per pair of conjuncts: r0
+for the first pair, r4 for the third, r3 for the fourth). Rewriting
+to a De Morgan'd `||` chain:
+
+```cpp
+if (!(a <= px) || !(px <= c) || !(b <= pz) || !(pz <= d))
+    return false;
+return true;
+```
+
+forces a **single** boolean: one shared `li r0, 0` fail block and
+one `li r0, 1` pass block, with `cror eq, lt, eq; bne FAIL` per
+conjunct (preserving the `<=` lowering instead of switching to
+`bgt`). The operator must remain `<=` (negated by `!`) — direct
+rewrite to `>` (`if (a > px || ...) return false`) compiles to
+`bgt` instead of `cror eq, lt, eq; bne` and loses the per-conjunct
+match.
+
+- `Map/MapArea.cpp::pointIsInGrid` (tick 134) — 72.3% → 81.0% TU
+  by the De Morgan rewrite. Per-conjunct codegen now matches target
+  exactly; remaining diff is register coloring (target uses f0/f3,
+  we use f5/f6 — propagates through subsequent uses).
 
 **How to identify:** Target shows `blt fail_label` falling straight
 into the next test, where `fail_label` is the SAME `li rN, 0; b end`
 block reached by both `blt` from the first test AND `bge` from the
 second. Our build has two distinct fail blocks instead.
+
+For the De Morgan variant: target emits exactly *two* `li rN, X` (one
+0, one 1) at the end of the inlined predicate body, with `cror eq, lt, eq; bne`
+per conjunct. Our build emits multiple `li rN, X` pairs interleaved
+between conjunct groups.
 
 ### Bind a global pointer to a typed local before a method call to emit `lwz rTMP; mr r3, rTMP` instead of `lwz r3, gFoo@sda21`
 
