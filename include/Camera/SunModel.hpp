@@ -50,10 +50,7 @@ public:
 	/* 0xAC */ f32                 unkAC;
 	/* 0xB0 */ f32                 mUnkB0;
 	/* 0xB4 */ JGeometry::TVec2<s16> mZBufCoords[17];
-	/* 0xF8 */ f32                 unkF8;
-	/* 0xFC */ f32                 unkFC;
-	/* 0x100 */ JGeometry::TVec2<f32> mInnerCircle[8];
-	/* 0x140 */ JGeometry::TVec2<f32> mOuterCircle[8];
+	/* 0xF8 */ JGeometry::TVec2<f32> mFPos[17]; // [0]=center, [1..8]=inner ring, [9..16]=outer ring
 	/* 0x180 */ u8                 mZBufVisible[17];
 	/* 0x191 */ u8                 mVisibleCount;
 	/* 0x192 */ u8                 _192[2];

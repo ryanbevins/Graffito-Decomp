@@ -86,7 +86,7 @@ void TSunMgr::perform(unsigned long flags, JDrama::TGraphics* gfx)
 		return;
 
 	TSunModel* sm = gpSunModel;
-	f32* uv = &sm->unkF8;
+	f32* uv = &sm->mFPos[0].x;
 	bool c = false;
 	bool b = c;
 	bool a = c;

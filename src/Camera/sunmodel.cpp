@@ -13,9 +13,9 @@ TSunModel* gpSunModel;
 TSunModel::TSunModel(bool sunset, const char* name)
     : JDrama::TActor(name)
 {
-	mModelData = 0;
-	mModel     = 0;
-	mAnmTexSRT = 0;
+	mModelData    = 0;
+	mModel        = 0;
+	mAnmTexSRT    = 0;
 	mFrameCtrl.init(0);
 	mMapStaticObj = 0;
 	mUnk68 = 0xFF;
@@ -33,23 +33,23 @@ TSunModel::TSunModel(bool sunset, const char* name)
 	mUnkA8 = 0.0f;
 	unkAC  = 0.0f;
 	mUnkB0 = 0.0f;
+	// (mZBufCoords / mFPos array constructs emitted here by MWCC)
 	mVisibleCount = 0;
-	mUnk194 = 0.0f;
-	mUnk1A4 = 0.014f;
-	mUnk1A8 = 3.0f;
-	mFlags  = 0;
-	gpSunModel = this;
+	mUnk194       = 0.0f;
+	mUnk1A4       = 0.014f;
+	mUnk1A8       = 3.0f;
+	mFlags        = 0;
+	gpSunModel    = this;
 	if (sunset) {
 		mFlags |= 4;
 		mUnk80 = 0x30;
 	}
-
-	for (int i = 0; i < 17; i++) {
-		mZBufCoords[i].y = -1;
-		mZBufCoords[i].x = -1;
-		mInnerCircle[i % 8].x = 0.0f; // these arrays are init'd by ctors; the
-		mInnerCircle[i % 8].y = 0.0f; // separate loop on mZBufVisible below
-		mZBufVisible[i]       = 0;
+	for (s32 i = 0; i < 17; i++) {
+		mZBufCoords[i].y  = -1;
+		mZBufCoords[i].x  = -1;
+		mFPos[i].y        = 10000.0f;
+		mFPos[i].x        = 10000.0f;
+		mZBufVisible[i]   = 0;
 	}
 }
 
@@ -83,19 +83,19 @@ void TSunModel::calcOtherFPosFromCenterAndRadius_(
 }
 
 template <class S, class F>
-void CLBScreenFPosToSPos(JGeometry::TVec2<S>* dst, const JGeometry::TVec2<F>& src)
+inline void CLBScreenFPosToSPos(JGeometry::TVec2<S>* dst, const JGeometry::TVec2<F>& src)
 {
 	if (src.x < -1.0f || src.x > 1.0f) {
 		dst->x = -1;
 	} else {
-		s32 w  = (s32)SMSGetGameRenderWidth();
-		dst->x = (S)CLBRoundf<S>(0.5f * (1.0f + src.x) * (f32)(w - 1));
+		dst->x = (S)CLBRoundf<S>(
+		    0.5f * (1.0f + src.x) * (f32)(SMSGetGameRenderWidth() - 1));
 	}
 	if (src.y < -1.0f || src.y > 1.0f) {
 		dst->y = -1;
 	} else {
-		s32 h  = (s32)SMSGetGameRenderHeight();
-		dst->y = (S)CLBRoundf<S>(-0.5f * (src.y - 1.0f) * (f32)(h - 1));
+		dst->y = (S)CLBRoundf<S>(
+		    -0.5f * (src.y - 1.0f) * (f32)(SMSGetGameRenderHeight() - 1));
 	}
 }
 
@@ -112,23 +112,18 @@ void TSunModel::calcDispRatioAndScreenPos_()
 	}
 	mUnk194 = 0.05882353f * (f32)(u8)mVisibleCount;
 
-	CLBCalc2DFPos(
-	    (JGeometry::TVec2<f32>*)&unkF8,
-	    (MtxPtr)((u8*)gpCamera + 0x16C),
-	    (MtxPtr)((u8*)gpCamera + 0x1EC),
-	    mPos198, 0, false);
+	CLBCalc2DFPos(&mFPos[0],
+	              (MtxPtr)((u8*)gpCamera + 0x16C),
+	              (MtxPtr)((u8*)gpCamera + 0x1EC),
+	              mPos198, 0, false);
 
 	f32 inner = mUnk1A4 * mScaling.x;
-	calcOtherFPosFromCenterAndRadius_(mInnerCircle,
-	                                  *(JGeometry::TVec2<f32>*)&unkF8, inner);
+	calcOtherFPosFromCenterAndRadius_(&mFPos[1], mFPos[0], inner);
 	f32 outer = inner * 0.5f;
-	calcOtherFPosFromCenterAndRadius_(mOuterCircle,
-	                                  *(JGeometry::TVec2<f32>*)&unkF8, outer);
+	calcOtherFPosFromCenterAndRadius_(&mFPos[9], mFPos[0], outer);
 
 	for (s32 i = 0; i < 17; i++) {
-		CLBScreenFPosToSPos<s16, f32>(
-		    &mZBufCoords[i],
-		    *(JGeometry::TVec2<f32>*)((u8*)&unkF8 + i * 8));
+		CLBScreenFPosToSPos<s16, f32>(&mZBufCoords[i], mFPos[i]);
 	}
 }
 
@@ -140,13 +135,13 @@ void TSunModel::perform(u32 flags, JDrama::TGraphics* gfx)
 		inMode = false;
 	} else {
 		bool a = false, b = false, c = false;
-		if (-mUnk1A8 <= unkF8 && unkF8 <= mUnk1A8) {
+		if (-mUnk1A8 <= mFPos[0].x && mFPos[0].x <= mUnk1A8) {
 			a = true;
 		}
-		if (a && -mUnk1A8 <= unkFC) {
+		if (a && -mUnk1A8 <= mFPos[0].y) {
 			b = true;
 		}
-		if (b && unkFC <= mUnk1A8) {
+		if (b && mFPos[0].y <= mUnk1A8) {
 			c = true;
 		}
 		inMode = (c ? true : false);
@@ -176,7 +171,7 @@ void TSunModel::perform(u32 flags, JDrama::TGraphics* gfx)
 		if (gpCameraMario->isMarioIndoor()) {
 			mUnkB0 = 0.0f;
 		} else {
-			f32 d2 = unkF8 * unkF8 + unkFC * unkFC;
+			f32 d2 = mFPos[0].x * mFPos[0].x + mFPos[0].y * mFPos[0].y;
 			if (d2 > 2.0f) {
 				mUnkB0 = 0.0f;
 			} else {
