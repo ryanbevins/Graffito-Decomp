@@ -36,17 +36,16 @@ static const char* bathtubpeach_bastable[] = {
 DEFINE_NERVE(TNervePeachStagger, TLiveActor)
 {
 	TBathtubPeach* peach = (TBathtubPeach*)spine->getBody();
-	MActor* mactor       = peach->getMActor();
-	if (!mactor->checkCurBckFromIndex(0)) {
-		mactor->setBckFromIndex(0);
+	if (!peach->getMActor()->checkCurBckFromIndex(0)) {
+		peach->getMActor()->setBckFromIndex(0);
 		const char** table = peach->getBasNameTable();
 		peach->setAnmSound(table ? table[0] : nullptr);
 	}
-	if (mactor->getCurAnmIdx(3) != 0)
-		mactor->setBtpFromIndex(0);
-	J3DFrameCtrl* frameCtrl = mactor->getFrameCtrl(0);
+	if (peach->getMActor()->getCurAnmIdx(3) != 0)
+		peach->getMActor()->setBtpFromIndex(0);
+	J3DFrameCtrl* frameCtrl = peach->getMActor()->getFrameCtrl(0);
 	frameCtrl->setRate(0.5f * (2.0f * SMSGetAnmFrameRate()));
-	return mactor->curAnmEndsNext(0, nullptr) ? TRUE : FALSE;
+	return peach->getMActor()->curAnmEndsNext(0, nullptr) ? TRUE : FALSE;
 }
 
 DEFINE_NERVE(TNervePeachEscape, TLiveActor)
