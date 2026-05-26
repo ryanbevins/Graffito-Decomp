@@ -19,6 +19,36 @@
 
 #pragma dont_inline on
 
+// Fabricated minimal TTargetCamera class to trigger MWCC emission of
+// __as__13TTargetCameraFRC13TTargetCamera (weak operator=). Layout
+// matches the disassembly at 0x80352670 (size = 0x34).
+class TTargetCamera {
+public:
+	Vec mPos;   // 0x00
+	Vec mTgt;   // 0x0C
+	Vec mUp;    // 0x18
+	s16 unk24;  // 0x24
+	s16 unk26;  // 0x26
+	f32 unk28;  // 0x28
+	s16 unk2C;  // 0x2C
+	f32 unk30;  // 0x30
+
+	TTargetCamera& operator=(const TTargetCamera& other);
+};
+
+TTargetCamera& TTargetCamera::operator=(const TTargetCamera& other)
+{
+	mPos  = other.mPos;
+	mTgt  = other.mTgt;
+	mUp   = other.mUp;
+	unk24 = other.unk24;
+	unk26 = other.unk26;
+	unk28 = other.unk28;
+	unk2C = other.unk2C;
+	unk30 = other.unk30;
+	return *this;
+}
+
 void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 {
 	if (SMS_isMultiPlayerMap()) {
@@ -601,41 +631,17 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 
 		if (isFixOrDefOld) {
 			if (*(int*)((u8*)this + 0x11C) & 1) {
-				// this->ttc = this->saved (TTargetCamera assign)
-				// fabricated: use cast on the TTargetCamera fields at 0x80
-				// and 0xE8 since the type isn't fully reverse engineered yet.
-				// The asm uses bl __as__13TTargetCamera then field-wise copy
-				// of 0xB4-0xE4 region from the returned ptr.
-				*(int*)((u8*)this + 0x80) = *(int*)((u8*)this + 0xE8);
-				*(int*)((u8*)this + 0x84) = *(int*)((u8*)this + 0xEC);
-				*(int*)((u8*)this + 0x88) = *(int*)((u8*)this + 0xF0);
-				*(int*)((u8*)this + 0x8C) = *(int*)((u8*)this + 0xF4);
-				*(int*)((u8*)this + 0x90) = *(int*)((u8*)this + 0xF8);
-				*(int*)((u8*)this + 0x94) = *(int*)((u8*)this + 0xFC);
-				*(int*)((u8*)this + 0x98) = *(int*)((u8*)this + 0x100);
-				*(int*)((u8*)this + 0x9C) = *(int*)((u8*)this + 0x104);
-				*(int*)((u8*)this + 0xA0) = *(int*)((u8*)this + 0x108);
-				*(s16*)((u8*)this + 0xA4) = *(s16*)((u8*)this + 0x10C);
-				*(s16*)((u8*)this + 0xA6) = *(s16*)((u8*)this + 0x10E);
-				*(f32*)((u8*)this + 0xA8) = *(f32*)((u8*)this + 0x110);
-				*(s16*)((u8*)this + 0xAC) = *(s16*)((u8*)this + 0x114);
-				*(f32*)((u8*)this + 0xB0) = *(f32*)((u8*)this + 0x118);
+				TTargetCamera& dst = *(TTargetCamera*)((u8*)this + 0x80);
+				dst = *(TTargetCamera*)((u8*)this + 0xE8);
 
-				*(int*)((u8*)this + 0xB4) = *(int*)((u8*)this + 0x80);
-				*(int*)((u8*)this + 0xB8) = *(int*)((u8*)this + 0x84);
-				*(int*)((u8*)this + 0xBC) = *(int*)((u8*)this + 0x88);
-				*(int*)((u8*)this + 0xC0) = *(int*)((u8*)this + 0x8C);
-				*(int*)((u8*)this + 0xC4) = *(int*)((u8*)this + 0x90);
-				*(int*)((u8*)this + 0xC8) = *(int*)((u8*)this + 0x94);
-				*(int*)((u8*)this + 0xCC) = *(int*)((u8*)this + 0x98);
-				*(int*)((u8*)this + 0xD0) = *(int*)((u8*)this + 0x9C);
-				*(int*)((u8*)this + 0xD4) = *(int*)((u8*)this + 0xA0);
-				*(s16*)((u8*)this + 0xD8) = *(s16*)((u8*)this + 0xA4);
-				*(s16*)((u8*)this + 0xDA) = *(s16*)((u8*)this + 0xA6);
-				*(f32*)((u8*)this + 0xDC) = *(f32*)((u8*)this + 0xA8);
-				*(s16*)((u8*)this + 0xE0) = *(s16*)((u8*)this + 0xAC);
-				*(f32*)((u8*)this + 0xE4) = *(f32*)((u8*)this + 0xB0);
-
+				*(Vec*)((u8*)this + 0xB4) = *(Vec*)&dst.mPos;
+				*(Vec*)((u8*)this + 0xC0) = *(Vec*)&dst.mTgt;
+				*(Vec*)((u8*)this + 0xCC) = *(Vec*)&dst.mUp;
+				*(s16*)((u8*)this + 0xD8) = dst.unk24;
+				*(s16*)((u8*)this + 0xDA) = dst.unk26;
+				*(f32*)((u8*)this + 0xDC) = dst.unk28;
+				*(s16*)((u8*)this + 0xE0) = dst.unk2C;
+				*(f32*)((u8*)this + 0xE4) = dst.unk30;
 				killHeightPan_();
 			} else {
 				calcNowTargetFromPosAndAt_(*(const Vec*)((u8*)this + 0x10),
