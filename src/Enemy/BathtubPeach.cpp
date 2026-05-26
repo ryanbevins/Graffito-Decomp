@@ -185,7 +185,7 @@ void TBathtubPeach::reset()
 	mPosition.x *= 0.21f;
 	mPosition.y *= 0.21f;
 	mPosition.z *= 0.21f;
-	mBinder.init(50.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	mBinder.init(50.0f, 50.0f, 50.0f, 50.0f, 0.0f);
 	unk130     = 0;
 	mScaling.x = 1.5f;
 	mScaling.y = 1.5f;
