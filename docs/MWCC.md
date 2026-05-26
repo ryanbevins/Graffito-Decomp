@@ -36,6 +36,59 @@ them in future ticks.
 
 ## Settled
 
+### Hoist `base + idx` (without the constant offset) into a `u8*` local to force `add+lwz(CONST)` instead of `lwzx`
+
+**Rule.** When the target asm computes a struct-field access by adding
+a runtime offset then loading at a constant displacement
+(`add rRES, rBASE, rIDX; lwz rDST, OFFSET(rRES)`), and our build instead
+emits `addi rOFF, rIDX, OFFSET; lwzx rDST, rBASE, rOFF` (combining the
+constant into the runtime offset before an indexed load), introduce a
+**`u8*` local** that holds `base + idx` (no constant) and dereference
+through it with `+ OFFSET` as a syntactic suffix. MWCC will then keep
+the constant in the `lwz` immediate.
+
+```cpp
+// BEFORE (our build): MWCC folds 0x2D8 into the runtime offset:
+//   slwi r3, r4, 2
+//   addi r0, r3, 0x2d8                ; r0 = mode*4 + 0x2D8
+//   lwzx r4, r31, r0                  ; r4 = mem[this + r0]
+TCameraKindParam* k = *(TCameraKindParam**)((u8*)this + mode * 4 + 0x2D8);
+
+// AFTER (target): MWCC keeps the constant in the lwz immediate:
+//   slwi r0, r4, 2
+//   add r4, r31, r0                   ; r4 = this + mode*4
+//   lwz r4, 0x2d8(r4)                 ; r4 = mem[r4 + 0x2D8]
+u8* p = (u8*)this + mode * 4;
+TCameraKindParam* k = *(TCameraKindParam**)(p + 0x2D8);
+```
+
+**Why it works.** When the constant is folded with the runtime offset
+(`mode*4 + 0x2D8` as a single sub-expression), MWCC schedules a runtime
+add and uses `lwzx`. Hoisting `base + idx` (no constant) into a typed
+pointer local forces the constant to remain a separate `+ OFFSET`
+addition on a pointer; MWCC then routes the constant through the `lwz`
+immediate. The local pointer itself doesn't need to live in a separate
+register — MWCC folds it back into the same `lwz` instruction.
+
+**Diagnostic signature.** Target shows `add rRES, rBASE, rIDX; lwz rDST,
+CONST(rRES)`. Our build shows `addi rTMP, rIDX, CONST; lwzx rDST,
+rBASE, rTMP`. Same total instruction count but different forms.
+
+**Citations.**
+
+- `Camera/CameraChange::setUpToLButtonCamera_` (tick 138):
+  85.79 → **99.88%**. Hoisting `u8* p = (u8*)this + mode * 4` before
+  the copySaveParam call collapsed our `slwi+addi+lwzx` to target's
+  `slwi+add+lwz(0x2D8)`. Combined with using the typed `unkA8` field
+  (vs `*(f32*)((u8*)this + 0xA8)`), eliminated the extra r30/r31
+  saves entirely.
+
+**Where to try it next.** Any near-match function whose diff shows
+`lwzx rDST, rBASE, rTMP` in our build vs `add rRES, rBASE, rIDX; lwz
+rDST, CONST(rRES)` in target. Especially common when accessing
+arrays at struct-relative offsets — e.g. `mArray[mode]` where
+`mArray` is at offset `O` of `this`.
+
 ### `do { body; i++; } while (i < N)` keeps a small-N loop intact; `for (T i = 0; i < N; i++)` triggers MWCC to unroll
 
 **Rule.** When the target asm shows a *runtime* loop (cmp+blt-at-bottom)
@@ -335,6 +388,18 @@ the optimized "subtract-and-range" form per CLAUDE.md for those).
 - `Enemy/BossHanachanAnm::TBossHanachan::isFinishedGetUp` (tick 128):
   90.78 → **100%**. Two-key `||` rewritten as 2-case fall-through
   switch reproduces target byte-for-byte.
+- `Camera/CameraChange::isChangeToParallelCameraByMoveBG_` (tick 138):
+  90.32 → **100%**. The first 2-key `||` (`type == 0x400000BB ||
+  type == 0x40000049`) rewritten as `switch (type) { case 0x400000BB:
+  case 0x40000049: result = true; break; }`. Restored the `lis r3,
+  0x4000; addi r0, r3, 0xbb; cmpw r4, r0; beq m; bge end; addi r0, r3,
+  0x49; cmpw r4, r0; beq m; b end` chained-with-shared-base pattern.
+  Diagnostic: keys share high bits (0x40000000) — when the disjunction
+  was in `||` form, MWCC emitted the `subis r0, r4, 0x4000; cmplwi
+  r0, 0xbb; beq m; cmplwi r0, 0x49; bne end` subis-relative form
+  instead. Note that the SECOND switch in the same function (3+ cases)
+  already produces the lis-hoisted form — so the lever is specifically
+  about the 2-key disjunction.
 
 
 
