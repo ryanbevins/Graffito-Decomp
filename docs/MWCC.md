@@ -36,6 +36,97 @@ them in future ticks.
 
 ## Settled
 
+### `do { body; i++; } while (i < N)` keeps a small-N loop intact; `for (T i = 0; i < N; i++)` triggers MWCC to unroll
+
+**Rule.** When the target asm shows a *runtime* loop (cmp+blt-at-bottom)
+over a small statically-known trip count (e.g. N=3), the source must use
+`do { body; i++; } while (i < N);`. The `for (T i = 0; i < N; ++i)`
+form (and `while (i < N) { body; i++; }` form, in some cases) triggers
+MWCC's loop unroller — emitting N copies of the body inline. The
+do-while is the only one that consistently keeps the loop as a runtime
+cmp+branch with a single body emission.
+
+```cpp
+// UNROLLS in MWCC — produces N body copies:
+for (u8 s = 0; s < 3; s++) {
+    mSumPos[s].x = 0.0f;  // 18 stmts total expanded
+    mSumPos[s].y = 0.0f;
+    mSumPos[s].z = 0.0f;
+    mPool[s][0]  = 0;
+    mPool[s][1]  = 0;
+    mPool[s][2]  = 0;
+}
+
+// LOOP KEPT INTACT — produces cmp+blt-at-bottom matching target:
+u8 s = 0;
+do {
+    mSumPos[s].x = 0.0f;
+    ...
+    s++;
+} while (s < 3);
+```
+
+**Diagnostic signature.** Look at the target asm for the body block.
+If you see `cmplwi rX, N; blt .Lloop_top` with the body INLINED N times
+between, MWCC unrolled in source. If you see `cmplwi rX, N; blt .Lloop_top`
+WRAPPING a single body, source is do-while. The loop-counter
+initialization (`li rN, 0`) and post-loop increment (`addi rN, rN, 1`)
+are also clues — unrolled loops won't have them at runtime.
+
+**Citations.**
+
+- `MSound/MSoundScene` `frameLoop` (tick 136): converted mSumPos init,
+  inner avg loop, AND outer sector loop from `for(...)` to `do-while`.
+  Match went 58.7 → 75.9% (+17.2pp). The init loop's `for` produced
+  18 sequential stmts; `do-while` produced a tight 11-instr loop body
+  matching target's 11-instr `.L_80180B84` block.
+
+**Where to try it next.** Any TU with small-N inner loops over fixed
+arrays (Vec[3], color[4], etc) where target asm shows a runtime
+cmp+blt over a single body emission. Sweep candidate near-match TUs
+whose inner loops show unrolled bodies in our build.
+
+### Manually-unrolled-in-source 8x loop matches MWCC's auto-unroll-with-cmp-blt-at-bottom (not srwi+mtctr+bdnz)
+
+**Rule.** When the target asm uses an N-stmt-unrolled inner body with a
+`cmplw r3, r0; blt .Lloop_top` controller (not `srwi+mtctr+bdnz`), and
+N is small enough (8) that the original source was hand-unrolled, write
+all N stores explicitly with a `count > 8` outer guard and a `count - 8`
+limit:
+
+```cpp
+Vec* p = trans;
+u8 i = 0;
+if (count > 8) {
+    u8 lim = count - 8;
+    while (i < lim) {
+        mPosPtrs[i + 0] = p;
+        mPosPtrs[i + 1] = p + 1;
+        ...
+        mPosPtrs[i + 7] = p + 7;
+        p += 8;
+        i += 8;
+    }
+}
+while (i < count) {
+    mPosPtrs[i] = p;
+    p++;
+    i++;
+}
+```
+
+vs the auto-unrolled form `for (int i = 0; i < count; i++) mPosPtrs[i] = &trans[i];`
+which MWCC unrolls but uses `srwi+mtctr+bdnz` for the counter (computing
+ceil((count-8)/8) iterations upfront). The hand-unrolled form preserves
+the running pointer-arithmetic style (p += 8) that target's source used.
+
+**Citations.**
+
+- `MSound/MSoundScene` `frameLoop` trans-copy (tick 136): replaced
+  `for (i; i < count; i++) mPosPtrs[i] = &trans[i]` with the manual
+  8x unroll above. Match 75.9 → 83.4% (+7.5pp). Resolves the
+  srwi-vs-cmplw-blt residual that the t135 IMPL flagged.
+
 ### `PARAM_INIT(field, default)` stringifies `field` — pick the field name to match target's rodata key strings, even if it breaks `m`-prefix convention
 
 **Rule.** `PARAM_INIT(member, default)` expands to
