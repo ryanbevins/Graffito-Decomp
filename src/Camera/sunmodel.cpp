@@ -224,7 +224,9 @@ void TSunModel::perform(u32 flags, JDrama::TGraphics* gfx)
 	if (gpCameraMario->isMarioIndoor()) {
 		inMode = false;
 	} else {
-		bool a = false, b = false, c = false;
+		bool a = false;
+		bool b = false;
+		bool c = false;
 		if (-mUnk1A8 <= mFPos[0].x && mFPos[0].x <= mUnk1A8) {
 			a = true;
 		}
@@ -305,12 +307,34 @@ void TSunModel::perform(u32 flags, JDrama::TGraphics* gfx)
 			Mtx mtx;
 			MsMtxSetTRS(mtx, mPos198.x, mPos198.y, mPos198.z,
 			            mRotation.x, mRotation.y, mRotation.z,
-			            mScaling.x, mUnk9C * 0.0f, mUnk9C * 0.0f);
-			(void)mtx;
-			// stub draw path
+			            mScaling.x, mScaling.y, mScaling.z);
+			PSMTXCopy(mtx, (MtxPtr)((u8*)mModel + 0x20));
+			mModel->calc();
 		}
 	}
-	(void)flags;
+
+	if ((flags & 0x200) != 0) {
+		if (inMode) {
+			*(f32*)((u8*)mAnmTexSRT + 4) = mFrameCtrl.getFrame();
+			{
+				void* sub = *(void**)((u8*)mModelData->getMaterialNodePointer(0) + 0x28);
+				typedef void (*F)(void*, u32, void*);
+				((F)(*(void***)sub)[11])(sub, 0, (u8*)this + 0x8C);
+			}
+			{
+				void* sub = *(void**)((u8*)mModelData->getMaterialNodePointer(1) + 0x28);
+				typedef void (*F)(void*, u32, void*);
+				((F)(*(void***)sub)[11])(sub, 0, (u8*)this + 0x94);
+			}
+			mModel->entry();
+		}
+	}
+
+	if ((flags & 4) != 0) {
+		if (inMode) {
+			mModel->viewCalc();
+		}
+	}
 }
 
 void TSunModel::getZBufValue()
