@@ -53,7 +53,9 @@ static inline bool pointIsInPolygon(f32 px, f32 pz, TBGCheckData* poly)
 
 static inline bool pointIsInGrid(f32 px, f32 pz, f32 a, f32 b, f32 c, f32 d)
 {
-	return a <= px && px <= c && b <= pz && pz <= d;
+	if (!(a <= px) || !(px <= c) || !(b <= pz) || !(pz <= d))
+		return false;
+	return true;
 }
 
 bool TMapCollisionData::polygonIsInGrid(f32 a, f32 b, f32 c, f32 d,
