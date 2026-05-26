@@ -1,9 +1,11 @@
 #include <Camera/Camera.hpp>
+#include <Camera/CameraInbetween.hpp>
 #include <Camera/CameraKindParam.hpp>
 #include <Camera/CameraMapTool.hpp>
 #include <Camera/cameralib.hpp>
 #include <Enemy/BossGesso.hpp>
 #include <MarioUtil/MapUtil.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MSound/MSound.hpp>
 #include <Map/MapData.hpp>
 #include <Player/MarioAccess.hpp>
@@ -176,9 +178,290 @@ void CPolarSubCamera::changeCamModeSpecifyFrame_(int mode, int frame)
 
 void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 {
-	(void)newMode;
-	(void)frame;
-	(void)flag;
+	bool wasMinusOne = false;
+	if (newMode == -1) {
+		u8* hist = *(u8**)((u8*)this + 0x60);
+		int top  = *(int*)(hist + 0x4);
+		int* p;
+		if (top <= 0) {
+			p = *(int**)(hist + 0x8);
+		} else {
+			p = *(int**)(hist + 0x8) + (top - 1);
+		}
+		newMode     = *p;
+		wasMinusOne = true;
+	}
+
+	if (!flag) {
+		if (mMode == newMode)
+			return;
+	}
+	if (frame < 0)
+		return;
+	if (frame == 0)
+		frame = 1;
+
+	*(int*)((u8*)this + 0x54) = mMode;
+	if (wasMinusOne) {
+		u8* hist = *(u8**)((u8*)this + 0x60);
+		int top  = *(int*)(hist + 0x4);
+		if (top > 0) {
+			*(int*)(hist + 0x4) = top - 1;
+		}
+	} else {
+		u8* hist = *(u8**)((u8*)this + 0x60);
+		int top  = *(int*)(hist + 0x4);
+		int cap  = *(int*)(hist + 0x0);
+		if (top >= cap) {
+			int i = 0;
+			int off = 0;
+			while (i < *(int*)(hist + 0x0) - 1) {
+				int* base = *(int**)(hist + 0x8);
+				u8* slot  = (u8*)base + off;
+				*(int*)slot = *(int*)(slot + 4);
+				++i;
+				off += 4;
+			}
+			int* base = *(int**)(hist + 0x8);
+			int cap2  = *(int*)(hist + 0x0);
+			*(int*)((u8*)base + cap2 * 4 - 4) = mMode;
+		} else {
+			int* entries          = *(int**)(hist + 0x8);
+			entries[top]          = mMode;
+			*(int*)(hist + 0x4)   = *(int*)(hist + 0x4) + 1;
+		}
+	}
+
+	if (newMode < 0x49) {
+		int curMode = mMode;
+		if (curMode == 0x14 && newMode == 0x42) {
+			*(f32*)((u8*)this + 0xA8) = 0.0f;
+			*(f32*)((u8*)this + 0xDC) = 0.0f;
+		} else if (curMode == 0x33 && newMode == 0x3E) {
+			*(f32*)((u8*)this + 0xA8) = 0.0f;
+			*(f32*)((u8*)this + 0xDC) = 0.0f;
+		} else if (!isLButtonCameraSpecifyMode(curMode)) {
+			if (isLButtonCameraSpecifyMode(newMode)) {
+				*(f32*)((u8*)this + 0xB0)
+				    = *(f32*)((u8*)this + 0xA8);
+
+				TCameraKindParam buf;
+				u8* p = (u8*)this + newMode * 4;
+				buf.copySaveParam(*(const TCamSaveKindParam*)
+				    *(TCameraKindParam**)(p + 0x2D8));
+
+				f32 ratio
+				    = CLBCalcRatio<s16>(buf.unk18, buf.unk1A, -buf.unk58);
+				f32 v = MsClamp<f32>(ratio, 0.0f, 1.0f);
+				*(f32*)((u8*)this + 0xA8) = v;
+				*(f32*)((u8*)this + 0xDC) = v;
+				unk120->onNeutralMarioKey();
+			}
+		} else {
+			if (!isLButtonCameraSpecifyMode(newMode)) {
+				f32 v = *(f32*)((u8*)this + 0xB0);
+				*(f32*)((u8*)this + 0xA8) = v;
+				*(f32*)((u8*)this + 0xDC) = v;
+				unk120->onNeutralMarioKey();
+			}
+		}
+
+		(*(TCameraInbetween**)((u8*)this + 0x6C))->startCameraInbetween(frame);
+	}
+
+	mMode       = newMode;
+	int curMode = mMode;
+	if (curMode < 0x49 && *(int*)((u8*)this + 0x54) < 0x49) {
+		bool isFixOrDefNew = true;
+		bool isFixOrDefOld = true;
+		bool fixNewWithTool = false;
+
+		if (!isFixCameraSpecifyMode(curMode)
+		    && !isDefiniteCameraSpecifyMode(curMode)) {
+			isFixOrDefNew = false;
+		}
+		if (isFixOrDefNew && unk70 != nullptr) {
+			fixNewWithTool = true;
+		}
+
+		int prevMode = *(int*)((u8*)this + 0x54);
+		if (!isFixCameraSpecifyMode(prevMode)
+		    && !isDefiniteCameraSpecifyMode(prevMode)) {
+			isFixOrDefOld = false;
+		}
+
+		if (!isFixOrDefOld && fixNewWithTool) {
+			*(int*)((u8*)this + 0xE8) = *(int*)((u8*)this + 0x80);
+			*(int*)((u8*)this + 0xEC) = *(int*)((u8*)this + 0x84);
+			*(int*)((u8*)this + 0xF0) = *(int*)((u8*)this + 0x88);
+			*(int*)((u8*)this + 0xF4) = *(int*)((u8*)this + 0x8C);
+			*(int*)((u8*)this + 0xF8) = *(int*)((u8*)this + 0x90);
+			*(int*)((u8*)this + 0xFC) = *(int*)((u8*)this + 0x94);
+			*(int*)((u8*)this + 0x100) = *(int*)((u8*)this + 0x98);
+			*(int*)((u8*)this + 0x104) = *(int*)((u8*)this + 0x9C);
+			*(int*)((u8*)this + 0x108) = *(int*)((u8*)this + 0xA0);
+			*(s16*)((u8*)this + 0x10C) = *(s16*)((u8*)this + 0xA4);
+			*(s16*)((u8*)this + 0x10E) = *(s16*)((u8*)this + 0xA6);
+			*(f32*)((u8*)this + 0x110) = *(f32*)((u8*)this + 0xA8);
+			*(s16*)((u8*)this + 0x114) = *(s16*)((u8*)this + 0xAC);
+			*(f32*)((u8*)this + 0x118) = *(f32*)((u8*)this + 0xB0);
+			*(int*)((u8*)this + 0x11C) = *(int*)((u8*)unk70 + 0x28);
+		}
+
+		if (isFixOrDefOld) {
+			if (*(int*)((u8*)this + 0x11C) & 1) {
+				// this->ttc = this->saved (TTargetCamera assign)
+				// fabricated: use cast on the TTargetCamera fields at 0x80
+				// and 0xE8 since the type isn't fully reverse engineered yet.
+				// The asm uses bl __as__13TTargetCamera then field-wise copy
+				// of 0xB4-0xE4 region from the returned ptr.
+				*(int*)((u8*)this + 0x80) = *(int*)((u8*)this + 0xE8);
+				*(int*)((u8*)this + 0x84) = *(int*)((u8*)this + 0xEC);
+				*(int*)((u8*)this + 0x88) = *(int*)((u8*)this + 0xF0);
+				*(int*)((u8*)this + 0x8C) = *(int*)((u8*)this + 0xF4);
+				*(int*)((u8*)this + 0x90) = *(int*)((u8*)this + 0xF8);
+				*(int*)((u8*)this + 0x94) = *(int*)((u8*)this + 0xFC);
+				*(int*)((u8*)this + 0x98) = *(int*)((u8*)this + 0x100);
+				*(int*)((u8*)this + 0x9C) = *(int*)((u8*)this + 0x104);
+				*(int*)((u8*)this + 0xA0) = *(int*)((u8*)this + 0x108);
+				*(s16*)((u8*)this + 0xA4) = *(s16*)((u8*)this + 0x10C);
+				*(s16*)((u8*)this + 0xA6) = *(s16*)((u8*)this + 0x10E);
+				*(f32*)((u8*)this + 0xA8) = *(f32*)((u8*)this + 0x110);
+				*(s16*)((u8*)this + 0xAC) = *(s16*)((u8*)this + 0x114);
+				*(f32*)((u8*)this + 0xB0) = *(f32*)((u8*)this + 0x118);
+
+				*(int*)((u8*)this + 0xB4) = *(int*)((u8*)this + 0x80);
+				*(int*)((u8*)this + 0xB8) = *(int*)((u8*)this + 0x84);
+				*(int*)((u8*)this + 0xBC) = *(int*)((u8*)this + 0x88);
+				*(int*)((u8*)this + 0xC0) = *(int*)((u8*)this + 0x8C);
+				*(int*)((u8*)this + 0xC4) = *(int*)((u8*)this + 0x90);
+				*(int*)((u8*)this + 0xC8) = *(int*)((u8*)this + 0x94);
+				*(int*)((u8*)this + 0xCC) = *(int*)((u8*)this + 0x98);
+				*(int*)((u8*)this + 0xD0) = *(int*)((u8*)this + 0x9C);
+				*(int*)((u8*)this + 0xD4) = *(int*)((u8*)this + 0xA0);
+				*(s16*)((u8*)this + 0xD8) = *(s16*)((u8*)this + 0xA4);
+				*(s16*)((u8*)this + 0xDA) = *(s16*)((u8*)this + 0xA6);
+				*(f32*)((u8*)this + 0xDC) = *(f32*)((u8*)this + 0xA8);
+				*(s16*)((u8*)this + 0xE0) = *(s16*)((u8*)this + 0xAC);
+				*(f32*)((u8*)this + 0xE4) = *(f32*)((u8*)this + 0xB0);
+
+				killHeightPan_();
+			} else {
+				calcNowTargetFromPosAndAt_(*(const Vec*)((u8*)this + 0x10),
+				    *(const Vec*)((u8*)this + 0x3C));
+			}
+		}
+
+		int sw = *(int*)((u8*)this + 0x54) - 9;
+		if ((unsigned int)sw <= 0x32) {
+			switch (sw) {
+			case 0:  /* prevMode 9 */
+			case 14: /* 0x17 */
+			case 16: /* 0x19 */
+			case 22: /* 0x1F */
+			case 24: /* 0x21 */
+				warpPosAndAt(*(f32*)((u8*)this + 0xA8),
+				    *(s16*)((u8*)this + 0xA6));
+				break;
+			case 20: /* 0x1D */
+			case 28: /* 0x25 */
+				*(s16*)((u8*)this + 0xA6)
+				    = *gpMarioAngleY + (s16)0x8000;
+				break;
+			case 49: /* 0x3A */
+			case 50: /* 0x3B */
+				*(s16*)((u8*)this + 0xA6)
+				    = *gpMarioAngleY + (s16)0x8000;
+				warpPosAndAt(*(f32*)((u8*)this + 0xA8),
+				    *(s16*)((u8*)this + 0xA6));
+				break;
+			}
+		}
+
+		if (fixNewWithTool) {
+			TCameraMapTool* tool = unk70;
+			u32 flagBit          = *(u32*)((u8*)tool + 0x28) & 0x2;
+			bool useVecB         = (flagBit != 0);
+			int m                = mMode;
+			bool useBlock1;
+			if (m >= 0x1E) {
+				useBlock1 = (m < 0x20);
+			} else if (m >= 0x18) {
+				useBlock1 = false;
+			} else if (m >= 0x16) {
+				useBlock1 = true;
+			} else {
+				useBlock1 = false;
+			}
+
+			JGeometry::TVec3<f32> tmp;
+			if (useBlock1) {
+				if (useVecB) {
+					tmp.x = *(f32*)((u8*)this + 0x80);
+					tmp.y = *(f32*)((u8*)this + 0x84);
+					tmp.z = *(f32*)((u8*)this + 0x88);
+				}
+				tool->calcPosAndAt(
+				    (JGeometry::TVec3<f32>*)((u8*)this + 0x80),
+				    (JGeometry::TVec3<f32>*)((u8*)this + 0x8C));
+				if (useVecB) {
+					*(f32*)((u8*)this + 0x80) = tmp.x;
+					*(f32*)((u8*)this + 0x84) = tmp.y;
+					*(f32*)((u8*)this + 0x88) = tmp.z;
+				}
+			} else {
+				if (useVecB) {
+					tmp.x = *(f32*)((u8*)this + 0x10);
+					tmp.y = *(f32*)((u8*)this + 0x14);
+					tmp.z = *(f32*)((u8*)this + 0x18);
+				}
+				tool->calcPosAndAt(
+				    (JGeometry::TVec3<f32>*)((u8*)this + 0x10),
+				    (JGeometry::TVec3<f32>*)((u8*)this + 0x3C));
+				if (useVecB) {
+					*(f32*)((u8*)this + 0x10) = tmp.x;
+					*(f32*)((u8*)this + 0x14) = tmp.y;
+					*(f32*)((u8*)this + 0x18) = tmp.z;
+				}
+				warpPosAndAt(*(const Vec*)((u8*)this + 0x10),
+				    *(const Vec*)((u8*)this + 0x3C));
+			}
+		}
+
+		*(int*)((u8*)this + 0x78) = 0;
+		*(int*)((u8*)this + 0x7C) = 0;
+		int pm                    = *(int*)((u8*)this + 0x54);
+		if (pm == 0x1C || pm == 0x24) {
+			onMoveApproach_();
+		} else {
+			offMoveApproach_();
+		}
+	}
+
+	if (!isNormalCameraSpecifyMode(mMode)
+	    && !isTowerCameraSpecifyMode(mMode)) {
+		*(u16*)((u8*)this + 0x64) &= ~0x10;
+	}
+
+	int pm = *(int*)((u8*)this + 0x54);
+	if (pm == 0x33 && mMode == 0x3E) {
+		u16* p = (u16*)((u8*)this + 0x278);
+		if (*p < 0x78)
+			*p = 0x78;
+	} else if (pm == 0x3E && mMode == 0x33) {
+		u16* p = (u16*)((u8*)this + 0x27A);
+		if (*p < 0x78)
+			*p = 0x78;
+	}
+
+	killHeightPanWhenChangeCamMode_();
+	{
+		u8* p           = *(u8**)((u8*)this + 0x2AC);
+		*(s16*)(p + 0x0) = 0;
+		*(f32*)(p + 0x4) = 1.0f;
+		*(f32*)(p + 0x8) = 1.0f;
+		*(f32*)(p + 0xC) = 1.0f;
+	}
 }
 
 void CPolarSubCamera::setUpFromLButtonCamera_()
