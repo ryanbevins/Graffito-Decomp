@@ -105,6 +105,79 @@ BOOL TBaseNPC::isNerveCanGoToMad() const
 	return result;
 }
 
+void TBaseNPC::changeNerveFromTalk_()
+{
+	const TNerveBase<TLiveActor>* cur = mSpine->getCurrentNerve();
+	const TNerveBase<TLiveActor>* top = mSpine->peekTopNerveOrNull();
+
+	if (cur == &TNerveNPCWet::theNerve()) {
+		TNerveBase<TLiveActor>* popped = mSpine->popNerve();
+		if (popped != nullptr)
+			mSpine->becomeNerveAfterPop(popped);
+	} else if (cur == nullptr && top == &TNerveNPCTalk::theNerve()) {
+		TNerveBase<TLiveActor>* popped = mSpine->popNerve();
+		if (popped != nullptr)
+			mSpine->becomeNerveAfterPop(popped);
+	} else {
+		TNerveNPCTalk::theNerve();
+	}
+
+	mSpine->setNext(nullptr);
+
+	if (unk17C != nullptr) {
+		if (mLiveFlag & 0x20000000) {
+			mLiveFlag &= ~0x20000000;
+		} else {
+			mSpine->pushNerve(&TNerveNPCThrow::theNerve());
+		}
+	}
+
+	mLiveFlag &= ~0x02000000;
+}
+
+void TBaseNPC::changeNerveToMad_()
+{
+	if (mSpine->getCurrentNerve() == &TNerveNPCWet::theNerve()) {
+		mSpine->setNext(&TNerveNPCMad::theNerve());
+	} else {
+		mSpine->pushNerve(&TNerveNPCMad::theNerve());
+	}
+}
+
+void TBaseNPC::releaseTaken_()
+{
+	s16 angle          = CLBRoundf<s16>(mTakenBy->mRotation.y * 182.04445f);
+	f32 dist           = mPtrSaveNormal->mThrowSpeedXZ.get();
+	mAngularVelocity.x = JMASSin(angle) * dist;
+	mAngularVelocity.y = mPtrSaveNormal->mThrowSpeedY.get();
+	mAngularVelocity.z = JMASCos(angle) * dist;
+	mLiveFlag         |= 0x10000000;
+	unk1DC             = CLBPalFrame<long>(15);
+	mTakenBy           = nullptr;
+	if (mActorType - 0x04000000 == 0x18) {
+		peachTiredIn_();
+		mNpcBalloon->setNextMessage(0, -1);
+	}
+	mSpine->setNext(&TNerveNPCWaitMarioApproach::theNerve());
+}
+
+void TBaseNPC::behaveToBeTaken_(THitActor* taker)
+{
+	mAngleYDiffWhenTaken
+	    = (s16)CLBRoundf<s16>(mRotation.y * 182.04445f)
+	      - (s16)CLBRoundf<s16>(taker->mRotation.y * 182.04445f);
+	*(u32*)((u8*)mUnk18C + 8) = *(u32*)mUnk18C;
+	unk64 |= 0x1;
+	mLiveFlag &= ~0x00420010;
+	if (mActorType - 0x04000000 == 0x18) {
+		peachParasolOut_();
+		mNpcBalloon->setNextMessage(0xE004F, 0x2EE);
+	}
+	mSpine->setNext(&TNerveNPCWaitContinue::theNerve());
+	mHolder  = (TTakeActor*)taker;
+	mTakenBy = taker;
+}
+
 void TBaseNPC::behaveToBeTrampled_()
 {
 	bool isChildFlag = isChild();
@@ -368,154 +441,38 @@ void TBaseNPC::behaveToSandBomb_(const TLiveActor* bomb)
 	}
 }
 
-void TBaseNPC::releaseTaken_()
+BOOL TBaseNPC::isStateGoToMad_() const
 {
-	s16 angle    = CLBRoundf<s16>(mTakenBy->mRotation.y * 182.04445f);
-	f32 dist     = mPtrSaveNormal->mThrowSpeedXZ.get();
-	mAngularVelocity.x = JMASSin(angle) * dist;
-	mAngularVelocity.y = mPtrSaveNormal->mThrowSpeedY.get();
-	mAngularVelocity.z = JMASCos(angle) * dist;
-	mLiveFlag |= 0x10000000;
-	unk1DC = CLBPalFrame<long>(15);
-	mTakenBy = nullptr;
-	if (mActorType - 0x04000000 == 0x18) {
-		peachTiredIn_();
-		mNpcBalloon->setNextMessage(0, -1);
+	BOOL result = FALSE;
+	if (isMadNpc() && !(mActionFlag & 0x4600) && 0.0f == unk178
+	    && isInMadSearchRange()) {
+		result = TRUE;
 	}
-	mSpine->setNext(&TNerveNPCWaitMarioApproach::theNerve());
+	return result;
 }
 
-void TBaseNPC::behaveToBeTaken_(THitActor* taker)
+bool TBaseNPC::isNowCanTaken() const
 {
-	mAngleYDiffWhenTaken
-	    = (s16)CLBRoundf<s16>(mRotation.y * 182.04445f)
-	      - (s16)CLBRoundf<s16>(taker->mRotation.y * 182.04445f);
-	*(u32*)((u8*)mUnk18C + 8) = *(u32*)mUnk18C;
-	unk64 |= 0x1;
-	mLiveFlag &= ~0x00420010;
-	if (mActorType - 0x04000000 == 0x18) {
-		peachParasolOut_();
-		mNpcBalloon->setNextMessage(0xE004F, 0x2EE);
-	}
-	mSpine->setNext(&TNerveNPCWaitContinue::theNerve());
-	mHolder  = (TTakeActor*)taker;
-	mTakenBy = taker;
-}
-
-void TBaseNPC::changeNerveFromTalk_()
-{
-	const TNerveBase<TLiveActor>* cur = mSpine->getCurrentNerve();
-	const TNerveBase<TLiveActor>* top = mSpine->peekTopNerveOrNull();
-
-	if (cur == &TNerveNPCWet::theNerve()) {
-		TNerveBase<TLiveActor>* popped = mSpine->popNerve();
-		if (popped != nullptr)
-			mSpine->becomeNerveAfterPop(popped);
-	} else if (cur == nullptr && top == &TNerveNPCTalk::theNerve()) {
-		TNerveBase<TLiveActor>* popped = mSpine->popNerve();
-		if (popped != nullptr)
-			mSpine->becomeNerveAfterPop(popped);
-	} else {
-		TNerveNPCTalk::theNerve();
-	}
-
-	mSpine->setNext(nullptr);
-
-	if (unk17C != nullptr) {
-		if (mLiveFlag & 0x20000000) {
-			mLiveFlag &= ~0x20000000;
-		} else {
-			mSpine->pushNerve(&TNerveNPCThrow::theNerve());
+	bool result = false;
+	u32 flag    = mLiveFlag;
+	if ((flag & 0x100000) && mActorType - 0x04000000 != 0x1C
+	    && mHolder == nullptr && mHeldObject == nullptr
+	    && !(flag & 0x840007) && !(unk64 & 0x1)) {
+		const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
+		if (cur == &TNerveNPCGraphWander::theNerve()
+		    || cur == &TNerveNPCUTurn::theNerve()
+		    || cur == &TNerveNPCGraphWait::theNerve()
+		    || cur == &TNerveNPCWaitContinue::theNerve()
+		    || cur == &TNerveNPCWaitMarioApproach::theNerve()
+		    || cur == &TNerveNPCTurnToMario::theNerve()
+		    || cur == &TNerveNPCWet::theNerve()
+		    || cur == &TNerveNPCSink::theNerve()
+		    || cur == &TNerveNPCRecoverFromSink::theNerve()
+		    || cur == &TNerveNPCRecoverAfter::theNerve()) {
+			result = true;
 		}
 	}
-
-	mLiveFlag &= ~0x02000000;
-}
-
-void TBaseNPC::changeNerveToMad_()
-{
-	if (mSpine->getCurrentNerve() == &TNerveNPCWet::theNerve()) {
-		mSpine->setNext(&TNerveNPCMad::theNerve());
-	} else {
-		mSpine->pushNerve(&TNerveNPCMad::theNerve());
-	}
-}
-
-void TBaseNPC::setPosAndInitAfterSinkBottom()
-{
-	JGeometry::TVec3<f32> resetPos
-	    = *(const JGeometry::TVec3<f32>*)((u8*)this + 0x194);
-	bool polluted
-	    = gpPollution->isPolluted(resetPos.x, resetPos.y, resetPos.z);
-	mLiveFlag    &= 0xF539FFE0;
-	mLiveFlag    |= 0x01000000;
-	mHolder       = nullptr;
-	mHeldObject   = nullptr;
-	if (mPollutionStartHelper)
-		*(s32*)mPollutionStartHelper = 0;
-
-	mHitPoints = isPollutionNpc()
-	                 ? *(u8*)((u8*)isPollutionNpc() + 0x7C)
-	                 : 1;
-
-	if (mMultiMtxEffect != nullptr) {
-		s32 i      = 0;
-		void** arr = *(void***)((u8*)mMultiMtxEffect + 0x10);
-		while (i < *(s16*)mMultiMtxEffect) {
-			void* p                  = (void*)((u32*)arr)[i];
-			*(u16*)((u8*)p + 0x4)   |= 0x2;
-			i++;
-		}
-	}
-
-	*(s32*)((u8*)mSpine + 0x8)        = 0;
-	*(s32*)((u8*)mUnk18C + 0x24)      = 0;
-	*(f32*)((u8*)mUnk18C + 0x28)      = 0.0f;
-	**(s32**)((u8*)this + 0x190)      = -1;
-	unk1CC                             = 0;
-	unk1D0                             = 0.0f;
-
-	if (polluted && isPollutionNpc() && !(mActionFlag & 0x400)) {
-		unk64 |= 0x1;
-		mSpine->setNext(*(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
-		mSpine->pushNerve(&TNerveNPCSink::theNerve());
-		mSpine->pushNerve(&TNerveNPCSink::theNerve());
-
-		mLiveFlag |= 0x00C00010;
-		const TBGCheckData* gp = nullptr;
-		gpMap->checkGroundIgnoreWaterSurface(resetPos.x, mPosition.y,
-		                                     resetPos.z, &gp);
-		mGroundHeight = resetPos.y;
-		mSinkBaseY    = resetPos.y;
-		mAngularVelocity.x = 0.0f;
-		mAngularVelocity.y = 0.0f;
-		mAngularVelocity.z = 0.0f;
-	} else {
-		unk64 &= ~0x1;
-		mSpine->setNext(*(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
-		mSpine->becomeNerveAfterPop(
-		    *(TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
-		mAngularVelocity.x = 0.0f;
-		mAngularVelocity.y = 5.0f;
-		mAngularVelocity.z = 0.0f;
-		mLiveFlag         |= 0x8000;
-		mLiveFlag         |= 0x80;
-	}
-
-	mPosition.x = resetPos.x;
-	mPosition.y = resetPos.y;
-	mPosition.z = resetPos.z;
-	mRotation.x = *(f32*)((u8*)this + 0x1A0);
-	mRotation.y = *(f32*)((u8*)this + 0x1A4);
-	mRotation.z = *(f32*)((u8*)this + 0x1A8);
-	mLinearVelocity.x = 0.0f;
-	mLinearVelocity.y = 0.0f;
-	mLinearVelocity.z = 0.0f;
-	*(s32*)((u8*)unk124 + 0x8) = -1;
-	*(s32*)((u8*)unk124 + 0x4) = -1;
-	goToShortestNextGraphNode();
-	npcWaitIn();
-	randomizeBckAndBtpFrame_();
+	return result;
 }
 
 void TBaseNPC::changeNerveProc_()
@@ -679,38 +636,81 @@ void TBaseNPC::changeNerveProc_()
 	mSpine->pushNerve(&TNerveNPCSink::theNerve());
 }
 
-bool TBaseNPC::isNowCanTaken() const
+void TBaseNPC::setPosAndInitAfterSinkBottom()
 {
-	bool result = false;
-	u32 flag    = mLiveFlag;
-	if ((flag & 0x100000) && mActorType - 0x04000000 != 0x1C
-	    && mHolder == nullptr && mHeldObject == nullptr
-	    && !(flag & 0x840007) && !(unk64 & 0x1)) {
-		const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
-		if (cur == &TNerveNPCGraphWander::theNerve()
-		    || cur == &TNerveNPCUTurn::theNerve()
-		    || cur == &TNerveNPCGraphWait::theNerve()
-		    || cur == &TNerveNPCWaitContinue::theNerve()
-		    || cur == &TNerveNPCWaitMarioApproach::theNerve()
-		    || cur == &TNerveNPCTurnToMario::theNerve()
-		    || cur == &TNerveNPCWet::theNerve()
-		    || cur == &TNerveNPCSink::theNerve()
-		    || cur == &TNerveNPCRecoverFromSink::theNerve()
-		    || cur == &TNerveNPCRecoverAfter::theNerve()) {
-			result = true;
+	JGeometry::TVec3<f32> resetPos
+	    = *(const JGeometry::TVec3<f32>*)((u8*)this + 0x194);
+	bool polluted
+	    = gpPollution->isPolluted(resetPos.x, resetPos.y, resetPos.z);
+	mLiveFlag    &= 0xF539FFE0;
+	mLiveFlag    |= 0x01000000;
+	mHolder       = nullptr;
+	mHeldObject   = nullptr;
+	if (mPollutionStartHelper)
+		*(s32*)mPollutionStartHelper = 0;
+
+	mHitPoints = isPollutionNpc()
+	                 ? *(u8*)((u8*)isPollutionNpc() + 0x7C)
+	                 : 1;
+
+	if (mMultiMtxEffect != nullptr) {
+		s32 i      = 0;
+		void** arr = *(void***)((u8*)mMultiMtxEffect + 0x10);
+		while (i < *(s16*)mMultiMtxEffect) {
+			void* p                  = (void*)((u32*)arr)[i];
+			*(u16*)((u8*)p + 0x4)   |= 0x2;
+			i++;
 		}
 	}
-	return result;
-}
 
-BOOL TBaseNPC::isStateGoToMad_() const
-{
-	BOOL result = FALSE;
-	if (isMadNpc() && !(mActionFlag & 0x4600) && 0.0f == unk178
-	    && isInMadSearchRange()) {
-		result = TRUE;
+	*(s32*)((u8*)mSpine + 0x8)        = 0;
+	*(s32*)((u8*)mUnk18C + 0x24)      = 0;
+	*(f32*)((u8*)mUnk18C + 0x28)      = 0.0f;
+	**(s32**)((u8*)this + 0x190)      = -1;
+	unk1CC                             = 0;
+	unk1D0                             = 0.0f;
+
+	if (polluted && isPollutionNpc() && !(mActionFlag & 0x400)) {
+		unk64 |= 0x1;
+		mSpine->setNext(*(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		mSpine->pushNerve(&TNerveNPCSink::theNerve());
+		mSpine->pushNerve(&TNerveNPCSink::theNerve());
+
+		mLiveFlag |= 0x00C00010;
+		const TBGCheckData* gp = nullptr;
+		gpMap->checkGroundIgnoreWaterSurface(resetPos.x, mPosition.y,
+		                                     resetPos.z, &gp);
+		mGroundHeight = resetPos.y;
+		mSinkBaseY    = resetPos.y;
+		mAngularVelocity.x = 0.0f;
+		mAngularVelocity.y = 0.0f;
+		mAngularVelocity.z = 0.0f;
+	} else {
+		unk64 &= ~0x1;
+		mSpine->setNext(*(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		mSpine->becomeNerveAfterPop(
+		    *(TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		mAngularVelocity.x = 0.0f;
+		mAngularVelocity.y = 5.0f;
+		mAngularVelocity.z = 0.0f;
+		mLiveFlag         |= 0x8000;
+		mLiveFlag         |= 0x80;
 	}
-	return result;
+
+	mPosition.x = resetPos.x;
+	mPosition.y = resetPos.y;
+	mPosition.z = resetPos.z;
+	mRotation.x = *(f32*)((u8*)this + 0x1A0);
+	mRotation.y = *(f32*)((u8*)this + 0x1A4);
+	mRotation.z = *(f32*)((u8*)this + 0x1A8);
+	mLinearVelocity.x = 0.0f;
+	mLinearVelocity.y = 0.0f;
+	mLinearVelocity.z = 0.0f;
+	*(s32*)((u8*)unk124 + 0x8) = -1;
+	*(s32*)((u8*)unk124 + 0x4) = -1;
+	goToShortestNextGraphNode();
+	npcWaitIn();
+	randomizeBckAndBtpFrame_();
 }
 
 void TBaseNPC::kill() { }
