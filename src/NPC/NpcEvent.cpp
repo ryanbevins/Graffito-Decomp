@@ -372,26 +372,26 @@ static const char* sCameraNames[5] = {
 
 void TNpcEvent::reviveOneSunflower()
 {
-	if (mDownSunflowerNum <= 0)
+	s32 down = mDownSunflowerNum;
+	if (down <= 0)
 		return;
 
 	static const char* sViewObjName
 	    = "\x82\xD0\x82\xDC\x82\xED\x82\xE8"; // ひまわり
 
-	int idx = 5 - mDownSunflowerNum;
+	int idx = 5 - down;
 	char buf[0x40];
 	snprintf(buf, 0x40, "%s%d", sViewObjName, idx);
 	JDrama::TActor* actor = JDrama::TNameRefGen::search<JDrama::TActor>(buf);
 	mDownSunflowerNum -= 1;
 
-	gpMarDirector->fireStartDemoCamera(
-	    sCameraNames[idx],
-	    (const JGeometry::TVec3<f32>*)((u8*)actor + 0x1B8), -1, 0.0f, true,
-	    &ReviveSunflowerCallBack, 0, actor, JDrama::TFlagT<u16>(0));
+	JGeometry::TVec3<f32>* pos
+	    = (JGeometry::TVec3<f32>*)((u8*)actor + 0x1B8);
+	gpMarDirector->fireStartDemoCamera(sCameraNames[idx], pos, -1, 0.0f,
+	                                   true, &ReviveSunflowerCallBack, 0,
+	                                   actor, JDrama::TFlagT<u16>(0));
 
 	if (mDownSunflowerNum == 0) {
-		JGeometry::TVec3<f32>* pos
-		    = (JGeometry::TVec3<f32>*)((u8*)actor + 0x1B8);
 		gpItemManager->makeShineAppearWithDemo(
 		    "\x82\xD0\x82\xDC\x82\xED\x82\xE8\x97\x70\x83\x56\x83\x83\x83\x43"
 		    "\x83\x93",
