@@ -260,6 +260,8 @@ static void evSetFruitType(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 			break;
 		}
 		*(u32*)((u8*)target + 0x150) = actorType;
+	} else {
+		*(u32*)((u8*)target + 0x150) = 0;
 	}
 	interp->push();
 }
@@ -280,14 +282,13 @@ static void evFireStartDemoCamera(TSpcTypedInterp<TEventWatcher>* interp,
 static void evIsDemoMode(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(0, &arg_num);
-	BOOL isDemo;
-	if (gpMarDirector->unk124 == 3)
-		isDemo = TRUE;
-	else if (gpMarDirector->unk124 == 4)
-		isDemo = TRUE;
-	else
-		isDemo = FALSE;
-	interp->push(TSpcSlice((int)isDemo));
+	BOOL pushVal = FALSE;
+	bool isDemo  = true;
+	if (gpMarDirector->unk124 != 3 && gpMarDirector->unk124 != 4)
+		isDemo = false;
+	if (isDemo)
+		pushVal = TRUE;
+	interp->push(TSpcSlice((int)pushVal));
 }
 
 static void evCheckMonteClear(TSpcTypedInterp<TEventWatcher>* interp,
