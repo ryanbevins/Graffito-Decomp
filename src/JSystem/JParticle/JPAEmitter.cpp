@@ -1,3 +1,4 @@
+#include <JSystem/JGeometry/JGUtil.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JParticle/JPAEmitterManager.hpp>
 #include <JSystem/JParticle/JPAParticle.hpp>
@@ -6,6 +7,17 @@
 #include <JSystem/JParticle/JPAMath.hpp>
 #include <JSystem/JParticle/JPAEmitterLoader.hpp>
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
+
+namespace JGeometry {
+f32 TUtil<f32>::inv_sqrt(f32 mag)
+{
+	if (mag <= 0.0f)
+		return mag;
+
+	f32 root = __frsqrte(mag);
+	return 0.5f * root * (3.0f - mag * (root * root));
+}
+} // namespace JGeometry
 
 static JPAEmitterInfo JPAEmitterInfoObj;
 
