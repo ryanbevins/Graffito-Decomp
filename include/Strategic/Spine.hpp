@@ -38,6 +38,24 @@ public:
 		return mPrevious;
 	}
 
+	Nerve peekTopNerveOrNull() const
+	{
+		Nerve result;
+		if (mVertebrae.size() == 0)
+			result = (Nerve)nullptr;
+		else
+			result = mVertebrae[mVertebrae.size() - 1];
+		return result;
+	}
+
+	void becomeNerveAfterPop(Nerve nerve)
+	{
+		if (mCurrent != nullptr)
+			mPrevious = mCurrent;
+		mCurrent = nerve;
+		mTime    = 0;
+	}
+
 	// matching
 	void pushNerve(Nerve nerve)
 	{

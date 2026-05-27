@@ -113,7 +113,7 @@ public:
 	void setPosAndInitAfterSinkBottom();
 	void changeNerveProc_();
 	bool isNowCanTaken() const;
-	void isStateGoToMad_() const;
+	BOOL isStateGoToMad_() const;
 	void behaveToSandBomb_(const TLiveActor*);
 	void behaveToHitObject_(THitActor*, EnumHitNpcObjectKind);
 	void behaveToBeTrampled_();
@@ -160,11 +160,12 @@ public:
 	void initNpcObjCollision_(const TNpcInitInfo*);
 
 	static TNpcSaveNormal* mPtrSaveNormal;
+	static s16 mAngleYDiffWhenTaken;
 
 public:
 	/* 0x150 */ SDLModel* mSDLModel;
 	/* 0x154 */ Mtx* mSDLMtx;
-	/* 0x158 */ char unk158[0x4];
+	/* 0x158 */ THitActor* mTakenBy;
 	/* 0x15C */ void* mPollutionStartHelper;
 	/* 0x160 */ TMultiMtxEffect* mMultiMtxEffect;
 	/* 0x164 */ s32 mNpcKind;

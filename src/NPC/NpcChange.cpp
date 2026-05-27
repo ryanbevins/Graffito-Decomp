@@ -4,8 +4,6 @@
 #include <NPC/NpcNerve.hpp>
 #include <Strategic/Spine.hpp>
 
-void TBaseNPC::kill() { }
-
 BOOL TBaseNPC::isNerveWalk() const
 {
 	BOOL result                       = FALSE;
@@ -53,6 +51,28 @@ BOOL TBaseNPC::isNerveMaybeDontCalcAnim1() const
 	return result;
 }
 
+BOOL TBaseNPC::isNerveCanGoToTalk() const
+{
+	BOOL result                       = FALSE;
+	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
+	if (cur == &TNerveNPCGraphWander::theNerve()
+	    || cur == &TNerveNPCUTurn::theNerve()
+	    || cur == &TNerveNPCGraphWait::theNerve()
+	    || cur == &TNerveNPCTurnToMario::theNerve()
+	    || cur == &TNerveNPCWet::theNerve()
+	    || cur == &TNerveNPCRecoverAfter::theNerve()
+	    || cur == &TNerveNPCMad::theNerve()
+	    || cur == &TNerveNPCMareStand::theNerve()) {
+		if (mSpine->getCurrentNerve() != nullptr
+		    || (mSpine->peekTopNerveOrNull() != &TNerveNPCWet::theNerve()
+		        && mSpine->peekTopNerveOrNull()
+		               != &TNerveNPCTalk::theNerve())) {
+			result = TRUE;
+		}
+	}
+	return result;
+}
+
 BOOL TBaseNPC::isNerveCanGoToMad() const
 {
 	BOOL result                       = FALSE;
@@ -68,3 +88,24 @@ BOOL TBaseNPC::isNerveCanGoToMad() const
 	}
 	return result;
 }
+
+void TBaseNPC::changeNerveToMad_()
+{
+	if (mSpine->getCurrentNerve() == &TNerveNPCWet::theNerve()) {
+		mSpine->setNext(&TNerveNPCMad::theNerve());
+	} else {
+		mSpine->pushNerve(&TNerveNPCMad::theNerve());
+	}
+}
+
+BOOL TBaseNPC::isStateGoToMad_() const
+{
+	BOOL result = FALSE;
+	if (isMadNpc() && !(mActionFlag & 0x4600) && 0.0f == unk178
+	    && isInMadSearchRange()) {
+		result = TRUE;
+	}
+	return result;
+}
+
+void TBaseNPC::kill() { }
