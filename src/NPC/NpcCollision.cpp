@@ -51,8 +51,7 @@ void TBaseNPC::setVariableDamageRadius_()
 	    && gpMarioPos->y > mPosition.y) {
 		f32 dx = gpMarioPos->x - mPosition.x;
 		f32 dz = gpMarioPos->z - mPosition.z;
-		if (0.0f + dx * dx + dz * dz
-		    < CLBSquared<f32>(newRadius * 3.0f)) {
+		if (dx * dx + dz * dz < CLBSquared<f32>(newRadius * 3.0f)) {
 			result = mNpcSaveIndividual->mSLDamageRadiusSmall.get();
 		}
 	}
@@ -91,7 +90,7 @@ void TBaseNPC::execNpcObjCollision_()
 				f32 dy
 				    = mPosition.y - mCollisions[i]->mPosition.y;
 				f32 ady;
-				if (dy > 0.0f)
+				if (dy >= 0.0f)
 					ady = dy;
 				else
 					ady = -dy;
@@ -136,9 +135,10 @@ void TBaseNPC::execNpcObjCollision_()
 		}
 
 		if (reverseDir) {
-			mCollisions[i]->mPosition.x += diff.x;
-			mCollisions[i]->mPosition.y += diff.y;
-			mCollisions[i]->mPosition.z += diff.z;
+			JGeometry::TVec3<f32>& pos = mCollisions[i]->mPosition;
+			pos.x += diff.x;
+			pos.y += diff.y;
+			pos.z += diff.z;
 		} else {
 			mLinearVelocity.x += diff.x;
 			mLinearVelocity.y += diff.y;
