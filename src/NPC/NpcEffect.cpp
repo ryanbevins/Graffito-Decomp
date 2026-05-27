@@ -272,9 +272,7 @@ void TBaseNPC::emitParticle_()
 
 	// Block 2: note effect
 	if (mPtrNoteEffectMtx) {
-		bool skip = (mActorType == 0x04000012)
-		    && (unkD0->mCurrentAnmKind == 5);
-		if (!skip) {
+		if (mActorType == 0x04000012 && unkD0->mCurrentAnmKind != 5) {
 			JGeometry::TVec3<f32> scale;
 			if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
 				scale.set(1.0f, 1.0f, 1.0f);
