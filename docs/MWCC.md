@@ -36,6 +36,41 @@ them in future ticks.
 
 ## Settled
 
+### Adjacent-constant integer dispatch chains compile to `switch`-with-branching only when the source is a `switch` statement
+
+**Rule.** When target asm shows the signed switch-with-branching
+pattern (one `lis rX, KHIGH` constant base, then per-case
+`addi r0, rX, KLOW; cmpw rVAL, r0; beq <case>; bge <next>` with
+shared base register), the source MUST be a `switch (val)` statement,
+NOT an `if (val == K1) ... else if (val == K2) ...` chain. The
+if-else chain compiles to per-case `subis r0, rVAL, KHIGH;
+cmplwi r0, KLOW; bne <next>` (unsigned, no shared constant base).
+
+**Why.** MWCC's frontend recognises `switch` and lowers it to the
+fused signed-comparison form when all cases share a high half. The
+if-else chain is lowered case-by-case with no cross-case opt.
+
+**When to apply.** Two signals from target asm:
+- Single `lis rN, K_UPPER` before the chain, reused across all cases.
+- `addi r0, rN, K_LOWER; cmpw rVAL, r0; beq/bge` per case.
+
+Rewrite the if-else chain as a `switch`. Order of `case` labels in
+source doesn't matter — MWCC reorders by value.
+
+**Citations.**
+- `NPC/NpcInitPrg::setIndividualDifference_` (tick 158): the outer
+  `if (type == 0x4000014) ... else if (type == 0x400000F) ... else
+  if (type == 0x4000019)` chain on `mActorType` was emitting
+  `subis/cmplwi/bne` per case. Rewriting as `switch (mActorType)`
+  with 3 case branches produced exact match for the dispatch skeleton:
+  `lis r3, 0x400; lwz r4, 0x4c(r31); addi r0, r3, 0x14; cmpw r4, r0;
+  beq ...; bge ...; addi r0, r3, 0xf; cmpw r4, r0; beq ...`. Same
+  rewrite on the nested `0x4000016/0x4000017` Kino-dispatch worked.
+  setIndividualDifference_ 58.7 → 60.9% (+2.2pp).
+- `NPC/NpcCoin::updateCoin` (tick 156): observed but not noted at the
+  time — `mFrame` dispatch on small integer constants used the same
+  pattern. Source was already a switch there, which is why it matched.
+
 ### Storing the result of `a() || b()` into a named `bool` inhibits inlining of the second predicate
 
 **Rule.** When `a()` and `b()` are inline-marked predicates with
