@@ -1,1 +1,173 @@
-// NPC/NpcCollision.cpp — stub for portability (~4 funcs).
+#include <Camera/cameralib.hpp>
+#include <Map/Map.hpp>
+#include <Map/MapData.hpp>
+#include <MarioUtil/MathUtil.hpp>
+#include <NPC/NpcBase.hpp>
+#include <NPC/NpcInitData.hpp>
+#include <NPC/NpcSave.hpp>
+#include <Player/MarioAccess.hpp>
+
+void TBaseNPC::bind()
+{
+	JGeometry::TVec3<f32> nextPos = mPosition;
+	nextPos.add(mLinearVelocity);
+	nextPos.add(mVelocity);
+
+	mVelocity.y -= getGravityY();
+	if (mVelocity.y < mVelocityMinY)
+		mVelocity.y = mVelocityMinY;
+
+	mGroundHeight = gpMap->checkGroundIgnoreWaterSurface(
+	    nextPos.x, nextPos.y + mHeadHeight, nextPos.z, &mGroundPlane);
+	mGroundHeight += 1.0f;
+
+	if (nextPos.y <= mGroundHeight + 0.05f) {
+		if (mGroundPlane != NULL && mGroundPlane->isLegal()) {
+			offLiveFlag(LIVE_FLAG_AIRBORNE);
+			mVelocity.set(0.0f, 0.0f, 0.0f);
+			nextPos.y = mGroundHeight;
+		}
+	} else {
+		onLiveFlag(LIVE_FLAG_AIRBORNE);
+	}
+
+	if (mLiveFlag & 0x10000000) {
+		gpMap->isTouchedOneWallAndMoveXZ(&nextPos.x,
+		                                 nextPos.y + mHeadHeight,
+		                                 &nextPos.z, 150.0f);
+	}
+
+	mLinearVelocity = nextPos - mPosition;
+}
+
+void TBaseNPC::setVariableDamageRadius_()
+{
+	f32 newRadius
+	    = mScaling.x
+	      * SMSGetNpcInitData(mActorType - 0x04000001)->mDamageRadius;
+	f32 result = newRadius;
+
+	if (isBeTrampledNpc() && !SMS_IsMarioTouchGround4cm()
+	    && gpMarioPos->y > mPosition.y) {
+		f32 dx = gpMarioPos->x - mPosition.x;
+		f32 dz = gpMarioPos->z - mPosition.z;
+		if (0.0f + dx * dx + dz * dz
+		    < CLBSquared<f32>(newRadius * 3.0f)) {
+			result = mNpcSaveIndividual->mSLDamageRadiusSmall.get();
+		}
+	}
+
+	mDamageRadius = result;
+	calcEntryRadius();
+}
+
+void TBaseNPC::execNpcObjCollision_()
+{
+	for (int i = 0; i < mColCount; i++) {
+		bool reverseDir;
+		if (isNerveWalk()) {
+			reverseDir = false;
+		} else {
+			if (!mCollisions[i]->checkActorType(0x04000000))
+				continue;
+			if (!((TBaseNPC*)mCollisions[i])->isNerveWalk())
+				continue;
+			reverseDir = true;
+		}
+
+		JGeometry::TVec3<f32> diff(
+		    mPosition.x - mCollisions[i]->mPosition.x, 0.0f,
+		    mPosition.z - mCollisions[i]->mPosition.z);
+
+		if (reverseDir) {
+			diff.x = -diff.x;
+			diff.y = -diff.y;
+			diff.z = -diff.z;
+		}
+
+		if (diff.x * diff.x + diff.y * diff.y + diff.z * diff.z
+		    <= 0.0000038146973f) {
+			if (!reverseDir) {
+				f32 dy
+				    = mPosition.y - mCollisions[i]->mPosition.y;
+				f32 ady;
+				if (dy > 0.0f)
+					ady = dy;
+				else
+					ady = -dy;
+				if (ady < 0.001f) {
+					diff.x = 1.0f;
+					diff.y = 10.0f;
+					diff.z = 0.0f;
+				} else {
+					diff.x = 0.0f;
+					diff.y = dy;
+					diff.z = 0.0f;
+				}
+			}
+		} else {
+			f32 mag;
+			if (mAttackRadius + mCollisions[i]->mDamageRadius
+			        - MsVECMag2(&diff)
+			    > 0.0f) {
+				mag = -(mAttackRadius
+				        + mCollisions[i]->mDamageRadius
+				        - MsVECMag2(&diff));
+			} else {
+				mag = mAttackRadius + mCollisions[i]->mDamageRadius
+				      - MsVECMag2(&diff);
+			}
+			if (mag < 0.001f)
+				mag = 0.001f;
+
+			f32 lsq
+			    = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+			if (lsq <= 0.0f) {
+				diff.z = 0.0f;
+				diff.y = 0.0f;
+				diff.x = 0.0f;
+			} else {
+				f32 invLen = JGeometry::TUtil<f32>::inv_sqrt(lsq);
+				invLen *= mag;
+				diff.x *= invLen;
+				diff.y *= invLen;
+				diff.z *= invLen;
+			}
+		}
+
+		if (reverseDir) {
+			mCollisions[i]->mPosition.x += diff.x;
+			mCollisions[i]->mPosition.y += diff.y;
+			mCollisions[i]->mPosition.z += diff.z;
+		} else {
+			mLinearVelocity.x += diff.x;
+			mLinearVelocity.y += diff.y;
+			mLinearVelocity.z += diff.z;
+		}
+	}
+}
+
+void TBaseNPC::initNpcObjCollision_(const TNpcInitInfo* info)
+{
+	u16 var1 = 2;
+	int var2 = 0x04000000;
+
+	switch (mActorType) {
+	case 0x04000006:
+	case 0x0400001A:
+	case 0x0400001B:
+	case 0x0400001D:
+		var1 = 0;
+		var2 = 0;
+		break;
+	}
+
+	initHitActor(mActorType, var1, var2, info->mAttackRadius * mScaling.x,
+	             info->mAttackHeight * mScaling.y,
+	             info->mDamageRadius * mScaling.x,
+	             info->mDamageHeight * mScaling.y);
+
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+	if (var1 == 0)
+		onHitFlag(HIT_FLAG_UNK2);
+}

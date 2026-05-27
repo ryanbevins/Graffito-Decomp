@@ -78,7 +78,7 @@ public:
 	void isBehaveToHitNpc() const;
 	BOOL isBehaveToWaterNpc() const;
 	BOOL isMadNpc() const;
-	void isBeTrampledNpc() const;
+	bool isBeTrampledNpc() const;
 	BOOL isPollutionNpc() const;
 	bool isSmallNpc() const;
 	BOOL isChild() const;
