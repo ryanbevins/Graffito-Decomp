@@ -252,9 +252,10 @@ void TBaseNPC::emitParticle_()
 			scale = mEffectScaleBase;
 		}
 		JGeometry::TVec3<f32> scaleSmoke = scale;
-		mSmokeEffectPos.x                = mPtrSmokeEffectMtx[0][3];
-		mSmokeEffectPos.y                = mPtrSmokeEffectMtx[1][3];
-		mSmokeEffectPos.z                = mPtrSmokeEffectMtx[2][3];
+		MtxPtr mtxSmoke                  = mPtrSmokeEffectMtx;
+		mSmokeEffectPos.x                = mtxSmoke[0][3];
+		mSmokeEffectPos.y                = mtxSmoke[1][3];
+		mSmokeEffectPos.z                = mtxSmoke[2][3];
 		SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x170,
 		                     &mSmokeEffectPos, this, scaleSmoke);
 
@@ -283,9 +284,10 @@ void TBaseNPC::emitParticle_()
 			scaleNote.x *= 0.75f;
 			scaleNote.y *= 0.75f;
 			scaleNote.z *= 0.75f;
-			mNoteEffectPos.x = mPtrNoteEffectMtx[0][3];
-			mNoteEffectPos.y = mPtrNoteEffectMtx[1][3];
-			mNoteEffectPos.z = mPtrNoteEffectMtx[2][3];
+			MtxPtr mtxNote   = mPtrNoteEffectMtx;
+			mNoteEffectPos.x = mtxNote[0][3];
+			mNoteEffectPos.y = mtxNote[1][3];
+			mNoteEffectPos.z = mtxNote[2][3];
 			SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x18B,
 			                     &mNoteEffectPos, this, scaleNote);
 		}
