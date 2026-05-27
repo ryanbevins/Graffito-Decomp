@@ -44,15 +44,15 @@ BOOL CLBChaseGeneralConstantSpecifySpeed(T* param_1, T param_2, T param_3)
 		param_3 = -param_3;
 
 	if (sVar1 > 0) {
-		T d = sVar1 - param_3;
-		if (d > 0)
-			*param_1 = param_2 - d;
+		sVar1 -= param_3;
+		if (sVar1 > 0)
+			*param_1 = param_2 - sVar1;
 		else
 			*param_1 = param_2;
 	} else {
-		T d = sVar1 + param_3;
-		if (d < 0)
-			*param_1 = param_2 - d;
+		sVar1 += param_3;
+		if (sVar1 < 0)
+			*param_1 = param_2 - sVar1;
 		else
 			*param_1 = param_2;
 	}
