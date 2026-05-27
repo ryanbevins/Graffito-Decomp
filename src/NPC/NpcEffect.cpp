@@ -123,7 +123,7 @@ void TBaseNPC::setSmokeEffectMtxPtr_(bool isSmoke)
 JGeometry::TVec3<f32> TBaseNPC::getEffectScale_() const
 {
 	JGeometry::TVec3<f32> result;
-	if (mActorType >= 0x04000016 && mActorType < 0x04000018) {
+	if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
 		result.x = 1.0f;
 		result.y = 1.0f;
 		result.z = 1.0f;
@@ -149,7 +149,7 @@ void TBaseNPC::emitSinkEffect_()
 void TBaseNPC::emitHappyEffect_()
 {
 	JGeometry::TVec3<f32> scale;
-	if (mActorType >= 0x04000016 && mActorType < 0x04000018) {
+	if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
 		scale.set(1.0f, 1.0f, 1.0f);
 	} else {
 		scale = mEffectScaleBase;
@@ -233,7 +233,7 @@ void TBaseNPC::emitParticle_()
 	// Block 1: smoke + fire chain
 	if (mPtrSmokeEffectMtx && (mActionFlag & 0x4000)) {
 		JGeometry::TVec3<f32> scale;
-		if (mActorType >= 0x04000016 && mActorType < 0x04000018) {
+		if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
 			scale.set(1.0f, 1.0f, 1.0f);
 		} else {
 			scale = mEffectScaleBase;
@@ -263,7 +263,7 @@ void TBaseNPC::emitParticle_()
 		    && (unkD0->mCurrentAnmKind == 5);
 		if (!skip) {
 			JGeometry::TVec3<f32> scale;
-			if (mActorType >= 0x04000016 && mActorType < 0x04000018) {
+			if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
 				scale.set(1.0f, 1.0f, 1.0f);
 			} else {
 				scale = mEffectScaleBase;
@@ -290,7 +290,7 @@ void TBaseNPC::emitParticle_()
 	if (doWater) {
 		f32 waveY = 0.0f;
 		JGeometry::TVec3<f32> scale;
-		if (mActorType >= 0x04000016 && mActorType < 0x04000018) {
+		if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
 			scale.set(1.0f, 1.0f, 1.0f);
 		} else {
 			scale = mEffectScaleBase;
@@ -379,7 +379,7 @@ void TBaseNPC::emitParticle_()
 			    idx, mPtrPollutionEffectMtx, 1, this);
 			if (em) {
 				JGeometry::TVec3<f32> sc;
-				if (mActorType >= 0x04000016 && mActorType < 0x04000018) {
+				if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
 					sc.set(1.0f, 1.0f, 1.0f);
 				} else {
 					sc = mEffectScaleBase;
