@@ -36,6 +36,170 @@ them in future ticks.
 
 ## Settled
 
+### Comparing a `u32` field as `(s32)field <op> KCONST` emits `cmpw` (signed); the natural `field <op> KCONST` emits `cmplw` (unsigned)
+
+**Rule.** Range checks against a `u32` member with literal constants
+default to **unsigned** lowering — `cmplw`/`cmplwi`. If target's asm
+shows the **signed** form `cmpw`, the original source applied a signed
+cast (or stored through a signed local) before comparing.
+
+**When to apply.** When target's asm shows `cmpw` (no `l`) between a
+loaded `u32` member and an `addi`-built constant, and you're using
+unsigned `cmplw` in your build for the matching predicate. Rewrite as:
+
+```cpp
+// before — emits cmplw / cmplwi:
+if (mActorType >= 0x04000016 && mActorType < 0x04000018) ...
+// after — emits cmpw:
+if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) ...
+```
+
+Reversing the `&&` operands additionally aligns the branch order
+target picks when the upper bound is tested first (target emits
+`bge ELSE; addi; cmpw; bge THEN; b ELSE` — the two-condition cascade
+with the THEN block reached only via a positive `bge`). Source order
+matters here because MWCC preserves left-to-right operand evaluation.
+
+**Why.** `u32` comparisons lower to unsigned PPC instructions
+(`cmpl`/`cmplw`). Casting through `s32` forces signed lowering
+(`cmp`/`cmpw`). The integer-encoding result is the same for values in
+the s32 range, but the two instruction families don't share opcodes,
+so it's a strict matching concern.
+
+**Citations.**
+- `NPC/NpcEffect::emitHappyEffect_`, `getEffectScale_`, `emitParticle_`
+  (tick 154): six call sites of `mActorType >= 0x04000016 &&
+  mActorType < 0x04000018` flipped to `(s32)mActorType < 0x04000018 &&
+  (s32)mActorType >= 0x04000016`. Each emitted `cmpw + cmpw` (instead
+  of `cmplw + cmplw`) and the branch direction matches target. Function
+  gains: emitHappyEffect_ 93.92 → 95.29, getEffectScale_ 2.14 → 7.95,
+  emitParticle_ 66.62 → 67.75 (combined +3.49pp on the three).
+
+### `s32 idx = getIndex(); ... use (u16)idx` keeps full-width result through assignment, masks only at use site
+
+**Rule.** Target stores a `s32`-returning function's result into a
+register without truncation (`addi r31, r3, 0` = `mr r31, r3`), then
+applies `clrlwi r0, r31, 16` immediately before the multiply that
+needs the 16-bit value. Our build's `u16 idx = func()` declaration
+forces `clrlwi r31, r3, 16` **at the assignment**, shifting subsequent
+register allocation.
+
+**When to apply.** When target's asm shows the truncation `clrlwi r0,
+rN, 16` right next to a `mulli r0, r0, <Mtx-size>` (or similar 16-bit
+multiply) AND `rN` was just loaded from a function return without
+masking, source likely used `s32 idx` (or `int idx`) and cast `(u16)`
+at the multiplication site. Rewrite:
+
+```cpp
+// before — clrlwi immediately after bl getIndex:
+u16 idx = nameTab->getIndex(jntName);
+J3DModel* mdl = getModel();
+mPtr = (MtxPtr)((u8*)mdl->mNodeMatrices + idx * sizeof(Mtx));
+
+// after — clrlwi only at the multiply:
+s32 idx = nameTab->getIndex(jntName);
+J3DModel* mdl = getModel();
+mPtr = (MtxPtr)((u8*)mdl->mNodeMatrices + (u16)idx * sizeof(Mtx));
+```
+
+**Why.** Target intent: keep `idx` as the full 32-bit return value
+between the call and the multiply (no intermediate `clrlwi`), then
+narrow when actually needed. The source-level lever is the declared
+type of the local plus the cast on use.
+
+**Citations.**
+- `NPC/NpcEffect::setNoteEffectMtxPtr_` (tick 154): single-line change
+  drove the function 86.14 → **99.83%** (+13.69pp; remaining gap is
+  phantom +8 stack pad).
+- `NPC/NpcEffect::setHappyEffectMtxPtr_` (tick 154): 86.14 → 91.29%
+  (+5.15pp).
+- `NPC/NpcEffect::setPollutionEffectMtxPtr_` (tick 154): 80.93 →
+  93.31% (+12.38pp) across three getIndex sites.
+
+### Local `MtxPtr` (or `T*`) cache forces batched lfs loads across `mtx[i][j]` chains where direct member access reloads the pointer
+
+**Rule.** When source assigns three consecutive `mPos.{x,y,z} =
+this->mPtrMtx[N][3];` (or similar member-of-pointer-chain), MWCC
+conservatively reloads `this->mPtrMtx` before each access — assuming
+intervening side effects could mutate the field. Target's asm shows a
+single `lwz r7, OFFSET(this)` followed by 3 `lfs fN, OFFSET(r7)` and
+3 `stfs`. Caching `mPtrMtx` in a local pointer ref before the access
+chain produces target's batched pattern.
+
+**When to apply.** When target's asm has a single base-pointer load
+(`lwz rN, OFFSET(this)`) followed by 3 floating-point loads via `lfs
+fK, FIELD_OFFSET(rN)` reusing `rN`, but your build reloads `rN`
+between each access. Rewrite:
+
+```cpp
+// before — reload mPtrXxxEffectMtx per access:
+mPos.x = mPtrXxxEffectMtx[0][3];
+mPos.y = mPtrXxxEffectMtx[1][3];
+mPos.z = mPtrXxxEffectMtx[2][3];
+
+// after — single load via local:
+MtxPtr mtx = mPtrXxxEffectMtx;
+mPos.x = mtx[0][3];
+mPos.y = mtx[1][3];
+mPos.z = mtx[2][3];
+```
+
+**Why.** Same root cause as the existing
+[[don't-cache-a-global-pointer-in-a-local-across-function-calls]] rule,
+but reversed: that rule says **don't** cache when target reloads
+across calls; this rule says **do** cache when target keeps a single
+load and there are no intervening calls. MWCC errs conservative when
+the source writes `this->field` directly because it can't prove the
+field isn't aliased through other paths within the basic block. A
+local copy is an explicit "I've read this value, freeze it" signal.
+
+**Citations.**
+- `NPC/NpcEffect::emitParticle_` (tick 154): caching
+  `mPtrSmokeEffectMtx` and `mPtrNoteEffectMtx` in `MtxPtr` locals
+  combined for +0.90pp (68.40 → 69.30%). Each batched-load block went
+  from 3-instruction interleave to 1+3+3 layout matching target.
+
+### Switch with non-contiguous case labels (`0xF`, `0x19`) lowers as a binary-search branch tree; equivalent `if-else if` chain lowers as sequential `cmpwi/beq`
+
+**Rule.** Sparse switch dispatch (e.g. `case 0xF:`, `case 0x19:`) with
+2-3 cases compiles to MWCC's binary-search tree:
+```
+cmpwi r0, 0x19
+beq   case_19
+bge   default       ; bigger than max — skip
+cmpwi r0, 0xf
+beq   case_f
+b     default
+```
+Even though there are only 2 active cases, the compiler inserts a
+median-test (`cmpwi r0, 0x19; beq; bge default; cmpwi r0, 0xf; beq;
+b default`) — the canonical balanced-binary-tree shape.
+
+An equivalent `if (x == 0xF) ... else if (x == 0x19) ...` lowers to a
+flat cascade (`cmpwi 0xF; beq ...; cmpwi 0x19; beq ...; b default`) —
+a different structure.
+
+**When to apply.** When target's asm shows the median-cmpwi-then-bge
+pattern for a dispatch on a value, rewrite the if-cascade as a
+`switch`. The number of cases doesn't matter — even 2 cases get the
+binary-search shape.
+
+**Why.** Switch-as-branching is one of MWCC's two switch lowerings;
+it's chosen for sparse case ranges (where a jump-table would have too
+many empty slots). It generates ordered compare cascades that
+short-circuit using the case-value ordering. If-else cascades are
+order-preserving but **not** ordered by value, so MWCC won't introduce
+the median pivot.
+
+**Citations.**
+- `NPC/NpcEffect::emitParticle_` (tick 154): converting `if (anmKind ==
+  0xF) ... else if (anmKind == 0x19) ...` to `switch` produced
+  target's `cmpwi 0x19; beq; bge default; cmpwi 0xf; beq; b default`
+  pattern. Function 69.30 → 70.42% (+1.11pp).
+- See also the existing rule
+  [[rewrite-if-v-k1-or-v-k2-as-switch-when-target-asm-shows-the-switch-branch-order]]
+  for the related `case K1: case K2:` pattern.
+
 ### Accumulator initialized to `0.0f` then `acc += a*a; acc += b*b;` emits `lfs f0, @0; fmadds; fmadds` (instead of `fmuls; fmuls; fadds; fadds`)
 
 **Rule.** A sum-of-products with an explicit `0.0f` initializer compiles to:
