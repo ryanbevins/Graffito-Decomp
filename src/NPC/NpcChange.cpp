@@ -1,13 +1,23 @@
 // NPC/NpcChange.cpp -- partial decomp.
 
+#include <Camera/Camera.hpp>
+#include <Camera/CubeManagerBase.hpp>
 #include <Camera/cameralib.hpp>
 #include <JSystem/JMath.hpp>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <Map/Map.hpp>
+#include <Map/PollutionManager.hpp>
 #include <MarioUtil/MapUtil.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <NPC/NpcBalloon.hpp>
 #include <NPC/NpcBase.hpp>
 #include <NPC/NpcNerve.hpp>
 #include <NPC/NpcSave.hpp>
+#include <NPC/NpcTrample.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Strategic/Spine.hpp>
+#include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
 
 BOOL TBaseNPC::isNerveWalk() const
@@ -93,6 +103,122 @@ BOOL TBaseNPC::isNerveCanGoToMad() const
 		result = TRUE;
 	}
 	return result;
+}
+
+void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
+{
+	if (mActionFlag & 0x4000) {
+		if ((s32)kind != 0)
+			return;
+		bool m12 = true;
+		u8 mode  = gpMarDirector->unk124;
+		if (mode != 1 && mode != 2)
+			m12 = false;
+		bool ok = true;
+		if (!m12) {
+			u8 m2 = gpMarDirector->unk124;
+			if (m2 != 3 && m2 != 4)
+				ok = false;
+		}
+		if (ok)
+			return;
+		gpMarioParticleManager->emit(0xE7, &hitter->mPosition, 0, nullptr);
+		gpMSound->startSoundSet(0x6802, (const Vec*)&mPosition, 0, 0.0f, 0, 0, 4);
+		if (gpMSound->gateCheck(0x8837)) {
+			MSoundSESystem::MSoundSE::startSoundNpcActor(
+			    0x8837, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+		}
+		mFireScaleMul -= mPtrSaveNormal->mSLFireDecSpeed.get();
+		if (mFireScaleMul > 0.0f)
+			return;
+		mFireScaleMul = 0.0f;
+		mActionFlag &= ~0x4089;
+		npcHappyIn(1);
+		return;
+	}
+
+	if ((s32)kind == 0) {
+		bool m12 = true;
+		u8 mode  = gpMarDirector->unk124;
+		if (mode != 1 && mode != 2)
+			m12 = false;
+		bool dirOk = true;
+		if (!m12) {
+			u8 m2 = gpMarDirector->unk124;
+			if (m2 != 3 && m2 != 4)
+				dirOk = false;
+		}
+		if (!dirOk) {
+			if (isPollutionNpc()) {
+				if (mSpine->getCurrentNerve()
+				    == &TNerveNPCWet::theNerve()) {
+					if (unk178 > 0.0f) {
+						unk178 -= mPtrSaveNormal->mSLCleanEffectScale.get();
+						if (unk178 <= 0.0f) {
+							unk178  = 0.0f;
+							unk1E0  = 0x3c;
+							unk1DA |= 0x2;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (mActionFlag & 0x600)
+		return;
+
+	bool transitionable                  = false;
+	const TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
+	if (latest == &TNerveNPCGraphWander::theNerve()
+	    || latest == &TNerveNPCUTurn::theNerve()
+	    || latest == &TNerveNPCGraphWait::theNerve()
+	    || latest == &TNerveNPCWaitContinue::theNerve()
+	    || latest == &TNerveNPCWaitMarioApproach::theNerve()
+	    || latest == &TNerveNPCTurnToMario::theNerve()
+	    || latest == &TNerveNPCTalk::theNerve()) {
+		if (mSpine->getCurrentNerve() != nullptr
+		    || (mSpine->peekTopNerveOrNull() != &TNerveNPCWet::theNerve()
+		        && mSpine->peekTopNerveOrNull()
+		               != &TNerveNPCTalk::theNerve())) {
+			transitionable = true;
+		}
+	}
+	if (!transitionable)
+		return;
+
+	if (mActionFlag & 0x400)
+		return;
+
+	bool specialBlock = false;
+	if (mActorType - 0x04000000 == 0x18 && (unk1D8 & 0x2))
+		specialBlock = true;
+	if (specialBlock)
+		return;
+
+	bool sunBlock = false;
+	if (isSunflower() && (unk1D8 & 0x2))
+		sunBlock = true;
+	if (sunBlock)
+		return;
+
+	if (unk178 != 0.0f && (s32)kind == 1)
+		return;
+
+	if (mActorType - 0x04000000 == 0x6) {
+		s32 v = *(s32*)((u8*)unkD0 + 0x14);
+		if (v != 0x4 && v != 0x6)
+			return;
+	}
+
+	if (mSpine->getCurrentNerve() == &TNerveNPCTalk::theNerve()
+	    && *(s32*)((u8*)mSpine + 0x20) < 0x4)
+		return;
+
+	if ((s32)kind == 1)
+		mActionFlag |= 0x400;
+
+	mSpine->pushNerve(&TNerveNPCWet::theNerve());
 }
 
 void TBaseNPC::behaveToSandBomb_(const TLiveActor* bomb)
