@@ -10,6 +10,9 @@
 class TNpcParts;
 class TNpcSaveIndividual;
 class TNpcSaveNormal;
+class SDLModel;
+class TMultiMtxEffect;
+class TNpcCoin;
 
 // TODO: should this be here?
 enum EnumNpcAnmKind { };
@@ -155,14 +158,23 @@ public:
 	static TNpcSaveNormal* mPtrSaveNormal;
 
 public:
-	/* 0x150 */ char unk150[0x14];
+	/* 0x150 */ SDLModel* mSDLModel;
+	/* 0x154 */ Mtx* mSDLMtx;
+	/* 0x158 */ char unk158[0x4];
+	/* 0x15C */ void* mPollutionStartHelper;
+	/* 0x160 */ TMultiMtxEffect* mMultiMtxEffect;
 	/* 0x164 */ s32 mNpcKind;
 	/* 0x168 */ TNpcParts* mNpcParts;
 	/* 0x16C */ s32 _16C;
 	/* 0x170 */ u32 mActionFlag;
-	/* 0x174 */ char unk174[0x178 - 0x174];
+	/* 0x174 */ GXColor unk174;
 	/* 0x178 */ f32 unk178;
-	/* 0x17C */ char unk17C[0x1A4 - 0x17C];
+	/* 0x17C */ char unk17C[0x180 - 0x17C];
+	/* 0x180 */ char unk180[0x184 - 0x180];
+	/* 0x184 */ TNpcCoin* mNpcCoin;
+	/* 0x188 */ char unk188[0x4];
+	/* 0x18C */ void* mUnk18C;
+	/* 0x190 */ char unk190[0x1A4 - 0x190];
 	/* 0x1A4 */ f32 unk1A4;
 	/* 0x1A8 */ char unk1A8[0x4];
 	/* 0x1AC */ JGeometry::TVec3<f32> mEffectScaleBase;
