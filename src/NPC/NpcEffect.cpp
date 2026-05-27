@@ -33,15 +33,21 @@ void TBaseNPC::setHappyEffectMtxPtr_(const JUTNameTab* nameTab)
 	const char* sKoshiNull = "koshi_null";
 	const char* sKoshi     = "koshi";
 	const char* sJntBody   = "jnt_body";
-	const char* jntName;
-	if (isNormalMonteM() || isNormalMonteW()) {
+	const char* jntName    = (const char*)NULL;
+	bool isMonte           = true;
+	if (!isNormalMonteM() && !isNormalMonteW())
+		isMonte = false;
+	if (isMonte) {
 		jntName = sKoshiNull;
-	} else if (isNormalMareM() || isNormalMareW()) {
-		jntName = sKoshi;
-	} else if (mActorType == 0x04000016) {
-		jntName = sJntBody;
 	} else {
-		jntName = (const char*)NULL;
+		bool isMare = true;
+		if (!isNormalMareM() && !isNormalMareW())
+			isMare = false;
+		if (isMare) {
+			jntName = sKoshi;
+		} else if (mActorType == 0x04000016) {
+			jntName = sJntBody;
+		}
 	}
 	if (jntName) {
 		u16 idx       = nameTab->getIndex(jntName);
@@ -79,8 +85,11 @@ void TBaseNPC::setPollutionEffectMtxPtr_(const JUTNameTab* nameTab)
 	const char* sFootL     = "footL_jnt";
 	const char* sFootR     = "footR_jnt";
 	const char* sKoshi     = "koshi";
-	const char* jntName;
-	if (isNormalMonteM() || isNormalMonteW()) {
+	const char* jntName    = (const char*)NULL;
+	bool isMonte           = true;
+	if (!isNormalMonteM() && !isNormalMonteW())
+		isMonte = false;
+	if (isMonte) {
 		u16 idxL       = nameTab->getIndex(sFootL);
 		J3DModel* mdlL = getModel();
 		mPtrPollutionLEffectMtx
@@ -90,12 +99,15 @@ void TBaseNPC::setPollutionEffectMtxPtr_(const JUTNameTab* nameTab)
 		mPtrPollutionREffectMtx
 		    = (MtxPtr)((u8*)mdlR->mNodeMatrices + idxR * sizeof(Mtx));
 		jntName = sKoshiNull;
-	} else if (isNormalMareM() || isNormalMareW()) {
-		jntName = sKoshi;
-	} else if (mActorType == 0x04000016) {
-		jntName = sJntBody;
 	} else {
-		jntName = (const char*)NULL;
+		bool isMare = true;
+		if (!isNormalMareM() && !isNormalMareW())
+			isMare = false;
+		if (isMare) {
+			jntName = sKoshi;
+		} else if (mActorType == 0x04000016) {
+			jntName = sJntBody;
+		}
 	}
 	if (jntName) {
 		u16 idx       = nameTab->getIndex(jntName);
