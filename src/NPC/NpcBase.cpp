@@ -126,38 +126,38 @@ BOOL TBaseNPC::isChild() const
 	return result;
 }
 
-BOOL TBaseNPC::isSunflower() const
+bool TBaseNPC::isSunflower() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if ((s32)mActorType < 0x0400001C && (s32)mActorType >= 0x0400001A)
-		result = TRUE;
+		result = true;
 	return result;
 }
 
-BOOL TBaseNPC::isJellyFishMare() const
+bool TBaseNPC::isJellyFishMare() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	switch (mActorType) {
 	case 0x0400000F:
 	case 0x04000014:
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }
 
-BOOL TBaseNPC::isSpecialMareW() const
+bool TBaseNPC::isSpecialMareW() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if ((s32)mActorType < 0x04000016 && (s32)mActorType >= 0x04000014)
-		result = TRUE;
+		result = true;
 	return result;
 }
 
-BOOL TBaseNPC::isSpecialMareM() const
+bool TBaseNPC::isSpecialMareM() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if ((s32)mActorType < 0x04000013 && (s32)mActorType >= 0x0400000F)
-		result = TRUE;
+		result = true;
 	return result;
 }
 
@@ -181,21 +181,21 @@ bool TBaseNPC::isNormalMareM() const
 	return result;
 }
 
-BOOL TBaseNPC::isSpecialMonteW() const
+bool TBaseNPC::isSpecialMonteW() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	switch (mActorType) {
 	case 0x0400000D:
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }
 
-BOOL TBaseNPC::isSpecialMonteM() const
+bool TBaseNPC::isSpecialMonteM() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if ((s32)mActorType < 0x0400000A && (s32)mActorType >= 0x04000006)
-		result = TRUE;
+		result = true;
 	return result;
 }
 
