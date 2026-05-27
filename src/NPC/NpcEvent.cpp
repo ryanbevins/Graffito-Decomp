@@ -81,16 +81,18 @@ static void ev__ForceStartTalk(TSpcTypedInterp<TEventWatcher>* interp,
                                u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
-	BOOL block;
-	if (gpMarDirector->unk124 == 1 || gpMarDirector->unk124 == 2)
-		block = TRUE;
-	else
-		block = FALSE;
-	if (!block) {
-		if (gpMarDirector->unk124 == 3 || gpMarDirector->unk124 == 4)
-			block = TRUE;
+	bool block   = true;
+	bool talking = block;
+	BOOL result  = FALSE;
+	if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
+		talking = false;
+	if (!talking) {
+		bool inDemo = true;
+		if (gpMarDirector->unk124 != 3 && gpMarDirector->unk124 != 4)
+			inDemo = false;
+		if (!inDemo)
+			block = false;
 	}
-	BOOL result = FALSE;
 	if (!block && SMS_IsMarioTouchGround4cm()
 	    && !(gpMarioOriginal->mAction & 0x800)) {
 		TBaseNPC* npc = (TBaseNPC*)interp->pop().getDataInt();
@@ -109,14 +111,16 @@ static void ev__ForceStartTalkExceptNpc(TSpcTypedInterp<TEventWatcher>* interp,
 	interp->verifyArgNum(1, &arg_num);
 	BOOL result = FALSE;
 	(void)interp->pop().mData.asString;
-	BOOL block;
-	if (gpMarDirector->unk124 == 1 || gpMarDirector->unk124 == 2)
-		block = TRUE;
-	else
-		block = FALSE;
-	if (!block) {
-		if (gpMarDirector->unk124 == 3 || gpMarDirector->unk124 == 4)
-			block = TRUE;
+	bool block   = true;
+	bool talking = block;
+	if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
+		talking = false;
+	if (!talking) {
+		bool inDemo = true;
+		if (gpMarDirector->unk124 != 3 && gpMarDirector->unk124 != 4)
+			inDemo = false;
+		if (!inDemo)
+			block = false;
 	}
 	if (!block && SMS_IsMarioTouchGround4cm()
 	    && !(gpMarioOriginal->mAction & 0x800)) {
