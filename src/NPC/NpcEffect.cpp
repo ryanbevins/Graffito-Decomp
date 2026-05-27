@@ -50,10 +50,10 @@ void TBaseNPC::setHappyEffectMtxPtr_(const JUTNameTab* nameTab)
 		}
 	}
 	if (jntName) {
-		u16 idx       = nameTab->getIndex(jntName);
+		s32 idx       = nameTab->getIndex(jntName);
 		J3DModel* mdl = getModel();
 		mPtrHappyEffectMtx
-		    = (MtxPtr)((u8*)mdl->mNodeMatrices + idx * sizeof(Mtx));
+		    = (MtxPtr)((u8*)mdl->mNodeMatrices + (u16)idx * sizeof(Mtx));
 	}
 }
 
@@ -71,10 +71,10 @@ void TBaseNPC::setNoteEffectMtxPtr_(const JUTNameTab* nameTab)
 		break;
 	}
 	if (jntName) {
-		u16 idx       = nameTab->getIndex(jntName);
+		s32 idx       = nameTab->getIndex(jntName);
 		J3DModel* mdl = getModel();
 		mPtrNoteEffectMtx
-		    = (MtxPtr)((u8*)mdl->mNodeMatrices + idx * sizeof(Mtx));
+		    = (MtxPtr)((u8*)mdl->mNodeMatrices + (u16)idx * sizeof(Mtx));
 	}
 }
 
@@ -90,14 +90,14 @@ void TBaseNPC::setPollutionEffectMtxPtr_(const JUTNameTab* nameTab)
 	if (!isNormalMonteM() && !isNormalMonteW())
 		isMonte = false;
 	if (isMonte) {
-		u16 idxL       = nameTab->getIndex(sFootL);
+		s32 idxL       = nameTab->getIndex(sFootL);
 		J3DModel* mdlL = getModel();
 		mPtrPollutionLEffectMtx
-		    = (MtxPtr)((u8*)mdlL->mNodeMatrices + idxL * sizeof(Mtx));
-		u16 idxR       = nameTab->getIndex(sFootR);
+		    = (MtxPtr)((u8*)mdlL->mNodeMatrices + (u16)idxL * sizeof(Mtx));
+		s32 idxR       = nameTab->getIndex(sFootR);
 		J3DModel* mdlR = getModel();
 		mPtrPollutionREffectMtx
-		    = (MtxPtr)((u8*)mdlR->mNodeMatrices + idxR * sizeof(Mtx));
+		    = (MtxPtr)((u8*)mdlR->mNodeMatrices + (u16)idxR * sizeof(Mtx));
 		jntName = sKoshiNull;
 	} else {
 		bool isMare = true;
@@ -110,10 +110,10 @@ void TBaseNPC::setPollutionEffectMtxPtr_(const JUTNameTab* nameTab)
 		}
 	}
 	if (jntName) {
-		u16 idx       = nameTab->getIndex(jntName);
+		s32 idx       = nameTab->getIndex(jntName);
 		J3DModel* mdl = getModel();
 		mPtrPollutionEffectMtx
-		    = (MtxPtr)((u8*)mdl->mNodeMatrices + idx * sizeof(Mtx));
+		    = (MtxPtr)((u8*)mdl->mNodeMatrices + (u16)idx * sizeof(Mtx));
 	}
 }
 
