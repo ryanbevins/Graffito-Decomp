@@ -161,22 +161,22 @@ BOOL TBaseNPC::isSpecialMareM() const
 	return result;
 }
 
-BOOL TBaseNPC::isNormalMareW() const
+bool TBaseNPC::isNormalMareW() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	switch (mActorType) {
 	case 0x04000013:
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }
 
-BOOL TBaseNPC::isNormalMareM() const
+bool TBaseNPC::isNormalMareM() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	switch (mActorType) {
 	case 0x0400000E:
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }
@@ -199,18 +199,18 @@ BOOL TBaseNPC::isSpecialMonteM() const
 	return result;
 }
 
-BOOL TBaseNPC::isNormalMonteW() const
+bool TBaseNPC::isNormalMonteW() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if ((s32)mActorType < 0x0400000D && (s32)mActorType >= 0x0400000A)
-		result = TRUE;
+		result = true;
 	return result;
 }
 
-BOOL TBaseNPC::isNormalMonteM() const
+bool TBaseNPC::isNormalMonteM() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if ((s32)mActorType < 0x04000006 && (s32)mActorType >= 0x04000001)
-		result = TRUE;
+		result = true;
 	return result;
 }

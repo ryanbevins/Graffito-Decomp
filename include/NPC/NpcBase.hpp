@@ -2,9 +2,12 @@
 #define NPC_BASE_NPC_HPP
 
 #include <Enemy/Enemy.hpp>
+#include <JSystem/JGeometry/JGVec3.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <NPC/NpcInitData.hpp>
+#include <dolphin/mtx.h>
 
+class TNpcParts;
 class TNpcSaveIndividual;
 class TNpcSaveNormal;
 
@@ -86,12 +89,12 @@ public:
 	BOOL isJellyFishMare() const;
 	BOOL isSpecialMareW() const;
 	BOOL isSpecialMareM() const;
-	BOOL isNormalMareW() const;
-	BOOL isNormalMareM() const;
+	bool isNormalMareW() const;
+	bool isNormalMareM() const;
 	BOOL isSpecialMonteW() const;
 	BOOL isSpecialMonteM() const;
-	BOOL isNormalMonteW() const;
-	BOOL isNormalMonteM() const;
+	bool isNormalMonteW() const;
+	bool isNormalMonteM() const;
 	void loadAfter();
 	void load(JSUMemoryInputStream&);
 	TBaseNPC(u32, const char*);
@@ -124,10 +127,12 @@ public:
 	BOOL isNerveMaybeDontMovement() const;
 	BOOL isNerveWalk() const;
 	void emitParticle_();
-	void isPolWaitCEffectEmitTime_() const;
+	BOOL isPolWaitCEffectEmitTime_() const;
+	BOOL isPolWaitLEffectEmitTime_() const;
+	BOOL isPolWaitREffectEmitTime_() const;
 	void emitHappyEffect_();
 	void emitSinkEffect_();
-	void getEffectScale_() const;
+	JGeometry::TVec3<f32> getEffectScale_() const;
 	void setSmokeEffectMtxPtr_(bool);
 	void setPollutionEffectMtxPtr_(const JUTNameTab*);
 	void setNoteEffectMtxPtr_(const JUTNameTab*);
@@ -152,20 +157,34 @@ public:
 public:
 	/* 0x150 */ char unk150[0x14];
 	/* 0x164 */ s32 mNpcKind;
-	/* 0x168 */ char unk168[0x4];
+	/* 0x168 */ TNpcParts* mNpcParts;
 	/* 0x16C */ s32 _16C;
 	/* 0x170 */ u32 mActionFlag;
 	/* 0x174 */ char unk174[0x178 - 0x174];
 	/* 0x178 */ f32 unk178;
 	/* 0x17C */ char unk17C[0x1A4 - 0x17C];
 	/* 0x1A4 */ f32 unk1A4;
-	/* 0x1A8 */ char unk1A8[0x1D8 - 0x1A8];
+	/* 0x1A8 */ char unk1A8[0x4];
+	/* 0x1AC */ JGeometry::TVec3<f32> mEffectScaleBase;
+	/* 0x1B8 */ char unk1B8[0x1C4 - 0x1B8];
+	/* 0x1C4 */ f32 mSinkBaseY;
+	/* 0x1C8 */ char unk1C8[0x1D8 - 0x1C8];
 	/* 0x1D8 */ u8 unk1D8;
 	/* 0x1D9 */ u8 unk1D9;
 	/* 0x1DA */ u8 unk1DA;
 	/* 0x1DB */ char unk1DB[0x1E2 - 0x1DB];
 	/* 0x1E2 */ u16 unk1E2;
-	/* 0x1E4 */ char unk1E4[0x228 - 0x1E4];
+	/* 0x1E4 */ char unk1E4[0x4];
+	/* 0x1E8 */ MtxPtr mPtrHappyEffectMtx;
+	/* 0x1EC */ MtxPtr mPtrNoteEffectMtx;
+	/* 0x1F0 */ JGeometry::TVec3<f32> mNoteEffectPos;
+	/* 0x1FC */ MtxPtr mPtrPollutionEffectMtx;
+	/* 0x200 */ MtxPtr mPtrPollutionLEffectMtx;
+	/* 0x204 */ MtxPtr mPtrPollutionREffectMtx;
+	/* 0x208 */ MtxPtr mPtrSmokeEffectMtx;
+	/* 0x20C */ JGeometry::TVec3<f32> mSmokeEffectPos;
+	/* 0x218 */ f32 mFireScaleMul;
+	/* 0x21C */ JGeometry::TVec3<f32> mWaterEffectPos;
 	/* 0x228 */ TNpcSaveIndividual* mNpcSaveIndividual;
 	/* 0x22C */ char unk22C[0x4];
 	/* 0x230 */ s16* mNeckAngles;
