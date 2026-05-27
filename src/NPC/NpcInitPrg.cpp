@@ -388,7 +388,8 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 		} else if (mActorType == 0x4000016 || mActorType == 0x4000017) {
 			setKinoActionFlag_();
 			if ((mActionFlag & 0x100) != 0) {
-				if (mActorType == 0x4000017) {
+				switch (mActorType) {
+				case 0x4000017: {
 					static const s32 sIndividualKinojiiBck[]
 					    = { 0xB, 0xC, 2, 3, 0xA, 0x11,
 						    5,   7,   0xD, 0xE, -1,  -1 };
@@ -396,7 +397,9 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 					    = { 1, 2, 0, 5, -1, -1 };
 					*(const s32**)((u8*)unkD0 + 0x18) = sIndividualKinojiiBck;
 					*(const s32**)((u8*)unkD0 + 0x1C) = sIndividualKinojiiBtp;
-				} else if (mActorType == 0x4000016) {
+					break;
+				}
+				case 0x4000016: {
 					static const s32 sIndividualKinopioBck[]
 					    = { 0xF, 0x10, 6, 7,    4,    5, 0xE, 0x18,
 						    9,   0xB,  0x13, 0x14, -1,   -1 };
@@ -404,6 +407,8 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 					    = { 1, 2, 0, 5, -1, -1 };
 					*(const s32**)((u8*)unkD0 + 0x18) = sIndividualKinopioBck;
 					*(const s32**)((u8*)unkD0 + 0x1C) = sIndividualKinopioBtp;
+					break;
+				}
 				}
 			}
 		} else {
@@ -412,45 +417,48 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 		}
 	}
 
-	{
-		u32 type = mActorType;
-		if (type == 0x4000014) {
-			f32 r   = (f32)rand() * (1.0f / 32768.0f);
-			s32 sel = (s32)(2.0f * r);
-			if (sel == 0) {
-				static const s32 sIndividualMareWA0Bck[] = { 0, 3 };
-				*(const s32**)((u8*)unkD0 + 0x18) = sIndividualMareWA0Bck;
-			}
-		} else if (type == 0x400000F) {
-			f32 r   = (f32)rand() * (1.0f / 32768.0f);
-			s32 sel = (s32)(3.0f * r);
-			if (sel == 1) {
-				static const s32 sIndividualMareMA1Bck[] = { 0, 4, -1, -1 };
-				static const s32 sIndividualMareMA1Btp[] = { 2, 0, -1, -1 };
-				*(const s32**)((u8*)unkD0 + 0x18) = sIndividualMareMA1Bck;
-				*(const s32**)((u8*)unkD0 + 0x1C) = sIndividualMareMA1Btp;
-			} else if (sel == 0) {
-				static const s32 sIndividualMareMA0Bck[] = { 0, 3, -1, -1 };
-				static const s32 sIndividualMareMA0Btp[] = { 2, 3, -1, -1 };
-				*(const s32**)((u8*)unkD0 + 0x18) = sIndividualMareMA0Bck;
-				*(const s32**)((u8*)unkD0 + 0x1C) = sIndividualMareMA0Btp;
-			}
-		} else if (type == 0x4000019) {
-			if (strcmp(mName, cManiyaParentViewObjName) == 0) {
-				static const s32 sIndividualParentRaccoonDogAnmBck[]
-				    = { 0, 1, -1, -1 };
-				mActionFlag |= 0x800;
-				*(const s32**)((u8*)unkD0 + 0x18)
-				    = sIndividualParentRaccoonDogAnmBck;
-			} else if (strcmp(mName, cManiyaChildViewObjName) == 0) {
-				static const s32 sIndividualChildRaccoonDogAnmBck[]
-				    = { 0, 2, -1, -1 };
-				mActionFlag |= 0x800;
-				onLiveFlag(LIVE_FLAG_UNK10000);
-				*(const s32**)((u8*)unkD0 + 0x18)
-				    = sIndividualChildRaccoonDogAnmBck;
-			}
+	switch (mActorType) {
+	case 0x4000014: {
+		f32 r   = (f32)rand() * (1.0f / 32768.0f);
+		s32 sel = (s32)(2.0f * r);
+		if (sel == 0) {
+			static const s32 sIndividualMareWA0Bck[] = { 0, 3 };
+			*(const s32**)((u8*)unkD0 + 0x18) = sIndividualMareWA0Bck;
 		}
+		break;
+	}
+	case 0x400000F: {
+		f32 r   = (f32)rand() * (1.0f / 32768.0f);
+		s32 sel = (s32)(3.0f * r);
+		if (sel == 1) {
+			static const s32 sIndividualMareMA1Bck[] = { 0, 4, -1, -1 };
+			static const s32 sIndividualMareMA1Btp[] = { 2, 0, -1, -1 };
+			*(const s32**)((u8*)unkD0 + 0x18) = sIndividualMareMA1Bck;
+			*(const s32**)((u8*)unkD0 + 0x1C) = sIndividualMareMA1Btp;
+		} else if (sel == 0) {
+			static const s32 sIndividualMareMA0Bck[] = { 0, 3, -1, -1 };
+			static const s32 sIndividualMareMA0Btp[] = { 2, 3, -1, -1 };
+			*(const s32**)((u8*)unkD0 + 0x18) = sIndividualMareMA0Bck;
+			*(const s32**)((u8*)unkD0 + 0x1C) = sIndividualMareMA0Btp;
+		}
+		break;
+	}
+	case 0x4000019:
+		if (strcmp(mName, cManiyaParentViewObjName) == 0) {
+			static const s32 sIndividualParentRaccoonDogAnmBck[]
+			    = { 0, 1, -1, -1 };
+			mActionFlag |= 0x800;
+			*(const s32**)((u8*)unkD0 + 0x18)
+			    = sIndividualParentRaccoonDogAnmBck;
+		} else if (strcmp(mName, cManiyaChildViewObjName) == 0) {
+			static const s32 sIndividualChildRaccoonDogAnmBck[]
+			    = { 0, 2, -1, -1 };
+			mActionFlag |= 0x800;
+			onLiveFlag(LIVE_FLAG_UNK10000);
+			*(const s32**)((u8*)unkD0 + 0x18)
+			    = sIndividualChildRaccoonDogAnmBck;
+		}
+		break;
 	}
 
 	if ((streamS32c & 1) != 0) {
