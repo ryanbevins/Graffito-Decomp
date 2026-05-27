@@ -73,7 +73,7 @@ public:
 	void getCursorPos() const;
 	BOOL isInMadSearchRange() const;
 	BOOL isInBodyTurnSearchRange() const;
-	BOOL isNeedNeckStraight() const;
+	bool isNeedNeckStraight() const;
 	BOOL isPartsAnmNpc() const;
 	void isBehaveToHitNpc() const;
 	BOOL isBehaveToWaterNpc() const;
