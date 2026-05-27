@@ -36,6 +36,148 @@ them in future ticks.
 
 ## Settled
 
+### Predicate declared as `bool` vs `BOOL` (= int) changes the caller's result-test instruction
+
+**Rule.** When a function is declared to return `bool`, MWCC tests the
+result at the call site with `clrlwi. r0, r3, 24` (mask to lower 8 bits,
+update CR0). When declared `BOOL` (which is `typedef int BOOL`), MWCC
+emits `cmpwi r3, 0` (full 32-bit compare). Both yield the same logical
+result, but they're different instructions and break byte-identical
+matching.
+
+**Why.** `bool` is an 8-bit type in MWCC's C++; `BOOL` is `int`
+(32-bit). MWCC's caller-side codegen uses the declared return type to
+pick the test width, regardless of the actual function body emitting
+the value zero-extended in r3.
+
+**Diagnostic signature.** Look at the instruction immediately after
+the `bl predicate__...` in target asm:
+- `clrlwi. r0, r3, 24` → callee declared `bool`
+- `cmpwi r3, 0` → callee declared `BOOL` / `int`
+
+If our build emits the opposite of what target shows, flip the return
+type declaration in the header (the implementation body in asm-land
+returns 0/1 either way).
+
+**How to apply.** Predicates whose declared return type doesn't match
+target's caller-side test should be flipped. The function body itself
+doesn't change — only the header declaration.
+
+**Citations.**
+- `NPC/NpcCallback::NPCNeckCallBack` (tick 148): `TBaseNPC::isNeedNeckStraight`
+  was declared `BOOL` in our header, generating `cmpwi r3, 0` after the
+  bl. Target uses `clrlwi. r0, r3, 24`. Changed declaration to `bool`
+  → +0.24pp on NPCNeckCallBack and matching test instruction.
+
+### Don't cache a global pointer in a local across function calls — MWCC pins it to a callee-save register and changes register allocation throughout
+
+**Rule.** When source caches a global pointer like
+`TBaseNPC* npc = gpCurrentNpc;` and uses `npc->X` throughout a function
+with many calls, MWCC allocates the cached pointer to a callee-save
+register (e.g. r31) and keeps it live across every call. Target's
+codegen often does NOT cache, instead reloading via
+`lwz rN, gpCurrentNpc@sda21` after each function call (rN is
+caller-save). The local-cache form changes:
+1. Which callee-save registers get used (mine grows the saved-reg set
+   by one, adds an extra `stw r27` etc. to prologue).
+2. Stack frame size (extra saved reg + alignment).
+3. Subsequent field accesses (uses cached pointer vs reloaded).
+
+**How to apply.** When target reloads `globalPtr` after every bl, drop
+the `T* local = globalPtr;` and use `globalPtr->X` everywhere instead.
+MWCC will then treat each access as an independent load, allocate a
+caller-save register for the brief duration of each use, and re-fetch
+across calls.
+
+**Caveat.** This only matters when the global is used across function
+calls. If all uses are in a basic block with no calls, MWCC will cache
+either way (and the local-cache form is fine).
+
+**Citations.**
+- `NPC/NpcCallback::NPCNeckCallBack` (tick 148): removing `TBaseNPC*
+  npc = gpCurrentNpc;` and inlining `gpCurrentNpc->X` at every use site
+  shifted register allocation from r27-r31 (saving 5 GPRs) to r28-r31
+  (saving 4 GPRs), matched target's reload pattern, and gained
+  +8.5pp on the function (76.1 → 84.6%).
+
+### Restructure multiple `return TRUE` paths into a single fall-through return to merge the epilogue's `li r3, 1` entry
+
+**Rule.** Multiple distinct `return TRUE;` statements in the same
+function compile to separate `li r3, 1; b L_EPILOGUE` sequences in
+mine, even though target consolidates them into one shared entry
+point:
+
+```
+L_RETURN_TRUE: li r3, 0x1
+L_EPILOGUE:    <restore saves, blr>
+```
+
+with every "return TRUE" being `b L_RETURN_TRUE` (or a conditional
+branch directly to L_RETURN_TRUE), and the function's natural end
+falling through into L_RETURN_TRUE.
+
+**How to apply.** If a function has the structure:
+```cpp
+if (early_cond_1) return TRUE;
+if (null_check) return FALSE;
+if (early_cond_2) return TRUE;
+... body ...
+return TRUE;
+```
+
+Restructure as a nested-if fall-through:
+```cpp
+if (!early_cond_1) {
+    if (!null_check) {
+        if (!early_cond_2) {
+            ... body ...
+        }
+    } else {
+        return FALSE;  // the only explicit return
+    }
+}
+return TRUE;  // shared fall-through
+```
+
+MWCC's branch-shaping will then point every conditional branch at the
+shared `return TRUE` and the body falls through into it. This avoids
+the multiple `li r3, 1; b epilogue` blocks and matches target's
+single-li-then-epilogue pattern.
+
+**Caveat.** The nested form must be semantically equivalent. Verify
+the inversions of each `if (early_cond) return` are correctly
+expressed as `if (!early_cond) { rest }`. Indent the block.
+
+**Citations.**
+- `NPC/NpcCallback::NPCNeckCallBack` (tick 148): restructure
+  consolidated three separate `return TRUE` paths into a single shared
+  exit. Combined with other levers, gained +1.6pp (84.6 → 86.2%).
+
+### `operator-` on a TVec3 (returning by-value param) keeps `sub__TVec3` out-of-line under `-inline deferred`, where direct `.sub()` inlines
+
+**Rule.** Under `-inline deferred` TU flags (used by NPC/, Strategic/,
+Player/), writing `diff = rotDir - rotAx;` (which inlines
+`operator-(TVec3 fst, const TVec3& snd)`) leaves the inner
+`fst.sub(snd)` call as `bl sub__TVec3` — MWCC's deferred inliner
+won't recurse through the operator- inline to inline sub() at the
+deeper level. Writing the direct form `tmp.sub(rotAx);` (with sub
+called at depth 1) DOES inline sub() into the caller.
+
+This means:
+- `diff = rotDir - rotAx;` → 1 copy ctor + bl sub + 1 assignment copy
+- `tmp = rotDir; tmp.sub(rotAx); diff = tmp;` → 1 copy ctor + inlined
+  subtraction (3× fsubs) + 1 assignment copy
+
+When target's asm shows `bl sub__Q29JGeometry8TVec3<f>...`, prefer the
+operator- form.
+
+**Citations.**
+- `NPC/NpcCallback::NPCNeckCallBack` (tick 148): the `diff = rotDir -
+  rotAx;` form pushed the function from 65.8% (with inlined sub) to
+  71.7% (with bl sub). The remaining gap is the by-value `fst`
+  parameter expansion introducing extra intermediate copies — those
+  are a separate currently-hard issue.
+
 ### Naked `(expr ? true : false)` ternary at the test site forces MWCC's bool-materialize-then-test pattern without a helper function
 
 **Rule.** The existing Settled rule
