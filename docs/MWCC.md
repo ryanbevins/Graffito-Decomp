@@ -4509,6 +4509,46 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Binary-search-of-value-ranges branching pattern (TNpcParams init
+  loop, t152).** Target's asm for `__ct__10TNpcParamsFv` has a strange
+  test cascade that looks like a switch lowered to **branching** mode
+  rather than jump table:
+  ```
+  cmpwi i, 10; bge L_inner_10   ; >= 10 → forward to inner test
+  cmpwi i, 5;  bge L_default    ; 5..9 → default
+  cmpwi i, 1;  bge L_alias_0    ; 1..4 → alias_0 (forward to body block!)
+  b L_default                    ; i == 0 → default
+  L_inner_10: cmpwi i, 12; bge L_default; b L_alias_9
+  L_alias_0: ... ; b L_loop_end
+  L_alias_9: ... ; b L_loop_end
+  L_default: ... ; falls through to L_loop_end
+  ```
+  This is a **binary-search of the transition points** (1, 5, 10, 12)
+  with the case bodies laid out as **separate blocks below the test
+  cascade**, reached via `bge LBL` forward jumps. Standard if-else
+  chains INTERLEAVE tests and bodies — the tests-then-bodies layout is
+  switch-style branching. **What we can't reproduce**: levers tried in
+  t151–t152:
+  - `switch (i) { case 1..4: ...; case 10..11: ...; default: ...; }`
+    — MWCC picks JUMP TABLE (range 0..28, 6 cases, ~21% density)
+    regressing to 28.19%.
+  - Continue-based nested if-else (`if (i<10) { if (i>=1 && i<5)
+    {...; continue;} } else { if (i<12) {...; continue;} } default;`)
+    — gives 32.90% with correct body layout order but in-line
+    alias_0/alias_9 (not as separate `bge`-target blocks).
+  - Explicit binary-tree with 3 separate `default` blocks — MWCC fails
+    to merge the new() calls → 7% regression.
+  - Test direction tweaks (`i < 5 && i >= 1` vs `i >= 1 && i < 5`) —
+    no movement.
+  - **Coupled register-allocation residue**: target keeps `r28=this`
+    fixed, `r31=i*4` advancing, `r30=&sSaveFileName` fixed (uses
+    `add r3, r30, r31`); mine strength-reduces both to running
+    pointers `r31=this+i*4`, `r30=&sSaveFileName[i]` (extra
+    `addi r30, r30, 0x4` in loop bottom). Likely linked to the same
+    switch lowering that drives the test cascade pattern.
+  - Filed by: t152 INV, citation `NPC/NpcSave::TNpcParams::TNpcParams`
+    (32.90% best). See also `state/notes/NpcSave.md`.
+
 - **`JGeometry::TUtil<f32>::inv_sqrt` inlined in our build but emitted
   as `bl` in 50 target TUs.** Symptom (tick 150,
   `NPC/NpcCollision::execNpcObjCollision_`): target asm has
