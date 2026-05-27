@@ -10,6 +10,7 @@
 #include <Strategic/LiveActor.hpp>
 #include <Strategic/HitActor.hpp>
 #include <MoveBG/MapObjHide.hpp>
+#include <MoveBG/ItemManager.hpp>
 #include <Player/MarioMain.hpp>
 #include <Player/MarioAccess.hpp>
 #include <MSound/MSound.hpp>
@@ -356,6 +357,44 @@ static s32 ReviveSunflowerCallBack(u32 npc_u, u32 phase)
 	return 1;
 }
 
-void TNpcEvent::reviveOneSunflower() { (void)ReviveSunflowerCallBack; }
+static const char* sCameraNames[5] = {
+	"\x82\xD0\x82\xDC\x82\xED\x82\xE8\x83\x4A\x83\x81\x83\x89\x30", // ひまわりカメラ0
+	"\x82\xD0\x82\xDC\x82\xED\x82\xE8\x83\x4A\x83\x81\x83\x89\x31", // ひまわりカメラ1
+	"\x82\xD0\x82\xDC\x82\xED\x82\xE8\x83\x4A\x83\x81\x83\x89\x32", // ひまわりカメラ2
+	"\x82\xD0\x82\xDC\x82\xED\x82\xE8\x83\x4A\x83\x81\x83\x89\x33", // ひまわりカメラ3
+	"\x82\xD0\x82\xDC\x82\xED\x82\xE8\x83\x4A\x83\x81\x83\x89\x34"  // ひまわりカメラ4
+};
+
+void TNpcEvent::reviveOneSunflower()
+{
+	if (mDownSunflowerNum <= 0)
+		return;
+
+	static const char* sViewObjName
+	    = "\x82\xD0\x82\xDC\x82\xED\x82\xE8"; // ひまわり
+
+	int idx = 5 - mDownSunflowerNum;
+	char buf[0x40];
+	snprintf(buf, 0x40, "%s%d", sViewObjName, idx);
+	JDrama::TActor* actor = JDrama::TNameRefGen::search<JDrama::TActor>(buf);
+	mDownSunflowerNum -= 1;
+
+	gpMarDirector->fireStartDemoCamera(
+	    sCameraNames[idx],
+	    (const JGeometry::TVec3<f32>*)((u8*)actor + 0x1B8), -1, 0.0f, true,
+	    &ReviveSunflowerCallBack, 0, actor, JDrama::TFlagT<u16>(0));
+
+	if (mDownSunflowerNum == 0) {
+		JGeometry::TVec3<f32>* pos
+		    = (JGeometry::TVec3<f32>*)((u8*)actor + 0x1B8);
+		gpItemManager->makeShineAppearWithDemo(
+		    "\x82\xD0\x82\xDC\x82\xED\x82\xE8\x97\x70\x83\x56\x83\x83\x83\x43"
+		    "\x83\x93",
+		    "\x82\xD0\x82\xDC\x82\xED\x82\xE8\x83\x56\x83\x83\x83\x43\x83\x93"
+		    "\x83\x4A\x83\x81\x83\x89",
+		    pos->x, 500.0f + pos->y, pos->z);
+		TFlagManager::smInstance->setBool(false, 0x50003);
+	}
+}
 
 u32 TNpcEvent::mDownSunflowerNum;
