@@ -163,12 +163,17 @@ TNpcParams::TNpcParams()
     TBaseNPC::mPtrSaveNormal = unk4;
 
     for (int i = 0; i < 29; i++) {
-        if (i >= 1 && i < 5) {
-            unk8[i] = unk8[0];
-        } else if (i >= 10 && i < 12) {
-            unk8[i] = unk8[9];
+        if (i < 10) {
+            if (i >= 1 && i < 5) {
+                unk8[i] = unk8[0];
+                continue;
+            }
         } else {
-            unk8[i] = new TNpcSaveIndividual(sSaveFileName[i]);
+            if (i < 12) {
+                unk8[i] = unk8[9];
+                continue;
+            }
         }
+        unk8[i] = new TNpcSaveIndividual(sSaveFileName[i]);
     }
 }
