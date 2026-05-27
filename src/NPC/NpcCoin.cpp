@@ -38,9 +38,11 @@ void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
 	unk8.z = pos.z;
 
 	s16 fixedPitch = 0x3552;
+	f32 cosVal     = JMASCos(fixedPitch);
+	f32 sinVal     = JMASSin(fixedPitch);
 	unk14.x        = 0.0f;
-	unk14.y        = JMASSin(fixedPitch);
-	unk14.z        = JMASCos(fixedPitch);
+	unk14.y        = sinVal;
+	unk14.z        = cosVal;
 
 	s16 yaw  = CLBRoundf<s16>(yawDeg * (65536.0f / 360.0f));
 	f32 oldX = unk14.x;
@@ -57,9 +59,8 @@ void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
 	if (unk4 != 0)
 		return;
 
-	bool talking = gpMarDirector->isTalkModeNow();
-	bool blocked = talking || gpMarDirector->checkUnk124Thing2();
-	if (blocked) {
+	TMarDirector* dir = gpMarDirector;
+	if (dir->isTalkModeNow() || dir->checkUnk124Thing2()) {
 		unk4 = 1;
 		return;
 	}
@@ -70,31 +71,25 @@ void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
 		VFunc method = (VFunc)vt[63]; // 0xFC / 4
 		method(unk0);
 
-		TMapObjBase* obj         = unk0;
-		*(u32*)((u8*)obj + 0x10) = *(u32*)&unk8.x;
-		*(u32*)((u8*)obj + 0x14) = *(u32*)&unk8.y;
-		*(u32*)((u8*)obj + 0x18) = *(u32*)&unk8.z;
-		*(f32*)((u8*)obj + 0xAC) = unk14.x;
-		*(f32*)((u8*)obj + 0xB0) = unk14.y;
-		*(f32*)((u8*)obj + 0xB4) = unk14.z;
-		u32* flagsPtr            = (u32*)((u8*)obj + 0xF0);
+		TMapObjBase* obj                           = unk0;
+		*(JGeometry::TVec3<f32>*)((u8*)obj + 0x10) = unk8;
+		((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14);
+		u32* flagsPtr = (u32*)((u8*)obj + 0xF0);
 		*flagsPtr &= ~0x10u;
 		unk0 = nullptr;
 	} else {
 		TMapObjBase* obj
 		    = gpItemManager->makeObjAppear(unk8.x, unk8.y, unk8.z, 0x2000E, true);
 		if (obj != nullptr) {
-			*(f32*)((u8*)obj + 0xAC) = unk14.x;
-			*(f32*)((u8*)obj + 0xB0) = unk14.y;
-			*(f32*)((u8*)obj + 0xB4) = unk14.z;
-			u32* flagsPtr            = (u32*)((u8*)obj + 0xF0);
+			((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14);
+			u32* flagsPtr = (u32*)((u8*)obj + 0xF0);
 			*flagsPtr &= ~0x10u;
 		}
 	}
 
-	if (gpMSound->gateCheck(0x18807)) {
+	if (gpMSound->gateCheck(0x8807)) {
 		MSoundSESystem::MSoundSE::startSoundNpcActor(
-		    0x18807, (const Vec*)&unk8, 0, (JAISound**)NULL, 0, 4);
+		    0x8807, (const Vec*)&unk8, 0, (JAISound**)NULL, 0, 4);
 	}
 }
 
@@ -103,9 +98,8 @@ void TNpcCoin::updateCoin()
 	if (unk4 <= 0)
 		return;
 
-	bool talking = gpMarDirector->isTalkModeNow();
-	bool blocked = talking || gpMarDirector->checkUnk124Thing2();
-	if (blocked)
+	TMarDirector* dir = gpMarDirector;
+	if (dir->isTalkModeNow() || dir->checkUnk124Thing2())
 		return;
 
 	unk4--;
@@ -118,30 +112,24 @@ void TNpcCoin::updateCoin()
 		VFunc method = (VFunc)vt[63]; // 0xFC / 4
 		method(unk0);
 
-		TMapObjBase* obj         = unk0;
-		*(u32*)((u8*)obj + 0x10) = *(u32*)&unk8.x;
-		*(u32*)((u8*)obj + 0x14) = *(u32*)&unk8.y;
-		*(u32*)((u8*)obj + 0x18) = *(u32*)&unk8.z;
-		*(f32*)((u8*)obj + 0xAC) = unk14.x;
-		*(f32*)((u8*)obj + 0xB0) = unk14.y;
-		*(f32*)((u8*)obj + 0xB4) = unk14.z;
-		u32* flagsPtr            = (u32*)((u8*)obj + 0xF0);
+		TMapObjBase* obj                           = unk0;
+		*(JGeometry::TVec3<f32>*)((u8*)obj + 0x10) = unk8;
+		((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14);
+		u32* flagsPtr = (u32*)((u8*)obj + 0xF0);
 		*flagsPtr &= ~0x10u;
 		unk0 = nullptr;
 	} else {
 		TMapObjBase* obj
 		    = gpItemManager->makeObjAppear(unk8.x, unk8.y, unk8.z, 0x2000E, true);
 		if (obj != nullptr) {
-			*(f32*)((u8*)obj + 0xAC) = unk14.x;
-			*(f32*)((u8*)obj + 0xB0) = unk14.y;
-			*(f32*)((u8*)obj + 0xB4) = unk14.z;
-			u32* flagsPtr            = (u32*)((u8*)obj + 0xF0);
+			((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14);
+			u32* flagsPtr = (u32*)((u8*)obj + 0xF0);
 			*flagsPtr &= ~0x10u;
 		}
 	}
 
-	if (gpMSound->gateCheck(0x18807)) {
+	if (gpMSound->gateCheck(0x8807)) {
 		MSoundSESystem::MSoundSE::startSoundNpcActor(
-		    0x18807, (const Vec*)&unk8, 0, (JAISound**)NULL, 0, 4);
+		    0x8807, (const Vec*)&unk8, 0, (JAISound**)NULL, 0, 4);
 	}
 }
