@@ -36,6 +36,60 @@ them in future ticks.
 
 ## Settled
 
+### Accumulator initialized to `0.0f` then `acc += a*a; acc += b*b;` emits `lfs f0, @0; fmadds; fmadds` (instead of `fmuls; fmuls; fadds; fadds`)
+
+**Rule.** A sum-of-products with an explicit `0.0f` initializer compiles to:
+
+```
+lfs   f0, @zero@sda21          ; f0 = 0.0
+fmadds f0, fA, fA, f0           ; f0 = a*a + 0
+fmadds f0, fB, fB, f0           ; f0 = b*b + (a*a + 0)
+```
+
+while the natural `a*a + b*b` form compiles to:
+
+```
+fmuls fX, fA, fA
+fmuls fY, fB, fB
+fadds f0, fX, fY
+```
+
+The 0.0f accumulator is one extra instruction (the leading `lfs`) but
+two fewer (fadds collapsed into fmadds). Net: same instruction count
+but different register pressure.
+
+**When to apply.** Target asm shows `lfs f0, @zero@sda21` immediately
+followed by `fmadds f0, fA, fA, f0; fmadds f0, fB, fB, f0` where you
+were computing a sum of products as part of a comparison or
+assignment. Rewrite the source as:
+
+```cpp
+f32 acc = 0.0f;
+acc += dx * dx;
+acc += dz * dz;
+if (acc < threshold) ...
+```
+
+**Why.** Initial `0.0f` makes the first multiply lower into an fmadds
+with the loaded zero as the addend; subsequent `+=` continues fusing.
+The standalone `+` between two `*` results lacks an accumulator to
+fuse into, so MWCC emits separate `fmuls` + `fadds`.
+
+**Citations.**
+- `NPC/NpcCollision::setVariableDamageRadius_` (tick 150): rewriting
+  `dx*dx + dz*dz < CLBSquared(...)` as `acc = 0; acc += dx*dx; acc +=
+  dz*dz; if (acc < ...)` produced target's `lfs f0, @2321; fmadds
+  f0, f31, f31, f0; fmadds f0, f30, f30, f0` sequence. Function
+  94.5 → 97.1% (+2.6pp).
+- `Enemy/BossHanachanSub::BHSCalcRevisionDistXZByRotateZ` (per the
+  related "Zero-fmadds rotation pattern" rule below — similar
+  mechanism via explicit `+ 0 * x` terms; this rule is the sum-only
+  variant).
+
+**Variant.** If the source involves multiple terms (not just two
+squares), keep the same pattern: `acc = 0.0f; for each term: acc +=
+term;`.
+
 ### Predicate declared as `bool` vs `BOOL` (= int) changes the caller's result-test instruction
 
 **Rule.** When a function is declared to return `bool`, MWCC tests the
@@ -4454,6 +4508,35 @@ declaration trick, or moving inline source out of header) is required.
 _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *Hypotheses
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
+
+- **`JGeometry::TUtil<f32>::inv_sqrt` inlined in our build but emitted
+  as `bl` in 50 target TUs.** Symptom (tick 150,
+  `NPC/NpcCollision::execNpcObjCollision_`): target asm has
+  `bl inv_sqrt__Q29JGeometry8TUtil<f>Ff`; ours inlines the 7-instruction
+  Newton-Raphson body (`frsqrte; frsp; fmuls; fmuls; fnmsubs; fmuls`)
+  at every call site, plus 2 extra FPR constants (`@420 = 3.0`,
+  `@421 = 0.5`) hoisted into callee-saved registers in the prologue.
+  Net cost: per-call function gains ~12-15 bytes and adds 2 extra
+  callee-saved FPR slots.
+  - JGUtil.hpp defines `inline f32 TUtil<f32>::inv_sqrt(f32)` wrapped
+    in `#pragma dont_inline on/off`. Target's nm shows 50 TUs with
+    `U inv_sqrt__Q29JGeometry8TUtil<f>Ff` (undefined references) and
+    exactly one TU (`JSystem/JParticle/JPAEmitter.o`) with the weak
+    `W` definition at offset 0x800. Our build emits ZERO TUs with
+    either `U` or `W` — all 50 inline the body.
+  - The `#pragma dont_inline on` should prevent inlining, but
+    apparently the `inline` keyword on the function overrides it
+    under `-inline auto` (the default flag for game TUs).
+  - Hypothesized fix: move the function body out of the header (drop
+    `inline` keyword) into a `.cpp` file. Then only that TU has the
+    body; all other 50 TUs see only the declaration and emit
+    `bl inv_sqrt`. Risk: a handful of TUs may currently be relying
+    on the inlined form for their match — sweep all 50 before/after
+    to verify net positive.
+  - Affected: `NPC/NpcCollision::execNpcObjCollision_` (85% — would
+    likely gain ~5pp if `bl` form is achieved), and dozens of other
+    TUs using `inv_sqrt` in distance-normalization paths.
+  - High-value cross-TU sweep target.
 
 - **`gekko_ps_copy12` inlined in our build but emitted as a callable
   function in target.** Symptom (tick 115, `MoveBG/MapObjTree`):
