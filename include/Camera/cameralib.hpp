@@ -44,13 +44,13 @@ BOOL CLBChaseGeneralConstantSpecifySpeed(T* param_1, T param_2, T param_3)
 		param_3 = -param_3;
 
 	if (sVar1 > 0) {
-		f32 d = sVar1 - param_3;
+		T d = sVar1 - param_3;
 		if (d > 0)
 			*param_1 = param_2 - d;
 		else
 			*param_1 = param_2;
 	} else {
-		f32 d = sVar1 + param_3;
+		T d = sVar1 + param_3;
 		if (d < 0)
 			*param_1 = param_2 - d;
 		else
@@ -58,12 +58,21 @@ BOOL CLBChaseGeneralConstantSpecifySpeed(T* param_1, T param_2, T param_3)
 	}
 
 	if (*param_1 == param_2)
-		return false;
+		return FALSE;
 
-	return true;
+	return TRUE;
 }
 template <class T> T CLBEaseInInbetween(T, T, f32);
-template <class T> T CLBEaseOutInbetween(T, T, T);
+
+template <class T> T CLBTwoDegreeGeneralInbetween(T a, T b, f32 t, f32 ba)
+{
+	return (T)(ba * t * t + t * ((f32)(b - a) - ba) + (f32)a);
+}
+
+template <class T> T CLBEaseOutInbetween(T a, T b, f32 t)
+{
+	return CLBTwoDegreeGeneralInbetween<T>(a, b, t, a - b);
+}
 
 template <class T> T CLBLinearInbetween(T a, T b, f32 f)
 {
@@ -83,8 +92,11 @@ template <class T> T CLBPalFrame(T param_1)
 	return CLBRoundf<T>(param_1 * (1.0f / rate));
 }
 
-template <class T> void CLBPalIntSpeed(T);
-template <class T> T CLBTwoDegreeGeneralInbetween(T, T, f32, f32);
+template <class T> T CLBPalIntSpeed(T param_1)
+{
+	f32 rate = SMSGetAnmFrameRate();
+	return CLBRoundf<T>((f32)param_1 * rate);
+}
 
 template <class T> f32 CLBCalcRatio(T a, T b, T c)
 {

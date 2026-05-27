@@ -73,7 +73,7 @@ public:
 	void getCursorPos() const;
 	BOOL isInMadSearchRange() const;
 	BOOL isInBodyTurnSearchRange() const;
-	void isNeedNeckStraight() const;
+	BOOL isNeedNeckStraight() const;
 	BOOL isPartsAnmNpc() const;
 	void isBehaveToHitNpc() const;
 	BOOL isBehaveToWaterNpc() const;
@@ -150,7 +150,9 @@ public:
 	static TNpcSaveNormal* mPtrSaveNormal;
 
 public:
-	/* 0x150 */ char unk150[0x1C];
+	/* 0x150 */ char unk150[0x14];
+	/* 0x164 */ s32 mNpcKind;
+	/* 0x168 */ char unk168[0x4];
 	/* 0x16C */ s32 _16C;
 	/* 0x170 */ u32 mActionFlag;
 	/* 0x174 */ char unk174[0x178 - 0x174];
@@ -165,7 +167,8 @@ public:
 	/* 0x1E2 */ u16 unk1E2;
 	/* 0x1E4 */ char unk1E4[0x228 - 0x1E4];
 	/* 0x228 */ TNpcSaveIndividual* mNpcSaveIndividual;
-	/* 0x22C */ char unk22C[0x234 - 0x22C];
+	/* 0x22C */ char unk22C[0x4];
+	/* 0x230 */ s16* mNeckAngles;
 };
 
 #endif

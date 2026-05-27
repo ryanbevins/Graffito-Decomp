@@ -49,9 +49,4 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 	// TODO: draw lens flare (complex, ~1500 bytes)
 }
 
-template <class T> T CLBEaseOutInbetween(T a, T b, T t)
-{
-	return CLBTwoDegreeGeneralInbetween<T>(a, b, t, a - b);
-}
-
 template f32 CLBEaseOutInbetween<f32>(f32, f32, f32);
