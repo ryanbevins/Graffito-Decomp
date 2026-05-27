@@ -279,11 +279,10 @@ void TSunModel::perform(u32 flags, JDrama::TGraphics* gfx)
 		CLBChaseGeneralConstantSpecifySpeed<f32>(&unkAC, mUnkB0, chase_speed);
 
 		f32* gpcam = (f32*)((u8*)gpCamera + 0x124);
-		Vec axis;
-		axis.x = mPosition.x - gpcam[0];
-		axis.y = mPosition.y - gpcam[1];
-		axis.z = mPosition.z - gpcam[2];
-		MsVECNormalize(&axis, &axis);
+		JGeometry::TVec3<f32> axis(mPosition.x - gpcam[0],
+		                           mPosition.y - gpcam[1],
+		                           mPosition.z - gpcam[2]);
+		MsVECNormalize(axis, axis);
 
 		JGeometry::TVec3<f32> cam_pos;
 		cam_pos.set(*(const Vec*)((u8*)gpCamera + 0x124));
