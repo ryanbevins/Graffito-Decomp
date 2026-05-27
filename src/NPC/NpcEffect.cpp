@@ -18,8 +18,9 @@
 static BOOL IsCheckPassFrame(J3DFrameCtrl* fc, const f32* table)
 {
 	BOOL result = FALSE;
-	for (s32 i = 0; table[i] >= 0.0f; i++) {
-		if (fc->checkPass(table[i])) {
+	for (s32 off = 0; *(const f32*)((const u8*)table + off) >= 0.0f;
+	     off += sizeof(f32)) {
+		if (fc->checkPass(*(const f32*)((const u8*)table + off))) {
 			result = TRUE;
 			break;
 		}
@@ -216,13 +217,13 @@ BOOL TBaseNPC::isPolWaitCEffectEmitTime_() const
 	return result;
 }
 
-BOOL TBaseNPC::isPolWaitLEffectEmitTime_() const
+inline BOOL TBaseNPC::isPolWaitLEffectEmitTime_() const
 {
 	static const f32 sCheckFrameMonte[4] = { 28.0f, 52.0f, 76.0f, -1.0f };
 	return IsCheckPassFrame(mMActor->getFrameCtrl(0), sCheckFrameMonte);
 }
 
-BOOL TBaseNPC::isPolWaitREffectEmitTime_() const
+inline BOOL TBaseNPC::isPolWaitREffectEmitTime_() const
 {
 	static const f32 sCheckFrameMonte[4] = { 128.0f, 152.0f, 176.0f, -1.0f };
 	return IsCheckPassFrame(mMActor->getFrameCtrl(0), sCheckFrameMonte);
