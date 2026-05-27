@@ -139,9 +139,9 @@ static void evConnectDummyNpc(TSpcTypedInterp<TEventWatcher>* interp,
                               u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
+	BOOL result = FALSE;
 	TBaseNPC* dummyNpc
 	    = JDrama::TNameRefGen::search<TBaseNPC>("\x83\x5F\x83\x7E\x81\x5B\x82\x6D\x82\x6F\x82\x62");
-	BOOL result = FALSE;
 	if (dummyNpc) {
 		JDrama::TActor* actor = (JDrama::TActor*)interp->pop().getDataInt();
 		dummyNpc->setDummyConnectActor(actor);
@@ -402,4 +402,4 @@ void TNpcEvent::reviveOneSunflower()
 	}
 }
 
-u32 TNpcEvent::mDownSunflowerNum;
+s32 TNpcEvent::mDownSunflowerNum;

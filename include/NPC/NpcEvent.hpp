@@ -9,7 +9,7 @@ public:
 	static void initDownSunflowerNum();
 	static void initNpcBuiltin(TSpcTypedBinary<TEventWatcher>*);
 
-	static u32 mDownSunflowerNum;
+	static s32 mDownSunflowerNum;
 };
 
 #endif
