@@ -39,16 +39,17 @@ BOOL NPCNeckCallBack(J3DNode* node, int phase)
 	s16 yaw   = npc->mNeckAngles[0];
 	s16 pitch = npc->mNeckAngles[1];
 
-	bool wantTrack = false;
+	s16  chasePitch = 0;
+	s16  chaseYaw   = 0;
+	bool wantTrack  = false;
 	if (npc->isNeedNeckStraight()) {
-		wantTrack = false;
+		chasePitch = 0;
+		chaseYaw   = 0;
 	} else {
 		wantTrack = true;
 	}
 
-	s16                   chasePitch = 0;
-	s16                   chaseYaw   = 0;
-	JGeometry::TVec3<f32> diff(0.0f, 0.0f, 0.0f);
+	JGeometry::TVec3<f32> diff;
 	JGeometry::TVec3<f32> marioPos;
 	JGeometry::TVec3<f32> dir;
 
@@ -70,9 +71,11 @@ BOOL NPCNeckCallBack(J3DNode* node, int phase)
 			MsVECNormalize((Vec*)&dir, (Vec*)&dir);
 			JGeometry::TVec3<f32> rotAx  = MsGetRotFromZaxis(ax);
 			JGeometry::TVec3<f32> rotDir = MsGetRotFromZaxis(dir);
-			JGeometry::TVec3<f32> tmp    = rotDir;
-			tmp.sub(rotAx);
-			diff = tmp;
+			diff = rotDir - rotAx;
+		} else {
+			diff.z = 0.0f;
+			diff.y = 0.0f;
+			diff.x = 0.0f;
 		}
 
 		s16 v    = CLBRoundf<s16>(diff.y * 182.04445f);
