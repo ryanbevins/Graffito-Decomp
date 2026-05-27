@@ -36,7 +36,106 @@ them in future ticks.
 
 ## Settled
 
-### Adjacent-constant integer dispatch chains compile to `switch`-with-branching only when the source is a `switch` statement
+### `BOOL flag = FALSE; if (cond) flag = TRUE;` vs `BOOL flag; if (cond) flag = TRUE; else flag = FALSE;` produce different code; pick by matching the target's branch layout
+
+**Rule.** Two natural ways to compute a `BOOL` from a predicate
+compile to materially different code under MWCC:
+
+1. **Init+set form** — `BOOL flag = FALSE; if (cond) flag = TRUE;`.
+   Emits `li rN, 0` before the test, a single `beq skip; li rN, 1;
+   skip:` shape (the TRUE branch is "skip the init, then set 1";
+   the FALSE branch falls through with the init value).
+
+2. **If-else form** — `BOOL flag; if (cond) flag = TRUE; else flag
+   = FALSE;`. Emits the test, then a separate TRUE block `li rN, 1;
+   b end;`, then a separate FALSE block `li rN, 0;` followed by the
+   join point.
+
+Match the form to the target. Form 1 has no explicit `b end` after the
+TRUE assignment; form 2 does. Switching between them often picks up
+several percentage points on near-100% BOOL-returning script-handler
+style functions.
+
+**Why.** MWCC's if-lowering preserves source structure: the init in
+form 1 is hoisted before the test, while form 2 produces two parallel
+basic blocks with their own jumps.
+
+**When to apply.** Inspect the BOOL-store area of the target asm.
+Form 1 → single `li rN, 0` ahead of the cmp, single `li rN, 1` after
+the conditional branch. Form 2 → two `li` instructions, one in each
+branch, with a `b` linking them. Pick the source form that produces
+the same layout. If neither matches, the bool→BOOL widening pattern
+below is the next thing to consider.
+
+**Citations.**
+- `NPC/NpcEvent::evIsGameModeNormal` (tick 160): explicit if-else
+  `BOOL isNormal; if (==0) =TRUE; else =FALSE;` was at 92.05%.
+  Switching to init+set form `BOOL isNormal=FALSE; if (==0) =TRUE;`
+  brought it to 99.55% (exact instruction sequence).
+- `NPC/NpcEvent::evCheckMonteClear` (tick 160): the opposite — init+set
+  `BOOL clear=FALSE; if(cond) =TRUE;` was at 96.64%. Switching to
+  if-else form brought it to 99.60%.
+- `NPC/NpcEvent::evSetFruitType` (tick 160): adding a missing `else`
+  branch that stores 0 to the same field went 98.15→99.81%.
+
+### `bool isFoo = true; if (val != K1 && val != K2) isFoo = false;` is the source-level lever for "pre-init r3=1, then `beq end` short-circuit, then `li r3, 0`" target patterns; pair with a separate `BOOL pushVal = FALSE; if (isFoo) pushVal = TRUE;` to add the `clrlwi.` widening
+
+**Rule.** When the target asm shows:
+
+```
+li rN, 0x1                  # pre-init bool = true
+... lbz ...                 # read enum/byte to compare
+cmplwi rV, K1; beq end      # short-circuit if matches K1
+cmplwi rV, K2; beq end      # short-circuit if matches K2
+li rN, 0x0                  # else clear to false
+end:
+clrlwi. r0, rN, 24          # widen bool → BOOL
+beq skip
+li rM, 0x1                  # set companion BOOL = TRUE
+skip:
+```
+
+The source must be:
+
+```cpp
+bool isFoo = true;
+if (val != K1 && val != K2)
+    isFoo = false;
+BOOL pushVal = FALSE;
+if (isFoo)
+    pushVal = TRUE;
+```
+
+The `bool = true` init is what produces the pre-load `li rN, 0x1`.
+The `!=` &&-chain produces `beq end` short-circuits (false-skips the
+clear). The separate `BOOL pushVal = FALSE; if (isFoo) pushVal = TRUE;`
+produces the `clrlwi.` widening and the BOOL set.
+
+**Why.** MWCC short-circuits `&&` by testing each operand and
+branching on false; with `!=` operands, "false" means equality, so
+`beq` jumps out. The bool→BOOL widening is materialized by writing
+the bool to a separate BOOL local with the init+set form rather than
+casting at the push site.
+
+**When to apply.** Whenever target's BOOL-producing predicate has a
+pre-init `li rN, 1` BEFORE the comparison chain, with `beq` short-
+circuits jumping to the widening rather than separate `li rN, 1; b`
+blocks per case.
+
+**Citations.**
+- `NPC/NpcEvent::evIsDemoMode` (tick 160): `BOOL` if-else-if-else
+  chain was 87.06%. Rewriting as `bool isDemo=true; if (!=3 && !=4)
+  isDemo=false; BOOL pushVal=FALSE; if (isDemo) pushVal=TRUE;` brought
+  to 98.77% (exact sequence; register coloring differs).
+- `NPC/NpcEvent::ev__ForceStartTalk` (tick 160): two-stage block check
+  `BOOL block; if (==1 || ==2) =TRUE; else =FALSE; if (!block) if (==3
+  || ==4) =TRUE;` was 84.26%. Rewriting both stages with the bool init
+  +false-update pattern, declaring `bool block=true; bool talking=block;`
+  (the `addi r4, r3, 0` copy form), got to 93.42%.
+- `NPC/NpcEvent::ev__ForceStartTalkExceptNpc` (tick 160): same rewrite
+  applied; 83.47→87.31%.
+
+
 
 **Rule.** When target asm shows the signed switch-with-branching
 pattern (one `lis rX, KHIGH` constant base, then per-case
