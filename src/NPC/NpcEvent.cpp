@@ -167,9 +167,10 @@ static void evSetNpcBalloonMessage(TSpcTypedInterp<TEventWatcher>* interp,
                                    u32 arg_num)
 {
 	interp->verifyArgNum(3, &arg_num);
-	interp->pop();
-	interp->pop();
-	interp->pop();
+	long arg2     = interp->pop().getDataInt();
+	u32 arg1      = interp->pop().getDataInt();
+	TBaseNPC* npc = (TBaseNPC*)interp->pop().getDataInt();
+	npc->setBalloonMessage(arg1, arg2);
 	interp->push();
 }
 
@@ -177,8 +178,9 @@ static void evSetNpcTalkForbidCount(TSpcTypedInterp<TEventWatcher>* interp,
                                     u32 arg_num)
 {
 	interp->verifyArgNum(2, &arg_num);
-	interp->pop();
-	interp->pop();
+	u16 count                 = (u16)interp->pop().getDataInt();
+	TBaseNPC* npc             = (TBaseNPC*)interp->pop().getDataInt();
+	*(u16*)((u8*)npc + 0x1E0) = count;
 	interp->push();
 }
 
@@ -238,18 +240,41 @@ static void evGetFruitNum(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 
 static void evSetFruitType(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
-	interp->verifyArgNum(2, &arg_num);
-	interp->pop();
-	interp->pop();
+	interp->verifyArgNum(3, &arg_num);
+	int doSet     = interp->pop().getDataInt();
+	int fruitType = interp->pop().getDataInt();
+	int target    = interp->pop().getDataInt();
+	if (doSet != 0) {
+		u32 actorType;
+		switch (fruitType) {
+		case 0:
+			actorType = 0x40000394;
+			break;
+		case 1:
+			actorType = 0x40000390;
+			break;
+		case 2:
+			actorType = 0x40000392;
+			break;
+		case 3:
+			actorType = 0x40000393;
+			break;
+		}
+		*(u32*)((u8*)target + 0x150) = actorType;
+	}
 	interp->push();
 }
 
 static void evFireStartDemoCamera(TSpcTypedInterp<TEventWatcher>* interp,
                                   u32 arg_num)
 {
-	interp->verifyArgNum(2, &arg_num);
-	interp->pop();
-	interp->pop();
+	interp->verifyArgNum(1, &arg_num);
+	const char* name = interp->pop().getDataString();
+	JGeometry::TVec3<f32> zeroVec(0.0f, 0.0f, 0.0f);
+	gpMarDirector->fireStartDemoCamera(name, &zeroVec, -1, 0.0f, true,
+	                                   (s32(*)(u32, u32))NULL, 0,
+	                                   (JDrama::TActor*)NULL,
+	                                   JDrama::TFlagT<u16>(0));
 	interp->push();
 }
 
