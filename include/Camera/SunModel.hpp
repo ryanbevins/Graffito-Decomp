@@ -42,7 +42,10 @@ public:
 	/* 0x81 */ u8                  _81[3];
 	/* 0x84 */ f32                 mUnk84;
 	/* 0x88 */ f32                 mUnk88;
-	/* 0x8C */ u8                  _8C[0x9C - 0x8C];
+	/* 0x8C */ u8                  _8C[6];
+	/* 0x92 */ s16                 mUnk92;
+	/* 0x94 */ u8                  _94[6];
+	/* 0x9A */ s16                 mUnk9A;
 	/* 0x9C */ f32                 mUnk9C;
 	/* 0xA0 */ f32                 mUnkA0;
 	/* 0xA4 */ f32                 mUnkA4;

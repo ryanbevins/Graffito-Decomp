@@ -247,16 +247,16 @@ void TSunModel::perform(u32 flags, JDrama::TGraphics* gfx)
 		} else {
 			speed = mUnk70;
 		}
-		CLBChaseDecrease(&mUnk9C, mUnkA4, 0.5f, speed);
-		mZBufCoords[0].y = (s16)(s32)mUnk9C;
+		CLBChaseDecrease(&mUnk9C, mUnkA4, speed, 0.5f);
+		mUnk92 = mUnk9C;
 
 		if (mUnkA0 < mUnkA8) {
 			speed = mUnk78;
 		} else {
 			speed = mUnk7C;
 		}
-		CLBChaseDecrease(&mUnkA0, mUnkA8, 0.5f, speed);
-		mZBufCoords[0].x = (s16)(s32)mUnkA0;
+		CLBChaseDecrease(&mUnkA0, mUnkA8, speed, 0.5f);
+		mUnk9A = mUnkA0;
 
 		if (gpCameraMario->isMarioIndoor()) {
 			mUnkB0 = 0.0f;
@@ -350,7 +350,7 @@ void TSunModel::getZBufValue()
 			continue;
 		u32 zVal;
 		GXPeekZ(x, y, &zVal);
-		if ((zVal - 0xFF000000) == 0xFFFF) {
+		if ((zVal - 0xFF0000) == 0xFFFF) {
 			mZBufVisible[i] = 1;
 		}
 	}
