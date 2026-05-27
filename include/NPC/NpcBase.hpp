@@ -79,13 +79,13 @@ public:
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
 	Vec getFocalPoint() const;
 	void getCursorPos() const;
-	BOOL isInMadSearchRange() const;
+	bool isInMadSearchRange() const;
 	BOOL isInBodyTurnSearchRange() const;
 	bool isNeedNeckStraight() const;
 	BOOL isPartsAnmNpc() const;
 	void isBehaveToHitNpc() const;
 	BOOL isBehaveToWaterNpc() const;
-	BOOL isMadNpc() const;
+	bool isMadNpc() const;
 	bool isBeTrampledNpc() const;
 	bool isPollutionNpc() const;
 	bool isSmallNpc() const;

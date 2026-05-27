@@ -40,12 +40,9 @@ public:
 
 	Nerve peekTopNerveOrNull() const
 	{
-		Nerve result;
 		if (mVertebrae.size() == 0)
-			result = (Nerve)nullptr;
-		else
-			result = mVertebrae[mVertebrae.size() - 1];
-		return result;
+			return (Nerve)nullptr;
+		return mVertebrae[mVertebrae.size() - 1];
 	}
 
 	void becomeNerveAfterPop(Nerve nerve)

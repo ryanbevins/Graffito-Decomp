@@ -19,23 +19,23 @@ BOOL TBaseNPC::isInBodyTurnSearchRange() const
 	return result;
 }
 
-BOOL TBaseNPC::isInMadSearchRange() const
+bool TBaseNPC::isInMadSearchRange() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if (__fabsf(gpMarioPos->y - mPosition.y)
 	    < mNpcSaveIndividual->mMadSearchHeight.value) {
 		if (isInSight(*gpMarioPos, mNpcSaveIndividual->mMadSearchDist.value,
 		              mNpcSaveIndividual->mMadSearchDegree.value,
 		              mNpcSaveIndividual->mMadSearchAware.value)) {
-			result = TRUE;
+			result = true;
 		}
 	}
 	return result;
 }
 
-BOOL TBaseNPC::isMadNpc() const
+bool TBaseNPC::isMadNpc() const
 {
-	BOOL result  = FALSE;
+	bool result  = false;
 	bool partA   = false;
 	BOOL helper  = TRUE;
 	switch (mActorType) {
@@ -51,13 +51,13 @@ BOOL TBaseNPC::isMadNpc() const
 			helper = FALSE;
 	}
 	if (helper) {
-		result = TRUE;
+		result = true;
 	} else {
 		switch (mActorType) {
 		case 0x04000006:
 		case 0x04000007:
 		case 0x0400000D:
-			result = TRUE;
+			result = true;
 		}
 	}
 	return result;
