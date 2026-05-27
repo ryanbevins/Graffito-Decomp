@@ -4904,6 +4904,38 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Templated `push(const T&)` inlines wrapper but not template body
+  (NPC/NpcEvent, t160).** TSpcInterp's `push(const TSpcSlice&)` forwards
+  to `mProcessStack.push(slice)`. In `evIsNpcSinkBottom`,
+  `evCheckCurNerve4Npc`, `evCheckLatestNerve4Npc` (and likely more
+  short-bodied SPC handlers), target inlines the outer wrapper but
+  keeps `bl push__21TSpcStack<9TSpcSlice>FRC9TSpcSlice` as an explicit
+  call. Our build inlines BOTH layers. In `evGetAddressFromViewObjName`,
+  `evSetFruitType`, `evCheckMonteClear`, `evConnectDummyNpc`, both
+  target and ours inline both layers (matching). What controls the
+  template's selective non-inlining? Same TU, same template, ~4 sites
+  inlined, ~3 sites out-of-line. Tried: `TSpcSlice slice((int)x);
+  interp->push(slice);` — no change. Possibly related to: function body
+  size at the call site, number of locals live across the push, or the
+  -inline deferred pass's order of expansion. The `getLatestNerve` weak
+  symbol emission (a separate 28-byte instantiation of TSpine's getter)
+  may be related — both involve template instantiation choices the
+  inliner makes per-call-site.
+
+- **NPC/NpcEvent 8-byte stack-frame inflation in target (t160).**
+  Multiple BOOL-handler functions have target's stack frame 8 bytes
+  *larger* than ours (e.g. evIsGameModeNormal 0x30 vs 0x20,
+  evCheckMonteClear 0x90 vs 0x88, evIsDemoMode 0x28 vs 0x20, ev_-
+  ForceStartTalk 0x90 vs 0x68). Code/insn count is identical, only
+  stack-slot offsets shift by 4-8 bytes. Suspect: missing rodata
+  symbols inflate target's NpcEvent.o rodata by ~0xCF bytes (0x330 vs
+  ours 0x261), affecting MWCC's spill scheduling. Or some inlined
+  function with an extra stack slot we're not reproducing. Several
+  twelve-byte BSS entries (@2640–@2654) appear in target but only two
+  in ours — could be uninitialized TVec3 statics, default-arg
+  storage, etc. Need to identify what causes target's extra rodata.
+
+
 - **Binary-search-of-value-ranges branching pattern (TNpcParams init
   loop, t152).** Target's asm for `__ct__10TNpcParamsFv` has a strange
   test cascade that looks like a switch lowered to **branching** mode
