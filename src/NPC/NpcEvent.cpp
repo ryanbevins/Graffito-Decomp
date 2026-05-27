@@ -275,11 +275,10 @@ static void evFireStartDemoCamera(TSpcTypedInterp<TEventWatcher>* interp,
 {
 	interp->verifyArgNum(1, &arg_num);
 	const char* name = interp->pop().getDataString();
-	JGeometry::TVec3<f32> zeroVec(0.0f, 0.0f, 0.0f);
-	gpMarDirector->fireStartDemoCamera(name, &zeroVec, -1, 0.0f, true,
-	                                   (s32(*)(u32, u32))NULL, 0,
-	                                   (JDrama::TActor*)NULL,
-	                                   JDrama::TFlagT<u16>(0));
+	gpMarDirector->fireStartDemoCamera(
+	    name, (const JGeometry::TVec3<f32>*)NULL, -1, 0.0f, true,
+	    (s32(*)(u32, u32))NULL, 0, (JDrama::TActor*)NULL,
+	    JDrama::TFlagT<u16>(0));
 	interp->push();
 }
 
