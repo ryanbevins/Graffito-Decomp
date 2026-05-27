@@ -441,6 +441,167 @@ void TBaseNPC::changeNerveToMad_()
 	}
 }
 
+void TBaseNPC::changeNerveProc_()
+{
+	bool earlyExit                       = false;
+	const TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
+	if (latest == &TNerveNPCTalk::theNerve()) {
+		mLiveFlag   |= 0x20000;
+		earlyExit    = true;
+		mLiveFlag   &= ~0x40000;
+	} else {
+		bool doTransition = false;
+		if (mLiveFlag & 0x40000) {
+			doTransition = true;
+		} else if (unk1E0 == 0 && !isJellyFishMare()
+		           && !gpCamera->isTalkCameraInbetween()
+		           && mHolder == nullptr && !(mLiveFlag & 0xC10207)
+		           && !(mActionFlag & 0x4000) && unk178 == 0.0f) {
+			bool sunflowerWaiting = false;
+			if (isSunflower() && (unk1D8 & 0x2))
+				sunflowerWaiting = true;
+			if (!sunflowerWaiting && isNerveCanGoToTalk()) {
+				bool actorTypeOk = true;
+				if (mActorType - 0x04000000 == 0x6) {
+					if (*(s32*)((u8*)unkD0 + 0x14) != 0x4)
+						actorTypeOk = false;
+				}
+				if (actorTypeOk && !SMS_IsMarioOpeningDoor()) {
+					bool inCube = true;
+					if (gpMarDirector->mMap == 0x7) {
+						JGeometry::TVec3<f32> aboveHead(mPosition.x,
+						                                mPosition.y + 75.0f,
+						                                mPosition.z);
+						if (!SMS_IsInSameCameraCube((const Vec&)aboveHead))
+							inCube = false;
+					}
+					if (inCube) {
+						f32 maxDist, sightHeight;
+						if (unk17C != nullptr) {
+							sightHeight = mPtrSaveNormal->mTalkAcceptHeight.get();
+							maxDist     = mPtrSaveNormal->mSLSitTalkAcceptDegree.get();
+						} else if (mActorType - 0x04000000 == 0x1A) {
+							maxDist     = mPtrSaveNormal->mSLThrowTalkAcceptDist.get();
+							sightHeight = mPtrSaveNormal->mTalkAcceptDegree.get();
+						} else {
+							maxDist     = mPtrSaveNormal->mTalkAcceptDist.get();
+							sightHeight = mPtrSaveNormal->mTalkAcceptDegree.get();
+						}
+						f32 zRad;
+						if ((mActionFlag & 0x401) || isSunflower()
+						    || mActorType - 0x04000000 == 0x1D)
+							zRad = mPtrSaveNormal->mSLSunflowerLTalkDist.get();
+						else
+							zRad = mPtrSaveNormal->mSLSitTalkAcceptDegree.get();
+
+						f32 diffY = gpMarioPos->y - mPosition.y;
+						f32 absY  = fabsf(diffY);
+						if (absY < sightHeight
+						    && isInSight(*gpMarioPos, maxDist, zRad, -1.0f)
+						    && MsIsInSight(
+						           mPosition,
+						           (f32)(*gpMarioAngleY ^ 0x8000)
+						               * 0.005493164f,
+						           *gpMarioPos, maxDist, zRad,
+						           mPtrSaveNormal->mSLMarioTalkAcceptDegree.get())) {
+							doTransition = true;
+						}
+					}
+				}
+			}
+		}
+		if (doTransition) {
+			mLiveFlag |= 0x20000;
+			if (mLiveFlag & 0x40000) {
+				earlyExit = true;
+				mLiveFlag &= ~0x40000;
+				const TNerveBase<TLiveActor>* c
+				    = mSpine->getCurrentNerve();
+				if (c == &TNerveNPCWet::theNerve()
+				    || c == &TNerveNPCRecoverAfter::theNerve()
+				    || c == &TNerveNPCMad::theNerve()) {
+					mSpine->setNext(&TNerveNPCTalk::theNerve());
+				} else {
+					mSpine->pushNerve(&TNerveNPCTalk::theNerve());
+				}
+				mLiveFlag &= ~0x02000000;
+			}
+		} else {
+			mLiveFlag &= ~0x60000;
+			mLiveFlag &= ~0x40000;
+		}
+	}
+
+	if (earlyExit)
+		return;
+	if (!isPollutionNpc())
+		return;
+	if (mActionFlag & 0x4600)
+		return;
+	if (mPollutionStartHelper == nullptr)
+		return;
+	if (latest == &TNerveNPCSetPosAfterSinkBottom::theNerve())
+		return;
+
+	s32* h           = (s32*)mPollutionStartHelper;
+	h[0]            += 1;
+	bool timed       = false;
+	if (h[0] >= h[1]) {
+		h[0]  = h[1];
+		timed = true;
+	}
+	if (!timed)
+		return;
+	*(s32*)mPollutionStartHelper = 0;
+
+	if (latest == &TNerveNPCSink::theNerve()) {
+		if (gpPollution->isPolluted(mPosition.x, mSinkBaseY, mPosition.z))
+			return;
+		mSpine->setNext(&TNerveNPCRecoverFromSink::theNerve());
+		unk64     &= ~0x1;
+		mLiveFlag &= ~0x00800000;
+		requestNpcAnm_((EnumNpcAnmKind)0x1A,
+		               (EnumNpcStopMotionBlendOnOff)0x1);
+		if (gpMSound->gateCheck(0x3811)) {
+			MSoundSESystem::MSoundSE::startSoundNpcActor(
+			    0x3811, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+		}
+		return;
+	}
+
+	if (mLiveFlag & 0x00400000)
+		return;
+	if (mLiveFlag & 0x80)
+		return;
+	if (!gpPollution->isPolluted(mPosition.x, mPosition.y, mPosition.z))
+		return;
+
+	bool canSink                    = false;
+	const TNerveBase<TLiveActor>* c = mSpine->getLatestNerve();
+	if (c == &TNerveNPCGraphWander::theNerve()
+	    || c == &TNerveNPCUTurn::theNerve()
+	    || c == &TNerveNPCGraphWait::theNerve()
+	    || c == &TNerveNPCWaitContinue::theNerve()
+	    || c == &TNerveNPCWaitMarioApproach::theNerve()
+	    || c == &TNerveNPCTurnToMario::theNerve()) {
+		if (mSpine->getCurrentNerve() != nullptr
+		    || mSpine->peekTopNerveOrNull() != &TNerveNPCSink::theNerve()) {
+			canSink = true;
+		}
+	}
+	if (!canSink)
+		return;
+
+	mSinkBaseY         = mPosition.y;
+	mAngularVelocity.x = 0.0f;
+	mAngularVelocity.y = 0.0f;
+	mAngularVelocity.z = 0.0f;
+	mLiveFlag         &= 0xF7FDFFFF;
+	mLiveFlag         |= 0x00400010;
+	npcFallIn();
+	mSpine->pushNerve(&TNerveNPCSink::theNerve());
+}
+
 bool TBaseNPC::isNowCanTaken() const
 {
 	bool result = false;
