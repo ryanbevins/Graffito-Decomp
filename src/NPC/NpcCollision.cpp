@@ -51,7 +51,11 @@ void TBaseNPC::setVariableDamageRadius_()
 	    && gpMarioPos->y > mPosition.y) {
 		f32 dx = gpMarioPos->x - mPosition.x;
 		f32 dz = gpMarioPos->z - mPosition.z;
-		if (dx * dx + dz * dz < CLBSquared<f32>(newRadius * 3.0f)) {
+		f32 sqr = CLBSquared<f32>(newRadius * 3.0f);
+		f32 acc = 0.0f;
+		acc += dx * dx;
+		acc += dz * dz;
+		if (acc < sqr) {
 			result = mNpcSaveIndividual->mSLDamageRadiusSmall.get();
 		}
 	}
@@ -86,23 +90,20 @@ void TBaseNPC::execNpcObjCollision_()
 
 		if (diff.x * diff.x + diff.y * diff.y + diff.z * diff.z
 		    <= 0.0000038146973f) {
-			if (!reverseDir) {
-				f32 dy
-				    = mPosition.y - mCollisions[i]->mPosition.y;
-				f32 ady;
-				if (dy >= 0.0f)
-					ady = dy;
-				else
-					ady = -dy;
-				if (ady < 0.001f) {
-					diff.x = 1.0f;
-					diff.y = 10.0f;
-					diff.z = 0.0f;
-				} else {
-					diff.x = 0.0f;
-					diff.y = dy;
-					diff.z = 0.0f;
-				}
+			f32 dy = mPosition.y - mCollisions[i]->mPosition.y;
+			f32 ady;
+			if (dy >= 0.0f)
+				ady = dy;
+			else
+				ady = -dy;
+			if (ady < 0.001f) {
+				diff.x = 1.0f;
+				diff.y = 10.0f;
+				diff.z = 0.0f;
+			} else {
+				diff.x = 0.0f;
+				diff.y = dy;
+				diff.z = 0.0f;
 			}
 		} else {
 			f32 mag;
