@@ -36,6 +36,103 @@ them in future ticks.
 
 ## Settled
 
+### Storing the result of `a() || b()` into a named `bool` inhibits inlining of the second predicate
+
+**Rule.** When `a()` and `b()` are inline-marked predicates with
+identical bodies, writing `bool blocked = a() || b();` causes MWCC to
+emit a real `bl` for `b()`. Rewriting as `if (a() || b()) ...`
+(or as `if (!a() && !b()) ...`) keeps both inlined.
+
+**Why.** Unknown — likely a quirk in MWCC's inliner heuristic when
+the OR-chain result is materialised as a stored boolean instead of
+consumed in a control-flow predicate. The first predicate inlines in
+both forms; only the second one toggles.
+
+**When to apply.** Whenever target asm shows the second predicate
+inlined (no `bl`) but ours emits a `bl symbol__CFv`. Move the OR
+into the controlling `if` directly. If a local is needed for
+clarity, cache the receiver pointer instead:
+
+```cpp
+TMarDirector* dir = gpMarDirector;
+if (dir->isTalkModeNow() || dir->checkUnk124Thing2()) return;
+```
+
+**Citations.**
+- `NPC/NpcCoin::updateCoin` (tick 156): 78.68 → 82.01% after rewriting
+  `bool talking = ...; bool blocked = talking || ...;` to the cached-`dir`
+  if-form. Second predicate switched from `bl checkUnk124Thing2__12TMarDirectorCFv`
+  to inlined.
+- `NPC/NpcCoin::requestAppearCoin` (tick 156): same rewrite, same effect.
+
+### JMA sin/cos CSE requires call sites to be adjacent AND results stored to locals before being written to memory
+
+**Rule.** `JMASSin(v)` and `JMASCos(v)` are inline functions that both
+dereference `jmaSinShift`/`jmaSinTable`/`jmaCosTable`. When called with
+the same argument, MWCC can CSE the shift-and-mul (`sraw; slwi`) and
+share the index register across both `lfsx` instructions — **but only
+if the calls are scheduled back-to-back with no intervening stores to
+memory**.
+
+Pattern that BREAKS CSE (jmaSinShift loaded twice; shift+slwi twice):
+
+```cpp
+unk14.x = 0.0f;
+unk14.y = JMASSin(fixedPitch);   // first JMA call, then store
+unk14.z = JMASCos(fixedPitch);   // store between → no CSE
+```
+
+Pattern that ENABLES CSE (one shift, one slwi, two lfsx share index):
+
+```cpp
+f32 cosVal = JMASCos(fixedPitch);   // both calls back-to-back
+f32 sinVal = JMASSin(fixedPitch);
+unk14.x = 0.0f;
+unk14.y = sinVal;
+unk14.z = cosVal;
+```
+
+**Order of the cached locals matters for register colouring.** When
+target's first JMA table load is `jmaCosTable`, write `f32 cosVal =
+JMASCos(...)` first; if it's `jmaSinTable` first, write sin first.
+
+**Why.** The intervening `stfs` to `unk14.y` ends MWCC's CSE window —
+the compiler conservatively assumes the store could have aliased
+`jmaSinShift` (a global) and reloads it. Caching the JMA results
+into locals first defers all stores until after both calls.
+
+**When to apply.** Any function that computes sin AND cos of the same
+angle, then stores to fields. Look in target asm for **one**
+`lwz jmaSinShift / sraw / slwi / lfsx` block feeding two `lfsx`
+instructions — if ours emits the block twice, this lever applies.
+
+**Citations.**
+- `NPC/NpcCoin::requestAppearCoin` (tick 156): 75.12 → 82.25% from the
+  CSE-enabling rewrite + cos-first ordering. Combined with the
+  cached-`dir` lever, total fn gain 73.11 → 85.22% (+12.11pp).
+
+### `subi rD, rA, imm` is a mnemonic for `addi rD, rA, -imm` — verify the constant by `(lis_value << 16) - imm`, not `+ imm`
+
+**Rule.** When reading a constant built as `lis rN, K; subi rD, rN, imm`,
+the result is `(K << 16) - imm` not `(K << 16) + imm`. This matters when
+back-deriving sound IDs, asset hashes, or other multi-byte constants
+from target asm.
+
+**Example.** `lis r30, 0x1; subi r4, r30, 0x77f9` builds
+`0x10000 - 0x77F9 = 0x8807`, not `0x18807`. The disassembler's `subi`
+mnemonic is friendlier than the actual `addi rD, rA, 0x8807` encoding
+(where 0x8807 is the SIMM as 16-bit signed = -0x77F9).
+
+**When to apply.** Always, when reading sub-built constants from asm
+for source reconstruction. Don't trust the mnemonic at face value —
+compute the actual value.
+
+**Citations.**
+- `NPC/NpcCoin` (tick 156): the coin-pop SFX ID was misread as `0x18807`
+  (would require `lis 0x2`); target uses `lis 0x1 + subi 0x77f9 = 0x8807`.
+  Fixing the source value matched the constant-building instruction
+  encoding.
+
 ### Comparing a `u32` field as `(s32)field <op> KCONST` emits `cmpw` (signed); the natural `field <op> KCONST` emits `cmplw` (unsigned)
 
 **Rule.** Range checks against a `u32` member with literal constants
