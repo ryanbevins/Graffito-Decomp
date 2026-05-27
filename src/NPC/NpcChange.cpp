@@ -1,7 +1,11 @@
 // NPC/NpcChange.cpp -- partial decomp.
 
+#include <Camera/cameralib.hpp>
+#include <JSystem/JMath.hpp>
+#include <NPC/NpcBalloon.hpp>
 #include <NPC/NpcBase.hpp>
 #include <NPC/NpcNerve.hpp>
+#include <NPC/NpcSave.hpp>
 #include <Strategic/Spine.hpp>
 
 BOOL TBaseNPC::isNerveWalk() const
@@ -87,6 +91,40 @@ BOOL TBaseNPC::isNerveCanGoToMad() const
 		result = TRUE;
 	}
 	return result;
+}
+
+void TBaseNPC::releaseTaken_()
+{
+	s16 angle    = CLBRoundf<s16>(mTakenBy->mRotation.y * 182.04445f);
+	f32 dist     = mPtrSaveNormal->mThrowSpeedXZ.get();
+	mAngularVelocity.x = JMASSin(angle) * dist;
+	mAngularVelocity.y = mPtrSaveNormal->mThrowSpeedY.get();
+	mAngularVelocity.z = JMASCos(angle) * dist;
+	mLiveFlag |= 0x10000000;
+	unk1DC = CLBPalFrame<long>(15);
+	mTakenBy = nullptr;
+	if (mActorType - 0x04000000 == 0x18) {
+		peachTiredIn_();
+		mNpcBalloon->setNextMessage(0, -1);
+	}
+	mSpine->setNext(&TNerveNPCWaitMarioApproach::theNerve());
+}
+
+void TBaseNPC::behaveToBeTaken_(THitActor* taker)
+{
+	mAngleYDiffWhenTaken
+	    = (s16)CLBRoundf<s16>(mRotation.y * 182.04445f)
+	      - (s16)CLBRoundf<s16>(taker->mRotation.y * 182.04445f);
+	*(u32*)((u8*)mUnk18C + 8) = *(u32*)mUnk18C;
+	unk64 |= 0x1;
+	mLiveFlag &= ~0x00420010;
+	if (mActorType - 0x04000000 == 0x18) {
+		peachParasolOut_();
+		mNpcBalloon->setNextMessage(0xE004F, 0x2EE);
+	}
+	mSpine->setNext(&TNerveNPCWaitContinue::theNerve());
+	mHolder  = (TTakeActor*)taker;
+	mTakenBy = taker;
 }
 
 void TBaseNPC::changeNerveToMad_()

@@ -19,6 +19,7 @@ enum EnumNpcAnmKind { };
 enum EnumNpcStopMotionBlendOnOff { };
 enum EnumHitNpcObjectKind { };
 
+class TNpcBalloon;
 class TBaseNPC : public TSpineEnemy {
 public:
 	void monteMESetAnmWhenNear();
@@ -177,19 +178,26 @@ public:
 	/* 0x17C */ char unk17C[0x180 - 0x17C];
 	/* 0x180 */ char unk180[0x184 - 0x180];
 	/* 0x184 */ TNpcCoin* mNpcCoin;
-	/* 0x188 */ char unk188[0x4];
+	/* 0x188 */ TNpcBalloon* mNpcBalloon;
 	/* 0x18C */ void* mUnk18C;
-	/* 0x190 */ char unk190[0x1A4 - 0x190];
+	/* 0x190 */ char unk190[0x4];
+	/* 0x194 */ JGeometry::TVec3<f32> mResetPos;
+	/* 0x1A0 */ char unk1A0[0x4];
 	/* 0x1A4 */ f32 unk1A4;
 	/* 0x1A8 */ char unk1A8[0x4];
 	/* 0x1AC */ JGeometry::TVec3<f32> mEffectScaleBase;
 	/* 0x1B8 */ char unk1B8[0x1C4 - 0x1B8];
 	/* 0x1C4 */ f32 mSinkBaseY;
-	/* 0x1C8 */ char unk1C8[0x1D8 - 0x1C8];
+	/* 0x1C8 */ f32 unk1C8;
+	/* 0x1CC */ s32 unk1CC;
+	/* 0x1D0 */ f32 unk1D0;
+	/* 0x1D4 */ char unk1D4[0x4];
 	/* 0x1D8 */ u8 unk1D8;
 	/* 0x1D9 */ u8 unk1D9;
 	/* 0x1DA */ u8 unk1DA;
-	/* 0x1DB */ char unk1DB[0x1E2 - 0x1DB];
+	/* 0x1DB */ u8 unk1DB;
+	/* 0x1DC */ s32 unk1DC;
+	/* 0x1E0 */ u16 unk1E0;
 	/* 0x1E2 */ u16 unk1E2;
 	/* 0x1E4 */ char unk1E4[0x4];
 	/* 0x1E8 */ MtxPtr mPtrHappyEffectMtx;
