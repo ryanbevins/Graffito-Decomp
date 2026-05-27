@@ -335,8 +335,8 @@ void TBaseNPC::emitParticle_()
 	}
 
 	// Block 4: pollution emission gated on anm state
-	s32 anmKind = unkD0->mCurrentAnmKind;
-	if (anmKind == 0xF) {
+	switch (unkD0->mCurrentAnmKind) {
+	case 0xF: {
 		if (isPolWaitCEffectEmitTime_()) {
 			s32 idx = -1;
 			if (isNormalMonteM() || isNormalMonteW())
@@ -381,7 +381,9 @@ void TBaseNPC::emitParticle_()
 				}
 			}
 		}
-	} else if (anmKind == 0x19) {
+		break;
+	}
+	case 0x19: {
 		s32 idx = -1;
 		if (isNormalMonteM() || isNormalMonteW())
 			idx = 0x172;
@@ -406,5 +408,7 @@ void TBaseNPC::emitParticle_()
 				SMSSetEmitterPolColor(em, 6);
 			}
 		}
+		break;
+	}
 	}
 }
