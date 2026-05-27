@@ -1,5 +1,6 @@
 #include <Camera/cameralib.hpp>
 #include <Enemy/Conductor.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <Enemy/Graph.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
@@ -29,14 +30,14 @@ extern "C" int rand();
 
 BOOL NPCNeckCallBack(J3DNode*, int);
 
-extern const char* cManiyaParentViewObjName;
-extern const char* cManiyaChildViewObjName;
-extern const char* cNotUseFastCubeViewObjName0;
-extern const char* cNotUseFastCubeViewObjName1;
-extern const char* cEyeMaterialName;
-extern const char* cNeckJointName;
+const char* cManiyaParentViewObjName    = "マニヤ親゙゙ニ゙ヶ";
+const char* cManiyaChildViewObjName     = "マニヤ子゙゙ニ゙ヶ";
+const char* cNotUseFastCubeViewObjName0 = "ピンゲ26";
+const char* cNotUseFastCubeViewObjName1 = "ピンゲ27";
+const char* cEyeMaterialName            = "_eye_mat";
+const char* cNeckJointName              = "kubi";
 
-void SMS_InitChangeNpcColor(const MActor*, const TColorChangeInfo*,
+void SMS_InitChangeNpcColor(const MActor*, const TColorChangeInfo*, s16,
                             const GXColor*);
 
 struct TPollutionStartHelper {
@@ -320,10 +321,12 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 
 	for (s32 entryIdx = 0; entryIdx < (s32)nColorEntries; entryIdx++) {
 		for (int slot = 0; slot < 2; slot++) {
-			const TColorChangeInfo* info = initData->unk34[slot][entryIdx];
+			const TColorChangeInfo* info
+			    = initData->unk34[slot][entryIdx];
+			s16 idx = ((s16*)colorData)[slot];
 			if (info != nullptr) {
 				SMS_InitChangeNpcColor(
-				    mMActorKeeper->mActors[entryIdx], info, polColor);
+				    mMActorKeeper->mActors[entryIdx], info, idx, polColor);
 			}
 		}
 	}
@@ -331,17 +334,33 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 	if (getPtrInitPollutionColor() != nullptr) {
 		J3DModel* model         = getModel();
 		J3DModelData* modelData = model->mModelData;
-		(void)modelData;
+		JUTNameTab* matNameTab  = *(JUTNameTab**)((u8*)modelData + 0xB4);
+		u16 numMaterials        = modelData->mMaterialNum;
+		for (u16 i = 0; i < numMaterials; i++) {
+			const char* matName = matNameTab->getName(i);
+			if (strcmp(matName, cEyeMaterialName) == 0) {
+				J3DMaterial* mat   = modelData->mMaterials[i];
+				void* sub          = *(void**)((u8*)mat + 0x4);
+				u16 matIdx         = *(u16*)((u8*)sub + 0x4);
+				void* matPacketArr = *(void**)((u8*)model + 0x84);
+				void* matPacket
+				    = *(void**)((u8*)matPacketArr + matIdx * 0x34 + 0xC);
+				if (matPacket == NULL) {
+					SMS_InitPacket_OneTevKColor(
+					    model, i, GX_KCOLOR0, &unk174);
+				}
+			}
+		}
 	}
 
 	if (mActorType == 0x4000018) {
-		streamS32c |= 6;
-		if ((streamS32c & 0x10) != 0) {
-			streamS32c |= 0x60;
+		streamS32a |= 6;
+		if ((streamS32a & 0x10) != 0) {
+			streamS32a |= 0x60;
 			peachParasolIn_();
 		}
 	} else {
-		streamS32c &= ~0xF0;
+		streamS32a &= ~0x60;
 	}
 
 	if (TFlagManager::smInstance->getBool(0x50003) && isSunflower())
@@ -349,7 +368,7 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 
 	if (streamS32a > 0)
 		mNpcParts = new TNpcParts((u32)streamS32a,
-		                          (const J3DGXColorS10*)NULL, this);
+		                          (const J3DGXColorS10*)&colorData[4], this);
 
 	if (initAnmData->unk4 != nullptr)
 		*(const TAnmBtpMapping**)((u8*)unkD0 + 0x1C) = initAnmData->unk4;
@@ -452,8 +471,31 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 	bool wantSmoke = false;
 	if (isNormalMonteM() && (mActionFlag & 0x4000) != 0)
 		wantSmoke = true;
-	if (wantSmoke) {
-		bool sNeg = ((sFlag >> 19) & 1) != 0;
+
+	bool smokeAllowed = true;
+	if (sFlag == 0x7d0 || sFlag == 0xc8
+	    || (sFlag >= 0 && sFlag < 0x32)) {
+		bool isInRange      = (sFlag >= 0 && sFlag < 0x32);
+		bool blueCoinTaken  = false;
+		if (isInRange) {
+			if (TFlagManager::smInstance->getBlueCoinFlag(
+			        gpApplication.mCurrArea.getStage(), (u8)sFlag)) {
+				blueCoinTaken = true;
+			}
+		}
+		bool wantCoin = !blueCoinTaken;
+		if (wantSmoke && wantCoin) {
+			mActionFlag &= ~0x4088;
+			smokeAllowed = false;
+		} else {
+			if (wantCoin)
+				sFlag = 0x7d0;
+			mNpcCoin = new TNpcCoin((s32)sFlag);
+		}
+	}
+
+	if (wantSmoke && smokeAllowed) {
+		bool sNeg = ((streamS32a >> 11) & 1) != 0;
 		setSmokeEffectMtxPtr_(sNeg);
 	}
 

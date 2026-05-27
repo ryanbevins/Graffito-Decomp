@@ -103,6 +103,10 @@ public:
 	TBaseNPC(u32, const char*);
 	void setIndividualDifference_(JSUMemoryInputStream&);
 	void init(TLiveManager*);
+	void initBaseActionFlag_();
+	void initIndividualAnm_();
+	void initSinkNpc_();
+	void setMtxEffect_();
 	void initNpcLight_();
 	const char** getBasNameTable() const;
 	void kill();
