@@ -266,7 +266,7 @@ void TSunModel::perform(u32 flags, JDrama::TGraphics* gfx)
 				mUnkB0 = 0.0f;
 			} else {
 				mUnkB0 = CLBLinearInbetween<f32>(
-				    0.0f, 0.5f * (2.0f - d2) * 3.0f, (f32)mUnk80);
+				    0.0f, (f32)mUnk80, 0.5f * (2.0f - d2) * mUnk194);
 			}
 		}
 
