@@ -374,18 +374,16 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 		*(const TAnmBtpMapping**)((u8*)unkD0 + 0x1C) = initAnmData->unk4;
 
 	{
-		bool isMonte = isNormalMonteM() || isNormalMonteW()
-		               || isSpecialMonteM() || isSpecialMonteW();
-		bool isMare = isNormalMareM() || isNormalMareW() || isSpecialMareM()
-		              || isSpecialMareW();
-		if (isMonte) {
+		if (isNormalMonteM() || isNormalMonteW() || isSpecialMonteM()
+		    || isSpecialMonteW()) {
 			setMonteActionFlag_();
 			if ((mActionFlag & 0x400) != 0) {
 				static const s32 sIndividualHoldArrowBck[]
 				    = { 0xE, 0x10, -1, -1 };
 				*(const s32**)((u8*)unkD0 + 0x18) = sIndividualHoldArrowBck;
 			}
-		} else if (isMare) {
+		} else if (isNormalMareM() || isNormalMareW() || isSpecialMareM()
+		           || isSpecialMareW()) {
 			setMareActionFlag_();
 		} else if (mActorType == 0x4000016 || mActorType == 0x4000017) {
 			setKinoActionFlag_();

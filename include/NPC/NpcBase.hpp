@@ -85,7 +85,7 @@ public:
 	BOOL isBehaveToWaterNpc() const;
 	BOOL isMadNpc() const;
 	bool isBeTrampledNpc() const;
-	BOOL isPollutionNpc() const;
+	bool isPollutionNpc() const;
 	bool isSmallNpc() const;
 	BOOL isChild() const;
 	BOOL isSunflower() const;

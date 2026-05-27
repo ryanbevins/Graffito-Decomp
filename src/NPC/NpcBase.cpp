@@ -101,9 +101,9 @@ BOOL TBaseNPC::isBehaveToWaterNpc() const
 	return result;
 }
 
-BOOL TBaseNPC::isPollutionNpc() const
+bool TBaseNPC::isPollutionNpc() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	switch (mActorType) {
 	case 0x04000001:
 	case 0x04000002:
@@ -113,7 +113,7 @@ BOOL TBaseNPC::isPollutionNpc() const
 	case 0x0400000E:
 	case 0x04000013:
 	case 0x04000016:
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }
