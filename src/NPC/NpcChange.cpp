@@ -287,13 +287,15 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 		if ((s32)kind != 0)
 			return;
 		bool m12 = true;
-		u8 mode  = gpMarDirector->unk124;
-		if (mode != 1 && mode != 2)
+		if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
 			m12 = false;
 		bool ok = true;
 		if (!m12) {
-			u8 m2 = gpMarDirector->unk124;
-			if (m2 != 3 && m2 != 4)
+			bool m34 = true;
+			if (gpMarDirector->unk124 != 3
+			    && gpMarDirector->unk124 != 4)
+				m34 = false;
+			if (!m34)
 				ok = false;
 		}
 		if (ok)
@@ -305,23 +307,25 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 			    0x8837, (const Vec*)&mPosition, 0, nullptr, 0, 4);
 		}
 		mFireScaleMul -= mPtrSaveNormal->mSLFireDecSpeed.get();
-		if (mFireScaleMul > 0.0f)
-			return;
-		mFireScaleMul = 0.0f;
-		mActionFlag &= ~0x4089;
-		npcHappyIn(1);
+		if (mFireScaleMul <= 0.0f) {
+			mFireScaleMul = 0.0f;
+			mActionFlag &= ~0x4088;
+			npcHappyIn(1);
+		}
 		return;
 	}
 
 	if ((s32)kind == 0) {
 		bool m12 = true;
-		u8 mode  = gpMarDirector->unk124;
-		if (mode != 1 && mode != 2)
+		if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
 			m12 = false;
 		bool dirOk = true;
 		if (!m12) {
-			u8 m2 = gpMarDirector->unk124;
-			if (m2 != 3 && m2 != 4)
+			bool m34 = true;
+			if (gpMarDirector->unk124 != 3
+			    && gpMarDirector->unk124 != 4)
+				m34 = false;
+			if (!m34)
 				dirOk = false;
 		}
 		if (!dirOk) {
@@ -329,7 +333,7 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 				if (mSpine->getCurrentNerve()
 				    == &TNerveNPCWet::theNerve()) {
 					if (unk178 > 0.0f) {
-						unk178 -= mPtrSaveNormal->mSLCleanEffectScale.get();
+						unk178 -= mNpcSaveIndividual->mPollutionCleanSpeed.get();
 						if (unk178 <= 0.0f) {
 							unk178  = 0.0f;
 							unk1E0  = 0x3c;
