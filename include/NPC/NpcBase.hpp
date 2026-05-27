@@ -127,9 +127,9 @@ public:
 	BOOL isNerveMaybeDontMovement() const;
 	BOOL isNerveWalk() const;
 	void emitParticle_();
-	BOOL isPolWaitCEffectEmitTime_() const;
-	BOOL isPolWaitLEffectEmitTime_() const;
-	BOOL isPolWaitREffectEmitTime_() const;
+	bool isPolWaitCEffectEmitTime_() const;
+	bool isPolWaitLEffectEmitTime_() const;
+	bool isPolWaitREffectEmitTime_() const;
 	void emitHappyEffect_();
 	void emitSinkEffect_();
 	JGeometry::TVec3<f32> getEffectScale_() const;

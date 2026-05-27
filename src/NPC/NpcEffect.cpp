@@ -191,14 +191,14 @@ void TBaseNPC::emitHappyEffect_()
 	}
 }
 
-BOOL TBaseNPC::isPolWaitCEffectEmitTime_() const
+bool TBaseNPC::isPolWaitCEffectEmitTime_() const
 {
 	static const f32 sCheckFrameMonte[7]
 	    = { 28.0f, 52.0f, 76.0f, 128.0f, 152.0f, 176.0f, -1.0f };
 	static const f32 sCheckFrameMare[3] = { 126.0f, 156.0f, -1.0f };
 	static const f32 sCheckFrameKino[3] = { 22.0f, 44.0f, -1.0f };
 
-	BOOL result      = FALSE;
+	bool result      = false;
 	const f32* table = (const f32*)NULL;
 
 	bool isMonte = true;
@@ -221,7 +221,7 @@ BOOL TBaseNPC::isPolWaitCEffectEmitTime_() const
 		J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
 		for (s32 i = 0; table[i] >= 0.0f; i++) {
 			if (fc->checkPass(table[i])) {
-				result = TRUE;
+				result = true;
 				break;
 			}
 		}
@@ -229,13 +229,13 @@ BOOL TBaseNPC::isPolWaitCEffectEmitTime_() const
 	return result;
 }
 
-inline BOOL TBaseNPC::isPolWaitLEffectEmitTime_() const
+inline bool TBaseNPC::isPolWaitLEffectEmitTime_() const
 {
 	static const f32 sCheckFrameMonte[4] = { 28.0f, 52.0f, 76.0f, -1.0f };
 	return IsCheckPassFrame(mMActor->getFrameCtrl(0), sCheckFrameMonte);
 }
 
-inline BOOL TBaseNPC::isPolWaitREffectEmitTime_() const
+inline bool TBaseNPC::isPolWaitREffectEmitTime_() const
 {
 	static const f32 sCheckFrameMonte[4] = { 128.0f, 152.0f, 176.0f, -1.0f };
 	return IsCheckPassFrame(mMActor->getFrameCtrl(0), sCheckFrameMonte);
