@@ -426,12 +426,11 @@ void TBaseNPC::behaveToSandBomb_(const TLiveActor* bomb)
 				ok = true;
 		}
 		if (ok) {
-			mPosition.y += mPtrSaveNormal->mSLBlownVelocity.get();
+			f32 blownVel = mPtrSaveNormal->mSLBlownVelocity.get();
+			mPosition.y += blownVel;
 			mLiveFlag   |= 0x80;
-			JGeometry::TVec3<f32> tmp(0.0f,
-			                          mPtrSaveNormal->mSLBlownVelocity.get(),
-			                          0.0f);
-			mAngularVelocity = tmp;
+			JGeometry::TVec3<f32> tmp(0.0f, blownVel, 0.0f);
+			mVelocity = tmp;
 			if (mSpine->getCurrentNerve() == &TNerveNPCWet::theNerve()) {
 				mSpine->setNext(&TNerveNPCBlown::theNerve());
 			} else {
