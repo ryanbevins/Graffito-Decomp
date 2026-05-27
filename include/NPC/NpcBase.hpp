@@ -13,6 +13,7 @@ class TNpcSaveNormal;
 class SDLModel;
 class TMultiMtxEffect;
 class TNpcCoin;
+class TNpcTrample;
 
 // TODO: should this be here?
 enum EnumNpcAnmKind { };
@@ -175,8 +176,8 @@ public:
 	/* 0x170 */ u32 mActionFlag;
 	/* 0x174 */ GXColor unk174;
 	/* 0x178 */ f32 unk178;
-	/* 0x17C */ char unk17C[0x180 - 0x17C];
-	/* 0x180 */ char unk180[0x184 - 0x180];
+	/* 0x17C */ void* unk17C;
+	/* 0x180 */ TNpcTrample* mNpcTrample;
 	/* 0x184 */ TNpcCoin* mNpcCoin;
 	/* 0x188 */ TNpcBalloon* mNpcBalloon;
 	/* 0x18C */ void* mUnk18C;
