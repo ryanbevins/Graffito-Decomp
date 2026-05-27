@@ -441,6 +441,83 @@ void TBaseNPC::changeNerveToMad_()
 	}
 }
 
+void TBaseNPC::setPosAndInitAfterSinkBottom()
+{
+	JGeometry::TVec3<f32> resetPos
+	    = *(const JGeometry::TVec3<f32>*)((u8*)this + 0x194);
+	bool polluted
+	    = gpPollution->isPolluted(resetPos.x, resetPos.y, resetPos.z);
+	mLiveFlag    &= 0xF539FFE0;
+	mLiveFlag    |= 0x01000000;
+	mHolder       = nullptr;
+	mHeldObject   = nullptr;
+	if (mPollutionStartHelper)
+		*(s32*)mPollutionStartHelper = 0;
+
+	mHitPoints = isPollutionNpc()
+	                 ? *(u8*)((u8*)isPollutionNpc() + 0x7C)
+	                 : 1;
+
+	if (mMultiMtxEffect != nullptr) {
+		s32 i      = 0;
+		void** arr = *(void***)((u8*)mMultiMtxEffect + 0x10);
+		while (i < *(s16*)mMultiMtxEffect) {
+			void* p                  = (void*)((u32*)arr)[i];
+			*(u16*)((u8*)p + 0x4)   |= 0x2;
+			i++;
+		}
+	}
+
+	*(s32*)((u8*)mSpine + 0x8)        = 0;
+	*(s32*)((u8*)mUnk18C + 0x24)      = 0;
+	*(f32*)((u8*)mUnk18C + 0x28)      = 0.0f;
+	**(s32**)((u8*)this + 0x190)      = -1;
+	unk1CC                             = 0;
+	unk1D0                             = 0.0f;
+
+	if (polluted && isPollutionNpc() && !(mActionFlag & 0x400)) {
+		unk64 |= 0x1;
+		mSpine->setNext(*(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		mSpine->pushNerve(&TNerveNPCSink::theNerve());
+		mSpine->pushNerve(&TNerveNPCSink::theNerve());
+
+		mLiveFlag |= 0x00C00010;
+		const TBGCheckData* gp = nullptr;
+		gpMap->checkGroundIgnoreWaterSurface(resetPos.x, mPosition.y,
+		                                     resetPos.z, &gp);
+		mGroundHeight = resetPos.y;
+		mSinkBaseY    = resetPos.y;
+		mAngularVelocity.x = 0.0f;
+		mAngularVelocity.y = 0.0f;
+		mAngularVelocity.z = 0.0f;
+	} else {
+		unk64 &= ~0x1;
+		mSpine->setNext(*(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		mSpine->becomeNerveAfterPop(
+		    *(TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		mAngularVelocity.x = 0.0f;
+		mAngularVelocity.y = 5.0f;
+		mAngularVelocity.z = 0.0f;
+		mLiveFlag         |= 0x8000;
+		mLiveFlag         |= 0x80;
+	}
+
+	mPosition.x = resetPos.x;
+	mPosition.y = resetPos.y;
+	mPosition.z = resetPos.z;
+	mRotation.x = *(f32*)((u8*)this + 0x1A0);
+	mRotation.y = *(f32*)((u8*)this + 0x1A4);
+	mRotation.z = *(f32*)((u8*)this + 0x1A8);
+	mLinearVelocity.x = 0.0f;
+	mLinearVelocity.y = 0.0f;
+	mLinearVelocity.z = 0.0f;
+	*(s32*)((u8*)unk124 + 0x8) = -1;
+	*(s32*)((u8*)unk124 + 0x4) = -1;
+	goToShortestNextGraphNode();
+	npcWaitIn();
+	randomizeBckAndBtpFrame_();
+}
+
 void TBaseNPC::changeNerveProc_()
 {
 	bool earlyExit                       = false;
