@@ -71,11 +71,9 @@ static void evIsGameModeNormal(TSpcTypedInterp<TEventWatcher>* interp,
                                u32 arg_num)
 {
 	interp->verifyArgNum(0, &arg_num);
-	BOOL isNormal;
+	BOOL isNormal = FALSE;
 	if (gpMarDirector->unk124 == 0)
 		isNormal = TRUE;
-	else
-		isNormal = FALSE;
 	interp->push(TSpcSlice((int)isNormal));
 }
 
@@ -300,9 +298,11 @@ static void evCheckMonteClear(TSpcTypedInterp<TEventWatcher>* interp,
 	char buf[0x20];
 	snprintf(buf, 0x20, "\x83\x82\x83\x93\x83\x65%d", idx); // "モンテ%d"
 	TBaseNPC* npc = JDrama::TNameRefGen::search<TBaseNPC>(buf);
-	BOOL clear    = FALSE;
+	BOOL clear;
 	if (!(npc->mLiveFlag & 0x400000) && npc->unk178 == 0.0f)
 		clear = TRUE;
+	else
+		clear = FALSE;
 	interp->push(TSpcSlice((int)clear));
 }
 
