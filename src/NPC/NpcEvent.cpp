@@ -10,6 +10,8 @@
 #include <Strategic/LiveActor.hpp>
 #include <Strategic/HitActor.hpp>
 #include <MoveBG/MapObjHide.hpp>
+#include <Player/MarioMain.hpp>
+#include <Player/MarioAccess.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
@@ -79,16 +81,55 @@ static void evIsGameModeNormal(TSpcTypedInterp<TEventWatcher>* interp,
 static void ev__ForceStartTalk(TSpcTypedInterp<TEventWatcher>* interp,
                                u32 arg_num)
 {
-	interp->verifyArgNum(0, &arg_num);
-	interp->push();
+	interp->verifyArgNum(1, &arg_num);
+	BOOL block;
+	if (gpMarDirector->unk124 == 1 || gpMarDirector->unk124 == 2)
+		block = TRUE;
+	else
+		block = FALSE;
+	if (!block) {
+		if (gpMarDirector->unk124 == 3 || gpMarDirector->unk124 == 4)
+			block = TRUE;
+	}
+	BOOL result = FALSE;
+	if (!block && SMS_IsMarioTouchGround4cm()
+	    && !(gpMarioOriginal->mAction & 0x800)) {
+		TBaseNPC* npc = (TBaseNPC*)interp->pop().getDataInt();
+		gpMarDirector->unkA0  = npc;
+		gpMarDirector->unk126 = 1;
+		result                = TRUE;
+	} else {
+		interp->pop();
+	}
+	interp->push(TSpcSlice((int)result));
 }
 
 static void ev__ForceStartTalkExceptNpc(TSpcTypedInterp<TEventWatcher>* interp,
                                         u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
-	interp->pop();
-	interp->push();
+	BOOL result = FALSE;
+	(void)interp->pop().mData.asString;
+	BOOL block;
+	if (gpMarDirector->unk124 == 1 || gpMarDirector->unk124 == 2)
+		block = TRUE;
+	else
+		block = FALSE;
+	if (!block) {
+		if (gpMarDirector->unk124 == 3 || gpMarDirector->unk124 == 4)
+			block = TRUE;
+	}
+	if (!block && SMS_IsMarioTouchGround4cm()
+	    && !(gpMarioOriginal->mAction & 0x800)) {
+		TBaseNPC* dummy = JDrama::TNameRefGen::search<TBaseNPC>(
+		    "\x83\x5F\x83\x7E\x81\x5B\x82\x6D\x82\x6F\x82\x62");
+		if (dummy) {
+			gpMarDirector->unkA0  = dummy;
+			gpMarDirector->unk126 = 1;
+			result                = TRUE;
+		}
+	}
+	interp->push(TSpcSlice((int)result));
 }
 
 static void evConnectDummyNpc(TSpcTypedInterp<TEventWatcher>* interp,
@@ -273,9 +314,10 @@ void TNpcEvent::initDownSunflowerNum()
 	}
 }
 
-static bool ReviveSunflowerCallBack(TBaseNPC* npc, u32 phase)
+static s32 ReviveSunflowerCallBack(u32 npc_u, u32 phase)
 {
 	if (phase == 0) {
+		TBaseNPC* npc = (TBaseNPC*)npc_u;
 		npc->sunflowerReviveIn();
 		u32 soundID = 0x8808;
 		if (TNpcEvent::mDownSunflowerNum == 0)
@@ -286,7 +328,7 @@ static bool ReviveSunflowerCallBack(TBaseNPC* npc, u32 phase)
 			    4);
 		}
 	}
-	return true;
+	return 1;
 }
 
 void TNpcEvent::reviveOneSunflower() { (void)ReviveSunflowerCallBack; }
