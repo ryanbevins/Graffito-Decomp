@@ -105,6 +105,109 @@ BOOL TBaseNPC::isNerveCanGoToMad() const
 	return result;
 }
 
+void TBaseNPC::behaveToBeTrampled_()
+{
+	bool isChildFlag = isChild();
+	u32 soundId      = 0x8826;
+	bool isType      = true;
+	if (!isNormalMonteM() && !isSpecialMonteM())
+		isType = false;
+	if (isType) {
+		soundId = isChildFlag ? 0x88AB : 0x8844;
+	} else {
+		isType = true;
+		if (!isNormalMonteW() && !isSpecialMonteW())
+			isType = false;
+		if (isType) {
+			soundId = isChildFlag ? 0x88AC : 0x8845;
+		} else {
+			isType = true;
+			if (!isNormalMareM() && !isSpecialMareM())
+				isType = false;
+			if (isType) {
+				if (isChildFlag) {
+					soundId = 0x88AD;
+				} else if (mActorType >= 0x04000012) {
+					soundId = 0x8846;
+				} else if (mActorType >= 0x04000010) {
+					soundId = 0x88AF;
+				}
+			} else {
+				isType = true;
+				if (!isNormalMareW() && !isSpecialMareW())
+					isType = false;
+				if (isType) {
+					soundId = isChildFlag ? 0x88AE : 0x8847;
+				} else {
+					if (mActorType == 0x04000017) {
+						soundId = 0x8848;
+					} else if (mActorType < 0x04000017
+					           && mActorType >= 0x04000016) {
+						soundId = 0x8849;
+					}
+				}
+			}
+		}
+	}
+
+	if (gpMSound->gateCheck(soundId)) {
+		MSoundSESystem::MSoundSE::startSoundNpcActor(
+		    soundId, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+	}
+
+	mNpcTrample->startTrample();
+
+	bool isMareKind = true;
+	if (!isNormalMareM() && !isNormalMareW())
+		isMareKind = false;
+	if (!isMareKind) {
+		isMareKind = true;
+		if (!isSpecialMareM() && !isSpecialMareW())
+			isMareKind = false;
+	}
+	if (!isMareKind)
+		return;
+	if (!isBehaveToWaterNpc())
+		return;
+	if (mActionFlag & 0x4200)
+		return;
+
+	s32 kind = *(s32*)((u8*)unkD0 + 0x14);
+	if (kind == 0x1B || kind == 7) {
+		const TNerveBase<TLiveActor>* cur    = mSpine->getCurrentNerve();
+		const TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
+		if (cur == &TNerveNPCWet::theNerve()) {
+			mSpine->pushNerve(&TNerveNPCWet::theNerve());
+			mSpine->setNext(nullptr);
+		} else if (cur == nullptr
+		           && latest == &TNerveNPCWet::theNerve()) {
+			TNerveBase<TLiveActor>* popped = mSpine->popNerve();
+			if (popped != nullptr)
+				mSpine->becomeNerveAfterPop(popped);
+		}
+		return;
+	}
+
+	bool transitionable                  = false;
+	const TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
+	if (latest == &TNerveNPCGraphWander::theNerve()
+	    || latest == &TNerveNPCUTurn::theNerve()
+	    || latest == &TNerveNPCGraphWait::theNerve()
+	    || latest == &TNerveNPCWaitContinue::theNerve()
+	    || latest == &TNerveNPCWaitMarioApproach::theNerve()
+	    || latest == &TNerveNPCTurnToMario::theNerve()
+	    || latest == &TNerveNPCTalk::theNerve()) {
+		if (mSpine->getCurrentNerve() != nullptr
+		    || (mSpine->peekTopNerveOrNull() != &TNerveNPCWet::theNerve()
+		        && mSpine->peekTopNerveOrNull()
+		               != &TNerveNPCTalk::theNerve())) {
+			transitionable = true;
+		}
+	}
+	if (transitionable)
+		mSpine->pushNerve(&TNerveNPCWet::theNerve());
+}
+
 void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 {
 	if (mActionFlag & 0x4000) {
