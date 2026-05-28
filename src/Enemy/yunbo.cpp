@@ -72,8 +72,8 @@ DEFINE_NERVE(TNerveYumboAttack, TLiveActor)
 	}
 
 	bool giveup;
-	if (self->getSaveParam2()->mSLGiveUpHeight.get()
-	    <= fabsf(gpMarioPos->y - self->mPosition.y)) {
+	f32 giveupHeight = self->getSaveParam2()->mSLGiveUpHeight.get();
+	if (giveupHeight <= fabsf(gpMarioPos->y - self->mPosition.y)) {
 		giveup = true;
 	} else {
 		JGeometry::TVec3<f32> delta = *gpMarioPos;
