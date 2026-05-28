@@ -5664,7 +5664,48 @@ confirmed in ≥2 TUs._
 
 ## Refuted / wrong turns
 
-_(empty — populate when a former hypothesis is disproved)_
+### `JGeometry::TUtil<f32>::sqrt` out-of-header sweep is NET NEGATIVE at project level
+
+**Hypothesis tested (t174).** Mirror the inv_sqrt fix described in
+*Hypotheses under investigation*: move sqrt body from JGUtil.hpp into
+src/MarioUtil/RumbleMgr.cpp (the existing weak owner) and replace
+header definition with a forward declaration. Expectation: 71 target
+TUs with `bl sqrt__Q29JGeometry8TUtil<f>Ff` would gain.
+
+**Result: REFUTED.** Project regressed **-0.1046pp**
+(68.8276 → 68.7230). 11 TUs gained (biggest: ModelGate +10.12pp,
+BathtubBinder +9.28pp, emario +2.98pp), but 22 TUs lost (biggest:
+BathWaterManager -7.07pp, feetinv -1.83pp, bossgesso -1.74pp,
+MarioPhysics -1.61pp, coasterkiller -1.27pp, fireWanwan -1.18pp,
+bossManta -1.17pp, namekuri -1.12pp).
+
+**Why it backfired.** Target's sqrt usage is **mixed per call site**:
+some TUs got the inline body, others got `bl sqrt`. Forcing
+project-wide `bl` resolves the bl-side TUs but breaks the inline-side
+ones. This is the "MIXED inline+bl per site" risk anticipated in
+[[feedback_move_inline_body_to_cpp]] and in the parallel inv_sqrt
+hypothesis above.
+
+**Implication.** A pure `inline keyword override of dont_inline`
+explanation is incomplete: MWCC's `-inline auto` makes per-call-site
+inline decisions even for header-defined functions, and target's
+match% depends on the resulting mix. Cross-TU symbol movement is the
+WRONG axis to optimize — we need a per-call-site lever (volatile
+intermediate? helper-with-side-effect? source-level "this call may
+have side effects"? distinct typedef? unknown.).
+
+**Note for the inv_sqrt hypothesis above.** That fix is ALREADY
+applied (body in `src/JSystem/JParticle/JPAEmitter.cpp`), and target's
+inv_sqrt usage is documented as uniformly `bl`. If the inv_sqrt
+distribution were also mixed, that fix would have produced a similar
+regression. Verify before promoting any "move out of header" rule to
+Settled. The current Settled state of inv_sqrt is uncited; treat with
+caution.
+
+**Don't re-run** this exact experiment without a new lever idea.
+Reverted in t174.
+
+---
 
 ---
 
