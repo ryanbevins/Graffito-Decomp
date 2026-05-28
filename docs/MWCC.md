@@ -36,6 +36,50 @@ them in future ticks.
 
 ## Settled
 
+### Friend `operator*(TVec3, f32)` / `operator-(TVec3, const TVec3&)` keeps scale/sub as `bl` calls
+
+**Rule.** When target shows `bl scale__TVec3Ff` or `bl sub__TVec3FRC...`
+but our build inlines (`fmuls x3` or `fsubs x3`), rewrite the source
+expression to use the **fabricated friend operator** form instead of a
+direct method call:
+
+```cpp
+// What we wrote (compiler inlines scale -> 3x fmuls):
+JGeometry::TVec3<f32> tmp(headDir);
+tmp.scale(mInitialSpeed);
+mInitialVelocity = tmp;
+
+// What target wants (friend op*, emits bl scale):
+mInitialVelocity = headDir * mInitialSpeed;
+```
+
+Likewise for `dir = a - b` (friend op-, emits `bl sub`) vs
+`dir(a); dir.sub(b)` (inlines to fsubs). And `dst = a + b` for `bl add`.
+
+**Why it works.** The `friend TVec3 operator*(TVec3 fst, f32 snd)`
+takes its TVec3 parameter **by value**. The by-value param is what
+operator*= modifies, and MWCC has to materialize `fst` on the caller's
+stack, pass `&fst` as `this` to scale, then copy the result. Because
+the friend body is small but its by-value parameter forces a stack
+materialization, MWCC keeps `scale` as a `bl` call rather than full
+inlining. The friend `operator-` returning `const TVec3&` does the same
+for `sub`.
+
+**Side-effect.** The friend op* return-by-value also forces an extra
+TVec3 copy at the call site (since MWCC's NRVO doesn't fully elide a
+by-value param return). This costs ~7 instructions per use vs target's
+direct assign. Acceptable for big match gains; document the leftover.
+
+**Citations.**
+- `Player/Tongue::emit` (t170): 57.43% → 86.98% (+29.55pp). Replaced
+  `tmp.scale(speed); mInitialVelocity = tmp;` with
+  `mInitialVelocity = headDir * mInitialSpeed;`. Forced bl scale x2.
+- `Player/Tongue::movement` state 1 (t170): scale/add/sub all converted
+  via friend ops. TU 37.75% → 50.83% (+13.1pp).
+- `Player/Tongue::movement` state 3 (t170): `diff = mTipPos - mHeadPos;
+  scaled = diff * retract; mTipPos = mHeadPos + scaled;` form.
+- `Player/Tongue::canGo` (pre-t170): friend op- pattern emits bl sub.
+
 ### Predicate-OR accumulator: rewrite `if (A() || B()) return;` as `bool b=true; if (!A() && !B()) b=false; if (b) return;` to force the init-true reverse-set accumulator shape
 
 **Rule.** When `if (A() || B()) <early-return>` mismatches target with target
@@ -5235,6 +5279,19 @@ declaration trick, or moving inline source out of header) is required.
 _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *Hypotheses
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
+
+- **TU-local .cpp method inlined despite single call site under -inline
+  deferred (Player/Tongue::movement, t170).** `canGo()` is defined in
+  Tongue.cpp (not header-inline) and is the only caller in `movement()`.
+  Target shows `bl canGo`; ours fully inlines canGo's body (incl. its
+  bl checkGround/checkRoof sub-calls). Tried: `BOOL res = canGo();` then
+  `if (!res)`, `#pragma inline_max_size 0`, `#pragma inline_max_total_size 0`,
+  `#pragma dont_inline on/off` wrap. None inhibited the inline. canGo also
+  appears as standalone in symbol list, so it IS emitted — just also
+  inlined at call site. The lever to inhibit single-call-site cpp-defined
+  function inlining is unknown. Same TU also has `__ami__TVec3` weakly
+  emitted by target but never by ours, suggesting the same root cause:
+  some inline-inhibitor in target's source we haven't found.
 
 - **Templated `push(const T&)` inlines wrapper but not template body
   (NPC/NpcEvent, t160).** TSpcInterp's `push(const TSpcSlice&)` forwards

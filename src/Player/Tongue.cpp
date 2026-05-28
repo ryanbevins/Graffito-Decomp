@@ -127,8 +127,11 @@ void TYoshiTongue::movement()
 			mState = STATE_RETRACTING;
 			break;
 		}
-		if (!canGo()) {
-			mState = STATE_RETRACTING;
+		{
+			BOOL goRes = canGo();
+			if (!goRes) {
+				mState = STATE_RETRACTING;
+			}
 		}
 		break;
 	case 3: {
