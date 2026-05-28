@@ -215,18 +215,20 @@ void TEMario::load(JSUMemoryInputStream& stream)
 		*(u8*)((u8*)mEnemyMario + 0x388) = 5;
 	}
 
-	JDrama::TNameRef tmp("マリオ用カゴ");
-	*(u32*)((u8*)mEnemyMario + 0x3c)
-	    = (u32)JDrama::TNameRefGen::getInstance()
-	          ->getRootNameRef()
-	          ->searchF(JDrama::TNameRef::calcKeyCode(tmp.getName()),
-	                    tmp.getName());
+	{
+		char buf[14] = "マリオ用カゴ";
+		*(u32*)((u8*)mEnemyMario + 0x3c)
+		    = (u32)JDrama::TNameRefGen::getInstance()
+		          ->getRootNameRef()
+		          ->searchF(JDrama::TNameRef::calcKeyCode(buf), buf);
+	}
 
 	mEnemyMario->loadAfter();
 	mEnemyMario->mPosition = mPosition;
 	mEnemyMario->mRotation = mRotation;
 	mEnemyMario->mScaling  = mScaling;
-	mEnemyMario->mFaceAngle.y = (s16)(65536.0f * (mRotation.y / 360.0f));
+	mEnemyMario->mFaceAngle.y
+	    = (s16)(65536.0f * (mRotation.y * (1.0f / 360.0f)));
 	mEnemyMario->initEnemyValues();
 	mEnemyMario->mState |= 8;
 }
@@ -241,14 +243,14 @@ void TEMario::init(TLiveManager* manager)
 			mMActorKeeper->mModelLoaderFlags = 0x11300000;
 			mMActor = mMActorKeeper->createMActorFromDefaultBmd(
 			    chara->mFolder, 0);
-			for (u16 i = 0;
+			for (int i = 0;
 			     i < mMActor->getModel()->getModelData()->mMaterialNum;
 			     i++) {
-				SMS_InitPacket_Fog(mMActor->getModel(), i);
+				SMS_InitPacket_Fog(mMActor->getModel(), (u16)i);
 			}
 			mMActor->setBtk("kagemario_scroll");
-			gpConductor->registerAloneActor(this);
 		}
+		gpConductor->registerAloneActor(this);
 	} else {
 		mManager = manager;
 		mMActorKeeper = new TMActorKeeper(manager, (u16)1);
@@ -260,7 +262,7 @@ void TEMario::init(TLiveManager* manager)
 		                         "H_kagemario_dummy");
 	}
 	mActorType |= 1;
-	mLiveFlag &= ~0x800;
+	mLiveFlag &= ~0x400;
 	if (mAnmSound == NULL)
 		initAnmSound();
 	initHitActor(0x08000002, 4, 0xE5000000, 70.0f, 45.0f, 60.0f, 40.0f);
