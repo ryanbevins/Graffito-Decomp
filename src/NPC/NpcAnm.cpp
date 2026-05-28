@@ -248,7 +248,7 @@ void TBaseNPC::requestNpcAnm_(EnumNpcAnmKind kind,
 			mAnmRequest->mKind = -1;
 		} else {
 			mAnmRequest->mKind  = (int)kind;
-			mAnmRequest->mBlend = (bool)(int)blend;
+			mAnmRequest->mBlend = blend;
 		}
 	} else {
 		setNpcAnm_(kind, blend);
@@ -274,12 +274,10 @@ void TBaseNPC::requestTalkAnm_()
 	int kind;
 	if (mActionFlag & 0x400) {
 		kind = 1;
-	} else if (!(mActionFlag & 0x1)) {
-		kind = 6;
-	} else if (mActionFlag & 0x4) {
-		kind = 6;
-	} else {
+	} else if ((mActionFlag & 0x1) && !(mActionFlag & 0x4)) {
 		kind = 0x13;
+	} else {
+		kind = 6;
 	}
 	requestNpcAnm_(asKind(kind), asBlend(1));
 }
