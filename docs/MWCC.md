@@ -36,6 +36,102 @@ them in future ticks.
 
 ## Settled
 
+### Predicate-OR accumulator: rewrite `if (A() || B()) return;` as `bool b=true; if (!A() && !B()) b=false; if (b) return;` to force the init-true reverse-set accumulator shape
+
+**Rule.** When `if (A() || B()) <early-return>` mismatches target with target
+showing the **accumulator shape** (one init-to-1 register, both predicates
+inline, two `bne merge` jumps, set-to-0 only on fall-through, single
+`bne end` at merge), the source-level lever is the explicit-bool reverse-set
+rewrite:
+
+```cpp
+// What target compiles - accumulator shape:
+//   li r3, 0x1                 ; blocked = 1
+//   addi r5, r3, 0x0           ; first predicate result starts at 1
+//   ... inline A, set r5 = 0 if A false ...
+//   bne merge                  ; A true -> keep blocked = 1, skip B
+//   ... inline B, set r0 = 0 if B false ...
+//   bne merge                  ; B true -> keep blocked = 1, skip set
+//   li r3, 0x0                 ; both false -> blocked = 0
+//   merge:
+//   clrlwi. r0, r3, 24
+//   bne end                    ; blocked == 1 -> return
+
+// What we want in source - reverse-set form:
+TMarDirector* dir = gpMarDirector;
+bool blocked = true;
+if (!dir->isTalkModeNow() && !dir->checkUnk124Thing2())
+    blocked = false;
+if (blocked) return;
+```
+
+**Why MWCC picks the accumulator vs early-return shape.**
+`if (A() || B()) return;` compiles to the short-circuit early-return
+("bne end" twice) form — each predicate test directly jumps to function
+end. The accumulator shape only emerges when source explicitly has a
+bool variable that's initialized then conditionally cleared. The `&&`
+nested-not form provides the two skip jumps to a merge point, and the
+trailing `if (b)` provides the merged accumulator test.
+
+**Caveat: don't introduce intermediate per-predicate bools.**
+`bool talking = A(); bool blocked = talking || B();` regresses — MWCC
+emits `bl B()` (no inline) when `talking` is materialized as a separate
+local. Keep the predicates as part of the same `&&` test inside the
+reverse-set branch.
+
+**When to apply.** Diff shows our build emitting the short-circuit
+early-return shape (`bne end / bne end`) where target shows the
+accumulator shape (`li r3, 0x1; ...; bne merge; ...; bne merge; li r3, 0x0; merge: clrlwi.; bne end`).
+
+**Citations.**
+- `NPC/NpcCoin::updateCoin` (tick 168): 94.40% → 97.31% (+2.91pp).
+- `NPC/NpcCoin::requestAppearCoin` (tick 168): 96.03% → 98.24% (+2.21pp).
+- `NPC/NpcWalkTurn::execWalk` (tick 168): 78.20% → 79.06% (+0.86pp;
+  second predicate is `unk124 == 4`, not a function call — accumulator
+  shape applies regardless).
+- `Enemy/bossgesso::doAttackSingle` (tick 168): 36.08% → 36.63% (+0.55pp;
+  TU has many other mismatches, predicate-OR is small relative).
+
+### `!predicate()` source-level negation matches target's `bne` skip-on-true branch where our `if (predicate())` produces `beq` skip-on-false
+
+**Rule.** When target's compiled if uses `bne <end>` after an inlined
+predicate (skip-on-true) and ours emits `beq <end>` (skip-on-false), the
+source-level lever is to add `!` to negate at the call site. The
+inlined predicate body is identical between target and ours — only the
+**conditional branch opcode at the test site** differs. The source's
+condition direction (`if (X)` vs `if (!X)`) is the only thing that
+flips bne ↔ beq for the same predicate.
+
+```cpp
+// Target asm shows skip-on-true (bne):
+//   ... predicate inline body ...
+//   clrlwi. r0, r4, 24
+//   bne 0x<end>                 ; predicate TRUE → skip body
+//   <body>
+//   end:
+
+// Source must use negation:
+if (!gpMarDirector->isTalkModeNow()) {
+    <body>
+}
+```
+
+The function predicate's semantics (which input values produce TRUE)
+are determined by the inline body's shape (init=1 vs init=0,
+set-false-on-default vs set-true-on-match). Once the body is settled,
+all that's left at call sites is whether the source applies `!`.
+
+**When to apply.** When the inline predicate body is identical in
+target and ours but the **branch opcode immediately after** is
+different (target `bne`, ours `beq`, or vice versa).
+
+**Citations.**
+- `Enemy/tamaNoko::TFlower::perform` (tick 168): three call sites with
+  `bne` in target vs `beq` in ours, fixed by adding `!` at lines 76, 78,
+  and on `checkUnk124Thing2` at line 141 (kept `isTalkModeNow()` positive
+  at 141 — target used `beq` there). Lift 93.85% → 93.91%; small because
+  remaining diffs are stack/coloring.
+
 ### `*(Vec*)&dst = *(Vec*)&src;` is the source-level lever for forcing inlined `lwz/stw` TVec3 op= when MWCC fails to inline the call
 
 **Rule.** When the target's asm shows a `JGeometry::TVec3<f32>` field
