@@ -703,20 +703,25 @@ bool TBaseNPC::npcMareStanding()
 {
 	bool finished = false;
 	int k         = unkD0->mCurrentAnmKind;
-	if (k == 5 || k == 0xE) {
+	switch (k) {
+	case 5:
+	case 0xE:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			mAnmFrameCounter->mCurFrame++;
-			if (mAnmFrameCounter->mCurFrame >= mAnmFrameCounter->mMaxFrame) {
-				mAnmFrameCounter->mCurFrame = mAnmFrameCounter->mMaxFrame;
-				finished                    = true;
+			TNpcAnmFrameCounter* fc = mAnmFrameCounter;
+			fc->mCurFrame++;
+			if (fc->mCurFrame >= fc->mMaxFrame) {
+				fc->mCurFrame = fc->mMaxFrame;
+				finished      = true;
 			}
 			if (finished) {
 				requestNpcAnm_(asKind(7), asBlend(1));
 			}
 		}
-	} else if (k == 7) {
+		break;
+	case 7:
 		if (mMActor->isCurAnmAlreadyEnd(0))
 			finished = true;
+		break;
 	}
 	return finished;
 }
