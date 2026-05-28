@@ -56,7 +56,7 @@ DEFINE_NERVE(TNerveYumboFreeze, TLiveActor)
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x28a6, (Vec*)&self->mPosition, 0, nullptr, 0, 4);
 	}
-	if (spine->getTime() > self->getSaveParam2()->mRecoverTimer.get()) {
+	if (self->getSaveParam2()->mRecoverTimer.get() < spine->getTime()) {
 		spine->pushAfterCurrent(&TNerveYumboDancing::theNerve());
 		return TRUE;
 	}
