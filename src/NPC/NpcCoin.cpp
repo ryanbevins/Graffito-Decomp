@@ -57,14 +57,11 @@ void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
 	}
 
 	if (unk0 != nullptr) {
-		typedef void (*VFunc)(TMapObjBase*);
-		void** vt    = *(void***)unk0;
-		VFunc method = (VFunc)vt[63]; // 0xFC / 4
-		method(unk0);
+		(*(void (**)(TMapObjBase*))(*(u8**)unk0 + 0xFC))(unk0);
 
 		TMapObjBase* obj                           = unk0;
 		*(JGeometry::TVec3<f32>*)((u8*)obj + 0x10) = unk8;
-		((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14);
+		((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14.x, unk14.y, unk14.z);
 		u32* flagsPtr = (u32*)((u8*)obj + 0xF0);
 		*flagsPtr &= ~0x10u;
 		unk0 = nullptr;
@@ -72,7 +69,7 @@ void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
 		TMapObjBase* obj
 		    = gpItemManager->makeObjAppear(unk8.x, unk8.y, unk8.z, 0x2000000E, true);
 		if (obj != nullptr) {
-			((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14);
+			((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14.x, unk14.y, unk14.z);
 			u32* flagsPtr = (u32*)((u8*)obj + 0xF0);
 			*flagsPtr &= ~0x10u;
 		}
@@ -98,14 +95,11 @@ void TNpcCoin::updateCoin()
 		return;
 
 	if (unk0 != nullptr) {
-		typedef void (*VFunc)(TMapObjBase*);
-		void** vt    = *(void***)unk0;
-		VFunc method = (VFunc)vt[63]; // 0xFC / 4
-		method(unk0);
+		(*(void (**)(TMapObjBase*))(*(u8**)unk0 + 0xFC))(unk0);
 
 		TMapObjBase* obj                           = unk0;
 		*(JGeometry::TVec3<f32>*)((u8*)obj + 0x10) = unk8;
-		((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14);
+		((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14.x, unk14.y, unk14.z);
 		u32* flagsPtr = (u32*)((u8*)obj + 0xF0);
 		*flagsPtr &= ~0x10u;
 		unk0 = nullptr;
@@ -113,7 +107,7 @@ void TNpcCoin::updateCoin()
 		TMapObjBase* obj
 		    = gpItemManager->makeObjAppear(unk8.x, unk8.y, unk8.z, 0x2000000E, true);
 		if (obj != nullptr) {
-			((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14);
+			((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14.x, unk14.y, unk14.z);
 			u32* flagsPtr = (u32*)((u8*)obj + 0xF0);
 			*flagsPtr &= ~0x10u;
 		}
