@@ -502,19 +502,11 @@ void TBaseNPC::loadAfter()
 void TBaseNPC::load(JSUMemoryInputStream& stream)
 {
 	TSpineEnemy::load(stream);
-	mResetPos        = mPosition;
-	*(u32*)&unk1A0   = *(u32*)&mScaling.x;
-	unk1A4           = mScaling.y;
-	*(u32*)&unk1A8   = *(u32*)&mScaling.z;
-	mEffectScaleBase = mScaling;
-	JGeometry::TVec3<f32> rot;
-	rot.x          = mRotation.x;
-	rot.y          = mRotation.y;
-	rot.z          = mRotation.z;
-	*(u32*)((u8*)this + 0x1B8) = *(u32*)&rot.x;
-	*(u32*)((u8*)this + 0x1BC) = *(u32*)&rot.y;
-	*(u32*)((u8*)this + 0x1C0) = *(u32*)&rot.z;
-	if (!((s32)mActorType >= 0x0400001C && (s32)mActorType < 0x0400001E))
+	*(Vec*)&mResetPos        = *(Vec*)&mPosition;
+	*(Vec*)&mResetRot        = *(Vec*)&mRotation;
+	*(Vec*)&mEffectScaleBase = *(Vec*)&mScaling;
+	*(Vec*)&mLoadRot         = getFocalPoint();
+	if (!((s32)mActorType < 0x0400001E && (s32)mActorType >= 0x0400001C))
 		setIndividualDifference_(stream);
 }
 
