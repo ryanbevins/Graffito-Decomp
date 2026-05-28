@@ -409,10 +409,7 @@ void TFruitsBoat::calcRootMatrix()
 	PSMTXConcat(tmp, mtx, mtx);
 	PSMTXTransApply(mtx, mtx, mPosition.x, mPosition.y, mPosition.z);
 
-	// copy scale into model[0x14..0x1c]
-	*(u32*)((u8*)model + 0x14) = *(u32*)&mScaling.x;
-	*(u32*)((u8*)model + 0x18) = *(u32*)&mScaling.y;
-	*(u32*)((u8*)model + 0x1c) = *(u32*)&mScaling.z;
+	*(Vec*)((u8*)model + 0x14) = (Vec&)mScaling;
 }
 
 void TFruitsBoat::setGroundCollision()
