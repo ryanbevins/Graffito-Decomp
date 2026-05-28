@@ -6,8 +6,10 @@
 #include <Map/Map.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/MtxUtil.hpp>
+#include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>

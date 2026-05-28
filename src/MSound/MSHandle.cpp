@@ -6,6 +6,10 @@
 #include <JSystem/JAudio/JAInterface/JAIBasic.hpp>
 #include <math.h>
 
+// rogue includes for matching __sinit (15 JALList<T> templates)
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
+
 f32 MSHandle::smACosPrm[101] = {
 	3.141592,   2.941258,   2.857799,   2.793427,   2.738877,   2.690566,
 	2.6466579,  2.606066,   2.568079,   2.532207,   2.4980919,  2.465462,

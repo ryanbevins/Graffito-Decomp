@@ -9,7 +9,9 @@
 #include <JSystem/JGeometry/JGVec3.hpp>
 #include <M3DUtil/LodAnm.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <MSound/MSSetSound.hpp>
 #include <MSound/MSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>

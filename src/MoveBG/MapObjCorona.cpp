@@ -1,6 +1,10 @@
 #include "MoveBG/MapObjCorona.hpp"
 #include "MoveBG/MapObjBase.hpp"
 
+// rogue includes for matching __sinit (15 JALList<T> templates)
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
+
 void TBathtub::loadAfter() { }
 
 void TBathtub::hipdrop(const JGeometry::TVec3<f32>&) { }

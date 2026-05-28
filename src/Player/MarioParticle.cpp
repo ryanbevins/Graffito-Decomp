@@ -4,6 +4,10 @@
 #include <System/MarDirector.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 
+// rogue includes for matching __sinit (15 JALList<T> templates)
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
+
 bool TMario::askJumpIntoWaterEffectExist() const
 {
 	TMarioEffect* eff = (TMarioEffect*)mMarioEffect;
