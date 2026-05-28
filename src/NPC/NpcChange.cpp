@@ -5,6 +5,7 @@
 #include <Camera/cameralib.hpp>
 #include <JSystem/JMath.hpp>
 #include <MSound/MSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <Map/Map.hpp>
 #include <Map/PollutionManager.hpp>
