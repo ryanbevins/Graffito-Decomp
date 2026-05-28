@@ -1,5 +1,9 @@
 #include <Player/SplashManager.hpp>
 
+// rogue includes for matching __sinit (15 JALList<T> templates)
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
+
 void TSplashManager::load(JSUMemoryInputStream& stream) { (void)stream; }
 
 void TSplashManager::perform(u32 flags, JDrama::TGraphics* gfx)
