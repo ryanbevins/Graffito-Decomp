@@ -58,19 +58,20 @@ DEFINE_NERVE(TNerveHauntLegHaunt, TLiveActor)
 	THauntLeg* self = (THauntLeg*)spine->getBody();
 
 	if (spine->getTime() == 0) {
+		f32 speed = 10.0f;
 		f32 grav            = self->getGravityY();
 		self->mJumpVelocity = self->calcVelocityToJumpToY(
 		    *(const JGeometry::TVec3<f32>*)((u8*)self->mTarget + 0x10),
-		    10.0f, grav);
+		    speed, grav);
 		self->setVelocity(self->mJumpVelocity);
-		self->mPosition.y += 10.0f;
+		self->mPosition.y += speed;
 		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
 		self->unk199 = true;
 	} else {
 		if (!self->isAirborne()) {
 			if (self->unk199) {
 				self->setVelocity(self->mJumpVelocity);
-				self->mPosition.y += 0.0f;
+				self->mPosition.y += 10.0f;
 				self->unk199 = false;
 
 				JGeometry::TVec3<f32> diff = self->mPosition;
