@@ -70,8 +70,29 @@ DEFINE_NERVE(TNerveYumboAttack, TLiveActor)
 		self->mMActor = self->mMActorKeeper->getMActor("flower.bmd");
 		self->shotSeeds();
 	}
-	if (self->checkCurAnmEnd(0)) {
+
+	bool giveup = false;
+	if (self->getSaveParam2()->mSLGiveUpHeight.get()
+	    <= fabsf(gpMarioPos->y - self->mPosition.y)) {
+		giveup = true;
+	} else {
+		JGeometry::TVec3<f32> delta = *gpMarioPos;
+		delta.x -= self->mPosition.x;
+		delta.y -= self->mPosition.y;
+		delta.z -= self->mPosition.z;
+		delta.y = 0.0f;
+		f32 len = self->getSaveParam2()->mSLGiveUpLength.get();
+		if (len * len < delta.squared())
+			giveup = true;
+	}
+
+	if (giveup) {
 		spine->pushAfterCurrent(&TNerveYumboAppearing::theNerve());
+		return TRUE;
+	}
+
+	if (self->getSaveParam2()->mSeedLife.get() / 16 < spine->getTime()) {
+		spine->pushAfterCurrent(this);
 		return TRUE;
 	}
 	return FALSE;
