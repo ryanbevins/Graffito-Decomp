@@ -6,6 +6,7 @@
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Strategy.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
@@ -319,16 +320,16 @@ void TLimitKoopaJr::reset()
 void TLimitKoopaJr::init(TLiveManager* manager)
 {
 	mManager = manager;
-	manager->manageActor(this);
+	mManager->manageActor(this);
 
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
 	mMActor       = mMActorKeeper->createMActor("koopajr_model.bmd", 0);
 	mMActor->setLightType(1);
 
 	initAnmSound();
-	f32 dmgRadius  = getSaveParam2()->mSLDamageRadius.get();
 	f32 dmgHeight  = getSaveParam2()->mSLDamageHeight.get();
-	initHitActor(0x800002E, 1, 0, 0.0f, dmgRadius, dmgHeight, 0.0f);
+	f32 dmgRadius  = getSaveParam2()->mSLDamageRadius.get();
+	initHitActor(0x800002E, 1, 0, 0.0f, 0.0f, dmgRadius, dmgHeight);
 	offHitFlag(0x1);
 
 	mSpine->initWith(&TNerveLimitKoopaJrRun::theNerve());
@@ -348,9 +349,9 @@ void TLimitKoopaJr::init(TLiveManager* manager)
 	mDirection2.mDirection = 0.0f;
 	mDirection1.mDirection = 0.0f;
 
-	for (u16 i = 0;
-	     i < getModel()->getModelData()->getMaterialNum(); ++i) {
-		(void)0;
+	J3DModelData* md = getModel()->getModelData();
+	for (u16 i = 0; i < md->getShapeNum(); ++i) {
+		md->getShapeNodePointer(i)->unk8 |= 1;
 	}
 }
 
