@@ -68,7 +68,7 @@ public:
 	BOOL npcRecoverFromSinking();
 	void npcFallIn();
 	void npcWaitIn();
-	void getNpcWaitAnmBase_();
+	int getNpcWaitAnmBase_();
 	void walkAnmRateChange_();
 	void randomizeBckAndBtpFrame_();
 	void requestTalkAnm_();

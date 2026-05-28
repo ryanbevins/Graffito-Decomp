@@ -389,7 +389,7 @@ void TBaseNPC::walkAnmRateChange_()
 	}
 }
 
-void TBaseNPC::getNpcWaitAnmBase_()
+int TBaseNPC::getNpcWaitAnmBase_()
 {
 	int result = 1;
 	if (unk1E2 == 0) {
@@ -406,27 +406,32 @@ void TBaseNPC::getNpcWaitAnmBase_()
 			result = 0x16;
 		}
 	}
-	// return result; (declared void in header — actual value goes in r3)
-	(void)result;
+	return result;
 }
 
 void TBaseNPC::npcWaitIn()
 {
 	int kind = 1;
-	if (unk1E2 == 0) {
-		u32 flag = mActionFlag;
-		if (flag & 0x2)
-			kind = 0xC;
-		else if (flag & 0x10)
-			kind = 0x15;
-		else if (flag & 0x20)
-			kind = 6;
-		else if (flag & 0x40)
-			kind = 0x17;
-		else if (flag & 0x4)
-			kind = 0x16;
+	u32 flag = mActionFlag;
+	if (!(flag & 0x400)) {
+		if (unk178 != 0.0f) {
+			kind = 0xF;
+		} else if (flag & 0x200) {
+			kind = 0x11;
+		} else if ((flag & 0x1) && !(flag & 0x4)) {
+			if (flag & 0x20)
+				kind = 0x13;
+			else
+				kind = 0x12;
+		} else {
+			kind = getNpcWaitAnmBase_();
+		}
 	}
 	requestNpcAnm_(asKind(kind), asBlend(1));
+	mMarchSpeed = 0.0f;
+	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
+	unk1CC      = 0;
+	unk1D0      = 0.0f;
 }
 
 void TBaseNPC::npcFallIn()
