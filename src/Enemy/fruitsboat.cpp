@@ -493,8 +493,8 @@ void TFruitsBoat::moveObject()
 	// 1) Tilt from wave heights at two probe points along the boat's yaw.
 	JGeometry::TVec3<f32> dirVec;
 	f32 yawShort = mRotation.y * 182.04445f;
-	dirVec.set(0.01f * JMASSin((s16)(s32)yawShort) * 300.0f, 0.0f,
-	           0.01f * JMASCos((s16)(s32)yawShort) * 300.0f);
+	dirVec.set(JMASSin((s16)(s32)yawShort) * 300.0f, 0.0f,
+	           JMASCos((s16)(s32)yawShort) * 300.0f);
 
 	JGeometry::TVec3<f32> dirCopy = dirVec;
 	(void)dirCopy;
