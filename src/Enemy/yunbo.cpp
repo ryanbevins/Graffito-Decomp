@@ -140,9 +140,7 @@ DEFINE_NERVE(TNerveYumboDancing, TLiveActor)
 	delta.z -= self->mPosition.z;
 	self->mRotation.y = MsGetRotFromZaxisY(delta);
 
-	f32 absDy = self->mPosition.y - gpMarioPos->y;
-	if (absDy < 0.0f)
-		absDy = -absDy;
+	f32 absDy = fabsf(gpMarioPos->y - self->mPosition.y);
 
 	if (absDy < self->getSaveParam2()->mSLSearchHeight.get()) {
 		JGeometry::TVec3<f32> mp = *gpMarioPos;
