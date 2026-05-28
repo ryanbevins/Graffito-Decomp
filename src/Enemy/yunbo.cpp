@@ -295,8 +295,8 @@ void TYumbo::moveObject()
 void TYumbo::perform(u32 action, JDrama::TGraphics* graphics)
 {
 	TSmallEnemy::perform(action, graphics);
-	for (int i = 0; i < 16; ++i)
-		mSeeds[i]->perform(action, graphics);
+	for (TYumboSeed** seed = mSeeds; seed != mSeeds + 16; ++seed)
+		(*seed)->perform(action, graphics);
 }
 
 void TYumbo::behaveToWater(THitActor* sender)
