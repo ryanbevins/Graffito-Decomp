@@ -139,15 +139,12 @@ void TBaseNPC::setSmokeEffectMtxPtr_(bool isSmoke)
 
 JGeometry::TVec3<f32> TBaseNPC::getEffectScale_() const
 {
-	JGeometry::TVec3<f32> result;
-	if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
-		result.x = 1.0f;
-		result.y = 1.0f;
-		result.z = 1.0f;
-	} else {
-		result = mEffectScaleBase;
+	if ((s32)mActorType < 0x04000018) {
+		if ((s32)mActorType >= 0x04000016) {
+			return JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f);
+		}
 	}
-	return result;
+	return mEffectScaleBase;
 }
 
 void TBaseNPC::emitSinkEffect_()
