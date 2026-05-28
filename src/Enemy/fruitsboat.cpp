@@ -17,6 +17,7 @@
 #include <System/Application.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <JSystem/JMath.hpp>
 #include <dolphin/mtx.h>
 
@@ -29,36 +30,33 @@ DEFINE_NERVE(TNerveFruitsBoatBckTrace, TLiveActor)
 	TFruitsBoat* self = (TFruitsBoat*)spine->getBody();
 
 	self->mBckFrameCtrl->update();
-	// J3DAnm-base: write current frame to offset 0x10 (mFrame surrogate)
-	// the structurally-correct field on the anim copies the frame down.
-	*(f32*)((u8*)self->mBckAnm + 0x4) = self->mBckFrameCtrl->getFrame();
+	self->mBckAnm->setFrame(self->mBckFrameCtrl->getFrame());
 
-	JGeometry::TVec3<f32> v0;
-	JGeometry::TVec3<f32> v1;
-	S16Vec r0;
-	S16Vec r1;
+	J3DTransformInfo info1;
+	J3DTransformInfo info0;
 
-	// virtual call vtable[3] (offset 0xc): getTransform(idx, vec, s16vec)
 	{
-		typedef void (*GetT)(J3DAnmBase*, int, JGeometry::TVec3<f32>*,
-		                     S16Vec*);
-		J3DAnmBase* anm = self->mBckAnm;
-		GetT fn         = (GetT)((u32*)(*(u32**)anm))[3];
-		fn(anm, 0, &v0, &r0);
-		fn(anm, 1, &v1, &r1);
+		typedef void (*GetT)(J3DAnmBase*, u16, J3DTransformInfo*);
+		((GetT)((u32*)(*(u32**)((u8*)self->mBckAnm + 0xc)))[3])(
+		    self->mBckAnm, 0, &info0);
+		((GetT)((u32*)(*(u32**)((u8*)self->mBckAnm + 0xc)))[3])(
+		    self->mBckAnm, 1, &info1);
 	}
 
-	self->mPosition.x = v0.x + v1.x;
-	self->mPosition.y = v0.y + v1.y;
-	self->mPosition.z = v0.z + v1.z;
+	self->mPosition.x = info0.mTranslate.x + info1.mTranslate.x;
+	self->mPosition.y = info0.mTranslate.y + info1.mTranslate.y;
+	self->mPosition.z = info0.mTranslate.z + info1.mTranslate.z;
 
-	self->mRotation.x = (s16)(r0.x + r1.x) * (1.0f / 182.04445f);
-	self->mRotation.y = (s16)(r0.y + r1.y) * (1.0f / 182.04445f);
-	self->mRotation.z = (s16)(r0.z + r1.z) * (1.0f / 182.04445f);
+	self->mRotation.x
+	    = (s16)(info0.mRotation.x + info1.mRotation.x) * (1.0f / 182.04445f);
+	self->mRotation.y
+	    = (s16)(info0.mRotation.y + info1.mRotation.y) * (1.0f / 182.04445f);
+	self->mRotation.z
+	    = (s16)(info0.mRotation.z + info1.mRotation.z) * (1.0f / 182.04445f);
 
-	self->mScaling.x = v0.x * v1.x;
-	self->mScaling.y = v0.y * v1.y;
-	self->mScaling.z = v0.z * v1.z;
+	self->mScaling.x = info0.mScale.x * info1.mScale.x;
+	self->mScaling.y = info0.mScale.y * info1.mScale.y;
+	self->mScaling.z = info0.mScale.z * info1.mScale.z;
 
 	return FALSE;
 }
