@@ -89,7 +89,7 @@ public:
 	bool isBeTrampledNpc() const;
 	bool isPollutionNpc() const;
 	bool isSmallNpc() const;
-	BOOL isChild() const;
+	bool isChild() const;
 	bool isSunflower() const;
 	bool isJellyFishMare() const;
 	bool isSpecialMareW() const;

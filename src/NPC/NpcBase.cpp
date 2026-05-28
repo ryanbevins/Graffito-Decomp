@@ -118,11 +118,11 @@ bool TBaseNPC::isPollutionNpc() const
 	return result;
 }
 
-BOOL TBaseNPC::isChild() const
+bool TBaseNPC::isChild() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if (mScaling.x < 0.7f && mScaling.y < 0.7f && mScaling.z < 0.7f)
-		result = TRUE;
+		result = true;
 	return result;
 }
 

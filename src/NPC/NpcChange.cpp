@@ -186,13 +186,19 @@ void TBaseNPC::behaveToBeTrampled_()
 	if (!isNormalMonteM() && !isSpecialMonteM())
 		isType = false;
 	if (isType) {
-		soundId = isChildFlag ? 0x88AB : 0x8844;
+		if (isChildFlag)
+			soundId = 0x88AB;
+		else
+			soundId = 0x8844;
 	} else {
 		isType = true;
 		if (!isNormalMonteW() && !isSpecialMonteW())
 			isType = false;
 		if (isType) {
-			soundId = isChildFlag ? 0x88AC : 0x8845;
+			if (isChildFlag)
+				soundId = 0x88AC;
+			else
+				soundId = 0x8845;
 		} else {
 			isType = true;
 			if (!isNormalMareM() && !isSpecialMareM())
@@ -210,7 +216,10 @@ void TBaseNPC::behaveToBeTrampled_()
 				if (!isNormalMareW() && !isSpecialMareW())
 					isType = false;
 				if (isType) {
-					soundId = isChildFlag ? 0x88AE : 0x8847;
+					if (isChildFlag)
+						soundId = 0x88AE;
+					else
+						soundId = 0x8847;
 				} else {
 					if (mActorType == 0x04000017) {
 						soundId = 0x8848;
