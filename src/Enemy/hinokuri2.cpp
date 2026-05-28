@@ -32,6 +32,10 @@
 // NOTE: rodata ordering says this has to go here
 #include <Map/MapCollisionEntry.hpp>
 
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
 static const char* hinokuri2_bastable[] = {
 	"/scene/hinokuri2/bas/hinokuri2_appear.bas",
 	"/scene/hinokuri2/bas/hinokuri2_close.bas",
