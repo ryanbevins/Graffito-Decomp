@@ -57,7 +57,7 @@ DEFINE_NERVE(TNerveYumboFreeze, TLiveActor)
 			    0x28a6, (Vec*)&self->mPosition, 0, nullptr, 0, 4);
 	}
 	if (spine->getTime() > self->getSaveParam2()->mRecoverTimer.get()) {
-		spine->pushNerve(&TNerveYumboDancing::theNerve());
+		spine->pushAfterCurrent(&TNerveYumboDancing::theNerve());
 		return TRUE;
 	}
 	return FALSE;
@@ -71,7 +71,7 @@ DEFINE_NERVE(TNerveYumboAttack, TLiveActor)
 		self->shotSeeds();
 	}
 	if (self->checkCurAnmEnd(0)) {
-		spine->pushNerve(&TNerveYumboAppearing::theNerve());
+		spine->pushAfterCurrent(&TNerveYumboAppearing::theNerve());
 		return TRUE;
 	}
 	return FALSE;
@@ -94,7 +94,7 @@ DEFINE_NERVE(TNerveYumboAppearing, TLiveActor)
 	self->mRotation.y = MsGetRotFromZaxisY(delta);
 
 	if (self->checkCurAnmEnd(0)) {
-		spine->pushNerve(&TNerveYumboDancing::theNerve());
+		spine->pushAfterCurrent(&TNerveYumboDancing::theNerve());
 		return TRUE;
 	}
 	return FALSE;
@@ -122,7 +122,7 @@ DEFINE_NERVE(TNerveYumboHiding, TLiveActor)
 	}
 
 	if (self->checkCurAnmEnd(0)) {
-		spine->pushNerve(&TNerveYumboAttack::theNerve());
+		spine->pushAfterCurrent(&TNerveYumboAttack::theNerve());
 		return TRUE;
 	}
 	return FALSE;
@@ -150,7 +150,7 @@ DEFINE_NERVE(TNerveYumboDancing, TLiveActor)
 		f32 sa = self->getSaveParam2()->mSLSearchAngle.get();
 		f32 sw = self->getSaveParam2()->mSLSearchAware.get();
 		if (self->isInSight(mp, sl, sa, sw)) {
-			spine->pushNerve(&TNerveYumboHiding::theNerve());
+			spine->pushAfterCurrent(&TNerveYumboHiding::theNerve());
 			return TRUE;
 		}
 	}
