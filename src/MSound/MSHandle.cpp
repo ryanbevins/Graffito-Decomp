@@ -10,6 +10,10 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
 f32 MSHandle::smACosPrm[101] = {
 	3.141592,   2.941258,   2.857799,   2.793427,   2.738877,   2.690566,
 	2.6466579,  2.606066,   2.568079,   2.532207,   2.4980919,  2.465462,
