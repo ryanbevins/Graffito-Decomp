@@ -8,6 +8,10 @@
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <Map/Map.hpp>
+
+// rogue includes for matching __sinit (15 JALList<T> templates)
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
 #include <M3DUtil/MActor.hpp>

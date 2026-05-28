@@ -7,7 +7,9 @@
 #include <Enemy/BossGesso.hpp>
 #include <MarioUtil/MapUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MSound/MSSetSound.hpp>
 #include <MSound/MSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <Map/MapData.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>

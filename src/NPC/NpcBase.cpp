@@ -1,7 +1,9 @@
 #include <Camera/Camera.hpp>
 #include <Camera/cameralib.hpp>
 #include <Enemy/Conductor.hpp>
+#include <MSound/MSSetSound.hpp>
 #include <MSound/MSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <MarioUtil/MtxUtil.hpp>
 #include <System/Particles.hpp>
 #include <JSystem/JDrama/JDRActor.hpp>
