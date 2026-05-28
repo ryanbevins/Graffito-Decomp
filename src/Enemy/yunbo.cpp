@@ -205,9 +205,9 @@ TYumbo::TYumbo(const char* name)
 void TYumbo::init(TLiveManager* manager)
 {
 	mManager = manager;
-	manager->manageActor(this);
+	mManager->manageActor(this);
 
-	mMActorKeeper = new TMActorKeeper(manager, 0x12);
+	mMActorKeeper = new TMActorKeeper(mManager, 0x12);
 
 	MActor* yumboBody  = mMActorKeeper->createMActor("yumbo.bmd", 0);
 	MActor* flowerBody = mMActorKeeper->createMActor("flower.bmd", 0);
