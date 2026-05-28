@@ -36,6 +36,90 @@ them in future ticks.
 
 ## Settled
 
+### `*(Vec*)&dst = *(Vec*)&src;` is the source-level lever for forcing inlined `lwz/stw` TVec3 op= when MWCC fails to inline the call
+
+**Rule.** When the target's asm shows a `JGeometry::TVec3<f32>` field
+being copied via direct `lwz/stw` instructions (three pairs), but our
+build emits `bl __as__Q29JGeometry8TVec3<f>FRCQ29JGeometry8TVec3<f>`
+(an out-of-line operator= call), the lever is to write the assignment
+through an explicit Vec base-class bitwise cast:
+
+```cpp
+// What we want — target has the inline form:
+//   lwz r5, 0x10(r_src) ; lwz r0, 0x14(r_src)
+//   stw r5, 0xX0(r_dst) ; stw r0, 0xX4(r_dst)
+//   lwz r0, 0x18(r_src)
+//   stw r0, 0xX8(r_dst)
+//
+// In source — both work as Vec assignment but only one inlines:
+
+mPosition = other.mPosition;                       // emits `bl __as__...`
+*(Vec*)&mPosition = *(Vec*)&other.mPosition;       // emits the inline lwz/stw
+
+// Equivalent through pointer:
+*(Vec*)&this->mLoadRot = getFocalPoint();          // for sret-returning calls
+```
+
+The TVec3<f32> operator= body is
+`*(Vec*)this = *(Vec*)&other;` (integer copy of the Vec base subobject).
+Writing the cast manually at the call site removes the operator= call
+entirely — MWCC sees a plain `Vec = Vec` C-struct assignment and emits
+the three lwz/stw pairs directly.
+
+**Why MWCC sometimes fails to inline operator=.**
+Suspected cause: `#pragma dont_inline on` at file scope inhibits all
+inlining, including header-defined template-member inline bodies.
+The bitwise cast doesn't need inlining to work — it's already a
+plain assignment expression at parse time.
+
+**When to apply.** Diff shows `bl __as__Q29JGeometry8TVec3<f>...`
+where target has three `lwz`/`stw` pairs (six instructions total) for
+a Vec-sized copy.
+
+**Citations.**
+- `NPC/NpcBase::setDummyConnectActor` (tick 166): two TVec3 op= calls
+  (`mPosition = ...; mRotation = ...;`) → bl __as__ x2. Replacing
+  with `*(Vec*)&dst = *(Vec*)&src` → 14.35% → 100%.
+- `NPC/NpcBase::load` (tick 166): three TVec3 op= calls
+  (mResetPos, mResetRot, mEffectScaleBase) → 42.96% → 100%.
+- `NPC/NpcBase::perform` (tick 166): the inner mDummyConnectActor
+  copy block; cast pushed perform 58.79% → 61.57%.
+
+### TVec3<f32> fields declared in a class with `#pragma dont_inline on` at file scope generate `bl __ct__Q29JGeometry8TVec3<f>Fv` calls per field at construction
+
+**Rule.** Each `JGeometry::TVec3<f32>` member-by-value field in a class
+declaration triggers a constructor call in that class's ctor — even
+though the default constructor is empty (`TVec3() { }`). When the
+containing .cpp has `#pragma dont_inline on` at file scope, MWCC fails
+to inline the empty body and emits one `bl __ct__Q29JGeometry8TVec3<f>Fv`
+per TVec3 field at the start of the user's ctor body.
+
+Target's NpcBase __ct has **zero** such calls; our build emitted
+**five** (one per TVec3 field: mResetPos, mEffectScaleBase,
+mNoteEffectPos, mSmokeEffectPos, mWaterEffectPos). Adding more
+TVec3 fields (e.g. converting `char unk1A0[0x4]; f32 unk1A4; char
+unk1A8[0x4]` into a single `TVec3<f32>`) ADDS more ctor calls.
+
+**Workaround.** If the field is only used for raw Vec-sized copy and
+component access, keep it as the original scalar layout (e.g.
+`char unk1A0[0x4]; f32 unk1A4; char unk1A8[0x4]` for a Vec at
+offset 0x1A0). Then use `*(Vec*)&unk1A0 = *(Vec*)&otherVec;` for the
+copy — see the rule above.
+
+**Open.** A reliable source-level lever to force MWCC to inline the
+empty TVec3 default ctor under `#pragma dont_inline on` is not yet
+known. `dont_inline off`, `dont_inline reset`,
+`inline_max_total_size`, and explicit `inline` keyword have all been
+attempted with no effect. Removing the file-level pragma works but
+breaks other empty-function-preservation requirements in the same TU.
+
+**Citations.**
+- `NPC/NpcBase::__ct` (tick 166): converting `char unk1A0[0x4]; f32
+  unk1A4; char unk1A8[0x4]` (3 scalars at 0x1A0/0x1A4/0x1A8) into a
+  single `JGeometry::TVec3<f32> mResetRot` field added one `bl
+  __ct__Q29JGeometry8TVec3<f>Fv` to the ctor. Reverting to scalars
+  removed the call.
+
 ### `if (k == K1 || k == K2) A; else if (k == K3) B;` → use a `switch` with case fallthrough when target emits the switch-with-branching tree
 
 **Rule.** When two `case` values share a body (`case K1: case K2:`) and a
