@@ -279,8 +279,7 @@ void TYumbo::moveObject()
 	if (mMActor->checkCurAnm("sambohead_dance", 0)) {
 		int idx     = mDanceJointIndex;
 		J3DModel* m = getModel();
-		MtxPtr mtx  = (MtxPtr)((u8*)m + 0x58 + idx * 0x30);
-		// note: actually it's *(MtxPtr*)((u8*)m + 0x58) + idx
+		MtxPtr mtx  = m->getAnmMtx(idx);
 		gpMarioParticleManager->emitAndBindToMtxPtr(0x18b, mtx, 1, this);
 	}
 
