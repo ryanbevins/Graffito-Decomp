@@ -82,13 +82,11 @@ DEFINE_NERVE(TNerveFruitsBoatGraphWander, TLiveActor)
 			self->mAttrFlag   = (u16)(v ^ 1);
 		}
 
-		JGeometry::TVec3<f32> dir;
-		dir.x = 1.0f * JMASin(self->mRotation.y);
-		dir.y = 0.0f;
-		dir.z = 1.0f * JMACos(self->mRotation.y);
+		JGeometry::TVec3<f32> dir(1.0f * JMASin(self->mRotation.y), 0.0f,
+		                          1.0f * JMACos(self->mRotation.y));
 		self->goToDirectedNextGraphNode(dir);
 
-		if (self->mLiveFlag & 0x8000) {
+		if (self->mLiveFlag & 0x10000) {
 			// skip
 		} else if (graph->unk14) {
 			f32 sp    = tr->calcSplineSpeed(self->mMarchSpeed);
