@@ -1,9 +1,61 @@
+#include <JSystem/JDrama/JDRActor.hpp>
+#include <JSystem/JGeometry/JGVec3.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <M3DUtil/SDLModel.hpp>
+#include <NPC/NpcBalloon.hpp>
 #include <NPC/NpcBase.hpp>
+#include <NPC/NpcInbetween.hpp>
 #include <NPC/NpcSave.hpp>
 #include <Player/MarioAccess.hpp>
+#include <dolphin/mtx.h>
 #include <math.h>
 
 #pragma dont_inline on
+
+void TBaseNPC::setBalloonMessage(u32 msg, long timer)
+{
+	mNpcBalloon->setNextMessage(msg, timer);
+}
+
+void TBaseNPC::setDummyConnectActor(const JDrama::TActor* actor)
+{
+	if (mActorType != 0x0400001C)
+		return;
+	mDummyConnectActor = actor;
+	mPosition          = mDummyConnectActor->mPosition;
+	mScaling           = mDummyConnectActor->mScaling;
+}
+
+void TBaseNPC::updateForbidCount_()
+{
+	if (unk1E0 != 0)
+		unk1E0 = unk1E0 - 1;
+	if (unk1E2 != 0)
+		unk1E2 = unk1E2 - 1;
+	if (unk1E4 != 0)
+		unk1E4 = unk1E4 - 1;
+}
+
+Vec TBaseNPC::getFocalPoint() const
+{
+	return JGeometry::TVec3<f32>(
+	    mPosition.x,
+	    mEffectScaleBase.y
+	            * (mNpcSaveIndividual->mSLBodyHeight.value
+	               - mNpcSaveIndividual->mSLLookatHeight.value)
+	        + mPosition.y,
+	    mPosition.z);
+}
+
+Vec TBaseNPC::getCursorPos() const
+{
+	return JGeometry::TVec3<f32>(
+	    mPosition.x,
+	    mEffectScaleBase.y * mNpcSaveIndividual->mSLBodyHeight.value
+	        + mPosition.y + mNpcSaveIndividual->mSLCursorHeight.value,
+	    mPosition.z);
+}
+
 
 BOOL TBaseNPC::isInBodyTurnSearchRange() const
 {

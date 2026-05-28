@@ -91,7 +91,7 @@ public:
 	void moveObject();
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
 	Vec getFocalPoint() const;
-	void getCursorPos() const;
+	Vec getCursorPos() const;
 	bool isInMadSearchRange() const;
 	BOOL isInBodyTurnSearchRange() const;
 	bool isNeedNeckStraight() const;
@@ -205,7 +205,7 @@ public:
 	/* 0x1C8 */ f32 unk1C8;
 	/* 0x1CC */ s32 unk1CC;
 	/* 0x1D0 */ f32 unk1D0;
-	/* 0x1D4 */ char unk1D4[0x4];
+	/* 0x1D4 */ const JDrama::TActor* mDummyConnectActor;
 	/* 0x1D8 */ u8 unk1D8;
 	/* 0x1D9 */ u8 unk1D9;
 	/* 0x1DA */ u8 unk1DA;
@@ -213,7 +213,8 @@ public:
 	/* 0x1DC */ s32 unk1DC;
 	/* 0x1E0 */ u16 unk1E0;
 	/* 0x1E2 */ u16 unk1E2;
-	/* 0x1E4 */ char unk1E4[0x4];
+	/* 0x1E4 */ u16 unk1E4;
+	/* 0x1E6 */ char unk1E6[0x2];
 	/* 0x1E8 */ MtxPtr mPtrHappyEffectMtx;
 	/* 0x1EC */ MtxPtr mPtrNoteEffectMtx;
 	/* 0x1F0 */ JGeometry::TVec3<f32> mNoteEffectPos;
