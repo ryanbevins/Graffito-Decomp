@@ -36,6 +36,62 @@ them in future ticks.
 
 ## Settled
 
+### Infectious `dummy1431[3]={1,1,1}; dummy1411[3]={1,1,1}; dummy1210[4]={0,2,1,3}` fixes `.data` layout when target emits @1431/@1411/@1210
+
+**Rule.** When target's `.data` section starts with the anonymous-compound
+sequence `@1431, @1411, @1210` (12+12+16 = 0x28 bytes) before any
+TU-specific data symbol like `__vt`, declare three matching dummies at
+file scope BEFORE any other `.data` emitter (other static structs,
+infectious-strings include, etc.):
+
+```cpp
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+```
+
+The pattern is already established in `src/MarioUtil/MathUtil.cpp`,
+`src/System/EmitterViewObj.cpp`, `src/System/RenderModeObj.cpp`,
+`src/MSound/MSModBgm.cpp`, plus the function-local variant in
+`src/Enemy/graph.cpp` (`static Vec v1={1,1,1};` inside a `dummy()` fn).
+
+**Why it works.** These three constants appear in many TUs as "ghost
+data" — emitted by some header inline (likely J3DMtxCalcBasic/Maya/
+Softimage::init with `(Vec){1,1,1}`) but never referenced. They land
+at `.data` offset 0..0x27, shifting subsequent `.data` symbols
+(particularly `__vt__*`) to offset 0x28. When a function uses
+`lis/addi @1431` as a base pointer and computes `addi r,r,0x28` to
+reach the vtable, our build *must* have the vtable at the same offset
+for the encoding to resolve to the same address.
+
+**When it actually moves the match-%.** Only when:
+(a) target's `.data` has `@1431/@1411/@1210` at offset 0
+(b) our TU has *no other* `.data` content before the symbol the function
+    references via @1431-base addressing
+(c) the function uses the `@1431` base-pointer optimization (look for
+    `lis r,@1431@ha; addi r,r,@1431@l` followed by `addi r,base,0xN`
+    where `0xN >= 0x28`).
+
+For TUs with lots of `.data` (hinokuri2, bgtentacle, MarioRun), the
+relative offset between @1431 and the target symbol is already wrong
+and adding the dummies doesn't change MWCC's chosen base-pointer.
+
+**Citations.**
+- `Enemy/feetinv` (t172): ctor 93.39 → 100.00%, dtor 88.49 → 100.00%.
+  TU 70.5 → 71.8%. Adding dummies put `__vt__15TMtxCalcFootInv` at
+  `.data:0x28`, exactly matching target. Identical assembler encoding
+  produced via the `@1431+0x28` base-pointer reference.
+- Pre-existing in `MarioUtil/MathUtil`, `System/EmitterViewObj`,
+  `System/RenderModeObj`, `MSound/MSModBgm`, `Enemy/graph` (variant).
+
+**Refuted application targets.**
+- `Enemy/hinokuri2`, `Enemy/bgtentacle`, `Player/MarioRun`,
+  `Player/MarioInit`: adding dummies leaves match-% unchanged because
+  the existing `.data` contains other content that consumes the
+  offset-0..0x27 range (or the function in question doesn't hinge on
+  the @1431 base-pointer optimization). Don't apply the dummy pattern
+  blindly — verify `.data` offset alignment before committing.
+
 ### Friend `operator*(TVec3, f32)` / `operator-(TVec3, const TVec3&)` keeps scale/sub as `bl` calls
 
 **Rule.** When target shows `bl scale__TVec3Ff` or `bl sub__TVec3FRC...`
