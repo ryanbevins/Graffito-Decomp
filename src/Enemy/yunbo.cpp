@@ -221,10 +221,10 @@ void TYumbo::init(TLiveManager* manager)
 
 	mSpine->initWith(&TNerveYumboDancing::theNerve());
 
-	for (int i = 0; i < 16; ++i) {
-		mSeeds[i] = new TYumboSeed(
+	for (TYumboSeed** seed = mSeeds; seed != mSeeds + 16; ++seed) {
+		*seed = new TYumboSeed(
 		    this, mMActorKeeper->createMActor("samboSeed.bmd", 3));
-		mSeeds[i]->init();
+		(*seed)->init();
 	}
 
 	initHitActor(0x1000002A, 1, 0x80000000, 97.5f, 225.0f, 90.0f, 225.0f);
