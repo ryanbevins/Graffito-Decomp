@@ -123,8 +123,7 @@ DEFINE_NERVE(TNerveLimitKoopaJrRun, TLiveActor)
 	if (spine->getTime() == 0) {
 		self->mMActor->setBckFromIndex(2);
 		const char** table = self->getBasNameTable();
-		const char* anm = table ? table[2] : nullptr;
-		self->setAnmSound(anm);
+		self->setAnmSound(!table ? nullptr : table[2]);
 	}
 
 	{
@@ -138,15 +137,19 @@ DEFINE_NERVE(TNerveLimitKoopaJrRun, TLiveActor)
 		tdc.makeDirection(diff);
 
 		f32 absDir = self->mDirection1.absDirection(tdc.mDirection);
-		bool turned = absDir > 0.62831855f;
-		if (!turned) {
-			self->moveRun();
-			return FALSE;
+		bool turned;
+		if (absDir <= 0.62831855f)
+			turned = false;
+		else
+			turned = true;
+		if (turned) {
+			spine->pushAfterCurrent(&TNerveLimitKoopaJrWait::theNerve());
+			return TRUE;
 		}
 	}
 
-	spine->pushAfterCurrent(&TNerveLimitKoopaJrWait::theNerve());
-	return TRUE;
+	self->moveRun();
+	return FALSE;
 }
 
 void TLimitKoopaJr::moveRun()

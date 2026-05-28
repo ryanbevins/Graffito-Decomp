@@ -16,7 +16,7 @@ public:
 	static f32 r2d(f32);
 	static f32 d2r(f32);
 
-	f32 absDirection(f32) const;
+	f32 absDirection(f32);
 	JGeometry::TVec3<f32> calcDirectionVector() const;
 	void makeDirection(JGeometry::TVec3<f32>);
 	f32 calcTurnDirection(f32, f32);
