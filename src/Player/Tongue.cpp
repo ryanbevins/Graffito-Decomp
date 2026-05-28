@@ -10,6 +10,7 @@
 #include <MSound/MSound.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -43,28 +44,28 @@ void TYoshiTongue::calcAnim(MtxPtr p)
 
 	if ((int)mState == 0) {
 		J3DModelData* mdMain = mModel->getModelData();
-		for (u16 i = 0; i < mdMain->getJointNum(); ++i) {
-			J3DJoint* j = mdMain->getJointNodePointer(i);
-			*(u32*)&j->mCallBack |= 1;
+		for (u16 i = 0; i < mdMain->getShapeNum(); ++i) {
+			J3DShape* s = mdMain->getShapeNodePointer(i);
+			s->unk8 |= 1;
 		}
 		J3DModelData* mdTip = mTipModel->getModelData();
-		for (u16 i = 0; i < mdTip->getJointNum(); ++i) {
-			J3DJoint* j = mdTip->getJointNodePointer(i);
-			*(u32*)&j->mCallBack |= 1;
+		for (u16 i = 0; i < mdTip->getShapeNum(); ++i) {
+			J3DShape* s = mdTip->getShapeNodePointer(i);
+			s->unk8 |= 1;
 		}
 		return;
 	}
 
 	{
 		J3DModelData* mdMain = mModel->getModelData();
-		for (u16 i = 0; i < mdMain->getJointNum(); ++i) {
-			J3DJoint* j = mdMain->getJointNodePointer(i);
-			*(u32*)&j->mCallBack &= ~1U;
+		for (u16 i = 0; i < mdMain->getShapeNum(); ++i) {
+			J3DShape* s = mdMain->getShapeNodePointer(i);
+			s->unk8 &= ~1U;
 		}
 		J3DModelData* mdTip = mTipModel->getModelData();
-		for (u16 i = 0; i < mdTip->getJointNum(); ++i) {
-			J3DJoint* j = mdTip->getJointNodePointer(i);
-			*(u32*)&j->mCallBack &= ~1U;
+		for (u16 i = 0; i < mdTip->getShapeNum(); ++i) {
+			J3DShape* s = mdTip->getShapeNodePointer(i);
+			s->unk8 &= ~1U;
 		}
 	}
 
@@ -116,12 +117,14 @@ void TYoshiTongue::movement()
 	}
 
 	switch ((int)mState) {
-	default:
+	case 0:
+	case 2:
+	case 4:
 		mAttackRadius = 300.0f;
 		calcEntryRadius();
 		unk64 &= ~HIT_FLAG_UNK2;
 		break;
-	case STATE_EXTENDING:
+	case 1:
 		mAttackRadius = 1000.0f;
 		calcEntryRadius();
 		mProgress++;
@@ -133,7 +136,7 @@ void TYoshiTongue::movement()
 			mState = STATE_RETRACTING;
 		}
 		break;
-	case STATE_RETRACTING: {
+	case 3: {
 		mAttackRadius = 10.0f;
 		calcEntryRadius();
 		JGeometry::TVec3<f32> diff;
@@ -197,7 +200,7 @@ void TYoshiTongue::movement()
 		}
 		break;
 	}
-	case STATE_UNK4: // (?)
+	case 5:
 		mAttackRadius = 10.0f;
 		calcEntryRadius();
 		mProgress++;
@@ -205,20 +208,20 @@ void TYoshiTongue::movement()
 			mState = STATE_RETRACTING;
 		}
 		break;
-	case STATE_PULLING:
-	case STATE_PULLING_SLOW:
+	case 6:
+	case 7:
 		mProgress++;
 		break;
 	}
 
 	switch ((int)mState) {
-	case STATE_IDLE:
-	case STATE_UNK4:
-		mTipPos.x = mHeadPos.x;
-		mTipPos.y = mHeadPos.y;
-		mTipPos.z = mHeadPos.z;
+	default:
+	case 0:
+	case 4:
+	case 5:
+		mTipPos = mHeadPos;
 		break;
-	case STATE_EXTENDING: {
+	case 1: {
 		THitActor* target = findTarget(true, true);
 		if (target != nullptr && mHeldObject == nullptr) {
 			JGeometry::TVec3<f32> targetMid(target->mPosition.x,
@@ -261,13 +264,13 @@ void TYoshiTongue::movement()
 		}
 		break;
 	}
-	case STATE_GRABBED:
+	case 2:
 		mProgress++;
 		if (mProgress > 10) {
 			mState = STATE_RETRACTING;
 		}
 		break;
-	case STATE_RETRACTING: {
+	case 3: {
 		f32 retractAmt = mRetractAmount;
 		JGeometry::TVec3<f32> diff(mTipPos);
 		diff -= mHeadPos;
@@ -276,8 +279,8 @@ void TYoshiTongue::movement()
 		mTipPos.add(mHeadPos, diffCopy);
 		break;
 	}
-	case STATE_PULLING:
-	case STATE_PULLING_SLOW: {
+	case 6:
+	case 7: {
 		JGeometry::TVec3<f32> diff;
 		diff.sub(mTipPos, mHeadPos);
 		f32 lsq = diff.squared();
@@ -311,8 +314,6 @@ void TYoshiTongue::movement()
 		}
 		break;
 	}
-	default:
-		break;
 	}
 
 	checkTaking();
@@ -325,20 +326,14 @@ void TYoshiTongue::movement()
 
 THitActor* TYoshiTongue::findTarget(bool flagB1, bool flagB2)
 {
-	f32 bestDist        = 10000.0f;
-	THitActor* bestHit  = nullptr;
-	u16 colCount        = mColCount;
-	int idx             = 0;
-	if ((int)colCount > 0) {
-		do {
-			u32 ty = mCollisions[idx >> 2]->mActorType;
-			if ((ty - 0x10000000) < 0x24
-			    || (ty - 0x40000000) == 0xA) {
-				mState = STATE_RETRACTING;
-				return nullptr;
-			}
-			idx += 4;
-		} while (idx < (int)(colCount * 4));
+	f32 bestDist       = 10000.0f;
+	THitActor* bestHit = nullptr;
+	for (int i = 0; i < mColCount; ++i) {
+		u32 ty = mCollisions[i]->mActorType;
+		if (ty == 0x10000024 || ty == 0x4000000A) {
+			mState = STATE_RETRACTING;
+			return nullptr;
+		}
 	}
 
 	for (int i = 0; i < (int)mColCount; ++i) {
@@ -403,10 +398,8 @@ THitActor* TYoshiTongue::findTarget(bool flagB1, bool flagB2)
 
 BOOL TYoshiTongue::canGo()
 {
-	JGeometry::TVec3<f32> diff;
-	diff.sub(mTipPos, mHeadPos);
-
-	f32 dot = diff.x * mHeadDir.x + diff.y * mHeadDir.y + diff.z * mHeadDir.z;
+	JGeometry::TVec3<f32> diff = mTipPos - mHeadPos;
+	f32 dot = diff.dot(mHeadDir);
 	if (dot < 0.0f)
 		return FALSE;
 
@@ -415,21 +408,17 @@ BOOL TYoshiTongue::canGo()
 	                                     &mTipPos.z, 50.0f))
 		return FALSE;
 
-	{
-		const TBGCheckData* gp = nullptr;
-		f32 gh = gpMap->checkGround(mTipPos.x, mTipPos.y, mTipPos.z, &gp);
-		if (50.0f + gh > mTipPos.y) {
-			mTipPos.y = 50.0f + gh;
-			return TRUE;
-		}
+	const TBGCheckData* gp;
+	f32 gh = gpMap->checkGround(mTipPos.x, mTipPos.y, mTipPos.z, &gp);
+	if (50.0f + gh > mTipPos.y) {
+		mTipPos.y = 50.0f + gh;
+		return TRUE;
 	}
 
-	{
-		const TBGCheckData* rp = nullptr;
-		f32 rh = gpMap->checkRoof(mTipPos.x, mTipPos.y, mTipPos.z, &rp);
-		if (rh - 50.0f < mTipPos.y) {
-			mTipPos.y = rh - 50.0f;
-		}
+	const TBGCheckData* rp;
+	f32 rh = gpMap->checkRoof(mTipPos.x, mTipPos.y, mTipPos.z, &rp);
+	if (rh - 50.0f < mTipPos.y) {
+		mTipPos.y = rh - 50.0f;
 	}
 	return TRUE;
 }
@@ -443,30 +432,17 @@ void TYoshiTongue::emit(const JGeometry::TVec3<f32>& headPos,
 	mProgress = 0;
 	mState    = STATE_EXTENDING;
 
-	mTipPos.x = headPos.x;
-	mTipPos.y = headPos.y;
-	mTipPos.z = headPos.z;
-
-	mPosition.x = headPos.x;
-	mPosition.y = headPos.y;
-	mPosition.z = headPos.z;
+	mTipPos     = headPos;
+	mPosition   = headPos;
 	mPosition.y -= 0.5f * mAttackHeight;
+	mHeadPos = headPos;
+	mHeadDir = headDir;
 
-	mHeadPos.x = headPos.x;
-	mHeadPos.y = headPos.y;
-	mHeadPos.z = headPos.z;
-
-	mHeadDir.x = headDir.x;
-	mHeadDir.y = headDir.y;
-	mHeadDir.z = headDir.z;
-
-	JGeometry::TVec3<f32> dirScaled(headDir);
+	JGeometry::TVec3<f32> dirScaled = headDir;
 	dirScaled.scale(mInitialSpeed);
-	mInitialVelocity.x = dirScaled.x;
-	mInitialVelocity.y = dirScaled.y;
-	mInitialVelocity.z = dirScaled.z;
+	mInitialVelocity = dirScaled;
 
-	JGeometry::TVec3<f32> velScaled(initialVel);
+	JGeometry::TVec3<f32> velScaled = initialVel;
 	velScaled.scale(0.5f);
 	mInitialVelocity.x += velScaled.x;
 	mInitialVelocity.y += velScaled.y;
@@ -501,9 +477,9 @@ void TYoshiTongue::init(TYoshi* yoshi)
 
 	{
 		J3DModelData* md = mModel->getModelData();
-		for (u16 i = 0; i < md->getJointNum(); ++i) {
-			J3DJoint* j = md->getJointNodePointer(i);
-			*(u32*)&j->mCallBack |= 1;
+		for (u16 i = 0; i < md->getShapeNum(); ++i) {
+			J3DShape* s = md->getShapeNodePointer(i);
+			s->unk8 |= 1;
 		}
 	}
 
@@ -515,9 +491,9 @@ void TYoshiTongue::init(TYoshi* yoshi)
 
 	{
 		J3DModelData* md = mTipModel->getModelData();
-		for (u16 i = 0; i < md->getJointNum(); ++i) {
-			J3DJoint* j = md->getJointNodePointer(i);
-			*(u32*)&j->mCallBack |= 1;
+		for (u16 i = 0; i < md->getShapeNum(); ++i) {
+			J3DShape* s = md->getShapeNodePointer(i);
+			s->unk8 |= 1;
 		}
 	}
 
