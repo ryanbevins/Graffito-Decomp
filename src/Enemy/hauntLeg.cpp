@@ -134,25 +134,18 @@ const char** THauntLeg::getBasNameTable() const { return hauntleg_bastable; }
 
 bool THauntLeg::isCollidMove(THitActor* other)
 {
-	if (mSpine->getCurrentNerve() == &TNerveHauntLegHaunt::theNerve())
-		return false;
-	if (unk198)
-		return false;
-	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
-		return false;
-
-	u32 type = other->getActorType() & 0xFFFF0000;
-	if (type != 0x20000000 && type != 0x40000000)
-		return false;
-
-	TTakeActor* otherTake = (TTakeActor*)other;
-	if (otherTake->getHolder() != nullptr) {
-		if (mTarget == other)
+	if (mSpine->getCurrentNerve() != &TNerveHauntLegHaunt::theNerve()
+	    && !unk198 && !checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		u32 type = other->getActorType() & 0xFFFF0000;
+		if (type == 0x20000000 || type == 0x40000000) {
+			TTakeActor* otherTake = (TTakeActor*)other;
+			if (otherTake->getHolder() == nullptr || other != mTarget) {
+				mTarget = other;
+				mSpine->setNext(&TNerveHauntLegHaunt::theNerve());
+			}
 			return false;
+		}
 	}
-
-	mTarget = other;
-	mSpine->setNext(&TNerveHauntLegHaunt::theNerve());
 	return false;
 }
 
