@@ -144,18 +144,18 @@ BOOL TBaseNPC::execUTurn()
 
 BOOL TBaseNPC::execTurnToFirstState()
 {
-	if (mRotation.y == mResetRot.y)
+	if (mRotation.y == mResetRotY)
 		return TRUE;
 
 	BOOL result = FALSE;
 	s16 cur = CLBRoundf<s16>(mRotation.y * (65536.0f / 360.0f));
-	s16 tgt = CLBRoundf<s16>(mResetRot.y * (65536.0f / 360.0f));
+	s16 tgt = CLBRoundf<s16>(mResetRotY * (65536.0f / 360.0f));
 	s16 spd = CLBRoundf<s16>(mNpcSaveIndividual->mFirstStateTurnSpeed.get()
 	                         * (65536.0f / 360.0f));
 
 	if (!CLBChaseGeneralConstantSpecifySpeed<s16>(&cur, tgt, spd)) {
 		result      = TRUE;
-		mRotation.y = mResetRot.y;
+		mRotation.y = mResetRotY;
 	} else {
 		mRotation.y = (f32)cur * (360.0f / 65536.0f);
 	}
