@@ -1,4 +1,8 @@
+#include <Camera/Camera.hpp>
 #include <Camera/cameralib.hpp>
+#include <Enemy/Conductor.hpp>
+#include <MSound/MSound.hpp>
+#include <MarioUtil/MtxUtil.hpp>
 #include <System/Particles.hpp>
 #include <JSystem/JDrama/JDRActor.hpp>
 #include <JSystem/JGeometry/JGVec3.hpp>
@@ -10,6 +14,7 @@
 #include <NPC/NpcCoin.hpp>
 #include <NPC/NpcInbetween.hpp>
 #include <NPC/NpcNerve.hpp>
+#include <NPC/NpcParts.hpp>
 #include <NPC/NpcSave.hpp>
 #include <NPC/NpcTrample.hpp>
 #include <Player/MarioAccess.hpp>
@@ -62,6 +67,151 @@ Vec TBaseNPC::getCursorPos() const
 	    mEffectScaleBase.y * mNpcSaveIndividual->mSLBodyHeight.value
 	        + mPosition.y + mNpcSaveIndividual->mSLCursorHeight.value,
 	    mPosition.z);
+}
+
+TBaseNPC* gpCurrentNpc;
+
+void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (mActorType == 0x0400001C) {
+		if (flags & 1) {
+			if (mDummyConnectActor != nullptr) {
+				mPosition = mDummyConnectActor->mPosition;
+				mScaling  = mDummyConnectActor->mScaling;
+			}
+			if (!(mLiveFlag & 1)) {
+				updateForbidCount_();
+				updateSquareToMario();
+				control();
+				if (graphics->unk0 & 2)
+					changeNerveProc_();
+			}
+		}
+		return;
+	}
+
+	if (mActorType == 0x0400001D) {
+		if (mLiveFlag & 0x201)
+			return;
+		if ((flags & 1) && !(mLiveFlag & 1)) {
+			updateForbidCount_();
+			updateSquareToMario();
+			control();
+			if (graphics->unk0 & 2)
+				changeNerveProc_();
+		}
+		TLiveActor::performOnlyDraw(flags, graphics);
+		return;
+	}
+
+	bool doUpdate = true;
+	if (mLiveFlag & 1) {
+		doUpdate = false;
+	} else if (mLiveFlag & 0x400) {
+		doUpdate = false;
+	} else if ((flags & 0x204) && (mLiveFlag & 6)) {
+		doUpdate = false;
+	} else if ((flags & 1) && mHolder == nullptr && !(mLiveFlag & 0x80)
+	           && belongToGround() == 0
+	           && *(int*)((u8*)mSpine + 0x20) != 0
+	           && mActorType != 0x04000018
+	           && isNerveMaybeDontMovement()
+	           && !(mLiveFlag & 0x800000)) {
+		updateSquareToMario();
+		doUpdate = false;
+	}
+
+	if (!doUpdate) {
+		mLiveFlag &= ~0x10000;
+		return;
+	}
+
+	gpCurrentNpc = this;
+
+	if (flags & 1) {
+		ensureTakeSituation();
+		if (graphics->unk0 & 2) {
+			changeNerveProc_();
+			if (mHolder == nullptr) {
+				if (isNerveWalk())
+					walkAnmRateChange_();
+			}
+			((TNpcInbetween*)mUnk18C)->execPosInbetween(&mPosition);
+			if (unk1DC > 0) {
+				unk1DC = unk1DC - 1;
+				if (unk1DC == 0 && mHolder == nullptr) {
+					unk64 &= ~1;
+					mLiveFlag &= ~0x10000;
+				}
+			}
+			bool isLock = false;
+			switch (mActorType) {
+			case 0x0400000F:
+			case 0x04000014:
+				isLock = true;
+			}
+			if (!isLock && mActorType != 0x04000007)
+				setVariableDamageRadius_();
+			if (isPollutionNpc()) {
+				unk174.a
+				    = (u8)(unk178
+				           * (f32)*((u8*)mNpcSaveIndividual + 0x310));
+			}
+		}
+		flags &= ~1;
+	}
+
+	if (flags & 2) {
+		if (mActionFlag & 0x4000) {
+			if (gpMSound->gateCheck(0x18017)) {
+				MSoundSESystem::MSoundSE::startSoundNpcActor(
+				    0x18017, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+			}
+		}
+		if (!(mLiveFlag & 0x10006))
+			emitParticle_();
+	}
+
+	bool drewWithAnim = false;
+	if ((flags & 2) && !(mLiveFlag & 7) && mHolder == nullptr) {
+		drewWithAnim = true;
+		setGroundCollision();
+		execMotionBlend_();
+		getMActor()->frameUpdate();
+		if (mNpcParts != nullptr && isPartsAnmNpc())
+			mNpcParts->partsFrameUpdate();
+	}
+
+	if (!drewWithAnim && (flags & 2) && mMultiMtxEffect != nullptr) {
+		mMultiMtxEffect->setUserArea();
+	}
+
+	if (drewWithAnim)
+		flags &= ~2;
+
+	if (flags & 4) {
+		mLiveFlag &= ~0x80;
+		JGeometry::TVec3<f32> diff;
+		diff.x = mPosition.x - gpCamera->unk124.x;
+		diff.y = mPosition.y - gpCamera->unk124.y;
+		diff.z = mPosition.z - gpCamera->unk124.z;
+		f32 distSq    = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+		f32 distSqMax = CLBSquared<f32>(mNpcSaveIndividual->mLodChangeDist.value);
+		if (distSq > distSqMax) {
+			bool isSunflower = false;
+			if ((s32)mActorType < 0x0400001C
+			    && (s32)mActorType >= 0x0400001A)
+				isSunflower = true;
+			if (!isSunflower)
+				getModel()->lock();
+		} else {
+			getMActor()->unlockDLIfNeed();
+		}
+	}
+
+	TSpineEnemy::perform(flags, graphics);
+	if (mNpcParts != nullptr)
+		mNpcParts->partsPerform(flags, graphics);
 }
 
 const GXColor* TBaseNPC::getPtrInitPollutionColor() const
@@ -231,6 +381,104 @@ void TBaseNPC::moveObject()
 	}
 
 	calcRidePos();
+}
+
+TBaseNPC::TBaseNPC(u32 actorType, const char* name)
+    : TSpineEnemy(name)
+{
+	mSDLModel             = nullptr;
+	mSDLMtx               = nullptr;
+	mTakenBy              = nullptr;
+	mPollutionStartHelper = nullptr;
+	mMultiMtxEffect       = nullptr;
+	mNpcKind              = -1;
+	mNpcParts             = nullptr;
+	_16C                  = 0;
+	mActionFlag           = 0;
+	unk174.r              = 0xFF;
+	unk174.g              = 0xFF;
+	unk174.b              = 0xFF;
+	unk174.a              = 0;
+	unk178                = 0.0f;
+	unk17C                = nullptr;
+	mNpcTrample           = nullptr;
+	mNpcCoin              = nullptr;
+	mNpcBalloon           = nullptr;
+	mUnk18C               = nullptr;
+	mAnmRequest           = nullptr;
+	mSinkBaseY            = 0.0f;
+	unk1C8                = 0.0f;
+	unk1CC                = 0;
+	unk1D0                = 0.0f;
+	mDummyConnectActor    = nullptr;
+	unk1D8                = 0;
+	unk1D9                = 0;
+	unk1DA                = 0;
+	unk1DC                = 0;
+	unk1E0                = 0x78;
+	unk1E2                = 0;
+	unk1E4                = 0;
+	mPtrHappyEffectMtx    = nullptr;
+	mPtrNoteEffectMtx     = nullptr;
+	mNoteEffectPos.x      = 0.0f;
+	mNoteEffectPos.y      = 0.0f;
+	mNoteEffectPos.z      = 0.0f;
+	mPtrPollutionEffectMtx  = nullptr;
+	mPtrPollutionLEffectMtx = nullptr;
+	mPtrPollutionREffectMtx = nullptr;
+	mPtrSmokeEffectMtx      = nullptr;
+	mSmokeEffectPos.x       = 0.0f;
+	mSmokeEffectPos.y       = 0.0f;
+	mSmokeEffectPos.z       = 0.0f;
+	mFireScaleMul           = 1.0f;
+	mWaterEffectPos.x       = 0.0f;
+	mWaterEffectPos.y       = 0.0f;
+	mWaterEffectPos.z       = 0.0f;
+	mAnmFrameCounter        = nullptr;
+	mNeckAngles             = nullptr;
+	gpCurrentNpc            = nullptr;
+	mAngleYDiffWhenTaken    = 0;
+	mActorType              = actorType;
+
+	bool isLock = false;
+	switch (actorType) {
+	case 0x0400000F:
+	case 0x04000014:
+		isLock = true;
+	}
+	if (isLock)
+		return;
+
+	TNpcAnmRequest* req = new TNpcAnmRequest;
+	if (req != nullptr) {
+		req->mKind  = -1;
+		req->mBlend = false;
+	}
+	mAnmRequest = req;
+
+	bool wantTrample = false;
+	if (isNormalMonteM() || isNormalMonteW()) {
+		wantTrample = true;
+	} else if (isSpecialMonteM() || isSpecialMonteW()) {
+		wantTrample = true;
+	} else if (mActorType == 0x0400000E || isNormalMareW()) {
+		wantTrample = true;
+	} else if (isSpecialMareM() || isSpecialMareW()) {
+		wantTrample = true;
+	} else if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
+		wantTrample = true;
+	}
+
+	if (wantTrample) {
+		TNpcTrample* tr = new TNpcTrample;
+		if (tr != nullptr) {
+			tr->unk0 = 0.0f;
+			tr->unk4 = 0;
+			tr->unk6 = 0;
+			TNpcTrample::msAmpDecrease = 0.0f;
+		}
+		mNpcTrample = tr;
+	}
 }
 
 TBaseNPC::~TBaseNPC() { }
