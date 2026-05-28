@@ -36,6 +36,46 @@ them in future ticks.
 
 ## Settled
 
+### `<MSound/MSSetSound.hpp>` + `<MSound/MSoundBGM.hpp>` produce the canonical 15-JALList __sinit shape
+
+**Rule.** When a TU's target `__sinit_<TU>_cpp` registers the standard
+15 JALList<T>::smList templates (MSBgm, MSSetSoundGrp, MSSetSound +
+12 JALSeMod* variants — Eff/Pit/Vol × DGrp/FGrp/Dist/Funk), include
+**both** of these headers in the source:
+
+```cpp
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
+```
+
+MSoundBGM.hpp instantiates JALList<MSBgm>::smList; MSSetSound.hpp (via
+JALModSe.hpp) brings the 12 JALSeMod classes. MWCC then emits the
+matching `__sinit_<TU>_cpp` of 764B (or larger if more templates are
+referenced via other paths). The sinit registers each template's smList
+via `initiate__10JSUPtrListFv` + `__register_global_object` and stores
+a guard byte in `__init__smList__*` @sda21.
+
+**When this lever moves the match-%.** Only when our build's __sinit is
+either entirely absent or smaller than target's. If the TU already
+includes MSoundBGM.hpp (e.g. transitively via Player/MarioMain.hpp) and
+the sinit already matches, adding MSSetSound.hpp is a no-op. Always
+verify R sinit size < L sinit size via objdiff before committing.
+
+**Citations (t175).**
+- Empty stubs: `Map/PollutionEvent` 13.5 -> 100, `MSound/MSoundDebug`
+  0 -> 100 (the latter also needs `template class JADPrm<u8>;` for the
+  8B weak ctor emit).
+- Partial sinit grew to full 764B: `MSound/MSHandle` 69.6 -> 96.1,
+  `Player/SplashManager` 9.6 -> 37.3, `Player/MarioEffect` 5 -> 29.2,
+  `MoveBG/MapObjCorona` 1.7 -> 5.7, `MoveBG/MapObjMare` 85 -> 90.1
+  (sinit grew 32 -> 788).
+- Smaller gains where sinit was 716B -> 764B (missing 1 template):
+  `Camera/CameraChange` 75.7 -> 76.4, `NPC/NpcBase` 75.5 -> 75.9,
+  `Player/Tongue` 77.8 -> 78.5, `Player/MarioParticle` 24.7 -> 25.2,
+  `NPC/NpcAnm` 48.2 -> 48.5.
+- No-op TUs (already had MSoundBGM.hpp): MarioMain, MarioSound, Yoshi,
+  MapWireManager. Adding MSSetSound did not change sinit size.
+
 ### Infectious `dummy1431[3]={1,1,1}; dummy1411[3]={1,1,1}; dummy1210[4]={0,2,1,3}` fixes `.data` layout when target emits @1431/@1411/@1210
 
 **Rule.** When target's `.data` section starts with the anonymous-compound
