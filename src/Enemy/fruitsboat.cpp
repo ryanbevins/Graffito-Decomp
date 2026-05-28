@@ -2,6 +2,7 @@
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
 #include <Map/Map.hpp>
+#include <Map/MapData.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
@@ -65,7 +66,104 @@ DEFINE_NERVE(TNerveFruitsBoatBckTrace, TLiveActor)
 DEFINE_NERVE(TNerveFruitsBoatGraphWander, TLiveActor)
 {
 	TFruitsBoat* self = (TFruitsBoat*)spine->getBody();
-	(void)self;
+	TGraphWeb* graph  = self->getTracer()->getGraph();
+
+	if (!graph || graph->isDummy())
+		return FALSE;
+
+	if (self->isReachedToGoal()) {
+		TGraphTracer* tr  = self->getTracer();
+		TGraphNode& node  = tr->getCurrent();
+		TRailNode* rn     = node.unk0;
+
+		if (rn->mFlags & 0x100)
+			self->mLiveFlag |= 0x10000;
+
+		if (rn->mFlags & 0x400) {
+			s16 v             = self->mAttrFlag;
+			self->mAttrFlag   = (u16)(v ^ 1);
+		}
+
+		JGeometry::TVec3<f32> dir;
+		dir.x = 1.0f * JMASin(self->mRotation.y);
+		dir.y = 0.0f;
+		dir.z = 1.0f * JMACos(self->mRotation.y);
+		self->goToDirectedNextGraphNode(dir);
+
+		if (self->mLiveFlag & 0x8000) {
+			// skip
+		} else if (graph->unk14) {
+			f32 sp    = tr->calcSplineSpeed(self->mMarchSpeed);
+			f32 saved = sp;
+			tr->traceSpline(sp);
+
+			JGeometry::TVec3<f32> p;
+			JGeometry::TVec3<f32> r;
+			graph->unk14->getPosAndRot(*(f32*)((u8*)tr + 0x14), &p, &r);
+			p.x -= self->mPosition.x;
+			p.y -= self->mPosition.y;
+			p.z -= self->mPosition.z;
+
+			self->mLinearVelocity.x += p.x;
+			self->mLinearVelocity.y += p.y;
+			self->mLinearVelocity.z += p.z;
+
+			self->mRotation.y = r.x;
+
+			if (saved < 0.0f) {
+				f32 w = MsWrap<f32>(self->mRotation.y + 180.0f, 0.0f,
+				                    360.0f);
+				self->mRotation.y = w;
+			}
+		} else {
+			self->walkToCurPathNode(self->mTurnSpeed, 0.0f, 0.0f);
+		}
+
+		if (gpMSound->gateCheck(0x302e))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x302e, (Vec*)&self->mPosition.x, 0, nullptr, 0, 4);
+
+		spine->pushAfterCurrent(&TNerveFruitsBoatGraphWander::theNerve());
+		return TRUE;
+	}
+
+	if (self->mLiveFlag & 0x8000)
+		return FALSE;
+
+	{
+		TGraphTracer* tr = self->getTracer();
+		if (graph->unk14) {
+			f32 sp    = tr->calcSplineSpeed(self->mMarchSpeed);
+			f32 saved = sp;
+			tr->traceSpline(sp);
+
+			JGeometry::TVec3<f32> p;
+			JGeometry::TVec3<f32> r;
+			graph->unk14->getPosAndRot(*(f32*)((u8*)tr + 0x14), &p, &r);
+			p.x -= self->mPosition.x;
+			p.y -= self->mPosition.y;
+			p.z -= self->mPosition.z;
+
+			self->mLinearVelocity.x += p.x;
+			self->mLinearVelocity.y += p.y;
+			self->mLinearVelocity.z += p.z;
+
+			self->mRotation.y = r.x;
+
+			if (saved < 0.0f) {
+				f32 w = MsWrap<f32>(self->mRotation.y + 180.0f, 0.0f,
+				                    360.0f);
+				self->mRotation.y = w;
+			}
+		} else {
+			self->walkToCurPathNode(self->mTurnSpeed, 0.0f, 0.0f);
+		}
+	}
+
+	if (gpMSound->gateCheck(0x302e))
+		MSoundSESystem::MSoundSE::startSoundActor(
+		    0x302e, (Vec*)&self->mPosition.x, 0, nullptr, 0, 4);
+
 	return FALSE;
 }
 
@@ -315,37 +413,38 @@ void TFruitsBoat::setGroundCollision()
 	diff.y = mPosition.y - gpMarioPos->y;
 	diff.z = mPosition.z - gpMarioPos->z;
 
-	bool runColl = true;
-	if (mInstanceIndex == 0) {
+	if (mColCount == 0) {
 		f32 lenSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-		f32 len   = JGeometry::TUtil<f32>::sqrt(lenSq);
-		if (len < 1000.0f) {
-			runColl = true;
-		} else {
-			void* yoshi = SMS_GetYoshi();
-			bool hasYoshi = (*(u8*)yoshi != 0);
+		f32 dist  = JGeometry::TUtil<f32>::sqrt(lenSq);
+		if (dist >= 1000.0f) {
+			void* y = SMS_GetYoshi();
+			bool hasYoshi;
+			if (!*(u8*)y)
+				hasYoshi = false;
+			else
+				hasYoshi = true;
+
 			if (hasYoshi) {
-				f32 yx = *(f32*)((u8*)SMS_GetYoshi() + 0x20);
-				f32 yz = *(f32*)((u8*)SMS_GetYoshi() + 0x28);
-				if (mPosition.x - 1000.0f < yx && mPosition.x + 1000.0f > yx
-				    && mPosition.z - 1000.0f < yz
-				    && mPosition.z + 1000.0f > yz)
-					runColl = false;
-				else
-					runColl = true;
-			} else {
-				runColl = true;
+				if (mPosition.x - 1000.0f >= *(f32*)((u8*)SMS_GetYoshi() + 0x20))
+					return;
+				if (mPosition.x + 1000.0f <= *(f32*)((u8*)SMS_GetYoshi() + 0x20))
+					return;
+				if (mPosition.z - 1000.0f >= *(f32*)((u8*)SMS_GetYoshi() + 0x28))
+					return;
+				if (mPosition.z + 1000.0f <= *(f32*)((u8*)SMS_GetYoshi() + 0x28))
+					return;
 			}
 		}
 	}
 
-	if (runColl) {
+	{
 		J3DModel* model = getModel();
+		MtxPtr modelMtx = *(MtxPtr*)((u8*)model + 0x58);
 		void* base      = mMapCollisionManager->getUnk8();
 		if (base) {
 			typedef void (*FN)(void*, MtxPtr);
 			FN fn = (FN)(((u32*)(*(u32**)base))[5]);
-			fn(base, (MtxPtr)((u8*)model + 0x20));
+			fn(base, modelMtx);
 		}
 	}
 }
@@ -380,12 +479,155 @@ void TFruitsBoat::requestShadow()
 	gpQuestionManager->request(pos, mScaledBodyRadius);
 }
 
+static JGeometry::TVec3<f32> up;
+static JGeometry::TVec3<f32> up2733;
+
 void TFruitsBoat::moveObject()
 {
-	// behaviour deferred to INVESTIGATION; only update sway state +
-	// chain to TLiveActor::moveObject.
-	mSwayVel
-	    = (0.0003f) * -JMASSin((s16)(s32)(mSwayAngle * 182.04445f)) + mSwayVel;
+	// 1) Tilt from wave heights at two probe points along the boat's yaw.
+	JGeometry::TVec3<f32> dirVec;
+	f32 yawShort = mRotation.y * 182.04445f;
+	dirVec.set(0.01f * JMASSin((s16)(s32)yawShort) * 300.0f, 0.0f,
+	           0.01f * JMASCos((s16)(s32)yawShort) * 300.0f);
+
+	JGeometry::TVec3<f32> dirCopy = dirVec;
+	(void)dirCopy;
+	JGeometry::TVec3<f32> p1 = mPosition;
+	p1.x += dirVec.x;
+	p1.y += dirVec.y;
+	p1.z += dirVec.z;
+	JGeometry::TVec3<f32> p2 = mPosition;
+	p2.x -= dirVec.x;
+	p2.y -= dirVec.y;
+	p2.z -= dirVec.z;
+
+	p1.y = gpMapObjWave->getWaveHeight(p1.x, p1.z);
+	p2.y = gpMapObjWave->getWaveHeight(p2.x, p2.z);
+
+	JGeometry::TVec3<f32> delta = p1;
+	delta.sub(p2);
+
+	JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(delta);
+
+	f32 rotXDeg = rot.x * 0.005493164f;
+	f32 wrapped = MsWrap<f32>(rotXDeg, mRotation.x - 180.0f,
+	                          mRotation.x + 180.0f);
+	f32 diffAng = wrapped - mRotation.x;
+	f32 clamped;
+	if (diffAng > 1.0f)
+		clamped = 1.0f;
+	else if (diffAng < -1.0f)
+		clamped = -1.0f;
+	else
+		clamped = diffAng;
+	mRotation.x = mRotation.x + clamped;
+
+	// 2) Mario-on-boat detection / wave-normal update.
+	const TBGCheckData* gp = SMS_GetMarioGrPlane();
+
+	if (!(mLiveFlag & 0x40000)) {
+		if (gp && gp->mActor == this && SMS_IsMarioTouchGround4cm()) {
+			JGeometry::TVec3<f32> mp = *gpMarioPos;
+			mp.x -= mPosition.x;
+			mp.y -= mPosition.y;
+			mp.z -= mPosition.z;
+			mp.y      = 0.0f;
+			f32 lenSq = mp.x * mp.x + mp.y * mp.y + mp.z * mp.z;
+			f32 len;
+			if (lenSq <= 0.0f) {
+				len = lenSq;
+			} else {
+				len = lenSq * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
+			}
+			if (len != 0.0f) {
+				if (!*(u8*)&up.x) {
+					up.set(0.0f, 1.0f, 0.0f);
+					*(u8*)&up.x = 1;
+				}
+				if (lenSq < 0.0000038146973f) {
+					mp.set(0.0f, 0.0f, 0.0f);
+				} else {
+					f32 inv = JGeometry::TUtil<f32>::inv_sqrt(lenSq);
+					mp.x *= inv;
+					mp.y *= inv;
+					mp.z *= inv;
+				}
+				// Cross product up x mp
+				JGeometry::TVec3<f32> nv;
+				nv.x = up.y * mp.z - up.z * mp.y;
+				nv.y = up.z * mp.x - up.x * mp.z;
+				nv.z = up.x * mp.y - up.y * mp.x;
+
+				f32 nvLen = nv.x * nv.x + nv.y * nv.y + nv.z * nv.z;
+				if (nvLen < 0.0000038146973f) {
+					nv.set(0.0f, 0.0f, 0.0f);
+				} else {
+					f32 inv = JGeometry::TUtil<f32>::inv_sqrt(nvLen);
+					nv.x *= inv;
+					nv.y *= inv;
+					nv.z *= inv;
+				}
+
+				mSwayAngle += 0.0003f * len;
+				mLiveFlag |= 0x20000;
+				mLiveFlag &= ~0x10000;
+			}
+		}
+	} else {
+		if (!(gp && gp->mActor == this && SMS_IsMarioTouchGround4cm()))
+			mLiveFlag &= ~0x40000;
+	}
+
+	if (mLiveFlag & 0x20000) {
+		JGeometry::TVec3<f32> mp = *gpMarioPos;
+		mp.x -= mPosition.x;
+		mp.y -= mPosition.y;
+		mp.z -= mPosition.z;
+		mp.y      = 0.0f;
+		f32 lenSq = mp.x * mp.x + mp.y * mp.y + mp.z * mp.z;
+		f32 len;
+		if (lenSq <= 0.0f) {
+			len = lenSq;
+		} else {
+			len = lenSq * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
+		}
+		if (len != 0.0f) {
+			if (lenSq < 0.0000038146973f) {
+				mp.set(0.0f, 0.0f, 0.0f);
+			} else {
+				f32 inv = JGeometry::TUtil<f32>::inv_sqrt(lenSq);
+				mp.x *= inv;
+				mp.y *= inv;
+				mp.z *= inv;
+			}
+			if (!*(u8*)&up2733.x) {
+				up2733.set(0.0f, 1.0f, 0.0f);
+				*(u8*)&up2733.x = 1;
+			}
+			JGeometry::TVec3<f32> nv;
+			nv.x = up2733.y * mp.z - up2733.z * mp.y;
+			nv.y = up2733.z * mp.x - up2733.x * mp.z;
+			nv.z = up2733.x * mp.y - up2733.y * mp.x;
+
+			f32 nvLenSq = nv.x * nv.x + nv.y * nv.y + nv.z * nv.z;
+			if (nvLenSq < 0.0000038146973f) {
+				nv.set(0.0f, 0.0f, 0.0f);
+			} else {
+				f32 r = JGeometry::TUtil<f32>::inv_sqrt(nvLenSq);
+				nv.x *= r;
+				nv.y *= r;
+				nv.z *= r;
+			}
+
+			mWaveNormalX += (nv.x - mWaveNormalX) * 0.1f;
+			mWaveNormalY += (nv.y - mWaveNormalY) * 0.1f;
+			mWaveNormalZ += (nv.z - mWaveNormalZ) * 0.1f;
+		}
+	}
+
+	// 3) Sway integration (pendulum)
+	f32 sinShort = JMASSin((s16)(s32)(mSwayAngle * 182.04445f));
+	mSwayVel     = 0.0003f * -sinShort + mSwayVel;
 	mSwayAngle += mSwayVel;
 	if (mSwayAngle < -10.0f || mSwayAngle > 10.0f)
 		mSwayVel = -mSwayVel;
