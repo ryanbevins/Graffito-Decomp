@@ -151,6 +151,7 @@ bool THauntLeg::isCollidMove(THitActor* other)
 
 void THauntLeg::attackToMario()
 {
+	JGeometry::TVec3<f32> tmp;
 	updateSquareToMario();
 	if (mDistToMarioSquared < 10000.0f) {
 		sendAttackMsgToMario();
