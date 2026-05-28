@@ -312,12 +312,10 @@ void THauntLegManager::initSetEnemies()
 		THauntLeg* enemy = (THauntLeg*)unk18[i];
 
 		Vec pt;
-		int nodeIdx = (int)MsRandF(0.0f, (f32)graph->getNodeNum());
+		int nodeIdx = (int)(MsRandF() * (f32)graph->getNodeNum());
 		graph->getGraphNode(nodeIdx).getPoint(&pt);
 
-		enemy->mPosition.x = pt.x;
-		enemy->mPosition.y = pt.y;
-		enemy->mPosition.z = pt.z;
+		*(Vec*)&enemy->mPosition = pt;
 		enemy->mPosition.y += 5.0f;
 		enemy->onLiveFlag(LIVE_FLAG_AIRBORNE);
 		enemy->reset();
@@ -327,8 +325,8 @@ void THauntLegManager::initSetEnemies()
 		     < enemy->getMActor()->getModel()->getModelData()->getMaterialNum();
 		     ++j) {
 			SMS_InitPacket_TwoTevColor(
-			    ((THauntLeg*)unk18[i])->getMActor()->getModel(), j, GX_TEVREG1,
-			    &tevColorData1[tevIdx], GX_TEVREG2, &tevColorData2[tevIdx]);
+			    ((THauntLeg*)unk18[i])->getMActor()->getModel(), j, GX_TEVREG0,
+			    &tevColorData1[tevIdx], GX_TEVREG1, &tevColorData2[tevIdx]);
 		}
 
 		++tevIdx;
