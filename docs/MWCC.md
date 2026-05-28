@@ -36,6 +36,100 @@ them in future ticks.
 
 ## Settled
 
+### Inverted ternary / bool-materialize for null-first or false-first branch ordering
+
+**Rule.** When MWCC's target asm shows the *null* (or *false*) value
+emitted BEFORE the *load* (or *true*) value in a ternary / bool
+materialize sequence — typically:
+
+```
+fcmpo cr0, fA, fK ; or cmplwi r3, 0
+[cror...]         ; combined condition
+bne   LABEL_VALUE ; jump if condition holds (skip the null path)
+li    rARG, 0     ; null/false branch (fallthrough)
+b     LABEL_END
+LABEL_VALUE:
+[load or li 1]    ; value branch (lives at the goto landing)
+LABEL_END:
+```
+
+— invert the source's condition so the negative branch is the
+fall-through:
+
+```cpp
+// inline ternary version
+self->setAnmSound(!table ? nullptr : table[N]);
+
+// explicit bool version
+bool flag;
+if (absDir <= K)
+    flag = false;
+else
+    flag = true;
+```
+
+NOT the natural form `cond ? value : null` or `if (cond) flag=true
+else flag=false` — that produces the swapped path order.
+
+**Why.** MWCC emits the "if" arm as the fall-through and the "else"
+arm at the goto landing. The natural form puts value-branch as the
+fall-through; the inverted form puts null/false-branch there.
+
+**When this lever moves the match-%.** Anywhere a small ternary or
+bool-materialize is in a function and the diff shows your build's
+branch with the WRONG path falling-through. Often signaled by the
+`li rARG, 0` (or `li r0, 0`) appearing AFTER the value-load in your
+build but BEFORE it in target.
+
+**Citations (t180 limitkoopajr).**
+- Run nerve execute: 83% → 97.54% (ternary form for setAnmSound,
+  plus explicit bool materialize for `turned`).
+- Wait nerve execute: 0% → 81.88% (same patterns; stack delta still
+  cascades the residual).
+- Launch nerve execute: 93.18% → 100%.
+- Yahoo nerve execute: 92.40% → 99.90%.
+
+Memory entry: `state/memory/feedback_inverted_ternary_for_null_first_branch.md`.
+
+### Init-list field-zero stores for pre-member-ctor positioning
+
+**Rule.** When target asm shows a field-assign (typically `li r0, 0;
+stw r0, OFFSET(rThis)`) emitted *between* the vtable-stores and the
+first `bl __ct__memberType` of a non-POD member, the source must put
+that field in the initializer list, NOT the body. C++ runs init-list
+in declaration order BEFORE all member-subobject ctors; body runs
+AFTER all member ctors. MWCC follows this faithfully.
+
+```cpp
+TFoo::TFoo(const char* name)
+    : TBase(name)
+    , mTargetActor(nullptr)   // <-- init list, emits between vt-stores and member ctors
+{
+    mFlag |= 0x10;            // body, emits AFTER all member ctors
+}
+```
+
+vs the wrong (body-only) form:
+
+```cpp
+TFoo::TFoo(const char* name)
+    : TBase(name)
+{
+    mTargetActor = nullptr;   // body, emits AFTER mDirection1/mDirection2 ctors
+    mFlag |= 0x10;
+}
+```
+
+**When this lever moves the match-%.** When asm shows the zero-store
+sandwiched between vtable setup (e.g. `stw vt, 0(r31); addi vt+0x24;
+stw vt+0x24, 0x20(r31)`) and the first `bl __ct__memberType`.
+
+**Citations (t180 limitkoopajr).**
+- ctor 80.94% → 100% (single-line move of `mTargetActor=nullptr`).
+  Sufficient on its own; not paired with any other change.
+
+Memory entry: `state/memory/feedback_initlist_for_field_zero_init.md`.
+
 ### `<MSound/MSSetSound.hpp>` + `<MSound/MSoundBGM.hpp>` produce the canonical 15-JALList __sinit shape
 
 **Rule.** When a TU's target `__sinit_<TU>_cpp` registers the standard
