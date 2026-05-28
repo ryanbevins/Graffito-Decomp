@@ -201,26 +201,19 @@ void TYoshiTongue::movement()
 	case 1: {
 		THitActor* target = findTarget(true, true);
 		if (target != nullptr && mHeldObject == nullptr) {
-			JGeometry::TVec3<f32> targetMid(target->mPosition.x,
-			                                target->mPosition.y
-			                                    + 0.5f
-			                                          * target->mAttackHeight,
-			                                target->mPosition.z);
+			JGeometry::TVec3<f32> targetMid(target->mPosition);
+			targetMid.y += 0.5f * target->mAttackHeight;
 			f32 speed = mExtendAmount;
 
 			JGeometry::TVec3<f32> tipPos = mTipPos;
 			JGeometry::TVec3<f32> dir(targetMid);
 			dir -= mTipPos;
-			JGeometry::TVec3<f32> dirCopy(dir);
-			dirCopy.scale(speed);
-			mInitialVelocity = dirCopy;
+			mInitialVelocity = dir * speed;
 
-			JGeometry::TVec3<f32> tipPosNew = mTipPos;
-			tipPosNew.add(dirCopy);
-			mTipPos = tipPosNew;
+			JGeometry::TVec3<f32> tipPosNew = mTipPos + mInitialVelocity;
+			mTipPos                         = tipPosNew;
 
-			JGeometry::TVec3<f32> distVec = mTipPos;
-			distVec.sub(targetMid);
+			JGeometry::TVec3<f32> distVec = mTipPos - targetMid;
 			f32 dist = JGeometry::TUtil<f32>::sqrt(distVec.x * distVec.x
 			                                      + distVec.y * distVec.y
 			                                      + distVec.z * distVec.z);
@@ -248,12 +241,10 @@ void TYoshiTongue::movement()
 		}
 		break;
 	case 3: {
-		f32 retractAmt = mRetractAmount;
-		JGeometry::TVec3<f32> diff(mTipPos);
-		diff -= mHeadPos;
-		JGeometry::TVec3<f32> diffCopy(diff);
-		diffCopy.scale(retractAmt);
-		mTipPos.add(mHeadPos, diffCopy);
+		f32 retractAmt                = mRetractAmount;
+		JGeometry::TVec3<f32> diff    = mTipPos - mHeadPos;
+		JGeometry::TVec3<f32> scaled  = diff * retractAmt;
+		mTipPos                       = mHeadPos + scaled;
 		break;
 	}
 	case 6:
