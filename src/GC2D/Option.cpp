@@ -20,6 +20,10 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
 // TODO: get rid of this
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
