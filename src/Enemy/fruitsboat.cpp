@@ -306,7 +306,7 @@ void TFruitsBoat::init(TLiveManager* manager)
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
 
 	initHitActor(0x4000007b, 1, 0xc0000000, 0.0f, 0.0f, 0.0f, 0.0f);
-	mActorType &= ~1;
+	offHitFlag(1);
 
 	getTracer()->mPrevIdx = -1;
 	goToShortestNextGraphNode();
@@ -360,25 +360,34 @@ void TFruitsBoat::init(TLiveManager* manager)
 	}
 
 	{
+		TMapCollisionManager* mgr = mMapCollisionManager;
 		Mtx mtx;
 		MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
 		            mRotation.y, mRotation.z, mScaling.x, mScaling.y,
 		            mScaling.z);
-		PSMTXCopy(mtx,
-		          *(MtxPtr*)((u8*)mMapCollisionManager->getUnk8() + 0x20));
-		// call vtable[6] of TMapCollisionBase (calc)
+		PSMTXCopy(mtx, *(MtxPtr*)((u8*)mgr->getUnk8() + 0x20));
 		typedef void (*FN)(void*);
-		void* base = mMapCollisionManager->getUnk8();
-		FN fn      = (FN)(((u32*)(*(u32**)base))[6]);
-		fn(base);
+		void* base = mgr->getUnk8();
+		((FN)(((u32*)(*(u32**)base))[6]))(base);
 	}
 
 	mSpine->initWith(&TNerveFruitsBoatGraphWander::theNerve());
 
+	{
+		TGraphTracer* tr = getTracer();
+		TGraphWeb* g     = tr->unk0;
+		if (!g)
+			mLiveFlag |= 0x10000;
+		else if (g->unk0[tr->mCurrIdx].unk0->mFlags & 0x80)
+			mLiveFlag |= 0x10000;
+		else
+			mLiveFlag &= ~0x10000;
+	}
+
 	mMarchSpeed = getSaveParam2()->mSLMoveSpeed.get();
 	mTurnSpeed  = getSaveParam2()->mSLRotSpeed.get();
 
-	mLiveFlag &= ~0x8;
+	mLiveFlag &= ~0x4;
 	mLiveFlag |= 0x20;
 	mLiveFlag &= ~0x100;
 
