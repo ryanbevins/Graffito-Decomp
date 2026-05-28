@@ -20,12 +20,25 @@ enum EnumNpcAnmKind { };
 enum EnumNpcStopMotionBlendOnOff { };
 enum EnumHitNpcObjectKind { };
 
+// Pending animation request set by request*Anm_; consumed by perform/state code.
+struct TNpcAnmRequest {
+	/* 0x0 */ s32 mKind;
+	/* 0x4 */ bool mBlend;
+};
+
+// Frame counter used to track how long the current wait/idle animation has
+// run; advances each tick until it hits its max.
+struct TNpcAnmFrameCounter {
+	/* 0x0 */ s32 mCurFrame;
+	/* 0x4 */ s32 mMaxFrame;
+};
+
 class TNpcBalloon;
 class TBaseNPC : public TSpineEnemy {
 public:
 	void monteMESetAnmWhenNear();
 	void monteMESetAnmWhenFar();
-	void sunflowerReviving();
+	bool sunflowerReviving();
 	void sunflowerReviveIn();
 	void sunflowerDownIn_();
 	void peachTiredOut_();
@@ -181,7 +194,7 @@ public:
 	/* 0x184 */ TNpcCoin* mNpcCoin;
 	/* 0x188 */ TNpcBalloon* mNpcBalloon;
 	/* 0x18C */ void* mUnk18C;
-	/* 0x190 */ char unk190[0x4];
+	/* 0x190 */ TNpcAnmRequest* mAnmRequest;
 	/* 0x194 */ JGeometry::TVec3<f32> mResetPos;
 	/* 0x1A0 */ char unk1A0[0x4];
 	/* 0x1A4 */ f32 unk1A4;
@@ -212,7 +225,7 @@ public:
 	/* 0x218 */ f32 mFireScaleMul;
 	/* 0x21C */ JGeometry::TVec3<f32> mWaterEffectPos;
 	/* 0x228 */ TNpcSaveIndividual* mNpcSaveIndividual;
-	/* 0x22C */ char unk22C[0x4];
+	/* 0x22C */ TNpcAnmFrameCounter* mAnmFrameCounter;
 	/* 0x230 */ s16* mNeckAngles;
 };
 
