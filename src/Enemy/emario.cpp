@@ -4,17 +4,22 @@
 #include <Camera/Camera.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <System/MarDirector.hpp>
-#include <System/StageUtil.hpp>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+
+bool SMS_isMultiPlayerMap();
+
+static const char* cDirtyFileName = "/scene/map/pollution/H_ma_rak.bti";
+static const char* cDirtyTexName  = "H_ma_rak_dummy";
 
 TEMarioManager::TEMarioManager(const char* name)
     : TEnemyManager(name)
@@ -253,7 +258,7 @@ void TEMario::init(TLiveManager* manager)
 		gpConductor->registerAloneActor(this);
 	} else {
 		mManager = manager;
-		mMActorKeeper = new TMActorKeeper(manager, (u16)1);
+		mMActorKeeper = new TMActorKeeper(mManager, (u16)1);
 		mManager->manageActor(this);
 		mMActor = mMActorKeeper->createMActorFromNthData(0, 0);
 	}
