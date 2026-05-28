@@ -71,10 +71,12 @@ DEFINE_NERVE(TNerveLimitKoopaJrWait, TLiveActor)
 
 	{
 		TDirectionCalc tdc;
+		JGeometry::TVec3<f32>& tp = self->mTargetActor->mPosition;
 		JGeometry::TVec3<f32> diff;
-		diff.x = self->mTargetActor->mPosition.x - gpMarioPos->x;
+		diff.x = tp.x - gpMarioPos->x;
+		diff.y = tp.y - gpMarioPos->y;
+		diff.z = tp.z - gpMarioPos->z;
 		diff.y = 0.0f;
-		diff.z = self->mTargetActor->mPosition.z - gpMarioPos->z;
 		tdc.makeDirection(diff);
 
 		f32 absDir = self->mDirection1.absDirection(tdc.mDirection);
@@ -98,8 +100,9 @@ DEFINE_NERVE(TNerveLimitKoopaJrWait, TLiveActor)
 	{
 		JGeometry::TVec3<f32> diff;
 		diff.x = gpMarioPos->x - self->mPosition.x;
-		diff.y = 0.0f;
+		diff.y = gpMarioPos->y - self->mPosition.y;
 		diff.z = gpMarioPos->z - self->mPosition.z;
+		diff.y = 0.0f;
 		diff.setLength(diff, 1.0f);
 
 		TDirectionCalc tdc(diff);
@@ -125,10 +128,12 @@ DEFINE_NERVE(TNerveLimitKoopaJrRun, TLiveActor)
 
 	{
 		TDirectionCalc tdc;
+		JGeometry::TVec3<f32>& tp = self->mTargetActor->mPosition;
 		JGeometry::TVec3<f32> diff;
-		diff.x = self->mTargetActor->mPosition.x - gpMarioPos->x;
+		diff.x = tp.x - gpMarioPos->x;
+		diff.y = tp.y - gpMarioPos->y;
+		diff.z = tp.z - gpMarioPos->z;
 		diff.y = 0.0f;
-		diff.z = self->mTargetActor->mPosition.z - gpMarioPos->z;
 		tdc.makeDirection(diff);
 
 		f32 absDir = self->mDirection1.absDirection(tdc.mDirection);
@@ -148,10 +153,12 @@ void TLimitKoopaJr::moveRun()
 	f32 rotSpeedRad = 0.017453294f * getSaveParam2()->mSLRotationSpeed.get();
 
 	TDirectionCalc tdc;
+	JGeometry::TVec3<f32>& tp = mTargetActor->mPosition;
 	JGeometry::TVec3<f32> diff;
-	diff.x = mTargetActor->mPosition.x - gpMarioPos->x;
+	diff.x = tp.x - gpMarioPos->x;
+	diff.y = tp.y - gpMarioPos->y;
+	diff.z = tp.z - gpMarioPos->z;
 	diff.y = 0.0f;
-	diff.z = mTargetActor->mPosition.z - gpMarioPos->z;
 	tdc.makeDirection(diff);
 
 	mDirection1.mDirection
