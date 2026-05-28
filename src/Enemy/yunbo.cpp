@@ -302,10 +302,17 @@ void TYumbo::perform(u32 action, JDrama::TGraphics* graphics)
 void TYumbo::behaveToWater(THitActor* sender)
 {
 	const TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
+	bool b3                              = true;
+	bool b2                              = true;
+	bool b1                              = true;
 	if (latest != &TNerveYumboFreeze::theNerve()
-	    && latest != &TNerveSmallEnemyDie::theNerve()
-	    && latest != &TNerveYumboHiding::theNerve()
-	    && latest != &TNerveYumboAttack::theNerve()) {
+	    && latest != &TNerveSmallEnemyDie::theNerve())
+		b1 = false;
+	if (!b1 && latest != &TNerveYumboHiding::theNerve())
+		b2 = false;
+	if (!b2 && latest != &TNerveYumboAttack::theNerve())
+		b3 = false;
+	if (!b3) {
 		mSpine->reset();
 		mSpine->setNext(&TNerveYumboFreeze::theNerve());
 	}
