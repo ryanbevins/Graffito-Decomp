@@ -82,10 +82,10 @@ static inline EnumNpcStopMotionBlendOnOff asBlend(int v)
 }
 
 // True when this NPC is one of the "sink/peach interior" actor types (BaseY
-// range 0x4000001C..0x4000001E) where animation requests must be ignored.
+// range 0x0400001C..0x0400001E) where animation requests must be ignored.
 static inline bool isLockedAnmActor(u32 actorType)
 {
-	return actorType >= 0x4000001C && actorType < 0x4000001E;
+	return actorType >= 0x0400001C && actorType < 0x0400001E;
 }
 
 // ============================================================
@@ -240,7 +240,7 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 void TBaseNPC::requestNpcAnm_(EnumNpcAnmKind kind,
                               EnumNpcStopMotionBlendOnOff blend)
 {
-	if (isLockedAnmActor(mActorType))
+	if ((s32)mActorType < (s32)0x0400001E && (s32)mActorType >= (s32)0x0400001C)
 		return;
 	bool forbid = ((TUnk18CStruct*)mUnk18C)->unk24 > 0;
 	if (forbid) {
@@ -520,7 +520,7 @@ void TBaseNPC::npcTalkOut()
 		return;
 	if (mActorType != 0x04000006)
 		return;
-	if (mActorType >= 0x4000001C && mActorType < 0x4000001E)
+	if (mActorType >= 0x0400001C && mActorType < 0x0400001E)
 		return;
 	requestNpcAnm_(asKind(0x4), asBlend(1));
 }
@@ -597,7 +597,7 @@ void TBaseNPC::npcSinking()
 		return;
 	mLiveFlag |= 0x00800000;
 	unk64     |= 0x1;
-	if (mActorType >= 0x4000001C && mActorType < 0x4000001E)
+	if (mActorType >= 0x0400001C && mActorType < 0x0400001E)
 		return;
 	requestNpcAnm_(asKind(0x10), asBlend(1));
 }
