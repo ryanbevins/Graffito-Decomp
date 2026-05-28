@@ -68,22 +68,22 @@ void TEMario::perform(u32 flags, JDrama::TGraphics* gfx)
 						airborne = false;
 					if (airborne)
 						break;
-					f32 attackRadius = coll->mAttackRadius;
-					f32 emHeight     = mEnemyMario->mAttackHeight;
-					JGeometry::TVec3<f32> diff = coll->mPosition;
-					diff.sub(mEnemyMario->mPosition);
+					f32 damageR = mEnemyMario->mDamageRadius;
+					f32 attackR = coll->mAttackRadius;
+					JGeometry::TVec3<f32> diff
+					    = coll->mPosition - mPosition;
 					f32 dist = JGeometry::TUtil<f32>::sqrt(
 					    diff.x * diff.x + diff.y * diff.y
 					    + diff.z * diff.z);
-					if (dist >= attackRadius + emHeight)
+					if (dist >= attackR + damageR)
 						break;
 					mEnemyMario->changePlayerStatus(0x810446, 0, false);
 					mEnemyMario->emitGetEffect();
 					break;
 				}
 				case 0x80000001: {
-					JGeometry::TVec3<f32> diff = mPosition;
-					diff.sub(coll->mPosition);
+					JGeometry::TVec3<f32> diff
+					    = mPosition - coll->mPosition;
 					f32 dist = JGeometry::TUtil<f32>::sqrt(
 					    diff.x * diff.x + diff.y * diff.y
 					    + diff.z * diff.z);
