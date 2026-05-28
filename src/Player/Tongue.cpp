@@ -327,30 +327,27 @@ THitActor* TYoshiTongue::findTarget(bool flagB1, bool flagB2)
 		if ((atype - 0x40000000) == 0x395) isHittable = 1;
 		if ((atype - 0x40000000) == 0x396) isHittable = 1;
 
-		if (flagB1) {
+		if (flagB1 == true) {
 			if ((atype - 0x20000000) == 0x1) isHittable = 1;
 			if ((atype - 0x20000000) == 0x2) isHittable = 1;
 			if ((atype - 0x40000000) == 0x5A) isHittable = 1;
-			if ((atype & 0x10000000) != 0) isHittable = 1;
+			bool b = ((atype & 0x10000000) != 0) ? true : false;
+			if (b) isHittable = 1;
 		}
 
 		if (isHittable != 1) continue;
 
-		JGeometry::TVec3<f32> diff;
-		diff.sub(h->mPosition, mTipPos);
+		JGeometry::TVec3<f32> targetMid(h->mPosition);
+		targetMid.y += 0.5f * h->mAttackHeight;
+		JGeometry::TVec3<f32> diff = targetMid - mTipPos;
 
 		f32 lsq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-		if (lsq >= 0.0000038146973f) continue;
+		bool tooClose = lsq <= 0.0000038146973f;
+		if (tooClose) continue;
 
-		f32 dist;
-		if (lsq <= 0.0f)
-			dist = lsq;
-		else {
-			f32 invsq = JGeometry::TUtil<f32>::inv_sqrt(lsq);
-			dist      = invsq * lsq;
-		}
+		f32 dist = JGeometry::TUtil<f32>::sqrt(lsq);
 
-		if (lsq < 0.0000038146973f) {
+		if (lsq <= 0.0000038146973f) {
 			diff.x = 0.0f;
 			diff.y = 0.0f;
 			diff.z = 0.0f;
