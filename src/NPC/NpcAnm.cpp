@@ -257,13 +257,13 @@ void TBaseNPC::requestNpcAnm_(EnumNpcAnmKind kind,
 void TBaseNPC::setKeepAnm_()
 {
 	int prevKind            = mAnmRequest->mKind;
-	bool prevBlend          = mAnmRequest->mBlend;
+	int prevBlend           = mAnmRequest->mBlend;
 	mAnmRequest->mKind      = -1;
 	if (prevKind != -1) {
 		if (prevKind == unkD0->mCurrentAnmKind) {
 			mAnmRequest->mKind = -1;
 		} else {
-			setNpcAnm_(asKind(prevKind), asBlend(prevBlend ? 1 : 0));
+			setNpcAnm_(asKind(prevKind), asBlend(prevBlend));
 		}
 	}
 }
@@ -670,14 +670,15 @@ void TBaseNPC::npcBlownIn()
 
 BOOL TBaseNPC::npcBlowning()
 {
+	BOOL ret = FALSE;
 	BOOL flag;
 	if (mLiveFlag & LIVE_FLAG_AIRBORNE)
 		flag = TRUE;
 	else
 		flag = FALSE;
-	if (flag)
-		return FALSE;
-	return TRUE;
+	if (!flag)
+		ret = TRUE;
+	return ret;
 }
 
 void TBaseNPC::npcMareStandIn()
