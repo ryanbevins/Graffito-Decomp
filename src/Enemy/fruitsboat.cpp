@@ -315,10 +315,7 @@ void TFruitsBoat::init(TLiveManager* manager)
 		TGraphTracer* tr = getTracer();
 		TGraphWeb* gr    = tr->getGraph();
 		if (gr->unk14) {
-			JGeometry::TVec3<f32> pt = gr->indexToPoint(tr->mCurrIdx);
-			mPosition.x              = pt.x;
-			mPosition.y              = pt.y;
-			mPosition.z              = pt.z;
+			mPosition = gr->indexToPoint(tr->mCurrIdx);
 
 			TGraphTracer* tr2 = getTracer();
 			tr2->moveTo(tr2->unk0->getShortestNextIndex(
@@ -333,32 +330,32 @@ void TFruitsBoat::init(TLiveManager* manager)
 		    = new TMapCollisionManager(1, "/scene/fruitsboat", this);
 		mMActor = mMActorKeeper->createMActor("shipdolpic", 0);
 		mMapCollisionManager->init("ShipDolpic.col", 1, nullptr);
-		setDamageRadius(850.0f);
-		setDamageHeight(600.0f);
+		setAttackRadius(850.0f);
+		setAttackHeight(600.0f);
 		break;
 	case 1:
 		mMapCollisionManager
 		    = new TMapCollisionManager(1, "/scene/fruitsboatb", this);
 		mMActor = mMActorKeeper->createMActor("shipdolpic2", 0);
 		mMapCollisionManager->init("ShipDolpic2.col", 1, nullptr);
-		setDamageRadius(750.0f);
-		setDamageHeight(480.0f);
+		setAttackRadius(750.0f);
+		setAttackHeight(480.0f);
 		break;
 	case 2:
 		mMapCollisionManager
 		    = new TMapCollisionManager(1, "/scene/fruitsboatc", this);
 		mMActor = mMActorKeeper->createMActor("shipdolpic3", 0);
 		mMapCollisionManager->init("ShipDolpic3.col", 1, nullptr);
-		setDamageRadius(1000.0f);
-		setDamageHeight(300.0f);
+		setAttackRadius(1000.0f);
+		setAttackHeight(300.0f);
 		break;
 	default:
 		mMapCollisionManager
 		    = new TMapCollisionManager(1, "/scene/fruitsboatd", this);
 		mMActor = mMActorKeeper->createMActor("shipdolpic4", 0);
 		mMapCollisionManager->init("ShipDolpic4.col", 1, nullptr);
-		setDamageRadius(760.0f);
-		setDamageHeight(270.0f);
+		setAttackRadius(760.0f);
+		setAttackHeight(270.0f);
 		break;
 	}
 
