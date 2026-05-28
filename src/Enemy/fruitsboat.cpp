@@ -253,11 +253,10 @@ int TFruitsBoat::setBckTrack(const char* name)
 	MActorAnmDataEach<J3DAnmTransformKey>* table
 	    = mManager->getMActorAnmData()->getUnk2C();
 
-	int i           = 0;
-	int byteOff     = 0;
-	int n           = table->unk0;
-	while (i < n) {
-		if (strcmp(name, table->unk8[i]) == 0) {
+	int i       = 0;
+	int byteOff = 0;
+	while (i < table->unk0) {
+		if (strcmp(name, *(char**)((u8*)table->unk8 + byteOff)) == 0) {
 			if (i < table->unk0)
 				mBckAnm = (J3DAnmBase*)(*(
 				    u32*)((u8*)table->unkC + byteOff));
@@ -284,9 +283,9 @@ void TFruitsBoat::load(JSUMemoryInputStream& stream)
 
 	char buf1[256];
 	stream.readString(buf1, 256);
+	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
 	JDrama::TNameRef* host
-	    = JDrama::TNameRefGen::instance->mRootNameRef->searchF(
-	        JDrama::TNameRef::calcKeyCode(buf1), buf1);
+	    = root->searchF(JDrama::TNameRef::calcKeyCode(buf1), buf1);
 
 	char buf2[256];
 	stream.readString(buf2, 256);
@@ -469,7 +468,7 @@ void TFruitsBoat::requestShadow()
 		req.unkC  = unk154;
 		req.unk10 = unk158;
 		req.unk1C = 3;
-		req.unk14 = (s16)(s32)mRotation.x;
+		req.unk14 = (s16)(s32)mRotation.y;
 
 		if (mLiveFlag & 0x400)
 			gpBindShadowManager->forceRequest(req, mActorType);
@@ -488,8 +487,7 @@ void TFruitsBoat::requestShadow()
 	if (hasOwner)
 		return;
 
-	JGeometry::TVec3<f32> pos = mPosition;
-	gpQuestionManager->request(pos, mScaledBodyRadius);
+	gpQuestionManager->request(mPosition, mScaledBodyRadius);
 }
 
 static JGeometry::TVec3<f32> up;
