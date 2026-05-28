@@ -1,5 +1,20 @@
 #include <Player/Tongue.hpp>
+#include <Player/Yoshi.hpp>
+#include <Player/MarioAccess.hpp>
+#include <Strategic/MirrorActor.hpp>
+#include <Strategic/Strategy.hpp>
+#include <Map/Map.hpp>
+#include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/MtxUtil.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <MSound/MSound.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <dolphin/mtx.h>
+
 
 void TYoshiTongue::entry()
 {
@@ -15,4 +30,514 @@ void TYoshiTongue::viewCalc()
 		mModel->viewCalc();
 		mTipModel->viewCalc();
 	}
+}
+
+void TYoshiTongue::calcAnim(MtxPtr p)
+{
+	mHeadPos.x = p[0][3];
+	mHeadPos.y = p[1][3];
+	mHeadPos.z = p[2][3];
+	mHeadDir.x = p[0][0];
+	mHeadDir.y = p[1][0];
+	mHeadDir.z = p[2][0];
+
+	if ((int)mState == 0) {
+		J3DModelData* mdMain = mModel->getModelData();
+		for (u16 i = 0; i < mdMain->getJointNum(); ++i) {
+			J3DJoint* j = mdMain->getJointNodePointer(i);
+			*(u32*)&j->mCallBack |= 1;
+		}
+		J3DModelData* mdTip = mTipModel->getModelData();
+		for (u16 i = 0; i < mdTip->getJointNum(); ++i) {
+			J3DJoint* j = mdTip->getJointNodePointer(i);
+			*(u32*)&j->mCallBack |= 1;
+		}
+		return;
+	}
+
+	{
+		J3DModelData* mdMain = mModel->getModelData();
+		for (u16 i = 0; i < mdMain->getJointNum(); ++i) {
+			J3DJoint* j = mdMain->getJointNodePointer(i);
+			*(u32*)&j->mCallBack &= ~1U;
+		}
+		J3DModelData* mdTip = mTipModel->getModelData();
+		for (u16 i = 0; i < mdTip->getJointNum(); ++i) {
+			J3DJoint* j = mdTip->getJointNodePointer(i);
+			*(u32*)&j->mCallBack &= ~1U;
+		}
+	}
+
+	JGeometry::TVec3<f32> tipPos;
+	tipPos.x = mTipPos.x;
+	tipPos.y = mTipPos.y + 50.0f;
+	tipPos.z = mTipPos.z;
+	SMS_MakeJointsToArc(mModel, mHeadPos, mHeadDir, tipPos);
+
+	J3DModelData* md = mModel->getModelData();
+	u16 n            = md->getJointNum();
+	MtxPtr mtxBuf    = mModel->getAnmMtx(0);
+
+	Mtx* mtxPenult = (Mtx*)((u8*)mtxBuf + (n - 2) * sizeof(Mtx));
+	Mtx* mtxLast   = (Mtx*)((u8*)mtxBuf + (n - 1) * sizeof(Mtx));
+
+	JGeometry::TVec3<f32> dir;
+	dir.x = (*mtxLast)[0][3] - (*mtxPenult)[0][3];
+	dir.y = 0.0f;
+	dir.z = (*mtxLast)[2][3] - (*mtxPenult)[2][3];
+	MsVECNormalize((Vec*)&dir, (Vec*)&dir);
+
+	Mtx tipMtx;
+	tipMtx[0][0] = dir.z;
+	tipMtx[0][1] = 0.0f;
+	tipMtx[0][2] = dir.x;
+	tipMtx[0][3] = mTipPos.x;
+	tipMtx[1][0] = 0.0f;
+	tipMtx[1][1] = 1.0f;
+	tipMtx[1][2] = 0.0f;
+	tipMtx[1][3] = mTipPos.y;
+	tipMtx[2][0] = -dir.x;
+	tipMtx[2][1] = 0.0f;
+	tipMtx[2][2] = dir.z;
+	tipMtx[2][3] = mTipPos.z;
+	PSMTXCopy(tipMtx, mTipModel->unk20);
+
+	mTipModel->calc();
+}
+
+void TYoshiTongue::movement()
+{
+	if (unkD4 != 0) {
+		mColCount = mSavedColCount;
+		unkD4--;
+	} else if (mColCount != 0) {
+		mSavedColCount = mColCount;
+		unkD4          = 3;
+	}
+
+	switch ((int)mState) {
+	default:
+		mAttackRadius = 300.0f;
+		calcEntryRadius();
+		unk64 &= ~HIT_FLAG_UNK2;
+		break;
+	case STATE_EXTENDING:
+		mAttackRadius = 1000.0f;
+		calcEntryRadius();
+		mProgress++;
+		if (mProgress >= mMaxProgress) {
+			mState = STATE_RETRACTING;
+			break;
+		}
+		if (!canGo()) {
+			mState = STATE_RETRACTING;
+		}
+		break;
+	case STATE_RETRACTING: {
+		mAttackRadius = 10.0f;
+		calcEntryRadius();
+		JGeometry::TVec3<f32> diff;
+		diff.sub(mTipPos, mHeadPos);
+		JGeometry::TVec3<f32> diffCopy = diff;
+		if (mHeldObject != nullptr) {
+			f32 lsq = diff.squared();
+			f32 len;
+			if (lsq <= 0.0f)
+				len = lsq;
+			else
+				len = JGeometry::TUtil<f32>::inv_sqrt(lsq) * lsq;
+
+			if (len < mMaxReach) {
+				JGeometry::TVec3<f32> heldVel;
+				heldVel.x
+				    = ((JGeometry::TVec3<f32>*)((u8*)mHeldObject
+				                                + 0x24))
+				          ->x;
+				heldVel.y
+				    = ((JGeometry::TVec3<f32>*)((u8*)mHeldObject
+				                                + 0x24))
+				          ->y;
+				heldVel.z
+				    = ((JGeometry::TVec3<f32>*)((u8*)mHeldObject
+				                                + 0x24))
+				          ->z;
+				heldVel.scale(mElasticity);
+				if (heldVel.x < 0.01f) {
+					heldVel.x = 0.01f;
+					heldVel.y = 0.01f;
+					heldVel.z = 0.01f;
+				}
+				((JGeometry::TVec3<f32>*)((u8*)mHeldObject + 0x24))
+				    ->x
+				    = heldVel.x;
+				((JGeometry::TVec3<f32>*)((u8*)mHeldObject + 0x24))
+				    ->y
+				    = heldVel.y;
+				((JGeometry::TVec3<f32>*)((u8*)mHeldObject + 0x24))
+				    ->z
+				    = heldVel.z;
+			}
+		}
+		{
+			f32 lsq = diff.squared();
+			f32 len;
+			if (lsq <= 0.0f)
+				len = lsq;
+			else
+				len = JGeometry::TUtil<f32>::inv_sqrt(lsq) * lsq;
+			if (len < mRetractedLength) {
+				if (mHeldObject != nullptr) {
+					mActorTypeInMouth = mHeldObject->mActorType;
+					mHeldObject->receiveMessage(this, 8);
+					mHeldObject->receiveMessage(this, 0xB);
+					mHeldObject = nullptr;
+				}
+				mState = STATE_IDLE;
+			}
+		}
+		break;
+	}
+	case STATE_UNK4: // (?)
+		mAttackRadius = 10.0f;
+		calcEntryRadius();
+		mProgress++;
+		if (mProgress >= unk82) {
+			mState = STATE_RETRACTING;
+		}
+		break;
+	case STATE_PULLING:
+	case STATE_PULLING_SLOW:
+		mProgress++;
+		break;
+	}
+
+	switch ((int)mState) {
+	case STATE_IDLE:
+	case STATE_UNK4:
+		mTipPos.x = mHeadPos.x;
+		mTipPos.y = mHeadPos.y;
+		mTipPos.z = mHeadPos.z;
+		break;
+	case STATE_EXTENDING: {
+		THitActor* target = findTarget(true, true);
+		if (target != nullptr && mHeldObject == nullptr) {
+			JGeometry::TVec3<f32> targetMid(target->mPosition.x,
+			                                target->mPosition.y
+			                                    + 0.5f
+			                                          * target->mAttackHeight,
+			                                target->mPosition.z);
+			f32 speed = mExtendAmount;
+
+			JGeometry::TVec3<f32> tipPos = mTipPos;
+			JGeometry::TVec3<f32> dir(targetMid);
+			dir -= mTipPos;
+			JGeometry::TVec3<f32> dirCopy(dir);
+			dirCopy.scale(speed);
+			mInitialVelocity = dirCopy;
+
+			JGeometry::TVec3<f32> tipPosNew = mTipPos;
+			tipPosNew.add(dirCopy);
+			mTipPos = tipPosNew;
+
+			JGeometry::TVec3<f32> distVec = mTipPos;
+			distVec.sub(targetMid);
+			f32 dist = JGeometry::TUtil<f32>::sqrt(distVec.x * distVec.x
+			                                      + distVec.y * distVec.y
+			                                      + distVec.z * distVec.z);
+			if (dist < 200.0f) {
+				if (target->receiveMessage(this, 4) == 1) {
+					mHeldObject = (TTakeActor*)target;
+					if (gpMSound->gateCheck(0x7920))
+						MSoundSESystem::MSoundSE::startSoundActor(
+						    0x7920, (Vec*)&mTipPos, 0, nullptr, 0, 4);
+					mProgress = 0;
+					mState    = STATE_GRABBED;
+				}
+			}
+		} else {
+			mTipPos.x += mInitialVelocity.x;
+			mTipPos.y += mInitialVelocity.y;
+			mTipPos.z += mInitialVelocity.z;
+		}
+		break;
+	}
+	case STATE_GRABBED:
+		mProgress++;
+		if (mProgress > 10) {
+			mState = STATE_RETRACTING;
+		}
+		break;
+	case STATE_RETRACTING: {
+		f32 retractAmt = mRetractAmount;
+		JGeometry::TVec3<f32> diff(mTipPos);
+		diff -= mHeadPos;
+		JGeometry::TVec3<f32> diffCopy(diff);
+		diffCopy.scale(retractAmt);
+		mTipPos.add(mHeadPos, diffCopy);
+		break;
+	}
+	case STATE_PULLING:
+	case STATE_PULLING_SLOW: {
+		JGeometry::TVec3<f32> diff;
+		diff.sub(mTipPos, mHeadPos);
+		f32 lsq = diff.squared();
+		f32 normInvScale;
+		if (lsq <= 0.0f)
+			normInvScale = lsq;
+		else
+			normInvScale = JGeometry::TUtil<f32>::inv_sqrt(lsq) * lsq;
+
+		MtxPtr yoshiMtx = mYoshi->mActor->unk4->getAnmMtx(0);
+		f32 dx          = -yoshiMtx[0][0];
+		f32 dy          = -yoshiMtx[1][0];
+		f32 dz          = -yoshiMtx[2][0];
+		f32 pullScale   = normInvScale * mPullAmount;
+		if (mState == STATE_PULLING_SLOW) {
+			pullScale *= 0.5f;
+		}
+		dx *= pullScale;
+		dy *= pullScale;
+		dz *= pullScale;
+
+		JGeometry::TVec3<f32> pullVec(dx, dy, dz);
+		JGeometry::TVec3<f32> newTip = mTipPos;
+		newTip.add(pullVec);
+
+		if (mYoshi->mActor->unk4 // dummy; real call: this->mHolder->moveRequest(newTip)
+		    && mHolder->moveRequest(newTip) == 1) {
+			mTipPos.x += pullVec.x;
+			mTipPos.y += pullVec.y;
+			mTipPos.z += pullVec.z;
+		}
+		break;
+	}
+	default:
+		break;
+	}
+
+	checkTaking();
+
+	mPosition.x = mTipPos.x;
+	mPosition.y = mTipPos.y;
+	mPosition.z = mTipPos.z;
+	mPosition.y -= 0.5f * mAttackHeight;
+}
+
+THitActor* TYoshiTongue::findTarget(bool flagB1, bool flagB2)
+{
+	f32 bestDist        = 10000.0f;
+	THitActor* bestHit  = nullptr;
+	u16 colCount        = mColCount;
+	int idx             = 0;
+	if ((int)colCount > 0) {
+		do {
+			u32 ty = mCollisions[idx >> 2]->mActorType;
+			if ((ty - 0x10000000) < 0x24
+			    || (ty - 0x40000000) == 0xA) {
+				mState = STATE_RETRACTING;
+				return nullptr;
+			}
+			idx += 4;
+		} while (idx < (int)(colCount * 4));
+	}
+
+	for (int i = 0; i < (int)mColCount; ++i) {
+		THitActor* h = mCollisions[i];
+		u32 atype    = h->mActorType;
+		int isHittable = 0;
+		if ((atype - 0x40000000) == 0x390) isHittable = 1;
+		if ((atype - 0x40000000) == 0x391) isHittable = 1;
+		if ((atype - 0x40000000) == 0x392) isHittable = 1;
+		if ((atype - 0x40000000) == 0x393) isHittable = 1;
+		if ((atype - 0x40000000) == 0x394) isHittable = 1;
+		if ((atype - 0x40000000) == 0x395) isHittable = 1;
+		if ((atype - 0x40000000) == 0x396) isHittable = 1;
+
+		if (flagB1) {
+			if ((atype - 0x20000000) == 0x1) isHittable = 1;
+			if ((atype - 0x20000000) == 0x2) isHittable = 1;
+			if ((atype - 0x40000000) == 0x5A) isHittable = 1;
+			if ((atype & 0x10000000) != 0) isHittable = 1;
+		}
+
+		if (isHittable != 1) continue;
+
+		JGeometry::TVec3<f32> diff;
+		diff.sub(h->mPosition, mTipPos);
+
+		f32 lsq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+		if (lsq >= 0.0000038146973f) continue;
+
+		f32 dist;
+		if (lsq <= 0.0f)
+			dist = lsq;
+		else {
+			f32 invsq = JGeometry::TUtil<f32>::inv_sqrt(lsq);
+			dist      = invsq * lsq;
+		}
+
+		if (lsq < 0.0000038146973f) {
+			diff.x = 0.0f;
+			diff.y = 0.0f;
+			diff.z = 0.0f;
+		} else {
+			f32 invl = JGeometry::TUtil<f32>::inv_sqrt(lsq) * 1.0f;
+			diff.x *= invl;
+			diff.y *= invl;
+			diff.z *= invl;
+		}
+
+		if (flagB2) {
+			f32 dot = diff.y * mHeadDir.y + diff.x * mHeadDir.x
+			          + diff.z * mHeadDir.z;
+			if (dot <= 0.5f) continue;
+		}
+
+		if (dist < bestDist) {
+			bestDist = dist;
+			bestHit  = mCollisions[i];
+		}
+	}
+	return bestHit;
+}
+
+BOOL TYoshiTongue::canGo()
+{
+	JGeometry::TVec3<f32> diff;
+	diff.sub(mTipPos, mHeadPos);
+
+	f32 dot = diff.x * mHeadDir.x + diff.y * mHeadDir.y + diff.z * mHeadDir.z;
+	if (dot < 0.0f)
+		return FALSE;
+
+	if (gpMap->isTouchedOneWallAndMoveXZ(&mTipPos.x,
+	                                     mTipPos.y + 10.0f,
+	                                     &mTipPos.z, 50.0f))
+		return FALSE;
+
+	{
+		const TBGCheckData* gp = nullptr;
+		f32 gh = gpMap->checkGround(mTipPos.x, mTipPos.y, mTipPos.z, &gp);
+		if (50.0f + gh > mTipPos.y) {
+			mTipPos.y = 50.0f + gh;
+			return TRUE;
+		}
+	}
+
+	{
+		const TBGCheckData* rp = nullptr;
+		f32 rh = gpMap->checkRoof(mTipPos.x, mTipPos.y, mTipPos.z, &rp);
+		if (rh - 50.0f < mTipPos.y) {
+			mTipPos.y = rh - 50.0f;
+		}
+	}
+	return TRUE;
+}
+
+void TYoshiTongue::emit(const JGeometry::TVec3<f32>& headPos,
+                        const JGeometry::TVec3<f32>& headDir,
+                        const JGeometry::TVec3<f32>& initialVel)
+{
+	if ((int)mState != 0)
+		return;
+	mProgress = 0;
+	mState    = STATE_EXTENDING;
+
+	mTipPos.x = headPos.x;
+	mTipPos.y = headPos.y;
+	mTipPos.z = headPos.z;
+
+	mPosition.x = headPos.x;
+	mPosition.y = headPos.y;
+	mPosition.z = headPos.z;
+	mPosition.y -= 0.5f * mAttackHeight;
+
+	mHeadPos.x = headPos.x;
+	mHeadPos.y = headPos.y;
+	mHeadPos.z = headPos.z;
+
+	mHeadDir.x = headDir.x;
+	mHeadDir.y = headDir.y;
+	mHeadDir.z = headDir.z;
+
+	JGeometry::TVec3<f32> dirScaled(headDir);
+	dirScaled.scale(mInitialSpeed);
+	mInitialVelocity.x = dirScaled.x;
+	mInitialVelocity.y = dirScaled.y;
+	mInitialVelocity.z = dirScaled.z;
+
+	JGeometry::TVec3<f32> velScaled(initialVel);
+	velScaled.scale(0.5f);
+	mInitialVelocity.x += velScaled.x;
+	mInitialVelocity.y += velScaled.y;
+	mInitialVelocity.z += velScaled.z;
+
+	if (mInitialVelocity.y < -50.0f)
+		mInitialVelocity.y = -50.0f;
+	if (mInitialVelocity.y > 50.0f)
+		mInitialVelocity.y = 50.0f;
+}
+
+void TYoshiTongue::initInLoadAfter()
+{
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")
+	    ->getChildren()
+	    .push_back(this);
+
+	TMirrorActor* parentMirror = new TMirrorActor("ヨッシー親in鏡");
+	parentMirror->init(mModel, 4);
+
+	TMirrorActor* tipMirror = new TMirrorActor("ヨッシー親先in鏡");
+	tipMirror->init(mTipModel, 4);
+}
+
+void TYoshiTongue::init(TYoshi* yoshi)
+{
+	void* data = JKRFileLoader::getGlbResource("/mario/bmd/yoshi_tongue.bmd");
+	J3DModelData* modelData
+	    = J3DModelLoaderDataBase::load(data, 0x10040000);
+	mYoshi = yoshi;
+	mModel = new J3DModel(modelData, 0x10000, 1);
+
+	{
+		J3DModelData* md = mModel->getModelData();
+		for (u16 i = 0; i < md->getJointNum(); ++i) {
+			J3DJoint* j = md->getJointNodePointer(i);
+			*(u32*)&j->mCallBack |= 1;
+		}
+	}
+
+	void* tipData
+	    = JKRFileLoader::getGlbResource("/mario/bmd/yoshi_tongue_tip.bmd");
+	J3DModelData* tipModelData
+	    = J3DModelLoaderDataBase::load(tipData, 0x10040000);
+	mTipModel = new J3DModel(tipModelData, 0x10000, 1);
+
+	{
+		J3DModelData* md = mTipModel->getModelData();
+		for (u16 i = 0; i < md->getJointNum(); ++i) {
+			J3DJoint* j = md->getJointNodePointer(i);
+			*(u32*)&j->mCallBack |= 1;
+		}
+	}
+
+	mState           = 0;
+	mProgress        = 0;
+	mMaxProgress     = 60;
+	unk82            = 600;
+	mInitialSpeed    = 10.0f;
+	mExtendAmount    = 0.05f;
+	mRetractAmount   = 0.7f;
+	mPullAmount      = 0.01f;
+	mRetractedLength = 80.0f;
+	mMaxReach        = 500.0f + mRetractedLength;
+	mElasticity      = 0.8f;
+	mHeadPos.x = mHeadPos.y = mHeadPos.z = 0.0f;
+	mTipPos.x = mTipPos.y = mTipPos.z = 0.0f;
+	mInitialVelocity.x = mInitialVelocity.y = mInitialVelocity.z = 0.0f;
+	mActorTypeInMouth                                            = 0;
+	unkD4                                                        = 0;
+
+	initHitActor(0x08000083, 5, 0x70000000, 1000.0f, 500.0f, 50.0f, 500.0f);
+	unk64 &= ~1U;
 }
