@@ -20,15 +20,8 @@ TNpcCoin::TNpcCoin(int eventID)
 	unk14.z = 0.0f;
 
 	unk0 = TMapObjBaseManager::newAndRegisterObjByEventID((u32)eventID, nullptr);
-
-	// Virtual call at vtable+0xE4 (call init / setup on the new TMapObjBase)
-	typedef void (*VFunc)(TMapObjBase*);
-	void** vt    = *(void***)unk0;
-	VFunc method = (VFunc)vt[57]; // 0xE4 / 4
-	method(unk0);
+	(*(void (**)(TMapObjBase*))(*(u8**)unk0 + 0xE4))(unk0);
 }
-
-void TNpcCoin::execAppearCoin_() { }
 
 void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
 {
@@ -47,10 +40,8 @@ void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
 	s16 yaw  = CLBRoundf<s16>(yawDeg * (65536.0f / 360.0f));
 	f32 oldX = unk14.x;
 	f32 negX = -oldX;
-	f32 cosY = JMASCos(yaw);
-	f32 sinY = JMASSin(yaw);
-	unk14.x  = oldX * cosY + unk14.z * sinY;
-	unk14.z  = negX * sinY + unk14.z * cosY;
+	unk14.x  = oldX * JMASCos(yaw) + unk14.z * JMASSin(yaw);
+	unk14.z  = negX * JMASSin(yaw) + unk14.z * JMASCos(yaw);
 
 	unk14.x *= 15.0f;
 	unk14.y *= 15.0f;
@@ -79,7 +70,7 @@ void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
 		unk0 = nullptr;
 	} else {
 		TMapObjBase* obj
-		    = gpItemManager->makeObjAppear(unk8.x, unk8.y, unk8.z, 0x2000E, true);
+		    = gpItemManager->makeObjAppear(unk8.x, unk8.y, unk8.z, 0x2000000E, true);
 		if (obj != nullptr) {
 			((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14);
 			u32* flagsPtr = (u32*)((u8*)obj + 0xF0);
@@ -120,7 +111,7 @@ void TNpcCoin::updateCoin()
 		unk0 = nullptr;
 	} else {
 		TMapObjBase* obj
-		    = gpItemManager->makeObjAppear(unk8.x, unk8.y, unk8.z, 0x2000E, true);
+		    = gpItemManager->makeObjAppear(unk8.x, unk8.y, unk8.z, 0x2000000E, true);
 		if (obj != nullptr) {
 			((JGeometry::TVec3<f32>*)((u8*)obj + 0xAC))->set(unk14);
 			u32* flagsPtr = (u32*)((u8*)obj + 0xF0);
