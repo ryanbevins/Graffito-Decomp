@@ -34,9 +34,9 @@ void TBaseNPC::setDummyConnectActor(const JDrama::TActor* actor)
 {
 	if (mActorType != 0x0400001C)
 		return;
-	mDummyConnectActor = actor;
-	mPosition          = mDummyConnectActor->mPosition;
-	mScaling           = mDummyConnectActor->mScaling;
+	mDummyConnectActor    = actor;
+	*(Vec*)&mPosition     = *(Vec*)&mDummyConnectActor->mPosition;
+	*(Vec*)&mRotation     = *(Vec*)&mDummyConnectActor->mRotation;
 }
 
 void TBaseNPC::updateForbidCount_()
@@ -76,8 +76,8 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (mActorType == 0x0400001C) {
 		if (flags & 1) {
 			if (mDummyConnectActor != nullptr) {
-				mPosition = mDummyConnectActor->mPosition;
-				mScaling  = mDummyConnectActor->mScaling;
+				*(Vec*)&mPosition = *(Vec*)&mDummyConnectActor->mPosition;
+				*(Vec*)&mRotation = *(Vec*)&mDummyConnectActor->mRotation;
 			}
 			if (!(mLiveFlag & 1)) {
 				updateForbidCount_();
@@ -299,7 +299,7 @@ void TBaseNPC::moveObject()
 	{
 		TNpcInbetween* ib = (TNpcInbetween*)mUnk18C;
 		if (ib->mPosInbetweenTimer > 0)
-			mPosition = ib->mCurrentPos;
+			mPosition.set(ib->mCurrentPos);
 	}
 
 	if (mNpcCoin != nullptr)
