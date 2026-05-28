@@ -36,6 +36,51 @@ them in future ticks.
 
 ## Settled
 
+### `spine->pushAfterCurrent(nerve)` vs `spine->pushNerve(nerve)` for "transition next-nerve" patterns
+
+**Rule.** When a `DEFINE_NERVE` body ends with "push a successor nerve
+and return TRUE", target asm typically shows ONLY the inlined
+`mVertebrae.push(nerve)` (writing the new nerve to the spine's stack
+array and bumping mSize), NOT the full `pushNerve` body which also
+writes `mPrevious = mCurrent` and `mCurrent = nerve`. The source for
+this pattern is `spine->pushAfterCurrent(nerve)` — NOT `pushNerve(nerve)`
+which would emit the additional mPrevious/mCurrent stores.
+
+```
+target asm (pushAfterCurrent):
+li r4, instance$NerveX@sda21
+cmplwi r4, 0
+beq SKIP
+lwz r5, 0x8(r31)         ; mVertebrae.mSize
+lwz r0, 0x4(r31)         ; mVertebrae.mCapacity
+cmpw r5, r0
+bge SKIP
+lwz r3, 0xc(r31)         ; mVertebrae.mData
+slwi r0, r5, 2
+stwx r4, r3, r0          ; mData[mSize] = nerve  <- writes new nerve
+lwz r3, 0x8(r31)
+addi r0, r3, 0x1
+stw r0, 0x8(r31)         ; mSize++
+SKIP:
+li r3, 0x1               ; return TRUE
+```
+
+`pushNerve` additionally writes `mPrevious = mCurrent` (`stw r0,
+0x1c(r31)`) and updates `mCurrent = nerve` (`stw r5, 0x14(r31)`) and
+`mTime = 0` (`stw r0, 0x20(r31)`), and pushes `mCurrent` (NOT nerve)
+to vertebrae. Distinct semantics — pushNerve = "save current, become
+nerve"; pushAfterCurrent = "queue nerve to run after current finishes".
+
+**When this lever moves the match-%.** Any "nerve.execute() returning
+TRUE after queueing a successor" pattern in a DEFINE_NERVE body. The
+nerve transition macro at end of execute() bodies is the common case.
+
+**Citations (t184 yunbo).**
+- TNerveYumboFreeze::execute: 88.46% → 99.55% (single line swap).
+- TNerveYumboHiding::execute: 92.04% → 99.92%.
+- TNerveYumboAppearing::execute: 93.79% → 99.81%.
+- TNerveYumboDancing::execute: 76.46% → 81.36%.
+
 ### Inverted ternary / bool-materialize for null-first or false-first branch ordering
 
 **Rule.** When MWCC's target asm shows the *null* (or *false*) value
