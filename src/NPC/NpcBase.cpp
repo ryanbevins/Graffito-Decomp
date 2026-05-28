@@ -255,11 +255,20 @@ const GXColor* TBaseNPC::getPtrInitPollutionColor() const
 
 void TBaseNPC::execMotionBlend_()
 {
-	TNpcInbetween* ib = (TNpcInbetween*)mUnk18C;
-	if (!ib->isMotionBlending())
+	bool blending;
+	if (((TNpcInbetween*)mUnk18C)->mMotionBlendTimer > 0)
+		blending = true;
+	else
+		blending = false;
+	if (!blending)
 		setKeepAnm_();
-	ib->execMotionBlend(getMActor());
-	if (ib->isForcedBlendRatio())
+	((TNpcInbetween*)mUnk18C)->execMotionBlend(mMActor);
+	bool forced;
+	if (((TNpcInbetween*)mUnk18C)->mForcedBlendRatio > 0.0f)
+		forced = true;
+	else
+		forced = false;
+	if (forced)
 		mAnmRequest->mKind = -1;
 }
 
