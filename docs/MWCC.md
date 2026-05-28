@@ -36,6 +36,50 @@ them in future ticks.
 
 ## Settled
 
+### Ternary `var = cond ? K1 : K2;` produces `li r0; mr rVar, r0` while `if (cond) var = K1; else var = K2;` writes directly to `rVar`
+
+**Rule.** Two equivalent forms produce different code under MWCC when
+the assignee is a callee-saved register:
+
+```cpp
+// Form 1 — ternary: emits via a scratch reg then mr
+soundId = isChild ? 0x88AB : 0x8844;
+//   lis r3, 0x1
+//   subi r0, r3, 0x7755     ; r0 = 0x88AB
+//   b L_join
+//   subi r0, r3, 0x77bc     ; r0 = 0x8844
+// L_join:
+//   mr r31, r0              ; transfer to the soundId register
+
+// Form 2 — if/else: writes the target reg directly
+if (isChild) soundId = 0x88AB; else soundId = 0x8844;
+//   lis r3, 0x1
+//   subi r31, r3, 0x7755    ; r31 = 0x88AB
+//   b L_join
+//   subi r31, r3, 0x77bc    ; r31 = 0x8844
+// L_join:
+```
+
+The ternary lowers as if it were an rvalue expression, which makes
+MWCC materialise the value in `r0` (scratch) first; the surrounding
+`= store` then copies `r0` into `rVar` (often a callee-saved reg like
+`r31`). The explicit if/else lets MWCC see the target lvalue in each
+branch and writes directly.
+
+**When to apply.** Look at the target asm. If you see `subi rN, r3, K`
+(or any direct `li`/`addi` of the value) **without** a subsequent
+`mr rN, r0`, the source is an if/else. If the target has `li r0, K` /
+`mr rN, r0`, the source is a ternary. The same pattern occurs for any
+constant-by-condition assignment, not just sound IDs.
+
+**Citations.**
+- `NPC/NpcChange::behaveToBeTrampled_` (tick 162): three soundId-via-isChildFlag
+  ternaries `soundId = isChildFlag ? 0x88AB : 0x8844;` (and two
+  others). Target had `subi r31, r3, 0x7755` / `subi r31, r3, 0x77bc`
+  directly. Switching all three to explicit if/else pushed
+  80.84 → 85.23% (+4.4pp); the `mr r31, r0` redundancy disappeared
+  from all three branches simultaneously.
+
 ### `BOOL flag = FALSE; if (cond) flag = TRUE;` vs `BOOL flag; if (cond) flag = TRUE; else flag = FALSE;` produce different code; pick by matching the target's branch layout
 
 **Rule.** Two natural ways to compute a `BOOL` from a predicate
