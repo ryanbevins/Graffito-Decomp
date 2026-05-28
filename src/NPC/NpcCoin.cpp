@@ -51,7 +51,10 @@ void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
 		return;
 
 	TMarDirector* dir = gpMarDirector;
-	if (dir->isTalkModeNow() || dir->checkUnk124Thing2()) {
+	bool blocked = true;
+	if (!dir->isTalkModeNow() && !dir->checkUnk124Thing2())
+		blocked = false;
+	if (blocked) {
 		unk4 = 1;
 		return;
 	}
@@ -87,7 +90,10 @@ void TNpcCoin::updateCoin()
 		return;
 
 	TMarDirector* dir = gpMarDirector;
-	if (dir->isTalkModeNow() || dir->checkUnk124Thing2())
+	bool blocked = true;
+	if (!dir->isTalkModeNow() && !dir->checkUnk124Thing2())
+		blocked = false;
+	if (blocked)
 		return;
 
 	unk4--;
