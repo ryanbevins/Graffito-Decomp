@@ -36,6 +36,114 @@ them in future ticks.
 
 ## Settled
 
+### `if (k == K1 || k == K2) A; else if (k == K3) B;` → use a `switch` with case fallthrough when target emits the switch-with-branching tree
+
+**Rule.** When two `case` values share a body (`case K1: case K2:`) and a
+third has its own, the target asm often uses MWCC's switch-with-branching
+pattern: two `cmpwi`/`beq` instructions plus a `bge` to skip past a
+"fallout" branch. An equivalent if-chain (`if (k==K1 || k==K2) ...; else
+if (k==K3) ...`) compiles to two independent `cmpwi`/`beq` checks back to
+back, with no `bge` skip. The shapes are not the same.
+
+```
+# Target (switch with case 5, case 0xE share, case 7 own):
+cmpwi r0, 0x7
+beq L_seven         # k == 7
+bge L_done          # k > 7  → no match (skip past five/e branches)
+cmpwi r0, 0x5
+beq L_five_or_e     # k == 5
+b L_done            # k in {0..4, 6} → no match
+cmpwi r0, 0xe
+beq L_five_or_e     # k == 0xE
+b L_done            # k in {8..0xD, 0xF..} → no match
+
+# If-chain compiles to:
+cmpwi r0, 0x5
+beq L_a
+cmpwi r0, 0xe
+beq L_a
+cmpwi r0, 0x7
+bne L_done
+L_b: ...
+L_a: ...
+```
+
+**When to apply.** If the target has the `cmpwi K_high; beq; bge; cmpwi
+K_low; beq; b; cmpwi K_mid; beq; b` tree, write the source as a switch
+with fallthrough cases. If the target has a flat `cmpwi; beq; cmpwi;
+beq; cmpwi; bne` chain, write it as if/else-if.
+
+**Citations.**
+- `NPC/NpcAnm::npcMareStanding` (tick 164): `if (k == 5 || k == 0xE) A; else if (k == 7) B;` → 75.61% with the if-chain. Rewriting as `switch(k) { case 5: case 0xE: A; break; case 7: B; break; }` → 83.72% (+8.1pp). The third comparison was lifted into the binary-search tree shape.
+- `NPC/NpcAnm::npcMareStandIn` (tick 164): same `k == 5 || k == 0xE` paired with a `default` branch. Switch form → 85.88 → 88.55%.
+
+### `if (cond1) K1; else if (cond2 && !cond3) K2; else K3;` vs `if (cond1) K1; else if (!cond2 || cond3) K2; else K3;` — pick the form that puts the fall-through value where target's fall-through lands
+
+**Rule.** When an if-elseif-else assigns three constants to the same
+variable, MWCC compiles the chain such that exactly one branch is the
+"fall-through" (no `b end` before the assignment). The other branches
+each end with `b L_end`. The asm tells you which constant is the
+fall-through: target's `li rN, <K>` not followed by `b L_end` is the
+fall-through, and that's where the source's `else { var = K; }` should
+land.
+
+```cpp
+// Source form A — kind = 6 is fall-through (no b end)
+if (mActionFlag & 0x400)                                kind = 1;
+else if ((mActionFlag & 0x1) && !(mActionFlag & 0x4))   kind = 0x13;
+else                                                    kind = 6;
+
+// Source form B — kind = 0x13 is fall-through
+if (mActionFlag & 0x400)                            kind = 1;
+else if (!(mActionFlag & 0x1) || (mActionFlag & 0x4)) kind = 6;
+else                                                    kind = 0x13;
+```
+
+Both are semantically equivalent. They produce different branch layouts:
+form A's asm ends `li r4, 0x13; b L_end; li r4, 6` (no `b` after the
+final `li`), while form B's ends `li r4, 6; b L_end; li r4, 0x13`.
+
+**When to apply.** Look at the target's final `li rN, <K>` of the kind
+chain. The value `<K>` is the source's `else` branch. Rewrite the
+middle condition (with De Morgan) so the OTHER two conditions are the
+two `else if` branches.
+
+**Citations.**
+- `NPC/NpcAnm::requestTalkAnm_` (tick 164): target's tail had `li r4, 0x13; b end; li r4, 6` (kind=6 as fall-through). My initial form B (`!(flag & 0x1) || (flag & 0x4) → 6`) compiled to the wrong fall-through. Rewriting to form A (`(flag & 0x1) && !(flag & 0x4) → 0x13; else 6`) gained +0.24pp; the structural mismatch around the kind chain disappeared.
+
+### Caching `this->memberPtr` in a local **before a write-then-write sequence to the same struct** eliminates phantom reloads
+
+**Rule.** When MWCC inlines code that does `obj->fieldA = X; obj->fieldB = Y;`
+where the two stores are separated by a non-trivial expression (e.g. a
+bool-to-int conversion via `neg/subic/subfe`), the compiler may emit:
+
+```
+lwz r4, 0x190(r3)       ; r4 = obj
+... compute Y into r0 (uses r3) ...
+stw rX, 0x0(r4)         ; obj->fieldA = X
+... finish Y computation ...
+lwz r3, 0x190(r3)       ; phantom RELOAD of obj into r3
+stb r0, 0x4(r3)         ; obj->fieldB = Y (via r3)
+```
+
+Caching the pointer in a named local before the write block forces
+MWCC to keep it in a single register through both stores:
+
+```cpp
+TFoo* p = this->memberPtr;
+p->fieldA = X;
+p->fieldB = Y;
+```
+
+Now both stores use the same register; no phantom reload.
+
+**When to apply.** Diff shows your build doing `lwz rN, offset(rThis)`
+twice across a two-store window. Cache the pointer once.
+
+**Citations.**
+- `NPC/NpcAnm::requestNpcAnm_` standalone (tick 164): `mAnmRequest->mKind = (int)kind; mAnmRequest->mBlend = ...;` — the second store reloaded `mAnmRequest` despite no intervening function call. Caching to `TNpcAnmRequest* req = mAnmRequest;` eliminated the reload and pushed standalone from 84.6% to 100% (this also broke inlining at *In sites because the body grew an AST node; the trick remains documented for standalone-only contexts).
+- `NPC/NpcAnm::npcMareStanding` (tick 164): the `mAnmFrameCounter->mCurFrame++` + `mAnmFrameCounter->mMaxFrame` read sequence had the same reload. Caching to `TNpcAnmFrameCounter* fc = mAnmFrameCounter;` collapsed the reload (TU 83.72 → 85.13%).
+
 ### Ternary `var = cond ? K1 : K2;` produces `li r0; mr rVar, r0` while `if (cond) var = K1; else var = K2;` writes directly to `rVar`
 
 **Rule.** Two equivalent forms produce different code under MWCC when

@@ -486,10 +486,10 @@ void TBaseNPC::npcTalkIn()
 	int kind;
 	if (mActionFlag & 0x400) {
 		kind = 1;
-	} else if (!(mActionFlag & 0x1) || (mActionFlag & 0x4)) {
-		kind = 6;
-	} else {
+	} else if ((mActionFlag & 0x1) && !(mActionFlag & 0x4)) {
 		kind = 0x13;
+	} else {
+		kind = 6;
 	}
 	requestNpcAnm_(asKind(kind), asBlend(1));
 	mMarchSpeed = 0.0f;
