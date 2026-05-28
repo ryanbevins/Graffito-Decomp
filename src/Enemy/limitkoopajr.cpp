@@ -276,7 +276,7 @@ void TLimitKoopaJr::perform(u32 flags, JDrama::TGraphics* graphics)
 		JDrama::TNameRef* mgr = root->searchF(
 		    JDrama::TNameRef::calcKeyCode("クッパマネージャー"),
 		    "クッパマネージャー");
-		mKoopaMgrRef = *(TLiveActor***)((u8*)mgr + 0x18);
+		mKoopaMgrRef = (*(TLiveActor***)((u8*)mgr + 0x18))[0];
 	}
 
 	if (mTargetActor == nullptr) {

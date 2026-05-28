@@ -45,7 +45,7 @@ public:
 
 public:
 	/* 0x150 */ TLiveActor* mTargetActor;
-	/* 0x154 */ TLiveActor** mKoopaMgrRef;
+	/* 0x154 */ TLiveActor* mKoopaMgrRef;
 	/* 0x158 */ s32 mDamageTimer;
 	/* 0x15C */ s32 mShotDoodleTimer;
 	/* 0x160 */ JGeometry::TVec3<f32> mShotVelocity;
