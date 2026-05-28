@@ -278,12 +278,29 @@ void TBaseNPC::calcRootMatrix()
 		TLiveActor::calcRootMatrix();
 		return;
 	}
-	execMotionBlend_();
+	{
+		bool blending;
+		if (((TNpcInbetween*)mUnk18C)->mMotionBlendTimer > 0)
+			blending = true;
+		else
+			blending = false;
+		if (!blending)
+			setKeepAnm_();
+		((TNpcInbetween*)mUnk18C)->execMotionBlend(mMActor);
+		bool forced;
+		if (((TNpcInbetween*)mUnk18C)->mForcedBlendRatio > 0.0f)
+			forced = true;
+		else
+			forced = false;
+		if (forced)
+			mAnmRequest->mKind = -1;
+	}
 	if (mHolder != nullptr && mSDLModel != nullptr) {
 		MtxPtr takingMtx = mHolder->getTakingMtx();
-		PSMTXCopy(takingMtx, *(MtxPtr*)((u8*)mSDLModel + 0x20));
+		PSMTXCopy(takingMtx, mSDLModel->unk20);
 		mSDLModel->entry();
-		PSMTXCopy(*(MtxPtr*)((u8*)getModel() + 0x20), *mSDLMtx);
+		MtxPtr sdlMtx = mSDLMtx;
+		PSMTXCopy(sdlMtx, getModel()->unk20);
 	} else {
 		TLiveActor::calcRootMatrix();
 	}

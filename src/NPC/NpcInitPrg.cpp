@@ -237,7 +237,7 @@ void TBaseNPC::init(TLiveManager* manager)
 		mSDLModel = SMS_CreateMinimumSDLModel(initData->unk0->unk0);
 		JUTNameTab* matNameTab = mSDLModel->mModelData->unkB0;
 		u16 matIdx             = matNameTab->getIndex(initData->unk0->unk4);
-		mSDLMtx = (Mtx*)((u8*)mSDLModel->mNodeMatrices + matIdx * 0x30);
+		mSDLMtx = (MtxPtr)((u8*)mSDLModel->mNodeMatrices + matIdx * 0x30);
 	}
 
 	initAnmSound();

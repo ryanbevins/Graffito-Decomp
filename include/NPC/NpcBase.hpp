@@ -179,7 +179,7 @@ public:
 
 public:
 	/* 0x150 */ SDLModel* mSDLModel;
-	/* 0x154 */ Mtx* mSDLMtx;
+	/* 0x154 */ MtxPtr mSDLMtx;
 	/* 0x158 */ THitActor* mTakenBy;
 	/* 0x15C */ void* mPollutionStartHelper;
 	/* 0x160 */ TMultiMtxEffect* mMultiMtxEffect;
