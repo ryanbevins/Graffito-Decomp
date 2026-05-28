@@ -467,8 +467,8 @@ void TYumboSeed::init()
 	const char* kName      = "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76";
 	JDrama::TNameRef* parent
 	    = root->searchF(JDrama::TNameRef::calcKeyCode(kName), kName);
-	typedef JGadget::TList<void*, JGadget::TAllocator<void*> > List;
-	List* list = (List*)((u8*)parent + 0x10);
+	JGadget::TList_pointer_void* list
+	    = (JGadget::TList_pointer_void*)((u8*)parent + 0x10);
 	void* self = this;
 	list->insert(list->end(), self);
 }
