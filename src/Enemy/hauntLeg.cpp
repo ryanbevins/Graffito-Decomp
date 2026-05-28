@@ -115,7 +115,7 @@ DEFINE_NERVE(TNerveHauntLegHaunt, TLiveActor)
 
 MtxPtr THauntLeg::getTakingMtx()
 {
-	if (checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
+	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
 		Mtx local;
 		f32 px = mPosition.x;
 		f32 py = mPosition.y;
@@ -124,10 +124,10 @@ MtxPtr THauntLeg::getTakingMtx()
 		local[0][3] = px;
 		local[1][3] = py;
 		local[2][3] = pz;
-		PSMTXCopy(local, mMActor->getModel()->getAnmMtx(0));
-		return mMActor->getModel()->getAnmMtx(0);
+		PSMTXCopy(local, mMActor->getModel()->getBaseTRMtx());
+		return mMActor->getModel()->getBaseTRMtx();
 	}
-	return (MtxPtr)((u8*)mMActor->getModel()->getBaseTRMtx() + 0x60);
+	return (MtxPtr)((u8*)mMActor->getModel()->getAnmMtx(0) + 0x60);
 }
 
 const char** THauntLeg::getBasNameTable() const { return hauntleg_bastable; }
