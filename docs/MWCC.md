@@ -119,18 +119,33 @@ and adding the dummies doesn't change MWCC's chosen base-pointer.
 **Citations.**
 - `Enemy/feetinv` (t172): ctor 93.39 → 100.00%, dtor 88.49 → 100.00%.
   TU 70.5 → 71.8%. Adding dummies put `__vt__15TMtxCalcFootInv` at
-  `.data:0x28`, exactly matching target. Identical assembler encoding
-  produced via the `@1431+0x28` base-pointer reference.
+  `.data:0x28`, exactly matching target.
+- `MSound/MSHandle` (t176): MSACos 92.96 → 100.00% via shifted
+  `smACosPrm` base. The function originally used `lfsx r0, r3, r0`
+  (indexed load from offset 0); after dummies, the array sat at
+  `+0x28` and the indexing form became `add r3,r3,r0; lfs r0,0x28(r3)`
+  — matching target exactly. TU 96.1 → 96.37%.
+- `Enemy/hinokuri2` (t176): one additional function flipped to 100%,
+  +192B matched_code (TU 22.31 → 23.12%). The previous "refuted"
+  status came from a pre-t175 build state; after the MSound include
+  sweep grew the sinit/data, dummy1431 produced an incremental gain.
+- `GC2D/Option` (t176): `.data` 82.76 → 97.48%. No function flipped
+  to 100%, but data accuracy improved (small step toward TU completeness).
 - Pre-existing in `MarioUtil/MathUtil`, `System/EmitterViewObj`,
   `System/RenderModeObj`, `MSound/MSModBgm`, `Enemy/graph` (variant).
 
-**Refuted application targets.**
-- `Enemy/hinokuri2`, `Enemy/bgtentacle`, `Player/MarioRun`,
-  `Player/MarioInit`: adding dummies leaves match-% unchanged because
-  the existing `.data` contains other content that consumes the
-  offset-0..0x27 range (or the function in question doesn't hinge on
-  the @1431 base-pointer optimization). Don't apply the dummy pattern
-  blindly — verify `.data` offset alignment before committing.
+**Refuted application targets (t176 sweep).**
+- `MoveBG/Item`, `Enemy/bgtentacle`, `Player/MarioRun`,
+  `Player/MarioDraw`: adding dummies caused no change in `.text` or
+  `.data` match%. In MarioDraw's case, the dummies already match
+  target (the first 4576B of `.data` are MATCH); in others, the
+  base-pointer reference doesn't depend on the dummy offset. Verify
+  by inspecting `data_diff[0]` shape: `DIFF_DELETE size=40` (or
+  cleanly larger DELETE starting with the dummy hex) is the right
+  signal; `MATCH` at start means dummies are already implicit.
+- `GC2D/SelectMenu` (t176): `data_diff[0]=DIFF_DELETE size=180`
+  contains the dummies but is followed by 140B of additional
+  TU-specific data we're missing; dummies alone won't close it.
 
 ### Friend `operator*(TVec3, f32)` / `operator-(TVec3, const TVec3&)` keeps scale/sub as `bl` calls
 
@@ -5375,6 +5390,24 @@ declaration trick, or moving inline source out of header) is required.
 _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *Hypotheses
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
+
+- **`cror eq, lt, eq; bne; b` ternary form for `(f > 0.0f) ? CALL : 0.0f`
+  (MSHandle calcDolby/calcPan, t176).** Target compiles the ternary
+  `f32 angle = (param > 0.0f) ? MSACos(-vec.z / param) : 0.0f;` as
+  `lfs f1, 0.0; fcmpo f31, f1; cror eq, lt, eq; bne <call_block>;
+  b <merge>; <call block>; <merge>:`. Our build emits the natural
+  `lfs f1, 0.0; fcmpo f31, f1; ble <merge>; <call block>; <merge>:`
+  (single conditional branch, no cror). The `cror eq, lt, eq` form
+  ORs LT and EQ into EQ-bit; the subsequent `bne` is equivalent to
+  "branch on (LT||EQ) == 0", i.e. branch on GT-or-UN (NaN-tolerant
+  GT). Tried: rewriting as `!(param <= 0.0f) ? CALL : 0.0f` — produces
+  the cror correctly but also adds `mfcr+extrwi.` BOOL-conversion
+  cruft, so net match drops. Tried: `if (param <= 0.0f) angle = 0;
+  else angle = MSACos(...);` swap — MWCC inlined MSACos under the
+  else branch (0% match). The structural form that triggers cror+bne
+  without inlining MSACos is unknown. Pattern repeats in two MSHandle
+  functions; closing it would shift both calcDolby (84.67) and calcPan
+  (89.10) by ~5-10pp each.
 
 - **TU-local .cpp method inlined despite single call site under -inline
   deferred (Player/Tongue::movement, t170).** `canGo()` is defined in
