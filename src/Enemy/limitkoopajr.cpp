@@ -29,8 +29,7 @@ DEFINE_NERVE(TNerveLimitKoopaJrYahoo, TLiveActor)
 	if (spine->getTime() == 0) {
 		self->mMActor->setBckFromIndex(3);
 		const char** table = self->getBasNameTable();
-		const char* anm = table ? table[3] : nullptr;
-		self->setAnmSound(anm);
+		self->setAnmSound(!table ? nullptr : table[3]);
 	}
 
 	if (self->mMActor->curAnmEndsNext(0, nullptr)) {
@@ -47,8 +46,7 @@ DEFINE_NERVE(TNerveLimitKoopaJrLaunch, TLiveActor)
 	if (spine->getTime() == 0) {
 		self->mMActor->setBckFromIndex(1);
 		const char** table = self->getBasNameTable();
-		const char* anm = table ? table[1] : nullptr;
-		self->setAnmSound(anm);
+		self->setAnmSound(!table ? nullptr : table[1]);
 		self->mShotDoodleTimer = self->getSaveParam2()->mSLShotDoodlePeriod.get();
 	}
 
@@ -66,8 +64,7 @@ DEFINE_NERVE(TNerveLimitKoopaJrWait, TLiveActor)
 	if (spine->getTime() == 0) {
 		self->mMActor->setBckFromIndex(2);
 		const char** table = self->getBasNameTable();
-		const char* anm = table ? table[2] : nullptr;
-		self->setAnmSound(anm);
+		self->setAnmSound(!table ? nullptr : table[2]);
 	}
 
 	{
@@ -81,7 +78,11 @@ DEFINE_NERVE(TNerveLimitKoopaJrWait, TLiveActor)
 		tdc.makeDirection(diff);
 
 		f32 absDir = self->mDirection1.absDirection(tdc.mDirection);
-		bool turned = absDir > 0.62831855f;
+		bool turned;
+		if (absDir <= 0.62831855f)
+			turned = false;
+		else
+			turned = true;
 		if (turned) {
 			spine->pushAfterCurrent(&TNerveLimitKoopaJrRun::theNerve());
 			return TRUE;
