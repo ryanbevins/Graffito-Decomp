@@ -416,10 +416,10 @@ void TFruitsBoat::calcRootMatrix()
 
 void TFruitsBoat::setGroundCollision()
 {
-	JGeometry::TVec3<f32> diff;
-	diff.x = mPosition.x - gpMarioPos->x;
-	diff.y = mPosition.y - gpMarioPos->y;
-	diff.z = mPosition.z - gpMarioPos->z;
+	JGeometry::TVec3<f32> diff = mPosition;
+	diff.x -= gpMarioPos->x;
+	diff.y -= gpMarioPos->y;
+	diff.z -= gpMarioPos->z;
 
 	if (mColCount == 0) {
 		f32 lenSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
