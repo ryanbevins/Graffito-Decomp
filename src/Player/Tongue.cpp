@@ -53,10 +53,7 @@ void TYoshiTongue::calcAnim(MtxPtr p)
 			J3DShape* s = mdTip->getShapeNodePointer(i);
 			s->unk8 |= 1;
 		}
-		return;
-	}
-
-	{
+	} else {
 		J3DModelData* mdMain = mModel->getModelData();
 		for (u16 i = 0; i < mdMain->getShapeNum(); ++i) {
 			J3DShape* s = mdMain->getShapeNodePointer(i);
@@ -67,13 +64,12 @@ void TYoshiTongue::calcAnim(MtxPtr p)
 			J3DShape* s = mdTip->getShapeNodePointer(i);
 			s->unk8 &= ~1U;
 		}
-	}
 
-	JGeometry::TVec3<f32> tipPos;
-	tipPos.x = mTipPos.x;
-	tipPos.y = mTipPos.y + 50.0f;
-	tipPos.z = mTipPos.z;
-	SMS_MakeJointsToArc(mModel, mHeadPos, mHeadDir, tipPos);
+		JGeometry::TVec3<f32> tipPos;
+		tipPos.x = mTipPos.x;
+		tipPos.y = mTipPos.y + 50.0f;
+		tipPos.z = mTipPos.z;
+		SMS_MakeJointsToArc(mModel, mHeadPos, mHeadDir, tipPos);
 
 	J3DModelData* md = mModel->getModelData();
 	u16 n            = md->getJointNum();
@@ -103,7 +99,8 @@ void TYoshiTongue::calcAnim(MtxPtr p)
 	tipMtx[2][3] = mTipPos.z;
 	PSMTXCopy(tipMtx, mTipModel->unk20);
 
-	mTipModel->calc();
+		mTipModel->calc();
+	}
 }
 
 void TYoshiTongue::movement()
@@ -139,9 +136,9 @@ void TYoshiTongue::movement()
 	case 3: {
 		mAttackRadius = 10.0f;
 		calcEntryRadius();
-		JGeometry::TVec3<f32> diff;
-		diff.sub(mTipPos, mHeadPos);
-		JGeometry::TVec3<f32> diffCopy = diff;
+		JGeometry::TVec3<f32> diff(mTipPos);
+		diff.sub(mHeadPos);
+		JGeometry::TVec3<f32> diffSave = diff;
 		if (mHeldObject != nullptr) {
 			f32 lsq = diff.squared();
 			f32 len;
@@ -151,38 +148,20 @@ void TYoshiTongue::movement()
 				len = JGeometry::TUtil<f32>::inv_sqrt(lsq) * lsq;
 
 			if (len < mMaxReach) {
-				JGeometry::TVec3<f32> heldVel;
-				heldVel.x
-				    = ((JGeometry::TVec3<f32>*)((u8*)mHeldObject
-				                                + 0x24))
-				          ->x;
-				heldVel.y
-				    = ((JGeometry::TVec3<f32>*)((u8*)mHeldObject
-				                                + 0x24))
-				          ->y;
-				heldVel.z
-				    = ((JGeometry::TVec3<f32>*)((u8*)mHeldObject
-				                                + 0x24))
-				          ->z;
+				JGeometry::TVec3<f32>* heldVelPtr
+				    = (JGeometry::TVec3<f32>*)((u8*)mHeldObject + 0x24);
+				JGeometry::TVec3<f32> heldVel = *heldVelPtr;
 				heldVel.scale(mElasticity);
 				if (heldVel.x < 0.01f) {
 					heldVel.x = 0.01f;
 					heldVel.y = 0.01f;
 					heldVel.z = 0.01f;
 				}
-				((JGeometry::TVec3<f32>*)((u8*)mHeldObject + 0x24))
-				    ->x
-				    = heldVel.x;
-				((JGeometry::TVec3<f32>*)((u8*)mHeldObject + 0x24))
-				    ->y
-				    = heldVel.y;
-				((JGeometry::TVec3<f32>*)((u8*)mHeldObject + 0x24))
-				    ->z
-				    = heldVel.z;
+				*heldVelPtr = heldVel;
 			}
 		}
 		{
-			f32 lsq = diff.squared();
+			f32 lsq = diffSave.squared();
 			f32 len;
 			if (lsq <= 0.0f)
 				len = lsq;
