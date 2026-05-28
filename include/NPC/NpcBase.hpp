@@ -83,7 +83,7 @@ public:
 	void setBalloonMessage(u32, long);
 	void setDummyConnectActor(const JDrama::TActor*);
 	void perform(u32, JDrama::TGraphics*);
-	void getAnmOffDist_();
+	f32  getAnmOffDist_();
 	void updateForbidCount_();
 	void movementOnlyTalk_(const JDrama::TGraphics*);
 	void calcRootMatrix();

@@ -64,6 +64,45 @@ Vec TBaseNPC::getCursorPos() const
 	    mPosition.z);
 }
 
+const GXColor* TBaseNPC::getPtrInitPollutionColor() const
+{
+	const GXColor* result = nullptr;
+	bool           isPol  = false;
+	switch (mActorType) {
+	case 0x04000001:
+	case 0x04000002:
+	case 0x04000004:
+	case 0x0400000A:
+	case 0x0400000B:
+	case 0x0400000E:
+	case 0x04000013:
+	case 0x04000016:
+		isPol = true;
+	}
+	if (isPol) {
+		result = (const GXColor*)&unk174;
+	} else if (mActorType != 0x04000006) {
+		bool isMonte = false;
+		if ((s32)mActorType < 0x0400000A && (s32)mActorType >= 0x04000006)
+			isMonte = true;
+		if (!isMonte && isSpecialMonteW())
+			isMonte = true;
+		if (isMonte) {
+			result = (const GXColor*)&unk174;
+		} else {
+			bool isMare = false;
+			if ((s32)mActorType < 0x04000013
+			    && (s32)mActorType >= 0x0400000F)
+				isMare = true;
+			if (!isMare && isSpecialMareW())
+				isMare = true;
+			if (isMare)
+				result = (const GXColor*)&unk174;
+		}
+	}
+	return result;
+}
+
 void TBaseNPC::execMotionBlend_()
 {
 	TNpcInbetween* ib = (TNpcInbetween*)mUnk18C;
@@ -194,6 +233,43 @@ void TBaseNPC::moveObject()
 	calcRidePos();
 }
 
+TBaseNPC::~TBaseNPC() { }
+
+void TBaseNPC::loadAfter()
+{
+	JDrama::TNameRef::loadAfter();
+	if (mActorType == 0x04000018) {
+		if (gpMarDirector->mMap == 1 && gpMarDirector->unk7D == 1) {
+			TNpcBalloon* balloon = new TNpcBalloon;
+			if (balloon != nullptr) {
+				balloon->_000                = 0;
+				balloon->mBalloonAppearTimer = -1;
+			}
+			mNpcBalloon = balloon;
+		}
+	}
+	gpMarDirector->entryNPC(this);
+}
+
+void TBaseNPC::load(JSUMemoryInputStream& stream)
+{
+	TSpineEnemy::load(stream);
+	mResetPos        = mPosition;
+	*(u32*)&unk1A0   = *(u32*)&mScaling.x;
+	unk1A4           = mScaling.y;
+	*(u32*)&unk1A8   = *(u32*)&mScaling.z;
+	mEffectScaleBase = mScaling;
+	JGeometry::TVec3<f32> rot;
+	rot.x          = mRotation.x;
+	rot.y          = mRotation.y;
+	rot.z          = mRotation.z;
+	*(u32*)((u8*)this + 0x1B8) = *(u32*)&rot.x;
+	*(u32*)((u8*)this + 0x1BC) = *(u32*)&rot.y;
+	*(u32*)((u8*)this + 0x1C0) = *(u32*)&rot.z;
+	if (!((s32)mActorType >= 0x0400001C && (s32)mActorType < 0x0400001E))
+		setIndividualDifference_(stream);
+}
+
 BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 {
 	BOOL result = TRUE;
@@ -272,6 +348,143 @@ BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 		EnumHitNpcObjectKind kind
 		    = message == 0x10 ? (EnumHitNpcObjectKind)1 : (EnumHitNpcObjectKind)2;
 		behaveToHitObject_(sender, kind);
+	}
+	return result;
+}
+
+bool TBaseNPC::isNeedNeckStraight() const
+{
+	bool   result   = false;
+	void*  holder   = (void*)mHolder;
+	void*  lodAnm   = (void*)unkD0;
+	int    cur14    = *(int*)((u8*)unkD0 + 0x14);
+	if (holder != nullptr && holder == (void*)gpMarioAddress) {
+		return true;
+	}
+	if (unk178 == 0.0f) {
+		if (mActorType == 0x04000012)
+			return true;
+		if (mActorType == 0x04000019 && cur14 == 0x5)
+			return true;
+		bool helper    = true;
+		bool mareMatch = true;
+		if (mActorType != 0x0400000E && !isNormalMareW())
+			helper = false;
+		if (!helper) {
+			helper = true;
+			if (!isSpecialMareM() && !isSpecialMareW())
+				helper = false;
+			if (!helper)
+				mareMatch = false;
+		}
+		if (mareMatch && cur14 == 0xC)
+			return true;
+		bool isUnk1D8Bit = (unk1D8 & 0x2) != 0;
+		bool flagged     = isUnk1D8Bit || cur14 == 0x5;
+		bool actorIs18   = (mActorType == 0x04000018);
+		if (flagged && actorIs18)
+			return true;
+	}
+	return result;
+}
+
+f32 TBaseNPC::getAnmOffDist_()
+{
+	bool useOff = false;
+	f32  camDist = mPtrSaveNormal->mSLDanceAnmOffDist.value;
+	int  state  = *(int*)((u8*)unkD0 + 0x14);
+	if ((mActionFlag & 0x204) || mActorType == 0x0400000D || state == 0xA
+	    || state == 0x17)
+		useOff = true;
+	f32 result = camDist;  // default to dance off dist
+	if (isNerveMaybeDontCalcAnim0()) {
+		f32 v = mNpcSaveIndividual->mWaitAnmOffDist0.value;
+		result = v;
+		if (useOff) {
+			result = camDist > v ? camDist : v;
+		}
+	} else if (isNerveMaybeDontCalcAnim1()) {
+		f32 v = mNpcSaveIndividual->mWaitAnmOffDist1.value;
+		result = v;
+		if (useOff) {
+			result = camDist > v ? camDist : v;
+		}
+	}
+	return result;
+}
+
+bool TBaseNPC::isBeTrampledNpc() const
+{
+	bool result = false;
+	bool partA  = false;
+	switch (mActorType) {
+	case 0x0400000F:
+	case 0x04000014:
+		partA = true;
+	}
+	if (!partA) {
+		bool isMonte = true;
+		if (!isNormalMonteM() && !isNormalMonteW())
+			isMonte = false;
+		if (!isMonte) {
+			isMonte = true;
+			if (!isSpecialMonteM() && !isSpecialMonteW())
+				isMonte = false;
+		}
+		bool isMare = false;
+		if (isMonte) {
+			result = true;
+		} else {
+			bool mareMatch = true;
+			bool helper    = true;
+			if (mActorType != 0x0400000E && !isNormalMareW())
+				helper = false;
+			if (!helper) {
+				helper = true;
+				if (!isSpecialMareM() && !isSpecialMareW())
+					helper = false;
+				if (!helper)
+					mareMatch = false;
+			}
+			if (mareMatch) {
+				result = true;
+			} else {
+				if ((s32)mActorType < 0x04000018
+				    && (s32)mActorType >= 0x04000016)
+					result = true;
+			}
+		}
+	}
+	return result;
+}
+
+bool TBaseNPC::isSmallNpc() const
+{
+	bool result = false;
+	bool partA  = false;
+	if (mScaling.x < 0.7f && mScaling.y < 0.7f && mScaling.z < 0.7f)
+		partA = true;
+	if (!partA) {
+		bool helper    = true;
+		bool mareMatch = true;
+		if (mActorType != 0x0400000E && !isNormalMareW())
+			helper = false;
+		if (!helper) {
+			helper = true;
+			if (!isSpecialMareM() && !isSpecialMareW())
+				helper = false;
+			if (!helper)
+				mareMatch = false;
+		}
+		if (mareMatch) {
+			result = true;
+		} else {
+			if ((s32)mActorType < 0x04000018
+			    && (s32)mActorType >= 0x04000016)
+				result = true;
+		}
+	} else {
+		result = true;
 	}
 	return result;
 }
