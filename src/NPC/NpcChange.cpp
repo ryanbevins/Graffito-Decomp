@@ -471,6 +471,7 @@ bool TBaseNPC::isNowCanTaken() const
 	    && mHolder == nullptr && mHeldObject == nullptr
 	    && !(flag & 0x840007) && !(unk64 & 0x1)) {
 		const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
+		bool match = false;
 		if (cur == &TNerveNPCGraphWander::theNerve()
 		    || cur == &TNerveNPCUTurn::theNerve()
 		    || cur == &TNerveNPCGraphWait::theNerve()
@@ -481,8 +482,10 @@ bool TBaseNPC::isNowCanTaken() const
 		    || cur == &TNerveNPCSink::theNerve()
 		    || cur == &TNerveNPCRecoverFromSink::theNerve()
 		    || cur == &TNerveNPCRecoverAfter::theNerve()) {
-			result = true;
+			match = true;
 		}
+		if (match)
+			result = true;
 	}
 	return result;
 }
