@@ -90,9 +90,9 @@ BOOL TBaseNPC::isNerveCanGoToTalk() const
 	return result;
 }
 
-BOOL TBaseNPC::isNerveCanGoToMad() const
+bool TBaseNPC::isNerveCanGoToMad() const
 {
-	BOOL result                       = FALSE;
+	bool result                       = false;
 	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
 	if (cur == &TNerveNPCGraphWander::theNerve()
 	    || cur == &TNerveNPCUTurn::theNerve()
@@ -101,7 +101,7 @@ BOOL TBaseNPC::isNerveCanGoToMad() const
 	    || cur == &TNerveNPCWaitMarioApproach::theNerve()
 	    || cur == &TNerveNPCTurnToMario::theNerve()
 	    || cur == &TNerveNPCWet::theNerve()) {
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }
@@ -454,12 +454,12 @@ void TBaseNPC::behaveToSandBomb_(const TLiveActor* bomb)
 	}
 }
 
-BOOL TBaseNPC::isStateGoToMad_() const
+bool TBaseNPC::isStateGoToMad_() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if (isMadNpc() && !(mActionFlag & 0x4600) && 0.0f == unk178
 	    && isInMadSearchRange()) {
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }

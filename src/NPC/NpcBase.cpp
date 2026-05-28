@@ -287,26 +287,29 @@ void TBaseNPC::moveObject()
 
 	ensureTakeSituation();
 
-	if (mHolder != nullptr && mHolder->mHeldObject != this)
+	if (mTakenBy != nullptr && ((TTakeActor*)mTakenBy)->mHeldObject != this)
 		releaseTaken_();
 
 	if (mNpcTrample != nullptr) {
-		if (mNpcTrample->updateTrample(mEffectScaleBase.y, &mEffectScaleBase.y)
+		if (mNpcTrample->updateTrample(mEffectScaleBase.y, &mScaling.y)
 		    && isNerveCanGoToMad() && isStateGoToMad_())
 			changeNerveToMad_();
 	}
 
 	{
 		TNpcInbetween* ib = (TNpcInbetween*)mUnk18C;
-		if (ib->mPosInbetweenTimer > 0)
-			mPosition.set(ib->mCurrentPos);
+		if (ib->mPosInbetweenTimer > 0) {
+			mPosition.x = ib->mCurrentPos.x;
+			mPosition.y = ib->mCurrentPos.y;
+			mPosition.z = ib->mCurrentPos.z;
+		}
 	}
 
 	if (mNpcCoin != nullptr)
 		mNpcCoin->updateCoin();
 
 	if (mNpcBalloon != nullptr) {
-		u32 prevMsg = (u32)mNpcBalloon->_000;
+		s32 prevMsg = mNpcBalloon->_000;
 		u8  state   = gpMarDirector->unk124;
 		bool isEvent = (state == 1 || state == 2 || state == 3 || state == 4);
 		if (isEvent && mNpcBalloon->updateBalloon()) {
@@ -332,11 +335,14 @@ void TBaseNPC::moveObject()
 	if (unk1E4 != 0)
 		unk1E4 = unk1E4 - 1;
 
-	mAngularVelocity.x = 0.0f;
+	updateSquareToMario();
+	mLinearVelocity.x = mLinearVelocity.y = mLinearVelocity.z = 0.0f;
+	mAngularVelocity.x = mAngularVelocity.y = mAngularVelocity.z = 0.0f;
 
-	if (SMS_GetGroundActor(mGroundPlane, 0) != nullptr) {
+	const TLiveActor* sand = SMS_GetGroundActor(mGroundPlane, 0x400000CD);
+	if (sand != nullptr) {
 		mHeadHeight = mPtrSaveNormal->mSLHeadHeightSandBomb.value;
-		behaveToSandBomb_(SMS_GetGroundActor(mGroundPlane, 0));
+		behaveToSandBomb_(sand);
 	} else {
 		mHeadHeight = mPtrSaveNormal->mSLHeadHeightNormal.value;
 		unk1C8      = 0.0f;
@@ -760,8 +766,8 @@ bool TBaseNPC::isInMadSearchRange() const
 bool TBaseNPC::isMadNpc() const
 {
 	bool result  = false;
+	bool helper  = true;
 	bool partA   = false;
-	BOOL helper  = TRUE;
 	switch (mActorType) {
 	case 0x04000001:
 	case 0x04000002:
@@ -772,7 +778,7 @@ bool TBaseNPC::isMadNpc() const
 	}
 	if (!partA) {
 		if (!isNormalMonteW())
-			helper = FALSE;
+			helper = false;
 	}
 	if (helper) {
 		result = true;

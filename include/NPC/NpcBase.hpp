@@ -128,7 +128,7 @@ public:
 	void setPosAndInitAfterSinkBottom();
 	void changeNerveProc_();
 	bool isNowCanTaken() const;
-	BOOL isStateGoToMad_() const;
+	bool isStateGoToMad_() const;
 	void behaveToSandBomb_(const TLiveActor*);
 	void behaveToHitObject_(THitActor*, EnumHitNpcObjectKind);
 	void behaveToBeTrampled_();
@@ -138,7 +138,7 @@ public:
 	void changeNerveToWet_();
 	void changeNerveFromTalk_();
 	BOOL isNerveCanGoToBlown() const;
-	BOOL isNerveCanGoToMad() const;
+	bool isNerveCanGoToMad() const;
 	BOOL isNerveCanGoToThrow() const;
 	BOOL isNerveCanGoToTaken() const;
 	BOOL isNerveCanGoToSink() const;
