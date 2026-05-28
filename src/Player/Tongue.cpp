@@ -65,10 +65,8 @@ void TYoshiTongue::calcAnim(MtxPtr p)
 			s->unk8 &= ~1U;
 		}
 
-		JGeometry::TVec3<f32> tipPos;
-		tipPos.x = mTipPos.x;
-		tipPos.y = mTipPos.y + 50.0f;
-		tipPos.z = mTipPos.z;
+		JGeometry::TVec3<f32> tipPos = mTipPos;
+		tipPos.y += 50.0f;
 		SMS_MakeJointsToArc(mModel, mHeadPos, mHeadDir, tipPos);
 
 	J3DModelData* md = mModel->getModelData();
@@ -85,15 +83,15 @@ void TYoshiTongue::calcAnim(MtxPtr p)
 	MsVECNormalize((Vec*)&dir, (Vec*)&dir);
 
 	Mtx tipMtx;
-	tipMtx[0][0] = dir.z;
+	tipMtx[0][0] = 1.0f * dir.z - 0.0f * dir.y;
 	tipMtx[0][1] = 0.0f;
 	tipMtx[0][2] = dir.x;
 	tipMtx[0][3] = mTipPos.x;
-	tipMtx[1][0] = 0.0f;
+	tipMtx[1][0] = 0.0f * dir.x - 0.0f * dir.z;
 	tipMtx[1][1] = 1.0f;
-	tipMtx[1][2] = 0.0f;
+	tipMtx[1][2] = dir.y;
 	tipMtx[1][3] = mTipPos.y;
-	tipMtx[2][0] = -dir.x;
+	tipMtx[2][0] = 0.0f * dir.y - 1.0f * dir.x;
 	tipMtx[2][1] = 0.0f;
 	tipMtx[2][2] = dir.z;
 	tipMtx[2][3] = mTipPos.z;
