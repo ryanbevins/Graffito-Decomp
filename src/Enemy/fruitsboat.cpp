@@ -253,26 +253,29 @@ int TFruitsBoat::setBckTrack(const char* name)
 	MActorAnmDataEach<J3DAnmTransformKey>* table
 	    = mManager->getMActorAnmData()->getUnk2C();
 
-	int i;
-	for (i = 0; i < table->unk0; i++) {
-		if (strcmp(name, table->unk8[i]) == 0)
-			break;
+	int i           = 0;
+	int byteOff     = 0;
+	int n           = table->unk0;
+	while (i < n) {
+		if (strcmp(name, table->unk8[i]) == 0) {
+			if (i < table->unk0)
+				mBckAnm = (J3DAnmBase*)(*(
+				    u32*)((u8*)table->unkC + byteOff));
+			else
+				mBckAnm = nullptr;
+
+			mBckFrameCtrl = new J3DFrameCtrl(0);
+			mBckFrameCtrl->init(((s16*)mBckAnm)[1]);
+			mBckFrameCtrl->setAttribute(((u8*)mBckAnm)[0]);
+
+			f32 r = getSaveParam2()->mSLBckMoveSpeed.get();
+			mBckFrameCtrl->setRate(r * SMSGetAnmFrameRate());
+			return 0;
+		}
+		i += 1;
+		byteOff += 4;
 	}
-	if (i >= table->unk0)
-		return -1;
-
-	if (i < table->unk0)
-		mBckAnm = table->unkC[i];
-	else
-		mBckAnm = nullptr;
-
-	mBckFrameCtrl = new J3DFrameCtrl(0);
-	mBckFrameCtrl->init(((s16*)mBckAnm)[1]);
-	mBckFrameCtrl->setAttribute(((u8*)mBckAnm)[0]);
-
-	f32 anmRate = SMSGetAnmFrameRate();
-	mBckFrameCtrl->setRate(getSaveParam2()->mSLBckMoveSpeed.get() * anmRate);
-	return 0;
+	return -1;
 }
 
 void TFruitsBoat::load(JSUMemoryInputStream& stream)
@@ -313,14 +316,19 @@ void TFruitsBoat::init(TLiveManager* manager)
 	getTracer()->mPrevIdx = -1;
 	goToShortestNextGraphNode();
 
-	if (getTracer()->getGraph()) {
-		JGeometry::TVec3<f32> pt
-		    = getTracer()->getGraph()->indexToPoint(getTracer()->mCurrIdx);
-		mPosition = pt;
-
+	{
 		TGraphTracer* tr = getTracer();
-		tr->moveTo(tr->unk0->getShortestNextIndex(tr->mCurrIdx, tr->mPrevIdx,
-		                                          0xffffffff));
+		TGraphWeb* gr    = tr->getGraph();
+		if (gr->unk14) {
+			JGeometry::TVec3<f32> pt = gr->indexToPoint(tr->mCurrIdx);
+			mPosition.x              = pt.x;
+			mPosition.y              = pt.y;
+			mPosition.z              = pt.z;
+
+			TGraphTracer* tr2 = getTracer();
+			tr2->moveTo(tr2->unk0->getShortestNextIndex(
+			    tr2->mCurrIdx, tr2->mPrevIdx, 0xffffffff));
+		}
 	}
 
 	TFruitsBoatManager* mgr = (TFruitsBoatManager*)mManager;
@@ -451,17 +459,17 @@ void TFruitsBoat::setGroundCollision()
 
 void TFruitsBoat::requestShadow()
 {
-	if (mLiveFlag & 0xb)
+	u32 f = mLiveFlag;
+	if (f & 0xb)
 		return;
 
-	if ((mLiveFlag & 0x204) == 0 || (mLiveFlag & 0x400) == 0) {
+	if ((f & 0x204) == 0 || (f & 0x400) != 0) {
 		TCircleShadowRequest req;
-		req.unk0.set(0.0f, 0.0f, 0.0f);
 		req.unk0  = mPosition;
 		req.unkC  = unk154;
 		req.unk10 = unk158;
-		req.unk14 = (s16)(s32)mRotation.x;
 		req.unk1C = 3;
+		req.unk14 = (s16)(s32)mRotation.x;
 
 		if (mLiveFlag & 0x400)
 			gpBindShadowManager->forceRequest(req, mActorType);
@@ -472,7 +480,12 @@ void TFruitsBoat::requestShadow()
 	if (mLiveFlag & 0x204)
 		return;
 
+	bool hasOwner;
 	if (mActorType & 0x40000000)
+		hasOwner = true;
+	else
+		hasOwner = false;
+	if (hasOwner)
 		return;
 
 	JGeometry::TVec3<f32> pos = mPosition;
