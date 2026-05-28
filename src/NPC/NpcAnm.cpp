@@ -682,7 +682,9 @@ BOOL TBaseNPC::npcBlowning()
 void TBaseNPC::npcMareStandIn()
 {
 	int k = unkD0->mCurrentAnmKind;
-	if (k == 5 || k == 0xE) {
+	switch (k) {
+	case 5:
+	case 0xE: {
 		TNpcAnmFrameCounter* fc = mAnmFrameCounter;
 		if (fc->mCurFrame == 0) {
 			fc->mCurFrame = 0;
@@ -690,8 +692,11 @@ void TBaseNPC::npcMareStandIn()
 			s32 v         = (s32)(r * 120.0f);
 			fc->mMaxFrame = v + 0xF1;
 		}
-	} else {
+		break;
+	}
+	default:
 		requestNpcAnm_(asKind(7), asBlend(1));
+		break;
 	}
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
