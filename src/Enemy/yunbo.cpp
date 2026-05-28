@@ -71,7 +71,7 @@ DEFINE_NERVE(TNerveYumboAttack, TLiveActor)
 		self->shotSeeds();
 	}
 
-	bool giveup = false;
+	bool giveup;
 	if (self->getSaveParam2()->mSLGiveUpHeight.get()
 	    <= fabsf(gpMarioPos->y - self->mPosition.y)) {
 		giveup = true;
@@ -82,8 +82,7 @@ DEFINE_NERVE(TNerveYumboAttack, TLiveActor)
 		delta.z -= self->mPosition.z;
 		delta.y = 0.0f;
 		f32 len = self->getSaveParam2()->mSLGiveUpLength.get();
-		if (len * len < delta.squared())
-			giveup = true;
+		giveup  = (len * len < delta.squared());
 	}
 
 	if (giveup) {
