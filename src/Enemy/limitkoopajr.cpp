@@ -356,8 +356,8 @@ void TLimitKoopaJr::init(TLiveManager* manager)
 
 TLimitKoopaJr::TLimitKoopaJr(const char* name)
     : TSpineEnemy(name)
+    , mTargetActor(nullptr)
 {
-	mTargetActor = nullptr;
 	mLiveFlag |= 0x10;
 	mLiveFlag &= ~0x100;
 }
