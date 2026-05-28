@@ -16,7 +16,10 @@ void TBaseNPC::execWalk(bool param_1)
 
 	{
 		TMarDirector* dir = gpMarDirector;
-		if (dir->isTalkModeNow() || dir->unk124 == 4)
+		bool blocked = true;
+		if (!dir->isTalkModeNow() && dir->unk124 != 4)
+			blocked = false;
+		if (blocked)
 			goto bail;
 	}
 

@@ -908,8 +908,14 @@ void TBossGesso::doAttackSingle()
 	if (gpMarDirector->unk58 < 0x1E0)
 		return;
 
-	if (gpMarDirector->isTalkModeNow() || gpMarDirector->checkUnk124Thing2())
-		return;
+	{
+		TMarDirector* dir = gpMarDirector;
+		bool blocked = true;
+		if (!dir->isTalkModeNow() && !dir->checkUnk124Thing2())
+			blocked = false;
+		if (blocked)
+			return;
+	}
 
 	if (unk1A8 > 0) {
 		unk1A8 -= 1;
