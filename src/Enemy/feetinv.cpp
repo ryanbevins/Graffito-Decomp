@@ -8,6 +8,10 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <dolphin/mtx.h>
 
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
 void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
                  f32 threshold)
 {
