@@ -123,7 +123,7 @@ DEFINE_NERVE(TNerveFruitsBoatGraphWander, TLiveActor)
 		return TRUE;
 	}
 
-	if (self->mLiveFlag & 0x8000)
+	if (self->mLiveFlag & 0x10000)
 		return FALSE;
 
 	{
@@ -417,15 +417,14 @@ void TFruitsBoat::setGroundCollision()
 	diff.z -= gpMarioPos->z;
 
 	if (mColCount == 0) {
-		f32 lenSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-		f32 dist  = JGeometry::TUtil<f32>::sqrt(lenSq);
+		f32 dist = diff.length();
 		if (dist >= 1000.0f) {
 			void* y = SMS_GetYoshi();
-			bool hasYoshi;
+			int hasYoshi;
 			if (!*(u8*)y)
-				hasYoshi = false;
+				hasYoshi = 0;
 			else
-				hasYoshi = true;
+				hasYoshi = 1;
 
 			if (hasYoshi) {
 				if (mPosition.x - 1000.0f >= *(f32*)((u8*)SMS_GetYoshi() + 0x20))
