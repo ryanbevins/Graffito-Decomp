@@ -174,7 +174,7 @@ DEFINE_NERVE(TNerveKazekunPreAttack, TLiveActor)
 	if (self->getKazekunParam()->mPoseTime.get()
 	        * self->getKazekunParam()->mDicideTiming.get()
 	    < spine->getTime()) {
-		self->setGoalPath(TPathNode(*gpMarioPos));
+		self->setGoalPath(TPathNode(JGeometry::TVec3<f32>(*gpMarioPos)));
 	}
 
 	self->doAttackPose(false);
