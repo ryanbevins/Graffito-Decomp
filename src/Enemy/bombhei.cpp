@@ -346,7 +346,11 @@ void TBombHei::forceKill()
 	if (mLiveFlag & 0x10)
 		return;
 
-	mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
+	if (mSpine->getCurrentNerve() != &TNerveBombHeiExplosion::theNerve()) {
+		mSpine->reset();
+		mSpine->setNext(&TNerveBombHeiExplosion::theNerve());
+		mSpine->pushAfterCurrent(mSpine->getDefault());
+	}
 	mLiveFlag |= 0x20000;
 	mHitPoints = 1;
 }
@@ -511,7 +515,11 @@ void TBombHei::kill()
 		return;
 
 	mHitPoints = 1;
-	mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
+	if (mSpine->getCurrentNerve() != &TNerveBombHeiExplosion::theNerve()) {
+		mSpine->reset();
+		mSpine->setNext(&TNerveBombHeiExplosion::theNerve());
+		mSpine->pushAfterCurrent(&TNerveBombHeiExplosion::theNerve());
+	}
 	mLiveFlag |= 0x40;
 }
 
@@ -560,4 +568,4 @@ void TBombHei::setMActorAndKeeper()
 
 void TBombHei::setAfterDeadEffect() { }
 
-bool TBombHei::doKeepDistance() { return unk19C ? true : false; }
+bool TBombHei::doKeepDistance() { return unk19C != 0; }
