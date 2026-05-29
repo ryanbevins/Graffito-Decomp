@@ -137,11 +137,10 @@ DEFINE_NERVE(TNerveKazekunTurn, TLiveActor)
 
 	self->flyAroundMario();
 
-	f32 dy            = gpMarioPos->y - self->mHomePos.y;
-	TKazekunParams* p = self->getKazekunParam();
-	bool lost         = true;
-	if (!(dy < -p->mLostOffsetYDown.get())) {
-		if (!(p->mLostOffsetYUp.get() < dy))
+	f32 dy    = gpMarioPos->y - self->mHomePos.y;
+	bool lost = true;
+	if (!(dy < -self->getKazekunParam()->mLostOffsetYDown.get())) {
+		if (!(self->getKazekunParam()->mLostOffsetYUp.get() < dy))
 			lost = false;
 	}
 
@@ -150,7 +149,7 @@ DEFINE_NERVE(TNerveKazekunTurn, TLiveActor)
 		return TRUE;
 	}
 
-	if (p->mAroundTime.get() < spine->getTime()) {
+	if (self->getKazekunParam()->mAroundTime.get() < spine->getTime()) {
 		spine->pushAfterCurrent(&TNerveKazekunPreAttack::theNerve());
 		return TRUE;
 	}
@@ -335,10 +334,14 @@ void TKazekun::behaveToWater(THitActor*)
 }
 
 // TODO(INVESTIGATION): math-heavy. Honest stub -- see notes/Kazekun.md.
+// dont_inline: the target keeps these as real (non-inline) calls; without the
+// pragma MWCC inlines the empty body and the callers drop their `bl`.
+#pragma dont_inline on
 void TKazekun::doAttackPose(bool) { }
 
 // TODO(INVESTIGATION): math-heavy orbit. Honest stub -- see notes/Kazekun.md.
 void TKazekun::flyAroundMario() { }
+#pragma dont_inline off
 
 // ============= TKazekunManager =============
 
