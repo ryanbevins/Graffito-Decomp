@@ -5012,6 +5012,49 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### `#pragma dont_inline on/off` around an out-of-line accessor's `.cpp` definition forces a `bl` at call sites where `-O4` auto-inlines it
+
+**Hypothesis.** When a small accessor is *declared* in the header but
+*defined* in the `.cpp` (so it is not a header inline), `-O4`'s
+auto-inliner will still inline it into earlier callers in the same TU
+during the deferred pass. If the target keeps it as a real `bl` call,
+wrapping **only that definition** in `#pragma dont_inline on` /
+`#pragma dont_inline off` suppresses the auto-inline at every call site
+while leaving the standalone body (and every *other* function's
+inlining) untouched.
+
+```cpp
+#pragma dont_inline on
+const JGeometry::TVec3<f32>& TWireTrap::getWireDir() const
+{
+	return getWireBinder()->getDir();   // standalone still emits 100%
+}
+#pragma dont_inline off
+```
+
+This is the *inverse* lever to the header-inline accessors: instead of
+forcing a reload via inlining, it forces a call by *forbidding*
+inlining. Useful when the target calls a trivial wrapper accessor
+(`getWireDir()` = `getWireBinder()->getDir()`) out-of-line at one site
+while inlining the underlying `getWireBinder()->getDir()` at another —
+the wrapper's call survives, the inner accessors still inline.
+
+**Symptom that signals this lever.** Target shows `addi r3, rThis, 0`
+(set up `this`) followed by `bl <accessor>` then a 3×`lwz/stw` copy of
+the returned ref to a stack TVec3; our build instead shows the accessor
+body inlined (`lwz rBase, off(rThis); lwz/stw ...`) with no `bl`.
+
+**Citations (single TU so far — needs a 2nd TU to settle, t188 wireTrap):**
+- `getWireDir()` inlined → `bl` at 3 nerve velocity sites:
+  - TNerveWireTrapSearch::execute 81.6% → 86.8%
+  - TNerveWireTrapReturnMove::execute 77.4% → 80.9%
+  - TNerveWireTrapOnewayMove::execute 89.8% → 91.2%
+- Standalone `getWireDir__9TWireTrapCFv` stayed 100% throughout.
+- Caveat: `#pragma dont_inline` is documented as a TU-global toggle for
+  *everything defined while it is on* — scope it tightly to the single
+  definition (on immediately before, off immediately after) so it
+  doesn't suppress unrelated inlines.
+
 ### Calling two separate inline accessors (`checkLiveFlag(1)` + `onLiveFlag(1)`) reproduces the target's field *reload* where direct field access (`mLiveFlag & 1` … `mLiveFlag |= 1`) gets CSE'd into a single load
 
 **Hypothesis.** A concrete lever for the "redundant field reloads under
