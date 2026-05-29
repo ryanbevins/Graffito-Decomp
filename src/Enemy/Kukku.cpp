@@ -61,7 +61,7 @@ void TKukku::bind() { TLiveActor::bind(); }
 
 void TKukku::control()
 {
-	if (unk1A4 > 0)
+	if (getUnk1A4() > 0)
 		unk1A4 -= 1;
 	TLiveActor::control();
 }

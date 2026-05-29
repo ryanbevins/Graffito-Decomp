@@ -29,6 +29,7 @@ public:
 
 	// fabricated
 	TKukku** getKukkuBalls() { return (TKukku**)&unk194; }
+	s32 getUnk1A4() const { return unk1A4; }
 
 public:
 	/* 0x194 */ void* unk194[3];
