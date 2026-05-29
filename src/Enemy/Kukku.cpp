@@ -20,6 +20,11 @@ static char* tori_bastable[] = {
 	(char*)"/scene/tori/bas/tori_fall_end.bas",
 };
 
+DEFINE_NERVE(TNerveKukkuFall, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveKukkuPostFall, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveKukkuRecoverGraph, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor) { return FALSE; }
+
 void TKukkuManager::createModelData()
 {
 	static const TModelDataLoadEntry entry[] = {
