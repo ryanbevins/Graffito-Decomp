@@ -429,6 +429,17 @@ accumulator shape (`li r3, 0x1; ...; bne merge; ...; bne merge; li r3, 0x0; merg
   shape applies regardless).
 - `Enemy/bossgesso::doAttackSingle` (tick 168): 36.08% → 36.63% (+0.55pp;
   TU has many other mismatches, predicate-OR is small relative).
+- `Enemy/Kukku::behaveToWater` (tick 194): 72.10% → 95.30% (+23.2pp).
+  Here the **direct** form `bool b1 = (cur == X::theNerve() || cur ==
+  Y::theNerve()); if (b1) return;` (NOT the reverse-set rewrite) was
+  enough to produce the accumulator shape — for a two-term pointer-equality
+  disjunction the plain assignment materializes; `if (A || B) return;`
+  branches directly. **Bonus mechanism:** with the bool materialized, the
+  **first** operand's `theNerve()` Meyers-singleton inlines but the
+  **second** operand's becomes a `bl theNerve__...Fv` call (it sits behind
+  the short-circuit `beq`). This exactly reproduced the target's
+  `bl theNerve__19TNerveKukkuPostFallFv`. Remaining 5% is pure TU-global
+  static-guard symbol numbering (`instance$N`/`init$N`), not structural.
 
 ### `!predicate()` source-level negation matches target's `bne` skip-on-true branch where our `if (predicate())` produces `beq` skip-on-false
 
@@ -5055,6 +5066,35 @@ for predicate functions.
   rather than `if (...) return true; ... return false;`.
 
 ## Hypotheses under investigation
+
+### Big-function deferred-inline budget declines to inline even the *first* operand's `theNerve()` Meyers singleton
+
+**Hypothesis.** The accumulator-shape rule (see Settled) says a
+materialized `bool b = (a == X::theNerve() || a == Y::theNerve())`
+inlines the first operand's `theNerve()` and emits a `bl` for the
+second. But in a *large* function MWCC declines to inline **even the
+first** — both become `bl theNerve__...Fv`. Observed: `Enemy/Kukku`
+target calls `theNerve__15TNerveKukkuFallFv` 2× and
+`theNerve__19TNerveKukkuPostFallFv` 4×. `behaveToWater` (small) inlines
+Fall + calls PostFall — matches with our source. `updateRotation`
+(large, float-heavy, two such disjunctions) target calls **both** Fall
+and PostFall, but our build still inlines Fall (the function is
+oversized at base 720 vs target 584 *because* of the 4× inline
+expansion). Suspected cause: the `-inline deferred` per-function
+expansion budget for `updateRotation` is exhausted by its float math,
+so theNerve never inlines there.
+
+**Experiment to confirm/refute.** Complete the TU (implement `dropCoins`
++ `calcRootMatrix`, the two unwritten float giants) and rebuild — this
+shifts the TU-global deferred-inline accounting and sdata/static-guard
+symbol numbering. Re-diff `updateRotation`: if Fall's theNerve flips to
+a `bl` and the frame shrinks toward 0x70, the budget hypothesis holds.
+If not, the lever is something more local (no source-level control over
+the first-operand inline in a big function — would become an Open
+question / currently-hard). Also worth trying: an artificial second
+disjunction or extra inline calls to push `behaveToWater`-sized
+functions over the threshold and watch the first theNerve flip to `bl`.
+See `state/notes/Kukku.md`.
 
 ### `#pragma dont_inline on/off` around an out-of-line accessor's `.cpp` definition forces a `bl` at call sites where `-O4` auto-inlines it
 
