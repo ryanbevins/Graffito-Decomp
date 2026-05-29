@@ -7,6 +7,7 @@
 #include <MarioUtil/DrawUtil.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
+#include <Map/PollutionManager.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
@@ -41,6 +42,46 @@ const char** TKukku::getBasNameTable() const
 void TKukku::setDeadAnm()
 {
 	getMActor()->setBck("tori_down");
+	setCurAnmSound();
+}
+
+void TKukku::setAfterDeadEffect()
+{
+	TSmallEnemy::setAfterDeadEffect();
+	gpPollution->stamp(((TSmallEnemyManager*)mManager)->getUnk58(), mPosition.x,
+	                   mPosition.y, mPosition.z, 1000.0f);
+}
+
+void TKukku::bind() { TLiveActor::bind(); }
+
+void TKukku::control()
+{
+	if (unk1A4 > 0)
+		unk1A4 -= 1;
+	TLiveActor::control();
+}
+
+void TKukku::reset()
+{
+	unk1A4 = 0;
+	unk1AC = 0;
+	mGravity = 0.0f;
+	unk1B0 = 0;
+	onLiveFlag(LIVE_FLAG_AIRBORNE);
+	mScaledBodyRadius = 75.0f;
+}
+
+BOOL TKukku::receiveMessage(THitActor* sender, u32 message)
+{
+	if (checkLiveFlag(LIVE_FLAG_DEAD))
+		return FALSE;
+
+	if (message < 2 && (s32)message >= 0) {
+		mSpine->reset();
+		mSpine->setNext(&TNerveSmallEnemyDie::theNerve());
+		return TRUE;
+	}
+	return TSmallEnemy::receiveMessage(sender, message);
 }
 
 void TKukku::perform(u32 action, JDrama::TGraphics* graphics)
