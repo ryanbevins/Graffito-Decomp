@@ -8,6 +8,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
+#include <Animal/AnimalBase.hpp>
 #include <MSound/MSound.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
@@ -430,10 +431,45 @@ void TKukkuBall::perform(u32 action, JDrama::TGraphics* graphics)
 		mMActor->perform(action, graphics);
 }
 
+#pragma dont_inline on
 JGeometry::TVec3<f32> TKukku::calcMomentum(f32 speed)
 {
 	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(mRotation);
 	JGeometry::TVec3<f32> v(0.0f, 0.0f, speed);
 	q.rotate(v, v);
 	return v;
+}
+#pragma dont_inline off
+
+void TKukku::updateRotation()
+{
+	JGeometry::TVec3<f32> toTarget = unkF4.getPoint();
+	toTarget.x -= mPosition.x;
+	toTarget.y -= mPosition.y;
+	toTarget.z -= mPosition.z;
+
+	f32 dist = JGeometry::TUtil<f32>::sqrt(toTarget.x * toTarget.x
+	                                       + toTarget.y * toTarget.y
+	                                       + toTarget.z * toTarget.z);
+	if (dist < 100.0f)
+		return;
+
+	f32 speed = getSaveParam2()->mMarchSpeed.get();
+	f32 turn  = getSaveParam2()->mTurnSpeed.get();
+
+	f32 turnRadius = calcMinimumTurnRadius(speed, turn);
+	if (dist <= 2.0f * turnRadius)
+		turn = calcTurnSpeedToReach(speed, 0.5f * dist);
+
+	TAnimalBase::getRotationFlyToDir(&mRotation, toTarget, speed, turn);
+
+	const TNerveBase<TLiveActor>* n1 = mSpine->getLatestNerve();
+	bool b1 = (n1 == &TNerveKukkuFall::theNerve()
+	           || n1 == &TNerveKukkuPostFall::theNerve());
+	mRotation.x *= b1 ? 0.0f : 1.0f;
+
+	const TNerveBase<TLiveActor>* n2 = mSpine->getLatestNerve();
+	bool b2 = (n2 == &TNerveKukkuFall::theNerve()
+	           || n2 == &TNerveKukkuPostFall::theNerve());
+	mRotation.z *= b2 ? 0.0f : 1.0f;
 }
