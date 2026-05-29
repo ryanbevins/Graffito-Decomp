@@ -104,7 +104,7 @@ public:
 
 	TLimitKoopaParams* getSaveParam2() const
 	{
-		return (TLimitKoopaParams*)getSaveParam();
+		return (TLimitKoopaParams*)((TEnemyManager*)mManager)->getSaveParam();
 	}
 
 	/* 0x150 */ s32 unk150;
