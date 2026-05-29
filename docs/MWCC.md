@@ -5698,6 +5698,26 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Frame UNDER-allocation: our build emits a stack frame *smaller* than
+  the target (t192 triage).** The documented MWCC padding bug usually
+  makes OUR frame BIGGER. But several near-matches show the opposite —
+  ours is 8–24 bytes *smaller* than target, with the saved-reg block and
+  every local sitting at a lower r1 offset (uniform shift):
+  `System/MarDirector::loadParticle` (target 0x40, ours 0x28, −0x18),
+  `Player/ModelWaterManager::drawWaterVolume` (target 0xa8, ours 0xa0, −8),
+  `System/MarioGamePad::updateMeaning` (target 0x190, ours 0x188, −8). In
+  updateMeaning the missing 8 bytes coincide with an `lfd f0` reading a
+  freshly-`stw`'d int pair (an 8-byte double temp materialized from two
+  GPR stores) — target reserves a dedicated 8-byte slot for it, ours
+  appears to overlap/elide it. Hypothesis to test: the int→double bit-cast
+  temp (the `stw;stw;lfd` idiom, e.g. from `(f64)(int<<2 | int)` or a
+  packed-pair-to-double) gets its own non-overlapping stack slot in the
+  target, and source that forces a distinct named `f64`/`double` local
+  for that value would reserve the slot. Experiment: on updateMeaning,
+  introduce an explicit `f64` local for whatever feeds the `lfd` and see
+  if the frame grows by 8. Distinct from the +N padding-bug family;
+  citations are read-only diffs only so far (no fix yet).
+
 - **`cror eq, lt, eq; bne; b` ternary form for `(f > 0.0f) ? CALL : 0.0f`
   (MSHandle calcDolby/calcPan, t176).** Target compiles the ternary
   `f32 angle = (param > 0.0f) ? MSACos(-vec.z / param) : 0.0f;` as
