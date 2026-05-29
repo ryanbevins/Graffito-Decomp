@@ -26,6 +26,8 @@
 #include <Map/MapCollisionData.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
+#include <System/Application.hpp>
+#include <MoveBG/MapObjBlock.hpp>
 #include <dolphin/mtx.h>
 
 // rogue includes needed for matching sinit & rodata
@@ -510,9 +512,19 @@ void TKiller::behaveToWater(THitActor* sender)
 
 void TKiller::changeOut()
 {
+	if (gpMSound->gateCheck(0x293d))
+		MSoundSESystem::MSoundSE::startSoundActor(0x293d, &mPosition, 0, nullptr,
+		                                          0, 4);
+
 	onLiveFlag(0x1);
 	genEventCoin();
 	onHitFlag(0x1);
+
+	mPosition = mJuiceBlock->mPosition;
+	gpMarioParticleManager->emitAndBindToPosPtr(0xcd, &mPosition, 0, nullptr);
+	mMActor->setFrameRate(SMSGetAnmFrameRate(), 0);
+	mJuiceBlock->kill();
+	mJuiceBlock = nullptr;
 }
 
 void TKiller::setDeadAnm()
