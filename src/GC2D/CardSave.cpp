@@ -23,6 +23,11 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+// Infectious strings: this TU's rodata leads with the 12-zero-byte dummy and
+// the "out of memory" message but NOT MtxCalcTypeName (see target .rodata).
+static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
+
 extern JPAEmitterManager* gpEmitterManager4D2;
 
 u32 TCardSave::cMessageID[] = {
