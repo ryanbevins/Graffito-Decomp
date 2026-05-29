@@ -36,6 +36,50 @@ them in future ticks.
 
 ## Settled
 
+### Routing a field read through its own inline accessor inhibits CSE and forces the target's field *reload*
+
+**Rule.** When the target loads a field, tests it, then *reloads the
+same field* to use/modify it (no intervening write), our direct-access
+build CSE's the two reads into a single register reuse. Routing **at
+least one** of the reads through its own inline accessor presents that
+read as a fresh expression at a distinct inline boundary, which MWCC's
+CSE will not merge with the other read — reproducing the reload.
+
+```cpp
+// target reloads 0x1a4 twice; direct access CSE's to one load (WRONG):
+if (unk1A4 > 0)
+    unk1A4 -= 1;
+
+// route the compare's read through an inline getter → forces the reload (RIGHT):
+s32 getUnk1A4() const { return unk1A4; }   // in the header
+...
+if (getUnk1A4() > 0)   // load #1 via accessor boundary
+    unk1A4 -= 1;       // load #2 direct, NOT CSE'd with #1
+```
+
+It is **not** necessary for both reads to go through accessors — one
+accessor + one direct read-modify-write is enough to break the CSE
+(Kukku). Two distinct accessors (one read, one write) also works
+(wireTrap). The mechanism is the inline-expansion boundary, not the
+accessor count.
+
+**Symptom that signals this lever.** Target shows two `lwz rX, OFF(rThis)`
+of the same field straddling a compare/branch with no store between
+them; our build shows a single `lwz` whose register is reused.
+
+**Why.** Each inline accessor presents the field load as a fresh
+expression at its own inline boundary; MWCC's CSE doesn't merge loads
+across distinct inline expansions even though both read the same
+address with no intervening write.
+
+**Citations (2 TUs).**
+- `Enemy/wireTrap::kill` (t186): direct `mLiveFlag & 1` / `mLiveFlag |= 1`
+  was 92.06% (single load). Switching to `checkLiveFlag(1)` (read accessor)
+  + `onLiveFlag(1)` (write accessor) → 96.91%, size-exact.
+- `Enemy/Kukku::control` (t190): direct `if (unk1A4 > 0) unk1A4 -= 1;`
+  was 92.14% (single load). Routing only the compare read through inline
+  `getUnk1A4()` (decrement stays a direct RMW) → **100%**, byte-exact.
+
 ### `spine->pushAfterCurrent(nerve)` vs `spine->pushNerve(nerve)` for "transition next-nerve" patterns
 
 **Rule.** When a `DEFINE_NERVE` body ends with "push a successor nerve
@@ -5054,46 +5098,6 @@ body inlined (`lwz rBase, off(rThis); lwz/stw ...`) with no `bl`.
   *everything defined while it is on* — scope it tightly to the single
   definition (on immediately before, off immediately after) so it
   doesn't suppress unrelated inlines.
-
-### Calling two separate inline accessors (`checkLiveFlag(1)` + `onLiveFlag(1)`) reproduces the target's field *reload* where direct field access (`mLiveFlag & 1` … `mLiveFlag |= 1`) gets CSE'd into a single load
-
-**Hypothesis.** A concrete lever for the "redundant field reloads under
-inline expansion" currently-hard pattern. When the target loads a field,
-tests it, then *reloads the same field* to modify it:
-
-```
-lwz   r0, 0xf0(r3)     ; checkLiveFlag(1): load
-clrlwi. r0, r0, 31     ; & 1
-bne   END
-lwz   r3, 0xf0(r31)    ; onLiveFlag(1): RELOAD (not CSE'd)
-ori   r3, r3, 0x1
-stw   r3, 0xf0(r31)
-```
-
-writing the read and the modify as direct field ops (`if (mLiveFlag & 1)
-return; mLiveFlag |= 1;`) lets MWCC CSE the two loads into one register
-reuse. Routing each through its own inline accessor inhibits the CSE and
-forces the reload:
-
-```cpp
-if (checkLiveFlag(1))   // own inline, loads 0xf0
-    return;
-onLiveFlag(1);          // own inline, reloads 0xf0
-```
-
-**Why (tentative).** Each inline accessor presents the field load as a
-fresh expression at its own inline boundary; MWCC's CSE doesn't merge
-loads across the two distinct inline expansions, even though both read
-the same address with no intervening write.
-
-**Citations.**
-- `Enemy/wireTrap::kill` (tick 186): `mLiveFlag & 1` / `mLiveFlag |= 1`
-  direct access was 92.06% (single load, no reload). Switching to
-  `checkLiveFlag(1)` / `onLiveFlag(1)` → 96.91%, size-exact; remaining
-  gap is branch-target addresses + sda21 label numbers only.
-
-Needs a second TU and a case where direct access is the *right* answer
-(to bound when CSE does vs doesn't fire) before promoting.
 
 ### Returning a bare integer comparison (`return a < b;`) emits branchless materialization; `if (a < b) return TRUE; return FALSE;` emits the cmpw/branch/li form
 
