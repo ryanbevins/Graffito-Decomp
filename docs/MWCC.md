@@ -5067,6 +5067,46 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Naming shared sub-products as locals forces CSE and defeats `fnmsubs`/`fmsubs` fusion in matrix/quaternion math
+
+**Hypothesis.** When a block computes several outputs that share
+sub-products (e.g. a quaternion→matrix conversion where each diagonal
+term is `1 - 2*a*a - 2*b*b` and the products `2*a*a`, `2*b*b` recur
+across two diagonals), writing each output as a single inline expression
+lets MWCC fuse `const - prod` into one `fnmsubs`/`fmsubs` — which
+*consumes* the product, so it cannot be CSE'd into the other output that
+needs it. The target instead computes every product once with a plain
+`fmuls` and uses `fadds`/`fsubs`, never fusing. Naming each shared
+product as its own `f32` local forces MWCC to materialize it once into a
+register and reuse it, exactly reproducing the no-fusion schedule.
+
+```cpp
+// fuses into fnmsubs, fails to share x2*x across m11 and m22 (WRONG):
+m[1][1] = 1.0f - (x2 * x) - (z2 * z);
+m[2][2] = 1.0f - (x2 * x) - (y2 * y);
+
+// name the products → one fmuls each, shared, plain fsubs (RIGHT):
+f32 xx = x2 * x; f32 yy = y2 * y; f32 zz = z2 * z; /* ... */
+m[1][1] = 1.0f - xx - zz;
+m[2][2] = 1.0f - xx - yy;
+```
+
+**Symptom that signals this lever.** Target shows a long run of `fmuls`
+into distinct FPRs followed by `fsubs`/`fadds`, with NO `fnmsubs`/
+`fmsubs`/`fmadds`; our build shows one or more fused `fnmsubs` where the
+target had a separate multiply + subtract. Usually accompanied by a base
+vs target frame/instruction-count mismatch that vanishes once the
+products are named.
+
+**Citation (1 TU).** `Enemy/Kazekun::calcRootMatrix` (t204): the
+quat→matrix block was 85.83% with one `fnmsubs`; naming all 9 products
+(xx/yy/zz/xy/xz/yz/wx/wy/wz) → **91.21%**, sizes byte-exact (580=580).
+Residue is pure FPR coloring (ours spills f31 where target reuses f3).
+
+**Promote to Settled** once confirmed on a second matrix/quaternion TU
+(candidates: any `getQuat`/`setRotate`/`SMS_CalcToDirMatrix` consumer, or
+a `TQuat4::setMatrix`-style conversion elsewhere).
+
 ### "Set/force current nerve NOW" idiom = `reset()` + `setNext(nerve)` + `pushAfterCurrent(nerve-or-default)`, guarded by `getCurrentNerve() != nerve`
 
 **Hypothesis.** Enemy `kill`/`forceKill`/terminal-`execute` bodies that
