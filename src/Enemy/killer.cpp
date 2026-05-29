@@ -1,5 +1,9 @@
 #include <Enemy/Killer.hpp>
 #include <Enemy/EnemyManager.hpp>
+#include <Enemy/Conductor.hpp>
+#include <Enemy/EffectObj.hpp>
+#include <Camera/CameraShake.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/HitActor.hpp>
@@ -333,6 +337,14 @@ void TKiller::setDeadAnm()
 {
 	mMActor = getActorKeeper()->getMActor("downkiller_model1.bmd");
 	setBckAnm(0);
+	TSpineEnemy* effectBase = gpConductor->makeOneEnemyAppear(
+	    mPosition, "エフェクト爆発マネージャー", 1);
+	if (effectBase != nullptr) {
+		TEffectExplosion* effect = (TEffectExplosion*)effectBase;
+		effect->generate(mPosition, mScaling);
+	}
+	gpCameraShake->startShake(CAM_SHAKE_MODE_UNK6, 1.0f);
+	SMSRumbleMgr->start(0x15, 5, (f32*)nullptr);
 }
 
 void TKiller::attackToMario()
