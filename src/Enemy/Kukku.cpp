@@ -81,7 +81,7 @@ BOOL TKukku::receiveMessage(THitActor* sender, u32 message)
 	if (checkLiveFlag(LIVE_FLAG_DEAD))
 		return FALSE;
 
-	if (message < 2 && (s32)message >= 0) {
+	if ((s32)message < 2 && (s32)message >= 0) {
 		mSpine->reset();
 		mSpine->setNext(&TNerveSmallEnemyDie::theNerve());
 		return TRUE;
