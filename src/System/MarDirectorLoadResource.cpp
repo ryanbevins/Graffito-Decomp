@@ -7,6 +7,7 @@
 #include <System/Application.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/Particles.hpp>
+#include <Enemy/BossHanachan.hpp>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -95,9 +96,9 @@ void TMarDirector::initLoadParticle()
 
 void TMarDirector::loadParticle()
 {
-	void* pvVar1 = new (0x20) char[0x200000];
+	void* pvVar1 = new (-0x20) char[0x200000];
 	SMSLoadArchive("/data/particle.arc", pvVar1, 0x200000, nullptr);
-	JKRMemArchive* this_00 = new (0x20) JKRMemArchive;
+	JKRMemArchive* this_00 = new (-0x20) JKRMemArchive;
 	this_00->mountFixed(pvVar1, MBF_0);
 	this_00->becomeCurrent("/");
 	loadParticleMario();
@@ -229,16 +230,14 @@ void TMarDirector::loadParticle()
 	gpResourceManager->load("ms_2d_get_b.jpa", 0x1ff);
 	gpResourceManager->load("ms_2d_elecflash.jpa", 0x200);
 
-	// gpEmitterManager4D2->unkA4 = gpResourceManager;
+	gpEmitterManager4D2->unkA4[0] = gpResourceManager;
 	this_00->unmountFixed();
 
 	if (mMap == 4 && unk7D == 2) {
-		void* hanachanJpaArch = SMSLoadArchive("/data/bosshanachanJpa.arc",
-		                                       pvVar1, 0x200000, nullptr);
-		this_00->mountFixed(hanachanJpaArch, MBF_0);
+		SMSLoadArchive("/data/bosshanachanJpa.arc", pvVar1, 0x200000, nullptr);
+		this_00->mountFixed(pvVar1, MBF_0);
 		this_00->becomeCurrent("/");
-		// TODO:
-		// TBossHanachan::staticLoadParticle();
+		TBossHanachan::staticLoadParticle();
 		this_00->unmountFixed();
 	}
 	JKRHeap::getCurrentHeap()->freeTail();
