@@ -351,9 +351,11 @@ bool TKazekun::isCollidMove(THitActor*) { return false; }
 void TKazekun::attackToMario()
 {
 	TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
-	if (latest == &TNerveKazekunTurn::theNerve()
-	    || latest == &TNerveKazekunPreAttack::theNerve()
-	    || latest == &TNerveKazekunAttack::theNerve()) {
+	bool b27 = (latest == &TNerveKazekunTurn::theNerve())
+	           || (mSpine->getLatestNerve() == &TNerveKazekunPreAttack::theNerve());
+	bool b28 = b27
+	           || (mSpine->getLatestNerve() == &TNerveKazekunAttack::theNerve());
+	if (b28) {
 		SMS_SendMessageToMario(this, 0xe);
 	}
 }
@@ -361,9 +363,11 @@ void TKazekun::attackToMario()
 void TKazekun::behaveToWater(THitActor*)
 {
 	TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
-	if (latest == &TNerveKazekunTurn::theNerve()
-	    || latest == &TNerveKazekunPreAttack::theNerve()
-	    || latest == &TNerveKazekunAttack::theNerve()) {
+	bool b27 = (latest == &TNerveKazekunTurn::theNerve())
+	           || (mSpine->getLatestNerve() == &TNerveKazekunPreAttack::theNerve());
+	bool b28 = b27
+	           || (mSpine->getLatestNerve() == &TNerveKazekunAttack::theNerve());
+	if (b28) {
 		mSpine->reset();
 		mSpine->setNext(&TNerveKazekunHitWater::theNerve());
 	}
