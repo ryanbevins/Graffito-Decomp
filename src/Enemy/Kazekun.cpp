@@ -302,6 +302,38 @@ void TKazekun::calcRootMatrix()
 	}
 }
 
+// File-scope helper: build a matrix whose Z axis points along `dir`, using
+// `up` to resolve the X/Y axes. The original game emits this as the single
+// global definition (wireTrap/fireWanwan only call it). Each normalize is the
+// `if (v.isZero()) v.set(default); else v.setLength(v, 1.0f);` idiom: squared()
+// is computed once and compared twice, and setLength's internal zero() check
+// becomes the (dead) middle branch.
+void SMS_CalcToDirMatrix(TPosition3f& mtx,
+                         const JGeometry::TVec3<f32>& dir,
+                         const JGeometry::TVec3<f32>& up)
+{
+	JGeometry::TVec3<f32> z(dir);
+	if (z.isZero())
+		z.set(0.0f, 0.0f, 1.0f);
+	else
+		z.setLength(z, 1.0f);
+
+	JGeometry::TVec3<f32> x;
+	x.cross(up, z);
+	if (x.isZero())
+		x.set(1.0f, 0.0f, 0.0f);
+	else
+		x.setLength(x, 1.0f);
+
+	JGeometry::TVec3<f32> y;
+	y.cross(z, x);
+	y.setLength(y, 1.0f);
+
+	mtx.setXDir(x);
+	mtx.setYDir(y);
+	mtx.setZDir(z);
+}
+
 const char** TKazekun::getBasNameTable() const { return Kazekun_bastable; }
 
 void TKazekun::setDeadAnm()
