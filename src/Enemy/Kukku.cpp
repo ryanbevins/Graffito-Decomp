@@ -11,6 +11,7 @@
 #include <MSound/MSound.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
+#include <Map/Map.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <System/Particles.hpp>
@@ -365,4 +366,66 @@ void TKukkuBall::init()
 	if (res)
 		SMS_ChangeTextureAll(mMActor->getModel()->getModelData(),
 		                     "K_name_dummy", *res);
+}
+
+void TKukkuBall::perform(u32 action, JDrama::TGraphics* graphics)
+{
+	if (mFlags & 1)
+		return;
+
+	if (action & 2) {
+		Mtx m;
+		m[0][0] = 1.0f;
+		m[1][0] = 0.0f;
+		m[2][0] = 0.0f;
+		m[0][1] = 0.0f;
+		m[1][1] = 1.0f;
+		m[2][1] = 0.0f;
+		m[0][2] = 0.0f;
+		m[1][2] = 0.0f;
+		m[2][2] = 1.0f;
+		m[0][3] = mPosition.x;
+		m[1][3] = mPosition.y;
+		m[2][3] = mPosition.z;
+		mMActor->getModel()->setBaseScale(mScaling);
+		mMActor->getModel()->setBaseTRMtx(m);
+		mMActor->getModel()->calc();
+	}
+
+	if (action & 1) {
+		for (THitActor** c = mCollisions; c != mCollisions + mColCount; ++c) {
+			if ((*c)->getActorType() == 0x80000001) {
+				SMS_SendMessageToMario(this, 0xe);
+				onHitFlag(1);
+				mFlags |= 1;
+				gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z,
+				                   500.0f);
+			}
+		}
+
+		mVelocity.y -= 0.9f;
+		mVelocity.x *= 0.94f;
+		mVelocity.y *= 0.94f;
+		mVelocity.z *= 0.94f;
+
+		JGeometry::TVec3<f32> next = mPosition;
+		next.add(mVelocity);
+
+		const TBGCheckData* ground;
+		f32 groundY = gpMap->checkGround(next.x, next.y + mAttackHeight, next.z,
+		                                 &ground);
+		groundY += 1.0f;
+		if (next.y <= groundY + 0.05f) {
+			onHitFlag(1);
+			mFlags |= 1;
+			gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z, 500.0f);
+		}
+
+		gpMap->isTouchedOneWallAndMoveXZ(&next.x, next.y + mAttackHeight,
+		                                 &next.z, mAttackRadius);
+		mPosition = next;
+	}
+
+	if (!(mFlags & 4))
+		mMActor->perform(action, graphics);
 }
