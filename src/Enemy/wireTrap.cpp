@@ -67,7 +67,7 @@ DEFINE_NERVE(TNerveWireTrapSearch, TLiveActor)
 		delta.y -= self->mPosition.y;
 		delta.z -= self->mPosition.z;
 
-		JGeometry::TVec3<f32> wdir = self->getWireBinder()->getDir();
+		const JGeometry::TVec3<f32>& wdir = self->getWireBinder()->getDir();
 		f32 dot = delta.x * wdir.x + delta.y * wdir.y + delta.z * wdir.z;
 		int sign;
 		if (dot > 0.0f)
@@ -234,10 +234,12 @@ TWireTrapManager::TWireTrapManager(const char* name)
 {
 }
 
+#pragma dont_inline on
 const JGeometry::TVec3<f32>& TWireTrap::getWireDir() const
 {
 	return getWireBinder()->getDir();
 }
+#pragma dont_inline off
 
 const TNerveBase<TLiveActor>* TWireTrap::getNerveFromMode(int mode)
 {
