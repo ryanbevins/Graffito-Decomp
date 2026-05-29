@@ -23,6 +23,9 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
+#include <Map/MapCollisionData.hpp>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundSE.hpp>
 #include <dolphin/mtx.h>
 
 // rogue includes needed for matching sinit & rodata
@@ -415,8 +418,38 @@ void TKiller::bind()
 	mFlyTimer++;
 
 	if (mSpine->getCurrentNerve() != &TNerveKillerExplosion::theNerve()) {
-		if (!checkLiveFlag(0x80) && mFlyTimer > mInvalidTime)
-			mSpine->pushNerve(&TNerveKillerExplosion::theNerve());
+		if (!checkLiveFlag(0x80)) {
+			if (mFlyTimer > mInvalidTime)
+				mSpine->pushNerve(&TNerveKillerExplosion::theNerve());
+		} else {
+			if (mFlyTimer > mInvalidTime) {
+				TBGWallCheckRecord rec(mPosition.x, mPosition.y + mHeadHeight,
+				                       mPosition.z, 2.0f * mBodyRadius, 1, 0);
+				if (gpMap->isTouchedWallsAndMoveXZ(&rec)) {
+					const TLiveActor* wallActor = rec.mResultWalls[0]->mActor;
+					if (wallActor != nullptr
+					    && wallActor->isActorType(0x4000000a))
+						((TLiveActor*)wallActor)->kill();
+					mSpine->pushNerve(&TNerveKillerExplosion::theNerve());
+				}
+			}
+		}
+	}
+
+	if (checkLiveFlag(0x80)) {
+		if (gpMSound->gateCheck(0x20a9))
+			MSoundSESystem::MSoundSE::startSoundActor(0x20a9, &mPosition, 0,
+			                                          nullptr, 0, 4);
+
+		if (mRotation.x > 90.0f)
+			mRotation.x = 90.0f;
+		else if (mRotation.x < -25.0f)
+			mRotation.x = -25.0f;
+
+		MsMtxSetXYZRPH(mRollMtx.mMtx, mPosition.x, mPosition.y, mPosition.z,
+		               mRotation.x, mRotation.y, mRotation.z);
+		gpMarioParticleManager->emitAndBindToMtxPtr(0x174, mRollMtx.mMtx, 1,
+		                                            this);
 	}
 }
 
