@@ -171,15 +171,15 @@ DEFINE_NERVE(TNerveKazekunPreAttack, TLiveActor)
 		self->setAnmSound(nullptr);
 	}
 
-	TKazekunParams* p = self->getKazekunParam();
-	if (p->mPoseTime.get() * p->mDicideTiming.get() < spine->getTime()) {
-		// TODO(INVESTIGATION): capture Mario position into target path nodes
-		// (self->unkF4 / self->unk104). See notes/Kazekun.md.
+	if (self->getKazekunParam()->mPoseTime.get()
+	        * self->getKazekunParam()->mDicideTiming.get()
+	    < spine->getTime()) {
+		self->setGoalPath(TPathNode(*gpMarioPos));
 	}
 
 	self->doAttackPose(false);
 
-	if (p->mPoseTime.get() < spine->getTime()) {
+	if (self->getKazekunParam()->mPoseTime.get() < spine->getTime()) {
 		spine->pushAfterCurrent(&TNerveKazekunAttack::theNerve());
 		return TRUE;
 	}
