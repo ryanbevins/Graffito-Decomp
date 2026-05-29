@@ -5085,6 +5085,31 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Under `-inline deferred`, MWCC inlines even large (500+ byte) ordinary member functions into a *single* call site; `#pragma dont_inline` restores the `bl`
+
+**Hypothesis.** The existing `dont_inline` guidance in `CLAUDE.md` is
+framed around *empty* functions getting auto-inlined. But in `-inline
+deferred` TUs the deferred inliner is far more aggressive: it will fully
+inline a substantial ordinary method (observed at 0x208 = 520 bytes)
+into its lone call site, even though the method is *also* emitted
+out-of-line as a real symbol. The target keeps it as a `bl`. Wrapping
+the method definition in `#pragma dont_inline on` / `off` forces the
+`bl` at the call site without removing the out-of-line copy.
+
+**Observed.** `mario/Enemy/limitkoopa`: `TLimitKoopa::startHipDrop` (520
+bytes) was being inlined into `TNerveLimitKoopaHipDropStart::execute`,
+ballooning the nerve to a -0x80 frame and scoring 0%. The target does
+`bl startHipDrop`. `#pragma dont_inline on/off` around startHipDrop's
+definition → nerve 0%→88%, then 93.7% after a reference-local fix. (Note
+the nerve TU uses `cflags_game` which includes `-inline deferred`.)
+
+**Experiment to confirm/promote.** Find a second `-inline deferred` TU
+where a single-call-site method >256 bytes is inlined in our build but a
+`bl` in the target, and confirm `dont_inline` fixes it. The size
+threshold and "single call site" precondition need a second data point
+before promotion — at one citation this is distinct enough from the
+empty-function case to track separately.
+
 ### Naming shared sub-products as locals forces CSE and defeats `fnmsubs`/`fmsubs` fusion in matrix/quaternion math
 
 **Hypothesis.** When a block computes several outputs that share
