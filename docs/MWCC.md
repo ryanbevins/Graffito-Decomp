@@ -5012,6 +5012,87 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Returning a bare integer comparison (`return a < b;`) emits branchless materialization; `if (a < b) return TRUE; return FALSE;` emits the cmpw/branch/li form
+
+**Hypothesis.** For a `BOOL`/`bool`-returning function whose body is just
+`return a < b;` (signed ints), MWCC materializes the result *branchlessly*:
+
+```
+eqv   r0, r3, r4
+subfc r3, r3, r4
+srwi  r0, r0, 31
+addze r3, r0
+clrlwi r3, r3, 31
+```
+
+The target, however, often wants the simple branch form:
+
+```
+cmpw  r3, r0
+bge   END        ; a >= b → return 0
+li    r3, 0x1
+blr
+END: li r3, 0x0
+blr
+```
+
+The source-level lever is to write an explicit `if`/return instead of
+returning the comparison directly:
+
+```cpp
+// branchless (eqv/subfc/srwi/addze):
+return self->mWaitTime < spine->getTime();
+
+// branch form (cmpw/bge/li 1/li 0):
+if (self->mWaitTime < spine->getTime())
+    return TRUE;
+return FALSE;
+```
+
+This also applies to `return done;` where `done` is a bool set in a
+prior if/else — rewriting as `if (done) return TRUE; return FALSE;`
+adds the target's second `clrlwi.`/branch widening.
+
+**Diagnostic signature.** Target shows `cmpw`/`bge`(or other ordered
+branch)/`li r3,1`/`li r3,0`; our build shows the `eqv`/`subfc`/`srwi`/
+`addze` quintet (no branch).
+
+**Citations (all `Enemy/wireTrap`, tick 186).**
+- `TNerveWireTrapWait::execute`: 64.4% → 100% (sole change).
+- `TNerveWireTrapGoWait::execute`: 50.8% → 100% (sole change).
+- `TNerveWireTrapOnewayMoveStart::execute`: the `return done;` →
+  `if (done) return TRUE; return FALSE;` change was part of 86.5% → 99.8%.
+
+Needs a citation outside wireTrap to promote to Settled.
+
+### Source comparison operand order maps directly to `fcmpo`/`cmpw` operand order; flip the source operands to flip the emitted compare and its branch/cror condition
+
+**Hypothesis.** MWCC preserves the left/right order of a comparison's
+operands when emitting `fcmpo`/`cmpw`. Writing `CONST > var` emits
+`fcmpo cr0, fCONST, fVar` whereas the equivalent `var < CONST` emits
+`fcmpo cr0, fVar, fCONST`. The branch/cror condition follows from the
+operator (`<` vs `>`, `<=` vs `>=`) on the chosen ordering. When the
+target loads the constant into the *first* compare register, the source
+wrote the constant on the left.
+
+```cpp
+// target: fcmpo cr0, f(0.0), f(mWireDir)  → write const on left:
+f32 sign = 0.0f > self->mWireDir ? -1.0f : 1.0f;   // not  mWireDir < 0.0f
+
+// target: fcmpo cr0, f(1.0), f(mScaleRate); cror eq, lt, eq
+if (1.0f <= self->mScaleRate) { ... }              // not  mScaleRate >= 1.0f
+```
+
+**Citations (all `Enemy/wireTrap`, tick 186).**
+- `TNerveWireTrapOnewayMoveEnd::execute`: flipping `mWireDir < 0.0f` →
+  `0.0f > mWireDir` in the sign ternary: 95.6% → 97.5%.
+- `TNerveWireTrapOnewayMoveStart::execute`: flipping `mScaleRate >= 1.0f`
+  → `1.0f <= mScaleRate` matched the `fcmpo f2,f0; cror eq,lt,eq` pair
+  (part of 86.5% → 99.8%).
+
+Distinct from the `!(dist < K)` hypothesis below (which is about NaN/
+ordered-branch *opcode* choice); this one is about operand *order*.
+
 ### `if (!(dist < K))` emits `bge`, while `if (dist >= K)` emits the `cror eq, gt, eq; beq` lattice (inverse of the !(>=) hypothesis)
 
 **Hypothesis.** Mirror of the `!(>=)` lever below. For a "fail-if-dist-too-big"
