@@ -33,13 +33,17 @@ const GXColorS10 cBlueColor = { 0x0F, 0x14, 0xD2, 0x00 };
 DEFINE_NERVE(TNerveWireTrapGoWait, TLiveActor)
 {
 	TWireTrap* self = (TWireTrap*)spine->getBody();
-	return self->getSaveParam2()->mGoTimerMax.get() < spine->getTime();
+	if (self->getSaveParam2()->mGoTimerMax.get() < spine->getTime())
+		return TRUE;
+	return FALSE;
 }
 
 DEFINE_NERVE(TNerveWireTrapWait, TLiveActor)
 {
 	TWireTrap* self = (TWireTrap*)spine->getBody();
-	return self->mWaitTime < spine->getTime();
+	if (self->mWaitTime < spine->getTime())
+		return TRUE;
+	return FALSE;
 }
 
 DEFINE_NERVE(TNerveWireTrapSearch, TLiveActor)
