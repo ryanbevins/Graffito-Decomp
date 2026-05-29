@@ -431,11 +431,11 @@ void TBombHei::reset()
 
 void TBombHei::behaveToRelease()
 {
-	if (unk164 != 0)
+	if (unk164 == 0
+	    && mSpine->getCurrentNerve() != &TNerveBombHeiWalkExplosion::theNerve())
 		return;
-	if (mSpine->getCurrentNerve() == &TNerveBombHeiWalkExplosion::theNerve())
-		return;
-	mSpine->pushNerve(&TNerveBombHeiThrown::theNerve());
+	if (mSpine->getCurrentNerve() != &TNerveBombHeiThrown::theNerve())
+		mSpine->pushNerve(&TNerveBombHeiThrown::theNerve());
 }
 
 void TBombHei::behaveToTaken(THitActor* sender)
