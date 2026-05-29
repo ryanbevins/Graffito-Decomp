@@ -5012,6 +5012,46 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Calling two separate inline accessors (`checkLiveFlag(1)` + `onLiveFlag(1)`) reproduces the target's field *reload* where direct field access (`mLiveFlag & 1` … `mLiveFlag |= 1`) gets CSE'd into a single load
+
+**Hypothesis.** A concrete lever for the "redundant field reloads under
+inline expansion" currently-hard pattern. When the target loads a field,
+tests it, then *reloads the same field* to modify it:
+
+```
+lwz   r0, 0xf0(r3)     ; checkLiveFlag(1): load
+clrlwi. r0, r0, 31     ; & 1
+bne   END
+lwz   r3, 0xf0(r31)    ; onLiveFlag(1): RELOAD (not CSE'd)
+ori   r3, r3, 0x1
+stw   r3, 0xf0(r31)
+```
+
+writing the read and the modify as direct field ops (`if (mLiveFlag & 1)
+return; mLiveFlag |= 1;`) lets MWCC CSE the two loads into one register
+reuse. Routing each through its own inline accessor inhibits the CSE and
+forces the reload:
+
+```cpp
+if (checkLiveFlag(1))   // own inline, loads 0xf0
+    return;
+onLiveFlag(1);          // own inline, reloads 0xf0
+```
+
+**Why (tentative).** Each inline accessor presents the field load as a
+fresh expression at its own inline boundary; MWCC's CSE doesn't merge
+loads across the two distinct inline expansions, even though both read
+the same address with no intervening write.
+
+**Citations.**
+- `Enemy/wireTrap::kill` (tick 186): `mLiveFlag & 1` / `mLiveFlag |= 1`
+  direct access was 92.06% (single load, no reload). Switching to
+  `checkLiveFlag(1)` / `onLiveFlag(1)` → 96.91%, size-exact; remaining
+  gap is branch-target addresses + sda21 label numbers only.
+
+Needs a second TU and a case where direct access is the *right* answer
+(to bound when CSE does vs doesn't fire) before promoting.
+
 ### Returning a bare integer comparison (`return a < b;`) emits branchless materialization; `if (a < b) return TRUE; return FALSE;` emits the cmpw/branch/li form
 
 **Hypothesis.** For a `BOOL`/`bool`-returning function whose body is just
