@@ -159,21 +159,34 @@ void TFlyEnemy::bind()
 void TFlyEnemy::calcChaseParam()
 {
 	JGeometry::TVec3<f32> diff;
-	diff.x = (gpMarioPos->x - mPosition.x) * 1.1f;
+	diff.x = gpMarioPos->x - mPosition.x;
 	diff.y = gpMarioPos->y - mPosition.y;
-	diff.z = (gpMarioPos->z - mPosition.z) * 1.1f;
+	diff.z = gpMarioPos->z - mPosition.z;
+	diff.x *= 1.1f;
+	diff.z *= 1.1f;
 
-	if (diff.y > 100.0f) {
+	JGeometry::TVec3<f32> target;
+	target.x = mPosition.x + diff.x;
+	target.y = mPosition.y + diff.y;
+	target.z = mPosition.z + diff.z;
+
+	if (mIsChaseMode) {
+		setGoalPath(TPathNode(target));
+	}
+
+	if (diff.y > 100.0f || fabs(diff.y) < 100.0f) {
 		if (mIsChaseMode) {
-			mCurGravityY = mFlyParams->mSLChaseFlyGravityY.get();
-			mFlyState    = 2;
+			if (mFlyState != 2 && mSprayedByWaterCooldown == 0) {
+				mCurGravityY = mFlyParams->mSLChaseFlyGravityY.get();
+			}
+			mFlyState = 2;
 		} else {
 			mPosition.y -= 1.0f;
 		}
 	} else {
 		mCurGravityY = mFlyParams->mSLNormalFlyGravityY.get();
 		JGeometry::TVec3<f32> vel(0.0f, 0.0f, 0.0f);
-		if (mFlyState == 2 && diff.y > 150.0f) {
+		if (mFlyState != 2 || diff.y > 150.0f) {
 			mFlyState = 0;
 			MsVECNormalize(&diff, &diff);
 			vel.x        = diff.x * mFlyParams->mSLNormalFlySpeed.get();
@@ -184,7 +197,7 @@ void TFlyEnemy::calcChaseParam()
 		}
 		vel.z = 0.0f;
 		vel.x = 0.0f;
-		mVelocity.set(vel);
+		mVelocity = vel;
 	}
 }
 
@@ -616,10 +629,39 @@ DEFINE_NERVE(TNerveFlyEnemyChaseFly, TLiveActor)
 DEFINE_NERVE(TNerveFlyEnemyNormalFly, TLiveActor)
 {
 	TFlyEnemy* self = (TFlyEnemy*)spine->getBody();
+
 	if (spine->getTime() == 0)
 		self->setNormalFlyAnm();
-	self->flyBehavior();
-	self->fly();
+
+	if (self->mChaseFinished != 0 && self->mFlyTimer > 500) {
+		self->updateSquareToMario();
+		f32 chaseDist = self->mFlyParams->mSLChaseDist.get();
+		if (self->mDistToMarioSquared < chaseDist * chaseDist) {
+			spine->pushNerve(&TNerveFlyEnemyChaseFly::theNerve());
+			return TRUE;
+		}
+	} else if (self->mColorVariant == 0 && self->isFindMario(1.0f)
+	           && self->mFlyTimer > 100) {
+		self->updateSquareToMario();
+		f32 chaseDist = self->mFlyParams->mSLChaseDist.get();
+		if (self->mDistToMarioSquared < chaseDist * chaseDist) {
+			spine->pushNerve(&TNerveFlyEnemyChaseFly::theNerve());
+			return TRUE;
+		}
+	}
+
+	JGeometry::TVec3<f32> vel = self->mVelocity;
+	self->mRotation.x = MsGetRotFromZaxis(vel).x;
+
+	f32 sc = 1.05f * self->mScaling.x;
+	if (sc > self->mBodyScale)
+		sc = self->mBodyScale;
+	else if (sc < 0.0f)
+		sc = 0.0f;
+	self->mScaling.z = sc;
+	self->mScaling.y = sc;
+	self->mScaling.x = sc;
+
 	return FALSE;
 }
 
