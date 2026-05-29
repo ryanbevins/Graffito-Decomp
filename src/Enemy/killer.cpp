@@ -398,6 +398,9 @@ bool TKiller::isHitValid(u32 message)
 
 bool TKiller::isCollidMove(THitActor* actor)
 {
+	if (actor->isActorType(0x4000000a))
+		((TLiveActor*)actor)->kill();
+
 	if (mSerialBomb
 	    && mSpine->getCurrentNerve() == &TNerveFlyEnemyChaseFly::theNerve())
 		mSpine->pushNerve(&TNerveKillerExplosion::theNerve());
