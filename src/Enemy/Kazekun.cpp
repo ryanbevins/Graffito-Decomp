@@ -370,10 +370,45 @@ void TKazekun::behaveToWater(THitActor*)
 // pragma MWCC inlines the empty body and the callers drop their `bl`.
 #pragma dont_inline on
 void TKazekun::doAttackPose(bool) { }
-
-// TODO(INVESTIGATION): math-heavy orbit. Honest stub -- see notes/Kazekun.md.
-void TKazekun::flyAroundMario() { }
 #pragma dont_inline off
+
+void TKazekun::flyAroundMario()
+{
+	JGeometry::TVec3<f32> dir(*gpMarioPos);
+	dir.y += getKazekunParam()->mTurnOffsetY.get();
+	dir.x -= mPosition.x;
+	dir.y -= mPosition.y;
+	dir.z -= mPosition.z;
+
+	f32 tilt = JGeometry::TUtil<f32>::clamp(dir.y, -400.0f, 400.0f) * 0.0025f;
+	dir.y    = 0.0f;
+
+	f32 dist  = JGeometry::TUtil<f32>::sqrt(dir.dot(dir));
+	f32 ratio = JGeometry::TUtil<f32>::clamp(
+	    dist / getKazekunParam()->mAroundDist.get(), 0.0f, 2.0f);
+
+	TPosition3f mtx;
+	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+	SMS_CalcToDirMatrix(mtx, dir, up);
+
+	JGeometry::TQuat4<f32> quat;
+	mtx.getQuat(quat);
+
+	JGeometry::TVec3<f32> axis;
+	mtx.getYDir(axis);
+	JGeometry::TQuat4<f32> rot;
+	rot.setRotate(axis, (2.0f - ratio) * 1.5707964f);
+
+	quat.mul(rot, quat);
+	mQuat = quat;
+
+	JGeometry::TVec3<f32> vel(0.0f, 0.0f, 1.0f);
+	quat.rotate(vel);
+	vel.y = tilt;
+	vel.scale(1.0f + __fabsf(tilt));
+	vel.scale(getKazekunParam()->mAroundSpeed.get());
+	mLinearVelocity = vel;
+}
 
 // ============= TKazekunManager =============
 
