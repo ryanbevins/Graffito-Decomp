@@ -94,9 +94,7 @@ DEFINE_NERVE(TNerveWireTrapOnewayMoveEnd, TLiveActor)
 	TWireTrap* self = (TWireTrap*)spine->getBody();
 	self->unk64 |= 1;
 
-	self->mScaleRate -= self->getSaveParam2()->mScaleTimerMax.get() == 0
-	                        ? 1.0f
-	                        : 1.0f / self->getSaveParam2()->mScaleTimerMax.get();
+	self->mScaleRate -= 1.0f / self->getSaveParam2()->mScaleTimerMax.get();
 
 	bool done;
 	if (self->mScaleRate <= 0.0f) {
@@ -160,9 +158,7 @@ DEFINE_NERVE(TNerveWireTrapOnewayMoveStart, TLiveActor)
 	TWireTrap* self = (TWireTrap*)spine->getBody();
 	self->unk64 |= 1;
 
-	self->mScaleRate += self->getSaveParam2()->mScaleTimerMax.get() == 0
-	                        ? 1.0f
-	                        : 1.0f / self->getSaveParam2()->mScaleTimerMax.get();
+	self->mScaleRate += 1.0f / self->getSaveParam2()->mScaleTimerMax.get();
 
 	bool done;
 	if (self->mScaleRate >= 1.0f) {
@@ -227,7 +223,7 @@ TWireTrapManager::TWireTrapManager(const char* name)
 {
 }
 
-JGeometry::TVec3<f32> TWireTrap::getWireDir() const
+const JGeometry::TVec3<f32>& TWireTrap::getWireDir() const
 {
 	return getWireBinder()->getDir();
 }
@@ -401,7 +397,7 @@ void TWireTrap::load(JSUMemoryInputStream& stream)
 {
 	TSpineEnemy::load(stream);
 
-	f32 shakeBase;
+	s32 shakeBase;
 	s32 colorType;
 	s32 mode;
 	stream.read(&shakeBase, 4);

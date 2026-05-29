@@ -38,7 +38,7 @@ public:
 	virtual void kill();
 
 	TWireBinder* getWireBinder() const { return (TWireBinder*)mBinder; }
-	JGeometry::TVec3<f32> getWireDir() const;
+	const JGeometry::TVec3<f32>& getWireDir() const;
 	const TNerveBase<TLiveActor>* getNerveFromMode(int);
 	void checkHitActors();
 
