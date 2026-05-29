@@ -9,10 +9,12 @@
 #include <MoveBG/ItemManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>
+#include <MarioUtil/PacketUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 
 // rogue includes needed for matching sinit & rodata
 #include <M3DUtil/InfectiousStrings.hpp>
@@ -225,12 +227,21 @@ TKiller::TKiller(const char* name)
 void TKiller::init(TLiveManager* manager)
 {
 	TWalkerEnemy::init(manager);
-	mFlyParams    = getSaveParam2();
-	mKillerParams = (TKillerParams*)getSaveParam();
+
+	TKillerParams* p = (TKillerParams*)getSaveParam();
+	mFlyParams       = p;
+	mActorType       = 0x1000001F;
+	unk150           = 0x11;
+	mKillerParams    = p;
+
 	mSpine->initWith(&TNerveFlyEnemyNormalFly::theNerve());
 	onLiveFlag(0x400);
 	offLiveFlag(0x800);
 	onHitFlag(0x40000000);
+
+	J3DSkinDeform* deform = new J3DSkinDeform;
+	mMActor->getModel()->setSkinDeform(deform, J3D_DEFORM_ATTACH_FLAG_UNK_1);
+	mMActor->resetDL();
 	mMActor->setJointCallback(1, &KillerBodyCallback);
 }
 
@@ -341,7 +352,41 @@ void TKiller::attackToMario()
 
 void TKiller::forceKill() { }
 
-void TKiller::setMActorAndKeeper() { TSmallEnemy::setMActorAndKeeper(); }
+void TKiller::setMActorAndKeeper()
+{
+	mMActorKeeper = new TMActorKeeper(mManager, 2);
+	mMActor       = mMActorKeeper->createMActor("killer_model1.bmd", 3);
+	mMActorKeeper->createMActor("downkiller_model1.bmd", 3);
+
+	s32 noseMatIdx = getActorKeeper()
+	                     ->getMActor("killer_model1.bmd")
+	                     ->getModel()
+	                     ->getModelData()
+	                     ->getMaterialName()
+	                     ->getIndex("_nosemat1");
+	s32 eyesMatIdx = getActorKeeper()
+	                     ->getMActor("killer_model1.bmd")
+	                     ->getModel()
+	                     ->getModelData()
+	                     ->getMaterialName()
+	                     ->getIndex("_eyesmat1");
+	s32 bodyMatIdx = getActorKeeper()
+	                     ->getMActor("killer_model1.bmd")
+	                     ->getModel()
+	                     ->getModelData()
+	                     ->getMaterialName()
+	                     ->getIndex("_body1");
+
+	SMS_InitPacket_OneTevColor(getMActor()->getModel(), noseMatIdx, GX_TEVREG0,
+	                           &mColor0);
+	SMS_InitPacket_OneTevColor(getMActor()->getModel(), eyesMatIdx, GX_TEVREG0,
+	                           &mColor1);
+	SMS_InitPacket_OneTevColor(getMActor()->getModel(), bodyMatIdx, GX_TEVREG0,
+	                           &mColor2);
+	SMS_InitPacket_OneTevColor(
+	    getActorKeeper()->getMActor("downkiller_model1.bmd")->getModel(),
+	    bodyMatIdx, GX_TEVREG0, &mColor3);
+}
 
 bool TKiller::isHitValid(u32 message)
 {
