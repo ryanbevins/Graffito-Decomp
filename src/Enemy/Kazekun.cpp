@@ -186,8 +186,13 @@ DEFINE_NERVE(TNerveKazekunPreAttack, TLiveActor)
 	return FALSE;
 }
 
-// TODO(INVESTIGATION): math-heavy quaternion aim/move. Honest partial impl --
-// sets the attack anim. See notes/Kazekun.md for the full asm decode plan.
+// Dive at the captured goal point: on entry, aim the velocity at the target and
+// set its magnitude to mAttackSpeed; every frame slerp the facing quaternion
+// toward the velocity direction, apply air friction, and drop to Disappear once
+// the speed bleeds below 1.0. NOTE(INVESTIGATION): the velocity setLength + the
+// friction/Disappear tail are byte-decoded; the quaternion aim/slerp/normalize
+// middle hits the same frame-size/inline cascade as flyAroundMario/doAttackPose
+// (lands low fuzzy). See notes/Kazekun.md.
 DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 {
 	TKazekun* self = (TKazekun*)spine->getBody();
@@ -195,6 +200,38 @@ DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 	if (spine->getTime() == 0) {
 		self->mMActor->setBck("kazekun_attack");
 		self->setCurAnmSound();
+
+		JGeometry::TVec3<f32> dir(self->unk104.getPoint());
+		dir.x -= self->mPosition.x;
+		dir.y -= self->mPosition.y;
+		dir.z -= self->mPosition.z;
+		dir.setLength(self->getKazekunParam()->mAttackSpeed.get());
+		self->mVelocity = dir;
+	}
+
+	TPosition3f mtx;
+	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+	SMS_CalcToDirMatrix(mtx, self->mVelocity, up);
+
+	JGeometry::TQuat4<f32> aim;
+	mtx.getQuat(aim);
+	JGeometry::TVec3<f32> axis;
+	mtx.getYDir(axis);
+	JGeometry::TQuat4<f32> rot;
+	rot.setRotate(axis, 0.0f);
+	aim.mul(rot, aim);
+
+	JGeometry::TQuat4<f32> cur;
+	cur = self->mQuat;
+	cur.slerp(aim, 0.1f);
+	cur.normalize();
+	self->mQuat = cur;
+
+	self->mVelocity.scale(self->getKazekunParam()->mAirFric.get());
+	if (self->mVelocity.dot(self->mVelocity) < 1.0f) {
+		spine->pushAfterCurrent(&TNerveKazekunDisappear::theNerve());
+		self->mWaitLimit = self->getKazekunParam()->mResetTime.get();
+		return TRUE;
 	}
 	return FALSE;
 }
