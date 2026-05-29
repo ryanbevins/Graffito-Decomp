@@ -701,7 +701,56 @@ DEFINE_NERVE(TNerveFlyEnemyNormalFly, TLiveActor)
 DEFINE_NERVE(TNerveKillerExplosion, TLiveActor)
 {
 	TKiller* self = (TKiller*)spine->getBody();
-	if (spine->getTime() == 0)
-		self->setAfterDeadEffect();
-	return FALSE;
+
+	if (spine->getTime() == 0) {
+		self->mExplosionTimer = ((TKillerParams*)self->getSaveParam())
+		                            ->mSLBombRange.get()
+		                        * self->getBodyScale() / self->getAttackRadius();
+		self->mRotation.x = 0.0f;
+		self->setDeadAnm();
+
+		if (!self->isAirborne()) {
+			if (self->getGroundPlane()->isWaterSurface()) {
+				if (TEffectBombColumWater* water
+				    = (TEffectBombColumWater*)gpConductor->makeOneEnemyAppear(
+				        self->mPosition, "エフェクト爆発水柱マネージャー", 1)) {
+					JGeometry::TVec3<f32> scale(2.0f, 2.0f, 2.0f);
+					water->generate(self->mPosition, scale);
+				}
+			}
+
+			if (self->getGroundPlane()->isSand()) {
+				if (TEffectColumSand* sand
+				    = (TEffectColumSand*)gpConductor->makeOneEnemyAppear(
+				        self->mPosition, "エフェクト砂柱マネージャー", 1)) {
+					JGeometry::TVec3<f32> scale(0.6f, 0.9f, 0.6f);
+					sand->generate(self->mPosition, scale);
+				}
+			}
+		}
+
+		SMSRumbleMgr->start(0x13, &self->mPosition);
+	}
+
+	if (self->unk190 < self->mExplosionTimer) {
+		self->unk190 *= 1.3f;
+	} else {
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+		if (self->checkCurAnmEnd(0)) {
+			self->onLiveFlag(LIVE_FLAG_DEAD);
+			self->onLiveFlag(LIVE_FLAG_UNK8);
+			self->offLiveFlag(LIVE_FLAG_UNK10000);
+			self->mHolder = nullptr;
+			self->stopAnmSound();
+			spine->reset();
+			spine->setNext(&TNerveSmallEnemyDie::theNerve());
+			spine->pushAfterCurrent(spine->getDefault());
+
+			self->mPosition.y -= 200.0f;
+			return true;
+		}
+	}
+
+	self->expandCollision();
+	return false;
 }
