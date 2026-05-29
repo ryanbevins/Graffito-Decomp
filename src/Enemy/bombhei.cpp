@@ -4,6 +4,7 @@
 #include <Enemy/Walker.hpp>
 #include <Player/MarioAccess.hpp>
 #include <MoveBG/MapObjManager.hpp>
+#include <MoveBG/MapObjBlock.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <Map/MapData.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -550,6 +551,7 @@ void TBombHei::changeOut()
 	gpMarioParticleManager->emitAndBindToPosPtr(0xcd, &mPosition, 0, nullptr);
 
 	mMActor->setFrameRate(SMSGetAnmFrameRate(), 0);
+	mJuiceBlock->kill();
 	mJuiceBlock = nullptr;
 }
 
