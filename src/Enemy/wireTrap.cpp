@@ -337,10 +337,10 @@ void TWireTrap::calcRootMatrix()
 
 void TWireTrap::kill()
 {
-	if (mLiveFlag & 1)
+	if (checkLiveFlag(1))
 		return;
 
-	mLiveFlag |= 1;
+	onLiveFlag(1);
 	unk64 |= 1;
 	mSpine->reset();
 	mSpine->setNext(&TNerveWaitForever<TLiveActor>::theNerve());
