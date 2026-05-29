@@ -649,13 +649,105 @@ bool TKiller::isRollFly()
 // Nerves
 // ---------------------------------------------------------------------------
 
+inline f32 MsSin(f32 v) { return JMASin(v); }
+inline f32 MsCos(f32 v) { return JMACos(v); }
+
 DEFINE_NERVE(TNerveFlyEnemyChaseFly, TLiveActor)
 {
-	TFlyEnemy* self = (TFlyEnemy*)spine->getBody();
-	self->calcChaseParam();
-	if (spine->getTime() == 0)
+	TKiller* self = (TKiller*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->mChaseTarget = self->getVelocity();
+		self->calcChaseParam();
 		self->setChaseFlyAnm();
-	self->fly();
+	}
+
+	f32 speed = 1.0f;
+	if (self->mIsChaseMode == 0) {
+		f32 sp = self->mMarchSpeed;
+		self->mChaseTarget.y = 0.1f;
+		speed = JGeometry::TUtil<f32>::sqrt(self->mChaseTarget.squared())
+		      / (sp * sp) * TFlyEnemy::mTestSp;
+	} else if (self->mFlyState == 0) {
+		speed = 2.0f;
+	}
+	self->walkBehavior(2, speed);
+
+	if ((self->mIsChaseMode != 0 && self->isReachedToGoalXZ())
+	    || (self->mFlyState == 0
+	        && self->mPosition.y < 100.0f + self->mGroundHeight))
+		self->calcChaseParam();
+
+	switch (self->mFlyState) {
+	case 2: {
+		JGeometry::TVec3<f32> goal = self->getVelocity();
+		goal.scale(0.9f);
+		self->mVelocity = goal;
+
+		JGeometry::TVec3<f32> diff = self->unkF4.getPoint();
+		diff.sub(self->mPosition);
+		PSVECMag((Vec*)&diff);
+
+		f32 targetYaw = MsAngleWrap(MsGetRotFromZaxisY(diff));
+
+		f32 delta = targetYaw
+		          - MsWrap(self->mRotation.y, targetYaw - 180.0f,
+		                   targetYaw + 180.0f);
+		if (delta > 0.0f) {
+			if (delta > self->mTurnSpeed)
+				delta = self->mTurnSpeed;
+		} else {
+			if (delta < -self->mTurnSpeed)
+				delta = -self->mTurnSpeed;
+		}
+		self->mRotation.y = MsAngleWrap(self->mRotation.y + delta);
+
+		JGeometry::TVec3<f32> vel = self->mLinearVelocity;
+		f32 yaw = self->mRotation.y;
+		f32 sp  = self->mMarchSpeed;
+		f32 cz  = sp * MsCos(yaw);
+		JGeometry::TVec3<f32> move;
+		move.set(sp * MsSin(yaw), 0.0f, cz);
+		vel.add(move);
+		self->mLinearVelocity = vel;
+		break;
+	}
+	case 0:
+	case 1:
+		self->walkBehavior(3, 1.0f);
+		break;
+	default:
+		break;
+	}
+
+	if (self->mFlyState != 2
+	    && self->mPosition.y > 200.0f + self->mGroundHeight) {
+		f32 sp = self->mMarchSpeed;
+		f32 g  = self->getGravityY();
+		JGeometry::TVec3<f32> a;
+		a.x = self->mMarchSpeed;
+		a.y = -40.0f * g;
+		a.z = sp;
+		self->mRotation.x = MsGetRotFromZaxis(a).x;
+
+		JGeometry::TVec3<f32> b = self->mLinearVelocity;
+		b.y = self->getGravityY();
+		self->mRotation.x = MsGetRotFromZaxis(b).x;
+	} else {
+		self->mRotation.x *= 0.99f;
+	}
+
+	self->flyBehavior();
+
+	f32 sc = 1.1f * self->mScaling.x;
+	if (sc > self->mBodyScale)
+		sc = self->mBodyScale;
+	else if (sc < 0.0f)
+		sc = 0.0f;
+	self->mScaling.z = sc;
+	self->mScaling.y = sc;
+	self->mScaling.x = sc;
+
 	return FALSE;
 }
 
