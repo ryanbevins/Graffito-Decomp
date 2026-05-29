@@ -220,7 +220,7 @@ void TKazekun::init(TLiveManager* manager)
 	mHeadHeight       = 40.0f;
 	mBodyRadius       = 50.0f;
 	mScaledBodyRadius = 50.0f;
-	initHitActor(0x10000029, 0x8000, 0, mBodyScale * mHeadHeight,
+	initHitActor(0x10000029, 1, 0x80000000, mBodyScale * mHeadHeight,
 	             mBodyScale * mBodyRadius, 0.0f, 0.0f);
 	unk64 |= 0x1;
 
@@ -239,7 +239,9 @@ void TKazekun::init(TLiveManager* manager)
 
 	initAnmSound();
 
-	mHomePos.set(mPosition.x, mPosition.y, mPosition.z);
+	mHomePos.x = mPosition.x;
+	mHomePos.y = mPosition.y;
+	mHomePos.z = mPosition.z;
 	reset();
 }
 
