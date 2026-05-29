@@ -36,6 +36,24 @@ them in future ticks.
 
 ## Settled
 
+### objdiff constant-pool label-numbering floor (a near-match can be byte-identical)
+
+MWCC assigns anonymous local symbols (`@NNNN` for float/const-pool entries) from an
+**object-global, order-dependent counter**. Two objects that emit the *same* constant
+(same value, section, order, offset) get *different* `@` numbers if the rest of the TU
+differs in size (target reached `@33xx`; our smaller-TU build reaches `@4xx`). objdiff
+aligns data by symbol name, so it cannot equate `@3347`==`@449` and scores each
+constant-pool reference as DIFF_ARG_MISMATCH — even though `dtk elf disasm` shows the
+**instruction bytes are byte-identical**. A function whose only residue is this is at
+the matching floor; there is no source-level lever (you'd have to compile the whole
+original TU ahead of it to advance the counter). Diagnostic: disasm both
+`build/GMSJ01/obj/<TU>.o` and `build/GMSJ01/src/<TU>.o`; if bytes match and only the
+`@NNNN` numbers differ, treat the function as done and stop. Cited: limitkoopa
+`load__18TLimitKoopaManagerFR20JSUMemoryInputStream` (99.83%) and
+`loadAfter__18TLimitKoopaManagerFv` (99.93%), t206. (Distinct from a genuine
+leading-`.rodata` byte shift, which CAN be fixed if the missing constant is identified.)
+
+
 ### Routing a field read through its own inline accessor inhibits CSE and forces the target's field *reload*
 
 **Rule.** When the target loads a field, tests it, then *reloads the
