@@ -5085,6 +5085,43 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### `MsRandF(l, r)` 2-arg interval helper: the original took args **by const reference**, so literal `0.0f`/`1.0f` arguments do NOT constant-fold
+
+**Hypothesis.** The 2-arg `MsRandF(f32 l, f32 r)` in
+`include/MarioUtil/RandomUtil.hpp` (flagged `// fake!!!`) was originally
+declared `MsRandF(const f32& l, const f32& r)`. With by-value params,
+a call `MsRandF(0.0f, 1.0f)` lets MWCC fold `(r - l)` → a single `1.0f`
+constant and `l` → `0.0f`, and fuse the multiply-add into one `fmadds`.
+The target instead loads the TU's shared `0.0f` (`@3243`) and `1.0f`
+(`@3518`) sdata2 constants separately, computes `(r - l)` at **runtime
+before the `rand()` call** (hoisting it into callee-saved `f31`), and
+emits `fmuls; fmuls; fadds` (no fusion). That non-folding, pre-call
+`(r-l)` hoist is exactly what passing the literals through `const f32&`
+parameters produces.
+
+**Observed.** `mario/Enemy/killer`: `TKiller::reset`'s
+`if (MsRandF(0.0f, 1.0f) < 0.05f)` block. By-value 2-arg form → 78.4%.
+Flipping the shared header to `const f32&` → **83.6%** (frame and the
+entire rand expansion line up). BUT the global flip net-regressed
+overall fuzzy (71.10129 → 71.09631) — other TUs' `MsRandF(l,r)`
+callsites (namekuri/hamukuri/poihana/smallEnemy/effectObj/bombhei/
+mameGesso/telesa, 24 sites) match *better* with by-value, implying either
+those originals genuinely used by-value, the helper was overloaded, or
+those callsites pass runtime variables (where the signature is codegen-
+neutral). Reverted the global change; left killer at the by-value 2-arg
+form.
+
+**Experiment to confirm/resolve.** Check what the 24 other callsites
+pass: if they pass *variables* (not literals), const-ref is codegen-
+neutral there and the regression came from elsewhere — re-measure. If
+they pass *literals*, the two behaviors are irreconcilable with one
+signature → the smallEnemy "random interval" family likely had its own
+distinct helper (the `// fake!!!` TODO hints at a `random interval`
+class). A TU-local const-ref helper in killer.cpp (or a class static
+holding the 0/1 bounds, forcing a memory load at the callsite) would let
+killer reach 83.6% without touching the shared header. Worth a focused
+INVESTIGATION pass.
+
 ### Under `-inline deferred`, MWCC inlines even large (500+ byte) ordinary member functions into a *single* call site; `#pragma dont_inline` restores the `bl`
 
 **Hypothesis.** The existing `dont_inline` guidance in `CLAUDE.md` is
