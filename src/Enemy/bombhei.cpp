@@ -86,6 +86,9 @@ DEFINE_NERVE(TNerveBombHeiExplosion, TLiveActor)
 			self->mLiveFlag &= ~0x10000;
 			self->mHolder = nullptr;
 			self->stopAnmSound();
+			spine->reset();
+			spine->setDefaultNext();
+			spine->pushAfterCurrent(spine->getDefault());
 			return true;
 		}
 	}
