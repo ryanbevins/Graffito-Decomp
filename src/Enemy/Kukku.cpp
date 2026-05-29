@@ -479,8 +479,9 @@ void TKukku::updateRotation()
 void TKukku::behaveToWater(THitActor* sender)
 {
 	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
-	if (cur == &TNerveKukkuFall::theNerve()
-	    || cur == &TNerveKukkuPostFall::theNerve())
+	bool b1 = (cur == &TNerveKukkuFall::theNerve()
+	           || cur == &TNerveKukkuPostFall::theNerve());
+	if (b1)
 		return;
 
 	if (mSpine->getLatestNerve() == &TNerveKukkuRecoverGraph::theNerve())
