@@ -436,6 +436,7 @@ void TLimitKoopa::setUpHitActors()
 	mHeadHitActor->calcEntryRadius();
 }
 
+#pragma dont_inline on
 void TLimitKoopa::startHipDrop()
 {
 	JGeometry::TVec3<f32> vel(0.0f, 1.0f, 0.0f);
@@ -457,6 +458,7 @@ void TLimitKoopa::startHipDrop()
 
 	mVelocity.set(vel);
 }
+#pragma dont_inline off
 
 void TLimitKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 {
@@ -678,8 +680,9 @@ DEFINE_NERVE(TNerveLimitKoopaHipDropStart, TLiveActor)
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		if (!self->mMActor->checkCurBckFromIndex(5))
-			self->mMActor->setBckFromIndex(5);
+		MActor* m = self->mMActor;
+		if (!m->checkCurBckFromIndex(5))
+			m->setBckFromIndex(5);
 		self->mMActor->getFrameCtrl(0)->setRate(2.0f);
 		self->unk154 = 30;
 	}
