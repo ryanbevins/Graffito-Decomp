@@ -51,7 +51,8 @@ DEFINE_NERVE(TNerveKazekunHitWater, TLiveActor)
 		return TRUE;
 	}
 
-	self->mVelocity.set(0.0f, 0.0f, 0.0f);
+	JGeometry::TVec3<f32> v(0.0f, 0.0f, 0.0f);
+	self->mVelocity = v;
 	return FALSE;
 }
 
@@ -79,7 +80,8 @@ DEFINE_NERVE(TNerveKazekunDisappear, TLiveActor)
 		self->mMActor->setBck("kazekun_vanish");
 		self->setCurAnmSound();
 		gpMarioParticleManager->emit(0xcf, &self->mPosition, 0, nullptr);
-		self->mVelocity.set(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> v(0.0f, 0.0f, 0.0f);
+		self->mVelocity = v;
 		self->unk64 |= 0x1;
 	}
 
