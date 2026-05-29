@@ -558,8 +558,9 @@ DEFINE_NERVE(TNerveLimitKoopaWait, TLiveActor)
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		if (!self->mMActor->checkCurBckFromIndex(10))
-			self->mMActor->setBckFromIndex(10);
+		MActor* m = self->mMActor;
+		if (!m->checkCurBckFromIndex(10))
+			m->setBckFromIndex(10);
 		self->mMActor->getFrameCtrl(0)->setRate(2.0f);
 		self->unk150 = 240;
 	}
@@ -608,9 +609,10 @@ DEFINE_NERVE(TNerveLimitKoopaStagger, TLiveActor)
 {
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
-	f32 rate = self->getSaveParam2()->mStaggerSpeed.get();
-	if (!self->mMActor->checkCurBckFromIndex(9))
-		self->mMActor->setBckFromIndex(9);
+	f32 rate  = self->getSaveParam2()->mStaggerSpeed.get();
+	MActor* m = self->mMActor;
+	if (!m->checkCurBckFromIndex(9))
+		m->setBckFromIndex(9);
 	self->mMActor->getFrameCtrl(0)->setRate(rate);
 
 	if (self->mMActor->curAnmEndsNext(0, nullptr))
@@ -622,9 +624,10 @@ DEFINE_NERVE(TNerveLimitKoopaGetShowered, TLiveActor)
 {
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
-	f32 rate = self->getSaveParam2()->mWaterhitSpeed.get();
-	if (!self->mMActor->checkCurBckFromIndex(14))
-		self->mMActor->setBckFromIndex(14);
+	f32 rate  = self->getSaveParam2()->mWaterhitSpeed.get();
+	MActor* m = self->mMActor;
+	if (!m->checkCurBckFromIndex(14))
+		m->setBckFromIndex(14);
 	self->mMActor->getFrameCtrl(0)->setRate(rate);
 
 	if (self->mMActor->curAnmEndsNext(0, nullptr))
@@ -666,8 +669,9 @@ DEFINE_NERVE(TNerveLimitKoopaTumble, TLiveActor)
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
 	f32 speed = self->getSaveParam2()->mTumbleSpeed.get();
-	if (!self->mMActor->checkCurBckFromIndex(8))
-		self->mMActor->setBckFromIndex(8);
+	MActor* m = self->mMActor;
+	if (!m->checkCurBckFromIndex(8))
+		m->setBckFromIndex(8);
 	self->mMActor->getFrameCtrl(0)->setRate(speed);
 
 	if (self->mMActor->curAnmEndsNext(0, nullptr))
