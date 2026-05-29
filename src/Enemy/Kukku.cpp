@@ -29,7 +29,8 @@ DEFINE_NERVE(TNerveKukkuFall, TLiveActor)
 	if (spine->getTime() == 0) {
 		self->getMActor()->setBck("tori_wait");
 		self->setCurAnmSound();
-		self->getMActor()->getFrameCtrl(0)->setRate(2.0f * SMSGetAnmFrameRate());
+		J3DFrameCtrl* fc = self->getMActor()->getFrameCtrl(0);
+		fc->setRate(2.0f * SMSGetAnmFrameRate());
 
 		JGeometry::TVec3<f32> vel(0.0f, -self->getSaveParam2()->mWaterPowerY.get(),
 		                          0.0f);
