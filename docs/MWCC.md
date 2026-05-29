@@ -5067,6 +5067,49 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### "Set/force current nerve NOW" idiom = `reset()` + `setNext(nerve)` + `pushAfterCurrent(nerve-or-default)`, guarded by `getCurrentNerve() != nerve`
+
+**Hypothesis.** Enemy `kill`/`forceKill`/terminal-`execute` bodies that
+"switch to a specific nerve immediately" (not queue-after-current) compile
+to a compound inlined block, NOT `pushNerve`:
+
+```cpp
+if (mSpine->getCurrentNerve() != &TNerveX::theNerve()) {
+    mSpine->reset();                              // mVertebrae.clear()  -> stw 0, 0x8(spine)
+    mSpine->setNext(&TNerveX::theNerve());        // prev=cur; mTime=0; mCurrent=X  (0x1c,0x20,0x14)
+    mSpine->pushAfterCurrent(&TNerveX::theNerve()); // or getDefault() — push onto cleared stack
+}
+```
+
+Each `theNerve()` is spelled textually (the comparison, the setNext arg, and
+the push arg are *separate* expressions), so the asm shows one Meyers
+static-init guard **per** reference — 3 guards when the push uses the nerve,
+2 when it uses `getDefault()`/`unk18` (no guard for the default load).
+Key distinguisher from `becomeNerve(nerve)`: a single inlined helper taking
+`nerve` as a param would evaluate `theNerve()` **once** (1 guard); the
+multi-guard asm proves the calls are written out.
+
+`setNext` vs `setDefaultNext`: `setDefaultNext()` inlines `setNext(unk18)`,
+which loads `mCurrent` (0x14) for the if-test *before* loading `unk18`
+(0x18); `setNext(getDefault())` evaluates the arg first → `unk18` load
+*before* `mCurrent`. Match the 0x14-vs-0x18 load order to choose.
+
+**Promote to Settled** once confirmed in a second TWalkerEnemy/TSmallEnemy
+(e.g. another enemy's `kill`/`forceKill`). Currently single-TU.
+
+**Citations (1 TU, bombhei t198).**
+- `TBombHei::kill` 41.9% → 89.5% (reset+setNext+pushAfterCurrent(nerve)).
+- `TBombHei::forceKill` 47.2% → 72% (push uses `getDefault()`, 2 guards).
+- `TNerveBombHeiExplosion::execute` terminal block 76.8% → 92.6%
+  (`reset()+setDefaultNext()+pushAfterCurrent(getDefault())` before `return true`).
+
+Residual on all three: a TU-wide static-data-layout difference — target
+hoists `@NNNN`/`@1431` data bases into callee-saved r30/r31 and addresses
+nerve instances/registration strings as `base+off`, while our build emits a
+fresh `lis/addi` per reference and names the block `.bss.N` instead of
+`@NNNN`. Same family as the moveObject +8 / kill +4 / behaveToRelease 99%
+residuals. See Open questions.
+
 ### Big-function deferred-inline budget declines to inline even the *first* operand's `theNerve()` Meyers singleton
 
 **Hypothesis.** The accumulator-shape rule (see Settled) says a
@@ -5737,6 +5780,31 @@ declaration trick, or moving inline source out of header) is required.
 _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *Hypotheses
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
+
+- **Nerve-heavy fns: target names the static-nerve/registration-string
+  block `@NNNN` and hoists its base into a callee-saved reg (r30/r31),
+  addressing every inlined `theNerve()` instance + `__register_global_object`
+  name string as `base+off`; our build emits the block as `.bss.N` and
+  re-materializes a fresh `lis/addi` per reference (t198, bombhei).** When a
+  function inlines ≥3 `theNerve()` Meyers singletons (e.g. `kill`,
+  `forceKill`, `moveObject`, `behaveToRelease`, `Explosion::execute`), the
+  target's prologue does `lis rX, @NNNN@ha; addi r30, rX, @NNNN@l` once and
+  then `addi r0, r30, 0x48` / `addi r5, r31, 0x18` etc. for each instance,
+  allocating an extra callee-saved register and (often) +4/+8/+0x20 frame.
+  Our build addresses each `instance$K@sda21` / vtable directly with inline
+  `lis/addi`, uses one fewer saved register, and a smaller frame — so these
+  functions land at 72–99% with the *logic byte-identical* but every data
+  reference and the stack/register prologue shifted. Symptom: in the diff,
+  every real mismatch line is a `@NNNN` vs `...bss.N` symbol, an
+  `instance$<big>` vs `instance$<small>` renumber, or an `addi rN,r3X,off`
+  base+offset vs our inline `lis/addi`. Question: what source/layout
+  property decides whether the anonymous static cluster gets a named `@NNNN`
+  base worth hoisting? Suspect ordering/count of nerve `DEFINE_NERVE`
+  statics relative to the TU's other anonymous data; possibly an
+  infectious-data declaration (cf. the `dummy1431` `.data` rule) is missing.
+  Experiment: try adding the bombhei-specific infectious statics the target
+  emits near `@2904`/`@3009` and check whether the block renames to `@NNNN`
+  and the base hoists.
 
 - **`TQuat4::rotate` inline spills its internal `q`/`q2` quats to stack
   (+0x20 frame); target keeps the whole rotation in FPRs (t196, Kukku).**
