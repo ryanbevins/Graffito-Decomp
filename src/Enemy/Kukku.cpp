@@ -15,7 +15,11 @@
 #include <Map/Map.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
+#include <MoveBG/MapObjBase.hpp>
+#include <MoveBG/ItemManager.hpp>
 #include <System/Particles.hpp>
+#include <JSystem/JMath.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
@@ -489,4 +493,59 @@ void TKukku::behaveToWater(THitActor* sender)
 
 	mSpine->reset();
 	mSpine->setNext(&TNerveKukkuFall::theNerve());
+}
+
+namespace {
+int cDropCoinNumTable[] = { 3, 3, 1, 2 };
+}
+
+void TKukku::dropCoins()
+{
+	if (unk1B0 > 10)
+		return;
+
+	if (unk1B0 == 0 && unk1A0 != nullptr) {
+		unk1B0              = 1;
+		TMapObjBase* mapObj = (TMapObjBase*)unk1A0;
+		mapObj->appear();
+		mapObj->JSGSetTranslation(mPosition);
+		mapObj->mVelocity.set(0.0f, 0.0f, 0.0f);
+		mapObj->offLiveFlag(LIVE_FLAG_UNK10);
+		return;
+	}
+
+	s32 idx = (s32)(4.0f * MsRandF());
+	if (idx < 1)
+		idx = 1;
+	else if (idx > 3)
+		idx = 3;
+	s32 numCoins = cDropCoinNumTable[idx];
+
+	JGeometry::TQuat4<f32> qSpin;
+	qSpin.setRotate(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f),
+	                6.2831855f / numCoins);
+
+	JGeometry::TQuat4<f32> qTilt;
+	qTilt.setRotate(JGeometry::TVec3<f32>(1.0f, 0.0f, 0.0f),
+	                3.1415927f * getSaveParam2()->mDropAngleX.get());
+
+	f32 speed = getSaveParam2()->mDropSpeed.get();
+	JGeometry::TVec3<f32> dir;
+	dir.set(speed * JMASin(mRotation.y), 0.0f, speed * JMACos(mRotation.y));
+
+	qTilt.rotate(dir);
+	qSpin.rotate(dir);
+
+	for (s32 i = 0; i < numCoins; ++i) {
+		TMapObjBase* coin = gpItemManager->makeObjAppear(0x2000000e);
+		if (!coin)
+			return;
+		coin->appear();
+		coin->JSGSetTranslation(mPosition);
+		coin->mVelocity.set(dir);
+		coin->offLiveFlag(LIVE_FLAG_UNK10);
+		if (++unk1B0 == 10)
+			return;
+		qSpin.rotate(dir);
+	}
 }
