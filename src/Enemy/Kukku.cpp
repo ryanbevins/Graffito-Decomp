@@ -445,7 +445,7 @@ JGeometry::TVec3<f32> TKukku::calcMomentum(f32 speed)
 
 void TKukku::updateRotation()
 {
-	JGeometry::TVec3<f32> toTarget = unkF4.getPoint();
+	JGeometry::TVec3<f32> toTarget = getUnkF4().getPoint();
 	toTarget.x -= mPosition.x;
 	toTarget.y -= mPosition.y;
 	toTarget.z -= mPosition.z;
