@@ -18,11 +18,16 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JMath.hpp>
+#include <MarioUtil/MtxUtil.hpp>
 #include <dolphin/mtx.h>
 
 #include <M3DUtil/InfectiousStrings.hpp>
 
 extern "C" bool SMS_IsMarioOnWire();
+
+namespace std {
+float fmodf(float, float);
+}
 
 namespace {
 const char cMatName[]      = "_mat_1";
@@ -333,6 +338,32 @@ void TWireTrap::calcRootMatrix()
 		e2->unk154.set(mScaling.x, mScaling.y, mScaling.z);
 		e2->unk174.set(mScaling.x, mScaling.y, mScaling.z);
 	}
+
+	TPosition3f mtx;
+	JGeometry::TVec3<f32> dir
+	    = getWireBinder()->getDirAtPos(mPosition, mWireDir);
+	dir.scale(mWireDir);
+	SMS_CalcToDirMatrix(mtx, dir, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
+
+	JGeometry::TQuat4<f32> quat;
+	mtx.getQuat(quat);
+
+	mRotation.y += -17.75f;
+	mRotation.y = std::fmodf(360.0f + (mRotation.y - 0.0f), 360.0f) + 0.0f;
+
+	JGeometry::TQuat4<f32> spin;
+	spin.setRotate(JGeometry::TVec3<f32>(0.0f, 0.0f, 1.0f),
+	               mRotation.y * 0.017453294f);
+
+	quat.mul(spin);
+	mtx.setQuat(quat);
+	mtx.setTrans(mPosition);
+
+	getModel()->setBaseTRMtx(mtx);
+
+	JGeometry::TVec3<f32> scale = mScaling;
+	scale.scale(mScaleRate);
+	getModel()->setBaseScale(scale);
 }
 
 void TWireTrap::kill()
