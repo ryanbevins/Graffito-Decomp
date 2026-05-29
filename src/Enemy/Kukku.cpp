@@ -18,8 +18,10 @@
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <System/Particles.hpp>
+#include <System/EmitterViewObj.hpp>
 #include <JSystem/JMath.hpp>
 #include <MarioUtil/RandomUtil.hpp>
+#include <Map/MapData.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
@@ -547,5 +549,45 @@ void TKukku::dropCoins()
 		if (++unk1B0 == 10)
 			return;
 		qSpin.rotate(dir);
+	}
+}
+
+void TKukku::calcRootMatrix()
+{
+	if (mSpine->getLatestNerve() == &TNerveSmallEnemyDie::theNerve()) {
+		JGeometry::TVec3<f32> normal;
+		if (getGroundPlane()) {
+			normal.normalize(getGroundPlane()->getNormal());
+		} else {
+			normal.set(0.0f, 1.0f, 0.0f);
+		}
+
+		JGeometry::TQuat4<f32> qHeading;
+		qHeading.setRotate(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f),
+		                   0.017453294f * mRotation.y);
+
+		JGeometry::TQuat4<f32> q;
+		q.setRotate(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f), normal);
+		q.mul(q, qHeading);
+
+		TPosition3f mtx;
+		mtx.setQT(q, mPosition);
+		getModel()->setBaseTRMtx(mtx);
+		getModel()->setBaseScale(mScaling);
+	} else {
+		TSpineEnemy::calcRootMatrix();
+	}
+
+	const TNerveBase<TLiveActor>* n = mSpine->getLatestNerve();
+	bool isFallOrPost = (n == &TNerveKukkuFall::theNerve()
+	                     || n == &TNerveKukkuPostFall::theNerve());
+	if (isFallOrPost) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x18d, getModel()->getAnmMtx(unk1A8), 1, this);
+	}
+
+	if (getMActor()->checkCurAnm("tori_back", 0)) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x18c, getModel()->getAnmMtx(unk1A8), 1, this);
 	}
 }
