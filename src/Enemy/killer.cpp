@@ -217,11 +217,6 @@ void TFlyEnemy::setAfterDeadEffect() { }
 TKiller::TKiller(const char* name)
     : TFlyEnemy(name)
 {
-	mFlyState     = 0;
-	mFlyParams    = nullptr;
-	mFlyTimer     = 0;
-	mIsChaseMode  = 1;
-	mColorVariant = 0;
 }
 
 void TKiller::init(TLiveManager* manager)
