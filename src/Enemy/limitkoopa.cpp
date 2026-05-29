@@ -1,11 +1,29 @@
 #include <Enemy/LimitKoopa.hpp>
 #include <Enemy/EnemyManager.hpp>
 #include <Strategic/ObjManager.hpp>
+#include <Strategic/Spine.hpp>
+#include <Strategic/HitActor.hpp>
 #include <System/Particles.hpp>
+#include <System/EmitterViewObj.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <Player/MarioAccess.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
+#include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JDrama/JDRNameRef.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JGadget/std-list.hpp>
 
 // rogue includes needed for matching sinit & rodata
 #include <M3DUtil/InfectiousStrings.hpp>
+
+namespace {
+int KoopaNeckCallBack(J3DNode*, int)
+{
+	return 1;
+}
+} // namespace
 
 TLimitKoopaManager::TLimitKoopaManager(const char* name)
     : TEnemyManager(name)
@@ -78,4 +96,615 @@ void TLimitKoopaManager::loadAfter()
 	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_c.jpa", 0x1c2);
 	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_d.jpa", 0x1c3);
 	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_e.jpa", 0x1f3);
+}
+
+// ---------------------------------------------------------------------------
+// TLimitKoopaParts hierarchy
+// ---------------------------------------------------------------------------
+
+inline TLimitKoopaParts::TLimitKoopaParts(const char* name)
+    : TLiveActor(name)
+{
+}
+
+inline TLimitKoopaBody::TLimitKoopaBody(const char* name)
+    : TLimitKoopaParts(name)
+{
+}
+
+inline TLimitKoopaHead::TLimitKoopaHead(const char* name)
+    : TLimitKoopaParts(name)
+{
+}
+
+inline TLimitKoopaHand::TLimitKoopaHand(const char* name)
+    : TLimitKoopaParts(name)
+{
+}
+
+inline TLimitKoopaFlame::TLimitKoopaFlame(const char* name)
+    : TLimitKoopaParts(name)
+{
+}
+
+void TLimitKoopaParts::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	TLiveActor::perform(flags, graphics);
+
+	if (flags & 1) {
+		for (int i = 0; i < mColCount; i++)
+			attack_(mCollisions[i]);
+	}
+}
+
+void TLimitKoopaBody::attack_(THitActor* actor) { actor->receiveMessage(this, 0xE); }
+
+BOOL TLimitKoopaBody::receiveMessage(THitActor* sender, u32 message) { return TRUE; }
+
+void TLimitKoopaHead::attack_(THitActor* actor) { actor->receiveMessage(this, 0xE); }
+
+BOOL TLimitKoopaHead::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == 0xF) {
+		if (mOwner->mSpine->getCurrentNerve()
+		    == &TNerveLimitKoopaTumble::theNerve())
+			return TRUE;
+
+		if (mOwner->mSpine->getCurrentNerve()
+		    == &TNerveLimitKoopaGetDown::theNerve())
+			return TRUE;
+
+		if (mOwner->mSpine->getCurrentNerve()
+		    == &TNerveLimitKoopaStagger::theNerve())
+			mOwner->mSpine->setNext(&TNerveLimitKoopaGetShowered::theNerve());
+
+		mOwner->mSpine->pushNerve(&TNerveLimitKoopaGetShowered::theNerve());
+	}
+
+	return TRUE;
+}
+
+void TLimitKoopaHand::attack_(THitActor* actor) { actor->receiveMessage(this, 0xE); }
+
+BOOL TLimitKoopaHand::receiveMessage(THitActor* sender, u32 message) { return TRUE; }
+
+void TLimitKoopaFlame::attack_(THitActor* actor)
+{
+	if (actor->receiveMessage(this, 0xA)) {
+		f32 fireSpeed
+		    = ((TEnemyManager*)mOwner->getManager())->getSaveParam()
+		          ? ((TLimitKoopaParams*)((TEnemyManager*)mOwner->getManager())
+		                 ->getSaveParam())
+		                ->mFireSpeed.get()
+		          : 0.0f;
+
+		MActor* mactor = mOwner->getMActor();
+		if (!mactor->checkCurBckFromIndex(3))
+			mactor->setBckFromIndex(3);
+
+		mOwner->getMActor()->getFrameCtrl(0)->setRate(fireSpeed);
+	}
+}
+
+BOOL TLimitKoopaFlame::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == 0xF)
+		return FALSE;
+
+	return TRUE;
+}
+
+// ---------------------------------------------------------------------------
+// TLimitKoopa
+// ---------------------------------------------------------------------------
+
+TLimitKoopa::TLimitKoopa(const char* name)
+    : TSpineEnemy(name)
+{
+	mLiveFlag |= 0x80;
+	mLiveFlag &= ~0x100;
+	mLiveFlag |= 0x10;
+	mScaledBodyRadius = 1600.0f;
+}
+
+void TLimitKoopa::load(JSUMemoryInputStream& stream) { TSpineEnemy::load(stream); }
+
+f32 TLimitKoopa::getGravityY() const
+{
+	return getSaveParam2()->mHipDropGravityY.get();
+}
+
+BOOL TLimitKoopa::receiveMessage(THitActor* sender, u32 message)
+{
+	return TSpineEnemy::receiveMessage(sender, message);
+}
+
+void TLimitKoopa::calcRootMatrix()
+{
+	f32 scale = getSaveParam2()->mBodyScale.get();
+	mScaling.x = scale;
+	mScaling.y = scale;
+	mScaling.z = scale;
+
+	mRotation.y = TDirectionCalc::r2d(mDirection.mDirection);
+
+	TSpineEnemy::calcRootMatrix();
+}
+
+void TLimitKoopa::bind()
+{
+	JGeometry::TVec3<f32> nextPos;
+	getNextFramePosition(nextPos);
+
+	mVelocity.x += mFallVelocity.x;
+	mVelocity.y += mFallVelocity.y;
+	mVelocity.z += mFallVelocity.z;
+
+	mGroundHeight = 3500.0f;
+	mGroundHeight += 1.0f;
+
+	if (nextPos.y <= 0.05f + mGroundHeight) {
+		nextPos.y = mGroundHeight;
+		unk168    = 1;
+		mFallVelocity.x = 0.0f;
+		mFallVelocity.y = 0.0f;
+		mFallVelocity.z = 0.0f;
+		mVelocity.x = 0.0f;
+		mVelocity.y = 0.0f;
+		mVelocity.z = 0.0f;
+	}
+
+	JGeometry::TVec3<f32> delta = nextPos;
+	delta.sub(mPosition);
+	mLinearVelocity = delta;
+}
+
+void TLimitKoopa::reset()
+{
+	TSpineEnemy::reset();
+
+	f32 waitSpeed = getSaveParam2()->mWaitSpeed.get();
+	if (!mMActor->checkCurBckFromIndex(0xc))
+		mMActor->setBckFromIndex(0xc);
+	mMActor->getFrameCtrl(0)->setRate(waitSpeed);
+
+	mSpine->reset();
+	unk150 = 0;
+	unk154 = 0;
+	unk158 = 0;
+	unk168 = 1;
+	mDirection.mDirection = 0.0f;
+}
+
+void TLimitKoopa::init(TLiveManager* manager)
+{
+	mBodyRadius = 800.0f;
+	mHeadHeight = 2000.0f;
+
+	TSpineEnemy::init(manager);
+
+	onHitFlag(0x1);
+	onHitFlag(0x4);
+	offHitFlag(0x2);
+
+	mSpine->initWith(&TNerveLimitKoopaWait::theNerve());
+
+	if (mMActor->getAnmBck())
+		mMActor->getAnmBck()->initSimpleMotionBlend(0x10);
+
+	mDirection.mLength = 0.0f;
+
+	reset();
+
+	J3DModelData* modelData = getModel()->getModelData();
+	JUTNameTab* nameTab     = modelData->getJointName();
+	mHeadJointIndex         = nameTab->getIndex("ago");
+	mNeckJointIndex         = nameTab->getIndex("head");
+	mJointIndex2            = nameTab->getIndex("neck");
+
+	J3DNode* node = (J3DNode*)getModel()->getModelData()->getJointNodePointer(
+	    mNeckJointIndex);
+	node->setCallBack(&KoopaNeckCallBack);
+	node->setCallBackUserData(this);
+}
+
+void TLimitKoopa::loadAfter()
+{
+	JDrama::TNameRef::loadAfter();
+
+	for (int i = 0; i < 10; i++) {
+		TLimitKoopaFlame* p = new TLimitKoopaFlame(
+		    "\x83\x4E\x83\x62\x83\x70\x82\xCC\x93\x66\x82\xAD\x89\x8A");
+		p->mOwner = this;
+		registerToGroup(p);
+		p->initHitActor(0x08000030, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
+		                100.0f);
+		p->onHitFlag(0x2);
+		p->onHitFlag(0x4);
+		p->onHitFlag(0x1);
+		mFlameHitActors[i] = p;
+	}
+
+	for (int i = 0; i < 2; i++) {
+		TLimitKoopaHand* p
+		    = new TLimitKoopaHand("\x83\x4E\x83\x62\x83\x70\x8E\xE8");
+		p->mOwner = this;
+		registerToGroup(p);
+		p->initHitActor(0x08000032, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
+		                100.0f);
+		p->onHitFlag(0x2);
+		p->onHitFlag(0x4);
+		p->onHitFlag(0x1);
+		(&unk1A0)[i] = p;
+	}
+
+	{
+		TLimitKoopaHead* p
+		    = new TLimitKoopaHead("\x83\x4E\x83\x62\x83\x70\x93\xAA");
+		p->mOwner = this;
+		registerToGroup(p);
+		p->initHitActor(0x08000031, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
+		                100.0f);
+		p->onHitFlag(0x2);
+		p->onHitFlag(0x4);
+		p->onHitFlag(0x1);
+		mHeadHitActor = p;
+	}
+
+	{
+		TLimitKoopaBody* p
+		    = new TLimitKoopaBody("\x83\x4E\x83\x62\x83\x70\x91\xCC");
+		p->mOwner = this;
+		registerToGroup(p);
+		p->initHitActor(0x08000033, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
+		                100.0f);
+		p->onHitFlag(0x2);
+		p->onHitFlag(0x4);
+		p->onHitFlag(0x1);
+		unk1AC = p;
+	}
+}
+
+void TLimitKoopa::setUpHitActors()
+{
+	MtxPtr neckMtx = getMActor()->getModel()->getAnmMtx(mNeckJointIndex);
+
+	bool emitting;
+	if (getMActor()->getCurAnmIdx(0) == 4) {
+		emitting = true;
+	} else if (getMActor()->getCurAnmIdx(0) == 5
+	           && getMActor()->getFrameCtrl(0)->getFrame() >= 127.0f) {
+		emitting = true;
+	} else {
+		emitting = false;
+	}
+
+	if (emitting) {
+		f32 ratio = 1.0f;
+		if (getMActor()->getCurAnmIdx(0) == 5) {
+			J3DFrameCtrl* fc = getMActor()->getFrameCtrl(0);
+			ratio = (fc->getFrame() - 125.0f) / ((f32)fc->getEnd() - 125.0f);
+		}
+
+		TLimitKoopaParams* prm = getSaveParam2();
+		for (int i = 0; i < 10; i++) {
+			f32 flameRadius = prm->mFlameRadius.get();
+			f32 flameHeight = prm->mFlameHeight.get();
+
+			f32 dist = 0.8f * (2.0f + (f32)(2 * i)) * flameRadius * ratio;
+
+			THitActor* hit  = mFlameHitActors[i];
+			hit->mPosition.x = neckMtx[0][3] + dist * neckMtx[0][0];
+			hit->mPosition.y = mPosition.y;
+			hit->mPosition.z = neckMtx[2][3] + dist * neckMtx[2][0];
+
+			hit->offHitFlag(0x2);
+			hit->offHitFlag(0x4);
+			hit->offHitFlag(0x1);
+
+			f32 height = flameHeight > 0.0f ? flameHeight : 2.0f * flameRadius;
+			hit->mAttackRadius = flameRadius;
+			hit->mAttackHeight = height;
+			hit->mDamageRadius = flameRadius;
+			hit->mDamageHeight = height;
+			hit->calcEntryRadius();
+		}
+	} else {
+		for (int i = 0; i < 10; i++) {
+			THitActor* hit = mFlameHitActors[i];
+			hit->onHitFlag(0x2);
+			hit->onHitFlag(0x4);
+			hit->onHitFlag(0x1);
+		}
+	}
+
+	MtxPtr headMtx = getMActor()->getModel()->getAnmMtx(mHeadJointIndex);
+	f32 headRadius = getSaveParam2()->mHeadRadius.get();
+
+	mHeadHitActor->mPosition.x = headMtx[0][3];
+	mHeadHitActor->mPosition.y = headMtx[1][3] - 200.0f;
+	mHeadHitActor->mPosition.z = headMtx[2][3];
+
+	mHeadHitActor->offHitFlag(0x2);
+	mHeadHitActor->offHitFlag(0x4);
+	mHeadHitActor->offHitFlag(0x1);
+
+	mHeadHitActor->mAttackRadius = headRadius;
+	mHeadHitActor->mAttackHeight = 2.0f * headRadius;
+	mHeadHitActor->mDamageRadius = headRadius;
+	mHeadHitActor->mDamageHeight = 2.0f * headRadius;
+	mHeadHitActor->calcEntryRadius();
+}
+
+void TLimitKoopa::startHipDrop()
+{
+	JGeometry::TVec3<f32> vel(0.0f, 1.0f, 0.0f);
+	vel.scale(getSaveParam2()->mHipDropInitialSpeedY.get());
+
+	JGeometry::TVec3<f32> marioVec = *gpMarioPos;
+	marioVec.y                     = mGroundHeight;
+
+	JGeometry::TVec3<f32> diff = marioVec;
+	diff.sub(mPosition);
+	JGeometry::TVec3<f32> target = mPosition;
+	target.add(diff);
+
+	vel = calcVelocityToJumpToY(target, vel.y,
+	                            getSaveParam2()->mHipDropGravityY.get());
+
+	if (vel.length() > 200.0f)
+		vel.setLength(200.0f);
+
+	mVelocity.set(vel);
+}
+
+void TLimitKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	TSpineEnemy::perform(flags, graphics);
+
+	for (int i = 0; i < 10; i++)
+		mFlameHitActors[i]->perform(flags, graphics);
+	mHeadHitActor->perform(flags, graphics);
+	unk1A0->perform(flags, graphics);
+	unk1A4->perform(flags, graphics);
+	unk1AC->perform(flags, graphics);
+
+	if (flags & 1) {
+		setUpHitActors();
+		if (unk150 > 0)
+			unk150--;
+		if (unk154 > 0)
+			unk154--;
+		if (unk158 > 0)
+			unk158--;
+	}
+
+	if (flags & 2) {
+		bool emitting;
+		if (getMActor()->getCurAnmIdx(0) == 4) {
+			emitting = true;
+		} else if (getMActor()->getCurAnmIdx(0) == 5
+		           && getMActor()->getFrameCtrl(0)->getFrame() >= 127.0f) {
+			emitting = true;
+		} else {
+			emitting = false;
+		}
+
+		if (emitting) {
+			f32 scale = getSaveParam2()->mFlameScale.get();
+			JGeometry::TVec3<f32> scaleVec(scale, scale, scale);
+			JPABaseEmitter* e;
+
+			e = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x1f3, getMActor()->getModel()->getAnmMtx(mNeckJointIndex), 3,
+			    this);
+			if (e) {
+				e->unk154.set(scaleVec);
+				e->unk174.set(scaleVec);
+			}
+			e = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x1c3, getMActor()->getModel()->getAnmMtx(mNeckJointIndex), 1,
+			    this);
+			if (e) {
+				e->unk154.set(scaleVec);
+				e->unk174.set(scaleVec);
+			}
+			e = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x1c2, getMActor()->getModel()->getAnmMtx(mNeckJointIndex), 1,
+			    this);
+			if (e) {
+				e->unk154.set(scaleVec);
+				e->unk174.set(scaleVec);
+			}
+			e = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x1c1, getMActor()->getModel()->getAnmMtx(mNeckJointIndex), 1,
+			    this);
+			if (e) {
+				e->unk154.set(scaleVec);
+				e->unk174.set(scaleVec);
+			}
+			e = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x1c0, getMActor()->getModel()->getAnmMtx(mNeckJointIndex), 1,
+			    this);
+			if (e) {
+				e->unk154.set(scaleVec);
+				e->unk174.set(scaleVec);
+			}
+		}
+	}
+}
+
+void TLimitKoopa::registerToGroup(THitActor* part)
+{
+	JDrama::TNameRef* root
+	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+	const char* kName = "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76";
+	JDrama::TNameRef* group
+	    = root->searchF(JDrama::TNameRef::calcKeyCode(kName), kName);
+	JGadget::TList_pointer_void* list
+	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
+	void* self = part;
+	list->insert(list->end(), self);
+}
+
+// ---------------------------------------------------------------------------
+// Nerves
+// ---------------------------------------------------------------------------
+
+DEFINE_NERVE(TNerveLimitKoopaWait, TLiveActor)
+{
+	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		if (!self->mMActor->checkCurBckFromIndex(10))
+			self->mMActor->setBckFromIndex(10);
+		self->mMActor->getFrameCtrl(0)->setRate(2.0f);
+		self->unk150 = 240;
+	}
+
+	{
+		TDirectionCalc tdc;
+		JGeometry::TVec3<f32> diff;
+		diff.x = gpMarioPos->x - self->mPosition.x;
+		diff.y = gpMarioPos->y - self->mPosition.y;
+		diff.z = gpMarioPos->z - self->mPosition.z;
+		diff.y = 0.0f;
+		tdc.makeDirection(diff);
+
+		f32 turn = TDirectionCalc::d2r(
+		    self->getSaveParam2()->mRotationSpeed.get());
+		self->mDirection.mDirection
+		    = self->mDirection.calcTurnDirection(tdc.mDirection, turn);
+	}
+
+	f32 absDir;
+	{
+		TDirectionCalc tdc;
+		JGeometry::TVec3<f32> diff;
+		diff.x = gpMarioPos->x - self->mPosition.x;
+		diff.y = gpMarioPos->y - self->mPosition.y;
+		diff.z = gpMarioPos->z - self->mPosition.z;
+		diff.y = 0.0f;
+		tdc.makeDirection(diff);
+		absDir = self->mDirection.absDirection(tdc.mDirection);
+	}
+
+	bool turned;
+	if (absDir > 0.31415927f)
+		turned = false;
+	else
+		turned = true;
+
+	if (turned && self->mMActor->isCurAnmAlreadyEnd(0)) {
+		spine->pushAfterCurrent(&TNerveLimitKoopaHipDropStart::theNerve());
+		return TRUE;
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveLimitKoopaStagger, TLiveActor)
+{
+	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
+
+	f32 rate = self->getSaveParam2()->mStaggerSpeed.get();
+	if (!self->mMActor->checkCurBckFromIndex(9))
+		self->mMActor->setBckFromIndex(9);
+	self->mMActor->getFrameCtrl(0)->setRate(rate);
+
+	if (self->mMActor->curAnmEndsNext(0, nullptr))
+		return TRUE;
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveLimitKoopaGetShowered, TLiveActor)
+{
+	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
+
+	f32 rate = self->getSaveParam2()->mWaterhitSpeed.get();
+	if (!self->mMActor->checkCurBckFromIndex(14))
+		self->mMActor->setBckFromIndex(14);
+	self->mMActor->getFrameCtrl(0)->setRate(rate);
+
+	if (self->mMActor->curAnmEndsNext(0, nullptr))
+		return TRUE;
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveLimitKoopaGetDown, TLiveActor)
+{
+	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
+
+	switch (self->mMActor->getCurAnmIdx(0)) {
+	case 0:
+	case 1:
+		if (self->mMActor->curAnmEndsNext(0, nullptr)) {
+			f32 rate = self->getSaveParam2()->mDownSpeed.get();
+			if (!self->mMActor->checkCurBckFromIndex(1))
+				self->mMActor->setBckFromIndex(1);
+			self->mMActor->getFrameCtrl(0)->setRate(rate);
+		}
+		break;
+	case 7:
+		if (self->mMActor->curAnmEndsNext(0, nullptr))
+			return TRUE;
+		break;
+	default: {
+		f32 rate = self->getSaveParam2()->mDownSpeed.get();
+		if (!self->mMActor->checkCurBckFromIndex(0))
+			self->mMActor->setBckFromIndex(0);
+		self->mMActor->getFrameCtrl(0)->setRate(rate);
+		break;
+	}
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveLimitKoopaTumble, TLiveActor)
+{
+	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
+
+	f32 speed = self->getSaveParam2()->mTumbleSpeed.get();
+	if (!self->mMActor->checkCurBckFromIndex(8))
+		self->mMActor->setBckFromIndex(8);
+	self->mMActor->getFrameCtrl(0)->setRate(speed);
+
+	if (self->mMActor->curAnmEndsNext(0, nullptr))
+		return TRUE;
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveLimitKoopaHipDropStart, TLiveActor)
+{
+	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		if (!self->mMActor->checkCurBckFromIndex(5))
+			self->mMActor->setBckFromIndex(5);
+		self->mMActor->getFrameCtrl(0)->setRate(2.0f);
+		self->unk154 = 30;
+	}
+
+	if (self->unk154 > 0)
+		return FALSE;
+
+	self->startHipDrop();
+	self->unk168 = 0;
+	spine->pushAfterCurrent(&TNerveLimitKoopaHipDropJump::theNerve());
+	return TRUE;
+}
+
+DEFINE_NERVE(TNerveLimitKoopaHipDropJump, TLiveActor)
+{
+	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
+
+	f32 g                = self->getGravityY();
+	self->mFallVelocity.x = 0.0f;
+	self->mFallVelocity.y = -g;
+	self->mFallVelocity.z = 0.0f;
+
+	if (self->unk168 == 0)
+		return FALSE;
+
+	spine->pushAfterCurrent(&TNerveLimitKoopaWait::theNerve());
+	return TRUE;
 }

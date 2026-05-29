@@ -3,6 +3,7 @@
 
 #include <Enemy/Enemy.hpp>
 #include <Enemy/EnemyManager.hpp>
+#include <Enemy/DirectionCalc.hpp>
 #include <Strategic/Nerve.hpp>
 
 class TLimitKoopaParams : public TSpineEnemyParams {
@@ -41,6 +42,88 @@ public:
 	/* 0x2EC */ TParamRT<f32> mMarioEstimationWait;
 };
 
+class TLimitKoopa;
+
+// TLimitKoopaParts : TLiveActor, size 0xF8. Adds two virtuals at the end of the
+// vtable: perform (overriding TLiveActor::perform position) and attack_ (new).
+class TLimitKoopaParts : public TLiveActor {
+public:
+	TLimitKoopaParts(const char*);
+
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual void attack_(THitActor*) = 0;
+
+	/* 0xF4 */ TLimitKoopa* mOwner;
+};
+
+class TLimitKoopaBody : public TLimitKoopaParts {
+public:
+	TLimitKoopaBody(const char*);
+	virtual BOOL receiveMessage(THitActor*, u32);
+	virtual void attack_(THitActor*);
+};
+
+class TLimitKoopaHead : public TLimitKoopaParts {
+public:
+	TLimitKoopaHead(const char*);
+	virtual BOOL receiveMessage(THitActor*, u32);
+	virtual void attack_(THitActor*);
+};
+
+class TLimitKoopaHand : public TLimitKoopaParts {
+public:
+	TLimitKoopaHand(const char*);
+	virtual BOOL receiveMessage(THitActor*, u32);
+	virtual void attack_(THitActor*);
+};
+
+class TLimitKoopaFlame : public TLimitKoopaParts {
+public:
+	TLimitKoopaFlame(const char*);
+	virtual BOOL receiveMessage(THitActor*, u32);
+	virtual void attack_(THitActor*);
+};
+
+class TLimitKoopa : public TSpineEnemy {
+public:
+	TLimitKoopa(const char* = "\x83\x4A\x83\x5A\x83\x4E\x83\x93\x83\x7D\x83\x6C\x81\x5B\x83\x57\x83\x83\x81\x5B");
+
+	virtual BOOL receiveMessage(THitActor*, u32);
+	virtual void load(JSUMemoryInputStream&);
+	virtual void loadAfter();
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual void init(TLiveManager*);
+	virtual void calcRootMatrix();
+	virtual void bind();
+	virtual f32 getGravityY() const;
+	virtual void reset();
+
+	void setUpHitActors();
+	void startHipDrop();
+	void registerToGroup(THitActor*);
+
+	TLimitKoopaParams* getSaveParam2() const
+	{
+		return (TLimitKoopaParams*)getSaveParam();
+	}
+
+	/* 0x150 */ s32 unk150;
+	/* 0x154 */ s32 unk154;
+	/* 0x158 */ s32 unk158;
+	/* 0x15C */ JGeometry::TVec3<f32> mFallVelocity;
+	/* 0x168 */ u8 unk168;
+	/* 0x16C */ TDirectionCalc mDirection;
+	/* 0x174 */ s32 unk174;
+	/* 0x178 */ THitActor* mFlameHitActors[10];
+	/* 0x1A0 */ THitActor* unk1A0;
+	/* 0x1A4 */ THitActor* unk1A4;
+	/* 0x1A8 */ THitActor* mHeadHitActor;
+	/* 0x1AC */ THitActor* unk1AC;
+	/* 0x1B0 */ s32 mNeckJointIndex;
+	/* 0x1B4 */ s32 mJointIndex2;
+	/* 0x1B8 */ s32 mHeadJointIndex;
+};
+
 class TLimitKoopaManager : public TEnemyManager {
 public:
 	TLimitKoopaManager(const char* = "\x83\x4A\x83\x5A\x83\x4E\x83\x93\x83\x7D\x83\x6C\x81\x5B\x83\x57\x83\x83\x81\x5B");
@@ -50,5 +133,32 @@ public:
 	virtual void createModelData();
 	virtual TSpineEnemy* createEnemyInstance();
 };
+
+// Abstract intermediate nerve: execute stays pure so its vtable execute slot is
+// NULL; the vtable + dtor are emitted (weak) only because Wait/Tumble derive
+// from it. This reproduces __vt__20TNerveLimitKoopaTurn (NULL execute) and the
+// double vtable-write seen in the derived nerves' ctor chains.
+class TNerveLimitKoopaTurn : public TNerveBase<TLiveActor> {
+public:
+	virtual BOOL execute(TSpineBase<TLiveActor>*) const = 0;
+};
+
+class TNerveLimitKoopaWait : public TNerveLimitKoopaTurn {
+public:
+	virtual BOOL execute(TSpineBase<TLiveActor>*) const;
+	static const TNerveLimitKoopaWait& theNerve();
+};
+
+class TNerveLimitKoopaTumble : public TNerveLimitKoopaTurn {
+public:
+	virtual BOOL execute(TSpineBase<TLiveActor>*) const;
+	static const TNerveLimitKoopaTumble& theNerve();
+};
+
+DECLARE_NERVE(TNerveLimitKoopaStagger, TLiveActor);
+DECLARE_NERVE(TNerveLimitKoopaGetShowered, TLiveActor);
+DECLARE_NERVE(TNerveLimitKoopaGetDown, TLiveActor);
+DECLARE_NERVE(TNerveLimitKoopaHipDropStart, TLiveActor);
+DECLARE_NERVE(TNerveLimitKoopaHipDropJump, TLiveActor);
 
 #endif
