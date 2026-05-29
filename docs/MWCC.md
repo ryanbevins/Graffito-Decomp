@@ -6201,6 +6201,25 @@ confirmed in ≥2 TUs._
   expression nesting, or the position of the `return` in the source AST. Reduce to a
   rule by varying source structure on a minimal test case.
 
+- **Large functions stop inlining cheap helpers (`dot`, `sqrt`) that inline
+  fine elsewhere (t201, Kazekun/flyAroundMario).** In the 916-byte
+  `flyAroundMario`, the target emits `bl dot__...TVec3` and
+  `bl sqrt__...TUtil<f>` for `TUtil<f32>::sqrt(dir.dot(dir))`, while our build
+  inlines both (the squared() fmuls/fadds + the frsqrte NR sqrt expand inline).
+  Both are normally trivially-inlined header templates — and the SAME TU inlines
+  squared() inside the smaller `SMS_CalcToDirMatrix` (matched 91%). So the
+  un-inlining is *function-size/inline-budget* driven, not a per-helper
+  property. Combined with the vector-temp frame inflation
+  ([[project_quat_cascade_0pct]] / the `TQuat4::rotate` +0x20 open question and
+  the frame-UNDER-allocation entry), this drops the whole function to 0% objdiff
+  despite the opening ~40 instrs being byte-exact. Question: is there a
+  source-level lever to force `dot`/`sqrt` out-of-line at a single call site in
+  a large fn (a `dont_inline`-stubbed wrapper? a named helper?), and does the
+  frame then collapse to the target's 0x140? Experiment: on flyAroundMario,
+  replace `TUtil<f32>::sqrt(dir.dot(dir))` with calls through `dont_inline`
+  forwarders and re-diff; if the frame shrinks and alignment jumps, the lever is
+  inline-budget control, not expression order.
+
 ## Refuted / wrong turns
 
 ### `JGeometry::TUtil<f32>::sqrt` out-of-header sweep is NET NEGATIVE at project level
