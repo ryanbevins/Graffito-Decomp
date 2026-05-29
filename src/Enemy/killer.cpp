@@ -21,6 +21,8 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
 #include <Map/MapCollisionData.hpp>
@@ -59,6 +61,47 @@ static int KillerBodyCallback(J3DNode* node, int when)
 		return 1;
 	if (!gpCurKiller->isRollFly())
 		return 1;
+
+	u16 idx         = ((J3DJoint*)node)->getJntNo();
+	MtxPtr jointMtx = gpCurKiller->getModel()->getAnmMtx(idx);
+
+	f32 scale = gpCurKiller->getBodyScale();
+
+	Mtx scaleMtx;
+	scaleMtx[0][3] = 0.0f;
+	scaleMtx[1][3] = 0.0f;
+	scaleMtx[2][3] = 0.0f;
+	scaleMtx[0][0] = scale;
+	scaleMtx[0][1] = 0.0f;
+	scaleMtx[0][2] = 0.0f;
+	scaleMtx[1][0] = 0.0f;
+	scaleMtx[1][1] = scale;
+	scaleMtx[1][2] = 0.0f;
+	scaleMtx[2][0] = 0.0f;
+	scaleMtx[2][1] = 0.0f;
+	scaleMtx[2][2] = scale;
+
+	f32 s = JMASin(gpCurKiller->mRollAnim);
+	f32 c = JMACos(gpCurKiller->mRollAnim);
+
+	Mtx rollMtx;
+	rollMtx[0][0] = c;
+	rollMtx[0][1] = -s;
+	rollMtx[0][2] = 0.0f;
+	rollMtx[0][3] = 0.0f;
+	rollMtx[1][0] = s;
+	rollMtx[1][1] = c;
+	rollMtx[1][2] = 0.0f;
+	rollMtx[1][3] = 0.0f;
+	rollMtx[2][0] = 0.0f;
+	rollMtx[2][1] = 0.0f;
+	rollMtx[2][2] = 1.0f;
+	rollMtx[2][3] = 0.0f;
+
+	PSMTXConcat(jointMtx, rollMtx, jointMtx);
+	PSMTXConcat(jointMtx, scaleMtx, jointMtx);
+	PSMTXConcat(J3DSys::mCurrentMtx, rollMtx, J3DSys::mCurrentMtx);
+	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
 	return 1;
 }
 
@@ -613,7 +656,26 @@ bool TKiller::isCollidMove(THitActor* actor)
 	return true;
 }
 
-bool TKiller::isFindMario(float param_1) { return isFindMarioFromParam(param_1); }
+bool TKiller::isFindMario(float param_1)
+{
+	TSmallEnemyParams* prms = (TSmallEnemyParams*)getSaveParam();
+
+	if (fabs(gpMarioPos->y - mPosition.y) < prms->mSLSearchHeight.get()) {
+		JGeometry::TVec3<f32> marioPos = *gpMarioPos;
+
+		f32 searchLength = prms->mSLSearchLength.get();
+		f32 searchAngle  = prms->mSLSearchAngle.get();
+		f32 searchAware  = prms->mSLSearchAware.get();
+
+		if (isInSight(marioPos, searchLength * param_1, searchAngle * param_1,
+		              searchAware * param_1))
+			return true;
+		else
+			return false;
+	}
+
+	return false;
+}
 
 void TKiller::flyBehavior()
 {
