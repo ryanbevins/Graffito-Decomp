@@ -5738,6 +5738,37 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **`TQuat4::rotate` inline spills its internal `q`/`q2` quats to stack
+  (+0x20 frame); target keeps the whole rotation in FPRs (t196, Kukku).**
+  `JGQuat4.hpp::rotate(const TVec3&, TVec3&)` computes two intermediate
+  `TQuat4 q; TQuat4 q2;` (the sandwich `q*v*q^-1`). The cleanest isolated
+  reproduction is `calcMomentum__6TKukkuFf` (92.86%, `#pragma dont_inline
+  on`, body = `q=SMS_Eular2Quat(mRotation); v(0,0,speed); q.rotate(v,v);
+  return v;`). Target frame **0x78**, ours **0x98** — a uniform +0x20
+  shift of every local. The +0x20 is exactly two 16-byte `TQuat4` slots:
+  target keeps `q`/`q2` live in f0–f13 and reads `v`(0x48–0x50) and the
+  named `q`(0x54–0x60) straight from their stack slots in the fmadds
+  chain, writing the 3 results back over `v`'s slots — it never
+  materializes the rotate intermediates to memory. Our build allocates
+  0x38–0x57 for them. The fmadds *shape* is identical (71 instrs each);
+  only the offsets (+0x20) and FPR numbers differ, so this is pure
+  register-allocation/scheduling, not a logic diff. **The inline's own
+  comment already says "Incollect regalloc".** Tried (REFUTED this
+  tick): rewriting `q`/`q2` as plain `f32 q2x,q2y,q2z` locals instead of
+  `TQuat4` structs — NET REGRESSION across all 7 rotate users (Kukku
+  81.427→81.424, Bird 87.293→87.238, BathtubKiller 30.424→30.200,
+  Kumokun, coasterkiller, fireWanwan all down; overall 70.14171→
+  70.14004). The struct form is what the original used. Experiment to
+  try next: match the target's fmadds *operand order* exactly in the
+  rotate body (the target schedules `fneg`s early and interleaves the
+  two-quat products in a specific order) — the spill may be a scheduling
+  artifact of our expression order, fixable without touching the struct
+  decls. Blocks `calcMomentum`, `dropCoins`, `calcRootMatrix`,
+  `perform__10TKukkuBall` in Kukku, and every quat-rotate enemy. Distinct
+  from the frame-UNDER-allocation entry below (this is OVER-allocation).
+  Risk: any rotate-body edit is cross-TU (7 users) — always run a
+  before/after report over all of them.
+
 - **Frame UNDER-allocation: our build emits a stack frame *smaller* than
   the target (t192 triage).** The documented MWCC padding bug usually
   makes OUR frame BIGGER. But several near-matches show the opposite —
