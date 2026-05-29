@@ -5122,6 +5122,21 @@ holding the 0/1 bounds, forcing a memory load at the callsite) would let
 killer reach 83.6% without touching the shared header. Worth a focused
 INVESTIGATION pass.
 
+**Experiment run (t210).** Surveyed all 24 2-arg callsites: a mix of
+literal args (`0.0f,100.0f`, `0.0f,1.0f`, `0.0f,360.0f`, `10.0f,20.0f`,
+`16.0f,8.0f`, `2,3`, `-500.0f,500.0f`) and variable args
+(`minR,maxR`, `params1->unk2C4,...`, `trapJumpMinSpXZ,...`,
+`unk194->unk458,...`). The variable-arg sites are codegen-neutral
+(memory load either way). The *literal* sites are the conflict: a global
+const-ref flip net-regressed overall fuzzy, so at least one other TU's
+literal callsite matches the *folding* (by-value) form while killer's
+matches the *non-folding* (const-ref) form. One signature cannot satisfy
+both → the original almost certainly had a dedicated `random interval`
+helper/class distinct from the simple 2-arg `MsRandF`, used by the
+smallEnemy family. Recommended fix when revisited: a killer-TU-local
+(or smallEnemy-family-shared) inline taking `const f32&`, leaving the
+global `MsRandF(f32,f32)` by-value. Do NOT re-flip the global header.
+
 ### Under `-inline deferred`, MWCC inlines even large (500+ byte) ordinary member functions into a *single* call site; `#pragma dont_inline` restores the `bl`
 
 **Hypothesis.** The existing `dont_inline` guidance in `CLAUDE.md` is
