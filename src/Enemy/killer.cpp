@@ -3,6 +3,8 @@
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EffectObj.hpp>
 #include <Camera/CameraShake.hpp>
+#include <System/MarDirector.hpp>
+#include <JSystem/JMath.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
@@ -275,11 +277,102 @@ void TKiller::reset()
 
 void TKiller::calcRootMatrix()
 {
+	if (gpMarDirector->checkUnk4CFlag(0xf)) {
+		onLiveFlag(1);
+		onHitFlag(1);
+	}
+
+	if (isBckAnm(2)) {
+		if (mColorVariant != 0) {
+			mColor1.r = 170;
+			mColor0.r = 170;
+			mColor1.g = 140;
+			mColor0.g = 140;
+			mColor1.b = 0;
+			mColor0.b = 0;
+		} else {
+			mColor1.b = 0;
+			mColor1.g = 0;
+			mColor1.r = 0;
+			mColor0.b = 0;
+			mColor0.g = 0;
+			mColor0.r = 0;
+		}
+	}
+
+	if (isBckAnm(3)) {
+		mColor0.b = 0;
+		mColor0.g = 0;
+		mColor1.r = 0;
+		if (mSpine->getTime() % 10 < 5) {
+			mColor0.r = 0;
+			mColor1.b = 0;
+			mColor1.g = 0;
+		}
+		if (mColorVariant != 0) {
+			if (mSpine->getTime() % 10 < 5) {
+				mColor0.r = 170;
+				mColor0.g = 140;
+				mColor0.b = 0;
+			} else {
+				mColor0.r = 180;
+				mColor0.g = 140;
+				mColor0.b = 150;
+			}
+		}
+		if (mIsChaseMode != 0) {
+			if (mSpine->getTime() % 10 < 5) {
+				mColor1.r = 200;
+				mColor0.r = 200;
+				mColor0.g = 0;
+				mColor0.b = 0;
+			} else {
+				mColor0.r = 70;
+				mColor0.g = 20;
+				mColor0.b = 70;
+			}
+		}
+	}
+
+	if (isBckAnm(1)) {
+		mColor1.r = 0;
+		mColor1.b = 0;
+		mColor1.g = 0;
+		mColor0.b = 0;
+		mColor0.g = 0;
+
+		f32 pulse = fabsf(JMASin(360.0f * (f32)mSpine->getTime() / 120.0f));
+
+		if (mColorVariant != 0) {
+			mColor2.r = 170;
+			mColor2.g = 140;
+			mColor2.b = 0;
+			mColor0.r = (u8)(int)(10.0f * pulse + 160.0f);
+			mColor0.g = (u8)(int)(30.0f * pulse + 140.0f);
+			mColor0.b = (u8)(int)(150.0f * pulse);
+		}
+		if (mIsChaseMode != 0) {
+			mColor2.r = 70;
+			mColor2.g = 20;
+			mColor2.b = 70;
+			mColor3.r = 70;
+			mColor3.g = 20;
+			mColor3.b = 70;
+			mColor0.r = (u8)(int)(130.0f * pulse + 70.0f);
+			mColor0.g = (u8)(int)(20.0f - 20.0f * pulse);
+			mColor0.b = (u8)(int)(70.0f - 70.0f * pulse);
+		}
+	}
+
 	gpCurKiller = this;
-	if (mRotation.x > 90.0f)
-		mRotation.x = 90.0f;
-	else if (mRotation.x < -25.0f)
-		mRotation.x = -25.0f;
+
+	f32 rotX = mRotation.x;
+	if (rotX > 90.0f)
+		rotX = 90.0f;
+	else if (rotX < -25.0f)
+		rotX = -25.0f;
+	mRotation.x = rotX;
+
 	TSpineEnemy::calcRootMatrix();
 }
 
