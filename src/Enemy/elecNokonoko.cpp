@@ -10,6 +10,7 @@
 #include <Player/MarioMain.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -370,7 +371,47 @@ void TElecCarapace::setBehavior() { }
 void TElecCarapace::recoverScale() { }
 f32 TElecCarapace::getNowGravity() { return mGravity; }
 f32 TElecCarapace::getPhaseShift() const { return 0.0f; }
-void TElecCarapace::shoot() { }
+void TElecCarapace::shoot()
+{
+	unk180 = 0;
+	if (unk150 == 2)
+		return;
+
+	JGeometry::TVec3<f32> dir = *gpMarioPos;
+	dir.sub(mPosition);
+
+	JGeometry::TVec3<f32> target = dir;
+	MsVECNormalize((Vec*)&target, (Vec*)&target);
+
+	f32 flyDist
+	    = ((TElecNokonoko*)unk16C)->mSaveParams->mSLCarapaceFlyDist.get();
+	target.x *= flyDist;
+	target.y *= mPosition.y;
+	target.z *= flyDist;
+	target.x += mPosition.x;
+	target.y += mPosition.y;
+	target.z += mPosition.z;
+
+	unk174 = (unk174 == 0);
+	unk188 = 0.0f;
+	unk150 = 2;
+	unk176 = 0;
+	unk168 = 0;
+	unk184 = 0;
+	unk175 = 0;
+	offHitFlag(1);
+
+	mSpine->initWith(&TNerveElecCarapaceMove::theNerve());
+	setGoalPath(TPathNode(target));
+
+	f32 speed = MsRandF(3.0f, 5.0f);
+
+	JGeometry::TVec3<f32> toGoal = unk104.getPoint();
+	toGoal.sub(mPosition);
+	unk178 = speed * JGeometry::TUtil<f32>::sqrt(toGoal.dot(toGoal));
+
+	unk17C = MsRandF(20.0f, 30.0f);
+}
 void TElecCarapace::reflect(THitActor* other)
 {
 	if ((THitActor*)unk170 == other)
