@@ -641,11 +641,20 @@ DEFINE_NERVE(TNerveLimitKoopaGetDown, TLiveActor)
 
 	switch (self->mMActor->getCurAnmIdx(0)) {
 	case 0:
+		if (self->mMActor->curAnmEndsNext(0, nullptr)) {
+			f32 rate  = self->getSaveParam2()->mDownSpeed.get();
+			MActor* m = self->mMActor;
+			if (!m->checkCurBckFromIndex(1))
+				m->setBckFromIndex(1);
+			self->mMActor->getFrameCtrl(0)->setRate(rate);
+		}
+		break;
 	case 1:
 		if (self->mMActor->curAnmEndsNext(0, nullptr)) {
-			f32 rate = self->getSaveParam2()->mDownSpeed.get();
-			if (!self->mMActor->checkCurBckFromIndex(1))
-				self->mMActor->setBckFromIndex(1);
+			f32 rate  = self->getSaveParam2()->mDownSpeed.get();
+			MActor* m = self->mMActor;
+			if (!m->checkCurBckFromIndex(7))
+				m->setBckFromIndex(7);
 			self->mMActor->getFrameCtrl(0)->setRate(rate);
 		}
 		break;
@@ -654,9 +663,10 @@ DEFINE_NERVE(TNerveLimitKoopaGetDown, TLiveActor)
 			return TRUE;
 		break;
 	default: {
-		f32 rate = self->getSaveParam2()->mDownSpeed.get();
-		if (!self->mMActor->checkCurBckFromIndex(0))
-			self->mMActor->setBckFromIndex(0);
+		f32 rate  = self->getSaveParam2()->mDownSpeed.get();
+		MActor* m = self->mMActor;
+		if (!m->checkCurBckFromIndex(0))
+			m->setBckFromIndex(0);
 		self->mMActor->getFrameCtrl(0)->setRate(rate);
 		break;
 	}
