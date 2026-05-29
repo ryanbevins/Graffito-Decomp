@@ -473,3 +473,17 @@ void TKukku::updateRotation()
 	           || n2 == &TNerveKukkuPostFall::theNerve());
 	mRotation.z *= b2 ? 0.0f : 1.0f;
 }
+
+void TKukku::behaveToWater(THitActor* sender)
+{
+	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
+	if (cur == &TNerveKukkuFall::theNerve()
+	    || cur == &TNerveKukkuPostFall::theNerve())
+		return;
+
+	if (mSpine->getLatestNerve() == &TNerveKukkuRecoverGraph::theNerve())
+		return;
+
+	mSpine->reset();
+	mSpine->setNext(&TNerveKukkuFall::theNerve());
+}
