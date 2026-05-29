@@ -8,9 +8,27 @@
 #include <Strategic/HitActor.hpp>
 #include <Strategic/Nerve.hpp>
 
+class TKukkuParams : public TSmallEnemyParams {
+public:
+	TKukkuParams(const char*);
+
+	/* 0x2D4 */ TParamRT<f32> mMarchSpeed;
+	/* 0x2E8 */ TParamRT<f32> mTurnSpeed;
+	/* 0x2FC */ TParamRT<f32> mWaterPowerY;
+	/* 0x310 */ TParamRT<f32> mShootSpeed;
+	/* 0x324 */ TParamRT<s32> mShootInterval;
+	/* 0x338 */ TParamRT<f32> mSearchRange;
+	/* 0x34C */ TParamRT<s32> mHabatakiTimer;
+	/* 0x360 */ TParamRT<f32> mAirFric;
+	/* 0x374 */ TParamRT<f32> mUpperVelocityY;
+	/* 0x388 */ TParamRT<f32> mDropSpeed;
+	/* 0x39C */ TParamRT<f32> mDropAngleX;
+};
+
 class TKukkuManager : public TSmallEnemyManager {
 public:
 	TKukkuManager(const char*);
+	virtual void load(JSUMemoryInputStream&);
 	virtual void createModelData();
 };
 
@@ -26,10 +44,18 @@ public:
 	virtual void reset();
 	virtual void setDeadAnm();
 	virtual void setAfterDeadEffect();
+	virtual void init(TLiveManager*);
+	virtual void calcRootMatrix();
+	virtual void behaveToWater(THitActor*);
+
+	void updateRotation();
+	JGeometry::TVec3<f32> calcMomentum(f32);
+	void dropCoins();
 
 	// fabricated
 	TKukku** getKukkuBalls() { return (TKukku**)&unk194; }
 	s32 getUnk1A4() const { return unk1A4; }
+	TKukkuParams* getSaveParam2() const { return (TKukkuParams*)getSaveParam(); }
 
 public:
 	/* 0x194 */ void* unk194[3];
