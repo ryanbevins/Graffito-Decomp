@@ -122,7 +122,7 @@ DEFINE_NERVE(TNerveWireTrapOnewayMove, TLiveActor)
 {
 	TWireTrap* self = (TWireTrap*)spine->getBody();
 
-	if (spine->getTime() == 0 || self->mScaleRate < 1.0f) {
+	if (spine->getTime() == 0 && self->mScaleRate < 1.0f) {
 		spine->pushAfterCurrent(this);
 		spine->pushAfterCurrent(&TNerveWireTrapGoWait::theNerve());
 		spine->pushAfterCurrent(&TNerveWireTrapOnewayMoveStart::theNerve());
