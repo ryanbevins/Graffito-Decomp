@@ -247,7 +247,8 @@ void TKazekun::init(TLiveManager* manager)
 void TKazekun::reset()
 {
 	mQuat.set(0.0f, 0.0f, 0.0f, 1.0f);
-	mPosition.set(mHomePos.x, mHomePos.y, mHomePos.z);
+	JGeometry::TVec3<f32> home(mHomePos);
+	mPosition.set(home);
 	mLiveFlag |= 0xa;
 	setAnmSound(nullptr);
 }
