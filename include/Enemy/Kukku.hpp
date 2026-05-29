@@ -8,6 +8,22 @@
 #include <Strategic/HitActor.hpp>
 #include <Strategic/Nerve.hpp>
 
+class MActor;
+
+class TKukkuBall : public THitActor {
+public:
+	TKukkuBall(MActor*, const char* = "\x83\x4e\x83\x62\x83\x4e\x8b\xca");
+
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual void init();
+
+public:
+	/* 0x68 */ MActor* mMActor;
+	/* 0x6C */ u32 mFlags;
+	/* 0x70 */ JGeometry::TVec3<f32> mVelocity;
+	/* 0x7C */ u32 mState;
+};
+
 class TKukkuParams : public TSmallEnemyParams {
 public:
 	TKukkuParams(const char*);
@@ -53,12 +69,12 @@ public:
 	void dropCoins();
 
 	// fabricated
-	TKukku** getKukkuBalls() { return (TKukku**)&unk194; }
+	TKukkuBall** getKukkuBalls() { return mKukkuBalls; }
 	s32 getUnk1A4() const { return unk1A4; }
 	TKukkuParams* getSaveParam2() const { return (TKukkuParams*)getSaveParam(); }
 
 public:
-	/* 0x194 */ void* unk194[3];
+	/* 0x194 */ TKukkuBall* mKukkuBalls[3];
 	/* 0x1A0 */ void* unk1A0;
 	/* 0x1A4 */ s32 unk1A4;
 	/* 0x1A8 */ s32 unk1A8;

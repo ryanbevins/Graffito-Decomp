@@ -1,17 +1,27 @@
 #include <Enemy/Kukku.hpp>
+#include <Enemy/Graph.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/ObjModel.hpp>
+#include <Strategic/Strategy.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/DrawUtil.hpp>
+#include <MarioUtil/TexUtil.hpp>
+#include <MSound/MSound.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
 #include <Map/PollutionManager.hpp>
+#include <MoveBG/MapObjManager.hpp>
 #include <System/Particles.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JKernel/JKRArchive.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
+
+JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
 
 static char* tori_bastable[] = {
 	(char*)"/scene/tori/bas/tori_back.bas",
@@ -112,7 +122,88 @@ DEFINE_NERVE(TNerveKukkuRecoverGraph, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor)
+{
+	TKukku* self = (TKukku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
+		self->mVelocity = zero;
+		self->getTracer()->reset();
+		self->goToShortestNextGraphNode();
+		if (self->getMActor()->checkCurAnm("tori_back", 0)) {
+			self->getMActor()->setBck("tori_back");
+			self->setCurAnmSound();
+		} else {
+			self->getMActor()->setBck("tori_wait");
+			self->setCurAnmSound();
+		}
+	}
+
+	if (self->isReachedToGoal()) {
+		self->goToRandomNextGraphNode();
+		if (!self->getMActor()->checkCurAnm("tori_wait", 0)) {
+			self->getMActor()->setBck("tori_wait");
+			self->setCurAnmSound();
+		}
+	}
+
+	JGeometry::TVec3<f32> toMario = *gpMarioPos;
+	toMario.x -= self->mPosition.x;
+	toMario.y -= self->mPosition.y;
+	toMario.z -= self->mPosition.z;
+	toMario.y = 0.0f;
+
+	f32 range = self->getSaveParam2()->mSearchRange.get();
+	if (toMario.x * toMario.x + toMario.y * toMario.y + toMario.z * toMario.z
+	    < range * range) {
+		if (self->unk1AC >= 0) {
+			self->unk1AC -= 1;
+		} else {
+			TKukkuBall* found = nullptr;
+			for (TKukkuBall** p = self->mKukkuBalls;
+			     p != (TKukkuBall**)&self->unk1A0; ++p) {
+				TKukkuBall* ball = *p;
+				bool isFree = false;
+				if ((ball->mFlags & 1) && ball->mState == 0)
+					isFree = true;
+				if (isFree) {
+					found = ball;
+					break;
+				}
+			}
+			if (found) {
+				JGeometry::TVec3<f32> dir;
+				dir.set(0.0f, 1.0f, 0.0f);
+				f32 speed = self->getSaveParam2()->mShootSpeed.get();
+				f32 d     = dir.dot(dir);
+				if (d <= 0.0000038146973f) {
+					dir.set(0.0f, 0.0f, 0.0f);
+				} else {
+					dir.scale(speed * JGeometry::TUtil<f32>::inv_sqrt(d), dir);
+				}
+				self->getModel()->getModelData()->getJointName()->getIndex(
+				    "null_osen");
+				found->offHitFlag(1);
+				found->mFlags &= ~1;
+				found->mPosition = self->mPosition;
+				found->mVelocity = dir;
+				self->unk1AC = self->getSaveParam2()->mShootInterval.get();
+				if (gpMSound->gateCheck(0x28f3)) {
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x28f3, &self->mPosition, 0, nullptr, 0, 4);
+				}
+			}
+		}
+	}
+
+	self->updateRotation();
+	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(self->mRotation);
+	JGeometry::TVec3<f32> fwd(0.0f, 0.0f, self->getSaveParam2()->mMarchSpeed.get());
+	q.rotate(fwd, fwd);
+	self->mLinearVelocity = fwd;
+	return FALSE;
+}
 
 void TKukkuManager::createModelData()
 {
@@ -211,9 +302,9 @@ void TKukku::perform(u32 action, JDrama::TGraphics* graphics)
 {
 	TSmallEnemy::perform(action, graphics);
 
-	for (void** ball = &unk194[0]; ball != &unk1A0; ++ball) {
-		THitActor* a = (THitActor*)*ball;
-		a->perform(action, graphics);
+	for (TKukkuBall** ball = mKukkuBalls; ball != (TKukkuBall**)&unk1A0;
+	     ++ball) {
+		(*ball)->perform(action, graphics);
 	}
 }
 
@@ -221,4 +312,57 @@ TKukku::TKukku(const char* name)
     : TSmallEnemy(name)
 {
 	unk1A0 = nullptr;
+}
+
+void TKukku::init(TLiveManager* manager)
+{
+	mManager = manager;
+	mManager->manageActor(this);
+	mMActorKeeper = new TMActorKeeper(mManager, 4);
+	mMActor       = mMActorKeeper->createMActor("tori.bmd", 0);
+	mSpine->initWith(&TNerveKukkuGraphWander::theNerve());
+
+	unk1A0 = TMapObjBaseManager::newAndRegisterObj("mushroom1upR");
+
+	for (TKukkuBall** ball = mKukkuBalls; ball != (TKukkuBall**)&unk1A0;
+	     ++ball) {
+		*ball = new TKukkuBall(mMActorKeeper->createMActor("torifun.bmd", 3));
+		(*ball)->init();
+	}
+
+	initHitActor(0x1000002e, 1, 0x80000000, 30.0f, 30.0f, 100.0f, 100.0f);
+	offHitFlag(0x1);
+	initAnmSound();
+
+	SMS_LoadParticle("/scene/tori/jpa/ms_cooc_ase.jpa", 0x18c);
+	SMS_LoadParticle("/scene/tori/jpa/ms_cooc_hane.jpa", 0x18d);
+
+	unk1A8 = getModel()->getModelData()->getJointName()->getIndex("center");
+	reset();
+}
+
+TKukkuBall::TKukkuBall(MActor* mactor, const char* name)
+    : THitActor(name)
+{
+	mMActor = mactor;
+	mFlags  = 1;
+	mState  = 0;
+}
+
+void TKukkuBall::init()
+{
+	initHitActor(0x1000002e, 1, 0x80000000, 30.0f, 30.0f, 0.0f, 0.0f);
+	onHitFlag(1);
+	onHitFlag(4);
+
+	JDrama::TNameRefGen::search<TIdxGroupObj>(
+	    "\x93\x47\x83\x4f\x83\x8b\x81\x5b\x83\x76")
+	    ->getChildren()
+	    .push_back(this);
+
+	ResTIMG* res = (ResTIMG*)JKRFileLoader::getGlbResource(
+	    "/scene/map/pollution/H_ma_rak.bti");
+	if (res)
+		SMS_ChangeTextureAll(mMActor->getModel()->getModelData(),
+		                     "K_name_dummy", *res);
 }
