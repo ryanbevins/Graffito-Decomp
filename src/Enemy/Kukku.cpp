@@ -429,3 +429,11 @@ void TKukkuBall::perform(u32 action, JDrama::TGraphics* graphics)
 	if (!(mFlags & 4))
 		mMActor->perform(action, graphics);
 }
+
+JGeometry::TVec3<f32> TKukku::calcMomentum(f32 speed)
+{
+	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(mRotation);
+	JGeometry::TVec3<f32> v(0.0f, 0.0f, speed);
+	q.rotate(v, v);
+	return v;
+}
