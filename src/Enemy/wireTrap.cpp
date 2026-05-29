@@ -165,7 +165,7 @@ DEFINE_NERVE(TNerveWireTrapOnewayMoveStart, TLiveActor)
 	self->mScaleRate += 1.0f / self->getSaveParam2()->mScaleTimerMax.get();
 
 	bool done;
-	if (self->mScaleRate >= 1.0f) {
+	if (1.0f <= self->mScaleRate) {
 		self->mScaleRate = 1.0f;
 		done             = true;
 		self->unk64 &= ~1;
@@ -173,7 +173,9 @@ DEFINE_NERVE(TNerveWireTrapOnewayMoveStart, TLiveActor)
 		done = false;
 	}
 
-	return done;
+	if (done)
+		return TRUE;
+	return FALSE;
 }
 
 DEFINE_NERVE(TNerveWireTrapReturnMove, TLiveActor)
