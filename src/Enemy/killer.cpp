@@ -21,6 +21,9 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
+#include <Map/Map.hpp>
+#include <Map/MapData.hpp>
+#include <dolphin/mtx.h>
 
 // rogue includes needed for matching sinit & rodata
 #include <M3DUtil/InfectiousStrings.hpp>
@@ -191,24 +194,36 @@ void TFlyEnemy::fly()
 	pos.add(mLinearVelocity);
 
 	JGeometry::TVec3<f32> vel = mVelocity;
-	vel.x += gpMarioPos->x / mTestMarioSpMax;
-	vel.z += gpMarioPos->z / mTestMarioSpMax;
+	vel.x += *gpMarioSpeedX / mTestMarioSpMax;
+	vel.z += *gpMarioSpeedZ / mTestMarioSpMax;
 
 	pos.add(vel);
 	pos.y += mCurGravityY;
 
-	if (pos.y <= mPosition.y) {
+	mGroundHeight = gpMap->checkGround(pos.x, pos.y + mHeadHeight, pos.z,
+	                                   &mGroundPlane);
+	mGroundHeight += 1.0f;
+
+	if (pos.y <= mGroundHeight) {
 		if (mFlyTimer > mInvalidTime) {
 			offLiveFlag(0x80);
 			mVelocity.set(0.0f, 0.0f, 0.0f);
+			pos.y = mGroundHeight;
 		}
+
+		const TLiveActor* groundActor = mGroundPlane->getActor();
+		if (groundActor && groundActor->isActorType(0x4000000a))
+			((TLiveActor*)groundActor)->kill();
+
+		if (mGroundPlane->isIllegalData())
+			kill();
 	} else {
 		onLiveFlag(0x80);
 	}
 
 	JGeometry::TVec3<f32> delta = pos;
 	delta.sub(mPosition);
-	mLinearVelocity.set(delta);
+	mLinearVelocity = delta;
 }
 
 void TFlyEnemy::flyBehavior() { }
@@ -396,12 +411,40 @@ const char** TKiller::getBasNameTable() const { return killer_bastable; }
 
 void TKiller::genEventCoin()
 {
+	Mtx rotMtx;
+	JGeometry::TVec3<f32> dir;
+
 	int count = mColorVariant ? 8 : 2;
 	for (int i = 0; i < count; i++) {
-		// TODO(INVESTIGATION): ring direction via JMA sin/cos matrix (see asm 0x13F0)
-		if (TMapObjBase* obj = gpItemManager->makeObjAppear(
-		        mPosition.x, mPosition.y, mPosition.z, 0x2000000e, true)) {
+		f32 angle = 360.0f * (1.0f / count) * (i + 1);
+		f32 sin   = JMASin(angle);
+		f32 cos   = JMACos(angle);
+
+		dir.set(0.0f, 0.0f, 30.0f);
+
+		rotMtx[0][0] = cos;
+		rotMtx[0][1] = 0.0f;
+		rotMtx[0][2] = sin;
+		rotMtx[0][3] = 0.0f;
+		rotMtx[1][0] = 0.0f;
+		rotMtx[1][1] = 1.0f;
+		rotMtx[1][2] = 0.0f;
+		rotMtx[1][3] = 0.0f;
+		rotMtx[2][0] = -sin;
+		rotMtx[2][1] = 0.0f;
+		rotMtx[2][2] = cos;
+		rotMtx[2][3] = 0.0f;
+
+		PSMTXMultVec(rotMtx, &dir, &dir);
+
+		TMapObjBase* obj = gpItemManager->makeObjAppear(
+		    mPosition.x + dir.x, mPosition.y, mPosition.z + dir.z, 0x2000000e,
+		    true);
+		if (obj) {
 			obj->mPosition.y = mPosition.y;
+			MsVECNormalize(&dir, &dir);
+			obj->mVelocity.set(3.0f * dir.x, 20.0f, 3.0f * dir.z);
+			obj->offLiveFlag(0x10);
 		}
 	}
 }
