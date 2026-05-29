@@ -408,9 +408,10 @@ bool TKiller::isFindMario(float param_1) { return isFindMarioFromParam(param_1);
 
 void TKiller::flyBehavior()
 {
+	mTurnSpeed = mKillerParams->getSLTurnSpeedLow();
 	if (mSpine->getTime() > mKillerParams->mSLChaseTimer.get())
 		mCurGravityY -= mKillerParams->mSLWaterAddGravityY.get();
-	if (checkCurAnmEnd(0) && mCurrentBckAnm == 3)
+	if (checkCurAnmEnd(0) && isBckAnm(3))
 		setBckAnm(1);
 	mRollAnim += 2.5f;
 }
