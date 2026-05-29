@@ -261,7 +261,7 @@ void TKazekun::bind()
 
 void TKazekun::calcRootMatrix()
 {
-	if (mHolder != nullptr) {
+	if (isTaken()) {
 		TSpineEnemy::calcRootMatrix();
 		return;
 	}
@@ -289,10 +289,10 @@ void TKazekun::calcRootMatrix()
 	m[2][3] = mPosition.z;
 	PSMTXCopy(m, getModel()->getBaseTRMtx());
 
-	TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
-	bool active = (latest == &TNerveKazekunPreAttack::theNerve())
-	              || (latest == &TNerveKazekunAttack::theNerve())
-	              || (latest == &TNerveKazekunHitWater::theNerve());
+	bool active = (mSpine->getLatestNerve() == &TNerveKazekunTurn::theNerve())
+	              || (mSpine->getLatestNerve() == &TNerveKazekunPreAttack::theNerve())
+	              || (mSpine->getLatestNerve() == &TNerveKazekunAttack::theNerve())
+	              || (mSpine->getLatestNerve() == &TNerveKazekunHitWater::theNerve());
 
 	if (active) {
 		gpMarioParticleManager->emitAndBindToMtxPtr(
