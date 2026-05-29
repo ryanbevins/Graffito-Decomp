@@ -373,12 +373,56 @@ void TKazekun::behaveToWater(THitActor*)
 	}
 }
 
-// TODO(INVESTIGATION): math-heavy. Honest stub -- see notes/Kazekun.md.
-// dont_inline: the target keeps these as real (non-inline) calls; without the
-// pragma MWCC inlines the empty body and the callers drop their `bl`.
-#pragma dont_inline on
-void TKazekun::doAttackPose(bool) { }
-#pragma dont_inline off
+// Aim the kazekun's facing quaternion toward Mario (horizontal only) and spin
+// it by mPoseOmegaRate, then re-point the velocity along the new forward axis.
+// When `decide` is true the orientation is recomputed from Mario's position
+// (the windup); the spin + velocity reorient run every frame regardless.
+// NOTE(INVESTIGATION): block1 (the decide branch: aim + pose-speed velocity)
+// is byte-decoded; the per-frame spin's rotation axis is best-effort (the asm
+// inlines TQuat4::rotate of a basis the hand-decode couldn't pin -- see
+// notes/Kazekun.md). Lands low fuzzy until the frame/inline cascade is cracked.
+void TKazekun::doAttackPose(bool decide)
+{
+	JGeometry::TVec3<f32> dir(*gpMarioPos);
+	dir.x -= mPosition.x;
+	dir.y -= mPosition.y;
+	dir.z -= mPosition.z;
+	dir.y = 0.0f;
+
+	if (decide) {
+		TPosition3f mtx;
+		JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+		SMS_CalcToDirMatrix(mtx, dir, up);
+
+		JGeometry::TQuat4<f32> quat;
+		mtx.getQuat(quat);
+
+		JGeometry::TVec3<f32> axis;
+		mtx.getYDir(axis);
+		JGeometry::TQuat4<f32> rot;
+		rot.setRotate(axis, 1.5707964f);
+
+		quat.mul(rot, quat);
+		mQuat = quat;
+
+		JGeometry::TVec3<f32> vel(0.0f, 0.0f,
+		                          getKazekunParam()->mPoseSpeed.get());
+		quat.rotate(vel);
+		mVelocity = vel;
+	}
+
+	JGeometry::TVec3<f32> spinAxis(0.0f, 1.0f, 0.0f);
+	mQuat.rotate(spinAxis);
+	JGeometry::TQuat4<f32> spin;
+	spin.setRotate(spinAxis,
+	               3.1415927f * getKazekunParam()->mPoseOmegaRate.get());
+	mQuat.mul(spin, mQuat);
+
+	f32 speed = JGeometry::TUtil<f32>::sqrt(mVelocity.dot(mVelocity));
+	JGeometry::TVec3<f32> newVel(0.0f, 0.0f, speed);
+	mQuat.rotate(newVel);
+	mVelocity = newVel;
+}
 
 void TKazekun::flyAroundMario()
 {
