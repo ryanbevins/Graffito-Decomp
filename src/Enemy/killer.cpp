@@ -258,7 +258,7 @@ void TKiller::reset()
 	mColor2.r     = 0;
 	mColorVariant = 0;
 
-	if (MsRandF() < 0.05f) {
+	if (MsRandF(0.0f, 1.0f) < 0.05f) {
 		mColorVariant = 1;
 		mColor2.r     = 200;
 		mColor2.g     = 185;
