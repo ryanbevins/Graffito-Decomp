@@ -230,15 +230,22 @@ void TPopo::thrownByChorobei()
 
 void TPopo::possessedIn()
 {
-	SMS_SendMessageToMario(this, HIT_MESSAGE_UNK5);
+	mMActor = mMActorKeeper->getMActor("popoL.bmd");
+	setBckAnm(3);
+	mMActor->setBtpFromIndex(0);
+	mMActor->setFrameRate(0.0f, 3);
+	if (!mExplosionSw)
+		onHitFlag(HIT_FLAG_NO_COLLISION);
+	mMActor->setBrkFromIndex(0);
+	mMActor->getFrameCtrl(5)->setFrame(0.0f);
+	unk1A0 = 30.0f;
+	mMActor->setFrameRate(0.0f, 5);
 	offLiveFlag(LIVE_FLAG_UNK10);
-	offHitFlag(HIT_FLAG_NO_COLLISION);
-	unk1B4 = 0;
+	unk1B8 = 90.0f;
+	unk1B4 = 1;
+	startPopoSound(0x2861, mPosition);
 	unk1CC = 0;
 	unk1CD = 0;
-	setBckAnm(3);
-	startPopoSound(0x180c, mPosition);
-	startPopoSound(0x825, mPosition);
 }
 
 void TPopo::explosion()
