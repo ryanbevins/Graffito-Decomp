@@ -338,10 +338,11 @@ DEFINE_NERVE(TNerveElecNokonokoTurn, TLiveActor)
 	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
 
 	if (spine->getTime() == 0) {
+		self->setBckAnm(16);
 		self->setGoalPathMario();
 	}
 
-	if (self->mCurrentBckAnm == 15) {
+	if (self->isBckAnm(15)) {
 		if (MsIsInSight(self->mPosition, self->mRotation.y, *gpMarioPos,
 		                ((TSmallEnemyParams*)self->getSaveParam())
 		                    ->getSLSearchLength(),
@@ -351,9 +352,9 @@ DEFINE_NERVE(TNerveElecNokonokoTurn, TLiveActor)
 	}
 
 	if (self->checkCurAnmEnd(0)) {
-		if (self->mCurrentBckAnm == 16) {
+		if (self->isBckAnm(16)) {
 			self->setBckAnm(15);
-		} else if (self->mCurrentBckAnm == 14) {
+		} else if (self->isBckAnm(14)) {
 			return true;
 		}
 	}
@@ -366,7 +367,7 @@ DEFINE_NERVE(TNerveElecNokonokoTurn, TLiveActor)
 
 	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
 
-	return spine->getTime() > 500;
+	return spine->getTime() > 500 ? TRUE : FALSE;
 }
 
 DEFINE_NERVE(TNerveElecNokonokoShoot, TLiveActor)
