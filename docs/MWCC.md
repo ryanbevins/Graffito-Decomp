@@ -5155,12 +5155,19 @@ ballooning the nerve to a -0x80 frame and scoring 0%. The target does
 definition → nerve 0%→88%, then 93.7% after a reference-local fix. (Note
 the nerve TU uses `cflags_game` which includes `-inline deferred`.)
 
-**Experiment to confirm/promote.** Find a second `-inline deferred` TU
-where a single-call-site method >256 bytes is inlined in our build but a
-`bl` in the target, and confirm `dont_inline` fixes it. The size
-threshold and "single call site" precondition need a second data point
-before promotion — at one citation this is distinct enough from the
-empty-function case to track separately.
+**Second citation (t216).** `mario/Enemy/elecNokonoko`:
+`TElecNokonoko::init` constructs its shell via `new TElecCarapace(name)`.
+Our build inlined the *constructor* body at the `new` site (vtable +
+field stores + `lfs/stfs`), inflating regs/frame; the target emits one
+`bl __ct__13TElecCarapaceFPCc`. `#pragma dont_inline on/off` around the
+ctor definition restored the `bl`: init 61%→81.7% (then 83.3% with a
+reference-local). This *broadens* the precondition — the ctor here is
+small (well under the 520-byte limitkoopa method), so the trigger is
+**single call site + deferred inliner**, not a size threshold. Both TUs
+use `-inline deferred`. Two independent confirmations now; candidate for
+promotion to *Settled* / `CLAUDE.md` (the existing `dont_inline` note in
+CLAUDE.md is framed only around *empty* functions — it should be widened
+to "any single-call-site callee, incl. ctors at `new` sites").
 
 ### Naming shared sub-products as locals forces CSE and defeats `fnmsubs`/`fmsubs` fusion in matrix/quaternion math
 
