@@ -537,21 +537,22 @@ void TMapObjSwitch::load(JSUMemoryInputStream& stream)
 
 BOOL TMapObjSwitch::receiveMessage(THitActor*, u32 message)
 {
-	if (message != HIT_MESSAGE_HIP_DROP)
-		return FALSE;
+	if (message == HIT_MESSAGE_HIP_DROP) {
+		startBck("objswitch");
+		START_MAP_OBJ_SOUND(0x384c, mPosition);
+		removeMapCollision();
+		for (int i = 0; i < unk13C; ++i)
+			unk144[i]->action(unk140);
 
-	startBck("objswitch");
-	START_MAP_OBJ_SOUND(0x384c, mPosition);
-	removeMapCollision();
-	for (int i = 0; i < unk13C; ++i)
-		unk144[i]->action(unk140);
+		gpMarDirector->fireStartDemoCamera("マップオブジェクトスイッチ",
+		                                   &mPosition, -1, 0.0f, true, nullptr,
+		                                   0, nullptr, JDrama::TFlagT<u16>(0));
+		mLifeTimer = unk140;
+		onHitFlag(HIT_FLAG_NO_COLLISION);
+		return TRUE;
+	}
 
-	gpMarDirector->fireStartDemoCamera("マップオブジェクトスイッチ",
-	                                   &mPosition, -1, 0.0f, true, nullptr, 0,
-	                                   nullptr, JDrama::TFlagT<u16>(0));
-	mLifeTimer = unk140;
-	mLiveFlag |= LIVE_FLAG_DEAD;
-	return TRUE;
+	return FALSE;
 }
 
 void TMapObjSwitch::control()
