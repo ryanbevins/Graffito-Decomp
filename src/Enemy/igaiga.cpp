@@ -340,7 +340,10 @@ void TIgaiga::setMeltAnm()
 
 bool TIgaiga::isHitValid(u32 message)
 {
-	return message == 0xE ? false : TSmallEnemy::isHitValid(message);
+	unk1BC = true;
+	if (message == 1)
+		unk1BC = false;
+	return true;
 }
 
 bool TIgaiga::isReachedToGoalXZ()
