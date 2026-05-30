@@ -558,12 +558,53 @@ void TMoePuku::setPichiAnm() { setBckAnm(8); }
 void TMoePuku::setAttackAnm() { setBckAnm(0); }
 void TMoePuku::setSwimAnm() { setBckAnm(9); }
 void TMoePuku::setJumpAnm() { setBckAnm(6); }
-bool TMoePuku::isJumpStartBck() { return isBckAnm(7); }
-bool TMoePuku::isFallEndLandBck() { return isBckAnm(5); }
-bool TMoePuku::isAttackBck() { return isBckAnm(0); }
-bool TMoePuku::isDeadBck() { return isBckAnm(1); }
-bool TMoePuku::isJumpBck() { return isBckAnm(6); }
-bool TMoePuku::isPichiEffect() { return isBckAnm(8); }
+bool TMoePuku::isJumpStartBck()
+{
+	bool result = isBckAnm(7);
+	if (result)
+		return true;
+	return false;
+}
+
+bool TMoePuku::isFallEndLandBck()
+{
+	bool result = isBckAnm(5);
+	if (result)
+		return true;
+	return false;
+}
+
+bool TMoePuku::isAttackBck()
+{
+	bool result = isBckAnm(0);
+	if (result)
+		return true;
+	return false;
+}
+
+bool TMoePuku::isDeadBck()
+{
+	bool result = isBckAnm(1);
+	if (result)
+		return true;
+	return false;
+}
+
+bool TMoePuku::isJumpBck()
+{
+	bool result = isBckAnm(6);
+	if (result)
+		return true;
+	return false;
+}
+
+bool TMoePuku::isPichiEffect()
+{
+	bool result = isBckAnm(8);
+	if (result)
+		return true;
+	return false;
+}
 
 void TMoePuku::hitWater()
 {
@@ -828,12 +869,53 @@ void TTobiPuku::setPichiAnm() { setBckAnm(8); }
 void TTobiPuku::setAttackAnm() { setBckAnm(0); }
 void TTobiPuku::setSwimAnm() { setBckAnm(9); }
 void TTobiPuku::setJumpAnm() { setBckAnm(6); }
-bool TTobiPuku::isJumpStartBck() { return isBckAnm(7); }
-bool TTobiPuku::isFallEndLandBck() { return isBckAnm(5); }
-bool TTobiPuku::isAttackBck() { return isBckAnm(0); }
-bool TTobiPuku::isDeadBck() { return isBckAnm(1); }
-bool TTobiPuku::isJumpBck() { return isBckAnm(6); }
-bool TTobiPuku::isPichiEffect() { return isBckAnm(8); }
+bool TTobiPuku::isJumpStartBck()
+{
+	bool result = isBckAnm(7);
+	if (result)
+		return true;
+	return false;
+}
+
+bool TTobiPuku::isFallEndLandBck()
+{
+	bool result = isBckAnm(5);
+	if (result)
+		return true;
+	return false;
+}
+
+bool TTobiPuku::isAttackBck()
+{
+	bool result = isBckAnm(0);
+	if (result)
+		return true;
+	return false;
+}
+
+bool TTobiPuku::isDeadBck()
+{
+	bool result = isBckAnm(1);
+	if (result)
+		return true;
+	return false;
+}
+
+bool TTobiPuku::isJumpBck()
+{
+	bool result = isBckAnm(6);
+	if (result)
+		return true;
+	return false;
+}
+
+bool TTobiPuku::isPichiEffect()
+{
+	bool result = isBckAnm(8);
+	if (result)
+		return true;
+	return false;
+}
 
 void TTobiPuku::calcRootMatrix()
 {
