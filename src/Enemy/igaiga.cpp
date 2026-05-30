@@ -12,6 +12,7 @@
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
+#include <Map/PollutionManager.hpp>
 #include <Map/MapEventSink.hpp>
 #include <Map/MapMirror.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
@@ -162,10 +163,39 @@ TRollEnemy::TRollEnemy(const char* name)
 
 void TRollEnemy::setBehavior()
 {
-	if (isReachedToGoalXZ())
-		goToShortestNextGraphNode();
+	if (mPosition.y > 50.0f + mGroundHeight)
+		return;
 
-	walkBehavior(0, 0.0f);
+	if (mSpine->getTime() % getSaveParam2()->getSLPolluteInterval() != 0)
+		return;
+
+	if (checkLiveFlag(LIVE_FLAG_DEAD))
+		return;
+
+	if (mSpine->getCurrentNerve() == &TNerveSmallEnemyDie::theNerve())
+		return;
+
+	if (!TSmallEnemy::mIsPolluter)
+		return;
+
+	f32 range;
+	if (checkLiveFlag(LIVE_FLAG_HIDDEN)) {
+		range = 2.0f;
+	} else if (!TSmallEnemy::mIsAmpPolluter) {
+		range = (f32)getSaveParam2()->getSLPolluteRange();
+	} else {
+		s32 rmin = getSaveParam2()->getSLPolluteRMin();
+		s32 rmax = getSaveParam2()->getSLPolluteRMax();
+		s32 cyc  = getSaveParam2()->getSLPolluteCycle();
+		f32 sin  = JMASSin(
+		    (s16)DEG2SHORTANGLE(180.0f * (f32)(mSpine->getTime() % cyc)
+		                        / (f32)cyc));
+		range = mBodyScale * (sin * (f32)(rmax - rmin)) + (f32)rmin;
+	}
+
+	f32 z = unk1AC * mLinearVelocity.z + mPosition.z;
+	f32 x = unk1AC * mLinearVelocity.x + mPosition.x;
+	gpPollution->stampGround(1, x, mPosition.y, z, range * 32.0f);
 }
 
 bool TRollEnemy::isReachedToGoalXZ()
