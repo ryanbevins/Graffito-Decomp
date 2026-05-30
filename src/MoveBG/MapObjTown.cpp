@@ -357,7 +357,9 @@ void TMapObjChangeStageHipDrop::touchPlayer(THitActor*)
 void TMapObjStartDemo::load(JSUMemoryInputStream& stream)
 {
 	TMapObjBase::load(stream);
-	stream.read(&unk138, 4);
+	u32 demoID;
+	stream.read(&demoID, 4);
+	unk138 = demoID;
 }
 
 void TMapObjStartDemo::touchPlayer(THitActor*)
