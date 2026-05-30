@@ -818,10 +818,11 @@ void TGorogoro::setMeltAnm()
 void TGorogoro::forceKill()
 {
 	if (!mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
-	    && mGroundPlane->isWaterSurface()
+	    && (mGroundPlane->isPool() || mGroundPlane->isWaterSurface())
 	    && !checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
 		if (mSpine->getCurrentNerve() != &TNerveGorogoroDie::theNerve()) {
 			mSpine->setNext(&TNerveGorogoroDie::theNerve());
+			mSpine->pushAfterCurrent(mSpine->getDefault());
 			onLiveFlag(LIVE_FLAG_UNK20000);
 			onLiveFlag(LIVE_FLAG_UNK10000);
 		}
