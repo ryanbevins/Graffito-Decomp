@@ -1066,80 +1066,118 @@ TPakkunManager::TPakkunManager(const char* name)
 
 static int PakkunRootCallback2(J3DNode* node, int flag)
 {
-	if (flag != 0)
-		return 1;
-	if (!gpCurPakkun)
-		return 1;
+	if (flag == 0) {
+		TPakkun* pakkun = gpCurPakkun;
+		if (!pakkun)
+			return 1;
 
-	MtxPtr src
-	    = gpCurPakkun->getModel()->getAnmMtx(((J3DJoint*)node)->getJntNo());
-	Mtx scale;
-	PSMTXScale(scale, 1.0f / gpCurPakkun->mRootScale,
-	           1.0f / gpCurPakkun->mRootScale,
-	           1.0f / gpCurPakkun->mRootScale);
-	PSMTXConcat(scale, src, src);
-	PSMTXConcat(j3dSys.mCurrentMtx, scale, j3dSys.mCurrentMtx);
+		MtxPtr src = pakkun->mMActor->getModel()->mNodeMatrices
+		    [((J3DJoint*)node)->getJntNo()];
+		Mtx scale;
+		f32 zero    = 0.0f;
+		scale[0][3] = zero;
+		scale[1][3] = zero;
+		scale[2][3] = zero;
+		f32 inv     = 1.0f / pakkun->mRootScale;
+		scale[0][0] = inv;
+		scale[0][1] = zero;
+		scale[0][2] = zero;
+		scale[1][0] = zero;
+		scale[1][1] = inv;
+		scale[1][2] = zero;
+		scale[2][0] = zero;
+		scale[2][1] = zero;
+		scale[2][2] = inv;
+		PSMTXConcat(scale, src, src);
+		PSMTXConcat(j3dSys.mCurrentMtx, scale, j3dSys.mCurrentMtx);
+	}
 	return 1;
 }
 
 static int PakkunRootCallback(J3DNode* node, int flag)
 {
-	if (flag != 0)
-		return 1;
-	if (!gpCurPakkun)
-		return 1;
+	if (flag == 0) {
+		TPakkun* pakkun = gpCurPakkun;
+		if (!pakkun)
+			return 1;
 
-	u8 maxHp = gpCurPakkun->getSaveParam()
-	               ? gpCurPakkun->getSaveParam()->mSLHitPointMax.get()
-	               : 1;
-	if (gpCurPakkun->mHitPoints == maxHp)
-		return 1;
+		u8 maxHp = pakkun->getSaveParam()
+		               ? pakkun->getSaveParam()->mSLHitPointMax.get()
+		               : 1;
+		if (pakkun->mHitPoints == maxHp)
+			return 1;
 
-	MtxPtr src
-	    = gpCurPakkun->getModel()->getAnmMtx(((J3DJoint*)node)->getJntNo());
-	Mtx scale;
-	f32 yScale = gpCurPakkun->mRootScale;
-	f32 zScale = gpCurPakkun->mRootScale;
-	if (gpCurPakkun->mRootScale > 1.0f) {
-		yScale *= 1.5f;
-		zScale *= 1.5f;
+		MtxPtr src = pakkun->mMActor->getModel()->mNodeMatrices
+		    [((J3DJoint*)node)->getJntNo()];
+		Mtx scale;
+		f32 zero    = 0.0f;
+		scale[0][3] = zero;
+		scale[1][3] = zero;
+		scale[2][3] = zero;
+
+		f32 root   = pakkun->mRootScale;
+		f32 yScale = root;
+		f32 zScale = root;
+		if (root > 1.0f) {
+			yScale *= 1.5f;
+			zScale *= 1.5f;
+		}
+
+		scale[0][0] = root;
+		scale[0][1] = zero;
+		scale[0][2] = zero;
+		scale[1][0] = zero;
+		scale[1][1] = yScale;
+		scale[1][2] = zero;
+		scale[2][0] = zero;
+		scale[2][1] = zero;
+		scale[2][2] = zScale;
+		PSMTXConcat(scale, src, src);
+
+		scale[0][0] = root;
+		scale[0][1] = zero;
+		scale[0][2] = zero;
+		scale[1][0] = zero;
+		scale[1][1] = root;
+		scale[1][2] = zero;
+		scale[2][0] = zero;
+		scale[2][1] = zero;
+		scale[2][2] = root;
+		PSMTXConcat(j3dSys.mCurrentMtx, scale, j3dSys.mCurrentMtx);
 	}
-	PSMTXScale(scale, gpCurPakkun->mRootScale, yScale, zScale);
-	PSMTXConcat(scale, src, src);
-	PSMTXScale(scale, gpCurPakkun->mRootScale, gpCurPakkun->mRootScale,
-	           gpCurPakkun->mRootScale);
-	PSMTXConcat(j3dSys.mCurrentMtx, scale, j3dSys.mCurrentMtx);
 	return 1;
 }
 
 static int PakkunSeedCallback(J3DNode* node, int flag)
 {
-	if (flag != 0)
-		return 1;
-	if (!gpCurPakkunSeed || gpCurPakkunSeed->unk168
-	    || gpCurPakkunSeed->mHost->unk1B1)
-		return 1;
+	if (flag == 0) {
+		TPakkunSeed* seed = gpCurPakkunSeed;
+		if (!seed || seed->unk168 || seed->mHost->unk1B1)
+			return 1;
 
-	MtxPtr src
-	    = gpCurPakkunSeed->getModel()->getAnmMtx(((J3DJoint*)node)->getJntNo());
-	Mtx rot;
-	f32 angle = 182.04445f * gpCurPakkunSeed->mRollAngle;
-	s16 idx   = (s16)angle;
-	f32 s     = JMASSin(idx);
-	f32 c     = JMASCos(idx);
-	rot[0][0] = c;
-	rot[0][1] = -s;
-	rot[0][2] = 0.0f;
-	rot[1][0] = s;
-	rot[1][1] = c;
-	rot[1][2] = 0.0f;
-	rot[2][0] = 0.0f;
-	rot[2][1] = 0.0f;
-	rot[2][2] = 1.0f;
-	rot[0][3] = 0.0f;
-	rot[1][3] = 0.0f;
-	rot[2][3] = 0.0f;
-	PSMTXConcat(rot, src, src);
-	PSMTXConcat(j3dSys.mCurrentMtx, rot, j3dSys.mCurrentMtx);
+		Mtx rot;
+		MtxPtr rotPtr = rot;
+		f32 angle = 182.04445f * seed->mRollAngle;
+		MtxPtr src = seed->mMActor->getModel()->mNodeMatrices
+		    [((J3DJoint*)node)->getJntNo()];
+		u16 idx = (u16)(s16)angle;
+		f32 s  = jmaSinTable[idx >> jmaSinShift];
+		f32 c  = jmaCosTable[idx >> jmaSinShift];
+		f32 zero = 0.0f;
+		rotPtr[0][0] = c;
+		rotPtr[0][1] = -s;
+		rotPtr[0][2] = zero;
+		rotPtr[0][3] = zero;
+		rotPtr[1][0] = s;
+		rotPtr[1][1] = c;
+		rotPtr[1][2] = zero;
+		rotPtr[1][3] = zero;
+		rotPtr[2][0] = zero;
+		rotPtr[2][1] = zero;
+		rotPtr[2][2] = 1.0f;
+		rotPtr[2][3] = zero;
+		PSMTXConcat(rotPtr, src, src);
+		PSMTXConcat(j3dSys.mCurrentMtx, rotPtr, j3dSys.mCurrentMtx);
+	}
 	return 1;
 }
