@@ -269,8 +269,27 @@ void TPopo::explosion()
 
 void TPopo::flyBehavior()
 {
-	gpMarioParticleManager->emitAndBindToPosPtr(0x179, &mPosition, 1, this);
-	mRotation = MsGetRotFromZaxis(mVelocity);
+	unk19C++;
+	if (unk19C > mPopoParams->mSLFlyLimitTime.get()) {
+		unk19C = 0;
+		mSpine->pushNerve(&TNervePopoExplosion::theNerve());
+	}
+
+	if (unk198 > 1.0f)
+		unk198 *= 0.999f;
+
+	JGeometry::TVec3<f32> pos;
+	if (mLiveFlag & LIVE_FLAG_CLIPPED_OUT) {
+		pos = mPosition;
+	} else {
+		MtxPtr mouthMtx = getModel()->getAnmMtx(mMouthJntIndex);
+		copyMtxTrans(pos, mouthMtx);
+	}
+
+	TWaterEmitInfo* info = ((TPopoManager*)mManager)->mWaterEmitInfo;
+	info->mPos.value     = pos;
+	gpModelWaterManager->emitRequest(*info);
+	startPopoSound(0x20ce, mPosition);
 }
 
 bool TPopo::isCollidMove(THitActor* other)
