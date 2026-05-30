@@ -451,27 +451,20 @@ void TElecNokonoko::setMeltAnm()
 {
 	setBckAnm(2);
 	mLiveFlag |= 8;
-	unk18C = 3;
 
-	f32 zero = 0.0f;
-	Vec zeroVec;
-	zeroVec.x             = zero;
-	zeroVec.y             = zero;
-	zeroVec.z             = zero;
-	mCarapace->mScaling.x = zeroVec.x;
-	mCarapace->mScaling.y = zeroVec.y;
-	mCarapace->mScaling.z = zeroVec.z;
+	JGeometry::TVec3<f32> zeroVec(0.0f, 0.0f, 0.0f);
+	unk18C = 3;
+	mCarapace->mVelocity = zeroVec;
 
 	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0xCA, (MtxPtr)((u8*)mMActor->getModel()->mNodeMatrices + 0x58), 0,
-	    nullptr);
+	    0xCA, (MtxPtr)mMActor->getModel()->mNodeMatrices, 0, nullptr);
 	if (emitter) {
-		emitter->unk154.x = zeroVec.x;
-		emitter->unk154.y = zeroVec.y;
-		emitter->unk154.z = zeroVec.z;
-		emitter->unk174.x = zeroVec.x;
-		emitter->unk174.y = zeroVec.y;
-		emitter->unk174.z = zeroVec.z;
+		emitter->unk154.x = mScaling.x;
+		emitter->unk154.y = mScaling.y;
+		emitter->unk154.z = mScaling.z;
+		emitter->unk174.x = mScaling.x;
+		emitter->unk174.y = mScaling.y;
+		emitter->unk174.z = mScaling.z;
 	}
 }
 
