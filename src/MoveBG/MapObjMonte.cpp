@@ -1099,29 +1099,43 @@ void THangingBridgeBoard::control()
 
 	if (marioIsOn()) {
 		mVelocity.y -= mMarioAccelY;
+		f32 accelY = mMarioAccelY;
 		if (unk194 != 0) {
-			unk194->mVelocity.y -= mMarioAccelY * unk1BC->unk3C.y;
-			if (unk19C != 0)
-				unk19C->mVelocity.y -= mMarioAccelY * unk1BC->unk3C.z;
+			f32 accel = accelY * unk1BC->unk3C.y;
+			unk194->mVelocity.y -= accel;
+			if (unk19C != 0) {
+				f32 accel2 = accelY * unk1BC->unk3C.z;
+				unk19C->mVelocity.y -= accel2;
+			}
 		}
 		if (unk198 != 0) {
-			unk198->mVelocity.y -= mMarioAccelY * unk1BC->unk3C.y;
-			if (unk1A0 != 0)
-				unk1A0->mVelocity.y -= mMarioAccelY * unk1BC->unk3C.z;
+			f32 accel = accelY * unk1BC->unk3C.y;
+			unk198->mVelocity.y -= accel;
+			if (unk1A0 != 0) {
+				f32 accel2 = accelY * unk1BC->unk3C.z;
+				unk1A0->mVelocity.y -= accel2;
+			}
 		}
 	}
 
 	if (marioHipAttack()) {
 		mVelocity.y -= mMarioHipDropAccelY;
+		f32 accelY = mMarioHipDropAccelY;
 		if (unk194 != 0) {
-			unk194->mVelocity.y -= mMarioHipDropAccelY * unk1BC->unk3C.y;
-			if (unk19C != 0)
-				unk19C->mVelocity.y -= mMarioHipDropAccelY * unk1BC->unk3C.z;
+			f32 accel = accelY * unk1BC->unk3C.y;
+			unk194->mVelocity.y -= accel;
+			if (unk19C != 0) {
+				f32 accel2 = accelY * unk1BC->unk3C.z;
+				unk19C->mVelocity.y -= accel2;
+			}
 		}
 		if (unk198 != 0) {
-			unk198->mVelocity.y -= mMarioHipDropAccelY * unk1BC->unk3C.y;
-			if (unk1A0 != 0)
-				unk1A0->mVelocity.y -= mMarioHipDropAccelY * unk1BC->unk3C.z;
+			f32 accel = accelY * unk1BC->unk3C.y;
+			unk198->mVelocity.y -= accel;
+			if (unk1A0 != 0) {
+				f32 accel2 = accelY * unk1BC->unk3C.z;
+				unk1A0->mVelocity.y -= accel2;
+			}
 		}
 	}
 
@@ -1130,14 +1144,13 @@ void THangingBridgeBoard::control()
 	mVelocity.y += target * mReturnAccelRate;
 	mVelocity.y *= mSpeedDownRate;
 
-	MtxPtr mtx = getModel()->getBaseTRMtx();
-	f32 width = unk1BC->unk3C.x;
-	unk1A4[0].x = mPosition.x - mtx[0][0] * width;
-	unk1A4[0].y = mPosition.y - mtx[1][0] * width + 70.0f;
-	unk1A4[0].z = mPosition.z - mtx[2][0] * width;
-	unk1A4[1].x = mPosition.x + mtx[0][0] * width;
-	unk1A4[1].y = mPosition.y + mtx[1][0] * width + 70.0f;
-	unk1A4[1].z = mPosition.z + mtx[2][0] * width;
+	MtxPtr mtx = getModel()->mNodeMatrices[0];
+	unk1A4[0].x = mPosition.x - mtx[0][0] * unk1BC->unk3C.x;
+	unk1A4[0].y = mPosition.y - mtx[1][0] * unk1BC->unk3C.x + 70.0f;
+	unk1A4[0].z = mPosition.z - mtx[2][0] * unk1BC->unk3C.x;
+	unk1A4[1].x = mPosition.x + mtx[0][0] * unk1BC->unk3C.x;
+	unk1A4[1].y = mPosition.y + mtx[1][0] * unk1BC->unk3C.x + 70.0f;
+	unk1A4[1].z = mPosition.z + mtx[2][0] * unk1BC->unk3C.x;
 }
 
 #pragma dont_inline on
