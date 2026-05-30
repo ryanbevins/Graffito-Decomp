@@ -5122,6 +5122,46 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Hoist a default-value assignment out of an `if/else-if/else` chain to match a "preload default, then conditional branch skips the recompute" target shape
+
+When one arm of a 3-way branch assigns a constant default and the others
+recompute, MWCC (target) often **preloads the default into the result register
+before the first conditional branch**, then uses that branch to skip the
+recompute entirely. The natural `if (cond) x = DEFAULT; else if (...) ... else
+...` instead loads the default *inside* the taken branch, producing an extra
+`b` and a redundant compare.
+
+**Lever:** initialize the variable to the default unconditionally, then guard
+the recompute with the *inverted* leading condition:
+
+```cpp
+// natural (loads default in the taken branch):
+f32 range;
+if (checkLiveFlag(HIDDEN)) range = 2.0f;
+else if (!ampPolluter) range = a;
+else range = b;
+
+// matches target (preload default, bne skips recompute):
+f32 range = 2.0f;
+if (!checkLiveFlag(HIDDEN)) {
+    if (!ampPolluter) range = a;
+    else range = b;
+}
+```
+
+Target then emits `lfs f4, @2.0; rlwinm. flag; bne end` — the default is live
+before the branch and the HIDDEN arm vanishes.
+
+- `TRollEnemy::setBehavior` (igaiga, t281): 93.6% → 95.8%, instruction count
+  142 → 140 (redundant branch + compare eliminated). Residual is the +0x10
+  phantom frame pad only.
+
+This is the same family as the Settled ternary-preload entries (`var = cond ?
+K1 : K2`) but applies to a nested if-chain where the *first* arm is the
+constant. **Needs a 2nd-TU citation to promote.** Experiment: find another
+`if (flag) x = CONST; else { ... }` where the target preloads CONST; rewrite as
+`x = CONST; if (!flag) { ... }` and confirm the `bne`-skip shape.
+
 ### `getMActor()->getModel()` inlines the model access; bare `getModel()` emits an out-of-line `bl` (per-site, diff-driven)
 
 **Confirmed mechanism (igaiga, t279).** `TLiveActor::getModel()` is an
