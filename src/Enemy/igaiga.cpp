@@ -69,22 +69,37 @@ DEFINE_NERVE(TNerveGorogoroDie, TLiveActor)
 	TGorogoro* self = (TGorogoro*)spine->getBody();
 
 	if (spine->getTime() < 2) {
-		self->onLiveFlag(LIVE_FLAG_CLIPPED_OUT);
-		if (self->isRolling())
-			self->bound();
-	}
+		self->onHitFlag(0x1);
 
-	if (self->checkCurAnmEnd(0) || spine->getTime() > 360) {
-		self->onLiveFlag(LIVE_FLAG_CLIPPED_OUT);
-		self->onLiveFlag(0x10000);
-		self->offLiveFlag(0x4);
+		if (self->mGroundPlane->isWaterSurface()
+		    && !self->checkLiveFlag(LIVE_FLAG_AIRBORNE))
+			self->generateEffectColumWater();
+
+		if (self->checkLiveFlag(LIVE_FLAG_UNK10000)) {
+			self->setMeltAnm();
+		} else {
+			((TGorogoroManager*)self->mManager)
+			    ->mPolluteModelManager->generatePolluteModel(
+			        self->mPosition, self->mScaling);
+			self->setDeadAnm();
+			self->setDeadEffect();
+		}
+	} else if (self->checkCurAnmEnd(0) || spine->getTime() > 360) {
+		self->onHitFlag(0x1);
+		self->onLiveFlag(LIVE_FLAG_DEAD);
+		self->onLiveFlag(LIVE_FLAG_UNK8);
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->offLiveFlag(LIVE_FLAG_UNK10000);
+		self->mHolder = 0;
 		self->stopAnmSound();
+		spine->reset();
 		spine->setNext(&TNerveSmallEnemyDie::theNerve());
-		self->setAfterDeadEffect();
+		spine->pushAfterCurrent(spine->getDefault());
+		self->genRandomItem();
 		return TRUE;
 	}
 
-	if (self->checkLiveFlag(0x10000))
+	if (self->checkLiveFlag(LIVE_FLAG_UNK10000))
 		self->walkBehavior(2, 0.5f);
 
 	return FALSE;
