@@ -618,18 +618,19 @@ void TRedCoinSwitch::control()
 
 BOOL TRedCoinSwitch::receiveMessage(THitActor*, u32 message)
 {
-	if (message != HIT_MESSAGE_HIP_DROP)
-		return FALSE;
+	if (message == HIT_MESSAGE_HIP_DROP) {
+		startBck("redcoinswitch");
+		J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(0);
+		((u32*)((u8*)gpMarDirector->unk18[0] + 0xe8))[0]
+		    = frameCtrl->getEnd() * 2 + 60;
+		START_MAP_OBJ_SOUND(0x384c, mPosition);
+		removeMapCollision();
+		onHitFlag(HIT_FLAG_NO_COLLISION);
+		mState = 2;
+		return TRUE;
+	}
 
-	startBck("redcoinswitch");
-	J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(0);
-	((u16*)((u8*)gpMarDirector->unk18[0] + 0xe8))[0]
-	    = (u16)(frameCtrl->getEnd() * 2.0f + 60.0f);
-	START_MAP_OBJ_SOUND(0x384c, mPosition);
-	removeMapCollision();
-	mLiveFlag |= LIVE_FLAG_DEAD;
-	mState = 2;
-	return TRUE;
+	return FALSE;
 }
 
 void TBasketReverse::initMapObj()
