@@ -11,10 +11,15 @@ class TCoin;
 
 class TFerrisWheel : public TMapObjBase {
 public:
-	void becomeCalmlyCallback(u32, u32);
+	static s32 becomeCalmlyCallback(u32, u32);
 	void control();
 	void initMapObj();
 	TFerrisWheel(const char*);
+
+public:
+	/* 0x138 */ s32 unk138;
+	/* 0x13C */ TMapObjBase** unk13C;
+	/* 0x140 */ f32 unk140;
 };
 
 class THorizontalViking : public TMapObjBase {
@@ -24,7 +29,22 @@ public:
 	void control();
 	void reset();
 	void initMapObj();
-	THorizontalViking(const char*);
+	THorizontalViking(const char* name)
+	    : TMapObjBase(name)
+	    , unk138(0.0f)
+	    , unk13C(0.0f)
+	    , unk140(0.0f)
+	    , unk144(0.0f)
+	    , unk148(0.0f)
+	{
+	}
+
+public:
+	/* 0x138 */ f32 unk138;
+	/* 0x13C */ f32 unk13C;
+	/* 0x140 */ f32 unk140;
+	/* 0x144 */ f32 unk144;
+	/* 0x148 */ f32 unk148;
 };
 
 class TViking : public THorizontalViking {
@@ -35,6 +55,12 @@ public:
 	void loadAfter();
 	void initMapObj();
 	TViking(const char*);
+
+public:
+	/* 0x14C */ s32 unk14C;
+	/* 0x150 */ f32 unk150;
+	/* 0x154 */ f32 unk154;
+	/* 0x158 */ f32 unk158;
 };
 
 class TPinnaShell : public THitActor {
@@ -44,6 +70,18 @@ public:
 	void control();
 	TPinnaShell(const char*);
 	TPinnaShell();
+
+public:
+	/* 0x68 */ s32 unk68;
+	/* 0x6C */ f32 unk6C;
+	/* 0x70 */ f32 unk70;
+	/* 0x74 */ MtxPtr unk74;
+	/* 0x78 */ J3DJoint* unk78;
+	/* 0x7C */ s32 unk7C;
+	/* 0x80 */ THitActor* unk80;
+	/* 0x84 */ TMapCollisionMove* unk84;
+	/* 0x88 */ TDamageObj* unk88;
+	/* 0x8C */ TMapObjBase* unk8C;
 };
 
 class TShellCup : public TMapObjBase {
@@ -55,6 +93,17 @@ public:
 	void loadAfter();
 	void initMapObj();
 	TShellCup(const char*);
+
+	static f32 mOpenRotMax;
+	static f32 mShellDamageRot;
+	static f32 mWaterOpenAccel;
+	static f32 mCloseAccel;
+
+public:
+	/* 0x138 */ TPinnaShell unk138[6];
+	/* 0x498 */ TCoin* unk498;
+	/* 0x49C */ TCoin* unk49C;
+	/* 0x4A0 */ TCoin* unk4A0;
 };
 
 class TMerrygoround : public TMapObjBase {
@@ -63,6 +112,17 @@ public:
 	void draw() const;
 	void initMapObj();
 	TMerrygoround(const char*);
+
+	static f32 mRotSpeed;
+
+public:
+	/* 0x138 */ TMapObjBase* unk138[2];
+	/* 0x140 */ u16 unk140[2];
+	/* 0x144 */ TMapObjBase* unk144[9];
+	/* 0x168 */ TMapCollisionMove* unk168[9];
+	/* 0x18C */ u16 unk18C[9];
+	/* 0x1A0 */ TMapObjBase* unk1A0;
+	/* 0x1A4 */ u16 unk1A4;
 };
 
 class TChangeStageMerrygoround : public TMapObjChangeStage {
@@ -86,6 +146,9 @@ public:
 	void kill();
 	void load(JSUMemoryInputStream&);
 	TBalloonKoopaJr();
+
+public:
+	/* 0x148 */ JGeometry::TVec3<f32> unk148;
 };
 
 class TPinnaEntrance : public TMapObjBase {
@@ -110,6 +173,10 @@ public:
 	void bind();
 	void touchPlayer(THitActor*);
 	TAmiKing();
+
+public:
+	/* 0x138 */ u8 unk138;
+	/* 0x13C */ JGeometry::TVec3<f32> unk13C;
 };
 
 class TPinnaCoaster : public TMapObjBase {
@@ -117,6 +184,11 @@ public:
 	void control();
 	void initMapObj();
 	TPinnaCoaster(const char*);
+
+public:
+	/* 0x138 */ MActor* unk138;
+	/* 0x13C */ u32 unk13C;
+	/* 0x140 */ JGeometry::TVec3<f32> unk140;
 };
 
 class TMerryPole : public TMapObjBase {
