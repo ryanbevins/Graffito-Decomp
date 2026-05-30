@@ -184,7 +184,8 @@ DEFINE_NERVE(TNerveElecNokonokoFreeze, TLiveActor)
 	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		if (self->unk1A4 == 0) {
+		bool noCarapace = self->unk1A4 == 0;
+		if (noCarapace) {
 			self->setBckAnm(3);
 			gpMarioParticleManager->emitAndBindToMtxPtr(
 			    0xCA, (MtxPtr)self->mMActor->unk4->mNodeMatrices, 0, nullptr);
@@ -193,7 +194,7 @@ DEFINE_NERVE(TNerveElecNokonokoFreeze, TLiveActor)
 		}
 	}
 
-	if (self->mCurrentBckAnm == 3) {
+	if (self->isBckAnm(3)) {
 		if (self->getCurAnmFrameNo(0) < 25.0f) {
 			Mtx* nodeMtx
 			    = (Mtx*)((u8*)self->mMActor->unk4->mNodeMatrices + 0x180);
@@ -214,15 +215,16 @@ DEFINE_NERVE(TNerveElecNokonokoFreeze, TLiveActor)
 	}
 
 	if (self->checkCurAnmEnd(0)) {
-		if (self->mCurrentBckAnm == 7) {
+		if (self->isBckAnm(7)) {
 			self->setBckAnm(6);
-		} else if (self->mCurrentBckAnm == 6) {
+		} else if (self->isBckAnm(6)) {
 			bool wasReady = self->unk165;
 			if (self->unk165) {
 				self->unk165 = false;
 			}
 			if (!wasReady) {
-				if (self->unk1A4 == 0) {
+				bool noCarapace = self->unk1A4 == 0 ? true : false;
+				if (noCarapace) {
 					self->setBckAnm(5);
 				} else {
 					self->setBckAnm(6);
@@ -233,6 +235,13 @@ DEFINE_NERVE(TNerveElecNokonokoFreeze, TLiveActor)
 		} else {
 			return true;
 		}
+	}
+
+	if (spine->getTime() > 0x190) {
+		spine->reset();
+		spine->setDefaultNext();
+		spine->pushAfterCurrent(&TNerveElecNokonokoRebirth::theNerve());
+		return true;
 	}
 
 	return false;
