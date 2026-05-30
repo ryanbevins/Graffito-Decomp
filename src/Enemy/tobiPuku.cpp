@@ -775,10 +775,15 @@ void TTobiPuku::attackToMario()
 		return;
 	if (unk1AE)
 		return;
-	if ((*gpMarioFlag & 0x20000) != 0)
+	bool marioFlag = (*gpMarioFlag & 0x20000) != 0 ? true : false;
+	if (marioFlag)
 		return;
 
-	mLaunchVelocity.set(0.0f, 0.0f, 0.0f);
+	Vec velocity;
+	velocity.x = 0.0f;
+	velocity.y = 0.0f;
+	velocity.z = 0.0f;
+	*(Vec*)&mLaunchVelocity = velocity;
 	mSpine->pushNerve(&TNerveTobiPukuAttack::theNerve());
 }
 
