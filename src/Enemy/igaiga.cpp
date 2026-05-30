@@ -733,9 +733,6 @@ void TGorogoro::reset()
 	unk1ED[3] = 0xff;
 	unk1AC    = -10.0f;
 	unk1B0    = 1.0f;
-	unk1E4 = false;
-	unk1E8 = 0;
-	unk1EC = false;
 }
 
 void TGorogoro::setMActorAndKeeper()
