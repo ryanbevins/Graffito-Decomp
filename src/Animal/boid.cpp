@@ -3,6 +3,11 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <stdlib.h>
 
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
 TBoid::TBoid()
 {
 	mNeighborCount = 0;
@@ -29,17 +34,21 @@ TBoidLeader::TBoidLeader(int count, const char* name)
 	mParam30 = 10.0f;
 	mParam34 = 0.01f;
 
+	JGeometry::TVec3<f32> zeroGoal;
+	zeroGoal.set(0.0f, 0.0f, 0.0f);
 	mGoalActor = nullptr;
-	mGoalPos.zero();
+	mGoalPos   = zeroGoal;
 	mGoalForce = 1.0f;
-	mGoalOffset.zero();
 
-	unk58       = 0;
+	unk58 = 0;
+	JGeometry::TVec3<f32> zeroRepel;
+	zeroRepel.set(0.0f, 0.0f, 0.0f);
 	mRepelActor = nullptr;
-	mRepelPos.zero();
+	mRepelPos   = zeroRepel;
 	mRepelRange = 0.0f;
 	mRepelForce = 1.0f;
-	mGraphGoal.zero();
+	mGraphGoal.set(0.0f, 0.0f, 0.0f);
+	mGoalOffset.zero();
 
 	mFlags |= 1;
 }
@@ -130,9 +139,8 @@ void TBoidLeader::calcBoids()
 				            - (f32)matan(-force.z, force.x) * 0.005493164f;
 			}
 
-			f32 wrapped
-			    = MsWrap<f32>(boid->mYaw, targetYaw - 180.0f,
-			                  targetYaw + 180.0f);
+			f32 wrapped = callMsWrap(boid->mYaw, targetYaw - 180.0f,
+			                         targetYaw + 180.0f);
 			f32 turn = targetYaw - wrapped;
 			if (turn < -0.01f)
 				turn = -mParam28;
@@ -165,17 +173,17 @@ void TBoidLeader::setGraph(TGraphWeb* graph,
 	if (graph == nullptr)
 		return;
 
-	if (graph->isDummy())
-		return;
+	if (graph->isDummy() == 0) {
+		if (mGraphTracer == nullptr)
+			mGraphTracer = new TGraphTracer();
 
-	if (mGraphTracer == nullptr)
-		mGraphTracer = new TGraphTracer();
-
-	mGraphTracer->setGraph(graph);
-	int idx = graph->findNearestNodeIndex(pos, 0xffffffff);
-	mGraphTracer->setTo(idx);
-	mGraphGoal = mGraphTracer->unk0->indexToPoint(mGraphTracer->mCurrIdx);
-	mFlags |= 4;
+		mGraphTracer->setGraph(graph);
+		int idx = graph->findNearestNodeIndex(pos, 0xffffffff);
+		mGraphTracer->setTo(idx);
+		mGraphGoal.set(
+		    mGraphTracer->unk0->indexToPoint(mGraphTracer->mCurrIdx));
+		mFlags |= 4;
+	}
 }
 
 void TBoidLeader::perform(u32 flags, JDrama::TGraphics*)

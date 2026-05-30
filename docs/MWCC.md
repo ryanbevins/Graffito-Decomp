@@ -36,6 +36,28 @@ them in future ticks.
 
 ## Settled
 
+### Static inline wrapper around `MsWrap<f32>` can force the target's local out-of-line template emission
+
+When a target TU emits a local `MsWrap<f>__Ffff` body and calls it, but a
+direct `MsWrap<f32>(...)` source call is fully inlined, route the call through
+a tiny file-local wrapper:
+
+```cpp
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+```
+
+Under `-inline deferred`, MWCC inlines the wrapper body only far enough to
+preserve the template call boundary, causing the local `MsWrap<f>` instance to
+be emitted and called. Use the opposite settled rule ("manual expansion of
+`MsWrap` while loops") when the target inlines the loops and our build emits
+the call. Citations: `Enemy/rocket` and `MoveBG/MapObjItem2` both use this
+wrapper with a 100% `MsWrap<f>` symbol; `Animal/boid::calcBoids` changed from
+direct inline to this wrapper and gained an exact local `MsWrap<f>` while
+lifting `calcBoids` 62.2% -> 65.3% (t225).
+
 ### objdiff constant-pool label-numbering floor (a near-match can be byte-identical)
 
 MWCC assigns anonymous local symbols (`@NNNN` for float/const-pool entries) from an
