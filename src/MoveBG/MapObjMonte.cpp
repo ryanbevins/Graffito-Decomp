@@ -95,16 +95,15 @@ static inline void drawRopeQuad(const JGeometry::TVec3<f32>& a,
 
 TFluffManager::TFluffManager(const char* name)
     : TMapObjBase(name)
-    , unk144(0)
-    , unk154(0.0f)
-    , unk158(0)
-    , unk15C(0)
-    , unk160(0)
-    , unk164(0)
 {
 	zeroVec(unk138);
+	unk144 = 0;
+	unk154 = 0.0f;
+	unk158 = 0;
+	unk15C = 0;
+	unk160 = 0;
+	unk164 = 0;
 	zeroVec(unk148);
-	unk168 = 0;
 }
 
 void TFluffManager::load(JSUMemoryInputStream& stream)
@@ -209,7 +208,7 @@ TFluff::TFluff(const char* name)
     , unk168(0)
     , unk16C(0)
 {
-	zeroVec(unk154);
+	unk154.zero();
 }
 
 void TFluff::initMapObj()
@@ -296,9 +295,9 @@ void TFluff::control()
 
 void TFluff::kill()
 {
-	if (mHolder != 0) {
-		mHolder->receiveMessage(this, 8);
-		mHolder = 0;
+	if (mHeldObject != 0) {
+		mHeldObject->receiveMessage(this, 8);
+		mHeldObject = 0;
 	}
 	mState = 3;
 }
@@ -323,7 +322,7 @@ void TFluff::move()
 	mVelocity.x *= unk164;
 	mVelocity.z *= unk164;
 
-	if (mHolder != 0)
+	if (mHeldObject != 0)
 		gpMarioPos->y -= unk13C;
 }
 
@@ -347,7 +346,7 @@ void TGoalFlag::touchActor(THitActor* actor)
 	if (actor->isActorType(0x80000001)) {
 		if (!TFlagManager::smInstance->getBool(0x50005))
 			TFlagManager::smInstance->setBool(true, 0x50005);
-		SMS_SendMessageToMario(this, 0xE);
+		actor->receiveMessage(this, 0xE);
 		return;
 	}
 
@@ -458,10 +457,6 @@ THangingBridge::THangingBridge(const char* name)
     , unk14(0)
     , unk38(0)
 {
-	zeroVec(unk18);
-	zeroVec(unk24);
-	unk30.x = 0.0f;
-	unk30.y = 0.0f;
 	zeroVec(unk3C);
 }
 
@@ -681,7 +676,7 @@ void TJumpMushroom::load(JSUMemoryInputStream& stream)
 	TMapObjBase::load(stream);
 	int bgType;
 	stream.read(&bgType, 4);
-	if (mMapCollisionManager != 0 && mMapCollisionManager->unk8 != 0)
+	if (mMapCollisionManager != 0)
 		mMapCollisionManager->unk8->setAllData((s16)bgType);
 }
 
