@@ -5122,6 +5122,44 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### A mid-function `return FALSE` identical to the tail `return FALSE`, with intervening calls, co-occurs with both an un-merged `li r3,0` AND a small frame UNDER-allocation (igaiga graph-tail nerves)
+
+**Symptom.** In `igaiga`'s graph-walking nerve `execute` bodies the shape is
+```cpp
+if (self->isReachedToGoalXZ()) {
+    if (self->jumpToNextGraphNode() >= 0) self->flagJump();
+    if (self->getTracer()->getCurrent().checkFlag(0x40)) return FALSE; // mid
+    self->goToRandomNextGraphNode();
+}
+self->walkBehavior(2, 1.0f);
+return FALSE;                                                          // tail
+```
+The mid and tail returns are the **same constant** (`FALSE`). The target
+branches the mid-return's condition **directly to the single tail `li r3,0`**
+(`bne <epilogue-li>`), reusing one `li`. Our build instead materialises the
+mid-return inline as `li r3,0; b <epilogue>` (a second `li r3,0`) and inverts
+the branch polarity (`beq <body>`). Cross-jump/tail-merge that the target does,
+ours doesn't.
+
+**New correlation (t283).** This un-merged mid-return co-occurs with a
+frame UNDER-allocation: `IgaigaRollOnGraph::execute` target frame 0x58 / ours
+0x40 (−0x18); `WaterHit` 0x70 / 0x58 (−0x18). Crucially `RollOnGraph` inlines
+**zero** `theNerve()` Meyers singletons, so its −0x18 is NOT the documented
+nerve-base-hoist frame inflation — it tracks the mid-`return FALSE` structure
++ the `getTracer()->getCurrent().checkFlag` inline instead. The control
+twin `GorogoroRollOnGraph::execute` (no mid-return, `goToShortest` instead of
+`goToRandom`) matches **100%** with the correct frame. So on these two nerves
+the block-ordering open question and the frame-under-allocation open question
+are very likely the **same** root cause, not two.
+
+**Experiment to try next.** Reduce to a minimal BOOL fn: `if(A){ if(B) f();
+if(C) return FALSE; g(); } h(); return FALSE;` and vary (a) whether the mid
+and tail return the same constant, (b) whether a call sits between the mid
+return and the tail. Watch whether the `li r3,0` merges and the frame grows
+together. If they move in lockstep, promote as one rule. Banned: goto. Cited:
+`Enemy/igaiga` `execute__23TNerveIgaigaRollOnGraph` (94.24), `WaterHit`
+(98.61), control `GorogoroRollOnGraph` (100). See `state/notes/igaiga.md`.
+
 ### Hoist a default-value assignment out of an `if/else-if/else` chain to match a "preload default, then conditional branch skips the recompute" target shape
 
 When one arm of a 3-way branch assigns a constant default and the others
