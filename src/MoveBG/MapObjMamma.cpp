@@ -352,7 +352,8 @@ TMapObjBase* TSandCastle::findTriggerActor()
 
 void TSandCastle::calcRootMatrix()
 {
-	if (mState != 2)
+	bool inState2 = mState == 2 ? true : false;
+	if (!inState2)
 		TMapObjBase::calcRootMatrix();
 }
 
@@ -642,7 +643,6 @@ TSandBase::TSandBase(const char* name)
     : TMapObjBase(name)
     , unk138(0.0f)
     , unk13C(0.0f)
-    , unk140(0)
     , unk144(0)
 {
 }
