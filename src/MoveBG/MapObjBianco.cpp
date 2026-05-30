@@ -618,8 +618,36 @@ void TBiancoWatermillVertical::setGroundCollision()
 
 u32 TBiancoWatermillVertical::touchWater(THitActor* water)
 {
-	if (waterHitPlane(water))
-		unk138 += mRotAccel;
+	if (((TMapObjBase*)water)->getWaterPlane(water) == nullptr) {
+		unk144 = 1;
+		return 0;
+	}
+
+	if (!((TMapObjBase*)water)->waterHitPlane(water))
+		return 0;
+
+	JGeometry::TVec3<f32>* waterPos
+	    = ((TMapObjBase*)water)->getWaterPos(water);
+	JGeometry::TVec3<f32>* waterSpeed
+	    = ((TMapObjBase*)water)->getWaterSpeed(water);
+
+	JGeometry::TVec3<f32> speed(waterSpeed->x, 0.0f, waterSpeed->z);
+	if (speed.x != 0.0f || speed.z != 0.0f)
+		MsVECNormalize((Vec*)&speed, (Vec*)&speed);
+
+	JGeometry::TVec3<f32> target;
+	getVerticalVecToTargetXZ(waterPos->x, waterPos->z, &target);
+	MsVECNormalize((Vec*)&target, (Vec*)&target);
+
+	f32 rate = (mBodyRadius - getDistanceXZ(*waterPos)) / mBodyRadius;
+	f32 dot  = speed.x * target.x + speed.y * target.y + speed.z * target.z;
+	if (dot > 0.0f) {
+		if (unk138 < mRotSpeedMax)
+			unk138 += mRotAccel * rate;
+	} else {
+		if (unk138 > -mRotSpeedMax)
+			unk138 -= mRotAccel * rate;
+	}
 	return 1;
 }
 
