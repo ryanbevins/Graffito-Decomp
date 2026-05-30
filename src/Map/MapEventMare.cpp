@@ -497,23 +497,24 @@ void TMareEventDepressWall::init3rdEvent()
 
 	TMareEventDepressWall* event
 	    = JDrama::TNameRefGen::search<TMareEventDepressWall>("mareEP2");
-	if (event != nullptr)
+	if (event != nullptr) {
 		*(TMareEventDepressWall**)((u8*)event + 0x68) = this;
 
-	mWaitTimes[0] = 2400;
-	for (int i = 1; i < mWallNum; ++i)
-		mWaitTimes[i] = 120;
+		mWaitTimes[0] = 2400;
+		for (int i = 1; i < mWallNum; ++i)
+			mWaitTimes[i] = 120;
 
-	mTargets[0] = 900.0f;
-	mTargets[1] = 1300.0f;
-	mTargets[2] = 1300.0f;
-	mTargets[3] = 1300.0f;
-	mTargets[4] = 400.0f;
-	mTargets[5] = 300.0f;
-	mTargets[6] = 200.0f;
-	mDirections[4] = false;
-	mDirections[5] = false;
-	mDirections[6] = false;
+		mTargets[0x2b - mStartBuildingIndex]    = 900.0f;
+		mTargets[0x2c - mStartBuildingIndex]    = 1300.0f;
+		mTargets[0x2d - mStartBuildingIndex]    = 1300.0f;
+		mTargets[0x2e - mStartBuildingIndex]    = 1300.0f;
+		mTargets[0x2f - mStartBuildingIndex]    = 400.0f;
+		mTargets[0x30 - mStartBuildingIndex]    = 300.0f;
+		mTargets[0x31 - mStartBuildingIndex]    = 200.0f;
+		mDirections[0x2f - mStartBuildingIndex] = false;
+		mDirections[0x30 - mStartBuildingIndex] = false;
+		mDirections[0x31 - mStartBuildingIndex] = false;
+	}
 }
 
 void TMareEventDepressWall::init2ndEvent()
@@ -524,12 +525,13 @@ void TMareEventDepressWall::init2ndEvent()
 
 	TMareEventDepressWall* event
 	    = JDrama::TNameRefGen::search<TMareEventDepressWall>("mareEP1");
-	if (event != nullptr)
+	if (event != nullptr) {
 		*(TMareEventDepressWall**)((u8*)event + 0x68) = this;
 
-	mWaitTimes[0] = 3600;
-	for (int i = 1; i < mWallNum; ++i)
-		mWaitTimes[i] = 120;
+		mWaitTimes[0] = 3600;
+		for (int i = 1; i < mWallNum; ++i)
+			mWaitTimes[i] = 120;
+	}
 }
 
 void TMareEventDepressWall::init1stEvent()
@@ -540,12 +542,13 @@ void TMareEventDepressWall::init1stEvent()
 
 	TMareEventDepressWall* event
 	    = JDrama::TNameRefGen::search<TMareEventDepressWall>("mareEP0");
-	if (event != nullptr)
+	if (event != nullptr) {
 		*(TMareEventDepressWall**)((u8*)event + 0x68) = this;
 
-	mWaitTimes[0] = 3600;
-	for (int i = 1; i < mWallNum; ++i)
-		mWaitTimes[i] = 120;
+		mWaitTimes[0] = 3600;
+		for (int i = 1; i < mWallNum; ++i)
+			mWaitTimes[i] = 120;
+	}
 }
 
 TMareEventDepressWall::TMareEventDepressWall(const char* name)
