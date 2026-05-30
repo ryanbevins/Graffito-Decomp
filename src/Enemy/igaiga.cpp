@@ -463,9 +463,8 @@ void TIgaiga::moveObject()
 
 	f32 attackRadius = getSaveParam2()->getSLAttackRadius();
 	f32 attackHeight = getSaveParam2()->getSLAttackHeight();
-	TSmallEnemyParams* params = getSaveParam2();
-	f32 damageRadius = params->getSLDamageRadius();
-	f32 damageHeight = params->getSLDamageHeight();
+	f32 damageRadius = getSaveParam2()->getSLDamageRadius();
+	f32 damageHeight = getSaveParam2()->getSLDamageHeight();
 
 	f32 lo = unk154 * unk1CC;
 	f32 hi = 3.0f * mBodyScale;
@@ -493,6 +492,19 @@ void TIgaiga::moveObject()
 	mDamageRadius = damageRadius * ratio;
 	mDamageHeight = damageHeight * ratio;
 	calcEntryRadius();
+
+	mMarchSpeed = ((TRollEnemySaveLoadParams*)unk1A4)->mSLMarchSpeedLow.get();
+	mTurnSpeed  = ((TRollEnemySaveLoadParams*)unk1A4)->getSLTurnSpeedLow();
+
+	TGraphNode& node = getTracer()->getCurrent();
+	if (node.checkFlag(0x40)) {
+		JGeometry::TVec3<f32> point;
+		node.getPoint((Vec*)&point);
+		if (mPosition.y < 50.0f + point.y) {
+			kill();
+			unk1BC = true;
+		}
+	}
 }
 
 void TIgaiga::kill()
