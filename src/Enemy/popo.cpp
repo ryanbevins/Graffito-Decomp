@@ -245,12 +245,26 @@ void TPopo::explosion()
 {
 	TPopoManager* manager = (TPopoManager*)mManager;
 	TWaterEmitInfo* info  = manager->mExplosionWaterEmitInfo;
-	info->mPos.value      = mPosition;
-	gpModelWaterManager->emitRequest(*info);
 
-	mScaling.x += mPopoParams->mSLScaleRate.get();
-	mScaling.y += mPopoParams->mSLScaleRate.get();
-	mScaling.z += mPopoParams->mSLScaleRate.get();
+	if (unk198 > 1.0f)
+		unk198 *= 0.9f;
+
+	JGeometry::TVec3<f32> pos = mPosition;
+	pos.y += 100.0f;
+
+	if (mSpine->getTime() % 2 == 0) {
+		JGeometry::TVec3<f32> dir = info->mDir.value;
+		dir.y *= -1.0f;
+		info->mDir.value = dir;
+	}
+
+	f32 num = (f32)info->mNum.value
+	          * (unk198 / mPopoParams->mSLWaterScaleMax.get());
+	if (num < 2.0f)
+		num = 2.0f;
+	info->mNum.value = (s32)num;
+	info->mPos.value = pos;
+	gpModelWaterManager->emitRequest(*info);
 }
 
 void TPopo::flyBehavior()
