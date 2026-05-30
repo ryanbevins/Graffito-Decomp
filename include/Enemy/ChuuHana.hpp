@@ -115,7 +115,7 @@ public:
 	/* 0x1B8 */ f32 unk1B8;
 	/* 0x1BC */ u8 unk1BC[0x3C];
 	/* 0x1F8 */ JGeometry::TVec3<f32> unk1F8;
-	/* 0x204 */ u8 unk204[0xC];
+	/* 0x204 */ JGeometry::TVec3<f32> unk204;
 	/* 0x210 */ f32 unk210;
 	/* 0x214 */ u8 unk214;
 	/* 0x215 */ u8 unk215;
