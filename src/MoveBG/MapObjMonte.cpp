@@ -104,30 +104,6 @@ struct TBridgeBoardOverride {
 	f32 rotX;
 };
 
-static const TBridgeBoardOverride cSirenaBoardOverrides[] = {
-	{ 0.0f, -130.0f, 11965.0f, 30.0f },
-	{ 0.0f, -275.0f, 12225.0f, 29.0f },
-	{ 0.0f, -415.0f, 12490.0f, 28.0f },
-	{ 0.0f, -540.0f, 12760.0f, 26.0f },
-	{ 0.0f, -660.0f, 13035.0f, 24.0f },
-	{ 0.0f, -770.0f, 13315.0f, 22.0f },
-	{ 0.0f, -875.0f, 13595.0f, 20.0f },
-	{ 0.0f, -960.0f, 13895.0f, 12.0f },
-	{ 0.0f, -1020.0f, 14190.0f, 8.0f },
-	{ 0.0f, -1060.0f, 14490.0f, 4.0f },
-	{ 0.0f, -1090.0f, 14790.0f, 2.0f },
-	{ 0.0f, -1090.0f, 15090.0f, 0.0f },
-	{ 0.0f, -1080.0f, 15395.0f, -4.0f },
-	{ 0.0f, -1040.0f, 15695.0f, -6.0f },
-	{ 0.0f, -995.0f, 15990.0f, -8.0f },
-	{ 0.0f, -945.0f, 16285.0f, -8.0f },
-	{ 0.0f, -900.0f, 16580.0f, -8.0f },
-	{ 0.0f, -855.0f, 16880.0f, -8.0f },
-	{ 0.0f, -800.0f, 17175.0f, -10.0f },
-	{ -1.0f, 0.0f, 0.0f, 0.0f },
-	{ -99999.0f, 0.0f, 0.0f, 0.0f },
-};
-
 TFluffManager::TFluffManager(const char* name)
     : TMapObjBase(name)
 {
@@ -735,40 +711,38 @@ void THangingBridge::loadAfter()
 		unk18.set(1550.0f, 2980.0f, -9410.0f);
 		unk24.set(3570.0f, 2455.0f, -9410.0f);
 		mRopeHeight = 200.0f;
-		unk3C.set(150.0f, 0.8f, 0.5f);
+		unk3C.y = 0.8f;
+		unk3C.z = 0.5f;
+		unk3C.x = 150.0f;
 	} else if (gpMarDirector->mMap == 0x08) {
 		unk10       = 19;
 		unk18.set(0.0f, 0.0f, 11356.0f);
 		unk24.set(0.0f, -750.0f, 17743.0f);
 		mRopeHeight = 1000.0f;
-		unk3C.set(315.0f, 1.0f, 0.5f);
-	} else {
-		unk10       = 0;
-		mRopeHeight = 0.0f;
+		unk3C.y = 1.0f;
+		unk3C.z = 0.5f;
+		unk3C.x = 315.0f;
 	}
 
 	unk30.x = unk24.x - unk18.x;
 	unk30.y = unk24.z - unk18.z;
-	f32 len = JGeometry::TUtil<f32>::sqrt(unk30.x * unk30.x
-	                                      + unk30.y * unk30.y);
-	if (len > 0.0f) {
-		unk30.x /= len;
-		unk30.y /= len;
-	}
-	f32 dirX = unk30.x;
-	f32 dirZ = unk30.y;
-	unk30.x  = -dirZ;
-	unk30.y  = dirX;
+	unk30.normalize();
+	f32 cosRot = cosf(1.5707964f);
+	f32 sinRot = sinf(1.5707964f);
+	f32 dirX   = unk30.x;
+	f32 dirZ   = unk30.y;
+	unk30.x    = dirX * cosRot - dirZ * sinRot;
+	unk30.y    = dirX * sinRot + dirZ * cosRot;
 
 	unk14 = new THangingBridgeBoard*[unk10];
 	for (int i = 0; i < unk10; ++i) {
 		f32 rate = (f32)i / (f32)(unk10 - 1);
-		f32 sag  = gpMarDirector->mMap == 0x0D ? 90.0f : 0.0f;
+		f32 rotY = gpMarDirector->mMap == 0x0D ? 90.0f : 0.0f;
+		sinf(3.14f * rate);
 		JGeometry::TVec3<f32> pos(unk18.x + (unk24.x - unk18.x) * rate,
-		                           unk18.y + (unk24.y - unk18.y) * rate
-		                               - sag * sinf(3.14f * rate),
+		                           unk18.y + (unk24.y - unk18.y) * rate,
 		                           unk18.z + (unk24.z - unk18.z) * rate);
-		JGeometry::TVec3<f32> rot(15.0f, sag, 0.0f);
+		JGeometry::TVec3<f32> rot(15.0f, rotY, 0.0f);
 		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		const char* objName = gpMarDirector->mMap == 0x0D ? "PinnaHangingBridgeBoard"
 		                                                  : "HangingBridgeBoard";
@@ -781,6 +755,30 @@ void THangingBridge::loadAfter()
 	}
 
 	if (gpMarDirector->mMap == 0x08) {
+		const TBridgeBoardOverride cSirenaBoardOverrides[] = {
+			{ 0.0f, -130.0f, 11965.0f, 30.0f },
+			{ 0.0f, -275.0f, 12225.0f, 29.0f },
+			{ 0.0f, -415.0f, 12490.0f, 28.0f },
+			{ 0.0f, -540.0f, 12760.0f, 26.0f },
+			{ 0.0f, -660.0f, 13035.0f, 24.0f },
+			{ 0.0f, -770.0f, 13315.0f, 22.0f },
+			{ 0.0f, -875.0f, 13595.0f, 20.0f },
+			{ 0.0f, -960.0f, 13895.0f, 12.0f },
+			{ 0.0f, -1020.0f, 14190.0f, 8.0f },
+			{ 0.0f, -1060.0f, 14490.0f, 4.0f },
+			{ 0.0f, -1090.0f, 14790.0f, 2.0f },
+			{ 0.0f, -1090.0f, 15090.0f, 0.0f },
+			{ 0.0f, -1080.0f, 15395.0f, -4.0f },
+			{ 0.0f, -1040.0f, 15695.0f, -6.0f },
+			{ 0.0f, -995.0f, 15990.0f, -8.0f },
+			{ 0.0f, -945.0f, 16285.0f, -8.0f },
+			{ 0.0f, -900.0f, 16580.0f, -8.0f },
+			{ 0.0f, -855.0f, 16880.0f, -8.0f },
+			{ 0.0f, -800.0f, 17175.0f, -10.0f },
+			{ -1.0f, 0.0f, 0.0f, 0.0f },
+			{ -99999.0f, 0.0f, 0.0f, 0.0f },
+		};
+
 		for (int i = 0; i < unk10; ++i) {
 			const TBridgeBoardOverride& data = cSirenaBoardOverrides[i];
 			if (data.x == -1.0f)
@@ -788,7 +786,7 @@ void THangingBridge::loadAfter()
 
 			THangingBridgeBoard* board = unk14[i];
 			board->mInitialPosition.set(data.x, data.y, data.z);
-			board->mPosition = board->mInitialPosition;
+			board->mPosition.set(board->mInitialPosition);
 			board->mRotation.x = data.rotX;
 			board->calcDefaultMtx();
 		}
@@ -800,16 +798,24 @@ void THangingBridge::loadAfter()
 	}
 
 	for (int i = 0; i < unk10; ++i) {
-		unk14[i]->unk194 = (i > 0) ? unk14[i - 1] : 0;
-		unk14[i]->unk198 = (i + 1 < unk10) ? unk14[i + 1] : 0;
-		unk14[i]->unk19C = (i > 1) ? unk14[i - 2] : 0;
-		unk14[i]->unk1A0 = (i + 2 < unk10) ? unk14[i + 2] : 0;
+		THangingBridgeBoard* board = unk14[i];
+		if (i > 0)
+			board->unk194 = unk14[i - 1];
+		if (i > 1)
+			board->unk19C = unk14[i - 2];
+		if (i < unk10 - 1)
+			board->unk198 = unk14[i + 1];
+		if (i < unk10 - 2)
+			board->unk1A0 = unk14[i + 2];
 	}
 
 	unk38 = new f32[mPointNumBetweenBoards];
-	for (int i = 0; i < mPointNumBetweenBoards; ++i)
-		unk38[i] = 50.0f
-		           * sinf(((f32)i / (f32)mPointNumBetweenBoards) * 3.14f);
+	f32 angle = 0.0f;
+	f32 step  = 1.0f / (f32)mPointNumBetweenBoards;
+	for (int i = 0; i < mPointNumBetweenBoards; ++i) {
+		unk38[i] = 50.0f * sinf(3.14f * angle);
+		angle += step;
+	}
 }
 
 void THangingBridge::perform(unsigned long flags, JDrama::TGraphics*)
