@@ -301,11 +301,11 @@ DEFINE_NERVE(TNerveElecNokonokoAttack, TLiveActor)
 {
 	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
 
-	if (spine->getTime() == 0 || self->mCurrentBckAnm != 3) {
+	if (spine->getTime() == 0 || !self->isBckAnm(3)) {
 		self->setBckAnm(3);
 	}
 
-	return self->checkCurAnmEnd(0);
+	return self->checkCurAnmEnd(0) ? TRUE : FALSE;
 }
 
 DEFINE_NERVE(TNerveElecNokonokoRebirth, TLiveActor)
