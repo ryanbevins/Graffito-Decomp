@@ -1,7 +1,9 @@
 #include <MoveBG/MapObjBianco.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <Map/Map.hpp>
+#include <Map/MapCollisionEntry.hpp>
 #include <Map/MapCollisionData.hpp>
+#include <Map/MapCollisionManager.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorUtil.hpp>
 #include <MSound/MSound.hpp>
@@ -492,39 +494,71 @@ void TBiancoWatermillVertical::load(JSUMemoryInputStream& stream)
 void TBiancoWatermillVertical::loadAfter()
 {
 	TMapObjBase::loadAfter();
-	unk140 = findMapObj("BiaWatermillVertical 0");
-	unk148 = findMapObj("BiaTurnBridge 0");
-	unk14C = findMapObj("BiaTurnBridge 1");
+	if (strcmp(mName, "BiaWatermillVertical 0") == 0)
+		unk140 = findMapObj("BiaTurnBridge 0");
+	else
+		unk140 = findMapObj("BiaTurnBridge 1");
+	mBodyRadius = 1000.0f;
 }
 
 void TBiancoWatermillVertical::control()
 {
-	TMapObjBase::control();
+	if (unk138 != unk13C) {
+		if (unk138 > unk13C) {
+			unk138 -= mRotSpeedDownRate;
+			if (unk138 < unk13C)
+				unk138 = unk13C;
+		} else {
+			unk138 += mRotSpeedDownRate;
+			if (unk138 > unk13C)
+				unk138 = unk13C;
+		}
+	}
 
-	unk138 *= mRotSpeedDownRate;
-	if (unk138 > mRotSpeedMax)
-		unk138 = mRotSpeedMax;
-	if (unk138 < -mRotSpeedMax)
-		unk138 = -mRotSpeedMax;
+	mRotation.y += unk138;
+	f32 rot = mRotation.y;
+	while (rot >= 360.0f)
+		rot -= 360.0f;
+	while (rot < 0.0f)
+		rot += 360.0f;
+	mRotation.y = rot;
 
-	mRotation.x += unk138;
-	if (unk148 != nullptr)
-		unk148->mRotation.y += unk138 * mBridgeRotRate;
-	if (unk14C != nullptr)
-		unk14C->mRotation.y -= unk138 * mBridgeRotRate;
+	f32 bridgeRot = unk138 * mBridgeRotRate;
+	unk140->mRotation.y += bridgeRot;
+	f32 bridgeObjRot = unk140->mRotation.y;
+	while (bridgeObjRot >= 360.0f)
+		bridgeObjRot -= 360.0f;
+	while (bridgeObjRot < 0.0f)
+		bridgeObjRot += 360.0f;
+	unk140->mRotation.y = bridgeObjRot;
 
-	if (gpMSound->gateCheck(0x3067)) {
+	f32 volume = fabsf(unk138);
+	if (gpMSound->gateCheck(0x3040)) {
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-		    0x3067, (const Vec*)&mPosition, nullptr, fabsf(unk138), 0, 0,
-		    nullptr, 0, 4);
+		    0x3040, (const Vec*)&mPosition, nullptr, volume, 0, 0, &unk148,
+		    0, 4);
+	}
+
+	const Vec* bridgePosition = (const Vec*)&unk140->mPosition;
+	f32 bridgeVolume = fabsf(bridgeRot);
+	if (gpMSound->gateCheck(0x3042)) {
+		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+		    0x3042, bridgePosition, nullptr, bridgeVolume, 0, 0, &unk14C,
+		    0, 4);
 	}
 }
 
 void TBiancoWatermillVertical::setGroundCollision()
 {
-	TMapObjBase::setGroundCollision();
-	if (unk140 != nullptr)
-		unk140->setGroundCollision();
+	if (unk144 != 0 || mColCount != 0) {
+		J3DModel* model              = getModel();
+		TMapCollisionManager* colman = mMapCollisionManager;
+		MtxPtr mtx                   = model->getAnmMtx(0);
+		TMapCollisionBase* base      = colman->getUnk8();
+		if (base)
+			base->moveMtx(mtx);
+		unk144 = 0;
+	}
 }
 
 u32 TBiancoWatermillVertical::touchWater(THitActor* water)

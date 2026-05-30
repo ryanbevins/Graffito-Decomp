@@ -175,8 +175,8 @@ public:
 	/* 0x140 */ TMapObjBase* unk140;
 	/* 0x144 */ u8 unk144;
 	/* 0x145 */ char unk145[3];
-	/* 0x148 */ TMapObjBase* unk148;
-	/* 0x14C */ TMapObjBase* unk14C;
+	/* 0x148 */ JAISound* unk148;
+	/* 0x14C */ JAISound* unk14C;
 
 	static f32 mRotAccel;
 	static f32 mRotSpeedDownRate;
