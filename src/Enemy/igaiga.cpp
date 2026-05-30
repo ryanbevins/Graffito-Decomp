@@ -167,12 +167,21 @@ DEFINE_NERVE(TNerveIgaigaRollOnGraph, TLiveActor)
 {
 	TIgaiga* self = (TIgaiga*)spine->getBody();
 
-	if (spine->getTime() == 0) {
-		self->goToShortestNextGraphNode();
-		self->setBckAnm(0);
-	}
+	if (spine->getTime() == 0)
+		self->setWalkAnm();
 
-	self->walkBehavior(0, 0.0f);
+	if (self->checkCurAnmEnd(0) && self->isBckAnm(2))
+		self->setBckAnm(3);
+
+	if (self->isReachedToGoalXZ()) {
+		if (self->jumpToNextGraphNode() >= 0)
+			self->flagJump();
+		if (self->getTracer()->getCurrent().checkFlag(0x40))
+			return FALSE;
+		self->goToRandomNextGraphNode();
+	}
+	self->walkBehavior(2, 1.0f);
+
 	return FALSE;
 }
 
