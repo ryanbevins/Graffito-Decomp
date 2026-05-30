@@ -743,22 +743,24 @@ void TPakkunSeed::moveObject()
 {
 	TEnemyAttachment::moveObject();
 	if (!unk168) {
-		mRollAngle += 5.0f;
-		while (mRollAngle >= 360.0f)
-			mRollAngle -= 360.0f;
-		while (mRollAngle < 0.0f)
-			mRollAngle += 360.0f;
+		f32 roll = mRollAngle + 5.0f;
+		while (roll >= 360.0f)
+			roll -= 360.0f;
+		while (roll < 0.0f)
+			roll += 360.0f;
+		mRollAngle = roll;
 
 		if (mPosition.y > mGroundHeight + 20.0f) {
-			JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(mVelocity);
-			mRotation.x              = rot.x;
+			JGeometry::TVec3<f32> velocity = mVelocity;
+			mRotation.x = MsGetRotFromZaxis(velocity).x;
 		}
 	} else {
-		mRollAngle += 5.0f;
-		if (mRollAngle > 360.0f)
-			mRollAngle = 360.0f;
-		if (mRollAngle < 0.0f)
-			mRollAngle = 0.0f;
+		f32 roll = mRollAngle + 5.0f;
+		if (roll > 360.0f)
+			roll = 360.0f;
+		else if (roll < 0.0f)
+			roll = 0.0f;
+		mRollAngle = roll;
 		mRotation.x *= 0.8f;
 	}
 }
