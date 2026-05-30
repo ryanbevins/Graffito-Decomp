@@ -284,6 +284,7 @@ void TIgaiga::moveObject()
 
 void TIgaiga::kill()
 {
+	unk194 = 0.0f;
 	TSmallEnemy::kill();
 }
 
@@ -498,7 +499,6 @@ void TGorogoroPolluteModelManager::init(TLiveActor* owner)
 
 TIgaigaManager::TIgaigaManager(const char* name)
     : TSmallEnemyManager(name)
-    , mPolluteModelManager(nullptr)
     , unk64(nullptr)
     , mWaterEmitInfo(nullptr)
 {
@@ -515,8 +515,7 @@ void TIgaigaManager::load(JSUMemoryInputStream& stream)
 void TIgaigaManager::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	TSmallEnemyManager::perform(flags, graphics);
-	if (mPolluteModelManager)
-		mPolluteModelManager->perform(flags, graphics);
+	mPolluteModelManager->perform(flags, graphics);
 }
 
 void TIgaigaManager::createModelData()
