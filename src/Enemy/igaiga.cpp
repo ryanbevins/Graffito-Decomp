@@ -99,7 +99,14 @@ DEFINE_NERVE(TNerveGorogoroRollOnGraph, TLiveActor)
 		self->setBckAnm(2);
 	}
 
-	self->walkBehavior(0, 0.0f);
+	if (self->isReachedToGoalXZ()) {
+		if (self->jumpToNextGraphNode() >= 0)
+			self->flagJump();
+		else
+			self->goToShortestNextGraphNode();
+	}
+	self->walkBehavior(2, 1.0f);
+
 	return FALSE;
 }
 
