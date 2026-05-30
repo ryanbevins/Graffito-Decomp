@@ -22,7 +22,7 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 		shouldSetRate = false;
 	} else if (mHead->mCurAnm < 2 && mHead->mCurAnm >= 0) {
 		f32 walkSpeed = mChangeParams->mSLWalkAnmMarchSpeed.value;
-		if (unk140 <= walkSpeed) {
+		if (mMarchSpeed <= walkSpeed) {
 			mHead->mPalFrame->unk28 = 0.0f;
 			for (int i = 0; i < 8; i++)
 				mBody[i]->mPalFrame->unk28 = 0.0f;
@@ -34,7 +34,7 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 			} else {
 				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
 			}
-		} else if (unk140 >= mChangeParams->mSLRunAnmMarchSpeed.value) {
+		} else if (mMarchSpeed >= mChangeParams->mSLRunAnmMarchSpeed.value) {
 			mHead->mPalFrame->unk28 = 0.0f;
 			for (int i = 0; i < 8; i++)
 				mBody[i]->mPalFrame->unk28 = 0.0f;
@@ -49,7 +49,7 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 		} else {
 			f32 ratio = CLBCalcRatio<f32>(walkSpeed,
 			                              mChangeParams->mSLRunAnmMarchSpeed.value,
-			                              unk140);
+			                              mMarchSpeed);
 			if (mHead->mCurAnm == 0) {
 				if (mHead->mPrevAnm != 1) {
 					setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_OFF);
@@ -80,7 +80,8 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
 			}
 		}
-		rate = SMSGetAnmFrameRate() * unk140 * mChangeParams->mSLWalkBckRateMagnif.value;
+		rate = SMSGetAnmFrameRate() * mMarchSpeed
+		       * mChangeParams->mSLWalkBckRateMagnif.value;
 		f32 minRate = mChangeParams->mSLWalkBckRateMin.value;
 		if (rate < minRate)
 			rate = minRate;

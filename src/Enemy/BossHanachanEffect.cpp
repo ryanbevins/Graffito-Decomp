@@ -34,7 +34,7 @@ void TBossHanachan::emitCamShake_()
 	bool touching                       = SMS_IsMarioTouchGround4cm();
 
 	if (nerve == &TNerveBossHanachanGraphWander::theNerve()) {
-		f32 dist = unk134;
+		f32 dist = mDistToMarioSquared;
 		if (dist > 0.0f) {
 			const double half  = 0.5;
 			const double three = 3.0;
@@ -163,7 +163,7 @@ void TBossHanachan::emitParticle_()
 
 	if (nerve == &TNerveBossHanachanTumble::theNerve()
 	    || (nerve == &TNerveBossHanachanDamage::theNerve()
-	        && unk140 > 0.001f)) {
+	        && mMarchSpeed > 0.001f)) {
 		for (int i = 0; i < 8; i++) {
 			JGeometry::TVec3<f32> pos;
 			pos = mSphereLink->mPoints[i].mPos;

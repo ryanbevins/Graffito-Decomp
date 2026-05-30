@@ -25,7 +25,7 @@ DEFINE_NERVE(TNerveBossHanachanSnort, TLiveActor)
 	if (spine->getTime() == 200 && boss->checkLiveFlag(0x20000)) {
 		boss->offLiveFlag(0x20000);
 		MSBgm::startBGM(0x80010029);
-		switch (boss->mTempo) {
+		switch (boss->mHitPoints) {
 		case 2:
 			((MSModBgm*)gpMSound->unk98)->changeTempo(0, 1);
 			break;
@@ -48,7 +48,7 @@ DEFINE_NERVE(TNerveBossHanachanDamage, TLiveActor)
 	TBossHanachan* boss = (TBossHanachan*)spine->getBody();
 	boss->considerSetAnm(BHANM_NERVE_3);
 	boss->execSlip();
-	if (0.0f == boss->unk140
+	if (0.0f == boss->mMarchSpeed
 	    && spine->getTime() >= boss->mChangeParams->mSLDamageFrames.value) {
 		boss->setAnmTimerWhenGetUp();
 		spine->pushAfterCurrent(&TNerveBossHanachanGetUp::theNerve());
@@ -90,7 +90,7 @@ DEFINE_NERVE(TNerveBossHanachanTumble, TLiveActor)
 	else
 		boss->considerSetAnm(BHANM_NERVE_0);
 	boss->execSlip();
-	if (0.0f == boss->unk140 && boss->isTumbleCompletelyAllBody()) {
+	if (0.0f == boss->mMarchSpeed && boss->isTumbleCompletelyAllBody()) {
 		gpMarDirector->getConsole()->startAppearBalloon(0xE0007, true);
 		spine->pushAfterCurrent(&TNerveBossHanachanDown::theNerve());
 		return TRUE;
