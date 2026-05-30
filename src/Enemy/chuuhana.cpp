@@ -189,8 +189,7 @@ void TChuuHana::init(TLiveManager* manager)
 		mMActor->unkC->initNormalMotionBlend();
 
 	unk1B4 = (TChuuHanaSaveLoadParams*)getSaveParam();
-	if (mMActor->getModel() != nullptr)
-		mMActor->getModel()->calc();
+	mMActor->getModel()->calc();
 
 	TMirrorActor* mirror = new TMirrorActor("チュウハナin鏡");
 	mirror->init(getModel(), 0);
@@ -294,10 +293,11 @@ void TChuuHana::kill()
 
 void TChuuHana::forceKill()
 {
-	if (mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
-	    || mGroundPlane->isDeathPlane() || mGroundPlane->isPool()
-	    || mGroundPlane->isWaterSurface()
-	    || !gpMap->isInArea(mPosition.x, mPosition.z))
+	if ((!mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
+	        && (mGroundPlane->isDeathPlane() || mGroundPlane->isPool()
+	            || mGroundPlane->isWaterSurface()))
+	    || !gpMap->isInArea(mPosition.x, mPosition.z)
+	    || mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL))
 		kill();
 }
 
