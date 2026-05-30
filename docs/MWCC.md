@@ -5122,6 +5122,42 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### `getMActor()->getModel()` inlines the model access; bare `getModel()` emits an out-of-line `bl` (per-site, diff-driven)
+
+**Confirmed mechanism (igaiga, t279).** `TLiveActor::getModel()` is an
+**out-of-line const** member (`src/Strategic/liveactor.cpp:130`, body
+`return mMActor->unk4;`). When the original source wrote the model access as
+`getMActor()->getModel()` (both inline: `getMActor()` returns `0x74`,
+`MActor::getModel()` returns `unk4`), MWCC inlines it to
+`lwz rX,0x74(rThis); lwz rX,4(rX)` — no `bl`. When the source wrote bare
+`getModel()`, it emits `bl getModel__10TLiveActorCFv`. `getAnmMtx(N)` then
+adds `N*0x30` stride after the `lwz 0x58` (mNodeMatrices) load — index 0 adds
+nothing, index 1 emits `addi rX,rX,0x30`. So matching a particle-emit-on-joint
+call requires getting BOTH right: the inline form AND the joint index.
+
+- `TGorogoro::calcRootMatrix`: `getModel()->getAnmMtx(1)` →
+  `getMActor()->getModel()->getAnmMtx(0)` (target had no 0x30 stride): 95.9% → 99.3%.
+- `TGorogoro::setDeadAnm`: `getModel()->getAnmMtx(1)` → `getMActor()->getModel()->getAnmMtx(1)`
+  (target keeps the 0x30 stride): 97.9% → 99.9%.
+- `TGorogoro::behaveToWater` same emit fix applied (TU otherwise deep IMPL gap).
+
+The asymmetry is real: within `calcRootMatrix`, the emit call inlines getModel
+but the later `getModel()->getBaseTRMtx()` matches as an out-of-line `bl` on
+**both** sides — i.e. the original wrote `getMActor()->getModel()` for the emit
+and `getModel()` for the base matrix. So this is **per-site, not per-function**;
+drive it by the diff, never blanket-replace.
+
+**Negative sweep (t279).** A read-only detector (`tools/agent/scan_getmodel.sh`)
+scanned 20 enemy TUs for the signature (our RIGHT-only `bl getModel__10TLiveActorCFv`
+where target inlines). After filtering false positives — heavily-misaligned
+functions show both `>` and a LEFT-side `bl getModel` on a `|` modified line
+(e.g. popo `PopoRollCallback`/`PopoPossessedCallback`, whose real gap is the
+bool-return `li 0/1; b` materialize + `init$` ordering) — **no other enemy TU
+had a genuine applicable site.** The lever appears igaiga-specific so far.
+Needs a 2nd independent TU before promotion to Settled. Detector caveat: a
+purely textual `^<`/`^>` grep misses target `bl getModel` on `|` lines; always
+eyeball the diff for a LEFT `lwz rX,4(rX)` inline pair before applying.
+
 ### Uniform per-TU +0x10 stack inflation on leaf functions (igaiga)
 
 Several small leaf functions in `mario/Enemy/igaiga` whose bodies match the
@@ -6067,22 +6103,12 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
-- **`getModel()->getAnmMtx(N)` lowers differently than the target's inline
-  joint-matrix access (igaiga).** In `TGorogoro::calcRootMatrix` and
-  `setDeadAnm`/`setMeltAnm`/`behaveToWater`, the original loads the body joint
-  matrix inline as `mMActor->unk4->0x58` (i.e. `getMActor()->getModel()`
-  inlined, then a single field load at +0x58 — effectively joint index 0).
-  Our `getModel()->getAnmMtx(1)` instead emits an out-of-line `bl
-  getModel__10TLiveActorCFv`, then `lwz 0x58(r3); addi r5,r5,0x30` (base +
-  1×0x30). Two separate divergences: (a) `getModel()` is called out-of-line
-  vs inlined `mMActor->getModel()`, and (b) the index/stride differs (our
-  getAnmMtx adds a 0x30 matrix-stride; target does not). Suggests either the
-  source used `getMActor()->getModel()->getAnmMtx(0)` (different joint index),
-  or our `J3DModel::getAnmMtx` formula / `mNodeMatrices` layout doesn't match
-  the original. Experiment: try `getMActor()->getModel()->getAnmMtx(0)` in one
-  igaiga fn and diff; if the inline + single-load both appear, the idiom is
-  confirmed and the index was 0 — then sweep igaiga's particle-emit calls.
-  Likely affects other enemy TUs that emit on a joint matrix.
+- **(ANSWERED t279 — moved to *Hypotheses under investigation*.)** The
+  `getModel()->getAnmMtx(N)` lowering vs target inline joint access is now
+  understood: bare `getModel()` calls out-of-line `TLiveActor::getModel`;
+  `getMActor()->getModel()` inlines `mMActor->unk4`. Per-site, diff-driven.
+  Confirmed in igaiga (calcRootMatrix 95.9→99.3, setDeadAnm 97.9→99.9); a
+  20-TU enemy sweep found no other applicable site. See the Hypotheses entry.
 
 - **Nerve-heavy fns: target names the static-nerve/registration-string
   block `@NNNN` and hoists its base into a callee-saved reg (r30/r31),
