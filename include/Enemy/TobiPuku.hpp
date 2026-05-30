@@ -103,7 +103,7 @@ public:
 public:
 	/* 0x194 */ u8 unk194;
 	/* 0x195 */ u8 unk195[3];
-	/* 0x198 */ void* unk198;
+	/* 0x198 */ s32 unk198;
 	/* 0x19C */ TTobiPukuParams* mTobiPukuParams;
 	/* 0x1A0 */ JGeometry::TVec3<f32> unk1A0;
 	/* 0x1AC */ u8 unk1AC;
@@ -120,7 +120,7 @@ public:
 	/* 0x1E4 */ f32 unk1E4;
 	/* 0x1E8 */ f32 unk1E8;
 	/* 0x1EC */ f32 unk1EC;
-	/* 0x1F0 */ u8 unk1F0[4];
+	/* 0x1F0 */ f32 unk1F0;
 };
 
 class TMoePuku : public TTobiPuku {
