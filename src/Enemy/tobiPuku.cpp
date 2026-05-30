@@ -923,10 +923,8 @@ TTobiPuku::TTobiPuku(const char* name)
 
 void TMoePukuLaunchPad::launch()
 {
-	TTobiPuku* puku = nullptr;
-	if (gpConductor)
-		puku = (TTobiPuku*)gpConductor->makeOneEnemyAppear(
-		    mPosition, "モエプクマネージャー", 1);
+	TTobiPuku* puku = (TTobiPuku*)gpConductor->makeOneEnemyAppear(
+	    mPosition, "モエプクマネージャー", 1);
 	if (puku) {
 		forceLaunch(puku);
 		mLaunchedPuku = puku;
@@ -972,10 +970,8 @@ void TTobiPukuLaunchPad::forceLaunch(TTobiPuku* puku)
 
 void TTobiPukuLaunchPad::launch()
 {
-	TTobiPuku* puku = nullptr;
-	if (gpConductor)
-		puku = (TTobiPuku*)gpConductor->makeOneEnemyAppear(
-		    mPosition, "とびプクマネージャー", 1);
+	TTobiPuku* puku = (TTobiPuku*)gpConductor->makeOneEnemyAppear(
+	    mPosition, "とびプクマネージャー", 1);
 	if (puku) {
 		forceLaunch(puku);
 		mLaunchedPuku = puku;
