@@ -6181,6 +6181,20 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Int-range rand stores compile-time constants to the stack and recomputes the
+  range at runtime.** In `reset__7TIgaiga` the target compiles
+  `(min + (int)((max-min) * MsRandF())) * 120` (min=50, max=100 as `int` locals) by
+  storing 50 and 100 to the stack, reloading them, computing `subf` (max-min) at
+  runtime, and keeping `min` for the final add. Our build folds (max-min) to a float
+  constant `50.0f` and does `addi r3,r3,0x32` for +min — no stack store, no subf.
+  This stack-homing of two literal ints looks exactly like the params of an inlined
+  int-range helper (e.g. `inline int f(int min,int max){return min+(int)((max-min)*
+  MsRandF());}`), but no such helper exists in the tree and writing the expression
+  inline doesn't reproduce it. Experiment to try next: define a fabricated
+  `MsRand(int,int)` inline helper and call `MsRand(50,100)*120`; check whether the
+  param-homing + runtime subf appears. If it does, this is a missing shared helper
+  (likely in RandomUtil). t284 igaiga reset__7TIgaiga (~56B residual, all in this expr).
+
 - **(ANSWERED t279 — moved to *Hypotheses under investigation*.)** The
   `getModel()->getAnmMtx(N)` lowering vs target inline joint access is now
   understood: bare `getModel()` calls out-of-line `TLiveActor::getModel`;
