@@ -471,13 +471,12 @@ void TPopo::reset()
 	unk1B8 = 0.0f;
 	unk19C = 0;
 
-	mScaledBodyRadius = 15.0f * mBodyScale * mBodyRadius;
+	mScaledBodyRadius = mBodyScale * mBodyRadius * 15.0f;
 	unk190            = 0.2f;
 	expandCollision();
 
 	MActor* low = mMActorKeeper->getMActor("popoL.bmd");
-	if (low)
-		mMActor = low;
+	mMActor     = low;
 
 	if (unk1A4) {
 		onLiveFlag(LIVE_FLAG_UNK10);
@@ -486,8 +485,7 @@ void TPopo::reset()
 		offLiveFlag(LIVE_FLAG_UNK800);
 	}
 
-	if (mCollision)
-		mCollision->onHitFlag(HIT_FLAG_NO_COLLISION);
+	mCollision->onHitFlag(HIT_FLAG_NO_COLLISION);
 
 	unk18C = 0;
 }
@@ -708,6 +706,7 @@ TPopoManager::TPopoManager(const char* name)
 	unk60                   = 1;
 	mWaterEmitInfo          = nullptr;
 	mExplosionWaterEmitInfo = nullptr;
+	gpCurPopo               = nullptr;
 	unk5C                   = 0;
 }
 
