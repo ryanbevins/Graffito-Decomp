@@ -184,7 +184,7 @@ DEFINE_NERVE(TNerveElecNokonokoFreeze, TLiveActor)
 	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		bool noCarapace = self->unk1A4 == 0;
+		bool noCarapace = self->unk1A4 == 0 ? true : false;
 		if (noCarapace) {
 			self->setBckAnm(3);
 			gpMarioParticleManager->emitAndBindToMtxPtr(
@@ -622,7 +622,7 @@ void TElecNokonoko::moveObject()
 {
 	TWalkerEnemy::moveObject();
 
-	if (mCurrentBckAnm == 0xb && checkCurAnmEnd(0)) {
+	if (isBckAnm(0xb) && checkCurAnmEnd(0)) {
 		setBckAnm(0xa);
 	}
 }
