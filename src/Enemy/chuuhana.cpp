@@ -391,16 +391,15 @@ void TChuuHana::checkStretchType()
 {
 	unk1A0 = 0;
 
-	TChuuHanaSaveLoadParams* params = getChuuHanaParams();
-	f32 height                     = unk1A8;
+	f32 height = unk1A8;
 
 	if (mSpine->getCurrentNerve()
 	    == &TNerveChuuHanaKeepBalance::theNerve()) {
-		f32 reverseHeight = params->mSLReverseHeightS.get();
+		f32 reverseHeight = getChuuHanaParams()->mSLReverseHeightS.get();
 		if (mInstanceIndex > 0)
-			reverseHeight = params->mSLReverseHeightM.get();
+			reverseHeight = getChuuHanaParams()->mSLReverseHeightM.get();
 		if (mInstanceIndex > 2)
-			reverseHeight = params->mSLReverseHeightL.get();
+			reverseHeight = getChuuHanaParams()->mSLReverseHeightL.get();
 
 		if (height > reverseHeight) {
 			unk1B1 = 1;
@@ -411,11 +410,11 @@ void TChuuHana::checkStretchType()
 		}
 	}
 
-	f32 stretchHeight = params->mSLStretchHeightS.get();
+	f32 stretchHeight = getChuuHanaParams()->mSLStretchHeightS.get();
 	if (mInstanceIndex > 0)
-		stretchHeight = params->mSLStretchHeightM.get();
+		stretchHeight = getChuuHanaParams()->mSLStretchHeightM.get();
 	if (mInstanceIndex > 2)
-		stretchHeight = params->mSLStretchHeightL.get();
+		stretchHeight = getChuuHanaParams()->mSLStretchHeightL.get();
 
 	if (height > stretchHeight) {
 		unk1B1 = 0;
@@ -425,11 +424,11 @@ void TChuuHana::checkStretchType()
 		return;
 	}
 
-	stretchHeight = params->mSLMediumStretchHeightS.get();
+	stretchHeight = getChuuHanaParams()->mSLMediumStretchHeightS.get();
 	if (mInstanceIndex > 0)
-		stretchHeight = params->mSLMediumStretchHeightM.get();
+		stretchHeight = getChuuHanaParams()->mSLMediumStretchHeightM.get();
 	if (mInstanceIndex > 2)
-		stretchHeight = params->mSLMediumStretchHeightL.get();
+		stretchHeight = getChuuHanaParams()->mSLMediumStretchHeightL.get();
 
 	if (height > stretchHeight) {
 		unk1B1 = 0;
@@ -439,11 +438,11 @@ void TChuuHana::checkStretchType()
 		return;
 	}
 
-	stretchHeight = params->mSLSmallStretchHeightS.get();
+	stretchHeight = getChuuHanaParams()->mSLSmallStretchHeightS.get();
 	if (mInstanceIndex > 0)
-		stretchHeight = params->mSLSmallStretchHeightM.get();
+		stretchHeight = getChuuHanaParams()->mSLSmallStretchHeightM.get();
 	if (mInstanceIndex > 2)
-		stretchHeight = params->mSLSmallStretchHeightL.get();
+		stretchHeight = getChuuHanaParams()->mSLSmallStretchHeightL.get();
 
 	if (height > stretchHeight) {
 		unk1B1 = 0;
