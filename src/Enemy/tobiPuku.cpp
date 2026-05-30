@@ -373,8 +373,11 @@ BOOL TNerveTobiPukuPitiPiti::execute(TSpineBase<TLiveActor>* spine) const
 		self->setPichiAnm();
 
 	if (self->checkCurAnmEnd(0)) {
-		spine->pushAfterCurrent(&TNerveTobiPukuFall::theNerve());
-		return TRUE;
+		if (spine->getTime() > self->getTobiPukuParams()->mSLLifeTimer.get()) {
+			self->unk1AD = 0;
+			spine->pushAfterCurrent(&TNerveTobiPukuDie::theNerve());
+			return TRUE;
+		}
 	}
 
 	return FALSE;
