@@ -257,7 +257,7 @@ BOOL TNerveTobiPukuLand::execute(TSpineBase<TLiveActor>* spine) const
 			}
 		}
 
-		self->unk1B8 = self->mPosition;
+		self->unk1B8[0] = self->mPosition;
 		self->setFallEndLandAnm();
 		self->mRotation.x = 0.0f;
 		return FALSE;
@@ -265,16 +265,16 @@ BOOL TNerveTobiPukuLand::execute(TSpineBase<TLiveActor>* spine) const
 
 	if (self->isFallEndLandBck()) {
 		if (spine->getTime() == 1) {
-			self->unk1C4 = self->mPosition;
-			self->unk1C4.sub(self->unk1B8);
+			self->unk1B8[1] = self->mPosition;
+			self->unk1B8[1].sub(self->unk1B8[0]);
 		}
 
 		if (spine->getTime() < 20) {
 			f32 scale = 0.05f * (f32)spine->getTime();
-			self->mPosition = self->unk1B8;
-			self->mPosition.x += self->unk1C4.x * scale;
-			self->mPosition.y += self->unk1C4.y * scale;
-			self->mPosition.z += self->unk1C4.z * scale;
+			self->mPosition = self->unk1B8[0];
+			self->mPosition.x += self->unk1B8[1].x * scale;
+			self->mPosition.y += self->unk1B8[1].y * scale;
+			self->mPosition.z += self->unk1B8[1].z * scale;
 		}
 
 		if (self->checkCurAnmEnd(0)) {
@@ -885,8 +885,8 @@ void TTobiPuku::reset()
 
 	unk1AD  = 1;
 	unk194  = 0;
-	unk1C4  = mPosition;
-	unk1B8  = unk1C4;
+	unk1B8[1] = mPosition;
+	unk1B8[0] = unk1B8[1];
 	unk1E0  = mPosition.y;
 }
 

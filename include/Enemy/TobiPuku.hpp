@@ -112,8 +112,7 @@ public:
 	/* 0x1AF */ u8 unk1AF;
 	/* 0x1B0 */ f32 unk1B0;
 	/* 0x1B4 */ f32 unk1B4;
-	/* 0x1B8 */ JGeometry::TVec3<f32> unk1B8;
-	/* 0x1C4 */ JGeometry::TVec3<f32> unk1C4;
+	/* 0x1B8 */ JGeometry::TVec3<f32> unk1B8[2];
 	/* 0x1D0 */ JGeometry::TVec3<f32> mLaunchVelocity;
 	/* 0x1DC */ TTobiPukuLaunchPad* mLaunchPad;
 	/* 0x1E0 */ f32 unk1E0;
