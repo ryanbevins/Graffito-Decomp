@@ -381,13 +381,15 @@ void TMareEventDepressWall::perform(u32 flags, JDrama::TGraphics*)
 		return;
 
 	switch (mState) {
+	case 0:
+		break;
 	case 1:
 		depressing();
 		((TMapObjBase*)this)->calcMap();
 		break;
 	case 2:
 		if (!TMapObjBase::isDemo()) {
-			if (mWaitTimer <= 0) {
+			if (mWaitTimer == 0) {
 				mMoveCollisions[mCurrentIndex].setUp();
 				mWarpCollisions[mCurrentIndex].remove();
 				mState = 3;
@@ -402,7 +404,7 @@ void TMareEventDepressWall::perform(u32 flags, JDrama::TGraphics*)
 		break;
 	case 4:
 		if (!TMapObjBase::isDemo()) {
-			if (mWaitTimer <= 0)
+			if (mWaitTimer == 0)
 				mState = 0;
 			else
 				--mWaitTimer;
