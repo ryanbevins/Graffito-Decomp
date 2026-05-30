@@ -698,11 +698,13 @@ void TBiancoMiniWindmill::control()
 		unk154 = unk158;
 
 	unk150 += unk154;
+	f32 angle = unk150;
 
-	while (unk150 >= 360.0f)
-		unk150 -= 360.0f;
-	while (unk150 < 0.0f)
-		unk150 += 360.0f;
+	while (angle >= 360.0f)
+		angle -= 360.0f;
+	while (angle < 0.0f)
+		angle += 360.0f;
+	unk150 = angle;
 }
 
 void TBiancoMiniWindmill::calc()
