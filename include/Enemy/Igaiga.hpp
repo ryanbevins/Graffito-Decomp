@@ -51,8 +51,8 @@ public:
 	virtual bool isCollidMove(THitActor*);
 	virtual void setAfterDeadEffect() { }
 	virtual void walkBehavior(int, f32);
-	virtual bool isReachedToGoalXZ();
 	virtual void flagJump();
+	virtual bool isReachedToGoalXZ();
 	virtual void bound() { }
 	virtual bool isRolling() { return false; }
 	virtual void rollSE() { }
