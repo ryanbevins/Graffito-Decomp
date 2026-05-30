@@ -302,36 +302,27 @@ void TPopo::flyBehavior()
 bool TPopo::isCollidMove(THitActor* other)
 {
 	if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()
-	    || mSpine->getCurrentNerve() == &TNervePopoThrown::theNerve()) {
-		if (other->receiveMessage(this, HIT_MESSAGE_ATTACK)) {
-			if (mExplosionSw)
-				mSpine->pushNerve(&TNervePopoExplosion::theNerve());
-			else
-				kill();
-		}
-		return false;
-	}
+	    && other->receiveMessage(this, HIT_MESSAGE_TRAMPLE))
+		mSpine->pushNerve(&TNervePopoExplosion::theNerve());
 
-	if (mSpine->getCurrentNerve() == &TNervePopoPossessedNozzle::theNerve())
-		return false;
-
-	return TSmallEnemy::isCollidMove(other);
+	return false;
 }
 
 bool TPopo::isFindMario(float length)
 {
+	if (mSpine->getTime() <= 100)
+		return false;
+
 	if (SMS_IsMarioOnYoshi())
 		return false;
 
-	if (SMS_GetMarioGroundPlane()
-	    && SMS_GetMarioGroundPlane()->isWaterSurface())
-		return false;
-
-	if (fabsf(SMS_GetMarioPos().y - mPosition.y) > getSaveParam2()->getSLGiveUpHeight())
-		return false;
-
-	return isInSight(SMS_GetMarioPos(), length, getSaveParam2()->getSLSearchAngle(),
-	                 getSaveParam2()->getSLSearchAware()) ? true : false;
+	TSmallEnemyParams* params = (TSmallEnemyParams*)getSaveParam();
+	JGeometry::TVec3<f32> marioPos = SMS_GetMarioPos();
+	return isInSight(marioPos, params->getSLSearchLength() * length,
+	                 params->getSLSearchAngle() * length,
+	                 params->getSLSearchAware() * length) ?
+	           true :
+	           false;
 }
 
 bool TPopo::isHitValid(u32 message)
