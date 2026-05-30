@@ -465,9 +465,11 @@ void TPakkunSeed::shoot()
 		break;
 	}
 
-	mScaling.x = mScaling.y = mScaling.z = 0.1f;
-	unk168                              = 0;
-	offLiveFlag(LIVE_FLAG_DEAD);
+	mScaling.x = 0.1f;
+	mScaling.y = 0.1f;
+	mScaling.z = 0.1f;
+	unk168     = 0;
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 void TPakkunSeed::appear()
