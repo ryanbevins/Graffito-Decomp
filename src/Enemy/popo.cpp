@@ -430,18 +430,11 @@ void TPopo::bind()
 void TPopo::forceKill()
 {
 	const TBGCheckData* ground = mGroundPlane;
-	bool checkArea             = false;
 
-	if (ground->isIllegalData())
-		checkArea = true;
-	else {
-		u16 type = ground->getBGType();
-		if (type == BG_TYPE_DEATH_PLANE || ground->isPool()
-		    || ground->isWaterSurface())
-			checkArea = true;
-	}
-
-	if (checkArea && (isAirborne() || checkLiveFlag(LIVE_FLAG_UNK10))) {
+	if (ground->isIllegalData()
+	    || (!ground->isDeathPlane() && !ground->isPool()
+	        && !ground->isWaterSurface())
+	    || isAirborne() || checkLiveFlag(LIVE_FLAG_UNK10)) {
 		if (gpMap->isInArea(mPosition.x, mPosition.z))
 			return;
 	}
@@ -449,6 +442,7 @@ void TPopo::forceKill()
 	if (mSpine->getCurrentNerve() != &TNervePopoExplosion::theNerve()) {
 		mSpine->reset();
 		mSpine->setNext(&TNervePopoExplosion::theNerve());
+		mSpine->pushAfterCurrent(mSpine->getDefault());
 		mLiveFlag |= LIVE_FLAG_UNK20000;
 		mHitPoints = 1;
 	}
