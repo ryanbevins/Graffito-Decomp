@@ -311,11 +311,12 @@ void TChangeStageMerrygoround::calc()
 
 void TChangeStageMerrygoround::touchPlayer(THitActor* sender)
 {
-	if (mLifeTimer > 0)
+	bool timerActive = mLifeTimer > 0 ? true : false;
+	if (timerActive)
 		return;
 
 	u8* yoshi = (u8*)SMS_GetYoshi();
-	if (yoshi != nullptr && yoshi[0xd0] == 1) {
+	if (yoshi[0xd0] == 1) {
 		gpMSound->startSoundSystemSE(0x4840, 0, nullptr, 0);
 		TMapObjChangeStage::touchPlayer(sender);
 		unk13C = 1;
@@ -557,8 +558,7 @@ void TShellCup::perform(u32 flags, JDrama::TGraphics* graphics)
 
 void TShellCup::control()
 {
-	if (mMActor != nullptr)
-		mMActor->calc();
+	mMActor->calc();
 
 	for (int i = 0; i < 6; ++i)
 		unk138[i].control();
