@@ -36,6 +36,21 @@ them in future ticks.
 
 ## Settled
 
+### `#pragma dont_inline` around a single-call-site callee restores the target `bl` under `-inline deferred`
+
+In `-inline deferred` TUs, MWCC can inline an ordinary out-of-line member
+function or constructor into its only call site while still emitting the
+standalone symbol. If the target keeps that call as a `bl`, wrap the callee
+definition in `#pragma dont_inline on` / `#pragma dont_inline off`. This
+suppresses the call-site inline without removing the standalone copy. Apply
+only after confirming the target really calls the same emitted callee and
+re-check the callee itself for regressions. Citations: `Enemy/limitkoopa`
+`TLimitKoopa::startHipDrop` into `TNerveLimitKoopaHipDropStart::execute`
+(0% -> 88%); `Enemy/elecNokonoko` `TElecCarapace` ctor at the `new` site in
+`TElecNokonoko::init` (61% -> 81.7%); `Enemy/pakkun` `TPakkun` ctor at the
+`new` site in `TPakkunManager::createEnemyInstance` (25.8% -> 100%, ctor
+stayed 100%).
+
 ### Static inline wrapper around `MsWrap<f32>` can force the target's local out-of-line template emission
 
 When a target TU emits a local `MsWrap<f>__Ffff` body and calls it, but a
@@ -5258,38 +5273,6 @@ helper/class distinct from the simple 2-arg `MsRandF`, used by the
 smallEnemy family. Recommended fix when revisited: a killer-TU-local
 (or smallEnemy-family-shared) inline taking `const f32&`, leaving the
 global `MsRandF(f32,f32)` by-value. Do NOT re-flip the global header.
-
-### Under `-inline deferred`, MWCC inlines even large (500+ byte) ordinary member functions into a *single* call site; `#pragma dont_inline` restores the `bl`
-
-**Hypothesis.** The existing `dont_inline` guidance in `CLAUDE.md` is
-framed around *empty* functions getting auto-inlined. But in `-inline
-deferred` TUs the deferred inliner is far more aggressive: it will fully
-inline a substantial ordinary method (observed at 0x208 = 520 bytes)
-into its lone call site, even though the method is *also* emitted
-out-of-line as a real symbol. The target keeps it as a `bl`. Wrapping
-the method definition in `#pragma dont_inline on` / `off` forces the
-`bl` at the call site without removing the out-of-line copy.
-
-**Observed.** `mario/Enemy/limitkoopa`: `TLimitKoopa::startHipDrop` (520
-bytes) was being inlined into `TNerveLimitKoopaHipDropStart::execute`,
-ballooning the nerve to a -0x80 frame and scoring 0%. The target does
-`bl startHipDrop`. `#pragma dont_inline on/off` around startHipDrop's
-definition → nerve 0%→88%, then 93.7% after a reference-local fix. (Note
-the nerve TU uses `cflags_game` which includes `-inline deferred`.)
-
-**Second citation (t216).** `mario/Enemy/elecNokonoko`:
-`TElecNokonoko::init` constructs its shell via `new TElecCarapace(name)`.
-Our build inlined the *constructor* body at the `new` site (vtable +
-field stores + `lfs/stfs`), inflating regs/frame; the target emits one
-`bl __ct__13TElecCarapaceFPCc`. `#pragma dont_inline on/off` around the
-ctor definition restored the `bl`: init 61%→81.7% (then 83.3% with a
-reference-local). This *broadens* the precondition — the ctor here is
-small (well under the 520-byte limitkoopa method), so the trigger is
-**single call site + deferred inliner**, not a size threshold. Both TUs
-use `-inline deferred`. Two independent confirmations now; candidate for
-promotion to *Settled* / `CLAUDE.md` (the existing `dont_inline` note in
-CLAUDE.md is framed only around *empty* functions — it should be widened
-to "any single-call-site callee, incl. ctors at `new` sites").
 
 ### Naming shared sub-products as locals forces CSE and defeats `fnmsubs`/`fmsubs` fusion in matrix/quaternion math
 
