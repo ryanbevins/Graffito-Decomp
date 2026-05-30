@@ -2,6 +2,7 @@
 #define MOVE_BG_MAP_OBJ_BIANCO_HPP
 
 #include <MoveBG/MapObjFloat.hpp>
+#include <MoveBG/MapObjMessenger.hpp>
 #include <MoveBG/MapObjTurn.hpp>
 
 struct TBGWallCheckRecord;
@@ -151,8 +152,8 @@ public:
 	/* 0x150 */ f32 unk150;
 	/* 0x154 */ f32 unk154;
 	/* 0x158 */ f32 unk158;
-	/* 0x15C */ u32 unk15C;
-	/* 0x160 */ u32 unk160;
+	/* 0x15C */ TMapObjMessenger* unk15C;
+	/* 0x160 */ JAISound* unk160;
 
 	static f32 mRotWaterAccel;
 	static f32 mFriction;

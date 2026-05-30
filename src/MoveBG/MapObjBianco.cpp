@@ -433,42 +433,97 @@ TBiancoMiniWindmill::TBiancoMiniWindmill(const char* name)
     : THideObjBase(name)
     , unk150((f32)rand() * (1.0f / 32768.0f) * 300.0f)
     , unk154(0.0f)
-    , unk158(360.0f + (f32)rand() * (1.0f / 32768.0f))
-    , unk15C(0)
-    , unk160(0)
+    , unk158(1.0f + (f32)rand() * (1.0f / 32768.0f))
+    , unk15C(nullptr)
+    , unk160(nullptr)
 {
 }
 
 void TBiancoMiniWindmill::initMapObj()
 {
-	THideObjBase::initMapObj();
-	unk15C = 0;
-	unk160 = 0;
+	TMapObjBase::initMapObj();
+	unk13C = 0.0f;
+
+	unk15C = new TMapObjMessenger(
+	    "\x92\x6E\x8C\x60\x83\x49\x83\x75\x83\x57\x83\x46\x83\x81\x83\x62\x83\x5A\x83\x93\x83\x57\x83\x83\x81\x5B");
+	unk15C->initHitActor(0, 1, 0, 0.0f, 0.0f, 300.0f, 500.0f);
+
+	unk15C->mPosition.x = mPosition.x + sMessengerPosZ * JMASin(mRotation.y);
+	unk15C->mPosition.y = mPosition.y + sMessengerPosY;
+	unk15C->mPosition.z = mPosition.z + sMessengerPosZ * JMACos(mRotation.y);
 }
 
 void TBiancoMiniWindmill::control()
 {
-	THideObjBase::control();
+	if (unk154 > unk158)
+		unk154 -= mFriction;
+	else
+		unk154 = unk158;
+
 	unk150 += unk154;
-	unk154 *= mFriction;
-	if (unk154 > mRotSpeedMax)
-		unk154 = mRotSpeedMax;
-	if (unk154 < -mRotSpeedMax)
-		unk154 = -mRotSpeedMax;
-	mRotation.y = unk150;
+
+	while (unk150 >= 360.0f)
+		unk150 -= 360.0f;
+	while (unk150 < 0.0f)
+		unk150 += 360.0f;
 }
 
 void TBiancoMiniWindmill::calc()
 {
-	THideObjBase::calc();
-	sMessengerPosZ = 200.0f + JMASin(mRotation.y) * 300.0f;
-	sMessengerPosY = 6400.0f + JMACos(mRotation.y) * 300.0f;
+	Mtx rotMtx;
+	rotMtx[0][0] = JMACos(unk150);
+	rotMtx[0][1] = -JMASin(unk150);
+	rotMtx[0][2] = 0.0f;
+	rotMtx[0][3] = 0.0f;
+	rotMtx[1][0] = JMASin(unk150);
+	rotMtx[1][1] = JMACos(unk150);
+	rotMtx[1][2] = 0.0f;
+	rotMtx[1][3] = 0.0f;
+	rotMtx[2][0] = 0.0f;
+	rotMtx[2][1] = 0.0f;
+	rotMtx[2][2] = 1.0f;
+	rotMtx[2][3] = 0.0f;
+
+	J3DModel* model = getModel();
+	PSMTXConcat(model->mNodeMatrices[0], rotMtx, rotMtx);
+
+	MtxPtr jointMtx = getModel()->mNodeMatrices[1];
+	rotMtx[0][3]   = jointMtx[0][3];
+	rotMtx[1][3]   = jointMtx[1][3];
+	rotMtx[2][3]   = jointMtx[2][3];
+	PSMTXCopy(rotMtx, getModel()->mNodeMatrices[1]);
+
+	f32 volume = fabsf(unk154);
+	if (gpMSound->gateCheck(0x3045)) {
+		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+		    0x3045, (const Vec*)&mPosition, nullptr, volume, 0, 0, &unk160,
+		    0, 4);
+	}
 }
 
 u32 TBiancoMiniWindmill::touchWater(THitActor* water)
 {
-	if (waterHitPlane(water))
-		unk154 += mRotWaterAccel;
+	JGeometry::TVec3<f32>* waterPos
+	    = ((TMapObjBase*)water)->getWaterPos(water);
+	if (waterPos->y < mPosition.y + sMessengerPosY - 300.0f)
+		return 1;
+
+	JGeometry::TVec3<f32>* waterSpeed
+	    = ((TMapObjBase*)water)->getWaterSpeed(water);
+	MtxPtr mtx = getModel()->mNodeMatrices[0];
+	f32 dot    = waterSpeed->x * mtx[0][2] + waterSpeed->y * mtx[1][2]
+	          + waterSpeed->z * mtx[2][2];
+	if (dot > 0.0f)
+		return 0;
+
+	unk154 += mRotWaterAccel;
+	if (unk154 > mRotSpeedMax) {
+		unk154 = mRotSpeedMax;
+		JGeometry::TVec3<f32> pos(mPosition.x, unk15C->mPosition.y + 550.0f,
+		                          mPosition.z);
+		unk13C = 0.0f;
+		appearObjFromPoint(pos);
+	}
 	return 1;
 }
 
