@@ -284,7 +284,9 @@ void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 
 bool TTabePuku::doKeepDistance()
 {
-	return isTabePukuAttackNerve(mSpine->getLatestNerve());
+	if (isTabePukuAttackNerve(mSpine->getLatestNerve()))
+		return false;
+	return true;
 }
 
 bool TTabePuku::isFindMario(float range)
