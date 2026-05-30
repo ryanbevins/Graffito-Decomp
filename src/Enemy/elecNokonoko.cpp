@@ -435,14 +435,14 @@ void TElecNokonoko::setWaitAnm()
 
 void TElecNokonoko::setWalkAnm()
 {
-	if (mCurrentBckAnm != 0xa) {
+	if (!isBckAnm(0xa)) {
 		setBckAnm(0xb);
 	}
 }
 
 void TElecNokonoko::setRunAnm()
 {
-	if (mCurrentBckAnm != 0xa) {
+	if (!isBckAnm(0xa)) {
 		setBckAnm(0xb);
 	}
 }
