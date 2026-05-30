@@ -725,7 +725,7 @@ void TGorogoro::behaveToWater(THitActor* actor)
 		mHitPoints = 1;
 
 	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x176, getModel()->getAnmMtx(1), 1, this);
+	    0x176, getMActor()->getModel()->getAnmMtx(0), 1, this);
 	if (emitter)
 		emitter->setScale(mScaling);
 }
@@ -733,7 +733,7 @@ void TGorogoro::behaveToWater(THitActor* actor)
 void TGorogoro::setDeadAnm()
 {
 	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0xbf, getModel()->getAnmMtx(1), 0, nullptr);
+	    0xbf, getMActor()->getModel()->getAnmMtx(1), 0, nullptr);
 	if (emitter)
 		emitter->setScale(mScaling);
 
