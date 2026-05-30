@@ -269,10 +269,10 @@ void TIgaiga::init(TLiveManager* manager)
 	TWalkerEnemy::init(manager);
 	mActorType = 0x10000017;
 	unk150      = 0x11;
-	mLiveFlag &= ~0x78000000;
-	mLiveFlag |= 0x40000000;
+	unk64 &= ~0x18000000;
+	unk64 |= 0x40000000;
 	mSpine->initWith(&TNerveIgaigaRollOnGraph::theNerve());
-	unk1A4 = getUnkF4().unk0 ? 1 : 0;
+	unk1A4 = getSaveParam();
 
 	mMActor->setJointCallback(1, RollEnemyBodyCallback);
 	mMActor->setBtkFromIndex(0);

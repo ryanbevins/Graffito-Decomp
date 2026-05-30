@@ -69,7 +69,7 @@ public:
 	/* 0x198 */ f32 unk198;
 	/* 0x19C */ f32 unk19C;
 	/* 0x1A0 */ f32 unk1A0;
-	/* 0x1A4 */ int unk1A4;
+	/* 0x1A4 */ void* unk1A4;
 	/* 0x1A8 */ u8 unk1A8;
 	/* 0x1A9 */ u8 unk1A9[3];
 	/* 0x1AC */ f32 unk1AC;
@@ -113,6 +113,7 @@ public:
 	/* 0x1E4 */ bool unk1E4;
 	/* 0x1E8 */ s32 unk1E8;
 	/* 0x1EC */ bool unk1EC;
+	/* 0x1ED */ u8 unk1ED[0x1F4 - 0x1ED];
 };
 
 class TIgaiga : public TRollEnemy {
