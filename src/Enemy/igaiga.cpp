@@ -597,7 +597,7 @@ void TIgaiga::setMeltAnm()
 	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
 		unk1C0 = mPosition;
 	} else {
-		MtxPtr mtx = getModel()->getBaseTRMtx();
+		MtxPtr mtx = getMActor()->getModel()->getAnmMtx(0);
 		unk1C0.x   = mtx[0][3];
 		unk1C0.y   = mtx[1][3];
 		unk1C0.z   = mtx[2][3];
@@ -610,6 +610,10 @@ void TIgaiga::setMeltAnm()
 		else
 			SMSRumbleMgr->start(0x14, 0xa, &mPosition);
 	}
+
+	TIgaigaManager* manager = (TIgaigaManager*)getManager();
+	manager->mWaterEmitInfo->mPos.value = mPosition;
+	gpModelWaterManager->emitRequest(*manager->mWaterEmitInfo);
 
 	JGeometry::TVec3<f32> scale = mScaling;
 	scale *= 0.5f;
@@ -624,7 +628,7 @@ void TIgaiga::setMeltAnm()
 
 	setBckAnm(5);
 
-	if (rand() * 0.000030517578f < 0.2f) {
+	if (MsRandF(0.0f, 1.0f) < 0.2f) {
 		gpItemManager->makeObjAppear(mPosition.x, mPosition.y + 20.0f,
 		                             mPosition.z, 0x20000002, true);
 	}
