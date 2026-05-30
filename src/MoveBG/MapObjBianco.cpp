@@ -21,6 +21,7 @@
 #include <JSystem/JMath.hpp>
 #include <dolphin/mtx.h>
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -221,18 +222,29 @@ u32 TBiancoBell::touchWater(THitActor* water)
 TLampSeesawMain::TLampSeesawMain(const char* name)
     : TLampSeesaw(name)
     , unk144(0.0f)
-    , unk148(50.0f)
-    , unk14C(-1.0f)
-    , unk150(1.0f)
+    , unk148(0.998f)
+    , unk14C(0.8f)
+    , unk150(0.5f)
 {
 }
 
 void TLampSeesawMain::loadAfter()
 {
-	TMapObjBase::loadAfter();
-	unk138 = (TLampSeesaw*)findMapObj("ランプシーソー（従）");
-	if (unk138 != nullptr)
-		unk138->unk138 = this;
+	u32 len = strlen("ランプシーソーＡ");
+	u8 c0   = mName[len];
+	u8 c1   = mName[len + 1];
+	u8 c2   = mName[len + 2];
+	u8 c3   = mName[len + 3];
+	char name[0x40];
+
+	snprintf(name, 0x40, "ランプシーソーＢ００");
+	name[len]     = c0;
+	name[len + 1] = c1;
+	name[len + 2] = c2;
+	name[len + 3] = c3;
+
+	unk138 = (TLampSeesaw*)findMapObj(name);
+	unk138->unk138 = this;
 }
 
 void TLampSeesawMain::control()
@@ -260,8 +272,7 @@ void TLampSeesawMain::pushDown(f32 power)
 TLampSeesaw::TLampSeesaw(const char* name)
     : TMapObjBase(name)
     , unk138(nullptr)
-    , unk13C(0.0f)
-    , unk140(50.0f)
+    , unk140(0.01f)
 {
 }
 
@@ -272,13 +283,13 @@ void TLampSeesaw::load(JSUMemoryInputStream& stream)
 	stream.read(&y, 4);
 	unk13C = mInitialPosition.y - y;
 	stream.read(&unk140, 4);
-	unk140 *= 0.5f;
+	unk140 *= 0.0001f;
 }
 
 void TLampSeesaw::touchPlayer(THitActor*)
 {
-	if (marioIsOn() && unk138 != nullptr)
-		unk138->pushDown(1.0f);
+	if (marioIsOn())
+		unk138->pushDown(-unk140);
 }
 
 void TLampSeesaw::pushDown(f32) { }
