@@ -8,6 +8,7 @@
 #include <Strategic/HitActor.hpp>
 
 class TElecNokonoko;
+class J3DMaterialTable;
 
 class TElecNokonokoSaveLoadParams : public TWalkerEnemyParams {
 public:
@@ -128,6 +129,11 @@ public:
 	virtual TSpineEnemy* createEnemyInstance();
 	virtual void clipEnemies(JDrama::TGraphics*);
 	virtual void initSetEnemies();
+
+	J3DMaterialTable* getMaterialTable() const { return mMaterialTable; }
+
+public:
+	/* 0x60 */ J3DMaterialTable* mMaterialTable;
 };
 
 #endif

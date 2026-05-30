@@ -6,11 +6,14 @@
 #include <Map/Map.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
+#include <MoveBG/ItemManager.hpp>
+#include <MoveBG/MapObjBase.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>
+#include <MarioUtil/ShadowUtil.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -27,46 +30,369 @@
 
 DEFINE_NERVE(TNerveElecCarapaceReturn, TLiveActor)
 {
+	TElecCarapace* self = (TElecCarapace*)spine->getBody();
+	TElecNokonoko* host = (TElecNokonoko*)self->unk16C;
+
+	if (spine->getTime() == 0) {
+		JGeometry::TVec3<f32> d = host->getPosition();
+		self->unk18C            = (d.x - self->mPosition.x) * 0.015625f;
+		self->unk190            = (d.y - self->mPosition.y) * 0.015625f;
+		self->unk194            = (d.z - self->mPosition.z) * 0.015625f;
+
+		if (host->mCurrentBckAnm == 8)
+			host->setBckAnm(0);
+	}
+
+	if (spine->getTime() < 20) {
+		if (host->mCurrentBckAnm == 8)
+			host->setBckAnm(0);
+	}
+
+	bool nearHost = false;
+	if (host->mSpine->getCurrentNerve()
+	    == &TNerveElecNokonokoFreeze::theNerve()) {
+		JGeometry::TVec3<f32> v = host->getPosition();
+		v.sub(host->mCarapace->getPosition());
+		if (PSVECMag((Vec*)&v) < 200.0f)
+			nearHost = true;
+	}
+
+	if (nearHost) {
+		host->onLiveFlag(0x10000);
+		host->kill();
+		gpMarioParticleManager->emitAndBindToPosPtr(
+		    0xCD, (const JGeometry::TVec3<f32>*)&self->mPosition, 0, nullptr);
+	}
+
+	self->unk188 += host->mSaveParams->mSLCarapaceSpinSpeed.get();
+	if (self->unk188 > 360.0f)
+		self->unk188 -= 360.0f;
+
+	self->mPosition.x += self->unk18C;
+	self->mPosition.y += self->unk190;
+	self->mPosition.z += self->unk194;
+
+	JGeometry::TVec3<f32> hp = host->mPosition;
+
+	if (self->unk18C > 0.0f) {
+		if (self->mPosition.x > hp.x)
+			self->mPosition.x = hp.x;
+	} else {
+		if (self->mPosition.x < hp.x)
+			self->mPosition.x = hp.x;
+	}
+
+	if (self->unk190 > 0.0f) {
+		if (self->mPosition.y > hp.y)
+			self->mPosition.y = hp.y;
+	} else {
+		if (self->mPosition.y < hp.y)
+			self->mPosition.y = hp.y;
+	}
+
+	if (self->unk194 > 0.0f) {
+		if (self->mPosition.z > hp.z)
+			self->mPosition.z = hp.z;
+	} else {
+		if (self->mPosition.z < hp.z)
+			self->mPosition.z = hp.z;
+	}
+
+	if (self->mLiveFlag & 1) {
+		self->mScaling.y *= 0.8f;
+		if (self->mScaling.y < 0.01f)
+			self->kill();
+	}
+
 	return false;
 }
 
 DEFINE_NERVE(TNerveElecCarapaceWait, TLiveActor)
 {
-	return false;
+	return spine->getTime() > 60;
 }
 
 DEFINE_NERVE(TNerveElecCarapaceMove, TLiveActor)
 {
+	TElecCarapace* self = (TElecCarapace*)spine->getBody();
+	TElecNokonoko* host = (TElecNokonoko*)self->unk16C;
+
+	if (self->unk175) {
+		self->walkToCurPathNode(host->mSaveParams->mSLCarapaceSpeed.get(),
+		                        host->mSaveParams->mSLCarapaceTurnSpeed.get(),
+		                        0.0f);
+	} else {
+		self->zigzagToCurPathNode(host->mSaveParams->mSLCarapaceSpeed.get(),
+		                          host->mSaveParams->mSLCarapaceTurnSpeed.get(),
+		                          self->unk178, self->unk17C);
+	}
+
+	self->unk188 += host->mSaveParams->mSLCarapaceSpinSpeed.get();
+	if (self->unk188 > 360.0f)
+		self->unk188 -= 360.0f;
+
+	if (self->unk184) {
+		f32 collectRange = 64.0f * host->mSaveParams->mSLCarapaceSpeed.get();
+
+		JGeometry::TVec3<f32> diff = self->unk104.getPoint();
+		diff.sub(self->mPosition);
+		f32 dist = JGeometry::TUtil<f32>::sqrt(
+		    diff.z * diff.z + (diff.x * diff.x + diff.y * diff.y));
+
+		if (dist < collectRange) {
+			if (host->mSpine->getCurrentNerve()
+			        != &TNerveElecNokonokoCollect::theNerve()
+			    && host->mSpine->getCurrentNerve()
+			           != &TNerveSmallEnemyDie::theNerve()
+			    && host->mSpine->getCurrentNerve()
+			           != &TNerveElecNokonokoFreeze::theNerve()
+			    && host->mSpine->getCurrentNerve()
+			           != &TNerveElecNokonokoCollect::theNerve()) {
+				host->mSpine->setNext(
+				    &TNerveElecNokonokoCollect::theNerve());
+			}
+
+			spine->pushAfterCurrent(&TNerveElecCarapaceReturn::theNerve());
+			return true;
+		}
+	}
+
+	JGeometry::TVec3<f32> diff = self->unk104.getPoint();
+	diff.x -= self->mPosition.x;
+	diff.y -= self->mPosition.y;
+	diff.z -= self->mPosition.z;
+	diff.y = 0.0f;
+
+	if (self->unk176 == 0) {
+		if (MsVECMag2((Vec*)&diff) < 100.0f) {
+			if (self->unk184) {
+				spine->pushAfterCurrent(
+				    &TNerveElecCarapaceReturn::theNerve());
+				return true;
+			}
+
+			self->unk184 = 1;
+			self->setGoalPath(TPathNode(self->unk16C->getPosition()));
+		}
+	}
+
 	return false;
 }
 
 DEFINE_NERVE(TNerveElecNokonokoFreeze, TLiveActor)
 {
+	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		if (self->unk1A4 == 0) {
+			self->setBckAnm(3);
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0xCA, (MtxPtr)self->mMActor->unk4->mNodeMatrices, 0, nullptr);
+		} else {
+			self->setBckAnm(7);
+		}
+	}
+
+	if (self->mCurrentBckAnm == 3) {
+		if (self->getCurAnmFrameNo(0) < 25.0f) {
+			Mtx* nodeMtx
+			    = (Mtx*)((u8*)self->mMActor->unk4->mNodeMatrices + 0x180);
+			((JGeometry::TVec3<f32>*)&self->unk1A8)
+			    ->set((*nodeMtx)[0][3], (*nodeMtx)[1][3], (*nodeMtx)[2][3]);
+			JPABaseEmitter* emitter
+			    = gpMarioParticleManager->emitAndBindToPosPtr(
+			        0x17E, (JGeometry::TVec3<f32>*)&self->unk1A8, 1, self);
+			if (emitter) {
+				emitter->unk154.x = self->mScaling.x;
+				emitter->unk154.y = self->mScaling.y;
+				emitter->unk154.z = self->mScaling.z;
+				emitter->unk174.x = self->mScaling.x;
+				emitter->unk174.y = self->mScaling.y;
+				emitter->unk174.z = self->mScaling.z;
+			}
+		}
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		if (self->mCurrentBckAnm == 7) {
+			self->setBckAnm(6);
+		} else if (self->mCurrentBckAnm == 6) {
+			bool wasReady = self->unk165;
+			if (self->unk165) {
+				self->unk165 = false;
+			}
+			if (!wasReady) {
+				if (self->unk1A4 == 0) {
+					self->setBckAnm(5);
+				} else {
+					self->setBckAnm(6);
+				}
+			} else {
+				self->setBckAnm(6);
+			}
+		} else {
+			return true;
+		}
+	}
+
 	return false;
 }
 
 DEFINE_NERVE(TNerveElecNokonokoCollect, TLiveActor)
 {
+	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		if (self->mCurrentBckAnm != 0) {
+			self->setBckAnm(8);
+		}
+
+		TPathNode node((THitActor*)self->mCarapace);
+		if (self->mCarapace) {
+			node.unk4.set(self->mCarapace->mPosition.x,
+			              self->mCarapace->mPosition.y,
+			              self->mCarapace->mPosition.z);
+		}
+		self->unkF4  = node;
+		self->unk104 = node;
+		self->unk114.clear();
+	}
+
+	if (self->mCarapace->mSpine->getCurrentNerve()
+	    != &TNerveElecCarapaceWait::theNerve()) {
+		self->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
+	} else {
+		self->getMActor()->setFrameRate(0.0f, 0);
+	}
+
+	if (self->mCurrentBckAnm == 0) {
+		int frame = (int)self->getCurAnmFrameNo(0);
+		if (frame > 20) {
+			self->mCarapace->onHitFlag(1);
+		}
+		if (frame > 32) {
+			self->unk1A4 = 0;
+			self->mCarapace->shoot();
+		}
+		if (self->checkCurAnmEnd(0)) {
+			return true;
+		}
+	} else {
+		if (spine->getTime() > 800 || self->mCarapace->checkLiveFlag(1)) {
+			spine->pushNerve(&TNerveElecNokonokoRebirth::theNerve());
+			return true;
+		}
+	}
+
+	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
 	return false;
 }
 
 DEFINE_NERVE(TNerveElecNokonokoAttack, TLiveActor)
 {
-	return false;
+	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
+
+	if (spine->getTime() == 0 || self->mCurrentBckAnm != 3) {
+		self->setBckAnm(3);
+	}
+
+	return self->checkCurAnmEnd(0);
 }
 
 DEFINE_NERVE(TNerveElecNokonokoRebirth, TLiveActor)
 {
+	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->setBckAnm(13);
+		self->unk1A4 = 0;
+		gpMarioParticleManager->emitAndBindToPosPtr(
+		    0xCD, &self->mCarapace->mPosition, 0, nullptr);
+		self->mCarapace->appear();
+	}
+
+	if (self->mMActor->getFrameCtrl(0)->checkPass(88.0f)) {
+		gpMarioParticleManager->emitAndBindToPosPtr(
+		    0xCD, &self->mPosition, 0, nullptr);
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		spine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
+		return true;
+	}
+
 	return false;
 }
 
 DEFINE_NERVE(TNerveElecNokonokoTurn, TLiveActor)
 {
-	return false;
+	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->setGoalPathMario();
+	}
+
+	if (self->mCurrentBckAnm == 15) {
+		if (MsIsInSight(self->mPosition, self->mRotation.y, *gpMarioPos,
+		                ((TSmallEnemyParams*)self->getSaveParam())
+		                    ->getSLSearchLength(),
+		                60.0f, 0.0f)) {
+			self->setBckAnm(14);
+		}
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		if (self->mCurrentBckAnm == 16) {
+			self->setBckAnm(15);
+		} else if (self->mCurrentBckAnm == 14) {
+			return true;
+		}
+	}
+
+	f32 zero = 0.0f;
+	if (zero == self->mPosition.x - self->mCarapace->mPosition.x
+	    && zero == self->mPosition.z - self->mCarapace->mPosition.z) {
+		self->mPosition.x += 1.0f;
+	}
+
+	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
+
+	return spine->getTime() > 500;
 }
 
 DEFINE_NERVE(TNerveElecNokonokoShoot, TLiveActor)
 {
+	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->setBckAnm(9);
+	}
+
+	if (self->mCurrentBckAnm == 9) {
+		if (self->checkCurAnmEnd(0)) {
+			self->setBckAnm(12);
+			self->unk198 = 0;
+		}
+	} else if (self->mCurrentBckAnm == 12) {
+		if (self->mMActor->getFrameCtrl(0)->checkPass(60.0f)) {
+			self->mCarapace->appear();
+		}
+
+		if (self->getCurAnmFrameNo(0) < 62.0f) {
+			self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
+		}
+
+		if (self->mMActor->getFrameCtrl(0)->checkPass(62.0f)) {
+			self->mCarapace->shoot();
+			self->unk1A4 = 1;
+		}
+
+		if (self->checkCurAnmEnd(0)) {
+			spine->pushAfterCurrent(&TNerveElecNokonokoCollect::theNerve());
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -151,11 +477,81 @@ void TElecNokonoko::setMeltAnm()
 
 // ----------------------------------------------------- TElecNokonoko: stubs
 
-void TElecNokonoko::load(JSUMemoryInputStream& stream) { TWalkerEnemy::load(stream); }
+void TElecNokonoko::load(JSUMemoryInputStream& stream)
+{
+	TSmallEnemy::load(stream);
+	reset();
+}
 
-BOOL TElecNokonoko::receiveMessage(THitActor* sender, u32 message) { return FALSE; }
+BOOL TElecNokonoko::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == HIT_MESSAGE_UNKD || message == HIT_MESSAGE_UNKB) {
+		onLiveFlag(LIVE_FLAG_DEAD);
+		kill();
+	}
 
-void TElecNokonoko::init(TLiveManager* manager) { TWalkerEnemy::init(manager); }
+	if (message == HIT_MESSAGE_TAKE && mHolder == nullptr) {
+		onHitFlag(HIT_FLAG_NO_COLLISION);
+		mHolder = (TTakeActor*)sender;
+		return TRUE;
+	}
+
+	if ((message == HIT_MESSAGE_UNK6 || message == HIT_MESSAGE_UNK7)
+	    && mHolder == sender) {
+		mHolder = nullptr;
+		return TRUE;
+	}
+
+	if (message == HIT_MESSAGE_TRAMPLE) {
+		if (unk1A4 == 1) {
+			mHitPoints = 1;
+			kill();
+			return TRUE;
+		}
+		SMS_SendMessageToMario(this, 9);
+		return FALSE;
+	}
+
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		if (!changeByJuice()) {
+			behaveToWater(sender);
+		} else {
+			mCarapace->kill();
+		}
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+void TElecNokonoko::init(TLiveManager* manager)
+{
+	TWalkerEnemy::init(manager);
+
+	mActorType = 0x1000000A;
+	unk150     = 0x11;
+
+	mSaveParams = (TElecNokonokoSaveLoadParams*)getSaveParam();
+
+	mCarapace = new TElecCarapace(
+	    "\x83\x6D\x83\x52\x83\x6D\x83\x52\x8D\x62\x97\x85");
+
+	mSpine->initWith(&TNerveWalkerGraphWander::theNerve());
+
+	mCarapace->loadInit(this, "koura_model1.bmd");
+
+	mCarapace->mMActor->unk4->getModelData()->setMaterialTable(
+	    ((TElecNokonokoManager*)getManager())->getMaterialTable(),
+	    (J3DMaterialCopyFlag)3);
+	mCarapace->mMActor->initDL();
+	mCarapace->mMActor->unk4->lock();
+
+	int low     = 0;
+	int high    = 300;
+	mReadyTimer = low + (int)(MsRandF() * (high - low));
+
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+}
 
 void TElecNokonoko::calcRootMatrix()
 {
@@ -219,23 +615,128 @@ void TElecNokonoko::calcRootMatrix()
 	}
 }
 
-void TElecNokonoko::moveObject() { }
+void TElecNokonoko::moveObject()
+{
+	TWalkerEnemy::moveObject();
 
-void TElecNokonoko::genRandomItem() { }
+	if (mCurrentBckAnm == 0xb && checkCurAnmEnd(0)) {
+		setBckAnm(0xa);
+	}
+}
 
-void TElecNokonoko::behaveToWater(THitActor* water) { }
+void TElecNokonoko::genRandomItem()
+{
+	mCarapace->kill();
+	gpMarioParticleManager->emitAndBindToPosPtr(0xCD, &mPosition, 0, nullptr);
+	TSmallEnemy::genRandomItem();
 
-void TElecNokonoko::attackToMario() { }
+	if (mLiveFlag & LIVE_FLAG_UNK10000) {
+		if (TMapObjBase* mapObj = gpItemManager->makeObjAppear(
+		        mCarapace->mPosition.x, mCarapace->mPosition.y,
+		        mCarapace->mPosition.z, 0x2000000e, true)) {
+			mapObj->mVelocity.set(0.0f, 20.0f, 0.0f);
+			mapObj->offLiveFlag(LIVE_FLAG_UNK10);
+		}
+	}
+}
 
-void TElecNokonoko::setMActorAndKeeper() { }
+void TElecNokonoko::behaveToWater(THitActor* water)
+{
+	if (mCurrentBckAnm == 0xc && getCurAnmFrameNo(0) > 58.0f) {
+		return;
+	}
 
-void TElecNokonoko::sendAttackMsgToMario() { }
+	if (mSpine->getCurrentNerve() == &TNerveSmallEnemyDie::theNerve()) {
+		return;
+	}
 
-void TElecNokonoko::behaveToFindMario() { }
+	if (mCurrentBckAnm == 0 && unk1A4 == 0) {
+		return;
+	}
 
-bool TElecNokonoko::isResignationAttack() { return false; }
+	unk165                  = 1;
+	mSprayedByWaterCooldown = 0;
+	mSpine->pushNerve(&TNerveElecNokonokoFreeze::theNerve());
+}
 
-void TElecNokonoko::rest() { }
+void TElecNokonoko::attackToMario()
+{
+	if (mSpine->getCurrentNerve() == &TNerveSmallEnemyDie::theNerve()) {
+		return;
+	}
+
+	TSmallEnemy::attackToMario();
+
+	if (mSpine->getCurrentNerve() == &TNerveElecNokonokoAttack::theNerve()) {
+		return;
+	}
+	if (mSpine->getCurrentNerve() == &TNerveElecNokonokoCollect::theNerve()) {
+		return;
+	}
+	if (mSpine->getCurrentNerve() == &TNerveElecNokonokoShoot::theNerve()) {
+		return;
+	}
+
+	if (unk1A4 != 0) {
+		return;
+	}
+
+	mSpine->pushNerve(&TNerveElecNokonokoAttack::theNerve());
+}
+
+void TElecNokonoko::setMActorAndKeeper()
+{
+	mMActorKeeper = new TMActorKeeper(getManager(), 1);
+	mMActor       = getActorKeeper()->createMActor("dennoko_model1.bmd", 3);
+	mMActor->unk4->getModelData()->setMaterialTable(
+	    ((TElecNokonokoManager*)getManager())->getMaterialTable(),
+	    (J3DMaterialCopyFlag)3);
+	mMActor->initDL();
+	mMActor->unk4->lock();
+}
+
+void TElecNokonoko::sendAttackMsgToMario()
+{
+	if (unk1A4 == 0) {
+		SMS_SendMessageToMario(this, 9);
+	} else {
+		SMS_SendMessageToMario(this, 0xe);
+	}
+}
+
+void TElecNokonoko::behaveToFindMario()
+{
+	mSpine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
+	mSpine->pushAfterCurrent(&TNerveWalkerAttack::theNerve());
+	mSpine->pushAfterCurrent(&TNerveElecNokonokoTurn::theNerve());
+
+	setGoalPathMario();
+}
+
+bool TElecNokonoko::isResignationAttack()
+{
+	f32 range = mSaveParams->mSLCarapaceShootRange.get();
+
+	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		return false;
+	}
+
+	JGeometry::TVec3<f32> diff = unk104.getPoint();
+	diff.sub(mPosition);
+
+	if (diff.length() < range) {
+		mSpine->pushAfterCurrent(&TNerveElecNokonokoShoot::theNerve());
+		return true;
+	}
+
+	return false;
+}
+
+void TElecNokonoko::rest()
+{
+	TWalkerEnemy::reset();
+	mScaledBodyRadius = 140.0f;
+}
 
 TElecNokonoko::TElecNokonoko(const char* name)
     : TWalkerEnemy(name)
@@ -247,8 +748,59 @@ TElecNokonoko::TElecNokonoko(const char* name)
 
 // --------------------------------------------------------- TElecCarapace
 
-void TElecCarapace::perform(u32 flags, JDrama::TGraphics* graphics) { }
-BOOL TElecCarapace::receiveMessage(THitActor* sender, u32 message) { return FALSE; }
+void TElecCarapace::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	TEnemyAttachment::perform(flags, graphics);
+
+	if (flags & 1) {
+		if (unk180 != 0) {
+			unk180 = unk180 + 1;
+			if (unk180 > 5)
+				unk180 = 0;
+		}
+	}
+
+	if (flags & 0x200) {
+		bool dead = isUnk150Zero() ? true : false;
+		if (dead)
+			return;
+		if (unk16C->checkLiveFlag(LIVE_FLAG_DEAD))
+			return;
+		if (checkLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_HIDDEN))
+			return;
+
+		TCircleShadowRequest request;
+
+		request.unk0 = mPosition;
+		if (!isAirborne()) {
+			request.unk0.y = mGroundHeight;
+			request.unk1D  = 0;
+		}
+
+		request.unk10 = unk16C->mScaledBodyRadius;
+		request.unkC  = request.unk10;
+		request.unk14 = mRotation.y;
+		gpBindShadowManager->request(request, getActorType());
+	}
+}
+BOOL TElecCarapace::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == 0xd) {
+		gpMarioParticleManager->emitAndBindToPosPtr(0xCD, &mPosition, 0,
+		                                            nullptr);
+		kill();
+	}
+
+	if (message == 0) {
+		SMS_SendMessageToMario(this, 9);
+	}
+
+	if (message == 0xf) {
+		return TRUE;
+	}
+
+	return FALSE;
+}
 void TElecCarapace::calcRootMatrix()
 {
 	MsMtxSetXYZRPH(mMActor->unk4->getBaseTRMtx(), mPosition.x, mPosition.y,
@@ -278,10 +830,55 @@ void TElecCarapace::calcRootMatrix()
 		emitter2->setScale(unk16C->getScaling());
 	}
 }
-void TElecCarapace::bind() { }
-void TElecCarapace::kill() { }
-void TElecCarapace::loadInit(TSpineEnemy* host, const char* name) { }
-void TElecCarapace::appear() { }
+void TElecCarapace::bind()
+{
+	moveObject();
+	TEnemyAttachment::bind();
+}
+void TElecCarapace::kill() { TEnemyAttachment::kill(); }
+void TElecCarapace::loadInit(TSpineEnemy* host, const char* name)
+{
+	TEnemyAttachment::loadInit(host, name);
+
+	unk16C = unk160;
+	JDrama::TNameRefGen::search<TIdxGroupObj>(
+	    "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76")
+	    ->getChildren()
+	    .push_back(this);
+
+	initHitActor(0x1000000B, 3, 0x98000000, 80.0f, 80.0f, 60.0f, 60.0f);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+	unk150 = 0;
+
+	mSpine->initWith(&TNerveElecCarapaceMove::theNerve());
+
+	int low  = 0;
+	int high = 300;
+	if (low + (int)(MsRandF() * (high - low)) < 150) {
+		unk174 = 0;
+	}
+
+	host->mHeadHeight = 80.0f;
+}
+void TElecCarapace::appear()
+{
+	if (unk150 != 0)
+		return;
+
+	unk150 = 1;
+
+	mPosition = unk16C->getPosition();
+
+	f32 scale  = unk16C->mScaling.x;
+	unk164     = scale;
+	mScaling.z = scale;
+	mScaling.y = scale;
+	mScaling.x = scale;
+
+	mBodyRadius = 50.0f;
+	unk170      = 0;
+	unk64 |= 1;
+}
 void TElecCarapace::rebirth() { }
 void TElecCarapace::sendMessage()
 {
@@ -367,10 +964,27 @@ void TElecCarapace::behaveToHitWall(const TBGCheckData* wall)
 
 	setGoalPath(TPathNode(unk16C->getPosition()));
 }
-void TElecCarapace::setBehavior() { }
+void TElecCarapace::setBehavior()
+{
+	if (unk16C->checkLiveFlag(LIVE_FLAG_DEAD))
+		behaveToHost();
+
+	if (unk168)
+		mPosition.y = mGroundHeight;
+
+	unk168 = 0;
+}
 void TElecCarapace::recoverScale() { }
-f32 TElecCarapace::getNowGravity() { return mGravity; }
-f32 TElecCarapace::getPhaseShift() const { return 0.0f; }
+f32 TElecCarapace::getNowGravity()
+{
+	return ((TElecNokonoko*)unk16C)->getSaveParams2()->mSLCarapaceGravity.get();
+}
+f32 TElecCarapace::getPhaseShift() const
+{
+	if (unk174)
+		return 0.0f;
+	return 180.0f;
+}
 void TElecCarapace::shoot()
 {
 	unk180 = 0;
