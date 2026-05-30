@@ -467,25 +467,31 @@ void TTPHitActor::bind()
 
 void TTPHitActor::updateTerrainCollsion()
 {
+	f32 yOffset = -0.6666667f * mAttackHeight;
+	JGeometry::TVec3<f32> up;
+	JGeometry::TQuat4<f32> quat(mOwner->mQuat);
+	quat.getYDir(up);
+
 	mCheckHeight = mAttackHeight;
 	mCheckRadius = mAttackRadius;
 
-	if (mOwner->mHeldObject) {
-		mCheckHeight += mOwner->mHeldObject->mDamageHeight;
+	TTakeActor* heldObject = mOwner->mHeldObject;
+	int hasHeldObject      = heldObject != nullptr ? 1 : 0;
+	if (hasHeldObject) {
+		yOffset += heldObject->mDamageHeight;
+		mCheckHeight += heldObject->mDamageHeight;
 		mCheckRadius += mOwner->mHeldObject->mDamageRadius;
 	}
 
-	JGeometry::TVec3<f32> up;
-	JGeometry::TVec3<f32> forward;
-	mOwner->mQuat.getYDir(up);
-	mOwner->mQuat.getZDir(forward);
+	JGeometry::TVec3<f32> next;
+	next.scaleAdd(0.5f * mAttackHeight, mOwner->mPosition, up);
 
-	JGeometry::TVec3<f32> next(mOwner->mPosition);
-	next.scaleAdd(0.5f * mCheckHeight, forward, next);
-	next.scaleAdd(-0.6666667f * mCheckHeight, up, next);
+	JGeometry::TVec3<f32> offset(0.0f, 1.0f, 0.0f);
+	next.scaleAdd(yOffset, next, offset);
 
-	mMove.set(next);
-	mMove.sub(mPosition);
+	JGeometry::TVec3<f32> move(next);
+	move.sub(mPosition);
+	mMove = move;
 	mPosition = next;
 }
 
