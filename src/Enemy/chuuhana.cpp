@@ -962,8 +962,8 @@ DEFINE_NERVE(TNerveChuuHanaFall2, TLiveActor)
 	self->unk220 *= 0.98f;
 
 	if (!self->isAirborne() || spine->getTime() > 800) {
-		spine->pushNerve(&TNerveChuuHanaObject::theNerve());
-		self->bind();
+		spine->pushAfterCurrent(&TNerveChuuHanaObject::theNerve());
+		self->kill();
 		return TRUE;
 	}
 	return FALSE;
