@@ -754,12 +754,8 @@ void TTobiPuku::hitWater()
 	velocity.y = 2.0f * (dir.y * power);
 	velocity.z = dir.z * power;
 
-	mVelocity.x = velocity.x;
-	mVelocity.y = velocity.y;
-	mVelocity.z = velocity.z;
-	mLaunchVelocity.x = velocity.x;
-	mLaunchVelocity.y = velocity.y;
-	mLaunchVelocity.z = velocity.z;
+	*(Vec*)&mVelocity       = velocity;
+	*(Vec*)&mLaunchVelocity = velocity;
 	unk1B0 = mPosition.y;
 	mRotation.y = 180.0f - 0.005493164f * (f32)*gpMarioAngleY;
 }
