@@ -1133,10 +1133,9 @@ DEFINE_NERVE(TNerveChuuHanaJumpPrepare, TLiveActor)
 
 		*self->unk21C = 0;
 		target.y += self->getChuuHanaParams()->mSLJumpHeight.get();
+		f32 jumpSpeed = self->getChuuHanaParams()->mSLJumpSp.get();
 		JGeometry::TVec3<f32> velocity
-		    = self->calcVelocityToJumpToY(
-		        target, self->getChuuHanaParams()->mSLJumpSp.get(),
-		        self->getGravityY());
+		    = self->calcVelocityToJumpToY(target, jumpSpeed, self->getGravityY());
 		velocity.y += 10.0f;
 		self->mPosition.y += 10.0f;
 		self->mVelocity = velocity;
