@@ -236,12 +236,19 @@ void TChuuHana::reset()
 void TChuuHana::setBckAnm(int index)
 {
 	unk194 = 1.0f;
+	f32 blend = unk194;
 	if (mMActor->unkC != nullptr)
-		mMActor->unkC->setMotionBlendRatio(unk194);
+		mMActor->unkC->setMotionBlendRatio(blend);
 
-	if (mMActor->unkC != nullptr)
-		mMActor->unkC->setOldMotionBlendAnmPtr(
-		    mMActor->unkC->getOldMotionBlendAnmPtr());
+	MActor* actor = mMActor;
+	J3DAnmTransform* oldAnm;
+	if (actor->unkC == nullptr)
+		oldAnm = nullptr;
+	else
+		oldAnm = actor->unkC->unk24;
+
+	if (actor->unkC != nullptr)
+		actor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 
 	TSmallEnemy::setBckAnm(index);
 }
@@ -255,7 +262,7 @@ void TChuuHana::setWalkAnm()
 	setBckAnm(12);
 
 	if (wasInvalid) {
-		f32 frame = 10.0f * mRotation.y;
+		f32 frame = 10.0f * mInstanceIndex;
 		getMActor()->getFrameCtrl(0)->setFrame(frame);
 	}
 }
