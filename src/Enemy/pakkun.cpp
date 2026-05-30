@@ -479,10 +479,11 @@ void TPakkunSeed::appear()
 
 f32 TPakkunSeed::getNowGravity()
 {
-	TPakkunSaveLoadParams* params = mHost->mPakkunParams;
+	TPakkunSaveLoadParams* params = (TPakkunSaveLoadParams*)mHost->getSaveParam();
+	f32 gravity                   = params->mSLSeedGravityS.get();
 	if (unk150 == 4)
-		return params->mSLSeedGravityC.get();
-	return params->mSLSeedGravityS.get();
+		gravity = params->mSLSeedGravityC.get();
+	return gravity;
 }
 
 void TPakkunSeed::behaveToHitGround()
