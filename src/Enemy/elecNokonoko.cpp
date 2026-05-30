@@ -548,11 +548,12 @@ void TElecNokonoko::init(TLiveManager* manager)
 
 	mCarapace->loadInit(this, "koura_model1.bmd");
 
-	mCarapace->mMActor->unk4->getModelData()->setMaterialTable(
+	MActor* carapaceMActor = mCarapace->mMActor;
+	carapaceMActor->unk4->getModelData()->setMaterialTable(
 	    ((TElecNokonokoManager*)getManager())->getMaterialTable(),
 	    (J3DMaterialCopyFlag)3);
-	mCarapace->mMActor->initDL();
-	mCarapace->mMActor->unk4->lock();
+	carapaceMActor->initDL();
+	carapaceMActor->unk4->lock();
 
 	int low     = 0;
 	int high    = 300;
@@ -1093,6 +1094,7 @@ void TElecCarapace::reflect(THitActor* other)
 	setGoalPath(TPathNode(unk16C->getPosition()));
 }
 
+#pragma dont_inline on
 TElecCarapace::TElecCarapace(const char* name)
     : TEnemyAttachment(name)
     , unk16C(0)
@@ -1108,6 +1110,7 @@ TElecCarapace::TElecCarapace(const char* name)
 	unk188 = 0.0f;
 	unk198 = 0.0f;
 }
+#pragma dont_inline off
 
 // ------------------------------------------------------------ params
 
