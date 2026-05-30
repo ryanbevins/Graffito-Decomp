@@ -348,7 +348,7 @@ void TChuuHana::setGoal()
 	unk1B2 = 0;
 }
 
-BOOL TChuuHana::willFall(s32 time)
+bool TChuuHana::willFall(s32 time)
 {
 	f32 radius = mSmallMirrorR;
 	if (mInstanceIndex > 0)
@@ -379,12 +379,12 @@ BOOL TChuuHana::willFall(s32 time)
 			unk104 = node;
 			unk114.clear();
 			unk1B2 = 1;
-			return TRUE;
+			return true;
 		}
 	}
 
 	unk1B2 = 0;
-	return FALSE;
+	return false;
 }
 
 void TChuuHana::checkStretchType()

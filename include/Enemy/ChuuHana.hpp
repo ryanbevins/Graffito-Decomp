@@ -80,7 +80,7 @@ public:
 	BOOL receiveMessage(THitActor*, u32);
 	void checkStretchType();
 	void setGoal();
-	BOOL willFall(s32);
+	bool willFall(s32);
 	TChuuHanaSaveLoadParams* getChuuHanaParams() const
 	{
 		return unk1B4;
