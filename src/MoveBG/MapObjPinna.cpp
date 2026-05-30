@@ -247,7 +247,7 @@ void TAmiKing::loadAfter()
 	SMS_LoadParticle("/scene/Mapobj/amiking.jpa", 0x184);
 }
 
-u32 TAmiKing::touchWater(THitActor*) { return 0; }
+u32 TAmiKing::touchWater(THitActor*) { return TRUE; }
 
 void TWaterRecoverObj::touchPlayer(THitActor* sender)
 {
@@ -302,8 +302,10 @@ void TBalloonKoopaJr::touchActor(THitActor*) { kill(); }
 void TChangeStageMerrygoround::calc()
 {
 	if (unk13C != 0) {
-		gpMarioParticleManager->emitAndBindToPosPtr(0x100, gpMarioPos, 1, this);
-		gpMarioParticleManager->emitAndBindToPosPtr(0x101, gpMarioPos, 1, this);
+		JGeometry::TVec3<f32>* marioPos = gpMarioPos;
+		gpMarioParticleManager->emitAndBindToPosPtr(0x100, marioPos, 1, this);
+		marioPos = gpMarioPos;
+		gpMarioParticleManager->emitAndBindToPosPtr(0x101, marioPos, 1, this);
 	}
 }
 
