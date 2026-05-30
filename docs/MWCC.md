@@ -6591,6 +6591,27 @@ confirmed in ≥2 TUs._
 
 ## Refuted / wrong turns
 
+### Prepending `isPool() ||` to the shared `TBGCheckData::isWaterSurface()` header inline is NET NEGATIVE
+
+**Hypothesis tested (t281).** `TGorogoro::forceKill` (igaiga) showed the target
+evaluating its water guard as TWO materialized sub-predicates: `isPool()`
+({0x104,0x105,0x4104}) first, then the full 7-type flat chain. The natural read
+was that the original `isWaterSurface()` *body* began with `isPool() ||`. Changed
+the header (`include/Map/MapData.hpp:112`) to prepend `isPool() ||` and full-rebuilt.
+
+**Result: REFUTED.** Project fuzzy 77.00741 → 76.96908 (**-0.038pp**),
+matched_functions 8340 → 8334 (**-6 fns**). The flat form is correct at the ~15
+other call sites; only forceKill wanted the isPool-first shape.
+
+**Right answer:** the `isPool()` materialization is a **call-site composition**,
+not a header property. Writing the guard as `(mGroundPlane->isPool() ||
+mGroundPlane->isWaterSurface())` at the forceKill site reproduced the
+materialized pair and took forceKill 73.8% → 82.7% (→94.2% after the separate
+nerve-transition fix) with zero collateral. **Lesson: never edit a shared
+predicate header to match one site — compose the extra term at the call site and
+verify net with a full report.json diff.** See [[the spine kill/forceKill
+nerve-transition note]] and `state/notes/igaiga.md`.
+
 ### `JGeometry::TUtil<f32>::sqrt` out-of-header sweep is NET NEGATIVE at project level
 
 **Hypothesis tested (t174).** Mirror the inv_sqrt fix described in
