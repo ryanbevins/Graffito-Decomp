@@ -650,7 +650,32 @@ void TGorogoro::init(TLiveManager* manager)
 void TGorogoro::calcRootMatrix()
 {
 	gpCurRollEnemy = this;
-	TSpineEnemy::calcRootMatrix();
+
+	if (mSpine->getCurrentNerve() == &TNerveGorogoroDie::theNerve()) {
+		TSpineEnemy::calcRootMatrix();
+		if (checkLiveFlag(LIVE_FLAG_UNK10000)) {
+			unk1B4.ref(0, 3) = mPosition.x;
+			unk1B4.ref(2, 3) = mPosition.z;
+		}
+		return;
+	}
+
+	if (isEaten())
+		return;
+
+	TRollEnemySaveLoadParams* params = (TRollEnemySaveLoadParams*)unk1A4;
+	f32 groundOffsetY                = params->mSLGroundOffsetY.get();
+	if (mPosition.y < 30.0f + mGroundHeight) {
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x175, getModel()->getAnmMtx(1), 1, this);
+		if (emitter)
+			emitter->setScale(mScaling);
+	}
+
+	f32 y = groundOffsetY * unk158 + mPosition.y;
+	MsMtxSetXYZRPH(getModel()->getBaseTRMtx(), mPosition.x, y, mPosition.z,
+	               mRotation.x, mRotation.y, mRotation.z);
+	getModel()->setBaseScale(mScaling);
 }
 
 void TGorogoro::kill()
