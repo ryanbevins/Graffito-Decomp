@@ -59,7 +59,7 @@ void TDoor::load(JSUMemoryInputStream& stream)
 {
 	TMapObjBase::load(stream);
 
-	u32 doorType;
+	s32 doorType;
 	stream.read(&doorType, 4);
 	if (doorType != 0)
 		unk138 = 1;
