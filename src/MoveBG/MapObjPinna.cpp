@@ -653,10 +653,24 @@ void THorizontalViking::initMapObj()
 
 void TViking::initMapObj()
 {
-	THorizontalViking::initMapObj();
-	unk150 = 0.0f;
-	unk154 = 0.3f;
-	unk158 = 0.999f;
+	unk14C = 1;
+	if (strcmp(mName, "viking 0") == 0) {
+		unk138 = 1400.0f;
+		unk13C = 0.001f;
+		unk154 = 1.001f;
+		unk158 = 0.999f;
+		unk140 = -0.3f;
+		unk150 = 0.3f;
+	} else {
+		unk138 = 1400.0f;
+		unk13C = 0.001f;
+		unk154 = 1.001f;
+		unk158 = 0.999f;
+		unk140 = 0.3f;
+		unk150 = 0.3f;
+	}
+	mPosition.y -= unk138;
+	TMapObjBase::initMapObj();
 }
 
 void TViking::loadAfter() { TMapObjBase::loadAfter(); }
