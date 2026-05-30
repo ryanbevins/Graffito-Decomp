@@ -5107,6 +5107,41 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Product local plus delayed base local can defeat `fnmsubs` while preserving duplicate constant loads
+
+**Hypothesis.** For repeated neighbor impulse updates, source written as
+`neighbor->mVelocity.y -= accel * coeff` encourages MWCC to fuse the
+multiply and subtract into `fnmsubs`. If target emits `fmuls` followed
+by `fsubs`, name the product before the store:
+
+```cpp
+self->mVelocity.y -= kAccel;
+f32 accel = kAccel;
+if (neighbor != nullptr) {
+	f32 push = accel * coeff;
+	neighbor->mVelocity.y -= push;
+}
+```
+
+Putting the `f32 accel = kAccel` **after** the self-subtract preserves
+target's duplicate load of the constant: one `lfs` for the self update,
+then a second `lfs` hoisted before the neighbor null checks. Putting it
+before the self-subtract reuses the first load and mismatches the
+target's load order.
+
+**Citation (1 TU).** `MoveBG/MapObjMonte::THangingBridgeBoard::control`
+(t245): direct compound `-=` emitted `fnmsubs` and kept the function at
+81.1%. Naming per-neighbor products fixed the arithmetic shape; moving
+the base `accel` local after the self-subtract then matched the duplicate
+constant-load shape. Combined with the target matrix pointer and repeated
+width field reads, the function rose to 99.84%.
+
+**Experiment to confirm/refute.** Find another map-object or enemy
+propagation loop where target shows `lfs const; self -= const; lfs const;
+if (neighbor) { fmuls; fsubs; store; }` but source emits `fnmsubs`.
+Apply this delayed-base-local/product-local spelling and verify both the
+arithmetic opcode and duplicate constant load.
+
 ### Degree-angle JMA helpers may need `#pragma dont_inline` to match a standalone helper and its callers
 
 **Hypothesis.** For small matrix helpers that convert degrees to JMA
