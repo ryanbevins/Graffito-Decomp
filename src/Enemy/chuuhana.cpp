@@ -307,19 +307,21 @@ const char** TChuuHana::getBasNameTable() const { return tyuhana_bastable; }
 
 f32 TChuuHana::getGravityY() const
 {
-	const TChuuHanaSaveLoadParams* params = getChuuHanaParams();
-	const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
+	f32 gravity = TLiveActor::getGravityY();
 
-	if (nerve == &TNerveChuuHanaWalkOnPanel::theNerve()
-	    || nerve == &TNerveChuuHanaKeepBalance::theNerve()
-	    || nerve == &TNerveChuuHanaForceJumped::theNerve())
-		return params->mSLWalkGravity.get();
-	if (nerve == &TNerveChuuHanaStick::theNerve())
-		return params->mSLWaterHitGravity.get();
-	if (nerve == &TNerveChuuHanaFall2::theNerve()
-	    || nerve == &TNerveChuuHanaJumpPrepare::theNerve())
-		return params->mSLJumpGravity.get();
-	return TLiveActor::getGravityY();
+	if (mSpine->getCurrentNerve() == &TNerveChuuHanaWalkOnPanel::theNerve()
+	    || mSpine->getCurrentNerve()
+	           == &TNerveChuuHanaKeepBalance::theNerve()
+	    || mSpine->getCurrentNerve()
+	           == &TNerveChuuHanaForceJumped::theNerve())
+		return getChuuHanaParams()->mSLWalkGravity.get();
+	if (mSpine->getCurrentNerve() == &TNerveChuuHanaStick::theNerve())
+		return getChuuHanaParams()->mSLWaterHitGravity.get();
+	if (mSpine->getCurrentNerve() == &TNerveChuuHanaFall2::theNerve()
+	    || mSpine->getCurrentNerve()
+	           == &TNerveChuuHanaJumpPrepare::theNerve())
+		return getChuuHanaParams()->mSLJumpGravity.get();
+	return gravity;
 }
 
 void TChuuHana::setGoal()
