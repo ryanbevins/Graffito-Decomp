@@ -248,10 +248,12 @@ void TBellWatermill::control()
 u32 TBellWatermill::touchWater(THitActor* water)
 {
 	unk190 = 1;
-	if (fabsf(unk158) > unk16C)
+	if (fabsf(unk158) > unk16C) {
 		unk178 += unk180;
-
-	unk158 += unk15C;
+		unk158 += unk15C;
+	} else {
+		unk158 += unk15C;
+	}
 	if (unk158 > unk164)
 		unk158 = unk164;
 
