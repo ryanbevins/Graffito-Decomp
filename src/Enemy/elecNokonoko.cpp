@@ -1,4 +1,7 @@
 #include <Enemy/ElecNokonoko.hpp>
+#include <Enemy/Conductor.hpp>
+#include <Camera/Camera.hpp>
+#include <MarioUtil/DrawUtil.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <System/EmitterViewObj.hpp>
@@ -109,7 +112,7 @@ DEFINE_NERVE(TNerveElecCarapaceReturn, TLiveActor)
 
 DEFINE_NERVE(TNerveElecCarapaceWait, TLiveActor)
 {
-	return spine->getTime() > 60;
+	return spine->getTime() > 60 ? TRUE : FALSE;
 }
 
 DEFINE_NERVE(TNerveElecCarapaceMove, TLiveActor)
@@ -1136,11 +1139,41 @@ void TElecNokonokoManager::load(JSUMemoryInputStream& stream)
 void TElecNokonokoManager::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	TEnemyManager::perform(flags, graphics);
+	for (int i = 0; i < getActiveObjNum(); ++i)
+		((TElecNokonoko*)getObj(i))->mCarapace->perform(flags, graphics);
 }
 
 void TElecNokonokoManager::clipEnemies(JDrama::TGraphics* graphics)
 {
-	TEnemyManager::clipEnemies(graphics);
+	f32 radius;
+	f32 far;
+	if (unk38 == nullptr) {
+		far    = gpConductor->getCondParams().mEnemyFarClip.get();
+		radius = 300.0f;
+	} else {
+		far    = unk38->mSLFarClip.get();
+		radius = unk38->mSLClipRadius.get();
+	}
+
+	SetViewFrustumClipCheckPerspective(
+	    gpCamera->getFovy(), gpCamera->getAspect(), graphics->mNearPlane, far);
+
+	for (int i = 0; i < mObjNum; ++i) {
+		TElecNokonoko* enemy = (TElecNokonoko*)unk18[i];
+
+		if (ViewFrustumClipCheck(graphics, &enemy->mPosition, radius))
+			enemy->offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+		else
+			enemy->onLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+
+		if (!enemy->mCarapace->isUnk150Zero()) {
+			if (ViewFrustumClipCheck(
+			        graphics, &enemy->mCarapace->mPosition, radius))
+				enemy->mCarapace->offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+			else
+				enemy->mCarapace->onLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+		}
+	}
 }
 
 void TElecNokonokoManager::initSetEnemies() { }
