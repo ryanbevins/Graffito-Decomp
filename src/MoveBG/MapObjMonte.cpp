@@ -365,8 +365,11 @@ TSwingBoard::TSwingBoard(const char* name)
     , unk148(0.0f)
     , unk188(0)
 {
-	MTXIdentity(unk14C);
-	zeroVec(unk17C);
+	unk14C[1][0] = unk14C[2][0] = unk14C[0][1] = unk14C[2][1]
+	    = unk14C[0][2] = unk14C[1][2] = unk14C[0][3] = unk14C[1][3]
+	    = unk14C[2][3] = 0.0f;
+	unk14C[0][0] = unk14C[1][1] = unk14C[2][2] = 1.0f;
+	unk17C.zero();
 }
 
 void TSwingBoard::load(JSUMemoryInputStream& stream)
