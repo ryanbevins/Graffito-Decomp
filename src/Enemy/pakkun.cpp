@@ -764,6 +764,7 @@ void TPakkun::load(JSUMemoryInputStream& stream)
 	setMarioGoalPath(this);
 }
 
+#pragma dont_inline on
 TPakkun::TPakkun(const char* name)
     : TSmallEnemy(name)
     , mSeed(nullptr)
@@ -774,6 +775,7 @@ TPakkun::TPakkun(const char* name)
     , unk1BC(0)
 {
 }
+#pragma dont_inline off
 
 void TPakkunManager::clipEnemies(JDrama::TGraphics* graphics)
 {
