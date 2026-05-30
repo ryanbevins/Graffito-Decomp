@@ -810,10 +810,11 @@ void THangingBridge::perform(unsigned long flags, JDrama::TGraphics*)
 
 	initDraw();
 	for (int i = 0; i < unk10; ++i) {
-		JGeometry::TVec3<f32> ropePos = unk14[i]->unk1A4[0];
-		unk14[i]->drawOneRope(ropePos);
-		ropePos = unk14[i]->unk1A4[1];
-		unk14[i]->drawOneRope(ropePos);
+		THangingBridgeBoard* board    = unk14[i];
+		JGeometry::TVec3<f32> ropePos = board->unk1A4[0];
+		board->drawOneRope(ropePos);
+		ropePos = board->unk1A4[1];
+		board->drawOneRope(ropePos);
 	}
 	drawRopeBetweenBoards(0.0f, mPointNumBetweenBoards);
 	drawRopeBetweenBoards(mRopeHeight, 1);
