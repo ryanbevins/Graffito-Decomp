@@ -128,11 +128,37 @@ DEFINE_NERVE(TNerveIgaigaWaterHit, TLiveActor)
 	if (spine->getTime() == 0)
 		self->setBckAnm(6);
 
-	self->walkBehavior(0, 0.0f);
-	if (self->checkCurAnmEnd(0) || spine->getTime() > 120) {
-		spine->pushAfterCurrent(&TNerveIgaigaRollOnGraph::theNerve());
-		return TRUE;
+	if (self->unk1E4
+	    >= ((TRollEnemySaveLoadParams*)self->unk1A4)->mSLExpandMax.get()) {
+		if (self->unk1E8 > 20) {
+			self->onLiveFlag(LIVE_FLAG_UNK10000);
+			spine->pushAfterCurrent(&TNerveSmallEnemyDie::theNerve());
+			return TRUE;
+		} else {
+			self->unk1E8++;
+		}
+	} else {
+		if (self->checkCurAnmEnd(0)) {
+			if (!self->unsetUnk165()) {
+				self->setBckAnm(3);
+				spine->pushAfterCurrent(
+				    &TNerveIgaigaRollOnGraph::theNerve());
+				return TRUE;
+			}
+		}
 	}
+
+	if (self->checkCurAnmEnd(0) && self->isBckAnm(2))
+		self->setBckAnm(3);
+
+	if (self->isReachedToGoalXZ()) {
+		if (self->jumpToNextGraphNode() >= 0)
+			self->flagJump();
+		if (self->getTracer()->getCurrent().checkFlag(0x40))
+			return FALSE;
+		self->goToRandomNextGraphNode();
+	}
+	self->walkBehavior(2, 1.0f);
 
 	return FALSE;
 }
