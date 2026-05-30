@@ -255,7 +255,7 @@ DEFINE_NERVE(TNerveElecNokonokoCollect, TLiveActor)
 	TElecNokonoko* self = (TElecNokonoko*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		if (self->mCurrentBckAnm != 0) {
+		if (!self->isBckAnm(0)) {
 			self->setBckAnm(8);
 		}
 
@@ -270,14 +270,16 @@ DEFINE_NERVE(TNerveElecNokonokoCollect, TLiveActor)
 		self->unk114.clear();
 	}
 
-	if (self->mCarapace->mSpine->getCurrentNerve()
-	    != &TNerveElecCarapaceWait::theNerve()) {
+	if ((self->mCarapace->mSpine->getCurrentNerve()
+	     != &TNerveElecCarapaceWait::theNerve())
+	    ? true
+	    : false) {
 		self->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
 	} else {
 		self->getMActor()->setFrameRate(0.0f, 0);
 	}
 
-	if (self->mCurrentBckAnm == 0) {
+	if (self->isBckAnm(0)) {
 		int frame = (int)self->getCurAnmFrameNo(0);
 		if (frame > 20) {
 			self->mCarapace->onHitFlag(1);
@@ -291,7 +293,7 @@ DEFINE_NERVE(TNerveElecNokonokoCollect, TLiveActor)
 		}
 	} else {
 		if (spine->getTime() > 800 || self->mCarapace->checkLiveFlag(1)) {
-			spine->pushNerve(&TNerveElecNokonokoRebirth::theNerve());
+			spine->pushAfterCurrent(&TNerveElecNokonokoRebirth::theNerve());
 			return true;
 		}
 	}
@@ -381,12 +383,12 @@ DEFINE_NERVE(TNerveElecNokonokoShoot, TLiveActor)
 		self->setBckAnm(9);
 	}
 
-	if (self->mCurrentBckAnm == 9) {
+	if (self->isBckAnm(9)) {
 		if (self->checkCurAnmEnd(0)) {
 			self->setBckAnm(12);
 			self->unk198 = 0;
 		}
-	} else if (self->mCurrentBckAnm == 12) {
+	} else if (self->isBckAnm(12)) {
 		if (self->mMActor->getFrameCtrl(0)->checkPass(60.0f)) {
 			self->mCarapace->appear();
 		}
@@ -686,7 +688,8 @@ void TElecNokonoko::attackToMario()
 		return;
 	}
 
-	if (unk1A4 != 0) {
+	bool noCarapace = unk1A4 == 0 ? true : false;
+	if (!noCarapace) {
 		return;
 	}
 
@@ -697,11 +700,12 @@ void TElecNokonoko::setMActorAndKeeper()
 {
 	mMActorKeeper = new TMActorKeeper(getManager(), 1);
 	mMActor       = getActorKeeper()->createMActor("dennoko_model1.bmd", 3);
-	mMActor->unk4->getModelData()->setMaterialTable(
+	MActor* actor = mMActor;
+	actor->unk4->getModelData()->setMaterialTable(
 	    ((TElecNokonokoManager*)getManager())->getMaterialTable(),
 	    (J3DMaterialCopyFlag)3);
-	mMActor->initDL();
-	mMActor->unk4->lock();
+	actor->initDL();
+	actor->unk4->lock();
 }
 
 void TElecNokonoko::sendAttackMsgToMario()
@@ -722,6 +726,15 @@ void TElecNokonoko::behaveToFindMario()
 	setGoalPathMario();
 }
 
+static f32 calcDist(const JGeometry::TVec3<f32>& a,
+                    const JGeometry::TVec3<f32>& b)
+{
+	JGeometry::TVec3<f32> diff = a;
+	diff.sub(b);
+	return JGeometry::TUtil<f32>::sqrt(
+	    diff.z * diff.z + (diff.x * diff.x + diff.y * diff.y));
+}
+
 bool TElecNokonoko::isResignationAttack()
 {
 	f32 range = mSaveParams->mSLCarapaceShootRange.get();
@@ -730,10 +743,7 @@ bool TElecNokonoko::isResignationAttack()
 		return false;
 	}
 
-	JGeometry::TVec3<f32> diff = unk104.getPoint();
-	diff.sub(mPosition);
-
-	if (diff.length() < range) {
+	if (calcDist(unk104.getPoint(), mPosition) < range) {
 		mSpine->pushAfterCurrent(&TNerveElecNokonokoShoot::theNerve());
 		return true;
 	}
@@ -1054,6 +1064,7 @@ void TElecCarapace::reflect(THitActor* other)
 	MsVECNormalize((Vec*)&dir, (Vec*)&dir);
 
 	f32 xDir = 0.0f;
+	f32 yDir = 0.0f;
 	f32 zDir = 0.0f;
 	if (__fabsf(dir.z / dir.x) > 1.0f) {
 		if (other->mPosition.z > mPosition.z)
@@ -1067,7 +1078,7 @@ void TElecCarapace::reflect(THitActor* other)
 			xDir = -1.0f;
 	}
 
-	f32 dot = dir.y * 0.0f + dir.x * xDir + dir.z * zDir;
+	f32 dot = dir.y * yDir + dir.x * xDir + dir.z * zDir;
 	f32 force = -7.0f * dot;
 	mVelocity.x = dir.x * force;
 	mVelocity.y = 2.0f;
