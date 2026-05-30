@@ -4,12 +4,12 @@
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/MapObjEx.hpp>
 
-// TODO: mark virtual methods as such
+class TMapObjFlag;
 
 class TSandLeaf : public TMapObjBase {
 public:
-	u32 touchWater(THitActor*);
-	void control();
+	virtual void control();
+	virtual u32 touchWater(THitActor*);
 	TSandLeaf(const char* name = "すなやまの芽")
 	    : TMapObjBase(name)
 	    , unk138(0)
@@ -22,16 +22,25 @@ public:
 
 class TSandBase : public TMapObjBase {
 public:
-	void isDown() const;
-	void withering();
+	virtual BOOL grow() = 0;
+	virtual BOOL withering();
 	TSandBase(const char*);
+
+	static u32 mWitherTime;
+	static f32 mScaleMin;
+
+public:
+	/* 0x138 */ f32 unk138;
+	/* 0x13C */ f32 unk13C;
+	/* 0x140 */ u32 unk140;
+	/* 0x144 */ TMapObjBase* unk144;
 };
 
 class TSandLeafBase : public TSandBase {
 public:
-	void grow();
-	void control();
-	void initMapObj();
+	virtual void control();
+	virtual void initMapObj();
+	virtual BOOL grow();
 	TSandLeafBase();
 	TSandLeafBase(const char* name)
 	    : TSandBase(name)
@@ -41,10 +50,10 @@ public:
 
 class TSandBomb : public TSandLeaf {
 public:
-	void makeObjAppeared();
-	u32 touchWater(THitActor*);
-	u32 getSDLModelFlag() const;
-	void initMapObj();
+	virtual void makeObjAppeared();
+	virtual void initMapObj();
+	virtual u32 getSDLModelFlag() const;
+	virtual u32 touchWater(THitActor*);
 
 	TSandBomb()
 	    : TSandLeaf("すなやま爆弾")
@@ -60,75 +69,144 @@ public:
 
 class TSandBombBase : public TSandBase {
 public:
-	void withered();
-	void expanded();
-	void exploding();
-	void explode();
-	void waitBeforeExplode();
-	void grow();
-	void control();
-	void findTriggerActor();
-	void loadAfter();
-	void initMapObj();
+	virtual void control();
+	virtual void initMapObj();
+	virtual void loadAfter();
+	virtual BOOL grow();
+	virtual BOOL waitBeforeExplode();
+	virtual BOOL explode();
+	virtual BOOL exploding();
+	virtual BOOL expanded();
+	virtual BOOL withered();
+	virtual TMapObjBase* findTriggerActor();
 	TSandBombBase(const char*);
+
+	static f32 mFiringFrameSpeed;
+	static f32 mFiringFrameDownSpeed;
+	static f32 mExplodeFrameSpeed;
+	static f32 mMarioJumpRate;
+	static u32 mExlodingRumbleTime;
+
+public:
+	/* 0x148 */ s32 unk148;
+	/* 0x14C */ f32 unk14C;
+	/* 0x150 */ f32 unk150;
+	/* 0x154 */ f32 unk154;
 };
 
 class TSandCastle : public TSandBombBase {
 public:
-	void withering();
-	void expanded();
-	void explode();
-	void waitBeforeExplode();
-	void calcRootMatrix();
-	void findTriggerActor();
-	void loadAfter();
-	void initMapObj();
+	virtual void calcRootMatrix();
+	virtual void initMapObj();
+	virtual void loadAfter();
+	virtual BOOL waitBeforeExplode();
+	virtual BOOL explode();
+	virtual BOOL expanded();
+	virtual BOOL withering();
+	virtual TMapObjBase* findTriggerActor();
 	TSandCastle(const char*);
+
+	static f32 mCollisionRate;
+
+public:
+	/* 0x158 */ TMapObjBase* unk158;
+	/* 0x15C */ u8 unk15C;
 };
 
 class TLeanMirror : public TMapObjBase {
 public:
+	virtual void load(JSUMemoryInputStream&);
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual void control();
+	virtual void initMapObj();
+	virtual u32 getSDLModelFlag() const;
+	virtual void draw() const;
+	virtual void touchPlayer(THitActor*);
+	virtual void touchEnemy(THitActor*);
+
 	void enemyIsOn() const;
-	void draw() const;
 	void updateSpeedVec(const JGeometry::TVec3<f32>&, f32);
-	BOOL receiveMessage(THitActor* sender, u32 message);
-	void touchPlayer(THitActor*);
-	void touchEnemy(THitActor*);
 	void calcCurrentMtx(MtxPtr);
 	void release();
 	void controlGoTarget();
 	void controlShake();
-	void control();
 	void loadAfter();
-	u32 getSDLModelFlag() const;
-	void initMapObj();
-	void load(JSUMemoryInputStream&);
 	TLeanMirror(const char*);
+
+	static u32 mGoTargetTime;
+	static u32 mDemoWaitTime;
+	static u32 mDemoLightTime;
+
+public:
+	/* 0x138 */ f32 unk138;
+	/* 0x13C */ f32 unk13C;
+	/* 0x140 */ JGeometry::TVec3<f32> unk140;
+	/* 0x14C */ JGeometry::TVec3<f32> unk14C;
+	/* 0x158 */ JGeometry::TVec3<f32> unk158;
+	/* 0x164 */ JGeometry::TVec3<f32> unk164;
+	/* 0x170 */ f32 unk170;
+	/* 0x174 */ u8 unk174[0x8];
+	/* 0x17C */ u32 unk17C;
+	/* 0x180 */ JGeometry::TVec3<f32> unk180;
+	/* 0x18C */ JGeometry::TVec3<f32> unk18C;
+	/* 0x198 */ f32 unk198;
+	/* 0x19C */ u32 unk19C;
+	/* 0x1A0 */ JGeometry::TVec3<f32> unk1A0;
+	/* 0x1AC */ u8 unk1AC;
+	/* 0x1AE */ u16 unk1AE;
 };
 
 class TShiningStone : public THitActor {
 public:
 	void endDemo();
 	void putOnLight(TLiveActor*);
-	void perform(u32, JDrama::TGraphics*);
-	void load(JSUMemoryInputStream&);
+	virtual void load(JSUMemoryInputStream&);
+	virtual void perform(u32, JDrama::TGraphics*);
 	TShiningStone(const char*);
+
+public:
+	/* 0x68 */ MActor** unk68;
+	/* 0x6C */ u8 unk6C[0x4];
+	/* 0x70 */ u8 unk70;
+	/* 0x71 */ u8 unk71;
+	/* 0x72 */ u8 unk72;
+	/* 0x73 */ u8 unk73;
+	/* 0x74 */ JPABaseEmitter* unk74;
+	/* 0x78 */ JPABaseEmitter* unk78;
+	/* 0x7C */ f32 unk7C;
 };
 
 class TMammaBlockRotate : public TMapObjBase {
 public:
-	u32 touchWater(THitActor*);
-	void control();
-	void initMapObj();
-	void load(JSUMemoryInputStream&);
+	virtual void load(JSUMemoryInputStream&);
+	virtual void control();
+	virtual void initMapObj();
+	virtual u32 touchWater(THitActor*);
 	TMammaBlockRotate(const char*);
+
+	static f32 mRotSpeed;
+	static f32 mRotReturnSpeed;
+	static f32 mRotEnd;
+	static f32 mMapGoSpeed;
+	static f32 mMapBackSpeed;
+	static u32 mWaitTime;
+
+public:
+	/* 0x138 */ J3DJoint* unk138;
+	/* 0x13C */ J3DJoint* unk13C;
+	/* 0x140 */ f32 unk140;
+	/* 0x144 */ TMapCollisionMove* unk144;
+	/* 0x148 */ TMapCollisionMove* unk148;
 };
 
 class TMammaYacht : public TMapObjBase {
 public:
-	void control();
-	void initMapObj();
+	virtual void control();
+	virtual void initMapObj();
 	TMammaYacht();
+
+public:
+	/* 0x138 */ TMapObjFlag* unk138;
 };
 
 class TSandBird : public TJointCoin {
@@ -139,29 +217,46 @@ public:
 	virtual bool nameIsObj(const char*);
 
 	TSandBird(const char*);
+
+public:
+	/* 0x148 */ u8 unk148[0x8];
+	/* 0x150 */ u8 unk150;
+	/* 0x151 */ u8 unk151;
 };
 
 class TGoalWatermelon : public TMapObjBase {
 public:
-	void touchActor(THitActor*);
-	void control();
-	void loadAfter();
-	void load(JSUMemoryInputStream&);
+	virtual void load(JSUMemoryInputStream&);
+	virtual void loadAfter();
+	virtual void control();
+	virtual void touchActor(THitActor*);
 	TGoalWatermelon(const char*);
+
+public:
+	/* 0x138 */ TMapObjBase* unk138;
+	/* 0x13C */ THitActor* unk13C;
+	/* 0x140 */ JGeometry::TVec3<f32> unk140;
 };
 
 class TMammaMirrorMapOperator : public JDrama::TViewObj {
 public:
 	void show(int);
 	void hide(int);
-	void perform(u32, JDrama::TGraphics*);
-	void loadAfter();
+	virtual void loadAfter();
+	virtual void perform(u32, JDrama::TGraphics*);
 	TMammaMirrorMapOperator(const char*);
+
+public:
+	/* 0x10 */ TMapObjBase* unk10[8];
+	/* 0x30 */ JGeometry::TVec3<f32> unk30[8];
+	/* 0x90 */ f32 unk90[8];
+	/* 0xB0 */ u8 unkB0[8];
+	/* 0xB8 */ JGeometry::TVec3<f32> unkB8[3];
 };
 
 class TSandEgg : public TMapObjBase {
 public:
-	u32 getSDLModelFlag() const;
+	virtual u32 getSDLModelFlag() const;
 	TSandEgg();
 };
 
