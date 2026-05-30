@@ -260,7 +260,7 @@ void TBeeHive::controlSound()
 		mBeeSoundPos.x = x * inv;
 		mBeeSoundPos.y = y * inv;
 		mBeeSoundPos.z = z * inv;
-		gpMSound->startBeeSe((Vec*)&mBeeSoundPos, 0);
+		gpMSound->startBeeSe((Vec*)&mBeeSoundPos, count);
 	}
 }
 
@@ -378,30 +378,32 @@ void TBeeHive::load(JSUMemoryInputStream& stream)
 	reset();
 }
 
+#pragma dont_inline on
 void TBeeHive::receiveMessageFromChild(TBee* bee)
 {
 	if (bee->unk74 & 4)
 		return;
 
 	bee->unk74 |= 4;
-	bee->onHitFlag(HIT_FLAG_NO_COLLISION);
+	bee->unk64 |= HIT_FLAG_NO_COLLISION;
 
-	TMapObjBase* obj = nullptr;
-	if (mBoidLeader && mCoinIndex == mBoidLeader->mNumActors - 1) {
-		obj = mCoinObjs[mCoinIndex];
-	} else {
+	int coinIndex    = mCoinIndex;
+	TMapObjBase* obj = mCoinObjs[coinIndex];
+	if (coinIndex != mBoidLeader->mNumActors - 1)
 		obj = gpItemManager->makeObjAppear(0x2000000e);
-	}
 
 	if (obj) {
-		obj->makeObjAppeared();
-		obj->mPosition = bee->mPosition;
-		obj->mVelocity.set(0.0f, 15.0f, 0.0f);
-		obj->offLiveFlag(0x90);
+		obj->appear();
+		*(Vec*)&obj->mPosition = *(Vec*)&bee->mPosition;
+		obj->mVelocity.x       = 0.0f;
+		obj->mVelocity.y       = 15.0f;
+		obj->mVelocity.z       = 0.0f;
+		obj->mLiveFlag &= ~0x10;
 	}
 
 	mCoinIndex += 1;
 }
+#pragma dont_inline off
 
 void TBeeHive::reset()
 {
@@ -453,7 +455,9 @@ void TBeeHive::reset()
 	}
 
 	f32 half = mRotation.y * 0.5f;
-	mCurrentQuat.set(0.0f, sinf(half), 0.0f, cosf(half));
+	f32 sinHalf = sinf(half);
+	f32 cosHalf = cosf(half);
+	mCurrentQuat.set(0.0f, sinHalf, 0.0f, cosHalf);
 	mInitialQuat = mCurrentQuat;
 
 	mAngularVelocity.set(0.0f, 0.0f, 0.015707964f);
@@ -466,7 +470,7 @@ void TBeeHive::reset()
 void TBeeHive::init(TLiveManager* manager)
 {
 	mManager = manager;
-	manager->manageActor(this);
+	mManager->manageActor(this);
 	onLiveFlag(0x18);
 	mSpine->initWith(&TNerveBeeHiveWait::theNerve());
 
@@ -475,7 +479,7 @@ void TBeeHive::init(TLiveManager* manager)
 	mCoinIndex       = 0;
 	initHitActor(0x10000031, 0, 0x80000000, 50.0f, 50.0f, 100.0f,
 	             100.0f);
-	onHitFlag(HIT_FLAG_NO_COLLISION);
+	onHitFlag(2);
 }
 
 TBeeHive::TBeeHive(const char* name)
@@ -488,27 +492,30 @@ BOOL TBee::receiveMessage(THitActor* sender, u32 message)
 {
 	switch (message) {
 	case 4:
-		if (mHolder)
-			return FALSE;
-		mHolder = (TTakeActor*)sender;
-		{
-			JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-			SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
-			    (E_SMS_EFFECT_ONETIME_NORMAL)0xe7, &mPosition, nullptr,
-			    scale);
+		if (!mHolder) {
+			mHolder = (TTakeActor*)sender;
+			{
+				JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
+				SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
+				    (E_SMS_EFFECT_ONETIME_NORMAL)0xe7, &mPosition, nullptr,
+				    scale);
+			}
+			return TRUE;
 		}
-		return TRUE;
+		break;
 	case 8:
-		if (!mHolder)
-			return FALSE;
-		mHolder = nullptr;
-		return TRUE;
+		if (mHolder) {
+			mHolder = nullptr;
+			return TRUE;
+		}
+		break;
 	case 11:
 		mOwner->receiveMessageFromChild(this);
 		return TRUE;
 	default:
-		return FALSE;
+		break;
 	}
+	return FALSE;
 }
 
 void TBee::init()
