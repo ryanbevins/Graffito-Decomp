@@ -190,7 +190,7 @@ public:
 
 public:
 	/* 0x138 */ f32 unk138;
-	/* 0x13C */ u32 unk13C;
+	/* 0x13C */ JAISound* unk13C;
 };
 
 class TMapObjRootPakkun : public TMapObjBase {

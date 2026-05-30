@@ -21,6 +21,7 @@
 #include <dolphin/mtx.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 extern MSound* gpMSound;
 extern JGeometry::TVec3<f32>* gpMarioPos;
@@ -55,22 +56,26 @@ void TWoodLog::control()
 {
 	TMapObjFloatOnSea::control();
 
-	f32 dx = gpMarioPos->x - mPosition.x;
-	f32 dz = gpMarioPos->z - mPosition.z;
-	f32 dist = dx * dx + dz * dz;
-	if (dist < 1000.0f * 1000.0f) {
-		mRotation.x += -0.02f * dz;
-		mRotation.z += -0.008f * dx;
-	}
+	Mtx inv;
+	JGeometry::TVec3<f32> marioPos;
+	JGeometry::TVec3<f32> localPos;
+	JGeometry::TVec3<f32> requestPos;
 
-	if (mRotation.x > 360.0f)
-		mRotation.x -= 360.0f;
-	if (mRotation.x < -360.0f)
-		mRotation.x += 360.0f;
-	if (mRotation.z > 360.0f)
-		mRotation.z -= 360.0f;
-	if (mRotation.z < -360.0f)
-		mRotation.z += 360.0f;
+	PSMTXInverse(getModel()->mNodeMatrices[0], inv);
+	marioPos.set(*gpMarioPos);
+	PSMTXMultVec(inv, (Vec*)&marioPos, (Vec*)&localPos);
+
+	if (SMS_IsMarioStatusTypeSwimming() && -232.0f < localPos.y
+	    && -141.0f < localPos.x && localPos.x < 141.0f
+	    && -441.0f < localPos.z && localPos.z < 441.0f) {
+		if (localPos.x > 0.0f)
+			localPos.x = 141.0f;
+		else
+			localPos.x = -141.0f;
+		PSMTXMultVec(getModel()->mNodeMatrices[0], (Vec*)&localPos,
+		             (Vec*)&requestPos);
+		SMS_MarioMoveRequest(requestPos);
+	}
 }
 
 TBellWatermill::TBellWatermill(const char* name)
@@ -486,23 +491,28 @@ u32 TBiancoWatermillVertical::touchWater(THitActor* water)
 TBiancoWatermill::TBiancoWatermill(const char* name)
     : TMapObjBase(name)
     , unk138(10000.0f)
-    , unk13C(0)
+    , unk13C(nullptr)
 {
 }
 
 void TBiancoWatermill::initMapObj()
 {
 	TMapObjBase::initMapObj();
-	unk13C = 0;
+	if (strcmp(unkF4, "BiaWatermill01") == 0) {
+		mBodyRadius = 1200.0f;
+	} else if (strcmp(unkF4, "BiaWatermill00") == 0) {
+		mBodyRadius = 1200.0f;
+	}
 }
 
 void TBiancoWatermill::control()
 {
-	TMapObjBase::control();
-	mRotation.y += sSpeed;
-	if (gpMSound->gateCheck(0x3068)) {
-		MSoundSESystem::MSoundSE::startSoundActor(
-		    0x3068, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+	mRotation.z -= unk138;
+	f32 volume = fabsf(unk138);
+	if (gpMSound->gateCheck(0x3043)) {
+		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+		    0x3043, (const Vec*)&mPosition, nullptr, volume, 0, 0, &unk13C,
+		    0, 4);
 	}
 }
 
@@ -526,12 +536,12 @@ void TMapObjRootPakkun::drawObject(JDrama::TGraphics* graphics)
 
 	if (fabsf(gpMarioPos->z - mPosition.z) < 500.0f) {
 		unk138->movement();
-		BOOL expired;
+		BOOL active;
 		if (mLifeTimer > 0)
-			expired = FALSE;
+			active = TRUE;
 		else
-			expired = TRUE;
-		if (expired) {
+			active = FALSE;
+		if (!active) {
 			unk138->tremble(mTremblePower, mTrembleAccel, mTrembleBrake,
 			                mTrembleTime);
 			mLifeTimer = mTrembleTime;
