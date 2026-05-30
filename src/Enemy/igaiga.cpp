@@ -1278,14 +1278,16 @@ void TGorogoroManager::initSetEnemies()
 	mPolluteModelManager->init(getObj(0));
 
 	for (int i = 0; i < getObjNum(); ++i) {
-		TGorogoro* enemy = (TGorogoro*)getObj(i);
-		TGraphWeb* graph = gpConductor->getGraphByName(graphlist[i & 1]);
+		TGraphWeb* graph = gpConductor->getGraphByName(graphlist[i % 2]);
 		if (graph->isDummy())
 			graph = gpConductor->getGraphByName(graphlist[0]);
 
 		if (!graph->isDummy()) {
+			TGorogoro* enemy = (TGorogoro*)getObj(i);
+			JGeometry::TVec3<f32> pos;
+			graph->getFirstGraphNode().getPoint((Vec*)&pos);
 			enemy->unk124->setGraph(graph);
-			enemy->mPosition = graph->getFirstGraphNode().getPoint();
+			enemy->mPosition = pos;
 			enemy->unk1E8    = graph->getNodeNum() - 1;
 		}
 	}
