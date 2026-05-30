@@ -8,8 +8,10 @@
 
 class J3DNode;
 class SDLModelData;
+class TAreaCylinderManager;
 class TGraphWeb;
 class TLiveActor;
+class TMapEventSink;
 class TWaterEmitInfo;
 
 DECLARE_NERVE(TNerveGorogoroDie, TLiveActor);
@@ -146,12 +148,14 @@ public:
 
 public:
 	/* 0x1B4 */ int unk1B4;
-	/* 0x1B8 */ void* unk1B8;
+	/* 0x1B8 */ int unk1B8;
 	/* 0x1BC */ bool unk1BC;
-	/* 0x1BD */ u8 unk1BD[0x1CC - 0x1BD];
+	/* 0x1BD */ u8 unk1BD[0x1C0 - 0x1BD];
+	/* 0x1C0 */ JGeometry::TVec3<f32> unk1C0;
 	/* 0x1CC */ f32 unk1CC;
 	/* 0x1D0 */ void* unk1D0;
-	/* 0x1D4 */ u8 unk1D4[0x1E4 - 0x1D4];
+	/* 0x1D4 */ u8 unk1D4[0x1D8 - 0x1D4];
+	/* 0x1D8 */ JGeometry::TVec3<f32> unk1D8;
 	/* 0x1E4 */ f32 unk1E4;
 	/* 0x1E8 */ int unk1E8;
 };
@@ -210,11 +214,11 @@ public:
 	virtual void initSetEnemies();
 
 public:
-	/* 0x60 */ void* unk60;
-	/* 0x64 */ TLiveActor* unk64;
+	/* 0x60 */ s32 unk60;
+	/* 0x64 */ TMapEventSink* unk64;
 	/* 0x68 */ bool unk68;
 	/* 0x6C */ TGorogoroPolluteModelManager* mPolluteModelManager;
-	/* 0x70 */ TLiveActor* unk70;
+	/* 0x70 */ TAreaCylinderManager* unk70;
 };
 
 class TIgaigaManager : public TSmallEnemyManager {

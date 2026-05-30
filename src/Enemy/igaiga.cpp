@@ -2,26 +2,38 @@
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
 #include <Enemy/Launcher.hpp>
+#include <Enemy/AreaCylinder.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <JSystem/JParticle/JPAEmitter.hpp>
+#include <Map/Map.hpp>
+#include <Map/MapData.hpp>
+#include <Map/MapEventSink.hpp>
+#include <Map/MapMirror.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
+#include <JSystem/JMath.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <M3DUtil/SDLModel.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <MoveBG/ItemManager.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Player/ModelWaterManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/SharedParts.hpp>
 #include <Strategic/Spine.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/Particles.hpp>
+#include <dolphin/mtx.h>
 #include <stdlib.h>
 
 class JAISound;
-namespace MSoundSESystem {
-class MSoundSE {
-public:
-	static void startSoundActor(u32, const Vec*, u32, JAISound**, u32, u8);
-};
-}
-
 static TRollEnemy* gpCurRollEnemy;
 
 f32 TRollEnemy::mBoundVal     = 80.0f;
@@ -187,38 +199,82 @@ bool TRollEnemy::isCollidMove(THitActor* actor)
 
 void TRollEnemy::attackToMario()
 {
-	sendAttackMsgToMario();
+	SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
 }
 
 void TRollEnemy::behaveToWater(THitActor*)
 {
-	unk1A8 = true;
-	setBckAnm(6);
+	mSprayedByWaterCooldown = 0;
+
+	TRollEnemySaveLoadParams* params = (TRollEnemySaveLoadParams*)unk1A4;
+	if (unk158 < params->mSLExpandMax.get()) {
+		f32 expandRate = params->mSLExpandRate.get();
+		mBodyScale *= expandRate;
+		unk158 *= expandRate;
+		mScaledBodyRadius *= expandRate;
+
+		f32 scale = mScaling.z * expandRate;
+		mScaling.z = scale;
+		mScaling.y = scale;
+		mScaling.x = scale;
+
+		f32 attackRadius = getSaveParam2()->getSLAttackRadius();
+		f32 attackHeight = getSaveParam2()->getSLAttackHeight();
+		f32 damageRadius = getSaveParam2()->getSLDamageRadius();
+		f32 ratio        = mBodyScale / unk154;
+		mAttackRadius    = attackRadius * ratio;
+		mAttackHeight    = attackHeight * ratio;
+		mDamageRadius    = damageRadius * ratio;
+		mDamageHeight    = getSaveParam2()->getSLDamageHeight() * ratio;
+		calcEntryRadius();
+	}
 }
 
 void TRollEnemy::flagJump()
 {
-	unk1A8 = true;
-	mVelocity.y = getRollParams()->mSLBoundVYMax.get();
+	JGeometry::TVec3<f32> target;
+	unk124->getGraph()
+	    ->getGraphNode(unk124->mCurrIdx)
+	    .getPoint((Vec*)&target);
+	mPosition.y += 30.0f;
+	mVelocity = calcVelocityToJumpToY(target, unk124->unkC, getGravityY());
+	unk1A8    = true;
+	onLiveFlag(LIVE_FLAG_AIRBORNE);
 }
 
-void TRollEnemy::walkBehavior(int, f32)
+void TRollEnemy::walkBehavior(int mode, f32 speed)
 {
-	if (unk1A8) {
-		mPosition.y += mVelocity.y;
-		mVelocity.y -= mGravity;
-		if (mVelocity.y < -getRollParams()->mSLBoundVYMax.get())
-			mVelocity.y = -getRollParams()->mSLBoundVYMax.get();
+	if (!unk1A8)
+		TWalkerEnemy::walkBehavior(mode, speed);
+
+	if (checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
+		if (mPosition.y > mGroundHeight + 20.0f) {
+			f32 bounce = (mPosition.y - mGroundHeight) / mBoundVal;
+			f32 wrapped
+			    = MsWrap(bounce, 0.0f, getRollParams()->mSLBoundVYMax.get());
+			if (unk1A0 < wrapped)
+				unk1A0 = wrapped;
+		}
 	} else {
-		walkToCurPathNode(mMarchSpeed, mTurnSpeed, 0.0f);
+		if (!mGroundPlane->isWaterSurface()) {
+			unk1A8 = false;
+
+			if (unk1A0 > unk1B0) {
+				bound();
+				mVelocity.set(0.0f, unk1A0, 0.0f);
+				onLiveFlag(LIVE_FLAG_AIRBORNE);
+				mPosition.y += 5.0f;
+				unk1A0 = 0.0f;
+				boundSE();
+			}
+		}
 	}
 
-	unk194 += unk198;
-	if (unk194 >= 360.0f)
-		unk194 -= 360.0f;
+	if (mPosition.y < mGroundHeight + 5.0f)
+		flagJump();
 
 	if (unk128 > 300) {
-		onLiveFlag(0x10000);
+		onLiveFlag(LIVE_FLAG_UNK10000);
 		kill();
 	}
 }
@@ -228,32 +284,33 @@ void TRollEnemy::reset()
 	gpCurRollEnemy = this;
 	TWalkerEnemy::reset();
 
-	unk194 = MsRandF(0.0f, 360.0f);
+	FakeRandInterval randAngle(0.0f, 360.0f);
+	unk194 = randAngle.get();
 	unk158 = 1.0f;
 
-	if (unk124 && unk124->getGraph()) {
-		JGeometry::TVec3<f32> point = unk124->getGraph()->getFirstGraphNode().getPoint();
-		mPosition = point;
-		mPosition.y += 10.0f;
+	TGraphWeb* graph = unk124->getGraph();
+	JGeometry::TVec3<f32> point;
+	graph->getFirstGraphNode().getPoint((Vec*)&point);
+	mPosition = point;
+	mPosition.y += 10.0f;
 
-		JGeometry::TVec3<f32> next = unk124->getGraph()->getGraphNode(1).getPoint();
-		JGeometry::TVec3<f32> dir  = next;
-		dir.sub(mPosition);
-		mRotation.y = MsGetRotFromZaxisY(dir);
-	}
+	JGeometry::TVec3<f32> next;
+	graph->getGraphNode(1).getPoint((Vec*)&next);
+	JGeometry::TVec3<f32> dir = next;
+	dir.sub(mPosition);
+	mRotation.y = MsAngleWrap(MsGetRotFromZaxisY(dir));
 
 	unk198 = mMarchSpeed * 1.5f;
 	unk19C = mMarchSpeed;
 	unk1A0 = 0.0f;
-	if (unk124)
-		unk124->mCurrIdx = 0;
+	unk124->mCurrIdx = 0;
 }
 
 #pragma dont_inline on
 TIgaiga::TIgaiga(const char* name)
     : TRollEnemy(name)
     , unk1B4(0)
-    , unk1B8(nullptr)
+    , unk1B8(0)
     , unk1BC(true)
     , unk1CC(1.0f)
     , unk1D0(nullptr)
@@ -314,15 +371,38 @@ const char** TIgaiga::getBasNameTable() const
 void TIgaiga::reset()
 {
 	TRollEnemy::reset();
-	unk1BC = true;
+	setWalkAnm();
+	offLiveFlag(LIVE_FLAG_UNK10);
+	unk1B4 = 0;
+
+	int min = 50;
+	int max = 100;
+	unk1B8 = (min + (int)((max - min) * (rand() * 0.000030517578f))) * 120;
+	unk1BC  = true;
+
+	mPosition.y += 20.0f;
+	gpMap->checkGround(mPosition.x, mPosition.y + mHeadHeight, mPosition.z,
+	                   &mGroundPlane);
+	onLiveFlag(LIVE_FLAG_AIRBORNE);
+
 	unk1E4 = 1.0f;
+	unk1CC = 1.0f;
+	unk1AC = 50.0f;
+	unk1B0 = 500.0f;
 	unk1E8 = 0;
 }
 
 void TIgaiga::behaveToWater(THitActor* actor)
 {
-	TRollEnemy::behaveToWater(actor);
-	mSpine->pushAfterCurrent(&TNerveIgaigaWaterHit::theNerve());
+	mSprayedByWaterCooldown = 0;
+
+	TRollEnemySaveLoadParams* params = (TRollEnemySaveLoadParams*)unk1A4;
+	if (unk1E4 < params->mSLExpandMax.get())
+		unk1E4 *= params->mSLExpandRate.get();
+
+	unk165 = true;
+	if (mSpine->getCurrentNerve() != &TNerveIgaigaWaterHit::theNerve())
+		mSpine->pushNerve(&TNerveIgaigaWaterHit::theNerve());
 }
 
 void TIgaiga::setWalkAnm()
@@ -332,14 +412,72 @@ void TIgaiga::setWalkAnm()
 
 void TIgaiga::setDeadAnm()
 {
-	setBckAnm(1);
+	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		unk1C0 = mPosition;
+	} else {
+		MtxPtr mtx = getModel()->getBaseTRMtx();
+		unk1C0.x   = mtx[0][3];
+		unk1C0.y   = mtx[1][3];
+		unk1C0.z   = mtx[2][3];
+	}
+
+	gpMarioParticleManager->emit(0xcb, &unk1C0, 0, nullptr);
+
+	if (unk1BC)
+		setBckAnm(0);
+	else
+		setBckAnm(1);
+
+	JGeometry::TVec3<f32> scale = mScaling;
+	scale *= unk1CC * unk1E4;
+	mPosition.y = mGroundHeight;
+	if (scale.x > 1.5f)
+		scale.x = 1.5f;
+	else if (scale.x < 0.8f)
+		scale.x = 0.8f;
+	scale.z = scale.x;
+	scale.y = scale.x;
+
 	((TIgaigaManager*)mManager)
-	    ->mPolluteModelManager->generatePolluteModel(mPosition, mScaling);
+	    ->mPolluteModelManager->generatePolluteModel(mPosition, scale);
 }
 
 void TIgaiga::setMeltAnm()
 {
+	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		unk1C0 = mPosition;
+	} else {
+		MtxPtr mtx = getModel()->getBaseTRMtx();
+		unk1C0.x   = mtx[0][3];
+		unk1C0.y   = mtx[1][3];
+		unk1C0.z   = mtx[2][3];
+	}
+
+	if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)
+	    && SMS_IsMarioTouchGround4cm()) {
+		if (mScaling.x > mBodyScale)
+			SMSRumbleMgr->start(0x15, 0xa, &mPosition);
+		else
+			SMSRumbleMgr->start(0x14, 0xa, &mPosition);
+	}
+
+	JGeometry::TVec3<f32> scale = mScaling;
+	scale *= 0.5f;
+	JPABaseEmitter* emitter
+	    = gpMarioParticleManager->emit(0xa1, &unk1C0, 0, nullptr);
+	if (emitter)
+		emitter->setScale(scale);
+
+	emitter = gpMarioParticleManager->emit(0xa2, &unk1C0, 0, nullptr);
+	if (emitter)
+		emitter->setScale(scale);
+
 	setBckAnm(5);
+
+	if (rand() * 0.000030517578f < 0.2f) {
+		gpItemManager->makeObjAppear(mPosition.x, mPosition.y + 20.0f,
+		                             mPosition.z, 0x20000002, true);
+	}
 }
 
 bool TIgaiga::isHitValid(u32 message)
@@ -365,49 +503,108 @@ bool TIgaiga::isReachedToGoalXZ()
 void TIgaiga::walkBehavior(int mode, f32 speed)
 {
 	TRollEnemy::walkBehavior(mode, speed);
+
+	f32 x = mLinearVelocity.x;
+	f32 z = mLinearVelocity.z;
+	if (unk1A8) {
+		JGeometry::TVec3<f32> velocity = mVelocity;
+		x                               = velocity.x;
+		z                               = velocity.z;
+	}
+
+	f32 rollSpeed = JGeometry::TUtil<f32>::sqrt(x * x + z * z);
+	unk194 += 100.0f * (rollSpeed / (mBodyRadius * unk1CC * unk1E4));
+
+	if (unk1B4 != 0) {
+		unk1B4++;
+		if (unk1B4 > unk1B8)
+			unk1B4 = 0;
+	}
+
+	if (!checkLiveFlag(LIVE_FLAG_AIRBORNE) && mGroundPlane) {
+		const TLiveActor* actor = mGroundPlane->getActor();
+		if (actor)
+			((THitActor*)actor)->receiveMessage(this, HIT_MESSAGE_ATTACK);
+	}
+
+	if (unk138) {
+		const TLiveActor* actor = unk138->getActor();
+		if (actor)
+			((THitActor*)actor)->receiveMessage(this, HIT_MESSAGE_ATTACK);
+	}
 }
 
 void TIgaiga::bound()
 {
-	unk1A8      = true;
-	mVelocity.y = TRollEnemy::mBoundVal;
+	if (unk1A0 > 5.0f) {
+		setBckAnm(2);
+		if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)
+		    && SMS_IsMarioTouchGround4cm()) {
+			if (mScaling.x > mBodyScale)
+				SMSRumbleMgr->start(0x15, 0xa, &mPosition);
+			else
+				SMSRumbleMgr->start(0x14, 0xa, &mPosition);
+		}
+	}
 }
 
 bool TIgaiga::isRolling()
 {
 	const TNerveBase<TLiveActor>* current = mSpine->getCurrentNerve();
 	return current == &TNerveIgaigaRollOnGraph::theNerve()
+	    || current == &TNerveIgaigaShootFromCannon::theNerve()
 	    || current == &TNerveIgaigaWaterHit::theNerve();
 }
 
 void TIgaiga::rollSE()
 {
-	MSoundSESystem::MSoundSE::startSoundActor(0x285E, &mPosition, 0, nullptr,
-	                                          0, 4);
+	gpMSound->startSoundActorSpecial(0x212f, &mPosition, mScaling.x,
+	                                 mMarchSpeed, 0, nullptr, 0, 4);
 }
 
 void TIgaiga::boundSE()
 {
-	MSoundSESystem::MSoundSE::startSoundActor(0x285F, &mPosition, 0, nullptr,
-	                                          0, 4);
+	f32 volume = __fabsf(mGroundPlane->getNormal().y);
+	if (gpMSound->gateCheck(0x28ad))
+		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+		    0x28ad, &mPosition, nullptr, volume, 0, 0, nullptr, 0, 4);
 }
 
 void TIgaiga::shoot(JGeometry::TVec3<f32>& velocity)
 {
-	mVelocity = velocity;
 	mSpine->setNext(&TNerveIgaigaShootFromCannon::theNerve());
+	unk1D8 = velocity;
+	offLiveFlag(LIVE_FLAG_UNK10);
+	unk1A8 = true;
 }
 
 void TGorogoro::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	TSmallEnemy::perform(flags, graphics);
+
+	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)
+	    && gpMirrorModelManager->isInMirror(mPosition)) {
+		if (flags & 2) {
+			calcRootMatrix();
+			mMActor->calc();
+		}
+
+		if (flags & 4)
+			mMActor->viewCalc();
+	}
 }
 
 void TGorogoro::init(TLiveManager* manager)
 {
 	TRollEnemy::init(manager);
+	mActorType = 0x10000019;
+	unk150     = 0x31;
+	unk64 &= 0xA7FFFFFF;
 	mSpine->initWith(&TNerveGorogoroRollOnGraph::theNerve());
+	unk1A4 = getSaveParam();
 	mMActor->setJointCallback(1, RollEnemyBodyCallback);
+	unk130    = 1;
+	unk1ED[3] = 0xff;
 }
 
 void TGorogoro::calcRootMatrix()
@@ -418,7 +615,12 @@ void TGorogoro::calcRootMatrix()
 
 void TGorogoro::kill()
 {
-	mSpine->setNext(&TNerveGorogoroDie::theNerve());
+	unk194 = 0.0f;
+	if (mSpine->getCurrentNerve() != &TNerveSmallEnemyDie::theNerve()
+	    && mSpine->getCurrentNerve() != &TNerveGorogoroDie::theNerve()) {
+		mSpine->setNext(&TNerveGorogoroDie::theNerve());
+		onLiveFlag(LIVE_FLAG_UNK8);
+	}
 }
 
 const char** TGorogoro::getBasNameTable() const
@@ -428,7 +630,12 @@ const char** TGorogoro::getBasNameTable() const
 
 void TGorogoro::reset()
 {
+	unk130 = 1;
 	TRollEnemy::reset();
+	offLiveFlag(0x1000);
+	unk1ED[3] = 0xff;
+	unk1AC    = -10.0f;
+	unk1B0    = 1.0f;
 	unk1E4 = false;
 	unk1E8 = 0;
 	unk1EC = false;
@@ -443,83 +650,220 @@ void TGorogoro::setMActorAndKeeper()
 void TGorogoro::behaveToWater(THitActor* actor)
 {
 	TRollEnemy::behaveToWater(actor);
+
+	u8 maxHp = getMaxHitPoints();
+	if (maxHp == 0)
+		maxHp = 1;
+
+	unk1ED[3] = mHitPoints * 0xff / maxHp;
+	if (mHitPoints < 2)
+		mHitPoints = 1;
+
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x176, getModel()->getAnmMtx(1), 1, this);
+	if (emitter)
+		emitter->setScale(mScaling);
 }
 
 void TGorogoro::setDeadAnm()
 {
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0xbf, getModel()->getAnmMtx(1), 0, nullptr);
+	if (emitter)
+		emitter->setScale(mScaling);
+
 	setBckAnm(0);
+
+	if (gpMSound->gateCheck(0x2856))
+		MSoundSESystem::MSoundSE::startSoundActor(0x2856, &mPosition, 0,
+		                                          nullptr, 0, 4);
 }
 
 void TGorogoro::setMeltAnm()
 {
-	setBckAnm(0);
+	setBckAnm(1);
+	unk130 = 0;
+	onLiveFlag(0x1000);
+	PSMTXCopy(getModel()->getBaseTRMtx(), unk1B4.mMtx);
+	unk1B4.ref(1, 3) = mGroundHeight;
+
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0xbe, unk1B4.mMtx, 0, nullptr);
+	if (emitter)
+		emitter->setScale(mScaling);
+
+	if (gpMSound->gateCheck(0x2913))
+		MSoundSESystem::MSoundSE::startSoundActor(0x2913, &mPosition, 0,
+		                                          nullptr, 0, 4);
 }
 
 void TGorogoro::forceKill()
 {
-	mSpine->setNext(&TNerveGorogoroDie::theNerve());
+	if (!mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
+	    && mGroundPlane->isWaterSurface()
+	    && !checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
+		if (mSpine->getCurrentNerve() != &TNerveGorogoroDie::theNerve()) {
+			mSpine->setNext(&TNerveGorogoroDie::theNerve());
+			onLiveFlag(LIVE_FLAG_UNK20000);
+			onLiveFlag(LIVE_FLAG_UNK10000);
+		}
+	}
 }
 
 void TGorogoro::walkBehavior(int mode, f32 speed)
 {
+	if (mPosition.y > mGroundHeight)
+		onLiveFlag(LIVE_FLAG_AIRBORNE);
+
+	mTurnSpeed = getSaveParam2()->mSLTurnSpeedLow.get();
 	TRollEnemy::walkBehavior(mode, speed);
+	unk194 += 0.4f * mMarchSpeed;
+
+	if (mSpine->getCurrentNerve() != &TNerveGorogoroDie::theNerve()
+	    && mPosition.y < mGroundHeight + 10.0f && mGroundPlane->isWaterSurface()) {
+		onLiveFlag(LIVE_FLAG_UNK10000);
+		onLiveFlag(LIVE_FLAG_UNK20000);
+		kill();
+	}
 }
 
 void TGorogoro::flagJump()
 {
-	TRollEnemy::flagJump();
+	JGeometry::TVec3<f32> target;
+	unk124->getGraph()
+	    ->getGraphNode(unk124->mCurrIdx)
+	    .getPoint((Vec*)&target);
+	mPosition.y += 30.0f;
+	mVelocity = calcVelocityToJumpToY(target, unk124->unkC, getGravityY());
+	unk1A8    = true;
+	onLiveFlag(LIVE_FLAG_AIRBORNE);
 }
 
 void TGorogoro::bound()
 {
-	unk1A8      = true;
-	mVelocity.y = TRollEnemy::mBoundVal;
+	((TGorogoroManager*)mManager)
+	    ->mPolluteModelManager->generatePolluteModel(mPosition, mScaling);
+
+	if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)
+	    && SMS_IsMarioTouchGround4cm())
+		SMSRumbleMgr->start(0x15, 0xa, &mPosition);
 }
 
 bool TGorogoro::isRolling()
 {
-	return mSpine->getCurrentNerve() == &TNerveGorogoroRollOnGraph::theNerve();
+	return mSpine->getCurrentNerve() == &TNerveGorogoroRollOnGraph::theNerve()
+	    || mCurrentBckAnm == 1;
 }
 
 void TGorogoro::rollSE()
 {
-	MSoundSESystem::MSoundSE::startSoundActor(0x285E, &mPosition, 0, nullptr,
-	                                          0, 4);
+	f32 volume = __fabsf(mGroundPlane->getNormal().y);
+	if (gpMSound->gateCheck(0x2054))
+		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+		    0x2054, &mPosition, nullptr, volume, 0, 0, nullptr, 0, 4);
 }
 
 void TGorogoro::boundSE()
 {
-	MSoundSESystem::MSoundSE::startSoundActor(0x285F, &mPosition, 0, nullptr,
-	                                          0, 4);
+	f32 volume = __fabsf(mGroundPlane->getNormal().y);
+	if (gpMSound->gateCheck(0x2844))
+		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+		    0x2844, &mPosition, nullptr, volume, 0, 0, nullptr, 0, 4);
 }
 
 void TGorogoro::generateByGateKeeper(const JGeometry::TVec3<f32>& position,
                                      const JGeometry::TVec3<f32>& velocity)
 {
+	reset();
+
+	TGraphWeb* graph = unk124->getGraph();
+	int nodeIndex    = graph->findNearestNodeIndex(position, -1);
+	unk124->mCurrIdx = nodeIndex;
+	unk124->mPrevIdx = nodeIndex - 1;
+
+	TGraphNode& node = graph->getGraphNode(nodeIndex);
+	BOOL aimAtMario  = MsIsInSight(position, velocity.y, *gpMarioPos, 2000.0f,
+	                               360.0f, -1.0f);
+
+	JGeometry::TVec3<f32> target;
+	if (aimAtMario)
+		target = *gpMarioPos;
+	else
+		node.getPoint((Vec*)&target);
+
+	target.sub(position);
 	mPosition = position;
-	mVelocity = velocity;
-	offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
-	mSpine->setNext(&TNerveGorogoroRollOnGraph::theNerve());
+
+	if (target.squared() > 0.0000038146973f) {
+		PSVECNormalize((Vec*)&target, (Vec*)&target);
+
+		f32 randFactor = rand() * 0.000030517578f;
+		s16 angle      = (15.0f - 30.0f * randFactor) * (65536.0f / 360.0f);
+		f32 sin        = JMASSin(angle);
+		f32 cos        = JMASCos(angle);
+		Mtx rotMtx     = {
+			    { cos, 0.0f, sin, 0.0f },
+			    { 0.0f, 1.0f, 0.0f, 0.0f },
+			    { -sin, 0.0f, cos, 0.0f },
+		};
+		PSMTXMultVec(rotMtx, (Vec*)&target, (Vec*)&target);
+
+		mRotation.y = MsAngleWrap(MsGetRotFromZaxisY(target));
+
+		target.scale(1500.0f * (rand() * 0.000030517578f));
+		target.add(position);
+		mVelocity = calcVelocityToJumpToY(target, 15.0f, getGravityY());
+	} else {
+		mVelocity = calcVelocityToJumpToY(position, 15.0f, getGravityY());
+		mRotation.y = MsAngleWrap(MsGetRotFromZaxisY(target));
+	}
+
+	if (aimAtMario) {
+		unk114.push(unkF4);
+		unkF4 = TPathNode(*gpMarioPos);
+	}
+
+	unk1A8 = true;
 }
 
 void TIgaigaPolluteModel::setAnm()
 {
 	unk10->unk18->setBckFromIndex(7);
+	unk10->unk18->getFrameCtrl(0)->setFrame(0.0f);
 }
 
 void TGorogoroPolluteModel::setAnm()
 {
-	unk10->unk18->setBckFromIndex(0);
+	unk10->unk18->setBckFromIndex(3);
+	unk10->unk18->getFrameCtrl(0)->setFrame(0.0f);
 }
 
 void TIgaigaPolluteModelManager::init(TLiveActor* owner)
 {
 	TEnemyPolluteModelManager::init(owner);
+
+	void* res
+	    = JKRFileLoader::getGlbResource("/scene/igaiga/stamp_igaiga_model1.bmd");
+	SDLModelData* modelData
+	    = new SDLModelData(J3DModelLoaderDataBase::load(res, 0x10210000));
+
+	for (int i = 0; i < unk14; ++i)
+		unk18[i] = new TIgaigaPolluteModel(owner, 0, modelData,
+		                                    "イガイガ汚染モデル");
 }
 
 void TGorogoroPolluteModelManager::init(TLiveActor* owner)
 {
 	TEnemyPolluteModelManager::init(owner);
+
+	void* res = JKRFileLoader::getGlbResource(
+	    "/scene/gorogoro/bosspaku_head_stamp.bmd");
+	SDLModelData* modelData
+	    = new SDLModelData(J3DModelLoaderDataBase::load(res, 0x10210000));
+
+	for (int i = 0; i < unk14; ++i)
+		unk18[i] = new TGorogoroPolluteModel(owner, 0, modelData,
+		                                      "汚染モデル");
 }
 
 TIgaigaManager::TIgaigaManager(const char* name)
@@ -565,7 +909,7 @@ void TIgaigaManager::initSetEnemies()
 
 TGorogoroManager::TGorogoroManager(const char* name)
     : TSmallEnemyManager(name)
-    , unk60(nullptr)
+    , unk60(0)
     , unk64(nullptr)
     , unk68(true)
     , mPolluteModelManager(nullptr)
@@ -582,17 +926,91 @@ void TGorogoroManager::load(JSUMemoryInputStream& stream)
 
 void TGorogoroManager::loadAfter()
 {
-	unk64 = (TLiveActor*)JDrama::TNameRefGen::getInstance()
+	unk64 = (TMapEventSink*)JDrama::TNameRefGen::getInstance()
 	           ->getRootNameRef()
 	           ->search("イベント（寝込むビアンコ）");
-	unk70 = (TLiveActor*)gpConductor->search("ゴロゴロ発生マネージャー");
+	unk70 = (TAreaCylinderManager*)gpConductor->search("ゴロゴロ発生マネージャー");
 }
 
 void TGorogoroManager::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	TSmallEnemyManager::perform(flags, graphics);
-	if (mPolluteModelManager)
-		mPolluteModelManager->perform(flags, graphics);
+	if (flags & 1) {
+		unk60 += 1;
+
+		TRollEnemySaveLoadParams* params
+		    = (TRollEnemySaveLoadParams*)getSaveParam();
+		int interval = params->mSLGenerateInterval.get();
+		if (unk60 > interval) {
+			unk60 = 0;
+
+			bool shouldGenerate = true;
+			if (unk70)
+				shouldGenerate = unk70->contain(*gpMarioPos);
+
+			if (shouldGenerate) {
+				for (int i = 0; i < getActiveObjNum(); ++i) {
+					TGorogoro* enemy = (TGorogoro*)getObj(i);
+					if (!enemy->checkLiveFlag(LIVE_FLAG_DEAD))
+						continue;
+
+					if (unk64) {
+						if (unk64->isBuried(1)) {
+							unk60 = interval;
+							break;
+						}
+
+						if (unk68) {
+							unk68 = false;
+
+							enemy->reset();
+							JGeometry::TVec3<f32> position;
+							enemy->unk124->getGraph()
+							    ->getGraphNode(10)
+							    .getPoint((Vec*)&position);
+							enemy->mPosition = position;
+							enemy->unk124->mCurrIdx = 10;
+							enemy->unk124->mPrevIdx = 9;
+
+							JGeometry::TVec3<f32> target;
+							enemy->unk124->getGraph()
+							    ->getGraphNode(11)
+							    .getPoint((Vec*)&target);
+							JGeometry::TVec3<f32> dir = target;
+							dir.sub(enemy->mPosition);
+							enemy->mRotation.y
+							    = MsAngleWrap(MsGetRotFromZaxisY(dir));
+							enemy->setGoalPath(TPathNode(target));
+
+							TGorogoro* other = (TGorogoro*)getObj(1);
+							other->reset();
+							other->unk124->getGraph()
+							    ->getGraphNode(16)
+							    .getPoint((Vec*)&position);
+							other->mPosition = position;
+							other->unk124->mCurrIdx = 16;
+							other->unk124->mPrevIdx = 15;
+
+							other->unk124->getGraph()
+							    ->getGraphNode(17)
+							    .getPoint((Vec*)&target);
+							dir = target;
+							dir.sub(other->mPosition);
+							other->mRotation.y
+							    = MsAngleWrap(MsGetRotFromZaxisY(dir));
+							other->setGoalPath(TPathNode(target));
+							break;
+						}
+					}
+
+					enemy->reset();
+					break;
+				}
+			}
+		}
+	}
+
+	TEnemyManager::perform(flags, graphics);
+	mPolluteModelManager->perform(flags, graphics);
 }
 
 void TGorogoroManager::createModelData()
@@ -617,7 +1035,10 @@ void TGorogoroManager::initSetEnemies()
 	for (int i = 0; i < getObjNum(); ++i) {
 		TGorogoro* enemy = (TGorogoro*)getObj(i);
 		TGraphWeb* graph = gpConductor->getGraphByName(graphlist[i & 1]);
-		if (graph && !graph->isDummy()) {
+		if (graph->isDummy())
+			graph = gpConductor->getGraphByName(graphlist[0]);
+
+		if (!graph->isDummy()) {
 			enemy->unk124->setGraph(graph);
 			enemy->mPosition = graph->getFirstGraphNode().getPoint();
 			enemy->unk1E8    = graph->getNodeNum() - 1;
@@ -625,7 +1046,7 @@ void TGorogoroManager::initSetEnemies()
 	}
 }
 
-int RollEnemyBodyCallback(J3DNode*, int timing)
+int RollEnemyBodyCallback(J3DNode* node, int timing)
 {
 	if (timing != 0)
 		return 1;
@@ -633,6 +1054,30 @@ int RollEnemyBodyCallback(J3DNode*, int timing)
 	if (!gpCurRollEnemy || !gpCurRollEnemy->isRolling())
 		return 1;
 
-	gpCurRollEnemy->rollSE();
+	u16 jointNo = ((J3DJoint*)node)->getJntNo();
+	MtxPtr jointMtx
+	    = gpCurRollEnemy->getModel()->getAnmMtx(jointNo);
+
+	Mtx rollMtx;
+	s16 angle = gpCurRollEnemy->unk194 * (65536.0f / 360.0f);
+	f32 s     = JMASSin(angle);
+	f32 c     = JMASCos(angle);
+
+	rollMtx[0][0] = 1.0f;
+	rollMtx[0][1] = 0.0f;
+	rollMtx[0][2] = 0.0f;
+	rollMtx[0][3] = 0.0f;
+	rollMtx[1][0] = 0.0f;
+	rollMtx[1][1] = c;
+	rollMtx[1][2] = -s;
+	rollMtx[1][3] = 0.0f;
+	rollMtx[2][0] = 0.0f;
+	rollMtx[2][1] = s;
+	rollMtx[2][2] = c;
+	rollMtx[2][3] = 0.0f;
+
+	jointMtx[1][3] += TRollEnemy::mTransYOffset;
+	PSMTXConcat(jointMtx, rollMtx, jointMtx);
+	PSMTXConcat(J3DSys::mCurrentMtx, rollMtx, J3DSys::mCurrentMtx);
 	return 1;
 }
