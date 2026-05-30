@@ -77,14 +77,17 @@ static inline void startTobiPukuSound(u32 sound_id,
 
 static inline void copyMtxTrans(JGeometry::TVec3<f32>& dst, MtxPtr mtx)
 {
-	dst.x = mtx[0][3];
-	dst.y = mtx[1][3];
-	dst.z = mtx[2][3];
+	f32 z = mtx[2][3];
+	f32 y = mtx[1][3];
+	f32 x = mtx[0][3];
+	dst.x = x;
+	dst.y = y;
+	dst.z = z;
 }
 
 static inline void emitPichiEffect(TTobiPuku* self)
 {
-	MtxPtr mtx = self->getModel()->mNodeMatrices[1];
+	MtxPtr mtx = self->mMActor->unk4->mNodeMatrices[1];
 	copyMtxTrans(self->unk1A0, mtx);
 	gpMarioParticleManager->emitAndBindToPosPtr(0x177, &self->unk1A0, 1,
 	                                            self);
@@ -610,7 +613,7 @@ void TMoePuku::hitWater()
 {
 	TTobiPuku::hitWater();
 
-	MtxPtr mtx = getModel()->mNodeMatrices[1];
+	MtxPtr mtx = mMActor->unk4->mNodeMatrices[1];
 	copyMtxTrans(unk1A0, mtx);
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &unk1A0, 0,
@@ -629,7 +632,7 @@ void TMoePuku::calcRootMatrix()
 
 	if (mSpine->getCurrentNerve() == &TNerveTobiPukuFly::theNerve()) {
 		startTobiPukuSound(0x20C3, mPosition);
-		MtxPtr mtx = getModel()->mNodeMatrices[1];
+		MtxPtr mtx = mMActor->unk4->mNodeMatrices[1];
 		gpMarioParticleManager->emitAndBindToMtxPtr(0x1D1, mtx, 1, this);
 		gpMarioParticleManager->emitAndBindToMtxPtr(0x1D2, mtx, 1, this);
 		gpMarioParticleManager->emitAndBindToMtxPtr(0x1F8, mtx, 3, this);
@@ -823,7 +826,7 @@ void TTobiPuku::swimEffect()
 		return;
 
 	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x178, getModel()->mNodeMatrices[6], 1, this);
+	    0x178, mMActor->unk4->mNodeMatrices[6], 1, this);
 	if (emitter) {
 		s16 life = 20 + ((s16)(mGroundHeight - mPosition.y) * 16) / 100;
 		if (life > 200)
