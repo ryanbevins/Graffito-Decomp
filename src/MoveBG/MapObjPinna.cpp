@@ -1,4 +1,6 @@
 #include <MoveBG/MapObjPinna.hpp>
+#include <Enemy/Conductor.hpp>
+#include <Enemy/EffectObj.hpp>
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
@@ -131,9 +133,9 @@ void TAmiKing::touchPlayer(THitActor*)
 
 void TAmiKing::bind()
 {
-	if (mGroundPlane != nullptr && mGroundPlane->checkFlag(0x10)) {
-		mGroundHeight = gpMap->checkGround(mPosition.x, mPosition.y + mHeadHeight,
-		                                   mPosition.z, &mGroundPlane);
+	if (checkLiveFlag(LIVE_FLAG_UNK10)) {
+		gpMap->checkGround(mPosition.x, mPosition.y + mHeadHeight, mPosition.z,
+		                   &mGroundPlane);
 	} else {
 		TLiveActor::bind();
 	}
@@ -142,9 +144,6 @@ void TAmiKing::bind()
 void TAmiKing::calcRootMatrix()
 {
 	TMapObjBase::calcRootMatrix();
-
-	if (getModel() == nullptr)
-		return;
 
 	gpMarioParticleManager->emitAndBindToMtxPtr(0x184,
 	                                            (MtxPtr)getModel()->mNodeMatrices,
@@ -175,57 +174,60 @@ void TAmiKing::calcRootMatrix()
 
 void TAmiKing::moveObject()
 {
+	TLiveActor::moveObject();
+
 	if (unk138 != 0) {
 		if (mMActor->checkCurAnm("amiking_flying1_start", 0)
 		    && mMActor->curAnmEndsNext()) {
 			mMActor->setBck("amiking_flying1_loop");
 		}
 
-		if (mGroundPlane != nullptr && mGroundPlane->isWaterSurface()) {
+		u16 type = mGroundPlane->mBGType;
+		if ((type == 0x100 || type == 0x101 || (u16)(type - 0x102) <= 3
+		     || type == 0x4104)
+		    && !checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
 			START_PINNA_SOUND(0x2921, mPosition);
 			JGeometry::TVec3<f32> scale(4.0f, 4.0f, 4.0f);
-			if (getModel() != nullptr) {
-				JPABaseEmitter* emitter = gpMarioParticleManager
-				                              ->emitAndBindToMtxPtr(
-				                                  0xca, (MtxPtr)getModel()->mNodeMatrices,
-				                                  0, this);
-				if (emitter != nullptr)
-					emitter->setScale(scale);
-			}
+			JPABaseEmitter* emitter
+			    = gpMarioParticleManager->emitAndBindToMtxPtr(
+			        0xca, (MtxPtr)mMActor->getModel()->mNodeMatrices, 0, nullptr);
+			if (emitter != nullptr)
+				emitter->setScale(scale);
 
-			emitColumnWater();
-			gpItemManager->makeShineAppearWithDemo("シャイン（海賊船）",
-			                                      "海賊船シャインカメラ",
+			TEffectColumWater* enemy
+			    = (TEffectColumWater*)gpConductor->makeOneEnemyAppear(
+			        mPosition, "エフェクト水柱マネージャー", 1);
+			if (enemy != nullptr)
+				enemy->generate(mPosition, scale);
+
+			gpItemManager->makeShineAppearWithDemo("シャイン（観覧車シャインwp）",
+			                                      "観覧車シャインカメラ",
 			                                      mPosition.x, mPosition.y,
 			                                      mPosition.z);
 
 			TFerrisWheel* wheel
 			    = JDrama::TNameRefGen::search<TFerrisWheel>("FerrisWheel");
-			if (wheel != nullptr) {
-				gpMarDirector->fireStartDemoCamera(
-				    "海賊船観覧車カメラ", &wheel->mPosition, -1, 0.0f, true,
-				    TFerrisWheel::becomeCalmlyCallback, 0, wheel,
-				    JDrama::TFlagT<u16>(0));
-			}
+			gpMarDirector->fireStartDemoCamera(
+			    "観覧車正常化カメラ", &wheel->mPosition, -1, 0.0f, true,
+			    TFerrisWheel::becomeCalmlyCallback, 0, wheel,
+			    JDrama::TFlagT<u16>(0));
 			kill();
 		}
 		return;
 	}
 
-	if (mGroundPlane != nullptr) {
-		const TLiveActor* actor = mGroundPlane->getActor();
-		if (actor != nullptr && actor->getActorType() == 0x4000006a) {
-			const TMapObjBase* obj = static_cast<const TMapObjBase*>(actor);
-			if (obj->mState >= 3 && obj->mState <= 6) {
-				unk138 = 1;
-				mVelocity.set(5.0f, 10.0f, -10.0f);
-				offLiveFlag(LIVE_FLAG_UNK10);
-				mMActor->setBck("amiking_flying1_start");
-				setAnmSound(nullptr);
-				gpMarDirector->fireStartDemoCamera(
-				    "エッグデクト発射デモカメラ", &mPosition, -1, 0.0f, true,
-				    nullptr, 0, this, JDrama::TFlagT<u16>(0));
-			}
+	const TLiveActor* actor = mGroundPlane->getActor();
+	if (actor != nullptr && actor->getActorType() == 0x4000006a) {
+		const TMapObjBase* obj = static_cast<const TMapObjBase*>(actor);
+		if (obj->mState >= 3 && obj->mState <= 6) {
+			unk138 = 1;
+			mVelocity.set(5.0f, 10.0f, -10.0f);
+			offLiveFlag(LIVE_FLAG_UNK10);
+			mMActor->setBck("amiking_flying1_start");
+			setAnmSound(nullptr);
+			gpMarDirector->fireStartDemoCamera(
+			    "観覧ボス撃沈カメラ", &mPosition, -1, 0.0f, true, nullptr, 0,
+			    nullptr, JDrama::TFlagT<u16>(0));
 		}
 	}
 }
@@ -390,33 +392,30 @@ void TMerrygoround::control()
 		mRotation.y -= 360.0f;
 
 	for (int i = 0; i < 2; ++i) {
-		if (unk138[i] == nullptr)
-			continue;
 		MtxPtr mtx = getModel()->getAnmMtx(unk140[i]);
 		unk138[i]->setModelMtx(mtx);
-		setVecFromMtx(unk138[i]->mPosition, mtx);
+		unk138[i]->mPosition.x = mtx[0][3];
+		unk138[i]->mPosition.y = mtx[1][3];
+		unk138[i]->mPosition.z = mtx[2][3];
 	}
 
 	for (int i = 0; i < 9; ++i) {
-		if (unk144[i] == nullptr)
-			continue;
 		MtxPtr mtx = getModel()->getAnmMtx(unk18C[i]);
-		unk144[i]->setModelMtx(mtx);
-		setVecFromMtx(unk144[i]->mPosition, mtx);
-		unk144[i]->mPosition.y -= 600.0f;
-		if (unk168[i] != nullptr)
-			unk168[i]->moveMtx(mtx);
+		((TMerryPole*)unk144[i])->unk138.set(mtx);
+		unk144[i]->mPosition.x = mtx[0][3];
+		unk144[i]->mPosition.y = mtx[1][3] - 600.0f;
+		unk144[i]->mPosition.z = mtx[2][3];
 	}
 
-	if (unk1A0 != nullptr) {
-		MtxPtr mtx = getModel()->getAnmMtx(unk1A4);
-		setVecFromMtx(unk1A0->mPosition, mtx);
-		unk1A0->mPosition.y -= 600.0f;
-		if (SMS_IsMarioOnYoshi())
-			unk1A0->offLiveFlag(LIVE_FLAG_DEAD);
-		else
-			unk1A0->onLiveFlag(LIVE_FLAG_DEAD);
-	}
+	if (SMS_IsMarioOnYoshi())
+		unk1A0->offLiveFlag(LIVE_FLAG_DEAD);
+	else
+		unk1A0->onLiveFlag(LIVE_FLAG_DEAD);
+
+	MtxPtr mtx = getModel()->getAnmMtx(unk1A4);
+	unk1A0->mPosition.x = mtx[0][3];
+	unk1A0->mPosition.y = mtx[1][3] - 600.0f;
+	unk1A0->mPosition.z = mtx[2][3];
 }
 
 TPinnaShell::TPinnaShell()
@@ -563,56 +562,77 @@ void TShellCup::control()
 		unk138[i].control();
 }
 
+inline static void startShellSystemSound(u32 soundID)
+{
+	if (gpMSound->gateCheck(soundID))
+		MSoundSESystem::MSoundSE::startSoundSystemSE(soundID, 0, nullptr, 0);
+}
+
 void TPinnaShell::control()
 {
+	if (unk7C > 0)
+		--unk7C;
+
 	switch (unk68) {
 	case 0:
 		if (unk6C < 0.0f) {
 			unk6C += TShellCup::mCloseAccel
 			         * (0.5f + (f32)rand() * (1.0f / 32768.0f));
-			if (unk6C > 0.0f)
-				unk6C = 0.0f;
+		} else {
+			unk6C = 0.0f;
 		}
 		break;
 	case 1:
 		unk6C -= 0.8f;
-		if (unk6C <= -TShellCup::mOpenRotMax) {
+		if (unk6C < -TShellCup::mOpenRotMax) {
 			unk6C = -TShellCup::mOpenRotMax;
 			unk7C = 360;
+
+			if (unk80 != nullptr
+			    && !(((TMapObjBase*)unk80)->mLiveFlag & LIVE_FLAG_DEAD)) {
+				if (unk80->mActorType == 0x20000010)
+					startShellSystemSound(0x483f);
+				else
+					startShellSystemSound(0x4813);
+			} else {
+				startShellSystemSound(0x483d);
+			}
+
 			unk68 = 2;
 		}
 		break;
 	case 2:
-		if (unk7C > 0) {
-			--unk7C;
-		} else {
+		if (unk7C <= 0) {
 			unk68 = 3;
 			START_PINNA_SOUND(0x389f, mPosition);
 		}
 		break;
 	case 3:
 		unk6C += unk70;
-		if (unk88 != nullptr && unk6C >= -TShellCup::mShellDamageRot)
+		if (!(unk6C < -TShellCup::mShellDamageRot))
 			unk88->offHitFlag(HIT_FLAG_NO_COLLISION);
-		if (unk6C >= 0.0f) {
+		if (!(unk6C < 0.0f)) {
 			unk6C = 0.0f;
 			unk68 = 0;
-			if (unk88 != nullptr)
-				unk88->onHitFlag(HIT_FLAG_NO_COLLISION);
+			unk88->onHitFlag(HIT_FLAG_NO_COLLISION);
 		}
 		break;
 	}
 
-	if (unk74 != nullptr) {
-		mPosition.x = unk74[0][3];
-		mPosition.y = unk74[1][3];
-		mPosition.z = unk74[2][3];
-		if (unk84 != nullptr)
-			unk84->moveMtx(unk74);
-		if (unk88 != nullptr)
-			unk88->mPosition = mPosition;
-		if (unk80 != nullptr)
-			((TMapObjBase*)unk80)->mPosition = mPosition;
+	TMapObjBase* parent = unk8C;
+	mPosition.x = parent->mPosition.x + 0.7f * (unk74[0][3] - parent->mPosition.x);
+	mPosition.y = unk74[1][3] - 100.0f;
+	mPosition.z = parent->mPosition.z + 0.7f * (unk74[2][3] - parent->mPosition.z);
+
+	unk88->mPosition.x = mPosition.x;
+	unk88->mPosition.y = mPosition.y;
+	unk88->mPosition.z = mPosition.z;
+
+	if (mColCount != 0) {
+		Mtx rot;
+		MsMtxSetRotX(rot, unk6C);
+		TMapObjBase::concatOnlyRotFromRight(unk74, rot, rot);
+		unk84->moveMtx(rot);
 	}
 }
 
@@ -623,7 +643,7 @@ BOOL TPinnaShell::receiveMessage(THitActor* sender, u32 message)
 
 	gpMarioParticleManager->emit(PARTICLE_MS_ENM_WATHIT, &sender->mPosition, 0,
 	                             this);
-	gpMSound->startSoundSet(0x6802, (Vec*)&mPosition, 0, 1.0f, 0, 0, 4);
+	gpMSound->startSoundSet(0x6802, (Vec*)&mPosition, 0, 0.0f, 0, 0, 4);
 
 	if (unk68 == 0)
 		unk6C -= TShellCup::mWaterOpenAccel;
@@ -683,7 +703,11 @@ void THorizontalViking::reset()
 {
 	unk144 = unk140;
 	unk148 = 0.0f;
-	mState = unk144 > 0.0f ? 1 : 2;
+	if (unk144 > 0.0f) {
+		mState = 1;
+		return;
+	}
+	mState = 2;
 }
 
 void TViking::reset()
@@ -699,74 +723,121 @@ void TViking::reset()
 
 inline static void swingViking(THorizontalViking* viking)
 {
-	if (viking->mState == 1) {
+	switch (viking->mState) {
+	case 1:
 		viking->unk144 -= viking->unk13C;
-		if (viking->unk144 < 0.0f)
+		viking->unk148 += viking->unk144;
+		if (viking->unk148 < 0.0f)
 			viking->mState = 2;
-	} else {
+		break;
+	case 2:
 		viking->unk144 += viking->unk13C;
-		if (viking->unk144 > viking->unk140)
+		viking->unk148 += viking->unk144;
+		if (viking->unk148 > 0.0f)
 			viking->mState = 1;
+		break;
 	}
-	viking->unk148 += viking->unk144;
 }
 
-inline static void applyVikingPosition(THorizontalViking* viking)
+inline static void applyVikingPosition(THorizontalViking* viking, BOOL rotate)
 {
-	f32 angle = viking->unk148 * (3.14f / 180.0f);
+	f32 angle = (viking->unk148 / 180.0f) * 3.14f;
 	viking->mPosition.x
 	    = viking->mInitialPosition.x + viking->unk138 * sinf(angle);
-	viking->mPosition.y = viking->mYOffset + viking->mInitialPosition.y
-	                      + viking->unk138 * (1.0f - cosf(angle));
-	viking->mRotation.x = viking->unk148;
+	f32 y = viking->mInitialPosition.y
+	        + viking->unk138 * (1.0f - cosf(angle));
+	viking->mPosition.y = viking->mYOffset + y;
+	if (rotate) {
+		viking->mRotation.z = viking->unk148;
+		viking->updateObjMtx();
+	}
+}
+
+inline static void startVikingSwingSound(TViking* viking)
+{
+	f32 volume = fabsf(viking->unk144);
+	if (gpMSound->gateCheck(0x38a0)) {
+		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+		    0x38a0, &viking->mPosition, nullptr, volume, 0, 0, nullptr, 0, 4);
+	}
 }
 
 void THorizontalViking::control()
 {
 	TMapObjBase::control();
 	swingViking(this);
-	applyVikingPosition(this);
-	updateObjMtx();
+	applyVikingPosition(this, false);
 }
 
 void TViking::control()
 {
-	TMapObjBase::control();
-	if (unk14C == 0)
+	switch (unk14C) {
+	case 0:
 		swingViking(this);
-	else
+		break;
+	case 1:
 		roll();
-	applyVikingPosition(this);
-	updateObjMtx();
+		break;
+	}
+	applyVikingPosition(this, true);
 }
 
 void TViking::roll()
 {
-	if (mState == 1) {
+	switch (mState) {
+	case 1:
+		unk144 *= unk154;
 		unk144 -= unk13C;
-		if (unk148 < unk150 && unk148 + unk144 >= unk150)
-			START_PINNA_SOUND(0x38a0, mPosition);
-		if (unk144 < -unk154)
+		unk148 += unk144;
+		if (unk148 < 0.0f) {
+			startVikingSwingSound(this);
 			mState = 2;
-	} else if (mState == 2) {
-		unk144 *= unk158;
-		if (unk144 > -0.3f)
-			mState = 3;
-	} else if (mState == 3) {
-		unk144 += unk13C;
-		if (unk144 > unk154)
+		}
+		if (unk148 > 180.0f) {
+			unk148 -= 360.0f;
+			startVikingSwingSound(this);
 			mState = 4;
-	} else {
-		unk144 *= unk158;
-		if (unk144 < 0.3f)
+		}
+		break;
+	case 2:
+		unk144 *= unk154;
+		unk144 += unk13C;
+		unk148 += unk144;
+		if (unk148 > 0.0f) {
+			startVikingSwingSound(this);
 			mState = 1;
+		}
+		if (unk148 < -180.0f) {
+			unk148 += 360.0f;
+			startVikingSwingSound(this);
+			mState = 3;
+		}
+		break;
+	case 3:
+		unk144 *= unk158;
+		unk144 -= unk13C;
+		unk148 += unk144;
+		if (unk148 < 0.0f) {
+			startVikingSwingSound(this);
+			if (unk144 > -unk150)
+				mState = 2;
+			else
+				mState = 4;
+		}
+		break;
+	case 4:
+		unk144 *= unk158;
+		unk144 += unk13C;
+		unk148 += unk144;
+		if (unk148 > 0.0f) {
+			startVikingSwingSound(this);
+			if (unk144 < unk150)
+				mState = 1;
+			else
+				mState = 3;
+		}
+		break;
 	}
-
-	unk148 += unk144;
-	if (unk148 > 180.0f)
-		unk148 -= 360.0f;
-	if (unk148 < -180.0f)
-		unk148 += 360.0f;
 }
 
 TFerrisWheel::TFerrisWheel(const char* name)
@@ -798,26 +869,35 @@ void TFerrisWheel::control()
 {
 	TMapObjBase::control();
 
-	f32 target = SMSGetAnmFrameRate() * 0.25f;
 	if (mState == 2 && mLifeTimer <= 0) {
-		unk140 -= 0.015f;
-		if (unk140 <= target) {
-			unk140 = target;
+		f32 target = SMSGetAnmFrameRate() * 0.25f;
+		if (unk140 > target) {
+			unk140 -= 0.015f;
+		} else {
 			mState = 1;
 		}
 	}
 
-	if (unk140 > target)
-		START_PINNA_SOUND(0x3085, mPosition);
+	f32 target = SMSGetAnmFrameRate() * 0.25f;
+	if (unk140 > target) {
+		MSound* sound = gpMSound;
+		if (sound->gateCheck(0x3085)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x3085, &mPosition, 0, (JAISound**)&sound->unk80, 0, 4);
+		}
+	}
 
-	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
-	ctrl->setFrame(ctrl->getFrame() + unk140);
+	f32 speed = unk140;
+	f32 frame = mMActor->getFrameCtrl(0)->getFrame();
+	mMActor->getFrameCtrl(0)->setFrame(speed + frame);
 
 	for (int i = 0; i < unk138; ++i) {
+		TMapObjBase* gondola = unk13C[i];
 		MtxPtr mtx = getModel()->getAnmMtx(i + 1);
-		unk13C[i]->setModelMtx(mtx);
-		setVecFromMtx(unk13C[i]->mPosition, mtx);
-		unk13C[i]->mPosition.y += unk13C[i]->mYOffset;
+		PSMTXCopy(mtx, gondola->getModel()->mNodeMatrices[0]);
+		gondola->mPosition.x = mtx[0][3];
+		gondola->mPosition.y = mtx[1][3] + gondola->mYOffset;
+		gondola->mPosition.z = mtx[2][3];
 	}
 }
 
