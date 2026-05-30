@@ -12,7 +12,9 @@
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
+#include <Map/MapCollisionData.hpp>
 #include <Map/PollutionManager.hpp>
+#include <MoveBG/MapObjBianco.hpp>
 #include <Map/MapEventSink.hpp>
 #include <Map/MapMirror.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
@@ -833,7 +835,47 @@ void TGorogoro::walkBehavior(int mode, f32 speed)
 	if (mPosition.y > mGroundHeight)
 		onLiveFlag(LIVE_FLAG_AIRBORNE);
 
-	mTurnSpeed = getSaveParam2()->mSLTurnSpeedLow.get();
+	if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		if (mGroundPlane && mGroundPlane->getActor()
+		    && ((THitActor*)mGroundPlane->getActor())->getActorType()
+		           == 0x4000009A) {
+			((TBiancoWatermill*)mGroundPlane->getActor())
+			    ->TBiancoWatermill::turnByEnemy(this, mGroundPlane);
+			TRollEnemy::walkBehavior(mode, 0.2f * speed);
+			return;
+		}
+
+		const TBGCheckData* roof;
+		gpMap->checkRoof(mPosition.x, mPosition.y + mHeadHeight, mPosition.z,
+		                 &roof);
+		if (roof && roof->getActor()
+		    && ((THitActor*)roof->getActor())->getActorType() == 0x4000009A) {
+			((TBiancoWatermill*)roof->getActor())->TBiancoWatermill::turnByEnemy(this, roof);
+			TRollEnemy::walkBehavior(mode, 0.3f * speed);
+			return;
+		}
+
+		if (unk138 && unk138->getActor()) {
+			TBGWallCheckRecord record(mPosition.x,
+			                          mPosition.y + mHeadHeight, mPosition.z,
+			                          mBodyScale * mWallRadius, 4, 0);
+			if (gpMap->isTouchedWallsAndMoveXZ(&record)) {
+				for (int i = 0; i < record.mResultWallsNum; i++) {
+					const TLiveActor* actor
+					    = record.mResultWalls[i]->getActor();
+					if (actor
+					    && ((THitActor*)actor)->getActorType()
+					           == 0x4000009A)
+						((TBiancoWatermill*)actor)
+						    ->TBiancoWatermill::turnByEnemy(this, record.mResultWalls[i]);
+				}
+				TRollEnemy::walkBehavior(mode, 0.2f * speed);
+				return;
+			}
+		}
+	}
+
+	mTurnSpeed = ((TRollEnemySaveLoadParams*)unk1A4)->mSLTurnSpeedLow.get();
 	TRollEnemy::walkBehavior(mode, speed);
 	unk194 += 0.4f * mMarchSpeed;
 
