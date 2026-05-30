@@ -308,7 +308,7 @@ void TIgaiga::behaveToWater(THitActor* actor)
 
 void TIgaiga::setWalkAnm()
 {
-	setBckAnm(0);
+	setBckAnm(3);
 }
 
 void TIgaiga::setDeadAnm()
@@ -411,7 +411,7 @@ void TGorogoro::reset()
 void TGorogoro::setMActorAndKeeper()
 {
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
-	mMActor       = mMActorKeeper->createMActor("bosspaku_head.bmd", 0);
+	mMActor       = mMActorKeeper->createMActor("bosspaku_head.bmd", 3);
 }
 
 void TGorogoro::behaveToWater(THitActor* actor)
