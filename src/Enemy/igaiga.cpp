@@ -667,7 +667,7 @@ void TGorogoro::calcRootMatrix()
 	f32 groundOffsetY                = params->mSLGroundOffsetY.get();
 	if (mPosition.y < 30.0f + mGroundHeight) {
 		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x175, getModel()->getAnmMtx(1), 1, this);
+		    0x175, getMActor()->getModel()->getAnmMtx(0), 1, this);
 		if (emitter)
 			emitter->setScale(mScaling);
 	}
