@@ -575,11 +575,11 @@ u32 TMareEventBumpyWall::touchWater(THitActor*)
 	case 0:
 		mState = 2;
 		break;
-	case 1:
-		mState = 4;
-		break;
 	case 2:
 		mState = 3;
+		break;
+	case 1:
+		mState = 4;
 		break;
 	case 3:
 		mState = 5;
