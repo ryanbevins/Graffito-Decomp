@@ -233,6 +233,7 @@ void TRollEnemy::reset()
 		unk124->mCurrIdx = 0;
 }
 
+#pragma dont_inline on
 TIgaiga::TIgaiga(const char* name)
     : TRollEnemy(name)
     , unk1B4(0)
@@ -244,6 +245,7 @@ TIgaiga::TIgaiga(const char* name)
     , unk1E8(0)
 {
 }
+#pragma dont_inline off
 
 void TIgaiga::perform(u32 flags, JDrama::TGraphics* graphics)
 {
