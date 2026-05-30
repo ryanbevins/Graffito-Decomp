@@ -1,10 +1,12 @@
 #include <MoveBG/MapObjBianco.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
+#include <Camera/CubeManagerBase.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapCollisionManager.hpp>
+#include <Map/MapData.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorUtil.hpp>
 #include <MSound/MSound.hpp>
@@ -15,6 +17,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/Watergun.hpp>
 #include <System/Application.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/Particles.hpp>
@@ -459,12 +462,12 @@ void TLeafBoatRotten::control()
 
 	if (isState(2)) {
 		f32 ratio = (f32)mLifeTimer / (f32)unk170;
-		unk178    = (s16)((f32)TLeafBoatRotten::mRottenColor[0] * ratio
-		               + (255.0f - 255.0f * ratio));
-		unk17A    = (s16)((f32)TLeafBoatRotten::mRottenColor[1] * ratio
-		               + (255.0f - 255.0f * ratio));
-		unk17C    = (s16)((f32)TLeafBoatRotten::mRottenColor[2] * ratio
-		               + (255.0f - 255.0f * ratio));
+		unk178 = (u8)((255.0f - (f32)TLeafBoatRotten::mRottenColor[0]) * ratio
+		              + (f32)TLeafBoatRotten::mRottenColor[0]);
+		unk17A = (u8)((255.0f - (f32)TLeafBoatRotten::mRottenColor[1]) * ratio
+		              + (f32)TLeafBoatRotten::mRottenColor[1]);
+		unk17C = (u8)((255.0f - (f32)TLeafBoatRotten::mRottenColor[2]) * ratio
+		              + (f32)TLeafBoatRotten::mRottenColor[2]);
 		if (mLifeTimer <= 0) {
 			unk174 = 255.0f;
 			mState = 3;
@@ -472,10 +475,11 @@ void TLeafBoatRotten::control()
 	} else if (isState(3)) {
 		unk174 -= mAlphaDownSpeed;
 		unk17E = (s16)unk174;
-		if (unk174 < mCollisionRemoveAlpha)
+		if (unk174 < mCollisionRemoveAlpha
+		    && !mMapCollisionManager->unk8->checkFlag(1))
 			removeMapCollision();
 		if (unk174 <= 0.0f) {
-			mScaling.set(360.0f, 360.0f, 360.0f);
+			mScaling.set(1.0f, 1.0f, 1.0f);
 			makeObjDead();
 			makeObjDefault();
 			unk178 = 255;
@@ -492,13 +496,13 @@ TLeafBoat::TLeafBoat(const char* name)
     , unk138(0.0f)
     , unk13C(0.0f)
     , unk140(0.0f)
-    , unk144(90.0f)
+    , unk144(0.03f)
     , unk148(0.0f)
-    , unk14C(300.0f)
-    , unk150(90.0f)
-    , unk154(500.0f)
-    , unk158(550.0f)
-    , unk15C(0.3f)
+    , unk14C(1.2f)
+    , unk150(0.03f)
+    , unk154(2.0f)
+    , unk158(0.005f)
+    , unk15C(0.98f)
     , unk160(0)
     , unk164(0.0f)
     , unk168(0.0f)
@@ -509,51 +513,157 @@ TLeafBoat::TLeafBoat(const char* name)
 void TLeafBoat::initMapObj()
 {
 	TMapObjBase::initMapObj();
-	mState     = 1;
-	mLifeTimer = 0;
+	unk138 = 1.0f;
+	unk13C = 0.5f;
+	unk140 = 0.5f;
+	unk148 = 0.998f;
 }
 
 void TLeafBoat::calc()
 {
-	TMapObjBase::calc();
-	mRotation.x = unk138;
-	mRotation.z = unk13C;
+	if (unk144 != 0.0f) {
+		if (unk160 > 8) {
+			if (fabsf(mVelocity.x) + fabsf(mVelocity.z) > 0.1f) {
+				unk164 = mPosition.x;
+				unk168 = mPosition.y - mYOffset;
+				unk16C = mPosition.z;
+
+				JGeometry::TVec3<f32> scale(2.0f, 2.0f, 2.0f);
+				emitAndBindScale(
+				    0x1E8, 3, (const JGeometry::TVec3<f32>*)&unk164, scale);
+				emitAndBindScale(
+				    0x107, 1, (const JGeometry::TVec3<f32>*)&unk164, scale);
+			}
+			unk160 = 0;
+		} else {
+			unk160++;
+		}
+	}
 }
 
 void TLeafBoat::control()
 {
 	TMapObjBase::control();
-	unk138 *= 0.998f;
-	unk13C *= 0.998f;
-	mPosition.x += mVelocity.x;
+
+	if (marioHipAttack())
+		mVelocity.y -= unk154;
+
+	if (marioIsOn()) {
+		mVelocity.y -= unk150;
+
+		TWaterGun* waterGun = (TWaterGun*)SMS_GetMarioWaterGun();
+		if (waterGun->mIsEmitWater > 0) {
+			MtxPtr emitMtx = waterGun->getEmitMtx(0);
+			mVelocity.x -= emitMtx[0][0] * unk144;
+			mVelocity.z -= emitMtx[2][0] * unk144;
+		}
+	}
+
+	s32 cubeNo = gpCubeStream->getInCubeNo(mPosition);
+	if (cubeNo != -1) {
+		TCubeStreamInfo* stream
+		    = (TCubeStreamInfo*)&(*gpCubeStream->unk14)[cubeNo];
+		Mtx streamMtx;
+		MsMtxSetXYZRPH(streamMtx, 0.0f, 0.0f, 0.0f, stream->unk18.x,
+		               stream->unk18.y, stream->unk18.z);
+		f32 streamSpeed = 0.0001f * stream->unk40;
+		mVelocity.x += streamMtx[0][2] * streamSpeed;
+		mVelocity.z += streamMtx[2][2] * streamSpeed;
+	}
+
 	mPosition.y += mVelocity.y;
-	mPosition.z += mVelocity.z;
-	mVelocity.scale(0.8f);
+
+	f32 yDiff = mInitialPosition.y - (mPosition.y - mYOffset);
+	mVelocity.y += unk158 * yDiff;
+	mVelocity.y *= unk15C;
+	mVelocity.x *= unk148;
+	mVelocity.z *= unk148;
 }
 
 void TLeafBoat::bind()
 {
-	TMapObjBase::bind();
-	if (mPosition.y < unk14C) {
-		mPosition.y = unk14C;
-		if (mVelocity.y < 0.0f)
-			mVelocity.y = 0.0f;
+	JGeometry::TVec3<f32> next = mPosition;
+	next.x += mVelocity.x;
+	next.z += mVelocity.z;
+
+	const TBGCheckData* ground;
+	f32 groundY = gpMap->checkGroundIgnoreWaterSurface(
+	    next.x, mPosition.y - mYOffset, next.z, &ground);
+	if (groundY > (mPosition.y - mYOffset) - 50.0f) {
+		JGeometry::TVec3<f32> reflected = mVelocity;
+		calcReflectingVelocity(ground, 1.0f, &reflected);
+		mVelocity.x *= -1.0f;
+		mVelocity.z *= -1.0f;
+		next = mPosition;
+	}
+
+	JGeometry::TVec3<f32> wallPos(next.x, next.y - mYOffset, next.z);
+	TBGWallCheckRecord record(wallPos, mBodyRadius, 4,
+	                          TBGWallCheckRecord::DONT_MOVE_XZ);
+	if (gpMap->isTouchedWallsAndMoveXZ(&record))
+		touchWall(&next, &record);
+
+	mLinearVelocity = next;
+	mLinearVelocity.sub(mPosition);
+
+	f32 boatY = mPosition.y - mYOffset;
+	if (gpMarioPos->y <= boatY && gpMarioPos->y > boatY - 100.0f) {
+		f32 dx = gpMarioPos->x - mPosition.x;
+		f32 dz = gpMarioPos->z - mPosition.z;
+		if (dx * dx + dz * dz < mBodyRadius * mBodyRadius)
+			SMS_SendMessageToMario(this, 0xE);
 	}
 }
 
-void TLeafBoat::touchWall(JGeometry::TVec3<f32>* normal,
-                          TBGWallCheckRecord*)
+void TLeafBoat::touchWall(JGeometry::TVec3<f32>* pos,
+                          TBGWallCheckRecord* record)
 {
-	if (normal != nullptr) {
-		mVelocity.x += normal->x * 5.0f;
-		mVelocity.z += normal->z * 5.0f;
+	for (int i = 0; i < record->mResultWallsNum; ++i) {
+		const TBGCheckData* wall = record->mResultWalls[i];
+		JGeometry::TVec3<f32> velocity = mVelocity;
+		const JGeometry::TVec3<f32>& normal = wall->getNormal();
+		f32 dot                         = velocity.dot(normal);
+		if (dot < 0.0f) {
+			f32 dist = pos->x * normal.x + pos->y * normal.y
+			           + pos->z * normal.z + wall->getPlaneDistance();
+			f32 push = mBodyRadius - dist;
+			pos->x += push * normal.x;
+			pos->z += push * normal.z;
+
+			JGeometry::TVec3<f32> reflected = mVelocity;
+			calcReflectingVelocity(wall, 1.0f, &reflected);
+			mVelocity.x = reflected.x * unk140;
+			mVelocity.z = reflected.z * unk140;
+			return;
+		}
 	}
 }
 
 void TLeafBoat::touchActor(THitActor* actor)
 {
-	if (TMapObjBase::isFruit(actor))
-		sendMsgToAll(0xE);
+	if (actor->isActorTypeOf(ACTOR_TYPE_PLAYER))
+		return;
+
+	JGeometry::TVec3<f32> dir(actor->mPosition.x - mPosition.x, 0.0f,
+	                          actor->mPosition.z - mPosition.z);
+	JGeometry::TVec3<f32> velocity = mVelocity;
+	if (dir.dot(velocity) < 0.0f)
+		return;
+
+	if (dir.x != 0.0f || dir.z != 0.0f)
+		MsVECNormalize((Vec*)&dir, (Vec*)&dir);
+
+	velocity = mVelocity;
+	f32 dot  = dir.dot(velocity);
+	if (actor->checkActorType(ACTOR_TYPE_ENEMY)) {
+		f32 push = 1.0f + unk138;
+		mVelocity.x -= push * (dir.x * dot);
+		mVelocity.z -= push * (dir.z * dot);
+	} else {
+		f32 push = 1.0f + unk13C;
+		mVelocity.x -= push * (dir.x * dot);
+		mVelocity.z -= push * (dir.z * dot);
+	}
 }
 
 TBiancoMiniWindmill::TBiancoMiniWindmill(const char* name)
