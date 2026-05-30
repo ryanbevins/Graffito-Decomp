@@ -374,7 +374,7 @@ static s32 SandCastleCallBack(u32, u32 param_2)
 	return 1;
 }
 
-BOOL TSandCastle::waitBeforeExplode()
+void TSandCastle::waitBeforeExplode()
 {
 	mState = 6;
 	mLifeTimer = unk148;
@@ -384,10 +384,9 @@ BOOL TSandCastle::waitBeforeExplode()
 	                                   0.0f, true, SandCastleCallBack, 0,
 	                                   nullptr, flag);
 	unk15C = 1;
-	return true;
 }
 
-BOOL TSandCastle::explode()
+void TSandCastle::explode()
 {
 	startControlAnim(1);
 	mScaling.y = 1.0f;
@@ -424,10 +423,9 @@ BOOL TSandCastle::explode()
 		unk158->appear();
 
 	startControlAnim(3);
-	return true;
 }
 
-BOOL TSandCastle::expanded()
+void TSandCastle::expanded()
 {
 	if (unk144) {
 		MActor* actor  = unk144->getMActor();
@@ -449,8 +447,6 @@ BOOL TSandCastle::expanded()
 			startControlAnim(3);
 		}
 	}
-
-	return true;
 }
 
 BOOL TSandCastle::withering()
@@ -537,20 +533,18 @@ void TSandBombBase::control()
 	}
 }
 
-BOOL TSandBombBase::grow()
+void TSandBombBase::grow()
 {
 	mState = 5;
-	return true;
 }
 
-BOOL TSandBombBase::waitBeforeExplode()
+void TSandBombBase::waitBeforeExplode()
 {
 	mState = 6;
 	mLifeTimer = unk148;
-	return true;
 }
 
-BOOL TSandBombBase::explode()
+void TSandBombBase::explode()
 {
 	startControlAnim(1);
 	mScaling.y = 1.0f;
@@ -558,27 +552,25 @@ BOOL TSandBombBase::explode()
 		mMapCollisionManager->changeCollision(1);
 	gpMarioParticleManager->emit(0x55, &mPosition, 0, 0);
 	mState = 7;
-	return true;
 }
 
-BOOL TSandBombBase::exploding()
+void TSandBombBase::exploding()
 {
 	if (animIsFinished())
 		mState = 8;
-	return true;
 }
 
-BOOL TSandBombBase::expanded()
+void TSandBombBase::expanded()
 {
 	if (unk144 && unk144->animIsFinished())
 		mState = 2;
-	return true;
 }
 
-BOOL TSandBombBase::withered()
+void TSandBombBase::withered()
 {
-	sleep();
-	return true;
+	mLifeTimer = unk140;
+	mState     = 3;
+	unk144->sleep();
 }
 
 void TSandBomb::initMapObj() { TMapObjBase::initMapObj(); }
@@ -628,15 +620,13 @@ void TSandLeafBase::control()
 		withering();
 }
 
-BOOL TSandLeafBase::grow()
+void TSandLeafBase::grow()
 {
 	if (mScaling.y < 1.0f) {
 		mScaling.y += unk138;
 		if (mScaling.y > 1.0f)
 			mScaling.y = 1.0f;
-		return false;
 	}
-	return true;
 }
 
 TSandBase::TSandBase(const char* name)

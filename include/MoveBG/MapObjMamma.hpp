@@ -22,7 +22,7 @@ public:
 
 class TSandBase : public TMapObjBase {
 public:
-	virtual BOOL grow() = 0;
+	virtual void grow() = 0;
 	virtual BOOL withering();
 	TSandBase(const char*);
 
@@ -40,7 +40,7 @@ class TSandLeafBase : public TSandBase {
 public:
 	virtual void control();
 	virtual void initMapObj();
-	virtual BOOL grow();
+	virtual void grow();
 	TSandLeafBase();
 	TSandLeafBase(const char* name)
 	    : TSandBase(name)
@@ -72,12 +72,12 @@ public:
 	virtual void control();
 	virtual void initMapObj();
 	virtual void loadAfter();
-	virtual BOOL grow();
-	virtual BOOL waitBeforeExplode();
-	virtual BOOL explode();
-	virtual BOOL exploding();
-	virtual BOOL expanded();
-	virtual BOOL withered();
+	virtual void grow();
+	virtual void waitBeforeExplode();
+	virtual void explode();
+	virtual void exploding();
+	virtual void expanded();
+	virtual void withered();
 	virtual TMapObjBase* findTriggerActor();
 	TSandBombBase(const char*);
 
@@ -99,9 +99,9 @@ public:
 	virtual void calcRootMatrix();
 	virtual void initMapObj();
 	virtual void loadAfter();
-	virtual BOOL waitBeforeExplode();
-	virtual BOOL explode();
-	virtual BOOL expanded();
+	virtual void waitBeforeExplode();
+	virtual void explode();
+	virtual void expanded();
 	virtual BOOL withering();
 	virtual TMapObjBase* findTriggerActor();
 	TSandCastle(const char*);
