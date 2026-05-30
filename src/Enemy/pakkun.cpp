@@ -517,7 +517,8 @@ void TPakkunSeed::behaveToHitGround()
 
 void TPakkunSeed::calcRootMatrix()
 {
-	if (gpMSound->gateCheck(0x2169))
+	MSound* sound = gpMSound;
+	if (sound->gateCheck(0x2169))
 		MSoundSESystem::MSoundSE::startSoundActor(0x2169, &mPosition, 0,
 		                                          nullptr, 0, 4);
 	TEnemyAttachment::calcRootMatrix();
