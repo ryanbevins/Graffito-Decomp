@@ -83,7 +83,7 @@ public:
 	BOOL willFall(s32);
 	TChuuHanaSaveLoadParams* getChuuHanaParams() const
 	{
-		return (TChuuHanaSaveLoadParams*)getSaveParam();
+		return unk1B4;
 	}
 
 	static s32 mCheckOnPanelTimeRoll;
@@ -113,14 +113,15 @@ public:
 	/* 0x1B3 */ u8 unk1B3;
 	/* 0x1B4 */ TChuuHanaSaveLoadParams* unk1B4;
 	/* 0x1B8 */ f32 unk1B8;
-	/* 0x1BC */ u8 unk1BC[0x3C];
+	/* 0x1BC */ u8 unk1BC[0x30];
+	/* 0x1EC */ JGeometry::TVec3<f32> unk1EC;
 	/* 0x1F8 */ JGeometry::TVec3<f32> unk1F8;
 	/* 0x204 */ JGeometry::TVec3<f32> unk204;
 	/* 0x210 */ f32 unk210;
 	/* 0x214 */ u8 unk214;
 	/* 0x215 */ u8 unk215;
 	/* 0x216 */ u8 unk216[2];
-	/* 0x218 */ TMirrorActor* unk218;
+	/* 0x218 */ TLiveActor* unk218;
 	/* 0x21C */ u8* unk21C;
 	/* 0x220 */ f32 unk220;
 	/* 0x224 */ s32 unk224;
