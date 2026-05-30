@@ -521,12 +521,16 @@ void TLeanMirror::loadAfter()
 	TMapObjBase::loadAfter();
 	unk17C = (TShiningStone*)findLiveActor("ShiningStone");
 
-	unk180 = unk17C->mPosition;
-	unk180.sub(mPosition);
-	if (unk180.squared() <= 0.0000038146973f)
-		zeroVec(unk180);
-	else
-		unk180.normalize();
+	unk180 = unk17C->mPosition - mPosition;
+
+	f32 lenSq = unk180.squared();
+	if (lenSq <= JGeometry::TUtil<f32>::epsilon()) {
+		unk180.zero();
+	} else {
+		f32 rate = JGeometry::TUtil<f32>::one()
+		           * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
+		unk180.scale(rate);
+	}
 }
 
 void TLeanMirror::control()
@@ -571,7 +575,7 @@ void TLeanMirror::controlShake()
 	    && SMS_IsMarioTouchGround4cm()
 	    && SMS_GetMarioGrPlane()->getActor() != this) {
 		MSBgm::stopTrackBGM(1, 10);
-		MSBgm::setTrackVolume(0, 1.0f, 0, 0);
+		MSBgm::setTrackVolume(0, 1.0f, 10, 0);
 		unk1AC = 0;
 	}
 
@@ -618,7 +622,10 @@ void TLeanMirror::controlGoTarget()
 {
 	MtxPtr mtx = getModel()->getAnmMtx(0);
 	Mtx rotMtx;
-	MTXIdentity(rotMtx);
+	rotMtx[1][0] = rotMtx[2][0] = rotMtx[0][1] = rotMtx[2][1]
+	    = rotMtx[0][2] = rotMtx[1][2] = rotMtx[0][3] = rotMtx[1][3]
+	    = rotMtx[2][3] = 0.0f;
+	rotMtx[0][0] = rotMtx[1][1] = rotMtx[2][2] = 1.0f;
 	makeMtxRotByAxis(unk18C, unk198, rotMtx);
 	concatOnlyRotFromLeft(rotMtx, mtx, mtx);
 
@@ -712,13 +719,15 @@ void TLeanMirror::touchEnemy(THitActor* actor)
 void TLeanMirror::touchPlayer(THitActor* actor)
 {
 	bool canTouch = mState == 1 ? true : false;
-	if (!canTouch || !marioIsOn())
+	if (!canTouch)
+		return;
+	if (!marioIsOn())
 		return;
 
 	addLeanMirrorImpulse(this, actor, unk158.z);
 	if (!unk1AC) {
 		MSBgm::startBGM(0x80010011);
-		MSBgm::setTrackVolume(0, 0.0f, 0, 0);
+		MSBgm::setTrackVolume(0, 0.0f, 10, 0);
 		unk1AC = 1;
 	}
 }

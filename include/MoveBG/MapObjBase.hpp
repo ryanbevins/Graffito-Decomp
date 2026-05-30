@@ -253,7 +253,7 @@ public:
 	void calcReflectingVelocity(const TBGCheckData* wall, f32,
 	                            JGeometry::TVec3<f32>* velocity) const;
 	void makeObjMtxRotByAxis(const JGeometry::TVec3<f32>&, f32, MtxPtr) const;
-	void makeMtxRotByAxis(const JGeometry::TVec3<f32>&, f32, MtxPtr);
+	static void makeMtxRotByAxis(const JGeometry::TVec3<f32>&, f32, MtxPtr);
 	static void concatOnlyRotFromRight(MtxPtr, MtxPtr, MtxPtr);
 	static void concatOnlyRotFromLeft(MtxPtr, MtxPtr, MtxPtr);
 	void setRootMtxTrans();

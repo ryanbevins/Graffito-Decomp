@@ -152,7 +152,7 @@ public:
 	/* 0x180 */ JGeometry::TVec3<f32> unk180;
 	/* 0x18C */ JGeometry::TVec3<f32> unk18C;
 	/* 0x198 */ f32 unk198;
-	/* 0x19C */ u32 unk19C;
+	/* 0x19C */ s32 unk19C;
 	/* 0x1A0 */ JGeometry::TVec3<f32> unk1A0;
 	/* 0x1AC */ u8 unk1AC;
 	/* 0x1AE */ u16 unk1AE;
