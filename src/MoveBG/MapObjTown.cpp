@@ -450,17 +450,14 @@ void TMapObjWaterSpray::calc()
 	if (emitter == nullptr)
 		return;
 
-	emitter->unk16C.x = (s16)mRotation.x;
-	emitter->unk16C.y = (s16)mRotation.y;
-	emitter->unk16C.z = (s16)mRotation.z;
-	emitter->unk154   = mScaling;
-	emitter->unk174   = mScaling;
+	emitter->setRotation((s16)mRotation.x, (s16)mRotation.y,
+	                     (s16)mRotation.z);
+	emitter->unk154.set(mScaling);
+	emitter->unk174.set(mScaling);
 	emitter->mChildSpawnRate = unk13C;
-	emitter->unk174          = unk140;
-	emitter->unk180.r        = unk14C;
-	emitter->unk180.g        = unk14D;
-	emitter->unk180.b        = unk14E;
-	emitter->unk180.a        = unk14F;
+	emitter->unk174.set(unk140);
+	emitter->setParamColor(unk14C, unk14D, unk14E);
+	emitter->unk180.a = unk14F;
 }
 
 THideObjInfo::THideObjInfo(const char* name)
