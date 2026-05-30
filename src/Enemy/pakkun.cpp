@@ -527,7 +527,8 @@ void TPakkunSeed::calcRootMatrix()
 void TPakkunSeed::behaveToHitWall(const TBGCheckData* plane)
 {
 	f32 dot = mVelocity.dot(plane->getNormal());
-	f32 s   = -1.5f * dot;
+	f32 s   = 1.5f * dot;
+	s       = -s;
 	mVelocity.x += s * plane->getNormal().x;
 	mVelocity.y += s * plane->getNormal().y;
 	if (unk150 == 3)
