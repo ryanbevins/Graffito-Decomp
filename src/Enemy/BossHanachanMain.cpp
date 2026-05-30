@@ -5,6 +5,7 @@
 #include <Enemy/Graph.hpp>
 #include <Camera/CameraShake.hpp>
 #include <Camera/cameralib.hpp>
+#include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DMaterialAttach.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
@@ -12,6 +13,7 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
+#include <MSound/MSModBgm.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
@@ -19,16 +21,21 @@
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/MapData.hpp>
+#include <MarioUtil/MapUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <MoveBG/MapObjManager.hpp>
+#include <MoveBG/ItemManager.hpp>
+#include <NPC/NpcInbetween.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/Binder.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/Strategy.hpp>
+#include <System/MarDirector.hpp>
+#include <System/TargetArrow.hpp>
 #include <dolphin/mtx.h>
 
 const char* cSandPillarModelName = "sunabashira.bmd";
@@ -48,6 +55,22 @@ static f32 getRotFromXZ(f32 x, f32 z)
 		return matan(z, x) * (360.0f / 65536.0f);
 	return 180.0f - matan(-z, x) * (360.0f / 65536.0f);
 }
+
+static inline bool isBossHanachanDirectorBlocked()
+{
+	bool result = true;
+	bool isTalk = result;
+	if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
+		isTalk = false;
+	if (!isTalk) {
+		if (gpMarDirector->unk124 != 4)
+			result = false;
+	}
+	return result;
+}
+
+static void CalcRevisionPosByRotateZ(const JGeometry::TVec3<f32>&, f32,
+                                     Vec*);
 
 BOOL TBossHanachan::hasMapCollision() const { return TRUE; }
 
@@ -266,7 +289,556 @@ bool TBossHanachan::isTumbleCompletelyAllBody() const
 
 void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	TSpineEnemy::perform(flags, graphics);
+	if (mLiveFlag & (LIVE_FLAG_DEAD | LIVE_FLAG_UNK200))
+		return;
+
+	bool graphicsDrawn = (graphics->unk0 & 2) != 0;
+	if (mLiveFlag & LIVE_FLAG_UNK40000) {
+		if ((flags & 1) && graphicsDrawn) {
+			if (gpMSound->gateCheck(0x6010))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x6010, &mPosition, 0, nullptr, 0, 4);
+
+			if (!isBossHanachanDirectorBlocked()) {
+				bool appear = true;
+				if (!(mLiveFlag & LIVE_FLAG_UNK100000)) {
+					if (((MSModBgm*)gpMSound->unk98)->modBgm(1, 1))
+						appear = false;
+				}
+				if (appear) {
+					mLiveFlag |= LIVE_FLAG_DEAD | LIVE_FLAG_UNK40;
+					gpItemManager->makeShineAppearWithDemo(
+					    "シャイン（ボス用）", "ボスシャインカメラ", unk17C.x,
+					    unk17C.y + mParams->mSLShineAppearOffsetY.value,
+					    unk17C.z);
+				}
+			}
+		}
+		return;
+	}
+
+	const TNerveBase<TLiveActor>* latestNerve = nullptr;
+
+	if (flags & 1) {
+		if (isBossHanachanDirectorBlocked()) {
+			mLinearVelocity.set(0.0f, 0.0f, 0.0f);
+			mAngularVelocity.set(0.0f, 0.0f, 0.0f);
+
+			if (graphicsDrawn
+			    && mSpine->getLatestNerve()
+			           == &TNerveBossHanachanDead::theNerve()
+			    && !(mLiveFlag & LIVE_FLAG_UNK100000)) {
+				mLiveFlag |= LIVE_FLAG_UNK100000;
+				MSBgm::stopTrackBGM(1, 30);
+			}
+		} else {
+			if (!(mLiveFlag & 0x80000) && mHitPoints == 3
+			    && mMarchSpeed != 0.0f
+			    && mSpine->getLatestNerve()
+			           != &TNerveBossHanachanTumble::theNerve()) {
+				if (unk1B8 == -1) {
+					if (gpMarDirector->mState == 4)
+						unk1B8 = 7200;
+				} else if (unk1B8 > 0) {
+					--unk1B8;
+					if (unk1B8 == 0) {
+						unk1B8 = 7200;
+						gpMarDirector->getConsole()->startAppearBalloon(
+						    0xE0006, true);
+					}
+				}
+			}
+
+			moveObject();
+			latestNerve = mSpine->getLatestNerve();
+
+			for (int i = 0; i < 8; ++i) {
+				TBossHanachanPartsBody* body
+				    = (TBossHanachanPartsBody*)mBody[i];
+				body->unk130 = body->unk124;
+				body->unk134 = body->unk128;
+				body->unk138 = body->unk12C;
+				body->unk124 = body->mPosition.x;
+				body->unk128 = body->mPosition.y;
+				body->unk12C = body->mPosition.z;
+				body->unk140 = body->unk13C;
+				body->unk13C = body->mRotation.z;
+				body->unk148 = body->unk144;
+			}
+
+			s16 bodyRotY = CLBRoundf<s16>(
+			    mBody[0]->mRotation.y * (65536.0f / 360.0f));
+			CLBChaseAngleDecrease(
+			    &bodyRotY,
+			    CLBRoundf<s16>(mRotation.y * (65536.0f / 360.0f)), 20);
+			mBody[0]->mRotation.y = bodyRotY * (360.0f / 65536.0f);
+
+			for (int i = 1; i < 8; ++i) {
+				JGeometry::TVec3<f32> diff = mSphereLink->mPoints[i - 1].mPos;
+				diff.sub(mSphereLink->mPoints[i].mPos);
+				mBody[i]->mRotation.y
+				    = MsWrap(getRotFromXZ(diff.x, diff.z), 0.0f, 360.0f);
+			}
+
+			mSphereLink->mAngleOffset = mBody[0]->mRotation.y;
+			for (int i = 0; i < 8; ++i)
+				mSphereLink->setDegreeZAndRevisionPosXZ(
+				    i, mBody[i]->mRotation.z);
+
+			JGeometry::TVec3<f32> headTarget = mPosition;
+			s16 headAngle = CLBRoundf<s16>(
+			    mRotation.y * (65536.0f / 360.0f));
+			f32 sinHead = jmaSinTable[(u16)headAngle >> jmaSinShift];
+			f32 cosHead = jmaCosTable[(u16)headAngle >> jmaSinShift];
+			headTarget.x -= sinHead * mParams->mSLHeadLength.value;
+			headTarget.z -= cosHead * mParams->mSLHeadLength.value;
+
+			f32 revX;
+			f32 revZ;
+			BHSCalcRevisionDistXZByRotateZ(mRotation.y, mSphereLink->m14,
+			                               mRotation.z, &revX, &revZ);
+			headTarget.x += revX;
+			headTarget.z += revZ;
+			mSphereLink->moveHead(headTarget);
+
+			for (int i = 0; i < 8; ++i) {
+				TBossHanachanPartsBody* body
+				    = (TBossHanachanPartsBody*)mBody[i];
+				BHSCalcRevisionDistXZByRotateZ(
+				    body->mRotation.y, mSphereLink->m14, body->mRotation.z,
+				    &revX, &revZ);
+				body->mPosition = mSphereLink->mPoints[i].mPos;
+				body->mPosition.x -= revX;
+				body->mPosition.z -= revZ;
+			}
+
+			bool isTumble
+			    = latestNerve == &TNerveBossHanachanTumble::theNerve();
+			f32 waveTarget = 0.0f;
+			if (isTumble)
+				waveTarget = getBodyMaxRotateZ();
+
+			for (int i = 0; i < 8; ++i) {
+				TBossHanachanPartsBody* body
+				    = (TBossHanachanPartsBody*)mBody[i];
+				if (!isTumble) {
+					waveTarget
+					    = BHSCalcCentrifugalForce(
+					          body->mPosition,
+					          *(JGeometry::TVec3<f32>*)&body->unk124,
+					          *(JGeometry::TVec3<f32>*)&body->unk130,
+					          body->mRotation.y)
+					      * mChangeParams->mSLCentrifugalForce.value;
+				}
+				CLBChaseGeneralConstantSpecifySpeed<f32>(
+				    &body->unk144, waveTarget,
+				    mChangeParams->mSLCentrifugalSpeed.value);
+				if (body->unk144 > 179.0f)
+					body->unk144 = 179.0f;
+				else if (body->unk144 < -179.0f)
+					body->unk144 = -179.0f;
+			}
+
+			if (latestNerve != &TNerveBossHanachanDown::theNerve()) {
+				for (int i = 0; i < 8; ++i) {
+					TBossHanachanPartsBody* body
+					    = (TBossHanachanPartsBody*)mBody[i];
+					f32 centerGround = gpMap->checkGroundIgnoreWaterSurface(
+					    body->mPosition.x, body->mPosition.y + 500.0f,
+					    body->mPosition.z, &body->mGroundPlane);
+
+					const TLiveActor* sand = body->getSandActor_();
+					if (sand != nullptr) {
+						JGeometry::TVec3<f32> toSand = sand->mPosition;
+						toSand.sub(mPosition);
+						f32 dist2 = toSand.x * toSand.x + toSand.z * toSand.z;
+						if (dist2 <= CLBSquared<f32>(50.0f)) {
+							body->unk120 = 0.0f;
+						} else {
+							f32 sandAngle = MsWrap(
+							    getRotFromXZ(toSand.x, toSand.z), -180.0f,
+							    180.0f);
+							f32 bossAngle
+							    = MsWrap(mRotation.y, -180.0f, 180.0f);
+							f32 diff
+							    = MsWrap(sandAngle - bossAngle, -180.0f,
+							             180.0f);
+							f32 absDiff = __fabsf(diff);
+							if (absDiff <= 15.0f || absDiff >= 165.0f) {
+								body->unk120 = 0.0f;
+							} else {
+								f32 ratio = SMS_GetSandRiseUpRatio(sand);
+								if (diff > 15.0f)
+									body->unk120 = 70.0f * ratio;
+								else
+									body->unk120 = -70.0f * ratio;
+							}
+						}
+					} else {
+						s16 angle = CLBRoundf<s16>(
+						    body->mRotation.y * (65536.0f / 360.0f));
+						f32 sinV
+						    = jmaSinTable[(u16)angle >> jmaSinShift];
+						f32 cosV
+						    = jmaCosTable[(u16)angle >> jmaSinShift];
+						f32 sideX = 200.0f * cosV;
+						f32 sideZ = -200.0f * sinV;
+
+						const TBGCheckData* ground;
+						f32 groundA = gpMap->checkGroundIgnoreWaterSurface(
+						    body->mPosition.x + sideX,
+						    body->mPosition.y + 500.0f,
+						    body->mPosition.z + sideZ, &ground);
+						f32 groundB = gpMap->checkGroundIgnoreWaterSurface(
+						    body->mPosition.x - sideX,
+						    body->mPosition.y + 500.0f,
+						    body->mPosition.z - sideZ, &ground);
+						f32 diffA = groundA - centerGround;
+						f32 diffB = groundB - centerGround;
+						if (__fabsf(diffA) < 0.001f
+						    && __fabsf(diffB) < 0.001f) {
+							body->unk120 = 0.0f;
+						} else if (__fabsf(diffA) > __fabsf(diffB)) {
+							body->unk120
+							    = matan(200.0f, diffA)
+							      * (360.0f / 65536.0f);
+						} else {
+							body->unk120
+							    = -matan(200.0f, diffB)
+							      * (360.0f / 65536.0f);
+						}
+					}
+				}
+
+				if (latestNerve == &TNerveBossHanachanGetUp::theNerve()) {
+					mHead->calcRotateZWhenGetUp_();
+					mRotation.z = mHead->mRotation.z;
+					for (int i = 0; i < 8; ++i)
+						mBody[i]->calcRotateZWhenGetUp_();
+				} else {
+					f32 maxRot = getBodyMaxRotateZ();
+					const TNerveBase<TLiveActor>* curNerve
+					    = mSpine->getLatestNerve();
+					f32 waveDecay
+					    = mChangeParams->mSLWaveDecrease.value
+					      * 0.008333334f;
+					f32 bodyLength = mParams->mSLBodyLength.value;
+					f32 invLenSq   = 1.0f / (bodyLength * bodyLength);
+					f32 decayScale = 1.0f / (1.0f + waveDecay);
+					f32 oldScale   = 1.0f - waveDecay;
+					f32 velocityTerm
+					    = 0.008333334f
+					      * (mChangeParams->mSLWaveVelocity.value
+					         * mChangeParams->mSLWaveVelocity.value);
+
+					for (int i = 0; i < 8; ++i) {
+						TBossHanachanPartsBody* body
+						    = (TBossHanachanPartsBody*)mBody[i];
+						if ((body->mRotation.z == 179.0f
+						     || body->mRotation.z == -179.0f)
+						    && body->mRotation.z == maxRot)
+							continue;
+
+						f32 prevRot;
+						if (i == 0)
+							prevRot
+							    = ((TBossHanachanPartsBody*)mBody[i + 1])
+							          ->unk13C;
+						else
+							prevRot
+							    = ((TBossHanachanPartsBody*)mBody[i - 1])
+							          ->unk13C;
+
+						f32 nextRot;
+						if (i == 7)
+							nextRot
+							    = ((TBossHanachanPartsBody*)mBody[i - 1])
+							          ->unk13C;
+						else
+							nextRot
+							    = ((TBossHanachanPartsBody*)mBody[i + 1])
+							          ->unk13C;
+
+						f32 curRot      = body->unk13C;
+						f32 neighborAcc = prevRot + nextRot - 2.0f * curRot;
+						f32 target
+						    = decayScale
+						      * (2.0f * curRot - body->unk140 * oldScale
+						         + velocityTerm
+						               * (invLenSq * neighborAcc
+						                  + body->unk148));
+						CLBChaseGeneralConstantSpecifySpeed<f32>(
+						    &body->mRotation.z, target,
+						    mChangeParams->mSLRotateZLeanSpeed.value);
+
+						bool sandActorFound = false;
+						if (curNerve
+						    == &TNerveBossHanachanGraphWander::theNerve()) {
+							if (body->getSandActor_() != nullptr) {
+								sandActorFound = true;
+								if (body->unk120 != 0.0f) {
+									f32 targetRot = 179.0f;
+									f32 speed
+									    = body->unk120 * mMarchSpeed
+									      * mChangeParams->mSLSandSlopeForce
+									            .value;
+									if (body->unk120 < 0.0f)
+										targetRot = -179.0f;
+									CLBChaseGeneralConstantSpecifySpeed<f32>(
+									    &body->mRotation.z, targetRot, speed);
+								}
+							} else {
+								CLBChaseGeneralConstantSpecifySpeed<f32>(
+								    &body->mRotation.z, body->unk120,
+								    mChangeParams->mSLRotateZRestorationSpeed
+								        .value);
+							}
+						} else if (curNerve
+						           == &TNerveBossHanachanTumble::theNerve()) {
+							CLBChaseGeneralConstantSpecifySpeed<f32>(
+							    &body->mRotation.z, unk194, unk198);
+						}
+
+						if (body->mRotation.z > 179.0f)
+							body->mRotation.z = 179.0f;
+						else if (body->mRotation.z < -179.0f)
+							body->mRotation.z = -179.0f;
+
+						if (curNerve
+						    == &TNerveBossHanachanGraphWander::theNerve()) {
+							if (mSpine->getTime()
+							        >= mChangeParams->mSLNotFallDownFrames
+							               .value
+							    && !sandActorFound) {
+								f32 maxNotSand
+								    = mChangeParams->mSLMaxRotateZNotSand.value;
+								if (body->mRotation.z < -maxNotSand) {
+									CLBChaseGeneralConstantSpecifySpeed<f32>(
+									    &body->mRotation.z, -maxNotSand, 15.0f);
+								} else if (body->mRotation.z > maxNotSand) {
+									CLBChaseGeneralConstantSpecifySpeed<f32>(
+									    &body->mRotation.z, maxNotSand, 15.0f);
+								}
+							}
+						}
+					}
+
+					f32 diffMax = mChangeParams->mSLDiffMaxRotateZ.value;
+					for (int i = 1; i < 8; ++i) {
+						TBossHanachanPartsBody* prev
+						    = (TBossHanachanPartsBody*)mBody[i - 1];
+						TBossHanachanPartsBody* body
+						    = (TBossHanachanPartsBody*)mBody[i];
+						f32 diff = __fabsf(prev->mRotation.z - body->mRotation.z);
+						if (diff > diffMax) {
+							if (body->mRotation.z < prev->mRotation.z)
+								body->mRotation.z = prev->mRotation.z - diffMax;
+							else
+								body->mRotation.z = prev->mRotation.z + diffMax;
+						}
+					}
+				}
+			}
+
+			bool threwMario = false;
+			TWaterHitActor* headHit
+			    = ((TBossHanachanPartsHead*)mHead)->mWaterHit;
+			if (headHit->unk68 >= 1)
+				--headHit->unk68;
+			for (int i = 0; i < headHit->mColCount; ++i) {
+				if (headHit->mCollisions[i]->mActorType == 0x80000001) {
+					throwMario_(headHit);
+					threwMario = true;
+					break;
+				}
+			}
+
+			for (int i = 0; i < 8; ++i) {
+				TBossHanachanPartsBody* body
+				    = (TBossHanachanPartsBody*)mBody[i];
+				TWaterHitActor* bodyHit = body->mWaterHit;
+				if (bodyHit->unk68 >= 1)
+					--bodyHit->unk68;
+				if (!threwMario) {
+					for (int j = 0; j < bodyHit->mColCount; ++j) {
+						if (bodyHit->mCollisions[j]->mActorType
+						    == 0x80000001) {
+							throwMario_(bodyHit);
+							threwMario = true;
+							break;
+						}
+					}
+				}
+
+				for (int j = 0; j < 2; ++j) {
+					TFootHitActor* foot = body->mFeet[j];
+					if (foot->unk68 >= 1)
+						--foot->unk68;
+					if (!threwMario) {
+						for (int k = 0; k < foot->mColCount; ++k) {
+							if (foot->mCollisions[k]->mActorType
+							    == 0x80000001) {
+								throwMario_(foot);
+								threwMario = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			if (graphicsDrawn
+			    && latestNerve == &TNerveBossHanachanDead::theNerve()) {
+				if (gpMSound->gateCheck(0x6010))
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x6010, &mPosition, 0, nullptr, 0, 4);
+				if (!(mLiveFlag & LIVE_FLAG_UNK100000))
+					((MSModBgm*)gpMSound->unk98)->modBgm(1, 1);
+			}
+		}
+
+		mHead->moveMapCollision_();
+		for (int i = 0; i < 8; ++i)
+			mBody[i]->moveMapCollision_();
+	}
+
+	bool doCalc = (flags & 2) != 0;
+	if (doCalc) {
+		gpTargetArrow->unk14 = 0;
+		if (!isBossHanachanDirectorBlocked()) {
+			bool attackHits = false;
+			const TNerveBase<TLiveActor>* curNerve = mSpine->getLatestNerve();
+			if (curNerve == &TNerveBossHanachanGraphWander::theNerve()
+			    && mMarchSpeed > 0.001f)
+				attackHits = true;
+
+			{
+				TBossHanachanPartsHead* head
+				    = (TBossHanachanPartsHead*)mHead;
+				MtxPtr mtx = head->mCenterJointMtx;
+				JGeometry::TVec3<f32> hitPos(
+				    mtx[0][3],
+				    mtx[1][3] - mParams->mSLHeadHitOffsetY.value,
+				    mtx[2][3]);
+				head->mWaterHit->mPosition = hitPos;
+				if (attackHits) {
+					if (!head->mWaterHit->checkHitFlag(0x80000000)) {
+						head->mWaterHit->onHitFlag(0x80000000);
+						head->mMapCollision->remove();
+					}
+				} else if (head->mWaterHit->checkHitFlag(0x80000000)) {
+					head->mWaterHit->offHitFlag(0x80000000);
+					head->mMapCollision->setUpTrans(hitPos);
+				}
+			}
+
+			for (int i = 0; i < 8; ++i) {
+				TBossHanachanPartsBody* body
+				    = (TBossHanachanPartsBody*)mBody[i];
+				MtxPtr mtx = body->mCenterJointMtx;
+				body->unk154 = mtx[0][3];
+				body->unk158 = mtx[1][3];
+				body->unk15C = mtx[2][3];
+				body->mWaterHit->mPosition.x = body->unk154;
+				body->mWaterHit->mPosition.y
+				    = body->unk158 - mParams->mSLBodyHitOffsetY.value;
+				body->mWaterHit->mPosition.z = body->unk15C;
+
+				if (attackHits) {
+					if (!body->mWaterHit->checkHitFlag(0x80000000)) {
+						body->mWaterHit->onHitFlag(0x80000000);
+						body->mMapCollision->remove();
+					}
+				} else if (body->mWaterHit->checkHitFlag(0x80000000)) {
+					body->mWaterHit->offHitFlag(0x80000000);
+					body->mMapCollision->setUpTrans(body->mWaterHit->mPosition);
+				}
+
+				for (int j = 0; j < 2; ++j) {
+					TFootHitActor* foot = body->mFeet[j];
+					MtxPtr footMtx      = foot->unk6C;
+					foot->mPosition.x   = footMtx[0][3];
+					foot->mPosition.y
+					    = footMtx[1][3] - mParams->mSLFootHitOffsetY.value;
+					foot->mPosition.z = footMtx[2][3];
+					if (attackHits)
+						foot->onHitFlag(0x80000000);
+					else
+						foot->offHitFlag(0x80000000);
+				}
+			}
+
+			emitParticle_();
+			emitCamShake_();
+		}
+	}
+
+	if (doCalc) {
+		if (mLiveFlag & LIVE_FLAG_UNK10000) {
+			if (mEffectActor->curAnmEndsNext(0, nullptr))
+				offLiveFlag(LIVE_FLAG_UNK10000);
+		}
+
+		if (!isBossHanachanDirectorBlocked())
+			changeAnmRateAndFrameUpdate_();
+
+		((TNpcInbetween*)mHead->mPalFrame)->execMotionBlend(mHead->mMActor);
+		for (int i = 0; i < 8; ++i)
+			((TNpcInbetween*)mBody[i]->mPalFrame)
+			    ->execMotionBlend(mBody[i]->mMActor);
+
+		JGeometry::TVec3<f32> headPos = mPosition;
+		CalcRevisionPosByRotateZ(mRotation, mParams->mSLHeadPlusYByRotateZ.value,
+		                         &headPos);
+		CLBCalcRotateZXYTranslateMatrix(
+		    mHead->mMActor->getModel()->getBaseTRMtx(), mRotation, headPos);
+		mHead->mMActor->calc();
+
+		for (int i = 0; i < 8; ++i) {
+			TBossHanachanPartsBody* body = (TBossHanachanPartsBody*)mBody[i];
+			JGeometry::TVec3<f32> pos   = body->mPosition;
+			CalcRevisionPosByRotateZ(body->mRotation,
+			                         mParams->mSLBodyPlusYByRotateZ.value, &pos);
+			Mtx mtx;
+			CLBCalcRotateZXYTranslateMatrix(mtx, body->mRotation, pos);
+			PSMTXCopy(mtx, body->mMActor->getModel()->getBaseTRMtx());
+			body->mMActor->calc();
+		}
+
+		if (!isBossHanachanDirectorBlocked()) {
+			const TNerveBase<TLiveActor>* curNerve = mSpine->getLatestNerve();
+			if (curNerve == &TNerveBossHanachanTumble::theNerve()
+			    || curNerve == &TNerveBossHanachanDown::theNerve()) {
+				MtxPtr mtx = ((TBossHanachanPartsBody*)mBody[unk174])
+				                 ->mCenterJointMtx;
+				JGeometry::TVec3<f32> arrowPos(mtx[0][3], mtx[1][3] + 400.0f,
+				                                mtx[2][3]);
+				gpTargetArrow->setPos(arrowPos);
+				gpTargetArrow->unk14 = 1;
+			}
+		}
+	}
+
+	if (flags & 0x200) {
+		mHead->entryCircleShadow_();
+		mHead->setDamageFog_(graphics);
+		mHead->drawObject(graphics);
+		for (int i = 0; i < 8; ++i) {
+			TBossHanachanPartsBase* body = mBody[i];
+			body->entryCircleShadow_();
+			body->setDamageFog_(graphics);
+			body->drawObject(graphics);
+		}
+	}
+
+	if (flags & 4) {
+		mHead->mMActor->viewCalc();
+		for (int i = 0; i < 8; ++i)
+			mBody[i]->mMActor->viewCalc();
+	}
+
+	if (mLiveFlag & LIVE_FLAG_UNK10000)
+		mEffectActor->perform(flags, graphics);
 }
 
 void TBossHanachan::moveObject()
