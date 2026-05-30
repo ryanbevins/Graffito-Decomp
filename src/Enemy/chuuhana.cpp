@@ -193,8 +193,8 @@ void TChuuHana::init(TLiveManager* manager)
 	if (mMActor->getModel() != nullptr)
 		mMActor->getModel()->calc();
 
-	unk218 = new TMirrorActor("チュウハナin鏡");
-	unk218->init(getModel(), 0);
+	TMirrorActor* mirror = new TMirrorActor("チュウハナin鏡");
+	mirror->init(getModel(), 0);
 }
 
 void TChuuHana::setMActorAndKeeper()
@@ -301,36 +301,133 @@ f32 TChuuHana::getGravityY() const
 
 void TChuuHana::setGoal()
 {
-	if (unk124->getGraph() == nullptr)
-		return;
+	JGeometry::TVec3<f32> goal = mPosition;
+	Vec dir;
+	dir.x = 0.0f;
+	dir.y = 0.0f;
+	dir.z = 1.0f;
 
-	goToRandomNextGraphNode();
-	unk1F8 = mPosition;
+	Mtx mtx;
+	f32 randYaw = -30.0f + rand() * (1.0f / (RAND_MAX + 1)) * 60.0f;
+	MsMtxSetRotRPH(mtx, mRotation.x, mRotation.y + randYaw, mRotation.z);
+	PSMTXMultVec(mtx, &dir, &dir);
+
+	goal.x += 1000.0f * dir.x;
+	goal.z += 1000.0f * dir.z;
+
+	TPathNode node(goal);
+	unkF4  = node;
+	unk104 = node;
+	unk114.clear();
+	unk1A4 = mCheckOnPanelTime;
+	unk1B2 = 0;
 }
 
 BOOL TChuuHana::willFall(s32 time)
 {
-	if (time < 0)
-		return FALSE;
-	if (unk21C != nullptr && *unk21C != 0)
-		return FALSE;
-	if (unk1A4 > time)
-		return FALSE;
-	return TRUE;
+	f32 radius = mSmallMirrorR;
+	if (mInstanceIndex > 0)
+		radius = mMediumMirrorR;
+	if (mInstanceIndex > 2)
+		radius = mLargeMirrorR;
+
+	if (time == mCheckOnPanelTimeRoll)
+		radius += 250.0f;
+
+	if (unk218 != nullptr) {
+		JGeometry::TVec3<f32>* mirrorPos
+		    = (JGeometry::TVec3<f32>*)unk218;
+		f32 dx = mPosition.x - mirrorPos->x;
+		f32 dy = mPosition.y - mirrorPos->y;
+		f32 dz = mPosition.z - mirrorPos->z;
+		f32 dist = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+
+		if (dist > radius) {
+			unk1A4 = mCheckOnPanelTime;
+
+			TGraphWeb* graph = unk124->unk0;
+			int index
+			    = (int)(rand() * (1.0f / (RAND_MAX + 1)) * graph->getNodeNum());
+			JGeometry::TVec3<f32> point;
+			graph->getGraphNode(index).getPoint((Vec*)&point);
+
+			TPathNode node(point);
+			unkF4  = node;
+			unk104 = node;
+			unk114.clear();
+			unk1B2 = 1;
+			return TRUE;
+		}
+	}
+
+	unk1B2 = 0;
+	return FALSE;
 }
 
-bool TChuuHana::checkStretchType()
+void TChuuHana::checkStretchType()
 {
-	f32 height = mPosition.y - unk1F8.y;
-	f32 mirrorR;
-	if (height < 300.0f)
-		mirrorR = mSmallMirrorR;
-	else if (height < 600.0f)
-		mirrorR = mMediumMirrorR;
-	else
-		mirrorR = mLargeMirrorR;
+	unk1A0 = 0;
 
-	return mDistToMarioSquared < mirrorR * mirrorR;
+	TChuuHanaSaveLoadParams* params = getChuuHanaParams();
+	f32 height                     = unk1A8;
+
+	if (mSpine->getCurrentNerve()
+	    == &TNerveChuuHanaKeepBalance::theNerve()) {
+		f32 reverseHeight = params->mSLReverseHeightS.get();
+		if (mInstanceIndex > 0)
+			reverseHeight = params->mSLReverseHeightM.get();
+		if (mInstanceIndex > 2)
+			reverseHeight = params->mSLReverseHeightL.get();
+
+		if (height > reverseHeight) {
+			unk1B1 = 1;
+			unk214 = 1;
+			mSpine->pushNerve(&TNerveChuuHanaFall2::theNerve());
+			mSpine->pushNerve(&TNerveChuuHanaJumpPrepare::theNerve());
+			return;
+		}
+	}
+
+	f32 stretchHeight = params->mSLStretchHeightS.get();
+	if (mInstanceIndex > 0)
+		stretchHeight = params->mSLStretchHeightM.get();
+	if (mInstanceIndex > 2)
+		stretchHeight = params->mSLStretchHeightL.get();
+
+	if (height > stretchHeight) {
+		unk1B1 = 0;
+		unk214 = 0;
+		setBckAnm(8);
+		mSpine->pushNerve(&TNerveChuuHanaForceJumped::theNerve());
+		return;
+	}
+
+	stretchHeight = params->mSLMediumStretchHeightS.get();
+	if (mInstanceIndex > 0)
+		stretchHeight = params->mSLMediumStretchHeightM.get();
+	if (mInstanceIndex > 2)
+		stretchHeight = params->mSLMediumStretchHeightL.get();
+
+	if (height > stretchHeight) {
+		unk1B1 = 0;
+		unk214 = 0;
+		setBckAnm(9);
+		mSpine->pushNerve(&TNerveChuuHanaForceJumped::theNerve());
+		return;
+	}
+
+	stretchHeight = params->mSLSmallStretchHeightS.get();
+	if (mInstanceIndex > 0)
+		stretchHeight = params->mSLSmallStretchHeightM.get();
+	if (mInstanceIndex > 2)
+		stretchHeight = params->mSLSmallStretchHeightL.get();
+
+	if (height > stretchHeight) {
+		unk1B1 = 0;
+		unk214 = 0;
+		setBckAnm(10);
+		mSpine->pushNerve(&TNerveChuuHanaForceJumped::theNerve());
+	}
 }
 
 void TChuuHana::bind()

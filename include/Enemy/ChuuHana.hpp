@@ -78,7 +78,7 @@ public:
 	virtual bool isFindMario(f32);
 
 	BOOL receiveMessage(THitActor*, u32);
-	bool checkStretchType();
+	void checkStretchType();
 	void setGoal();
 	BOOL willFall(s32);
 	TChuuHanaSaveLoadParams* getChuuHanaParams() const
