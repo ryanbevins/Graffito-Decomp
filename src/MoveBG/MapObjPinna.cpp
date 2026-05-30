@@ -44,6 +44,7 @@ f32 TMerrygoround::mRotSpeed    = 0.1f;
 		}                                                                      \
 	} while (0)
 
+#pragma dont_inline on
 void MsMtxSetRotX(MtxPtr mtx, f32 angle)
 {
 	f32 s = JMASin(angle);
@@ -62,6 +63,7 @@ void MsMtxSetRotX(MtxPtr mtx, f32 angle)
 	mtx[2][2] = c;
 	mtx[2][3] = 0.0f;
 }
+#pragma dont_inline off
 
 static inline void setVecFromMtx(JGeometry::TVec3<f32>& dst, MtxPtr mtx)
 {
