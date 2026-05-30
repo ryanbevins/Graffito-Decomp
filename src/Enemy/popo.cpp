@@ -500,8 +500,7 @@ void TPopo::setMActorAndKeeper()
 void TPopo::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	TSmallEnemy::perform(flags, graphics);
-	if (mCollision)
-		mCollision->perform(flags, graphics);
+	mCollision->THitActor::perform(flags, graphics);
 }
 
 void TPopo::init(TLiveManager* manager)
