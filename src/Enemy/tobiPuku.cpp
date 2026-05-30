@@ -112,15 +112,15 @@ BOOL TNerveTobiPukuSwimWander::execute(TSpineBase<TLiveActor>* spine) const
 	TTobiPuku* self = tobiPuku(spine);
 
 	if (spine->getTime() == 0) {
+		self->unk1E0 = self->mPosition.y;
 		self->setSwimAnm();
-		self->goToShortestNextGraphNode();
+		self->initialGraphNode();
+		self->onLiveFlag(LIVE_FLAG_UNK10);
 	}
 
-	self->walkBehavior(0, self->getMarchSpeed());
-	self->swimEffect();
 	if (self->isReachedToGoalXZ()) {
-		self->goToShortestNextGraphNode();
-		return TRUE;
+		self->goToRandomNextGraphNode();
+		self->walkBehavior(0, 1.0f);
 	}
 
 	return FALSE;
