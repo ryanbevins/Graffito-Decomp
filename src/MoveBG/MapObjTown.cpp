@@ -334,7 +334,7 @@ void TMapObjChangeStage::load(JSUMemoryInputStream& stream)
 void TMapObjChangeStage::touchPlayer(THitActor*)
 {
 	gpMarDirector->setNextStage(unk138, nullptr);
-	mLiveFlag |= LIVE_FLAG_DEAD;
+	onHitFlag(HIT_FLAG_NO_COLLISION);
 	mColCount = 0;
 	START_MAP_OBJ_SOUND(0x197a, mPosition);
 }
