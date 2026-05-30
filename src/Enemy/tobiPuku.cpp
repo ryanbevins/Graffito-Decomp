@@ -1003,20 +1003,26 @@ void TTobiPukuLaunchPad::init(TLiveManager* manager)
 
 void TTobiPukuLaunchPad::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	TSmallEnemy::perform(flags, graphics);
-	if (!(flags & 1))
+	u32 liveFlag = mLiveFlag;
+	if (liveFlag & LIVE_FLAG_UNK200)
 		return;
-	if (checkLiveFlag(LIVE_FLAG_HIDDEN | LIVE_FLAG_DEAD))
+	if (liveFlag & LIVE_FLAG_DEAD)
+		return;
+	if (!(flags & 1))
 		return;
 
 	if (TTobiPuku::mReturnLaunchSw) {
-		if (!mLaunchedPuku || mLaunchedPuku->checkLiveFlag(LIVE_FLAG_DEAD))
+		if (!mLaunchedPuku) {
+			launch();
+			return;
+		}
+		if (mLaunchedPuku->checkLiveFlag(LIVE_FLAG_DEAD))
 			launch();
 		return;
 	}
 
 	mTimer++;
-	if (mLaunchParams && mTimer > mLaunchParams->mSLLaunchInterval.get()) {
+	if (mTimer > mLaunchParams->mSLLaunchInterval.get()) {
 		mTimer = 0;
 		launch();
 	}
