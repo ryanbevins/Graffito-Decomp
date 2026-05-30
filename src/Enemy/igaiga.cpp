@@ -355,6 +355,46 @@ void TIgaiga::init(TLiveManager* manager)
 void TIgaiga::moveObject()
 {
 	TWalkerEnemy::moveObject();
+
+	f32 t = unk1CC - 0.0002f;
+	if (t > 1.0f)
+		t = 1.0f;
+	else if (t < 0.5f)
+		t = 0.5f;
+	unk1CC = t;
+
+	f32 attackRadius = getSaveParam2()->getSLAttackRadius();
+	f32 attackHeight = getSaveParam2()->getSLAttackHeight();
+	TSmallEnemyParams* params = getSaveParam2();
+	f32 damageRadius = params->getSLDamageRadius();
+	f32 damageHeight = params->getSLDamageHeight();
+
+	f32 lo = unk154 * unk1CC;
+	f32 hi = 3.0f * mBodyScale;
+	f32 bodyScale = unk1E4 * lo;
+	if (bodyScale > hi)
+		bodyScale = hi;
+	else if (bodyScale < lo)
+		bodyScale = lo;
+	mBodyScale = bodyScale;
+
+	f32 ratio = mBodyScale / unk154;
+
+	f32 scaleFactor = unk1CC * unk1E4;
+	if (scaleFactor > 1.2f)
+		scaleFactor = 1.2f;
+	else if (scaleFactor < 1.0f)
+		scaleFactor = 1.0f;
+
+	mScaledBodyRadius = 8.0f * (mBodyScale * mBodyRadius) * scaleFactor;
+	mScaling.z = mBodyScale;
+	mScaling.y = mBodyScale;
+	mScaling.x = mBodyScale;
+	mAttackRadius = attackRadius * ratio;
+	mAttackHeight = attackHeight * ratio;
+	mDamageRadius = damageRadius * ratio;
+	mDamageHeight = damageHeight * ratio;
+	calcEntryRadius();
 }
 
 void TIgaiga::kill()
