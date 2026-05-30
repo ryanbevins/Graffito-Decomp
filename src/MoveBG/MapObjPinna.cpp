@@ -46,9 +46,8 @@ f32 TMerrygoround::mRotSpeed    = 0.1f;
 
 void MsMtxSetRotX(MtxPtr mtx, f32 angle)
 {
-	s16 idx = angle * (65536.0f / 360.0f);
-	f32 s   = JMASSin(idx);
-	f32 c   = JMASCos(idx);
+	f32 s = JMASin(angle);
+	f32 c = JMACos(angle);
 
 	mtx[0][0] = 1.0f;
 	mtx[0][1] = 0.0f;
