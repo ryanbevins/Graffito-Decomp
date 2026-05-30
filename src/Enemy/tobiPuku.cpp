@@ -190,9 +190,9 @@ BOOL TNerveTobiPukuPrepareFly::execute(TSpineBase<TLiveActor>* spine) const
 
 	self->mRotation.x += self->unk1F0;
 
-	if (spine->getTime() == 50)
+	if (spine->getTime() == 50.0f)
 		self->setJumpStartAnm();
-	if (spine->getTime() > 60) {
+	if (spine->getTime() > 60.0f) {
 		self->mLaunchPad->forceLaunch(self);
 		self->reset();
 	}
@@ -603,15 +603,13 @@ TPukuPuku::TPukuPuku(const char* name)
 void TPukuPuku::reset()
 {
 	TTobiPuku::reset();
-	if (mSpine)
-		mSpine->initWith(&TNerveTobiPukuSwimWander::theNerve());
+	mSpine->initWith(&TNerveTobiPukuSwimWander::theNerve());
 }
 
 void TPukuPuku::init(TLiveManager* manager)
 {
 	TTobiPuku::init(manager);
-	if (mSpine)
-		mSpine->initWith(&TNerveTobiPukuSwimWander::theNerve());
+	mSpine->initWith(&TNerveTobiPukuSwimWander::theNerve());
 	gpCurTobiPuku = nullptr;
 }
 
@@ -884,8 +882,7 @@ void TTobiPuku::reset()
 {
 	gpCurTobiPuku = this;
 	TWalkerEnemy::reset();
-	if (mSpine)
-		mSpine->initWith(&TNerveTobiPukuGenerate::theNerve());
+	mSpine->initWith(&TNerveTobiPukuGenerate::theNerve());
 
 	unk1AD  = 1;
 	unk194  = 0;
@@ -900,8 +897,7 @@ void TTobiPuku::init(TLiveManager* manager)
 	mActorType      = 0x10000012;
 	unk150          = 0x31;
 	mTobiPukuParams = getTobiPukuParams();
-	if (getMActor())
-		getMActor()->setJointCallback(1, TobiPukuRollCallback);
+	getMActor()->setJointCallback(1, TobiPukuRollCallback);
 }
 
 TTobiPuku::TTobiPuku(const char* name)
@@ -946,8 +942,7 @@ void TTobiPukuLaunchPad::forceLaunch(TTobiPuku* puku)
 		target.z += cosY * dist;
 		f32 launchVelocityY = mLaunchParams->mSLLaunchVelocityY.get();
 		f32 flyGravityY     = puku->mTobiPukuParams->mSLFlyGravityY.get();
-		velocity = puku->calcVelocityToJumpToY(target, launchVelocityY,
-		                                       flyGravityY);
+		velocity = calcVelocityToJumpToY(target, launchVelocityY, flyGravityY);
 	} else {
 		s32 pitch = mRotation.x * 16384.0f / 90.0f;
 		f32 cosP = jmaCosTable[(u16)pitch >> jmaSinShift];
