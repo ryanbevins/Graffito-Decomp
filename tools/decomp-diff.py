@@ -78,6 +78,18 @@ def fuzzy_match(pattern: str, name: str) -> bool:
     return pattern.lower() in name.lower()
 
 
+def resolve_target_symbol(
+    symbols: List[Dict[str, Any]], target_symbol: Optional[int]
+) -> Optional[Dict[str, Any]]:
+    """Resolve objdiff's 1-based target_symbol id into a symbol entry."""
+    if target_symbol is None:
+        return None
+    index = target_symbol - 1
+    if 0 <= index < len(symbols):
+        return symbols[index]
+    return None
+
+
 def build_overview(data: Dict[str, Any], args) -> None:
     """Print overview of all symbols in a unit."""
     left_syms = data.get("left", {}).get("symbols", [])
@@ -238,8 +250,7 @@ def build_diff(data: Dict[str, Any], symbol_name: str, args) -> None:
     left_syms = data.get("left", {}).get("symbols", [])
     right_syms = data.get("right", {}).get("symbols", [])
 
-    # Find the symbol by fuzzy matching on either side, then resolve
-    # the pair via target_symbol (direct index into other side's array).
+    # Find the symbol by fuzzy matching on either side, then resolve the pair.
     left_sym = None
     right_sym = None
 
@@ -248,9 +259,9 @@ def build_diff(data: Dict[str, Any], symbol_name: str, args) -> None:
         mangled = sym.get("name", "")
         if fuzzy_match(symbol_name, name) or fuzzy_match(symbol_name, mangled):
             left_sym = sym
-            ts = sym.get("target_symbol")
-            if ts is not None and ts < len(right_syms):
-                right_sym = right_syms[ts]
+            right_sym = resolve_target_symbol(
+                right_syms, sym.get("target_symbol")
+            )
             break
 
     # If not found in left, try right
@@ -260,9 +271,9 @@ def build_diff(data: Dict[str, Any], symbol_name: str, args) -> None:
             mangled = sym.get("name", "")
             if fuzzy_match(symbol_name, name) or fuzzy_match(symbol_name, mangled):
                 right_sym = sym
-                ts = sym.get("target_symbol")
-                if ts is not None and ts < len(left_syms):
-                    left_sym = left_syms[ts]
+                left_sym = resolve_target_symbol(
+                    left_syms, sym.get("target_symbol")
+                )
                 break
 
     if left_sym is None and right_sym is None:
