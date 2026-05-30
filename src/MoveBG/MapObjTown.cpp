@@ -362,7 +362,8 @@ void TMapObjStartDemo::load(JSUMemoryInputStream& stream)
 
 void TMapObjStartDemo::touchPlayer(THitActor*)
 {
-	gpMarDirector->fireStreamingMovie((u8)unk138);
+	TMarDirector* director = gpMarDirector;
+	director->fireStreamingMovie((u8)unk138);
 }
 
 void TDamageObj::load(JSUMemoryInputStream& stream)
