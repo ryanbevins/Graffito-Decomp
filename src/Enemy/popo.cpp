@@ -225,12 +225,7 @@ const char** TPopo::getBasNameTable() const { return popo_bastable; }
 
 void TPopo::thrownByChorobei()
 {
-	offLiveFlag(LIVE_FLAG_UNK10);
-	onLiveFlag(LIVE_FLAG_AIRBORNE);
-	offHitFlag(HIT_FLAG_NO_COLLISION);
-	unk1B4 = 0;
-	setBckAnm(5);
-	mSpine->pushNerve(&TNervePopoThrown::theNerve());
+	mSpine->initWith(&TNervePopoThrown::theNerve());
 }
 
 void TPopo::possessedIn()
@@ -301,14 +296,13 @@ bool TPopo::isFindMario(float length)
 
 bool TPopo::isHitValid(u32 message)
 {
-	if (mSpine->getCurrentNerve() == &TNervePopoExplosion::theNerve()
-	    || mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
-		return false;
-
-	if (message == HIT_MESSAGE_SPRAYED_BY_WATER)
+	if (message == HIT_MESSAGE_UNKB)
 		return true;
 
-	return TSmallEnemy::isHitValid(message);
+	if (message <= HIT_MESSAGE_HIP_DROP)
+		mSpine->pushNerve(&TNervePopoExplosion::theNerve());
+
+	return false;
 }
 
 void TPopo::bind()
