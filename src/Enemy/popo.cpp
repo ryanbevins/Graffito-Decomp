@@ -413,17 +413,21 @@ void TPopo::behaveToFindMario()
 
 f32 TPopo::getGravityY() const
 {
-	const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
-	if (nerve == &TNervePopoFly::theNerve())
-		return mPopoParams->mSLFlyGravity.get();
+	f32 gravity = mGravity;
 
-	if (nerve == &TNervePopoThrown::theNerve())
-		return mPopoParams->mSLThrownGravity.get();
+	if (mSpine->getCurrentNerve() == &TNerveWalkerGraphWander::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveWalkerEscape::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveWalkerAttack::theNerve())
+		return mPopoParams->mSLMoveGravity.get();
 
-	if (nerve == &TNervePopoAttack::theNerve())
-		return mPopoParams->mSLAttackGravity.get();
+	if (mSpine->getCurrentNerve() == &TNervePopoPossessedNozzle::theNerve())
+		gravity = mPopoParams->mSLAttackGravity.get();
+	else if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
+		gravity = mPopoParams->mSLFlyGravity.get();
+	else if (mSpine->getCurrentNerve() == &TNervePopoThrown::theNerve())
+		gravity = mPopoParams->mSLThrownGravity.get();
 
-	return mPopoParams->mSLMoveGravity.get();
+	return gravity;
 }
 
 void TPopo::behaveToWater(THitActor* water)
