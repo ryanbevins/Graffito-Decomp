@@ -910,10 +910,10 @@ s32 TFerrisWheel::becomeCalmlyCallback(u32 actor, u32 param)
 	if (param == 0) {
 		TFerrisWheel* wheel = (TFerrisWheel*)actor;
 		wheel->mState      = 2;
-		JAISound* sound    = (JAISound*)gpMSound->unk80;
-		if (sound != nullptr) {
-			sound->setVolume(0.0f, 200, 0);
-			sound->setPitch(0.5f, 200, 0);
+		MSound* sound = gpMSound;
+		if (sound->unk80 != 0) {
+			((JAISound*)sound->unk80)->setVolume(0.0f, 200, 0);
+			((JAISound*)sound->unk80)->setPitch(0.5f, 200, 0);
 		}
 		wheel->mLifeTimer = 120;
 	}
