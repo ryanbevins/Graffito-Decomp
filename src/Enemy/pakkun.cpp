@@ -397,10 +397,10 @@ void TPakkunSeed::forceKill()
 void TPakkunSeed::set()
 {
 	TEnemyAttachment::set();
-	if (mHost->checkLiveFlag(LIVE_FLAG_UNK400)) {
-		mPosition.x = mHost->mPosition.x;
-		mPosition.y = mHost->mPosition.y + 80.0f;
-		mPosition.z = mHost->mPosition.z;
+	if (((TPakkun*)unk160)->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		mPosition.x = ((TPakkun*)unk160)->mPosition.x;
+		mPosition.y = ((TPakkun*)unk160)->mPosition.y + 80.0f;
+		mPosition.z = ((TPakkun*)unk160)->mPosition.z;
 	} else {
 		MtxPtr mtx  = mHost->getModel()->getAnmMtx(TPakkun::mHeadJntIndex);
 		mPosition.x = mtx[0][3];
@@ -540,7 +540,7 @@ void TPakkunSeed::behaveToHost()
 {
 	if (mHost->mHasSubSeeds)
 		return;
-	mHost->mSeed->offLiveFlag(LIVE_FLAG_UNK400);
+	((TPakkun*)unk160)->offLiveFlag(LIVE_FLAG_HIDDEN);
 }
 
 void TPakkunSeed::moveObject()
@@ -569,19 +569,18 @@ void TPakkunSeed::moveObject()
 
 void TPakkunSeed::loadInit(TSpineEnemy* host, const char* model)
 {
-	mHost = (TPakkun*)host;
-	mMActorKeeper = new TMActorKeeper(mHost->mManager, 1);
+	unk160 = host;
+	mMActorKeeper = new TMActorKeeper(unk160->mManager, 1);
 	mMActorKeeper->mModelLoaderFlags = 0x10220000;
 	mMActor = mMActorKeeper->createMActor(model, 3);
-	mHost   = (TPakkun*)host;
+	mHost   = (TPakkun*)unk160;
 
 	TIdxGroupObj* group
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ");
-	if (group)
-		group->getChildren().push_back(this);
+	group->getChildren().push_back(this);
 
 	initHitActor(0x10000006, 1, 0x80000000, 20.0f, 20.0f, 20.0f, 20.0f);
-	offLiveFlag(LIVE_FLAG_DEAD);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 	unk150       = 0;
 	mGroundPlane = TMap::getIllegalCheckData();
 	mMActor->getModel()
