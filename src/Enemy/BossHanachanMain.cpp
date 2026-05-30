@@ -37,14 +37,6 @@ const char* cHitPoint2_RailName  = "bosshanachan1";
 const char* cSandTextureName     = "suna";
 const char* cDummyTextureName    = "M_dummy";
 
-static const char* sChangeSaveFileName[] = {
-	"/enemy/bosshanachan0.prm",
-	"/enemy/bosshanachan1.prm",
-	"/enemy/bosshanachan2.prm",
-};
-
-static const char* sCommonSaveFileName = "/enemy/bosshanachanCommon.prm";
-
 static f32 getRotFromXZ(f32 x, f32 z)
 {
 	if (z == 0.0f) {
@@ -207,23 +199,29 @@ void TBossHanachan::execWalk(bool walk)
 f32 TBossHanachan::getBodyMaxRotateZ() const
 {
 	f32 maxRot = 0.0f;
+	TBossHanachanPartsBase* const* body = mBody;
 	for (int i = 0; i < 8; ++i) {
-		f32 rot = mBody[i]->mRotation.z;
-		if (__fabsf(rot) > __fabsf(maxRot))
+		f32 maxAbs = __fabsf(maxRot);
+		f32 rot    = (*body)->mRotation.z;
+		if (__fabsf(rot) > maxAbs)
 			maxRot = rot;
+		++body;
 	}
 	return maxRot;
 }
 
 bool TBossHanachan::checkFallDecideAndSetup()
 {
+	bool result = false;
 	for (int i = 0; i < 8; ++i) {
+		TBossHanachanChangeSaveParams* params = mChangeParams;
+		f32* fallDecideRotateZ = &params->mSLFallDecideRotateZ.value;
 		TBossHanachanPartsBody* body = (TBossHanachanPartsBody*)mBody[i];
 		f32 absRot = body->mRotation.z;
-		if (absRot < 0.0f)
+		if (!(absRot >= 0.0f))
 			absRot = -absRot;
 
-		if (absRot > mChangeParams->mSLFallDecideRotateZ.value) {
+		if (absRot > *fallDecideRotateZ) {
 			emitOneTimeSandPillar_(body);
 			if (body->mRotation.z > 0.0f)
 				unk194 = 179.0f;
@@ -231,28 +229,39 @@ bool TBossHanachan::checkFallDecideAndSetup()
 				unk194 = -179.0f;
 
 			f32 diff = body->unk13C - body->mRotation.z;
-			if (diff < 0.0f)
+			if (!(diff >= 0.0f))
 				diff = -diff;
 			unk198 = mChangeParams->mSLWaveFallDownSpeed.value * diff;
 			if (unk198 < mChangeParams->mSLFallDecideMinSpeed.value)
 				unk198 = mChangeParams->mSLFallDecideMinSpeed.value;
-			return true;
+			result = true;
+			break;
 		}
 	}
-	return false;
+	return result;
 }
 
 bool TBossHanachan::isTumbleCompletelyAllBody() const
 {
-	f32 rot = mBody[0]->mRotation.z;
+	TBossHanachanPartsBase* firstBody = mBody[0];
+	bool result                       = true;
+	bool isTumble                     = true;
+	f32 rot                           = firstBody->mRotation.z;
 	if (rot != -179.0f && rot != 179.0f)
-		return false;
+		isTumble = false;
 
-	for (int i = 1; i < 8; ++i)
-		if (mBody[i]->mRotation.z != rot)
-			return false;
+	if (!(isTumble ? true : false)) {
+		result = false;
+	} else {
+		for (int i = 1; i < 8; ++i) {
+			if (mBody[i]->mRotation.z != rot) {
+				result = false;
+				break;
+			}
+		}
+	}
 
-	return true;
+	return result;
 }
 
 void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
@@ -263,7 +272,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 void TBossHanachan::moveObject()
 {
 	updateSquareToMario();
-	unk188 = mLinearVelocity;
+	unk188.set(mLinearVelocity);
 	TLiveActor::moveObject();
 
 	if (mSpine->getLatestNerve() != &TNerveBossHanachanGetUp::theNerve()) {
@@ -339,11 +348,12 @@ static void CalcRevisionPosByRotateZ(const JGeometry::TVec3<f32>& rot,
 		if (rot.z > 0.0f)
 			mag = -mag;
 
-		s16 angle = CLBRoundf<s16>(rot.y * (65536.0f / 360.0f));
+		s16 angle = CLBRoundf<s16>((65536.0f / 360.0f) * rot.y);
 		f32 sinV = jmaSinTable[(u16)angle >> jmaSinShift];
 		f32 cosV = jmaCosTable[(u16)angle >> jmaSinShift];
-		pos->x += mag * cosV + 0.0f * sinV;
-		pos->z += -mag * sinV + 0.0f * cosV;
+		f32 zero = 0.0f;
+		pos->x += mag * cosV + zero * sinV;
+		pos->z += -mag * sinV + zero * cosV;
 	}
 }
 
@@ -506,8 +516,10 @@ BOOL TBossHanachanManager::hasMapCollision() const { return TRUE; }
 
 void TBossHanachanManager::clipEnemies(JDrama::TGraphics* graphics)
 {
-	clipActorsAux(graphics, mCommonParams->mSLViewClipFar.value,
-	              mCommonParams->mSLViewClipRadius.value);
+	TBossHanachanCommonSaveParams* params = mCommonParams;
+	f32 radius                            = params->mSLViewClipRadius.value;
+	f32 far                               = params->mSLViewClipFar.value;
+	clipActorsAux(graphics, far, radius);
 }
 
 void TBossHanachanManager::loadAfter()
@@ -527,17 +539,22 @@ void TBossHanachanManager::createModelData()
 	static TModelDataLoadEntry entry[] = {
 		{ "hanabody_model.bmd", 0x10300000, 0 },
 		{ "hanahead_model.bmd", 0x10100000, 0 },
-		{ nullptr, 0x10010000, 0 },
+		{ cSandPillarModelName, 0x10010000, 0 },
 		{ nullptr, 0, 0 },
 	};
-	entry[2].unk0 = cSandPillarModelName;
 	createModelDataArray(entry);
 }
 
 TBossHanachanManager::TBossHanachanManager(const char* name)
     : TEnemyManager(name)
-    , mCommonParams(nullptr)
 {
+	static const char* sCommonSaveFileName = "/enemy/bosshanachanCommon.prm";
+	static const char* sChangeSaveFileName[] = {
+		"/enemy/bosshanachan0.prm",
+		"/enemy/bosshanachan1.prm",
+		"/enemy/bosshanachan2.prm",
+	};
+
 	mCommonParams = new TBossHanachanCommonSaveParams(sCommonSaveFileName);
 	for (int i = 0; i < 3; ++i)
 		mChangeParams[i]

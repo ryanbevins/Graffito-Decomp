@@ -5085,6 +5085,35 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Taking the address of a `TParamRT<T>::value` field forces `addi field_addr; lfs 0(field_addr)` even for a single load
+
+**Hypothesis.** When target materializes a parameter value's address
+before loading it (`lwz params; addi rN, params, VALUE_OFF; lfs fX,
+0(rN)`), direct source `params->field.value` collapses the address into
+the load immediate (`lfs fX, VALUE_OFF(params)`). Introduce a typed
+pointer to the value and dereference that pointer:
+
+```cpp
+TBossHanachanChangeSaveParams* params = mChangeParams;
+f32* fallDecideRotateZ = &params->mSLFallDecideRotateZ.value;
+if (absRot > *fallDecideRotateZ) { ... }
+```
+
+This preserves the explicit field-address node long enough for MWCC to
+emit the target's `addi + lfs 0` form. It is distinct from the settled
+"hoist param->field.member to a local pointer across multiple `bl`
+calls" rule: here the pointer is consumed once in the same basic block.
+
+**Citation (1 TU).** `Enemy/BossHanachanMain::checkFallDecideAndSetup`
+(t219): direct `.value` kept `lfs f0, 0xb8(r5)` and the function was
+93.0%; adding `f32* fallDecideRotateZ = &...value` produced
+`addi r5, r5, 0xb8; lfs f0, 0(r5)` and lifted the function to 94.9%.
+
+**Experiment to confirm/refute.** Find a second near-match with target
+`addi param_base, value_off` feeding one `lfs`/`lwz`, especially in an
+Enemy TParams block. Apply the address-local form and check whether the
+address materialization appears without regressing register allocation.
+
 ### `MsRandF(l, r)` 2-arg interval helper: the original took args **by const reference**, so literal `0.0f`/`1.0f` arguments do NOT constant-fold
 
 **Hypothesis.** The 2-arg `MsRandF(f32 l, f32 r)` in
