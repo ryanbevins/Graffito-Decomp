@@ -5114,6 +5114,17 @@ calls" rule: here the pointer is consumed once in the same basic block.
 Enemy TParams block. Apply the address-local form and check whether the
 address materialization appears without regressing register allocation.
 
+**Negative transfer test (t221).** `Enemy/BossHanachanMain::
+goToInitialRecoverGraphNode` has target `addi r6, params, 0x1f8; lfs f3,
+0(r6)` while setting up a call to `findNearestVisibleIndex`. Introducing
+`f32* recoverSearchDegree = &params->mSLRecoverSearchDegree.value` did
+not survive; MWCC collapsed it back to `lfs f3, 0x1f8(params)`. Adding a
+named scalar loaded through the pointer moved the load earlier and
+regressed the function. The current hypothesis should be narrowed: this
+lever is confirmed only when the pointer is consumed in a local
+compare/use block like `checkFallDecideAndSetup`, not when it is just a
+float call argument.
+
 ### `MsRandF(l, r)` 2-arg interval helper: the original took args **by const reference**, so literal `0.0f`/`1.0f` arguments do NOT constant-fold
 
 **Hypothesis.** The 2-arg `MsRandF(f32 l, f32 r)` in
@@ -5515,6 +5526,16 @@ Settled, need a 2nd independent confirmation in another TU.
 - `Camera/CameraInbetween::execCameraInbetween` (tick 142): 87.6 → **87.8%**
   (+0.2pp). Both the dx and dz fabs blocks switched to the `!(>=)` form
   and the cror lattice appeared, matching target.
+- `Enemy/BossHanachanMain::checkFallDecideAndSetup` (tick 221): the original
+  source already used `if (!(absRot >= 0.0f)) absRot = -absRot;` but MWCC chose
+  the opposite branch layout (`cror; beq skip; fneg`) and left the function at
+  94.7%. Rewriting the field-load abs as a ternary assignment,
+  `absRot = absRot >= 0.0f ? absRot : -absRot;`, produced the target
+  `cror; bne fneg; b merge` layout, restored size parity, and lifted the
+  function to 96.3%. Caveat: applying the same ternary shape to the later
+  expression abs (`diff = body->unk13C - body->mRotation.z`) regressed to a
+  276B function with extra `fmr`s, so this is a field-load/source-shape lever,
+  not a blanket replacement.
 
 **Counter-evidence (don't blindly apply).** Same lever applied to
 `Camera/CameraSecureView::execSecureView_` (tick 142) **reduced**

@@ -197,11 +197,14 @@ void TBossHanachan::execWalk(bool walk)
 	}
 	mTurnSpeed = mChangeParams->mSLWalkTurnSpeed.value;
 
+	bool shouldWalk = true;
 	const JGeometry::TVec3<f32>& point = unkF4.getPoint();
 	JGeometry::TVec3<f32> diff(point);
 	diff.sub(mPosition);
 
-	if (diff.squared() >= CLBSquared<f32>(10.0f))
+	if (diff.squared() < CLBSquared<f32>(10.0f))
+		shouldWalk = false;
+	if (shouldWalk)
 		walkToCurPathNode(mMarchSpeed, mTurnSpeed, 0.0f);
 
 	const JGeometry::TVec3<f32>& curPoint = unkF4.getPoint();
@@ -241,8 +244,7 @@ bool TBossHanachan::checkFallDecideAndSetup()
 		f32* fallDecideRotateZ = &params->mSLFallDecideRotateZ.value;
 		TBossHanachanPartsBody* body = (TBossHanachanPartsBody*)mBody[i];
 		f32 absRot = body->mRotation.z;
-		if (!(absRot >= 0.0f))
-			absRot = -absRot;
+		absRot     = absRot >= 0.0f ? absRot : -absRot;
 
 		if (absRot > *fallDecideRotateZ) {
 			emitOneTimeSandPillar_(body);
@@ -931,18 +933,17 @@ static void CalcRevisionPosByRotateZ(const JGeometry::TVec3<f32>& rot,
 
 void TBossHanachan::throwMario_(THitActor* hit_actor)
 {
-	JGeometry::TVec3<f32> throwVec = *gpMarioPos;
-	throwVec.sub(hit_actor->mPosition);
+	JGeometry::TVec3<f32> throwVec = *gpMarioPos - hit_actor->mPosition;
 
 	f32 throwPower;
 	if (throwVec.squared() <= 0.0000038146973f) {
 		throwVec.set(0.0f, 1.0f, 0.0f);
 		throwPower = mMarchSpeed * mChangeParams->mSLThrowTotalPower.value;
 	} else {
-		f32 oldAngle = getRotFromXZ(unk188.x, unk188.z);
-		f32 newAngle = getRotFromXZ(throwVec.x, throwVec.z);
-		s16 oldShort = CLBRoundf<s16>(oldAngle * (65536.0f / 360.0f));
-		s16 newShort = CLBRoundf<s16>(newAngle * (65536.0f / 360.0f));
+		s16 oldShort = CLBRoundf<s16>(
+		    getRotFromXZ(unk188.x, unk188.z) * (65536.0f / 360.0f));
+		s16 newShort = CLBRoundf<s16>(
+		    getRotFromXZ(throwVec.x, throwVec.z) * (65536.0f / 360.0f));
 		s16 diff     = oldShort - newShort;
 		if (diff < 0)
 			diff = -diff;
