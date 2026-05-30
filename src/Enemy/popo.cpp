@@ -362,25 +362,26 @@ bool TPopo::isCollidMove(THitActor* other)
 
 bool TPopo::isFindMario(float length)
 {
-	if (mSpine->getTime() <= 100)
-		return false;
+	if (mSpine->getTime() > 100) {
+		bool onYoshi;
+		if (gpMarioOriginal->mState & 2)
+			onYoshi = true;
+		else
+			onYoshi = false;
+		if (!onYoshi) {
+			TSmallEnemyParams* params = (TSmallEnemyParams*)getSaveParam();
+			JGeometry::TVec3<f32> marioPos;
+			marioPos.set(gpMarioPos->x, gpMarioPos->y, gpMarioPos->z);
+			f32 searchLength = params->getSLSearchLength() * length;
+			f32 searchAngle  = params->getSLSearchAngle() * length;
+			f32 searchAware  = params->getSLSearchAware() * length;
+			return isInSight(marioPos, searchLength, searchAngle, searchAware) ?
+			           true :
+			           false;
+		}
+	}
 
-	bool onYoshi;
-	if (gpMarioOriginal->mState & 2)
-		onYoshi = true;
-	else
-		onYoshi = false;
-	if (onYoshi)
-		return false;
-
-	TSmallEnemyParams* params = (TSmallEnemyParams*)getSaveParam();
-	JGeometry::TVec3<f32> marioPos;
-	marioPos.set(gpMarioPos->x, gpMarioPos->y, gpMarioPos->z);
-	return isInSight(marioPos, params->getSLSearchLength() * length,
-	                 params->getSLSearchAngle() * length,
-	                 params->getSLSearchAware() * length) ?
-	           true :
-	           false;
+	return false;
 }
 
 bool TPopo::isHitValid(u32 message)
@@ -735,7 +736,7 @@ bool TPopo::checkTrigger()
 {
 	unk1BC[0] = 0;
 	if (gpMarioOriginal->onYoshi()
-	    || ((TWaterGun*)SMS_GetMarioWaterGun())->mCurrentNozzle
+	    || (s32)((TWaterGun*)SMS_GetMarioWaterGun())->mCurrentNozzle
 	           != TWaterGun::Spray) {
 		kill();
 		return false;
@@ -744,25 +745,32 @@ bool TPopo::checkTrigger()
 	SMS_SendMessageToMario(this, HIT_MESSAGE_UNK5);
 
 	f32 maxScale = mPopoParams->mSLWaterScaleMax.get();
-	u8 pressure  = (u8)(s32)gpMarioOriginal->mGamePad->mCompSPos[3];
-	if (pressure > 20) {
+	s32 pressure = (s32)gpMarioOriginal->mGamePad->mCompSPos[3];
+	if ((u8)pressure > 20) {
 		unk1BC[0] = 1;
-		if (gpMSound->gateCheck(0x20C2)) {
+		MSound* sound  = gpMSound;
+		f32 soundScale = unk198;
+		if (sound->gateCheck(0x20C2)) {
 			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-			    0x20C2, &mPosition, nullptr, unk198, 0, 0, nullptr, 0, 4);
+			    0x20C2, &mPosition, nullptr, soundScale, 0, 0, nullptr, 0, 4);
 		}
 
 		mSprayedByWaterCooldown = 0;
 		unk165                  = true;
-		unk198 += (f32)pressure * mPopoParams->mSLPumpRate.get();
+		f32 scale               = unk198;
+		f32 pump                = (f32)(u8)pressure * mPopoParams->mSLPumpRate.get();
+		unk198                  = scale + pump;
 		if (unk198 > maxScale) {
 			unk198 = maxScale;
-			if (!mBrkFlag)
-				mMActor->setFrameRate(SMSGetAnmFrameRate(), 5);
+			if (!mBrkFlag) {
+				MActor* actor = mMActor;
+				actor->setFrameRate(SMSGetAnmFrameRate(), 5);
+			}
 		}
 
+		f32 brkMaxScale = mPopoParams->mSLWaterScaleMax.get();
 		if (mBrkFlag)
-			mMActor->getFrameCtrl(5)->setFrame(unk1A0 * unk198 / maxScale);
+			mMActor->getFrameCtrl(5)->setFrame(unk1A0 * unk198 / brkMaxScale);
 	}
 
 	if ((gpMarioOriginal->mGamePad->mEnabledFrameMeaning & 0x400)
@@ -777,8 +785,8 @@ bool TPopo::checkTrigger()
 	if (mLevelShootSw && unk198 < maxScale - 0.1f && unk198 > 1.0f)
 		unk198 *= mPopoParams->mSLScaleRate.get();
 
-	if (pressure < 20
-	    && (unk1CC || unk198 > mPopoParams->mSLLevelLimit.get())) {
+	f32 levelLimit = mPopoParams->mSLLevelLimit.get();
+	if ((u8)pressure < 20 && (unk1CC || unk198 > levelLimit)) {
 		startPopoSound(0x28CD, mPosition);
 		onHitFlag(HIT_FLAG_NO_COLLISION);
 		mCollision->offHitFlag(HIT_FLAG_NO_COLLISION);
