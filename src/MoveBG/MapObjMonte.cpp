@@ -597,14 +597,14 @@ void THangingBridge::drawLowerMinus(const JGeometry::TVec3<f32>& a,
 
 THangingBridgeBoard::THangingBridgeBoard(const char* name)
     : TLeanBlock(name)
-    , unk194(0)
-    , unk198(0)
-    , unk19C(0)
-    , unk1A0(0)
-    , unk1BC(0)
 {
-	zeroVec(unk1A4[0]);
-	zeroVec(unk1A4[1]);
+	unk1BC = 0;
+	unk194 = 0;
+	unk198 = 0;
+	unk19C = 0;
+	unk1A0 = 0;
+	unk1A4[0].zero();
+	unk1A4[1].zero();
 }
 
 void THangingBridgeBoard::initMapObj()
