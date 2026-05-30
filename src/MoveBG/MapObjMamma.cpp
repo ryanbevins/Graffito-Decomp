@@ -335,14 +335,11 @@ void TSandCastle::initMapObj()
 void TSandCastle::loadAfter()
 {
 	unk144 = findTriggerActor();
-	if (unk144) {
-		((TSandLeaf*)unk144)->unk138 = (u32)this;
-		unk144->appear();
-	}
+	((TSandLeaf*)unk144)->unk138 = (u32)this;
+	unk144->appear();
 
 	unk158 = findMapObj("ステージ切替（砂の城）");
-	if (unk158)
-		unk158->makeObjAppeared();
+	unk158->makeObjDead();
 }
 
 TMapObjBase* TSandCastle::findTriggerActor()
@@ -499,10 +496,8 @@ void TSandBombBase::initMapObj()
 void TSandBombBase::loadAfter()
 {
 	unk144 = findTriggerActor();
-	if (unk144) {
-		((TSandLeaf*)unk144)->unk138 = (u32)this;
-		unk144->appear();
-	}
+	((TSandLeaf*)unk144)->unk138 = (u32)this;
+	unk144->appear();
 }
 
 TMapObjBase* TSandBombBase::findTriggerActor()
