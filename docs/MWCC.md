@@ -5122,6 +5122,23 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Uniform per-TU +0x10 stack inflation on leaf functions (igaiga)
+
+Several small leaf functions in `mario/Enemy/igaiga` whose bodies match the
+target instruction-for-instruction still miss by exactly **0x10 bytes of
+stack frame** (ours smaller): `TIgaiga::boundSE` (0x28 vs 0x38),
+`TIgaigaPolluteModel::setAnm` (0x18 vs 0x28), `TIgaiga::behaveToWater`
+(0x40 vs 0x50). No extra stores/temps appear in the target body, so it is
+not an inlined-Vec argument temp — it reads as the MWCC 1.2.5 stack-padding
+bug (an inlined call or register-resident local reserving unused stack).
+
+Experiment to confirm/refute: find the inlined helper on the shared call
+paths (`MActor::getFrameCtrl`, `MSoundSESystem::MSoundSE::startSoundActorWithInfo`)
+or an extra named local in the original; reconstruct it (NOT a `_pad` hack)
+and check whether all three frames grow by 0x10 together. If one source
+construct fixes the whole cluster at once, that confirms a single shared
+inline as the cause. See state/notes/igaiga.md (tick 277).
+
 ### Product local plus delayed base local can defeat `fnmsubs` while preserving duplicate constant loads
 
 **Hypothesis.** For repeated neighbor impulse updates, source written as
