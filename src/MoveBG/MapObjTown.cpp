@@ -592,8 +592,7 @@ void TRedCoinSwitch::loadAfter()
 	for (int i = 0; i < 8; ++i) {
 		snprintf(buf, sizeof(buf), "赤コイン %d", i);
 		TMapObjBase* coin = JDrama::TNameRefGen::search<TMapObjBase>(buf);
-		if (coin != nullptr)
-			coin->makeObjDead();
+		coin->makeObjDead();
 	}
 }
 
