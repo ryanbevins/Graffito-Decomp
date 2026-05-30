@@ -12,6 +12,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <Player/MarioAccess.hpp>
+#include <System/Application.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/Particles.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
@@ -165,21 +166,55 @@ u32 TBellWatermill::touchWater(THitActor* water)
 
 TBiancoBell::TBiancoBell(const char* name)
     : TMapObjBase(name)
+    , unk138(0)
+    , unk13A(0)
 {
 }
 
-void TBiancoBell::initMapObj() { TMapObjBase::initMapObj(); }
+void TBiancoBell::initMapObj()
+{
+	TMapObjBase::initMapObj();
+
+	if (strcmp(mName, "BiaBell 0") == 0) {
+		unk138 = 1;
+		unk13A = 0;
+	} else if (strcmp(mName, "BiaBell 1") == 0) {
+		unk138 = 2;
+		unk13A = 1;
+	} else {
+		unk138 = 3;
+		unk13A = 0;
+	}
+}
 
 void TBiancoBell::touchPlayer(THitActor*)
 {
-	if (marioIsOn())
-		startAnim(1);
+	if (mMActor->getFrameCtrl(0)->getFrame() == 0.0f
+	    || mMActor->getFrameCtrl(0)->getFrame()
+	            + mMActor->getFrameCtrl(0)->getRate()
+	        >= (f32)mMActor->getFrameCtrl(0)->getEnd() - 1.0f) {
+		startAnim(4);
+		mMActor->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
+		if (gpMSound->gateCheck(0x89B8)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x89B8, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+		}
+	}
 }
 
 u32 TBiancoBell::touchWater(THitActor* water)
 {
-	if (waterHitPlane(water))
-		startAnim(1);
+	if (mMActor->getFrameCtrl(0)->getFrame() == 0.0f
+	    || mMActor->getFrameCtrl(0)->getFrame()
+	            + mMActor->getFrameCtrl(0)->getRate()
+	        >= (f32)mMActor->getFrameCtrl(0)->getEnd() - 1.0f) {
+		startAnim(4);
+		mMActor->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
+		if (gpMSound->gateCheck(0x89B8)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x89B8, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+		}
+	}
 	return 1;
 }
 

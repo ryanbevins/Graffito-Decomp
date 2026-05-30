@@ -52,6 +52,11 @@ public:
 	virtual void initMapObj();
 	virtual void touchPlayer(THitActor*);
 	virtual u32 touchWater(THitActor*);
+
+public:
+	/* 0x138 */ s16 unk138;
+	/* 0x13A */ u8 unk13A;
+	/* 0x13B */ u8 unk13B;
 };
 
 class TLampSeesaw : public TMapObjBase {
