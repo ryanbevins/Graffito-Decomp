@@ -675,10 +675,11 @@ TBiancoMiniWindmill::TBiancoMiniWindmill(const char* name)
     : THideObjBase(name)
     , unk150((f32)rand() * (1.0f / 32768.0f) * 300.0f)
     , unk154(0.0f)
-    , unk158(1.0f + (f32)rand() * (1.0f / 32768.0f))
-    , unk15C(nullptr)
-    , unk160(nullptr)
 {
+	f32 speed = (f32)rand() * (1.0f / 32768.0f);
+	unk158   = 1.0f + speed;
+	unk15C   = nullptr;
+	unk160   = nullptr;
 }
 
 void TBiancoMiniWindmill::initMapObj()
