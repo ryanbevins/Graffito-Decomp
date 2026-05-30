@@ -515,11 +515,42 @@ void TShellCup::perform(u32 flags, JDrama::TGraphics* graphics)
 	if ((flags & 2) == 0)
 		return;
 
+	u8 directorState = gpMarDirector->unk124;
+	bool talkMode    = true;
+	if (directorState != 1 && directorState != 2)
+		talkMode = false;
+	if (talkMode) {
+		bool canPerform = true;
+		if (directorState != 3 && directorState != 4)
+			canPerform = false;
+		if (!canPerform)
+			return;
+	}
+
 	for (int i = 0; i < 6; ++i) {
+		TPinnaShell& shell = unk138[i];
 		Mtx rot;
-		MsMtxSetRotX(rot, unk138[i].unk6C);
-		TMapObjBase::concatOnlyRotFromRight(unk138[i].unk74, rot,
-		                                    unk138[i].unk74);
+		MsMtxSetRotX(rot, shell.unk6C);
+		TMapObjBase::concatOnlyRotFromRight(shell.unk74, rot, shell.unk74);
+	}
+
+	TCoin* coin = unk498;
+	if (!(coin->mLiveFlag & LIVE_FLAG_DEAD)) {
+		coin->mPosition.x = unk138[0].mPosition.x;
+		coin->mPosition.y = unk138[0].mPosition.y;
+		coin->mPosition.z = unk138[0].mPosition.z;
+	}
+	coin = unk49C;
+	if (!(coin->mLiveFlag & LIVE_FLAG_DEAD)) {
+		coin->mPosition.x = unk138[2].mPosition.x;
+		coin->mPosition.y = unk138[2].mPosition.y;
+		coin->mPosition.z = unk138[2].mPosition.z;
+	}
+	coin = unk4A0;
+	if (!(coin->mLiveFlag & LIVE_FLAG_DEAD)) {
+		coin->mPosition.x = unk138[4].mPosition.x;
+		coin->mPosition.y = unk138[4].mPosition.y;
+		coin->mPosition.z = unk138[4].mPosition.z;
 	}
 }
 
