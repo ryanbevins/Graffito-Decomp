@@ -524,9 +524,12 @@ void TLeafBoat::calc()
 	if (unk144 != 0.0f) {
 		if (unk160 > 8) {
 			if (fabsf(mVelocity.x) + fabsf(mVelocity.z) > 0.1f) {
-				unk164 = mPosition.x;
-				unk168 = mPosition.y - mYOffset;
-				unk16C = mPosition.z;
+				f32 y = mPosition.y - mYOffset;
+				f32 z = mPosition.z;
+				f32 x = mPosition.x;
+				unk164 = x;
+				unk168 = y;
+				unk16C = z;
 
 				JGeometry::TVec3<f32> scale(2.0f, 2.0f, 2.0f);
 				emitAndBindScale(
