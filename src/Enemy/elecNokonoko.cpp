@@ -54,8 +54,8 @@ DEFINE_NERVE(TNerveElecCarapaceReturn, TLiveActor)
 	bool nearHost = false;
 	if (host->mSpine->getCurrentNerve()
 	    == &TNerveElecNokonokoFreeze::theNerve()) {
-		JGeometry::TVec3<f32> v = host->getPosition();
-		v.sub(host->mCarapace->getPosition());
+		JGeometry::TVec3<f32> v
+		    = host->getPosition() - host->mCarapace->getPosition();
 		if (PSVECMag((Vec*)&v) < 200.0f)
 			nearHost = true;
 	}
@@ -120,17 +120,19 @@ DEFINE_NERVE(TNerveElecCarapaceMove, TLiveActor)
 	TElecCarapace* self = (TElecCarapace*)spine->getBody();
 	TElecNokonoko* host = (TElecNokonoko*)self->unk16C;
 
+	TElecNokonokoSaveLoadParams* params = host->mSaveParams;
+	f32 spinSpeed                       = params->mSLCarapaceSpinSpeed.get();
+	f32 speed                           = params->mSLCarapaceSpeed.get();
+	f32 turnSpeed                       = params->mSLCarapaceTurnSpeed.get();
+
 	if (self->unk175) {
-		self->walkToCurPathNode(host->mSaveParams->mSLCarapaceSpeed.get(),
-		                        host->mSaveParams->mSLCarapaceTurnSpeed.get(),
-		                        0.0f);
+		self->walkToCurPathNode(speed, turnSpeed, 0.0f);
 	} else {
-		self->zigzagToCurPathNode(host->mSaveParams->mSLCarapaceSpeed.get(),
-		                          host->mSaveParams->mSLCarapaceTurnSpeed.get(),
-		                          self->unk178, self->unk17C);
+		self->zigzagToCurPathNode(speed, turnSpeed, self->unk178,
+		                          self->unk17C);
 	}
 
-	self->unk188 += host->mSaveParams->mSLCarapaceSpinSpeed.get();
+	self->unk188 += spinSpeed;
 	if (self->unk188 > 360.0f)
 		self->unk188 -= 360.0f;
 
