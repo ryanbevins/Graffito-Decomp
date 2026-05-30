@@ -1,9 +1,11 @@
 #include <Enemy/TobiPuku.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
+#include <JSystem/JMath.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <Player/MarioAccess.hpp>
@@ -262,7 +264,11 @@ void TMoePuku::generateEffectColumWater()
 	TTobiPuku::generateEffectColumWater();
 }
 
-void TMoePuku::setJumpStartAnm() { TTobiPuku::setJumpStartAnm(); }
+void TMoePuku::setJumpStartAnm()
+{
+	if (isBckAnm(7))
+		setBckAnm(7);
+}
 void TMoePuku::setFallEndLandAnm() { setBckAnm(5); }
 void TMoePuku::setDeadAnm() { setBckAnm(1); }
 void TMoePuku::setDownLandAnm() { setBckAnm(3); }
@@ -358,8 +364,8 @@ void TTobiPuku::hitWater()
 f32 TTobiPuku::getGravityY() const
 {
 	if (unk194)
-		return 0.0f;
-	return mTobiPukuParams->mSLFlyGravityY.get();
+		return mTobiPukuParams->mSLFlyGravityY.get();
+	return mGravity;
 }
 
 void TTobiPuku::attackToMario()
@@ -395,7 +401,7 @@ void TTobiPuku::behaveToWater(THitActor* actor)
 
 void TTobiPuku::setJumpStartAnm()
 {
-	if (isJumpStartBck())
+	if (isBckAnm(7))
 		setBckAnm(7);
 }
 
@@ -493,31 +499,39 @@ void TMoePukuLaunchPad::launch()
 
 void TTobiPukuLaunchPad::forceLaunch(TTobiPuku* puku)
 {
-	if (!puku)
-		return;
+	JGeometry::TVec3<f32> target = mPosition;
+	s32 yaw                      = mRotation.y * 16384.0f / 90.0f;
+	f32 sinY = jmaSinTable[(u16)yaw >> jmaSinShift];
+	f32 cosY = jmaCosTable[(u16)yaw >> jmaSinShift];
+
+	JGeometry::TVec3<f32> velocity;
+	if (((TTobiPukuLaunchPadManager*)mManager)->mForceJumpToPad) {
+		f32 dist = mLaunchParams->mSLFlyDist.get();
+		target.x += sinY * dist;
+		target.z += cosY * dist;
+		f32 launchVelocityY = mLaunchParams->mSLLaunchVelocityY.get();
+		f32 flyGravityY     = puku->mTobiPukuParams->mSLFlyGravityY.get();
+		velocity = puku->calcVelocityToJumpToY(target, launchVelocityY,
+		                                       flyGravityY);
+	} else {
+		s32 pitch = mRotation.x * 16384.0f / 90.0f;
+		f32 cosP = jmaCosTable[(u16)pitch >> jmaSinShift];
+		f32 sinP = jmaSinTable[(u16)pitch >> jmaSinShift];
+		velocity.x = sinY * mLaunchSpeed * cosP;
+		velocity.y = 1.0f * mLaunchSpeed * sinP;
+		velocity.z = cosY * mLaunchSpeed * cosP;
+	}
 
 	puku->reset();
-	puku->mPosition = mPosition;
-	puku->mRotation = mRotation;
-	puku->mLaunchPad = this;
-
-	f32 angle = mRotation.y * (3.1415927f / 180.0f);
-	f32 speed = mLaunchSpeed;
-	if (mLaunchParams)
-		speed = mLaunchParams->mSLFlySpeed.get();
-
-	JGeometry::TVec3<f32> velocity(sinf(angle) * speed,
-	                               mLaunchParams
-	                                   ? mLaunchParams->mSLLaunchVelocityY.get()
-	                                   : 12.0f,
-	                               cosf(angle) * speed);
+	puku->mPosition       = mPosition;
+	puku->mRotation       = mRotation;
 	puku->mLaunchVelocity = velocity;
-	puku->mVelocity       = velocity;
 	puku->unk1B0          = mPosition.y;
-	puku->unk1B4          = mRotation.y;
-	puku->onLiveFlag(LIVE_FLAG_AIRBORNE);
-	if (puku->mSpine)
-		puku->mSpine->initWith(&TNerveTobiPukuFly::theNerve());
+	puku->mLaunchPad      = this;
+
+	JGeometry::TVec3<f32> currentVelocity = mVelocity;
+	JGeometry::TVec3<f32> rotation        = MsGetRotFromZaxis(currentVelocity);
+	puku->unk1B4                          = rotation.x;
 }
 
 void TTobiPukuLaunchPad::launch()
@@ -542,9 +556,10 @@ void TTobiPukuLaunchPad::reset()
 void TTobiPukuLaunchPad::load(JSUMemoryInputStream& stream)
 {
 	TSmallEnemy::load(stream);
-	s32 speed = 0;
+	s32 speed;
 	stream.read(speed);
 	mLaunchSpeed = speed;
+	reset();
 }
 
 void TTobiPukuLaunchPad::init(TLiveManager* manager)
@@ -578,7 +593,6 @@ void TTobiPukuLaunchPad::perform(u32 flags, JDrama::TGraphics* graphics)
 TTobiPukuLaunchPad::TTobiPukuLaunchPad(const char* name)
     : TSmallEnemy(name)
     , mTimer(0)
-    , mLaunchParams(nullptr)
     , mLaunchSpeed(30.0f)
     , mLaunchedPuku(nullptr)
 {
