@@ -252,10 +252,49 @@ void TLampSeesawMain::loadAfter()
 void TLampSeesawMain::control()
 {
 	TMapObjBase::control();
-	if (unk144 > 0.0f) {
-		unk144 -= unk148;
+	switch (mState) {
+	case 2: {
+		f32 nextY = mPosition.y + unk144;
+		if (nextY < unk13C || unk138->mPosition.y - unk144 < unk138->unk13C) {
+			if (fabsf(unk144) < unk150)
+				unk144 = 0.0f;
+			else
+				unk144 *= -unk14C;
+		} else {
+			mPosition.y       = nextY;
+			unk138->mPosition.y -= unk144;
+		}
+
+		unk144 *= unk148;
+		if (fabsf(unk144) < unk150)
+			mState = 3;
+		break;
+	}
+	case 3: {
 		if (unk144 < 0.0f)
+			unk144 = -unk150;
+		else
+			unk144 = unk150;
+
+		f32 nextY = mPosition.y + unk144;
+		if (nextY < unk13C || unk138->mPosition.y - unk144 < unk138->unk13C) {
+			if (fabsf(unk144) < unk150)
+				unk144 = 0.0f;
+			else
+				unk144 *= -unk14C;
+		} else {
+			mPosition.y       = nextY;
+			unk138->mPosition.y -= unk144;
+		}
+
+		unk144 *= unk148;
+		if (fabsf(unk144) <= unk150
+		    && fabsf(mInitialPosition.y - mPosition.y) < unk150) {
 			unk144 = 0.0f;
+			mState = 1;
+		}
+		break;
+	}
 	}
 }
 
