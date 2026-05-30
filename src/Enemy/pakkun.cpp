@@ -1,1 +1,942 @@
+#include <Enemy/Pakkun.hpp>
+#include <Camera/Camera.hpp>
+#include <Enemy/Conductor.hpp>
+#include <Enemy/EffectObj.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <JSystem/JUtility/JUTNameTab.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <Map/Map.hpp>
+#include <Map/MapData.hpp>
+#include <Map/PollutionManager.hpp>
+#include <MarioUtil/DrawUtil.hpp>
+#include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/PacketUtil.hpp>
+#include <MarioUtil/TexUtil.hpp>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <MoveBG/ItemManager.hpp>
+#include <Player/MarioAccess.hpp>
+#include <Player/ModelWaterManager.hpp>
+#include <Player/Watergun.hpp>
+#include <Strategic/ObjModel.hpp>
+#include <Strategic/Spine.hpp>
+#include <Strategic/Strategy.hpp>
+#include <System/Particles.hpp>
+#include <math.h>
 
+// rogue includes needed for matching sinit & bss
+#include <M3DUtil/InfectiousStrings.hpp>
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
+
+static const char* pakkun_bastable[] = {
+	"/scene/pakkun/bas/pakun_crush_to_hide.bas",
+	"/scene/pakkun/bas/pakun_damage.bas",
+	"/scene/pakkun/bas/pakun_down.bas",
+	"/scene/pakkun/bas/pakun_hide.bas",
+	nullptr,
+	nullptr,
+	nullptr,
+	"/scene/pakkun/bas/pakun_set.bas",
+	"/scene/pakkun/bas/pakun_shoot.bas",
+	nullptr,
+};
+
+static const TModelDataLoadEntry entry[] = {
+	{ "pakun.bmd", 0x10300000, 0 },
+	{ nullptr, 0, 0 },
+};
+
+static TPakkun* gpCurPakkun;
+static TPakkunSeed* gpCurPakkunSeed;
+
+static int PakkunRootCallback(J3DNode*, int);
+static int PakkunRootCallback2(J3DNode*, int);
+static int PakkunSeedCallback(J3DNode*, int);
+
+u8 TPakkun::mHeadJntIndex = 0;
+
+f32 TPakkunManager::mRootExplosionScaleRate = 2.0f;
+f32 TPakkunManager::mTestFlyAngX            = 30.0f;
+f32 TPakkunManager::mIgnoreHitWaterY        = 50.0f;
+
+static void setMarioGoalPath(TPakkun* pakkun)
+{
+	TPathNode node((THitActor*)gpMarioAddress);
+	if (gpMarioAddress) {
+		node.unk4.set(*(f32*)(gpMarioAddress + 0x10),
+		              *(f32*)(gpMarioAddress + 0x14),
+		              *(f32*)(gpMarioAddress + 0x18));
+	}
+
+	pakkun->unkF4  = node;
+	pakkun->unk104 = node;
+	pakkun->unk114.clear();
+}
+
+DEFINE_NERVE(TNerveStayPakkunAppear, TLiveActor)
+{
+	TLiveActor* actor = spine->getBody();
+	TStayPakkun* self = (TStayPakkun*)actor;
+	if (spine->getTime() == 0) {
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->setBckAnm(7);
+		self->unk1B1 = true;
+		self->mSeed->rebirth();
+	}
+
+	f32 frame = self->getCurAnmFrameNo(0);
+	if (frame > 0.0f && frame < 25.0f
+	    && !self->checkLiveFlag(LIVE_FLAG_UNK400)
+	    && gpPollution->isPolluted(self->mPosition.x, self->mPosition.y,
+	                               self->mPosition.z)) {
+		JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+		    0x12d, &self->mPosition, 1, self);
+		if (emitter) {
+			emitter->unk154.x = 1.5f;
+			emitter->unk154.y = 1.5f;
+			emitter->unk154.z = 1.5f;
+			emitter->unk174.x = 1.5f;
+			emitter->unk174.y = 1.5f;
+			emitter->unk174.z = 1.5f;
+			SMSSetEmitterPolColor(emitter, 6);
+		}
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		spine->pushAfterCurrent(&TNervePakkunStay::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveStayPakkunHide, TLiveActor)
+{
+	TStayPakkun* self = (TStayPakkun*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->onLiveFlag(LIVE_FLAG_DEAD);
+		if (self->mCurrentBckAnm != 0)
+			self->setBckAnm(3);
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		self->onLiveFlag(LIVE_FLAG_HIDDEN);
+		self->unk1B1 = true;
+		spine->pushAfterCurrent(&TNerveStayPakkunAppear::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNervePakkunFreeze, TLiveActor)
+{
+	TPakkun* self = (TPakkun*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setFreezeAnm();
+
+	if (spine->getTime() > 300) {
+		self->reset();
+		spine->setDefaultNext();
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNervePakkunShoot, TLiveActor)
+{
+	TPakkun* self = (TPakkun*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setBckAnm(8);
+
+	if (self->checkCurAnmEnd(0)) {
+		spine->pushAfterCurrent(&TNervePakkunHide::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNervePakkunHide, TLiveActor)
+{
+	TPakkun* self = (TPakkun*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setBckAnm(3);
+
+	if (self->checkCurAnmEnd(0)) {
+		self->onLiveFlag(LIVE_FLAG_HIDDEN);
+		spine->pushAfterCurrent(&TNervePakkunStay::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNervePakkunAppear, TLiveActor)
+{
+	TPakkun* self = (TPakkun*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->setBckAnm(7);
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		spine->pushAfterCurrent(&TNervePakkunStay::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNervePakkunStay, TLiveActor)
+{
+	TPakkun* self = (TPakkun*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setWaitAnm();
+
+	if (spine->getTime() > self->mPakkunParams->mSLReadyTime.get()) {
+		self->updateSquareToMario();
+		if (self->mDistToMarioSquared
+		    < self->mPakkunParams->mSLShootRange.get()
+		          * self->mPakkunParams->mSLShootRange.get()) {
+			self->shootIn();
+			spine->pushAfterCurrent(&TNervePakkunShoot::theNerve());
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNervePakkunGenerate, TLiveActor)
+{
+	TPakkun* self = (TPakkun*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->onLiveFlag(LIVE_FLAG_HIDDEN);
+		self->mSeed->appear();
+	}
+
+	if (spine->getTime() > 60) {
+		spine->pushAfterCurrent(&TNervePakkunAppear::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+TSpineEnemyParams* TStayPakkun::getSaveParam() const
+{
+	return ((TPakkunManager*)mManager)->mStayParams;
+}
+
+void TStayPakkun::shoot()
+{
+	mSeed->shoot();
+}
+
+void TStayPakkun::kill()
+{
+	TSmallEnemy::kill();
+	mSeed->kill();
+	for (int i = 0; i < 2; ++i)
+		mSubSeeds[i]->kill();
+}
+
+void TStayPakkun::shootIn()
+{
+	mSeed->appear();
+	mSeed->set();
+
+	for (int i = 0; i < 2; ++i) {
+		mSubSeeds[i]->appear();
+		mSubSeeds[i]->set();
+
+		JGeometry::TVec3<f32> vel = mSeed->mVelocity;
+		Mtx mtx;
+		f32 pitch = -10.0f;
+		if (i != 0)
+			pitch *= -1.0f;
+		MsMtxSetRotRPH(mtx, 0.0f, pitch, 0.0f);
+		PSMTXMultVec(mtx, (Vec*)&vel, (Vec*)&vel);
+		mSubSeeds[i]->mVelocity = vel;
+	}
+}
+
+bool TStayPakkun::isHitValid(u32 flag)
+{
+	if (flag == 0xb) {
+		onLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_UNK20000);
+		return true;
+	}
+
+	if (mSpine->getCurrentNerve() == &TNerveStayPakkunHide::theNerve())
+		return false;
+	if (mSpine->getCurrentNerve() == &TNerveStayPakkunAppear::theNerve())
+		return false;
+
+	mSpine->pushNerve(&TNerveStayPakkunHide::theNerve());
+	unk1BC = true;
+	gpPollution->clean(mPosition.x, mGroundHeight, mPosition.z,
+	                   32.0f * getSaveParam2()->mSLPolluteRange.get());
+	if (mSeed->isUnk150Zero())
+		mSeed->kill();
+	setBckAnm(0);
+	return false;
+}
+
+void TStayPakkun::setBehavior()
+{
+	if (mCurrentBckAnm == 4)
+		--mHitPoints;
+
+	TSpineEnemyParams* save = getSaveParam();
+	u8 maxHp                = save ? save->mSLHitPointMax.get() : 1;
+	unk1B2.a               = (mHitPoints * 255) / maxHp;
+	mRootScale = 1.0f
+	             + (TPakkunManager::mRootExplosionScaleRate
+	                * (255.0f - unk1B2.a) / 255.0f);
+
+	if (mHitPoints < 2) {
+		if (gpMSound->gateCheck(0x287f))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x287f, &mPosition, 0, nullptr, 0, 4);
+		mHitPoints = 1;
+		setDeadAnm();
+	}
+}
+
+void TStayPakkun::calcRootMatrix()
+{
+	TSpineEnemy::calcRootMatrix();
+}
+
+void TStayPakkun::genRandomItem()
+{
+	unk1A4 = mPosition;
+	unk1A4.y += 100.0f;
+
+	TWaterEmitInfo* info
+	    = ((TPakkunManager*)mManager)->mWaterEmitInfo;
+	info->mPos.value = unk1A4;
+	gpModelWaterManager->emitRequest(*info);
+
+	TWaterGun* waterGun = (TWaterGun*)SMS_GetMarioWaterGun();
+	if ((waterGun->mCurrentWater << 2)
+	    < waterGun->getCurrentNozzle()->mEmitParams.mAmountMax.get()) {
+		gpItemManager->makeObjAppear(mPosition.x, mPosition.y, mPosition.z,
+		                             0x20000002, true);
+	} else {
+		unk18C = 3;
+		setDeadAnm();
+	}
+
+	JPABaseEmitter* emitter
+	    = gpMarioParticleManager->emit(0xa1, &unk1A4, 0, nullptr);
+	if (emitter)
+		emitter->setScale(JGeometry::TVec3<f32>(1.5f, 1.5f, 1.5f));
+
+	emitter = gpMarioParticleManager->emit(0xa2, &unk1A4, 0, nullptr);
+	if (emitter)
+		emitter->setScale(JGeometry::TVec3<f32>(1.5f, 1.5f, 1.5f));
+}
+
+void TStayPakkun::setDeadAnm()
+{
+	setBckAnm(2);
+}
+
+void TStayPakkun::reset()
+{
+	TPakkun::reset();
+	unk1B2.a = 0xff;
+	offLiveFlag(LIVE_FLAG_UNK800);
+	onLiveFlag(LIVE_FLAG_HIDDEN);
+}
+
+void TStayPakkun::init(TLiveManager* manager)
+{
+	TPakkun::init(manager);
+	mSubSeeds = new TPakkunSeed*[2];
+	for (int i = 0; i < 2; ++i) {
+		mSubSeeds[i] = new TPakkunSeed("パックン種");
+		mSubSeeds[i]->loadInit(this, "seed.bmd");
+	}
+	mSpine->initWith(&TNerveStayPakkunHide::theNerve());
+}
+
+void TStayPakkun::load(JSUMemoryInputStream& stream)
+{
+	TSmallEnemy::load(stream);
+	reset();
+	setGoalPathMario();
+	mHasSubSeeds = true;
+}
+
+void TPakkunSeed::forceKill()
+{
+	if (mGroundPlane && (mGroundPlane->getBGType() == 0x104
+	                     || mGroundPlane->getBGType() == 0x105
+	                     || mGroundPlane->getBGType() == 0x4104
+	                     || mGroundPlane->checkFlag(0x10)
+	                     || !gpMap->isInArea(mPosition.x, mPosition.z))) {
+		kill();
+		if (!mHost->mHasSubSeeds && mHost->mSeed->checkLiveFlag(LIVE_FLAG_DEAD)) {
+			mHost->mSeed->kill();
+			mHost->mSeed->onLiveFlag(0x20000);
+		}
+	}
+}
+
+void TPakkunSeed::set()
+{
+	TEnemyAttachment::set();
+	if (mHost->checkLiveFlag(LIVE_FLAG_UNK400)) {
+		mPosition.x = mHost->mPosition.x;
+		mPosition.y = mHost->mPosition.y + 80.0f;
+		mPosition.z = mHost->mPosition.z;
+	} else {
+		MtxPtr mtx  = mHost->getModel()->getAnmMtx(TPakkun::mHeadJntIndex);
+		mPosition.x = mtx[0][3];
+		mPosition.y = mtx[1][3] - 50.0f;
+		mPosition.z = mtx[2][3];
+	}
+}
+
+void TPakkunSeed::rebirth()
+{
+	if (mHost->mHasSubSeeds) {
+		unk150 = 0;
+		unk158 = 0;
+		onLiveFlag(LIVE_FLAG_DEAD);
+		gpPollution->stamp(0, mPosition.x, mPosition.y, mPosition.z,
+		                   32.0f * mHost->mBodyScale);
+		if (gpMSound->gateCheck(0x287e))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x287e, &mPosition, 0, nullptr, 0, 4);
+		return;
+	}
+
+	unk158 += 1;
+	if (unk158 > mHost->mPakkunParams->mSLGenerateSeedTime.get()
+	    || mHost->unk1B1) {
+		unk150 = 0;
+		unk158 = 0;
+		onLiveFlag(LIVE_FLAG_DEAD);
+	}
+
+	if (mPosition.y < mGroundHeight - 70.0f) {
+		mVelocity.y = 0.0f;
+		onLiveFlag(LIVE_FLAG_DEAD);
+		return;
+	}
+
+	if (mGroundPlane && (mGroundPlane->getBGType() == 0x100
+	                     || mGroundPlane->getBGType() == 0x101
+	                     || (mGroundPlane->getBGType() - 0x102U) <= 3
+	                     || mGroundPlane->getBGType() == 0x4104)) {
+		TEffectColumWater* enemy
+		    = (TEffectColumWater*)gpConductor->makeOneEnemyAppear(
+		        mPosition, "エフェクト水柱マネージャー", 0);
+		if (enemy)
+			enemy->generate(mPosition, mVelocity);
+	} else {
+		if (gpMSound->gateCheck(0x287e))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x287e, &mPosition, 0, nullptr, 0, 4);
+		gpMarioParticleManager->emit(0x13e, &mPosition, 1, mHost->mSeed);
+		gpMarioParticleManager->emit(0x13f, &mPosition, 1, mHost->mSeed);
+	}
+}
+
+void TPakkunSeed::shoot()
+{
+	switch (mHost->mShootType) {
+	case 0:
+		unk150 = 3;
+		break;
+	case 1:
+		unk150 = 4;
+		break;
+	}
+
+	mScaling.x = mScaling.y = mScaling.z = 0.1f;
+	unk168                              = 0;
+	offLiveFlag(LIVE_FLAG_DEAD);
+}
+
+void TPakkunSeed::appear()
+{
+	unk150        = 1;
+	mHost->unk1B0 = 0;
+	mScaling.x = mScaling.y = mScaling.z = 0.5f;
+}
+
+f32 TPakkunSeed::getNowGravity()
+{
+	TPakkunSaveLoadParams* params = mHost->mPakkunParams;
+	if (unk150 == 4)
+		return params->mSLSeedGravityC.get();
+	return params->mSLSeedGravityS.get();
+}
+
+void TPakkunSeed::behaveToHitGround()
+{
+	if (fabsf(mVelocity.y) < 1.0f
+	    || (mGroundPlane
+	        && (mGroundPlane->getBGType() == 0x100
+	            || mGroundPlane->getBGType() == 0x101
+	            || (mGroundPlane->getBGType() - 0x102U) <= 3
+	            || mGroundPlane->getBGType() == 0x4104))) {
+		unk168 = 1;
+		offLiveFlag(LIVE_FLAG_UNK100);
+		mVelocity.set(0.0f, -0.3f, 0.0f);
+		rebirth();
+		return;
+	}
+
+	if (unk150 == 3) {
+		mVelocity.x *= 0.8f;
+		mVelocity.z *= 0.8f;
+		mVelocity.y = 0.1f * fabsf(mVelocity.y);
+	} else {
+		mVelocity.x *= 0.4f;
+		mVelocity.z *= 0.4f;
+		mVelocity.y = 0.4f * fabsf(mVelocity.y);
+	}
+}
+
+void TPakkunSeed::calcRootMatrix()
+{
+	if (gpMSound->gateCheck(0x2169))
+		MSoundSESystem::MSoundSE::startSoundActor(0x2169, &mPosition, 0,
+		                                          nullptr, 0, 4);
+	TEnemyAttachment::calcRootMatrix();
+	gpCurPakkunSeed = this;
+}
+
+void TPakkunSeed::behaveToHitWall(const TBGCheckData* plane)
+{
+	f32 dot = mVelocity.dot(plane->getNormal());
+	f32 s   = -1.5f * dot;
+	mVelocity.x += s * plane->getNormal().x;
+	mVelocity.y += s * plane->getNormal().y;
+	if (unk150 == 3)
+		mVelocity.y = -5.0f;
+	mVelocity.z += s * plane->getNormal().z;
+	mHost->unk1B0 = 1;
+}
+
+void TPakkunSeed::behaveToHost()
+{
+	if (mHost->mHasSubSeeds)
+		return;
+	mHost->mSeed->offLiveFlag(LIVE_FLAG_UNK400);
+}
+
+void TPakkunSeed::moveObject()
+{
+	TEnemyAttachment::moveObject();
+	if (!unk168) {
+		mRollAngle += 5.0f;
+		while (mRollAngle >= 360.0f)
+			mRollAngle -= 360.0f;
+		while (mRollAngle < 0.0f)
+			mRollAngle += 360.0f;
+
+		if (mPosition.y > mGroundHeight + 20.0f) {
+			JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(mVelocity);
+			mRotation.x              = rot.x;
+		}
+	} else {
+		mRollAngle += 5.0f;
+		if (mRollAngle > 360.0f)
+			mRollAngle = 360.0f;
+		if (mRollAngle < 0.0f)
+			mRollAngle = 0.0f;
+		mRotation.x *= 0.8f;
+	}
+}
+
+void TPakkunSeed::loadInit(TSpineEnemy* host, const char* model)
+{
+	mHost = (TPakkun*)host;
+	mMActorKeeper = new TMActorKeeper(mHost->mManager, 1);
+	mMActorKeeper->mModelLoaderFlags = 0x10220000;
+	mMActor = mMActorKeeper->createMActor(model, 3);
+	mHost   = (TPakkun*)host;
+
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ");
+	if (group)
+		group->getChildren().push_back(this);
+
+	initHitActor(0x10000006, 1, 0x80000000, 20.0f, 20.0f, 20.0f, 20.0f);
+	offLiveFlag(LIVE_FLAG_DEAD);
+	unk150       = 0;
+	mGroundPlane = TMap::getIllegalCheckData();
+	mMActor->getModel()
+	    ->getModelData()
+	    ->getJointNodePointer(0)
+	    ->setCallBack(PakkunSeedCallback);
+}
+
+const char** TPakkun::getBasNameTable() const
+{
+	return pakkun_bastable;
+}
+
+void TPakkun::shoot()
+{
+	mSeed->shoot();
+}
+
+void TPakkun::shootIn()
+{
+	mSeed->appear();
+	mSeed->set();
+}
+
+void TPakkun::reset()
+{
+	gpCurPakkun = this;
+	TSmallEnemy::reset();
+	unk1B1     = true;
+	unk1B2.a   = false;
+	mRootScale = 1.0f;
+}
+
+void TPakkun::setMActorAndKeeper()
+{
+	mMActorKeeper = new TMActorKeeper(mManager, 1);
+	mMActor       = mMActorKeeper->createMActor("pakun.bmd", 3);
+}
+
+void TPakkun::behaveToWater(THitActor* actor)
+{
+	mSprayedByWaterCooldown = 0;
+	if (actor->mPosition.y <= mGroundHeight + TPakkunManager::mIgnoreHitWaterY)
+		return;
+
+	unk165 = true;
+	if (mHitPoints > 5)
+		mHitPoints -= 4;
+
+	if (mSpine->getCurrentNerve() != &TNervePakkunFreeze::theNerve()
+	    && mSpine->getCurrentNerve() != &TNerveStayPakkunAppear::theNerve()
+	    && mSpine->getCurrentNerve() != &TNerveStayPakkunHide::theNerve()) {
+		mSpine->pushNerve(&TNervePakkunFreeze::theNerve());
+		if (mSeed->isUnk150Zero())
+			mSeed->rebirth();
+	}
+}
+
+void TPakkun::onShootLiner(JGeometry::TVec3<f32>& dir)
+{
+	JGeometry::TVec3<f32> pos = mPosition;
+	pos.x += dir.x * 200.0f;
+	pos.z += dir.z * 200.0f;
+	unkF4  = TPathNode(nullptr);
+	unk104 = TPathNode(nullptr);
+	unkF4.unk4 = pos;
+	unk104.unk4 = pos;
+	unk114.clear();
+	mShootType = 0;
+	if (dir.x == 0.0f && dir.y == 0.0f && dir.z == 0.0f)
+		dir.x += 1.0f;
+
+	MsVECNormalize((Vec*)&dir, (Vec*)&dir);
+	f32 speed = mPakkunParams->mSLSeedGravityC.get();
+	dir.x *= speed;
+	dir.y = -5.0f;
+	dir.z *= speed;
+	mSeed->mVelocity = dir;
+}
+
+void TPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (checkLiveFlag(LIVE_FLAG_UNK10000))
+		return;
+
+	mSeed->perform(flags, graphics);
+	if (checkLiveFlag(LIVE_FLAG_DEAD))
+		return;
+
+	if (flags & 1) {
+		if (mHasSubSeeds)
+			offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+		if (!gpMap->isInArea(mPosition.x, mPosition.z))
+			kill();
+		moveObject();
+	}
+
+	if (checkLiveFlag(LIVE_FLAG_HIDDEN)) {
+		if (flags & 2)
+			mMActor->frameUpdate();
+		return;
+	}
+
+	if (flags & 2) {
+		control();
+		calcRootMatrix();
+		mMActor->calcAnm();
+	}
+	if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		if (flags & 4)
+			mMActor->viewCalc();
+		if (flags & 0x200)
+			drawObject(graphics);
+	}
+}
+
+void TPakkun::setDeadAnm()
+{
+	if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
+		setBckAnm(2);
+}
+
+void TPakkun::setFreezeAnm()
+{
+	setBckAnm(1);
+}
+
+void TPakkun::setWaitAnm()
+{
+	setBckAnm(9);
+}
+
+void TPakkun::kill()
+{
+	TSmallEnemy::kill();
+	mSeed->kill();
+}
+
+void TPakkun::init(TLiveManager* manager)
+{
+	TSmallEnemy::init(manager);
+	mActorType = 0x10000004;
+	unk150     = 17;
+	mPakkunParams = (TPakkunSaveLoadParams*)getSaveParam();
+	mSpine->initWith(&TNervePakkunGenerate::theNerve());
+	setMarioGoalPath(this);
+	if (mInstanceIndex == 0) {
+		for (u8 i = 0; i < getModel()->getModelData()->getJointNum(); ++i) {
+			const char* name
+			    = getModel()->getModelData()->getJointName()->getName(i);
+			if (strcmp(name, "null_seed") == 0)
+				mHeadJntIndex = i;
+		}
+	}
+
+	mSeed = new TPakkunSeed("パックン種");
+	mSeed->loadInit(this, "seed.bmd");
+	mSeed->unk164 = mBodyScale;
+
+	ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
+	    "/scene/map/pollution/H_ma_rak.bti");
+	if (img)
+		SMS_ChangeTextureAll(getMActor()->getModel()->getModelData(),
+		                     "H_ma_rak_dummy", *img);
+
+	for (u16 i = 0; i < getMActor()->getModel()->getModelData()->getMaterialNum();
+	     ++i) {
+		SMS_InitPacket_OneTevKColor(getMActor()->getModel(), i, GX_KCOLOR0,
+		                            &unk1B2);
+	}
+
+	getMActor()->setJointCallback(1, PakkunRootCallback);
+	getMActor()->setJointCallback(2, PakkunRootCallback2);
+}
+
+void TPakkun::load(JSUMemoryInputStream& stream)
+{
+	TSmallEnemy::load(stream);
+	reset();
+	setMarioGoalPath(this);
+}
+
+TPakkun::TPakkun(const char* name)
+    : TSmallEnemy(name)
+    , mSeed(nullptr)
+    , mShootType(0)
+    , mHasSubSeeds(0)
+    , mSubSeeds(nullptr)
+    , mRootScale(1.0f)
+    , unk1BC(0)
+{
+}
+
+void TPakkunManager::clipEnemies(JDrama::TGraphics* graphics)
+{
+	f32 farClip;
+	f32 radius;
+	if (unk38) {
+		farClip = unk38->mSLFarClip.get();
+		radius  = unk38->mSLClipRadius.get();
+	} else {
+		farClip = gpConductor->getCondParams().getEnemyFarClip();
+		radius  = 300.0f;
+	}
+
+	SetViewFrustumClipCheckPerspective(gpCamera->getFovy(),
+	                                   gpCamera->getAspect(),
+	                                   graphics->mNearPlane, farClip);
+	farClip *= farClip;
+
+	for (int i = 0; i < mObjNum; ++i) {
+		TPakkun* pakkun = (TPakkun*)unk18[i];
+		if (pakkun->mHasSubSeeds) {
+			pakkun->updateSquareToMario();
+			if (pakkun->mDistToMarioSquared < farClip)
+				continue;
+		}
+
+		if (ViewFrustumClipCheck(graphics, (Vec*)&pakkun->mPosition,
+		                         radius))
+			pakkun->offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+		else
+			pakkun->onLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+
+		if (!pakkun->mSeed->isUnk150Zero()) {
+			if (ViewFrustumClipCheck(graphics,
+			                         (Vec*)&pakkun->mSeed->mPosition,
+			                         radius))
+				pakkun->mSeed->offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+			else
+				pakkun->mSeed->onLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+		}
+
+		if (pakkun->mHasSubSeeds) {
+			for (int j = 0; j < 2; ++j) {
+				TPakkunSeed* seed = pakkun->mSubSeeds[j];
+				if (!seed->isUnk150Zero()) {
+					if (ViewFrustumClipCheck(
+					        graphics, (Vec*)&seed->mPosition, radius))
+						seed->offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+					else
+						seed->onLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+				}
+			}
+		}
+	}
+}
+
+TSmallEnemy* TPakkunManager::createEnemyInstance()
+{
+	return new TPakkun("パックン");
+}
+
+void TPakkunManager::createModelData()
+{
+	createModelDataArray(entry);
+}
+
+void TPakkunManager::loadAfter()
+{
+	TSmallEnemyManager::loadAfter();
+}
+
+void TPakkunManager::load(JSUMemoryInputStream& stream)
+{
+	TSmallEnemyManager::load(stream);
+	unk38     = new TPakkunSaveLoadParams("/enemy/pakkun.prm");
+	mStayParams = new TPakkunSaveLoadParams("/enemy/staypakkun.prm");
+	mWaterEmitInfo     = new TWaterEmitInfo("/enemy/pakkunwater.prm");
+	mHideWaterEmitInfo = new TWaterEmitInfo("/enemy/pakkunhide.prm");
+}
+
+TPakkunManager::TPakkunManager(const char* name)
+    : TSmallEnemyManager(name)
+    , mStayParams(nullptr)
+    , mWaterEmitInfo(nullptr)
+    , mHideWaterEmitInfo(nullptr)
+{
+	gpCurPakkun     = nullptr;
+	gpCurPakkunSeed = nullptr;
+	unk5C           = 0;
+}
+
+static int PakkunRootCallback2(J3DNode* node, int flag)
+{
+	if (flag != 0)
+		return 1;
+	if (!gpCurPakkun)
+		return 1;
+
+	MtxPtr src
+	    = gpCurPakkun->getModel()->getAnmMtx(((J3DJoint*)node)->getJntNo());
+	Mtx scale;
+	PSMTXScale(scale, 1.0f / gpCurPakkun->mRootScale,
+	           1.0f / gpCurPakkun->mRootScale,
+	           1.0f / gpCurPakkun->mRootScale);
+	PSMTXConcat(scale, src, src);
+	PSMTXConcat(j3dSys.mCurrentMtx, scale, j3dSys.mCurrentMtx);
+	return 1;
+}
+
+static int PakkunRootCallback(J3DNode* node, int flag)
+{
+	if (flag != 0)
+		return 1;
+	if (!gpCurPakkun)
+		return 1;
+
+	if (gpCurPakkun->getGroundPlane()) {
+		u8 data = gpCurPakkun->getGroundPlane()->getData();
+		if (gpCurPakkun->mHitPoints == data)
+			return 1;
+	}
+
+	MtxPtr src
+	    = gpCurPakkun->getModel()->getAnmMtx(((J3DJoint*)node)->getJntNo());
+	Mtx scale;
+	f32 yScale = gpCurPakkun->mRootScale;
+	f32 zScale = gpCurPakkun->mRootScale;
+	if (gpCurPakkun->mRootScale > 1.0f) {
+		yScale *= 1.5f;
+		zScale *= 1.5f;
+	}
+	PSMTXScale(scale, gpCurPakkun->mRootScale, yScale, zScale);
+	PSMTXConcat(scale, src, src);
+	PSMTXScale(scale, gpCurPakkun->mRootScale, gpCurPakkun->mRootScale,
+	           gpCurPakkun->mRootScale);
+	PSMTXConcat(j3dSys.mCurrentMtx, scale, j3dSys.mCurrentMtx);
+	return 1;
+}
+
+static int PakkunSeedCallback(J3DNode* node, int flag)
+{
+	if (flag != 0)
+		return 1;
+	if (!gpCurPakkunSeed || gpCurPakkunSeed->unk168
+	    || gpCurPakkunSeed->mHost->unk1B1)
+		return 1;
+
+	MtxPtr src
+	    = gpCurPakkunSeed->getModel()->getAnmMtx(((J3DJoint*)node)->getJntNo());
+	Mtx rot;
+	f32 angle = 182.04445f * gpCurPakkunSeed->mRollAngle;
+	s16 idx   = (s16)angle;
+	f32 s     = JMASSin(idx);
+	f32 c     = JMASCos(idx);
+	rot[0][0] = c;
+	rot[0][1] = -s;
+	rot[0][2] = 0.0f;
+	rot[1][0] = s;
+	rot[1][1] = c;
+	rot[1][2] = 0.0f;
+	rot[2][0] = 0.0f;
+	rot[2][1] = 0.0f;
+	rot[2][2] = 1.0f;
+	rot[0][3] = 0.0f;
+	rot[1][3] = 0.0f;
+	rot[2][3] = 0.0f;
+	PSMTXConcat(rot, src, src);
+	PSMTXConcat(j3dSys.mCurrentMtx, rot, j3dSys.mCurrentMtx);
+	return 1;
+}
