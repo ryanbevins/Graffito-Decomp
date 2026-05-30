@@ -644,13 +644,18 @@ static int PopoRollCallback(J3DNode* node, int timing)
 
 BOOL TPopoCollision::receiveMessage(THitActor* sender, u32 message)
 {
-	if (!mOwner)
-		return FALSE;
+	TPopo* owner = mOwner;
 
-	if (mOwner->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
-		return FALSE;
+	bool canReceive;
+	if (owner->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
+		canReceive = false;
+	else
+		canReceive = true;
 
-	return mOwner->receiveMessage(sender, message);
+	if (canReceive)
+		return mOwner->receiveMessage(sender, message);
+
+	return FALSE;
 }
 
 void TPopoManager::perform(u32 flags, JDrama::TGraphics* graphics)
