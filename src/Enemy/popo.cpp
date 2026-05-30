@@ -337,8 +337,11 @@ void TPopo::forceKill()
 
 void TPopo::kill()
 {
-	onLiveFlag(LIVE_FLAG_DEAD);
-	onLiveFlag(LIVE_FLAG_HIDDEN);
+	if (unk1B4) {
+		((TPopoManager*)mManager)->unk60 = 1;
+		unk1B4                         = 0;
+	}
+	TSmallEnemy::kill();
 }
 
 void TPopo::calcRootMatrix()
