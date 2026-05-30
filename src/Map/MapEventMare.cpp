@@ -212,15 +212,14 @@ TMareWallRock::TMareWallRock()
     : TLiveActor("マーレ壁の岩")
     , mState(0)
     , mIndex(0)
-    , mSinkDepth(0.0f)
     , mTimer(0)
     , mJointObj(nullptr)
     , mLayerIndex(0)
     , mCollisions(nullptr)
-    , mEffectScale(1.0f, 1.0f, 1.0f)
-    , mEffectPos(0.0f, 0.0f, 0.0f)
-    , mEffectRotY(0.0f)
 {
+	mEffectRotY = 0.0f;
+	mEffectScale.set(1.0f, 1.0f, 1.0f);
+	mEffectPos.zero();
 }
 
 void TMareEventWallRock::load(JSUMemoryInputStream& stream)
