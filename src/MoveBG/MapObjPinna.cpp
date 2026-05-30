@@ -83,9 +83,8 @@ static inline TMapObjBase* makePinnaObj(const char* name)
 TPinnaCoaster::TPinnaCoaster(const char* name)
     : TMapObjBase(name)
     , unk138(nullptr)
-    , unk13C(0)
-    , unk140(0.0f, 0.0f, 0.0f)
 {
+	unk140.zero();
 }
 
 void TPinnaCoaster::initMapObj()
