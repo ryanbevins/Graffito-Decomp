@@ -521,13 +521,13 @@ const char** TIgaiga::getBasNameTable() const
 void TIgaiga::reset()
 {
 	TRollEnemy::reset();
-	setWalkAnm();
+	initialGraphNode();
 	offLiveFlag(LIVE_FLAG_UNK10);
 	unk1B4 = 0;
 
 	int min = 50;
 	int max = 100;
-	unk1B8 = (min + (int)((max - min) * (rand() * 0.000030517578f))) * 120;
+	unk1B8 = (min + (int)((max - min) * MsRandF())) * 120;
 	unk1BC  = true;
 
 	mPosition.y += 20.0f;
