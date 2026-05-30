@@ -254,7 +254,7 @@ void TWaterRecoverObj::touchPlayer(THitActor* sender)
 	if (!sender->isActorTypeOf(ACTOR_TYPE_PLAYER))
 		return;
 
-	if (mLifeTimer <= 0) {
+	if (!(mLifeTimer > 0 ? true : false)) {
 		sender->receiveMessage(this, HIT_MESSAGE_ATTACK);
 		mLifeTimer = 600;
 	}
