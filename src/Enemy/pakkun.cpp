@@ -699,7 +699,7 @@ void TPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 
 void TPakkun::setDeadAnm()
 {
-	if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
+	if (!checkLiveFlag(LIVE_FLAG_HIDDEN))
 		setBckAnm(2);
 }
 
