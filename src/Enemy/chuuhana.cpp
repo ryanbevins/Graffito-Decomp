@@ -1044,7 +1044,7 @@ DEFINE_NERVE(TNerveChuuHanaRoll, TLiveActor)
 
 	f32 speed = JGeometry::TUtil<f32>::sqrt(
 	    self->unk204.x * self->unk204.x + self->unk204.z * self->unk204.z);
-	self->unk1B8 = 2.0f * speed / self->mBodyRadius;
+	self->unk1B8 = speed / self->mBodyRadius * 2.0f;
 	self->unk210 += self->unk1B8;
 	if (self->unk210 > 360.0f)
 		self->unk210 -= 360.0f;
