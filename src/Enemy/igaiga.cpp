@@ -166,7 +166,19 @@ bool TRollEnemy::isReachedToGoalXZ()
 
 bool TRollEnemy::isCollidMove(THitActor* actor)
 {
-	return (size_t)actor != gpMarioAddress ? true : false;
+	bool isMapObj;
+	if (actor->mActorType == 0x4000022B)
+		isMapObj = true;
+	else
+		isMapObj = false;
+
+	if (isMapObj) {
+		kill();
+		return true;
+	}
+
+	actor->receiveMessage(this, 0xE);
+	return false;
 }
 
 void TRollEnemy::attackToMario()
