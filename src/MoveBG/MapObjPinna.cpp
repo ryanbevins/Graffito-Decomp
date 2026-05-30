@@ -266,7 +266,9 @@ void TPinnaEntrance::loadAfter()
 
 	JGeometry::TVec3<f32> rot(90.0f, 0.0f, 0.0f);
 	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-	TMapObjBaseManager::newAndRegisterObj("GateManta", mPosition, rot, scale);
+	JGeometry::TVec3<f32>* scalePtr = &scale;
+	TMapObjBaseManager::newAndRegisterObj("GateManta", mPosition, rot,
+	                                      *scalePtr);
 }
 
 void TBalloonKoopaJr::load(JSUMemoryInputStream& stream)
