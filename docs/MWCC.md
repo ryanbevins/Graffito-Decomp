@@ -6067,6 +6067,23 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **`getModel()->getAnmMtx(N)` lowers differently than the target's inline
+  joint-matrix access (igaiga).** In `TGorogoro::calcRootMatrix` and
+  `setDeadAnm`/`setMeltAnm`/`behaveToWater`, the original loads the body joint
+  matrix inline as `mMActor->unk4->0x58` (i.e. `getMActor()->getModel()`
+  inlined, then a single field load at +0x58 — effectively joint index 0).
+  Our `getModel()->getAnmMtx(1)` instead emits an out-of-line `bl
+  getModel__10TLiveActorCFv`, then `lwz 0x58(r3); addi r5,r5,0x30` (base +
+  1×0x30). Two separate divergences: (a) `getModel()` is called out-of-line
+  vs inlined `mMActor->getModel()`, and (b) the index/stride differs (our
+  getAnmMtx adds a 0x30 matrix-stride; target does not). Suggests either the
+  source used `getMActor()->getModel()->getAnmMtx(0)` (different joint index),
+  or our `J3DModel::getAnmMtx` formula / `mNodeMatrices` layout doesn't match
+  the original. Experiment: try `getMActor()->getModel()->getAnmMtx(0)` in one
+  igaiga fn and diff; if the inline + single-load both appear, the idiom is
+  confirmed and the index was 0 — then sweep igaiga's particle-emit calls.
+  Likely affects other enemy TUs that emit on a joint matrix.
+
 - **Nerve-heavy fns: target names the static-nerve/registration-string
   block `@NNNN` and hoists its base into a callee-saved reg (r30/r31),
   addressing every inlined `theNerve()` instance + `__register_global_object`
