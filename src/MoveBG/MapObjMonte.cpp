@@ -692,7 +692,7 @@ BOOL TJumpMushroom::receiveMessage(THitActor*, unsigned long)
 void TMapObjMonteRoot::initMapObj()
 {
 	TMapObjBase::initMapObj();
-	mDamageRadius = 1400.0f * mScaling.y;
+	mDamageHeight = 1400.0f * mScaling.y;
 	calcEntryRadius();
-	mPosition.y = mInitialPosition.y + mDamageHeight;
+	mPosition.y = mInitialPosition.y + mYOffset;
 }
