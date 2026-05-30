@@ -5,6 +5,7 @@
 #include <MoveBG/MapObjEx.hpp>
 
 class TMapObjFlag;
+class TShiningStone;
 
 class TSandLeaf : public TMapObjBase {
 public:
@@ -145,8 +146,9 @@ public:
 	/* 0x158 */ JGeometry::TVec3<f32> unk158;
 	/* 0x164 */ JGeometry::TVec3<f32> unk164;
 	/* 0x170 */ f32 unk170;
-	/* 0x174 */ u8 unk174[0x8];
-	/* 0x17C */ u32 unk17C;
+	/* 0x174 */ f32 unk174;
+	/* 0x178 */ f32 unk178;
+	/* 0x17C */ TShiningStone* unk17C;
 	/* 0x180 */ JGeometry::TVec3<f32> unk180;
 	/* 0x18C */ JGeometry::TVec3<f32> unk18C;
 	/* 0x198 */ f32 unk198;
@@ -166,12 +168,12 @@ public:
 
 public:
 	/* 0x68 */ MActor** unk68;
-	/* 0x6C */ u8 unk6C[0x4];
+	/* 0x6C */ MActor* unk6C;
 	/* 0x70 */ u8 unk70;
 	/* 0x71 */ u8 unk71;
 	/* 0x72 */ u8 unk72;
 	/* 0x73 */ u8 unk73;
-	/* 0x74 */ JPABaseEmitter* unk74;
+	/* 0x74 */ s32 unk74;
 	/* 0x78 */ JPABaseEmitter* unk78;
 	/* 0x7C */ f32 unk7C;
 };

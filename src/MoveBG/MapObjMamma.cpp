@@ -1,18 +1,22 @@
 #include <MoveBG/MapObjMamma.hpp>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraShake.hpp>
+#include <Enemy/Beam.hpp>
+#include <Enemy/SleepBossHanachan.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapData.hpp>
+#include <Map/MapMirror.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjBall.hpp>
 #include <MoveBG/MapObjFlag.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <MoveBG/MapObjWave.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <M3DUtil/MActorUtil.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -20,6 +24,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Strategic/MirrorActor.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <System/TargetArrow.hpp>
@@ -28,7 +33,11 @@
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
 #include <dolphin/mtx.h>
+#include <math.h>
+#include <stdio.h>
 #include <string.h>
+
+extern TBeamManager* gpBeamManager;
 
 u32 TSandBase::mWitherTime = 800;
 f32 TSandBase::mScaleMin   = 0.00001f;
@@ -73,6 +82,34 @@ static inline TMapObjBase* findMapObj(const char* name)
 	u16 key                  = JDrama::TNameRef::calcKeyCode(name);
 	return (TMapObjBase*)root->searchF(key, name);
 }
+
+static inline TLiveActor* findLiveActor(const char* name)
+{
+	JDrama::TNameRefGen* gen = JDrama::TNameRefGen::instance;
+	JDrama::TNameRef* root   = gen->mRootNameRef;
+	u16 key                  = JDrama::TNameRef::calcKeyCode(name);
+	return (TLiveActor*)root->searchF(key, name);
+}
+
+static inline f32 vecLength(const JGeometry::TVec3<f32>& vec)
+{
+	return vec.length();
+}
+
+static inline void addLeanMirrorImpulse(TLeanMirror* mirror, THitActor* actor,
+                                        f32 rate)
+{
+	MtxPtr mtx = mirror->getModel()->getAnmMtx(0);
+	f32 divX   = fabsf(mirror->unk138 * mtx[0][0]);
+	f32 divZ   = fabsf(mirror->unk138 * mtx[2][2]);
+	f32 localX = (actor->mPosition.x - mirror->mPosition.x) / divX;
+	f32 localZ = (actor->mPosition.z - mirror->mPosition.z) / divZ;
+
+	mirror->unk14C.x += rate * (localX - mtx[0][1]);
+	mirror->unk14C.z += rate * (localZ - mtx[2][1]);
+}
+
+static s32 startCameraShakeSE(u32, u32);
 
 u32 TSandEgg::getSDLModelFlag() const { return 0; }
 
@@ -284,15 +321,124 @@ u32 TMammaBlockRotate::touchWater(THitActor*)
 
 TShiningStone::TShiningStone(const char* name)
     : THitActor(name)
-    , unk68(0)
-    , unk74(0)
-    , unk78(0)
-    , unk7C(0.0f)
     , unk70(0)
     , unk71(0)
     , unk72(0)
     , unk73(0)
+    , unk74(0)
+    , unk78(0)
+    , unk7C(0.0f)
 {
+}
+
+void TShiningStone::load(JSUMemoryInputStream& stream)
+{
+	static const char* modelNames[] = {
+		"/scene/mapObj/ShiningStoneGreen.bmd",
+		"/scene/mapObj/ShiningStoneBlue.bmd",
+		"/scene/mapObj/ShiningStoneRed.bmd",
+		"/scene/mapObj/ShiningStoneWhite.bmd",
+	};
+
+	JDrama::TActor::load(stream);
+
+	Mtx mtx;
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
+	               mRotation.y, mRotation.z);
+
+	unk68 = new MActor*[4];
+	for (int i = 0; i < 4; ++i) {
+		unk68[i] = SMS_MakeMActorWithAnmData(
+		    modelNames[i], gpMapObjManager->getMActorAnmData(), 3, 0x10020000);
+		PSMTXCopy(mtx, unk68[i]->getModel()->getBaseTRMtx());
+
+		TMirrorActor* mirrorActor = new TMirrorActor("鏡用石in鏡");
+		mirrorActor->init(unk68[i]->getModel(), 0x1A);
+	}
+
+	unk6C = SMS_MakeMActorWithAnmData("/scene/mapObj/ShiningStone.bmd",
+	                                  gpMapObjManager->getMActorAnmData(), 3,
+	                                  0x10020000);
+	unk6C->setBpk("shiningstone");
+	unk6C->setBtk("shiningstone");
+	PSMTXCopy(mtx, unk6C->getModel()->getBaseTRMtx());
+
+	SMS_LoadParticle("/scene/mapObj/ShiningStone1.jpa", 0x143);
+	SMS_LoadParticle("/scene/mapObj/ShiningStone2.jpa", 0x144);
+	SMS_LoadParticle("/scene/mapObj/ShiningStone3.jpa", 0x145);
+	SMS_LoadParticle("/scene/mapObj/ShiningStoneF.jpa", 0x56);
+}
+
+void TShiningStone::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	for (int i = 0; i < 4; ++i) {
+		unk68[i]->perform(flags, graphics);
+		if (unk74 > 0)
+			gpMarioParticleManager->emit(0x143, &mPosition, 1, this);
+		if (unk74 > 1)
+			gpMarioParticleManager->emit(0x144, &mPosition, 1, this);
+		if (unk74 > 2)
+			gpMarioParticleManager->emit(0x145, &mPosition, 1, this);
+	}
+
+	unk6C->perform(flags, graphics);
+}
+
+void TShiningStone::putOnLight(TLiveActor* actor)
+{
+	if (strcmp(actor->getName(), "mirrorS") == 0) {
+		unk68[0]->setBck("shiningstonegreen");
+		unk68[0]->setBrk("shiningstonegreen");
+		unk70 = 1;
+	} else if (strcmp(actor->getName(), "mirrorM") == 0) {
+		unk68[1]->setBck("shiningstoneblue");
+		unk68[1]->setBrk("shiningstoneblue");
+		unk71 = 1;
+	} else if (strcmp(actor->getName(), "mirrorL") == 0) {
+		unk68[2]->setBck("shiningstonered");
+		unk68[2]->setBrk("shiningstonered");
+		unk72 = 1;
+	}
+
+	switch (unk74) {
+	case 0:
+		unk78 = gpMarioParticleManager->emit(0x143, &mPosition, 1, this);
+		unk78->mChildSpawnRate = 3.0f;
+		unk7C                 = 1.5f;
+		if (gpMSound->gateCheck(0x2893)) {
+			MSoundSESystem::MSoundSE::startSoundActor(0x2893, &mPosition, 0,
+			                                          nullptr, 0, 4);
+		}
+		break;
+	case 1:
+		unk78 = gpMarioParticleManager->emit(0x144, &mPosition, 1, this);
+		unk78->mChildSpawnRate = 0.4f;
+		unk7C                 = 0.2f;
+		if (gpMSound->gateCheck(0x2894)) {
+			MSoundSESystem::MSoundSE::startSoundActor(0x2894, &mPosition, 0,
+			                                          nullptr, 0, 4);
+		}
+		break;
+	case 2:
+		unk78 = gpMarioParticleManager->emit(0x145, &mPosition, 1, this);
+		unk7C = 0.0f;
+		if (gpMSound->gateCheck(0x2895)) {
+			MSoundSESystem::MSoundSE::startSoundActor(0x2895, &mPosition, 0,
+			                                          nullptr, 0, 4);
+		}
+		break;
+	default:
+		break;
+	}
+
+	gpMarioParticleManager->emit(0x56, &mPosition, 0, nullptr);
+
+	unk74 += 1;
+	if (unk74 == 3) {
+		unk68[3]->setBck("shiningstonewhite");
+		unk68[3]->setBrk("shiningstonewhite");
+		unk73 = 1;
+	}
 }
 
 TLeanMirror::TLeanMirror(const char* name)
@@ -316,6 +462,311 @@ TLeanMirror::TLeanMirror(const char* name)
 }
 
 u32 TLeanMirror::getSDLModelFlag() const { return 0; }
+
+void TLeanMirror::load(JSUMemoryInputStream& stream)
+{
+	TMapObjBase::load(stream);
+
+	f32 radius;
+	stream.read(&radius, 4);
+	unk138 = radius * 100.0f * 0.5f;
+	unk13C = unk138;
+
+	if (gpMarDirector->unk7D == 1) {
+		char buf[64];
+		stream.readString(buf, 64);
+		stream.read(&unk1A0.x, 4);
+		stream.read(&unk1A0.y, 4);
+		stream.read(&unk1A0.z, 4);
+	}
+
+	TMirrorModelObj* mirrorModel = new TMirrorModelObj;
+	char modelName[64];
+	snprintf(modelName, 64, "/scene/mapObj/%sTop.bmd", unkF4);
+	mirrorModel->init(modelName);
+	mirrorModel->unk28 = getModel();
+
+	if (gpMarDirector->unk7D != 1)
+		mState = 4;
+}
+
+void TLeanMirror::initMapObj()
+{
+	TMapObjBase::initMapObj();
+	unk158.x = 0.03f;
+	unk158.y = 0.999f;
+	unk158.z = 0.0001f;
+	unk164.y = 1.0f;
+	unk164.z = 0.0002f;
+	unk170   = 0.0001f;
+	unk174   = 0.865f;
+	unk178   = 0.5f;
+
+	if (strcmp(unkF4, "mirrorS") == 0) {
+		unk164.x = 0.002f;
+		unk164.y = 1.0f;
+		unk174   = 0.87f;
+		unk19C   = 1;
+	} else if (strcmp(unkF4, "mirrorM") == 0) {
+		unk164.x = 0.004f;
+		unk19C   = 2;
+	} else {
+		unk164.x = 0.006f;
+		unk19C   = 3;
+	}
+}
+
+void TLeanMirror::loadAfter()
+{
+	TMapObjBase::loadAfter();
+	unk17C = (TShiningStone*)findLiveActor("ShiningStone");
+
+	unk180 = unk17C->mPosition;
+	unk180.sub(mPosition);
+	if (unk180.squared() <= 0.0000038146973f)
+		zeroVec(unk180);
+	else
+		unk180.normalize();
+}
+
+void TLeanMirror::control()
+{
+	TMapObjBase::control();
+	switch (mState) {
+	case 1:
+		controlShake();
+		if (gpMSound->gateCheck(0x3048)) {
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x3048, &mPosition, nullptr, vecLength(unk14C), 0, 0, nullptr,
+			    0, 4);
+		}
+		break;
+	case 2:
+		controlGoTarget();
+		if (gpMSound->gateCheck(0x304A)) {
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x304A, &mPosition, nullptr, vecLength(unk14C), 0, 0, nullptr,
+			    0, 4);
+		}
+		break;
+	case 3:
+		if (!(mLifeTimer > 0 ? true : false)) {
+			if (unk17C->unk74 < 3)
+				MSBgm::setTrackVolume(0, 1.0f, 10, 0);
+
+			if (unk17C->unk7C > 0.0f)
+				unk17C->unk78->mChildSpawnRate = unk17C->unk7C;
+
+			mState = 4;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void TLeanMirror::controlShake()
+{
+	if ((unk19C != 0 ? true : false) && unk1AC
+	    && SMS_IsMarioTouchGround4cm()
+	    && SMS_GetMarioGrPlane()->getActor() != this) {
+		MSBgm::stopTrackBGM(1, 10);
+		MSBgm::setTrackVolume(0, 1.0f, 0, 0);
+		unk1AC = 0;
+	}
+
+	if (unk14C.squared() <= 0.0000038146973f)
+		return;
+
+	unk14C.scale(unk158.y);
+
+	J3DModel* model = getModel();
+	MtxPtr mtx      = model->getAnmMtx(0);
+
+	JGeometry::TVec3<f32> axis(unk14C.x, 0.0f, unk14C.z);
+	rotateVecByAxisY(&axis, 1.5707963f);
+
+	f32 speedXZ
+	    = JGeometry::TUtil<f32>::sqrt(unk14C.x * unk14C.x + unk14C.z * unk14C.z);
+	f32 angle   = speedXZ * unk158.x;
+	Mtx rotMtx;
+	MTXIdentity(rotMtx);
+	makeMtxRotByAxis(axis, angle, rotMtx);
+	concatOnlyRotFromLeft(rotMtx, mtx, mtx);
+
+	bool hitLimit = false;
+	if (mtx[1][1] < unk174) {
+		f32 dot = unk14C.x * mtx[0][1] + unk14C.z * mtx[2][1];
+		if (dot > 0.0f)
+			hitLimit = true;
+	}
+
+	if (hitLimit) {
+		if (gpMSound->gateCheck(0x3849)) {
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x3849, &mPosition, nullptr, vecLength(unk14C), 0, 0, nullptr,
+			    0, 4);
+		}
+		unk14C.scale(-unk178);
+		PSMTXCopy(model->getBaseTRMtx(), mtx);
+	} else {
+		PSMTXCopy(mtx, model->getBaseTRMtx());
+	}
+}
+
+void TLeanMirror::controlGoTarget()
+{
+	MtxPtr mtx = getModel()->getAnmMtx(0);
+	Mtx rotMtx;
+	MTXIdentity(rotMtx);
+	makeMtxRotByAxis(unk18C, unk198, rotMtx);
+	concatOnlyRotFromLeft(rotMtx, mtx, mtx);
+
+	if (mLifeTimer > 0 ? true : false)
+		return;
+
+	unk17C->putOnLight(this);
+	if (unk17C->unk73) {
+		TSleepBossHanachan* boss
+		    = (TSleepBossHanachan*)findLiveActor("居眠りボスハナチャン");
+		if (boss) {
+			boss->startFall(unk17C->mPosition.x, unk17C->mPosition.y + 1100.0f,
+			                unk17C->mPosition.z);
+		}
+
+		JDrama::TFlagT<u16> flag(0);
+		gpMarDirector->fireStartDemoCamera(
+		    "demohanatyan_cam01", nullptr, -1, 0.0f, true,
+		    startCameraShakeSE, (u32)&mPosition, nullptr, flag);
+	} else {
+		JDrama::TFlagT<u16> flag(0);
+		gpMarDirector->fireStartDemoCamera("太陽石点灯カメラ",
+		                                   &unk17C->mPosition, mDemoLightTime,
+		                                   0.0f, true, nullptr, 0, nullptr,
+		                                   flag);
+	}
+
+	mLifeTimer = mDemoLightTime;
+	mState     = 3;
+}
+
+static s32 startCameraShakeSE(u32 pos, u32 time)
+{
+	if (time == 0 && gpMSound->gateCheck(0x3008)) {
+		MSoundSESystem::MSoundSE::startSoundActor(0x3008, (const Vec*)pos, 0,
+		                                          nullptr, 0, 4);
+	}
+
+	return 0;
+}
+
+void TLeanMirror::release()
+{
+	MtxPtr mtx = getModel()->getAnmMtx(0);
+	JGeometry::TVec3<f32> up(mtx[0][1], mtx[1][1], mtx[2][1]);
+
+	unk18C.x = unk180.y * up.z - unk180.z * up.y;
+	unk18C.y = unk180.z * up.x - unk180.x * up.z;
+	unk18C.z = unk180.x * up.y - unk180.y * up.x;
+
+	JGeometry::TVec3<f32> axis(up.y * unk180.z - up.z * unk180.y,
+	                           up.z * unk180.x - up.x * unk180.z,
+	                           up.x * unk180.y - up.y * unk180.x);
+	f32 crossLen = JGeometry::TUtil<f32>::sqrt(axis.squared());
+	f32 dot      = up.dot(unk180);
+	unk198       = fabsf(atan2f(crossLen, dot)) / (f32)mGoTargetTime;
+
+	mLifeTimer = mGoTargetTime;
+	mState     = 2;
+	unkF8 &= ~2;
+	SMS_MarioMoveRequest(unk1A0);
+
+	JDrama::TFlagT<u16> flag(0);
+	if (strcmp(unkF4, "mirrorS") == 0) {
+		gpMarDirector->fireStartDemoCamera(
+		    "ぐらぐら鏡Ｓカメラ", &unk17C->mPosition,
+		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
+		    flag);
+	} else if (strcmp(unkF4, "mirrorM") == 0) {
+		gpMarDirector->fireStartDemoCamera(
+		    "ぐらぐら鏡Ｍカメラ", &unk17C->mPosition,
+		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
+		    flag);
+	} else if (strcmp(unkF4, "mirrorL") == 0) {
+		gpMarDirector->fireStartDemoCamera(
+		    "ぐらぐら鏡Ｌカメラ", &unk17C->mPosition,
+		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
+		    flag);
+	}
+
+	MSBgm::stopTrackBGM(1, 10);
+}
+
+void TLeanMirror::touchEnemy(THitActor* actor)
+{
+	bool isBossPart = actor->mActorType == 0x10000016 ? true : false;
+	if (isBossPart && *((u8*)actor + 0x1B0))
+		addLeanMirrorImpulse(this, actor, unk164.z);
+}
+
+void TLeanMirror::touchPlayer(THitActor* actor)
+{
+	bool canTouch = mState == 1 ? true : false;
+	if (!canTouch || !marioIsOn())
+		return;
+
+	addLeanMirrorImpulse(this, actor, unk158.z);
+	if (!unk1AC) {
+		MSBgm::startBGM(0x80010011);
+		MSBgm::setTrackVolume(0, 0.0f, 0, 0);
+		unk1AC = 1;
+	}
+}
+
+BOOL TLeanMirror::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == 0) {
+		sendMsg(0x10000016, message);
+		addLeanMirrorImpulse(this, sender, unk164.x);
+		return TRUE;
+	}
+
+	if (message == 1) {
+		sendMsg(0x10000016, message);
+		addLeanMirrorImpulse(this, sender, unk164.y);
+		return TRUE;
+	}
+
+	if (message == 3) {
+		addLeanMirrorImpulse(this, sender, unk170);
+		return TRUE;
+	}
+
+	if (message == 8) {
+		unk19C -= 1;
+		if (unk19C == 0)
+			release();
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+void TLeanMirror::draw() const
+{
+	MtxPtr mtx = getModel()->getAnmMtx(0);
+	JGeometry::TVec3<f32> dir(mtx[0][1], mtx[1][1], mtx[2][1]);
+	JGeometry::TVec3<f32> start = dir;
+	start.scale(350.0f * 0.001f * mBodyRadius);
+	start.add(mPosition);
+
+	JGeometry::TVec3<f32> end = dir;
+	end.scale(10000.0f);
+	end.add(mPosition);
+
+	gpBeamManager->requestCone(start, end, 1.7f * mBodyRadius, true, true,
+	                           false);
+}
 
 TSandCastle::TSandCastle(const char* name)
     : TSandBombBase(name)
