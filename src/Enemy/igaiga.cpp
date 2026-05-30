@@ -22,12 +22,15 @@
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>
+#include <MarioUtil/TexUtil.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/ModelWaterManager.hpp>
+#include <Strategic/MirrorActor.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/SharedParts.hpp>
 #include <Strategic/Spine.hpp>
@@ -737,9 +740,29 @@ void TGorogoro::init(TLiveManager* manager)
 	unk64 &= 0xA7FFFFFF;
 	mSpine->initWith(&TNerveGorogoroRollOnGraph::theNerve());
 	unk1A4 = getSaveParam();
-	mMActor->setJointCallback(1, RollEnemyBodyCallback);
-	unk130    = 1;
+
+	TMirrorActor* mirror = new TMirrorActor("ゴロゴロin鏡");
+	mirror->init(getMActor()->getModel(), 0x18);
 	unk1ED[3] = 0xff;
+
+	ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
+	    "/scene/map/pollution/H_ma_rak.bti");
+	if (img) {
+		SMS_ChangeTextureAll(getMActor()->getModel()->getModelData(), "M_dummy",
+		                     *img);
+		SMS_ChangeTextureAll(mirror->unk14->getModelData(), "M_dummy", *img);
+	}
+
+	for (u16 i = 0;
+	     i < getMActor()->getModel()->getModelData()->getMaterialNum(); ++i) {
+		SMS_InitPacket_OneTevKColor(getMActor()->getModel(), i, GX_KCOLOR0,
+		                            (GXColor*)unk1ED);
+		SMS_InitPacket_OneTevKColor(mirror->unk14, i, GX_KCOLOR0,
+		                            (GXColor*)unk1ED);
+	}
+
+	getMActor()->setJointCallback(1, RollEnemyBodyCallback);
+	unk130 = 1;
 }
 
 void TGorogoro::calcRootMatrix()
