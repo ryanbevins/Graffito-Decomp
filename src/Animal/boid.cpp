@@ -1,49 +1,284 @@
 #include <Animal/BoidLeader.hpp>
-
-class TBoid {
-public:
-	TBoid();
-	/* 0x00 */ JGeometry::TVec3<f32> mPos;
-	/* 0x0C */ JGeometry::TVec3<f32> mVel;
-	/* 0x18 */ JGeometry::TVec3<f32> mForce;
-	/* 0x24 */ JGeometry::TVec3<f32> mGoal;
-};
+#include <Enemy/Graph.hpp>
+#include <MarioUtil/MathUtil.hpp>
+#include <stdlib.h>
 
 TBoid::TBoid()
-    : mPos(0.0f, 0.0f, 0.0f)
-    , mVel(0.0f, 0.0f, 0.0f)
-    , mForce(0.0f, 0.0f, 0.0f)
-    , mGoal(0.0f, 0.0f, 0.0f)
 {
+	mNeighborCount = 0;
+	mPhase         = 0.0f;
+	mPosition.zero();
+	mRoll  = 0.0f;
+	mYaw   = 0.0f;
+	mPitch = 0.0f;
+	mForward.set(0.0f, 0.0f, 1.0f);
+	mPhase = (f32)rand() * (1.0f / 32768.0f);
 }
 
 TBoidLeader::TBoidLeader(int count, const char* name)
+    : JDrama::TViewObj(name)
+    , mNumActors(count)
+    , mBoidData(new TBoid[count])
+    , mGraphTracer(nullptr)
+    , mFlags(0)
 {
-	(void)name;
-	mNumActors = count;
-	mBoidData  = nullptr;
-	unk18      = 0;
-	mFlags     = 0;
+	mParam20 = 6.0f;
+	mParam24 = 150.0f;
+	mParam28 = 2.0f;
+	mParam2C = 2.0f;
+	mParam30 = 10.0f;
+	mParam34 = 0.01f;
+
+	mGoalActor = nullptr;
+	mGoalPos.zero();
+	mGoalForce = 1.0f;
+	mGoalOffset.zero();
+
+	unk58       = 0;
+	mRepelActor = nullptr;
+	mRepelPos.zero();
+	mRepelRange = 0.0f;
+	mRepelForce = 1.0f;
+	mGraphGoal.zero();
+
+	mFlags |= 1;
+}
+
+void TBoidLeader::calcBoids()
+{
+	if (!(mFlags & 1))
+		return;
+
+	TBoid* end = mBoidData + mNumActors;
+	for (TBoid* boid = mBoidData; boid != end; ++boid) {
+		boid->mForce.zero();
+		boid->mAverageForward.zero();
+		boid->mCenterDir.zero();
+		boid->mNeighborCount = 0;
+	}
+
+	for (TBoid* boid = mBoidData; boid != end; ++boid) {
+		for (TBoid* other = boid + 1; other != end; ++other) {
+			JGeometry::TVec3<f32> diff = boid->mPosition;
+			diff.sub(other->mPosition);
+			f32 dist2 = diff.squared();
+			if (dist2 < 0.001f)
+				continue;
+
+			f32 radius = mParam24;
+			if (!(dist2 < radius * radius))
+				continue;
+
+			JGeometry::TVec3<f32> avoid = diff;
+			avoid.div(dist2);
+			avoid.scale(radius);
+			boid->mForce.add(avoid);
+
+			JGeometry::TVec3<f32> otherAvoid = diff;
+			otherAvoid.div(dist2);
+			otherAvoid.scale(radius);
+			other->mForce.sub(otherAvoid);
+
+			boid->mAverageForward.add(other->mForward);
+			other->mAverageForward.add(boid->mForward);
+			boid->mCenterDir.add(other->mPosition);
+			other->mCenterDir.add(boid->mPosition);
+			boid->mNeighborCount++;
+			other->mNeighborCount++;
+		}
+
+		if (boid->mNeighborCount <= 0)
+			continue;
+
+		f32 invCount = 1.0f / (f32)boid->mNeighborCount;
+		boid->mCenterDir.scale(invCount);
+		boid->mCenterDir.sub(boid->mPosition);
+		boid->mCenterDir.normalize();
+
+		boid->mAverageForward.scale(invCount);
+		boid->mAverageForward.normalize();
+		boid->mAverageForward.sub(boid->mForward);
+		boid->mAverageForward.normalize();
+	}
+
+	for (TBoid* boid = mBoidData; boid != end; ++boid) {
+		JGeometry::TVec3<f32> force = calcForces(boid);
+
+		if (force.squared() > JGeometry::TUtil<f32>::epsilon()) {
+			if (force.y < -0.01f) {
+				boid->mPitch += mParam2C;
+				if (boid->mPitch > mParam30)
+					boid->mPitch = mParam30;
+			} else if (force.y > 0.01f) {
+				boid->mPitch -= mParam2C;
+				if (boid->mPitch < -mParam30)
+					boid->mPitch = -mParam30;
+			} else {
+				boid->mPitch *= 0.98f;
+			}
+
+			f32 targetYaw;
+			if (force.z == 0.0f) {
+				if (force.x >= 0.0f)
+					targetYaw = 90.0f;
+				else
+					targetYaw = -90.0f;
+			} else if (force.z >= 0.0f) {
+				targetYaw = (f32)matan(force.z, force.x) * 0.005493164f;
+			} else {
+				targetYaw = 180.0f
+				            - (f32)matan(-force.z, force.x) * 0.005493164f;
+			}
+
+			f32 wrapped
+			    = MsWrap<f32>(boid->mYaw, targetYaw - 180.0f,
+			                  targetYaw + 180.0f);
+			f32 turn = targetYaw - wrapped;
+			if (turn < -0.01f)
+				turn = -mParam28;
+			else if (turn > 0.01f)
+				turn = mParam28;
+
+			boid->mYaw += turn;
+			while (boid->mYaw >= 360.0f)
+				boid->mYaw -= 360.0f;
+			while (boid->mYaw < 0.0f)
+				boid->mYaw += 360.0f;
+		}
+
+		Mtx rot;
+		MsMtxSetRotRPH(rot, boid->mPitch, boid->mYaw, boid->mRoll);
+		boid->mForward.set(rot[0][2], rot[1][2], rot[2][2]);
+		PSVECNormalize((Vec*)&boid->mForward, (Vec*)&boid->mForward);
+
+		f32 forceLen = JGeometry::TUtil<f32>::sqrt(force.dot(force));
+		JGeometry::TVec3<f32> velocity = boid->mForward;
+		velocity.scale(mParam20 + boid->mPhase);
+		velocity.scale(forceLen);
+		boid->mPosition.add(velocity);
+	}
+}
+
+void TBoidLeader::setGraph(TGraphWeb* graph,
+                           const JGeometry::TVec3<f32>& pos)
+{
+	if (graph == nullptr)
+		return;
+
+	if (graph->isDummy())
+		return;
+
+	if (mGraphTracer == nullptr)
+		mGraphTracer = new TGraphTracer();
+
+	mGraphTracer->setGraph(graph);
+	int idx = graph->findNearestNodeIndex(pos, 0xffffffff);
+	mGraphTracer->setTo(idx);
+	mGraphGoal = mGraphTracer->unk0->indexToPoint(mGraphTracer->mCurrIdx);
+	mFlags |= 4;
+}
+
+void TBoidLeader::perform(u32 flags, JDrama::TGraphics*)
+{
+	if (!(flags & 2))
+		return;
+
+	if (mFlags & 4) {
+		JGeometry::TVec3<f32> node
+		    = mGraphTracer->unk0->indexToPoint(mGraphTracer->mCurrIdx);
+		node.sub(mGraphGoal);
+
+		if (node.squared() < 10000.0f) {
+			int next = mGraphTracer->unk0->getRandomNextIndex(
+			    mGraphTracer->mCurrIdx, mGraphTracer->mPrevIdx, 0xffffffff);
+			mGraphTracer->moveTo(next);
+		} else {
+			PSVECNormalize((Vec*)&node, (Vec*)&node);
+			node.scale(0.9f * mParam20);
+			mGraphGoal.add(node);
+		}
+
+		calcBoids();
+	}
+}
+
+JGeometry::TVec3<f32>
+TBoidLeader::calcGoalForce(const JGeometry::TVec3<f32>& pos) const
+{
+	JGeometry::TVec3<f32> result;
+
+	if (mFlags & 4) {
+		result = mGraphGoal;
+		result.sub(pos);
+		result.normalize();
+		return result;
+	}
+
+	const JGeometry::TVec3<f32>* goal;
+	if (mGoalActor != nullptr)
+		goal = &mGoalActor->mPosition;
+	else
+		goal = &mGoalPos;
+
+	result = *goal;
+	result.add(mGoalOffset);
+	result.sub(pos);
+
+	f32 length = result.length();
+	if (length > 0.0f) {
+		result.div(length);
+		result.scale(mGoalForce);
+	} else {
+		result.zero();
+	}
+
+	return result;
+}
+
+JGeometry::TVec3<f32> TBoidLeader::calcForces(const TBoid* boid) const
+{
+	JGeometry::TVec3<f32> result = boid->mForce;
+
+	JGeometry::TVec3<f32> average = boid->mAverageForward;
+	average.scale(mParam34);
+	result.add(average);
+	result.add(boid->mCenterDir);
+
+	JGeometry::TVec3<f32> goalForce = calcGoalForce(boid->mPosition);
+	result.add(goalForce);
+
+	f32 len2 = result.squared();
+	if (len2 == 0.0f) {
+		result.zero();
+		return result;
+	}
+
+	f32 scale = ((5.0f * ((f32)rand() * (1.0f / 32768.0f))) + 95.0f) * 0.01f;
+	result.scale(scale);
+
+	if (result.squared() <= JGeometry::TUtil<f32>::epsilon())
+		result.zero();
+	else
+		result.normalize();
+
+	if (mRepelRange > 0.0f) {
+		JGeometry::TVec3<f32> away = boid->mPosition;
+		const JGeometry::TVec3<f32>* repelPos;
+		if (mRepelActor != nullptr)
+			repelPos = &mRepelActor->mPosition;
+		else
+			repelPos = &mRepelPos;
+		away.sub(*repelPos);
+
+		f32 repelLen2 = away.squared();
+		if (repelLen2 > 0.0f && repelLen2 < mRepelRange * mRepelRange) {
+			away.normalize();
+			away.scale(mRepelForce);
+			result = away;
+		}
+	}
+
+	return result;
 }
 
 TBoidLeader::~TBoidLeader() { }
-
-void TBoidLeader::setGraph(TGraphWeb* graph, const JGeometry::TVec3<f32>& pos)
-{
-	(void)graph;
-	(void)pos;
-}
-
-void TBoidLeader::calcForces(const TBoid* boid) const { (void)boid; }
-void TBoidLeader::calcGoalForce(const JGeometry::TVec3<f32>& goal) const
-{
-	(void)goal;
-}
-
-void TBoidLeader::perform(u32 flags, JDrama::TGraphics* gfx)
-{
-	(void)flags;
-	(void)gfx;
-}
-
-void TBoidLeader::calcBoids() { }
