@@ -506,10 +506,10 @@ TLeafBoat::TLeafBoat(const char* name)
     , unk158(0.005f)
     , unk15C(0.98f)
     , unk160(0)
-    , unk164(0.0f)
-    , unk168(0.0f)
-    , unk16C(0.0f)
 {
+	unk16C = 0.0f;
+	unk168 = 0.0f;
+	unk164 = 0.0f;
 }
 
 void TLeafBoat::initMapObj()
