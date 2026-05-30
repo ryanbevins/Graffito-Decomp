@@ -3,6 +3,7 @@
 
 #include <Enemy/WalkerEnemy.hpp>
 #include <Strategic/Nerve.hpp>
+#include <dolphin/mtx.h>
 
 class TWaterEmitInfo;
 class TPopo;
@@ -110,7 +111,10 @@ public:
 	/* 0x1C0 */ JGeometry::TVec3<f32> mCallbackPos;
 	/* 0x1CC */ u8 unk1CC;
 	/* 0x1CD */ u8 unk1CD;
-	/* 0x1CE */ u8 unk1CE[0x23C - 0x1CE];
+	/* 0x1CE */ u8 unk1CE[2];
+	/* 0x1D0 */ Mtx unk1D0;
+	/* 0x200 */ Mtx unk200;
+	/* 0x230 */ JGeometry::TVec3<f32> unk230;
 	/* 0x23C */ TPopoCollision* mCollision;
 };
 

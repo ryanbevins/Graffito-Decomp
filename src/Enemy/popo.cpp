@@ -657,15 +657,36 @@ static int PopoNonScaleCallback(J3DNode* node, int timing)
 	if (!popo)
 		return 1;
 
+	bool shouldScale = false;
+	if (popo->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
+		shouldScale = true;
+	else if (popo->mSpine->getCurrentNerve()
+	         == &TNervePopoExplosion::theNerve())
+		shouldScale = true;
+	else if (popo->unk1B4)
+		shouldScale = true;
+
+	if (!shouldScale)
+		return 1;
+
 	J3DJoint* joint = (J3DJoint*)node;
-	MtxPtr mtx = popo->mMActor->unk4->mNodeMatrices[joint->getJntNo()];
-	f32 sx = 1.0f / popo->mScaling.x;
-	f32 sy = 1.0f / popo->mScaling.y;
-	f32 sz = 1.0f / popo->mScaling.z;
-	mtx[0][0] *= sx;
-	mtx[1][1] *= sy;
-	mtx[2][2] *= sz;
-	PSMTXCopy(mtx, J3DSys::mCurrentMtx);
+	MtxPtr mtx       = popo->getModel()->mNodeMatrices[joint->getJntNo()];
+	f32 scale        = 0.9f * popo->mBodyScale;
+	Mtx scaleMtx;
+	scaleMtx[0][0] = scale;
+	scaleMtx[0][1] = 0.0f;
+	scaleMtx[0][2] = 0.0f;
+	scaleMtx[0][3] = 0.0f;
+	scaleMtx[1][0] = 0.0f;
+	scaleMtx[1][1] = scale;
+	scaleMtx[1][2] = 0.0f;
+	scaleMtx[1][3] = 0.0f;
+	scaleMtx[2][0] = 0.0f;
+	scaleMtx[2][1] = 0.0f;
+	scaleMtx[2][2] = scale;
+	scaleMtx[2][3] = 0.0f;
+	PSMTXConcat(mtx, scaleMtx, mtx);
+	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
 	return 1;
 }
 
@@ -678,18 +699,62 @@ static int PopoPossessedCallback(J3DNode* node, int timing)
 	if (!popo)
 		return 1;
 
-	if (popo->mSpine->getCurrentNerve()
-	    != &TNervePopoPossessedNozzle::theNerve())
-		return PopoNonScaleCallback(node, timing);
+	bool shouldScale = false;
+	if (popo->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
+		shouldScale = true;
+	else if (popo->mSpine->getCurrentNerve()
+	         == &TNervePopoExplosion::theNerve())
+		shouldScale = true;
+	else if (popo->unk1B4)
+		shouldScale = true;
 
-	TWaterGun* gun = (TWaterGun*)SMS_GetMarioWaterGun();
-	MtxPtr emit    = gun->getEmitMtx(0);
-	Mtx tmp;
-	PSMTXCopy(emit, tmp);
-	tmp[0][3] += emit[2][0] * TPopo::mNozzleOffsetZ;
-	tmp[1][3] += emit[2][1] * TPopo::mNozzleOffsetZ;
-	tmp[2][3] += emit[2][2] * TPopo::mNozzleOffsetZ;
-	PSMTXCopy(tmp, J3DSys::mCurrentMtx);
+	if (!shouldScale)
+		return 1;
+
+	f32 scale = popo->unk198;
+	if (scale < 1.1f)
+		return 1;
+
+	J3DJoint* joint = (J3DJoint*)node;
+	MtxPtr mtx       = popo->getModel()->mNodeMatrices[joint->getJntNo()];
+	Mtx scaleMtx;
+	scaleMtx[0][0] = scale;
+	scaleMtx[0][1] = 0.0f;
+	scaleMtx[0][2] = 0.0f;
+	scaleMtx[0][3] = 0.0f;
+	scaleMtx[1][0] = 0.0f;
+	scaleMtx[1][1] = scale;
+	scaleMtx[1][2] = 0.0f;
+	scaleMtx[1][3] = 0.0f;
+	scaleMtx[2][0] = 0.0f;
+	scaleMtx[2][1] = 0.0f;
+	scaleMtx[2][2] = scale;
+	scaleMtx[2][3] = 0.0f;
+	PSMTXConcat(mtx, scaleMtx, mtx);
+	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
+
+	if (popo->unk1BC[0]) {
+		PSMTXCopy(mtx, popo->unk1D0);
+		Mtx rot;
+		MsMtxSetRotRPH(rot, 0.0f, 270.0f, 0.0f);
+		PSMTXConcat(popo->unk1D0, rot, popo->unk1D0);
+
+		JGeometry::TVec3<f32> axis;
+		axis.set(mtx[0][0], mtx[1][0], mtx[2][0]);
+		popo->unk230.y = axis.length();
+		axis.set(mtx[0][1], mtx[1][1], mtx[2][1]);
+		popo->unk230.z = axis.length();
+		axis.set(mtx[0][2], mtx[1][2], mtx[2][2]);
+		popo->unk230.x = axis.length();
+
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x13C, popo->unk1D0, 1, popo);
+		if (emitter) {
+			emitter->unk154 = popo->unk230;
+			emitter->unk174 = popo->unk230;
+		}
+	}
+
 	return 1;
 }
 
@@ -699,32 +764,68 @@ static int PopoRollCallback(J3DNode* node, int timing)
 		return 1;
 
 	TPopo* popo = gpCurPopo;
-	if (!popo || !TPopo::mRollSw)
+	if (!popo)
 		return 1;
 
-	s32 phase = (s32)(popo->unk1B8 * 182.04445f);
-	u16 idx   = (u16)phase >> jmaSinShift;
-	f32 sin   = jmaSinTable[idx];
-	f32 cos   = jmaCosTable[idx];
+	J3DJoint* joint = (J3DJoint*)node;
+	MtxPtr jointMtx = popo->getModel()->mNodeMatrices[joint->getJntNo()];
+
+	Mtx scaleMtx;
+	scaleMtx[0][0] = popo->mBodyScale;
+	scaleMtx[0][1] = 0.0f;
+	scaleMtx[0][2] = 0.0f;
+	scaleMtx[0][3] = 0.0f;
+	scaleMtx[1][0] = 0.0f;
+	scaleMtx[1][1] = popo->mBodyScale;
+	scaleMtx[1][2] = 0.0f;
+	scaleMtx[1][3] = 0.0f;
+	scaleMtx[2][0] = 0.0f;
+	scaleMtx[2][1] = 0.0f;
+	scaleMtx[2][2] = popo->mBodyScale;
+	scaleMtx[2][3] = 0.0f;
 
 	Mtx roll;
-	roll[0][0] = cos;
-	roll[0][1] = -sin;
-	roll[0][2] = 0.0f;
-	roll[0][3] = 0.0f;
-	roll[1][0] = sin;
-	roll[1][1] = cos;
-	roll[1][2] = 0.0f;
-	roll[1][3] = 0.0f;
-	roll[2][0] = 0.0f;
-	roll[2][1] = 0.0f;
-	roll[2][2] = 1.0f;
-	roll[2][3] = 0.0f;
+	if (popo->mSpine->getCurrentNerve() != &TNervePopoFly::theNerve()) {
+		s32 phase = (s32)(popo->unk1B8 * 182.04445f);
+		u16 idx   = (u16)phase >> jmaSinShift;
+		f32 sin   = jmaSinTable[idx];
+		f32 cos   = jmaCosTable[idx];
 
-	J3DJoint* joint = (J3DJoint*)node;
-	MtxPtr jointMtx = popo->mMActor->unk4->mNodeMatrices[joint->getJntNo()];
-	PSMTXConcat(jointMtx, roll, roll);
+		roll[0][0] = 1.0f;
+		roll[0][1] = 0.0f;
+		roll[0][2] = 0.0f;
+		roll[0][3] = 0.0f;
+		roll[1][0] = 0.0f;
+		roll[1][1] = cos;
+		roll[1][2] = -sin;
+		roll[1][3] = 0.0f;
+		roll[2][0] = 0.0f;
+		roll[2][1] = sin;
+		roll[2][2] = cos;
+		roll[2][3] = 0.0f;
+	} else {
+		u16 idx = (u16)0x8000 >> jmaSinShift;
+		f32 sin = jmaSinTable[idx];
+		f32 cos = jmaCosTable[idx];
+
+		roll[0][0] = cos;
+		roll[0][1] = 0.0f;
+		roll[0][2] = sin;
+		roll[0][3] = 0.0f;
+		roll[1][0] = 0.0f;
+		roll[1][1] = 1.0f;
+		roll[1][2] = 0.0f;
+		roll[1][3] = 0.0f;
+		roll[2][0] = -sin;
+		roll[2][1] = 0.0f;
+		roll[2][2] = cos;
+		roll[2][3] = 0.0f;
+	}
+
+	PSMTXConcat(jointMtx, roll, jointMtx);
+	PSMTXConcat(jointMtx, scaleMtx, jointMtx);
 	PSMTXConcat(J3DSys::mCurrentMtx, roll, J3DSys::mCurrentMtx);
+	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
 	return 1;
 }
 
