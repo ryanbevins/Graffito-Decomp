@@ -541,8 +541,8 @@ void TPopo::calcRootMatrix()
 			                              ->emitAndBindToMtxPtr(0x13D, unk200,
 			                                                    1, this);
 			if (emitter) {
-				emitter->unk154 = unk230;
-				emitter->unk174 = unk230;
+				emitter->unk154.set(unk230);
+				emitter->unk174.set(unk230);
 			}
 		}
 
@@ -668,16 +668,18 @@ void TPopo::walkBehavior(int graph_direction, float multiplier)
 void TPopo::behaveToFindMario()
 {
 	TPopoManager* manager = (TPopoManager*)mManager;
-	TWaterGun* gun        = (TWaterGun*)SMS_GetMarioWaterGun();
 
-	if (SMS_CheckMarioFlag(0x8000) && manager->unk60
-	    && gun->mCurrentNozzle == 0 && !gpMarioOriginal->onYoshi()) {
-		setGoalPathMario();
-		mSpine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
-		mSpine->pushAfterCurrent(&TNervePopoAttack::theNerve());
-	} else {
-		mSpine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
+	if (SMS_CheckMarioFlag(0x8000) && manager->unk60) {
+		TWaterGun* gun = (TWaterGun*)SMS_GetMarioWaterGun();
+		if (gun->mCurrentNozzle == 0 && !gpMarioOriginal->onYoshi()) {
+			setGoalPathMario();
+			mSpine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
+			mSpine->pushAfterCurrent(&TNervePopoAttack::theNerve());
+			return;
+		}
 	}
+
+	mSpine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
 }
 
 f32 TPopo::getGravityY() const
@@ -1000,8 +1002,8 @@ static int PopoPossessedCallback(J3DNode* node, int timing)
 		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
 		    0x13C, popo->unk1D0, 1, popo);
 		if (emitter) {
-			emitter->unk154 = popo->unk230;
-			emitter->unk174 = popo->unk230;
+			emitter->unk154.set(popo->unk230);
+			emitter->unk174.set(popo->unk230);
 		}
 	}
 
