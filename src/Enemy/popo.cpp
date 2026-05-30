@@ -487,24 +487,63 @@ void TPopo::behaveToWater(THitActor* water)
 
 bool TPopo::checkTrigger()
 {
-	if (!mTriggerSw)
+	unk1BC[0] = 0;
+	if (gpMarioOriginal->onYoshi()
+	    || ((TWaterGun*)SMS_GetMarioWaterGun())->mCurrentNozzle
+	           != TWaterGun::Spray) {
+		kill();
 		return false;
+	}
 
 	SMS_SendMessageToMario(this, HIT_MESSAGE_UNK5);
-	TWaterGun* gun = (TWaterGun*)SMS_GetMarioWaterGun();
-	if (!gun || !gun->hasWater())
-		return false;
 
-	if (!gun->isPressureOn())
-		return false;
+	f32 maxScale = mPopoParams->mSLWaterScaleMax.get();
+	u8 pressure  = (u8)(s32)gpMarioOriginal->mGamePad->mCompSPos[3];
+	if (pressure > 20) {
+		unk1BC[0] = 1;
+		if (gpMSound->gateCheck(0x20C2)) {
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x20C2, &mPosition, nullptr, unk198, 0, 0, nullptr, 0, 4);
+		}
 
-	if (mLevelShootSw && unk198 < mPopoParams->mSLLevelLimit.get())
-		return false;
+		mSprayedByWaterCooldown = 0;
+		unk165                  = true;
+		unk198 += (f32)pressure * mPopoParams->mSLPumpRate.get();
+		if (unk198 > maxScale) {
+			unk198 = maxScale;
+			if (!mBrkFlag)
+				mMActor->setFrameRate(SMSGetAnmFrameRate(), 5);
+		}
 
-	unk190 = 0.0f;
-	expandCollision();
-	startPopoSound(3, mPosition);
-	return true;
+		if (mBrkFlag)
+			mMActor->getFrameCtrl(5)->setFrame(unk1A0 * unk198 / maxScale);
+	}
+
+	if ((gpMarioOriginal->mGamePad->mEnabledFrameMeaning & 0x400)
+	    || !mTriggerSw) {
+		if (mLevelShootSw) {
+			unk1CC = 1;
+		} else if (unk198 >= maxScale) {
+			unk1CC = 1;
+		}
+	}
+
+	if (mLevelShootSw && unk198 < maxScale - 0.1f && unk198 > 1.0f)
+		unk198 *= mPopoParams->mSLScaleRate.get();
+
+	if (pressure < 20
+	    && (unk1CC || unk198 > mPopoParams->mSLLevelLimit.get())) {
+		startPopoSound(0x28CD, mPosition);
+		onHitFlag(HIT_FLAG_NO_COLLISION);
+		mCollision->offHitFlag(HIT_FLAG_NO_COLLISION);
+		return true;
+	}
+
+	mScaledBodyRadius = (8.0f * unk198 + 8.0f) * (mBodyScale * mBodyRadius);
+	if (unk198 >= maxScale)
+		mMActor->getFrameCtrl(3)->setFrame(5.0f);
+
+	return false;
 }
 
 void TPopo::reset()
