@@ -180,19 +180,19 @@ void TRollEnemy::setBehavior()
 	if (!TSmallEnemy::mIsPolluter)
 		return;
 
-	f32 range;
-	if (checkLiveFlag(LIVE_FLAG_HIDDEN)) {
-		range = 2.0f;
-	} else if (!TSmallEnemy::mIsAmpPolluter) {
-		range = (f32)getSaveParam2()->getSLPolluteRange();
-	} else {
-		s32 rmin = getSaveParam2()->getSLPolluteRMin();
-		s32 rmax = getSaveParam2()->getSLPolluteRMax();
-		s32 cyc  = getSaveParam2()->getSLPolluteCycle();
-		f32 sin  = JMASSin(
-		    (s16)DEG2SHORTANGLE(180.0f * (f32)(mSpine->getTime() % cyc)
-		                        / (f32)cyc));
-		range = mBodyScale * (sin * (f32)(rmax - rmin)) + (f32)rmin;
+	f32 range = 2.0f;
+	if (!checkLiveFlag(LIVE_FLAG_HIDDEN)) {
+		if (!TSmallEnemy::mIsAmpPolluter) {
+			range = (f32)getSaveParam2()->getSLPolluteRange();
+		} else {
+			s32 rmin = getSaveParam2()->getSLPolluteRMin();
+			s32 rmax = getSaveParam2()->getSLPolluteRMax();
+			s32 cyc  = getSaveParam2()->getSLPolluteCycle();
+			f32 sin  = JMASSin(
+			    (s16)DEG2SHORTANGLE(180.0f * (f32)(mSpine->getTime() % cyc)
+			                        / (f32)cyc));
+			range = mBodyScale * (sin * (f32)(rmax - rmin)) + (f32)rmin;
+		}
 	}
 
 	f32 z = unk1AC * mLinearVelocity.z + mPosition.z;
