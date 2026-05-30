@@ -1122,7 +1122,8 @@ DEFINE_NERVE(TNerveChuuHanaJumpPrepare, TLiveActor)
 	if (spine->getTime() == 0)
 		self->setBckAnm(3);
 
-	MtxPtr footMtx = self->getModel()->mNodeMatrices[TChuuHana::mFootJntIndex];
+	MtxPtr footMtx
+	    = self->mMActor->getModel()->getAnmMtx(TChuuHana::mFootJntIndex);
 	self->unk220   = self->mPosition.y - footMtx[1][3];
 	if (self->getMActor()->getFrameCtrl(0)->checkPass(10.0f)) {
 		JGeometry::TVec3<f32> target;
