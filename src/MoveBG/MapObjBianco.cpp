@@ -715,27 +715,44 @@ void TBiancoMiniWindmill::control()
 void TBiancoMiniWindmill::calc()
 {
 	Mtx rotMtx;
-	rotMtx[0][0] = JMACos(unk150);
-	rotMtx[0][1] = -JMASin(unk150);
-	rotMtx[0][2] = 0.0f;
-	rotMtx[0][3] = 0.0f;
-	rotMtx[1][0] = JMASin(unk150);
-	rotMtx[1][1] = JMACos(unk150);
-	rotMtx[1][2] = 0.0f;
-	rotMtx[1][3] = 0.0f;
-	rotMtx[2][0] = 0.0f;
-	rotMtx[2][1] = 0.0f;
-	rotMtx[2][2] = 1.0f;
-	rotMtx[2][3] = 0.0f;
+	MtxPtr rot = rotMtx;
+	rot[2][3]  = 0.0f;
+	rot[1][3]  = 0.0f;
+	rot[0][2]  = 0.0f;
+	rot[1][2]  = 0.0f;
+	rot[0][3]  = 0.0f;
+	rot[2][1]  = 0.0f;
+	rot[0][1]  = 0.0f;
+	rot[2][0]  = 0.0f;
+	rot[1][0]  = 0.0f;
+	rot[2][2]  = 1.0f;
+	rot[1][1]  = 1.0f;
+	rot[0][0]  = 1.0f;
+
+	s16 angle    = DEG2SHORTANGLE(unk150);
+	f32 sinAngle = JMASSin(angle);
+	f32 cosAngle = JMASCos(angle);
+	rot[0][0] = cosAngle;
+	rot[0][1] = -sinAngle;
+	rot[0][2] = 0.0f;
+	rot[0][3] = 0.0f;
+	rot[1][0] = sinAngle;
+	rot[1][1] = cosAngle;
+	rot[1][2] = 0.0f;
+	rot[1][3] = 0.0f;
+	rot[2][0] = 0.0f;
+	rot[2][1] = 0.0f;
+	rot[2][2] = 1.0f;
+	rot[2][3] = 0.0f;
 
 	J3DModel* model = getModel();
-	PSMTXConcat(model->mNodeMatrices[0], rotMtx, rotMtx);
+	PSMTXConcat(model->mNodeMatrices[0], rot, rot);
 
 	MtxPtr jointMtx = getModel()->mNodeMatrices[1];
-	rotMtx[0][3]   = jointMtx[0][3];
-	rotMtx[1][3]   = jointMtx[1][3];
-	rotMtx[2][3]   = jointMtx[2][3];
-	PSMTXCopy(rotMtx, getModel()->mNodeMatrices[1]);
+	rot[0][3]       = jointMtx[0][3];
+	rot[1][3]       = jointMtx[1][3];
+	rot[2][3]       = jointMtx[2][3];
+	PSMTXCopy(rot, getModel()->mNodeMatrices[1]);
 
 	f32 volume = fabsf(unk154);
 	if (gpMSound->gateCheck(0x3045)) {
