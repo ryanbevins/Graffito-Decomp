@@ -1201,7 +1201,7 @@ int TobiPukuRollCallback(J3DNode* node, int timing)
 	roll[2][3] = 0.0f;
 
 	J3DJoint* joint = (J3DJoint*)node;
-	MtxPtr jointMtx = puku->getModel()->mNodeMatrices[joint->getJntNo()];
+	MtxPtr jointMtx = puku->mMActor->unk4->mNodeMatrices[joint->getJntNo()];
 	PSMTXConcat(jointMtx, roll, roll);
 	PSMTXConcat(J3DSys::mCurrentMtx, roll, J3DSys::mCurrentMtx);
 	return 1;
