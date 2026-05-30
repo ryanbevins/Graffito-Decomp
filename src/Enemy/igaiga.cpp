@@ -115,16 +115,22 @@ DEFINE_NERVE(TNerveIgaigaShootFromCannon, TLiveActor)
 	TIgaiga* self = (TIgaiga*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		self->offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
 		self->setBckAnm(4);
+		self->mPosition.y += 10.0f;
+		self->mVelocity = self->unk1D8;
+		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
+	} else {
+		if (self->checkCurAnmEnd(0)) {
+			if (!self->checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
+				self->bound();
+				spine->pushAfterCurrent(
+				    &TNerveIgaigaRollOnGraph::theNerve());
+				return TRUE;
+			}
+		}
 	}
 
-	self->moveObject();
-	if (self->isReachedToGoalXZ()) {
-		spine->pushAfterCurrent(&TNerveIgaigaRollOnGraph::theNerve());
-		return TRUE;
-	}
-
+	self->walkBehavior(2, 1.0f);
 	return FALSE;
 }
 
