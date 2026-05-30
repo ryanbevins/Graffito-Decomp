@@ -10,6 +10,7 @@
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <Map/JointObj.hpp>
+#include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
@@ -427,51 +428,62 @@ bool TMareEventDepressWall::startEvent()
 void TMareEventDepressWall::initCommon()
 {
 	mWaitTimes          = new int[mWallNum];
-	mDirections         = new bool[mWallNum];
 	mTargets            = new f32[mWallNum];
+	mDirections         = new bool[mWallNum];
+	for (int i = 0; i < mWallNum; ++i) {
+		mTargets[i]    = 400.0f;
+		mDirections[i] = true;
+	}
+
 	mWarpCollisions     = new TMapCollisionWarp[mWallNum];
 	mMoveCollisions     = new TMapCollisionMove[mWallNum];
+	for (int i = 0; i < mWallNum; ++i) {
+		int buildingIndex = mStartBuildingIndex + i;
+		char path[256];
+		snprintf(path, sizeof(path), "/scene/map/map/building%02d.col",
+		         buildingIndex);
+
+		mWarpCollisions[i].init(path, 0, nullptr);
+		mWarpCollisions[i].setUp();
+		mMoveCollisions[i].init(path, 0, nullptr);
+		mMoveCollisions[i].setUp();
+		mMoveCollisions[i].remove();
+	}
+
 	mJoints             = new J3DJoint*[mWallNum];
 	mPositions          = new JGeometry::TVec3<f32>[mWallNum];
 	mEffectDirs         = new JGeometry::TVec3<f32>[mWallNum];
 	mParticleScales     = new f32[mWallNum];
 	mParticleChildRates = new f32[mWallNum];
+	int skip            = 0x43 - (mStartBuildingIndex + (mWallNum - 1));
+	J3DJoint* joint     = (J3DJoint*)gpMap->getModelManager()
+	                      ->getJointModel(0)
+	                      ->getModelData()
+	                      ->getJointNodePointer(0)
+	                      ->getChild()
+	                      ->getYounger()
+	                      ->getChild();
+	for (int i = 0; i < skip; ++i)
+		joint = (J3DJoint*)joint->getYounger();
 
 	for (int i = 0; i < mWallNum; ++i) {
-		int buildingIndex = mStartBuildingIndex + i;
-		char path[128];
-		snprintf(path, sizeof(path), "/scene/map/map/building%02d.col",
-		         buildingIndex);
+		int index      = mWallNum - 1 - i;
+		mJoints[index] = joint;
+		mPositions[index].x = (joint->mMin.x + joint->mMax.x) * 0.5f;
+		mPositions[index].y = (joint->mMin.y + joint->mMax.y) * 0.5f;
+		mPositions[index].z = (joint->mMin.z + joint->mMax.z) * 0.5f;
 
-		mTargets[i]    = 400.0f;
-		mDirections[i] = true;
+		mEffectDirs[index].x = (joint->mMax.x - joint->mMin.x) / 100.0f;
+		mEffectDirs[index].y = (joint->mMax.y - joint->mMin.y) / 100.0f;
+		mEffectDirs[index].z = (joint->mMax.z - joint->mMin.z) / 100.0f;
 
-		mWarpCollisions[i].init(path, 0, nullptr);
-		mWarpCollisions[i].remove();
-		mMoveCollisions[i].init(path, 0, nullptr);
-		mMoveCollisions[i].setUp();
-		mMoveCollisions[i].remove();
+		f32 volume = mEffectDirs[index].x * mEffectDirs[index].y
+		             * mEffectDirs[index].z;
+		f32 root = JGeometry::TUtil<f32>::sqrt(volume);
 
-		mJoints[i] = TMapObjBase::getBuildingJoint(buildingIndex);
-		JGeometry::TVec3<f32> min = mJoints[i]->mMin;
-		JGeometry::TVec3<f32> max = mJoints[i]->mMax;
-		mPositions[i].x          = (min.x + max.x) * 0.5f;
-		mPositions[i].y          = (min.y + max.y) * 0.5f;
-		mPositions[i].z          = (min.z + max.z) * 0.5f;
-
-		mEffectDirs[i].x = (max.x - min.x) * 0.01f;
-		mEffectDirs[i].y = (max.y - min.y) * 0.01f;
-		mEffectDirs[i].z = (max.z - min.z) * 0.01f;
-
-		f32 volume = (max.x - min.x) * (max.y - min.y) * (max.z - min.z);
-		if (volume > 0.0f) {
-			f32 root = JGeometry::TUtil<f32>::sqrt(volume);
-			mParticleScales[i]     = root * 0.1f;
-			mParticleChildRates[i] = volume * 0.002f + 1.5f;
-		} else {
-			mParticleScales[i]     = 0.0f;
-			mParticleChildRates[i] = 1.5f;
-		}
+		mParticleScales[index]     = root * 0.1f;
+		mParticleChildRates[index] = volume * 0.002f + 1.5f;
+		joint = (J3DJoint*)joint->getYounger();
 	}
 
 	SMS_LoadParticle("/scene/map/map/ms_mare_blockup.jpa", 0x15b);
