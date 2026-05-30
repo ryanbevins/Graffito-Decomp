@@ -313,6 +313,7 @@ void TStayPakkun::setBehavior()
 
 void TStayPakkun::calcRootMatrix()
 {
+	gpCurPakkun = this;
 	TSpineEnemy::calcRootMatrix();
 }
 
