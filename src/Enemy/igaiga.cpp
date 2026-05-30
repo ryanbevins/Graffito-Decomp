@@ -742,9 +742,32 @@ void TGorogoro::setMActorAndKeeper()
 	mMActor       = mMActorKeeper->createMActor("bosspaku_head.bmd", 3);
 }
 
-void TGorogoro::behaveToWater(THitActor* actor)
+void TGorogoro::behaveToWater(THitActor*)
 {
-	TRollEnemy::behaveToWater(actor);
+	mSprayedByWaterCooldown = 0;
+
+	TRollEnemySaveLoadParams* params = (TRollEnemySaveLoadParams*)unk1A4;
+	if (unk158 < params->mSLExpandMax.get()) {
+		f32 expandRate = params->mSLExpandRate.get();
+		mBodyScale *= expandRate;
+		unk158 *= expandRate;
+		mScaledBodyRadius *= expandRate;
+
+		f32 scale = mScaling.z * expandRate;
+		mScaling.z = scale;
+		mScaling.y = scale;
+		mScaling.x = scale;
+
+		f32 attackRadius = getSaveParam2()->getSLAttackRadius();
+		f32 attackHeight = getSaveParam2()->getSLAttackHeight();
+		f32 damageRadius = getSaveParam2()->getSLDamageRadius();
+		f32 ratio        = mBodyScale / unk154;
+		mAttackRadius    = attackRadius * ratio;
+		mAttackHeight    = attackHeight * ratio;
+		mDamageRadius    = damageRadius * ratio;
+		mDamageHeight    = getSaveParam2()->getSLDamageHeight() * ratio;
+		calcEntryRadius();
+	}
 
 	u8 maxHp = getMaxHitPoints();
 	if (maxHp == 0)
