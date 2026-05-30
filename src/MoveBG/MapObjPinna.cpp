@@ -673,7 +673,11 @@ void TViking::initMapObj()
 	TMapObjBase::initMapObj();
 }
 
-void TViking::loadAfter() { TMapObjBase::loadAfter(); }
+void TViking::loadAfter()
+{
+	TMapObjBase::loadAfter();
+	reset();
+}
 
 void THorizontalViking::reset()
 {
@@ -684,8 +688,13 @@ void THorizontalViking::reset()
 
 void TViking::reset()
 {
-	THorizontalViking::reset();
-	unk14C = 0;
+	unk144 = unk140;
+	unk148 = 0.0f;
+	if (unk140 > 0.0f) {
+		mState = 1;
+		return;
+	}
+	mState = 2;
 }
 
 inline static void swingViking(THorizontalViking* viking)

@@ -27,7 +27,7 @@ public:
 	void updateTrans();
 	void moveNormal();
 	void control();
-	void reset();
+	virtual void reset();
 	void initMapObj();
 	THorizontalViking(const char* name)
 	    : TMapObjBase(name)
@@ -51,7 +51,7 @@ class TViking : public THorizontalViking {
 public:
 	void roll();
 	void control();
-	void reset();
+	virtual void reset();
 	void loadAfter();
 	void initMapObj();
 	TViking(const char*);
