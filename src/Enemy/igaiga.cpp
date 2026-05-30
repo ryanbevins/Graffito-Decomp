@@ -716,6 +716,7 @@ void TGorogoro::kill()
 	if (mSpine->getCurrentNerve() != &TNerveSmallEnemyDie::theNerve()
 	    && mSpine->getCurrentNerve() != &TNerveGorogoroDie::theNerve()) {
 		mSpine->setNext(&TNerveGorogoroDie::theNerve());
+		mSpine->pushAfterCurrent(mSpine->getDefault());
 		onLiveFlag(LIVE_FLAG_UNK8);
 	}
 }
