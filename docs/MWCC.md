@@ -5107,6 +5107,31 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Degree-angle JMA helpers may need `#pragma dont_inline` to match a standalone helper and its callers
+
+**Hypothesis.** For small matrix helpers that convert degrees to JMA
+sin/cos table indices, spelling the body with `JMASin(angle)` /
+`JMACos(angle)` can shrink the helper's own frame versus naming an
+intermediate `s16 idx`, but the smaller body may cross MWCC's inline
+threshold and get pulled into callers. If the target has both a
+standalone helper body and caller-side `bl` instructions, wrap only the
+helper definition in `#pragma dont_inline on/off`.
+
+**Citation (1 TU).** `MoveBG/MapObjPinna::MsMtxSetRotX` (t237):
+`s16 idx = angle * (65536.0f / 360.0f); JMASSin(idx); JMASCos(idx);`
+kept callers out-of-line but left the helper at a `-0x28` frame versus
+target `-0x20`. Rewriting to `JMASin(angle)` / `JMACos(angle)` made the
+helper exact but inlined it into `TShellCup::perform` and regressed that
+caller from 98.6% to 53.6%. Adding `#pragma dont_inline` around only
+`MsMtxSetRotX` kept the exact helper while restoring the caller's `bl`
+shape.
+
+**Experiment to confirm/refute.** Find a second TU-local matrix or
+angle helper where the target emits a standalone helper plus caller
+`bl`s, while our named short-angle local inflates the helper frame.
+Apply the direct degree-helper spelling with and without
+`#pragma dont_inline` and check both the helper and at least one caller.
+
 ### Taking the address of a `TParamRT<T>::value` field forces `addi field_addr; lfs 0(field_addr)` even for a single load
 
 **Hypothesis.** When target materializes a parameter value's address
