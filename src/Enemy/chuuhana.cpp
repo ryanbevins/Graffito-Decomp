@@ -398,7 +398,20 @@ void TChuuHana::behaveToWater(THitActor* actor)
 	mSpine->pushNerve(&TNerveSmallEnemyHitWaterJump::theNerve());
 }
 
-void TChuuHanaAseParCallback::execute(JPABaseEmitter*, JPABaseParticle*) { }
+void TChuuHanaAseParCallback::execute(JPABaseEmitter* emitter, JPABaseParticle*)
+{
+	TChuuHana* owner = mOwner;
+	if (!owner->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		emitter->setGlobalRTMatrix(
+		    owner->mMActor->getModel()->getAnmMtx(TChuuHana::mEyeJntIndex));
+		emitter->unk154.x = 0.0f;
+		emitter->unk154.y = 0.0f;
+		emitter->unk154.z = 0.0f;
+		emitter->unk174.x = 0.0f;
+		emitter->unk174.y = 0.0f;
+		emitter->unk174.z = 0.0f;
+	}
+}
 
 void TChuuHanaAseParCallback::draw(JPABaseEmitter*, JPABaseParticle*) { }
 
