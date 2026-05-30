@@ -13,6 +13,7 @@ public:
 	TRealoid(const char*);
 
 	void loadDefault(JSUMemoryInputStream&, const char*, int);
+	virtual void perform(u32, JDrama::TGraphics*);
 	virtual TRealoidActor* createRealoidActor(MActor*) = 0;
 
 	/* 0x150 */ TBoidLeader* mBoidLeader;

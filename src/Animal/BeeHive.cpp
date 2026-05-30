@@ -4,6 +4,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JDrama/JDRViewObjPtrList.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MSound/MSound.hpp>
@@ -12,6 +13,8 @@
 #include <MSound/MSSetSound.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>
+#include <Map/Map.hpp>
+#include <Map/MapData.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/MapObjManager.hpp>
@@ -40,15 +43,68 @@ static void setBoidLeaderWaitParams(TBoidLeader* leader)
 	leader->mParam30 = 85.0f;
 	leader->mParam34 = 0.001f;
 }
+
+static BOOL isMarioWaterIn()
+{
+	u32 flag = *gpMarioFlag;
+
+	if ((flag & 2) || (flag & 0x10000))
+		return TRUE;
+
+	if (*gpMarioGroundPlane && (*gpMarioGroundPlane)->isWaterSurface())
+		return TRUE;
+
+	if (flag & 0x20000)
+		return TRUE;
+
+	return FALSE;
+}
+
+static void setBoidLeaderMarioGoal(TBoidLeader* leader, f32 offset_y)
+{
+	setBoidLeaderWaitParams(leader);
+
+	THitActor* mario = (THitActor*)gpMarioAddress;
+	JGeometry::TVec3<f32> marioPos(0.0f, 0.0f, 0.0f);
+	if (mario)
+		marioPos = mario->mPosition;
+
+	leader->mGoalActor = mario;
+	leader->mGoalPos   = marioPos;
+	leader->mGoalOffset.set(0.0f, offset_y, 0.0f);
+}
+
+static void setBoidLeaderHomeGoal(TBeeHive* hive)
+{
+	TBoidLeader* leader = hive->mBoidLeader;
+	setBoidLeaderWaitParams(leader);
+
+	leader->mGoalActor = nullptr;
+	leader->mGoalPos   = hive->mPosition;
+	leader->mGoalOffset.set(0.0f, 0.0f, 0.0f);
+}
 }
 
 DEFINE_NERVE(TNerveBeeHiveReset, TLiveActor)
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
-	if (spine->getTime() == 0)
+	if (spine->getTime() == 0) {
 		hive->reset();
+		hive->offLiveFlag(2);
+		hive->mScaling.set(0.0f, 0.0f, 0.0f);
+	}
 
-	if (spine->getTime() > 30) {
+	BOOL grown = FALSE;
+	hive->mScaling.x += 0.01f;
+	if (hive->mScaling.x >= 1.0f) {
+		hive->mScaling.set(1.0f, 1.0f, 1.0f);
+		grown = TRUE;
+	} else {
+		hive->mScaling.y += 0.01f;
+		hive->mScaling.z += 0.01f;
+	}
+
+	if (grown) {
 		spine->pushAfterCurrent(&TNerveBeeHiveWait::theNerve());
 		return TRUE;
 	}
@@ -58,16 +114,19 @@ DEFINE_NERVE(TNerveBeeHiveReset, TLiveActor)
 DEFINE_NERVE(TNerveBeeHiveMarioWaterIn, TLiveActor)
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
-	if (spine->getTime() == 0) {
-		hive->mWaitTimer = hive->getBeeParams()->mGiveupTimer.get();
-		hive->appearBee(0);
-	}
+	if (spine->getTime() == 0)
+		setBoidLeaderMarioGoal(hive->mBoidLeader, 500.0f);
 
-	hive->doWait();
-	if (hive->mWaitTimer <= 0) {
-		spine->pushAfterCurrent(&TNerveBeeHiveWait::theNerve());
+	if (hive->getBeeParams()->mGiveupTimer.get() < spine->getTime()) {
+		spine->pushAfterCurrent(&TNerveBeeHiveReset::theNerve());
 		return TRUE;
 	}
+
+	if (!isMarioWaterIn()) {
+		spine->pushAfterCurrent(&TNerveBeeHiveAttack::theNerve());
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
@@ -75,13 +134,23 @@ DEFINE_NERVE(TNerveBeeHiveAttack, TLiveActor)
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
 	if (spine->getTime() == 0)
-		hive->appearBee(0);
+		setBoidLeaderMarioGoal(hive->mBoidLeader, 200.0f);
 
-	hive->doWait();
-	if (hive->mWaitTimer <= 0) {
-		spine->pushAfterCurrent(&TNerveBeeHiveWait::theNerve());
+	if (isMarioWaterIn()) {
+		spine->pushAfterCurrent(&TNerveBeeHiveMarioWaterIn::theNerve());
 		return TRUE;
 	}
+
+	if (hive->mWaitTimer != 0) {
+		JGeometry::TVec3<f32> diff = *gpMarioPos;
+		diff -= hive->getCenterOfGravity();
+		f32 giveupRange = hive->getBeeParams()->mGiveupRange.get();
+		if (diff.squared() <= giveupRange * giveupRange) {
+			spine->pushAfterCurrent(&TNerveBeeHiveReset::theNerve());
+			return TRUE;
+		}
+	}
+
 	return FALSE;
 }
 
@@ -89,25 +158,70 @@ DEFINE_NERVE(TNerveBeeHiveBreak, TLiveActor)
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
 	if (spine->getTime() == 0) {
-		hive->appearBee(0);
-		hive->mBreakTimer = 0;
+		hive->mMActor = hive->mMActorKeeper->getMActor("bee_nest_break.bmd");
+		hive->mMActor->setBck("bee_nest_break");
+		hive->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		JGeometry::TVec3<f32> scale(2.0f, 2.0f, 2.0f);
+		SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
+		    (E_SMS_EFFECT_ONETIME_NORMAL)0xe4, &hive->mPosition, hive, scale);
+		SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
+		    (E_SMS_EFFECT_ONETIME_NORMAL)0xe6, &hive->mPosition, hive, scale);
+		if (gpMSound->gateCheck(0x28f6))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x28f6, &hive->mPosition, 0, nullptr, 0, 4);
+
+		for (int i = 0; i < hive->mBoidLeader->mNumActors; ++i)
+			hive->appearBee(i);
+
+		hive->mWaitTimer = hive->mBoidLeader->mNumActors;
+		setBoidLeaderMarioGoal(hive->mBoidLeader, 200.0f);
 	}
 
-	hive->doWait();
-	if (hive->mBreakTimer > 60)
+	if (hive->checkCurAnmEnd(0)) {
+		spine->pushAfterCurrent(&TNerveBeeHiveAttack::theNerve());
+		hive->onLiveFlag(2);
 		return TRUE;
-	hive->mBreakTimer += 1;
+	}
 	return FALSE;
 }
 
 DEFINE_NERVE(TNerveBeeHiveFall, TLiveActor)
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
-	hive->mAngularVelocity.y += hive->getBeeParams()->mFallAngularVel.get();
-	hive->mRotation.y += hive->mAngularVelocity.y;
+	if (spine->getTime() == 0) {
+		hive->offLiveFlag(0x10);
+		hive->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		if (gpMSound->gateCheck(0x28f4))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x28f4, &hive->mPosition, 0, nullptr, 0, 4);
+
+		JGeometry::TVec3<f32> forward;
+		hive->mCurrentQuat.getZDir(forward);
+		hive->mAngularVelocity.y
+		    = hive->getBeeParams()->mFallAngularVel.get();
+		hive->mVelocity = forward;
+
+		TMapObjBase* obj = hive->mBreakObj;
+		if (obj) {
+			if (obj->mActorType == 0x2000000e)
+				obj = gpItemManager->makeObjAppear(0x2000000e);
+
+			if (obj) {
+				obj->appear();
+				obj->moveRequest(hive->mPosition);
+				obj->mVelocity.set(0.0f, 0.0f, 0.0f);
+				obj->offLiveFlag(0x10);
+				obj->onLiveFlag(LIVE_FLAG_AIRBORNE);
+			}
+			hive->mBreakObj = nullptr;
+		}
+	}
+
+	hive->mAngularVelocity.x += hive->mAngularVelocity.y;
 	hive->bind();
 
-	if (hive->mPosition.y <= hive->mInitialPosition.y - 60.0f) {
+	if (!hive->checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
 		spine->pushAfterCurrent(&TNerveBeeHiveBreak::theNerve());
 		return TRUE;
 	}
@@ -117,10 +231,34 @@ DEFINE_NERVE(TNerveBeeHiveFall, TLiveActor)
 DEFINE_NERVE(TNerveBeeHiveWait, TLiveActor)
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
+	if (spine->getTime() == 0) {
+		hive->onLiveFlag(0x90);
+		if (hive->mWaitTimer < 3) {
+			for (int i = 0; i < 3; ++i)
+				hive->appearBee(i);
+			hive->mWaitTimer = 3;
+		}
+		setBoidLeaderHomeGoal(hive);
+	}
+
 	if (hive->doWait()) {
 		spine->pushAfterCurrent(&TNerveBeeHiveFall::theNerve());
 		return TRUE;
 	}
+
+	if (hive->getBeeParams()->mDecrimentTimer.get() < spine->getTime()) {
+		if (hive->mWaitTimer > 3) {
+			hive->mWaitTimer -= 1;
+			TRealoidActor* actor = hive->mActors[hive->mWaitTimer];
+			if ((actor->unk74 & 2) == 0) {
+				actor->unk74 |= 2;
+				actor->onHitFlag(HIT_FLAG_NO_COLLISION);
+			}
+		}
+		spine->pushAfterCurrent(&TNerveBeeHiveWait::theNerve());
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
@@ -163,24 +301,28 @@ TBeeHiveManager::TBeeHiveManager(const char* name)
 
 JGeometry::TVec3<f32> TBeeHive::getCenterOfGravity() const
 {
-	JGeometry::TVec3<f32> center = mPosition;
-	center.x += mCenterDir.x * mCenterRadius;
-	center.y += mCenterDir.y * mCenterRadius;
-	center.z += mCenterDir.z * mCenterRadius;
+	if (mWaitTimer == 0)
+		return JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
+
+	JGeometry::TVec3<f32> center(0.0f, 0.0f, 0.0f);
+	for (int i = 0; i < mWaitTimer; ++i)
+		center += mBoidLeader->mBoidData[i].mPosition;
+
+	center.scale(1.0f / mWaitTimer);
 	return center;
 }
 
-void TBeeHive::appearBee(int count)
+void TBeeHive::appearBee(int index)
 {
-	int max = 0;
-	if (mBoidLeader)
-		max = mBoidLeader->mNumActors;
+	TBee* bee = (TBee*)mActors[index];
+	if (bee->unk74 & 4)
+		return;
+	if ((bee->unk74 & 2) == 0)
+		return;
 
-	for (int i = 0; i < max && i < count; ++i) {
-		TBee* bee = (TBee*)mActors[i];
-		if (bee)
-			bee->offHitFlag(HIT_FLAG_NO_COLLISION);
-	}
+	bee->unk74 &= ~2;
+	bee->offHitFlag(HIT_FLAG_NO_COLLISION);
+	mBoidLeader->mBoidData[index].mPosition = mPosition;
 }
 
 BOOL TBeeHive::doWait()
@@ -233,7 +375,23 @@ BOOL TBeeHive::doWait()
 
 void TBeeHive::calcRootMatrix()
 {
-	TLiveActor::calcRootMatrix();
+	JGeometry::TQuat4<f32> base(mCenterDir.x, mCenterDir.y, mCenterDir.z,
+	                            mCenterRadius);
+	JGeometry::TQuat4<f32> quat;
+	quat.mul(base, mCurrentQuat);
+
+	JGeometry::TQuat4<f32> roll;
+	JGeometry::TVec3<f32> axis(0.0f, 0.0f, 1.0f);
+	roll.setRotate(axis, mAngularVelocity.x);
+	quat.mul(quat, roll);
+
+	TRotation3f mtx;
+	mtx.setSQ(mScaling, quat);
+	mtx.mMtx[0][3] = mPosition.x;
+	mtx.mMtx[1][3] = mPosition.y + 120.0f;
+	mtx.mMtx[2][3] = mPosition.z;
+
+	PSMTXCopy(mtx, (MtxPtr)((u8*)getModel() + 0x20));
 }
 
 void TBeeHive::controlSound()
@@ -288,10 +446,37 @@ void TBeeHive::controlCollision()
 
 void TBeeHive::bind()
 {
-	mVelocity.y -= 1.0f;
-	mPosition.x += mVelocity.x;
-	mPosition.y += mVelocity.y;
-	mPosition.z += mVelocity.z;
+	if (checkLiveFlag(0x10))
+		return;
+
+	JGeometry::TVec3<f32> next = mPosition;
+	next += mLinearVelocity;
+	next += mVelocity;
+
+	mVelocity.y -= getGravityY();
+	if (mVelocity.y < TLiveActor::mVelocityMinY)
+		mVelocity.y = TLiveActor::mVelocityMinY;
+
+	f32 swingOffset = -60.0f * (-1.0f + JMACos(mAngularVelocity.x));
+	mGroundHeight   = gpMap->checkGround(next.x, next.y + mHeadHeight + swingOffset,
+	                                    next.z, &mGroundPlane);
+	mGroundHeight += 1.0f;
+
+	if (next.y + swingOffset <= mGroundHeight + 0.05f) {
+		if (mGroundPlane->checkFlag(0x10))
+			setGroundCollision();
+
+		offLiveFlag(LIVE_FLAG_AIRBORNE);
+		mVelocity.set(0.0f, 0.0f, 0.0f);
+		next.y = mGroundHeight - swingOffset;
+	} else {
+		onLiveFlag(LIVE_FLAG_AIRBORNE);
+	}
+
+	gpMap->isTouchedOneWallAndMoveXZ(&next.x, next.y + mHeadHeight, &next.z,
+	                                 mBodyRadius);
+	mLinearVelocity = next;
+	mLinearVelocity -= mPosition;
 }
 
 void TBeeHive::control()
@@ -303,26 +488,65 @@ void TBeeHive::control()
 
 void TBeeHive::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	TRealoid::perform(flags, graphics);
 	TSpineEnemy::perform(flags, graphics);
-	if (flags & 2) {
-		controlSound();
-		controlCollision();
-	}
 }
 
 BOOL TBeeHive::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == 0xf || message == 0x10) {
-		mSpine->pushAfterCurrent(&TNerveBeeHiveFall::theNerve());
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		JGeometry::TVec3<f32> diff = mPosition;
+		diff -= *gpMarioPos;
+
+		const TNerveBase<TLiveActor>* current = mSpine->getLatestNerve();
+		if (current != &TNerveBeeHiveFall::theNerve()) {
+			JGeometry::TVec3<f32> dir = diff;
+			dir.y = 0.0f;
+			if (dir.squared() <= 0.0000038146973f) {
+				dir.set(0.0f, 0.0f, 0.0f);
+			} else {
+				dir.normalize();
+			}
+
+			f32 sign;
+			if (fabsf(mAngularVelocity.y) < 0.0001f) {
+				sign = 1.0f;
+			} else if (mAngularVelocity.y > 0.0f) {
+				sign = 1.0f;
+			} else if (mAngularVelocity.y < 0.0f) {
+				sign = -1.0f;
+			} else {
+				sign = 0.0f;
+			}
+
+			JGeometry::TVec3<f32> up(0.0f, 0.0f, 1.0f);
+			mInitialQuat.setRotate(up, dir, sign);
+			mAngularVelocity.y
+			    += sign * getBeeParams()->mShakePower.get();
+		}
+
+		TRotation3f mtx;
+		mtx.identity33();
+		mtx.mMtx[0][3] = sender->mPosition.x;
+		mtx.mMtx[1][3] = sender->mPosition.y;
+		mtx.mMtx[2][3] = sender->mPosition.z;
+		gpMarioParticleManager->emitAndBindToMtx(0xe7, mtx, 0, nullptr);
+		gpMSound->startSoundSet(0x6802, &sender->mPosition, 0, 0.0f, 0, 0,
+		                         4);
 		return TRUE;
 	}
 
-	if (message == 8) {
-		mSpine->pushAfterCurrent(&TNerveBeeHiveMarioWaterIn::theNerve());
+	if (message == HIT_MESSAGE_TRAMPLE || message == HIT_MESSAGE_HIP_DROP
+	    || message == HIT_MESSAGE_PUNCH) {
+		const TNerveBase<TLiveActor>* current = mSpine->getLatestNerve();
+		if (current == &TNerveBeeHiveWait::theNerve()) {
+			mSpine->reset();
+			mSpine->setNext(&TNerveBeeHiveFall::theNerve());
+		}
 		return TRUE;
 	}
 
-	return TSpineEnemy::receiveMessage(sender, message);
+	return FALSE;
 }
 
 TRealoidActor* TBeeHive::createRealoidActor(MActor* actor)
@@ -522,5 +746,15 @@ void TBee::init()
 {
 	initHitActor(0x1000002f, 1, 0x80000000, 20.0f, 20.0f, 50.0f,
 	             100.0f);
+
+	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
+	const char* groupName  = "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76";
+	JDrama::TNameRef* group
+	    = root->searchF(JDrama::TNameRef::calcKeyCode(groupName), groupName);
+	JGadget::TList_pointer_void* list
+	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
+	void* self = this;
+	list->insert(list->end(), self);
+
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 }
