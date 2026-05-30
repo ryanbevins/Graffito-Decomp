@@ -902,50 +902,155 @@ DEFINE_NERVE(TNerveChuuHanaForceJumped, TLiveActor)
 {
 	TChuuHana* self = chuuHana(spine);
 	if (spine->getTime() == 0) {
-		self->setBckAnm(3);
-		self->mVelocity.y = self->getChuuHanaParams()->mSLJumpSp.get();
+		self->unk1A4 = TChuuHana::mCheckOnPanelTime;
+		TGraphWeb* graph = self->unk124->unk0;
+		int index        = (int)(rand() * (1.0f / (RAND_MAX + 1))
+		                  * graph->getNodeNum());
+		JGeometry::TVec3<f32> point;
+		graph->getGraphNode(index).getPoint((Vec*)&point);
+
+		TPathNode node(point);
+		self->unkF4  = node;
+		self->unk104 = node;
+		self->unk114.clear();
+		self->unk1B2 = 1;
 	}
-	if (!self->isAirborne()) {
-		spine->pushAfterCurrent(&TNerveChuuHanaWalkOnPanel::theNerve());
+
+	if (self->unk214 != 0 && self->getCurAnmFrameNo(0) > 80.0f) {
+		if (self->mGroundPlane->getActor() != nullptr)
+			((TLiveActor*)self->mGroundPlane->getActor())
+			    ->receiveMessage(self, 3);
+		self->unk214 = 0;
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		if (self->unk1B1 != 0) {
+			spine->pushAfterCurrent(&TNerveChuuHanaRoll::theNerve());
+		} else {
+			spine->reset();
+			spine->setDefaultNext();
+			spine->pushAfterCurrent(spine->getDefault());
+		}
 		return TRUE;
 	}
+
 	return FALSE;
 }
 
 DEFINE_NERVE(TNerveChuuHanaKeepBalance, TLiveActor)
 {
 	TChuuHana* self = chuuHana(spine);
-	if (spine->getTime() == 0)
-		self->setBckAnm(4);
+	if (spine->getTime() == 0) {
+		self->setBckAnm(2);
+		self->mPosition.x -= 10.0f * self->unk1EC.x;
+		self->mPosition.z -= 10.0f * self->unk1EC.z;
+	} else if (self->checkCurAnmEnd(0)) {
+		if (self->isBckAnm(2)) {
+			self->setBckAnm(1);
+		} else if (self->isBckAnm(1)) {
+			if (spine->getTime()
+			    > self->getChuuHanaParams()->mSLKeepBalanceTime.get())
+				self->setBckAnm(0);
+			else
+				self->setBckAnm(1);
+		} else if (self->isBckAnm(0) || self->isBckAnm(7)) {
+			spine->reset();
+			spine->setNext(&TNerveChuuHanaKeepBalance::theNerve());
+			spine->pushAfterCurrent(spine->getDefault());
 
-	if (spine->getTime() > self->getChuuHanaParams()->mSLKeepBalanceTime.get()) {
-		spine->pushAfterCurrent(&TNerveChuuHanaWalkOnPanel::theNerve());
+			self->unk1A4 = TChuuHana::mCheckOnPanelTime;
+			TGraphWeb* graph = self->unk124->unk0;
+			int index        = (int)(rand() * (1.0f / (RAND_MAX + 1))
+			                  * graph->getNodeNum());
+			JGeometry::TVec3<f32> point;
+			graph->getGraphNode(index).getPoint((Vec*)&point);
+
+			TPathNode node(point);
+			self->unkF4  = node;
+			self->unk104 = node;
+			self->unk114.clear();
+			self->unk1B2 = 1;
+			return TRUE;
+		}
+	}
+
+	if (TChuuHana::mAttackVersion != 0)
+		*self->unk21C = 1;
+
+	if (TChuuHana::mNewSw == 0 && self->mGroundPlane->getActor() == nullptr) {
+		spine->pushAfterCurrent(&TNerveChuuHanaFall::theNerve());
 		return TRUE;
 	}
+
 	return FALSE;
 }
 
 DEFINE_NERVE(TNerveChuuHanaStick, TLiveActor)
 {
 	TChuuHana* self = chuuHana(spine);
-	if (spine->getTime() == 0)
+	if (spine->getTime() == 0 || !self->isBckAnm(4)) {
 		self->setBckAnm(4);
-	if (self->checkCurAnmEnd(0)) {
+		self->setGoalPath(TPathNode(*gpMarioPos));
+		if (TChuuHana::mAttackVersion != 0)
+			*self->unk21C = 1;
+	} else {
+		++self->unk224;
+		if (self->unk224
+		    > self->getChuuHanaParams()->mSLHitWaterTimer.get()) {
+			if (self->checkCurAnmEnd(0)) {
+				*self->unk21C = 0;
+				spine->pushAfterCurrent(&TNerveChuuHanaWait::theNerve());
+				return TRUE;
+			}
+		} else {
+			if (self->checkCurAnmEnd(0))
+				self->setBckAnm(4);
+		}
+	}
+
+	if (TChuuHana::mNewSw != 0
+	    && self->willFall(TChuuHana::mCheckOnPanelTimeRoll)) {
 		spine->pushAfterCurrent(&TNerveChuuHanaKeepBalance::theNerve());
 		return TRUE;
 	}
+
+	self->walkBehavior(3, 0.2f);
 	return FALSE;
 }
 
 DEFINE_NERVE(TNerveChuuHanaRoll, TLiveActor)
 {
 	TChuuHana* self = chuuHana(spine);
-	if (spine->getTime() == 0)
-		self->setBckAnm(4);
-	if (spine->getTime() > TChuuHana::mCheckOnPanelTimeRoll) {
-		spine->pushAfterCurrent(&TNerveChuuHanaFall2::theNerve());
+	if (spine->getTime() == 0) {
+		self->unk210 = 0.0f;
+		self->unk204.x = 0.0f;
+		self->unk204.y = 0.0f;
+		self->unk204.z = 0.0f;
+	}
+
+	if (self->unk1B0 != 0) {
+		if (self->willFall(TChuuHana::mCheckOnPanelTimeRoll)) {
+			spine->pushAfterCurrent(&TNerveChuuHanaKeepBalance::theNerve());
+			return TRUE;
+		}
+	} else if (spine->getTime() > 5000) {
 		return TRUE;
 	}
+
+	JGeometry::TVec3<f32> velocity = self->mVelocity;
+	JGeometry::TVec3<f32> target   = velocity;
+	self->unk204.x += 0.2f * (target.x - self->unk204.x);
+	self->unk204.z += 0.2f * (target.z - self->unk204.z);
+
+	f32 speed = JGeometry::TUtil<f32>::sqrt(
+	    self->unk204.x * self->unk204.x + self->unk204.z * self->unk204.z);
+	self->unk1B8 = 2.0f * speed / self->mBodyRadius;
+	self->unk210 += self->unk1B8;
+	if (self->unk210 > 360.0f)
+		self->unk210 -= 360.0f;
+	if (self->unk210 < 0.0f)
+		self->unk210 += 360.0f;
+
 	return FALSE;
 }
 
@@ -978,12 +1083,36 @@ DEFINE_NERVE(TNerveChuuHanaObject, TLiveActor)
 DEFINE_NERVE(TNerveChuuHanaAttack, TLiveActor)
 {
 	TChuuHana* self = chuuHana(spine);
-	if (spine->getTime() == 0)
-		self->setBckAnm(4);
+	if (spine->getTime() == 0) {
+		self->setBckAnm(12);
+		self->getMActor()->setFrameRate(2.0f * SMSGetAnmFrameRate(), 0);
+		self->setGoalPathMario();
+	}
+
+	if ((*gpMarioGroundPlane)->getActor() != self->unk218)
+		*self->unk21C = 0;
+
 	if (spine->getTime() > self->getChuuHanaParams()->mSLAttackTimer.get()) {
 		spine->pushAfterCurrent(&TNerveChuuHanaWalkOnPanel::theNerve());
+		spine->pushAfterCurrent(&TNerveChuuHanaWait::theNerve());
 		return TRUE;
 	}
+
+	++self->unk1A4;
+	if (self->unk1A4 > TChuuHana::mCheckOnPanelTimeRoll) {
+		self->unk1A4 = 0;
+		if (self->willFall(TChuuHana::mCheckOnPanelTime))
+			self->unk1A4 = -100;
+
+		if (!self->isAirborne() && self->mGroundPlane->getActor() == nullptr
+		    && self->mPosition.y + 200.0f < self->unk1F8.y)
+			self->mSpine->pushNerve(&TNerveChuuHanaFall2::theNerve());
+	}
+
+	if (self->isReachedToGoalXZ())
+		self->setGoalPathMario();
+
+	self->walkBehavior(2, self->getChuuHanaParams()->mSLDashRate.get());
 	return FALSE;
 }
 
