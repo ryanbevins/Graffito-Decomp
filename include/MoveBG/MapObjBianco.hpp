@@ -8,6 +8,7 @@
 struct TBGWallCheckRecord;
 class TTrembleModelEffect;
 class JAISound;
+class TBiancoBell;
 
 class TWoodLog : public TMapObjFloatOnSea {
 public:
@@ -39,11 +40,11 @@ public:
 	/* 0x18C */ f32 unk18C;
 	/* 0x190 */ u8 unk190;
 	/* 0x191 */ char unk191[3];
-	/* 0x194 */ TMapObjBase* unk194;
-	/* 0x198 */ TMapObjBase* unk198;
-	/* 0x19C */ TMapObjBase* unk19C;
+	/* 0x194 */ TBiancoBell* unk194;
+	/* 0x198 */ TBiancoBell* unk198;
+	/* 0x19C */ TBiancoBell* unk19C;
 	/* 0x1A0 */ u8 unk1A0;
-	/* 0x1A4 */ u32 unk1A4;
+	/* 0x1A4 */ JAISound* unk1A4;
 };
 
 class TBiancoBell : public TMapObjBase {

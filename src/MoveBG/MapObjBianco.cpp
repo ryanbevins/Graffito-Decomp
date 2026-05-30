@@ -1,4 +1,5 @@
 #include <MoveBG/MapObjBianco.hpp>
+#include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
@@ -126,44 +127,131 @@ void TBellWatermill::loadAfter()
 	unk188 = 1.0f;
 	unk17C = 360.0f;
 
-	unk194 = findMapObj("BiaBell 0");
-	unk198 = findMapObj("BiaBell 1");
-	unk19C = findMapObj("BiaBell 2");
+	unk194 = (TBiancoBell*)findMapObj("BiaBell 0");
+	unk198 = (TBiancoBell*)findMapObj("BiaBell 1");
+	unk19C = (TBiancoBell*)findMapObj("BiaBell 2");
 	unk190 = 1;
+}
+
+static inline void ringBiancoBell(TBiancoBell* bell)
+{
+	if (bell == nullptr)
+		return;
+
+	J3DFrameCtrl* ctrl = bell->mMActor->getFrameCtrl(0);
+	if (ctrl->getFrame() == 0.0f
+	    || ctrl->getFrame() + ctrl->getRate() >= (f32)ctrl->getEnd() - 1.0f) {
+		bell->startAnim(bell->unk138);
+		bell->mMActor->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
+		if (bell->unk13A && gpMSound->gateCheck(0x89B8)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x89B8, (const Vec*)&bell->mPosition, 0, nullptr, 0, 4);
+		}
+	}
 }
 
 void TBellWatermill::control()
 {
-	TMapObjTurn::control();
+	TMapObjBase::control();
 
-	if (unk190 != 0) {
-		unk178 += unk16C;
-		if (unk178 > unk17C)
-			unk178 -= unk17C;
-		mRotation.y = unk178;
-	}
+	if (unk158 == 0.0f && unk178 == 0.0f && unk170 == 0.0f)
+		return;
 
-	if (unk194 != nullptr)
-		unk194->mRotation.y = mRotation.y;
-	if (unk198 != nullptr)
-		unk198->mRotation.y = mRotation.y;
-	if (unk19C != nullptr)
-		unk19C->mRotation.y = mRotation.y;
+	if (unk158 > unk16C)
+		unk158 = unk16C;
+	else if (unk158 < -unk16C)
+		unk158 = -unk16C;
 
-	if (gpMSound->gateCheck(0x3066)) {
+	unk154 += unk158;
+	while (unk154 >= 360.0f)
+		unk154 -= 360.0f;
+	while (unk154 < 0.0f)
+		unk154 += 360.0f;
+
+	f32 volume = fabsf(unk158);
+	if (gpMSound->gateCheck(0x3044)) {
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-		    0x3066, (const Vec*)&mPosition, nullptr, fabsf(unk16C), 0, 0,
-		    nullptr, 0, 4);
+		    0x3044, (const Vec*)&mPosition, nullptr, volume, 0, 0, &unk1A4,
+		    0, 4);
 	}
+
+	if (fabsf(unk158) < fabsf(unk160))
+		unk158 = 0.0f;
+
+	if (!unk190 && unk158 != 0.0f)
+		unk158 -= unk160;
+
+	if (unk170 < 0.0f) {
+		if (fabsf(unk178) < unk17C) {
+			unk170 = 0.0f;
+			unk178 = 0.0f;
+		} else {
+			unk170 -= unk178;
+			unk178 *= -unk188;
+		}
+	} else if (!unk190 && unk170 != 0.0f) {
+		unk178 -= unk184;
+	}
+
+	unk170 += unk178;
+	if (unk170 > unk174) {
+		ringBiancoBell(unk194);
+		ringBiancoBell(unk198);
+		ringBiancoBell(unk19C);
+
+		unk170 = unk174;
+		if (unk1A0) {
+			for (int i = 0; i < 5; ++i) {
+				TMapObjBase* coin = gpItemManager->makeObjAppeared(0x2000000E);
+				if (coin != nullptr) {
+					coin->mPosition = mPosition;
+					coin->mVelocity.x = 10.0f;
+					coin->mVelocity.y
+					    = 10.0f + 100.0f * ((f32)rand() * (1.0f / 32768.0f));
+					coin->mVelocity.z
+					    = 10.0f * ((f32)rand() * (1.0f / 32768.0f)) - 5.0f;
+					coin->offLiveFlag(LIVE_FLAG_UNK10);
+				}
+			}
+			unk1A0 = 0;
+		}
+	}
+
+	mPosition.y = mInitialPosition.y + mYOffset + unk170;
+	unk190     = 0;
+	mRotation.z = unk154;
+
+	Mtx zRot;
+	makeRootMtxRotZ(zRot);
+	zRot[0][3] = 0.0f;
+	zRot[1][3] = 0.0f;
+	zRot[2][3] = 0.0f;
+
+	if (mRotation.y != 0.0f) {
+		Mtx yRot;
+		makeRootMtxRotY(yRot);
+		yRot[0][3] = 0.0f;
+		yRot[1][3] = 0.0f;
+		yRot[2][3] = 0.0f;
+		PSMTXConcat(yRot, zRot, zRot);
+	}
+
+	zRot[0][3] = mPosition.x;
+	zRot[1][3] = mPosition.y - mYOffset;
+	zRot[2][3] = mPosition.z;
+	PSMTXCopy(zRot, getModel()->mNodeMatrices[0]);
 }
 
 u32 TBellWatermill::touchWater(THitActor* water)
 {
-	if (waterHitPlane(water)) {
-		unk16C += unk180;
-		if (unk16C > unk174)
-			unk16C = unk174;
-	}
+	unk190 = 1;
+	if (fabsf(unk158) > unk16C)
+		unk178 += unk180;
+
+	unk158 += unk15C;
+	if (unk158 > unk164)
+		unk158 = unk164;
+
 	return 1;
 }
 
