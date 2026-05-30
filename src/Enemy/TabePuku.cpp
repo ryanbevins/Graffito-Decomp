@@ -344,7 +344,7 @@ MtxPtr TTabePuku::getTakingMtx()
 
 BOOL TTabePuku::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == HIT_MESSAGE_TRAMPLE || message == HIT_MESSAGE_HIP_DROP)
+	if ((s32)message < 2 && (s32)message >= 0)
 		return FALSE;
 	return TSmallEnemy::receiveMessage(sender, message);
 }
