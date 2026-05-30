@@ -618,6 +618,7 @@ void TPukuPuku::init(TLiveManager* manager)
 void TPukuPuku::load(JSUMemoryInputStream& stream)
 {
 	TSmallEnemy::load(stream);
+	reset();
 	unk1AC = 0;
 }
 
