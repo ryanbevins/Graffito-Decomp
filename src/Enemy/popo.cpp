@@ -117,7 +117,8 @@ DEFINE_NERVE(TNervePopoExplosion, TLiveActor)
 {
 	TPopo* self = popo(spine);
 	if (spine->getTime() == 0) {
-		self->mVelocity.zero();
+		JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
+		self->mVelocity = zero;
 		self->mMActor->setFrameRate(0.0f, 0);
 
 		if (self->unk1B4) {
@@ -128,7 +129,8 @@ DEFINE_NERVE(TNervePopoExplosion, TLiveActor)
 		self->onHitFlag(HIT_FLAG_NO_COLLISION);
 		self->onLiveFlag(LIVE_FLAG_UNK8);
 
-		MtxPtr centerMtx = self->getModel()->getAnmMtx(TPopo::mCenterJntIndex);
+		MtxPtr centerMtx
+		    = self->mMActor->getModel()->getAnmMtx(TPopo::mCenterJntIndex);
 		copyMtxTrans(self->mCallbackPos, centerMtx);
 		gpMarioParticleManager->emit(0xa1, &self->mCallbackPos, 0, nullptr);
 		gpMarioParticleManager->emit(0xa2, &self->mCallbackPos, 0, nullptr);
@@ -143,6 +145,7 @@ DEFINE_NERVE(TNervePopoExplosion, TLiveActor)
 		self->stopAnmSound();
 		spine->reset();
 		spine->setNext(&TNerveSmallEnemyDie::theNerve());
+		spine->pushAfterCurrent(spine->getDefault());
 		return TRUE;
 	}
 
