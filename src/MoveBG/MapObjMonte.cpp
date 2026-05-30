@@ -159,33 +159,39 @@ void TFluffManager::loadAfter()
 	TFluff* first = new TFluff("１つ目のわた毛");
 	first->initAndRegister("Fluff");
 	first->unk168 = this;
-	first->unk16C = 1;
 	unk158        = first;
-	first->appear();
-	first->mPosition = mPosition;
-	first->mRotation = mRotation;
-	first->mInitialPosition.set(randSigned() * unk138.x, randUnit() * mPosition.y,
-	                            randSigned() * unk138.y);
-	unk168[unk160++] = first;
+	unk158->unk16C = 1;
+	unk158->appear();
+	unk158->mPosition.set(mPosition);
+	unk158->mRotation.set(mRotation);
+	JGeometry::TVec3<f32> firstPos(randSigned() * unk138.x,
+	                               randUnit() * mPosition.y,
+	                               randSigned() * unk138.y);
+	unk158->mInitialPosition = firstPos;
+	unk168[unk160]          = unk158;
+	unk160 += 1;
 
 	TFluff* second = new TFluff("２つ目のわた毛");
 	second->initAndRegister("Fluff");
 	second->unk168 = this;
 	unk15C         = second;
-	second->mPosition = mPosition;
-	second->mRotation = mRotation;
-	second->mInitialPosition.set(randSigned() * unk138.x,
-	                             randUnit() * mPosition.y,
-	                             randSigned() * unk138.y);
-	second->makeObjDead();
-	unk168[unk160++] = second;
+	unk15C->mPosition.set(mPosition);
+	unk15C->mRotation.set(mRotation);
+	JGeometry::TVec3<f32> secondPos(randSigned() * unk138.x,
+	                                randUnit() * mPosition.y,
+	                                randSigned() * unk138.y);
+	unk15C->mInitialPosition = secondPos;
+	unk15C->makeObjDead();
+	unk168[unk160] = unk15C;
+	unk160 += 1;
 
 	for (int i = 2; i < unk164; ++i) {
 		TFluff* fluff = new TFluff("わた毛");
 		fluff->initAndRegister("Fluff");
 		fluff->unk168 = this;
-		unk168[unk160++] = fluff;
-		fluff->appear();
+		unk168[unk160] = fluff;
+		unk168[unk160]->appear();
+		unk160 += 1;
 	}
 }
 
@@ -527,7 +533,7 @@ void TSwingBoard::control()
 	if (marioIsOn()) {
 		if (marioIsOn()) {
 			TWaterGun* gun = (TWaterGun*)SMS_GetMarioWaterGun();
-			if (gun->mIsEmitWater) {
+			if ((s32)gun->mIsEmitWater != 0) {
 				gun           = (TWaterGun*)SMS_GetMarioWaterGun();
 				MtxPtr emitMtx = gun->getEmitMtx(0);
 				f32 emitX      = -emitMtx[0][0];
@@ -589,6 +595,9 @@ void TSwingBoard::control()
 
 	MtxPtr baseMtx = getModel()->mNodeMatrices[0];
 	PSMTXConcat(unk14C, rot, baseMtx);
+
+	cosf(unk13C / 180.0f * 3.14f);
+	sinf(unk13C / 180.0f * 3.14f);
 
 	mPosition.x = mInitialPosition.x - baseMtx[0][1] * unk138;
 	mPosition.y = unk138 + mInitialPosition.y - baseMtx[1][1] * unk138;
@@ -1069,7 +1078,8 @@ void THangingBridgeBoard::initMapObj()
 
 void THangingBridgeBoard::setGroundCollision()
 {
-	if ((u8)((TYoshi*)SMS_GetYoshi())->mState != 0
+	int yoshiActive = (u8)((TYoshi*)SMS_GetYoshi())->mState == 0 ? 0 : 1;
+	if (yoshiActive
 	    && mPosition.x - mBodyRadius
 	           < ((TYoshi*)SMS_GetYoshi())->mTranslation.x
 	    && mPosition.x + mBodyRadius
@@ -1079,9 +1089,10 @@ void THangingBridgeBoard::setGroundCollision()
 	    && mPosition.z + mBodyRadius
 	           > ((TYoshi*)SMS_GetYoshi())->mTranslation.z) {
 		J3DModel* model            = getModel();
+		MtxPtr mtx                 = model->mNodeMatrices[0];
 		TMapCollisionBase* colBase = mMapCollisionManager->unk8;
 		if (colBase != 0) {
-			colBase->moveMtx(model->mNodeMatrices[0]);
+			colBase->moveMtx(mtx);
 			return;
 		}
 	}
