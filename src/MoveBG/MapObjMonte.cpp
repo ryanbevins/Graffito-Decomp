@@ -248,17 +248,26 @@ void TFluffManager::control()
 		break;
 
 	case 2:
-		gpMapObjManager->unkD0.x += unk148.x;
-		gpMapObjManager->unkD0.y += unk148.y;
-		gpMapObjManager->unkD0.z += unk148.z;
-		if (mLifeTimer <= 0)
-			mState = 3;
+	{
+		TMapObjManager* manager = gpMapObjManager;
+		f32 windX              = manager->unkD0.x + unk148.x;
+		f32 windY              = manager->unkD0.y + unk148.y;
+		f32 windZ              = manager->unkD0.z + unk148.z;
+		manager->unkD0.x       = windX;
+		manager->unkD0.y       = windY;
+		manager->unkD0.z       = windZ;
+		bool timerActive = mLifeTimer > 0 ? true : false;
+		if (timerActive)
+			break;
+		mState = 3;
 		break;
+	}
 
 	case 3: {
-		f32 windX = gpMapObjManager->unkD0.x * unk154;
-		f32 windY = gpMapObjManager->unkD0.y * unk154;
-		f32 windZ = gpMapObjManager->unkD0.z * unk154;
+		TMapObjManager* manager = gpMapObjManager;
+		f32 windX              = manager->unkD0.x * unk154;
+		f32 windY              = manager->unkD0.y * unk154;
+		f32 windZ              = manager->unkD0.z * unk154;
 
 		if (fabsf(windX) < mWindMin && fabsf(windY) < mWindMin
 		    && fabsf(windZ) < mWindMin) {
@@ -281,9 +290,9 @@ void TFluffManager::control()
 			mState                   = 1;
 		}
 
-		gpMapObjManager->unkD0.x = windX;
-		gpMapObjManager->unkD0.y = windY;
-		gpMapObjManager->unkD0.z = windZ;
+		manager->unkD0.x = windX;
+		manager->unkD0.y = windY;
+		manager->unkD0.z = windZ;
 		break;
 	}
 	}
