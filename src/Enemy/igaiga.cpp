@@ -159,9 +159,13 @@ void TRollEnemy::setBehavior()
 bool TRollEnemy::isReachedToGoalXZ()
 {
 	JGeometry::TVec3<f32> diff = unk104.getPoint();
-	diff.y                     = mPosition.y;
 	diff.sub(mPosition);
-	return MsVECMag2((Vec*)&diff) < 90000.0f;
+	if (!unk1A8)
+		diff.y = 0.0f;
+
+	if (MsVECMag2((Vec*)&diff) < 90000.0f)
+		return true;
+	return false;
 }
 
 bool TRollEnemy::isCollidMove(THitActor* actor)
@@ -349,9 +353,13 @@ bool TIgaiga::isHitValid(u32 message)
 bool TIgaiga::isReachedToGoalXZ()
 {
 	JGeometry::TVec3<f32> diff = unk104.getPoint();
-	diff.y                     = mPosition.y;
 	diff.sub(mPosition);
-	return MsVECMag2((Vec*)&diff) < mReachNodeDist * mReachNodeDist;
+	if (!unk1A8)
+		diff.y = 0.0f;
+
+	if (MsVECMag2((Vec*)&diff) < mReachNodeDist * mReachNodeDist)
+		return true;
+	return false;
 }
 
 void TIgaiga::walkBehavior(int mode, f32 speed)
