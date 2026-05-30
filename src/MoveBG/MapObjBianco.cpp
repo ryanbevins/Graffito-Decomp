@@ -943,11 +943,11 @@ void TMapObjRootPakkun::drawObject(JDrama::TGraphics* graphics)
 
 	if (fabsf(gpMarioPos->z - mPosition.z) < 500.0f) {
 		unk138->movement();
-		BOOL active;
+		bool active;
 		if (mLifeTimer > 0)
-			active = TRUE;
+			active = true;
 		else
-			active = FALSE;
+			active = false;
 		if (!active) {
 			unk138->tremble(mTremblePower, mTrembleAccel, mTrembleBrake,
 			                mTrembleTime);
