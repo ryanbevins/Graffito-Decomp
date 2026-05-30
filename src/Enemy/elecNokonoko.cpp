@@ -635,7 +635,7 @@ void TElecNokonoko::genRandomItem()
 
 void TElecNokonoko::behaveToWater(THitActor* water)
 {
-	if (mCurrentBckAnm == 0xc && getCurAnmFrameNo(0) > 58.0f) {
+	if (isBckAnm(0xc) && getCurAnmFrameNo(0) > 58.0f) {
 		return;
 	}
 
@@ -643,12 +643,15 @@ void TElecNokonoko::behaveToWater(THitActor* water)
 		return;
 	}
 
-	if (mCurrentBckAnm == 0 && unk1A4 == 0) {
+	if (isBckAnm(0) && unk1A4 == 0) {
 		return;
 	}
 
 	unk165                  = 1;
 	mSprayedByWaterCooldown = 0;
+	if (mSpine->getCurrentNerve() == &TNerveElecNokonokoFreeze::theNerve()) {
+		return;
+	}
 	mSpine->pushNerve(&TNerveElecNokonokoFreeze::theNerve());
 }
 
