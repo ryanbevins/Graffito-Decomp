@@ -305,10 +305,16 @@ JGeometry::TVec3<f32> TBeeHive::getCenterOfGravity() const
 		return JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
 
 	JGeometry::TVec3<f32> center(0.0f, 0.0f, 0.0f);
-	for (int i = 0; i < mWaitTimer; ++i)
-		center += mBoidLeader->mBoidData[i].mPosition;
+	for (int i = 0; i < mWaitTimer; ++i) {
+		center.x += mBoidLeader->mBoidData[i].mPosition.x;
+		center.y += mBoidLeader->mBoidData[i].mPosition.y;
+		center.z += mBoidLeader->mBoidData[i].mPosition.z;
+	}
 
-	center.scale(1.0f / mWaitTimer);
+	f32 inv = 1.0f / mWaitTimer;
+	center.x *= inv;
+	center.y *= inv;
+	center.z *= inv;
 	return center;
 }
 
@@ -429,9 +435,8 @@ void TBeeHive::controlCollision()
 	int count             = mWaitTimer;
 
 	actor->checkHitActors();
-	actor->onHitFlag(2);
-
 	mBreakTimer += 1;
+	actor->onHitFlag(2);
 	if (count <= mBreakTimer)
 		mBreakTimer = 0;
 
@@ -479,12 +484,14 @@ void TBeeHive::bind()
 	mLinearVelocity -= mPosition;
 }
 
+#pragma dont_inline on
 void TBeeHive::control()
 {
 	controlCollision();
 	TLiveActor::control();
 	controlSound();
 }
+#pragma dont_inline off
 
 void TBeeHive::perform(u32 flags, JDrama::TGraphics* graphics)
 {
@@ -565,33 +572,30 @@ void TBeeHive::load(JSUMemoryInputStream& stream)
 
 	mBreakObj = TMapObjBaseManager::newAndRegisterObjByEventID(firstEventID, "");
 
-	int count = mBoidLeader ? mBoidLeader->mNumActors : 0;
+	int count = mBoidLeader->mNumActors;
 	mCoinObjs = new TMapObjBase*[count];
-	for (int i = 0; i < count - 1; ++i) {
+	TMapObjBase** coinObj = mCoinObjs;
+	TMapObjBase** endObj  = coinObj + count - 1;
+	while (coinObj != endObj) {
 		JGeometry::TVec3<f32> pos(0.0f, 0.0f, 0.0f);
 		JGeometry::TVec3<f32> rot(0.0f, 0.0f, 0.0f);
 		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-		mCoinObjs[i] = TMapObjBaseManager::newAndRegisterObj("coin", pos, rot,
-		                                                      scale);
+		*coinObj = TMapObjBaseManager::newAndRegisterObj("coin", pos, rot,
+		                                                 scale);
+		coinObj += 1;
 	}
 
-	if (count > 0) {
-		mCoinObjs[count - 1]
-		    = TMapObjBaseManager::newAndRegisterObjByEventID(lastEventID, "");
-		if (!mCoinObjs[count - 1]) {
-			JGeometry::TVec3<f32> pos(0.0f, 0.0f, 0.0f);
-			JGeometry::TVec3<f32> rot(0.0f, 0.0f, 0.0f);
-			JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-			mCoinObjs[count - 1]
-			    = TMapObjBaseManager::newAndRegisterObj("coin", pos, rot,
-			                                            scale);
-		}
+	*coinObj = TMapObjBaseManager::newAndRegisterObjByEventID(lastEventID, "");
+	if (!*coinObj) {
+		JGeometry::TVec3<f32> pos(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> rot(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
+		*coinObj = TMapObjBaseManager::newAndRegisterObj("coin", pos, rot,
+		                                                 scale);
 	}
 
-	if (mMActorKeeper) {
-		mMActorKeeper->createMActor("bee_nest_break.bmd", 3);
-		mMActor = mMActorKeeper->createMActor("bee_nest.bmd", 3);
-	}
+	mMActorKeeper->createMActor("bee_nest_break.bmd", 3);
+	mMActor = mMActorKeeper->createMActor("bee_nest.bmd", 3);
 
 	for (int i = 0; i < count; ++i) {
 		TRealoidActor* actor = mActors[i];
@@ -744,6 +748,8 @@ BOOL TBee::receiveMessage(THitActor* sender, u32 message)
 
 void TBee::init()
 {
+	void* self = this;
+
 	initHitActor(0x1000002f, 1, 0x80000000, 20.0f, 20.0f, 50.0f,
 	             100.0f);
 
@@ -753,8 +759,8 @@ void TBee::init()
 	    = root->searchF(JDrama::TNameRef::calcKeyCode(groupName), groupName);
 	JGadget::TList_pointer_void* list
 	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
-	void* self = this;
-	list->insert(list->end(), self);
+	JGadget::TList_pointer_void::iterator iter = list->end();
+	list->insert(iter, self);
 
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 }
