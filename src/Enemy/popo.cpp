@@ -297,28 +297,30 @@ void TPopo::possessedIn()
 
 void TPopo::explosion()
 {
-	TPopoManager* manager = (TPopoManager*)mManager;
-	TWaterEmitInfo* info  = manager->mExplosionWaterEmitInfo;
-
 	if (unk198 > 1.0f)
 		unk198 *= 0.9f;
+
+	TPopoManager* manager = (TPopoManager*)mManager;
 
 	JGeometry::TVec3<f32> pos = mPosition;
 	pos.y += 100.0f;
 
 	if (mSpine->getTime() % 2 == 0) {
-		JGeometry::TVec3<f32> dir = info->mDir.value;
+		JGeometry::TVec3<f32>* dirPtr
+		    = &manager->mExplosionWaterEmitInfo->mDir.value;
+		JGeometry::TVec3<f32> dir = *dirPtr;
 		dir.y *= -1.0f;
-		info->mDir.value = dir;
+		*dirPtr = dir;
 	}
 
-	f32 num = (f32)info->mNum.value
+	s32* numPtr = &manager->mExplosionWaterEmitInfo->mNum.value;
+	f32 num = (f32)*numPtr
 	          * (unk198 / mPopoParams->mSLWaterScaleMax.get());
 	if (num < 2.0f)
 		num = 2.0f;
-	info->mNum.value = (s32)num;
-	info->mPos.value = pos;
-	gpModelWaterManager->emitRequest(*info);
+	*numPtr = (s32)num;
+	manager->mExplosionWaterEmitInfo->mPos.value = pos;
+	gpModelWaterManager->emitRequest(*manager->mExplosionWaterEmitInfo);
 }
 
 void TPopo::flyBehavior()
