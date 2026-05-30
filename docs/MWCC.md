@@ -5259,6 +5259,18 @@ holding the 0/1 bounds, forcing a memory load at the callsite) would let
 killer reach 83.6% without touching the shared header. Worth a focused
 INVESTIGATION pass.
 
+**Experiment run (t267).** `mario/Enemy/chuuhana` strengthens the
+dedicated-helper/class theory. Target `TChuuHana::setGoal` explicitly
+stores `-30.0f` and `30.0f` to stack, computes `(max-min)` into
+callee-saved `f31` before `rand()`, then uses `fmuls; fadds`. Spelling the
+source as local `minYaw/maxYaw` with the raw `rand()` expression, and then
+as `MsRandF(minYaw, maxYaw)`, both failed to produce the target f31
+lifetime or improve the function. The same stack-interval symptom appears
+in ChuuHana `reset`, `willFall`, and `initSetEnemies` for graph-node
+selection. This is not solved by the current global 2-arg `MsRandF`; revisit
+with a TU-local/helper-class experiment rather than changing
+`RandomUtil.hpp` globally.
+
 **Experiment run (t210).** Surveyed all 24 2-arg callsites: a mix of
 literal args (`0.0f,100.0f`, `0.0f,1.0f`, `0.0f,360.0f`, `10.0f,20.0f`,
 `16.0f,8.0f`, `2,3`, `-500.0f,500.0f`) and variable args
