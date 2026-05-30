@@ -33,7 +33,6 @@ class TPopoCollision : public THitActor {
 public:
 	TPopoCollision(const char* name = "ポポコリジョン")
 	    : THitActor(name)
-	    , mOwner(nullptr)
 	{
 	}
 

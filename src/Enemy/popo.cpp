@@ -5,8 +5,11 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JGadget/std-list.hpp>
 #include <JSystem/JMath.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <Map/Map.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -115,25 +118,35 @@ DEFINE_NERVE(TNervePopoExplosion, TLiveActor)
 	TPopo* self = popo(spine);
 	if (spine->getTime() == 0) {
 		self->mVelocity.zero();
-		self->mLinearVelocity.zero();
-		self->setBckAnm(1);
 		self->mMActor->setFrameRate(0.0f, 0);
-		self->offHitFlag(HIT_FLAG_UNK10000000);
-		self->unk1B4 = 1;
-		startPopoSound(0x2929, self->mPosition);
-		gpMarioParticleManager->emit(0xa1, &self->mPosition, 0, nullptr);
-		gpMarioParticleManager->emit(0xa2, &self->mPosition, 0, nullptr);
+
+		if (self->unk1B4) {
+			((TPopoManager*)self->mManager)->unk60 = 1;
+			self->unk1B4                         = 0;
+		}
+
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->onLiveFlag(LIVE_FLAG_UNK8);
+
+		MtxPtr centerMtx = self->getModel()->getAnmMtx(TPopo::mCenterJntIndex);
+		copyMtxTrans(self->mCallbackPos, centerMtx);
+		gpMarioParticleManager->emit(0xa1, &self->mCallbackPos, 0, nullptr);
+		gpMarioParticleManager->emit(0xa2, &self->mCallbackPos, 0, nullptr);
 	}
 
-	self->explosion();
 	if (spine->getTime() > self->mPopoParams->mSLExplosionEmitTime.get()) {
 		self->onLiveFlag(LIVE_FLAG_DEAD);
-		self->onLiveFlag(LIVE_FLAG_HIDDEN);
+		self->onLiveFlag(LIVE_FLAG_UNK8);
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->offLiveFlag(LIVE_FLAG_UNK10000);
+		self->mHolder = nullptr;
 		self->stopAnmSound();
-		spine->pushAfterCurrent(&TNerveSmallEnemyDie::theNerve());
+		spine->reset();
+		spine->setNext(&TNerveSmallEnemyDie::theNerve());
 		return TRUE;
 	}
 
+	self->explosion();
 	return FALSE;
 }
 
@@ -145,32 +158,52 @@ DEFINE_NERVE(TNervePopoFly, TLiveActor)
 
 		TWaterGun* gun = (TWaterGun*)SMS_GetMarioWaterGun();
 		MtxPtr emit    = gun->getEmitMtx(0);
-		f32 speed      = self->mPopoParams->mSLReleaseSpeed.get();
+		f32 speed      = self->mPopoParams->mSLReleaseSpeed.get()
+		            * (self->unk198
+		               / self->mPopoParams->mSLWaterScaleMax.get());
 
-		self->mVelocity.x = speed * emit[0][0];
-		self->mVelocity.y = speed * emit[1][0];
-		self->mVelocity.z = speed * emit[2][0];
+		JGeometry::TVec3<f32> velocity;
+		velocity.x      = speed * emit[0][0];
+		velocity.y      = speed * emit[1][0];
+		velocity.z      = speed * emit[2][0];
+		self->mVelocity = velocity;
 		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
-		self->offHitFlag(HIT_FLAG_NO_COLLISION);
-		self->unk1CC = TPopo::mExplosionSw;
-		self->unk1CD = 0;
-		((TPopoManager*)self->mManager)->unk60 = 1;
-	}
 
-	self->flyBehavior();
-	if (self->unk1CC && !self->isAirborne()) {
+		if (self->unk1B4) {
+			((TPopoManager*)self->mManager)->unk60 = 1;
+			self->unk1B4                         = 0;
+		}
+
+		f32 rotation;
+		if (velocity.z == 0.0f) {
+			if (velocity.x >= 0.0f)
+				rotation = 90.0f;
+			else
+				rotation = 270.0f;
+		} else if (velocity.z >= 0.0f) {
+			rotation = (360.0f / 65536.0f) * matan(velocity.z, velocity.x);
+		} else {
+			rotation = 180.0f
+			           - (360.0f / 65536.0f) * matan(-velocity.z, velocity.x);
+		}
+
+		self->mRotation.x = 0.0f;
+		self->mRotation.y = callMsWrap(rotation, 0.0f, 360.0f);
+		self->mRotation.z = 0.0f;
+
+		if (TPopo::mExplosionSw)
+			self->offHitFlag(HIT_FLAG_NO_COLLISION);
+	} else if (!self->isAirborne()) {
 		spine->pushAfterCurrent(&TNervePopoExplosion::theNerve());
 		return TRUE;
 	}
 
-	if (spine->getTime() > self->mPopoParams->mSLFlyLimitTime.get()) {
-		self->kill();
-		return TRUE;
+	if (spine->getTime() > 5) {
+		self->offHitFlag(HIT_FLAG_NO_COLLISION);
+		self->mCollision->offHitFlag(HIT_FLAG_NO_COLLISION);
 	}
 
-	if (spine->getTime() > 5)
-		self->onHitFlag(HIT_FLAG_UNK10000000);
-
+	self->flyBehavior();
 	return FALSE;
 }
 
@@ -181,10 +214,20 @@ DEFINE_NERVE(TNervePopoAttack, TLiveActor)
 		self->setGoalPathMario();
 
 	if (!self->isAirborne()) {
-		if (!self->isFindMario(self->mPopoParams->mSLAttackDist.get())) {
-			spine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
+		if (!((TPopoManager*)self->mManager)->unk60)
 			return TRUE;
-		}
+		bool onYoshi;
+		if (gpMarioOriginal->mState & 2)
+			onYoshi = true;
+		else
+			onYoshi = false;
+		if (onYoshi)
+			return TRUE;
+		if (fabsf(gpMarioPos->y - self->mPosition.y)
+		    > self->getSaveParam2()->getSLGiveUpHeight())
+			return TRUE;
+		if (self->isResignationAttack())
+			return TRUE;
 	}
 
 	self->walkBehavior(0, 1.0f);
@@ -207,10 +250,14 @@ DEFINE_NERVE(TNervePopoPossessedNozzle, TLiveActor)
 	}
 
 	if (self->checkCurAnmEnd(0)) {
-		if (self->unk165)
+		if (self->unsetUnk165()) {
 			self->setBckAnm(3);
-		else
+			self->mMActor->setFrameRate(SMSGetAnmFrameRate(), 3);
+		} else {
 			self->setBckAnm(4);
+			self->mMActor->getFrameCtrl(3)->setFrame(0.0f);
+			self->mMActor->setFrameRate(0.0f, 3);
+		}
 	}
 
 	if (self->checkTrigger()) {
@@ -313,11 +360,17 @@ bool TPopo::isFindMario(float length)
 	if (mSpine->getTime() <= 100)
 		return false;
 
-	if (SMS_IsMarioOnYoshi())
+	bool onYoshi;
+	if (gpMarioOriginal->mState & 2)
+		onYoshi = true;
+	else
+		onYoshi = false;
+	if (onYoshi)
 		return false;
 
 	TSmallEnemyParams* params = (TSmallEnemyParams*)getSaveParam();
-	JGeometry::TVec3<f32> marioPos = SMS_GetMarioPos();
+	JGeometry::TVec3<f32> marioPos;
+	marioPos.set(gpMarioPos->x, gpMarioPos->y, gpMarioPos->z);
 	return isInSight(marioPos, params->getSLSearchLength() * length,
 	                 params->getSLSearchAngle() * length,
 	                 params->getSLSearchAware() * length) ?
@@ -338,26 +391,67 @@ bool TPopo::isHitValid(u32 message)
 
 void TPopo::bind()
 {
-	if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()
-	    || mSpine->getCurrentNerve() == &TNervePopoThrown::theNerve()) {
+	for (int i = 0; i < mCollision->getColNum(); ++i) {
+		THitActor* other = mCollision->getCollision(i);
+		if (other->isActorTypeOf(ACTOR_TYPE_PLAYER))
+			attackToMario();
+		else
+			behaveToHitOthers(other);
+	}
+
+	if (checkLiveFlag(LIVE_FLAG_UNK10))
+		return;
+
+	BOOL shouldCheckExplosion = FALSE;
+	if (mSpine->getCurrentNerve() == &TNervePopoPossessedNozzle::theNerve()
+	    && unk198 > 1.2f && mExplosionSw)
+		shouldCheckExplosion = TRUE;
+	else if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
+		shouldCheckExplosion = TRUE;
+	else {
 		TLiveActor::bind();
-		if (!isAirborne()) {
-			if (mExplosionSw)
-				mSpine->pushNerve(&TNervePopoExplosion::theNerve());
-			else
-				kill();
-		}
 		return;
 	}
 
-	TWalkerEnemy::bind();
+	mGroundHeight = gpMap->checkGround(mPosition.x, mPosition.y + mHeadHeight,
+	                                   mPosition.z, &mGroundPlane);
+	if (mPosition.y <= mGroundHeight + 30.0f
+	    || (fabsf(mVelocity.x) < 1.0f && fabsf(mVelocity.z) < 1.0f))
+		mSpine->pushNerve(&TNervePopoExplosion::theNerve());
+
+	TBGWallCheckRecord record(mPosition.x, mPosition.y, mPosition.z,
+	                          unk198 * (mBodyScale * mWallRadius), 1, 0);
+	if (gpMap->isTouchedWallsAndMoveXZ(&record))
+		mSpine->pushNerve(&TNervePopoExplosion::theNerve());
+	else if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
+		TLiveActor::bind();
 }
 
 void TPopo::forceKill()
 {
-	unk1B4 = 0;
-	offHitFlag(HIT_FLAG_UNK10000000);
-	mSpine->pushNerve(&TNervePopoExplosion::theNerve());
+	const TBGCheckData* ground = mGroundPlane;
+	bool checkArea             = false;
+
+	if (ground->isIllegalData())
+		checkArea = true;
+	else {
+		u16 type = ground->getBGType();
+		if (type == BG_TYPE_DEATH_PLANE || ground->isPool()
+		    || ground->isWaterSurface())
+			checkArea = true;
+	}
+
+	if (checkArea && (isAirborne() || checkLiveFlag(LIVE_FLAG_UNK10))) {
+		if (gpMap->isInArea(mPosition.x, mPosition.z))
+			return;
+	}
+
+	if (mSpine->getCurrentNerve() != &TNervePopoExplosion::theNerve()) {
+		mSpine->reset();
+		mSpine->setNext(&TNervePopoExplosion::theNerve());
+		mLiveFlag |= LIVE_FLAG_UNK20000;
+		mHitPoints = 1;
+	}
 }
 
 void TPopo::kill()
@@ -373,66 +467,217 @@ void TPopo::calcRootMatrix()
 {
 	gpCurPopo = this;
 
-	if (mSpine->getCurrentNerve() == &TNervePopoPossessedNozzle::theNerve()) {
-		TWaterGun* gun = (TWaterGun*)SMS_GetMarioWaterGun();
-		MtxPtr emit    = gun->getEmitMtx(0);
-		Mtx tmp;
-		PSMTXCopy(emit, tmp);
-		tmp[0][3] += emit[2][0] * mNozzleOffsetZ;
-		tmp[1][3] += emit[2][1] * mNozzleOffsetZ;
-		tmp[2][3] += emit[2][2] * mNozzleOffsetZ;
+	MtxPtr centerMtx = getModel()->getAnmMtx(mCenterJntIndex);
+	copyMtxTrans(mCollision->mPosition, centerMtx);
+
+	if (unk1B4) {
+		unk190 = 0.8f * unk198 / mPopoParams->mSLWaterScaleMax.get();
+		if (unk190 < mColMinVal)
+			unk190 = mColMinVal;
+		expandCollision();
+		getModel()->setBaseScale(mScaling);
+
+		TPosition3f rootMtx;
+		if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()) {
+			rootMtx.identity33();
+			rootMtx.setTrans(mPosition);
+		} else {
+			TWaterGun* gun = (TWaterGun*)SMS_GetMarioWaterGun();
+			MtxPtr emit    = gun->getEmitMtx(0);
+			PSMTXCopy(emit, rootMtx);
+
+			JGeometry::TVec3<f32> axis;
+			axis.set(rootMtx.at(0, 0), rootMtx.at(1, 0),
+			         rootMtx.at(2, 0));
+			f32 xLength = axis.length();
+			axis.set(rootMtx.at(0, 1), rootMtx.at(1, 1),
+			         rootMtx.at(2, 1));
+			f32 yLength = axis.length();
+			axis.set(rootMtx.at(0, 2), rootMtx.at(1, 2),
+			         rootMtx.at(2, 2));
+			f32 zLength = axis.length();
+
+			if (zLength != 0.0f) {
+				rootMtx.ref(0, 0) /= xLength;
+				rootMtx.ref(1, 0) /= xLength;
+				rootMtx.ref(2, 0) /= xLength;
+			}
+			if (xLength != 0.0f) {
+				rootMtx.ref(0, 1) /= yLength;
+				rootMtx.ref(1, 1) /= yLength;
+				rootMtx.ref(2, 1) /= yLength;
+			}
+			if (yLength != 0.0f) {
+				rootMtx.ref(0, 2) /= zLength;
+				rootMtx.ref(1, 2) /= zLength;
+				rootMtx.ref(2, 2) /= zLength;
+			}
+		}
+
+		TPosition3f nozzleOffset;
+		nozzleOffset.identity33();
+		nozzleOffset.ref(0, 3) = 7.0f * unk198 + mNozzleOffsetZ;
+		nozzleOffset.ref(1, 3) = 0.0f;
+		nozzleOffset.ref(2, 3) = 0.0f;
+		PSMTXConcat(rootMtx, nozzleOffset, rootMtx);
+
+		TPosition3f bodyOffset;
+		bodyOffset.identity33();
+		bodyOffset.ref(0, 3) = mTestBodyScale * unk198;
+		bodyOffset.ref(1, 3) = 0.0f;
+		bodyOffset.ref(2, 3) = 0.0f;
+		PSMTXConcat(rootMtx, bodyOffset, bodyOffset);
+
+		mPosition.x = bodyOffset.at(0, 3);
+		mPosition.y = bodyOffset.at(1, 3) - mColOffsetY * unk198;
+		mPosition.z = bodyOffset.at(2, 3);
+
+		if (unk1BC[0]) {
+			PSMTXCopy(centerMtx, unk200);
+			unk200[0][3] = bodyOffset.at(0, 3);
+			unk200[1][3] = bodyOffset.at(1, 3);
+			unk200[2][3] = bodyOffset.at(2, 3);
+
+			JPABaseEmitter* emitter = gpMarioParticleManager
+			                              ->emitAndBindToMtxPtr(0x13D, unk200,
+			                                                    1, this);
+			if (emitter) {
+				emitter->unk154 = unk230;
+				emitter->unk174 = unk230;
+			}
+		}
 
 		Mtx rot;
 		MsMtxSetRotRPH(rot, mTestAng_x, mTestAng_y, mTestAng_z);
-		PSMTXConcat(tmp, rot, tmp);
-		PSMTXCopy(tmp, getModel()->getBaseTRMtx());
-
-		mPosition.x = tmp[0][3];
-		mPosition.y = tmp[1][3] - mColOffsetY;
-		mPosition.z = tmp[2][3];
+		PSMTXConcat(rootMtx, rot, rootMtx);
+		PSMTXCopy(rootMtx, getModel()->getBaseTRMtx());
 	} else {
 		TSpineEnemy::calcRootMatrix();
 	}
 
-	if (mBrkFlag && mMActor)
-		mMActor->setBrkFromIndex(0);
 }
 
 void TPopo::attackToMario()
 {
-	if (mSpine->getCurrentNerve() == &TNervePopoWait::theNerve())
+	TPopoManager* manager = (TPopoManager*)mManager;
+
+	if ((mSpine->getCurrentNerve() == &TNervePopoAttack::theNerve()
+	        || mSpine->getCurrentNerve() == &TNervePopoWait::theNerve())
+	    && manager->unk60) {
+		mSpine->pushNerve(&TNervePopoPossessedNozzle::theNerve());
+		return;
+	}
+
+	if (mSpine->getCurrentNerve() != &TNerveWalkerEscape::theNerve()
+	    && mSpine->getCurrentNerve() != &TNerveWalkerGraphWander::theNerve())
 		return;
 
-	if (mSpine->getCurrentNerve() == &TNervePopoPossessedNozzle::theNerve())
-		return;
+	sendAttackMsgToMario();
 
-	if (isFindMario(mPopoParams->mSLAttackDist.get()))
-		mSpine->pushNerve(&TNervePopoAttack::theNerve());
+	JGeometry::TVec3<f32> away;
+	JGeometry::TVec3<f32> push;
+	push.zero();
+	away.x = mPosition.x - gpMarioPos->x;
+	away.y = mPosition.y - gpMarioPos->y;
+	away.z = mPosition.z - gpMarioPos->z;
+	MsVECNormalize(&away, &away);
+
+	mVelocity.x = away.x;
+	mVelocity.z = away.z;
+
+	f32 pushSpeed = mBodyScale * mBodyRadius;
+	away.scale(pushSpeed);
+	push.add(away);
+	mLinearVelocity = push;
 }
 
 void TPopo::walkBehavior(int graph_direction, float multiplier)
 {
-	if (isReachedToGoalXZ())
-		goToRandomNextGraphNode();
-
-	f32 speed = mMarchSpeed * multiplier;
-	zigzagToCurPathNode(speed, mTurnSpeed,
-	                     getSaveParam2()->getSLZigzagCycle(),
-	                     getSaveParam2()->getSLZigzagAngle());
-
 	if (!isAirborne()) {
-		mVelocity.y = mPopoParams->mSLMoveJumpSp.get();
+		JGeometry::TVec3<f32> target = unk104.getPoint();
+		JGeometry::TVec3<f32> dir;
+		dir.x = target.x - mPosition.x;
+		dir.y = 0.0f;
+		dir.z = target.z - mPosition.z;
+		if (dir.x == 0.0f && dir.y == 0.0f && dir.z == 0.0f)
+			dir.x += 1.0f;
+		MsVECNormalize(&dir, &dir);
+
+		f32 jumpSpeed     = mPopoParams->mSLMoveJumpSp.get();
+		f32 targetDist    = mPopoParams->mSLMoveDist.get();
+		f32 randomScale   = 1.0f;
+		f32 randomMin     = -20.0f;
+		f32 randomMax     = 20.0f;
+		if (mSpine->getCurrentNerve() == &TNervePopoAttack::theNerve()) {
+			setBckAnm(0);
+			jumpSpeed   = mPopoParams->mSLAttackJumpSp.get();
+			targetDist  = mPopoParams->mSLAttackDist.get();
+			randomScale = 10.0f;
+		}
+
+		f32 randomRange = randomMax - randomMin;
+		target.x        = mPosition.x + dir.x * targetDist
+		           + randomScale
+		               * (randomMin
+		                  + randomRange
+		                      * (rand() * (1.0f / (RAND_MAX + 1))));
+		target.z = mPosition.z + dir.z * targetDist
+		           + randomScale
+		               * (randomMin
+		                  + randomRange
+		                      * (rand() * (1.0f / (RAND_MAX + 1))));
+		target.y = mPosition.y;
+
+		f32 jumpRate = 1.0f;
+		if (mSpine->getCurrentNerve() == &TNerveWalkerEscape::theNerve()) {
+			jumpRate = 1.2f;
+			setBckAnm(5);
+		}
+
+		mVelocity = calcVelocityToJumpToY(target, jumpSpeed * jumpRate,
+		                                  getGravityY());
+		mPosition.y += 2.0f;
 		onLiveFlag(LIVE_FLAG_AIRBORNE);
+
+		if (mSpine->getCurrentNerve()
+		    == &TNerveWalkerGraphWander::theNerve()) {
+			TPathNode node(target);
+			unkF4  = node;
+			unk104 = node;
+			unk114.clear();
+			setBckAnm(5);
+		}
+	} else {
+		if (mVelocity.y > 1.5f)
+			mPosition.y += 0.5f * mVelocity.y;
+		if (mVelocity.y < -1.0f)
+			mPosition.y += 0.2f * mVelocity.y;
 	}
 
-	unk1B8 = callMsWrap(unk1B8 + speed, 0.0f, 360.0f);
+	unk1B8 += 1.0f;
+	if (mSpine->getCurrentNerve() == &TNervePopoAttack::theNerve())
+		unk1B8 += 2.0f;
+	if (unk1B8 > 360.0f)
+		unk1B8 -= 360.0f;
+	if (!mRollSw)
+		unk1B8 = 0.0f;
+
+	if (mVelocity.y > 0.0f)
+		walkToCurPathNode(0.0f, mTurnSpeed, 0.0f);
 }
 
 void TPopo::behaveToFindMario()
 {
-	if (mSpine->getCurrentNerve() == &TNerveWalkerGraphWander::theNerve()
-	    && isFindMario(mPopoParams->mSLMoveDist.get())) {
-		mSpine->pushNerve(&TNervePopoAttack::theNerve());
+	TPopoManager* manager = (TPopoManager*)mManager;
+	TWaterGun* gun        = (TWaterGun*)SMS_GetMarioWaterGun();
+
+	if (SMS_CheckMarioFlag(0x8000) && manager->unk60
+	    && gun->mCurrentNozzle == 0 && !gpMarioOriginal->onYoshi()) {
+		setGoalPathMario();
+		mSpine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
+		mSpine->pushAfterCurrent(&TNervePopoAttack::theNerve());
+	} else {
+		mSpine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
 	}
 }
 
@@ -595,20 +840,18 @@ void TPopo::init(TLiveManager* manager)
 	mActorType = 0x1000000d;
 
 	if (mInstanceIndex == 0) {
-		u16 count = mMActor->getModel()->getModelData()->getJointNum();
-		for (int i = 0; i < count; ++i)
-			mMActor->getModel()->getModelData()->getJointNodePointer(i);
+		for (u8 i = 0; i < getModel()->getModelData()->getJointNum(); ++i) {
+		}
 	}
 
 	unk150      = 0x11;
 	mPopoParams = (TPopoSaveLoadParams*)getSaveParam();
 	mSpine->initWith(&TNerveWalkerGraphWander::theNerve());
-	onLiveFlag(0x08000000);
+	onHitFlag(HIT_FLAG_UNK8000000);
 
 	getMActor()->setJointCallback(mCenterJntIndex, PopoRollCallback);
 	MActor* low = mMActorKeeper->getMActor("popoL.bmd");
-	if (low)
-		low->setJointCallback(mCenterJntIndex, PopoRollCallback);
+	low->setJointCallback(mCenterJntIndex, PopoRollCallback);
 
 	getMActor()->setJointCallback(mMouthJntIndex, PopoPossessedCallback);
 	getMActor()->setJointCallback(mRLegJntIndex, PopoNonScaleCallback);
@@ -618,7 +861,15 @@ void TPopo::init(TLiveManager* manager)
 
 	unk188     = 0.0f;
 	mCollision = new TPopoCollision("ポポコリジョン");
-	manager->manageObj(mCollision);
+	JDrama::TNameRef* root
+	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+	const char* groupName = "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76";
+	JDrama::TNameRef* group
+	    = root->searchF(JDrama::TNameRef::calcKeyCode(groupName), groupName);
+	JGadget::TList_pointer_void* list
+	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
+	void* collision = mCollision;
+	list->insert(list->end(), collision);
 	mCollision->initHitActor(0x1000000d, 2, -0x68000000, 80.0f, 80.0f,
 	                         80.0f, 80.0f);
 	mCollision->onHitFlag(HIT_FLAG_NO_COLLISION);
