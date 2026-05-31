@@ -338,6 +338,16 @@ static void Frb2_InitGx(GXTexObj* tobj) {
 	GXLoadTexObj(tobj, GX_TEXMAP0);
 }
 
+static void Hx_GetFrBuffer(void* dest, u16 left, u16 top, u16 wd, u16 ht) {
+	GXColor clear = { 0, 0, 0, 0 };
+	GXSetTexCopySrc(left, top, wd, ht);
+	GXSetTexCopyDst(wd, ht, GX_TF_RGB565, GX_FALSE);
+	GXGetTexBufferSize(wd, ht, GX_TF_RGB565, GX_FALSE, 0);
+	GXSetCopyClear(clear, 0xFFFFFF);
+	GXCopyTex(dest, GX_TRUE);
+	GXPixModeSync();
+}
+
 static void Hgx_ReadTexture(char* fileName, void* addr) {
 	DVDFileInfo fi;
 	if (hx.resFlag == 0) {
