@@ -5253,6 +5253,24 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### A higher-level inline wrapper can force an out-of-line weak call that a direct inline method call would expand
+
+**Hypothesis.** For template matrix helpers, calling a higher-level wrapper can
+change MWCC's deferred-inline decision even when the wrapper itself is inline.
+In `mario/System/TalkCursor::associateNPC` (t317), direct
+`mtx.identity33(); mtx.setTrans(pos);` inlined the 3x3 identity stores, but
+`mtx.translation(pos.x, pos.y, pos.z)` emitted a `bl` to
+`TRotation3<TMatrix34<SMatrix34C<f>>>::identity33()` and moved the function
+`41.5 -> 82.5`. The remaining residue is not solved: the call currently emits a
+local weak `identity33` body in `TalkCursor.o`, while the target calls the weak
+owner in `mario/MarioUtil/DrawUtil`, and scalar arguments are homed before the
+call whereas the target loads `pos` after the identity call.
+
+**Experiment to confirm/refute.** Find a second site where target calls
+`identity33` but direct `identity33(); setTrans(...)` inlines. Test whether
+`translation(...)` reliably restores the call boundary, then solve weak-owner
+placement separately before promoting this pattern.
+
 ### Direct `this->memberPtr` access may force post-call reloads where a cached local pins the pointer across the call
 
 **Hypothesis.** The settled "do not cache a global pointer across calls" rule
