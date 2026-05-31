@@ -1,6 +1,6 @@
 #include <Map/PollutionLayer.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
-#include <MSound/MSound.hpp>
+#include <Map/PollutionManager.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <System/EmitterViewObj.hpp>
@@ -8,6 +8,13 @@
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+
+class JAISound;
+class MSound {
+public:
+	JAISound* startSoundSet(u32, const Vec*, u32, f32, u32, u32, u8);
+};
+extern MSound* gpMSound;
 
 f32 TPollutionLayer::mAreaMinRate         = 0.7f;
 f32 TPollutionLayer::mSpreadArea          = 2000.0f;
@@ -26,8 +33,6 @@ int TPollutionLayer::getTexPosS(f32 x) const
 {
 	return unk5C.worldToTexSize(x - unk38);
 }
-
-void TPollutionLayer::changeType(u16) { }
 
 bool TPollutionLayer::getPollutedPosNear(f32 range, JGeometry::TVec3<f32>* pos)
 {
@@ -70,14 +75,6 @@ bool TPollutionLayer::getPollutedPos(f32 range, JGeometry::TVec3<f32>* pos)
 	return false;
 }
 
-void TPollutionLayer::changeEffectScale(const JGeometry::TVec3<f32>&, f32) { }
-
-void TPollutionLayer::spread() { }
-
-void TPollutionLayer::electric() { }
-
-void TPollutionLayer::glassWall() { }
-
 void TPollutionLayer::fire()
 {
 	if (getPollutedPosNear(mFireArea, &unk98[unk90])) {
@@ -117,7 +114,90 @@ void TPollutionLayer::fire()
 	}
 }
 
-void TPollutionLayer::action() { }
+void TPollutionLayer::action()
+{
+	if (getPlaneType() != 0)
+		return;
+
+	switch (unk30) {
+	case 1:
+		fire();
+		break;
+	case 3: {
+		JGeometry::TVec3<f32> pos;
+		if (getPollutedPos(mGlassWallArea, &pos)) {
+			static int counter = 0;
+			if ((int)counter < (int)mGlassWallEffectTime)
+				counter++;
+			else
+				counter = 0;
+		}
+		break;
+	}
+	case 4:
+		if (getPollutedPosNear(mThunderArea, &unk98[unk90])) {
+			unk8C++;
+			if ((int)unk8C > 15) {
+				gpMSound->startSoundSet(0x3805, (Vec*)&unk98[unk90], 0,
+				                        0.0f, 0, 0, 4);
+				gpMarioParticleManager->emit(0x6F, &unk98[unk90], 0, this);
+
+				unk90++;
+				if ((int)unk90 >= (int)unk94)
+					unk90 = 0;
+
+				unk8C = 0;
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	bool found = false;
+	JGeometry::TVec3<f32>* pos = &unk98[unk90];
+	for (int i = 0; i < 5; ++i) {
+		pos->x = gpMarioPos->x + mSpreadArea * (MsRandF() - 0.5f);
+		pos->y = gpMarioPos->y;
+		pos->z = gpMarioPos->z + mSpreadArea * (MsRandF() - 0.5f);
+
+		if (isPolluted(pos->x, pos->y, pos->z)) {
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
+		return;
+
+	if (unk30 != 1 && unk30 != 7) {
+		if ((int)unk8C > 15) {
+			gpMarioParticleManager->emitWithRotate(
+			    0x1DA, &unk98[unk90], 0,
+			    (s16)((f32)*gpMarioAngleY * 0.005493164f), 0, 2, nullptr);
+
+			unk90++;
+			if ((int)unk90 >= (int)unk94)
+				unk90 = 0;
+
+			unk8C = 0;
+		}
+		unk8C++;
+	}
+
+	if (unk32 & 1) {
+		if ((int)unk4C < (int)mSpreadFrequency) {
+			unk4C++;
+		} else {
+			unk4C = 0;
+			JGeometry::TVec3<f32> spreadPos;
+			if (getPollutedPosNear(mSpreadArea, &spreadPos)) {
+				gpPollution->stamp(1, spreadPos.x, spreadPos.y, spreadPos.z,
+				                   128.0f);
+			}
+		}
+	}
+}
 
 bool TPollutionLayer::isInArea(f32 x, f32, f32 z) const
 {
