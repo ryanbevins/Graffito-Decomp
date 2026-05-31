@@ -16,9 +16,11 @@ static inline void fakeSetRotate(
 TCameraShake::TCameraShake()
 {
 	mYaw = 0;
-	for (s32 i = 0; i < 41; i++) {
-		TCamSaveShake* save = new TCamSaveShake(mCamShakeNameSave__12TCameraShake[i]);
-		mShakeSaveData[i] = save;
+	const char** name        = mCamShakeNameSave__12TCameraShake;
+	TCamSaveShake** savePtr = mShakeSaveData;
+	for (s32 i = 0; i < 41; i++, name++, savePtr++) {
+		TCamSaveShake* save = new TCamSaveShake(*name);
+		*savePtr = save;
 	}
 	for (s32 i = 0; i < 32; i++) {
 		TCamShakeInfo& info = mShakeInfos[i];
