@@ -39,8 +39,7 @@ void TTalkCursor::associateNPC(TBaseNPC* npc)
 	if (npc) {
 		Vec pos = npc->getCursorPos();
 		TPosition3f mtx;
-		mtx.identity33();
-		mtx.setTrans(pos);
+		mtx.translation(pos.x, pos.y, pos.z);
 		PSMTXCopy(mtx, unk10->getModel()->unk20);
 		unkC.off(0x204);
 	} else {
