@@ -594,9 +594,9 @@ static void evMonteManReachFlag(TSpcTypedInterp<TEventWatcher>* interp,
                                 u32 arg_num)
 {
 	interp->verifyArgNum(0, &arg_num);
-	TEMario* mario = JDrama::TNameRefGen::search<TEMario>("モンテマン");
 	int result     = 0;
-	if (mario->isGoal())
+	TEMario* mario = JDrama::TNameRefGen::search<TEMario>("モンテマン");
+	if ((u8)mario->isGoal())
 		result = 1;
 	interp->push(result);
 }
