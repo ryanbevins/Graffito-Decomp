@@ -409,7 +409,7 @@ static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht) {
 
 static void Hgx_ReadTexture(char* fileName, void* addr) {
 	DVDFileInfo fi;
-	if (hx.resFlag == 0) {
+	if ((int)hx.resFlag == 0) {
 		if (DVDOpen(fileName, &fi)) {
 			long len = DVDReadPrio(&fi, addr, fi.length, 0, 2);
 			DVDClose(&fi);
@@ -494,11 +494,11 @@ static void Hx_GxInit(int mode, int blend) {
 		break;
 	}
 	switch (blend) {
-	case 0:
-		GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
-		break;
 	case 1:
 		GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
+		break;
+	case 0:
+		GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
 		break;
 	}
 }
