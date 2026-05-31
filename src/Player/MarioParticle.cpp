@@ -268,6 +268,12 @@ void TMario::strongTouchDownEffect()
 	    0x11, &mPosition, 0, mFaceAngle.y, 0, 0, nullptr);
 }
 
+void TMario::emitGetCoinEffect(JGeometry::TVec3<f32>* pos)
+{
+	gpMarioParticleManager->emit(0x37, pos, 0, nullptr);
+	gpMarioParticleManager->emit(0x38, pos, 0, nullptr);
+}
+
 void TMario::emitGetWaterEffect()
 {
 	JGeometry::TVec3<f32>* p = &unk160[0];
