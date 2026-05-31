@@ -12,6 +12,10 @@
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjCorona.hpp>
+#include <Map/Map.hpp>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <System/FlagManager.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/Particles.hpp>
@@ -367,7 +371,101 @@ void TBathtubKiller::explodeBathtubKiller()
 
 void TBathtubKiller::bind() { }
 
-void TBathtubKiller::perform(u32, JDrama::TGraphics*) { }
+void TBathtubKiller::perform(u32 param1, JDrama::TGraphics* graphics)
+{
+	TSmallEnemy::perform(param1, graphics);
+
+	if (unk1CC == nullptr) {
+		JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
+		unk1CC               = (TBathtub*)root->searchF(
+            JDrama::TNameRef::calcKeyCode("バスタブ"), "バスタブ");
+	}
+
+	if (param1 & 1) {
+		if (!checkLiveFlag(LIVE_FLAG_DEAD)) {
+			if (unk208 > 0)
+				unk208--;
+			if (unk20C > 0)
+				unk20C--;
+			if (unk210 > 0)
+				unk210--;
+			if (unk214 > 0)
+				unk214--;
+			if (unk218 > 0)
+				unk218--;
+
+			if (unk208 <= 0) {
+				if (mSpine->getCurrentNerve()
+				        != &TNerveBathtubKillerExplosion::theNerve()
+				    && mSpine->getCurrentNerve()
+				           != &TNerveBathtubKillerBreak::theNerve())
+					mSpine->pushNerve(
+					    &TNerveBathtubKillerExplosion::theNerve());
+			}
+
+			if (!gpMap->isInArea(mPosition.x, mPosition.z)) {
+				unk21C = 0;
+				onLiveFlag(LIVE_FLAG_DEAD);
+				stopAnmSound();
+			}
+
+			if (unk1CC->getUnk29A() != 0) {
+				unk21C = 0;
+				onLiveFlag(LIVE_FLAG_DEAD);
+				stopAnmSound();
+			}
+		}
+	}
+
+	if (param1 & 2) {
+		if (!checkLiveFlag(LIVE_FLAG_DEAD)) {
+			if (mSpine->getCurrentNerve()
+			        != &TNerveBathtubKillerExplosion::theNerve()
+			    && mSpine->getCurrentNerve()
+			           != &TNerveBathtubKillerBreak::theNerve()) {
+				if (unk194 == 2) {
+					unk1FC += unk1F8;
+					if (unk1FC > 1.0f) {
+						unk1FC = 1.0f;
+						unk1F8 = -getSaveParam2()
+						              ->mSLColorChangeRateDelta.value;
+					}
+					if (unk1FC < 0.0f) {
+						unk1FC = 0.0f;
+						unk1F8 = getSaveParam2()
+						             ->mSLColorChangeRateDelta.value;
+					}
+					unk1E0.r = (u8)(255.0f * unk1FC);
+				}
+
+				unk1D4++;
+				if (unk1D4 >= getSaveParam2()->mSLSmokeInterval.value) {
+					unk1D4 = 0;
+					((JGeometry::TRotation3<JGeometry::TMatrix34<
+					      JGeometry::SMatrix34C<f32> > >*)&unk220)
+					    ->setQuat(mQuat);
+					unk220.mMtx[0][3] = mPosition.x;
+					unk220.mMtx[1][3] = mPosition.y;
+					unk220.mMtx[2][3] = mPosition.z;
+					gpMarioParticleManager->emitAndBindToMtxPtr(
+					    0x1bd, (MtxPtr)unk220.mMtx, 1, this);
+				}
+
+				f32 dist = JGeometry::TUtil<f32>::sqrt(
+				    (mPosition.x - gpMarioPos->x)
+				        * (mPosition.x - gpMarioPos->x)
+				    + (mPosition.y - gpMarioPos->y)
+				          * (mPosition.y - gpMarioPos->y)
+				    + (mPosition.z - gpMarioPos->z)
+				          * (mPosition.z - gpMarioPos->z));
+				if (gpMSound->gateCheck(0x20a9))
+					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+					    0x20a9, (Vec*)&mPosition, nullptr, dist, 0, 0,
+					    nullptr, 0, 4);
+			}
+		}
+	}
+}
 
 void TBathtubKiller::makeNoseColor() { }
 
