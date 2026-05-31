@@ -15,6 +15,10 @@
 
 static const u32 cParticleIDs[] = { 0x50, 0x126, 0x12B };
 
+static const u32 warpInEffectIDs[] = {
+	0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23,
+};
+
 const char* cParticleFileNames[] = {
 	"/scene/map/pollution/ms_m_ashios.jpa",
 	"/scene/map/pollution/ms_m_spinos.jpa",
@@ -27,7 +31,14 @@ public:
 	virtual void execute(JPABaseEmitter*, JPABaseParticle*);
 };
 
+class TWarpInCallBack
+    : public JPACallBackBase2<JPABaseEmitter*, JPABaseParticle*> {
+public:
+	virtual void execute(JPABaseEmitter*, JPABaseParticle*);
+};
+
 static TBubbleCallBack bubbleCallBack;
+static TWarpInCallBack warpInCallBack;
 
 bool TMario::askJumpIntoWaterEffectExist() const
 {
@@ -186,9 +197,134 @@ void TMario::blurEffect()
 	gpMarioParticleManager->emitAndBindToMtxPtr(0x10E, getCenterAnmMtx(), 1, this);
 }
 
+void TMario::warpOutEffect(int type, f32 angle)
+{
+	switch (type) {
+	case 0:
+		gpMarioParticleManager->emitWithRotate(
+		    0x40, &mPosition, 0, (s16)(angle * 182.04445f), 0, 0, this);
+		return;
+	case 1:
+		gpMarioParticleManager->emitWithRotate(
+		    0x41, &mPosition, 0, (s16)(angle * 182.04445f), 0, 0, this);
+		return;
+	default:
+		break;
+	}
+
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x24, mModel->getModel()->getAnmMtx(unk3C4), 0, this);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x25, mModel->getModel()->getAnmMtx(mBoneIDs[10]), 0, this);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x26, mModel->getModel()->getAnmMtx(mBoneIDs[10]), 0, this);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x27, mModel->getModel()->getAnmMtx(mBoneIDs[4]), 0, this);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x28, mModel->getModel()->getAnmMtx(mBoneIDs[5]), 0, this);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x29, mModel->getModel()->getAnmMtx(mBoneIDs[6]), 0, this);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x2A, mModel->getModel()->getAnmMtx(mBoneIDs[7]), 0, this);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x2B, mModel->getModel()->getAnmMtx(mBoneIDs[8]), 0, this);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x2C, mModel->getModel()->getAnmMtx(mBoneIDs[9]), 0, this);
+
+	if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x2D, mModel->getModel()->getAnmMtx(unk3C4), 0, this);
+	}
+}
+
 void TMario::warpInLight()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(0x51, &unk160[2], 0, this);
+}
+
+void TMario::warpInEffect()
+{
+	for (int i = 0; i < 10; ++i) {
+		u16 joint;
+		switch (i) {
+		case 0:
+			joint = unk3C4;
+			break;
+		case 1:
+			joint = mBoneIDs[10];
+			break;
+		case 2:
+			joint = mBoneIDs[10];
+			break;
+		case 3:
+			joint = mBoneIDs[4];
+			break;
+		case 4:
+			joint = mBoneIDs[5];
+			break;
+		case 5:
+			joint = mBoneIDs[6];
+			break;
+		case 6:
+			joint = mBoneIDs[7];
+			break;
+		case 7:
+			joint = mBoneIDs[8];
+			break;
+		case 8:
+			joint = mBoneIDs[9];
+			break;
+		case 9:
+			joint = unk3C4;
+			break;
+		default:
+			joint = unk3C4;
+			break;
+		}
+
+		MtxPtr mtx = mModel->getModel()->getAnmMtx(joint);
+		int id     = warpInEffectIDs[i];
+		int doEmit = 1;
+		if (id == 0x23 && !checkFlag(MARIO_FLAG_HAS_FLUDD))
+			doEmit = 0;
+
+		if (doEmit == 1) {
+			JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtx(
+			    id, mtx, 0, this);
+			if (emitter) {
+				emitter->unk114 = &warpInCallBack;
+				emitter->unk120 = &mWarpInDir;
+			}
+		}
+	}
+
+	gpMarioParticleManager->emitAndBindToMtx(
+	    0x3C, getCenterAnmMtx(), 0, nullptr);
+
+	u8* actor       = *(u8**)((u8*)this + 0x68);
+	u8* modelHolder = *(u8**)(actor + 0x78);
+	J3DModel* model = *(J3DModel**)(modelHolder + 4);
+	u16 joint       = *(u16*)(actor + 0x72);
+	gpMarioParticleManager->emitAndBindToMtx(
+	    0x1D6, model->getAnmMtx(joint), 2, actor);
+}
+
+void TWarpInCallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* particle)
+{
+	f32 randomScale = 1.0f + (((u32)particle >> 2) & 0x3F) * 0.0625f;
+
+	JGeometry::TVec3<f32> dir = *(JGeometry::TVec3<f32>*)emitter->unk120;
+	dir.scale(gpMarioOriginal->unk468);
+
+	JGeometry::TVec3<f32> step = dir;
+	step.scale(gpMarioOriginal->mActionTimer);
+
+	JGeometry::TVec3<f32> offset = step;
+	offset.scale(randomScale);
+
+	particle->unk14.x += offset.x;
+	particle->unk14.y += offset.y;
+	particle->unk14.z += offset.z;
 }
 
 void TMario::elecEndEffect()
