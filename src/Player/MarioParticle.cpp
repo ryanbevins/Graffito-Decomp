@@ -332,6 +332,42 @@ void TBubbleCallBack::execute(JPABaseEmitter*, JPABaseParticle* particle)
 	}
 }
 
+void TMario::inOutWaterEffect(f32)
+{
+	JGeometry::TVec3<f32> pos = mPosition;
+	pos.y                     = *(f32*)((u8*)this + 0xF0);
+
+	bool wasShallow;
+	if (mPrevState & MARIO_FLAG_IN_SHALLOW_WATER)
+		wasShallow = true;
+	else
+		wasShallow = false;
+
+	if (checkFlag(MARIO_FLAG_IN_SHALLOW_WATER) || wasShallow) {
+		((TMarioEffect*)mMarioEffect)->setJumpIntoWaterEffectSmall();
+		gpMarioParticleManager->emit(0x31, &pos, 0, nullptr);
+		return;
+	}
+
+	((TMarioEffect*)mMarioEffect)->setJumpIntoWaterEffect();
+	f32 velY = mVel.y;
+	if (velY < 0.0f)
+		velY = -velY;
+
+	if (velY > *(f32*)((u8*)this + 0x22C4)) {
+		rumbleStart(0x15, *(s16*)((u8*)this + 0x27F8));
+		if (!checkActionFlag(0x200))
+			gpMarioParticleManager->emit(0x2F, &pos, 0, nullptr);
+		gpMarioParticleManager->emit(0x30, &pos, 0, nullptr);
+		gpMarioParticleManager->emit(0x1D4, &pos, 2, nullptr);
+	} else {
+		if (!checkActionFlag(0x200))
+			gpMarioParticleManager->emit(0x31, &pos, 0, nullptr);
+		gpMarioParticleManager->emit(0x32, &pos, 0, nullptr);
+		gpMarioParticleManager->emit(0x1D5, &pos, 2, nullptr);
+	}
+}
+
 void TMario::rippleEffect()
 {
 	if (checkFlag(MARIO_FLAG_IN_SHALLOW_WATER)) {
