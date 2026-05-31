@@ -36,6 +36,40 @@ them in future ticks.
 
 ## Settled
 
+### `volatile` defeats const-fold so a "pick random value in [min,max)" expression homes min/max to the stack and holds `range = max-min` in a callee-saved reg across `rand()`
+
+**Confirmed across 2 TUs (int and float forms).** When the target compiles a
+random-pick-in-range as *store literal min/max to stack → reload → compute
+`(max-min)` via a runtime `subf`/`fsubs` into a callee-saved register held
+across the `rand()` call → `min + range*scaled_rand`*, reproduce it by making
+the min/max operands `volatile` and evaluating `range = max - min` **before**
+the `rand()` call (an explicit named temp, not inline `(max-min)*rand`).
+
+Two levers, both required:
+1. **`volatile`** defeats MWCC's constant-folding — otherwise `(max-min)` folds
+   to a literal and there are no stores/reloads/subf at all.
+2. **An explicit `range` temp evaluated before the call** keeps the subf in a
+   callee-saved register across `rand()` (MWCC otherwise schedules `bl rand`
+   first and recomputes after).
+
+Citations:
+- **int form** — `Enemy/igaiga` `reset__7TIgaiga` 74.7% → 99.6% via
+  `volatile int min/max; int range = max-min; (min+(int)(range*MsRandF()))*120`.
+  Byte-identical instruction stream.
+- **float form** — the fabricated `FakeRandInterval{volatile f32 mMin,mMax;}`
+  helper (`include/Enemy/WalkerEnemy.hpp`), whose `get()` does
+  `f32 r1 = mMax - mMin; ... return mMin + r1*rand`: `Enemy/igaiga`
+  `reset__10TRollEnemy` 63.1% → 73.1% and `Enemy/gesso` `setPolluteGoal`
+  89.75% → 91.84%. Making the two members `volatile` flipped both from the
+  folded form to the target's store/reload/`fsubs f31` shape.
+
+Residuals after the lever are register coloring / frame pad only.
+
+**Refuted alternative:** a fabricated `inline int MsRand(int,int)` helper — MWCC
+inlines and const-folds the literal args through the param copies (even under
+`-inline deferred`), reproducing the folded form. The homing is a
+const-fold-inhibition + evaluation-order artifact, not an inlined-param one.
+
 ### `#pragma dont_inline` around a single-call-site callee restores the target `bl` under `-inline deferred`
 
 In `-inline deferred` TUs, MWCC can inline an ordinary out-of-line member
@@ -5121,48 +5155,6 @@ for predicate functions.
   rather than `if (...) return true; ... return false;`.
 
 ## Hypotheses under investigation
-
-### `volatile int` + explicit pre-call `range` temp reproduces int-range rand stack-homing (recomputed `max-min` held across `rand()`)
-
-**Confirmed lever (1 TU so far).** A "pick a random int in [min,max), scale it"
-expression that the target compiles by *homing the literal min/max to the stack,
-reloading them, and computing `(max-min)` via a runtime `subf` into a callee-saved
-register held across the `rand()` call* is reproduced by:
-
-```cpp
-volatile int min = 50;
-volatile int max = 100;
-int range = max - min;                              // evaluated BEFORE MsRandF()
-unk1B8 = (min + (int)(range * MsRandF())) * 120;
-```
-
-Two independent levers are both required:
-1. **`volatile`** defeats MWCC's constant-folding (otherwise `(max-min)` folds to
-   `50.0f` and `+min` becomes `addi r3,r3,0x32` — no stores, no subf). `volatile`
-   forces both literals into memory and forces every read to reload.
-2. **An explicit `range = max - min` temp** evaluated before the `MsRandF()` call.
-   Without it (`(max-min) * MsRandF()` inline), MWCC schedules `bl rand` first and
-   recomputes the subf afterward into a scratch reg. With the named temp, MWCC
-   evaluates the subf first and keeps it in callee-saved **r29** across the call —
-   exactly the target's `subf r29,r3,r0; bl rand; ... xoris r3,r29,0x8000`.
-
-`reset__7TIgaiga` 74.7% → 99.6%; the instruction stream is byte-identical. Residual
-is a +8 frame pad (target 0x48 vs ours 0x40) and `@NNNN` label renumber — the
-known stack-padding currently-hard pattern, not a logic diff. The min/max stack
-slots also land in a different order (target min<max, ours max<min) — same family.
-
-**REFUTED alternative:** a fabricated `inline int MsRand(int min,int max){return
-min+(int)((max-min)*MsRandF());}` called as `MsRand(50,100)*120` — MWCC inlined and
-constant-folded the literal args through the param copies (even under `-inline
-deferred`), giving the same folded `addi r3,r3,0x32` as the inline expression. So
-the homing is NOT an inlined-param artifact; it is a constant-fold-inhibition +
-evaluation-order artifact.
-
-**Experiment to promote to Settled:** find a second enemy/actor TU with a
-`min + (int)(range * MsRandF())`-shaped int-range and apply the same two levers;
-confirm the store/reload/subf-in-callee-saved shape reproduces. Candidates: other
-`*RollEnemy`/`smallEnemy`-family resets that pick a frame-count interval. t285
-igaiga `reset__7TIgaiga`.
 
 ### A mid-function `return FALSE` identical to the tail `return FALSE`, with intervening calls, co-occurs with both an un-merged `li r3,0` AND a small frame UNDER-allocation (igaiga graph-tail nerves)
 
