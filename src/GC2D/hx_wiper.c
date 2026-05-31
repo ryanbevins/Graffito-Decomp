@@ -1933,12 +1933,14 @@ static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht) {
 #pragma dont_inline on
 static void Hgx_ReadTexture(char* fileName, void* addr) {
 	DVDFileInfo fi;
-	if ((int)hx.resFlag == 0) {
+	switch (hx.resFlag) {
+	case 0:
 		if (DVDOpen(fileName, &fi)) {
 			long len = DVDReadPrio(&fi, addr, fi.length, 0, 2);
 			DVDClose(&fi);
 			DCStoreRange(addr, len);
 		}
+		break;
 	}
 }
 #pragma dont_inline off
