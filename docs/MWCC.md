@@ -5253,6 +5253,27 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Explicit `== true` after a bool-materializing ternary forces `clrlwi; cmplwi 1; bne` instead of `clrlwi.; beq`
+
+**Hypothesis.** The existing settled/note pattern for
+`cond ? true : false` explains MWCC's 0/1 materialization before a branch, but
+the *test after materialization* is also source-controlled. A bare
+`if (cond ? true : false)` retests the byte with `clrlwi. r0, r0, 24; beq`.
+Writing `if ((cond ? true : false) == true)` keeps the same materialization but
+then emits `clrlwi r0, r0, 24; cmplwi r0, 1; bne`.
+
+**Citation (1 TU).** `mario/Player/MarioEffect`
+`TMarioEffect::perform` (t317): case 0 uses the bare ternary and matches target's
+`clrlwi.; beq`; case 1 needs the explicit `== true` form to match target's
+`clrlwi; cmplwi 1; bne`. Combined with an `MtxPtr emitMtx` local for argument
+order, `perform` moved `92.6 -> 100.0`.
+
+**Experiment to confirm/refute.** Find a second function where target already has
+the 0/1 materialization but differs only in the retest (`clrlwi.; beq` vs
+`clrlwi; cmplwi 1; bne`). Toggle only `== true` around the materialized ternary;
+if the retest flips without changing the materialization, promote this as a
+sub-rule of the bool-materialization entry.
+
 ### Inline inherited virtuals referenced only by a derived vtable may need an external weak owner, not per-TU header emission
 
 **Hypothesis.** When a derived class emits a vtable that reuses inherited virtual
