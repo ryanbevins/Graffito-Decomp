@@ -9,6 +9,12 @@
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
+#include <MoveBG/ItemManager.hpp>
+#include <MoveBG/MapObjCorona.hpp>
+#include <System/FlagManager.hpp>
+#include <System/EmitterViewObj.hpp>
+#include <Player/Watergun.hpp>
+#include <JSystem/JParticle/JPAEmitter.hpp>
 #include <new>
 
 // rogue includes needed for matching sinit & bss
@@ -109,7 +115,7 @@ TBathtubKillerParams::TBathtubKillerParams(const char* prm)
 TBathtubKiller::TBathtubKiller(const char* name)
     : TSmallEnemy(name)
 {
-	unk1CC = (TBathtub*)NULL;
+	unk1CC = (TBathtub*)nullptr;
 }
 
 void TBathtubKiller::init(TLiveManager* manager)
@@ -258,7 +264,66 @@ void TBathtubKiller::resetBathtubKiller()
 }
 #pragma dont_inline off
 
-void TBathtubKiller::generateItemBathtubKiller() { }
+void TBathtubKiller::generateItemBathtubKiller()
+{
+	if (unk194 != 1)
+		return;
+
+	TBathtubKillerManager* manager = (TBathtubKillerManager*)mManager;
+	s32 flag = TFlagManager::smInstance->getFlag(0x20001);
+	TMapObjBase* item = nullptr;
+
+	if (((TWaterGun*)SMS_GetMarioWaterGun())->mCurrentWater == 0) {
+		item = gpItemManager->makeObjAppear(mPosition.x, mPosition.y,
+		                                    mPosition.z, 0x20000002, true);
+	} else if (manager->unk60 == flag && manager->unk69 < 7) {
+		JGeometry::TVec3<f32> pos = mPosition;
+		if (manager->unk64 == nullptr
+		    || (manager->unk64->mLiveFlag & LIVE_FLAG_DEAD)) {
+			manager->unk64 = gpItemManager->makeObjAppear(
+			    pos.x, pos.y, pos.z, 0x20000005, true);
+		}
+		manager->unk69++;
+	} else if (flag <= manager->unk60 + 1
+	           && unk1CC->getNumGripsDead() == 3 && manager->unk68 == 0) {
+		JGeometry::TVec3<f32> pos = mPosition;
+		if (manager->unk64 == nullptr
+		    || (manager->unk64->mLiveFlag & LIVE_FLAG_DEAD)) {
+			manager->unk64 = gpItemManager->makeObjAppear(
+			    pos.x, pos.y, pos.z, 0x20000005, true);
+		}
+		manager->unk68 = 1;
+	}
+
+	if (item == nullptr) {
+		item = gpItemManager->makeObjAppear(mPosition.x, mPosition.y,
+		                                    mPosition.z, 0x20000002, true);
+	}
+
+	if (item == nullptr || item->mActorType != 0x20000002)
+		return;
+
+	JPABaseEmitter* emitter =
+	    gpMarioParticleManager->emit(0xe5, &item->mPosition, 0, nullptr);
+	if (emitter != nullptr) {
+		emitter->unk154.x = item->mScaling.x;
+		emitter->unk154.y = item->mScaling.y;
+		emitter->unk154.z = item->mScaling.z;
+		emitter->unk174.x = item->mScaling.x;
+		emitter->unk174.y = item->mScaling.y;
+		emitter->unk174.z = item->mScaling.z;
+	}
+
+	emitter = gpMarioParticleManager->emit(0xe6, &item->mPosition, 0, nullptr);
+	if (emitter != nullptr) {
+		emitter->unk154.x = item->mScaling.x;
+		emitter->unk154.y = item->mScaling.y;
+		emitter->unk154.z = item->mScaling.z;
+		emitter->unk174.x = item->mScaling.x;
+		emitter->unk174.y = item->mScaling.y;
+		emitter->unk174.z = item->mScaling.z;
+	}
+}
 
 void TBathtubKiller::killBathtubKiller()
 {
@@ -503,7 +568,7 @@ int TBathtubKillerManager::countActiveKillers()
 {
 	int count = 0;
 	for (int i = 0;
-	     i < (unk38 == NULL ? mObjNum
+	     i < (unk38 == nullptr ? mObjNum
 	                        : (unk38->mSLActiveEnemyNum.value > mObjNum
 	                               ? mObjNum
 	                               : unk38->mSLActiveEnemyNum.value));

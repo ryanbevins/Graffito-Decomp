@@ -6,6 +6,7 @@
 
 class TBathtubKillerParams;
 class TBathtub;
+class TMapObjBase;
 
 class TBathtubKillerPersonality {
 public:
@@ -152,6 +153,12 @@ public:
 	void generateMushroom(JGeometry::TVec3<f32>);
 	int countActiveKillers();
 	int countActiveShineKillers();
+
+public:
+	/* 0x60 */ s8 unk60;
+	/* 0x64 */ TMapObjBase* unk64;
+	/* 0x68 */ u8 unk68;
+	/* 0x69 */ s8 unk69;
 };
 
 #endif
