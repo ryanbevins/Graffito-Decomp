@@ -5244,6 +5244,26 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Inline inherited virtuals referenced only by a derived vtable may need an external weak owner, not per-TU header emission
+
+**Hypothesis.** When a derived class emits a vtable that reuses inherited virtual
+methods whose bodies are inline in the header, MWCC may either emit local weak
+copies in that TU or reference a weak copy owned by another TU depending on how
+the original header/source split was written. In `M3DUtil/SDLModel` (t310),
+`SDLMatPacket` inherits `J3DMatPacket::isSame` and `J3DMatPacket::entry`; our
+header-inline bodies make `SDLModel.o` emit extra weak `isSame__12J3DMatPacket...`
+and `entry__12J3DMatPacket...`, but the target `SDLModel.o` has only the
+`SDLMatPacket` vtable and no local copies. The same methods already have weak
+symbols elsewhere (`J3DPacket`/J3DGraphBase ownership).
+
+**Experiment.** Try a narrow branch/worktree probe that moves only
+`J3DMatPacket::isSame`/`entry` bodies out of `J3DPacket.hpp` into the known weak
+owner TU, then full-report the project. Confirmation: `SDLModel.o` loses those
+extras while existing `J3DPacket` weak symbols still match and no broad TUs
+regress. Refutation: the move breaks mixed inline callers like the historical
+`TUtil<f32>::sqrt` sweep, or the target expects local weak copies in other vtable
+owners.
+
 ### `(f32)(a - b)` (int subtract then convert) vs `(f32)a - (f32)b` (two converts then float subtract) are distinct, source-controlled codegen — and converting an unsigned/`u8` operand directly skips the signed-fixup `xoris`
 
 **Symptom.** `Player/SplashManager::makeDL` computes a fade ratio from two
