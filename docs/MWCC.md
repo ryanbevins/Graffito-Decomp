@@ -36,6 +36,33 @@ them in future ticks.
 
 ## Settled
 
+### Copy `J3DGXColorS10::color` as a `GXColorS10` aggregate when target uses two-word TEV color copies
+
+**Rule.** The repository's current `J3DGXColorS10` wrapper has an explicit copy
+constructor that copies `r/g/b/a` as four `s16` fields, so a typed wrapper copy
+like `J3DGXColorS10 c = *material->getTevColor(0);` emits four halfword
+loads/stores. When target asm copies the 8-byte TEV color as two word
+loads/stores, copy the underlying aggregate member instead:
+
+```cpp
+J3DGXColorS10 c;
+c.color = material->getTevColor(0)->color;
+```
+
+MWCC lowers the `GXColorS10` aggregate assignment to `lwz 0/4` and `stw 0/4`,
+which matches the target word-copy block without changing the shared J3D
+wrapper. Do **not** globally change `J3DGXColorS10`'s copy constructor without a
+dedicated header audit; a t321 probe produced the desired local copy shape but
+broke the linked DOL checksum in already-matching J3D-dependent TUs.
+
+**Citations.**
+- `Camera/lensflare` `TLensFlare::perform` (t321): wrapper copy emitted
+  `lha/sth` channel copies; member aggregate assignment matched target word
+  copies and moved `perform` `59.1 -> 61.2`.
+- `Camera/lensglow` `TLensGlow::perform`: existing source already uses
+  `c.color = getTevColor(0)->color`, and the material alpha loop matches the
+  same target `lwz 0/4` + `stw 0/4` copy shape.
+
 ### A multi-clause guard before a trailing code block: positive-AND-braces `if (A && B) { body }` lowers to single fall-through; OR-early-return `if (!A || !B) return; body;` lowers the LAST clause to a two-branch `b<cc> body; b end`
 
 **Rule.** When a function ends with a guard protecting a trailing code block,
@@ -5252,41 +5279,6 @@ for predicate functions.
   rather than `if (...) return true; ... return false;`.
 
 ## Hypotheses under investigation
-
-### A local POD word-pair cast can force `J3DGXColorS10` copies to use two `lwz/stw` operations when the typed copy ctor expands to four halfword channel copies
-
-**Hypothesis.** The repository's current `J3DGXColorS10` wrapper has an explicit
-copy constructor that copies `r/g/b/a` as four `s16` fields. When target asm
-shows an 8-byte TEV color copied as two word loads and stores, a local POD
-two-word cast can recover the aggregate-copy shape without changing the shared
-J3D header:
-
-```cpp
-struct ColorWords {
-	u32 first;
-	u32 second;
-};
-J3DGXColorS10 color;
-*(ColorWords*)&color = *(ColorWords*)tevColor;
-```
-
-**Citation (1 TU).** `mario/Camera/lensflare`
-`TLensFlare::perform` (t321): typed `J3DGXColorS10 color = *getTevColor(0)`
-emitted four `lha/sth` channel copies. The POD word-pair copy matched target
-`lwz 0/4` + `stw 0/4` in the material alpha loop and moved `perform`
-`59.1 -> 61.2`.
-
-**Negative probe.** Changing
-`include/JSystem/J3D/J3DGraphBase/Components/J3DGXColorS10.hpp` to aggregate-copy
-its `GXColorS10` member is too broad right now: it produced the desired local
-word-copy shape but broke the linked DOL checksum in already-matching
-J3D-dependent TUs. Keep the lever local unless a dedicated header audit proves
-which call sites originally had aggregate copies.
-
-**Experiment to confirm/refute.** Find a second nonmatching function with the
-same TEV-color `lha/sth` vs `lwz/stw` mismatch. Apply only the local POD word
-pair. If the two-word copy appears without unrelated scheduling damage, promote
-this as a `GXColorS10` companion to the existing POD-cast vector-copy rules.
 
 ### A higher-level inline wrapper can force an out-of-line weak call that a direct inline method call would expand
 
