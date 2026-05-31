@@ -6877,6 +6877,33 @@ confirmed in ≥2 TUs._
 
 ## Refuted / wrong turns
 
+### Source-level levers do NOT force MWCC to hoist/materialize a 32-bit compare constant into a callee-saved reg (the `0x80000001` mario-type check)
+
+**Symptom (t301, `Animal/fishoid::checkHitActors`).** Target materializes the
+literal `0x80000001` once before the loop into a callee-saved reg
+(`lis r3,0x8000; addi r31,r3,1`) and compares register-register with `cmpw r0,r31`
+each iteration — using a 4th NV reg (r28..r31) and shifting `this` into r28. Our
+build instead folds the compare to the unsigned-wrap peephole
+`addis r0,r3,0x8000; cmplwi r0,1` per iteration (only 3 NV regs, `this` in r29),
+and emits a single `bne` instead of the target's `beq inside; b skip`.
+
+**Tried & REFUTED:**
+1. `(s32)field == (s32)0x80000001` (force signed compare) — no change; MWCC still
+   applies the unsigned-wrap `addis/cmplwi` trick for equality regardless of cast.
+2. `u32 marioType = 0x80000001; ... == marioType` (local variable) — no change;
+   MWCC constant-propagates the local back into the same `addis/cmplwi` fold.
+
+**Conclusion.** The folded `addis/cmplwi` form is MWCC's chosen lowering for an
+equality compare against a constant near 0x80000000 whenever the constant is
+known at the fold site — and it's load-invariant-but-NOT-hoisted. Whether the
+target hoists+materializes instead is a register-allocation/LICM decision driven
+by the surrounding loop's register pressure, not by a source-level expression of
+the constant. (Note the matched `gesso::sendMessage` also uses the `addis/cmplwi`
+fold — but via the bool-returning `isActorType` path with index iteration; the
+fishoid target uses direct pointer iteration with the materialized form.) No
+source lever found. Leave checkHitActors at 48%; this is the constant-hoist
+member of the currently-hard register-coloring family.
+
 ### Prepending `isPool() ||` to the shared `TBGCheckData::isWaterSurface()` header inline is NET NEGATIVE
 
 **Hypothesis tested (t281).** `TGorogoro::forceKill` (igaiga) showed the target
