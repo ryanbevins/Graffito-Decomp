@@ -108,7 +108,7 @@ public:
 	void perform(u32, JDrama::TGraphics*);
 	s16 getOffsetAngleX() const;
 	s16 getOffsetAngleY() const;
-	void getFinalAngleZ() const;
+	s16 getFinalAngleZ() const;
 	~CPolarSubCamera();
 	int controlByCameraCode_(int*);
 	void getLButtonCameraModeByNozzle_();
@@ -160,7 +160,9 @@ public:
 	/* 0x13C */ JGeometry::TVec3<f32> unk13C;
 	/* 0x148 */ char unk148[0x1EC - 0x148];
 	/* 0x1EC */ Mtx unk1EC;
-	/* 0x21C */ char unk21C[0x258 - 0x21C];
+	/* 0x21C */ char unk21C[0x254 - 0x21C];
+	/* 0x254 */ s16 unk254;
+	/* 0x256 */ char unk256[0x258 - 0x256];
 	/* 0x258 */ s16 unk258;
 	/* 0x25A */ char unk25A[0x270 - 0x25A];
 	/* 0x270 */ f32 unk270;

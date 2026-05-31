@@ -5,6 +5,7 @@
 //   __ct__, ~CPolarSubCamera, loadAfter
 
 #include <Camera/Camera.hpp>
+#include <Camera/CameraShake.hpp>
 #include <Player/MarioMain.hpp>
 #include <Player/MarioAccess.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -25,7 +26,10 @@ void CPolarSubCamera::perform(u32 flags, JDrama::TGraphics* gfx)
 	(void)gfx;
 }
 
-void CPolarSubCamera::getFinalAngleZ() const { }
+s16 CPolarSubCamera::getFinalAngleZ() const
+{
+	return unk254 + gpCameraShake->mYaw;
+}
 s16 CPolarSubCamera::getOffsetAngleY() const { return 0; }
 s16 CPolarSubCamera::getOffsetAngleX() const { return 0; }
 
