@@ -106,9 +106,10 @@ void TMarioEffect::init(TMario* mario)
 
 	void* jumpRes
 	    = JKRFileLoader::getGlbResource("/mario/04_tobikomi/04_tobikomi.bmd");
+	u32 jumpModelFlags = 0x10040000;
 	for (int i = 0; i < 2; ++i) {
 		J3DModel* model = new J3DModel(
-		    J3DModelLoaderDataBase::load(jumpRes, 0x10040000), 0, 1);
+		    J3DModelLoaderDataBase::load(jumpRes, jumpModelFlags), 0, 1);
 		unk74[i]->setModel(model, 0);
 	}
 
