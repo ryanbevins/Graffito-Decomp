@@ -1756,8 +1756,11 @@ void Hx_StartWipe(int no, int arg) {
 		hx.buffer = hx_buffer;
 		hx.bufSize = 0x3300;
 	}
-	if ((int)hx.state == 2)
+	switch (hx.state) {
+	case 2:
 		Hx_Warning(1);
+		break;
+	}
 	hx.state = 1;
 	hx.wipeNo = no;
 	hx.timer = 0.0f;
