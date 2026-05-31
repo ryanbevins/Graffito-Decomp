@@ -2,6 +2,7 @@
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EffectObj.hpp>
 #include <MarioUtil/RandomUtil.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -339,7 +340,18 @@ void TBathtubKiller::calcRootMatrix()
 
 BOOL TBathtubKiller::receiveMessage(THitActor*, u32) { return false; }
 
-void TBathtubKiller::attackToMario() { }
+void TBathtubKiller::attackToMario()
+{
+	if (mSpine->getCurrentNerve()
+	        != &TNerveBathtubKillerExplosion::theNerve()
+	    && mSpine->getCurrentNerve() != &TNerveBathtubKillerBreak::theNerve()
+	    && gpMarioPos->y < mPosition.y) {
+		mSpine->pushNerve(&TNerveBathtubKillerExplosion::theNerve());
+		SMS_SendMessageToMario(this, 0xe);
+		SMS_ThrowMario(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f), 60.0f);
+		unk21C = 1;
+	}
+}
 
 bool TBathtubKiller::isCollidMove(THitActor*) { return false; }
 
