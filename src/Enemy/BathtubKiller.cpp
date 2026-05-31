@@ -333,7 +333,31 @@ void TBathtubKiller::calcRootMatrix()
 	PSMTXCopy(m, getModel()->getBaseTRMtx());
 }
 
-BOOL TBathtubKiller::receiveMessage(THitActor*, u32) { return false; }
+BOOL TBathtubKiller::receiveMessage(THitActor* sender, u32 msg)
+{
+	if (msg == 0 || msg == 1 || msg == 3) {
+		if (mSpine->getCurrentNerve()
+		        != &TNerveBathtubKillerExplosion::theNerve()
+		    && mSpine->getCurrentNerve()
+		           != &TNerveBathtubKillerBreak::theNerve())
+			mSpine->pushNerve(&TNerveBathtubKillerBreak::theNerve());
+		return TRUE;
+	} else if (msg == 0xa) {
+		if (mSpine->getCurrentNerve()
+		        != &TNerveBathtubKillerExplosion::theNerve()
+		    && mSpine->getCurrentNerve()
+		           != &TNerveBathtubKillerBreak::theNerve())
+			mSpine->pushNerve(&TNerveBathtubKillerExplosion::theNerve());
+		return TRUE;
+	} else if (msg == 0xd) {
+		kill();
+		return TRUE;
+	} else if (msg == 0xf) {
+		behaveToWater(sender);
+		return TRUE;
+	}
+	return FALSE;
+}
 
 void TBathtubKiller::attackToMario()
 {
