@@ -63,7 +63,7 @@ typedef struct HxMotion {
 // State
 // ---------------------------------------------------------------------------
 static HxWork hx;
-static u8 hx_buffer[0x3300];
+static u8 hx_buffer[0x3300] __attribute__((aligned(32)));
 
 static int hxs_logo_resetflag;
 static int hxs_logodraw_resetflag;
@@ -232,22 +232,22 @@ int Hx_GetWipeType(int no) {
 static void dummy_handler() {}
 
 void Hx_StartWipe(int no, int arg) {
-	if (hx.resFlag == 0) {
+	if ((int)hx.resFlag == 0) {
 		hx.buffer = hx_buffer;
 		hx.bufSize = 0x3300;
 	}
-	if (hx.state == 2)
+	if ((int)hx.state == 2)
 		Hx_Warning(1);
 	hx.state = 1;
 	hx.wipeNo = no;
 	hx.timer = 0.0f;
-	hx.unk28 = arg;
+	hx.unk1C = arg;
 }
 
 void Hx_RemoveResource() {
 	if (hx.state == 2)
 		Hx_Warning(1);
-	if (hx.resFlag == 0)
+	if ((int)hx.resFlag == 0)
 		Hx_Warning(2);
 	hx.resFlag = 0;
 	hx.unk28 = 0;
@@ -263,7 +263,7 @@ void Hx_ProvideResourceEx(void* res) {
 void Hx_ProvideResource(void* res, int size) {
 	if (hx.state == 2)
 		Hx_Warning(1);
-	if (hx.resFlag != 0)
+	if ((int)hx.resFlag != 0)
 		Hx_Warning(3);
 	hx.resFlag = 1;
 	hx.buffer = res;
@@ -280,7 +280,9 @@ void Hx_ResetWipe(u32 w, u32 h) {
 	hx.unk28 = 0;
 }
 
+#pragma dont_inline on
 static void Hx_Warning(int code) {}
+#pragma dont_inline off
 
 // ---------------------------------------------------------------------------
 // GX helpers
