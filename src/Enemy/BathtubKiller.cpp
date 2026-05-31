@@ -1,5 +1,6 @@
 #include <Enemy/BathtubKiller.hpp>
 #include <Enemy/Conductor.hpp>
+#include <Enemy/DirectionCalc.hpp>
 #include <Enemy/EffectObj.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <Player/MarioAccess.hpp>
@@ -537,7 +538,47 @@ void TBathtubKiller::updateTimers() { }
 
 bool TBathtubKiller::isAttackable() { return false; }
 
-bool TBathtubKiller::isAboided() { return false; }
+bool TBathtubKiller::isAboided()
+{
+	f32 ceiling = unk204 + (*unk1CC->getRootJointMtx())[1][3];
+	if (mPosition.y > 5.0f + ceiling)
+		return false;
+
+	JGeometry::TVec3<f32> toMario(*gpMarioPos);
+	JGeometry::TVec3<f32> selfPos(mPosition);
+	f32 vertDist = __fabsf(toMario.y - selfPos.y);
+	toMario.y = 0.0f;
+	selfPos.y = 0.0f;
+	JGeometry::TVec3<f32> diff;
+	diff.sub(toMario, selfPos);
+	f32 horizDist = diff.length();
+
+	if (vertDist > getSaveParam2()->mSLAboidDistanceY.value
+	    && horizDist <= getSaveParam2()->mSLAboidDistance.value)
+		return true;
+
+	if (horizDist > getSaveParam2()->mSLStraightDistance.value)
+		return false;
+
+	if (SMS_GetMarioStatus() == 0x3800034B) {
+		unk218 = 240;
+		unk64 |= 1;
+		return true;
+	}
+
+	JGeometry::TVec3<f32> dir(diff);
+	dir.normalize();
+	TDirectionCalc dc1(dir);
+
+	JGeometry::TVec3<f32> forward;
+	mQuat.getZDir(forward);
+	TDirectionCalc dc2(forward);
+
+	f32 ang = dc2.absDirection(dc1.mDirection);
+	if (ang > TDirectionCalc::d2r(getSaveParam2()->aboidAngle.value))
+		return false;
+	return true;
+}
 
 bool TBathtubKiller::canChase() { return false; }
 
