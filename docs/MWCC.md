@@ -5323,6 +5323,34 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### A typed `this` local before a virtual call can make MWCC load the vtable before setting `r3`
+
+**Hypothesis.** For a virtual call on `this`, spelling the call through an
+explicit same-type pointer local can shift MWCC's setup order from
+`mr r3,this; lwz r12,0(this)` to `lwz r12,0(this); mr r3,this` without changing
+the call target or adding instructions:
+
+```cpp
+TShineFader* fader = this;
+fader->draw(rect);
+```
+
+This is source-visible and not just register coloring: the natural
+`draw(rect)` form already has the same live values and emits the opposite order.
+
+**Citation (1 TU).** `mario/GC2D/ShineFader`
+`TShineFader::perform` (t333): the target's second virtual call loads the vtable
+pointer before moving `this` into `r3`. Natural `draw(graphics->mViewportRect)`
+left the function at `93.5%` with only `mr r3` / `lwz r12` swapped. Routing the
+call through `TShineFader* fader = this; fader->draw(...)` matched the
+instruction stream exactly (`100.0%`).
+
+**Experiment to confirm/refute.** Search near-match virtual-call residues where
+the only mismatch is `mr r3,this` scheduled before a vtable load. Apply the
+same typed-local call spelling. If a second independent TU responds, promote
+this as a narrow virtual-call scheduling lever; if it only works after a prior
+virtual call on the same object, refine the precondition.
+
 ### Out-of-class template member definitions can remove in-class inline bias while preserving weak template emission
 
 **Hypothesis.** For class template virtuals whose bodies are visible in a

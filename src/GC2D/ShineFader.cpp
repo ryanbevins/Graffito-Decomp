@@ -29,8 +29,10 @@ void TShineFader::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (flags & 0x1)
 		update();
 
-	if (flags & 0x8)
-		draw(graphics->mViewportRect);
+	if (flags & 0x8) {
+		TShineFader* fader = this;
+		fader->draw(graphics->mViewportRect);
+	}
 }
 
 void TShineFader::update()
