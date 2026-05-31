@@ -248,6 +248,18 @@ void TMario::runningRippleEffect()
 	SMS_EmitRippleTiny(ripplePos);
 }
 
+void TMario::rippleEffect()
+{
+	if (checkFlag(MARIO_FLAG_IN_SHALLOW_WATER)) {
+		SMS_EmitRipplePool(mJointMtx2, this);
+	} else {
+		SMS_EmitRippleSea(mJointMtx2, this);
+		if (checkActionFlag(0x2000)
+		    && mForwardVel > *(f32*)((u8*)this + 0x2828))
+			mWaterWakeAlpha = 0xFF;
+	}
+}
+
 void TMario::smallTouchDownEffect()
 {
 	static JGeometry::TVec3<f32> scale(0.7f, 0.7f, 0.7f);
