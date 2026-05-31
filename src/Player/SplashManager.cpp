@@ -103,7 +103,46 @@ void TSplashManager::move()
 	}
 }
 
-void TSplashManager::makeDL(JDrama::TGraphics* gfx) const { (void)gfx; }
+void TSplashManager::makeDL(JDrama::TGraphics* gfx) const
+{
+	mQuad->reset();
+
+	JSULink<TWaterSplash>* link = mActiveList.getFirst();
+	while (link != NULL) {
+		TWaterSplash* splash = link->getObject();
+
+		JGeometry::TVec3<f32> out;
+		PSMTXMultVec((MtxPtr)((u8*)gfx + 0xb4), (Vec*)&splash->mPos,
+		             (Vec*)&out);
+
+		if (out.z < -mUnk644 || -250.0f < out.z) {
+			splash->mLife = 0;
+		} else {
+			f32 ratio = (f32)(mInitLife - splash->mLife) / (f32)mInitLife;
+			f32 size  = mUnk634 * ratio + mUnk630;
+
+			GXColor col = { 0xFF, 0xFF, 0xFF, 0x00 };
+			col.a       = (u8)(splash->mLife * 0xFF / mInitLife);
+
+			f32 xl = out.x - size;
+			f32 xr = out.x + size;
+			f32 yt = out.y + size;
+			f32 yb = out.y - size;
+
+			JGeometry::TVec3<f32> quad[4];
+			quad[0].set(xl, yt, out.z);
+			quad[1].set(xr, yt, out.z);
+			quad[2].set(xr, yb, out.z);
+			quad[3].set(xl, yb, out.z);
+
+			mQuad->requestCol(quad, col, splash->mIndex);
+		}
+
+		link = link->getNext();
+	}
+
+	mQuad->setEnd();
+}
 
 void TSplashManager::draw() const
 {
