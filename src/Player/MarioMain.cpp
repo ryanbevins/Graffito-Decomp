@@ -208,7 +208,8 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 	if (flags & 0x2000000) {
 		bool drawBox = (mSubState & 0x400) ? true : false;
 		if (drawBox) {
-			boxDrawPrepare(gfx->mViewMtx.mMtx);
+			MtxPtr viewMtx = gfx->mViewMtx.mMtx;
+			boxDrawPrepare(viewMtx);
 			GXSetColorUpdate(GX_FALSE);
 			GXSetAlphaUpdate(GX_TRUE);
 			GXSetDstAlpha(GX_TRUE, 0x10);
@@ -222,7 +223,8 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 	if (flags & 0x800000) {
 		bool drawBox = (mSubState & 0x400) ? true : false;
 		if (drawBox) {
-			boxDrawPrepare(gfx->mViewMtx.mMtx);
+			MtxPtr viewMtx = gfx->mViewMtx.mMtx;
+			boxDrawPrepare(viewMtx);
 			GXSetColorUpdate(GX_FALSE);
 			GXSetAlphaUpdate(GX_TRUE);
 			GXSetDstAlpha(GX_TRUE, 0);
@@ -251,7 +253,8 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 		j3dSys.unk4C = 4;
 		unk398->draw();
 
-		boxDrawPrepare(gfx->mViewMtx.mMtx);
+		MtxPtr viewMtx = gfx->mViewMtx.mMtx;
+		boxDrawPrepare(viewMtx);
 
 		GXColor color = gpSilhouetteManager->unk12;
 		GXSetChanMatColor(GX_COLOR0A0, color);
