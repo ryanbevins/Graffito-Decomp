@@ -89,6 +89,7 @@ static void Hxs1_Test1(f32, f32, f32);
 static void Hx_Test1();
 static void Hx_Logo();
 static void Hx_GameOver();
+static void Hxs_GameOver(u32, f32, f32);
 static void Hx_Door();
 static void Hxs_FrBufferMorf2B(f32);
 static void Hxs_FrBufferMorf2(f32);
@@ -108,6 +109,8 @@ static void Hx_SetVFilter(f32 ratio);
 static void Hx_FrBufferMorf(f32 ratio);
 static void __Hx_FrBufferMorf(u32 x, u32 y);
 static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht);
+static void Hgx_ReadTexture(char* fileName, void* addr);
+static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res);
 static void dummy_handler();
 
 // Camera vectors (mutable: Hx_CameraInit overwrites .x/.y with screen center).
@@ -136,10 +139,23 @@ static u16 a1;
 static u16 a2;
 static u16 a3;
 static f32 boke;
+static f32 mag = 1.0f;
+static f32 rot;
+static f32 fade;
+static u32 boundstate;
+static u32 boundtimer;
+static f32 bounddelta;
+static u8 alpha;
+static void* gmover_tex_buffer = hx_buffer;
 static f32 thin;
 static u32 rstep;
 static f32 thin_d;
 static f32 rstep_d;
+
+static const f32 boundtable[14] = {
+	-0.13f, 6.0f, 0.13f, 6.0f, -0.12f, 8.0f, 0.12f,
+	-8.0f, -0.11f, 12.0f, 0.11f, 12.0f, 0.0f, 0.0f,
+};
 
 // ---------------------------------------------------------------------------
 // Wipe-effect handlers (GX-heavy; reconstruction pending - see notes/hx_wiper.md)
@@ -738,7 +754,166 @@ int Hx_MovieStartSyncEx() {
 }
 
 static void Hx_Logo() {}
-static void Hx_GameOver() {}
+static void Hx_GameOver() {
+	switch (hx.unk38) {
+	case 0:
+		Hgx_ReadTexture("/data/wipe_gameover.bti", gmover_tex_buffer);
+		rot = 0.0f;
+		mag = 0.3f;
+		fade = 0.0f;
+		hx.unk38++;
+		hx.unk3C = 50;
+		Hx_MotionSet((HxMotion*)hx.rest, -12.566371f, 10.0f, 15.0f, 25.0f);
+		break;
+	case 1:
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 10;
+		}
+		mag += 0.074f;
+		rot = Hx_MotionUpdate((HxMotion*)hx.rest);
+		fade += 5.1f;
+		break;
+	case 2:
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			bounddelta = boundtable[0];
+			boundtimer = (u32)boundtable[1];
+			boundstate = 2;
+		}
+		mag -= 0.1f;
+		break;
+	case 3:
+		if (boundtimer != 0)
+			boundtimer--;
+		if (boundtimer == 0) {
+			boundstate++;
+			bounddelta = boundtable[boundstate - 1];
+			boundtimer = (u32)boundtable[boundstate];
+			boundstate++;
+			if (boundtimer == 0) {
+				hx.unk38++;
+				hx.unk3C = 32;
+				alpha = 0xFF;
+			}
+		}
+		mag += bounddelta;
+		break;
+	case 4: {
+		u32 color;
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk3C = 100;
+			hx.unk38++;
+		}
+		alpha += 8;
+		Hx_CameraInit();
+		Hx_GxInit(0, 1);
+		color = 0xFF000000 | alpha;
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition3f32(100.0f, 100.0f, 0.0f);
+		GXColor1u32(color);
+		GXPosition3f32((f32)(hx.imgW - 100), 100.0f, 0.0f);
+		GXColor1u32(color);
+		GXPosition3f32((f32)(hx.imgW - 100), (f32)(hx.imgH - 100), 0.0f);
+		GXColor1u32(color);
+		GXPosition3f32(100.0f, (f32)(hx.imgH - 100), 0.0f);
+		GXColor1u32(color);
+		break;
+	}
+	case 5:
+		Hx_CameraInit();
+		Hx_GxInit(0, 1);
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition3f32(100.0f, 100.0f, 0.0f);
+		GXColor1u32(0xFF0000FF);
+		GXPosition3f32((f32)(hx.imgW - 100), 100.0f, 0.0f);
+		GXColor1u32(0xFF0000FF);
+		GXPosition3f32((f32)(hx.imgW - 100), (f32)(hx.imgH - 100), 0.0f);
+		GXColor1u32(0xFF0000FF);
+		GXPosition3f32(100.0f, (f32)(hx.imgH - 100), 0.0f);
+		GXColor1u32(0xFF0000FF);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.state = 3;
+		}
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+
+	if (hx.unk38 >= 2)
+		Hxs_GameOver(0xFF, 2.0f * mag, rot);
+	else
+		Hxs_GameOver((u32)(int)fade, 2.0f * mag, rot);
+}
+
+static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
+	GXTexObj tobj;
+	f32 cx;
+	f32 cy;
+	f32 hw;
+	f32 hh;
+	f32 s;
+	f32 c;
+	f32 x0;
+	f32 y0;
+	f32 x1;
+	f32 y1;
+	f32 x2;
+	f32 y2;
+	f32 x3;
+	f32 y3;
+
+	Hx_CameraInit();
+	gmover_tex_buffer = hx.buffer;
+	Hgx_init_tobj_resource(&tobj, (HxTexRes*)gmover_tex_buffer);
+	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
+	                  GX_FALSE, GX_PTIDENTITY);
+	GXSetNumTexGens(1);
+	GXSetNumTevStages(1);
+	GXSetTevOp(GX_TEVSTAGE0, GX_MODULATE);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+	GXLoadTexObj(&tobj, GX_TEXMAP0);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+	               GX_LO_CLEAR);
+
+	cx = (f32)hx.imgWHalf;
+	cy = (f32)hx.imgHHalf;
+	hw = 160.0f * scale;
+	hh = 80.0f * scale;
+	s = sinf(angle);
+	c = cosf(angle);
+	x0 = cx + (-hw * c - -hh * s);
+	y0 = cy + (-hw * s + -hh * c);
+	x1 = cx + (hw * c - -hh * s);
+	y1 = cy + (hw * s + -hh * c);
+	x2 = cx + (hw * c - hh * s);
+	y2 = cy + (hw * s + hh * c);
+	x3 = cx + (-hw * c - hh * s);
+	y3 = cy + (-hw * s + hh * c);
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(x0, y0, 0.0f);
+	GXColor1u32(color);
+	GXTexCoord2f32(0.0f, 0.0f);
+	GXPosition3f32(x1, y1, 0.0f);
+	GXColor1u32(color);
+	GXTexCoord2f32(1.0f, 0.0f);
+	GXPosition3f32(x2, y2, 0.0f);
+	GXColor1u32(color);
+	GXTexCoord2f32(1.0f, 1.0f);
+	GXPosition3f32(x3, y3, 0.0f);
+	GXColor1u32(color);
+	GXTexCoord2f32(0.0f, 1.0f);
+}
 static void Hx_Door() {
 	u32 v;
 	f32 f;
@@ -1364,6 +1539,7 @@ static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht) {
 }
 #pragma dont_inline off
 
+#pragma dont_inline on
 static void Hgx_ReadTexture(char* fileName, void* addr) {
 	DVDFileInfo fi;
 	if ((int)hx.resFlag == 0) {
@@ -1374,6 +1550,7 @@ static void Hgx_ReadTexture(char* fileName, void* addr) {
 		}
 	}
 }
+#pragma dont_inline off
 
 static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
 	u32 imageOffset = res->imageOffset;
