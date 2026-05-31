@@ -7,16 +7,21 @@ void TShineFader::load(JSUMemoryInputStream& stream)
 
 BOOL TShineFader::registFadeout(u16 duration, u16 delay)
 {
+	BOOL result = FALSE;
+
+	if (duration == 0)
+		duration = 1;
+
 	switch (mFadeStatus) {
 	case FADE_STATUS_FULLY_FADED_IN:
 		mFadeStatus = FADE_STATUS_FADING_OUT;
 		unk12 = 0;
 		unk10 = duration;
 		mFadeoutDelay = delay;
-		return TRUE;
-	default:
-		return FALSE;
+		result = TRUE;
+		break;
 	}
+	return result;
 }
 
 void TShineFader::perform(u32 flags, JDrama::TGraphics* graphics)
@@ -32,25 +37,25 @@ void TShineFader::update()
 {
 	switch (mFadeStatus) {
 	case FADE_STATUS_FULLY_FADED_IN:
-		if (mFadeoutDelay != 0) {
-			mFadeoutDelay--;
-			if (mFadeoutDelay == 0) {
-				mFadeStatus = FADE_STATUS_FADING_OUT;
-				unk12 = 0;
-			}
-		}
+		mFadeColor.a = 0;
 		break;
 	case FADE_STATUS_FULLY_FADED_OUT:
+		mFadeColor.a = 0xff;
 		break;
 	case FADE_STATUS_FADING_IN:
-		unk12++;
-		if (unk12 > unk10)
-			mFadeStatus = FADE_STATUS_FULLY_FADED_IN;
 		break;
-	case FADE_STATUS_FADING_OUT:
+	case FADE_STATUS_FADING_OUT: {
 		unk12++;
-		if (unk12 > unk10)
+		if (unk12 > mFadeoutDelay + unk10) {
 			mFadeStatus = FADE_STATUS_FULLY_FADED_OUT;
+			unk1C = false;
+			return;
+		}
+		if (unk12 <= mFadeoutDelay)
+			return;
+
+		mFadeColor.a = ((u16)(unk12 - 1 - mFadeoutDelay) * 0xff) / unk10;
 		break;
+	}
 	}
 }
