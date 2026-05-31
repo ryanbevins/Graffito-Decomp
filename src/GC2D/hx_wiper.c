@@ -1719,7 +1719,7 @@ u32 Hx_UpdateWipe(f32 step) {
 	switch (hx.state) {
 	case 0:
 		break;
-	case 1:
+	case 3:
 		if (hx.type != 1) {
 			Hx_CameraInit();
 			Hx_GxInit(0, 0);
@@ -1727,7 +1727,7 @@ u32 Hx_UpdateWipe(f32 step) {
 			Frb2_RendBox(0xFF, 0.0f, 0.0f, (f32)hx.imgW, (f32)hx.imgH);
 		}
 		break;
-	case 3:
+	case 1:
 		hx.handler = handle_table[hx.wipeNo];
 		hx.type = handle_type[hx.wipeNo];
 		hx.state = 2;
