@@ -3,6 +3,7 @@
 #include <dolphin/mtx.h>
 #include <dolphin/dvd.h>
 #include <dolphin/os/OSCache.h>
+#include <math.h>
 
 void ReInitializeGX();
 
@@ -83,6 +84,7 @@ static void Hx_Test5();
 static void Hx_Test4();
 static void Hx_Test2R();
 static void Hx_Test2();
+static void Hxs1_Test1(f32, f32, f32);
 static void Hx_Test1();
 static void Hx_Logo();
 static void Hx_GameOver();
@@ -91,6 +93,9 @@ static void Hx_Circle();
 static void Hx_Warning(int code);
 static void Hx_CameraInit();
 static void Hx_GxInit(int, int);
+f32 Hx_MotionUpdate(HxMotion*);
+void Hx_MotionSet(HxMotion*, f32, f32, f32, f32);
+u32 Hx_TimerCountDown();
 static void Frb2_InitBlackBox();
 static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1);
 static void Hx_SetVFilter(f32 ratio);
@@ -113,6 +118,8 @@ static const u8 handle_type[15] = {
 	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0,
 };
 
+static f32 r_393;
+
 // ---------------------------------------------------------------------------
 // Wipe-effect handlers (GX-heavy; reconstruction pending - see notes/hx_wiper.md)
 // ---------------------------------------------------------------------------
@@ -120,7 +127,93 @@ static void Hx_Test5() {}
 static void Hx_Test4() {}
 static void Hx_Test2R() {}
 static void Hx_Test2() {}
-static void Hx_Test1() {}
+
+static void Hxs1_Test1(f32 x, f32 y, f32 r) {
+	u32 i;
+	f32 r2;
+	f32 z;
+	u32 color;
+
+	Hx_CameraInit();
+	Hx_GxInit(0, 1);
+	GXSetLineWidth(7, GX_TO_ZERO);
+
+	r2 = r * r;
+	GXBegin(0xA8, GX_VTXFMT0, ((u32)r << 1) + 2);
+
+	i = 0;
+	z = 1.0f;
+	color = 0xff;
+	while (i <= (u32)r) {
+		f32 root;
+		f32 iy;
+		f32 x0;
+		f32 x1;
+		f32 y0;
+		volatile f32 rootOut;
+
+		root = r2 - (f32)(i * i);
+		if (root > 0.0f) {
+			f64 guess = __frsqrte(root);
+			guess = 0.5 * guess * (3.0 - root * guess * guess);
+			guess = 0.5 * guess * (3.0 - root * guess * guess);
+			guess = 0.5 * guess * (3.0 - root * guess * guess);
+			rootOut = (f32)(root * guess);
+			root = rootOut;
+		}
+
+		iy = (f32)i;
+		if (y < (f32)hx.imgHHalf)
+			y0 = y + iy;
+		else
+			y0 = y - iy;
+
+		if (x < (f32)hx.imgWHalf) {
+			x0 = x;
+			x1 = x + root;
+		} else {
+			x0 = x - root;
+			x1 = x;
+		}
+
+		GXPosition3f32(x0, y0, z);
+		GXColor1u32(color);
+		GXPosition3f32(x1, y0, z);
+		GXColor1u32(color);
+		i++;
+	}
+}
+
+static void Hx_Test1() {
+	switch (hx.unk38) {
+	case 0:
+		if (hx.type == 1) {
+			r_393 = 400.0f;
+			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 10.0f, 12.0f, 8.0f);
+		} else {
+			r_393 = 1.0f;
+			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 5.0f, 10.0f, 10.0f);
+		}
+		hx.unk38++;
+		hx.unk3C = 25;
+		break;
+	case 1:
+		if (Hx_TimerCountDown() == 0)
+			hx.unk38++;
+		r_393 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		if (hx.type == 1)
+			r_393 = 400.0f - r_393;
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+
+	Hxs1_Test1(0.0f, 0.0f, r_393);
+	Hxs1_Test1((f32)hx.imgW, 0.0f, r_393);
+	Hxs1_Test1((f32)hx.imgW, (f32)hx.imgH, r_393);
+	Hxs1_Test1(0.0f, (f32)hx.imgH, r_393);
+}
 
 int Hx_MovieStartSyncEx() {
 	if (hx.wipeNo != 12)
@@ -153,6 +246,7 @@ static void Hx_Circle() {}
 // ---------------------------------------------------------------------------
 // Motion solver
 // ---------------------------------------------------------------------------
+#pragma dont_inline on
 f32 Hx_MotionUpdate(HxMotion* m) {
 	if (m->unk00 > m->unk1C) {
 		m->unk18 += m->unk0C;
@@ -163,6 +257,7 @@ f32 Hx_MotionUpdate(HxMotion* m) {
 	m->unk20 += m->unk18;
 	return m->unk20;
 }
+#pragma dont_inline off
 
 void Hx_MotionSet(HxMotion* m, f32 dist, f32 t1, f32 t2, f32 t3) {
 	f32 t12;
@@ -186,11 +281,13 @@ void Hx_MotionSet(HxMotion* m, f32 dist, f32 t1, f32 t2, f32 t3) {
 	m->unk1C = 0.0f;
 }
 
+#pragma dont_inline on
 u32 Hx_TimerCountDown() {
 	if (hx.unk3C != 0)
 		hx.unk3C--;
 	return hx.unk3C;
 }
+#pragma dont_inline off
 
 // ---------------------------------------------------------------------------
 // Wipe driver
