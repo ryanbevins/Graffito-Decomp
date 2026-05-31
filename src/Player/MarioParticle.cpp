@@ -523,10 +523,10 @@ void TMario::rippleEffect()
 
 void TMario::smallTouchDownEffect()
 {
-	static JGeometry::TVec3<f32> scale(0.7f, 0.7f, 0.7f);
-
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(0x11, &mPosition, 0, nullptr);
+	static JGeometry::TVec3<f32> scale(0.7f, 0.7f, 0.7f);
+
 	if (emitter) {
 		emitter->unk154.set(scale);
 		emitter->unk174.set(scale);
