@@ -1016,26 +1016,24 @@ static void Hxs_Logo_TexDraw(f32 x1, f32 y1, f32 x2, f32 y2, f32 texW,
 static void Hxs_Logo_TexSetup(u8 color, u8 alpha, void* resource) {
 	GXTexObj tobj;
 	GXColor tevColor;
-	GXColor fadeColor;
 
 	Hx_CameraInit();
 	Hx_GxInit(1, 1);
 	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
+	*(u32*)&tevColor = 0;
 	tevColor.r = color;
-	tevColor.g = 0;
-	tevColor.b = 0;
+	tevColor.a = alpha;
 	if (alpha > 0xC0)
 		tevColor.a = 0xFF;
 	else
-		tevColor.a = (u8)(int)(1.328f * (f32)alpha);
+		tevColor.a = (u8)(int)(1.328 * (f32)alpha);
 	GXSetTevColor(GX_TEVREG0, tevColor);
 
-	fadeColor = tevColor;
 	if (alpha > 0xC0)
-		fadeColor.a = (u8)(((0xFF - alpha) & 0x3F) << 2);
+		tevColor.a = (u8)(((0xFF - alpha) & 0x3F) << 2);
 	else
-		fadeColor.a = 0xFF;
-	GXSetTevColor(GX_TEVREG1, fadeColor);
+		tevColor.a = 0xFF;
+	GXSetTevColor(GX_TEVREG1, tevColor);
 	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_C0, GX_CC_TEXA,
 	                GX_CC_ZERO);
 	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_A1, GX_CA_A0, GX_CA_TEXA,
@@ -1056,9 +1054,7 @@ static void Hxs_Logo_ExtraDraw(u8 alpha, void* resource) {
 	Hx_CameraInit();
 	Hx_GxInit(1, 1);
 	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
-	color.r = 0xFF;
-	color.g = 0xFF;
-	color.b = 0xFF;
+	*(u32*)&color = 0xFFFFFF00;
 	color.a = alpha;
 	GXSetTevColor(GX_TEVREG0, color);
 	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C0, GX_CC_ZERO, GX_CC_ZERO,
