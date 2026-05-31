@@ -122,12 +122,108 @@ static const u8 handle_type[15] = {
 static f32 r_393;
 static f32 r_416;
 static f32 r_432;
+static f32 thin;
+static u32 rstep;
+static f32 thin_d;
+static f32 rstep_d;
 
 // ---------------------------------------------------------------------------
 // Wipe-effect handlers (GX-heavy; reconstruction pending - see notes/hx_wiper.md)
 // ---------------------------------------------------------------------------
 static void Hx_Test5() {}
-static void Hx_Test4() {}
+static void Hx_Test4() {
+	u32 i;
+	f32 center;
+	f32 outer;
+	f32 inner;
+	f32 angle;
+	f32 prevOuterX;
+	f32 prevOuterY;
+	f32 prevInnerX;
+	f32 prevInnerY;
+	f32 z;
+	u32 color;
+
+	switch (hx.unk38) {
+	case 0:
+		switch (hx.type) {
+		case 0:
+			rstep = 0;
+			thin = 124.3f;
+			rstep_d = 5.0f;
+			thin_d = 0.15f;
+			break;
+		case 1:
+			rstep = 230;
+			thin = 100.0f;
+			rstep_d = -5.0f;
+			thin_d = -0.15f;
+			break;
+		}
+		hx.unk3C = 38;
+		hx.unk38++;
+		/* fallthrough */
+	case 1:
+		rstep = (u32)((f32)rstep + rstep_d);
+		thin += thin_d;
+		center = (f32)((hx.imgW >> 1) + 200);
+		outer = center + thin;
+		angle = 0.0f;
+		prevOuterX = outer * sinf(angle) + (f32)hx.imgWHalf;
+		prevOuterY = outer * cosf(angle) + (f32)hx.imgHHalf;
+		inner = center - thin;
+		prevInnerX = inner * sinf(angle) + (f32)hx.imgWHalf;
+		prevInnerY = inner * cosf(angle) + (f32)hx.imgHHalf;
+
+		Hx_CameraInit();
+		Hx_GxInit(0, 1);
+
+		i = 0;
+		z = 0.0f;
+		color = 0xff;
+		while (i < rstep) {
+			f32 curOuterX;
+			f32 curOuterY;
+			f32 curInnerX;
+			f32 curInnerY;
+
+			center -= 2.4f;
+			outer = center + thin;
+			if (center < thin)
+				inner = 0.0f;
+			else
+				inner = center - thin;
+
+			angle += 0.12f;
+			curOuterX = outer * sinf(angle) + (f32)hx.imgWHalf;
+			curOuterY = outer * cosf(angle) + (f32)hx.imgHHalf;
+			curInnerX = inner * sinf(angle) + (f32)hx.imgWHalf;
+			curInnerY = inner * cosf(angle) + (f32)hx.imgHHalf;
+
+			GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+			GXPosition3f32(prevOuterX, prevOuterY, z);
+			GXColor1u32(color);
+			GXPosition3f32(curOuterX, curOuterY, z);
+			GXColor1u32(color);
+			GXPosition3f32(curInnerX, curInnerY, z);
+			GXColor1u32(color);
+			GXPosition3f32(prevInnerX, prevInnerY, z);
+			GXColor1u32(color);
+
+			prevOuterX = curOuterX;
+			prevOuterY = curOuterY;
+			prevInnerX = curInnerX;
+			prevInnerY = curInnerY;
+			i++;
+		}
+
+		if (Hx_TimerCountDown() == 0) {
+			hx.state = 3;
+			hx.unk38++;
+		}
+		break;
+	}
+}
 
 static void Hxs1_Test2(u32 count, u32 side, f32 x, f32 y, f32 r1, f32 r2) {
 	s32 pos;
