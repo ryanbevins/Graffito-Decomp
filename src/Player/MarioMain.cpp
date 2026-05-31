@@ -6,7 +6,6 @@
 #include <JSystem/JMath.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioCap.hpp>
-#include <Player/Watergun.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
 #include <System/Resolution.hpp>
@@ -15,6 +14,12 @@
 #include <dolphin/gx.h>
 
 static JGeometry::TVec3<f32> cDeformedTerrainCenter(0.0f, 5000.0f, 0.0f);
+
+class TWaterGun {
+public:
+	virtual void perform(u32, JDrama::TGraphics*);
+	void setBaseTRMtx(Mtx);
+};
 
 void TMario::drawSyncCallback(u16 token)
 {
