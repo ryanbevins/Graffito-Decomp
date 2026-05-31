@@ -5253,6 +5253,25 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Direct `this->memberPtr` access may force post-call reloads where a cached local pins the pointer across the call
+
+**Hypothesis.** The settled "do not cache a global pointer across calls" rule
+also appears to apply to pointer members loaded from `this`. A source local like
+`TMario* mario = unk68;` encourages MWCC to keep the pointer live in a
+callee-saved register across opaque calls, while repeated direct `unk68` member
+accesses let the compiler reload the member after a call. In
+`mario/Player/MarioEffect::setJumpIntoWaterEffect` (t317), dropping the cached
+`TMario*` local made MWCC reload `unk68` after `PSMTXCopy`, matching the target.
+The same rewrite split raw speed from absolute speed (`speed` + `absSpeed`),
+which matched target `fmr f31,f1` followed by `fneg f31,f1` instead of negating
+from the already-copied FPR. Together this moved the helper `89.8 -> 97.1`.
+
+**Experiment to confirm/refute.** Find another function where target reloads a
+`this` pointer member after an intervening call but our build keeps a cached
+local pointer live. Remove only the cached local and use direct member accesses;
+if the reload pattern appears without broad regressions, promote this as the
+member-pointer companion to the global-pointer caching rule.
+
 ### Explicit `== true` after a bool-materializing ternary forces `clrlwi; cmplwi 1; bne` instead of `clrlwi.; beq`
 
 **Hypothesis.** The existing settled/note pattern for
