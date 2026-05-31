@@ -63,17 +63,9 @@ public:
 		return nullptr;
 	}
 
-	virtual void perform(u32 param_1, TGraphics* param_2)
-	{
-		typename JGadget::TList_pointer<T*>::iterator it = this->begin();
-		for (; it != this->end(); ++it)
-			(*it)->testPerform(param_1, param_2);
-	}
+	virtual void perform(u32 param_1, TGraphics* param_2);
 
-	virtual void loadSuper(JSUMemoryInputStream& stream)
-	{
-		TNameRef::load(stream);
-	}
+	virtual void loadSuper(JSUMemoryInputStream& stream);
 
 	virtual void loadAfterSuper() { TNameRef::loadAfter(); }
 
@@ -83,6 +75,20 @@ public:
 	// fabricated
 	void insert(T* const& obj) { getChildren().push_back(obj); }
 };
+
+template <class T, class U>
+void TViewObjPtrListT<T, U>::perform(u32 param_1, TGraphics* param_2)
+{
+	typename JGadget::TList_pointer<T*>::iterator it = this->begin();
+	for (; it != this->end(); ++it)
+		(*it)->testPerform(param_1, param_2);
+}
+
+template <class T, class U>
+void TViewObjPtrListT<T, U>::loadSuper(JSUMemoryInputStream& stream)
+{
+	TNameRef::load(stream);
+}
 
 } // namespace JDrama
 

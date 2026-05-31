@@ -27,7 +27,8 @@ void TSmJ3DScn::perform(u32 param_1, TGraphics* param_2)
 		if (mLightMap)
 			mLightMap->perform(0x20, param_2);
 
-		MTXCopy(param_2->mViewMtx.mMtx, j3dSys.getViewMtx());
+		MtxPtr viewMtx = param_2->mViewMtx.mMtx;
+		MTXCopy(viewMtx, j3dSys.getViewMtx());
 		j3dSys.drawInit();
 		for (int i = 0; i < mDrawBufferCount; ++i)
 			mDrawBuffers[i]->frameInit();
