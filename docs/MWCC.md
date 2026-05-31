@@ -125,7 +125,9 @@ Citations:
   ColumWater/BombColumWater 82.7→97.7, ColumSand 79.4→95.9, Explosion 79.8→97.3);
   `Enemy/namekuri` reset 77→92; `Enemy/bombhei` setDeadAnm 72→95;
   `Enemy/killer` reset 79→84; `Enemy/hamukuri` `TDangoHamuKuri::reset` 70→96
-  (cascades to BossDango 72→96); `Enemy/smallEnemy` generateItem 60→63.
+  (cascades to BossDango 72→96); `Enemy/smallEnemy` generateItem 60→63 and
+  `genEventCoin` 91.6→97.9 (literal range as the middle arg to
+  `TVec3::set`; residual is fused `fmadds`/FPR coloring).
 - **float-range, runtime call sites (helper reorder)** — see the runtime
   sub-case above (`telesa`, `smallEnemy::init`, `mameGesso`, `conductor`).
 
