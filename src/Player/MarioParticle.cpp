@@ -311,20 +311,25 @@ void TMario::warpInEffect()
 
 void TWarpInCallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* particle)
 {
+	TMario* mario   = gpMarioOriginal;
+	f32 actionTimer = mario->mActionTimer;
+	f32 x           = particle->unk14.x;
+	f32 y           = particle->unk14.y;
+	f32 z           = particle->unk14.z;
 	f32 randomScale = 1.0f + (((u32)particle >> 2) & 0x3F) * 0.0625f;
+	f32 marioScale  = mario->unk468;
 
-	JGeometry::TVec3<f32> dir = *(JGeometry::TVec3<f32>*)emitter->unk120;
-	dir.scale(gpMarioOriginal->unk468);
+	JGeometry::TVec3<f32> dir
+	    = *(JGeometry::TVec3<f32>*)emitter->unk120 * marioScale;
+	JGeometry::TVec3<f32> step = dir * actionTimer;
+	JGeometry::TVec3<f32> offset = step * randomScale;
 
-	JGeometry::TVec3<f32> step = dir;
-	step.scale(gpMarioOriginal->mActionTimer);
-
-	JGeometry::TVec3<f32> offset = step;
-	offset.scale(randomScale);
-
-	particle->unk14.x += offset.x;
-	particle->unk14.y += offset.y;
-	particle->unk14.z += offset.z;
+	f32 newX = x + offset.x;
+	f32 newY = y + offset.y;
+	f32 newZ = z + offset.z;
+	particle->unk14.x = newX;
+	particle->unk14.y = newY;
+	particle->unk14.z = newZ;
 }
 
 void TMario::elecEndEffect()

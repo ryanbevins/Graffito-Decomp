@@ -551,6 +551,13 @@ by-value param return). This costs ~7 instructions per use vs target's
 direct assign. Acceptable for big match gains; document the leftover.
 
 **Citations.**
+- `Player/MarioParticle::TWarpInCallBack::execute` (t323): clean
+  `tmp.scale(k)` source inlined all three scales and scored 0.0%. Rewriting
+  the three vector multiplies as friend `operator*(TVec3, f32)` expressions,
+  then naming the scalar/vector-result locals to match target lifetimes, forced
+  all three `bl scale__Q29JGeometry8TVec3<f>Ff` calls and lifted the callback
+  to 60.0%. Remaining residue is stack/copy scheduling and random-scale
+  conversion placement, not the scale-call decision.
 - `Player/Tongue::emit` (t170): 57.43% → 86.98% (+29.55pp). Replaced
   `tmp.scale(speed); mInitialVelocity = tmp;` with
   `mInitialVelocity = headDir * mInitialSpeed;`. Forced bl scale x2.
@@ -6596,19 +6603,18 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
-- **Why does `TWarpInCallBack::execute` keep three out-of-line
-  `TVec3<f32>::scale(float)` calls while the same clean source shape inlines
-  the multiplies (t322, `Player/MarioParticle`)?** The recovered behavior copies
-  `emitter->unk120` (`mWarpInDir`), scales it by `gpMarioOriginal->unk468`, by
-  `mActionTimer`, then by `1.0f + (((u32)particle >> 2) & 0x3f) * 0.0625f`, and
-  adds it to `particle->unk14`. Target asm uses a 0x110 frame, saves f27-f31,
-  and calls `scale__Q29JGeometry8TVec3<f>Ff` three times. Our equivalent source
-  emits a 0x50 frame and inlines all three component-wise scale operations; a
-  scoped `#pragma dont_inline` around the callback did not change this. Open
-  experiment: find another TU where `TVec3::scale(float)` is called out-of-line
-  from a non-header function, then compare declaration/order/pragma context and
-  whether a local copied through word stores vs constructor copy affects the
-  inline decision.
+- **What remaining source shape gives `TWarpInCallBack::execute` the target
+  random-scale scheduling and 0x110 stack frame (t323,
+  `Player/MarioParticle`)?** The original "why do the three scale calls stay
+  out-of-line" part is answered: friend `operator*(TVec3, f32)` forces the
+  `bl scale` calls (0.0% → 60.0%). The remaining residue is narrower: target
+  schedules `extrwi/xoris` after saving r31, computes randomScale with the
+  signed-conversion path, and allocates a 0x110 frame; current best source keeps
+  the scale calls and FPR lifetimes but uses a 0xd0 frame, schedules part of the
+  random conversion earlier/later, and needs extra vector-copy temps. The signed
+  `(s32)` cast produced `xoris` but scheduled it before the frame setup and
+  regressed 60.0% → 55.2%, so the next experiment should change expression
+  boundaries/lifetimes rather than simply casting.
 
 - **Frustum-clip-over-actor-array loops co-mismatch on (a) a small phantom-inline
   frame inflation AND (b) a loop-counter ↔ in-loop-pointer NV-register swap —
