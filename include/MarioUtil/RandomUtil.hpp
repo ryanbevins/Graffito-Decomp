@@ -20,12 +20,4 @@ inline f32 MsRandF(f32 l, f32 r)
 	return rand() * (1.f / (RAND_MAX + 1)) * (r - l) + l;
 }
 
-// TODO: fabricated int-range helper. Inlined parameter homing of the
-// min/max literals reproduces the target's store+reload+runtime-subf
-// codegen that an inline literal expression constant-folds away.
-inline int MsRand(int min, int max)
-{
-	return min + (int)((max - min) * MsRandF());
-}
-
 #endif
