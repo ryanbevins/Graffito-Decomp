@@ -557,9 +557,10 @@ void TElecNokonoko::init(TLiveManager* manager)
 	carapaceMActor->initDL();
 	carapaceMActor->unk4->lock();
 
-	int low     = 0;
-	int high    = 300;
-	mReadyTimer = low + (int)(MsRandF() * (high - low));
+	volatile int low  = 0;
+	volatile int high = 300;
+	int range         = high - low;
+	mReadyTimer       = low + (int)(MsRandF() * range);
 
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
@@ -874,9 +875,10 @@ void TElecCarapace::loadInit(TSpineEnemy* host, const char* name)
 
 	mSpine->initWith(&TNerveElecCarapaceMove::theNerve());
 
-	int low  = 0;
-	int high = 300;
-	if (low + (int)(MsRandF() * (high - low)) < 150) {
+	volatile int low  = 0;
+	volatile int high = 300;
+	int range         = high - low;
+	if (low + (int)(MsRandF() * range) < 150) {
 		unk174 = 0;
 	}
 
