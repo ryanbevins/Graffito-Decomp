@@ -6,6 +6,9 @@
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <MarioUtil/PacketUtil.hpp>
+#include <JSystem/JUtility/JUTNameTab.hpp>
 #include <new>
 
 // rogue includes needed for matching sinit & bss
@@ -122,7 +125,44 @@ void TBathtubKiller::init(TLiveManager* manager)
 	resetBathtubKiller();
 }
 
-void TBathtubKiller::setMActorAndKeeper() { }
+void TBathtubKiller::setMActorAndKeeper()
+{
+	mMActorKeeper = new TMActorKeeper(mManager, 2);
+	mMActor       = mMActorKeeper->createMActor("bathtubkiller_model1.bmd", 0);
+	mMActorKeeper->createMActor("bathtubdownkiller_model1.bmd", 3);
+
+	s32 noseMatIdx = getActorKeeper()
+	                     ->getMActor("bathtubkiller_model1.bmd")
+	                     ->getModel()
+	                     ->getModelData()
+	                     ->getMaterialName()
+	                     ->getIndex("_nosemat1");
+	s32 eyesMatIdx = getActorKeeper()
+	                     ->getMActor("bathtubkiller_model1.bmd")
+	                     ->getModel()
+	                     ->getModelData()
+	                     ->getMaterialName()
+	                     ->getIndex("_eyesmat1");
+	s32 bodyMatIdx = getActorKeeper()
+	                     ->getMActor("bathtubkiller_model1.bmd")
+	                     ->getModel()
+	                     ->getModelData()
+	                     ->getMaterialName()
+	                     ->getIndex("_body1");
+
+	SMS_InitPacket_OneTevColor(
+	    getActorKeeper()->getMActor("bathtubkiller_model1.bmd")->getModel(),
+	    noseMatIdx, GX_TEVREG1, &unk1E0);
+	SMS_InitPacket_OneTevColor(
+	    getActorKeeper()->getMActor("bathtubkiller_model1.bmd")->getModel(),
+	    eyesMatIdx, GX_TEVREG1, &unk1E8);
+	SMS_InitPacket_OneTevColor(
+	    getActorKeeper()->getMActor("bathtubkiller_model1.bmd")->getModel(),
+	    bodyMatIdx, GX_TEVREG1, &unk1D8);
+	SMS_InitPacket_OneTevColor(
+	    getActorKeeper()->getMActor("bathtubdownkiller_model1.bmd")->getModel(),
+	    0, GX_TEVREG1, &unk1F0);
+}
 
 void TBathtubKiller::reset()
 {
