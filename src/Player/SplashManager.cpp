@@ -1,11 +1,54 @@
 #include <Player/SplashManager.hpp>
 #include <System/StageUtil.hpp>
+#include <MarioUtil/DLUtil.hpp>
+#include <JSystem/JUtility/JUTTexture.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 
 // rogue includes for matching __sinit (15 JALList<T> templates)
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
-void TSplashManager::load(JSUMemoryInputStream& stream) { (void)stream; }
+extern f32 SMSGetAnmFrameRate();
+
+void TSplashManager::load(JSUMemoryInputStream& stream)
+{
+	TViewObj::load(stream);
+
+	mFlags = 3;
+
+	ResTIMG* timg
+	    = (ResTIMG*)JKRFileLoader::getGlbResource("/mario/timg/splash.bti");
+	mTexture = new JUTTexture(timg);
+
+	mUnk630 = 50.0f;
+	mUnk634 = 100.0f;
+
+	f32 rate = SMSGetAnmFrameRate();
+	mGravity = -0.5f * SMSGetAnmFrameRate() * rate;
+	mUnk63C  = 0xA8CBE3FF;
+
+	mActiveList.initiate();
+	mFreeList.initiate();
+
+	for (s32 i = 0; i < 0x40; i++) {
+		mLinks[i]           = new JSULink<TWaterSplash>(&mSplashes[i]);
+		mSplashes[i].mPos.z = 0.0f;
+		mSplashes[i].mPos.y = 0.0f;
+		mSplashes[i].mPos.x = 0.0f;
+		mSplashes[i].mVelY  = 0.0f;
+		mSplashes[i].mLife  = 0;
+		mSplashes[i].mIndex = (u8)i;
+		mFreeList.append(mLinks[i]);
+	}
+
+	mQuad = new TDLColorTexQuad();
+	mQuad->createBuffer(0x40);
+
+	mUnk644   = 3000.0f;
+	mInitLife = 0x10;
+
+	gpSplashManager = this;
+}
 
 void TSplashManager::perform(u32 flags, JDrama::TGraphics* gfx)
 {
