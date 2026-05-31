@@ -17,7 +17,8 @@ inline f32 MsRandF() { return rand() * (1.f / (RAND_MAX + 1)); }
 // something like that
 inline f32 MsRandF(f32 l, f32 r)
 {
-	return rand() * (1.f / (RAND_MAX + 1)) * (r - l) + l;
+	f32 range = r - l;
+	return l + range * (rand() * (1.f / (RAND_MAX + 1)));
 }
 
 #endif
