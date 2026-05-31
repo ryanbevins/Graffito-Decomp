@@ -29,7 +29,9 @@ void TMarioEffect::perform(u32 flags, JDrama::TGraphics* gfx)
 	if (flags & 1) {
 		switch (unk7C) {
 		case 0:
-			if (*(u32*)((u8*)unk68 + 0x118) & MARIO_FLAG_FLUDD_EMITTING) {
+			if ((*(u32*)((u8*)unk68 + 0x118) & MARIO_FLAG_FLUDD_EMITTING)
+			    ? true
+			    : false) {
 				unk80->setBck("01_waterboost_in");
 				unk80->setBtk("01_waterboost");
 				unk80->getFrameCtrl(0)->setFrame(0.0f);
@@ -38,7 +40,10 @@ void TMarioEffect::perform(u32 flags, JDrama::TGraphics* gfx)
 			}
 			break;
 		case 1:
-			if (*(u32*)((u8*)unk68 + 0x118) & MARIO_FLAG_FLUDD_EMITTING) {
+			if (((*(u32*)((u8*)unk68 + 0x118) & MARIO_FLAG_FLUDD_EMITTING)
+			        ? true
+			        : false)
+			    == true) {
 				if ((*(TWaterGun**)((u8*)unk68 + 0x3E4))->getEmitMtx(0)
 				    != nullptr) {
 					gpMarioParticleManager->emitAndBindToMtxPtr(
@@ -65,8 +70,9 @@ void TMarioEffect::perform(u32 flags, JDrama::TGraphics* gfx)
 
 	if ((flags & 2) && unk7C != 0) {
 		if ((*(TWaterGun**)((u8*)unk68 + 0x3E4))->getEmitMtx(0) != nullptr) {
-			PSMTXCopy((*(TWaterGun**)((u8*)unk68 + 0x3E4))->getEmitMtx(0),
-			          unk80->getModel()->unk20);
+			MtxPtr emitMtx
+			    = (*(TWaterGun**)((u8*)unk68 + 0x3E4))->getEmitMtx(0);
+			PSMTXCopy(emitMtx, unk80->getModel()->unk20);
 			unk80->perform(2, gfx);
 		}
 	}
