@@ -71,6 +71,12 @@ static int hxs_logodraw_resetflag;
 static u16 img_wx;
 static u16 img_wy;
 
+static const u8 vtable_org[7] = { 0x10, 0x10, 0, 0, 0, 0x10, 0x10 };
+static u8 vtable[7];
+static const u8 dec_step[4] = { 0, 1, 5, 6 };
+static const u8 inc_step[3] = { 2, 3, 4 };
+static void* fbuf2 = hx_buffer;
+
 // forward declarations (handlers referenced by handle_table / Hx_UpdateWipe)
 static void Hx_Test5();
 static void Hx_Test4();
@@ -86,6 +92,7 @@ static void Hx_CameraInit();
 static void Hx_GxInit(int, int);
 static void Frb2_InitBlackBox();
 static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1);
+static void Hx_SetVFilter(f32 ratio);
 static void dummy_handler();
 
 // Camera vectors (mutable: Hx_CameraInit overwrites .x/.y with screen center).
@@ -289,6 +296,46 @@ static void Frb2_InitBlackBox() {
 	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
 	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
 	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+}
+
+static void Hx_SetVFilter(f32 ratio) {
+	int i;
+	int n;
+	vtable[0] = vtable_org[0];
+	vtable[1] = vtable_org[1];
+	vtable[2] = vtable_org[2];
+	vtable[3] = vtable_org[3];
+	vtable[4] = vtable_org[4];
+	vtable[5] = vtable_org[5];
+	vtable[6] = vtable_org[6];
+	n = (int)(64.0f * ratio);
+	for (i = 0; i < n; i++) {
+		vtable[dec_step[i & 3]]--;
+		vtable[inc_step[i % 3]]++;
+	}
+	GXSetCopyFilter(GX_FALSE, NULL, GX_TRUE, vtable);
+}
+
+static void Frb2_InitGx(GXTexObj* tobj) {
+	Hx_CameraInit();
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+	Hx_SetVFilter(1.0f);
+	GXSetNumTexGens(1);
+	GXSetNumTevStages(1);
+	GXSetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+	GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
+	GXInitTexObj(tobj, fbuf2, 0xA0, 0x10, GX_TF_RGB565, GX_CLAMP, GX_CLAMP,
+	             GX_FALSE);
+	GXInitTexObjLOD(tobj, GX_LINEAR, GX_LINEAR, 0.0f, 10.0f, 0.0f, GX_FALSE,
+	                GX_TRUE, GX_ANISO_1);
+	GXLoadTexObj(tobj, GX_TEXMAP0);
 }
 
 static void Hgx_ReadTexture(char* fileName, void* addr) {
