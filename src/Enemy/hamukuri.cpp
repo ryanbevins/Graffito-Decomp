@@ -1715,9 +1715,11 @@ void TDangoHamuKuri::reset()
 	THamuKuri::reset();
 	mPrev = nullptr;
 	mNext = nullptr;
-	mBoss = nullptr;
-	// TODO: rand interval
-	unk20C = MsRandF(0.0f, 1.0f);
+	mBoss           = nullptr;
+	volatile f32 mn = 0.0f;
+	volatile f32 mx = 1.0f;
+	f32 range       = mx - mn;
+	unk20C          = mn + range * MsRandF();
 	mMActor->calc();
 }
 
