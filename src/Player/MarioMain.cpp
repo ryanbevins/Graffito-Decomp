@@ -60,7 +60,7 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 	u32 doMovement = flags & 1;
 	if (doMovement) {
 		if ((s16)unk14E > 0) {
-			unk14E--;
+			*(s16*)&unk14E = *(s16*)&unk14E - 1;
 			if ((s16)unk14E <= 0)
 				*(s16*)&unk150 = *(s16*)((u8*)this + 0x924);
 		}
