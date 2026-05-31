@@ -28,13 +28,9 @@ inline bool JDrama::IsCanEnableDither(GXPixelFmt pix_fmt)
 void JDrama::IssueGXPixelFormatSetting(bool param_1, bool param_2, bool param_3,
                                        bool param_4, bool param_5)
 {
-	GXPixelFmt pix_fmt;
-	if (param_1)
-		pix_fmt = GX_PF_RGB565_Z16;
-	else if (param_2)
-		pix_fmt = GX_PF_RGBA6_Z24;
-	else
-		pix_fmt = GX_PF_RGB8_Z24;
+	GXPixelFmt pix_fmt = param_1   ? GX_PF_RGB565_Z16
+	                     : param_2 ? GX_PF_RGBA6_Z24
+	                               : GX_PF_RGB8_Z24;
 	GXSetPixelFmt(pix_fmt, GX_ZC_LINEAR);
 
 	GXBool dither = false;
