@@ -6,6 +6,7 @@
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <new>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -464,6 +465,6 @@ void TBathtubKillerManager::createModelData()
 TSpineEnemy* TBathtubKillerManager::createEnemyInstance()
 {
 	TBathtubKiller* k = new TBathtubKiller;
-	MTXIdentity(k->unk220);
+	new (&k->unk220) TMtx34f();
 	return k;
 }
