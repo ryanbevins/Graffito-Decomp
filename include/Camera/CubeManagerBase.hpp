@@ -45,6 +45,9 @@ public:
 	    : TCubeManagerBase(param_1, param_2)
 	{
 	}
+
+public:
+	/* 0x1C */ s32 unk1C;
 };
 
 class TCubeManagerArea;
@@ -74,10 +77,11 @@ public:
 	{
 	}
 
-	bool isInOtherCube(const Vec&) const;
-
-public:
-	/* 0x1C */ u32 unk1C;
+	bool isInOtherCube(const Vec& pos) const
+	{
+		s32 cubeNo = getInCubeNo(pos);
+		return unk1C != -1 && cubeNo != -1 && unk1C != cubeNo;
+	}
 };
 
 bool SMS_IsInOtherFastCube(const Vec&);

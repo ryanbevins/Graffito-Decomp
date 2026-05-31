@@ -1,6 +1,9 @@
 #include <Camera/CubeManagerBase.hpp>
 #include <Camera/cameralib.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <Player/MarioAccess.hpp>
+#include <System/MarDirector.hpp>
+#include <string.h>
 
 TCubeManagerArea* gpCubeArea;
 TCubeManagerFast* gpCubeFastA;
@@ -90,10 +93,48 @@ void TCubeManagerBase::calcPointInCubeRatio(const Vec& param_1, s32 param_2,
 	                        info.getUnk24(), param_3, param_4, param_5);
 }
 
-bool TCubeManagerArea::isInAreaCube(const Vec&) const { }
+bool TCubeManagerArea::isInAreaCube(const Vec& pos) const
+{
+	bool result = false;
+	s32 cubeNo  = getInCubeNo(pos);
 
-bool TCubeManagerFast::isInOtherCube(const Vec&) const { }
+	if (unk1C == cubeNo) {
+		result = true;
+	} else if (gpMarDirector->mMap == 7 && unk1C != -1 && cubeNo != -1) {
+		const char* currentName = (*unk14)[cubeNo].getName();
+		const char* lastName    = (*unk14)[unk1C].getName();
 
-bool SMS_IsInOtherFastCube(const Vec&) { }
+		if (strcmp(lastName, "\x82" "\x52" "\x8A" "\x4B") == 0) {
+			if (strcmp(currentName, "\x82" "\x51" "\x8A" "\x4B") == 0
+			    || strcmp(currentName, "\x82" "\x50" "\x8A" "\x4B") == 0)
+				result = true;
+		} else if (strcmp(lastName, "\x82" "\x51" "\x8A" "\x4B") == 0
+		           && strcmp(currentName, "\x82" "\x50" "\x8A" "\x4B")
+		               == 0) {
+			result = true;
+		}
+	}
 
-bool SMS_IsInSameCameraCube(const Vec&) { }
+	return result;
+}
+
+bool SMS_IsInOtherFastCube(const Vec& pos)
+{
+	bool result = false;
+	if (!gpMarDirector->checkUnk124Thing2()) {
+		if (gpCubeFastA->isInOtherCube(pos) || gpCubeFastB->isInOtherCube(pos)
+		    || gpCubeFastC->isInOtherCube(pos))
+			result = true;
+	}
+	return result;
+}
+
+bool SMS_IsInSameCameraCube(const Vec& pos)
+{
+	Vec marioPos = *gpMarioPos;
+	marioPos.y += 75.0f;
+
+	s32 marioCube = gpCubeCamera->getInCubeNo(marioPos);
+	s32 otherCube = gpCubeCamera->getInCubeNo(pos);
+	return marioCube == otherCube && marioCube != -1;
+}
