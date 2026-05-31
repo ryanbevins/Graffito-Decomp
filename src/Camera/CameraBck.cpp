@@ -1,6 +1,7 @@
 #include <Camera/CameraBck.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorData.hpp>
@@ -52,15 +53,33 @@ bool TCameraBck::updateDemo(JGeometry::TVec3<f32>* pos,
 		up->z  = m[2][1];
 	}
 	if (fov != nullptr) {
-		// Best-effort: original reads from anim transform table
-		*fov = 0.0f;
+		J3DAnmTransform* bckAnm
+		    = mActor->unkC != nullptr ? mActor->unkC->unk24 : nullptr;
+		if (bckAnm != nullptr) {
+			J3DTransformInfo info;
+			bckAnm->getTransform((u16)mFovJointIdx, &info);
+			*fov = info.mScale.y;
+		}
+	}
+
+	if (mOffset != nullptr) {
+		if (pos != nullptr) {
+			pos->x += mOffset->x;
+			pos->y += mOffset->y;
+			pos->z += mOffset->z;
+		}
+		if (lookat != nullptr) {
+			lookat->x += mOffset->x;
+			lookat->y += mOffset->y;
+			lookat->z += mOffset->z;
+		}
 	}
 
 	bool result        = true;
 	J3DFrameCtrl* ctrl = mActor->getFrameCtrl(0);
 	if (ctrl != nullptr) {
 		u8 stateByte = *((u8*)ctrl + 5);
-		if ((stateByte & 1) != 0)
+		if ((stateByte & 1) == 0)
 			result = false;
 	}
 	return result;
@@ -101,12 +120,14 @@ TCameraBck::TCameraBck()
 	mOffset           = nullptr;
 	SDLModel* model   = SMS_CreateMinimumSDLModel("/common/camera/camera_model.bmd");
 	mAnmData          = new MActorAnmData();
-	if (mAnmData != nullptr) {
-		mAnmData->init(cCameraBckVolumeName, sAddBckFileNameTable);
-	}
+	mAnmData->init(cCameraBckVolumeName, sAddBckFileNameTable);
 	mActor = new MActor(mAnmData);
 	mActor->setModel((J3DModel*)model, 0);
-	mFovJointIdx      = 0;
-	mPositionJointMtx = nullptr;
-	mLookatJointMtx   = nullptr;
+
+	J3DModel* j3dModel = (J3DModel*)model;
+	JUTNameTab* joints = j3dModel->getModelData()->getJointName();
+	mFovJointIdx       = joints->getIndex(cPositionJointName);
+	mPositionJointMtx  = (Mtx*)j3dModel->getAnmMtx((u16)mFovJointIdx);
+	mLookatJointMtx
+	    = (Mtx*)j3dModel->getAnmMtx((u16)joints->getIndex(cLookatJointName));
 }
