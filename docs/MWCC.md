@@ -6507,6 +6507,13 @@ end-of-file is what stuck.
   `isNormalMonteW` a `bl` (matching target). The previously-100%-matching
   isXxx predicates (which had no calls) were unaffected. The pragma applied
   TU-wide as expected.
+- `src/System/TalkCursor.cpp` (t317, supporting evidence). Wrapping only
+  `TTalkCursor::associateNPC` in `#pragma dont_inline on/off` did **not** force
+  the desired `TRotation3::identity33` call. Leaving final TU state as
+  `dont_inline on` did force out-of-line inline helpers, but it applied broadly:
+  `associateNPC` regressed `41.5 -> 17.5`, `loadAfter` `99.6 -> 93.3`, and the
+  dtor `100 -> 86` due to extra emitted/called helpers (`TPosition3`/`TRotation3`
+  ctors, `setTrans`, `TFlagT::on/off`, `MActor::getModel`). Reverted.
 
 **Experiment to confirm a different scope mechanism:** A TU where two
 functions need different inlining decisions (one needs `on`, the other an
