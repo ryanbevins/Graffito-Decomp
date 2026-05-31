@@ -49,7 +49,7 @@ public:
 };
 
 namespace {
-const char* cButterflyMdlNames[] = {
+const char* const cButterflyMdlNames[] = {
 	"butterflyA.bmd",
 	"butterflyB.bmd",
 	"butterflyC.bmd",
