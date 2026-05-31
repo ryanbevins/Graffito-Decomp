@@ -105,6 +105,8 @@ void TSplashManager::move()
 
 void TSplashManager::makeDL(JDrama::TGraphics* gfx) const
 {
+	MtxPtr mtx = (MtxPtr)((u8*)gfx + 0xb4);
+
 	mQuad->reset();
 
 	JSULink<TWaterSplash>* link = mActiveList.getFirst();
@@ -112,8 +114,7 @@ void TSplashManager::makeDL(JDrama::TGraphics* gfx) const
 		TWaterSplash* splash = link->getObject();
 
 		JGeometry::TVec3<f32> out;
-		PSMTXMultVec((MtxPtr)((u8*)gfx + 0xb4), (Vec*)&splash->mPos,
-		             (Vec*)&out);
+		PSMTXMultVec(mtx, (Vec*)&splash->mPos, (Vec*)&out);
 
 		if (out.z < -mUnk644 || -250.0f < out.z) {
 			splash->mLife = 0;
