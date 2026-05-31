@@ -1967,12 +1967,14 @@ static void Hx_CameraInit() {
 	Mtx posMtx;
 	f32 hw = (f32)(hx.imgW >> 1);
 	f32 hh = (f32)(hx.imgH >> 1);
+	f32 near = 0.0f;
+	f32 far  = 100.0f;
 
 	camLoc.x = hw;
 	camLoc.y = hh;
 	objPt.x = hw;
 	objPt.y = hh;
-	C_MTXOrtho(proj, hh, -hh, -hw, hw, 0.0f, 100.0f);
+	C_MTXOrtho(proj, hh, -hh, -hw, hw, near, far);
 	GXSetProjection(proj, GX_ORTHOGRAPHIC);
 	GXSetViewport(0.0f, 0.0f, 640.0f, 480.0f, 0.0f, 1.0f);
 	C_MTXLookAt(posMtx, &camLoc, &up, &objPt);
