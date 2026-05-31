@@ -326,14 +326,21 @@ f32 TChuuHana::getGravityY() const
 
 void TChuuHana::setGoal()
 {
-	JGeometry::TVec3<f32> goal = mPosition;
+	JGeometry::TVec3<f32> goal;
+	goal.x = mPosition.x;
+	goal.y = mPosition.y;
+	goal.z = mPosition.z;
 	Vec dir;
 	dir.x = 0.0f;
 	dir.y = 0.0f;
 	dir.z = 1.0f;
 
 	Mtx mtx;
-	f32 randYaw = -30.0f + rand() * (1.0f / (RAND_MAX + 1)) * 60.0f;
+	volatile f32 min = -30.0f;
+	volatile f32 max = 30.0f;
+	f32 range       = max - min;
+	f32 randYaw     = range * (rand() * (1.0f / (RAND_MAX + 1)));
+	randYaw += min;
 	MsMtxSetRotRPH(mtx, mRotation.x, mRotation.y + randYaw, mRotation.z);
 	PSMTXMultVec(mtx, &dir, &dir);
 

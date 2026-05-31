@@ -127,7 +127,9 @@ Citations:
   `Enemy/killer` reset 79→84; `Enemy/hamukuri` `TDangoHamuKuri::reset` 70→96
   (cascades to BossDango 72→96); `Enemy/smallEnemy` generateItem 60→63 and
   `genEventCoin` 91.6→97.9 (literal range as the middle arg to
-  `TVec3::set`; residual is fused `fmadds`/FPR coloring).
+  `TVec3::set`; residual is fused `fmadds`/FPR coloring); `Enemy/chuuhana`
+  `setGoal` 67.9→84.3 (same volatile endpoints plus split
+  multiply-then-add form).
 - **float-range, runtime call sites (helper reorder)** — see the runtime
   sub-case above (`telesa`, `smallEnemy::init`, `mameGesso`, `conductor`).
 
