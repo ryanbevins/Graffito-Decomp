@@ -36,21 +36,31 @@ int TPollutionLayer::getTexPosS(f32 x) const
 
 bool TPollutionLayer::getPollutedPosNear(f32 range, JGeometry::TVec3<f32>* pos)
 {
+	TPollutionPos* pollutionPos = &unk5C;
+
 	for (int i = 0; i < 5; ++i) {
-		pos->x = gpMarioPos->x
-		         + (MsRandF() - 0.5f) * (mAreaMinRate + MsRandF()) * range;
-		pos->z = gpMarioPos->z
-		         + (MsRandF() - 0.5f) * (mAreaMinRate + MsRandF()) * range;
+		f32 xOffset = (MsRandF() - 0.5f) * (mAreaMinRate + MsRandF());
+		pos->x      = gpMarioPos->x + xOffset * range;
+		f32 zOffset = (MsRandF() - 0.5f) * (mAreaMinRate + MsRandF());
+		pos->z      = gpMarioPos->z + zOffset * range;
 
 		if (!isInArea(pos->x, 0.0f, pos->z))
 			continue;
 
 		int s = getTexPosS(pos->x);
 		int t = getTexPosS(pos->z);
-		if (s < 0 || unk5C.mWidth <= s || t < 0 || unk5C.mHeight <= t)
+
+		bool inBounds;
+		if (s < 0 || pollutionPos->mWidth <= s || t < 0
+		    || pollutionPos->mHeight <= t)
+			inBounds = false;
+		else
+			inBounds = true;
+
+		if (!inBounds)
 			continue;
 
-		pos->y = unk5C.getDepthWorld(s, t);
+		pos->y = pollutionPos->getDepthWorld(s, t);
 		if (pos->y > gpMarioPos->y)
 			return false;
 
