@@ -30,6 +30,21 @@ typedef struct HxWork {
 	/* 0x40 */ u8 rest[0x64 - 0x40];
 } HxWork;
 
+// Texture resource header (.bti / ResTIMG-style); only the fields used here.
+typedef struct HxTexRes {
+	/* 0x00 */ u8 format;
+	/* 0x01 */ u8 pad01;
+	/* 0x02 */ u16 width;
+	/* 0x04 */ u16 height;
+	/* 0x06 */ u8 wrapS;
+	/* 0x07 */ u8 wrapT;
+	/* 0x08 */ u8 pad08[0x14 - 0x08];
+	/* 0x14 */ u8 minFilter;
+	/* 0x15 */ u8 magFilter;
+	/* 0x16 */ u8 pad16[0x1C - 0x16];
+	/* 0x1C */ u32 imageOffset;
+} HxTexRes;
+
 // 9-float motion descriptor used by Hx_MotionSet / Hx_MotionUpdate.
 typedef struct HxMotion {
 	/* 0x00 */ f32 unk00;
@@ -51,6 +66,9 @@ static u8 hx_buffer[0x3300];
 
 static int hxs_logo_resetflag;
 static int hxs_logodraw_resetflag;
+
+static u16 img_wx;
+static u16 img_wy;
 
 // forward declarations (handlers referenced by handle_table / Hx_UpdateWipe)
 static void Hx_Test5();
@@ -276,6 +294,16 @@ static void Hgx_ReadTexture(char* fileName, void* addr) {
 			DCStoreRange(addr, len);
 		}
 	}
+}
+
+static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
+	void* image = (u8*)res + res->imageOffset;
+	img_wx = res->width;
+	img_wy = res->height;
+	GXInitTexObj(obj, image, img_wx, img_wy, res->format, res->wrapS, res->wrapT,
+	             GX_FALSE);
+	GXInitTexObjLOD(obj, res->minFilter, res->magFilter, 0.0f, 0.0f, 0.0f,
+	                GX_FALSE, GX_FALSE, GX_ANISO_1);
 }
 
 static void Hx_CameraInit() {}
