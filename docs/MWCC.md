@@ -6294,6 +6294,38 @@ helper otherwise visible only via the same flag environment), MWCC's
   both helper calls as `bl` (no inlining); without `dont_inline on`, MWCC
   auto-inlines the now-tiny helpers, dropping it to 20%; with
   `dont_inline on`, matches.
+- `mario/Enemy/BathtubKiller` `behaveToWater` (30%), `attackToMario`
+  (66%), `receiveMessage` (36%) — t297. All three guard with
+  `getCurrentNerve() != &Explosion::theNerve() && != &Break::theNerve()`
+  then `pushNerve(&XNerve::theNerve())`. **Target emits `bl theNerve` at
+  the `==`/`!=` COMPARISON sites but INLINES the `theNerve()` inside the
+  `pushNerve()` block.** Our build inlines `theNerve()` at the comparison
+  sites too, bloating each function +90..190 bytes. (Note the cited
+  Camera `dont_inline` lever does NOT apply: it's all-or-nothing and
+  would force `bl` at the push site too, which target inlines.) The bl is
+  accompanied by the `subf;cntlzw;extrwi.;bne` bool-equality idiom (a
+  consequence of comparing against a `bl` result, not an independent
+  signal). One asymmetry inside the same fn: in `attackToMario` the
+  pushed nerve (Explosion) is ALSO the first guard clause, and its
+  comparison DOES inline (sharing the push's `instance$` via CSE, init
+  guard hoisted to first occurrence) while Break (compare-only) stays
+  `bl`. In `behaveToWater` the pushed nerve (Break) is the *second*
+  clause and its comparison stays `bl` — so position-of-the-pushed-nerve
+  in the guard, not which nerve, decides whether the comparison inlines.
+
+**Refuted source levers (t297, BathtubKiller):**
+- *Definition order.* Target defines all `execute`/`theNerve` nerve
+  bodies BEFORE the methods that compare them; our `.cpp` defined them
+  after. Moving the `DEFINE_NERVE` block above `receiveMessage`/
+  `attackToMario`/`behaveToWater` produced **zero** change (identical
+  match %, identical asm). Under `-inline auto`, definition order does
+  not gate this comparison-site inlining.
+- *BOOL helper wrapper.* Hypothesized the guard went through an inlined
+  `BOOL TSpineBase::isNerve(Nerve n) const { return mCurrent == n; }`
+  (the `&theNerve()` passed as an arg → `bl` to evaluate, `==` → cntlzw).
+  Added the helper and rewrote `behaveToWater` to `!isNerve(...) && ...`:
+  MWCC **still inlined** `theNerve()` through the argument. No effect on
+  match %. Reverted.
 
 **Experiment to confirm:** Determine what source-level cue distinguishes
 inline-here from no-inline-there. Candidates:
