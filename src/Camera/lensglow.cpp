@@ -1,8 +1,12 @@
 #include <Camera/LensGlow.hpp>
 #include <Camera/cameralib.hpp>
+#include <Camera/SunModel.hpp>
+#include <Camera/CameraMarioData.hpp>
+#include <System/Resolution.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DMaterialAnm.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
+#include <JSystem/J3D/J3DGraphBase/Components/J3DGXColorS10.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DAnmLoader.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -89,9 +93,113 @@ TLensGlow::TLensGlow(bool sunset, const char* name)
 	unk60 = unk6C;
 }
 
-void TLensGlow::perform(u32 flags, JDrama::TGraphics* gfx)
+void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
 {
-	(void)flags;
 	(void)gfx;
-	// TODO: draw lens glow with animations
+
+	u8 visible;
+	if (gpCameraMario->isMarioIndoor()) {
+		visible = 0;
+	} else {
+		TSunModel* sun = gpSunModel;
+		f32 lim        = unk94;
+		visible        = -lim <= sun->mFPos[0].x && sun->mFPos[0].x <= lim
+		          && -lim <= sun->mFPos[0].y && sun->mFPos[0].y <= lim;
+	}
+
+	if (param & 1) {
+		TSunModel* sun = gpSunModel;
+		u8 visCount    = sun->mVisibleCount;
+		f32 sunRatio   = sun->mUnk194;
+
+		if (visCount <= unk5D) {
+			unk4C = 0.0f;
+		} else {
+			f32 t = (f32)(visCount - unk5D) / (f32)(17 - unk5D);
+			unk4C = CLBEaseOutInbetween(0.0f, (f32)unk5C,
+			                            CLBLinearInbetween(0.0f, 1.0f, t));
+		}
+
+		f32 rate;
+		if (unk48 < unk4C)
+			rate = unk50;
+		else if (sunRatio == 0.0f)
+			rate = unk58;
+		else
+			rate = unk54;
+		CLBChaseDecrease(&unk48, unk4C, rate, 0.0f);
+
+		unk64 = CLBLinearInbetween(0.002f * unk6C, 0.002f * unk68, sunRatio);
+		CLBChaseDecrease(&unk60, unk64, unk70, 0.0f);
+
+		f32 baseX = gpSunModel->mFPos[0].x
+		          * (f32)((u16)SMSGetGameRenderWidth() / 2);
+		f32 baseY = gpSunModel->mFPos[0].y
+		          * (f32)((u16)SMSGetGameRenderHeight() / 2);
+
+		if (visCount == 0) {
+			unk8C = 0.0f;
+			unk88 = 0.0f;
+		} else if (sunRatio >= 0.5f) {
+			unk8C = 0.0f;
+			unk88 = 0.0f;
+		} else {
+			f32 sumX = 0.0f;
+			f32 sumY = 0.0f;
+			for (int i = 0; i < 17; i++) {
+				if (sun->mZBufVisible[i]) {
+					sumX += sun->mFPos[i].x;
+					sumY += sun->mFPos[i].y;
+				}
+			}
+			f32 inv = 1.0f / (f32)visCount;
+			f32 tt  = 2.0f * sunRatio;
+			f32 rx  = CLBLinearInbetween(sumX * inv, sun->mFPos[0].x, tt);
+			f32 ry  = CLBLinearInbetween(sumY * inv, sun->mFPos[0].y, tt);
+			unk88 = rx * (f32)((u16)SMSGetGameRenderWidth() / 2) - baseX;
+			unk8C = ry * (f32)((u16)SMSGetGameRenderHeight() / 2) - baseY;
+		}
+
+		CLBChaseDecrease(&unk80, unk88, unk90, 0.0f);
+		CLBChaseDecrease(&unk84, unk8C, unk90, 0.0f);
+		unk74 = baseX + unk80;
+		unk78 = baseY + unk84;
+	}
+
+	if (param & 2) {
+		unk1C.update();
+		unk34.update();
+		if (visible) {
+			Mtx mtx;
+			Vec scale;
+			scale.x = unk60;
+			scale.y = unk60;
+			scale.z = 1.0f;
+			CLBCalcScaleTranslateMatrix(mtx, scale, (Vec&)unk74);
+			PSMTXCopy(mtx, unk14->unk20);
+			unk14->calc();
+		}
+	}
+
+	if (param & 0x200) {
+		if (visible) {
+			int num = unk10->getMaterialNum();
+			for (u16 i = 0; i < num; i++) {
+				J3DGXColorS10 c;
+				c.color =
+				    unk10->getMaterialNodePointer(i)->getTevColor(0)->color;
+				c.color.a = (s16)unk48;
+				unk10->getMaterialNodePointer(i)->getTevBlock()->setTevColor(
+				    0, &c);
+			}
+			unk18->setFrame(unk1C.getFrame());
+			unk30->setFrame(unk34.getFrame());
+			unk14->entry();
+		}
+	}
+
+	if (param & 4) {
+		if (visible)
+			unk14->viewCalc();
+	}
 }
