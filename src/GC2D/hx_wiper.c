@@ -130,7 +130,171 @@ static f32 rstep_d;
 // ---------------------------------------------------------------------------
 // Wipe-effect handlers (GX-heavy; reconstruction pending - see notes/hx_wiper.md)
 // ---------------------------------------------------------------------------
-static void Hx_Test5() {}
+static void Hx_Test5() {
+	GXTexObj tobj;
+	u32 y;
+	u32 x;
+
+	Hx_CameraInit();
+	Hx_GxInit(1, 0);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+
+	switch (hx.unk38) {
+	case 0:
+		hx.unk3C = 20;
+		hx.unk38++;
+		/* fallthrough */
+	case 1: {
+		f32 t;
+		f32 ratioA;
+		f32 ratioB;
+
+		GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0,
+		                  GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+		GXSetNumTexGens(1);
+		GXSetNumTevStages(1);
+		GXSetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0,
+		              GX_COLOR_NULL);
+		GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
+		GXInitTexObj(&tobj, hx_buffer, 0x40, 0x40, GX_TF_RGB565, GX_CLAMP,
+		             GX_CLAMP, GX_FALSE);
+		GXInitTexObjLOD(&tobj, GX_LINEAR, GX_LINEAR, 0.0f, 10.0f, 0.0f,
+		                GX_FALSE, GX_TRUE, GX_ANISO_1);
+
+		t = (f32)hx.unk3C / 20.0f;
+		ratioA = 1.41f - 1.41f * t;
+		ratioB = 0.1f + 1.41f * t;
+
+		y = 0;
+		while (y < hx.imgH) {
+			x = 0;
+			while (x < hx.imgW) {
+				u32 i;
+				f32 xf;
+				f32 yf;
+				f32 ratio;
+				f32 phase;
+				f32 cx;
+				f32 cy;
+				f32 firstX;
+				f32 firstY;
+				f32 firstS;
+				f32 firstT;
+
+				xf = (f32)x;
+				yf = (f32)y;
+				Hx_GetFrBuffer(hx_buffer, x, y, 0x40, 0x40);
+				GXInvalidateTexAll();
+				GXLoadTexObj(&tobj, GX_TEXMAP0);
+
+				if (hx.type != 0)
+					ratio = ratioA;
+				else
+					ratio = ratioB;
+
+				if (ratio < 1.0f)
+					phase = 3.1415927f * (1.0f - ratio);
+				else
+					phase = 0.0f;
+
+				cx = xf + 32.0f;
+				cy = yf + 32.0f;
+				GXBegin(0xA0, GX_VTXFMT0, 0x12);
+				GXPosition3f32(cx, cy, 0.0f);
+				GXColor1u32(0);
+				GXTexCoord2f32(0.5f, 0.5f);
+
+				i = 0;
+				while (i < 0x10) {
+					f32 angle;
+					f32 s;
+					f32 c;
+					f32 px;
+					f32 py;
+					f32 tx;
+					f32 ty;
+
+					angle = 3.1415927f * (2.0f * (f32)i) * 0.0625f;
+					s = sinf(angle);
+					c = cosf(angle);
+					tx = 0.5f * s + 0.5f;
+					ty = 0.5f * c + 0.5f;
+
+					px = ratio * sinf(angle + phase);
+					py = ratio * cosf(angle + phase);
+
+					if (ratio <= 1.0f) {
+						tx = ratio * sinf(angle) * 0.5f + 0.5f;
+						ty = ratio * cosf(angle) * 0.5f + 0.5f;
+					}
+
+					if (px < -1.0f) {
+						py = -py / px;
+						px = -1.0f;
+						tx = 0.0f;
+						ty = 0.5f * py + 0.5f;
+					}
+					if (px > 1.0f) {
+						py = py / px;
+						px = 1.0f;
+						tx = 1.0f;
+						ty = 0.5f * py + 0.5f;
+					}
+					if (py < -1.0f) {
+						px = -px / py;
+						py = -1.0f;
+						ty = 0.0f;
+						tx = 0.5f * px + 0.5f;
+					}
+					if (py > 1.0f) {
+						px = px / py;
+						py = 1.0f;
+						ty = 1.0f;
+						tx = 0.5f * px + 0.5f;
+					}
+
+					px *= 32.0f;
+					py *= 32.0f;
+					if (i == 0) {
+						firstX = px;
+						firstY = py;
+						firstS = tx;
+						firstT = ty;
+					}
+
+					GXPosition3f32(cx + px, cy + py, 0.0f);
+					GXColor1u32(0);
+					GXTexCoord2f32(tx, ty);
+					i++;
+				}
+
+				GXPosition3f32(cx + firstX, cy + firstY, 0.0f);
+				GXColor1u32(0);
+				GXTexCoord2f32(firstS, firstT);
+
+				x += 0x40;
+			}
+			y += 0x40;
+		}
+
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.state = 3;
+		}
+		break;
+	}
+	default:
+		hx.state = 3;
+		break;
+	}
+}
 static void Hx_Test4() {
 	u32 i;
 	f32 center;
@@ -815,6 +979,7 @@ static void __Hx_FrBufferMorf(u32 x, u32 y) {
 	GXTexCoord2f32(0.0f, 1.0f);
 }
 
+#pragma dont_inline on
 static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht) {
 	GXColor clear = { 0, 0, 0, 0 };
 	GXSetTexCopySrc(left, top, wd, ht);
@@ -824,6 +989,7 @@ static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht) {
 	GXCopyTex(dest, GX_TRUE);
 	GXPixModeSync();
 }
+#pragma dont_inline off
 
 static void Hgx_ReadTexture(char* fileName, void* addr) {
 	DVDFileInfo fi;
