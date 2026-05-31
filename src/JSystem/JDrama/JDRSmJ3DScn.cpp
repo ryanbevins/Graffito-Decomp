@@ -25,7 +25,7 @@ void TSmJ3DScn::perform(u32 param_1, TGraphics* param_2)
 
 	if ((param_1 & 8)) {
 		if (mLightMap)
-			mLightMap->perform(param_1, param_2);
+			mLightMap->perform(0x20, param_2);
 
 		MTXCopy(param_2->mViewMtx.mMtx, j3dSys.getViewMtx());
 		j3dSys.drawInit();
@@ -33,7 +33,7 @@ void TSmJ3DScn::perform(u32 param_1, TGraphics* param_2)
 			mDrawBuffers[i]->frameInit();
 		j3dSys.mDrawBuffer[0] = mDrawBuffers[0];
 		j3dSys.mDrawBuffer[1] = mDrawBuffers[1];
-		TViewObjPtrListT::perform(param_1, param_2);
+		TViewObjPtrListT::perform(param_1 | 0x204, param_2);
 		j3dSys.unk4C = 3;
 		mDrawBuffers[0]->draw();
 		j3dSys.unk4C = 4;
@@ -45,5 +45,5 @@ void TSmJ3DScn::loadSuper(JSUMemoryInputStream& stream)
 {
 	TViewObjPtrListT::loadSuper(stream);
 	mLightMap = new TLightMap;
-	load(stream);
+	mLightMap->load(stream);
 }
