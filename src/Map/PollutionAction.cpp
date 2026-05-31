@@ -1,4 +1,6 @@
 #include <Map/PollutionLayer.hpp>
+#include <MarioUtil/RandomUtil.hpp>
+#include <Player/MarioAccess.hpp>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -24,9 +26,46 @@ int TPollutionLayer::getTexPosS(f32 x) const
 
 void TPollutionLayer::changeType(u16) { }
 
-void TPollutionLayer::getPollutedPosNear(f32, JGeometry::TVec3<f32>*) { }
+bool TPollutionLayer::getPollutedPosNear(f32 range, JGeometry::TVec3<f32>* pos)
+{
+	for (int i = 0; i < 5; ++i) {
+		pos->x = gpMarioPos->x
+		         + (MsRandF() - 0.5f) * (mAreaMinRate + MsRandF()) * range;
+		pos->z = gpMarioPos->z
+		         + (MsRandF() - 0.5f) * (mAreaMinRate + MsRandF()) * range;
 
-void TPollutionLayer::getPollutedPos(f32, JGeometry::TVec3<f32>*) { }
+		if (!isInArea(pos->x, 0.0f, pos->z))
+			continue;
+
+		int s = getTexPosS(pos->x);
+		int t = getTexPosS(pos->z);
+		if (s < 0 || unk5C.mWidth <= s || t < 0 || unk5C.mHeight <= t)
+			continue;
+
+		pos->y = unk5C.getDepthWorld(s, t);
+		if (pos->y > gpMarioPos->y)
+			return false;
+
+		if (unk54[unk5C.index(s, t)] != 0)
+			return true;
+	}
+
+	return false;
+}
+
+bool TPollutionLayer::getPollutedPos(f32 range, JGeometry::TVec3<f32>* pos)
+{
+	for (int i = 0; i < 5; ++i) {
+		pos->x = gpMarioPos->x + range * (MsRandF() - 0.5f);
+		pos->y = gpMarioPos->y;
+		pos->z = gpMarioPos->z + range * (MsRandF() - 0.5f);
+
+		if (isPolluted(pos->x, pos->y, pos->z))
+			return true;
+	}
+
+	return false;
+}
 
 void TPollutionLayer::changeEffectScale(const JGeometry::TVec3<f32>&, f32) { }
 

@@ -53,8 +53,8 @@ public:
 	void electric();
 	void spread();
 	void changeEffectScale(const JGeometry::TVec3<f32>&, f32);
-	void getPollutedPos(f32, JGeometry::TVec3<f32>*);
-	void getPollutedPosNear(f32, JGeometry::TVec3<f32>*);
+	bool getPollutedPos(f32, JGeometry::TVec3<f32>*);
+	bool getPollutedPosNear(f32, JGeometry::TVec3<f32>*);
 	void changeType(u16);
 	void initPollutionTex(const char*);
 	void initTex(const char*);
