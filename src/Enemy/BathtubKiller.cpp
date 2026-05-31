@@ -269,9 +269,9 @@ void TBathtubKiller::generateItemBathtubKiller()
 	if (unk194 != 1)
 		return;
 
+	TMapObjBase* item = nullptr;
 	TBathtubKillerManager* manager = (TBathtubKillerManager*)mManager;
 	s32 flag = TFlagManager::smInstance->getFlag(0x20001);
-	TMapObjBase* item = nullptr;
 
 	if (((TWaterGun*)SMS_GetMarioWaterGun())->mCurrentWater == 0) {
 		item = gpItemManager->makeObjAppear(mPosition.x, mPosition.y,
@@ -300,28 +300,28 @@ void TBathtubKiller::generateItemBathtubKiller()
 		                                    mPosition.z, 0x20000002, true);
 	}
 
-	if (item == nullptr || item->mActorType != 0x20000002)
-		return;
+	if (item != nullptr && item->mActorType == 0x20000002) {
+		JPABaseEmitter* emitter =
+		    gpMarioParticleManager->emit(0xe5, &item->mPosition, 0, nullptr);
+		if (emitter != nullptr) {
+			emitter->unk154.x = item->mScaling.x;
+			emitter->unk154.y = item->mScaling.y;
+			emitter->unk154.z = item->mScaling.z;
+			emitter->unk174.x = item->mScaling.x;
+			emitter->unk174.y = item->mScaling.y;
+			emitter->unk174.z = item->mScaling.z;
+		}
 
-	JPABaseEmitter* emitter =
-	    gpMarioParticleManager->emit(0xe5, &item->mPosition, 0, nullptr);
-	if (emitter != nullptr) {
-		emitter->unk154.x = item->mScaling.x;
-		emitter->unk154.y = item->mScaling.y;
-		emitter->unk154.z = item->mScaling.z;
-		emitter->unk174.x = item->mScaling.x;
-		emitter->unk174.y = item->mScaling.y;
-		emitter->unk174.z = item->mScaling.z;
-	}
-
-	emitter = gpMarioParticleManager->emit(0xe6, &item->mPosition, 0, nullptr);
-	if (emitter != nullptr) {
-		emitter->unk154.x = item->mScaling.x;
-		emitter->unk154.y = item->mScaling.y;
-		emitter->unk154.z = item->mScaling.z;
-		emitter->unk174.x = item->mScaling.x;
-		emitter->unk174.y = item->mScaling.y;
-		emitter->unk174.z = item->mScaling.z;
+		emitter =
+		    gpMarioParticleManager->emit(0xe6, &item->mPosition, 0, nullptr);
+		if (emitter != nullptr) {
+			emitter->unk154.x = item->mScaling.x;
+			emitter->unk154.y = item->mScaling.y;
+			emitter->unk154.z = item->mScaling.z;
+			emitter->unk174.x = item->mScaling.x;
+			emitter->unk174.y = item->mScaling.y;
+			emitter->unk174.z = item->mScaling.z;
+		}
 	}
 }
 
