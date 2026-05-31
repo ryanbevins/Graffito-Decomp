@@ -605,7 +605,10 @@ void TNameKuri::reset()
 {
 	gpCurNameKuri = this;
 	TWalkerEnemy::reset();
-	unk1B4 = MsRandF(0.0f, 360.0f);
+	volatile f32 mn = 0.0f;
+	volatile f32 mx = 360.0f;
+	f32 range       = mx - mn;
+	unk1B4          = mn + range * MsRandF();
 	unk194 = 0;
 	unk198 = 0;
 	setVelocity(JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f));
