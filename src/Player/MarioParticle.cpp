@@ -293,6 +293,22 @@ void TMario::emitSweatSometimes()
 		emitSweat(yaw);
 }
 
+#pragma dont_inline on
+void TMario::emitSweat(short rotY)
+{
+	if (checkFlag(MARIO_FLAG_HELMET_FLW_CAMERA))
+		return;
+	if (checkFlag(MARIO_FLAG_IN_SHALLOW_WATER | MARIO_FLAG_IN_WATER))
+		return;
+	if (isUnderWater())
+		return;
+
+	MtxPtr mtx = mModel->getModel()->getAnmMtx(mBoneIDs[10]);
+	JGeometry::TVec3<f32> pos(mtx[0][3], mtx[1][3], mtx[2][3]);
+	gpMarioParticleManager->emitWithRotate(0xD, &pos, 0, rotY, 0, 0, nullptr);
+}
+#pragma dont_inline off
+
 void TMario::emitSmoke(short rotY)
 {
 	if (!mGroundPlane->isPool())
