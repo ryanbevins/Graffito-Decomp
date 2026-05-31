@@ -2,11 +2,21 @@
 #include <Player/MarioEffect.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
+#include <System/Particles.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 
 // rogue includes for matching __sinit (15 JALList<T> templates)
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+
+static const u32 cParticleIDs[] = { 0x50, 0x126, 0x12B };
+
+const char* cParticleFileNames[] = {
+	"/scene/map/pollution/ms_m_ashios.jpa",
+	"/scene/map/pollution/ms_m_spinos.jpa",
+	"/scene/map/pollution/ms_m_tokeos.jpa",
+};
 
 bool TMario::askJumpIntoWaterEffectExist() const
 {
@@ -281,6 +291,20 @@ void TMario::moveParticle()
 		if (emitter) {
 			emitter->unk180.a = mWaterWakeAlpha;
 			mWaterWakeAlpha -= *(s16*)((u8*)this + 0x283C);
+		}
+	}
+}
+
+void TMario::initParticle()
+{
+	for (int i = 0; i < 3; ++i) {
+		const char* fileName = cParticleFileNames[i];
+		if (JKRFileLoader::getGlbResource(fileName) != nullptr) {
+			u16 id = cParticleIDs[i];
+			if (!gParticleFlagLoaded[id]) {
+				gpResourceManager->load(fileName, id);
+				gParticleFlagLoaded[id] = true;
+			}
 		}
 	}
 }
