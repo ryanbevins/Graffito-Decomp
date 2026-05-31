@@ -610,7 +610,54 @@ DEFINE_NERVE(TNerveBathtubKillerChase, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveBathtubKillerChaseStraight, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveBathtubKillerChaseStraight, TLiveActor)
+{
+	TBathtubKiller* self = (TBathtubKiller*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setStraightBathtubKillerAnm();
+		self->unk210 = self->getSaveParam2()->mSLChaseStraightPeriod.value;
+	}
+
+	if (!self->unk1CC->isKillerAttackable())
+		return FALSE;
+
+	bool wantStraight;
+	if (self->unk194 == 2) {
+		JGeometry::TVec3<f32> mp(*gpMarioPos);
+		mp.y = 0.0f;
+		JGeometry::TVec3<f32> sp(self->mPosition);
+		sp.y = 0.0f;
+		JGeometry::TVec3<f32> bp(self->unk1CC->mPosition);
+		bp.y = 0.0f;
+		f32 dM = mp.distance(bp);
+		f32 dS = sp.distance(bp);
+		wantStraight = dS <= 100.0f + dM;
+	} else {
+		wantStraight = true;
+	}
+
+	if (!wantStraight) {
+		spine->pushNerve(&TNerveBathtubKillerStraight::theNerve());
+		return TRUE;
+	}
+
+	if (self->unk218 <= 0)
+		self->unk64 &= ~1;
+
+	if (self->unk210 <= 0) {
+		spine->pushNerve(&TNerveBathtubKillerChase::theNerve());
+		return TRUE;
+	}
+
+	JGeometry::TVec3<f32> dir;
+	self->mQuat.getZDir(dir);
+	dir.y = 0.0f;
+	dir.normalize();
+	dir.scale(self->unk1A0);
+	self->mVelocity.set(dir);
+	self->makeQuat(self->mVelocity, self->unk198, 0.1f);
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveBathtubKillerStraight, TLiveActor)
 {
