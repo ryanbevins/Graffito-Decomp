@@ -133,15 +133,15 @@ void TMarioEffect::init(TMario* mario)
 
 void TMarioEffect::setJumpIntoWaterEffect()
 {
-	TMario* mario = unk68;
-	f32 speed     = *(f32*)((u8*)mario + 0xA8);
+	f32 speed    = *(f32*)((u8*)unk68 + 0xA8);
+	f32 absSpeed = speed;
 	if (speed < 0.0f)
-		speed = -speed;
+		absSpeed = -speed;
 
-	if (speed < *(f32*)((u8*)mario + 0x22C4))
+	if (absSpeed < *(f32*)((u8*)unk68 + 0x22C4))
 		return;
 
-	if (*(f32*)((u8*)mario + 0xF0) - *(f32*)((u8*)mario + 0xEC) < 50.0f)
+	if (*(f32*)((u8*)unk68 + 0xF0) - *(f32*)((u8*)unk68 + 0xEC) < 50.0f)
 		return;
 
 	int idx = getThing();
@@ -149,20 +149,20 @@ void TMarioEffect::setJumpIntoWaterEffect()
 		return;
 
 	Mtx mtx;
-	PSMTXCopy((MtxPtr)((u8*)mario + 0x220), mtx);
+	PSMTXCopy((MtxPtr)((u8*)unk68 + 0x220), mtx);
 
-	f32 lo = *(f32*)((u8*)mario + 0x22D8);
-	f32 hi = *(f32*)((u8*)mario + 0x22EC);
+	f32 lo = *(f32*)((u8*)unk68 + 0x22D8);
+	f32 hi = *(f32*)((u8*)unk68 + 0x22EC);
 	f32 t;
-	if (speed < lo)
+	if (absSpeed < lo)
 		t = 0.0f;
-	if (speed > hi)
+	if (absSpeed > hi)
 		t = 1.0f;
-	if (lo <= speed && speed <= hi)
-		t = (speed - lo) / (hi - lo);
+	if (lo <= absSpeed && absSpeed <= hi)
+		t = (absSpeed - lo) / (hi - lo);
 
-	f32 scale = t * *(f32*)((u8*)mario + 0x2314)
-	            + *(f32*)((u8*)mario + 0x2300);
+	f32 scale = t * *(f32*)((u8*)unk68 + 0x2314)
+	            + *(f32*)((u8*)unk68 + 0x2300);
 	mtx[0][0] = scale;
 	mtx[1][1] = scale;
 	mtx[2][2] = scale;
