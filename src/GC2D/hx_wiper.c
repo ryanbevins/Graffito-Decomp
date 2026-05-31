@@ -60,6 +60,12 @@ typedef struct HxMotion {
 	/* 0x20 */ f32 unk20;
 } HxMotion;
 
+typedef struct LogoPath {
+	f32 x;
+	f32 y;
+	s32 time;
+} LogoPath;
+
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
@@ -90,6 +96,11 @@ static void Hx_Test1();
 static void Hx_Logo();
 static void Hx_GameOver();
 static void Hxs_GameOver(u32, f32, f32);
+static void Hxs_PenDraw(u32, LogoPath*, f32, f32);
+static void Hxs_Logo_MagDraw(f32, f32, f32);
+static void Hxs_Logo_TexDraw(f32, f32, f32, f32, f32, f32);
+static void Hxs_Logo_TexSetup(u8, u8, void*);
+static void Hxs_Logo_ExtraDraw(u8, void*);
 static void Hx_Door();
 static void Hxs_FrBufferMorf2B(f32);
 static void Hxs_FrBufferMorf2(f32);
@@ -151,10 +162,44 @@ static f32 thin;
 static u32 rstep;
 static f32 thin_d;
 static f32 rstep_d;
+static LogoPath* dp_320;
+static f32 bx_321;
+static f32 by_322;
+static u32 count_323;
 
 static const f32 boundtable[14] = {
 	-0.13f, 6.0f, 0.13f, 6.0f, -0.12f, 8.0f, 0.12f,
 	-8.0f, -0.11f, 12.0f, 0.11f, 12.0f, 0.0f, 0.0f,
+};
+
+static LogoPath drawpath_table[] = {
+	{ 49.0f, 277.0f, 0 },
+	{ 20.0f, 294.0f, 1 },
+	{ 22.0f, 234.0f, 1 },
+	{ 50.0f, 175.0f, 1 },
+	{ 110.0f, 112.0f, 1 },
+	{ 128.0f, 106.0f, 1 },
+	{ 138.0f, 110.0f, 1 },
+	{ 134.0f, 113.0f, 1 },
+	{ 135.0f, 128.0f, 1 },
+	{ 117.0f, 166.0f, 1 },
+	{ 119.0f, 201.0f, 1 },
+	{ 129.0f, 229.0f, 1 },
+	{ 140.0f, 219.0f, 1 },
+	{ 149.0f, 172.0f, 1 },
+	{ 178.0f, 137.0f, 1 },
+	{ 192.0f, 114.0f, 1 },
+	{ 216.0f, 104.0f, 1 },
+	{ 227.0f, 109.0f, 1 },
+	{ 224.0f, 130.0f, 1 },
+	{ 183.0f, 265.0f, 4 },
+	{ 161.0f, 18.0f, 0 },
+	{ 161.0f, 18.01f, 11 },
+	{ 141.0f, 79.0f, 4 },
+	{ 255.0f, 3.0f, 0 },
+	{ 255.0f, 3.01f, 11 },
+	{ 220.0f, 71.0f, 6 },
+	{ -1.0f, -1.0f, -1 },
 };
 
 // ---------------------------------------------------------------------------
@@ -753,7 +798,295 @@ int Hx_MovieStartSyncEx() {
 	return 0;
 }
 
-static void Hx_Logo() {}
+static void Hx_Logo() {
+	void* drawResource;
+	void* extraResource;
+	u32 remaining;
+	u32 i;
+	u8 alpha8;
+
+	drawResource = hx.buffer;
+	if (hx.unk28 != 0)
+		extraResource = hx.resource;
+	else
+		extraResource = hx_buffer;
+
+	switch (hx.unk38) {
+	case 0:
+		if (hx.unk28 == 0)
+			Hgx_ReadTexture("/data/title_mini.bti", extraResource);
+		dp_320 = drawpath_table;
+		count_323 = 0;
+		hx.unk3C = 0x100;
+		hxs_logo_resetflag = 1;
+		hxs_logodraw_resetflag = 1;
+		hx.unk38++;
+		break;
+	case 1:
+		if (hx.unk3C <= 0xC0) {
+			Hxs_Logo_ExtraDraw(0xFF, extraResource);
+		} else {
+			alpha8 = (u8)(((0x100 - hx.unk3C) & 0x3F) << 2);
+			Hxs_Logo_ExtraDraw(alpha8, extraResource);
+		}
+		Hx_TimerCountDown();
+		Hx_TimerCountDown();
+		Hx_TimerCountDown();
+		remaining = Hx_TimerCountDown();
+		if (remaining == 0)
+			hx.unk38++;
+		break;
+	case 2:
+		if (dp_320->time == -1) {
+			hx.unk3C = 5;
+			hx.unk38 = 5;
+		} else {
+			if (dp_320->time == 0) {
+				bx_321 = dp_320->x;
+				by_322 = dp_320->y;
+				dp_320++;
+				count_323++;
+			}
+			hx.unk3C = dp_320->time;
+			hx.unk38++;
+		}
+		/* fallthrough */
+	case 3:
+		Hxs_Logo_ExtraDraw(0xFF, extraResource);
+		Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
+		Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+		if (Hx_TimerCountDown() == 0) {
+			if (dp_320->time != -1) {
+				bx_321 = dp_320->x;
+				by_322 = dp_320->y;
+				dp_320++;
+				count_323++;
+				hx.unk38 = 2;
+			} else {
+				hx.unk3C = 5;
+				hx.unk38 = 5;
+			}
+		}
+		break;
+	case 4:
+		hx.unk3C = 5;
+		hx.unk38++;
+		/* fallthrough */
+	case 5:
+		Hxs_Logo_ExtraDraw(0xFF, extraResource);
+		Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
+		Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk3C = 0xFF;
+			hx.unk38++;
+		}
+		break;
+	case 6:
+		alpha8 = (u8)hx.unk3C;
+		if (hx.unk3C >= 0xC0) {
+			Hxs_Logo_ExtraDraw(0xFF, extraResource);
+			Hxs_Logo_TexSetup(alpha8, alpha8, drawResource);
+			if (hx.unk3C > 0xF8) {
+				Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+			} else {
+				Hxs_Logo_MagDraw(1.0f, (f32)img_wx, (f32)img_wy);
+			}
+		} else {
+			Hxs_Logo_TexSetup(alpha8, alpha8, drawResource);
+			Hxs_Logo_MagDraw(1.0f, (f32)img_wx, (f32)img_wy);
+		}
+		i = 0;
+		while (i < 3) {
+			Hx_TimerCountDown();
+			i++;
+		}
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk3C = 25;
+			Hx_MotionSet((HxMotion*)hx.rest, 30.0f, 12.0f, 8.0f, 5.0f);
+			hx.unk38++;
+		}
+		break;
+	case 7:
+		Hxs_Logo_TexSetup(0, 0, drawResource);
+		Hxs_Logo_MagDraw(1.0f + Hx_MotionUpdate((HxMotion*)hx.rest),
+		                 (f32)img_wx, (f32)img_wy);
+		if (Hx_TimerCountDown() == 0)
+			hx.unk38++;
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+}
+
+static void Hxs_PenDraw(u32 count, LogoPath* path, f32 bx, f32 by) {
+	u32 i;
+	LogoPath* prev;
+	LogoPath* next;
+
+	if (count != 0) {
+		prev = &drawpath_table[0];
+		i = 0;
+		while (i < count - 1) {
+			next = &drawpath_table[i + 1];
+			if (next->time == -1)
+				break;
+			if (next->time != 0)
+				Hxs_Logo_TexDraw(prev->x, prev->y, next->x, next->y,
+				                 (f32)img_wx, (f32)img_wy);
+			prev = next;
+			i++;
+		}
+	}
+
+	if (path->time > 0) {
+		f32 ratio;
+		f32 x;
+		f32 y;
+
+		ratio = (f32)(path->time - (s32)hx.unk3C) / (f32)path->time;
+		x = bx + (path->x - bx) * ratio;
+		y = by + (path->y - by) * ratio;
+		Hxs_Logo_TexDraw(bx, by, x, y, (f32)img_wx, (f32)img_wy);
+	}
+}
+
+static void Hxs_Logo_MagDraw(f32 scale, f32 texW, f32 texH) {
+	f32 cx;
+	f32 cy;
+	f32 hw;
+	f32 hh;
+
+	cx = (f32)(hx.imgW >> 1);
+	cy = (f32)(hx.imgH >> 1);
+	hw = texW * 0.5f * scale;
+	hh = texH * 0.5f * scale;
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(cx - hw, cy - hh, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 0.0f);
+	GXPosition3f32(cx + hw, cy - hh, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 0.0f);
+	GXPosition3f32(cx + hw, cy + hh, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 1.0f);
+	GXPosition3f32(cx - hw, cy + hh, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 1.0f);
+}
+
+static void Hxs_Logo_TexDraw(f32 x1, f32 y1, f32 x2, f32 y2, f32 texW,
+                             f32 texH) {
+	Vec n;
+	f32 dx;
+	f32 dy;
+	f32 invW;
+	f32 invH;
+
+	dx = x2 - x1;
+	dy = y2 - y1;
+	if (dx == 0.0f && dy == 0.0f)
+		return;
+
+	n.x = -dy;
+	n.y = dx;
+	n.z = 0.0f;
+	PSVECNormalize(&n, &n);
+	PSVECScale(&n, &n, 6.0f);
+
+	invW = 1.0f / texW;
+	invH = 1.0f / texH;
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(x1 + n.x, y1 + n.y, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32((x1 + n.x) * invW, (y1 + n.y) * invH);
+	GXPosition3f32(x2 + n.x, y2 + n.y, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32((x2 + n.x) * invW, (y2 + n.y) * invH);
+	GXPosition3f32(x2 - n.x, y2 - n.y, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32((x2 - n.x) * invW, (y2 - n.y) * invH);
+	GXPosition3f32(x1 - n.x, y1 - n.y, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32((x1 - n.x) * invW, (y1 - n.y) * invH);
+}
+
+static void Hxs_Logo_TexSetup(u8 color, u8 alpha, void* resource) {
+	GXTexObj tobj;
+	GXColor tevColor;
+	GXColor fadeColor;
+
+	Hx_CameraInit();
+	Hx_GxInit(1, 1);
+	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
+	tevColor.r = color;
+	tevColor.g = 0;
+	tevColor.b = 0;
+	if (alpha > 0xC0)
+		tevColor.a = 0xFF;
+	else
+		tevColor.a = (u8)(int)(1.328f * (f32)alpha);
+	GXSetTevColor(GX_TEVREG1, tevColor);
+
+	fadeColor = tevColor;
+	if (alpha > 0xC0)
+		fadeColor.a = (u8)(((0xFF - alpha) & 0x3F) << 2);
+	else
+		fadeColor.a = 0xFF;
+	GXSetTevColor(GX_TEVREG2, fadeColor);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_C2, GX_CC_TEXC,
+	                GX_CC_ZERO);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_A2, GX_CA_A1, GX_CA_TEXA,
+	                GX_CA_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXLoadTexObj(&tobj, GX_TEXMAP0);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+	               GX_LO_CLEAR);
+}
+
+static void Hxs_Logo_ExtraDraw(u8 alpha, void* resource) {
+	GXTexObj tobj;
+	GXColor color;
+
+	Hx_CameraInit();
+	Hx_GxInit(1, 1);
+	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
+	color.r = 0xFF;
+	color.g = 0xFF;
+	color.b = 0xFF;
+	color.a = alpha;
+	GXSetTevColor(GX_TEVREG1, color);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C1, GX_CC_TEXC, GX_CC_ZERO,
+	                GX_CC_ZERO);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_A1, GX_CA_TEXA,
+	                GX_CA_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXLoadTexObj(&tobj, GX_TEXMAP0);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+	               GX_LO_CLEAR);
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(160.0f, 205.0f, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 0.0f);
+	GXPosition3f32(480.0f, 205.0f, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 0.0f);
+	GXPosition3f32(480.0f, 237.0f, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 1.0f);
+	GXPosition3f32(160.0f, 237.0f, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 1.0f);
+}
 static void Hx_GameOver() {
 	switch (hx.unk38) {
 	case 0:
