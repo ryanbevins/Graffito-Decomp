@@ -5122,6 +5122,48 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### `volatile int` + explicit pre-call `range` temp reproduces int-range rand stack-homing (recomputed `max-min` held across `rand()`)
+
+**Confirmed lever (1 TU so far).** A "pick a random int in [min,max), scale it"
+expression that the target compiles by *homing the literal min/max to the stack,
+reloading them, and computing `(max-min)` via a runtime `subf` into a callee-saved
+register held across the `rand()` call* is reproduced by:
+
+```cpp
+volatile int min = 50;
+volatile int max = 100;
+int range = max - min;                              // evaluated BEFORE MsRandF()
+unk1B8 = (min + (int)(range * MsRandF())) * 120;
+```
+
+Two independent levers are both required:
+1. **`volatile`** defeats MWCC's constant-folding (otherwise `(max-min)` folds to
+   `50.0f` and `+min` becomes `addi r3,r3,0x32` — no stores, no subf). `volatile`
+   forces both literals into memory and forces every read to reload.
+2. **An explicit `range = max - min` temp** evaluated before the `MsRandF()` call.
+   Without it (`(max-min) * MsRandF()` inline), MWCC schedules `bl rand` first and
+   recomputes the subf afterward into a scratch reg. With the named temp, MWCC
+   evaluates the subf first and keeps it in callee-saved **r29** across the call —
+   exactly the target's `subf r29,r3,r0; bl rand; ... xoris r3,r29,0x8000`.
+
+`reset__7TIgaiga` 74.7% → 99.6%; the instruction stream is byte-identical. Residual
+is a +8 frame pad (target 0x48 vs ours 0x40) and `@NNNN` label renumber — the
+known stack-padding currently-hard pattern, not a logic diff. The min/max stack
+slots also land in a different order (target min<max, ours max<min) — same family.
+
+**REFUTED alternative:** a fabricated `inline int MsRand(int min,int max){return
+min+(int)((max-min)*MsRandF());}` called as `MsRand(50,100)*120` — MWCC inlined and
+constant-folded the literal args through the param copies (even under `-inline
+deferred`), giving the same folded `addi r3,r3,0x32` as the inline expression. So
+the homing is NOT an inlined-param artifact; it is a constant-fold-inhibition +
+evaluation-order artifact.
+
+**Experiment to promote to Settled:** find a second enemy/actor TU with a
+`min + (int)(range * MsRandF())`-shaped int-range and apply the same two levers;
+confirm the store/reload/subf-in-callee-saved shape reproduces. Candidates: other
+`*RollEnemy`/`smallEnemy`-family resets that pick a frame-count interval. t285
+igaiga `reset__7TIgaiga`.
+
 ### A mid-function `return FALSE` identical to the tail `return FALSE`, with intervening calls, co-occurs with both an un-merged `li r3,0` AND a small frame UNDER-allocation (igaiga graph-tail nerves)
 
 **Symptom.** In `igaiga`'s graph-walking nerve `execute` bodies the shape is
@@ -6181,19 +6223,14 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
-- **Int-range rand stores compile-time constants to the stack and recomputes the
-  range at runtime.** In `reset__7TIgaiga` the target compiles
-  `(min + (int)((max-min) * MsRandF())) * 120` (min=50, max=100 as `int` locals) by
-  storing 50 and 100 to the stack, reloading them, computing `subf` (max-min) at
-  runtime, and keeping `min` for the final add. Our build folds (max-min) to a float
-  constant `50.0f` and does `addi r3,r3,0x32` for +min — no stack store, no subf.
-  This stack-homing of two literal ints looks exactly like the params of an inlined
-  int-range helper (e.g. `inline int f(int min,int max){return min+(int)((max-min)*
-  MsRandF());}`), but no such helper exists in the tree and writing the expression
-  inline doesn't reproduce it. Experiment to try next: define a fabricated
-  `MsRand(int,int)` inline helper and call `MsRand(50,100)*120`; check whether the
-  param-homing + runtime subf appears. If it does, this is a missing shared helper
-  (likely in RandomUtil). t284 igaiga reset__7TIgaiga (~56B residual, all in this expr).
+- **(ANSWERED t285 — moved to *Hypotheses under investigation*.)** The int-range
+  rand stack-homing in `reset__7TIgaiga` is reproduced by `volatile int min/max`
+  (defeats constant-folding so they stay in memory) + an explicit `int range =
+  max - min;` temp evaluated *before* the `MsRandF()` call (so MWCC holds the subf
+  result in callee-saved r29 across `rand()`). 74.7% → 99.6%, instruction stream
+  byte-identical; residual is +8 frame pad. The fabricated `MsRand(int,int)` inline
+  helper was REFUTED — it folded the literals like the inline expression. See the
+  Hypotheses entry.
 
 - **(ANSWERED t279 — moved to *Hypotheses under investigation*.)** The
   `getModel()->getAnmMtx(N)` lowering vs target inline joint access is now
