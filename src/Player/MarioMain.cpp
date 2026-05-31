@@ -57,7 +57,7 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 	if (checkFlag(MARIO_FLAG_IS_PERFORMING))
 		return;
 
-	bool doMovement = flags & 1;
+	u32 doMovement = flags & 1;
 	if (doMovement) {
 		if ((s16)unk14E > 0) {
 			unk14E--;
