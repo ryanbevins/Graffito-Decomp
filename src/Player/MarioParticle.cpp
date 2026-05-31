@@ -4,6 +4,7 @@
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <Map/MapData.hpp>
+#include <MarioUtil/EffectUtil.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 
@@ -237,6 +238,34 @@ void TMario::meltInWaterEffect()
 void TMario::wallSlipEffect()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(0x102, &mPosition, 1, this);
+}
+
+void TMario::runningRippleEffect()
+{
+	JGeometry::TVec3<f32>* ripplePos = (JGeometry::TVec3<f32>*)&unk190;
+	if (mForwardVel > 30.0f)
+		gpMarioParticleManager->emit(0x34, ripplePos, 0, nullptr);
+	SMS_EmitRippleTiny(ripplePos);
+}
+
+void TMario::smallTouchDownEffect()
+{
+	static JGeometry::TVec3<f32> scale(0.7f, 0.7f, 0.7f);
+
+	JPABaseEmitter* emitter
+	    = gpMarioParticleManager->emit(0x11, &mPosition, 0, nullptr);
+	if (emitter) {
+		emitter->unk154.set(scale);
+		emitter->unk174.set(scale);
+	}
+}
+
+void TMario::strongTouchDownEffect()
+{
+	gpMarioParticleManager->emitWithRotate(
+	    0x10, &mPosition, 0, mFaceAngle.y, 0, 0, nullptr);
+	gpMarioParticleManager->emitWithRotate(
+	    0x11, &mPosition, 0, mFaceAngle.y, 0, 0, nullptr);
 }
 
 void TMario::emitGetWaterEffect()
