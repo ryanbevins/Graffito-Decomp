@@ -498,7 +498,11 @@ void TBathtubKiller::setNormalBathtubKillerAnm() { }
 
 void TBathtubKiller::setChaseBathtubKillerAnm() { }
 
-void TBathtubKiller::setStraightBathtubKillerAnm() { }
+void TBathtubKiller::setStraightBathtubKillerAnm()
+{
+	mMActor = mMActorKeeper->getMActor("bathtubkiller_model1.bmd");
+	setBckAnm(2);
+}
 
 void TBathtubKiller::setDeadBathtubKillerAnm() { }
 
@@ -518,7 +522,24 @@ DEFINE_NERVE(TNerveBathtubKillerChase, TLiveActor) { return FALSE; }
 
 DEFINE_NERVE(TNerveBathtubKillerChaseStraight, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveBathtubKillerStraight, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveBathtubKillerStraight, TLiveActor)
+{
+	TBathtubKiller* self = (TBathtubKiller*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setStraightBathtubKillerAnm();
+
+	if (self->unk218 <= 0)
+		self->unk64 &= ~1;
+
+	JGeometry::TVec3<f32> dir;
+	self->mQuat.getZDir(dir);
+	dir.y = 0.0f;
+	dir.normalize();
+	dir.scale(self->unk1A0);
+	self->mVelocity.set(dir);
+	self->makeQuat(self->mVelocity, self->unk198, 0.1f);
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveBathtubKillerBreak, TLiveActor)
 {
