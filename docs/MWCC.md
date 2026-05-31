@@ -4908,6 +4908,11 @@ compares"); even single-case switches can shift codegen.
   `beq;b;bl` layout for `if (mState == 4) movement_game();`. The bare
   `if` form gave 91% (3-instruction `bne;bl`); switching to
   `switch (mState) { case 4: movement_game(); break; }` matched 100%.
+- `src/GC2D/hx_wiper.c::Hx_StartWipe` — target gated `Hx_Warning(1)`
+  with `beq body; b after`; the bare `if (hx.state == 2)` emitted
+  `bne after`. A 1-case `switch (hx.state)` moved 97.2%→100%.
+- `src/GC2D/hx_wiper.c::Hgx_ReadTexture` — same branch-layout lever on
+  `hx.resFlag == 0` around the DVD read block, moving 96.8%→100%.
 
 ### Direct `this->[OFFSET]` field access vs static helper with hit_actor arg
 
