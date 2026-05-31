@@ -272,6 +272,18 @@ void TMario::smallTouchDownEffect()
 	}
 }
 
+void TMario::treeSlipEffect()
+{
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x102, getCenterAnmMtx(), 1, this);
+	static JGeometry::TVec3<f32> scale(0.8f, 0.8f, 0.8f);
+
+	if (emitter) {
+		emitter->unk154.set(scale);
+		emitter->unk174.set(scale);
+	}
+}
+
 void TMario::strongTouchDownEffect()
 {
 	gpMarioParticleManager->emitWithRotate(
