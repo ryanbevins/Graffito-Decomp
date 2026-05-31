@@ -17,7 +17,7 @@ GXPixelFmt JDrama::DecidePixelFmt(bool param_1, bool param_2)
 }
 #pragma dont_inline off
 
-bool JDrama::IsCanEnableDither(GXPixelFmt pix_fmt)
+inline bool JDrama::IsCanEnableDither(GXPixelFmt pix_fmt)
 {
 	bool res = true;
 	if (!(pix_fmt == GX_PF_RGBA6_Z24 || pix_fmt == GX_PF_RGB565_Z16))
