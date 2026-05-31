@@ -36,6 +36,42 @@ them in future ticks.
 
 ## Settled
 
+### Hoist a default assignment before an if-chain when target preloads the default and only recomputes non-default arms
+
+**Rule.** When one arm of a small branch assigns a constant/default value and
+target asm loads that default **before** the first compare, write the source as
+an unconditional default initialization followed by guarded recomputes:
+
+```cpp
+// target shape: default is live before the condition, branch skips recompute
+f32 value = DEFAULT;
+if (!defaultCondition) {
+	if (condA)
+		value = A;
+	else
+		value = B;
+}
+```
+
+This differs from `if (defaultCondition) value = DEFAULT; else ...`, which
+loads the default inside the taken branch and usually emits an extra branch. It
+also differs from a `switch` with a `default:` arm: MWCC treats the switch
+default as a branch target, not as a preloaded fall-through value. For
+`switch`-like integer selections where target does sequential equality checks
+and keeps the default on fall-through, write `value = DEFAULT; if (sel == K1)
+...; else if (sel == K2) ...;` with no final `else`.
+
+**Citations.**
+- `Enemy/igaiga` `TRollEnemy::setBehavior` (t281): natural
+  `if/else-if/else` loaded the hidden default in-branch and emitted a redundant
+  branch/compare. Preloading `range = 2.0f` and guarding recompute moved the
+  function `93.6 -> 95.8`.
+- `Enemy/BathtubKiller::resetBathtubKiller` (t289): a `switch` with
+  `default: off = 0.0f` lowered to a branch table. Rewriting as
+  `off = 0.0f; if (sel == 0) ...; else if (sel == 1) ...;` matched the target
+  sequential compare/default-fall-through shape and moved the switch block
+  `94.7 -> 97.1`.
+
 ### Copy `J3DGXColorS10::color` as a `GXColorS10` aggregate when target uses two-word TEV color copies
 
 **Rule.** The repository's current `J3DGXColorS10` wrapper has an explicit copy
@@ -5562,51 +5598,6 @@ return and the tail. Watch whether the `li r3,0` merges and the frame grows
 together. If they move in lockstep, promote as one rule. Banned: goto. Cited:
 `Enemy/igaiga` `execute__23TNerveIgaigaRollOnGraph` (94.24), `WaterHit`
 (98.61), control `GorogoroRollOnGraph` (100). See `state/notes/igaiga.md`.
-
-### Hoist a default-value assignment out of an `if/else-if/else` chain to match a "preload default, then conditional branch skips the recompute" target shape
-
-When one arm of a 3-way branch assigns a constant default and the others
-recompute, MWCC (target) often **preloads the default into the result register
-before the first conditional branch**, then uses that branch to skip the
-recompute entirely. The natural `if (cond) x = DEFAULT; else if (...) ... else
-...` instead loads the default *inside* the taken branch, producing an extra
-`b` and a redundant compare.
-
-**Lever:** initialize the variable to the default unconditionally, then guard
-the recompute with the *inverted* leading condition:
-
-```cpp
-// natural (loads default in the taken branch):
-f32 range;
-if (checkLiveFlag(HIDDEN)) range = 2.0f;
-else if (!ampPolluter) range = a;
-else range = b;
-
-// matches target (preload default, bne skips recompute):
-f32 range = 2.0f;
-if (!checkLiveFlag(HIDDEN)) {
-    if (!ampPolluter) range = a;
-    else range = b;
-}
-```
-
-Target then emits `lfs f4, @2.0; rlwinm. flag; bne end` — the default is live
-before the branch and the HIDDEN arm vanishes.
-
-- `TRollEnemy::setBehavior` (igaiga, t281): 93.6% → 95.8%, instruction count
-  142 → 140 (redundant branch + compare eliminated). Residual is the +0x10
-  phantom frame pad only.
-- `Enemy/BathtubKiller::resetBathtubKiller` (t289): the launch-offset
-  `switch ((int)(MsRandF()*4)) { case 0: off=120; case 1: off=240; default:
-  off=0; }` lowered to a branch-table (cmpwi 1/beq/bge…). Target preloads
-  `off=0.0f` (the default) then does two equality checks with **no else arm**
-  (fall-through keeps the default). Rewriting as `f32 off = 0.0f; if (sel==0)
-  off=120; else if (sel==1) off=240;` produced the exact sequential
-  cmpwi-0/bne, cmpwi-1/bne shape with the default loaded up front. 94.7% →
-  97.1% (the switch block alone). **2nd-TU confirmation — candidate for
-  promotion to Settled.** Note: a `default:`-with-value switch is NOT the same
-  as preloading the default; MWCC treats the switch-default as a branch target,
-  not a fall-through preload. The if/else-if-with-no-else form is what matches.
 
 ### `getMActor()->getModel()` inlines the model access; bare `getModel()` emits an out-of-line `bl` (per-site, diff-driven)
 
