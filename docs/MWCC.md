@@ -6379,6 +6379,31 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Frustum-clip-over-actor-array loops co-mismatch on (a) a small phantom-inline
+  frame inflation AND (b) a loop-counter ↔ in-loop-pointer NV-register swap —
+  confirmed in ≥2 TUs but no source lever found (t301).** The canonical shape:
+  `SetViewFrustumClipCheckPerspective(...); for (i=0;i<num;i++){ T* p=arr[i];
+  Vec pos=p->mPosition; ... ViewFrustumClipCheck(gfx,&pos,r); set/clear a flag }`.
+  Two instances:
+  - `Enemy/DebuTelesa::clipEnemies` (98.47%): target frame 0x58, ours 0x50 (+8B);
+    target `i`→r29, `actor`→r30; ours `i`→r30, `actor`→r29 (swapped). Source has
+    `s32 num = mObjNum;` hoist (correct — both load num once into r31).
+  - `Animal/fishoid::clipBoids` (97.2%): target frame 0x70, ours 0x48 (+0x28B);
+    target inits IVs in order index(r31)/mActors-off(r28)/mBoidData-off(r27); ours
+    inits mBoidData-off(r31)/mActors-off(r30)/index(r29) — reverse order.
+  In both, the persistent loop counter and the in-loop-derived pointer/offset IVs
+  end up in *different relative NV-register slots* than the target, and the target
+  reserves more stack (8–40B) than our (logically-identical) body needs — the
+  classic "inlined function inflates frame" residual with the inline's body fully
+  DCE'd. The frame delta varies (8 vs 0x28) so it's not a fixed per-call constant;
+  likely tied to which of getFovy/getAspect/SetViewFrustumClipCheckPerspective/
+  ViewFrustumClipCheck had an inlined wrapper in the original. **Experiment ideas
+  (none tried yet):** (1) probe whether the IV register order follows source
+  declaration/first-use order by reordering the in-loop accesses; (2) check
+  whether the +8/+0x28 frame comes from an inlined accessor by diffing a matched
+  sibling clip loop (none found yet at 100%). Skip register-only ratholes; only
+  worth revisiting if a *matched* frustum-clip loop surfaces to copy its idiom.
+
 - **Inlined `(Vec){1.0f,1.0f,1.0f}` compound literals leave DEAD, unreferenced
   `(1,1,1)` aggregate constants at the FRONT of `.rodata`, shifting the
   infectious-string base by 0xC each and breaking every string-offset match in
