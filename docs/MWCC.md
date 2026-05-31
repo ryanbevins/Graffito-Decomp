@@ -3860,6 +3860,10 @@ mass-rewrite, fix only where the diff demands.
   produces descending.
 - `Enemy/beam::TConeBeam::ctor` — descending in target; source
   uses `zero()`, matches at 100%.
+- `Enemy/BathtubKiller::resetBathtubKiller` (t289) — target stores
+  `mVelocity`/`unk1BC` ascending (x,y,z); source had `.zero()`
+  (descending). Switched both to `.set(0.0f,0.0f,0.0f)`; part of
+  94.7% → 99.9%.
 
 ### Excess field init: drop the source assignment when target asm skips that offset
 
@@ -5185,6 +5189,45 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### A local initialized BEFORE a preceding `bl` but first USED after it gets promoted to a callee-saved (non-volatile) FPR/GPR — and that NV-reg's save/restore inflates the frame; move the init AFTER the call to keep it volatile
+
+**Symptom.** In `Enemy/BathtubKiller::resetBathtubKiller` the launch-offset
+default `f32 off = 0.0f;` was declared *before* `int sel = (int)(MsRandF()*4);`.
+Because `off`'s value (0.0f) is live across the `bl rand` inside `MsRandF`,
+MWCC pinned it to **f31** (callee-saved), emitting `stfd f31, …` /
+`lfd f31, …` in the prologue/epilogue AND bumping the frame. The target kept
+`off` in **f4** (volatile) and loaded 0.0f only *after* rand, interleaved into
+the float→int conversion.
+
+**Lever.** Declare/initialize the local as late as possible — specifically
+*after* the call whose result it doesn't depend on:
+
+```cpp
+// inflates frame, off → f31 (live across bl rand):
+f32 off = 0.0f;
+int sel = (int)(MsRandF() * 4.0f);
+...
+
+// off → f4 (volatile), no save/restore, frame collapses:
+int sel = (int)(MsRandF() * 4.0f);
+f32 off = 0.0f;
+...
+```
+
+In resetBathtubKiller this single reorder took 97.1% → 99.9% AND eliminated
+the f31 save pair (the only remaining diff is a pure phantom-inline frame pad).
+
+**Why it's a hypothesis not Settled.** Observed cleanly once. It is the
+*inverse* of the Settled entry "Hoist a struct-field read into a local INSIDE a
+loop, BEFORE a function call, to lock it into a NV-FPR across the call" — that
+entry deliberately uses the *same* mechanism to FORCE NV-FPR allocation. So the
+mechanism is established; the open part is whether "move init after the call"
+is reliably the right lever whenever the target uses a volatile reg + small
+frame for a constant-init local. **Experiment:** find a near-match where our
+build spills a constant/default local to f30/f31 (with save/restore + frame
+inflation) but the target uses f1–f13; try sinking the local's initialization
+past the nearest preceding `bl` and confirm the NV-reg pair disappears.
+
 ### A mid-function `return FALSE` identical to the tail `return FALSE`, with intervening calls, co-occurs with both an un-merged `li r3,0` AND a small frame UNDER-allocation (igaiga graph-tail nerves)
 
 **Symptom.** In `igaiga`'s graph-walking nerve `execute` bodies the shape is
@@ -5256,12 +5299,17 @@ before the branch and the HIDDEN arm vanishes.
 - `TRollEnemy::setBehavior` (igaiga, t281): 93.6% → 95.8%, instruction count
   142 → 140 (redundant branch + compare eliminated). Residual is the +0x10
   phantom frame pad only.
-
-This is the same family as the Settled ternary-preload entries (`var = cond ?
-K1 : K2`) but applies to a nested if-chain where the *first* arm is the
-constant. **Needs a 2nd-TU citation to promote.** Experiment: find another
-`if (flag) x = CONST; else { ... }` where the target preloads CONST; rewrite as
-`x = CONST; if (!flag) { ... }` and confirm the `bne`-skip shape.
+- `Enemy/BathtubKiller::resetBathtubKiller` (t289): the launch-offset
+  `switch ((int)(MsRandF()*4)) { case 0: off=120; case 1: off=240; default:
+  off=0; }` lowered to a branch-table (cmpwi 1/beq/bge…). Target preloads
+  `off=0.0f` (the default) then does two equality checks with **no else arm**
+  (fall-through keeps the default). Rewriting as `f32 off = 0.0f; if (sel==0)
+  off=120; else if (sel==1) off=240;` produced the exact sequential
+  cmpwi-0/bne, cmpwi-1/bne shape with the default loaded up front. 94.7% →
+  97.1% (the switch block alone). **2nd-TU confirmation — candidate for
+  promotion to Settled.** Note: a `default:`-with-value switch is NOT the same
+  as preloading the default; MWCC treats the switch-default as a branch target,
+  not a fall-through preload. The if/else-if-with-no-else form is what matches.
 
 ### `getMActor()->getModel()` inlines the model access; bare `getModel()` emits an out-of-line `bl` (per-site, diff-driven)
 
