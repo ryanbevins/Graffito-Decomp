@@ -1,5 +1,7 @@
 #include <GC2D/hx_wiper.h>
 #include <dolphin/gx.h>
+#include <dolphin/dvd.h>
+#include <dolphin/os/OSCache.h>
 
 void ReInitializeGX();
 
@@ -263,6 +265,17 @@ static void Frb2_InitBlackBox() {
 	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
 	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
 	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+}
+
+static void Hgx_ReadTexture(char* fileName, void* addr) {
+	DVDFileInfo fi;
+	if (hx.resFlag == 0) {
+		if (DVDOpen(fileName, &fi)) {
+			long len = DVDReadPrio(&fi, addr, fi.length, 0, 2);
+			DVDClose(&fi);
+			DCStoreRange(addr, len);
+		}
+	}
 }
 
 static void Hx_CameraInit() {}
