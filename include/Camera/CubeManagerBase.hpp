@@ -20,9 +20,6 @@ public:
 	TCubeManagerBase(const char*, const char*);
 	TCubeManagerBase(const char*, u8);
 
-	// fabricated
-	void initializer();
-
 	virtual ~TCubeManagerBase() { }
 	virtual void load(JSUMemoryInputStream&);
 	virtual void perform(u32, JDrama::TGraphics*);
