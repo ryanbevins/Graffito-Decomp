@@ -1,6 +1,7 @@
 #include <Player/MarioMain.hpp>
 
 #include <Player/Watergun.hpp>
+#include <Camera/Camera.hpp>
 #include <Strategic/LiveActor.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -20,17 +21,13 @@ void TMario::checkPumping()
 		return;
 	}
 
-	// Check if gpMarioOriginal == this and pad button pressed
-	if (gpMarioOriginal == this) {
-		TMario* mario = gpMarioOriginal;
-		u32 prevAction = mario->mPrevAction;
-		if (isMario()) {
-			if (checkPumpEnable()) {
-				mPumpState = 1;
-				unk37E = 0;
-			}
-			return;
-		}
+	// Check if this is the active player and the camera is in L-button mode
+	if (gpMarioOriginal == this
+	    && gpCamera->isLButtonCameraSpecifyMode(gpCamera->mMode)
+	    && checkPumpEnable()) {
+		mPumpState = 1;
+		unk37E = 0;
+		return;
 	}
 
 	// Check action in range 0x800447
@@ -41,8 +38,8 @@ void TMario::checkPumping()
 		return;
 	}
 
-	// Check action 0xC408220
-	if ((action - 0xC000000) == 0x408220) {
+	// Check action 0xC008220
+	if ((action - 0xC000000) == 0x8220) {
 		if (mPumpState == 5) {
 			mPumpState = 1;
 			unk37E = 0;
