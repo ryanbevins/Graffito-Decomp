@@ -345,7 +345,7 @@ f32 TMario::getChangeAngleSpeed()
 // getSlideStickMult - 0x8013B8E8
 f32 TMario::getSlideStickMult()
 {
-	if (isForceSlip()) {
+	if ((u8)isForceSlip()) {
 		return mSlipParamsAll.mStickSlideMult.get();
 	}
 
