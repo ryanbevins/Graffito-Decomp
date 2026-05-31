@@ -1207,9 +1207,9 @@ public:
 	void emitSweatSometimes();
 	void emitSweat(short);
 	void emitSmoke(short);
-	void emitParticle(int, short);
-	void emitParticle(int, const JGeometry::TVec3<f32>*);
-	void emitParticle(int);
+	bool emitParticle(int, short);
+	bool emitParticle(int, const JGeometry::TVec3<f32>*);
+	bool emitParticle(int);
 	void moveParticle();
 	void initParticle();
 	BOOL waitMain();
@@ -1584,7 +1584,7 @@ public:
 	/* 0x4E8 */ u32 mSoundFlags;
 	/* 0x4EC */ s8 unk4EC; // Bool if should do draw logic?
 	/* 0x4ED */ u8 mBlendLogicOp;
-	/* 0x4EE */ u16 mWaterWakeAlpha; // should be verified
+	/* 0x4EE */ s16 mWaterWakeAlpha;
 	/* 0x4F0 */ JGeometry::TVec3<f32> unk4F0;
 	/* 0x4FC */ TMarioGamePad* mGamePad;
 	/* 0x500 */ TMarioSoundValues mSoundValues;

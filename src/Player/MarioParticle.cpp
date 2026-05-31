@@ -247,6 +247,44 @@ void TMario::emitSweatSometimes()
 		emitSweat(yaw);
 }
 
+bool TMario::emitParticle(int id, short rotY)
+{
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitWithRotate(
+	    id, &mPosition, 0, rotY, 0, 0, nullptr);
+	if (emitter == nullptr)
+		return false;
+	return true;
+}
+
+bool TMario::emitParticle(int id, const JGeometry::TVec3<f32>* pos)
+{
+	JPABaseEmitter* emitter = gpMarioParticleManager->emit(id, pos, 0, nullptr);
+	if (emitter == nullptr)
+		return false;
+	return true;
+}
+
+bool TMario::emitParticle(int id)
+{
+	JPABaseEmitter* emitter
+	    = gpMarioParticleManager->emit(id, &mPosition, 0, nullptr);
+	if (emitter == nullptr)
+		return false;
+	return true;
+}
+
+void TMario::moveParticle()
+{
+	if (mWaterWakeAlpha > 0) {
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x109, mJointMtx2, 1, this);
+		if (emitter) {
+			emitter->unk180.a = mWaterWakeAlpha;
+			mWaterWakeAlpha -= *(s16*)((u8*)this + 0x283C);
+		}
+	}
+}
+
 void TMario::kickFruitEffect()
 {
 	JPABaseEmitter* emitter
