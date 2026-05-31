@@ -3,6 +3,7 @@
 #include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
+#include <Map/MapData.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 
@@ -255,6 +256,13 @@ void TMario::emitSweatSometimes()
 	s16 yaw = mFaceAngle.y;
 	if ((gpMarDirector->unk58 & 0xF) == 0)
 		emitSweat(yaw);
+}
+
+void TMario::emitSmoke(short rotY)
+{
+	if (!mGroundPlane->isPool())
+		gpMarioParticleManager->emitWithRotate(
+		    0x15, &mPosition, 0, rotY, 0, 0, nullptr);
 }
 
 bool TMario::emitParticle(int id, short rotY)
