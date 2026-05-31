@@ -156,9 +156,7 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 			entryModels(gfx);
 			mYoshi->entry();
 
-			BOOL positiveHeight = FALSE;
-			if (unk368 > 0.0f)
-				positiveHeight = TRUE;
+			BOOL positiveHeight = (unk368 > 0.0f) ? TRUE : FALSE;
 			if (positiveHeight == FALSE)
 				((TMBindShadowBody*)unk390)->entryDrawShadow();
 		} else {
