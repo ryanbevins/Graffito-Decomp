@@ -133,11 +133,13 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 	}
 
 	if (flags & 0x200) {
-		bool shouldEntry = (mSubState & 2) ? true : false;
+		BOOL shouldEntry = TRUE;
+		if ((mSubState & 2) == 0)
+			shouldEntry = FALSE;
 		if (checkFlag(4))
-			shouldEntry = false;
+			shouldEntry = FALSE;
 
-		if (shouldEntry == true) {
+		if (shouldEntry == TRUE) {
 			addDirty();
 			addDamageFog(gfx);
 
@@ -147,7 +149,10 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 			entryModels(gfx);
 			mYoshi->entry();
 
-			if (!(unk368 > 0.0f))
+			BOOL positiveHeight = FALSE;
+			if (unk368 > 0.0f)
+				positiveHeight = TRUE;
+			if (positiveHeight == FALSE)
 				((TMBindShadowBody*)unk390)->entryDrawShadow();
 		} else {
 			if (!onYoshi())
