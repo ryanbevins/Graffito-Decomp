@@ -264,8 +264,10 @@ void TRealoidActor::checkHitActors()
 	if (unk74 & 6)
 		return;
 
-	for (int i = 0; i < mColCount; i++) {
-		if (mCollisions[i]->mActorType == 0x80000001)
+	THitActor** p   = mCollisions;
+	THitActor** end = mCollisions + mColCount;
+	for (; p != end; p++) {
+		if ((*p)->mActorType == 0x80000001)
 			SMS_SendMessageToMario(this, 0xe);
 	}
 }
