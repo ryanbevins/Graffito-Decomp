@@ -90,6 +90,8 @@ static void Hx_Test1();
 static void Hx_Logo();
 static void Hx_GameOver();
 static void Hx_Door();
+static void Hxs_FrBufferMorf2B(f32);
+static void Hxs_FrBufferMorf2(f32);
 static void Hx_Circle();
 static void Hx_Warning(int code);
 static void Hx_CameraInit();
@@ -99,6 +101,7 @@ void Hx_MotionSet(HxMotion*, f32, f32, f32, f32);
 u32 Hx_TimerCountDown();
 static void Frb2_InitBlackBox();
 static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1);
+static void Frb2_InitGx(GXTexObj* tobj);
 static void Hx_SetVFilter(f32 ratio);
 static void __Hx_FrBufferMorf(u32 x, u32 y);
 static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht);
@@ -725,7 +728,152 @@ int Hx_MovieStartSyncEx() {
 
 static void Hx_Logo() {}
 static void Hx_GameOver() {}
-static void Hx_Door() {}
+static void Hx_Door() {
+	u32 v;
+	f32 f;
+	u32 halfW;
+
+	switch (hx.unk38) {
+	case 0:
+		hx.unk38++;
+		Hx_MotionSet((HxMotion*)hx.rest, (f32)(hx.imgW >> 1), 5.0f, 6.0f,
+		             5.0f);
+		break;
+	case 1:
+		v = (u32)(int)Hx_MotionUpdate((HxMotion*)hx.rest);
+		f = (f32)(int)v;
+		Hxs_FrBufferMorf2(f);
+		if (v >= (hx.imgW >> 1)) {
+			hx.unk38++;
+			Hx_MotionSet((HxMotion*)hx.rest, (f32)(hx.imgW >> 1), 5.0f,
+			             6.0f, 5.0f);
+		}
+		break;
+	case 2:
+		halfW = hx.imgW >> 1;
+		Hxs_FrBufferMorf2((f32)halfW);
+		v = (u32)(int)Hx_MotionUpdate((HxMotion*)hx.rest);
+		f = (f32)(int)v;
+		Hxs_FrBufferMorf2B(f);
+		if (v >= (hx.imgW >> 1))
+			hx.unk38++;
+		break;
+	case 3:
+		halfW = hx.imgW >> 1;
+		Hxs_FrBufferMorf2((f32)halfW);
+		Hxs_FrBufferMorf2B((f32)halfW);
+		hx.state = 3;
+		break;
+	}
+}
+
+static void Hxs_FrBufferMorf2B(f32 x) {
+	GXTexObj tobj;
+	u32 srcX;
+	f32 right;
+	f32 y;
+	f32 stripH;
+	f32 zero;
+	f32 one;
+	f32 screenW;
+	f32 screenH;
+
+	srcX = (hx.imgW >> 1) + (hx.imgW >> 2);
+	Frb2_InitGx(&tobj);
+	screenW = (f32)hx.imgW;
+	right = screenW - x;
+	if (x < (f32)(hx.imgW >> 2)) {
+		zero = 0.0f;
+		one = 1.0f;
+		stripH = 16.0f;
+		y = 0.0f;
+		while (y < (f32)hx.imgH) {
+			f32 y1;
+			f32 srcXF;
+
+			Hx_GetFrBuffer(fbuf2, srcX, (u32)y, 0xA0, 0x10);
+			GXInvalidateTexAll();
+			GXLoadTexObj(&tobj, GX_TEXMAP0);
+			GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+			y1 = y + stripH;
+			srcXF = (f32)(int)srcX;
+			GXPosition3f32(srcXF, y, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(zero, zero);
+			GXPosition3f32(right, y, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(one, zero);
+			GXPosition3f32(right, y1, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(one, one);
+			GXPosition3f32(srcXF, y1, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(zero, one);
+			GXDrawDone();
+			y += stripH;
+		}
+	}
+
+	Frb2_InitBlackBox();
+	screenH = (f32)hx.imgH;
+	Frb2_RendBox(0xFF, right, 0.0f, screenW, screenH);
+}
+
+static void Hxs_FrBufferMorf2(f32 x) {
+	GXTexObj tobj;
+	f32 y;
+	f32 stripH;
+	f32 zero;
+	f32 one;
+	f32 srcRight;
+	f32 screenH;
+
+	Frb2_InitGx(&tobj);
+	if (x < (f32)(hx.imgW >> 2)) {
+		y = 0.0f;
+		zero = 0.0f;
+		one = 1.0f;
+		stripH = 16.0f;
+		while (y < (f32)hx.imgH) {
+			f32 y1;
+
+			Hx_GetFrBuffer(fbuf2, 0, (u32)y, 0xA0, 0x10);
+			GXInvalidateTexAll();
+			GXLoadTexObj(&tobj, GX_TEXMAP0);
+			GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+			y1 = y + stripH;
+			srcRight = (f32)(hx.imgW >> 2);
+			GXPosition3f32(x, y, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(zero, zero);
+			GXPosition3f32(srcRight, y, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(one, zero);
+			GXPosition3f32(srcRight, y1, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(one, one);
+			GXPosition3f32(x, y1, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(zero, one);
+			GXDrawDone();
+			y += stripH;
+		}
+	}
+
+	Frb2_InitBlackBox();
+	screenH = (f32)hx.imgH;
+	Frb2_RendBox(0xFF, 0.0f, 0.0f, x, screenH);
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(0.0f, 0.0f, 0.0f);
+	GXColor1u32(0xFF);
+	GXPosition3f32(x, 0.0f, 0.0f);
+	GXColor1u32(0xFF);
+	GXPosition3f32(x, screenH, 0.0f);
+	GXColor1u32(0xFF);
+	GXPosition3f32(0.0f, screenH, 0.0f);
+	GXColor1u32(0xFF);
+}
+
 static void Hx_Circle() {}
 
 // ---------------------------------------------------------------------------
