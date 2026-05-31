@@ -80,14 +80,7 @@ public:
 
 class TGorogoro : public TRollEnemy {
 public:
-	TGorogoro(const char* name)
-	    : TRollEnemy(name)
-	    , unk1B4()
-	    , unk1E4(false)
-	    , unk1E8(0)
-	    , unk1EC(false)
-	{
-	}
+	TGorogoro(const char* name);
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void init(TLiveManager*);

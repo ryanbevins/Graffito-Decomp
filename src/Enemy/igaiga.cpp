@@ -733,6 +733,16 @@ void TIgaiga::shoot(JGeometry::TVec3<f32>& velocity)
 	unk1A8 = true;
 }
 
+TGorogoro::TGorogoro(const char* name)
+    : TRollEnemy(name)
+    , unk1B4()
+    , unk1E4(false)
+    , unk1E8(0)
+    , unk1EC(false)
+{
+	gpCurRollEnemy = nullptr;
+}
+
 void TGorogoro::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	TSmallEnemy::perform(flags, graphics);
