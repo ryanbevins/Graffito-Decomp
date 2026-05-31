@@ -118,7 +118,7 @@ void TSplashManager::makeDL(JDrama::TGraphics* gfx) const
 		if (out.z < -mUnk644 || -250.0f < out.z) {
 			splash->mLife = 0;
 		} else {
-			f32 ratio = (f32)(mInitLife - splash->mLife) / (f32)mInitLife;
+			f32 ratio = ((f32)mInitLife - (f32)splash->mLife) / (f32)mInitLife;
 			f32 size  = mUnk634 * ratio + mUnk630;
 
 			GXColor col = { 0xFF, 0xFF, 0xFF, 0x00 };
