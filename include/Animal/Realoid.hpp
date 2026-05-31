@@ -5,6 +5,7 @@
 #include <Strategic/TakeActor.hpp>
 
 class MActor;
+class TBoid;
 class TBoidLeader;
 class TRealoidActor;
 
@@ -13,6 +14,7 @@ public:
 	TRealoid(const char*);
 
 	void loadDefault(JSUMemoryInputStream&, const char*, int);
+	void clipBoids(JDrama::TGraphics*);
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual TRealoidActor* createRealoidActor(MActor*) = 0;
 
@@ -25,11 +27,11 @@ public:
 	TRealoidActor(MActor*);
 
 	virtual ~TRealoidActor() { }
-	virtual BOOL receiveMessage(THitActor* sender, u32 message);
 	virtual MtxPtr getTakingMtx();
-	virtual void init();
+	virtual void init() = 0;
 	virtual void perform(u32, JDrama::TGraphics*);
 
+	void calcRootMatrix(TBoid*);
 	void checkHitActors();
 
 	/* 0x70 */ MActor* mMActor;
