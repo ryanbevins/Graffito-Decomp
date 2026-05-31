@@ -150,8 +150,8 @@ void TBathtubKiller::resetBathtubKiller()
 	mQuat.y = 0.0f;
 	mQuat.z = 0.0f;
 	mQuat.w = 1.0f;
-	mVelocity.zero();
-	unk1BC.zero();
+	mVelocity.set(0.0f, 0.0f, 0.0f);
+	unk1BC.set(0.0f, 0.0f, 0.0f);
 	unk21C = 0;
 	unk1D4 = 0;
 
@@ -205,18 +205,12 @@ void TBathtubKiller::resetBathtubKiller()
 	unk204 = getSaveParam2()->mSLChaseMaxY.value;
 
 	if (unk194 == 2) {
-		f32 off;
-		switch ((int)(MsRandF() * 4.0f)) {
-		case 0:
+		int sel = (int)(MsRandF() * 4.0f);
+		f32 off = 0.0f;
+		if (sel == 0)
 			off = 120.0f;
-			break;
-		case 1:
+		else if (sel == 1)
 			off = 240.0f;
-			break;
-		default:
-			off = 0.0f;
-			break;
-		}
 		unk200 += off;
 		unk204 += off;
 	}
