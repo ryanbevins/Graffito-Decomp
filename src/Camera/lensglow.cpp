@@ -133,9 +133,9 @@ void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
 		CLBChaseDecrease(&unk60, unk64, unk70, 0.0f);
 
 		f32 baseX = gpSunModel->mFPos[0].x
-		          * (f32)((u16)SMSGetGameRenderWidth() / 2);
+		          * (f32)((u16)SMSGetGameRenderWidth() >> 1);
 		f32 baseY = gpSunModel->mFPos[0].y
-		          * (f32)((u16)SMSGetGameRenderHeight() / 2);
+		          * (f32)((u16)SMSGetGameRenderHeight() >> 1);
 
 		if (visCount == 0) {
 			unk8C = 0.0f;
@@ -156,8 +156,8 @@ void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
 			f32 tt  = 2.0f * sunRatio;
 			f32 rx  = CLBLinearInbetween(sumX * inv, sun->mFPos[0].x, tt);
 			f32 ry  = CLBLinearInbetween(sumY * inv, sun->mFPos[0].y, tt);
-			unk88 = rx * (f32)((u16)SMSGetGameRenderWidth() / 2) - baseX;
-			unk8C = ry * (f32)((u16)SMSGetGameRenderHeight() / 2) - baseY;
+			unk88 = rx * (f32)((u16)SMSGetGameRenderWidth() >> 1) - baseX;
+			unk8C = ry * (f32)((u16)SMSGetGameRenderHeight() >> 1) - baseY;
 		}
 
 		CLBChaseDecrease(&unk80, unk88, unk90, 0.0f);
