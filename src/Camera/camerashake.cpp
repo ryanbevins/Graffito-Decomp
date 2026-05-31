@@ -130,10 +130,10 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 	}
 
 	// Search for an existing entry with this mode and ActiveSet=0
-	for (s32 i = 0; i < 32; i++) {
-		TCamShakeInfo& info = mShakeInfos[i];
-		if (info.mMode == (s32)mode && info.mActiveSet == 0) {
-			info.mPause = 1;
+	TCamShakeInfo* found = mShakeInfos;
+	for (s32 i = 0; i < 32; i++, found++) {
+		if (found->mMode == (s32)mode && found->mActiveSet == 0) {
+			found->mPause = 1;
 			return;
 		}
 	}
