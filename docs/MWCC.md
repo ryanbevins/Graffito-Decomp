@@ -5244,6 +5244,53 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### `(f32)(a - b)` (int subtract then convert) vs `(f32)a - (f32)b` (two converts then float subtract) are distinct, source-controlled codegen — and converting an unsigned/`u8` operand directly skips the signed-fixup `xoris`
+
+**Symptom.** `Player/SplashManager::makeDL` computes a fade ratio from two
+`u8` life counters: `(initLife - life) / initLife`. Two source spellings:
+
+```cpp
+// (A) int subtract first, then one int->float convert:
+f32 ratio = (f32)(mInitLife - splash->mLife) / (f32)mInitLife;
+// codegen: subf r0,life,init; xoris r3,r0,0x8000; stw r3,buf+4; lfd; fsubs (signed magic)
+
+// (B) convert each operand to float, then float-subtract:
+f32 ratio = ((f32)mInitLife - (f32)splash->mLife) / (f32)mInitLife;
+// codegen: two unsigned int->double converts (stw r31=0x43300000 hi; stw <val> lo; lfd; fsubs),
+//          NO xoris, then fsubs of the two floats.
+```
+
+Switching from (A) to (B) took makeDL **72.5% → 94.6%** — the target uses form
+(B). The key tells in the asm: (A) does ONE `subf` + ONE `xoris r,r,0x8000`
+(the signed int->float sign-bit flip) before a single conversion; (B) does TWO
+conversions with **no `xoris`** and the subtraction happens in float (`fsubs`)
+*after* both converts.
+
+**Two sub-observations:**
+1. **Subtract-then-convert vs convert-then-subtract is source-visible** and
+   not reordered by MWCC. Read the asm: a single `subf`/`sub` feeding one
+   conversion → write `(f32)(a-b)`; two independent conversions feeding an
+   `fsubs` → write `(f32)a - (f32)b`.
+2. **No `xoris` ⇒ unsigned conversion.** When the operand being converted is a
+   `u8`/`u16`/unsigned value used *directly* (form B, each `(f32)u8field`),
+   MWCC emits the unsigned int->double path (magic `0x4330000000000000`, hi
+   word `0x43300000`, raw value in the low word, no sign flip). When the value
+   is a *signed int* expression result (form A, `(int)(a-b)` can be negative),
+   it emits the signed path with `xoris r,r,0x8000` and the
+   `0x4330000080000000` magic. So the cast target type (and signedness of the
+   thing being cast) controls the presence of `xoris`.
+
+**Hypothesis (toward Settled).** This is deterministic source-shape codegen,
+not a coloring artifact: the position of the cast relative to the arithmetic
+operator decides convert-then-op vs op-then-convert, and the signedness of the
+converted expression decides signed (`xoris`) vs unsigned conversion. Needs one
+more independent TU computing a float ratio/scale from integer counters to
+promote. Look for any `(f32)(intExpr)` near a `divw`/`subf` + `xoris`
+combination in the asm where the target instead shows paired conversions.
+
+**Citations:** `mario/Player/SplashManager::makeDL` (72.5→94.6, commit on
+2026-05-31).
+
 ### A counted loop indexing `arr[(u16)i]` where the index is masked to 16 bits each use: target recomputes `((u16)i)<<scale` per-iteration (`clrlslwi`) instead of carrying a strength-reduced byte-offset induction variable
 
 **Symptom.** `Camera/lensglow::__ct__` material-anm loop:
