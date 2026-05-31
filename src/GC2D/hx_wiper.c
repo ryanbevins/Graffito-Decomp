@@ -199,6 +199,8 @@ u32 Hx_UpdateWipe(f32 step) {
 	ReInitializeGX();
 
 	switch (hx.state) {
+	case 0:
+		break;
 	case 1:
 		if (hx.type != 1) {
 			Hx_CameraInit();
@@ -287,6 +289,7 @@ static void Hx_Warning(int code) {}
 // ---------------------------------------------------------------------------
 // GX helpers
 // ---------------------------------------------------------------------------
+#pragma dont_inline on
 static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1) {
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 	GXPosition3f32(x0, y0, 0.0f);
@@ -308,6 +311,7 @@ static void Frb2_InitBlackBox() {
 	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
 	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
 }
+#pragma dont_inline off
 
 static void Hx_SetVFilter(f32 ratio) {
 	u32 i;
@@ -465,6 +469,7 @@ static void Hx_CameraInit() {
 	GXSetNumChans(1);
 }
 
+#pragma dont_inline on
 static void Hx_GxInit(int mode, int blend) {
 	switch (mode) {
 	case 0:
@@ -497,3 +502,4 @@ static void Hx_GxInit(int mode, int blend) {
 		break;
 	}
 }
+#pragma dont_inline off
