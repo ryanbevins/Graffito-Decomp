@@ -8,19 +8,21 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <stdio.h>
 
-extern const char* cSunVolumeName;
-extern const char* cSunsetVolumeName;
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE     = "メモリが足りません\n";
+
+const char* cSunVolumeName    = "/scene/sun";
+const char* cSunsetVolumeName = "/scene/sunset";
 
 TLensGlow::TLensGlow(bool sunset, const char* name)
     : JDrama::TViewObj(name)
+    , unk10(nullptr)
+    , unk14(nullptr)
+    , unk18(nullptr)
+    // unk1C is J3DFrameCtrl with its own ctor (constructed here in decl order)
+    , unk30(nullptr)
+    // unk34 is J3DFrameCtrl with its own ctor (constructed here in decl order)
 {
-	unk10 = nullptr;
-	unk14 = nullptr;
-	unk18 = nullptr;
-	// unk1C is J3DFrameCtrl with its own ctor
-	unk30 = nullptr;
-	// unk34 is J3DFrameCtrl with its own ctor
-
 	unk48 = 0.0f;
 	unk4C = 0.0f;
 	unk50 = 0.5f;
@@ -62,7 +64,8 @@ TLensGlow::TLensGlow(bool sunset, const char* name)
 	    JKRFileLoader::getGlbResource(buf));
 	((J3DAnmTevRegKey*)unk30)->searchUpdateMaterialID(unk10);
 
-	for (u16 i = 0; i < unk10->getMaterialNum(); i++) {
+	int num = unk10->getMaterialNum();
+	for (u16 i = 0; i < num; i++) {
 		J3DMaterialAnm* anm = new J3DMaterialAnm();
 		unk10->getMaterialNodePointer(i)->change();
 		unk10->getMaterialNodePointer(i)->unk38 = anm;
