@@ -1028,17 +1028,17 @@ static void Hxs_Logo_TexSetup(u8 color, u8 alpha, void* resource) {
 		tevColor.a = 0xFF;
 	else
 		tevColor.a = (u8)(int)(1.328f * (f32)alpha);
-	GXSetTevColor(GX_TEVREG1, tevColor);
+	GXSetTevColor(GX_TEVREG0, tevColor);
 
 	fadeColor = tevColor;
 	if (alpha > 0xC0)
 		fadeColor.a = (u8)(((0xFF - alpha) & 0x3F) << 2);
 	else
 		fadeColor.a = 0xFF;
-	GXSetTevColor(GX_TEVREG2, fadeColor);
-	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_C2, GX_CC_TEXC,
+	GXSetTevColor(GX_TEVREG1, fadeColor);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_C0, GX_CC_TEXA,
 	                GX_CC_ZERO);
-	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_A2, GX_CA_A1, GX_CA_TEXA,
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_A1, GX_CA_A0, GX_CA_TEXA,
 	                GX_CA_ZERO);
 	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
 	                GX_TRUE, GX_TEVPREV);
@@ -1060,10 +1060,10 @@ static void Hxs_Logo_ExtraDraw(u8 alpha, void* resource) {
 	color.g = 0xFF;
 	color.b = 0xFF;
 	color.a = alpha;
-	GXSetTevColor(GX_TEVREG1, color);
-	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C1, GX_CC_TEXC, GX_CC_ZERO,
+	GXSetTevColor(GX_TEVREG0, color);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C0, GX_CC_ZERO, GX_CC_ZERO,
 	                GX_CC_ZERO);
-	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_A1, GX_CA_TEXA,
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_A0, GX_CA_TEXA,
 	                GX_CA_ZERO);
 	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
 	                GX_TRUE, GX_TEVPREV);
@@ -1885,6 +1885,7 @@ static void Hgx_ReadTexture(char* fileName, void* addr) {
 }
 #pragma dont_inline off
 
+#pragma dont_inline on
 static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
 	u32 imageOffset = res->imageOffset;
 	u8 format = res->format;
@@ -1899,6 +1900,7 @@ static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
 	GXInitTexObjLOD(obj, minFilter, magFilter, 0.0f, 0.0f, 0.0f, GX_FALSE,
 	                GX_FALSE, GX_ANISO_1);
 }
+#pragma dont_inline off
 
 static void Hx_CameraInit() {
 	Mtx44 proj;
