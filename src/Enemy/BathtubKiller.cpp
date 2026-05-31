@@ -657,7 +657,47 @@ void TBathtubKiller::attackToMario()
 	}
 }
 
-bool TBathtubKiller::isCollidMove(THitActor*) { return false; }
+bool TBathtubKiller::isCollidMove(THitActor* sender)
+{
+	if (mSpine->getCurrentNerve()
+	        == &TNerveBathtubKillerExplosion::theNerve()
+	    || mSpine->getCurrentNerve()
+	           == &TNerveBathtubKillerBreak::theNerve())
+		return false;
+
+	if (sender->mActorType == 0x8000029) {
+		if (mSpine->getCurrentNerve()
+		        != &TNerveBathtubKillerExplosion::theNerve()
+		    && mSpine->getCurrentNerve()
+		           != &TNerveBathtubKillerBreak::theNerve())
+			mSpine->pushNerve(&TNerveBathtubKillerExplosion::theNerve());
+		return true;
+	}
+
+	if (sender->mActorType == 0x8000021 || sender->mActorType == 0x800002a
+	    || sender->mActorType == 0x800002c) {
+		if (mSpine->getCurrentNerve()
+		        != &TNerveBathtubKillerExplosion::theNerve()
+		    && mSpine->getCurrentNerve()
+		           != &TNerveBathtubKillerBreak::theNerve())
+			mSpine->pushNerve(&TNerveBathtubKillerExplosion::theNerve());
+		sender->receiveMessage(this, 0xe);
+		return true;
+	}
+
+	if (sender->mActorType == 0x8000024) {
+		if (unk214 <= 0) {
+			if (mSpine->getCurrentNerve()
+			        != &TNerveBathtubKillerExplosion::theNerve()
+			    && mSpine->getCurrentNerve()
+			           != &TNerveBathtubKillerBreak::theNerve())
+				mSpine->pushNerve(
+				    &TNerveBathtubKillerExplosion::theNerve());
+		}
+	}
+
+	return true;
+}
 
 void TBathtubKiller::behaveToWater(THitActor*)
 {
