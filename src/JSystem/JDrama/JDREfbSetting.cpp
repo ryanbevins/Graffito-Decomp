@@ -5,6 +5,7 @@
 
 using namespace JDrama;
 
+#pragma dont_inline on
 GXPixelFmt JDrama::DecidePixelFmt(bool param_1, bool param_2)
 {
 	if (param_1)
@@ -14,6 +15,7 @@ GXPixelFmt JDrama::DecidePixelFmt(bool param_1, bool param_2)
 	else
 		return GX_PF_RGB8_Z24;
 }
+#pragma dont_inline off
 
 bool JDrama::IsCanEnableDither(GXPixelFmt pix_fmt)
 {
@@ -26,8 +28,13 @@ bool JDrama::IsCanEnableDither(GXPixelFmt pix_fmt)
 void JDrama::IssueGXPixelFormatSetting(bool param_1, bool param_2, bool param_3,
                                        bool param_4, bool param_5)
 {
-
-	GXPixelFmt pix_fmt = DecidePixelFmt(param_1, param_2);
+	GXPixelFmt pix_fmt;
+	if (param_1)
+		pix_fmt = GX_PF_RGB565_Z16;
+	else if (param_2)
+		pix_fmt = GX_PF_RGBA6_Z24;
+	else
+		pix_fmt = GX_PF_RGB8_Z24;
 	GXSetPixelFmt(pix_fmt, GX_ZC_LINEAR);
 
 	GXBool dither = false;
