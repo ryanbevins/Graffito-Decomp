@@ -92,6 +92,8 @@ static void Hx_GameOver();
 static void Hx_Door();
 static void Hxs_FrBufferMorf2B(f32);
 static void Hxs_FrBufferMorf2(f32);
+static void Hxs2_Circle(u8, f32, f32);
+static void Hxs1_Circle(f32);
 static void Hx_Circle();
 static void Hx_Warning(int code);
 static void Hx_CameraInit();
@@ -103,6 +105,7 @@ static void Frb2_InitBlackBox();
 static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1);
 static void Frb2_InitGx(GXTexObj* tobj);
 static void Hx_SetVFilter(f32 ratio);
+static void Hx_FrBufferMorf(f32 ratio);
 static void __Hx_FrBufferMorf(u32 x, u32 y);
 static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht);
 static void dummy_handler();
@@ -125,6 +128,14 @@ static const u8 handle_type[15] = {
 static f32 r_393;
 static f32 r_416;
 static f32 r_432;
+static f32 r_181;
+static f32 p1;
+static f32 p2;
+static f32 p3;
+static u16 a1;
+static u16 a2;
+static u16 a3;
+static f32 boke;
 static f32 thin;
 static u32 rstep;
 static f32 thin_d;
@@ -874,7 +885,221 @@ static void Hxs_FrBufferMorf2(f32 x) {
 	GXColor1u32(0xFF);
 }
 
-static void Hx_Circle() {}
+static void Hxs2_Circle(u8 color, f32 inner, f32 outer) {
+	u32 i;
+	f32 inner2;
+	f32 outer2;
+	u32 col;
+
+	Hx_CameraInit();
+	Hx_GxInit(0, 1);
+	inner2 = inner * inner;
+	outer2 = outer * outer;
+	col = color;
+	i = (u32)((f32)hx.imgHHalf - outer);
+	while (i <= hx.imgHHalf) {
+		f32 dy;
+		f32 dy2;
+		f32 outerRoot;
+		f32 innerRoot;
+		f32 y0;
+		f32 y1;
+		f32 cx;
+		volatile f32 rootOut;
+
+		dy = (f32)(hx.imgHHalf - i);
+		dy2 = dy * dy;
+		outerRoot = outer2 - dy2;
+		if (outerRoot > 0.0f) {
+			f64 guess = __frsqrte(outerRoot);
+			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
+			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
+			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
+			rootOut = (f32)(outerRoot * guess);
+			outerRoot = rootOut;
+		}
+
+		y0 = (f32)i;
+		y1 = (f32)(hx.imgH - i);
+		cx = (f32)hx.imgWHalf;
+
+		if (dy >= inner) {
+			GXBegin(0xA8, GX_VTXFMT0, 4);
+			GXPosition3f32(cx - outerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + outerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx - outerRoot, y1, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + outerRoot, y1, 1.0f);
+			GXColor1u32(col);
+		} else {
+			innerRoot = inner2 - dy2;
+			if (innerRoot > 0.0f) {
+				f64 guess = __frsqrte(innerRoot);
+				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
+				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
+				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
+				rootOut = (f32)(innerRoot * guess);
+				innerRoot = rootOut;
+			}
+
+			GXBegin(0xA8, GX_VTXFMT0, 8);
+			GXPosition3f32(cx - outerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx - innerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + innerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + outerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + innerRoot, y1, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + outerRoot, y1, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx - outerRoot, y1, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx - innerRoot, y1, 1.0f);
+			GXColor1u32(col);
+		}
+		i++;
+	}
+}
+
+static void Hxs1_Circle(f32 r) {
+	u32 i;
+	f32 r2;
+
+	Hx_CameraInit();
+	Hx_GxInit(0, 1);
+	r2 = r * r;
+	i = 0;
+	while (i <= hx.imgHHalf) {
+		f32 dy;
+		f32 root;
+		f32 y0;
+		f32 y1;
+		f32 cx;
+		volatile f32 rootOut;
+
+		dy = (f32)(hx.imgHHalf - i);
+		y0 = (f32)i;
+		y1 = (f32)(hx.imgH - i);
+		cx = (f32)hx.imgWHalf;
+		if (dy >= r) {
+			GXBegin(0xA8, GX_VTXFMT0, 4);
+			GXPosition3f32(0.0f, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32((f32)hx.imgW, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(0.0f, y1, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32((f32)hx.imgW, y1, 1.0f);
+			GXColor1u32(0xFF);
+		} else {
+			root = r2 - dy * dy;
+			if (root > 0.0f) {
+				f64 guess = __frsqrte(root);
+				guess = 0.5 * guess * (3.0 - root * guess * guess);
+				guess = 0.5 * guess * (3.0 - root * guess * guess);
+				guess = 0.5 * guess * (3.0 - root * guess * guess);
+				rootOut = (f32)(root * guess);
+				root = rootOut;
+			}
+
+			GXBegin(0xA8, GX_VTXFMT0, 8);
+			GXPosition3f32(0.0f, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(cx - root, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(cx + root, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32((f32)hx.imgW, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(cx + root, y1, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32((f32)hx.imgW, y1, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(0.0f, y1, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(cx - root, y1, 1.0f);
+			GXColor1u32(0xFF);
+		}
+		i++;
+	}
+}
+
+static void Hx_Circle() {
+	switch (hx.unk38) {
+	case 0:
+		p1 = 0.0f;
+		p2 = 0.0f;
+		p3 = 0.0f;
+		a1 = 0;
+		a2 = 0;
+		a3 = 0;
+		r_181 = 1.0f;
+		boke = 0.0f;
+		switch (hx.type) {
+		case 0:
+			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 2.0f, 13.0f, 10.0f);
+			hx.unk3C = 25;
+			break;
+		case 1:
+			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 5.0f, 10.0f, 15.0f);
+			hx.unk3C = 30;
+			break;
+		}
+		hx.unk38++;
+		/* fallthrough */
+	case 1:
+		r_181 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		switch (hx.type) {
+		case 1:
+			boke += 0.06666667f;
+			if (boke > 1.0f)
+				boke = 1.0f;
+			Hx_FrBufferMorf(boke);
+			Hx_SetVFilter(1.0f);
+			break;
+		case 0:
+			r_181 = 400.0f - r_181;
+			if (r_181 < 0.0f)
+				r_181 = 0.0f;
+			break;
+		}
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.state = 3;
+		}
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+
+	Hxs1_Circle(r_181);
+	if (r_181 > 22.0f) {
+		Hxs2_Circle((u8)(a1 >> 8), r_181 - 20.0f + p1, r_181);
+		p1 += 0.05f;
+		if (a1 < 0xFF00)
+			a1 += 0x180;
+	}
+	if (r_181 > 42.0f) {
+		Hxs2_Circle((u8)(a2 >> 8), r_181 - 40.0f + p2,
+		            r_181 - 20.0f + p1);
+		p2 += 0.12f;
+		if (a2 < 0xFF00)
+			a2 += 0xC0;
+	}
+	if (r_181 > 62.0f) {
+		Hxs2_Circle((u8)(a3 >> 8), r_181 - 60.0f + p3,
+		            r_181 - 40.0f + p2);
+		p3 += 0.25f;
+		if (a3 < 0xFF00)
+			a3 += 0x80;
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Motion solver
