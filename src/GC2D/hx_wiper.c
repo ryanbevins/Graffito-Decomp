@@ -434,8 +434,8 @@ static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
 }
 
 static void Hx_CameraInit() {
-	Mtx posMtx;
 	Mtx44 proj;
+	Mtx posMtx;
 	f32 hw = (f32)(hx.imgW >> 1);
 	f32 hh = (f32)(hx.imgH >> 1);
 
