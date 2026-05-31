@@ -85,10 +85,14 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 			JGeometry::TVec3<f32> pos = mPosition;
 			pos.y += 75.0f;
 
-			gpCubeArea->unk1C = gpCubeArea->getInCubeNo(pos);
-			gpCubeFastA->unk1C = gpCubeFastA->getInCubeNo(pos);
-			gpCubeFastB->unk1C = gpCubeFastB->getInCubeNo(pos);
-			gpCubeFastC->unk1C = gpCubeFastC->getInCubeNo(pos);
+			TCubeManagerArea* cubeArea = gpCubeArea;
+			cubeArea->unk1C       = cubeArea->getInCubeNo(pos);
+			TCubeManagerFast* fast = gpCubeFastA;
+			fast->unk1C           = fast->getInCubeNo(pos);
+			fast                 = gpCubeFastB;
+			fast->unk1C          = fast->getInCubeNo(pos);
+			fast                 = gpCubeFastC;
+			fast->unk1C          = fast->getInCubeNo(pos);
 		}
 
 		soundMovement();
