@@ -32,6 +32,23 @@ void TMario::sinkInSandEffect()
 	}
 }
 
+void TMario::toroccoEffect()
+{
+	JGeometry::TVec3<f32> dist(mPosition);
+	dist.sub(mToroccoPos);
+	f32 len = dist.length();
+
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x11F, mTorocco->getModel()->getAnmMtx(0), 1, this);
+	if (emitter)
+		emitter->mChildSpawnRate = len * mParticleParams.mToroccoWind.value;
+
+	emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x120, mTorocco->getModel()->getAnmMtx(0), 1, this);
+	if (emitter)
+		emitter->mChildSpawnRate = len * mParticleParams.mToroccoSpark.value;
+}
+
 void TMario::sleepingEffect()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(0x124, &mSleepPos, 1, this);
@@ -43,6 +60,18 @@ void TMario::sleepingEffectKill()
 	    = gpMarioParticleManager->emitAndBindToPosPtr(0x124, &mSleepPos, 1, this);
 	if (emitter)
 		emitter->deleteAllParticle();
+}
+
+void TMario::kickRoofEffect()
+{
+	if (getMotionFrameCtrl().checkPass(8.0f)) {
+		MtxPtr mtx = mModel->getModel()->getAnmMtx(mBoneIDs[6]);
+		unk1A8.x   = mtx[0][3];
+		unk1A8.y   = mtx[1][3];
+		unk1A8.z   = mtx[2][3];
+		gpMarioParticleManager->emit(0x39, &unk1A8, 0, nullptr);
+		rumbleStart(0x15, mMotorParams.mMotorWall.value);
+	}
 }
 
 void TMario::emitSandEffect() { emitFootPrintWithEffect(0x3b, 0x3a); }
@@ -99,6 +128,41 @@ void TMario::emitRotateShootEffect()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(0x114, &unk160[2], 1, this);
 	gpMarioParticleManager->emitAndBindToPosPtr(0x115, &unk160[2], 1, this);
+}
+
+void TMario::rocketEffectStart()
+{
+	gpMarioParticleManager->emit(0x5, &mPosition, 0, nullptr);
+	gpMarioParticleManager->emit(0x4, &mPosition, 0, nullptr);
+	gpMarioParticleManager->emit(0x12, &mPosition, 0, nullptr);
+
+	if (mWaterGun) {
+		gpMarioParticleManager->emitAndBindToPosPtr(
+		    0x1, (JGeometry::TVec3<f32>*)((u8*)mWaterGun + 0x1C90), 0,
+		    this);
+		gpMarioParticleManager->emitAndBindToPosPtr(
+		    0x2, (JGeometry::TVec3<f32>*)((u8*)mWaterGun + 0x1C90), 0,
+		    this);
+		gpMarioParticleManager->emitAndBindToPosPtr(
+		    0x3, (JGeometry::TVec3<f32>*)((u8*)mWaterGun + 0x1C90), 0,
+		    this);
+	}
+}
+
+void TMario::meltInWaterEffect()
+{
+	if (unk134 > 0.0f) {
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x12B, mJointMtx2, 1, this);
+		if (emitter) {
+			emitter->mChildSpawnRate = unk134
+			    * mParticleParams.mMeltInWaterMax.value * (1.0f / 255.0f);
+			if (checkFlag(MARIO_FLAG_IN_SHALLOW_WATER)) {
+				emitter->unk154.setAll(0.6f);
+				emitter->unk174.setAll(0.6f);
+			}
+		}
+	}
 }
 
 void TMario::wallSlipEffect()
