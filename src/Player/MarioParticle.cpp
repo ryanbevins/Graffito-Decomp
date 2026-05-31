@@ -332,6 +332,41 @@ void TMario::surfingEffect()
 	}
 }
 
+void TMario::frontSlipEffect()
+{
+	u16 bgType = mGroundPlane->mBGType;
+	bool waterSlip;
+	if (bgType == BG_TYPE_WET_GROUND || bgType == BG_TYPE_SHADED_WET_GROUND
+	    || bgType == BG_TYPE_CAM_NOCLIP_WET_GROUND
+	    || bgType == BG_TYPE_CAM_NOCLIP_SHADED_WET_GROUND)
+		waterSlip = true;
+	else
+		waterSlip = false;
+
+	if (waterSlip || (mAction == ACTION_CATCHING && mActionState == 1)) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1EA, getCenterAnmMtx(), 3, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x112, getCenterAnmMtx(), 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x113, getCenterAnmMtx(), 1, this);
+	} else {
+		if (mPosition.y < *(f32*)((u8*)this + 0xF0))
+			return;
+
+		if (checkFlag(0x40000)) {
+			calcGroundMtx(unk160[2]);
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x110, mGroundMtx, 1, this);
+			gpMarioParticleManager->emitAndBindToPosPtr(
+			    0x10F, &unk160[2], 1, this);
+		} else {
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x103, mModel->getModel()->getAnmMtx(0), 1, this);
+		}
+	}
+}
+
 void TMario::strongTouchDownEffect()
 {
 	gpMarioParticleManager->emitWithRotate(
