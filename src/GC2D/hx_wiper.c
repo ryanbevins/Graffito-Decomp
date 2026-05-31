@@ -1,5 +1,6 @@
 #include <GC2D/hx_wiper.h>
 #include <dolphin/gx.h>
+#include <dolphin/mtx.h>
 #include <dolphin/dvd.h>
 #include <dolphin/os/OSCache.h>
 
@@ -86,6 +87,11 @@ static void Hx_GxInit(int, int);
 static void Frb2_InitBlackBox();
 static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1);
 static void dummy_handler();
+
+// Camera vectors (mutable: Hx_CameraInit overwrites .x/.y with screen center).
+static Vec camLoc = { 320.0f, 240.0f, -30.0f };
+static Vec objPt = { 320.0f, 240.0f, 0.0f };
+static Vec up = { 0.0f, -10.0f, 0.0f };
 
 static void (*const handle_table[15])() = {
 	dummy_handler, Hx_Circle, Hx_Circle, Hx_Test1, Hx_Test1,
@@ -306,7 +312,41 @@ static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
 	                GX_FALSE, GX_FALSE, GX_ANISO_1);
 }
 
-static void Hx_CameraInit() {}
+static void Hx_CameraInit() {
+	Mtx posMtx;
+	Mtx44 proj;
+	f32 hw = (f32)(hx.imgW >> 1);
+	f32 hh = (f32)(hx.imgH >> 1);
+
+	camLoc.x = hw;
+	camLoc.y = hh;
+	objPt.x = hw;
+	objPt.y = hh;
+	C_MTXOrtho(proj, hh, -hh, -hw, hw, 0.0f, 100.0f);
+	GXSetProjection(proj, GX_ORTHOGRAPHIC);
+	GXSetViewport(0.0f, 0.0f, 640.0f, 480.0f, 0.0f, 1.0f);
+	C_MTXLookAt(posMtx, &camLoc, &up, &objPt);
+	GXSetCullMode(GX_CULL_NONE);
+	GXSetCoPlanar(GX_FALSE);
+	GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
+	GXSetNumTexGens(0);
+	GXSetNumTevStages(1);
+	GXSetNumIndStages(0);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetLineWidth(6, GX_TO_ZERO);
+	GXLoadPosMtxImm(posMtx, GX_PNMTX0);
+	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_VTX, GX_SRC_VTX, 0, GX_DF_NONE,
+	              GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0, GX_DF_NONE,
+	              GX_AF_NONE);
+	GXSetNumChans(1);
+}
 
 static void Hx_GxInit(int mode, int blend) {
 	switch (mode) {
