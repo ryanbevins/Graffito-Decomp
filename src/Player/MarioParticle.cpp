@@ -77,6 +77,64 @@ void TMario::kickRoofEffect()
 void TMario::emitSandEffect() { emitFootPrintWithEffect(0x3b, 0x3a); }
 void TMario::emitDirtyFootPrint() { emitFootPrintWithEffect(0x50, -1); }
 
+void TMario::emitFootPrintWithEffect(int footprintID, int effectID)
+{
+	MtxPtr mtx = nullptr;
+	int foot   = 2;
+
+	if (mAction == ACTION_RUNNING) {
+		if (onYoshi()) {
+			if (mYoshi->getFrameCtrl()->checkPass(47.0f)) {
+				mtx  = mYoshi->getMtxPtrFootL();
+				foot = 0;
+			}
+			if (mYoshi->getFrameCtrl()->checkPass(16.0f)) {
+				mtx  = mYoshi->getMtxPtrFootR();
+				foot = 1;
+			}
+		} else {
+			if (getMotionFrameCtrl().checkPass(38.0f)) {
+				mtx  = mModel->getModel()->getAnmMtx(mBoneIDs[9]);
+				foot = 0;
+			}
+			if (getMotionFrameCtrl().checkPass(8.0f)) {
+				mtx  = mModel->getModel()->getAnmMtx(mBoneIDs[7]);
+				foot = 1;
+			}
+		}
+	}
+
+	if (mAction == ACTION_IDLE && onYoshi()) {
+		if (mYoshi->getFrameCtrl()->checkPass(20.0f)
+		    || mYoshi->getFrameCtrl()->checkPass(71.0f)
+		    || mYoshi->getFrameCtrl()->checkPass(134.0f)) {
+			mtx  = mYoshi->getMtxPtrFootL();
+			foot = 0;
+		}
+		if (mYoshi->getFrameCtrl()->checkPass(45.0f)
+		    || mYoshi->getFrameCtrl()->checkPass(102.0f)
+		    || mYoshi->getFrameCtrl()->checkPass(134.0f)) {
+			mtx  = mYoshi->getMtxPtrFootR();
+			foot = 1;
+		}
+	}
+
+	if (mtx != nullptr && foot != 2) {
+		unk1A8.x = mtx[0][3];
+		unk1A8.y = mtx[1][3];
+		unk1A8.z = mtx[2][3];
+
+		if (mAction == ACTION_RUNNING && mForwardVel > 20.0f && effectID > 0)
+			gpMarioParticleManager->emit(effectID, &unk1A8, 0, nullptr);
+
+		if (footprintID > 0) {
+			calcGroundMtx(unk1A8);
+			gpMarioParticleManager->emitAndBindToMtx(
+			    footprintID, mGroundMtx, 0, nullptr);
+		}
+	}
+}
+
 void TMario::emitBlurSpinJump()
 {
 	gpMarioParticleManager->emitAndBindToMtxPtr(0x105, getCenterAnmMtx(), 1, this);
