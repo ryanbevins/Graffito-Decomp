@@ -3,6 +3,8 @@
 #include <MarioUtil/DLUtil.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <dolphin/gx.h>
+#include <dolphin/mtx.h>
 
 // rogue includes for matching __sinit (15 JALList<T> templates)
 #include <MSound/MSSetSound.hpp>
@@ -25,7 +27,9 @@ void TSplashManager::load(JSUMemoryInputStream& stream)
 
 	f32 rate = SMSGetAnmFrameRate();
 	mGravity = -0.5f * SMSGetAnmFrameRate() * rate;
-	mUnk63C  = 0xA8CBE3FF;
+
+	GXColor color = { 0xA8, 0xCB, 0xE3, 0xFF };
+	mColor        = color;
 
 	mActiveList.initiate();
 	mFreeList.initiate();
@@ -101,5 +105,47 @@ void TSplashManager::move()
 
 void TSplashManager::makeDL(JDrama::TGraphics* gfx) const { (void)gfx; }
 
-void TSplashManager::draw() const { }
+void TSplashManager::draw() const
+{
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_INDEX16);
+	GXSetVtxDesc(GX_VA_CLR0, GX_INDEX8);
+	GXSetVtxDesc(GX_VA_TEX0, GX_INDEX8);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_U8, 7);
+
+	Mtx mtx;
+	PSMTXIdentity(mtx);
+	GXSetCurrentMtx(0);
+	GXLoadPosMtxImm(mtx, 0);
+	GXLoadNrmMtxImm(mtx, 0);
+
+	GXSetNumChans(1);
+	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_VTX, 0, GX_DF_NONE,
+	              GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0, GX_DF_NONE,
+	              GX_AF_NONE);
+	GXSetNumTexGens(1);
+	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, 0x3c, 0, 0x7d);
+	GXSetCullMode(GX_CULL_NONE);
+
+	mTexture->load(GX_TEXMAP0);
+	GXSetTevColor(GX_TEVREG1, mColor);
+	GXSetNumTevStages(1);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C0, GX_CC_ONE, GX_CC_TEXC, GX_CC_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE,
+	                GX_TEVPREV);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA,
+	                GX_CA_ZERO);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE,
+	                GX_TEVPREV);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_NOOP);
+	GXSetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
+
+	GXSetClipMode(GX_CLIP_DISABLE);
+	mQuad->draw();
+	GXSetClipMode(GX_CLIP_ENABLE);
+}
 #pragma dont_inline off

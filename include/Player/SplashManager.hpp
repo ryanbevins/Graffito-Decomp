@@ -4,6 +4,7 @@
 #include <JSystem/JDrama/JDRViewObj.hpp>
 #include <JSystem/JSupport/JSUList.hpp>
 #include <JSystem/JGeometry.hpp>
+#include <dolphin/gx/GXStruct.h>
 
 class JUTTexture;
 class TDLColorTexQuad;
@@ -40,7 +41,7 @@ public:
 	/* 0x630 */ f32 mUnk630;
 	/* 0x634 */ f32 mUnk634;
 	/* 0x638 */ f32 mGravity;
-	/* 0x63C */ u32 mUnk63C;
+	/* 0x63C */ GXColor mColor;
 	/* 0x640 */ TDLColorTexQuad* mQuad;
 	/* 0x644 */ f32 mUnk644;
 	/* 0x648 */ u8 mInitLife;
