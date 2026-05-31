@@ -209,6 +209,7 @@ static void Hx_Test5() {
 	GXTexObj tobj;
 	u32 y;
 	u32 x;
+	void* buffer = hx_buffer;
 
 	Hx_CameraInit();
 	Hx_GxInit(1, 0);
@@ -238,7 +239,7 @@ static void Hx_Test5() {
 		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0,
 		              GX_COLOR_NULL);
 		GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
-		GXInitTexObj(&tobj, hx_buffer, 0x40, 0x40, GX_TF_RGB565, GX_CLAMP,
+		GXInitTexObj(&tobj, buffer, 0x40, 0x40, GX_TF_RGB565, GX_CLAMP,
 		             GX_CLAMP, GX_FALSE);
 		GXInitTexObjLOD(&tobj, GX_LINEAR, GX_LINEAR, 0.0f, 10.0f, 0.0f,
 		                GX_FALSE, GX_TRUE, GX_ANISO_1);
@@ -265,7 +266,7 @@ static void Hx_Test5() {
 
 				xf = (f32)x;
 				yf = (f32)y;
-				Hx_GetFrBuffer(hx_buffer, x, y, 0x40, 0x40);
+				Hx_GetFrBuffer(buffer, x, y, 0x40, 0x40);
 				GXInvalidateTexAll();
 				GXLoadTexObj(&tobj, GX_TEXMAP0);
 
