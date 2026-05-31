@@ -165,11 +165,17 @@ f32 Hx_MotionUpdate(HxMotion* m) {
 }
 
 void Hx_MotionSet(HxMotion* m, f32 dist, f32 t1, f32 t2, f32 t3) {
+	f32 t12;
+	f32 stop;
+	f32 denom;
 	f32 v;
 	m->unk00 = t1;
-	m->unk04 = t1 + t2;
+	t12 = t1 + t2;
+	stop = m->unk00 + t2;
+	denom = t3 + (t2 + t12);
+	m->unk04 = stop;
 	m->unk08 = m->unk04 + t3;
-	v = 2.0f * dist / (t3 + (t1 + 2.0f * t2));
+	v = 2.0f * dist / denom;
 	if (t1 != 0.0f)
 		m->unk0C = v / t1;
 	if (t3 != 0.0f)
