@@ -13,19 +13,19 @@ TLensFlare::TLensFlare(const char* name)
 {
 	unk10 = nullptr;
 	unk14 = nullptr;
-	unk18 = 0.0f;
-	unk1C = 0.0f;
-	unk20 = 1.0f;
+	unk18 = 60.0f;
+	unk1C = 60.0f;
+	unk20 = 80.0f;
 	unk24 = 0.0f;
 	unk28 = 0.0f;
-	unk2C = 1.0f;
-	unk30 = 0.5f;
-	unk34 = 1.0f;
-	unk38 = 1.0f;
-	unk3C = 1.0f;
-	unk40 = 1.5f;
-	unk44 = 1.0f;
-	unk48 = 0.0f;
+	unk2C = 0.04f;
+	unk30 = 0.005f;
+	unk34 = 0.04f;
+	unk38 = 0.04f;
+	unk3C = 30000.0f;
+	unk40 = 3.0f;
+	unk44 = 1.75f;
+	unk48 = 75.0f;
 
 	if ((gpSunMgr->unk15 & 2) != 0) {
 		return;
