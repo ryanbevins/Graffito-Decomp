@@ -284,6 +284,54 @@ void TMario::treeSlipEffect()
 	}
 }
 
+void TMario::surfingEffect()
+{
+	f32 scale         = 1.0f;
+	f32 scaleMin      = getSurfingParamsWater().mScaleMin.get();
+	f32 scaleMax      = getSurfingParamsWater().mScaleMax.get();
+	f32 scaleMinSpeed = getSurfingParamsWater().mScaleMinSpeed.get();
+	f32 scaleMaxSpeed = getSurfingParamsWater().mScaleMaxSpeed.get();
+
+	if (mForwardVel < scaleMinSpeed)
+		scale = scaleMin;
+
+	if (scaleMinSpeed <= mForwardVel && mForwardVel <= scaleMaxSpeed)
+		scale = scaleMin
+		    + (scaleMax - scaleMin) * (mForwardVel - scaleMinSpeed)
+		        / (scaleMaxSpeed - scaleMinSpeed);
+
+	if (scaleMaxSpeed < mForwardVel)
+		scale = scaleMax;
+
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x1E7, getRootAnmMtx()[0], 3, this);
+	if (emitter) {
+		emitter->unk154.setAll(scale);
+		emitter->unk174.setAll(scale);
+	}
+
+	emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x121, mJointMtx1, 1, this);
+	if (emitter) {
+		emitter->unk154.setAll(scale);
+		emitter->unk174.setAll(scale);
+	}
+
+	emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x123, mJointMtx1, 1, this);
+	if (emitter) {
+		emitter->unk154.setAll(scale);
+		emitter->unk174.setAll(scale);
+	}
+
+	emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x122, mJointMtx1, 1, this);
+	if (emitter) {
+		emitter->unk154.setAll(scale);
+		emitter->unk174.setAll(scale);
+	}
+}
+
 void TMario::strongTouchDownEffect()
 {
 	gpMarioParticleManager->emitWithRotate(
