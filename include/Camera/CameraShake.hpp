@@ -56,6 +56,23 @@ public:
 		/* 0x24 */ TCamShakeAngle mAngleZ;
 
 		bool isActive() const { return mDuration ? true : false; }
+		void reset()
+		{
+			mMode             = 1;
+			mPause            = 0;
+			mActiveSet        = 0;
+			mCurFrame         = 0;
+			mDuration         = 0;
+			mAngleX.mDecrement = 0.0f;
+			mAngleX.mPhase    = 0.0f;
+			mAngleX.mAngle    = 0;
+			mAngleY.mDecrement = 0.0f;
+			mAngleY.mPhase    = 0.0f;
+			mAngleY.mAngle    = 0;
+			mAngleZ.mDecrement = 0.0f;
+			mAngleZ.mPhase    = 0.0f;
+			mAngleZ.mAngle    = 0;
+		}
 	};
 
 	TCameraShake();

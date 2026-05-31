@@ -16,28 +16,16 @@ static inline void fakeSetRotate(
 TCameraShake::TCameraShake()
 {
 	mYaw = 0;
-	const char** name        = mCamShakeNameSave__12TCameraShake;
-	TCamSaveShake** savePtr = mShakeSaveData;
-	for (s32 i = 0; i < 41; i++, name++, savePtr++) {
-		TCamSaveShake* save = new TCamSaveShake(*name);
-		*savePtr = save;
+	s32 offset = 0;
+	for (s32 i = 0; i < 41; i++, offset += 4) {
+		TCamSaveShake* save = new TCamSaveShake(
+		    *(const char**)((const u8*)mCamShakeNameSave__12TCameraShake
+		                    + offset));
+		mShakeSaveData[i] = save;
 	}
 	for (s32 i = 0; i < 32; i++) {
 		TCamShakeInfo& info = mShakeInfos[i];
-		info.mMode             = 1;
-		info.mPause            = 0;
-		info.mActiveSet        = 0;
-		info.mCurFrame         = 0;
-		info.mDuration         = 0;
-		info.mAngleX.mDecrement = 0.0f;
-		info.mAngleX.mPhase    = 0.0f;
-		info.mAngleX.mAngle    = 0;
-		info.mAngleY.mDecrement = 0.0f;
-		info.mAngleY.mPhase    = 0.0f;
-		info.mAngleY.mAngle    = 0;
-		info.mAngleZ.mDecrement = 0.0f;
-		info.mAngleZ.mPhase    = 0.0f;
-		info.mAngleZ.mAngle    = 0;
+		info.reset();
 	}
 }
 
@@ -247,20 +235,7 @@ void TCameraShake::execShake(const JGeometry::TVec3<f32>& center,
 			}
 
 			if (done) {
-				info.mMode             = 1;
-				info.mPause            = 0;
-				info.mActiveSet        = 0;
-				info.mCurFrame         = 0;
-				info.mDuration         = 0;
-				info.mAngleX.mDecrement = 0.0f;
-				info.mAngleX.mPhase    = 0.0f;
-				info.mAngleX.mAngle    = 0;
-				info.mAngleY.mDecrement = 0.0f;
-				info.mAngleY.mPhase    = 0.0f;
-				info.mAngleY.mAngle    = 0;
-				info.mAngleZ.mDecrement = 0.0f;
-				info.mAngleZ.mPhase    = 0.0f;
-				info.mAngleZ.mAngle    = 0;
+				info.reset();
 			}
 		}
 
