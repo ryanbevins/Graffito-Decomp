@@ -71,6 +71,8 @@ bool TPollutionLayer::getPollutedPosNear(f32 range, JGeometry::TVec3<f32>* pos)
 	return false;
 }
 
+#pragma dont_inline on
+
 bool TPollutionLayer::getPollutedPos(f32 range, JGeometry::TVec3<f32>* pos)
 {
 	for (int i = 0; i < 5; ++i) {
@@ -84,6 +86,8 @@ bool TPollutionLayer::getPollutedPos(f32 range, JGeometry::TVec3<f32>* pos)
 
 	return false;
 }
+
+#pragma dont_inline off
 
 void TPollutionLayer::fire()
 {
@@ -133,17 +137,6 @@ void TPollutionLayer::action()
 	case 1:
 		fire();
 		break;
-	case 3: {
-		JGeometry::TVec3<f32> pos;
-		if (getPollutedPos(mGlassWallArea, &pos)) {
-			static int counter = 0;
-			if ((int)counter < (int)mGlassWallEffectTime)
-				counter++;
-			else
-				counter = 0;
-		}
-		break;
-	}
 	case 4:
 		if (getPollutedPosNear(mThunderArea, &unk98[unk90])) {
 			unk8C++;
@@ -160,19 +153,42 @@ void TPollutionLayer::action()
 			}
 		}
 		break;
+	case 3: {
+		JGeometry::TVec3<f32> pos;
+		if (getPollutedPos(mGlassWallArea, &pos)) {
+			static int counter = 0;
+			if ((int)counter < (int)mGlassWallEffectTime)
+				counter++;
+			else
+				counter = 0;
+		}
+		break;
+	}
+	case 5:
+	case 6:
+	case 7:
+	case 8:
 	default:
 		break;
 	}
 
-	bool found = false;
+	bool found;
+	int i = 0;
 	JGeometry::TVec3<f32>* pos = &unk98[unk90];
-	for (int i = 0; i < 5; ++i) {
-		pos->x = gpMarioPos->x + mSpreadArea * (MsRandF() - 0.5f);
+	f32 spreadArea              = mSpreadArea;
+	while (true) {
+		pos->x = gpMarioPos->x + spreadArea * (MsRandF() - 0.5f);
 		pos->y = gpMarioPos->y;
-		pos->z = gpMarioPos->z + mSpreadArea * (MsRandF() - 0.5f);
+		pos->z = gpMarioPos->z + spreadArea * (MsRandF() - 0.5f);
 
 		if (isPolluted(pos->x, pos->y, pos->z)) {
 			found = true;
+			break;
+		}
+
+		i++;
+		if (i >= 5) {
+			found = false;
 			break;
 		}
 	}
@@ -180,7 +196,7 @@ void TPollutionLayer::action()
 	if (!found)
 		return;
 
-	if (unk30 != 1 && unk30 != 7) {
+	if ((int)unk30 != 1 && (int)unk30 != 7) {
 		if ((int)unk8C > 15) {
 			gpMarioParticleManager->emitWithRotate(
 			    0x1DA, &unk98[unk90], 0,
@@ -202,8 +218,10 @@ void TPollutionLayer::action()
 			unk4C = 0;
 			JGeometry::TVec3<f32> spreadPos;
 			if (getPollutedPosNear(mSpreadArea, &spreadPos)) {
-				gpPollution->stamp(1, spreadPos.x, spreadPos.y, spreadPos.z,
-				                   128.0f);
+				f32 z = spreadPos.z;
+				f32 y = spreadPos.y;
+				f32 x = spreadPos.x;
+				gpPollution->stamp(1, x, y, z, 128.0f);
 			}
 		}
 	}
