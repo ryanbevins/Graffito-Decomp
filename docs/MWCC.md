@@ -6379,6 +6379,47 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Inlined `(Vec){1.0f,1.0f,1.0f}` compound literals leave DEAD, unreferenced
+  `(1,1,1)` aggregate constants at the FRONT of `.rodata`, shifting the
+  infectious-string base by 0xC each and breaking every string-offset match in
+  the TU (t299, `Enemy/BathtubKiller`).** Symptom: `setMActorAndKeeper` 99.88%
+  with every `addi rX, rRodataBase, 0xNNN` off by exactly +0x18 vs target
+  (our `0x154/0x170/...` vs target `0x13c/0x158/...`). Root cause: our `.rodata`
+  begins with two 12-byte `0x3F800000 x3` objects (`@692`,`@705`) that the target
+  does NOT have — confirmed *unreferenced by any code or data relocation* in our
+  `.o` (grep of dtk disasm finds only their `.obj`/`.endobj`, zero load/branch/
+  data refs). They push the dummy 12-zero string from `.rodata:0x0` to `0x18`.
+  The target materialises `(1,1,1)` component-wise (three `lfs` of scalar `1.0f`
+  from `@sda21`), so it has no rodata triple at all. These come from an inlined
+  header function containing a `(Vec){1.0f,1.0f,1.0f}` compound literal — repo
+  has these in `J3DJoint.hpp` (`J3DMtxCalcBasic::init`, `J3DMtxCalcMaya::init`,
+  both virtual) and `MapCollisionEntry.hpp:44` (`setUpTrans`, virtual). MWCC
+  apparently inlines a (de-virtualised?) call, optimises away the *use* of the
+  aggregate, but cannot DCE the rodata const it spawned. **Open:** which exact
+  inline site in `bind`/`calcRootMatrix` spawns the two triples, and what
+  source-level change suppresses the dead const without changing logic. Until
+  solved this caps `setMActorAndKeeper` at 99.88 and bloats `.data` (we also emit
+  weak `__vt__TParamRT/TParamT` + `MtxCalcTypeName[]` array + `__vt__TNerveBase`
+  that the target's `.data` lacks: our `.data` 736B vs target 656B, `.rodata`
+  +0x18). Low individual payoff (one fn from 99.88→100), but the mechanism is
+  general — any TU whose infectious strings sit at the wrong offset should be
+  checked for leading dead `(1,1,1)` rodata aggregates first.
+
+- **A `TVec3<f32>::set<int>(0,0,0)` template call is emitted OUT-OF-LINE by the
+  target but INLINED by our build, even at 2 call sites (t299,
+  `Enemy/BathtubKiller`).** `set<i>__Q29JGeometry8TVec3<f>Fiii` is `base missing`
+  in report.json — the target instantiates it as a local out-of-line function
+  (the int→double `xoris`/`lfd @sda21`/`fsubs` magic ×3) and calls it via `bl`
+  from both `TNerveBathtubKillerExplosion::execute` and `...Break::execute`
+  (where `killBathtubKiller`'s `vel.set(0,0,0); setVelocity(vel)` is inlined).
+  Our `template <class TY> void set(TY,TY,TY)` (JGVec3.hpp) gets fully inlined at
+  each site instead. This is the only TU in the whole tree whose target emits an
+  out-of-line *int* `set<i>` (grep of `build/GMSJ01/asm`). Caps both execute
+  nerves (~48-52%) and the `set<i>` fn at 0%. **Open:** what makes MWCC keep the
+  int-conversion template out-of-line here — inline-budget at this nesting depth,
+  or a `-inline` interaction. No source lever found; part of the
+  kill/break/explode "helper inline" cluster already noted in campaign_tu.md.
+
 - **(ANSWERED t285 — moved to *Hypotheses under investigation*.)** The int-range
   rand stack-homing in `reset__7TIgaiga` is reproduced by `volatile int min/max`
   (defeats constant-folding so they stay in memory) + an explicit `int range =
