@@ -95,7 +95,7 @@ static void Frb2_InitBlackBox();
 static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1);
 static void Hx_SetVFilter(f32 ratio);
 static void __Hx_FrBufferMorf(u32 x, u32 y);
-static void Hx_GetFrBuffer(void* dest, u16 left, u16 top, u16 wd, u16 ht);
+static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht);
 static void dummy_handler();
 
 // Camera vectors (mutable: Hx_CameraInit overwrites .x/.y with screen center).
@@ -302,16 +302,16 @@ static void Frb2_InitBlackBox() {
 }
 
 static void Hx_SetVFilter(f32 ratio) {
-	int i;
-	int n;
+	u32 i;
+	u8 n;
 	vtable[0] = vtable_org[0];
+	n = (u8)(int)(64.0f * ratio);
 	vtable[1] = vtable_org[1];
 	vtable[2] = vtable_org[2];
 	vtable[3] = vtable_org[3];
 	vtable[4] = vtable_org[4];
 	vtable[5] = vtable_org[5];
 	vtable[6] = vtable_org[6];
-	n = (int)(64.0f * ratio);
 	for (i = 0; i < n; i++) {
 		vtable[dec_step[i & 3]]--;
 		vtable[inc_step[i % 3]]++;
@@ -385,7 +385,7 @@ static void __Hx_FrBufferMorf(u32 x, u32 y) {
 	GXTexCoord2f32(0.0f, 1.0f);
 }
 
-static void Hx_GetFrBuffer(void* dest, u16 left, u16 top, u16 wd, u16 ht) {
+static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht) {
 	GXColor clear = { 0, 0, 0, 0 };
 	GXSetTexCopySrc(left, top, wd, ht);
 	GXSetTexCopyDst(wd, ht, GX_TF_RGB565, GX_FALSE);
@@ -407,13 +407,18 @@ static void Hgx_ReadTexture(char* fileName, void* addr) {
 }
 
 static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
-	void* image = (u8*)res + res->imageOffset;
+	u32 imageOffset = res->imageOffset;
+	u8 format = res->format;
+	u8 wrapS = res->wrapS;
+	u8 wrapT = res->wrapT;
+	u8 minFilter = res->minFilter;
+	u8 magFilter = res->magFilter;
+	void* image = (u8*)res + imageOffset;
 	img_wx = res->width;
 	img_wy = res->height;
-	GXInitTexObj(obj, image, img_wx, img_wy, res->format, res->wrapS, res->wrapT,
-	             GX_FALSE);
-	GXInitTexObjLOD(obj, res->minFilter, res->magFilter, 0.0f, 0.0f, 0.0f,
-	                GX_FALSE, GX_FALSE, GX_ANISO_1);
+	GXInitTexObj(obj, image, img_wx, img_wy, format, wrapS, wrapT, GX_FALSE);
+	GXInitTexObjLOD(obj, minFilter, magFilter, 0.0f, 0.0f, 0.0f, GX_FALSE,
+	                GX_FALSE, GX_ANISO_1);
 }
 
 static void Hx_CameraInit() {
