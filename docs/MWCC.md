@@ -4966,6 +4966,24 @@ shows the four-instruction BOOL→bool convert sequence right after a call.
   `CPolarSubCamera::execHeightPan_` (51.4% → 52.3%).
   Confirmed in two TUs (NpcWalkTurn, CameraHeightPan).
 
+**Inverse direction — per-call-site `(u8)` narrowing on a `BOOL` predicate,
+and the frame-collapse it triggers.** The *opposite* shape also occurs: a
+`BOOL`-declared predicate whose result the **target narrows** with
+`clrlwi. r0, r3, 24` (8-bit test) while **our** build does the raw
+`cmpwi r3, 0x0`. Here the fix is NOT to change the predicate's return type
+(other callers want the wide test) but to add a per-call-site `(u8)` cast:
+`if ((u8)pred())`. The original author wrote the cast at exactly the sites
+that narrow. Critically, this co-occurred with what looked like a
+**phantom-inline frame-pad** (target frame *larger*: -0x48 vs -0x28): adding
+`(u8)` fixed the `clrlwi` AND collapsed the frame to match. So a frame-size
+delta sitting next to a `clrlwi.`-vs-`cmpwi` diff is a *downstream effect of
+the wide-int test path*, not an independent inline — don't write it off as
+currently-hard before checking for this cast. `Player/MarioRun`:
+`getSlideStickMult` 98.5→99.9, `getSlopeNormalAccele`/`getSlopeSlideAccele`
+99.2→99.9, `getChangeAngleSpeed` 98.0→98.6 — all `(u8)isForceSlip()`,
+matching the pre-existing `(u8)isForceSlip()` sites in `MarioMove.cpp`.
+Scan for the signature with `tools/agent/find_bool_narrow.py`.
+
 ### `switch` + `default:` wraps follow-up logic when target jumps past it
 
 **Rule:** When source has the shape
