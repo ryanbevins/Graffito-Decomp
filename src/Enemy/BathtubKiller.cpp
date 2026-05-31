@@ -1,6 +1,7 @@
 #include <Enemy/BathtubKiller.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EffectObj.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -133,7 +134,92 @@ void TBathtubKiller::reset()
 }
 
 #pragma dont_inline on
-void TBathtubKiller::resetBathtubKiller() { }
+void TBathtubKiller::resetBathtubKiller()
+{
+	mSpine->initWith(&TNerveBathtubKillerWander::theNerve());
+	onLiveFlag(LIVE_FLAG_AIRBORNE);
+
+	unk208 = 0;
+	unk20C = 0;
+	unk210 = 0;
+	unk214 = 0;
+	unk218 = 0;
+
+	mQuat.x = 0.0f;
+	mQuat.y = 0.0f;
+	mQuat.z = 0.0f;
+	mQuat.w = 1.0f;
+	mVelocity.zero();
+	unk1BC.zero();
+	unk21C = 0;
+	unk1D4 = 0;
+
+	if (unk194 == 1) {
+		unk1D8.r = 50;
+		unk1D8.g = 70;
+		unk1D8.b = 160;
+		unk1D8.a = 0;
+		unk1E0   = unk1D8;
+		unk1E8   = unk1D8;
+		unk1F0   = unk1D8;
+
+		TBathtubKillerParams* p = getSaveParam2();
+		unk198                  = p->shineAccelerationQuatRate.value;
+		unk19C                  = p->shineChaseAcceleration.value;
+		unk1A0                  = p->shineChaseSpeed.value;
+		unk1A4                  = p->shineInitialSpeed.value;
+		unk1A8                  = p->shineDeadPeriod.value;
+	} else {
+		unk1D8.r = 0;
+		unk1D8.g = 0;
+		unk1D8.b = 0;
+		unk1D8.a = 0;
+		unk1E0   = unk1D8;
+		unk1E8   = unk1D8;
+		unk1F0   = unk1D8;
+
+		if (unk194 == 2) {
+			TBathtubKillerParams* p = getSaveParam2();
+			unk198                  = p->fastAccelerationQuatRate.value;
+			unk19C                  = p->fastChaseAcceleration.value;
+			unk1A0                  = p->fastChaseSpeed.value;
+			unk1A4                  = p->fastInitialSpeed.value;
+			unk1A8                  = p->fastDeadPeriod.value;
+		} else {
+			TBathtubKillerParams* p = getSaveParam2();
+			unk198                  = p->mSLAccelerationQuatRate.value;
+			unk19C                  = p->mSLChaseAcceleration.value;
+			unk1A0                  = p->mSLChaseSpeed.value;
+			unk1A4                  = p->mSLInitialSpeed.value;
+			unk1A8                  = p->mSLDeadPeriod.value;
+		}
+	}
+
+	unk1FC = 0.0f;
+	unk1F8 = getSaveParam2()->mSLColorChangeRateDelta.value;
+	unk208 = unk1A8;
+	unk20C = getSaveParam2()->mSLLaunchingPeriod.value;
+	unk214 = getSaveParam2()->noCollisionAmongKillers.value;
+	unk200 = getSaveParam2()->mSLChaseMinY.value;
+	unk204 = getSaveParam2()->mSLChaseMaxY.value;
+
+	if (unk194 == 2) {
+		f32 off;
+		switch ((int)(MsRandF() * 4.0f)) {
+		case 0:
+			off = 120.0f;
+			break;
+		case 1:
+			off = 240.0f;
+			break;
+		default:
+			off = 0.0f;
+			break;
+		}
+		unk200 += off;
+		unk204 += off;
+	}
+}
 #pragma dont_inline off
 
 void TBathtubKiller::generateItemBathtubKiller() { }
