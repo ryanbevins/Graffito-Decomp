@@ -65,8 +65,8 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 				*(s16*)&unk150 = *(s16*)((u8*)this + 0x924);
 		}
 
-		if ((s16)unk150 > 0)
-			(*(s16*)&unk150)--;
+		if (*(s16*)&unk150 > 0)
+			*(s16*)&unk150 = *(s16*)&unk150 - 1;
 
 		if ((s16)unk14E <= 0) {
 			playerControl(gfx);
