@@ -185,7 +185,7 @@ BOOL TMario::isRunningInWater()
 
 void TMario::getSlopeNormalAccele(f32* accelUp, f32* accelDown)
 {
-	if (isForceSlip()) {
+	if ((u8)isForceSlip()) {
 		*accelUp = mSlipParamsAll.mSlopeAcceleUp.value;
 		*accelDown = mSlipParamsAll.mSlopeAcceleDown.value;
 		return;
@@ -238,7 +238,7 @@ void TMario::getSlopeNormalAccele(f32* accelUp, f32* accelDown)
 
 void TMario::getSlopeSlideAccele(f32* accelUp, f32* accelDown)
 {
-	if (isForceSlip()) {
+	if ((u8)isForceSlip()) {
 		*accelUp = mSlipParamsAll.mSlideAcceleUp.value;
 		*accelDown = mSlipParamsAll.mSlideAcceleDown.value;
 		return;
@@ -295,7 +295,7 @@ f32 TMario::getChangeAngleSpeed()
 {
 	f32 angleSpeed;
 
-	if (isForceSlip()) {
+	if ((u8)isForceSlip()) {
 		angleSpeed = (f32) mSlipParamsAll.mSlideAngleYSp.value;
 	} else {
 		const TBGCheckData* ground = mGroundPlane;
