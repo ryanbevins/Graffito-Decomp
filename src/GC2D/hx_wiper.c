@@ -120,6 +120,8 @@ static const u8 handle_type[15] = {
 };
 
 static f32 r_393;
+static f32 r_416;
+static f32 r_432;
 
 // ---------------------------------------------------------------------------
 // Wipe-effect handlers (GX-heavy; reconstruction pending - see notes/hx_wiper.md)
@@ -217,8 +219,139 @@ static void Hxs1_Test2(u32 count, u32 side, f32 x, f32 y, f32 r1, f32 r2) {
 	}
 }
 
-static void Hx_Test2R() {}
-static void Hx_Test2() {}
+static void Hx_Test2R() {
+	switch (hx.unk38) {
+	case 0:
+		r_432 = 1.0f;
+		Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
+		hx.unk38++;
+		hx.unk3C = 11;
+		/* fallthrough */
+	case 1:
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
+		           450.0f);
+		Hxs1_Test2(600, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
+		           400.0f);
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
+		           200.0f);
+		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		r_432 = 500.0f - r_432;
+		Hxs1_Test2((u32)r_432, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
+		           650.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 11;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
+		}
+		break;
+	case 2:
+		Hxs1_Test2(600, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
+		           400.0f);
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
+		           200.0f);
+		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		r_432 = 500.0f - r_432;
+		Hxs1_Test2((u32)r_432, 1, (f32)(hx.imgW + 200), 150.0f, 700.0f,
+		           450.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 10;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 7.0f, 1.0f);
+		}
+		break;
+	case 3:
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
+		           200.0f);
+		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		r_432 = 500.0f - r_432;
+		Hxs1_Test2((u32)r_432, 0, (f32)(hx.imgW + 250), 370.0f, 650.0f,
+		           400.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 12;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 9.0f, 1.0f);
+		}
+		break;
+	case 4:
+		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		r_432 = 500.0f - r_432;
+		Hxs1_Test2((u32)r_432, 1, (f32)(hx.imgW + 250), 300.0f, 420.0f,
+		           200.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.state = 3;
+		}
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+}
+
+static void Hx_Test2() {
+	switch (hx.unk38) {
+	case 0:
+		r_416 = 1.0f;
+		Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
+		hx.unk38++;
+		hx.unk3C = 11;
+		break;
+	case 1:
+		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		Hxs1_Test2((u32)r_416, 1, (f32)(hx.imgW + 200), 300.0f, 900.0f,
+		           650.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 11;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
+		}
+		break;
+	case 2:
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
+		           650.0f);
+		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		Hxs1_Test2((u32)r_416, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
+		           450.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 10;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 7.0f, 1.0f);
+		}
+		break;
+	case 3:
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
+		           650.0f);
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
+		           450.0f);
+		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		Hxs1_Test2((u32)r_416, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
+		           400.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 12;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 9.0f, 1.0f);
+		}
+		break;
+	case 4:
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
+		           650.0f);
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
+		           450.0f);
+		Hxs1_Test2(600, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
+		           400.0f);
+		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		Hxs1_Test2((u32)r_416, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
+		           200.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.state = 3;
+		}
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+}
 
 static void Hxs1_Test1(f32 x, f32 y, f32 r) {
 	u32 i;
