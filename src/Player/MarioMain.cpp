@@ -179,41 +179,53 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 		j3dSys.mDrawBuffer[1] = (J3DDrawBuffer*)unk3A0;
 	}
 
-	if ((flags & 0x40000000) && (mSubState & 0x10)) {
-		j3dSys.unk4C = 3;
-		unk394->draw();
-		(*(J3DDrawBuffer**)((u8*)mYoshi + 0xA8))->draw();
+	if (flags & 0x40000000) {
+		bool visible = (mSubState & 0x10) ? true : false;
+		if (visible) {
+			j3dSys.unk4C = 3;
+			unk394->draw();
+			(*(J3DDrawBuffer**)((u8*)mYoshi + 0xA8))->draw();
+		}
 	}
 
-	if ((flags & 0x20000000) && (mSubState & 0x10)) {
-		j3dSys.unk4C = 4;
-		unk398->draw();
-		(*(J3DDrawBuffer**)((u8*)mYoshi + 0xAC))->draw();
+	if (flags & 0x20000000) {
+		bool visible = (mSubState & 0x10) ? true : false;
+		if (visible) {
+			j3dSys.unk4C = 4;
+			unk398->draw();
+			(*(J3DDrawBuffer**)((u8*)mYoshi + 0xAC))->draw();
+		}
 	}
 
 	if (flags & 0x1000000)
 		drawSpecial(gfx);
 
-	if ((flags & 0x2000000) && (mSubState & 0x400)) {
-		boxDrawPrepare(gfx->mViewMtx.mMtx);
-		GXSetColorUpdate(GX_FALSE);
-		GXSetAlphaUpdate(GX_TRUE);
-		GXSetDstAlpha(GX_TRUE, 0x10);
-		GXDrawCube();
-		GXSetColorUpdate(GX_TRUE);
-		GXSetAlphaUpdate(GX_FALSE);
-		GXSetDstAlpha(GX_FALSE, 0);
+	if (flags & 0x2000000) {
+		bool drawBox = (mSubState & 0x400) ? true : false;
+		if (drawBox) {
+			boxDrawPrepare(gfx->mViewMtx.mMtx);
+			GXSetColorUpdate(GX_FALSE);
+			GXSetAlphaUpdate(GX_TRUE);
+			GXSetDstAlpha(GX_TRUE, 0x10);
+			GXDrawCube();
+			GXSetColorUpdate(GX_TRUE);
+			GXSetAlphaUpdate(GX_FALSE);
+			GXSetDstAlpha(GX_FALSE, 0);
+		}
 	}
 
-	if ((flags & 0x800000) && (mSubState & 0x400)) {
-		boxDrawPrepare(gfx->mViewMtx.mMtx);
-		GXSetColorUpdate(GX_FALSE);
-		GXSetAlphaUpdate(GX_TRUE);
-		GXSetDstAlpha(GX_TRUE, 0);
-		GXDrawCube();
-		GXSetColorUpdate(GX_TRUE);
-		GXSetAlphaUpdate(GX_FALSE);
-		GXSetDstAlpha(GX_FALSE, 0);
+	if (flags & 0x800000) {
+		bool drawBox = (mSubState & 0x400) ? true : false;
+		if (drawBox) {
+			boxDrawPrepare(gfx->mViewMtx.mMtx);
+			GXSetColorUpdate(GX_FALSE);
+			GXSetAlphaUpdate(GX_TRUE);
+			GXSetDstAlpha(GX_TRUE, 0);
+			GXDrawCube();
+			GXSetColorUpdate(GX_TRUE);
+			GXSetAlphaUpdate(GX_FALSE);
+			GXSetDstAlpha(GX_FALSE, 0);
+		}
 	}
 
 	if ((flags & 0x80000000) && (mSubState & 2)) {
