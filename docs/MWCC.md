@@ -5244,6 +5244,43 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### A counted loop indexing `arr[(u16)i]` where the index is masked to 16 bits each use: target recomputes `((u16)i)<<scale` per-iteration (`clrlslwi`) instead of carrying a strength-reduced byte-offset induction variable
+
+**Symptom.** `Camera/lensglow::__ct__` material-anm loop:
+```cpp
+int num = unk10->getMaterialNum();          // u16 count hoisted to int
+for (u16 i = 0; i < num; i++) {
+    J3DMaterialAnm* anm = new J3DMaterialAnm();
+    unk10->getMaterialNodePointer(i)->change();      // mMaterials[(u16)i]
+    unk10->getMaterialNodePointer(i)->unk38 = anm;   // mMaterials[(u16)i] again
+}
+```
+`getMaterialNodePointer(u16 idx)` returns `mMaterials[idx]`, so the index is
+masked to 16 bits (`idx` is `u16`). **Target** carries a single induction var
+`i` in a callee-saved reg and recomputes the byte offset each iteration with
+`clrlslwi rT, rI, 16, 2` (= `((u16)i) << 2`), reusing rT for both array
+accesses within the iteration. **Our build** strength-reduces: it adds a
+second induction variable holding the byte offset directly (`addi rB, rB, 4`,
+no mask) alongside `i` (kept only for the `cmpw` bound check). Net: our loop is
++2 instructions and the frame is +8 bytes larger (target 0x160 vs ours 0x158).
+Everything else in the ctor matched (65% → 97.1% after member-init order,
+infectious strings, count hoist, and `int` loop bound).
+
+**Hypothesis.** When the array index is *masked* (`(u16)i`) at each use, the
+byte offset `((u16)i)*stride` is NOT a clean linear induction (it wraps at
+2^16), so MWCC declines to introduce a strength-reduced offset variable and
+recomputes it from `i` each iteration. Our build strength-reduced anyway —
+suggesting some source-level difference makes MWCC treat the offset as a clean
+induction (e.g. the index reaching the subscript without a u16 truncation, or a
+different inline shape for `getMaterialNodePointer`).
+
+**Experiment to run next.** (a) Try `for (int i = 0; …)` with an explicit
+`(u16)i` cast only inside the subscript vs. (b) a `getMaterialNodePointer`
+variant taking `int`. Watch whether the `clrlslwi`-recompute form appears.
+Also diff the +8 stack: confirm it's purely the extra induction var's spill
+slot vs. an inlined temp. If a lever is found, promote; this is a real
+byte-count (base_size) difference, not just coloring.
+
 ### A local initialized BEFORE a preceding `bl` but first USED after it gets promoted to a callee-saved (non-volatile) FPR/GPR — and that NV-reg's save/restore inflates the frame; move the init AFTER the call to keep it volatile
 
 **Symptom.** In `Enemy/BathtubKiller::resetBathtubKiller` the launch-offset
