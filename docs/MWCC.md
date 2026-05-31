@@ -5207,6 +5207,53 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### A trailing guarded code block matches the target's single `bne end` fall-through only as positive-AND `if (A && B) { body }` — the equivalent `if (!A || !B) return; body;` early-return form emits an extra `beq body; b end`
+
+**Symptom.** In `Enemy/BathtubKiller::generateItemBathtubKiller` the final
+particle-emit block was guarded by an early-return:
+
+```cpp
+if (item == nullptr || item->mActorType != 0x20000002)
+    return;
+// emit body (two emit() calls + scaling copies)
+```
+
+The last guard clause compiled to a **two-branch** shape — `beq body; b end`
+(656B, one extra instruction) — instead of the target's single
+`bne end` fall-through into the body. Rewriting it as the positive-AND form
+with the body inside braces fixed it exactly (652B, size now matches target):
+
+```cpp
+if (item != nullptr && item->mActorType == 0x20000002) {
+    // emit body
+}
+```
+
+This took the function 94.09 → 99.12% (the AND rewrite was the last
+instruction-count diff; remaining residual is +0x10 phantom frame pad +
+a 2-instr load-order scheduler swap).
+
+**Hypothesis.** For a guard protecting a *trailing code block* (not a return
+value), when the body is the last thing in the function, MWCC lowers the
+OR-early-return form with the body as a **jump target** (`beq body; b end`)
+but lowers the positive-AND-with-braces form with the body as the natural
+**fall-through** (`bne end; body`). The two are logically identical; only the
+positive-AND form gives the single-branch fall-through. This differs from the
+existing `!predicate()` entry (single negation flips bne↔beq) and the
+predicate-OR accumulator entry (boolean return value) — here it's the
+whole multi-clause guard + trailing block structure that picks the shape.
+
+**Experiment to confirm/refute.** Find another TU with an OR-early-return
+guard immediately followed by a trailing block that ends the function, where
+the diff shows our build emitting `b<cc> body; b end` (two branches) vs
+target's single `b<!cc> end`. Rewrite as positive-AND-with-braces and check
+whether the extra branch disappears. If it reproduces on a 2nd TU, promote to
+Settled. Watch for the confound: if the body is NOT the function tail (there's
+code after it), the fall-through target changes and the rule may not hold.
+
+**Citations.** `Enemy/BathtubKiller::generateItemBathtubKiller` (tick 295):
+94.09 → 99.12%.
+
 ### A local initialized BEFORE a preceding `bl` but first USED after it gets promoted to a callee-saved (non-volatile) FPR/GPR — and that NV-reg's save/restore inflates the frame; move the init AFTER the call to keep it volatile
 
 **Symptom.** In `Enemy/BathtubKiller::resetBathtubKiller` the launch-offset
