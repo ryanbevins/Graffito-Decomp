@@ -12,7 +12,7 @@ class SDLModel;
 
 struct SDLDrawBufToken {
 	/* 0x0 */ J3DDrawBuffer* unk0[2];
-	/* 0x8 */ J3DModel* unk8;
+	/* 0x8 */ SDLModel* unk8;
 };
 
 // 0x1CU
@@ -62,7 +62,7 @@ public:
 
 public:
 	/* 0xA0 */ SDLModelData* unkA0;
-	/* 0xA4 */ J3DDrawBuffer* unkA4;
+	/* 0xA4 */ SDLModel* unkA4;
 	/* 0xA8 */ u32 unkA8;
 };
 

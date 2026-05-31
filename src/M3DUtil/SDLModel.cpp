@@ -1,16 +1,66 @@
 #include <M3DUtil/SDLModel.hpp>
+#include <Camera/Camera.hpp>
+#include <Enemy/Conductor.hpp>
 #include <JSystem/JKernel/JKRHeap.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <macros.h>
 
 void SDLModelData::entrySameMat(J3DMaterial* param_1, SDLDrawBufToken* param_2)
 {
+	SDLModel* model = param_2->unk8;
+	while (model != nullptr) {
+		if (model->unkA8 & 1)
+			break;
+		model = model->unkA4;
+	}
+
+	if (model == nullptr)
+		return;
+
+	j3dSys.mModel   = model;
+	j3dSys.mTexture = unk0->getTexture();
+
+	J3DMatPacket* matPacket = model->mMatPackets + param_1->getIndex();
+	matPacket->drawClear();
+
+	J3DShapePacket* shapePacket
+	    = model->mShapePackets + param_1->getShape()->getIndex();
+	shapePacket->drawClear();
+	matPacket->setShapePacket(shapePacket);
+
+	for (SDLModel* it = model->unkA4; it != nullptr; it = it->unkA4) {
+		if (it->unkA8 & 1) {
+			J3DShapePacket* addPacket
+			    = it->mShapePackets + param_1->getShape()->getIndex();
+			addPacket->drawClear();
+			matPacket->addShapePacket(addPacket);
+		}
+	}
+
+	u32 drawBufferNo = param_1->isDrawModeOpaTexEdge() ? 0 : 1;
+	param_2->unk0[drawBufferNo]->entryImm(matPacket, 0);
 }
 
-void SDLModelData::entryNode(J3DNode* param_1, SDLDrawBufToken* param_2) { }
+void SDLModelData::entryNode(J3DNode* param_1, SDLDrawBufToken* param_2)
+{
+	for (J3DMaterial* mat = ((J3DJoint*)param_1)->getMesh(); mat != nullptr;
+	     mat = mat->getNext()) {
+		if (mat->getShape()->checkFlag(1))
+			continue;
+		entrySameMat(mat, param_2);
+	}
+}
 
-void SDLModelData::recursiveEntry(J3DNode* param_1, SDLDrawBufToken* param_2) {
+void SDLModelData::recursiveEntry(J3DNode* param_1, SDLDrawBufToken* param_2)
+{
+	if (param_1 != nullptr) {
+		entryNode(param_1, param_2);
+		recursiveEntry(param_1->getChild(), param_2);
+		recursiveEntry(param_1->getYounger(), param_2);
+	}
 }
 
 SDLModelData::SDLModelData(J3DModelData* model)
@@ -18,9 +68,27 @@ SDLModelData::SDLModelData(J3DModelData* model)
     , unk4(0)
     , unk18(0)
 {
+	gpConductor->registerSDLModelData(this);
 }
 
-void SDLModelData::entrySDLModels() { }
+void SDLModelData::entrySDLModels()
+{
+	if (unk18 & 1)
+		return;
+
+	JGadget::TList<SDLDrawBufToken*>::iterator it, end;
+	for (it = unk8.begin(), end = unk8.end(); it != end; ++it) {
+		SDLDrawBufToken* token = *it;
+		J3DNode* root          = unk0->getRootNode();
+		recursiveEntry(root, token);
+
+		for (SDLModel* model = token->unk8; model != nullptr;
+		     model = model->unkA4)
+			model->unkA8 &= ~1;
+
+		token->unk8 = nullptr;
+	}
+}
 
 SDLMatPacket::SDLMatPacket() { }
 
@@ -175,6 +243,50 @@ void SDLModel::entryModelDataSDL(SDLModelData* param_1, u32 param_2,
 	mVertexBuffer = new J3DVertexBuffer(&md->getVertexData());
 }
 
-void SDLModel::entry() { }
+void SDLModel::entry()
+{
+	if (!(unkA8 & 8) || !(unkA8 & 2) || unkA0 == nullptr
+	    || (unkA0->unk18 & 1)) {
+		unkA8 &= ~1;
+		J3DModel::entry();
+		return;
+	}
 
-void SDLModel::viewCalcSimple() { }
+	unkA8 |= 1;
+	unkA4 = nullptr;
+
+	J3DDrawBuffer* opa = j3dSys.mDrawBuffer[0];
+	J3DDrawBuffer* xlu = j3dSys.mDrawBuffer[1];
+
+	JGadget::TList<SDLDrawBufToken*>::iterator it, end;
+	for (it = unkA0->unk8.begin(), end = unkA0->unk8.end(); it != end; ++it) {
+		SDLDrawBufToken* token = *it;
+		if (token->unk0[0] == opa && token->unk0[1] == xlu) {
+			unkA4       = token->unk8;
+			token->unk8 = this;
+			return;
+		}
+	}
+
+	SDLDrawBufToken* token = new SDLDrawBufToken;
+	token->unk0[0]         = opa;
+	token->unk0[1]         = xlu;
+	token->unk8            = nullptr;
+	unkA4                  = token->unk8;
+	token->unk8            = this;
+	unkA0->unk8.push_back(token);
+}
+
+void SDLModel::viewCalcSimple()
+{
+	Mtx* tmp = mDrawMtxBuf[0][mCurrentViewNo];
+	mDrawMtxBuf[0][mCurrentViewNo] = mDrawMtxBuf[1][mCurrentViewNo];
+	mDrawMtxBuf[1][mCurrentViewNo] = tmp;
+
+	MtxPtr viewMtx = (MtxPtr)((u8*)gpCamera + 0x1EC);
+	Mtx* drawMtx   = getDrawMtxPtr();
+	for (u16 i = 0; i < mModelData->getDrawMtxNum(); ++i)
+		PSMTXConcat(viewMtx, mNodeMatrices[i], drawMtx[i]);
+
+	DCStoreRange(drawMtx, mModelData->getDrawMtxNum() * sizeof(Mtx));
+}
