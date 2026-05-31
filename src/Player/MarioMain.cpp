@@ -95,12 +95,15 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 	}
 
 	if (doMovement && (s16)unk14E <= 0) {
-		J3DShape* shape
-		    = mModel->unk8->mModelData->mShapeNodePointer[10];
-		if (checkFlag(MARIO_FLAG_HAS_SHIRT))
+		if (checkFlag(MARIO_FLAG_HAS_SHIRT)) {
+			J3DShape* shape
+			    = mModel->unk8->mModelData->mShapeNodePointer[10];
 			shape->offFlag(1);
-		else
+		} else {
+			J3DShape* shape
+			    = mModel->unk8->mModelData->mShapeNodePointer[10];
 			shape->onFlag(1);
+		}
 
 		calcAnim(2, gfx);
 		animSound();
