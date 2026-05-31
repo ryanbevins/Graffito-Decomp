@@ -38,12 +38,28 @@ them in future ticks.
 
 ### `volatile` defeats const-fold so a "pick random value in [min,max)" expression homes min/max to the stack and holds `range = max-min` in a callee-saved reg across `rand()`
 
-**Confirmed across 2 TUs (int and float forms).** When the target compiles a
+**Confirmed across many TUs (int and float forms).** When the target compiles a
 random-pick-in-range as *store literal min/max to stack → reload → compute
 `(max-min)` via a runtime `subf`/`fsubs` into a callee-saved register held
 across the `rand()` call → `min + range*scaled_rand`*, reproduce it by making
 the min/max operands `volatile` and evaluating `range = max - min` **before**
 the `rand()` call (an explicit named temp, not inline `(max-min)*rand`).
+
+**Two distinct sub-cases — pick the right lever:**
+- **Runtime min/max** (read from params/getters/members): no `volatile` needed
+  — the values already come from memory, so they aren't const-folded. The only
+  fix is **evaluation order**: compute `range` before `rand()`. The shared
+  `MsRandF(f32 l, f32 r)` helper (`include/MarioUtil/RandomUtil.hpp`) was
+  written `rand()*c*(r-l)+l`, which schedules `rand()` first; rewriting it
+  `f32 range = r-l; return l + range*(rand()*c);` made all runtime-arg callers
+  home `range` into `f31` across the call. One helper edit lifted `Enemy/telesa`
+  init/reset/initAttacker 86→90-91, `Enemy/smallEnemy` 92.9→93.1, plus
+  `mameGesso`/`conductor`, with zero TU regressions.
+- **Literal min/max** (`MsRandF(0.0f, 360.0f)` etc.): the literals const-fold
+  through the helper's param copies even after the reorder, so the helper can't
+  help. Apply `volatile` locals **at the call site** and expand the pick inline:
+  `volatile f32 mn=A; volatile f32 mx=B; f32 range=mx-mn; <use> mn+range*MsRandF();`.
+  This is the only working form for literal sites (see Refuted alternative).
 
 Two levers, both required:
 1. **`volatile`** defeats MWCC's constant-folding — otherwise `(max-min)` folds
@@ -62,6 +78,19 @@ Citations:
   `reset__10TRollEnemy` 63.1% → 73.1% and `Enemy/gesso` `setPolluteGoal`
   89.75% → 91.84%. Making the two members `volatile` flipped both from the
   folded form to the target's store/reload/`fsubs f31` shape.
+- **int-range, literal `low`/`high`** — `Enemy/elecNokonoko`
+  `init__13TElecNokonoko` 83.3% → 99.4% and `loadInit__13TElecCarapace`
+  83.7% → 94.4% via `volatile int low/high; int range = high-low;
+  low + (int)(MsRandF()*range)` (3rd TU confirming the int form; even
+  `low==0` gets homed).
+- **float-range, literal call sites (`volatile` locals)** — `Enemy/effectObj`
+  `TEffectModel::reset` 74→96 (cascades through 4 derived resets that inline it:
+  ColumWater/BombColumWater 82.7→97.7, ColumSand 79.4→95.9, Explosion 79.8→97.3);
+  `Enemy/namekuri` reset 77→92; `Enemy/bombhei` setDeadAnm 72→95;
+  `Enemy/killer` reset 79→84; `Enemy/hamukuri` `TDangoHamuKuri::reset` 70→96
+  (cascades to BossDango 72→96); `Enemy/smallEnemy` generateItem 60→63.
+- **float-range, runtime call sites (helper reorder)** — see the runtime
+  sub-case above (`telesa`, `smallEnemy::init`, `mameGesso`, `conductor`).
 
 Residuals after the lever are register coloring / frame pad only.
 
