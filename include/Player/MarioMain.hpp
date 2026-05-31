@@ -1250,7 +1250,7 @@ public:
 	void swimUp();
 	void swimPaddleEndToWait();
 	void swimPaddleEnd();
-	void swimPaddle();
+	BOOL swimPaddle();
 	void swimPaddleStart();
 	void swimWaitToPaddle();
 	void swimWait();

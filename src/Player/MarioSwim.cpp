@@ -195,18 +195,18 @@ BOOL TMario::checkSwimJump()
 }
 
 // swimPaddle: 0x80152014, size 0x130
-void TMario::swimPaddle()
+BOOL TMario::swimPaddle()
 {
-	f32 animSpeed = *(f32*)((u8*)0 + 0);
+	f32 animSpeed = 0.5f;
 	if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
-		animSpeed = *(f32*)((u8*)0 + 0);
+		animSpeed = 5.0f;
 	}
 	setAnimation(0x119, animSpeed);
 
 	if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
 		f32 paddleUp = mDeParams.mDashMax.value;
-		addVelocity(paddleUp);
-		setAnimation(0x19, 0);
+		setPlayerVelocity(paddleUp);
+		startSoundActor(0x19);
 		startSoundActor(0x117D);
 	}
 
@@ -215,17 +215,18 @@ void TMario::swimPaddle()
 		changePlayerStatus(0x24D6, 0, false);
 	}
 
-	checkSwimToHangFence();
+	doSwimming();
 
 	if (!checkActionFlag(0x2000)) {
-		return;
+		return 1;
 	}
 
 	if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
-		if (!checkSwimToHangFence()) {
-			setPlayerVelocity(0.0f);
+		if (!isUnderWater()) {
+			surfingEffect();
 		}
 	}
+	return 0;
 }
 
 // swimMain: 0x8015191C, size 0x6F8
