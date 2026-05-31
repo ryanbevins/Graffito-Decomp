@@ -92,10 +92,10 @@ void TSplashManager::move()
 			if (splash->mLife != 0)
 				splash->mLife -= 1;
 			if (splash->mLife == 0) {
-				JSULink<TWaterSplash>* next = link->getNext();
-				mActiveList.remove(link);
-				mFreeList.append(link);
-				link = next;
+				JSULink<TWaterSplash>* dead = link;
+				link = link->getNext();
+				mActiveList.remove(dead);
+				mFreeList.append(dead);
 			} else {
 				link = link->getNext();
 			}
