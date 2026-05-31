@@ -5264,6 +5264,18 @@ regress. Refutation: the move breaks mixed inline callers like the historical
 `TUtil<f32>::sqrt` sweep, or the target expects local weak copies in other vtable
 owners.
 
+**Partial result (t311).** Moving `J3DMatPacket::isSame` into
+`J3DGraphBase/J3DPacket.cpp` and `J3DMatPacket::entry` into
+`J3DGraphAnimator/J3DJoint.cpp` did remove the SDLModel extras and the stray
+`J3DDrawBuffer.o` `isSame` copy; `J3DPacket.o` then matched `isSame`. The probe
+could not be kept because the linked `J3DJoint.o` weak `entry` body stayed at
+99.8%: target stores MWCC's pointer-to-member-function temp at `r1+0x14`, while
+the natural local-variable source emits `r1+0x10`. Inline-expression,
+declaration-then-assignment, explicit sort-type local, and `const sortFunc`
+variants either kept `r1+0x10` or changed the call shape. Remaining experiment:
+find the original non-padding source structure that shifts the PTMF temp by four
+bytes, then retry the weak-owner move.
+
 ### `(f32)(a - b)` (int subtract then convert) vs `(f32)a - (f32)b` (two converts then float subtract) are distinct, source-controlled codegen — and converting an unsigned/`u8` operand directly skips the signed-fixup `xoris`
 
 **Symptom.** `Player/SplashManager::makeDL` computes a fade ratio from two
