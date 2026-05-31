@@ -1,6 +1,9 @@
 #include <Map/PollutionLayer.hpp>
+#include <JSystem/JParticle/JPAEmitter.hpp>
+#include <MSound/MSound.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <Player/MarioAccess.hpp>
+#include <System/EmitterViewObj.hpp>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -75,7 +78,44 @@ void TPollutionLayer::electric() { }
 
 void TPollutionLayer::glassWall() { }
 
-void TPollutionLayer::fire() { }
+void TPollutionLayer::fire()
+{
+	if (getPollutedPosNear(mFireArea, &unk98[unk90])) {
+		unk8C++;
+		if ((int)unk8C > (int)mFireEffectWaitTime) {
+			gpMSound->startSoundSet(0x3803, (Vec*)&unk98[unk90], 0, 0.0f, 0,
+			                        0, 4);
+
+			JPABaseEmitter* emitter
+			    = gpMarioParticleManager->emit(0x1DC, &unk98[unk90], 2, this);
+			if (emitter) {
+				emitter->unk154.x = 1.5f;
+				emitter->unk154.y = 1.5f;
+				emitter->unk154.z = 1.5f;
+				emitter->unk174.x = 1.5f;
+				emitter->unk174.y = 1.5f;
+				emitter->unk174.z = 1.5f;
+			}
+
+			emitter
+			    = gpMarioParticleManager->emit(0x65, &unk98[unk90], 0, this);
+			if (emitter) {
+				emitter->unk154.x = 1.5f;
+				emitter->unk154.y = 1.5f;
+				emitter->unk154.z = 1.5f;
+				emitter->unk174.x = 1.5f;
+				emitter->unk174.y = 1.5f;
+				emitter->unk174.z = 1.5f;
+			}
+
+			unk90++;
+			if ((int)unk90 >= (int)unk94)
+				unk90 = 0;
+
+			unk8C = 0;
+		}
+	}
+}
 
 void TPollutionLayer::action() { }
 
