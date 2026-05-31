@@ -41,21 +41,22 @@ TCameraShake::TCameraShake()
 
 TCameraShake::TCamShakeInfo* TCameraShake::getUseShakeData_()
 {
-	TCamShakeInfo* fallback = &mShakeInfos[0];
-	u16 best_delta = 0xFFFF;
-
-	for (s32 i = 0; i < 32; i++) {
-		if (!mShakeInfos[i].isActive()) {
-			return &mShakeInfos[i];
+	TCamShakeInfo* info = mShakeInfos;
+	for (s32 i = 0; i < 32; i++, info++) {
+		if (!info->isActive()) {
+			return info;
 		}
 	}
 
-	for (s32 i = 0; i < 32; i++) {
-		if (mShakeInfos[i].mActiveSet) {
-			u16 remain = (u16)(mShakeInfos[i].mDuration - mShakeInfos[i].mCurFrame);
+	TCamShakeInfo* fallback = mShakeInfos;
+	u16 best_delta = 0xFFFF;
+	info = mShakeInfos;
+	for (s32 i = 0; i < 32; i++, info++) {
+		if (info->mActiveSet) {
+			u16 remain = (u16)(info->mDuration - info->mCurFrame);
 			if (remain < best_delta) {
 				best_delta = remain;
-				fallback   = &mShakeInfos[i];
+				fallback   = info;
 			}
 		}
 	}
