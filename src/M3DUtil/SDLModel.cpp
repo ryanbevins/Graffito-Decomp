@@ -261,7 +261,11 @@ void SDLModel::entry()
 	JGadget::TList<SDLDrawBufToken*>::iterator it, end;
 	for (it = unkA0->unk8.begin(), end = unkA0->unk8.end(); it != end; ++it) {
 		SDLDrawBufToken* token = *it;
-		if (token->unk0[0] == opa && token->unk0[1] == xlu) {
+		bool found = false;
+		if (token->unk0[0] == opa && token->unk0[1] == xlu)
+			found = true;
+
+		if (found) {
 			unkA4       = token->unk8;
 			token->unk8 = this;
 			return;
@@ -284,9 +288,11 @@ void SDLModel::viewCalcSimple()
 	mDrawMtxBuf[1][mCurrentViewNo] = tmp;
 
 	MtxPtr viewMtx = (MtxPtr)((u8*)gpCamera + 0x1EC);
-	Mtx* drawMtx   = getDrawMtxPtr();
-	for (u16 i = 0; i < mModelData->getDrawMtxNum(); ++i)
-		PSMTXConcat(viewMtx, mNodeMatrices[i], drawMtx[i]);
+	int i          = 0;
+	int offset     = 0;
+	for (; i < mModelData->getDrawMtxNum(); ++i, offset += sizeof(Mtx))
+		PSMTXConcat(viewMtx, (MtxPtr)((u8*)mNodeMatrices + offset),
+		            (MtxPtr)((u8*)getDrawMtxPtr() + offset));
 
-	DCStoreRange(drawMtx, mModelData->getDrawMtxNum() * sizeof(Mtx));
+	DCStoreRange(getDrawMtxPtr(), mModelData->getDrawMtxNum() * sizeof(Mtx));
 }
