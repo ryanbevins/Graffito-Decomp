@@ -15,6 +15,13 @@ f32 TPollutionLayer::mGlassWallArea       = 1000.0f;
 u32 TPollutionLayer::mGlassWallScaleRate  = 0; // UNUSED
 u32 TPollutionLayer::mGlassWallEffectTime = 120;
 
+int TPollutionLayer::getPlaneType() const { return 0; }
+
+int TPollutionLayer::getTexPosS(f32 x) const
+{
+	return unk5C.worldToTexSize(x - unk38);
+}
+
 void TPollutionLayer::changeType(u16) { }
 
 void TPollutionLayer::getPollutedPosNear(f32, JGeometry::TVec3<f32>*) { }

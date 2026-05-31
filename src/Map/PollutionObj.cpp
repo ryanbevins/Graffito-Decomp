@@ -11,6 +11,11 @@ void is_near(float, float) { }
 
 void is_near(float, float, float, float) { }
 
+int TPollutionLayer::getTexPosT(f32 z) const
+{
+	return unk5C.worldToTexSize(z - unk40);
+}
+
 void TPollutionObj::getDepthFromMap(int, int) { }
 
 void TPollutionObj::updateDepthMap() { }
