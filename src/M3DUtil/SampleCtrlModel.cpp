@@ -7,8 +7,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
 
-// Matches 100% with dont_inline...
-// #pragma dont_inline on
+#pragma dont_inline on
 SampleCtrlJoint* SampleCtrlModelData::makeHierarchy(J3DJoint* param_1)
 {
 	for (J3DMaterial* it = param_1->getMesh(); it != nullptr;
@@ -28,7 +27,7 @@ SampleCtrlJoint* SampleCtrlModelData::makeHierarchy(J3DJoint* param_1)
 
 	return unk8[param_1->getJntNo()];
 }
-// #pragma dont_inline off
+#pragma dont_inline off
 
 SampleCtrlModelData::SampleCtrlModelData(J3DModelData* param_1)
     : unk4(nullptr)
