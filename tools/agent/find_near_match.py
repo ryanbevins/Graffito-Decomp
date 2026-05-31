@@ -22,7 +22,7 @@ def main():
     r = json.load(open(REPORT))
     results = []
     for u in r["units"]:
-        for fn in u["functions"]:
+        for fn in u.get("functions", []):
             mp = float(fn.get("fuzzy_match_percent", 0))
             sz = int(fn["size"])
             if min_pct <= mp < max_pct and min_size <= sz <= max_size:
