@@ -1,4 +1,5 @@
 #include <Camera/CameraKindParam.hpp>
+#include <Camera/cameralib.hpp>
 
 // TCamSaveKindParam layout: starts with vtable/header, then TParamRT<T> entries
 // at +0x18, +0x2C, +0x40, ... spaced 0x14 apart. .value field at offset 0x10
@@ -61,11 +62,61 @@ void TCameraKindParam::copySaveParam(const TCamSaveKindParam& src)
 	unkA8       = *(const f32*)(s + 0x3B0);
 }
 
+static void inbetweenS16(s16* dst, s16 target, f32 t)
+{
+	if (t < 0.001f)
+		*dst = target;
+	else
+		*dst += CLBRoundf<s16>((1.0f / t) * (f32)(s16)(target - *dst));
+}
+
 void TCameraKindParam::inbetweenData(const TCameraKindParam& other, f32 t)
 {
-	// Linear interpolation between *this and other by ratio t (TODO match)
-	f32 inv = 1.0f - t;
-	(void)inv;
-	(void)other;
-	(void)t;
+	CLBChaseConstantSpecifyFrame(&unk00, other.unk00, t);
+	CLBChaseConstantSpecifyFrame(&unk04, other.unk04, t);
+	CLBChaseConstantSpecifyFrame(&unk08, other.unk08, t);
+	CLBChaseConstantSpecifyFrame(&unk0C, other.unk0C, t);
+	CLBChaseConstantSpecifyFrame(&unk10, other.unk10, t);
+	CLBChaseConstantSpecifyFrame(&unk14, other.unk14, t);
+	inbetweenS16(&unk18, other.unk18, t);
+	inbetweenS16(&unk1A, other.unk1A, t);
+	CLBChaseConstantSpecifyFrame(&unk1C, other.unk1C, t);
+	inbetweenS16(&unk20, other.unk20, t);
+	inbetweenS16(&unk22, other.unk22, t);
+	CLBChaseConstantSpecifyFrame(&unk24, other.unk24, t);
+	CLBChaseConstantSpecifyFrame(&unk28, other.unk28, t);
+	CLBChaseConstantSpecifyFrame(&unk2C, other.unk2C, t);
+	CLBChaseConstantSpecifyFrame(&unk30, other.unk30, t);
+	CLBChaseConstantSpecifyFrame(&unk34, other.unk34, t);
+	CLBChaseConstantSpecifyFrame(&unk38, other.unk38, t);
+	CLBChaseConstantSpecifyFrame(&unk3C, other.unk3C, t);
+	CLBChaseConstantSpecifyFrame(&unk40, other.unk40, t);
+	CLBChaseConstantSpecifyFrame(&unk44, other.unk44, t);
+	CLBChaseConstantSpecifyFrame(&unk48, other.unk48, t);
+	CLBChaseConstantSpecifyFrame(&unk4C, other.unk4C, t);
+	CLBChaseConstantSpecifyFrame(&unk50, other.unk50, t);
+	inbetweenS16(&unk54, other.unk54, t);
+	inbetweenS16(&unk56, other.unk56, t);
+	unk58 = other.unk58;
+	unk5A = other.unk5A;
+	CLBChaseConstantSpecifyFrame(&unk5C, other.unk5C, t);
+	inbetweenS16(&unk60, other.unk60, t);
+	unk64 = other.unk64;
+	unk68 = other.unk68;
+	CLBChaseConstantSpecifyFrame(&unk6C, other.unk6C, t);
+	CLBChaseConstantSpecifyFrame(&unk70, other.unk70, t);
+	CLBChaseConstantSpecifyFrame(&unk74, other.unk74, t);
+	CLBChaseConstantSpecifyFrame(&unk78, other.unk78, t);
+	CLBChaseConstantSpecifyFrame(&unk7C, other.unk7C, t);
+	CLBChaseConstantSpecifyFrame(&unk80, other.unk80, t);
+	CLBChaseConstantSpecifyFrame(&unk84, other.unk84, t);
+	CLBChaseConstantSpecifyFrame(&unk88, other.unk88, t);
+	CLBChaseConstantSpecifyFrame(&unk8C, other.unk8C, t);
+	CLBChaseConstantSpecifyFrame(&unk90, other.unk90, t);
+	CLBChaseConstantSpecifyFrame(&unk94, other.unk94, t);
+	CLBChaseConstantSpecifyFrame(&unk98, other.unk98, t);
+	CLBChaseConstantSpecifyFrame(&unk9C, other.unk9C, t);
+	CLBChaseConstantSpecifyFrame(&unkA0, other.unkA0, t);
+	CLBChaseConstantSpecifyFrame(&unkA4, other.unkA4, t);
+	CLBChaseConstantSpecifyFrame(&unkA8, other.unkA8, t);
 }
