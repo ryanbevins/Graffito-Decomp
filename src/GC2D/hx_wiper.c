@@ -75,6 +75,7 @@ static const u8 vtable_org[7] = { 0x10, 0x10, 0, 0, 0, 0x10, 0x10 };
 static u8 vtable[7];
 static const u8 dec_step[4] = { 0, 1, 5, 6 };
 static const u8 inc_step[3] = { 2, 3, 4 };
+static void* fbuf = hx_buffer;
 static void* fbuf2 = hx_buffer;
 
 // forward declarations (handlers referenced by handle_table / Hx_UpdateWipe)
@@ -93,6 +94,8 @@ static void Hx_GxInit(int, int);
 static void Frb2_InitBlackBox();
 static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1);
 static void Hx_SetVFilter(f32 ratio);
+static void __Hx_FrBufferMorf(u32 x, u32 y);
+static void Hx_GetFrBuffer(void* dest, u16 left, u16 top, u16 wd, u16 ht);
 static void dummy_handler();
 
 // Camera vectors (mutable: Hx_CameraInit overwrites .x/.y with screen center).
@@ -336,6 +339,50 @@ static void Frb2_InitGx(GXTexObj* tobj) {
 	GXInitTexObjLOD(tobj, GX_LINEAR, GX_LINEAR, 0.0f, 10.0f, 0.0f, GX_FALSE,
 	                GX_TRUE, GX_ANISO_1);
 	GXLoadTexObj(tobj, GX_TEXMAP0);
+}
+
+static void Hx_FrBufferMorf(f32 ratio) {
+	Hx_SetVFilter(ratio);
+	__Hx_FrBufferMorf(hx.imgWHalf - 0x18, hx.imgHHalf - 0x18);
+}
+
+static void __Hx_FrBufferMorf(u32 x, u32 y) {
+	GXTexObj tobj;
+
+	Hx_CameraInit();
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+	Hx_GetFrBuffer(fbuf, x, y, 0x30, 0x30);
+	GXInvalidateTexAll();
+	GXSetNumTexGens(1);
+	GXSetNumTevStages(1);
+	GXSetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+	GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
+	GXInitTexObj(&tobj, fbuf, 0x30, 0x30, GX_TF_RGB565, GX_CLAMP, GX_CLAMP,
+	             GX_FALSE);
+	GXInitTexObjLOD(&tobj, GX_LINEAR, GX_LINEAR, 0.0f, 10.0f, 0.0f, GX_FALSE,
+	                GX_TRUE, GX_ANISO_1);
+	GXLoadTexObj(&tobj, GX_TEXMAP0);
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32((f32)x, (f32)y, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 0.0f);
+	GXPosition3f32((f32)(x + 0x30), (f32)y, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 0.0f);
+	GXPosition3f32((f32)(x + 0x30), (f32)(y + 0x30), 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 1.0f);
+	GXPosition3f32((f32)x, (f32)(y + 0x30), 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 1.0f);
 }
 
 static void Hx_GetFrBuffer(void* dest, u16 left, u16 top, u16 wd, u16 ht) {
