@@ -168,7 +168,7 @@ BOOL TMario::waitingCommonEvents()
 		return 1;
 	}
 
-	if (canSquat()) {
+	if ((u8)canSquat()) {
 		mForwardVel = 0.0f;
 		changePlayerStatus(0x0C018220, 0, false);
 		return 1;
