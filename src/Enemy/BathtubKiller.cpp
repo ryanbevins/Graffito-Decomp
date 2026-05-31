@@ -369,7 +369,48 @@ void TBathtubKiller::explodeBathtubKiller()
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
-void TBathtubKiller::bind() { }
+void TBathtubKiller::bind()
+{
+	JGeometry::TVec3<f32> target(mPosition);
+	target.add(mLinearVelocity);
+	target.add(mVelocity);
+	mVelocity.add(unk1BC);
+
+	if (mSpine->getCurrentNerve()
+	        != &TNerveBathtubKillerExplosion::theNerve()
+	    && mSpine->getCurrentNerve()
+	           != &TNerveBathtubKillerBreak::theNerve()) {
+		mGroundHeight = gpMap->checkGround(target.x, target.y + mHeadHeight,
+		                                   target.z, &mGroundPlane);
+		mGroundHeight += 1.0f;
+		if (target.y <= 0.05f + mGroundHeight) {
+			if (mSpine->getCurrentNerve()
+			        != &TNerveBathtubKillerExplosion::theNerve()
+			    && mSpine->getCurrentNerve()
+			           != &TNerveBathtubKillerBreak::theNerve())
+				mSpine->pushNerve(
+				    &TNerveBathtubKillerExplosion::theNerve());
+			unk1BC.zero();
+			mVelocity.set(unk1BC);
+			target.y = mGroundHeight;
+		}
+
+		if (gpMap->isTouchedOneWallAndMoveXZ(&target.x,
+		                                     target.y + mHeadHeight,
+		                                     &target.z, mBodyRadius)) {
+			if (mSpine->getCurrentNerve()
+			        != &TNerveBathtubKillerExplosion::theNerve()
+			    && mSpine->getCurrentNerve()
+			           != &TNerveBathtubKillerBreak::theNerve())
+				mSpine->pushNerve(
+				    &TNerveBathtubKillerExplosion::theNerve());
+		}
+	}
+
+	JGeometry::TVec3<f32> delta(target);
+	delta.sub(mPosition);
+	mLinearVelocity = delta;
+}
 
 void TBathtubKiller::perform(u32 param1, JDrama::TGraphics* graphics)
 {
