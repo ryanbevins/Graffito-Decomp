@@ -152,16 +152,16 @@ void TBathtubKiller::setMActorAndKeeper()
 
 	SMS_InitPacket_OneTevColor(
 	    getActorKeeper()->getMActor("bathtubkiller_model1.bmd")->getModel(),
-	    noseMatIdx, GX_TEVREG1, &unk1E0);
+	    noseMatIdx, GX_TEVREG0, &unk1E0);
 	SMS_InitPacket_OneTevColor(
 	    getActorKeeper()->getMActor("bathtubkiller_model1.bmd")->getModel(),
-	    eyesMatIdx, GX_TEVREG1, &unk1E8);
+	    eyesMatIdx, GX_TEVREG0, &unk1E8);
 	SMS_InitPacket_OneTevColor(
 	    getActorKeeper()->getMActor("bathtubkiller_model1.bmd")->getModel(),
-	    bodyMatIdx, GX_TEVREG1, &unk1D8);
+	    bodyMatIdx, GX_TEVREG0, &unk1D8);
 	SMS_InitPacket_OneTevColor(
 	    getActorKeeper()->getMActor("bathtubdownkiller_model1.bmd")->getModel(),
-	    0, GX_TEVREG1, &unk1F0);
+	    0, GX_TEVREG0, &unk1F0);
 }
 
 void TBathtubKiller::reset()
