@@ -36,6 +36,43 @@ them in future ticks.
 
 ## Settled
 
+### A multi-clause guard before a trailing code block: positive-AND-braces `if (A && B) { body }` lowers to single fall-through; OR-early-return `if (!A || !B) return; body;` lowers the LAST clause to a two-branch `b<cc> body; b end`
+
+**Rule.** When a function ends with a guard protecting a trailing code block,
+the source structure picks the branch shape of the **last** guard clause:
+
+- **`if (A && B && C) { body }`** (positive-AND, body in braces) → every
+  clause is a direct skip-to-end (`b<!cc> end`), and the body is the natural
+  **fall-through**. The last clause is a single branch (`bge end; body`).
+- **`if (!A || !B || !C) return; body;`** (OR-early-return) → clauses 1..n-1
+  are direct `b<cc> end`, but the **last** clause becomes a **two-branch**
+  `b<!cc> body; b end` (body is a forward jump target). One extra `b`.
+
+The two forms are logically identical; only the source shape decides whether
+the body falls through (positive-AND) or is jumped into (OR-early-return). To
+match, read the target's last guard clause: a single fall-through branch →
+write positive-AND; a `b<cc> body; b end` pair → write OR-early-return. This
+is a *byte-count* difference (the extra `b`), so it shows up as a base_size
+mismatch, not just a coloring nit.
+
+This is distinct from the `!predicate()` entry (single negation flips
+bne↔beq, same instruction count) and the predicate-OR accumulator entry
+(boolean *return value*, not a code block) — here it's the whole multi-clause
+guard + trailing block that picks the layout.
+
+**Citations.**
+- `Enemy/BathtubKiller::generateItemBathtubKiller` (tick 295): 94.09 →
+  99.12%. Target used the single-fall-through form; our OR-early-return
+  emitted the extra `beq body; b end` (656B vs 652B). Switching to positive-AND
+  `if (item != nullptr && item->mActorType == 0x20000002) { body }` matched
+  the size exactly.
+- `MoveBG/MapObjTree::touchPlayer` (tick 295): 97.61 → 99.86%. Opposite
+  direction — target used the two-branch form (`blt body; b end`); our
+  positive-AND `if (mActor==this && idx>=0 && idx<count) { body }` gave the
+  single fall-through (192B vs 196B). Switching to OR-early-return
+  `if (mActor!=this || idx<0 || idx>=count) return; body;` reproduced the
+  two-branch exactly.
+
 ### `volatile` defeats const-fold so a "pick random value in [min,max)" expression homes min/max to the stack and holds `range = max-min` in a callee-saved reg across `rand()`
 
 **Confirmed across many TUs (int and float forms).** When the target compiles a
@@ -5206,53 +5243,6 @@ for predicate functions.
   rather than `if (...) return true; ... return false;`.
 
 ## Hypotheses under investigation
-
-### A trailing guarded code block matches the target's single `bne end` fall-through only as positive-AND `if (A && B) { body }` — the equivalent `if (!A || !B) return; body;` early-return form emits an extra `beq body; b end`
-
-**Symptom.** In `Enemy/BathtubKiller::generateItemBathtubKiller` the final
-particle-emit block was guarded by an early-return:
-
-```cpp
-if (item == nullptr || item->mActorType != 0x20000002)
-    return;
-// emit body (two emit() calls + scaling copies)
-```
-
-The last guard clause compiled to a **two-branch** shape — `beq body; b end`
-(656B, one extra instruction) — instead of the target's single
-`bne end` fall-through into the body. Rewriting it as the positive-AND form
-with the body inside braces fixed it exactly (652B, size now matches target):
-
-```cpp
-if (item != nullptr && item->mActorType == 0x20000002) {
-    // emit body
-}
-```
-
-This took the function 94.09 → 99.12% (the AND rewrite was the last
-instruction-count diff; remaining residual is +0x10 phantom frame pad +
-a 2-instr load-order scheduler swap).
-
-**Hypothesis.** For a guard protecting a *trailing code block* (not a return
-value), when the body is the last thing in the function, MWCC lowers the
-OR-early-return form with the body as a **jump target** (`beq body; b end`)
-but lowers the positive-AND-with-braces form with the body as the natural
-**fall-through** (`bne end; body`). The two are logically identical; only the
-positive-AND form gives the single-branch fall-through. This differs from the
-existing `!predicate()` entry (single negation flips bne↔beq) and the
-predicate-OR accumulator entry (boolean return value) — here it's the
-whole multi-clause guard + trailing block structure that picks the shape.
-
-**Experiment to confirm/refute.** Find another TU with an OR-early-return
-guard immediately followed by a trailing block that ends the function, where
-the diff shows our build emitting `b<cc> body; b end` (two branches) vs
-target's single `b<!cc> end`. Rewrite as positive-AND-with-braces and check
-whether the extra branch disappears. If it reproduces on a 2nd TU, promote to
-Settled. Watch for the confound: if the body is NOT the function tail (there's
-code after it), the fall-through target changes and the rule may not hold.
-
-**Citations.** `Enemy/BathtubKiller::generateItemBathtubKiller` (tick 295):
-94.09 → 99.12%.
 
 ### A local initialized BEFORE a preceding `bl` but first USED after it gets promoted to a callee-saved (non-volatile) FPR/GPR — and that NV-reg's save/restore inflates the frame; move the init AFTER the call to keep it volatile
 
