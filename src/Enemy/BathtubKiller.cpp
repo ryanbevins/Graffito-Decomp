@@ -520,7 +520,54 @@ bool TBathtubKiller::canChase() { return false; }
 
 void TBathtubKiller::generateExplosion() { }
 
-DEFINE_NERVE(TNerveBathtubKillerWander, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveBathtubKillerWander, TLiveActor)
+{
+	TBathtubKiller* self = (TBathtubKiller*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setNormalBathtubKillerAnm();
+
+	if (!self->unk1CC->isKillerAttackable())
+		return FALSE;
+
+	bool wantStraight;
+	if (self->unk194 == 2) {
+		JGeometry::TVec3<f32> mp(*gpMarioPos);
+		mp.y = 0.0f;
+		JGeometry::TVec3<f32> sp(self->mPosition);
+		sp.y = 0.0f;
+		JGeometry::TVec3<f32> bp(self->unk1CC->mPosition);
+		bp.y = 0.0f;
+		f32 dM = mp.distance(bp);
+		f32 dS = sp.distance(bp);
+		wantStraight = dS <= 100.0f + dM;
+	} else {
+		wantStraight = true;
+	}
+
+	if (!wantStraight) {
+		spine->pushNerve(&TNerveBathtubKillerStraight::theNerve());
+		return TRUE;
+	}
+
+	bool wantChase;
+	if (self->unk20C > 0) {
+		wantChase = false;
+	} else {
+		f32 height = self->getSaveParam2()->mSLChaseDistanceY.value;
+		f32 bathtubY = (*self->unk1CC->getRootJointMtx())[1][3];
+		wantChase = self->mPosition.y <= self->unk200 + bathtubY + height;
+	}
+
+	if (wantChase) {
+		spine->pushNerve(&TNerveBathtubKillerChase::theNerve());
+		return TRUE;
+	}
+
+	f32 gravity = self->getGravityY();
+	self->unk1BC.set(0.0f, -gravity, 0.0f);
+	self->makeQuat(self->mVelocity, 1.0f, 0.1f);
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveBathtubKillerChase, TLiveActor) { return FALSE; }
 
