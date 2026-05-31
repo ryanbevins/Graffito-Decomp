@@ -6596,6 +6596,20 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **Why does `TWarpInCallBack::execute` keep three out-of-line
+  `TVec3<f32>::scale(float)` calls while the same clean source shape inlines
+  the multiplies (t322, `Player/MarioParticle`)?** The recovered behavior copies
+  `emitter->unk120` (`mWarpInDir`), scales it by `gpMarioOriginal->unk468`, by
+  `mActionTimer`, then by `1.0f + (((u32)particle >> 2) & 0x3f) * 0.0625f`, and
+  adds it to `particle->unk14`. Target asm uses a 0x110 frame, saves f27-f31,
+  and calls `scale__Q29JGeometry8TVec3<f>Ff` three times. Our equivalent source
+  emits a 0x50 frame and inlines all three component-wise scale operations; a
+  scoped `#pragma dont_inline` around the callback did not change this. Open
+  experiment: find another TU where `TVec3::scale(float)` is called out-of-line
+  from a non-header function, then compare declaration/order/pragma context and
+  whether a local copied through word stores vs constructor copy affects the
+  inline decision.
+
 - **Frustum-clip-over-actor-array loops co-mismatch on (a) a small phantom-inline
   frame inflation AND (b) a loop-counter ↔ in-loop-pointer NV-register swap —
   confirmed in ≥2 TUs but no source lever found (t301).** The canonical shape:
