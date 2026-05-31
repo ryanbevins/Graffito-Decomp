@@ -13,6 +13,7 @@
 #include <MoveBG/MapObjCorona.hpp>
 #include <System/FlagManager.hpp>
 #include <System/EmitterViewObj.hpp>
+#include <System/Particles.hpp>
 #include <Player/Watergun.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <new>
@@ -560,7 +561,21 @@ void TBathtubKillerManager::load(JSUMemoryInputStream& stream)
 	unk38 = new TBathtubKillerParams("/enemy/bathtubkiller.prm");
 }
 
-void TBathtubKillerManager::loadAfter() { }
+void TBathtubKillerManager::loadAfter()
+{
+	TSmallEnemyManager::loadAfter();
+	TMapObjBaseManager::newAndRegisterObj("mushroom1up");
+	TMapObjBaseManager::newAndRegisterObj("mushroom1up");
+	unk60 = TFlagManager::smInstance->getFlag(0x20001);
+	unk64 = nullptr;
+	unk68 = 0;
+	unk69 = 0;
+
+	static const char* loopFilenames[] = {
+		"/scene/map/map/ms_kp_kill_smoke.jpa",
+	};
+	SMS_LoadParticle(loopFilenames[0], 0x1bd);
+}
 
 void TBathtubKillerManager::generateMushroom(JGeometry::TVec3<f32>) { }
 
