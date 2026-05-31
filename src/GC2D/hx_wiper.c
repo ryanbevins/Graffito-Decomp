@@ -1130,6 +1130,8 @@ static void Hx_GameOver() {
 		break;
 	case 4: {
 		u32 color;
+		f32 right;
+		f32 bottom;
 		if (Hx_TimerCountDown() == 0) {
 			hx.unk3C = 100;
 			hx.unk38++;
@@ -1137,35 +1139,42 @@ static void Hx_GameOver() {
 		alpha += 8;
 		Hx_CameraInit();
 		Hx_GxInit(0, 1);
+		right  = (f32)(hx.imgW - 100);
+		bottom = (f32)(hx.imgH - 100);
 		color = 0xFF000000 | alpha;
 		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 		GXPosition3f32(100.0f, 100.0f, 0.0f);
 		GXColor1u32(color);
-		GXPosition3f32((f32)(hx.imgW - 100), 100.0f, 0.0f);
+		GXPosition3f32(right, 100.0f, 0.0f);
 		GXColor1u32(color);
-		GXPosition3f32((f32)(hx.imgW - 100), (f32)(hx.imgH - 100), 0.0f);
+		GXPosition3f32(right, bottom, 0.0f);
 		GXColor1u32(color);
-		GXPosition3f32(100.0f, (f32)(hx.imgH - 100), 0.0f);
+		GXPosition3f32(100.0f, bottom, 0.0f);
 		GXColor1u32(color);
 		break;
 	}
-	case 5:
+	case 5: {
+		f32 right;
+		f32 bottom;
 		Hx_CameraInit();
 		Hx_GxInit(0, 1);
+		right  = (f32)(hx.imgW - 100);
+		bottom = (f32)(hx.imgH - 100);
 		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 		GXPosition3f32(100.0f, 100.0f, 0.0f);
 		GXColor1u32(0xFF0000FF);
-		GXPosition3f32((f32)(hx.imgW - 100), 100.0f, 0.0f);
+		GXPosition3f32(right, 100.0f, 0.0f);
 		GXColor1u32(0xFF0000FF);
-		GXPosition3f32((f32)(hx.imgW - 100), (f32)(hx.imgH - 100), 0.0f);
+		GXPosition3f32(right, bottom, 0.0f);
 		GXColor1u32(0xFF0000FF);
-		GXPosition3f32(100.0f, (f32)(hx.imgH - 100), 0.0f);
+		GXPosition3f32(100.0f, bottom, 0.0f);
 		GXColor1u32(0xFF0000FF);
 		if (Hx_TimerCountDown() == 0) {
 			hx.unk38++;
 			hx.state = 3;
 		}
 		break;
+	}
 	default:
 		hx.state = 3;
 		break;
