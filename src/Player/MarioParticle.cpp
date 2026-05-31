@@ -7,6 +7,7 @@
 #include <MarioUtil/EffectUtil.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
+#include <JSystem/JParticle/JPAParticle.hpp>
 
 // rogue includes for matching __sinit (15 JALList<T> templates)
 #include <MSound/MSSetSound.hpp>
@@ -19,6 +20,14 @@ const char* cParticleFileNames[] = {
 	"/scene/map/pollution/ms_m_spinos.jpa",
 	"/scene/map/pollution/ms_m_tokeos.jpa",
 };
+
+class TBubbleCallBack
+    : public JPACallBackBase2<JPABaseEmitter*, JPABaseParticle*> {
+public:
+	virtual void execute(JPABaseEmitter*, JPABaseParticle*);
+};
+
+static TBubbleCallBack bubbleCallBack;
 
 bool TMario::askJumpIntoWaterEffectExist() const
 {
@@ -246,6 +255,81 @@ void TMario::runningRippleEffect()
 	if (mForwardVel > 30.0f)
 		gpMarioParticleManager->emit(0x34, ripplePos, 0, nullptr);
 	SMS_EmitRippleTiny(ripplePos);
+}
+
+void TMario::swimmingBubbleEffect()
+{
+	if (!isMario())
+		return;
+	if (checkFlag(0x400))
+		return;
+
+	if (unk160[1].y + mParticleParams.mBubbleDepth.value
+	    < *(f32*)((u8*)this + 0xF0)) {
+		if (isMario()) {
+			JPABaseEmitter* emitter
+			    = gpMarioParticleManager->emitParticleCallBack(
+			        0x10C, &unk160[1], 1, &bubbleCallBack, this);
+			if (emitter)
+				emitter->setGlobalRTMatrix(mJointMtx0);
+		}
+	}
+
+	if (unk160[2].y + mParticleParams.mBubbleDepth.value
+	    < *(f32*)((u8*)this + 0xF0))
+		bubbleFromBody();
+}
+
+void TMario::bubbleFromBody()
+{
+	if (!isMario())
+		return;
+
+	f32 rate = 0.0f;
+	if (mForwardVel > mParticleParams.mBodyBubbleSpMax.value) {
+		rate = 1.0f;
+	} else if (mForwardVel > mParticleParams.mBodyBubbleSpMin.value) {
+		rate = (mForwardVel - mParticleParams.mBodyBubbleSpMin.value)
+		    / (mParticleParams.mBodyBubbleSpMax.value
+		       - mParticleParams.mBodyBubbleSpMin.value);
+	}
+
+	f32 childRate = mParticleParams.mBodyBubbleEmitMin.value
+	    + rate
+	        * (mParticleParams.mBodyBubbleEmitMax.value
+	           - mParticleParams.mBodyBubbleEmitMin.value);
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitParticleCallBack(
+	    0x111, &unk160[2], 1, &bubbleCallBack, this);
+	if (emitter) {
+		emitter->setGlobalRTMatrix(getCenterAnmMtx());
+		emitter->mChildSpawnRate = childRate;
+	}
+}
+
+void TMario::bubbleFromMouth(int index)
+{
+	if (!isMario())
+		return;
+
+	const void* owner = (const void*)((u8*)this + index * 0x4290);
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitParticleCallBack(
+	    0x10C, &unk160[1], 1, &bubbleCallBack, owner);
+	if (emitter)
+		emitter->setGlobalRTMatrix(mJointMtx0);
+}
+
+void TBubbleCallBack::execute(JPABaseEmitter*, JPABaseParticle* particle)
+{
+	if (gpMarioOriginal->checkFlag(MARIO_FLAG_HELMET_FLW_CAMERA))
+		return;
+
+	JGeometry::TVec3<f32> pos;
+	particle->getCurrentPosition(pos);
+	if (pos.y > *(f32*)((u8*)gpMarioOriginal + 0xF0)) {
+		particle->setDeleteParticleFlag();
+		if (gpMarioOriginal->mParticleParams.mBubbleToRipple.value != 0.0f)
+			gpMarioParticleManager->emit(0x33, &pos, 0, nullptr);
+	}
 }
 
 void TMario::rippleEffect()
