@@ -1020,7 +1020,7 @@ static void Hxs_Logo_TexSetup(u8 color, u8 alpha, void* resource) {
 	Hx_CameraInit();
 	Hx_GxInit(1, 1);
 	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
-	*(u32*)&tevColor = 0;
+	*(u32*)&tevColor = 0xFF000000;
 	tevColor.r = color;
 	tevColor.a = alpha;
 	if (alpha > 0xC0)
@@ -1054,7 +1054,7 @@ static void Hxs_Logo_ExtraDraw(u8 alpha, void* resource) {
 	Hx_CameraInit();
 	Hx_GxInit(1, 1);
 	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
-	*(u32*)&color = 0xFFFFFF00;
+	*(u32*)&color = 0xFFFFFFFF;
 	color.a = alpha;
 	GXSetTevColor(GX_TEVREG0, color);
 	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C0, GX_CC_ZERO, GX_CC_ZERO,
@@ -1179,6 +1179,7 @@ static void Hx_GameOver() {
 
 static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
 	GXTexObj tobj;
+	GXColor tevColor;
 	f32 cx;
 	f32 cy;
 	f32 hw;
@@ -1200,9 +1201,29 @@ static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
 	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
 	                  GX_FALSE, GX_PTIDENTITY);
 	GXSetNumTexGens(1);
-	GXSetNumTevStages(1);
-	GXSetTevOp(GX_TEVSTAGE0, GX_MODULATE);
-	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+	GXSetNumTevStages(2);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_ZERO);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_TEXA, GX_CA_ZERO, GX_CA_ZERO,
+	                GX_CA_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+	*(u32*)&tevColor = 0;
+	tevColor.a = color;
+	GXSetTevColor(GX_TEVREG0, tevColor);
+	GXSetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_ZERO);
+	GXSetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_A0, GX_CA_APREV,
+	                GX_CA_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+	              GX_COLOR_NULL);
 	GXLoadTexObj(&tobj, GX_TEXMAP0);
 	GXClearVtxDesc();
 	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
