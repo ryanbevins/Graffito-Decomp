@@ -1,4 +1,6 @@
 #include <Enemy/BathtubKiller.hpp>
+#include <Enemy/Conductor.hpp>
+#include <Enemy/EffectObj.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -136,11 +138,43 @@ void TBathtubKiller::resetBathtubKiller() { }
 
 void TBathtubKiller::generateItemBathtubKiller() { }
 
-void TBathtubKiller::killBathtubKiller() { }
+void TBathtubKiller::killBathtubKiller()
+{
+	mMActor = mMActorKeeper->getMActor("bathtubdownkiller_model1.bmd");
+	setBckAnm(0);
 
-void TBathtubKiller::breakBathtubKiller() { }
+	mQuat.x = 0.0f;
+	mQuat.y = 0.0f;
+	mQuat.z = 0.0f;
+	mQuat.w = 1.0f;
+	unk1BC.zero();
 
-void TBathtubKiller::explodeBathtubKiller() { }
+	JGeometry::TVec3<f32> vel;
+	vel.set(0, 0, 0);
+	setVelocity(vel);
+
+	onLiveFlag(LIVE_FLAG_UNK8);
+	unk1E0 = unk1D8;
+}
+
+void TBathtubKiller::breakBathtubKiller()
+{
+	killBathtubKiller();
+	generateItemBathtubKiller();
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+}
+
+void TBathtubKiller::explodeBathtubKiller()
+{
+	killBathtubKiller();
+
+	TEffectExplosion* effect = (TEffectExplosion*)gpConductor->makeOneEnemyAppear(
+	    mPosition, "エフェクト爆発マネージャー", 1);
+	if (effect)
+		effect->generate(mPosition, mScaling);
+
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+}
 
 void TBathtubKiller::bind() { }
 
@@ -263,9 +297,35 @@ DEFINE_NERVE(TNerveBathtubKillerChaseStraight, TLiveActor) { return FALSE; }
 
 DEFINE_NERVE(TNerveBathtubKillerStraight, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveBathtubKillerBreak, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveBathtubKillerBreak, TLiveActor)
+{
+	TBathtubKiller* self = (TBathtubKiller*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->breakBathtubKiller();
 
-DEFINE_NERVE(TNerveBathtubKillerExplosion, TLiveActor) { return FALSE; }
+	if (self->checkCurAnmEnd(0)) {
+		self->unk21C = 0;
+		self->onLiveFlag(LIVE_FLAG_DEAD);
+		self->stopAnmSound();
+		return TRUE;
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBathtubKillerExplosion, TLiveActor)
+{
+	TBathtubKiller* self = (TBathtubKiller*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->explodeBathtubKiller();
+
+	if (self->checkCurAnmEnd(0)) {
+		self->unk21C = 0;
+		self->onLiveFlag(LIVE_FLAG_DEAD);
+		self->stopAnmSound();
+		return TRUE;
+	}
+	return FALSE;
+}
 
 TBathtubKillerManager::TBathtubKillerManager(const char* name)
     : TSmallEnemyManager(name)
