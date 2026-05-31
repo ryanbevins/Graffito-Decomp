@@ -82,6 +82,7 @@ static void* fbuf2 = hx_buffer;
 // forward declarations (handlers referenced by handle_table / Hx_UpdateWipe)
 static void Hx_Test5();
 static void Hx_Test4();
+static void Hxs1_Test2(u32, u32, f32, f32, f32, f32);
 static void Hx_Test2R();
 static void Hx_Test2();
 static void Hxs1_Test1(f32, f32, f32);
@@ -125,6 +126,97 @@ static f32 r_393;
 // ---------------------------------------------------------------------------
 static void Hx_Test5() {}
 static void Hx_Test4() {}
+
+static void Hxs1_Test2(u32 count, u32 side, f32 x, f32 y, f32 r1, f32 r2) {
+	s32 pos;
+	s32 end;
+	s32 step;
+	f32 r1sq;
+	f32 r2sq;
+	u32 color;
+	f32 z;
+
+	Hx_CameraInit();
+	Hx_GxInit(0, 1);
+
+	r1sq = r1 * r1;
+	r2sq = r2 * r2;
+
+	if (side == 0) {
+		step = 1;
+		end = (s32)r1;
+		pos = (s32)-y;
+	} else {
+		step = -1;
+		pos = (s32)r1;
+		end = (s32)-y;
+	}
+
+	color = 0xff;
+	z = 1.0f;
+	while (pos != end) {
+		f32 lineY;
+
+		lineY = y + (f32)pos;
+		if (lineY >= 0.0f && lineY <= (f32)hx.imgH) {
+			s32 sqi;
+			f32 root1;
+			f32 root2;
+			volatile f32 rootOut;
+			f32 x0;
+			f32 x1;
+			BOOL draw;
+
+			if (count == 0)
+				break;
+			count--;
+
+			sqi = pos * pos;
+			root1 = r1sq - (f32)sqi;
+			if (root1 > 0.0f) {
+				f64 guess = __frsqrte(root1);
+				guess = 0.5 * guess * (3.0 - root1 * guess * guess);
+				guess = 0.5 * guess * (3.0 - root1 * guess * guess);
+				guess = 0.5 * guess * (3.0 - root1 * guess * guess);
+				rootOut = (f32)(root1 * guess);
+				root1 = rootOut;
+			}
+
+			root2 = r2sq - (f32)sqi;
+			if (root2 > 0.0f) {
+				f64 guess = __frsqrte(root2);
+				guess = 0.5 * guess * (3.0 - root2 * guess * guess);
+				guess = 0.5 * guess * (3.0 - root2 * guess * guess);
+				guess = 0.5 * guess * (3.0 - root2 * guess * guess);
+				rootOut = (f32)(root2 * guess);
+				root2 = rootOut;
+			}
+
+			draw = TRUE;
+			if (x < (f32)hx.imgWHalf) {
+				x1 = x + root1;
+				x0 = x + root2;
+				if (x1 < 0.0f)
+					draw = FALSE;
+			} else {
+				x0 = x - root1;
+				x1 = x - root2;
+				if (x0 > (f32)hx.imgW)
+					draw = FALSE;
+			}
+
+			if (draw) {
+				GXBegin(0xA8, GX_VTXFMT0, 2);
+				GXPosition3f32(x0, lineY, z);
+				GXColor1u32(color);
+				GXPosition3f32(x1, lineY, z);
+				GXColor1u32(color);
+			}
+		}
+		pos += step;
+	}
+}
+
 static void Hx_Test2R() {}
 static void Hx_Test2() {}
 
