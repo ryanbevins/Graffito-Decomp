@@ -5287,6 +5287,31 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Some SDK call sites may have a wider local prototype than the callee definition when the callee masks its arguments
+
+**Hypothesis.** When a target caller passes an integer argument directly to an
+SDK function whose callee body immediately masks that argument down to a smaller
+width, the source TU may have seen a wider local prototype than the SDK callee
+definition. A global signature change is wrong if it removes the callee-side
+masking; the useful lever is a TU-local declaration that changes only caller
+conversion.
+
+**Citation (1 TU).** `mario/Player/MarioMain`
+`TMario::drawSyncCallback` (t327): the target caller stores the `fctiwz` result
+and passes it directly to `GXPeekARGB`, with no caller-side `clrlwi` narrowing.
+The SDK `GXPeekARGB` body still needs `u16` parameters to emit its own
+`clrlslwi` masks and keep `mario/dolphin/gx/GXMisc::GXPeekARGB` at 100%. A
+global `GXPeekARGB(u32,u32,...)` probe matched the MarioMain caller but regressed
+the SDK callee and failed the linked DOL checksum. A `MarioMain.cpp`-local
+wide declaration, with the header's narrow declaration hidden in that TU, kept
+the callee/link intact and matched the caller.
+
+**Experiment to confirm/refute.** Search other `GXPoke*` / `GXPeek*` call sites
+where target omits caller-side narrowing but the SDK callee masks its args. If a
+second independent TU needs the same "wide caller, narrow callee" split, promote
+this as a header/prototype matching rule. If no second site appears, keep it as
+a MarioMain-specific prototype accident.
+
 ### A higher-level inline wrapper can force an out-of-line weak call that a direct inline method call would expand
 
 **Hypothesis.** For template matrix helpers, calling a higher-level wrapper can

@@ -1,3 +1,5 @@
+// This TU's caller passes full-width EFB coordinates; GXPeekARGB masks them.
+#define GXPeekARGB GXPeekARGB_u16
 #include <Player/MarioMain.hpp>
 #include <Camera/CubeManagerBase.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -12,6 +14,9 @@
 #include <System/TimeRec.hpp>
 #include <JSystem/JGeometry.hpp>
 #include <dolphin/gx.h>
+#undef GXPeekARGB
+
+extern "C" void GXPeekARGB(u32, u32, u32*);
 
 static JGeometry::TVec3<f32> cDeformedTerrainCenter(0.0f, 5000.0f, 0.0f);
 
@@ -25,7 +30,8 @@ void TMario::drawSyncCallback(u16 token)
 {
 	(void)token;
 
-	if ((mSubState & 0x400) == 0)
+	bool visible = (mSubState & 0x400) ? true : false;
+	if (!visible)
 		return;
 
 	if (mMarioScreenPos.x < 0.0f || mMarioScreenPos.y < 0.0f
