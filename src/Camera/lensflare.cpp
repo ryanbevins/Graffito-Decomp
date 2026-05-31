@@ -162,11 +162,11 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 
 	if (flags & 0x200) {
 		int num = unk10->getMaterialNum();
-		for (u16 i = 0; i < num; ++i) {
-			J3DMaterial* material = unk10->getMaterialNodePointer(i);
-			material->change();
+		for (int i = 0; (u16)i < num; ++i) {
+			unk10->getMaterialNodePointer(i)->change();
 			J3DGXColorS10 color;
-			color.color   = material->getTevColor(0)->color;
+			color.color =
+			    unk10->getMaterialNodePointer(i)->getTevColor(0)->color;
 			color.color.a = (s16)unk24;
 			unk10->getMaterialNodePointer(i)->getTevBlock()->setTevColor(
 			    0, &color);

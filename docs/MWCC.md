@@ -36,6 +36,38 @@ them in future ticks.
 
 ## Settled
 
+### For `u16`-indexed pointer-table loops, use an `int` induction variable with a `(u16)i` loop condition to get `clrlslwi` offsets and `clrlwi` compares
+
+**Rule.** When looping over a pointer table through an inline getter that takes
+a `u16` index, a source `u16 i` can make MWCC maintain a byte-offset induction
+variable (`i += 4`) and reuse that offset for table loads. If the target instead
+increments an element index (`i += 1`), computes each pointer-table access as
+`clrlslwi index, i, 16, 2`, and narrows before the loop compare with
+`clrlwi`, write the loop as:
+
+```cpp
+int num = data->getMaterialNum();
+for (int i = 0; (u16)i < num; ++i) {
+	data->getMaterialNodePointer(i)->...
+}
+```
+
+The `int` induction variable prevents MWCC from choosing a byte-offset IV, while
+the `(u16)i` condition restores the target's explicit narrow-before-compare.
+Using plain `int i; i < num` gets the `clrlslwi` table offset but drops the
+`clrlwi` compare. Using `u16 i` keeps the compare but often produces the wrong
+byte-offset IV.
+
+**Citations.**
+- `Camera/lensflare` `TLensFlare::perform` (t333): changing the material-alpha
+  loop from cached `J3DMaterial* material` / `u16 i` to uncached
+  `getMaterialNodePointer(i)` calls with `int i; (u16)i < num` restored the
+  target `clrlslwi` table offset and `clrlwi` compare, moving `perform`
+  `62.1 -> 64.4`.
+- `Camera/lensglow` `TLensGlow::perform` (t333): the same loop-condition shape
+  in the TEV alpha loop restored the `clrlslwi` access pattern and moved
+  `perform` `80.6 -> 81.9`.
+
 ### Hoist a default assignment before an if-chain when target preloads the default and only recomputes non-default arms
 
 **Rule.** When one arm of a small branch assigns a constant/default value and

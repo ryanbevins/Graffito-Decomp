@@ -184,7 +184,7 @@ void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
 	if (param & 0x200) {
 		if (visible) {
 			int num = unk10->getMaterialNum();
-			for (u16 i = 0; i < num; i++) {
+			for (int i = 0; (u16)i < num; i++) {
 				J3DGXColorS10 c;
 				c.color =
 				    unk10->getMaterialNodePointer(i)->getTevColor(0)->color;
