@@ -1,9 +1,16 @@
 #include <Camera/LensFlare.hpp>
+#include <Camera/Camera.hpp>
+#include <Camera/CameraMarioData.hpp>
 #include <Camera/SunMgr.hpp>
+#include <Camera/SunModel.hpp>
 #include <Camera/cameralib.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
+#include <JSystem/J3D/J3DGraphBase/Components/J3DGXColorS10.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/JMath.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <stdio.h>
 
 extern const char* cSunVolumeName;
@@ -44,9 +51,133 @@ TLensFlare::TLensFlare(const char* name)
 
 void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 {
-	(void)flags;
 	(void)gfx;
-	// TODO: draw lens flare (complex, ~1500 bytes)
+
+	if ((gpSunMgr->unk15 & 2) != 0)
+		return;
+
+	u8 visible;
+	if (gpCameraMario->isMarioIndoor()) {
+		visible = 0;
+	} else {
+		TSunModel* sun = gpSunModel;
+		f32 limit     = unk40;
+		visible       = -limit <= sun->mFPos[0].x && sun->mFPos[0].x <= limit
+		          && -limit <= sun->mFPos[0].y && sun->mFPos[0].y <= limit;
+	}
+
+	if (flags & 1) {
+		TSunModel* sun = gpSunModel;
+		f32 limit      = unk44;
+		bool active    = -limit <= sun->mFPos[0].x
+		           && sun->mFPos[0].x <= limit
+		           && -limit <= sun->mFPos[0].y
+		           && sun->mFPos[0].y <= limit;
+
+		if (!active) {
+			unk28 = 0.0f;
+		} else {
+			int count = 0;
+			for (int i = 0; i < 17; ++i) {
+				if (sun->mZBufCoords[i].x != -1 && sun->mZBufCoords[i].y != -1
+				    && !sun->mZBufVisible[i]) {
+					++count;
+				}
+			}
+
+			f32 base = unk48 * (1.0f - (1.0f / 17.0f) * (f32)count);
+			unk28    = CLBEaseOutInbetween(base, 255.0f, sun->mUnk194);
+		}
+
+		f32 rate;
+		if (unk24 < unk28) {
+			if (sun->mUnk194 == 0.0f)
+				rate = unk30;
+			else
+				rate = unk2C;
+		} else {
+			if (sun->mUnk194 == 0.0f)
+				rate = unk38;
+			else
+				rate = unk34;
+		}
+		CLBChaseDecrease(&unk24, unk28, rate, 0.0f);
+	}
+
+	if (!visible)
+		return;
+
+	if (flags & 2) {
+		TSunModel* sun = gpSunModel;
+		JGeometry::TVec3<f32> nearPos[9];
+		S16Vec nearRot[9];
+
+		JGeometry::TVec3<f32> sunPos;
+		sunPos.set(sun->mPos198);
+
+		CPolarSubCamera* cam = gpCamera;
+		f32 nearClip        = cam->mNear;
+		f32 aspect          = cam->mAspect;
+		f32 fovy            = cam->mFovy;
+		s16 zAngle          = cam->getFinalAngleZ();
+
+		JGeometry::TVec3<f32> camPos;
+		camPos.set(*(Vec*)((u8*)cam + 0x148));
+		JGeometry::TVec3<f32> camAt;
+		camAt.set(cam->unk124);
+
+		s16 halfFov = CLBRoundf<s16>(182.04445f * (0.5f * fovy));
+		f32 tanHalf = JMASSin(halfFov) * (1.0f / JMASCos(halfFov));
+		JGeometry::TVec2<f32> size;
+		size.y = 2.0f * nearClip * tanHalf;
+		size.x = size.y * aspect;
+
+		CLBCalcNearNinePos(nearPos, nearRot, camAt, camPos, zAngle, nearClip,
+		                   size);
+
+		const JGeometry::TVec3<f32>& center = nearPos[4];
+		f32 sx = -sun->mFPos[0].x * unk3C;
+		f32 sy = -sun->mFPos[0].y * unk3C;
+		JGeometry::TVec3<f32> flarePos;
+		flarePos.x = center.x + (nearPos[5].x - center.x) * sx
+		           + (nearPos[1].x - center.x) * sy;
+		flarePos.y = center.y + (nearPos[5].y - center.y) * sx
+		           + (nearPos[1].y - center.y) * sy;
+		flarePos.z = center.z + (nearPos[5].z - center.z) * sx
+		           + (nearPos[1].z - center.z) * sy;
+
+		JGeometry::TVec3<f32> dir;
+		dir.x = flarePos.x - sunPos.x;
+		dir.y = flarePos.y - sunPos.y;
+		dir.z = flarePos.z - sunPos.z;
+
+		JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(dir);
+		s16 rotX = CLBRoundf<s16>(182.04445f * rot.x);
+		s16 rotY = CLBRoundf<s16>(182.04445f * rot.y);
+
+		Mtx mtx;
+		MsMtxSetTRS(mtx, sunPos.x, sunPos.y, sunPos.z,
+		            (f32)rotX * (360.0f / 65536.0f),
+		            (f32)rotY * (360.0f / 65536.0f), 0.0f, unk18, unk1C,
+		            unk20);
+		PSMTXCopy(mtx, unk14->unk20);
+		unk14->calc();
+	}
+
+	if (flags & 0x200) {
+		u16 num = unk10->getMaterialNum();
+		for (u16 i = 0; i < num; ++i) {
+			J3DMaterial* material = unk10->getMaterialNodePointer(i);
+			material->change();
+			J3DGXColorS10 color = *material->getTevColor(0);
+			color.color.a       = (s16)unk24;
+			material->getTevBlock()->setTevColor(0, &color);
+		}
+		unk14->entry();
+	}
+
+	if (flags & 4)
+		unk14->viewCalc();
 }
 
 template f32 CLBEaseOutInbetween<f32>(f32, f32, f32);
