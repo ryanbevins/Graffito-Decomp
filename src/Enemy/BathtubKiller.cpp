@@ -1,5 +1,6 @@
 #include <Enemy/BathtubKiller.hpp>
 #include <Strategic/ObjModel.hpp>
+#include <Strategic/Spine.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 
 // rogue includes needed for matching sinit & bss
@@ -203,7 +204,18 @@ f32 TBathtubKiller::getGravityY() const
 	return getSaveParam2()->mSLFlyingGravityY.value;
 }
 
-void TBathtubKiller::calcRootMatrix() { }
+void TBathtubKiller::calcRootMatrix()
+{
+	Mtx m;
+	((JGeometry::TRotation3<
+	    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >*)&m)
+	    ->setQuat(mQuat);
+	m[0][3] = mPosition.x;
+	m[1][3] = mPosition.y;
+	m[2][3] = mPosition.z;
+	getModel()->setBaseScale(mScaling);
+	PSMTXCopy(m, getModel()->getBaseTRMtx());
+}
 
 BOOL TBathtubKiller::receiveMessage(THitActor*, u32) { return false; }
 
@@ -211,7 +223,14 @@ void TBathtubKiller::attackToMario() { }
 
 bool TBathtubKiller::isCollidMove(THitActor*) { return false; }
 
-void TBathtubKiller::behaveToWater(THitActor*) { }
+void TBathtubKiller::behaveToWater(THitActor*)
+{
+	if (mSpine->getCurrentNerve()
+	        != &TNerveBathtubKillerExplosion::theNerve()
+	    && mSpine->getCurrentNerve()
+	           != &TNerveBathtubKillerBreak::theNerve())
+		mSpine->pushNerve(&TNerveBathtubKillerBreak::theNerve());
+}
 
 const char** TBathtubKiller::getBasNameTable() const
 {
