@@ -1,6 +1,7 @@
 #include <JSystem/JDrama/JDRCamera.hpp>
 #include <dolphin/mtx.h>
 #include <dolphin/gx.h>
+#include <math.h>
 
 using namespace JDrama;
 
@@ -18,7 +19,40 @@ void TPolarCamera::load(JSUMemoryInputStream& stream)
 	unk3C = stream.readF32();
 	unk38 = stream.readF32();
 }
-void TPolarCamera::perform(u32, TGraphics*) { }
+void TPolarCamera::perform(u32 param_1, TGraphics* param_2)
+{
+	if (!(param_1 & 0x14))
+		return;
+
+	MtxPtr projMtx = param_2->mProjMtx.mMtx;
+	C_MTXPerspective(projMtx, mFovy, mAspect, mNear, mFar);
+	param_2->mNearPlane = mNear;
+	param_2->mFarPlane  = mFar;
+
+	TRotation3f rotZ1;
+	rotZ1.setEularZ(DEG_TO_RAD(-unk40));
+
+	TPosition3f trans;
+	trans.translation(0.0f, 0.0f, -unk44);
+
+	TMtx34f mtx1;
+	mtx1.concat(rotZ1, trans);
+
+	TRotation3f rotY1;
+	rotY1.setEularY(DEG_TO_RAD(-unk3C));
+	TMtx34f mtx2;
+	mtx2.concat(rotY1, mtx1);
+
+	TRotation3f rotY2;
+	rotY2.setEularY(DEG_TO_RAD(unk38));
+	TMtx34f mtx3;
+	mtx3.concat(rotY2, mtx2);
+
+	PSMTXCopy(mtx3, param_2->mViewMtx.mMtx);
+
+	if (param_1 & 0x10)
+		GXSetProjection(projMtx, GX_PERSPECTIVE);
+}
 JStage::TECameraProjection TPolarCamera::JSGGetProjectionType() const
 {
 	return JStage::TECAMERAPROJECTION_Unk1;
