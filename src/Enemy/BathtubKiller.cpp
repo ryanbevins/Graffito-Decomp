@@ -373,7 +373,23 @@ void TBathtubKiller::makeNoseColor() { }
 
 f32 TBathtubKiller::getBathtubY() { return 0.0f; }
 
-void TBathtubKiller::makeInitialVelocity(JGeometry::TVec3<f32>) { }
+void TBathtubKiller::makeInitialVelocity(JGeometry::TVec3<f32> vel)
+{
+	f32 maxSpeed = getSaveParam2()->mSLFlyingSpeedMax.value;
+	if (vel.length() > maxSpeed) {
+		vel.normalize();
+		vel.scale(maxSpeed);
+	}
+	mVelocity.set(vel);
+
+	vel.normalize();
+
+	JGeometry::TVec3<f32> forward;
+	mQuat.getZDir(forward);
+	JGeometry::TQuat4<f32> rot;
+	rot.setRotate(forward, vel);
+	mQuat.mul(rot);
+}
 
 void TBathtubKiller::moveParabolic() { }
 
