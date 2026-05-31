@@ -29,8 +29,8 @@ public:
 	}
 
 public:
-	f32 mMin;
-	f32 mMax;
+	volatile f32 mMin;
+	volatile f32 mMax;
 };
 
 class TWalkerEnemyParams : public TSmallEnemyParams {

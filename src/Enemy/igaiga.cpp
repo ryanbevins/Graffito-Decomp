@@ -386,14 +386,13 @@ void TRollEnemy::reset()
 	unk194 = randAngle.get();
 	unk158 = 1.0f;
 
-	TGraphWeb* graph = unk124->getGraph();
 	JGeometry::TVec3<f32> point;
-	graph->getFirstGraphNode().getPoint((Vec*)&point);
+	unk124->getGraph()->getFirstGraphNode().getPoint((Vec*)&point);
 	mPosition = point;
 	mPosition.y += 10.0f;
 
 	JGeometry::TVec3<f32> next;
-	graph->getGraphNode(1).getPoint((Vec*)&next);
+	unk124->getGraph()->getGraphNode(1).getPoint((Vec*)&next);
 	JGeometry::TVec3<f32> dir = next;
 	dir.sub(mPosition);
 	mRotation.y = MsAngleWrap(MsGetRotFromZaxisY(dir));
