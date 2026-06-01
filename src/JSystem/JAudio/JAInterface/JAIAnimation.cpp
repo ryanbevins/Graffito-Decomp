@@ -49,20 +49,22 @@ void JAIAnimeSound::initActorAnimSound(void* data, u32 param, f32 value)
 		}
 	}
 
-	for (u8 i = 0; i < 8; ++i) {
-		Slot& slot = mSlots[i];
-		JAISound* sound = slot.mSound;
+	Slot* slot;
+	u8    i;
+	for (i = 0; i < 8; ++i) {
+		slot = &mSlots[i];
+		JAISound* sound = slot->mSound;
 		JAIAnimeFrameSoundData* soundData
-		    = (JAIAnimeFrameSoundData*)slot.mData;
+		    = (JAIAnimeFrameSoundData*)slot->mData;
 		if (sound != nullptr && (soundData->unk10 & 4)) {
 			sound->stop(1);
-			slot.mIsPlaying = false;
+			slot->mIsPlaying = false;
 		}
 
 		if (sound == nullptr) {
-			slot.mIsPlaying = false;
+			slot->mIsPlaying = false;
 		} else if ((sound->unk8 & 0xC00) == 0) {
-			slot.mIsPlaying = false;
+			slot->mIsPlaying = false;
 		}
 	}
 }
