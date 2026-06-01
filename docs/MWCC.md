@@ -5355,6 +5355,38 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Returning `bool` from a `BOOL` local through a ternary can force a full-width `cmpwi` rematerialization
+
+**Hypothesis.** In a `bool`-returning function, a `bool result` local followed by
+`return result ? true : false;` makes MWCC test the local as an 8-bit bool
+(`clrlwi.`). If target instead tests the local with full-width `cmpwi`, use a
+full-width `BOOL result` local while keeping the explicit bool ternary return:
+
+```cpp
+BOOL result = TRUE;
+...
+return result ? true : false;
+```
+
+Directly returning the `BOOL` local is a different shape: MWCC can lower the
+conversion through `neg/subfe` instead of the branchy `cmpwi; beq; li; b; li`
+materialization. Assigning `result = result ? TRUE : FALSE; return result;` can
+also choose the `neg` path. The ternary must remain at the return expression.
+
+**Citation (1 TU).** `mario/Camera/CameraBck`
+`TCameraBck::updateDemo` (t335): after vector-copy and offset-cache fixes, a
+`bool result` plus ternary return left the final test as `clrlwi.` and the
+function at `97.4%`. Changing only the local to `BOOL result`/`TRUE`/`FALSE`
+kept the ternary return, restored the target `cmpwi r31, 0` final test, and
+moved the function to `97.9%`. Direct `return result;` and assignment
+normalization probes both regressed to `neg/subfe`.
+
+**Experiment to confirm/refute.** Search for bool-returning near-matches where
+the target has a full-width `cmpwi` on a 0/1 local before final return while
+ours has `clrlwi.` or `neg/subfe`. Flip only the local type to `BOOL` and keep
+the return expression as `return result ? true : false;`. A second independent
+hit can promote this as a narrow return-materialization rule.
+
 ### A typed `this` local before a virtual call can make MWCC load the vtable before setting `r3`
 
 **Hypothesis.** For a virtual call on `this`, spelling the call through an
