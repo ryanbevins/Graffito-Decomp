@@ -106,7 +106,8 @@ void JAIBasic::checkEntriedSeq()
 
 					(*soundSlot)->getSeqParameter()->unk1754 = heapNo;
 					buffer = (u8*)unk0->getFreeAutoHeapPointer(
-					    heapNo, (*soundSlot)->unk8 & 0x3FF);
+					    (*soundSlot)->getSeqParameter()->unk1754,
+					    (*soundSlot)->unk8 & 0x3FF);
 				}
 			}
 
