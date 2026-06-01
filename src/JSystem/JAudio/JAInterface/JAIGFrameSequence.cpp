@@ -33,7 +33,107 @@ void JAIBasic::stopSeq(JAISound* param_1)
 	unk0->unk180[param_1->unk0].unk48 = nullptr;
 }
 
-void JAIBasic::checkEntriedSeq() { }
+void JAIBasic::checkEntriedSeq()
+{
+	for (u32 i = 0; i < JAIGlobalParameter::seqPlayTrackMax; ++i) {
+		JAISeqUpdateData* seqData = &unk0->unk180[i];
+		JAISound* sound           = seqData->unk48;
+		if (sound == nullptr)
+			continue;
+
+		if ((seqData->unk8 & 1) == 0)
+			continue;
+
+		if (seqData->unk3 != 0)
+			return;
+
+		u32 seqNo = sound->unk8 & 0x3FF;
+		u32 size  = JASystem::Vload::checkSize(unk2C + seqNo);
+
+		u8 heapNo;
+		u8* buffer = (u8*)unk0->checkOnMemory(seqNo, &heapNo);
+		if (buffer == nullptr) {
+			if (sound->checkSwBit(0x10)) {
+				buffer = (u8*)unk0->getFreeStayHeapPointer(size, seqNo);
+				heapNo = 0xFF;
+				sound->getSeqParameter()->unk1754 = heapNo;
+				if (buffer == nullptr)
+					(void)sound->checkSwBit(0x20);
+			}
+
+			if (buffer == nullptr) {
+				if (sound->checkSwBit(0x20) || !sound->checkSwBit(0x10)) {
+					heapNo = unk0->checkUsefulAutoHeapPosition();
+
+					if (heapNo >= JAIGlobalParameter::autoHeapMax) {
+						for (u32 autoIdx = 0;
+						     autoIdx < JAIGlobalParameter::autoHeapMax;
+						     ++autoIdx) {
+							if (unk0->unk1EC[autoIdx].unk10 == (u32)-1)
+								continue;
+
+							u32 track;
+							for (track = 0;
+							     track < JAIGlobalParameter::seqPlayTrackMax;
+							     ++track) {
+								JAISound* playing
+								    = unk0->unk180[track].unk48;
+								if (playing != nullptr
+								    && (playing->unk8 & 0xFF)
+								        == unk0->unk1EC[autoIdx].unk8)
+									break;
+							}
+
+							if (track == JAIGlobalParameter::seqPlayTrackMax) {
+								unk0->releaseAutoHeapPointer(autoIdx);
+								heapNo = autoIdx;
+							}
+						}
+
+						if (heapNo >= JAIGlobalParameter::autoHeapMax) {
+							sound->stop(0);
+							return;
+						}
+					} else if (size >= JAIGlobalParameter::autoHeapRoomSize) {
+						sound->stop(0);
+						return;
+					}
+
+					sound->getSeqParameter()->unk1754 = heapNo;
+					buffer = (u8*)unk0->getFreeAutoHeapPointer(heapNo, seqNo);
+				}
+			}
+
+			if (!sound->checkSwBit(0x40)) {
+				sound->unk1 = 1;
+				unk0->setAutoHeapLoadedFlag(heapNo, 1);
+				u32 loadId = i | (seqNo << 16) | (heapNo << 8) | 1;
+				JASystem::Vload::loadFileAsync(
+				    unk2C + seqNo, buffer, 0, size, &checkDvdLoadArc, loadId);
+				seqData->unk3 = 1;
+			} else {
+				JASystem::Vload::loadFile(unk2C + seqNo, buffer, 0, size);
+				sound->unk1 = 2;
+			}
+		} else {
+			if (buffer == (u8*)-1)
+				return;
+
+			if (heapNo != 0xFF)
+				unk0->getFreeAutoHeapPointer(heapNo, seqNo);
+
+			sound->getSeqParameter()->unk1754 = heapNo;
+			sound->unk1                      = 2;
+		}
+
+		if (buffer != nullptr) {
+			seqData->unk40 = buffer;
+			seqData->unk8 ^= 1;
+		} else {
+			stopSeq(sound);
+		}
+	}
+}
 
 #pragma dont_inline on
 void JAIBasic::checkPlayingSeqTrack(unsigned long trackID) { }
