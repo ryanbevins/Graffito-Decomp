@@ -322,23 +322,20 @@ DEFINE_NERVE(TNerveNPCTalk, TLiveActor)
 	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
 
 	bool canTalk = true;
-	bool inMode12 = true;
-	if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
-		inMode12 = false;
-	if (!inMode12 && gpMarDirector->unk124 != 4)
+	TMarDirector* director = gpMarDirector;
+	bool inMode12 = director->isTalkModeNow();
+	if (!inMode12 && director->unk124 != 4)
 		canTalk = false;
 
 	if (canTalk) {
 		if (spine->getTime() == 0)
 			npc->npcTalkIn();
 		npc->npcTalking();
-		return FALSE;
+	} else {
+		if (npc->mActorType == 0x0400001C)
+			return TRUE;
+		npc->npcTalkOut();
 	}
-
-	if (npc->mActorType == 0x0400001C)
-		return TRUE;
-
-	npc->npcTalkOut();
 	return FALSE;
 }
 
