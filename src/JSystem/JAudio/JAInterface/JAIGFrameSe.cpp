@@ -73,7 +73,7 @@ void JAIBasic::checkNextFrameSe()
 
 	JAISound sound;
 
-	u8 local_180[12][4];
+	u8 local_180[16][4];
 	struct FabricatedThing {
 		u32 unk0;
 		JAISound* unk4;
@@ -88,7 +88,8 @@ void JAIBasic::checkNextFrameSe()
 		fVar1 = 1.0f;
 
 	for (int i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); ++i) {
-		for (int j = 0; j < unk0->unk4[unk10][i]; ++j) {
+		u8 categoryLimit = getSeCategoryLimit(unk0, unk10, i);
+		for (int j = 0; j < categoryLimit; ++j) {
 			local_17C[j].unk0 = 0x7fffffff;
 			local_17C[j].unk4 = nullptr;
 			local_180[j][0]   = 0xff;
@@ -107,7 +108,7 @@ void JAIBasic::checkNextFrameSe()
 			}
 
 			if (it->unk2 == 0) {
-				sound.unk30 = it->unk2C;
+				sound.unk30 = it->unk30;
 				releaseSeRegist(it);
 				it = &sound;
 			} else if (it->unk1 != 0) {
@@ -134,9 +135,10 @@ void JAIBasic::checkNextFrameSe()
 					pi->unk18 = pi->unk0.x * pi->unk0.x
 					            + pi->unk0.y * pi->unk0.y
 					            + pi->unk0.z * pi->unk0.z;
-					u32 prio = it->getInfoPriority();
-					if (it->unk6) {
-						prio += it->unk6;
+					s32 prio   = it->getInfoPriority();
+					s16 offset = (s16)it->unk6;
+					if (offset) {
+						prio += offset;
 						if (prio < 0)
 							prio = 0;
 						else if (prio > 0xff)
@@ -165,7 +167,7 @@ void JAIBasic::checkNextFrameSe()
 							JAISystemInterface::writePortApp(
 							    unk38->getSeqParameter()->unk0,
 							    (it->unk0 >> 4) + 0x20000000
-							        + ((it->unk0 & 0xf) << 16),
+							        + ((it->unk0 & 0xf) << 4),
 							    0);
 							unk38->setTrackInterruptSwitch(it->unk0, 1);
 						}
@@ -177,22 +179,21 @@ void JAIBasic::checkNextFrameSe()
 					}
 				} else {
 					u32 uVar14 = it->getSeCategoryNumber();
-					u8 bVar18  = unk0->unk4[unk10][uVar14];
+					u8 bVar18  = getSeCategoryLimit(unk0, unk10, uVar14);
 					for (u8 j = 0; j < bVar18; ++j) {
-						if (it->unkC < local_17C[uVar14].unk0
-						    || (it->unkC == local_17C[uVar14].unk0
-						        && it->unk1 <= local_180[uVar14][0])) {
+						if (it->unkC < local_17C[j].unk0
+						    || (it->unkC == local_17C[j].unk0
+						        && it->unk1 <= local_180[j][0])) {
 							if (bVar19 < bVar18)
 								++bVar19;
-							for (u8 k = bVar18; k > j; --k) {
-								// TODO:
-								local_17C[k].unk0    = 0;
-								local_17C[k].unk4    = 0;
-								local_180[uVar14][0] = 0;
+							for (u8 k = bVar18 - 1; k > j; --k) {
+								local_17C[k].unk0  = local_17C[k - 1].unk0;
+								local_17C[k].unk4  = local_17C[k - 1].unk4;
+								local_180[k][0]    = local_180[k - 1][0];
 							}
-							local_17C[uVar14].unk0 = it->unkC;
-							local_17C[uVar14].unk4 = it;
-							local_180[uVar14][0]   = it->unk1;
+							local_17C[j].unk0 = it->unkC;
+							local_17C[j].unk4 = it;
+							local_180[j][0]   = it->unk1;
 
 							j = bVar18;
 						}
@@ -203,7 +204,15 @@ void JAIBasic::checkNextFrameSe()
 				it = it->unk30;
 		}
 
-		u8 bVar192 = unk0->unk4[unk10][i];
+		for (u8 j = 0; j < bVar19; ++j) {
+			JAISound* snd = local_17C[j].unk4;
+			if (snd->unk1 == 1)
+				snd->unk1 = 2;
+			else if (snd->unk1 == 4)
+				snd->unk1 = 3;
+		}
+
+		u8 bVar192 = categoryLimit;
 		for (u8 j = 0; j < bVar192; ++j) {
 			JAISound** cur = &unk0->unk8[i][j].unk8;
 			bool bVar7     = false;
@@ -230,10 +239,10 @@ void JAIBasic::checkNextFrameSe()
 			}
 
 			if (bVar7) {
-				u8 k;
-				for (k = 0; k < bVar192; ++k) {
+				bool assigned = false;
+				for (u8 k = 0; k < bVar192; ++k) {
 					JAISound* snd = local_17C[k].unk4;
-					if (snd != nullptr && it->unk1 != 3) {
+					if (snd != nullptr && snd->unk1 != 3) {
 						for (u8 l = 0; l < bVar192; ++l) {
 							if (unk0->unk8[i][l].unk8
 							    && snd == unk0->unk8[i][l].unk8) {
@@ -243,13 +252,14 @@ void JAIBasic::checkNextFrameSe()
 						}
 
 						if (bVar7) {
-							k                     = bVar192 + 1;
-							unk0->unk8[i][k].unk8 = snd;
-							local_17C[k].unk4     = nullptr;
+							*cur              = snd;
+							local_17C[k].unk4 = nullptr;
+							assigned          = true;
+							break;
 						}
 					}
 				}
-				if (k == bVar192) {
+				if (!assigned) {
 					unk0->unk8[i][j].unk8 = nullptr;
 				}
 			}
@@ -394,8 +404,6 @@ void JAIBasic::setSeqMuteFromSeStart(JAISound* param_1)
 		}
 	}
 }
-
-void JAIBasic::clearSeqMuteFromSeStop(JAISound* sound) { }
 
 void JAIBasic::checkSeMovePara()
 {
