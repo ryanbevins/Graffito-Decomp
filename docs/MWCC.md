@@ -619,6 +619,12 @@ by-value param return). This costs ~7 instructions per use vs target's
 direct assign. Acceptable for big match gains; document the leftover.
 
 **Citations.**
+- `GC2D/SelectShine2::TSelectShine::move` (t343): replacing
+  `world = mPos; world.add(unk18);` with `world = mPos + unk18` restored the
+  target `bl add__Q29JGeometry8TVec3<f>FRCQ29JGeometry8TVec3<f>` call boundary
+  and moved the function `83.3% -> 87.8%`. Remaining residue is the already
+  documented `0.0f * expr` folding in the spline block, stack shape, and an
+  extra emitted weak `TVec3<f32>::add` body.
 - `Player/MarioParticle::TWarpInCallBack::execute` (t323): clean
   `tmp.scale(k)` source inlined all three scales and scored 0.0%. Rewriting
   the three vector multiplies as friend `operator*(TVec3, f32)` expressions,
@@ -6737,10 +6743,10 @@ test to confirm.
 Alternatively: try a non-literal zero, e.g. `(amp - amp)` or a `volatile
 const f32 z = 0;` — does that preserve the `fmadds 0, X, acc`?
 
-**Cost:** `move__12TSelectShineFv` capped at 83% partly due to this
-(plus the bigger out-of-line `bl add__TVec3` issue). Many of the
-mismatched instructions in the spline cascade through to register
-coloring downstream.
+**Cost:** `move__12TSelectShineFv` is now `87.8%` after t343 restored the
+out-of-line `bl add__TVec3` call boundary with `world = mPos + unk18`. It is
+still capped partly by this zero-folding residue, with many mismatched
+instructions in the spline cascading through to register coloring downstream.
 
 ### `addi rN, rM, OFFSET` field-address caching across calls
 
