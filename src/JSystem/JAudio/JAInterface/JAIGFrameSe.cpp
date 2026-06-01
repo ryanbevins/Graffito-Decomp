@@ -47,6 +47,26 @@ static inline void updateSeqPortF32(JAIBasic* basic, JAISound* sound,
 	}
 }
 
+static inline f32 calcSeDistance(f32 value)
+{
+	if (value > 0.0f) {
+		double root = __frsqrte(value);
+		root        = 0.5 * root * (3.0 - value * (root * root));
+		root        = 0.5 * root * (3.0 - value * (root * root));
+		root        = 0.5 * root * (3.0 - value * (root * root));
+		return value * root;
+	}
+	return value;
+}
+
+static inline void setSeStateAfterCommand(JAISound* sound)
+{
+	if (sound->unk8 & 0xC00)
+		sound->unk1 = 4;
+	else
+		sound->unk1 = 5;
+}
+
 void JAIBasic::checkNextFrameSe()
 {
 	// TODO: gl matching this awfulness
@@ -237,7 +257,130 @@ void JAIBasic::checkNextFrameSe()
 	}
 }
 
-void JAIBasic::sendPlayingSeCommand() { }
+void JAIBasic::sendPlayingSeCommand()
+{
+	u8 globalIndex = 0;
+	for (u8 category = 0; category < JAIGlobalParameter::getParamSeCategoryMax();
+	     ++category) {
+		for (u8 i = 0; i < getSeCategoryLimit(unk0, unk10, category);
+		     ++i, ++globalIndex) {
+			JAISound* sound = *getSeRegistSlot(unk0, category, i);
+			if (sound == nullptr)
+				continue;
+
+			++sound->unk14;
+
+			u32 portBase = 0x20000000 + (globalIndex >> 4)
+			               + ((globalIndex & 0xf) << 4);
+			u32 seq = unk38->getSeqParameter()->unk0;
+			u16 portStart;
+			u16 portStatus;
+			JAISystemInterface::readPortApp(seq, portBase + 0x20000,
+			                                &portStart);
+			JAISystemInterface::readPortApp(seq, portBase, &portStatus);
+
+			for (u8 camera = 0; camera < JAIGlobalParameter::audioCameraMax;
+			     ++camera) {
+				JAISound::FabricatedPositionInfo* pos
+				    = &sound->unk1C[camera];
+				pos->unk18 = calcSeDistance(pos->unk18);
+			}
+
+			if (sound->unk1 == 2) {
+				u32 swBit = sound->getSwBit();
+				sound->unk0 = globalIndex;
+				if (swBit & 8)
+					setSeqMuteFromSeStart(sound);
+
+				u32 randomMode = swBit & 0xC0;
+				if (randomMode != 0) {
+					u32 random
+					    = (u32)(JAIConst::random.get_ufloat_1() * 255.0f);
+					switch (randomMode) {
+					case 0x40:
+						sound->unk3 = random & 0xf;
+						break;
+					case 0x80:
+						sound->unk3 = random & 0x1f;
+						break;
+					case 0xC0:
+						sound->unk3 = random & 0x3f;
+						break;
+					default:
+						sound->unk3 = 0;
+						break;
+					}
+				}
+
+				JAISeParameter* param = sound->getSeParameter();
+				u16* portBits         = &param->unk20;
+				for (u8 port = 0; *portBits != 0; ++port) {
+					u16 bit = 1 << port;
+					if (*portBits & bit) {
+						unk38->setTrackPortData(sound->unk0, port,
+						                         param->unk0[port]);
+						*portBits ^= bit;
+					}
+				}
+
+				sound->setSeDistanceParameters();
+				setSeExtParameter(sound);
+
+				if (sound->unk10 > 1) {
+					sound->setSeInterVolume(6, 0.0f, 0, 0);
+					sound->setSeInterVolume(6, 127.0f, sound->unk10, 0);
+					sound->unk10 = 0;
+				}
+
+				sendSeAllParameter(sound);
+
+				u32 wait = sound->unk8 & 0x3ff;
+				if (sound->checkSwBit(0x800))
+					wait += getMapInfoGround(sound->unk18);
+
+				u16 distanceWait = 0;
+				if (JAIGlobalParameter::audioCameraMax == 1
+				    && sound->checkSwBit(0x1000)) {
+					f32 distance = sound->unk1C[0].unk18;
+					if (distance < JAIGlobalParameter::distanceMax) {
+						distanceWait
+						    = (JAIGlobalParameter::seDistanceWaitMax
+						       * (u32)distance)
+						      / (u32)JAIGlobalParameter::distanceMax;
+					} else {
+						distanceWait
+						    = JAIGlobalParameter::seDistanceWaitMax;
+					}
+				}
+
+				JAISystemInterface::writePortApp(seq, portBase + 0x30000,
+				                                 distanceWait);
+				JAISystemInterface::writePortApp(
+				    seq, portBase + 0x60000, getMapInfoFxline(sound->unk18));
+				JAISystemInterface::writePortApp(seq, portBase + 0x40000,
+				                                 wait);
+				JAISystemInterface::writePortApp(seq, portBase, 1);
+				setSeStateAfterCommand(sound);
+			} else {
+				if (portStart == 0 && portStatus != 1) {
+					releaseSeRegist(sound);
+				} else if (sound->unk10 != 0) {
+					if (seParamF32(sound->getSeParameter(), 0x188) != 0.0f) {
+						sound->setSeDistanceParameters();
+						sendSeAllParameter(sound);
+						setSeStateAfterCommand(sound);
+					} else {
+						releaseSeRegist(sound);
+					}
+				} else if (sound->unk1 == 3) {
+					sound->setSeDistanceParameters();
+					sendSeAllParameter(sound);
+					setSeStateAfterCommand(sound);
+				}
+			}
+		}
+	}
+}
 
 void JAIBasic::setSeqMuteFromSeStart(JAISound* param_1)
 {
