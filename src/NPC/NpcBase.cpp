@@ -763,15 +763,15 @@ bool TBaseNPC::isSmallNpc() const
 	return result;
 }
 
-BOOL TBaseNPC::isInBodyTurnSearchRange() const
+bool TBaseNPC::isInBodyTurnSearchRange() const
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if (__fabsf(gpMarioPos->y - mPosition.y)
 	    < mNpcSaveIndividual->mBodyTurnSearchHeight.value) {
 		if (isInSight(*gpMarioPos, mNpcSaveIndividual->mBodyTurnSearchDist.value,
 		              mNpcSaveIndividual->mBodyTurnSearchDegree.value,
 		              mNpcSaveIndividual->mBodyTurnSearchAware.value)) {
-			result = TRUE;
+			result = true;
 		}
 	}
 	return result;

@@ -145,19 +145,19 @@ bool TBaseNPC::execUTurn()
 	return result;
 }
 
-BOOL TBaseNPC::execTurnToFirstState()
+bool TBaseNPC::execTurnToFirstState()
 {
 	if (mRotation.y == mResetRotY)
-		return TRUE;
+		return true;
 
-	BOOL result = FALSE;
+	bool result = false;
 	s16 cur = CLBRoundf<s16>(mRotation.y * (65536.0f / 360.0f));
 	s16 tgt = CLBRoundf<s16>(mResetRotY * (65536.0f / 360.0f));
 	s16 spd = CLBRoundf<s16>(mNpcSaveIndividual->mFirstStateTurnSpeed.get()
 	                         * (65536.0f / 360.0f));
 
 	if (!CLBChaseGeneralConstantSpecifySpeed<s16>(&cur, tgt, spd)) {
-		result      = TRUE;
+		result      = true;
 		mRotation.y = mResetRotY;
 	} else {
 		mRotation.y = (f32)cur * (360.0f / 65536.0f);
@@ -165,12 +165,12 @@ BOOL TBaseNPC::execTurnToFirstState()
 	return result;
 }
 
-BOOL TBaseNPC::isNeedTurnToFirstState() const
+bool TBaseNPC::isNeedTurnToFirstState() const
 {
 	if (unk178 != 0.0f || (mActionFlag & 0x200) != 0)
-		return FALSE;
+		return false;
 
-	BOOL result = FALSE;
+	bool result = false;
 	s32 t       = mActorType;
 
 	switch (t) {
@@ -187,7 +187,7 @@ BOOL TBaseNPC::isNeedTurnToFirstState() const
 			goto end;
 
 		if (mActorType == 0x4000006 || (mActionFlag & 0xC01) == 0)
-			result = TRUE;
+			result = true;
 	}
 end:
 	return result;
@@ -215,22 +215,22 @@ BOOL TBaseNPC::isTurnToMarioWhenTalk() const
 	return allowed;
 }
 
-BOOL TBaseNPC::isTurnToMarioWhenApproach() const
+bool TBaseNPC::isTurnToMarioWhenApproach() const
 {
 	if (unk178 != 0.0f || (mActionFlag & 0x200) != 0)
-		return FALSE;
+		return false;
 
 	s32 t       = mActorType;
-	BOOL result = TRUE;
+	bool result = true;
 	switch (t) {
 	case 0x4000016:
 	case 0x4000017:
 	case 0x4000018:
 		if ((mActionFlag & 0x7E7F) != 0)
-			result = FALSE;
+			result = false;
 		break;
 	default:
-		result = FALSE;
+		result = false;
 		break;
 	}
 	return result;

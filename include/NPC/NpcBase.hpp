@@ -93,7 +93,7 @@ public:
 	Vec getFocalPoint() const;
 	Vec getCursorPos() const;
 	bool isInMadSearchRange() const;
-	BOOL isInBodyTurnSearchRange() const;
+	bool isInBodyTurnSearchRange() const;
 	bool isNeedNeckStraight() const;
 	BOOL isPartsAnmNpc() const;
 	void isBehaveToHitNpc() const;
@@ -162,10 +162,10 @@ public:
 	void setKinoActionFlag_();
 	void setMareActionFlag_();
 	void setMonteActionFlag_();
-	BOOL isTurnToMarioWhenApproach() const;
+	bool isTurnToMarioWhenApproach() const;
 	BOOL isTurnToMarioWhenTalk() const;
-	BOOL isNeedTurnToFirstState() const;
-	BOOL execTurnToFirstState();
+	bool isNeedTurnToFirstState() const;
+	bool execTurnToFirstState();
 	bool execUTurn();
 	void execWalk(bool);
 	void isCanWalk() const;

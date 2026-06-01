@@ -179,15 +179,16 @@ static inline void execCommonWaitApproach(TBaseNPC* npc,
                                           TSpineBase<TLiveActor>* spine,
                                           bool nearMario)
 {
-	if (isSinkOnlyNpc(npc))
+	u32 actorType = npc->mActorType;
+	if (actorType == 0x0400001C || actorType == 0x0400001D)
 		return;
-	if (isDownNpcBlocked(npc))
+	if (actorType - 0x04000000 == 0x18 && (npc->unk1D8 & 0x2))
 		return;
 	if (isSunflowerBlocked(npc)) {
 		npc->sunflowerReviving();
 		return;
 	}
-	if (npc->mActorType == 0x04000006) {
+	if (actorType == 0x04000006) {
 		if (nearMario)
 			npc->monteMESetAnmWhenNear();
 		else
