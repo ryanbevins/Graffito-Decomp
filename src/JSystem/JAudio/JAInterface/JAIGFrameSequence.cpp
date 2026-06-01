@@ -113,7 +113,7 @@ void JAIBasic::checkEntriedSeq()
 			if (!(*soundSlot)->checkSwBit(0x40)) {
 				(*soundSlot)->unk1 = 1;
 				u32 seqNo = (*soundSlot)->unk8 & 0x3FF;
-				u32 loadId = i | (seqNo << 16) | (heapNo << 8) | 1;
+				u32 loadId = i | (seqNo << 16) | (heapNo << 8);
 				unk0->setAutoHeapLoadedFlag(heapNo, 1);
 				JASystem::Vload::loadFileAsync(
 				    unk2C + seqNo, buffer, 0, size, &checkDvdLoadArc, loadId);
