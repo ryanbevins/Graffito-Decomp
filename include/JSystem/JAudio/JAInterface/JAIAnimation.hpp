@@ -7,13 +7,17 @@
 class JAIActor;
 
 struct JAIAnimeFrameSoundData {
-	/* 0x0 */ char unk0[0xC];
-	/* 0xC */ f32 unkC;
-	/* 0x10 */ char unk10[0x4];
+	/* 0x00 */ u32 mSoundID;
+	/* 0x04 */ f32 unk4;
+	/* 0x08 */ f32 unk8;
+	/* 0x0C */ f32 unkC;
+	/* 0x10 */ u32 unk10;
 	/* 0x14 */ u8 unk14;
 	/* 0x15 */ s8 unk15;
-	/* 0x16 */ char unk16[0x2];
+	/* 0x16 */ u8 unk16;
+	/* 0x17 */ u8 unk17;
 	/* 0x18 */ s8 unk18;
+	/* 0x19 */ u8 unk19[7];
 };
 
 class JAIAnimeSound {
@@ -37,7 +41,7 @@ public:
 	/* 0x88 */ f32 mCurrentTime;
 	/* 0x8C */ u8 unk8C[0x4];
 	// TODO: not JUST u16...
-	/* 0x90 */ u16* mData;
+	/* 0x90 */ u8* mData;
 	/* 0x94 */ // vtable
 
 public:
@@ -57,7 +61,6 @@ public:
 	void playActorAnimSound(JAIBasic* basic, JAIActor* actor, f32 param,
 	                        u8 flag);
 	void initActorAnimSound(void* data, u32 param, f32 value);
-	void initActorAnimSound(void* data, JAIActor actor, u32 param, f32 value);
 	void stop();
 };
 
