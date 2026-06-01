@@ -150,28 +150,33 @@ void JAIBasic::checkEntriedSeq()
 void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 {
 	JAISeqUpdateData* seqData = &unk0->unk180[trackID];
-	JAISound* sound           = seqData->unk48;
+	JAISound** soundSlot      = &seqData->unk48;
+	JAISound* sound           = *soundSlot;
 	JAISeqParameter* seqParam = sound->getSeqParameter();
 
 	if (seqParam->unk1755 == 2)
 		return;
 
-	for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax + 1; ++i)
-		seqData->unk44[i] = 0;
+	u32* flags = &seqData->unk8;
+	seqParam  = (*soundSlot)->getSeqParameter();
+	u32* markFlags = seqData->unk44;
 
-	if (seqData->unk8 & 0x2) {
-		if (sound->unk10 == 0 || sound->unk1 < 4) {
-			if (sound->unk1 >= 3)
+	for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax + 1; ++i)
+		markFlags[i] = 0;
+
+	if (*flags & 0x2) {
+		if ((*soundSlot)->unk10 == 0 || (*soundSlot)->unk1 < 4) {
+			if ((*soundSlot)->unk1 >= 3)
 				JAISystemInterface::stopSeq(seqParam->unk0);
-			sound->clearMainSoundPPointer();
-			stopSeq(sound);
-			seqData->unk8 = 0;
+			(*soundSlot)->clearMainSoundPPointer();
+			stopSeq(*soundSlot);
+			*flags = 0;
 			return;
 		}
 
-		sound->setSeqInterVolume(6, 0.0f, sound->unk10);
-		sound->unk1 = 5;
-		seqData->unk8 ^= 0x2;
+		(*soundSlot)->setSeqInterVolume(6, 0.0f, (*soundSlot)->unk10);
+		(*soundSlot)->unk1 = 5;
+		*flags ^= 0x2;
 	}
 
 	if (sound != nullptr && sound->unk20 != nullptr) {
