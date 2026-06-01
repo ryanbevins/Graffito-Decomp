@@ -24,6 +24,7 @@ SDLModelData* SMS_MakeSDLModelData(const char* param_1, u32 param_2)
 	return sdlData;
 }
 
+#pragma dont_inline on
 MActor** SMS_MakeMActorsWithAnmData(const char* param_1, MActorAnmData* param_2,
                                     int param_3, u32 param_4, u32 param_5)
 {
@@ -35,23 +36,25 @@ MActor** SMS_MakeMActorsWithAnmData(const char* param_1, MActorAnmData* param_2,
 
 	return actors;
 }
+#pragma dont_inline off
 
 MActor* SMS_MakeMActorWithAnmData(const char* param_1, MActorAnmData* param_2,
                                   u32 param_3, u32 param_4)
 {
-	return *SMS_MakeMActorsWithAnmData(param_1, param_2, 1, param_3, param_4);
-}
+	SDLModelData* sdlData = SMS_MakeSDLModelData(param_1, param_4);
+	MActor** actors       = new MActor*[1];
+	actors[0] = SMS_MakeMActorFromSDLModelData(sdlData, param_2, param_3);
 
-MActor** SMS_MakeMActors(const char* param_1, const char* param_2, int param_3,
-                         u32 param_4, u32 param_5)
-{
-	MActorAnmData* anm = new MActorAnmData;
-	anm->init(param_1, nullptr);
-	return SMS_MakeMActorsWithAnmData(param_2, anm, param_3, param_4, param_5);
+	return actors[0];
 }
 
 MActor* SMS_MakeMActor(const char* param_1, const char* param_2, u32 param_3,
                        u32 param_4)
 {
-	return *SMS_MakeMActors(param_1, param_2, 1, param_3, param_4);
+	MActorAnmData* anm = new MActorAnmData;
+	anm->init(param_1, nullptr);
+	MActor** actors = SMS_MakeMActorsWithAnmData(param_2, anm, 1, param_3,
+	                                             param_4);
+
+	return actors[0];
 }
