@@ -5355,6 +5355,31 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Explicit template specializations can preserve same-TU template-member `bl` calls where generic template definitions inline despite `dont_inline`
+
+**Hypothesis.** For a class template member used by non-template functions in
+the same TU, a generic template definition plus explicit class instantiations
+may still be inlined into the callers under `-inline deferred`, even if the
+generic template definitions are below the callers and wrapped in
+`#pragma dont_inline`. If the target keeps `bl` calls to the emitted template
+member specializations, forward-declare the explicit specializations before the
+callers, define the explicit specializations after the callers, and wrap those
+specialization definitions in `#pragma dont_inline on/off`.
+
+**Citation (1 TU).** `mario/Player/MarioRecord` (t338):
+`TMarioInputReplay::{reset,play,init}` needed calls to
+`TRecordValueManager<T>::reset/get`. Source order alone and `dont_inline`
+around generic template bodies did not stop same-TU inlining. Explicit
+specialization declarations plus `dont_inline` specialization definitions made
+`reset` and `play` exact and moved the unit `52.58% -> 99.973%`; `init` kept
+only a +8 target frame-size residue.
+
+**Experiment to confirm/refute.** Find a second TU where a generic template
+member body is emitted exactly but same-TU callers inline it despite target
+`bl`s. Convert only that helper to predeclared explicit specializations under
+`dont_inline`; if the call boundaries return without changing helper bodies or
+symbol ownership, promote this as a narrow template call-boundary lever.
+
 ### Declaration order of predeclared locals can steer callee-saved GPR coloring
 
 **Hypothesis.** When several scalar locals are live across a call sequence,
