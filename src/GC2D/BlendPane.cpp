@@ -17,12 +17,12 @@ bool TBlendPane::update()
 			mCurrent = 1.0f;
 			mActive  = false;
 		}
+		f32 inv         = 1.0f - mCurrent;
 		f32 cur         = mCurrent;
-		f32 inv         = 1.0f - cur;
 		J2DPicture* pic = (J2DPicture*)unk0;
 		pic->setBlendKonstColor(cur, inv, 1.0f, 1.0f);
 		pic->setBlendKonstAlpha(cur, inv, 1.0f, 1.0f);
 		mCurrent += mStep;
 	}
-	return baseRet && !mActive;
+	return (baseRet && !mActive) ? true : false;
 }
