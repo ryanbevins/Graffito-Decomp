@@ -233,7 +233,7 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 
 	u32 seqMoveCount = (u8)(JAIGlobalParameter::seqPlayTrackMax + 0xC);
 
-	if (seqData->unk8 & 0x40000) {
+	if (*flags & 0x40000) {
 		f32 value = 1.0f;
 		for (u8 i = 0; i < seqMoveCount; ++i) {
 			u32 bit = 1 << i;
@@ -252,10 +252,10 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk1760 == 0)
-			seqData->unk8 ^= 0x40000;
+			*flags ^= 0x40000;
 	}
 
-	if (seqData->unk8 & 0x80000) {
+	if (*flags & 0x80000) {
 		f32 value = 0.0f;
 		for (u8 i = 0; i < seqMoveCount; ++i) {
 			u32 bit = 1 << i;
@@ -280,10 +280,10 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk1764 == 0)
-			seqData->unk8 ^= 0x80000;
+			*flags ^= 0x80000;
 	}
 
-	if (seqData->unk8 & 0x100000) {
+	if (*flags & 0x100000) {
 		f32 value = 1.0f;
 		for (u8 i = 0; i < seqMoveCount; ++i) {
 			u32 bit = 1 << i;
@@ -302,10 +302,10 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk1768 == 0)
-			seqData->unk8 ^= 0x100000;
+			*flags ^= 0x100000;
 	}
 
-	if (seqData->unk8 & 0x200000) {
+	if (*flags & 0x200000) {
 		f32 value = 0.0f;
 		for (u8 i = 0; i < seqMoveCount; ++i) {
 			u32 bit = 1 << i;
@@ -327,10 +327,10 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk176C == 0)
-			seqData->unk8 ^= 0x200000;
+			*flags ^= 0x200000;
 	}
 
-	if (seqData->unk8 & 0x400000) {
+	if (*flags & 0x400000) {
 		f32 value = 1.0f;
 		for (u8 i = 0; i < seqMoveCount; ++i) {
 			u32 bit = 1 << i;
@@ -349,12 +349,12 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk1770 == 0)
-			seqData->unk8 ^= 0x400000;
+			*flags ^= 0x400000;
 	}
 
-	if (seqData->unk8 & 0x4) {
+	if (*flags & 0x4) {
 		if (!unk0->moveParameter(&seqParam->unk4))
-			seqData->unk8 ^= 0x4;
+			*flags ^= 0x4;
 
 		if (seqData->unk20 != seqParam->unk4.unk4) {
 			seqData->unk20 = seqParam->unk4.unk4;
@@ -365,7 +365,7 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 	}
 
-	if (seqData->unk8 & 0x10) {
+	if (*flags & 0x10) {
 		for (u8 i = 0; i < 16; ++i) {
 			u32 bit = 1 << i;
 			if (seqParam->unk175C & bit) {
@@ -382,10 +382,10 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk175C == 0)
-			seqData->unk8 ^= 0x10;
+			*flags ^= 0x10;
 	}
 
-	if (seqData->unk8 & 0x40) {
+	if (*flags & 0x40) {
 		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
 			u32 bit = 1 << i;
 			if (seqParam->unk1774 & bit) {
@@ -402,11 +402,11 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk1774 == 0)
-			seqData->unk8 ^= 0x40;
+			*flags ^= 0x40;
 	}
 
-	if (seqData->unk8 & 0x20) {
-		seqData->unk8 ^= 0x20;
+	if (*flags & 0x20) {
+		*flags ^= 0x20;
 		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
 			MuteBit* mute = &seqParam->unk1830[i];
 			if (mute->flag3 == 1 && mute->flag1 != mute->flag2) {
@@ -419,7 +419,7 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 	}
 
-	if (seqData->unk8 & 0x80) {
+	if (*flags & 0x80) {
 		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
 			u32 bit = 1 << i;
 			if (seqParam->unk1778 & bit) {
@@ -436,10 +436,10 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk1778 == 0)
-			seqData->unk8 ^= 0x80;
+			*flags ^= 0x80;
 	}
 
-	if (seqData->unk8 & 0x200) {
+	if (*flags & 0x200) {
 		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
 			u32 bit = 1 << i;
 			if (seqParam->unk177C & bit) {
@@ -456,10 +456,10 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk177C == 0)
-			seqData->unk8 ^= 0x200;
+			*flags ^= 0x200;
 	}
 
-	if (seqData->unk8 & 0x800) {
+	if (*flags & 0x800) {
 		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
 			u32 bit = 1 << i;
 			if (seqParam->unk1780 & bit) {
@@ -476,10 +476,10 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk1780 == 0)
-			seqData->unk8 ^= 0x800;
+			*flags ^= 0x800;
 	}
 
-	if (seqData->unk8 & 0x100) {
+	if (*flags & 0x100) {
 		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
 			u32 bit = 1 << i;
 			if (seqParam->unk1784 & bit) {
@@ -496,11 +496,11 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk1784 == 0)
-			seqData->unk8 ^= 0x100;
+			*flags ^= 0x100;
 	}
 
-	if (seqData->unk8 & 0x800000) {
-		seqData->unk8 ^= 0x800000;
+	if (*flags & 0x800000) {
+		*flags ^= 0x800000;
 		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
 			if (seqParam->unk1810[i] == 1) {
 				seqData->unk44[i] |= 0x40;
@@ -510,7 +510,7 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 	}
 
-	if (seqData->unk8 & 0x1000) {
+	if (*flags & 0x1000) {
 		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
 			u32 trackBit = 1 << i;
 			if (seqParam->unk178C & trackBit) {
@@ -528,7 +528,7 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		}
 
 		if (seqParam->unk178C == 0)
-			seqData->unk8 ^= 0x1000;
+			*flags ^= 0x1000;
 	}
 }
 #pragma dont_inline off
