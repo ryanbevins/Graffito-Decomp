@@ -73,18 +73,13 @@ static void FifoSetFogRangeAdj(u8 enable, u16 center, GXFogAdjTable* table)
 {
 	if (enable) {
 		for (int i = 0; i < 10; i += 2) {
-			u32 rangeAdj = 0;
-			PACKET_SET_REG_FIELD(rangeAdj, 12, 0, table->r[i]);
-			PACKET_SET_REG_FIELD(rangeAdj, 12, 12, table->r[i + 1]);
-			PACKET_SET_REG_FIELD(rangeAdj, 8, 24, (i >> 1) + 0xE9);
+			u32 rangeAdj = (((i / 2) + 0xE9) << 24)
+			               | (table->r[i + 1] << 12) | table->r[i];
 			FIFO_WRITE_BP_REG(rangeAdj);
 		}
 	}
 
-	u32 rangeCenter = 0;
-	PACKET_SET_REG_FIELD(rangeCenter, 10, 0, center + 342);
-	PACKET_SET_REG_FIELD(rangeCenter, 1, 10, enable);
-	PACKET_SET_REG_FIELD(rangeCenter, 8, 24, 0xE8);
+	u32 rangeCenter = 0xE8000000 | (center + 342) | (enable << 10);
 	FIFO_WRITE_BP_REG(rangeCenter);
 }
 

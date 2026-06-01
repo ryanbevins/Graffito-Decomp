@@ -5355,6 +5355,32 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Direct packed integer expressions preserve shift/OR BP-word construction where field-setting macros lower to `rlwimi`
+
+**Hypothesis.** When target asm builds a packed hardware register word as a
+straight sequence of `slwi`/`or` instructions, source should spell the word as a
+single packed expression:
+
+```cpp
+u32 word = (hi << 24) | (mid << 12) | lo;
+```
+
+Using a field-setting macro that masks and ORs each field into an accumulator can
+make MWCC recognise insert-field idioms and emit `rlwimi`/`clrlwi` sequences
+instead, even when the final value is equivalent. For signed half-index values,
+write `/ 2` rather than `>> 1` when target shows `srawi` plus `addze`.
+
+**Observed.** `mario/MarioUtil/PacketUtil`
+`FifoSetFogRangeAdj(unsigned char, unsigned short, GXFogAdjTable*)` (t341):
+rewriting both range-table and range-center BP words from `PACKET_SET_REG_FIELD`
+calls to direct packed expressions changed the helper from `34.9% -> 100.0%`
+and added 312 matched code bytes.
+
+**Experiment to confirm/refute.** Find a second FIFO/BP helper where target has
+manual `slwi`/`or` packing but current source uses a field-setting macro and
+emits `rlwimi`; rewrite only the packed word expression. If the shift/OR pattern
+returns without scheduling regressions, promote as a narrow integer-packing rule.
+
 ### In a non-polymorphic-base derived class, MWCC places the derived vptr at the first virtual declaration point
 
 **Hypothesis.** When a class derives from a non-polymorphic base and introduces
