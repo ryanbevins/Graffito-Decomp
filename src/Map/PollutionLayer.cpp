@@ -24,13 +24,53 @@ void TPollutionLayerWave::initJointModel(TJointModelManager*, const char*,
 {
 }
 
-void TPollutionLayerWallPlusZ::stamp(u16, f32, f32, f32, f32) { }
+void TPollutionLayerWallPlusZ::stamp(u16 stamp_type, f32 x, f32 y, f32 z,
+                                     f32 size)
+{
+	if (isInAreaSize(x, y, z, size)) {
+		s16 depth = unk5C.worldToDepth(z);
+		u16 t     = getTexPosT(y);
+		u16 s     = getTexPosS(x);
+		u16 range = unk5C.worldToTexSize(size);
 
-void TPollutionLayerWallPlusZ::initLayerInfo(const TPollutionLayerInfo*) { }
+		gpPollution->unk70.unk1C[stamp_type].pushTask(
+		    (u8)mIndexInParent, range, s, t, depth);
+	}
+}
 
-void TPollutionLayerWallPlusX::stamp(u16, f32, f32, f32, f32) { }
+void TPollutionLayerWallPlusZ::initLayerInfo(
+    const TPollutionLayerInfo* param_1)
+{
+	TPollutionLayer::initLayerInfo(param_1);
+	unkAC = unk40;
+	unkB0 = unk44;
+	unk48 = 20;
+}
 
-void TPollutionLayerWallPlusX::initLayerInfo(const TPollutionLayerInfo*) { }
+void TPollutionLayerWallPlusX::stamp(u16 stamp_type, f32 x, f32 y, f32 z,
+                                     f32 size)
+{
+	if (isInAreaSize(x, y, z, size)) {
+		s16 depth = unk5C.worldToDepth(x);
+		u16 t     = getTexPosT(y);
+		u16 s     = getTexPosS(z);
+		u16 range = unk5C.worldToTexSize(size);
+
+		gpPollution->unk70.unk1C[stamp_type].pushTask(
+		    (u8)mIndexInParent, range, s, t, depth);
+	}
+}
+
+void TPollutionLayerWallPlusX::initLayerInfo(
+    const TPollutionLayerInfo* param_1)
+{
+	TPollutionLayer::initLayerInfo(param_1);
+	unkAC = unk40;
+	unkB0 = unk44;
+	unk40 = unk38;
+	unk44 = unk3C;
+	unk48 = 20;
+}
 
 TPollutionLayerWallBase::TPollutionLayerWallBase()
 {
@@ -38,13 +78,38 @@ TPollutionLayerWallBase::TPollutionLayerWallBase()
 	unkB0 = 0.0f;
 }
 
-void TPollutionLayer::stampModel(J3DModel*) { }
+void TPollutionLayer::stampModel(J3DModel* model)
+{
+	f32 x = *(f32*)((u8*)model + 0x2C);
+	f32 z = *(f32*)((u8*)model + 0x4C);
+
+	if (x < unk38 || z < unk40 || !(x < unk3C) || !(z < unk44))
+		return;
+
+	gpPollution->unk70.pushModelStampTask((u8)mIndexInParent, model);
+}
 
 void TPollutionLayer::appearItem(f32, f32, f32) { }
 
 void TPollutionLayer::cleaned(f32, f32, f32, f32) { }
 
-void TPollutionLayer::stamp(u16, f32, f32, f32, f32) { }
+void TPollutionLayer::stamp(u16 stamp_type, f32 x, f32 y, f32 z, f32 size)
+{
+	if (isInAreaSize(x, y, z, size)) {
+		s16 depth = unk5C.worldToDepth(y);
+		u16 t     = getTexPosT(z);
+		u16 s     = getTexPosS(x);
+		u16 range = unk5C.worldToTexSize(size);
+
+		gpPollution->unk70.unk1C[stamp_type].pushTask(
+		    (u8)mIndexInParent, range, s, t, depth);
+
+		if (getPlaneType() != 6
+		    && gpPollution->unk70.stampIsCleanType(stamp_type)) {
+			cleaned(x, y, z, size);
+		}
+	}
+}
 
 void TPollutionLayer::isProhibit(f32, f32, f32) const { }
 
@@ -54,7 +119,13 @@ void TPollutionLayer::isPolluted(int, int, f32) const { }
 
 void TPollutionLayer::subtractFromYMap(f32, f32, f32) const { }
 
-void TPollutionLayer::perform(u32, JDrama::TGraphics*) { }
+void TPollutionLayer::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 1)
+		action();
+
+	TJointModel::perform(flags, graphics);
+}
 
 void TPollutionLayer::initTexImage(const char* param_1)
 {

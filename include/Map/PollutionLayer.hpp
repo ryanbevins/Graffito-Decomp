@@ -45,7 +45,13 @@ public:
 	virtual void stampModel(J3DModel*);
 	virtual bool isPolluted(f32, f32, f32) const;
 	virtual bool isInArea(f32, f32, f32) const;
-	virtual bool isInAreaSize(f32, f32, f32, f32) const { }
+	virtual bool isInAreaSize(f32 x, f32 y, f32 z, f32 size) const
+	{
+		if (x < unk38 - size || unk3C + size < x || z < unk40 - size
+		    || unk44 + size < z)
+			return false;
+		return true;
+	}
 
 	void action();
 	void fire();
@@ -128,8 +134,11 @@ public:
 
 class TPollutionLayerWallPlusX : public TPollutionLayerWallBase {
 public:
-	virtual int getPlaneType() const { }
-	virtual int getTexPosS(f32) const { }
+	virtual int getPlaneType() const { return 2; }
+	virtual int getTexPosS(f32 param_1) const
+	{
+		return unk5C.worldToTexSize(unk44 - param_1);
+	}
 	virtual bool isInArea(f32 x, f32 y, f32 z) const
 	{
 		if (z < unk40 || unk44 < z || y < unkAC || unkB0 < y)
@@ -158,7 +167,7 @@ public:
 
 class TPollutionLayerWallPlusZ : public TPollutionLayerWallBase {
 public:
-	virtual int getPlaneType() const { }
+	virtual int getPlaneType() const { return 4; }
 	virtual bool isInArea(f32 x, f32 y, f32 z) const
 	{
 		if (x < unk38 || unk3C < x || y < unkAC || unkB0 < y)
@@ -190,7 +199,7 @@ public:
 	virtual void initJointModel(TJointModelManager*, const char*,
 	                            MActorAnmData*);
 	virtual void perform(unsigned long, JDrama::TGraphics*);
-	virtual int getPlaneType() const { }
+	virtual int getPlaneType() const { return 6; }
 	virtual ResTIMG* getTexResource(const char*);
 
 	void draw() const;
