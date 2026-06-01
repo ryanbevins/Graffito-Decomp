@@ -87,7 +87,7 @@ bool MSSetSoundGrp::startSoundSetGrp(u32 param1, const Vec* param2, u32 param3,
 		return false;
 
 	return grp->startSoundSetDyna(param1, param2, param3, param4, param5,
-	                              param6, param7, nullptr);
+	                              param6, param7, grp);
 }
 
 template <typename T>
