@@ -29,9 +29,20 @@ f32 TMapWireActor::getPosInWire() const
 	JGeometry::TVec3<f32> foot
 	    = MsPerpendicFootToLineR(flatStart, flatEnd, mPosition);
 
-	JGeometry::TVec3<f32> total = flatEnd - flatStart;
-	JGeometry::TVec3<f32> part  = foot - flatStart;
-	return part.length() / total.length();
+	f32 totalX = flatEnd.x - flatStart.x;
+	f32 totalY = flatEnd.y - flatStart.y;
+	f32 totalZ = flatEnd.z - flatStart.z;
+	f32 totalLength
+	    = JGeometry::TUtil<f32>::sqrt(totalX * totalX + totalY * totalY
+	                                  + totalZ * totalZ);
+
+	f32 partX = foot.x - flatStart.x;
+	f32 partY = foot.y - flatStart.y;
+	f32 partZ = foot.z - flatStart.z;
+	f32 partLength
+	    = JGeometry::TUtil<f32>::sqrt(partX * partX + partY * partY
+	                                  + partZ * partZ);
+	return partLength / totalLength;
 }
 
 BOOL TMapWireActor::receiveMessage(THitActor* sender, u32 message)
