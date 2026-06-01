@@ -461,7 +461,7 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 	updateSeqPortF32(this, sound, cached[1], volume, 1, 2);
 
 	f32 pan = seParamF32(param, 0x218);
-	if (pan == -1.0f) {
+	if (-1.0f == seParamF32(param, 0x218)) {
 		f32* link = seParamF32Ptr(param, 0x428);
 		if (link != nullptr)
 			seParamF32(param, 0x1A8) = *link;
@@ -494,11 +494,13 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 			pan = 0.0f;
 		else if (pan > 1.0f)
 			pan = 1.0f;
+	} else {
+		pan = seParamF32(param, 0x218);
 	}
 	updateSeqPortF32(this, sound, cached[4], pan, 4, 4);
 
 	f32 pitch = seParamF32(param, 0x298);
-	if (pitch == -1.0f) {
+	if (-1.0f == seParamF32(param, 0x298)) {
 		f32* link = seParamF32Ptr(param, 0x42C);
 		if (link != nullptr)
 			seParamF32(param, 0x228) = *link;
@@ -511,11 +513,13 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 		pitch *= seParamF32(param, 0x268);
 		pitch *= seParamF32(param, 0x278);
 		pitch *= seParamF32(param, 0x288);
+	} else {
+		pitch = seParamF32(param, 0x298);
 	}
 	updateSeqPortF32(this, sound, cached[2], pitch, 2, 3);
 
 	f32 fxmix = seParamF32(param, 0x318);
-	if (fxmix == -1.0f) {
+	if (-1.0f == seParamF32(param, 0x318)) {
 		f32* link = seParamF32Ptr(param, 0x430);
 		if (link != nullptr)
 			seParamF32(param, 0x2A8) = *link;
@@ -528,11 +532,13 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 		fxmix += seParamF32(param, 0x2E8);
 		fxmix += seParamF32(param, 0x2F8);
 		fxmix += seParamF32(param, 0x308);
+	} else {
+		fxmix = seParamF32(param, 0x318);
 	}
 	updateSeqPortF32(this, sound, cached[3], fxmix, 8, 5);
 
 	f32 dolby = seParamF32(param, 0x418);
-	if (dolby == -1.0f) {
+	if (-1.0f == seParamF32(param, 0x418)) {
 		f32* link = seParamF32Ptr(param, 0x438);
 		if (link != nullptr)
 			seParamF32(param, 0x3A8) = *link;
@@ -551,6 +557,8 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 			dolby = 0.0f;
 		else if (dolby > 1.0f)
 			dolby = 1.0f;
+	} else {
+		dolby = seParamF32(param, 0x418);
 	}
 	updateSeqPortF32(this, sound, cached[5], dolby, 0x10, 6);
 
