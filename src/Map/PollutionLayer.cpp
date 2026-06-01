@@ -284,8 +284,6 @@ void TPollutionLayer::stamp(u16 stamp_type, f32 x, f32 y, f32 z, f32 size)
 	}
 }
 
-void TPollutionLayer::isProhibit(f32, f32, f32) const { }
-
 bool TPollutionLayer::isPolluted(f32 x, f32 y, f32 z) const
 {
 	if (!isInArea(x, y, z))
@@ -301,10 +299,6 @@ bool TPollutionLayer::isPolluted(f32 x, f32 y, f32 z) const
 
 	return unk54[unk5C.index(s, t)] > unk50;
 }
-
-void TPollutionLayer::isPolluted(int, int, f32) const { }
-
-void TPollutionLayer::subtractFromYMap(f32, f32, f32) const { }
 
 void TPollutionLayer::perform(u32 flags, JDrama::TGraphics* graphics)
 {
@@ -345,8 +339,6 @@ void TPollutionLayer::initTexImage(const char* param_1)
 	DCStoreRange(unk54, unk5C.mWidth * unk5C.mHeight);
 }
 
-void TPollutionLayer::initTex(const char*) { }
-
 void TPollutionLayer::initLayerInfo(const TPollutionLayerInfo* param_1)
 {
 	unk30 = param_1->unk0;
@@ -372,8 +364,6 @@ void TPollutionLayer::initLayerInfo(const TPollutionLayerInfo* param_1)
 	unk98 = new JGeometry::TVec3<f32>[unk94];
 	memset(unk98, 0, unk94 * sizeof(unk98[0]));
 }
-
-void TPollutionLayer::initPollutionTex(const char*) { }
 
 void TPollutionLayer::initJointModel(TJointModelManager* param_1,
                                      const char* param_2,
