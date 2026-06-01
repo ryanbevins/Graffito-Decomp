@@ -170,7 +170,7 @@ template <class T, class U> class JALLinkD;
 
 template <class T, class U> class JALListD : public JSUList<T> {
 public:
-	void searchD(u32);
+	T* searchD(U param_1);
 
 	void append(JALLinkD<T, U>* link)
 	{

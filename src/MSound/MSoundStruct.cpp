@@ -2,6 +2,8 @@
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundStruct.hpp>
 #include <MSound/MSound.hpp>
+#include <JSystem/JAudio/JAInterface/JAIConst.hpp>
+#include <JSystem/JAudio/JALibrary/JALSystem.hpp>
 
 MSSetSound* MSSetSound::smSetSound[9];
 
@@ -86,4 +88,188 @@ bool MSSetSoundGrp::startSoundSetGrp(u32 param1, const Vec* param2, u32 param3,
 
 	return grp->startSoundSetDyna(param1, param2, param3, param4, param5,
 	                              param6, param7, nullptr);
+}
+
+template <typename T>
+bool MSSetSoundTL<T>::startSoundSetDyna(u32 soundID, const Vec* pos,
+                                        u32 param3, f32 distArg, u32 actorArg,
+                                        u32 startArg, u8 category,
+                                        MSSetSoundGrp* group)
+{
+	if (unkB8 == 1)
+		return true;
+
+	f32 dist = JALCalc::getDist(&unkAC, (Vec*)pos);
+	JAISound* previous = unk5C[unk5A];
+	if (previous == nullptr) {
+		u32 startID  = soundID;
+		f32 modDist = distArg;
+		switch (soundID) {
+		case 0x6809:
+			if (previous != nullptr
+			    && (f32)previous->unk14 < (f32)unk3C.unk0
+			    && dist < unk40.unk0)
+				startID = 0x680a;
+			break;
+		case 0x6800:
+			modDist = MSGMSound->getDistFromCamera((Vec*)pos);
+			break;
+		}
+
+		const Vec* actorPos;
+		if (unkB9 == true) {
+			unk70[unk59] = *pos;
+			actorPos     = &unk70[unk59];
+		} else {
+			actorPos = nullptr;
+		}
+		if (actorPos == nullptr)
+			actorPos = pos;
+
+		JAIActor actor(actorPos, actorPos, actorPos, actorArg);
+		MSoundSESystem::MSoundSE::startSoundActorInner(
+		    startID, &unk5C[unk59], &actor, startArg, category);
+
+		JAISound* current = unk5C[unk59];
+		JALSystem::processModFunc(current, modDist, 0, 3);
+
+		unkAC = *pos;
+		unkB8 = 1;
+	} else {
+		u32 minFrames = unk1D.unk0
+		                + (u32)(unk1E.unk0 * JALCalc::getRandom_0_1());
+		JAISound* check = unk5C[unk5A];
+		u32 frame       = check->unk14;
+		BOOL canStart;
+
+		if (frame < minFrames) {
+			canStart = false;
+		} else if (unk24.unk0 == 1 && frame < unk1F.unk0
+		           && dist < unk20.unk0) {
+			canStart = false;
+		} else if (group != nullptr) {
+			MSSetSoundMember* member = group->searchD(check->unk8);
+			if (member == nullptr || frame < member->unk18)
+				canStart = false;
+			else
+				canStart = true;
+		} else {
+			canStart = true;
+		}
+
+		if (!canStart)
+			return true;
+
+		u32 startID  = soundID;
+		f32 modDist = distArg;
+		switch (soundID) {
+		case 0x6809: {
+			JAISound* compare = unk5C[unk5A];
+			if (compare != nullptr
+			    && (f32)compare->unk14 < (f32)unk3C.unk0
+			    && dist < unk40.unk0)
+				startID = 0x680a;
+			break;
+		}
+		case 0x6800:
+			modDist = MSGMSound->getDistFromCamera((Vec*)pos);
+			break;
+		}
+
+		const Vec* actorPos;
+		if (unkB9 == true) {
+			unk70[unk59] = *pos;
+			actorPos     = &unk70[unk59];
+		} else {
+			actorPos = nullptr;
+		}
+		if (actorPos == nullptr)
+			actorPos = pos;
+
+		JAIActor actor(actorPos, actorPos, actorPos, actorArg);
+		MSoundSESystem::MSoundSE::startSoundActorInner(
+		    startID, &unk5C[unk59], &actor, startArg, category);
+
+		JAISound* current = unk5C[unk59];
+		JALSystem::processModFunc(current, modDist, 0, 3);
+
+		unkAC = *pos;
+		unkB8 = 1;
+
+		current = unk5C[unk59];
+		if (current != nullptr) {
+			JAISound* compare = unk5C[unk5A];
+			if (compare != nullptr) {
+				u32 frame = compare->unk14;
+				f32 vol   = 1.0f;
+				f32 pitch = 1.0f;
+
+				if ((f32)frame < unk28.unk0 && dist < unk2C.unk0) {
+					JALCalc::linearTransform(
+					    frame, unk1D.unk0, unk28.unk0, unk38.unk0,
+					    0.0f, false);
+					vol = JALCalc::linearTransform(
+					    frame, unk1D.unk0, unk28.unk0, unk30.unk0,
+					    1.0f, false);
+					pitch = JALCalc::linearTransform(
+					    frame, unk1D.unk0, unk28.unk0, 1.0f,
+					    unk34.unk0, false);
+				}
+
+				f32 contVol   = 1.0f;
+				f32 contPitch = 1.0f;
+				if ((f32)frame < (f32)unk3C.unk0 && dist < unk40.unk0) {
+					unk58 = 1;
+					JALCalc::linearTransform(
+					    unk54, 0.0f, unk44.unk0, 0.0f,
+					    unk50.unk0, false);
+					contVol = JALCalc::linearTransform(
+					    unk54, 0.0f, unk44.unk0, 1.0f,
+					    unk48.unk0, false);
+					contPitch = JALCalc::linearTransform(
+					    unk54, 0.0f, unk44.unk0, 1.0f,
+					    unk4C.unk0, false);
+				} else {
+					unk58 = 0;
+					unk54 = 0;
+				}
+
+				current->setVolume(vol * contVol, 3, 0);
+				current->setPitch(pitch * contPitch, 3, 0);
+			}
+		} else {
+			if (current != nullptr)
+				current->setPortData(13, 1);
+			unk58 = 0;
+			unk54 = 0;
+		}
+	}
+
+	u8 nextSlot;
+	if (unk59 == unk1C.unk0 - 1)
+		nextSlot = 0;
+	else
+		nextSlot = unk59 + 1;
+	unk59 = nextSlot;
+
+	u8 nextPrev;
+	if (unk5A == unk1C.unk0 - 1)
+		nextPrev = 0;
+	else
+		nextPrev = unk5A + 1;
+	unk5A = nextPrev;
+
+	return true;
+}
+
+template <class T, class U> T* JALListD<T, U>::searchD(U param_1)
+{
+	JSULink<T>* link = this->getFirst();
+	while (link) {
+		T* obj = link->getObject();
+		if (param_1 == obj->unk0)
+			return obj;
+		link = link->getNext();
+	}
+	return nullptr;
 }
