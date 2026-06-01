@@ -128,9 +128,10 @@ void JAIBasic::checkEntriedSeq()
 			if (buffer == (u8*)-1)
 				return;
 
+			JAISound* loadedSound = *soundSlot;
 			if (heapNo != 0xFF)
 				unk0->getFreeAutoHeapPointer(heapNo,
-				                              (*soundSlot)->unk8 & 0x3FF);
+				                              loadedSound->unk8 & 0x3FF);
 
 			(*soundSlot)->getSeqParameter()->unk1754 = heapNo;
 			(*soundSlot)->unk1                      = 2;
