@@ -9,6 +9,12 @@ class TBlendPane : public TBoundPane {
 public:
 	TBlendPane(J2DScreen*, u32);
 
+public:
+	/* 0x68 */ f32 mStep;
+	/* 0x6C */ f32 mCurrent;
+	/* 0x70 */ bool mActive;
+
+public:
 	virtual bool update();
 	void setPaneBlend(s32 time, JUTTexture* tex0, JUTTexture* tex1)
 	{
@@ -22,11 +28,6 @@ public:
 		mStep    = 1.0f / (f32)time;
 		mCurrent = 0.0f;
 	}
-
-public:
-	/* 0x68 */ f32 mStep;
-	/* 0x6C */ f32 mCurrent;
-	/* 0x70 */ bool mActive;
 };
 
 #endif

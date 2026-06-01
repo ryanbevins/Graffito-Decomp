@@ -5355,6 +5355,29 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### In a non-polymorphic-base derived class, MWCC places the derived vptr at the first virtual declaration point
+
+**Hypothesis.** When a class derives from a non-polymorphic base and introduces
+its own virtual function, MWCC does not always place the implicit vptr at the
+start of the derived tail independent of source order. Instead, the vptr appears
+at the point where the first virtual member is declared relative to data members.
+If data members are declared before the first virtual method, those fields occupy
+the first bytes after the base subobject and the vptr is emitted after them; if
+the virtual method is declared first, the vptr occupies the first derived-tail
+word and shifts the fields later.
+
+**Observed.** `mario/GC2D/BlendPane` (t340): moving
+`TBlendPane::mStep/mCurrent/mActive` before `virtual update()` in
+`include/GC2D/BlendPane.hpp` shifted the fields to target offsets
+`0x68/0x6c/0x70`, shifted the vptr to `0x74`, made the constructor exact, and
+added 80 matched code bytes.
+
+**Experiment to confirm/refute.** Find a second derived class whose target
+constructor stores the vptr after newly introduced data members while our build
+stores it before them. Reorder only the class declaration so the data members
+precede the first virtual declaration; if the vptr and field offsets move to
+target without other changes, promote this as a settled MWCC class-layout rule.
+
 ### Put a float interval predicate in the `while` condition when target uses body-before-condition branch-back layout
 
 **Hypothesis.** For loops that repeatedly call a body while a float interval
