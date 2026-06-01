@@ -125,9 +125,11 @@ DEFINE_NERVE(TNerveNPCGraphWander, TLiveActor)
 	return FALSE;
 }
 
+#pragma dont_inline on
 TGraphWeb* TGraphTracer::getGraph() const { return unk0; }
 
 int TGraphTracer::getCurGraphIndex() const { return mCurrIdx; }
+#pragma dont_inline off
 
 DEFINE_NERVE(TNerveNPCUTurn, TLiveActor)
 {
