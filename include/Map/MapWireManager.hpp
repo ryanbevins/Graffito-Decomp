@@ -72,7 +72,7 @@ public:
 	/* 0x10 */ int unk10;
 	/* 0x14 */ u32 unk14;
 	/* 0x18 */ TMapWire** unk18;
-	/* 0x1C */ u32 unk1C;
+	/* 0x1C */ int unk1C;
 	/* 0x20 */ u32 unk20;
 	/* 0x24 */ TMapWireActorManager** unk24;
 	/* 0x28 */ u16 unk28;

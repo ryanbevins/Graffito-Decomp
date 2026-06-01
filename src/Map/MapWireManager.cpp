@@ -29,19 +29,8 @@ f32 TMapWireActor::getPosInWire() const
 	JGeometry::TVec3<f32> foot
 	    = MsPerpendicFootToLineR(flatStart, flatEnd, mPosition);
 
-	f32 totalX = flatEnd.x - flatStart.x;
-	f32 totalY = flatEnd.y - flatStart.y;
-	f32 totalZ = flatEnd.z - flatStart.z;
-	f32 totalLength
-	    = JGeometry::TUtil<f32>::sqrt(totalX * totalX + totalY * totalY
-	                                  + totalZ * totalZ);
-
-	f32 partX = foot.x - flatStart.x;
-	f32 partY = foot.y - flatStart.y;
-	f32 partZ = foot.z - flatStart.z;
-	f32 partLength
-	    = JGeometry::TUtil<f32>::sqrt(partX * partX + partY * partY
-	                                  + partZ * partZ);
+	f32 totalLength = (flatEnd - flatStart).length();
+	f32 partLength  = (foot - flatStart).length();
 	return partLength / totalLength;
 }
 
@@ -108,9 +97,9 @@ void TMapWireActorManager::doActorToWire()
 	if (unk4.unk74->unk7C != nullptr) {
 		for (int i = 0; i < unk4.mColCount; ++i) {
 			THitActor* hit = unk4.mCollisions[i];
-			if (hit->mActorType == 0x80000001
-			    && hit->receiveMessage(&unk4, HIT_MESSAGE_TAKE)) {
-				unk4.mHeldObject = (TTakeActor*)hit;
+			bool       isMario = hit->mActorType == 0x80000001 ? true : false;
+			if (isMario && hit->receiveMessage(&unk4, HIT_MESSAGE_TAKE)) {
+				unk4.mHeldObject = (TTakeActor*)unk4.mCollisions[i];
 			}
 		}
 	}
