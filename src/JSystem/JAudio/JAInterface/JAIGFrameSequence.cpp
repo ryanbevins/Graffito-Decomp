@@ -40,7 +40,8 @@ void JAIBasic::checkEntriedSeq()
 		JAISeqUpdateData* seqData = &unk0->unk180[i];
 		JAISound** soundSlot      = &seqData->unk48;
 		u32* flags                = &seqData->unk8;
-		if (*soundSlot == nullptr)
+		JAISound* sound           = *soundSlot;
+		if (sound == nullptr)
 			continue;
 
 		if ((*flags & 1) == 0)
@@ -49,8 +50,7 @@ void JAIBasic::checkEntriedSeq()
 		if (seqData->unk3 != 0)
 			return;
 
-		u32 size
-		    = JASystem::Vload::checkSize(unk2C + ((*soundSlot)->unk8 & 0x3FF));
+		u32 size = JASystem::Vload::checkSize(unk2C + (sound->unk8 & 0x3FF));
 
 		u8 heapNo;
 		u8* buffer
