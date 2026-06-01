@@ -4,6 +4,7 @@
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <JSystem/J3D/J3DGraphBase/Blocks/J3DPEBlocks.hpp>
 #include <dolphin/gx/GXCommandList.h>
+#include <dolphin/gx/GXDispList.h>
 #include <dolphin/gx/GXVert.h>
 
 #define FIFO_WRITE_BP_REG(value)                                               \
@@ -18,11 +19,55 @@
 		        | ((u32)(val) << (shift));                                     \
 	} while (0)
 
-static void FifoSetChanMatColor(GXChannelID, GXColor) { }
+static inline void FifoSetChanMatColor(GXChannelID chan, GXColor color)
+{
+	u32 reg = 0;
+	PACKET_SET_REG_FIELD(reg, 8, 0, color.a);
+	PACKET_SET_REG_FIELD(reg, 8, 8, color.b);
+	PACKET_SET_REG_FIELD(reg, 8, 16, color.g);
+	PACKET_SET_REG_FIELD(reg, 8, 24, color.r);
 
-static void FifoSetTevColorS10(GXTevRegID, GXColorS10) { }
+	GXWGFifo.u8  = GX_LOAD_XF_REG;
+	GXWGFifo.u16 = 0;
+	GXWGFifo.u16 = 0x100C + (chan & 1);
+	GXWGFifo.u32 = reg;
+}
 
-static void FifoSetTevKColor(GXTevKColorID, GXColor) { }
+static inline void FifoSetTevColorS10(GXTevRegID id, GXColorS10 color)
+{
+	u32 regRA = 0;
+	PACKET_SET_REG_FIELD(regRA, 11, 0, color.r & 0x7FF);
+	PACKET_SET_REG_FIELD(regRA, 11, 12, color.a & 0x7FF);
+	PACKET_SET_REG_FIELD(regRA, 8, 24, 0xE0 + id * 2);
+
+	u32 regBG = 0;
+	PACKET_SET_REG_FIELD(regBG, 11, 0, color.b & 0x7FF);
+	PACKET_SET_REG_FIELD(regBG, 11, 12, color.g & 0x7FF);
+	PACKET_SET_REG_FIELD(regBG, 8, 24, 0xE1 + id * 2);
+
+	FIFO_WRITE_BP_REG(regRA);
+	FIFO_WRITE_BP_REG(regBG);
+	FIFO_WRITE_BP_REG(regBG);
+	FIFO_WRITE_BP_REG(regBG);
+}
+
+static inline void FifoSetTevKColor(GXTevKColorID id, GXColor color)
+{
+	u32 regRA = 0;
+	PACKET_SET_REG_FIELD(regRA, 8, 0, color.r);
+	PACKET_SET_REG_FIELD(regRA, 8, 12, color.a);
+	PACKET_SET_REG_FIELD(regRA, 4, 20, 8);
+	PACKET_SET_REG_FIELD(regRA, 8, 24, 0xE0 + id * 2);
+
+	u32 regBG = 0;
+	PACKET_SET_REG_FIELD(regBG, 8, 0, color.b);
+	PACKET_SET_REG_FIELD(regBG, 8, 12, color.g);
+	PACKET_SET_REG_FIELD(regBG, 4, 20, 8);
+	PACKET_SET_REG_FIELD(regBG, 8, 24, 0xE1 + id * 2);
+
+	FIFO_WRITE_BP_REG(regRA);
+	FIFO_WRITE_BP_REG(regBG);
+}
 
 static void FifoSetFogRangeAdj(u8 enable, u16 center, GXFogAdjTable* table)
 {
@@ -127,11 +172,102 @@ static void FifoSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz,
 	FIFO_WRITE_BP_REG(fogColor);
 }
 
-static void SetFogBase(const J3DFogInfo*) { }
+static void ShapePacketCallBackFunc(J3DCallBackPacket* packet, int timing)
+{
+	static const GXColor sFogOffColor = { 0, 0, 0, 0 };
 
-static void ShapePacketCallBackFunc(J3DCallBackPacket*, int) { }
+	u32* userData = (u32*)packet->getUserArea();
 
-static J3DShapePacket* InitPacket_Sub(J3DModel* model, u16 mat_idx)
+	if (timing == 0) {
+		switch (userData[0]) {
+		case 0:
+			FifoSetChanMatColor((GXChannelID)userData[1],
+			                    *(const GXColor*)userData[2]);
+			break;
+
+		case 1:
+			FifoSetTevColorS10((GXTevRegID)userData[1],
+			                   *(const GXColorS10*)userData[2]);
+			break;
+
+		case 2:
+			FifoSetTevColorS10((GXTevRegID)userData[1],
+			                   *(const GXColorS10*)userData[3]);
+			FifoSetTevColorS10((GXTevRegID)userData[2],
+			                   *(const GXColorS10*)userData[4]);
+			break;
+
+		case 3:
+			FifoSetTevColorS10((GXTevRegID)userData[1],
+			                   *(const GXColorS10*)userData[4]);
+			FifoSetTevColorS10((GXTevRegID)userData[2],
+			                   *(const GXColorS10*)userData[5]);
+			FifoSetTevColorS10((GXTevRegID)userData[3],
+			                   *(const GXColorS10*)userData[6]);
+			break;
+
+		case 4:
+			GXCallDisplayList((void*)userData[1], userData[2]);
+			break;
+
+		case 5: {
+			J3DFogInfo* fog = (J3DFogInfo*)userData[1];
+			FifoSetFog((GXFogType)fog->mType, fog->mStartZ, fog->mEndZ,
+			           fog->mNearZ, fog->mFarZ, fog->mColor);
+			FifoSetFogRangeAdj(fog->mAdjEnable, fog->mCenter,
+			                    (GXFogAdjTable*)fog->mFogAdjTable);
+			break;
+		}
+
+		case 6:
+			FifoSetTevKColor((GXTevKColorID)userData[1],
+			                 *(const GXColor*)userData[2]);
+			break;
+
+		case 7:
+			FifoSetTevKColor((GXTevKColorID)userData[1],
+			                 *(const GXColor*)userData[3]);
+			FifoSetTevKColor((GXTevKColorID)userData[2],
+			                 *(const GXColor*)userData[4]);
+			break;
+
+		case 8: {
+			FifoSetTevKColor((GXTevKColorID)userData[2],
+			                 *(const GXColor*)userData[3]);
+			J3DFogInfo* fog = (J3DFogInfo*)userData[5];
+			FifoSetFog((GXFogType)fog->mType, fog->mStartZ, fog->mEndZ,
+			           fog->mNearZ, fog->mFarZ, fog->mColor);
+			FifoSetFogRangeAdj(fog->mAdjEnable, fog->mCenter,
+			                    (GXFogAdjTable*)fog->mFogAdjTable);
+			break;
+		}
+
+		case 9:
+			FifoSetTevColorS10((GXTevRegID)userData[1],
+			                   *(const GXColorS10*)userData[2]);
+			FifoSetTevKColor(GX_KCOLOR0, *(const GXColor*)userData[3]);
+			break;
+
+		case 10:
+			FifoSetTevColorS10((GXTevRegID)userData[1],
+			                   *(const GXColorS10*)userData[3]);
+			FifoSetTevColorS10((GXTevRegID)userData[2],
+			                   *(const GXColorS10*)userData[4]);
+			FifoSetTevKColor(GX_KCOLOR0, *(const GXColor*)userData[5]);
+			break;
+		}
+	} else if (timing == 1) {
+		switch (userData[0]) {
+		case 5:
+		case 8:
+			FifoSetFog(GX_FOG_NONE, 0.0f, 0.0f, 0.0f, 0.0f,
+			           sFogOffColor);
+			break;
+		}
+	}
+}
+
+static inline J3DShapePacket* InitPacket_Sub(J3DModel* model, u16 mat_idx)
 {
 	J3DMaterial* mat = model->getModelData()->getMaterialNodePointer(mat_idx);
 	return model->getShapePacket(mat->getShape()->getIndex());
@@ -248,12 +384,12 @@ struct PacketUserData_Fog {
 
 void SMS_InitPacket_Fog(J3DModel* param_1, u16 param_2)
 {
-	J3DShapePacket* packet = InitPacket_Sub(param_1, param_2);
+	J3DMaterial* mat = param_1->getModelData()->getMaterialNodePointer(param_2);
+	J3DPEBlock* pe  = mat->getPEBlock();
+	J3DShapePacket* packet
+	    = param_1->getShapePacket(mat->getShape()->getIndex());
 
-	J3DFog* fog = param_1->getModelData()
-	                  ->getMaterialNodePointer(param_2)
-	                  ->getPEBlock()
-	                  ->getFog();
+	J3DFog* fog = pe->getFog();
 
 	PacketUserData_Fog* userData = new PacketUserData_Fog;
 	userData->unk0               = 5;
