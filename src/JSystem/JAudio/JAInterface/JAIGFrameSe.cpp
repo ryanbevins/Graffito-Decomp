@@ -117,7 +117,7 @@ void JAIBasic::checkNextFrameSe()
 				} else if (it->unk1 != 0) {
 					u8 uVar14 = it->unk4;
 					u8 uVar8;
-					f32 fVar2 = 2.147484e+09;
+					f32 fVar2 = 2.1474836e+09f;
 					if (uVar14 == 4) {
 						uVar14 = 0;
 						uVar8  = JAIGlobalParameter::audioCameraMax;
