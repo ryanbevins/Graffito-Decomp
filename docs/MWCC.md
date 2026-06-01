@@ -5355,6 +5355,43 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Declaration order of predeclared locals can steer callee-saved GPR coloring
+
+**Hypothesis.** When several scalar locals are live across a call sequence,
+MWCC often assigns callee-saved GPRs in declaration order from high to low.
+For code that computes values in one order but the target holds them in the
+opposite register order, predeclare the locals in the target register order and
+assign them later:
+
+```cpp
+u16 s;
+u16 t;
+s16 depth;
+TPollutionPos* pollution_pos = &unk5C;
+depth = pollution_pos->worldToDepth(x);
+t     = getTexPosT(y);
+s     = getTexPosS(z);
+```
+
+In the observed case this changed allocation from the reverse source-order
+shape (`pollution_pos/depth/t/s` in `r31/r30/r29/r28`) to the target's
+`s/t/depth/pollution_pos` layout in `r31/r30/r29/r28`, while keeping call order
+unchanged.
+
+**Citation (1 TU).** `mario/Map/PollutionLayer`
+`TPollutionLayerWallPlusX::stamp` and `TPollutionLayerWallPlusZ::stamp`
+(2026-06-01 investigation): predeclaring `s`, `t`, `depth` before the
+`TPollutionPos*` local made the coordinate/depth setup collapse cleanly in
+objdiff and moved both wall stamps `84.8% -> 85.2%`. The base
+`TPollutionLayer::stamp` saw a smaller `84.7% -> 84.8%` nudge with the same
+`s/t/depth` declaration order.
+
+**Experiment to confirm/refute.** Find another near-match whose remaining
+operand-only mismatches show a contiguous set of callee-saved scalar locals in
+reverse order, with call order already correct. Predeclare the locals in the
+target's desired register order, assign them at the original evaluation points,
+and check whether objdiff collapses the setup block without structural fallout.
+
 ### Returning `bool` from a `BOOL` local through a ternary can force a full-width `cmpwi` rematerialization
 
 **Hypothesis.** In a `bool`-returning function, a `bool result` local followed by

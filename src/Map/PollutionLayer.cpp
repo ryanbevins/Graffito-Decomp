@@ -137,13 +137,18 @@ void TPollutionLayerWallPlusZ::stamp(u16 stamp_type, f32 x, f32 y, f32 z,
                                      f32 size)
 {
 	if (isInAreaSize(x, y, z, size)) {
-		s16 depth = unk5C.worldToDepth(z);
-		u16 t     = getTexPosT(y);
-		u16 s     = getTexPosS(x);
-		u16 range = unk5C.worldToTexSize(size);
+		u16 s;
+		u16 t;
+		s16 depth;
+		TPollutionPos* pollution_pos = &unk5C;
+		depth                      = pollution_pos->worldToDepth(z);
+		t                          = getTexPosT(y);
+		s                          = getTexPosS(x);
+		u16 range = pollution_pos->worldToTexSize(size);
 
-		gpPollution->unk70.unk1C[stamp_type].pushTask(
-		    (u8)mIndexInParent, range, s, t, depth);
+		TPollutionCounterLayer& counter = gpPollution->getCounterLayer();
+		counter.unk1C[stamp_type].pushTask((u8)mIndexInParent, range, s, t,
+		                                   depth);
 	}
 }
 
@@ -160,13 +165,18 @@ void TPollutionLayerWallPlusX::stamp(u16 stamp_type, f32 x, f32 y, f32 z,
                                      f32 size)
 {
 	if (isInAreaSize(x, y, z, size)) {
-		s16 depth = unk5C.worldToDepth(x);
-		u16 t     = getTexPosT(y);
-		u16 s     = getTexPosS(z);
-		u16 range = unk5C.worldToTexSize(size);
+		u16 s;
+		u16 t;
+		s16 depth;
+		TPollutionPos* pollution_pos = &unk5C;
+		depth                      = pollution_pos->worldToDepth(x);
+		t                          = getTexPosT(y);
+		s                          = getTexPosS(z);
+		u16 range = pollution_pos->worldToTexSize(size);
 
-		gpPollution->unk70.unk1C[stamp_type].pushTask(
-		    (u8)mIndexInParent, range, s, t, depth);
+		TPollutionCounterLayer& counter = gpPollution->getCounterLayer();
+		counter.unk1C[stamp_type].pushTask((u8)mIndexInParent, range, s, t,
+		                                   depth);
 	}
 }
 
@@ -269,13 +279,17 @@ void TPollutionLayer::cleaned(f32 x, f32 y, f32 z, f32 size)
 void TPollutionLayer::stamp(u16 stamp_type, f32 x, f32 y, f32 z, f32 size)
 {
 	if (isInAreaSize(x, y, z, size)) {
-		s16 depth = unk5C.worldToDepth(y);
-		u16 t     = getTexPosT(z);
-		u16 s     = getTexPosS(x);
+		u16 s;
+		u16 t;
+		s16 depth;
+		depth     = unk5C.worldToDepth(y);
+		t         = getTexPosT(z);
+		s         = getTexPosS(x);
 		u16 range = unk5C.worldToTexSize(size);
 
-		gpPollution->unk70.unk1C[stamp_type].pushTask(
-		    (u8)mIndexInParent, range, s, t, depth);
+		TPollutionCounterLayer& counter = gpPollution->getCounterLayer();
+		counter.unk1C[stamp_type].pushTask((u8)mIndexInParent, range, s, t,
+		                                   depth);
 
 		if (getPlaneType() != 6
 		    && gpPollution->unk70.stampIsCleanType(stamp_type)) {
