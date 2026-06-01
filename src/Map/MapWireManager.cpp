@@ -6,15 +6,32 @@
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/JDrama/JDRViewObjPtrList.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <dolphin/gx.h>
 
-void TMapWireActor::checkTakingActor() { }
-
-void TMapWireActor::getPosInWire() const { }
-
-void TMapWireActor::getTipPoints(JGeometry::TVec3<f32>*,
-                                 JGeometry::TVec3<f32>*) const
+void TMapWireActor::getTipPoints(JGeometry::TVec3<f32>* out_start,
+                                 JGeometry::TVec3<f32>* out_end) const
 {
+	TMapWire* wire = unk74->unk7C;
+	*out_start     = wire->mStartPoint;
+	*out_end       = wire->mEndPoint;
+}
+
+f32 TMapWireActor::getPosInWire() const
+{
+	TMapWire* wire = unk74->unk7C;
+
+	JGeometry::TVec3<f32> flatStart = wire->mStartPoint;
+	JGeometry::TVec3<f32> flatEnd   = wire->mEndPoint;
+	flatStart.y                    = 0.0f;
+	flatEnd.y                      = 0.0f;
+
+	JGeometry::TVec3<f32> foot
+	    = MsPerpendicFootToLineR(flatStart, flatEnd, mPosition);
+
+	JGeometry::TVec3<f32> total = flatEnd - flatStart;
+	JGeometry::TVec3<f32> part  = foot - flatStart;
+	return part.length() / total.length();
 }
 
 BOOL TMapWireActor::receiveMessage(THitActor* sender, u32 message)
@@ -27,8 +44,6 @@ BOOL TMapWireActor::receiveMessage(THitActor* sender, u32 message)
 
 	return false;
 }
-
-void TMapWireActor::init(TMapWireActorManager*) { }
 
 #pragma dont_inline on
 TMapWireActor::TMapWireActor(const char* name)
@@ -64,11 +79,59 @@ static void initDraw()
 	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_SET);
 }
 
-void TMapWireActorManager::doActorToWire() { }
+void TMapWireActorManager::doActorToWire()
+{
+	TMapWire* oldWire = unk7C;
+	s32       wireNo  = gpCubeWire->getInCubeNo(unk0->mPosition);
+	if (wireNo != -1) {
+		unk7C = gpMapWireManager->unk18[(u16)wireNo];
+	} else {
+		unk7C = nullptr;
+	}
 
-void TMapWireActorManager::doWireToActor() { }
+	if (unk4.mHeldObject != nullptr && unk4.mHeldObject->mHolder != &unk4) {
+		unk4.mHeldObject = nullptr;
+		unk4.unk70       = 1;
+	}
 
-TMapWireActorManager::TMapWireActorManager(TTakeActor* param_1)
+	if (unk4.unk74->unk7C != nullptr) {
+		for (int i = 0; i < unk4.mColCount; ++i) {
+			THitActor* hit = unk4.mCollisions[i];
+			if (hit->mActorType == 0x80000001
+			    && hit->receiveMessage(&unk4, HIT_MESSAGE_TAKE)) {
+				unk4.mHeldObject = (TTakeActor*)hit;
+			}
+		}
+	}
+
+	if (oldWire != nullptr && unk7C != nullptr && unk7C != oldWire) {
+		unk4.unk70 = 1;
+	}
+
+	if (unk4.unk70 != 0) {
+		if (oldWire != nullptr) {
+			oldWire->release();
+		}
+		unk4.unk70 = 0;
+	} else {
+		if (unk4.mHeldObject != nullptr) {
+			if (unk7C != nullptr) {
+				unk7C->setFootPointsAtHanged(gpMarioOriginal->getTakenMtx());
+			}
+			if (oldWire != nullptr) {
+				oldWire->setFootPointsAtHanged(
+				    gpMarioOriginal->getTakenMtx());
+				unk7C = oldWire;
+			}
+		}
+
+		if (unk7C == nullptr && oldWire != nullptr) {
+			oldWire->release();
+		}
+	}
+}
+
+inline TMapWireActorManager::TMapWireActorManager(TTakeActor* param_1)
     : unk0(param_1)
     , unk4("アクター補助")
     , unk7C(0)
@@ -86,6 +149,9 @@ TMapWireActorManager::TMapWireActorManager(TTakeActor* param_1)
 JUtility::TColor TMapWireManager::mUpperSurface;
 JUtility::TColor TMapWireManager::mLowerSurface;
 
+f32 TMapWireActor::mCommonAttackRadius = 200.0f;
+f32 TMapWireActor::mCommonAttackHeight = 200.0f;
+
 u32 TMapWireManager::getWireNo(const JGeometry::TVec3<f32>& param_1) const
 {
 	return gpCubeWire->getInCubeNo(param_1);
@@ -99,14 +165,51 @@ void TMapWireManager::getPointPosInNthWire(int param_1,
 	                                  param_3);
 }
 
-void TMapWireManager::getPointPosInWire(const JGeometry::TVec3<f32>&,
-                                        JGeometry::TVec3<f32>*) const
+void TMapWireManager::perform(u32 flags, JDrama::TGraphics*)
 {
+	if (flags & 1) {
+		for (int i = 0; i < unk1C; ++i) {
+			unk24[i]->doActorToWire();
+		}
+
+		for (int i = 0; i < unk10; ++i) {
+			unk18[i]->move();
+		}
+
+		for (int i = 0; i < unk1C; ++i) {
+			TMapWireActorManager* manager = unk24[i];
+			manager->unk4.onHitFlag(1);
+			if (manager->unk7C != nullptr) {
+				MtxPtr mtx = gpMarioOriginal->getTakenMtx();
+				manager->unk4.offHitFlag(1);
+				manager->unk4.mPosition.set(mtx[0][3], mtx[1][3],
+				                            mtx[2][3]);
+			}
+		}
+	}
+
+	if (flags & 8) {
+		initDraw();
+
+		GXColor upper = mUpperSurface;
+		GXSetChanMatColor(GX_COLOR0A0, upper);
+		for (int i = 0; i < unk10; ++i) {
+			unk18[i]->drawUpper();
+		}
+
+		GXColor lower = mLowerSurface;
+		GXSetChanMatColor(GX_COLOR0A0, lower);
+		for (int i = 0; i < unk10; ++i) {
+			unk18[i]->drawLower();
+		}
+	}
+
+	if (flags & 0x200) {
+		for (int i = 0; i < unk10; ++i) {
+			unk18[i]->calcViewAndDBEntry();
+		}
+	}
 }
-
-void TMapWireManager::perform(u32, JDrama::TGraphics*) { }
-
-void TMapWireManager::entry(TTakeActor*) { }
 
 void TMapWireManager::loadAfter()
 {

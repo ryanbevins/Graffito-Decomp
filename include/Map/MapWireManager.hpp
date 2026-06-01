@@ -15,7 +15,7 @@ class TMapWireActor : public TTakeActor {
 public:
 	MtxPtr getTakingMtx() { return nullptr; }
 	void checkTakingActor();
-	void getPosInWire() const;
+	f32 getPosInWire() const;
 	void getTipPoints(JGeometry::TVec3<f32>*, JGeometry::TVec3<f32>*) const;
 	BOOL receiveMessage(THitActor* sender, u32 message);
 	void init(TMapWireActorManager*);
@@ -26,7 +26,7 @@ public:
 
 public:
 	/* 0x70 */ u8 unk70;
-	/* 0x74 */ void* unk74;
+	/* 0x74 */ TMapWireActorManager* unk74;
 };
 
 class TMapWireActorManager {
@@ -38,7 +38,7 @@ public:
 public:
 	/* 0x0 */ TTakeActor* unk0;
 	/* 0x4 */ TMapWireActor unk4;
-	/* 0x7C */ u32 unk7C;
+	/* 0x7C */ TMapWire* unk7C;
 };
 
 class TMapWireManager;
