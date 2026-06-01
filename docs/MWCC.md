@@ -5381,6 +5381,34 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Cached `u8` loop bounds can trigger small-loop unrolling; reloading the bound expression may preserve a target top-tested loop
+
+**Hypothesis.** For small byte-count loops over local tables, storing the loop
+bound in a `u8` local can give MWCC enough range information to emit an unrolled
+preheader plus a cleanup loop. If target asm keeps a simple top-tested loop that
+reloads the bound expression each iteration, write the condition against the
+source expression instead of a cached local. When the bound expression includes
+an index scale such as `category * 2`, the helper parameter type also matters:
+an `int` category can let MWCC strength-reduce the scaled offset across the
+outer loop, while a `u8` helper argument tends to recompute the narrowed scale.
+Keep the helper shape scoped because changing a shared helper signature can
+regress other callers.
+
+**Observed.** `mario/JSystem/JAudio/JAInterface/JAIGFrameSe`
+`JAIBasic::checkNextFrameSe` (t349): replacing a cached
+`u8 categoryLimit` with direct `getSeCategoryLimitInt(unk0, unk10, i)` loop
+conditions changed the candidate initializer from an 8-way unrolled preheader
+to the target plain loop and moved the function `77.7% -> 90.1%`. Changing the
+shared `getSeCategoryLimit` helper to take `int` improved this function but
+regressed `releaseSeRegist` `93.5% -> 91.4%`, so the old `u8` helper stayed in
+place for existing callers.
+
+**Experiment to confirm/refute.** Find another JAudio category/table loop where
+target reloads a byte table limit inside a small initializer but source caches
+it and MWCC unrolls. Compare cached-local, direct-expression, and scoped
+`int`-helper forms; promote only if a second TU shows the same unroll/offset
+behavior without caller regressions.
+
 ### For quadratic interpolation over integer control points, direct `start + mid + end` terms can preserve the target conversion schedule better than factored locals
 
 **Hypothesis.** In Bezier-style interpolation expressions over `int` point
