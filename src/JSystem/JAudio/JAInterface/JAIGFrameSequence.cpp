@@ -86,7 +86,7 @@ void JAIBasic::checkEntriedSeq()
 								if (playing != nullptr
 								    && (playing->unk8 & 0xFF)
 								        == unk0->unk1EC[autoIdx].unk8)
-									break;
+									track = JAIGlobalParameter::seqPlayTrackMax;
 							}
 
 							if (track == JAIGlobalParameter::seqPlayTrackMax) {
