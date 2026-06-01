@@ -47,7 +47,7 @@ public:
 	void peachParasolIn_();
 	bool npcMareStanding();
 	void npcMareStandIn();
-	BOOL npcBlowning();
+	bool npcBlowning();
 	void npcBlownIn();
 	bool npcMadding();
 	void npcMadIn();
@@ -65,7 +65,7 @@ public:
 	void npcTalkIn();
 	void npcStepIn();
 	void npcRecoverAfterIn();
-	BOOL npcRecoverFromSinking();
+	bool npcRecoverFromSinking();
 	void npcFallIn();
 	void npcWaitIn();
 	int getNpcWaitAnmBase_();
@@ -166,7 +166,7 @@ public:
 	BOOL isTurnToMarioWhenTalk() const;
 	BOOL isNeedTurnToFirstState() const;
 	BOOL execTurnToFirstState();
-	BOOL execUTurn();
+	bool execUTurn();
 	void execWalk(bool);
 	void isCanWalk() const;
 	void bind();

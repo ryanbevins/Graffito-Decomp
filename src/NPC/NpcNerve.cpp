@@ -366,12 +366,13 @@ DEFINE_NERVE(TNerveNPCMad, TLiveActor)
 
 DEFINE_NERVE(TNerveNPCBlown, TLiveActor)
 {
+	bool isMare;
 	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
 	if (spine->getTime() == 0)
 		npc->npcBlownIn();
 
 	if (npc->npcBlowning()) {
-		bool isMare = true;
+		isMare = true;
 		if (!npc->isNormalMareM() && !npc->isNormalMareW())
 			isMare = false;
 		if (isMare)

@@ -445,19 +445,19 @@ void TBaseNPC::npcFallIn()
 	unk1D0      = 0.0f;
 }
 
-BOOL TBaseNPC::npcRecoverFromSinking()
+bool TBaseNPC::npcRecoverFromSinking()
 {
-	BOOL changed = FALSE;
+	bool changed = false;
 	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
 	(void)cur;
 	if (mLiveFlag & 0x80) {
 		requestNpcAnm_(asKind(0xE), asBlend(1));
 	} else if (mActionFlag & 0x1) {
 		requestNpcAnm_(asKind(0x12), asBlend(1));
-		changed = TRUE;
+		changed = true;
 	} else {
 		requestNpcAnm_(asKind(0x11), asBlend(1));
-		changed = TRUE;
+		changed = true;
 	}
 	return changed;
 }
@@ -668,16 +668,16 @@ void TBaseNPC::npcBlownIn()
 	*(s32*)mAnmFrameCounter = 0;
 }
 
-BOOL TBaseNPC::npcBlowning()
+bool TBaseNPC::npcBlowning()
 {
-	BOOL ret = FALSE;
+	bool ret = false;
 	BOOL flag;
 	if (mLiveFlag & LIVE_FLAG_AIRBORNE)
 		flag = TRUE;
 	else
 		flag = FALSE;
 	if (!flag)
-		ret = TRUE;
+		ret = true;
 	return ret;
 }
 

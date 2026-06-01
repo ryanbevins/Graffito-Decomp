@@ -92,7 +92,7 @@ bail:
 	mTurnSpeed  = 0.0f;
 }
 
-BOOL TBaseNPC::execUTurn()
+bool TBaseNPC::execUTurn()
 {
 	JGeometry::TVec3<f32> diff = unkF4.getPoint();
 	diff.x -= mPosition.x;
@@ -106,7 +106,7 @@ BOOL TBaseNPC::execUTurn()
 	if (unk178 != 0.0f || (mActionFlag & 0x200) != 0)
 		return FALSE;
 
-	BOOL result    = FALSE;
+	bool result    = false;
 	f32 wrappedTgt = targetYaw;
 	while (wrappedTgt >= 360.0f)
 		wrappedTgt -= 360.0f;
