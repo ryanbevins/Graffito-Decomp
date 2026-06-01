@@ -9,6 +9,11 @@ static inline u8 getSeCategoryLimit(JAIData* data, u8 scene, u8 category)
 	return data->unk4[scene][category * 2];
 }
 
+static inline u8 getSeCategoryLimitInt(JAIData* data, u8 scene, int category)
+{
+	return data->unk4[scene][category * 2];
+}
+
 static inline JAISound** getSeRegistSlot(JAIData* data, u8 category, u8 index)
 {
 	return &data->unk8[category][index].unk8;
@@ -71,15 +76,14 @@ void JAIBasic::checkNextFrameSe()
 {
 	// TODO: gl matching this awfulness
 
-	JAISound sound;
-
-	u8 local_180[16][4];
-	struct FabricatedThing {
-		u32 unk0;
-		JAISound* unk4;
-		u32 unk8;
+	struct Candidate {
+		u8 state;
+		u32 score;
+		JAISound* sound;
 	};
-	FabricatedThing local_17C[16];
+
+	JAISound sound;
+	Candidate candidates[16];
 
 	f32 fVar6
 	    = JAIGlobalParameter::distanceMax * JAIGlobalParameter::distanceMax;
@@ -88,11 +92,10 @@ void JAIBasic::checkNextFrameSe()
 		fVar1 = 1.0f;
 
 	for (int i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); ++i) {
-		u8 categoryLimit = getSeCategoryLimit(unk0, unk10, i);
-		for (int j = 0; j < categoryLimit; ++j) {
-			local_17C[j].unk0 = 0x7fffffff;
-			local_17C[j].unk4 = nullptr;
-			local_180[j][0]   = 0xff;
+		for (u8 j = 0; j < getSeCategoryLimitInt(unk0, unk10, i); ++j) {
+			candidates[j].score = 0x7fffffff;
+			candidates[j].sound = nullptr;
+			candidates[j].state = 0xff;
 		}
 
 		u8 bVar19 = 0;
@@ -107,52 +110,57 @@ void JAIBasic::checkNextFrameSe()
 				it = &sound;
 			}
 
-			if (it->unk2 == 0) {
-				sound.unk30 = it->unk30;
-				releaseSeRegist(it);
-				it = &sound;
-			} else if (it->unk1 != 0) {
-				u8 uVar14 = it->unk4;
-				u8 uVar8;
-				if (uVar14 == 4) {
-					uVar14 = 0;
-					uVar8  = JAIGlobalParameter::audioCameraMax;
-				} else {
-					uVar8 = uVar14 + 1;
-				}
-
-				f32 fVar2 = 2.147484e+09;
-				for (; uVar14 < uVar8; ++uVar14) {
-					JAISound::FabricatedPositionInfo* pi = &it->unk1C[uVar14];
-
-					pi->unkC = pi->unk0;
-					if (it->unk24 == 0) {
-						pi->unk0 = JAIConst::dummyZeroVec;
+				if (it->unk2 == 0) {
+					sound.unk30 = it->unk30;
+					releaseSeRegist(it);
+					it = &sound;
+				} else if (it->unk1 != 0) {
+					u8 uVar14 = it->unk4;
+					u8 uVar8;
+					f32 fVar2 = 2.147484e+09;
+					if (uVar14 == 4) {
+						uVar14 = 0;
+						uVar8  = JAIGlobalParameter::audioCameraMax;
 					} else {
-						MTXMultVec(unk8[uVar14].unk8, it->unk24, &pi->unk0);
+						uVar8 = uVar14 + 1;
 					}
 
-					pi->unk18 = pi->unk0.x * pi->unk0.x
-					            + pi->unk0.y * pi->unk0.y
-					            + pi->unk0.z * pi->unk0.z;
-					s32 prio   = it->getInfoPriority();
-					s16 offset = (s16)it->unk6;
-					if (offset) {
-						prio += offset;
-						if (prio < 0)
-							prio = 0;
-						else if (prio > 0xff)
-							prio = 0xff;
+					for (; uVar14 < uVar8; ++uVar14) {
+						JAISound::FabricatedPositionInfo* pi
+						    = &it->unk1C[uVar14];
+
+						pi->unkC = pi->unk0;
+						if (it->unk24 == 0) {
+							pi->unk0 = JAIConst::dummyZeroVec;
+						} else {
+							MTXMultVec(unk8[uVar14].unk8, it->unk24,
+							          &pi->unk0);
+						}
+
+						pi->unk18 = pi->unk0.x * pi->unk0.x
+						            + pi->unk0.y * pi->unk0.y
+						            + pi->unk0.z * pi->unk0.z;
+						s32 prio   = it->getInfoPriority();
+						s16 offset = (s16)it->unk6;
+						if (offset) {
+							prio += offset;
+							if (prio < 0)
+								prio = 0;
+							else if (prio > 0xff)
+								prio = 0xff;
+						}
+
+						s32 iVar21
+						    = (0xff - prio) * (0xff - prio) * 0x1690;
+						it->unkC = (u32)(iVar21 / fVar1)
+						           + (u32)(pi->unk18 / fVar1);
+						if (pi->unk0.z > 0.0f)
+							it->unkC
+							    += (u32)(pi->unk0.z * 6.0f / fVar1);
+
+						if (uVar14 == 0 || pi->unk18 < fVar2)
+							fVar2 = pi->unk18;
 					}
-
-					s32 iVar21 = (0xff - prio) * (0xff - prio) * 0x1690;
-					it->unkC = (u32)(iVar21 / fVar1) + (u32)(pi->unk18 / fVar1);
-					if (pi->unk0.z > 0.0f)
-						it->unkC += (u32)(pi->unk0.z * 6.0f / fVar1);
-
-					if (uVar14 == 0 || pi->unk18 < fVar2)
-						fVar2 = pi->unk18;
-				}
 
 				if (it->unk4 == 4)
 					it->unkC /= JAIGlobalParameter::audioCameraMax;
@@ -181,19 +189,22 @@ void JAIBasic::checkNextFrameSe()
 					u32 uVar14 = it->getSeCategoryNumber();
 					u8 bVar18  = getSeCategoryLimit(unk0, unk10, uVar14);
 					for (u8 j = 0; j < bVar18; ++j) {
-						if (it->unkC < local_17C[j].unk0
-						    || (it->unkC == local_17C[j].unk0
-						        && it->unk1 <= local_180[j][0])) {
+						if (it->unkC < candidates[j].score
+						    || (it->unkC == candidates[j].score
+						        && it->unk1 <= candidates[j].state)) {
 							if (bVar19 < bVar18)
 								++bVar19;
 							for (u8 k = bVar18 - 1; k > j; --k) {
-								local_17C[k].unk0  = local_17C[k - 1].unk0;
-								local_17C[k].unk4  = local_17C[k - 1].unk4;
-								local_180[k][0]    = local_180[k - 1][0];
+								candidates[k].score
+								    = candidates[k - 1].score;
+								candidates[k].sound
+								    = candidates[k - 1].sound;
+								candidates[k].state
+								    = candidates[k - 1].state;
 							}
-							local_17C[j].unk0 = it->unkC;
-							local_17C[j].unk4 = it;
-							local_180[j][0]   = it->unk1;
+							candidates[j].score = it->unkC;
+							candidates[j].sound = it;
+							candidates[j].state = it->unk1;
 
 							j = bVar18;
 						}
@@ -205,14 +216,14 @@ void JAIBasic::checkNextFrameSe()
 		}
 
 		for (u8 j = 0; j < bVar19; ++j) {
-			JAISound* snd = local_17C[j].unk4;
+			JAISound* snd = candidates[j].sound;
 			if (snd->unk1 == 1)
 				snd->unk1 = 2;
 			else if (snd->unk1 == 4)
 				snd->unk1 = 3;
 		}
 
-		u8 bVar192 = categoryLimit;
+		u8 bVar192 = getSeCategoryLimitInt(unk0, unk10, i);
 		for (u8 j = 0; j < bVar192; ++j) {
 			JAISound** cur = &unk0->unk8[i][j].unk8;
 			bool bVar7     = false;
@@ -231,8 +242,8 @@ void JAIBasic::checkNextFrameSe()
 				bVar7 = true;
 			} else {
 				for (u8 k = 0; k < bVar192; ++k) {
-					if (unk0->unk8[i][j].unk8 == local_17C[k].unk4) {
-						local_17C[k].unk4 = nullptr;
+					if (unk0->unk8[i][j].unk8 == candidates[k].sound) {
+						candidates[k].sound = nullptr;
 						k                 = bVar192;
 					}
 				}
@@ -241,7 +252,7 @@ void JAIBasic::checkNextFrameSe()
 			if (bVar7) {
 				bool assigned = false;
 				for (u8 k = 0; k < bVar192; ++k) {
-					JAISound* snd = local_17C[k].unk4;
+					JAISound* snd = candidates[k].sound;
 					if (snd != nullptr && snd->unk1 != 3) {
 						for (u8 l = 0; l < bVar192; ++l) {
 							if (unk0->unk8[i][l].unk8
@@ -253,7 +264,7 @@ void JAIBasic::checkNextFrameSe()
 
 						if (bVar7) {
 							*cur              = snd;
-							local_17C[k].unk4 = nullptr;
+							candidates[k].sound = nullptr;
 							assigned          = true;
 							break;
 						}
