@@ -1,25 +1,13 @@
 #include <Player/MarioRecord.hpp>
 
-template <typename T> void TRecordValueManager<T>::reset()
-{
-	mCurrentDurationPtr = mFirstDurationPtr;
-	mCurrentValuePtr    = mFirstValuePtr;
-	mElapsedFrames      = 0;
-	mUnk14              = 0;
-}
-
-template <typename T> bool TRecordValueManager<T>::get(T* outValue)
-{
-	*outValue = *mCurrentValuePtr;
-	mElapsedFrames++;
-	if ((u32)mElapsedFrames >= *mCurrentDurationPtr) {
-		mCurrentDurationPtr++;
-		mCurrentValuePtr++;
-		mElapsedFrames = 0;
-		return true;
-	}
-	return false;
-}
+template <> void TRecordValueManager<u8>::reset();
+template <> bool TRecordValueManager<u8>::get(u8* outValue);
+template <> void TRecordValueManager<u16>::reset();
+template <> bool TRecordValueManager<u16>::get(u16* outValue);
+template <> void TRecordValueManager<s16>::reset();
+template <> bool TRecordValueManager<s16>::get(s16* outValue);
+template <> void TRecordValueManager<f32>::reset();
+template <> bool TRecordValueManager<f32>::get(f32* outValue);
 
 void TMarioInputReplay::reset()
 {
@@ -37,26 +25,30 @@ bool TMarioInputReplay::play(f32* outIntendedMag, s16* outIntendedYaw,
                              u32* outPressedBtns, u32* outJustPressedBtns,
                              u8* a, u8* b)
 {
-	if (mCanPlay != 1)
-		return false;
-	if (mReplayPos >= mReplayLength)
-		return false;
+	if (mCanPlay == 1) {
+		if (mReplayPos < mReplayLength) {
+			mMag.get(outIntendedMag);
+			mYaw.get(outIntendedYaw);
 
-	mMag.get(outIntendedMag);
-	mYaw.get(outIntendedYaw);
+			u16 btnMask;
+			mBtnMask.get(&btnMask);
+			u16 just     = btnMask & (btnMask ^ mPrevBtnMask);
+			mPrevBtnMask = btnMask;
 
-	u16 btnMask;
-	mBtnMask.get(&btnMask);
-	u16 just             = btnMask & ~mPrevBtnMask;
-	mPrevBtnMask         = btnMask;
-	((u16*)outPressedBtns)[1]     = btnMask;
-	((u16*)outJustPressedBtns)[1] = just;
+			*outPressedBtns
+			    = (*outPressedBtns & 0xFFFF0000) | btnMask;
+			*outJustPressedBtns
+			    = (*outJustPressedBtns & 0xFFFF0000) | just;
 
-	mUnk64.get(a);
-	mUnk80.get(b);
+			mUnk64.get(a);
+			mUnk80.get(b);
 
-	mReplayPos++;
-	return true;
+			mReplayPos++;
+			return true;
+		}
+		mCanPlay = 0;
+	}
+	return false;
 }
 
 void TMarioInputReplay::init(u8* iData)
@@ -88,7 +80,32 @@ void TMarioInputReplay::init(u8* iData)
 	mUnk80.reset();
 }
 
-template class TRecordValueManager<u8>;
-template class TRecordValueManager<u16>;
-template class TRecordValueManager<s16>;
-template class TRecordValueManager<f32>;
+#pragma dont_inline on
+#define DEFINE_RECORD_VALUE_MANAGER(T)                                        \
+	template <> void TRecordValueManager<T>::reset()                           \
+	{                                                                          \
+		mCurrentDurationPtr = mFirstDurationPtr;                               \
+		mCurrentValuePtr    = mFirstValuePtr;                                  \
+		mElapsedFrames      = 0;                                               \
+		mUnk14              = 0;                                               \
+	}                                                                          \
+	template <> bool TRecordValueManager<T>::get(T* outValue)                  \
+	{                                                                          \
+		*outValue = *mCurrentValuePtr;                                         \
+		mElapsedFrames++;                                                      \
+		if ((u32)mElapsedFrames >= *mCurrentDurationPtr) {                     \
+			mCurrentDurationPtr++;                                             \
+			mCurrentValuePtr++;                                                \
+			mElapsedFrames = 0;                                                \
+			return true;                                                       \
+		}                                                                      \
+		return false;                                                          \
+	}
+
+DEFINE_RECORD_VALUE_MANAGER(u8)
+DEFINE_RECORD_VALUE_MANAGER(u16)
+DEFINE_RECORD_VALUE_MANAGER(s16)
+DEFINE_RECORD_VALUE_MANAGER(f32)
+
+#undef DEFINE_RECORD_VALUE_MANAGER
+#pragma dont_inline off
