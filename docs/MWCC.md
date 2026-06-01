@@ -5381,6 +5381,38 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Assigning a loop index to the bound inside a match arm can reproduce target's bound-plus-one sentinel loop where `break` emits a different controller
+
+**Hypothesis.** When target asm for a search loop does not branch out on match,
+but instead assigns the induction variable to the loop bound (`mr idx, bound`)
+and then still executes the loop increment, the original source likely avoided
+`break` and wrote an in-loop sentinel assignment:
+
+```cpp
+for (idx = 0; idx < bound; ++idx) {
+	if (match)
+		idx = bound;
+}
+if (idx == bound) {
+	// no match
+}
+```
+
+This exits with `idx == bound` when no match is found and `idx == bound + 1`
+when a match was found. A natural `break` can make MWCC choose a different loop
+controller (`mtctr`/`bdnz` in the observed case) and changes the post-loop
+equality test shape.
+
+**Observed.** `mario/JSystem/JAudio/JAInterface/JAIGFrameSequence`
+`JAIBasic::checkEntriedSeq` (t351): changing the auto-heap owner scan match arm
+from `break` to `track = JAIGlobalParameter::seqPlayTrackMax` restored the
+target index/multiply loop with `mr r9, r8`, removed the ctr loop, and moved the
+function `91.9% -> 94.0%`.
+
+**Experiment to confirm/refute.** Find a second search loop where target shows
+`mr idx, bound` followed by the normal increment and a final `idx == bound`
+test. Compare `break`, sentinel assignment, and an explicit boolean-found local.
+
 ### Cached `u8` loop bounds can trigger small-loop unrolling; reloading the bound expression may preserve a target top-tested loop
 
 **Hypothesis.** For small byte-count loops over local tables, storing the loop
