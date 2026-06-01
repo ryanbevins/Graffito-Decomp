@@ -245,16 +245,17 @@ void JAIAnimeSound::playActorAnimSound(JAIBasic* basic, JAIActor* actor,
 		    && (((u32)mDataCounterInc == 1 && (flags & 0x2) == 0)
 		        || ((u32)mDataCounterInc == 0xFFFFFFFF && (flags & 0x1) == 0))) {
 			Slot& slot = mSlots[slotIndex];
-			startAnimSound(basic, soundData->mSoundID, &slot.mSound, actor, flag);
-			if (slot.mSound != nullptr) {
+			JAISound** slotSound = &slot.mSound;
+			startAnimSound(basic, soundData->mSoundID, slotSound, actor, flag);
+			if (*slotSound != nullptr) {
 				slot.mData      = soundData;
 				slot.mIsPlaying = true;
-				slot.mSound->setVolume(soundData->unk14 / 127.0f, 0, 5);
-				slot.mSound->setPitch(
+				(*slotSound)->setVolume(soundData->unk14 / 127.0f, 0, 5);
+				(*slotSound)->setPitch(
 				    soundData->unkC
 				        + (f32)soundData->unk15 * (param - 1.0f) * 0.03125f,
 				    0, 5);
-				slot.mSound->setPan(soundData->unk17 / 127.0f, 0, 5);
+				(*slotSound)->setPan(soundData->unk17 / 127.0f, 0, 5);
 			}
 		}
 	}
