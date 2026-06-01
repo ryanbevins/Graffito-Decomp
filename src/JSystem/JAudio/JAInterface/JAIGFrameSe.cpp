@@ -566,7 +566,7 @@ void JAIBasic::releaseSeRegist(JAISound* sound)
 			JAISound* seqSound = unk0->unk180[i].unk48;
 			if (i != unk38->unk0 && seqSound != nullptr
 			    && !(seqSound->getSwBit() & 8)) {
-				unk30 &= ~(1 << sound->unk0);
+				unk30 &= (1 << sound->unk0) ^ 0xFFFFFFFF;
 				if (unk30 == 0) {
 					seqSound->setSeqInterVolume(
 					    9, 1.0f,
