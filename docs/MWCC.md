@@ -5355,6 +5355,43 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Put a float interval predicate in the `while` condition when target uses body-before-condition branch-back layout
+
+**Hypothesis.** For loops that repeatedly call a body while a float interval
+predicate remains true, MWCC's source shape matters:
+
+```cpp
+while (i < count && table[i].frame <= current + step) {
+	body();
+}
+```
+
+lowers to the canonical loop layout with an initial branch to the condition,
+the body placed before the condition block, and a condition-time `cror` branch
+back to the body. The equivalent inverse-break body:
+
+```cpp
+while (i < count) {
+	if (table[i].frame > current + step)
+		break;
+	body();
+}
+```
+
+keeps the body after the comparison and emits the wrong branch target/order,
+even if rewriting the `if` as positive `<=` recovers the `cror` lattice.
+
+**Observed.** `JSystem/JAudio/JAInterface/JAIAnimation`
+`JAIAnimeSound::setAnimSoundActor` (t339): converting all four crossed-record
+playback loops from inverse-break bodies to while-header predicates, plus
+using a local cached table pointer, moved the function `71.7% -> 95.3%`.
+
+**Experiment to confirm/refute.** Find a second TU with a nonmatching loop whose
+target has `b condition; body; condition: fcmpo; cror; b<eq/ne> body` and whose
+source currently uses `if (inverse) break; body();`. Move only the predicate
+into the `while` header and check whether the body-before-condition layout and
+branch-back target appear without other structural changes.
+
 ### Explicit template specializations can preserve same-TU template-member `bl` calls where generic template definitions inline despite `dont_inline`
 
 **Hypothesis.** For a class template member used by non-template functions in
