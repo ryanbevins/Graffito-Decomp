@@ -32,9 +32,9 @@ static inline f32* seParamF32Ptr(JAISeParameter* param, u32 offset)
 static inline void markSeqPortF32(JAIBasic* basic, JAISound* sound, u32 flag,
                                   u8 port, f32 value)
 {
-	JAISeqUpdateData* update = getCurrentSeqUpdate(basic);
-	update->unk44[sound->unk0] |= flag;
-	JAISystemInterface::setSeqPortargsF32(update, sound->unk0, port, value);
+	basic->unk0->unk180[basic->unk38->unk0].unk44[sound->unk0] |= flag;
+	JAISystemInterface::setSeqPortargsF32(
+	    &basic->unk0->unk180[basic->unk38->unk0], sound->unk0, port, value);
 }
 
 static inline void updateSeqPortF32(JAIBasic* basic, JAISound* sound,
@@ -434,7 +434,8 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 		if (link != nullptr)
 			seParamF32(param, 0x128) = *link;
 
-		volume = seParamF32(param, 0x128);
+		volume = 1.0f;
+		volume *= seParamF32(param, 0x128);
 		volume *= seParamF32(param, 0x138);
 		volume *= seParamF32(param, 0x148);
 		volume *= seParamF32(param, 0x158);
@@ -444,7 +445,7 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 	} else {
 		volume = seParamF32(param, 0x198);
 	}
-	volume *= unk28[sound->getSeCategoryNumber()];
+	volume *= unk28[(u8)sound->getSeCategoryNumber()];
 	updateSeqPortF32(this, sound, cached[1], volume, 1, 2);
 
 	f32 pan = seParamF32(param, 0x218);
@@ -453,12 +454,29 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 		if (link != nullptr)
 			seParamF32(param, 0x1A8) = *link;
 
-		pan = 0.0f;
-		for (u32 off = 0x1A8; off <= 0x208; off += 0x10) {
-			f32 v = seParamF32(param, off);
-			if (v != 0.5f)
-				pan += v - 0.5f;
-		}
+		f32 panCenter = 0.5f;
+		pan           = 0.0f;
+		f32 panValue  = seParamF32(param, 0x1A8);
+		if (panCenter != panValue)
+			pan += panValue - panCenter;
+		panValue = seParamF32(param, 0x1B8);
+		if (panCenter != panValue)
+			pan += panValue - panCenter;
+		panValue = seParamF32(param, 0x1C8);
+		if (panCenter != panValue)
+			pan += panValue - panCenter;
+		panValue = seParamF32(param, 0x1D8);
+		if (panCenter != panValue)
+			pan += panValue - panCenter;
+		panValue = seParamF32(param, 0x1E8);
+		if (panCenter != panValue)
+			pan += panValue - panCenter;
+		panValue = seParamF32(param, 0x1F8);
+		if (panCenter != panValue)
+			pan += panValue - panCenter;
+		panValue = seParamF32(param, 0x208);
+		if (panCenter != panValue)
+			pan += panValue - panCenter;
 		pan += 0.5f;
 		if (pan < 0.0f)
 			pan = 0.0f;
@@ -473,7 +491,8 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 		if (link != nullptr)
 			seParamF32(param, 0x228) = *link;
 
-		pitch = seParamF32(param, 0x228);
+		pitch = 1.0f;
+		pitch *= seParamF32(param, 0x228);
 		pitch *= seParamF32(param, 0x238);
 		pitch *= seParamF32(param, 0x248);
 		pitch *= seParamF32(param, 0x258);
@@ -489,7 +508,8 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 		if (link != nullptr)
 			seParamF32(param, 0x2A8) = *link;
 
-		fxmix = seParamF32(param, 0x2A8);
+		fxmix = 0.0f;
+		fxmix += seParamF32(param, 0x2A8);
 		fxmix += seParamF32(param, 0x2B8);
 		fxmix += seParamF32(param, 0x2C8);
 		fxmix += seParamF32(param, 0x2D8);
@@ -507,8 +527,13 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 
 		f32 center = JAIGlobalParameter::seDolbyCenterValue / 127.0f;
 		dolby      = 0.0f;
-		for (u32 off = 0x3A8; off <= 0x408; off += 0x10)
-			dolby += seParamF32(param, off) - center;
+		dolby += seParamF32(param, 0x3A8) - center;
+		dolby += seParamF32(param, 0x3B8) - center;
+		dolby += seParamF32(param, 0x3C8) - center;
+		dolby += seParamF32(param, 0x3D8) - center;
+		dolby += seParamF32(param, 0x3E8) - center;
+		dolby += seParamF32(param, 0x3F8) - center;
+		dolby += seParamF32(param, 0x408) - center;
 		dolby += center;
 		if (dolby < 0.0f)
 			dolby = 0.0f;
@@ -517,14 +542,12 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 	}
 	updateSeqPortF32(this, sound, cached[5], dolby, 0x10, 6);
 
-	JAISeqUpdateData* update = getCurrentSeqUpdate(this);
-	u32 flags                = update->unk44[sound->unk0];
+	u32 flags = getCurrentSeqUpdate(this)->unk44[sound->unk0];
 	if (flags != 0) {
-		JAISystemInterface::setSeqPortargsU32(update, sound->unk0, 1, flags);
-		JAISeqUpdateData::FabricatedUnk4CStruct* port
-		    = &update->unk4C[sound->unk0];
-		port->unk2C.unk0 = nullptr;
-		port->unk2C.addPortCmdOnce();
+		JAISystemInterface::setSeqPortargsU32(getCurrentSeqUpdate(this),
+		                                      sound->unk0, 1, flags);
+		getCurrentSeqUpdate(this)->unk4C[sound->unk0].unk2C.unk0 = nullptr;
+		getCurrentSeqUpdate(this)->unk4C[sound->unk0].unk2C.addPortCmdOnce();
 	}
 }
 
