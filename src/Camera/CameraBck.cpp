@@ -36,25 +36,19 @@ bool TCameraBck::updateDemo(JGeometry::TVec3<f32>* pos,
 
 	if (pos != nullptr) {
 		Mtx& m = *mPositionJointMtx;
-		pos->x = m[0][3];
-		pos->y = m[1][3];
-		pos->z = m[2][3];
+		pos->set(m[0][3], m[1][3], m[2][3]);
 	}
 	if (lookat != nullptr) {
-		Mtx& m    = *mLookatJointMtx;
-		lookat->x = m[0][3];
-		lookat->y = m[1][3];
-		lookat->z = m[2][3];
+		Mtx& m = *mLookatJointMtx;
+		lookat->set(m[0][3], m[1][3], m[2][3]);
 	}
 	if (up != nullptr) {
 		Mtx& m = *mPositionJointMtx;
-		up->x  = m[0][1];
-		up->y  = m[1][1];
-		up->z  = m[2][1];
+		up->set(m[0][1], m[1][1], m[2][1]);
 	}
 	if (fov != nullptr) {
 		J3DAnmTransform* bckAnm
-		    = mActor->unkC != nullptr ? mActor->unkC->unk24 : nullptr;
+		    = mActor->unkC == nullptr ? nullptr : mActor->unkC->unk24;
 		if (bckAnm != nullptr) {
 			J3DTransformInfo info;
 			bckAnm->getTransform((u16)mFovJointIdx, &info);
@@ -62,16 +56,18 @@ bool TCameraBck::updateDemo(JGeometry::TVec3<f32>* pos,
 		}
 	}
 
-	if (mOffset != nullptr) {
+	const JGeometry::TVec3<f32>* offset = mOffset;
+	if (offset != nullptr) {
 		if (pos != nullptr) {
-			pos->x += mOffset->x;
-			pos->y += mOffset->y;
-			pos->z += mOffset->z;
+			pos->x += offset->x;
+			pos->y += offset->y;
+			pos->z += offset->z;
 		}
 		if (lookat != nullptr) {
-			lookat->x += mOffset->x;
-			lookat->y += mOffset->y;
-			lookat->z += mOffset->z;
+			offset = mOffset;
+			lookat->x += offset->x;
+			lookat->y += offset->y;
+			lookat->z += offset->z;
 		}
 	}
 
@@ -82,7 +78,7 @@ bool TCameraBck::updateDemo(JGeometry::TVec3<f32>* pos,
 		if ((stateByte & 1) == 0)
 			result = false;
 	}
-	return result;
+	return result ? true : false;
 }
 
 void TCameraBck::endDemo() { mActor->setBckFromIndex(-1); }
