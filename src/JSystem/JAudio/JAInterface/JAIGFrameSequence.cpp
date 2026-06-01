@@ -179,22 +179,22 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 		*flags ^= 0x2;
 	}
 
-	if (sound != nullptr && sound->unk20 != nullptr) {
+	if (*soundSlot != nullptr && (*soundSlot)->unk20 != nullptr) {
 		u32 startCamera;
 		u32 endCamera;
-		if (sound->unk4 == 4) {
+		if ((*soundSlot)->unk4 == 4) {
 			startCamera = 0;
 			endCamera   = JAIGlobalParameter::audioCameraMax;
 		} else {
-			startCamera = sound->unk4;
-			endCamera   = sound->unk4 + 1;
+			startCamera = (*soundSlot)->unk4;
+			endCamera   = (*soundSlot)->unk4 + 1;
 		}
 
 		for (u32 i = startCamera; i < endCamera; ++i) {
-			JAISound::FabricatedPositionInfo* info = &sound->unk1C[i];
+			JAISound::FabricatedPositionInfo* info = &(*soundSlot)->unk1C[i];
 
 			info->unkC = info->unk0;
-			PSMTXMultVec(unk8[i].unk8, sound->unk24, &info->unk0);
+			PSMTXMultVec(unk8[i].unk8, (*soundSlot)->unk24, &info->unk0);
 
 			f32 distance = info->unk0.x * info->unk0.x
 			               + info->unk0.y * info->unk0.y
@@ -209,25 +209,26 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 			}
 			info->unk18 = distance;
 
-			f32 volume = (u8)(sound->setDistanceVolumeCommon(
+			f32 volume = (u8)((*soundSlot)->setDistanceVolumeCommon(
 			                     JAIGlobalParameter::distanceMax, 0)
 			                 * 127.0f);
-			sound->setSeqInterVolume(
+			(*soundSlot)->setSeqInterVolume(
 			    4, volume, JAIGlobalParameter::distanceParameterMoveTime);
 
-			f32 pan = (u8)sound->setDistancePanCommon();
-			sound->setSeqInterPan(
+			f32 pan = (u8)(*soundSlot)->setDistancePanCommon();
+			(*soundSlot)->setSeqInterPan(
 			    4, pan, JAIGlobalParameter::distanceParameterMoveTime);
 
-			f32 pitch = sound->setPositionDopplarCommon(0x100);
-			sound->setSeqInterPitch(4, pitch, JAIGlobalParameter::dopplarMoveTime);
+			f32 pitch = (*soundSlot)->setPositionDopplarCommon(0x100);
+			(*soundSlot)->setSeqInterPitch(
+			    4, pitch, JAIGlobalParameter::dopplarMoveTime);
 		}
 	}
 
-	if (sound != nullptr)
-		sound->unk14++;
+	if (*soundSlot != nullptr)
+		(*soundSlot)->unk14++;
 
-	if (seqData->unk8 == 0)
+	if (*flags == 0)
 		return;
 
 	u32 seqMoveCount = (u8)(JAIGlobalParameter::seqPlayTrackMax + 0xC);
