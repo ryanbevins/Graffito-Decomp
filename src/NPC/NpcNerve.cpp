@@ -1,20 +1,274 @@
 #include "Enemy/PathNode.hpp"
 #include "Strategic/SolidStack.hpp"
+#include <Enemy/Graph.hpp>
+#include <M3DUtil/LodAnm.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <Strategic/Spine.hpp>
 #include <NPC/NpcNerve.hpp>
 #include <NPC/NpcBase.hpp>
+#include <NPC/NpcSave.hpp>
+#include <Player/MarioAccess.hpp>
+#include <System/MarDirector.hpp>
+#include <stdlib.h>
 
-DEFINE_NERVE(TNerveNPCGraphWander, TLiveActor) { }
+template <class T> T CLBSquared(T);
 
-DEFINE_NERVE(TNerveNPCUTurn, TLiveActor) { }
+static inline void setRandomFrameCounter(TNpcAnmFrameCounter* counter,
+                                         s16 minFrame, s16 maxFrame)
+{
+	counter->mCurFrame = 0;
+	counter->mMaxFrame
+	    = minFrame
+	      + (s32)((f32)(maxFrame - minFrame)
+	              * ((f32)rand() * (1.0f / 32768.0f)))
+	      + 1;
+}
 
-DEFINE_NERVE(TNerveNPCGraphWait, TLiveActor) { }
+static inline bool updateFrameCounter(TNpcAnmFrameCounter* counter)
+{
+	bool finished = false;
+	counter->mCurFrame++;
+	if (counter->mCurFrame >= counter->mMaxFrame) {
+		counter->mCurFrame = counter->mMaxFrame;
+		finished           = true;
+	}
+	return finished;
+}
 
-DEFINE_NERVE(TNerveNPCWaitContinue, TLiveActor) { }
+static inline bool isDownNpcBlocked(TBaseNPC* npc)
+{
+	bool blocked = false;
+	if (npc->mActorType - 0x04000000 == 0x18 && (npc->unk1D8 & 0x2))
+		blocked = true;
+	return blocked;
+}
 
-DEFINE_NERVE(TNerveNPCWaitMarioApproach, TLiveActor) { }
+static inline bool isSunflowerBlocked(TBaseNPC* npc)
+{
+	bool blocked = false;
+	if (npc->isSunflower() && (npc->unk1D8 & 0x2))
+		blocked = true;
+	return blocked;
+}
 
-DEFINE_NERVE(TNerveNPCTurnToMario, TLiveActor) { }
+static inline bool isSinkOnlyNpc(TBaseNPC* npc)
+{
+	return npc->mActorType == 0x0400001C || npc->mActorType == 0x0400001D;
+}
+
+DEFINE_NERVE(TNerveNPCGraphWander, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (spine->getTime() == 0) {
+		setRandomFrameCounter(npc->mAnmFrameCounter,
+		                      TBaseNPC::mPtrSaveNormal
+		                          ->mSLGraphWanderMinFrame.get(),
+		                      TBaseNPC::mPtrSaveNormal
+		                          ->mSLGraphWanderMaxFrame.get());
+	}
+
+	npc->execWalk(true);
+
+	JGeometry::TVec3<f32> goal = npc->unkF4.getPoint();
+	JGeometry::TVec3<f32> diff(goal.x - npc->mPosition.x, 0.0f,
+	                           goal.z - npc->mPosition.z);
+	f32 distSq = diff.squared();
+
+	if (npc->unk114.size() != 0) {
+		if (distSq < CLBSquared<f32>(100.0f)) {
+			npc->unkF4 = npc->unk114.pop();
+		}
+		return FALSE;
+	}
+
+	bool oneWay = false;
+	bool markTurnDir = false;
+	const TGraphTracer* tracer = npc->getTracer();
+	int curIndex              = tracer->getCurGraphIndex();
+	const TGraphWeb* graph    = tracer->getGraph();
+	const TGraphNode& node    = graph->unk0[curIndex];
+	if (node.getRailNode()->mConnectionNum == 1) {
+		oneWay = true;
+		if (npc->getTracer()
+		        ->getGraph()
+		        ->unk0[npc->getTracer()->mCurrIdx]
+		        .getRailNode()
+		        ->mPitch
+		    == 0) {
+			markTurnDir = true;
+		}
+	}
+
+	bool counterDone = updateFrameCounter(npc->mAnmFrameCounter);
+
+	if (oneWay) {
+		if (!(distSq < CLBSquared<f32>(50.0f)))
+			return FALSE;
+	} else {
+		if (!(distSq < CLBSquared<f32>(100.0f)))
+			return FALSE;
+	}
+
+	if (!(npc->mActionFlag & 0x80) && counterDone) {
+		spine->pushAfterCurrent(&TNerveNPCGraphWait::theNerve());
+		return TRUE;
+	}
+
+	npc->goToShortestNextGraphNode();
+	if (oneWay) {
+		spine->pushAfterCurrent(&TNerveNPCUTurn::theNerve());
+		if (markTurnDir)
+			npc->mLiveFlag |= 0x200000;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+TGraphWeb* TGraphTracer::getGraph() const { return unk0; }
+
+int TGraphTracer::getCurGraphIndex() const { return mCurrIdx; }
+
+DEFINE_NERVE(TNerveNPCUTurn, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (npc->execUTurn()) {
+		npc->mMarchSpeed = 0.0f;
+		npc->mLiveFlag &= ~0x200000;
+		spine->pushAfterCurrent(&TNerveNPCGraphWander::theNerve());
+		return TRUE;
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveNPCGraphWait, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (spine->getTime() == 0) {
+		setRandomFrameCounter(npc->mAnmFrameCounter,
+		                      TBaseNPC::mPtrSaveNormal
+		                          ->mSLGraphWaitMinFrame.get(),
+		                      TBaseNPC::mPtrSaveNormal
+		                          ->mSLGraphWaitMaxFrame.get());
+	}
+
+	if (npc->mMarchSpeed < 0.001f) {
+		if (updateFrameCounter(npc->mAnmFrameCounter)) {
+			spine->pushAfterCurrent(&TNerveNPCGraphWander::theNerve());
+			return TRUE;
+		}
+	} else {
+		npc->execWalk(false);
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveNPCWaitContinue, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (spine->getTime() == 0) {
+		if (npc->mHolder != nullptr)
+			npc->npcTakenIn();
+		else
+			npc->npcWaitIn();
+	}
+	return FALSE;
+}
+
+static inline void execCommonWaitApproach(TBaseNPC* npc,
+                                          TSpineBase<TLiveActor>* spine,
+                                          bool nearMario)
+{
+	if (isSinkOnlyNpc(npc))
+		return;
+	if (isDownNpcBlocked(npc))
+		return;
+	if (isSunflowerBlocked(npc)) {
+		npc->sunflowerReviving();
+		return;
+	}
+	if (npc->mActorType == 0x04000006) {
+		if (nearMario)
+			npc->monteMESetAnmWhenNear();
+		else
+			npc->monteMESetAnmWhenFar();
+		npc->execTurnToFirstState();
+		return;
+	}
+
+	if (nearMario && npc->isTurnToMarioWhenApproach()) {
+		SMS_GoRotate(npc->mPosition, *gpMarioPos, npc->mTurnSpeed,
+		             &npc->mRotation.y);
+
+		JGeometry::TVec3<f32> diff = *gpMarioPos;
+		diff.x -= npc->mPosition.x;
+		diff.y -= npc->mPosition.y;
+		diff.z -= npc->mPosition.z;
+		JGeometry::TVec3<f32> dir = diff;
+		f32 targetYaw;
+		if (dir.z == 0.0f) {
+			if (dir.x >= 0.0f)
+				targetYaw = 90.0f;
+			else
+				targetYaw = -90.0f;
+		} else if (dir.z >= 0.0f) {
+			targetYaw = (360.0f / 65536.0f) * matan(dir.z, dir.x);
+		} else {
+			f32 theta = matan(-dir.z, dir.x) * (360.0f / 65536.0f);
+			targetYaw = 180.0f - theta;
+		}
+
+		f32 delta = npc->mRotation.y - targetYaw;
+		if (delta < 0.0f)
+			delta = -delta;
+		while (delta >= 360.0f)
+			delta -= 360.0f;
+		while (delta < 0.0f)
+			delta += 360.0f;
+
+		if (delta < 0.001f)
+			npc->npcWaitIn();
+		else
+			npc->npcStepIn();
+		return;
+	}
+
+	if (npc->isNeedTurnToFirstState()) {
+		if (npc->execTurnToFirstState())
+			npc->npcWaitIn();
+		else
+			npc->npcStepIn();
+		return;
+	}
+
+	if (spine->getTime() == 0)
+		npc->npcWaitIn();
+}
+
+DEFINE_NERVE(TNerveNPCWaitMarioApproach, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (npc->isInBodyTurnSearchRange() && npc->unk178 == 0.0f) {
+		spine->pushAfterCurrent(&TNerveNPCTurnToMario::theNerve());
+		return TRUE;
+	}
+
+	execCommonWaitApproach(npc, spine, false);
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveNPCTurnToMario, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (!npc->isInBodyTurnSearchRange() || npc->unk178 != 0.0f) {
+		spine->pushAfterCurrent(&TNerveNPCWaitMarioApproach::theNerve());
+		return TRUE;
+	}
+
+	execCommonWaitApproach(npc, spine, true);
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveNPCWet, TLiveActor)
 {
@@ -34,9 +288,27 @@ DEFINE_NERVE(TNerveNPCSink, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveNPCRecoverFromSink, TLiveActor) { }
+DEFINE_NERVE(TNerveNPCRecoverFromSink, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (npc->npcRecoverFromSinking()) {
+		spine->pushAfterCurrent(&TNerveNPCRecoverAfter::theNerve());
+		return TRUE;
+	}
+	return FALSE;
+}
 
-DEFINE_NERVE(TNerveNPCRecoverAfter, TLiveActor) { }
+DEFINE_NERVE(TNerveNPCRecoverAfter, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (spine->getTime() == 0)
+		npc->npcRecoverAfterIn();
+
+	if (npc->unkD0->mCurrentAnmKind == 3
+	    && npc->mMActor->isCurAnmAlreadyEnd(0))
+		return TRUE;
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveNPCSetPosAfterSinkBottom, TLiveActor)
 {
@@ -45,7 +317,30 @@ DEFINE_NERVE(TNerveNPCSetPosAfterSinkBottom, TLiveActor)
 	return TRUE;
 }
 
-DEFINE_NERVE(TNerveNPCTalk, TLiveActor) { }
+DEFINE_NERVE(TNerveNPCTalk, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+
+	bool canTalk = true;
+	bool inMode12 = true;
+	if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
+		inMode12 = false;
+	if (!inMode12 && gpMarDirector->unk124 != 4)
+		canTalk = false;
+
+	if (canTalk) {
+		if (spine->getTime() == 0)
+			npc->npcTalkIn();
+		npc->npcTalking();
+		return FALSE;
+	}
+
+	if (npc->mActorType == 0x0400001C)
+		return TRUE;
+
+	npc->npcTalkOut();
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveNPCThrow, TLiveActor)
 {
@@ -69,7 +364,22 @@ DEFINE_NERVE(TNerveNPCMad, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveNPCBlown, TLiveActor) { }
+DEFINE_NERVE(TNerveNPCBlown, TLiveActor)
+{
+	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
+	if (spine->getTime() == 0)
+		npc->npcBlownIn();
+
+	if (npc->npcBlowning()) {
+		bool isMare = true;
+		if (!npc->isNormalMareM() && !npc->isNormalMareW())
+			isMare = false;
+		if (isMare)
+			spine->pushAfterCurrent(&TNerveNPCMareStand::theNerve());
+		return TRUE;
+	}
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveNPCMareStand, TLiveActor)
 {

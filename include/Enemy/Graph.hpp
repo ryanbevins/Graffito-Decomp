@@ -162,8 +162,8 @@ public:
 	int moveTo(int node_idx);
 	f32 calcSplineSpeed(float);
 	bool traceSpline(float);
-	void getCurGraphIndex() const;
-	void getGraph() const;
+	int getCurGraphIndex() const;
+	TGraphWeb* getGraph() const;
 
 	// fabricated
 	int getCurrentIndex() { return mCurrIdx; }
