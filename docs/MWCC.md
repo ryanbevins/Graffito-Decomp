@@ -5376,6 +5376,13 @@ rewriting both range-table and range-center BP words from `PACKET_SET_REG_FIELD`
 calls to direct packed expressions changed the helper from `34.9% -> 100.0%`
 and added 312 matched code bytes.
 
+Same TU follow-up: `FifoSetFog(_GXFogType, float, float, float, float,
+GXColor)` moved from `40.8% -> 95.4%` after using direct/staged packed
+expressions for the BP words, writing each FIFO word immediately in target
+order, starting the fog exponent at 1 instead of adding 1 later, and assigning
+the `c` float in each branch before the normalization loops. This reinforces
+the packing/order lever but is not an independent TU confirmation.
+
 **Experiment to confirm/refute.** Find a second FIFO/BP helper where target has
 manual `slwi`/`or` packing but current source uses a field-setting macro and
 emits `rlwimi`; rewrite only the packed word expression. If the shift/OR pattern

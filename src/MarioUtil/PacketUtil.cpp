@@ -94,7 +94,6 @@ static void FifoSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz,
 	f32 A;
 	f32 B;
 	f32 B_mant;
-	f32 C;
 	f32 a;
 	f32 c;
 	u32 B_expn;
@@ -106,15 +105,15 @@ static void FifoSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz,
 	if (farz == nearz || endz == startz) {
 		A = 0.0f;
 		B = 0.5f;
-		C = 0.0f;
+		c = 0.0f;
 	} else {
 		A = (farz * nearz) / ((farz - nearz) * (endz - startz));
 		B = farz / (farz - nearz);
-		C = startz / (endz - startz);
+		c = startz / (endz - startz);
 	}
 
 	B_mant = B;
-	B_expn = 0;
+	B_expn = 1;
 	while (B_mant > 1.0) {
 		B_mant *= 0.5f;
 		B_expn++;
@@ -124,46 +123,31 @@ static void FifoSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz,
 		B_expn--;
 	}
 
-	a   = A / (f32)(1 << (B_expn + 1));
+	a   = A / (f32)(1 << B_expn);
 	b_m = 8388638.0f * B_mant;
-	b_s = B_expn + 1;
-	c   = C;
-
-	fog1 = 0;
-	PACKET_SET_REG_FIELD(fog1, 24, 0, b_m);
-	PACKET_SET_REG_FIELD(fog1, 8, 24, 0xEF);
-
-	fog2 = 0;
-	PACKET_SET_REG_FIELD(fog2, 5, 0, b_s);
-	PACKET_SET_REG_FIELD(fog2, 8, 24, 0xF0);
+	b_s = B_expn;
 
 	a_hex = *(u32*)&a;
 	c_hex = *(u32*)&c;
 
-	fog0 = 0;
-	PACKET_SET_REG_FIELD(fog0, 11, 0, (a_hex >> 12) & 0x7FF);
-	PACKET_SET_REG_FIELD(fog0, 8, 11, (a_hex >> 23) & 0xFF);
-	PACKET_SET_REG_FIELD(fog0, 1, 19, a_hex >> 31);
-	PACKET_SET_REG_FIELD(fog0, 8, 24, 0xEE);
-
-	fog3 = 0;
-	PACKET_SET_REG_FIELD(fog3, 11, 0, (c_hex >> 12) & 0x7FF);
-	PACKET_SET_REG_FIELD(fog3, 8, 11, (c_hex >> 23) & 0xFF);
-	PACKET_SET_REG_FIELD(fog3, 1, 19, c_hex >> 31);
-	PACKET_SET_REG_FIELD(fog3, 1, 20, 0);
-	PACKET_SET_REG_FIELD(fog3, 3, 21, type);
-	PACKET_SET_REG_FIELD(fog3, 8, 24, 0xF1);
-
-	fogColor = 0;
-	PACKET_SET_REG_FIELD(fogColor, 8, 0, color.b);
-	PACKET_SET_REG_FIELD(fogColor, 8, 8, color.g);
-	PACKET_SET_REG_FIELD(fogColor, 8, 16, color.r);
-	PACKET_SET_REG_FIELD(fogColor, 8, 24, 0xF2);
-
+	fog0 = 0xEE000000 | (a_hex >> 12);
 	FIFO_WRITE_BP_REG(fog0);
+
+	fog1 = 0xEF000000 | b_m;
 	FIFO_WRITE_BP_REG(fog1);
+
+	fog2 = 0xF0000000 | b_s;
 	FIFO_WRITE_BP_REG(fog2);
+
+	fog3 = type << 21;
+	fog3 |= c_hex >> 12;
+	fog3 |= 0xF1000000;
 	FIFO_WRITE_BP_REG(fog3);
+
+	fogColor = color.b;
+	fogColor |= color.g << 8;
+	fogColor |= color.r << 16;
+	fogColor |= 0xF2000000;
 	FIFO_WRITE_BP_REG(fogColor);
 }
 
