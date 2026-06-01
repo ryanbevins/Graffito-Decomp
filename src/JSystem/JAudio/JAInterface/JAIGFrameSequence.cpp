@@ -49,14 +49,16 @@ void JAIBasic::checkEntriedSeq()
 		if (seqData->unk3 != 0)
 			return;
 
-		u32 seqNo = (*soundSlot)->unk8 & 0x3FF;
-		u32 size  = JASystem::Vload::checkSize(unk2C + seqNo);
+		u32 size
+		    = JASystem::Vload::checkSize(unk2C + ((*soundSlot)->unk8 & 0x3FF));
 
 		u8 heapNo;
-		u8* buffer = (u8*)unk0->checkOnMemory(seqNo, &heapNo);
+		u8* buffer
+		    = (u8*)unk0->checkOnMemory((*soundSlot)->unk8 & 0x3FF, &heapNo);
 		if (buffer == nullptr) {
 			if ((*soundSlot)->checkSwBit(0x10)) {
-				buffer = (u8*)unk0->getFreeStayHeapPointer(size, seqNo);
+				buffer = (u8*)unk0->getFreeStayHeapPointer(
+				    size, (*soundSlot)->unk8 & 0x3FF);
 				heapNo = 0xFF;
 				(*soundSlot)->getSeqParameter()->unk1754 = heapNo;
 				if (buffer == nullptr)
@@ -103,19 +105,22 @@ void JAIBasic::checkEntriedSeq()
 					}
 
 					(*soundSlot)->getSeqParameter()->unk1754 = heapNo;
-					buffer = (u8*)unk0->getFreeAutoHeapPointer(heapNo, seqNo);
+					buffer = (u8*)unk0->getFreeAutoHeapPointer(
+					    heapNo, (*soundSlot)->unk8 & 0x3FF);
 				}
 			}
 
 			if (!(*soundSlot)->checkSwBit(0x40)) {
 				(*soundSlot)->unk1 = 1;
-				unk0->setAutoHeapLoadedFlag(heapNo, 1);
+				u32 seqNo = (*soundSlot)->unk8 & 0x3FF;
 				u32 loadId = i | (seqNo << 16) | (heapNo << 8) | 1;
+				unk0->setAutoHeapLoadedFlag(heapNo, 1);
 				JASystem::Vload::loadFileAsync(
 				    unk2C + seqNo, buffer, 0, size, &checkDvdLoadArc, loadId);
 				seqData->unk3 = 1;
 			} else {
-				JASystem::Vload::loadFile(unk2C + seqNo, buffer, 0, size);
+				JASystem::Vload::loadFile(
+				    unk2C + ((*soundSlot)->unk8 & 0x3FF), buffer, 0, size);
 				(*soundSlot)->unk1 = 2;
 			}
 		} else {
@@ -123,7 +128,8 @@ void JAIBasic::checkEntriedSeq()
 				return;
 
 			if (heapNo != 0xFF)
-				unk0->getFreeAutoHeapPointer(heapNo, seqNo);
+				unk0->getFreeAutoHeapPointer(heapNo,
+				                              (*soundSlot)->unk8 & 0x3FF);
 
 			(*soundSlot)->getSeqParameter()->unk1754 = heapNo;
 			(*soundSlot)->unk1                      = 2;
