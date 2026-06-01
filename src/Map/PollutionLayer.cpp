@@ -1,19 +1,94 @@
 #include <Map/PollutionLayer.hpp>
 #include <Map/PollutionManager.hpp>
+#include <MoveBG/MapObjWave.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <MarioUtil/ReinitGX.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
+#include <JSystem/JUtility/JUTTexture.hpp>
 #include <JSystem/ResTIMG.hpp>
+#include <dolphin/gx.h>
 #include <dolphin/os/OSCache.h>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
-void TPollutionLayerWave::initGX() const { }
+f32 TPollutionLayerWave::mInterval = 300.0f;
+u8 TPollutionLayerWave::mAlpha     = 0xE6;
+u32 TPollutionLayer::mEffectTime   = 15;
 
-void TPollutionLayerWave::draw() const { }
+void TPollutionLayerWave::initGX() const
+{
+	ReInitializeGX();
+
+	GXLoadPosMtxImm(j3dSys.mViewMtx, GX_PNMTX0);
+	GXSetCurrentMtx(GX_PNMTX0);
+	GXSetNumChans(1);
+	GXSetChanCtrl(GX_COLOR0A0, GX_DISABLE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_DISABLE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+
+	GXColor color = { 0, 0, 0, mAlpha };
+	GXSetChanMatColor(GX_COLOR0A0, color);
+
+	JUTTexture texture(unk58);
+	texture.load(GX_TEXMAP0);
+
+	GXSetNumTexGens(1);
+	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
+	                  GX_FALSE, GX_PTIDENTITY);
+	GXSetNumTevStages(1);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_RASC, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA,
+	                GX_CA_ZERO);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetCullMode(GX_CULL_NONE);
+	GXSetAlphaCompare(GX_GREATER, 0, GX_AOP_AND, GX_GREATER, 0);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+	               GX_LO_NOOP);
+	GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+	GXSetZCompLoc(GX_FALSE);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+}
+
+void TPollutionLayerWave::draw() const
+{
+	f32 width  = unk3C - unk38;
+	f32 height = unk44 - unk40;
+	int count  = (u16)(int)(width / mInterval) * 2;
+	f32 invX   = 1.0f / width;
+	f32 invZ   = 1.0f / height;
+
+	for (f32 z = unk40; z < unk44 - mInterval; z += mInterval) {
+		GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, count);
+
+		for (f32 x = unk38; x < unk3C - mInterval; x += mInterval) {
+			f32 nextZ = z + mInterval;
+			f32 y     = gpMapObjWave->getWaveHeight(x, z) - 10.0f;
+
+			GXPosition3f32(x, y, z);
+			GXTexCoord2f32((x - unk38) * invX, (z - unk40) * invZ);
+
+			y = gpMapObjWave->getWaveHeight(x, nextZ) - 10.0f;
+
+			GXPosition3f32(x, y, nextZ);
+			GXTexCoord2f32((x - unk38) * invX, (nextZ - unk40) * invZ);
+		}
+	}
+}
 
 void TPollutionLayerWave::perform(u32 flags, JDrama::TGraphics*)
 {

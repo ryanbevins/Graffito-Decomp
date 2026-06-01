@@ -205,8 +205,8 @@ public:
 	void draw() const;
 	void initGX() const;
 
-	static u32 mInterval;
-	static u32 mAlpha;
+	static f32 mInterval;
+	static u8 mAlpha;
 };
 
 #endif
