@@ -3,6 +3,20 @@
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <JSystem/J3D/J3DGraphBase/Blocks/J3DPEBlocks.hpp>
+#include <dolphin/gx/GXCommandList.h>
+#include <dolphin/gx/GXVert.h>
+
+#define FIFO_WRITE_BP_REG(value)                                               \
+	do {                                                                       \
+		GXWGFifo.u8  = GX_LOAD_BP_REG;                                         \
+		GXWGFifo.u32 = (u32)(value);                                           \
+	} while (0)
+
+#define PACKET_SET_REG_FIELD(reg, size, shift, val)                            \
+	do {                                                                       \
+		(reg) = ((u32)(reg) & ~(((1 << (size)) - 1) << (shift)))               \
+		        | ((u32)(val) << (shift));                                     \
+	} while (0)
 
 static void FifoSetChanMatColor(GXChannelID, GXColor) { }
 
@@ -10,9 +24,108 @@ static void FifoSetTevColorS10(GXTevRegID, GXColorS10) { }
 
 static void FifoSetTevKColor(GXTevKColorID, GXColor) { }
 
-static void FifoSetFogRangeAdj(u8, u16, GXFogAdjTable*) { }
+static void FifoSetFogRangeAdj(u8 enable, u16 center, GXFogAdjTable* table)
+{
+	if (enable) {
+		for (int i = 0; i < 10; i += 2) {
+			u32 rangeAdj = 0;
+			PACKET_SET_REG_FIELD(rangeAdj, 12, 0, table->r[i]);
+			PACKET_SET_REG_FIELD(rangeAdj, 12, 12, table->r[i + 1]);
+			PACKET_SET_REG_FIELD(rangeAdj, 8, 24, (i >> 1) + 0xE9);
+			FIFO_WRITE_BP_REG(rangeAdj);
+		}
+	}
 
-static void FifoSetFog(GXFogType, float, float, float, float, GXColor) { }
+	u32 rangeCenter = 0;
+	PACKET_SET_REG_FIELD(rangeCenter, 10, 0, center + 342);
+	PACKET_SET_REG_FIELD(rangeCenter, 1, 10, enable);
+	PACKET_SET_REG_FIELD(rangeCenter, 8, 24, 0xE8);
+	FIFO_WRITE_BP_REG(rangeCenter);
+}
+
+static void FifoSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz,
+                       f32 farz, GXColor color)
+{
+	u32 fogColor;
+	u32 fog0;
+	u32 fog1;
+	u32 fog2;
+	u32 fog3;
+	f32 A;
+	f32 B;
+	f32 B_mant;
+	f32 C;
+	f32 a;
+	f32 c;
+	u32 B_expn;
+	u32 b_m;
+	u32 b_s;
+	u32 a_hex;
+	u32 c_hex;
+
+	if (farz == nearz || endz == startz) {
+		A = 0.0f;
+		B = 0.5f;
+		C = 0.0f;
+	} else {
+		A = (farz * nearz) / ((farz - nearz) * (endz - startz));
+		B = farz / (farz - nearz);
+		C = startz / (endz - startz);
+	}
+
+	B_mant = B;
+	B_expn = 0;
+	while (B_mant > 1.0) {
+		B_mant *= 0.5f;
+		B_expn++;
+	}
+	while (B_mant > 0.0f && B_mant < 0.5) {
+		B_mant *= 2.0f;
+		B_expn--;
+	}
+
+	a   = A / (f32)(1 << (B_expn + 1));
+	b_m = 8388638.0f * B_mant;
+	b_s = B_expn + 1;
+	c   = C;
+
+	fog1 = 0;
+	PACKET_SET_REG_FIELD(fog1, 24, 0, b_m);
+	PACKET_SET_REG_FIELD(fog1, 8, 24, 0xEF);
+
+	fog2 = 0;
+	PACKET_SET_REG_FIELD(fog2, 5, 0, b_s);
+	PACKET_SET_REG_FIELD(fog2, 8, 24, 0xF0);
+
+	a_hex = *(u32*)&a;
+	c_hex = *(u32*)&c;
+
+	fog0 = 0;
+	PACKET_SET_REG_FIELD(fog0, 11, 0, (a_hex >> 12) & 0x7FF);
+	PACKET_SET_REG_FIELD(fog0, 8, 11, (a_hex >> 23) & 0xFF);
+	PACKET_SET_REG_FIELD(fog0, 1, 19, a_hex >> 31);
+	PACKET_SET_REG_FIELD(fog0, 8, 24, 0xEE);
+
+	fog3 = 0;
+	PACKET_SET_REG_FIELD(fog3, 11, 0, (c_hex >> 12) & 0x7FF);
+	PACKET_SET_REG_FIELD(fog3, 8, 11, (c_hex >> 23) & 0xFF);
+	PACKET_SET_REG_FIELD(fog3, 1, 19, c_hex >> 31);
+	PACKET_SET_REG_FIELD(fog3, 1, 20, 0);
+	PACKET_SET_REG_FIELD(fog3, 3, 21, type);
+	PACKET_SET_REG_FIELD(fog3, 8, 24, 0xF1);
+
+	fogColor = 0;
+	PACKET_SET_REG_FIELD(fogColor, 8, 0, color.b);
+	PACKET_SET_REG_FIELD(fogColor, 8, 8, color.g);
+	PACKET_SET_REG_FIELD(fogColor, 8, 16, color.r);
+	PACKET_SET_REG_FIELD(fogColor, 8, 24, 0xF2);
+
+	FIFO_WRITE_BP_REG(fog0);
+	FIFO_WRITE_BP_REG(fog1);
+	FIFO_WRITE_BP_REG(fog2);
+	FIFO_WRITE_BP_REG(fog3);
+	FIFO_WRITE_BP_REG(fogColor);
+}
 
 static void SetFogBase(const J3DFogInfo*) { }
 
