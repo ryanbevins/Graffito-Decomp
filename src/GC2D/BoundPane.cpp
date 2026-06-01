@@ -44,18 +44,20 @@ bool TBoundPane::update()
 			unk24 = false;
 		}
 
-		f32 fVar4 = unk48.x * unk28 * unk28
-		            + unk38.x * (1.0f - unk28) * (1.0f - unk28)
-		            + unk40.x * (1.0f - unk28) * 2.0f * unk28;
-		f32 fVar1 = unk48.y * unk28 * unk28
-		            + unk38.y * (1.0f - unk28) * (1.0f - unk28)
-		            + unk40.y * (1.0f - unk28) * 2.0f * unk28;
+		f32 fVar4 = unk38.x * ((1.0f - unk28) * (1.0f - unk28))
+		            + unk40.x * (2.0f * (1.0f - unk28) * unk28)
+		            + unk48.x * (unk28 * unk28);
+		f32 fVar1 = unk38.y * ((1.0f - unk28) * (1.0f - unk28))
+		            + unk40.y * (2.0f * (1.0f - unk28) * unk28)
+		            + unk48.y * (unk28 * unk28);
 
 		fVar4 += fVar4 > 0.0f ? 0.5f : -0.5f;
+		s32 x = fVar4;
+
 		fVar1 += fVar1 > 0.0f ? 0.5f : -0.5f;
 
-		unk14.x1 = fVar4;
-		unk14.y1 = fVar1;
+		unk14.x1 = (s16)x;
+		unk14.y1 = (s16)fVar1;
 		unk0->move(unk4.x1 + unk14.x1, unk4.y1 + unk14.y1);
 
 		unk28 += unk2C;
@@ -67,18 +69,20 @@ bool TBoundPane::update()
 			unk25 = false;
 		}
 
-		f32 fVar4 = unk60.x * unk30 * unk30
-		            + unk50.x * (1.0f - unk30) * (1.0f - unk30)
-		            + unk58.x * (1.0f - unk30) * 2.0f * unk30;
-		f32 fVar1 = unk60.y * unk30 * unk30
-		            + unk50.y * (1.0f - unk30) * (1.0f - unk30)
-		            + unk58.y * (1.0f - unk30) * 2.0f * unk30;
+		f32 fVar4 = unk50.x * ((1.0f - unk30) * (1.0f - unk30))
+		            + unk58.x * (2.0f * (1.0f - unk30) * unk30)
+		            + unk60.x * (unk30 * unk30);
+		f32 fVar1 = unk50.y * ((1.0f - unk30) * (1.0f - unk30))
+		            + unk58.y * (2.0f * (1.0f - unk30) * unk30)
+		            + unk60.y * (unk30 * unk30);
 
 		fVar4 += fVar4 > 0.0f ? 0.5f : -0.5f;
+		s32 x = fVar4;
+
 		fVar1 += fVar1 > 0.0f ? 0.5f : -0.5f;
 
-		unk14.x2 = fVar4;
-		unk14.y2 = fVar1;
+		unk14.x2 = (s16)x;
+		unk14.y2 = (s16)fVar1;
 		unk0->resize(unk14.x2 + unk4.getWidth(), unk14.y2 + unk4.getHeight());
 
 		unk30 += unk34;

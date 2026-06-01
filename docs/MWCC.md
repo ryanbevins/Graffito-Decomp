@@ -5355,6 +5355,38 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### For quadratic interpolation over integer control points, direct `start + mid + end` terms can preserve the target conversion schedule better than factored locals
+
+**Hypothesis.** In Bezier-style interpolation expressions over `int` point
+fields, MWCC's register and int-to-float conversion schedule is sensitive to
+the written term tree. A direct expression in the source order
+
+```cpp
+start * ((1.0f - t) * (1.0f - t))
+    + mid * (2.0f * (1.0f - t) * t)
+    + end * (t * t)
+```
+
+can reproduce the target's load/convert/FMADD order, while precomputing
+`t2`, `inv`, `blend`, and `inv2` as locals or writing the terms as
+`mid + start + end` changes FPR allocation and scheduling. If the rounded
+result is sign-extended before being stored to a 32-bit field, split the int
+conversion and the short cast (`s32 x = value; field = (s16)x;`) so MWCC emits
+`fctiwz` before the second coordinate's rounding branch and `extsh` at the
+later store.
+
+**Observed.** `mario/GC2D/BoundPane` `TBoundPane::update()` (t343): rewriting
+both position and size interpolation blocks from `end + start + mid` with a
+direct float-to-int store to direct `start + mid + end` terms plus the delayed
+`(s16)` store moved the function from `55.0% -> 99.3%`. Factored locals
+preserved behavior but regressed to `98.9%`; explicit integer component locals
+inflated the frame to `0x78`.
+
+**Experiment to confirm/refute.** Test another TU with integer point/control
+interpolation, for example the GC2D shine/select spline code. If target uses
+the same conversion and FMADD schedule, compare direct `start + mid + end`
+terms against factored locals and alternate term orders.
+
 ### Direct packed integer expressions preserve shift/OR BP-word construction where field-setting macros lower to `rlwimi`
 
 **Hypothesis.** When target asm builds a packed hardware register word as a
