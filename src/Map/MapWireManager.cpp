@@ -141,9 +141,11 @@ inline TMapWireActorManager::TMapWireActorManager(TTakeActor* param_1)
 	                  TMapWireActor::mCommonAttackHeight, 0.0f, 0.0f);
 
 	// TODO: inlines are messed up =(
-	TIdxGroupObj* group
-	    = JDrama::TNameRefGen::search<TIdxGroupObj>("アイテムグループ");
-	group->getChildren().push_back(&unk4);
+	JDrama::TNameRefGen* gen   = JDrama::TNameRefGen::getInstance();
+	JDrama::TNameRef*    root  = gen->getRootNameRef();
+	TIdxGroupObj*        group = (TIdxGroupObj*)root->search("アイテムグループ");
+	JGadget::TList_pointer<THitActor*>& children = group->getChildren();
+	children.insert(children.end(), &unk4);
 }
 
 JUtility::TColor TMapWireManager::mUpperSurface;
