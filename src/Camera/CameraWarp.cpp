@@ -19,6 +19,24 @@ static inline void addVec3At(void* base, u32 off, const Vec& d)
 	p[2] += d.z;
 }
 
+static inline void copyCameraState(CPolarSubCamera* camera)
+{
+	*(u32*)((u8*)camera + 0xB4) = *(u32*)((u8*)camera + 0x80);
+	*(u32*)((u8*)camera + 0xB8) = *(u32*)((u8*)camera + 0x84);
+	*(u32*)((u8*)camera + 0xBC) = *(u32*)((u8*)camera + 0x88);
+	*(u32*)((u8*)camera + 0xC0) = *(u32*)((u8*)camera + 0x8C);
+	*(u32*)((u8*)camera + 0xC4) = *(u32*)((u8*)camera + 0x90);
+	*(u32*)((u8*)camera + 0xC8) = *(u32*)((u8*)camera + 0x94);
+	*(u32*)((u8*)camera + 0xCC) = *(u32*)((u8*)camera + 0x98);
+	*(u32*)((u8*)camera + 0xD0) = *(u32*)((u8*)camera + 0x9C);
+	*(u32*)((u8*)camera + 0xD4) = *(u32*)((u8*)camera + 0xA0);
+	*(s16*)((u8*)camera + 0xD8) = *(s16*)((u8*)camera + 0xA4);
+	*(s16*)((u8*)camera + 0xDA) = *(s16*)((u8*)camera + 0xA6);
+	*(f32*)((u8*)camera + 0xDC) = *(f32*)((u8*)camera + 0xA8);
+	*(s16*)((u8*)camera + 0xE0) = *(s16*)((u8*)camera + 0xAC);
+	*(f32*)((u8*)camera + 0xE4) = *(f32*)((u8*)camera + 0xB0);
+}
+
 void CPolarSubCamera::addMoveCameraAndMario(const Vec& delta)
 {
 	addVec3At(this, 0x10, delta);
@@ -58,8 +76,8 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 	// Clamp dist
 	if (isLButtonCameraSpecifyMode(mMode)) {
 		f32 v = dist;
-		if (dist > 0.0f)
-			v = 0.0f;
+		if (dist > 1.0f)
+			v = 1.0f;
 		else if (dist < 0.0f)
 			v = 0.0f;
 		*(f32*)((u8*)this + 0xA8) = v;
@@ -109,10 +127,7 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 
 	calcNowTargetFromPosAndAt_(pos, lookat);
 
-	// Copy 0x80..0xB0 block to 0xB4..0xE4
-	for (u32 i = 0; i < 0x30; i += 4) {
-		*(u32*)((u8*)this + 0xB4 + i) = *(u32*)((u8*)this + 0x80 + i);
-	}
+	copyCameraState(this);
 }
 
 void CPolarSubCamera::warpPosAndAt(const Vec& pos, const Vec& lookat)
@@ -146,7 +161,5 @@ void CPolarSubCamera::warpPosAndAt(const Vec& pos, const Vec& lookat)
 
 	calcNowTargetFromPosAndAt_(pos, lookat);
 
-	for (u32 i = 0; i < 0x30; i += 4) {
-		*(u32*)((u8*)this + 0xB4 + i) = *(u32*)((u8*)this + 0x80 + i);
-	}
+	copyCameraState(this);
 }
