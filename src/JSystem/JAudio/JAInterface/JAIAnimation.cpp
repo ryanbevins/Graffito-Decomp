@@ -241,22 +241,9 @@ void JAIAnimeSound::playActorAnimSound(JAIBasic* basic, JAIActor* actor,
 
 	if (slotIndex != 8) {
 		u32 flags = soundData->unk10;
-		bool canStart = true;
-		if ((flags & 0x8) != 0 && (u32)mLoopCount != soundData->unk16)
-			canStart = false;
-		if (canStart) {
-			if (mDataCounterInc == 1) {
-				if ((flags & 0x2) != 0)
-					canStart = false;
-			} else if (mDataCounterInc == -1) {
-				if ((flags & 0x1) != 0)
-					canStart = false;
-			} else {
-				canStart = false;
-			}
-		}
-
-		if (canStart) {
+		if (((flags & 0x8) == 0 || (u32)mLoopCount == soundData->unk16)
+		    && (((u32)mDataCounterInc == 1 && (flags & 0x2) == 0)
+		        || ((u32)mDataCounterInc == 0xFFFFFFFF && (flags & 0x1) == 0))) {
 			Slot& slot = mSlots[slotIndex];
 			startAnimSound(basic, soundData->mSoundID, &slot.mSound, actor, flag);
 			if (slot.mSound != nullptr) {
