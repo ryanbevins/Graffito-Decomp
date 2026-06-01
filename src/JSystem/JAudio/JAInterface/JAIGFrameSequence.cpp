@@ -520,15 +520,15 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 void JAIBasic::checkPlayingSeq()
 {
 	for (int i = 0; i < JAIGlobalParameter::seqPlayTrackMax; ++i) {
-		JAISound* sound = unk0->unk180[i].unk48;
-		if (sound && sound->unk1 >= 4) {
+		JAISound** sound = &unk0->unk180[i].unk48;
+		if (*sound && (*sound)->unk1 >= 4) {
 			checkPlayingSeqTrack(i);
 			for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax + 1; ++j) {
 				if (unk0->unk180[i].unk44[j] != 0) {
 					JAISystemInterface::setSeqPortargsU32(
 					    &unk0->unk180[i], j, 1, unk0->unk180[i].unk44[j]);
 
-					unk0->unk180[i].unk4C[j].unk0 = 0;
+					unk0->unk180[i].unk4C[j].unk2C.unk0 = nullptr;
 					unk0->unk180[i].unk4C[j].unk2C.addPortCmdOnce();
 				}
 			}
