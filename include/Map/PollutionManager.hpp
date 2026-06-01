@@ -54,7 +54,8 @@ public:
 	TPollutionLayerInfo* getLayerInfo(int i) { return &unk6C[i]; }
 	void offLayer(int i) { unk70.offLayer(i); }
 
-	static int mEdgeAlpha;
+	static u32 mFlushTime;
+	static u8 mEdgeAlpha;
 
 public:
 	/* 0x6C */ TPollutionLayerInfo* unk6C;

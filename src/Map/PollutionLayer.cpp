@@ -16,6 +16,13 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+class JAISound;
+class MSound {
+public:
+	JAISound* startSoundSet(u32, const Vec*, u32, f32, u32, u32, u8);
+};
+extern MSound* gpMSound;
+
 f32 TPollutionLayerWave::mInterval = 300.0f;
 u8 TPollutionLayerWave::mAlpha     = 0xE6;
 u32 TPollutionLayer::mEffectTime   = 15;
@@ -193,7 +200,71 @@ void TPollutionLayer::stampModel(J3DModel* model)
 
 void TPollutionLayer::appearItem(f32, f32, f32) { }
 
-void TPollutionLayer::cleaned(f32, f32, f32, f32) { }
+void TPollutionLayer::cleaned(f32 x, f32 y, f32 z, f32 size)
+{
+	static int effect_counter = 1;
+	effect_counter++;
+	if (effect_counter > 5) {
+		effect_counter = 0;
+
+		static JGeometry::TVec3<f32> pos[10];
+		static int now_pos_no = 0;
+		pos[now_pos_no].x    = x;
+		pos[now_pos_no].y    = y;
+		pos[now_pos_no].z    = z;
+
+		static int x_offset_table[10]
+		    = { -1, 0, 2, 4, 1, -1, -2, 0, 3, -3 };
+		static int z_offset_table[10]
+		    = { -1, -1, 0, 2, -2, -3, 0, 3, 0, 1 };
+		static int counter_x = 0;
+		static int counter_z = 0;
+
+		pos[now_pos_no].x += x_offset_table[counter_x] * 32.0f;
+		pos[now_pos_no].z += z_offset_table[counter_z] * 32.0f;
+
+		counter_x++;
+		counter_z += 3;
+		if (counter_x >= 10)
+			counter_x -= 10;
+		if (counter_z >= 10)
+			counter_z -= 10;
+
+		if (isPolluted(pos[now_pos_no].x, pos[now_pos_no].y,
+		               pos[now_pos_no].z)) {
+			int t = getTexPosT(pos[now_pos_no].z);
+			int s = getTexPosS(pos[now_pos_no].x);
+			if (unk54[unk5C.index(s, t)] > 100) {
+				if ((int)unkA8 <= 0)
+					unkA8 = TPollutionManager::mFlushTime;
+
+				gpMSound->startSoundSet(0x6809, (Vec*)&pos[now_pos_no],
+				                        0, size, 0, 0, 4);
+
+				static int effect_timer = 0;
+				if (effect_timer == 0) {
+					if (gpMarDirector->mMap == 5) {
+						gpMarioParticleManager->emit(0x6A, &pos[now_pos_no],
+						                             0, this);
+					} else {
+						gpMarioParticleManager->emit(0x1DB, &pos[now_pos_no],
+						                             2, this);
+					}
+				}
+
+				effect_timer++;
+				if ((int)effect_timer > (int)mEffectTime)
+					effect_timer = 0;
+
+				now_pos_no++;
+				if (now_pos_no > 10)
+					now_pos_no = 0;
+			}
+		}
+	}
+
+	appearItem(x, y, z);
+}
 
 void TPollutionLayer::stamp(u16 stamp_type, f32 x, f32 y, f32 z, f32 size)
 {

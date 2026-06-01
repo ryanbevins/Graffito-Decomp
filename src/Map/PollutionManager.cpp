@@ -9,6 +9,8 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 
 TPollutionManager* gpPollution;
+u32 TPollutionManager::mFlushTime = 200;
+u8 TPollutionManager::mEdgeAlpha  = 50;
 
 void TPollutionManager::stampModel(J3DModel* model)
 {
