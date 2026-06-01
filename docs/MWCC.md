@@ -36,6 +36,26 @@ them in future ticks.
 
 ## Settled
 
+### Predeclare locals in target register order to steer callee-saved GPR coloring
+
+**Rule.** When several locals are live across the same call sequence and the
+remaining diff is a clean callee-saved GPR permutation, declaration order can
+control MWCC's allocation. Predeclare the locals in the target's desired
+high-to-low register order, then assign them at the original evaluation points.
+This preserves call/store order while moving lifetimes into the target register
+slots. The lever applies to real locals, not to arbitrary expression
+reordering; keep the source evaluation order matching asm.
+
+**Citations.**
+- `mario/Map/PollutionLayer`
+  `TPollutionLayerWallPlusX::stamp` /
+  `TPollutionLayerWallPlusZ::stamp` (t337): predeclaring `s`, `t`, and
+  `depth` before the `TPollutionPos*` local shifted the live values into
+  target `r31/r30/r29/r28` order and moved both wall stamps `84.8% -> 85.2%`.
+- `mario/NPC/NpcNerve` `TNerveNPCBlown::execute` (t345): predeclaring
+  `bool isMare` before `TBaseNPC* npc` swapped the bool and NPC pointer into
+  target `r30/r29` order, taking the function `99.4% -> 100%`.
+
 ### For `u16`-indexed pointer-table loops, use an `int` induction variable with a `(u16)i` loop condition to get `clrlslwi` offsets and `clrlwi` compares
 
 **Rule.** When looping over a pointer table through an inline getter that takes
@@ -5510,43 +5530,6 @@ member body is emitted exactly but same-TU callers inline it despite target
 `bl`s. Convert only that helper to predeclared explicit specializations under
 `dont_inline`; if the call boundaries return without changing helper bodies or
 symbol ownership, promote this as a narrow template call-boundary lever.
-
-### Declaration order of predeclared locals can steer callee-saved GPR coloring
-
-**Hypothesis.** When several scalar locals are live across a call sequence,
-MWCC often assigns callee-saved GPRs in declaration order from high to low.
-For code that computes values in one order but the target holds them in the
-opposite register order, predeclare the locals in the target register order and
-assign them later:
-
-```cpp
-u16 s;
-u16 t;
-s16 depth;
-TPollutionPos* pollution_pos = &unk5C;
-depth = pollution_pos->worldToDepth(x);
-t     = getTexPosT(y);
-s     = getTexPosS(z);
-```
-
-In the observed case this changed allocation from the reverse source-order
-shape (`pollution_pos/depth/t/s` in `r31/r30/r29/r28`) to the target's
-`s/t/depth/pollution_pos` layout in `r31/r30/r29/r28`, while keeping call order
-unchanged.
-
-**Citation (1 TU).** `mario/Map/PollutionLayer`
-`TPollutionLayerWallPlusX::stamp` and `TPollutionLayerWallPlusZ::stamp`
-(2026-06-01 investigation): predeclaring `s`, `t`, `depth` before the
-`TPollutionPos*` local made the coordinate/depth setup collapse cleanly in
-objdiff and moved both wall stamps `84.8% -> 85.2%`. The base
-`TPollutionLayer::stamp` saw a smaller `84.7% -> 84.8%` nudge with the same
-`s/t/depth` declaration order.
-
-**Experiment to confirm/refute.** Find another near-match whose remaining
-operand-only mismatches show a contiguous set of callee-saved scalar locals in
-reverse order, with call order already correct. Predeclare the locals in the
-target's desired register order, assign them at the original evaluation points,
-and check whether objdiff collapses the setup block without structural fallout.
 
 ### Returning `bool` from a `BOOL` local through a ternary can force a full-width `cmpwi` rematerialization
 
