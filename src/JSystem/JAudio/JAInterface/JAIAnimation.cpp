@@ -81,14 +81,15 @@ void JAIAnimeSound::setAnimSoundActor(JAIBasic* basic, JAIActor* actor,
 	if (mData == nullptr)
 		return;
 
-	u16 soundCount = *(u16*)mData;
-	if (mDataCounterInc == 1) {
+	u8* data       = mData;
+	u16 soundCount = *(u16*)data;
+	if ((u32)mDataCounterInc == 1) {
 		if (mCurrentTime > param1) {
-			while (mDataCounter < soundCount) {
-				JAIAnimeFrameSoundData* soundData
-				    = (JAIAnimeFrameSoundData*)(mData + 8 + mDataCounter * 0x20);
-				if (soundData->unk4 > mCurrentTime + param2)
-					break;
+			while (
+			    mDataCounter < soundCount
+			    && ((JAIAnimeFrameSoundData*)(data + 8 + mDataCounter * 0x20))
+			               ->unk4
+			        <= mCurrentTime + param2) {
 				playActorAnimSound(basic, actor, param2, param3);
 			}
 			mDataCounter = mDataCounterLimit;
@@ -133,25 +134,24 @@ void JAIAnimeSound::setAnimSoundActor(JAIBasic* basic, JAIActor* actor,
 			}
 		}
 
-		while (mDataCounter < soundCount) {
-			JAIAnimeFrameSoundData* soundData
-			    = (JAIAnimeFrameSoundData*)(mData + 8 + mDataCounter * 0x20);
-			if (soundData->unk4 > param1)
-				break;
+		while (
+		    mDataCounter < soundCount
+		    && ((JAIAnimeFrameSoundData*)(data + 8 + mDataCounter * 0x20))->unk4
+		        <= param1) {
 			playActorAnimSound(basic, actor, param2, param3);
 		}
 	} else {
 		if (mCurrentTime < param1) {
-			while (mDataCounter < soundCount) {
-				JAIAnimeFrameSoundData* soundData
-				    = (JAIAnimeFrameSoundData*)(mData + 8 + mDataCounter * 0x20);
-				if (soundData->unk4 < mCurrentTime - param2)
-					break;
+			while (
+			    mDataCounter < soundCount
+			    && ((JAIAnimeFrameSoundData*)(data + 8 + mDataCounter * 0x20))
+			               ->unk4
+			        >= mCurrentTime - param2) {
 				playActorAnimSound(basic, actor, param2, param3);
 			}
 			mDataCounter = soundCount - 1;
 			mCurrentTime = param1;
-			if (mLoopCount == -1 || (u32)mLoopCount < 0x100)
+			if ((u32)mLoopCount == 0xFFFFFFFF || (u32)mLoopCount < 0x100)
 				mLoopCount++;
 		}
 
@@ -191,11 +191,10 @@ void JAIAnimeSound::setAnimSoundActor(JAIBasic* basic, JAIActor* actor,
 			}
 		}
 
-		while (mDataCounter < soundCount) {
-			JAIAnimeFrameSoundData* soundData
-			    = (JAIAnimeFrameSoundData*)(mData + 8 + mDataCounter * 0x20);
-			if (soundData->unk4 < param1)
-				break;
+		while (
+		    mDataCounter < soundCount
+		    && ((JAIAnimeFrameSoundData*)(data + 8 + mDataCounter * 0x20))->unk4
+		        >= param1) {
 			playActorAnimSound(basic, actor, param2, param3);
 		}
 	}
