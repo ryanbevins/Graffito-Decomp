@@ -18,11 +18,10 @@ static inline void setRandomFrameCounter(TNpcAnmFrameCounter* counter,
                                          s16 minFrame, s16 maxFrame)
 {
 	counter->mCurFrame = 0;
-	counter->mMaxFrame
-	    = minFrame
-	      + (s32)((f32)(maxFrame - minFrame)
-	              * ((f32)rand() * (1.0f / 32768.0f)))
-	      + 1;
+	s32 frame = minFrame
+	            + (s32)((f32)(maxFrame - minFrame)
+	                    * ((f32)rand() * (1.0f / 32768.0f)));
+	counter->mMaxFrame = frame + 1;
 }
 
 static inline bool updateFrameCounter(TNpcAnmFrameCounter* counter)
