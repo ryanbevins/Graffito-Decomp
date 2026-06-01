@@ -289,11 +289,11 @@ void JAIBasic::sendPlayingSeCommand()
 			                                &portStart);
 			JAISystemInterface::readPortApp(seq, portBase, &portStatus);
 
+			JAISound::FabricatedPositionInfo* positions = sound->unk1C;
 			for (u8 camera = 0; camera < JAIGlobalParameter::audioCameraMax;
 			     ++camera) {
-				JAISound::FabricatedPositionInfo* pos
-				    = &sound->unk1C[camera];
-				pos->unk18 = calcSeDistance(pos->unk18);
+				f32* distance = &positions[camera].unk18;
+				*distance     = calcSeDistance(*distance);
 			}
 
 			if (sound->unk1 == 2) {
@@ -304,8 +304,8 @@ void JAIBasic::sendPlayingSeCommand()
 
 				u32 randomMode = swBit & 0xC0;
 				if (randomMode != 0) {
-					u32 random
-					    = (u32)(JAIConst::random.get_ufloat_1() * 255.0f);
+					s32 random
+					    = (s32)(JAIConst::random.get_ufloat_1() * 255.0f);
 					switch (randomMode) {
 					case 0x40:
 						sound->unk3 = random & 0xf;
@@ -327,8 +327,9 @@ void JAIBasic::sendPlayingSeCommand()
 				for (u8 port = 0; *portBits != 0; ++port) {
 					u16 bit = 1 << port;
 					if (*portBits & bit) {
-						unk38->setTrackPortData(sound->unk0, port,
-						                         param->unk0[port]);
+						unk38->setTrackPortData(
+						    sound->unk0, port,
+						    sound->getSeParameter()->unk0[port]);
 						*portBits ^= bit;
 					}
 				}
