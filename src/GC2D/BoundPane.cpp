@@ -13,8 +13,6 @@ TBoundPane::TBoundPane(J2DScreen* param_1, u32 param_2)
 	unk25 = false;
 }
 
-TBoundPane::TBoundPane(JUTTexture*, GXCullMode) { }
-
 void TBoundPane::setPanePosition(s32 param_1, const JUTPoint& param_2,
                                  const JUTPoint& param_3,
                                  const JUTPoint& param_4)
@@ -91,9 +89,4 @@ bool TBoundPane::update()
 		result = true;
 
 	return result;
-}
-
-void TBoundPane::makeNewPosition(f32, JUTPoint&, JUTPoint&, JUTPoint&,
-                                 JUTPoint&)
-{
 }

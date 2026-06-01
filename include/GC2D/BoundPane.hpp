@@ -3,21 +3,33 @@
 
 #include <JSystem/JUtility/JUTRect.hpp>
 #include <JSystem/JUtility/JUTPoint.hpp>
-#include <dolphin/gx/GXEnum.h>
+#include <dolphin/types.h>
 
 class J2DScreen;
-class JUTTexture;
 class J2DPane;
+
+struct TBoundPaneRect {
+	TBoundPaneRect()
+	{
+		x1 = 0;
+		y1 = 0;
+		x2 = 0;
+		y2 = 0;
+	}
+
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+};
 
 class TBoundPane {
 public:
 	TBoundPane(J2DScreen*, u32);
-	TBoundPane(JUTTexture*, GXCullMode);
 	void setPanePosition(s32, const JUTPoint&, const JUTPoint&,
 	                     const JUTPoint&);
 	void setPaneSize(s32, const JUTPoint&, const JUTPoint&, const JUTPoint&);
 	bool update();
-	void makeNewPosition(f32, JUTPoint&, JUTPoint&, JUTPoint&, JUTPoint&);
 
 	// fabricated
 	J2DPane* getPane() const { return unk0; }
@@ -25,7 +37,7 @@ public:
 public:
 	/* 0x0 */ J2DPane* unk0;
 	/* 0x4 */ JUTRect unk4;
-	/* 0x14 */ JUTRect unk14;
+	/* 0x14 */ TBoundPaneRect unk14;
 	/* 0x24 */ bool unk24;
 	/* 0x25 */ bool unk25;
 	/* 0x28 */ f32 unk28;

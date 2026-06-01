@@ -85,7 +85,8 @@ void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx)
 				mState = 10;
 			}
 			u8 stage = SMS_getShineStage(gpMarDirector->mMap);
-			JUTRect rect(_168[stage]->unk14);
+			JUTRect rect(_168[stage]->unk14.x1, _168[stage]->unk14.y1,
+			             _168[stage]->unk14.x2, _168[stage]->unk14.y2);
 			_128->mPane->move(rect.x1 + 6, rect.y1 - 1);
 			_12C->mPane->move(rect.x1 + 6, rect.y1 - 1);
 			break;
@@ -120,7 +121,8 @@ void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx)
 				s16 idx = _42C;
 				_428->setPaneAlpha(20, 0, 0xFF);
 				JUTRect rect1(_218[idx]);
-				JUTRect rect2(_168[idx]->unk14);
+				JUTRect rect2(_168[idx]->unk14.x1, _168[idx]->unk14.y1,
+				              _168[idx]->unk14.x2, _168[idx]->unk14.y2);
 				gpMSound->startSoundSystemSE(0x4805, 0, nullptr, 0);
 				int widthR1  = rect1.x2 - rect1.x1;
 				int heightR1 = rect1.y2 - rect1.y1;
@@ -180,7 +182,8 @@ void TGuide::appearGuidePane(int idx)
 	_424 = _1C0[idx];
 	_428 = _378[idx];
 	JUTRect rect1(_218[idx]);
-	JUTRect rect2(_168[idx]->unk14);
+	JUTRect rect2(_168[idx]->unk14.x1, _168[idx]->unk14.y1,
+	              _168[idx]->unk14.x2, _168[idx]->unk14.y2);
 
 	_424->mPane->mVisible = true;
 
