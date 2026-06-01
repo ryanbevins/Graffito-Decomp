@@ -4,6 +4,39 @@
 #include <JSystem/JAudio/JAInterface/JAIParameters.hpp>
 #include <JSystem/JAudio/JAInterface/JAIConst.hpp>
 
+static inline u8 getSeCategoryLimit(JAIData* data, u8 scene, u8 category)
+{
+	return data->unk4[scene][category * 2];
+}
+
+static inline JAISound** getSeRegistSlot(JAIData* data, u8 category, u8 index)
+{
+	return &data->unk8[category][index].unk8;
+}
+
+static inline JAISeqUpdateData* getCurrentSeqUpdate(JAIBasic* basic)
+{
+	return &basic->unk0->unk180[basic->unk38->unk0];
+}
+
+static inline f32& seParamF32(JAISeParameter* param, u32 offset)
+{
+	return *(f32*)((u8*)param + offset);
+}
+
+static inline f32* seParamF32Ptr(JAISeParameter* param, u32 offset)
+{
+	return *(f32**)((u8*)param + offset);
+}
+
+static inline void markSeqPortF32(JAIBasic* basic, JAISound* sound, u32 flag,
+                                  u8 port, f32 value)
+{
+	JAISeqUpdateData* update = getCurrentSeqUpdate(basic);
+	update->unk44[sound->unk0] |= flag;
+	JAISystemInterface::setSeqPortargsF32(update, sound->unk0, port, value);
+}
+
 void JAIBasic::checkNextFrameSe()
 {
 	// TODO: gl matching this awfulness
@@ -231,4 +264,44 @@ void JAIBasic::checkSeMovePara()
 
 void JAIBasic::sendSeAllParameter(JAISound* sound) { }
 
-void JAIBasic::releaseSeRegist(JAISound* sound) { }
+void JAIBasic::releaseSeRegist(JAISound* sound)
+{
+	if (sound->unk1 != 1) {
+		u32 seq = unk38->getSeqParameter()->unk0;
+		u8 id   = sound->unk0;
+		JAISystemInterface::writePortApp(
+		    seq, 0x20000000 + (id >> 4) + ((id & 0xf) << 4), 0);
+		unk38->setTrackInterruptSwitch(id, 1);
+	}
+
+	if (unk30 != 0 && (sound->getSwBit() & 8)) {
+		for (u32 i = 0; i < JAIGlobalParameter::seqPlayTrackMax; ++i) {
+			JAISound* seqSound = unk0->unk180[i].unk48;
+			if (i != unk38->unk0 && seqSound != nullptr
+			    && !(seqSound->getSwBit() & 8)) {
+				unk30 &= ~(1 << sound->unk0);
+				if (unk30 == 0) {
+					seqSound->setSeqInterVolume(
+					    9, 1.0f,
+					    JAIGlobalParameter::seqMuteMoveSpeedSePlay);
+				}
+			}
+		}
+	}
+
+	u8 count = getSeCategoryLimit(unk0, unk10, sound->getSeCategoryNumber());
+	u8 category = sound->getSeCategoryNumber();
+	for (u8 i = 0; i < count; ++i) {
+		JAISound** slot = getSeRegistSlot(unk0, category, i);
+		if (*slot == sound) {
+			*slot = nullptr;
+			break;
+		}
+	}
+
+	sound->clearMainSoundPPointer();
+	sound->unk1 = 0;
+
+	releaseSeParameterPointer(sound->getSeParameter());
+	releaseControllerHandle(&unk0->unk1E8[category], sound);
+}
