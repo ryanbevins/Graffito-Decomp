@@ -15,13 +15,40 @@ void TPollutionLayerWave::initGX() const { }
 
 void TPollutionLayerWave::draw() const { }
 
-void TPollutionLayerWave::perform(u32, JDrama::TGraphics*) { }
-
-ResTIMG* TPollutionLayerWave::getTexResource(const char*) { }
-
-void TPollutionLayerWave::initJointModel(TJointModelManager*, const char*,
-                                         MActorAnmData*)
+void TPollutionLayerWave::perform(u32 flags, JDrama::TGraphics*)
 {
+	if (flags & 8) {
+		initGX();
+		draw();
+	}
+}
+
+ResTIMG* TPollutionLayerWave::getTexResource(const char* name)
+{
+	char fullPath[256];
+	snprintf(fullPath, 256, "/scene/map/pollution/%s.bti", name);
+	return (ResTIMG*)JKRGetResource(fullPath);
+}
+
+void TPollutionLayerWave::initJointModel(TJointModelManager* manager,
+                                         const char* name, MActorAnmData*)
+{
+	mManager = manager;
+
+	const TPollutionLayerInfo* info
+	    = &((TPollutionManager*)mManager)->unk6C[mIndexInParent];
+	initLayerInfo(info);
+	unk5C.init(this, info->unk8, info->unkC, info->unk28, info->unk20,
+	           info->unk22);
+	unk88 = info->unk24;
+
+	unk58               = getTexResource(name);
+	unk58->alphaEnabled = 2;
+
+	unk54 = (u8*)unk58 + unk58->imageDataOffset;
+	initTexImage(name);
+	if ((int)unk30 == 4)
+		SMS_LoadParticle("/scene/map/pollution/ms_thunder_s.jpa", 0x6F);
 }
 
 void TPollutionLayerWallPlusZ::stamp(u16 stamp_type, f32 x, f32 y, f32 z,
@@ -113,7 +140,21 @@ void TPollutionLayer::stamp(u16 stamp_type, f32 x, f32 y, f32 z, f32 size)
 
 void TPollutionLayer::isProhibit(f32, f32, f32) const { }
 
-bool TPollutionLayer::isPolluted(f32, f32, f32) const { }
+bool TPollutionLayer::isPolluted(f32 x, f32 y, f32 z) const
+{
+	if (!isInArea(x, y, z))
+		return false;
+
+	if (getPlaneType() == 6 && y > 0.0f)
+		return false;
+
+	int s = getTexPosS(x);
+	int t = getTexPosT(z);
+	if (!unk5C.isSame(s, t, y))
+		return false;
+
+	return unk54[unk5C.index(s, t)] > unk50;
+}
 
 void TPollutionLayer::isPolluted(int, int, f32) const { }
 
