@@ -1,15 +1,9 @@
 #include <Camera/Camera.hpp>
 #include <Camera/CameraInbetween.hpp>
+#include <Camera/CameraKindParam.hpp>
 #include <Camera/CameraMarioData.hpp>
 #include <Camera/cameralib.hpp>
 #include <Player/MarioAccess.hpp>
-
-// Forward declarations for types in still-empty TUs
-struct TCamSaveKindParam;
-class TCameraKindParam {
-public:
-	void copySaveParam(const TCamSaveKindParam&);
-};
 
 static inline void addVec3At(void* base, u32 off, const Vec& d)
 {
@@ -21,15 +15,9 @@ static inline void addVec3At(void* base, u32 off, const Vec& d)
 
 static inline void copyCameraState(CPolarSubCamera* camera)
 {
-	*(u32*)((u8*)camera + 0xB4) = *(u32*)((u8*)camera + 0x80);
-	*(u32*)((u8*)camera + 0xB8) = *(u32*)((u8*)camera + 0x84);
-	*(u32*)((u8*)camera + 0xBC) = *(u32*)((u8*)camera + 0x88);
-	*(u32*)((u8*)camera + 0xC0) = *(u32*)((u8*)camera + 0x8C);
-	*(u32*)((u8*)camera + 0xC4) = *(u32*)((u8*)camera + 0x90);
-	*(u32*)((u8*)camera + 0xC8) = *(u32*)((u8*)camera + 0x94);
-	*(u32*)((u8*)camera + 0xCC) = *(u32*)((u8*)camera + 0x98);
-	*(u32*)((u8*)camera + 0xD0) = *(u32*)((u8*)camera + 0x9C);
-	*(u32*)((u8*)camera + 0xD4) = *(u32*)((u8*)camera + 0xA0);
+	*(Vec*)((u8*)camera + 0xB4) = *(Vec*)((u8*)camera + 0x80);
+	*(Vec*)((u8*)camera + 0xC0) = *(Vec*)((u8*)camera + 0x8C);
+	*(Vec*)((u8*)camera + 0xCC) = *(Vec*)((u8*)camera + 0x98);
 	*(s16*)((u8*)camera + 0xD8) = *(s16*)((u8*)camera + 0xA4);
 	*(s16*)((u8*)camera + 0xDA) = *(s16*)((u8*)camera + 0xA6);
 	*(f32*)((u8*)camera + 0xDC) = *(f32*)((u8*)camera + 0xA8);
@@ -44,8 +32,8 @@ void CPolarSubCamera::addMoveCameraAndMario(const Vec& delta)
 	addVec3At(this, 0x124, delta);
 	addVec3At(this, 0x148, delta);
 
-	Vec tmp;
-	JGeometry::TVec3<f32>(delta.x, delta.y, delta.z).set((Vec&)tmp);
+	JGeometry::TVec3<f32> tmp;
+	tmp.set(delta);
 	gpCameraMario->mPosX += tmp.x;
 	gpCameraMario->mPosY += tmp.y;
 	gpCameraMario->mPosZ += tmp.z;
@@ -66,10 +54,9 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 	if (mMode >= 0x49)
 		return;
 
-	void* paramObj          = *(void**)((u8*)this + 0x68);
-	TCameraKindParam** save = (TCameraKindParam**)((u8*)this + 0x2D8);
-	((TCameraKindParam*)paramObj)
-	    ->copySaveParam(*(const TCamSaveKindParam*)save[mMode]);
+	u8* saveParam = (u8*)this + (mMode << 2);
+	unk68->copySaveParam(
+	    **(const TCamSaveKindParam**)(saveParam + 0x2D8));
 
 	JGeometry::TVec3<f32> lookat = getUsualLookat();
 
@@ -103,8 +90,9 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 	if (mMode >= 0x49)
 		return;
 
-	((TCameraKindParam*)paramObj)
-	    ->copySaveParam(*(const TCamSaveKindParam*)save[mMode]);
+	saveParam = (u8*)this + (mMode << 2);
+	unk68->copySaveParam(
+	    **(const TCamSaveKindParam**)(saveParam + 0x2D8));
 	killHeightPan_();
 
 	// Sync pos and lookat into several fields
@@ -121,9 +109,8 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 	*(f32*)((u8*)this + 0x14C) = lookat.y;
 	*(f32*)((u8*)this + 0x150) = lookat.z;
 
-	TCameraInbetween* inb = *(TCameraInbetween**)((u8*)this + 0x6C);
-	inb->warpPosAndAt(pos, lookat);
-	inb->mFrameCount = 0;
+	(*(TCameraInbetween**)((u8*)this + 0x6C))->warpPosAndAt(pos, lookat);
+	(*(TCameraInbetween**)((u8*)this + 0x6C))->mFrameCount = 0;
 
 	calcNowTargetFromPosAndAt_(pos, lookat);
 
@@ -135,10 +122,9 @@ void CPolarSubCamera::warpPosAndAt(const Vec& pos, const Vec& lookat)
 	if (mMode >= 0x49)
 		return;
 
-	void* paramObj          = *(void**)((u8*)this + 0x68);
-	TCameraKindParam** save = (TCameraKindParam**)((u8*)this + 0x2D8);
-	((TCameraKindParam*)paramObj)
-	    ->copySaveParam(*(const TCamSaveKindParam*)save[mMode]);
+	u8* saveParam = (u8*)this + (mMode << 2);
+	unk68->copySaveParam(
+	    **(const TCamSaveKindParam**)(saveParam + 0x2D8));
 
 	killHeightPan_();
 
@@ -155,9 +141,8 @@ void CPolarSubCamera::warpPosAndAt(const Vec& pos, const Vec& lookat)
 	*(f32*)((u8*)this + 0x14C) = lookat.y;
 	*(f32*)((u8*)this + 0x150) = lookat.z;
 
-	TCameraInbetween* inb = *(TCameraInbetween**)((u8*)this + 0x6C);
-	inb->warpPosAndAt(pos, lookat);
-	inb->mFrameCount = 0;
+	(*(TCameraInbetween**)((u8*)this + 0x6C))->warpPosAndAt(pos, lookat);
+	(*(TCameraInbetween**)((u8*)this + 0x6C))->mFrameCount = 0;
 
 	calcNowTargetFromPosAndAt_(pos, lookat);
 
