@@ -487,9 +487,11 @@ void MSMainProc::startStageBGM(u8, u8)
 
 		if (shouldStart) {
 			if (MSStageInfo::flags & 1) {
-				JAISound* sound = MSBgm::startBGM(MSStageInfo::stageBgm);
-				if (sound != nullptr)
-					sound->setVolume(0.0f, 0, 0);
+				if (gpMSound->unkCF != 0) {
+					JAISound* sound = MSBgm::startBGM(MSStageInfo::stageBgm);
+					if (sound != nullptr)
+						sound->setVolume(0.0f, 0, 0);
+				}
 			} else {
 				MSBgm::startBGM(MSStageInfo::stageBgm);
 			}
