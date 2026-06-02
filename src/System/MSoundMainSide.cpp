@@ -196,7 +196,7 @@ void MSStageCubeFade::proc()
 
 	TCubeGeneralInfo** cubes = gpCubeSoundChange->unk14->begin();
 	Vec pos                 = *gpMarioPos;
-	pos.y += 75.0f + cubes[0]->unkC.y;
+	pos.y                   = 75.0f + cubes[0]->unkC.y;
 	mCurrentCube = gpCubeSoundChange->getInCubeNo(pos);
 
 	if (mCurrentCube == -1) {
@@ -210,7 +210,7 @@ void MSStageCubeFade::proc()
 	f32 ratioY = 0.0f;
 	f32 ratioZ = 0.0f;
 	Vec ratioPos = *gpMarioPos;
-	ratioPos.y += 75.0f + cubes[mCurrentCube]->unkC.y;
+	ratioPos.y   = 75.0f + cubes[mCurrentCube]->unkC.y;
 	gpCubeSoundChange->calcPointInCubeRatio(
 	    ratioPos, mCurrentCube, &ratioX, &ratioY, &ratioZ);
 
