@@ -2,9 +2,12 @@
 #include <Camera/CubeManagerBase.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+#include <MSound/MSHandle.hpp>
+#include <MSound/MSModBgm.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <Player/MarioAccess.hpp>
 #include <System/MarDirector.hpp>
+#include <math.h>
 
 static const u32 cMSBgmNone = 0xfffffff0;
 
@@ -76,6 +79,75 @@ void MSStageCubeSwitch::proc()
 			unk11 = unk10;
 		}
 		break;
+	}
+
+	mPreviousCube = mCurrentCube;
+}
+
+void MSStageCubeFade::proc()
+{
+	JAISound* track1 = MSBgm::getHandle(1);
+	MSBgm::getHandle(0);
+
+	if (track1 == nullptr)
+		return;
+
+	TCubeGeneralInfo** cubes = gpCubeSoundChange->unk14->begin();
+	Vec pos                 = *gpMarioPos;
+	pos.y += 75.0f + cubes[0]->unkC.y;
+	mCurrentCube = gpCubeSoundChange->getInCubeNo(pos);
+
+	if (mCurrentCube == -1) {
+		if (mPreviousCube != -1)
+			((MSBgmXFade*)gpMSound->unk9C)->mLastTiming = 0.0f;
+		mPreviousCube = mCurrentCube;
+		return;
+	}
+
+	f32 ratioX = 0.0f;
+	f32 ratioY = 0.0f;
+	f32 ratioZ = 0.0f;
+	Vec ratioPos = *gpMarioPos;
+	ratioPos.y += 75.0f + cubes[mCurrentCube]->unkC.y;
+	gpCubeSoundChange->calcPointInCubeRatio(
+	    ratioPos, mCurrentCube, &ratioX, &ratioY, &ratioZ);
+
+	f32 edgeX = fabsf(ratioX - 0.5f);
+	f32 edgeZ = fabsf(ratioZ - 0.5f);
+	f32 edge  = edgeX > edgeZ ? edgeX : edgeZ;
+	f32 fade;
+	if (edge < mFadeRatio)
+		fade = 1.0f;
+	else
+		fade = (0.5f - edge) / (0.5f - mFadeRatio);
+
+	((MSBgmXFade*)gpMSound->unk9C)->xFadeBgm(fade);
+
+	if (MSMainProc::MSStageInfo::cubeFadeUsePan) {
+		TCubeGeneralInfo* info = cubes[mCurrentCube];
+		Vec cubePos            = info->unkC;
+		Vec marioPos           = *gpMarioPos;
+		cubePos.y              = marioPos.y;
+
+		f32 dx     = cubePos.x - marioPos.x;
+		f32 dy     = cubePos.y - marioPos.y;
+		f32 dz     = cubePos.z - marioPos.z;
+		f32 distSq = dx * dx + dy * dy + dz * dz;
+		f32 dist   = distSq;
+		if (distSq > 0.0f) {
+			f64 root = __frsqrte(distSq);
+			root = 0.5 * root * (3.0 - distSq * (root * root));
+			root = 0.5 * root * (3.0 - distSq * (root * root));
+			root = 0.5 * root * (3.0 - distSq * (root * root));
+			dist = (f32)(distSq * root);
+		}
+
+		Vec cameraPos;
+		PSMTXMultVec(gpMSound->unk8->unk8, &cubePos, &cameraPos);
+		f32 pan = MSHandle::calcPan(cameraPos, dist, 10000.0f);
+		f32 dolby = MSHandle::calcDolby(cameraPos, dist);
+		MSBgm::setPan(1, pan, 1, 0);
+		MSBgm::setDolby(1, dolby, 1, 0);
 	}
 
 	mPreviousCube = mCurrentCube;
