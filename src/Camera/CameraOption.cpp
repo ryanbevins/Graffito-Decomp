@@ -112,10 +112,8 @@ void CPolarSubCamera::ctrlOptionCamera_()
 	} else {
 		bool skip = (gpCameraOption->unk0 & 2) != 0;
 		if (!skip) {
-			JGeometry::TVec3<f32> pos;
-			pos.x      = gpMarioPos->x;
-			pos.y      = gpMarioPos->y + 75.0f;
-			pos.z      = gpMarioPos->z;
+			JGeometry::TVec3<f32> pos = *gpMarioPos;
+			pos.y += 75.0f;
 			s32 cubeNo = gpCubeCamera->getInCubeNo(pos);
 			if (cubeNo >= 0) {
 				TCameraMapTool* mt
