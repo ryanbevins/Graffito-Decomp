@@ -918,7 +918,8 @@ u32 MSMainProc::getMonteVillageActorArea(const Vec& pos)
 	if (MSGMSound->unkCD == 8) {
 		Vec checkPos = pos;
 		checkPos.y += 75.0f;
-		switch (gpCubeFastC->getInCubeNo(checkPos)) {
+		Vec cubePos = checkPos;
+		switch (gpCubeFastC->getInCubeNo(cubePos)) {
 		case 0:
 			area = 2;
 			break;
