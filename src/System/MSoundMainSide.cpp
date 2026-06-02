@@ -510,17 +510,21 @@ void MSMainProc::startStageBGM(u8, u8)
 void MSMainProc::endStageEntranceDemo(u8, u8)
 {
 	if (MSStageInfo::demoBgm != cMSBgmNone) {
-		bool stopDemo = false;
+		bool stopDemo;
 		if (MSStageInfo::flags & 8)
 			stopDemo = true;
+		else
+			stopDemo = false;
 
 		if (stopDemo)
 			MSBgm::stopBGM(MSStageInfo::demoBgm, 20);
 	}
 
-	bool silentDemo = false;
+	bool silentDemo;
 	if (MSStageInfo::flags & 4)
 		silentDemo = true;
+	else
+		silentDemo = false;
 
 	if (silentDemo)
 		MSBgm::setVolume(MSStageInfo::demoBgm, 0.0f, 20, 0);
