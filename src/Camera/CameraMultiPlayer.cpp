@@ -40,9 +40,9 @@ void CPolarSubCamera::ctrlMultiPlayerCamera_()
 		*(f32*)((u8*)this + 0xA0) = *(f32*)((u8*)this + 0x12C);
 	} else {
 		JGeometry::TVec3<f32> sum(0.0f, 0.0f, 0.0f);
-		TMultiPlayerData* data = c->mData;
-		for (int i = 0; i < count; i++) {
-			const JGeometry::TVec3<f32>* p = data[i].unk0;
+		TMultiPlayerData* data = unk2BC->mData;
+		for (int i = count; i > 0; i--, data++) {
+			const JGeometry::TVec3<f32>* p = data->unk0;
 			sum.x += p->x;
 			sum.y += p->y;
 			sum.z += p->z;
@@ -56,6 +56,7 @@ void CPolarSubCamera::ctrlMultiPlayerCamera_()
 		sum.y += unk68->unk24;
 
 		f32 maxDistSq = 0.0f;
+		data           = unk2BC->mData;
 		for (int i = 0; i < count; i++) {
 			const JGeometry::TVec3<f32>* a = data[i].unk0;
 			for (int j = i + 1; j < count; j++) {
