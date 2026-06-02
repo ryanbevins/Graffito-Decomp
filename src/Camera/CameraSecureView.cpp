@@ -51,11 +51,11 @@ void CPolarSubCamera::execSecureView_(s16 angle, Vec* out)
 	else if (clamped < 0.0f)
 		clamped = 0.0f;
 
-	CLBChaseDecrease((f32*)((u8*)this + 0x294), dx, clamped, 0.0f);
-	CLBChaseDecrease((f32*)((u8*)this + 0x298), dz, clamped, 0.0f);
+	CLBChaseDecrease(&unk294, dx, clamped, 0.0f);
+	CLBChaseDecrease(&unk298, dz, clamped, 0.0f);
 
-	out->x += *(f32*)((u8*)this + 0x294);
-	out->z += *(f32*)((u8*)this + 0x298);
+	out->x += unk294;
+	out->z += unk298;
 }
 
 void CPolarSubCamera::calcSecureViewTarget_(s16 angle, f32* outX, f32* outZ)
