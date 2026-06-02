@@ -43,7 +43,8 @@ void MSStageCubeSwitch::proc()
 {
 	Vec pos = *gpMarioPos;
 	pos.y += 75.0f;
-	mCurrentCube = gpCubeSoundChange->getInCubeNo(pos);
+	Vec cubePos = pos;
+	mCurrentCube = gpCubeSoundChange->getInCubeNo(cubePos);
 
 	switch (mCurrentCube) {
 	case -1:
