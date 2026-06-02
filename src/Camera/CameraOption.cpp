@@ -85,7 +85,7 @@ TCameraOption::TCameraOption(JGeometry::TVec3<f32> center,
 	}
 }
 
-void chasePosAt(CPolarSubCamera* self, f32 frames)
+static inline void chasePosAt(CPolarSubCamera* self, f32 frames)
 {
 	CLBChaseConstantSpecifyFrame<f32>((f32*)((u8*)self + 0x10),
 	                                  *(f32*)((u8*)self + 0x80), frames);
