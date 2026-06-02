@@ -7,6 +7,7 @@
 
 class TBaseNPC;
 class TCameraMapTool;
+class TCameraKindParam;
 class TMarioGamePad;
 
 class TCameraJetCoaster;
@@ -142,7 +143,9 @@ public:
 	/* 0x50 */ int mMode;
 	/* 0x54 */ char unk54[0x58 - 0x54];
 	/* 0x58 */ u32 unk58;
-	/* 0x5C */ char unk5C[0x70 - 0x5C];
+	/* 0x5C */ char unk5C[0x68 - 0x5C];
+	/* 0x68 */ TCameraKindParam* unk68;
+	/* 0x6C */ char unk6C[0x70 - 0x6C];
 	/* 0x70 */ TCameraMapTool* unk70;
 	/* 0x74 */ char unk74[0x7C - 0x74];
 	/* 0x7C */ u32 unk7C;
