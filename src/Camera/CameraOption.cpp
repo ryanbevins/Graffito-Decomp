@@ -103,10 +103,8 @@ static inline void chasePosAt(CPolarSubCamera* self, f32 frames)
 
 void CPolarSubCamera::ctrlOptionCamera_()
 {
-	s16 t = gpCameraOption->unkA;
-
-	if (t > 0) {
-		chasePosAt(this, (f32)t);
+	if (gpCameraOption->unkA > 0) {
+		chasePosAt(this, (f32)gpCameraOption->unkA);
 		gpCameraOption->unkA -= 1;
 	} else if (gpCameraOption->unkE > 0) {
 		chasePosAt(this, (f32)gpCameraOption->unkE);
