@@ -18,13 +18,12 @@ int TPollutionPos::getEdgeDegree(int x, int y) const
 
 	int degree = 0;
 	for (int yOffset = -1; yOffset <= 1; ++yOffset) {
-		int sampleY = y + yOffset;
-		if (getDepth(x - 1, sampleY) == 0xff)
-			++degree;
-		if (yOffset != 0 && getDepth(x, sampleY) == 0xff)
-			++degree;
-		if (getDepth(x + 1, sampleY) == 0xff)
-			++degree;
+		for (int xOffset = -1; xOffset <= 1; ++xOffset) {
+			if (xOffset != 0 || yOffset != 0) {
+				if (getDepth(x + xOffset, y + yOffset) == 0xffU)
+					++degree;
+			}
+		}
 	}
 	return degree;
 }
@@ -47,15 +46,16 @@ bool TPollutionPos::isSame(int x, int y, f32 param_3) const
 	else
 		inArea = true;
 
-	if (inArea) {
-		int depth = getDepth(x, y);
-		if (depth < 0xff) {
-			int layerDepth = mOwner->unk48;
-			int worldDepth = worldToDepth(param_3);
-			if (depth - layerDepth <= worldDepth
-			    && worldDepth <= depth + layerDepth)
-				return 1;
-		}
+	if (!inArea)
+		return false;
+
+	int depth = getDepth(x, y);
+	if (depth < 0xff) {
+		int layerDepth = mOwner->unk48;
+		int worldDepth = worldToDepth(param_3);
+		if (depth - layerDepth <= worldDepth
+		    && worldDepth <= depth + layerDepth)
+			return 1;
 	}
 	return false;
 }

@@ -5422,6 +5422,29 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Tiny fixed nested loops may be inner-unrolled while preserving dead-looking constant-condition branches
+
+**Hypothesis.** For tiny fixed nested loops such as a 3x3 stencil, MWCC may keep
+the outer loop as a counted `bdnz` loop, fully unroll the inner loop, and still
+emit constant-condition scaffolding from the original inner-loop predicate. A
+hand-expanded source that samples the same fixed positions can remove that
+scaffolding, hoist different address pieces, and increase register pressure.
+
+**Observed.** `mario/Map/PollutionPos`
+`TPollutionPos::getEdgeDegree(int, int) const` (t367): rewriting the hand
+expanded left/center/right row samples back into
+`for yOffset=-1..1; for xOffset=-1..1; if (xOffset != 0 || yOffset != 0)` made
+MWCC reproduce the target's single outer `mtctr 3` loop, the unrolled three
+inner samples, and the dead-looking `li r6,0; cmpwi r6,0` center-skip test. The
+function moved `49.4% -> 95.7%`; changing the sentinel compare to `0xffU` then
+matched the target unsigned `cmplwi` and moved it to `97.8%`.
+
+**Experiment to confirm/refute.** Find a second fixed small stencil or
+neighborhood loop where target has one counted loop and unrolled inner bodies
+with constant-condition remnants. Compare structured nested-loop source against
+hand-expanded samples; promote only if the structured form again restores both
+the unroll shape and the preserved constant-condition branch.
+
 ### Countdown cursor loops may select MWCC's 4-way unroller where index loops select an 8-way unroller
 
 **Hypothesis.** For loops over fixed-size records that only need to visit every
