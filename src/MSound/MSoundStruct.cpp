@@ -196,8 +196,7 @@ bool MSSetSoundTL<T>::startSoundSetDyna(u32 soundID, const Vec* pos,
 		unkAC = *pos;
 		unkB8 = 1;
 
-		current = unk5C[unk59];
-		if (current != nullptr) {
+		if (unk5C[unk59] != nullptr) {
 			JAISound* compare = unk5C[unk5A];
 			if (compare != nullptr) {
 				u32 frame = compare->unk14;
@@ -234,10 +233,12 @@ bool MSSetSoundTL<T>::startSoundSetDyna(u32 soundID, const Vec* pos,
 					unk54 = 0;
 				}
 
+				current = unk5C[unk59];
 				current->setVolume(vol * contVol, 3, 0);
 				current->setPitch(pitch * contPitch, 3, 0);
 			}
 		} else {
+			current = unk5C[unk59];
 			if (current != nullptr)
 				current->setPortData(13, 1);
 			unk58 = 0;
