@@ -216,8 +216,8 @@ bool MSSetSoundTL<T>::startSoundSetDyna(u32 soundID, const Vec* pos,
 					    unk34.unk0, false);
 				}
 
-				f32 contVol   = 1.0f;
 				f32 contPitch = 1.0f;
+				f32 contVol   = 1.0f;
 				if ((f32)frame < (f32)unk3C.unk0 && dist < unk40.unk0) {
 					unk58 = 1;
 					JALCalc::linearTransform(
