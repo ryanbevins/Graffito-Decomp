@@ -440,8 +440,12 @@ MSStage* MSStage::init(u8 map, u8)
 		break;
 	}
 
-	if (map == 0x34 || map == 0x3C)
+	switch (map) {
+	case 0x3C:
+	case 0x34:
 		smMSStage = new MSSTageSimpleEnvironment(0x5012);
+		break;
+	}
 
 	return smMSStage;
 }
