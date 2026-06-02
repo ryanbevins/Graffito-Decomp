@@ -4459,7 +4459,7 @@ float pattern. If you want batched int moves at a *specific call
 site*, write `node.mPos = src.mPos;` (assignment) rather than
 `node.mPos.set(src.mPos);` (the `set` overload uses float pattern).
 
-### Typed class field beats `*(T*)((u8*)this + OFFSET)` cast for store sites
+### Typed class field beats `*(T*)((u8*)this + OFFSET)` cast for store/reload sites
 
 **Rule:** Writing to a `void*`-typed class field via the cast form
 `*(void**)((u8*)this + 0x2A4) = nullptr;` emits a two-instruction
@@ -4468,9 +4468,13 @@ the address into a scratch register before the store. The same field
 declared as `void* unkXXX` on the class produces the natural
 single-instruction `stw r0, 0x2a4(rThis)`.
 
-Loads tend to be unaffected (MWCC happily emits `lwz r3, 0x2a4(r4)`
-in either form), so the gain shows up mostly on store sites and on
-addresses passed to subsequent calls.
+Loads tend to be unaffected in isolation (MWCC happily emits
+`lwz r3, 0x2a4(r4)` in either form), so the gain shows up mostly on
+store sites and on addresses passed to subsequent calls. If the same
+cast field is stored and then reloaded before a call, the cast form can
+also make MWCC cache `this + OFFSET` in a scratch register and use
+`stw/lwz 0(rN)`. A typed member access can keep both operations as
+direct `OFFSET(rThis)` accesses.
 
 **Where observed:**
 - `CPolarSubCamera::execNoticeOnOffProc_` in `CameraNotice.cpp`
@@ -4478,13 +4482,17 @@ addresses passed to subsequent calls.
   `unk21C[0x88]` + `void* unk2A4` + `unk2A8[0x20]` and rewriting all
   12 `*(void**)((u8*)this + 0x2A4)` sites to `this->unk2A4`. Also
   lifted `getNoticeActor_` 77.8% → 78.5% in the same TU.
+- `CPolarSubCamera::ctrlOptionCamera_` in `CameraOption.cpp`
+  99.4% → 99.9% after rewriting the `this + 0x70` map-tool compare,
+  store, and reload as the typed `unk70` field. The cast form emitted
+  an extra `addi r7, r31, 0x70` and used `stw/lwz 0(r7)` around
+  `calcPosAndAt`; the typed field matched target `stw/lwz 0x70(r31)`.
 
-**Caveat:** This is *not* the same as the addi-field-address caching
-anti-pattern (where MWCC pre-computes `addi rN, rThis, OFFSET` once
-and reuses across many accesses). That happens when the SAME field is
-accessed ≥2 times across a function — and `this->field` doesn't fix
-it. The fix here is the *single-access* case where each cast site
-gets its own scratch-register-materialise + store.
+**Caveat:** This does not solve every addi-field-address caching case.
+When the target itself caches a field address, the typed member can be
+wrong; when the target uses direct-offset accesses and our source uses
+a raw `this + OFFSET` cast, try declaring and using the real member
+before reaching for more invasive rewrites.
 
 ### Repeated `a / b` divisions: rewrite as `a * (1.0f / b)` to enable reciprocal CSE
 

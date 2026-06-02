@@ -73,13 +73,14 @@ TCameraOption::TCameraOption(JGeometry::TVec3<f32> center,
 	outPos->z = unk18.z;
 
 	const char* name = cLoadCamName;
-	u16 key          = JDrama::TNameRef::calcKeyCode(name);
 	TCameraMapTool* mapTool
-	    = (TCameraMapTool*)gpCamMapToolTable->searchF(key, name);
+	    = (TCameraMapTool*)gpCamMapToolTable->searchF(
+	        JDrama::TNameRef::calcKeyCode(name), name);
 	if (mapTool != nullptr) {
 		JGeometry::TVec3<f32> tmp;
 		mapTool->calcPosAndAt(&tmp, &unk24);
-		s16 ang = CLBRoundf<s16>(mapTool->unk18.y * 182.04445f);
+		f32 angle = mapTool->unk18.y;
+		s16 ang  = CLBRoundf<s16>(182.04445f * angle);
 		s16 pi  = CLBRoundf<s16>(10922.667f);
 		CLBPolarToCross(tmp, &unk30, 1000.0f, pi, ang);
 	}
@@ -120,12 +121,11 @@ void CPolarSubCamera::ctrlOptionCamera_()
 				    = (TCameraMapTool*)((TCubeCameraInfo*)gpCubeCamera->unk14
 				                            ->begin()[cubeNo])
 				          ->unk38;
-				if (mt != nullptr && mt != *(TCameraMapTool**)((u8*)this + 0x70)) {
+				if (mt != nullptr && mt != unk70) {
 					gpCameraOption->unk0 ^= 1;
-					*(TCameraMapTool**)((u8*)this + 0x70) = mt;
-					(*(TCameraMapTool**)((u8*)this + 0x70))
-					    ->calcPosAndAt((JGeometry::TVec3<f32>*)((u8*)this + 0x80),
-					                   (JGeometry::TVec3<f32>*)((u8*)this + 0x8C));
+					unk70 = mt;
+					unk70->calcPosAndAt((JGeometry::TVec3<f32>*)((u8*)this + 0x80),
+					                    (JGeometry::TVec3<f32>*)((u8*)this + 0x8C));
 					gpCameraOption->unk12 = gpCameraOption->unk10;
 				}
 			}
