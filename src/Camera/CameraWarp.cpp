@@ -67,7 +67,7 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 			v = 1.0f;
 		else if (dist < 0.0f)
 			v = 0.0f;
-		*(f32*)((u8*)this + 0xA8) = v;
+		unkA8 = v;
 	} else {
 		f32 hi = *(f32*)((u8*)this + 0x26C);
 		f32 lo = *(f32*)((u8*)this + 0x268);
@@ -76,16 +76,15 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 			v = hi;
 		else if (dist < lo)
 			v = lo;
-		*(f32*)((u8*)this + 0xA8) = v;
+		unkA8 = v;
 	}
 
-	*(s16*)((u8*)this + 0xA4) = (s16)calcAngleXFromXRotRatio_();
-	*(s16*)((u8*)this + 0xA6) = angY;
-	calcDistFromXRotRatio_();
+	unkA4 = (s16)calcAngleXFromXRotRatio_();
+	unkA6 = angY;
+	f32 polarDist = calcDistFromXRotRatio_();
 
 	JGeometry::TVec3<f32> pos;
-	CLBPolarToCross(lookat, &pos, *(f32*)((u8*)this + 0xA8),
-	                *(s16*)((u8*)this + 0xA4), *(s16*)((u8*)this + 0xA6));
+	CLBPolarToCross(lookat, &pos, polarDist, unkA4, unkA6);
 
 	if (mMode >= 0x49)
 		return;
