@@ -148,7 +148,8 @@ bool MSSetSoundTL<T>::startSoundSetDyna(u32 soundID, const Vec* pos,
 		           && dist < unk20.unk0) {
 			canStart = false;
 		} else if (group != nullptr) {
-			MSSetSoundMember* member = group->searchD(check->unk8);
+			u32 checkID              = check->unk8;
+			MSSetSoundMember* member = group->searchD(checkID);
 			if (member == nullptr || frame < member->unk18)
 				canStart = false;
 			else
