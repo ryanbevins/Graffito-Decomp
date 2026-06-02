@@ -34,9 +34,15 @@ public:
 	void push_back(JDrama::TViewObj* object, u32 filter);
 	void push_back(const char* name, u32 filter);
 
-	void forEachPerform(JGadget::TSingleLinkList<TPerformLink, 0>::iterator,
-	                    JGadget::TSingleLinkList<TPerformLink, 0>::iterator,
-	                    JDrama::TGraphics*, u32);
+	void forEachPerform(JGadget::TSingleLinkList<TPerformLink, 0>::iterator b,
+	                    JGadget::TSingleLinkList<TPerformLink, 0>::iterator e,
+	                    JDrama::TGraphics* graphics, u32 flags)
+	{
+		for (JGadget::TSingleLinkList<TPerformLink, 0>::iterator it = b;
+		     it != e; ++it) {
+			it->unk4->testPerform(flags & it->unk8, graphics);
+		}
+	}
 
 	JGadget::TSingleLinkList<TPerformLink, 0>& getChildren() { return *this; }
 };

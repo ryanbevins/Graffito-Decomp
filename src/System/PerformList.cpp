@@ -1,16 +1,6 @@
 #include <System/PerformList.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
-
-void TPerformList::forEachPerform(
-    JGadget::TSingleLinkList<TPerformLink, 0>::iterator b,
-    JGadget::TSingleLinkList<TPerformLink, 0>::iterator e,
-    JDrama::TGraphics* param_3, u32 param_4)
-{
-	for (JGadget::TSingleLinkList<TPerformLink, 0>::iterator it = b; it != e;
-	     ++it) {
-		it->unk4->testPerform(param_4 & it->unk8, param_3);
-	}
-}
+#include <JSystem/JSupport/JSURandomInputStream.hpp>
 
 void TPerformList::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
@@ -22,7 +12,8 @@ void TPerformList::load(JSUMemoryInputStream& stream)
 {
 	JDrama::TViewObj::load(stream);
 
-	while (stream.getLength() - stream.getPosition() > 0) {
+	JSURandomInputStream& randomStream = stream;
+	while (randomStream.getLength() - randomStream.getPosition() > 0) {
 		char acStack_6c[80];
 		stream.readString(acStack_6c, 80);
 
