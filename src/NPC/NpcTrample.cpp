@@ -36,8 +36,8 @@ bool TNpcTrample::updateTrample(f32 dt, f32* out)
 
 void TNpcTrample::startTrample()
 {
-	unk0          = TBaseNPC::mPtrSaveNormal->mSLTrampleAmplitude.value;
-	unk4          = TBaseNPC::mPtrSaveNormal->mSLTrampleShakeFrames.value;
+	unk0          = TBaseNPC::mPtrSaveNormal->mSLTrampleAmplitude.get();
+	unk4          = TBaseNPC::mPtrSaveNormal->mSLTrampleShakeFrames.get();
 	unk6          = 0;
 	msAmpDecrease = unk0 * (1.0f / (f32)unk4);
 }

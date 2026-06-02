@@ -5431,6 +5431,28 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Inline `TParamRT<T>::get()` can preserve direct field-load codegen while inflating leaf stack frames
+
+**Hypothesis.** Outside `#pragma dont_inline`, a small `TParamRT<T>::get()`
+accessor can inline away to the same field load as direct `.value` access, but
+its inline boundary still affects MWCC's frame allocator. In
+`mario/NPC/NpcTrample` `TNpcTrample::startTrample` the direct
+`mSLTrampleAmplitude.value` / `mSLTrampleShakeFrames.value` form emitted the
+target instruction stream with a `0x18` frame. Switching only the shake-frame
+read to `.get()` kept the same visible loads and grew the frame to `0x20`;
+switching both reads to `.get()` grew it to the target `0x30` and made the
+function exact. This is the inverse of the settled `dont_inline` rule: under
+`dont_inline`, `.get()` emits a real `bl` and `.value` is required, but in a
+normal TU the accessor can be a legitimate frame-shape lever without adding a
+call.
+
+**Experiment.** Find another near-exact leaf function that reads one or more
+`TParamRT<T>` fields directly, has a target frame larger than the build, and
+otherwise has matching field-load instructions. Toggle `.value` reads to
+`.get()` one at a time and check whether the frame grows without changing
+visible load/order codegen. Refute if the effect is unique to `NpcTrample` or
+only appears when the int-to-float conversion stack slots are present.
+
 ### Tiny fixed nested loops may be inner-unrolled while preserving dead-looking constant-condition branches
 
 **Hypothesis.** For tiny fixed nested loops such as a 3x3 stencil, MWCC may keep
