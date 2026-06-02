@@ -57,7 +57,8 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 	unk68->copySaveParam(
 	    **(const TCamSaveKindParam**)(saveParam + 0x2D8));
 
-	JGeometry::TVec3<f32> lookat = getUsualLookat();
+	JGeometry::TVec3<f32> lookat;
+	lookat.set(getUsualLookat());
 
 	// Clamp dist
 	if (isLButtonCameraSpecifyMode(mMode)) {
