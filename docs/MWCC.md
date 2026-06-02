@@ -36,6 +36,32 @@ them in future ticks.
 
 ## Settled
 
+### Explicit template specialization declarations make a TU call the existing weak owner instead of emitting a local helper copy
+
+**Rule.** When a header-defined template helper is called in a TU but the target
+calls an existing weak specialization owned by another TU, add a TU-scope
+explicit specialization declaration before the caller:
+
+```cpp
+template <> f32 CLBCalcRatio<f32>(f32, f32, f32);
+template <> s16 CLBLinearInbetween<s16>(s16, s16, f32);
+```
+
+This hides the generic template body from that call site's instantiation path
+and makes MWCC emit a `bl` relocation to the existing weak owner instead of a
+target-absent local weak copy. Use this only when `symbols.txt` / target asm
+show a weak specialization already owned elsewhere and the current TU lists the
+helper as `extra`.
+
+**Citations.**
+- `mario/Camera/CameraSecureView` (t358): declaring
+  `CLBLinearInbetween<f32>` kept the secure-view calls external and removed the
+  local 12-byte weak body.
+- `mario/Camera/CameraMultiPlayer` (t362): declaring
+  `CLBCalcRatio<f32>` and `CLBLinearInbetween<s16>` removed three
+  target-absent helper extras and made the target calls line up with the weak
+  owners in `NpcAnm` / `cameragc`.
+
 ### Predeclare locals in target register order to steer callee-saved GPR coloring
 
 **Rule.** When several locals are live across the same call sequence and the
