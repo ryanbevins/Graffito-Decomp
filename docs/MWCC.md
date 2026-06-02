@@ -6981,6 +6981,20 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **What source shape forces MWCC to narrow a casted `s16` local before an
+  intervening call when the target does `addi; extsh; bl` (t359,
+  `CameraSecureView`)?** In both secure-view functions, target computes Mario's
+  backward angle as `lha gpMarioAngleY; addi -0x8000; extsh` before the first
+  `CLBLinearInbetween<f32>` call, then uses the narrowed value later. The natural
+  `s16 marioBack = (s16)(*gpMarioAngleY - 0x8000);` keeps the un-narrowed value
+  live across the call and emits `extsh` only at the later delta expression.
+  Tried and reverted: `const s16` (no effect), splitting into
+  `marioBack = *gpMarioAngleY; marioBack -= 0x8000;` (MWCC delayed the `addi`
+  until after the call, regressing `execSecureView_` 82.6% -> 77.6% and
+  `calcSecureViewTarget_` 84.0% -> 70.1%). Next experiment should test a real
+  inline/helper boundary or an earlier signed use, not another assignment
+  spelling.
+
 - **What remaining source shape gives `TWarpInCallBack::execute` the target
   random-scale scheduling and 0x110 stack frame (t323,
   `Player/MarioParticle`)?** The original "why do the three scale calls stay
