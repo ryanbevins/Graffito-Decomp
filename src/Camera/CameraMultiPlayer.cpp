@@ -1,4 +1,5 @@
 #include <Camera/Camera.hpp>
+#include <Camera/CameraKindParam.hpp>
 #include <Camera/cameralib.hpp>
 #include <JSystem/JGeometry/JGVec3.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -52,8 +53,7 @@ void CPolarSubCamera::ctrlMultiPlayerCamera_()
 		sum.y *= invCount;
 		sum.z *= invCount;
 
-		void* paramObj = *(void**)((u8*)this + 0x68);
-		sum.y += *(f32*)((u8*)paramObj + 0x24);
+		sum.y += unk68->unk24;
 
 		f32 maxDistSq = 0.0f;
 		for (int i = 0; i < count; i++) {
@@ -77,16 +77,16 @@ void CPolarSubCamera::ctrlMultiPlayerCamera_()
 		}
 		f32 r    = 300.0f + 1.5f * dist;
 
-		f32 lo = *(f32*)((u8*)paramObj + 0x8);
-		f32 hi = *(f32*)((u8*)paramObj + 0xC);
+		f32 lo = unk68->unk08;
+		f32 hi = unk68->unk0C;
 		if (r > hi)
 			r = hi;
 		else if (r < lo)
 			r = lo;
 
 		f32 ratio  = CLBCalcRatio<f32>(lo, hi, r);
-		s16 angA   = *(s16*)((u8*)paramObj + 0x18);
-		s16 angB   = *(s16*)((u8*)paramObj + 0x1A);
+		s16 angA   = unk68->unk18;
+		s16 angB   = unk68->unk1A;
 		s16 outAng = (s16)CLBLinearInbetween<s16>(angA, angB, ratio);
 
 		JGeometry::TVec3<f32>* target = (JGeometry::TVec3<f32>*)((u8*)this + 0x98);
