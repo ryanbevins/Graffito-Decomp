@@ -795,7 +795,7 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 	};
 
 	TFlagManager* flagMgr = TFlagManager::smInstance;
-	u32 coins = flagMgr->getFlag(
+	s32 coins = flagMgr->getFlag(
 	    ((u32)SMS_getShineStage(_13A) << 16) + 0x20005);
 	if (coins > 999)
 		coins = 999;
@@ -805,13 +805,13 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 	J2DPane* p100 = mScreen->search('sc_s');
 	p100->mVisible = false;
 	if (coins < 100) {
-		s32 d10 = coins / 10;
+		s32 d10 = (s32)(coins * 0.1f);
 		((J2DPicture*)scenarioPics[1])
 		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
 		                                                    + 0xA8))[d10]
 		                        ->mTexInfo,
 		                    0);
-		s32 d1 = coins - d10 * 10;
+		s32 d1 = coins % 10;
 		((J2DPicture*)scenarioPics[2])
 		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
 		                                                    + 0xA8))[d1]
@@ -819,20 +819,20 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 		                    0);
 		((J2DPicture*)scenarioPics[0])->mVisible = false;
 	} else {
-		s32 d100 = coins / 100;
+		s32 d100 = (s32)(coins * 0.01f);
 		((J2DPicture*)scenarioPics[0])
 		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
 		                                                    + 0xA8))[d100]
 		                        ->mTexInfo,
 		                    0);
 		s32 rem  = coins - d100 * 100;
-		s32 d10  = rem / 10;
+		s32 d10  = (s32)(rem * 0.1f);
 		((J2DPicture*)scenarioPics[1])
 		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
 		                                                    + 0xA8))[d10]
 		                        ->mTexInfo,
 		                    0);
-		s32 d1 = rem - d10 * 10;
+		s32 d1 = rem % 10;
 		((J2DPicture*)scenarioPics[2])
 		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
 		                                                    + 0xA8))[d1]
@@ -1215,8 +1215,7 @@ void TSelectGrad::perform(u32 flags, JDrama::TGraphics* gfx)
 		GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
 		              GX_DF_NONE, GX_AF_NONE);
 
-		static const GXColor cAmbColor = { 0xFF, 0xFF, 0xFF, 0xFF };
-		GXColor ambColor = cAmbColor;
+		GXColor ambColor = { 0xFF, 0xFF, 0xFF, 0xFF };
 		GXSetChanAmbColor(GX_COLOR0A0, ambColor);
 
 		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
