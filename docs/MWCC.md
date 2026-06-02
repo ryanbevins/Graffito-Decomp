@@ -5422,6 +5422,36 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Countdown cursor loops may select MWCC's 4-way unroller where index loops select an 8-way unroller
+
+**Hypothesis.** For loops over fixed-size records that only need to visit every
+entry, an index form such as `for (int i = 0; i < count; ++i) data[i]...` can
+make MWCC emit an 8-way unrolled preheader plus a remainder loop, while a
+countdown cursor form
+
+```cpp
+T* p = base;
+for (int i = count; i > 0; --i, ++p) {
+	...
+}
+```
+
+can make the compiler copy the count into the loop controller and choose the
+target 4-way unroll (`srwi. count, 2`; four record visits per `bdnz`;
+`andi. count, 3` remainder). This is not just register coloring: it changes the
+unroll factor and removes the 8-way `count - 8` preheader family.
+
+**Observed.** `mario/Camera/CameraMultiPlayer`
+`CPolarSubCamera::ctrlMultiPlayerCamera_` (t363): changing the first player
+position averaging loop from index/table access to a countdown cursor restored
+the target's 4-way unrolled sum loop and moved the function `58.5% -> 88.5%`.
+
+**Experiment to confirm/refute.** Find a second record-walk loop where target
+has 4-way unroll plus `andi. count, 3`, while our indexed source emits an
+8-way `count - 8` preheader. Compare indexed, forward cursor with separate
+index, and countdown cursor forms; promote only if countdown cursor selects the
+4-way unroller again without hand-unrolling the source.
+
 ### Assigning a loop index to the bound inside a match arm can reproduce target's bound-plus-one sentinel loop where `break` emits a different controller
 
 **Hypothesis.** When target asm for a search loop does not branch out on match,
