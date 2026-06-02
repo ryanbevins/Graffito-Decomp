@@ -52,8 +52,12 @@ void MSStageCubeSwitch::proc()
 			unk10 = false;
 			unk11 = false;
 		} else {
+			bool flag;
 			if (!unk10)
-				unk10 = !SMS_IsMarioStatusTypeJumping();
+				flag = !SMS_IsMarioStatusTypeJumping();
+			else
+				flag = true;
+			unk10 = flag;
 
 			if (unk10 == true && unk11 == false
 			    && MSMainProc::MSStageInfo::bossLives) {
@@ -68,8 +72,12 @@ void MSStageCubeSwitch::proc()
 			unk10 = false;
 			unk11 = false;
 		} else {
+			bool flag;
 			if (!unk10)
-				unk10 = !SMS_IsMarioStatusTypeJumping();
+				flag = !SMS_IsMarioStatusTypeJumping();
+			else
+				flag = true;
+			unk10 = flag;
 
 			if (unk10 == true && unk11 == false
 			    && MSMainProc::MSStageInfo::bossLives) {
