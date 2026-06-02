@@ -44,7 +44,7 @@ TCameraOption::TCameraOption(JGeometry::TVec3<f32> center,
                              JGeometry::TVec3<f32>* outPos)
 {
 	unk0      = 2;
-	mFovYunk4 = 0.0f;
+	mFovYunk4 = 40.0f;
 	unk8      = 0x12C;
 	unkA      = 0x12C;
 	unkC      = 0x78;
