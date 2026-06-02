@@ -12,27 +12,30 @@ const char* cLoadCamName = "\x8d\xb6\x83\x54\x83\x43\x83\x68\x83\x4a\x83\x81\x83
 
 void TCameraOption::moveToDown()
 {
-	unk3C->x = unk24.x;
-	unk3C->y = unk24.y;
-	unk3C->z = unk24.z;
+	JGeometry::TVec3<f32>* pos = unk3C;
+	pos->x                      = unk24.x;
+	pos->y                      = unk24.y;
+	pos->z                      = unk24.z;
 	unk16   = unk14;
 }
 
 void TCameraOption::moveToUp()
 {
-	unk3C->x = unk30.x;
-	unk3C->y = unk30.y;
-	unk3C->z = unk30.z;
+	JGeometry::TVec3<f32>* pos = unk3C;
+	pos->x                      = unk30.x;
+	pos->y                      = unk30.y;
+	pos->z                      = unk30.z;
 	unk16   = unk14;
 }
 
 void TCameraOption::moveToLoadFromTitle()
 {
-	unk3C->x = unk24.x;
-	unk3C->y = unk24.y;
-	unk3C->z = unk24.z;
+	JGeometry::TVec3<f32>* pos = unk3C;
+	pos->x                      = unk24.x;
+	pos->y                      = unk24.y;
+	pos->z                      = unk24.z;
 	unkE     = unkC;
-	unk0     = (unk0 & ~6);
+	unk0     = (unk0 & ~2);
 }
 
 TCameraOption::TCameraOption(JGeometry::TVec3<f32> center,
