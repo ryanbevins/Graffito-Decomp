@@ -2,7 +2,10 @@
 #include <Camera/cameralib.hpp>
 #include <JSystem/JMath.hpp>
 #include <Player/MarioAccess.hpp>
-#include <Player/MarioMain.hpp>
+
+extern void* gpMarioOriginal;
+
+template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
 
 void CPolarSubCamera::execSecureView_(s16 angle, Vec* out)
 {
@@ -34,7 +37,7 @@ void CPolarSubCamera::execSecureView_(s16 angle, Vec* out)
 	f32 dx         = sum * jmaSinTable[marioBackU >> jmaSinShift];
 	f32 dz         = sum * jmaCosTable[marioBackU >> jmaSinShift];
 
-	s16 ad = *gpMarioAngleY - gpMarioOriginal->unk9C;
+	s16 ad = *gpMarioAngleY - *(s16*)((u8*)gpMarioOriginal + 0x9C);
 	if (ad < 0)
 		ad = -ad;
 
