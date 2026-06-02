@@ -136,8 +136,8 @@ bool MSSetSoundTL<T>::startSoundSetDyna(u32 soundID, const Vec* pos,
 		unkAC = *pos;
 		unkB8 = 1;
 	} else {
-		u32 minFrames = unk1D.unk0
-		                + (u32)(unk1E.unk0 * JALCalc::getRandom_0_1());
+		u32 minFrames = unk1D.unk0;
+		minFrames += (u32)(unk1E.unk0 * JALCalc::getRandom_0_1());
 		JAISound* check = unk5C[unk5A];
 		u32 frame       = check->unk14;
 		BOOL canStart;
