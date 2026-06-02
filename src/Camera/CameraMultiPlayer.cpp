@@ -64,7 +64,11 @@ void CPolarSubCamera::ctrlMultiPlayerCamera_()
 				f32 dx = a->x - b->x;
 				f32 dy = a->y - b->y;
 				f32 dz = a->z - b->z;
-				f32 d  = dx * dx + dy * dy + dz * dz;
+				f32 dxSq = dx * dx;
+				f32 dySq = dy * dy;
+				f32 dzSq = dz * dz;
+				f32 d    = dxSq + dySq;
+				d        = dzSq + d;
 				if (d > maxDistSq)
 					maxDistSq = d;
 			}
