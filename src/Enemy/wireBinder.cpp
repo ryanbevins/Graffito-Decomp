@@ -24,6 +24,13 @@ bool TWireBinder::init(const JGeometry::TVec3<f32>& param_1)
 	return true;
 }
 
+#pragma dont_inline on
+TMapWire* TMapWireManager::getWire(int index) const
+{
+	return unk18[index];
+}
+#pragma dont_inline off
+
 void TWireBinder::bind(TLiveActor* actor)
 {
 	JGeometry::TVec3<f32> unk_14;
