@@ -324,7 +324,7 @@ DEFINE_NERVE(TNerveElecNokonokoRebirth, TLiveActor)
 		self->unk1A4 = 0;
 		gpMarioParticleManager->emitAndBindToPosPtr(
 		    0xCD, &self->mCarapace->mPosition, 0, nullptr);
-		self->mCarapace->appear();
+		self->mCarapace->kill();
 	}
 
 	if (self->mMActor->getFrameCtrl(0)->checkPass(88.0f)) {
