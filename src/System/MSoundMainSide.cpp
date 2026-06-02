@@ -34,6 +34,53 @@ void MSSTageSimpleEnvironment::proc()
 		MSoundSESystem::MSoundSE::startSoundSystemSE(mSoundID, 0, nullptr, 0);
 }
 
+void MSStageCubeSwitch::proc()
+{
+	Vec pos = *gpMarioPos;
+	pos.y += 75.0f;
+	mCurrentCube = gpCubeSoundChange->getInCubeNo(pos);
+
+	switch (mCurrentCube) {
+	case -1:
+		if (mPreviousCube == 0) {
+			unk10 = false;
+			unk11 = false;
+		} else {
+			if (!unk10)
+				unk10 = !SMS_IsMarioStatusTypeJumping();
+
+			if (unk10 == true && unk11 == false
+			    && MSMainProc::MSStageInfo::bossLives) {
+				MSBgm::stopTrackBGM(1, 10);
+				MSBgm::setTrackVolume(0, 1.0f, 15, 0);
+			}
+			unk11 = unk10;
+		}
+		break;
+	case 0:
+		if (mPreviousCube == -1) {
+			unk10 = false;
+			unk11 = false;
+		} else {
+			if (!unk10)
+				unk10 = !SMS_IsMarioStatusTypeJumping();
+
+			if (unk10 == true && unk11 == false
+			    && MSMainProc::MSStageInfo::bossLives) {
+				MSBgm::setTrackVolume(0, 0.0f, 15, 0);
+				if (!MSMainProc::MSStageInfo::bossNotDamaged)
+					MSBgm::startBGM(MSMainProc::MSStageInfo::switchBgm2);
+				else
+					MSBgm::startBGM(MSMainProc::MSStageInfo::switchBgm);
+			}
+			unk11 = unk10;
+		}
+		break;
+	}
+
+	mPreviousCube = mCurrentCube;
+}
+
 MSStageDistFade::MSStageDistFade(const Vec* pos, float near_dist,
                                  float far_dist, u32 bgm, bool use_pan)
     : unk4(0)
@@ -46,6 +93,60 @@ MSStageDistFade::MSStageDistFade(const Vec* pos, float near_dist,
 }
 
 void MSStage::stageLoop() { proc(); }
+
+MSStage* MSStage::init(u8 map, u8)
+{
+	smMSStage = nullptr;
+	*(f32*)gpMSound->unk9C = 0.0f;
+
+	switch (MSMainProc::MSStageInfo::fadeEvent) {
+	case 1: {
+		if (map != 8) {
+			u32 bgm       = 0x104;
+			f32 nearDist  = 6000.0f;
+			f32 farDist   = 1600.0f;
+			const Vec* pos = *(const Vec**)((u8*)gpMSound + 0xB8);
+
+			if (map == 7) {
+				nearDist = 3000.0f;
+				farDist  = 800.0f;
+				bgm      = 0x104;
+			} else if (map == 2) {
+				bgm = 0x104;
+			} else if (map == 4) {
+				bgm = 0x154;
+			}
+
+			smMSStage = new MSStageDistFade(
+			    pos, nearDist, farDist, bgm,
+			    MSMainProc::MSStageInfo::distFadeStageToKage);
+		} else {
+			const Vec* pos = *(const Vec**)((u8*)gpMSound + 0xB8);
+			smMSStage      = new MSStageDistFadeMonte(
+                pos, 6000.0f, 1600.0f, 0x5A,
+                MSMainProc::MSStageInfo::distFadeStageToKage);
+		}
+		break;
+	}
+	case 2:
+		if (gpCubeSoundChange->unk10 != 0) {
+			if (map == 8)
+				smMSStage = new MSStageCubeFadeMonte;
+			else
+				smMSStage = new MSStageCubeFade;
+		}
+		break;
+	case 3:
+		if (gpCubeSoundChange->unk10 == 1)
+			smMSStage = new MSStageCubeSwitch(false);
+		break;
+	}
+
+	if (map == 0x34 || map == 0x3C)
+		smMSStage = new MSSTageSimpleEnvironment(0x5012);
+
+	return smMSStage;
+}
 
 void MSMainProc::setBossNotDamagedFlag(bool flag)
 {
