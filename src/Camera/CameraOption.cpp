@@ -123,8 +123,9 @@ void CPolarSubCamera::ctrlOptionCamera_()
 				if (mt != nullptr && mt != *(TCameraMapTool**)((u8*)this + 0x70)) {
 					gpCameraOption->unk0 ^= 1;
 					*(TCameraMapTool**)((u8*)this + 0x70) = mt;
-					mt->calcPosAndAt((JGeometry::TVec3<f32>*)((u8*)this + 0x80),
-					                 (JGeometry::TVec3<f32>*)((u8*)this + 0x8C));
+					(*(TCameraMapTool**)((u8*)this + 0x70))
+					    ->calcPosAndAt((JGeometry::TVec3<f32>*)((u8*)this + 0x80),
+					                   (JGeometry::TVec3<f32>*)((u8*)this + 0x8C));
 					gpCameraOption->unk12 = gpCameraOption->unk10;
 				}
 			}
