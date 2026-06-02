@@ -4487,6 +4487,13 @@ direct `OFFSET(rThis)` accesses.
   store, and reload as the typed `unk70` field. The cast form emitted
   an extra `addi r7, r31, 0x70` and used `stw/lwz 0(r7)` around
   `calcPosAndAt`; the typed field matched target `stw/lwz 0x70(r31)`.
+- `CPolarSubCamera::warpPosAndAt(const Vec&, const Vec&)` in
+  `CameraWarp.cpp` 95.4% → 100% after declaring `0x6c` as the typed
+  `TCameraInbetween* unk6C` field. The raw cast form cached
+  `this + 0x6c` in a saved register and reloaded through `lwz 0(rN)`
+  after `TCameraInbetween::warpPosAndAt`; the typed field matched the
+  target's direct `lwz 0x6c(r31)` reload. The float overload also
+  improved 82.5% → 83.8%.
 
 **Caveat:** This does not solve every addi-field-address caching case.
 When the target itself caches a field address, the typed member can be

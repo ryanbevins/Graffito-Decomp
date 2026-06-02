@@ -38,8 +38,7 @@ void CPolarSubCamera::addMoveCameraAndMario(const Vec& delta)
 	gpCameraMario->mPosY += tmp.y;
 	gpCameraMario->mPosZ += tmp.z;
 
-	TCameraInbetween* inb = *(TCameraInbetween**)((u8*)this + 0x6C);
-	inb->addMoveCameraAndMario(delta);
+	unk6C->addMoveCameraAndMario(delta);
 
 	addVec3At(this, 0x80, delta);
 	addVec3At(this, 0x8C, delta);
@@ -109,8 +108,8 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 	*(f32*)((u8*)this + 0x14C) = lookat.y;
 	*(f32*)((u8*)this + 0x150) = lookat.z;
 
-	(*(TCameraInbetween**)((u8*)this + 0x6C))->warpPosAndAt(pos, lookat);
-	(*(TCameraInbetween**)((u8*)this + 0x6C))->mFrameCount = 0;
+	unk6C->warpPosAndAt(pos, lookat);
+	unk6C->mFrameCount = 0;
 
 	calcNowTargetFromPosAndAt_(pos, lookat);
 
@@ -141,8 +140,8 @@ void CPolarSubCamera::warpPosAndAt(const Vec& pos, const Vec& lookat)
 	*(f32*)((u8*)this + 0x14C) = lookat.y;
 	*(f32*)((u8*)this + 0x150) = lookat.z;
 
-	(*(TCameraInbetween**)((u8*)this + 0x6C))->warpPosAndAt(pos, lookat);
-	(*(TCameraInbetween**)((u8*)this + 0x6C))->mFrameCount = 0;
+	unk6C->warpPosAndAt(pos, lookat);
+	unk6C->mFrameCount = 0;
 
 	calcNowTargetFromPosAndAt_(pos, lookat);
 
