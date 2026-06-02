@@ -7,6 +7,7 @@
 #include <MSound/MSoundSE.hpp>
 #include <MarioUtil/MapUtil.hpp>
 #include <Player/MarioAccess.hpp>
+#include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <math.h>
 
@@ -539,6 +540,354 @@ void MSMainProc::startStageEntranceDemo(u8, u8)
 	gpMSound->demoModeIn(MSStageInfo::volOffCategory, false);
 	gpMSound->unkA4 = 0;
 	gpMSound->unkC9 = 1;
+}
+
+void MSMainProc::setMSoundEnterStage(u8 map, u8 area)
+{
+	const u32 base = 0x80010000;
+	bool waterCamera = false;
+
+	MSStageInfo::msStg                     = MSBgm::getSceneNo(cMSBgmNone);
+	MSStageInfo::stageBgm                  = cMSBgmNone;
+	MSStageInfo::demoBgm                   = base + 0x17;
+	MSStageInfo::flags                     = 10;
+	MSStageInfo::stageBgmSilent            = cMSBgmNone;
+	MSStageInfo::stageBgmSilentStartStatus = 2;
+	MSStageInfo::fadeEvent                 = 0;
+	MSStageInfo::switchBgm                 = cMSBgmNone;
+	MSStageInfo::switchBgm2                = cMSBgmNone;
+	MSStageInfo::cubeFadeRatio             = 0.15f;
+	MSStageInfo::cubeFadeUsePan            = true;
+	MSStageInfo::bossLives                 = true;
+	MSStageInfo::bossLives2                = true;
+	MSStageInfo::bossNotDamaged            = true;
+	MSStageInfo::volOffCategory            = 0x1C7;
+	MSStageInfo::distFadeStageToKage       = true;
+
+	switch (map) {
+	case 0:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x1A);
+		MSStageInfo::stageBgm = base + 0x1A;
+		break;
+	case 1:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x01);
+		MSStageInfo::stageBgm = base + 0x01;
+		switch (area) {
+		case 0:
+			MSStageInfo::fadeEvent     = 2;
+			MSStageInfo::switchBgm     = cMSBgmNone;
+			MSStageInfo::switchBgm2    = cMSBgmNone;
+			MSStageInfo::cubeFadeRatio = 0.22f;
+			break;
+		case 1:
+			MSStageInfo::demoBgm = base + 0x16;
+			MSStageInfo::flags   = 0;
+			MSStageInfo::volOffCategory -= 0x183;
+			break;
+		case 5:
+			MSStageInfo::fadeEvent     = 2;
+			MSStageInfo::switchBgm     = cMSBgmNone;
+			MSStageInfo::switchBgm2    = cMSBgmNone;
+			MSStageInfo::cubeFadeRatio = 0.34f;
+			break;
+		case 8:
+			if (TFlagManager::smInstance->getFlag(0x60003) > 0) {
+				MSStageInfo::demoBgm = base + 0x16;
+				MSStageInfo::flags   = 6;
+				MSStageInfo::volOffCategory -= 0x83;
+				MSStageInfo::fadeEvent = 1;
+				MSStageInfo::switchBgm = cMSBgmNone;
+				MSStageInfo::switchBgm2 = cMSBgmNone;
+			}
+			break;
+		case 9:
+			MSStageInfo::demoBgm = base + 0x16;
+			MSStageInfo::flags   = 0;
+			MSStageInfo::volOffCategory -= 0x82;
+			break;
+		}
+		break;
+	case 2:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x02);
+		MSStageInfo::stageBgm = base + 0x02;
+		if (area == 0) {
+			MSStageInfo::demoBgm       = base + 0x27;
+			MSStageInfo::flags         = 10;
+			MSStageInfo::fadeEvent     = 2;
+			MSStageInfo::switchBgm     = cMSBgmNone;
+			MSStageInfo::switchBgm2    = cMSBgmNone;
+			MSStageInfo::cubeFadeRatio = 0.28f;
+		} else if (area == 6) {
+			MSStageInfo::demoBgm = base + 0x16;
+			MSStageInfo::flags   = 3;
+			MSStageInfo::volOffCategory -= 0x83;
+			MSStageInfo::fadeEvent           = 1;
+			MSStageInfo::switchBgm           = cMSBgmNone;
+			MSStageInfo::switchBgm2          = cMSBgmNone;
+			MSStageInfo::distFadeStageToKage = false;
+		}
+		break;
+	case 3:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x09);
+		MSStageInfo::stageBgm = base + 0x09;
+		if (area == 6) {
+			MSStageInfo::demoBgm = base + 0x16;
+			MSStageInfo::flags   = 3;
+			MSStageInfo::volOffCategory -= 0x83;
+			MSStageInfo::fadeEvent           = 1;
+			MSStageInfo::switchBgm           = cMSBgmNone;
+			MSStageInfo::switchBgm2          = cMSBgmNone;
+			MSStageInfo::distFadeStageToKage = false;
+		}
+		if (area == 4) {
+			MSStageInfo::switchBgm     = base + 0x0D;
+			MSStageInfo::fadeEvent     = 3;
+			MSStageInfo::switchBgm2    = base + 0x2A;
+			MSStageInfo::cubeFadeRatio = 0.28f;
+		}
+		break;
+	case 4:
+		if (area == 2) {
+			MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x0D);
+			MSStageInfo::stageBgm = base + 0x0D;
+		} else {
+			MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x03);
+			MSStageInfo::stageBgm = base + 0x03;
+		}
+		if (area == 6) {
+			MSStageInfo::switchBgm = cMSBgmNone;
+			MSStageInfo::demoBgm   = base + 0x16;
+			MSStageInfo::flags     = 3;
+			MSStageInfo::volOffCategory -= 0x83;
+			MSStageInfo::fadeEvent           = 1;
+			MSStageInfo::switchBgm2          = cMSBgmNone;
+			MSStageInfo::distFadeStageToKage = false;
+		} else if (area == 2) {
+			MSStageInfo::demoBgm = base + 0x0D;
+			MSStageInfo::flags   = 0;
+		}
+		break;
+	case 5:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x04);
+		MSStageInfo::stageBgm = base + 0x04;
+		if (area == 0) {
+			MSStageInfo::flags   = 10;
+			MSStageInfo::demoBgm = base + 0x27;
+		} else if (area == 1) {
+			MSStageInfo::volOffCategory -= 4;
+		}
+		break;
+	case 6:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x08);
+		MSStageInfo::stageBgm = base + 0x08;
+		break;
+	case 7:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x13);
+		MSStageInfo::stageBgm = base + 0x13;
+		if (area == 3) {
+			MSStageInfo::fadeEvent = 1;
+			MSStageInfo::switchBgm = cMSBgmNone;
+			MSStageInfo::switchBgm2 = cMSBgmNone;
+			MSStageInfo::stageBgm = base + 0x16;
+			MSStageInfo::stageBgmSilent = base + 0x13;
+			MSStageInfo::stageBgmSilentStartStatus = 2;
+			MSStageInfo::distFadeStageToKage       = false;
+		}
+		break;
+	case 8:
+		if (area == 5) {
+			MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x22);
+			MSStageInfo::stageBgm = base + 0x22;
+		} else {
+			MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x07);
+			MSStageInfo::stageBgm = base + 0x07;
+		}
+		if (area == 6) {
+			MSStageInfo::switchBgm = cMSBgmNone;
+			MSStageInfo::demoBgm   = base + 0x16;
+			MSStageInfo::flags     = 6;
+			MSStageInfo::volOffCategory -= 0x83;
+			MSStageInfo::fadeEvent  = 1;
+			MSStageInfo::switchBgm2 = cMSBgmNone;
+		} else {
+			MSStageInfo::switchBgm  = cMSBgmNone;
+			MSStageInfo::fadeEvent  = 2;
+			MSStageInfo::switchBgm2 = cMSBgmNone;
+			if (area == 7) {
+				MSStageInfo::cubeFadeUsePan = false;
+				MSStageInfo::cubeFadeRatio  = 0.28f;
+				MSStageInfo::stageBgmSilent = base + 0x2C;
+				MSStageInfo::stageBgmSilentStartStatus = 2;
+			} else {
+				MSStageInfo::cubeFadeUsePan = true;
+				MSStageInfo::cubeFadeRatio  = 0.15f;
+				MSStageInfo::stageBgmSilent = base + 0x18;
+				MSStageInfo::stageBgmSilentStartStatus = 0;
+			}
+		}
+		break;
+	case 9:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x14);
+		MSStageInfo::stageBgm = base + 0x14;
+		if (area == 6) {
+			MSStageInfo::demoBgm = base + 0x16;
+			MSStageInfo::flags   = 3;
+			MSStageInfo::volOffCategory -= 0x83;
+			MSStageInfo::fadeEvent           = 1;
+			MSStageInfo::switchBgm           = cMSBgmNone;
+			MSStageInfo::switchBgm2          = cMSBgmNone;
+			MSStageInfo::distFadeStageToKage = false;
+		} else if (area == 1) {
+			MSStageInfo::switchBgm  = base + 0x0B;
+			MSStageInfo::fadeEvent  = 3;
+			MSStageInfo::switchBgm2 = base + 0x0B;
+		}
+		break;
+	case 13:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x05);
+		MSStageInfo::stageBgm = base + 0x05;
+		if (area == 4 || area == 0) {
+			MSStageInfo::fadeEvent = 1;
+			MSStageInfo::switchBgm = cMSBgmNone;
+			MSStageInfo::switchBgm2 = cMSBgmNone;
+			MSStageInfo::stageBgm = base + 0x16;
+			MSStageInfo::stageBgmSilent = base + 0x05;
+			MSStageInfo::stageBgmSilentStartStatus = 2;
+			MSStageInfo::distFadeStageToKage       = false;
+		} else {
+			MSStageInfo::stageBgmSilent = base + 0x23;
+			MSStageInfo::cubeFadeRatio  = 0.12f;
+			MSStageInfo::stageBgmSilentStartStatus = 2;
+			MSStageInfo::fadeEvent                 = 2;
+			MSStageInfo::switchBgm                 = cMSBgmNone;
+			MSStageInfo::switchBgm2                = cMSBgmNone;
+			MSStageInfo::cubeFadeUsePan            = true;
+		}
+		if (area == 7)
+			MSStageInfo::stageBgm = cMSBgmNone;
+		break;
+	case 14:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x1E);
+		MSStageInfo::stageBgm = base + 0x1E;
+		break;
+	case 15:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x10);
+		MSStageInfo::stageBgm = base + 0x10;
+		gpMSound->loadArcSeqData(MSStageInfo::stageBgm, false);
+		break;
+	case 16:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x06);
+		MSStageInfo::stageBgm = base + 0x06;
+		waterCamera           = true;
+		break;
+	case 20:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x01);
+		MSStageInfo::stageBgm = base + 0x01;
+		MSStageInfo::demoBgm  = base + 0x01;
+		MSStageInfo::flags    = 0;
+		break;
+	case 21:
+	case 22:
+	case 23:
+	case 24:
+	case 29:
+	case 33:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x21);
+		MSStageInfo::stageBgm = base + 0x21;
+		MSStageInfo::demoBgm  = base + 0x21;
+		MSStageInfo::flags    = 0;
+		break;
+	case 28:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x12);
+		MSStageInfo::stageBgm = base + 0x12;
+		MSStageInfo::demoBgm  = base + 0x12;
+		MSStageInfo::flags    = 0;
+		break;
+	case 30:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x12);
+		MSStageInfo::stageBgm = base + 0x12;
+		break;
+	case 31:
+	case 32:
+	case 34:
+	case 35:
+	case 40:
+	case 41:
+	case 42:
+	case 43:
+	case 45:
+	case 46:
+	case 47:
+	case 48:
+	case 49:
+	case 50:
+	case 51:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x12);
+		MSStageInfo::stageBgm = base + 0x12;
+		MSStageInfo::demoBgm  = base + 0x12;
+		MSStageInfo::flags    = 0;
+		break;
+	case 44:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x21);
+		waterCamera           = true;
+		MSStageInfo::stageBgm = base + 0x21;
+		MSStageInfo::demoBgm  = base + 0x21;
+		MSStageInfo::flags    = 0;
+		break;
+	case 52:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x15);
+		MSStageInfo::stageBgm = base + 0x15;
+		MSStageInfo::demoBgm  = base + 0x15;
+		MSStageInfo::flags    = 0;
+		break;
+	case 55:
+	case 57:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x0D);
+		MSStageInfo::stageBgm = base + 0x0D;
+		break;
+	case 58:
+		if (area == 0) {
+			MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x1F);
+			MSStageInfo::stageBgm = base + 0x1F;
+		} else if (area == 1) {
+			MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x19);
+			MSStageInfo::stageBgm = base + 0x19;
+		}
+		break;
+	case 59:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x09);
+		MSStageInfo::stageBgm = base + 0x09;
+		MSBgm::startBGM(base + 0x0D);
+		MSStageInfo::fadeEvent  = 2;
+		MSStageInfo::flags      = 3;
+		MSStageInfo::switchBgm  = cMSBgmNone;
+		MSStageInfo::switchBgm2 = cMSBgmNone;
+		break;
+	case 60:
+		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x2E);
+		MSStageInfo::stageBgm = base + 0x2E;
+		MSStageInfo::demoBgm  = base + 0x2E;
+		MSStageInfo::flags    = 0;
+		MSStageInfo::volOffCategory -= 0x104;
+		break;
+	}
+
+	gpMSound->initSound();
+	if (MSStageInfo::msStg != (u32)-1)
+		gpMSound->enterStage(
+		    (MS_SCENE_WAVE)MSStageInfo::msStg, map, area);
+
+	MSSeCallBack::setWaterCameraFir(waterCamera);
+
+	if (MSStageInfo::stageBgmSilent != cMSBgmNone
+	    && MSStageInfo::stageBgmSilentStartStatus == 0
+	    && gpMSound->unkCF != 0) {
+		JAISound* sound = MSBgm::startBGM(MSStageInfo::stageBgmSilent);
+		if (sound != nullptr)
+			sound->setVolume(0.0f, 0, 0);
+	}
+
+	gpMSound->unkC8 = 1;
 }
 
 void MSMainProc::fromTalkingCameraDemo(bool) { gpMSound->talkModeIn(false); }
