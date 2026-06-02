@@ -153,6 +153,57 @@ void MSStageCubeFade::proc()
 	mPreviousCube = mCurrentCube;
 }
 
+void MSStageDistFade::proc()
+{
+	JAISound* track1 = MSBgm::getHandle(1);
+	JAISound* track0 = MSBgm::getHandle(0);
+
+	if (track1 == nullptr || track0 == nullptr)
+		return;
+
+	Vec marioPos = *gpMarioPos;
+	Vec pos      = *unk10;
+	f32 dx       = pos.x - marioPos.x;
+	f32 dy       = pos.y - marioPos.y;
+	f32 dz       = pos.z - marioPos.z;
+	f32 dist     = std::sqrtf(dx * dx + dy * dy + dz * dz);
+
+	f32 fade = 0.0f;
+	if (dist < unkC) {
+		fade = 1.0f;
+	} else if (dist < unk8) {
+		fade = (unk8 - dist) / (unk8 - unkC);
+	}
+
+	if (unk4 <= unk14) {
+		f32 volume;
+		if (unk18 == true)
+			volume = fade * unk4 / unk14;
+		else
+			volume = 1.0f + ((fade - 1.0f) * unk4) / unk14;
+
+		MSBgm::setTrackVolume(0, 1.0f - volume, 2, 0);
+		MSBgm::setTrackVolume(1, volume, 2, 0);
+		((MSBgmXFade*)gpMSound->unk9C)->mLastTiming = volume;
+	} else {
+		((MSBgmXFade*)gpMSound->unk9C)->xFadeBgm(fade);
+	}
+
+	Vec cameraPos;
+	PSMTXMultVec(gpMSound->unk8->unk8, &pos, &cameraPos);
+	f32 pan   = MSHandle::calcPan(cameraPos, dist, 10000.0f);
+	f32 dolby = MSHandle::calcDolby(cameraPos, dist);
+
+	if (unk4 < unk14) {
+		pan   = 0.5f + ((pan - 0.5f) * unk4) / unk14;
+		dolby = dolby * unk4 / unk14;
+	}
+
+	MSBgm::setPan(1, pan, 1, 0);
+	MSBgm::setDolby(1, dolby, 1, 0);
+	unk4++;
+}
+
 MSStageDistFade::MSStageDistFade(const Vec* pos, float near_dist,
                                  float far_dist, u32 bgm, bool use_pan)
     : unk4(0)

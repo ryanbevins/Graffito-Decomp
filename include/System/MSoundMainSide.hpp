@@ -78,7 +78,7 @@ public:
 	MSStageDistFade(const Vec*, float, float, u32, bool);
 	virtual void proc();
 
-	/* 0x04 */ s32 unk4;
+	/* 0x04 */ u32 unk4;
 	/* 0x08 */ f32 unk8;
 	/* 0x0C */ f32 unkC;
 	/* 0x10 */ const Vec* unk10;
