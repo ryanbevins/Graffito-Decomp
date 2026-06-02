@@ -5,7 +5,29 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
-int TPollutionPos::getEdgeDegree(int x, int y) const { }
+int TPollutionPos::getEdgeDegree(int x, int y) const
+{
+	bool inArea;
+	if (x < 0 || mWidth <= x || y < 0 || mHeight <= y)
+		inArea = false;
+	else
+		inArea = true;
+
+	if (!inArea)
+		return 0;
+
+	int degree = 0;
+	for (int yOffset = -1; yOffset <= 1; ++yOffset) {
+		int sampleY = y + yOffset;
+		if (getDepth(x - 1, sampleY) == 0xff)
+			++degree;
+		if (yOffset != 0 && getDepth(x, sampleY) == 0xff)
+			++degree;
+		if (getDepth(x + 1, sampleY) == 0xff)
+			++degree;
+	}
+	return degree;
+}
 
 f32 TPollutionPos::getDepthWorld(int x, int y) const
 {
@@ -19,17 +41,24 @@ f32 TPollutionPos::getDepthWorld(int x, int y) const
 
 bool TPollutionPos::isSame(int x, int y, f32 param_3) const
 {
-	if (!isProhibit(x, y)) {
-		int uVar3 = getDepth(x, y);
-		int uVar4 = mOwner->unk48;
-		int iVar1 = worldToDepth(param_3);
-		if (uVar3 - uVar4 <= iVar1 && iVar1 <= uVar3 + uVar4)
-			return 1;
+	bool inArea;
+	if (x < 0 || mWidth <= x || y < 0 || mHeight <= y)
+		inArea = false;
+	else
+		inArea = true;
+
+	if (inArea) {
+		int depth = getDepth(x, y);
+		if (depth < 0xff) {
+			int layerDepth = mOwner->unk48;
+			int worldDepth = worldToDepth(param_3);
+			if (depth - layerDepth <= worldDepth
+			    && worldDepth <= depth + layerDepth)
+				return 1;
+		}
 	}
 	return false;
 }
-
-void TPollutionPos::subtractFromYMap(int x, int y, f32) const { }
 
 bool TPollutionPos::isProhibit(int x, int y) const
 {
@@ -46,7 +75,9 @@ bool TPollutionPos::isProhibit(int x, int y) const
 
 int TPollutionPos::worldToDepth(f32 v) const
 {
-	return (v - mVerticalOffset) * 0.025f;
+	v -= mVerticalOffset;
+	v *= 0.025f;
+	return v;
 }
 
 int TPollutionPos::worldToTexSize(f32 v) const
