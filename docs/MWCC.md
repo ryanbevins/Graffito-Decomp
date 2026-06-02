@@ -36,6 +36,31 @@ them in future ticks.
 
 ## Settled
 
+### Inline `TParamRT<T>::get()` can preserve direct field-load codegen while inflating leaf stack frames
+
+**Rule.** Outside `#pragma dont_inline`, a small `TParamRT<T>::get()` accessor
+can inline away to the same visible field load as direct `.value` access, while
+still changing MWCC's frame allocation. Use this when a near-exact leaf function
+reads one or more `TParamRT<T>` fields directly, the target frame is larger than
+the build, and the displayed instruction stream is otherwise already correct.
+Toggle direct `.value` reads to `.get()` one at a time and verify that the frame
+grows without introducing a `bl` or changing load/order codegen.
+
+This is the inverse of the `dont_inline` TParam rule: under `dont_inline`,
+`.get()` emits a real accessor call and `.value` is required; in a normal TU,
+the accessor can be a legitimate frame-shape lever without adding a call.
+
+**Citations.**
+- `mario/NPC/NpcTrample` `TNpcTrample::startTrample` (t371): direct
+  `mSLTrampleAmplitude.value` / `mSLTrampleShakeFrames.value` emitted the
+  target instruction stream with a `0x18` frame. Switching only the shake-frame
+  read to `.get()` grew the frame to `0x20`; switching both reads grew it to the
+  target `0x30` and made the function exact.
+- `mario/Enemy/rocket` `TRocket::getGravityY() const` (t371): switching
+  `mParams->mSLFlyGravity.value` to `.get()` preserved the field load at
+  `0x2f8` and grew the frame from `0x30` to target `0x40`, making the function
+  exact.
+
 ### Explicit template specialization declarations make a TU call the existing weak owner instead of emitting a local helper copy
 
 **Rule.** When a header-defined template helper is called in a TU but the target
@@ -5430,28 +5455,6 @@ for predicate functions.
   rather than `if (...) return true; ... return false;`.
 
 ## Hypotheses under investigation
-
-### Inline `TParamRT<T>::get()` can preserve direct field-load codegen while inflating leaf stack frames
-
-**Hypothesis.** Outside `#pragma dont_inline`, a small `TParamRT<T>::get()`
-accessor can inline away to the same field load as direct `.value` access, but
-its inline boundary still affects MWCC's frame allocator. In
-`mario/NPC/NpcTrample` `TNpcTrample::startTrample` the direct
-`mSLTrampleAmplitude.value` / `mSLTrampleShakeFrames.value` form emitted the
-target instruction stream with a `0x18` frame. Switching only the shake-frame
-read to `.get()` kept the same visible loads and grew the frame to `0x20`;
-switching both reads to `.get()` grew it to the target `0x30` and made the
-function exact. This is the inverse of the settled `dont_inline` rule: under
-`dont_inline`, `.get()` emits a real `bl` and `.value` is required, but in a
-normal TU the accessor can be a legitimate frame-shape lever without adding a
-call.
-
-**Experiment.** Find another near-exact leaf function that reads one or more
-`TParamRT<T>` fields directly, has a target frame larger than the build, and
-otherwise has matching field-load instructions. Toggle `.value` reads to
-`.get()` one at a time and check whether the frame grows without changing
-visible load/order codegen. Refute if the effect is unique to `NpcTrample` or
-only appears when the int-to-float conversion stack slots are present.
 
 ### Tiny fixed nested loops may be inner-unrolled while preserving dead-looking constant-condition branches
 

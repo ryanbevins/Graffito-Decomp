@@ -195,7 +195,7 @@ f32 TRocket::getGravityY() const
 {
 	f32 g = mGravity;
 	if (mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve())
-		g = mParams->mSLFlyGravity.value;
+		g = mParams->mSLFlyGravity.get();
 	return g;
 }
 
