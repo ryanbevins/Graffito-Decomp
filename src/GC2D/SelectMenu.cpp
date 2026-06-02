@@ -723,7 +723,6 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 		return;
 	}
 
-	// TODO: full implementation of main path pending — large (~3500B).
 	mScreen   = new J2DSetScreen("scenario_select_1.blo", archive);
 	m24ExPane = new TExPane(mScreen, 'msk1');
 	m28ExPane = new TExPane(mScreen, 'msk2');
@@ -851,8 +850,7 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 	}
 	if (shines == 0) {
 		J2DPane* p = mScreen->search('sc_0');
-		// vtable+0x10 second virtual: probably setVisible or similar
-		(*(void (**)(J2DPane*, s32, s32))(*(u32*)p + 0x10))(p, 0x53, 0);
+		p->add(0x53, 0);
 		J2DPane* pi = mScreen->search('r_i');
 		pi->mVisible = false;
 	} else if (shines == 1) {
