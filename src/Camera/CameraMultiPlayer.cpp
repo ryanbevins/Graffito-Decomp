@@ -105,10 +105,11 @@ bool CPolarSubCamera::removeMultiPlayer(const JGeometry::TVec3<f32>* p)
 		return false;
 
 	bool found = false;
-	for (u8 i = 0; i < c->mCount; i++) {
-		if (found || c->mData[i].unk0 == p) {
-			if (i != (u8)(c->mCount - 1)) {
-				c->mData[i] = c->mData[i + 1];
+	TMultiPlayerData* data = c->mData;
+	for (int i = 0; i < c->mCount; i++, data++) {
+		if (found || data->unk0 == p) {
+			if (i != c->mCount - 1) {
+				*data = data[1];
 			}
 			found = true;
 		}
