@@ -12,6 +12,7 @@ class TCameraInbetween;
 class TMarioGamePad;
 
 class TCameraJetCoaster;
+struct TMultiPlayerContainer;
 
 class CPolarSubCamera : public JDrama::TLookAtCamera {
 public:
@@ -65,7 +66,7 @@ public:
 	inline void drawJetCoasterBalloonMessage_();
 	void createMultiPlayer(u8);
 	bool addMultiPlayer(const JGeometry::TVec3<f32>*, f32, f32);
-	void removeMultiPlayer(const JGeometry::TVec3<f32>*);
+	bool removeMultiPlayer(const JGeometry::TVec3<f32>*);
 	void ctrlMultiPlayerCamera_();
 	void makeMtxForTalk(const TBaseNPC*);
 	void makeMtxForPrevTalk();
@@ -177,7 +178,8 @@ public:
 	/* 0x2A4 */ void* unk2A4;
 	/* 0x2A8 */ char unk2A8[0x2B8 - 0x2A8];
 	/* 0x2B8 */ TCameraJetCoaster* unk2B8;
-	/* 0x2BC */ char unk2BC[0x2C8 - 0x2BC];
+	/* 0x2BC */ TMultiPlayerContainer* unk2BC;
+	/* 0x2C0 */ char unk2C0[0x2C8 - 0x2C0];
 	/* 0x2C8 */ s16 unk2C8;
 };
 
