@@ -25,8 +25,9 @@ bool TNpcTrample::updateTrample(f32 dt, f32* out)
 			unk0 -= msAmpDecrease;
 			s16 angle = (s16)((TBaseNPC::mPtrSaveNormal->mSLTrampleShakeFrames.get() - unk4)
 			                  * TBaseNPC::mPtrSaveNormal->mSLTrampleVelocity.value);
-			f32 mod = unk0 * (-JMASSin(angle));
-			mod = 1.0f + mod;
+			f32 mod = -JMASSin(angle);
+			mod *= unk0;
+			mod += 1.0f;
 			*out = dt * mod;
 		}
 	}
