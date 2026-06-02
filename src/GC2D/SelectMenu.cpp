@@ -487,16 +487,16 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			J2DPane* p104 = *(J2DPane**)((u8*)this + 0x104);
 			if (p104->mVisible) {
 				f32 fr = SMSGetAnmFrameRate();
-				s32 d  = (s32)(0.5f * (f32)(u32) *
-				              ((u8*)this + 0x10D) * fr);
+				u8 phase = *((u8*)this + 0x10D);
+				s32 d    = (s32)(0.5f * (f32)(u32)phase * fr);
 				JUTRect* rc = (JUTRect*)((u8*)this + 0x110);
 				p104->move(rc->x1 - d, rc->y1);
 			}
 			J2DPane* p108 = *(J2DPane**)((u8*)this + 0x108);
 			if (p108->mVisible) {
 				f32 fr = SMSGetAnmFrameRate();
-				s32 d  = (s32)(0.5f * (f32)(u32) *
-				              ((u8*)this + 0x10D) * fr);
+				u8 phase = *((u8*)this + 0x10D);
+				s32 d    = (s32)(0.5f * (f32)(u32)phase * fr);
 				JUTRect* rc = (JUTRect*)((u8*)this + 0x120);
 				p108->move(rc->x1 + d, rc->y1);
 			}
