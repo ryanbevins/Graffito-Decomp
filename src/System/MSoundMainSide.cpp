@@ -5,6 +5,7 @@
 #include <MSound/MSHandle.hpp>
 #include <MSound/MSModBgm.hpp>
 #include <MSound/MSoundSE.hpp>
+#include <MarioUtil/MapUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <System/MarDirector.hpp>
 #include <math.h>
@@ -151,6 +152,77 @@ void MSStageCubeFade::proc()
 	}
 
 	mPreviousCube = mCurrentCube;
+}
+
+void MSStageDistFadeMonte::proc()
+{
+	JAISound* track1 = MSBgm::getHandle(1);
+	JAISound* track0 = MSBgm::getHandle(0);
+
+	if (track1 == nullptr || track0 == nullptr)
+		return;
+
+	Vec marioPos = *gpMarioPos;
+	marioPos.y += 75.0f;
+
+	Vec pos  = *unk10;
+	f32 dx   = pos.x - marioPos.x;
+	f32 dy   = pos.y - marioPos.y;
+	f32 dz   = pos.z - marioPos.z;
+	f32 dist = std::sqrtf(dx * dx + dy * dy + dz * dz);
+
+	f32 fade = 0.0f;
+	if (dist < unkC) {
+		fade = 1.0f;
+	} else if (dist < unk8) {
+		fade = (unk8 - dist) / (unk8 - unkC);
+	}
+
+	if (unk4 < unk14)
+		fade = fade * unk4 / unk14;
+
+	unk1C = SMS_GetMonteVillageAreaInMario();
+	if (unk1C == 0) {
+		MSoundSESystem::MSoundSE::startSoundSystemSE(
+		    0x5023, 0, nullptr, 0);
+		if (unk20 != 0) {
+			MSBgm::setTrackVolume(1, 0.0f, 10, 0);
+			MSBgm::setTrackVolume(0, 1.0f, 10, 0);
+		}
+		((MSBgmXFade*)gpMSound->unk9C)->mLastTiming = fade;
+	} else {
+		if (unk20 == 0) {
+			if (fade == 1.0f) {
+				MSBgm::setTrackVolume(1, 1.0f, 10, 0);
+				MSBgm::setTrackVolume(0, 0.0f, 10, 0);
+				((MSBgmXFade*)gpMSound->unk9C)->mLastTiming = fade;
+			} else if (fade == 0.0f) {
+				MSBgm::setTrackVolume(1, 0.0f, 10, 0);
+				MSBgm::setTrackVolume(0, 1.0f, 10, 0);
+				((MSBgmXFade*)gpMSound->unk9C)->mLastTiming = fade;
+			} else {
+				((MSBgmXFade*)gpMSound->unk9C)->xFadeBgmForce(fade);
+			}
+		} else {
+			((MSBgmXFade*)gpMSound->unk9C)->xFadeBgm(fade);
+		}
+
+		Vec cameraPos;
+		PSMTXMultVec(gpMSound->unk8->unk8, &pos, &cameraPos);
+		f32 pan   = MSHandle::calcPan(cameraPos, dist, 10000.0f);
+		f32 dolby = MSHandle::calcDolby(cameraPos, dist);
+
+		if (unk4 < unk14) {
+			pan   = 0.5f + ((pan - 0.5f) * unk4) / unk14;
+			dolby = dolby * unk4 / unk14;
+		}
+
+		MSBgm::setPan(1, pan, 1, 0);
+		MSBgm::setDolby(1, dolby, 1, 0);
+	}
+
+	unk20 = unk1C;
+	unk4++;
 }
 
 void MSStageDistFade::proc()
