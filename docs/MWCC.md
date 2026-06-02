@@ -4152,12 +4152,12 @@ those assignments. Check the field type to pick the right init value:
   produces multiple stfs in source-line position; non-TVec3 stores
   hoisted by MWCC if before/after a function call differs.)
 
-### `static const GXColor c = {...}` + `GXColor local = c;` preserves the intermediate stash–reload pattern
+### `GXColor` by-value calls: static const vs stack-local initializer choose different literal shapes
 
 **Rule:** When passing a small (≤ 4-byte) struct by value through a stack
-argument slot, MWCC emits a stash-then-copy through a local stack temp —
-**but only when the source is a real symbol load**, not a folded
-immediate.
+argument slot, the source spelling controls whether MWCC emits a named
+static object or an anonymous small-data literal. Match the target data
+shape first.
 
 ```cpp
 static const GXColor cAmbColor = { 0xFF, 0xFF, 0xFF, 0xFF };
@@ -4179,6 +4179,14 @@ The redundant stash+reload at 0x54 is the by-value copy of the local
 into the arg slot. MWCC does NOT eliminate the dead store to 0x54
 (stores aren't reordered/elided), so this remains visible.
 
+When the target instead has only an anonymous `0xffffffff` literal in
+`.sdata2` and no named `cAmbColor` object, use a stack-local initializer:
+
+```cpp
+GXColor ambColor = { 0xFF, 0xFF, 0xFF, 0xFF };
+GXSetChanAmbColor(GX_COLOR0A0, ambColor);
+```
+
 **The anti-pattern:** writing the constant as a u32 and casting through:
 
 ```cpp
@@ -4193,8 +4201,9 @@ load, breaking the match against rodata.
 
 **Where observed:**
 - `src/GC2D/SelectMenu.cpp::TSelectGrad::perform` ambient color setup —
-  the `GXColor cAmbColor` form produces the target's sda21 load +
-  stash+reload pattern; the u32 cast form folds to `li -1`.
+  target wants the stack-local initializer and anonymous `@2809 =
+  0xffffffff` literal; a `static const GXColor cAmbColor` emitted an
+  extra named object and left `@2809` missing.
 
 ### `s8 result` (not `s32 result`) for int functions that compute via `(s8)idx`
 
