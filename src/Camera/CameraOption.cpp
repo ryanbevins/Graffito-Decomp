@@ -103,17 +103,16 @@ static inline void chasePosAt(CPolarSubCamera* self, f32 frames)
 
 void CPolarSubCamera::ctrlOptionCamera_()
 {
-	TCameraOption* opt = gpCameraOption;
-	s16 t              = opt->unkA;
+	s16 t = gpCameraOption->unkA;
 
 	if (t > 0) {
 		chasePosAt(this, (f32)t);
-		opt->unkA -= 1;
-	} else if (opt->unkE > 0) {
-		chasePosAt(this, (f32)opt->unkE);
-		opt->unkE -= 1;
+		gpCameraOption->unkA -= 1;
+	} else if (gpCameraOption->unkE > 0) {
+		chasePosAt(this, (f32)gpCameraOption->unkE);
+		gpCameraOption->unkE -= 1;
 	} else {
-		bool skip = (opt->unk0 & 2) != 0;
+		bool skip = (gpCameraOption->unk0 & 2) != 0;
 		if (!skip) {
 			JGeometry::TVec3<f32> pos;
 			pos.x      = gpMarioPos->x;
@@ -126,20 +125,20 @@ void CPolarSubCamera::ctrlOptionCamera_()
 				                            ->begin()[cubeNo])
 				          ->unk38;
 				if (mt != nullptr && mt != *(TCameraMapTool**)((u8*)this + 0x70)) {
-					opt->unk0 ^= 1;
+					gpCameraOption->unk0 ^= 1;
 					*(TCameraMapTool**)((u8*)this + 0x70) = mt;
 					mt->calcPosAndAt((JGeometry::TVec3<f32>*)((u8*)this + 0x80),
 					                 (JGeometry::TVec3<f32>*)((u8*)this + 0x8C));
-					opt->unk12 = opt->unk10;
+					gpCameraOption->unk12 = gpCameraOption->unk10;
 				}
 			}
 
-			if (opt->unk12 > 0) {
-				chasePosAt(this, (f32)opt->unk12);
-				opt->unk12 -= 1;
-			} else if (opt->unk16 > 0) {
-				chasePosAt(this, (f32)opt->unk16);
-				opt->unk16 -= 1;
+			if (gpCameraOption->unk12 > 0) {
+				chasePosAt(this, (f32)gpCameraOption->unk12);
+				gpCameraOption->unk12 -= 1;
+			} else if (gpCameraOption->unk16 > 0) {
+				chasePosAt(this, (f32)gpCameraOption->unk16);
+				gpCameraOption->unk16 -= 1;
 			}
 		}
 	}
@@ -150,5 +149,5 @@ void CPolarSubCamera::ctrlOptionCamera_()
 	*(f32*)((u8*)this + 0x148) = *(f32*)((u8*)this + 0x3C);
 	*(f32*)((u8*)this + 0x14C) = *(f32*)((u8*)this + 0x40);
 	*(f32*)((u8*)this + 0x150) = *(f32*)((u8*)this + 0x44);
-	*(f32*)((u8*)this + 0x48)  = opt->mFovYunk4;
+	*(f32*)((u8*)this + 0x48)  = gpCameraOption->mFovYunk4;
 }
