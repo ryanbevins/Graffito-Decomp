@@ -67,11 +67,11 @@ bool MSSetSound::startSoundSet(u32 param1, const Vec* param2, u32 param3,
 		// clang-format on
 	}
 
-	if (!which)
-		return false;
+	if (which != nullptr)
+		return which->startSoundSetDyna(param1, param2, param3, param4, param5,
+		                                param6, param7, nullptr);
 
-	return which->startSoundSetDyna(param1, param2, param3, param4, param5,
-	                                param6, param7, nullptr);
+	return false;
 }
 
 bool MSSetSoundGrp::startSoundSetGrp(u32 param1, const Vec* param2, u32 param3,
@@ -83,11 +83,11 @@ bool MSSetSoundGrp::startSoundSetGrp(u32 param1, const Vec* param2, u32 param3,
 
 	MSSetSoundGrp* grp = MSSetSoundGrp::searchGroup(param1);
 
-	if (!grp)
-		return false;
+	if (grp != nullptr)
+		return grp->startSoundSetDyna(param1, param2, param3, param4, param5,
+		                              param6, param7, grp);
 
-	return grp->startSoundSetDyna(param1, param2, param3, param4, param5,
-	                              param6, param7, grp);
+	return false;
 }
 
 template <typename T>
