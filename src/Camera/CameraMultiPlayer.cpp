@@ -74,11 +74,13 @@ void CPolarSubCamera::ctrlMultiPlayerCamera_()
 			}
 		}
 
-		f32 dist = maxDistSq;
+		f32 dist;
 		if (maxDistSq > 0.0f) {
 			f64 root = __frsqrte(maxDistSq);
 			dist     = 0.5 * root
 			       * (3.0 - maxDistSq * (root * root)) * maxDistSq;
+		} else {
+			dist = maxDistSq;
 		}
 		f32 r    = 300.0f + 1.5f * dist;
 
