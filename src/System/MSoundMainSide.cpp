@@ -111,8 +111,8 @@ void MSStageCubeFadeMonte::proc()
 		gpCubeSoundChange->calcPointInCubeRatio(
 		    ratioPos, mCurrentCube, &ratioX, &ratioY, &ratioZ);
 
-		f32 edgeX = fabsf(ratioX - 0.5f);
-		f32 edgeZ = fabsf(ratioZ - 0.5f);
+		f32 edgeX = __fabsf(ratioX - 0.5f);
+		f32 edgeZ = __fabsf(ratioZ - 0.5f);
 		f32 edge  = edgeX > edgeZ ? edgeX : edgeZ;
 		if (edge < mFadeRatio)
 			fade = 1.0f;
@@ -215,8 +215,8 @@ void MSStageCubeFade::proc()
 	gpCubeSoundChange->calcPointInCubeRatio(
 	    ratioPos, mCurrentCube, &ratioX, &ratioY, &ratioZ);
 
-	f32 edgeX = fabsf(ratioX - 0.5f);
-	f32 edgeZ = fabsf(ratioZ - 0.5f);
+	f32 edgeX = __fabsf(ratioX - 0.5f);
+	f32 edgeZ = __fabsf(ratioZ - 0.5f);
 	f32 edge  = edgeX > edgeZ ? edgeX : edgeZ;
 	f32 fade;
 	if (edge < mFadeRatio)
