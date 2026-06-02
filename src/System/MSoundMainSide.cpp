@@ -896,9 +896,13 @@ void MSMainProc::toTalkingCameraDemo()
 {
 	u16 category = 0;
 	switch (gpMarDirector->mMap) {
-	case 1:
-	case 4:
 	case 9:
+		category = 4;
+		break;
+	case 4:
+		category = 4;
+		break;
+	case 1:
 		category = 4;
 		break;
 	}
