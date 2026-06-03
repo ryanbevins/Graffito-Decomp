@@ -29,44 +29,50 @@ TSunModel* gpSunModel;
 
 TSunModel::TSunModel(bool sunset, const char* name)
     : JDrama::TActor(name)
+    , mModelData(0)
+    , mModel(0)
+    , mAnmTexSRT(0)
+    , mFrameCtrl(0)
+    , mMapStaticObj(0)
+    , mUnk68(0xFF)
+    , mUnk6C(0.1f)
+    , mUnk70(0.01f)
+    , mUnk74(50)
+    , mUnk78(0.1f)
+    , mUnk7C(0.01f)
+    , mUnk80(100)
+    , mUnk84(3.0f)
+    , mUnk88(2.0f)
+    , mUnk9C(0.0f)
+    , mUnkA0(0.0f)
+    , mUnkA4(0.0f)
+    , mUnkA8(0.0f)
+    , unkAC(0.0f)
+    , mUnkB0(0.0f)
+    , mVisibleCount(0)
+    , mUnk194(0.0f)
+    , mUnk1A4(0.014f)
+    , mUnk1A8(3.0f)
+    , mFlags(0)
 {
-	mModelData    = 0;
-	mModel        = 0;
-	mAnmTexSRT    = 0;
-	mFrameCtrl.init(0);
-	mMapStaticObj = 0;
-	mUnk68 = 0xFF;
-	mUnk6C = 0.1f;
-	mUnk70 = 0.01f;
-	mUnk74 = 50;
-	mUnk78 = 0.1f;
-	mUnk7C = 0.01f;
-	mUnk80 = 100;
-	mUnk84 = 3.0f;
-	mUnk88 = 2.0f;
-	mUnk9C = 0.0f;
-	mUnkA0 = 0.0f;
-	mUnkA4 = 0.0f;
-	mUnkA8 = 0.0f;
-	unkAC  = 0.0f;
-	mUnkB0 = 0.0f;
-	// (mZBufCoords / mFPos array constructs emitted here by MWCC)
-	mVisibleCount = 0;
-	mUnk194       = 0.0f;
-	mUnk1A4       = 0.014f;
-	mUnk1A8       = 3.0f;
-	mFlags        = 0;
-	gpSunModel    = this;
+	gpSunModel = this;
 	if (sunset) {
 		mFlags |= 4;
 		mUnk80 = 0x30;
 	}
+
+	JGeometry::TVec2<s16>* zbufCoords = mZBufCoords;
+	JGeometry::TVec2<f32>* fpos       = mFPos;
+	u8* zbufVisible                   = mZBufVisible;
 	for (s32 i = 0; i < 17; i++) {
-		mZBufCoords[i].y  = -1;
-		mZBufCoords[i].x  = -1;
-		mFPos[i].y        = 10000.0f;
-		mFPos[i].x        = 10000.0f;
-		mZBufVisible[i]   = 0;
+		zbufCoords->y = -1;
+		zbufCoords->x = -1;
+		++zbufCoords;
+		fpos->y = 10000.0f;
+		fpos->x = 10000.0f;
+		++fpos;
+		*zbufVisible = 0;
+		++zbufVisible;
 	}
 }
 
