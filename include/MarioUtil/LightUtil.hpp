@@ -2,6 +2,7 @@
 #define MARIO_UTIL_LIGHT_UTIL_HPP
 
 #include <JSystem/JDrama/JDRDrawBufObj.hpp>
+#include <JSystem/JDrama/JDRLighting.hpp>
 #include <JSystem/JDrama/JDRViewObjPtrList.hpp>
 
 class J3DDrawBuffer;
@@ -20,7 +21,7 @@ public:
 	void calcLightBorder();
 	void getEffectLightColor() const;
 	void setEffectLight(const JDrama::TGraphics*, GXLightObj*);
-	void getLightPos() const;
+	Vec* getLightPos() const;
 	void makeDrawBuffer();
 	void addChildGroupObj(
 	    JDrama::TViewObjPtrListT<JDrama::TViewObj, JDrama::TViewObj>*);
@@ -56,10 +57,27 @@ public:
 
 	virtual void loadAfter();
 	virtual void perform(u32, JDrama::TGraphics*);
-	virtual void getLightColor(int) const;
-	virtual void getAmbColor(int) const;
-	virtual void getLightPosition(int);
+	virtual GXColor getLightColor(int) const;
+	virtual GXColor getAmbColor(int) const;
+	virtual Vec* getLightPosition(int);
 	virtual void setLight(const JDrama::TGraphics*, int);
+
+	static JDrama::TAmbAry* mAmbAry;
+	static JDrama::TLightAry* mLightAry;
+	static Vec* mLightPos;
+
+public:
+	/* 0x10 */ f32 unk10;
+	/* 0x14 */ f32 unk14;
+	/* 0x18 */ f32 unk18;
+	/* 0x1C */ f32 unk1C;
+	/* 0x20 */ int unk20;
+	/* 0x24 */ int unk24;
+	/* 0x28 */ u8 unk28;
+	/* 0x29 */ GXColor unk29[2];
+	/* 0x31 */ GXColor unk31[4];
+	/* 0x41 */ u8 unk41;
+	/* 0x44 */ JGeometry::TVec3<f32> unk44[4];
 };
 
 class TLightDrawBuffer : public JDrama::TViewObj {
@@ -147,8 +165,8 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void setLight(const JDrama::TGraphics*, int);
 
-	void getAmbColor(int) const;
-	void getLightColor(int) const;
+	virtual GXColor getLightColor(int) const;
+	virtual GXColor getAmbColor(int) const;
 };
 
 class TLightShadow : public TLightCommon {
