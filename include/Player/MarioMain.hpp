@@ -1435,7 +1435,7 @@ public:
 	/* 0xF4 */ s16 mSlopeAngle;
 	/* 0xF6 */ u16 unkF6;
 
-	/* 0xF8 */ u16 mLightID;
+	/* 0xF8 */ s16 mLightID;
 	/* 0xFA */ u16 mAnimationId;
 
 	/* 0xFC */ s16 unkFC;
