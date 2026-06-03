@@ -90,8 +90,9 @@ GXColor TLightCommon::getLightColor(int index) const
 		return unk31[index];
 	}
 
-	GXColor color;
-	GXGetLightColor(&mLightAry->mLights[unk24 + index].unk24, &color);
+	GXColor lightColor;
+	GXGetLightColor(&mLightAry->mLights[unk24 + index].unk24, &lightColor);
+	GXColor color = lightColor;
 	color.a = (u8)(color.a * unk1C);
 	return color;
 }
