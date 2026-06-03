@@ -612,10 +612,8 @@ namespace StreamLib {
 		if (Head == nullptr) {
 			DVDReadPrio(&finfo, adpcm_buffer, 0x20, 0, 2);
 		} else {
-			u8* dst = (u8*)adpcm_buffer;
-			u8* src = (u8*)Head;
 			for (u32 i = 0; i < 0x20; ++i)
-				dst[i] = src[i];
+				((u8*)adpcm_buffer)[i] = ((u8*)Head)[i];
 		}
 
 		adpcm_loadpoint = 0x20;
