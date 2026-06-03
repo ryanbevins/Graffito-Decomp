@@ -5469,6 +5469,37 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Fixed-count countdown cursor loops can select a compact `mtctr/bdnz` loop where forward loops unroll
+
+**Hypothesis.** For a fixed trip count with cursor increments and no need to use
+the induction value, a forward loop such as `for (int i = 0; i < N; ++i)` can
+trigger MWCC's unroller, and a forward `do/while` can preserve the loop but use
+an explicit `cmpwi/blt` controller. Writing the loop as a countdown over the
+same cursor body:
+
+```cpp
+for (int i = N; i > 0; --i) {
+	*p = ...;
+	++p;
+}
+```
+
+can make MWCC lower it to the target compact `li N; mtctr; body; bdnz` form
+without hand-unrolling or introducing an explicit compare.
+
+**Observed.** `mario/Camera/sunmodel` `TSunModel::TSunModel(bool, const char*)`
+(t379): the 17-entry sample-reset loop as a forward pointer `for` selected an
+8-way unroll plus remainder and left the constructor at `60.5%`. A forward
+`do/while` stopped the unroll but emitted `cmpwi/blt`, raising it to `96.6%`.
+Changing only the controller to `for (s32 i = 17; i > 0; --i)` produced the
+target `mtctr/bdnz` loop and made the constructor exact.
+
+**Experiment to confirm/refute.** Find a second fixed-count cursor loop where
+target has a single `mtctr/bdnz` body and the current source either unrolls or
+uses `cmpwi/blt`. Test forward `for`, forward `do/while`, and countdown
+`for`; promote only if countdown again selects `mtctr/bdnz` without changing the
+loop body.
+
 ### Tiny fixed nested loops may be inner-unrolled while preserving dead-looking constant-condition branches
 
 **Hypothesis.** For tiny fixed nested loops such as a 3x3 stencil, MWCC may keep
