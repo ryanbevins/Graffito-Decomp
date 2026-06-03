@@ -7743,6 +7743,14 @@ wrapper and emits an extra local 0x154-byte `setRotate` body, but preserves
 declarations for those two `TVec3` members did not remove the extras or recover
 the function shape.
 
+**Follow-up (t381) also REFUTED:** wrapping `axis.normalize()` in a one-level
+static inline helper improved `execShake` to 82.0% by restoring the target
+`TVec3::dot` / `inv_sqrt` / `TVec3::scale` call sequence, but combining that
+wrapper with the direct `rot.setRotate(axis, angleRad)` specialization still
+regressed the function to 74.8%. It removed the local `setRotate` extra, but
+MWCC expanded the rotation body at the call site and kept local `dot`/`scale`
+extras.
+
 **Conclusion.** The explicit-specialization declaration rule works for several
 free/header template helpers, but this class-template member case is coupled to
 MWCC's inline-budget decisions around `TVec3::normalize`. Do not apply the
