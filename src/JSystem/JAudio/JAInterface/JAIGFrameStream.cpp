@@ -4,6 +4,7 @@
 #include <JSystem/JAudio/JAInterface/JAIGlobalParameter.hpp>
 #include <JSystem/JAudio/JASystem/JASHeapCtrl.hpp>
 #include <JSystem/JAudio/JASystem/JASCallback.hpp>
+#include <JSystem/JAudio/JASystem/JASDvdThread.hpp>
 #include <JSystem/JAudio/JASystem/JASSystemHeap.hpp>
 #include <macros.h>
 
@@ -48,7 +49,7 @@ namespace StreamLib {
 	static s16* adpcm_buffer       = nullptr;
 	static s16*** loop_buffer      = nullptr;
 	static void** store_buffer     = nullptr;
-	static void* assign_ch         = nullptr;
+	static JASystem::TDSPChannel* assign_ch[2];
 	static u32 playside            = 0;
 	static u32 playback_samples    = 0;
 	static u32 loadup_samples      = 0;
@@ -56,7 +57,7 @@ namespace StreamLib {
 	static u32 movieframe          = 0;
 	static bool stopflag           = false;
 	static bool stopflag2          = false;
-	static bool playflag           = false;
+	static u8 playflag             = false;
 	static u8 playflag2            = false;
 	static u8 prepareflag          = 0;
 	static bool dspch_deallockflag = false;
@@ -497,7 +498,60 @@ namespace StreamLib {
 		}
 	}
 
-	void __start() { }
+	void __start()
+	{
+		startInitFlag = 0;
+		playmode      = Mode;
+
+		if (playflag != 0) {
+			assign_ch[0]->forceStop();
+			assign_ch[1]->forceStop();
+			++playflag;
+		}
+
+		DVDOpen(Filename, &finfo);
+		if (Head == nullptr) {
+			DVDReadPrio(&finfo, adpcm_buffer, 0x20, 0, 2);
+		} else {
+			u8* dst = (u8*)adpcm_buffer;
+			u8* src = (u8*)Head;
+			for (u32 i = 0; i < 0x20; ++i)
+				dst[i] = src[i];
+		}
+
+		adpcm_loadpoint = 0x20;
+		header          = *(StreamHeader*)adpcm_buffer;
+		adpcm_remain    = header.unk0;
+		playback_samples = header.unk4;
+		if (playmode != 0)
+			header.unk10 = 0;
+
+		stopflag        = false;
+		stopflag2       = false;
+		playflag2       = 0;
+		prepareflag     = 0;
+		outvolume       = 1.0f;
+		outpitch        = 1.0f;
+		outpan          = 0.5f;
+		loadup_samples  = 0;
+		movieframe      = 0;
+		loop_start_flag = false;
+		adpcmbuf_state  = 0;
+		playside        = 0;
+		shift_sample    = 0;
+		LOOP_SAMPLESIZE = LOOP_BLOCKS * 0x1400;
+
+		JASystem::Dvd::pauseDvdT();
+		LoadADPCM();
+
+		for (u32 i = 0; i < 2; ++i) {
+			if (assign_ch[i] != nullptr && assign_ch[i]->unk8 != 0)
+				JASystem::TDSPChannel::free(assign_ch[i], (u32)&assign_ch[i]);
+			assign_ch[i] = nullptr;
+		}
+
+		dspch_deallockflag = true;
+	}
 
 	s32 callBack(void* param) { }
 
