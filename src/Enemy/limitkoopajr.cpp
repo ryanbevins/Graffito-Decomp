@@ -143,7 +143,7 @@ DEFINE_NERVE(TNerveLimitKoopaJrRun, TLiveActor)
 			turned = false;
 		else
 			turned = true;
-		if (turned) {
+		if (!turned) {
 			spine->pushAfterCurrent(&TNerveLimitKoopaJrWait::theNerve());
 			return TRUE;
 		}
