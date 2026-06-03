@@ -13,6 +13,9 @@
 
 using namespace JDrama;
 
+static const char dummyMactorStringValue1[]
+    = "\0\0\0\0\0\0\0\0\0\0\0";
+
 TNameRefGen* TNameRefGen::instance;
 
 TNameRef* TNameRefGen::load(JSUMemoryInputStream& stream)
