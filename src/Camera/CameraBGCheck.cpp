@@ -129,7 +129,7 @@ bool CPolarSubCamera::execRoofCheck_(Vec p)
 bool CPolarSubCamera::execWallCheck_(Vec* p)
 {
 	bool didSnap = false;
-	f32 radius   = *(f32*)((u8*)this + 0x7C);
+	f32 radius   = *(f32*)((u8*)getKindOpt(this) + 0x7C);
 	if (radius > 0.0f) {
 		TBGWallCheckRecord record;
 		record.mCenter.x   = *(f32*)((u8*)this + 0x80);
