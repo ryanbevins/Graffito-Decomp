@@ -2,6 +2,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorUtil.hpp>
 #include <M3DUtil/SampleCtrlModel.hpp>
+#include <M3DUtil/SampleCtrlNode.hpp>
 #include <MarioUtil/MtxUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
@@ -13,6 +14,7 @@
 #include <System/FlagManager.hpp>
 #include <System/Particles.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <THPPlayer/THPPlayer.h>
@@ -264,6 +266,61 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 			unkD0 = 1.0f;
 		if (unkD0 < 0.0f)
 			unkD0 = 0.0f;
+
+		J3DTevBlock* tevBlock
+		    = unk78->getModel()->getModelData()->getMaterialNodePointer(0)
+		          ->getTevBlock();
+		if (unkB8 == 1) {
+			unkBA = unkB9;
+			--unkBC;
+			if (unkBC == 0) {
+				++unkB9;
+				unkBC = unkBE;
+				if (unkB9 >= 8)
+					unkB9 = 0;
+			}
+
+			J3DTevStageInfo* infos = unkC0->unkC[0]->unk3C;
+			infos[0].field_0x5    = 0;
+			infos[2].field_0x5    = 0;
+			infos[3].field_0x5    = 0;
+			infos[3].field_0x6    = 0;
+			infos[3].field_0x7    = 0;
+			infos[3].field_0x8    = 1;
+			infos[5].field_0x11   = 1;
+
+			switch (unkB9) {
+			case 1:
+				infos[3].field_0x5 = 1;
+				infos[3].field_0x8 = 0;
+				break;
+			case 2:
+				infos[0].field_0x5 = 8;
+				break;
+			case 3:
+				infos[3].field_0x5 = 8;
+				break;
+			case 4:
+				infos[3].field_0x7 = 1;
+				break;
+			case 5:
+				infos[5].field_0x11 = 0;
+				break;
+			case 6:
+				infos[2].field_0x5 = 1;
+				break;
+			case 7:
+				infos[3].field_0x5 = 0;
+				infos[3].field_0x6 = 1;
+				infos[3].field_0x8 = 0;
+				break;
+			}
+
+			tevBlock->getTevStage(0)->setTevStageInfo(infos[0]);
+			tevBlock->getTevStage(2)->setTevStageInfo(infos[2]);
+			tevBlock->getTevStage(3)->setTevStageInfo(infos[3]);
+			tevBlock->getTevStage(5)->setTevStageInfo(infos[5]);
+		}
 
 		s16 endFrame = unk78->getFrameCtrl(5)->getEnd();
 		f32 frame    = unkD0 * (f32)endFrame;
