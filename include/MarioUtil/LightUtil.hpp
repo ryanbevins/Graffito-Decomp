@@ -33,9 +33,7 @@ public:
 	/* 0x10 */ TLightMario* unk10;
 	/* 0x14 */ TLightWithDBSet** unk14;
 	/* 0x18 */ GXColor unk18;
-	/* 0x1C */ u32 unk1C;
-	/* 0x20 */ u32 unk20;
-	/* 0x24 */ u32 unk24;
+	/* 0x1C */ Vec unk1C;
 	/* 0x28 */ float unk28;
 	/* 0x2C */ float unk2C;
 	/* 0x30 */ float unk30;
@@ -98,7 +96,15 @@ public:
 
 class TLightWithDBSet : public JDrama::TViewObj {
 public:
-	TLightWithDBSet(int, const char*);
+	TLightWithDBSet(int count, const char* name)
+	    : JDrama::TViewObj(name)
+	    , unk10(nullptr)
+	    , unk14(nullptr)
+	    , unk18(nullptr)
+	    , unk1C(count)
+	    , unk20(false)
+	{
+	}
 
 	virtual ~TLightWithDBSet() { }
 	virtual void perform(u32, JDrama::TGraphics*);
@@ -124,7 +130,10 @@ public:
 
 class TIndirectLightWithDBSet : public TLightWithDBSet {
 public:
-	TIndirectLightWithDBSet();
+	TIndirectLightWithDBSet()
+	    : TLightWithDBSet(2, "インダイレクトモデル用ライト")
+	{
+	}
 
 	virtual ~TIndirectLightWithDBSet() { }
 	virtual void makeDrawBuffer();
@@ -132,7 +141,10 @@ public:
 
 class TMapObjectLightWithDBSet : public TLightWithDBSet {
 public:
-	TMapObjectLightWithDBSet();
+	TMapObjectLightWithDBSet()
+	    : TLightWithDBSet(2, "マップオブジェクト用ライト")
+	{
+	}
 
 	virtual ~TMapObjectLightWithDBSet() { }
 	virtual void makeDrawBuffer();
@@ -140,7 +152,10 @@ public:
 
 class TObjectLightWithDBSet : public TLightWithDBSet {
 public:
-	TObjectLightWithDBSet();
+	TObjectLightWithDBSet()
+	    : TLightWithDBSet(2, "オブジェクト用ライト")
+	{
+	}
 
 	virtual ~TObjectLightWithDBSet() { }
 	virtual void makeDrawBuffer();
@@ -148,7 +163,10 @@ public:
 
 class TPlayerLightWithDBSet : public TLightWithDBSet {
 public:
-	TPlayerLightWithDBSet();
+	TPlayerLightWithDBSet()
+	    : TLightWithDBSet(2, "プレイヤー用ライト")
+	{
+	}
 
 	virtual ~TPlayerLightWithDBSet() { }
 	virtual void makeDrawBuffer();

@@ -412,16 +412,105 @@ void TIndirectLightWithDBSet::makeDrawBuffer()
 
 TLightWithDBSetManager::TLightWithDBSetManager(const char* name)
     : JDrama::TViewObj(name)
+    , unk10(nullptr)
+    , unk14(nullptr)
+    , unk54(false)
+    , unk55(true)
 {
+	unk14    = new TLightWithDBSet*[4];
+	unk14[0] = new TPlayerLightWithDBSet();
+	unk14[1] = new TObjectLightWithDBSet();
+	unk14[2] = new TMapObjectLightWithDBSet();
+	unk14[3] = new TIndirectLightWithDBSet();
+
+	gpLightManager = this;
+	unk48.x        = 0.0f;
+	unk48.y        = 0.0f;
+	unk48.z        = 0.0f;
+	unk28          = 1.0f;
+	unk2C          = 100.0f;
+	unk30          = 400.0f;
+	unk34          = 1000.0f;
+	unk38          = 1.80535f;
+	unk3C          = -0.012058f;
+	unk40          = 0.00003f;
+	unk44          = 90.0f;
+
+	f32 points[3]    = { 0.9f, 0.5f, 0.05f };
+	f32 distance[3]  = { unk2C, unk30, unk34 };
+	f32 firstA       = points[1] * (points[0]
+	                          * (distance[0] * distance[0]
+	                             - distance[1] * distance[1]));
+	f32 firstB       = points[1] * (points[0] * (distance[0] - distance[1]));
+	f32 firstC       = points[1] - points[0];
+	f32 secondA      = points[2] * (points[1]
+	                           * (distance[1] * distance[1]
+	                              - distance[2] * distance[2]));
+	f32 secondB      = points[2] * (points[1] * (distance[1] - distance[2]));
+	f32 secondC      = points[2] - points[1];
+	unk40 = (firstC * secondB - secondC * firstB)
+	        / (firstA * secondB - secondA * firstB);
+	unk3C = (firstC - firstA * unk40) / firstB;
+	unk38 = points[0] - (unk40 * distance[0] * distance[0]
+	                     + distance[0] * unk3C);
 }
 
-void TLightWithDBSetManager::loadAfter() { }
+void TLightWithDBSetManager::loadAfter()
+{
+	JDrama::TNameRef* root
+	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+	JDrama::TLightAry* lightAry
+	    = (JDrama::TLightAry*)root->search("Light Group");
+	GXColor color;
+	GXGetLightColor(&lightAry->mLights[0].unk24, &color);
+	unk18 = color;
+	unk1C = lightAry->mLights[0].mPosition;
+}
 
-void TLightWithDBSetManager::perform(u32, JDrama::TGraphics*) { }
+void TLightWithDBSetManager::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 0x20) {
+		int begin;
+		int end;
+		if (flags & 0x80000) {
+			begin = 3;
+			end   = 4;
+		} else if (flags & 0x40000) {
+			begin = 2;
+			end   = 3;
+		} else {
+			begin = 0;
+			end   = 2;
+		}
+
+		for (int i = begin; i < end; ++i)
+			if (unk14[i]->unk20)
+				unk14[i]->perform(flags, graphics);
+	}
+
+	if (flags & 0x400) {
+		for (int i = 0; i < 4; ++i)
+			if (unk14[i]->unk20)
+				unk14[i]->perform(flags, graphics);
+	}
+}
 
 void TLightWithDBSetManager::addChildGroupObj(
-    JDrama::TViewObjPtrListT<JDrama::TViewObj, JDrama::TViewObj>*)
+    JDrama::TViewObjPtrListT<JDrama::TViewObj, JDrama::TViewObj>* group)
 {
+	JGadget::TList_pointer<JDrama::TViewObj*>& children = group->getChildren();
+	for (int i = 0; i < 4; ++i) {
+		TLightWithDBSet* set = unk14[i];
+		if (!set->unk20)
+			continue;
+
+		for (int j = 0; j < set->unk1C; ++j) {
+			JDrama::TViewObj* drawBuffer = set->unk10[j]->unk14;
+			children.insert(children.end(), drawBuffer);
+			drawBuffer = set->unk10[j]->unk18;
+			children.insert(children.end(), drawBuffer);
+		}
+	}
 }
 
 void TLightWithDBSetManager::makeDrawBuffer()
