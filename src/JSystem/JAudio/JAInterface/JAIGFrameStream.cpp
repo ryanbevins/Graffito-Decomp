@@ -57,7 +57,7 @@ namespace StreamLib {
 	static bool stopflag           = false;
 	static bool stopflag2          = false;
 	static bool playflag           = false;
-	static bool playflag2          = false;
+	static u8 playflag2            = false;
 	static u8 prepareflag          = 0;
 	static bool dspch_deallockflag = false;
 	static f32 outvolume           = 0.0f;
@@ -149,7 +149,124 @@ void JAIBasic::checkRequestStream()
 	JAInter::StreamLib::setPrepareFlag(0);
 }
 
-void JAIBasic::checkPlayingStream() { }
+void JAIBasic::checkPlayingStream()
+{
+	JAIStreamUpdateParameter* streamData = unk0->unk184;
+	JAISound* sound                      = streamData->unk14;
+	if (sound == nullptr)
+		return;
+
+	if (sound->unk1 >= 4) {
+		sound->getStreamParameter();
+		if (JAInter::StreamLib::getPlayingFlag() == 2) {
+			sound->unk1 = 0;
+			if (sound->getStreamParameter()->unk3D4 != nullptr)
+				sound->getStreamParameter()->unk3D4->unk14 = nullptr;
+
+			releaseStreamParameterPointer(sound->getStreamParameter());
+			sound->clearMainSoundPPointer();
+			releaseControllerHandle(&unk0->unk21C, sound);
+			return;
+		}
+
+		if (sound->unk2 != 0)
+			--sound->unk2;
+
+		if (streamData->unk10 & 0x2) {
+			sound->setStreamInterVolume(6, 0.0f, sound->unk10);
+			sound->unk1 = 5;
+			streamData->unk10 ^= 0x2;
+		}
+
+		if (sound->unk1 == 5) {
+			if ((sound->getStreamInterVolume(6) == 0.0f || sound->unk10 == 0)
+			    && sound->unk2 == 0) {
+				JAInter::StreamLib::stop();
+				sound->unk1 = 0;
+				if (sound->getStreamParameter()->unk3D4 != nullptr)
+					sound->getStreamParameter()->unk3D4->unk14 = nullptr;
+
+				releaseStreamParameterPointer(sound->getStreamParameter());
+				sound->clearMainSoundPPointer();
+				releaseControllerHandle(&unk0->unk21C, sound);
+				return;
+			}
+		}
+	}
+
+	if (sound->unk1 < 3)
+		return;
+
+	JAIStreamParameter* streamParam = sound->getStreamParameter();
+
+	if (streamData->unk10 & 0x40000) {
+		f32 value = 1.0f;
+		for (u8 i = 0; i < 13; ++i) {
+			u32 bit = 1 << i;
+			if (streamParam->unk8 & bit) {
+				if (!unk0->moveParameter(&streamParam->unk14[i]))
+					streamParam->unk8 ^= bit;
+			}
+			value *= streamParam->unk14[i].unk4;
+		}
+
+		if (streamData->unk4 != value) {
+			JAInter::StreamLib::setVolume(value);
+			streamData->unk4 = value;
+		}
+
+		if (streamParam->unk8 == 0)
+			streamData->unk10 ^= 0x40000;
+	}
+
+	if (streamData->unk10 & 0x100000) {
+		f32 value = 1.0f;
+		for (u8 i = 0; i < 13; ++i) {
+			u32 bit = 1 << i;
+			if (streamParam->unkC & bit) {
+				if (!unk0->moveParameter(&streamParam->unk154[i]))
+					streamParam->unkC ^= bit;
+			}
+			value *= streamParam->unk154[i].unk4;
+		}
+
+		if (streamData->unk8 != value) {
+			JAInter::StreamLib::setPitch(value);
+			streamData->unk8 = value;
+		}
+
+		if (streamParam->unkC == 0)
+			streamData->unk10 ^= 0x100000;
+	}
+
+	if (streamData->unk10 & 0x80000) {
+		f32 value = 0.0f;
+		for (u8 i = 0; i < 13; ++i) {
+			u32 bit = 1 << i;
+			if (streamParam->unk10 & bit) {
+				if (!unk0->moveParameter(&streamParam->unk294[i]))
+					streamParam->unk10 ^= bit;
+			}
+			value += streamParam->unk294[i].unk4 - 0.5f;
+		}
+
+		value += 0.5f;
+		if (value > 1.0f)
+			value = 1.0f;
+		else if (value < 0.0f)
+			value = 0.0f;
+
+		if (streamData->unkC != value) {
+			JAInter::StreamLib::setPan(value);
+			streamData->unkC = value;
+		}
+
+		if (streamParam->unk10 == 0)
+			streamData->unk10 ^= 0x80000;
+	}
+
+	++sound->unk14;
+}
 
 namespace JAInter {
 namespace StreamLib {
@@ -361,7 +478,7 @@ namespace StreamLib {
 
 	void setOutputMode(u32 mode) { outputmode = mode; }
 
-	bool getPlayingFlag() { return playflag2; }
+	u8 getPlayingFlag() { return playflag2; }
 
 	void setDecodedBufferBlocks(u32 blocks) { }
 
