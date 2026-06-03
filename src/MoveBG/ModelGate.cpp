@@ -444,8 +444,8 @@ void TModelGate::loadAfter()
 	bool opened;
 	switch (unk71) {
 	case 0:  opened = TFlagManager::smInstance->getBool(0x10385); break;
-	case 2:  opened = TFlagManager::smInstance->getBool(0x10387); break;
 	case 1:  opened = TFlagManager::smInstance->getBool(0x10386); break;
+	case 2:  opened = TFlagManager::smInstance->getBool(0x10387); break;
 	case 3:  opened = TFlagManager::smInstance->getBool(0x10387); break;
 	case 4:  opened = TFlagManager::smInstance->getBool(0x10387); break;
 	default: opened = false; break;
