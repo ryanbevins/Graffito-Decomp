@@ -70,7 +70,7 @@ namespace StreamLib {
 	static bool outflag_volume     = false;
 	static bool outflag_pan        = false;
 	static bool outflag_pitch      = false;
-	static bool loop_start_flag    = false;
+	static u32 loop_start_flag     = 0;
 	static u32 outpause            = 0;
 	static u32 playmode            = 0;
 	static u32 shift_sample        = 0;
