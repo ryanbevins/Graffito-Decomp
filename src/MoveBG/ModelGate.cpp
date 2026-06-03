@@ -194,29 +194,24 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 				if (jumping) {
 					TLiveActor* mario = SMS_GetMarioLiveActor();
 					if (mario->receiveMessage(this, 4) == 1) {
-						mHolder = (TTakeActor*)SMS_GetMarioLiveActor();
+						mHeldObject = (TTakeActor*)SMS_GetMarioLiveActor();
 					}
 				}
 			} else {
 				JGeometry::TVec3<f32> diff;
 				diff.x = gpMarioPos->x - mPosition.x;
 				diff.z = gpMarioPos->z - mPosition.z;
-				f32 sqd  = diff.x * diff.x + diff.z * diff.z;
-				f32 dist;
-				if (sqd > 0.0f) {
-					dist = JGeometry::TUtil<f32>::sqrt(sqd);
-				} else {
-					dist = 0.0f;
-				}
-				if (sqd < unk100) {
-					f32 nx                       = diff.x / sqd;
-					f32 nz                       = diff.z / sqd;
+				f32 dist = diff.x * diff.x + diff.z * diff.z;
+				if (dist > 0.0f)
+					dist = JGeometry::TUtil<f32>::sqrt(dist);
+				if (dist < unk100) {
+					f32 nx                       = diff.x / dist;
+					f32 nz                       = diff.z / dist;
 					JGeometry::TVec3<f32> outPos = *gpMarioPos;
 					outPos.x                     = outPos.x + 10.0f * nx;
 					outPos.z                     = outPos.z + 10.0f * nz;
 					SMS_MarioMoveRequest(outPos);
 				}
-				(void)dist;
 			}
 		}
 	}
