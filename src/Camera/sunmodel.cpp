@@ -24,6 +24,11 @@ extern const char* cSunsetVolumeName;
 extern f32 SMSGetAnmFrameRate();
 
 static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[]
+    = "\x83\x81\x83\x82\x83\x8A\x82\xAA\x91\xAB\x82\xE8\x82\xDC\x82\xB9"
+      "\x82\xF1\n";
+static const char cSunSceneName[]    = "/scene/sun";
+static const char cSunsetSceneName[] = "/scene/sunset";
 
 TSunModel* gpSunModel;
 
@@ -146,7 +151,9 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 
 	mPos198 = *(const Vec*)&mPosition;
 
-	mMapStaticObj = new TMapStaticObj("sun_mirror");
+	mMapStaticObj = new TMapStaticObj("\x91\xBE\x97\x7A"
+	                                  "in"
+	                                  "\x8B\xBE");
 	mMapStaticObj->init("sun_mirror");
 
 	*(Vec*)((u8*)mMapStaticObj + 0x10) = *(const Vec*)&mPosition;
