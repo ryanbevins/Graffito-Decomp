@@ -449,7 +449,7 @@ void TModelGate::loadAfter()
 	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_lleg.jpa", 0x21);
 	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_lfoot.jpa", 0x22);
 	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_watgun.jpa", 0x23);
-	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_dust.jpa", 0x50);
+	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_dust.jpa", 0x3C);
 	SMS_LoadParticle("/scene/map/map/gate/ms_mariowp_senko.jpa", 0x51);
 	SMS_LoadParticle("/scene/map/map/gate/ms_gatewind_a.jpa", 0x131);
 	SMS_LoadParticle("/scene/map/map/gate/ms_gatewind_a2.jpa", 0x132);
