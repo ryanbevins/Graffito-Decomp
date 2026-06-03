@@ -57,7 +57,7 @@ TCameraShake::TCamShakeInfo* TCameraShake::getUseShakeData_()
 void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 {
 	TCamSaveShake* save = mShakeSaveData[(s32)mode];
-	s16 duration = *(const s16*)((const u8*)save + 0x18);
+	s16 duration = save->mShakeTime.get();
 	if ((u16)duration == 0) {
 		return;
 	}
@@ -73,8 +73,9 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 
 	// X axis
 	{
-		f32 phase = *(const f32*)(sd + 0x2C) * strength;
-		s16 angle = *(const s16*)(sd + 0x40);
+		f32 phase = save->mShakeAmpX.get();
+		phase *= strength;
+		s16 angle = save->mShakeVelX.get();
 		if (strength < 0.0f) {
 			phase = -phase;
 			angle = -angle;
@@ -86,8 +87,9 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 
 	// Y axis
 	{
-		f32 phase = *(const f32*)(sd + 0x54) * strength;
-		s16 angle = *(const s16*)(sd + 0x68);
+		f32 phase = save->mShakeAmpY.get();
+		phase *= strength;
+		s16 angle = save->mShakeVelY.get();
 		if (strength < 0.0f) {
 			phase = -phase;
 			angle = -angle;
@@ -100,7 +102,7 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 	// Z axis
 	{
 		f32 phase = *(const f32*)(sd + 0x7C) * strength;
-		s16 angle = *(const s16*)(sd + 0x90);
+		s16 angle = save->mShakeVelZ.get();
 		if (strength < 0.0f) {
 			phase = -phase;
 			angle = -angle;
@@ -114,7 +116,7 @@ void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
 void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 {
 	TCamSaveShake* save = mShakeSaveData[(s32)mode];
-	s16 duration = *(const s16*)((const u8*)save + 0x18);
+	s16 duration = save->mShakeTime.get();
 	if ((u16)duration == 0) {
 		return;
 	}
@@ -140,8 +142,9 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 
 	// X axis
 	{
-		f32 phase = *(const f32*)(sd + 0x2C) * strength;
-		s16 angle = *(const s16*)(sd + 0x40);
+		f32 phase = save->mShakeAmpX.get();
+		phase *= strength;
+		s16 angle = save->mShakeVelX.get();
 		if (strength < 0.0f) {
 			phase = -phase;
 			angle = -angle;
@@ -153,8 +156,9 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 
 	// Y axis
 	{
-		f32 phase = *(const f32*)(sd + 0x54) * strength;
-		s16 angle = *(const s16*)(sd + 0x68);
+		f32 phase = save->mShakeAmpY.get();
+		phase *= strength;
+		s16 angle = save->mShakeVelY.get();
 		if (strength < 0.0f) {
 			phase = -phase;
 			angle = -angle;
@@ -167,7 +171,7 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 	// Z axis
 	{
 		f32 phase = *(const f32*)(sd + 0x7C) * strength;
-		s16 angle = *(const s16*)(sd + 0x90);
+		s16 angle = save->mShakeVelZ.get();
 		if (strength < 0.0f) {
 			phase = -phase;
 			angle = -angle;

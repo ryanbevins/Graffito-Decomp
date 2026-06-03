@@ -5469,6 +5469,37 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Getter-fed float multiplies may need a split assignment to preserve operand order while using the accessor as a frame lever
+
+**Hypothesis.** Inline `TParamRT<T>::get()` accessors can be used as a stack
+frame lever, but for `f32` values immediately multiplied by another live
+`f32`, spelling the expression as `param.get() * strength` can make MWCC choose
+the opposite `fmuls` operand order from target. Splitting the load and multiply:
+
+```cpp
+f32 phase = param.get();
+phase *= strength;
+```
+
+can preserve the target `lfs phaseReg, value; fmuls phaseReg, phaseReg,
+strengthReg` shape while keeping the accessor-boundary frame effect. Accessor
+count can also have threshold behavior: one extra accessor may not move the
+frame, while a second does.
+
+**Observed.** `mario/Camera/camerashake`
+`TCameraShake::{startShake,keepShake}` (t381): raw TParam offset reads emitted
+the correct visible loads but a `0x38` frame versus target `0x50`. Switching
+only the three `s16` velocity reads to `.get()` grew the frame to `0x48`.
+Adding two `f32` amplitude getters reached the target `0x50`; the direct
+`param.get() * strength` form had `fmuls strength,value` operand drift, while
+splitting into `phase = get(); phase *= strength;` made both functions exact.
+
+**Experiment to confirm/refute.** Find another TParam-heavy setup function with
+near-exact field loads, a too-small frame, and immediate float multiplies. Test
+raw value reads, direct `.get() * factor`, and split `tmp = .get(); tmp *=
+factor`. Promote only if the split form again preserves target operand order
+while the accessor count controls frame size.
+
 ### Fixed-count countdown cursor loops can select a compact `mtctr/bdnz` loop where forward loops unroll
 
 **Hypothesis.** For a fixed trip count with cursor increments and no need to use
