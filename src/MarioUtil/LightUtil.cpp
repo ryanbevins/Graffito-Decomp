@@ -244,12 +244,16 @@ GXColor TLightMario::getLightColor(int index) const
 			lightIndex = 0;
 		color = unk31[lightIndex];
 	} else {
-		GXGetLightColor(&mLightAry->mLights[lightIndex + unk24].unk24, &color);
-		color.a = (u8)(color.a * unk1C);
+		GXColor lightColor;
+		GXGetLightColor(&mLightAry->mLights[lightIndex + unk24].unk24,
+		                &lightColor);
+		lightColor.a = (u8)(lightColor.a * unk1C);
+		color        = lightColor;
 	}
 
-	color.a = (u8)(color.a * unk14);
-	return color;
+	GXColor result = color;
+	result.a       = (u8)(result.a * unk14);
+	return result;
 }
 
 GXColor TLightMario::getAmbColor(int index) const
@@ -261,12 +265,14 @@ GXColor TLightMario::getAmbColor(int index) const
 			ambIndex = 0;
 		color = unk29[ambIndex];
 	} else {
-		color = mAmbAry->mAmbColors[ambIndex + unk20].mColor;
-		color.a = (u8)(color.a * unk18);
+		GXColor ambColor = mAmbAry->mAmbColors[ambIndex + unk20].mColor;
+		ambColor.a       = (u8)(ambColor.a * unk18);
+		color            = ambColor;
 	}
 
-	color.a = (u8)(color.a * unk14);
-	return color;
+	GXColor result = color;
+	result.a       = (u8)(result.a * unk14);
+	return result;
 }
 
 #pragma dont_inline on
