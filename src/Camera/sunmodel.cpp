@@ -64,7 +64,7 @@ TSunModel::TSunModel(bool sunset, const char* name)
 	JGeometry::TVec2<s16>* zbufCoords = mZBufCoords;
 	JGeometry::TVec2<f32>* fpos       = mFPos;
 	u8* zbufVisible                   = mZBufVisible;
-	for (s32 i = 0; i < 17; i++) {
+	for (s32 i = 17; i > 0; --i) {
 		zbufCoords->y = -1;
 		zbufCoords->x = -1;
 		++zbufCoords;
