@@ -192,8 +192,10 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 		    && unk108 < localMario.y && localMario.y < unk10C
 		    && unk110 < localMario.z && localMario.z < unk114) {
 			if (unkCA > 0) {
-				bool jumping = SMS_IsMarioStatusTypeJumping();
-				if (jumping) {
+				bool jumping = false;
+				if (SMS_IsMarioStatusTypeJumping())
+					jumping = true;
+				if (jumping == true) {
 					TLiveActor* mario = SMS_GetMarioLiveActor();
 					if (mario->receiveMessage(this, 4) == 1) {
 						mHeldObject = (TTakeActor*)SMS_GetMarioLiveActor();
