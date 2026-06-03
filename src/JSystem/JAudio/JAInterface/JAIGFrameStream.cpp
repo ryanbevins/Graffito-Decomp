@@ -214,9 +214,9 @@ void JAIBasic::checkPlayingStream()
 			value *= moveParam->unk4;
 		}
 
-		if (streamData->unk4 != value) {
+		if (unk0->unk184->unk4 != value) {
 			JAInter::StreamLib::setVolume(value);
-			streamData->unk4 = value;
+			unk0->unk184->unk4 = value;
 		}
 
 		if (streamParam->unk8 == 0)
@@ -235,9 +235,9 @@ void JAIBasic::checkPlayingStream()
 			value *= moveParam->unk4;
 		}
 
-		if (streamData->unk8 != value) {
+		if (unk0->unk184->unk8 != value) {
 			JAInter::StreamLib::setPitch(value);
-			streamData->unk8 = value;
+			unk0->unk184->unk8 = value;
 		}
 
 		if (streamParam->unkC == 0)
@@ -262,9 +262,9 @@ void JAIBasic::checkPlayingStream()
 		else if (value < 0.0f)
 			value = 0.0f;
 
-		if (streamData->unkC != value) {
+		if (unk0->unk184->unkC != value) {
 			JAInter::StreamLib::setPan(value);
-			streamData->unkC = value;
+			unk0->unk184->unkC = value;
 		}
 
 		if (streamParam->unk10 == 0)
