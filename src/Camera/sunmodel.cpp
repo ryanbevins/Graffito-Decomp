@@ -355,20 +355,18 @@ void TSunModel::perform(u32 flags, JDrama::TGraphics* gfx)
 void TSunModel::getZBufValue()
 {
 	bool indoor = gpCameraMario->isMarioIndoor();
+	JGeometry::TVec2<s16>* coords = mZBufCoords;
+	u8* visible                    = mZBufVisible;
 	for (int i = 0; i < 17; i++) {
-		mZBufVisible[i] = 0;
-		if (indoor)
-			continue;
-		s16 x = mZBufCoords[i].x;
-		if (x == -1)
-			continue;
-		s16 y = mZBufCoords[i].y;
-		if (y == -1)
-			continue;
-		u32 zVal;
-		GXPeekZ(x, y, &zVal);
-		if ((zVal - 0xFF0000) == 0xFFFF) {
-			mZBufVisible[i] = 1;
+		*visible = 0;
+		if (!indoor && coords->x != -1 && coords->y != -1) {
+			u32 zVal;
+			GXPeekZ(coords->x, coords->y, &zVal);
+			if ((zVal - 0xFF0000) == 0xFFFF) {
+				*visible = 1;
+			}
 		}
+		++coords;
+		++visible;
 	}
 }
