@@ -169,11 +169,9 @@ void TLightCommon::perform(u32 flags, JDrama::TGraphics* graphics)
 		SMS_DrawInit();
 
 		GXLightObj light;
-		Vec pos;
-		Vec* lightPos = getLightPosition(0);
-		GXInitLightPos(&light, lightPos->x, lightPos->y, lightPos->z);
-		GXColor color = getLightColor(0);
-		GXInitLightColor(&light, color);
+		GXInitLightPos(&light, getLightPosition(0)->x, getLightPosition(0)->y,
+		               getLightPosition(0)->z);
+		GXInitLightColor(&light, getLightColor(0));
 		GXInitLightAttn(&light, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		GXLoadLightObjImm(&light, GX_LIGHT0);
 		GXLoadLightObjImm(&light, GX_LIGHT1);
