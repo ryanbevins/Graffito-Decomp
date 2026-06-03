@@ -3,15 +3,7 @@
 #include <Camera/cameralib.hpp>
 #include <Player/MarioAccess.hpp>
 
-static bool isHeightPanModeIndex(int idx)
-{
-	switch (idx) {
-	case 0: case 5: case 7: case 10: case 11:
-	case 35: case 41: case 43: case 54: case 57:
-		return true;
-	}
-	return false;
-}
+template <> BOOL CLBChaseGeneralConstantSpecifySpeed<f32>(f32*, f32, f32);
 
 void CPolarSubCamera::killHeightPan_()
 {
@@ -22,6 +14,7 @@ void CPolarSubCamera::killHeightPan_()
 	*(f32*)((u8*)this + 0x24C) = 0.0f;
 }
 
+#pragma dont_inline on
 bool CPolarSubCamera::isNotHeightPanCamMode_() const
 {
 	bool result = false;
@@ -37,17 +30,18 @@ bool CPolarSubCamera::isNotHeightPanCamMode_() const
 	}
 	return result;
 }
+#pragma dont_inline off
 
 void CPolarSubCamera::execHeightPan_()
 {
 	bool touchesGround   = SMS_IsMarioTouchGround4cm();
 	f32 trackY           = 0.0f;
 	void* paramObj       = *(void**)((u8*)this + 0x68);
-	if (touchesGround && paramObj) {
+	if (touchesGround) {
 		trackY = *(f32*)((u8*)paramObj + 0x2C);
 	}
 
-	f32 chaseSpeed = paramObj ? *(f32*)((u8*)paramObj + 0x30) : 0.0f;
+	f32 chaseSpeed = *(f32*)((u8*)paramObj + 0x30);
 	CLBChaseGeneralConstantSpecifySpeed<f32>(
 	    (f32*)((u8*)this + 0x24C), trackY, chaseSpeed);
 
@@ -60,7 +54,7 @@ void CPolarSubCamera::execHeightPan_()
 	if (!isNotHeightPanCamMode_() && !SMS_IsMarioTouchGround4cm()
 	    && !gpCameraMario->isMarioGoDown() && !SMS_IsMarioOnWire()) {
 		u32 status = SMS_GetMarioStatus();
-		if (status - 0x20000000 != 0x345)
+		if (status - 0x200000 != 0x345)
 			needsPan = true;
 	}
 
@@ -70,7 +64,7 @@ void CPolarSubCamera::execHeightPan_()
 		flags &= ~6;
 		*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0xB8);
 
-		f32 chaseRate = paramObj ? *(f32*)((u8*)paramObj + 0x34) : 0.0f;
+		f32 chaseRate = *(f32*)((u8*)paramObj + 0x34);
 		CLBChaseDecrease((f32*)((u8*)this + 0x84),
 		                 *(f32*)((u8*)this + 0x9C), chaseRate, 0.0f);
 
@@ -85,14 +79,16 @@ void CPolarSubCamera::execHeightPan_()
 			flags &= ~1;
 			bool useLock = false;
 			int mode     = mMode;
-			if (mode == 5 || mode == 0x13) {
+			switch (mode) {
+			case 5:
+			case 0x13: {
 				void* cmd = *(void**)((u8*)this + 0x2D4);
-				if (cmd) {
-					s16 a = *(s16*)((u8*)this + 0x256);
-					s16 b = *(s16*)((u8*)cmd + 0x54);
-					if (a < b)
-						useLock = true;
-				}
+				s16  a   = *(s16*)((u8*)this + 0x256);
+				s16  b   = *(s16*)((u8*)cmd + 0x54);
+				if (a < b)
+					useLock = true;
+				break;
+			}
 			}
 			if (useLock) {
 				*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0x9C);
@@ -105,8 +101,8 @@ void CPolarSubCamera::execHeightPan_()
 
 		if (*(f32*)((u8*)this + 0x84) != *(f32*)((u8*)this + 0x9C)) {
 			void* cmd = *(void**)((u8*)this + 0x2D4);
-			f32 a     = cmd ? *(f32*)((u8*)cmd + 0x2C) : 0.0f;
-			f32 b     = cmd ? *(f32*)((u8*)cmd + 0x40) : 0.0f;
+			f32  a   = *(f32*)((u8*)cmd + 0x2C);
+			f32  b   = *(f32*)((u8*)cmd + 0x40);
 			s32 done  = CLBChaseSpecialDecrease(
                  (f32*)((u8*)this + 0x84), *(f32*)((u8*)this + 0x9C), a, b);
 			if (done == 0 && !touchesGround) {
@@ -122,21 +118,39 @@ void CPolarSubCamera::execHeightPan_()
 
 void CPolarSubCamera::killHeightPanWhenChangeCamMode_()
 {
-	bool isOff = false;
+	bool isModeOff = false;
+	bool isOff     = false;
 	if (isLButtonCameraSpecifyMode(mMode) || isRailCameraSpecifyMode(mMode)) {
-		isOff = true;
+		isModeOff = true;
 	} else {
 		int idx = mMode - 8;
-		if ((u32)idx <= 0x39 && isHeightPanModeIndex(idx)) {
-			isOff = true;
+		if ((u32)idx <= 0x39) {
+			switch (idx) {
+			case 0:
+			case 5:
+			case 7:
+			case 10:
+			case 11:
+			case 35:
+			case 41:
+			case 43:
+			case 54:
+			case 57:
+				isModeOff = true;
+				break;
+			}
 		}
 	}
 
-	if (!isOff) {
-		int prev = *(int*)((u8*)this + 0x54);
-		if (prev == 0xF || prev == 0x3E) {
+	if (isModeOff)
+		isOff = true;
+
+	int prev = *(int*)((u8*)this + 0x54);
+	switch (prev) {
+	case 0xF:
+	case 0x3E:
 			isOff = true;
-		}
+		break;
 	}
 
 	if (isOff) {
