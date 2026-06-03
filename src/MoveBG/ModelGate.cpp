@@ -9,6 +9,8 @@
 #include <Camera/Camera.hpp>
 #include <Player/MarioAccess.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JGadget/std-list.hpp>
 #include <Strategic/LiveActor.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/FlagManager.hpp>
@@ -391,6 +393,21 @@ void TModelGate::loadAfter()
 	unkD4  = 0.1f;
 	unkD8  = 0.02f;
 	unkDC  = 0.025f;
+	mScaling.x = 1.0f;
+	mScaling.y = 1.0f;
+	mScaling.z = 1.0f;
+	{
+		JDrama::TNameRef* root
+		    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+		const char* groupName
+		    = "\x83\x7D\x83\x62\x83\x76\x83\x4F\x83\x8B\x81\x5B\x83\x76";
+		JDrama::TNameRef* group = root->searchF(
+		    JDrama::TNameRef::calcKeyCode(groupName), groupName);
+		JGadget::TList_pointer_void* list
+		    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
+		void* self = this;
+		list->insert(list->end(), self);
+	}
 	{
 		Mtx tmp;
 		SMS_GetActorMtx(*this, tmp);
