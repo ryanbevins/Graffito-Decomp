@@ -102,7 +102,8 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 	mAnmTexSRT   = (J3DAnmTextureSRTKey*)J3DAnmLoaderDataBase::load(btk);
 	mAnmTexSRT->searchUpdateMaterialID(mModelData);
 
-	for (u16 i = 0; i < mModelData->getMaterialNum(); i++) {
+	int num = mModelData->getMaterialNum();
+	for (int i = 0; (u16)i < num; i++) {
 		J3DMaterialAnm* anm = new J3DMaterialAnm;
 		mModelData->getMaterialNodePointer(i)->change();
 		mModelData->getMaterialNodePointer(i)->setMaterialAnm(anm);
@@ -113,22 +114,31 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 	// (likely material-related render data); store as int pairs.
 	{
 		J3DMaterial* mat0 = mModelData->getMaterialNodePointer(0);
-		// (mat->vtable[0x34/4])(mat) returns pointer to 8-byte data
-		u32* p0 = (u32*)( (*(u32*(**)(J3DMaterial*))((*(u32**)(*(u32**)((u32*)mat0 + 10))) + 13))(mat0) );
-		*(u32*)((u8*)this + 0x8C) = p0[0];
-		*(u32*)((u8*)this + 0x90) = p0[1];
+		void* sub = *(void**)((u8*)mat0 + 0x28);
+		typedef u32* (*F)(void*, u32);
+		u32* p0 = ((F)(*(void***)sub)[13])(sub, 0);
+		u32 word0 = p0[0];
+		u32 word1 = p0[1];
+		*(u32*)((u8*)this + 0x8C) = word0;
+		*(u32*)((u8*)this + 0x90) = word1;
 	}
 	{
 		J3DMaterial* mat1 = mModelData->getMaterialNodePointer(1);
-		u32* p1 = (u32*)( (*(u32*(**)(J3DMaterial*))((*(u32**)(*(u32**)((u32*)mat1 + 10))) + 13))(mat1) );
-		*(u32*)((u8*)this + 0x94) = p1[0];
-		*(u32*)((u8*)this + 0x98) = p1[1];
+		void* sub = *(void**)((u8*)mat1 + 0x28);
+		typedef u32* (*F)(void*, u32);
+		u32* p1 = ((F)(*(void***)sub)[13])(sub, 0);
+		u32 word0 = p1[0];
+		u32 word1 = p1[1];
+		*(u32*)((u8*)this + 0x94) = word0;
+		*(u32*)((u8*)this + 0x98) = word1;
 	}
 
-	mUnkA4 = (f32)(u8)mUnk68;
-	mUnk9C = mUnkA4;
-	mUnkA8 = (f32)(u8)mUnk74;
-	mUnkA0 = mUnkA8;
+	f32 color0 = (f32)(u8)mUnk68;
+	mUnkA4    = color0;
+	mUnk9C    = color0;
+	f32 color1 = (f32)(u8)mUnk74;
+	mUnkA8    = color1;
+	mUnkA0    = color1;
 
 	mFrameCtrl.init(*(s16*)((u8*)mAnmTexSRT + 2));
 	mFrameCtrl.setRate(SMSGetAnmFrameRate());
