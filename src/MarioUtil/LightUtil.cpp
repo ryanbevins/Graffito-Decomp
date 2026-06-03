@@ -131,8 +131,7 @@ void TLightCommon::setLight(const JDrama::TGraphics* graphics, int index)
 
 	PSMTXMultVec(viewMtx, getLightPosition(lightIndex), &pos);
 	GXInitLightPos(&light, pos.x, pos.y, pos.z);
-	GXColor color = getLightColor(lightIndex);
-	GXInitLightColor(&light, color);
+	GXInitLightColor(&light, getLightColor(lightIndex));
 	GXInitLightAttn(&light, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
 	GXLoadLightObjImm(&light, GX_LIGHT0);
 
@@ -140,7 +139,7 @@ void TLightCommon::setLight(const JDrama::TGraphics* graphics, int index)
 	if (manager->unk54 && manager->unk55) {
 		PSMTXMultVec(viewMtx, &manager->unk48, &pos);
 		GXInitLightPos(&light, pos.x, pos.y, pos.z);
-		color   = manager->unk18;
+		GXColor color = manager->unk18;
 		color.a = (u8)(color.a * manager->unk28);
 		GXInitLightColor(&light, color);
 		GXInitLightAttnA(&light, 1.0f, 0.0f, 0.0f);
@@ -151,14 +150,12 @@ void TLightCommon::setLight(const JDrama::TGraphics* graphics, int index)
 	PSMTXMultVec(viewMtx, getLightPosition(lightIndex), &pos);
 	PSVECNormalize(&pos, &pos);
 	GXInitSpecularDir(&light, -pos.x, -pos.y, -pos.z);
-	color = getLightColor(lightIndex);
-	GXInitLightColor(&light, color);
+	GXInitLightColor(&light, getLightColor(lightIndex));
 	f32 spec = unk10 * 0.5f;
 	GXInitLightAttn(&light, 0.0f, 0.0f, 1.0f, spec, 0.0f, 1.0f - spec);
 	GXLoadLightObjImm(&light, GX_LIGHT2);
 
-	color = getAmbColor(index);
-	GXSetChanAmbColor(GX_COLOR0A0, color);
+	GXSetChanAmbColor(GX_COLOR0A0, getAmbColor(index));
 }
 
 void TLightCommon::perform(u32 flags, JDrama::TGraphics* graphics)
@@ -205,8 +202,7 @@ void TLightMario::setLight(const JDrama::TGraphics* graphics, int index)
 
 	PSMTXMultVec(viewMtx, getLightPosition(lightIndex), &pos);
 	GXInitLightPos(&light, pos.x, pos.y, pos.z);
-	GXColor color = getLightColor(lightIndex);
-	GXInitLightColor(&light, color);
+	GXInitLightColor(&light, getLightColor(lightIndex));
 	GXInitLightAttn(&light, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
 	GXLoadLightObjImm(&light, GX_LIGHT0);
 
@@ -214,7 +210,7 @@ void TLightMario::setLight(const JDrama::TGraphics* graphics, int index)
 	if (manager->unk54 && manager->unk55) {
 		PSMTXMultVec(viewMtx, &manager->unk48, &pos);
 		GXInitLightPos(&light, pos.x, pos.y, pos.z);
-		color   = manager->unk18;
+		GXColor color = manager->unk18;
 		color.a = (u8)(color.a * manager->unk28);
 		GXInitLightColor(&light, color);
 		GXInitLightAttnA(&light, 1.0f, 0.0f, 0.0f);
@@ -225,14 +221,12 @@ void TLightMario::setLight(const JDrama::TGraphics* graphics, int index)
 	PSMTXMultVec(viewMtx, getLightPosition(lightIndex), &pos);
 	PSVECNormalize(&pos, &pos);
 	GXInitSpecularDir(&light, -pos.x, -pos.y, -pos.z);
-	color = getLightColor(lightIndex);
-	GXInitLightColor(&light, color);
+	GXInitLightColor(&light, getLightColor(lightIndex));
 	f32 spec = unk10 * 0.5f;
 	GXInitLightAttn(&light, 0.0f, 0.0f, 1.0f, spec, 0.0f, 1.0f - spec);
 	GXLoadLightObjImm(&light, GX_LIGHT2);
 
-	color = getAmbColor(index);
-	GXSetChanAmbColor(GX_COLOR0A0, color);
+	GXSetChanAmbColor(GX_COLOR0A0, getAmbColor(index));
 }
 
 GXColor TLightMario::getLightColor(int index) const
