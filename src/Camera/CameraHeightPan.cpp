@@ -1,4 +1,5 @@
 #include <Camera/Camera.hpp>
+#include <Camera/CameraKindParam.hpp>
 #include <Camera/CameraMarioData.hpp>
 #include <Camera/cameralib.hpp>
 #include <Player/MarioAccess.hpp>
@@ -34,14 +35,13 @@ bool CPolarSubCamera::isNotHeightPanCamMode_() const
 
 void CPolarSubCamera::execHeightPan_()
 {
-	bool touchesGround   = SMS_IsMarioTouchGround4cm();
+	bool touchesGround   = SMS_IsMarioTouchGround4cm() == false;
 	f32 trackY           = 0.0f;
-	void* paramObj       = *(void**)((u8*)this + 0x68);
 	if (touchesGround) {
-		trackY = *(f32*)((u8*)paramObj + 0x2C);
+		trackY = unk68->unk2C;
 	}
 
-	f32 chaseSpeed = *(f32*)((u8*)paramObj + 0x30);
+	f32 chaseSpeed = unk68->unk30;
 	CLBChaseGeneralConstantSpecifySpeed<f32>(
 	    (f32*)((u8*)this + 0x24C), trackY, chaseSpeed);
 
@@ -58,25 +58,24 @@ void CPolarSubCamera::execHeightPan_()
 			needsPan = true;
 	}
 
-	u16& flags = *(u16*)((u8*)this + 0x64);
 	if (needsPan) {
-		flags |= 1;
-		flags &= ~6;
+		*(u16*)((u8*)this + 0x64) |= 1;
+		*(u16*)((u8*)this + 0x64) &= ~6;
 		*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0xB8);
 
-		f32 chaseRate = *(f32*)((u8*)paramObj + 0x34);
+		f32 chaseRate = unk68->unk34;
 		CLBChaseDecrease((f32*)((u8*)this + 0x84),
 		                 *(f32*)((u8*)this + 0x9C), chaseRate, 0.0f);
 
 		if (*(f32*)((u8*)this + 0xA8) != *(f32*)((u8*)this + 0xDC)) {
 			*(f32*)((u8*)this + 0x84) += deltaY;
 		}
-	} else if ((flags & 3) != 0) {
+	} else if ((*(u16*)((u8*)this + 0x64) & 3) != 0) {
 		if (*(f32*)((u8*)this + 0xA8) != *(f32*)((u8*)this + 0xDC)) {
 			*(f32*)((u8*)this + 0x84) += deltaY;
 		}
-		if ((flags & 1) != 0) {
-			flags &= ~1;
+		if ((*(u16*)((u8*)this + 0x64) & 1) != 0) {
+			*(u16*)((u8*)this + 0x64) &= ~1;
 			bool useLock = false;
 			int mode     = mMode;
 			switch (mode) {
@@ -93,23 +92,23 @@ void CPolarSubCamera::execHeightPan_()
 			if (useLock) {
 				*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0x9C);
 				*(f32*)((u8*)this + 0x14) = *(f32*)((u8*)this + 0x9C);
-				flags &= ~6;
+				*(u16*)((u8*)this + 0x64) &= ~6;
 			} else {
-				flags |= 2;
+				*(u16*)((u8*)this + 0x64) |= 2;
 			}
 		}
 
 		if (*(f32*)((u8*)this + 0x84) != *(f32*)((u8*)this + 0x9C)) {
 			void* cmd = *(void**)((u8*)this + 0x2D4);
-			f32  a   = *(f32*)((u8*)cmd + 0x2C);
 			f32  b   = *(f32*)((u8*)cmd + 0x40);
+			f32  a   = *(f32*)((u8*)cmd + 0x2C);
 			s32 done  = CLBChaseSpecialDecrease(
-                 (f32*)((u8*)this + 0x84), *(f32*)((u8*)this + 0x9C), a, b);
+                (f32*)((u8*)this + 0x84), *(f32*)((u8*)this + 0x9C), a, b);
 			if (done == 0 && !touchesGround) {
-				flags &= ~6;
+				*(u16*)((u8*)this + 0x64) &= ~6;
 			}
 		} else if (!touchesGround) {
-			flags &= ~6;
+			*(u16*)((u8*)this + 0x64) &= ~6;
 		}
 	} else {
 		*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0x9C);
