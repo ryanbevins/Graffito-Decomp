@@ -114,9 +114,8 @@ void TModelGate::screenBlur(JDrama::TGraphics* graphics)
 	f32 alpha = 0.0f;
 	if (-250.0f <= localPos.x && localPos.x <= 250.0f && -250.0f <= localPos.y
 	    && localPos.y <= 250.0f && 0.0f <= localPos.z && localPos.z <= unkF4) {
-		alpha = 1.0f;
 		if (localPos.z < unkF0) {
-			alpha = 0.0f;
+			alpha = 1.0f;
 		}
 		if (unkF0 <= localPos.z && localPos.z <= unkF4) {
 			alpha = 1.0f - (localPos.z - unkF0) / (unkF4 - unkF0);
