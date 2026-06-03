@@ -470,7 +470,7 @@ void TModelGate::loadAfter()
 	default: opened = false; break;
 	}
 
-	if (opened) {
+	if (opened == true) {
 		unk70 |= 1;
 		unk64 &= ~1;
 	} else {
