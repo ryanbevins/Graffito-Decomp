@@ -157,7 +157,9 @@ void JAIBasic::checkPlayingStream()
 	if (sound == nullptr)
 		return;
 
-	if (sound->unk1 >= 4) {
+	u8 status        = sound->unk1;
+	u32* streamFlags = &streamData->unk10;
+	if (status >= 4) {
 		sound->getStreamParameter();
 		if (JAInter::StreamLib::getPlayingFlag() == 2) {
 			sound->unk1 = 0;
@@ -173,10 +175,10 @@ void JAIBasic::checkPlayingStream()
 		if (sound->unk2 != 0)
 			--sound->unk2;
 
-		if (streamData->unk10 & 0x2) {
+		if (*streamFlags & 0x2) {
 			sound->setStreamInterVolume(6, 0.0f, sound->unk10);
 			sound->unk1 = 5;
-			streamData->unk10 ^= 0x2;
+			*streamFlags ^= 0x2;
 		}
 
 		if (sound->unk1 == 5) {
@@ -200,7 +202,7 @@ void JAIBasic::checkPlayingStream()
 
 	JAIStreamParameter* streamParam = sound->getStreamParameter();
 
-	if (streamData->unk10 & 0x40000) {
+	if (*streamFlags & 0x40000) {
 		f32 value = 1.0f;
 		for (u8 i = 0; i < 13; ++i) {
 			u32 bit = 1 << i;
@@ -217,10 +219,10 @@ void JAIBasic::checkPlayingStream()
 		}
 
 		if (streamParam->unk8 == 0)
-			streamData->unk10 ^= 0x40000;
+			*streamFlags ^= 0x40000;
 	}
 
-	if (streamData->unk10 & 0x100000) {
+	if (*streamFlags & 0x100000) {
 		f32 value = 1.0f;
 		for (u8 i = 0; i < 13; ++i) {
 			u32 bit = 1 << i;
@@ -237,10 +239,10 @@ void JAIBasic::checkPlayingStream()
 		}
 
 		if (streamParam->unkC == 0)
-			streamData->unk10 ^= 0x100000;
+			*streamFlags ^= 0x100000;
 	}
 
-	if (streamData->unk10 & 0x80000) {
+	if (*streamFlags & 0x80000) {
 		f32 value = 0.0f;
 		for (u8 i = 0; i < 13; ++i) {
 			u32 bit = 1 << i;
@@ -263,7 +265,7 @@ void JAIBasic::checkPlayingStream()
 		}
 
 		if (streamParam->unk10 == 0)
-			streamData->unk10 ^= 0x80000;
+			*streamFlags ^= 0x80000;
 	}
 
 	++sound->unk14;
