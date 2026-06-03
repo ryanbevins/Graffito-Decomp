@@ -342,6 +342,7 @@ void TLimitKoopaJr::init(TLiveManager* manager)
 	mScaling.z = scale;
 	mSpine->reset();
 	mDamageTimer     = 0;
+	mShotDoodleTimer = 0;
 	mShotDoodleTimer = getSaveParam2()->mSLShotDoodlePeriod.get();
 
 	mShotVelocity.x = 0.0f;
