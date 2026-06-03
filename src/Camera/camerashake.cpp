@@ -13,6 +13,11 @@ static inline void fakeSetRotate(
 	rot->setRotate(axis, angle);
 }
 
+static inline void normalizeAxis(JGeometry::TVec3<f32>* vec)
+{
+	vec->normalize();
+}
+
 TCameraShake::TCameraShake()
 {
 	mYaw = 0;
@@ -251,7 +256,7 @@ void TCameraShake::execShake(const JGeometry::TVec3<f32>& center,
 	axis.x = saved.x - center.x;
 	axis.y = saved.y - center.y;
 	axis.z = saved.z - center.z;
-	axis.normalize();
+	normalizeAxis(&axis);
 
 	// Build rotation matrix for mYaw degrees about 'axis'.
 	JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > > rot;
