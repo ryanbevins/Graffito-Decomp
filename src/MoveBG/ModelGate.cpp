@@ -12,6 +12,7 @@
 #include <System/EmitterViewObj.hpp>
 #include <System/FlagManager.hpp>
 #include <System/Particles.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <THPPlayer/THPPlayer.h>
@@ -143,7 +144,17 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 		return;
 
 	if (perf_flags & 8) {
-		// hold-position adjustment (stubbed)
+		THPTextureSet* textureSet = ActivePlayer.dispTextureSet;
+		if (ActivePlayer.open && textureSet != nullptr) {
+			ResTIMG* textures
+			    = unk78->getModel()->getModelData()->getTexture()->mResources;
+			textures[0].imageDataOffset
+			    = (u32)textureSet->ytexture - (u32)&textures[0];
+			textures[1].imageDataOffset
+			    = (u32)textureSet->utexture - (u32)&textures[1];
+			textures[2].imageDataOffset
+			    = (u32)textureSet->vtexture - (u32)&textures[2];
+		}
 	}
 
 	unk78->perform(perf_flags, graphics);
