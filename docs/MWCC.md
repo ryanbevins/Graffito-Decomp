@@ -36,6 +36,27 @@ them in future ticks.
 
 ## Settled
 
+### Explicit `== true` after a materialized bool forces a compare-to-1 retest
+
+**Rule.** Once source shape has forced MWCC to materialize a bool into a 0/1
+local, the branch test is still source-controlled. A bare `if (b)` retests with
+`clrlwi. r0, rN, 24; beq`. Writing `if (b == true)` instead emits
+`clrlwi r0, rN, 24; cmplwi r0, 1; bne`. Use this when the target already has
+the materialization (`li 0`, conditional `li 1`) and differs only in the final
+retest form. The materialization itself may come from a `cond ? true : false`
+ternary or from an explicit `bool b = false; if (cond) b = true;` local.
+
+**Citations.**
+- `mario/Player/MarioEffect` `TMarioEffect::perform` (t317): case 0 uses the
+  bare ternary and matches target's `clrlwi.; beq`; case 1 needs explicit
+  `== true` to match `clrlwi; cmplwi 1; bne`, contributing to
+  `92.6 -> 100.0`.
+- `mario/MoveBG/ModelGate` `TModelGate::perform` (t389): explicit
+  false-then-set bool plus `== true` produced the target compare-to-1 retest
+  and moved `perform` `83.2 -> 84.9`. Toggling only the final test to
+  `if (jumping)` changed the retest back to `clrlwi.; beq` and regressed to
+  `84.7`.
+
 ### Inline `TParamRT<T>::get()` can preserve direct field-load codegen while inflating leaf stack frames
 
 **Rule.** Outside `#pragma dont_inline`, a small `TParamRT<T>::get()` accessor
@@ -5941,27 +5962,6 @@ from the already-copied FPR. Together this moved the helper `89.8 -> 97.1`.
 local pointer live. Remove only the cached local and use direct member accesses;
 if the reload pattern appears without broad regressions, promote this as the
 member-pointer companion to the global-pointer caching rule.
-
-### Explicit `== true` after a bool-materializing ternary forces `clrlwi; cmplwi 1; bne` instead of `clrlwi.; beq`
-
-**Hypothesis.** The existing settled/note pattern for
-`cond ? true : false` explains MWCC's 0/1 materialization before a branch, but
-the *test after materialization* is also source-controlled. A bare
-`if (cond ? true : false)` retests the byte with `clrlwi. r0, r0, 24; beq`.
-Writing `if ((cond ? true : false) == true)` keeps the same materialization but
-then emits `clrlwi r0, r0, 24; cmplwi r0, 1; bne`.
-
-**Citation (1 TU).** `mario/Player/MarioEffect`
-`TMarioEffect::perform` (t317): case 0 uses the bare ternary and matches target's
-`clrlwi.; beq`; case 1 needs the explicit `== true` form to match target's
-`clrlwi; cmplwi 1; bne`. Combined with an `MtxPtr emitMtx` local for argument
-order, `perform` moved `92.6 -> 100.0`.
-
-**Experiment to confirm/refute.** Find a second function where target already has
-the 0/1 materialization but differs only in the retest (`clrlwi.; beq` vs
-`clrlwi; cmplwi 1; bne`). Toggle only `== true` around the materialized ternary;
-if the retest flips without changing the materialization, promote this as a
-sub-rule of the bool-materialization entry.
 
 ### Inline inherited virtuals referenced only by a derived vtable may need an external weak owner, not per-TU header emission
 
