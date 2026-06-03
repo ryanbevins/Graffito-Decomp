@@ -194,11 +194,10 @@ bool CPolarSubCamera::isNeedWallCheck_() const
 
 bool CPolarSubCamera::isNeedRoofCheck_() const
 {
+	bool kill;
 	bool result = true;
-	if (mMode == 0x49) {
-		result = false;
-	} else {
-		bool kill = false;
+	if (mMode != 0x49) {
+		kill = false;
 		if (isLButtonCameraSpecifyMode(mMode)) {
 			if (!isNowInbetween())
 				kill = true;
@@ -207,6 +206,8 @@ bool CPolarSubCamera::isNeedRoofCheck_() const
 		    || mMode == 2 || *(u16*)((u8*)this + 0x27A) != 0) {
 			result = false;
 		}
+	} else {
+		result = false;
 	}
 	return result;
 }
@@ -214,9 +215,7 @@ bool CPolarSubCamera::isNeedRoofCheck_() const
 bool CPolarSubCamera::isNeedGroundCheck_()
 {
 	bool result = true;
-	if (mMode == 0x49) {
-		result = false;
-	} else {
+	if (mMode != 0x49) {
 		bool kill = false;
 		if (isLButtonCameraSpecifyMode(mMode)) {
 			if (!isNowInbetween())
@@ -242,6 +241,8 @@ bool CPolarSubCamera::isNeedGroundCheck_()
 				}
 			}
 		}
+	} else {
+		result = false;
 	}
 	return result;
 }
