@@ -267,60 +267,96 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 		}
 	}
 
-	if (!needsRecalc) {
-		updateInHouseTimer(this);
-		return;
-	}
-
-	JGeometry::TVec3<f32> samples[18];
-
-	f32 aspect     = *(f32*)((u8*)this + 0x4C);
-	f32 fovy       = *(f32*)((u8*)this + 0x48);
-	f32 nearClip   = *(f32*)((u8*)this + 0x28);
-	s16 halfFovS16 = CLBRoundf<s16>(182.04445f * (0.5f * fovy));
-	f32 halfH      = nearClip * (1.0f / JMASCos(halfFovS16));
-	halfH          = JMASSin(halfFovS16) * halfH;
-	f32 fullH      = halfH * 2.0f;
-
-	JGeometry::TVec2<f32> halfPlane;
-	halfPlane.x = fullH * aspect;
-	halfPlane.y = fullH;
-
-	S16Vec rotBuf[6];
-	(void)getFinalAngleZ();
-	CLBCalcNearNinePos(samples, rotBuf,
-	                   *(JGeometry::TVec3<f32>*)((u8*)this + 0x124),
-	                   *(JGeometry::TVec3<f32>*)((u8*)this + 0x148), 0,
-	                   nearClip, halfPlane);
-
-	f32 stepY  = *(f32*)((u8*)this + 0x2C0);
-	f32 baseY  = -78.0f;
-	bool found = false;
-
-	for (int i = 0; !found && i < 9; ++i) {
-		for (int j = 0; !found && j < 2; ++j) {
-			JGeometry::TVec3<f32>* p = &samples[i + j * 9];
-			f32 yOff                 = 0.0f;
-			for (int k = 0; !found && k < 2; ++k) {
-				JGeometry::TVec3<f32> query;
-				query.x = p->x;
-				query.y = p->y - yOff + baseY;
-				query.z = p->z;
-
-				const TBGCheckData* hit = nullptr;
-				gpMap->checkGroundIgnoreWaterSurface(query, &hit);
-				if (hit && hit->mBGType == 0x600) {
-					*(s16*)((u8*)this + 0x2CA) = hit->mData;
-					updateInHouseTimer(this);
-					found = true;
+	if (needsRecalc) {
+		bool skip = false;
+		if (getTrackPos(this)->z > 0.3f) {
+			skip = true;
+		} else {
+			bool kill = false;
+			if (isTalkCameraSpecifyMode(mMode)) {
+				if (!isNowInbetween())
+					kill = true;
+			}
+			if (kill ? true : false) {
+				skip = true;
+			} else {
+				kill = false;
+				if (isLButtonCameraSpecifyMode(mMode)) {
+					if (!isNowInbetween())
+						kill = true;
 				}
-				yOff += stepY;
+				if (kill ? true : false)
+					skip = true;
 			}
 		}
-	}
 
-	if (!found) {
+		if (skip) {
+			*(s16*)((u8*)this + 0x2CA) = -1;
+			updateInHouseTimer(this);
+			return;
+		}
+
+		JGeometry::TVec3<f32> samples[18];
+
+		f32 aspect     = *(f32*)((u8*)this + 0x4C);
+		f32 fovy       = *(f32*)((u8*)this + 0x48);
+		f32 nearClip   = *(f32*)((u8*)this + 0x28);
+		s16 angleZ     = getFinalAngleZ();
+		s16 halfFovS16 = CLBRoundf<s16>(182.04445f * (0.5f * fovy));
+		f32 halfH      = nearClip * (1.0f / JMASCos(halfFovS16));
+		halfH          = JMASSin(halfFovS16) * halfH;
+		f32 fullH      = halfH * 2.0f;
+
+		JGeometry::TVec2<f32> halfPlane;
+		halfPlane.x = fullH * aspect;
+		halfPlane.y = fullH;
+
+		S16Vec rotBuf[6];
+		CLBCalcNearNinePos(samples, rotBuf,
+		                   *(JGeometry::TVec3<f32>*)((u8*)this + 0x124),
+		                   *(JGeometry::TVec3<f32>*)((u8*)this + 0x148),
+		                   angleZ, nearClip, halfPlane);
+
+		f32 sampleOffset = *(f32*)((u8*)this + 0x2C4);
+		for (int i = 0; i < 9; ++i) {
+			samples[i + 9].x
+			    = samples[i].x + *(f32*)((u8*)this + 0x25C) * sampleOffset;
+			samples[i + 9].y
+			    = samples[i].y + *(f32*)((u8*)this + 0x260) * sampleOffset;
+			samples[i + 9].z
+			    = samples[i].z + *(f32*)((u8*)this + 0x264) * sampleOffset;
+		}
+
+		f32 stepY  = *(f32*)((u8*)this + 0x2C0);
+		f32 baseY  = -78.0f;
+		bool found = false;
+
+		for (int i = 0; !found && i < 9; ++i) {
+			for (int j = 0; !found && j < 2; ++j) {
+				JGeometry::TVec3<f32>* p = &samples[i + j * 9];
+				f32 yOff                 = 0.0f;
+				for (int k = 0; !found && k < 2; ++k) {
+					JGeometry::TVec3<f32> query;
+					query.x = p->x;
+					query.y = p->y - yOff + baseY;
+					query.z = p->z;
+
+					const TBGCheckData* hit = nullptr;
+					gpMap->checkGroundIgnoreWaterSurface(query, &hit);
+					if (hit && hit->mBGType == 0x600) {
+						*(s16*)((u8*)this + 0x2CA) = hit->mData;
+						updateInHouseTimer(this);
+						found = true;
+					}
+					yOff += stepY;
+				}
+			}
+		}
+
+		if (found)
+			return;
+
 		*(s16*)((u8*)this + 0x2CA) = -1;
-		updateInHouseTimer(this);
 	}
+	updateInHouseTimer(this);
 }
