@@ -60,6 +60,10 @@ the accessor can be a legitimate frame-shape lever without adding a call.
   `mParams->mSLFlyGravity.value` to `.get()` preserved the field load at
   `0x2f8` and grew the frame from `0x30` to target `0x40`, making the function
   exact.
+- `mario/Animal/Bird` `TAnimalBird::initParams` (t375): switching
+  `getSaveParam()->mSLHitPointMax.value` to `.get()` preserved the `lbz`
+  field read at `0x7c` and grew the frame from `0x20` to target `0x28`, making
+  the function exact.
 
 ### Explicit template specialization declarations make a TU call the existing weak owner instead of emitting a local helper copy
 

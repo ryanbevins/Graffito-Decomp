@@ -988,7 +988,7 @@ void TAnimalBird::initParams()
 	TSpineEnemyParams* p = getSaveParam();
 	u8 v;
 	if (p != NULL) {
-		v = (u8)getSaveParam()->mSLHitPointMax.value;
+		v = (u8)getSaveParam()->mSLHitPointMax.get();
 	} else {
 		v = 1;
 	}
