@@ -4938,6 +4938,15 @@ etc.) continue to inline as before.
   with `#pragma dont_inline on` matched setEffectMtx but regressed the
   ctor 62.5% → 43.3% and addJellyFishParts 89.5% → 76.5% by breaking
   unrelated accessor inlines.
+- `mario/JSystem/JDrama/JDRNameRefGen` probe (t376): wrapping
+  `return new TPolarCamera();` in a TU-local `static inline
+  newPolarCamera()` made MWCC emit and call the exact weak
+  `JDrama::TCamera::TCamera(float, float, const char*)` body, moving
+  `TNameRefGen::getNameRef` 65.6% -> 72.5%. This was treated as
+  diagnostic evidence, not committed source: a branch-local temporary,
+  `new TPolarCamera` without parens, and moving `TPolarCamera`'s inline
+  constructor body out of the class did not reproduce the boundary, and
+  there is no symbol/name evidence for a one-off factory helper.
 
 **Related:** see also the `MWCC sometimes inlines a call selectively`
 hypothesis in this file — the wrapper trick is the source-level lever
