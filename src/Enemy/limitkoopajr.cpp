@@ -265,10 +265,7 @@ void TLimitKoopaJr::calcRootMatrix()
 
 	PSMTXCopy(tmp, (MtxPtr)((u8*)getModel() + 0x20));
 
-	MtxPtr anm = (MtxPtr)((u8*)getModel() + 0x20);
-	anm[0][1]  = mScaling.x;
-	anm[0][2]  = mScaling.y;
-	anm[0][3]  = mScaling.z;
+	getModel()->setBaseScale(mScaling);
 }
 
 void TLimitKoopaJr::bind() { }
