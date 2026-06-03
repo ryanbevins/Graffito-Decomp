@@ -131,13 +131,9 @@ bool CPolarSubCamera::execWallCheck_(Vec* p)
 	bool didSnap = false;
 	f32 radius   = *(f32*)((u8*)getKindOpt(this) + 0x7C);
 	if (radius > 0.0f) {
-		TBGWallCheckRecord record;
-		record.mCenter.x   = *(f32*)((u8*)this + 0x80);
-		record.mCenter.y   = 10.0f + *(f32*)((u8*)this + 0xB8);
-		record.mCenter.z   = *(f32*)((u8*)this + 0x88);
-		record.mRadius     = radius;
-		record.mMaxResults = 4;
-		record.mFlags      = 0;
+		TBGWallCheckRecord record(*(f32*)((u8*)this + 0x80),
+		                          10.0f + *(f32*)((u8*)this + 0xB8),
+		                          *(f32*)((u8*)this + 0x88), radius, 4, 0);
 
 		if (gpMap->isTouchedWallsAndMoveXZ(&record)) {
 			int count = record.mResultWallsNum;
