@@ -12,8 +12,6 @@
 namespace JAInter {
 namespace StreamLib {
 
-	JASystem::Kernel::TSolidHeap streamHeap;
-
 	// TODO: from TWW, might be wrong
 	struct StreamHeader {
 		int unk0;
@@ -31,6 +29,7 @@ namespace StreamLib {
 	static DVDFileInfo finfo;
 	static StreamHeader header;
 	static char Filename[100];
+	JASystem::Kernel::TSolidHeap streamHeap;
 
 	static s16 filter_table[32] = {
 		0x0000, 0x0000, 0x0800, 0x0000, 0x0000, 0x0800, 0x0400, 0x0400,
