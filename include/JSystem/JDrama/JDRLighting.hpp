@@ -88,7 +88,10 @@ class TLightAry : public TViewObj {
 public:
 	TLightAry()
 	    : TViewObj("<LightAry>")
+	    , mLights(nullptr)
+	    , mLightCount(0)
 	{
+		setLightNum(0);
 	}
 
 	virtual ~TLightAry() { }
@@ -125,7 +128,10 @@ class TAmbAry : public TViewObj {
 public:
 	TAmbAry()
 	    : TViewObj("<AmbAry>")
+	    , mAmbColors(nullptr)
+	    , mAmbColorCount(0)
 	{
+		setAmbNum(0);
 	}
 
 	virtual ~TAmbAry() { }
