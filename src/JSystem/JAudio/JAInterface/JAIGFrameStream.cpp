@@ -206,11 +206,12 @@ void JAIBasic::checkPlayingStream()
 		f32 value = 1.0f;
 		for (u8 i = 0; i < 13; ++i) {
 			u32 bit = 1 << i;
+			JAIMoveParaSet* moveParam = &streamParam->unk14[i];
 			if (streamParam->unk8 & bit) {
-				if (!unk0->moveParameter(&streamParam->unk14[i]))
+				if (!unk0->moveParameter(moveParam))
 					streamParam->unk8 ^= bit;
 			}
-			value *= streamParam->unk14[i].unk4;
+			value *= moveParam->unk4;
 		}
 
 		if (streamData->unk4 != value) {
@@ -226,11 +227,12 @@ void JAIBasic::checkPlayingStream()
 		f32 value = 1.0f;
 		for (u8 i = 0; i < 13; ++i) {
 			u32 bit = 1 << i;
+			JAIMoveParaSet* moveParam = &streamParam->unk154[i];
 			if (streamParam->unkC & bit) {
-				if (!unk0->moveParameter(&streamParam->unk154[i]))
+				if (!unk0->moveParameter(moveParam))
 					streamParam->unkC ^= bit;
 			}
-			value *= streamParam->unk154[i].unk4;
+			value *= moveParam->unk4;
 		}
 
 		if (streamData->unk8 != value) {
@@ -246,11 +248,12 @@ void JAIBasic::checkPlayingStream()
 		f32 value = 0.0f;
 		for (u8 i = 0; i < 13; ++i) {
 			u32 bit = 1 << i;
+			JAIMoveParaSet* moveParam = &streamParam->unk294[i];
 			if (streamParam->unk10 & bit) {
-				if (!unk0->moveParameter(&streamParam->unk294[i]))
+				if (!unk0->moveParameter(moveParam))
 					streamParam->unk10 ^= bit;
 			}
-			value += streamParam->unk294[i].unk4 - 0.5f;
+			value += moveParam->unk4 - 0.5f;
 		}
 
 		value += 0.5f;
