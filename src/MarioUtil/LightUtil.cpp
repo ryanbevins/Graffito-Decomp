@@ -117,7 +117,8 @@ Vec* TLightCommon::getLightPosition(int index)
 			index = 0;
 		return (Vec*)&unk44[index];
 	}
-	return (Vec*)&mLightAry->mLights[unk24 + index].mPosition;
+	index += unk24;
+	return (Vec*)&mLightAry->mLights[index].mPosition;
 }
 
 void TLightCommon::setLight(const JDrama::TGraphics* graphics, int index)
