@@ -16,6 +16,9 @@ Vec* TLightCommon::mLightPos;
 
 namespace {
 
+static const char dummyLightUtilStringValue[]
+    = "\0\0\0\0\0\0\0\0\0\0\0";
+
 static inline int findLightIndex(const char* name)
 {
 	int result = 0;
@@ -40,13 +43,9 @@ static inline int findAmbIndex(const char* name)
 	return -1;
 }
 
-static const char* classNameMapObj[] = { "マップオブジェ太陽",
-	"マップオブジェ影" };
-static const char* classNameIndirect[] = { "インダイレクト太陽",
-	"インダイレクト影" };
-
 } // namespace
 
+#pragma dont_inline on
 TLightCommon::TLightCommon(const char* name)
     : JDrama::TViewObj(name)
     , unk10(0.0f)
@@ -63,6 +62,7 @@ TLightCommon::TLightCommon(const char* name)
 	mLightPos = nullptr;
 	unk10     = 50.0f;
 }
+#pragma dont_inline off
 
 void TLightCommon::loadAfter()
 {
@@ -272,6 +272,7 @@ GXColor TLightMario::getAmbColor(int index) const
 	return color;
 }
 
+#pragma dont_inline on
 TLightDrawBuffer::TLightDrawBuffer(int index, u32 size, const char* name)
     : JDrama::TViewObj(name)
     , unk10(nullptr)
@@ -284,6 +285,7 @@ TLightDrawBuffer::TLightDrawBuffer(int index, u32 size, const char* name)
 	snprintf(unk1C + 0x32, 0x32, "%s%s", name, "xlu");
 	unk18 = new JDrama::TDrawBufObj(4, size, unk1C + 0x32);
 }
+#pragma dont_inline off
 
 void TLightDrawBuffer::perform(u32 flags, JDrama::TGraphics* graphics)
 {
@@ -346,8 +348,11 @@ void TLightWithDBSet::resetLightDrawBuffer()
 
 void TPlayerLightWithDBSet::makeDrawBuffer()
 {
-	int lightIndex = findLightIndex("太陽（プレイヤー）");
-	int ambIndex   = findAmbIndex("太陽アンビエント（プレイヤー）");
+	static const char lightName[] = "太陽（プレイヤー）";
+	static const char ambName[]   = "太陽アンビエント（プレイヤー）";
+
+	int lightIndex = findLightIndex(lightName);
+	int ambIndex   = findAmbIndex(ambName);
 
 	unk10 = new TLightDrawBuffer*[unk1C];
 	for (int i = 0; i < unk1C; ++i) {
@@ -363,8 +368,11 @@ void TPlayerLightWithDBSet::makeDrawBuffer()
 
 void TObjectLightWithDBSet::makeDrawBuffer()
 {
-	int lightIndex = findLightIndex("太陽（オブジェクト）");
-	int ambIndex   = findAmbIndex("太陽アンビエント（オブジェクト）");
+	static const char lightName[] = "太陽（オブジェクト）";
+	static const char ambName[]   = "太陽アンビエント（オブジェクト）";
+
+	int lightIndex = findLightIndex(lightName);
+	int ambIndex   = findAmbIndex(ambName);
 
 	unk10 = new TLightDrawBuffer*[unk1C];
 	for (int i = 0; i < unk1C; ++i) {
@@ -380,12 +388,17 @@ void TObjectLightWithDBSet::makeDrawBuffer()
 
 void TMapObjectLightWithDBSet::makeDrawBuffer()
 {
-	int lightIndex = findLightIndex("太陽（オブジェクト）");
-	int ambIndex   = findAmbIndex("太陽アンビエント（オブジェクト）");
+	static const char lightName[] = "太陽（オブジェクト）";
+	static const char ambName[]   = "太陽アンビエント（オブジェクト）";
+	static const char* className[] = { "マップオブジェ太陽",
+		"マップオブジェ影" };
+
+	int lightIndex = findLightIndex(lightName);
+	int ambIndex   = findAmbIndex(ambName);
 
 	unk10 = new TLightDrawBuffer*[unk1C];
 	for (int i = 0; i < unk1C; ++i) {
-		unk10[i] = new TLightDrawBuffer(i, 0x100, classNameMapObj[i]);
+		unk10[i] = new TLightDrawBuffer(i, 0x100, className[i]);
 		TLightCommon* light = new TLightCommon();
 		unk10[i]->setLight(light);
 		unk10[i]->unk10->unk20 = ambIndex;
@@ -396,12 +409,17 @@ void TMapObjectLightWithDBSet::makeDrawBuffer()
 
 void TIndirectLightWithDBSet::makeDrawBuffer()
 {
-	int lightIndex = findLightIndex("太陽（オブジェクト）");
-	int ambIndex   = findAmbIndex("太陽アンビエント（オブジェクト）");
+	static const char lightName[] = "太陽（オブジェクト）";
+	static const char ambName[]   = "太陽アンビエント（オブジェクト）";
+	static const char* className[]
+	    = { "インダイレクト太陽", "インダイレクト影" };
+
+	int lightIndex = findLightIndex(lightName);
+	int ambIndex   = findAmbIndex(ambName);
 
 	unk10 = new TLightDrawBuffer*[unk1C];
 	for (int i = 0; i < unk1C; ++i) {
-		unk10[i] = new TLightDrawBuffer(i, 0x100, classNameIndirect[i]);
+		unk10[i] = new TLightDrawBuffer(i, 0x100, className[i]);
 		TLightCommon* light = new TLightCommon();
 		unk10[i]->setLight(light);
 		unk10[i]->unk10->unk20 = ambIndex;
@@ -436,8 +454,11 @@ TLightWithDBSetManager::TLightWithDBSetManager(const char* name)
 	unk40          = 0.00003f;
 	unk44          = 90.0f;
 
-	f32 points[3]    = { 0.9f, 0.5f, 0.05f };
-	f32 distance[3]  = { unk2C, unk30, unk34 };
+	f32 points[3] = { 0.9f, 0.5f, 0.05f };
+	f32 distance[3];
+	distance[0] = unk2C;
+	distance[1] = unk30;
+	distance[2] = unk34;
 	f32 firstA       = points[1] * (points[0]
 	                          * (distance[0] * distance[0]
 	                             - distance[1] * distance[1]));
