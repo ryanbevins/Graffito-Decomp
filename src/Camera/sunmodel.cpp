@@ -169,26 +169,28 @@ void TSunModel::calcOtherFPosFromCenterAndRadius_(
 	out[7].y = center.y + d;
 }
 
-template <class S, class F>
-inline void CLBScreenFPosToSPos(JGeometry::TVec2<S>* dst,
-                                const JGeometry::TVec2<F>& src)
+#pragma dont_inline on
+void CLBScreenFPosToSPos(JGeometry::TVec2<s16>* dst,
+                         const JGeometry::TVec2<f32>& src)
 {
-	if (src.x < -1.0f || src.x > 1.0f) {
+	f32 x = src.x;
+	if (x < -1.0f || x > 1.0f) {
 		dst->x = -1;
 	} else {
-		dst->x = (S)CLBRoundf<S>(
-		    0.5f * (1.0f + src.x) * (f32)(SMSGetGameRenderWidth() - 1));
+		u16 width = SMSGetGameRenderWidth();
+		dst->x = CLBRoundf<s16>(
+		    0.5f * (1.0f + x) * (f32)(width - 1));
 	}
-	if (src.y < -1.0f || src.y > 1.0f) {
+	f32 y = src.y;
+	if (y < -1.0f || y > 1.0f) {
 		dst->y = -1;
 	} else {
-		dst->y = (S)CLBRoundf<S>(
-		    -0.5f * (src.y - 1.0f) * (f32)(SMSGetGameRenderHeight() - 1));
+		u16 height = SMSGetGameRenderHeight();
+		dst->y = CLBRoundf<s16>(
+		    -0.5f * (y - 1.0f) * (f32)(height - 1));
 	}
 }
-
-template void CLBScreenFPosToSPos<s16, f32>(JGeometry::TVec2<s16>*,
-                                            const JGeometry::TVec2<f32>&);
+#pragma dont_inline off
 
 void TSunModel::calcDispRatioAndScreenPos_()
 {
@@ -211,7 +213,7 @@ void TSunModel::calcDispRatioAndScreenPos_()
 	calcOtherFPosFromCenterAndRadius_(&mFPos[9], mFPos[0], outer);
 
 	for (s32 i = 0; i < 17; i++) {
-		CLBScreenFPosToSPos<s16, f32>(&mZBufCoords[i], mFPos[i]);
+		CLBScreenFPosToSPos(&mZBufCoords[i], mFPos[i]);
 	}
 }
 
