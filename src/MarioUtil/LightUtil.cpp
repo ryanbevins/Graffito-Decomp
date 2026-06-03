@@ -91,7 +91,8 @@ GXColor TLightCommon::getLightColor(int index) const
 	}
 
 	GXColor lightColor;
-	GXGetLightColor(&mLightAry->mLights[unk24 + index].unk24, &lightColor);
+	index += unk24;
+	GXGetLightColor(&mLightAry->mLights[index].unk24, &lightColor);
 	GXColor color = lightColor;
 	color.a = (u8)(color.a * unk1C);
 	return color;
@@ -105,7 +106,8 @@ GXColor TLightCommon::getAmbColor(int index) const
 		return unk29[index];
 	}
 
-	GXColor color = mAmbAry->mAmbColors[unk20 + index].mColor;
+	index += unk20;
+	GXColor color = mAmbAry->mAmbColors[index].mColor;
 	color.a       = (u8)(color.a * unk18);
 	return color;
 }
