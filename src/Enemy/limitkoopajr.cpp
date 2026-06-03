@@ -155,7 +155,8 @@ DEFINE_NERVE(TNerveLimitKoopaJrRun, TLiveActor)
 
 void TLimitKoopaJr::moveRun()
 {
-	f32 rotSpeedRad = 0.017453294f * getSaveParam2()->mSLRotationSpeed.get();
+	f32 rotSpeedRad
+	    = 0.017453294f * getSaveParam2()->mSLRoundAngleVelocity.get();
 
 	TDirectionCalc tdc;
 	JGeometry::TVec3<f32>& tp = mTargetActor->mPosition;
@@ -166,17 +167,18 @@ void TLimitKoopaJr::moveRun()
 	diff.y = 0.0f;
 	tdc.makeDirection(diff);
 
-	mDirection1.mDirection
+	f32 direction
 	    = mDirection1.calcTurnDirection(tdc.mDirection, rotSpeedRad);
-	f32 turnVal = TDirectionCalc(0.0f).sub(mDirection1.mDirection);
+	f32 turnVal = TDirectionCalc(direction).sub(mDirection1.mDirection);
+	mDirection1.mDirection = direction;
 
-	mDirection1.mLength = getSaveParam2()->mSLSpeedMax.get();
+	mDirection1.mLength = getSaveParam2()->mSLRoundRadius.get();
 	JGeometry::TVec3<f32> dirVec = mDirection1.calcDirectionVector();
 	dirVec.scale(mDirection1.mLength);
 
-	mPosition.x += dirVec.x;
-	mPosition.y += dirVec.y;
-	mPosition.z += dirVec.z;
+	mPosition.x = tp.x + dirVec.x;
+	mPosition.y = tp.y + dirVec.y;
+	mPosition.z = tp.z + dirVec.z;
 	mPosition.y = getSaveParam2()->mSLRoundHeight.get();
 
 	// Normalize the direction vector (with degenerate-case fallback)
@@ -194,9 +196,8 @@ void TLimitKoopaJr::moveRun()
 
 	// Cross with up vector to get perpendicular
 	JGeometry::TVec3<f32> cross;
-	cross.x = 0.0f * dirVec.z - 1.0f * dirVec.y;
-	cross.y = 1.0f * dirVec.x - 0.0f * dirVec.z;
-	cross.z = 0.0f * dirVec.y - 1.0f * dirVec.x;
+	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+	cross.cross(up, dirVec);
 
 	f32 csq = cross.x * cross.x + cross.y * cross.y + cross.z * cross.z;
 	if (csq <= 0.0000038146973f) {
