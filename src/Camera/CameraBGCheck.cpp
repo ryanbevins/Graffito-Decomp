@@ -110,7 +110,7 @@ bool CPolarSubCamera::execRoofCheck_(Vec p)
 	} else {
 		void* opt    = getKindOpt(this);
 		f32 camBaseY = *(f32*)((u8*)this + 0xB8);
-		f32 offset   = *(f32*)((u8*)opt + 0xE0);
+		f32& offset  = *(f32*)((u8*)opt + 0xE0);
 		roofY        = gpMap->checkRoof(p.x, camBaseY - offset, p.z, &roof);
 	}
 
