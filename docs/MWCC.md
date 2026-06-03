@@ -7695,6 +7695,29 @@ confirmed in ≥2 TUs._
 
 ## Refuted / wrong turns
 
+### Explicit specialization declaration for `TRotation3<TMatrix33>::setRotate` is not a drop-in fix for `camerashake`
+
+**Symptom (t380, `mario/Camera/camerashake`
+`TCameraShake::execShake`).** Target calls the existing weak owner
+`setRotate__Q29JGeometry64TRotation3<Q29JGeometry38TMatrix33<Q29JGeometry13SMatrix33C<f>>>FRCQ29JGeometry8TVec3<f>f`
+from `Camera/cameralib`; current source keeps a TU-local `fakeSetRotate`
+wrapper and emits an extra local 0x154-byte `setRotate` body, but preserves
+`execShake` at 75.8%.
+
+**Tried & REFUTED:** adding a TU-scope explicit specialization declaration for
+`TRotation3<TMatrix33<SMatrix33C<f32> > >::setRotate` and calling
+`rot.setRotate(axis, angleRad)` directly removed the 0x154-byte local
+`setRotate` extra, but made `execShake` worse (75.8% -> 68.1%) and caused local
+40-byte `TVec3<f32>::dot` / `scale` extras to appear. Additional out-of-class
+declarations for those two `TVec3` members did not remove the extras or recover
+the function shape.
+
+**Conclusion.** The explicit-specialization declaration rule works for several
+free/header template helpers, but this class-template member case is coupled to
+MWCC's inline-budget decisions around `TVec3::normalize`. Do not apply the
+specialization mechanically here; the remaining fix needs a per-call-site weak
+owner lever that preserves `execShake`'s normalize and frame shape together.
+
 ### Source-level levers do NOT force MWCC to hoist/materialize a 32-bit compare constant into a callee-saved reg (the `0x80000001` mario-type check)
 
 **Symptom (t301, `Animal/fishoid::checkHitActors`).** Target materializes the
