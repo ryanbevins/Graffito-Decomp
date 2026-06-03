@@ -21,6 +21,8 @@ TNameRef* TNameRefGen::load(JSUMemoryInputStream& stream)
 
 	if ((mRootNameRef = TNameRef::genObject(stream, tmpStream)))
 		mRootNameRef->load(tmpStream);
+
+	return mRootNameRef;
 }
 
 TNameRef* TNameRefGen::getNameRef(const char* name) const
