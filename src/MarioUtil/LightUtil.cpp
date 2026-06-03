@@ -84,29 +84,28 @@ void TLightCommon::loadAfter()
 
 GXColor TLightCommon::getLightColor(int index) const
 {
-	GXColor color;
 	if (unk28) {
 		if (index >= 4)
 			index = 0;
-		color = unk31[index];
-	} else {
-		GXGetLightColor(&mLightAry->mLights[unk24 + index].unk24, &color);
-		color.a = (u8)(color.a * unk1C);
+		return unk31[index];
 	}
+
+	GXColor color;
+	GXGetLightColor(&mLightAry->mLights[unk24 + index].unk24, &color);
+	color.a = (u8)(color.a * unk1C);
 	return color;
 }
 
 GXColor TLightCommon::getAmbColor(int index) const
 {
-	GXColor color;
 	if (unk28) {
 		if (index >= 2)
 			index = 0;
-		color = unk29[index];
-	} else {
-		color = mAmbAry->mAmbColors[unk20 + index].mColor;
-		color.a = (u8)(color.a * unk18);
+		return unk29[index];
 	}
+
+	GXColor color = mAmbAry->mAmbColors[unk20 + index].mColor;
+	color.a       = (u8)(color.a * unk18);
 	return color;
 }
 
