@@ -243,8 +243,8 @@ GXColor TLightMario::getLightColor(int index) const
 		color = unk31[lightIndex];
 	} else {
 		GXColor lightColor;
-		GXGetLightColor(&mLightAry->mLights[lightIndex + unk24].unk24,
-		                &lightColor);
+		lightIndex += unk24;
+		GXGetLightColor(&mLightAry->mLights[lightIndex].unk24, &lightColor);
 		lightColor.a = (u8)(lightColor.a * unk1C);
 		color        = lightColor;
 	}
@@ -263,7 +263,8 @@ GXColor TLightMario::getAmbColor(int index) const
 			ambIndex = 0;
 		color = unk29[ambIndex];
 	} else {
-		GXColor ambColor = mAmbAry->mAmbColors[ambIndex + unk20].mColor;
+		ambIndex += unk20;
+		GXColor ambColor = mAmbAry->mAmbColors[ambIndex].mColor;
 		ambColor.a       = (u8)(ambColor.a * unk18);
 		color            = ambColor;
 	}
