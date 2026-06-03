@@ -14,6 +14,39 @@ JDrama::TAmbAry* TLightCommon::mAmbAry;
 JDrama::TLightAry* TLightCommon::mLightAry;
 Vec* TLightCommon::mLightPos;
 
+namespace {
+
+static inline int findLightIndex(const char* name)
+{
+	int result = 0;
+	while (result < TLightCommon::mLightAry->mLightCount) {
+		if (strcmp(name, TLightCommon::mLightAry->mLights[result].getName())
+		    == 0)
+			return result;
+		++result;
+	}
+	return -1;
+}
+
+static inline int findAmbIndex(const char* name)
+{
+	int result = 0;
+	while (result < TLightCommon::mAmbAry->mAmbColorCount) {
+		if (strcmp(name, TLightCommon::mAmbAry->mAmbColors[result].getName())
+		    == 0)
+			return result;
+		++result;
+	}
+	return -1;
+}
+
+static const char* classNameMapObj[] = { "マップオブジェ太陽",
+	"マップオブジェ影" };
+static const char* classNameIndirect[] = { "インダイレクト太陽",
+	"インダイレクト影" };
+
+} // namespace
+
 TLightCommon::TLightCommon(const char* name)
     : JDrama::TViewObj(name)
     , unk10(0.0f)
@@ -311,13 +344,71 @@ void TLightWithDBSet::resetLightDrawBuffer()
 	unk18 = nullptr;
 }
 
-void TPlayerLightWithDBSet::makeDrawBuffer() { }
+void TPlayerLightWithDBSet::makeDrawBuffer()
+{
+	int lightIndex = findLightIndex("太陽（プレイヤー）");
+	int ambIndex   = findAmbIndex("太陽アンビエント（プレイヤー）");
 
-void TObjectLightWithDBSet::makeDrawBuffer() { }
+	unk10 = new TLightDrawBuffer*[unk1C];
+	for (int i = 0; i < unk1C; ++i) {
+		unk10[i] = new TLightDrawBuffer(
+		    i, 0x80, TLightCommon::mAmbAry->mAmbColors[ambIndex + i].getName());
+		TLightMario* light = new TLightMario();
+		unk10[i]->setLight(light);
+		unk10[i]->unk10->unk20 = ambIndex;
+		unk10[i]->unk10->unk24 = lightIndex;
+		unk10[i]->unk10->loadAfter();
+	}
+}
 
-void TMapObjectLightWithDBSet::makeDrawBuffer() { }
+void TObjectLightWithDBSet::makeDrawBuffer()
+{
+	int lightIndex = findLightIndex("太陽（オブジェクト）");
+	int ambIndex   = findAmbIndex("太陽アンビエント（オブジェクト）");
 
-void TIndirectLightWithDBSet::makeDrawBuffer() { }
+	unk10 = new TLightDrawBuffer*[unk1C];
+	for (int i = 0; i < unk1C; ++i) {
+		unk10[i] = new TLightDrawBuffer(
+		    i, 0x100, TLightCommon::mAmbAry->mAmbColors[ambIndex + i].getName());
+		TLightCommon* light = new TLightCommon();
+		unk10[i]->setLight(light);
+		unk10[i]->unk10->unk20 = ambIndex;
+		unk10[i]->unk10->unk24 = lightIndex;
+		unk10[i]->unk10->loadAfter();
+	}
+}
+
+void TMapObjectLightWithDBSet::makeDrawBuffer()
+{
+	int lightIndex = findLightIndex("太陽（オブジェクト）");
+	int ambIndex   = findAmbIndex("太陽アンビエント（オブジェクト）");
+
+	unk10 = new TLightDrawBuffer*[unk1C];
+	for (int i = 0; i < unk1C; ++i) {
+		unk10[i] = new TLightDrawBuffer(i, 0x100, classNameMapObj[i]);
+		TLightCommon* light = new TLightCommon();
+		unk10[i]->setLight(light);
+		unk10[i]->unk10->unk20 = ambIndex;
+		unk10[i]->unk10->unk24 = lightIndex;
+		unk10[i]->unk10->loadAfter();
+	}
+}
+
+void TIndirectLightWithDBSet::makeDrawBuffer()
+{
+	int lightIndex = findLightIndex("太陽（オブジェクト）");
+	int ambIndex   = findAmbIndex("太陽アンビエント（オブジェクト）");
+
+	unk10 = new TLightDrawBuffer*[unk1C];
+	for (int i = 0; i < unk1C; ++i) {
+		unk10[i] = new TLightDrawBuffer(i, 0x100, classNameIndirect[i]);
+		TLightCommon* light = new TLightCommon();
+		unk10[i]->setLight(light);
+		unk10[i]->unk10->unk20 = ambIndex;
+		unk10[i]->unk10->unk24 = lightIndex;
+		unk10[i]->unk10->loadAfter();
+	}
+}
 
 TLightWithDBSetManager::TLightWithDBSetManager(const char* name)
     : JDrama::TViewObj(name)
