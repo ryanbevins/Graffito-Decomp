@@ -6,6 +6,7 @@
 #include <Player/MarioAccess.hpp>
 #include <dolphin/gx.h>
 #include <dolphin/mtx.h>
+#include <printf.h>
 #include <string.h>
 
 TLightWithDBSetManager* gpLightManager;
@@ -238,14 +239,50 @@ GXColor TLightMario::getAmbColor(int index) const
 	return color;
 }
 
-TLightDrawBuffer::TLightDrawBuffer(int, u32, const char* name)
+TLightDrawBuffer::TLightDrawBuffer(int index, u32 size, const char* name)
     : JDrama::TViewObj(name)
+    , unk10(nullptr)
+    , unk14(nullptr)
+    , unk18(nullptr)
+    , unk80(index)
 {
+	snprintf(unk1C, 0x32, "%s%s", name, "opa");
+	unk14 = new JDrama::TDrawBufObj(3, size, unk1C);
+	snprintf(unk1C + 0x32, 0x32, "%s%s", name, "xlu");
+	unk18 = new JDrama::TDrawBufObj(4, size, unk1C + 0x32);
 }
 
-void TLightDrawBuffer::perform(u32, JDrama::TGraphics*) { }
+void TLightDrawBuffer::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 0x20)
+		unk10->setLight(graphics, unk80);
+}
 
-void TLightWithDBSet::perform(u32, JDrama::TGraphics*) { }
+void TLightDrawBuffer::setLight(TLightCommon* light)
+{
+	unk10 = light;
+	unk10->loadAfter();
+}
+
+void TLightWithDBSet::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 0x20) {
+		for (int i = 0; i < unk1C; ++i) {
+			unk10[i]->perform(0x20, graphics);
+			if (flags & 0x10000)
+				unk10[i]->unk14->perform(8, graphics);
+			if (flags & 0x20000)
+				unk10[i]->unk18->perform(8, graphics);
+		}
+	}
+
+	if (flags & 0x400) {
+		for (int i = 0; i < unk1C; ++i) {
+			unk10[i]->unk14->perform(0x480, graphics);
+			unk10[i]->unk18->perform(0x480, graphics);
+		}
+	}
+}
 
 void TLightWithDBSet::changeLightDrawBuffer(int param_1)
 {

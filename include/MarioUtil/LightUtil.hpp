@@ -86,7 +86,7 @@ public:
 
 	virtual ~TLightDrawBuffer() { }
 	virtual void perform(u32, JDrama::TGraphics*);
-	virtual void setLight(TLightCommon*) { }
+	virtual void setLight(TLightCommon*);
 
 public:
 	/* 0x10 */ TLightCommon* unk10;
