@@ -190,20 +190,20 @@ void CLBScreenFPosToSPos(JGeometry::TVec2<s16>* dst,
                          const JGeometry::TVec2<f32>& src)
 {
 	f32 x = src.x;
-	if (x < -1.0f || x > 1.0f) {
+	if (x < -1.0f || 1.0f < x) {
 		dst->x = -1;
 	} else {
 		u16 width = SMSGetGameRenderWidth();
 		dst->x = CLBRoundf<s16>(
-		    0.5f * (1.0f + x) * (f32)(width - 1));
+		    (1.0f + x) * (0.5f * (f32)(width - 1)));
 	}
 	f32 y = src.y;
-	if (y < -1.0f || y > 1.0f) {
+	if (y < -1.0f || 1.0f < y) {
 		dst->y = -1;
 	} else {
 		u16 height = SMSGetGameRenderHeight();
 		dst->y = CLBRoundf<s16>(
-		    -0.5f * (y - 1.0f) * (f32)(height - 1));
+		    (y - 1.0f) * (-0.5f * (f32)(height - 1)));
 	}
 }
 #pragma dont_inline off
@@ -211,10 +211,12 @@ void CLBScreenFPosToSPos(JGeometry::TVec2<s16>* dst,
 void TSunModel::calcDispRatioAndScreenPos_()
 {
 	mVisibleCount = 0;
+	u8* visible = mZBufVisible;
 	for (s32 i = 0; i < 17; i++) {
-		if (mZBufVisible[i] != 0) {
+		if (*visible != 0) {
 			mVisibleCount += 1;
 		}
+		++visible;
 	}
 	mUnk194 = 0.05882353f * (f32)(u8)mVisibleCount;
 
@@ -223,13 +225,17 @@ void TSunModel::calcDispRatioAndScreenPos_()
 	              (MtxPtr)((u8*)gpCamera + 0x1EC),
 	              mPos198, 0, false);
 
-	f32 inner = mUnk1A4 * mScaling.x;
+	f32 inner = mUnk1A4 * mScaling.y;
 	calcOtherFPosFromCenterAndRadius_(&mFPos[1], mFPos[0], inner);
-	f32 outer = inner * 0.5f;
-	calcOtherFPosFromCenterAndRadius_(&mFPos[9], mFPos[0], outer);
+	inner *= 0.5f;
+	calcOtherFPosFromCenterAndRadius_(&mFPos[9], mFPos[0], inner);
 
+	JGeometry::TVec2<s16>* coords = mZBufCoords;
+	JGeometry::TVec2<f32>* fpos   = mFPos;
 	for (s32 i = 0; i < 17; i++) {
-		CLBScreenFPosToSPos(&mZBufCoords[i], mFPos[i]);
+		CLBScreenFPosToSPos(coords, *fpos);
+		++coords;
+		++fpos;
 	}
 }
 
