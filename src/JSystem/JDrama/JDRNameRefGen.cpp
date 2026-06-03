@@ -54,7 +54,7 @@ TNameRef* TNameRefGen::getNameRef(const char* name) const
 	} else if (strcmp(name, "EfbCtrlTex") == 0) {
 		return new TEfbCtrlTex("<EfbCtrlTex>", 0);
 	} else if (strcmp(name, "Viewport") == 0) {
-		return new TViewport(TRect(0, 0, 640, 480), "<Viewport>");
+		return new TViewport(TRect(0, 0, 640, 528), "<Viewport>");
 	} else {
 		return nullptr;
 	}
