@@ -165,9 +165,11 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 	JDrama::TNameRef* sceneRef
 	    = root->searchF(JDrama::TNameRef::calcKeyCode(sceneName), sceneName);
 
-	JGadget::TList<void*>* list
-	    = (JGadget::TList<void*>*)((u8*)sceneRef + 0x10);
-	list->insert(list->end(), *(void**)&mMapStaticObj);
+	JGadget::TList_pointer_void* list
+	    = (JGadget::TList_pointer_void*)((u8*)sceneRef + 0x10);
+	void* obj = mMapStaticObj;
+	JGadget::TList_pointer_void::iterator iter = list->end();
+	list->insert(iter, obj);
 }
 
 void TSunModel::calcOtherFPosFromCenterAndRadius_(
