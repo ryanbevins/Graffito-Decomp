@@ -349,7 +349,22 @@ void TModelGate::loadAfter()
 	unk78 = SMS_MakeMActor(buf, "/scene/map/map/gate", 0, 0x11100000);
 	unk72 = unk78->getModel()->getModelData()->getJointName()->getIndex("center");
 
-	(void)ActivePlayer; // THP video setup stub
+	if (ActivePlayer.open) {
+		THPVideoInfo info;
+		THPPlayerGetVideoInfo(&info);
+
+		ResTIMG* textures
+		    = unk78->getModel()->getModelData()->getTexture()->mResources;
+		textures[0].format = 1;
+		textures[0].width  = info.xSize;
+		textures[0].height = info.ySize;
+		textures[1].format = 1;
+		textures[1].width  = info.xSize >> 1;
+		textures[1].height = info.ySize >> 1;
+		textures[2].format = 1;
+		textures[2].width  = info.xSize >> 1;
+		textures[2].height = info.ySize >> 1;
+	}
 
 	unkB8 = 0;
 	unkB9 = 0;
