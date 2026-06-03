@@ -1,6 +1,23 @@
 #include <Enemy/WireBinder.hpp>
 #include <Map/MapWire.hpp>
-#include <Map/MapWireManager.hpp>
+
+class TMapWireManager;
+extern TMapWireManager* gpMapWireManager;
+
+class TMapWireManager {
+public:
+	TMapWire* getWire(int index) const;
+	u32 getWireNo(const JGeometry::TVec3<f32>&) const;
+
+	static TMapWire* getGlobalWire(int index)
+	{
+		return gpMapWireManager->unk18[index];
+	}
+
+private:
+	/* 0x00 */ char unk0[0x18];
+	/* 0x18 */ TMapWire** unk18;
+};
 
 bool TWireBinder::init(const JGeometry::TVec3<f32>& param_1)
 {
