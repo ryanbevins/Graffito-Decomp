@@ -122,6 +122,7 @@ public:
 	/* 0x1B0 */ s32 mNeckJointIndex;
 	/* 0x1B4 */ s32 mJointIndex2;
 	/* 0x1B8 */ s32 mHeadJointIndex;
+	/* 0x1BC */ JGeometry::TVec3<f32> unk1BC;
 };
 
 class TLimitKoopaManager : public TEnemyManager {
