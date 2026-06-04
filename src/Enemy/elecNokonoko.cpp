@@ -991,7 +991,7 @@ void TElecCarapace::behaveToHitWall(const TBGCheckData* wall)
 void TElecCarapace::setBehavior()
 {
 	if (unk16C->checkLiveFlag(LIVE_FLAG_DEAD))
-		behaveToHost();
+		kill();
 
 	if (unk168)
 		mPosition.y = mGroundHeight;
