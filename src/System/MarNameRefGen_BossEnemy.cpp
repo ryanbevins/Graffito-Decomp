@@ -14,6 +14,7 @@
 #include <Enemy/Enemy.hpp>
 #include <Enemy/EnemyManager.hpp>
 #include <Enemy/Hinokuri2.hpp>
+#include <Enemy/Koopa.hpp>
 #include <Enemy/LimitKoopa.hpp>
 #include <Enemy/LimitKoopaJr.hpp>
 #include <Enemy/SleepBossHanachan.hpp>
@@ -48,42 +49,6 @@ class TBubbleManager : public JDrama::TNameRef {
 public:
 	TBubbleManager(const char*);
 	char _stub[0x54];
-};
-
-class TKoopa : public JDrama::TNameRef {
-public:
-	TKoopa(const char*);
-	char _stub[0x1b0];
-};
-
-class TKoopaJr : public JDrama::TNameRef {
-public:
-	TKoopaJr(const char*);
-	char _stub[0x164];
-};
-
-class TKoopaJrManager : public JDrama::TNameRef {
-public:
-	TKoopaJrManager(const char*);
-	char _stub[0x48];
-};
-
-class TKoopaJrSubmarine : public JDrama::TNameRef {
-public:
-	TKoopaJrSubmarine(const char*);
-	char _stub[0x1a0];
-};
-
-class TKoopaJrSubmarineManager : public JDrama::TNameRef {
-public:
-	TKoopaJrSubmarineManager(const char*);
-	char _stub[0x48];
-};
-
-class TKoopaManager : public JDrama::TNameRef {
-public:
-	TKoopaManager(const char*);
-	char _stub[0x48];
 };
 
 class TTinKoopa : public JDrama::TNameRef {
