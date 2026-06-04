@@ -240,7 +240,35 @@ void TTrembleModelEffect::tremble(f32 power, f32 spring, f32 damping,
 	unk8 &= ~4;
 }
 
-void TTrembleModelEffect::clash(f32) { }
+void TTrembleModelEffect::clash(f32 power)
+{
+	tremble(power, 0.0f, 0.0f, 0);
+
+	switch (unk8 & 2) {
+	case 0:
+		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
+			JGeometry::TVec3<s16> position = unk14[i];
+			position.add(unk20[i]);
+
+			unk14[i] = position;
+			unk18[i] = position;
+			unk1C[i] = position;
+		}
+		break;
+	case 2:
+		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
+			JGeometry::TVec3<f32> position = unk28[i];
+			position.add(unk34[i]);
+
+			unk28[i] = position;
+			unk2C[i] = position;
+			unk30[i] = position;
+		}
+		break;
+	}
+
+	unk8 |= 4;
+}
 
 void TTrembleModelEffect::movement() { }
 
