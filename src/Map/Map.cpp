@@ -46,13 +46,14 @@ static void initMonte()
 	void* waterIndirectObj = waterIndirect;
 	list->insert(list->end(), waterIndirectObj);
 
-	u8 scenario = gpMarDirector->unk7D;
-	if (scenario == 0 || scenario == 2 || scenario == 5 || scenario == 6) {
+	if (gpMarDirector->unk7D == 0 || gpMarDirector->unk7D == 2
+	    || gpMarDirector->unk7D == 5 || gpMarDirector->unk7D == 6) {
 		SMS_LoadParticle("/scene/map/pollution/ms_newfire_b.jpa", 0x1DC);
 		SMS_LoadParticle("/scene/map/pollution/ms_newfire_a.jpa", 0x65);
 	}
 
-	if (scenario == 1 || scenario == 3 || scenario == 5 || scenario == 7)
+	if (gpMarDirector->unk7D == 1 || gpMarDirector->unk7D == 3
+	    || gpMarDirector->unk7D == 5 || gpMarDirector->unk7D == 7)
 		SMS_LoadParticle("/scene/map/map/ms_monte_yuge.jpa", 0x156);
 }
 
@@ -77,7 +78,9 @@ static void initMare()
 	if (gpMarDirector->unk7D == 0) {
 		SMS_LoadParticle("/scene/map/map/ms_mare_objup_a.jpa", 0x69);
 		SMS_LoadParticle("/scene/map/map/ms_mare_objup_b.jpa", 0x1E5);
-	} else {
+	}
+
+	if (gpMarDirector->unk7D != 0) {
 		for (int i = 1; i < 8; ++i) {
 			TMapCollisionWarp* warp
 			    = TMapObjBase::newAndInitBuildingCollisionWarp(i, nullptr);
