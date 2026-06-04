@@ -5490,6 +5490,26 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Fixed small vector-angle reductions may need scalar locals, not stack `TVec3` temps, to keep point deltas in saved FPRs
+
+**Hypothesis.** When target asm computes a fixed number of vector
+cross/dot/`atan2f` reductions as straight-line math with many saved FPRs,
+source stack `TVec3` temporaries can force the wrong store/load schedule even
+if the operations are equivalent. Writing explicit scalar deltas
+(`p1x = point1.x - hit.x`, etc.) and scalar cross/dot products lets MWCC keep
+the deltas in FPRs across `sqrt`/`atan2f` calls and can recover the target
+saved-FPR shape.
+
+**Observed.** `mario/Map/MapCheck` `bgIntersectLine()` (t401) moved
+`51.1% -> 84.8%` when three point-minus-hit `TVec3` temps were replaced with
+scalar deltas and scalar cross/dot math after the loop-unroll and
+`TVec3::add` call-boundary fixes.
+
+**Experiment to confirm/refute.** Find another fixed small vector-angle or
+cross/dot reduction currently written with stack vector temps; rewrite only the
+vector temps into named scalar deltas, and check whether target saved-FPR
+allocation and call-adjacent product order improve.
+
 ### Getter-fed float multiplies may need a split assignment to preserve operand order while using the accessor as a frame lever
 
 **Hypothesis.** Inline `TParamRT<T>::get()` accessors can be used as a stack
