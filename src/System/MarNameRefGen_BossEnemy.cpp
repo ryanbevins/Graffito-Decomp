@@ -19,6 +19,9 @@
 #include <MSound/MSSetSound.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
+static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
+static const char cDirtyTexName[]  = "H_ma_rak_dummy";
+
 // Forward declarations for classes whose headers don't exist yet.
 // Sizes are pinned to match what the original asm passed to operator new.
 class TBEelTears : public TSpineEnemy {
