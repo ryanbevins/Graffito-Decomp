@@ -403,7 +403,7 @@ static bool bgIntersectLine(const TBGCheckData* data,
 		return false;
 
 	if (hit_point != nullptr)
-		hit_point->set(hit);
+		*hit_point = hit;
 
 	return true;
 }
