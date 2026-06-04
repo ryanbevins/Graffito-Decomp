@@ -355,7 +355,7 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 					query.y = p->y - yOff + baseY;
 					query.z = p->z;
 
-					const TBGCheckData* hit = nullptr;
+					const TBGCheckData* hit;
 					gpMap->checkGroundIgnoreWaterSurface(query, &hit);
 					if (hit && hit->mBGType == 0x600) {
 						*(s16*)((u8*)this + 0x2CA) = hit->mData;
