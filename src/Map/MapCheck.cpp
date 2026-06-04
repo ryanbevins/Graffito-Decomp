@@ -385,10 +385,9 @@ static bool bgIntersectLine(const TBGCheckData* data,
 	if (1.0f < t)
 		return false;
 
-	JGeometry::TVec3<f32> hit(start);
 	JGeometry::TVec3<f32> scaled(dir);
 	scaled.scale(t);
-	hit.add(scaled);
+	JGeometry::TVec3<f32> hit = start + scaled;
 
 	JGeometry::TVec3<f32> point1(data->mPoint1);
 	JGeometry::TVec3<f32> point2(data->mPoint2);
