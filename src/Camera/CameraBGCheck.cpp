@@ -27,9 +27,9 @@ inline JGeometry::TVec3<f32>* getTrackPos(const CPolarSubCamera* cam)
 inline void updateInHouseTimer(CPolarSubCamera* cam)
 {
 	s16 newArea = *(s16*)((u8*)cam + 0x2CA);
-	void* opt   = *(void**)((u8*)cam + 0x2D4);
 	if (newArea != -1) {
 		*(s16*)((u8*)cam + 0x2C8) = newArea;
+		void* opt = *(void**)((u8*)cam + 0x2D4);
 		u8 step = *(u8*)((u8*)opt + 0x108);
 		u8 cnt  = *(u8*)((u8*)cam + 0x2CC);
 		if ((f64)cnt < (f64)step) {
@@ -38,6 +38,7 @@ inline void updateInHouseTimer(CPolarSubCamera* cam)
 		return;
 	}
 	if (*(s16*)((u8*)cam + 0x2C8) != -1) {
+		void* opt = *(void**)((u8*)cam + 0x2D4);
 		u8 step = *(u8*)((u8*)opt + 0x108);
 		u8 cnt  = *(u8*)((u8*)cam + 0x2CC);
 		if ((f64)cnt < (f64)step) {
