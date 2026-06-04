@@ -559,6 +559,6 @@ void TRope::moveHead(const JGeometry::TVec3<f32>& head)
 void SMS_GetActorMtx(const THitActor& actor, MtxPtr mtx)
 {
 	MsMtxSetTRS(mtx, actor.mPosition.x, actor.mPosition.y, actor.mPosition.z,
-	            actor.mScaling.x, actor.mScaling.y, actor.mScaling.z,
-	            actor.mRotation.x, actor.mRotation.y, actor.mRotation.z);
+	            actor.mRotation.x, actor.mRotation.y, actor.mRotation.z,
+	            actor.mScaling.x, actor.mScaling.y, actor.mScaling.z);
 }
