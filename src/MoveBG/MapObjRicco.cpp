@@ -204,7 +204,9 @@ void TCraneUpDown::initMapObj()
 
 void TCraneCargo::control()
 {
-	unk158.set(0.0f, 0.0f, 0.0f);
+	unk158.z = 0.0f;
+	unk158.y = 0.0f;
+	unk158.x = 0.0f;
 	TMapObjBase::control();
 }
 
