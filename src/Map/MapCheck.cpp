@@ -347,6 +347,15 @@ inline static bool LineInLineXZ(const JGeometry::TVec2<f32>& a1,
 	return c3 * c4 <= 0.0f;
 }
 
+inline static f32 calcEdgeAngle(const JGeometry::TVec3<f32>& a,
+                                const JGeometry::TVec3<f32>& b)
+{
+	JGeometry::TVec3<f32> cross;
+	cross.cross(a, b);
+	f32 cross_len = JGeometry::TUtil<f32>::sqrt(cross.squared());
+	return fabsf(atan2f(cross_len, a.dot(b)));
+}
+
 static bool bgIntersectLine(const TBGCheckData* data,
                             const JGeometry::TVec3<f32>& start,
                             const JGeometry::TVec3<f32>& end,
@@ -378,24 +387,17 @@ static bool bgIntersectLine(const TBGCheckData* data,
 	scaled.scale(t);
 	hit.add(scaled);
 
-	const JGeometry::TVec3<f32>* points[3] = {
-		&data->mPoint1,
-		&data->mPoint2,
-		&data->mPoint3,
-	};
+	JGeometry::TVec3<f32> point1(data->mPoint1);
+	JGeometry::TVec3<f32> point2(data->mPoint2);
+	JGeometry::TVec3<f32> point3(data->mPoint3);
+	point1.sub(hit);
+	point2.sub(hit);
+	point3.sub(hit);
 
 	f32 angle_sum = 0.0f;
-	for (int i = 0; i < 3; ++i) {
-		JGeometry::TVec3<f32> a(*points[i]);
-		JGeometry::TVec3<f32> b(*points[(i + 1) % 3]);
-		a.sub(hit);
-		b.sub(hit);
-
-		JGeometry::TVec3<f32> cross;
-		cross.cross(a, b);
-		f32 cross_len = JGeometry::TUtil<f32>::sqrt(cross.squared());
-		angle_sum += fabsf(atan2f(cross_len, a.dot(b)));
-	}
+	angle_sum += calcEdgeAngle(point1, point2);
+	angle_sum += calcEdgeAngle(point2, point3);
+	angle_sum += calcEdgeAngle(point3, point1);
 
 	if (fabsf(6.2831855f - angle_sum) > 0.001f)
 		return false;
