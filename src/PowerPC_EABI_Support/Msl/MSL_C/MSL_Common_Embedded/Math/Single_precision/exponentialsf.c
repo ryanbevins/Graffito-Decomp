@@ -37,11 +37,6 @@ static const float __two_to_x[] = {
 	1.02999984e-07f,
 };
 
-static const float __exp_to_x[] = {
-	0.999999881f, 0.49999997f, 0.166667983f, 0.0416668877f, 0.00832859613f,
-	0.001388276f, 0.000204699929f, 2.54991846e-05f,
-};
-
 static inline float make_float(unsigned long bits)
 {
 	union {
@@ -83,6 +78,8 @@ static inline int is_inf_bits(unsigned long bits)
 
 static inline float log2f_approx(float x)
 {
+	static const float __log2e_m1[] = { 0.41015625f, 0.03253879f };
+
 	unsigned long bits;
 	unsigned long hiBits;
 	unsigned long fullBits;
@@ -111,13 +108,21 @@ static inline float log2f_approx(float x)
 		correction
 		    = delta * make_float(0x3EF637A6) + make_float(0xBF38AA80);
 		correction = delta2 * correction;
-		correction = 0.03253879f * delta + correction;
-		correction = 0.41015625f * delta + correction;
+		correction = __log2e_m1[1] * delta + correction;
+		correction = __log2e_m1[0] * delta + correction;
 		correction = delta + correction;
 		result += correction;
 	}
 
 	return result;
+}
+
+static const unsigned long _inf = 0x7f800000;
+static const unsigned long _nan = 0x7fffffff;
+
+static inline float const_float(const unsigned long* bits)
+{
+	return *(const float*)bits;
 }
 
 static inline float two_to_x(float x)
@@ -131,7 +136,7 @@ static inline float two_to_x(float x)
 	frac = x - (float)n;
 
 	if (n > 128)
-		return make_float(0x7f800000);
+		return const_float(&_inf);
 
 	if (n < -127)
 		return 0.0f;
@@ -153,6 +158,11 @@ static inline float two_to_x(float x)
 
 float expf(float x)
 {
+	static const float __exp_to_x[] = {
+		0.999999881f, 0.49999997f, 0.166667983f, 0.0416668877f,
+		0.00832859613f, 0.001388276f, 0.000204699929f, 2.54991846e-05f,
+	};
+
 	int n;
 	float frac;
 	int tableIndex;
@@ -160,7 +170,7 @@ float expf(float x)
 	float poly;
 
 	if (x > 88.72284f)
-		return make_float(0x7f800000);
+		return const_float(&_inf);
 
 	if (x < -87.33655f)
 		return 0.0f;
@@ -200,7 +210,7 @@ float powf(float base, float exponent)
 	if (base < 0.0f) {
 		exponentInt = (int)exponent;
 		if ((float)exponentInt != exponent)
-			return make_float(0x7fffffff);
+			return const_float(&_nan);
 
 		result = two_to_x(exponent * log2f_approx(-base));
 		if ((exponentInt & 1) != 0)
@@ -213,17 +223,17 @@ float powf(float base, float exponent)
 		if (exponent > 0.0f) {
 			if ((baseBits & 0x80000000) != 0 && (float)exponentInt == exponent
 			    && (exponentInt & 1) != 0)
-				return make_float(0x80000000);
+				return -0.0f;
 			return 0.0f;
 		}
 		if ((baseBits & 0x80000000) != 0 && (float)exponentInt == exponent
 		    && (exponentInt & 1) != 0)
 			return make_float(0xff800000);
-		return make_float(0x7f800000);
+		return const_float(&_inf);
 	}
 
 	if (is_nan_bits(baseBits) || is_nan_bits(exponentBits))
-		return make_float(0x7fffffff);
+		return const_float(&_nan);
 
 	if (exponent == 0.0f || base == 1.0f)
 		return 1.0f;
@@ -234,7 +244,7 @@ float powf(float base, float exponent)
 			return 1.0f;
 		if ((absBase > 1.0f && exponent > 0.0f)
 		    || (absBase < 1.0f && exponent < 0.0f))
-			return make_float(0x7f800000);
+			return const_float(&_inf);
 		return 0.0f;
 	}
 

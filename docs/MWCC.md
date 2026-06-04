@@ -7216,6 +7216,20 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **What source shape makes C-mode MSL `__log2f` load the `@93`
+  bit-pattern coefficient table without inflating every inlined caller
+  frame?** In `mario/PowerPC_EABI_Support/.../exponentialsf` (t405), target
+  `powf` has three inlined `__log2f` blocks that load two coefficient bit
+  patterns from `@93` into stack slots before the fractional-tail branch. A
+  block-scope `static const unsigned long __log2e_coeff[]` recovered the
+  `.sdata2` bytes but regressed `powf`: using the table directly in the
+  correction branch moved `34.7% -> 33.0%`, while materializing `coeff0` /
+  `coeff1` locals before the branch moved `34.7% -> 31.2%` and inflated the
+  frame. Current best source keeps direct `make_float(0x3EF637A6)` /
+  `make_float(0xBF38AA80)` immediates, despite target's table loads. Next
+  experiment should test an original-style out-of-line/inline `__log2f`
+  helper boundary or high-word macro shape, not another plain local table.
+
 - **What source shape forces MWCC to narrow a casted `s16` local before an
   intervening call when the target does `addi; extsh; bl` (t359,
   `CameraSecureView`)?** In both secure-view functions, target computes Mario's
