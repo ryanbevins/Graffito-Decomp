@@ -485,10 +485,10 @@ void TRope::constraintHead(const JGeometry::TVec3<f32>& head)
 		TRopePoint& point = mPoints[i];
 		TRopePoint& next  = mPoints[i + 1];
 
-		Vec dir;
-		dir.x = next.mPosition.x - point.mPosition.x;
-		dir.y = next.mPosition.y - point.mPosition.y;
-		dir.z = next.mPosition.z - point.mPosition.z;
+		Vec dir = next.mPosition;
+		dir.x -= point.mPosition.x;
+		dir.y -= point.mPosition.y;
+		dir.z -= point.mPosition.z;
 		if (dir.x * dir.x + dir.y * dir.y + dir.z * dir.z
 		    <= 0.0000038146973f) {
 			dir.x = 0.0f;
@@ -497,7 +497,10 @@ void TRope::constraintHead(const JGeometry::TVec3<f32>& head)
 		}
 
 		PSVECNormalize(&dir, &dir);
-		PSVECScale(&dir, &dir, point.mSegmentLength);
+		f32 length = point.mSegmentLength;
+		dir.x *= length;
+		dir.y *= length;
+		dir.z *= length;
 		next.mPosition = point.mPosition;
 		next.mPosition.x += dir.x;
 		next.mPosition.y += dir.y;
