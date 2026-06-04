@@ -517,19 +517,28 @@ void TRope::constraintTail(const JGeometry::TVec3<f32>& tail)
 	for (int i = mNumPoints - 1; i > 0; --i) {
 		TRopePoint& point = mPoints[i];
 		TRopePoint& prev  = mPoints[i - 1];
-		f32 dx            = prev.mPosition.x - point.mPosition.x;
-		f32 dy            = prev.mPosition.y - point.mPosition.y;
-		f32 dz            = prev.mPosition.z - point.mPosition.z;
-		bool nearlySame   = (-0.0000038146973f <= dx && dx <= 0.0000038146973f)
-		                  && (-0.0000038146973f <= dy && dy <= 0.0000038146973f)
-		                  && (-0.0000038146973f <= dz && dz <= 0.0000038146973f);
+		bool nearlySame
+		    = (-0.0000038146973f
+		           <= prev.mPosition.x - point.mPosition.x
+		       && prev.mPosition.x - point.mPosition.x <= 0.0000038146973f)
+		      && (-0.0000038146973f
+		              <= prev.mPosition.y - point.mPosition.y
+		          && prev.mPosition.y - point.mPosition.y
+		                 <= 0.0000038146973f)
+		      && (-0.0000038146973f
+		              <= prev.mPosition.z - point.mPosition.z
+		          && prev.mPosition.z - point.mPosition.z
+		                 <= 0.0000038146973f);
 		if (!nearlySame) {
-			Vec dir;
-			dir.x = dx;
-			dir.y = dy;
-			dir.z = dz;
+			Vec dir = prev.mPosition;
+			dir.x -= point.mPosition.x;
+			dir.y -= point.mPosition.y;
+			dir.z -= point.mPosition.z;
 			PSVECNormalize(&dir, &dir);
-			PSVECScale(&dir, &dir, point.mSegmentLength);
+			f32 length = point.mSegmentLength;
+			dir.x *= length;
+			dir.y *= length;
+			dir.z *= length;
 			prev.mPosition = point.mPosition;
 			prev.mPosition.x += dir.x;
 			prev.mPosition.y += dir.y;
