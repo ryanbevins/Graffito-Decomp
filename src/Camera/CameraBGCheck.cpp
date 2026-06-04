@@ -357,10 +357,13 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 
 					const TBGCheckData* hit;
 					gpMap->checkGroundIgnoreWaterSurface(query, &hit);
-					if (hit && hit->mBGType == 0x600) {
-						*(s16*)((u8*)this + 0x2CA) = hit->mData;
-						updateInHouseTimer(this);
-						return;
+					if (hit != nullptr) {
+						bool inHouse = hit->mBGType == 0x600 ? true : false;
+						if (inHouse) {
+							*(s16*)((u8*)this + 0x2CA) = hit->mData;
+							updateInHouseTimer(this);
+							return;
+						}
 					}
 					yOff += stepY;
 				}
