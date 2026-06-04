@@ -373,7 +373,38 @@ BOOL ViewFrustumClipCheck(JDrama::TGraphics* gfx, Vec* position, f32 radius)
 
 void ViewFrustumRectClipCheck(JDrama::TGraphics*, Vec*, f32, f32) { }
 
-int SMS_CountPolygonNumInShape(J3DShape*) { }
+int SMS_CountPolygonNumInShape(J3DShape* shape)
+{
+	u32 attrSizes[4] = { 0, 1, 1, 2 };
+	int polygonCount = 0;
+	int vertexSize   = 0;
+
+	GXVtxDescList* desc = shape->getVtxDesc();
+	while (desc->attr != GX_VA_NULL) {
+		vertexSize += attrSizes[desc->type];
+		desc++;
+	}
+
+	for (u16 i = 0; i < shape->getMtxGroupNum(); ++i) {
+		J3DShapeDraw* draw = shape->getShapeDraw(i);
+		const u8* start    = draw->getDisplayList();
+		const u8* dl       = start;
+
+		while ((u32)(dl - start) < draw->getDisplayListSize()) {
+			u8 command = *dl;
+			if (command != GX_TRIANGLEFAN && command != GX_TRIANGLESTRIP)
+				break;
+
+			u16 vertexCount = *(u16*)(dl + 1);
+			polygonCount += vertexCount;
+			dl += vertexSize * vertexCount;
+			polygonCount -= 2;
+			dl += 3;
+		}
+	}
+
+	return polygonCount;
+}
 
 void SMS_CountPolygonNumInModelData(J3DModelData*) { }
 
