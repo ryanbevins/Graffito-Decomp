@@ -392,7 +392,40 @@ void SMS_DrawBillboardLine(const JDrama::TGraphics*,
 {
 }
 
-void SMS_DrawCube(const JGeometry::TVec3<f32>&, const JGeometry::TVec3<f32>&) {
+void SMS_DrawCube(const JGeometry::TVec3<f32>& min,
+                  const JGeometry::TVec3<f32>& max)
+{
+	GXBegin(GX_QUADS, GX_VTXFMT0, 24);
+
+	GXPosition3f32(min.x, min.y, min.z);
+	GXPosition3f32(min.x, min.y, max.z);
+	GXPosition3f32(max.x, min.y, max.z);
+	GXPosition3f32(max.x, min.y, min.z);
+
+	GXPosition3f32(min.x, min.y, min.z);
+	GXPosition3f32(max.x, min.y, min.z);
+	GXPosition3f32(max.x, max.y, min.z);
+	GXPosition3f32(min.x, max.y, min.z);
+
+	GXPosition3f32(min.x, min.y, min.z);
+	GXPosition3f32(min.x, max.y, min.z);
+	GXPosition3f32(min.x, max.y, max.z);
+	GXPosition3f32(min.x, min.y, max.z);
+
+	GXPosition3f32(max.x, max.y, max.z);
+	GXPosition3f32(min.x, max.y, max.z);
+	GXPosition3f32(min.x, max.y, min.z);
+	GXPosition3f32(max.x, max.y, min.z);
+
+	GXPosition3f32(max.x, max.y, max.z);
+	GXPosition3f32(max.x, min.y, max.z);
+	GXPosition3f32(min.x, min.y, max.z);
+	GXPosition3f32(min.x, max.y, max.z);
+
+	GXPosition3f32(max.x, max.y, max.z);
+	GXPosition3f32(max.x, max.y, min.z);
+	GXPosition3f32(max.x, min.y, min.z);
+	GXPosition3f32(max.x, min.y, max.z);
 }
 
 void SMS_SettingDrawShape(J3DModelData* param_1, u16 param_2)
