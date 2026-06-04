@@ -23,7 +23,7 @@ void TPerformList::load(JSUMemoryInputStream& stream)
 		stream.read(&value, 4);
 		u32 uVar5 = value;
 		if (value & 1)
-			uVar5 = value | 0x3000;
+			uVar5 |= 0x3000;
 		if (obj)
 			push_back(obj, uVar5);
 	}
