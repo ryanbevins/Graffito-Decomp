@@ -18,6 +18,7 @@
 #include <Enemy/LimitKoopa.hpp>
 #include <Enemy/LimitKoopaJr.hpp>
 #include <Enemy/SleepBossHanachan.hpp>
+#include <Enemy/TinKoopa.hpp>
 // Rogue includes for static init (matches original sinit block)
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSSetSound.hpp>
@@ -49,18 +50,6 @@ class TBubbleManager : public JDrama::TNameRef {
 public:
 	TBubbleManager(const char*);
 	char _stub[0x54];
-};
-
-class TTinKoopa : public JDrama::TNameRef {
-public:
-	TTinKoopa(const char*);
-	char _stub[0x1f0];
-};
-
-class TTinKoopaManager : public JDrama::TNameRef {
-public:
-	TTinKoopaManager(const char*);
-	char _stub[0x48];
 };
 
 JDrama::TNameRef* TMarNameRefGen::getNameRef_BossEnemy(const char* name) const
