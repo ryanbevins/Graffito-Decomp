@@ -32,7 +32,7 @@ inline void updateInHouseTimer(CPolarSubCamera* cam)
 		void* opt = *(void**)((u8*)cam + 0x2D4);
 		u8 step = *(u8*)((u8*)opt + 0x108);
 		u8 cnt  = *(u8*)((u8*)cam + 0x2CC);
-		if ((f64)cnt < (f64)step) {
+		if ((f32)cnt < (f32)step) {
 			*(u8*)((u8*)cam + 0x2CC) = cnt + 1;
 		}
 		return;
@@ -41,7 +41,7 @@ inline void updateInHouseTimer(CPolarSubCamera* cam)
 		void* opt = *(void**)((u8*)cam + 0x2D4);
 		u8 step = *(u8*)((u8*)opt + 0x108);
 		u8 cnt  = *(u8*)((u8*)cam + 0x2CC);
-		if ((f64)cnt < (f64)step) {
+		if ((f32)cnt < (f32)step) {
 			*(u8*)((u8*)cam + 0x2CC) = cnt + 1;
 		} else {
 			*(s16*)((u8*)cam + 0x2C8) = -1;
