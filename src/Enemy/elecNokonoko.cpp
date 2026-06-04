@@ -855,7 +855,7 @@ void TElecCarapace::calcRootMatrix()
 }
 void TElecCarapace::bind()
 {
-	moveObject();
+	control();
 	TEnemyAttachment::bind();
 }
 void TElecCarapace::kill() { TEnemyAttachment::kill(); }
@@ -956,7 +956,7 @@ void TElecCarapace::behaveToHitGround()
 	}
 
 	if (isSlope)
-		behaveToHost();
+		kill();
 
 	unk176       = 0;
 	unk168       = 1;
