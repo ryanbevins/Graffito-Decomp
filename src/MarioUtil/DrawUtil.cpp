@@ -19,6 +19,7 @@
 #include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <dolphin/gx.h>
 #include <dolphin/mtx.h>
+#include <stdlib.h>
 
 TSilhouette* gpSilhouetteManager;
 
@@ -175,7 +176,69 @@ void TSilhouette::calcSilhouetteBorder() { }
 
 void TTrembleModelEffect::init(J3DModel*) { }
 
-void TTrembleModelEffect::tremble(f32, f32, f32, int) { }
+void TTrembleModelEffect::tremble(f32 power, f32 spring, f32 damping,
+                                  int frames)
+{
+	unk8 |= 1;
+
+	if ((unk8 & 2) == 0) {
+		unk26 = (s16)(spring * (f32)unkC);
+		unk24 = (s16)(damping * (f32)unkC);
+
+		JGeometry::TVec3<s16>* original
+		    = (JGeometry::TVec3<s16>*)unk4;
+
+		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
+			unk20[i].x = (s16)((f32)unkC
+			                   * (power
+			                      * (2.0f
+			                               * ((f32)rand()
+			                                  * 0.000030517578f)
+			                         - 1.0f)));
+			unk20[i].y = (s16)((f32)unkC
+			                   * (power
+			                      * (2.0f
+			                               * ((f32)rand()
+			                                  * 0.000030517578f)
+			                         - 1.0f)));
+			unk20[i].z = (s16)((f32)unkC
+			                   * (power
+			                      * (2.0f
+			                               * ((f32)rand()
+			                                  * 0.000030517578f)
+			                         - 1.0f)));
+
+			unk14[i] = original[i];
+			unk18[i] = original[i];
+			unk1C[i] = original[i];
+		}
+	} else {
+		unk3C = spring;
+		unk38 = damping;
+
+		JGeometry::TVec3<f32>* original
+		    = (JGeometry::TVec3<f32>*)unk4;
+
+		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
+			unk34[i].x = power
+			             * (2.0f * ((f32)rand() * 0.000030517578f)
+			                - 1.0f);
+			unk34[i].y = power
+			             * (2.0f * ((f32)rand() * 0.000030517578f)
+			                - 1.0f);
+			unk34[i].z = power
+			             * (2.0f * ((f32)rand() * 0.000030517578f)
+			                - 1.0f);
+
+			unk28[i] = original[i];
+			unk2C[i] = original[i];
+			unk30[i] = original[i];
+		}
+	}
+
+	unk10 = frames;
+	unk8 &= ~4;
+}
 
 void TTrembleModelEffect::clash(f32) { }
 
