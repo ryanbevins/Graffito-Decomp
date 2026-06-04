@@ -1,6 +1,7 @@
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapCollisionPlane.hpp>
 #include <Map/MapData.hpp>
+#include <math.h>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -324,25 +325,156 @@ f32 TMapCollisionData::checkGround(f32 x, f32 y, f32 z, u8 flags,
 	}
 }
 
-bool bgIntersectLine(const TBGCheckData*, const JGeometry::TVec3<f32>&,
-                     const JGeometry::TVec3<f32>&, bool, JGeometry::TVec3<f32>*)
+inline static f32 crossXZ(const JGeometry::TVec2<f32>& a,
+                          const JGeometry::TVec2<f32>& b,
+                          const JGeometry::TVec2<f32>& c)
 {
+	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
-void intersectLineList(const TBGCheckList*, const JGeometry::TVec3<f32>&,
-                       const JGeometry::TVec3<f32>&, bool,
-                       JGeometry::TVec3<f32>*)
+inline static bool LineInLineXZ(const JGeometry::TVec2<f32>& a1,
+                                const JGeometry::TVec2<f32>& a2,
+                                const JGeometry::TVec2<f32>& b1,
+                                const JGeometry::TVec2<f32>& b2)
 {
+	f32 c1 = crossXZ(a1, a2, b1);
+	f32 c2 = crossXZ(a1, a2, b2);
+	if (c1 * c2 > 0.0f)
+		return false;
+
+	f32 c3 = crossXZ(b1, b2, a1);
+	f32 c4 = crossXZ(b1, b2, a2);
+	return c3 * c4 <= 0.0f;
 }
 
-void LineInLineXZ(const JGeometry::TVec2<f32>&, const JGeometry::TVec2<f32>&,
-                  const JGeometry::TVec2<f32>&, const JGeometry::TVec2<f32>&)
+static bool bgIntersectLine(const TBGCheckData* data,
+                            const JGeometry::TVec3<f32>& start,
+                            const JGeometry::TVec3<f32>& end,
+                            bool ignore_back_faces,
+                            JGeometry::TVec3<f32>* hit_point)
 {
+	if (data == nullptr)
+		return false;
+
+	if (data->isMarioThrough())
+		return false;
+
+	JGeometry::TVec3<f32> dir(end);
+	dir.sub(start);
+
+	f32 denom = data->mNormal.dot(dir);
+	if (ignore_back_faces && denom >= 0.0f)
+		return false;
+
+	if (fabsf(denom) < 0.00001f)
+		return false;
+
+	f32 t = -(data->mPlaneDistance + data->mNormal.dot(start)) / denom;
+	if (t < 0.0f || t > 1.0f)
+		return false;
+
+	JGeometry::TVec3<f32> hit(start);
+	JGeometry::TVec3<f32> scaled(dir);
+	scaled.scale(t);
+	hit.add(scaled);
+
+	const JGeometry::TVec3<f32>* points[3] = {
+		&data->mPoint1,
+		&data->mPoint2,
+		&data->mPoint3,
+	};
+
+	f32 angle_sum = 0.0f;
+	for (int i = 0; i < 3; ++i) {
+		JGeometry::TVec3<f32> a(*points[i]);
+		JGeometry::TVec3<f32> b(*points[(i + 1) % 3]);
+		a.sub(hit);
+		b.sub(hit);
+
+		JGeometry::TVec3<f32> cross;
+		cross.cross(a, b);
+		f32 cross_len = JGeometry::TUtil<f32>::sqrt(cross.squared());
+		angle_sum += fabsf(atan2f(cross_len, a.dot(b)));
+	}
+
+	if (fabsf(6.2831855f - angle_sum) > 0.001f)
+		return false;
+
+	if (hit_point != nullptr)
+		hit_point->set(hit);
+
+	return true;
 }
 
 const TBGCheckData*
-TMapCollisionData::intersectLine(const JGeometry::TVec3<f32>&,
-                                 const JGeometry::TVec3<f32>&, bool,
-                                 JGeometry::TVec3<f32>*) const
+TMapCollisionData::intersectLine(const JGeometry::TVec3<f32>& start,
+                                 const JGeometry::TVec3<f32>& end,
+                                 bool ignore_back_faces,
+                                 JGeometry::TVec3<f32>* hit_point) const
 {
+	s32 min_x = (s32)start.x;
+	s32 max_x = (s32)end.x;
+	if (min_x > max_x) {
+		s32 tmp = min_x;
+		min_x   = max_x;
+		max_x   = tmp;
+	}
+
+	s32 min_z = (s32)start.z;
+	s32 max_z = (s32)end.z;
+	if (min_z > max_z) {
+		s32 tmp = min_z;
+		min_z   = max_z;
+		max_z   = tmp;
+	}
+
+	s32 min_grid_x = (s32)((min_x + mGridExtentX) * (1.0f / 1024.0f));
+	s32 max_grid_x = (s32)((max_x + mGridExtentX) * (1.0f / 1024.0f));
+	s32 min_grid_z = (s32)((min_z + mGridExtentY) * (1.0f / 1024.0f));
+	s32 max_grid_z = (s32)((max_z + mGridExtentY) * (1.0f / 1024.0f));
+
+	JGeometry::TVec2<f32> line_a(start.x, start.z);
+	JGeometry::TVec2<f32> line_b(end.x, end.z);
+
+	for (s32 z = min_grid_z; z <= max_grid_z; ++z) {
+		for (s32 x = min_grid_x; x <= max_grid_x; ++x) {
+			if (x != min_grid_x || z != min_grid_z) {
+				f32 left   = x * 1024.0f - mGridExtentX;
+				f32 right  = (x + 1) * 1024.0f - mGridExtentX;
+				f32 bottom = z * 1024.0f - mGridExtentY;
+				f32 top    = (z + 1) * 1024.0f - mGridExtentY;
+
+				JGeometry::TVec2<f32> p1(left, bottom);
+				JGeometry::TVec2<f32> p2(right, bottom);
+				JGeometry::TVec2<f32> p3(left, top);
+				JGeometry::TVec2<f32> p4(right, top);
+
+				if (!LineInLineXZ(line_a, line_b, p1, p2)
+				    && !LineInLineXZ(line_a, line_b, p1, p3)
+				    && !LineInLineXZ(line_a, line_b, p3, p4)
+				    && !LineInLineXZ(line_a, line_b, p2, p4))
+					continue;
+			}
+
+			const TBGCheckListRoot& root = getGridRoot14(x, z);
+			const TBGCheckList* lists[3] = {
+				root.unk0[0].getNext(),
+				root.unk0[2].getNext(),
+				root.unk0[1].getNext(),
+			};
+
+			for (int i = 0; i < 3; ++i) {
+				const TBGCheckList* node = lists[i];
+				while (node != nullptr) {
+					const TBGCheckData* data = node->unk8;
+					node                     = node->getNext();
+					if (bgIntersectLine(data, start, end, ignore_back_faces,
+					                    hit_point))
+						return data;
+				}
+			}
+		}
+	}
+
+	return nullptr;
 }
