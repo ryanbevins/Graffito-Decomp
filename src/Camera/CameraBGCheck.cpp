@@ -332,9 +332,10 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 		f32 stepY  = *(f32*)((u8*)this + 0x2C0);
 		f32 baseY  = -78.0f;
 
-		for (int i = 0; i < 9; ++i) {
-			for (int j = 0; j < 2; ++j) {
-				JGeometry::TVec3<f32>* p = &samples[i + j * 9];
+		JGeometry::TVec3<f32>* baseSample = samples;
+		for (int i = 0; i < 9; ++i, ++baseSample) {
+			JGeometry::TVec3<f32>* p = baseSample;
+			for (int j = 0; j < 2; ++j, p += 9) {
 				f32 yOff                 = 0.0f;
 				for (int k = 0; k < 2; ++k) {
 					JGeometry::TVec3<f32> query;
