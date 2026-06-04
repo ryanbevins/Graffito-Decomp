@@ -191,19 +191,12 @@ bool CPolarSubCamera::isNeedWallCheck_() const
 
 bool CPolarSubCamera::isNeedRoofCheck_() const
 {
-	bool kill;
 	bool result = true;
-	if (mMode != 0x49) {
-		kill = false;
-		if (isLButtonCameraSpecifyMode(mMode)) {
-			if (!isNowInbetween())
-				kill = true;
-		}
-		if ((kill ? true : false) || isRailCameraSpecifyMode(mMode)
-		    || mMode == 2 || *(u16*)((u8*)this + 0x27A) != 0) {
-			result = false;
-		}
-	} else {
+	if (mMode == 0x49
+	    || (isLButtonCameraSpecifyMode(mMode) && !isNowInbetween() ? true
+	                                                               : false)
+	    || isRailCameraSpecifyMode(mMode) || mMode == 2
+	    || *(u16*)((u8*)this + 0x27A) != 0) {
 		result = false;
 	}
 	return result;
