@@ -347,13 +347,15 @@ inline static bool LineInLineXZ(const JGeometry::TVec2<f32>& a1,
 	return c3 * c4 <= 0.0f;
 }
 
-inline static f32 calcEdgeAngle(const JGeometry::TVec3<f32>& a,
-                                const JGeometry::TVec3<f32>& b)
+inline static f32 calcEdgeAngle(f32 ax, f32 ay, f32 az, f32 bx, f32 by, f32 bz)
 {
-	JGeometry::TVec3<f32> cross;
-	cross.cross(a, b);
-	f32 cross_len = JGeometry::TUtil<f32>::sqrt(cross.squared());
-	return fabsf(atan2f(cross_len, a.dot(b)));
+	f32 cross_x  = ay * bz - az * by;
+	f32 cross_y  = az * bx - ax * bz;
+	f32 cross_z  = ax * by - ay * bx;
+	f32 cross_sq = cross_x * cross_x + cross_y * cross_y + cross_z * cross_z;
+	f32 cross_len = JGeometry::TUtil<f32>::sqrt(cross_sq);
+	f32 dot       = ax * bx + ay * by + az * bz;
+	return fabsf(atan2f(cross_len, dot));
 }
 
 static bool bgIntersectLine(const TBGCheckData* data,
@@ -389,17 +391,23 @@ static bool bgIntersectLine(const TBGCheckData* data,
 	scaled.scale(t);
 	JGeometry::TVec3<f32> hit = start + scaled;
 
-	JGeometry::TVec3<f32> point1(data->mPoint1);
-	JGeometry::TVec3<f32> point2(data->mPoint2);
-	JGeometry::TVec3<f32> point3(data->mPoint3);
-	point1.sub(hit);
-	point2.sub(hit);
-	point3.sub(hit);
+	f32 point1x = data->mPoint1.x - hit.x;
+	f32 point1y = data->mPoint1.y - hit.y;
+	f32 point1z = data->mPoint1.z - hit.z;
+	f32 point2x = data->mPoint2.x - hit.x;
+	f32 point2y = data->mPoint2.y - hit.y;
+	f32 point2z = data->mPoint2.z - hit.z;
+	f32 point3x = data->mPoint3.x - hit.x;
+	f32 point3y = data->mPoint3.y - hit.y;
+	f32 point3z = data->mPoint3.z - hit.z;
 
 	f32 angle_sum = 0.0f;
-	angle_sum += calcEdgeAngle(point1, point2);
-	angle_sum += calcEdgeAngle(point2, point3);
-	angle_sum += calcEdgeAngle(point3, point1);
+	angle_sum += calcEdgeAngle(point1x, point1y, point1z, point2x, point2y,
+	                           point2z);
+	angle_sum += calcEdgeAngle(point2x, point2y, point2z, point3x, point3y,
+	                           point3z);
+	angle_sum += calcEdgeAngle(point3x, point3y, point3z, point1x, point1y,
+	                           point1z);
 
 	if (fabsf(6.2831855f - angle_sum) > 0.001f)
 		return false;
