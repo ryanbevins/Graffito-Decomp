@@ -315,18 +315,30 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 		                   *(JGeometry::TVec3<f32>*)((u8*)this + 0x148),
 		                   angleZ, nearClip, halfPlane);
 
-		f32 sampleOffset = *(f32*)((u8*)this + 0x2C4);
-		for (int i = 0; i < 9; i += 3) {
-			for (int j = 0; j < 3; ++j) {
-				JGeometry::TVec3<f32>* src = &samples[i + j];
-				JGeometry::TVec3<f32>* dst = &samples[i + j + 9];
-				dst->x
-				    = src->x + *(f32*)((u8*)this + 0x25C) * sampleOffset;
-				dst->y
-				    = src->y + *(f32*)((u8*)this + 0x260) * sampleOffset;
-				dst->z
-				    = src->z + *(f32*)((u8*)this + 0x264) * sampleOffset;
-			}
+		f32 sampleOffset                 = *(f32*)((u8*)this + 0x2C4);
+		JGeometry::TVec3<f32>* srcSample = samples;
+		JGeometry::TVec3<f32>* dstSample = samples + 9;
+		for (int i = 0; i < 3; ++i) {
+			dstSample[0].x = srcSample[0].x
+			                 + *(f32*)((u8*)this + 0x25C) * sampleOffset;
+			dstSample[0].y = srcSample[0].y
+			                 + *(f32*)((u8*)this + 0x260) * sampleOffset;
+			dstSample[0].z = srcSample[0].z
+			                 + *(f32*)((u8*)this + 0x264) * sampleOffset;
+			dstSample[1].x = srcSample[1].x
+			                 + *(f32*)((u8*)this + 0x25C) * sampleOffset;
+			dstSample[1].y = srcSample[1].y
+			                 + *(f32*)((u8*)this + 0x260) * sampleOffset;
+			dstSample[1].z = srcSample[1].z
+			                 + *(f32*)((u8*)this + 0x264) * sampleOffset;
+			dstSample[2].x = srcSample[2].x
+			                 + *(f32*)((u8*)this + 0x25C) * sampleOffset;
+			dstSample[2].y = srcSample[2].y
+			                 + *(f32*)((u8*)this + 0x260) * sampleOffset;
+			dstSample[2].z = srcSample[2].z
+			                 + *(f32*)((u8*)this + 0x264) * sampleOffset;
+			srcSample += 3;
+			dstSample += 3;
 		}
 
 		f32 stepY  = *(f32*)((u8*)this + 0x2C0);
