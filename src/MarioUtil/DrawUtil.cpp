@@ -175,7 +175,82 @@ void TSilhouette::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 void TSilhouette::calcSilhouetteBorder() { }
 
-void TTrembleModelEffect::init(J3DModel*) { }
+void TTrembleModelEffect::init(J3DModel* model)
+{
+	unk0  = model;
+	unk10 = 0;
+
+	bool found = false;
+	GXVtxAttrFmtList* fmt
+	    = model->mModelData->getVertexData().getVtxAttrFmtList();
+	while (fmt->attr != GX_VA_NULL) {
+		if (fmt->attr == GX_VA_POS) {
+			if (fmt->type == GX_S16) {
+				unk8  = 0;
+				found = true;
+				unkA  = fmt->frac;
+				unkC  = (s16)(1 << fmt->frac);
+				break;
+			}
+
+			if (fmt->type == GX_F32) {
+				unk8  = 0;
+				found = true;
+				unk8 |= 2;
+				unkA = 0;
+				unkC = 1;
+				break;
+			}
+		}
+		fmt++;
+	}
+
+	if (!found)
+		return;
+
+	unk4       = model->mModelData->getVtxPosArray();
+	u32 vtxNum = model->mModelData->getVtxNum();
+	unk9       = 0;
+
+	switch (unk8 & 2) {
+	case 0: {
+		unk14    = new JGeometry::TVec3<s16>[vtxNum];
+		unk18[0] = new JGeometry::TVec3<s16>[vtxNum];
+		unk18[1] = new JGeometry::TVec3<s16>[vtxNum];
+		unk20    = new JGeometry::TVec3<s16>[vtxNum];
+		unk24    = 0;
+		unk26    = 0;
+
+		JGeometry::TVec3<s16>* original
+		    = (JGeometry::TVec3<s16>*)model->mModelData->getVtxPosArray();
+		for (u32 i = 0; i < vtxNum; ++i) {
+			unk14[i]    = original[i];
+			unk18[0][i] = original[i];
+			unk18[1][i] = original[i];
+			unk20[i].zero();
+		}
+		break;
+	}
+	case 2: {
+		unk28    = new JGeometry::TVec3<f32>[vtxNum];
+		unk2C[0] = new JGeometry::TVec3<f32>[vtxNum];
+		unk2C[1] = new JGeometry::TVec3<f32>[vtxNum];
+		unk34    = new JGeometry::TVec3<f32>[vtxNum];
+		unk38    = 0.0f;
+		unk3C    = 0.0f;
+
+		JGeometry::TVec3<f32>* original
+		    = (JGeometry::TVec3<f32>*)model->mModelData->getVtxPosArray();
+		for (u32 i = 0; i < vtxNum; ++i) {
+			unk28[i]    = original[i];
+			unk2C[0][i] = original[i];
+			unk2C[1][i] = original[i];
+			unk34[i].zero();
+		}
+		break;
+	}
+	}
+}
 
 void TTrembleModelEffect::tremble(f32 power, f32 spring, f32 damping,
                                   int frames)
