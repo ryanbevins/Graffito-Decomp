@@ -326,13 +326,12 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 
 		f32 stepY  = *(f32*)((u8*)this + 0x2C0);
 		f32 baseY  = -78.0f;
-		bool found = false;
 
-		for (int i = 0; !found && i < 9; ++i) {
-			for (int j = 0; !found && j < 2; ++j) {
+		for (int i = 0; i < 9; ++i) {
+			for (int j = 0; j < 2; ++j) {
 				JGeometry::TVec3<f32>* p = &samples[i + j * 9];
 				f32 yOff                 = 0.0f;
-				for (int k = 0; !found && k < 2; ++k) {
+				for (int k = 0; k < 2; ++k) {
 					JGeometry::TVec3<f32> query;
 					query.x = p->x;
 					query.y = p->y - yOff + baseY;
@@ -343,15 +342,12 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 					if (hit && hit->mBGType == 0x600) {
 						*(s16*)((u8*)this + 0x2CA) = hit->mData;
 						updateInHouseTimer(this);
-						found = true;
+						return;
 					}
 					yOff += stepY;
 				}
 			}
 		}
-
-		if (found)
-			return;
 
 		*(s16*)((u8*)this + 0x2CA) = -1;
 	}
