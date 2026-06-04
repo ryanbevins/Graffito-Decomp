@@ -154,7 +154,9 @@ TGoalWatermelon::TGoalWatermelon(const char* name)
     , unk138(0)
     , unk13C(0)
 {
-	zeroVec(unk140);
+	unk140.z = 0.0f;
+	unk140.y = 0.0f;
+	unk140.x = 0.0f;
 }
 
 void TGoalWatermelon::load(JSUMemoryInputStream& stream)
