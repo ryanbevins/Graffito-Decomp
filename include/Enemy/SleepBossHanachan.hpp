@@ -10,9 +10,9 @@ class TSleepBossHanachan : public TDemoBossHanachan {
 public:
 	TSleepBossHanachan(const char* name)
 	    : TDemoBossHanachan(name)
-	    , mFallPos(0.0f, 0.0f, 0.0f)
-	    , mMirrorActor(nullptr)
 	{
+		mFallPos.set(0.0f, 0.0f, 0.0f);
+		mMirrorActor = nullptr;
 	}
 
 	virtual void init(TLiveManager*);
@@ -29,10 +29,8 @@ public:
 class TSleepBossHanachanManager : public TDemoBossHanachanManager {
 public:
 	TSleepBossHanachanManager(const char* name)
-	    : TDemoBossHanachanManager(name)
+	    : TDemoBossHanachanManager(name, "/enemy/sleepBossHanachan.prm")
 	{
-		mSaveParams
-		    = new TDemoBossHanachanSaveParams("/enemy/sleepBossHanachan.prm");
 	}
 
 	virtual void createModelData();

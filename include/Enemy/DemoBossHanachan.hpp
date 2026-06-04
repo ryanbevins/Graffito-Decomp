@@ -31,6 +31,12 @@ public:
 	{
 	}
 
+	TDemoBossHanachanManager(const char* name, const char* prm)
+	    : TEnemyManager(name)
+	{
+		mSaveParams = new TDemoBossHanachanSaveParams(prm);
+	}
+
 	virtual void clipEnemies(JDrama::TGraphics*);
 
 public:
