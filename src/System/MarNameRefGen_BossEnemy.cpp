@@ -2,12 +2,17 @@
 #include <string.h>
 #include <Enemy/BathtubKiller.hpp>
 #include <Enemy/BathtubPeach.hpp>
+#include <Enemy/BossHanachan.hpp>
+#include <Enemy/BossManta.hpp>
 #include <Enemy/BossGesso.hpp>
 #include <Enemy/CoasterKiller.hpp>
 #include <Enemy/DemoBossHanachan.hpp>
+#include <Enemy/EMario.hpp>
 #include <Enemy/Enemy.hpp>
 #include <Enemy/EnemyManager.hpp>
 #include <Enemy/Hinokuri2.hpp>
+#include <Enemy/LimitKoopa.hpp>
+#include <Enemy/LimitKoopaJr.hpp>
 #include <Enemy/SleepBossHanachan.hpp>
 // Rogue includes for static init (matches original sinit block)
 #include <MSound/MSoundBGM.hpp>
@@ -18,162 +23,114 @@
 // Sizes are pinned to match what the original asm passed to operator new.
 class TBEelTears : public TSpineEnemy {
 public:
-	TBEelTears(const char* name) : TSpineEnemy(name) {}
+	TBEelTears(const char*);
 };
 
 class TBEelTearsManager : public JDrama::TNameRef {
 public:
 	TBEelTearsManager(const char*);
-	char _stub[0xc4];
+	char _stub[0xc0];
 };
 
 class TBossEel : public JDrama::TNameRef {
 public:
 	TBossEel(const char*);
-	char _stub[0x218];
+	char _stub[0x214];
+};
+
+class TBossEelSaveParams {
+public:
+	TBossEelSaveParams();
+	char _stub[0x2C4];
 };
 
 class TBossEelManager : public TEnemyManager {
 public:
-	TBossEelManager(const char* name) : TEnemyManager(name) {}
-};
+	TBossEelManager(const char* name)
+	    : TEnemyManager(name)
+	    , mSaveParams()
+	{
+	}
 
-class TBossHanachan : public JDrama::TNameRef {
-public:
-	TBossHanachan(const char*);
-	char _stub[0x1bc];
-};
-
-class TBossHanachanManager : public JDrama::TNameRef {
-public:
-	TBossHanachanManager(const char*);
-	char _stub[0x5c];
-};
-
-class TBossManta : public JDrama::TNameRef {
-public:
-	TBossManta(const char*);
-	char _stub[0x1a0];
-};
-
-class TBossMantaManager : public JDrama::TNameRef {
-public:
-	TBossMantaManager(const char*);
-	char _stub[0x90];
+	TBossEelSaveParams mSaveParams;
 };
 
 class TBossPakkun : public JDrama::TNameRef {
 public:
 	TBossPakkun(const char*);
-	char _stub[0x1c8];
+	char _stub[0x1c4];
 };
 
 class TBossPakkunManager : public JDrama::TNameRef {
 public:
 	TBossPakkunManager(const char*, int);
-	char _stub[0x50];
+	char _stub[0x4c];
 };
 
 class TBossTelesa : public JDrama::TNameRef {
 public:
 	TBossTelesa(const char*);
-	char _stub[0x384];
+	char _stub[0x380];
 };
 
 class TBossTelesaManager : public JDrama::TNameRef {
 public:
 	TBossTelesaManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TBossWanwan : public JDrama::TNameRef {
 public:
 	TBossWanwan(const char*);
-	char _stub[0x1b0];
+	char _stub[0x1ac];
 };
 
 class TBossWanwanManager : public JDrama::TNameRef {
 public:
 	TBossWanwanManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TBubbleManager : public JDrama::TNameRef {
 public:
 	TBubbleManager(const char*);
-	char _stub[0x58];
-};
-
-class TEMario : public JDrama::TNameRef {
-public:
-	TEMario(const char*);
-	char _stub[0x15c];
-};
-
-class TEMarioManager : public JDrama::TNameRef {
-public:
-	TEMarioManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x54];
 };
 
 class TKoopa : public JDrama::TNameRef {
 public:
 	TKoopa(const char*);
-	char _stub[0x1b4];
+	char _stub[0x1b0];
 };
 
 class TKoopaJr : public JDrama::TNameRef {
 public:
 	TKoopaJr(const char*);
-	char _stub[0x168];
+	char _stub[0x164];
 };
 
 class TKoopaJrManager : public JDrama::TNameRef {
 public:
 	TKoopaJrManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TKoopaJrSubmarine : public JDrama::TNameRef {
 public:
 	TKoopaJrSubmarine(const char*);
-	char _stub[0x1a4];
+	char _stub[0x1a0];
 };
 
 class TKoopaJrSubmarineManager : public JDrama::TNameRef {
 public:
 	TKoopaJrSubmarineManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TKoopaManager : public JDrama::TNameRef {
 public:
 	TKoopaManager(const char*);
-	char _stub[0x4c];
-};
-
-class TLimitKoopa : public JDrama::TNameRef {
-public:
-	TLimitKoopa(const char*);
-	char _stub[0x1c0];
-};
-
-class TLimitKoopaJr : public JDrama::TNameRef {
-public:
-	TLimitKoopaJr(const char*);
-	char _stub[0x174];
-};
-
-class TLimitKoopaJrManager : public JDrama::TNameRef {
-public:
-	TLimitKoopaJrManager(const char*);
-	char _stub[0x4c];
-};
-
-class TLimitKoopaManager : public JDrama::TNameRef {
-public:
-	TLimitKoopaManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TOilBall : public TBEelTears {
@@ -185,13 +142,13 @@ public:
 class TTinKoopa : public JDrama::TNameRef {
 public:
 	TTinKoopa(const char*);
-	char _stub[0x1f4];
+	char _stub[0x1f0];
 };
 
 class TTinKoopaManager : public JDrama::TNameRef {
 public:
 	TTinKoopaManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 JDrama::TNameRef* TMarNameRefGen::getNameRef_BossEnemy(const char* name) const
@@ -269,7 +226,7 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_BossEnemy(const char* name) const
 	if (strcmp(name, "BossPakkunManager") == 0)
 		return new TBossPakkunManager("ボスパックンマネージャー", 0);
 	if (strcmp(name, "KBossPakkunManager") == 0)
-		return new TBossPakkunManager("ボスパックン軽マネージャ", 0);
+		return new TBossPakkunManager("ボスパックン軽マネージャ", 1);
 	if (strcmp(name, "BossTelesa") == 0)
 		return new TBossTelesa("ボステレサ");
 	if (strcmp(name, "BossTelesaManager") == 0)
