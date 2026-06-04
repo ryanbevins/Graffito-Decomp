@@ -96,11 +96,12 @@ void TMario::animSound()
 	mSoundFlags = mGroundPlane->unk6;
 	u32 state   = mState;
 
-	if (state & 0x40) {
+	bool hasState40 = (state & 0x40) ? true : false;
+	if (hasState40) {
 		if (unk350 == 0) {
 			f32 limit = (f32)*(s16*)((u8*)this + 0x2428)
 			            * *(f32*)((u8*)this + 0x24dc);
-			if (unk368 <= limit) {
+			if (unk368 >= limit) {
 				mSoundFlags |= 0x600;
 			} else {
 				mSoundFlags |= 0x500;
@@ -109,22 +110,27 @@ void TMario::animSound()
 			mSoundFlags |= 0x500;
 		}
 	} else {
-		bool wetGround = false;
-		if (state & 0x10) {
-			wetGround = true;
-		} else {
+		bool wetGround = (state & 0x10) ? true : false;
+		if (!wetGround) {
 			u16 bgType = mGroundPlane->mBGType;
+			bool wetBGType;
 			if (bgType == BG_TYPE_WET_GROUND
 			    || bgType == BG_TYPE_SHADED_WET_GROUND
 			    || bgType == BG_TYPE_CAM_NOCLIP_WET_GROUND
-			    || bgType == BG_TYPE_CAM_NOCLIP_SHADED_WET_GROUND)
+			    || bgType == BG_TYPE_CAM_NOCLIP_SHADED_WET_GROUND) {
+				wetBGType = true;
+			} else {
+				wetBGType = false;
+			}
+			if (wetBGType)
 				wetGround = true;
 		}
 		if (wetGround)
 			mSoundFlags |= 0x700;
 	}
 
-	if (state & 0x30000) {
+	bool hasState30000 = (state & 0x30000) ? true : false;
+	if (hasState30000) {
 		if (*(f32*)((u8*)this + 0xf0) - mPosition.y > 30.0f)
 			mSoundFlags |= 0x200;
 		else
@@ -132,7 +138,8 @@ void TMario::animSound()
 	}
 
 	f32 speed = unk368;
-	if (speed > 0.0f) {
+	BOOL hasSpeed = speed > 0.0f ? TRUE : FALSE;
+	if (hasSpeed) {
 		f32 frameCount = (f32)*(s16*)((u8*)this + 0x2428);
 		f32 scaled     = -(speed / frameCount) * *(f32*)((u8*)this + 0x2450);
 		if (scaled > 30.0f)
@@ -142,14 +149,17 @@ void TMario::animSound()
 	}
 
 	THitActor* held = *(THitActor**)((u8*)this + 0x68);
-	bool holdingTurboNozzle = false;
-	if (held && held->mActorType == 0x40000098)
+	bool holdingTurboNozzle;
+	if (held != nullptr && held->mActorType == 0x40000098)
 		holdingTurboNozzle = true;
+	else
+		holdingTurboNozzle = false;
 
 	if (holdingTurboNozzle)
 		mSoundFlags |= 0x15;
 
-	if (!(state & 0x8000))
+	bool hasState8000 = (state & 0x8000) ? true : false;
+	if (!hasState8000)
 		mSoundFlags |= 0x1000;
 
 	if (unk388 == 1)
