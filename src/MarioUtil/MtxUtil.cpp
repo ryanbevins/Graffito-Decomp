@@ -455,27 +455,25 @@ void TRope::collision()
 		if (point.mFlags & 1)
 			continue;
 
+		JGeometry::TVec3<f32>& pos = point.mPosition;
 		const TBGCheckData* checkData;
-		f32 roof = gpMap->checkRoof(point.mPosition.x,
-		                            point.mPosition.y + mCollisionRadius,
-		                            point.mPosition.z, &checkData);
+		f32 roof = gpMap->checkRoof(pos.x, pos.y + mCollisionRadius, pos.z,
+		                            &checkData);
 		if (checkData != nullptr && !checkData->isIllegalData()
-		    && point.mPosition.y + mCollisionRadius > roof) {
-			point.mPosition.y = roof - 2.0f * mCollisionRadius;
+		    && pos.y + mCollisionRadius > roof) {
+			pos.y = roof - 2.0f * mCollisionRadius;
 		}
 
-		f32 ground = gpMap->checkGround(point.mPosition.x,
-		                                point.mPosition.y + mCollisionRadius,
-		                                point.mPosition.z, &checkData);
+		f32 ground
+		    = gpMap->checkGround(pos.x, pos.y + mCollisionRadius, pos.z,
+		                         &checkData);
 		ground += 3.0f;
-		if (checkData != nullptr && !checkData->isIllegalData()
-		    && point.mPosition.y < ground) {
-			point.mPosition.y = ground;
+		if (!checkData->isIllegalData() && pos.y < ground) {
+			pos.y = ground;
 		}
 
-		gpMap->isTouchedOneWallAndMoveXZ(&point.mPosition.x, point.mPosition.y,
-		                                 &point.mPosition.z,
-		                                 mCollisionRadius);
+		f32 radius = mCollisionRadius;
+		gpMap->isTouchedOneWallAndMoveXZ(&pos.x, pos.y, &pos.z, radius);
 	}
 }
 
