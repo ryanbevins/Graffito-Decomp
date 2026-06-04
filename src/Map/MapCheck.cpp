@@ -368,17 +368,18 @@ static bool bgIntersectLine(const TBGCheckData* data,
 	if (data->isMarioThrough())
 		return false;
 
+	JGeometry::TVec3<f32> normal(data->mNormal);
 	JGeometry::TVec3<f32> dir(end);
 	dir.sub(start);
 
-	f32 denom = data->mNormal.dot(dir);
+	f32 denom = normal.dot(dir);
 	if (ignore_back_faces && denom >= 0.0f)
 		return false;
 
 	if (fabsf(denom) < 0.00001f)
 		return false;
 
-	f32 t = -(data->mPlaneDistance + data->mNormal.dot(start)) / denom;
+	f32 t = -(data->mPlaneDistance + normal.dot(start)) / denom;
 	if (t < 0.0f || t > 1.0f)
 		return false;
 
