@@ -351,11 +351,9 @@ void SMS_MakeJointsToArc(J3DModel* model,
 	for (u16 i = 0; i < count; ++i) {
 		f32 t = (f32)i / (f32)(count - 1);
 		JGeometry::TVec3<f32> axisA;
-		axisA = dir;
-		axisA.scale(t);
+		axisA = dir * t;
 		JGeometry::TVec3<f32> axisB;
-		axisB = upDir;
-		axisB.scale(1.0f - t);
+		axisB = upDir * (1.0f - t);
 		JGeometry::TVec3<f32> axis;
 		axis = axisA;
 		axis.add(axisB);
@@ -553,8 +551,7 @@ void TRope::moveHead(const JGeometry::TVec3<f32>& head)
 		JGeometry::TVec3<f32> velocity;
 		velocity = point.mPosition;
 		velocity.sub(point.mPrevPos);
-		velocity.scale(mVelocityScale);
-		point.mVelocity = velocity;
+		point.mVelocity = velocity * mVelocityScale;
 		point.mPrevPos  = point.mPosition;
 	}
 }

@@ -36,6 +36,26 @@ them in future ticks.
 
 ## Settled
 
+### By-value `TVec3<float>` scalar multiply preserves weak `scale(float)` call boundaries
+
+**Rule.** When target asm copies a `TVec3<float>` to a stack temp, loads a
+scalar into `f1`, calls weak `JGeometry::TVec3<float>::scale(float)`, then
+copies the temp to the destination, write the source as scalar multiplication
+through the by-value friend operator: `dst = src * scalar` or
+`tmp = src * scalar`. Direct `tmp = src; tmp.scale(scalar);` often inlines the
+three `fmuls/stfs` pairs and can leave the weak owner missing. This is a
+natural expression-level lever, not a reason to force weak emission globally.
+
+**Citations.**
+- `mario/Enemy/Tongue` `TTongue::emit` / `movement` (t170): switching fixed
+  vector math to friend operators recovered target `scale` / `sub` / `add`
+  call boundaries and moved `emit` `57% -> 87%`.
+- `mario/MarioUtil/MtxUtil` (t403): `TRope::moveHead` and
+  `SMS_MakeJointsToArc` use `velocity * mVelocityScale`, `dir * t`, and
+  `upDir * (1.0f - t)` to emit the TU-local weak
+  `TVec3<float>::scale(float)` owner and move the functions `43.1% -> 54.4%`
+  and `51.7% -> 59.7%`.
+
 ### Explicit `== true` after a materialized bool forces a compare-to-1 retest
 
 **Rule.** Once source shape has forced MWCC to materialize a bool into a 0/1
