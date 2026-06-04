@@ -7726,6 +7726,24 @@ confirmed in ≥2 TUs._
 
 ## Refuted / wrong turns
 
+### Out-of-class redeclaration of `TUtil<f32>::sqrt` does not inhibit header-body inlining
+
+**Symptom (t397, `mario/Player/MarioSound`
+`TMario::soundTorocco`).** Target calls
+`sqrt__Q29JGeometry8TUtil<f>Ff` after computing the squared distance, while the
+current source's `distVec.length()` inlines the `frsqrte` Newton-Raphson body.
+
+**Tried & REFUTED:** adding a TU-local out-of-class redeclaration
+`namespace JGeometry { f32 TUtil<f32>::sqrt(f32); }` after including
+`JGUtil.hpp` compiled cleanly but produced byte-identical output: `soundTorocco`
+stayed 75.1% and still inlined the `frsqrte` body. A plain redeclaration of an
+already-defined static member does not hide the inline class-body definition
+from MWCC's call-site inline decision.
+
+**Conclusion.** This is not a per-TU declaration-order lever. Future sqrt-call
+experiments need a different call-site source shape or an inline-budget lever;
+do not retry the out-of-class redeclaration alone.
+
 ### Explicit specialization declaration for `TRotation3<TMatrix33>::setRotate` is not a drop-in fix for `camerashake`
 
 **Symptom (t380, `mario/Camera/camerashake`
