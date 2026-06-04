@@ -561,9 +561,7 @@ void TRope::moveHead(const JGeometry::TVec3<f32>& head)
 
 	for (int i = 0; i < mNumPoints; ++i) {
 		TRopePoint& point = mPoints[i];
-		JGeometry::TVec3<f32> velocity;
-		velocity = point.mPosition;
-		velocity.sub(point.mPrevPos);
+		JGeometry::TVec3<f32> velocity = point.mPosition - point.mPrevPos;
 		point.mVelocity = velocity * mVelocityScale;
 		point.mPrevPos  = point.mPosition;
 	}
