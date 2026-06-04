@@ -181,7 +181,38 @@ void TTrembleModelEffect::clash(f32) { }
 
 void TTrembleModelEffect::movement() { }
 
-void TTrembleModelEffect::reset() { }
+void TTrembleModelEffect::reset()
+{
+	if ((unk8 & 2) == 0) {
+		JGeometry::TVec3<s16>* original
+		    = (JGeometry::TVec3<s16>*)unk4;
+
+		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
+			unk20[i].zero();
+			unk14[i] = original[i];
+			unk18[i] = original[i];
+			unk1C[i] = original[i];
+		}
+	} else {
+		JGeometry::TVec3<f32>* original
+		    = (JGeometry::TVec3<f32>*)unk4;
+
+		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
+			unk34[i].zero();
+			unk28[i] = original[i];
+			unk2C[i] = original[i];
+			unk30[i] = original[i];
+		}
+	}
+
+	unk8 &= ~1;
+	GXInvalidateVtxCache();
+
+	unk0->mModelData->mVertexData.mVtxPosArray = unk4;
+	unk0->mVertexBuffer->unk4[0]               = unk4;
+	unk0->mVertexBuffer->unk4[1]               = unk4;
+	unk0->mVertexBuffer->unk2C                 = unk4;
+}
 
 void SMS_AddDamageFogEffect(J3DModelData* modelData,
                             const JGeometry::TVec3<f32>& position,
