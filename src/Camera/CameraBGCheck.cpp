@@ -267,25 +267,13 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 
 	if (needsRecalc) {
 		bool skip = false;
-		if (getTrackPos(this)->z > 0.3f) {
+		if (getTrackPos(this)->z > 0.3f
+		    || (isTalkCameraSpecifyMode(mMode) && !isNowInbetween() ? true
+		                                                            : false)
+		    || (isLButtonCameraSpecifyMode(mMode) && !isNowInbetween()
+		            ? true
+		            : false)) {
 			skip = true;
-		} else {
-			bool kill = false;
-			if (isTalkCameraSpecifyMode(mMode)) {
-				if (!isNowInbetween())
-					kill = true;
-			}
-			if (kill ? true : false) {
-				skip = true;
-			} else {
-				kill = false;
-				if (isLButtonCameraSpecifyMode(mMode)) {
-					if (!isNowInbetween())
-						kill = true;
-				}
-				if (kill ? true : false)
-					skip = true;
-			}
 		}
 
 		if (skip) {
