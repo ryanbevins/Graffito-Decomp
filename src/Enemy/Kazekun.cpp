@@ -389,7 +389,7 @@ const char** TKazekun::getBasNameTable() const { return Kazekun_bastable; }
 
 void TKazekun::setDeadAnm()
 {
-	mMActor->getFrameCtrl(1)->init(1);
+	mMActor->getFrameCtrl(0)->init(1);
 	mMActor->getFrameCtrl(0)->setFrame(0.0f);
 }
 
