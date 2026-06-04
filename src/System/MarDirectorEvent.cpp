@@ -23,14 +23,6 @@ const char* cCameraBckNameGate = "/common/camera/camera_demo_gate_in";
 
 void TMarDirector::entryNPC(TBaseNPC* npc) { unk88.push_back(npc); }
 
-void isNearMapObj(const JDrama::TActor&, const char*, f32) { }
-
-void is3BarrelNear(const TBaseNPC&) { }
-
-void TMarDirector::getTalkMsgID(TBaseNPC*) { }
-
-void TMarDirector::updateFlag(TBaseNPC*, u32, u32) { }
-
 TBaseNPC* TMarDirector::findNearestTalkNPC()
 {
 	TBaseNPC* result = nullptr;
@@ -60,20 +52,6 @@ TBaseNPC* TMarDirector::findNearestTalkNPC()
 	return result;
 }
 
-TBaseNPC* TMarDirector::findNearestTakeNPC()
-{
-	TBaseNPC* result = nullptr;
-	JGadget::TVector_pointer<TBaseNPC>::iterator it;
-
-	for (it = unk88.begin(); it != unk88.end(); ++it) {
-		TBaseNPC* npc = *it;
-
-		if (npc->isNowCanTaken() && gpMarioOriginal->isTakeSituation(npc))
-			result = npc;
-	}
-	return result;
-}
-
 void TMarDirector::movement_game()
 {
 	unk84->associateNPC(nullptr);
@@ -93,7 +71,14 @@ void TMarDirector::movement_game()
 	}
 
 	if (!bVar1) {
-		TBaseNPC* takeNpc = findNearestTakeNPC();
+		TBaseNPC* takeNpc = nullptr;
+		JGadget::TVector_pointer<TBaseNPC>::iterator it;
+		for (it = unk88.begin(); it != unk88.end(); ++it) {
+			TBaseNPC* npc = *it;
+			if (npc->isNowCanTaken() && gpMarioOriginal->isTakeSituation(npc))
+				takeNpc = npc;
+		}
+
 		if (takeNpc != nullptr) {
 			unk84->associateNPC(takeNpc);
 		} else {
@@ -171,10 +156,6 @@ void TMarDirector::fireRideYoshi(TYoshi* yoshi)
 	unk261 = 5;
 }
 
-void TMarDirector::fireDefeatEnemy(TSpineEnemy*) { }
-
-void TMarDirector::fireDemoMovie(u32, TLiveActor*) { }
-
 void TMarDirector::movement()
 {
 	switch (mState) {
@@ -220,8 +201,6 @@ void TMarDirector::setNextStage(u16 param_1, JDrama::TActor* param_2)
 	}
 }
 #pragma dont_inline off
-
-void TMarDirector::fireStageEvent(TMapObjBase*) { }
 
 #pragma dont_inline on
 void TMarDirector::fireStartDemoCamera(const char* param_1,
