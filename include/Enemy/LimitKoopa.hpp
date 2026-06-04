@@ -113,6 +113,7 @@ public:
 	/* 0x15C */ JGeometry::TVec3<f32> mFallVelocity;
 	/* 0x168 */ u8 unk168;
 	/* 0x16C */ TDirectionCalc mDirection;
+	/* 0x170 */ f32 unk170;
 	/* 0x174 */ s32 unk174;
 	/* 0x178 */ THitActor* mFlameHitActors[10];
 	/* 0x1A0 */ THitActor* unk1A0;

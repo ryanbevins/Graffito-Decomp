@@ -4,9 +4,7 @@
 #include <JSystem/JGeometry/JGVec3.hpp>
 #include <dolphin/types.h>
 
-// Defined in koopajr.cpp (currently a stub). Forward signatures only -
-// limitkoopajr embeds two TDirectionCalc instances and references the
-// member functions but does not implement them.
+// Defined in koopajr.cpp (currently a stub). Forward signatures only.
 class TDirectionCalc {
 public:
 	TDirectionCalc();
@@ -25,7 +23,6 @@ public:
 
 public:
 	/* 0x0 */ f32 mDirection;
-	/* 0x4 */ f32 mLength;
 };
 
 #endif

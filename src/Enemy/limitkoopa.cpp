@@ -292,7 +292,7 @@ void TLimitKoopa::init(TLiveManager* manager)
 	if (mMActor->getAnmBck())
 		mMActor->getAnmBck()->initSimpleMotionBlend(0x10);
 
-	mDirection.mLength = 0.0f;
+	unk170 = 0.0f;
 
 	reset();
 

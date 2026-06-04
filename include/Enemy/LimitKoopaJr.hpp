@@ -51,6 +51,7 @@ public:
 	/* 0x160 */ JGeometry::TVec3<f32> mShotVelocity;
 	/* 0x16C */ f32 unk16C;
 	/* 0x170 */ TDirectionCalc mDirection1;
+	/* 0x174 */ f32 mRoundRadius;
 	/* 0x178 */ TDirectionCalc mDirection2;
 };
 
