@@ -173,8 +173,6 @@ void TSilhouette::perform(u32 param_1, JDrama::TGraphics* param_2)
 	}
 }
 
-void TSilhouette::calcSilhouetteBorder() { }
-
 void TTrembleModelEffect::init(J3DModel* model)
 {
 	unk0  = model;
@@ -683,8 +681,6 @@ BOOL ViewFrustumClipCheck(JDrama::TGraphics* gfx, Vec* position, f32 radius)
 	return true;
 }
 
-void ViewFrustumRectClipCheck(JDrama::TGraphics*, Vec*, f32, f32) { }
-
 int SMS_CountPolygonNumInShape(J3DShape* shape)
 {
 	u32 attrSizes[4] = { 0, 1, 1, 2 };
@@ -716,23 +712,6 @@ int SMS_CountPolygonNumInShape(J3DShape* shape)
 	}
 
 	return polygonCount;
-}
-
-void SMS_CountPolygonNumInModelData(J3DModelData*) { }
-
-void makeCollisionIndexList(u32, JGeometry::TVec3<u16>*) { }
-
-void SMS_CreatePolygonOrderListInShape(J3DShape*, JGeometry::TVec3<u16>*) { }
-
-void SMS_CreatePolygonOrderListInModelData(J3DModelData*,
-                                           JGeometry::TVec3<u16>*)
-{
-}
-
-void SMS_DrawBillboardLine(const JDrama::TGraphics*,
-                           const JGeometry::TVec3<f32>*, int, int, f32,
-                           const _GXColor*)
-{
 }
 
 void SMS_DrawCube(const JGeometry::TVec3<f32>& min,
@@ -816,23 +795,6 @@ void SMS_ShowJoint(J3DMaterial* param_1, bool param_2)
 	}
 }
 
-void MsWireInit(_GXVtxFmt) { }
-
-void MsDrawCube(const JGeometry::TVec3<f32>&, f32, _GXColor) { }
-
-void MsDrawAxis(MtxPtr, f32) { }
-
-void SMS_DrawBeamAux(int) { }
-
-void SMS_DrawConeBeam(const JGeometry::TVec3<f32>&,
-                      const JGeometry::TVec3<f32>&, f32, int, const _GXColor&)
-{
-}
-
-void SMS_DrawHorzCircle(const JGeometry::TVec3<f32>&, f32, int, const _GXColor&)
-{
-}
-
 void SMS_CalcMatAnmAndMakeDL(J3DModel* param_1, u16 param_2)
 {
 	J3DMaterial* mat = param_1->getModelData()->getMaterialNodePointer(param_2);
@@ -840,8 +802,6 @@ void SMS_CalcMatAnmAndMakeDL(J3DModel* param_1, u16 param_2)
 	j3dSys.setMatPacket(param_1->getMatPacket(param_2));
 	mat->makeDisplayList();
 }
-
-void SMS_CopyMaterialToSort(J3DMaterial*, J3DModel*, u16) { }
 
 void SMS_UnifyMaterial(J3DModel* param_1)
 {
