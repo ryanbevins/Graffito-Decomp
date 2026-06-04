@@ -1,15 +1,19 @@
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Camera/Camera.hpp>
 #include <Camera/SunMgr.hpp>
 #include <Map/JointModel.hpp>
 #include <Map/PollutionManager.hpp>
 #include <Map/PollutionLayer.hpp>
+#include <System/MarDirector.hpp>
 #include <System/TexCache.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
+#include <JSystem/JMath.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
+#include <JSystem/J3D/J3DGraphBase/Blocks/J3DPEBlocks.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DMaterialAnm.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
@@ -179,12 +183,41 @@ void TTrembleModelEffect::movement() { }
 
 void TTrembleModelEffect::reset() { }
 
-void SMS_AddDamageFogEffect(J3DModelData*, const JGeometry::TVec3<f32>&,
-                            JDrama::TGraphics*)
+void SMS_AddDamageFogEffect(J3DModelData* modelData,
+                            const JGeometry::TVec3<f32>& position,
+                            JDrama::TGraphics* graphics)
 {
+	Vec viewPos;
+	MTXMultVec(graphics->mViewMtx, (Vec*)&position, &viewPos);
+
+	f32 startZ = -700.0f;
+	f32 endZ   = 500.0f;
+	f32 sin    = jmaSinTable[((u16)(gpMarDirector->unk58 * 0x888))
+	                       >> jmaSinShift];
+	f32 startOffset = (-400.0f - startZ) * sin;
+	f32 endOffset   = (800.0f - endZ) * sin;
+
+	for (u16 i = 0; i < modelData->getMaterialNum(); ++i) {
+		J3DFog* fog
+		    = modelData->getMaterialNodePointer(i)->getPEBlock()->getFog();
+		fog->mStartZ = -viewPos.z + startZ + startOffset;
+		fog->mEndZ   = -viewPos.z + endZ + endOffset;
+		fog->mNearZ  = gpCamera->mNear;
+		fog->mFarZ   = gpCamera->mFar;
+	}
 }
 
-void SMS_ResetDamageFogEffect(J3DModelData*) { }
+void SMS_ResetDamageFogEffect(J3DModelData* modelData)
+{
+	for (u16 i = 0; i < modelData->getMaterialNum(); ++i) {
+		J3DFog* fog
+		    = modelData->getMaterialNodePointer(i)->getPEBlock()->getFog();
+		fog->mNearZ = gpCamera->mNear;
+		fog->mFarZ  = gpCamera->mFar;
+		fog->mEndZ  = fog->mFarZ;
+		fog->mStartZ = fog->mEndZ - 1.0f;
+	}
+}
 
 // fabricated
 struct Plane {
