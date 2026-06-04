@@ -205,34 +205,28 @@ bool CPolarSubCamera::isNeedRoofCheck_() const
 bool CPolarSubCamera::isNeedGroundCheck_()
 {
 	bool result = true;
-	if (mMode != 0x49) {
-		bool kill = false;
-		if (isLButtonCameraSpecifyMode(mMode)) {
-			if (!isNowInbetween())
-				kill = true;
-		}
-		if ((kill ? true : false) || isRailCameraSpecifyMode(mMode)
-		    || mMode == 2 || *(u16*)((u8*)this + 0x278) != 0) {
-			result = false;
-		} else if (mMode != 0x2A) {
-			if (isNormalCameraSpecifyMode(mMode)
-			    || isTowerCameraSpecifyMode(mMode)) {
-				TCameraKindParam* pad = getActiveKindParam(this);
-				f32 sX                = pad->unk08 * JMASSin(pad->unk18);
-				f32 sY                = pad->unk0C * JMASSin(pad->unk1A);
-				f32 dy                = mPosition.y - mTarget.y;
-				f32 mx                = sX;
-				if (sX <= sY)
-					mx = sY;
-				if (dy > 1.25f * mx) {
-					result = false;
-					if (*(u16*)((u8*)this + 0x278) < 0x78)
-						*(u16*)((u8*)this + 0x278) = 0x78;
-				}
+	if (mMode == 0x49
+	    || (isLButtonCameraSpecifyMode(mMode) && !isNowInbetween() ? true
+	                                                               : false)
+	    || isRailCameraSpecifyMode(mMode) || mMode == 2
+	    || *(u16*)((u8*)this + 0x278) != 0) {
+		result = false;
+	} else if (mMode != 0x2A) {
+		if (isNormalCameraSpecifyMode(mMode)
+		    || isTowerCameraSpecifyMode(mMode)) {
+			TCameraKindParam* pad = getActiveKindParam(this);
+			f32 sX                = pad->unk08 * JMASSin(pad->unk18);
+			f32 sY                = pad->unk0C * JMASSin(pad->unk1A);
+			f32 dy                = mPosition.y - mTarget.y;
+			f32 mx                = sX;
+			if (sX <= sY)
+				mx = sY;
+			if (dy > 1.25f * mx) {
+				result = false;
+				if (*(u16*)((u8*)this + 0x278) < 0x78)
+					*(u16*)((u8*)this + 0x278) = 0x78;
 			}
 		}
-	} else {
-		result = false;
 	}
 	return result;
 }
