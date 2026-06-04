@@ -141,7 +141,6 @@ public:
 	/* 0x16E */ u16 unk16E;
 	/* 0x170 */ u16 unk170;
 	/* 0x172 */ u16 unk172;
-	/* 0x174 */ TMapObjBase* unk174;
 };
 
 class THideObjPictureTwin : public TWaterHitPictureHideObj {
@@ -154,6 +153,7 @@ public:
 	virtual Vec* getObjAppearPos() const;
 
 public:
+	/* 0x174 */ TMapObjBase* unk174;
 	/* 0x178 */ char unk178[0x19];
 };
 

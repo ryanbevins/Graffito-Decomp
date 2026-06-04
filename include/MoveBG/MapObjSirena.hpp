@@ -9,6 +9,7 @@ class TPictureTelesa : public TWaterHitPictureHideObj {
 public:
 	TPictureTelesa(const char* name)
 	    : TWaterHitPictureHideObj(name)
+	    , unk174(0)
 	{
 	}
 
