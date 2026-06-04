@@ -799,7 +799,7 @@ public:
 	                        int damageAnimType, int waterEmit,
 	                        f32 knockbackSpeed, int rumbleFrames,
 	                        f32 pollutionAmount, s16 invincibilityFrames);
-	virtual void getVoiceStatus();
+	virtual u32 getVoiceStatus();
 	virtual void drawSyncCallback(u16);
 
 	BOOL actnMain();
@@ -1286,8 +1286,8 @@ public:
 	// void getNozzle(THitActor*, TWaterGun::TNozzleType);
 	void startSoundActor(u32);
 	void stopVoice();
-	void startVoiceIfNoVoice(u32);
-	void startVoice(u32);
+	u32 startVoiceIfNoVoice(u32);
+	u32 startVoice(u32);
 	void soundTorocco();
 	void soundHitBound();
 	void animSound();

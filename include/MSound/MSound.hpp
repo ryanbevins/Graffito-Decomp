@@ -100,7 +100,7 @@ public:
 	                                 u32, u8);
 	JAISound* startBeeSe(Vec*, u32);
 
-	void startMarioVoice(u32, s16, u8);
+	u32 startMarioVoice(u32, s16, u8);
 	void stopMarioVoice(u32, u8);
 	u8 getMarioVoiceID(u8);
 	bool checkMarioVoicePlaying(u8);

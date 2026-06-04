@@ -414,7 +414,7 @@ void MSound::setSeExtParameter(JAISound* sound) { }
 
 void MSound::playTimer(u32 time) { }
 
-void MSound::startMarioVoice(u32 id, s16 param2, u8 param3) { }
+u32 MSound::startMarioVoice(u32 id, s16 param2, u8 param3) { return 0; }
 
 u8 MSound::getMarioVoiceID(u8 param) { return 0; }
 
