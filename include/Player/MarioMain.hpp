@@ -799,7 +799,7 @@ public:
 	                        int damageAnimType, int waterEmit,
 	                        f32 knockbackSpeed, int rumbleFrames,
 	                        f32 pollutionAmount, s16 invincibilityFrames);
-	virtual u32 getVoiceStatus();
+	virtual u8 getVoiceStatus();
 	virtual void drawSyncCallback(u16);
 
 	BOOL actnMain();

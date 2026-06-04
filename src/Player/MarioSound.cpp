@@ -36,18 +36,22 @@ void TMario::startSoundActor(u32 soundID)
 
 void TMario::stopVoice()
 {
-	gpMSound->stopMarioVoice(getVoiceStatus(), 0);
+	MSound* sound = gpMSound;
+	sound->stopMarioVoice(getVoiceStatus(), 0);
 }
 
 u32 TMario::startVoiceIfNoVoice(u32 soundID)
 {
-	if (gpMSound->getMarioVoiceID(0) != 0xffffffff)
-		return 0;
+	MSound* sound = gpMSound;
+	if (sound->getMarioVoiceID(0) == 0xffffffff) {
+		if (onYoshi())
+			return 0;
 
-	if (onYoshi())
-		return 0;
+		sound = gpMSound;
+		return sound->startMarioVoice(soundID, mHealth, getVoiceStatus());
+	}
 
-	return gpMSound->startMarioVoice(soundID, mHealth, getVoiceStatus());
+	return 0;
 }
 
 u32 TMario::startVoice(u32 soundID)
@@ -55,10 +59,11 @@ u32 TMario::startVoice(u32 soundID)
 	if (onYoshi())
 		return 0;
 
-	return gpMSound->startMarioVoice(soundID, mHealth, getVoiceStatus());
+	MSound* sound = gpMSound;
+	return sound->startMarioVoice(soundID, mHealth, getVoiceStatus());
 }
 
-u32 TMario::getVoiceStatus()
+u8 TMario::getVoiceStatus()
 {
 	if (onYoshi())
 		return 1;

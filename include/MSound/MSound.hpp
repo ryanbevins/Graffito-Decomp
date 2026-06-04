@@ -102,7 +102,7 @@ public:
 
 	u32 startMarioVoice(u32, s16, u8);
 	void stopMarioVoice(u32, u8);
-	u8 getMarioVoiceID(u8);
+	u32 getMarioVoiceID(u8);
 	bool checkMarioVoicePlaying(u8);
 
 	void playTimer(u32);

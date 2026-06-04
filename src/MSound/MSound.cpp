@@ -416,7 +416,7 @@ void MSound::playTimer(u32 time) { }
 
 u32 MSound::startMarioVoice(u32 id, s16 param2, u8 param3) { return 0; }
 
-u8 MSound::getMarioVoiceID(u8 param) { return 0; }
+u32 MSound::getMarioVoiceID(u8 param) { return 0; }
 
 void MSound::stopMarioVoice(u32 id, u8 param2) { }
 
