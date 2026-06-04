@@ -21,6 +21,11 @@ void MtxToQuat(MtxPtr, Quaternion*);
 
 class TMtxEffectBase {
 public:
+	TMtxEffectBase()
+	    : mFlags(0)
+	{
+	}
+
 	virtual TParams* getParams() { return nullptr; }
 
 	u16 mFlags;
@@ -75,15 +80,15 @@ public:
 		// no ctor exists in symbol map so weak inlined?
 		TDeParams(const char* prm)
 		    : TParams(prm)
-		    , PARAM_INIT(mAcc, JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f))
+		    , PARAM_INIT(mAcc, JGeometry::TVec3<f32>(0.0f, -4.0f, 0.0f))
 		    , PARAM_INIT(mL, 50.0f)
-		    , PARAM_INIT(mBrake, 0.9f)
+		    , PARAM_INIT(mBrake, 0.7f)
 		    , PARAM_INIT(mVelScale, 1.0f)
 		{
 			TParams::load(mPrmPath);
 		}
 
-		/* 0x08 */ TParamRT<JGeometry::TVec3<f32> > mAcc;
+		/* 0x08 */ TParamVec mAcc;
 		/* 0x24 */ TParamRT<f32> mL;
 		/* 0x38 */ TParamRT<f32> mBrake;
 		/* 0x4C */ TParamRT<f32> mVelScale;
@@ -161,6 +166,12 @@ void SMS_GetLightPerspectiveForEffectMtx(MtxPtr);
 class TRopePoint {
 public:
 	TRopePoint();
+
+	/* 0x00 */ JGeometry::TVec3<f32> mPrevPos;
+	/* 0x0C */ JGeometry::TVec3<f32> mPosition;
+	/* 0x18 */ JGeometry::TVec3<f32> mVelocity;
+	/* 0x24 */ f32 mSegmentLength;
+	/* 0x28 */ u32 mFlags;
 };
 
 class TRope {
@@ -172,6 +183,12 @@ public:
 	void moveHead(const JGeometry::TVec3<f32>&);
 	void moveHeadAndTail(const JGeometry::TVec3<f32>&,
 	                     const JGeometry::TVec3<f32>&);
+
+	/* 0x00 */ u16 mNumPoints;
+	/* 0x04 */ TRopePoint* mPoints;
+	/* 0x08 */ f32 mVelocityScale;
+	/* 0x0C */ f32 mAccelY;
+	/* 0x10 */ f32 mCollisionRadius;
 };
 
 void SMS_GetActorMtx(const THitActor&, MtxPtr);
