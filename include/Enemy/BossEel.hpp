@@ -1,9 +1,64 @@
 #ifndef ENEMY_BOSS_EEL_HPP
 #define ENEMY_BOSS_EEL_HPP
 
+#include <Enemy/Enemy.hpp>
+#include <Enemy/EnemyManager.hpp>
 #include <Strategic/Nerve.hpp>
 
 class TLiveActor;
+
+class TBossEel : public TSpineEnemy {
+public:
+	TBossEel(const char*);
+	virtual ~TBossEel();
+
+	/* 0x150 */ u8 unk150[0xD0];
+};
+
+class TBossEelSaveParams {
+public:
+	TBossEelSaveParams();
+
+	/* 0x000 */ u8 unk0[0x2C4];
+};
+
+class TBossEelManager : public TEnemyManager {
+public:
+	TBossEelManager(const char* name)
+	    : TEnemyManager(name)
+	    , mSaveParams()
+	{
+	}
+
+	virtual ~TBossEelManager();
+
+	/* 0x054 */ TBossEelSaveParams mSaveParams;
+};
+
+class TBEelTears : public TSpineEnemy {
+public:
+	TBEelTears(const char*);
+
+	/* 0x150 */ u8 unk150[0x20];
+};
+
+class TBEelTearsManager : public TEnemyManager {
+public:
+	TBEelTearsManager(const char*);
+	virtual ~TBEelTearsManager();
+
+	/* 0x054 */ u8 unk54[0x78];
+};
+
+class TOilBall : public TBEelTears {
+public:
+	TOilBall(const char* name)
+	    : TBEelTears(name)
+	{
+	}
+
+	virtual ~TOilBall();
+};
 
 DECLARE_NERVE(TNerveBEelTearsGenerate, TLiveActor);
 DECLARE_NERVE(TNerveBEelTearsMoveUp, TLiveActor);

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <Enemy/BathtubKiller.hpp>
 #include <Enemy/BathtubPeach.hpp>
+#include <Enemy/BossEel.hpp>
 #include <Enemy/BossHanachan.hpp>
 #include <Enemy/BossManta.hpp>
 #include <Enemy/BossGesso.hpp>
@@ -21,42 +22,6 @@
 
 static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
 static const char cDirtyTexName[]  = "H_ma_rak_dummy";
-
-// Forward declarations for classes whose headers don't exist yet.
-// Sizes are pinned to match what the original asm passed to operator new.
-class TBEelTears : public TSpineEnemy {
-public:
-	TBEelTears(const char*);
-};
-
-class TBEelTearsManager : public JDrama::TNameRef {
-public:
-	TBEelTearsManager(const char*);
-	char _stub[0xc0];
-};
-
-class TBossEel : public JDrama::TNameRef {
-public:
-	TBossEel(const char*);
-	char _stub[0x214];
-};
-
-class TBossEelSaveParams {
-public:
-	TBossEelSaveParams();
-	char _stub[0x2C4];
-};
-
-class TBossEelManager : public TEnemyManager {
-public:
-	TBossEelManager(const char* name)
-	    : TEnemyManager(name)
-	    , mSaveParams()
-	{
-	}
-
-	TBossEelSaveParams mSaveParams;
-};
 
 class TBossPakkun : public JDrama::TNameRef {
 public:
@@ -134,12 +99,6 @@ class TKoopaManager : public JDrama::TNameRef {
 public:
 	TKoopaManager(const char*);
 	char _stub[0x48];
-};
-
-class TOilBall : public TBEelTears {
-public:
-	TOilBall(const char* name) : TBEelTears(name) {}
-	char _stub[0x20];
 };
 
 class TTinKoopa : public JDrama::TNameRef {
