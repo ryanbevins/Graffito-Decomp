@@ -57,7 +57,3 @@ void JAIEntry::initSoundParameter(JAISound* param_1, JAISound** param_2,
 		return;
 	*param_2 = param_1;
 }
-
-BOOL JAIEntry::checkSoundHandle(JAISound** sound, JAISound* soundParam) { }
-
-void JAIEntry::checkAllSoundHandle(JAISound** sound) { }
