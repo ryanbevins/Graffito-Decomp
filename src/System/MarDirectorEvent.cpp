@@ -284,6 +284,7 @@ void TMarDirector::fireStreamingMovie(u8 param_1)
 		}
 		break;
 
+	case 12:
 	default:
 		if (!(unk4C & 0x100)) {
 			unk4C |= 0x100;
