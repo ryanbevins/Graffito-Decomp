@@ -1,9 +1,25 @@
 #ifndef ENEMY_BOSS_WANWAN_HPP
 #define ENEMY_BOSS_WANWAN_HPP
 
+#include <Enemy/Enemy.hpp>
+#include <Enemy/EnemyManager.hpp>
 #include <Strategic/Nerve.hpp>
 
 class TLiveActor;
+
+class TBossWanwan : public TSpineEnemy {
+public:
+	TBossWanwan(const char*);
+	virtual ~TBossWanwan();
+
+	/* 0x150 */ u8 unk150[0x68];
+};
+
+class TBossWanwanManager : public TEnemyManager {
+public:
+	TBossWanwanManager(const char*);
+	virtual ~TBossWanwanManager();
+};
 
 DECLARE_NERVE(TNerveBWGraphWander, TLiveActor);
 DECLARE_NERVE(TNerveBWRoll, TLiveActor);

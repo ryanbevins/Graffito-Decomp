@@ -6,6 +6,7 @@
 #include <Enemy/BossHanachan.hpp>
 #include <Enemy/BossManta.hpp>
 #include <Enemy/BossPakkun.hpp>
+#include <Enemy/BossWanwan.hpp>
 #include <Enemy/BossGesso.hpp>
 #include <Enemy/CoasterKiller.hpp>
 #include <Enemy/DemoBossHanachan.hpp>
@@ -40,18 +41,6 @@ public:
 class TBossTelesaManager : public JDrama::TNameRef {
 public:
 	TBossTelesaManager(const char*);
-	char _stub[0x48];
-};
-
-class TBossWanwan : public JDrama::TNameRef {
-public:
-	TBossWanwan(const char*);
-	char _stub[0x1ac];
-};
-
-class TBossWanwanManager : public JDrama::TNameRef {
-public:
-	TBossWanwanManager(const char*);
 	char _stub[0x48];
 };
 
