@@ -5,6 +5,7 @@
 #include <Enemy/BossEel.hpp>
 #include <Enemy/BossHanachan.hpp>
 #include <Enemy/BossManta.hpp>
+#include <Enemy/BossPakkun.hpp>
 #include <Enemy/BossGesso.hpp>
 #include <Enemy/CoasterKiller.hpp>
 #include <Enemy/DemoBossHanachan.hpp>
@@ -28,18 +29,6 @@ static const char* MtxCalcTypeName[] = {
 	"MActorMtxCalcType_Softimage クラシックスケールＯＦＦ",
 	"MActorMtxCalcType_MotionBlend モーションブレンド",
 	"MActorMtxCalcType_User ユーザー定義",
-};
-
-class TBossPakkun : public JDrama::TNameRef {
-public:
-	TBossPakkun(const char*);
-	char _stub[0x1c4];
-};
-
-class TBossPakkunManager : public JDrama::TNameRef {
-public:
-	TBossPakkunManager(const char*, int);
-	char _stub[0x4c];
 };
 
 class TBossTelesa : public JDrama::TNameRef {

@@ -1,9 +1,27 @@
 #ifndef ENEMY_BOSS_PAKKUN_HPP
 #define ENEMY_BOSS_PAKKUN_HPP
 
+#include <Enemy/Enemy.hpp>
+#include <Enemy/EnemyManager.hpp>
 #include <Strategic/Nerve.hpp>
 
 class TLiveActor;
+
+class TBossPakkun : public TSpineEnemy {
+public:
+	TBossPakkun(const char*);
+	virtual ~TBossPakkun();
+
+	/* 0x150 */ u8 unk150[0x80];
+};
+
+class TBossPakkunManager : public TEnemyManager {
+public:
+	TBossPakkunManager(const char*, int);
+	virtual ~TBossPakkunManager();
+
+	/* 0x54 */ s32 unk54;
+};
 
 DECLARE_NERVE(TNerveBPWait, TLiveActor);
 DECLARE_NERVE(TNerveBPCannon, TLiveActor);
