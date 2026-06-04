@@ -305,8 +305,8 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 		f32 fullH      = halfH * 2.0f;
 
 		JGeometry::TVec2<f32> halfPlane;
-		halfPlane.x = fullH * aspect;
 		halfPlane.y = fullH;
+		halfPlane.x = halfPlane.y * aspect;
 
 		S16Vec rotBuf[6];
 		CLBCalcNearNinePos(samples, rotBuf,
