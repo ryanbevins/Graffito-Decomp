@@ -226,10 +226,9 @@ static void initStage()
 void TMap::update()
 {
 	static Vec pos;
-	static bool init;
+	static s8 init;
 
-	u8 map      = gpMarDirector->mMap;
-	u8 scenario = gpMarDirector->unk7D;
+	u8 map = gpMarDirector->mMap;
 
 	switch (map) {
 	case 3:
@@ -244,22 +243,25 @@ void TMap::update()
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x3000, &pos, 0, nullptr, 0, 4);
 		break;
-	case 7: {
-		int areaNo = gpCubeArea->unk1C;
-		if (mWarp->unk8 != areaNo) {
-			if (areaNo != -1)
-				mWarp->changeModel(areaNo);
-			else if (scenario != 0)
-				mWarp->changeModel(3);
-		}
-		break;
-	}
 	case 8:
-		if (scenario == 1 || scenario == 3 || scenario == 5 || scenario == 7)
+		if (gpMarDirector->unk7D == 1 || gpMarDirector->unk7D == 3
+		    || gpMarDirector->unk7D == 5 || gpMarDirector->unk7D == 7)
 			gpMarioParticleManager->emit(
 			    0x156, (JGeometry::TVec3<f32>*)&gpMapObjManager->unk44, 1,
 			    this);
 		break;
+	case 7: {
+		TMapWarp* warp = mWarp;
+		int warpArea   = warp->unk8;
+		int areaNo = gpCubeArea->unk1C;
+		if (areaNo != warpArea) {
+			if (areaNo != -1)
+				warp->changeModel(areaNo);
+			else if (gpMarDirector->unk7D != 0)
+				warp->changeModel(3);
+		}
+		break;
+	}
 	default:
 		break;
 	}
@@ -270,32 +272,38 @@ void TMap::update()
 	CPolarSubCamera* camera = gpCamera;
 	bool demoCamera         = true;
 	if (!camera->isSimpleDemoCamera()) {
-		if (camera->mMode != 0x49)
+		bool modeDemo = camera->mMode == 0x49 ? demoCamera : false;
+		if (!modeDemo)
 			demoCamera = false;
 	}
 
-	if (demoCamera)
-		return;
+	bool isDemoCamera = demoCamera ? true : false;
+	if (!isDemoCamera) {
+		map = gpMarDirector->mMap;
+		if (map == 0x39)
+			return;
 
-	map = gpMarDirector->mMap;
-	if (map == 0x39 || map == 0x10)
-		return;
+		if (map == 0x10)
+			return;
 
-	if (SMS_CheckMarioFlag(0x2))
-		return;
-
-	f32 waterHeight
-	    = gpMapObjWave->getHeight(camera->unk124.x, camera->unk124.y,
-	                              camera->unk124.z);
-	if (waterHeight == camera->unk124.y || camera->unk124.y <= waterHeight) {
-		if (unk20 == 0) {
-			unk20 = 1;
-			MSSeCallBack::setWaterCameraFir(false);
-		}
-	} else {
-		if (unk20 != 0) {
-			unk20 = 0;
-			MSSeCallBack::setWaterCameraFir(true);
+		if (SMS_CheckMarioFlag(0x2) == false) {
+			JGeometry::TVec3<f32>* cameraPos = &gpCamera->unk124;
+			f32 cameraX                      = cameraPos->x;
+			f32 waterHeight
+			    = gpMapObjWave->getHeight(cameraX, cameraPos->y,
+			                              cameraPos->z);
+			f32 cameraY = gpCamera->unk124.y;
+			if (waterHeight == cameraY || cameraY > waterHeight) {
+				if (unk20 == 0) {
+					unk20 = 1;
+					MSSeCallBack::setWaterCameraFir(false);
+				}
+			} else {
+				if (unk20 != 0) {
+					unk20 = 0;
+					MSSeCallBack::setWaterCameraFir(true);
+				}
+			}
 		}
 	}
 }
