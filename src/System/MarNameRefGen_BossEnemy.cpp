@@ -6,6 +6,7 @@
 #include <Enemy/BossHanachan.hpp>
 #include <Enemy/BossManta.hpp>
 #include <Enemy/BossPakkun.hpp>
+#include <Enemy/BossTelesa.hpp>
 #include <Enemy/BossWanwan.hpp>
 #include <Enemy/BossGesso.hpp>
 #include <Enemy/CoasterKiller.hpp>
@@ -32,24 +33,6 @@ static const char* MtxCalcTypeName[] = {
 	"MActorMtxCalcType_Softimage クラシックスケールＯＦＦ",
 	"MActorMtxCalcType_MotionBlend モーションブレンド",
 	"MActorMtxCalcType_User ユーザー定義",
-};
-
-class TBossTelesa : public JDrama::TNameRef {
-public:
-	TBossTelesa(const char*);
-	char _stub[0x380];
-};
-
-class TBossTelesaManager : public JDrama::TNameRef {
-public:
-	TBossTelesaManager(const char*);
-	char _stub[0x48];
-};
-
-class TBubbleManager : public JDrama::TNameRef {
-public:
-	TBubbleManager(const char*);
-	char _stub[0x54];
 };
 
 JDrama::TNameRef* TMarNameRefGen::getNameRef_BossEnemy(const char* name) const
