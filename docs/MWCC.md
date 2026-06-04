@@ -5510,6 +5510,46 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### One short-circuit guard assigning a shared result block may avoid duplicate false/true assignment blocks
+
+**Hypothesis.** When several predicates all assign the same result value and
+target asm branches every successful predicate to one shared assignment block
+(`li result, 0` or `li result, 1`), write the source as one short-circuit guard
+with a single assignment body:
+
+```cpp
+bool result = true;
+if (mode == BAD || (helper() && !isNow() ? true : false) || otherBad)
+	result = false;
+```
+
+The nested equivalent:
+
+```cpp
+if (mode != BAD) {
+	if (helperBad)
+		result = false;
+} else {
+	result = false;
+}
+```
+
+can make MWCC emit a duplicate assignment block for the outer `else` even when
+the inner predicates already branch to a shared block. The same shape appears
+for a `skip = true` guard.
+
+**Observed.** `mario/Camera/CameraBGCheck` (t407): rewriting
+`isNeedRoofCheck_()` as one OR guard moved `95.7% -> 100%`; rewriting the
+analogous guard in `isNeedGroundCheck_()` moved `94.6% -> 96.9%`; rewriting
+`calcInHouseNo_()`'s suppression predicate as one OR guard moved
+`88.8% -> 90.2%`.
+
+**Experiment to confirm/refute.** Find an independent TU where target has one
+shared `li result, K` block for multiple guard predicates but source emits a
+duplicate outer-else assignment. Rewrite only the guard as one short-circuit
+condition with a single assignment body and verify whether the duplicate block
+disappears without changing helper-call order.
+
 ### Fixed small vector-angle reductions may need scalar locals, not stack `TVec3` temps, to keep point deltas in saved FPRs
 
 **Hypothesis.** When target asm computes a fixed number of vector
