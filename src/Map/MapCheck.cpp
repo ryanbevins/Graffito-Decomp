@@ -380,7 +380,9 @@ static bool bgIntersectLine(const TBGCheckData* data,
 		return false;
 
 	f32 t = -(data->mPlaneDistance + normal.dot(start)) / denom;
-	if (t < 0.0f || t > 1.0f)
+	if (t < 0.0f)
+		return false;
+	if (1.0f < t)
 		return false;
 
 	JGeometry::TVec3<f32> hit(start);
