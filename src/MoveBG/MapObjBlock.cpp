@@ -476,7 +476,7 @@ BOOL TSuperHipDropBlock::receiveMessage(THitActor* sender, u32 message)
 void TSuperHipDropBlock::loadAfter()
 {
 	THideObjBase::loadAfter();
-	if (strcmp("テレサブロック", mName) == 0) {
+	if (strcmp("モンテゲートブロック", mName) == 0) {
 		unk150 = 1;
 		if (TFlagManager::smInstance->getBool(0x1038C)) {
 			makeObjDead();
