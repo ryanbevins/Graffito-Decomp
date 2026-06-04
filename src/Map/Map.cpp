@@ -4,6 +4,24 @@
 #include <Map/MapWarp.hpp>
 #include <Map/MapXlu.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapEventMare.hpp>
+#include <Map/MapStaticObject.hpp>
+#include <MoveBG/MapObjBase.hpp>
+#include <MoveBG/MapObjManager.hpp>
+#include <MoveBG/MapObjOption.hpp>
+#include <MoveBG/MapObjWater.hpp>
+#include <MoveBG/MapObjWave.hpp>
+#include <Camera/Camera.hpp>
+#include <Camera/CubeManagerBase.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JGadget/std-list.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <MSound/MSound.hpp>
+#include <Player/MarioAccess.hpp>
+#include <System/EmitterViewObj.hpp>
+#include <System/MarDirector.hpp>
+#include <System/Particles.hpp>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -12,35 +30,275 @@
 
 TMap* gpMap;
 
-static void initOption() { }
-
-static void initSirena() { }
-
-static void initMonte() { }
-
-static void initMare() { }
-
-static void initPinnaParco() { }
-
-static void initPinnaBeach() { }
-
-static void initBianco() { }
-
-static void initDolpic() { }
-
-static void initStageCommon() { }
-
 #pragma dont_inline on
-static void initStage() { }
+static void initMonte()
+{
+	JDrama::TNameRef* root
+	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+	const char* indirectSceneName = "インダイレクトシーン";
+	JDrama::TNameRef* indirectScene = root->searchF(
+	    JDrama::TNameRef::calcKeyCode(indirectSceneName), indirectSceneName);
+
+	TMapStaticObj* waterIndirect = new TMapStaticObj("水インダイレクト");
+	waterIndirect->init("SeaIndirect");
+	JGadget::TList_pointer_void* list
+	    = (JGadget::TList_pointer_void*)((u8*)indirectScene + 0x10);
+	void* waterIndirectObj = waterIndirect;
+	list->insert(list->end(), waterIndirectObj);
+
+	u8 scenario = gpMarDirector->unk7D;
+	if (scenario == 0 || scenario == 2 || scenario == 5 || scenario == 6) {
+		SMS_LoadParticle("/scene/map/pollution/ms_newfire_b.jpa", 0x1DC);
+		SMS_LoadParticle("/scene/map/pollution/ms_newfire_a.jpa", 0x65);
+	}
+
+	if (scenario == 1 || scenario == 3 || scenario == 5 || scenario == 7)
+		SMS_LoadParticle("/scene/map/map/ms_monte_yuge.jpa", 0x156);
+}
+
+static void initMare()
+{
+	JDrama::TNameRef* root
+	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+	const char* mapGroupName = "マップグループ";
+	JDrama::TNameRef* mapGroup
+	    = root->searchF(JDrama::TNameRef::calcKeyCode(mapGroupName),
+	                    mapGroupName);
+	JGadget::TList_pointer_void* list
+	    = (JGadget::TList_pointer_void*)((u8*)mapGroup + 0x10);
+
+	if (gpMarDirector->unk7D == 5) {
+		TMapStaticObj* gate = new TMapStaticObj("マーレ５ＥＸゲート");
+		gate->init("Mare5ExGate");
+		void* gateObj = gate;
+		list->insert(list->end(), gateObj);
+	}
+
+	if (gpMarDirector->unk7D == 0) {
+		SMS_LoadParticle("/scene/map/map/ms_mare_objup_a.jpa", 0x69);
+		SMS_LoadParticle("/scene/map/map/ms_mare_objup_b.jpa", 0x1E5);
+	} else {
+		for (int i = 1; i < 8; ++i) {
+			TMapCollisionWarp* warp
+			    = TMapObjBase::newAndInitBuildingCollisionWarp(i, nullptr);
+			warp->setUp();
+		}
+	}
+
+	TMareEventDepressWall* first
+	    = new TMareEventDepressWall("イベント（マーレへこむ壁）");
+	first->init1stEvent();
+	void* firstObj = first;
+	list->insert(list->end(), firstObj);
+
+	TMareEventDepressWall* second
+	    = new TMareEventDepressWall("イベント（マーレへこむ壁）");
+	second->init2ndEvent();
+	void* secondObj = second;
+	list->insert(list->end(), secondObj);
+
+	TMareEventDepressWall* third
+	    = new TMareEventDepressWall("イベント（マーレへこむ壁）");
+	third->init3rdEvent();
+	void* thirdObj = third;
+	list->insert(list->end(), thirdObj);
+}
+
+static void initPinnaParco()
+{
+	J3DModel* model = new J3DModel(
+	    gpMap->getModelManager()->getJointModel(0)->getModelData(), 0, 1);
+	MActor* actor = new MActor(gpMap->getModelManager()->getMActorAnmData());
+	actor->setModel(model, 0);
+
+	TMapModelActor* modelActor
+	    = new TMapModelActor("ピンナ鏡用地形モデル");
+	modelActor->unk68 = actor;
+	TMapObjBase::joinToGroup("鏡シーン", modelActor);
+}
+
+static void initStageCommon()
+{
+	JDrama::TNameRef* root
+	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+	const char* indirectSceneName = "インダイレクトシーン";
+	JDrama::TNameRef* indirectScene = root->searchF(
+	    JDrama::TNameRef::calcKeyCode(indirectSceneName), indirectSceneName);
+
+	root = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+	const char* mapGroupName = "マップグループ";
+	root->searchF(JDrama::TNameRef::calcKeyCode(mapGroupName), mapGroupName);
+
+	u8 map = gpMarDirector->mMap;
+	if (map == 4 || map == 3 || map == 13 || map == 9 || map == 5 || map == 6
+	    || map == 20 || map <= 1) {
+		TMapStaticObj* waveFar = new TMapStaticObj("波（遠景）");
+		waveFar->init("sea");
+
+		TMapStaticObj* indirectWave = new TMapStaticObj("インダイレクト波");
+		indirectWave->init("SeaIndirect");
+		JGadget::TList_pointer_void* list
+		    = (JGadget::TList_pointer_void*)((u8*)indirectScene + 0x10);
+		void* indirectWaveObj = indirectWave;
+		list->insert(list->end(), indirectWaveObj);
+
+		TMapObjWaterFilter* waterFilter
+		    = new TMapObjWaterFilter("水中カメラフィルタ");
+		waterFilter->init();
+		void* waterFilterObj = waterFilter;
+		list->insert(list->end(), waterFilterObj);
+
+		TMapObjSeaIndirect* waterIndirect
+		    = new TMapObjSeaIndirect("水中カメラインダイレクト");
+		waterIndirect->init();
+		void* waterIndirectObj = waterIndirect;
+		list->insert(list->end(), waterIndirectObj);
+	}
+
+	if (map == 2) {
+		TMapObjSeaIndirect* waterIndirect
+		    = new TMapObjSeaIndirect("水中カメラインダイレクト");
+		waterIndirect->init();
+		JGadget::TList_pointer_void* list
+		    = (JGadget::TList_pointer_void*)((u8*)indirectScene + 0x10);
+		void* waterIndirectObj = waterIndirect;
+		list->insert(list->end(), waterIndirectObj);
+	}
+}
+
+static void initStage()
+{
+	if (gpMarDirector->unk7D > 9)
+		return;
+
+	initStageCommon();
+
+	switch (gpMarDirector->mMap) {
+	case 1:
+		if (gpMarDirector->unk7D != 5 && gpMarDirector->unk7D != 9) {
+			TMapCollisionWarp* warp
+			    = TMapObjBase::newAndInitBuildingCollisionWarp(1, nullptr);
+			warp->setUp();
+			warp = TMapObjBase::newAndInitBuildingCollisionWarp(2, nullptr);
+			warp->setUp();
+		}
+		break;
+	case 2:
+		if (gpMarDirector->unk7D != 0) {
+			TMapCollisionWarp* warp
+			    = TMapObjBase::newAndInitBuildingCollisionWarp(1, nullptr);
+			warp->setUp();
+			warp = TMapObjBase::newAndInitBuildingCollisionWarp(2, nullptr);
+			warp->setUp();
+		}
+		break;
+	case 9:
+		initMare();
+		break;
+	case 8:
+		initMonte();
+		break;
+	case 6:
+		if (gpMarDirector->unk7D != 0) {
+			TMapCollisionWarp* warp
+			    = TMapObjBase::newAndInitBuildingCollisionWarp(1, nullptr);
+			warp->setUp();
+		}
+		break;
+	case 5:
+		SMS_LoadParticle("/scene/mapObj/SandSteam.jpa", 0x6A);
+		break;
+	case 13:
+		initPinnaParco();
+		break;
+	case 15: {
+		TMapObjOptionWall* wall = new TMapObjOptionWall("オプション用壁");
+		wall->init();
+		TMapObjBase::joinToGroup("マップグループ", wall);
+		break;
+	}
+	default:
+		break;
+	}
+}
 #pragma dont_inline off
 
-void TMap::updateDelfino() { }
+void TMap::update()
+{
+	static Vec pos;
+	static bool init;
 
-void TMap::updateMonte() { }
+	u8 map      = gpMarDirector->mMap;
+	u8 scenario = gpMarDirector->unk7D;
 
-void updateRicco() { }
+	switch (map) {
+	case 3:
+		if (!init) {
+			pos.x = 1815.0f;
+			pos.y = 1500.0f;
+			pos.z = 1550.0f;
+			init  = true;
+		}
 
-void TMap::update() { }
+		if (gpMSound->gateCheck(0x3000))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x3000, &pos, 0, nullptr, 0, 4);
+		break;
+	case 7: {
+		int areaNo = gpCubeArea->unk1C;
+		if (mWarp->unk8 != areaNo) {
+			if (areaNo != -1)
+				mWarp->changeModel(areaNo);
+			else if (scenario != 0)
+				mWarp->changeModel(3);
+		}
+		break;
+	}
+	case 8:
+		if (scenario == 1 || scenario == 3 || scenario == 5 || scenario == 7)
+			gpMarioParticleManager->emit(
+			    0x156, (JGeometry::TVec3<f32>*)&gpMapObjManager->unk44, 1,
+			    this);
+		break;
+	default:
+		break;
+	}
+
+	if (gpMarDirector->unk124 != 0)
+		return;
+
+	CPolarSubCamera* camera = gpCamera;
+	bool demoCamera         = true;
+	if (!camera->isSimpleDemoCamera()) {
+		if (camera->mMode != 0x49)
+			demoCamera = false;
+	}
+
+	if (demoCamera)
+		return;
+
+	map = gpMarDirector->mMap;
+	if (map == 0x39 || map == 0x10)
+		return;
+
+	if (SMS_CheckMarioFlag(0x2))
+		return;
+
+	f32 waterHeight
+	    = gpMapObjWave->getHeight(camera->unk124.x, camera->unk124.y,
+	                              camera->unk124.z);
+	if (waterHeight == camera->unk124.y || camera->unk124.y <= waterHeight) {
+		if (unk20 == 0) {
+			unk20 = 1;
+			MSSeCallBack::setWaterCameraFir(false);
+		}
+	} else {
+		if (unk20 != 0) {
+			unk20 = 0;
+			MSSeCallBack::setWaterCameraFir(true);
+		}
+	}
+}
 
 TBGCheckData* TMap::getIllegalCheckData()
 {
@@ -65,8 +323,6 @@ const TBGCheckData* TMap::intersectLine(const JGeometry::TVec3<f32>& param_1,
 {
 	mCollisionData->intersectLine(param_1, param_2, param_3, param_4);
 }
-
-bool TMap::isTouchedOneWall(const JGeometry::TVec3<f32>&, f32) const { }
 
 bool TMap::isTouchedOneWall(f32 x, f32 y, f32 z, f32 radius) const
 {
@@ -135,12 +391,6 @@ f32 TMap::checkGroundExactY(f32 x, f32 y, f32 z,
                             const TBGCheckData** result) const
 {
 	return mCollisionData->checkGround(x, y - -78.0f, z, 0, result);
-}
-
-f32 TMap::checkGroundExactY(const JGeometry::TVec3<f32>& pos,
-                            const TBGCheckData** result) const
-{
-	return mCollisionData->checkGround(pos.x, pos.y - -78.0f, pos.z, 0, result);
 }
 
 f32 TMap::checkGround(const JGeometry::TVec3<f32>& pos,
