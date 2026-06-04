@@ -19,6 +19,7 @@
 #include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <dolphin/gx.h>
 #include <dolphin/mtx.h>
+#include <dolphin/os/OSCache.h>
 #include <stdlib.h>
 
 TSilhouette* gpSilhouetteManager;
@@ -209,8 +210,8 @@ void TTrembleModelEffect::tremble(f32 power, f32 spring, f32 damping,
 			                         - 1.0f)));
 
 			unk14[i] = original[i];
-			unk18[i] = original[i];
-			unk1C[i] = original[i];
+			unk18[0][i] = original[i];
+			unk18[1][i] = original[i];
 		}
 	} else {
 		unk3C = spring;
@@ -231,8 +232,8 @@ void TTrembleModelEffect::tremble(f32 power, f32 spring, f32 damping,
 			                - 1.0f);
 
 			unk28[i] = original[i];
-			unk2C[i] = original[i];
-			unk30[i] = original[i];
+			unk2C[0][i] = original[i];
+			unk2C[1][i] = original[i];
 		}
 	}
 
@@ -251,8 +252,8 @@ void TTrembleModelEffect::clash(f32 power)
 			position.add(unk20[i]);
 
 			unk14[i] = position;
-			unk18[i] = position;
-			unk1C[i] = position;
+			unk18[0][i] = position;
+			unk18[1][i] = position;
 		}
 		break;
 	case 2:
@@ -261,8 +262,8 @@ void TTrembleModelEffect::clash(f32 power)
 			position.add(unk34[i]);
 
 			unk28[i] = position;
-			unk2C[i] = position;
-			unk30[i] = position;
+			unk2C[0][i] = position;
+			unk2C[1][i] = position;
 		}
 		break;
 	}
@@ -270,7 +271,88 @@ void TTrembleModelEffect::clash(f32 power)
 	unk8 |= 4;
 }
 
-void TTrembleModelEffect::movement() { }
+void TTrembleModelEffect::movement()
+{
+	if ((unk8 & 1) == 0)
+		return;
+
+	if ((unk8 & 4) != 4) {
+		unk10--;
+		if (unk10 <= 0) {
+			reset();
+			return;
+		}
+	}
+
+	switch (unk8 & 2) {
+	case 0: {
+		JGeometry::TVec3<s16>* original
+		    = (JGeometry::TVec3<s16>*)unk4;
+
+		u32 vtxNum = unk0->mModelData->getVtxNum();
+		for (u32 i = 0; i < vtxNum; ++i) {
+			JGeometry::TVec3<s16> displacement = original[i];
+			displacement.sub(unk14[i]);
+
+			unk20[i].x += (s16)((displacement.x * unk26) >> unkA);
+			unk20[i].y += (s16)((displacement.y * unk26) >> unkA);
+			unk20[i].z += (s16)((displacement.z * unk26) >> unkA);
+
+			unk20[i].x = (s16)((unk24 * unk20[i].x) >> unkA);
+			unk20[i].y = (s16)((unk24 * unk20[i].y) >> unkA);
+			unk20[i].z = (s16)((unk24 * unk20[i].z) >> unkA);
+
+			unk14[i].x += unk20[i].x;
+			unk14[i].y += unk20[i].y;
+			unk14[i].z += unk20[i].z;
+
+			unk18[unk9][i] = unk14[i];
+		}
+
+		JGeometry::TVec3<s16>* current = unk18[unk9];
+		DCFlushRange(current, vtxNum * sizeof(JGeometry::TVec3<s16>));
+		unk0->mVertexBuffer->unk4[0] = current;
+
+		for (int i = 0; i < unk0->mModelData->getShapeNum(); ++i)
+			unk0->mShapePackets->unk24 = current;
+		break;
+	}
+	case 2: {
+		JGeometry::TVec3<f32>* original
+		    = (JGeometry::TVec3<f32>*)unk4;
+
+		u32 vtxNum = unk0->mModelData->getVtxNum();
+		for (u32 i = 0; i < vtxNum; ++i) {
+			JGeometry::TVec3<f32> displacement = original[i];
+			displacement.sub(unk28[i]);
+
+			unk34[i].x += displacement.x * unk3C;
+			unk34[i].y += displacement.y * unk3C;
+			unk34[i].z += displacement.z * unk3C;
+
+			unk34[i].x *= unk38;
+			unk34[i].y *= unk38;
+			unk34[i].z *= unk38;
+
+			unk28[i].x += unk34[i].x;
+			unk28[i].y += unk34[i].y;
+			unk28[i].z += unk34[i].z;
+
+			unk2C[unk9][i] = unk28[i];
+		}
+
+		JGeometry::TVec3<f32>* current = unk2C[unk9];
+		DCFlushRange(current, vtxNum * sizeof(JGeometry::TVec3<f32>));
+		unk0->mVertexBuffer->unk4[0] = current;
+
+		for (int i = 0; i < unk0->mModelData->getShapeNum(); ++i)
+			unk0->mShapePackets->unk24 = current;
+		break;
+	}
+	}
+
+	unk9 = 1 - unk9;
+}
 
 void TTrembleModelEffect::reset()
 {
@@ -281,8 +363,8 @@ void TTrembleModelEffect::reset()
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
 			unk20[i].zero();
 			unk14[i] = original[i];
-			unk18[i] = original[i];
-			unk1C[i] = original[i];
+			unk18[0][i] = original[i];
+			unk18[1][i] = original[i];
 		}
 	} else {
 		JGeometry::TVec3<f32>* original
@@ -291,8 +373,8 @@ void TTrembleModelEffect::reset()
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
 			unk34[i].zero();
 			unk28[i] = original[i];
-			unk2C[i] = original[i];
-			unk30[i] = original[i];
+			unk2C[0][i] = original[i];
+			unk2C[1][i] = original[i];
 		}
 	}
 
