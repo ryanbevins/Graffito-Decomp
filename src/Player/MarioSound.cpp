@@ -5,6 +5,18 @@
 #include <MSound/MSoundSE.hpp>
 #include <System/Application.hpp>
 
+class TNozzleBase {
+public:
+	u8 _pad[0x364];
+	virtual void init();
+	virtual s32 getNozzleKind() const;
+};
+
+class TWaterGun {
+public:
+	TNozzleBase* getCurrentNozzle() const;
+};
+
 TMarioSoundValues::TMarioSoundValues()
 {
 	unk00 = 0;
@@ -182,9 +194,10 @@ void TMario::soundMovement()
 #define MARIO_START_SOUND(id, pos)                                             \
 	do {                                                                       \
 		u32 marioSoundID = (id);                                               \
+		const Vec* marioSoundPos = (const Vec*)(pos);                         \
 		if (gpMSound->gateCheck(marioSoundID))                                 \
 			MSoundSESystem::MSoundSE::startSoundActor(                        \
-			    marioSoundID, (const Vec*)(pos), 0, nullptr, 0, 4);            \
+			    marioSoundID, marioSoundPos, 0, nullptr, 0, 4);               \
 	} while (0)
 
 #define MARIO_START_SOUND_INFO(id, pos, volume)                                \
@@ -216,7 +229,7 @@ void TMario::soundMovement()
 #define MARIO_WATER_NOZZLE(gun)                                                \
 	(*(u8**)((u8*)(gun) + 0x1C68 + MARIO_WATER_NOZZLE_TYPE(gun) * 4))
 #define MARIO_NOZZLE_UNK378(nozzle) (*(f32*)((u8*)(nozzle) + 0x378))
-#define MARIO_NOZZLE_TRIGGER_STATE(nozzle) (*(s8*)((u8*)(nozzle) + 0x385))
+#define MARIO_NOZZLE_TRIGGER_STATE(nozzle) (*(u8*)((u8*)(nozzle) + 0x385))
 
 	u32 action = mAction;
 
@@ -226,18 +239,27 @@ void TMario::soundMovement()
 		TWaterGun* waterGun = mWaterGun;
 		bool isSpraying     = false;
 
-		if (MARIO_WATER_CURRENT(waterGun) != 0) {
-			u8 nozzleType = MARIO_WATER_NOZZLE_TYPE(waterGun);
-			u8* nozzle   = MARIO_WATER_NOZZLE(waterGun);
-			if (nozzleType == 1 || nozzleType == 4 || nozzleType == 5) {
-				isSpraying = MARIO_NOZZLE_TRIGGER_STATE(nozzle) == 1;
+		if (MARIO_WATER_CURRENT(waterGun) == 0) {
+			isSpraying = false;
+		} else {
+			TNozzleBase* nozzle = waterGun->getCurrentNozzle();
+			if (nozzle->getNozzleKind() == 1) {
+				nozzle = waterGun->getCurrentNozzle();
+				if ((s32)MARIO_NOZZLE_TRIGGER_STATE(nozzle) == 1)
+					isSpraying = true;
+				else
+					isSpraying = false;
 			} else {
-				isSpraying = MARIO_NOZZLE_UNK378(nozzle) > 0.0f;
+				nozzle = waterGun->getCurrentNozzle();
+				if (MARIO_NOZZLE_UNK378(nozzle) > 0.0f)
+					isSpraying = true;
+				else
+					isSpraying = false;
 			}
 		}
 
 		if (isSpraying
-		    && MARIO_NOZZLE_UNK378(MARIO_WATER_NOZZLE(waterGun)) > 0.0f)
+		    && MARIO_NOZZLE_UNK378(mWaterGun->getCurrentNozzle()) > 0.0f)
 			MARIO_START_SOUND(0x7129, &mYoshi->mTranslation);
 
 		if (action & 0x40000) {
