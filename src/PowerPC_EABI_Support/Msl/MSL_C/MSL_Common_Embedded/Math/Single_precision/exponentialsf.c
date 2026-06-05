@@ -152,7 +152,9 @@ static inline float two_to_x(float x)
 	poly  = frac * poly + __two_to_x[2];
 	poly  = frac * poly + __two_to_x[1];
 	poly  = frac * poly + __two_to_x[0];
-	poly  = 0.75f + (0.25f + frac * poly);
+	poly *= frac;
+	poly += 0.25f;
+	poly += 0.75f;
 
 	return scale * poly;
 }
