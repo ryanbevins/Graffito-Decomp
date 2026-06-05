@@ -7311,11 +7311,13 @@ confirmed in ≥2 TUs._
   `mario/JSystem/JKernel/JKRAramStream`: its dummy emitted a duplicate
   `JSURandomInputStream::getAvailable()` weak body, while the target owner is
   `mario/JSystem/JSupport/JSUInputStream`, so removing that dummy was safe and
-  left the real owner exact. Next experiment should compare a TU where MWCC
-  naturally owns an inline virtual dtor/vtable against these dummy-forced TUs,
-  looking at class declaration location, first odr-use, vtable key-function
-  ownership, and `-inline deferred` ordering before trying another local
-  deletion.
+  left the real owner exact. Also contrast `mario/JSystem/J2D/J2DScreen`: the
+  TU has a real `J2DSetScreen` constructor, and removing the explicit
+  `J2DSetScreen` destructor dummy left the target weak destructor and vtable
+  exact. Next experiment should compare a TU where MWCC naturally owns an inline
+  virtual dtor/vtable against these dummy-forced TUs, looking at class
+  declaration location, first odr-use, vtable key-function ownership, and
+  `-inline deferred` ordering before trying another local deletion.
 
 - **What source shape makes C-mode MSL `__log2f` load the `@93`
   bit-pattern coefficient table without inflating every inlined caller
