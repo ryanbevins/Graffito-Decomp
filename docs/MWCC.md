@@ -7297,6 +7297,20 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **What natural source condition makes a TU own an inline virtual destructor
+  and vtable without a target-absent dummy caller?** In `mario/JSystem/JKernel/
+  JKRFileCache` (2026-06-05), the source dummy
+  `reinterpret_cast<JKRFileFinder*>(0)->~JKRFileFinder()` emits the target weak
+  `JKRFileFinder::~JKRFileFinder()`, `JKRFileFinder::__vtable`, and a 16B data
+  companion, but also emits an extra 52B `dummy()`. Directly removing the dummy
+  compiled but made all three target owner artifacts missing and failed the DOL
+  hash. Similar extra-only dtor/vtable forcing shapes appear in small JSystem /
+  JDrama TUs (`JUTDbPrint`, `JDRDStageGroup`). Next experiment should compare a
+  TU where MWCC naturally owns an inline virtual dtor/vtable against these
+  dummy-forced TUs, looking at class declaration location, first odr-use,
+  vtable key-function ownership, and `-inline deferred` ordering before trying
+  another local deletion.
+
 - **What source shape makes C-mode MSL `__log2f` load the `@93`
   bit-pattern coefficient table without inflating every inlined caller
   frame?** In `mario/PowerPC_EABI_Support/.../exponentialsf` (t405), target
