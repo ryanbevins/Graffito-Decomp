@@ -5510,6 +5510,27 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Automatic const arrays can recover unnamed rodata copy-in constants where scalar bit-casts become immediates
+
+**Hypothesis.** When target asm copies an unnamed constant object such as
+`@NN` into stack slots before using those slots as bit-cast floats, source may
+need an automatic `const` array of integer bit patterns. Direct scalar
+`make_float(0x...)` expressions can instead synthesize the values with
+`lis/addi` immediates and leave the unnamed object missing. The automatic array
+shape gives MWCC an aggregate to place in rodata and copy with `lwz/stw`.
+
+**Observed.** `mario/PowerPC_EABI_Support/Msl/MSL_C/MSL_Common_Embedded/Math/Single_precision/exponentialsf`
+`__log2f` inline inside `powf` (2026-06-05): replacing two scalar
+`make_float(0xBF38AA80)` / `make_float(0x3EF637A6)` constants with an automatic
+`const unsigned long __log2e_m2[] = { 0xBF38AA80, 0x3EF637A6 };` made target
+`@93` match and moved `powf` `65.0% -> 70.3%`.
+
+**Experiment to confirm/refute.** Find an independent TU where target asm
+copies a small unnamed rodata constant array to stack and current source uses
+scalar bit-cast literals or immediate constants. Rewrite only those constants
+as an automatic `const` integer array and verify that the unnamed object appears
+and the copy-in sequence replaces immediates without introducing a named static.
+
 ### Inline helper OR chains can share the true block where repeated early returns duplicate materialization
 
 **Hypothesis.** When an inline helper calls the same predicate several times
