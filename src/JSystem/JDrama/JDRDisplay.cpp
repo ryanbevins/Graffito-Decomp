@@ -30,7 +30,9 @@ void TDisplay::startRendering()
 	unk60->setNextXFB(unk4[unkC]);
 	GXSetDispCopyGamma(unk50);
 	GXSetDispCopyFrame2Field(GX_COPY_PROGRESSIVE);
-	IssueGXPixelFormatSetting(unk10, (unk64 & 8) != 0, (unk64 & 0x10) != 0);
+	bool enableDither = (unk64 & 0x10) != 0;
+	bool useRGB565    = (unk64 & 8) != 0;
+	IssueGXPixelFormatSetting(unk10, useRGB565, enableDither);
 }
 
 void TDisplay::endRendering()
@@ -39,8 +41,9 @@ void TDisplay::endRendering()
 
 	if ((unk64 & 0x40) != 0) {
 		TRect rect(0, 0, unk10.fbWidth, unk10.efbHeight);
+		u16 flags = unk64;
 		IssueGXCopyDisp(unk4[unkC], rect, unk10, mFrameBufferClearColor,
-		                mFrameBufferClearZ, unk54, unk64);
+		                mFrameBufferClearZ, unk54, flags);
 		GXFlush();
 	}
 	unkC = unkC ^ 1;
