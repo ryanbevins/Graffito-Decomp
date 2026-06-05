@@ -1,11 +1,16 @@
 #include <Camera/CameraMarioData.hpp>
 #include <Map/MapData.hpp>
 #include <Player/MarioAccess.hpp>
-#include <Player/MarioMain.hpp>
-#include <Player/WaterGun.hpp>
 #include <Player/NozzleBase.hpp>
 #include <Strategic/HitActor.hpp>
 #include <Camera/cameralib.hpp>
+
+extern void* gpMarioOriginal;
+
+class TWaterGun {
+public:
+	TNozzleBase* getCurrentNozzle() const;
+};
 
 template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
 
@@ -94,7 +99,9 @@ bool TCameraMarioData::isMarioGoDown() const
 {
 	bool result = false;
 	if (mDistY != 0.0f
-	    && gpMarioPos->y - gpMarioOriginal->mLastSafePos.y < 0.0f) {
+	    && gpMarioPos->y
+	           - ((JGeometry::TVec3<f32>*)((u8*)gpMarioOriginal + 0x29C))->y
+	           < 0.0f) {
 		result = true;
 	}
 	return result;
@@ -103,19 +110,25 @@ bool TCameraMarioData::isMarioGoDown() const
 void TCameraMarioData::calcAndSetMarioData()
 {
 	u32 status = SMS_GetMarioStatus();
-	if (status == 0x3800034BU || status == 0x3000054CU) {
+	switch (status) {
+	case 0x3800034B:
+	case 0x3000054C:
 		mDistXZ = 0.0f;
 		mDistY  = 0.0f;
-	} else {
-		f32 dx  = gpMarioPos->x - gpMarioOriginal->mLastSafePos.x;
-		f32 dy  = gpMarioPos->y - gpMarioOriginal->mLastSafePos.y;
-		f32 dz  = gpMarioPos->z - gpMarioOriginal->mLastSafePos.z;
+		break;
+	default:
+		JGeometry::TVec3<f32>* lastSafePos
+		    = (JGeometry::TVec3<f32>*)((u8*)gpMarioOriginal + 0x29C);
+		f32 dx                            = gpMarioPos->x - lastSafePos->x;
+		f32 dy                            = gpMarioPos->y - lastSafePos->y;
+		f32 dz                            = gpMarioPos->z - lastSafePos->z;
 		mDistXZ = dx * dx + dz * dz;
 		mDistY  = dy * dy;
 		if (mDistXZ > 100.0f)
 			mDistXZ = 100.0f;
 		if (mDistY > 100.0f)
 			mDistY = 100.0f;
+		break;
 	}
 
 	if (mStatus != status) {
