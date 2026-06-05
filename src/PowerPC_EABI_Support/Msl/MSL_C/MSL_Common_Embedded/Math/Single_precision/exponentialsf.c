@@ -179,7 +179,7 @@ float expf(float x)
 	frac       = x - (float)n;
 	tableIndex = n + 88;
 
-	scale = make_float((unsigned long)(n + 127) << 23);
+	scale = make_float((unsigned long)(tableIndex + 39) << 23);
 	poly  = __exp_to_x[7];
 	poly  = frac * poly + __exp_to_x[6];
 	poly  = frac * poly + __exp_to_x[5];
@@ -188,7 +188,9 @@ float expf(float x)
 	poly  = frac * poly + __exp_to_x[2];
 	poly  = frac * poly + __exp_to_x[1];
 	poly  = frac * poly + __exp_to_x[0];
-	poly  = 0.9921875f + (0.007812501f + frac * poly);
+	poly *= frac;
+	poly += 0.007812501f;
+	poly += 0.9921875f;
 
 	return __two_to_log2e_m1_tI[tableIndex] * (scale * poly);
 }
