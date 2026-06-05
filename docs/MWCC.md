@@ -7870,9 +7870,14 @@ confirmed in ≥2 TUs._
   allocator to spill into fresh callee-saved regs; (b) chained
   `operator>>(JSUInputStream&, JGeometry::TVec3<f32>&)` returning
   fresh refs at each link; (c) some macro that captured stream
-  into a local. Need a minimal test case. Affected TUs:
-  `Player/MarioPositionObj` load at 87.48% (filed tick 99) — see
-  `state/notes/MarioPositionObj.md`.
+  into a local. A t423 probe with a `static inline readVec(stream, vec)`
+  helper containing two local stream references **did not confirm** the
+  helper theory: it improved the base `this`/stream register choices but
+  introduced extra vector-address temporaries, still coalesced the final
+  dummy stream, and regressed `load` from 95.6% to 92.5%. Need a different
+  minimal test case, likely for operator-chaining or macro capture rather
+  than a normal helper. Affected TUs: `Player/MarioPositionObj` load at
+  95.6% (updated t423) — see `state/notes/MarioPositionObj.md`.
 - **Dead-but-kept TMatrix34 stack stores under MWCC -O4,p.** Symptom: target
   `watch__26TDolpicEventRiccoMammaGateFv` (and equivalent code shapes in other
   TUs) emits 12 stfs stores at `r1+0x60..+0x8C` initialising a `TMatrix34`
