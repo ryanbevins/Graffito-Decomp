@@ -199,5 +199,3 @@ JKRAramStreamCommand::JKRAramStreamCommand()
 {
 	mAllocatedTransferBuffer = false;
 }
-
-static void dummy(JSURandomInputStream* stream) { stream->getAvailable(); }
