@@ -112,9 +112,32 @@ void JDrama::IssueGXCopyDisp(void* param_1, const TRect& src_rect,
                              GXFBClamp framebuffer_clamp, u16 flags)
 {
 	GXSetCopyClamp(framebuffer_clamp);
-	IssueGXSetCopyFilter(render_mode.aa, render_mode.sample_pattern, flags & 20,
-	                     render_mode.vfilter);
-	bool doClear = IssueGXSetCopyClear(clear_color, clear_z, flags);
+	IssueGXSetCopyFilter(render_mode.aa, render_mode.sample_pattern,
+	                     flags & 0x20, render_mode.vfilter);
+	JUtility::TColor color = clear_color;
+	bool doClear = true;
+
+	bool colorAlphaEnable = true;
+	if (((flags & 1) != 0) && ((flags & 2) != 0)) {
+		colorAlphaEnable = false;
+	}
+
+	if (!colorAlphaEnable && ((flags & 4) != 0)) {
+		doClear = false;
+	}
+
+	if (doClear) {
+		GXSetCopyClear(color, clear_z);
+		GXSetColorUpdate((flags & 1) == 0);
+		GXSetAlphaUpdate((flags & 2) == 0);
+
+		bool zTest = (flags & 4) == 0;
+
+		GXSetZMode(zTest, GX_ALWAYS, zTest);
+
+		if (zTest)
+			GXSetZCompLoc(GX_TRUE);
+	}
 
 	GXSetDispCopySrc(src_rect.x1, src_rect.y1, src_rect.x2, src_rect.y2);
 	u32 uVar2 = GXSetDispCopyYScale(GetRenderModeYScale(render_mode));
