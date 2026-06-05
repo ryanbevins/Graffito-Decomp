@@ -5513,23 +5513,64 @@ for predicate functions.
 ### Automatic const arrays can recover unnamed rodata copy-in constants where scalar bit-casts become immediates
 
 **Hypothesis.** When target asm copies an unnamed constant object such as
-`@NN` into stack slots before using those slots as bit-cast floats, source may
-need an automatic `const` array of integer bit patterns. Direct scalar
-`make_float(0x...)` expressions can instead synthesize the values with
-`lis/addi` immediates and leave the unnamed object missing. The automatic array
-shape gives MWCC an aggregate to place in rodata and copy with `lwz/stw`.
+`@NN` into stack slots before using those slots as floats, source may need an
+automatic `const` array. Direct scalar `make_float(0x...)` expressions can
+instead synthesize the values with `lis/addi` immediates and leave the unnamed
+object missing. If the later uses are float loads, prefer an automatic
+`const float[]` with exact bit-rounded literals over `const unsigned long[]`
+plus `make_float(...)`: the integer array can recover the object but adds extra
+bit-cast stack traffic, while the float array lets MWCC copy the rodata and load
+the copied slots directly.
 
 **Observed.** `mario/PowerPC_EABI_Support/Msl/MSL_C/MSL_Common_Embedded/Math/Single_precision/exponentialsf`
 `__log2f` inline inside `powf` (2026-06-05): replacing two scalar
 `make_float(0xBF38AA80)` / `make_float(0x3EF637A6)` constants with an automatic
 `const unsigned long __log2e_m2[] = { 0xBF38AA80, 0x3EF637A6 };` made target
-`@93` match and moved `powf` `65.0% -> 70.3%`.
+`@93` match and moved `powf` `65.0% -> 70.3%`. Retyping that same automatic
+array as `const float __log2e_m2[] = { -0.7213516235351562f,
+0.4808933138847351f };` kept `@93` matched, removed the extra bit-cast copies,
+reduced the inlined caller frame, and contributed to the later `powf`
+`76.6% -> 87.4%` lift.
 
 **Experiment to confirm/refute.** Find an independent TU where target asm
 copies a small unnamed rodata constant array to stack and current source uses
 scalar bit-cast literals or immediate constants. Rewrite only those constants
-as an automatic `const` integer array and verify that the unnamed object appears
-and the copy-in sequence replaces immediates without introducing a named static.
+as an automatic `const` float array when target uses `lfs` from the copied
+slots, or as an integer array only when target uses integer loads, and verify
+that the unnamed object appears without introducing a named static.
+
+### Union bit-pattern locals can force target store/reload/shift shapes for synthesized floats
+
+**Hypothesis.** When target asm builds a float bit pattern through a stack
+local, spell the source as a union local with separate integer assignments and
+a final `.f` read. A one-expression `make_float((n + k) << shift)` can let MWCC
+fold directly to `slwi; stw`, skipping target's store/reload of the unshifted
+integer. The union sequence:
+
+```c
+union {
+	unsigned long u;
+	float f;
+} scale;
+
+scale.u = (unsigned long)(n + 127);
+scale.u <<= 23;
+return scale.f * poly;
+```
+
+reproduces the target's `stw n+k; lwz; slwi; stw; lfs` shape.
+
+**Observed.** In
+`mario/PowerPC_EABI_Support/Msl/MSL_C/MSL_Common_Embedded/Math/Single_precision/exponentialsf`
+`two_to_x` inlined into `powf`, replacing
+`make_float((unsigned long)(n + 127) << 23)` with a union `scale` local matched
+the repeated target scale setup and moved `powf` `87.4% -> 92.7%`.
+
+**Experiment to confirm/refute.** Find another C-mode MSL/math TU where target
+stores an integer exponent/mantissa component before shifting it into a float
+bit pattern, while current source uses one folded bit-cast expression. Rewrite
+only that expression through a union local and verify the store/reload/shift
+sequence appears without adding unrelated frame growth.
 
 ### Inline helper OR chains can share the true block where repeated early returns duplicate materialization
 
@@ -7342,17 +7383,23 @@ confirmed in ≥2 TUs._
 
 - **What source shape makes C-mode MSL `__log2f` load the `@93`
   bit-pattern coefficient table without inflating every inlined caller
-  frame?** In `mario/PowerPC_EABI_Support/.../exponentialsf` (t405), target
+  frame?** In `mario/PowerPC_EABI_Support/.../exponentialsf` (t405/t419), target
   `powf` has three inlined `__log2f` blocks that load two coefficient bit
   patterns from `@93` into stack slots before the fractional-tail branch. A
   block-scope `static const unsigned long __log2e_coeff[]` recovered the
   `.sdata2` bytes but regressed `powf`: using the table directly in the
   correction branch moved `34.7% -> 33.0%`, while materializing `coeff0` /
   `coeff1` locals before the branch moved `34.7% -> 31.2%` and inflated the
-  frame. Current best source keeps direct `make_float(0x3EF637A6)` /
-  `make_float(0xBF38AA80)` immediates, despite target's table loads. Next
-  experiment should test an original-style out-of-line/inline `__log2f`
-  helper boundary or high-word macro shape, not another plain local table.
+  frame. An automatic `const unsigned long[]` later recovered target `@93`
+  but still added bit-cast stack traffic; an automatic `const float[]` with
+  the exact bit-rounded values plus union bit-cast locals moved `powf` to
+  `92.7%` and cut the frame to `0xd8`, but target is still `0x90`. Remaining
+  open residue: what natural source shape gets the target's earlier
+  `clrlwi r?, bits, 9` before the low-16 branch and the target
+  `delta2 = delta * delta` scheduling before the coefficient `fmadds`, without
+  re-inflating the frame? A `mantissaBits` local recovered the early `clrlwi`
+  but regressed `powf` `87.4% -> 87.3%`, and `static inline __log2f` worsened
+  the local-static symbol to `__log2e_m1$8`, so those variants are refuted.
 
 - **What source shape forces MWCC to narrow a casted `s16` local before an
   intervening call when the target does `addi; extsh; bl` (t359,

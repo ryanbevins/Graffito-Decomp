@@ -80,11 +80,17 @@ static inline int fpclassifyf_local(float value)
 inline float __log2f(float x)
 {
 	static const float __log2e_m1[] = { 0.41015625f, 0.03253879f };
-	const unsigned long __log2e_m2[] = { 0xBF38AA80, 0x3EF637A6 };
+	const float __log2e_m2[] = { -0.7213516235351562f, 0.4808933138847351f };
+	union {
+		unsigned long u;
+		float f;
+	} hi;
+	union {
+		unsigned long u;
+		float f;
+	} full;
 
 	unsigned long bits;
-	unsigned long hiBits;
-	unsigned long fullBits;
 	int exponent;
 	int index;
 	float delta;
@@ -96,17 +102,16 @@ inline float __log2f(float x)
 	index    = (int)((bits >> 16) & 0x7f);
 
 	if ((bits & 0xffff) != 0) {
-		hiBits   = (bits & 0x007f0000) | 0x3f800000;
-		fullBits = (bits & 0x007fffff) | 0x3f800000;
+		hi.u   = (bits & 0x007f0000) | 0x3f800000;
+		full.u = (bits & 0x007fffff) | 0x3f800000;
 		if ((bits & 0x8000) != 0) {
 			++index;
-			hiBits += 0x10000;
+			hi.u += 0x10000;
 		}
 
-		delta  = (make_float(fullBits) - make_float(hiBits)) * __one_over_F[index];
+		delta  = (full.f - hi.f) * __one_over_F[index];
 		delta2 = delta * delta;
-		correction
-		    = delta * make_float(__log2e_m2[1]) + make_float(__log2e_m2[0]);
+		correction = delta * __log2e_m2[1] + __log2e_m2[0];
 		correction = delta2 * correction;
 		correction = __log2e_m1[1] * delta + correction;
 		correction = __log2e_m1[0] * delta + correction;
@@ -128,9 +133,12 @@ static inline float const_float(const unsigned long* bits)
 
 static inline float two_to_x(float x)
 {
+	union {
+		unsigned long u;
+		float f;
+	} scale;
 	int n;
 	float frac;
-	float scale;
 	float poly;
 
 	n    = (int)x;
@@ -142,7 +150,8 @@ static inline float two_to_x(float x)
 	if (n < -127)
 		return 0.0f;
 
-	scale = make_float((unsigned long)(n + 127) << 23);
+	scale.u = (unsigned long)(n + 127);
+	scale.u <<= 23;
 	poly  = __two_to_x[8];
 	poly  = frac * poly + __two_to_x[7];
 	poly  = frac * poly + __two_to_x[6];
@@ -156,7 +165,7 @@ static inline float two_to_x(float x)
 	poly += 0.25f;
 	poly += 0.75f;
 
-	return scale * poly;
+	return scale.f * poly;
 }
 
 float expf(float x)
