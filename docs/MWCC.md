@@ -7304,12 +7304,18 @@ confirmed in ≥2 TUs._
   `JKRFileFinder::~JKRFileFinder()`, `JKRFileFinder::__vtable`, and a 16B data
   companion, but also emits an extra 52B `dummy()`. Directly removing the dummy
   compiled but made all three target owner artifacts missing and failed the DOL
-  hash. Similar extra-only dtor/vtable forcing shapes appear in small JSystem /
-  JDrama TUs (`JUTDbPrint`, `JDRDStageGroup`). Next experiment should compare a
-  TU where MWCC naturally owns an inline virtual dtor/vtable against these
-  dummy-forced TUs, looking at class declaration location, first odr-use,
-  vtable key-function ownership, and `-inline deferred` ordering before trying
-  another local deletion.
+  hash. Marking the helper `static inline` also dropped the destructor/vtable
+  owner artifacts, so an unused inline helper is not enough to instantiate the
+  weak owner. Similar extra-only dtor/vtable forcing shapes appear in small
+  JSystem / JDrama TUs (`JUTDbPrint`, `JDRDStageGroup`). Contrast
+  `mario/JSystem/JKernel/JKRAramStream`: its dummy emitted a duplicate
+  `JSURandomInputStream::getAvailable()` weak body, while the target owner is
+  `mario/JSystem/JSupport/JSUInputStream`, so removing that dummy was safe and
+  left the real owner exact. Next experiment should compare a TU where MWCC
+  naturally owns an inline virtual dtor/vtable against these dummy-forced TUs,
+  looking at class declaration location, first odr-use, vtable key-function
+  ownership, and `-inline deferred` ordering before trying another local
+  deletion.
 
 - **What source shape makes C-mode MSL `__log2f` load the `@93`
   bit-pattern coefficient table without inflating every inlined caller
