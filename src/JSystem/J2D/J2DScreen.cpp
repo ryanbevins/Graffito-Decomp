@@ -201,5 +201,3 @@ void J2DScreen::drawSelf(int x, int y, Mtx* mtx)
 	GXColor1u32(mColor);
 	GXEnd();
 }
-
-static void dummy(J2DSetScreen* s) { s->~J2DSetScreen(); }
