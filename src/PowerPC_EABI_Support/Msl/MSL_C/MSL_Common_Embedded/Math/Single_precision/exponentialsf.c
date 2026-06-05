@@ -57,23 +57,24 @@ static inline unsigned long float_bits(float value)
 	return v.u;
 }
 
-static inline float fabs_local(float x)
+static inline int fpclassifyf_local(float value)
 {
 	unsigned long bits;
 
-	bits = float_bits(x);
-	bits &= 0x7fffffff;
-	return make_float(bits);
-}
+	bits = float_bits(value);
+	switch (bits & 0x7f800000) {
+	case 0x7f800000:
+		if ((bits & 0x7fffff) != 0)
+			return 1;
+		return 2;
 
-static inline int is_nan_bits(unsigned long bits)
-{
-	return (bits & 0x7f800000) == 0x7f800000 && (bits & 0x007fffff) != 0;
-}
+	case 0:
+		if ((bits & 0x7fffff) != 0)
+			return 5;
+		return 3;
+	}
 
-static inline int is_inf_bits(unsigned long bits)
-{
-	return (bits & 0x7fffffff) == 0x7f800000;
+	return 4;
 }
 
 static inline float log2f_approx(float x)
@@ -197,13 +198,9 @@ float expf(float x)
 
 float powf(float base, float exponent)
 {
-	unsigned long baseBits;
-	unsigned long exponentBits;
 	int exponentInt;
-	float absBase;
-
-	baseBits     = float_bits(base);
-	exponentBits = float_bits(exponent);
+	int baseClass;
+	int exponentClass;
 
 	if (base > 0.0f)
 		return two_to_x(exponent * log2f_approx(base));
@@ -218,34 +215,23 @@ float powf(float base, float exponent)
 		return two_to_x(exponent * log2f_approx(-base));
 	}
 
-	if (base == 0.0f) {
-		exponentInt = (int)exponent;
-		if (exponent > 0.0f) {
-			if ((baseBits & 0x80000000) != 0 && (float)exponentInt == exponent
-			    && (exponentInt & 1) != 0)
-				return -0.0f;
-			return 0.0f;
-		}
-		if ((baseBits & 0x80000000) != 0 && (float)exponentInt == exponent
-		    && (exponentInt & 1) != 0)
-			return make_float(0xff800000);
-		return const_float(&_inf);
-	}
+	baseClass = fpclassifyf_local(base);
+	if (baseClass == 1)
+		return base;
 
-	if (is_nan_bits(baseBits) || is_nan_bits(exponentBits))
-		return const_float(&_nan);
-
-	if (exponent == 0.0f || base == 1.0f)
+	exponentClass = fpclassifyf_local(exponent);
+	if (exponentClass == 3)
 		return 1.0f;
 
-	if (is_inf_bits(exponentBits)) {
-		absBase = fabs_local(base);
-		if (absBase == 1.0f)
-			return 1.0f;
-		if ((absBase > 1.0f && exponent > 0.0f)
-		    || (absBase < 1.0f && exponent < 0.0f))
+	if (exponentClass >= 1 && exponentClass < 3)
+		return const_float(&_nan);
+
+	if (exponentClass >= 4 && exponentClass < 6) {
+		if (exponent < 0.0f) {
+			if (base == -0.0f)
+				return -const_float(&_inf);
 			return const_float(&_inf);
-		return 0.0f;
+		}
 	}
 
 	return 0.0f;
