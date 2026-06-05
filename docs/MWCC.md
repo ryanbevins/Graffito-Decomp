@@ -7359,6 +7359,24 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **What source shape preserves JGadget list iterator constructor call
+  boundaries without forcing broad weak emission?** Several list-insertion
+  targets keep explicit iterator constructor/copy calls that current natural
+  source shapes inline away. In `mario/System/PerformList`,
+  `TPerformList::load()` target goes
+  `TSingleNodeLinkList::end()` -> typed
+  `TSingleLinkList<TPerformLink,0>::iterator(base)` ->
+  `Element_getNode<TPerformLink>()` -> base `Insert()`, and the TU owns the
+  4B/12B typed weak helpers. Current `Push_back(new TPerformLink(...))`
+  preserves behavior and scores best, but inlines the typed constructor and
+  `Element_getNode`, leaving both helpers missing. A named base iterator plus
+  named typed iterator still inlined both helpers and regressed `load()`
+  `82.6% -> 77.9%`; explicit base insertion in the public `push_back` overload
+  also inlined the base iterator constructor and regressed `85.8% -> 69.2%`.
+  Similar symptoms exist in `mario/MoveBG/sunmodel` and `mario/Map/Map` with
+  `TList_pointer_void` iterator setup. The next experiment should compare a
+  naturally matching JGadget list owner, not another named-local spelling.
+
 - **What natural source condition makes a TU own an inline virtual destructor
   and vtable without a target-absent dummy caller?** In `mario/JSystem/JKernel/
   JKRFileCache` (2026-06-05), the source dummy
@@ -7955,6 +7973,26 @@ confirmed in ≥2 TUs._
   inline-budget control, not expression order.
 
 ## Refuted / wrong turns
+
+### File-scope or inline-static arrays do not replace dummy-local anonymous rodata in `JKRCompArchive`
+
+**Symptom (`mario/JSystem/JKernel/JKRCompArchive`).** The target TU owns three
+anonymous rodata objects `@1210` (16B int table), `@1411` (12B float table),
+and `@1431` (12B float table) but no standalone `dummy()` text. Current source
+keeps those anonymous rodata symbols by defining the three automatic `const`
+arrays inside an otherwise target-absent `static void dummy()`.
+
+**Tried & REFUTED:** deleting `dummy()` removed the 4B extra text but also made
+all three target rodata objects missing. Replacing it with file-scope
+`static const` arrays kept the bytes but renamed them to `unknownTable1/2/3`
+extras. Replacing it with an uncalled `inline static void dummy()` containing
+function-local `static const` arrays similarly emitted
+`unknownTable1$84/2$85/3$86` extras instead of `@1210/@1411/@1431`.
+
+**Conclusion.** The emitted dummy is currently the least-wrong shape for this
+TU because it preserves anonymous rodata ownership. Do not retry file-scope or
+inline-static array variants here; the real fix needs a natural owner that
+emits local automatic const-pool data without an out-of-line dummy body.
 
 ### Out-of-class redeclaration of `TUtil<f32>::sqrt` does not inhibit header-body inlining
 
