@@ -77,7 +77,7 @@ static inline int fpclassifyf_local(float value)
 	return 4;
 }
 
-static inline float log2f_approx(float x)
+inline float __log2f(float x)
 {
 	static const float __log2e_m1[] = { 0.41015625f, 0.03253879f };
 
@@ -86,7 +86,6 @@ static inline float log2f_approx(float x)
 	unsigned long fullBits;
 	int exponent;
 	int index;
-	float result;
 	float delta;
 	float delta2;
 	float correction;
@@ -94,7 +93,6 @@ static inline float log2f_approx(float x)
 	bits     = float_bits(x);
 	exponent = (int)(bits >> 23) - 128;
 	index    = (int)((bits >> 16) & 0x7f);
-	result   = 1.375f + (float)exponent + __log2_F[index];
 
 	if ((bits & 0xffff) != 0) {
 		hiBits   = (bits & 0x007f0000) | 0x3f800000;
@@ -112,10 +110,11 @@ static inline float log2f_approx(float x)
 		correction = __log2e_m1[1] * delta + correction;
 		correction = __log2e_m1[0] * delta + correction;
 		correction = delta + correction;
-		result += correction;
+		correction = __log2_F[index] + correction;
+		return (1.375f + (float)exponent) + correction;
 	}
 
-	return result;
+	return (1.375f + (float)exponent) + __log2_F[index];
 }
 
 static const unsigned long _inf = 0x7f800000;
@@ -203,7 +202,7 @@ float powf(float base, float exponent)
 	int exponentClass;
 
 	if (base > 0.0f)
-		return two_to_x(exponent * log2f_approx(base));
+		return two_to_x(exponent * __log2f(base));
 
 	if (base < 0.0f) {
 		exponentInt = (int)exponent;
@@ -211,8 +210,8 @@ float powf(float base, float exponent)
 			return const_float(&_nan);
 
 		if ((exponentInt & 1) != 0)
-			return -two_to_x(exponent * log2f_approx(-base));
-		return two_to_x(exponent * log2f_approx(-base));
+			return -two_to_x(exponent * __log2f(-base));
+		return two_to_x(exponent * __log2f(-base));
 	}
 
 	baseClass = fpclassifyf_local(base);
