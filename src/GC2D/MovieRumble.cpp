@@ -38,7 +38,7 @@ void TMovieRumble::perform(u32 param_1, JDrama::TGraphics*)
 		movement();
 }
 
-void TMovieRumble::movement()
+inline void TMovieRumble::movement()
 {
 	if (unk28) {
 		checkRumbleOff();
@@ -47,7 +47,7 @@ void TMovieRumble::movement()
 	}
 }
 
-void TMovieRumble::checkRumbleOn()
+inline void TMovieRumble::checkRumbleOn()
 {
 	if (unk24 != -1 && unk1C <= unk10->getFrameNumber()) {
 		SMSRumbleMgr->start(unk24, -1, (f32*)nullptr);
@@ -67,7 +67,7 @@ void TMovieRumble::checkRumbleOff()
 }
 #pragma dont_inline off
 
-void TMovieRumble::readCurInfo()
+inline void TMovieRumble::readCurInfo()
 {
 	int group = unk18;
 
@@ -83,7 +83,7 @@ void TMovieRumble::readCurInfo()
 	}
 }
 
-void TMovieRumble::makeBcrName(char* acStack_90, int, const char* param_1)
+inline void TMovieRumble::makeBcrName(char* acStack_90, int, const char* param_1)
 {
 	sprintf(acStack_90, "/subtitle/rnbl/%s", param_1);
 	char* it = strrchr(acStack_90, '.');
