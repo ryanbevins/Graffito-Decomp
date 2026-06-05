@@ -222,18 +222,22 @@ float powf(float base, float exponent)
 		return base;
 
 	exponentClass = fpclassifyf_local(exponent);
-	if (exponentClass == 3)
+	switch (exponentClass) {
+	case 3:
 		return 1.0f;
 
-	if (exponentClass >= 1 && exponentClass < 3)
+	case 1:
+	case 2:
 		return const_float(&_nan);
 
-	if (exponentClass >= 4 && exponentClass < 6) {
+	case 4:
+	case 5:
 		if (exponent < 0.0f) {
 			if (base == -0.0f)
 				return -const_float(&_inf);
 			return const_float(&_inf);
 		}
+		break;
 	}
 
 	return 0.0f;
