@@ -4,8 +4,11 @@
 
 void TPerformList::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
-	forEachPerform(getChildren().begin(), getChildren().end(), param_2,
-	               param_1);
+	for (JGadget::TSingleLinkList<TPerformLink, 0>::iterator it
+	     = getChildren().begin();
+	     it != getChildren().end(); ++it) {
+		it->unk4->testPerform(param_1 & it->unk8, param_2);
+	}
 }
 
 void TPerformList::load(JSUMemoryInputStream& stream)
