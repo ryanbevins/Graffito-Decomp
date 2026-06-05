@@ -80,6 +80,7 @@ static inline int fpclassifyf_local(float value)
 inline float __log2f(float x)
 {
 	static const float __log2e_m1[] = { 0.41015625f, 0.03253879f };
+	const unsigned long __log2e_m2[] = { 0xBF38AA80, 0x3EF637A6 };
 
 	unsigned long bits;
 	unsigned long hiBits;
@@ -105,7 +106,7 @@ inline float __log2f(float x)
 		delta  = (make_float(fullBits) - make_float(hiBits)) * __one_over_F[index];
 		delta2 = delta * delta;
 		correction
-		    = delta * make_float(0x3EF637A6) + make_float(0xBF38AA80);
+		    = delta * make_float(__log2e_m2[1]) + make_float(__log2e_m2[0]);
 		correction = delta2 * correction;
 		correction = __log2e_m1[1] * delta + correction;
 		correction = __log2e_m1[0] * delta + correction;
