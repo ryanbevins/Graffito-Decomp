@@ -7,6 +7,8 @@
 #include <Strategic/HitActor.hpp>
 #include <Camera/cameralib.hpp>
 
+template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
+
 TCameraMarioData::TCameraMarioData()
 {
 	mPosX             = 0.0f;
@@ -101,7 +103,7 @@ bool TCameraMarioData::isMarioGoDown() const
 void TCameraMarioData::calcAndSetMarioData()
 {
 	u32 status = SMS_GetMarioStatus();
-	if (status == 0x3800034B || status == 0x3000054C) {
+	if (status == 0x3800034BU || status == 0x3000054CU) {
 		mDistXZ = 0.0f;
 		mDistY  = 0.0f;
 	} else {
@@ -110,10 +112,10 @@ void TCameraMarioData::calcAndSetMarioData()
 		f32 dz  = gpMarioPos->z - gpMarioOriginal->mLastSafePos.z;
 		mDistXZ = dx * dx + dz * dz;
 		mDistY  = dy * dy;
-		if (mDistXZ > 1.0e9f)
-			mDistXZ = 1.0e9f;
-		if (mDistY > 1.0e9f)
-			mDistY = 1.0e9f;
+		if (mDistXZ > 100.0f)
+			mDistXZ = 100.0f;
+		if (mDistY > 100.0f)
+			mDistY = 100.0f;
 	}
 
 	if (mStatus != status) {
@@ -123,6 +125,18 @@ void TCameraMarioData::calcAndSetMarioData()
 		mStatusTimer++;
 	}
 
-	// TODO: nozzle angle ratio uses a virtual method via vtable at +0x364
-	mNozzleAngleRatio = 0.0f;
+	s16 angleMin = ((TWaterGun*)SMS_GetMarioWaterGun())
+	                   ->getCurrentNozzle()
+	                   ->mEmitParams.mLAngleMin.value;
+	s16 gunAngle
+	    = ((TWaterGun*)SMS_GetMarioWaterGun())->getCurrentNozzle()->getGunAngle();
+	mNozzleAngleRatio = CLBCalcRatio<s16>(0, angleMin, gunAngle);
+
+	f32 ratio = mNozzleAngleRatio;
+	if (ratio > 1.0f) {
+		ratio = 1.0f;
+	} else if (ratio < 0.0f) {
+		ratio = 0.0f;
+	}
+	mNozzleAngleRatio = ratio;
 }
