@@ -201,7 +201,6 @@ float powf(float base, float exponent)
 	unsigned long exponentBits;
 	int exponentInt;
 	float absBase;
-	float result;
 
 	baseBits     = float_bits(base);
 	exponentBits = float_bits(exponent);
@@ -214,10 +213,9 @@ float powf(float base, float exponent)
 		if ((float)exponentInt != exponent)
 			return const_float(&_nan);
 
-		result = two_to_x(exponent * log2f_approx(-base));
 		if ((exponentInt & 1) != 0)
-			result = -result;
-		return result;
+			return -two_to_x(exponent * log2f_approx(-base));
+		return two_to_x(exponent * log2f_approx(-base));
 	}
 
 	if (base == 0.0f) {
