@@ -28,7 +28,7 @@ void TPerformList::load(JSUMemoryInputStream& stream)
 		if (value & 1)
 			uVar5 |= 0x3000;
 		if (obj)
-			push_back(obj, uVar5);
+			getChildren().Push_back(new TPerformLink(obj, uVar5));
 	}
 }
 
