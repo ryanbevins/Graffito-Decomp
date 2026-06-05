@@ -3,8 +3,11 @@
 #include <M3DUtil/MActorData.hpp>
 #include <M3DUtil/SDLModel.hpp>
 #include <MarioUtil/TexUtil.hpp>
+#include <MarioUtil/ScreenUtil.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/ResTIMG.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JUtility/JUTTexture.hpp>
 #include <Enemy/Conductor.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <Camera/Camera.hpp>
@@ -22,6 +25,10 @@ const char* cMonteMDummyStrawTexName  = "I_mom_mino_dummyI4";
 const char* cMonteWDummyStrawTexName  = "I_mow_mino_dummyI4";
 const char* cMonteMRealStrawTexName   = "/scene/monteMCommon/I_mom_mino_rgba.bti";
 const char* cMonteWRealStrawTexName   = "/scene/monteWCommon/I_mow_mino_rgba.bti";
+const char* cScreenTexViewObjName     = "\x83\x58\x83\x4E\x83\x8A\x81\x5B\x83\x93\x83\x65\x83\x4E\x83\x58\x83\x60\x83\x83";
+const char* cJellyFishDummyScreenTexName = "dummy_8x8i4";
+const char* cJellyFishDummyTexName    = "J_jellyFish_dummy";
+const char* cJellyFishRealTexName     = "/scene/mareJellyFish/J_kurage.bti";
 const char* cMonteMCommonVolumeName   = "/scene/monteMCommon";
 const char* cMonteWCommonVolumeName   = "/scene/monteWCommon";
 const char* cMareMCommonVolumeName    = "/scene/mareM";
@@ -364,6 +371,20 @@ void TMareJellyFishManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
+	const ResTIMG* realTex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	    cJellyFishRealTexName);
+	TScreenTexture* screenTex
+	    = (TScreenTexture*)JDrama::TNameRefGen::getInstance()
+	          ->getRootNameRef()
+	          ->search(cScreenTexViewObjName);
+	const ResTIMG* screenTexInfo = screenTex->getTexture()->getTexInfo();
+	int dataNum                 = getModelDataKeeper()->getModelDataNum();
+	for (int i = 0; i < dataNum; ++i) {
+		J3DModelData* data = getModelDataKeeper()->getNthData(i)->unk0;
+		SMS_ChangeTextureAll(data, cJellyFishDummyTexName, *realTex);
+		SMS_ChangeTextureAll(data, cJellyFishDummyScreenTexName,
+		                     *screenTexInfo);
+	}
 }
 
 // =====================================================================
