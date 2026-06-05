@@ -624,10 +624,7 @@ void TNPCManager::clipEnemies(JDrama::TGraphics* gfx)
 	int n = mObjNum;
 	for (int i = 0; i < n; i++) {
 		TLiveActor* actor = (TLiveActor*)unk18[i];
-		Vec pos;
-		pos.x = actor->mPosition.x;
-		pos.y = actor->mPosition.y;
-		pos.z = actor->mPosition.z;
+		Vec pos = *(Vec*)&actor->mPosition;
 		pos.y += 75.0f;
 
 		if (actor->mLiveFlag & 0x2000) {
@@ -638,7 +635,7 @@ void TNPCManager::clipEnemies(JDrama::TGraphics* gfx)
 		}
 
 		if (ViewFrustumClipCheck(gfx, (Vec*)&actor->mPosition, unk3C)) {
-			actor->mLiveFlag &= ~6;
+			actor->mLiveFlag &= ~4;
 		} else {
 			actor->mLiveFlag |= 4;
 		}
