@@ -209,10 +209,10 @@ float powf(float base, float exponent)
 
 	if (base < 0.0f) {
 		exponentInt = (int)exponent;
-		if ((float)exponentInt != exponent)
+		if (exponent - (float)exponentInt != 0.0f)
 			return const_float(&_nan);
 
-		if ((exponentInt & 1) != 0)
+		if ((exponentInt % 2) != 0)
 			return -two_to_x(exponent * __log2f(-base));
 		return two_to_x(exponent * __log2f(-base));
 	}
