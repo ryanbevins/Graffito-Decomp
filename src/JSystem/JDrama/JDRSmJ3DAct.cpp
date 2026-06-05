@@ -34,18 +34,16 @@ void TSmJ3DAct::perform(u32 param_1, TGraphics* param_2)
 		mtx.identity();
 		mtx.setTrans(mPosition.x, mPosition.y, mPosition.z);
 
-		TRotation3f rotZ;
-		rotZ.setEularZ(DEG_TO_RAD(mRotation.z));
+		TRotation3f rot;
+		rot.setEularZ(DEG_TO_RAD(mRotation.z));
 		TMtx34f mtx1;
-		mtx1.concat(rotZ, mtx);
+		mtx1.concat(rot, mtx);
 
-		TRotation3f rotY;
-		rotY.setEularY(DEG_TO_RAD(mRotation.y));
-		mtx.concat(rotY, mtx1);
+		rot.setEularY(DEG_TO_RAD(mRotation.y));
+		mtx.concat(rot, mtx1);
 
-		TRotation3f rotX;
-		rotX.setEularX(DEG_TO_RAD(mRotation.x));
-		mtx1.concat(rotX, mtx);
+		rot.setEularX(DEG_TO_RAD(mRotation.x));
+		mtx1.concat(rot, mtx);
 
 		unk48->setBaseTRMtx(mtx1);
 		unk48->setBaseScale(mScaling);
