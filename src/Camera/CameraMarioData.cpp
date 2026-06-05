@@ -1,11 +1,28 @@
 #include <Camera/CameraMarioData.hpp>
 #include <Map/MapData.hpp>
 #include <Player/MarioAccess.hpp>
-#include <Player/NozzleBase.hpp>
 #include <Strategic/HitActor.hpp>
 #include <Camera/cameralib.hpp>
 
 extern void* gpMarioOriginal;
+
+class TNozzleBase {
+public:
+	struct TParamS16Proxy {
+		u8 _0[0x10];
+		s16 value;
+	};
+
+	struct TEmitParams {
+		u8 _0[0x1AC];
+		TParamS16Proxy mLAngleMin;
+	} mEmitParams;
+	u8 _1C0[0x1A4];
+
+	virtual void init();
+	virtual s32 getNozzleKind() const;
+	virtual s16 getGunAngle();
+};
 
 class TWaterGun {
 public:
