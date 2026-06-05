@@ -102,9 +102,51 @@ bool JSUPtrList::insert(JSUPtrLink* before, JSUPtrLink* ptr)
 	bool result;
 
 	if (before == mHead) {
-		return prepend(ptr);
+		result = (ptr->mPtrList == nullptr);
+		if (!result) {
+			result = ptr->mPtrList->remove(ptr);
+		}
+		if (result) {
+			if (mLinkCount == 0) {
+				ptr->mPtrList = this;
+				ptr->mPrev    = nullptr;
+				ptr->mNext    = nullptr;
+				mTail         = ptr;
+				mHead         = ptr;
+				mLinkCount    = 1;
+			} else {
+				ptr->mPtrList = this;
+				ptr->mPrev    = nullptr;
+				ptr->mNext    = mHead;
+				mHead->mPrev  = ptr;
+				mHead         = ptr;
+				mLinkCount    = mLinkCount + 1;
+			}
+		}
+		return result;
 	} else if (before == nullptr) {
-		return append(ptr);
+		result = (ptr->mPtrList == nullptr);
+		if (!result) {
+			result = ptr->mPtrList->remove(ptr);
+		}
+		if (result) {
+			if (mLinkCount == 0) {
+				ptr->mPtrList = this;
+				ptr->mPrev    = nullptr;
+				ptr->mNext    = nullptr;
+				mTail         = ptr;
+				mHead         = ptr;
+				mLinkCount    = 1;
+			} else {
+				ptr->mPtrList = this;
+				ptr->mPrev    = mTail;
+				ptr->mNext    = nullptr;
+				mTail->mNext  = ptr;
+				mTail         = ptr;
+				mLinkCount    = mLinkCount + 1;
+			}
+		}
+		return result;
 	}
 
 	if (before->mPtrList != this) {
