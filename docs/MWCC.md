@@ -5510,6 +5510,47 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Inline helper OR chains can share the true block where repeated early returns duplicate materialization
+
+**Hypothesis.** When an inline helper calls the same predicate several times
+and returns true if any call succeeds, the spelling controls result
+materialization after the helper is inlined. Repeated early returns:
+
+```cpp
+if (A())
+	return true;
+if (B())
+	return true;
+if (C())
+	return true;
+return false;
+```
+
+can make MWCC materialize `li result, 1; b end` after each successful test.
+A single short-circuit OR:
+
+```cpp
+if (A() || B() || C())
+	return true;
+return false;
+```
+
+can instead branch each successful predicate to one shared true block, matching
+target asm that has `bne L_true` after the first two calls and only assigns the
+bool once near the end of the inlined helper.
+
+**Observed.** `mario/Map/MapArea`
+`TMapCollisionData::polygonIsInGrid()` (t413): rewriting the inlined
+`checkLinePolygonCollision()` helper from three repeated early-return checks to
+one OR expression removed duplicate true materialization blocks in four
+inlined call groups and moved the function `94.9% -> 95.9%`.
+
+**Experiment to confirm/refute.** Find another inlined helper with repeated
+same-result early returns where target branches all successful calls to one
+shared assignment block. Rewrite only the helper as a short-circuit OR and
+verify whether the duplicate `li/b` blocks disappear without changing argument
+evaluation order.
+
 ### One short-circuit guard assigning a shared result block may avoid duplicate false/true assignment blocks
 
 **Hypothesis.** When several predicates all assign the same result value and
