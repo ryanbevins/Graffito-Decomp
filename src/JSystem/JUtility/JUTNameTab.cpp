@@ -1,15 +1,6 @@
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <string.h>
 
-void JUTNameTab::setResource(const ResNTAB* pNameTable)
-{
-	mNameTable = pNameTable;
-	mStrData   = (const char*)(pNameTable->mEntries + pNameTable->mEntryNum);
-	mNameNum   = pNameTable->mEntryNum;
-}
-
-JUTNameTab::JUTNameTab() { setResource(nullptr); }
-
 JUTNameTab::JUTNameTab(const ResNTAB* pNameTable) { setResource(pNameTable); }
 
 s32 JUTNameTab::getIndex(const char* pName) const
