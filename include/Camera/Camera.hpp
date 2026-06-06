@@ -212,7 +212,7 @@ public:
 	/* 0x284 */ s32 unk284;
 	/* 0x288 */ f32 unk288;
 	/* 0x28C */ s16 unk28C;
-	/* 0x28E */ char unk28E[0x290 - 0x28E];
+	/* 0x28E */ s16 unk28E;
 	/* 0x290 */ f32 unk290;
 	/* 0x294 */ f32 unk294;
 	/* 0x298 */ f32 unk298;

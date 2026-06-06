@@ -101,7 +101,7 @@ public:
 	{
 	}
 
-private:
+public:
 	s16 unk0;
 	u8 _pad[2];
 	f32 unk4;
@@ -498,7 +498,375 @@ void CPolarSubCamera::calcFinalPosAndAt_()
 		unk154.z = unk148.z;
 	}
 }
-void CPolarSubCamera::calcPosAndAt_() { }
+void CPolarSubCamera::calcPosAndAt_()
+{
+	const f32 moveThreshold = 0.05f;
+	const u8* save         = (const u8*)unk2D4;
+	TCameraOffsetState* offsetState = (TCameraOffsetState*)unk2AC;
+
+	if (gpCameraMario->mDistXZ >= moveThreshold)
+		unk64 &= ~0x80;
+
+	if (!(unk64 & 0x80)) {
+		if (unk284 > 0) {
+			long total   = unk68->unk68;
+			long start   = unk68->unk64;
+			long elapsed = total - unk284 + 1;
+			if (elapsed <= start)
+				unk288 = 0.0f;
+			else
+				unk288 = CLBCalcRatio<long>(start, total, elapsed);
+		} else {
+			unk288 = 1.0f;
+		}
+	}
+
+	s16 nozzleMaxAngle
+	    = CLBLinearInbetween<s16>(unk68->unk54, unk68->unk56, unkA8);
+	f32 nozzleMaxDist
+	    = CLBLinearInbetween(unk68->unk4C, unk68->unk50, unkA8);
+	s16 nozzleAngle = 0;
+	f32 nozzleDist  = 0.0f;
+
+	bool canUseNozzle = false;
+	if (isNormalCameraSpecifyMode(mMode)) {
+		if (gpMarioOriginal->mState & MARIO_FLAG_HAS_FLUDD) {
+			if (gpMarioOriginal->checkStatusType(0x8000))
+				canUseNozzle = true;
+		}
+	}
+
+	if (canUseNozzle) {
+		f32 ratio  = gpCameraMario->mNozzleAngleRatio;
+		nozzleDist = ratio * nozzleMaxDist;
+		nozzleAngle = (s16)(ratio * (f32)nozzleMaxAngle);
+	}
+
+	CLBChaseAngleDecrease(&offsetState->unk0, nozzleAngle,
+	                      *(const s16*)(save + 0x16C));
+	CLBChaseDecrease(&offsetState->unk4, nozzleDist,
+	                 *(const f32*)(save + 0x180), 0.0f);
+
+	if (nozzleMaxDist < 0.001f) {
+		if (nozzleMaxAngle != 0) {
+			s16 base = nozzleMaxAngle;
+			s16 now  = nozzleAngle;
+			if (base < 0)
+				base = -base;
+			if (now < 0)
+				now = -now;
+			offsetState->unkC = (f32)now * (1.0f / (f32)base);
+		}
+	} else {
+		offsetState->unkC = nozzleDist * (1.0f / nozzleMaxDist);
+	}
+	offsetState->unkC = MsClamp<f32>(offsetState->unkC, 0.0f, 1.0f);
+	CLBChaseDecrease(&offsetState->unk8, offsetState->unkC,
+	                 *(const f32*)(save + 0x180), 0.0f);
+
+	unk64 &= ~0x100;
+	if (unk78 != 0)
+		--unk78;
+	if (unk7C != 0)
+		--unk7C;
+
+	bool marioMoving = true;
+	if (gpCameraMario->mDistXZ < moveThreshold
+	    && gpCameraMario->mDistY < moveThreshold)
+		marioMoving = false;
+
+	bool nozzleAction = false;
+	if (gpMarioOriginal->mState & MARIO_FLAG_HAS_FLUDD) {
+		if (gpMarioOriginal->checkStatusType(0x8000))
+			nozzleAction = true;
+	}
+
+	bool acceptsNozzleControl = true;
+	if (!nozzleAction && !(unk64 & 4))
+		acceptsNozzleControl = false;
+
+	bool hasControlInput = true;
+	if (!acceptsNozzleControl) {
+		hasControlInput = false;
+		if (unk120 != nullptr
+		    && (unk120->mCompSPos[6] != 0.0f
+		        || unk120->mCompSPos[7] != 0.0f))
+			hasControlInput = true;
+	}
+
+	if (unk64 & 0x40) {
+		if (unk78 == 0)
+			unk78 = 1;
+		if (unk7C == 0)
+			unk7C = 1;
+	} else {
+		if (marioMoving || hasControlInput) {
+			unk7C = 0;
+			unk78 = 0;
+		}
+		if ((unk64 & 0x400) && unk78 == 0)
+			unk78 = 1;
+	}
+
+	bool skipSolve = false;
+	if (unk78 != 0 && unk7C != 0)
+		skipSolve = true;
+
+	if (!skipSolve) {
+		if (unk78 == 0 && unk7C == 0)
+			unk64 &= ~0x40;
+
+		if (unk6C->mChaseFrame != 0.0f && !marioMoving
+		    && !hasControlInput)
+			skipSolve = true;
+	}
+
+	if (!skipSolve) {
+		if (unk7C == 0 && isDefiniteCameraSpecifyMode(mMode))
+			unk8C = getUsualLookat();
+
+		Vec targetAt;
+		if (isFixCameraSpecifyMode(mMode)
+		    || isDefiniteCameraSpecifyMode(mMode)) {
+			targetAt.x = unk8C.x;
+			targetAt.y = unk8C.y;
+			targetAt.z = unk8C.z;
+			unk28C     = 0;
+		} else {
+			unkA4 = calcAngleXFromXRotRatio_();
+			s16 angleX = unkA4 + unk68->unk58 + offsetState->unk0;
+			s16 angleY = unkA6 + unk68->unk5A;
+
+			if (gpCameraMario->mDistXZ >= moveThreshold) {
+				s16 marioBackAngle = *gpMarioAngleY - 0x8000;
+				s16 diffFromPrev   = marioBackAngle - unk258;
+				f32 chaseAngle
+				    = (1.0f - JMASCos(diffFromPrev)) * 0.5f
+				      * (f32)unk68->unk60;
+				if (chaseAngle > 32766.998f)
+					chaseAngle = 32766.998f;
+				else if (chaseAngle < -32766.998f)
+					chaseAngle = -32766.998f;
+				if ((s16)(marioBackAngle - angleY) < 0)
+					chaseAngle = -chaseAngle;
+				CLBChaseGeneralConstantSpecifySpeed<s16>(
+				    &unk28E, CLBRoundf<s16>(chaseAngle),
+				    *(const s16*)(save + 0x144));
+			}
+			angleY += unk28E;
+
+			calcSlopeAngleX_(&angleX);
+			if (mMode == 0x41) {
+				if (gpCameraMario->isMarioRocketing()) {
+					angleX = *(const s16*)(save + 0x1D0) - 0x1770;
+				} else if (SMS_GetMarioStatus() == 0x8008A9) {
+					angleX = 1000;
+				}
+			}
+
+			s16 sideAngle = angleY - 0x4000;
+			targetAt.x = unk8C.x - unk68->unk5C * JMASSin(sideAngle);
+			targetAt.y = unk8C.y;
+			targetAt.z = unk8C.z - unk68->unk5C * JMASCos(sideAngle);
+
+			if (mMode != 2) {
+				execSecureView_(angleY, &targetAt);
+				if (!isRailCameraSpecifyMode(mMode)) {
+					Vec anchor = targetAt;
+					f32 baseDist = CLBLinearInbetween(
+					    unk68->unk08, unk68->unk0C, unkA8);
+					s16 baseAngleX = CLBLinearInbetween<s16>(
+					    unk68->unk18, unk68->unk1A, unkA8);
+					f32 baseCos = JMASCos(baseAngleX);
+					Vec plannedPos;
+					CLBPolarToCross(anchor, &plannedPos,
+					                baseDist + unk6C->mChaseFrame,
+					                angleX, angleY);
+
+					if (isNormalCameraCompletely()) {
+						Vec prevPos = unkB4;
+						prevPos.y   = unkCC.y;
+						f32 prevDist;
+						s16 prevAngleX;
+						s16 prevAngleY;
+						CLBCrossToPolar(anchor, prevPos, &prevDist,
+						                &prevAngleX, &prevAngleY);
+
+						f32 plannedHoriz = baseCos * baseDist;
+						f32 prevHoriz    = baseCos * prevDist;
+						if (prevHoriz > plannedHoriz) {
+							unk64 |= 0x100;
+							unk98 = plannedPos;
+						} else {
+							f32 lead = CLBLinearInbetween(
+							    unk68->unk10, unk68->unk14, unkA8);
+							f32 minHoriz = baseCos * (baseDist - lead);
+							f32 saveMin  = *(const f32*)(save + 0x68);
+							if (minHoriz < saveMin)
+								minHoriz = saveMin;
+
+							bool canKeepPrev = true;
+							if (mMode == 0xD)
+								canKeepPrev = false;
+							else if (unk54 == 0xD && unk6C->mFrameCount > 0)
+								canKeepPrev = false;
+							else if (mMode == 0x13)
+								canKeepPrev = false;
+
+							if (canKeepPrev && prevHoriz < minHoriz) {
+								f32 move = minHoriz - prevHoriz;
+								prevPos.x += move * JMASSin(prevAngleY);
+								prevPos.z += move * JMASCos(prevAngleY);
+								CLBCrossToPolar(anchor, prevPos, &prevDist,
+								                &prevAngleX, &prevAngleY);
+							}
+
+							bool usePrev = false;
+							if (!(unk64 & 0x100)
+							    && isNormalCameraCompletely()
+							    && unk250 > 0.001f) {
+								f32 lead = CLBLinearInbetween(
+								    unk68->unk10, unk68->unk14, unkA8);
+								if (lead > 0.001f)
+									usePrev = true;
+							}
+
+							if (usePrev) {
+								unk98 = prevPos;
+							} else {
+								CLBPolarToCross(anchor, &unk98, prevDist,
+								                prevAngleX, angleY);
+							}
+							unk98.y = plannedPos.y;
+						}
+					} else {
+						unk98 = plannedPos;
+					}
+
+					f32 sinY = JMASSin(angleY);
+					f32 cosY = JMASCos(angleY);
+					bool keepClear = true;
+					if (mMode == 0xD)
+						keepClear = false;
+					else if (unk54 == 0xD && unk6C->mFrameCount > 0)
+						keepClear = false;
+					else if (mMode == 0x13)
+						keepClear = false;
+
+					if (keepClear) {
+						f32 dz = gpMarioPos->z - unk98.z;
+						f32 dx = gpMarioPos->x - unk98.x;
+						f32 xz = MsSqrtf(dx * dx + dz * dz);
+						f32 limit = baseDist * baseCos;
+						f32 saveLimit = *(const f32*)(save + 0x68);
+						if (saveLimit < limit)
+							limit = saveLimit;
+						if (xz < limit) {
+							f32 push = limit - xz;
+							unk98.x += push * sinY;
+							unk98.z += push * cosY;
+						}
+					}
+
+					if (mMode != 8 && mMode != 0xD) {
+						unk98.x -= offsetState->unk4 * sinY;
+						unk98.z -= offsetState->unk4 * cosY;
+					}
+
+					if (unk6C->mChaseFrame != 0.0f && hasControlInput) {
+						Vec warpPos;
+						CLBPolarToCross(
+						    unk6C->mTargetAt, &warpPos,
+						    CLBLinearInbetween(unk68->unk08, unk68->unk0C,
+						                       unkA8)
+						        + unk6C->mChaseFrame,
+						    angleX, angleY);
+						unk6C->warpPosAndAt(warpPos, unk6C->mTargetAt);
+					}
+				}
+			}
+
+			unk80.x = unk98.x;
+			unk80.z = unk98.z;
+			execHeightPan_();
+			targetAt.y = unk8C.y;
+
+			Vec checkedPos = unk80;
+			if (isNeedWallCheck_() && execWallCheck_(&checkedPos)) {
+				f32 dz = unk80.z - unk8C.z;
+				f32 dx = unk80.x - unk8C.x;
+				unkA4 = matan(MsSqrtf(dx * dx + dz * dz),
+				              unk80.y - unk8C.y);
+				unkA6 = matan(dz, dx);
+				unkA8 = unkDC;
+			}
+
+			if (isNeedRoofCheck_())
+				execRoofCheck_(checkedPos);
+			if (isNeedGroundCheck_())
+				execGroundCheck_(checkedPos);
+		}
+
+		unk6C->execCameraInbetween(unk80, targetAt, *gpMarioPos);
+	}
+
+	if (unk78 == 0) {
+		f32 posChaseXZ;
+		f32 posChaseY;
+		if (isRailCameraSpecifyMode(unk54)
+		    && isRailCameraSpecifyMode(mMode) && unk6C->mFrameCount > 0) {
+			posChaseXZ = 1.0f;
+			posChaseY  = 1.0f;
+		} else {
+			posChaseXZ = unk68->unk94;
+			posChaseY  = unk68->unk9C;
+			if (mMode == 0x41 && SMS_GetMarioStatus() == 0x8008A9
+			    && gpCameraMario->mStatusTimer < 0x78) {
+				f32 ratio = (f32)(0x78 - gpCameraMario->mStatusTimer)
+				            * (1.0f / 120.0f);
+				posChaseY = CLBLinearInbetween(unk68->unk9C, 0.0f,
+				                              ratio);
+			}
+
+			if (unk64 & 4) {
+				posChaseXZ = 1.0f;
+			} else if (unk120->mSubStick.mPosY != 0.0f
+			           || unk120->mSubStick.mPosX != 0.0f) {
+				f32 dist = gpCameraMario->mDistXZ;
+				if (dist > 20.0f)
+					dist = 20.0f;
+				f32 ratio = CLBCalcRatio<f32>(20.0f, 0.0f, dist);
+				posChaseXZ = CLBEaseInInbetween(unk68->unk94, unk68->unk98,
+				                                ratio);
+			}
+
+			if (unk120->mSubStick.mPosY != 0.0f) {
+				f32 dist = gpCameraMario->mDistY;
+				if (dist > 20.0f)
+					dist = 20.0f;
+				f32 ratio = CLBCalcRatio<f32>(20.0f, 0.0f, dist);
+				posChaseY = CLBEaseInInbetween(unk68->unk9C, unk68->unkA0,
+				                               ratio);
+			}
+		}
+
+		CLBChaseDecrease(&mPosition.x, unk6C->mTargetPos.x, posChaseXZ,
+		                 0.0f);
+		CLBChaseDecrease(&mPosition.y, unk6C->mTargetPos.y, posChaseY,
+		                 0.0f);
+		CLBChaseDecrease(&mPosition.z, unk6C->mTargetPos.z, posChaseXZ,
+		                 0.0f);
+	}
+
+	if (unk7C == 0) {
+		CLBChaseDecrease(&mTarget.x, unk6C->mTargetAt.x, unk68->unkA4,
+		                 0.0f);
+		CLBChaseDecrease(&mTarget.y, unk6C->mTargetAt.y, unk68->unkA8,
+		                 0.0f);
+		CLBChaseDecrease(&mTarget.z, unk6C->mTargetAt.z, unk68->unkA4,
+		                 0.0f);
+	}
+}
 void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 {
 	s16 slopeAngle       = 0;
