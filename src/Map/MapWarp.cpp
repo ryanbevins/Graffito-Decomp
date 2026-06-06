@@ -63,7 +63,11 @@ void TMapWarp::watchToWarp()
 	MsMtxSetXYZRPH(mtx, 0.0f, 0.0f, 0.0f, info.unk18.x, info.unk18.y,
 	               info.unk18.z);
 
-	JGeometry::TVec3<f32> vec2(0.0f, 0.0f, info.unk40 * 0.01f);
+	JGeometry::TVec3<f32> vec2;
+	vec2.x = 0.0f;
+	vec2.y = 0.0f;
+	vec2.z = 0.0f;
+	vec2.z = info.unk40 * 0.01f;
 	MTXMultVec(mtx, &vec2, &vec2);
 	if ((info.unk38 == 0 ? true : false) || (info.unk38 == 1 ? true : false))
 		SMS_FlowMoveMario(vec2);
