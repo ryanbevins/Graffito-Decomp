@@ -253,15 +253,9 @@ void TAnimalBase::execWalk(bool moving)
 	                                          chaseSpeed);
 
 	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(mRotation);
-	// Rotate (0, 0, mMarchSpeed) by quaternion q
-	// v' = q * (0,0,m) * q.conj()
-	f32 m  = mMarchSpeed;
-	f32 vx = 2.0f * (q.x * q.z + q.w * q.y) * m;
-	f32 vy = 2.0f * (q.y * q.z - q.w * q.x) * m;
-	f32 vz = (1.0f - 2.0f * (q.x * q.x + q.y * q.y)) * m;
-	mLinearVelocity.x = vx;
-	mLinearVelocity.y = vy;
-	mLinearVelocity.z = vz;
+	JGeometry::TVec3<f32> velocity(0.0f, 0.0f, mMarchSpeed);
+	q.rotate(velocity, velocity);
+	mLinearVelocity = velocity;
 }
 
 void TAnimalBase::getRotationFlyToDir(JGeometry::TVec3<f32>* outRot,
