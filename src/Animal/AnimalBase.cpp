@@ -16,10 +16,12 @@
 #include <M3DUtil/MActor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JGadget/std-list.hpp>
 #include <Map/Map.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
+#include <dolphin/os/OSCache.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -81,12 +83,10 @@ void TAnimalBase::perform(u32 flags, JDrama::TGraphics* gfx)
 {
 	if (flags & 1) {
 		if (gfx->unk0 & 2) {
-			mLinearVelocity.x = 0.0f;
-			mLinearVelocity.y = 0.0f;
 			mLinearVelocity.z = 0.0f;
-			// virtual at vt+0xC8 - controller-related, call calcRootMatrix?
-			// Actually need the actual virtual
-			calcRootMatrix();
+			mLinearVelocity.y = 0.0f;
+			mLinearVelocity.x = 0.0f;
+			control();
 			mPosition.x += mLinearVelocity.x;
 			mPosition.y += mLinearVelocity.y;
 			mPosition.z += mLinearVelocity.z;
@@ -104,15 +104,16 @@ void TAnimalBase::perform(u32 flags, JDrama::TGraphics* gfx)
 	int sharedNum            = p->mSLSharedAnmNum.value;
 
 	if (flags & 2) {
-		// vt+0xF4 - some movement/exec
-		execWalk(false);
+		updateAnmSound();
 		mMActor->frameUpdate();
 		if (!(mLiveFlag & 6)) {
-			// vt+0xC0 - some calc, maybe moveObject
-			// Use calcRootMatrix as placeholder
+			calcRootMatrix();
 		}
-		if (sharedNum == 0 || mInstanceIndex < sharedNum
-		    || !(mLiveFlag & 6)) {
+		if (sharedNum == 0) {
+			if (!(mLiveFlag & 6)) {
+				mMActor->calc();
+			}
+		} else if (mInstanceIndex < sharedNum) {
 			mMActor->calc();
 		}
 		flags &= ~2;
@@ -129,9 +130,31 @@ void TAnimalBase::perform(u32 flags, JDrama::TGraphics* gfx)
 			if (sharedNum == 0 || mInstanceIndex < sharedNum) {
 				mMActor->viewCalc();
 			} else {
-				// per-instance matrix sharing (clones)
-				// complex matrix handling - simplified
-				mMActor->viewCalc();
+				TLiveActor* sharedAnimal
+				    = mgr->getObj(mInstanceIndex % sharedNum);
+				J3DModel* sharedModel = sharedAnimal->getModel();
+				J3DModel* model       = getModel();
+				J3DModelData* data    = model->getModelData();
+				Mtx* sharedMtx[2];
+
+				model->swapDrawMtx();
+				model->swapNrmMtx();
+
+				sharedMtx[0] = sharedModel->mNodeMatrices;
+				sharedMtx[1] = sharedModel->unk5C;
+
+				u16 count = data->getDrawMtxNum();
+				for (u16 i = 0; i < count; ++i) {
+					u8 flag = data->getDrawMtxFlag(i);
+					u16 index = data->getDrawMtxIndex(i);
+					PSMTXConcat(j3dSys.mViewMtx, sharedMtx[flag][index],
+					            model->getDrawMtx(i));
+				}
+
+				model->calcNrmMtx();
+				DCStoreRange(model->getDrawMtxPtr(), count * sizeof(Mtx));
+				DCStoreRange(model->getNrmMtxPtr(), count * sizeof(Mtx33));
+				model->prepareShapePackets();
 			}
 			PSMTXCopy(j3dSys.mViewMtx, tmp1);
 		}
