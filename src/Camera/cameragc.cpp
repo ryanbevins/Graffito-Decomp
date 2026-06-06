@@ -530,7 +530,9 @@ void CPolarSubCamera::calcPosAndAt_()
 
 	bool canUseNozzle = false;
 	if (isNormalCameraSpecifyMode(mMode)) {
-		if (gpMarioOriginal->mState & MARIO_FLAG_HAS_FLUDD) {
+		bool hasFludd = gpMarioOriginal->mState & MARIO_FLAG_HAS_FLUDD ? true
+		                                                               : false;
+		if (hasFludd) {
 			if (gpMarioOriginal->checkStatusType(0x8000))
 				canUseNozzle = true;
 		}
