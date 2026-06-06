@@ -1221,12 +1221,22 @@ void CPolarSubCamera::loadAfter()
 	mTarget.x += unk294;
 	mTarget.z += unk298;
 
-	unk80  = mPosition;
-	unk98  = mPosition;
-	unk8C  = mTarget;
+	unk80.x = mPosition.x;
+	unk80.y = mPosition.y;
+	unk80.z = mPosition.z;
+	unk98.x = mPosition.x;
+	unk98.y = mPosition.y;
+	unk98.z = mPosition.z;
+	unk8C.x = mTarget.x;
+	unk8C.y = mTarget.y;
+	unk8C.z = mTarget.z;
 	if (SMS_isOptionMap()) {
-		unk80 = mPosition;
-		unk8C = mTarget;
+		unk80.x = mPosition.x;
+		unk80.y = mPosition.y;
+		unk80.z = mPosition.z;
+		unk8C.x = mTarget.x;
+		unk8C.y = mTarget.y;
+		unk8C.z = mTarget.z;
 		gpCameraOption = new TCameraOption(mPosition, &unk8C);
 	}
 
