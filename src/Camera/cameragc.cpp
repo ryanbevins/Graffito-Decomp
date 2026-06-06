@@ -5,11 +5,14 @@
 //   __ct__, ~CPolarSubCamera, loadAfter
 
 #include <Camera/Camera.hpp>
+#include <Camera/CameraBck.hpp>
 #include <Camera/CameraInbetween.hpp>
 #include <Camera/CameraKindParam.hpp>
 #include <Camera/CameraMarioData.hpp>
 #include <Camera/CameraShake.hpp>
 #include <Camera/cameralib.hpp>
+#include <System/MarDirector.hpp>
+#include <System/StageUtil.hpp>
 #include <JSystem/JMath.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
@@ -19,10 +22,13 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <System/MarioGamePad.hpp>
+#include <dolphin/gx.h>
 
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
 template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
+
+extern Vec CLBConstUpVec;
 
 CPolarSubCamera::CPolarSubCamera(const char* name)
     : JDrama::TLookAtCamera()
@@ -35,8 +41,112 @@ CPolarSubCamera::~CPolarSubCamera() { }
 
 void CPolarSubCamera::perform(u32 flags, JDrama::TGraphics* gfx)
 {
-	(void)flags;
-	(void)gfx;
+	if (flags & 1) {
+		if (gfx->unk0 & 1) {
+			unk13C.x = unk124.x;
+			unk13C.y = unk124.y;
+			unk13C.z = unk124.z;
+			unk160.x = unk148.x;
+			unk160.y = unk148.y;
+			unk160.z = unk148.z;
+			unk1AC[0][0] = unk16C[0][0];
+			unk1AC[0][1] = unk16C[0][1];
+			unk1AC[0][2] = unk16C[0][2];
+			unk1AC[0][3] = unk16C[0][3];
+			unk1AC[1][0] = unk16C[1][0];
+			unk1AC[1][1] = unk16C[1][1];
+			unk1AC[1][2] = unk16C[1][2];
+			unk1AC[1][3] = unk16C[1][3];
+			unk1AC[2][0] = unk16C[2][0];
+			unk1AC[2][1] = unk16C[2][1];
+			unk1AC[2][2] = unk16C[2][2];
+			unk1AC[2][3] = unk16C[2][3];
+			unk1AC[3][0] = unk16C[3][0];
+			unk1AC[3][1] = unk16C[3][1];
+			unk1AC[3][2] = unk16C[3][2];
+			unk1AC[3][3] = unk16C[3][3];
+			PSMTXCopy(unk1EC, unk21C);
+		}
+
+		mUp.x  = CLBConstUpVec.x;
+		mUp.y  = CLBConstUpVec.y;
+		mUp.z  = CLBConstUpVec.z;
+		unk254 = 0;
+
+		if (mMode != 0x49) {
+			if (SMS_isOptionMap())
+				ctrlOptionCamera_();
+			else
+				ctrlGameCamera_();
+
+			calcFinalPosAndAt_();
+
+			f32 dz = mPosition.z - mTarget.z;
+			f32 dx = mPosition.x - mTarget.x;
+			unk256 = matan(MsSqrtf(dx * dx + dz * dz),
+			               mPosition.y - mTarget.y);
+			unk258 = matan(dz, dx);
+			unk25C.set(unk148.x - unk124.x, unk148.y - unk124.y,
+			           unk148.z - unk124.z);
+			unk25C.setLength(unk25C, JGeometry::TUtil<f32>::one());
+			unk270 = MsClamp<f32>(
+			    CLBCalcRatio<s16>(unk68->unk18, unk68->unk1A, unk256),
+			    0.0f, 1.0f);
+		}
+
+		if (mMode != 0x49) {
+			C_MTXPerspective(unk16C, mFovy, mAspect, mNear, mFar);
+			C_MTXLookAt(unk1EC, &unk124, &mUp, &unk148);
+		}
+
+		bool updateDemo = false;
+		if (gfx->unk0 & 2)
+			updateDemo = true;
+
+		if (updateDemo) {
+			if (mMode != 0x49 && !(unk64 & 0x400)) {
+				if (unk64 & 0x200) {
+					updateGateDemoCamera_();
+				} else if (unk64 & 0x1000) {
+					((TCameraBck*)unk2B0)
+					    ->updateDemo(
+					        (JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x10),
+					        (JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x1C),
+					        (JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x28),
+					        (f32*)((u8*)unk2B8 + 0x34));
+				}
+			}
+
+			if (!SMS_isOptionMap() && mMode != 0x2E && mMode != 0x49)
+				calcInHouseNo_(false);
+		}
+
+		updateDemoCamera_(updateDemo);
+	}
+
+	if (flags & 0x14) {
+		gfx->mProjMtx.mMtx[0][0] = unk16C[0][0];
+		gfx->mProjMtx.mMtx[0][1] = unk16C[0][1];
+		gfx->mProjMtx.mMtx[0][2] = unk16C[0][2];
+		gfx->mProjMtx.mMtx[0][3] = unk16C[0][3];
+		gfx->mProjMtx.mMtx[1][0] = unk16C[1][0];
+		gfx->mProjMtx.mMtx[1][1] = unk16C[1][1];
+		gfx->mProjMtx.mMtx[1][2] = unk16C[1][2];
+		gfx->mProjMtx.mMtx[1][3] = unk16C[1][3];
+		gfx->mProjMtx.mMtx[2][0] = unk16C[2][0];
+		gfx->mProjMtx.mMtx[2][1] = unk16C[2][1];
+		gfx->mProjMtx.mMtx[2][2] = unk16C[2][2];
+		gfx->mProjMtx.mMtx[2][3] = unk16C[2][3];
+		gfx->mProjMtx.mMtx[3][0] = unk16C[3][0];
+		gfx->mProjMtx.mMtx[3][1] = unk16C[3][1];
+		gfx->mProjMtx.mMtx[3][2] = unk16C[3][2];
+		gfx->mProjMtx.mMtx[3][3] = unk16C[3][3];
+		PSMTXCopy(unk1EC, gfx->mViewMtx.mMtx);
+		gfx->mNearPlane = mNear;
+		gfx->mFarPlane  = mFar;
+		if (flags & 0x10)
+			GXSetProjection(gfx->mProjMtx.mMtx, GX_PERSPECTIVE);
+	}
 }
 
 s16 CPolarSubCamera::getFinalAngleZ() const
