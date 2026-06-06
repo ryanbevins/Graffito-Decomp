@@ -195,7 +195,7 @@ void TMario::stateMachineUpper()
 		if (*(u32*)((u8*)this + 0x6C) == 0)
 			mPumpState = 5;
 
-		if ((action - 0xFC000000) == 0x440) {
+		if ((action - 0x04000000) == 0x440) {
 			if (mForwardVel > 0.0f)
 				checkPumping();
 		}
