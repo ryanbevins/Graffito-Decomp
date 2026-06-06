@@ -78,7 +78,7 @@ void TMapWarp::watchToWarp()
 void TMapWarp::initModel()
 {
 	// TODO: inlines
-	int num = gpMap->getModelManager()->getJointModel(0)->mChildrenNum;
+	int num = gpMap->getModelManager()->getJointModel(0)->getChildrenNum();
 	for (int i = 0; i < num; ++i)
 		if (i != unk8)
 			gpMap->getModelManager()
