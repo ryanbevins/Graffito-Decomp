@@ -7931,8 +7931,16 @@ confirmed in ≥2 TUs._
   introduced extra vector-address temporaries, still coalesced the final
   dummy stream, and regressed `load` from 95.6% to 92.5%. Need a different
   minimal test case, likely for operator-chaining or macro capture rather
-  than a normal helper. Affected TUs: `Player/MarioPositionObj` load at
-  95.6% (updated t423) — see `state/notes/MarioPositionObj.md`.
+  than a normal helper. A 2026-06-06 `mario/Map/MapWarp`
+  `TMapWarp::init` probe with explicit stream reference aliases for the y/z
+  coordinate reads and selected dummy reads partially confirmed that aliases can
+  force additional callee-saved stream copies: with corrected local-array stack
+  order, `init` moved 93.8% -> 95.7% and emitted four stream copies instead of
+  one. It still missed one target copy, used different registers, and the
+  explicit duplicate aliases were reverted as not source-natural. Affected TUs:
+  `Player/MarioPositionObj` load at 95.6% (updated t423),
+  `Map/MapWarp::init` at 93.8% — see `state/notes/MarioPositionObj.md` and
+  `state/notes/MapWarp.md`.
 - **Dead-but-kept TMatrix34 stack stores under MWCC -O4,p.** Symptom: target
   `watch__26TDolpicEventRiccoMammaGateFv` (and equivalent code shapes in other
   TUs) emits 12 stfs stores at `r1+0x60..+0x8C` initialising a `TMatrix34`
