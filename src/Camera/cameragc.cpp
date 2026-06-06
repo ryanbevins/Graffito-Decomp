@@ -1259,12 +1259,24 @@ void CPolarSubCamera::loadAfter()
 	unk114 = unkE0;
 	unk118 = unkE4;
 
-	unk124 = mPosition;
-	unk130 = mPosition;
-	unk13C = mPosition;
-	unk148 = mTarget;
-	unk154 = mTarget;
-	unk160 = mTarget;
+	unk124.x = mPosition.x;
+	unk124.y = mPosition.y;
+	unk124.z = mPosition.z;
+	unk130.x = mPosition.x;
+	unk130.y = mPosition.y;
+	unk130.z = mPosition.z;
+	unk13C.x = mPosition.x;
+	unk13C.y = mPosition.y;
+	unk13C.z = mPosition.z;
+	unk148.x = mTarget.x;
+	unk148.y = mTarget.y;
+	unk148.z = mTarget.z;
+	unk154.x = mTarget.x;
+	unk154.y = mTarget.y;
+	unk154.z = mTarget.z;
+	unk160.x = mTarget.x;
+	unk160.y = mTarget.y;
+	unk160.z = mTarget.z;
 
 	if (unk64 & 0x1000) {
 		*(JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x10) = mPosition;
