@@ -7977,6 +7977,23 @@ confirmed in ≥2 TUs._
 
 ## Refuted / wrong turns
 
+### MWCC rejects explicit specialization declarations for `TVec3<f32>::set<f32>`
+
+**Symptom (`mario/Animal/AnimalBase`).** Target owns a local 16B
+`set<f>__Q29JGeometry8TVec3<f>Ffff` body and calls it from the late
+`TAnimalBase::execWalk` quaternion-rotate block; current source inlines
+`rDest.set(q2.x, q2.y, q2.z)` from `TQuat4::rotate` and leaves the local owner
+missing.
+
+**Tried & REFUTED:** adding a TU-scope declaration
+`namespace JGeometry { template <> void TVec3<f32>::set<f32>(f32, f32, f32); }`
+does not compile under MWCC 1.2.5 (`unimplemented C++ feature`). This is not an
+available call-boundary lever for the member-template `set` overload.
+
+**Conclusion.** Future `TVec3::set<f32>` owner experiments need a different
+source shape, such as a caller-side rotate wrapper or inline-budget lever; do
+not retry the explicit member-template specialization declaration.
+
 ### An explicit specialization declaration does not force tiny `MsClamp<f32>` local-owner emission
 
 **Symptom (`mario/Animal/AnimalBase`).** Target owns a local 32B
