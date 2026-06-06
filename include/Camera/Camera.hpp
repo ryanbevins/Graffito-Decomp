@@ -181,7 +181,9 @@ public:
 	/* 0x298 */ f32 unk298;
 	/* 0x29C */ char unk29C[0x2A4 - 0x29C];
 	/* 0x2A4 */ void* unk2A4;
-	/* 0x2A8 */ char unk2A8[0x2B8 - 0x2A8];
+	/* 0x2A8 */ char unk2A8[0x2B0 - 0x2A8];
+	/* 0x2B0 */ void* unk2B0;
+	/* 0x2B4 */ void* unk2B4;
 	/* 0x2B8 */ TCameraJetCoaster* unk2B8;
 	/* 0x2BC */ TMultiPlayerContainer* unk2BC;
 	/* 0x2C0 */ char unk2C0[0x2C8 - 0x2C0];
