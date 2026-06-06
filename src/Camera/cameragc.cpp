@@ -8,11 +8,14 @@
 #include <Camera/CameraBck.hpp>
 #include <Camera/CameraInbetween.hpp>
 #include <Camera/CameraKindParam.hpp>
+#include <Camera/CameraMapTool.hpp>
 #include <Camera/CameraMarioData.hpp>
+#include <Camera/CameraOption.hpp>
 #include <Camera/CameraShake.hpp>
 #include <Camera/cameralib.hpp>
 #include <System/MarDirector.hpp>
 #include <System/StageUtil.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JMath.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
@@ -23,12 +26,22 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <System/MarioGamePad.hpp>
 #include <dolphin/gx.h>
+#include <stdio.h>
 
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
 template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
 
 extern Vec CLBConstUpVec;
+
+const char* cStartCamName
+    = "\x8A\x4A\x8E\x6E\x83\x4A\x83\x81\x83\x89";
+const char* cStartAfterCamName
+    = "\x8A\x4A\x8E\x6E\x8C\xE3\x83\x4A\x83\x81\x83\x89";
+const char* cJetCoasterCam0BckName  = "pinna2_camera";
+const char* cJetCoasterCam1BckName  = "tinkoopa_camera";
+const char* cJetCoasterDemoBckName  = "tinkoopa_killer_camera";
+const char* cStartCamBckFileName    = "/scene/map/camera/StartCamera.bck";
 
 CPolarSubCamera::CPolarSubCamera(const char* name)
     : JDrama::TLookAtCamera()
@@ -552,7 +565,190 @@ bool CPolarSubCamera::isNowInbetween() const
 	return false;
 }
 
-void CPolarSubCamera::loadAfter() { }
+static s32 JetCoasterDemoCallBack(u32 user_data, u32 event)
+{
+	if (event == 1) {
+		CPolarSubCamera* camera = (CPolarSubCamera*)user_data;
+		((TCameraBck*)camera->unk2B0)->startDemo(cJetCoasterCam1BckName,
+		                                         nullptr);
+		((TCameraBck*)camera->unk2B0)
+		    ->setFrame(0.5f * (f32)gpMarDirector->unk58);
+	}
+	return 1;
+}
+
+void CPolarSubCamera::loadAfter()
+{
+	JDrama::TNameRef::loadAfter();
+
+	unk5C = 0;
+	if (gpMarDirector->mMap == 7) {
+		unk5C = 0x14;
+	} else if (SMS_isExMap()) {
+		unk5C = 0x26;
+	} else if (SMS_isMultiPlayerMap()) {
+		unk5C = 2;
+	} else if (unk64 & 0x1000) {
+		unk5C = 0x2E;
+	}
+
+	TCameraMapTool* startTool = (TCameraMapTool*)gpCamMapToolTable->searchF(
+	    JDrama::TNameRef::calcKeyCode(cStartCamName), cStartCamName);
+	if (startTool != nullptr)
+		changeCamModeSpecifyCamMapToolAndFrame_(startTool, 1);
+	else
+		changeCamModeSpecifyFrame_(unk5C, 1);
+
+	const TCamSaveKindParam* const* saveTable
+	    = (const TCamSaveKindParam* const*)((u8*)this + 0x2D8);
+	unk68->copySaveParam(*saveTable[mMode]);
+	mFovy = unk68->unk00;
+	mNear = unk68->unk04;
+
+	char startAfterName[0x40];
+	snprintf(startAfterName, 0x40, "%s%d", cStartAfterCamName,
+	         gpMarDirector->unkD0);
+	TCameraMapTool* startAfterTool
+	    = (TCameraMapTool*)gpCamMapToolTable->searchF(
+	        JDrama::TNameRef::calcKeyCode(startAfterName), startAfterName);
+	if (startAfterTool != nullptr) {
+		f32 ratio = startAfterTool->unkC.y;
+		if (ratio > unk26C)
+			ratio = unk26C;
+		else if (ratio < unk268)
+			ratio = unk268;
+		unkA8 = ratio;
+		unkA6 = CLBRoundf<s16>(182.04445f * startAfterTool->unk18.y)
+		        - 0x8000;
+	} else {
+		const u8* save = (const u8*)unk2D4;
+		f32 ratio      = *(const f32*)(save + 0x18);
+		if (ratio > unk26C)
+			ratio = unk26C;
+		else if (ratio < unk268)
+			ratio = unk268;
+		unkA8 = ratio;
+		unkA6 = *gpMarioAngleY - 0x8000;
+	}
+
+	if ((unk64 & 0x1000) && unk2B8 != nullptr && (*(u8*)((u8*)unk2B8 + 0xC) & 1))
+		setUpToLButtonCamera_(0x2E);
+
+	unk270 = unkA8;
+	unkA4  = CLBLinearInbetween<s16>(unk68->unk18, unk68->unk1A, unkA8);
+
+	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
+	f32 marioHeight;
+	if (isNormalDeadDemo()) {
+		marioHeight = 35.0f;
+	} else {
+		marioHeight = unk68->unk24 + unkA8 * unk68->unk28;
+		if (SMS_GetMarioStatus() == 0x200345)
+			marioHeight += 260.0f;
+		if (mMode == 9)
+			marioHeight += unk290;
+	}
+	marioPos.y += marioHeight;
+	gpCameraMario->mPosX = marioPos.x;
+	gpCameraMario->mPosY = marioPos.y;
+	gpCameraMario->mPosZ = marioPos.z;
+
+	if (unk70 != nullptr) {
+		unk70->calcPosAndAt(&mPosition, &mTarget);
+	} else {
+		mTarget.x = gpCameraMario->mPosX;
+		mTarget.y = gpCameraMario->mPosY;
+		mTarget.z = gpCameraMario->mPosZ;
+		f32 dist  = CLBLinearInbetween(unk68->unk08, unk68->unk0C, unkA8);
+		CLBPolarToCross(mTarget, &mPosition, dist, unkA4, unkA6);
+	}
+
+	calcSecureViewTarget_(unkA6, &unk294, &unk298);
+	mPosition.x += unk294;
+	mPosition.z += unk298;
+	mTarget.x += unk294;
+	mTarget.z += unk298;
+
+	unk80  = mPosition;
+	unk98  = mPosition;
+	unk8C  = mTarget;
+	if (SMS_isOptionMap()) {
+		unk80 = mPosition;
+		unk8C = mTarget;
+		gpCameraOption = new TCameraOption(mPosition, &unk8C);
+	}
+
+	unk256 = unkA4;
+	unk258 = unkA6;
+	unkB4  = unk80;
+	unkC0  = unk8C;
+	unkCC  = unk98;
+	unkD8  = unkA4;
+	unkDA  = unkA6;
+	unkDC  = unkA8;
+	unkE0  = unkAC;
+	unkE4  = unkB0;
+	unkE8  = unkB4;
+	unkF4  = unkC0;
+	unk100 = unkCC;
+	unk10C = unkD8;
+	unk10E = unkDA;
+	unk110 = unkDC;
+	unk114 = unkE0;
+	unk118 = unkE4;
+
+	unk124 = mPosition;
+	unk130 = mPosition;
+	unk13C = mPosition;
+	unk148 = mTarget;
+	unk154 = mTarget;
+	unk160 = mTarget;
+
+	if (unk64 & 0x1000) {
+		*(JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x10) = mPosition;
+		*(JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x1C) = mTarget;
+	}
+
+	unk6C->initCameraInbetween(mPosition, mTarget, *gpMarioPos);
+	C_MTXPerspective(unk16C, mFovy, mAspect, mNear, mFar);
+	C_MTXLookAt(unk1EC, &unk124, &mUp, &unk148);
+	unk1AC[0][0] = unk16C[0][0];
+	unk1AC[0][1] = unk16C[0][1];
+	unk1AC[0][2] = unk16C[0][2];
+	unk1AC[0][3] = unk16C[0][3];
+	unk1AC[1][0] = unk16C[1][0];
+	unk1AC[1][1] = unk16C[1][1];
+	unk1AC[1][2] = unk16C[1][2];
+	unk1AC[1][3] = unk16C[1][3];
+	unk1AC[2][0] = unk16C[2][0];
+	unk1AC[2][1] = unk16C[2][1];
+	unk1AC[2][2] = unk16C[2][2];
+	unk1AC[2][3] = unk16C[2][3];
+	unk1AC[3][0] = unk16C[3][0];
+	unk1AC[3][1] = unk16C[3][1];
+	unk1AC[3][2] = unk16C[3][2];
+	unk1AC[3][3] = unk16C[3][3];
+	PSMTXCopy(unk1EC, unk21C);
+
+	f32 dz = mPosition.z - mTarget.z;
+	f32 dx = mPosition.x - mTarget.x;
+	unk256 = matan(MsSqrtf(dx * dx + dz * dz), mPosition.y - mTarget.y);
+	unk258 = matan(dz, dx);
+	unk25C.set(unk148.x - unk124.x, unk148.y - unk124.y,
+	           unk148.z - unk124.z);
+	unk25C.setLength(unk25C, 1.0f);
+	unk270 = MsClamp<f32>(
+	    CLBCalcRatio<s16>(unk68->unk18, unk68->unk1A, unk256), 0.0f, 1.0f);
+
+	if ((unk64 & 0x1000) && gpMarDirector->unk7D == 1) {
+		gpMarDirector->fireStartDemoCamera(
+		    cJetCoasterDemoBckName, nullptr, -1, 0.0f, true,
+		    JetCoasterDemoCallBack, (u32)this, nullptr, JDrama::TFlagT<u16>(0));
+	} else if (JKRFileLoader::getGlbResource(cStartCamBckFileName)
+	           == nullptr) {
+		calcInHouseNo_(true);
+	}
+}
 
 void CPolarSubCamera::calcExternalData_() { }
 void CPolarSubCamera::setMarioLookat_() { }

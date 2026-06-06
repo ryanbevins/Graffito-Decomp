@@ -172,7 +172,16 @@ public:
 	/* 0xE0 */ s16 unkE0;
 	/* 0xE2 */ char unkE2[0xE4 - 0xE2];
 	/* 0xE4 */ f32 unkE4;
-	/* 0xE8 */ char unkE8[0x120 - 0xE8];
+	/* 0xE8 */ JGeometry::TVec3<f32> unkE8;
+	/* 0xF4 */ JGeometry::TVec3<f32> unkF4;
+	/* 0x100 */ JGeometry::TVec3<f32> unk100;
+	/* 0x10C */ s16 unk10C;
+	/* 0x10E */ s16 unk10E;
+	/* 0x110 */ f32 unk110;
+	/* 0x114 */ s16 unk114;
+	/* 0x116 */ char unk116[0x118 - 0x116];
+	/* 0x118 */ f32 unk118;
+	/* 0x11C */ char unk11C[0x120 - 0x11C];
 	/* 0x120 */ TMarioGamePad* unk120;
 	/* 0x124 */ JGeometry::TVec3<f32> unk124;
 	/* 0x130 */ JGeometry::TVec3<f32> unk130;
