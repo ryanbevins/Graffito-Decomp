@@ -6,9 +6,9 @@ void TNpcInbetween::execMotionBlend(MActor* mactor)
 {
 	f32 ratio = 0.0f;
 	if (isForcedBlendRatio()) {
-		mMotionBlendTimer = 0;
 		J3DAnmTransform* old_ptr = nullptr;
-		if (mactor->unkC)
+		mMotionBlendTimer           = 0;
+		if (mactor->unkC != nullptr)
 			old_ptr = mactor->unkC->getOldMotionBlendAnmPtr();
 		if (old_ptr) {
 			J3DFrameCtrl local = *mactor->getFrameCtrl(0);
@@ -21,19 +21,19 @@ void TNpcInbetween::execMotionBlend(MActor* mactor)
 			mMotionBlendTimer -= 1;
 		if (mMotionBlendTimer > 0) {
 			J3DAnmTransform* old_ptr;
-			if (mactor->unkC)
-				old_ptr = mactor->unkC->getOldMotionBlendAnmPtr();
-			else
+			if (mactor->unkC == nullptr)
 				old_ptr = nullptr;
+			else
+				old_ptr = mactor->unkC->getOldMotionBlendAnmPtr();
 			if (old_ptr) {
 				f32 frame;
-				if (mactor->unkC)
-					frame = mactor->unkC->getOldMotionBlendFrame();
-				else
+				if (mactor->unkC == nullptr)
 					frame = 0.0f;
+				else
+					frame = mactor->unkC->getOldMotionBlendFrame();
 				old_ptr->setFrame(frame);
 			}
-			ratio = (f32)mMotionBlendTimer / (f32)mMotionBlendFrame;
+			ratio = (1.0f / (f32)mMotionBlendFrame) * (f32)mMotionBlendTimer;
 		}
 	}
 	if (mactor->unkC)
