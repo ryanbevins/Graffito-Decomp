@@ -1955,6 +1955,13 @@ rBASE, rTMP`. Same total instruction count but different forms.
 
 **Citations.**
 
+- `Camera/cameragc::ctrlGameCamera_` and `loadAfter` (tick 437):
+  `ctrlGameCamera_` **96.2 → 99.0%** and `loadAfter` **77.1 → 77.6%**.
+  Both call sites access the save-param table at `this + 0x2D8 +
+  mode*4`; spelling this as `const u8* savePtr = (const u8*)this +
+  mode * 4; *(savePtr + 0x2D8)` changed MWCC from
+  `addi mode*4,0x2D8; lwzx this,index` to the target
+  `add this,mode*4; lwz 0x2D8(base)`.
 - `Camera/CameraChange::setUpToLButtonCamera_` (tick 138):
   85.79 → **99.88%**. Hoisting `u8* p = (u8*)this + mode * 4` before
   the copySaveParam call collapsed our `slwi+addi+lwzx` to target's
