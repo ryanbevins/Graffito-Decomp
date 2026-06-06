@@ -88,8 +88,18 @@ BOOL TMario::checkPumpEnable()
 								           != TNozzleTrigger::DEAD) {
 									TWaterGun* wg4 = mWaterGun;
 									f32 wgVal      = wg4->unk1D00;
-									if (!(wgVal < 0.0f)) {
-										if (!(wgVal > 0.0f)) {
+									bool belowZero;
+									if (wgVal < 0.0f)
+										belowZero = true;
+									else
+										belowZero = false;
+									if (!belowZero) {
+										bool aboveZero;
+										if (wgVal > 0.0f)
+											aboveZero = true;
+										else
+											aboveZero = false;
+										if (!aboveZero) {
 											if (!checkActionFlag(0x1000))
 												return TRUE;
 										}
