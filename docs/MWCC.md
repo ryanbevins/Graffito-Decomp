@@ -5520,6 +5520,40 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Positive-arm-first repeated-expression integer abs can force duplicated arithmetic in both branches
+
+**Hypothesis.** When target asm computes an integer difference, branches on the
+condition-code result, then recomputes the same difference in both the
+non-negative and negative arms before an optional `neg`, avoid a precomputed
+`diff` local. Instead, write the absolute value as a positive-arm-first
+`if/else` over the repeated source expression:
+
+```cpp
+if (cur - prev >= 0)
+	diff = cur - prev;
+else
+	diff = -(cur - prev);
+```
+
+The order of the source locals still matters for load order. This is a
+natural spelling for preserving the original expression in both arms; it should
+not be generalized to artificial recomputation unless the target clearly shows
+duplicated arithmetic.
+
+**Observed.** `mario/Camera/CameraSecureView`
+`CPolarSubCamera::execSecureView_` (2026-06-07 12:41am MNL): replacing
+`diff = cur - prev; if (diff < 0) diff = -diff;` with previous/current `s16`
+locals and the positive-arm-first repeated expression matched the target
+`subf.` / positive `subf` / negative `subf; neg` block and moved the function
+`88.6% -> 91.1%`.
+
+**Experiment to confirm/refute.** Find a second TU where target asm shows a
+duplicated integer-difference absolute value and current source precomputes the
+difference. Toggle only the precomputed-local form vs the repeated-expression
+positive-arm-first `if/else`; confirm whether MWCC consistently preserves the
+duplicated arithmetic and whether local declaration order controls the adjacent
+load order.
+
 ### Direct-initialize a `TVec3` from a friend operator result to avoid an extra pre-copy temp
 
 **Hypothesis.** When using the fabricated friend `TVec3` operators to preserve
