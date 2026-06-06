@@ -5513,6 +5513,40 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Direct-initialize a `TVec3` from a friend operator result to avoid an extra pre-copy temp
+
+**Hypothesis.** When using the fabricated friend `TVec3` operators to preserve
+an out-of-line `add`/`sub`/`scale` call boundary, a two-statement spelling can
+materialize an extra source local before the by-value operator parameter:
+
+```cpp
+JGeometry::TVec3<f32> pos = source;
+pos = pos + offset;
+```
+
+If the target copies `source` directly into the by-value operator parameter,
+calls the helper, then copies the result into the named local, spell it as direct
+initialization:
+
+```cpp
+JGeometry::TVec3<f32> pos = source + offset;
+```
+
+This keeps the known friend-operator call-boundary lever while avoiding the
+additional pre-copy local that the two-statement form creates.
+
+**Observed.** `mario/Map/MapWarp` `TMapWarp::watchToWarp` (2026-06-06):
+`marioPos = SMS_GetMarioPos(); marioPos = marioPos + unk4[data].unk8;` kept the
+target `TVec3::add` `bl` but emitted an extra local copy and reached 95.6%.
+Direct-initializing `marioPos` from `SMS_GetMarioPos() + unk4[data].unk8`
+removed that extra copy block and moved the function to 99.8%.
+
+**Experiment to confirm/refute.** Find another TU already using a friend
+`TVec3` operator to recover a helper call boundary, preferably one with an
+extra pre-copy temp in the diff. Toggle only the two-statement vs direct-init
+form and verify whether the direct-init spelling consistently copies the source
+directly into the by-value operator parameter.
+
 ### Automatic const arrays can recover unnamed rodata copy-in constants where scalar bit-casts become immediates
 
 **Hypothesis.** When target asm copies an unnamed constant object such as
