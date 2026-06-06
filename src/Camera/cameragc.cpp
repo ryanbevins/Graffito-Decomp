@@ -103,8 +103,37 @@ void CPolarSubCamera::onMoveApproach_()
 
 void CPolarSubCamera::offMoveApproach_() { unk6C->mChaseFrame = 0.0f; }
 
-void CPolarSubCamera::rotateY_ByStickX_(f32 stick) { (void)stick; }
-void CPolarSubCamera::rotateX_ByStickY_(f32 stick) { (void)stick; }
+void CPolarSubCamera::rotateY_ByStickX_(f32 stick)
+{
+	if (!SMS_IsMarioOpeningDoor()) {
+		s16 speed = CLBLinearInbetween<s16>(unk68->unk20, unk68->unk22, unkA8);
+		unkA6 += (s16)(stick * speed);
+	}
+}
+
+void CPolarSubCamera::rotateX_ByStickY_(f32 stick)
+{
+	if (!SMS_IsMarioOpeningDoor()) {
+		unkA8 -= stick * unk68->unk1C;
+		if (isLButtonCameraSpecifyMode(mMode)) {
+			f32 ratio = unkA8;
+			if (ratio > 1.0f)
+				ratio = 1.0f;
+			else if (ratio < 0.0f)
+				ratio = 0.0f;
+			unkA8 = ratio;
+		} else {
+			f32 max   = unk26C;
+			f32 ratio = unkA8;
+			f32 min   = unk268;
+			if (ratio > max)
+				ratio = max;
+			else if (ratio < min)
+				ratio = min;
+			unkA8 = ratio;
+		}
+	}
+}
 
 void CPolarSubCamera::calcNowTargetFromPosAndAt_(const Vec& pos, const Vec& at)
 {
