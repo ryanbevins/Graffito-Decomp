@@ -336,7 +336,7 @@ void TAnimalBase::init(TLiveManager* mgr)
 	mMActor = mMActorKeeper->mActors[0];
 
 	initHitActor(mActorType, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f);
-	onHitFlag(1);
+	unk64 |= 1;
 
 	mBodyScale  = 1.0f;
 	mMarchSpeed = 0.0f;
