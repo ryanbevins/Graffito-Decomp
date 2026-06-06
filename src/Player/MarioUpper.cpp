@@ -69,8 +69,8 @@ BOOL TMario::checkPumpEnable()
 					else
 						isDirty = FALSE;
 					if (!isDirty
-					    || dirty / (f32)mGraffitoParams.mSinkTime.value
-					           <= mGraffitoParams.mSinkPumpLimit.value) {
+					    || !(dirty / (f32)mGraffitoParams.mSinkTime.get()
+					         > mGraffitoParams.mSinkPumpLimit.get())) {
 						u32 pumpState = mPumpState;
 						if (pumpState != 4 && pumpState != 3
 						    && pumpState != 2) {
