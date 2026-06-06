@@ -21,14 +21,14 @@
 #include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
 
-BOOL TBaseNPC::isNerveWalk() const
+bool TBaseNPC::isNerveWalk() const
 {
-	BOOL result                       = FALSE;
+	bool result                       = false;
 	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
 	if (cur == &TNerveNPCGraphWander::theNerve()
 	    || cur == &TNerveNPCUTurn::theNerve()
 	    || cur == &TNerveNPCGraphWait::theNerve()) {
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }

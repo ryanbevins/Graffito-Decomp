@@ -147,7 +147,7 @@ public:
 	BOOL isNerveMaybeDontCalcAnim1() const;
 	BOOL isNerveMaybeDontCalcAnim0() const;
 	BOOL isNerveMaybeDontMovement() const;
-	BOOL isNerveWalk() const;
+	bool isNerveWalk() const;
 	void emitParticle_();
 	bool isPolWaitCEffectEmitTime_() const;
 	bool isPolWaitLEffectEmitTime_() const;
