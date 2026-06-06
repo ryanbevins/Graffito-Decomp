@@ -165,10 +165,13 @@ void TBaseNPC::initNpcObjCollision_(const TNpcInitInfo* info)
 		break;
 	}
 
-	initHitActor(mActorType, var1, var2, info->mAttackRadius * mScaling.x,
-	             info->mAttackHeight * mScaling.y,
-	             info->mDamageRadius * mScaling.x,
-	             info->mDamageHeight * mScaling.y);
+	f32 attackHeight = info->mAttackHeight * mScaling.y;
+	f32 damageHeight = info->mDamageHeight * mScaling.y;
+	f32 attackRadius = info->mAttackRadius * mScaling.x;
+	f32 damageRadius = info->mDamageRadius * mScaling.x;
+
+	initHitActor(mActorType, var1, var2, attackRadius, attackHeight,
+	             damageRadius, damageHeight);
 
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 	if (var1 == 0)
