@@ -136,30 +136,31 @@ void TMario::stateMachineUpper()
 			unk37E = mUpperBodyParams.mPumpWaitTime.value;
 		}
 
-		if (!checkFlag(MARIO_FLAG_FLUDD_EMITTING))
-			break;
-
-		TWaterGun* wg = mWaterGun;
-		if (wg == NULL)
-			break;
-
-		if (wg->mCurrentWater == 0) {
-			break;
-		}
-
-		TNozzleBase* nozzle = wg->getCurrentNozzle();
-		s32 kind = (*(s32(**)(TNozzleBase*))((u32*)(*(u32*)nozzle) + 3))(nozzle);
-		if (kind == 1) {
-			TNozzleBase* nozzle2 = wg->getCurrentNozzle();
-			if (*(u8*)((u8*)nozzle2 + 0x385) == 1) {
-				break;
+		if (!checkFlag((E_MARIO_FLAG)(MARIO_FLAG_IN_SHALLOW_WATER
+		                               | MARIO_FLAG_IN_WATER))) {
+			TWaterGun* wg = mWaterGun;
+			if (wg != NULL) {
+				bool emitting;
+				if (wg->mCurrentWater == 0) {
+					emitting = false;
+				} else {
+					s32 kind = wg->getCurrentNozzle()->getNozzleKind();
+					if (kind == 1) {
+						TNozzleTrigger* nozzle
+						    = (TNozzleTrigger*)wg->getCurrentNozzle();
+						if (nozzle->unk385 == TNozzleTrigger::ACTIVE)
+							emitting = true;
+						else
+							emitting = false;
+					} else if (wg->getCurrentNozzle()->unk378 > 0.0f) {
+						emitting = true;
+					} else {
+						emitting = false;
+					}
+				}
+				if (emitting)
+					emitSweatSometimes();
 			}
-			break;
-		}
-
-		TNozzleBase* nozzle3 = wg->getCurrentNozzle();
-		if (*(f32*)((u8*)nozzle3 + 0x378) > 0.0f) {
-			checkPumping();
 		}
 		break;
 	}
