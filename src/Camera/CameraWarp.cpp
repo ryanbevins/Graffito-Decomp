@@ -32,11 +32,12 @@ void CPolarSubCamera::addMoveCameraAndMario(const Vec& delta)
 	addVec3At(this, 0x124, delta);
 	addVec3At(this, 0x148, delta);
 
+	TCameraMarioData* mario = gpCameraMario;
 	JGeometry::TVec3<f32> tmp;
 	tmp.set(delta);
-	gpCameraMario->mPosX += tmp.x;
-	gpCameraMario->mPosY += tmp.y;
-	gpCameraMario->mPosZ += tmp.z;
+	mario->mPosX += tmp.x;
+	mario->mPosY += tmp.y;
+	mario->mPosZ += tmp.z;
 
 	unk6C->addMoveCameraAndMario(delta);
 
