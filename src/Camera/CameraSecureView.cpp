@@ -34,11 +34,11 @@ void CPolarSubCamera::execSecureView_(s16 angle, Vec* out)
 	f32 dx         = sum * jmaSinTable[marioBackU >> jmaSinShift];
 	f32 dz         = sum * jmaCosTable[marioBackU >> jmaSinShift];
 
-	s16 ad = *gpMarioAngleY - *(s16*)((u8*)gpMarioOriginal + 0x9C);
+	s32 ad = *gpMarioAngleY - *(s16*)((u8*)gpMarioOriginal + 0x9C);
 	if (ad < 0)
 		ad = -ad;
 
-	f32 deg = (f32)ad * (360.0f / 65536.0f);
+	f32 deg = (f32)(s16)ad * (360.0f / 65536.0f);
 	f32 factor;
 	if (deg <= 1.0f)
 		factor = 1.0f;
