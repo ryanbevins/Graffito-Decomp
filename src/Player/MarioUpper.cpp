@@ -206,7 +206,12 @@ void TMario::stateMachineUpper()
 		M3UModelMario* model = mModel;
 		J3DModel* j3dModel = *(J3DModel**)((u8*)model + 0x0C);
 		u8 flags = *(u8*)((u8*)j3dModel + 0x19);
-		if (flags & 0x3) {
+		BOOL isAnimPlaying;
+		if (flags & 0x3)
+			isAnimPlaying = TRUE;
+		else
+			isAnimPlaying = FALSE;
+		if (isAnimPlaying) {
 			mPumpState = 5;
 		}
 		break;
