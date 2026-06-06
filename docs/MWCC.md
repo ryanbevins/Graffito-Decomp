@@ -1577,13 +1577,18 @@ returns 0/1 either way).
 
 **How to apply.** Predicates whose declared return type doesn't match
 target's caller-side test should be flipped. The function body itself
-doesn't change — only the header declaration.
+doesn't change semantically; if the implementation uses a result local, make
+that local match the new return type to avoid a boundary cast.
 
 **Citations.**
 - `NPC/NpcCallback::NPCNeckCallBack` (tick 148): `TBaseNPC::isNeedNeckStraight`
   was declared `BOOL` in our header, generating `cmpwi r3, 0` after the
   bl. Target uses `clrlwi. r0, r3, 24`. Changed declaration to `bool`
   → +0.24pp on NPCNeckCallBack and matching test instruction.
+- `NPC/NpcCollision::execNpcObjCollision_` (tick 445): `TBaseNPC::isNerveWalk`
+  was declared `BOOL`, so the two call sites emitted `cmpwi r3, 0`. Target
+  uses `clrlwi. r0, r3, 24`; changing the declaration and owner local to
+  `bool` kept `NpcChange`'s owner exact and moved the caller 94.4% -> 96.5%.
 
 ### Don't cache a global pointer in a local across function calls — MWCC pins it to a callee-save register and changes register allocation throughout
 
@@ -5357,6 +5362,10 @@ mismatched bool↔BOOL in either direction creates a cast at the boundary.
 - `src/Camera/CameraMarioData.cpp::isMarioGoDown` — function returns `bool`.
   With `BOOL result = FALSE`, ended at 76% (4 extra instructions for the
   cast). Changing to `bool result = false` → 100%.
+- `src/NPC/NpcChange.cpp::TBaseNPC::isNerveWalk` — after changing the function
+  return type to `bool`, leaving `BOOL result = FALSE` inserted the same
+  int→bool cast and dropped the owner to 80.1%; changing the local to
+  `bool result = false` restored the owner to 100%.
 
 ### Ternary `? true : false` produces intermediate-byte sequence
 
