@@ -1293,7 +1293,7 @@ public:
 	void animSound();
 	void soundMovement();
 	void startVoiceYoshi(u32);
-	BOOL checkStatusType(long status) const;
+	bool checkStatusType(long status) const;
 
 	// fabricated
 	f32 getIntendedMag() const { return mIntendedMag; }

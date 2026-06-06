@@ -944,7 +944,7 @@ void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 }
 
 #pragma dont_inline on
-BOOL TMario::checkStatusType(long status) const
+bool TMario::checkStatusType(long status) const
 {
 	if (mAction & status)
 		return TRUE;
@@ -964,9 +964,11 @@ bool CPolarSubCamera::isMomentDefinite_() const
 void CPolarSubCamera::execInvalidAutoChase_() { unk284 = unk68->unk68; }
 bool CPolarSubCamera::isMarioCrabWalk_() const
 {
-	bool canUseNozzle = false;
 	bool result       = false;
-	if (gpMarioOriginal->mState & MARIO_FLAG_HAS_FLUDD) {
+	bool canUseNozzle = false;
+	bool hasFludd
+	    = gpMarioOriginal->mState & MARIO_FLAG_HAS_FLUDD ? true : false;
+	if (hasFludd) {
 		if (gpMarioOriginal->checkStatusType(0x8000))
 			canUseNozzle = true;
 	}
@@ -977,9 +979,11 @@ bool CPolarSubCamera::isMarioCrabWalk_() const
 
 bool CPolarSubCamera::isMarioAimWithGun_() const
 {
-	bool canUseNozzle = false;
 	bool result       = false;
-	if (gpMarioOriginal->mState & MARIO_FLAG_HAS_FLUDD) {
+	bool canUseNozzle = false;
+	bool hasFludd
+	    = gpMarioOriginal->mState & MARIO_FLAG_HAS_FLUDD ? true : false;
+	if (hasFludd) {
 		if (gpMarioOriginal->checkStatusType(0x8000))
 			canUseNozzle = true;
 	}
