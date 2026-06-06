@@ -386,7 +386,10 @@ be emitted and called. Use the opposite settled rule ("manual expansion of
 the call. Citations: `Enemy/rocket` and `MoveBG/MapObjItem2` both use this
 wrapper with a 100% `MsWrap<f>` symbol; `Animal/boid::calcBoids` changed from
 direct inline to this wrapper and gained an exact local `MsWrap<f>` while
-lifting `calcBoids` 62.2% -> 65.3% (t225).
+lifting `calcBoids` 62.2% -> 65.3% (t225); `Animal/AnimalBase` routed the
+five `execWalk` wrap sites and one `getRotationFlyToDir` site through the
+wrapper, emitted the exact local `MsWrap<f>` owner, and moved `execWalk`
+37.0% -> 58.5% plus `getRotationFlyToDir` 75.6% -> 86.7%.
 
 ### objdiff constant-pool label-numbering floor (a near-match can be byte-identical)
 
@@ -7973,6 +7976,25 @@ confirmed in ≥2 TUs._
   inline-budget control, not expression order.
 
 ## Refuted / wrong turns
+
+### An explicit specialization declaration does not force tiny `MsClamp<f32>` local-owner emission
+
+**Symptom (`mario/Animal/AnimalBase`).** Target owns a local 32B
+`MsClamp<f>__Ffff` body and calls it from `TAnimalBase::execWalk`; direct
+`MsClamp<f32>` source inlines the compare/select body and leaves the local
+owner missing.
+
+**Tried & REFUTED:** adding a TU-scope
+`template <> f32 MsClamp<f32>(f32, f32, f32);` declaration before the call
+compiled cleanly but produced byte-identical output: `execWalk` stayed 58.5%
+after the `MsWrap` wrapper fix, and `MsClamp<f>` remained missing. A tiny
+file-local `callMsClamp` wrapper also inlined completely and did not emit the
+target owner.
+
+**Conclusion.** The `MsWrap` static-wrapper rule does not mechanically apply to
+very small branch-only templates. Future `MsClamp` experiments need a different
+inline-budget or call-boundary lever; do not retry the explicit specialization
+declaration or a trivial wrapper alone.
 
 ### File-scope or inline-static arrays do not replace dummy-local anonymous rodata in `JKRCompArchive`
 

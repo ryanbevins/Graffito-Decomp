@@ -27,6 +27,11 @@
 
 JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
 
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
 JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>& angles)
 {
 	f32 hz = 0.5f * (angles.z * (3.14159265f / 180.0f));
@@ -225,9 +230,9 @@ void TAnimalBase::execWalk(bool moving)
 	}
 
 	JGeometry::TVec3<f32> targetRot = MsGetRotFromZaxis(diff);
-	f32 wrappedTargetY = MsWrap<f32>(targetRot.y, 0.0f, 360.0f);
-	f32 currY          = MsWrap<f32>(mRotation.y, wrappedTargetY - 180.0f,
-	                                  wrappedTargetY + 180.0f);
+	f32 wrappedTargetY = callMsWrap(targetRot.y, 0.0f, 360.0f);
+	f32 currY          = callMsWrap(mRotation.y, wrappedTargetY - 180.0f,
+	                                wrappedTargetY + 180.0f);
 
 	f32 deltaY = wrappedTargetY - currY;
 	f32 clampedDelta;
@@ -239,14 +244,14 @@ void TAnimalBase::execWalk(bool moving)
 		clampedDelta = deltaY;
 
 	mRotation.y += clampedDelta;
-	mRotation.y = MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
+	mRotation.y = callMsWrap(mRotation.y, 0.0f, 360.0f);
 
 	f32 tilt       = MsClamp<f32>(-clampedDelta * 30.0f, -45.0f, 45.0f);
 	f32 chaseSpeed = 0.1f * mMarchSpeed;
 	CLBChaseGeneralConstantSpecifySpeed<f32>(&mRotation.z, tilt, chaseSpeed);
 
-	f32 wrappedTargetX = MsWrap<f32>(targetRot.x, -180.0f, 180.0f);
-	mRotation.x        = MsWrap<f32>(mRotation.x, -180.0f, 180.0f);
+	f32 wrappedTargetX = callMsWrap(targetRot.x, -180.0f, 180.0f);
+	mRotation.x        = callMsWrap(mRotation.x, -180.0f, 180.0f);
 	CLBChaseGeneralConstantSpecifySpeed<f32>(&mRotation.x, wrappedTargetX,
 	                                          chaseSpeed);
 
@@ -264,7 +269,8 @@ void TAnimalBase::getRotationFlyToDir(JGeometry::TVec3<f32>* outRot,
 	JGeometry::TVec3<f32> wrapped   = targetRot;
 
 	wrapped.y = MsWrap<f32>(wrapped.y, 0.0f, 360.0f);
-	outRot->y = MsWrap<f32>(outRot->y, wrapped.y - 180.0f, wrapped.y + 180.0f);
+	outRot->y
+	    = callMsWrap(outRot->y, wrapped.y - 180.0f, wrapped.y + 180.0f);
 
 	f32 delta = wrapped.y - outRot->y;
 	f32 clampedDelta;
