@@ -45,14 +45,12 @@ void TMapWarp::watchToWarp()
 	}
 
 	if (checkData->isMapChange()) {
-		if (checkData->getData() != unk8) {
+		int data = checkData->getData();
+		if (data != unk8) {
 			gpMap->getModelManager()->getJointModel(0)->getChild(unk8)->sleep();
-			gpMap->getModelManager()
-			    ->getJointModel(0)
-			    ->getChild(checkData->getData())
-			    ->awake();
+			gpMap->getModelManager()->getJointModel(0)->getChild(data)->awake();
 
-			unk8 = checkData->getData();
+			unk8 = data;
 		}
 	}
 
