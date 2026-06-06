@@ -136,10 +136,10 @@ void TMario::stateMachineUpper()
 			unk37E = mUpperBodyParams.mPumpWaitTime.value;
 		}
 
+		TWaterGun* wg;
 		if (!checkFlag((E_MARIO_FLAG)(MARIO_FLAG_IN_SHALLOW_WATER
 		                               | MARIO_FLAG_IN_WATER))) {
-			TWaterGun* wg = mWaterGun;
-			if (wg != NULL) {
+			if ((wg = mWaterGun) != NULL) {
 				bool emitting;
 				if (wg->mCurrentWater == 0) {
 					emitting = false;
