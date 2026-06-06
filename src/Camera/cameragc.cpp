@@ -1201,16 +1201,17 @@ void CPolarSubCamera::loadAfter()
 			marioHeight += unk290;
 	}
 	marioPos.y += marioHeight;
-	gpCameraMario->mPosX = marioPos.x;
-	gpCameraMario->mPosY = marioPos.y;
-	gpCameraMario->mPosZ = marioPos.z;
+	TCameraMarioData* marioData = gpCameraMario;
+	marioData->mPosX = marioPos.x;
+	marioData->mPosY = marioPos.y;
+	marioData->mPosZ = marioPos.z;
 
 	if (unk70 != nullptr) {
 		unk70->calcPosAndAt(&mPosition, &mTarget);
 	} else {
-		mTarget.x = gpCameraMario->mPosX;
-		mTarget.y = gpCameraMario->mPosY;
-		mTarget.z = gpCameraMario->mPosZ;
+		mTarget.x = marioData->mPosX;
+		mTarget.y = marioData->mPosY;
+		mTarget.z = marioData->mPosZ;
 		f32 dist  = CLBLinearInbetween(unk68->unk08, unk68->unk0C, unkA8);
 		CLBPolarToCross(mTarget, &mPosition, dist, unkA4, unkA6);
 	}
