@@ -570,7 +570,8 @@ TNPCManager::TNPCManager(const char* name)
 void TNPCManager::perform(u32 flags, JDrama::TGraphics* gfx)
 {
 	if (flags & 0x200) {
-		for (int i = 0; i < mObjNum; i++) {
+		int objNum = mObjNum;
+		for (int i = 0; i < objNum; i++) {
 			((TLiveActor*)unk18[i])->mLiveFlag |= 0x01000000;
 		}
 	}
