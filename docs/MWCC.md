@@ -7403,6 +7403,25 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **What source shape preserves an out-of-line
+  `TVec3<float>::set(const Vec&)` call when the copied temp is only read back
+  as scalars?** In `mario/Camera/CameraWarp`
+  `CPolarSubCamera::addMoveCameraAndMario(const Vec&)`, target updates four
+  camera vectors, loads `gpCameraMario`, calls the existing weak
+  `JGeometry::TVec3<float>::set(const Vec&)` into a stack temp at `r1+0x38`,
+  then adds that temp to Mario's cached position. Natural source
+  `JGeometry::TVec3<f32> tmp; tmp.set(delta); mario->mPosX += tmp.x; ...`
+  scalarizes the copy, shrinks the frame from target `0xd0` to `0x28`, and
+  falls through directly to `TCameraInbetween::addMoveCameraAndMario`. Moving
+  the temp declaration before the first vector updates was neutral; routing the
+  temp through a typed pointer (`tmpPtr->set(delta); tmpPtr->x`) regressed
+  `61.3% -> 60.5%`; a local inline wrapper around `set` was also neutral. Other
+  Camera TUs such as `mario/Camera/lensflare` and `mario/Camera/sunmodel`
+  naturally keep the same weak call when the temp later escapes to another
+  function, so the missing condition may be "address escapes after set" rather
+  than declaration order. Next experiment should compare those call sites'
+  lifetime/escape shapes before trying another local spelling.
+
 - **What source shape preserves JGadget list iterator constructor call
   boundaries without forcing broad weak emission?** Several list-insertion
   targets keep explicit iterator constructor/copy calls that current natural
