@@ -58,109 +58,49 @@ void TMario::checkPumping()
 // checkPumpEnable: 0x80141ACC, size 0x1CC
 BOOL TMario::checkPumpEnable()
 {
-	// Must have watergun
-	if (mWaterGun == NULL) {
-		mPumpState = 5;
-		unk37E = 0;
-		return FALSE;
-	}
-
-	// Must have HAS_FLUDD flag
-	if (!checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-		mPumpState = 5;
-		unk37E = 0;
-		return FALSE;
-	}
-
-	if (!gMarioAnimeData[mAnimationId].isPumpOK()) {
-		mPumpState = 5;
-		unk37E = 0;
-		return FALSE;
-	}
-
-	if (onYoshi()) {
-		mPumpState = 5;
-		unk37E = 0;
-		return FALSE;
-	}
-
-	// Check dirty amount and ratio
-	f32 dirty = *(f32*)((u8*)this + 0x368);
-	if (dirty > 0.0f) {
-		s16 val = mGraffitoParams.mSinkTime.value;
-		f32 limit = mGraffitoParams.mSinkPumpLimit.value;
-		f32 ratio = dirty / (f32)val;
-		if (ratio > limit) {
-			mPumpState = 5;
-			unk37E = 0;
-			return FALSE;
+	if (mWaterGun != NULL) {
+		if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+			if (gMarioAnimeData[mAnimationId].isPumpOK()) {
+				if (!onYoshi()) {
+					f32 dirty = *(f32*)((u8*)this + 0x368);
+					if (dirty <= 0.0f
+					    || dirty / (f32)mGraffitoParams.mSinkTime.value
+					           <= mGraffitoParams.mSinkPumpLimit.value) {
+						u32 pumpState = mPumpState;
+						if (pumpState != 4 && pumpState != 3
+						    && pumpState != 2) {
+							if (mAction != 0x88D
+							    || *(u8*)((u8*)mWaterGun->getCurrentNozzle()
+							              + 0x18)
+							           != 1) {
+								TWaterGun* wg2 = mWaterGun;
+								TNozzleBase* nozzle2
+								    = wg2->getCurrentNozzle();
+								if (nozzle2->getNozzleKind() != 1
+								    || ((TNozzleTrigger*)mWaterGun
+								            ->getCurrentNozzle())
+								               ->unk385
+								           != TNozzleTrigger::DEAD) {
+									TWaterGun* wg4 = mWaterGun;
+									f32 wgVal      = wg4->unk1D00;
+									if (!(wgVal < 0.0f)) {
+										if (!(wgVal > 0.0f)) {
+											if (!checkActionFlag(0x1000))
+												return TRUE;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
-	// Pump state checks
-	if (mPumpState == 4) {
-		mPumpState = 5;
-		unk37E = 0;
-		return FALSE;
-	}
-	if (mPumpState == 3) {
-		mPumpState = 5;
-		unk37E = 0;
-		return FALSE;
-	}
-	if (mPumpState == 2) {
-		mPumpState = 5;
-		unk37E = 0;
-		return FALSE;
-	}
-
-	// Check status 0x88D
-	if (mAction == 0x88D) {
-		TWaterGun* wg = mWaterGun;
-		TNozzleBase* nozzle = wg->getCurrentNozzle();
-		if (*(u8*)((u8*)nozzle + 0x18) == 1) {
-			mPumpState = 5;
-			unk37E = 0;
-			return FALSE;
-		}
-	}
-
-	// Check nozzle kind == 1 (trigger type)
-	TWaterGun* wg2 = mWaterGun;
-	TNozzleBase* nozzle2 = wg2->getCurrentNozzle();
-	s32 kind = nozzle2->getNozzleKind();
-	if (kind == 1) {
-		TWaterGun* wg3 = mWaterGun;
-		TNozzleBase* nozzle3 = wg3->getCurrentNozzle();
-		if (*(u8*)((u8*)nozzle3 + 0x385) == 2) {
-			mPumpState = 5;
-			unk37E = 0;
-			return FALSE;
-		}
-	}
-
-	// Check watergun unk1D00
-	TWaterGun* wg4 = mWaterGun;
-	f32 wgVal = wg4->unk1D00;
-	if (wgVal < 0.0f) {
-		mPumpState = 5;
-		unk37E = 0;
-		return FALSE;
-	}
-	if (wgVal > 0.0f) {
-		mPumpState = 5;
-		unk37E = 0;
-		return FALSE;
-	}
-
-	// Check action flag bit 12
-	if (checkActionFlag(0x1000)) {
-		mPumpState = 5;
-		unk37E = 0;
-		return FALSE;
-	}
-
-	return TRUE;
+	mPumpState = 5;
+	unk37E     = 0;
+	return FALSE;
 }
 
 // stateMachineUpper: 0x80141854, size 0x278
