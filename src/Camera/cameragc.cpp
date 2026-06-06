@@ -47,7 +47,51 @@ s16 CPolarSubCamera::getOffsetAngleY() const { return unk68->unk5A; }
 s16 CPolarSubCamera::getOffsetAngleX() const { return unk68->unk58; }
 
 void CPolarSubCamera::ctrlGameCamera_() { }
-void CPolarSubCamera::calcFinalPosAndAt_() { }
+void CPolarSubCamera::calcFinalPosAndAt_()
+{
+	if (mMode != 0x49) {
+		gpCameraShake->execShake(unk124, &unk148, &mUp);
+		if (mMode != 0x2E) {
+			if (!isFixCameraSpecifyMode(mMode) || unk6C->mFrameCount > 0) {
+				if (isHellDeadDemo()) {
+					const u8* save = (const u8*)unk2D4;
+					if (unk256 > *(const s16*)(save + 0x1D0)) {
+						unk7C = 1;
+						unk64 |= 0x40;
+					}
+				} else {
+					const u8* save = (const u8*)unk2D4;
+					CLBRevisionLookatByAngleX(
+					    *(const s16*)(save + 0x1BC),
+					    *(const s16*)(save + 0x1D0), unk124, &unk148);
+				}
+			}
+		}
+	}
+
+	bool sameXY  = false;
+	bool sameAll = false;
+	if (unk124.x == unk148.x && unk124.y == unk148.y)
+		sameXY = true;
+	if (sameXY && unk124.z == unk148.z)
+		sameAll = true;
+
+	if (sameAll) {
+		unk124.x = unk130.x;
+		unk124.y = unk130.y;
+		unk124.z = unk130.z;
+		unk148.x = unk154.x;
+		unk148.y = unk154.y;
+		unk148.z = unk154.z;
+	} else {
+		unk130.x = unk124.x;
+		unk130.y = unk124.y;
+		unk130.z = unk124.z;
+		unk154.x = unk148.x;
+		unk154.y = unk148.y;
+		unk154.z = unk148.z;
+	}
+}
 void CPolarSubCamera::calcPosAndAt_() { }
 void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 {
