@@ -654,9 +654,10 @@ void TNPCManager::makePartsModelData_(u32 actorType, u32 flags,
                                       TModelDataKeeper* keeper)
 {
 	const TNpcInitInfo* info = SMSGetNpcInitData(actorType);
+	const TNpcModelData* const* models = info->unk4;
 
 	for (int i = 0; i < 12; i++) {
-		const TNpcModelData* model = info->unk4[i];
+		const TNpcModelData* model = models[i];
 		if (model == NULL)
 			continue;
 
@@ -666,8 +667,9 @@ void TNPCManager::makePartsModelData_(u32 actorType, u32 flags,
 			localFlags |= 0x00100000;
 		}
 
+		const char* const* names = model->unk8;
 		for (int j = 0; j < 2; j++) {
-			const char* name = model->unk8[j];
+			const char* name = names[j];
 			if (name == NULL)
 				continue;
 
@@ -679,7 +681,7 @@ void TNPCManager::makePartsModelData_(u32 actorType, u32 flags,
 				continue;
 
 			SDLModelData* sdlModel
-			    = keeper->createAndKeepData(model->unk8[j], localFlags);
+			    = keeper->createAndKeepData(names[j], localFlags);
 
 			if (model->unk2B) {
 				J3DMaterialTable* bmt = getBmt_(model->unk2A);
