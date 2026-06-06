@@ -44,6 +44,7 @@ class TLight : public TPlacement, public JStage::TLight {
 public:
 	TLight(const char* name = "<Light>")
 	    : TPlacement(name)
+	    , mLightType(JStage::TELIGHT_Unk1)
 	{
 		GXInitLightAttn(&unk24, 1.875f, 0.0f, 0.0f, 1.875f, 0.0f, 0.0f);
 		GXInitLightColor(&unk24, JUtility::TColor(0xff, 0xff, 0xff, 0xff));
