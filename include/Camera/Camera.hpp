@@ -153,9 +153,9 @@ public:
 	/* 0x70 */ TCameraMapTool* unk70;
 	/* 0x74 */ char unk74[0x7C - 0x74];
 	/* 0x7C */ u32 unk7C;
-	/* 0x80 */ char unk80[0x8C - 0x80];
+	/* 0x80 */ JGeometry::TVec3<f32> unk80;
 	/* 0x8C */ JGeometry::TVec3<f32> unk8C;
-	/* 0x98 */ char unk98[0xA4 - 0x98];
+	/* 0x98 */ JGeometry::TVec3<f32> unk98;
 	/* 0xA4 */ s16 unkA4;
 	/* 0xA6 */ s16 unkA6;
 	/* 0xA8 */ f32 unkA8;

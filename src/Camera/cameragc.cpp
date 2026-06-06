@@ -17,6 +17,7 @@
 #include <System/MarioGamePad.hpp>
 
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
+template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
 
 CPolarSubCamera::CPolarSubCamera(const char* name)
     : JDrama::TLookAtCamera()
@@ -137,8 +138,39 @@ void CPolarSubCamera::rotateX_ByStickY_(f32 stick)
 
 void CPolarSubCamera::calcNowTargetFromPosAndAt_(const Vec& pos, const Vec& at)
 {
-	(void)pos;
-	(void)at;
+	f32 dist;
+	s16 angleX;
+	s16 angleY;
+	CLBCrossToPolar(at, pos, &dist, &angleX, &angleY);
+	unkA8 = CLBCalcRatio<s16>(unk68->unk18, unk68->unk1A, angleX);
+	if (isLButtonCameraSpecifyMode(mMode)) {
+		f32 ratio = unkA8;
+		if (ratio > 1.0f)
+			ratio = 1.0f;
+		else if (ratio < 0.0f)
+			ratio = 0.0f;
+		unkA8 = ratio;
+	} else {
+		f32 max   = unk26C;
+		f32 ratio = unkA8;
+		f32 min   = unk268;
+		if (ratio > max)
+			ratio = max;
+		else if (ratio < min)
+			ratio = min;
+		unkA8 = ratio;
+	}
+	unkA4 = CLBLinearInbetween<s16>(unk68->unk18, unk68->unk1A, unkA8);
+	unkA6 = angleY;
+	unk80.x = pos.x;
+	unk80.y = pos.y;
+	unk80.z = pos.z;
+	unk98.x = pos.x;
+	unk98.y = pos.y;
+	unk98.z = pos.z;
+	unk8C.x = at.x;
+	unk8C.y = at.y;
+	unk8C.z = at.z;
 }
 
 f32 CPolarSubCamera::calcDistFromXRotRatio_() const
