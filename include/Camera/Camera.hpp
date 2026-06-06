@@ -178,7 +178,9 @@ public:
 	/* 0x270 */ f32 unk270;
 	/* 0x274 */ char unk274[0x284 - 0x274];
 	/* 0x284 */ u32 unk284;
-	/* 0x288 */ char unk288[0x294 - 0x288];
+	/* 0x288 */ f32 unk288;
+	/* 0x28C */ s16 unk28C;
+	/* 0x28E */ char unk28E[0x294 - 0x28E];
 	/* 0x294 */ f32 unk294;
 	/* 0x298 */ f32 unk298;
 	/* 0x29C */ char unk29C[0x2A4 - 0x29C];
@@ -190,6 +192,8 @@ public:
 	/* 0x2BC */ TMultiPlayerContainer* unk2BC;
 	/* 0x2C0 */ char unk2C0[0x2C8 - 0x2C0];
 	/* 0x2C8 */ s16 unk2C8;
+	/* 0x2CA */ char unk2CA[0x2D4 - 0x2CA];
+	/* 0x2D4 */ void* unk2D4;
 };
 
 extern CPolarSubCamera* gpCamera;

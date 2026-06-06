@@ -10,14 +10,19 @@
 #include <Camera/CameraMarioData.hpp>
 #include <Camera/CameraShake.hpp>
 #include <Camera/cameralib.hpp>
+#include <JSystem/JMath.hpp>
+#include <Map/Map.hpp>
+#include <Map/MapData.hpp>
 #include <Player/MarioMain.hpp>
 #include <Player/MarioAccess.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <System/MarioGamePad.hpp>
 
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
 template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
+template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
 
 CPolarSubCamera::CPolarSubCamera(const char* name)
     : JDrama::TLookAtCamera()
@@ -44,7 +49,81 @@ s16 CPolarSubCamera::getOffsetAngleX() const { return unk68->unk58; }
 void CPolarSubCamera::ctrlGameCamera_() { }
 void CPolarSubCamera::calcFinalPosAndAt_() { }
 void CPolarSubCamera::calcPosAndAt_() { }
-void CPolarSubCamera::calcSlopeAngleX_(s16* out) { (void)out; }
+void CPolarSubCamera::calcSlopeAngleX_(s16* out)
+{
+	s16 slopeAngle       = 0;
+	bool isNozzleAction  = false;
+	bool canSampleSlope  = false;
+	TMario* mario        = gpMarioOriginal;
+
+	if (mario->mState & MARIO_FLAG_HAS_FLUDD) {
+		if (mario->checkStatusType(0x8000))
+			isNozzleAction = true;
+	}
+
+	if (!isNozzleAction) {
+		const TBGCheckData* ground = *gpMarioGroundPlane;
+		if (ground != nullptr) {
+			if (ground->mBGType & 0xA000)
+				canSampleSlope = true;
+		}
+
+		if (canSampleSlope && isSlopeCameraMode()) {
+			Vec toMario;
+			toMario.x = gpMarioPos->x - mPosition.x;
+			toMario.y = 0.0f;
+			toMario.z = gpMarioPos->z - mPosition.z;
+			if (toMario.x * toMario.x + toMario.y * toMario.y
+			        + toMario.z * toMario.z
+			    > 0.0000038146973f) {
+				const u8* save     = (const u8*)unk2D4;
+				f32 marioGroundY   = SMS_GetMarioGrLevel();
+				f32 forwardDist    = *(const f32*)(save + 0x20C);
+				s16 maxSlopeAngle  = *(const s16*)(save + 0x1E4);
+				Vec forwardOffset;
+				MsVECNormalize(&toMario, &forwardOffset);
+				forwardOffset.x *= forwardDist;
+				forwardOffset.y *= forwardDist;
+				forwardOffset.z *= forwardDist;
+
+				Vec checkPos = *gpMarioPos;
+				checkPos.x += forwardOffset.x;
+				checkPos.y += forwardOffset.y;
+				checkPos.z += forwardOffset.z;
+
+				const TBGCheckData* checkData;
+				f32 checkY = gpMarioPos->y + 10.0f
+				             + forwardDist
+				                 * (JMASSin(maxSlopeAngle)
+				                    * (1.0f / JMASCos(maxSlopeAngle)));
+				f32 groundY = gpMap->checkGroundIgnoreWaterSurface(
+				    checkPos.x, checkY, checkPos.z, &checkData);
+				f32 rise = groundY - marioGroundY;
+				s16 sampleAngle = 0;
+				if (rise > 0.0f)
+					sampleAngle = matan(forwardDist, rise);
+
+				if (sampleAngle > maxSlopeAngle)
+					slopeAngle = 0;
+				else
+					slopeAngle = sampleAngle;
+			}
+		}
+	}
+
+	const u8* save = (const u8*)unk2D4;
+	CLBChaseGeneralConstantSpecifySpeed<s16>(
+	    &unk28C, slopeAngle, *(const s16*)(save + 0x1F8));
+	*out -= unk28C;
+	s16 angle = *out;
+	s16 max   = *(const s16*)(save + 0x1D0);
+	s16 min   = *(const s16*)(save + 0x1BC);
+	if (angle > max)
+		angle = max;
+	else if (angle < min)
+		angle = min;
+	*out = angle;
+}
 
 #pragma dont_inline on
 BOOL TMario::checkStatusType(long status) const
