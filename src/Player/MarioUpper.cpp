@@ -63,7 +63,12 @@ BOOL TMario::checkPumpEnable()
 			if (gMarioAnimeData[mAnimationId].isPumpOK()) {
 				if (!onYoshi()) {
 					f32 dirty = *(f32*)((u8*)this + 0x368);
-					if (dirty <= 0.0f
+					BOOL isDirty;
+					if (dirty > 0.0f)
+						isDirty = TRUE;
+					else
+						isDirty = FALSE;
+					if (!isDirty
 					    || dirty / (f32)mGraffitoParams.mSinkTime.value
 					           <= mGraffitoParams.mSinkPumpLimit.value) {
 						u32 pumpState = mPumpState;
