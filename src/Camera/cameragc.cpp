@@ -399,12 +399,17 @@ void CPolarSubCamera::ctrlGameCamera_()
 	}
 
 	TCameraKindParam kindParam;
-	const TCamSaveKindParam* const* saveTable
-	    = (const TCamSaveKindParam* const*)((u8*)this + 0x2D8);
-	kindParam.copySaveParam(*saveTable[mMode]);
+	const u8* savePtr = (const u8*)this + mMode * 4;
+	kindParam.copySaveParam(
+	    **(const TCamSaveKindParam* const*)(savePtr + 0x2D8));
 
 	s32 frameCount = unk6C->mFrameCount;
-	if (frameCount > 0) {
+	bool shouldInterpolate;
+	if (frameCount > 0)
+		shouldInterpolate = true;
+	else
+		shouldInterpolate = false;
+	if (shouldInterpolate) {
 		unk68->inbetweenData(kindParam, (f32)frameCount);
 	} else {
 		*unk68 = kindParam;
