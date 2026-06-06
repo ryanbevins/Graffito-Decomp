@@ -218,8 +218,9 @@ void TAnimalBase::execWalk(bool moving)
 		return;
 
 	f32 radius = calcMinimumTurnRadius(mMarchSpeed, mTurnSpeed);
+	f32 turnSpeed = mTurnSpeed;
 	if (dist <= 2.0f * radius) {
-		mTurnSpeed = calcTurnSpeedToReach(mMarchSpeed, 0.5f * dist);
+		turnSpeed = calcTurnSpeedToReach(mMarchSpeed, 0.5f * dist);
 	}
 
 	JGeometry::TVec3<f32> targetRot = MsGetRotFromZaxis(diff);
@@ -229,22 +230,18 @@ void TAnimalBase::execWalk(bool moving)
 
 	f32 deltaY = wrappedTargetY - currY;
 	f32 clampedDelta;
-	if (deltaY < -mTurnSpeed)
-		clampedDelta = -mTurnSpeed;
-	else if (deltaY > mTurnSpeed)
-		clampedDelta = mTurnSpeed;
+	if (deltaY < -turnSpeed)
+		clampedDelta = -turnSpeed;
+	else if (deltaY > turnSpeed)
+		clampedDelta = turnSpeed;
 	else
 		clampedDelta = deltaY;
 
 	mRotation.y += clampedDelta;
 	mRotation.y = MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
 
-	f32 tilt = -clampedDelta * 30.0f;
-	if (tilt > 45.0f)
-		tilt = 45.0f;
-	else if (tilt < -45.0f)
-		tilt = -45.0f;
-	f32 chaseSpeed = 0.1f * mTurnSpeed;
+	f32 tilt       = MsClamp<f32>(-clampedDelta * 30.0f, -45.0f, 45.0f);
+	f32 chaseSpeed = 0.1f * mMarchSpeed;
 	CLBChaseGeneralConstantSpecifySpeed<f32>(&mRotation.z, tilt, chaseSpeed);
 
 	f32 wrappedTargetX = MsWrap<f32>(targetRot.x, -180.0f, 180.0f);
