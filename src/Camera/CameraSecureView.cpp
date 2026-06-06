@@ -82,8 +82,7 @@ void CPolarSubCamera::calcSecureViewTarget_(s16 angle, f32* outX, f32* outZ)
 
 	f32 sinDelta = jmaSinTable[delta >> jmaSinShift];
 	f32 sum      = farVal * cosDelta + nearVal * sinDelta;
-	if (sum < 0.0f)
-		sum = -sum;
+	sum          = sum >= 0.0f ? sum : -sum;
 	sum = -sum;
 
 	u16 marioBackU = (u16)marioBack;
