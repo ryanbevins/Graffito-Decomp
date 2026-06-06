@@ -28,6 +28,14 @@ TNameRef* TNameRefGen::load(JSUMemoryInputStream& stream)
 	return mRootNameRef;
 }
 
+TCamera::TCamera(float near, float far, const char* name)
+    : TPlacement(name)
+    , mFlag(0)
+    , mNear(near)
+    , mFar(far)
+{
+}
+
 TNameRef* TNameRefGen::getNameRef(const char* name) const
 {
 	if (strcmp(name, "GroupObj") == 0) {

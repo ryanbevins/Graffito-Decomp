@@ -8,13 +8,7 @@ namespace JDrama {
 
 class TCamera : public TPlacement, public JStage::TCamera {
 public:
-	TCamera(float near, float far, const char* name)
-	    : TPlacement(name)
-	    , mFlag(0)
-	    , mNear(near)
-	    , mFar(far)
-	{
-	}
+	TCamera(float near, float far, const char* name);
 
 	virtual ~TCamera();
 	virtual int getType() const { return 2; }
