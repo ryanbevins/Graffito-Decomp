@@ -6961,6 +6961,13 @@ Settled, need a 2nd independent confirmation in another TU.
   expression abs (`diff = body->unk13C - body->mRotation.z`) regressed to a
   276B function with extra `fmr`s, so this is a field-load/source-shape lever,
   not a blanket replacement.
+- `Camera/CameraSecureView::calcSecureViewTarget_` (2026-06-07 12:43am MNL):
+  rewriting expression abs from `if (sum < 0.0f) sum = -sum;` to
+  `sum = sum >= 0.0f ? sum : -sum;` recovered the target
+  `cror; bne fneg; b merge` branch lattice and moved `84.0% -> 85.0%`, but
+  still introduced one extra `fmr f0,f1` before the compare. This supports the
+  branch-layout half of the ternary lever while preserving the warning that
+  expression abs may carry extra FPR residue.
 
 **Counter-evidence (don't blindly apply).** Same lever applied to
 `Camera/CameraSecureView::execSecureView_` (tick 142) **reduced**
