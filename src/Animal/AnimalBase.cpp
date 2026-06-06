@@ -37,16 +37,17 @@ JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>& angles)
 	f32 sy = sinf(hy);
 	f32 cy = cosf(hy);
 
+	JGeometry::TQuat4<f32> yQuat(0.0f, sy, 0.0f, cy);
+
 	f32 hx = 0.5f * (angles.x * (3.14159265f / 180.0f));
 	f32 sx = sinf(hx);
 	f32 cx = cosf(hx);
 
-	JGeometry::TQuat4<f32> q;
-	q.x = sx * cy * cz + cx * sy * sz;
-	q.y = cx * sy * cz - sx * cy * sz;
-	q.z = cx * cy * sz - sx * sy * cz;
-	q.w = cx * cy * cz + sx * sy * sz;
-	return q;
+	JGeometry::TQuat4<f32> xQuat(sx, 0.0f, 0.0f, cx);
+	JGeometry::TQuat4<f32> zQuat(0.0f, 0.0f, sz, cz);
+	xQuat.mul(xQuat, zQuat);
+	yQuat.mul(yQuat, xQuat);
+	return yQuat;
 }
 
 extern "C" {
