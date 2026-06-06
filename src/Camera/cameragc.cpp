@@ -1151,9 +1151,9 @@ void CPolarSubCamera::loadAfter()
 	else
 		changeCamModeSpecifyFrame_(unk5C, 1);
 
-	const TCamSaveKindParam* const* saveTable
-	    = (const TCamSaveKindParam* const*)((u8*)this + 0x2D8);
-	unk68->copySaveParam(*saveTable[mMode]);
+	const u8* savePtr = (const u8*)this + mMode * 4;
+	unk68->copySaveParam(
+	    **(const TCamSaveKindParam* const*)(savePtr + 0x2D8));
 	mFovy = unk68->unk00;
 	mNear = unk68->unk04;
 
