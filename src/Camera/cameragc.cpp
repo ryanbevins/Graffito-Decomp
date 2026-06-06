@@ -1279,8 +1279,16 @@ void CPolarSubCamera::loadAfter()
 	unk160.z = mTarget.z;
 
 	if (unk64 & 0x1000) {
-		*(JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x10) = mPosition;
-		*(JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x1C) = mTarget;
+		JGeometry::TVec3<f32>* coasterPos
+		    = (JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x10);
+		coasterPos->x = mPosition.x;
+		coasterPos->y = mPosition.y;
+		coasterPos->z = mPosition.z;
+		JGeometry::TVec3<f32>* coasterTarget
+		    = (JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x1C);
+		coasterTarget->x = mTarget.x;
+		coasterTarget->y = mTarget.y;
+		coasterTarget->z = mTarget.z;
 	}
 
 	unk6C->initCameraInbetween(mPosition, mTarget, *gpMarioPos);
