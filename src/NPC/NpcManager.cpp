@@ -610,11 +610,18 @@ void TNPCManager::clipEnemies(JDrama::TGraphics* gfx)
 
 	if (gpMarDirector->mMap == 1) {
 		CPolarSubCamera* cam = gpCamera;
-		bool isParaCam = cam->isSimpleDemoCamera() || (cam->mMode == 0x49);
-		bool ext = isParaCam || (cam->mMode == 0xd)
-		           || (*(int*)cam->unk54 == 0xd
-		               && (cam->isNowInbetween() || cam->mMode == 0x13));
-		if (ext && farClipFromUnk58 < 15000.0f)
+		bool isParaCam = true;
+		if (!cam->isSimpleDemoCamera()) {
+			bool isDemoMode = (cam->mMode == 0x49) ? true : false;
+			if (!isDemoMode)
+				isParaCam = false;
+		}
+
+		if (((isParaCam ? true : false) || (gpCamera->mMode == 0xd)
+		        || (*(int*)gpCamera->unk54 == 0xd
+		            && (gpCamera->isNowInbetween()
+		                || gpCamera->mMode == 0x13)))
+		    && farClipFromUnk58 < 15000.0f)
 			farClipFromUnk58 = 15000.0f;
 	}
 
