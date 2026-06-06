@@ -156,7 +156,120 @@ s16 CPolarSubCamera::getFinalAngleZ() const
 s16 CPolarSubCamera::getOffsetAngleY() const { return unk68->unk5A; }
 s16 CPolarSubCamera::getOffsetAngleX() const { return unk68->unk58; }
 
-void CPolarSubCamera::ctrlGameCamera_() { }
+void CPolarSubCamera::ctrlGameCamera_()
+{
+	if (!(unk64 & 0x400))
+		execDeadDemoProc_();
+
+	if (!(unk64 & 0x80) && unk284 > 0)
+		--unk284;
+
+	if (unk278 != 0)
+		--unk278;
+	if (unk27A != 0)
+		--unk27A;
+	if (unk282 != 0)
+		--unk282;
+
+	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
+	f32 marioHeight;
+	if (isNormalDeadDemo()) {
+		marioHeight = 35.0f;
+	} else {
+		marioHeight = unk68->unk24 + unkA8 * unk68->unk28;
+		if (SMS_GetMarioStatus() == 0x200345)
+			marioHeight += 260.0f;
+		if (mMode == 9)
+			marioHeight += unk290;
+	}
+	marioPos.y += marioHeight;
+	TCameraMarioData* marioData = gpCameraMario;
+	marioData->mPosX            = marioPos.x;
+	marioData->mPosY            = marioPos.y;
+	marioData->mPosZ            = marioPos.z;
+	marioData->calcAndSetMarioData();
+
+	unkB4 = unk80;
+	unkC0 = unk8C;
+	unkCC = unk98;
+	unkD8   = unkA4;
+	unkDA   = unkA6;
+	unkDC   = unkA8;
+	unkE0   = unkAC;
+	unkE4   = unkB0;
+
+	if (gpMarDirector->mState == 4 && !(unk64 & 0x400)) {
+		if (isTalkCameraSpecifyMode(mMode)) {
+			if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2) {
+				int oldMode = unk5C;
+				s16 frames  = (s16)getCameraInbetweenFrame_(oldMode);
+				changeCamModeSpecifyFrame_(oldMode, frames);
+			}
+		} else if (!isSimpleDemoCamera()) {
+			int mode;
+			if (controlByCameraCode_(&mode))
+				execCameraModeChangeProc_(mode);
+		}
+	}
+
+	TCameraKindParam kindParam;
+	const TCamSaveKindParam* const* saveTable
+	    = (const TCamSaveKindParam* const*)((u8*)this + 0x2D8);
+	kindParam.copySaveParam(*saveTable[mMode]);
+
+	s32 frameCount = unk6C->mFrameCount;
+	if (frameCount > 0) {
+		unk68->inbetweenData(kindParam, (f32)frameCount);
+	} else {
+		*unk68 = kindParam;
+	}
+
+	if (unk284 > (s32)unk68->unk68)
+		unk284 = (s32)unk68->unk68;
+
+	if (!isNormalDeadDemo() && !(unk64 & 0x1200))
+		mFovy = unk68->unk00;
+	mNear = unk68->unk04;
+	mFar  = 300000.0f;
+
+	if (isNormalDeadDemo()) {
+		ctrlNormalDeadDemo_();
+	} else {
+		int mode = mMode;
+		switch (mode) {
+		case 2:
+			ctrlMultiPlayerCamera_();
+			break;
+		case 0x2E:
+			ctrlJetCoasterCamera_();
+			break;
+		default: {
+			bool calcPos = true;
+			if (!isFixCameraSpecifyMode(mode)
+			    && !isDefiniteCameraSpecifyMode(mode))
+				calcPos = false;
+
+			if (calcPos) {
+				calcPosAndAt_();
+			} else if (isLButtonCameraSpecifyMode(mMode)) {
+				ctrlLButtonCamera_();
+			} else if (isTalkCameraSpecifyMode(mMode)) {
+				ctrlTalkCamera_();
+			} else {
+				ctrlNormalOrTowerCamera_();
+			}
+			break;
+		}
+		}
+	}
+
+	unk124.x = mPosition.x;
+	unk124.y = mPosition.y;
+	unk124.z = mPosition.z;
+	unk148.x = mTarget.x;
+	unk148.y = mTarget.y;
+	unk148.z = mTarget.z;
+}
 void CPolarSubCamera::calcFinalPosAndAt_()
 {
 	if (mMode != 0x49) {
