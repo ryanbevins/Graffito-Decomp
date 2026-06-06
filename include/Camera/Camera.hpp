@@ -113,7 +113,7 @@ public:
 	s16 getOffsetAngleY() const;
 	s16 getFinalAngleZ() const;
 	~CPolarSubCamera();
-	int controlByCameraCode_(int*);
+	bool controlByCameraCode_(int*);
 	void getLButtonCameraModeByNozzle_();
 	int getCameraInbetweenFrame_(int);
 	void setUpToLButtonCamera_(int);

@@ -6,10 +6,10 @@
 #include <Player/MarioAccess.hpp>
 #include <System/MarioGamePad.hpp>
 
-int CPolarSubCamera::controlByCameraCode_(int* outCode)
+bool CPolarSubCamera::controlByCameraCode_(int* outCode)
 {
-	int result = 1;
-	*outCode   = -1;
+	bool result = true;
+	*outCode    = -1;
 
 	if (SMS_IsMarioOpeningDoor()) {
 		if (mMode == 0x42 && gpCameraMario->mStatusTimer == 0x78) {
@@ -17,7 +17,7 @@ int CPolarSubCamera::controlByCameraCode_(int* outCode)
 			warpPosAndAt(unkA8, (s16)(*gpMarioAngleY + 0x9C4));
 		}
 		unk120->onNeutralMarioKey();
-		result = 0;
+		result = false;
 	} else {
 		s32 cubeCount  = gpCubeCamera->unk10;
 		Vec pos = *gpMarioPos;
@@ -37,7 +37,7 @@ int CPolarSubCamera::controlByCameraCode_(int* outCode)
 				} else {
 					*outCode = gpCubeCamera->getDataNo(i);
 				}
-				return 1;
+				return true;
 			}
 		}
 	}
