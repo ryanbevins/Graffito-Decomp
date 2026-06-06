@@ -1,6 +1,7 @@
 #include <Player/MarioMain.hpp>
 
 #include <Player/Watergun.hpp>
+#include <Player/MarioAnimeData.hpp>
 #include <Camera/Camera.hpp>
 #include <Strategic/LiveActor.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
@@ -71,17 +72,13 @@ BOOL TMario::checkPumpEnable()
 		return FALSE;
 	}
 
-	// Check animation lookup table
-	u16 animId = mAnimationId;
-	u32 tblBase = *(u32*)((u8*)0 + 0); // addr from sdata
-	if (!*(u32*)(tblBase + (u32)(animId << 3))) {
+	if (!gMarioAnimeData[mAnimationId].isPumpOK()) {
 		mPumpState = 5;
 		unk37E = 0;
 		return FALSE;
 	}
 
-	// Must not already be pumping
-	if (isUpperPumpingStyle()) {
+	if (onYoshi()) {
 		mPumpState = 5;
 		unk37E = 0;
 		return FALSE;
@@ -131,7 +128,7 @@ BOOL TMario::checkPumpEnable()
 	// Check nozzle kind == 1 (trigger type)
 	TWaterGun* wg2 = mWaterGun;
 	TNozzleBase* nozzle2 = wg2->getCurrentNozzle();
-	s32 kind = (*(s32(**)(TNozzleBase*))((u32*)(*(u32*)nozzle2) + 3))(nozzle2);
+	s32 kind = nozzle2->getNozzleKind();
 	if (kind == 1) {
 		TWaterGun* wg3 = mWaterGun;
 		TNozzleBase* nozzle3 = wg3->getCurrentNozzle();
