@@ -188,14 +188,13 @@ void TMario::stateMachineUpper()
 	}
 
 	case 2: {
-		u32 action = mAction;
-		if ((action - 0x80000000) == 0x387)
+		if ((mAction - 0x80000000) == 0x387)
 			mPumpState = 5;
 
 		if (*(u32*)((u8*)this + 0x6C) == 0)
 			mPumpState = 5;
 
-		if ((action - 0x04000000) == 0x440) {
+		if ((mAction - 0x04000000) == 0x440) {
 			if (mForwardVel > 0.0f)
 				checkPumping();
 		}
