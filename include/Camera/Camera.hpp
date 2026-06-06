@@ -143,16 +143,17 @@ public:
 
 public:
 	/* 0x50 */ int mMode;
-	/* 0x54 */ char unk54[0x58 - 0x54];
+	/* 0x54 */ int unk54;
 	/* 0x58 */ u32 unk58;
 	/* 0x5C */ int unk5C;
-	/* 0x60 */ char unk60[0x64 - 0x60];
+	/* 0x60 */ void* unk60;
 	/* 0x64 */ u16 unk64;
 	/* 0x66 */ char unk66[0x68 - 0x66];
 	/* 0x68 */ TCameraKindParam* unk68;
 	/* 0x6C */ TCameraInbetween* unk6C;
 	/* 0x70 */ TCameraMapTool* unk70;
-	/* 0x74 */ char unk74[0x7C - 0x74];
+	/* 0x74 */ TCameraMapTool* unk74;
+	/* 0x78 */ u32 unk78;
 	/* 0x7C */ u32 unk7C;
 	/* 0x80 */ JGeometry::TVec3<f32> unk80;
 	/* 0x8C */ JGeometry::TVec3<f32> unk8C;
@@ -181,7 +182,7 @@ public:
 	/* 0x114 */ s16 unk114;
 	/* 0x116 */ char unk116[0x118 - 0x116];
 	/* 0x118 */ f32 unk118;
-	/* 0x11C */ char unk11C[0x120 - 0x11C];
+	/* 0x11C */ void* unk11C;
 	/* 0x120 */ TMarioGamePad* unk120;
 	/* 0x124 */ JGeometry::TVec3<f32> unk124;
 	/* 0x130 */ JGeometry::TVec3<f32> unk130;
@@ -193,7 +194,7 @@ public:
 	/* 0x1AC */ Mtx44 unk1AC;
 	/* 0x1EC */ Mtx unk1EC;
 	/* 0x21C */ Mtx unk21C;
-	/* 0x24C */ char unk24C[0x250 - 0x24C];
+	/* 0x24C */ f32 unk24C;
 	/* 0x250 */ f32 unk250;
 	/* 0x254 */ s16 unk254;
 	/* 0x256 */ s16 unk256;
@@ -217,15 +218,22 @@ public:
 	/* 0x298 */ f32 unk298;
 	/* 0x29C */ char unk29C[0x2A4 - 0x29C];
 	/* 0x2A4 */ void* unk2A4;
-	/* 0x2A8 */ char unk2A8[0x2B0 - 0x2A8];
+	/* 0x2A8 */ char unk2A8[0x2AC - 0x2A8];
+	/* 0x2AC */ void* unk2AC;
 	/* 0x2B0 */ void* unk2B0;
 	/* 0x2B4 */ void* unk2B4;
 	/* 0x2B8 */ TCameraJetCoaster* unk2B8;
 	/* 0x2BC */ TMultiPlayerContainer* unk2BC;
-	/* 0x2C0 */ char unk2C0[0x2C8 - 0x2C0];
+	/* 0x2C0 */ f32 unk2C0;
+	/* 0x2C4 */ f32 unk2C4;
 	/* 0x2C8 */ s16 unk2C8;
-	/* 0x2CA */ char unk2CA[0x2D4 - 0x2CA];
+	/* 0x2CA */ s16 unk2CA;
+	/* 0x2CC */ u8 unk2CC;
+	/* 0x2CD */ char unk2CD[0x2D0 - 0x2CD];
+	/* 0x2D0 */ void* unk2D0;
 	/* 0x2D4 */ void* unk2D4;
+
+	static const char* mCamKindNameSaveFile[0x49];
 };
 
 extern CPolarSubCamera* gpCamera;

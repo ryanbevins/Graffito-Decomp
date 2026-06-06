@@ -43,11 +43,181 @@ const char* cJetCoasterCam1BckName  = "tinkoopa_camera";
 const char* cJetCoasterDemoBckName  = "tinkoopa_killer_camera";
 const char* cStartCamBckFileName    = "/scene/map/camera/StartCamera.bck";
 
+class TCamSaveKindParam {
+public:
+	TCamSaveKindParam(const char*);
+
+private:
+	u8 _pad[0x968];
+};
+
+class TCamSaveEx {
+public:
+	TCamSaveEx();
+
+private:
+	u8 _pad[0x210];
+};
+
+class TCamSaveNotice {
+public:
+	TCamSaveNotice();
+
+private:
+	u8 _pad[0xBC];
+};
+
+class TCameraJetCoaster {
+public:
+	TCameraJetCoaster();
+
+private:
+	u8 _pad[0x3C];
+};
+
+class TCameraPtrArray {
+public:
+	TCameraPtrArray()
+	    : mCapacity(4)
+	    , unk4(nullptr)
+	    , mStorage(nullptr)
+	{
+		mStorage = new void*[mCapacity];
+	}
+
+private:
+	s32 mCapacity;
+	void* unk4;
+	void** mStorage;
+};
+
+class TCameraOffsetState {
+public:
+	TCameraOffsetState()
+	    : unk0(0)
+	    , unk4(0.0f)
+	    , unk8(0.0f)
+	    , unkC(0.0f)
+	{
+	}
+
+private:
+	s16 unk0;
+	u8 _pad[2];
+	f32 unk4;
+	f32 unk8;
+	f32 unkC;
+};
+
+class TCameraLookatSave {
+public:
+	TCameraLookatSave()
+	    : unk0(nullptr)
+	    , unk4(0.0f)
+	    , unk8(nullptr)
+	    , unkC(0)
+	    , unk10(nullptr)
+	    , unk14(nullptr)
+	{
+	}
+
+private:
+	void* unk0;
+	f32 unk4;
+	void* unk8;
+	u8 unkC;
+	u8 _pad[3];
+	void* unk10;
+	void* unk14;
+};
+
 CPolarSubCamera::CPolarSubCamera(const char* name)
     : JDrama::TLookAtCamera()
 {
-	(void)name;
-	// TODO: full ctor
+	mName    = name;
+	mKeyCode = JDrama::TNameRef::calcKeyCode(name);
+
+	mNear   = 10.0f;
+	mFar    = 300000.0f;
+	mUp     = CLBConstUpVec;
+	mTarget = CLBConstUpVec;
+	mFovy   = 0.0f;
+	mAspect = 0.0f;
+	mPosition = CLBConstUpVec;
+
+	mMode = -1;
+	unk54 = -1;
+	unk58 = -1;
+	unk5C = -1;
+	unk60 = nullptr;
+	unk64 = 0;
+	unk70 = nullptr;
+	unk74 = nullptr;
+	unk78 = 0;
+	unk7C = 0;
+	unk11C = 0;
+	unk120 = nullptr;
+	unk24C = 0.0f;
+	unk250 = 0.0f;
+	unk254 = 0;
+	unk268 = 0.0f;
+	unk26C = 1.0f;
+	*(u16*)((u8*)this + 0x274) = 0;
+	*(u16*)((u8*)this + 0x276) = 0;
+	unk278 = 0;
+	unk27A = 0;
+	*(u16*)((u8*)this + 0x27C) = 0;
+	*(u16*)((u8*)this + 0x27E) = 0;
+	*(u16*)((u8*)this + 0x280) = 0;
+	unk282 = 0;
+	unk284 = 0;
+	unk288 = 1.0f;
+	unk28C = 0;
+	*(u16*)((u8*)this + 0x28E) = 0;
+	unk290 = 0.0f;
+	unk294 = 0.0f;
+	unk298 = 0.0f;
+	unk2AC = nullptr;
+	unk2B0 = nullptr;
+	unk2B4 = nullptr;
+	unk2B8 = nullptr;
+	unk2BC = nullptr;
+	unk2C0 = 3.0f;
+	unk2C4 = 2.0f;
+
+	gpCamera = this;
+	gpCameraShake = new TCameraShake();
+	gpCameraMario = new TCameraMarioData();
+	gpCameraOption = nullptr;
+	unk60 = new TCameraPtrArray();
+	unk68 = new TCameraKindParam();
+	unk6C = new TCameraInbetween();
+	unk2AC = new TCameraOffsetState();
+	unk2B0 = new TCameraBck();
+	unk2B4 = new TCameraLookatSave();
+	unk2D0 = new TCamSaveNotice();
+	unk2D4 = new TCamSaveEx();
+
+	TCamSaveKindParam** saveTable
+	    = (TCamSaveKindParam**)((u8*)this + 0x2D8);
+	for (int i = 0; i < 0x49; ++i)
+		saveTable[i] = new TCamSaveKindParam(mCamKindNameSaveFile[i]);
+
+	if (SMS_isMultiPlayerMap())
+		createMultiPlayer(4);
+
+	if (gpMarDirector->mMap == 0x3A
+	    && (gpMarDirector->unk7D == 0 || gpMarDirector->unk7D == 1)) {
+		unk64 |= 0x1000;
+		unk2B8 = new TCameraJetCoaster();
+		if (gpMarDirector->unk7D == 0)
+			((TCameraBck*)unk2B0)->startDemo(cJetCoasterCam0BckName,
+			                                 nullptr);
+	}
+
+	unk2CA = -1;
+	unk2C8 = -1;
+	unk2CC = 0;
 }
 
 CPolarSubCamera::~CPolarSubCamera() { }
