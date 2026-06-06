@@ -7,6 +7,8 @@
 #include <NPC/NpcSave.hpp>
 #include <Player/MarioAccess.hpp>
 
+template <> f32 CLBSquared<f32>(f32);
+
 void TBaseNPC::bind()
 {
 	JGeometry::TVec3<f32> nextPos = mPosition;
