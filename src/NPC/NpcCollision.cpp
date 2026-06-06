@@ -111,13 +111,13 @@ void TBaseNPC::execNpcObjCollision_()
 			f32 mag;
 			if (mAttackRadius + mCollisions[i]->mDamageRadius
 			        - MsVECMag2(&diff)
-			    > 0.0f) {
+			    >= 0.0f) {
+				mag = mAttackRadius + mCollisions[i]->mDamageRadius
+				      - MsVECMag2(&diff);
+			} else {
 				mag = -(mAttackRadius
 				        + mCollisions[i]->mDamageRadius
 				        - MsVECMag2(&diff));
-			} else {
-				mag = mAttackRadius + mCollisions[i]->mDamageRadius
-				      - MsVECMag2(&diff);
 			}
 			if (mag < 0.001f)
 				mag = 0.001f;
