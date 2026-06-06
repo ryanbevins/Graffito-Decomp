@@ -23,8 +23,6 @@ void TMapWarp::changeModel(int i)
 	unk8 = i;
 }
 
-void TMapWarp::warp(int) { }
-
 void TMapWarp::watchToWarp()
 {
 	const TBGCheckData* checkData;
@@ -86,10 +84,6 @@ void TMapWarp::initModel()
 			    ->mChildren[(u16)i]
 			    ->sleep();
 }
-
-void getWarpPointNo(const char*) { }
-
-void loadWarpPointPos(JSUMemoryInputStream&, int, Vec*) { }
 
 void TMapWarp::init(JSUMemoryInputStream& stream)
 {
