@@ -518,7 +518,7 @@ BOOL TMario::squating()
 
 	if (input & 0x02) {
 		TMarioGamePad* pad = mGamePad;
-		if (pad->mMeaning & 0x2000) {
+		if (pad->mMeaning & 0x0400) {
 			if (gun != nullptr) {
 				if (*(u8*)((u8*)gun + 0x1C84) == 0) {
 					rumbleStart(21, mMotorParams.mMotorHipDrop.value);
@@ -597,7 +597,7 @@ BOOL TMario::squating()
 			s32 sinIdx = (s32)faceAngle >> jmaSinShift;
 			f32 sinVal = jmaSinTable[sinIdx << 2 >> 2];
 			mPosition.z = -(stickMag * sinVal) + mPosition.z;
-		} else if (meaning & 0x0800) {
+		} else if (meaning & 0x0400) {
 			f32 analogStick = *(f32*)((u8*)pad + 0xA8);
 			int isPositive = 1;
 			f32 absVal = __fabsf(analogStick);
