@@ -263,42 +263,37 @@ BOOL TMario::waiting()
 		if (isPositive != 0) {
 			setAnimation(0xE7, 1.0f);
 		} else {
-			if (mPumpState == 5) {
-				if (mPrevAction == 0x0C00023D
-				    || (mState & 0x00000020 ? true : false)) {
-					// montemanWait
-					if (!(actionState & 0x01)) {
-						setAnimation(0xDA, 1.0f);
+			if (mPumpState == 5
+			    && (mPrevAction == 0x0C00023D
+			        || (mState & 0x00000020 ? true : false))
+			    && !(actionState & 0x01)) {
+				// montemanWait
+				setAnimation(0xDA, 1.0f);
 
-						J3DFrameCtrl* frameCtrl = mModel->unkC;
-						if (frameCtrl->checkPass(138.0f)) {
-							emitSweat((s16)(mFaceAngle.y - 0x4000));
-						}
-
-						if (isLast1AnimeFrame()) {
-							mActionState |= 0x01;
-						}
-
-						waitProcess();
-						return 0;
-					}
+				J3DFrameCtrl* frameCtrl = mModel->unkC;
+				if (frameCtrl->checkPass(138.0f)) {
+					emitSweat((s16)(mFaceAngle.y - 0x4000));
 				}
-			}
 
-			// regularWait
-			if (mHealth <= 3) {
-				if (mAnimationId != 0x11D && mAnimationId != 0x127) {
-					setAnimation(0x127, 1.0f);
-				} else if (mAnimationId == 0x127) {
-					if (isLast1AnimeFrame()) {
-						setAnimation(0x11D, 1.0f);
-					}
+				if (isLast1AnimeFrame()) {
+					mActionState |= 0x01;
 				}
 			} else {
-				if (0.0f == mIntendedMag) {
-					setAnimation(0xC3, 1.0f);
+				// regularWait
+				if (mHealth <= 3) {
+					if (mAnimationId != 0x11D && mAnimationId != 0x127) {
+						setAnimation(0x127, 1.0f);
+					} else if (mAnimationId == 0x127) {
+						if (isLast1AnimeFrame()) {
+							setAnimation(0x11D, 1.0f);
+						}
+					}
 				} else {
-					setAnimation(0x12C, 1.0f);
+					if (0.0f == mIntendedMag) {
+						setAnimation(0xC3, 1.0f);
+					} else {
+						setAnimation(0x12C, 1.0f);
+					}
 				}
 			}
 		}
