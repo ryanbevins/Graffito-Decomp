@@ -182,7 +182,7 @@ BOOL TMario::waitingCommonEvents()
 	if (rocketCheck()) {
 		TWaterGun* gun = mWaterGun;
 		f32 rocketHeight = *(f32*)((u8*)gun + 0x1D40);
-		mHolderHeightDiff = mFloorPosition.y + rocketHeight;
+		mRocketTargetY = mFloorPosition.y + rocketHeight;
 		changePlayerStatus(0x088B, 0, false);
 		return 1;
 	}
@@ -559,7 +559,7 @@ BOOL TMario::squating()
 			if (canSpray) {
 				TWaterGun* gun3 = mWaterGun;
 				f32 rocketHeight = *(f32*)((u8*)gun3 + 0x1D40);
-				mHolderHeightDiff = mFloorPosition.y + rocketHeight;
+				mRocketTargetY = mFloorPosition.y + rocketHeight;
 				changePlayerStatus(0x088B, 0, false);
 				return 1;
 			}
