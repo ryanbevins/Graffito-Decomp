@@ -116,17 +116,16 @@ void CPolarSubCamera::ctrlNormalDeadDemo_()
 	diff.y = *(f32*)((u8*)this + 0x40) - *(f32*)((u8*)this + 0x14);
 	diff.z = *(f32*)((u8*)this + 0x44) - *(f32*)((u8*)this + 0x18);
 	f32 mag2 = MsVECMag2(&diff);
-	if (mag2 <= 0.001f)
-		return;
-
-	f32 v = 10500.0f * (1.0f / mag2);
-	if (v > 80.0f)
-		v = 80.0f;
-	else if (v < 5.0f)
-		v = 5.0f;
-	CLBChaseConstantSpecifyFrame<f32>(
-	    (f32*)((u8*)this + 0x48), v,
-	    (f32)*(u16*)((u8*)this + 0x280));
+	if (mag2 > 0.001f) {
+		f32 v = 10500.0f * (1.0f / mag2);
+		if (v > 80.0f)
+			v = 80.0f;
+		else if (v < 5.0f)
+			v = 5.0f;
+		CLBChaseConstantSpecifyFrame<f32>(
+		    (f32*)((u8*)this + 0x48), v,
+		    (f32)*(u16*)((u8*)this + 0x280));
+	}
 }
 
 int CPolarSubCamera::getRestDemoFrames() const
