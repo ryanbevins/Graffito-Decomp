@@ -167,11 +167,6 @@ static f32 bx_321;
 static f32 by_322;
 static u32 count_323;
 
-static const f32 boundtable[14] = {
-	-0.13f, 6.0f, 0.13f, 6.0f, -0.12f, 8.0f, 0.12f,
-	-8.0f, -0.11f, 12.0f, 0.11f, 12.0f, 0.0f, 0.0f,
-};
-
 static LogoPath drawpath_table[] = {
 	{ 49.0f, 277.0f, 0 },
 	{ 20.0f, 294.0f, 1 },
@@ -1013,6 +1008,11 @@ static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
 	GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
 }
 static void Hx_GameOver() {
+	static f32 boundtable[14] = {
+		-0.13f, 6.0f, 0.13f, 6.0f, -0.12f, 8.0f, 0.12f,
+		-8.0f, -0.11f, 12.0f, 0.11f, 12.0f, 0.0f, 0.0f,
+	};
+
 	switch (hx.unk38) {
 	case 0:
 		Hgx_ReadTexture("/data/wipe_gameover.bti", gmover_tex_buffer);
