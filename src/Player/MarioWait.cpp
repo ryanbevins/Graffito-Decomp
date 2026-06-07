@@ -663,7 +663,7 @@ BOOL TMario::waitMain()
 
 	checkEnforceJump();
 
-	checkController(nullptr);
+	checkReturn();
 
 	setNormalAttackArea();
 
