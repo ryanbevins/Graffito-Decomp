@@ -1374,7 +1374,15 @@ static void Hx_Logo() {
 	case 2:
 		if (dp_320->time == -1) {
 			hx.unk3C = 5;
-			hx.unk38 = 5;
+			hx.unk38 = 4;
+			Hxs_Logo_ExtraDraw(0xFF, extraResource);
+			Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
+			Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+			if (Hx_TimerCountDown() == 0) {
+				hx.unk3C = 0xFF;
+				hx.unk38++;
+			}
+			break;
 		} else {
 			if (dp_320->time == 0) {
 				bx_321 = dp_320->x;
@@ -1399,7 +1407,14 @@ static void Hx_Logo() {
 				hx.unk38 = 2;
 			} else {
 				hx.unk3C = 5;
-				hx.unk38 = 5;
+				hx.unk38++;
+				Hxs_Logo_ExtraDraw(0xFF, extraResource);
+				Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
+				Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+				if (Hx_TimerCountDown() == 0) {
+					hx.unk3C = 0xFF;
+					hx.unk38++;
+				}
 			}
 		}
 		break;
