@@ -825,13 +825,11 @@ static void Hxs_FrBufferMorf2B(f32 x) {
 	f32 stripH;
 	f32 zero;
 	f32 one;
-	f32 screenW;
 	f32 screenH;
 
 	srcX = (hx.imgW >> 1) + (hx.imgW >> 2);
 	Frb2_InitGx(&tobj);
-	screenW = (f32)hx.imgW;
-	right = screenW - x;
+	right = (f32)hx.imgW - x;
 	if (x < (f32)(hx.imgW >> 2)) {
 		zero = 0.0f;
 		one = 1.0f;
@@ -866,7 +864,7 @@ static void Hxs_FrBufferMorf2B(f32 x) {
 
 	Frb2_InitBlackBox();
 	screenH = (f32)hx.imgH;
-	Frb2_RendBox(0xFF, right, 0.0f, screenW, screenH);
+	Frb2_RendBox(0xFF, right, 0.0f, (f32)hx.imgW, screenH);
 }
 static void Hx_Door() {
 	u32 v;
