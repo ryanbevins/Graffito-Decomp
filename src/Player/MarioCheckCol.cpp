@@ -68,7 +68,7 @@ void TMario::hitNormal(THitActor* actor)
 
 	// Check watergun nozzle state
 	TWaterGun* wg = mWaterGun;
-	u8 nozzleState = *(u8*)((u8*)wg + 0x1C84);
+	int nozzleState = *(u8*)((u8*)wg + 0x1C84);
 	if (nozzleState != 0)
 		return;
 
