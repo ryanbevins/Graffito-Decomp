@@ -291,7 +291,7 @@ static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
 	GXInitTexObjLOD(obj, minFilter, magFilter, 0.0f, 0.0f, 0.0f, GX_FALSE,
 	                GX_FALSE, GX_ANISO_1);
 }
-#pragma dont_inline off
+#pragma dont_inline on
 static void Hgx_ReadTexture(char* fileName, void* addr) {
 	DVDFileInfo fi;
 	switch (hx.resFlag) {
