@@ -7,6 +7,8 @@
 #include <Map/MapData.hpp>
 #include <MarioUtil/MapUtil.hpp>
 
+template <> s16 CLBRoundf<s16>(f32);
+
 namespace {
 
 inline void* getKindOpt(const CPolarSubCamera* cam)
