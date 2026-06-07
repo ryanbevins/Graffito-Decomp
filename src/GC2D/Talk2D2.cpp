@@ -9,6 +9,7 @@
 #include <JSystem/J2D/J2DOrthoGraph.hpp>
 #include <JSystem/J2D/J2DTextBox.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JGeometry/JGUtil.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
 #include <JSystem/JSupport/JSUMemoryOutputStream.hpp>
@@ -38,7 +39,6 @@ public:
 };
 
 extern MSound* gpMSound;
-extern "C" f32 sqrtf(f32);
 
 class TFlagManager {
 public:
@@ -235,7 +235,7 @@ void TTalk2D2::loadAfter()
 		f32 dx = x - prevX;
 		f32 dy = y - prevY;
 
-		length += sqrtf(dx * dx + dy * dy);
+		length += JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy);
 		prevX = x;
 		prevY = y;
 	}
