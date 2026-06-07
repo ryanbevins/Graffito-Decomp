@@ -157,7 +157,7 @@ public:
 	virtual void setBckAnm(int index);
 	virtual void setDeadEffect() { }
 	virtual void setAfterDeadEffect();
-	virtual bool doKeepDistance() { return false; }
+	virtual bool doKeepDistance();
 	virtual void generateEffectColumWater();
 	virtual bool isFindMario(float);
 

@@ -4,6 +4,7 @@
 #include <Map/MapData.hpp>
 #include <JSystem/JMath.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <Player/ModelWaterManager.hpp>
 #include <Player/Watergun.hpp>
 #include <Strategic/LiveActor.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
@@ -19,54 +20,43 @@ void TMario::hitNormal(THitActor* actor)
 {
 	u32 action = mAction;
 
-	// Check action bit 12 (grounded/walking)
-	if (action & 0x1000) {
+	if (checkActionFlag(0x800)) {
 		// Check speed < 0
 		if (mVel.y < 0.0f) {
 			// Check actor below mario
 			if (actor->mPosition.y < mPosition.y) {
 				// Check action range
-				if ((action - 0x80000000) == 0x8A9) {
-					// Call virtual receiveMessage(this, 1)
-					u32* vtbl = *(u32**)actor;
-					typedef BOOL (*MsgFunc)(THitActor*, THitActor*, u32);
-					BOOL result = ((MsgFunc)vtbl[0x28])(actor, this, 1);
-					if (result) {
+				if (action == ACTION_HIP_ATTACK) {
+					if (actor->receiveMessage(this, HIT_MESSAGE_HIP_DROP)) {
 						u32 actorType = *(u32*)((u8*)actor + 0x4C);
-						if ((actorType - 0x08000000) <= 1) {
-							setPlayerVelocity(0.0f);
+						if ((actorType - 0x08000000) == 1) {
+							changePlayerTriJump();
 							unk78 = unk78 & ~(1 << 8);
 						}
 					}
 					return;
 				}
 
-				// Normal grounded hit
-				keepDistance(*actor, 0.0f);
-				return;
+				if (trampleExec(actor) == TRUE)
+					return;
 			}
 		}
 	}
 
 	// Check flag bit 10
-	if (checkFlag(0x400)) {
+	if (checkFlag(0x200)) {
 		if (actor->mPosition.y > mPosition.y) {
-			u32* vtbl = *(u32**)actor;
-			typedef void (*MsgFunc)(THitActor*, THitActor*, u32);
-			((MsgFunc)vtbl[0x28])(actor, this, 3);
+			actor->receiveMessage(this, HIT_MESSAGE_UNK3);
 			return;
 		}
 	}
 
 	// Check action ranges for kick/trample
 	u32 act = mAction;
-	if ((act - 0x80000000) == 0x456 ||
-	    (act - 0x7C000000) == 0x45D ||
-	    (act - 0x80000000) == 0x88A) {
-		u32* vtbl = *(u32**)actor;
-		typedef void (*MsgFunc)(THitActor*, THitActor*, u32);
-		((MsgFunc)vtbl[0x28])(actor, this, 12);
-		((MsgFunc)vtbl[0x28])(actor, this, 0);
+	if (act == ACTION_CATCHING || act == ACTION_OIL_SLIP
+	    || act == ACTION_DIVE_RECOVERY) {
+		actor->receiveMessage(this, HIT_MESSAGE_PUNCH);
+		actor->receiveMessage(this, HIT_MESSAGE_TRAMPLE);
 	}
 
 	// Check watergun nozzle state
@@ -79,16 +69,11 @@ void TMario::hitNormal(THitActor* actor)
 	if (emitState == 0)
 		return;
 
-	// Create a hit position copy and push via receiveMessage(actor, 15)
-	JGeometry::TVec3<f32> hitPos;
-	hitPos.x = mPosition.x;
-	hitPos.y = mPosition.y;
-	hitPos.z = mPosition.z;
-	hitPos.y += *(f32*)((u8*)0 + 0); // height offset
-	// Store position to a temp area and call virtual
-	u32* vtbl2 = *(u32**)actor;
-	typedef void (*MsgFunc)(THitActor*, THitActor*, u32);
-	((MsgFunc)vtbl2[0x28])(actor, this, 15);
+	TModelWaterManager::mStaticHitActor.mPosition = mPosition;
+	TModelWaterManager::mStaticHitActor.mPosition.y += 80.0f;
+	TModelWaterManager::mStaticHitActor.unk68 = 0;
+	actor->receiveMessage(&TModelWaterManager::mStaticHitActor,
+	                      HIT_MESSAGE_SPRAYED_BY_WATER);
 }
 
 // hangPole: 0x801617E4, size 0x294
@@ -101,7 +86,7 @@ void TMario::hangPole(THitActor* actor)
 	// Check conditions for grabbing pole
 	u8 canGrab = 0;
 	if (*(u32*)((u8*)this + 0x6C) == 0) {
-		if (!isMario()) {
+		if (!onYoshi()) {
 			canGrab = 1;
 		}
 	}
@@ -122,11 +107,8 @@ void TMario::hangPole(THitActor* actor)
 	}
 
 	if ((u8)shouldGrab != 1) {
-		// Normal hit - call virtual for height and keepDistance
-		u32* vtbl = *(u32**)actor;
-		typedef void (*HeightFunc)(THitActor*, f32);
-		((HeightFunc)vtbl[0x2C])(actor, mPosition.y);
-		keepDistance(actor->mPosition, *(f32*)((u8*)0 + 0), 0.0f);
+		f32 radius = ((TTakeActor*)actor)->getRadiusAtY(mPosition.y);
+		keepDistance(actor->mPosition, radius, 0.0f);
 		return;
 	}
 
@@ -153,15 +135,10 @@ void TMario::hangPole(THitActor* actor)
 
 	// Angle-based check
 	u32 prevAction = mPrevAction;
-	u16 faceAngle = (u16)mModelFaceAngle;
 	u8 canCatch = 1;
 
-	// sin/cos lookup
-	u32 sinTbl = *(u32*)((u8*)0 + 0);
-	u32 cosTbl = *(u32*)((u8*)0 + 0);
-	s16 halfAngle = faceAngle >> *(u32*)((u8*)0 + 0);
-	f32 sinVal = *(f32*)(sinTbl + (u32)((u16)halfAngle << 2));
-	f32 cosVal = *(f32*)(cosTbl + (u32)((u16)halfAngle << 2));
+	f32 sinVal = JMASSin(mFaceAngle.y);
+	f32 cosVal = JMASCos(mFaceAngle.y);
 	f32 catchRadius = *(f32*)((u8*)actor + 0x58);
 	f32 dot = cosVal * normZ + sinVal * normX;
 	f32 poleRadius = mBarParams.mCatchRadius.value;
@@ -177,33 +154,29 @@ void TMario::hangPole(THitActor* actor)
 		canCatch = 0;
 
 	// Check Y position
-	f32 yCheck = *(f32*)((u8*)0 + 0);
+	f32 yCheck = 100.0f;
 	if (mPosition.y < yCheck + actor->mPosition.y)
 		canCatch = 0;
 
 	if ((u8)canCatch != 1) {
-		// Fall through to normal hit
-		u32* vtbl = *(u32**)actor;
-		typedef void (*HeightFunc)(THitActor*, f32);
-		((HeightFunc)vtbl[0x2C])(actor, mPosition.y);
-		keepDistance(actor->mPosition, *(f32*)((u8*)0 + 0), 0.0f);
+		f32 radius = ((TTakeActor*)actor)->getRadiusAtY(mPosition.y);
+		keepDistance(actor->mPosition, radius, 0.0f);
 		return;
 	}
 
 	// Grab pole
-	setPlayerVelocity(0.0f);
-	*(u32*)((u8*)this + 0x68) = (u32)actor;
+	dropObject();
+	mHolder = (TTakeActor*)actor;
 	mVel.y = 0.0f;
 	mForwardVel = 0.0f;
 	changePlayerStatus(0x10100341, 0, false);
 
-	// Virtual receiveMessage(actor, mario, 5)
-	u32* vtbl2 = *(u32**)actor;
-	typedef void (*MsgFunc)(THitActor*, THitActor*, u32);
-	((MsgFunc)vtbl2[0x28])(actor, this, 5);
+	actor->receiveMessage(this, HIT_MESSAGE_UNK5);
 
 	mHolderHeightDiff = mPosition.y - actor->mPosition.y;
 }
+
+bool TSmallEnemy::doKeepDistance() { return false; }
 
 // checkCollision: 0x80160480, size 0x135C
 void TMario::checkCollision()
