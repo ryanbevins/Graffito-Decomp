@@ -1317,7 +1317,8 @@ bool TTalk2D2::openNormalWindow()
 		int textIndex = (&unk224)[line] + line * 30;
 
 		while ((&unk224)[line] <= unk228[line]) {
-			J2DTextBox* textBox = unk9C[textIndex];
+			J2DTextBox** textBoxSlot = &unk9C[textIndex];
+			J2DTextBox* textBox      = *textBoxSlot;
 
 			if (textBox->mVisible) {
 				int alpha = textBox->mAlpha + unk340;
@@ -1342,8 +1343,8 @@ bool TTalk2D2::openNormalWindow()
 				else
 					unk2DC = unk281[textIndex];
 
-				textBox->mVisible = true;
-				textBox->mAlpha   = 0;
+				(*textBoxSlot)->mVisible = true;
+				(*textBoxSlot)->mAlpha   = 0;
 			} else {
 				--unk2DC;
 			}
