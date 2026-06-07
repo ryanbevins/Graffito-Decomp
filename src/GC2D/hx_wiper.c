@@ -899,9 +899,8 @@ static void Hx_Door() {
 			hx.unk38++;
 		break;
 	case 3:
-		halfW = hx.imgW >> 1;
-		Hxs_FrBufferMorf2((f32)halfW);
-		Hxs_FrBufferMorf2B((f32)halfW);
+		Hxs_FrBufferMorf2((f32)(hx.imgW >> 1));
+		Hxs_FrBufferMorf2B((f32)(hx.imgW >> 1));
 		hx.state = 3;
 		break;
 	}
