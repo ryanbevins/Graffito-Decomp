@@ -78,10 +78,10 @@ static int hxs_logodraw_resetflag;
 static u16 img_wx;
 static u16 img_wy;
 
-static const u8 vtable_org[7] = { 0x10, 0x10, 0, 0, 0, 0x10, 0x10 };
+static u8 vtable_org[7] = { 0x10, 0x10, 0, 0, 0, 0x10, 0x10 };
 static u8 vtable[7];
-static const u8 dec_step[4] = { 0, 1, 5, 6 };
-static const u8 inc_step[3] = { 2, 3, 4 };
+static u8 dec_step[4] = { 0, 1, 5, 6 };
+static u8 inc_step[3] = { 2, 3, 4 };
 static void* fbuf = hx_buffer;
 static void* fbuf2 = hx_buffer;
 
