@@ -640,28 +640,24 @@ BOOL TMario::squatStandup()
 	u32 input = mInput;
 
 	if (input & 0x04) {
-		changePlayerStatus(0x088C, 0, false);
-		return 1;
+		return changePlayerStatus(0x088C, 0, false);
 	}
 
 	if (input & 0x08) {
-		changePlayerStatus(0x50, 0, false);
-		return 1;
+		return changePlayerStatus(0x50, 0, false);
 	}
 
 	if (input & 0x02) {
-		changePlayerStatus(0x02000880, 0, false);
-		return 1;
+		return changePlayerStatus(0x02000880, 0, false);
 	}
 
 	if (input & 0x01) {
-		changePlayerStatus(0x04000440, 0, false);
-		return 1;
+		return changePlayerStatus(0x04000440, 0, false);
 	}
 
 	waitProcess();
 
-	if (mAction - 0x0C000223 == 0) {
+	if (mAction == 0x0C000223) {
 		setAnimation(0x121, 1.0f);
 	} else {
 		setAnimation(0x96, 1.0f);
