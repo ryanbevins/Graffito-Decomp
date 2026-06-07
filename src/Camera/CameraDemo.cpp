@@ -56,15 +56,13 @@ void CPolarSubCamera::execDeadDemoProc_()
 		return;
 
 	bool shouldReturn  = true;
-	bool firstMatches  = true;
-	u8 state           = gpMarDirector->unk124;
+	TMarDirector* director = gpMarDirector;
+	bool firstMatches      = true;
+	u8 state               = director->unk124;
 	if (state != 1 && state != 2)
 		firstMatches = false;
 	if (!firstMatches) {
-		u8 state2          = gpMarDirector->unk124;
-		bool secondMatches = true;
-		if (state2 != 3 && state2 != 4)
-			secondMatches = false;
+		bool secondMatches = director->checkUnk124Thing2();
 		if (!secondMatches)
 			shouldReturn = false;
 	}
