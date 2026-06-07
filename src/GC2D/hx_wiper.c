@@ -205,6 +205,1651 @@ static LogoPath drawpath_table[] = {
 // ---------------------------------------------------------------------------
 // Wipe-effect handlers (GX-heavy; reconstruction pending - see notes/hx_wiper.md)
 // ---------------------------------------------------------------------------
+static void Hx_CameraInit() {
+	Mtx44 proj;
+	Mtx posMtx;
+	f32 hw = (f32)(hx.imgW >> 1);
+	f32 hh = (f32)(hx.imgH >> 1);
+	f32 near = 0.0f;
+	f32 far  = 100.0f;
+
+	camLoc.x = hw;
+	camLoc.y = hh;
+	objPt.x = hw;
+	objPt.y = hh;
+	C_MTXOrtho(proj, hh, -hh, -hw, hw, near, far);
+	GXSetProjection(proj, GX_ORTHOGRAPHIC);
+	GXSetViewport(0.0f, 0.0f, 640.0f, 480.0f, 0.0f, 1.0f);
+	C_MTXLookAt(posMtx, &camLoc, &up, &objPt);
+	GXSetCullMode(GX_CULL_NONE);
+	GXSetCoPlanar(GX_FALSE);
+	GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
+	GXSetNumTexGens(0);
+	GXSetNumTevStages(1);
+	GXSetNumIndStages(0);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetLineWidth(6, GX_TO_ZERO);
+	GXLoadPosMtxImm(posMtx, GX_PNMTX0);
+	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_VTX, GX_SRC_VTX, 0, GX_DF_NONE,
+	              GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0, GX_DF_NONE,
+	              GX_AF_NONE);
+	GXSetNumChans(1);
+}
+
+#pragma dont_inline on
+static void Hx_GxInit(int mode, int blend) {
+	switch (mode) {
+	case 0:
+		GXSetNumTexGens(0);
+		GXSetNumTevStages(1);
+		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+		GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+		break;
+	case 1:
+		GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
+		                  GX_FALSE, GX_PTIDENTITY);
+		GXSetNumTexGens(1);
+		GXSetNumTevStages(1);
+		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+		GXClearVtxDesc();
+		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+		GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+		GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+		break;
+	}
+	switch (blend) {
+	case 1:
+		GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
+		break;
+	case 0:
+		GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
+		break;
+	}
+}
+#pragma dont_inline off
+static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
+	u32 imageOffset = res->imageOffset;
+	u8 format = res->format;
+	u8 wrapS = res->wrapS;
+	u8 wrapT = res->wrapT;
+	u8 minFilter = res->minFilter;
+	u8 magFilter = res->magFilter;
+	void* image = (u8*)res + imageOffset;
+	img_wx = res->width;
+	img_wy = res->height;
+	GXInitTexObj(obj, image, img_wx, img_wy, format, wrapS, wrapT, GX_FALSE);
+	GXInitTexObjLOD(obj, minFilter, magFilter, 0.0f, 0.0f, 0.0f, GX_FALSE,
+	                GX_FALSE, GX_ANISO_1);
+}
+#pragma dont_inline off
+static void Hgx_ReadTexture(char* fileName, void* addr) {
+	DVDFileInfo fi;
+	switch (hx.resFlag) {
+	case 0:
+		if (DVDOpen(fileName, &fi)) {
+			long len = DVDReadPrio(&fi, addr, fi.length, 0, 2);
+			DVDClose(&fi);
+			DCStoreRange(addr, len);
+		}
+		break;
+	}
+}
+#pragma dont_inline off
+
+#pragma dont_inline on
+static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht) {
+	GXColor clear = { 0, 0, 0, 0 };
+	GXSetTexCopySrc(left, top, wd, ht);
+	GXSetTexCopyDst(wd, ht, GX_TF_RGB565, GX_FALSE);
+	GXGetTexBufferSize(wd, ht, GX_TF_RGB565, GX_FALSE, 0);
+	GXSetCopyClear(clear, 0xFFFFFF);
+	GXCopyTex(dest, GX_TRUE);
+	GXPixModeSync();
+}
+#pragma dont_inline off
+
+#pragma dont_inline on
+static void Hx_SetVFilter(f32 ratio) {
+	u32 i;
+	u8 n;
+	vtable[0] = vtable_org[0];
+	n = (u8)(int)(64.0f * ratio);
+	vtable[1] = vtable_org[1];
+	vtable[2] = vtable_org[2];
+	vtable[3] = vtable_org[3];
+	vtable[4] = vtable_org[4];
+	vtable[5] = vtable_org[5];
+	vtable[6] = vtable_org[6];
+	for (i = 0; i < n; i++) {
+		vtable[dec_step[i & 3]]--;
+		vtable[inc_step[i % 3]]++;
+	}
+	GXSetCopyFilter(GX_FALSE, NULL, GX_TRUE, vtable);
+}
+static void __Hx_FrBufferMorf(u32 x, u32 y) {
+	GXTexObj tobj;
+
+	Hx_CameraInit();
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+	Hx_GetFrBuffer(fbuf, x, y, 0x30, 0x30);
+	GXInvalidateTexAll();
+	GXSetNumTexGens(1);
+	GXSetNumTevStages(1);
+	GXSetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+	GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
+	GXInitTexObj(&tobj, fbuf, 0x30, 0x30, GX_TF_RGB565, GX_CLAMP, GX_CLAMP,
+	             GX_FALSE);
+	GXInitTexObjLOD(&tobj, GX_LINEAR, GX_LINEAR, 0.0f, 10.0f, 0.0f, GX_FALSE,
+	                GX_TRUE, GX_ANISO_1);
+	GXLoadTexObj(&tobj, GX_TEXMAP0);
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32((f32)x, (f32)y, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 0.0f);
+	GXPosition3f32((f32)(x + 0x30), (f32)y, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 0.0f);
+	GXPosition3f32((f32)(x + 0x30), (f32)(y + 0x30), 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 1.0f);
+	GXPosition3f32((f32)x, (f32)(y + 0x30), 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 1.0f);
+}
+
+#pragma dont_inline on
+static void Hx_FrBufferMorf(f32 ratio) {
+	Hx_SetVFilter(ratio);
+	__Hx_FrBufferMorf(hx.imgWHalf - 0x18, hx.imgHHalf - 0x18);
+}
+static void Frb2_InitGx(GXTexObj* tobj) {
+	Hx_CameraInit();
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+	Hx_SetVFilter(1.0f);
+	GXSetNumTexGens(1);
+	GXSetNumTevStages(1);
+	GXSetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+	GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
+	GXInitTexObj(tobj, fbuf2, 0xA0, 0x10, GX_TF_RGB565, GX_CLAMP, GX_CLAMP,
+	             GX_FALSE);
+	GXInitTexObjLOD(tobj, GX_LINEAR, GX_LINEAR, 0.0f, 10.0f, 0.0f, GX_FALSE,
+	                GX_TRUE, GX_ANISO_1);
+	GXLoadTexObj(tobj, GX_TEXMAP0);
+}
+static void Frb2_InitBlackBox() {
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEX_DISABLE, GX_COLOR0A0);
+}
+#pragma dont_inline off
+#pragma dont_inline on
+static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1) {
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(x0, y0, 0.0f);
+	GXColor1u32(color);
+	GXPosition3f32(x1, y0, 0.0f);
+	GXColor1u32(color);
+	GXPosition3f32(x1, y1, 0.0f);
+	GXColor1u32(color);
+	GXPosition3f32(x0, y1, 0.0f);
+	GXColor1u32(color);
+}
+static void Hx_Warning(int code) {}
+#pragma dont_inline off
+void Hx_ResetWipe(u32 w, u32 h) {
+	hx.state = 0;
+	hx.imgW = w;
+	hx.imgH = h;
+	hx.imgWHalf = hx.imgW >> 1;
+	hx.imgHHalf = hx.imgH >> 1;
+	hx.resFlag = 0;
+	hx.unk28 = 0;
+}
+
+#pragma dont_inline on
+void Hx_ProvideResource(void* res, int size) {
+	if (hx.state == 2)
+		Hx_Warning(1);
+	if ((int)hx.resFlag != 0)
+		Hx_Warning(3);
+	hx.resFlag = 1;
+	hx.buffer = res;
+	hx.bufSize = size;
+}
+void Hx_ProvideResourceEx(void* res) {
+	if (hx.state == 2)
+		Hx_Warning(1);
+	hx.unk28 = 1;
+	hx.resource = res;
+}
+void Hx_RemoveResource() {
+	if (hx.state == 2)
+		Hx_Warning(1);
+	if ((int)hx.resFlag == 0)
+		Hx_Warning(2);
+	hx.resFlag = 0;
+	hx.unk28 = 0;
+}
+void Hx_StartWipe(int no, int arg) {
+	if ((int)hx.resFlag == 0) {
+		hx.buffer = hx_buffer;
+		hx.bufSize = 0x3300;
+	}
+	switch (hx.state) {
+	case 2:
+		Hx_Warning(1);
+		break;
+	}
+	hx.state = 1;
+	hx.wipeNo = no;
+	hx.timer = 0.0f;
+	hx.unk1C = arg;
+}
+static void dummy_handler() {}
+int Hx_GetWipeType(int no) {
+	return handle_type[no];
+}
+u32 Hx_UpdateWipe(f32 step) {
+	ReInitializeGX();
+
+	switch (hx.state) {
+	case 0:
+		break;
+	case 3:
+		if (hx.type != 1) {
+			Hx_CameraInit();
+			Hx_GxInit(0, 0);
+			Frb2_InitBlackBox();
+			Frb2_RendBox(0xFF, 0.0f, 0.0f, (f32)hx.imgW, (f32)hx.imgH);
+		}
+		break;
+	case 1:
+		hx.handler = handle_table[hx.wipeNo];
+		hx.type = handle_type[hx.wipeNo];
+		hx.state = 2;
+		hx.unk38 = 0;
+		/* fallthrough */
+	case 2:
+		hx.speed = step;
+		GXDrawDone();
+		hx.handler();
+		GXDrawDone();
+		hx.timer += step;
+		break;
+	}
+
+	return hx.state;
+}
+u32 Hx_TimerCountDown() {
+	if (hx.unk3C != 0)
+		hx.unk3C--;
+	return hx.unk3C;
+}
+#pragma dont_inline off
+void Hx_MotionSet(HxMotion* m, f32 dist, f32 t1, f32 t2, f32 t3) {
+	f32 t12;
+	f32 stop;
+	f32 denom;
+	f32 v;
+	m->unk00 = t1;
+	t12 = t1 + t2;
+	stop = m->unk00 + t2;
+	denom = t3 + (t2 + t12);
+	m->unk04 = stop;
+	m->unk08 = m->unk04 + t3;
+	v = 2.0f * dist / denom;
+	if (t1 != 0.0f)
+		m->unk0C = v / t1;
+	if (t3 != 0.0f)
+		m->unk14 = -v / t3;
+	m->unk10 = 0.0f;
+	m->unk18 = 0.0f;
+	m->unk20 = 0.0f;
+	m->unk1C = 0.0f;
+}
+
+#pragma dont_inline on
+#pragma dont_inline on
+f32 Hx_MotionUpdate(HxMotion* m) {
+	if (m->unk00 > m->unk1C) {
+		m->unk18 += m->unk0C;
+	} else if (m->unk04 <= m->unk1C) {
+		m->unk18 += m->unk14;
+	}
+	m->unk1C += 1.0f;
+	m->unk20 += m->unk18;
+	return m->unk20;
+}
+#pragma dont_inline off
+static void Hx_Circle() {
+	switch (hx.unk38) {
+	case 0:
+		p1 = 0.0f;
+		p2 = 0.0f;
+		p3 = 0.0f;
+		a1 = 0;
+		a2 = 0;
+		a3 = 0;
+		r_181 = 1.0f;
+		boke = 0.0f;
+		switch (hx.type) {
+		case 0:
+			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 2.0f, 13.0f, 10.0f);
+			hx.unk3C = 25;
+			break;
+		case 1:
+			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 5.0f, 10.0f, 15.0f);
+			hx.unk3C = 30;
+			break;
+		}
+		hx.unk38++;
+		/* fallthrough */
+	case 1:
+		r_181 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		switch (hx.type) {
+		case 1:
+			boke += 0.06666667f;
+			if (boke > 1.0f)
+				boke = 1.0f;
+			Hx_FrBufferMorf(boke);
+			Hx_SetVFilter(1.0f);
+			break;
+		case 0:
+			r_181 = 400.0f - r_181;
+			if (r_181 < 0.0f)
+				r_181 = 0.0f;
+			break;
+		}
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.state = 3;
+		}
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+
+	Hxs1_Circle(r_181);
+	if (r_181 > 22.0f) {
+		Hxs2_Circle((u8)(a1 >> 8), r_181 - 20.0f + p1, r_181);
+		p1 += 0.05f;
+		if (a1 < 0xFF00)
+			a1 += 0x180;
+	}
+	if (r_181 > 42.0f) {
+		Hxs2_Circle((u8)(a2 >> 8), r_181 - 40.0f + p2,
+		            r_181 - 20.0f + p1);
+		p2 += 0.12f;
+		if (a2 < 0xFF00)
+			a2 += 0xC0;
+	}
+	if (r_181 > 62.0f) {
+		Hxs2_Circle((u8)(a3 >> 8), r_181 - 60.0f + p3,
+		            r_181 - 40.0f + p2);
+		p3 += 0.25f;
+		if (a3 < 0xFF00)
+			a3 += 0x80;
+	}
+}
+static void Hxs1_Circle(f32 r) {
+	u32 i;
+	f32 r2;
+
+	Hx_CameraInit();
+	Hx_GxInit(0, 1);
+	r2 = r * r;
+	i = 0;
+	while (i <= hx.imgHHalf) {
+		f32 dy;
+		f32 root;
+		f32 y0;
+		f32 y1;
+		f32 cx;
+		volatile f32 rootOut;
+
+		dy = (f32)(hx.imgHHalf - i);
+		y0 = (f32)i;
+		y1 = (f32)(hx.imgH - i);
+		cx = (f32)hx.imgWHalf;
+		if (dy >= r) {
+			GXBegin(0xA8, GX_VTXFMT0, 4);
+			GXPosition3f32(0.0f, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32((f32)hx.imgW, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(0.0f, y1, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32((f32)hx.imgW, y1, 1.0f);
+			GXColor1u32(0xFF);
+		} else {
+			root = r2 - dy * dy;
+			if (root > 0.0f) {
+				f64 guess = __frsqrte(root);
+				guess = 0.5 * guess * (3.0 - root * guess * guess);
+				guess = 0.5 * guess * (3.0 - root * guess * guess);
+				guess = 0.5 * guess * (3.0 - root * guess * guess);
+				rootOut = (f32)(root * guess);
+				root = rootOut;
+			}
+
+			GXBegin(0xA8, GX_VTXFMT0, 8);
+			GXPosition3f32(0.0f, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(cx - root, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(cx + root, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32((f32)hx.imgW, y0, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(cx + root, y1, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32((f32)hx.imgW, y1, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(0.0f, y1, 1.0f);
+			GXColor1u32(0xFF);
+			GXPosition3f32(cx - root, y1, 1.0f);
+			GXColor1u32(0xFF);
+		}
+		i++;
+	}
+}
+static void Hxs2_Circle(u8 color, f32 inner, f32 outer) {
+	u32 i;
+	f32 inner2;
+	f32 outer2;
+	u32 col;
+
+	Hx_CameraInit();
+	Hx_GxInit(0, 1);
+	inner2 = inner * inner;
+	outer2 = outer * outer;
+	col = color;
+	i = (u32)((f32)hx.imgHHalf - outer);
+	while (i <= hx.imgHHalf) {
+		f32 dy;
+		f32 dy2;
+		f32 outerRoot;
+		f32 innerRoot;
+		f32 y0;
+		f32 y1;
+		f32 cx;
+		volatile f32 rootOut;
+
+		dy = (f32)(hx.imgHHalf - i);
+		dy2 = dy * dy;
+		outerRoot = outer2 - dy2;
+		if (outerRoot > 0.0f) {
+			f64 guess = __frsqrte(outerRoot);
+			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
+			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
+			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
+			rootOut = (f32)(outerRoot * guess);
+			outerRoot = rootOut;
+		}
+
+		y0 = (f32)i;
+		y1 = (f32)(hx.imgH - i);
+		cx = (f32)hx.imgWHalf;
+
+		if (dy >= inner) {
+			GXBegin(0xA8, GX_VTXFMT0, 4);
+			GXPosition3f32(cx - outerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + outerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx - outerRoot, y1, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + outerRoot, y1, 1.0f);
+			GXColor1u32(col);
+		} else {
+			innerRoot = inner2 - dy2;
+			if (innerRoot > 0.0f) {
+				f64 guess = __frsqrte(innerRoot);
+				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
+				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
+				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
+				rootOut = (f32)(innerRoot * guess);
+				innerRoot = rootOut;
+			}
+
+			GXBegin(0xA8, GX_VTXFMT0, 8);
+			GXPosition3f32(cx - outerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx - innerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + innerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + outerRoot, y0, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + innerRoot, y1, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx + outerRoot, y1, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx - outerRoot, y1, 1.0f);
+			GXColor1u32(col);
+			GXPosition3f32(cx - innerRoot, y1, 1.0f);
+			GXColor1u32(col);
+		}
+		i++;
+	}
+}
+static void Hxs_FrBufferMorf2(f32 x) {
+	GXTexObj tobj;
+	f32 y;
+	f32 stripH;
+	f32 zero;
+	f32 one;
+	f32 srcRight;
+	f32 screenH;
+
+	Frb2_InitGx(&tobj);
+	if (x < (f32)(hx.imgW >> 2)) {
+		y = 0.0f;
+		zero = 0.0f;
+		one = 1.0f;
+		stripH = 16.0f;
+		while (y < (f32)hx.imgH) {
+			f32 y1;
+
+			Hx_GetFrBuffer(fbuf2, 0, (u32)y, 0xA0, 0x10);
+			GXInvalidateTexAll();
+			GXLoadTexObj(&tobj, GX_TEXMAP0);
+			GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+			y1 = y + stripH;
+			srcRight = (f32)(hx.imgW >> 2);
+			GXPosition3f32(x, y, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(zero, zero);
+			GXPosition3f32(srcRight, y, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(one, zero);
+			GXPosition3f32(srcRight, y1, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(one, one);
+			GXPosition3f32(x, y1, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(zero, one);
+			GXDrawDone();
+			y += stripH;
+		}
+	}
+
+	Frb2_InitBlackBox();
+	screenH = (f32)hx.imgH;
+	Frb2_RendBox(0xFF, 0.0f, 0.0f, x, screenH);
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(0.0f, 0.0f, 0.0f);
+	GXColor1u32(0xFF);
+	GXPosition3f32(x, 0.0f, 0.0f);
+	GXColor1u32(0xFF);
+	GXPosition3f32(x, screenH, 0.0f);
+	GXColor1u32(0xFF);
+	GXPosition3f32(0.0f, screenH, 0.0f);
+	GXColor1u32(0xFF);
+}
+static void Hxs_FrBufferMorf2B(f32 x) {
+	GXTexObj tobj;
+	u32 srcX;
+	f32 right;
+	f32 y;
+	f32 stripH;
+	f32 zero;
+	f32 one;
+	f32 screenW;
+	f32 screenH;
+
+	srcX = (hx.imgW >> 1) + (hx.imgW >> 2);
+	Frb2_InitGx(&tobj);
+	screenW = (f32)hx.imgW;
+	right = screenW - x;
+	if (x < (f32)(hx.imgW >> 2)) {
+		zero = 0.0f;
+		one = 1.0f;
+		stripH = 16.0f;
+		y = 0.0f;
+		while (y < (f32)hx.imgH) {
+			f32 y1;
+			f32 srcXF;
+
+			Hx_GetFrBuffer(fbuf2, srcX, (u32)y, 0xA0, 0x10);
+			GXInvalidateTexAll();
+			GXLoadTexObj(&tobj, GX_TEXMAP0);
+			GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+			y1 = y + stripH;
+			srcXF = (f32)(int)srcX;
+			GXPosition3f32(srcXF, y, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(zero, zero);
+			GXPosition3f32(right, y, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(one, zero);
+			GXPosition3f32(right, y1, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(one, one);
+			GXPosition3f32(srcXF, y1, zero);
+			GXColor1u32(0);
+			GXTexCoord2f32(zero, one);
+			GXDrawDone();
+			y += stripH;
+		}
+	}
+
+	Frb2_InitBlackBox();
+	screenH = (f32)hx.imgH;
+	Frb2_RendBox(0xFF, right, 0.0f, screenW, screenH);
+}
+static void Hx_Door() {
+	u32 v;
+	f32 f;
+	u32 halfW;
+
+	switch (hx.unk38) {
+	case 0:
+		hx.unk38++;
+		Hx_MotionSet((HxMotion*)hx.rest, (f32)(hx.imgW >> 1), 5.0f, 6.0f,
+		             5.0f);
+		break;
+	case 1:
+		v = (u32)(int)Hx_MotionUpdate((HxMotion*)hx.rest);
+		f = (f32)(int)v;
+		Hxs_FrBufferMorf2(f);
+		if (v >= (hx.imgW >> 1)) {
+			hx.unk38++;
+			Hx_MotionSet((HxMotion*)hx.rest, (f32)(hx.imgW >> 1), 5.0f,
+			             6.0f, 5.0f);
+		}
+		break;
+	case 2:
+		halfW = hx.imgW >> 1;
+		Hxs_FrBufferMorf2((f32)halfW);
+		v = (u32)(int)Hx_MotionUpdate((HxMotion*)hx.rest);
+		f = (f32)(int)v;
+		Hxs_FrBufferMorf2B(f);
+		if (v >= (hx.imgW >> 1))
+			hx.unk38++;
+		break;
+	case 3:
+		halfW = hx.imgW >> 1;
+		Hxs_FrBufferMorf2((f32)halfW);
+		Hxs_FrBufferMorf2B((f32)halfW);
+		hx.state = 3;
+		break;
+	}
+}
+static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
+	GXTexObj tobj;
+	GXColor tevColor;
+	Mtx mtx;
+	Vec dir;
+	f32 aspect;
+	f32 half;
+	f32 root;
+	f64 guess;
+	volatile f32 len0;
+	volatile f32 len1;
+	volatile f32 len2;
+	volatile f32 len3;
+	f32 tex0s;
+	f32 tex0t;
+	f32 tex1s;
+	f32 tex1t;
+	f32 tex2s;
+	f32 tex2t;
+	f32 tex3s;
+	f32 tex3t;
+
+	Hx_CameraInit();
+	gmover_tex_buffer = hx.buffer;
+	Hgx_init_tobj_resource(&tobj, (HxTexRes*)gmover_tex_buffer);
+	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
+	                  GX_FALSE, GX_PTIDENTITY);
+	GXSetNumTexGens(1);
+	GXSetNumTevStages(2);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_ZERO);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_TEXA, GX_CA_ZERO, GX_CA_ZERO,
+	                GX_CA_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+	*(u32*)&tevColor = 0;
+	tevColor.a = color;
+	GXSetTevColor(GX_TEVREG0, tevColor);
+	GXSetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_ZERO);
+	GXSetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_A0, GX_CA_APREV,
+	                GX_CA_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+	              GX_COLOR_NULL);
+	GXLoadTexObj(&tobj, GX_TEXMAP0);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+	               GX_LO_CLEAR);
+
+	aspect = (f32)(hx.imgW / hx.imgH) / ((f32)img_wx / (f32)img_wy);
+	dir.x  = 0.5f;
+	dir.y  = 0.5f;
+	dir.z  = 1.0f;
+	PSVECNormalize(&dir, &dir);
+	PSMTXRotRad(mtx, 'Z', angle);
+	PSMTXMultVec(mtx, &dir, &dir);
+
+	half  = 0.5f;
+	root  = half * half + half * half;
+	guess = __frsqrte(root);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	len0  = (f32)(root * guess);
+	guess = __frsqrte(root);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	len1  = (f32)(root * guess);
+	guess = __frsqrte(root);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	len2  = (f32)(root * guess);
+	guess = __frsqrte(root);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	guess = 0.5 * guess * (3.0 - root * guess * guess);
+	len3  = (f32)(root * guess);
+	tex0s = 0.5f + aspect * (-dir.x * (scale * len0));
+	tex0t = 0.5f + -dir.y * (scale * len0);
+	tex1s = 0.5f + aspect * (dir.y * (scale * len1));
+	tex1t = 0.5f + -dir.x * (scale * len1);
+	tex2s = 0.5f + aspect * (dir.x * (scale * len2));
+	tex2t = 0.5f + dir.y * (scale * len2);
+	tex3s = 0.5f + aspect * (-dir.y * (scale * len3));
+	tex3t = 0.5f + dir.x * (scale * len3);
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(0.0f, 0.0f, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(tex0s, tex0t);
+	GXPosition3f32((f32)hx.imgW, 0.0f, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(tex1s, tex1t);
+	GXPosition3f32((f32)hx.imgW, (f32)hx.imgH, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(tex2s, tex2t);
+	GXPosition3f32(0.0f, (f32)hx.imgH, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(tex3s, tex3t);
+	GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
+}
+static void Hx_GameOver() {
+	switch (hx.unk38) {
+	case 0:
+		Hgx_ReadTexture("/data/wipe_gameover.bti", gmover_tex_buffer);
+		rot = 0.0f;
+		mag = 0.3f;
+		fade = 0.0f;
+		hx.unk38++;
+		hx.unk3C = 50;
+		Hx_MotionSet((HxMotion*)hx.rest, -12.566371f, 10.0f, 15.0f, 25.0f);
+		break;
+	case 1:
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 10;
+		}
+		mag += 0.074f;
+		rot = Hx_MotionUpdate((HxMotion*)hx.rest);
+		fade += 5.1f;
+		break;
+	case 2:
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			bounddelta = boundtable[0];
+			boundtimer = (u32)boundtable[1];
+			boundstate = 2;
+		}
+		mag -= 0.1f;
+		break;
+	case 3:
+		if (boundtimer != 0)
+			boundtimer--;
+		if (boundtimer == 0) {
+			boundstate++;
+			bounddelta = boundtable[boundstate - 1];
+			boundtimer = (u32)boundtable[boundstate];
+			boundstate++;
+			if (boundtimer == 0) {
+				hx.unk38++;
+				hx.unk3C = 32;
+				alpha = 0xFF;
+			}
+		}
+		mag += bounddelta;
+		break;
+	case 4: {
+		u32 color;
+		f32 right;
+		f32 bottom;
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk3C = 100;
+			hx.unk38++;
+		}
+		alpha += 8;
+		Hx_CameraInit();
+		Hx_GxInit(0, 1);
+		right  = (f32)(hx.imgW - 100);
+		bottom = (f32)(hx.imgH - 100);
+		color = 0xFF000000 | alpha;
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition3f32(100.0f, 100.0f, 0.0f);
+		GXColor1u32(color);
+		GXPosition3f32(right, 100.0f, 0.0f);
+		GXColor1u32(color);
+		GXPosition3f32(right, bottom, 0.0f);
+		GXColor1u32(color);
+		GXPosition3f32(100.0f, bottom, 0.0f);
+		GXColor1u32(color);
+		break;
+	}
+	case 5: {
+		f32 right;
+		f32 bottom;
+		Hx_CameraInit();
+		Hx_GxInit(0, 1);
+		right  = (f32)(hx.imgW - 100);
+		bottom = (f32)(hx.imgH - 100);
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition3f32(100.0f, 100.0f, 0.0f);
+		GXColor1u32(0xFF0000FF);
+		GXPosition3f32(right, 100.0f, 0.0f);
+		GXColor1u32(0xFF0000FF);
+		GXPosition3f32(right, bottom, 0.0f);
+		GXColor1u32(0xFF0000FF);
+		GXPosition3f32(100.0f, bottom, 0.0f);
+		GXColor1u32(0xFF0000FF);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.state = 3;
+		}
+		break;
+	}
+	default:
+		hx.state = 3;
+		break;
+	}
+
+	if (hx.unk38 >= 2)
+		Hxs_GameOver(0xFF, 2.0f * mag, rot);
+	else
+		Hxs_GameOver((u32)(int)fade, 2.0f * mag, rot);
+}
+static void Hxs_Logo_ExtraDraw(u8 alpha, void* resource) {
+	GXTexObj tobj;
+	GXColor color;
+
+	Hx_CameraInit();
+	Hx_GxInit(1, 1);
+	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
+	*(u32*)&color = 0xFFFFFFFF;
+	color.a = alpha;
+	GXSetTevColor(GX_TEVREG0, color);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C0, GX_CC_ZERO, GX_CC_ZERO,
+	                GX_CC_ZERO);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_A0, GX_CA_TEXA,
+	                GX_CA_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXLoadTexObj(&tobj, GX_TEXMAP0);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+	               GX_LO_CLEAR);
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(160.0f, 205.0f, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 0.0f);
+	GXPosition3f32(480.0f, 205.0f, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 0.0f);
+	GXPosition3f32(480.0f, 237.0f, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 1.0f);
+	GXPosition3f32(160.0f, 237.0f, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 1.0f);
+}
+static void Hxs_Logo_TexSetup(u8 color, u8 alpha, void* resource) {
+	GXTexObj tobj;
+	GXColor tevColor;
+
+	Hx_CameraInit();
+	Hx_GxInit(1, 1);
+	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
+	*(u32*)&tevColor = 0xFF000000;
+	tevColor.r = color;
+	tevColor.a = alpha;
+	if (alpha > 0xC0)
+		tevColor.a = 0xFF;
+	else
+		tevColor.a = (u8)(int)(1.328 * (f32)alpha);
+	GXSetTevColor(GX_TEVREG0, tevColor);
+
+	if (alpha > 0xC0)
+		tevColor.a = (u8)(((0xFF - alpha) & 0x3F) << 2);
+	else
+		tevColor.a = 0xFF;
+	GXSetTevColor(GX_TEVREG1, tevColor);
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_C0, GX_CC_TEXA,
+	                GX_CC_ZERO);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_A1, GX_CA_A0, GX_CA_TEXA,
+	                GX_CA_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	                GX_TRUE, GX_TEVPREV);
+	GXLoadTexObj(&tobj, GX_TEXMAP0);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+	               GX_LO_CLEAR);
+}
+static void Hxs_Logo_TexDraw(f32 x1, f32 y1, f32 x2, f32 y2, f32 texW,
+                             f32 texH) {
+	Vec n;
+	f32 drawW;
+	f32 drawH;
+	f32 baseX;
+	f32 baseY;
+	f32 tx1;
+	f32 ty1;
+	f32 tx2;
+	f32 ty2;
+	f32 u0;
+	f32 v0;
+	f32 u1;
+	f32 v1;
+	f32 u2;
+	f32 v2;
+	f32 u3;
+	f32 v3;
+
+	drawH = texH / 1.924138f;
+	drawW = texW / 1.9230769f;
+	tx1   = x1 / drawW;
+	ty1   = y1 / drawH;
+	tx2   = x2 / drawW;
+	ty2   = y2 / drawH;
+	baseX = (f32)(hx.imgW >> 1) - drawW * 0.5f;
+	baseY = (f32)(hx.imgH >> 1) - drawH * 0.5f - 32.0f;
+
+	n.x = -(ty2 - ty1);
+	n.y = tx2 - tx1;
+	n.z = 0.0f;
+	if (n.y == 0.0f && n.x == 0.0f)
+		return;
+	PSVECNormalize(&n, &n);
+	PSVECScale(&n, &n, 0.08f);
+
+	u0 = tx1 + n.x;
+	v0 = ty1 + n.y;
+	u1 = tx2 + n.x;
+	v1 = ty2 + n.y;
+	u2 = tx2 - n.x;
+	v2 = ty2 - n.y;
+	u3 = tx1 - n.x;
+	v3 = ty1 - n.y;
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(drawW * u0 + baseX, drawH * v0 + baseY, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(u0, v0);
+	GXPosition3f32(drawW * u1 + baseX, drawH * v1 + baseY, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(u1, v1);
+	GXPosition3f32(drawW * u2 + baseX, drawH * v2 + baseY, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(u2, v2);
+	GXPosition3f32(drawW * u3 + baseX, drawH * v3 + baseY, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(u3, v3);
+}
+static void Hxs_Logo_MagDraw(f32 scale, f32 texW, f32 texH) {
+	f32 cx;
+	f32 cy;
+	f32 hw;
+	f32 hh;
+
+	cx = (f32)(hx.imgW >> 1);
+	cy = (f32)(hx.imgH >> 1);
+	hw = texW * 0.5f * scale;
+	hh = texH * 0.5f * scale;
+
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(cx - hw, cy - hh, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 0.0f);
+	GXPosition3f32(cx + hw, cy - hh, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 0.0f);
+	GXPosition3f32(cx + hw, cy + hh, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(1.0f, 1.0f);
+	GXPosition3f32(cx - hw, cy + hh, 0.0f);
+	GXColor1u32(0);
+	GXTexCoord2f32(0.0f, 1.0f);
+}
+static void Hxs_PenDraw(u32 count, LogoPath* path, f32 bx, f32 by) {
+	u32 i;
+	LogoPath* prev;
+	LogoPath* next;
+
+	if (count != 0) {
+		prev = &drawpath_table[0];
+		i = 0;
+		while (i < count - 1) {
+			next = &drawpath_table[i + 1];
+			if (next->time == -1)
+				break;
+			if (next->time != 0)
+				Hxs_Logo_TexDraw(prev->x, prev->y, next->x, next->y,
+				                 (f32)img_wx, (f32)img_wy);
+			prev = next;
+			i++;
+		}
+	}
+
+	if (path->time > 0) {
+		f32 ratio;
+		f32 x;
+		f32 y;
+
+		ratio = (f32)(path->time - (s32)hx.unk3C) / (f32)path->time;
+		x = bx + (path->x - bx) * ratio;
+		y = by + (path->y - by) * ratio;
+		Hxs_Logo_TexDraw(bx, by, x, y, (f32)img_wx, (f32)img_wy);
+	}
+}
+static void Hx_Logo() {
+	void* drawResource;
+	void* extraResource;
+	u32 remaining;
+	u32 i;
+	u8 alpha8;
+
+	drawResource = hx.buffer;
+	if (hx.unk28 != 0)
+		extraResource = hx.resource;
+	else
+		extraResource = hx_buffer;
+
+	switch (hx.unk38) {
+	case 0:
+		if (hx.unk28 == 0)
+			Hgx_ReadTexture("/data/title_mini.bti", extraResource);
+		dp_320 = drawpath_table;
+		count_323 = 0;
+		hx.unk3C = 0x100;
+		hxs_logo_resetflag = 1;
+		hxs_logodraw_resetflag = 1;
+		hx.unk38++;
+		break;
+	case 1:
+		if (hx.unk3C <= 0xC0) {
+			Hxs_Logo_ExtraDraw(0xFF, extraResource);
+		} else {
+			alpha8 = (u8)(((0x100 - hx.unk3C) & 0x3F) << 2);
+			Hxs_Logo_ExtraDraw(alpha8, extraResource);
+		}
+		Hx_TimerCountDown();
+		Hx_TimerCountDown();
+		Hx_TimerCountDown();
+		remaining = Hx_TimerCountDown();
+		if (remaining == 0)
+			hx.unk38++;
+		break;
+	case 2:
+		if (dp_320->time == -1) {
+			hx.unk3C = 5;
+			hx.unk38 = 5;
+		} else {
+			if (dp_320->time == 0) {
+				bx_321 = dp_320->x;
+				by_322 = dp_320->y;
+				dp_320++;
+				count_323++;
+			}
+			hx.unk3C = dp_320->time;
+			hx.unk38++;
+		}
+		/* fallthrough */
+	case 3:
+		Hxs_Logo_ExtraDraw(0xFF, extraResource);
+		Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
+		Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+		if (Hx_TimerCountDown() == 0) {
+			if (dp_320->time != -1) {
+				bx_321 = dp_320->x;
+				by_322 = dp_320->y;
+				dp_320++;
+				count_323++;
+				hx.unk38 = 2;
+			} else {
+				hx.unk3C = 5;
+				hx.unk38 = 5;
+			}
+		}
+		break;
+	case 4:
+		hx.unk3C = 5;
+		hx.unk38++;
+		/* fallthrough */
+	case 5:
+		Hxs_Logo_ExtraDraw(0xFF, extraResource);
+		Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
+		Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk3C = 0xFF;
+			hx.unk38++;
+		}
+		break;
+	case 6:
+		alpha8 = (u8)hx.unk3C;
+		if (hx.unk3C >= 0xC0) {
+			Hxs_Logo_ExtraDraw(0xFF, extraResource);
+			Hxs_Logo_TexSetup(alpha8, alpha8, drawResource);
+			if (hx.unk3C > 0xF8) {
+				Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+			} else {
+				Hxs_Logo_MagDraw(1.0f, (f32)img_wx, (f32)img_wy);
+			}
+		} else {
+			Hxs_Logo_TexSetup(alpha8, alpha8, drawResource);
+			Hxs_Logo_MagDraw(1.0f, (f32)img_wx, (f32)img_wy);
+		}
+		i = 0;
+		while (i < 3) {
+			Hx_TimerCountDown();
+			i++;
+		}
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk3C = 25;
+			Hx_MotionSet((HxMotion*)hx.rest, 30.0f, 12.0f, 8.0f, 5.0f);
+			hx.unk38++;
+		}
+		break;
+	case 7:
+		Hxs_Logo_TexSetup(0, 0, drawResource);
+		Hxs_Logo_MagDraw(1.0f + Hx_MotionUpdate((HxMotion*)hx.rest),
+		                 (f32)img_wx, (f32)img_wy);
+		if (Hx_TimerCountDown() == 0)
+			hx.unk38++;
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+}
+int Hx_MovieStartSyncEx() {
+	if (hx.wipeNo != 12)
+		return 0;
+
+	if (hx.unk38 >= 2 && hx.unk38 <= 5) {
+		if (hxs_logodraw_resetflag == 0)
+			return 0;
+		hxs_logodraw_resetflag = 0;
+		return 1;
+	}
+
+	if (hx.unk38 >= 6) {
+		if (hxs_logo_resetflag == 0)
+			return 0;
+		if (hx.unk38 == 6 && hx.unk3C > 0xC0)
+			return 0;
+		hxs_logo_resetflag = 0;
+		return 2;
+	}
+
+	return 0;
+}
+static void Hx_Test1() {
+	switch (hx.unk38) {
+	case 0:
+		if (hx.type == 1) {
+			r_393 = 400.0f;
+			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 10.0f, 12.0f, 8.0f);
+		} else {
+			r_393 = 1.0f;
+			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 5.0f, 10.0f, 10.0f);
+		}
+		hx.unk38++;
+		hx.unk3C = 25;
+		break;
+	case 1:
+		if (Hx_TimerCountDown() == 0)
+			hx.unk38++;
+		r_393 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		if (hx.type == 1)
+			r_393 = 400.0f - r_393;
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+
+	Hxs1_Test1(0.0f, 0.0f, r_393);
+	Hxs1_Test1((f32)hx.imgW, 0.0f, r_393);
+	Hxs1_Test1((f32)hx.imgW, (f32)hx.imgH, r_393);
+	Hxs1_Test1(0.0f, (f32)hx.imgH, r_393);
+}
+static void Hxs1_Test1(f32 x, f32 y, f32 r) {
+	u32 i;
+	f32 r2;
+	f32 z;
+	u32 color;
+
+	Hx_CameraInit();
+	Hx_GxInit(0, 1);
+	GXSetLineWidth(7, GX_TO_ZERO);
+
+	r2 = r * r;
+	GXBegin(0xA8, GX_VTXFMT0, ((u32)r << 1) + 2);
+
+	i = 0;
+	z = 1.0f;
+	color = 0xff;
+	while (i <= (u32)r) {
+		f32 root;
+		f32 iy;
+		f32 x0;
+		f32 x1;
+		f32 y0;
+		volatile f32 rootOut;
+
+		root = r2 - (f32)(i * i);
+		if (root > 0.0f) {
+			f64 guess = __frsqrte(root);
+			guess = 0.5 * guess * (3.0 - root * guess * guess);
+			guess = 0.5 * guess * (3.0 - root * guess * guess);
+			guess = 0.5 * guess * (3.0 - root * guess * guess);
+			rootOut = (f32)(root * guess);
+			root = rootOut;
+		}
+
+		iy = (f32)i;
+		if (y < (f32)hx.imgHHalf)
+			y0 = y + iy;
+		else
+			y0 = y - iy;
+
+		if (x < (f32)hx.imgWHalf) {
+			x0 = x;
+			x1 = x + root;
+		} else {
+			x0 = x - root;
+			x1 = x;
+		}
+
+		GXPosition3f32(x0, y0, z);
+		GXColor1u32(color);
+		GXPosition3f32(x1, y0, z);
+		GXColor1u32(color);
+		i++;
+	}
+}
+static void Hx_Test2() {
+	switch (hx.unk38) {
+	case 0:
+		r_416 = 1.0f;
+		Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
+		hx.unk38++;
+		hx.unk3C = 11;
+		break;
+	case 1:
+		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		Hxs1_Test2((u32)r_416, 1, (f32)(hx.imgW + 200), 300.0f, 900.0f,
+		           650.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 11;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
+		}
+		break;
+	case 2:
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
+		           650.0f);
+		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		Hxs1_Test2((u32)r_416, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
+		           450.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 10;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 7.0f, 1.0f);
+		}
+		break;
+	case 3:
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
+		           650.0f);
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
+		           450.0f);
+		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		Hxs1_Test2((u32)r_416, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
+		           400.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 12;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 9.0f, 1.0f);
+		}
+		break;
+	case 4:
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
+		           650.0f);
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
+		           450.0f);
+		Hxs1_Test2(600, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
+		           400.0f);
+		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		Hxs1_Test2((u32)r_416, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
+		           200.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.state = 3;
+		}
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+}
+static void Hx_Test2R() {
+	switch (hx.unk38) {
+	case 0:
+		r_432 = 1.0f;
+		Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
+		hx.unk38++;
+		hx.unk3C = 11;
+		/* fallthrough */
+	case 1:
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
+		           450.0f);
+		Hxs1_Test2(600, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
+		           400.0f);
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
+		           200.0f);
+		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		r_432 = 500.0f - r_432;
+		Hxs1_Test2((u32)r_432, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
+		           650.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 11;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
+		}
+		break;
+	case 2:
+		Hxs1_Test2(600, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
+		           400.0f);
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
+		           200.0f);
+		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		r_432 = 500.0f - r_432;
+		Hxs1_Test2((u32)r_432, 1, (f32)(hx.imgW + 200), 150.0f, 700.0f,
+		           450.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 10;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 7.0f, 1.0f);
+		}
+		break;
+	case 3:
+		Hxs1_Test2(600, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
+		           200.0f);
+		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		r_432 = 500.0f - r_432;
+		Hxs1_Test2((u32)r_432, 0, (f32)(hx.imgW + 250), 370.0f, 650.0f,
+		           400.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.unk3C = 12;
+			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 9.0f, 1.0f);
+		}
+		break;
+	case 4:
+		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
+		r_432 = 500.0f - r_432;
+		Hxs1_Test2((u32)r_432, 1, (f32)(hx.imgW + 250), 300.0f, 420.0f,
+		           200.0f);
+		if (Hx_TimerCountDown() == 0) {
+			hx.unk38++;
+			hx.state = 3;
+		}
+		break;
+	default:
+		hx.state = 3;
+		break;
+	}
+}
+static void Hxs1_Test2(u32 count, u32 side, f32 x, f32 y, f32 r1, f32 r2) {
+	s32 pos;
+	s32 end;
+	s32 step;
+	f32 r1sq;
+	f32 r2sq;
+	u32 color;
+	f32 z;
+
+	Hx_CameraInit();
+	Hx_GxInit(0, 1);
+
+	r1sq = r1 * r1;
+	r2sq = r2 * r2;
+
+	if (side == 0) {
+		step = 1;
+		end = (s32)r1;
+		pos = (s32)-y;
+	} else {
+		step = -1;
+		pos = (s32)r1;
+		end = (s32)-y;
+	}
+
+	color = 0xff;
+	z = 1.0f;
+	while (pos != end) {
+		f32 lineY;
+
+		lineY = y + (f32)pos;
+		if (lineY >= 0.0f && lineY <= (f32)hx.imgH) {
+			s32 sqi;
+			f32 root1;
+			f32 root2;
+			volatile f32 rootOut;
+			f32 x0;
+			f32 x1;
+			BOOL draw;
+
+			if (count == 0)
+				break;
+			count--;
+
+			sqi = pos * pos;
+			root1 = r1sq - (f32)sqi;
+			if (root1 > 0.0f) {
+				f64 guess = __frsqrte(root1);
+				guess = 0.5 * guess * (3.0 - root1 * guess * guess);
+				guess = 0.5 * guess * (3.0 - root1 * guess * guess);
+				guess = 0.5 * guess * (3.0 - root1 * guess * guess);
+				rootOut = (f32)(root1 * guess);
+				root1 = rootOut;
+			}
+
+			root2 = r2sq - (f32)sqi;
+			if (root2 > 0.0f) {
+				f64 guess = __frsqrte(root2);
+				guess = 0.5 * guess * (3.0 - root2 * guess * guess);
+				guess = 0.5 * guess * (3.0 - root2 * guess * guess);
+				guess = 0.5 * guess * (3.0 - root2 * guess * guess);
+				rootOut = (f32)(root2 * guess);
+				root2 = rootOut;
+			}
+
+			draw = TRUE;
+			if (x < (f32)hx.imgWHalf) {
+				x1 = x + root1;
+				x0 = x + root2;
+				if (x1 < 0.0f)
+					draw = FALSE;
+			} else {
+				x0 = x - root1;
+				x1 = x - root2;
+				if (x0 > (f32)hx.imgW)
+					draw = FALSE;
+			}
+
+			if (draw) {
+				GXBegin(0xA8, GX_VTXFMT0, 2);
+				GXPosition3f32(x0, lineY, z);
+				GXColor1u32(color);
+				GXPosition3f32(x1, lineY, z);
+				GXColor1u32(color);
+			}
+		}
+		pos += step;
+	}
+}
+static void Hx_Test4() {
+	u32 i;
+	f32 center;
+	f32 outer;
+	f32 inner;
+	f32 angle;
+	f32 prevOuterX;
+	f32 prevOuterY;
+	f32 prevInnerX;
+	f32 prevInnerY;
+	f32 z;
+	u32 color;
+
+	switch (hx.unk38) {
+	case 0:
+		switch (hx.type) {
+		case 0:
+			rstep = 0;
+			thin = 124.3f;
+			rstep_d = 5.0f;
+			thin_d = 0.15f;
+			break;
+		case 1:
+			rstep = 230;
+			thin = 100.0f;
+			rstep_d = -5.0f;
+			thin_d = -0.15f;
+			break;
+		}
+		hx.unk3C = 38;
+		hx.unk38++;
+		/* fallthrough */
+	case 1:
+		rstep = (u32)((f32)rstep + rstep_d);
+		thin += thin_d;
+		center = (f32)((hx.imgW >> 1) + 200);
+		outer = center + thin;
+		angle = 0.0f;
+		prevOuterX = outer * sinf(angle) + (f32)hx.imgWHalf;
+		prevOuterY = outer * cosf(angle) + (f32)hx.imgHHalf;
+		inner = center - thin;
+		prevInnerX = inner * sinf(angle) + (f32)hx.imgWHalf;
+		prevInnerY = inner * cosf(angle) + (f32)hx.imgHHalf;
+
+		Hx_CameraInit();
+		Hx_GxInit(0, 1);
+
+		i = 0;
+		z = 0.0f;
+		color = 0xff;
+		while (i < rstep) {
+			f32 curOuterX;
+			f32 curOuterY;
+			f32 curInnerX;
+			f32 curInnerY;
+
+			center -= 2.4f;
+			outer = center + thin;
+			if (center < thin)
+				inner = 0.0f;
+			else
+				inner = center - thin;
+
+			angle += 0.12f;
+			curOuterX = outer * sinf(angle) + (f32)hx.imgWHalf;
+			curOuterY = outer * cosf(angle) + (f32)hx.imgHHalf;
+			curInnerX = inner * sinf(angle) + (f32)hx.imgWHalf;
+			curInnerY = inner * cosf(angle) + (f32)hx.imgHHalf;
+
+			GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+			GXPosition3f32(prevOuterX, prevOuterY, z);
+			GXColor1u32(color);
+			GXPosition3f32(curOuterX, curOuterY, z);
+			GXColor1u32(color);
+			GXPosition3f32(curInnerX, curInnerY, z);
+			GXColor1u32(color);
+			GXPosition3f32(prevInnerX, prevInnerY, z);
+			GXColor1u32(color);
+
+			prevOuterX = curOuterX;
+			prevOuterY = curOuterY;
+			prevInnerX = curInnerX;
+			prevInnerY = curInnerY;
+			i++;
+		}
+
+		if (Hx_TimerCountDown() == 0) {
+			hx.state = 3;
+			hx.unk38++;
+		}
+		break;
+	}
+}
 static void Hx_Test5() {
 	GXTexObj tobj;
 	u32 y;
@@ -371,1667 +2016,3 @@ static void Hx_Test5() {
 		break;
 	}
 }
-static void Hx_Test4() {
-	u32 i;
-	f32 center;
-	f32 outer;
-	f32 inner;
-	f32 angle;
-	f32 prevOuterX;
-	f32 prevOuterY;
-	f32 prevInnerX;
-	f32 prevInnerY;
-	f32 z;
-	u32 color;
-
-	switch (hx.unk38) {
-	case 0:
-		switch (hx.type) {
-		case 0:
-			rstep = 0;
-			thin = 124.3f;
-			rstep_d = 5.0f;
-			thin_d = 0.15f;
-			break;
-		case 1:
-			rstep = 230;
-			thin = 100.0f;
-			rstep_d = -5.0f;
-			thin_d = -0.15f;
-			break;
-		}
-		hx.unk3C = 38;
-		hx.unk38++;
-		/* fallthrough */
-	case 1:
-		rstep = (u32)((f32)rstep + rstep_d);
-		thin += thin_d;
-		center = (f32)((hx.imgW >> 1) + 200);
-		outer = center + thin;
-		angle = 0.0f;
-		prevOuterX = outer * sinf(angle) + (f32)hx.imgWHalf;
-		prevOuterY = outer * cosf(angle) + (f32)hx.imgHHalf;
-		inner = center - thin;
-		prevInnerX = inner * sinf(angle) + (f32)hx.imgWHalf;
-		prevInnerY = inner * cosf(angle) + (f32)hx.imgHHalf;
-
-		Hx_CameraInit();
-		Hx_GxInit(0, 1);
-
-		i = 0;
-		z = 0.0f;
-		color = 0xff;
-		while (i < rstep) {
-			f32 curOuterX;
-			f32 curOuterY;
-			f32 curInnerX;
-			f32 curInnerY;
-
-			center -= 2.4f;
-			outer = center + thin;
-			if (center < thin)
-				inner = 0.0f;
-			else
-				inner = center - thin;
-
-			angle += 0.12f;
-			curOuterX = outer * sinf(angle) + (f32)hx.imgWHalf;
-			curOuterY = outer * cosf(angle) + (f32)hx.imgHHalf;
-			curInnerX = inner * sinf(angle) + (f32)hx.imgWHalf;
-			curInnerY = inner * cosf(angle) + (f32)hx.imgHHalf;
-
-			GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-			GXPosition3f32(prevOuterX, prevOuterY, z);
-			GXColor1u32(color);
-			GXPosition3f32(curOuterX, curOuterY, z);
-			GXColor1u32(color);
-			GXPosition3f32(curInnerX, curInnerY, z);
-			GXColor1u32(color);
-			GXPosition3f32(prevInnerX, prevInnerY, z);
-			GXColor1u32(color);
-
-			prevOuterX = curOuterX;
-			prevOuterY = curOuterY;
-			prevInnerX = curInnerX;
-			prevInnerY = curInnerY;
-			i++;
-		}
-
-		if (Hx_TimerCountDown() == 0) {
-			hx.state = 3;
-			hx.unk38++;
-		}
-		break;
-	}
-}
-
-static void Hxs1_Test2(u32 count, u32 side, f32 x, f32 y, f32 r1, f32 r2) {
-	s32 pos;
-	s32 end;
-	s32 step;
-	f32 r1sq;
-	f32 r2sq;
-	u32 color;
-	f32 z;
-
-	Hx_CameraInit();
-	Hx_GxInit(0, 1);
-
-	r1sq = r1 * r1;
-	r2sq = r2 * r2;
-
-	if (side == 0) {
-		step = 1;
-		end = (s32)r1;
-		pos = (s32)-y;
-	} else {
-		step = -1;
-		pos = (s32)r1;
-		end = (s32)-y;
-	}
-
-	color = 0xff;
-	z = 1.0f;
-	while (pos != end) {
-		f32 lineY;
-
-		lineY = y + (f32)pos;
-		if (lineY >= 0.0f && lineY <= (f32)hx.imgH) {
-			s32 sqi;
-			f32 root1;
-			f32 root2;
-			volatile f32 rootOut;
-			f32 x0;
-			f32 x1;
-			BOOL draw;
-
-			if (count == 0)
-				break;
-			count--;
-
-			sqi = pos * pos;
-			root1 = r1sq - (f32)sqi;
-			if (root1 > 0.0f) {
-				f64 guess = __frsqrte(root1);
-				guess = 0.5 * guess * (3.0 - root1 * guess * guess);
-				guess = 0.5 * guess * (3.0 - root1 * guess * guess);
-				guess = 0.5 * guess * (3.0 - root1 * guess * guess);
-				rootOut = (f32)(root1 * guess);
-				root1 = rootOut;
-			}
-
-			root2 = r2sq - (f32)sqi;
-			if (root2 > 0.0f) {
-				f64 guess = __frsqrte(root2);
-				guess = 0.5 * guess * (3.0 - root2 * guess * guess);
-				guess = 0.5 * guess * (3.0 - root2 * guess * guess);
-				guess = 0.5 * guess * (3.0 - root2 * guess * guess);
-				rootOut = (f32)(root2 * guess);
-				root2 = rootOut;
-			}
-
-			draw = TRUE;
-			if (x < (f32)hx.imgWHalf) {
-				x1 = x + root1;
-				x0 = x + root2;
-				if (x1 < 0.0f)
-					draw = FALSE;
-			} else {
-				x0 = x - root1;
-				x1 = x - root2;
-				if (x0 > (f32)hx.imgW)
-					draw = FALSE;
-			}
-
-			if (draw) {
-				GXBegin(0xA8, GX_VTXFMT0, 2);
-				GXPosition3f32(x0, lineY, z);
-				GXColor1u32(color);
-				GXPosition3f32(x1, lineY, z);
-				GXColor1u32(color);
-			}
-		}
-		pos += step;
-	}
-}
-
-static void Hx_Test2R() {
-	switch (hx.unk38) {
-	case 0:
-		r_432 = 1.0f;
-		Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
-		hx.unk38++;
-		hx.unk3C = 11;
-		/* fallthrough */
-	case 1:
-		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
-		           450.0f);
-		Hxs1_Test2(600, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
-		           400.0f);
-		Hxs1_Test2(600, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
-		           200.0f);
-		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
-		r_432 = 500.0f - r_432;
-		Hxs1_Test2((u32)r_432, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
-		           650.0f);
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.unk3C = 11;
-			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
-		}
-		break;
-	case 2:
-		Hxs1_Test2(600, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
-		           400.0f);
-		Hxs1_Test2(600, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
-		           200.0f);
-		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
-		r_432 = 500.0f - r_432;
-		Hxs1_Test2((u32)r_432, 1, (f32)(hx.imgW + 200), 150.0f, 700.0f,
-		           450.0f);
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.unk3C = 10;
-			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 7.0f, 1.0f);
-		}
-		break;
-	case 3:
-		Hxs1_Test2(600, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
-		           200.0f);
-		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
-		r_432 = 500.0f - r_432;
-		Hxs1_Test2((u32)r_432, 0, (f32)(hx.imgW + 250), 370.0f, 650.0f,
-		           400.0f);
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.unk3C = 12;
-			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 9.0f, 1.0f);
-		}
-		break;
-	case 4:
-		r_432 = Hx_MotionUpdate((HxMotion*)hx.rest);
-		r_432 = 500.0f - r_432;
-		Hxs1_Test2((u32)r_432, 1, (f32)(hx.imgW + 250), 300.0f, 420.0f,
-		           200.0f);
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.state = 3;
-		}
-		break;
-	default:
-		hx.state = 3;
-		break;
-	}
-}
-
-static void Hx_Test2() {
-	switch (hx.unk38) {
-	case 0:
-		r_416 = 1.0f;
-		Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
-		hx.unk38++;
-		hx.unk3C = 11;
-		break;
-	case 1:
-		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
-		Hxs1_Test2((u32)r_416, 1, (f32)(hx.imgW + 200), 300.0f, 900.0f,
-		           650.0f);
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.unk3C = 11;
-			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 8.0f, 1.0f);
-		}
-		break;
-	case 2:
-		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
-		           650.0f);
-		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
-		Hxs1_Test2((u32)r_416, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
-		           450.0f);
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.unk3C = 10;
-			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 7.0f, 1.0f);
-		}
-		break;
-	case 3:
-		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
-		           650.0f);
-		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
-		           450.0f);
-		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
-		Hxs1_Test2((u32)r_416, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
-		           400.0f);
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.unk3C = 12;
-			Hx_MotionSet((HxMotion*)hx.rest, 500.0f, 2.0f, 9.0f, 1.0f);
-		}
-		break;
-	case 4:
-		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 300.0f, 900.0f,
-		           650.0f);
-		Hxs1_Test2(600, 0, (f32)(hx.imgW + 200), 150.0f, 700.0f,
-		           450.0f);
-		Hxs1_Test2(600, 1, (f32)(hx.imgW + 250), 370.0f, 650.0f,
-		           400.0f);
-		r_416 = Hx_MotionUpdate((HxMotion*)hx.rest);
-		Hxs1_Test2((u32)r_416, 0, (f32)(hx.imgW + 250), 300.0f, 420.0f,
-		           200.0f);
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.state = 3;
-		}
-		break;
-	default:
-		hx.state = 3;
-		break;
-	}
-}
-
-static void Hxs1_Test1(f32 x, f32 y, f32 r) {
-	u32 i;
-	f32 r2;
-	f32 z;
-	u32 color;
-
-	Hx_CameraInit();
-	Hx_GxInit(0, 1);
-	GXSetLineWidth(7, GX_TO_ZERO);
-
-	r2 = r * r;
-	GXBegin(0xA8, GX_VTXFMT0, ((u32)r << 1) + 2);
-
-	i = 0;
-	z = 1.0f;
-	color = 0xff;
-	while (i <= (u32)r) {
-		f32 root;
-		f32 iy;
-		f32 x0;
-		f32 x1;
-		f32 y0;
-		volatile f32 rootOut;
-
-		root = r2 - (f32)(i * i);
-		if (root > 0.0f) {
-			f64 guess = __frsqrte(root);
-			guess = 0.5 * guess * (3.0 - root * guess * guess);
-			guess = 0.5 * guess * (3.0 - root * guess * guess);
-			guess = 0.5 * guess * (3.0 - root * guess * guess);
-			rootOut = (f32)(root * guess);
-			root = rootOut;
-		}
-
-		iy = (f32)i;
-		if (y < (f32)hx.imgHHalf)
-			y0 = y + iy;
-		else
-			y0 = y - iy;
-
-		if (x < (f32)hx.imgWHalf) {
-			x0 = x;
-			x1 = x + root;
-		} else {
-			x0 = x - root;
-			x1 = x;
-		}
-
-		GXPosition3f32(x0, y0, z);
-		GXColor1u32(color);
-		GXPosition3f32(x1, y0, z);
-		GXColor1u32(color);
-		i++;
-	}
-}
-
-static void Hx_Test1() {
-	switch (hx.unk38) {
-	case 0:
-		if (hx.type == 1) {
-			r_393 = 400.0f;
-			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 10.0f, 12.0f, 8.0f);
-		} else {
-			r_393 = 1.0f;
-			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 5.0f, 10.0f, 10.0f);
-		}
-		hx.unk38++;
-		hx.unk3C = 25;
-		break;
-	case 1:
-		if (Hx_TimerCountDown() == 0)
-			hx.unk38++;
-		r_393 = Hx_MotionUpdate((HxMotion*)hx.rest);
-		if (hx.type == 1)
-			r_393 = 400.0f - r_393;
-		break;
-	default:
-		hx.state = 3;
-		break;
-	}
-
-	Hxs1_Test1(0.0f, 0.0f, r_393);
-	Hxs1_Test1((f32)hx.imgW, 0.0f, r_393);
-	Hxs1_Test1((f32)hx.imgW, (f32)hx.imgH, r_393);
-	Hxs1_Test1(0.0f, (f32)hx.imgH, r_393);
-}
-
-int Hx_MovieStartSyncEx() {
-	if (hx.wipeNo != 12)
-		return 0;
-
-	if (hx.unk38 >= 2 && hx.unk38 <= 5) {
-		if (hxs_logodraw_resetflag == 0)
-			return 0;
-		hxs_logodraw_resetflag = 0;
-		return 1;
-	}
-
-	if (hx.unk38 >= 6) {
-		if (hxs_logo_resetflag == 0)
-			return 0;
-		if (hx.unk38 == 6 && hx.unk3C > 0xC0)
-			return 0;
-		hxs_logo_resetflag = 0;
-		return 2;
-	}
-
-	return 0;
-}
-
-static void Hx_Logo() {
-	void* drawResource;
-	void* extraResource;
-	u32 remaining;
-	u32 i;
-	u8 alpha8;
-
-	drawResource = hx.buffer;
-	if (hx.unk28 != 0)
-		extraResource = hx.resource;
-	else
-		extraResource = hx_buffer;
-
-	switch (hx.unk38) {
-	case 0:
-		if (hx.unk28 == 0)
-			Hgx_ReadTexture("/data/title_mini.bti", extraResource);
-		dp_320 = drawpath_table;
-		count_323 = 0;
-		hx.unk3C = 0x100;
-		hxs_logo_resetflag = 1;
-		hxs_logodraw_resetflag = 1;
-		hx.unk38++;
-		break;
-	case 1:
-		if (hx.unk3C <= 0xC0) {
-			Hxs_Logo_ExtraDraw(0xFF, extraResource);
-		} else {
-			alpha8 = (u8)(((0x100 - hx.unk3C) & 0x3F) << 2);
-			Hxs_Logo_ExtraDraw(alpha8, extraResource);
-		}
-		Hx_TimerCountDown();
-		Hx_TimerCountDown();
-		Hx_TimerCountDown();
-		remaining = Hx_TimerCountDown();
-		if (remaining == 0)
-			hx.unk38++;
-		break;
-	case 2:
-		if (dp_320->time == -1) {
-			hx.unk3C = 5;
-			hx.unk38 = 5;
-		} else {
-			if (dp_320->time == 0) {
-				bx_321 = dp_320->x;
-				by_322 = dp_320->y;
-				dp_320++;
-				count_323++;
-			}
-			hx.unk3C = dp_320->time;
-			hx.unk38++;
-		}
-		/* fallthrough */
-	case 3:
-		Hxs_Logo_ExtraDraw(0xFF, extraResource);
-		Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
-		Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
-		if (Hx_TimerCountDown() == 0) {
-			if (dp_320->time != -1) {
-				bx_321 = dp_320->x;
-				by_322 = dp_320->y;
-				dp_320++;
-				count_323++;
-				hx.unk38 = 2;
-			} else {
-				hx.unk3C = 5;
-				hx.unk38 = 5;
-			}
-		}
-		break;
-	case 4:
-		hx.unk3C = 5;
-		hx.unk38++;
-		/* fallthrough */
-	case 5:
-		Hxs_Logo_ExtraDraw(0xFF, extraResource);
-		Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
-		Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk3C = 0xFF;
-			hx.unk38++;
-		}
-		break;
-	case 6:
-		alpha8 = (u8)hx.unk3C;
-		if (hx.unk3C >= 0xC0) {
-			Hxs_Logo_ExtraDraw(0xFF, extraResource);
-			Hxs_Logo_TexSetup(alpha8, alpha8, drawResource);
-			if (hx.unk3C > 0xF8) {
-				Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
-			} else {
-				Hxs_Logo_MagDraw(1.0f, (f32)img_wx, (f32)img_wy);
-			}
-		} else {
-			Hxs_Logo_TexSetup(alpha8, alpha8, drawResource);
-			Hxs_Logo_MagDraw(1.0f, (f32)img_wx, (f32)img_wy);
-		}
-		i = 0;
-		while (i < 3) {
-			Hx_TimerCountDown();
-			i++;
-		}
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk3C = 25;
-			Hx_MotionSet((HxMotion*)hx.rest, 30.0f, 12.0f, 8.0f, 5.0f);
-			hx.unk38++;
-		}
-		break;
-	case 7:
-		Hxs_Logo_TexSetup(0, 0, drawResource);
-		Hxs_Logo_MagDraw(1.0f + Hx_MotionUpdate((HxMotion*)hx.rest),
-		                 (f32)img_wx, (f32)img_wy);
-		if (Hx_TimerCountDown() == 0)
-			hx.unk38++;
-		break;
-	default:
-		hx.state = 3;
-		break;
-	}
-}
-
-static void Hxs_PenDraw(u32 count, LogoPath* path, f32 bx, f32 by) {
-	u32 i;
-	LogoPath* prev;
-	LogoPath* next;
-
-	if (count != 0) {
-		prev = &drawpath_table[0];
-		i = 0;
-		while (i < count - 1) {
-			next = &drawpath_table[i + 1];
-			if (next->time == -1)
-				break;
-			if (next->time != 0)
-				Hxs_Logo_TexDraw(prev->x, prev->y, next->x, next->y,
-				                 (f32)img_wx, (f32)img_wy);
-			prev = next;
-			i++;
-		}
-	}
-
-	if (path->time > 0) {
-		f32 ratio;
-		f32 x;
-		f32 y;
-
-		ratio = (f32)(path->time - (s32)hx.unk3C) / (f32)path->time;
-		x = bx + (path->x - bx) * ratio;
-		y = by + (path->y - by) * ratio;
-		Hxs_Logo_TexDraw(bx, by, x, y, (f32)img_wx, (f32)img_wy);
-	}
-}
-
-static void Hxs_Logo_MagDraw(f32 scale, f32 texW, f32 texH) {
-	f32 cx;
-	f32 cy;
-	f32 hw;
-	f32 hh;
-
-	cx = (f32)(hx.imgW >> 1);
-	cy = (f32)(hx.imgH >> 1);
-	hw = texW * 0.5f * scale;
-	hh = texH * 0.5f * scale;
-
-	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32(cx - hw, cy - hh, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(0.0f, 0.0f);
-	GXPosition3f32(cx + hw, cy - hh, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(1.0f, 0.0f);
-	GXPosition3f32(cx + hw, cy + hh, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(1.0f, 1.0f);
-	GXPosition3f32(cx - hw, cy + hh, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(0.0f, 1.0f);
-}
-
-static void Hxs_Logo_TexDraw(f32 x1, f32 y1, f32 x2, f32 y2, f32 texW,
-                             f32 texH) {
-	Vec n;
-	f32 dx;
-	f32 dy;
-	f32 invW;
-	f32 invH;
-
-	dx = x2 - x1;
-	dy = y2 - y1;
-	if (dx == 0.0f && dy == 0.0f)
-		return;
-
-	n.x = -dy;
-	n.y = dx;
-	n.z = 0.0f;
-	PSVECNormalize(&n, &n);
-	PSVECScale(&n, &n, 6.0f);
-
-	invW = 1.0f / texW;
-	invH = 1.0f / texH;
-	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32(x1 + n.x, y1 + n.y, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32((x1 + n.x) * invW, (y1 + n.y) * invH);
-	GXPosition3f32(x2 + n.x, y2 + n.y, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32((x2 + n.x) * invW, (y2 + n.y) * invH);
-	GXPosition3f32(x2 - n.x, y2 - n.y, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32((x2 - n.x) * invW, (y2 - n.y) * invH);
-	GXPosition3f32(x1 - n.x, y1 - n.y, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32((x1 - n.x) * invW, (y1 - n.y) * invH);
-}
-
-static void Hxs_Logo_TexSetup(u8 color, u8 alpha, void* resource) {
-	GXTexObj tobj;
-	GXColor tevColor;
-
-	Hx_CameraInit();
-	Hx_GxInit(1, 1);
-	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
-	*(u32*)&tevColor = 0xFF000000;
-	tevColor.r = color;
-	tevColor.a = alpha;
-	if (alpha > 0xC0)
-		tevColor.a = 0xFF;
-	else
-		tevColor.a = (u8)(int)(1.328 * (f32)alpha);
-	GXSetTevColor(GX_TEVREG0, tevColor);
-
-	if (alpha > 0xC0)
-		tevColor.a = (u8)(((0xFF - alpha) & 0x3F) << 2);
-	else
-		tevColor.a = 0xFF;
-	GXSetTevColor(GX_TEVREG1, tevColor);
-	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_C0, GX_CC_TEXA,
-	                GX_CC_ZERO);
-	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_A1, GX_CA_A0, GX_CA_TEXA,
-	                GX_CA_ZERO);
-	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXLoadTexObj(&tobj, GX_TEXMAP0);
-	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
-	               GX_LO_CLEAR);
-}
-
-static void Hxs_Logo_ExtraDraw(u8 alpha, void* resource) {
-	GXTexObj tobj;
-	GXColor color;
-
-	Hx_CameraInit();
-	Hx_GxInit(1, 1);
-	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
-	*(u32*)&color = 0xFFFFFFFF;
-	color.a = alpha;
-	GXSetTevColor(GX_TEVREG0, color);
-	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C0, GX_CC_ZERO, GX_CC_ZERO,
-	                GX_CC_ZERO);
-	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_A0, GX_CA_TEXA,
-	                GX_CA_ZERO);
-	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXLoadTexObj(&tobj, GX_TEXMAP0);
-	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
-	               GX_LO_CLEAR);
-
-	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32(160.0f, 205.0f, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(0.0f, 0.0f);
-	GXPosition3f32(480.0f, 205.0f, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(1.0f, 0.0f);
-	GXPosition3f32(480.0f, 237.0f, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(1.0f, 1.0f);
-	GXPosition3f32(160.0f, 237.0f, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(0.0f, 1.0f);
-}
-static void Hx_GameOver() {
-	switch (hx.unk38) {
-	case 0:
-		Hgx_ReadTexture("/data/wipe_gameover.bti", gmover_tex_buffer);
-		rot = 0.0f;
-		mag = 0.3f;
-		fade = 0.0f;
-		hx.unk38++;
-		hx.unk3C = 50;
-		Hx_MotionSet((HxMotion*)hx.rest, -12.566371f, 10.0f, 15.0f, 25.0f);
-		break;
-	case 1:
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.unk3C = 10;
-		}
-		mag += 0.074f;
-		rot = Hx_MotionUpdate((HxMotion*)hx.rest);
-		fade += 5.1f;
-		break;
-	case 2:
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			bounddelta = boundtable[0];
-			boundtimer = (u32)boundtable[1];
-			boundstate = 2;
-		}
-		mag -= 0.1f;
-		break;
-	case 3:
-		if (boundtimer != 0)
-			boundtimer--;
-		if (boundtimer == 0) {
-			boundstate++;
-			bounddelta = boundtable[boundstate - 1];
-			boundtimer = (u32)boundtable[boundstate];
-			boundstate++;
-			if (boundtimer == 0) {
-				hx.unk38++;
-				hx.unk3C = 32;
-				alpha = 0xFF;
-			}
-		}
-		mag += bounddelta;
-		break;
-	case 4: {
-		u32 color;
-		f32 right;
-		f32 bottom;
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk3C = 100;
-			hx.unk38++;
-		}
-		alpha += 8;
-		Hx_CameraInit();
-		Hx_GxInit(0, 1);
-		right  = (f32)(hx.imgW - 100);
-		bottom = (f32)(hx.imgH - 100);
-		color = 0xFF000000 | alpha;
-		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-		GXPosition3f32(100.0f, 100.0f, 0.0f);
-		GXColor1u32(color);
-		GXPosition3f32(right, 100.0f, 0.0f);
-		GXColor1u32(color);
-		GXPosition3f32(right, bottom, 0.0f);
-		GXColor1u32(color);
-		GXPosition3f32(100.0f, bottom, 0.0f);
-		GXColor1u32(color);
-		break;
-	}
-	case 5: {
-		f32 right;
-		f32 bottom;
-		Hx_CameraInit();
-		Hx_GxInit(0, 1);
-		right  = (f32)(hx.imgW - 100);
-		bottom = (f32)(hx.imgH - 100);
-		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-		GXPosition3f32(100.0f, 100.0f, 0.0f);
-		GXColor1u32(0xFF0000FF);
-		GXPosition3f32(right, 100.0f, 0.0f);
-		GXColor1u32(0xFF0000FF);
-		GXPosition3f32(right, bottom, 0.0f);
-		GXColor1u32(0xFF0000FF);
-		GXPosition3f32(100.0f, bottom, 0.0f);
-		GXColor1u32(0xFF0000FF);
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.state = 3;
-		}
-		break;
-	}
-	default:
-		hx.state = 3;
-		break;
-	}
-
-	if (hx.unk38 >= 2)
-		Hxs_GameOver(0xFF, 2.0f * mag, rot);
-	else
-		Hxs_GameOver((u32)(int)fade, 2.0f * mag, rot);
-}
-
-static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
-	GXTexObj tobj;
-	GXColor tevColor;
-	Mtx mtx;
-	Vec dir;
-	f32 aspect;
-	f32 half;
-	f32 root;
-	f64 guess;
-	volatile f32 len0;
-	volatile f32 len1;
-	volatile f32 len2;
-	volatile f32 len3;
-	f32 tex0s;
-	f32 tex0t;
-	f32 tex1s;
-	f32 tex1t;
-	f32 tex2s;
-	f32 tex2t;
-	f32 tex3s;
-	f32 tex3t;
-
-	Hx_CameraInit();
-	gmover_tex_buffer = hx.buffer;
-	Hgx_init_tobj_resource(&tobj, (HxTexRes*)gmover_tex_buffer);
-	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
-	                  GX_FALSE, GX_PTIDENTITY);
-	GXSetNumTexGens(1);
-	GXSetNumTevStages(2);
-	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
-	                GX_CC_ZERO);
-	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_TEXA, GX_CA_ZERO, GX_CA_ZERO,
-	                GX_CA_ZERO);
-	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
-	*(u32*)&tevColor = 0;
-	tevColor.a = color;
-	GXSetTevColor(GX_TEVREG0, tevColor);
-	GXSetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
-	                GX_CC_ZERO);
-	GXSetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_A0, GX_CA_APREV,
-	                GX_CA_ZERO);
-	GXSetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXSetTevAlphaOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXSetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
-	              GX_COLOR_NULL);
-	GXLoadTexObj(&tobj, GX_TEXMAP0);
-	GXClearVtxDesc();
-	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
-	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
-	               GX_LO_CLEAR);
-
-	aspect = (f32)(hx.imgW / hx.imgH) / ((f32)img_wx / (f32)img_wy);
-	dir.x  = 0.5f;
-	dir.y  = 0.5f;
-	dir.z  = 1.0f;
-	PSVECNormalize(&dir, &dir);
-	PSMTXRotRad(mtx, 'Z', angle);
-	PSMTXMultVec(mtx, &dir, &dir);
-
-	half  = 0.5f;
-	root  = half * half + half * half;
-	guess = __frsqrte(root);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	len0  = (f32)(root * guess);
-	guess = __frsqrte(root);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	len1  = (f32)(root * guess);
-	guess = __frsqrte(root);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	len2  = (f32)(root * guess);
-	guess = __frsqrte(root);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	guess = 0.5 * guess * (3.0 - root * guess * guess);
-	len3  = (f32)(root * guess);
-	tex0s = 0.5f + aspect * (-dir.x * (scale * len0));
-	tex0t = 0.5f + -dir.y * (scale * len0);
-	tex1s = 0.5f + aspect * (dir.y * (scale * len1));
-	tex1t = 0.5f + -dir.x * (scale * len1);
-	tex2s = 0.5f + aspect * (dir.x * (scale * len2));
-	tex2t = 0.5f + dir.y * (scale * len2);
-	tex3s = 0.5f + aspect * (-dir.y * (scale * len3));
-	tex3t = 0.5f + dir.x * (scale * len3);
-
-	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32(0.0f, 0.0f, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(tex0s, tex0t);
-	GXPosition3f32((f32)hx.imgW, 0.0f, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(tex1s, tex1t);
-	GXPosition3f32((f32)hx.imgW, (f32)hx.imgH, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(tex2s, tex2t);
-	GXPosition3f32(0.0f, (f32)hx.imgH, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(tex3s, tex3t);
-	GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
-}
-static void Hx_Door() {
-	u32 v;
-	f32 f;
-	u32 halfW;
-
-	switch (hx.unk38) {
-	case 0:
-		hx.unk38++;
-		Hx_MotionSet((HxMotion*)hx.rest, (f32)(hx.imgW >> 1), 5.0f, 6.0f,
-		             5.0f);
-		break;
-	case 1:
-		v = (u32)(int)Hx_MotionUpdate((HxMotion*)hx.rest);
-		f = (f32)(int)v;
-		Hxs_FrBufferMorf2(f);
-		if (v >= (hx.imgW >> 1)) {
-			hx.unk38++;
-			Hx_MotionSet((HxMotion*)hx.rest, (f32)(hx.imgW >> 1), 5.0f,
-			             6.0f, 5.0f);
-		}
-		break;
-	case 2:
-		halfW = hx.imgW >> 1;
-		Hxs_FrBufferMorf2((f32)halfW);
-		v = (u32)(int)Hx_MotionUpdate((HxMotion*)hx.rest);
-		f = (f32)(int)v;
-		Hxs_FrBufferMorf2B(f);
-		if (v >= (hx.imgW >> 1))
-			hx.unk38++;
-		break;
-	case 3:
-		halfW = hx.imgW >> 1;
-		Hxs_FrBufferMorf2((f32)halfW);
-		Hxs_FrBufferMorf2B((f32)halfW);
-		hx.state = 3;
-		break;
-	}
-}
-
-static void Hxs_FrBufferMorf2B(f32 x) {
-	GXTexObj tobj;
-	u32 srcX;
-	f32 right;
-	f32 y;
-	f32 stripH;
-	f32 zero;
-	f32 one;
-	f32 screenW;
-	f32 screenH;
-
-	srcX = (hx.imgW >> 1) + (hx.imgW >> 2);
-	Frb2_InitGx(&tobj);
-	screenW = (f32)hx.imgW;
-	right = screenW - x;
-	if (x < (f32)(hx.imgW >> 2)) {
-		zero = 0.0f;
-		one = 1.0f;
-		stripH = 16.0f;
-		y = 0.0f;
-		while (y < (f32)hx.imgH) {
-			f32 y1;
-			f32 srcXF;
-
-			Hx_GetFrBuffer(fbuf2, srcX, (u32)y, 0xA0, 0x10);
-			GXInvalidateTexAll();
-			GXLoadTexObj(&tobj, GX_TEXMAP0);
-			GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-			y1 = y + stripH;
-			srcXF = (f32)(int)srcX;
-			GXPosition3f32(srcXF, y, zero);
-			GXColor1u32(0);
-			GXTexCoord2f32(zero, zero);
-			GXPosition3f32(right, y, zero);
-			GXColor1u32(0);
-			GXTexCoord2f32(one, zero);
-			GXPosition3f32(right, y1, zero);
-			GXColor1u32(0);
-			GXTexCoord2f32(one, one);
-			GXPosition3f32(srcXF, y1, zero);
-			GXColor1u32(0);
-			GXTexCoord2f32(zero, one);
-			GXDrawDone();
-			y += stripH;
-		}
-	}
-
-	Frb2_InitBlackBox();
-	screenH = (f32)hx.imgH;
-	Frb2_RendBox(0xFF, right, 0.0f, screenW, screenH);
-}
-
-static void Hxs_FrBufferMorf2(f32 x) {
-	GXTexObj tobj;
-	f32 y;
-	f32 stripH;
-	f32 zero;
-	f32 one;
-	f32 srcRight;
-	f32 screenH;
-
-	Frb2_InitGx(&tobj);
-	if (x < (f32)(hx.imgW >> 2)) {
-		y = 0.0f;
-		zero = 0.0f;
-		one = 1.0f;
-		stripH = 16.0f;
-		while (y < (f32)hx.imgH) {
-			f32 y1;
-
-			Hx_GetFrBuffer(fbuf2, 0, (u32)y, 0xA0, 0x10);
-			GXInvalidateTexAll();
-			GXLoadTexObj(&tobj, GX_TEXMAP0);
-			GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-			y1 = y + stripH;
-			srcRight = (f32)(hx.imgW >> 2);
-			GXPosition3f32(x, y, zero);
-			GXColor1u32(0);
-			GXTexCoord2f32(zero, zero);
-			GXPosition3f32(srcRight, y, zero);
-			GXColor1u32(0);
-			GXTexCoord2f32(one, zero);
-			GXPosition3f32(srcRight, y1, zero);
-			GXColor1u32(0);
-			GXTexCoord2f32(one, one);
-			GXPosition3f32(x, y1, zero);
-			GXColor1u32(0);
-			GXTexCoord2f32(zero, one);
-			GXDrawDone();
-			y += stripH;
-		}
-	}
-
-	Frb2_InitBlackBox();
-	screenH = (f32)hx.imgH;
-	Frb2_RendBox(0xFF, 0.0f, 0.0f, x, screenH);
-	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32(0.0f, 0.0f, 0.0f);
-	GXColor1u32(0xFF);
-	GXPosition3f32(x, 0.0f, 0.0f);
-	GXColor1u32(0xFF);
-	GXPosition3f32(x, screenH, 0.0f);
-	GXColor1u32(0xFF);
-	GXPosition3f32(0.0f, screenH, 0.0f);
-	GXColor1u32(0xFF);
-}
-
-static void Hxs2_Circle(u8 color, f32 inner, f32 outer) {
-	u32 i;
-	f32 inner2;
-	f32 outer2;
-	u32 col;
-
-	Hx_CameraInit();
-	Hx_GxInit(0, 1);
-	inner2 = inner * inner;
-	outer2 = outer * outer;
-	col = color;
-	i = (u32)((f32)hx.imgHHalf - outer);
-	while (i <= hx.imgHHalf) {
-		f32 dy;
-		f32 dy2;
-		f32 outerRoot;
-		f32 innerRoot;
-		f32 y0;
-		f32 y1;
-		f32 cx;
-		volatile f32 rootOut;
-
-		dy = (f32)(hx.imgHHalf - i);
-		dy2 = dy * dy;
-		outerRoot = outer2 - dy2;
-		if (outerRoot > 0.0f) {
-			f64 guess = __frsqrte(outerRoot);
-			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
-			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
-			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
-			rootOut = (f32)(outerRoot * guess);
-			outerRoot = rootOut;
-		}
-
-		y0 = (f32)i;
-		y1 = (f32)(hx.imgH - i);
-		cx = (f32)hx.imgWHalf;
-
-		if (dy >= inner) {
-			GXBegin(0xA8, GX_VTXFMT0, 4);
-			GXPosition3f32(cx - outerRoot, y0, 1.0f);
-			GXColor1u32(col);
-			GXPosition3f32(cx + outerRoot, y0, 1.0f);
-			GXColor1u32(col);
-			GXPosition3f32(cx - outerRoot, y1, 1.0f);
-			GXColor1u32(col);
-			GXPosition3f32(cx + outerRoot, y1, 1.0f);
-			GXColor1u32(col);
-		} else {
-			innerRoot = inner2 - dy2;
-			if (innerRoot > 0.0f) {
-				f64 guess = __frsqrte(innerRoot);
-				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
-				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
-				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
-				rootOut = (f32)(innerRoot * guess);
-				innerRoot = rootOut;
-			}
-
-			GXBegin(0xA8, GX_VTXFMT0, 8);
-			GXPosition3f32(cx - outerRoot, y0, 1.0f);
-			GXColor1u32(col);
-			GXPosition3f32(cx - innerRoot, y0, 1.0f);
-			GXColor1u32(col);
-			GXPosition3f32(cx + innerRoot, y0, 1.0f);
-			GXColor1u32(col);
-			GXPosition3f32(cx + outerRoot, y0, 1.0f);
-			GXColor1u32(col);
-			GXPosition3f32(cx + innerRoot, y1, 1.0f);
-			GXColor1u32(col);
-			GXPosition3f32(cx + outerRoot, y1, 1.0f);
-			GXColor1u32(col);
-			GXPosition3f32(cx - outerRoot, y1, 1.0f);
-			GXColor1u32(col);
-			GXPosition3f32(cx - innerRoot, y1, 1.0f);
-			GXColor1u32(col);
-		}
-		i++;
-	}
-}
-
-static void Hxs1_Circle(f32 r) {
-	u32 i;
-	f32 r2;
-
-	Hx_CameraInit();
-	Hx_GxInit(0, 1);
-	r2 = r * r;
-	i = 0;
-	while (i <= hx.imgHHalf) {
-		f32 dy;
-		f32 root;
-		f32 y0;
-		f32 y1;
-		f32 cx;
-		volatile f32 rootOut;
-
-		dy = (f32)(hx.imgHHalf - i);
-		y0 = (f32)i;
-		y1 = (f32)(hx.imgH - i);
-		cx = (f32)hx.imgWHalf;
-		if (dy >= r) {
-			GXBegin(0xA8, GX_VTXFMT0, 4);
-			GXPosition3f32(0.0f, y0, 1.0f);
-			GXColor1u32(0xFF);
-			GXPosition3f32((f32)hx.imgW, y0, 1.0f);
-			GXColor1u32(0xFF);
-			GXPosition3f32(0.0f, y1, 1.0f);
-			GXColor1u32(0xFF);
-			GXPosition3f32((f32)hx.imgW, y1, 1.0f);
-			GXColor1u32(0xFF);
-		} else {
-			root = r2 - dy * dy;
-			if (root > 0.0f) {
-				f64 guess = __frsqrte(root);
-				guess = 0.5 * guess * (3.0 - root * guess * guess);
-				guess = 0.5 * guess * (3.0 - root * guess * guess);
-				guess = 0.5 * guess * (3.0 - root * guess * guess);
-				rootOut = (f32)(root * guess);
-				root = rootOut;
-			}
-
-			GXBegin(0xA8, GX_VTXFMT0, 8);
-			GXPosition3f32(0.0f, y0, 1.0f);
-			GXColor1u32(0xFF);
-			GXPosition3f32(cx - root, y0, 1.0f);
-			GXColor1u32(0xFF);
-			GXPosition3f32(cx + root, y0, 1.0f);
-			GXColor1u32(0xFF);
-			GXPosition3f32((f32)hx.imgW, y0, 1.0f);
-			GXColor1u32(0xFF);
-			GXPosition3f32(cx + root, y1, 1.0f);
-			GXColor1u32(0xFF);
-			GXPosition3f32((f32)hx.imgW, y1, 1.0f);
-			GXColor1u32(0xFF);
-			GXPosition3f32(0.0f, y1, 1.0f);
-			GXColor1u32(0xFF);
-			GXPosition3f32(cx - root, y1, 1.0f);
-			GXColor1u32(0xFF);
-		}
-		i++;
-	}
-}
-
-static void Hx_Circle() {
-	switch (hx.unk38) {
-	case 0:
-		p1 = 0.0f;
-		p2 = 0.0f;
-		p3 = 0.0f;
-		a1 = 0;
-		a2 = 0;
-		a3 = 0;
-		r_181 = 1.0f;
-		boke = 0.0f;
-		switch (hx.type) {
-		case 0:
-			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 2.0f, 13.0f, 10.0f);
-			hx.unk3C = 25;
-			break;
-		case 1:
-			Hx_MotionSet((HxMotion*)hx.rest, 400.0f, 5.0f, 10.0f, 15.0f);
-			hx.unk3C = 30;
-			break;
-		}
-		hx.unk38++;
-		/* fallthrough */
-	case 1:
-		r_181 = Hx_MotionUpdate((HxMotion*)hx.rest);
-		switch (hx.type) {
-		case 1:
-			boke += 0.06666667f;
-			if (boke > 1.0f)
-				boke = 1.0f;
-			Hx_FrBufferMorf(boke);
-			Hx_SetVFilter(1.0f);
-			break;
-		case 0:
-			r_181 = 400.0f - r_181;
-			if (r_181 < 0.0f)
-				r_181 = 0.0f;
-			break;
-		}
-		if (Hx_TimerCountDown() == 0) {
-			hx.unk38++;
-			hx.state = 3;
-		}
-		break;
-	default:
-		hx.state = 3;
-		break;
-	}
-
-	Hxs1_Circle(r_181);
-	if (r_181 > 22.0f) {
-		Hxs2_Circle((u8)(a1 >> 8), r_181 - 20.0f + p1, r_181);
-		p1 += 0.05f;
-		if (a1 < 0xFF00)
-			a1 += 0x180;
-	}
-	if (r_181 > 42.0f) {
-		Hxs2_Circle((u8)(a2 >> 8), r_181 - 40.0f + p2,
-		            r_181 - 20.0f + p1);
-		p2 += 0.12f;
-		if (a2 < 0xFF00)
-			a2 += 0xC0;
-	}
-	if (r_181 > 62.0f) {
-		Hxs2_Circle((u8)(a3 >> 8), r_181 - 60.0f + p3,
-		            r_181 - 40.0f + p2);
-		p3 += 0.25f;
-		if (a3 < 0xFF00)
-			a3 += 0x80;
-	}
-}
-
-// ---------------------------------------------------------------------------
-// Motion solver
-// ---------------------------------------------------------------------------
-#pragma dont_inline on
-f32 Hx_MotionUpdate(HxMotion* m) {
-	if (m->unk00 > m->unk1C) {
-		m->unk18 += m->unk0C;
-	} else if (m->unk04 <= m->unk1C) {
-		m->unk18 += m->unk14;
-	}
-	m->unk1C += 1.0f;
-	m->unk20 += m->unk18;
-	return m->unk20;
-}
-#pragma dont_inline off
-
-void Hx_MotionSet(HxMotion* m, f32 dist, f32 t1, f32 t2, f32 t3) {
-	f32 t12;
-	f32 stop;
-	f32 denom;
-	f32 v;
-	m->unk00 = t1;
-	t12 = t1 + t2;
-	stop = m->unk00 + t2;
-	denom = t3 + (t2 + t12);
-	m->unk04 = stop;
-	m->unk08 = m->unk04 + t3;
-	v = 2.0f * dist / denom;
-	if (t1 != 0.0f)
-		m->unk0C = v / t1;
-	if (t3 != 0.0f)
-		m->unk14 = -v / t3;
-	m->unk10 = 0.0f;
-	m->unk18 = 0.0f;
-	m->unk20 = 0.0f;
-	m->unk1C = 0.0f;
-}
-
-#pragma dont_inline on
-u32 Hx_TimerCountDown() {
-	if (hx.unk3C != 0)
-		hx.unk3C--;
-	return hx.unk3C;
-}
-#pragma dont_inline off
-
-// ---------------------------------------------------------------------------
-// Wipe driver
-// ---------------------------------------------------------------------------
-u32 Hx_UpdateWipe(f32 step) {
-	ReInitializeGX();
-
-	switch (hx.state) {
-	case 0:
-		break;
-	case 3:
-		if (hx.type != 1) {
-			Hx_CameraInit();
-			Hx_GxInit(0, 0);
-			Frb2_InitBlackBox();
-			Frb2_RendBox(0xFF, 0.0f, 0.0f, (f32)hx.imgW, (f32)hx.imgH);
-		}
-		break;
-	case 1:
-		hx.handler = handle_table[hx.wipeNo];
-		hx.type = handle_type[hx.wipeNo];
-		hx.state = 2;
-		hx.unk38 = 0;
-		/* fallthrough */
-	case 2:
-		hx.speed = step;
-		GXDrawDone();
-		hx.handler();
-		GXDrawDone();
-		hx.timer += step;
-		break;
-	}
-
-	return hx.state;
-}
-
-int Hx_GetWipeType(int no) {
-	return handle_type[no];
-}
-
-static void dummy_handler() {}
-
-void Hx_StartWipe(int no, int arg) {
-	if ((int)hx.resFlag == 0) {
-		hx.buffer = hx_buffer;
-		hx.bufSize = 0x3300;
-	}
-	switch (hx.state) {
-	case 2:
-		Hx_Warning(1);
-		break;
-	}
-	hx.state = 1;
-	hx.wipeNo = no;
-	hx.timer = 0.0f;
-	hx.unk1C = arg;
-}
-
-void Hx_RemoveResource() {
-	if (hx.state == 2)
-		Hx_Warning(1);
-	if ((int)hx.resFlag == 0)
-		Hx_Warning(2);
-	hx.resFlag = 0;
-	hx.unk28 = 0;
-}
-
-void Hx_ProvideResourceEx(void* res) {
-	if (hx.state == 2)
-		Hx_Warning(1);
-	hx.unk28 = 1;
-	hx.resource = res;
-}
-
-void Hx_ProvideResource(void* res, int size) {
-	if (hx.state == 2)
-		Hx_Warning(1);
-	if ((int)hx.resFlag != 0)
-		Hx_Warning(3);
-	hx.resFlag = 1;
-	hx.buffer = res;
-	hx.bufSize = size;
-}
-
-void Hx_ResetWipe(u32 w, u32 h) {
-	hx.state = 0;
-	hx.imgW = w;
-	hx.imgH = h;
-	hx.imgWHalf = hx.imgW >> 1;
-	hx.imgHHalf = hx.imgH >> 1;
-	hx.resFlag = 0;
-	hx.unk28 = 0;
-}
-
-#pragma dont_inline on
-static void Hx_Warning(int code) {}
-#pragma dont_inline off
-
-// ---------------------------------------------------------------------------
-// GX helpers
-// ---------------------------------------------------------------------------
-#pragma dont_inline on
-static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1) {
-	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32(x0, y0, 0.0f);
-	GXColor1u32(color);
-	GXPosition3f32(x1, y0, 0.0f);
-	GXColor1u32(color);
-	GXPosition3f32(x1, y1, 0.0f);
-	GXColor1u32(color);
-	GXPosition3f32(x0, y1, 0.0f);
-	GXColor1u32(color);
-}
-
-static void Frb2_InitBlackBox() {
-	GXClearVtxDesc();
-	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
-	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
-	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEX_DISABLE, GX_COLOR0A0);
-}
-#pragma dont_inline off
-
-static void Hx_SetVFilter(f32 ratio) {
-	u32 i;
-	u8 n;
-	vtable[0] = vtable_org[0];
-	n = (u8)(int)(64.0f * ratio);
-	vtable[1] = vtable_org[1];
-	vtable[2] = vtable_org[2];
-	vtable[3] = vtable_org[3];
-	vtable[4] = vtable_org[4];
-	vtable[5] = vtable_org[5];
-	vtable[6] = vtable_org[6];
-	for (i = 0; i < n; i++) {
-		vtable[dec_step[i & 3]]--;
-		vtable[inc_step[i % 3]]++;
-	}
-	GXSetCopyFilter(GX_FALSE, NULL, GX_TRUE, vtable);
-}
-
-static void Frb2_InitGx(GXTexObj* tobj) {
-	Hx_CameraInit();
-	GXClearVtxDesc();
-	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
-	Hx_SetVFilter(1.0f);
-	GXSetNumTexGens(1);
-	GXSetNumTevStages(1);
-	GXSetTevOp(GX_TEVSTAGE0, GX_REPLACE);
-	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
-	GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
-	GXInitTexObj(tobj, fbuf2, 0xA0, 0x10, GX_TF_RGB565, GX_CLAMP, GX_CLAMP,
-	             GX_FALSE);
-	GXInitTexObjLOD(tobj, GX_LINEAR, GX_LINEAR, 0.0f, 10.0f, 0.0f, GX_FALSE,
-	                GX_TRUE, GX_ANISO_1);
-	GXLoadTexObj(tobj, GX_TEXMAP0);
-}
-
-static void Hx_FrBufferMorf(f32 ratio) {
-	Hx_SetVFilter(ratio);
-	__Hx_FrBufferMorf(hx.imgWHalf - 0x18, hx.imgHHalf - 0x18);
-}
-
-static void __Hx_FrBufferMorf(u32 x, u32 y) {
-	GXTexObj tobj;
-
-	Hx_CameraInit();
-	GXClearVtxDesc();
-	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
-	Hx_GetFrBuffer(fbuf, x, y, 0x30, 0x30);
-	GXInvalidateTexAll();
-	GXSetNumTexGens(1);
-	GXSetNumTevStages(1);
-	GXSetTevOp(GX_TEVSTAGE0, GX_REPLACE);
-	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
-	GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
-	GXInitTexObj(&tobj, fbuf, 0x30, 0x30, GX_TF_RGB565, GX_CLAMP, GX_CLAMP,
-	             GX_FALSE);
-	GXInitTexObjLOD(&tobj, GX_LINEAR, GX_LINEAR, 0.0f, 10.0f, 0.0f, GX_FALSE,
-	                GX_TRUE, GX_ANISO_1);
-	GXLoadTexObj(&tobj, GX_TEXMAP0);
-
-	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32((f32)x, (f32)y, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(0.0f, 0.0f);
-	GXPosition3f32((f32)(x + 0x30), (f32)y, 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(1.0f, 0.0f);
-	GXPosition3f32((f32)(x + 0x30), (f32)(y + 0x30), 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(1.0f, 1.0f);
-	GXPosition3f32((f32)x, (f32)(y + 0x30), 0.0f);
-	GXColor1u32(0);
-	GXTexCoord2f32(0.0f, 1.0f);
-}
-
-#pragma dont_inline on
-static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht) {
-	GXColor clear = { 0, 0, 0, 0 };
-	GXSetTexCopySrc(left, top, wd, ht);
-	GXSetTexCopyDst(wd, ht, GX_TF_RGB565, GX_FALSE);
-	GXGetTexBufferSize(wd, ht, GX_TF_RGB565, GX_FALSE, 0);
-	GXSetCopyClear(clear, 0xFFFFFF);
-	GXCopyTex(dest, GX_TRUE);
-	GXPixModeSync();
-}
-#pragma dont_inline off
-
-#pragma dont_inline on
-static void Hgx_ReadTexture(char* fileName, void* addr) {
-	DVDFileInfo fi;
-	switch (hx.resFlag) {
-	case 0:
-		if (DVDOpen(fileName, &fi)) {
-			long len = DVDReadPrio(&fi, addr, fi.length, 0, 2);
-			DVDClose(&fi);
-			DCStoreRange(addr, len);
-		}
-		break;
-	}
-}
-#pragma dont_inline off
-
-#pragma dont_inline on
-static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
-	u32 imageOffset = res->imageOffset;
-	u8 format = res->format;
-	u8 wrapS = res->wrapS;
-	u8 wrapT = res->wrapT;
-	u8 minFilter = res->minFilter;
-	u8 magFilter = res->magFilter;
-	void* image = (u8*)res + imageOffset;
-	img_wx = res->width;
-	img_wy = res->height;
-	GXInitTexObj(obj, image, img_wx, img_wy, format, wrapS, wrapT, GX_FALSE);
-	GXInitTexObjLOD(obj, minFilter, magFilter, 0.0f, 0.0f, 0.0f, GX_FALSE,
-	                GX_FALSE, GX_ANISO_1);
-}
-#pragma dont_inline off
-
-static void Hx_CameraInit() {
-	Mtx44 proj;
-	Mtx posMtx;
-	f32 hw = (f32)(hx.imgW >> 1);
-	f32 hh = (f32)(hx.imgH >> 1);
-	f32 near = 0.0f;
-	f32 far  = 100.0f;
-
-	camLoc.x = hw;
-	camLoc.y = hh;
-	objPt.x = hw;
-	objPt.y = hh;
-	C_MTXOrtho(proj, hh, -hh, -hw, hw, near, far);
-	GXSetProjection(proj, GX_ORTHOGRAPHIC);
-	GXSetViewport(0.0f, 0.0f, 640.0f, 480.0f, 0.0f, 1.0f);
-	C_MTXLookAt(posMtx, &camLoc, &up, &objPt);
-	GXSetCullMode(GX_CULL_NONE);
-	GXSetCoPlanar(GX_FALSE);
-	GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
-	GXSetNumTexGens(0);
-	GXSetNumTevStages(1);
-	GXSetNumIndStages(0);
-	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
-	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
-	GXClearVtxDesc();
-	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-	GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
-	GXSetLineWidth(6, GX_TO_ZERO);
-	GXLoadPosMtxImm(posMtx, GX_PNMTX0);
-	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_VTX, GX_SRC_VTX, 0, GX_DF_NONE,
-	              GX_AF_NONE);
-	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0, GX_DF_NONE,
-	              GX_AF_NONE);
-	GXSetNumChans(1);
-}
-
-#pragma dont_inline on
-static void Hx_GxInit(int mode, int blend) {
-	switch (mode) {
-	case 0:
-		GXSetNumTexGens(0);
-		GXSetNumTevStages(1);
-		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
-		GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
-		break;
-	case 1:
-		GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY,
-		                  GX_FALSE, GX_PTIDENTITY);
-		GXSetNumTexGens(1);
-		GXSetNumTevStages(1);
-		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
-		GXClearVtxDesc();
-		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-		GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-		GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
-		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
-		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
-		break;
-	}
-	switch (blend) {
-	case 1:
-		GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
-		break;
-	case 0:
-		GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
-		break;
-	}
-}
-#pragma dont_inline off
