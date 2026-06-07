@@ -123,23 +123,19 @@ BOOL TMario::waitingCommonEvents()
 	if (input & 0x02) {
 		if (considerRotateJumpStart())
 			return 1;
-		changePlayerJumping(0x02000880, 0);
-		return 1;
+		return changePlayerJumping(0x02000880, 0);
 	}
 
 	if (input & 0x04) {
-		changePlayerStatus(0x088C, 0, false);
-		return 1;
+		return changePlayerStatus(0x088C, 0, false);
 	}
 
 	if (input & 0x08) {
-		changePlayerStatus(0x50, 0, false);
-		return 1;
+		return changePlayerStatus(0x50, 0, false);
 	}
 
 	if (input & 0x10) {
-		changePlayerStatus(0x0C000227, 0, false);
-		return 1;
+		return changePlayerStatus(0x0C000227, 0, false);
 	}
 
 	if (input & 0x01) {
@@ -152,8 +148,7 @@ BOOL TMario::waitingCommonEvents()
 
 		if (mIntendedMag > mControllerParams.mStartToWalkLevel.value) {
 			emitSmoke(mFaceAngle.y);
-			changePlayerStatus(0x04000440, 0, false);
-			return 1;
+			return changePlayerStatus(0x04000440, 0, false);
 		}
 	}
 
@@ -164,27 +159,23 @@ BOOL TMario::waitingCommonEvents()
 		hasJumpInput = 0;
 	}
 	if (hasJumpInput) {
-		changePlayerStatus(0x04000440, 0, false);
-		return 1;
+		return changePlayerStatus(0x04000440, 0, false);
 	}
 
 	if ((u8)canSquat()) {
 		mForwardVel = 0.0f;
-		changePlayerStatus(0x0C008220, 0, false);
-		return 1;
+		return changePlayerStatus(0x0C008220, 0, false);
 	}
 
 	if (mInput & 0x00008000) {
-		changePlayerStatus(0x384, 0, false);
-		return 1;
+		return changePlayerStatus(0x384, 0, false);
 	}
 
 	if (rocketCheck()) {
 		TWaterGun* gun = mWaterGun;
 		f32 rocketHeight = *(f32*)((u8*)gun + 0x1D40);
 		mRocketTargetY = mFloorPosition.y + rocketHeight;
-		changePlayerStatus(0x088B, 0, false);
-		return 1;
+		return changePlayerStatus(0x088B, 0, false);
 	}
 
 	if (considerRotateStart())
@@ -478,29 +469,24 @@ BOOL TMario::squating()
 	u32 input = mInput;
 
 	if (input & 0x04) {
-		changePlayerStatus(0x088C, 0, false);
-		return 1;
+		return changePlayerStatus(0x088C, 0, false);
 	}
 
 	if (input & 0x08) {
-		changePlayerStatus(0x50, 0, false);
-		return 1;
+		return changePlayerStatus(0x50, 0, false);
 	}
 
 	if (input & 0x10) {
-		changePlayerStatus(0x0C008222, 0, false);
-		return 1;
+		return changePlayerStatus(0x0C008222, 0, false);
 	}
 
 	if (!(input & 0x4000) && !(input & 0x200)) {
-		changePlayerStatus(0x0C008222, 0, false);
-		return 1;
+		return changePlayerStatus(0x0C008222, 0, false);
 	}
 
 	TWaterGun* gun = mWaterGun;
 	if (gun == nullptr) {
-		changePlayerStatus(0x0C008222, 0, false);
-		return 1;
+		return changePlayerStatus(0x0C008222, 0, false);
 	}
 
 	{
@@ -511,8 +497,7 @@ BOOL TMario::squating()
 			hasFlag = 0;
 		}
 		if (!hasFlag) {
-			changePlayerStatus(0x0C008222, 0, false);
-			return 1;
+			return changePlayerStatus(0x0C008222, 0, false);
 		}
 	}
 
@@ -522,8 +507,7 @@ BOOL TMario::squating()
 			if (gun != nullptr) {
 				if (*(u8*)((u8*)gun + 0x1C84) == 0) {
 					rumbleStart(21, mMotorParams.mMotorHipDrop.value);
-					changePlayerStatus(0x0883, 0, false);
-					return 1;
+					return changePlayerStatus(0x0883, 0, false);
 				}
 			}
 		}
@@ -560,8 +544,7 @@ BOOL TMario::squating()
 				TWaterGun* gun3 = mWaterGun;
 				f32 rocketHeight = *(f32*)((u8*)gun3 + 0x1D40);
 				mRocketTargetY = mFloorPosition.y + rocketHeight;
-				changePlayerStatus(0x088B, 0, false);
-				return 1;
+				return changePlayerStatus(0x088B, 0, false);
 			}
 		}
 	}
