@@ -321,7 +321,7 @@ static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht) {
 #pragma dont_inline on
 static void Hx_SetVFilter(f32 ratio) {
 	u32 i;
-	u8 n;
+	u32 n;
 	vtable[0] = vtable_org[0];
 	n = (u8)(int)(64.0f * ratio);
 	vtable[1] = vtable_org[1];
