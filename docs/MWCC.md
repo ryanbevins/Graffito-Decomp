@@ -131,6 +131,11 @@ helper as `extra`.
   `CLBCalcRatio<f32>` and `CLBLinearInbetween<s16>` removed three
   target-absent helper extras and made the target calls line up with the weak
   owners in `NpcAnm` / `cameragc`.
+- `mario/NPC/NpcCoin` plus the 2026-06-07 camera sweep
+  (`CameraDemo`, `CameraInbetween`, `cameragc`, `CameraOption`,
+  `CameraBGCheck`, `lensflare`): declaring
+  `template <> s16 CLBRoundf<s16>(f32);` routed calls to the existing
+  `NpcBase` weak owner and removed local 52-byte `CLBRoundf<short>` extras.
 
 ### Predeclare locals in target register order to steer callee-saved GPR coloring
 
