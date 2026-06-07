@@ -768,13 +768,17 @@ BOOL TMario::waitMain()
 
 	u32 action = mAction;
 
-	if (action == 0x0C400201) {
+	switch (action) {
+	case 0x0C400201:
 		result = waiting();
-	} else if (action == 0x0C400202) {
+		break;
+	case 0x0C400202:
 		result = sleepily();
-	} else if (action == 0x0C000203) {
+		break;
+	case 0x0C000203:
 		result = sleeping();
-	} else if (action == 0x0C000204) {
+		break;
+	case 0x0C000204: {
 		// Wakeup
 		u32 input = mInput;
 		if (input & 0x04) {
@@ -803,11 +807,16 @@ BOOL TMario::waitMain()
 			}
 		}
 		result = result;
-	} else if (action == 0x0C008220) {
+		break;
+	}
+	case 0x0C008220:
 		result = squating();
-	} else if (action == 0x0C008222 || action == 0x0C000223) {
+		break;
+	case 0x0C008222:
+	case 0x0C000223:
 		result = squatStandup();
-	} else if (action == 0x0C00022F) {
+		break;
+	case 0x0C00022F: {
 		// action == 0x0C00022F: squat landing
 		u32 input = mInput;
 		if (input & 0x04) {
@@ -823,7 +832,9 @@ BOOL TMario::waitMain()
 			result = 0;
 		}
 		result = result;
-	} else if (action == 0x0C000230) {
+		break;
+	}
+	case 0x0C000230:
 		// jumpEnd - landing type 1
 		if (jumpEndEvents(0)) {
 			result = 1;
@@ -835,7 +846,8 @@ BOOL TMario::waitMain()
 			}
 			result = 0;
 		}
-	} else if (action == 0x0C000231) {
+		break;
+	case 0x0C000231:
 		// jumpEnd - landing type 2
 		if (jumpEndEvents(0)) {
 			result = 1;
@@ -847,7 +859,8 @@ BOOL TMario::waitMain()
 			}
 			result = 0;
 		}
-	} else if (action == 0x0C000232) {
+		break;
+	case 0x0C000232:
 		// jumpEnd - landing type 3 (broadjump/fire)
 		if (jumpEndEvents(0)) {
 			result = 1;
@@ -859,7 +872,8 @@ BOOL TMario::waitMain()
 			}
 			result = 0;
 		}
-	} else if (action == 0x0C000233) {
+		break;
+	case 0x0C000233:
 		// fire jump end
 		if (jumpEndEvents(0)) {
 			result = 1;
@@ -873,12 +887,14 @@ BOOL TMario::waitMain()
 			mModelFaceAngle += 0x8000;
 			result = 0;
 		}
-	} else if (action == 0x80000A36) {
+		break;
+	case 0x80000A36:
 		// throw end
 		checkThrowObject();
 		jumpEndCommon(0x65, 0x0C400201);
 		result = 0;
-	} else if (action == 0x08000239) {
+		break;
+	case 0x08000239:
 		// pullEnd
 		mInput &= ~0x2010;
 		if (jumpEndEvents(0)) {
@@ -891,7 +907,8 @@ BOOL TMario::waitMain()
 			}
 			result = 0;
 		}
-	} else if (action == 0x0800023B) {
+		break;
+	case 0x0800023B:
 		// uTurnJumpEnd
 		mInput &= ~0x2000;
 		if (jumpEndEvents(0x02000880)) {
@@ -908,7 +925,8 @@ BOOL TMario::waitMain()
 			}
 			result = 0;
 		}
-	} else if (action == 0x0080023C) {
+		break;
+	case 0x0080023C: {
 		// broadJumpEnd
 		mActionState = 1;
 		u32 input = mInput;
@@ -925,7 +943,9 @@ BOOL TMario::waitMain()
 			result = 0;
 		}
 		result = result;
-	} else if (action == 0x0C00023D) {
+		break;
+	}
+	case 0x0C00023D: {
 		// hipAttackEnd
 		u32 input = mInput;
 		if (!(input & 0x10) && (input & 0x0F)) {
@@ -934,7 +954,9 @@ BOOL TMario::waitMain()
 			stopCommon(0x10, 0x0C400201);
 			result = 0;
 		}
-	} else if (action == 0x0C00023F) {
+		break;
+	}
+	case 0x0C00023F: {
 		// slipEnd
 		u32 input = mInput;
 		if (input & 0x0F) {
@@ -943,8 +965,11 @@ BOOL TMario::waitMain()
 			stopCommon(0x8F, 0x0C400201);
 			result = 0;
 		}
-	} else {
+		break;
+	}
+	default:
 		result = 0;
+		break;
 	}
 
 	return result;
