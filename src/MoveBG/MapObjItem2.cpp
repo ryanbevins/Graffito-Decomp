@@ -229,31 +229,32 @@ BOOL TJumpBase::receiveMessage(THitActor* sender, u32 message)
 				    && mMapCollisionManager->unk8) {
 					mMapCollisionManager->unk8->remove();
 				}
+				return TRUE;
 			}
-			return TRUE;
-		}
-		if (message == 8) {
-			mHolder = 0;
-			mTimer  = 0;
-			mState  = 2;
-			return TRUE;
-		}
-		if (message == 6) {
-			mHolder = 0;
-			mTimer  = 0;
-			mState  = 2;
-			return TRUE;
-		}
-		if (message == 7) {
-			mHolder = 0;
-			mTimer  = 0;
-			mState  = 5;
-			return TRUE;
-		}
-		if (message == 0) {
-			mTimer = 0;
-			mState = 4;
-			return TRUE;
+		} else {
+			if (message == 8) {
+				mHolder = 0;
+				mTimer  = 0;
+				mState  = 2;
+				return TRUE;
+			}
+			if (message == 6) {
+				mHolder = 0;
+				mTimer  = 0;
+				mState  = 2;
+				return TRUE;
+			}
+			if (message == 7) {
+				mHolder = 0;
+				mTimer  = 0;
+				mState  = 5;
+				return TRUE;
+			}
+			if (message == 0) {
+				mTimer = 0;
+				mState = 4;
+				return TRUE;
+			}
 		}
 	}
 	if (sender->isActorTypeOf(0x01000000)) {
