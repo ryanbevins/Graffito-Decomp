@@ -37,7 +37,7 @@ public:
 	void openTalkWindow(TBaseNPC*);
 	void makeBoxLine(s8, char*);
 	bool openBoardWindow();
-	void openNormalWindow();
+	bool openNormalWindow();
 	void moveBoardWindow();
 	void checkBoardControler();
 	void moveTalkWindow();

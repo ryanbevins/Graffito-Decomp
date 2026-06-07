@@ -343,7 +343,93 @@ void TTalk2D2::moveBoardWindow()
 
 	pane->mAlpha = alpha;
 }
-void TTalk2D2::openNormalWindow() { }
+bool TTalk2D2::openNormalWindow()
+{
+	bool result = false;
+
+	if (unk2DE > 2 && (*(u32*)((u8*)unk24C + 0xd0) & 0x20000)) {
+		unk26C = 1;
+		if (TFlagManager::smInstance->getFlag(0xa0001) == 0x100)
+			unk340 = 0x5a;
+		else
+			unk340 = 0x80;
+	}
+
+	bool allSettled = true;
+
+	for (int i = 0; i <= unk274; ++i) {
+		f32* lineMove = &unk234 + i;
+
+		if (*lineMove > -0.109f) {
+			*lineMove -= unk338;
+			allSettled = false;
+		}
+
+		if (*lineMove < 1.0f && i != 0) {
+			int prevIndex = unk228[i - 1] + (i - 1) * 30;
+			if (!unk9C[prevIndex]->mVisible)
+				*lineMove = 1.0f;
+		}
+
+		if ((&unk224)[i] == 0 && *lineMove < unk33C) {
+			if (gpMSound->gateCheck(0x4827))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(0x4827, 0, 0,
+				                                             0);
+
+			(&unk224)[i]             = 1;
+			unk9C[i * 30]->mVisible = true;
+		}
+	}
+
+	if (allSettled) {
+		for (int i = 0; i <= unk274; ++i)
+			unk3C[i]->mVisible = true;
+		result = true;
+	}
+
+	for (int line = 0; line < 3; ++line) {
+		if ((&unk224)[line] == 0)
+			continue;
+
+		int textIndex = (&unk224)[line] + line * 30;
+
+		while ((&unk224)[line] <= unk228[line]) {
+			J2DTextBox* textBox = unk9C[textIndex];
+
+			if (textBox->mVisible) {
+				int alpha = textBox->mAlpha + unk340;
+				int alphaSum = alpha;
+				if (alpha > 0xff)
+					alpha = 0xff;
+
+				textBox->mAlpha = alpha;
+				unk2DE          = textIndex;
+
+				if ((s16)alphaSum < 0xff)
+					break;
+
+				++textIndex;
+				++(&unk224)[line];
+				continue;
+			}
+
+			if (unk2DC <= 0) {
+				if (unk26C)
+					unk2DC = 0;
+				else
+					unk2DC = unk281[textIndex];
+
+				textBox->mVisible = true;
+				textBox->mAlpha   = 0;
+			} else {
+				--unk2DC;
+			}
+			break;
+		}
+	}
+
+	return result;
+}
 bool TTalk2D2::openBoardWindow()
 {
 	bool result = false;
