@@ -7,6 +7,7 @@
 #include <JSystem/J2D/J2DScreen.hpp>
 #include <JSystem/J2D/J2DOrthoGraph.hpp>
 #include <JSystem/J2D/J2DTextBox.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
 #include <JSystem/JSupport/JSUMemoryOutputStream.hpp>
@@ -14,6 +15,7 @@
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/ReinitGX.hpp>
+#include <MoveBG/MapObjHide.hpp>
 #include <NPC/NpcBase.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
@@ -381,7 +383,216 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 }
 void TTalk2D2::openWindow(s8, f32) { }
-void TTalk2D2::setTagParam(JSUMemoryInputStream&, J2DTextBox&, int*, int*) { }
+void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
+                            int* charIndex, int* line)
+{
+	u8 tagLength;
+	u8 tagType;
+	u16 tagId;
+	stream.read(&tagLength, 1);
+	stream.read(&tagType, 1);
+	stream.read(&tagId, 2);
+
+	switch (tagType) {
+	case 0:
+		switch (tagId) {
+		case 0: {
+			u8 delay;
+			stream.read(&delay, 1);
+			unk280 = delay;
+			break;
+		}
+		case 1:
+			unk26D = 1;
+			break;
+		default:
+			stream.skip(tagLength - 5);
+			break;
+		}
+		break;
+	case 1:
+		switch (tagId) {
+		case 0:
+			if (unk214 == -1) {
+				unk214            = 0;
+				unk20C[1]->mAlpha = 0xfe;
+				unk20C[1]->mVisible = false;
+				unk20C[0]->mVisible = true;
+			}
+			{
+				int length = tagLength - 4;
+				if (length >= 0x11)
+					length = 0x11;
+				snprintf(unk218[0], length, "%s", (char*)stream.getCurrent());
+			}
+			stream.skip(tagLength - 5);
+			break;
+		case 1:
+			if (unk214 == -1) {
+				unk214            = 1;
+				unk20C[0]->mAlpha = 0xfe;
+				unk20C[0]->mVisible = false;
+				unk20C[1]->mVisible = true;
+			}
+			{
+				int length = tagLength - 4;
+				if (length >= 0x11)
+					length = 0x11;
+				snprintf(unk218[1], length, "%s", (char*)stream.getCurrent());
+			}
+			stream.skip(tagLength - 5);
+			break;
+		default:
+			stream.skip(tagLength - 5);
+			break;
+		}
+		break;
+	case 2:
+		switch (tagId) {
+		case 0:
+		case 1:
+		case 6: {
+			int time;
+			if (tagId == 0)
+				time = TFlagManager::smInstance->getFlag(0x20003);
+			else if (tagId == 1)
+				time = TFlagManager::smInstance->getFlag(0x20002);
+			else
+				time = TFlagManager::smInstance->getFlag(0x20014);
+
+			if (time > 599999)
+				time = 599999;
+			if (time < 0)
+				time = 0;
+
+			int minutes = time / 6000;
+			int rest    = time - minutes * 6000;
+			int seconds = (int)(rest * 0.01);
+			int frames  = rest - seconds * 100;
+			int index   = *line * 30 + *charIndex;
+
+			snprintf(unk9C[index]->getStringPtr(), 2, "%d", minutes / 10);
+			snprintf(unk9C[index + 1]->getStringPtr(), 2, "%d",
+			    minutes % 10);
+			snprintf(unk9C[index + 2]->getStringPtr(), 2, ":");
+			snprintf(unk9C[index + 3]->getStringPtr(), 2, "%d",
+			    seconds / 10);
+			snprintf(unk9C[index + 4]->getStringPtr(), 2, "%d",
+			    seconds % 10);
+			snprintf(unk9C[index + 5]->getStringPtr(), 2, ":");
+			snprintf(unk9C[index + 6]->getStringPtr(), 2, "%d", frames / 10);
+			snprintf(unk9C[index + 7]->getStringPtr(), 2, "%d", frames % 10);
+
+			for (int i = 0; i < 8; ++i) {
+				J2DTextBox* box = unk9C[index + i];
+				box->mCharColor = unk27C;
+				box->mGradColor = unk27C;
+				box->mWhite     = unk27C;
+				box->mBlack.set((*(u32*)&unk27C) & 0xffffff00);
+				unk281[index + i] = unk280;
+			}
+
+			*charIndex += 8;
+			break;
+		}
+		case 2: {
+			int count = TFlagManager::smInstance->getFlag(0x20004);
+			int value = (int)((count + 99) * 0.01f);
+			int index = *line * 30 + *charIndex;
+
+			if (value < 10) {
+				snprintf(unk9C[index]->getStringPtr(), 2, "%d", value);
+				*charIndex += 1;
+			} else {
+				snprintf(unk9C[index]->getStringPtr(), 2, "%d", value / 10);
+				snprintf(unk9C[index + 1]->getStringPtr(), 2, "%d",
+				    value % 10);
+				*charIndex += 2;
+			}
+			break;
+		}
+		case 3: {
+			int rest = TFlagManager::smInstance->getFlag(0x40001);
+			int cleared = 0;
+			for (int flag = 0x46; flag < 0x56; ++flag)
+				if (TFlagManager::smInstance->getFlag(0x10000 + flag))
+					++cleared;
+			for (int flag = 0x6c; flag <= 0x73; ++flag)
+				if (TFlagManager::smInstance->getFlag(0x10000 + flag))
+					++cleared;
+
+			rest -= cleared * 10;
+			int index = *line * 30 + *charIndex;
+			if (rest < 100) {
+				snprintf(unk9C[index]->getStringPtr(), 2, "%d", rest / 10);
+				*charIndex += 1;
+			} else {
+				int hundreds = rest / 100;
+				snprintf(unk9C[index]->getStringPtr(), 2, "%d", hundreds);
+				snprintf(unk9C[index + 1]->getStringPtr(), 2, "%d",
+				    (rest - hundreds * 100) / 10);
+				*charIndex += 2;
+			}
+			break;
+		}
+		case 4: {
+			u8 basket;
+			stream.read(&basket, 1);
+
+			TFruitBasketEvent* event = 0;
+			int fruitKind           = 0;
+			int target              = 3;
+			switch (basket) {
+			case 0:
+				event = JDrama::TNameRefGen::search<TFruitBasketEvent>(
+				    "フルーツかごＡ");
+				fruitKind = 0;
+				break;
+			case 1:
+				event = JDrama::TNameRefGen::search<TFruitBasketEvent>(
+				    "フルーツかごＢ");
+				fruitKind = 4;
+				break;
+			case 2:
+				event = JDrama::TNameRefGen::search<TFruitBasketEvent>(
+				    "フルーツかごＣ");
+				fruitKind = 3;
+				break;
+			case 3:
+				event = JDrama::TNameRefGen::search<TFruitBasketEvent>(
+				    "フルーツかごＤ");
+				fruitKind = 1;
+				break;
+			}
+
+			if (event) {
+				int rest = target - event->getFruitNum(fruitKind);
+				if (rest < 0 || rest > 9)
+					rest = 0;
+
+				int index = *line * 30 + *charIndex;
+				snprintf(unk9C[index]->getStringPtr(), 2, "%d", rest);
+				snprintf(unk9C[index + 1]->getStringPtr(), 2, " ");
+				*charIndex += 2;
+			}
+			break;
+		}
+		default:
+			break;
+		}
+		break;
+	case 0xff:
+		if (tagId == 0) {
+			u8 color;
+			stream.read(&color, 1);
+			unk27C = cColorTable[color];
+		}
+		break;
+	default:
+		stream.skip(tagLength - 5);
+		break;
+	}
+}
 void TTalk2D2::setupTextBox(const void* data, JMSMesgEntry* entry)
 {
 	if (unk28) {
