@@ -16,6 +16,7 @@
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/ReinitGX.hpp>
+#include <MSound/MSoundSE.hpp>
 #include <MoveBG/MapObjHide.hpp>
 #include <NPC/NpcBase.hpp>
 #include <System/Application.hpp>
@@ -25,7 +26,9 @@
 #include <math.h>
 #include <stdio.h>
 
-class JAISound;
+// rogue includes needed for matching sinit & bss
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 
 class MSound {
 public:
@@ -36,11 +39,6 @@ public:
 
 extern MSound* gpMSound;
 extern "C" f32 sqrtf(f32);
-
-class MSBgm {
-public:
-	static JAISound* startBGM(u32);
-};
 
 class TFlagManager {
 public:
@@ -57,14 +55,18 @@ public:
 
 extern RumbleMgr* SMSRumbleMgr;
 
-namespace MSoundSESystem {
-class MSoundSE {
-public:
-	static void startSoundSystemSE(u32, u32, JAISound**, u32);
-};
-} // namespace MSoundSESystem
-
 TTalk2D2* gpTalk2D;
+
+static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
+static const char* MtxCalcTypeName_Basic
+    = "MActorMtxCalcType_Basic クラシックスケールＯＮ";
+static const char* MtxCalcTypeName_Softimage
+    = "MActorMtxCalcType_Softimage クラシックスケールＯＦＦ";
+static const char* MtxCalcTypeName_MotionBlend
+    = "MActorMtxCalcType_MotionBlend モーションブレンド";
+static const char* MtxCalcTypeName_User
+    = "MActorMtxCalcType_User ユーザー定義";
 
 GXColor TTalk2D2::cColorTable[6] = {
 	{ 0xff, 0xff, 0xff, 0xff },
