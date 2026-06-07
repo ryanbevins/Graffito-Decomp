@@ -13,6 +13,8 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <stdio.h>
 
+template <> s16 CLBRoundf<s16>(f32);
+
 extern const char* cSunVolumeName;
 
 TLensFlare::TLensFlare(const char* name)
