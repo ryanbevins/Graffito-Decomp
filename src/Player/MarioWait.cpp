@@ -93,9 +93,10 @@ BOOL TMario::canSleep()
 // canPut - 0x80145AC8
 BOOL TMario::canPut()
 {
+	s32 shift = jmaSinShift;
 	u16 faceAngle = mFaceAngle.y;
 	TTakeActor* heldObj = mHeldObject;
-	s32 idx = (s32)faceAngle >> jmaSinShift;
+	s32 idx = (s32)faceAngle >> shift;
 	f32 sinVal = jmaSinTable[idx];
 	f32 cosVal = jmaCosTable[idx];
 	f32 x = 100.0f * sinVal + mPosition.x;
