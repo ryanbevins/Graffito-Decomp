@@ -11,6 +11,11 @@
 #include <System/MarioGamePad.hpp>
 #include <System/PositionHolder.hpp>
 
+template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
+template <> s16 CLBRoundf<s16>(f32);
+template <> s16 CLBTwoDegreeGeneralInbetween<s16>(s16, s16, f32, f32);
+template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
+
 template <> s16 CLBEaseInInbetween<s16>(s16 a, s16 b, f32 ratio)
 {
 	return CLBTwoDegreeGeneralInbetween<s16>(a, b, ratio, (f32)(b - a));
