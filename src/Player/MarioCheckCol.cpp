@@ -30,7 +30,13 @@ void TMario::hitNormal(THitActor* actor)
 				if (action == ACTION_HIP_ATTACK) {
 					if (actor->receiveMessage(this, HIT_MESSAGE_HIP_DROP)) {
 						u32 actorType = *(u32*)((u8*)actor + 0x4C);
-						if ((actorType - 0x08000000) == 1) {
+						bool triJump;
+						if ((actorType - 0x08000000) == 1)
+							triJump = true;
+						else
+							triJump = false;
+
+						if (triJump) {
 							changePlayerTriJump();
 							unk78 = unk78 & ~(1 << 8);
 						}
