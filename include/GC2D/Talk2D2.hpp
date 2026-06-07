@@ -121,7 +121,7 @@ public:
 	/* 0x280 */ u8 unk280;
 	/* 0x281 */ u8 unk281[0x2DC - 0x281];
 	/* 0x2DC */ s16 unk2DC;
-	/* 0x2DE */ s16 unk2DE;
+	/* 0x2DE */ u16 unk2DE;
 	/* 0x2E0 */ TTalk2DNameRefEntry unk2E0[10];
 	/* 0x330 */ s16 unk330;
 	/* 0x332 */ s16 unk332;
