@@ -447,8 +447,6 @@ TShine::TShine(const char* name)
 
 void TEggYoshi::decideRandomLoveFruit() { }
 
-void TEggYoshi::startBalloonAnim() { }
-
 void TEggYoshi::touchFruit(THitActor*) { }
 
 void TEggYoshi::touchActor(THitActor*) { }
