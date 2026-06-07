@@ -139,12 +139,11 @@ BOOL TMario::waitingCommonEvents()
 	}
 
 	if (input & 0x01) {
-		s32 faceY = mFaceAngle.y;
-		s32 intendedYaw = mIntendedYaw;
+		s16 faceY = mFaceAngle.y;
 		s32 turnSpeed = mDeParams.mWaitingRotSp.value;
-		s32 diff = (s16)(intendedYaw - faceY);
+		s32 diff = (s16)(mIntendedYaw - faceY);
 		s32 converged = IConverge((int)diff, 0, (int)turnSpeed, (int)turnSpeed);
-		mFaceAngle.y = (s16)(intendedYaw - converged);
+		mFaceAngle.y = (s16)(mIntendedYaw - converged);
 
 		if (mIntendedMag > mControllerParams.mStartToWalkLevel.value) {
 			emitSmoke(mFaceAngle.y);
