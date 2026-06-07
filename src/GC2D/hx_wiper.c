@@ -1204,14 +1204,8 @@ static void Hxs_Logo_TexDraw(f32 x1, f32 y1, f32 x2, f32 y2, f32 texW,
 	f32 ty1;
 	f32 tx2;
 	f32 ty2;
-	f32 u0;
-	f32 v0;
-	f32 u1;
-	f32 v1;
-	f32 u2;
-	f32 v2;
-	f32 u3;
-	f32 v3;
+	f32 posX;
+	f32 posY;
 
 	drawH = texH / 1.924138f;
 	drawW = texW / 1.9230769f;
@@ -1230,28 +1224,25 @@ static void Hxs_Logo_TexDraw(f32 x1, f32 y1, f32 x2, f32 y2, f32 texW,
 	PSVECNormalize(&n, &n);
 	PSVECScale(&n, &n, 0.08f);
 
-	u0 = tx1 + n.x;
-	v0 = ty1 + n.y;
-	u1 = tx2 + n.x;
-	v1 = ty2 + n.y;
-	u2 = tx2 - n.x;
-	v2 = ty2 - n.y;
-	u3 = tx1 - n.x;
-	v3 = ty1 - n.y;
+	posX = drawW * (tx1 + n.x) + baseX;
+	posY = drawH * (ty1 + n.y) + baseY;
 
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32(drawW * u0 + baseX, drawH * v0 + baseY, 0.0f);
+	GXPosition3f32(posX, posY, 0.0f);
 	GXColor1u32(0);
-	GXTexCoord2f32(u0, v0);
-	GXPosition3f32(drawW * u1 + baseX, drawH * v1 + baseY, 0.0f);
+	GXTexCoord2f32(tx1 + n.x, ty1 + n.y);
+	GXPosition3f32(drawW * (tx2 + n.x) + baseX,
+	               drawH * (ty2 + n.y) + baseY, 0.0f);
 	GXColor1u32(0);
-	GXTexCoord2f32(u1, v1);
-	GXPosition3f32(drawW * u2 + baseX, drawH * v2 + baseY, 0.0f);
+	GXTexCoord2f32(tx2 + n.x, ty2 + n.y);
+	GXPosition3f32(drawW * (tx2 - n.x) + baseX,
+	               drawH * (ty2 - n.y) + baseY, 0.0f);
 	GXColor1u32(0);
-	GXTexCoord2f32(u2, v2);
-	GXPosition3f32(drawW * u3 + baseX, drawH * v3 + baseY, 0.0f);
+	GXTexCoord2f32(tx2 - n.x, ty2 - n.y);
+	GXPosition3f32(drawW * (tx1 - n.x) + baseX,
+	               drawH * (ty1 - n.y) + baseY, 0.0f);
 	GXColor1u32(0);
-	GXTexCoord2f32(u3, v3);
+	GXTexCoord2f32(tx1 - n.x, ty1 - n.y);
 }
 static void Hxs_Logo_MagDraw(f32 scale, f32 texW, f32 texH) {
 	f32 drawW;
