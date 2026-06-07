@@ -129,13 +129,13 @@ static Vec camLoc = { 320.0f, 240.0f, -30.0f };
 static Vec objPt = { 320.0f, 240.0f, 0.0f };
 static Vec up = { 0.0f, -10.0f, 0.0f };
 
-static void (*const handle_table[15])() = {
+static void (*handle_table[15])() = {
 	dummy_handler, Hx_Circle, Hx_Circle, Hx_Test1, Hx_Test1,
 	Hx_Test5, Hx_Test5, Hx_Test4, Hx_Test4, Hx_Test2R,
 	Hx_Test2, Hx_Door, Hx_Logo, Hx_GameOver, dummy_handler,
 };
 
-static const u8 handle_type[15] = {
+static u8 handle_type[15] = {
 	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0,
 };
 
