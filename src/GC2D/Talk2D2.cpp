@@ -12,6 +12,7 @@
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
+#include <stdio.h>
 
 class JAISound;
 
@@ -395,7 +396,102 @@ void TTalk2D2::checkControler()
 		}
 	}
 }
-void TTalk2D2::moveTalkWindow() { }
+void TTalk2D2::moveTalkWindow()
+{
+	for (int i = 0; i < 3; ++i) {
+		u8& lineCount = (&unk224)[i];
+		int textIndex = i * 30 + lineCount;
+
+		if (lineCount != 0 && lineCount <= unk228[i]) {
+			J2DTextBox* textBox = unk9C[textIndex];
+
+			if (textBox->mVisible) {
+				int alpha = textBox->mAlpha + unk340;
+				int value = (s16)alpha;
+				if (value > 0xff)
+					value = 0xff;
+
+				textBox->mAlpha = value;
+
+				if ((s16)alpha >= 0xff)
+					++lineCount;
+			} else if (unk2DC <= 0) {
+				unk2DC            = unk281[textIndex];
+				textBox->mVisible = true;
+				textBox->mAlpha   = 0;
+			} else {
+				--unk2DC;
+			}
+		}
+	}
+
+	int line = unk274;
+	u8 lineCount = (&unk224)[line];
+	if (lineCount < 30 && lineCount <= unk228[line])
+		return;
+
+	J2DPane* pane;
+	J2DPane* cursor;
+	if (unk214 == -1) {
+		pane = unk6C[line];
+
+		if (unk26A) {
+			unk78[line]->mVisible = false;
+			cursor                = unk84[line];
+			unk84[line]->mVisible = true;
+		} else {
+			cursor                = unk78[line];
+			unk78[line]->mVisible = true;
+			unk84[line]->mVisible = false;
+		}
+	} else {
+		pane   = unk204;
+		cursor = unk20C[unk214];
+	}
+
+	if (pane->mVisible) {
+		int alpha = pane->mAlpha;
+		if ((s16)alpha < 0xff) {
+			alpha += 0x10;
+			if ((s16)alpha >= 0xff)
+				alpha = 0xff;
+			pane->mAlpha = alpha;
+		}
+
+		int cursorAlpha = cursor->mAlpha;
+		if (unk26B) {
+			cursorAlpha += 2;
+			if ((s16)cursorAlpha > 0xff) {
+				unk26B      = 0;
+				cursorAlpha = 0xff;
+			}
+		} else {
+			cursorAlpha -= 4;
+			if ((s16)cursorAlpha < 0x3c) {
+				unk26B      = 1;
+				cursorAlpha = 0x3c;
+			}
+		}
+		cursor->mAlpha = cursorAlpha;
+
+		u8 alphaByte = cursorAlpha;
+		if (unk214 == 1) {
+			snprintf(unk208->getStringPtr(), 0x5e,
+			    "\033CC[ffffff60]\033GC[ffffff60]%s"
+			    "\033CC[ffffff%02x]\033GC[ffffff%02x]\n%s",
+			    unk218[0], alphaByte, alphaByte, unk218[1]);
+		} else if (unk214 == 0) {
+			snprintf(unk208->getStringPtr(), 0x5e,
+			    "\033CC[ffffff%02x]\033GC[ffffff%02x]%s\n"
+			    "\033CC[ffffff60]\033GC[ffffff60]%s",
+			    alphaByte, alphaByte, unk218[0], unk218[1]);
+		}
+	} else {
+		pane->mVisible   = true;
+		pane->mAlpha     = 0;
+		cursor->mAlpha   = 0xff;
+	}
+}
 void TTalk2D2::checkBoardControler()
 {
 	if (unk26A) {
