@@ -692,22 +692,19 @@ BOOL TMario::jumpEndEvents(u32 nextState)
 	u32 input = mInput;
 
 	if (input & 0x10) {
-		changePlayerStatus(0x0C400201, 0, false);
-		return 1;
+		return changePlayerStatus(0x0C400201, 0, false);
 	}
 
 	if (input & 0x02) {
 		if (nextState == 0) {
-			changePlayerTriJump();
+			return changePlayerTriJump();
 		} else {
-			changePlayerJumping(nextState, 0);
+			return changePlayerJumping(nextState, 0);
 		}
-		return 1;
 	}
 
 	if (input & 0x0F) {
-		checkAllMotions();
-		return 1;
+		return checkAllMotions();
 	}
 
 	return 0;
