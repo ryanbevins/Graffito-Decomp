@@ -836,7 +836,7 @@ public:
 	void loserExec();
 	void normalizeNozzle();
 	void resetNozzle();
-	bool trampleExec(THitActor*);
+	BOOL trampleExec(THitActor*);
 	bool canTake(THitActor*);
 	bool isTakeSituation(THitActor*);
 	void dropObject();

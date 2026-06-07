@@ -135,18 +135,18 @@ bool TMario::canTake(THitActor* object)
 	       && isTakeSituation(object);
 }
 
-bool TMario::trampleExec(THitActor* param_1)
+BOOL TMario::trampleExec(THitActor* param_1)
 {
 	if (!checkActionFlag(0x800)) {
-		return false;
+		return FALSE;
 	}
 
 	if (mAction == 0x891) {
-		return false;
+		return FALSE;
 	}
 
 	if (param_1->receiveMessage(this, HIT_MESSAGE_TRAMPLE) == FALSE) {
-		return false;
+		return FALSE;
 	}
 
 	if (mAction == 0x888) {
@@ -193,7 +193,7 @@ bool TMario::trampleExec(THitActor* param_1)
 			    0x1818, &mPosition, nullptr, 0.0f, trampleCt, 0, nullptr, 0, 4);
 		}
 	}
-	return true;
+	return TRUE;
 }
 
 void TMario::resetNozzle() { }
