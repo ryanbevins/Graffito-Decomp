@@ -209,7 +209,7 @@ void TMario::checkCollision()
 				// Additional checks
 				u32 action = mAction;
 				if (checkActionFlag(0x800)) {
-					if (mHolder == nullptr
+					if (mHeldObject == nullptr
 					    && mVel.y < 0.0f
 					    && yoshi->mTranslation.y < mPosition.y
 					    && action != ACTION_JUMP_BASIC_089C
