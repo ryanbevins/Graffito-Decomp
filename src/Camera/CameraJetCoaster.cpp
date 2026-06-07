@@ -15,6 +15,8 @@
 #include <System/MarDirector.hpp>
 #include <System/MarioGamePad.hpp>
 
+template <> s16 CLBRoundf<s16>(f32);
+
 class TCamSaveJetCoaster {
 public:
 	TCamSaveJetCoaster();
