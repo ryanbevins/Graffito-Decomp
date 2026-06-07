@@ -264,17 +264,8 @@ BOOL TMario::waiting()
 			setAnimation(0xE7, 1.0f);
 		} else {
 			if (mPumpState == 5) {
-				u8 canMonteman;
-				if (mPrevAction == 0x0C00023D) {
-					canMonteman = 1;
-				} else {
-					if (mState & 0x00000020) {
-						canMonteman = 1;
-					} else {
-						canMonteman = 0;
-					}
-				}
-				if (canMonteman) {
+				if (mPrevAction == 0x0C00023D
+				    || (mState & 0x00000020 ? true : false)) {
 					// montemanWait
 					if (!(actionState & 0x01)) {
 						setAnimation(0xDA, 1.0f);
