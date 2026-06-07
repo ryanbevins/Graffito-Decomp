@@ -125,7 +125,7 @@ void TMario::hangPole(THitActor* actor)
 		f32 dx = actorX - marioX;
 
 		f32 distSqXZ = dx * dx + dz * dz;
-		f32 distXZ = 0.0f;
+		f32 distXZ = distSqXZ;
 		if (distSqXZ > 0.0f) {
 			distXZ = sqrtf(distSqXZ);
 		}
