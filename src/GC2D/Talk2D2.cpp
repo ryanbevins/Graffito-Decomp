@@ -503,7 +503,8 @@ void TTalk2D2::openWindow(s8 line, f32 offset)
 	    GX_DF_NONE, GX_AF_NONE);
 	GXSetChanAmbColor(GX_COLOR0A0, (GXColor) { 0xff, 0xff, 0xff, 0xff });
 
-	J2DPicture* pane = (J2DPicture*)unk3C[line];
+	J2DPane** paneSlot = &unk3C[line];
+	J2DPicture* pane   = (J2DPicture*)*paneSlot;
 	pane->getTexture(0)->load(GX_TEXMAP1);
 	unk244->load(GX_TEXMAP0);
 
@@ -539,7 +540,7 @@ void TTalk2D2::openWindow(s8 line, f32 offset)
 	    GX_FALSE, GX_PTIDENTITY);
 	GXSetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR_NULL);
 
-	JUTRect rect(pane->mGlobalBounds);
+	JUTRect rect((*paneSlot)->mGlobalBounds);
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 	GXPosition2f32((f32)rect.x1, (f32)rect.y1);
 	GXTexCoord2s8(0, 0);
