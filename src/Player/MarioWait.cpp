@@ -326,18 +326,13 @@ BOOL TMario::sleepily()
 	if (waitingCommonEvents())
 		return 1;
 
-	{
-		u32* ctrlWork = (u32*)unk108;
-		f32 stickX = *(f32*)((u8*)ctrlWork + 0x1c);
-		f32 stickY = *(f32*)((u8*)ctrlWork + 0x20);
-		if (stickX > 0.0f || stickY > 0.0f) {
-			changePlayerStatus(0x0C400201, 0, false);
-		}
+	if (*(f32*)((u8*)unk108 + 0x1c) > 0.0f
+	    || *(f32*)((u8*)unk108 + 0x20) > 0.0f) {
+		changePlayerStatus(0x0C400201, 0, false);
 	}
 
 	if (mActionState == 3) {
-		changePlayerStatus(0x0C000203, 0, false);
-		return 1;
+		return changePlayerStatus(0x0C000203, 0, false);
 	}
 
 	switch (mActionState) {
