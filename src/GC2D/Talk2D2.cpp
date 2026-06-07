@@ -5,11 +5,14 @@
 #include <GC2D/MessageLoader.hpp>
 #include <GC2D/MessageUtil.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
+#include <JSystem/J2D/J2DOrthoGraph.hpp>
 #include <JSystem/J2D/J2DTextBox.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
 #include <JSystem/JSupport/JSUMemoryOutputStream.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
+#include <MarioUtil/DrawUtil.hpp>
+#include <MarioUtil/ReinitGX.hpp>
 #include <NPC/NpcBase.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
@@ -200,7 +203,181 @@ void TTalk2D2::loadAfter()
 	JDrama::TViewObj::loadAfter();
 }
 
-void TTalk2D2::perform(u32, JDrama::TGraphics*) { }
+void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 1) {
+		if (gpMarDirector->unk124 == 2) {
+			switch (unk248) {
+			case 2: {
+				CPolarSubCamera* camera = gpCamera;
+				bool ready              = false;
+				if (camera->isTalkCameraSpecifyMode(camera->mMode)
+				    && !camera->isNowInbetween())
+					ready = true;
+
+				if (ready ? true : false) {
+					unk251 = 0x14;
+					unk248 = 3;
+				}
+				break;
+			}
+			case 4:
+				if (unk28) {
+					if (openBoardWindow())
+						unk248 = 5;
+				} else {
+					if (openNormalWindow())
+						unk248 = 5;
+				}
+				break;
+			case 5:
+				if (unk28) {
+					moveBoardWindow();
+					checkBoardControler();
+				} else {
+					moveTalkWindow();
+					checkControler();
+				}
+				break;
+			case 6: {
+				bool closed = false;
+				if (unk28) {
+					if (unk14->update())
+						closed = true;
+				} else {
+					closed = closeNormalWindow();
+				}
+
+				if (closed) {
+					if (unk270 & 1)
+						unk248 = 0;
+					else
+						unk248 = 1;
+				}
+				break;
+			}
+			case 7:
+				if (unk28) {
+					if (eraseBoardWindow())
+						unk248 = 8;
+				} else {
+					if (eraseNormalWindow())
+						unk248 = 4;
+				}
+				break;
+			case 8: {
+				bool complete = false;
+				int alpha     = unk18->mAlpha + 4;
+				if ((u16)alpha > 0xff) {
+					alpha    = 0xff;
+					complete = true;
+				}
+
+				unk18->mAlpha = alpha;
+				if (complete)
+					unk248 = 5;
+				break;
+			}
+			}
+		}
+	}
+
+	if (flags & 2) {
+		if (gpMarDirector->unk124 == 2) {
+			u32 mode = unk248;
+			if (mode == 3) {
+				--unk251;
+				if ((s8)unk251 < 0) {
+					unk2DE = 0;
+					unk248 = 4;
+				}
+			} else if (mode == 7) {
+				int alpha = unk90->mAlpha - 0x10;
+				if ((s16)alpha < 0) {
+					unk234 = 1.0f;
+					unk238 = 2.0f;
+					unk23C = 3.0f;
+
+					for (int i = 0; i < 3; ++i) {
+						unk3C[i]->mVisible = false;
+						unk6C[i]->mVisible = false;
+						(&unk224)[i]       = 0;
+					}
+
+					for (int i = 0; i < 90; ++i)
+						if (unk9C[i])
+							unk9C[i]->mVisible = false;
+
+					TMessageLoader* loader = unk260;
+					void* data             = loader->unk4;
+					JMSMesgEntry* entry
+					    = (JMSMesgEntry*)loader->getMessageEntry((u16)unk264);
+					setupTextBox(data, entry);
+					unk26C = 0;
+
+					if (TFlagManager::smInstance->getFlag(0xa0001) == 0x100)
+						unk340 = 0x20;
+					else
+						unk340 = 0x40;
+
+					*(u32*)&unk27C = 0xffffffff;
+					*(u32*)&unk27C = 0xffffffff;
+					unk2DE         = 0;
+					unk2DC         = 0;
+					unk248         = 4;
+					alpha          = 0xff;
+				}
+
+				unk90->mAlpha = alpha;
+			}
+		}
+	}
+
+	if (flags & 8) {
+		if (gpMarDirector->unk124 == 2) {
+			ReInitializeGX();
+			SMS_DrawInit();
+
+			J2DOrthoGraph graph(graphics->mViewportRect);
+			graph.setup2D();
+
+			if (unk250) {
+				unk3C[0]->mVisible = true;
+				unk3C[1]->mVisible = true;
+				unk3C[2]->mVisible = true;
+
+				J2DPane* root = unk2C->search('ROOT');
+				root->mAlpha  = 0;
+				unk2C->draw(0, 0, &graph);
+				root->mAlpha = 0xff;
+
+				graph.setup2D();
+				unk250 = 0;
+
+				unk3C[0]->mVisible = false;
+				unk3C[1]->mVisible = false;
+				unk3C[2]->mVisible = false;
+			}
+
+			u32 mode = unk248;
+			if (mode == 4) {
+				for (s8 i = 0; i <= unk274; ++i)
+					openWindow(i, (&unk234)[i]);
+			}
+
+			if (mode >= 4 && mode < 8) {
+				graph.setup2D();
+				if (unk28) {
+					unk10->draw(0, 0, &graph);
+				} else {
+					unk90->move(unk330, unk332);
+					unk90->mRotation = (f32)unk334;
+					unk2C->draw(0, 0, &graph);
+				}
+			}
+		}
+	}
+}
 void TTalk2D2::openWindow(s8, f32) { }
 void TTalk2D2::setTagParam(JSUMemoryInputStream&, J2DTextBox&, int*, int*) { }
 void TTalk2D2::setupTextBox(const void*, JMSMesgEntry*) { }
@@ -279,9 +456,9 @@ bool TTalk2D2::eraseNormalWindow()
 	int alpha   = unk90->mAlpha - 0x10;
 
 	if ((s16)alpha < 0) {
-		unk234 = 180.0f;
-		unk238 = 3.1415927f;
-		unk23C = 1.1f;
+		unk234 = 1.0f;
+		unk238 = 2.0f;
+		unk23C = 3.0f;
 
 		for (int i = 0; i < 3; ++i) {
 			unk3C[i]->mVisible = false;
@@ -297,7 +474,7 @@ bool TTalk2D2::eraseNormalWindow()
 		void* data             = loader->unk4;
 		JMSMesgEntry* entry
 		    = (JMSMesgEntry*)loader->getMessageEntry((u16)unk264);
-		setupBoardTextBox(data, entry);
+		setupTextBox(data, entry);
 		unk26C = 0;
 
 		if (TFlagManager::smInstance->getFlag(0xa0001) == 0x100)
@@ -324,9 +501,9 @@ bool TTalk2D2::closeNormalWindow()
 	int alpha   = unk90->mAlpha - 0x10;
 
 	if ((s16)alpha < 0) {
-		unk234 = 180.0f;
-		unk238 = 3.1415927f;
-		unk23C = 1.1f;
+		unk234 = 1.0f;
+		unk238 = 2.0f;
+		unk23C = 3.0f;
 
 		for (int i = 0; i < 3; ++i) {
 			unk3C[i]->mVisible = false;
