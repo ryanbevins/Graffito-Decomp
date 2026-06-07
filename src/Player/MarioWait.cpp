@@ -225,15 +225,15 @@ BOOL TMario::waiting()
 			isPumpFive = 0;
 		}
 		if (isPumpFive) {
-			if (canSleep()) {
+			u8 canSleepResult = canSleep();
+			if (canSleepResult) {
 				if (mAnimationId == 0xC3) {
 					if (isAnimeLoopOrStop()) {
 						if (mGroundPlane != nullptr) {
 							if (mGroundPlane->mNormal.y > 0.99f) {
 								mActionTimer++;
 								if (mActionTimer >= 10) {
-									changePlayerStatus(0x0C400202, 0, false);
-									return 1;
+									return changePlayerStatus(0x0C400202, 0, false);
 								}
 							}
 						}
@@ -261,24 +261,8 @@ BOOL TMario::waiting()
 		if (isPositive != 0) {
 			setAnimation(0xE7, 1.0f);
 		} else {
-			bool doMontemanWait = false;
-			if (mPumpState == 5) {
-				if (mPrevAction - 0x0C00023D == 0) {
-					doMontemanWait = true;
-				} else {
-					u8 hasFlag;
-					if (mState & 0x00000040) {
-						hasFlag = 1;
-					} else {
-						hasFlag = 0;
-					}
-					if (hasFlag) {
-						doMontemanWait = true;
-					}
-				}
-			}
-
-			if (doMontemanWait) {
+			if (mPumpState == 5
+			    && (mPrevAction == 0x0C00023D || (mState & 0x00000020))) {
 				// montemanWait
 				if (!(actionState & 0x01)) {
 					setAnimation(0xDA, 1.0f);
