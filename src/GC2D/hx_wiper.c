@@ -1067,8 +1067,8 @@ static void Hx_GameOver() {
 		alpha += 8;
 		Hx_CameraInit();
 		Hx_GxInit(0, 1);
-		right  = (f32)(hx.imgW - 100);
 		bottom = (f32)(hx.imgH - 100);
+		right  = (f32)(hx.imgW - 100);
 		color = 0xFF000000 | alpha;
 		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 		GXPosition3f32(100.0f, 100.0f, 0.0f);
@@ -1086,8 +1086,8 @@ static void Hx_GameOver() {
 		f32 bottom;
 		Hx_CameraInit();
 		Hx_GxInit(0, 1);
-		right  = (f32)(hx.imgW - 100);
 		bottom = (f32)(hx.imgH - 100);
+		right  = (f32)(hx.imgW - 100);
 		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 		GXPosition3f32(100.0f, 100.0f, 0.0f);
 		GXColor1u32(0xFF0000FF);
