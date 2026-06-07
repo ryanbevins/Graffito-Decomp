@@ -263,23 +263,34 @@ BOOL TMario::waiting()
 		if (isPositive != 0) {
 			setAnimation(0xE7, 1.0f);
 		} else {
-			if (mPumpState == 5
-			    && (mPrevAction == 0x0C00023D || (mState & 0x00000020))) {
-				// montemanWait
-				if (!(actionState & 0x01)) {
-					setAnimation(0xDA, 1.0f);
-
-					J3DFrameCtrl* frameCtrl = mModel->unkC;
-					if (frameCtrl->checkPass(138.0f)) {
-						emitSweat((s16)(mFaceAngle.y - 0x4000));
+			if (mPumpState == 5) {
+				u8 canMonteman;
+				if (mPrevAction == 0x0C00023D) {
+					canMonteman = 1;
+				} else {
+					if (mState & 0x00000020) {
+						canMonteman = 1;
+					} else {
+						canMonteman = 0;
 					}
+				}
+				if (canMonteman) {
+					// montemanWait
+					if (!(actionState & 0x01)) {
+						setAnimation(0xDA, 1.0f);
 
-					if (isLast1AnimeFrame()) {
-						mActionState |= 0x01;
+						J3DFrameCtrl* frameCtrl = mModel->unkC;
+						if (frameCtrl->checkPass(138.0f)) {
+							emitSweat((s16)(mFaceAngle.y - 0x4000));
+						}
+
+						if (isLast1AnimeFrame()) {
+							mActionState |= 0x01;
+						}
+
+						waitProcess();
+						return 0;
 					}
-
-					waitProcess();
-					return 0;
 				}
 			}
 
