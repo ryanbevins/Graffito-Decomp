@@ -7,6 +7,8 @@
 #include <JSystem/J2D/J2DScreen.hpp>
 #include <JSystem/J2D/J2DTextBox.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <JSystem/JSupport/JSUMemoryInputStream.hpp>
+#include <JSystem/JSupport/JSUMemoryOutputStream.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
@@ -149,7 +151,54 @@ void TTalk2D2::perform(u32, JDrama::TGraphics*) { }
 void TTalk2D2::openWindow(s8, f32) { }
 void TTalk2D2::setTagParam(JSUMemoryInputStream&, J2DTextBox&, int*, int*) { }
 void TTalk2D2::setupTextBox(const void*, JMSMesgEntry*) { }
-void TTalk2D2::setupBoardTextBox(const void*, JMSMesgEntry*) { }
+void TTalk2D2::setupBoardTextBox(const void* data, JMSMesgEntry* entry)
+{
+	TMessageLoader::EntryInfo* info = (TMessageLoader::EntryInfo*)entry;
+	JSUMemoryInputStream input((const u8*)data + info->unk0 + unk278, 0x400);
+	JSUMemoryOutputStream output(unk18->getStringPtr(), 0x200);
+	unk254 = entry;
+
+	int lineCount = 0;
+	while (lineCount < 6) {
+		u8 c;
+		input.read(&c, 1);
+
+		switch (c) {
+		case '\n':
+			output.write(&c, 1);
+			++lineCount;
+			break;
+		case 0:
+			unk26A    = 1;
+			lineCount = 6;
+			break;
+		case 0x1a:
+			break;
+		default:
+			input.skip(-1);
+			input.read(&c, 1);
+			output.write(&c, 1);
+			if (c >= 0x80) {
+				input.read(&c, 1);
+				output.write(&c, 1);
+			}
+			break;
+		}
+	}
+
+	if (!unk26A) {
+		u8 c;
+		input.peek(&c, 1);
+		if ((s8)c == 0) {
+			unk26A = 1;
+			input.skip(1);
+			c = 0;
+			output.write(&c, 1);
+		}
+	}
+
+	unk278 += input.getPosition();
+}
 bool TTalk2D2::eraseBoardWindow()
 {
 	bool result = false;
