@@ -320,8 +320,8 @@ void CPolarSubCamera::updateDemoCamera_(bool flag)
 				rotated.x = atX * cos + atZ * sin;
 				rotated.y = atY;
 				rotated.z = -atX * sin + atZ * cos;
-				rotated.add(off);
-				*(JGeometry::TVec3<f32>*)((u8*)this + 0x124) = rotated;
+				JGeometry::TVec3<f32> rotatedAt = off + rotated;
+				*(JGeometry::TVec3<f32>*)((u8*)this + 0x124) = rotatedAt;
 
 				f32 eyeX = *(f32*)((u8*)this + 0x148) - off.x;
 				f32 eyeY = *(f32*)((u8*)this + 0x14C) - off.y;
@@ -330,8 +330,8 @@ void CPolarSubCamera::updateDemoCamera_(bool flag)
 				rotE.x = eyeX * cos + eyeZ * sin;
 				rotE.y = eyeY;
 				rotE.z = -eyeX * sin + eyeZ * cos;
-				rotE.add(off);
-				*(JGeometry::TVec3<f32>*)((u8*)this + 0x148) = rotE;
+				JGeometry::TVec3<f32> rotatedEye = off + rotE;
+				*(JGeometry::TVec3<f32>*)((u8*)this + 0x148) = rotatedEye;
 
 				f32 upX  = mUp.x;
 				f32 upZ  = mUp.z;
