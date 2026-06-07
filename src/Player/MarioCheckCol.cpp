@@ -10,6 +10,7 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <Enemy/SmallEnemy.hpp>
+#include <NPC/NpcBase.hpp>
 #include <dolphin/mtx.h>
 #include <fake_tgmath.h>
 
@@ -259,46 +260,276 @@ void TMario::checkCollision()
 	setNormalAttackArea();
 
 	// Iterate over collision actors
-	u16 numActors = *(u16*)((u8*)this + 0x48);
+	u16 numActors = mColCount;
 	for (u16 i = 0; i < numActors; i++) {
-		THitActor** actorList = *(THitActor***)((u8*)this + 0x44);
-		THitActor* actor = actorList[i];
+		THitActor* actor = mCollisions[i];
+		u32 actorType    = actor->mActorType;
 
-		u32 actorFlags = *(u32*)((u8*)actor + 0x4C);
-
-		// Check actor flag bit 26
-		if (!(actorFlags & 0x04000000))
-			continue;
-
-		// Check mario flags for special collision handling
-		if (!checkFlag(0x80000)) {
-			if (!checkActionFlag(0x2000)) {
-				if (checkActionFlag(0x1000)) {
-					if ((mAction - 0x80000000) != 0x8A9) {
-						if (mVel.y < 0.0f) {
-							if (actor->mPosition.y < mPosition.y) {
-								if (trampleExec(actor)) {
-									keepDistance(*actor, 0.0f);
-								}
-							}
-						}
-					}
-				}
+		if (actorType & ACTOR_TYPE_UNK4000000) {
+			if (!checkFlag(0x1000) && !checkActionFlag(0x2000)
+			    && checkActionFlag(0x800) && mAction != ACTION_HIP_ATTACK
+			    && mVel.y < 0.0f && actor->mPosition.y < mPosition.y
+			    && ((TBaseNPC*)actor)->isBeTrampledNpc()) {
+				if (trampleExec(actor) == TRUE)
+					continue;
 			}
+
+			keepDistance(*actor, 0.0f);
+
+			if ((*(u32*)((u8*)actor + 0xF0) & 0x100000) && canTake(actor)) {
+				unk384 = actor;
+				changePlayerStatus(0x383, 0, false);
+			}
+			continue;
 		}
 
-		// Hit normal processing
-		keepDistance(actor->mPosition, 0.0f, 0.0f);
+		switch (actorType) {
+		case 0x80000001:
+			if (mHeldObject != actor && mHolder != actor)
+				keepDistance(*actor, 0.0f);
 
-		// Check hit result flags
-		u32 hitFlags = *(u32*)((u8*)actor + 0xF0);
-		if (!(hitFlags & 0x100000))
-			continue;
+			if (canTake(actor)) {
+				unk384 = actor;
+				changePlayerStatus(0x383, 0, false);
+			}
 
-		// Process hit reaction
-		hitNormal(actor);
-		// Store actor and change status
-		*(THitActor**)((u8*)this + 0x384) = actor;
-		changePlayerStatus(0x383, 0, false);
+			hitNormal(actor);
+			keepDistance(*actor, 0.0f);
+			break;
+
+		case 0x08000001:
+		case 0x08000003:
+		case 0x08000013:
+		case 0x08000024:
+		case 0x10000001:
+		case 0x10000002:
+		case 0x10000003:
+		case 0x10000004:
+		case 0x1000000A:
+		case 0x1000000C:
+		case 0x1000000D:
+		case 0x1000000F:
+		case 0x10000010:
+		case 0x10000011:
+		case 0x10000012:
+		case 0x10000013:
+		case 0x10000016:
+		case 0x10000017:
+		case 0x10000019:
+		case 0x1000001A:
+		case 0x1000001B:
+		case 0x1000001C:
+		case 0x1000001D:
+		case 0x1000001F:
+		case 0x10000020:
+		case 0x10000025:
+		case 0x1000002E:
+		case 0x10000031:
+		case 0x10000037:
+		case 0x20000008:
+		case 0x2000000A:
+		case 0x2000000C:
+		case 0x4000019A:
+			hitNormal(actor);
+			break;
+
+		case 0x08000002:
+		case 0x08000005:
+		case 0x08000007:
+		case 0x0800000B:
+		case 0x0800000C:
+		case 0x0800000F:
+		case 0x08000010:
+		case 0x08000014:
+		case 0x08000015:
+		case 0x08000022:
+		case 0x08000023:
+		case 0x10000022:
+		case 0x10000027:
+		case 0x10000033:
+		case 0x10000035:
+		case 0x20000009:
+		case 0x40000010:
+		case 0x4000001B:
+		case 0x40000026:
+		case 0x40000030:
+		case 0x40000046:
+		case 0x4000005D:
+		case 0x4000007E:
+		case 0x4000009E:
+		case 0x4000009F:
+		case 0x400000A0:
+		case 0x400000DB:
+		case 0x40000136:
+		case 0x40000139:
+		case 0x400001A6:
+		case 0x40000228:
+		case 0x40000233:
+		case 0x40000264:
+		case 0x40000396:
+			keepDistance(*actor, 0.0f);
+			break;
+
+		case 0x4000002D:
+		case 0x4000002E:
+		case 0x4000002F:
+		case 0x40000032:
+		case 0x40000034:
+		case 0x40000035:
+		case 0x40000036:
+		case 0x40000037:
+		case 0x40000039:
+		case 0x4000003A:
+		case 0x4000003C:
+		case 0x40000047:
+		case 0x40000049:
+		case 0x400000BB:
+		case 0x40000244:
+		case 0x40000246:
+			hangPole(actor);
+			break;
+
+		case 0x08000006:
+		case 0x08000008:
+		case 0x0800000D:
+		case 0x08000083:
+		case 0x10000028:
+			if (mAction != 0x560 && mAction != ACTION_SLIDE_JUMP
+			    && canTake(actor)
+			    && actor->receiveMessage(this, HIT_MESSAGE_TAKE)) {
+				changePlayerStatus(0x560, 0, false);
+				setAnimation(0xEA, 1.0f);
+				mHeldObject = (TTakeActor*)actor;
+			} else {
+				hitNormal(actor);
+			}
+			break;
+
+		case 0x10000007:
+		case 0x1000000E:
+		case 0x10000015:
+		case 0x1000002A:
+		case 0x1000002D:
+			hitNormal(actor);
+			if (((TSmallEnemy*)actor)->doKeepDistance())
+				keepDistance(*actor, 0.0f);
+			break;
+
+		case 0x10000008:
+			if (((TSmallEnemy*)actor)->doKeepDistance()) {
+				keepDistance(*actor, 0.0f);
+			} else if (*(u8*)((u8*)actor + 0x164) != 0
+			           && !checkActionFlag(0x800)) {
+				keepDistance(*actor, 0.0f);
+				if (canTake(actor)) {
+					unk384 = actor;
+					changePlayerStatus(0x383, 0, false);
+				}
+			} else {
+				hitNormal(actor);
+				if (((TSmallEnemy*)actor)->doKeepDistance())
+					keepDistance(*actor, 0.0f);
+			}
+			break;
+
+		case 0x10000018:
+		case 0x1000001E:
+			if (*(u8*)((u8*)actor + 0x164) != 0 && !checkActionFlag(0x800)) {
+				keepDistance(*actor, 0.0f);
+				if (canTake(actor)) {
+					unk384 = actor;
+					changePlayerStatus(0x383, 0, false);
+				}
+			} else {
+				hitNormal(actor);
+				if (((TSmallEnemy*)actor)->doKeepDistance())
+					keepDistance(*actor, 0.0f);
+			}
+			break;
+
+		case 0x1000002C:
+			hitNormal(actor);
+			if (((TSmallEnemy*)actor)->doKeepDistance())
+				keepDistance(*actor, 0.0f);
+			// fall through
+		case 0x10000021:
+			if (mAction == ACTION_HIP_ATTACK && mActionState == 2
+			    && actor->mPosition.y < mPosition.y) {
+				actor->receiveMessage(this, HIT_MESSAGE_HIP_DROP);
+			}
+			// fall through
+		case 0x10000034:
+			if (mAction == 0x3000036A) {
+				f32 frame = getMotionFrameCtrl().getFrame();
+				if (5.0f <= frame && frame < 9.0f)
+					actor->receiveMessage(this, HIT_MESSAGE_PUNCH);
+			}
+
+			if (mAction == ACTION_FENCE_KICK) {
+				f32 frame = getMotionFrameCtrl().getFrame();
+				if (9.0f <= frame && frame < 13.0f)
+					actor->receiveMessage(this, HIT_MESSAGE_PUNCH);
+			}
+			break;
+
+		case 0x4000005A:
+		case 0x4000005C:
+			keepDistance(*actor, 0.0f);
+			if (canTake(actor)) {
+				unk384 = actor;
+				changePlayerStatus(0x383, 0, false);
+			}
+
+			if (checkActionFlag(0x800) && mVel.y < 0.0f
+			    && actor->mPosition.y < mPosition.y && mAction == ACTION_HIP_ATTACK) {
+				actor->receiveMessage(this, HIT_MESSAGE_HIP_DROP);
+				if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+					TWaterGun* wg  = mWaterGun;
+					TNozzleBase* n = wg->getCurrentNozzle();
+					wg->mCurrentWater = *(u32*)((u8*)n + 0xCC);
+				}
+			}
+			break;
+
+		case 0x40000390:
+		case 0x40000391:
+		case 0x40000392:
+		case 0x40000394:
+		case 0x40000395:
+			keepDistance(*actor, 0.0f);
+			if (canTake(actor)) {
+				unk384 = actor;
+				changePlayerStatus(0x383, 0, false);
+			}
+			break;
+
+		case 0x40000017:
+			keepDistance(*actor, 0.0f);
+			if (*(s8*)((u8*)actor + 0x138) == 0 && canTake(actor)) {
+				unk384 = actor;
+				changePlayerStatus(0x383, 0, false);
+			}
+			break;
+
+		case 0x40000064:
+		case 0x40000393:
+			if (checkActionFlag(0x800) && mVel.y > 0.0f)
+				actor->receiveMessage(this, HIT_MESSAGE_UNK2);
+			hitNormal(actor);
+			break;
+
+		case 0x40000002:
+		case 0x400002BC:
+			if (checkActionFlag(0x800) && mVel.y < 0.0f
+			    && actor->mPosition.y < mPosition.y && mAction == ACTION_HIP_ATTACK) {
+				actor->receiveMessage(this, HIT_MESSAGE_HIP_DROP);
+			}
+			break;
+
+		case 0x20000068:
+			hitNormal(actor);
+			keepDistance(*actor, 0.0f);
+			break;
+		}
 	}
 }
