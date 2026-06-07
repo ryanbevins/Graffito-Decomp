@@ -30,6 +30,7 @@
 
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
 template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
+template <> s16 CLBRoundf<s16>(f32);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
 
 extern Vec CLBConstUpVec;
