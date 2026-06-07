@@ -85,92 +85,10 @@ static u8 inc_step[3] = { 2, 3, 4 };
 static void* fbuf = hx_buffer;
 static void* fbuf2 = hx_buffer;
 
-// forward declarations (handlers referenced by handle_table / Hx_UpdateWipe)
-static void Hx_Test5();
-static void Hx_Test4();
-static void Hxs1_Test2(u32, u32, f32, f32, f32, f32);
-static void Hx_Test2R();
-static void Hx_Test2();
-static void Hxs1_Test1(f32, f32, f32);
-static void Hx_Test1();
-static void Hx_Logo();
-static void Hx_GameOver();
-static void Hxs_GameOver(u32, f32, f32);
-static void Hxs_PenDraw(u32, LogoPath*, f32, f32);
-static void Hxs_Logo_MagDraw(f32, f32, f32);
-static void Hxs_Logo_TexDraw(f32, f32, f32, f32, f32, f32);
-static void Hxs_Logo_TexSetup(u8, u8, void*);
-static void Hxs_Logo_ExtraDraw(u8, void*);
-static void Hx_Door();
-static void Hxs_FrBufferMorf2B(f32);
-static void Hxs_FrBufferMorf2(f32);
-static void Hxs2_Circle(u8, f32, f32);
-static void Hxs1_Circle(f32);
-static void Hx_Circle();
-static void Hx_Warning(int code);
-static void Hx_CameraInit();
-static void Hx_GxInit(int, int);
-f32 Hx_MotionUpdate(HxMotion*);
-void Hx_MotionSet(HxMotion*, f32, f32, f32, f32);
-u32 Hx_TimerCountDown();
-static void Frb2_InitBlackBox();
-static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1);
-static void Frb2_InitGx(GXTexObj* tobj);
-static void Hx_SetVFilter(f32 ratio);
-static void Hx_FrBufferMorf(f32 ratio);
-static void __Hx_FrBufferMorf(u32 x, u32 y);
-static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht);
-static void Hgx_ReadTexture(char* fileName, void* addr);
-static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res);
-static void dummy_handler();
-
-// Camera vectors (mutable: Hx_CameraInit overwrites .x/.y with screen center).
-static Vec camLoc = { 320.0f, 240.0f, -30.0f };
-static Vec objPt = { 320.0f, 240.0f, 0.0f };
-static Vec up = { 0.0f, -10.0f, 0.0f };
-
-static void (*handle_table[15])() = {
-	dummy_handler, Hx_Circle, Hx_Circle, Hx_Test1, Hx_Test1,
-	Hx_Test5, Hx_Test5, Hx_Test4, Hx_Test4, Hx_Test2R,
-	Hx_Test2, Hx_Door, Hx_Logo, Hx_GameOver, dummy_handler,
-};
-
-static u8 handle_type[15] = {
-	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0,
-};
-
-static f32 r_393;
-static f32 r_416;
-static f32 r_432;
-static f32 r_181;
-static f32 p1;
-static f32 p2;
-static f32 p3;
-static u16 a1;
-static u16 a2;
-static u16 a3;
-static f32 boke;
-static f32 mag = 1.0f;
-static f32 rot;
-static f32 fade;
-static u32 boundstate;
-static u32 boundtimer;
-static f32 bounddelta;
-static u8 alpha;
-static void* gmover_tex_buffer = hx_buffer;
-static f32 thin;
-static u32 rstep;
-static f32 thin_d;
-static f32 rstep_d;
-static LogoPath* dp_320;
-static f32 bx_321;
-static f32 by_322;
-static u32 count_323;
-
-// ---------------------------------------------------------------------------
-// Wipe-effect handlers (GX-heavy; reconstruction pending - see notes/hx_wiper.md)
-// ---------------------------------------------------------------------------
 static void Hx_CameraInit() {
+	static Vec camLoc = { 320.0f, 240.0f, -30.0f };
+	static Vec objPt = { 320.0f, 240.0f, 0.0f };
+	static Vec up = { 0.0f, -10.0f, 0.0f };
 	Mtx44 proj;
 	Mtx posMtx;
 	f32 hw = (f32)(hx.imgW >> 1);
@@ -207,6 +125,81 @@ static void Hx_CameraInit() {
 	              GX_AF_NONE);
 	GXSetNumChans(1);
 }
+
+// forward declarations (handlers referenced by handle_table / Hx_UpdateWipe)
+static void Hx_Test5();
+static void Hx_Test4();
+static void Hxs1_Test2(u32, u32, f32, f32, f32, f32);
+static void Hx_Test2R();
+static void Hx_Test2();
+static void Hxs1_Test1(f32, f32, f32);
+static void Hx_Test1();
+static void Hx_Logo();
+static void Hx_GameOver();
+static void Hxs_GameOver(u32, f32, f32);
+static void Hxs_PenDraw(u32, LogoPath*, f32, f32);
+static void Hxs_Logo_MagDraw(f32, f32, f32);
+static void Hxs_Logo_TexDraw(f32, f32, f32, f32, f32, f32);
+static void Hxs_Logo_TexSetup(u8, u8, void*);
+static void Hxs_Logo_ExtraDraw(u8, void*);
+static void Hx_Door();
+static void Hxs_FrBufferMorf2B(f32);
+static void Hxs_FrBufferMorf2(f32);
+static void Hxs2_Circle(u8, f32, f32);
+static void Hxs1_Circle(f32);
+static void Hx_Circle();
+static void Hx_Warning(int code);
+static void Hx_GxInit(int, int);
+f32 Hx_MotionUpdate(HxMotion*);
+void Hx_MotionSet(HxMotion*, f32, f32, f32, f32);
+u32 Hx_TimerCountDown();
+static void Frb2_InitBlackBox();
+static void Frb2_RendBox(u32 color, f32 x0, f32 y0, f32 x1, f32 y1);
+static void Frb2_InitGx(GXTexObj* tobj);
+static void Hx_SetVFilter(f32 ratio);
+static void Hx_FrBufferMorf(f32 ratio);
+static void __Hx_FrBufferMorf(u32 x, u32 y);
+static void Hx_GetFrBuffer(void* dest, u32 left, u32 top, u32 wd, u32 ht);
+static void Hgx_ReadTexture(char* fileName, void* addr);
+static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res);
+static void dummy_handler();
+
+static void (*handle_table[15])() = {
+	dummy_handler, Hx_Circle, Hx_Circle, Hx_Test1, Hx_Test1,
+	Hx_Test5, Hx_Test5, Hx_Test4, Hx_Test4, Hx_Test2R,
+	Hx_Test2, Hx_Door, Hx_Logo, Hx_GameOver, dummy_handler,
+};
+
+static u8 handle_type[15] = {
+	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0,
+};
+
+static f32 r_393;
+static f32 r_416;
+static f32 r_432;
+static f32 r_181;
+static f32 p1;
+static f32 p2;
+static f32 p3;
+static u16 a1;
+static u16 a2;
+static u16 a3;
+static f32 boke;
+static f32 rot;
+static f32 fade;
+static u32 boundstate;
+static u32 boundtimer;
+static f32 bounddelta;
+static u8 alpha;
+static void* gmover_tex_buffer = hx_buffer;
+static f32 thin;
+static u32 rstep;
+static f32 thin_d;
+static f32 rstep_d;
+static LogoPath* dp_320;
+static f32 bx_321;
+static f32 by_322;
+static u32 count_323;
 
 #pragma dont_inline on
 static void Hx_GxInit(int mode, int blend) {
@@ -978,6 +971,7 @@ static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
 	GXSetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
 }
 static void Hx_GameOver() {
+	static f32 mag = 1.0f;
 	static f32 boundtable[14] = {
 		-0.13f, 6.0f, 0.13f, 6.0f, -0.12f, 8.0f, 0.12f,
 		-8.0f, -0.11f, 12.0f, 0.11f, 12.0f, 0.0f, 0.0f,
