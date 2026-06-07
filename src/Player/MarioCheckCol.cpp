@@ -106,81 +106,79 @@ void TMario::hangPole(THitActor* actor)
 		u32 low9 = action & 0x1FF;
 		if (low9 >= 0x80 && low9 <= 0x9F) {
 			shouldGrab = 1;
-		} else if (action & 0x200000) {
-			shouldGrab = 1;
 		} else {
-			shouldGrab = 0;
+			bool actionBit = (action & 0x200000) ? true : false;
+			if (actionBit)
+				shouldGrab = 1;
+			else
+				shouldGrab = 0;
 		}
 	}
 
-	if ((u8)shouldGrab != 1) {
-		f32 radius = ((TTakeActor*)actor)->getRadiusAtY(mPosition.y);
-		keepDistance(actor->mPosition, radius, 0.0f);
-		return;
+	if ((u8)shouldGrab == 1) {
+		// Distance check in XZ plane
+		f32 actorZ = actor->mPosition.z;
+		f32 marioZ = mPosition.z;
+		f32 actorX = actor->mPosition.x;
+		f32 dz = actorZ - marioZ;
+		f32 marioX = mPosition.x;
+		f32 dx = actorX - marioX;
+
+		f32 distSqXZ = dx * dx + dz * dz;
+		f32 distXZ = 0.0f;
+		if (distSqXZ > 0.0f) {
+			distXZ = sqrtf(distSqXZ);
+		}
+
+		f32 safeDistXZ = distXZ;
+		if (0.0f == distXZ)
+			safeDistXZ = 1.0f;
+
+		f32 normZ = dz / safeDistXZ;
+		f32 normX = dx / safeDistXZ;
+
+		// Angle-based check
+		u32 prevAction = mPrevAction;
+		u8 canCatch   = 1;
+
+		f32 sinVal = JMASSin(mFaceAngle.y);
+		f32 cosVal = JMASCos(mFaceAngle.y);
+		f32 catchRadius = *(f32*)((u8*)actor + 0x58);
+		f32 dot = cosVal * normZ + sinVal * normX;
+		f32 poleRadius = mBarParams.mCatchRadius.value;
+		f32 poleHeight = mBarParams.mCatchAngle.value;
+
+		if (prevAction & 0x100000)
+			canCatch = 0;
+
+		if (dot < poleHeight)
+			canCatch = 0;
+
+		if (safeDistXZ > catchRadius + poleRadius)
+			canCatch = 0;
+
+		// Check Y position
+		f32 yCheck = 100.0f;
+		if (mPosition.y < yCheck + actor->mPosition.y)
+			canCatch = 0;
+
+		if ((u8)canCatch == 1) {
+			// Grab pole
+			dropObject();
+			mHolder = (TTakeActor*)actor;
+			mVel.y = 0.0f;
+			mForwardVel = 0.0f;
+			changePlayerStatus(0x10100341, 0, false);
+
+			actor->receiveMessage(this, HIT_MESSAGE_UNK5);
+
+			mHolderHeightDiff = mPosition.y - actor->mPosition.y;
+			return;
+		}
 	}
 
-	// Distance check in XZ plane
-	f32 actorZ = actor->mPosition.z;
-	f32 marioZ = mPosition.z;
-	f32 actorX = actor->mPosition.x;
-	f32 dz = actorZ - marioZ;
-	f32 marioX = mPosition.x;
-	f32 dx = actorX - marioX;
-
-	f32 distSqXZ = dx * dx + dz * dz;
-	f32 distXZ = 0.0f;
-	if (distSqXZ > 0.0f) {
-		distXZ = sqrtf(distSqXZ);
-	}
-
-	f32 safeDistXZ = distXZ;
-	if (0.0f == distXZ)
-		safeDistXZ = 1.0f;
-
-	f32 normZ = dz / safeDistXZ;
-	f32 normX = dx / safeDistXZ;
-
-	// Angle-based check
-	u32 prevAction = mPrevAction;
-	u8 canCatch = 1;
-
-	f32 sinVal = JMASSin(mFaceAngle.y);
-	f32 cosVal = JMASCos(mFaceAngle.y);
-	f32 catchRadius = *(f32*)((u8*)actor + 0x58);
-	f32 dot = cosVal * normZ + sinVal * normX;
-	f32 poleRadius = mBarParams.mCatchRadius.value;
-	f32 poleHeight = mBarParams.mCatchAngle.value;
-
-	if (prevAction & 0x100000)
-		canCatch = 0;
-
-	if (dot < poleHeight)
-		canCatch = 0;
-
-	if (safeDistXZ > catchRadius + poleRadius)
-		canCatch = 0;
-
-	// Check Y position
-	f32 yCheck = 100.0f;
-	if (mPosition.y < yCheck + actor->mPosition.y)
-		canCatch = 0;
-
-	if ((u8)canCatch != 1) {
-		f32 radius = ((TTakeActor*)actor)->getRadiusAtY(mPosition.y);
-		keepDistance(actor->mPosition, radius, 0.0f);
-		return;
-	}
-
-	// Grab pole
-	dropObject();
-	mHolder = (TTakeActor*)actor;
-	mVel.y = 0.0f;
-	mForwardVel = 0.0f;
-	changePlayerStatus(0x10100341, 0, false);
-
-	actor->receiveMessage(this, HIT_MESSAGE_UNK5);
-
-	mHolderHeightDiff = mPosition.y - actor->mPosition.y;
+	f32 radius = ((TTakeActor*)actor)->getRadiusAtY(mPosition.y);
+	keepDistance(actor->mPosition, radius, 0.0f);
 }
 
 bool TSmallEnemy::doKeepDistance() { return false; }
