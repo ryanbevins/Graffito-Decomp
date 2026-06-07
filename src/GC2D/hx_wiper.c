@@ -276,7 +276,7 @@ static void Hx_GxInit(int mode, int blend) {
 		break;
 	}
 }
-#pragma dont_inline off
+#pragma dont_inline on
 static void Hgx_init_tobj_resource(GXTexObj* obj, HxTexRes* res) {
 	u32 imageOffset = res->imageOffset;
 	u8 format = res->format;
@@ -1126,25 +1126,26 @@ static void Hx_GameOver() {
 }
 static void Hxs_Logo_ExtraDraw(u8 alpha, void* resource) {
 	GXTexObj tobj;
-	GXColor color;
 
 	Hx_CameraInit();
 	Hx_GxInit(1, 1);
 	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
-	*(u32*)&color = 0xFFFFFFFF;
-	color.a = alpha;
-	GXSetTevColor(GX_TEVREG0, color);
-	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C0, GX_CC_ZERO, GX_CC_ZERO,
-	                GX_CC_ZERO);
-	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_A0, GX_CA_TEXA,
-	                GX_CA_ZERO);
-	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXLoadTexObj(&tobj, GX_TEXMAP0);
-	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
-	               GX_LO_CLEAR);
+	{
+		GXColor color = { 0xFF, 0xFF, 0xFF, 0xFF };
+		color.a = alpha;
+		GXSetTevColor(GX_TEVREG0, color);
+		GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C0, GX_CC_ZERO, GX_CC_ZERO,
+		                GX_CC_ZERO);
+		GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_A0, GX_CA_TEXA,
+		                GX_CA_ZERO);
+		GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+		                GX_TRUE, GX_TEVPREV);
+		GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+		                GX_TRUE, GX_TEVPREV);
+		GXLoadTexObj(&tobj, GX_TEXMAP0);
+		GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+		               GX_LO_CLEAR);
+	}
 
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 	GXPosition3f32(160.0f, 205.0f, 0.0f);
@@ -1162,36 +1163,37 @@ static void Hxs_Logo_ExtraDraw(u8 alpha, void* resource) {
 }
 static void Hxs_Logo_TexSetup(u8 color, u8 alpha, void* resource) {
 	GXTexObj tobj;
-	GXColor tevColor;
 
 	Hx_CameraInit();
 	Hx_GxInit(1, 1);
 	Hgx_init_tobj_resource(&tobj, (HxTexRes*)resource);
-	*(u32*)&tevColor = 0xFF000000;
-	tevColor.r = color;
-	tevColor.a = alpha;
-	if (alpha > 0xC0)
-		tevColor.a = 0xFF;
-	else
-		tevColor.a = (u8)(int)(1.328 * (f32)alpha);
-	GXSetTevColor(GX_TEVREG0, tevColor);
+	{
+		GXColor tevColor = { 0xFF, 0, 0, 0 };
+		tevColor.r = color;
+		tevColor.a = alpha;
+		if (alpha > 0xC0)
+			tevColor.a = 0xFF;
+		else
+			tevColor.a = (u8)(int)(1.328 * (f32)alpha);
+		GXSetTevColor(GX_TEVREG0, tevColor);
 
-	if (alpha > 0xC0)
-		tevColor.a = (u8)(((0xFF - alpha) & 0x3F) << 2);
-	else
-		tevColor.a = 0xFF;
-	GXSetTevColor(GX_TEVREG1, tevColor);
-	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_C0, GX_CC_TEXA,
-	                GX_CC_ZERO);
-	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_A1, GX_CA_A0, GX_CA_TEXA,
-	                GX_CA_ZERO);
-	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-	                GX_TRUE, GX_TEVPREV);
-	GXLoadTexObj(&tobj, GX_TEXMAP0);
-	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
-	               GX_LO_CLEAR);
+		if (alpha > 0xC0)
+			tevColor.a = (u8)(((0xFF - alpha) & 0x3F) << 2);
+		else
+			tevColor.a = 0xFF;
+		GXSetTevColor(GX_TEVREG1, tevColor);
+		GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_C0, GX_CC_TEXA,
+		                GX_CC_ZERO);
+		GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_A1, GX_CA_A0, GX_CA_TEXA,
+		                GX_CA_ZERO);
+		GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+		                GX_TRUE, GX_TEVPREV);
+		GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+		                GX_TRUE, GX_TEVPREV);
+		GXLoadTexObj(&tobj, GX_TEXMAP0);
+		GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+		               GX_LO_CLEAR);
+	}
 }
 static void Hxs_Logo_TexDraw(f32 x1, f32 y1, f32 x2, f32 y2, f32 texW,
                              f32 texH) {
