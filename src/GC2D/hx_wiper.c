@@ -1292,34 +1292,46 @@ static void Hxs_Logo_MagDraw(f32 scale, f32 texW, f32 texH) {
 }
 static void Hxs_PenDraw(u32 count, LogoPath* path, f32 bx, f32 by) {
 	u32 i;
-	LogoPath* prev;
 	LogoPath* next;
+	Vec n;
+	f32 px;
+	f32 py;
+	f32 nextX;
+	f32 nextY;
+	f32 ratio;
+	f32 x;
+	f32 y;
 
 	if (count != 0) {
-		prev = &drawpath_table[0];
+		px = drawpath_table[0].x;
+		py = drawpath_table[0].y;
 		i = 0;
+		next = &drawpath_table[1];
 		while (i < count - 1) {
-			next = &drawpath_table[i + 1];
 			if (next->time == -1)
 				break;
-			if (next->time != 0)
-				Hxs_Logo_TexDraw(prev->x, prev->y, next->x, next->y,
+			nextX = next->x;
+			nextY = next->y;
+			if (next->time != 0) {
+				n.x = nextX - px;
+				n.y = nextY - py;
+				PSVECNormalize(&n, &n);
+				PSVECScale(&n, &n, 6.0f);
+				Hxs_Logo_TexDraw(px - n.x, py - n.y, nextX + n.x,
+				                 nextY + n.y,
 				                 (f32)img_wx, (f32)img_wy);
-			prev = next;
+			}
+			px = nextX;
+			py = nextY;
+			next++;
 			i++;
 		}
 	}
 
-	if (path->time > 0) {
-		f32 ratio;
-		f32 x;
-		f32 y;
-
-		ratio = (f32)(path->time - (s32)hx.unk3C) / (f32)path->time;
-		x = bx + (path->x - bx) * ratio;
-		y = by + (path->y - by) * ratio;
-		Hxs_Logo_TexDraw(bx, by, x, y, (f32)img_wx, (f32)img_wy);
-	}
+	ratio = (f32)(path->time - (s32)hx.unk3C) / (f32)path->time;
+	x     = bx + (path->x - bx) * ratio;
+	y     = by + (path->y - by) * ratio;
+	Hxs_Logo_TexDraw(bx, by, x, y, (f32)img_wx, (f32)img_wy);
 }
 static void Hx_Logo() {
 	void* drawResource;
