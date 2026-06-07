@@ -866,8 +866,6 @@ static void Hxs_FrBufferMorf2B(f32 x) {
 }
 static void Hx_Door() {
 	u32 v;
-	f32 f;
-	u32 halfW;
 
 	switch (hx.unk38) {
 	case 0:
@@ -877,8 +875,7 @@ static void Hx_Door() {
 		break;
 	case 1:
 		v = (u32)(int)Hx_MotionUpdate((HxMotion*)hx.rest);
-		f = (f32)(int)v;
-		Hxs_FrBufferMorf2(f);
+		Hxs_FrBufferMorf2((f32)(int)v);
 		if (v >= (hx.imgW >> 1)) {
 			hx.unk38++;
 			Hx_MotionSet((HxMotion*)hx.rest, (f32)(hx.imgW >> 1), 5.0f,
@@ -886,11 +883,9 @@ static void Hx_Door() {
 		}
 		break;
 	case 2:
-		halfW = hx.imgW >> 1;
-		Hxs_FrBufferMorf2((f32)halfW);
+		Hxs_FrBufferMorf2((f32)(hx.imgW >> 1));
 		v = (u32)(int)Hx_MotionUpdate((HxMotion*)hx.rest);
-		f = (f32)(int)v;
-		Hxs_FrBufferMorf2B(f);
+		Hxs_FrBufferMorf2B((f32)(int)v);
 		if (v >= (hx.imgW >> 1))
 			hx.unk38++;
 		break;
