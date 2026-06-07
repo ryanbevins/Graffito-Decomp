@@ -18,6 +18,8 @@ extern "C" int snprintf(char*, unsigned long, const char*, ...);
 
 extern const char* cCameraBckNameGate;
 
+template <> s16 CLBRoundf<s16>(f32);
+
 bool CPolarSubCamera::isNormalDeadDemo() const
 {
 	bool result = false;
@@ -298,10 +300,12 @@ void CPolarSubCamera::updateDemoCamera_(bool flag)
 	if (flag) {
 		bool isDemo = isOnGoingDemoCamera();
 		if (isDemo) {
+			JGeometry::TVec3<f32>* at
+			    = (JGeometry::TVec3<f32>*)((u8*)this + 0x124);
+			JGeometry::TVec3<f32>* eye
+			    = (JGeometry::TVec3<f32>*)((u8*)this + 0x148);
 			((TCameraBck*)*(void**)((u8*)this + 0x2B0))
-			    ->updateDemo((JGeometry::TVec3<f32>*)((u8*)this + 0x124),
-			                 (JGeometry::TVec3<f32>*)((u8*)this + 0x148),
-			                 &mUp, &mFovy);
+			    ->updateDemo(at, eye, &mUp, &mFovy);
 			void* save   = *(void**)((u8*)this + 0x2B4);
 			f32 strength = *(f32*)((u8*)save + 0x4);
 			if (0.0f != strength) {
@@ -314,9 +318,9 @@ void CPolarSubCamera::updateDemoCamera_(bool flag)
 				}
 
 				u16 keyAngle = (u16)angle;
-				f32 atX      = *(f32*)((u8*)this + 0x124) - off.x;
-				f32 atY      = *(f32*)((u8*)this + 0x128) - off.y;
-				f32 atZ      = *(f32*)((u8*)this + 0x12C) - off.z;
+				f32 atX      = at->x - off.x;
+				f32 atY      = at->y - off.y;
+				f32 atZ      = at->z - off.z;
 				f32 sin      = jmaSinTable[keyAngle >> jmaSinShift];
 				f32 cos      = jmaCosTable[keyAngle >> jmaSinShift];
 				JGeometry::TVec3<f32> rotated;
@@ -324,17 +328,17 @@ void CPolarSubCamera::updateDemoCamera_(bool flag)
 				rotated.y = atY;
 				rotated.z = -atX * sin + atZ * cos;
 				JGeometry::TVec3<f32> rotatedAt = off + rotated;
-				*(JGeometry::TVec3<f32>*)((u8*)this + 0x124) = rotatedAt;
+				*at = rotatedAt;
 
-				f32 eyeX = *(f32*)((u8*)this + 0x148) - off.x;
-				f32 eyeY = *(f32*)((u8*)this + 0x14C) - off.y;
-				f32 eyeZ = *(f32*)((u8*)this + 0x150) - off.z;
+				f32 eyeX = eye->x - off.x;
+				f32 eyeY = eye->y - off.y;
+				f32 eyeZ = eye->z - off.z;
 				JGeometry::TVec3<f32> rotE;
 				rotE.x = eyeX * cos + eyeZ * sin;
 				rotE.y = eyeY;
 				rotE.z = -eyeX * sin + eyeZ * cos;
 				JGeometry::TVec3<f32> rotatedEye = off + rotE;
-				*(JGeometry::TVec3<f32>*)((u8*)this + 0x148) = rotatedEye;
+				*eye = rotatedEye;
 
 				f32 upX  = mUp.x;
 				f32 upZ  = mUp.z;
@@ -347,9 +351,9 @@ void CPolarSubCamera::updateDemoCamera_(bool flag)
 			C_MTXPerspective((Mtx44Ptr)((u8*)this + 0x16C),
 			                 mFovy, mAspect, mNear, mFar);
 			C_MTXLookAt((MtxPtr)((u8*)this + 0x1EC),
-			            (Vec*)((u8*)this + 0x124),
+			            (Vec*)at,
 			            (Vec*)&mUp,
-			            (Vec*)((u8*)this + 0x148));
+			            (Vec*)eye);
 		}
 	}
 
