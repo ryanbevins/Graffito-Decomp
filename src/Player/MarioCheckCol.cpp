@@ -76,11 +76,11 @@ void TMario::hitNormal(THitActor* actor)
 	if (emitState == 0)
 		return;
 
-	TModelWaterManager::mStaticHitActor.mPosition = mPosition;
-	TModelWaterManager::mStaticHitActor.mPosition.y += 80.0f;
-	TModelWaterManager::mStaticHitActor.unk68 = 0;
-	actor->receiveMessage(&TModelWaterManager::mStaticHitActor,
-	                      HIT_MESSAGE_SPRAYED_BY_WATER);
+	TWaterHitActor* hitActor = &TModelWaterManager::mStaticHitActor;
+	hitActor->mPosition      = mPosition;
+	hitActor->mPosition.y += 80.0f;
+	hitActor->unk68 = 0;
+	actor->receiveMessage(hitActor, HIT_MESSAGE_SPRAYED_BY_WATER);
 }
 
 // hangPole: 0x801617E4, size 0x294
