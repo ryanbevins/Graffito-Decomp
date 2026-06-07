@@ -770,7 +770,6 @@ static void Hxs_FrBufferMorf2(f32 x) {
 	f32 zero;
 	f32 one;
 	f32 srcRight;
-	f32 screenH;
 
 	Frb2_InitGx(&tobj);
 	if (x < (f32)(hx.imgW >> 2)) {
@@ -805,16 +804,15 @@ static void Hxs_FrBufferMorf2(f32 x) {
 	}
 
 	Frb2_InitBlackBox();
-	screenH = (f32)hx.imgH;
-	Frb2_RendBox(0xFF, 0.0f, 0.0f, x, screenH);
+	Frb2_RendBox(0xFF, 0.0f, 0.0f, x, (f32)hx.imgH);
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 	GXPosition3f32(0.0f, 0.0f, 0.0f);
 	GXColor1u32(0xFF);
 	GXPosition3f32(x, 0.0f, 0.0f);
 	GXColor1u32(0xFF);
-	GXPosition3f32(x, screenH, 0.0f);
+	GXPosition3f32(x, (f32)hx.imgH, 0.0f);
 	GXColor1u32(0xFF);
-	GXPosition3f32(0.0f, screenH, 0.0f);
+	GXPosition3f32(0.0f, (f32)hx.imgH, 0.0f);
 	GXColor1u32(0xFF);
 }
 static void Hxs_FrBufferMorf2B(f32 x) {
