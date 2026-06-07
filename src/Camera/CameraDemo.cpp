@@ -288,7 +288,8 @@ void CPolarSubCamera::updateGateDemoCamera_()
 		s32 framesLeft
 		    = *(s32*)((u8*)save2 + 0x10) - *(s32*)((u8*)save2 + 0x14);
 		if (framesLeft > 0xF0)
-			changeCamModeSpecifyCamMapToolAndFrame_(nullptr, 0x78);
+			changeCamModeSpecifyCamMapToolAndFrame_(
+			    (TCameraMapTool*)endTool, 0x78);
 	}
 }
 
