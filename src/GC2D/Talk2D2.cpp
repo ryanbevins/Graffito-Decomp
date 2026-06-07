@@ -380,7 +380,100 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 }
 void TTalk2D2::openWindow(s8, f32) { }
 void TTalk2D2::setTagParam(JSUMemoryInputStream&, J2DTextBox&, int*, int*) { }
-void TTalk2D2::setupTextBox(const void*, JMSMesgEntry*) { }
+void TTalk2D2::setupTextBox(const void* data, JMSMesgEntry* entry)
+{
+	if (unk28) {
+		setupBoardTextBox(data, entry);
+		return;
+	}
+
+	TMessageLoader::EntryInfo* info = (TMessageLoader::EntryInfo*)entry;
+	JSUMemoryInputStream input((const u8*)data + info->unk0 + unk278, 0x400);
+	unk254 = entry;
+
+	int charIndex = 0;
+	int line      = 0;
+	unk274       = 0;
+	unk2DE       = 0;
+
+	while (line < 3) {
+		J2DTextBox* textBox = unk9C[line * 30 + charIndex];
+		char* out           = textBox->getStringPtr();
+
+		u8 c;
+		input.read(&c, 1);
+
+		switch ((s8)c) {
+		case '\n': {
+			int last = charIndex == 0 ? 0 : charIndex - 1;
+			unk228[line] = last;
+			charIndex    = 0;
+			makeBoxLine((s8)line, 0);
+			++line;
+			break;
+		}
+		case 0:
+			if (charIndex != 0) {
+				unk228[line] = charIndex - 1;
+				charIndex    = 0;
+				makeBoxLine((s8)line, 0);
+			}
+			line   = 3;
+			unk26A = 1;
+			break;
+		case 0x1a:
+			setTagParam(input, *textBox, &charIndex, &line);
+			break;
+		default: {
+			if (unk274 != line)
+				unk274 = line;
+
+			input.skip(-1);
+			input.read(&c, 1);
+			out[0] = c;
+
+			if ((u8)out[0] >= 0x80) {
+				input.read(&c, 1);
+				out[1] = c;
+			} else {
+				out[1] = 0;
+			}
+
+			textBox->mCharColor = unk27C;
+			textBox->mGradColor = unk27C;
+			textBox->mWhite = unk27C;
+			textBox->mBlack.set((*(u32*)&unk27C) & 0xffffff00);
+
+			unk281[unk2DE] = unk280;
+			unk2DE         = line * 30 + charIndex;
+			++charIndex;
+			break;
+		}
+		}
+	}
+
+	if (!unk26A) {
+		u8 c;
+		input.peek(&c, 1);
+		if ((s8)c == 0)
+			unk26A = 1;
+	}
+
+	if (unk214 != -1) {
+		if (unk214 == 0) {
+			snprintf(unk208->getStringPtr(), 0x5e,
+			    "%s\n\033CC[7f7f7f]\033GC[7f7f7f]%s", unk218[0],
+			    unk218[1]);
+		} else {
+			snprintf(unk208->getStringPtr(), 0x5e,
+			    "\033CC[7f7f7f]\033GC[7f7f7f]%s"
+			    "\033CC[ffffff]\033GC[ffffff]\n%s",
+			    unk218[0], unk218[1]);
+		}
+	}
+
+	unk278 += input.getPosition();
+}
 void TTalk2D2::setupBoardTextBox(const void* data, JMSMesgEntry* entry)
 {
 	TMessageLoader::EntryInfo* info = (TMessageLoader::EntryInfo*)entry;
