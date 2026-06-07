@@ -19,6 +19,8 @@
 #include <System/MarioGamePad.hpp>
 #include <System/StageUtil.hpp>
 
+template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
+
 #pragma dont_inline on
 
 // Fabricated minimal TTargetCamera class to trigger MWCC emission of
