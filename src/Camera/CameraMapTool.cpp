@@ -2,6 +2,8 @@
 #include <Camera/cameralib.hpp>
 #include <Camera/Camera.hpp>
 
+template <> s16 CLBRoundf<s16>(f32);
+
 TNameRefAryT<TCameraMapTool>* gpCamMapToolTable;
 
 void TCameraMapTool::load(JSUMemoryInputStream& stream)
