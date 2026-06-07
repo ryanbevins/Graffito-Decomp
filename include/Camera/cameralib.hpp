@@ -5,8 +5,8 @@
 
 extern f32 SMSGetAnmFrameRate(); // avoid including Application.hpp
 
-void CLBCalc2DFPos(JGeometry::TVec2<f32>*, const MtxPtr, const MtxPtr,
-                   const Vec&, u32*, bool);
+void CLBCalc2DFPos(JGeometry::TVec2<f32>*, const f32 (*)[4],
+                   const f32 (*)[4], const Vec&, u32*, bool);
 void CLBCalcNearClipAngle(JGeometry::TVec3<f32>*, S16Vec*,
                           const JGeometry::TVec3<f32>&,
                           const JGeometry::TVec3<f32>&, s16, f32);

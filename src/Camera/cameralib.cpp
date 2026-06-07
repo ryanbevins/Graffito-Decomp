@@ -42,13 +42,13 @@ static inline void RotateAboutAxis(const JGeometry::TVec3<f32>& param_axis,
 }
 
 // TODO: Explore how this is used, and add documentation
-void CLBCalc2DFPos(JGeometry::TVec2<f32>* param_1, MtxPtr param_2,
-                   const MtxPtr param_3, const Vec& param_4, u32* param_5,
-                   bool param_6)
+void CLBCalc2DFPos(JGeometry::TVec2<f32>* param_1, const f32 (*param_2)[4],
+                   const f32 (*param_3)[4], const Vec& param_4,
+                   u32* param_5, bool param_6)
 {
 	Vec prod;
 
-	PSMTXMultVec(param_3, (Vec*)&param_4, &prod);
+	PSMTXMultVec((MtxPtr)param_3, (Vec*)&param_4, &prod);
 
 	if (prod.z == 0.0f) {
 		param_1->x = param_1->y = 10000.0f;
