@@ -42,9 +42,9 @@ public:
 	void checkBoardControler();
 	void moveTalkWindow();
 	void checkControler();
-	void closeNormalWindow();
+	bool closeNormalWindow();
 	void closeBoardWindow();
-	void eraseNormalWindow();
+	bool eraseNormalWindow();
 	bool eraseBoardWindow();
 	void appearBoardBoxWindow();
 	void makeLine(f32*, f32*, f32, JUTPoint&, JUTPoint&, JUTPoint&);

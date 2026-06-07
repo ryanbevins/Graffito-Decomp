@@ -23,6 +23,13 @@ public:
 
 extern MSound* gpMSound;
 
+class TFlagManager {
+public:
+	s32 getFlag(u32) const;
+
+	static TFlagManager* smInstance;
+};
+
 namespace MSoundSESystem {
 class MSoundSE {
 public:
@@ -220,8 +227,83 @@ bool TTalk2D2::eraseBoardWindow()
 	unk18->mAlpha = alpha;
 	return result;
 }
-void TTalk2D2::eraseNormalWindow() { }
-void TTalk2D2::closeNormalWindow() { }
+bool TTalk2D2::eraseNormalWindow()
+{
+	bool result = false;
+	int alpha   = unk90->mAlpha - 0x10;
+
+	if ((s16)alpha < 0) {
+		unk234 = 180.0f;
+		unk238 = 3.1415927f;
+		unk23C = 1.1f;
+
+		for (int i = 0; i < 3; ++i) {
+			unk3C[i]->mVisible = false;
+			unk6C[i]->mVisible = false;
+			(&unk224)[i]       = 0;
+		}
+
+		for (int i = 0; i < 90; ++i)
+			if (unk9C[i])
+				unk9C[i]->mVisible = false;
+
+		TMessageLoader* loader = unk260;
+		void* data             = loader->unk4;
+		JMSMesgEntry* entry
+		    = (JMSMesgEntry*)loader->getMessageEntry((u16)unk264);
+		setupBoardTextBox(data, entry);
+		unk26C = 0;
+
+		if (TFlagManager::smInstance->getFlag(0xa0001) == 0x100)
+			unk340 = 0x20;
+		else
+			unk340 = 0x40;
+
+		unk27C = cColorTable[0];
+		unk2DE = 0;
+		unk2DC = 0;
+		alpha  = 0xff;
+		result = true;
+	}
+
+	unk90->mAlpha = alpha;
+	if (unk204->mVisible)
+		unk204->mAlpha = (u8)alpha;
+
+	return result;
+}
+bool TTalk2D2::closeNormalWindow()
+{
+	bool result = false;
+	int alpha   = unk90->mAlpha - 0x10;
+
+	if ((s16)alpha < 0) {
+		unk234 = 180.0f;
+		unk238 = 3.1415927f;
+		unk23C = 1.1f;
+
+		for (int i = 0; i < 3; ++i) {
+			unk3C[i]->mVisible = false;
+			unk6C[i]->mVisible = false;
+			(&unk224)[i]       = 0;
+		}
+
+		for (int i = 0; i < 90; ++i)
+			if (unk9C[i])
+				unk9C[i]->mVisible = false;
+
+		if (unk204->mVisible)
+			unk204->mVisible = false;
+
+		result = true;
+	}
+
+	unk90->mAlpha = alpha;
+	if (unk204->mVisible)
+		unk204->mAlpha = (u8)alpha;
+
+	return result;
+}
 void TTalk2D2::checkControler() { }
 void TTalk2D2::moveTalkWindow() { }
 void TTalk2D2::checkBoardControler() { }
