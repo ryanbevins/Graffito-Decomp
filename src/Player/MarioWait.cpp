@@ -170,7 +170,7 @@ BOOL TMario::waitingCommonEvents()
 
 	if ((u8)canSquat()) {
 		mForwardVel = 0.0f;
-		changePlayerStatus(0x0C018220, 0, false);
+		changePlayerStatus(0x0C008220, 0, false);
 		return 1;
 	}
 
@@ -488,18 +488,18 @@ BOOL TMario::squating()
 	}
 
 	if (input & 0x10) {
-		changePlayerStatus(0x0C018222, 0, false);
+		changePlayerStatus(0x0C008222, 0, false);
 		return 1;
 	}
 
 	if (!(input & 0x4000) && !(input & 0x200)) {
-		changePlayerStatus(0x0C018222, 0, false);
+		changePlayerStatus(0x0C008222, 0, false);
 		return 1;
 	}
 
 	TWaterGun* gun = mWaterGun;
 	if (gun == nullptr) {
-		changePlayerStatus(0x0C018222, 0, false);
+		changePlayerStatus(0x0C008222, 0, false);
 		return 1;
 	}
 
@@ -511,7 +511,7 @@ BOOL TMario::squating()
 			hasFlag = 0;
 		}
 		if (!hasFlag) {
-			changePlayerStatus(0x0C018222, 0, false);
+			changePlayerStatus(0x0C008222, 0, false);
 			return 1;
 		}
 	}
@@ -749,7 +749,7 @@ BOOL TMario::waitMain()
 
 	if (action == 0x0C400201) {
 		result = waiting();
-	} else if (action == 0x0C400203) {
+	} else if (action == 0x0C400202) {
 		result = sleepily();
 	} else if (action == 0x0C000203) {
 		result = sleeping();
@@ -782,18 +782,16 @@ BOOL TMario::waitMain()
 			}
 		}
 		result = result;
-	} else if (action == 0x0C018220) {
+	} else if (action == 0x0C008220) {
 		result = squating();
-	} else if (action == 0x0C018222 || action == 0x0C000223) {
+	} else if (action == 0x0C008222 || action == 0x0C000223) {
 		result = squatStandup();
-	} else if (action >= 0x0C00022F && action <= 0x0C00022F) {
+	} else if (action == 0x0C00022F) {
 		// action == 0x0C00022F: squat landing
 		u32 input = mInput;
 		if (input & 0x04) {
-			sleepingEffectKill();
 			changePlayerStatus(0x088C, 0, false);
 		} else if (input & 0x08) {
-			sleepingEffectKill();
 			changePlayerStatus(0x50, 0, false);
 		} else {
 			waitProcess();
@@ -816,7 +814,7 @@ BOOL TMario::waitMain()
 			}
 			result = 0;
 		}
-	} else if (action == 0x0C000232) {
+	} else if (action == 0x0C000231) {
 		// jumpEnd - landing type 2
 		if (jumpEndEvents(0)) {
 			result = 1;
@@ -828,7 +826,7 @@ BOOL TMario::waitMain()
 			}
 			result = 0;
 		}
-	} else if (action == 0x0C000233) {
+	} else if (action == 0x0C000232) {
 		// jumpEnd - landing type 3 (broadjump/fire)
 		if (jumpEndEvents(0)) {
 			result = 1;
@@ -841,11 +839,6 @@ BOOL TMario::waitMain()
 			result = 0;
 		}
 	} else if (action == 0x0C000233) {
-		// Duplicate - skip
-	} else if (action == 0x0C400202) {
-		// sleepily transition?
-		result = 0;
-	} else if (action == 0x0C000233 + 0) {
 		// fire jump end
 		if (jumpEndEvents(0)) {
 			result = 1;
@@ -855,7 +848,8 @@ BOOL TMario::waitMain()
 			if (isLast1AnimeFrame()) {
 				changePlayerStatus(0x0C400201, 0, false);
 			}
-			// Reset stickLate and update modelFaceAngle
+			mFaceAngle.x     = 0;
+			mModelFaceAngle += 0x8000;
 			result = 0;
 		}
 	} else if (action == 0x80000A36) {
@@ -881,7 +875,7 @@ BOOL TMario::waitMain()
 		mInput &= ~0x2000;
 		if (jumpEndEvents(0x02000880)) {
 			if (mAction - 0x04000440 == 0) {
-				changePlayerStatus(0x0C018222, 0, false);
+				changePlayerStatus(0x0C008222, 0, false);
 			} else {
 				result = 1;
 			}
@@ -889,7 +883,7 @@ BOOL TMario::waitMain()
 			waitProcess();
 			setAnimation(0x98, 1.0f);
 			if (isLast1AnimeFrame()) {
-				changePlayerStatus(0x0C018222, 0, false);
+				changePlayerStatus(0x0C008222, 0, false);
 			}
 			result = 0;
 		}
@@ -914,22 +908,20 @@ BOOL TMario::waitMain()
 		// hipAttackEnd
 		u32 input = mInput;
 		if (!(input & 0x10) && (input & 0x0F)) {
-			checkAllMotions();
+			result = checkAllMotions();
 		} else {
 			stopCommon(0x10, 0x0C400201);
 			result = 0;
 		}
-		result = result;
 	} else if (action == 0x0C00023F) {
 		// slipEnd
 		u32 input = mInput;
 		if (input & 0x0F) {
-			checkAllMotions();
+			result = checkAllMotions();
 		} else {
 			stopCommon(0x8F, 0x0C400201);
 			result = 0;
 		}
-		result = result;
 	} else {
 		result = 0;
 	}
