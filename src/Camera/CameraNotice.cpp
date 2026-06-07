@@ -12,7 +12,10 @@
 #include <System/MarioGamePad.hpp>
 
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
+template <> f32 CLBCalcRatio<f32>(f32, f32, f32);
+template <> f32 CLBSquared<f32>(f32);
 template <> s16 CLBRoundf<s16>(f32);
+template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
 
 const char* bossGesoViewObjName = "ボスゲッソー";
 
