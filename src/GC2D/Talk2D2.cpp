@@ -10,12 +10,14 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
 #include <JSystem/JSupport/JSUMemoryOutputStream.hpp>
+#include <JSystem/JUtility/JUTResFont.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/ReinitGX.hpp>
 #include <NPC/NpcBase.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
+#include <math.h>
 #include <stdio.h>
 
 class JAISound;
@@ -998,7 +1000,87 @@ bool TTalk2D2::openBoardWindow()
 
 	return result;
 }
-void TTalk2D2::makeBoxLine(s8, char*) { }
+void TTalk2D2::makeBoxLine(s8 line, char* text)
+{
+	int lineIndex = line;
+	int baseIndex = lineIndex * 30;
+	int textIndex = 0;
+
+	J2DPane* linePane = unk30[lineIndex];
+	J2DPane* start    = unk48[lineIndex];
+	J2DPane* control  = unk54[lineIndex];
+	J2DPane* end      = unk60[lineIndex];
+
+	f32 startX = start->mBounds.x1;
+	f32 startY = start->mBounds.y1;
+	f32 ctrlX  = control->mBounds.x1;
+	f32 ctrlY  = control->mBounds.y1 - unk220;
+	f32 endX   = end->mBounds.x2 - 10;
+	f32 endY   = end->mBounds.y1;
+
+	f32 prevX = startX;
+	f32 prevY = startY;
+	f32 t     = 0.0f;
+
+	for (int i = 0; i < 30; ++i) {
+		J2DTextBox* textBox = unk9C[baseIndex + i];
+
+		if (text) {
+			char* dst = textBox->getStringPtr();
+			u8 c      = text[textIndex];
+			dst[0]    = c;
+			if (c >= 0x80) {
+				dst[1] = text[textIndex + 1];
+				textIndex += 2;
+			} else {
+				dst[1] = 0;
+				++textIndex;
+			}
+		}
+
+		char* string = textBox->getStringPtr();
+		u8 c         = string[0];
+		if ((s8)c == 0)
+			return;
+
+		JUTFont::TWidth width;
+		gpSystemFont->getWidthEntry((u16)(s8)c, &width);
+
+		if (TFlagManager::smInstance->getFlag(0xa0001) == 0x100) {
+			t += unk94 * width.field_0x1;
+		} else {
+			t += unk94 * (0.7f * width.field_0x1 + 4.0f);
+		}
+
+		f32 inv = 1.0f - t;
+		f32 x   = inv * inv * startX + 2.0f * inv * t * ctrlX
+		    + t * t * endX;
+		f32 y = inv * inv * startY + 2.0f * inv * t * ctrlY
+		    + t * t * endY;
+
+		f32 dx       = x - prevX;
+		f32 dy       = y - prevY;
+		f32 rotation = atan2f(dy, dx) * 180.0f / 3.1415927f;
+		if (rotation < 0.0f)
+			rotation = -rotation;
+
+		int moveX = x > 0.0f ? x + 0.5f : x - 0.5f;
+		int moveY = y > 0.0f ? y + 0.5f : y - 0.5f;
+		textBox->move((s16)moveX, (s16)(-0x25 - moveY));
+		textBox->setBasePosition(J2DBasePosition_4);
+		textBox->mRotation = rotation;
+		linePane->mPaneTree.appendChild(&textBox->mPaneTree);
+
+		if (t > 1.1f) {
+			if (unk228[lineIndex] > i)
+				unk228[lineIndex] = i;
+			return;
+		}
+
+		prevX = x;
+		prevY = y;
+	}
+}
 void TTalk2D2::openTalkWindow(TBaseNPC* npc)
 {
 	if (npc)
