@@ -125,8 +125,8 @@ void CPolarSubCamera::ctrlNormalDeadDemo_()
 	else if (v < 5.0f)
 		v = 5.0f;
 	CLBChaseConstantSpecifyFrame<f32>(
-	    (f32*)((u8*)this + 0x48),
-	    (f32)*(u16*)((u8*)this + 0x280), v);
+	    (f32*)((u8*)this + 0x48), v,
+	    (f32)*(u16*)((u8*)this + 0x280));
 }
 
 int CPolarSubCamera::getRestDemoFrames() const
