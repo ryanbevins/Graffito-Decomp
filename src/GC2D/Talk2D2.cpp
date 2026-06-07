@@ -19,6 +19,7 @@ class JAISound;
 class MSound {
 public:
 	bool gateCheck(u32);
+	void talkModeIn(bool);
 	void talkModeOut();
 };
 
@@ -34,6 +35,7 @@ public:
 class RumbleMgr {
 public:
 	void finishPause();
+	void startPause();
 };
 
 extern RumbleMgr* SMSRumbleMgr;
@@ -691,7 +693,64 @@ bool TTalk2D2::openBoardWindow()
 	return result;
 }
 void TTalk2D2::makeBoxLine(s8, char*) { }
-void TTalk2D2::openTalkWindow(TBaseNPC*) { }
+void TTalk2D2::openTalkWindow(TBaseNPC* npc)
+{
+	if (npc)
+		gpCamera->makeMtxForTalk(npc);
+
+	if (unk28) {
+		JUTPoint end(0, 0x50);
+		JUTPoint current(0, 0x50);
+		JUTPoint start(0, -0x320);
+		unk14->setPanePosition(0x3c, start, current, end);
+		unk14->update();
+
+		unk1C->mAlpha = 0;
+		unk248        = 4;
+	} else {
+		unk248 = 2;
+	}
+
+	unk90->mAlpha = 0xff;
+
+	switch (gpCamera->mMode) {
+	case 0x2d:
+		unk330 = 0xa0;
+		unk332 = 0x87;
+		unk334 = 0x14;
+		break;
+	case 0xc:
+	default:
+		unk330 = 0x184;
+		unk332 = 0x73;
+		unk334 = -0x12;
+		break;
+	}
+
+	unk90->move(unk330, unk332);
+	unk90->mRotation = unk334;
+	unk250           = 1;
+
+	gpMarDirector->mConsole->startDisappearTelop();
+	{
+		TGCConsole2* console = gpMarDirector->mConsole;
+		console->startDisappearBalloon(console->unk3E0, true);
+	}
+	gpMarDirector->mConsole->startDisappearMario();
+
+	if (unk264 == 0x19) {
+		if (gpMSound->gateCheck(0x4848))
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4848, 0, 0, 0);
+	} else if (unk28) {
+		if (gpMSound->gateCheck(0x4819))
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4819, 0, 0, 0);
+		gpMSound->talkModeIn(false);
+	} else {
+		gpMSound->talkModeIn(true);
+	}
+
+	SMSRumbleMgr->startPause();
+}
 void TTalk2D2::forceCloseTalk()
 {
 	gpCamera->makeMtxForPrevTalk();
