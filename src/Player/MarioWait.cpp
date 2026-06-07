@@ -553,12 +553,12 @@ BOOL TMario::squating()
 
 			u16 faceAngle = mFaceAngle.y;
 			s32 cosIdx = (s32)faceAngle >> jmaSinShift;
-			f32 cosVal = jmaCosTable[cosIdx << 2 >> 2];
+			f32 cosVal = jmaCosTable[cosIdx];
 			mPosition.x = stickMag * cosVal + mPosition.x;
 
 			faceAngle = mFaceAngle.y;
 			s32 sinIdx = (s32)faceAngle >> jmaSinShift;
-			f32 sinVal = jmaSinTable[sinIdx << 2 >> 2];
+			f32 sinVal = jmaSinTable[sinIdx];
 			mPosition.z = -(stickMag * sinVal) + mPosition.z;
 		} else if (meaning & 0x0400) {
 			f32 analogStick = *(f32*)((u8*)pad + 0xA8);
