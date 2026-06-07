@@ -5534,6 +5534,31 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Widening a narrowed byte loop bound can preserve conversion scheduling while keeping byte compare codegen
+
+**Hypothesis.** When a target computes a byte-sized loop bound from float math
+near surrounding byte-table copies, spelling the local as `u32 n` while assigning
+through an explicit byte cast (`n = (u8)(int)(...)`) can keep the target's
+`clrlwi` byte compare but let MWCC schedule the float conversion early enough to
+interleave with independent byte loads/stores. A source `u8 n` may make MWCC
+home the narrowed value in a way that delays the conversion until after the
+whole byte-copy block, even though the final loop uses the same byte range.
+
+**Current symptom.** `mario/GC2D/hx_wiper` `Hx_SetVFilter` target interleaves
+the seven-byte `vtable_org -> vtable` copy with
+`lfs/fmuls/fctiwz/stfd/lwz` for `(u8)(64.0f * ratio)`. With `u8 n`, current
+MWCC scheduled the full table copy before the conversion and the function was
+86.3%. Changing only the local to `u32 n` while keeping
+`n = (u8)(int)(64.0f * ratio)` restored the target interleaving and moved the
+function to 98.9%; remaining residue is frame/loop-cleanup shape.
+
+**Experiment.** Find a second TU where a narrowed `u8`/`u16` loop bound is
+computed from float or integer math around independent byte/halfword table
+copies and the target interleaves the conversion with those copies. Toggle only
+the local's storage type wider while preserving an explicit narrow cast at
+assignment. Promote if the scheduling and narrowed compare repeat; refute if
+the effect is specific to `Hx_SetVFilter`'s unrolled copy/loop body.
+
 ### Post-call block-local `GXColor` aggregate initialization can direct-fill the final stack slot
 
 **Hypothesis.** When a target initializes a `GXColor` after one or more calls by
