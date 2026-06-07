@@ -11,6 +11,9 @@
 #include <Strategic/LiveManager.hpp>
 #include <System/MarioGamePad.hpp>
 
+template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
+template <> s16 CLBRoundf<s16>(f32);
+
 const char* bossGesoViewObjName = "ボスゲッソー";
 
 static const char* sNoticeActorManagerName[] = {
