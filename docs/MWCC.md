@@ -5529,6 +5529,29 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Splitting repeated call arguments into distinct locals can force earlier register-to-register argument copies
+
+**Hypothesis.** When a call passes the same scalar local to two argument
+positions and another argument needs a late conversion, MWCC may delay the
+duplicate register copy until after that conversion. Introducing a second local
+assigned from the first can force the duplicate argument copy earlier while
+preserving the visible call and value flow.
+
+**Current symptom.** `mario/Player/MarioWait`
+`TMario::waitingCommonEvents()` target sets up `IConverge(diff, 0, speed,
+speed)` as `lha speed -> r5; addi r6,r5,0; extsh r3,diff; bl IConverge`.
+The direct repeated-argument spelling emitted the `addi r6,r5,0` after the
+`extsh`. Adding `s32 turnSpeed2 = turnSpeed` and passing `turnSpeed2` as the
+fourth argument moved the copy before the conversion and took the function
+`98.5% -> 100.0%` fuzzy.
+
+**Experiment.** Find a second TU where target copies a repeated scalar argument
+before a first-argument conversion or address calculation, while current source
+passes the same local twice and copies later. Split only the repeated argument
+into a second local; promote to Settled if the copy moves without changing
+other scheduling, refute if this was specific to `IConverge` or this frame
+shape.
+
 ### Positive-arm-first repeated-expression integer abs can force duplicated arithmetic in both branches
 
 **Hypothesis.** When target asm computes an integer difference, branches on the
