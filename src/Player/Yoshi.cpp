@@ -6,6 +6,7 @@
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <System/Application.hpp>
+#include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
 #include <MoveBG/Item.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -281,8 +282,43 @@ void TYoshi::doSearch() {
 }
 
 // doEat - 0x8014E8F4
-void TYoshi::doEat(u32 fruitID) {
-	// TODO: implement - 73 instructions
+void TYoshi::doEat(u32 fruitID)
+{
+	int yoshiType;
+	int isFruit = 1;
+
+	switch (fruitID) {
+	case 0x40000391:
+	case 0x40000392:
+		yoshiType = 1;
+		break;
+	case 0x40000393:
+	case 0x40000395:
+		yoshiType = 2;
+		break;
+	case 0x40000390:
+	case 0x40000394:
+		yoshiType = 3;
+		break;
+	default:
+		isFruit = 0;
+		break;
+	}
+
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x3d, mActor->unk4->getAnmMtx(mEmitJoint), 0, this);
+
+	if (isFruit == 1) {
+		mType     = yoshiType;
+		mCurJuice = mMaxJuice;
+		gpMarioParticleManager->emitAndBindToPosPtr(0x3e, &mMtxTrans2, 0,
+		                                            this);
+
+		Vec* soundPos = (Vec*)((u8*)_38 + 0xb8);
+		if (gpMSound->gateCheck(0x1947))
+			MSoundSESystem::MSoundSE::startSoundActor(0x1947, soundPos, 0,
+			                                           nullptr, 0, 4);
+	}
 }
 
 // thinkHoldOut - 0x8014E794
