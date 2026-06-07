@@ -587,7 +587,7 @@ BOOL TMario::squating()
 			s16 maxTurnRate = mDeParams.mWaitingRotSp.value;
 			s32 negRate = -maxTurnRate;
 			s16 faceY = mFaceAngle.y;
-			s16 angleDelta = (s16)(s32)(turnSpeed * (f64)negRate);
+			s16 angleDelta = (s16)(s32)(turnSpeed * negRate);
 			mFaceAngle.y = (s16)(faceY + angleDelta);
 
 			setAnimation(0x98, 1.0f);
