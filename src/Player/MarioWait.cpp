@@ -562,7 +562,7 @@ BOOL TMario::squating()
 			mPosition.z = -(stickMag * sinVal) + mPosition.z;
 		} else if (meaning & 0x0400) {
 			f32 analogStick = *(f32*)((u8*)pad + 0xA8);
-			int isPositive = 1;
+			u8 isPositive = 1;
 			f32 absVal = __fabsf(analogStick);
 			if (analogStick < 0.0f)
 				isPositive = 0;
