@@ -9,6 +9,10 @@
 static const f32 SHORTANGLE_TO_DEGREES = 0.005493164f; // 360/65536
 static const f32 DEGREES_TO_RADIANS    = 0.017453294f; // pi/180
 
+template <> f32 CLBCalcRatio<f32>(f32, f32, f32);
+template <> s16 CLBRoundf<s16>(f32);
+template <> BOOL CLBChaseGeneralConstantSpecifySpeed<f32>(f32*, f32, f32);
+
 // TODO: Almost definitely fake, this is probably inlined somewhere else
 static inline f32 fastSqrt(f32 x)
 {
