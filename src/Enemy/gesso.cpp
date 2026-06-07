@@ -787,8 +787,6 @@ void TGesso::rollEnd()
 		offLiveFlag(LIVE_FLAG_UNK8);
 }
 
-void TGesso::modifyRotate() { }
-
 void TGesso::fallEnd()
 {
 	mState = STATE_WANDERING;

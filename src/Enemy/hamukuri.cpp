@@ -732,8 +732,6 @@ void THamuKuri::bind()
 	}
 }
 
-void THamuKuri::releaseCap() { }
-
 void THamuKuri::behaveToWater(THitActor* param_1)
 {
 	if (mSpine->getCurrentNerve() != &TNerveHamuKuriBoundFreeze::theNerve()
@@ -899,8 +897,6 @@ void THamuKuri::setBehavior()
 		mSpine->pushNerve(&TNerveHamuKuriLand::theNerve());
 	}
 }
-
-void THamuKuri::changeCapHolder() { }
 
 void THamuKuri::selectCapHolder()
 {
@@ -1093,10 +1089,6 @@ void THamuKuri::setCrashAnm()
 	if (unk1A3 && getManager()->getUnk6C() == 0)
 		getManager()->setUnk6C(1);
 }
-
-void THamuKuri::setWallDeadEffect() { }
-
-void THamuKuri::setAppearAnm() { }
 
 void THamuKuri::walkBehavior(int param_1, f32 param_2)
 {
@@ -1386,8 +1378,6 @@ bool THaneHamuKuri::isHitValid(u32)
 	else
 		return true;
 }
-
-void THaneHamuKuri::resetFlyParam() { }
 
 const char** THaneHamuKuri::getBasNameTable() const
 {
@@ -1791,8 +1781,6 @@ void TDangoHamuKuri::forceKill()
 	}
 }
 
-void TDangoHamuKuri::nerveInit() { }
-
 void TDangoHamuKuri::behaveToWater(THitActor* param_1)
 {
 	if (!mNext) {
@@ -2143,10 +2131,6 @@ bool TFireHamuKuri::recoverFire()
 }
 
 void TFireHamuKuri::setWalkAnm() { setBckAnm(14); }
-
-void TFireHamuKuri::genFire() { }
-
-void TFireHamuKuri::dieFire() { }
 
 void TFireHamuKuri::sendAttackMsgToMario()
 {
