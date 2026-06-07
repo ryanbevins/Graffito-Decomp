@@ -1254,29 +1254,41 @@ static void Hxs_Logo_TexDraw(f32 x1, f32 y1, f32 x2, f32 y2, f32 texW,
 	GXTexCoord2f32(u3, v3);
 }
 static void Hxs_Logo_MagDraw(f32 scale, f32 texW, f32 texH) {
-	f32 cx;
-	f32 cy;
+	f32 drawW;
+	f32 drawH;
+	f32 halfW;
+	f32 halfH;
 	f32 hw;
 	f32 hh;
+	f32 left;
+	f32 top;
+	f32 s0;
+	f32 t0;
 
-	cx = (f32)(hx.imgW >> 1);
-	cy = (f32)(hx.imgH >> 1);
-	hw = texW * 0.5f * scale;
-	hh = texH * 0.5f * scale;
+	drawW  = texW / 1.9230769f;
+	drawH  = texH / 1.924138f;
+	halfW  = (f32)(hx.imgW >> 1);
+	halfH  = (f32)(hx.imgH >> 1);
+	hw     = drawW * scale * 0.5f;
+	hh     = drawH * scale * 0.5f;
+	left   = halfW - hw;
+	top    = halfH - hh;
+	s0     = left / (left - (halfW + hw));
+	t0     = top / (top - (halfH + hh));
 
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32(cx - hw, cy - hh, 0.0f);
+	GXPosition3f32(0.0f, -32.0f, 0.0f);
 	GXColor1u32(0);
-	GXTexCoord2f32(0.0f, 0.0f);
-	GXPosition3f32(cx + hw, cy - hh, 0.0f);
+	GXTexCoord2f32(s0, t0);
+	GXPosition3f32((f32)hx.imgW, -32.0f, 0.0f);
 	GXColor1u32(0);
-	GXTexCoord2f32(1.0f, 0.0f);
-	GXPosition3f32(cx + hw, cy + hh, 0.0f);
+	GXTexCoord2f32(1.0f - s0, t0);
+	GXPosition3f32((f32)hx.imgW, (f32)(hx.imgH - 0x20), 0.0f);
 	GXColor1u32(0);
-	GXTexCoord2f32(1.0f, 1.0f);
-	GXPosition3f32(cx - hw, cy + hh, 0.0f);
+	GXTexCoord2f32(1.0f - s0, 1.0f - t0);
+	GXPosition3f32(0.0f, (f32)(hx.imgH - 0x20), 0.0f);
 	GXColor1u32(0);
-	GXTexCoord2f32(0.0f, 1.0f);
+	GXTexCoord2f32(s0, 1.0f - t0);
 }
 static void Hxs_PenDraw(u32 count, LogoPath* path, f32 bx, f32 by) {
 	u32 i;
