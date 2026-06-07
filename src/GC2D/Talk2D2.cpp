@@ -10,6 +10,7 @@
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
 #include <JSystem/JSupport/JSUMemoryOutputStream.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
+#include <NPC/NpcBase.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
 #include <stdio.h>
@@ -24,6 +25,11 @@ public:
 };
 
 extern MSound* gpMSound;
+
+class MSBgm {
+public:
+	static JAISound* startBGM(u32);
+};
 
 class TFlagManager {
 public:
@@ -56,6 +62,36 @@ GXColor TTalk2D2::cColorTable[6] = {
 	{ 0x6e, 0xe6, 0xff, 0xff },
 	{ 0xff, 0xff, 0x00, 0xff },
 	{ 0xaa, 0xff, 0x50, 0xff },
+};
+
+static const u32 scTalkSoundList[] = {
+	0x00008850, 0x00008851, 0x00008852, 0x00008853, 0x00008854,
+	0x00008855, 0x00008856, 0x00008857, 0x00008858, 0x00008859,
+	0x0000885A, 0x0000885B, 0x0000885C, 0x0000885D, 0x0000885E,
+	0x0000885F, 0x00008860, 0x00008861, 0x00008862, 0x00008863,
+	0x00008866, 0x00008867, 0x00008868, 0x00008869, 0x0000886A,
+	0x0000886B, 0x0000886C, 0x0000886D, 0x0000886E, 0x0000886F,
+	0x00008870, 0x00008871, 0x00008872, 0x00008873, 0x00008874,
+	0x00008875, 0x00008876, 0x00008877, 0x00008878, 0x00008879,
+	0x0000887A, 0x0000887B, 0x0000887C, 0x0000887D, 0x0000887E,
+	0x0000887F, 0x00008880, 0x00008881, 0x00008882, 0x00008883,
+	0x00008884, 0x00008885, 0x00008886, 0x00008887, 0x00008888,
+	0x00008889, 0x0000888A, 0x0000888B, 0x0000888C, 0x0000888D,
+	0x0000888E, 0x0000888F, 0x00008890, 0x00008891, 0x00008892,
+	0x00008893, 0x00008894, 0x00008895, 0x00008896, 0xFFFFFFFF,
+	0x00008899, 0x0000889A, 0x0000889B, 0x0000889C, 0x0000889D,
+	0x0000889E, 0x0000889F, 0x000088A0, 0x000088A1, 0x000088A2,
+	0x000088A3, 0x000088C0, 0x000088C1, 0x000088C2, 0x000088C3,
+	0x000088C4, 0x000088C5, 0x000088C6, 0x000088C7, 0x000088C8,
+	0x000088C9, 0x000088CA, 0x000088CB, 0x000088CC, 0x000088CD,
+	0x000088CE, 0x000088CF, 0x000088E5, 0x000088E6, 0x000088E7,
+	0x000088E8, 0x000088E9, 0x000088EA, 0x000088EB, 0x000088D0,
+	0x000088EC, 0x000088ED, 0x000088D1, 0x000088EE, 0x000088D2,
+	0x000088EF, 0x000088D3, 0x000088D4, 0x000088D5, 0x000088D6,
+	0x000088D7, 0x000088D8, 0x000088D9, 0x000088DA, 0x000088DB,
+	0x000088DC, 0x000088DD, 0x000088DE, 0x000088DF, 0x000088E0,
+	0x000088E1, 0x000088E2, 0x000088E3, 0x000088E4, 0x00004849,
+	0x80010025, 0x0000483D, 0x000088A6, 0x00008864, 0x00008865,
 };
 
 TTalk2D2::TTalk2D2(const char* name)
@@ -769,4 +805,141 @@ void TTalk2D2::forceCloseTalk()
 	else
 		unk248 = 6;
 }
-void TTalk2D2::setMessageID(u32, u32) { }
+void TTalk2D2::setMessageID(u32 message_id, u32 flags)
+{
+	TBaseNPC* npc = gpMarDirector->unkA0;
+
+	if (npc->mActionFlag & 0x200) {
+		bool isMonte = true;
+		bool isMonteType = isMonte;
+
+		if (!npc->isNormalMonteM() && !npc->isNormalMonteW())
+			isMonteType = false;
+
+		if (!isMonteType) {
+			isMonteType = true;
+			if (!npc->isSpecialMonteM() && !npc->isSpecialMonteW())
+				isMonteType = false;
+			if (!isMonteType)
+				isMonte = false;
+		}
+
+		if (isMonte) {
+			if (npc->isNormalMonteW() || npc->isSpecialMonteW()) {
+				if (npc->isChild())
+					unk264 = 0x2c;
+				else
+					unk264 = 0x27;
+			} else {
+				if (npc->isChild())
+					unk264 = 0x29;
+				else
+					unk264 = 0x23;
+			}
+		} else {
+			bool isMare = true;
+			bool isMareType = isMare;
+
+			if (!npc->isNormalMareM() && !npc->isNormalMareW())
+				isMareType = false;
+
+			if (!isMareType) {
+				isMareType = true;
+				if (!npc->isSpecialMareM() && !npc->isSpecialMareW())
+					isMareType = false;
+				if (!isMareType)
+					isMare = false;
+			}
+
+			if (isMare) {
+				if (npc->isNormalMareW() || npc->isSpecialMareW()) {
+					if (npc->isChild())
+						unk264 = 0x2d;
+					else
+						unk264 = 0x28;
+				} else {
+					if (npc->isChild())
+						unk264 = 0x2a;
+					else
+						unk264 = 0x24;
+				}
+			} else if (npc->mActorType == 0x04000016) {
+				unk264 = 0x25;
+			} else if (npc->mActorType == 0x04000010) {
+				unk264 = 0x2b;
+			}
+		}
+
+		for (int i = 0; i < 10; ++i) {
+			if (unk2E0[i].unk0 == npc) {
+				unk264 = unk2E0[i].unk4;
+				break;
+			}
+		}
+	} else {
+		unk264 = message_id;
+	}
+
+	if (npc->mActorType == 0x0400001d)
+		unk28 = 1;
+	else
+		unk28 = 0;
+
+	unk270 = flags;
+	unk278 = 0;
+	unk214 = -1;
+	unk26A = 0;
+	*(u32*)&unk27C = 0xffffffff;
+	unk280 = 0;
+	unk26C = 0;
+	unk26D = 0;
+	unk254 = 0;
+	unk29[0] = 0;
+
+	if (TFlagManager::smInstance->getFlag(0xa0001) == 0x100)
+		unk340 = 0x20;
+	else
+		unk340 = 0x40;
+
+	TMessageLoader* loader;
+	if (unk264 & 0xffff0000)
+		loader = unk258;
+	else
+		loader = unk25C;
+
+	JMSMesgEntry* entry;
+	if (loader->unk4) {
+		entry = (JMSMesgEntry*)loader->getMessageEntry((u16)unk264);
+		if (!entry) {
+			unk264 = 4;
+			loader = unk25C;
+			entry = (JMSMesgEntry*)loader->getMessageEntry((u16)unk264);
+		}
+		setupBoardTextBox(loader->unk4, entry);
+	} else {
+		unk264 = 3;
+		loader = unk25C;
+		entry = (JMSMesgEntry*)loader->getMessageEntry((u16)unk264);
+		setupBoardTextBox(loader->unk4, entry);
+	}
+
+	unk260 = loader;
+	unk2DC = 0;
+
+	if (unk254) {
+		s32 sound = scTalkSoundList[((u8*)unk254)[8]];
+		if (sound != -1 && gpMSound->gateCheck(sound)) {
+			if ((u32)sound & 0x80000000)
+				MSBgm::startBGM(sound);
+			else
+				MSoundSESystem::MSoundSE::startSoundSystemSE(sound, 0, 0, 0);
+		}
+	}
+
+	if (unk248 == 1) {
+		unk248 = 3;
+		unk90->mAlpha = 0xff;
+	}
+
+	unk252 = 1;
+}
