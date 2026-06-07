@@ -485,7 +485,8 @@ BOOL TMario::squating()
 		TMarioGamePad* pad = mGamePad;
 		if (pad->mMeaning & 0x0400) {
 			if (gun != nullptr) {
-				if (*(u8*)((u8*)gun + 0x1C84) == 0) {
+				s32 isNotHipDropping = *(u8*)((u8*)gun + 0x1C84);
+				if (isNotHipDropping == 0) {
 					rumbleStart(21, mMotorParams.mMotorHipDrop.value);
 					return changePlayerStatus(0x0883, 0, false);
 				}
