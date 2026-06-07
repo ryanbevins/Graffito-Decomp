@@ -1,6 +1,8 @@
 #include <Camera/CameraKindParam.hpp>
 #include <Camera/cameralib.hpp>
 
+template <> s16 CLBRoundf<s16>(f32);
+
 // TCamSaveKindParam layout: starts with vtable/header, then TParamRT<T> entries
 // at +0x18, +0x2C, +0x40, ... spaced 0x14 apart. .value field at offset 0x10
 // within each entry. We use raw offsets here.
