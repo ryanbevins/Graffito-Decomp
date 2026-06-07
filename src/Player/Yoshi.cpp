@@ -12,7 +12,10 @@
 #include <M3DUtil/MActorAnm.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <Player/Tongue.hpp>
+#include <Strategic/MirrorActor.hpp>
 
 class TNozzleBase {
 public:
@@ -79,9 +82,20 @@ void TYoshi::init(TMario* mario) {
 }
 
 // initInLoadAfter - 0x8014FD88
-void TYoshi::initInLoadAfter() {
-	// TODO: implement - 53 instructions
-	// Allocates and sets up sub-animation data
+void TYoshi::initInLoadAfter()
+{
+	((TYoshiTongue*)_38)->initInLoadAfter();
+
+	TMirrorActor* mirror = new TMirrorActor("jnt_foot_L");
+	mirror->init(mActor->unk4, 4);
+
+	for (int i = 0; i < 2; ++i) {
+		TMirrorActor* footMirror = new TMirrorActor("jnt_foot_R");
+		footMirror->init(*(J3DModel**)((u8*)this + 0x44 + i * 4), 4);
+	}
+
+	mActor->unk4->getModelData()->getJointNodePointer(21)->setCallBack(
+	    YoshiHeadCtrl);
 }
 
 // thinkBtp - 0x8014FCD8
