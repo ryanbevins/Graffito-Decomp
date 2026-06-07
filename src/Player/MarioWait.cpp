@@ -737,7 +737,28 @@ BOOL TMario::waitMain()
 			if (heldObj->mActorType == (u32)0x80000001) {
 				changePlayerStatus(0x80000588, 0, false);
 			} else {
-				int putResult = canPut();
+				u16 faceAngle = mFaceAngle.y;
+				s32 idx = (s32)faceAngle >> jmaSinShift;
+				f32 sinVal = jmaSinTable[idx];
+				f32 cosVal = jmaCosTable[idx];
+				f32 x = 100.0f * sinVal + mPosition.x;
+				f32 z = 100.0f * cosVal + mPosition.z;
+				f32 y = 10.0f + mPosition.y;
+				f32 radius = heldObj->mDamageRadius;
+				int putResult;
+
+				if (gpMap->isTouchedOneWall(x, y, z, radius)) {
+					putResult = 0;
+				} else {
+					f32 y2 = 10.0f + mPosition.y;
+					f32 radius2 = mHeldObject->mDamageRadius;
+
+					if (gpMap->isTouchedOneWall(mPosition.x, y2, mPosition.z, radius2))
+						putResult = 0;
+					else
+						putResult = 1;
+				}
+
 				if (putResult) {
 					changePlayerStatus(0x80000387, 0, false);
 				}
