@@ -633,6 +633,7 @@ BOOL TMario::jumpEndCommon(int animId, int nextState)
 }
 
 // jumpEndEvents - 0x80144BD8
+#pragma dont_inline on
 BOOL TMario::jumpEndEvents(u32 nextState)
 {
 	u32 input = mInput;
@@ -655,6 +656,7 @@ BOOL TMario::jumpEndEvents(u32 nextState)
 
 	return 0;
 }
+#pragma dont_inline off
 
 // waitMain - 0x80144300
 BOOL TMario::waitMain()
