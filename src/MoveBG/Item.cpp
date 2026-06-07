@@ -414,10 +414,6 @@ void TShine::calc() { }
 
 void TShine::movingCircle() { }
 
-void TShine::movingUp() { }
-
-void TShine::movingDown() { }
-
 void TShine::control() { }
 
 void TShine::perform(u32, JDrama::TGraphics*) { }
