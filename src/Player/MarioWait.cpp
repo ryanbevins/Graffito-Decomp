@@ -365,25 +365,15 @@ BOOL TMario::sleeping()
 {
 	u32 input = mInput;
 
-	bool shouldWake = true;
-	if (!(input & 0xA41F)) {
-		u32* ctrlWork = (u32*)unk108;
-		f32 stickX = *(f32*)((u8*)ctrlWork + 0x1c);
-		f32 stickY = *(f32*)((u8*)ctrlWork + 0x20);
-		if (stickX <= 0.0f && stickY <= 0.0f) {
-			shouldWake = false;
-		}
-	}
-
-	if (shouldWake) {
+	if ((input & 0xA41F) || *(f32*)((u8*)unk108 + 0x1c) > 0.0f
+	    || *(f32*)((u8*)unk108 + 0x20) > 0.0f) {
 		// wakeUp
 		if (mActionState == 0) {
 			startSoundActor(0x7883);
 		} else {
 			startSoundActor(0x789A);
 		}
-		changePlayerStatus(0x0C000204, mActionState, false);
-		return 1;
+		return changePlayerStatus(0x0C000204, mActionState, false);
 	}
 
 	waitProcess();
@@ -396,9 +386,7 @@ BOOL TMario::sleeping()
 			hasFlag = 0;
 		}
 		if (hasFlag) {
-			*(u32*)((u8*)this + 0x1B4) = *(u32*)&mPosition.x;
-			*(u32*)((u8*)this + 0x1B8) = *(u32*)&mPosition.y;
-			*(u32*)((u8*)this + 0x1BC) = *(u32*)&mPosition.z;
+			mSleepPos = mPosition;
 			sleepingEffect();
 		}
 	}
