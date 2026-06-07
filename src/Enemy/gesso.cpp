@@ -549,8 +549,6 @@ void TGesso::pollute()
 	mPolluteObj->mPosition.z = mtx[2][3] + local_2c.z;
 }
 
-void TGesso::isUseBodyCallBack() const { }
-
 void TGesso::setAfterDeadEffect()
 {
 	mPolluteObj->kill();

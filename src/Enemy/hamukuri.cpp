@@ -819,8 +819,6 @@ void THamuKuri::jumpToSearchActor()
 	}
 }
 
-void THamuKuri::canGoForSearchActor() { }
-
 void THamuKuri::behaveToFindMario()
 {
 	TWalkerEnemy::behaveToFindMario();
@@ -1221,10 +1219,6 @@ bool THamuKuri::isCollidMove(THitActor* param_1)
 	unk1F8 = nullptr;
 	return false;
 }
-
-void THamuKuri::isAttackToHam() { }
-
-void THamuKuri::isSerialWallDie() { }
 
 void THamuKuri::forceRoll(JGeometry::TVec3<f32> param_1, bool param_2)
 {
@@ -1981,10 +1975,6 @@ void TBossDangoHamuKuri::generateBody()
 
 	newHamu->offHitFlag(HIT_FLAG_NO_COLLISION);
 }
-
-void TBossDangoHamuKuri::isNowAttack() { }
-
-void TBossDangoHamuKuri::isNowGenerate() { }
 
 TFireHamuKuri::TFireHamuKuri(const char* name)
     : THamuKuri(name)
