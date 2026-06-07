@@ -35,6 +35,7 @@ public:
 };
 
 extern MSound* gpMSound;
+extern "C" f32 sqrtf(f32);
 
 class MSBgm {
 public:
@@ -208,6 +209,91 @@ void TTalk2D2::load(JSUMemoryInputStream& stream)
 void TTalk2D2::loadAfter()
 {
 	JDrama::TViewObj::loadAfter();
+
+	J2DPane* start   = unk48[1];
+	J2DPane* control = unk54[1];
+	J2DPane* end     = unk60[1];
+
+	f32 startX = start->mBounds.x1;
+	f32 startY = start->mBounds.y1;
+	f32 ctrlX  = 0.0f;
+	f32 ctrlY  = control->mBounds.y1 - unk220;
+	f32 endX   = end->mBounds.x2 - 10;
+	f32 endY   = end->mBounds.y1;
+	f32 prevX  = startX;
+	f32 prevY  = startY;
+	f32 length = 0.0f;
+
+	for (f32 t = 0.01f; t <= 1.0f; t += 0.01f) {
+		f32 inv = 1.0f - t;
+		f32 x   = inv * inv * startX + 2.0f * t * inv * ctrlX
+		    + t * t * endX;
+		f32 y = inv * inv * startY + 2.0f * t * inv * ctrlY
+		    + t * t * endY;
+		f32 dx = x - prevX;
+		f32 dy = y - prevY;
+
+		length += sqrtf(dx * dx + dy * dy);
+		prevX = x;
+		prevY = y;
+	}
+
+	unk94 = 1.0f / length;
+
+	for (int i = 0; i < 3; ++i) {
+		unk48[i]->mVisible = false;
+		unk54[i]->mVisible = false;
+		unk60[i]->mVisible = false;
+	}
+
+	for (int i = 0; i < 90; ++i) {
+		JUTRect bounds(0, 0, 20, 20);
+		unk9C[i] = new J2DTextBox(0, bounds, gpSystemFont->getResFont(),
+		                          "あ", HBIND_LEFT, VBIND_CENTER);
+		unk9C[i]->mBlack   = 0xffffff00;
+		unk9C[i]->mWhite   = 0xffffffff;
+		unk9C[i]->mVisible = false;
+	}
+
+	unk234             = 1.0f;
+	unk6C[0]->mVisible = false;
+	unk238             = 2.0f;
+	unk6C[1]->mVisible = false;
+	unk23C             = 3.0f;
+	unk6C[2]->mVisible = false;
+
+	unk244->mWrapT = 1;
+	unk244->mWrapS = 0;
+
+	unk90->move(0x189, 0x73);
+	unk90->mRotation = -18.0f;
+	unk330           = unk90->mBounds.x1;
+	unk332           = unk90->mBounds.y1;
+	unk334           = unk90->mRotation;
+	unk204->mVisible = false;
+
+	char* text = new char[0x5e];
+	for (int i = 0; i < 0x5d; ++i)
+		text[i] = ' ';
+	text[0x5d] = '\0';
+	unk208->setString(text);
+
+	void* data = unk25C->unk4;
+	JMSMesgEntry* entry
+	    = (JMSMesgEntry*)unk25C->getMessageEntry(3);
+	setupTextBox(data, entry);
+	unk260 = unk25C;
+
+	const char* nameRefs[10] = { "空港沈みモンテ", "モンテ1", "", "", "", "",
+		                         "",             "",        "", "" };
+	u32 messageIDs[10]       = { 0x26, 0x23, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+	for (int i = 0; i < 10; ++i) {
+		unk2E0[i].unk0
+		    = JDrama::TNameRefGen::getInstance()->getRootNameRef()->search(
+		        nameRefs[i]);
+		unk2E0[i].unk4 = messageIDs[i];
+	}
 }
 
 void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
