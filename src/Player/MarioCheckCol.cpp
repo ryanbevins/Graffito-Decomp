@@ -182,22 +182,22 @@ bool TSmallEnemy::doKeepDistance() { return false; }
 void TMario::checkCollision()
 {
 	// Check action bit 19
-	if (checkActionFlag(0x80000))
+	if (checkActionFlag(0x1000))
 		return;
 
 	// Check yoshi state
 	TYoshi* yoshi = mYoshi;
-	u8 yoshiState = *(u8*)yoshi;
-	if (yoshiState == 6 || yoshiState == 2) {
+	u8 yoshiState = yoshi->mState;
+	if (yoshiState == TYoshi::UNMOUNTED || yoshiState == 2) {
 		f32 marioY = mPosition.y;
-		f32 yoshiFloorY = *(f32*)((u8*)yoshi + 0x24);
+		f32 yoshiFloorY = yoshi->mTranslation.y;
 		if (yoshiFloorY <= marioY) {
-			f32 extra = *(f32*)((u8*)0 + 0);
+			f32 extra = 100.0f;
 			if (marioY < extra + yoshiFloorY) {
 				// XZ distance
-				f32 yoshiZ = *(f32*)((u8*)yoshi + 0x28);
+				f32 yoshiZ = yoshi->mTranslation.z;
 				f32 marioZ = mPosition.z;
-				f32 yoshiX = *(f32*)((u8*)yoshi + 0x20);
+				f32 yoshiX = yoshi->mTranslation.x;
 				f32 marioX = mPosition.x;
 				f32 dz = yoshiZ - marioZ;
 				f32 dx = yoshiX - marioX;
@@ -208,41 +208,38 @@ void TMario::checkCollision()
 
 				// Additional checks
 				u32 action = mAction;
-				if (action & 0x1000) {
-					if (*(u32*)((u8*)this + 0x6C) == 0
+				if (checkActionFlag(0x800)) {
+					if (mHolder == nullptr
 					    && mVel.y < 0.0f
-					    && *(f32*)((u8*)yoshi + 0x24) < mPosition.y
-					    && action != 0x89C
-					    && (action - 0x02000000) != 0x8B8
-					    && action != 0x883
-					    && dist < *(f32*)((u8*)0 + 0))
+					    && yoshi->mTranslation.y < mPosition.y
+					    && action != ACTION_JUMP_BASIC_089C
+					    && (action - 0x00020000) != 0x8B8
+					    && action != ACTION_SIDE_SOMERSAULT && dist < 180.0f)
 					{
 						// Copy yoshi pos
-						mPosition.x = *(f32*)((u8*)yoshi + 0x20);
-						mPosition.y = *(f32*)((u8*)yoshi + 0x24);
-						mPosition.z = *(f32*)((u8*)yoshi + 0x28);
+						mPosition = yoshi->mTranslation;
 
 						TYoshi* yoshi2 = mYoshi;
 						s16 yoshiAngle = *(s16*)((u8*)yoshi2 + 0x70);
-						mModelFaceAngle = yoshiAngle;
-						mFaceAngle.z = mModelFaceAngle;
+						mFaceAngle.y = yoshiAngle;
+						mModelFaceAngle = mFaceAngle.y;
 
 						// HAS_FLUDD check
 						if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 							TWaterGun* wg = mWaterGun;
-							u8 ntype = wg->mCurrentNozzle;
+							u8 ntype = wg->mSecondNozzle;
 							*(u32*)((u8*)this + 0x3E8) = ntype;
 
 							TWaterGun* wg2 = mWaterGun;
 							TNozzleBase* nozzle = wg2->getCurrentNozzle();
-							u32 waterA = *(u32*)((u8*)nozzle + 0xCC);
-							u32 waterB = *(u32*)((u8*)nozzle + 0xBC);
+							u32 waterA = wg2->mCurrentWater;
+							u32 waterB = *(u32*)((u8*)nozzle + 0xCC);
 							f32 ratio = (f32)((s32)waterA / (s32)waterB);
 							*(f32*)((u8*)this + 0x3EC) = ratio;
 						}
 
 						TYoshi* yoshi3 = mYoshi;
-						*(u32*)((u8*)yoshi3 + 0) = 0; // ride
+						yoshi3->ride();
 						mState |= 0x8000;
 
 						if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
@@ -253,6 +250,7 @@ void TMario::checkCollision()
 						return;
 					}
 				}
+				keepDistance(yoshi->mTranslation, 80.0f, 0.0f);
 			}
 		}
 	}
