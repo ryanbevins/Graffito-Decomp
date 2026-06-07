@@ -185,6 +185,7 @@ BOOL TMario::waitingCommonEvents()
 }
 
 // stopCommon - 0x801457EC
+#pragma dont_inline on
 void TMario::stopCommon(int animId, int nextState)
 {
 	waitProcess();
@@ -202,6 +203,7 @@ void TMario::stopCommon(int animId, int nextState)
 		}
 	}
 }
+#pragma dont_inline off
 
 // changeMontemanWaitingAnim - 0x801457CC
 void TMario::changeMontemanWaitingAnim()
