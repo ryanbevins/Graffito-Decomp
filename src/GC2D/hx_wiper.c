@@ -1343,12 +1343,12 @@ static void Hx_Logo() {
 	case 0:
 		if (hx.unk28 == 0)
 			Hgx_ReadTexture("/data/title_mini.bti", extraResource);
+		hx.unk38++;
 		dp_320 = drawpath_table;
 		count_323 = 0;
 		hx.unk3C = 0x100;
 		hxs_logo_resetflag = 1;
 		hxs_logodraw_resetflag = 1;
-		hx.unk38++;
 		break;
 	case 1:
 		if (hx.unk3C <= 0xC0) {
@@ -1444,6 +1444,7 @@ static void Hx_Logo() {
 		if (Hx_TimerCountDown() == 0)
 			hx.unk38++;
 		break;
+	case 8:
 	default:
 		hx.state = 3;
 		break;
