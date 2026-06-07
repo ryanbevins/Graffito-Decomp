@@ -142,8 +142,9 @@ BOOL TMario::waitingCommonEvents()
 	if (input & 0x01) {
 		s16 faceY = mFaceAngle.y;
 		s32 turnSpeed = mDeParams.mWaitingRotSp.value;
+		s32 turnSpeed2 = turnSpeed;
 		s32 diff = (s16)(mIntendedYaw - faceY);
-		s32 converged = IConverge((int)diff, 0, (int)turnSpeed, (int)turnSpeed);
+		s32 converged = IConverge((int)diff, 0, (int)turnSpeed, (int)turnSpeed2);
 		mFaceAngle.y = (s16)(mIntendedYaw - converged);
 
 		if (mIntendedMag > mControllerParams.mStartToWalkLevel.value) {
