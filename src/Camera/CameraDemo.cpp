@@ -180,6 +180,9 @@ void CPolarSubCamera::startDemoCamera(const char* name,
 	*(const JGeometry::TVec3<f32>**)((u8*)save + 0x0) = offset;
 	*(f32*)((u8*)*(void**)((u8*)this + 0x2B4) + 0x4) = strength;
 
+	if (name == nullptr)
+		return;
+
 	bool didStart = false;
 	if (((TCameraBck*)*(void**)((u8*)this + 0x2B0))->isFileExist(name)) {
 		((TCameraBck*)*(void**)((u8*)this + 0x2B0))
