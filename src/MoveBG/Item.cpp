@@ -326,8 +326,6 @@ void TFlowerCoin::load(JSUMemoryInputStream& stream)
 	stream.read(&unk158, 4);
 }
 
-void TCoinEmpty::warning() { }
-
 void TCoinEmpty::appear() { }
 
 void TCoinEmpty::makeObjAppeared() { }
