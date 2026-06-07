@@ -759,6 +759,9 @@ BOOL TMario::waitMain()
 	case 0x0C008220:
 		result = squating();
 		break;
+	case 0x0C008221:
+		result = 0;
+		break;
 	case 0x0C008222:
 	case 0x0C000223:
 		result = squatStandup();
