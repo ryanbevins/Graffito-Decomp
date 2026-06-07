@@ -1,6 +1,7 @@
 
 #include <Player/Yoshi.hpp>
 #include <Player/MarioMain.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Map/Map.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -9,12 +10,31 @@
 #include <MoveBG/Item.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorAnm.hpp>
+#include <MarioUtil/MathUtil.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 
-// Free function - J3DNode callback for Yoshi head control
-static int YoshiHeadCtrl(J3DNode* node, int param) {
+class TNozzleBase {
+public:
+	virtual void init();
+	virtual s32 getNozzleKind() const;
+	virtual s16 getGunAngle();
+};
+
+class TWaterGun {
+public:
+	TNozzleBase* getCurrentNozzle() const;
+};
+
+static int YoshiHeadCtrl(J3DNode* node, int param)
+{
+	Mtx mtx;
 	if (param == 0) {
-		// TODO: implement head rotation based on Mario's facing angle
+		s16 gunAngle = ((TWaterGun*)SMS_GetMarioWaterGun())
+		                   ->getCurrentNozzle()
+		                   ->getGunAngle();
+		MsMtxSetRotRPH(mtx, 0.0f, 0.0f, SHORTANGLE2DEG(gunAngle));
+		MTXConcat(J3DSys::mCurrentMtx, mtx, J3DSys::mCurrentMtx);
 	}
 	return 1;
 }
