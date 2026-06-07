@@ -853,6 +853,18 @@ BOOL TMario::waitMain()
 			result = 0;
 		}
 		break;
+	case 0x0800023A:
+		if (jumpEndEvents(0x02000880)) {
+			result = 1;
+		} else {
+			waitProcess();
+			setAnimation(0x57, 1.0f);
+			if (isLast1AnimeFrame()) {
+				changePlayerStatus(0x0C400201, 0, false);
+			}
+			result = 0;
+		}
+		break;
 	case 0x0800023B:
 		// uTurnJumpEnd
 		mInput &= ~0x2000;
