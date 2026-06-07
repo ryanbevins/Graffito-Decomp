@@ -30,6 +30,13 @@ public:
 	static TFlagManager* smInstance;
 };
 
+class RumbleMgr {
+public:
+	void finishPause();
+};
+
+extern RumbleMgr* SMSRumbleMgr;
+
 namespace MSoundSESystem {
 class MSoundSE {
 public:
@@ -306,7 +313,55 @@ bool TTalk2D2::closeNormalWindow()
 }
 void TTalk2D2::checkControler() { }
 void TTalk2D2::moveTalkWindow() { }
-void TTalk2D2::checkBoardControler() { }
+void TTalk2D2::checkBoardControler()
+{
+	if (unk26A) {
+		if (!unk26D) {
+			u32 trigger = *(u32*)((u8*)unk24C + 0xd4);
+			if (!(trigger & 0x20000) && !(trigger & 0x40000))
+				return;
+		}
+
+		if (gpMSound->gateCheck(0x481c))
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x481c, 0, 0, 0);
+
+		JUTPoint initial(0, -0x258);
+		JUTPoint current(0, 0);
+		JUTPoint target(0, 0);
+		unk14->setPanePosition(0x3c, target, current, initial);
+
+		if (unk270 & 1) {
+			if (unk264 == 0x19) {
+				if (gpMSound->gateCheck(0x4851))
+					MSoundSESystem::MSoundSE::startSoundSystemSE(0x4851, 0,
+					    0, 0);
+			} else if (unk28) {
+				if (gpMSound->gateCheck(0x481a))
+					MSoundSESystem::MSoundSE::startSoundSystemSE(0x481a, 0,
+					    0, 0);
+				gpMSound->talkModeOut();
+			} else {
+				gpMSound->talkModeOut();
+			}
+
+			gpCamera->makeMtxForPrevTalk();
+			gpMarDirector->mConsole->startAppearTelop(false);
+			SMSRumbleMgr->finishPause();
+			unk252 = 0;
+		}
+
+		unk248 = 6;
+	} else {
+		u32 trigger = *(u32*)((u8*)unk24C + 0xd4);
+
+		if (trigger & 0x60000) {
+			if (gpMSound->gateCheck(0x481c))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(0x481c, 0, 0,
+				    0);
+			unk248 = 7;
+		}
+	}
+}
 void TTalk2D2::moveBoardWindow()
 {
 	int alpha = unk1C->mAlpha;
