@@ -4,6 +4,7 @@
 #include <GC2D/GCConsole2.hpp>
 #include <GC2D/MessageLoader.hpp>
 #include <GC2D/MessageUtil.hpp>
+#include <JSystem/J2D/J2DPicture.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
 #include <JSystem/J2D/J2DOrthoGraph.hpp>
 #include <JSystem/J2D/J2DTextBox.hpp>
@@ -19,6 +20,8 @@
 #include <NPC/NpcBase.hpp>
 #include <System/Application.hpp>
 #include <System/MarDirector.hpp>
+#include <dolphin/gx.h>
+#include <dolphin/mtx.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -382,7 +385,83 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 		}
 	}
 }
-void TTalk2D2::openWindow(s8, f32) { }
+void TTalk2D2::openWindow(s8 line, f32 offset)
+{
+	Mtx mtx;
+	Mtx work;
+
+	f32 pivotX = unk90->mGlobalBounds.x1 + 5;
+	f32 pivotY = unk90->mGlobalBounds.y1 + 5;
+	PSMTXTrans(mtx, -pivotX, -pivotY, 0.0f);
+	f32 rotation = -unk90->mRotation;
+	PSMTXRotRad(work, 'Z', 0.017453292f * rotation);
+	PSMTXConcat(work, mtx, mtx);
+	PSMTXTrans(work, pivotX, pivotY, 0.0f);
+	PSMTXConcat(work, mtx, mtx);
+	GXLoadPosMtxImm(mtx, GX_PNMTX0);
+
+	GXSetCullMode(GX_CULL_BACK);
+	GXSetNumTexGens(2);
+	GXSetNumTevStages(2);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_F32, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_S8, 0);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	GXSetNumChans(1);
+	GXSetChanCtrl(GX_COLOR0A0, GX_TRUE, GX_SRC_REG, GX_SRC_VTX, 0,
+	    GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	    GX_DF_NONE, GX_AF_NONE);
+	GXSetChanAmbColor(GX_COLOR0A0, (GXColor) { 0xff, 0xff, 0xff, 0xff });
+
+	J2DPicture* pane = (J2DPicture*)unk3C[line];
+	pane->getTexture(0)->load(GX_TEXMAP1);
+	unk244->load(GX_TEXMAP0);
+
+	GXSetTevColor(GX_TEVREG0, JUtility::TColor(0x0000ff00));
+	GXSetTevColor(GX_TEVREG1, JUtility::TColor(0x0000ffa0));
+	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_C0, GX_CC_C1, GX_CC_TEXC,
+	    GX_CC_ZERO);
+	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_A0, GX_CA_A1, GX_CA_TEXA,
+	    GX_CA_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	    GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	    GX_TRUE, GX_TEVPREV);
+
+	PSMTXTrans(mtx, offset, 0.0f, 0.0f);
+	GXLoadTexMtxImm(mtx, GX_TEXMTX0, GX_MTX2x4);
+	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_TEXMTX0,
+	    GX_FALSE, GX_PTIDENTITY);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+
+	GXSetTevColorIn(GX_TEVSTAGE1, GX_CC_CPREV, GX_CC_ZERO, GX_CC_ZERO,
+	    GX_CC_ZERO);
+	GXSetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_APREV, GX_CA_TEXA,
+	    GX_CA_ZERO);
+	GXSetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	    GX_TRUE, GX_TEVPREV);
+	GXSetTevAlphaOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+	    GX_TRUE, GX_TEVPREV);
+
+	PSMTXIdentity(mtx);
+	GXLoadTexMtxImm(mtx, GX_TEXMTX1, GX_MTX2x4);
+	GXSetTexCoordGen2(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX0, GX_TEXMTX1,
+	    GX_FALSE, GX_PTIDENTITY);
+	GXSetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR_NULL);
+
+	JUTRect rect(pane->mGlobalBounds);
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition2f32((f32)rect.x1, (f32)rect.y1);
+	GXTexCoord2s8(0, 0);
+	GXPosition2f32((f32)rect.x2, (f32)rect.y1);
+	GXTexCoord2s8(1, 0);
+	GXPosition2f32((f32)rect.x2, (f32)rect.y2);
+	GXTexCoord2s8(1, 1);
+	GXPosition2f32((f32)rect.x1, (f32)rect.y2);
+	GXTexCoord2s8(0, 1);
+}
 void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
                             int* charIndex, int* line)
 {
