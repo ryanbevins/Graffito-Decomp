@@ -12,6 +12,10 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <stdio.h>
 
+template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
+template <> f32 CLBEaseOutInbetween<f32>(f32, f32, f32);
+template <> f32 CLBTwoDegreeGeneralInbetween<f32>(f32, f32, f32, f32);
+
 static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE     = "メモリが足りません\n";
 
