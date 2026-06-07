@@ -1,6 +1,8 @@
 #include <Camera/CameraInbetween.hpp>
 #include <Camera/cameralib.hpp>
 
+template <> s16 CLBRoundf<s16>(f32);
+
 TCameraInbetween::TCameraInbetween()
 {
 	mFrameTotal         = 1;
