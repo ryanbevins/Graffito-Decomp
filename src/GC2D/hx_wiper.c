@@ -1045,14 +1045,13 @@ static void Hx_GameOver() {
 		if (boundtimer != 0)
 			boundtimer--;
 		if (boundtimer == 0) {
-			boundstate++;
-			bounddelta = boundtable[boundstate - 1];
-			boundtimer = (u32)boundtable[boundstate];
-			boundstate++;
+			bounddelta = boundtable[boundstate++];
+			boundtimer = (u32)boundtable[boundstate++];
 			if (boundtimer == 0) {
 				hx.unk38++;
 				hx.unk3C = 32;
 				alpha = 0xFF;
+				break;
 			}
 		}
 		mag += bounddelta;
