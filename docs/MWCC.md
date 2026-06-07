@@ -5534,6 +5534,39 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Post-call block-local `GXColor` aggregate initialization can direct-fill the final stack slot
+
+**Hypothesis.** When a target initializes a `GXColor` after one or more calls by
+loading a packed color constant from sdata, storing it directly into the mutable
+color stack slot, then byte-patching channels before a by-value GX call, place
+the declaration in a nested block after those calls:
+
+```c
+{
+	GXColor color = { 0xff, 0xff, 0xff, 0xff };
+	color.a = alpha;
+	GXSetTevColor(GX_TEVREG0, color);
+}
+```
+
+This preserves C89 declaration ordering while letting MWCC direct-initialize
+the real local. A top-level `GXColor color;` followed by
+`color = (GXColor) { ... };` can emit a compound-literal temp and an extra
+copy; a packed `*(u32*)&color = ...` assignment can fold the constant to an
+immediate instead of using the target sdata load.
+
+**Observed.** `mario/GC2D/hx_wiper` `Hxs_Logo_TexSetup` and
+`Hxs_Logo_ExtraDraw` (2026-06-08 1:30am MNL): moving the `GXColor`
+declarations into post-`Hgx_init_tobj_resource` nested blocks removed the
+compound-literal temp, restored the target frame sizes, and made both functions
+exact after the callee was kept out of line.
+
+**Experiment.** Find a second TU where target asm loads a packed `GXColor`
+constant from sdata immediately after calls and byte-patches it before a GX API
+call. Compare top-level declaration plus compound assignment, packed `u32`
+store, and nested-block aggregate initialization. Promote if the nested-block
+form consistently direct-fills the final color slot.
+
 ### Splitting repeated call arguments into distinct locals can force earlier register-to-register argument copies
 
 **Hypothesis.** When a call passes the same scalar local to two argument
