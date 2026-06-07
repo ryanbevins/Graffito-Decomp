@@ -311,7 +311,90 @@ bool TTalk2D2::closeNormalWindow()
 
 	return result;
 }
-void TTalk2D2::checkControler() { }
+void TTalk2D2::checkControler()
+{
+	if (unk6C[unk274]->mVisible) {
+		if (unk26A) {
+			if (!unk26D) {
+				u32 trigger = *(u32*)((u8*)unk24C + 0xd4);
+				if (!(trigger & 0x20000) && !(trigger & 0x40000))
+					return;
+			}
+
+			if (gpMSound->gateCheck(0x481c))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(0x481c, 0, 0,
+				    0);
+
+			if (unk270 & 1) {
+				if (unk264 == 0x19) {
+					if (gpMSound->gateCheck(0x4851))
+						MSoundSESystem::MSoundSE::startSoundSystemSE(
+						    0x4851, 0, 0, 0);
+				} else if (unk28) {
+					if (gpMSound->gateCheck(0x481a))
+						MSoundSESystem::MSoundSE::startSoundSystemSE(
+						    0x481a, 0, 0, 0);
+					gpMSound->talkModeOut();
+				} else {
+					gpMSound->talkModeOut();
+				}
+
+				gpCamera->makeMtxForPrevTalk();
+				gpMarDirector->mConsole->startAppearTelop(false);
+				SMSRumbleMgr->finishPause();
+				unk252 = 0;
+			}
+
+			unk248 = 6;
+		} else {
+			u32 trigger = *(u32*)((u8*)unk24C + 0xd4);
+
+			if (trigger & 0x60000) {
+				if (gpMSound->gateCheck(0x481c))
+					MSoundSESystem::MSoundSE::startSoundSystemSE(
+					    0x481c, 0, 0, 0);
+				unk248 = 7;
+			}
+		}
+	} else if (unk204->mVisible) {
+		u32 trigger = *(u32*)((u8*)unk24C + 0xd4);
+
+		if ((trigger & 0x80000) && unk214 == 1) {
+			if (gpMSound->gateCheck(0x481e))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(0x481e, 0, 0,
+				    0);
+
+			unk214            = 0;
+			unk20C[1]->mAlpha = 0xfe;
+			unk20C[1]->mVisible = false;
+			unk20C[0]->mVisible = true;
+		} else if ((trigger & 0x100000) && unk214 == 0) {
+			if (gpMSound->gateCheck(0x481e))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(0x481e, 0, 0,
+				    0);
+
+			unk214            = 1;
+			unk20C[0]->mAlpha = 0xfe;
+			unk20C[0]->mVisible = false;
+			unk20C[1]->mVisible = true;
+		} else if (unk26A) {
+			if (trigger & 0x60000) {
+				if (unk270 & 1)
+					gpCamera->makeMtxForPrevTalk();
+
+				if (gpMSound->gateCheck(0x481c))
+					MSoundSESystem::MSoundSE::startSoundSystemSE(
+					    0x481c, 0, 0, 0);
+				unk248 = 6;
+			}
+		} else if (trigger & 0x60000) {
+			if (gpMSound->gateCheck(0x481c))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(0x481c, 0, 0,
+				    0);
+			unk248 = 7;
+		}
+	}
+}
 void TTalk2D2::moveTalkWindow() { }
 void TTalk2D2::checkBoardControler()
 {
