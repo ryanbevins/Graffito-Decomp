@@ -12,6 +12,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <dolphin/mtx.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -49,6 +50,33 @@ static void MsMtxSetRotY(MtxPtr m, f32 deg)
 	m[2][3] = 0.0f;
 }
 #pragma dont_inline off
+
+static inline void setRotRPH(MtxPtr m, f32 r, f32 p, f32 h)
+{
+	f32 sr = sinf(r * 0.017453294f);
+	f32 sp = sinf(p * 0.017453294f);
+	f32 sh = sinf(h * 0.017453294f);
+
+	f32 cr = cosf(r * 0.017453294f);
+	f32 cp = cosf(p * 0.017453294f);
+	f32 ch = cosf(h * 0.017453294f);
+
+	m[0][0] = ch * cp;
+	m[1][0] = sh * cp;
+	m[2][0] = -sp;
+
+	m[0][1] = sr * (ch * sp) - (sh * cr);
+	m[1][1] = sr * (sh * sp) + (ch * cr);
+	m[2][1] = cp * sr;
+
+	m[0][2] = cr * (ch * sp) + (sh * sr);
+	m[1][2] = cr * (sh * sp) - (ch * sr);
+	m[2][2] = cp * cr;
+
+	m[0][3] = 0.0f;
+	m[1][3] = 0.0f;
+	m[2][3] = 0.0f;
+}
 
 TRailFence::TRailFence(const char* name)
     : TFence(name)
@@ -198,12 +226,20 @@ void TFenceWaterH::control()
 		phase -= 360.0f;
 	while (phase < 0.0f)
 		phase += 360.0f;
-	mRotation.y = phase;
+	mRotation.z = phase;
 
-	unk144->mPosition.x
-	    = 500.0f * JMASCos((s16)(mRotation.y * 182.04445f)) + mPosition.x;
-	unk144->mPosition.z
-	    = mPosition.z - 500.0f * JMASSin((s16)(mRotation.y * 182.04445f));
+	Mtx yRot;
+	Mtx zRot;
+	setRotRPH(yRot, 0.0f, mRotation.y, 0.0f);
+	setRotRPH(zRot, 0.0f, 0.0f, mRotation.z);
+	PSMTXConcat(yRot, zRot, yRot);
+	yRot[0][3] = mPosition.x;
+	yRot[1][3] = mPosition.y;
+	yRot[2][3] = mPosition.z;
+	PSMTXCopy(yRot, getModel()->mNodeMatrices[0]);
+
+	unk144->mPosition.x = mPosition.x;
+	unk144->mPosition.y = mPosition.y - 150.0f;
 }
 
 void TFenceWater::initMapObj()
