@@ -467,7 +467,7 @@ void TBeeHive::bind()
 
 	if (next.y + swingOffset <= mGroundHeight + 0.05f) {
 		if (mGroundPlane->checkFlag(0x10))
-			setGroundCollision();
+			kill();
 
 		offLiveFlag(LIVE_FLAG_AIRBORNE);
 		mVelocity.set(0.0f, 0.0f, 0.0f);
