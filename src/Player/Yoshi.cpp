@@ -3,6 +3,7 @@
 #include <Player/MarioMain.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Map/Map.hpp>
+#include <Map/MapData.hpp>
 #include <MSound/MAnmSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -17,6 +18,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ModelUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -713,8 +715,254 @@ void TYoshi::thinkHoldOut()
 }
 
 // movement - 0x8014DAF4
-void TYoshi::movement() {
-	// TODO: implement - 800+ instructions
+void TYoshi::movement()
+{
+	u8 directorState = gpMarDirector->unk124;
+	if (directorState != 3 && directorState != 4 && directorState != 1
+	    && directorState != 2 && !(mMario->mAction & 0x1000)
+	    && mCurJuice > 0) {
+		--mCurJuice;
+	}
+
+	TYoshiTongue* tongue = (TYoshiTongue*)_38;
+	if (tongue->mActorTypeInMouth != 0) {
+		doEat(tongue->mActorTypeInMouth);
+		if (mMario->onYoshi())
+			SMSRumbleMgr->start(0x15, 0x14, (f32*)nullptr);
+		tongue->mActorTypeInMouth = 0;
+	}
+
+	switch ((u8)mState) {
+	case 1:
+		--*(s16*)((u8*)this + 0x02);
+		if (*(s16*)((u8*)this + 0x02) <= 0) {
+			mState = (State)6;
+			changeAnimation(23);
+			*(s16*)((u8*)this + 0x02) = *(s16*)((u8*)this + 0x04);
+		}
+		break;
+	case 2:
+		if (mActor->curAnmEndsNext(0, nullptr)) {
+			mState = (State)6;
+			changeAnimation(23);
+			gpMSound->startMarioVoice(0x7919, 1, 1);
+		}
+		break;
+	case 3:
+		if (mActor->getFrameCtrl(0)->checkPass(60.0f)) {
+			gpMarioParticleManager->emitAndBindToPosPtr(
+			    0x3f, (JGeometry::TVec3<f32>*)((u8*)this + 0x74), 0, this);
+		}
+		if (mActor->curAnmEndsNext(0, nullptr)) {
+			mState = (State)5;
+			*(s16*)((u8*)this + 0x02) = 30;
+		}
+		break;
+	case 4:
+		gpMarioParticleManager->emitAndBindToPosPtr(
+		    0x3f, (JGeometry::TVec3<f32>*)((u8*)this + 0x74), 0, this);
+		mState = (State)5;
+		*(s16*)((u8*)this + 0x02) = 30;
+		break;
+	case 5:
+		mState = EGG;
+		if (mEgg != nullptr)
+			mEgg->startFruit();
+		break;
+	case 6: {
+		if (mActor->curAnmEndsNext(0, nullptr))
+			mActor->setBckFromIndex(23);
+
+		f32 angle = *(s16*)((u8*)this + 0x70) * (360.0f / 65536.0f);
+		SMS_RideMoveByGroundActor(*(TRidingInfo**)((u8*)this + 0x94),
+		                          &mTranslation, &angle);
+		*(s16*)((u8*)this + 0x70) = angle * (65536.0f / 360.0f);
+
+		const TBGCheckData* ground;
+		f32 groundY = gpMap->checkGround(mTranslation.x, mTranslation.y + 200.0f,
+		                                 mTranslation.z, &ground);
+		mActor->setLightData(ground, mTranslation);
+
+		*(f32*)((u8*)this + 0x2c)
+		    -= *(f32*)((u8*)mMario + 0xb18);
+		mTranslation.y += *(f32*)((u8*)this + 0x2c);
+
+		if (groundY > mTranslation.y) {
+			if (ground->isIllegalData() || ground->isWaterSurface()
+			    || ground->isDeathPlane()) {
+				if ((u8)mState != 0) {
+					if ((u8)mState == 8)
+						mMario->getOffYoshi(true);
+					if (mMario->mState & 0x30000) {
+						mState = (State)3;
+						changeAnimation(25);
+					} else {
+						mState = (State)4;
+					}
+					mType = 0;
+					*(s16*)((u8*)this + 0x02) = 30;
+				}
+				break;
+			}
+			mTranslation.y                 = groundY;
+			*(f32*)((u8*)this + 0x2c) = 0.0f;
+		}
+
+		doSearch();
+
+		if (mCurJuice <= 0 && (u8)mState != 0) {
+			if ((u8)mState == 8)
+				mMario->getOffYoshi(true);
+			if (mMario->mState & 0x30000) {
+				mState = (State)3;
+				changeAnimation(25);
+			} else {
+				mState = (State)4;
+			}
+			mType = 0;
+			*(s16*)((u8*)this + 0x02) = 30;
+		}
+		break;
+	}
+	case 7: {
+		s16 curAngle = *(s16*)((u8*)this + 0x70);
+		s16 target   = mMario->mFaceAngle.y;
+		*(s16*)((u8*)this + 0x70)
+		    = curAngle + (s16)(*(f32*)((u8*)this + 0xe4)
+		                       * (s16)(target - curAngle));
+		break;
+	}
+	case 8:
+		mTranslation              = mMario->mPosition;
+		*(s16*)((u8*)this + 0x70) = mMario->mFaceAngle.y;
+
+		if (mMario->mGamePad->mEnabledFrameMeaning & 0x100) {
+			JGeometry::TVec3<f32> pos;
+			JGeometry::TVec3<f32> dir;
+			getEmitPosDir(&pos, &dir);
+			tongue->emit(pos, dir, mMario->mVel);
+
+			for (int i = 0; i < 10; ++i) {
+				tongue->movement();
+				f32 dx = tongue->mTipPos.x - pos.x;
+				f32 dy = tongue->mTipPos.y - pos.y;
+				f32 dz = tongue->mTipPos.z - pos.z;
+				f32 dist = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy
+				                                        + dz * dz);
+				if (dist > *(f32*)((u8*)this + 0x90))
+					break;
+			}
+		}
+
+		if (mCurJuice <= 0 && (u8)mState != 0) {
+			if ((u8)mState == 8)
+				mMario->getOffYoshi(true);
+			if (mMario->mState & 0x30000) {
+				mState = (State)3;
+				changeAnimation(25);
+			} else {
+				mState = (State)4;
+			}
+			mType = 0;
+			*(s16*)((u8*)this + 0x02) = 30;
+		}
+		break;
+	}
+
+	if ((u8)mState != 0) {
+		u8 targetR;
+		u8 targetG;
+		u8 targetB;
+		switch (mType) {
+		case 0:
+			targetR = 0x40;
+			targetG = 0xa1;
+			targetB = 0x24;
+			break;
+		case 1:
+			targetR = 0xff;
+			targetG = 0x8c;
+			targetB = 0x1c;
+			break;
+		case 2:
+			targetR = 0xaa;
+			targetG = 0x4c;
+			targetB = 0xff;
+			break;
+		default:
+			targetR = 0xff;
+			targetG = 0xa0;
+			targetB = 0xbe;
+			break;
+		}
+
+		f32 blend = *(f32*)((u8*)this + 0x80);
+		mRedComponent
+		    += blend * ((f32)targetR - mRedComponent);
+		mGreenComponent
+		    += blend * ((f32)targetG - mGreenComponent);
+		mBlueComponent
+		    += blend * ((f32)targetB - mBlueComponent);
+
+		tongue->movement();
+
+		const TBGCheckData* ground;
+		f32 groundY = gpMap->checkGround(mTranslation.x, mTranslation.y + 200.0f,
+		                                 mTranslation.z, &ground);
+		mActor->setLightData(ground, mTranslation);
+
+		if ((u8)mState == 6 && groundY > mTranslation.y) {
+			if (ground->isWaterSurface()) {
+				if ((u8)mState != 0) {
+					if ((u8)mState == 8)
+						mMario->getOffYoshi(true);
+					if (mMario->mState & 0x30000) {
+						mState = (State)3;
+						changeAnimation(25);
+					} else {
+						mState = (State)4;
+					}
+					mType = 0;
+					*(s16*)((u8*)this + 0x02) = 30;
+				}
+			} else {
+				mTranslation.y                 = groundY;
+				*(f32*)((u8*)this + 0x2c) = 0.0f;
+			}
+		}
+
+		J3DModelData* data = mActor->unk4->getModelData();
+		for (u16 i = 0; i < data->getShapeNum(); ++i)
+			data->getShapeNodePointer(i)->offFlag(1);
+
+		data = (*(J3DModel**)((u8*)this + 0x44))->getModelData();
+		for (u16 i = 0; i < data->getShapeNum(); ++i)
+			data->getShapeNodePointer(i)->offFlag(1);
+
+		data = (*(J3DModel**)((u8*)this + 0x48))->getModelData();
+		for (u16 i = 0; i < data->getShapeNum(); ++i)
+			data->getShapeNodePointer(i)->offFlag(1);
+	} else {
+		J3DModelData* data = mActor->unk4->getModelData();
+		for (u16 i = 0; i < data->getShapeNum(); ++i)
+			data->getShapeNodePointer(i)->onFlag(1);
+
+		data = (*(J3DModel**)((u8*)this + 0x44))->getModelData();
+		for (u16 i = 0; i < data->getShapeNum(); ++i)
+			data->getShapeNodePointer(i)->onFlag(1);
+
+		data = (*(J3DModel**)((u8*)this + 0x48))->getModelData();
+		for (u16 i = 0; i < data->getShapeNum(); ++i)
+			data->getShapeNodePointer(i)->onFlag(1);
+	}
+
+	if (mMario->onYoshi())
+		gpModelWaterManager->unk5D5F = mType;
+
+	MtxPtr mtx = mActor->unk4->getAnmMtx(*(u16*)((u8*)this + 0x42));
+	*(f32*)((u8*)this + 0x74) = mtx[0][3];
+	*(f32*)((u8*)this + 0x78) = mtx[1][3];
+	*(f32*)((u8*)this + 0x7c) = mtx[2][3];
 }
 
 // calcAnim - 0x8014D6B8
