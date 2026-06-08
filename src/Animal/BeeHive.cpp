@@ -300,17 +300,19 @@ TBeeHiveManager::TBeeHiveManager(const char* name)
 
 JGeometry::TVec3<f32> TBeeHive::getCenterOfGravity() const
 {
-	if (mWaitTimer == 0)
+	int count = mWaitTimer;
+	if (count == 0)
 		return JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
 
 	JGeometry::TVec3<f32> center(0.0f, 0.0f, 0.0f);
-	for (int i = 0; i < mWaitTimer; ++i) {
-		center.x += mBoidLeader->mBoidData[i].mPosition.x;
-		center.y += mBoidLeader->mBoidData[i].mPosition.y;
-		center.z += mBoidLeader->mBoidData[i].mPosition.z;
+	for (int i = 0; i < count; ++i) {
+		const TBoid& boid = mBoidLeader->mBoidData[i];
+		center.x += boid.mPosition.x;
+		center.y += boid.mPosition.y;
+		center.z += boid.mPosition.z;
 	}
 
-	f32 inv = 1.0f / mWaitTimer;
+	f32 inv = 1.0f / count;
 	center.x *= inv;
 	center.y *= inv;
 	center.z *= inv;

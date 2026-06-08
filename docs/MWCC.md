@@ -5561,6 +5561,29 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Caching a member loop bound plus binding each struct-array record can unlock MWCC's 8-way unroller
+
+**Hypothesis.** For loops over a struct array where the target has the
+`srwi/mtctr/bdnz` 8-way unroller, source that tests directly against a mutable
+member bound (for example `i < this->count`) may keep a single-body loop because
+MWCC must reload the bound. Copying the member to a local before the zero check
+can expose an invariant bound and trigger the unroller. If the loop body reads
+multiple fields from the same record, also bind a per-iteration record reference
+(`const T& rec = arr[i];`) so MWCC computes one record pointer and uses regular
+`lfs 0/4/8(rec)` loads instead of separate `lfsx` component offsets.
+
+**Observed.** `mario/Animal/BeeHive` `TBeeHive::getCenterOfGravity() const`
+(2026-06-09): caching `mWaitTimer` as `count` changed the loop from a
+single-body member-reload loop to the target 8-way unroll family. Adding
+`const TBoid& boid = mBoidLeader->mBoidData[i]` changed the component loads
+from `lfsx` to the target record-pointer `lfs 0/4/8` pattern, moving the
+function `30.9% -> 88.1%`.
+
+**Experiment to confirm/refute.** Find a second struct-array accumulation or
+copy loop where target has the 8-way unroller and current source either reloads
+a member bound or uses `lfsx` per component. Apply the bound-local and
+record-reference parts separately, then promote only if both effects reproduce.
+
 ### A placeholder data member before first virtuals reproduces nonzero vptr offsets in lightweight local declarations
 
 **Hypothesis.** For local "header substitute" class declarations, MWCC places
