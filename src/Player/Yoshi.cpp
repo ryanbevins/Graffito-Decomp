@@ -3,6 +3,7 @@
 #include <Player/MarioMain.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Map/Map.hpp>
+#include <MSound/MAnmSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <System/Application.hpp>
@@ -134,13 +135,12 @@ void TYoshi::changeAnimation(int id) {
 	if (id == curAnm)
 		return;
 
-	if (!mActor->checkCurAnmFromIndex(id, 0)) {
-		mActor->setBckFromIndex(id);
+	MActor* actor = mActor;
+	if (!actor->checkCurBckFromIndex(id)) {
+		actor->setBckFromIndex(id);
 	}
 	thinkBtp(id);
-	u32* rates = mAnimFrameRates;
-	u32 frameRate = rates[id];
-	// TODO: call play function on mBckPlayer with frameRate
+	((MAnmSound*)mBckPlayer)->initAnmSound((void*)mAnimFrameRates[id], 1, 0.0f);
 }
 
 // getEmitPosDir - 0x8014FBF0
