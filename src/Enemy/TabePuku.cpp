@@ -311,21 +311,39 @@ TTabePuku::TTabePuku(const char* name)
 void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 {
 	JGeometry::TVec3<f32> dir(target);
-	if (!dir.isZero())
+	if (!dir.isZero()) {
 		dir.normalize();
+
+		JGeometry::TQuat4<f32> targetQuat;
+		targetQuat.setRotate(JGeometry::TVec3<f32>(0.0f, 0.0f, 1.0f), dir);
+		mQuat.slerp(targetQuat, getSaveParam2()->mTurnSlerpRate.get());
+		mQuat.normalize();
+	}
 
 	JGeometry::TVec3<f32> forward;
 	mQuat.getZDir(forward);
 
-	JGeometry::TQuat4<f32> steer;
-	steer.setRotate(forward, dir, getSaveParam2()->mTurnSlerpRate.get());
-	mQuat.mul(steer);
-	mQuat.normalize();
+	JGeometry::TVec3<f32> velocity(mVelocity);
+	velocity.scale(getSaveParam2()->mWaterFric.get());
+	velocity.x += forward.x * mMarchSpeed;
+	velocity.y += forward.y * mMarchSpeed;
+	velocity.z += forward.z * mMarchSpeed;
+	mVelocity = velocity;
 
-	JGeometry::TVec3<f32> desired;
-	desired.scale(mMarchSpeed, dir);
-	mVelocity.scale(getSaveParam2()->mWaterFric.get());
-	mVelocity.add(desired);
+	f32 rotation;
+	if (velocity.z == 0.0f) {
+		if (velocity.x >= 0.0f)
+			rotation = 90.0f;
+		else
+			rotation = -90.0f;
+	} else if (velocity.z >= 0.0f) {
+		rotation = matan(velocity.z, velocity.x) * (360.0f / 65536.0f);
+	} else {
+		rotation
+		    = 180.0f
+		      - matan(-velocity.z, velocity.x) * (360.0f / 65536.0f);
+	}
+	mRotation.y = rotation;
 }
 #pragma dont_inline off
 
