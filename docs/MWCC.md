@@ -5534,6 +5534,29 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### A placeholder data member before first virtuals reproduces nonzero vptr offsets in lightweight local declarations
+
+**Hypothesis.** For local "header substitute" class declarations, MWCC places
+the vptr at the point where the first virtual methods appear in the class
+declaration, not necessarily at offset 0. If target asm calls through
+`lwz r12, N(r3); lwz r12, slot(r12); blrl`, and the real class has data before
+the vptr, a lightweight declaration with only virtual methods emits the wrong
+`lwz r12, 0(r3)`. Add a real placeholder byte array before the virtuals to put
+the vptr at the observed offset.
+
+**Observed.** `mario/Player/Yoshi` `YoshiHeadCtrl` calls
+`TWaterGun::getCurrentNozzle()` then dispatches `TNozzleBase::getGunAngle()`
+through `lwz r12, 0x364(r3); lwz r12, 0x10(r12)`. The local placeholder class
+in `Yoshi.cpp` had only virtual declarations and emitted `lwz r12, 0(r3)`.
+Adding `u8 _0[0x364];` before the virtuals reproduced the target vptr load and
+moved `YoshiHeadCtrl` `99.7% -> 99.8%`.
+
+**Experiment.** Find a second local placeholder class where target virtual
+dispatch loads a vptr from a nonzero offset, preferably one already using raw
+offsets elsewhere. Add placeholder data before the first virtual declarations
+and verify that MWCC moves only the vptr load without changing call semantics.
+Promote only if the declaration-order effect repeats.
+
 ### Widening a narrowed byte loop bound can preserve conversion scheduling while keeping byte compare codegen
 
 **Hypothesis.** When a target computes a byte-sized loop bound from float math
@@ -8203,6 +8226,24 @@ confirmed in ≥2 TUs._
   inline-budget control, not expression order.
 
 ## Refuted / wrong turns
+
+### Explicit specialization declarations do not suppress local JGadget list iterator helper ownership in `MarDirectorInitECT`
+
+**Symptom.** `mario/System/MarDirectorInitECT` matches the target list-insert
+call shape but still locally emits extra 12B helpers for
+`JGadget::TList<void*>::end()`,
+`JGadget::TList<void*>::iterator` copy construction, and
+`JGadget::TList_pointer<JDrama::TViewObj*>::iterator(Base::iterator)`.
+
+**Tried & REFUTED:** adding TU-scope explicit specialization declarations for
+those three class-template member/constructor helpers compiled cleanly but was
+byte-identical: helper extras remained, and `setupPerformList_console`,
+`initECDisp`, and `initECTGft` scores did not move.
+
+**Conclusion.** The free-function template specialization routing rule does
+not mechanically apply to these JGadget member/constructor helpers. Future
+work needs a different owner-routing mechanism or a naturally matching list
+owner to copy; do not retry declaration-only specializations for this cluster.
 
 ### MWCC rejects explicit specialization declarations for `TVec3<f32>::set<f32>`
 
