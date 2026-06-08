@@ -13,6 +13,7 @@
 #include <MoveBG/Item.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorAnm.hpp>
+#include <Player/ModelWaterManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
@@ -244,7 +245,13 @@ void TYoshi::kill() {
 void TYoshi::ride() {
 	mState = MOUNTED;
 	changeAnimation(22);
-	// TODO: set yoshi color, start sound, fire ride yoshi on director
+	gpModelWaterManager->unk5D5F = mType;
+	if (gpMSound->gateCheck(0x7921))
+		MSoundSESystem::MSoundSE::startSoundActor(0x7921, (Vec*)&mTranslation,
+		                                           0, nullptr, 0, 4);
+	*(u8*)((u8*)gpMSound + 0x88) = 1;
+	MSBgm::setStageBgmYoshiPercussion(true);
+	gpMarDirector->fireRideYoshi(this);
 }
 
 // getOff - 0x8014F594
