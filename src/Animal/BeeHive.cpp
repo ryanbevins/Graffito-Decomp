@@ -51,7 +51,7 @@ static BOOL isMarioWaterIn()
 	if ((flag & 2) || (flag & 0x10000))
 		return TRUE;
 
-	if (*gpMarioGroundPlane && (*gpMarioGroundPlane)->isWaterSurface())
+	if ((*gpMarioGroundPlane)->isWaterSurface())
 		return TRUE;
 
 	if (flag & 0x20000)
