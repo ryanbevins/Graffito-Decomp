@@ -319,7 +319,7 @@ void TAmiNoko::perform(u32 flags, JDrama::TGraphics* graphics)
 void TAmiNoko::setMActorAndKeeper()
 {
 	mMActorKeeper = new TMActorKeeper(getManager(), 1);
-	mMActor = getActorKeeper()->createMActorFromDefaultBmd("aminoko_model1.bmd", 3);
+	mMActor = getActorKeeper()->createMActor("aminoko_model1.bmd", 3);
 }
 
 f32 TAmiNoko::getGravityY() const
