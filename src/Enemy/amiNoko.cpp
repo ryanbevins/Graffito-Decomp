@@ -389,11 +389,11 @@ void TAmiNoko::init(TLiveManager* manager)
 
 	mSaveParams = (TAmiNokoSaveLoadParams*)getSaveParam();
 
-	setMActorAndKeeper();
+	reset();
 	setWalkAnm();
 
 	onLiveFlag(LIVE_FLAG_UNK10);
-	attackToMario();
+	initialGraphNode();
 
 	if (gpMarDirector->mMap == 8) {
 		unk210 = 0;
