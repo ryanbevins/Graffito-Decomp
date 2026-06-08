@@ -16,6 +16,7 @@
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <Strategic/Strategy.hpp>
+#include <new>
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -23,6 +24,7 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 
 extern "C" f32 sqrtf(f32);
+extern "C" void* __vt__7TAmiHit[];
 
 DEFINE_NERVE(TNerveAmiNokoFreeze, TLiveActor)
 {
@@ -396,13 +398,17 @@ void TAmiNoko::init(TLiveManager* manager)
 		unk210 = 0;
 	}
 
-	TAmiHit* hit = new TAmiHit("\x83\x41\x83\x7E\x83\x6D\x83\x52\x93\x96\x82\xE8\x94\xBB\x92\xE8");
+	TAmiHit* hit = (TAmiHit*)::operator new(sizeof(TAmiHit));
 	if (hit) {
+		new ((THitActor*)hit) THitActor(
+		    "\x83\x41\x83\x7E\x83\x6D\x83\x52\x93\x96\x82\xE8\x94\xBB\x92\xE8");
+		*(void**)hit                 = __vt__7TAmiHit;
+		*(void**)((u8*)hit + 0x20)   = (u8*)__vt__7TAmiHit + 0x24;
 		hit->mOwner = this;
 
 		TIdxGroupObj* enemyGroup
 		    = JDrama::TNameRefGen::search<TIdxGroupObj>("\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76");
-		enemyGroup->getChildren().push_back(hit);
+		enemyGroup->add(hit);
 
 		hit->initHitActor(0x10000021, 1, 0x80000000,
 		                  50.0f, 100.0f, 50.0f, 100.0f);
