@@ -260,20 +260,21 @@ BOOL TNerveTabePukuGraphWander::execute(TSpineBase<TLiveActor>* spine) const
 	TTabePuku* self = (TTabePuku*)spine->getBody();
 
 	if (spine->getTime() == 0) {
+		self->getTracer()->mPrevIdx = -1;
 		self->goToShortestNextGraphNode();
-		self->mMarchSpeed = self->getSaveParam2()->mMarchSpeed.get();
 		self->setBckAnm(2);
+		self->mMarchSpeed = self->getSaveParam2()->mMarchSpeed.get();
 	}
 
-	if (self->isFindMario(self->getSaveParam2()->mTerritoryRange.get())) {
+	if (self->isReachedToGoal())
+		self->goToRandomNextGraphNode();
+
+	if (self->isFindMario(1.0f)) {
 		spine->pushAfterCurrent(&TNerveTabePukuFound::theNerve());
 		return TRUE;
 	}
 
-	if (self->isReachedToGoal())
-		self->goToShortestNextGraphNode();
-
-	JGeometry::TVec3<f32> goal = getTabePukuGoal(self);
+	JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
 	goal.sub(self->mPosition);
 	self->swimTo(goal);
 	return FALSE;
