@@ -262,6 +262,7 @@ TTabePuku::TTabePuku(const char* name)
 	onLiveFlag(LIVE_FLAG_UNK1000);
 }
 
+#pragma dont_inline on
 void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 {
 	JGeometry::TVec3<f32> dir(target);
@@ -281,6 +282,7 @@ void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 	mVelocity.scale(getSaveParam2()->mWaterFric.get());
 	mVelocity.add(desired);
 }
+#pragma dont_inline off
 
 bool TTabePuku::doKeepDistance()
 {
