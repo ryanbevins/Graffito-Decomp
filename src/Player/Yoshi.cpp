@@ -20,6 +20,7 @@
 #include <MarioUtil/RumbleMgr.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <Player/Tongue.hpp>
@@ -966,8 +967,101 @@ void TYoshi::movement()
 }
 
 // calcAnim - 0x8014D6B8
-void TYoshi::calcAnim() {
-	// TODO: implement - 271 instructions
+void TYoshi::calcAnim()
+{
+	Mtx rootMtx;
+	TYoshiTongue* tongue = (TYoshiTongue*)_38;
+
+	switch ((u8)mState) {
+	case 1:
+		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
+		                         mTranslation.x,
+		                         mTranslation.y
+		                             + 100.0f * *(s16*)((u8*)this + 0x02),
+		                         mTranslation.z, rootMtx);
+		break;
+	case 2:
+	case 3:
+	case 6:
+	case 7:
+		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
+		                         mTranslation.x, mTranslation.y,
+		                         mTranslation.z, rootMtx);
+		break;
+	case 5:
+		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
+		                         mTranslation.x, mTranslation.y,
+		                         mTranslation.z, rootMtx);
+		break;
+	case 8:
+		thinkAnimation();
+		PSMTXCopy(mMario->getTakenMtx(), rootMtx);
+		break;
+	}
+
+	if ((u8)mState != 0) {
+		thinkUpper();
+
+		int anim = mActor->getCurAnmIdx(0);
+		if (anim == 10 || anim == 12 || anim == 15) {
+			J3DModelData* data = mActor->unk4->getModelData();
+			data->getShapeNodePointer(0)->onFlag(1);
+			data->getShapeNodePointer(1)->onFlag(1);
+
+			data = (*(J3DModel**)((u8*)this + 0x44))->getModelData();
+			for (u16 i = 0; i < data->getShapeNum(); ++i)
+				data->getShapeNodePointer(i)->offFlag(1);
+
+			data = (*(J3DModel**)((u8*)this + 0x48))->getModelData();
+			for (u16 i = 0; i < data->getShapeNum(); ++i)
+				data->getShapeNodePointer(i)->offFlag(1);
+		} else {
+			J3DModelData* data = mActor->unk4->getModelData();
+			data->getShapeNodePointer(0)->offFlag(1);
+			data->getShapeNodePointer(1)->offFlag(1);
+
+			data = (*(J3DModel**)((u8*)this + 0x44))->getModelData();
+			for (u16 i = 0; i < data->getShapeNum(); ++i)
+				data->getShapeNodePointer(i)->onFlag(1);
+
+			data = (*(J3DModel**)((u8*)this + 0x48))->getModelData();
+			for (u16 i = 0; i < data->getShapeNum(); ++i)
+				data->getShapeNodePointer(i)->onFlag(1);
+		}
+
+		mActor->unk4->setBaseTRMtx(rootMtx);
+		mActor->calcAnm();
+		(*(J3DModel**)((u8*)this + 0x44))
+		    ->setBaseTRMtx(mActor->unk4->getAnmMtx(37));
+		(*(J3DModel**)((u8*)this + 0x48))
+		    ->setBaseTRMtx(mActor->unk4->getAnmMtx(32));
+		(*(J3DModel**)((u8*)this + 0x44))->calc();
+		(*(J3DModel**)((u8*)this + 0x48))->calc();
+
+		Mtx tongueMtx;
+		PSMTXCopy(mActor->unk4->getAnmMtx(mJoint), tongueMtx);
+		tongue->calcAnim(tongueMtx);
+	}
+
+	MtxPtr emitMtx = mActor->unk4->getAnmMtx(mEmitJoint);
+	mMtxTrans.x    = emitMtx[0][3];
+	mMtxTrans.y    = emitMtx[1][3];
+	mMtxTrans.z    = emitMtx[2][3];
+
+	MtxPtr footMtx = mActor->unk4->getAnmMtx(mFootLJoint2);
+	mMtxTrans2.x   = footMtx[0][3];
+	mMtxTrans2.y   = footMtx[1][3];
+	mMtxTrans2.z   = footMtx[2][3];
+
+	u32 soundFlags       = mMario->mSoundFlags;
+	J3DFrameCtrl* ctrl   = mActor->getFrameCtrl(0);
+	MAnmSound* bckSound  = (MAnmSound*)mBckPlayer;
+	MAnmSound* bckSound2 = (MAnmSound*)mBckPlayer2;
+	bckSound->animeLoop((Vec*)&mTranslation, ctrl->getRate(), ctrl->getFrame(),
+	                    soundFlags + 0x10000000, 4);
+	bckSound2->animeLoop((Vec*)&mMtxTrans, *(f32*)((u8*)this + 0x6c),
+	                     *(f32*)((u8*)this + 0x68),
+	                     soundFlags + 0x10000000, 4);
 }
 
 // viewCalc - 0x8014D638
