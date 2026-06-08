@@ -216,7 +216,8 @@ void TFenceWaterH::changeStatusToWait()
 
 void TFenceWaterH::changeStatusToGo()
 {
-	if (gpMSound->gateCheck(0x3838))
+	MSound* sound = gpMSound;
+	if (sound->gateCheck(0x3838))
 		MSoundSESystem::MSoundSE::startSoundActor(
 		    0x3838, (const Vec*)&mPosition, 0, nullptr, 0, 4);
 	mState = 2;
@@ -324,7 +325,8 @@ void TFenceWater::changeStatusToWait()
 
 void TFenceWater::changeStatusToGo()
 {
-	if (gpMSound->gateCheck(0x3838))
+	MSound* sound = gpMSound;
+	if (sound->gateCheck(0x3838))
 		MSoundSESystem::MSoundSE::startSoundActor(
 		    0x3838, (const Vec*)&mPosition, 0, nullptr, 0, 4);
 	mState = 2;
