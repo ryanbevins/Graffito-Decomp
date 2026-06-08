@@ -15,6 +15,8 @@
 #include <M3DUtil/MActorAnm.hpp>
 #include <Player/ModelWaterManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/ModelUtil.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -253,15 +255,23 @@ void TYoshi::getOff(bool knockedOff) {
 
 	*(f32*)((u8*)this + 0x2C) = 0.0f;
 	mState = UNMOUNTED;
-	s16 subState = *(s16*)((u8*)this + 0x04);
-	mSubState = subState;
+	*(s16*)((u8*)this + 0x02) = *(s16*)((u8*)this + 0x04);
 
-	if (knockedOff) {
+	if ((u8)knockedOff == 1) {
 		changeAnimation(1);
+		if (gpMSound->gateCheck(0x7918))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x7918, (Vec*)&mTranslation, 0, nullptr, 0, 4);
+		SMSRumbleMgr->start(0x15, 0x14, (f32*)nullptr);
 	} else {
 		changeAnimation(23);
+		if (gpMSound->gateCheck(0x7924))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x7924, (Vec*)&mTranslation, 0, nullptr, 0, 4);
 	}
-	// TODO: sound, warp, etc
+	SMS_RideMoveCalcLocalPos(*(TRidingInfo**)((u8*)this + 0x94), mTranslation);
+	*(u8*)((u8*)gpMSound + 0x88) = 1;
+	MSBgm::setStageBgmYoshiPercussion(false);
 }
 
 // thinkAnimation - 0x8014F1A0
