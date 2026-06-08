@@ -299,10 +299,87 @@ void TYoshi::thinkAnimation() {
 }
 
 // thinkUpper - 0x8014EF78
-void TYoshi::thinkUpper() {
+void TYoshi::thinkUpper()
+{
 	if ((u8)mState != MOUNTED)
 		return;
-	// TODO: implement - 138 instructions
+
+	((J3DFrameCtrl*)((u8*)this + 0x5C))->update();
+
+	void* upperAnm = *(void**)((u8*) * (void**)((u8*) * (void**)(
+	                                            (u8*)mActor + 0x4)
+	                                            + 0x4)
+	                           + 0x20);
+	upperAnm      = *(void**)((u8*)upperAnm + 0x48);
+
+	int active;
+	if (*(u16*)((u8*)_38 + 0x7C) != 0) {
+		active = 1;
+	} else {
+		active              = 0;
+		TWaterGun* waterGun = mMario->mWaterGun;
+		if (*(s32*)((u8*)waterGun + 0x1C80) != 0) {
+			TNozzleBase* nozzle = waterGun->getCurrentNozzle();
+			typedef s32 (*GetNozzleKind)(TNozzleBase*);
+			GetNozzleKind getNozzleKind
+			    = *(GetNozzleKind*)(*(u32*)((u8*)nozzle + 0x364) + 0xC);
+			if (getNozzleKind(nozzle) == 1) {
+				nozzle = waterGun->getCurrentNozzle();
+				if (*(u8*)((u8*)nozzle + 0x385) == 1) {
+					active = 1;
+				} else {
+					active = 0;
+				}
+			} else {
+				nozzle = waterGun->getCurrentNozzle();
+				if (*(f32*)((u8*)nozzle + 0x378) > 0.0f) {
+					active = 1;
+				} else {
+					active = 0;
+				}
+			}
+		}
+	}
+
+	if (active) {
+		if (*(void**)((u8*)upperAnm + 0x58)
+		    != *(void**)((u8*)this + 0x54)) {
+			*(f32*)((u8*)this + 0x6C) = *(s16*)((u8*)this + 0x62);
+			*(f32*)((u8*)this + 0x68) = 1.0f;
+			*(s16*)((u8*)this + 0x64)
+			    = *(s16*)(*(u32*)((u8*)this + 0x4C) + 0x2);
+			*(f32*)((u8*)this + 0x6C) = 0.0f;
+			*(void**)((u8*)upperAnm + 0x58) = *(void**)((u8*)this + 0x54);
+			((MAnmSound*)mBckPlayer2)
+			    ->initAnmSound((void*)mAnimFrameRates[3], 1, 0.0f);
+		}
+		*(f32*)(*(u32*)((u8*)this + 0x4C) + 0x4)
+		    = *(f32*)((u8*)this + 0x6C);
+	} else {
+		if (*(void**)((u8*)upperAnm + 0x58)
+		    == *(void**)((u8*)this + 0x54)) {
+			*(f32*)((u8*)this + 0x6C) = *(s16*)((u8*)this + 0x62);
+			*(f32*)((u8*)this + 0x68) = 1.0f;
+			*(s16*)((u8*)this + 0x64)
+			    = *(s16*)(*(u32*)((u8*)this + 0x50) + 0x2);
+			*(f32*)((u8*)this + 0x6C) = 0.0f;
+			*(void**)((u8*)upperAnm + 0x58) = *(void**)((u8*)this + 0x58);
+			((MAnmSound*)mBckPlayer2)
+			    ->initAnmSound((void*)mAnimFrameRates[4], 1, 0.0f);
+		} else if (*(void**)((u8*)upperAnm + 0x58)
+		           == *(void**)((u8*)this + 0x58)) {
+			int ended;
+			if (*(u8*)((u8*)this + 0x61) & 3) {
+				ended = 1;
+			} else {
+				ended = 0;
+			}
+			if (ended)
+				*(void**)((u8*)upperAnm + 0x58) = nullptr;
+		}
+		*(f32*)(*(u32*)((u8*)this + 0x50) + 0x4)
+		    = *(f32*)((u8*)this + 0x6C);
+	}
 }
 
 // doSearch - 0x8014EA18
