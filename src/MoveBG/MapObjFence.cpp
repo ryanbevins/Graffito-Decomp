@@ -261,9 +261,7 @@ void TFenceWater::initMapObj()
 	unk144->initHitActor(mActorType, 1, 0, 0.0f, 0.0f, 100.0f, 300.0f);
 	unk144->unk64 &= ~1;
 
-	unk144->mPosition.x = mPosition.x;
-	unk144->mPosition.y = mPosition.y - 150.0f;
-	unk144->mPosition.z = mPosition.z;
+	unk144->mPosition.set(mPosition.x, mPosition.y - 150.0f, mPosition.z);
 
 	JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ")->add(unk144);
 }
