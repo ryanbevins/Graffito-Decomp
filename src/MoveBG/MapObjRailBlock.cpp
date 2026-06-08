@@ -610,7 +610,15 @@ BOOL TWoodBlock::calcRecycle()
 
 void TWoodBlock::load(JSUMemoryInputStream& stream)
 {
-	TNormalLift::load(stream);
+	TRailMapObj::load(stream);
+
+	stream.read(&unk154, 4);
+	if (unk154 > 0.0f && mMapCollisionManager) {
+		TMapCollisionBase* col = mMapCollisionManager->getUnk8();
+		col->setAllBGType(7);
+		col->setAllActor(this);
+		col->setAllData(unk154);
+	}
 
 	int local_20;
 	int local_24;
