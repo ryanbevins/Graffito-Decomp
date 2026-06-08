@@ -614,7 +614,7 @@ void TRevolvingFenceOuter::initMapCollisionData()
 		    "fence_revolve_inner", mPosition, mRotation, ones);
 	}
 	unk13C = inner;
-	unk13C->initMapCollisionData();
+	unk13C->appear();
 }
 
 BOOL TRevolvingFenceOuter::receiveMessage(THitActor* sender, u32 message)
