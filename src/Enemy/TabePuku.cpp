@@ -403,14 +403,34 @@ void TTabePuku::calcRootMatrix()
 		return;
 	}
 
-	MtxPtr mtx = getTakingMtx();
-	J3DModel* model = getModel();
-	model->setBaseScale(mScaling);
-	model->setBaseTRMtx(mtx);
+	Mtx mtx;
+	((JGeometry::TRotation3<
+	     JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >*)&mtx)
+	    ->setQuat(mQuat);
+	mtx[0][3] = mPosition.x;
+	mtx[1][3] = mPosition.y;
+	mtx[2][3] = mPosition.z;
+
+	getModel()->setBaseScale(mScaling);
+	PSMTXCopy(mtx, getModel()->getBaseTRMtx());
 
 	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-	SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x178,
-	                     model->getAnmMtx(mMouthJointIndex), this, scale);
+	JPABaseEmitter* emitter = SMS_EasyEmitParticle(
+	    (E_SMS_EFFECT_LOOP_NORMAL)0x178, getModel()->getAnmMtx(mMouthJointIndex),
+	    this, scale);
+	if (emitter) {
+		f32 lifeScale = -mPosition.y / 100.0f;
+		if (lifeScale <= 0.0f)
+			lifeScale = 0.0f;
+
+		s32 life = (s32)lifeScale * 20 + 2;
+		if (life > 200)
+			life = 200;
+		emitter->mBaseLifetime = life;
+
+		if (mSpine->getLatestNerve() == &TNerveTabePukuAttack::theNerve())
+			emitter->mChildSpawnRate = 0.1f;
+	}
 }
 
 void TTabePuku::bind()
