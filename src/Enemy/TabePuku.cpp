@@ -112,10 +112,10 @@ DEFINE_NERVE(TNerveTabePukuDive, TLiveActor)
 
 	bool keepDiving = false;
 	if (self->mPosition.y - self->mDiveStartY
-	    < -self->getSaveParam2()->mCorrectY.get()) {
+	    < -self->getSaveParam2()->mApartHeight.get()) {
 		keepDiving = true;
 	}
-	if (self->mPosition.y - self->mGroundHeight < 200.0f && self->isAirborne())
+	if (self->mPosition.y - self->mGroundHeight < 200.0f || !self->isAirborne())
 		keepDiving = true;
 
 	if (keepDiving) {
