@@ -60,7 +60,7 @@ BOOL TRailMapObj::moveToNextNode(float param_1)
 
 	if (unk138->unk0->unk14 ? TRUE : FALSE) {
 
-		bool result = unk138->traceSpline(unk138->calcSplineSpeed(param_1));
+		BOOL result = unk138->traceSpline(unk138->calcSplineSpeed(param_1));
 		JGeometry::TVec3<f32> local_1C;
 		JGeometry::TVec3<f32> local_28;
 		unk138->unk0->unk14->getPosAndRot(unk138->unk14, &local_1C, &local_28);
