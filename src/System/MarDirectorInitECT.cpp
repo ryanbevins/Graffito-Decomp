@@ -16,6 +16,16 @@
 // rogue includes
 #include <M3DUtil/InfectiousStrings.hpp>
 
+// Gives this TU visibility to inline TOrthoProj construction while
+// JDRNameRefGen keeps the standalone TCamera constructor owner.
+inline JDrama::TCamera::TCamera(float near, float far, const char* name)
+    : TPlacement(name)
+    , mFlag(0)
+    , mNear(near)
+    , mFar(far)
+{
+}
+
 void TMarDirector::initECTGft(
     TPerformList* param_1, TPerformList* param_2,
     JDrama::TViewObjPtrListT<JDrama::TViewObj>* perf_event_group,

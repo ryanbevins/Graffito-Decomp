@@ -7553,9 +7553,14 @@ confirmed in ≥2 TUs._
   `.cpp` definition is a hard redefinition error. `#pragma inline_depth(1)`
   around `TPolarCamera` forced a constructor symbol but made its body
   nonmatching (18.2%) and regressed the campaign TU; `inline_depth(8)` restore
-  compiled but did not preserve the weak. Next experiment: find a non-pragma
-  source cue that makes the `TPolarCamera` base constructor call stay outlined
-  while leaving `TOrthoProj` construction inline.
+  compiled but did not preserve the weak. A narrower TU-local `inline`
+  definition in `src/System/MarDirectorInitECT.cpp` preserves the 204B
+  `JDRNameRefGen` owner and recovers the same `TOrthoProj` expansion plus the
+  local `TVec3<float>::set<float>` owner, but it also emits target-absent
+  `TViewObj::TViewObj(const char*)` and `TPlacement::~TPlacement()` helpers in
+  the campaign TU. Next experiment: find a source cue that keeps the base
+  constructor body visible for `TOrthoProj` while routing the header-defined
+  `TViewObj`/`TPlacement` helpers to their existing owners.
 
 - **What source shape preserves an out-of-line
   `TVec3<float>::set(const Vec&)` call when the copied temp is only read back
