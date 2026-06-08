@@ -439,9 +439,12 @@ void TTabePuku::control()
 {
 	TLiveActor::control();
 
-	for (int i = 0; i < mHitActor->getColNum(); ++i) {
-		THitActor* hit = mHitActor->getCollision(i);
-		if (hit->mActorType == 0x80000001)
+	THitActor** it  = mHitActor->mCollisions;
+	THitActor** end = it + mHitActor->mColCount;
+	s32 targetType  = 0x80000001;
+	for (; it != end; ++it) {
+		THitActor* hit = *it;
+		if ((s32)hit->mActorType == targetType)
 			mHitActor->mOwner->forceKill();
 	}
 
