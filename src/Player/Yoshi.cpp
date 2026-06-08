@@ -170,7 +170,7 @@ bool TYoshi::appearFromEgg(const JGeometry::TVec3<f32>& pos, f32 angle, TEggYosh
 // disappear - 0x8014F94C
 bool TYoshi::disappear() {
 	u8 state = (u8)mState;
-	u8 active;
+	int active;
 	if (state != 0) {
 		active = 1;
 	} else {
@@ -191,16 +191,7 @@ bool TYoshi::disappear() {
 	}
 	if (inWater) {
 		mState = DROWNING;
-		// inline changeAnimation(25)
-		int curAnm = mActor->getCurAnmIdx(0);
-		if (curAnm != 25) {
-			if (!mActor->checkCurAnmFromIndex(25, 0)) {
-				mActor->setBckFromIndex(25);
-			}
-			thinkBtp(25);
-			u32 frameRate = mAnimFrameRates[25];
-			// TODO: set frame rate
-		}
+		changeAnimation(25);
 	} else {
 		mState = DYING;
 	}
