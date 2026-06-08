@@ -25,6 +25,7 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 
 JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
+s16 matan(f32, f32);
 
 static const char* tabepuku_bastable[] = {
 	"/scene/tabepuku/bas/pukupuku_chase.bas",
@@ -196,22 +197,39 @@ BOOL TNerveTabePukuFound::execute(TSpineBase<TLiveActor>* spine) const
 
 	if (spine->getTime() == 0) {
 		self->setBckAnm(1);
-		self->mMarchSpeed = self->getSaveParam2()->mMarchSpeed.get();
+		self->mMarchSpeed = 0.0f;
 	}
 
-	if (!self->isFindMario(self->getSaveParam2()->mTerritoryRange.get())) {
-		spine->pushAfterCurrent(&TNerveTabePukuGraphWander::theNerve());
-		return TRUE;
-	}
+	JGeometry::TVec3<f32> forward;
+	self->mQuat.getZDir(forward);
 
-	if (spine->getTime() > 30) {
+	JGeometry::TVec3<f32> velocity(self->mVelocity);
+	velocity.scale(self->getSaveParam2()->mWaterFric.get());
+	velocity.x += forward.x * self->mMarchSpeed;
+	velocity.y += forward.y * self->mMarchSpeed;
+	velocity.z += forward.z * self->mMarchSpeed;
+	self->mVelocity = velocity;
+
+	f32 rotation;
+	if (velocity.z == 0.0f) {
+		if (velocity.x >= 0.0f)
+			rotation = 90.0f;
+		else
+			rotation = -90.0f;
+	} else if (velocity.z >= 0.0f) {
+		rotation = matan(velocity.z, velocity.x) * (360.0f / 65536.0f);
+	} else {
+		rotation
+		    = 180.0f
+		      - matan(-velocity.z, velocity.x) * (360.0f / 65536.0f);
+	}
+	self->mRotation.y = rotation;
+
+	if (self->checkCurAnmEnd(0)) {
 		spine->pushAfterCurrent(&TNerveTabePukuAttack::theNerve());
 		return TRUE;
 	}
 
-	JGeometry::TVec3<f32> toMario = *gpMarioPos;
-	toMario.sub(self->mPosition);
-	self->swimTo(toMario);
 	return FALSE;
 }
 
