@@ -428,7 +428,7 @@ void TRevolvingFenceInner::controlGroundRoof()
 		if (mMActor->curAnmEndsNext(0, nullptr)) {
 			mState = 2;
 			mMActor->setFrameRate(0.0f, 0);
-			mMActor->getFrameCtrl(0)->setRate(0.0f);
+			mMActor->getFrameCtrl(0)->setFrame(0.0f);
 			mMActor->calc();
 			onMapObjFlag(0x100);
 		}
@@ -438,7 +438,7 @@ void TRevolvingFenceInner::controlGroundRoof()
 		if (mMActor->curAnmEndsNext(0, nullptr)) {
 			mState = 1;
 			mMActor->setFrameRate(0.0f, 0);
-			mMActor->getFrameCtrl(0)->setRate(0.0f);
+			mMActor->getFrameCtrl(0)->setFrame(0.0f);
 			mMActor->calc();
 			onMapObjFlag(0x100);
 		}
