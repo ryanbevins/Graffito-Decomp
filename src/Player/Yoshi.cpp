@@ -1274,16 +1274,23 @@ void TYoshi::viewCalc() {
 void TYoshi::entry()
 {
 	u8 state = (u8)mState;
-	if (state == 0)
+	int active;
+	if (state == 0) {
+		active = 0;
+	} else {
+		active = 1;
+	}
+	if (!active)
 		return;
 
 	u8 shouldDraw = 1;
 	if (state == 6 || state == 8) {
-		if (mCurJuice >= 0x168 && mCurJuice < 0x258) {
-			if (!(mCurJuice & 0x10))
+		s32 juice = mCurJuice;
+		if (juice >= 0x168 && juice < 0x258) {
+			if (!(juice & 0x10))
 				shouldDraw = 0;
 		}
-		if (mCurJuice < 0x168 && !(mCurJuice & 0x8))
+		if (mCurJuice < 0x168 && !(juice & 0x8))
 			shouldDraw = 0;
 	}
 
@@ -1293,7 +1300,14 @@ void TYoshi::entry()
 	if (mCurJuice < 0x258)
 		mType = 0;
 
-	if ((u8)mState == 0 || shouldDraw != 1)
+	if ((u8)mState == 0) {
+		active = 0;
+	} else {
+		active = 1;
+	}
+	if (!active)
+		return;
+	if (shouldDraw != 1)
 		return;
 
 	J3DGXColorS10 color;
