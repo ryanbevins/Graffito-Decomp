@@ -139,8 +139,8 @@ void TRailFence::control()
 			setUpMapCollision(0);
 			unk13C->setTo(
 			    unk13C->unk0->findNearestNodeIndex(mPosition, 0xffffffff));
-			appear();
-			init(nullptr);
+			makeObjAppeared();
+			calcRootMatrix();
 			getModel()->calc();
 			onMapObjFlag(0x100);
 		}
