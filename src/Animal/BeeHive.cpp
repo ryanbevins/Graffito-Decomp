@@ -748,10 +748,8 @@ BOOL TBee::receiveMessage(THitActor* sender, u32 message)
 
 void TBee::init()
 {
-	void* self = this;
-
 	initHitActor(0x1000002f, 1, 0x80000000, 20.0f, 20.0f, 50.0f,
-	             100.0f);
+	             50.0f);
 
 	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
 	const char* groupName  = "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76";
@@ -760,7 +758,7 @@ void TBee::init()
 	JGadget::TList_pointer_void* list
 	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
 	JGadget::TList_pointer_void::iterator iter = list->end();
-	list->insert(iter, self);
+	list->insert(iter, (void*)this);
 
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 }
