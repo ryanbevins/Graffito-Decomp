@@ -165,7 +165,26 @@ void TYoshi::setEggYoshiPtr(TEggYoshi* egg) {
 
 // appearFromEgg - 0x8014FA60
 bool TYoshi::appearFromEgg(const JGeometry::TVec3<f32>& pos, f32 angle, TEggYoshi* egg) {
-	// TODO: implement fully - 98 instructions
+	*(JGeometry::TVec3<f32>*)((u8*)this + 0x14) = pos;
+	mTranslation                                  = pos;
+	mTranslation.y += 1.0f;
+	*(s16*)((u8*)this + 0x70) = angle * (65536.0f / 360.0f);
+	mState                    = (State)2;
+
+	changeAnimation(0);
+
+	TMapObjGeneral* fruit     = (TMapObjGeneral*)((TEggYoshi*)egg)->unk150;
+	TMapObjGeneral* heldFruit = fruit;
+	if (mMario->mHeldObject == fruit) {
+		heldFruit->receiveMessage(&mMario->mFloorHitActor, HIT_MESSAGE_UNK8);
+		heldFruit->mHolder  = nullptr;
+		mMario->mHeldObject = nullptr;
+	}
+	fruit->receiveMessage(&mMario->mFloorHitActor, HIT_MESSAGE_UNKB);
+	doEat(fruit->mActorType);
+	mCurJuice = mMaxJuice;
+	mEgg      = egg;
+	*(s16*)((u8*)this + 0x02) = *(s16*)((u8*)this + 0x04);
 	return true;
 }
 
