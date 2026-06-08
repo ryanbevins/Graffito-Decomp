@@ -38,6 +38,7 @@
 
 class TNozzleBase {
 public:
+	u8 _0[0x364];
 	virtual void init();
 	virtual s32 getNozzleKind() const;
 	virtual s16 getGunAngle();
