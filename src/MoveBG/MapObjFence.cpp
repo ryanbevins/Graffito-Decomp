@@ -290,6 +290,8 @@ void TFenceWater::control()
 void TFenceWater::controlRotation()
 {
 	switch (mState) {
+	case 1:
+		break;
 	case 2:
 		unk140 -= unk13C;
 		if (unk140 <= -90.0f) {
