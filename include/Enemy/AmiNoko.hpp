@@ -10,9 +10,16 @@ class TAmiNoko;
 
 class TAmiNokoSaveLoadParams : public TWalkerEnemyParams {
 public:
-	TAmiNokoSaveLoadParams(const char* path);
+	TAmiNokoSaveLoadParams(const char* path)
+	    : TWalkerEnemyParams(path)
+	    , PARAM_INIT(mSLElecRange, 200.0f)
+	    , PARAM_INIT(mSLMtxRotSpeed, 0.05f)
+	{
+		TParams::load(mPrmPath);
+	}
 
-	/* 0x338 */ TParamRT<f32> mSLMtxRotSpeed;
+	/* 0x32C */ TParamRT<f32> mSLElecRange;
+	/* 0x340 */ TParamRT<f32> mSLMtxRotSpeed;
 };
 
 class TAmiHit : public THitActor {
