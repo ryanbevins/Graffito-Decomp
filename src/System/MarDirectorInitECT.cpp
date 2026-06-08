@@ -114,17 +114,13 @@ void TMarDirector::initECDisp(
 	TLensFlare* lensFlare     = nullptr;
 	JDrama::TOrthoProj* ortho = nullptr;
 
-	JDrama::TViewObj* sunModel
-	    = JDrama::TNameRefGen::search<JDrama::TViewObj>("太陽モデル");
-
-	if (sunModel) {
-		lensGlow = new TLensGlow(true, "太陽遮蔽物グロー");
+	if (JDrama::TNameRefGen::search<JDrama::TViewObj>("太陽モデル")) {
+		lensGlow = new TLensGlow(false, "太陽遮蔽物グロー");
 		param_2->insert(lensGlow);
 		lensFlare = new TLensFlare("レンズフレア");
 		param_2->insert(lensFlare);
 	} else {
-		sunModel = JDrama::TNameRefGen::search<JDrama::TViewObj>("夕日モデル");
-		if (sunModel) {
+		if (JDrama::TNameRefGen::search<JDrama::TViewObj>("夕日モデル")) {
 			lensGlow = new TLensGlow(true, "太陽遮蔽物グロー");
 			param_2->insert(lensGlow);
 			lensFlare = new TLensFlare("レンズフレア");

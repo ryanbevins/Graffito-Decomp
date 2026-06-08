@@ -7539,6 +7539,24 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **How can a header-visible constructor inline in one TU while still emitting
+  a matching standalone weak in its owner TU?** In
+  `mario/System/MarDirectorInitECT`, moving
+  `JDrama::TCamera::TCamera(float,float,const char*)` from
+  `JDRNameRefGen.cpp` into `JDRCamera.hpp` made `TOrthoProj` construction
+  inline like target (`initECTGft` `69.8% -> 90.2%`, `initECDisp`
+  `79.3% -> 95.2%`) and emitted the missing
+  `JGeometry::TVec3<float>::set<float>` helper. But the standalone 204B weak
+  `TCamera` constructor disappeared from `mario/JSystem/JDrama/JDRNameRefGen`,
+  where target's `TPolarCamera` construction calls it. In-class and
+  out-of-class header `inline` definitions behaved the same. Re-adding the
+  `.cpp` definition is a hard redefinition error. `#pragma inline_depth(1)`
+  around `TPolarCamera` forced a constructor symbol but made its body
+  nonmatching (18.2%) and regressed the campaign TU; `inline_depth(8)` restore
+  compiled but did not preserve the weak. Next experiment: find a non-pragma
+  source cue that makes the `TPolarCamera` base constructor call stay outlined
+  while leaving `TOrthoProj` construction inline.
+
 - **What source shape preserves an out-of-line
   `TVec3<float>::set(const Vec&)` call when the copied temp is only read back
   as scalars?** In `mario/Camera/CameraWarp`
