@@ -36,6 +36,33 @@ them in future ticks.
 
 ## Settled
 
+### Static inline wrappers can preserve local `MsWrap<float>` helper ownership and call boundaries
+
+**Rule.** When target asm has a TU-local `MsWrap<float>(float, float, float)`
+symbol and call sites branch to it, direct `MsWrap<f32>(...)` calls may inline
+the wrap loops and leave the local helper missing. Add a small TU-local wrapper:
+
+```cpp
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+```
+
+Then call `callMsWrap(...)` at the affected sites. This gives MWCC a natural
+out-of-line local owner without changing the shared template or forcing weak
+emission globally. Verify per TU; some direct `MsWrap` uses are supposed to
+inline.
+
+**Citations.**
+- `mario/MoveBG/MapObjRailBlock` `TRailBlock::control` (2026-06-09): routing
+  the three angle-delta wraps through `callMsWrap` emitted the exact 72-byte
+  local `MsWrap<float>` symbol and moved `control` `66.2 -> 76.5`.
+- `mario/MoveBG/MapObjItem2`: existing `callMsWrap` wrapper owns an exact
+  72-byte local `MsWrap<float>` symbol used by mushroom angle wrapping.
+- `mario/Enemy/popo`: existing `callMsWrap` wrapper owns an exact 72-byte local
+  `MsWrap<float>` symbol used by `TPopo` rotation wrapping.
+
 ### By-value `TVec3<float>` scalar multiply preserves weak `scale(float)` call boundaries
 
 **Rule.** When target asm copies a `TVec3<float>` to a stack temp, loads a
