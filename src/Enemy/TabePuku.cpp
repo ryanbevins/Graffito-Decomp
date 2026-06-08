@@ -79,7 +79,7 @@ DEFINE_NERVE(TNerveTabePukuDrag, TLiveActor)
 
 	bool shouldRelease = self->mTouchedWall || !self->isAirborne();
 	if (!shouldRelease) {
-		JGeometry::TVec3<f32> base = getTabePukuGoal(self);
+		JGeometry::TVec3<f32> base = getTabePukuGoalRef(self);
 		base.sub(self->mPosition);
 		shouldRelease = JGeometry::TUtil<f32>::sqrt(base.dot(base))
 		                > self->getSaveParam2()->mDragLength.get();
