@@ -58,19 +58,23 @@ DEFINE_NERVE(TNerveTabePukuDrag, TLiveActor)
 	TTabePuku* self = (TTabePuku*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		f32 angle = 6.2831855f * (rand() * (1.0f / (RAND_MAX + 1)));
-		self->mDragDirection.set(sinf(angle), 0.0f, cosf(angle));
+		self->mDragDirection.set(0.0f, 0.0f, 1.0f);
+		JGeometry::TQuat4<f32> rot;
+		rot.setRotate(self->mDragDirection,
+		              (rand() * (1.0f / 32768.0f)) * 6.2831855f);
+		rot.rotate(self->mDragDirection);
 		self->setGoalPath(TPathNode(self->mPosition));
 		self->mMarchSpeed = self->getSaveParam2()->mDiveSpeed.get();
 	}
 
 	self->swimTo(self->mDragDirection);
 
-	bool shouldRelease = false;
-	if (self->mTouchedWall || !self->isAirborne()) {
+	bool shouldRelease = self->mTouchedWall || !self->isAirborne();
+	if (!shouldRelease) {
 		JGeometry::TVec3<f32> base = getTabePukuGoal(self);
 		base.sub(self->mPosition);
-		shouldRelease = base.length() > self->getSaveParam2()->mDragLength.get();
+		shouldRelease = JGeometry::TUtil<f32>::sqrt(base.dot(base))
+		                > self->getSaveParam2()->mDragLength.get();
 	}
 
 	if (shouldRelease) {
