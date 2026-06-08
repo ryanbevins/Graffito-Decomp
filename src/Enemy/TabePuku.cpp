@@ -189,10 +189,8 @@ DEFINE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor)
 	TTabePuku* self = (TTabePuku*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		if (self->getTracer()) {
-			self->getTracer()->mPrevIdx = -1;
-			self->getTracer()->mCurrIdx = -1;
-		}
+		self->getTracer()->mPrevIdx = -1;
+		self->getTracer()->mCurrIdx = -1;
 		self->goToShortestNextGraphNode();
 		self->mMarchSpeed = self->getSaveParam2()->mMarchSpeed.get();
 	}
@@ -202,10 +200,15 @@ DEFINE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor)
 		return TRUE;
 	}
 
-	JGeometry::TVec3<f32> goal = getTabePukuGoal(self);
+	JGeometry::TVec3<f32> offset;
+	if (!self->isAirborne() || self->mTouchedWall)
+		offset.set(0.0f, 10000.0f, 0.0f);
+	else
+		offset.set(0.0f, 0.0f, 0.0f);
+
+	JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
 	goal.sub(self->mPosition);
-	if (self->isAirborne() || self->mTouchedWall)
-		goal.y += 10000.0f;
+	goal.add(offset);
 	self->swimTo(goal);
 	return FALSE;
 }
