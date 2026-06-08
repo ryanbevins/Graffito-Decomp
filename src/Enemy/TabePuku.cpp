@@ -435,24 +435,31 @@ void TTabePuku::calcRootMatrix()
 
 void TTabePuku::bind()
 {
-	TTabePukuSaveLoadParams* params = getSaveParam2();
-	mHitActor->mAttackRadius = (f32)params->mSLAttackRadius.get();
-	mHitActor->mAttackHeight = (f32)params->mSLAttackHeight.get();
-	mHitActor->mDamageRadius = (f32)params->mSLDamageRadius.get();
-	mHitActor->mDamageHeight = (f32)params->mSLDamageHeight.get();
-	mHitActor->calcEntryRadius();
+	TTPHitActor* hitActor = mHitActor;
+	f32 damageHeight
+	    = (f32)hitActor->mOwner->getSaveParam2()->mSLDamageHeight.get();
+	f32 damageRadius
+	    = (f32)hitActor->mOwner->getSaveParam2()->mSLDamageRadius.get();
+	f32 attackHeight
+	    = (f32)hitActor->mOwner->getSaveParam2()->mSLAttackHeight.get();
+	hitActor->mAttackRadius
+	    = (f32)hitActor->mOwner->getSaveParam2()->mSLAttackRadius.get();
+	hitActor->mAttackHeight = attackHeight;
+	hitActor->mDamageRadius = damageRadius;
+	hitActor->mDamageHeight = damageHeight;
+	hitActor->calcEntryRadius();
 
-	mHitActor->updateTerrainCollsion();
-	mHitActor->bind();
+	hitActor->updateTerrainCollsion();
+	hitActor->bind();
 
-	mLinearVelocity = mHitActor->mMove;
-	mTouchedWall    = mHitActor->mTouchedWall;
-	if (mHitActor->mIsAirborne)
+	mLinearVelocity = hitActor->mMove;
+	mTouchedWall    = hitActor->mTouchedWall;
+	if (hitActor->mIsAirborne)
 		onLiveFlag(LIVE_FLAG_AIRBORNE);
 	else
 		offLiveFlag(LIVE_FLAG_AIRBORNE);
-	mGroundPlane  = mHitActor->mGroundPlane;
-	mGroundHeight = mHitActor->mGroundHeight;
+	mGroundPlane  = hitActor->mGroundPlane;
+	mGroundHeight = hitActor->mGroundHeight;
 }
 
 void TTabePuku::control()
