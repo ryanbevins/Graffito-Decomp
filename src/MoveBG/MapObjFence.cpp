@@ -357,13 +357,17 @@ void TRevolvingFenceInner::initMapObj()
 		unk138 = 1;
 	TMapObjBase::initMapObj();
 
-	unk140 = (fabsf(mRotation.x) < 1.0f && fabsf(mRotation.z) < 1.0f) ? 1 : 0;
+	if (fabsf(mRotation.x) < 1.0f && fabsf(mRotation.z) < 1.0f)
+		unk140 = 1;
+	else
+		unk140 = 0;
 
+	TMapCollisionManager* manager = mMapCollisionManager;
 	Mtx mtx;
 	MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
 	            mRotation.y, mRotation.z, mScaling.x, mScaling.y, mScaling.z);
-	TMapCollisionBase* base = mMapCollisionManager->getUnk8();
-	base->setMtx(mtx);
+	TMapCollisionBase* base = manager->getUnk8();
+	PSMTXCopy(mtx, base->unk20);
 	base->setUp();
 }
 
