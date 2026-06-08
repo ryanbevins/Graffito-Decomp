@@ -11,6 +11,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <dolphin/mtx.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -116,30 +117,44 @@ void TRailFence::control()
 void TRailFence::goOnRail()
 {
 	TGraphTracer* tracer = unk13C;
-	if (!tracer->unk0 || tracer->unk0->isDummy())
+	TGraphWeb* graph     = tracer->unk0;
+	if (!graph)
 		return;
 
-	JGeometry::TVec3<f32> nodePos = tracer->unk0->indexToPoint(tracer->mCurrIdx);
-	JGeometry::TVec3<f32> diff;
-	diff.sub(nodePos, mPosition);
-	f32 dist = diff.length();
-	if (dist < unk140) {
-		tracer->unk0->getGraphNode(tracer->mCurrIdx).getPoint(mPosition);
-		int next = tracer->unk0->getShortestNextIndex(tracer->mCurrIdx,
-		                                              tracer->mPrevIdx,
-		                                              0xffffffff);
-		if (next < 0) {
-			mState     = 3;
+	JGeometry::TVec3<f32> nodePos = graph->indexToPoint(tracer->mCurrIdx);
+	JGeometry::TVec3<f32> diff   = nodePos;
+	diff.x -= mPosition.x;
+	diff.y -= mPosition.y;
+	diff.z -= mPosition.z;
+
+	f32 distSquared
+	    = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+	if (distSquared < 50.0f) {
+		const TRailNode* railNode
+		    = graph->getGraphNode(tracer->mCurrIdx).getRailNode();
+		if (railNode->mConnectionNum == 0 && (railNode->mFlags & 0x8)) {
+			if (gpMSound->gateCheck(0x3863))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x3863, (const Vec*)&mPosition, 0, nullptr, 0, 4);
 			mLifeTimer = mWaitTime;
+			startAnim(1);
+			mState     = 3;
 			return;
 		}
-		tracer->moveTo(next);
-	} else {
-		f32 invLen = 1.0f / dist;
-		mPosition.x += diff.x * invLen * unk140;
-		mPosition.y += diff.y * invLen * unk140;
-		mPosition.z += diff.z * invLen * unk140;
+
+		tracer->moveTo(graph->getShortestNextIndex(tracer->mCurrIdx,
+		                                           tracer->mPrevIdx,
+		                                           0xffffffff));
+		diff = graph->indexToPoint(tracer->mCurrIdx);
 	}
+
+	if (gpMSound->gateCheck(0x3065))
+		MSoundSESystem::MSoundSE::startSoundActor(
+		    0x3065, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+	PSVECNormalize((Vec*)&diff, (Vec*)&diff);
+	mLinearVelocity.x += diff.x * unk140;
+	mLinearVelocity.y += diff.y * unk140;
+	mLinearVelocity.z += diff.z * unk140;
 }
 
 BOOL TRailFence::receiveMessage(THitActor* sender, u32 message)
