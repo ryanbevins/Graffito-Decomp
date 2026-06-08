@@ -294,8 +294,154 @@ void TYoshi::getOff(bool knockedOff) {
 }
 
 // thinkAnimation - 0x8014F1A0
-void TYoshi::thinkAnimation() {
-	// TODO: implement - 253 instructions
+void TYoshi::thinkAnimation()
+{
+	f32 frameRate = mMario->getMotionFrameCtrl().getRate();
+	u16 curAnim   = mActor->getCurAnmIdx(0);
+	u16 nextAnim  = curAnim;
+	u32 action    = mMario->mAction;
+
+	if (action & 0x400) {
+		int changed;
+		if (curAnim == 0xC) {
+			nextAnim = 0xB;
+			changed  = 1;
+		} else {
+			changed = 0;
+		}
+
+		if (!changed) {
+			nextAnim = 0xF;
+			if (action == 0x00800456 || action == 0x0084045D
+			    || action == 0x0004045E || (action & 0x40000)) {
+				nextAnim = 0x13;
+			}
+		}
+	} else if (action & 0x800) {
+		if (mFlutterState == 1) {
+			nextAnim = 9;
+		} else if (action == 0x008008A9) {
+			u16 actionState = mMario->mActionState;
+			if (actionState < 2) {
+				nextAnim = 8;
+			} else if (actionState < 4) {
+				nextAnim = 7;
+			}
+		} else if (mMario->mVel.y > 0.0f) {
+			nextAnim = 0xA;
+		} else {
+			nextAnim = 0xC;
+		}
+	} else {
+		int selected = 0;
+		if (action & 0x200) {
+			if (action == 0x386 || action == 0x0C00023D
+			    || action == 0x0C00023E) {
+				nextAnim = 0x12;
+				selected = 1;
+			}
+		}
+
+		if (!selected) {
+			int pumping;
+			if (action & 0x8000) {
+				pumping = 1;
+			} else {
+				pumping = 0;
+			}
+
+			int pumpSelected = 0;
+			if (pumping) {
+				if (mMario->mGamePad->mMeaning & 0x2000) {
+					E_SIDEWALK_TYPE sideType;
+					f32 sideStick;
+					mMario->getSideWalkValues(&sideType, &frameRate,
+					                           &sideStick);
+					switch (sideType) {
+					case (E_SIDEWALK_TYPE)0:
+						nextAnim = 0x16;
+						pumpSelected = 1;
+						break;
+					case (E_SIDEWALK_TYPE)1:
+						nextAnim = 0x10;
+						pumpSelected = 1;
+						break;
+					case (E_SIDEWALK_TYPE)2:
+						nextAnim = 0x11;
+						pumpSelected = 1;
+						break;
+					}
+				} else if (mMario->mGamePad->mMeaning & 0x400) {
+					nextAnim = 0xD;
+					pumpSelected = 1;
+				}
+			}
+
+			if (!pumpSelected) {
+				if (mMario->mAction == 0x0080023C) {
+					nextAnim = 6;
+				} else if (mMario->mAction == 0x1302) {
+					nextAnim = 2;
+				} else {
+					nextAnim = 0x16;
+				}
+			}
+		}
+	}
+
+	if (curAnim == 0x18)
+		curAnim = 0xF;
+
+	if ((u16)nextAnim == 0x18)
+		nextAnim = 0xF;
+
+	if ((u16)nextAnim != curAnim) {
+		u16 checkedAnim = nextAnim;
+		if (checkedAnim == 0xF) {
+			mActor->setBckFromIndex(0x18);
+			mActor->setBckFromIndex(0xF);
+		} else {
+			MActor* actor = mActor;
+			if (!actor->checkCurBckFromIndex(checkedAnim))
+				actor->setBckFromIndex(checkedAnim);
+		}
+
+		thinkBtp((u16)nextAnim);
+		((MAnmSound*)mBckPlayer)
+		    ->initAnmSound((void*)mAnimFrameRates[(u16)nextAnim], 1, 0.0f);
+	}
+
+	if ((u16)nextAnim == 0xF) {
+		f32 blend = (mMario->mForwardVel - *(f32*)((u8*)this + 0x98))
+		            / (*(f32*)((u8*)this + 0x9C)
+		               - *(f32*)((u8*)this + 0x98));
+		if (blend < 0.0f)
+			blend = 0.0f;
+		if (blend > 1.0f)
+			blend = 1.0f;
+
+		if (mActor->unkC != nullptr)
+			mActor->unkC->setMotionBlendRatio(1.0f - blend);
+
+		J3DAnmTransform* oldAnm;
+		if (mActor->unkC == nullptr) {
+			oldAnm = nullptr;
+		} else {
+			oldAnm = mActor->unkC->getOldMotionBlendAnmPtr();
+		}
+		*(f32*)((u8*)oldAnm + 0x4) = mActor->getFrameCtrl(0)->getFrame();
+
+		if (mMario->mAction == 0x0004045C) {
+			frameRate = mMario->getMotionFrameCtrl().getRate();
+		} else {
+			frameRate = *(f32*)((u8*)this + 0xA4) * mMario->mForwardVel
+			            + *(f32*)((u8*)this + 0xA0);
+		}
+	} else if (mActor->unkC != nullptr) {
+		mActor->unkC->setMotionBlendRatio(0.0f);
+	}
+
+	mActor->getFrameCtrl(0)->setRate(frameRate);
 }
 
 // thinkUpper - 0x8014EF78
