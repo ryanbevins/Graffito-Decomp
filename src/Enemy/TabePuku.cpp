@@ -527,7 +527,7 @@ void TTabePuku::init(TLiveManager* manager)
 
 	mQuat = SMS_Eular2Quat(mRotation);
 	mMouthJointIndex
-	    = getModel()->getModelData()->getJointName()->getIndex("jnt_mouth_up");
+	    = (u16)getModel()->getModelData()->getJointName()->getIndex("jnt_mouth_up");
 	initAnmSound();
 }
 
