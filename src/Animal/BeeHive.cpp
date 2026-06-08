@@ -219,7 +219,6 @@ DEFINE_NERVE(TNerveBeeHiveFall, TLiveActor)
 	}
 
 	hive->mAngularVelocity.x += hive->mAngularVelocity.y;
-	hive->bind();
 
 	if (!hive->checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
 		spine->pushAfterCurrent(&TNerveBeeHiveBreak::theNerve());
