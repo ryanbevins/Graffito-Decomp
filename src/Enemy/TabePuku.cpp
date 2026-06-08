@@ -384,25 +384,35 @@ MtxPtr TTabePuku::getTakingMtx()
 	f32 y = mQuat.y;
 	f32 z = mQuat.z;
 	f32 w = mQuat.w;
+	f32* row1 = mTakingMtx[1];
+	f32* row2 = mTakingMtx[2];
 
 	mTakingMtx[0][0] = 1.0f - 2.0f * y * y - 2.0f * z * z;
 	mTakingMtx[0][1] = 2.0f * x * y - 2.0f * w * z;
 	mTakingMtx[0][2] = 2.0f * x * z + 2.0f * w * y;
-	mTakingMtx[1][0] = 2.0f * x * y + 2.0f * w * z;
-	mTakingMtx[1][1] = 1.0f - 2.0f * x * x - 2.0f * z * z;
-	mTakingMtx[1][2] = 2.0f * y * z - 2.0f * w * x;
-	mTakingMtx[2][0] = 2.0f * x * z - 2.0f * w * y;
-	mTakingMtx[2][1] = 2.0f * y * z + 2.0f * w * x;
-	mTakingMtx[2][2] = 1.0f - 2.0f * x * x - 2.0f * y * y;
+	row1[0] = 2.0f * x * y + 2.0f * w * z;
+	row1[1] = 1.0f - 2.0f * x * x - 2.0f * z * z;
+	row1[2] = 2.0f * y * z - 2.0f * w * x;
+	row2[0] = 2.0f * x * z - 2.0f * w * y;
+	row2[1] = 2.0f * y * z + 2.0f * w * x;
+	row2[2] = 1.0f - 2.0f * x * x - 2.0f * y * y;
+
+	f32 zAxisZ = row2[2];
+	f32 zAxisY = row1[2];
+	f32 zAxisX = mTakingMtx[0][2];
+	f32 yAxisZ = row2[1];
+	f32 yAxisY = row1[1];
+	f32 yAxisX = mTakingMtx[0][1];
 
 	f32 correctZ = getSaveParam2()->mCorrectZ.get();
+	f32 transX   = mPosition.x + zAxisX * correctZ;
+	f32 transY   = mPosition.y + zAxisY * correctZ;
+	f32 transZ   = mPosition.z + zAxisZ * correctZ;
+
 	f32 correctY = getSaveParam2()->mCorrectY.get();
-	mTakingMtx[0][3] = mPosition.x + mTakingMtx[0][2] * correctZ
-	                   + mTakingMtx[0][1] * correctY;
-	mTakingMtx[1][3] = mPosition.y + mTakingMtx[1][2] * correctZ
-	                   + mTakingMtx[1][1] * correctY;
-	mTakingMtx[2][3] = mPosition.z + mTakingMtx[2][2] * correctZ
-	                   + mTakingMtx[2][1] * correctY;
+	mTakingMtx[0][3] = yAxisX * correctY + transX;
+	row1[3] = yAxisY * correctY + transY;
+	row2[3] = yAxisZ * correctY + transZ;
 
 	return mTakingMtx;
 }
