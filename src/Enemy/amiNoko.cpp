@@ -83,11 +83,11 @@ DEFINE_NERVE(TNerveAmiNokoDie, TLiveActor)
 		normDir.z      = baseMtx[2][1];
 		MsVECNormalize((Vec*)&normDir, (Vec*)&normDir);
 
-		f32 speed   = 10.0f;
+		f32 speed   = 20.0f;
 		normDir.x  *= speed;
 		normDir.y  *= speed;
 		normDir.z  *= speed;
-		self->mPosition.y += 50.0f;
+		self->mPosition.y += 10.0f;
 		self->mVelocity.x = normDir.x;
 		self->mVelocity.y = normDir.y;
 		self->mVelocity.z = normDir.z;
@@ -107,23 +107,23 @@ DEFINE_NERVE(TNerveAmiNokoDie, TLiveActor)
 		bool hitWall = false;
 		if (gpMap->isTouchedOneWallAndMoveXZ(
 		        &self->mPosition.x, self->mPosition.y, &self->mPosition.z,
-		        2.0f * self->mBodyRadius)) {
+		        3.0f * self->mBodyRadius)) {
 			JGeometry::TVec3<f32> zeroVec(0.0f, 0.0f, 0.0f);
 			self->mVelocity = zeroVec;
 
-			s16 rotY = (s16)(360.0f * self->mScaling.x);
+			s16 rotY = (s16)(182.04445f * self->mRotation.y);
 			JPABaseEmitter* emitter
 			    = gpMarioParticleManager->emitWithRotate(
 			        0xE2, &self->mPosition, 0, rotY, 0, 0, nullptr);
 			if (emitter) {
-				emitter->unk154.x = self->mRotation.x;
-				emitter->unk154.y = self->mRotation.y;
-				emitter->unk154.z = self->mRotation.z;
-				emitter->unk174.x    = self->mRotation.x;
-				emitter->unk174.y    = self->mRotation.y;
-				emitter->unk174.z    = self->mRotation.z;
+				emitter->unk154.x = self->mScaling.x;
+				emitter->unk154.y = self->mScaling.y;
+				emitter->unk154.z = self->mScaling.z;
+				emitter->unk174.x = self->mScaling.x;
+				emitter->unk174.y = self->mScaling.y;
+				emitter->unk174.z = self->mScaling.z;
 			}
-			s16 rotY2 = (s16)(360.0f * self->mScaling.x);
+			s16 rotY2 = (s16)(182.04445f * self->mRotation.y);
 			JPABaseEmitter* emitter2
 			    = gpMarioParticleManager->emitWithRotate(
 			        0xE3, &self->mPosition, 0, rotY2, 0, 0, nullptr);
@@ -138,7 +138,7 @@ DEFINE_NERVE(TNerveAmiNokoDie, TLiveActor)
 				// not airborne, fall through to kill
 			} else {
 				f32 len = toMario.length();
-				if (!(len > 200.0f)) {
+				if (!(len > 10000.0f)) {
 					return false;
 				}
 			}
@@ -153,6 +153,7 @@ DEFINE_NERVE(TNerveAmiNokoDie, TLiveActor)
 		self->stopAnmSound();
 		spine->reset();
 		spine->setNext(&TNerveSmallEnemyDie::theNerve());
+		spine->pushAfterCurrent(spine->getDefault());
 		self->genRandomItem();
 		return true;
 	}
