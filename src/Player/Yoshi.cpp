@@ -212,7 +212,7 @@ bool TYoshi::disappear() {
 // kill - 0x8014F834
 void TYoshi::kill() {
 	u8 state = (u8)mState;
-	u8 active;
+	int active;
 	if (state != 0) {
 		active = 1;
 	} else {
@@ -238,7 +238,8 @@ void TYoshi::kill() {
 		mType = 0;
 		mSubState = 30;
 	}
-	// TODO: stop sounds on mBckPlayer and mBckPlayer2
+	((MAnmSound*)mBckPlayer)->stop();
+	((MAnmSound*)mBckPlayer2)->stop();
 }
 
 // ride - 0x8014F744
