@@ -533,7 +533,7 @@ bool TAmiNoko::isHitValid(u32 msg)
 
 		f32 dot = 0.0f * unk19C.y + dx * unk19C.x + dz * unk19C.z;
 		if (dot > 0.0f || msg == 1) {
-			mSpine->pushNerve(&TNerveAmiNokoFreeze::theNerve());
+			mSpine->pushNerve(&TNerveAmiNokoDie::theNerve());
 		}
 	}
 
