@@ -297,7 +297,7 @@ void TAmiNoko::reset() { TWalkerEnemy::reset(); }
 
 void TAmiNoko::load(JSUMemoryInputStream& stream)
 {
-	TWalkerEnemy::load(stream);
+	TSpineEnemy::load(stream);
 	stream.read(&mCoinId, 4);
 }
 
