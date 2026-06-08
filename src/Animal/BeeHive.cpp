@@ -341,7 +341,7 @@ BOOL TBeeHive::doWait()
 
 	if (mAngularVelocity.x < -mAngularVelocity.z
 	    || mAngularVelocity.x > mAngularVelocity.z) {
-		mAngularVelocity.z += params->mShakePower.get();
+		mAngularVelocity.z += params->mAngleMaxAdd.get();
 		mAngularVelocity.z = JGeometry::TUtil<f32>::clamp(
 		    mAngularVelocity.z, 0.0f, 1.5707964f);
 		mAngularVelocity.x = JGeometry::TUtil<f32>::clamp(
