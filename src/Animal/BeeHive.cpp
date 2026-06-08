@@ -209,7 +209,7 @@ DEFINE_NERVE(TNerveBeeHiveFall, TLiveActor)
 
 			if (obj) {
 				obj->appear();
-				obj->moveRequest(hive->mPosition);
+				obj->JSGSetTranslation(hive->mPosition);
 				obj->mVelocity.set(0.0f, 0.0f, 0.0f);
 				obj->offLiveFlag(0x10);
 				obj->onLiveFlag(LIVE_FLAG_AIRBORNE);
