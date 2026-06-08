@@ -469,7 +469,7 @@ void TAmiNoko::bind()
 void TAmiNoko::attackToMario()
 {
 	const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
-	if (nerve == &TNerveAmiNokoDie::theNerve()) {
+	if (nerve == &TNerveSmallEnemyChange::theNerve()) {
 		return;
 	}
 	if (unk194 == 0) {
@@ -480,7 +480,7 @@ void TAmiNoko::attackToMario()
 
 	switch (unk198) {
 	case 0:
-		if (!SMS_GetMarioHitActor()) {
+		if (!SMS_GetMarioRfPlane()) {
 			break;
 		}
 		if (gpMarioPos->y < mPosition.y) {
@@ -488,7 +488,7 @@ void TAmiNoko::attackToMario()
 		}
 		break;
 	case 1:
-		if (!SMS_GetMarioHitActor()) {
+		if (!SMS_GetMarioGrPlane()) {
 			break;
 		}
 		if (20.0f + gpMarioPos->y > mPosition.y) {
@@ -496,15 +496,15 @@ void TAmiNoko::attackToMario()
 		}
 		break;
 	case 2: {
-		THitActor* mario = SMS_GetMarioHitActor();
-		if (!mario) {
+		const TBGCheckData* marioPlane = SMS_GetMarioWlPlane();
+		if (!marioPlane) {
 			break;
 		}
 		{
-			THitActor* hitActor = (THitActor*)unk194;
-			f32 dot = mario->mRotation.z * hitActor->mRotation.z
-			          + mario->mRotation.y * hitActor->mRotation.y
-			          + *(f32*)&mario->unk3C * *(f32*)&hitActor->unk3C;
+			const JGeometry::TVec3<f32>* marioNormal = &marioPlane->mNormal;
+			f32 dot = marioNormal->y * unk194->mNormal.y;
+			dot += marioNormal->x * unk194->mNormal.x;
+			dot += marioNormal->z * unk194->mNormal.z;
 			if (dot < 0.0f) {
 				doAttack = 0;
 			}
@@ -516,11 +516,11 @@ void TAmiNoko::attackToMario()
 		return;
 	}
 
-	if (!isBckAnm(9)) {
+	if (!SMS_SendMessageToMario(this, 9)) {
 		return;
 	}
 
-	mSpine->pushNerve(&TNerveAmiNokoDie::theNerve());
+	mSpine->pushNerve(&TNerveAmiNokoFreeze::theNerve());
 }
 
 bool TAmiNoko::isHitValid(u32 msg)
