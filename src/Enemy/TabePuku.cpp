@@ -582,10 +582,11 @@ void TTPHitActor::bind()
 
 void TTPHitActor::updateTerrainCollsion()
 {
-	f32 yOffset = -0.6666667f * mAttackHeight;
+	f32 yOffset = 0.6666667f * mAttackHeight;
 	JGeometry::TVec3<f32> up;
 	JGeometry::TQuat4<f32> quat(mOwner->mQuat);
 	quat.getYDir(up);
+	up.x = -up.x;
 
 	mCheckHeight = mAttackHeight;
 	mCheckRadius = mAttackRadius;
@@ -601,7 +602,7 @@ void TTPHitActor::updateTerrainCollsion()
 	JGeometry::TVec3<f32> next;
 	next.scaleAdd(0.5f * mAttackHeight, mOwner->mPosition, up);
 
-	JGeometry::TVec3<f32> offset(0.0f, 1.0f, 0.0f);
+	JGeometry::TVec3<f32> offset(0.0f, -1.0f, 0.0f);
 	next.scaleAdd(yOffset, next, offset);
 
 	JGeometry::TVec3<f32> move(next);
