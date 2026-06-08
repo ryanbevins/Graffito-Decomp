@@ -630,7 +630,7 @@ void TAmiNoko::calcRootMatrix()
 	wallRecord.mCenter.x = mPosition.x;
 	wallRecord.mCenter.y = mPosition.y;
 	wallRecord.mCenter.z = mPosition.z;
-	wallRecord.mRadius = 150.0f;
+	wallRecord.mRadius = 10.0f;
 	wallRecord.mMaxResults = 4;
 	wallRecord.mFlags = 0;
 	int wallCount = gpMap->isTouchedWallsAndMoveXZ(&wallRecord);
@@ -763,7 +763,7 @@ void TAmiNoko::calcRootMatrix()
 
 	// Check forward vs direction dot product
 	f32 fwdDot = unk1A8.x * dir.x + unk1A8.y * dir.y + unk1A8.z * dir.z;
-	if (fwdDot < 0.0f) {
+	if (fwdDot < -0.1f) {
 		Mtx rotMtx;
 		PSMTXRotAxisRad(rotMtx, (Vec*)&normal, 3.14159265f);
 		PSMTXMultVec(rotMtx, &dir, &dir);
@@ -834,7 +834,7 @@ void TAmiNoko::calcRootMatrix()
 
 	f32 rightLen2 =
 	    right.x * right.x + right.y * right.y + right.z * right.z;
-	if (rightLen2 <= 0.0001f) {
+	if (rightLen2 <= 0.0000038146973f) {
 		// Use previous vectors
 		up.x = unk1B4.x;
 		up.y = unk1B4.y;
@@ -849,7 +849,7 @@ void TAmiNoko::calcRootMatrix()
 
 		f32 rightLen2b =
 		    right.x * right.x + right.y * right.y + right.z * right.z;
-		if (rightLen2b <= 0.0001f) {
+		if (rightLen2b <= 0.0000038146973f) {
 			right.x = 1.0f;
 			right.y = 0.0f;
 			right.z = 0.0f;
@@ -873,7 +873,7 @@ void TAmiNoko::calcRootMatrix()
 
 	f32 fwd2Len2 =
 	    forward2.x * forward2.x + forward2.y * forward2.y + forward2.z * forward2.z;
-	if (fwd2Len2 <= 0.0001f) {
+	if (fwd2Len2 <= 0.0000038146973f) {
 		forward2.x = 0.0f;
 		forward2.y = 0.0f;
 		forward2.z = 1.0f;
@@ -888,7 +888,7 @@ void TAmiNoko::calcRootMatrix()
 	up2.z = forward2.x * right.y - forward2.y * right.x;
 
 	f32 up2Len2 = up2.x * up2.x + up2.y * up2.y + up2.z * up2.z;
-	if (up2Len2 <= 0.0001f) {
+	if (up2Len2 <= 0.0000038146973f) {
 		up2.x = 0.0f;
 		up2.y = 1.0f;
 		up2.z = 0.0f;
@@ -922,11 +922,11 @@ void TAmiNoko::calcRootMatrix()
 
 	PSMTXCopy(*baseMtx, unk1CC);
 
-	// Copy rotation to model
+	// Copy scaling to model
 	J3DModel* mdl = getModel();
-	mdl->unk14.x = mRotation.x;
-	mdl->unk14.y = mRotation.y;
-	mdl->unk14.z = mRotation.z;
+	mdl->unk14.x = mScaling.x;
+	mdl->unk14.y = mScaling.y;
+	mdl->unk14.z = mScaling.z;
 }
 
 void TAmiHit::perform(u32 flags, JDrama::TGraphics* graphics)
