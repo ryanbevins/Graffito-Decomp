@@ -404,7 +404,35 @@ Mtx* TRollBlock::getRootJointMtx() const
 	return (Mtx*)getModel()->getAnmMtx(0);
 }
 
-void TRollBlock::calcRootMatrix() { }
+void TRollBlock::calcRootMatrix()
+{
+	J3DModel* model = getModel();
+	MtxPtr mtx      = model->getBaseTRMtx();
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y - mYOffset, mPosition.z,
+	               (s16)(mRotation.x * 50.0f),
+	               (s16)(mRotation.y * 50.0f),
+	               (s16)(mRotation.z * 50.0f));
+	model->setBaseScale(mScaling);
+
+	s16 angle = unk138 * 50.0f;
+	f32 sinV  = jmaSinTable[(u16)angle >> jmaSinShift];
+	f32 cosV  = jmaCosTable[(u16)angle >> jmaSinShift];
+
+	Mtx rot;
+	rot[0][0] = cosV;
+	rot[0][1] = -sinV;
+	rot[0][2] = 0.0f;
+	rot[0][3] = 0.0f;
+	rot[1][0] = sinV;
+	rot[1][1] = cosV;
+	rot[1][2] = 0.0f;
+	rot[1][3] = 0.0f;
+	rot[2][0] = 0.0f;
+	rot[2][1] = 0.0f;
+	rot[2][2] = 1.0f;
+	rot[2][3] = 0.0f;
+	MTXConcat(mtx, rot, mtx);
+}
 
 void TRollBlock::control()
 {
