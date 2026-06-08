@@ -383,19 +383,27 @@ void TRevolvingFenceInner::control()
 
 void TRevolvingFenceInner::setGroundCollision()
 {
-	u8* yoshi = (u8*)SMS_GetYoshi();
-	if (yoshi && *yoshi) {
-		f32 yx = *(f32*)(yoshi + 0x20);
-		f32 yz = *(f32*)(yoshi + 0x28);
-		if (mPosition.x - mBodyRadius < yx
-		    && mPosition.x + mBodyRadius > yx
-		    && mPosition.z - mBodyRadius < yz
-		    && mPosition.z + mBodyRadius > yz) {
+	void* yoshi = SMS_GetYoshi();
+	int hasYoshi;
+	if (!*(u8*)yoshi)
+		hasYoshi = 0;
+	else
+		hasYoshi = 1;
+
+	if (hasYoshi) {
+		if (mPosition.x - mBodyRadius
+		        < *(f32*)((u8*)SMS_GetYoshi() + 0x20)
+		    && mPosition.x + mBodyRadius
+		        > *(f32*)((u8*)SMS_GetYoshi() + 0x20)
+		    && mPosition.z - mBodyRadius
+		        < *(f32*)((u8*)SMS_GetYoshi() + 0x28)
+		    && mPosition.z + mBodyRadius
+		        > *(f32*)((u8*)SMS_GetYoshi() + 0x28)) {
 			Mtx mtx;
 			JGeometry::gekko_ps_copy12(mtx, getModel()->mNodeMatrices);
 			TMapCollisionBase* coll = mMapCollisionManager->getUnk8();
 			if (coll)
-				coll->setMtx(mtx);
+				coll->moveMtx(mtx);
 		}
 	}
 	TMapObjBase::setGroundCollision();
