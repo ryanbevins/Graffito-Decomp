@@ -516,10 +516,11 @@ void TRollBlock::calcRootMatrix()
 {
 	J3DModel* model = getModel();
 	MtxPtr mtx      = model->getBaseTRMtx();
+	s16 rotZ        = mRotation.z * 50.0f;
+	s16 rotY        = mRotation.y * 50.0f;
+	s16 rotX        = mRotation.x * 50.0f;
 	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y - mYOffset, mPosition.z,
-	               (s16)(mRotation.x * 50.0f),
-	               (s16)(mRotation.y * 50.0f),
-	               (s16)(mRotation.z * 50.0f));
+	               rotX, rotY, rotZ);
 	model->setBaseScale(mScaling);
 
 	s16 angle = unk138 * 50.0f;
