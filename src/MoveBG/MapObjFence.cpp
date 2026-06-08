@@ -32,6 +32,11 @@ int TFenceWater::mTurnedWaitTime = 600;
 
 f32 TRevolvingFenceInner::mSpeed = 4.0f;
 
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
 #pragma dont_inline on
 static void MsMtxSetRotY(MtxPtr m, f32 deg)
 {
@@ -446,7 +451,7 @@ void TRevolvingFenceInner::controlWall()
 			mState      = 2;
 		}
 		mRotation.y = unk13C + mInitialRotation.y;
-		MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
+		callMsWrap(mRotation.y, 0.0f, 360.0f);
 		MtxPtr m = getModel()->getAnmMtx(0);
 		MsMtxSetRotY(m, mRotation.y);
 		m[0][3] = mPosition.x;
@@ -462,7 +467,7 @@ void TRevolvingFenceInner::controlWall()
 			mState      = 1;
 		}
 		mRotation.y = unk13C + mInitialRotation.y;
-		MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
+		callMsWrap(mRotation.y, 0.0f, 360.0f);
 		MtxPtr m = getModel()->getAnmMtx(0);
 		MsMtxSetRotY(m, mRotation.y);
 		m[0][3] = mPosition.x;
@@ -478,7 +483,7 @@ void TRevolvingFenceInner::controlWall()
 			mState      = 2;
 		}
 		mRotation.y = unk13C + mInitialRotation.y;
-		MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
+		callMsWrap(mRotation.y, 0.0f, 360.0f);
 		MtxPtr m = getModel()->getAnmMtx(0);
 		MsMtxSetRotY(m, mRotation.y);
 		m[0][3] = mPosition.x;
@@ -494,7 +499,7 @@ void TRevolvingFenceInner::controlWall()
 			mState      = 1;
 		}
 		mRotation.y = unk13C + mInitialRotation.y;
-		MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
+		callMsWrap(mRotation.y, 0.0f, 360.0f);
 		MtxPtr m = getModel()->getAnmMtx(0);
 		MsMtxSetRotY(m, mRotation.y);
 		m[0][3] = mPosition.x;
