@@ -12,6 +12,11 @@
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
 TRailMapObj::TRailMapObj(const char* name)
     : TMapObjBase(name)
     , unk138(nullptr)
@@ -446,13 +451,16 @@ void TRailBlock::control()
 		unk15C.y            = railNode->mYaw;
 		unk15C.z            = railNode->mRoll;
 		unk150 = (unk15C.x
-		          - MsWrap(unk168.x, unk15C.x - 180.0f, unk15C.x + 180.0f))
+		          - callMsWrap(unk168.x, unk15C.x - 180.0f,
+		                       unk15C.x + 180.0f))
 		         / rotateStep;
 		unk154 = (unk15C.y
-		          - MsWrap(unk168.y, unk15C.y - 180.0f, unk15C.y + 180.0f))
+		          - callMsWrap(unk168.y, unk15C.y - 180.0f,
+		                       unk15C.y + 180.0f))
 		         / rotateStep;
 		unk158 = (unk15C.z
-		          - MsWrap(unk168.z, unk15C.z - 180.0f, unk15C.z + 180.0f))
+		          - callMsWrap(unk168.z, unk15C.z - 180.0f,
+		                       unk15C.z + 180.0f))
 		         / rotateStep;
 	} else {
 		mRotation.x += unk150;
