@@ -67,8 +67,7 @@ DEFINE_NERVE(TNerveAmiNokoDie, TLiveActor)
 	}
 
 	if (self->checkCurAnmEnd(0) && self->isBckAnm(1)) {
-		JGeometry::TVec3<f32> dir = self->mPosition;
-		dir.sub(*gpMarioPos);
+		JGeometry::TVec3<f32> dir = self->mPosition - *gpMarioPos;
 
 		JGeometry::TVec3<f32> normDir = dir;
 
@@ -99,8 +98,7 @@ DEFINE_NERVE(TNerveAmiNokoDie, TLiveActor)
 	    0x174, self->mMActor->unk4->unk20, 1, self);
 
 	if (self->isBckAnm(0) && spine->getTime() > 30) {
-		JGeometry::TVec3<f32> dir2 = self->mPosition;
-		dir2.sub(*gpMarioPos);
+		JGeometry::TVec3<f32> dir2 = self->mPosition - *gpMarioPos;
 
 		JGeometry::TVec3<f32> toMario = dir2;
 
