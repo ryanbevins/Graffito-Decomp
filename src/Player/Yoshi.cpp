@@ -22,6 +22,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <Player/Tongue.hpp>
 #include <Strategic/MirrorActor.hpp>
+#include <stdlib.h>
 
 class TNozzleBase {
 public:
@@ -529,8 +530,110 @@ void TYoshi::thinkUpper()
 }
 
 // doSearch - 0x8014EA18
-void TYoshi::doSearch() {
-	// TODO: implement - 344 instructions
+void TYoshi::doSearch()
+{
+	TYoshiTongue* tongue = (TYoshiTongue*)_38;
+
+	switch (*(u8*)((u8*)this + 0xDC)) {
+	case 0: {
+		--*(s16*)((u8*)this + 0xDE);
+		if (*(s16*)((u8*)this + 0xDE) > 0)
+			return;
+
+		THitActor* target = tongue->findTarget(false, false);
+		if (target != nullptr) {
+			*(s16*)((u8*)this + 0xE0)
+			    = matan(target->mPosition.z - mTranslation.z,
+			            target->mPosition.x - mTranslation.x);
+			*(u8*)((u8*)this + 0xDC) = 1;
+		} else {
+			s16 min = *(s16*)((u8*)this + 0xE8);
+			s16 max = *(s16*)((u8*)this + 0xEA);
+			*(s16*)((u8*)this + 0xDE)
+			    = min
+			      + (s16)((max - min) * (rand() * 0.000030517578f));
+		}
+		break;
+	}
+	case 1: {
+		s16 curAngle = *(s16*)((u8*)this + 0x70);
+		s16 step = *(f32*)((u8*)this + 0xE4)
+		           * (s16)(*(s16*)((u8*)this + 0xE0) - curAngle);
+		*(s16*)((u8*)this + 0x70) = curAngle + step;
+
+		if (step <= -0x100 || step >= 0x100)
+			return;
+
+		JGeometry::TVec3<f32> pos;
+		JGeometry::TVec3<f32> dir;
+		getEmitPosDir(&pos, &dir);
+		tongue->emit(pos, dir, mMario->mVel);
+
+		for (int i = 0; i < 10; ++i) {
+			tongue->movement();
+			f32 dx = tongue->mTipPos.x - pos.x;
+			f32 dy = tongue->mTipPos.y - pos.y;
+			f32 dz = tongue->mTipPos.z - pos.z;
+			f32 dist = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy
+			                                        + dz * dz);
+			if (dist > *(f32*)((u8*)this + 0x90))
+				break;
+		}
+
+		*(u8*)((u8*)this + 0xDC) = 3;
+		changeAnimation(3);
+		break;
+	}
+	case 2: {
+		THitActor* target = tongue->findTarget(false, true);
+		if (target != nullptr) {
+			JGeometry::TVec3<f32> pos;
+			JGeometry::TVec3<f32> dir;
+			getEmitPosDir(&pos, &dir);
+			tongue->emit(pos, dir, mMario->mVel);
+
+			for (int i = 0; i < 10; ++i) {
+				tongue->movement();
+				f32 dx = tongue->mTipPos.x - pos.x;
+				f32 dy = tongue->mTipPos.y - pos.y;
+				f32 dz = tongue->mTipPos.z - pos.z;
+				f32 dist = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy
+				                                        + dz * dz);
+				if (dist > *(f32*)((u8*)this + 0x90))
+					break;
+			}
+
+			*(u8*)((u8*)this + 0xDC) = 3;
+		} else {
+			s16 min = *(s16*)((u8*)this + 0xE8);
+			s16 max = *(s16*)((u8*)this + 0xEA);
+			*(s16*)((u8*)this + 0xDE)
+			    = min
+			      + (s16)((max - min) * (rand() * 0.000030517578f));
+			*(u8*)((u8*)this + 0xDC) = 0;
+		}
+		break;
+	}
+	case 3:
+		if (tongue->mActorTypeInMouth != 0) {
+			doEat(tongue->mActorTypeInMouth);
+			if (mMario->onYoshi())
+				SMSRumbleMgr->start(0x15, 0x14, (f32*)nullptr);
+			tongue->mActorTypeInMouth = 0;
+		}
+
+		if (tongue->mState != TYoshiTongue::STATE_IDLE)
+			return;
+
+		*(s16*)((u8*)this + 0xDE)
+		    = *(s16*)((u8*)this + 0xE8)
+		      + (s16)((*(s16*)((u8*)this + 0xEA)
+		               - *(s16*)((u8*)this + 0xE8))
+		              * (rand() * 0.000030517578f));
+		*(u8*)((u8*)this + 0xDC) = 0;
+		changeAnimation(23);
+		break;
+	}
 }
 
 // doEat - 0x8014E8F4
