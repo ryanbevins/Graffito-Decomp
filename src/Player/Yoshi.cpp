@@ -371,18 +371,19 @@ void TYoshi::calcAnim() {
 // viewCalc - 0x8014D638
 void TYoshi::viewCalc() {
 	u8 state = (u8)mState;
-	u8 active;
-	if (state != 0) {
-		active = 1;
-	} else {
+	int active;
+	if (state == 0) {
 		active = 0;
+	} else {
+		active = 1;
 	}
 	if (!active)
 		return;
 
 	mActor->viewCalc();
-	// TODO: virtual viewCalc on sub-actors at 0x44, 0x48
-	// TODO: non-virtual call on tongue object at 0x38
+	(*(J3DModel**)((u8*)this + 0x44))->viewCalc();
+	(*(J3DModel**)((u8*)this + 0x48))->viewCalc();
+	((TYoshiTongue*)_38)->viewCalc();
 }
 
 // entry - 0x8014D37C
