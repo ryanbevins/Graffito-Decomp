@@ -309,11 +309,11 @@ void TYoshi::initInLoadAfter()
 {
 	((TYoshiTongue*)_38)->initInLoadAfter();
 
-	TMirrorActor* mirror = new TMirrorActor("jnt_foot_L");
+	TMirrorActor* mirror = new TMirrorActor("ヨッシーin鏡");
 	mirror->init(mActor->unk4, 4);
 
 	for (int i = 0; i < 2; ++i) {
-		TMirrorActor* footMirror = new TMirrorActor("jnt_foot_R");
+		TMirrorActor* footMirror = new TMirrorActor("ヨッシー手in鏡");
 		footMirror->init(*(J3DModel**)((u8*)this + 0x44 + i * 4), 4);
 	}
 
