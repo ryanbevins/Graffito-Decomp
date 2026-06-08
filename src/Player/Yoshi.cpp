@@ -14,6 +14,7 @@
 #include <MoveBG/Item.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorAnm.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <Player/ModelWaterManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ModelUtil.hpp>
@@ -49,6 +50,15 @@ public:
 
 extern "C" void* __vt__10TTakeActor[];
 extern "C" void* __vt__12TYoshiTongue[];
+
+static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
+static const char cDirtyTexName[]  = "H_ma_rak_dummy";
+static const GXColor bodyColor[]   = {
+	{ 0x40, 0xa1, 0x24, 0xff },
+	{ 0xff, 0x8c, 0x1c, 0xff },
+	{ 0xaa, 0x4c, 0xff, 0xff },
+	{ 0xff, 0xa0, 0xbe, 0xff },
+};
 
 static int YoshiHeadCtrl(J3DNode* node, int param)
 {
@@ -1074,39 +1084,14 @@ void TYoshi::movement()
 	}
 
 	if ((u8)mState != 0) {
-		u8 targetR;
-		u8 targetG;
-		u8 targetB;
-		switch (mType) {
-		case 0:
-			targetR = 0x40;
-			targetG = 0xa1;
-			targetB = 0x24;
-			break;
-		case 1:
-			targetR = 0xff;
-			targetG = 0x8c;
-			targetB = 0x1c;
-			break;
-		case 2:
-			targetR = 0xaa;
-			targetG = 0x4c;
-			targetB = 0xff;
-			break;
-		default:
-			targetR = 0xff;
-			targetG = 0xa0;
-			targetB = 0xbe;
-			break;
-		}
-
 		f32 blend = *(f32*)((u8*)this + 0x80);
-		mRedComponent
-		    += blend * ((f32)targetR - mRedComponent);
-		mGreenComponent
-		    += blend * ((f32)targetG - mGreenComponent);
-		mBlueComponent
-		    += blend * ((f32)targetB - mBlueComponent);
+		f32 redBlend = blend * ((f32)bodyColor[mType].r - mRedComponent);
+		mRedComponent += redBlend;
+		f32 greenBlend
+		    = blend * ((f32)bodyColor[mType].g - mGreenComponent);
+		mGreenComponent += greenBlend;
+		f32 blueBlend = blend * ((f32)bodyColor[mType].b - mBlueComponent);
+		mBlueComponent += blueBlend;
 
 		tongue->movement();
 
