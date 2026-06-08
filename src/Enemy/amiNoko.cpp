@@ -517,7 +517,9 @@ void TAmiNoko::attackToMario()
 		return;
 	}
 
-	mSpine->pushNerve(&TNerveAmiNokoFreeze::theNerve());
+	if (mSpine->getCurrentNerve() != &TNerveAmiNokoFreeze::theNerve()) {
+		mSpine->pushNerve(&TNerveAmiNokoFreeze::theNerve());
+	}
 }
 
 bool TAmiNoko::isHitValid(u32 msg)
