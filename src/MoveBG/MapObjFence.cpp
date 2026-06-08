@@ -593,22 +593,25 @@ void TRevolvingFenceOuter::initMapCollisionData()
 	else
 		mMapCollisionManager->init("fence_revolve_outer_h_tool", 0, nullptr);
 
+	TMapCollisionManager* manager = mMapCollisionManager;
 	Mtx mtx;
 	MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
 	            mRotation.y, mRotation.z, mScaling.x, mScaling.y, mScaling.z);
-	TMapCollisionBase* base = mMapCollisionManager->getUnk8();
-	base->setMtx(mtx);
+	TMapCollisionBase* base = manager->getUnk8();
+	PSMTXCopy(mtx, base->unk20);
 	base->setUp();
 
+	TMapObjBase* inner;
 	if (unk138) {
 		JGeometry::TVec3<f32> ones(1.0f, 1.0f, 1.0f);
-		unk13C = TMapObjBaseManager::newAndRegisterObj(
+		inner = TMapObjBaseManager::newAndRegisterObj(
 		    "bambooFence_revolve_inner", mPosition, mRotation, ones);
 	} else {
 		JGeometry::TVec3<f32> ones(1.0f, 1.0f, 1.0f);
-		unk13C = TMapObjBaseManager::newAndRegisterObj(
+		inner = TMapObjBaseManager::newAndRegisterObj(
 		    "fence_revolve_inner", mPosition, mRotation, ones);
 	}
+	unk13C = inner;
 	unk13C->initMapCollisionData();
 }
 
@@ -646,11 +649,12 @@ void TFence::initMapCollisionData()
 			mMapCollisionManager->init("fence_half_h_tool", 0, nullptr);
 	}
 
+	TMapCollisionManager* manager = mMapCollisionManager;
 	Mtx mtx;
 	MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
 	            mRotation.y, mRotation.z, mScaling.x, mScaling.y, mScaling.z);
-	TMapCollisionBase* base = mMapCollisionManager->getUnk8();
-	base->setMtx(mtx);
+	TMapCollisionBase* base = manager->getUnk8();
+	PSMTXCopy(mtx, base->unk20);
 	base->setUp();
 }
 
