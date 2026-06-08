@@ -457,9 +457,7 @@ void TAmiNoko::bind()
 			onLiveFlag(LIVE_FLAG_AIRBORNE);
 		}
 
-		JGeometry::TVec3<f32> result = nextPos;
-		PSVECSubtract((Vec*)&result, (Vec*)&mPosition, (Vec*)&result);
-		mLinearVelocity = result;
+		mLinearVelocity = nextPos - mPosition;
 	} else {
 		TWalkerEnemy::bind();
 	}
