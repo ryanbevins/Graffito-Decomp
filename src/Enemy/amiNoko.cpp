@@ -428,12 +428,12 @@ void TAmiNoko::bind()
 
 		f32 gravY = getGravityY();
 		mVelocity.y -= gravY;
-		if (mVelocity.y < 0.0f) {
-			mVelocity.y = 0.0f;
+		if (mVelocity.y < TLiveActor::mVelocityMinY) {
+			mVelocity.y = TLiveActor::mVelocityMinY;
 		}
 
 		if (checkLiveFlag(LIVE_FLAG_UNK1000)) {
-			f32 groundY = gpMap->checkGround(
+			f32 groundY = gpMap->checkGroundIgnoreWaterSurface(
 			    nextPos.x, nextPos.y + mHeadHeight, nextPos.z,
 			    &mGroundPlane);
 			mGroundHeight = groundY;
@@ -444,8 +444,8 @@ void TAmiNoko::bind()
 			mGroundHeight = groundY;
 		}
 
-		mGroundHeight += 10.0f;
-		if (nextPos.y <= mHeadHeight + mGroundHeight) {
+		mGroundHeight += 1.0f;
+		if (nextPos.y <= 0.05f + mGroundHeight) {
 			u16 flags = *(u16*)((u8*)mGroundPlane + 4);
 			u8 isLava = (flags & 0x10) ? 1 : 0;
 			if (isLava) {
