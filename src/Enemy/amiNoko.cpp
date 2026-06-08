@@ -355,19 +355,17 @@ void TAmiNoko::creepToCurPathNode(f32 speed)
 {
 	if (isBckAnm(4) || isBckAnm(7) || isBckAnm(10) || isBckAnm(13)) {
 		// Get current path node position
-		const JGeometry::TVec3<f32>& goalPos = getUnkF4().getPoint();
-
-		JGeometry::TVec3<f32> toGoal;
-		toGoal.x = goalPos.x - mPosition.x;
-		toGoal.y = goalPos.y - mPosition.y;
-		toGoal.z = goalPos.z - mPosition.z;
+		JGeometry::TVec3<f32> toGoal = getUnkF4().getPoint();
+		toGoal.x -= mPosition.x;
+		toGoal.y -= mPosition.y;
+		toGoal.z -= mPosition.z;
 
 		f32 zero = 0.0f;
-		if (toGoal.x == zero && toGoal.y == zero && toGoal.z == zero) {
+		if (zero == toGoal.x && zero == toGoal.y && zero == toGoal.z) {
 			toGoal.x = 1.0f;
 		}
 
-		MsVECNormalize((Vec*)&toGoal, (Vec*)&toGoal);
+		PSVECNormalize((Vec*)&toGoal, (Vec*)&toGoal);
 
 		toGoal.x *= speed;
 		toGoal.y *= speed;
