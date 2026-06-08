@@ -7,6 +7,7 @@
 #include <MSound/MSoundBGM.hpp>
 #include <System/Application.hpp>
 #include <System/EmitterViewObj.hpp>
+#include <System/MarioGamePad.hpp>
 #include <System/MarDirector.hpp>
 #include <MoveBG/Item.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -322,8 +323,39 @@ void TYoshi::doEat(u32 fruitID)
 }
 
 // thinkHoldOut - 0x8014E794
-void TYoshi::thinkHoldOut() {
-	// TODO: implement - 88 instructions
+void TYoshi::thinkHoldOut()
+{
+	switch (mFlutterState) {
+	case 0:
+		if (mMario->mVel.y < mMaxVSpdStartFlutter
+		    && (mMario->mGamePad->mMeaning & TMarioGamePad::MEANING_0x80))
+			mFlutterState = 1;
+		break;
+	case 1:
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x119, mActor->unk4->getAnmMtx(mEmitJoint), 1, this);
+
+		if (mMario->mVel.y < 0.0f
+		    && 0.0f <= mFlutterAcceleration + mMario->mVel.y) {
+			if (gpMSound->gateCheck(0x7926))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x7926, (Vec*)&mTranslation, 0, nullptr, 0, 4);
+		}
+
+		if (mFlutterTimer != 0) {
+			--mFlutterTimer;
+			mMario->mVel.y += mFlutterAcceleration;
+		} else {
+			mFlutterState = 2;
+		}
+
+		if (!(mMario->mGamePad->mMeaning & TMarioGamePad::MEANING_0x80))
+			mFlutterState = 2;
+		break;
+	case 2:
+		mFlutterTimer = 0;
+		break;
+	}
 }
 
 // movement - 0x8014DAF4
