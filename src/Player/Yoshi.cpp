@@ -18,13 +18,17 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ModelUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
+#include <MarioUtil/ShadowUtil.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
+#include <JSystem/J3D/J3DGraphBase/Components/J3DGXColorS10.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <Player/Tongue.hpp>
 #include <Strategic/MirrorActor.hpp>
+#include <Strategic/question.hpp>
 #include <stdlib.h>
 
 class TNozzleBase {
@@ -1083,6 +1087,57 @@ void TYoshi::viewCalc() {
 }
 
 // entry - 0x8014D37C
-void TYoshi::entry() {
-	// TODO: implement - 175 instructions
+void TYoshi::entry()
+{
+	u8 state = (u8)mState;
+	if (state == 0)
+		return;
+
+	u8 shouldDraw = 1;
+	if (state == 6 || state == 8) {
+		if (mCurJuice >= 0x168 && mCurJuice < 0x258) {
+			if (!(mCurJuice & 0x10))
+				shouldDraw = 0;
+		}
+		if (mCurJuice < 0x168 && !(mCurJuice & 0x8))
+			shouldDraw = 0;
+	}
+
+	if (state == 0)
+		shouldDraw = 0;
+
+	if (mCurJuice < 0x258)
+		mType = 0;
+
+	if ((u8)mState == 0 || shouldDraw != 1)
+		return;
+
+	J3DGXColorS10 color;
+	color.color.r = mRedComponent;
+	color.color.g = mGreenComponent;
+	color.color.b = mBlueComponent;
+	color.color.a = 0xff;
+
+	J3DModelData* data = mActor->unk4->getModelData();
+	for (u16 i = 0; i < data->getMaterialNum(); ++i)
+		data->getMaterialNodePointer(i)->getTevBlock()->setTevColor(2, color);
+
+	data = (*(J3DModel**)((u8*)this + 0x44))->getModelData();
+	data->getMaterialNodePointer(0)->getTevBlock()->setTevColor(2, color);
+
+	data = (*(J3DModel**)((u8*)this + 0x48))->getModelData();
+	data->getMaterialNodePointer(0)->getTevBlock()->setTevColor(2, color);
+
+	mActor->entry();
+	(*(J3DModel**)((u8*)this + 0x44))->entry();
+	(*(J3DModel**)((u8*)this + 0x48))->entry();
+	((TYoshiTongue*)_38)->entry();
+
+	TCircleShadowRequest request;
+	request.unk0  = mTranslation;
+	request.unkC  = mSpineScale;
+	request.unk10 = mSpineScale;
+	gpBindShadowManager->request(request, 0);
+
+	gpQuestionManager->request(mTranslation, mSpineScale);
 }
