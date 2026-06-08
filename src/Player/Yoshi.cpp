@@ -26,9 +26,13 @@
 #include <JSystem/J3D/J3DGraphBase/Components/J3DGXColorS10.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DAnmLoader.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <Player/Tongue.hpp>
 #include <Strategic/MirrorActor.hpp>
 #include <Strategic/question.hpp>
+#include <dolphin/os/OSCache.h>
 #include <stdlib.h>
 
 class TNozzleBase {
@@ -42,6 +46,9 @@ class TWaterGun {
 public:
 	TNozzleBase* getCurrentNozzle() const;
 };
+
+extern "C" void* __vt__10TTakeActor[];
+extern "C" void* __vt__12TYoshiTongue[];
 
 static int YoshiHeadCtrl(J3DNode* node, int param)
 {
@@ -74,7 +81,7 @@ MtxPtr TYoshi::getMtxPtrFootR() const {
 	return mActor->unk4->getAnmMtx(footRJoint);
 }
 
-// init - 0x8014FE5C (675 instructions - extremely complex)
+// init - 0x8014FE5C
 void TYoshi::init(TMario* mario) {
 	mMario = mario;
 	mState = EGG;
@@ -91,8 +98,200 @@ void TYoshi::init(TMario* mario) {
 	*(f32*)((u8*)this + 0x2C) = 0.0f;
 	*(s16*)((u8*)this + 0x70) = 0;
 	*(s16*)((u8*)this + 0x72) = 384;
-	// The rest of init is extremely complex (allocations, model setup, etc.)
-	// TODO: implement remaining ~600 instructions
+
+	MActorAnmData* anmData = new MActorAnmData();
+	*(MActorAnmData**)((u8*)this + 0x30) = anmData;
+	anmData->init("yoshi", 0);
+
+	mActor = new MActor(anmData);
+	void* res = JKRFileLoader::getGlbResource("/yoshi/yoshi_model.bmd");
+	J3DModelData* modelData = J3DModelLoaderDataBase::load(res, 0x10040000);
+	J3DModel* model = new J3DModel(modelData, 0, 1);
+	mActor->setModel(model, 0);
+
+	if (mActor->unkC)
+		mActor->unkC->initNormalMotionBlend();
+	mActor->offMakeDL();
+
+	JUTNameTab* jointName = mActor->unk4->getModelData()->getJointName();
+	mJoint = jointName->getIndex("null_tongue");
+	_3e = jointName->getIndex("jnt_foot_L");
+	*(u16*)((u8*)this + 0x40) = jointName->getIndex("jnt_foot_R");
+	*(u16*)((u8*)this + 0x42) = jointName->getIndex("center");
+
+	J3DModel* handL = SMS_CreatePartsModel("/yoshi/yoshi_hand2_l.bmd", 0x10040000);
+	J3DModel* handR = SMS_CreatePartsModel("/yoshi/yoshi_hand2_r.bmd", 0x10040000);
+	*(J3DModel**)((u8*)this + 0x44) = handL;
+	*(J3DModel**)((u8*)this + 0x48) = handR;
+
+	for (int i = 0; i < 2; ++i) {
+		J3DModel* hand = *(J3DModel**)((u8*)this + 0x44 + i * 4);
+		u8* dst = *(u8**)((u8*)hand->getModelData()->getTexture() + 4);
+		u8* src
+		    = *(u8**)((u8*)mActor->unk4->getModelData()->getTexture() + 4);
+		for (int j = 0; j < 8; ++j)
+			((u32*)dst)[j] = ((u32*)src)[j];
+		*(u32*)(dst + 0x1C) = (u32)((src + *(u32*)(dst + 0x1C)) - dst);
+		*(u32*)(dst + 0x0C) = (u32)((src + *(u32*)(dst + 0x0C)) - dst);
+		DCFlushRange(dst, 0x20);
+	}
+
+	*(J3DAnmTransform**)((u8*)this + 0x4C)
+	    = (J3DAnmTransform*)J3DAnmLoaderDataBase::load(
+	        JKRFileLoader::getGlbResource("/yoshi/yoshi_eat.bck"));
+	*(J3DMtxCalc**)((u8*)this + 0x54) = J3DNewMtxCalcAnm(
+	    mActor->unk4->getModelData()->getUnkC(),
+	    *(J3DAnmTransform**)((u8*)this + 0x4C));
+	*(J3DAnmTransform**)((u8*)this + 0x50)
+	    = (J3DAnmTransform*)J3DAnmLoaderDataBase::load(
+	        JKRFileLoader::getGlbResource("/yoshi/yoshi_eat_end.bck"));
+	*(J3DMtxCalc**)((u8*)this + 0x58) = J3DNewMtxCalcAnm(
+	    mActor->unk4->getModelData()->getUnkC(),
+	    *(J3DAnmTransform**)((u8*)this + 0x50));
+
+	*(f32*)((u8*)this + 0x6C) = (f32)*(s16*)((u8*)this + 0x62);
+	*(f32*)((u8*)this + 0x68) = 1.0f;
+	*(u8*)((u8*)this + 0x60) = 0;
+	*(f32*)((u8*)this + 0x68) = 0.0f;
+
+	TYoshiTongue* tongue = (TYoshiTongue*)::operator new(sizeof(TYoshiTongue));
+	if (tongue) {
+		new ((THitActor*)tongue) THitActor("HitActor");
+		*(void**)tongue = __vt__10TTakeActor;
+		*(void**)((u8*)tongue + 0x20) = (u8*)__vt__10TTakeActor + 0x24;
+		*(u32*)((u8*)tongue + 0x68) = 0;
+		*(u32*)((u8*)tongue + 0x6C) = 0;
+		*(void**)tongue = __vt__12TYoshiTongue;
+		*(void**)((u8*)tongue + 0x20) = (u8*)__vt__12TYoshiTongue + 0x24;
+	}
+	_38 = (u32)tongue;
+	tongue->init(this);
+
+	*(f32*)((u8*)this + 0x80) = 0.01f;
+	mRedComponent = 0x40;
+	mGreenComponent = 0xA1;
+	mBlueComponent = 0x24;
+	*(f32*)((u8*)this + 0x90) = 160.0f;
+
+	TRidingInfo* ridingInfo = new TRidingInfo;
+	ridingInfo->unk0 = 0;
+	ridingInfo->localPos.x = 0.0f;
+	ridingInfo->localPos.y = 0.0f;
+	ridingInfo->localPos.z = 0.0f;
+	ridingInfo->unk10 = 0.0f;
+	*(TRidingInfo**)((u8*)this + 0x94) = ridingInfo;
+
+	*(f32*)((u8*)this + 0x98) = 20.0f;
+	*(f32*)((u8*)this + 0x9C) = 30.0f;
+	*(f32*)((u8*)this + 0xA0) = 0.1f;
+	*(f32*)((u8*)this + 0xA4) = 0.045f;
+	*(J3DDrawBuffer**)((u8*)this + 0xA8) = new J3DDrawBuffer(0x20);
+	*(J3DDrawBuffer**)((u8*)this + 0xAC) = new J3DDrawBuffer(0x20);
+	*(u32*)((u8*)this + 0xB0) = 0;
+	*(u32*)((u8*)this + 0xB4) = 0;
+	(*(J3DDrawBuffer**)((u8*)this + 0xA8))->frameInit();
+	(*(J3DDrawBuffer**)((u8*)this + 0xAC))->frameInit();
+
+	mFlutterState = 2;
+	mFlutterTimer = 0;
+	mMaxFlutterTimer = 120;
+	mMaxVSpdStartFlutter = -5.0f;
+	mFlutterAcceleration = 1.2f;
+	mType = GREEN;
+	*(u32*)((u8*)this + 0xD8) = 2000;
+	*(u32*)((u8*)this + 0xD4) = *(u32*)((u8*)this + 0xD8);
+	*(u8*)((u8*)this + 0xDC) = 0;
+	*(u16*)((u8*)this + 0xDE) = 0;
+	*(u16*)((u8*)this + 0xE0) = 0;
+	*(f32*)((u8*)this + 0xE4) = 0.1f;
+	*(u16*)((u8*)this + 0xE8) = 120;
+	*(u16*)((u8*)this + 0xEA) = 240;
+	*(f32*)((u8*)this + 0xEC) = 4.0f;
+	mCurBtpIdx = 4;
+	mEgg = 0;
+
+	mEmitJoint = jointName->getIndex(0);
+	mFootLJoint2 = jointName->getIndex("jnt_neck_2");
+	mMtxTrans.x = 0.0f;
+	mMtxTrans.y = 0.0f;
+	mMtxTrans.z = 0.0f;
+	mMtxTrans2.x = 0.0f;
+	mMtxTrans2.y = 0.0f;
+	mMtxTrans2.z = 0.0f;
+	mSpineScale = 80.0f;
+
+	mActor->getFrameCtrl(0)->setFrame(0.0f);
+	mActor->getFrameCtrl(3)->setFrame(0.0f);
+	PSMTXCopy(mario->mModel->getModel()->getBaseTRMtx(),
+	          mActor->unk4->getBaseTRMtx());
+	mActor->unk4->calc();
+
+	modelData = mActor->unk4->getModelData();
+	for (u16 i = 0; i < modelData->getShapeNum(); ++i)
+		modelData->getShapeNodePointer(i)->onFlag(1);
+
+	PSMTXCopy(mActor->unk4->getAnmMtx(37), handL->getBaseTRMtx());
+	PSMTXCopy(mActor->unk4->getAnmMtx(32), handR->getBaseTRMtx());
+	handL->calc();
+	handR->calc();
+
+	for (u16 i = 0; i < handL->getModelData()->getShapeNum(); ++i)
+		handL->getModelData()->getShapeNodePointer(i)->onFlag(1);
+	for (u16 i = 0; i < handR->getModelData()->getShapeNum(); ++i)
+		handR->getModelData()->getShapeNodePointer(i)->onFlag(1);
+
+	mBckPlayer = new MAnmSound(gpMSound);
+	((MAnmSound*)mBckPlayer)->initAnmSound(0, 1, 0.0f);
+	mBckPlayer2 = new MAnmSound(gpMSound);
+	((MAnmSound*)mBckPlayer2)->initAnmSound(0, 1, 0.0f);
+
+	mAnimFrameRates = new u32[26];
+	for (int i = 0; i < 26; ++i)
+		mAnimFrameRates[i] = 0;
+	mAnimFrameRates[0]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_born.bas");
+	mAnimFrameRates[1]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_damage.bas");
+	mAnimFrameRates[2] = (u32)JKRFileLoader::getGlbResource(
+	    "/yoshi/bas/yoshi_demo_shine_get.bas");
+	mAnimFrameRates[3]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_eat.bas");
+	mAnimFrameRates[4]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_eat_end.bas");
+	mAnimFrameRates[5]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_goff.bas");
+	mAnimFrameRates[6]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_hip_end.bas");
+	mAnimFrameRates[8]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_hip_start.bas");
+	mAnimFrameRates[9]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_hold_jump.bas");
+	mAnimFrameRates[10]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_jump.bas");
+	mAnimFrameRates[11]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_jump_end.bas");
+	mAnimFrameRates[13]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_pivot.bas");
+	mAnimFrameRates[14]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_ride.bas");
+	mAnimFrameRates[15]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_run.bas");
+	mAnimFrameRates[16]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_sidewalk_l.bas");
+	mAnimFrameRates[17]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_sidewalk_r.bas");
+	mAnimFrameRates[18]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_slide_end.bas");
+	mAnimFrameRates[22]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_wait.bas");
+	mAnimFrameRates[23]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_wait_alone.bas");
+	mAnimFrameRates[24]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_walk.bas");
+	mAnimFrameRates[25]
+	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_water_die.bas");
+
+	changeAnimation(23);
 }
 
 // initInLoadAfter - 0x8014FD88
