@@ -414,28 +414,28 @@ bool TYoshi::disappear() {
 	} else {
 		active = 0;
 	}
-	if (!active)
-		return false;
-
-	if (state == MOUNTED) {
-		mMario->getOffYoshi(true);
+	if (active) {
+		if (state == MOUNTED) {
+			mMario->getOffYoshi(true);
+		}
+		u32 marioState = mMario->mState;
+		u8 inWater;
+		if (marioState & 0x00030000) {
+			inWater = 1;
+		} else {
+			inWater = 0;
+		}
+		if (inWater) {
+			mState = DROWNING;
+			changeAnimation(25);
+		} else {
+			mState = DYING;
+		}
+		mType = 0;
+		mSubState = 30;
+		return true;
 	}
-	u32 marioState = mMario->mState;
-	u8 inWater;
-	if (marioState & 0x00030000) {
-		inWater = 1;
-	} else {
-		inWater = 0;
-	}
-	if (inWater) {
-		mState = DROWNING;
-		changeAnimation(25);
-	} else {
-		mState = DYING;
-	}
-	mType = 0;
-	mSubState = 30;
-	return true;
+	return false;
 }
 
 // kill - 0x8014F834
