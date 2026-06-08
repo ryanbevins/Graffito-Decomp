@@ -11,6 +11,8 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <Strategic/Strategy.hpp>
 #include <dolphin/mtx.h>
 #include <math.h>
 #include <stdlib.h>
@@ -258,7 +260,7 @@ void TFenceWater::initMapObj()
 	unk144->mPosition.y = mPosition.y - 150.0f;
 	unk144->mPosition.z = mPosition.z;
 
-	// register child messenger with name ref gen (list insertion omitted)
+	JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ")->add(unk144);
 }
 
 void TFenceWater::initMapCollisionData() { TMapObjBase::initMapCollisionData(); }
