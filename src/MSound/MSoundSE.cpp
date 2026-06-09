@@ -53,11 +53,38 @@ void MSRandPlay::construct(u32 param_1, s32 param_2, s32 param_3, f32 param_4,
 	    &(new MSRandPlay(param_1, param_2, param_3, param_4, param_5))->unk0);
 }
 
-void MSRandPlay::registerTrans(u32 param, const Vec* vec) { }
+s32 MSRandPlay::registerTrans(u32 param, const Vec* vec)
+{
+	for (JSULink<MSRandPlay>* link = smList.getFirst(); link != nullptr;
+	     link = link->getNext()) {
+		MSRandPlay* play = link->getObject();
+		if (param == play->unk1C) {
+			MSRandPlayVec* playVec = &play->unk10[play->unk16];
+			playVec->unk0          = vec;
+			s32 index              = play->unk16;
+			play->unk16++;
+			return index;
+		}
+	}
+
+	return -1;
+}
 
 void MSRandPlay::registerTransDynamic(const Vec* vec) { }
 
-void MSRandPlay::createRandPlayVec(u32 param1, u16 param2) { }
+void MSRandPlay::createRandPlayVec(u32 param1, u16 param2)
+{
+	for (JSULink<MSRandPlay>* link = smList.getFirst(); link != nullptr;
+	     link = link->getNext()) {
+		MSRandPlay* play = link->getObject();
+		if (param1 == play->unk1C) {
+			play->unk10 = new MSRandPlayVec[param2];
+			play->unk14 = param2;
+			play->unk16 = 0;
+			break;
+		}
+	}
+}
 
 void MSRandPlay::createRandPlayVecDynamic(u16 param) { }
 
@@ -87,7 +114,59 @@ MSRandPlay::MSRandPlay(u32 param_1, s32 param_2, s32 param_3, f32 param_4,
 {
 }
 
-void MSRandPlay::randPlay(u32 param) { }
+void MSRandPlay::randPlay(u32 param)
+{
+	MSRandPlayVec* playVec = &unk10[param];
+
+	switch (playVec->unk4) {
+	case 0: {
+		f32 limit = unk24 * 0.5f;
+		s32 delay = (s32)JALCalc::getRandom(limit, unk28, unk2C);
+		if (delay > unk20)
+			playVec->unk8 = delay;
+		else
+			playVec->unk8 = unk20;
+
+		if (playVec->unk8 >= unk24)
+			playVec->unk8 = unk24;
+
+		if (playVec->unk8 == 0) {
+			playVec->unk4 = 2;
+			break;
+		}
+
+		playVec->unkC = 0;
+		playVec->unk4 = 1;
+		return;
+	}
+	case 1:
+		if (playVec->unk8 > playVec->unkC) {
+			playVec->unkC++;
+			return;
+		}
+		playVec->unk4 = 2;
+		break;
+	}
+
+	switch (playVec->unk4) {
+	case 2:
+		if (unk1C == 0x3813) {
+			MSGMSound->startSoundSetGrp(unk1C, playVec->unk0, 0, 0.0f, 0,
+			                            0, 4);
+		} else {
+			JAIActor actor(playVec->unk0, playVec->unk0, playVec->unk0, 0);
+			MSoundSE::startSoundActorInner(unk1C, &playVec->unk20, &actor, 0,
+			                               4);
+		}
+		playVec->unk4 = 3;
+		playVec->unkC = 0;
+		break;
+	case 3:
+		if (playVec->unk20 == nullptr)
+			playVec->unk4 = 0;
+		break;
+	}
+}
 
 void MSoundSE::construct()
 {

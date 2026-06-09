@@ -27,18 +27,18 @@ public:
 	~MSRandPlayVec() { }
 
 public:
-	/* 0x0 */ u32 unk0;
+	/* 0x0 */ const Vec* unk0;
 	/* 0x4 */ u8 unk4;
-	/* 0x8 */ u32 unk8;
-	/* 0xC */ u32 unkC;
+	/* 0x8 */ s32 unk8;
+	/* 0xC */ s32 unkC;
 	/* 0x10 */ JSULink<MSRandPlayVec> unk10;
-	/* 0x20 */ u32 unk20;
+	/* 0x20 */ JAISound* unk20;
 };
 
 class MSRandPlay {
 public:
 	/* 0x0 */ JSULink<MSRandPlay> unk0;
-	/* 0x10 */ u32 unk10;
+	/* 0x10 */ MSRandPlayVec* unk10;
 	/* 0x14 */ u16 unk14;
 	/* 0x16 */ u16 unk16;
 
@@ -51,7 +51,7 @@ public:
 	static void construct(u32, s32, s32, f32, f32);
 	static void createRandPlayVec(u32, u16);
 	void createRandPlayVecDynamic(u16);
-	static void registerTrans(u32, const Vec*);
+	static s32 registerTrans(u32, const Vec*);
 	void registerTransDynamic(const Vec*);
 	static void startSeRandPlay(u32, u32);
 	static JSUList<MSRandPlay> smList;
