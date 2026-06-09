@@ -1110,12 +1110,12 @@ void TBGKMtxCalc::calc(u16 joint_no)
 			delta.sub(unk64->mPosition);
 
 			f32 targetYaw = MsGetRotFromZaxisY(delta);
+			f32 currentYaw = unk64->mRotation.y + unk64->unk180;
 			while (targetYaw >= 180.0f)
 				targetYaw -= 360.0f;
 			while (targetYaw < -180.0f)
 				targetYaw += 360.0f;
 
-			f32 currentYaw = unk64->mRotation.y + unk64->unk180;
 			while (currentYaw >= 180.0f)
 				currentYaw -= 360.0f;
 			while (currentYaw < -180.0f)
