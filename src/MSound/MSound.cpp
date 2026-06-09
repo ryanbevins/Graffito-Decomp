@@ -382,7 +382,33 @@ void MSound::demoModeIn(u16 param1, bool param2) { }
 
 void MSound::demoModeOut(bool param) { }
 
-void MSound::talkModeIn(bool param) { }
+void MSound::talkModeIn(bool param)
+{
+	if (param) {
+		bool canPlay;
+		if (!(unkA8 & 2))
+			canPlay = false;
+		else
+			canPlay = true;
+
+		if (canPlay) {
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4804, 0, nullptr,
+			                                             0);
+		}
+	}
+
+	u8 mask = 0x44;
+	for (u8 i = 0; i < 16; ++i) {
+		if (MSGMSound->unk0->unk88.unk2[i] && ((mask >> i) & 1))
+			MSGMSound->setSeCategoryVolume(i, 0);
+	}
+
+	mask = 7;
+	for (u8 i = 0; i < 3; ++i) {
+		if ((mask >> i) & 1)
+			MSBgm::setTrackVolume(i, 0.6f, 30, 3);
+	}
+}
 
 void MSound::talkModeOut() { }
 
