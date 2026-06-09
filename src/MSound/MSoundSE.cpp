@@ -1,8 +1,11 @@
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSRandVol.hpp>
+#include <Camera/CubeManagerBase.hpp>
 #include <JSystem/JAudio/JALibrary/JALSystem.hpp>
 #include <JSystem/JAudio/JAInterface/JAIConst.hpp>
+#include <MarioUtil/MapUtil.hpp>
+#include <System/MSoundMainSide.hpp>
 
 namespace MSoundSESystem {
 
@@ -282,7 +285,45 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 {
 }
 
-bool MSoundSE::checkSoundArea(u32 param, const Vec& vec) { return false; }
+bool MSoundSE::checkSoundArea(u32 param, const Vec& vec)
+{
+	bool result = true;
+
+	if (param == 7) {
+		Vec marioPos = *MSGMSound->unkAC[0].unk0;
+		marioPos.y += 100.0f;
+		Vec marioCubePos = marioPos;
+		int marioCube = gpCubeCamera->getInCubeNo(marioCubePos);
+
+		Vec actorPos = vec;
+		actorPos.y += 100.0f;
+		Vec actorCubePos = actorPos;
+		int actorCube = gpCubeCamera->getInCubeNo(actorCubePos);
+
+		if (actorCube != -1) {
+			if (actorCube == marioCube)
+				result = true;
+			else
+				result = false;
+		} else {
+			result = true;
+		}
+	} else if (param == 8) {
+		int marioArea = SMS_GetMonteVillageAreaInMario();
+		int actorArea = MSMainProc::getMonteVillageActorArea(vec);
+		if (marioArea == 1)
+			marioArea = 3;
+
+		if (marioArea == 3)
+			result = true;
+		else if (marioArea == actorArea)
+			result = true;
+		else
+			result = false;
+	}
+
+	return result;
+}
 
 #pragma dont_inline on
 JAISound* MSoundSE::startSoundActorInner(u32 p1, JAISound** p2, JAIActor* p3,
