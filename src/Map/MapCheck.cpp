@@ -266,18 +266,26 @@ f32 TMapCollisionData::checkGroundList(f32 x, f32 y, f32 z, u8 flags,
 		if ((flags & IGNORE_WATER_SURFACE) && data->isWaterSurface())
 			continue;
 
-		if ((data->mPoint1.z - z) * (data->mPoint2.x - data->mPoint1.x)
-		        - (data->mPoint1.x - x) * (data->mPoint2.z - data->mPoint1.z)
+		f32 point1x = data->mPoint1.x;
+		f32 point1z = data->mPoint1.z;
+		f32 point2z = data->mPoint2.z;
+		f32 point2x = data->mPoint2.x;
+
+		if ((point1z - z) * (point2x - point1x)
+		        - (point1x - x) * (point2z - point1z)
 		    < -1.0f)
 			continue;
 
-		if ((data->mPoint2.z - z) * (data->mPoint3.x - data->mPoint2.x)
-		        - (data->mPoint2.x - x) * (data->mPoint3.z - data->mPoint2.z)
+		f32 point3z = data->mPoint3.z;
+		f32 point3x = data->mPoint3.x;
+
+		if ((point2z - z) * (point3x - point2x)
+		        - (point2x - x) * (point3z - point2z)
 		    < -1.0f)
 			continue;
 
-		if ((data->mPoint3.z - z) * (data->mPoint1.x - data->mPoint3.x)
-		        - (data->mPoint3.x - x) * (data->mPoint1.z - data->mPoint3.z)
+		if ((point3z - z) * (point1x - point3x)
+		        - (point3x - x) * (point1z - point3z)
 		    < -1.0f)
 			continue;
 
