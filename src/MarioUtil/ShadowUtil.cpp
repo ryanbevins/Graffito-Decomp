@@ -403,10 +403,11 @@ void TMBindShadowManager::request(const TCircleShadowRequest& request,
 		return;
 	if (isnan(request.unk0.z))
 		return;
-	if (unk14 >= 0x200)
+	int requestCount = unk14;
+	if (requestCount >= 0x200)
 		return;
 
-	TCircleShadowRequest& dst = unk10[unk14];
+	TCircleShadowRequest& dst = unk10[requestCount];
 	dst                       = request;
 	dst.unk20                 = actor_type;
 	dst.unk18                 = distSq;
@@ -439,10 +440,11 @@ void TMBindShadowManager::forceRequest(const TCircleShadowRequest& request,
 	f32 distSq = toCamera.x * toCamera.x + toCamera.y * toCamera.y
 	             + toCamera.z * toCamera.z;
 
-	if (unk14 >= 0x200)
+	int requestCount = unk14;
+	if (requestCount >= 0x200)
 		return;
 
-	TCircleShadowRequest& dst = unk10[unk14];
+	TCircleShadowRequest& dst = unk10[requestCount];
 	dst.unk0                  = pos;
 	dst.unkC                  = request.unkC;
 	dst.unk10                 = request.unk10;
