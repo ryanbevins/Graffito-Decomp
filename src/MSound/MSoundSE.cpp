@@ -268,7 +268,53 @@ void MSoundSE::construct()
 	}
 }
 
-u32 MSoundSE::getRandomID(u32 param) { return 0; }
+u32 MSoundSE::getRandomID(u32 param)
+{
+	u8 baseCategory = (param >> 11) & 1;
+	baseCategory |= (param >> 24) & 0xC0;
+
+	u32 weights[15];
+	u32 count = 0;
+	for (; count < 15; ++count) {
+		u32 id    = param + count;
+		u32 flags = MSound::getBstSwitch(id);
+
+		u8 category = (id >> 11) & 1;
+		category |= (id >> 24) & 0xC0;
+		if (category != baseCategory)
+			break;
+		if (flags == (u32)-1)
+			break;
+		if (count != 0 && (flags & 0x80000000))
+			break;
+
+		u32 weight = flags & 0x70000000;
+		if (weight == 0)
+			break;
+
+		weights[count] = weight >> 28;
+	}
+
+	if (count <= 1)
+		return param;
+
+	f32 total = 0.0f;
+	for (u32 i = 0; i < count; ++i)
+		total += (f32)weights[i];
+
+	f32 random = total * JALCalc::getRandom_0_1();
+	f32 sum    = 0.0f;
+	u32 choice = 0;
+	for (u32 i = 0; i < count; ++i) {
+		sum += (f32)weights[i];
+		if (random < sum) {
+			choice = i;
+			break;
+		}
+	}
+
+	return param + choice;
+}
 
 JAISound* MSoundSE::startSoundActor(u32 p1, const Vec* p2, u32 p3,
                                     JAISound** p4, u32 p5, u8 p6)
