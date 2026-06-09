@@ -375,14 +375,23 @@ bool TMapEventSinkBianco::watch()
 
 void TMapEventSinkBianco::loadAfter()
 {
-	TMapEventSinkInPollutionReset::loadAfter();
-	TMapStaticObj* ref = (TMapStaticObj*)JDrama::TNameRef::search(
-	    "鏡内地形シャイン（坂上げ用）");
+	TMapEventSinkInPollution::loadAfter();
+	for (int i = 0; i < mBuildingNum; ++i) {
+		gpPollution->getLayer(unk60[i].unk0)->getObj(unk60[i].unk2)->alive();
+		gpPollution->getLayer(unk60[i].unk0)->getObj(unk60[i].unk2 + 1)->kill();
+	}
+
+	TMapStaticObj* ref
+	    = (TMapStaticObj*)JDrama::TNameRefGen::getInstance()
+	          ->getRootNameRef()
+	          ->search("鏡内地形シャイン（坂上げ用）");
 
 	unk64 = ref->getModelData()->getJointNodePointer(2);
 	TMapObjBase::moveJoint(unk64, 0.0f, -1700.0f, 0.0f);
 	SMS_ShowJoint(unk64->getMesh(), false);
-	mGateKeeper = JDrama::TNameRef::search("ゲートキーパー");
+	mGateKeeper = JDrama::TNameRefGen::getInstance()
+	                  ->getRootNameRef()
+	                  ->search("ゲートキーパー");
 }
 
 void TMapEventSinkBianco::load(JSUMemoryInputStream& stream)
