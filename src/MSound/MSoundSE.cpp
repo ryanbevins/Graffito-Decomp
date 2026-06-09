@@ -44,7 +44,24 @@ MSRandVol::MSRandVol(u32 param)
 
 u32 MSRandVol::getRandomVolume(u32 param1, u32 param2) { return 0; }
 
-f32 MSRandVol::getRandVol(u32 param) { return 0.0f; }
+f32 MSRandVol::getRandVol(u32 param)
+{
+	u32 minIndex  = (param >> 26) & 3;
+	u32 maxIndex  = (param >> 24) & 3;
+	u32 stepIndex = (param >> 22) & 3;
+	f32 min       = *(&unk3C + minIndex) * unk18;
+	f32 step      = *(&unk1C + stepIndex);
+	f32 max       = *(&unk2C + maxIndex);
+	f32 volume    = JALCalc::getRandom(min, max, step) + 1.0f;
+
+	if (volume < 0.0f)
+		volume = 0.0f;
+
+	if (volume > 2.0f)
+		volume = 2.0f;
+
+	return volume;
+}
 
 void MSRandPlay::construct(u32 param_1, s32 param_2, s32 param_3, f32 param_4,
                            f32 param_5)
