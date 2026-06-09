@@ -359,3 +359,24 @@ void TTinKoopaFlame::perform(u32 flags, JDrama::TGraphics* graphics)
 		unk72 = 0;
 	}
 }
+
+void TTinKoopaPartsBase::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	TLiveActor::perform(flags, graphics);
+
+	if (flags & 1) {
+		u32 jointIndex = TTinKoopa_jointIndexTable[unkFC];
+		MtxPtr mtx     = unk100->getModel()->getAnmMtx(jointIndex);
+		unkF4->moveMtx(mtx);
+	}
+
+	if (flags & 2) {
+		if (unkF8 && unk104) {
+			if (unk104->curAnmEndsNext(0, nullptr))
+				unkF8 = 0;
+		}
+	}
+
+	if (unkF8 && unk104)
+		unk104->perform(flags, graphics);
+}
