@@ -6,6 +6,7 @@
 
 class THitActor;
 class J3DModel;
+class SDLModelData;
 class TMBindShadowParts;
 
 class TCircleShadowRequest {
@@ -177,7 +178,7 @@ public:
 	/* 0x28 */ TSquareShadowInfo* unk28;
 	/* 0x2C */ u32 unk2C;
 	/* 0x30 */ JGeometry::TVec3<f32> unk30;
-	/* 0x3C */ u8* unk3C;
+	/* 0x3C */ SDLModelData** unk3C;
 	/* 0x40 */ u16 unk40;
 	/* 0x44 */ u32 unk44;
 	/* 0x48 */ u8 unk48;

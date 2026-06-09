@@ -1,13 +1,19 @@
 #include <MarioUtil/ShadowUtil.hpp>
+#include <Camera/Camera.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
+#include <M3DUtil/SDLModel.hpp>
+#include <MarioUtil/LightUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/HitActor.hpp>
 #include <System/Application.hpp>
+#include <dolphin/mtx.h>
 #include <math.h>
 
 TMBindShadowManager* gpBindShadowManager;
@@ -314,5 +320,127 @@ TMBindShadowManager::TMBindShadowManager(const char* name)
 	unk24 = new TAlphaShadowBlendQuad[0x200];
 	unk28 = new TSquareShadowInfo[0x1E];
 	unk70 = new TModelShadowInfo[1];
-	unk3C = new u8[0x14];
+	unk3C = new SDLModelData*[5];
+}
+
+void TMBindShadowManager::load(JSUMemoryInputStream& stream)
+{
+	JDrama::TNameRef::load(stream);
+
+	unk3C[0] = new SDLModelData(J3DModelLoaderDataBase::load(
+	    JKRFileLoader::getGlbResource("/common/shadowCircle.bmd"),
+	    0x10210000));
+	unk3C[1] = new SDLModelData(J3DModelLoaderDataBase::load(
+	    JKRFileLoader::getGlbResource("/common/shadowCircleLow.bmd"),
+	    0x10210000));
+	unk3C[2] = new SDLModelData(J3DModelLoaderDataBase::load(
+	    JKRFileLoader::getGlbResource("/common/shadowCube.bmd"), 0x10210000));
+	unk3C[3] = new SDLModelData(J3DModelLoaderDataBase::load(
+	    JKRFileLoader::getGlbResource("/common/ShipShadow.bmd"), 0x10210000));
+
+	unk49 = 1;
+	unk14 = 0;
+	unk20 = 0;
+	unk65 = 0;
+	unk2C = 0;
+	unk40 = 0;
+}
+
+void TMBindShadowManager::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 0x4) {
+		unk49 = 0;
+		PSVECNormalize(gpLightManager->getLightPos(), &unk30);
+		calcVtx();
+	}
+
+	if (flags & 0x8) {
+		if (mDLSw)
+			drawShadowGD(flags, graphics);
+		else
+			drawShadow(flags, graphics);
+
+		if (flags & 0x20000000) {
+			unk49 = 1;
+			unk14 = 0;
+			unk20 = 0;
+			unk65 = 0;
+			unk2C = 0;
+			unk40 = 0;
+		}
+	}
+}
+
+void TMBindShadowManager::request(const TCircleShadowRequest& request,
+                                  u32 actor_type)
+{
+	JGeometry::TVec3<f32> toCamera = request.unk0;
+	toCamera.x -= gpCamera->unk124.x;
+	toCamera.y -= gpCamera->unk124.y;
+	toCamera.z -= gpCamera->unk124.z;
+
+	f32 distSq = toCamera.x * toCamera.x + toCamera.y * toCamera.y
+	             + toCamera.z * toCamera.z;
+
+	f32 distScale = 6.0f;
+	if (request.unk1C == 2)
+		distScale = 10.0f;
+	if (request.unk1C == 1)
+		distScale = 1.0f;
+
+	if (distSq > 20000000.0f * distScale)
+		return;
+	if (request.unkC < 0.01f)
+		return;
+	if (request.unk10 < 0.01f)
+		return;
+	if (!gpMap->isInArea(request.unk0.x, request.unk0.z))
+		return;
+	if (isnan(request.unk0.x))
+		return;
+	if (isnan(request.unk0.z))
+		return;
+	if (unk14 >= 0x200)
+		return;
+
+	TCircleShadowRequest& dst = unk10[unk14];
+	dst                       = request;
+	dst.unk20                 = actor_type;
+	dst.unk18                 = distSq;
+
+	if (request.unk1C == 2) {
+		if (unk40 >= 1)
+			return;
+
+		TModelShadowInfo& info = unk70[unk40];
+		info.unk0              = request.unk0;
+		info.unkC              = 0;
+		info.unkD              = 1;
+		if (distSq > 200000000.0f)
+			info.unkC = 1;
+		++unk40;
+	} else {
+		++unk14;
+	}
+}
+
+void TMBindShadowManager::forceRequest(const TCircleShadowRequest& request,
+                                       u32 actor_type)
+{
+	JGeometry::TVec3<f32> toCamera = request.unk0;
+	toCamera.x -= gpCamera->unk124.x;
+	toCamera.y -= gpCamera->unk124.y;
+	toCamera.z -= gpCamera->unk124.z;
+
+	f32 distSq = toCamera.x * toCamera.x + toCamera.y * toCamera.y
+	             + toCamera.z * toCamera.z;
+
+	if (unk14 >= 0x200)
+		return;
+
+	TCircleShadowRequest& dst = unk10[unk14];
+	dst                       = request;
+	dst.unk20                 = actor_type;
+	dst.unk18                 = distSq;
+	++unk14;
 }
