@@ -6,6 +6,7 @@
 #include <JSystem/JAudio/JAInterface/JAIConst.hpp>
 #include <MarioUtil/MapUtil.hpp>
 #include <System/MSoundMainSide.hpp>
+#include <math.h>
 
 namespace MSoundSESystem {
 
@@ -13,7 +14,7 @@ JSUList<MSRandVol> MSRandVol::smList;
 
 JSUList<MSRandPlay> MSRandPlay::smList;
 
-void* SeInfo::smSeSetting = 0;
+f32 SeInfo::smSeSetting[2] = { 1.0f, 0.9f };
 
 MSoundSE* MSoundSE::mObj = 0;
 
@@ -396,6 +397,54 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
                                        u32 p5, u32 p6, JAISound** p7, u32 p8,
                                        u8 p9)
 {
+	u32 soundID     = p1;
+	f32 gateParam   = p4;
+	f32 volumeParam = gateParam;
+
+	switch (soundID) {
+	case 0x2052:
+	case 0x305B:
+		gateParam = p2->y;
+		break;
+	case 0x3048:
+		return;
+	case 0x3804:
+	case 0x3862:
+		gateParam
+		    = __fabsf(std::sqrtf(p3->x * p3->x + p3->y * p3->y + p3->z * p3->z));
+		break;
+	case 0x1818:
+		if (p5 < 4)
+			soundID += p5;
+		else
+			soundID += 4;
+		break;
+	default:
+		if (soundID >= 0x381C && soundID < 0x3821)
+			gateParam = __fabsf(gateParam);
+		break;
+	}
+
+	if (JALSystem::gateCheckFunc(soundID, gateParam))
+		return;
+
+	JAIActor actor(p2, p2, p2, p6);
+	JAISound* sound = startSoundActorInner(soundID, p7, &actor, p8, p9);
+	if (sound == nullptr)
+		return;
+
+	if (soundID == 0x2007) {
+		f32 pitch = SeInfo::smSeSetting[1];
+		for (u32 i = 0; i < sound->unk14; ++i)
+			pitch *= SeInfo::smSeSetting[0];
+		sound->setSeInterPitch(0, pitch, 0, 0.0f);
+	} else if (soundID == 0x305B) {
+		f32 volume = JALCalc::linearTransform(volumeParam, 0.0f, 20.0f, 0.0f,
+		                                      1.0f, true);
+		sound->setVolume(volume, 0, 0);
+	}
+
+	JALSystem::processModFunc(sound, gateParam, 0, 0);
 }
 
 bool MSoundSE::checkSoundArea(u32 param, const Vec& vec)

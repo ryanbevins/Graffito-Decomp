@@ -66,7 +66,7 @@ public:
 
 class SeInfo {
 public:
-	static void* smSeSetting;
+	static f32 smSeSetting[2];
 };
 
 class MSoundSE {
