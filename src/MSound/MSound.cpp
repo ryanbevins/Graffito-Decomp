@@ -426,11 +426,8 @@ void MSound::talkModeOut()
 		if (MSGMSound->unk0->unk88.unk2[i] && ((0x1FF >> i) & 1)
 		    && JAIBasic::basic != nullptr) {
 			s32 rawVolume = 127.0f * MSHandle::smSeCategory[i].unk8;
-			s32 categoryVolume;
-			if ((u8)rawVolume >= 127)
-				categoryVolume = 127;
-			else
-				categoryVolume = rawVolume;
+			s32 categoryVolume
+			    = (u8)rawVolume < 127 ? rawVolume : 127;
 			JAIBasic::basic->setSeCategoryVolume(i, categoryVolume);
 		}
 	}
