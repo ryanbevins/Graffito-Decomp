@@ -684,15 +684,15 @@ bool MSound::gateCheck(u32 param)
 {
 	u8 flag = unkA8;
 	if (!(flag & 1)) {
-		u8 category = (param >> 24) & 0xC0;
-		category |= (param >> 11) & 1;
+		u8 category = (param >> 11) & 1;
+		category |= (param >> 24) & 0xC0;
 		if (category == 0)
 			return false;
 	}
 
 	if (!(flag & 2)) {
-		u8 category = (param >> 24) & 0xC0;
-		category |= (param >> 11) & 1;
+		u8 category = (param >> 11) & 1;
+		category |= (param >> 24) & 0xC0;
 		if (category == 1)
 			return false;
 	}
