@@ -5570,6 +5570,30 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Signed `switch` can preserve high-first compare trees while keeping low-first case body layout
+
+**Hypothesis.** For small integer selectors where target asm compares a higher
+case first, branches to its body, then falls through to compare a lower case
+whose body is laid out first, source `if/else if` may force the first source
+case to be tested first. Writing a `switch ((s32)selector)` with cases ordered
+by body layout can make MWCC emit the target signed compare tree while
+preserving ascending/low-first case body placement.
+
+**Observed.** `mario/MSound/MSoundSE`
+`MSoundSE::checkSoundArea(unsigned long, const Vec&)` target starts with
+`cmpwi r3, 8; beq case8; bge exit; cmpwi r3, 7; bge case7`, but the case-7
+body is laid out before case 8. Source `if (param == 7) ... else if
+(param == 8) ...` emitted `cmplwi r3, 7` first. Rewriting as
+`switch ((s32)param) { case 7: ...; case 8: ...; }` matched the dispatch tree
+and moved the function `91.8% -> 99.5%`; remaining residue is only stack frame
+and `Vec` local slot placement.
+
+**Experiment to confirm/refute.** Find a second two- or three-case selector
+where target compares a high case before a lower body-layout case and the
+current source is an `if/else if` chain. Test unsigned `switch`, signed
+`switch`, and reordered `if/else if` separately to isolate whether the signed
+cast or switch lowering is the key lever.
+
 ### Caching a member loop bound plus binding each struct-array record can unlock MWCC's 8-way unroller
 
 **Hypothesis.** For loops over a struct array where the target has the
