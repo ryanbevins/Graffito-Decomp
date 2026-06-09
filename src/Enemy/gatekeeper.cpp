@@ -804,6 +804,7 @@ BOOL TBiancoGateKeeper::isDamageFogSituation() const
 	return false;
 }
 
+#pragma dont_inline on
 BOOL TBiancoGateKeeper::isHeadHitActive() const
 {
 	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
@@ -827,6 +828,7 @@ BOOL TBiancoGateKeeper::isHeadHitActive() const
 
 	return false;
 }
+#pragma dont_inline off
 
 #pragma dont_inline on
 f32 TBiancoGateKeeper::getRumblePow()
