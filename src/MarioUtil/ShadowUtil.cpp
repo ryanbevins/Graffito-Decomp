@@ -641,6 +641,12 @@ void TMBindShadowManager::drawShadow(u32 flags, JDrama::TGraphics* graphics)
 	GXSetDstAlpha(GX_TRUE, 0);
 }
 
+void TMBindShadowManager::drawShadowGD(u32 flags, JDrama::TGraphics* graphics)
+{
+	// TODO: recover the original TGDLStatic display-list helpers.
+	drawShadow(flags, graphics);
+}
+
 void TMBindShadowManager::drawShadowVolume(bool high_quality,
                                            TAlphaShadowQuad* quad)
 {
