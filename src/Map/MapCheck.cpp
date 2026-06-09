@@ -346,20 +346,22 @@ inline static bool LineInLineXZ(const JGeometry::TVec2<f32>& a1,
 
 	f32 c1 = crossXZ(a2a1, b1a1);
 	f32 c2 = crossXZ(a2a1, b2a1);
-	if (c1 * c2 > 0.0f)
-		return false;
+	bool result = false;
+	if (!(c1 * c2 > 0.0f)) {
+		JGeometry::TVec2<f32> b2b1(b2);
+		JGeometry::TVec2<f32> a1b1(a1);
+		b2b1.sub(b1);
+		a1b1.sub(b1);
 
-	JGeometry::TVec2<f32> b2b1(b2);
-	JGeometry::TVec2<f32> a1b1(a1);
-	b2b1.sub(b1);
-	a1b1.sub(b1);
+		JGeometry::TVec2<f32> a2b1(a2);
+		a2b1.sub(b1);
 
-	JGeometry::TVec2<f32> a2b1(a2);
-	a2b1.sub(b1);
-
-	f32 c3 = crossXZ(b2b1, a1b1);
-	f32 c4 = crossXZ(b2b1, a2b1);
-	return c3 * c4 <= 0.0f;
+		f32 c3 = crossXZ(b2b1, a1b1);
+		f32 c4 = crossXZ(b2b1, a2b1);
+		if (!(c3 * c4 > 0.0f))
+			result = true;
+	}
+	return result;
 }
 
 inline static f32 calcEdgeAngle(f32 ax, f32 ay, f32 az, f32 bx, f32 by, f32 bz)
