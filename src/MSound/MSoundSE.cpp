@@ -42,8 +42,6 @@ MSRandVol::MSRandVol(u32 param)
 {
 }
 
-u32 MSRandVol::getRandomVolume(u32 param1, u32 param2) { return 0; }
-
 f32 MSRandVol::getRandVol(u32 param)
 {
 	u32 minIndex  = (param >> 26) & 3;
@@ -87,8 +85,6 @@ s32 MSRandPlay::registerTrans(u32 param, const Vec* vec)
 	return -1;
 }
 
-void MSRandPlay::registerTransDynamic(const Vec* vec) { }
-
 void MSRandPlay::createRandPlayVec(u32 param1, u16 param2)
 {
 	for (JSULink<MSRandPlay>* link = smList.getFirst(); link != nullptr;
@@ -102,8 +98,6 @@ void MSRandPlay::createRandPlayVec(u32 param1, u16 param2)
 		}
 	}
 }
-
-void MSRandPlay::createRandPlayVecDynamic(u16 param) { }
 
 void MSRandPlay::startSeRandPlay(u32 param1, u32 param2)
 {
@@ -728,8 +722,6 @@ JAISound* MSoundSE::startSoundActorInner(u32 p1, JAISound** p2, JAIActor* p3,
 	return MSGBasic->startSoundActorReturnHandle(soundID, p3, p4, p5);
 }
 #pragma dont_inline off
-
-u32 MSoundSE::getNewIDByGroundCode(u32 param, JAIActor* actor) { return 0; }
 
 u32 MSoundSE::getNewIDBySurfaceCode(u32 param, JAIActor* actor)
 {

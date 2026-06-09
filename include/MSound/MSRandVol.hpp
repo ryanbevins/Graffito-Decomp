@@ -13,7 +13,6 @@ public:
 	virtual f32 getRandVol(u32);
 
 	static void construct(u32);
-	u32 getRandomVolume(u32, u32);
 	static JSUList<MSRandVol> smList;
 	static float getRandomVolumeNormal(u32);
 

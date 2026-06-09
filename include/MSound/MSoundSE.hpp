@@ -50,9 +50,7 @@ public:
 
 	static void construct(u32, s32, s32, f32, f32);
 	static void createRandPlayVec(u32, u16);
-	void createRandPlayVecDynamic(u16);
 	static s32 registerTrans(u32, const Vec*);
-	void registerTransDynamic(const Vec*);
 	static void startSeRandPlay(u32, u32);
 	static JSUList<MSRandPlay> smList;
 
@@ -75,7 +73,6 @@ public:
 	static void construct();
 	static bool checkMonoSound(u32, JAIActor*);
 	static bool checkSoundArea(u32, const Vec&);
-	static u32 getNewIDByGroundCode(u32, JAIActor*);
 	static u32 getNewIDBySurfaceCode(u32, JAIActor*);
 	static u32 getRandomID(u32);
 	static JAISound* startSoundActor(u32, const Vec*, u32, JAISound**, u32,
