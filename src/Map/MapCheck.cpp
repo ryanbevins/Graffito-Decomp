@@ -446,16 +446,21 @@ TMapCollisionData::intersectLine(const JGeometry::TVec3<f32>& start,
 	f32 startZ = start.z;
 	f32 endZ   = end.z;
 
-	s32 min_x = (s32)startX;
-	s32 max_x = (s32)endX;
+	s32 start_x_int = (s32)startX;
+	s32 end_x_int   = (s32)endX;
+	s32 start_z_int = (s32)startZ;
+	s32 end_z_int   = (s32)endZ;
+
+	s32 min_x = start_x_int;
+	s32 max_x = end_x_int;
 	if (min_x > max_x) {
 		s32 tmp = min_x;
 		min_x   = max_x;
 		max_x   = tmp;
 	}
 
-	s32 min_z = (s32)startZ;
-	s32 max_z = (s32)endZ;
+	s32 min_z = start_z_int;
+	s32 max_z = end_z_int;
 	if (min_z > max_z) {
 		s32 tmp = min_z;
 		min_z   = max_z;
