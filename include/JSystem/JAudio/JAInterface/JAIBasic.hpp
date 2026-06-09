@@ -249,8 +249,8 @@ public:
 	/* 0x70 */ u32 unk70;
 	/* 0x74 */ char unk74[0x4];
 	/* 0x78 */ u32 unk78;
-	/* 0x7C */ u32 unk7C;
-	/* 0x80 */ u32 unk80;
+	/* 0x7C */ JAISound* unk7C;
+	/* 0x80 */ JAISound* unk80;
 	/* 0x84 */ u32 unk84;
 	/* 0x88 */ u8 unk88;
 	/* 0x8C */ u32* unk8C;

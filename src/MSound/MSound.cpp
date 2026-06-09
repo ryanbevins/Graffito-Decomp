@@ -362,25 +362,172 @@ void MSound::mainLoop()
 JAISound* MSound::startSoundSet(u32 id, const Vec* pos, u32 param3, f32 volume,
                                 u32 param5, u32 param6, u8 param7)
 {
-	return nullptr;
+	if (gateCheck(id))
+		MSSetSound::startSoundSet(id, pos, param3, volume, param5, param6,
+		                           param7);
 }
 
 JAISound* MSound::startSoundSetGrp(u32 id, const Vec* pos, u32 param3,
                                    f32 volume, u32 param5, u32 param6,
                                    u8 param7)
 {
-	return nullptr;
+	if (gateCheck(id))
+		MSSetSoundGrp::startSoundSetGrp(id, pos, param3, volume, param5,
+		                                 param6, param7);
 }
 
-void MSound::initSound() { }
+void MSound::initSound()
+{
+	unkA8 |= 2;
 
-void MSound::pauseOn(bool param) { }
+	for (u8 i = 0; i < 16; ++i) {
+		if (MSGMSound->unk0->unk88.unk2[i] && JAIBasic::basic != nullptr) {
+			s32 rawVolume = 127.0f * MSHandle::smSeCategory[i].unk8;
+			s32 categoryVolume
+			    = (u8)rawVolume < 127 ? rawVolume : 127;
+			JAIBasic::basic->setSeCategoryVolume(i, categoryVolume);
+		}
+	}
 
-void MSound::pauseOff(u8 param) { }
+	if (unk7C != nullptr) {
+		unk7C->stop(1);
+		unk7C = nullptr;
+	}
 
-void MSound::demoModeIn(u16 param1, bool param2) { }
+	if (unk80 != nullptr) {
+		unk80->stop(1);
+		unk80 = nullptr;
+	}
+}
 
-void MSound::demoModeOut(bool param) { }
+void MSound::pauseOn(bool param)
+{
+	if (param) {
+		bool canPlay;
+		if (!(unkA8 & 2))
+			canPlay = false;
+		else
+			canPlay = true;
+
+		if (canPlay) {
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4802, 0,
+			                                             nullptr, 0);
+		}
+	}
+
+	for (u8 i = 0; i < 16; ++i) {
+		if (i != 4 && MSGMSound->unk0->unk88.unk2[i])
+			MSGMSound->setSeCategoryVolume(i, 0);
+	}
+
+	u8 mask = 7;
+	if (param) {
+		for (u8 i = 0; i < 3; ++i) {
+			if ((mask >> i) & 1)
+				MSBgm::setTrackVolume(i, 0.0f, 60, 3);
+		}
+	} else {
+		for (u8 i = 0; i < 3; ++i) {
+			if ((mask >> i) & 1)
+				MSBgm::setTrackVolume(i, 0.0f, 0, 3);
+		}
+	}
+}
+
+void MSound::pauseOff(u8 param)
+{
+	switch (param) {
+	case 0:
+	{
+		bool canPlay;
+		if (!(unkA8 & 2))
+			canPlay = false;
+		else
+			canPlay = true;
+
+		if (canPlay) {
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4803, 0,
+			                                             nullptr, 0);
+		}
+	}
+	case 2:
+		for (u8 i = 0; i < 16; ++i) {
+			if (i != 4 && MSGMSound->unk0->unk88.unk2[i]
+			    && JAIBasic::basic != nullptr) {
+				s32 rawVolume = 127.0f * MSHandle::smSeCategory[i].unk8;
+				s32 categoryVolume
+				    = (u8)rawVolume < 127 ? rawVolume : 127;
+				JAIBasic::basic->setSeCategoryVolume(i, categoryVolume);
+			}
+		}
+
+		for (u8 i = 0; i < 3; ++i) {
+			if ((7 >> i) & 1)
+				MSBgm::setTrackVolume(i, 1.0f, 10, 3);
+		}
+		break;
+	case 1:
+	{
+		bool canPlay;
+		if (!(unkA8 & 2))
+			canPlay = false;
+		else
+			canPlay = true;
+
+		if (canPlay) {
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x481B, 0,
+			                                             nullptr, 0);
+		}
+
+		for (u8 i = 0; i < 16; ++i) {
+			if (MSGMSound->unk0->unk88.unk2[i])
+				MSGMSound->setSeCategoryVolume(i, 0);
+		}
+
+		for (u8 i = 0; i < 3; ++i) {
+			if ((7 >> i) & 1)
+				MSBgm::setTrackVolume(i, 0.0f, 15, 3);
+		}
+		break;
+	}
+	}
+}
+
+void MSound::demoModeIn(u16 param1, bool param2)
+{
+	for (u8 i = 0; i < 16; ++i) {
+		if (((param1 >> i) & 1) && MSGMSound->unk0->unk88.unk2[i])
+			MSGMSound->setSeCategoryVolume(i, 0);
+	}
+
+	if (param2) {
+		u8 mask = 7;
+		for (u8 i = 0; i < 3; ++i) {
+			if ((mask >> i) & 1)
+				MSBgm::setTrackVolume(i, 0.0f, 15, 3);
+		}
+	}
+}
+
+void MSound::demoModeOut(bool param)
+{
+	for (u8 i = 0; i < 16; ++i) {
+		if (MSGMSound->unk0->unk88.unk2[i] && JAIBasic::basic != nullptr) {
+			s32 rawVolume = 127.0f * MSHandle::smSeCategory[i].unk8;
+			s32 categoryVolume
+			    = (u8)rawVolume < 127 ? rawVolume : 127;
+			JAIBasic::basic->setSeCategoryVolume(i, categoryVolume);
+		}
+	}
+
+	if (param) {
+		u8 mask = 7;
+		for (u8 i = 0; i < 3; ++i) {
+			if ((mask >> i) & 1)
+				MSBgm::setTrackVolume(i, 1.0f, 15, 3);
+		}
+	}
+}
 
 void MSound::talkModeIn(bool param)
 {
