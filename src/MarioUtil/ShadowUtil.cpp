@@ -418,10 +418,10 @@ void TMBindShadowManager::request(const TCircleShadowRequest& request,
 
 		TModelShadowInfo& info = unk70[unk40];
 		info.unk0              = request.unk0;
-		info.unkC              = 0;
-		info.unkD              = 1;
+		unk70[unk40].unkC      = 0;
+		unk70[unk40].unkD      = 1;
 		if (distSq > 200000000.0f)
-			info.unkC = 1;
+			unk70[unk40].unkC = 1;
 		++unk40;
 	} else {
 		++unk14;
