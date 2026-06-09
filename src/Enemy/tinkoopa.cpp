@@ -1,6 +1,7 @@
 #include <Enemy/TinKoopa.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <Map/MapCollisionEntry.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <System/Particles.hpp>
 
@@ -278,4 +279,21 @@ void TTinKoopa::makeLaunchSchedule()
 	order[10]->unk8 = 0x8ac;
 	order[10]->unkC = -1;
 	order[10]->unkD = 1;
+}
+
+BOOL TTinKoopaPartsBase::receiveMessage(THitActor* sender, u32)
+{
+	if (sender->mActorType == 0x1000002b) {
+		unk100->hitParts();
+		return true;
+	}
+
+	return false;
+}
+
+void TTinKoopaPartsBase::reset()
+{
+	unkF8 = 0;
+	JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
+	unkF4->setUpTrans(zero);
 }

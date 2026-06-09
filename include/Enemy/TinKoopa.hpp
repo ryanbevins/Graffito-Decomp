@@ -6,6 +6,7 @@
 #include <M3DUtil/M3UJoint.hpp>
 
 class TLiveManager;
+class TMapCollisionMove;
 class TTinKoopaPartsBase;
 class TTinKoopaFlame;
 class TTinKoopa;
@@ -78,7 +79,13 @@ public:
 	void startBreaking();
 	void initTinKoopaPartsBase();
 
-	/* 0xF4 */ u8 unkF4[0x5C];
+	/* 0xF4 */ TMapCollisionMove* unkF4;
+	/* 0xF8 */ u8 unkF8;
+	/* 0xF9 */ u8 unkF9[3];
+	/* 0xFC */ s32 unkFC;
+	/* 0x100 */ TTinKoopa* unk100;
+	/* 0x104 */ MActor* unk104;
+	/* 0x108 */ JGeometry::TVec3<f32> unk108[6];
 };
 
 class TTinKoopaFlame : public THitActor {
