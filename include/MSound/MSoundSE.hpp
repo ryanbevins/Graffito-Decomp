@@ -74,7 +74,7 @@ public:
 	MSoundSE();
 	static void construct();
 	static bool checkMonoSound(u32, JAIActor*);
-	static void checkSoundArea(u32, const Vec&);
+	static bool checkSoundArea(u32, const Vec&);
 	static u32 getNewIDByGroundCode(u32, JAIActor*);
 	static u32 getNewIDBySurfaceCode(u32, JAIActor*);
 	static u32 getRandomID(u32);

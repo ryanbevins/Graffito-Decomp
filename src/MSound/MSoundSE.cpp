@@ -1,4 +1,5 @@
 #include <MSound/MSoundSE.hpp>
+#include <MSound/MSound.hpp>
 #include <MSound/MSRandVol.hpp>
 #include <JSystem/JAudio/JALibrary/JALSystem.hpp>
 #include <JSystem/JAudio/JAInterface/JAIConst.hpp>
@@ -281,7 +282,7 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 {
 }
 
-void MSoundSE::checkSoundArea(u32 param, const Vec& vec) { }
+bool MSoundSE::checkSoundArea(u32 param, const Vec& vec) { return false; }
 
 #pragma dont_inline on
 JAISound* MSoundSE::startSoundActorInner(u32 p1, JAISound** p2, JAIActor* p3,
@@ -292,13 +293,103 @@ JAISound* MSoundSE::startSoundActorInner(u32 p1, JAISound** p2, JAIActor* p3,
 
 u32 MSoundSE::getNewIDByGroundCode(u32 param, JAIActor* actor) { return 0; }
 
-u32 MSoundSE::getNewIDBySurfaceCode(u32 param, JAIActor* actor) { return 0; }
+u32 MSoundSE::getNewIDBySurfaceCode(u32 param, JAIActor* actor)
+{
+	u32 surface = actor->unkC & 0xF00;
+	if (surface == 0)
+		return param;
+
+	switch (param) {
+	case 0x1820:
+		switch (surface) {
+		case 0x100:
+		case 0x700:
+			return 0x1924;
+		case 0x200:
+			return 0x1928;
+		case 0x300:
+		case 0x500:
+			return 0x192C;
+		case 0x400:
+		case 0x600:
+			return 0x1930;
+		default:
+			return param;
+		}
+	case 0x1822:
+	case 0x1826:
+		return -1;
+	case 0x1824:
+		switch (surface) {
+		case 0x100:
+		case 0x700:
+			return 0x1926;
+		case 0x200:
+			return 0x192A;
+		case 0x300:
+		case 0x500:
+			return 0x192E;
+		case 0x400:
+		case 0x600:
+			return 0x1932;
+		default:
+			return param;
+		}
+	default:
+		return param;
+	}
+}
 
 void MSoundSE::startSoundNpcActor(u32 p1, const Vec* p2, u32 p3, JAISound** p4,
                                   u32 p5, u8 p6)
 {
+	JAIActor actor(p2, p2, p2, p3);
+
+	void* infoPtr;
+	JAIBasic::basic->unk0->getInfoPointer(p1, &infoPtr);
+	JAISoundInfo* info = (JAISoundInfo*)infoPtr;
+	if (info->unk0 & 0x4000) {
+		u8 category = JAIBasic::basic->changeIDToCategory(p1);
+		JAISound* sound
+		    = JAIBasic::basic->unk0->unk1E8[category].unk4;
+		while (sound != nullptr) {
+			JAISound* next       = sound->unk30;
+			JAISoundInfo* sInfo  = (JAISoundInfo*)sound->unk3C;
+			if (sound->unk20 == actor.unk0 && (sInfo->unk0 & 0x4000)
+			    && p1 != sound->unk8) {
+				JAIBasic::basic->stopSoundHandle(sound, 0);
+				break;
+			}
+			sound = next;
+		}
+	}
+
+	startSoundActorInner(p1, p4, &actor, p5, p6);
 }
 
-bool MSoundSE::checkMonoSound(u32 param, JAIActor* actor) { return false; }
+bool MSoundSE::checkMonoSound(u32 param, JAIActor* actor)
+{
+	void* infoPtr;
+	JAIBasic::basic->unk0->getInfoPointer(param, &infoPtr);
+	JAISoundInfo* info = (JAISoundInfo*)infoPtr;
+
+	if (info->unk0 & 0x4000) {
+		u8 category = JAIBasic::basic->changeIDToCategory(param);
+		JAISound* sound
+		    = JAIBasic::basic->unk0->unk1E8[category].unk4;
+		while (sound != nullptr) {
+			JAISound* next       = sound->unk30;
+			JAISoundInfo* sInfo  = (JAISoundInfo*)sound->unk3C;
+			if (sound->unk20 == actor->unk0 && (sInfo->unk0 & 0x4000)
+			    && param != sound->unk8) {
+				JAIBasic::basic->stopSoundHandle(sound, 0);
+				break;
+			}
+			sound = next;
+		}
+	}
+
+	return true;
+}
 
 } // namespace MSoundSESystem
