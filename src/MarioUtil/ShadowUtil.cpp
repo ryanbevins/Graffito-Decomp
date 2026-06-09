@@ -433,9 +433,10 @@ void TMBindShadowManager::forceRequest(const TCircleShadowRequest& request,
 {
 	JGeometry::TVec3<f32> pos      = request.unk0;
 	JGeometry::TVec3<f32> toCamera = pos;
-	toCamera.x -= gpCamera->unk124.x;
-	toCamera.y -= gpCamera->unk124.y;
-	toCamera.z -= gpCamera->unk124.z;
+	const JGeometry::TVec3<f32>& cameraPos = gpCamera->unk124;
+	toCamera.x -= cameraPos.x;
+	toCamera.y -= cameraPos.y;
+	toCamera.z -= cameraPos.z;
 
 	f32 distSq = toCamera.x * toCamera.x + toCamera.y * toCamera.y
 	             + toCamera.z * toCamera.z;
