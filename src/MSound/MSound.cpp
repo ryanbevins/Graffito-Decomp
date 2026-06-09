@@ -612,8 +612,7 @@ void MSound::stopMarioVoice(u32 id, u8 param2)
 	else
 		index = 0;
 
-	JAISound* sound = ((JAISound**)&unk8C)[index];
-	if (sound != nullptr) {
+	if (JAISound* sound = ((JAISound**)&unk8C)[index]) {
 		if (id != -1) {
 			if (id == sound->unk8)
 				sound->stop(1);
