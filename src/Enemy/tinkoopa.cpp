@@ -2,6 +2,7 @@
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <System/Particles.hpp>
 
@@ -326,4 +327,35 @@ BOOL TTinKoopaFlame::receiveMessage(THitActor*, u32 message)
 	}
 
 	return false;
+}
+
+void TTinKoopaFlame::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	THitActor::perform(flags, graphics);
+
+	if (flags & 1) {
+		if (unk68->unk17C <= 0 && unk68->unk150 != 4) {
+			s32 frame = unk68->unk150 == 0 ? 0xabe : 0xd48;
+			bool passed;
+			if (unk68->unk164) {
+				passed = unk68->unk164->getFrameCtrl(0)->checkPass((f32)frame);
+			} else {
+				passed = false;
+			}
+			if (passed)
+				SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
+		}
+	}
+
+	if (flags & 2) {
+		MtxPtr mtx = unk68->getModel()->getAnmMtx(TTinKoopa_jointIndexTable[9]);
+		mPosition.x = mtx[0][3];
+		mPosition.y = mtx[1][3];
+		mPosition.z = mtx[2][3];
+
+		emitFlameEffects();
+		if (unk68->unk17C <= 0)
+			offHitFlag(HIT_FLAG_NO_COLLISION);
+		unk72 = 0;
+	}
 }
