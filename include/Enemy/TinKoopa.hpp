@@ -8,6 +8,30 @@
 class TLiveManager;
 class TTinKoopaPartsBase;
 class TTinKoopaFlame;
+class TTinKoopa;
+
+class TTinKoopaLaunchOrder {
+public:
+	TTinKoopaLaunchOrder(TTinKoopa*, s8, s32, s8, s8);
+
+	void checkOrder();
+
+	/* 0x0 */ TTinKoopa* unk0;
+	/* 0x4 */ s8 unk4;
+	/* 0x5 */ u8 unk5[3];
+	/* 0x8 */ s32 unk8;
+	/* 0xC */ s8 unkC;
+	/* 0xD */ s8 unkD;
+	/* 0xE */ u8 unkE[2];
+};
+
+class TTinKoopaLaunchOrderTable {
+public:
+	/* 0x0 */ u8 unk0;
+	/* 0x1 */ u8 unk1[3];
+	/* 0x4 */ TTinKoopa* unk4;
+	/* 0x8 */ TTinKoopaLaunchOrder** unk8;
+};
 
 class TTinKoopaParams : public TSpineEnemyParams {
 public:
@@ -48,6 +72,12 @@ public:
 	virtual BOOL receiveMessage(THitActor*, u32);
 	virtual void reset();
 
+	void emitPartsDisappearEffects(const char**, int, f32);
+	void emitPartsDisappearEffects();
+	void emitPartsTrackEffects(const char**, int);
+	void startBreaking();
+	void initTinKoopaPartsBase();
+
 	/* 0xF4 */ u8 unkF4[0x5C];
 };
 
@@ -57,6 +87,8 @@ public:
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor*, u32);
+
+	void emitFlameEffects();
 
 	/* 0x68 */ u8 unk68[0x14];
 };
@@ -81,9 +113,28 @@ public:
 	f32 calcCoasterDistance(int, int);
 	void makeLaunchSchedule();
 
-	/* 0x150 */ u8 unk150[0xA0];
+	/* 0x150 */ s32 unk150;
+	/* 0x154 */ s32 unk154;
+	/* 0x158 */ s32 unk158;
+	/* 0x15C */ s32 unk15C;
+	/* 0x160 */ TTinKoopaFlame* unk160;
+	/* 0x164 */ MActor* unk164;
+	/* 0x168 */ u8 unk168;
+	/* 0x169 */ s8 unk169[4];
+	/* 0x16D */ u8 unk16D[3];
+	/* 0x170 */ s32 unk170;
+	/* 0x174 */ s32 unk174;
+	/* 0x178 */ s32 unk178;
+	/* 0x17C */ s32 unk17C;
+	/* 0x180 */ s32 unk180;
+	/* 0x184 */ u8 unk184[0x44];
+	/* 0x1C8 */ s32 unk1C8;
+	/* 0x1CC */ TTinKoopaPartsBase* unk1CC[6];
+	/* 0x1E4 */ s32 unk1E4;
+	/* 0x1E8 */ f32* unk1E8;
+	/* 0x1EC */ void* unk1EC;
 	/* 0x1F0 */ TEnemyManager* unk1F0;
-	/* 0x1F4 */ void* unk1F4;
+	/* 0x1F4 */ TTinKoopaLaunchOrderTable* unk1F4;
 	/* 0x1F8 */ void* unk1F8;
 };
 

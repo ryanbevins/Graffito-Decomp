@@ -1,5 +1,6 @@
 #include <Enemy/TinKoopa.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
+#include <M3DUtil/MActor.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <System/Particles.hpp>
 
@@ -174,4 +175,107 @@ BOOL TTinKoopa::hasMapCollision() const { return true; }
 void TTinKoopaMtxCalc::calc(u16 index)
 {
 	M3UMtxCalcSIAnmBlendQuat::calc(index);
+}
+
+void TTinKoopaLaunchOrder::checkOrder()
+{
+	TTinKoopa* koopa = unk0;
+	if (koopa->unk15C != unk4)
+		return;
+
+	bool passed = false;
+	if (koopa->unk164)
+		passed = koopa->unk164->getFrameCtrl(0)->checkPass((f32)unk8);
+
+	if (!passed)
+		return;
+
+	s32 count = 1;
+	if (unkC == -1) {
+		switch (koopa->unk150) {
+		case 2:
+			count = 2;
+			break;
+		case 3:
+			count = 3;
+			break;
+		default:
+			count = 1;
+			break;
+		}
+	} else {
+		count = unkC;
+	}
+
+	if (unkD == 1 && count > 2)
+		count = 2;
+
+	if (count > 4)
+		count = 4;
+
+	koopa->unk174 = 0;
+	koopa->unk170 = count;
+	for (int i = 0; i < koopa->unk170; ++i)
+		koopa->unk169[i] = unkD;
+	koopa->unk178 = 0;
+}
+
+void TTinKoopa::makeLaunchSchedule()
+{
+	TTinKoopaLaunchOrder** order = unk1F4->unk8;
+
+	order[0]->unk4 = 0;
+	order[0]->unk8 = 0x258;
+	order[0]->unkC = -1;
+	order[0]->unkD = 0;
+
+	order[1]->unk4 = 0;
+	order[1]->unk8 = 0x4ce;
+	order[1]->unkC = -1;
+	order[1]->unkD = 1;
+
+	order[2]->unk4 = 0;
+	order[2]->unk8 = 0x992;
+	order[2]->unkC = -1;
+	order[2]->unkD = 1;
+
+	order[3]->unk4 = 1;
+	order[3]->unk8 = 0xf0;
+	order[3]->unkC = -1;
+	order[3]->unkD = 0;
+
+	order[4]->unk4 = 1;
+	order[4]->unk8 = 0x118;
+	order[4]->unkC = -1;
+	order[4]->unkD = 1;
+
+	order[5]->unk4 = 1;
+	order[5]->unk8 = 0x276;
+	order[5]->unkC = -1;
+	order[5]->unkD = 0;
+
+	order[6]->unk4 = 1;
+	order[6]->unk8 = 0x384;
+	order[6]->unkC = -1;
+	order[6]->unkD = 0;
+
+	order[7]->unk4 = 1;
+	order[7]->unk8 = 0x4b0;
+	order[7]->unkC = -1;
+	order[7]->unkD = 1;
+
+	order[8]->unk4 = 2;
+	order[8]->unk8 = 0x235;
+	order[8]->unkC = -1;
+	order[8]->unkD = 0;
+
+	order[9]->unk4 = 2;
+	order[9]->unk8 = 0x2bc;
+	order[9]->unkC = -1;
+	order[9]->unkD = 0;
+
+	order[10]->unk4 = 2;
+	order[10]->unk8 = 0x8ac;
+	order[10]->unkC = -1;
+	order[10]->unkD = 1;
 }
