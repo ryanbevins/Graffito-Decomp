@@ -11,6 +11,7 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MSound/MSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
@@ -24,6 +25,7 @@
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <dolphin/mtx.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -35,7 +37,50 @@ DEFINE_NERVE(TNerveBGKSleep, TLiveActor)
 
 DEFINE_NERVE(TNerveBGKAppear, TLiveActor)
 {
-	// TODO: recover the appearing gatekeeper state.
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		gatekeeper->changeBck(0);
+
+		if (gatekeeper->unk28A == 0) {
+			snprintf((char*)gatekeeper->unk188, 0x100, "%s出現カメラ",
+			         gatekeeper->getName());
+			gpMarDirector->fireStartDemoCamera(
+			    (char*)gatekeeper->unk188, &gatekeeper->mPosition, -1, 0.0f,
+			    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
+			MSBgm::setTrackVolume(0, 0.0f, 10, 0);
+			MSBgm::startBGM(0x8001000B);
+		}
+
+		if (gatekeeper->unk28A < 0xFF)
+			++gatekeeper->unk28A;
+
+		if (gatekeeper->unk28A == 2)
+			gpMarDirector->mConsole->startAppearBalloon(0xE0047, true);
+	}
+
+	if (spine->getTime() == 8) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1DF,
+		    (MtxPtr)((u8*)gatekeeper->getModel()->mNodeMatrices + 0x240), 2,
+		    nullptr);
+
+		if (SMS_IsMarioTouchGround4cm()) {
+			gatekeeper->unk29C = gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		if (gpMarDirector->mMap == 0)
+			spine->pushAfterCurrent(&TNerveBGKWait2::theNerve());
+		else
+			spine->pushAfterCurrent(&TNerveBGKWait::theNerve());
+
+		return true;
+	}
+
 	return false;
 }
 
@@ -190,6 +235,18 @@ DEFINE_NERVE(TNerveBGKSleepDamage, TLiveActor)
 		return true;
 	}
 
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKWait, TLiveActor)
+{
+	// TODO: recover the normal waiting gatekeeper state.
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKWait2, TLiveActor)
+{
+	// TODO: recover the alternate waiting gatekeeper state.
 	return false;
 }
 
