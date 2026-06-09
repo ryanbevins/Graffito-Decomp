@@ -417,7 +417,8 @@ JAISound* MSoundSE::startSoundSystemSE(u32 p1, u32 p2, JAISound** p3, u32 p4)
 	JAISound* sound;
 	u32 variantSlot = p2;
 
-	if (originalID == 0x481E) {
+	switch (originalID) {
+	case 0x481E:
 		variantSlot--;
 		switch (variantSlot) {
 		case 1:
@@ -436,13 +437,15 @@ JAISound* MSoundSE::startSoundSystemSE(u32 p1, u32 p2, JAISound** p3, u32 p4)
 			soundID = 0x4832;
 			break;
 		}
+		break;
 	}
 
 	sound = startSoundActorInner(soundID, p3, (JAIActor*)-1, p4, 4);
 	if (sound == nullptr)
 		return nullptr;
 
-	if (originalID == 0x481E) {
+	switch (originalID) {
+	case 0x481E:
 		f32 pan   = 0.5f;
 		f32 dolby = pan;
 
@@ -473,6 +476,7 @@ JAISound* MSoundSE::startSoundSystemSE(u32 p1, u32 p2, JAISound** p3, u32 p4)
 
 		sound->setPan(pan, 0, 0);
 		sound->setDolby(dolby, 0, 0);
+		break;
 	}
 
 	return sound;
