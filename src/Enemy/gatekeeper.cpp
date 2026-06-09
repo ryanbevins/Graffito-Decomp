@@ -437,27 +437,35 @@ DEFINE_NERVE(TNerveBGKWait, TLiveActor)
 	    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
 	if (spine->getTime() > params->mSLDiveTimer.get()
 	    && !actor->checkCurBckFromIndex(0x0D)) {
-		BOOL diveReady = true;
 		J3DFrameCtrl* ctrl = actor->getFrameCtrl(0);
-		if (ctrl) {
-			if (!ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
-			    && !ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
-			    && 0.1f + ctrl->getFrame() < ctrl->getEnd())
-				diveReady = false;
-		}
+		BOOL diveReady;
+		if (ctrl == nullptr)
+			diveReady = true;
+		else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE))
+			diveReady = true;
+		else if (ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE))
+			diveReady = true;
+		else if (0.1f + ctrl->getFrame() >= ctrl->getEnd())
+			diveReady = true;
+		else
+			diveReady = false;
 
 		if (diveReady)
 			gatekeeper->changeBck(0x0D);
 	}
 
-	BOOL animEnd = true;
 	J3DFrameCtrl* ctrl = actor->getFrameCtrl(0);
-	if (ctrl) {
-		if (!ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
-		    && !ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
-		    && 0.1f + ctrl->getFrame() < ctrl->getEnd())
-			animEnd = false;
-	}
+	BOOL animEnd;
+	if (ctrl == nullptr)
+		animEnd = true;
+	else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE))
+		animEnd = true;
+	else if (ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE))
+		animEnd = true;
+	else if (0.1f + ctrl->getFrame() >= ctrl->getEnd())
+		animEnd = true;
+	else
+		animEnd = false;
 
 	if (animEnd) {
 		if (actor->checkCurBckFromIndex(0x11) && gatekeeper->unk28A == 1
