@@ -454,8 +454,8 @@ void TMBindShadowManager::forceRequest(const TCircleShadowRequest& request,
 	dst.unk1C                 = request.unk1C;
 	dst.unk1D                 = request.unk1D;
 	dst.unk20                 = request.unk20;
-	dst.unk20                 = actor_type;
-	dst.unk18                 = distSq;
+	unk10[unk14].unk20       = actor_type;
+	unk10[unk14].unk18       = distSq;
 	++unk14;
 }
 
