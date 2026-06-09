@@ -1,5 +1,6 @@
 #include <Enemy/TinKoopa.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Player/MarioAccess.hpp>
@@ -34,6 +35,31 @@ static const char* TTinKoopa_jointNameTable[] = {
 };
 
 static u32 TTinKoopa_jointIndexTable[15];
+
+static const int partsBreakBckTable[] = { 0, 4, 11, 9, 10, 0 };
+
+static const char* breastTrackJointNameTable[] = {
+	"breast_1", "breast_2", "breast_3", "breast_4", "breast_5", "breast_6",
+};
+
+static const char* bellyTrackJointNameTable[] = {
+	"stomach_1", "stomach_2", "stomach_3",
+	"stomach_4", "stomach_5", "stomach_6",
+};
+
+static const char* rightArmTrackJointNameTable[] = {
+	"rarm_1",
+	"rarm_2",
+	"rarm_3",
+	"rarm_4",
+};
+
+static const char* leftArmTrackJointNameTable[] = {
+	"larm_1",
+	"larm_2",
+	"larm_3",
+	"larm_4",
+};
 
 static const char* onetimeFilenames[] = {
 	"/scene/tinkoopa/jpa/ms_mkp_hibana_d1he.jpa",
@@ -379,4 +405,43 @@ void TTinKoopaPartsBase::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (unkF8 && unk104)
 		unk104->perform(flags, graphics);
+}
+
+void TTinKoopaPartsBase::startBreaking()
+{
+	unkF8 = 1;
+
+	u32 jointIndex = TTinKoopa_jointIndexTable[unkFC];
+	MtxPtr mtx     = unk100->getModel()->getAnmMtx(jointIndex);
+	mPosition.x    = mtx[0][3];
+	mPosition.y    = mtx[1][3];
+	mPosition.z    = mtx[2][3];
+
+	if (!unk104)
+		return;
+
+	unk104->setBckFromIndex(partsBreakBckTable[unkFC]);
+
+	J3DModel* model = unk104->getModel();
+	MtxPtr baseMtx  = model->getBaseTRMtx();
+	baseMtx[0][3]   = mPosition.x;
+	baseMtx[1][3]   = mPosition.y;
+	baseMtx[2][3]   = mPosition.z;
+
+	switch (unkFC) {
+	case 1:
+		emitPartsTrackEffects(breastTrackJointNameTable, 6);
+		break;
+	case 2:
+		emitPartsTrackEffects(bellyTrackJointNameTable, 6);
+		break;
+	case 3:
+		emitPartsTrackEffects(rightArmTrackJointNameTable, 4);
+		break;
+	case 4:
+		emitPartsTrackEffects(leftArmTrackJointNameTable, 4);
+		break;
+	default:
+		break;
+	}
 }
