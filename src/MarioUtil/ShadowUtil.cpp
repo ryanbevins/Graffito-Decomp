@@ -51,17 +51,17 @@ static inline bool isUseThisBindJoint(u32 actor_type, int joint_no)
 static inline bool isCircleBindJoint(u32 actor_type, int joint_no)
 {
 	switch ((s32)actor_type) {
-	case (s32)ACTOR_TYPE_SHADOW_A:
-		if (joint_no == 0x13)
-			return true;
-		if (joint_no == 0x17)
-			return true;
-		return false;
 	case (s32)ACTOR_TYPE_SHADOW_MARIO:
 	case (s32)ACTOR_TYPE_SHADOW_B:
-		if (joint_no == 0x1A)
-			return true;
-		return false;
+		if (joint_no != 0x1A)
+			return false;
+		return true;
+	case (s32)ACTOR_TYPE_SHADOW_A:
+		if (joint_no != 0x13) {
+			if (joint_no != 0x17)
+				return false;
+		}
+		return true;
 	default:
 		return false;
 	}
@@ -72,11 +72,11 @@ static inline bool isBodyBindJoint(u32 actor_type, int joint_no)
 	switch ((s32)actor_type) {
 	case (s32)ACTOR_TYPE_SHADOW_MARIO:
 	case (s32)ACTOR_TYPE_SHADOW_B:
-		if (joint_no == 2)
-			return true;
-		if (joint_no == 0xE)
-			return true;
-		return false;
+		if (joint_no != 2) {
+			if (joint_no != 0xE)
+				return false;
+		}
+		return true;
 	default:
 		return false;
 	}

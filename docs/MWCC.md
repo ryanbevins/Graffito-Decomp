@@ -41,10 +41,11 @@ them in future ticks.
 **Rule.** When target asm lowers a small sparse selector as a signed compare
 tree (`cmpw/cmpwi`, high/adjacent cases tested before lower physical body
 layout), write the source as `switch ((s32)x)` rather than an `if/else if`
-chain or unsigned equality disjunction. For inline predicate helpers, keep the
-per-case returns branchy (`if (k == C) return true; ...`) when target has
-explicit compare/branch exits; compact boolean expressions may collapse into
-`subfic/cntlzw` materialization.
+chain or unsigned equality disjunction. Order `case` bodies by target body
+layout, not by semantic importance. For inline predicate helpers, keep the
+per-case returns branchy or use inverse guards that fall through to one shared
+`return true` block when target has explicit compare/branch exits; compact
+boolean expressions may collapse into `subfic/cntlzw` materialization.
 
 **Citations.**
 - `mario/MSound/MSoundSE` `MSoundSE::checkSoundArea(unsigned long, const Vec&)`
@@ -54,8 +55,8 @@ explicit compare/branch exits; compact boolean expressions may collapse into
 - `mario/MarioUtil/ShadowUtil`
   `TMBindShadowBody::TMBindShadowBody(THitActor*, J3DModel*, float)`
   (2026-06-10 MNL): rewriting actor-type scale selection and the three
-  bind-joint inline predicates as signed switches with explicit returns moved
-  the constructor `55.5 -> 76.2`.
+  bind-joint inline predicates as signed switches with explicit/inverse-guard
+  returns moved the constructor `55.5 -> 79.2`.
 
 ### Static inline wrappers can preserve local `MsWrap<float>` helper ownership and call boundaries
 
