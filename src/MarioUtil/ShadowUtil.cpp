@@ -8,11 +8,13 @@
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
 #include <M3DUtil/SDLModel.hpp>
+#include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/LightUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/HitActor.hpp>
 #include <System/Application.hpp>
+#include <dolphin/gx.h>
 #include <dolphin/mtx.h>
 #include <math.h>
 
@@ -454,6 +456,70 @@ static bool isShadowWaterSurface(const TBGCheckData* data)
 	return type == BG_TYPE_WATER || type == BG_TYPE_DAMAGING_WATER
 	       || (u16)(type - BG_TYPE_SEA_WATER) <= 3
 	       || type == BG_TYPE_SHADED_POOL;
+}
+
+void TMBindShadowManager::drawShadowVolume(bool high_quality,
+                                           TAlphaShadowQuad* quad)
+{
+	TCircleShadowRequest* request = quad->unk68;
+	u8 kind                       = request->unk1C;
+
+	if (kind == 1) {
+		if (quad->unk64 == nullptr) {
+			J3DModelData* modelData = unk3C[2]->getModelData();
+			SMS_SettingDrawShape(modelData, 0);
+			SMS_DrawShape(modelData, 0);
+		} else {
+			static const s32 topIndices[] = { 2, 1, 0, 3, 2,
+				                              0, 4, 3, 0 };
+			static const s32 bottomIndices[] = { 0, 1, 2, 0, 2,
+				                                 3, 0, 3, 4 };
+
+			GXClearVtxDesc();
+			GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+			GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+
+			GXBegin(GX_TRIANGLES, GX_VTXFMT0, 18);
+			for (int i = 0; i < 9; ++i) {
+				Vec& v = quad->unk64->unk0[topIndices[i]];
+				GXPosition3f32(v.x, v.y + 50.0f, v.z);
+			}
+			for (int i = 0; i < 9; ++i) {
+				Vec& v = quad->unk64->unk0[bottomIndices[i]];
+				GXPosition3f32(v.x, v.y - 50.0f, v.z);
+			}
+
+			GXBegin(GX_TRIANGLES, GX_VTXFMT0, 60);
+			for (int i = 0; i < 5; ++i) {
+				Vec& a = quad->unk64->unk0[i];
+				Vec& b = quad->unk64->unk0[(i + 1) % 5];
+
+				GXPosition3f32(a.x, a.y + 50.0f, a.z);
+				GXPosition3f32(b.x, b.y + 50.0f, b.z);
+				GXPosition3f32(b.x, b.y - 50.0f, b.z);
+
+				GXPosition3f32(a.x, a.y + 50.0f, a.z);
+				GXPosition3f32(b.x, b.y - 50.0f, b.z);
+				GXPosition3f32(a.x, a.y - 50.0f, a.z);
+			}
+		}
+
+		J3DModelData* modelData
+		    = high_quality ? unk3C[0]->getModelData() : unk3C[1]->getModelData();
+		SMS_SettingDrawShape(modelData, 0);
+		return;
+	}
+
+	if (kind == 3) {
+		J3DModelData* modelData = unk3C[3]->getModelData();
+		SMS_SettingDrawShape(modelData, 0);
+		SMS_DrawShape(modelData, 0);
+		return;
+	}
+
+	J3DModelData* modelData
+	    = high_quality ? unk3C[0]->getModelData() : unk3C[1]->getModelData();
+	SMS_DrawShape(modelData, 0);
 }
 
 static bool conectCubeSame(TAlphaShadowBlendQuad* a,
