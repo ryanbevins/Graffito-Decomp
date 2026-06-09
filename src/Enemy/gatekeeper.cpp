@@ -1,6 +1,8 @@
 #include <Enemy/GateKeeper.hpp>
 #include <Enemy/NameKuri.hpp>
+#include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JMath.hpp>
@@ -8,6 +10,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <MSound/MSound.hpp>
 #include <Map/PollutionManager.hpp>
+#include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/Spine.hpp>
@@ -85,12 +88,94 @@ TBiancoGateKeeper::TBiancoGateKeeper(const char* name)
 
 void TBiancoGateKeeper::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	if (checkLiveFlag(LIVE_FLAG_DEAD))
+		return;
+
+	u8 gameState = gpMarDirector->unk124;
+	if (!(gameState == 3 || gameState == 4)) {
+		if (gameState == 1 || gameState == 2)
+			flags &= ~1;
+	}
+
+	BOOL doMove = flags & 1;
+	if (doMove) {
+		for (int i = 0; i < getColNum(); ++i) {
+			THitActor* actor = getCollision(i);
+			if (actor->getActorType() == 0x80000001)
+				SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
+		}
+
+		if (unk154 > 0)
+			unk17E = 0x10;
+
+		if (unk17E > 0) {
+			if (unk17C < 0xFF)
+				++unk17C;
+			else
+				unk17C = 0xFF;
+		} else {
+			if (unk17C > 0)
+				--unk17C;
+			else
+				unk17C = 0;
+		}
+
+		if (unk17E > 0)
+			--unk17E;
+	}
+
+	if (doMove) {
+		unk178->unk50 -= unk158;
+		if (unk178->unk50 < 0.0f)
+			unk178->unk50 = 0.0f;
+		else if (unk178->unk50 > 1.0f)
+			unk178->unk50 = 1.0f;
+
+		controlCollision();
+	}
+
+	BOOL doAnim = flags & 2;
+	if (doAnim) {
+		if (gpMSound->gateCheck(0x210B))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x210B, &mPosition, 0, nullptr, 0, 4);
+
+		J3DMtxCalc* calc = nullptr;
+		if (unk178)
+			calc = unk178;
+		mMActor->getModel()->getModelData()->getJointNodePointer(0)->mMtxCalc
+		    = calc;
+	}
+
+	if (flags & 0x200) {
+		if (isDamageFogSituation()) {
+			mMActor->offMakeDL();
+			SMS_AddDamageFogEffect(mMActor->getModel()->getModelData(),
+			                       mPosition, graphics);
+		} else {
+			SMS_ResetDamageFogEffect(mMActor->getModel()->getModelData());
+		}
+	}
+
+	unk174->perform(flags, graphics);
+	unk28C->perform(flags, graphics);
+
+	if (doAnim)
+		unk15C->update();
+
+	if (doMove && unk293 == 0 && mMActor->checkCurBckFromIndex(7)
+	    && unk154 > 0) {
+		++unk294;
+		if (unk294 > 160) {
+			unk294 = 0;
+			unk293 = 1;
+			gpMarDirector->mConsole->startAppearBalloon(0xE002E, true);
+		}
+	}
+
 	TGateKeeperBase::perform(flags, graphics);
 
-	if (flags & 1)
-		controlCollision();
-
-	if (flags & 2)
+	if (doAnim && !checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
 		emitParticles();
 }
 
