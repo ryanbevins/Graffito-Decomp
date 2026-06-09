@@ -473,10 +473,10 @@ TMapCollisionData::intersectLine(const JGeometry::TVec3<f32>& start,
 	for (s32 z = min_grid_z; z <= max_grid_z; ++z) {
 		for (s32 x = min_grid_x; x <= max_grid_x; ++x) {
 			if (x != min_grid_x || z != min_grid_z) {
-				f32 left   = x * 1024.0f - mGridExtentX;
-				f32 right  = (x + 1) * 1024.0f - mGridExtentX;
-				f32 bottom = z * 1024.0f - mGridExtentY;
-				f32 top    = (z + 1) * 1024.0f - mGridExtentY;
+				f32 left   = (s32)(x * 1024.0f - mGridExtentX);
+				f32 right  = (s32)((x + 1) * 1024.0f - mGridExtentX);
+				f32 bottom = (s32)(z * 1024.0f - mGridExtentY);
+				f32 top    = (s32)((z + 1) * 1024.0f - mGridExtentY);
 
 				JGeometry::TVec2<f32> p1(left, bottom);
 				JGeometry::TVec2<f32> p2(right, bottom);
