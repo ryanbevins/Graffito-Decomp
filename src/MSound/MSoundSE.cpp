@@ -39,7 +39,7 @@ MSRandVol::MSRandVol(u32 param)
 
 u32 MSRandVol::getRandomVolume(u32 param1, u32 param2) { return 0; }
 
-u32 MSRandVol::getRandVol(u32 param) { return 0; }
+f32 MSRandVol::getRandVol(u32 param) { return 0.0f; }
 
 void MSRandPlay::construct(u32 param_1, s32 param_2, s32 param_3, f32 param_4,
                            f32 param_5)

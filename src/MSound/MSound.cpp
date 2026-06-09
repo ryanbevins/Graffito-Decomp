@@ -400,9 +400,41 @@ void MSound::fadeOutAllSound(u32 fadeTime) { }
 
 void MSound::stopAllSound() { }
 
-f32 MSoundSESystem::MSRandVol::getRandomVolumeNormal(u32) { return 0.0f; }
+#pragma dont_inline on
+f32 MSoundSESystem::MSRandVol::getRandomVolumeNormal(u32 param)
+{
+	JSULink<MSoundSESystem::MSRandVol>* link = smList.getFirst();
+	if (link == nullptr)
+		return 1.0f;
 
-void MSound::setSeExtParameter(JAISound* sound) { }
+	return link->getObject()->getRandVol(param);
+}
+#pragma dont_inline off
+
+void MSound::setSeExtParameter(JAISound* sound)
+{
+	if (sound != nullptr) {
+		u32 soundID           = sound->unk8;
+		JAISoundTable* table  = getInfoPointerFromID(soundID);
+		void* soundInfo       = sound->unk3C;
+		getInfoFormat(table, soundID);
+
+		u32 flags = *(u32*)soundInfo;
+		f32 volume;
+		if (flags & 0x00C00000)
+			volume = MSoundSESystem::MSRandVol::getRandomVolumeNormal(flags);
+		else
+			volume = 1.0f;
+
+		f32 capped = 1.0f;
+		f32 scaled = volume * (((u8*)soundInfo)[0xC] / 127.0f);
+		if (scaled < capped)
+			capped = scaled;
+
+		sound->setVolume(capped, 0, 1);
+		sound->setPitch(*(f32*)((u8*)soundInfo + 8), 0, 1);
+	}
+}
 
 void MSound::playTimer(u32 time)
 {
