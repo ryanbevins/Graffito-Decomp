@@ -287,6 +287,7 @@ TMBindShadowManager::TMBindShadowManager(const char* name)
     , unk65(0)
     , unk68(0.5f)
     , unk6C(1.55f)
+    , unk70(nullptr)
 {
 	unk5C.r = 0x1E;
 	unk5C.g = 0x32;
