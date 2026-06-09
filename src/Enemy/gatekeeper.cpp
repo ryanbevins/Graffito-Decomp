@@ -315,7 +315,61 @@ DEFINE_NERVE(TNerveBGKWait, TLiveActor)
 
 DEFINE_NERVE(TNerveBGKWait2, TLiveActor)
 {
-	// TODO: recover the alternate waiting gatekeeper state.
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(0x11);
+
+	if (gatekeeper->unk154 > 0) {
+		if (gatekeeper->mHitPoints != 0)
+			--gatekeeper->mHitPoints;
+
+		if (gatekeeper->mHitPoints == 0)
+			spine->pushAfterCurrent(&TNerveBGKDie::theNerve());
+		else
+			spine->pushAfterCurrent(&TNerveBGKAwakeDamage::theNerve());
+
+		return true;
+	}
+
+	BOOL animEnd = true;
+	J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(0);
+	if (ctrl) {
+		if (!ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+		    && !ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+		    && 0.1f + ctrl->getFrame() < ctrl->getEnd())
+			animEnd = false;
+	}
+
+	if (animEnd) {
+		MActor* actor = gatekeeper->mMActor;
+		if (actor->checkCurBckFromIndex(0x11)) {
+			gatekeeper->changeBck(0x0F);
+		} else if (actor->checkCurBckFromIndex(0x0F)) {
+			gatekeeper->changeBck(0x10);
+		} else if (actor->checkCurBckFromIndex(0x10)) {
+			++gatekeeper->unk288;
+
+			if (gatekeeper->unk288 == 2 && gatekeeper->unk28A == 1
+			    && gpMarDirector->mMap == 0)
+				gpMarDirector->mConsole->startAppearBalloon(0xE0000,
+				                                            true);
+
+			TBiancoGateKeeperParams* params
+			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
+			if (gatekeeper->unk288 > params->mSLLoop2Dive.get()) {
+				gatekeeper->changeBck(0x0C);
+				gatekeeper->unk288 = 0;
+			}
+		} else if (actor->checkCurBckFromIndex(0x0C)) {
+			gatekeeper->changeBck(0x0D);
+		} else if (actor->checkCurBckFromIndex(0x0D)) {
+			spine->pushAfterCurrent(&TNerveBGKDive::theNerve());
+			return true;
+		}
+	}
+
 	return false;
 }
 
