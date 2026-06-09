@@ -78,8 +78,9 @@ public:
 	static u32 getNewIDByGroundCode(u32, JAIActor*);
 	static u32 getNewIDBySurfaceCode(u32, JAIActor*);
 	static u32 getRandomID(u32);
-	static void startSoundActor(u32, const Vec*, u32, JAISound**, u32, u8);
-	static void startSoundActorInner(u32, JAISound**, JAIActor*, u32, u8);
+	static JAISound* startSoundActor(u32, const Vec*, u32, JAISound**, u32,
+	                                 u8);
+	static JAISound* startSoundActorInner(u32, JAISound**, JAIActor*, u32, u8);
 	static void startSoundActorWithInfo(u32, const Vec*, Vec*, f32, u32, u32,
 	                                    JAISound**, u32, u8);
 	static void startSoundNpcActor(u32, const Vec*, u32, JAISound**, u32, u8);

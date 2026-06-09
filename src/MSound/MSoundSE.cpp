@@ -266,11 +266,11 @@ void MSoundSE::construct()
 
 u32 MSoundSE::getRandomID(u32 param) { return 0; }
 
-void MSoundSE::startSoundActor(u32 p1, const Vec* p2, u32 p3, JAISound** p4,
-                               u32 p5, u8 p6)
+JAISound* MSoundSE::startSoundActor(u32 p1, const Vec* p2, u32 p3,
+                                    JAISound** p4, u32 p5, u8 p6)
 {
 	JAIActor actor(p2, p2, p2, p3);
-	startSoundActorInner(p1, p4, &actor, p5, p6);
+	return startSoundActorInner(p1, p4, &actor, p5, p6);
 }
 
 void MSoundSE::startSoundSystemSE(u32 p1, u32 p2, JAISound** p3, u32 p4) { }
@@ -284,8 +284,8 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 void MSoundSE::checkSoundArea(u32 param, const Vec& vec) { }
 
 #pragma dont_inline on
-void MSoundSE::startSoundActorInner(u32 p1, JAISound** p2, JAIActor* p3, u32 p4,
-                                    u8 p5)
+JAISound* MSoundSE::startSoundActorInner(u32 p1, JAISound** p2, JAIActor* p3,
+                                         u32 p4, u8 p5)
 {
 }
 #pragma dont_inline off

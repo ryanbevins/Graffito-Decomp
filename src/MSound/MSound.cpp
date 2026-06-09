@@ -9,6 +9,7 @@
 #include <JSystem/JAudio/JAInterface/JAIDebug.hpp>
 #include <JSystem/JAudio/JAInterface/JAIGlobalParameter.hpp>
 #include <JSystem/JAudio/JAInterface/JAIAsnData.hpp>
+#include <JSystem/JAudio/JAInterface/JAIConst.hpp>
 #include <JSystem/JAudio/JASystem/JASSystemHeap.hpp>
 #include <JSystem/JAudio/JASystem/JASWaveBankMgr.hpp>
 #include <JSystem/JAudio/JASystem/JASWaveBank.hpp>
@@ -799,14 +800,58 @@ u32 MSound::getWallSound(u32 param1, f32 param2)
 		return 0x1948;
 }
 
-JAISound* MSound::startBeeSe(Vec* pos, u32 id) { return nullptr; }
+JAISound* MSound::startBeeSe(Vec* pos, u32 id)
+{
+	if (id > 3) {
+		JAISound* sound;
+		if (gateCheck(0x2106)) {
+			sound = MSoundSESystem::MSoundSE::startSoundActor(
+			    0x2106, pos, 0, nullptr, 0, 4);
+		} else {
+			sound = nullptr;
+		}
+
+		if (sound != nullptr) {
+			f32 volume = JALCalc::linearTransform((f32)id, 3.0f, 50.0f,
+			                                      0.0f, 1.0f, false);
+			sound->setVolume(volume, 0, 0);
+		}
+	}
+
+	if (id > 2) {
+		if (gateCheck(0x2107))
+			MSoundSESystem::MSoundSE::startSoundActor(0x2107, pos, 0,
+			                                          nullptr, 0, 4);
+	} else if (id == 2) {
+		if (gateCheck(0x2108))
+			MSoundSESystem::MSoundSE::startSoundActor(0x2108, pos, 0,
+			                                          nullptr, 0, 4);
+	} else if (id == 1) {
+		if (gateCheck(0x2109))
+			MSoundSESystem::MSoundSE::startSoundActor(0x2109, pos, 0,
+			                                          nullptr, 0, 4);
+	}
+}
 
 JAISound* MSound::startSoundActorSpecial(u32 id, const Vec* pos, f32 param3,
                                          f32 param4, u32 param5,
                                          JAISound** soundPtr, u32 param7,
                                          u8 param8)
 {
-	return nullptr;
+	if (gateCheck(id) && !JALSystem::gateCheckFunc(id, param3)
+	    && !JALSystem::gateCheckFunc(id, param4)) {
+		JAIActor actor(pos, pos, pos, param5);
+		JAISound* sound = MSoundSESystem::MSoundSE::startSoundActorInner(
+		    id, soundPtr, &actor, param7, param8);
+		if (sound != nullptr && id == 0x212F) {
+			f32 volume = 1.0f;
+			f32 pitch  = 1.0f;
+			if (JALSeModVolFunk::calc(id, param3, &volume))
+				sound->setVolume(volume, 0, 0);
+			if (JALSeModPitFGrp::calcGrp(id, param4, &pitch))
+				sound->setPitch(pitch, 0, 0);
+		}
+	}
 }
 
 bool MSound::cameraLooksAtMario()
