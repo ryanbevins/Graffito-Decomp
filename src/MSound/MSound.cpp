@@ -14,8 +14,11 @@
 #include <JSystem/JAudio/JASystem/JASWaveBank.hpp>
 #include <JSystem/JAudio/JASystem/JASBasicWaveBank.hpp>
 #include <JSystem/JAudio/JASystem/JASSimpleWaveBank.hpp>
+#include <JSystem/JAudio/JASystem/JASAudioThread.hpp>
+#include <JSystem/JAudio/JASystem/JASDriverIF.hpp>
 #include <JSystem/JAudio/JASystem/JASDvdThread.hpp>
 #include <JSystem/JAudio/JALibrary/JALSystem.hpp>
+#include <math.h>
 
 MSound* MSGMSound  = 0;
 JAIBasic* MSGBasic = 0;
@@ -387,7 +390,25 @@ void MSound::setCategoryVOLsDefault(u16 param) { }
 
 void MSound::setCategoryVOLs(u16 param1, f32 volume) { }
 
-bool MSound::resetAudioAll(u16 param) { }
+bool MSound::resetAudioAll(u16 param)
+{
+	if (unkD0 == 0)
+		return true;
+
+	f32 gain = JAIGlobalParameter::getParamOutputGainUp();
+	if (gain <= 0.002f) {
+		JASystem::Driver::setMixerLevel(0.802f, 0.0f);
+		JASystem::AudioThread::stop();
+		unkA8 = 0;
+		unkD0 = 0;
+		return true;
+	}
+
+	gain *= powf(0.0002f, 1.0f / (f32)param);
+	JASystem::Driver::setMixerLevel(0.802f, gain);
+	JAIGlobalParameter::setParamOutputGainUp(gain);
+	return false;
+}
 
 void MSound::stopAllSeInCategory(u8 category, u32 param2) { }
 
