@@ -118,7 +118,8 @@ void TMapEventSink::startControl()
 	unk2C = getBuilding(unk28);
 	unk2C->alive();
 	unk30 = getBuilding(unk28)->getJoint();
-	unk34 = unk30->getTransformInfo().mTranslate.y;
+	J3DTransformInfo& info = unk30->getTransformInfo();
+	unk34                = info.mTranslate.y;
 
 	f32 dVar4;
 	if (unk38 != 0.0f)
@@ -126,7 +127,6 @@ void TMapEventSink::startControl()
 	else
 		dVar4 = getSinkOffsetY();
 
-	J3DTransformInfo& info = unk30->getTransformInfo();
 	info.mTranslate.y -= dVar4;
 	unk30->setTransformInfo(info);
 
