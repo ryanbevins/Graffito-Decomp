@@ -14,6 +14,7 @@
 #include <MSound/MSoundBGM.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MarioUtil/DrawUtil.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <Player/MarioAccess.hpp>
@@ -1074,6 +1075,83 @@ void TBiancoGateKeeper::init(TLiveManager* manager)
 void TBGKMtxCalc::calc(u16 joint_no)
 {
 	M3UMtxCalcSIAnmBlendQuat::calc(joint_no);
+
+	TBiancoGateKeeper* gatekeeper = unk64;
+	J3DModel* model              = gatekeeper->mMActor->getModel();
+	MtxPtr jointMtx              = model->mNodeMatrices[joint_no];
+
+	if (joint_no == 0x0B) {
+		MsMtxSetXYZRPH(jointMtx, gatekeeper->mPosition.x,
+		               gatekeeper->mPosition.y, gatekeeper->mPosition.z,
+		               gatekeeper->mRotation.x, gatekeeper->mRotation.y,
+		               gatekeeper->mRotation.z);
+		PSMTXCopy(jointMtx, J3DSys::mCurrentMtx);
+		return;
+	}
+
+	if (joint_no != 0)
+		return;
+
+	u8 map = gpMarDirector->mMap;
+	if (!(map == 3 || map == 4) && !(map == 1 || map == 2)) {
+		MActor* actor = gatekeeper->mMActor;
+		if (actor->checkCurBckFromIndex(0x0B)
+		    || actor->checkCurBckFromIndex(0x12)
+		    || actor->checkCurBckFromIndex(0x0F)
+		    || actor->checkCurBckFromIndex(0x10)
+		    || actor->checkCurBckFromIndex(0x0C)) {
+			JGeometry::TVec3<f32> delta = *gpMarioPos;
+			delta.sub(gatekeeper->mPosition);
+
+			f32 targetYaw = MsGetRotFromZaxisY(delta);
+			while (targetYaw >= 180.0f)
+				targetYaw -= 360.0f;
+			while (targetYaw < -180.0f)
+				targetYaw += 360.0f;
+
+			f32 currentYaw = gatekeeper->mRotation.y + gatekeeper->unk180;
+			while (currentYaw >= 180.0f)
+				currentYaw -= 360.0f;
+			while (currentYaw < -180.0f)
+				currentYaw += 360.0f;
+
+			f32 diff = targetYaw
+			           - MsWrap<f32>(currentYaw, targetYaw - 180.0f,
+			                         targetYaw + 180.0f);
+			if (diff > 0.0f) {
+				if (diff > 3.0f)
+					diff = 3.0f;
+			} else {
+				if (diff < -3.0f)
+					diff = -3.0f;
+			}
+
+			gatekeeper->unk180
+			    = MsWrap<f32>(currentYaw + diff - gatekeeper->mRotation.y, 0.0f,
+			                  360.0f);
+		}
+	}
+
+	s16 angle = (s16)(gatekeeper->unk180 * (65536.0f / 360.0f));
+	f32 s     = JMASSin(angle);
+	f32 c     = JMASCos(angle);
+
+	Mtx rot;
+	rot[0][0] = c;
+	rot[0][1] = 0.0f;
+	rot[0][2] = s;
+	rot[0][3] = 0.0f;
+	rot[1][0] = 0.0f;
+	rot[1][1] = 1.0f;
+	rot[1][2] = 0.0f;
+	rot[1][3] = 0.0f;
+	rot[2][0] = -s;
+	rot[2][1] = 0.0f;
+	rot[2][2] = c;
+	rot[2][3] = 0.0f;
+
+	PSMTXConcat(jointMtx, rot, jointMtx);
+	PSMTXCopy(jointMtx, J3DSys::mCurrentMtx);
 }
 
 void TBiancoGateKeeperManager::createModelData()
