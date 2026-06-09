@@ -386,9 +386,20 @@ void MSound::talkModeIn(bool param) { }
 
 void MSound::talkModeOut() { }
 
-void MSound::setCategoryVOLsDefault(u16 param) { }
+void MSound::setCategoryVOLs(u16 param1, f32 volume)
+{
+	s32 rawVolume = 127.0f * volume;
+	s32 categoryVolume;
+	if ((u8)rawVolume > 127)
+		categoryVolume = 127;
+	else
+		categoryVolume = rawVolume;
 
-void MSound::setCategoryVOLs(u16 param1, f32 volume) { }
+	for (u8 i = 0; i < 16; ++i) {
+		if (MSGMSound->unk0->unk88.unk2[i] && ((param1 >> i) & 1))
+			MSGMSound->setSeCategoryVolume(i, categoryVolume);
+	}
+}
 
 bool MSound::resetAudioAll(u16 param)
 {
