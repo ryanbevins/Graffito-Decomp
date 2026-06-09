@@ -329,6 +329,145 @@ bool MSoundSE::checkSoundArea(u32 param, const Vec& vec)
 JAISound* MSoundSE::startSoundActorInner(u32 p1, JAISound** p2, JAIActor* p3,
                                          u32 p4, u8 p5)
 {
+	u32 soundID = p1;
+	u32 flags   = MSound::getBstSwitch(soundID);
+
+	if (p3 != (JAIActor*)-1) {
+		if (MSGMSound->unkCD == 7) {
+			if (!checkSoundArea(MSGMSound->unkCD, *p3->unk4)) {
+				u32 category = soundID >> 30;
+				if (category == 0)
+					category = (soundID >> 12) & 0xF;
+				else if (category == 2)
+					category = 0x10;
+				else if (category == 3)
+					category = 0x11;
+				else
+					category = -1;
+
+				if (category != 1) {
+					category = soundID >> 30;
+					if (category == 0)
+						category = (soundID >> 12) & 0xF;
+					else if (category == 2)
+						category = 0x10;
+					else if (category == 3)
+						category = 0x11;
+					else
+						category = -1;
+
+					if (category != 0)
+						return nullptr;
+				}
+			}
+		} else if (MSGMSound->unkCD == 8) {
+			if (!checkSoundArea(MSGMSound->unkCD, *p3->unk4)) {
+				u32 category = soundID >> 30;
+				if (category == 0)
+					category = (soundID >> 12) & 0xF;
+				else if (category == 2)
+					category = 0x10;
+				else if (category == 3)
+					category = 0x11;
+				else
+					category = -1;
+
+				if (category != 1) {
+					category = soundID >> 30;
+					if (category == 0)
+						category = (soundID >> 12) & 0xF;
+					else if (category == 2)
+						category = 0x10;
+					else if (category == 3)
+						category = 0x11;
+					else
+						category = -1;
+
+					if (category != 0)
+						return nullptr;
+				}
+			}
+
+			switch (soundID) {
+			case 0x3824:
+				soundID = 0x38AD;
+				break;
+			case 0x3825:
+				soundID = 0x38AF;
+				break;
+			case 0x193A:
+				soundID = 0x38AB;
+				break;
+			case 0x193B:
+				soundID = 0x38AC;
+				break;
+			}
+		}
+
+		if (flags & 0x800) {
+			u32 actorFlags = p3->unkC;
+			u32 surfFlag   = actorFlags & 0x10000000;
+
+			if (surfFlag != 0) {
+				if (soundID == 0x1820) {
+					startSoundActorInner(0x1942, nullptr, p3, p4, p5);
+				} else if (soundID == 0x1824) {
+					return startSoundActorInner(0x1943, nullptr, p3, p4,
+					                            p5);
+				}
+			}
+
+			soundID = getNewIDBySurfaceCode(soundID, p3);
+			if (soundID == (u32)-1)
+				return nullptr;
+
+			if ((p3->unkC & 0xF00) == 0) {
+				switch (soundID) {
+				case 0x1820:
+				case 0x1822:
+				case 0x1824:
+				case 0x1826:
+					soundID += (p3->unkC & 0xFF) * 8;
+					break;
+				}
+			}
+
+			if (soundID == (u32)-1)
+				return nullptr;
+
+			if (surfFlag != 0) {
+				switch (soundID) {
+				case 0x1820:
+				case 0x1824:
+				case 0x1828:
+				case 0x182C:
+				case 0x1830:
+				case 0x1834:
+					return nullptr;
+				}
+			}
+		}
+	}
+
+	if (flags & 0x80000000)
+		soundID = getRandomID(soundID);
+
+	if (MSGMSound->unkCD == 8 && soundID >= 0x1878 && soundID <= 0x187F)
+		soundID -= 8;
+
+	if (p3 == (JAIActor*)-1) {
+		if (p2 != nullptr) {
+			MSGBasic->startSoundDirectID(soundID, p2, nullptr, p4, 4);
+			return *p2;
+		}
+		return MSGBasic->startSoundActorReturnHandle(soundID, nullptr, p4, 4);
+	}
+
+	if (p2 != nullptr) {
+		MSGBasic->startSoundActor(soundID, p2, p3, p4, p5);
+		return *p2;
+	}
+	return MSGBasic->startSoundActorReturnHandle(soundID, p3, p4, p5);
 }
 #pragma dont_inline off
 
