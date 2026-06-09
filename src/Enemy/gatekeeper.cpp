@@ -1102,12 +1102,11 @@ void TBGKMtxCalc::calc(u16 joint_no)
 
 	if (!gpMarDirector->checkUnk124Thing2()
 	    && !gpMarDirector->isTalkModeNow()) {
-		MActor* actor = gatekeeper->mMActor;
-		if (actor->checkCurBckFromIndex(0x0B)
-		    || actor->checkCurBckFromIndex(0x12)
-		    || actor->checkCurBckFromIndex(0x0F)
-		    || actor->checkCurBckFromIndex(0x10)
-		    || actor->checkCurBckFromIndex(0x0C)) {
+		if (gatekeeper->mMActor->checkCurBckFromIndex(0x0B)
+		    || gatekeeper->mMActor->checkCurBckFromIndex(0x12)
+		    || gatekeeper->mMActor->checkCurBckFromIndex(0x0F)
+		    || gatekeeper->mMActor->checkCurBckFromIndex(0x10)
+		    || gatekeeper->mMActor->checkCurBckFromIndex(0x0C)) {
 			JGeometry::TVec3<f32> delta = *gpMarioPos;
 			delta.sub(gatekeeper->mPosition);
 
