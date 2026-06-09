@@ -540,7 +540,8 @@ bool MSoundSE::checkSoundArea(u32 param, const Vec& vec)
 {
 	bool result = true;
 
-	if (param == 7) {
+	switch ((s32)param) {
+	case 7: {
 		Vec marioPos = *MSGMSound->unkAC[0].unk0;
 		marioPos.y += 100.0f;
 		Vec marioCubePos = marioPos;
@@ -559,7 +560,9 @@ bool MSoundSE::checkSoundArea(u32 param, const Vec& vec)
 		} else {
 			result = true;
 		}
-	} else if (param == 8) {
+		break;
+	}
+	case 8: {
 		int marioArea = SMS_GetMonteVillageAreaInMario();
 		int actorArea = MSMainProc::getMonteVillageActorArea(vec);
 		if (marioArea == 1)
@@ -571,6 +574,8 @@ bool MSoundSE::checkSoundArea(u32 param, const Vec& vec)
 			result = true;
 		else
 			result = false;
+		break;
+	}
 	}
 
 	return result;
