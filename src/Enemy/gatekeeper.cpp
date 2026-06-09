@@ -399,11 +399,10 @@ DEFINE_NERVE(TNerveBGKWait, TLiveActor)
 {
 	TBiancoGateKeeper* gatekeeper
 	    = (TBiancoGateKeeper*)spine->getBody();
+	MActor* actor = gatekeeper->mMActor;
 
 	if (spine->getTime() == 0)
 		gatekeeper->changeBck(0x11);
-
-	MActor* actor = gatekeeper->mMActor;
 
 	if (gatekeeper->unk154 > 0 && actor->checkCurBckFromIndex(0x12)
 	    && !gatekeeper->isHeadHitActive()) {
