@@ -9,6 +9,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <Player/ModelWaterManager.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Strategic/LiveActor.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <System/EmitterViewObj.hpp>
@@ -348,7 +349,28 @@ void TMapEventSinkBianco::startControl()
 
 bool TMapEventSinkBianco::watch()
 {
-	// TODO: mGateKeeper is likely TGateKeeperBase, which we don't have yet
+	if (!unk54[0]
+	    && ((TLiveActor*)mGateKeeper)->mLiveFlag & LIVE_FLAG_DEAD) {
+		unk28 = 0;
+
+		TPollutionManager* polman = gpPollution;
+		for (int i = 0; i < polman->getJointModelNum(); ++i)
+			polman->getLayer(i)->unk32 |= 2;
+
+		return true;
+	}
+
+	for (int i = 1; i < mBuildingNum; ++i) {
+		if (!unk54[i]
+		    && gpPollution->getLayer(unk60[i].unk0)
+		           ->getObj(unk60[i].unk2)
+		           ->isCleaned()) {
+			unk28 = i;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void TMapEventSinkBianco::loadAfter()
