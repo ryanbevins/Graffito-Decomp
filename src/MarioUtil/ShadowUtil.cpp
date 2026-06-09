@@ -324,16 +324,19 @@ void TMBindShadowManager::load(JSUMemoryInputStream& stream)
 {
 	JDrama::TNameRef::load(stream);
 
-	unk3C[0] = new SDLModelData(J3DModelLoaderDataBase::load(
-	    JKRFileLoader::getGlbResource("/common/shadowCircle.bmd"),
-	    0x10210000));
-	unk3C[1] = new SDLModelData(J3DModelLoaderDataBase::load(
-	    JKRFileLoader::getGlbResource("/common/shadowCircleLow.bmd"),
-	    0x10210000));
-	unk3C[2] = new SDLModelData(J3DModelLoaderDataBase::load(
-	    JKRFileLoader::getGlbResource("/common/shadowCube.bmd"), 0x10210000));
-	unk3C[3] = new SDLModelData(J3DModelLoaderDataBase::load(
-	    JKRFileLoader::getGlbResource("/common/ShipShadow.bmd"), 0x10210000));
+	void* circle = JKRFileLoader::getGlbResource("/common/shadowCircle.bmd");
+	unk3C[0] = new SDLModelData(
+	    J3DModelLoaderDataBase::load(circle, 0x10210000));
+	void* lowCircle
+	    = JKRFileLoader::getGlbResource("/common/shadowCircleLow.bmd");
+	unk3C[1] = new SDLModelData(
+	    J3DModelLoaderDataBase::load(lowCircle, 0x10210000));
+	void* cube = JKRFileLoader::getGlbResource("/common/shadowCube.bmd");
+	unk3C[2]
+	    = new SDLModelData(J3DModelLoaderDataBase::load(cube, 0x10210000));
+	void* ship = JKRFileLoader::getGlbResource("/common/ShipShadow.bmd");
+	unk3C[3]
+	    = new SDLModelData(J3DModelLoaderDataBase::load(ship, 0x10210000));
 
 	unk49 = 1;
 	unk14 = 0;
