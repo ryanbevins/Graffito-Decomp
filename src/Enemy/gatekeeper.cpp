@@ -1100,8 +1100,8 @@ void TBGKMtxCalc::calc(u16 joint_no)
 	J3DModel* model              = gatekeeper->mMActor->getModel();
 	MtxPtr jointMtx              = model->mNodeMatrices[joint_no];
 
-	u8 map = gpMarDirector->mMap;
-	if (!(map == 3 || map == 4) && !(map == 1 || map == 2)) {
+	if (!gpMarDirector->checkUnk124Thing2()
+	    && !gpMarDirector->isTalkModeNow()) {
 		MActor* actor = gatekeeper->mMActor;
 		if (actor->checkCurBckFromIndex(0x0B)
 		    || actor->checkCurBckFromIndex(0x12)
