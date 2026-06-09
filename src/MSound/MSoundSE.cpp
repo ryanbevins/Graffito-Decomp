@@ -323,7 +323,74 @@ JAISound* MSoundSE::startSoundActor(u32 p1, const Vec* p2, u32 p3,
 	return startSoundActorInner(p1, p4, &actor, p5, p6);
 }
 
-void MSoundSE::startSoundSystemSE(u32 p1, u32 p2, JAISound** p3, u32 p4) { }
+JAISound* MSoundSE::startSoundSystemSE(u32 p1, u32 p2, JAISound** p3, u32 p4)
+{
+	u32 soundID     = p1;
+	u32 variant     = p2;
+	u32 originalID  = soundID;
+	u32 variantSlot = variant;
+
+	if (originalID == 0x481E) {
+		variantSlot = variant - 1;
+		switch (variantSlot) {
+		case 1:
+			soundID = 0x482E;
+			break;
+		case 2:
+			soundID = 0x482F;
+			break;
+		case 3:
+			soundID = 0x4830;
+			break;
+		case 4:
+			soundID = 0x4831;
+			break;
+		case 5:
+			soundID = 0x4832;
+			break;
+		}
+	}
+
+	JAISound* sound
+	    = startSoundActorInner(soundID, p3, (JAIActor*)-1, p4, 4);
+	if (sound == nullptr)
+		return nullptr;
+
+	if (originalID == 0x481E) {
+		f32 pan   = 0.5f;
+		f32 dolby = pan;
+
+		switch (variantSlot) {
+		case 0:
+			pan   = 0.1f;
+			dolby = pan;
+			break;
+		case 1:
+			dolby = 0.0f;
+			break;
+		case 2:
+			pan   = 0.9f;
+			dolby = 0.1f;
+			break;
+		case 3:
+			pan   = 0.1f;
+			dolby = 0.9f;
+			break;
+		case 4:
+			dolby = 1.0f;
+			break;
+		case 5:
+			pan   = 0.9f;
+			dolby = pan;
+			break;
+		}
+
+		sound->setPan(pan, 0, 0);
+		sound->setDolby(dolby, 0, 0);
+	}
+
+	return sound;
+}
 
 void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
                                        u32 p5, u32 p6, JAISound** p7, u32 p8,

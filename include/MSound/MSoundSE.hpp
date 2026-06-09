@@ -84,7 +84,7 @@ public:
 	static void startSoundActorWithInfo(u32, const Vec*, Vec*, f32, u32, u32,
 	                                    JAISound**, u32, u8);
 	static void startSoundNpcActor(u32, const Vec*, u32, JAISound**, u32, u8);
-	static void startSoundSystemSE(u32, u32, JAISound**, u32);
+	static JAISound* startSoundSystemSE(u32, u32, JAISound**, u32);
 	static MSoundSE* mObj;
 };
 
