@@ -309,7 +309,99 @@ DEFINE_NERVE(TNerveBGKSleepDamage, TLiveActor)
 
 DEFINE_NERVE(TNerveBGKWait, TLiveActor)
 {
-	// TODO: recover the normal waiting gatekeeper state.
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(0x11);
+
+	MActor* actor = gatekeeper->mMActor;
+
+	if (gatekeeper->unk154 > 0 && actor->checkCurBckFromIndex(0x12)
+	    && !gatekeeper->isHeadHitActive()) {
+		gatekeeper->changeBck(7);
+		return false;
+	}
+
+	if (gatekeeper->unk154 > 0 && !actor->checkCurBckFromIndex(0x0B)
+	    && !actor->checkCurBckFromIndex(7)
+	    && !actor->checkCurBckFromIndex(0x11)
+	    && !actor->checkCurBckFromIndex(0x0D)) {
+		if (gatekeeper->mHitPoints != 0)
+			--gatekeeper->mHitPoints;
+
+		if (gatekeeper->mHitPoints == 0)
+			spine->pushAfterCurrent(&TNerveBGKDie::theNerve());
+		else
+			spine->pushAfterCurrent(&TNerveBGKAwakeDamage::theNerve());
+
+		return true;
+	}
+
+	if (gatekeeper->unk154 > 0 && actor->checkCurBckFromIndex(0x0B)) {
+		gatekeeper->changeBck(7);
+		return false;
+	}
+
+	if (gatekeeper->unk154 > 0 && actor->checkCurBckFromIndex(7))
+		gatekeeper->unk290 = 0;
+
+	TBiancoGateKeeperParams* params
+	    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
+	if (spine->getTime() > params->mSLDiveTimer.get()
+	    && !actor->checkCurBckFromIndex(0x0D)) {
+		BOOL diveReady = true;
+		J3DFrameCtrl* ctrl = actor->getFrameCtrl(0);
+		if (ctrl) {
+			if (!ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+			    && !ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+			    && 0.1f + ctrl->getFrame() < ctrl->getEnd())
+				diveReady = false;
+		}
+
+		if (diveReady)
+			gatekeeper->changeBck(0x0D);
+	}
+
+	BOOL animEnd = true;
+	J3DFrameCtrl* ctrl = actor->getFrameCtrl(0);
+	if (ctrl) {
+		if (!ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+		    && !ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+		    && 0.1f + ctrl->getFrame() < ctrl->getEnd())
+			animEnd = false;
+	}
+
+	if (animEnd) {
+		if (actor->checkCurBckFromIndex(0x11) && gatekeeper->unk28A == 1
+		    && gatekeeper->mHitPoints == 3) {
+			gatekeeper->changeBck(0x0B);
+		} else if (actor->checkCurBckFromIndex(0x11)) {
+			gatekeeper->changeBck(0x12);
+		} else if (actor->checkCurBckFromIndex(0x0B)) {
+			gatekeeper->changeBck(0x12);
+		} else if (actor->checkCurBckFromIndex(0x12)) {
+			gatekeeper->changeBck(0x12);
+		} else if (actor->checkCurBckFromIndex(7)) {
+			if (gatekeeper->unk154 > 0) {
+				gatekeeper->unk290 = 0;
+				gatekeeper->changeBck(7);
+			} else {
+				gatekeeper->unk17C = 0;
+				if (gatekeeper->unk290 >= 0) {
+					gatekeeper->unk290 = 0;
+					gatekeeper->changeBck(0x12);
+				} else {
+					++gatekeeper->unk290;
+					gatekeeper->changeBck(7);
+				}
+			}
+		} else if (actor->checkCurBckFromIndex(0x0D)) {
+			spine->pushAfterCurrent(&TNerveBGKDive::theNerve());
+			return true;
+		}
+	}
+
 	return false;
 }
 
