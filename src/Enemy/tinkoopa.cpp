@@ -1,6 +1,7 @@
 #include <Enemy/TinKoopa.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/JUtility/JUTNameTab.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Player/MarioAccess.hpp>
@@ -405,6 +406,26 @@ void TTinKoopaPartsBase::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (unkF8 && unk104)
 		unk104->perform(flags, graphics);
+}
+
+void TTinKoopaPartsBase::emitPartsTrackEffects(const char** jointNames,
+                                               int count)
+{
+	unk104->getModel()->calc();
+
+	JUTNameTab* jointNamesTable
+	    = unk104->getModel()->getModelData()->getJointName();
+	for (int i = 0; i < count; ++i) {
+		s32 jointIndex = jointNamesTable->getIndex(jointNames[i]);
+		if (jointIndex < 0)
+			break;
+
+		MtxPtr mtx = unk104->getModel()->getAnmMtx(jointIndex);
+		unk108[i].set(mtx[0][3], mtx[1][3], mtx[2][3]);
+
+		gpMarioParticleManager->emitAndBindToPosPtr(
+		    0xf4, &unk108[i], 0, unk100);
+	}
 }
 
 void TTinKoopaPartsBase::startBreaking()
