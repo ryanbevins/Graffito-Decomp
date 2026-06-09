@@ -5570,6 +5570,29 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Naming repeated float field reads can promote them into saved FPR lifetimes
+
+**Hypothesis.** When a hot expression repeats several struct float fields across
+multiple arithmetic predicates, writing those fields as named `f32` locals can
+make MWCC keep the earliest values in saved FPRs (`f31/f30`) instead of using
+volatile temporaries. This can match targets that load the fields once, reuse
+them across adjacent tests, and spill saved FPRs even though the direct repeated
+member-expression source is semantically identical.
+
+**Observed.** `mario/Map/MapCheck` (2026-06-10 MNL):
+`TMapCollisionData::checkRoofList()` and `checkGroundList()` both repeat
+triangle X/Z coordinates across three containment tests. Naming
+`point1x/point1z/point2z/point2x/point3z/point3x` matched the target
+`f31/f30` lifetimes and load order, moving `checkRoofList()` 97.5 -> 99.0 and
+`checkGroundList()` 97.7 -> 98.9. Remaining residue is frame size and
+base-register allocation.
+
+**Experiment to confirm/refute.** Find a second TU with repeated scalar float
+field reads across adjacent geometric predicates where the target holds the
+first fields in saved FPRs and current source uses volatile FPRs. Toggle only
+the repeated member expressions into named locals and verify whether saved FPR
+allocation and load order move toward target without requiring stack padding.
+
 ### Signed `switch` can preserve high-first compare trees while keeping low-first case body layout
 
 **Hypothesis.** For small integer selectors where target asm compares a higher
