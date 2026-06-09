@@ -535,9 +535,10 @@ f32 MSoundSESystem::MSRandVol::getRandomVolumeNormal(u32 param)
 void MSound::setSeExtParameter(JAISound* sound)
 {
 	if (sound != nullptr) {
+		void* soundInfo;
 		u32 soundID           = sound->unk8;
 		JAISoundTable* table  = getInfoPointerFromID(soundID);
-		void* soundInfo       = sound->unk3C;
+		soundInfo             = sound->unk3C;
 		getInfoFormat(table, soundID);
 
 		u32 flags = *(u32*)soundInfo;
@@ -549,8 +550,7 @@ void MSound::setSeExtParameter(JAISound* sound)
 
 		f32 capped = 1.0f;
 		f32 scaled = volume * (((u8*)soundInfo)[0xC] / 127.0f);
-		if (scaled < capped)
-			capped = scaled;
+		capped = scaled > capped ? capped : scaled;
 
 		sound->setVolume(capped, 0, 1);
 		sound->setPitch(*(f32*)((u8*)soundInfo + 8), 0, 1);
