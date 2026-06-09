@@ -7,6 +7,7 @@
 #include <MSound/MSound.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MarioUtil/TexUtil.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Strategy.hpp>
@@ -20,6 +21,12 @@
 DEFINE_NERVE(TNerveBGKSleep, TLiveActor)
 {
 	// TODO: recover the sleeping gatekeeper state.
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKAwakeDamage, TLiveActor)
+{
+	// TODO: recover the awake damage gatekeeper state.
 	return false;
 }
 
@@ -96,20 +103,70 @@ const char** TBiancoGateKeeper::getBasNameTable() const
 
 BOOL TBiancoGateKeeper::isDamageFogSituation() const
 {
-	// TODO: recover the fog/damage predicate used by the awake nerves.
+	const TNerveBase<TLiveActor>* awakeDamage
+	    = &TNerveBGKAwakeDamage::theNerve();
+
+	if (mSpine->getLatestNerve() == awakeDamage && mSpine->getTime() <= 110)
+		return true;
+
+	if (mMActor->checkCurBckFromIndex(0x12)) {
+		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
+		f32 frame          = ctrl->getFrame();
+		if (!(50.0f < frame && frame < 160.0f))
+			return false;
+	}
+
+	if (mMActor->checkCurBckFromIndex(0x0B)
+	    || mMActor->checkCurBckFromIndex(0x11)
+	    || mMActor->checkCurBckFromIndex(0x0D)
+	    || mMActor->checkCurBckFromIndex(0x07)
+	    || mMActor->checkCurBckFromIndex(0x06))
+		return false;
+
+	if (unk17C > 0)
+		return true;
+
 	return false;
 }
 
 BOOL TBiancoGateKeeper::isHeadHitActive() const
 {
-	// TODO: recover the animation-window predicate.
+	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
+
+	if (mMActor->checkCurBckFromIndex(0x12)) {
+		f32 frame = ctrl->getFrame();
+		if (50.0f < frame && frame < 160.0f)
+			return true;
+		return false;
+	}
+
+	if (mMActor->checkCurBckFromIndex(0x0F)) {
+		if (ctrl->getFrame() > 12.0f)
+			return true;
+		return false;
+	}
+
+	if (mMActor->checkCurBckFromIndex(0x10)
+	    || mMActor->checkCurBckFromIndex(0x0C))
+		return true;
+
 	return false;
 }
 
 f32 TBiancoGateKeeper::getRumblePow()
 {
-	// TODO: recover the distance-based rumble falloff.
-	return 0.0f;
+	JGeometry::TVec3<f32> delta = mPosition;
+	delta.sub(*gpMarioPos);
+
+	f32 distance = delta.length();
+	if (distance == 0.0f)
+		return 1.0f;
+
+	f32 power = 2000.0f / distance;
+	if (power > 1.0f)
+		power = 1.0f;
+
+	return power;
 }
 
 void TBiancoGateKeeper::launchNamekuri()
