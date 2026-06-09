@@ -24,6 +24,7 @@
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <dolphin/mtx.h>
+#include <stdlib.h>
 #include <string.h>
 
 DEFINE_NERVE(TNerveBGKSleep, TLiveActor)
@@ -98,6 +99,94 @@ DEFINE_NERVE(TNerveBGKLaunchName, TLiveActor)
 
 	if (gatekeeper->mMActor->curAnmEndsNext()) {
 		spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
+		return true;
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKDive, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(6);
+
+	if (spine->getTime() == 0xF0) {
+		J3DModel* model = gatekeeper->getModel();
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1DF, (MtxPtr)model->mNodeMatrices, 2, nullptr);
+
+		if (SMS_IsMarioTouchGround4cm()) {
+			gatekeeper->unk29C = gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		if (gatekeeper->unk292 == 1) {
+			TBiancoGateKeeperParams* params
+			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
+			s32 timer = params->mSLLaunchTimerNormal.get();
+			timer += (s32)(240.0f * (0.000030517578f * rand())) - 0x78;
+			gatekeeper->unk298 = timer;
+
+			TGorogoro* goro
+			    = (TGorogoro*)gpConductor->makeOneEnemyAppear(
+			        gatekeeper->mPosition, "ゴロゴロマネージャー", 0);
+			if (goro)
+				goro->generateByGateKeeper(gatekeeper->mPosition,
+				                           gatekeeper->mRotation);
+
+			if (SMS_IsMarioTouchGround4cm()) {
+				gatekeeper->unk29C = gatekeeper->getRumblePow();
+				SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+			}
+		}
+
+		spine->pushAfterCurrent(&TNerveBGKSleep::theNerve());
+		return true;
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKSleepDamage, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(4);
+
+	if (gatekeeper->unk292 == 1) {
+		if (gatekeeper->unk298 > 0)
+			--gatekeeper->unk298;
+
+		if (gatekeeper->unk298 == 0) {
+			TBiancoGateKeeperParams* params
+			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
+			s32 timer = params->mSLLaunchTimerDamage.get();
+			timer += (s32)(240.0f * (0.000030517578f * rand())) - 0x78;
+			gatekeeper->unk298 = timer;
+
+			TGorogoro* goro
+			    = (TGorogoro*)gpConductor->makeOneEnemyAppear(
+			        gatekeeper->mPosition, "ゴロゴロマネージャー", 0);
+			if (goro)
+				goro->generateByGateKeeper(gatekeeper->mPosition,
+				                           gatekeeper->mRotation);
+
+			if (SMS_IsMarioTouchGround4cm()) {
+				gatekeeper->unk29C = gatekeeper->getRumblePow();
+				SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+			}
+		}
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		spine->pushAfterCurrent(&TNerveBGKSleep::theNerve());
 		return true;
 	}
 
