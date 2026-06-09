@@ -36,28 +36,50 @@ enum {
 
 static inline bool isUseThisBindJoint(u32 actor_type, int joint_no)
 {
-	return actor_type != ACTOR_TYPE_SHADOW_A || joint_no != 0x17;
+	switch ((s32)actor_type) {
+	case (s32)ACTOR_TYPE_SHADOW_A:
+		if (joint_no == 0x17)
+			return false;
+		return true;
+	case (s32)ACTOR_TYPE_SHADOW_MARIO:
+	case (s32)ACTOR_TYPE_SHADOW_B:
+	default:
+		return true;
+	}
 }
 
 static inline bool isCircleBindJoint(u32 actor_type, int joint_no)
 {
-	if (actor_type == ACTOR_TYPE_SHADOW_A)
-		return joint_no == 0x13 || joint_no == 0x17;
-
-	if (actor_type == ACTOR_TYPE_SHADOW_MARIO
-	    || actor_type == ACTOR_TYPE_SHADOW_B)
-		return joint_no == 0x1A;
-
-	return false;
+	switch ((s32)actor_type) {
+	case (s32)ACTOR_TYPE_SHADOW_A:
+		if (joint_no == 0x13)
+			return true;
+		if (joint_no == 0x17)
+			return true;
+		return false;
+	case (s32)ACTOR_TYPE_SHADOW_MARIO:
+	case (s32)ACTOR_TYPE_SHADOW_B:
+		if (joint_no == 0x1A)
+			return true;
+		return false;
+	default:
+		return false;
+	}
 }
 
 static inline bool isBodyBindJoint(u32 actor_type, int joint_no)
 {
-	if (actor_type == ACTOR_TYPE_SHADOW_MARIO
-	    || actor_type == ACTOR_TYPE_SHADOW_B)
-		return joint_no == 2 || joint_no == 0xE;
-
-	return false;
+	switch ((s32)actor_type) {
+	case (s32)ACTOR_TYPE_SHADOW_MARIO:
+	case (s32)ACTOR_TYPE_SHADOW_B:
+		if (joint_no == 2)
+			return true;
+		if (joint_no == 0xE)
+			return true;
+		return false;
+	default:
+		return false;
+	}
 }
 
 TMBindShadowParts::TMBindShadowParts(J3DModel* model, u8 joint_no,
@@ -170,17 +192,21 @@ TMBindShadowBody::TMBindShadowBody(THitActor* actor, J3DModel* model, f32 scale)
     , unk18(50.0f)
 {
 	u32 actorType = actor->mActorType;
-	if (actorType == ACTOR_TYPE_SHADOW_MARIO
-	    || actorType == ACTOR_TYPE_SHADOW_B) {
+	switch ((s32)actorType) {
+	case (s32)ACTOR_TYPE_SHADOW_MARIO:
+	case (s32)ACTOR_TYPE_SHADOW_B:
 		unk10 = 38.0f;
 		unk14 = 18.0f;
 		unk18 = 25.0f;
-	} else if (actorType == ACTOR_TYPE_SHADOW_A) {
+		break;
+	case (s32)ACTOR_TYPE_SHADOW_A:
 		unk10 = 280.0f;
 		unk14 = 50.0f;
-	} else {
+		break;
+	default:
 		unk10 = 50.0f;
 		unk14 = 50.0f;
+		break;
 	}
 
 	unk10 *= scale;

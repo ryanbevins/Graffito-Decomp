@@ -36,6 +36,27 @@ them in future ticks.
 
 ## Settled
 
+### Signed `switch ((s32)x)` preserves sparse actor/selector compare trees
+
+**Rule.** When target asm lowers a small sparse selector as a signed compare
+tree (`cmpw/cmpwi`, high/adjacent cases tested before lower physical body
+layout), write the source as `switch ((s32)x)` rather than an `if/else if`
+chain or unsigned equality disjunction. For inline predicate helpers, keep the
+per-case returns branchy (`if (k == C) return true; ...`) when target has
+explicit compare/branch exits; compact boolean expressions may collapse into
+`subfic/cntlzw` materialization.
+
+**Citations.**
+- `mario/MSound/MSoundSE` `MSoundSE::checkSoundArea(unsigned long, const Vec&)`
+  (2026-06-10 MNL): `if (param == 7) ... else if (param == 8) ...` tested the
+  low case first; `switch ((s32)param)` matched the target high-first signed
+  dispatch and moved `91.8 -> 99.5`.
+- `mario/MarioUtil/ShadowUtil`
+  `TMBindShadowBody::TMBindShadowBody(THitActor*, J3DModel*, float)`
+  (2026-06-10 MNL): rewriting actor-type scale selection and the three
+  bind-joint inline predicates as signed switches with explicit returns moved
+  the constructor `55.5 -> 76.2`.
+
 ### Static inline wrappers can preserve local `MsWrap<float>` helper ownership and call boundaries
 
 **Rule.** When target asm has a TU-local `MsWrap<float>(float, float, float)`
@@ -5592,30 +5613,6 @@ field reads across adjacent geometric predicates where the target holds the
 first fields in saved FPRs and current source uses volatile FPRs. Toggle only
 the repeated member expressions into named locals and verify whether saved FPR
 allocation and load order move toward target without requiring stack padding.
-
-### Signed `switch` can preserve high-first compare trees while keeping low-first case body layout
-
-**Hypothesis.** For small integer selectors where target asm compares a higher
-case first, branches to its body, then falls through to compare a lower case
-whose body is laid out first, source `if/else if` may force the first source
-case to be tested first. Writing a `switch ((s32)selector)` with cases ordered
-by body layout can make MWCC emit the target signed compare tree while
-preserving ascending/low-first case body placement.
-
-**Observed.** `mario/MSound/MSoundSE`
-`MSoundSE::checkSoundArea(unsigned long, const Vec&)` target starts with
-`cmpwi r3, 8; beq case8; bge exit; cmpwi r3, 7; bge case7`, but the case-7
-body is laid out before case 8. Source `if (param == 7) ... else if
-(param == 8) ...` emitted `cmplwi r3, 7` first. Rewriting as
-`switch ((s32)param) { case 7: ...; case 8: ...; }` matched the dispatch tree
-and moved the function `91.8% -> 99.5%`; remaining residue is only stack frame
-and `Vec` local slot placement.
-
-**Experiment to confirm/refute.** Find a second two- or three-case selector
-where target compares a high case before a lower body-layout case and the
-current source is an `if/else if` chain. Test unsigned `switch`, signed
-`switch`, and reordered `if/else if` separately to isolate whether the signed
-cast or switch lowering is the key lever.
 
 ### Caching a member loop bound plus binding each struct-array record can unlock MWCC's 8-way unroller
 
