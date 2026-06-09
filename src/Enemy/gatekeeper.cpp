@@ -30,6 +30,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
 DEFINE_NERVE(TNerveBGKSleep, TLiveActor)
 {
 	TBiancoGateKeeper* gatekeeper
@@ -1116,8 +1121,8 @@ void TBGKMtxCalc::calc(u16 joint_no)
 				currentYaw += 360.0f;
 
 			f32 diff = targetYaw
-			           - MsWrap<f32>(currentYaw, targetYaw - 180.0f,
-			                         targetYaw + 180.0f);
+			           - callMsWrap(currentYaw, targetYaw - 180.0f,
+			                        targetYaw + 180.0f);
 			if (diff > 0.0f) {
 				if (diff > 3.0f)
 					diff = 3.0f;
