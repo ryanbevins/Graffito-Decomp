@@ -90,11 +90,7 @@ void MSSeCallBack::setWaterCameraFir(bool enabled)
 		smWaterFilter = 0;
 }
 
-void MSSeCallBack::setWaterFilter(u16 param) { }
-
 u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param) { }
-
-MSound* MSound::getMSound() { return nullptr; }
 
 JAISound* MSound::makeSound(u32 count)
 {
@@ -124,8 +120,6 @@ void MSound::loadGroupWave(s32 param_1, s32 param_2)
 		unk60[param_1] = param_2;
 	}
 }
-
-void MSound::cleanUpAramWave(u8 param) { }
 
 void MSound::loadWave(MS_SCENE_WAVE wave)
 {
@@ -206,8 +200,6 @@ bool MSound::checkWaveOnAram(MS_SCENE_WAVE wave)
 		return checkSceneWaveOnMemory(hi, lo);
 	}
 }
-
-bool MSound::checkSeqOnMemory(u32 id) { return false; }
 
 void MSound::setCameraInfo(Vec* param_1, Vec* param_2, MtxPtr param_3,
                            u32 param_4)
@@ -454,9 +446,39 @@ JAISound* MSound::startSoundActorSpecial(u32 id, const Vec* pos, f32 param3,
 	return nullptr;
 }
 
-bool MSound::cameraLooksAtMario() { return false; }
+bool MSound::cameraLooksAtMario()
+{
+	for (u8 i = 0; i < 5; ++i) {
+		if (i == 0) {
+			if ((&unkC8)[i] == 0)
+				return false;
+		} else if ((&unkC8)[i] == 1) {
+			return false;
+		}
+	}
 
-bool MSound::gateCheck(u32 param) { return false; }
+	return true;
+}
+
+bool MSound::gateCheck(u32 param)
+{
+	u8 flag = unkA8;
+	if (!(flag & 1)) {
+		u8 category = (param >> 24) & 0xC0;
+		category |= (param >> 11) & 1;
+		if (category == 0)
+			return false;
+	}
+
+	if (!(flag & 2)) {
+		u8 category = (param >> 24) & 0xC0;
+		category |= (param >> 11) & 1;
+		if (category == 1)
+			return false;
+	}
+
+	return true;
+}
 
 u32 MSound::getBstSwitch(u32 param)
 {
