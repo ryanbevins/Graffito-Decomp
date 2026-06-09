@@ -448,17 +448,6 @@ void TMBindShadowManager::forceRequest(const TCircleShadowRequest& request,
 	++unk14;
 }
 
-static bool isShadowWaterSurface(const TBGCheckData* data)
-{
-	if (data == nullptr)
-		return false;
-
-	u16 type = data->getBGType();
-	return type == BG_TYPE_WATER || type == BG_TYPE_DAMAGING_WATER
-	       || (u16)(type - BG_TYPE_SEA_WATER) <= 3
-	       || type == BG_TYPE_SHADED_POOL;
-}
-
 void TMBindShadowManager::drawShadow(u32 flags, JDrama::TGraphics* graphics)
 {
 	ReInitializeGX();
@@ -806,7 +795,7 @@ void TMBindShadowManager::calcVtx()
 			groundY = gpMap->checkGround(request->unk0.x,
 			                             request->unk0.y + unk60,
 			                             request->unk0.z, &checkData);
-			if (isShadowWaterSurface(checkData)) {
+			if (checkData != nullptr && checkData->isWaterSurface()) {
 				groundY = gpMap->checkGroundIgnoreWaterSurface(
 				    request->unk0.x, request->unk0.y, request->unk0.z,
 				    &checkData);
