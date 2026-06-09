@@ -400,7 +400,11 @@ void TMapEventSinkBianco::load(JSUMemoryInputStream& stream)
 	SMS_LoadParticle("/scene/map/map/ms_objup_slope_b.jpa", 0x1E1);
 }
 
-void TMapEventSinkShadowMario::rising() { TMapEventSink::rising(); }
+void TMapEventSinkShadowMario::rising()
+{
+	TMapEventSink::rising();
+	((TLiveActor*)unk64[unk28])->mPosition.y += unk3C;
+}
 
 void TMapEventSinkShadowMario::raiseBuilding(int i)
 {
