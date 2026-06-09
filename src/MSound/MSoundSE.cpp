@@ -413,12 +413,12 @@ JAISound* MSoundSE::startSoundActor(u32 p1, const Vec* p2, u32 p3,
 JAISound* MSoundSE::startSoundSystemSE(u32 p1, u32 p2, JAISound** p3, u32 p4)
 {
 	u32 soundID     = p1;
-	u32 variant     = p2;
-	u32 originalID  = soundID;
-	u32 variantSlot = variant;
+	s32 originalID  = soundID;
+	JAISound* sound;
+	u32 variantSlot = p2;
 
 	if (originalID == 0x481E) {
-		variantSlot = variant - 1;
+		variantSlot--;
 		switch (variantSlot) {
 		case 1:
 			soundID = 0x482E;
@@ -438,8 +438,7 @@ JAISound* MSoundSE::startSoundSystemSE(u32 p1, u32 p2, JAISound** p3, u32 p4)
 		}
 	}
 
-	JAISound* sound
-	    = startSoundActorInner(soundID, p3, (JAIActor*)-1, p4, 4);
+	sound = startSoundActorInner(soundID, p3, (JAIActor*)-1, p4, 4);
 	if (sound == nullptr)
 		return nullptr;
 
