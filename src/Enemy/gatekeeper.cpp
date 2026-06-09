@@ -30,6 +30,12 @@ DEFINE_NERVE(TNerveBGKAwakeDamage, TLiveActor)
 	return false;
 }
 
+DEFINE_NERVE(TNerveBGKLaunchGoro, TLiveActor)
+{
+	// TODO: recover the launch-gorogoro gatekeeper state.
+	return false;
+}
+
 const char* gatekeeper_bastable[] = {
 	"/scene/gatekeeper/bas/gene_pakkun_appear1.bas",
 	nullptr,
@@ -88,12 +94,82 @@ void TBiancoGateKeeper::perform(u32 flags, JDrama::TGraphics* graphics)
 
 void TBiancoGateKeeper::controlCollision()
 {
-	// TODO: recover the head/obstacle collision state transitions.
+	if (mMActor->checkCurBckFromIndex(0x0B)
+	    || mMActor->checkCurBckFromIndex(0x07)) {
+		unk174->unk70 = 1;
+		unk161        = 0;
+		return;
+	}
+
+	if (mMActor->checkCurBckFromIndex(0x12)) {
+		unk174->unk70 = 1;
+		unk161        = 0;
+		return;
+	}
+
+	if (mMActor->checkCurBckFromIndex(0x0A)
+	    || mMActor->checkCurBckFromIndex(0x04)) {
+		unk174->unk70 = 0;
+		unk161        = 1;
+		return;
+	}
+
+	if (mMActor->checkCurBckFromIndex(0x0F)) {
+		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
+		if (ctrl->getFrame() > 40.0f)
+			unk174->unk70 = 1;
+		else
+			unk174->unk70 = 0;
+		unk161 = 0;
+		return;
+	}
+
+	if (mMActor->checkCurBckFromIndex(0x10)
+	    || mMActor->checkCurBckFromIndex(0x0C)) {
+		unk174->unk70 = 1;
+		unk161        = 0;
+		return;
+	}
+
+	unk174->unk70 = 0;
+	unk161        = 0;
 }
 
 void TBiancoGateKeeper::emitParticles()
 {
-	// TODO: recover the bound saliva/smoke/death particle emitters.
+	const TNerveBase<TLiveActor>* sleep = &TNerveBGKSleep::theNerve();
+	if (mSpine->getLatestNerve() == sleep)
+		return;
+
+	const TNerveBase<TLiveActor>* launchGoro
+	    = &TNerveBGKLaunchGoro::theNerve();
+	if (mSpine->getLatestNerve() == launchGoro)
+		return;
+
+	J3DModel* model = getModel();
+
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x140, (MtxPtr)((u8*)model->mNodeMatrices + 0x120), 1, this);
+	if (emitter)
+		SMSSetEmitterPolColor(emitter, 6);
+
+	emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x142, (MtxPtr)((u8*)model->mNodeMatrices + 0x1B0), 1,
+	    (u8*)this + 1);
+	if (emitter)
+		SMSSetEmitterPolColor(emitter, 6);
+
+	emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x142, (MtxPtr)((u8*)model->mNodeMatrices + 0x0F0), 1,
+	    (u8*)this + 2);
+	if (emitter)
+		SMSSetEmitterPolColor(emitter, 6);
+
+	emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x141, (MtxPtr)((u8*)model->mNodeMatrices + 0x180), 1,
+	    (u8*)this + 3);
+	if (emitter)
+		SMSSetEmitterPolColor(emitter, 6);
 }
 
 const char** TBiancoGateKeeper::getBasNameTable() const
