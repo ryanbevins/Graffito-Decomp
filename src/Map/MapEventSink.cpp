@@ -319,8 +319,7 @@ void TMapEventSinkBianco::startControl()
 		unk44 = 120;
 		unk48 = 600;
 		unk38 = 1700.0f;
-		JGeometry::TVec3<f32> zero;
-		zero.zero();
+		JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
 		unk7C = 360;
 		gpMarioParticleManager->emit(0x59, &zero, 0, nullptr);
 		gpMarioParticleManager->emit(0x1E1, &zero, 2, nullptr);
