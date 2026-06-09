@@ -275,15 +275,9 @@ TModelShadowInfo::TModelShadowInfo()
 
 TMBindShadowManager::TMBindShadowManager(const char* name)
     : JDrama::TViewObj(name)
-    , unk10(nullptr)
     , unk14(0)
-    , unk18(nullptr)
-    , unk1C(nullptr)
     , unk20(0)
-    , unk24(nullptr)
-    , unk28(nullptr)
     , unk2C(0)
-    , unk3C(nullptr)
     , unk40(0)
     , unk44(0)
     , unk48(0)
@@ -293,7 +287,6 @@ TMBindShadowManager::TMBindShadowManager(const char* name)
     , unk65(0)
     , unk68(0.5f)
     , unk6C(1.55f)
-    , unk70(nullptr)
 {
 	unk5C.r = 0x1E;
 	unk5C.g = 0x32;
