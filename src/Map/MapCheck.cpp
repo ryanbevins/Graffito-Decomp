@@ -484,21 +484,31 @@ TMapCollisionData::intersectLine(const JGeometry::TVec3<f32>& start,
 			}
 
 			const TBGCheckListRoot& root = getGridRoot14(x, z);
-			const TBGCheckList* lists[3] = {
-				root.unk0[0].getNext(),
-				root.unk0[2].getNext(),
-				root.unk0[1].getNext(),
-			};
+			const TBGCheckList* node     = root.unk0[0].getNext();
+			while (node != nullptr) {
+				const TBGCheckData* data = node->unk8;
+				node                     = node->getNext();
+				if (bgIntersectLine(data, start, end, ignore_back_faces,
+				                    hit_point))
+					return data;
+			}
 
-			for (int i = 0; i < 3; ++i) {
-				const TBGCheckList* node = lists[i];
-				while (node != nullptr) {
-					const TBGCheckData* data = node->unk8;
-					node                     = node->getNext();
-					if (bgIntersectLine(data, start, end, ignore_back_faces,
-					                    hit_point))
-						return data;
-				}
+			node = root.unk0[2].getNext();
+			while (node != nullptr) {
+				const TBGCheckData* data = node->unk8;
+				node                     = node->getNext();
+				if (bgIntersectLine(data, start, end, ignore_back_faces,
+				                    hit_point))
+					return data;
+			}
+
+			node = root.unk0[1].getNext();
+			while (node != nullptr) {
+				const TBGCheckData* data = node->unk8;
+				node                     = node->getNext();
+				if (bgIntersectLine(data, start, end, ignore_back_faces,
+				                    hit_point))
+					return data;
 			}
 		}
 	}
