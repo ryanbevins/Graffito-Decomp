@@ -31,7 +31,53 @@
 
 DEFINE_NERVE(TNerveBGKSleep, TLiveActor)
 {
-	// TODO: recover the sleeping gatekeeper state.
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		gatekeeper->changeBck(0x0A);
+		gatekeeper->offHitFlag(HIT_FLAG_NO_COLLISION);
+		gatekeeper->mMActor->setBpkFromIndex(0);
+
+		J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(2);
+		if (ctrl) {
+			ctrl->setFrame(0.0f);
+			ctrl->setRate(0.0f);
+		}
+	}
+
+	if (gpMarDirector->mMap == 2) {
+		if (gatekeeper->unk298 > 0)
+			--gatekeeper->unk298;
+
+		if (gatekeeper->unk298 == 0) {
+			TBiancoGateKeeperParams* params
+			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
+			s32 timer = params->mSLLaunchTimerNormal.get();
+			timer += (s32)(240.0f * (0.000030517578f * rand())) - 0x78;
+			gatekeeper->unk298 = timer;
+
+			spine->pushAfterCurrent(&TNerveBGKLaunchGoro::theNerve());
+			return true;
+		}
+	}
+
+	if (gatekeeper->mMActor->checkBckPass(18.0f)) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1E0, (MtxPtr)gatekeeper->getModel()->mNodeMatrices, 2,
+		    nullptr);
+	}
+
+	if (gatekeeper->unk17C >= 0xFF) {
+		spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
+		return true;
+	}
+
+	if (gatekeeper->unk154 > 0) {
+		spine->pushAfterCurrent(&TNerveBGKSleepDamage::theNerve());
+		return true;
+	}
+
 	return false;
 }
 
