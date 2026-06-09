@@ -404,7 +404,35 @@ f32 MSoundSESystem::MSRandVol::getRandomVolumeNormal(u32) { return 0.0f; }
 
 void MSound::setSeExtParameter(JAISound* sound) { }
 
-void MSound::playTimer(u32 time) { }
+void MSound::playTimer(u32 time)
+{
+	bool canPlay;
+	if (!(unkA8 & 1))
+		canPlay = false;
+	else
+		canPlay = true;
+
+	if (canPlay) {
+		MSoundSESystem::MSoundSE::startSoundActorInner(
+		    0x403A, nullptr, (JAIActor*)-1, 0, 4);
+
+		if (time > 30000) {
+			unk94 = 110;
+		} else if (time > 15000) {
+			unk94 = 50;
+		} else if (time > 10000) {
+			unk94 = 35;
+		} else if (time > 5000) {
+			unk94 = 25;
+		} else if (time > 2000) {
+			unk94 = 10;
+		} else if (time > 1000) {
+			unk94 = 3;
+		} else {
+			unk94 = 0;
+		}
+	}
+}
 
 u32 MSound::startMarioVoice(u32 id, s16 param2, u8 param3) { return 0; }
 
