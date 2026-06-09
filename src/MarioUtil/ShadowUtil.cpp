@@ -37,12 +37,13 @@ enum {
 static inline bool isUseThisBindJoint(u32 actor_type, int joint_no)
 {
 	switch ((s32)actor_type) {
+	case (s32)ACTOR_TYPE_SHADOW_MARIO:
+	case (s32)ACTOR_TYPE_SHADOW_B:
+		return true;
 	case (s32)ACTOR_TYPE_SHADOW_A:
 		if (joint_no == 0x17)
 			return false;
 		return true;
-	case (s32)ACTOR_TYPE_SHADOW_MARIO:
-	case (s32)ACTOR_TYPE_SHADOW_B:
 	default:
 		return true;
 	}

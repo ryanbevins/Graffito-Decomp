@@ -56,7 +56,7 @@ boolean expressions may collapse into `subfic/cntlzw` materialization.
   `TMBindShadowBody::TMBindShadowBody(THitActor*, J3DModel*, float)`
   (2026-06-10 MNL): rewriting actor-type scale selection and the three
   bind-joint inline predicates as signed switches with explicit/inverse-guard
-  returns moved the constructor `55.5 -> 79.2`.
+  returns and target case-body order moved the constructor `55.5 -> 81.3`.
 
 ### Static inline wrappers can preserve local `MsWrap<float>` helper ownership and call boundaries
 
