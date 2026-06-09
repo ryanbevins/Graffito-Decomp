@@ -396,7 +396,31 @@ void MSound::setCategoryAllVolume(u8 category, f32 volume, u32 param3,
 {
 }
 
-void MSound::fadeOutAllSound(u32 fadeTime) { }
+void MSound::fadeOutAllSound(u32 fadeTime)
+{
+	u8 category = 0;
+	unkA8 &= 1;
+
+	for (; category < JAIGlobalParameter::getParamSeCategoryMax(); ++category) {
+		if (unk0->unk88.unk2[category] && category != 4) {
+			JAISound* sound = unk0->unk1E8[category].unk4;
+			while (sound != nullptr) {
+				sound->setVolume(0.0f, fadeTime, 2);
+				sound = sound->unk30;
+			}
+		}
+	}
+
+	u8 mask = 7;
+	category = 0;
+	for (; category < 3; ++category) {
+		if ((mask >> category) & 1)
+			MSBgm::setTrackVolume(category, 0.0f, fadeTime, 3);
+	}
+
+	if (unkC4)
+		unkC4->stop(fadeTime);
+}
 
 void MSound::stopAllSound()
 {
