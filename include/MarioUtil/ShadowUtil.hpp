@@ -7,7 +7,9 @@
 class THitActor;
 class J3DModel;
 class SDLModelData;
+class TAlphaShadowQuad;
 class TMBindShadowParts;
+class TSquareShadowInfo;
 
 class TCircleShadowRequest {
 public:
@@ -48,7 +50,7 @@ public:
 	/* 0x0 */ JGeometry::TVec3<f32> unk0;
 	/* 0xC */ JGeometry::TVec3<f32> unkC;
 	/* 0x18 */ u32 unk18;
-	/* 0x1C */ u32 unk1C;
+	/* 0x1C */ TAlphaShadowBlendQuad* unk1C;
 };
 
 class TAlphaShadowQuadAry {
@@ -63,10 +65,10 @@ public:
 
 public:
 	/* 0x0 */ u32 unk0;
-	/* 0x4 */ u32 unk4;
-	/* 0x8 */ u32 unk8;
-	/* 0xC */ u32 unkC;
-	/* 0x10 */ u32 unk10;
+	/* 0x4 */ TAlphaShadowQuad* unk4;
+	/* 0x8 */ TAlphaShadowQuad* unk8;
+	/* 0xC */ TAlphaShadowBlendQuad* unkC;
+	/* 0x10 */ TAlphaShadowBlendQuad* unk10;
 };
 
 class TMBindShadowBody {
@@ -100,10 +102,11 @@ public:
 
 public:
 	/* 0x0 */ f32 unk0;
-	/* 0x4 */ u8 unk4[0x60];
-	/* 0x64 */ u32 unk64;
-	/* 0x68 */ u32 unk68;
-	/* 0x6C */ u32 unk6C;
+	/* 0x4 */ Mtx unk4;
+	/* 0x34 */ Vec unk34[4];
+	/* 0x64 */ TSquareShadowInfo* unk64;
+	/* 0x68 */ TCircleShadowRequest* unk68;
+	/* 0x6C */ TAlphaShadowQuad* unk6C;
 };
 
 class TModelShadowInfo {

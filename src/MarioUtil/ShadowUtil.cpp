@@ -444,3 +444,294 @@ void TMBindShadowManager::forceRequest(const TCircleShadowRequest& request,
 	dst.unk18                 = distSq;
 	++unk14;
 }
+
+static bool isShadowWaterSurface(const TBGCheckData* data)
+{
+	if (data == nullptr)
+		return false;
+
+	u16 type = data->getBGType();
+	return type == BG_TYPE_WATER || type == BG_TYPE_DAMAGING_WATER
+	       || (u16)(type - BG_TYPE_SEA_WATER) <= 3
+	       || type == BG_TYPE_SHADED_POOL;
+}
+
+static bool conectCubeSame(TAlphaShadowBlendQuad* a,
+                           TAlphaShadowBlendQuad* b)
+{
+	if (a == nullptr || b == nullptr)
+		return false;
+
+	f32 joinDist = TMBindShadowManager::mJoinDist;
+	if (__fabsf(a->unk0.y - b->unk0.y) > 50.0f)
+		return false;
+
+	if (a->unk0.x <= b->unkC.x - joinDist
+	    && a->unkC.x >= b->unk0.x + joinDist
+	    && a->unk0.z <= b->unkC.z - joinDist
+	    && a->unkC.z >= b->unk0.z + joinDist) {
+		if (a->unkC.x <= b->unkC.x - joinDist)
+			a->unkC.x = b->unkC.x;
+		if (a->unk0.x >= b->unk0.x + joinDist)
+			a->unk0.x = b->unk0.x;
+		if (a->unkC.z <= b->unkC.z - joinDist)
+			a->unkC.z = b->unkC.z;
+		if (a->unk0.z >= b->unk0.z + joinDist)
+			a->unk0.z = b->unk0.z;
+		if (a->unk0.y >= b->unk0.y)
+			a->unk0.y = b->unk0.y;
+		if (a->unkC.y <= b->unkC.y)
+			a->unkC.y = b->unkC.y;
+		return true;
+	}
+
+	return false;
+}
+
+static bool conectCubeDiffer(TAlphaShadowBlendQuad* a,
+                             TAlphaShadowBlendQuad* b)
+{
+	if (a == nullptr || b == nullptr)
+		return false;
+
+	if (a->unk18 != b->unk18 || a->unk18 == 0 || b->unk18 == 0)
+		return false;
+	if ((a->unk18 & 0x40000000) || (b->unk18 & 0x40000000))
+		return false;
+
+	if (__fabsf(a->unk0.y - b->unk0.y) > 50.0f)
+		return false;
+
+	if (a->unk0.x <= b->unkC.x && a->unkC.x >= b->unk0.x
+	    && a->unk0.z <= b->unkC.z && a->unkC.z >= b->unk0.z) {
+		if (a->unkC.x <= b->unkC.x)
+			a->unkC.x = b->unkC.x;
+		if (a->unk0.x >= b->unk0.x)
+			a->unk0.x = b->unk0.x;
+		if (a->unkC.z <= b->unkC.z)
+			a->unkC.z = b->unkC.z;
+		if (a->unk0.z >= b->unk0.z)
+			a->unk0.z = b->unk0.z;
+		if (a->unk0.y >= b->unk0.y)
+			a->unk0.y = b->unk0.y;
+		if (a->unkC.y <= b->unkC.y)
+			a->unkC.y = b->unkC.y;
+		return true;
+	}
+
+	return false;
+}
+
+void TMBindShadowManager::calcVtx()
+{
+	static const f32 calctablex[] = { -1.0f, 1.0f, 1.0f, -1.0f };
+	static const f32 calctablez[] = { -1.0f, -1.0f, 1.0f, 1.0f };
+
+	unk2C = 0;
+
+	TAlphaShadowQuad* quad = unk18;
+	for (int i = 0; i < unk14; ++i, ++quad) {
+		TCircleShadowRequest* request = &unk10[i];
+		JGeometry::TVec3<f32> original = request->unk0;
+
+		if (request->unk1C == 1) {
+			JGeometry::TVec3<f32> top = request->unk0;
+			top.y += mSquareShadowHeight;
+
+			f32 dy = top.y - request->unk0.y;
+			request->unk0.x
+			    = (top.x - unk30.x * dy + request->unk0.x) * 0.5f;
+			request->unk0.z
+			    = (top.z - unk30.z * dy + request->unk0.z) * 0.5f;
+		}
+
+		f32 groundY = request->unk0.y;
+		const TBGCheckData* checkData = nullptr;
+		if (request->unk1D) {
+			groundY = gpMap->checkGround(request->unk0.x,
+			                             request->unk0.y + unk60,
+			                             request->unk0.z, &checkData);
+			if (isShadowWaterSurface(checkData)) {
+				groundY = gpMap->checkGroundIgnoreWaterSurface(
+				    request->unk0.x, request->unk0.y, request->unk0.z,
+				    &checkData);
+			}
+		}
+
+		if (request->unk1C != 1)
+			request->unk0.y = groundY;
+
+		f32 farScale = 1.0f;
+		if (request->unk18 > 20000000.0f || request->unk14 != 0.0f)
+			farScale = 0.2f;
+
+		f32 maxRadius = request->unkC;
+		if (maxRadius < request->unk10)
+			maxRadius = request->unk10;
+
+		f32 rotX   = 90.0f;
+		f32 rotY   = request->unk14;
+		f32 scaleX = request->unkC * 0.08f;
+		f32 scaleY = request->unk10 * 0.08f;
+		f32 scaleZ = maxRadius * farScale * 0.08f;
+
+		if (request->unk1C == 3) {
+			rotX   = 0.0f;
+			scaleY = 0.2f;
+			scaleX = request->unk10 * 0.08f * mTreeScale;
+			scaleZ = request->unkC * 0.08f * mTreeScale;
+			request->unk10 = 1.0f;
+			request->unkC  = 1.0f;
+		}
+
+		request->unkC *= 0.8f;
+		request->unk10 *= 0.8f;
+
+		quad->unk0  = 0.01f;
+		quad->unk64 = nullptr;
+		quad->unk68 = request;
+		quad->unk6C = nullptr;
+		quad->unk0  = request->unkC;
+		if (quad->unk0 < request->unk10)
+			quad->unk0 = request->unk10;
+		if (quad->unk0 > 200.0f)
+			quad->unk0 = 200.0f;
+		quad->unk0 *= 1.1f;
+
+		JGeometry::TVec3<f32> mtxPos = request->unk0;
+		if (request->unk1C == 1 && unk2C < 0x1D
+		    && __fabsf(groundY - request->unk0.y) < 1.0f) {
+			TSquareShadowInfo& square = unk28[unk2C];
+			f32 dx                    = request->unk0.x - original.x;
+			f32 dz                    = request->unk0.z - original.z;
+
+			if (original.x >= request->unk0.x
+			    && original.z >= request->unk0.z) {
+				square.unk0[0].x = request->unkC;
+				square.unk0[0].z = -request->unk10;
+				square.unk0[1].x = dx + request->unkC;
+				square.unk0[1].z = dz - request->unk10;
+				square.unk0[2].x = dx - request->unkC;
+				square.unk0[2].z = dz - request->unk10;
+				square.unk0[3].x = dx - request->unkC;
+				square.unk0[3].z = dz + request->unk10;
+				square.unk0[4].x = -request->unkC;
+				square.unk0[4].z = request->unk10;
+			} else {
+				square.unk0[0].x = 1.0f;
+				square.unk0[0].z = 1.0f;
+				square.unk0[1].x = dx + 1.0f;
+				square.unk0[1].z = dz - 1.0f;
+				square.unk0[2].x = dx - 1.0f;
+				square.unk0[2].z = dz - 1.0f;
+				square.unk0[3].x = dx - 1.0f;
+				square.unk0[3].z = dz + 1.0f;
+				square.unk0[4].x = -1.0f;
+				square.unk0[4].z = 1.0f;
+			}
+
+			for (int j = 0; j < 5; ++j)
+				square.unk0[j].y = 0.0f;
+
+			quad->unk64 = unk28;
+			++unk2C;
+		}
+
+		if (request->unk20 == ACTOR_TYPE_SHADOW_MARIO)
+			scaleZ *= 1.5f;
+
+		MsMtxSetTRS(quad->unk4, mtxPos.x, mtxPos.y, mtxPos.z, rotX, rotY,
+		            0.0f, scaleX, scaleY, scaleZ);
+		PSMTXConcat(J3DSys::mCurrentMtx, quad->unk4, quad->unk4);
+
+		for (int j = 0; j < 4; ++j) {
+			quad->unk34[j].x
+			    = request->unk0.x + request->unkC * calctablex[j];
+			quad->unk34[j].y = groundY;
+			quad->unk34[j].z
+			    = request->unk0.z + request->unk10 * calctablez[j];
+		}
+
+		if (unk14 >= 0x200)
+			return;
+	}
+
+	if (unk14 == 0 || mTestSw)
+		return;
+
+	for (int i = 0; i < unk20; ++i) {
+		unk1C[i].unk0  = 0x20000000;
+		unk1C[i].unk4  = nullptr;
+		unk1C[i].unk8  = nullptr;
+		unk1C[i].unkC  = nullptr;
+		unk1C[i].unk10 = nullptr;
+	}
+
+	unk20 = 0;
+	for (int i = 0; i < unk14; ++i) {
+		TAlphaShadowQuad* shadowQuad = &unk18[i];
+		shadowQuad->unk6C           = nullptr;
+
+		TAlphaShadowBlendQuad* blend = &unk24[i];
+		blend->unk1C                 = nullptr;
+		blend->unk0.x                = shadowQuad->unk34[0].x;
+		blend->unk0.z                = shadowQuad->unk34[0].z;
+		blend->unkC.x                = shadowQuad->unk34[2].x;
+		blend->unkC.z                = shadowQuad->unk34[2].z;
+		blend->unk0.y                = shadowQuad->unk34[0].y;
+		blend->unkC.y                = shadowQuad->unk0 + mYScalePlus;
+		blend->unk18                 = 0;
+
+		bool connected = false;
+		for (int j = 0; j < unk20; ++j) {
+			if (conectCubeDiffer(unk1C[j].unkC, blend)) {
+				connected        = true;
+				unk1C[j].unk8->unk6C = shadowQuad;
+				unk1C[j].unk8        = shadowQuad;
+				unk1C[j].unk10->unk1C = blend;
+				unk1C[j].unk10       = blend;
+				break;
+			}
+		}
+
+		if (connected)
+			continue;
+
+		if (unk20 >= 0x100) {
+			unk20 = 0x100;
+			continue;
+		}
+
+		TAlphaShadowQuadAry& group = unk1C[unk20];
+		group.unk4                 = shadowQuad;
+		group.unk8                 = shadowQuad;
+		group.unkC                 = blend;
+		group.unk10                = blend;
+		group.unk0                 = 0x20000000;
+		if (shadowQuad->unk68->unk20 & 0x40000000)
+			group.unk0 = 0x40000000;
+		++unk20;
+	}
+
+	for (int i = 0; i < unk20; ++i) {
+		for (int j = 0; j < unk20; ++j) {
+			if (i == j)
+				continue;
+			if (unk1C[i].unk4 == nullptr || unk1C[j].unk4 == nullptr)
+				continue;
+			if (!conectCubeSame(unk1C[i].unkC, unk1C[j].unkC))
+				continue;
+
+			unk1C[i].unk8->unk6C  = unk1C[j].unk4;
+			unk1C[i].unk8         = unk1C[j].unk8;
+			unk1C[i].unk10->unk1C = unk1C[j].unkC;
+			unk1C[i].unk10        = unk1C[j].unk10;
+			if ((unk1C[i].unk4->unk68->unk20 & 0x40000000)
+			    || (unk1C[j].unk4->unk68->unk20 & 0x40000000)) {
+				unk1C[i].unk0 = 0x40000000;
+			}
+			unk1C[j].unk4 = nullptr;
+			unk1C[j].unkC = nullptr;
+		}
+	}
+}
