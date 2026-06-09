@@ -93,7 +93,8 @@ bool TMapEventSink::control()
 	if (unk4C < unk40 - unk44 && unk4C > unk48)
 		rising();
 
-	unk5C[unk28]->moveTrans(unk30->getTransformInfo().mTranslate);
+	J3DTransformInfo& info = unk30->getTransformInfo();
+	unk5C[unk28]->moveTrans(info.mTranslate);
 
 	if (unk4C > unk48
 	    && (gpMarDirector->mMap != 2 || unk54[1 - unk24] == 0 || unk28 != 1)) {
