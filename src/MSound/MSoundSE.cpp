@@ -745,9 +745,6 @@ u32 MSoundSE::getNewIDBySurfaceCode(u32 param, JAIActor* actor)
 		default:
 			return param;
 		}
-	case 0x1822:
-	case 0x1826:
-		return -1;
 	case 0x1824:
 		switch (surface) {
 		case 0x100:
@@ -764,6 +761,9 @@ u32 MSoundSE::getNewIDBySurfaceCode(u32 param, JAIActor* actor)
 		default:
 			return param;
 		}
+	case 0x1822:
+	case 0x1826:
+		return -1;
 	default:
 		return param;
 	}
