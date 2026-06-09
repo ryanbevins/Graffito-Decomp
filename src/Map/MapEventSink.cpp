@@ -327,7 +327,7 @@ void TMapEventSinkBianco::startControl()
 		break;
 	}
 	case 1:
-		unk40 = 60;
+		unk40 = 600;
 		unk44 = 120;
 		unk48 = 120;
 		unk38 = 1500.0f;
