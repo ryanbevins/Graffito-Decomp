@@ -542,14 +542,16 @@ bool MSoundSE::checkSoundArea(u32 param, const Vec& vec)
 
 	switch ((s32)param) {
 	case 7: {
+		Vec marioCubePos;
 		Vec marioPos = *MSGMSound->unkAC[0].unk0;
 		marioPos.y += 100.0f;
-		Vec marioCubePos = marioPos;
+		marioCubePos = marioPos;
 		int marioCube = gpCubeCamera->getInCubeNo(marioCubePos);
 
+		Vec actorCubePos;
 		Vec actorPos = vec;
 		actorPos.y += 100.0f;
-		Vec actorCubePos = actorPos;
+		actorCubePos = actorPos;
 		int actorCube = gpCubeCamera->getInCubeNo(actorCubePos);
 
 		if (actorCube != -1) {
