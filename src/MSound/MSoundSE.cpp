@@ -14,7 +14,7 @@ JSUList<MSRandVol> MSRandVol::smList;
 
 JSUList<MSRandPlay> MSRandPlay::smList;
 
-f32 SeInfo::smSeSetting[2] = { 1.0f, 0.9f };
+SeInfo::TSeSetting SeInfo::smSeSetting;
 
 MSoundSE* MSoundSE::mObj = 0;
 
@@ -50,15 +50,11 @@ f32 MSRandVol::getRandVol(u32 param)
 	f32 min       = *(&unk3C + minIndex) * unk18;
 	f32 step      = *(&unk1C + stepIndex);
 	f32 max       = *(&unk2C + maxIndex);
-	f32 volume    = JALCalc::getRandom(min, max, step) + 1.0f;
+	f32 volume    = 1.0f + JALCalc::getRandom(min, max, step);
+	f32 result    = volume < 0.0f ? 0.0f : volume;
+	f32 capped    = result > 2.0f ? 2.0f : result;
 
-	if (volume < 0.0f)
-		volume = 0.0f;
-
-	if (volume > 2.0f)
-		volume = 2.0f;
-
-	return volume;
+	return capped;
 }
 
 void MSRandPlay::construct(u32 param_1, s32 param_2, s32 param_3, f32 param_4,
@@ -524,9 +520,9 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 		return;
 
 	if (soundID == 0x2007) {
-		f32 pitch = SeInfo::smSeSetting[1];
+		f32 pitch = SeInfo::smSeSetting.unk4;
 		for (u32 i = 0; i < sound->unk14; ++i)
-			pitch *= SeInfo::smSeSetting[0];
+			pitch *= SeInfo::smSeSetting.unk0;
 		sound->setSeInterPitch(0, pitch, 0, 0.0f);
 	} else if (soundID == 0x305B) {
 		f32 volume = JALCalc::linearTransform(volumeParam, 0.0f, 20.0f, 0.0f,

@@ -64,7 +64,18 @@ public:
 
 class SeInfo {
 public:
-	static f32 smSeSetting[2];
+	struct TSeSetting {
+		TSeSetting()
+		    : unk0(1.0f)
+		    , unk4(0.9f)
+		{
+		}
+
+		f32 unk0;
+		f32 unk4;
+	};
+
+	static TSeSetting smSeSetting;
 };
 
 class MSoundSE {
