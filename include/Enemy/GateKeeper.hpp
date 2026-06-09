@@ -11,6 +11,7 @@
 class MActor;
 class TGKHitObj;
 class TBGKObstacle;
+class TBGKMtxCalc;
 
 class TGateKeeperBase : public TSpineEnemy {
 public:
@@ -62,7 +63,7 @@ public:
 public:
 	/* 0x170 */ void* unk170;
 	/* 0x174 */ TGKHitObj* unk174;
-	/* 0x178 */ void* unk178;
+	/* 0x178 */ TBGKMtxCalc* unk178;
 	/* 0x17C */ s16 unk17C;
 	/* 0x17E */ s16 unk17E;
 	/* 0x180 */ f32 unk180;

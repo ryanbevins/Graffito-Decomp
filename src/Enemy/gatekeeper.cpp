@@ -119,8 +119,74 @@ void TBiancoGateKeeper::launchNamekuri()
 
 void TBiancoGateKeeper::changeBck(int index)
 {
-	if (mMActor)
-		mMActor->setBckFromIndex(index);
+	int curBck = mMActor->getCurAnmIdx(MActor::ANM_TYPE_BCK);
+
+	if ((curBck == 0x11 && index == 0x0B)
+	    || (curBck == 0x11 && index == 0x12)
+	    || (curBck == 0x0B && index == 0x12)
+	    || (curBck == 0x12 && index == 0x0B)
+	    || (curBck == 0x07 && index == 0x07)
+	    || (curBck == 0x07 && index == 0x12)
+	    || (curBck == 0x0F && index == 0x10)
+	    || (curBck == 0x10 && index == 0x0C)) {
+		TBGKMtxCalc* calc = unk178;
+		MActorAnmDataEach<J3DAnmTransformKey>* data
+		    = calc->unk64->mMActorKeeper->getMActorAnmData()->getUnk2C();
+		J3DAnmTransform* nextAnm = data->getAnmPtr(index);
+
+		calc->unk54 = nextAnm;
+		calc->unk58 = nullptr;
+		calc->unk50 = 0.0f;
+
+		MActorAnmBck* bck = mMActor->unkC;
+		bck->unk0         = index;
+		if (index >= 0) {
+			bck->unk24 = bck->getData()->getAnmPtr(index);
+			bck->unk4.init(bck->unk24->getFrameMax());
+			bck->unk4.setAttribute(bck->unk24->getAttribute());
+			bck->unk4.setRate(SMSGetAnmFrameRate());
+		}
+		unk158 = 0.0f;
+	} else {
+		TBGKMtxCalc* calc = unk178;
+		MActorAnmDataEach<J3DAnmTransformKey>* data
+		    = calc->unk64->mMActorKeeper->getMActorAnmData()->getUnk2C();
+		J3DAnmTransform* nextAnm = data->getAnmPtr(index);
+
+		if (calc->unk54 != nextAnm) {
+			calc->unk58 = calc->unk54;
+			calc->unk54 = nextAnm;
+			calc->unk50 = 1.0f;
+		}
+
+		MActorAnmBck* bck = mMActor->unkC;
+		bck->unk0         = index;
+		if (index >= 0) {
+			bck->unk24 = bck->getData()->getAnmPtr(index);
+			bck->unk4.init(bck->unk24->getFrameMax());
+			bck->unk4.setAttribute(bck->unk24->getAttribute());
+			bck->unk4.setRate(SMSGetAnmFrameRate());
+		}
+
+		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
+		if (ctrl) {
+			f32 blendFrames = 0.2f * ctrl->getEnd();
+			if (blendFrames < 1.0f)
+				unk158 = 1.0f;
+			else
+				unk158 = 1.0f / blendFrames;
+		} else {
+			unk158 = 1.0f;
+		}
+	}
+
+	const char** basTable = getBasNameTable();
+	const char* basName;
+	if (basTable == nullptr)
+		basName = nullptr;
+	else
+		basName = basTable[index];
+	setAnmSound(basName);
 }
 
 void TBiancoGateKeeper::kill()
