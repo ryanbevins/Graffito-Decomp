@@ -157,6 +157,7 @@ public:
 	void startForceJumpSound(Vec*, u32, f32, u32);
 };
 
+#ifdef MSOUND_EMIT_START_FORCE_JUMP_SOUND
 void MSound::startForceJumpSound(Vec* pos, u32 groundType, f32 height,
                                  u32 dist)
 {
@@ -188,6 +189,7 @@ void MSound::startForceJumpSound(Vec* pos, u32 groundType, f32 height,
 		}
 	}
 }
+#endif
 
 extern MSound* MSGMSound;
 extern JAIBasic* MSGBasic;

@@ -1,3 +1,4 @@
+#define MSOUND_EMIT_START_FORCE_JUMP_SOUND
 #include <Player/MarioMain.hpp>
 
 #include <Map/Map.hpp>
