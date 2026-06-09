@@ -297,3 +297,33 @@ void TTinKoopaPartsBase::reset()
 	JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
 	unkF4->setUpTrans(zero);
 }
+
+BOOL TTinKoopaFlame::receiveMessage(THitActor*, u32 message)
+{
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		if (unk68->unk17C <= 0) {
+			if (unk70 > 0)
+				--unk70;
+
+			if (unk70 <= 0) {
+				TTinKoopaParams* params
+				    = (TTinKoopaParams*)unk68->getSaveParam();
+				unk70 = (s16)params->mSLFlameHP.get();
+				params = (TTinKoopaParams*)unk68->getSaveParam();
+				unk68->unk17C
+				    = (s16)params->mSLFlameRevivalTime.get();
+				onHitFlag(HIT_FLAG_NO_COLLISION);
+			}
+
+			if (!unk72) {
+				unk72 = 1;
+				gpMarioParticleManager->emitAndBindToPosPtr(
+				    0xf3, &mPosition, 0, this);
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}

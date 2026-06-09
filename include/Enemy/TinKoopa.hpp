@@ -97,7 +97,11 @@ public:
 
 	void emitFlameEffects();
 
-	/* 0x68 */ u8 unk68[0x14];
+	/* 0x68 */ TTinKoopa* unk68;
+	/* 0x6C */ f32 unk6C;
+	/* 0x70 */ s16 unk70;
+	/* 0x72 */ u8 unk72;
+	/* 0x73 */ u8 unk73[9];
 };
 
 class TTinKoopa : public TSpineEnemy {
