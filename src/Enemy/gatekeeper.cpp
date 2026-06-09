@@ -1,7 +1,9 @@
 #include <Enemy/GateKeeper.hpp>
+#include <Enemy/NameKuri.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JMath.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MSound/MSound.hpp>
@@ -247,7 +249,44 @@ f32 TBiancoGateKeeper::getRumblePow()
 
 void TBiancoGateKeeper::launchNamekuri()
 {
-	// TODO: recover Namekuri/Gorogoro launch selection and spawn positions.
+	TNameKuriManager* manager = JDrama::TNameRefGen::search<TNameKuriManager>(
+	    "拡散ナメクリマネージャー");
+	if (manager == nullptr) {
+		manager = JDrama::TNameRefGen::search<TNameKuriManager>(
+		    "ナメクリマネージャー");
+	}
+
+	if (manager == nullptr)
+		return;
+
+	for (int i = 0; i < 10; ++i) {
+		TNameKuri* nameKuri = (TNameKuri*)manager->getFarOutEnemy();
+		if (nameKuri == nullptr)
+			return;
+
+		JGeometry::TVec3<f32> position = mPosition;
+		position.y += 100.0f;
+		JGeometry::TVec3<f32> rotation = mRotation;
+		JGeometry::TVec3<f32> scaling(1.0f, 1.0f, 1.0f);
+
+		f32 angle = 36.0f * i;
+		JGeometry::TVec3<f32> velocity(4.0f * JMASin(angle), 12.0f,
+		                                4.0f * JMACos(angle));
+
+		nameKuri->reset();
+		nameKuri->mPosition = position;
+		nameKuri->mRotation = rotation;
+		nameKuri->mScaling  = scaling;
+
+		nameKuri->mHitPoints = nameKuri->getMaxHitPoints();
+		nameKuri->mVelocity  = velocity;
+		nameKuri->mLiveFlag |= LIVE_FLAG_AIRBORNE;
+		nameKuri->mLiveFlag &= ~(LIVE_FLAG_DEAD | LIVE_FLAG_UNK8);
+		nameKuri->mLiveFlag |= LIVE_FLAG_UNK8000;
+		nameKuri->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+		nameKuri->mSpine->pushNerve(&TNerveNameKuriDiffuse::theNerve());
+	}
 }
 
 void TBiancoGateKeeper::changeBck(int index)
