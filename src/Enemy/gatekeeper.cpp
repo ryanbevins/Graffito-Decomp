@@ -1,4 +1,6 @@
 #include <Enemy/GateKeeper.hpp>
+#include <Enemy/Conductor.hpp>
+#include <Enemy/Igaiga.hpp>
 #include <Enemy/NameKuri.hpp>
 #include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -11,6 +13,7 @@
 #include <MSound/MSound.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MarioUtil/DrawUtil.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/Spine.hpp>
@@ -29,6 +32,12 @@ DEFINE_NERVE(TNerveBGKSleep, TLiveActor)
 	return false;
 }
 
+DEFINE_NERVE(TNerveBGKAppear, TLiveActor)
+{
+	// TODO: recover the appearing gatekeeper state.
+	return false;
+}
+
 DEFINE_NERVE(TNerveBGKAwakeDamage, TLiveActor)
 {
 	// TODO: recover the awake damage gatekeeper state.
@@ -37,7 +46,61 @@ DEFINE_NERVE(TNerveBGKAwakeDamage, TLiveActor)
 
 DEFINE_NERVE(TNerveBGKLaunchGoro, TLiveActor)
 {
-	// TODO: recover the launch-gorogoro gatekeeper state.
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(8);
+
+	if (spine->getTime() == 0x34) {
+		TGorogoro* goro
+		    = (TGorogoro*)gpConductor->makeOneEnemyAppear(
+		        gatekeeper->mPosition, "ゴロゴロマネージャー", 0);
+		if (goro)
+			goro->generateByGateKeeper(gatekeeper->mPosition,
+			                           gatekeeper->mRotation);
+
+		if (SMS_IsMarioTouchGround4cm()) {
+			gatekeeper->unk29C = gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (gatekeeper->unk17C >= 0xFF) {
+		spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
+		return true;
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		spine->pushAfterCurrent(&TNerveBGKSleep::theNerve());
+		return true;
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKLaunchName, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(8);
+
+	if (spine->getTime() == 0x34) {
+		gatekeeper->launchNamekuri();
+
+		if (SMS_IsMarioTouchGround4cm()) {
+			gatekeeper->unk29C = gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
+		return true;
+	}
+
 	return false;
 }
 
@@ -316,6 +379,7 @@ BOOL TBiancoGateKeeper::isHeadHitActive() const
 	return false;
 }
 
+#pragma dont_inline on
 f32 TBiancoGateKeeper::getRumblePow()
 {
 	JGeometry::TVec3<f32> delta = mPosition;
@@ -331,6 +395,7 @@ f32 TBiancoGateKeeper::getRumblePow()
 
 	return power;
 }
+#pragma dont_inline off
 
 void TBiancoGateKeeper::launchNamekuri()
 {
