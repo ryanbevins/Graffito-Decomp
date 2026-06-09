@@ -412,9 +412,13 @@ void TMapEventSinkShadowMario::loadAfter()
 {
 	TMapEventSink::loadAfter();
 	for (int i = 0; i < mBuildingNum; ++i) {
-		unk64[i] = JDrama::TNameRef::search(unk68[i]);
-		// TODO: what is unk64?
-		getBuilding(i);
+		unk64[i] = JDrama::TNameRefGen::getInstance()
+		               ->getRootNameRef()
+		               ->search(unk68[i]);
+		TJointObj* building = getBuilding(i);
+		((TLiveActor*)unk64[i])->mPosition.y
+		    -= building->getJoint()->getMax().y
+		       - building->getJoint()->getMin().y;
 	}
 }
 
