@@ -430,7 +430,8 @@ void TMBindShadowManager::request(const TCircleShadowRequest& request,
 void TMBindShadowManager::forceRequest(const TCircleShadowRequest& request,
                                        u32 actor_type)
 {
-	JGeometry::TVec3<f32> toCamera = request.unk0;
+	JGeometry::TVec3<f32> pos      = request.unk0;
+	JGeometry::TVec3<f32> toCamera = pos;
 	toCamera.x -= gpCamera->unk124.x;
 	toCamera.y -= gpCamera->unk124.y;
 	toCamera.z -= gpCamera->unk124.z;
@@ -442,7 +443,14 @@ void TMBindShadowManager::forceRequest(const TCircleShadowRequest& request,
 		return;
 
 	TCircleShadowRequest& dst = unk10[unk14];
-	dst                       = request;
+	dst.unk0                  = pos;
+	dst.unkC                  = request.unkC;
+	dst.unk10                 = request.unk10;
+	dst.unk14                 = request.unk14;
+	dst.unk18                 = request.unk18;
+	dst.unk1C                 = request.unk1C;
+	dst.unk1D                 = request.unk1D;
+	dst.unk20                 = request.unk20;
 	dst.unk20                 = actor_type;
 	dst.unk18                 = distSq;
 	++unk14;
