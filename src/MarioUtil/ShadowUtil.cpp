@@ -11,6 +11,7 @@
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/LightUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/ReinitGX.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/HitActor.hpp>
 #include <System/Application.hpp>
@@ -456,6 +457,188 @@ static bool isShadowWaterSurface(const TBGCheckData* data)
 	return type == BG_TYPE_WATER || type == BG_TYPE_DAMAGING_WATER
 	       || (u16)(type - BG_TYPE_SEA_WATER) <= 3
 	       || type == BG_TYPE_SHADED_POOL;
+}
+
+void TMBindShadowManager::drawShadow(u32 flags, JDrama::TGraphics* graphics)
+{
+	ReInitializeGX();
+
+	GXSetZCompLoc(GX_TRUE);
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetNumChans(1);
+	GXSetChanCtrl(GX_COLOR0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_ALPHA0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+	              GX_DF_NONE, GX_AF_NONE);
+	GXSetNumTexGens(0);
+	GXSetNumTevStages(1);
+	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+	              GX_COLOR0A0);
+	GXSetAlphaUpdate(GX_TRUE);
+	GXSetChanMatColor(GX_COLOR0A0, unk5C);
+	GXSetCurrentMtx(GX_PNMTX0);
+	GXLoadNrmMtxImm(graphics->mViewMtx.mMtx, GX_PNMTX0);
+
+	if (!mTestSw) {
+		for (int i = 0; i < unk20; ++i) {
+			TAlphaShadowQuadAry& group = unk1C[i];
+			if (group.unk4 == nullptr || group.unkC == nullptr)
+				continue;
+			if (!(flags & group.unk0))
+				continue;
+
+			GXSetCullMode(GX_CULL_NONE);
+			GXLoadPosMtxImm(graphics->mViewMtx.mMtx, GX_PNMTX0);
+			GXSetColorUpdate(GX_FALSE);
+			GXSetDstAlpha(GX_TRUE, 0);
+			GXSetZMode(GX_TRUE, GX_ALWAYS, GX_FALSE);
+			GXSetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ONE,
+			               GX_LO_NOOP);
+
+			JGeometry::TVec3<f32> min;
+			JGeometry::TVec3<f32> max;
+			min.set(group.unkC->unk0.x, group.unkC->unk0.y - group.unkC->unkC.y,
+			        group.unkC->unk0.z);
+			max.set(group.unkC->unkC.x, group.unkC->unk0.y + group.unkC->unkC.y,
+			        group.unkC->unkC.z);
+			SMS_DrawCube(min, max);
+
+			TAlphaShadowQuad* first = group.unk4;
+			bool highQuality = first->unk68->unk18 < 20000000.0f;
+			J3DModelData* modelData
+			    = highQuality ? unk3C[0]->getModelData()
+			                  : unk3C[1]->getModelData();
+			SMS_SettingDrawShape(modelData, 0);
+
+			GXSetDstAlpha(GX_FALSE, 0);
+			GXSetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
+			GXSetCullMode(GX_CULL_BACK);
+			GXSetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ZERO,
+			               GX_LO_NOOP);
+
+			for (TAlphaShadowQuad* quad = first; quad != nullptr;
+			     quad = quad->unk6C) {
+				GXLoadPosMtxImm(quad->unk4, GX_PNMTX0);
+				drawShadowVolume(highQuality, quad);
+			}
+
+			GXSetBlendMode(GX_BM_BLEND, GX_BL_DSTALPHA, GX_BL_INVDSTALPHA,
+			               GX_LO_NOOP);
+			GXSetZMode(GX_TRUE, GX_GEQUAL, GX_FALSE);
+			GXSetCullMode(GX_CULL_FRONT);
+			GXSetDstAlpha(GX_TRUE, 0);
+			GXSetColorUpdate(GX_TRUE);
+
+			for (TAlphaShadowQuad* quad = first; quad != nullptr;
+			     quad = quad->unk6C) {
+				GXLoadPosMtxImm(quad->unk4, GX_PNMTX0);
+				drawShadowVolume(highQuality, quad);
+			}
+
+			GXSetCullMode(GX_CULL_BACK);
+			GXSetColorUpdate(GX_FALSE);
+			GXSetDstAlpha(GX_TRUE, 0);
+			GXSetZMode(GX_TRUE, GX_ALWAYS, GX_FALSE);
+
+			for (TAlphaShadowQuad* quad = first; quad != nullptr;
+			     quad = quad->unk6C) {
+				if (quad->unk68->unk1C != 3)
+					continue;
+
+				J3DModelData* shipModel = unk3C[3]->getModelData();
+				GXLoadPosMtxImm(quad->unk4, GX_PNMTX0);
+				SMS_SettingDrawShape(shipModel, 0);
+				SMS_DrawShape(shipModel, 0);
+			}
+
+			GXClearVtxDesc();
+			GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+			GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+			GXLoadPosMtxImm(graphics->mViewMtx.mMtx, GX_PNMTX0);
+			SMS_DrawCube(min, max);
+
+			if (unk64) {
+				GXSetColorUpdate(GX_TRUE);
+				GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA,
+				               GX_BL_INVSRCALPHA, GX_LO_NOOP);
+				GXSetZMode(GX_TRUE, GX_ALWAYS, GX_FALSE);
+				SMS_DrawCube(min, max);
+			}
+		}
+	} else {
+		Mtx identity;
+		PSMTXIdentity(identity);
+		GXSetCurrentMtx(GX_PNMTX0);
+		GXLoadPosMtxImm(identity, GX_PNMTX0);
+		GXLoadNrmMtxImm(identity, GX_PNMTX0);
+
+		GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+		              GX_DF_NONE, GX_AF_NONE);
+		GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+		              GX_DF_NONE, GX_AF_NONE);
+		GXSetChanMatColor(GX_COLOR0A0, unk5C);
+		GXSetColorUpdate(GX_FALSE);
+		GXSetAlphaUpdate(GX_TRUE);
+		GXSetDstAlpha(GX_FALSE, 0);
+		SMS_SettingDrawShape(unk3C[0]->getModelData(), 0);
+
+		bool drawFlagged = (flags & 0x40000000) != 0;
+		for (int i = 0; i < unk14; ++i) {
+			TAlphaShadowQuad& quad = unk18[i];
+			bool flagged = (quad.unk68->unk20 & 0x40000000) != 0;
+			if (drawFlagged != flagged)
+				continue;
+
+			GXLoadPosMtxImm(quad.unk4, GX_PNMTX0);
+			GXSetCullMode(GX_CULL_BACK);
+			GXSetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ONE,
+			               GX_LO_NOOP);
+			SMS_DrawShape(unk3C[0]->getModelData(), 0);
+			GXSetCullMode(GX_CULL_FRONT);
+			GXSetBlendMode(GX_BM_SUBTRACT, GX_BL_ONE, GX_BL_ONE,
+			               GX_LO_NOOP);
+			SMS_DrawShape(unk3C[0]->getModelData(), 0);
+		}
+
+		GXSetCurrentMtx(GX_PNMTX0);
+		GXLoadPosMtxImm(identity, GX_PNMTX0);
+		GXClearVtxDesc();
+		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+		GXSetCullMode(GX_CULL_FRONT);
+		GXSetColorUpdate(GX_TRUE);
+		GXSetBlendMode(GX_BM_BLEND, GX_BL_DSTALPHA, GX_BL_INVDSTALPHA,
+		               GX_LO_NOOP);
+		GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
+
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition3f32(-1000.0f, 1000.0f, -200.0f);
+		GXPosition3f32(1000.0f, 1000.0f, -200.0f);
+		GXPosition3f32(1000.0f, -1000.0f, -200.0f);
+		GXPosition3f32(-1000.0f, -1000.0f, -200.0f);
+
+		GXSetColorUpdate(GX_TRUE);
+		GXSetAlphaUpdate(GX_TRUE);
+		GXSetDstAlpha(GX_TRUE, 0);
+		GXSetChanMatColor(GX_COLOR0A0, unk5C);
+		GXSetBlendMode(GX_BM_BLEND, GX_BL_DSTALPHA, GX_BL_INVDSTALPHA,
+		               GX_LO_NOOP);
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition3f32(-1000.0f, 1000.0f, -200.0f);
+		GXPosition3f32(1000.0f, 1000.0f, -200.0f);
+		GXPosition3f32(1000.0f, -1000.0f, -200.0f);
+		GXPosition3f32(-1000.0f, -1000.0f, -200.0f);
+	}
+
+	GXSetZCompLoc(GX_FALSE);
+	GXSetColorUpdate(GX_FALSE);
+	GXSetAlphaUpdate(GX_TRUE);
+	GXSetDstAlpha(GX_TRUE, 0);
 }
 
 void TMBindShadowManager::drawShadowVolume(bool high_quality,
