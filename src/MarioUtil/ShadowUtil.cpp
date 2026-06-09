@@ -409,8 +409,8 @@ void TMBindShadowManager::request(const TCircleShadowRequest& request,
 
 	TCircleShadowRequest& dst = unk10[requestCount];
 	dst                       = request;
-	dst.unk20                 = actor_type;
-	dst.unk18                 = distSq;
+	unk10[unk14].unk20       = actor_type;
+	unk10[unk14].unk18       = distSq;
 
 	if (request.unk1C == 2) {
 		if (unk40 >= 1)
