@@ -326,10 +326,9 @@ f32 TMapCollisionData::checkGround(f32 x, f32 y, f32 z, u8 flags,
 }
 
 inline static f32 crossXZ(const JGeometry::TVec2<f32>& a,
-                          const JGeometry::TVec2<f32>& b,
-                          const JGeometry::TVec2<f32>& c)
+                          const JGeometry::TVec2<f32>& b)
 {
-	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+	return a.x * b.y - a.y * b.x;
 }
 
 inline static bool LineInLineXZ(const JGeometry::TVec2<f32>& a1,
@@ -337,13 +336,29 @@ inline static bool LineInLineXZ(const JGeometry::TVec2<f32>& a1,
                                 const JGeometry::TVec2<f32>& b1,
                                 const JGeometry::TVec2<f32>& b2)
 {
-	f32 c1 = crossXZ(a1, a2, b1);
-	f32 c2 = crossXZ(a1, a2, b2);
+	JGeometry::TVec2<f32> a2a1(a2);
+	JGeometry::TVec2<f32> b1a1(b1);
+	a2a1.sub(a1);
+	b1a1.sub(a1);
+
+	JGeometry::TVec2<f32> b2a1(b2);
+	b2a1.sub(a1);
+
+	f32 c1 = crossXZ(a2a1, b1a1);
+	f32 c2 = crossXZ(a2a1, b2a1);
 	if (c1 * c2 > 0.0f)
 		return false;
 
-	f32 c3 = crossXZ(b1, b2, a1);
-	f32 c4 = crossXZ(b1, b2, a2);
+	JGeometry::TVec2<f32> b2b1(b2);
+	JGeometry::TVec2<f32> a1b1(a1);
+	b2b1.sub(b1);
+	a1b1.sub(b1);
+
+	JGeometry::TVec2<f32> a2b1(a2);
+	a2b1.sub(b1);
+
+	f32 c3 = crossXZ(b2b1, a1b1);
+	f32 c4 = crossXZ(b2b1, a2b1);
 	return c3 * c4 <= 0.0f;
 }
 
