@@ -1,12 +1,27 @@
 #include <Enemy/GateKeeper.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MSound/MSound.hpp>
 #include <Map/PollutionManager.hpp>
+#include <MarioUtil/TexUtil.hpp>
 #include <Strategic/Spine.hpp>
+#include <Strategic/ObjModel.hpp>
+#include <Strategic/Strategy.hpp>
+#include <System/FlagManager.hpp>
 #include <System/EmitterViewObj.hpp>
+#include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <dolphin/mtx.h>
+#include <string.h>
+
+DEFINE_NERVE(TNerveBGKSleep, TLiveActor)
+{
+	// TODO: recover the sleeping gatekeeper state.
+	return false;
+}
 
 const char* gatekeeper_bastable[] = {
 	"/scene/gatekeeper/bas/gene_pakkun_appear1.bas",
@@ -115,7 +130,111 @@ void TBiancoGateKeeper::kill()
 
 void TBiancoGateKeeper::init(TLiveManager* manager)
 {
-	TSpineEnemy::init(manager);
+	static const char enemyGroupName[]
+	    = "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76";
+	static const char riccoGateKeeperName[]
+	    = "\x83\x51\x81\x5B\x83\x67\x83\x4C\x81\x5B\x83\x70\x81\x5B\x81\x69"
+	      "\x83\x8A\x83\x52\x81\x6A";
+	static const char mammaGateKeeperName[]
+	    = "\x83\x51\x81\x5B\x83\x67\x83\x4C\x81\x5B\x83\x70\x81\x5B\x81\x69"
+	      "\x83\x7D\x83\x93\x83\x7D\x81\x6A";
+	static const char obstacleName[] = "TBGKObstacle";
+	static const char headHitName[]
+	    = "\x93\xAA\x83\x71\x83\x62\x83\x67";
+
+	mManager = manager;
+	mManager->manageActor(this);
+
+	mMActorKeeper = new TMActorKeeper(mManager, 3);
+	mMActor       = mMActorKeeper->createMActor("gene_pakkun_model1.bmd", 3);
+
+	if (strcmp(mName, riccoGateKeeperName) == 0) {
+		unk292 = 3;
+		if (!TFlagManager::smInstance->getBool(0x50001))
+			onLiveFlag(LIVE_FLAG_DEAD);
+	} else if (strcmp(mName, mammaGateKeeperName) == 0) {
+		unk292 = 4;
+		if (!TFlagManager::smInstance->getBool(0x50002))
+			onLiveFlag(LIVE_FLAG_DEAD);
+	} else if (gpMarDirector->mMap == 0) {
+		unk292 = 0;
+	} else if (gpMarDirector->mMap == 1) {
+		unk292 = 2;
+	} else {
+		unk292 = 1;
+	}
+
+	if (gpMarDirector->mMap == 1) {
+		unk150
+		    = mMActorKeeper->createMActor("stamp_keeper_model1.bmd", 3);
+		unk150->setBckFromIndex(19);
+
+		if (unk292 == 2)
+			unk164.scale(0.8f);
+		else if (unk292 == 3)
+			unk164.scale(1.2f);
+		else if (unk292 == 4)
+			unk164.scale(1.4f);
+	}
+
+	initHitActor(0x10000022, 5, 0x81000000, 400.0f, 150.0f, 400.0f,
+	             150.0f);
+	JDrama::TNameRefGen::search<TIdxGroupObj>(enemyGroupName)->add(this);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	mSpine->initWith(&TNerveBGKSleep::theNerve());
+
+	J3DModel* model = mMActor->getModel();
+	if (!model->getSkinDeform())
+		model->setSkinDeform(new J3DSkinDeform, J3D_DEFORM_ATTACH_FLAG_UNK_1);
+
+	unk178 = new TBGKMtxCalc(this);
+	mMActor->setCalcForBck((J3DMtxCalc*)unk178);
+
+	mHitPoints = 3;
+	mMActor->offMakeDL();
+
+	unk15C = new TMultiBtk(2, getModel()->getModelData());
+	MActorAnmDataEach<J3DAnmTextureSRTKey>* btkData
+	    = mMActorKeeper->getMActorAnmData()->getUnk38();
+	for (int i = 0; i < 2; ++i)
+		unk15C->setNthData(i, btkData->getAnmPtr(i));
+
+	unk28C = new TBGKObstacle(obstacleName);
+	unk28C->mPosition = mPosition;
+	unk28C->mPosition.y -= 1000.0f;
+	unk28C->initHitActor(0x10000022, 1, 0x80000000, 800.0f, 800.0f,
+	                      800.0f, 800.0f);
+	unk28C->offHitFlag(HIT_FLAG_NO_COLLISION);
+	JDrama::TNameRefGen::search<TIdxGroupObj>(enemyGroupName)->add(unk28C);
+
+	ResTIMG* tex = (ResTIMG*)JKRFileLoader::getGlbResource(
+	    "/scene/map/pollution/H_ma_rak.bti");
+	if (tex)
+		SMS_ChangeTextureAll(mMActor->getModel()->getModelData(),
+		                     "Q_kepper_dummy_128IA4", *tex);
+
+	initAnmSound();
+	(void)getBasNameTable();
+
+	unk174        = new TGKHitObj(headHitName);
+	unk174->unk68 = this;
+	unk174->unk6C = 10;
+	unk174->unk70 = 0;
+	unk174->initHitActor(0x10000022, 1, 0x80000000, 0.0f, 0.0f, 150.0f,
+	                      200.0f);
+	unk174->offHitFlag(HIT_FLAG_NO_COLLISION);
+	JDrama::TNameRefGen::search<TIdxGroupObj>(enemyGroupName)->add(unk174);
+
+	mMActor->calc();
+	if (unk150)
+		unk150->calc();
+
+	if (checkLiveFlag(LIVE_FLAG_DEAD)) {
+		onHitFlag(HIT_FLAG_NO_COLLISION);
+		unk174->onHitFlag(HIT_FLAG_NO_COLLISION);
+		unk28C->onHitFlag(HIT_FLAG_NO_COLLISION);
+	}
 }
 
 void TBGKMtxCalc::calc(u16 joint_no)

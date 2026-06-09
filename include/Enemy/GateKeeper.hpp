@@ -72,7 +72,7 @@ public:
 	/* 0x28A */ s16 unk28A;
 	/* 0x28C */ TBGKObstacle* unk28C;
 	/* 0x290 */ s16 unk290;
-	/* 0x292 */ u8 unk292;
+	/* 0x292 */ s8 unk292;
 	/* 0x293 */ u8 unk293;
 	/* 0x294 */ s16 unk294;
 	/* 0x296 */ u8 unk296;
@@ -111,7 +111,7 @@ public:
 class TBGKMtxCalc : public M3UMtxCalcSIAnmBlendQuat {
 public:
 	TBGKMtxCalc(TBiancoGateKeeper* owner)
-	    : M3UMtxCalcSIAnmBlendQuat(false)
+	    : M3UMtxCalcSIAnmBlendQuat(true)
 	    , unk64(owner)
 	{
 	}
