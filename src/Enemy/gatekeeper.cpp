@@ -126,6 +126,9 @@ void TBiancoGateKeeper::changeBck(int index)
 void TBiancoGateKeeper::kill()
 {
 	TGateKeeperBase::kill();
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+	unk174->onHitFlag(HIT_FLAG_NO_COLLISION);
+	unk28C->onHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 void TBiancoGateKeeper::init(TLiveManager* manager)
