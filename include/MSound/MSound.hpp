@@ -37,8 +37,8 @@ public:
 	static u16 setParameterSeqSync(JASystem::TTrack*, u16);
 	static void setWaterFilter(u16);
 	static void setWaterCameraFir(bool);
-	static u8 smTrackCategory;
-	static u8 smPolifonic;
+	static u16 smTrackCategory[32];
+	static u8 smPolifonic[16];
 	static u16 smWaterFilter;
 };
 

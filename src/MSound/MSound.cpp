@@ -24,8 +24,12 @@
 MSound* MSGMSound  = 0;
 JAIBasic* MSGBasic = 0;
 
-u8 MSSeCallBack::smTrackCategory;
-u8 MSSeCallBack::smPolifonic;
+u16 MSSeCallBack::smTrackCategory[32]
+    = { 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
+	    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
+	    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
+	    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF };
+u8 MSSeCallBack::smPolifonic[16] = { 0 };
 u16 MSSeCallBack::smWaterFilter;
 
 bool MSLoadWave::loadWaveBackword(int param_1, int param_2)
@@ -94,7 +98,138 @@ void MSSeCallBack::setWaterCameraFir(bool enabled)
 		smWaterFilter = 0;
 }
 
-u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param) { }
+u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
+{
+	static bool ukuleleFlag;
+
+	switch (param) {
+	case 0: {
+		u16 result = JAIBasic::setParameterSeqSync(track, param);
+		track->unk3C1 = 0x4A;
+		if (track->unk2C0->unk2C4[15] == track)
+			track->unk3C2 = 1;
+		return result;
+	}
+	case 0xC: {
+		u16 parentValue;
+		u16 targetValue;
+		u16 step;
+		u16 current;
+
+		track->unk2C0->readPortAppDirect(8, &parentValue);
+		track->readPortAppDirect(0xF, &targetValue);
+
+		u16 limit = parentValue > smWaterFilter ? parentValue : smWaterFilter;
+		if (limit != targetValue) {
+			track->readPortAppDirect(0xE, &current);
+			if (current > limit)
+				step = 0xFFEC;
+			else
+				step = 20;
+
+			track->writePortAppDirect(0xD, step);
+			track->writePortAppDirect(0xF, limit);
+			targetValue = limit;
+		} else {
+			track->readPortAppDirect(0xD, &step);
+		}
+
+		if (step != 0) {
+			track->readPortAppDirect(0xE, &current);
+			current += step;
+			if (current > 0x7FFF || current == 0) {
+				step    = 0;
+				current = 0;
+				track->writePortAppDirect(0xD, step);
+			} else if (targetValue != 0 && current > targetValue) {
+				current = targetValue;
+				step    = 0;
+				track->writePortAppDirect(0xD, step);
+			}
+
+			track->writePortAppDirect(0xE, current);
+			return 0x7F - current;
+		}
+
+		return 0xFF;
+	}
+	case 0xD: {
+		u16 parentValue;
+		track->unk2C0->readPortAppDirect(8, &parentValue);
+		u16 value = parentValue > smWaterFilter ? parentValue : smWaterFilter;
+		track->writePortAppDirect(0xE, value);
+		track->writePortAppDirect(0xF, value);
+		return 0x7F - value;
+	}
+	case 0xF:
+		return MSGMSound->unk94;
+	case 0x14: {
+		for (u16 i = 0; i < 2; ++i) {
+			JASystem::TTrack* parent = track->unk2C4[i];
+			for (u16 j = 0; j < 16; ++j) {
+				JASystem::TTrack* child = parent->unk2C4[j];
+				if (child == nullptr)
+					break;
+
+				u16* category = &smTrackCategory[i * 16 + j];
+				child->readPortAppDirect(9, category);
+				++smPolifonic[*category];
+			}
+		}
+
+		for (u16 i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); ++i) {
+		}
+
+		return 0;
+	}
+	case 0x1E: {
+		u16 result = JAIBasic::setParameterSeqSync(track, 0);
+		track->setPanSwitchParent(1, 0);
+		track->setPanSwitchParent(1, 1);
+		track->setPanSwitchParent(1, 2);
+		track->writeRegDirect(8, 0);
+		track->writeRegDirect(0xA, 0);
+		track->writeRegDirect(0xB, 0);
+		track->writeRegDirect(0xC, 0x7FFF);
+
+		JASystem::TTrack* parent = track->unk2C0;
+		if (parent != nullptr) {
+			parent->setPanSwitchExt(1, 0);
+			parent->setPanSwitchExt(1, 1);
+			parent->setPanSwitchExt(1, 2);
+			parent->writeRegDirect(8, 0);
+			parent->writeRegDirect(0xA, 0);
+			parent->writeRegDirect(0xB, 0x7FFF);
+			parent->writeRegDirect(0xC, 0);
+
+			if (parent->mOuterParam != nullptr) {
+				parent->mOuterParam->onSwitch(8);
+				parent->mOuterParam->onSwitch(4);
+				parent->mOuterParam->onSwitch(0x10);
+			}
+		}
+
+		*(u16*)((u8*)track + 0x13A) = 0xFFFF;
+		return result;
+	}
+	case 0x28:
+		MSGMSound->unkD1 = 1;
+		return 0;
+	case 0x6E:
+		if (MSGMSound->unkCD == 8 && MSGMSound->unkCE == 6)
+			return 0xFFFF;
+		return MSGMSound->unkCD;
+	case 0x78: {
+		ukuleleFlag = !ukuleleFlag;
+		return ukuleleFlag;
+	}
+	case 0x79: {
+		return ukuleleFlag;
+	}
+	default:
+		return JAIBasic::setParameterSeqSync(track, param);
+	}
+}
 
 JAISound* MSound::makeSound(u32 count)
 {
