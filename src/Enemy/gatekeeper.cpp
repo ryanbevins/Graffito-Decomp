@@ -1081,11 +1081,10 @@ void TBGKMtxCalc::calc(u16 joint_no)
 {
 	M3UMtxCalcSIAnmBlendQuat::calc(joint_no);
 
-	TBiancoGateKeeper* gatekeeper = unk64;
-	J3DModel* model              = gatekeeper->mMActor->getModel();
-	MtxPtr jointMtx              = model->mNodeMatrices[joint_no];
-
 	if (joint_no == 0x0B) {
+		TBiancoGateKeeper* gatekeeper = unk64;
+		J3DModel* model              = gatekeeper->mMActor->getModel();
+		MtxPtr jointMtx              = model->mNodeMatrices[joint_no];
 		MsMtxSetXYZRPH(jointMtx, gatekeeper->mPosition.x,
 		               gatekeeper->mPosition.y, gatekeeper->mPosition.z,
 		               gatekeeper->mRotation.x, gatekeeper->mRotation.y,
@@ -1096,6 +1095,10 @@ void TBGKMtxCalc::calc(u16 joint_no)
 
 	if (joint_no != 0)
 		return;
+
+	TBiancoGateKeeper* gatekeeper = unk64;
+	J3DModel* model              = gatekeeper->mMActor->getModel();
+	MtxPtr jointMtx              = model->mNodeMatrices[joint_no];
 
 	u8 map = gpMarDirector->mMap;
 	if (!(map == 3 || map == 4) && !(map == 1 || map == 2)) {
