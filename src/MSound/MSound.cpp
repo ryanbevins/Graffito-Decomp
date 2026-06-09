@@ -398,7 +398,16 @@ void MSound::setCategoryAllVolume(u8 category, f32 volume, u32 param3,
 
 void MSound::fadeOutAllSound(u32 fadeTime) { }
 
-void MSound::stopAllSound() { }
+void MSound::stopAllSound()
+{
+	for (u8 i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); ++i)
+		if (unk0->unk88.unk2[i])
+			stopAllSe(i);
+
+	MSBgm::stopTrackBGMs(7, 0);
+	if (unkC4)
+		unkC4->stop(0);
+}
 
 #pragma dont_inline on
 f32 MSoundSESystem::MSRandVol::getRandomVolumeNormal(u32 param)
