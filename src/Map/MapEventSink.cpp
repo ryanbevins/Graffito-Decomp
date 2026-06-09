@@ -134,7 +134,7 @@ void TMapEventSink::startControl()
 	unk3C     = dVar4 / iVar3;
 	unk4C     = unk40;
 
-	unk5C[unk28]->moveTrans(unk30->getTransformInfo().mTranslate);
+	unk5C[unk28]->setUpTrans(unk30->getTransformInfo().mTranslate);
 }
 
 void TMapEventSink::initBuilding(int index, JSUMemoryInputStream& stream)
