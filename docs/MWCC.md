@@ -8333,6 +8333,23 @@ confirmed in ≥2 TUs._
 
 ## Refuted / wrong turns
 
+### `#line` does not force MWCC local-class `$line` mangling
+
+**Symptom (`mario/MarioUtil/ShadowUtil`).** Target owns local `TGDLStatic`
+subclasses named from original source lines, e.g.
+`TMBindShadowManager::TCylinder$2171ShadowUtil_cpp` and
+`TSetup1$2172ShadowUtil_cpp`.
+
+**Tried & REFUTED:** wrapping local class declarations in
+`#line 2171 "ShadowUtil.cpp"` / `#line 2190 "ShadowUtil.cpp"` compiled, but
+MWCC still emitted class names from the physical current source lines
+(`TCylinder$625ShadowUtil_cpp`, `TSetup1$626ShadowUtil_cpp`, etc.). The target
+`$2171` / `$2172` helpers remained missing and the probe only added extras.
+
+**Conclusion.** Do not use `#line` as a local-class symbol-name lever. Recover
+these helpers by placing the local class declarations at matching physical
+lines or by accepting nonmatching helper names until source layout is ready.
+
 ### Explicit specialization declarations do not suppress local JGadget list iterator helper ownership in `MarDirectorInitECT`
 
 **Symptom.** `mario/System/MarDirectorInitECT` matches the target list-insert
