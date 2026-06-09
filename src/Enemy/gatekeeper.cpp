@@ -266,6 +266,88 @@ DEFINE_NERVE(TNerveBGKDive, TLiveActor)
 	return false;
 }
 
+DEFINE_NERVE(TNerveBGKDie, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		gatekeeper->changeBck(5);
+
+		if (!((gatekeeper->unk292 == 3 || gatekeeper->unk292 == 4)
+		      && gatekeeper->unk296 == 0)) {
+			snprintf((char*)gatekeeper->unk188, 0x100, "%s撃退カメラ",
+			         gatekeeper->getName());
+			gpMarDirector->fireStartDemoCamera(
+			    (char*)gatekeeper->unk188, &gatekeeper->mPosition, -1, 0.0f,
+			    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
+			MSBgm::stopTrackBGM(1, 10);
+
+			gatekeeper->mMActor->setBpkFromIndex(0);
+			J3DFrameCtrl* bpkCtrl = gatekeeper->mMActor->getFrameCtrl(2);
+			if (bpkCtrl) {
+				bpkCtrl->setFrame(0.0f);
+				bpkCtrl->setRate(SMSGetAnmFrameRate());
+			}
+
+			J3DModel* model      = gatekeeper->getModel();
+			JPABaseEmitter* emit = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0xA7, (MtxPtr)((u8*)model->mNodeMatrices + 0x120), 0,
+			    nullptr);
+			if (emit)
+				SMSSetEmitterPolColor(emit, 6);
+
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0xA8, (MtxPtr)gatekeeper->getModel()->mNodeMatrices, 0,
+			    nullptr);
+		}
+	}
+
+	if (spine->getTime() == 0x154) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1DF, (MtxPtr)gatekeeper->getModel()->mNodeMatrices, 2, nullptr);
+
+		if (gpMSound->gateCheck(0x38B0))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x38B0, &gatekeeper->mPosition, 0, nullptr, 0, 4);
+
+		if (SMS_IsMarioTouchGround4cm()) {
+			gatekeeper->unk29C = gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (SMS_IsMarioTouchGround4cm()) {
+		J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(0);
+		if (ctrl) {
+			f32 ratio = 1.0f - ctrl->getFrame() / ctrl->getEnd();
+			gatekeeper->unk29C = ratio * gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		if ((gatekeeper->unk292 == 3 || gatekeeper->unk292 == 4)
+		    && gatekeeper->unk296 == 0) {
+			++gatekeeper->unk296;
+			gatekeeper->mHitPoints = 3;
+
+			if (gatekeeper->unk292 == 4)
+				spine->pushAfterCurrent(&TNerveBGKLaunchName::theNerve());
+			else
+				spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
+
+			return true;
+		}
+
+		gatekeeper->unk160 = 0;
+		gatekeeper->kill();
+		return true;
+	}
+
+	return false;
+}
+
 DEFINE_NERVE(TNerveBGKSleepDamage, TLiveActor)
 {
 	TBiancoGateKeeper* gatekeeper
