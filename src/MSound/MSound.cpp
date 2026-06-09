@@ -408,11 +408,50 @@ void MSound::playTimer(u32 time) { }
 
 u32 MSound::startMarioVoice(u32 id, s16 param2, u8 param3) { return 0; }
 
-u32 MSound::getMarioVoiceID(u8 param) { return 0; }
+u32 MSound::getMarioVoiceID(u8 param)
+{
+	u8 index;
+	if (param & 2)
+		index = 1;
+	else
+		index = 0;
 
-void MSound::stopMarioVoice(u32 id, u8 param2) { }
+	JAISound* sound = ((JAISound**)&unk8C)[index];
+	if (sound != nullptr)
+		return sound->unk8;
 
-bool MSound::checkMarioVoicePlaying(u8 param) { return false; }
+	return -1;
+}
+
+void MSound::stopMarioVoice(u32 id, u8 param2)
+{
+	u8 index;
+	if (param2 & 2)
+		index = 1;
+	else
+		index = 0;
+
+	JAISound* sound = ((JAISound**)&unk8C)[index];
+	if (sound != nullptr) {
+		if (id != -1) {
+			if (id == sound->unk8)
+				sound->stop(1);
+		} else {
+			sound->stop(1);
+		}
+	}
+}
+
+JAISound* MSound::checkMarioVoicePlaying(u8 param)
+{
+	u8 index;
+	if (param & 2)
+		index = 1;
+	else
+		index = 0;
+
+	return ((JAISound**)&unk8C)[index];
+}
 
 u32 MSound::getWallSound(u32 param1, f32 param2)
 {
