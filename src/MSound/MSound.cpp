@@ -410,7 +410,37 @@ void MSound::talkModeIn(bool param)
 	}
 }
 
-void MSound::talkModeOut() { }
+void MSound::talkModeOut()
+{
+	bool canPlay;
+	if (!(unkA8 & 2))
+		canPlay = false;
+	else
+		canPlay = true;
+
+	if (canPlay) {
+		MSoundSESystem::MSoundSE::startSoundSystemSE(0x4805, 0, nullptr, 0);
+	}
+
+	for (u8 i = 0; i < 16; ++i) {
+		if (MSGMSound->unk0->unk88.unk2[i] && ((0x1FF >> i) & 1)
+		    && JAIBasic::basic != nullptr) {
+			s32 rawVolume = 127.0f * MSHandle::smSeCategory[i].unk8;
+			s32 categoryVolume;
+			if ((u8)rawVolume >= 127)
+				categoryVolume = 127;
+			else
+				categoryVolume = rawVolume;
+			JAIBasic::basic->setSeCategoryVolume(i, categoryVolume);
+		}
+	}
+
+	u8 mask = 7;
+	for (u8 i = 0; i < 3; ++i) {
+		if ((mask >> i) & 1)
+			MSBgm::setTrackVolume(i, 1.0f, 15, 3);
+	}
+}
 
 void MSound::setCategoryVOLs(u16 param1, f32 volume)
 {
