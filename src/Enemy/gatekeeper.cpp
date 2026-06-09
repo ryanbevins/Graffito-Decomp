@@ -1096,19 +1096,18 @@ void TBGKMtxCalc::calc(u16 joint_no)
 	if (joint_no != 0)
 		return;
 
-	TBiancoGateKeeper* gatekeeper = unk64;
-	J3DModel* model              = gatekeeper->mMActor->getModel();
+	J3DModel* model = unk64->mMActor->getModel();
 	MtxPtr jointMtx              = model->mNodeMatrices[joint_no];
 
 	if (!gpMarDirector->checkUnk124Thing2()
 	    && !gpMarDirector->isTalkModeNow()) {
-		if (gatekeeper->mMActor->checkCurBckFromIndex(0x0B)
-		    || gatekeeper->mMActor->checkCurBckFromIndex(0x12)
-		    || gatekeeper->mMActor->checkCurBckFromIndex(0x0F)
-		    || gatekeeper->mMActor->checkCurBckFromIndex(0x10)
-		    || gatekeeper->mMActor->checkCurBckFromIndex(0x0C)) {
+		if (unk64->mMActor->checkCurBckFromIndex(0x0B)
+		    || unk64->mMActor->checkCurBckFromIndex(0x12)
+		    || unk64->mMActor->checkCurBckFromIndex(0x0F)
+		    || unk64->mMActor->checkCurBckFromIndex(0x10)
+		    || unk64->mMActor->checkCurBckFromIndex(0x0C)) {
 			JGeometry::TVec3<f32> delta = *gpMarioPos;
-			delta.sub(gatekeeper->mPosition);
+			delta.sub(unk64->mPosition);
 
 			f32 targetYaw = MsGetRotFromZaxisY(delta);
 			while (targetYaw >= 180.0f)
@@ -1116,7 +1115,7 @@ void TBGKMtxCalc::calc(u16 joint_no)
 			while (targetYaw < -180.0f)
 				targetYaw += 360.0f;
 
-			f32 currentYaw = gatekeeper->mRotation.y + gatekeeper->unk180;
+			f32 currentYaw = unk64->mRotation.y + unk64->unk180;
 			while (currentYaw >= 180.0f)
 				currentYaw -= 360.0f;
 			while (currentYaw < -180.0f)
@@ -1133,13 +1132,13 @@ void TBGKMtxCalc::calc(u16 joint_no)
 					diff = -3.0f;
 			}
 
-			gatekeeper->unk180
-			    = MsWrap<f32>(currentYaw + diff - gatekeeper->mRotation.y, 0.0f,
+			unk64->unk180
+			    = MsWrap<f32>(currentYaw + diff - unk64->mRotation.y, 0.0f,
 			                  360.0f);
 		}
 	}
 
-	s16 angle = (s16)(gatekeeper->unk180 * (65536.0f / 360.0f));
+	s16 angle = (s16)(unk64->unk180 * (65536.0f / 360.0f));
 	f32 s     = JMASSin(angle);
 	f32 c     = JMASCos(angle);
 
