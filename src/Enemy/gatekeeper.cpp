@@ -132,7 +132,30 @@ DEFINE_NERVE(TNerveBGKAppear, TLiveActor)
 
 DEFINE_NERVE(TNerveBGKAwakeDamage, TLiveActor)
 {
-	// TODO: recover the awake damage gatekeeper state.
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(3);
+
+	BOOL animEnd = true;
+	J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(0);
+	if (ctrl) {
+		if (!ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+		    && !ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+		    && 0.1f + ctrl->getFrame() < ctrl->getEnd())
+			animEnd = false;
+	}
+
+	if (animEnd) {
+		if (gpMarDirector->mMap == 0)
+			spine->pushAfterCurrent(&TNerveBGKWait2::theNerve());
+		else
+			spine->pushAfterCurrent(&TNerveBGKWait::theNerve());
+
+		return true;
+	}
+
 	return false;
 }
 
