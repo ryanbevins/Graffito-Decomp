@@ -1610,9 +1610,18 @@ returns 0/1 either way).
 **How to apply.** Predicates whose declared return type doesn't match
 target's caller-side test should be flipped. The function body itself
 doesn't change semantically; if the implementation uses a result local, make
-that local match the new return type to avoid a boundary cast.
+that local match the new return type to avoid a boundary cast. Also audit
+wrapper predicates that simply return another predicate: if the wrapper's
+callers require `bool` but the wrapper body normalizes the wrapped call with
+`neg/subic/subfe`, the wrapped callee may need a `bool` declaration too.
 
 **Citations.**
+- `mario/MSound/MSound` (2026-06-09): `MSound::checkWaveOnAram` callers use
+  `clrlwi.`, so the wrapper must remain `bool`; its tail call to
+  `JAIBasic::checkSceneWaveOnMemory` normalized through `neg/subic/subfe`
+  while that callee was declared `BOOL`. Changing only
+  `checkSceneWaveOnMemory` to `bool` kept the JAudio owner exact and moved
+  `checkWaveOnAram` 94.5% -> 100% without caller regressions.
 - `NPC/NpcCallback::NPCNeckCallBack` (tick 148): `TBaseNPC::isNeedNeckStraight`
   was declared `BOOL` in our header, generating `cmpwi r3, 0` after the
   bl. Target uses `clrlwi. r0, r3, 24`. Changed declaration to `bool`

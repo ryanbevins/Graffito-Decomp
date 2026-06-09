@@ -389,7 +389,7 @@ void JAIBasic::loadSceneWave(s32 param1, s32 param2)
 	}
 }
 
-BOOL JAIBasic::checkSceneWaveOnMemory(s32 param1, s32 param2)
+bool JAIBasic::checkSceneWaveOnMemory(s32 param1, s32 param2)
 {
 	if (param2 == unk60[param1] && unk64[param1] == 2)
 		return 1;

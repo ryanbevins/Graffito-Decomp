@@ -83,7 +83,7 @@ public:
 	void setSceneSetFinishCallback(s32 param1, s32 param2);
 	static void finishSceneSet(u32 param);
 	void loadSceneWave(s32 param1, s32 param2);
-	BOOL checkSceneWaveOnMemory(s32 param1, s32 param2);
+	bool checkSceneWaveOnMemory(s32 param1, s32 param2);
 	void getWaveGroupNumber(s32 param);
 	void getWaveLoadStatus(s32 param);
 	void checkAllWaveLoadStatus();
