@@ -137,7 +137,19 @@ static inline void initMarioGoal(TSpineEnemy* sambo)
 
 DEFINE_NERVE(TNerveSamboHeadHitWall, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveSamboHeadRecoverWater, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveSamboHeadRecoverWater, TLiveActor)
+{
+	TSamboHead* self = (TSamboHead*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setBckAnm(12);
+
+	self->mRollAngle *= 0.99f;
+
+	if (self->checkCurAnmEnd(0) && self->mRollAngle < 1.0f)
+		return TRUE;
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveSamboHeadHitWater, TLiveActor) { return FALSE; }
 
