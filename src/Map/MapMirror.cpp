@@ -254,18 +254,39 @@ bool TMirrorModelManager::isInMirror(JGeometry::TVec3<f32>& param_1) const
 
 void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
-	JGeometry::TVec3<f32> local_44 = *gpMarioPos;
-	unk18 = gpCubeMirror->getDataNo(gpCubeMirror->getInCubeNo(local_44));
-	if (!(unk18 != -1 ? true : false)
-	    && !gpMarioGroundPlane[0]->checkFlag(BG_CHECK_FLAG_ILLEGAL)) {
-		unk24->unk84 = gpMarioGroundPlane[1]->mNormal;
-		unk24->unk90 = gpMarioGroundPlane[1]->mPlaneDistance;
+	if (param_1 & 1) {
+		JGeometry::TVec3<f32> local_44 = *gpMarioPos;
+		unk18 = gpCubeMirror->getDataNo(gpCubeMirror->getInCubeNo(local_44));
+		if (!(unk18 != -1 ? true : false)
+		    && !gpMarioGroundPlane[0]->checkFlag(BG_CHECK_FLAG_ILLEGAL)) {
+			unk24->unk84 = gpMarioGroundPlane[0]->mNormal;
+			unk24->unk90 = gpMarioGroundPlane[0]->mPlaneDistance;
 
-		JGeometry::TVec3<f32> local_7C;
-		local_7C.set(unk24->unk84);
-		f32 fVar4 = (local_7C.dot(gpCamera->unk124) - -unk24->unk90) * -2.0f;
-		unk24->unk98.scaleAdd(fVar4, gpCamera->unk124, local_7C);
-		// TODO: awful vector math, one of unused functions inlined
+			TMirrorCamera* camera = unk24;
+			JGeometry::TVec3<f32> normal;
+			normal.set(camera->unk84.x, camera->unk84.y, camera->unk84.z);
+			f32 planeDistance = -camera->unk90;
+
+			f32 scale
+			    = (normal.dot(gpCamera->unk124) - planeDistance) * -2.0f;
+			camera->unk98.x = normal.x * scale + gpCamera->unk124.x;
+			camera->unk98.y = normal.y * scale + gpCamera->unk124.y;
+			camera->unk98.z = normal.z * scale + gpCamera->unk124.z;
+
+			JGeometry::TVec3<f32> target;
+			scale = (normal.dot(gpCamera->unk148) - planeDistance) * -2.0f;
+			target.x = normal.x * scale + gpCamera->unk148.x;
+			target.y = normal.y * scale + gpCamera->unk148.y;
+			target.z = normal.z * scale + gpCamera->unk148.z;
+
+			JGeometry::TVec3<f32> up;
+			scale = (normal.dot(gpCamera->mUp) - planeDistance) * -2.0f;
+			up.x = normal.x * scale + gpCamera->mUp.x;
+			up.y = normal.y * scale + gpCamera->mUp.y;
+			up.z = normal.z * scale + gpCamera->mUp.z;
+
+			C_MTXLookAt(camera->unk30, &camera->unk98, &up, &target);
+		}
 	}
 
 	if (unk18 != -1) {
@@ -276,9 +297,41 @@ void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 			unk1C[unk18]->unk4->viewCalc();
 
 		if (param_1 & 0x200) {
-			unk1C[unk18]->setPlane();
+			TMirrorModel* mirror = unk1C[unk18];
+			mirror->setPlane();
 
-			// TODO: awful vector math, one of unused functions inlined
+			TMirrorCamera* camera = mirror->unk8;
+			JGeometry::TVec3<f32> normal;
+			normal.set(camera->unk84.x, camera->unk84.y, camera->unk84.z);
+			f32 planeDistance = -camera->unk90;
+
+			f32 scale
+			    = (normal.dot(gpCamera->unk124) - planeDistance) * -2.0f;
+			camera->unk98.scaleAdd(scale, gpCamera->unk124, normal);
+
+			JGeometry::TVec3<f32> target;
+			scale = (normal.dot(gpCamera->unk148) - planeDistance) * -2.0f;
+			target.scaleAdd(scale, gpCamera->unk148, normal);
+
+			JGeometry::TVec3<f32> up;
+			scale = (normal.dot(gpCamera->mUp) - planeDistance) * -2.0f;
+			up.scaleAdd(scale, gpCamera->mUp, normal);
+
+			C_MTXLookAt(camera->unk30, &camera->unk98, &up, &target);
+
+			Mtx lightMtx;
+			C_MTXLightPerspective(lightMtx, camera->unk80 * gpCamera->mFovy,
+			                      gpCamera->mAspect, 0.5f, -0.5f, 0.5f,
+			                      0.5f);
+			Mtx effectMtx;
+			MTXConcat(lightMtx, camera->unk30, effectMtx);
+
+			J3DMaterial* material = mirror->unk4->getModel()
+			                            ->getModelData()
+			                            ->getMaterialNodePointer(0);
+			material->change();
+			material->getTexGenBlock()->getTexMtx(0)->setEffectMtx(effectMtx);
+			mirror->unk4->entry();
 		}
 	}
 }
