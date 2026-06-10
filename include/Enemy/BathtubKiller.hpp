@@ -130,7 +130,7 @@ public:
 	/* 0x210 */ int unk210;
 	/* 0x214 */ int unk214;
 	/* 0x218 */ int unk218;
-	/* 0x21C */ u32 unk21C;
+	/* 0x21C */ s32 unk21C;
 	/* 0x220 */ TMtx34f unk220;
 };
 

@@ -521,6 +521,18 @@ void TKoopaJr::checkNerveKillerLaunchNormal()
 	    &TNerveKoopaJrSubmarineCannonOpenClose::theNerve());
 }
 
+void TKoopaJr::checkNerveKillerHit()
+{
+	TEnemyManager* manager = unk16C;
+	for (int i = 0; i < manager->getActiveObjNum(); ++i) {
+		TBathtubKiller* killer = (TBathtubKiller*)manager->getObj(i);
+		if (killer->unk21C == 1) {
+			mSpine->pushNerve(&TNerveKoopaJrYahoo::theNerve());
+			return;
+		}
+	}
+}
+
 TKoopaJrSubmarine::TKoopaJrSubmarine(const char* name)
     : TSpineEnemy(name)
     , unk164(0.0f)
