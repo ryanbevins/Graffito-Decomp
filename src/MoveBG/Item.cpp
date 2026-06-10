@@ -637,6 +637,7 @@ void TShine::control()
 			unk16C = 2.0f;
 
 		mRotation.y += unk16C;
+		MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
 
 		if (isLifeTimerActive())
 			return;
@@ -649,6 +650,7 @@ void TShine::control()
 		break;
 	case 0x11:
 		mRotation.y += unk16C;
+		MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
 
 		if (gpMSound->gateCheck(0x81C1))
 			MSoundSESystem::MSoundSE::startSoundActor(
