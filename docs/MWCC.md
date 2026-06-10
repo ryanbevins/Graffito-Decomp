@@ -5592,6 +5592,29 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Direct member expressions can avoid preserving owner locals across calls
+
+**Hypothesis.** If target asm reloads an owner/member pointer after a call, but
+current source keeps it live in a callee-saved GPR, removing the cached owner
+local and spelling the accesses as direct member expressions (`unk0->...`) can
+make MWCC treat the pointer as call-clobberable and reload it later. This can
+also reduce extra saved GPR pressure, but may shrink the stack frame and leave
+frame-size residue.
+
+**Observed.** `mario/Enemy/tinkoopa`
+`TTinKoopaLaunchOrder::checkOrder()` (2026-06-10 MNL): replacing
+`TTinKoopa* koopa = unk0` with direct `unk0->...` expressions, then writing the
+null actor branch as `if (!unk0->unk164) ... else ...`, matched the target's
+actor load/call branch shape and owner reloads. Combined with explicit branch
+temps for the count clamps, the function moved 66.9 -> 96.2. Remaining residue
+is stack frame size and register coloring.
+
+**Experiment to confirm/refute.** Find a second member-helper function where
+target reloads a member owner/pointer after an intervening call and current
+source preserves a local owner across that call. Toggle only the cached local
+to direct member expressions and verify whether MWCC drops the saved owner
+register without introducing repeated-load mismatches.
+
 ### Naming repeated float field reads can promote them into saved FPR lifetimes
 
 **Hypothesis.** When a hot expression repeats several struct float fields across
