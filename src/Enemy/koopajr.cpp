@@ -11,6 +11,7 @@
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
+#include <Strategic/Strategy.hpp>
 #include <System/Particles.hpp>
 #include <System/FlagManager.hpp>
 #include <math.h>
@@ -887,6 +888,51 @@ void TKoopaJrSubmarine::perform(u32 flags, JDrama::TGraphics* graphics)
 	TSpineEnemy::perform(flags, graphics);
 	unk1A4->perform(flags, graphics);
 	unk1A8->perform(flags, graphics);
+}
+
+void TKoopaJrSubmarine::init(TLiveManager* manager)
+{
+	mManager = manager;
+	mManager->manageActor(this);
+	initAnmSound();
+
+	f32 damageHeight = getSaveParam2()->mSLDamageHeight.get();
+	f32 damageRadius = getSaveParam2()->mSLDamageRadius.get();
+	initHitActor(0x8000020, 0, 0, 0.0f, 0.0f, damageRadius,
+	             damageHeight);
+	onHitFlag(1);
+
+	unk1A4 = new TCallbackHitActor("サブマリンリアボディ", this);
+	unk1A4->initHitActor(0x800002D, 0, 0, 0.0f, 0.0f, damageRadius,
+	                      damageHeight);
+	unk1A4->offHitFlag(1);
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(unk1A4);
+
+	unk1A8 = new TCallbackHitActor("サブマリンフロントボディ", this);
+	unk1A8->initHitActor(0x800002D, 0, 0, 0.0f, 0.0f, damageRadius,
+	                      damageHeight);
+	unk1A8->offHitFlag(1);
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(unk1A8);
+
+	mMActorKeeper = new TMActorKeeper(mManager, 1);
+	mMActor       = mMActorKeeper->createMActor("LastKoopaJrSubmarine.bmd", 0);
+	mMActor->setLightType(1);
+
+	mSpine->initWith(&TNerveKoopaJrSubmarineWait::theNerve());
+
+	JUTNameTab* jointNames = getModel()->mModelData->getJointName();
+	for (int i = 0; i < 5; ++i)
+		TKoopaJr_jointIndexTable[i]
+		    = jointNames->getIndex(TKoopaJr_jointNameTable[i]);
+
+	f32 scale = getSaveParam2()->mSLKoopaJrSubmarineScale.get();
+	mScaling.x = scale;
+	mScaling.y = scale;
+	mScaling.z = scale;
+
+	unk174  = new TBathtubBinder();
+	mBinder = unk174;
+	resetKoopaJrSubmarine();
 }
 
 void TKoopaJrSubmarine::resetKoopaJrSubmarine()
