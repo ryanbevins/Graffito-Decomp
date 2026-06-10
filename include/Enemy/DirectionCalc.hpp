@@ -15,11 +15,11 @@ public:
 	static f32 d2r(f32);
 
 	f32 absDirection(f32);
-	JGeometry::TVec3<f32> calcDirectionVector() const;
+	JGeometry::TVec3<f32> calcDirectionVector();
 	void makeDirection(JGeometry::TVec3<f32>);
 	f32 calcTurnDirection(f32, f32);
-	f32 calcNearerDirection(f32) const;
-	f32 sub(f32) const;
+	f32 calcNearerDirection(f32);
+	f32 sub(f32);
 
 public:
 	/* 0x0 */ f32 mDirection;

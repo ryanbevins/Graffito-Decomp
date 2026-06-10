@@ -59,6 +59,14 @@ template <> struct TUtil<f32> {
 		return 0.5f * root * (3.0f - mag * (root * root)) * mag;
 	}
 
+	static f32 mod(f32 value, f32 modulus)
+	{
+		if (__fabsf(modulus) > __fabsf(value))
+			return value;
+
+		return value - modulus * (f32)(u64)(value / modulus);
+	}
+
 	static f32 inv_sqrt(f32 mag);
 };
 
