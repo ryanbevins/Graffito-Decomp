@@ -65,15 +65,6 @@ static const char* sCannonDomPartsJointTable[] = {
 	"nullA",
 };
 
-static const char* cannonParticleFiles[] = {
-	"/scene/cannon/jpa/ms_cannon_a.jpa",
-	"/scene/cannon/jpa/ms_cannon_b.jpa",
-	"/scene/cannon/jpa/ms_cannon_c.jpa",
-	"/scene/cannon/jpa/ms_cannon_d.jpa",
-	"/scene/cannon/jpa/ms_cannon_e.jpa",
-	"/scene/cannon/jpa/ms_cannon_smoke.jpa",
-};
-
 static const f32 xzTable[] = {
 	1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
 };
@@ -1209,15 +1200,16 @@ void TCannon::init(TLiveManager* manager)
 
 void TCannon::loadAfter()
 {
-	for (int i = 0; i < 5; ++i)
-		SMS_LoadParticle(cannonParticleFiles[i], 0xe8 + i);
-
-	SMS_LoadParticle(cannonParticleFiles[5], 0x166);
+	SMS_LoadParticle("/scene/cannon/jpa/ms_cannon_a.jpa", 0xe8);
+	SMS_LoadParticle("/scene/cannon/jpa/ms_cannon_b.jpa", 0xe9);
+	SMS_LoadParticle("/scene/cannon/jpa/ms_cannon_c.jpa", 0xea);
+	SMS_LoadParticle("/scene/cannon/jpa/ms_cannon_d.jpa", 0xeb);
+	SMS_LoadParticle("/scene/cannon/jpa/ms_cannon_e.jpa", 0xec);
+	SMS_LoadParticle("/scene/cannon/jpa/ms_cannon_smoke.jpa", 0x166);
 
 	if (unk230 == 5) {
 		unk254 = JDrama::TNameRefGen::search<TMareGate>("efMareGate");
-		if (unk254 != nullptr)
-			((TMareGate*)unk254)->makeObjAppeared();
+		unk254->kill();
 	}
 }
 
