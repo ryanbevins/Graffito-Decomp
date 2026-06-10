@@ -73,7 +73,7 @@ public:
 
 class TTinKoopaPartsBase : public TLiveActor {
 public:
-	TTinKoopaPartsBase(const char*);
+	TTinKoopaPartsBase(const char*, s32, TTinKoopa*);
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor*, u32);

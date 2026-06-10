@@ -5,6 +5,7 @@
 #include <Enemy/EffectObj.hpp>
 #include <Enemy/Graph.hpp>
 #include <GC2D/GCConsole2.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -782,6 +783,119 @@ void TTinKoopa::makeLaunchSchedule()
 	order[10]->unkD = 1;
 }
 
+inline TTinKoopaFlame::TTinKoopaFlame(const char* name)
+    : THitActor(name)
+{
+}
+
+inline TTinKoopaPartsBase::TTinKoopaPartsBase(const char* name, s32 partIndex,
+                                              TTinKoopa* owner)
+    : TLiveActor(name)
+    , unkF8(0)
+    , unkFC(partIndex)
+    , unk100(owner)
+    , unk104(0)
+{
+}
+
+inline TTinKoopaLaunchOrder::TTinKoopaLaunchOrder(TTinKoopa* owner, s8 phase,
+                                                  s32 frame, s8 count,
+                                                  s8 direction)
+    : unk0(owner)
+    , unk4(phase)
+    , unk8(frame)
+    , unkC(count)
+    , unkD(direction)
+{
+}
+
+void TTinKoopa::init(TLiveManager* manager)
+{
+	mManager = manager;
+	mManager->manageActor(this);
+	mSpine->initWith(&TNerveTinKoopaWait::theNerve());
+
+	mMActorKeeper = new TMActorKeeper(mManager, 7);
+	mMActor       = mMActorKeeper->createMActor("tinkoopa_body.bmd", 0);
+
+	JUTNameTab* jointNames = getModel()->getModelData()->getJointName();
+	for (int i = 0; i < 15; ++i)
+		TTinKoopa_jointIndexTable[i]
+		    = jointNames->getIndex(TTinKoopa_jointNameTable[i]);
+
+	TTinKoopaFlame* flame = new TTinKoopaFlame("flame");
+	if (flame) {
+		flame->unk68 = this;
+
+		TTinKoopaParams* params
+		    = (TTinKoopaParams*)flame->unk68->getSaveParam();
+		f32 height = params->mSLFlameDamageHeight0.get();
+		params     = (TTinKoopaParams*)flame->unk68->getSaveParam();
+		flame->initHitActor(0x08000027, 0, 0, 0.0f, 0.0f,
+		                    params->mSLFlameDamageRadius0.get(), height);
+		flame->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+		JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(flame);
+
+		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
+		flame->unk70 = (s16)params->mSLFlameHP.get();
+		flame->unk6C = 1.0f;
+		flame->unk72 = 0;
+	}
+	unk160 = flame;
+
+	for (int i = 0; i < 6; ++i) {
+		TTinKoopaPartsBase* part
+		    = new TTinKoopaPartsBase(partsCollisionFileTable[i], i, this);
+		unk1CC[i] = part;
+		part->initTinKoopaPartsBase();
+	}
+
+	TTinKoopaParams* params = (TTinKoopaParams*)getSaveParam();
+	f32 height             = params->mSLDamageHeight0.get();
+	params                 = (TTinKoopaParams*)getSaveParam();
+	initHitActor(0x08000018, 1, 0, 0.0f, 0.0f,
+	             params->mSLDamageRadius.get(), height);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	mMActor->setLightType(1);
+
+	J3DModel* model = mMActor->getModel();
+	if (!model->getSkinDeform())
+		model->setSkinDeform(new J3DSkinDeform, J3D_DEFORM_ATTACH_FLAG_UNK_1);
+
+	calcRootMatrix();
+	mMActor->calc();
+
+	unk1EC = gpConductor->getGraphByName("killer");
+	unk1E8 = new f32[unk1EC->unk8 - 1];
+
+	JGeometry::TVec3<f32> prev = unk1EC->indexToPoint(0);
+	f32 total                  = 0.0f;
+	for (int i = 0; i < unk1EC->unk8 - 1; ++i) {
+		JGeometry::TVec3<f32> current = unk1EC->indexToPoint(i + 1);
+		JGeometry::TVec3<f32> diff;
+		diff.sub(prev, current);
+		unk1E8[i] = diff.length();
+		total += unk1E8[i];
+		prev = current;
+	}
+
+	unk1F4 = new TTinKoopaLaunchOrderTable;
+	if (unk1F4) {
+		unk1F4->unk0 = 11;
+		unk1F4->unk4 = this;
+		unk1F4->unk8 = new TTinKoopaLaunchOrder*[unk1F4->unk0];
+
+		for (int i = 0; i < unk1F4->unk0; ++i)
+			unk1F4->unk8[i] = new TTinKoopaLaunchOrder(this, 0, 0, 0, 0);
+	}
+
+	makeLaunchSchedule();
+	initAnmSound();
+	resetTinKoopa();
+}
+
 BOOL TTinKoopaPartsBase::receiveMessage(THitActor* sender, u32)
 {
 	if (sender->mActorType == 0x1000002b) {
@@ -1057,6 +1171,7 @@ void TTinKoopaPartsBase::startBreaking()
 	}
 }
 
+#pragma dont_inline on
 void TTinKoopaPartsBase::initTinKoopaPartsBase()
 {
 	initHitActor(partsHitActorTypeTable[unkFC], 0, 0, 0.0f, 0.0f, 0.0f,
@@ -1080,3 +1195,4 @@ void TTinKoopaPartsBase::initTinKoopaPartsBase()
 	unkF8 = 0;
 	unkF4->setUpTrans(zero);
 }
+#pragma dont_inline off
