@@ -1217,8 +1217,7 @@ void TCannon::load(JSUMemoryInputStream& stream)
 {
 	TSmallEnemy::load(stream);
 	setMActorAndKeeper();
-	TSpineEnemyParams* params = getSaveParam();
-	mHitPoints = params ? params->mSLHitPointMax.get() : 1;
+	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
 	unk230 = gpApplication.mCurrArea.unk0;
 	unk23C = mPosition;
 }
