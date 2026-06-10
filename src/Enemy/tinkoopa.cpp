@@ -50,6 +50,8 @@ static u32 TTinKoopa_jointIndexTable[15];
 
 static const int partsBreakBckTable[] = { 0, 4, 11, 9, 10, 0 };
 
+static const int waitBckTable[] = { 12, 13, 14, 15, 16 };
+
 static const char* breastTrackJointNameTable[] = {
 	"breast_1", "breast_2", "breast_3", "breast_4", "breast_5", "breast_6",
 };
@@ -307,6 +309,69 @@ void TTinKoopa::resetTinKoopa()
 	unk1B8                 = 30.0f;
 	unk1BC                 = 15.0f;
 	unk1C0                 = 45.0f;
+}
+
+void TTinKoopa::reset()
+{
+	TSpineEnemy::reset();
+
+	TTinKoopaFlame* flame = unk160;
+	TTinKoopaParams* params
+	    = (TTinKoopaParams*)flame->unk68->getSaveParam();
+	flame->unk70 = (s16)params->mSLFlameHP.get();
+	flame->unk6C = 1.0f;
+	flame->unk72 = 0;
+
+	for (int i = 0; i < 6; ++i)
+		unk1CC[i]->reset();
+
+	if (unk150 == 0) {
+		params       = (TTinKoopaParams*)getSaveParam();
+		f32 height   = params->mSLDamageHeight0.get();
+		params       = (TTinKoopaParams*)getSaveParam();
+		mAttackRadius = 0.0f;
+		mAttackHeight = 0.0f;
+		mDamageRadius = params->mSLDamageRadius.get();
+		mDamageHeight = height;
+		calcEntryRadius();
+	} else if (unk150 == 1) {
+		params       = (TTinKoopaParams*)getSaveParam();
+		f32 height   = params->mSLDamageHeight1.get();
+		params       = (TTinKoopaParams*)getSaveParam();
+		mAttackRadius = 0.0f;
+		mAttackHeight = 0.0f;
+		mDamageRadius = params->mSLDamageRadius.get();
+		mDamageHeight = height;
+		calcEntryRadius();
+	}
+
+	flame = unk160;
+	if (flame->unk68->unk150 == 0) {
+		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
+		f32 height   = params->mSLFlameDamageHeight0.get();
+		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
+		flame->mAttackRadius = 0.0f;
+		flame->mAttackHeight = 0.0f;
+		flame->mDamageRadius = params->mSLFlameDamageRadius0.get();
+		flame->mDamageHeight = height;
+		flame->calcEntryRadius();
+	} else if (flame->unk68->unk150 == 1) {
+		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
+		f32 height   = params->mSLFlameDamageHeight1.get();
+		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
+		flame->mAttackRadius = 0.0f;
+		flame->mAttackHeight = 0.0f;
+		flame->mDamageRadius = params->mSLFlameDamageRadius1.get();
+		flame->mDamageHeight = height;
+		flame->calcEntryRadius();
+	}
+
+	resetTinKoopa();
+
+	int bck = waitBckTable[unk150];
+	mMActor->setBckFromIndex(bck);
+	const char** bas = getBasNameTable();
+	setAnmSound(bas ? bas[bck] : nullptr);
 }
 
 void TTinKoopaMtxCalc::calc(u16 index)
