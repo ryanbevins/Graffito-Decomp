@@ -447,7 +447,7 @@ DEFINE_NERVE(TNerveCannonShoot, TLiveActor)
 			return FALSE;
 		} else if (self->unk1A8->unk6C->getMActor()->checkCurBckFromIndex(16)) {
 			if (self->unk1A8->unk6C->getMActor()->curAnmEndsNext(0, nullptr)) {
-				spine->pushNerve(&TNerveCannonSearch::theNerve());
+				spine->pushAfterCurrent(&TNerveCannonSearch::theNerve());
 				return TRUE;
 			}
 
