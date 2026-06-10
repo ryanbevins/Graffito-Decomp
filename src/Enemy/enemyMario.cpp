@@ -17,6 +17,7 @@
 #include <Player/MarioRecord.hpp>
 #include <System/Application.hpp>
 #include <System/EmitterViewObj.hpp>
+#include <System/MarioGamePad.hpp>
 #include <System/MSoundMainSide.hpp>
 #include <System/MarDirector.hpp>
 #include <dolphin/gx.h>
@@ -162,6 +163,11 @@ inline u8* emController(TEnemyMario* mario)
 	return *(u8**)((u8*)mario + 0x108);
 }
 
+inline TMarioControllerWork* emControllerWork(TEnemyMario* mario)
+{
+	return (TMarioControllerWork*)emController(mario);
+}
+
 inline u32& emControllerFlags(TEnemyMario* mario)
 {
 	return *(u32*)(emController(mario) + 4);
@@ -218,6 +224,14 @@ inline f32 distanceFromPos(const JGeometry::TVec3<f32>& pos, const Vec& point)
 	f32 dy = pos.y - point.y;
 	f32 dz = pos.z - point.z;
 	return JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+inline void playInputReplay(TEnemyMario* mario, TMarioInputReplay* replay)
+{
+	u8* controller = emController(mario);
+	replay->play(&mario->mIntendedMag, &mario->mIntendedYaw,
+	             (u32*)(controller + 4), (u32*)(controller + 8),
+	             controller + 0xD, controller + 0xC);
 }
 
 inline JGeometry::TVec3<f32>& emDownPos(TEnemyMario* mario)
@@ -303,8 +317,106 @@ void TEnemyMario::playerControl(JDrama::TGraphics* graphics)
 
 void TEnemyMario::checkController(JDrama::TGraphics* graphics)
 {
+	f32 dx        = gpMarioPos->x - mPosition.x;
+	f32 dz        = gpMarioPos->z - mPosition.z;
+	emTargetYaw(this) = matan(dz, dx);
+	emDistToMario(this) = JGeometry::TUtil<f32>::sqrt(dx * dx + dz * dz);
+
+	TMarioControllerWork* controller = emControllerWork(this);
+	u32 prevInput                   = controller->mInput;
+	controller->mStickHS16          = 0;
+	controller->mStickVS16          = 0;
+	controller->mInput              = (TMarioControllerWork::Buttons)0;
+	controller->mFrameInput         = (TMarioControllerWork::Buttons)0;
+	controller->mAnalogRU8          = 0;
+	controller->mAnalogLU8          = 0;
+
 	consider();
-	playerControl(graphics);
+
+	controller->mStickH = 0.0f;
+	controller->mStickV = 0.0f;
+
+	if (controller->mStickHS16 <= -7)
+		controller->mStickH = controller->mStickHS16 + 6;
+	if (controller->mStickHS16 >= 7)
+		controller->mStickH = controller->mStickHS16 - 6;
+	if (controller->mStickVS16 <= -7)
+		controller->mStickV = controller->mStickVS16 + 6;
+	if (controller->mStickVS16 >= 7)
+		controller->mStickV = controller->mStickVS16 - 6;
+
+	f32 stickLen = JGeometry::TUtil<f32>::sqrt(
+	    controller->mStickH * controller->mStickH
+	    + controller->mStickV * controller->mStickV);
+	controller->mStickDist = stickLen;
+	if (controller->mStickDist > 1500.0f) {
+		f32 scale = 1500.0f / controller->mStickDist;
+		controller->mStickH *= scale;
+		controller->mStickV *= scale;
+		controller->mStickDist = 1500.0f;
+	}
+
+	controller->mFrameInput
+	    = (TMarioControllerWork::Buttons)(controller->mInput
+	                                      & (controller->mInput ^ prevInput));
+
+	mIntendedMag = 1500.0f
+	    * ((controller->mStickDist * 100.0f)
+	       * (controller->mStickDist * 100.0f))
+	    * 3000.0f;
+	if (mIntendedMag > 0.0f)
+		mIntendedYaw = matan(-controller->mStickV, controller->mStickH);
+	else
+		mIntendedYaw = emTargetYaw(this);
+
+	if (emDoing(this) == 0xB)
+		emReplay();
+
+	if (emDoing(this) == 0x11) {
+		TMarioInputReplay* replay
+		    = emInputReplayArray(this)[emReplayIndex(this)];
+		playInputReplay(this, replay);
+		replay = emInputReplayArray(this)[emReplayIndex(this)];
+		if (emInputReplayCanPlay(replay) != 1) {
+			changePlayerStatus(0x133E, 0, true);
+			setAnimation(0x114, 1.0f);
+			emTimer(this) = 0;
+			emDoing(this) = 0x14;
+		}
+	}
+
+	if (emDoing(this) == 0x15) {
+		playInputReplay(this, emInputReplay(this));
+		if (emInputReplayCanPlay(emInputReplay(this)) != 1) {
+			changePlayerStatus(0x133E, 0, true);
+			setAnimation(0x114, 1.0f);
+			emTimer(this) = 0;
+			emDoing(this) = 0x18;
+		}
+	}
+
+	if (emDoing(this) == 0x19) {
+		TMarioInputReplay* replay
+		    = emInputReplayArray(this)[emReplayIndex(this)];
+		playInputReplay(this, replay);
+		replay = emInputReplayArray(this)[emReplayIndex(this)];
+		if (emInputReplayCanPlay(replay) != 1) {
+			emFlags(this) |= 1;
+			changeEMDoing(0x16);
+		}
+	}
+
+	if (mIntendedMag > 0.0f)
+		mInput |= 1;
+
+	if (controller->mFrameInput & 0x100)
+		mInput |= 2;
+	if (controller->mInput & 0x100)
+		mInput |= 0x80;
+	if (controller->mInput & 0x200)
+		mInput |= 0x4000;
+	if (controller->mFrameInput & 0x200)
+		mInput |= 0x8000;
 }
 
 void TEnemyMario::checkReturn()
