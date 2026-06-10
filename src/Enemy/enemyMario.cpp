@@ -48,6 +48,21 @@ static const char* cDirtyTexName  = "H_ma_rak_dummy";
 
 namespace {
 
+static const char* sEnemyMarioModelNames[] = {
+	"マリオモドキ_0", "マリオモドキ_1", "マリオモドキ_2",
+	"マリオモドキ_3", "モンテマン",
+};
+
+static const char* sEnemyMarioBmdFileNames[] = {
+	"/kagemario/kagemario_model.bmd",
+	"/kagemario/kagemario_model.bmd",
+	"/kagemario/kagemario_model.bmd",
+	"/kagemario/kagemario_model.bmd",
+	"/scene/map/map/pad/monteman_model.bmd",
+	nullptr,
+	nullptr,
+};
+
 class TEnemyMarioParams : public TParams {
 public:
 	TEnemyMarioParams(const char* path, bool can_carry)
@@ -1633,25 +1648,50 @@ void TEnemyMario::initEnemyValues()
 	emEnemyModelScale(this) = 3.0f;
 	emDisappearPos(this).set(zero, zero, zero);
 
-	void* brushResource = JKRFileLoader::getGlbResource(
-	    "/scene/kagemario/kagemario_brush.bmd");
-	J3DModelData* brushData
-	    = J3DModelLoaderDataBase::load(brushResource, 0x11040000);
-	emEnemyShadowModel(this) = new J3DModel(brushData, 0, 1);
+	int modelType = 6;
+	for (int i = 0; i < 5; ++i) {
+		if (strcmp(sEnemyMarioModelNames[i], emOwner(this)->getName()) == 0) {
+			modelType = i;
+			break;
+		}
+	}
 
-	ResTIMG* dirtyTexture
-	    = (ResTIMG*)JKRFileLoader::getGlbResource(cDirtyFileName);
-	if (dirtyTexture != nullptr)
-		SMS_ChangeTextureAll(brushData, cDirtyTexName, *dirtyTexture);
+	J3DModelData* enemyModelData = nullptr;
+	if (modelType >= 0 && modelType < 4) {
+		unk388 = 1;
+	} else if (modelType == 4) {
+		void* enemyResource
+		    = JKRFileLoader::getGlbResource(sEnemyMarioBmdFileNames[modelType]);
+		enemyModelData
+		    = J3DModelLoaderDataBase::load(enemyResource, 0x10040000);
+		unk388 = 2;
+	}
 
-	emEnemyMActor(this) = SMS_MakeMActor(
-	    "/scene/kagemario/stamp_koopa_sign",
-	    "/scene/kagemario/stamp_koopa_sign/stamp_koopa_sign_model1.bmd", 3,
-	    0x10210000);
+	if (enemyModelData != nullptr) {
+		unk388             = 2;
+		emEnemyModel(this) = new J3DModel(enemyModelData, 0, 1);
+	} else {
+		unk388 = 1;
+		void* brushResource = JKRFileLoader::getGlbResource(
+		    "/scene/kagemario/kagemario_brush.bmd");
+		J3DModelData* brushData
+		    = J3DModelLoaderDataBase::load(brushResource, 0x11040000);
+		emEnemyShadowModel(this) = new J3DModel(brushData, 0, 1);
 
-	SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_change.jpa", 0xED);
-	SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_move_a.jpa", 0x1AA);
-	SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_move_b.jpa", 0x1AB);
+		ResTIMG* dirtyTexture
+		    = (ResTIMG*)JKRFileLoader::getGlbResource(cDirtyFileName);
+		if (dirtyTexture != nullptr)
+			SMS_ChangeTextureAll(brushData, cDirtyTexName, *dirtyTexture);
+
+		emEnemyMActor(this) = SMS_MakeMActor(
+		    "/scene/kagemario/stamp_koopa_sign",
+		    "/scene/kagemario/stamp_koopa_sign/stamp_koopa_sign_model1.bmd", 3,
+		    0x10210000);
+
+		SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_change.jpa", 0xED);
+		SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_move_a.jpa", 0x1AA);
+		SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_move_b.jpa", 0x1AB);
+	}
 
 	int flagState = TFlagManager::smInstance->getFlag(0x60003);
 	if (flagState == 0) {
