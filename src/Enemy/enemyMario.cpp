@@ -25,6 +25,7 @@
 #include <System/MSoundMainSide.hpp>
 #include <System/MarDirector.hpp>
 #include <dolphin/gx.h>
+#include <math.h>
 #include <stdlib.h>
 
 static const char* cDirtyFileName = "/scene/map/pollution/H_ma_rak.bti";
@@ -105,6 +106,16 @@ inline f32& emRunAwaySpeed(TEnemyMario* mario)
 inline s16& emWaterCooldown(TEnemyMario* mario)
 {
 	return *(s16*)((u8*)mario + 0x42BA);
+}
+
+inline f32& emJumpSpeedCap(TEnemyMario* mario)
+{
+	return *(f32*)((u8*)mario + 0x42BC);
+}
+
+inline u8*& emReplayLinkTable(TEnemyMario* mario)
+{
+	return *(u8**)((u8*)mario + 0x4304);
 }
 
 inline J3DModel*& emEnemyModel(TEnemyMario* mario)
@@ -238,6 +249,21 @@ inline f32 distanceFromPos(const JGeometry::TVec3<f32>& pos, const Vec& point)
 	f32 dy = pos.y - point.y;
 	f32 dz = pos.z - point.z;
 	return JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+inline void normalizeDir(Vec* dir)
+{
+	f32 len = dir->x * dir->x + dir->y * dir->y + dir->z * dir->z;
+	if (len <= 0.0000038146973f) {
+		dir->x = 0.0f;
+		dir->y = 0.0f;
+		dir->z = 0.0f;
+	} else {
+		f32 invLen = JGeometry::TUtil<f32>::inv_sqrt(len);
+		dir->x *= invLen;
+		dir->y *= invLen;
+		dir->z *= invLen;
+	}
 }
 
 inline void playInputReplay(TEnemyMario* mario, TMarioInputReplay* replay)
@@ -962,7 +988,151 @@ void TEnemyMario::emDownAnimation()
 	}
 }
 
-void TEnemyMario::emReplayJumpToNearestNode() { }
+void TEnemyMario::emReplayJumpToNearestNode()
+{
+	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
+	int node         = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+	if (graph->getGraphNode(node).checkFlag(2)) {
+		emControllerFlags2(this) |= 0x100;
+		emControllerFlags(this) |= 0x100;
+		if (mVel.y > emJumpSpeedCap(this))
+			mVel.y = emJumpSpeedCap(this);
+	}
+
+	emTimer(this)++;
+
+	graph = emOwner(this)->unk124->getGraph();
+	node  = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+	TGraphNode* currentNode = &graph->getGraphNode(node);
+
+	Vec currentPoint;
+	currentNode->getPoint(&currentPoint);
+
+	mPosition.x += (currentPoint.x - mPosition.x) * 0.05f;
+	mPosition.z += (currentPoint.z - mPosition.z) * 0.05f;
+	mPosition.y += (currentPoint.y - mPosition.y) * 0.05f;
+
+	if (mAction != 0x0C400201) {
+		int nearest = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+		if (graph->getGraphNode(nearest).checkFlag(2))
+			return;
+
+		mPosition = currentPoint;
+		mVel.x = mVel.y = mVel.z = mForwardVel = 0.0f;
+		resetHistory();
+		changePlayerStatus(0x0C400201, 0, true);
+	}
+
+	u8* links = emReplayLinkTable(this) + node * 6;
+
+	Vec marioDir;
+	marioDir.x = gpMarioPos->x - currentPoint.x;
+	marioDir.y = gpMarioPos->y - currentPoint.y;
+	marioDir.z = gpMarioPos->z - currentPoint.z;
+	normalizeDir(&marioDir);
+
+	TGraphNode* targetNode = nullptr;
+	u8* settings          = emSettings(this);
+
+	if (settings[0x7C] == 0) {
+		f32 best = 1.0f;
+		for (int i = 0; i < 3; ++i) {
+			u8 nextNode = links[i * 2];
+			if (nextNode == 0xFF)
+				continue;
+
+			TGraphNode* candidateNode = &graph->getGraphNode(nextNode);
+			Vec candidatePoint;
+			candidateNode->getPoint(&candidatePoint);
+
+			Vec candidateDir;
+			candidateDir.x = candidatePoint.x - currentPoint.x;
+			candidateDir.y = candidatePoint.y - currentPoint.y;
+			candidateDir.z = candidatePoint.z - currentPoint.z;
+			normalizeDir(&candidateDir);
+
+			f32 dot = marioDir.x * candidateDir.x
+			          + marioDir.y * candidateDir.y
+			          + marioDir.z * candidateDir.z;
+			if (dot < best) {
+				best                 = dot;
+				targetNode           = candidateNode;
+				emReplayIndex(this) = links[i * 2 + 1];
+			}
+		}
+	} else {
+		int candidateSlots[3];
+		f32 weights[3];
+		int count = 0;
+
+		for (int i = 0; i < 3; ++i) {
+			weights[i] = 0.0f;
+			u8 nextNode = links[i * 2];
+			if (nextNode == 0xFF)
+				continue;
+
+			Vec candidatePoint;
+			graph->getGraphNode(nextNode).getPoint(&candidatePoint);
+
+			Vec candidateDir;
+			candidateDir.x = candidatePoint.x - currentPoint.x;
+			candidateDir.y = candidatePoint.y - currentPoint.y;
+			candidateDir.z = candidatePoint.z - currentPoint.z;
+			normalizeDir(&candidateDir);
+
+			weights[count] = marioDir.x * candidateDir.x
+			                 + marioDir.y * candidateDir.y
+			                 + marioDir.z * candidateDir.z;
+			candidateSlots[count] = i;
+			count++;
+		}
+
+		f32 total = 0.0f;
+		for (int i = 0; i < count; ++i) {
+			weights[i] = powf(1.0f - weights[i], emSettingF32(this, 0xB8));
+			total += weights[i];
+		}
+
+		if (total != 0.0f) {
+			for (int i = 0; i < count; ++i)
+				weights[i] /= total;
+		}
+
+		int choice = 0;
+		f32 roll  = rand() * 0.000030517578f;
+		for (int i = 0; i < count; ++i) {
+			roll -= weights[i];
+			if (roll <= 0.0f) {
+				choice = i;
+				break;
+			}
+		}
+
+		if (count > 0) {
+			int slot             = candidateSlots[choice];
+			emReplayIndex(this) = links[slot * 2 + 1];
+			targetNode          = &graph->getGraphNode(links[slot * 2]);
+		}
+	}
+
+	Vec targetPoint = currentPoint;
+	if (targetNode != nullptr)
+		targetNode->getPoint(&targetPoint);
+
+	mPosition = currentPoint;
+	mFaceAngle.y
+	    = matan(targetPoint.z - currentPoint.z, targetPoint.x - currentPoint.x);
+	mVel.x = mVel.y = mVel.z = mForwardVel = 0.0f;
+	resetHistory();
+	changePlayerStatus(0x0C400201, 0, true);
+
+	TMarioInputReplay* replay = emInputReplayArray(this)[emReplayIndex(this)];
+	replay->reset();
+	emInputReplayCanPlay(replay) = 1;
+
+	emTimer(this) = 0;
+	emDoing(this) = 0xB;
+}
 
 void TEnemyMario::emReplay()
 {
