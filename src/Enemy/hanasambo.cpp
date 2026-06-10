@@ -448,7 +448,37 @@ DEFINE_NERVE(TNerveHanaSamboHide, TLiveActor) { return FALSE; }
 
 DEFINE_NERVE(TNerveHanaSamboAttack, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveHanaSamboWait, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveHanaSamboWait, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setWaitAnm();
+
+	if (!self->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		if (self->mMActor->getFrameCtrl(0)->checkPass(0.001f))
+			self->createPollen();
+	}
+
+	if (spine->getTime() > self->mParams->mSLAttackInterval.get()
+	    && gpMarioPos->y < self->mPosition.y + 12.0f) {
+		self->updateSquareToMario();
+		f32 attackDist = self->mParams->mSLAttackDist.get();
+		if (self->mDistToMarioSquared < attackDist * attackDist) {
+			spine->pushAfterCurrent(&TNerveHanaSamboAttack::theNerve());
+			return TRUE;
+		}
+	}
+
+	self->updateSquareToMario();
+	f32 hideDist = self->mParams->mSLHideDist.get();
+	if (self->mDistToMarioSquared > hideDist * hideDist) {
+		spine->pushAfterCurrent(&TNerveHanaSamboHide::theNerve());
+		return TRUE;
+	}
+
+	self->walkToCurPathNode(16.0f, self->mTurnSpeed, 16.0f);
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveHanaSamboAppear, TLiveActor) { return FALSE; }
 
@@ -1225,7 +1255,35 @@ bool THanaSambo::isHitValid(u32 message)
 
 bool THanaSambo::isCollidMove(THitActor*) { return false; }
 
-void THanaSambo::createPollen() { }
+void THanaSambo::createPollen()
+{
+	MtxPtr jointMtx = mMActor->getModel()->mNodeMatrices[mPollenJntIndex];
+	JGeometry::TVec3<f32> pos(jointMtx[0][3], jointMtx[1][3],
+	                          jointMtx[2][3]);
+
+	Mtx mtx;
+	MsMtxSetRotRPH(mtx, 0.0f, 0.0f, -90.0f);
+	PSMTXConcat(jointMtx, mtx, mtx);
+
+	JPABaseEmitter* emitter;
+	if (mSpine->getCurrentNerve() == &TNerveHanaSamboWait::theNerve()) {
+		emitter = gpMarioParticleManager->emit(0xB2, &pos, 0, nullptr);
+		mtx[1][3] += 2000.0f;
+	} else {
+		emitter = gpMarioParticleManager->emit(0xB3, &pos, 0, nullptr);
+
+		JGeometry::TVec3<f32> offset(0.0f, 0.0f, 2000.0f);
+		Mtx rot;
+		MsMtxSetRotRPH(rot, mRotation.x, mRotation.y, mRotation.z);
+		PSMTXMultVec(rot, &offset, &offset);
+		mtx[0][3] += offset.x;
+		mtx[1][3] += offset.y;
+		mtx[2][3] += offset.z;
+	}
+
+	if (emitter)
+		emitter->setGlobalSRTMatrix(mtx);
+}
 
 BOOL THanaSamboHead::receiveMessage(THitActor*, u32 message)
 {
