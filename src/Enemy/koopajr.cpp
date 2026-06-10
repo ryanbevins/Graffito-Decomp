@@ -799,6 +799,38 @@ void TKoopaJrSubmarine::bind()
 	unk174->bind(this);
 }
 
+void TKoopaJrSubmarine::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 2) {
+		if (mSpine->getCurrentNerve()
+		    == &TNerveKoopaJrSubmarineLaunchKiller::theNerve()) {
+			if (unk180 < unk184 && unk150 <= 0) {
+				launchKiller();
+				s32 killerType = unk178[unk180];
+				if (killerType == 2)
+					unk150 = getSaveParam2()->mSLKillerIntervalFast.get();
+				else
+					unk150 = getSaveParam2()->mSLKillerInterval.get();
+				++unk180;
+			}
+		}
+
+		makeCollisionPositions();
+		moveSwing();
+	}
+
+	if (flags & 1) {
+		if (unk150 > 0)
+			--unk150;
+
+		checkNerve();
+	}
+
+	TSpineEnemy::perform(flags, graphics);
+	unk1A4->perform(flags, graphics);
+	unk1A8->perform(flags, graphics);
+}
+
 void TKoopaJrSubmarine::resetKoopaJrSubmarine()
 {
 	mSpine->reset();
