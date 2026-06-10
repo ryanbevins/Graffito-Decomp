@@ -1863,6 +1863,13 @@ void TEnemyMario::initEnemyValues()
 		emOwner(this)->mPosition = mPosition;
 	}
 
+	if (replayCount > 0) {
+		emInputReplayArray(this)[emReplayIndex(this)]->reset();
+		*(u16*)((u8*)emInputReplayArray(this)[emReplayIndex(this)] + 2) = 1;
+	} else {
+		emInputReplayArray(this) = nullptr;
+	}
+
 	if (gpMarDirector->mMap == 1 && gpMarDirector->unk7D == 1) {
 		emInputReplayArrayBackup(this) = new TMarioInputReplay*[8];
 		for (int i = 0; i < 8; ++i) {
