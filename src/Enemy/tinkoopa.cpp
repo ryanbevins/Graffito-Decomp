@@ -751,6 +751,7 @@ void TTinKoopa::checkTinKoopaFirstFlameMessage()
 
 void TTinKoopa::checkTinKoopaKillerApproachingMessage()
 {
+	u32 messageId = 0xe0009;
 	for (int i = 0; i < unk1F0->getActiveObjNum(); ++i) {
 		TCoasterKiller* killer = (TCoasterKiller*)unk1F0->getObj(i);
 		if (killer->checkLiveFlag(LIVE_FLAG_DEAD))
@@ -761,9 +762,12 @@ void TTinKoopa::checkTinKoopaKillerApproachingMessage()
 		    = params->mSLKillerApproachingDistance.get();
 		JGeometry::TVec3<f32> marioPos = *gpMarioPos;
 
-		bool approaching = false;
-		if (!killer->checkLiveFlag(LIVE_FLAG_DEAD)
-		    && killer->mPathDir == 0) {
+		bool approaching;
+		if (killer->checkLiveFlag(LIVE_FLAG_DEAD)) {
+			approaching = false;
+		} else if (killer->mPathDir != 0) {
+			approaching = false;
+		} else {
 			int marioNode = unk1EC->findNearestNodeIndex(marioPos, -1);
 			f32 distance;
 			if (marioNode >= killer->mPathIdx) {
@@ -777,7 +781,7 @@ void TTinKoopa::checkTinKoopaKillerApproachingMessage()
 		}
 
 		if (approaching)
-			gpMarDirector->getConsole()->startAppearBalloon(0xe0009,
+			gpMarDirector->getConsole()->startAppearBalloon(messageId,
 			                                                true);
 	}
 }
