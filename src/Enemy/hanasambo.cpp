@@ -924,10 +924,8 @@ void TSamboFlowerManager::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	TEnemyManager::perform(flags, graphics);
 
-	if (mLeaves) {
-		for (int i = 0; i < 18; ++i)
-			mLeaves[i]->perform(flags, graphics);
-	}
+	for (int i = 0; i < 18; ++i)
+		mLeaves[i]->perform(flags, graphics);
 }
 
 void TSamboFlowerManager::createModelData()
