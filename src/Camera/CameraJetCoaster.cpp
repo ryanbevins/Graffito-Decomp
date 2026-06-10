@@ -136,6 +136,8 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		}
 	}
 
+	JGeometry::TVec3<f32> at;
+
 	if (unk2B8->unkC & 1) {
 		// 1st-person camera mode
 		if (isJet1stCamPressed) {
@@ -154,7 +156,6 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 			unkA6 = *(s16*)((u8*)gpMarioOriginal + 0x410);
 		}
 
-		JGeometry::TVec3<f32> at;
 		at = unk8C;
 
 		s16 yawAngle   = unkA4 + getOffsetAngleX();
@@ -251,43 +252,6 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 
 		*(f32*)((u8*)this + 0x48) = *(f32*)p68;
 
-		// Tail snap/chase
-		*(f32*)((u8*)this + 0x80) = *(f32*)((u8*)this + 0x98);
-		*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0x9C);
-		*(f32*)((u8*)this + 0x88) = *(f32*)((u8*)this + 0xA0);
-
-		if (isJet1stCamPressed) {
-			if (*(u32*)((u8*)this + 0x78) == 0) {
-				*(f32*)((u8*)this + 0x10) = *(f32*)((u8*)this + 0x80);
-				*(f32*)((u8*)this + 0x14) = *(f32*)((u8*)this + 0x84);
-				*(f32*)((u8*)this + 0x18) = *(f32*)((u8*)this + 0x88);
-			}
-			if (*(u32*)((u8*)this + 0x7C) == 0) {
-				*(f32*)((u8*)this + 0x3C) = at.x;
-				*(f32*)((u8*)this + 0x40) = at.y;
-				*(f32*)((u8*)this + 0x44) = at.z;
-			}
-		} else {
-			if (*(u32*)((u8*)this + 0x78) == 0) {
-				CLBChaseDecrease((f32*)((u8*)this + 0x10),
-				                 *(f32*)((u8*)this + 0x80),
-				                 *(f32*)(p68 + 0x94), 0.0f);
-				CLBChaseDecrease((f32*)((u8*)this + 0x14),
-				                 *(f32*)((u8*)this + 0x84),
-				                 *(f32*)(p68 + 0x9C), 0.0f);
-				CLBChaseDecrease((f32*)((u8*)this + 0x18),
-				                 *(f32*)((u8*)this + 0x88),
-				                 *(f32*)(p68 + 0x94), 0.0f);
-			}
-			if (*(u32*)((u8*)this + 0x7C) == 0) {
-				CLBChaseDecrease((f32*)((u8*)this + 0x3C), at.x,
-				                 *(f32*)(p68 + 0xA4), 0.0f);
-				CLBChaseDecrease((f32*)((u8*)this + 0x40), at.y,
-				                 *(f32*)(p68 + 0xA8), 0.0f);
-				CLBChaseDecrease((f32*)((u8*)this + 0x44), at.z,
-				                 *(f32*)(p68 + 0xA4), 0.0f);
-			}
-		}
 	} else {
 		// 3rd-person camera mode
 		if (isJet1stCamPressed) {
@@ -343,7 +307,6 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 
 		*(f32*)((u8*)this + 0x48) = *(f32*)((u8*)unk2B8 + 0x34);
 
-		JGeometry::TVec3<f32> at;
 		at.x = *(f32*)((u8*)this + 0x8C);
 		at.y = *(f32*)((u8*)this + 0x90);
 		at.z = *(f32*)((u8*)this + 0x94);
@@ -372,43 +335,44 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x98),
 		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x30));
 
-		// Tail snap/chase
-		*(f32*)((u8*)this + 0x80) = *(f32*)((u8*)this + 0x98);
-		*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0x9C);
-		*(f32*)((u8*)this + 0x88) = *(f32*)((u8*)this + 0xA0);
+	}
 
-		if (isJet1stCamPressed) {
-			if (*(u32*)((u8*)this + 0x78) == 0) {
-				*(f32*)((u8*)this + 0x10) = *(f32*)((u8*)this + 0x80);
-				*(f32*)((u8*)this + 0x14) = *(f32*)((u8*)this + 0x84);
-				*(f32*)((u8*)this + 0x18) = *(f32*)((u8*)this + 0x88);
-			}
-			if (*(u32*)((u8*)this + 0x7C) == 0) {
-				*(f32*)((u8*)this + 0x3C) = at.x;
-				*(f32*)((u8*)this + 0x40) = at.y;
-				*(f32*)((u8*)this + 0x44) = at.z;
-			}
-		} else {
-			u8* p68 = *(u8**)((u8*)this + 0x68);
-			if (*(u32*)((u8*)this + 0x78) == 0) {
-				CLBChaseDecrease((f32*)((u8*)this + 0x10),
-				                 *(f32*)((u8*)this + 0x80),
-				                 *(f32*)(p68 + 0x94), 0.0f);
-				CLBChaseDecrease((f32*)((u8*)this + 0x14),
-				                 *(f32*)((u8*)this + 0x84),
-				                 *(f32*)(p68 + 0x9C), 0.0f);
-				CLBChaseDecrease((f32*)((u8*)this + 0x18),
-				                 *(f32*)((u8*)this + 0x88),
-				                 *(f32*)(p68 + 0x94), 0.0f);
-			}
-			if (*(u32*)((u8*)this + 0x7C) == 0) {
-				CLBChaseDecrease((f32*)((u8*)this + 0x3C), at.x,
-				                 *(f32*)(p68 + 0xA4), 0.0f);
-				CLBChaseDecrease((f32*)((u8*)this + 0x40), at.y,
-				                 *(f32*)(p68 + 0xA8), 0.0f);
-				CLBChaseDecrease((f32*)((u8*)this + 0x44), at.z,
-				                 *(f32*)(p68 + 0xA4), 0.0f);
-			}
+	// Tail snap/chase
+	*(f32*)((u8*)this + 0x80) = *(f32*)((u8*)this + 0x98);
+	*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0x9C);
+	*(f32*)((u8*)this + 0x88) = *(f32*)((u8*)this + 0xA0);
+
+	if (isJet1stCamPressed) {
+		if (*(u32*)((u8*)this + 0x78) == 0) {
+			*(f32*)((u8*)this + 0x10) = *(f32*)((u8*)this + 0x80);
+			*(f32*)((u8*)this + 0x14) = *(f32*)((u8*)this + 0x84);
+			*(f32*)((u8*)this + 0x18) = *(f32*)((u8*)this + 0x88);
+		}
+		if (*(u32*)((u8*)this + 0x7C) == 0) {
+			*(f32*)((u8*)this + 0x3C) = at.x;
+			*(f32*)((u8*)this + 0x40) = at.y;
+			*(f32*)((u8*)this + 0x44) = at.z;
+		}
+	} else {
+		u8* p68 = *(u8**)((u8*)this + 0x68);
+		if (*(u32*)((u8*)this + 0x78) == 0) {
+			CLBChaseDecrease((f32*)((u8*)this + 0x10),
+			                 *(f32*)((u8*)this + 0x80),
+			                 *(f32*)(p68 + 0x94), 0.0f);
+			CLBChaseDecrease((f32*)((u8*)this + 0x14),
+			                 *(f32*)((u8*)this + 0x84),
+			                 *(f32*)(p68 + 0x9C), 0.0f);
+			CLBChaseDecrease((f32*)((u8*)this + 0x18),
+			                 *(f32*)((u8*)this + 0x88),
+			                 *(f32*)(p68 + 0x94), 0.0f);
+		}
+		if (*(u32*)((u8*)this + 0x7C) == 0) {
+			CLBChaseDecrease((f32*)((u8*)this + 0x3C), at.x,
+			                 *(f32*)(p68 + 0xA4), 0.0f);
+			CLBChaseDecrease((f32*)((u8*)this + 0x40), at.y,
+			                 *(f32*)(p68 + 0xA8), 0.0f);
+			CLBChaseDecrease((f32*)((u8*)this + 0x44), at.z,
+			                 *(f32*)(p68 + 0xA4), 0.0f);
 		}
 	}
 }
