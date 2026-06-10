@@ -370,9 +370,8 @@ DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
 		}
 	}
 
-	MActor* actor = self->unk1A8->unk6C->getMActor();
-	if (actor->checkCurBckFromIndex(17)) {
-		if (actor->curAnmEndsNext(0, nullptr)) {
+	if (self->unk1A8->unk6C->getMActor()->checkCurBckFromIndex(17)) {
+		if (self->unk1A8->unk6C->getMActor()->curAnmEndsNext(0, nullptr)) {
 			TChorobei* chorobei = self->unk1A8;
 			chorobei->unk6C->getMActor()->setBckFromIndex(16);
 			const char** bas = chorobei->unk68->getBasNameTable();
@@ -386,14 +385,14 @@ DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
 			self->bombSet();
 		}
 		self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
-	} else if (actor->checkCurBckFromIndex(16)) {
-		if (actor->curAnmEndsNext(0, nullptr))
+	} else if (self->unk1A8->unk6C->getMActor()->checkCurBckFromIndex(16)) {
+		if (self->unk1A8->unk6C->getMActor()->curAnmEndsNext(0, nullptr))
 			return TRUE;
 
-		if (actor->getFrameCtrl(0)->checkPass(38.0f))
+		if (self->unk1A8->unk6C->getMActor()->getFrameCtrl(0)->checkPass(38.0f))
 			self->bombShoot();
 
-		if (actor->getFrameCtrl(0)->getFrame() > 26.0f
+		if (self->unk1A8->unk6C->getMActor()->getFrameCtrl(0)->getFrame() > 26.0f
 		    && self->unk1A4 != nullptr) {
 			f32 scale = self->unk1A4->mScaling.x + 0.2f * self->unk220;
 			if (scale < 0.0f)
