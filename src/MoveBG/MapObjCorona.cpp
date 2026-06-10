@@ -4,8 +4,11 @@
 #include <Camera/CameraShake.hpp>
 #include <Enemy/Koopa.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JMath.hpp>
+#include <JSystem/JUtility/JUTNameTab.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorData.hpp>
 #include <Map/MapCollisionEntry.hpp>
@@ -13,6 +16,7 @@
 #include <Player/MarioAccess.hpp>
 #include <System/Particles.hpp>
 #include <math.h>
+#include <stdio.h>
 
 // rogue includes for matching __sinit (15 JALList<T> templates)
 #include <MSound/MSSetSound.hpp>
@@ -83,6 +87,122 @@ TBathtubParams::TBathtubParams()
 {
 	TParams::load(mPrmPath);
 }
+
+Mtx* TBathtubGripParts::getRootJointMtx() const
+{
+	return (Mtx*)unkF4->getModel()->getAnmMtx(unkF4->unk200[unkF8]);
+}
+
+BOOL TBathtubGripPartsFragile::receiveMessage(THitActor* sender, u32 message)
+{
+	return unkF4->receiveMessage(sender, message);
+}
+
+BOOL TBathtubGripPartsHard::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == HIT_MESSAGE_UNK3)
+		message = HIT_MESSAGE_HIP_DROP;
+	return unkF4->receiveMessage(sender, message);
+}
+
+void TBathtubGrip::kill()
+{
+	unk24A = 1;
+	calcRootMatrix();
+
+	for (s32 i = 0; i < 17; ++i)
+		unk164[i]->remove();
+	for (s32 i = 0; i < 5; ++i)
+		unk150[i]->remove();
+}
+
+TBathtubGrip::TBathtubGrip(TBathtub* bathtub, f32 angle, MActorAnmData* data,
+                           const char* name)
+    : TMapObjBase(name)
+    , unk244(bathtub)
+    , unk248(0)
+    , unk249(1)
+    , unk24A(0)
+    , unk24B(0)
+    , unk24C(angle)
+    , unk250(1.0f)
+    , unk254(0)
+    , unk258(100)
+    , unk260(0)
+{
+	unk25C = new MActor(data);
+
+	void* res = JKRFileLoader::getGlbResource(
+	    "/scene/map/map/stand_effect/stand_effect.bmd");
+	J3DModelData* modelData = J3DModelLoaderDataBase::load(res, 0x50050000);
+	J3DModel* model         = new J3DModel(modelData, 0, 1);
+	unk25C->setModel(model, 0x50050000);
+
+	initAndRegister("stand_break");
+	calcRootMatrix();
+	getModel()->calc();
+
+	JUTNameTab* names = getModel()->getModelData()->getJointName();
+	char jointName[256];
+	char collisionPath[256];
+
+	for (s32 i = 0; i < 17; ++i) {
+		sprintf(jointName, "c%d", i + 1);
+		sprintf(collisionPath, "/scene/mapObj/stand_break_%s.col", jointName);
+
+		unk200[i] = names->getIndex(jointName);
+		unk164[i] = new TMapCollisionMove;
+		unk1BC[i] = new TBathtubGripPartsHard(
+		    this, i, "バタブの足場の一部（壊れない）");
+		unk164[i]->init(collisionPath, 0, unk1BC[i]);
+
+		if (i < 5) {
+			sprintf(jointName, "b%d", i + 1);
+			sprintf(collisionPath, "/scene/mapObj/stand_break_%s.col",
+			        jointName);
+
+			unk150[i] = new TMapCollisionMove;
+			unk1A8[i] = new TBathtubGripPartsFragile(
+			    this, i, "バタブの足場の一部（弱点）");
+			unk150[i]->init(collisionPath, 0, unk1A8[i]);
+		}
+	}
+
+	offLiveFlag(LIVE_FLAG_DEAD);
+	unk248 = 0;
+	unk24A = 0;
+	unk249 = 1;
+	unk24B = 0;
+	startAnim(0);
+
+	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+	if (ctrl != nullptr) {
+		ctrl->setFrame(0.0f);
+		ctrl->setRate(0.0f);
+	}
+
+	unk250 = 1.0f;
+	unk258 = 100;
+	unk260 = 0;
+}
+
+void TBathtubGrip::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	TMapObjBase::perform(flags, graphics);
+	if (unk260 == 0)
+		unk25C->perform(flags, graphics);
+}
+
+BOOL TBathtubGrip::receiveMessage(THitActor*, u32) { return false; }
+
+Mtx* TBathtubGrip::getRootJointMtx() const
+{
+	return (Mtx*)getModel()->getBaseTRMtx();
+}
+
+void TBathtubGrip::calcRootMatrix() { TMapObjBase::calcRootMatrix(); }
+
+void TBathtubGrip::control() { TMapObjBase::control(); }
 
 void TBathtub::loadAfter()
 {

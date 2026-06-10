@@ -5,10 +5,47 @@
 #include <System/ParamInst.hpp>
 #include <System/Params.hpp>
 
+class TBathtub;
 class TBathtubGrip;
 class MActor;
 class MActorAnmData;
 class TMapCollisionMove;
+
+class TBathtubGripParts : public TLiveActor {
+public:
+	TBathtubGripParts(TBathtubGrip* grip, s32 index, const char* name)
+	    : TLiveActor(name)
+	    , unkF4(grip)
+	    , unkF8(index)
+	{
+	}
+
+	virtual Mtx* getRootJointMtx() const;
+
+public:
+	/* 0xF4 */ TBathtubGrip* unkF4;
+	/* 0xF8 */ s32 unkF8;
+};
+
+class TBathtubGripPartsHard : public TBathtubGripParts {
+public:
+	TBathtubGripPartsHard(TBathtubGrip* grip, s32 index, const char* name)
+	    : TBathtubGripParts(grip, index, name)
+	{
+	}
+
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+};
+
+class TBathtubGripPartsFragile : public TBathtubGripParts {
+public:
+	TBathtubGripPartsFragile(TBathtubGrip* grip, s32 index, const char* name)
+	    : TBathtubGripParts(grip, index, name)
+	{
+	}
+
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+};
 
 class TBathtubParams : public TParams {
 public:
@@ -40,6 +77,39 @@ public:
 	/* 0x1D4 */ TParamRT<f32> marioWeight;
 	/* 0x1E8 */ TParamRT<f32> marioDropWeight;
 	/* 0x1FC */ TParamRT<f32> outerHeight;
+};
+
+class TBathtubGrip : public TMapObjBase {
+public:
+	TBathtubGrip(TBathtub*, f32, MActorAnmData*, const char*);
+
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual Mtx* getRootJointMtx() const;
+	virtual void calcRootMatrix();
+	virtual void control();
+	virtual void kill();
+
+public:
+	/* 0x138 */ JGeometry::TVec3<f32> unk138;
+	/* 0x144 */ JGeometry::TVec3<f32> unk144;
+	/* 0x150 */ TMapCollisionMove* unk150[5];
+	/* 0x164 */ TMapCollisionMove* unk164[17];
+	/* 0x1A8 */ TBathtubGripPartsFragile* unk1A8[5];
+	/* 0x1BC */ TBathtubGripPartsHard* unk1BC[17];
+	/* 0x200 */ s32 unk200[17];
+	/* 0x244 */ TBathtub* unk244;
+	/* 0x248 */ u8 unk248;
+	/* 0x249 */ u8 unk249;
+	/* 0x24A */ u8 unk24A;
+	/* 0x24B */ u8 unk24B;
+	/* 0x24C */ f32 unk24C;
+	/* 0x250 */ f32 unk250;
+	/* 0x254 */ s32 unk254;
+	/* 0x258 */ s32 unk258;
+	/* 0x25C */ MActor* unk25C;
+	/* 0x260 */ u8 unk260;
+	/* 0x261 */ u8 unk261[3];
 };
 
 class TBathtub : public TMapObjBase {
