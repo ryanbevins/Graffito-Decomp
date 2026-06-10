@@ -198,13 +198,7 @@ void TMapObjGrassManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 			if (gpMarDirector->getCurrentMap() == 2) {
 				grass->unk78 = 0;
 			} else {
-				// TODO: some kind of a vec_distance inline?
-				JGeometry::TVec3<f32> v(grass->mPosition.x - gpCamera->unk124.x,
-				                        grass->mPosition.y - gpCamera->unk124.y,
-				                        grass->mPosition.z
-				                            - gpCamera->unk124.z);
-
-				f32 len = v.length();
+				f32 len = grass->mPosition.distance(gpCamera->unk124);
 
 				if (len < mDistNear) {
 					grass->unk78 = 0;
