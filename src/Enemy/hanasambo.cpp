@@ -126,16 +126,7 @@ static int SamboHeadRollCallback(J3DNode* node, int timing)
 
 static inline void initMarioGoal(TSpineEnemy* sambo)
 {
-	THitActor* mario = (THitActor*)gpMarioAddress;
-	JGeometry::TVec3<f32> pos(0.0f, 0.0f, 0.0f);
-	if (mario)
-		pos = mario->mPosition;
-
-	sambo->unkF4.unk0  = mario;
-	sambo->unkF4.unk4  = pos;
-	sambo->unk104.unk0 = mario;
-	sambo->unk104.unk4 = pos;
-	sambo->unk114.clear();
+	sambo->setGoalPathMario();
 }
 
 DEFINE_NERVE(TNerveSamboHeadHitWall, TLiveActor)
@@ -1108,7 +1099,7 @@ TSamboHead::TSamboHead(const char* name)
 void TSamboHead::load(JSUMemoryInputStream& stream)
 {
 	TSmallEnemy::load(stream);
-	setMActorAndKeeper();
+	reset();
 	initMarioGoal(this);
 }
 
@@ -1320,7 +1311,7 @@ THanaSambo::THanaSambo(const char* name)
 void THanaSambo::load(JSUMemoryInputStream& stream)
 {
 	TSmallEnemy::load(stream);
-	setMActorAndKeeper();
+	reset();
 	initMarioGoal(this);
 }
 
