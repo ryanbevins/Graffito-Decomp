@@ -12,6 +12,7 @@
 #include <Map/MapCollisionEntry.hpp>
 #include <MoveBG/MapObjDolpic.hpp>
 #include <MarioUtil/DrawUtil.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
@@ -166,7 +167,124 @@ DEFINE_NERVE(TNerveCannonDamageDemo, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveCannonDamage, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
+{
+	TCannon* self = (TCannon*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		JPABaseEmitter* damageEmitter
+		    = gpMarioParticleManager->emitAndBindToPosPtr(
+		        0xC4, &self->mPosition, 0, nullptr);
+		if (damageEmitter != nullptr) {
+			JGeometry::TVec3<f32> scale(2.0f, 2.0f, 2.0f);
+			damageEmitter->setScale(scale);
+		}
+		gpMarioParticleManager->emitAndBindToPosPtr(0xC5, &self->mPosition,
+		                                            0, nullptr);
+		if (damageEmitter != nullptr) {
+			JGeometry::TVec3<f32> scale(2.0f, 2.0f, 2.0f);
+			damageEmitter->setScale(scale);
+		}
+		gpMarioParticleManager->emitAndBindToPosPtr(0xC6, &self->mPosition,
+		                                            0, nullptr);
+		if (damageEmitter != nullptr) {
+			JGeometry::TVec3<f32> scale(2.0f, 2.0f, 2.0f);
+			damageEmitter->setScale(scale);
+		}
+
+		if (self->mHitPoints != 0)
+			self->mHitPoints--;
+
+		TChorobei* chorobei = self->unk1A8;
+		if (self->mHitPoints == 0) {
+			if (self->unk1A4 != nullptr)
+				self->unk1A4->forceKill();
+
+			chorobei->unk6C->getMActor()->setBckFromIndex(13);
+			const char** bas = chorobei->unk68->getBasNameTable();
+			chorobei->unk78 = bas ? bas[13] : nullptr;
+			if (chorobei->unk78 != nullptr) {
+				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
+				chorobei->unk74->initAnmSound(res, 1, 0.0f);
+			} else {
+				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+			}
+
+			if (gpApplication.mCurrArea.unk0 == 5)
+				SMSRumbleMgr->start(0x18, (f32*)nullptr);
+			else
+				SMSRumbleMgr->start(0x17, (f32*)nullptr);
+
+			JPABaseEmitter* emitter
+			    = gpMarioParticleManager->emitAndBindToMtxPtr(
+			        0xC8,
+			        chorobei->unk6C->getMActor()->getModel()->getAnmMtx(12),
+			        0, nullptr);
+			if (emitter != nullptr)
+				emitter->setScale(chorobei->mScaling);
+
+			emitter = gpMarioParticleManager->emitAndBindToPosPtr(
+			    0xC7, &self->unk294, 0, nullptr);
+			if (emitter != nullptr)
+				emitter->setScale(chorobei->mScaling);
+
+			if (gpApplication.mCurrArea.unk0 == 5) {
+				self->unk2A0 = self->mPosition;
+				self->unk2A0.y = 0.0f;
+				gpMarDirector->fireStartDemoCamera(
+				    "tyorocam_pinna", &self->unk2A0, -1, self->mRotation.y,
+				    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
+			} else {
+				gpMarDirector->fireStartDemoCamera(
+				    "tyorocam_mare", nullptr, -1, 0.0f, true, nullptr, 0,
+				    nullptr, JDrama::TFlagT<u16>(0));
+			}
+
+			self->onHitFlag(HIT_FLAG_NO_COLLISION);
+			chorobei->onHitFlag(HIT_FLAG_NO_COLLISION);
+		} else {
+			self->setDeadAnm();
+
+			chorobei->unk6C->getMActor()->setBckFromIndex(13);
+			const char** bas = chorobei->unk68->getBasNameTable();
+			chorobei->unk78 = bas ? bas[13] : nullptr;
+			if (chorobei->unk78 != nullptr) {
+				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
+				chorobei->unk74->initAnmSound(res, 1, 0.0f);
+			} else {
+				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+			}
+
+			MtxPtr mtx = chorobei->unk6C->getMActor()->getModel()->getAnmMtx(0);
+			self->unk294.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+
+			JPABaseEmitter* emitter
+			    = gpMarioParticleManager->emitAndBindToPosPtr(
+			        0xC7, &self->unk294, 0, nullptr);
+			if (emitter != nullptr)
+				emitter->setScale(chorobei->mScaling);
+		}
+
+		self->mVelocity.set(0.0f, 4.0f, 0.0f);
+		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		self->mPosition.y += 10.0f;
+	}
+
+	MActor* chorobeiActor = self->unk1A8->unk6C->getMActor();
+	if (chorobeiActor->curAnmEndsNext(0, nullptr)) {
+		SMS_ResetDamageFogEffect(
+		    chorobeiActor->getModel()->getModelData());
+		if (self->mHitPoints == 0) {
+			spine->pushAfterCurrent(&TNerveCannonDamageDemo::theNerve());
+			return TRUE;
+		}
+
+		spine->pushAfterCurrent(&TNerveCannonSearch::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveCannonClose, TLiveActor)
 {
