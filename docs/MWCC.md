@@ -5592,6 +5592,26 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### `TVec3::set(x, y, z)` can recover batched matrix-translation copies
+
+**Hypothesis.** When target asm loads three matrix translation components
+(`mtx[2][3]`, `mtx[1][3]`, `mtx[0][3]`) before storing a `TVec3` destination,
+component-by-component assignments may interleave each load with its store.
+Writing the copy as `dst.set(mtx[0][3], mtx[1][3], mtx[2][3])` can force MWCC
+to evaluate the three arguments first and then store `x/y/z`, matching the
+target's batched load/store shape. Expect possible FPR naming residue.
+
+**Observed.** `mario/MoveBG/MapObjCorona` (2026-06-11 MNL):
+`TBathtubGrip::control()` improved 98.7 -> 99.3 after replacing three stores
+to `unk144` with `unk144.set(...)`; `TBathtub::control()` improved
+89.8 -> 91.6 after replacing three stores to `unk200` with `unk200.set(...)`.
+Both target blocks used the same batched translation-copy shape.
+
+**Experiment to confirm/refute.** Find a second TU with a nonmatching
+matrix-translation-to-`TVec3` copy where target loads all three components
+before storing. Toggle only component assignments vs. `TVec3::set(...)` and
+verify whether the batched argument evaluation repeats.
+
 ### `.cpp` definition plus scoped `dont_inline` can recover same-TU static template-member call boundaries, but may emit the wrong owner kind/frame
 
 **Hypothesis.** When target asm owns a standalone helper for a header-visible
