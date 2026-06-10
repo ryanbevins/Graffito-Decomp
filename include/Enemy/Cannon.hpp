@@ -101,8 +101,8 @@ public:
 	static f32 mSearchRate;
 
 public:
-	/* 0x194 */ u8 pad194[0xC];
-	/* 0x1A0 */ THitActor* unk1A0;
+	/* 0x194 */ JGeometry::TVec3<f32> unk194;
+	/* 0x1A0 */ TSmallEnemy* unk1A0;
 	/* 0x1A4 */ u8 pad1A4[4];
 	/* 0x1A8 */ TChorobei* unk1A8;
 	/* 0x1AC */ TCannonDom* unk1AC[3];
@@ -119,7 +119,7 @@ public:
 	/* 0x224 */ f32 unk224;
 	/* 0x228 */ f32 unk228;
 	/* 0x22C */ f32 unk22C;
-	/* 0x230 */ bool unk230;
+	/* 0x230 */ u8 unk230;
 	/* 0x231 */ u8 pad231[3];
 	/* 0x234 */ f32 unk234;
 	/* 0x238 */ bool unk238;

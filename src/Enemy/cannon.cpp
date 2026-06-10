@@ -150,6 +150,47 @@ BOOL TCannon::receiveMessage(THitActor* sender, u32 message)
 void TCannon::moveObject()
 {
 	TSmallEnemy::moveObject();
+
+	if (unk230 != 5 && unk230 != 9)
+		return;
+
+	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		unk1A8->mPosition = mPosition;
+	} else {
+		MtxPtr mtx = getModel()->getAnmMtx(mChorobeiJntIdx);
+		unk1A8->mPosition.x = mtx[0][3];
+		unk1A8->mPosition.y = mtx[1][3] - 100.0f;
+		unk1A8->mPosition.z = mtx[2][3];
+	}
+
+	unk1A8->checkHit();
+
+	JGeometry::TVec3<f32> velocity = mVelocity;
+	mPosition.y += velocity.y;
+	mVelocity.y -= getGravityY();
+	if (mPosition.y < unk23C.y) {
+		mVelocity.zero();
+		mPosition.y = unk23C.y;
+	}
+
+	if (unk1A0 == nullptr)
+		return;
+
+	JGeometry::TVec3<f32> carriedPos = unk194;
+	carriedPos.add(unk1A8->mPosition);
+	unk1A0->mPosition = carriedPos;
+	unk1A0->offLiveFlag(LIVE_FLAG_AIRBORNE);
+
+	if (mSpine->getCurrentNerve() == &TNerveCannonClose::theNerve()) {
+		unk1A0->kill();
+		unk1A0 = nullptr;
+		return;
+	}
+
+	if (!unk1A0->doKeepDistance()) {
+		unk1A0 = nullptr;
+		mSpine->pushNerve(&TNerveCannonDamage::theNerve());
+	}
 }
 
 void TCannon::reset()
