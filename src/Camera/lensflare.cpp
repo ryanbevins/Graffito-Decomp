@@ -108,11 +108,11 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 
 	if (flags & 2) {
 		TSunModel* sun = gpSunModel;
+		Vec sunPos;
+		sunPos = sun->mPos198;
+
 		JGeometry::TVec3<f32> nearPos[9];
 		S16Vec nearRot[9];
-
-		JGeometry::TVec3<f32> sunPos;
-		sunPos.set(sun->mPos198);
 
 		CPolarSubCamera* cam = gpCamera;
 		f32 nearClip        = cam->mNear;
