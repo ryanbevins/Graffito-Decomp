@@ -31,18 +31,18 @@ void TMapObjGrassGroup::drawNear() const
 		return;
 
 	GXBegin(GX_TRIANGLES, GX_VTXFMT0, unk68 * 3);
+	const Vec& drawVec = TMapObjGrassManager::mDrawVec;
 	int iVar7 = 0;
 	for (int i = 0; i < unk68; ++i) {
-		GXPosition3f32(unk6C[i].x - TMapObjGrassManager::mDrawVec.x,
-		               mPosition.y,
-		               unk6C[i].z - TMapObjGrassManager::mDrawVec.z);
+		f32* swingOffsets = gpMapObjGrassManager->unk20;
+		GXPosition3f32(unk6C[i].x - drawVec.x, mPosition.y,
+		               unk6C[i].z - drawVec.z);
 		GXColor1x8(1);
-		GXPosition3f32(unk6C[i].x + gpMapObjGrassManager->unk20[iVar7],
-		               unk6C[i].y, unk6C[i].z);
+		GXPosition3f32(unk6C[i].x + swingOffsets[iVar7], unk6C[i].y,
+		               unk6C[i].z);
 		GXColor1x8(0);
-		GXPosition3f32(unk6C[i].x + TMapObjGrassManager::mDrawVec.x,
-		               mPosition.y,
-		               unk6C[i].z + TMapObjGrassManager::mDrawVec.z);
+		GXPosition3f32(unk6C[i].x + drawVec.x, mPosition.y,
+		               unk6C[i].z + drawVec.z);
 		GXColor1x8(1);
 
 		++iVar7;
@@ -58,18 +58,18 @@ void TMapObjGrassGroup::drawFar() const
 		return;
 
 	GXBegin(GX_TRIANGLES, GX_VTXFMT0, unk68 * 3);
+	const S16Vec& drawVecS16 = TMapObjGrassManager::mDrawVecS16;
 	int iVar7 = 0;
 	for (int i = 0; i < unk68; ++i) {
-		GXPosition3s16(unk70[i].x - TMapObjGrassManager::mDrawVecS16.x,
-		               unk70[i].y,
-		               unk70[i].z - TMapObjGrassManager::mDrawVecS16.z);
+		s16* swingOffsets = gpMapObjGrassManager->unk24;
+		GXPosition3s16(unk70[i].x - drawVecS16.x, unk70[i].y,
+		               unk70[i].z - drawVecS16.z);
 		GXColor1x8(1);
-		GXPosition3s16(unk70[i].x + gpMapObjGrassManager->unk24[iVar7],
-		               unk74[i], unk70[i].z);
+		GXPosition3s16(unk70[i].x + swingOffsets[iVar7], unk74[i],
+		               unk70[i].z);
 		GXColor1x8(0);
-		GXPosition3s16(unk70[i].x + TMapObjGrassManager::mDrawVecS16.x,
-		               unk70[i].y,
-		               unk70[i].z + TMapObjGrassManager::mDrawVecS16.z);
+		GXPosition3s16(unk70[i].x + drawVecS16.x, unk70[i].y,
+		               unk70[i].z + drawVecS16.z);
 		GXColor1x8(1);
 
 		++iVar7;
