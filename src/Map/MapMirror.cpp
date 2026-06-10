@@ -215,6 +215,12 @@ void TMirrorModelObj::calc()
 	MTXCopy(unk28->mNodeMatrices[0], unk4->getModel()->mNodeMatrices[0]);
 }
 
+inline void TMirrorModelManager::registerObjMirror(TMirrorModel* model)
+{
+	unk1C[unk10] = model;
+	unk10++;
+}
+
 void TMirrorModelObj::init(const char* name)
 {
 	TMirrorModel::init(name);
@@ -346,12 +352,6 @@ void TMirrorModelManager::loadAfter()
 		*dst                 = *src;
 		dst->imageDataOffset = src->imageDataOffset + (u32)src - (u32)dst;
 	}
-}
-
-void TMirrorModelManager::registerObjMirror(TMirrorModel* model)
-{
-	unk1C[unk10] = model;
-	unk10++;
 }
 
 void TMirrorModelManager::load(JSUMemoryInputStream& stream)
