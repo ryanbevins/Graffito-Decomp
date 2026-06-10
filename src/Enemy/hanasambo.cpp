@@ -442,7 +442,47 @@ DEFINE_NERVE(TNerveHanaSamboFreeze, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveHanaSamboDie, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveHanaSamboDie, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->setDeadAnm();
+	} else if (self->checkCurAnmEnd(0) || spine->getTime() > 300) {
+		static int jIndexTable[] = { 1, 3, 4, 5 };
+
+		for (int i = 0; i < 4; ++i) {
+			MtxPtr mtx
+			    = self->mMActor->getModel()->mNodeMatrices[jIndexTable[i]];
+			self->mPollenPositions[i].set(mtx[0][3], mtx[1][3], mtx[2][3]);
+
+			JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+			    0xE4, &self->mPollenPositions[i], 0, nullptr);
+			if (emitter)
+				emitter->setScale(self->mScaling);
+
+			emitter = gpMarioParticleManager->emit(
+			    0xE6, &self->mPollenPositions[i], 0, nullptr);
+			if (emitter)
+				emitter->setScale(self->mScaling);
+		}
+
+		self->onLiveFlag(LIVE_FLAG_DEAD);
+		self->onLiveFlag(LIVE_FLAG_UNK8);
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->offLiveFlag(LIVE_FLAG_UNK10000);
+		self->mHolder = nullptr;
+		self->stopAnmSound();
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		spine->reset();
+		spine->setNext(&TNerveSmallEnemyDie::theNerve());
+		spine->pushAfterCurrent(spine->getDefault());
+		self->genRandomItem();
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveHanaSamboHide, TLiveActor)
 {
