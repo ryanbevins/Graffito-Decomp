@@ -7,11 +7,14 @@
 #include <MoveBG/MapObjCorona.hpp>
 #include <MSound/MSound.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/Watergun.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <System/Particles.hpp>
+#include <System/FlagManager.hpp>
 #include <math.h>
+#include <stdlib.h>
 
 // rogue includes needed for matching sinit
 #include <MSound/MSSetSound.hpp>
@@ -704,6 +707,36 @@ void TKoopaJrSubmarine::makeRelativeAngle()
 
 	f32 turn = getSaveParam2()->mSLRoundAngleVelocity.get() * 0.017453294f;
 	unk164.mDirection = unk164.calcTurnDirection(current, turn);
+}
+
+bool TKoopaJrSubmarine::appearShineKiller(int)
+{
+	f32 probability;
+
+	if (((TWaterGun*)SMS_GetMarioWaterGun())->mCurrentWater == 0) {
+		probability = 0.5f;
+	} else {
+		s32 shineFlag = TFlagManager::smInstance->getFlag(0x20001);
+		TBathtubKillerManager* manager
+		    = (TBathtubKillerManager*)unk1A0->unk16C;
+		if (manager->unk60 == shineFlag) {
+			probability = 0.5f;
+		} else {
+			TWaterGun* waterGun = (TWaterGun*)SMS_GetMarioWaterGun();
+			s32 amountMax
+			    = waterGun->getCurrentNozzle()->mEmitParams.mAmountMax.get();
+			s32 currentWater = ((TWaterGun*)SMS_GetMarioWaterGun())->mCurrentWater;
+			f32 min = getSaveParam2()->shineKillerProbability0.get();
+			f32 max = getSaveParam2()->shineKillerProbability1.get();
+			probability
+			    = ((f32)currentWater / (f32)amountMax) * (max - min) + min;
+		}
+	}
+
+	bool result = false;
+	if (rand() * 0.000030517578f < probability)
+		result = true;
+	return result;
 }
 
 void TKoopaJrSubmarine::resetKoopaJrSubmarine()
