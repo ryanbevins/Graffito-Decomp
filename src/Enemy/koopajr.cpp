@@ -672,6 +672,53 @@ BOOL TKoopaJrSubmarine::receiveMessage(THitActor* sender, u32 message)
 	return FALSE;
 }
 
+void TKoopaJrSubmarine::calcRootMatrix()
+{
+	J3DModel* model = getModel();
+	if (unk1A0->unk15C->getUnk29A()) {
+		MtxPtr mtx = unk1A0->unk15C->getSubmarineMtxInDemo();
+		PSMTXCopy(mtx, model->getBaseTRMtx());
+	} else {
+		f32 swingHalf = 0.5f * (unk190 * sinf(unk194));
+		f32 swingSin  = sinf(swingHalf);
+		f32 swingCos  = cosf(swingHalf);
+
+		f32 waveHalf = 0.5f * (unk198 * sinf(unk19C));
+		f32 waveSin  = sinf(waveHalf);
+		f32 waveCos  = cosf(waveHalf);
+
+		f32 yawHalf = 0.5f * unk16C.mDirection;
+		f32 yawSin  = sinf(yawHalf);
+		f32 yawCos  = cosf(yawHalf);
+
+		JGeometry::TQuat4<f32> q;
+		q.x = yawSin * swingSin;
+		q.y = yawSin * swingCos;
+		q.z = yawCos * swingSin;
+		q.w = yawCos * swingCos;
+
+		JGeometry::TQuat4<f32> finalQ;
+		finalQ.x = q.x * waveCos + q.w * waveSin;
+		finalQ.y = q.y * waveCos + q.z * waveSin;
+		finalQ.z = q.z * waveCos - q.y * waveSin;
+		finalQ.w = q.w * waveCos - q.x * waveSin;
+
+		Mtx mtx;
+		((JGeometry::TRotation3<
+		     JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >*)&mtx)
+		    ->setQuat(finalQ);
+
+		f32 center = getSaveParam2()->centerZ.get();
+		mtx[0][3] = mPosition.x + mtx[0][2] * center;
+		mtx[1][3] = mPosition.y + mtx[1][2] * center;
+		mtx[2][3] = mPosition.z + mtx[2][2] * center - center;
+
+		PSMTXCopy(mtx, model->getBaseTRMtx());
+	}
+
+	model->setBaseScale(mScaling);
+}
+
 void TKoopaJrSubmarine::checkNerve()
 {
 	if (unk1A0->mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve()) {
