@@ -7,12 +7,14 @@
 #include <M3DUtil/MActor.hpp>
 #include <Map/MapData.hpp>
 #include <Map/PollutionManager.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/MarioRecord.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/MSoundMainSide.hpp>
 #include <System/MarDirector.hpp>
@@ -36,6 +38,11 @@ inline u16& emDoing(TEnemyMario* mario)
 inline u32& emTimer(TEnemyMario* mario)
 {
 	return *(u32*)((u8*)mario + 0x42A4);
+}
+
+inline u32& emReplayIndex(TEnemyMario* mario)
+{
+	return *(u32*)((u8*)mario + 0x42A8);
 }
 
 inline s16& emTargetYaw(TEnemyMario* mario)
@@ -98,6 +105,16 @@ inline u8* emSettings(TEnemyMario* mario)
 	return *(u8**)((u8*)mario + 0x430C);
 }
 
+inline f32& emSettingF32(TEnemyMario* mario, u32 offset)
+{
+	return *(f32*)(emSettings(mario) + offset);
+}
+
+inline TMarioInputReplay*& emInputReplay(TEnemyMario* mario)
+{
+	return *(TMarioInputReplay**)((u8*)mario + 0x4300);
+}
+
 inline u8* emController(TEnemyMario* mario)
 {
 	return *(u8**)((u8*)mario + 0x108);
@@ -138,6 +155,19 @@ inline void pushNearestFlaggedNodeInput(TEnemyMario* mario)
 		emControllerFlags2(mario) |= 0x100;
 		emControllerFlags(mario) |= 0x100;
 	}
+}
+
+inline void getOwnerGraphPoint(TEnemyMario* mario, int node, Vec* out)
+{
+	emOwner(mario)->unk124->getGraph()->getGraphNode(node).getPoint(out);
+}
+
+inline f32 distanceFromMario(const JGeometry::TVec3<f32>& pos)
+{
+	f32 dx = pos.x - gpMarioPos->x;
+	f32 dy = pos.y - gpMarioPos->y;
+	f32 dz = pos.z - gpMarioPos->z;
+	return JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
 }
 
 } // namespace
@@ -321,7 +351,33 @@ void TEnemyMario::startGateDrawing()
 	startSoundActor(0x1980);
 }
 
-void TEnemyMario::emWaitingToInviteMario() { }
+void TEnemyMario::emWaitingToInviteMario()
+{
+	Vec invitePos;
+	getOwnerGraphPoint(this, 7, &invitePos);
+	mPosition.x = invitePos.x;
+	mPosition.y = invitePos.y;
+	mPosition.z = invitePos.z;
+
+	s16 diff     = emTargetYaw(this) - mFaceAngle.y;
+	mFaceAngle.y = emTargetYaw(this) - IConverge(diff, 0, 0x180, 0x180);
+	changePlayerStatus(ACTION_IDLE, 0, false);
+	changeMontemanWaitingAnim();
+
+	if (distanceFromMario(mPosition) < emSettingF32(this, 0x18)
+	    && gpMarioPos->y < mPosition.y + emSettingF32(this, 0x2C)) {
+		Vec nextPos;
+		getOwnerGraphPoint(this, 8, &nextPos);
+		mFaceAngle.y = matan(nextPos.z - invitePos.z, nextPos.x - invitePos.x);
+		mModelFaceAngle = mFaceAngle.y;
+		changePlayerStatus(ACTION_IDLE, 0, true);
+		emReplayIndex(this) = 0;
+		emInputReplay(this)->reset();
+		*(u16*)((u8*)emInputReplay(this) + 2) = 1;
+		emTimer(this) = 0;
+		emDoing(this) = 0x15;
+	}
+}
 
 void TEnemyMario::decideDoingAfterCarry()
 {
