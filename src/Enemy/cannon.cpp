@@ -133,7 +133,7 @@ DEFINE_NERVE(TNerveCannonDamageDemo, TLiveActor)
 		TChorobei* chorobei = self->unk1A8;
 		chorobei->unk6C->getMActor()->setBckFromIndex(14);
 		const char** bas = chorobei->unk68->getBasNameTable();
-		chorobei->unk78 = bas ? bas[14] : nullptr;
+		chorobei->unk78 = bas == nullptr ? nullptr : bas[14];
 		if (chorobei->unk78 != nullptr) {
 			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
 			chorobei->unk74->initAnmSound(res, 1, 0.0f);
@@ -202,7 +202,7 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 
 			chorobei->unk6C->getMActor()->setBckFromIndex(13);
 			const char** bas = chorobei->unk68->getBasNameTable();
-			chorobei->unk78 = bas ? bas[13] : nullptr;
+			chorobei->unk78 = bas == nullptr ? nullptr : bas[13];
 			if (chorobei->unk78 != nullptr) {
 				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
 				chorobei->unk74->initAnmSound(res, 1, 0.0f);
@@ -247,7 +247,7 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 
 			chorobei->unk6C->getMActor()->setBckFromIndex(13);
 			const char** bas = chorobei->unk68->getBasNameTable();
-			chorobei->unk78 = bas ? bas[13] : nullptr;
+			chorobei->unk78 = bas == nullptr ? nullptr : bas[13];
 			if (chorobei->unk78 != nullptr) {
 				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
 				chorobei->unk74->initAnmSound(res, 1, 0.0f);
@@ -297,7 +297,7 @@ DEFINE_NERVE(TNerveCannonClose, TLiveActor)
 		TChorobei* chorobei = self->unk1A8;
 		chorobei->unk6C->getMActor()->setBckFromIndex(15);
 		const char** bas = chorobei->unk68->getBasNameTable();
-		chorobei->unk78 = bas ? bas[15] : nullptr;
+		chorobei->unk78 = bas == nullptr ? nullptr : bas[15];
 		if (chorobei->unk78 != nullptr) {
 			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
 			chorobei->unk74->initAnmSound(res, 1, 0.0f);
@@ -360,7 +360,7 @@ DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
 		TChorobei* chorobei = self->unk1A8;
 		chorobei->unk6C->getMActor()->setBckFromIndex(17);
 		const char** bas = chorobei->unk68->getBasNameTable();
-		chorobei->unk78 = bas ? bas[17] : nullptr;
+		chorobei->unk78 = bas == nullptr ? nullptr : bas[17];
 		if (chorobei->unk78 != nullptr) {
 			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
 			chorobei->unk74->initAnmSound(res, 1, 0.0f);
@@ -375,7 +375,7 @@ DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
 			TChorobei* chorobei = self->unk1A8;
 			chorobei->unk6C->getMActor()->setBckFromIndex(16);
 			const char** bas = chorobei->unk68->getBasNameTable();
-			chorobei->unk78 = bas ? bas[16] : nullptr;
+			chorobei->unk78 = bas == nullptr ? nullptr : bas[16];
 			if (chorobei->unk78 != nullptr) {
 				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
 				chorobei->unk74->initAnmSound(res, 1, 0.0f);
@@ -417,7 +417,7 @@ DEFINE_NERVE(TNerveCannonShoot, TLiveActor)
 			TChorobei* chorobei = self->unk1A8;
 			chorobei->unk6C->getMActor()->setBckFromIndex(17);
 			const char** bas = chorobei->unk68->getBasNameTable();
-			chorobei->unk78 = bas ? bas[17] : nullptr;
+			chorobei->unk78 = bas == nullptr ? nullptr : bas[17];
 			if (chorobei->unk78 != nullptr) {
 				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
 				chorobei->unk74->initAnmSound(res, 1, 0.0f);
@@ -434,7 +434,7 @@ DEFINE_NERVE(TNerveCannonShoot, TLiveActor)
 				TChorobei* chorobei = self->unk1A8;
 				chorobei->unk6C->getMActor()->setBckFromIndex(16);
 				const char** bas = chorobei->unk68->getBasNameTable();
-				chorobei->unk78 = bas ? bas[16] : nullptr;
+				chorobei->unk78 = bas == nullptr ? nullptr : bas[16];
 				if (chorobei->unk78 != nullptr) {
 					void* res
 					    = JKRFileLoader::getGlbResource(chorobei->unk78);
@@ -498,7 +498,7 @@ DEFINE_NERVE(TNerveCannonSearch, TLiveActor)
 		TChorobei* chorobei = self->unk1A8;
 		chorobei->unk6C->getMActor()->setBckFromIndex(19);
 		const char** bas = chorobei->unk68->getBasNameTable();
-		chorobei->unk78 = bas ? bas[19] : nullptr;
+		chorobei->unk78 = bas == nullptr ? nullptr : bas[19];
 		if (chorobei->unk78 != nullptr) {
 			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
 			chorobei->unk74->initAnmSound(res, 1, 0.0f);
@@ -513,7 +513,7 @@ DEFINE_NERVE(TNerveCannonSearch, TLiveActor)
 		TChorobei* chorobei = self->unk1A8;
 		chorobei->unk6C->getMActor()->setBckFromIndex(18);
 		const char** bas = chorobei->unk68->getBasNameTable();
-		chorobei->unk78 = bas ? bas[18] : nullptr;
+		chorobei->unk78 = bas == nullptr ? nullptr : bas[18];
 		if (chorobei->unk78 != nullptr) {
 			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
 			chorobei->unk74->initAnmSound(res, 1, 0.0f);
@@ -578,7 +578,7 @@ DEFINE_NERVE(TNerveCannonOpen, TLiveActor)
 		TChorobei* chorobei = self->unk1A8;
 		chorobei->unk6C->getMActor()->setBckFromIndex(12);
 		const char** bas = chorobei->unk68->getBasNameTable();
-		chorobei->unk78 = bas ? bas[12] : nullptr;
+		chorobei->unk78 = bas == nullptr ? nullptr : bas[12];
 		if (chorobei->unk78 != nullptr) {
 			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
 			chorobei->unk74->initAnmSound(res, 1, 0.0f);
@@ -638,7 +638,7 @@ void TCannon::setKillerGoalPoint()
 	TCannonDom* dom = unk1AC[unk214];
 	dom->getMActor()->setBckFromIndex(1);
 	const char** bas = dom->unk10->getBasNameTable();
-	dom->unk20       = bas ? bas[1] : nullptr;
+	dom->unk20       = bas == nullptr ? nullptr : bas[1];
 	if (dom->unk20 != nullptr) {
 		void* res = JKRFileLoader::getGlbResource(dom->unk20);
 		dom->unk1C->initAnmSound(res, 1, 0.0f);
@@ -940,7 +940,7 @@ void TCannon::calcRootMatrix()
 
 			dom->getMActor()->setBckFromIndex(2);
 			const char** bas = dom->unk10->getBasNameTable();
-			dom->unk20       = bas ? bas[2] : nullptr;
+			dom->unk20       = bas == nullptr ? nullptr : bas[2];
 			if (dom->unk20 != nullptr) {
 				void* res = JKRFileLoader::getGlbResource(dom->unk20);
 				dom->unk1C->initAnmSound(res, 1, 0.0f);
