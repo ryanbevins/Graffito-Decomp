@@ -231,7 +231,71 @@ DEFINE_NERVE(TNerveSamboHeadHide, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveSamboHeadAttack, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveSamboHeadAttack, TLiveActor)
+{
+	TSamboHead* self = (TSamboHead*)spine->getBody();
+	if (!self->isAirborne()) {
+		if (self->unk19C > self->mParams->mSLJumpPrepareTime.get()
+		    && self->checkCurAnmEnd(0)) {
+			self->unk19C = 0;
+			self->updateSquareToMario();
+
+			JGeometry::TVec3<f32> target = self->unk104.getPoint();
+			target.x = gpMarioPos->x - self->mPosition.x;
+			target.y = 0.0f;
+			target.z = gpMarioPos->z - self->mPosition.z;
+			if (target.x == 0.0f && target.y == 0.0f
+			    && target.z == 0.0f)
+				target.x += 1.0f;
+
+			MsVECNormalize(&target, &target);
+			f32 moveDist = self->mParams->mSLMoveDist.get();
+			target.x     = self->mPosition.x + target.x * moveDist;
+			target.z     = self->mPosition.z + target.z * moveDist;
+			target.y     = self->mPosition.y;
+
+			f32 jumpSp = self->mParams->mSLJumpSp.get();
+			self->mVelocity = self->calcVelocityToJumpToY(
+			    target, jumpSp, self->getGravityY());
+			self->mPosition.y += 2.0f;
+			self->onLiveFlag(LIVE_FLAG_AIRBORNE);
+			self->setBckAnm(8);
+		} else {
+			++self->unk19C;
+		}
+
+		if (self->checkCurAnmEnd(0) && self->isBckAnm(7))
+			self->setBckAnm(12);
+
+		MActor* actor = self->mMActor;
+		actor->setFrameRate(SMSGetAnmFrameRate(), 0);
+	} else {
+		JGeometry::TVec3<f32> velocity = self->mVelocity;
+		if (velocity.y < 0.0f && self->isBckAnm(8)) {
+			self->setBckAnm(7);
+			self->mMActor->setFrameRate(0.0f, 0);
+		}
+	}
+
+	if (self->mPosition.y > self->mGroundHeight + 30.0f) {
+		f32 maxRoll = self->mParams->mSLJumpAngY.get();
+		JGeometry::TVec3<f32> velocity = self->mVelocity;
+		JGeometry::TVec3<f32> rot      = MsGetRotFromZaxis(velocity);
+		if (rot.x > maxRoll)
+			rot.x = maxRoll;
+		else if (rot.x < -maxRoll)
+			rot.x = -maxRoll;
+		self->mRollAngle = rot.x;
+	} else {
+		self->mRollAngle *= 0.8f;
+	}
+
+	f32 turnSpeed = self->mTurnSpeed;
+	if (self->isAirborne())
+		turnSpeed = 5.0f;
+	self->walkToCurPathNode(0.0f, turnSpeed, 0.0f);
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveSamboHeadAppear, TLiveActor)
 {
