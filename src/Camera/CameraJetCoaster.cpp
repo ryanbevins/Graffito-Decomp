@@ -236,6 +236,7 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		f32 sz = rot.at(0, 2) * sideAxis.x + rot.at(1, 2) * sideAxis.y
 		         + rot.at(2, 2) * sideAxis.z;
 
+		p68           = *(u8**)((u8*)this + 0x68);
 		f32 sideScale = *(f32*)(p68 + 0x5C);
 		sx *= sideScale;
 		sy *= sideScale;
@@ -265,7 +266,8 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		*(s16*)((u8*)this + 0x254)
 		    = CLBRoundf<s16>(angleDeg * (65536.0f / 360.0f));
 
-		*(f32*)((u8*)this + 0x48) = *(f32*)p68;
+		*(f32*)((u8*)this + 0x48)
+		    = *(f32*)*(u8**)((u8*)this + 0x68);
 
 	} else {
 		// 3rd-person camera mode
