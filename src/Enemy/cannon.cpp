@@ -580,8 +580,8 @@ DEFINE_NERVE(TNerveCannonOpen, TLiveActor)
 		const char** bas = chorobei->unk68->getBasNameTable();
 		chorobei->unk78 = bas == nullptr ? nullptr : bas[12];
 		if (chorobei->unk78 != nullptr) {
-			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
-			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+			chorobei->unk74->initAnmSound(
+			    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
 		} else {
 			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
 		}
@@ -590,13 +590,13 @@ DEFINE_NERVE(TNerveCannonOpen, TLiveActor)
 	}
 
 	TChorobei* chorobei = self->unk1A8;
-	bool chorobeiOpened = false;
-	MActor* actor       = chorobei->unk6C->getMActor();
-	if (actor->curAnmEndsNext(0, nullptr)
-	    && actor->checkCurBckFromIndex(12)) {
+	bool chorobeiOpened;
+	if (chorobei->unk6C->getMActor()->curAnmEndsNext(0, nullptr)
+	    && chorobei->unk6C->getMActor()->checkCurBckFromIndex(12)) {
 		chorobeiOpened = true;
 	} else {
 		chorobei->unk70 = 0.0f;
+		chorobeiOpened  = false;
 	}
 
 	if (chorobeiOpened && self->checkCurAnmEnd(0)) {
