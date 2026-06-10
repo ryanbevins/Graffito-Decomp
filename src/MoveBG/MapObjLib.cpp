@@ -19,6 +19,7 @@
 #include <Map/MapCollisionEntry.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
+#include <JSystem/JGeometry/JGRotation3.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JParticle/JPAMath.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
@@ -491,12 +492,47 @@ void TMapObjBase::concatOnlyRotFromRight(MtxPtr param_1, MtxPtr param_2,
 	param_3[2][3] = fVar3;
 }
 
-void TMapObjBase::makeMtxRotByAxis(const JGeometry::TVec3<f32>&, f32, MtxPtr) {
+void TMapObjBase::makeMtxRotByAxis(const JGeometry::TVec3<f32>& axis, f32 angle,
+                                   MtxPtr mtx)
+{
+	JGeometry::TRotation3<
+	    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >
+	    rot;
+	rot.identity();
+	rot.setRotate(axis, angle);
+
+	mtx[0][0] = rot.at(0, 0);
+	mtx[0][1] = rot.at(0, 1);
+	mtx[0][2] = rot.at(0, 2);
+	mtx[1][0] = rot.at(1, 0);
+	mtx[1][1] = rot.at(1, 1);
+	mtx[1][2] = rot.at(1, 2);
+	mtx[2][0] = rot.at(2, 0);
+	mtx[2][1] = rot.at(2, 1);
+	mtx[2][2] = rot.at(2, 2);
 }
 
-void TMapObjBase::makeObjMtxRotByAxis(const JGeometry::TVec3<f32>&, f32,
-                                      MtxPtr) const
+void TMapObjBase::makeObjMtxRotByAxis(const JGeometry::TVec3<f32>& axis,
+                                      f32 angle, MtxPtr mtx) const
 {
+	JGeometry::TRotation3<
+	    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >
+	    rot;
+	rot.identity();
+	rot.setRotate(axis, angle);
+
+	mtx[0][0] = rot.at(0, 0) * mScaling.x;
+	mtx[0][1] = rot.at(0, 1) * mScaling.y;
+	mtx[0][2] = rot.at(0, 2) * mScaling.z;
+	mtx[0][3] = mPosition.x;
+	mtx[1][0] = rot.at(1, 0) * mScaling.x;
+	mtx[1][1] = rot.at(1, 1) * mScaling.y;
+	mtx[1][2] = rot.at(1, 2) * mScaling.z;
+	mtx[1][3] = mPosition.y - mYOffset;
+	mtx[2][0] = rot.at(2, 0) * mScaling.x;
+	mtx[2][1] = rot.at(2, 1) * mScaling.y;
+	mtx[2][2] = rot.at(2, 2) * mScaling.z;
+	mtx[2][3] = mPosition.z;
 }
 
 void TMapObjBase::calcReflectingVelocity(const TBGCheckData* wall, f32 param_2,
@@ -511,16 +547,58 @@ void TMapObjBase::calcReflectingVelocity(const TBGCheckData* wall, f32 param_2,
 	velocity->z -= (param_2 + 1.0f) * fVar2 * normal.z;
 }
 
-void TMapObjBase::getVerticalVecToTargetXZ(f32, f32,
-                                           JGeometry::TVec3<f32>*) const
+void TMapObjBase::getVerticalVecToTargetXZ(
+    f32 target_x, f32 target_z, JGeometry::TVec3<f32>* out) const
 {
+	out->set(target_x - mPosition.x, 0.0f, target_z - mPosition.z);
+	MsVECNormalize(out, out);
+
+	JGeometry::TRotation3<
+	    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >
+	    rot;
+	rot.setEular(0.0f, M_PI / 2.0f, 0.0f);
+
+	f32 x = out->x;
+	f32 y = out->y;
+	f32 z = out->z;
+	out->set(x * rot.at(0, 0) + y * rot.at(0, 1) + z * rot.at(0, 2),
+	         x * rot.at(1, 0) + y * rot.at(1, 1) + z * rot.at(1, 2),
+	         x * rot.at(2, 0) + y * rot.at(2, 1) + z * rot.at(2, 2));
 }
 
-void TMapObjBase::getVerticalVecFromOffsetXZ(f32, f32, JGeometry::TVec3<f32>*)
+void TMapObjBase::getVerticalVecFromOffsetXZ(
+    f32 offset_x, f32 offset_z, JGeometry::TVec3<f32>* out)
 {
+	out->set(offset_x, 0.0f, offset_z);
+	MsVECNormalize(out, out);
+
+	JGeometry::TRotation3<
+	    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >
+	    rot;
+	rot.setEular(0.0f, M_PI / 2.0f, 0.0f);
+
+	f32 x = out->x;
+	f32 y = out->y;
+	f32 z = out->z;
+	out->set(x * rot.at(0, 0) + y * rot.at(0, 1) + z * rot.at(0, 2),
+	         x * rot.at(1, 0) + y * rot.at(1, 1) + z * rot.at(1, 2),
+	         x * rot.at(2, 0) + y * rot.at(2, 1) + z * rot.at(2, 2));
 }
 
-void TMapObjBase::rotateVecByAxisY(JGeometry::TVec3<f32>*, f32) { }
+void TMapObjBase::rotateVecByAxisY(JGeometry::TVec3<f32>* vec, f32 angle)
+{
+	JGeometry::TRotation3<
+	    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >
+	    rot;
+	rot.setEular(0.0f, angle, 0.0f);
+
+	f32 x = vec->x;
+	f32 y = vec->y;
+	f32 z = vec->z;
+	vec->set(x * rot.at(0, 0) + y * rot.at(0, 1) + z * rot.at(0, 2),
+	         x * rot.at(1, 0) + y * rot.at(1, 1) + z * rot.at(1, 2),
+	         x * rot.at(2, 0) + y * rot.at(2, 1) + z * rot.at(2, 2));
+}
 
 void TMapObjBase::getNormalVecFromOffsetXZ(f32, f32, JGeometry::TVec3<f32>*) { }
 
