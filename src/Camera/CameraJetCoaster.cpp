@@ -372,24 +372,24 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 	} else {
 		if (*(u32*)((u8*)this + 0x78) == 0) {
 			u8* p68 = *(u8**)((u8*)this + 0x68);
+			f32 chaseXZ = *(f32*)(p68 + 0x94);
+			f32 chaseY  = *(f32*)(p68 + 0x9C);
 			CLBChaseDecrease((f32*)((u8*)this + 0x10),
-			                 *(f32*)((u8*)this + 0x80),
-			                 *(f32*)(p68 + 0x94), 0.0f);
+			                 *(f32*)((u8*)this + 0x80), chaseXZ, 0.0f);
 			CLBChaseDecrease((f32*)((u8*)this + 0x14),
-			                 *(f32*)((u8*)this + 0x84),
-			                 *(f32*)(p68 + 0x9C), 0.0f);
+			                 *(f32*)((u8*)this + 0x84), chaseY, 0.0f);
 			CLBChaseDecrease((f32*)((u8*)this + 0x18),
-			                 *(f32*)((u8*)this + 0x88),
-			                 *(f32*)(p68 + 0x94), 0.0f);
+			                 *(f32*)((u8*)this + 0x88), chaseXZ, 0.0f);
 		}
 		if (*(u32*)((u8*)this + 0x7C) == 0) {
 			u8* p68 = *(u8**)((u8*)this + 0x68);
-			CLBChaseDecrease((f32*)((u8*)this + 0x3C), at.x,
-			                 *(f32*)(p68 + 0xA4), 0.0f);
-			CLBChaseDecrease((f32*)((u8*)this + 0x40), at.y,
-			                 *(f32*)(p68 + 0xA8), 0.0f);
-			CLBChaseDecrease((f32*)((u8*)this + 0x44), at.z,
-			                 *(f32*)(p68 + 0xA4), 0.0f);
+			f32 chaseXZ = *(f32*)(p68 + 0xA4);
+			f32 chaseY  = *(f32*)(p68 + 0xA8);
+			CLBChaseDecrease((f32*)((u8*)this + 0x3C), at.x, chaseXZ,
+			                 0.0f);
+			CLBChaseDecrease((f32*)((u8*)this + 0x40), at.y, chaseY, 0.0f);
+			CLBChaseDecrease((f32*)((u8*)this + 0x44), at.z, chaseXZ,
+			                 0.0f);
 		}
 	}
 }
