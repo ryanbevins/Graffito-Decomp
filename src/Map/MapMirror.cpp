@@ -9,6 +9,7 @@
 #include <Camera/CubeManagerBase.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 
 // rogue includes needed for matching sinit & bss
@@ -293,7 +294,14 @@ void TMirrorModelManager::loadAfter()
 		findMirrorCamera();
 
 	for (int i = 0; i < unk10; ++i) {
-		// TODO: ghidra decompiler died here
+		ResTIMG* src = unk24->unk94;
+		ResTIMG* dst = unk1C[i]
+		                   ->unk4->getModel()
+		                   ->getModelData()
+		                   ->getTexture()
+		                   ->mResources;
+		*dst                 = *src;
+		dst->imageDataOffset = src->imageDataOffset + (u32)src - (u32)dst;
 	}
 }
 
