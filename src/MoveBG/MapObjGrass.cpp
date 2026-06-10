@@ -198,7 +198,8 @@ void TMapObjGrassManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 			if (gpMarDirector->getCurrentMap() == 2) {
 				grass->unk78 = 0;
 			} else {
-				f32 len = grass->mPosition.distance(gpCamera->unk124);
+				Vec& cameraPos = gpCamera->unk124;
+				f32 len        = grass->mPosition.distance(cameraPos);
 
 				if (len < mDistNear) {
 					grass->unk78 = 0;
