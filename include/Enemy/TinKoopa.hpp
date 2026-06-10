@@ -143,7 +143,12 @@ public:
 	/* 0x178 */ s32 unk178;
 	/* 0x17C */ s32 unk17C;
 	/* 0x180 */ s32 unk180;
-	/* 0x184 */ u8 unk184[0x44];
+	/* 0x184 */ u8 unk184[0x30];
+	/* 0x1B4 */ f32 unk1B4;
+	/* 0x1B8 */ f32 unk1B8;
+	/* 0x1BC */ f32 unk1BC;
+	/* 0x1C0 */ f32 unk1C0;
+	/* 0x1C4 */ u8 unk1C4[4];
 	/* 0x1C8 */ s32 unk1C8;
 	/* 0x1CC */ TTinKoopaPartsBase* unk1CC[6];
 	/* 0x1E4 */ s32 unk1E4;

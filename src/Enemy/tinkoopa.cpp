@@ -12,6 +12,7 @@
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/MarioMain.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/Strategy.hpp>
@@ -273,6 +274,39 @@ void TTinKoopa::launchKiller(int direction)
 		MSoundSESystem::MSoundSE::startSoundActor(
 		    0x285d, (const Vec*)&killer->mPosition, 0, nullptr, 0, 4);
 	}
+}
+
+void TTinKoopa::resetTinKoopa()
+{
+	if (!unk1F0) {
+		unk1F0 = JDrama::TNameRefGen::search<TEnemyManager>(
+		    "コースターキラーマネージャー");
+	}
+
+	unk164 = gpMarioOriginal->mKoopaRail;
+	unk150 = 0;
+	unk154 = 0;
+	unk158 = 0;
+	unk15C = 0;
+	unk168 = 0;
+
+	TTinKoopaParams* params = (TTinKoopaParams*)getSaveParam();
+	unk1C8                 = params->mSLPartsHP.get();
+	unk1E4                 = 0;
+	unk170                 = 0;
+	unk174                 = 0;
+	unk169[0]              = 0;
+	unk169[1]              = 0;
+	unk169[2]              = 0;
+	unk169[3]              = 0;
+	unk178                 = 0;
+	unk17C                 = 0;
+	unk180                 = 0;
+	unk178                 = 0;
+	unk1B4                 = 0.0f;
+	unk1B8                 = 30.0f;
+	unk1BC                 = 15.0f;
+	unk1C0                 = 45.0f;
 }
 
 void TTinKoopaMtxCalc::calc(u16 index)
