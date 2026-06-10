@@ -302,7 +302,91 @@ Mtx* TBathtubGrip::getRootJointMtx() const
 
 void TBathtubGrip::calcRootMatrix() { TMapObjBase::calcRootMatrix(); }
 
-void TBathtubGrip::control() { TMapObjBase::control(); }
+void TBathtubGrip::control()
+{
+	calcRootMatrix();
+	TMapObjBase::control();
+
+	if (unk24A != 0) {
+		for (s32 i = 0; i < 17; ++i)
+			unk164[i]->remove();
+		for (s32 i = 0; i < 5; ++i)
+			unk150[i]->remove();
+		return;
+	}
+
+	mMActor->calcAnm();
+
+	if (unk24B != 0) {
+		for (s32 i = 0; i < 17; ++i) {
+			unk164[i]->moveMtx(*unk1BC[i]->getRootJointMtx());
+			unk164[i]->setUp();
+		}
+
+		for (s32 i = 0; i < 5; ++i) {
+			unk150[i]->moveMtx(*unk1A8[i]->getRootJointMtx());
+			unk150[i]->setUp();
+		}
+	}
+
+	if (unk248 != 0) {
+		if (animIsFinished()) {
+			if (unk244->unk16C->resetGrip.get()) {
+				offLiveFlag(LIVE_FLAG_DEAD);
+				unk248 = 0;
+				unk24A = 0;
+				unk249 = 1;
+				unk24B = 0;
+				startAnim(0);
+
+				J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+				if (ctrl != nullptr) {
+					ctrl->setFrame(0.0f);
+					ctrl->setRate(0.0f);
+				}
+
+				unk250 = 1.0f;
+				unk258 = 100;
+				unk260 = 0;
+			} else {
+				kill();
+			}
+			return;
+		}
+
+		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+		if (ctrl != nullptr)
+			ctrl->setRate(0.5f * unk250 * SMSGetAnmFrameRate());
+
+		MtxPtr mtx = *unk1A8[0]->getRootJointMtx();
+		unk144.x   = mtx[0][3];
+		unk144.y   = mtx[1][3];
+		unk144.z   = mtx[2][3];
+		if (gpMSound->gateCheck(0x300D)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x300D, (Vec*)&unk144, 0, nullptr, 0, 4);
+		}
+		SMSRumbleMgr->start(8, (Vec*)&unk138);
+		return;
+	}
+
+	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+	ctrl->setRate(0.0f);
+	if (unk254 > 0) {
+		ctrl->setFrame(1.0f);
+		++unk254;
+		if (unk254 > unk258) {
+			unk248 = 1;
+			unk254 = 0;
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0xF6, *getRootJointMtx(), 0, this);
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0xF7, *getRootJointMtx(), 0, this);
+		}
+	} else {
+		ctrl->setFrame(0.0f);
+	}
+}
 
 void TBathtub::loadAfter()
 {
