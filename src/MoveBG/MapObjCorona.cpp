@@ -7,9 +7,12 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JMath.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <M3DUtil/MActorData.hpp>
+#include <Map/MapCollisionEntry.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <Player/MarioAccess.hpp>
 #include <System/Particles.hpp>
+#include <math.h>
 
 // rogue includes for matching __sinit (15 JALList<T> templates)
 #include <MSound/MSSetSound.hpp>
@@ -278,7 +281,78 @@ TBathtub::TBathtub(const char* name)
 	unk294 = nullptr;
 }
 
-void TBathtub::load(JSUMemoryInputStream&) { }
+void TBathtub::load(JSUMemoryInputStream& stream)
+{
+	unk24C = 0;
+	TMapObjBase::load(stream);
+
+	mPosition.x = mInitialPosition.x;
+	mPosition.y = mInitialPosition.y;
+	mPosition.z = mInitialPosition.z;
+
+	unk164 = new TMapCollisionMove*[30];
+	for (s32 i = 0; i < 30; ++i) {
+		unk164[i] = new TMapCollisionMove;
+		const char* path = nullptr;
+		switch (i % 6) {
+		case 0:
+			path = "/scene/mapObj/bath_col_inside3.col";
+			break;
+		case 1:
+			path = "/scene/mapObj/bath_col_inside2.col";
+			break;
+		case 2:
+			path = "/scene/mapObj/bath_col_inside1.col";
+			break;
+		case 3:
+			path = "/scene/mapObj/bath_col_inside6.col";
+			break;
+		case 4:
+			path = "/scene/mapObj/bath_col_inside5.col";
+			break;
+		case 5:
+			path = "/scene/mapObj/bath_col_inside4.col";
+			break;
+		}
+		unk164[i]->init(path, 0, this);
+		((TMapCollisionBase*)unk164[i])->remove();
+	}
+
+	unk170.x = mInitialPosition.x;
+	unk170.y = mInitialPosition.y;
+	unk170.z = mInitialPosition.z;
+
+	unk188[7] = 0.0f;
+	unk188[6] = 0.0f;
+	unk188[5] = 0.0f;
+	unk188[3] = 0.0f;
+	unk188[2] = 0.0f;
+	unk188[1] = 0.0f;
+	unk188[8] = 1.0f;
+	unk188[4] = 1.0f;
+	unk188[0] = 1.0f;
+
+	unk1AC = 3000.0f;
+	unk1B0 = 3600.0f;
+	unk1B4 = unk1AC * sinf(0.27925268f);
+
+	unk1BC.z = 0.0f;
+	unk1BC.y = 0.0f;
+	unk1BC.x = 0.0f;
+	unk1C8.z = 0.0f;
+	unk1C8.y = 0.0f;
+	unk1C8.x = 0.0f;
+	unk1B8   = 100.0f;
+	unk1D4   = 0;
+
+	unk17C.x = 0.0f;
+	unk17C.y = 1.0f;
+	unk17C.z = 0.0f;
+
+	unk168 = new TBathtubGrip*[5];
+	unk138 = new MActorAnmData;
+	unk138->init("scene/map/map/stand_effect", nullptr);
+}
 
 s32 TBathtub::getNumKillerLaunchable() const
 {

@@ -6,6 +6,9 @@
 #include <System/Params.hpp>
 
 class TBathtubGrip;
+class MActor;
+class MActorAnmData;
+class TMapCollisionMove;
 
 class TBathtubParams : public TParams {
 public:
@@ -54,7 +57,7 @@ public:
 	MtxPtr getKoopaJrMtxInDemo();
 	// fabricated
 	u8 getUnk29A() const { return *((u8*)this + 0x29A); }
-	u8 getUnk1D4() const { return *((u8*)this + 0x1D4); }
+	u8 getUnk1D4() const { return unk1D4; }
 	BOOL receiveMessage(THitActor* sender, u32 message);
 	Mtx* getRootJointMtx() const;
 	void perform(u32, JDrama::TGraphics*);
@@ -87,12 +90,23 @@ public:
 	void trample(const JGeometry::TVec3<f32>&);             // Unused
 
 public:
-	/* 0x138 */ u8 unk138[0x2C];
-	/* 0x164 */ void* unk164;
+	/* 0x138 */ MActorAnmData* unk138;
+	/* 0x13C */ f32 unk13C[5];
+	/* 0x150 */ f32 unk150[5];
+	/* 0x164 */ TMapCollisionMove** unk164;
 	/* 0x168 */ TBathtubGrip** unk168;
 	/* 0x16C */ TBathtubParams* unk16C;
-	/* 0x170 */ u8 unk170[0x18];
-	/* 0x188 */ u8 unk188[0x50];
+	/* 0x170 */ JGeometry::TVec3<f32> unk170;
+	/* 0x17C */ JGeometry::TVec3<f32> unk17C;
+	/* 0x188 */ f32 unk188[9];
+	/* 0x1AC */ f32 unk1AC;
+	/* 0x1B0 */ f32 unk1B0;
+	/* 0x1B4 */ f32 unk1B4;
+	/* 0x1B8 */ f32 unk1B8;
+	/* 0x1BC */ JGeometry::TVec3<f32> unk1BC;
+	/* 0x1C8 */ JGeometry::TVec3<f32> unk1C8;
+	/* 0x1D4 */ u8 unk1D4;
+	/* 0x1D5 */ u8 unk1D5[3];
 	/* 0x1D8 */ JGeometry::TVec3<f32> unk1D8;
 	/* 0x1E4 */ f32 unk1E4;
 	/* 0x1E8 */ JGeometry::TVec3<f32> unk1E8;
@@ -105,17 +119,24 @@ public:
 	/* 0x258 */ s32 unk258;
 	/* 0x25C */ s32 unk25C;
 	/* 0x260 */ s32 unk260;
-	/* 0x264 */ u8 unk264[8];
+	/* 0x264 */ s32 unk264;
+	/* 0x268 */ s32 unk268;
 	/* 0x26C */ s32 unk26C;
 	/* 0x270 */ s32 unk270;
 	/* 0x274 */ s32 unk274;
-	/* 0x278 */ u8 unk278[0x18];
+	/* 0x278 */ s32 unk278;
+	/* 0x27C */ s32 unk27C;
+	/* 0x280 */ s32 unk280;
+	/* 0x284 */ s32 unk284;
+	/* 0x288 */ s32 unk288;
+	/* 0x28C */ s32 unk28C;
 	/* 0x290 */ void* unk290;
 	/* 0x294 */ void* unk294;
 	/* 0x298 */ u8 unk298;
 	/* 0x299 */ u8 unk299;
 	/* 0x29A */ u8 unk29A;
-	/* 0x29B */ u8 unk29B[5];
+	/* 0x29B */ u8 unk29B;
+	/* 0x29C */ MActor* unk29C;
 	/* 0x2A0 */ void* unk2A0;
 };
 
