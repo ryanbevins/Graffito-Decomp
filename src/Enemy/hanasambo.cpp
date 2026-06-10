@@ -1,6 +1,7 @@
 #include <Enemy/HanaSambo.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -135,7 +136,47 @@ static inline void initMarioGoal(TSpineEnemy* sambo)
 	sambo->unk114.clear();
 }
 
-DEFINE_NERVE(TNerveSamboHeadHitWall, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveSamboHeadHitWall, TLiveActor)
+{
+	TSamboHead* self = (TSamboHead*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setBckAnm(1);
+
+		if (JPABaseEmitter* emitter = gpMarioParticleManager->emitWithRotate(
+		        0xE2, &self->mPosition, 0,
+		        self->mRotation.y * 182.04445f, 0, 0, nullptr)) {
+			JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
+			emitter->setScale(scale);
+		}
+		if (JPABaseEmitter* emitter = gpMarioParticleManager->emitWithRotate(
+		        0xE3, &self->mPosition, 0,
+		        self->mRotation.y * 182.04445f, 0, 0, nullptr)) {
+			JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
+			emitter->setScale(scale);
+			SMSSetEmitterPolColor(emitter, 6);
+		}
+	}
+
+	s32 wait = ((TSmallEnemyManager*)self->mManager)->unk5C;
+	if (self->checkCurAnmEnd(0)
+	    && spine->getTime()
+	           > wait + self->mMActor->getFrameCtrl(0)->getEnd()) {
+		self->onLiveFlag(LIVE_FLAG_DEAD);
+		self->onLiveFlag(LIVE_FLAG_UNK8);
+		self->onLiveFlag(LIVE_FLAG_UNK20000);
+		self->offLiveFlag(LIVE_FLAG_UNK10000);
+		self->mHolder = nullptr;
+		self->stopAnmSound();
+
+		spine->reset();
+		spine->setNext(&TNerveSmallEnemyDie::theNerve());
+		spine->pushAfterCurrent(&TNerveSmallEnemyDie::theNerve());
+		self->genRandomItem();
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveSamboHeadRecoverWater, TLiveActor)
 {
