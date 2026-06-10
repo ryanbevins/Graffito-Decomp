@@ -1379,15 +1379,20 @@ void THanaSambo::moveObject()
 	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
 		mHead->mPosition = mPosition;
 	} else {
+		u8 headJntIndex = mHeadJntIndex;
 		J3DModel* model = getModel();
-		MtxPtr mtx      = model->getAnmMtx(mHeadJntIndex);
-		mHead->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+		MtxPtr mtx      = model->getAnmMtx(headJntIndex);
+		mHead->mPosition.x = mtx[0][3];
+		mHead->mPosition.y = mtx[1][3];
+		mHead->mPosition.z = mtx[2][3];
 	}
 
-	for (int i = 0; i < mHead->getColNum(); ++i) {
-		THitActor* actor = mHead->getCollision(i);
+	int i                = 0;
+	THanaSamboHead* head = mHead;
+	for (; i < head->getColNum(); ++i) {
+		THitActor* actor = head->getCollision(i);
 		if (actor->isActorType(0x80000001))
-			SMS_SendMessageToMario(mHead, HIT_MESSAGE_ATTACK);
+			SMS_SendMessageToMario(head, HIT_MESSAGE_ATTACK);
 	}
 
 	mPosition.x = mRootPosition.x;
