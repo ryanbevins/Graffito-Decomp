@@ -819,44 +819,57 @@ void TTinKoopaMtxCalc::calc(u16 index)
 
 void TTinKoopaLaunchOrder::checkOrder()
 {
-	TTinKoopa* koopa = unk0;
-	if (koopa->unk15C != unk4)
+	if (unk0->unk15C != unk4)
 		return;
 
-	bool passed = false;
-	if (koopa->unk164)
-		passed = koopa->unk164->getFrameCtrl(0)->checkPass((f32)unk8);
+	s32 frame = unk8;
+	bool passed;
+	if (!unk0->unk164) {
+		passed = false;
+	} else {
+		if (unk0->unk164->getFrameCtrl(0)->checkPass((f32)frame))
+			passed = true;
+		else
+			passed = false;
+	}
 
 	if (!passed)
 		return;
 
 	s32 count = 1;
 	if (unkC == -1) {
-		switch (koopa->unk150) {
-		case 2:
-			count = 2;
-			break;
-		case 3:
-			count = 3;
-			break;
-		default:
+		if (unk0->unk150 == 0) {
 			count = 1;
-			break;
+		} else if (unk0->unk150 == 1) {
+			count = 1;
+		} else if (unk0->unk150 == 2) {
+			count = 2;
+		} else if (unk0->unk150 == 3) {
+			count = 3;
 		}
 	} else {
 		count = unkC;
 	}
 
-	if (unkD == 1 && count > 2)
-		count = 2;
+	s8 direction = unkD;
+	if (direction == 1) {
+		s32 nextCount;
+		if (count <= 2)
+			nextCount = count;
+		else
+			nextCount = 2;
+		count = nextCount;
+	}
 
+	s32 cappedCount = count;
+	TTinKoopa* koopa = unk0;
 	if (count > 4)
-		count = 4;
+		cappedCount = 4;
 
 	koopa->unk174 = 0;
-	koopa->unk170 = count;
+	koopa->unk170 = cappedCount;
 	for (int i = 0; i < koopa->unk170; ++i)
-		koopa->unk169[i] = unkD;
+		koopa->unk169[i] = direction;
 	koopa->unk178 = 0;
 }
 
