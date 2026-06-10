@@ -79,7 +79,7 @@ void TMapObjGrassGroup::drawFar() const
 	GXEnd();
 }
 
-void TMapObjGrassGroup::calc() { }
+inline void TMapObjGrassGroup::calc() { }
 
 void TMapObjGrassGroup::load(JSUMemoryInputStream& stream)
 {
@@ -160,7 +160,7 @@ void TMapObjGrassManager::initDrawNear() const
 	GXSetCullMode(GX_CULL_NONE);
 }
 
-void TMapObjGrassManager::initDrawFar() const
+inline void TMapObjGrassManager::initDrawFar() const
 {
 	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_RGBA4, 0);
 	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
@@ -169,7 +169,7 @@ void TMapObjGrassManager::initDrawFar() const
 	GXSetVtxDesc(GX_VA_CLR0, GX_INDEX8);
 }
 
-void TMapObjGrassManager::draw() const
+inline void TMapObjGrassManager::draw() const
 {
 	initDrawNear();
 	for (int i = 0; i < unk10; ++i)
@@ -222,8 +222,8 @@ void TMapObjGrassManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 	}
 }
 
-void TMapObjGrassManager::entryGrassGroup(TMapObjGrassGroup* param_1,
-                                          s32 param_2)
+inline void TMapObjGrassManager::entryGrassGroup(TMapObjGrassGroup* param_1,
+                                                 s32 param_2)
 {
 	unk14[unk10] = param_1;
 	unk1C += param_2;
