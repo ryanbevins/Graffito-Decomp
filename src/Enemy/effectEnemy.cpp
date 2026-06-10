@@ -105,15 +105,15 @@ void TEffectEnemy::forceKill()
 					flg = true;
 				else
 					flg = false;
-				if (!flg) {
-					u32 lf      = mLiveFlag;
-					int airborn = (lf & LIVE_FLAG_AIRBORNE) ? 1 : 0;
-					if (airborn == 0) {
-						if (!(lf & LIVE_FLAG_UNK10)) {
-							kill();
-							return;
-						}
-					}
+			}
+		}
+		if (flg) {
+			u32 lf      = mLiveFlag;
+			int airborn = (lf & LIVE_FLAG_AIRBORNE) ? 1 : 0;
+			if (airborn == 0) {
+				if (!(lf & LIVE_FLAG_UNK10)) {
+					kill();
+					return;
 				}
 			}
 		}
