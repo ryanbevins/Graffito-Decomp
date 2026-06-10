@@ -1,14 +1,18 @@
 #include <Enemy/TinKoopa.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EffectObj.hpp>
+#include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundSE.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/ObjModel.hpp>
+#include <Strategic/Spine.hpp>
 #include <Strategic/Strategy.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <System/Particles.hpp>
@@ -122,6 +126,12 @@ static const char* loopFilenames[] = {
 
 static const char* loopIndirectFilenames
     = "/scene/tinkoopa/jpa/ms_mkp_fire_c.jpa";
+
+inline const TNerveTinKoopaWait& TNerveTinKoopaWait::theNerve()
+{
+	static TNerveTinKoopaWait instance;
+	return instance;
+}
 
 TTinKoopaManager::TTinKoopaManager(const char* name)
     : TEnemyManager(name)
@@ -412,6 +422,72 @@ void TTinKoopaFlame::perform(u32 flags, JDrama::TGraphics* graphics)
 		if (unk68->unk17C <= 0)
 			offHitFlag(HIT_FLAG_NO_COLLISION);
 		unk72 = 0;
+	}
+}
+
+void TTinKoopaFlame::emitFlameEffects()
+{
+	if (unk68->mSpine->getCurrentNerve() != &TNerveTinKoopaWait::theNerve())
+		return;
+
+	MtxPtr mtx = unk68->getModel()->getAnmMtx(TTinKoopa_jointIndexTable[8]);
+
+	f32 baseScale = 1.0f;
+	if (unk68->unk150 != 0)
+		baseScale = 1.6f;
+
+	if (unk68->unk17C > 0) {
+		unk6C -= 0.05f;
+		if (unk6C < 0.3f)
+			unk6C = 0.3f;
+	} else {
+		unk6C += 0.05f;
+		if (unk6C > 1.0f)
+			unk6C = 1.0f;
+	}
+
+	f32 xzScale = unk6C * baseScale;
+	f32 yScale  = xzScale;
+	if (unk68->unk17C > 0)
+		yScale *= 3.0f;
+
+	JPABaseEmitter* emitter
+	    = gpMarioParticleManager->emitAndBindToMtxPtr(0x1bb, mtx, 1, this);
+	if (emitter) {
+		emitter->unk154.x = xzScale;
+		emitter->unk154.y = yScale;
+		emitter->unk154.z = xzScale;
+		emitter->unk174.x = xzScale;
+		emitter->unk174.y = yScale;
+		emitter->unk174.z = xzScale;
+	}
+
+	emitter
+	    = gpMarioParticleManager->emitAndBindToMtxPtr(0x1bc, mtx, 1, this);
+	if (emitter) {
+		emitter->unk154.x = xzScale;
+		emitter->unk154.y = yScale;
+		emitter->unk154.z = xzScale;
+		emitter->unk174.x = xzScale;
+		emitter->unk174.y = yScale;
+		emitter->unk174.z = xzScale;
+	}
+
+	emitter
+	    = gpMarioParticleManager->emitAndBindToMtxPtr(0x1f2, mtx, 3, this);
+	if (emitter) {
+		emitter->unk154.x = xzScale;
+		emitter->unk154.y = yScale;
+		emitter->unk154.z = xzScale;
+		emitter->unk174.x = xzScale;
+		emitter->unk174.y = yScale;
+		emitter->unk174.z = xzScale;
+	}
+
+	if (gpMSound->gateCheck(0x8135)) {
+		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+		    0x8135, (const Vec*)&mPosition, nullptr, xzScale, 0, 0, nullptr, 0,
+		    4);
 	}
 }
 

@@ -4,12 +4,17 @@
 #include <Enemy/Enemy.hpp>
 #include <Enemy/EnemyManager.hpp>
 #include <M3DUtil/M3UJoint.hpp>
+#include <Strategic/Nerve.hpp>
 
 class TLiveManager;
 class TMapCollisionMove;
 class TTinKoopaPartsBase;
 class TTinKoopaFlame;
 class TTinKoopa;
+
+DECLARE_NERVE(TNerveTinKoopaWait, TLiveActor);
+DECLARE_NERVE(TNerveTinKoopaDamage, TLiveActor);
+DECLARE_NERVE(TNerveTinKoopaBreak, TLiveActor);
 
 class TTinKoopaLaunchOrder {
 public:
