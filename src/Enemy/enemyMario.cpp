@@ -19,11 +19,14 @@
 #include <MarioUtil/ShadowUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <MoveBG/MapObjWave.hpp>
+#include <MSound/MAnmSound.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/MarioEffect.hpp>
 #include <Player/MarioRecord.hpp>
+#include <Player/ModelWaterManager.hpp>
 #include <Strategic/question.hpp>
 #include <System/Application.hpp>
 #include <System/EmitterViewObj.hpp>
@@ -1772,11 +1775,69 @@ void TEnemyMario::initModel()
 
 void TEnemyMario::initValues()
 {
-	TMario::initValues();
-	emFlags(this)         = 0;
-	emDoing(this)         = 0;
-	emTimer(this)         = 0;
-	emTrampleTimer(this)  = 0;
-	emEnemyModel(this)    = nullptr;
-	emDisappearPos(this).set(0.0f, 0.0f, 0.0f);
+	f32 zero = 0.0f;
+
+	mHealth = mDeParams.mHpMax.get();
+	unk134  = zero;
+	*(f32*)&unk138 = 1.0f;
+	unk13C  = 0;
+	*(f32*)&unk140 = zero;
+
+	unk108 = (u32)operator new(0x24);
+	u8* controller = (u8*)unk108;
+	*(s16*)(controller + 0x00) = 0;
+	*(s16*)(controller + 0x02) = 0;
+	*(f32*)(controller + 0x10) = zero;
+	*(f32*)(controller + 0x14) = zero;
+	*(f32*)(controller + 0x18) = zero;
+	*(u32*)(controller + 0x04) = 0;
+	*(u32*)(controller + 0x08) = 0;
+	*(u8*)(controller + 0x0C)  = 0;
+	*(u8*)(controller + 0x0D)  = 0;
+	unk10C = zero;
+	unk110 = zero;
+
+	unk154 = new TWaterEmitInfo("/Mario/DamageWaterEmit.prm");
+	unk158 = new TWaterEmitInfo("/Mario/WetWaterEmit.prm");
+
+	unk388 = 1;
+	unk530 = new s16[60];
+	for (int i = 0; i < 60; ++i)
+		unk530[i] = 0;
+	unk534 = 0;
+	unk536 = 0;
+	unk538 = 0;
+	unk53A = 0;
+	unk53B = 0;
+
+	initModel();
+
+	unk3D8    = zero;
+	unk3DC    = zero;
+	mCap      = nullptr;
+	mWaterGun = nullptr;
+	mYoshi    = nullptr;
+
+	mMarioEffect = new TMarioEffect;
+	((TMarioEffect*)mMarioEffect)->init(this);
+
+	unk414.x = zero;
+	unk414.y = zero;
+	unk414.z = 1.0f;
+	mMarioScreenPos.x = zero;
+	mMarioScreenPos.y = zero;
+	mMarioScreenPos.z = zero;
+	mWarpInDir.x = zero;
+	mWarpInDir.y = zero;
+	mWarpInDir.z = zero;
+	unk468       = zero;
+	unk46C       = zero;
+
+	mAnmSound = new MAnmSound(gpMSound);
+	mAnmSound->initAnmSound(nullptr, 1, zero);
+	unk4EC          = 0;
+	mBlendLogicOp   = 10;
+	mWaterWakeAlpha = 0;
+
+	unk390 = (u32)new TMBindShadowBody(this, mModel->getModel(), 1.0f);
 }
