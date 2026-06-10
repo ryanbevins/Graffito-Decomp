@@ -1,5 +1,6 @@
 #include <Enemy/TinKoopa.hpp>
 #include <Enemy/Conductor.hpp>
+#include <Enemy/CoasterKiller.hpp>
 #include <Enemy/EffectObj.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
@@ -245,6 +246,33 @@ f32 TTinKoopa::calcCoasterDistance(int start, int end)
 	for (int i = start; i < end; ++i)
 		distance += unk1E8[i];
 	return distance;
+}
+
+void TTinKoopa::launchKiller(int direction)
+{
+	TCoasterKiller* killer = (TCoasterKiller*)unk1F0->getDeadEnemy();
+	if (!killer)
+		return;
+
+	killer->reset();
+
+	s32 jointNo;
+	if (direction == 1)
+		jointNo = unk174 + 11;
+	else
+		jointNo = 14 - unk174;
+
+	u32 jointIndex = TTinKoopa_jointIndexTable[jointNo];
+	getJointTransByIndex(jointIndex, &killer->mPosition);
+	killer->mPathDir = direction;
+
+	MtxPtr mtx = getModel()->getAnmMtx(jointIndex);
+	gpMarioParticleManager->emitAndBindToMtxPtr(0xef, mtx, 0, this);
+
+	if (gpMSound->gateCheck(0x285d)) {
+		MSoundSESystem::MSoundSE::startSoundActor(
+		    0x285d, (const Vec*)&killer->mPosition, 0, nullptr, 0, 4);
+	}
 }
 
 void TTinKoopaMtxCalc::calc(u16 index)
