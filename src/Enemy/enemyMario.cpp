@@ -1790,22 +1790,6 @@ void TEnemyMario::initEnemyValues()
 		}
 	}
 
-	if (gpMarDirector->mMap == 0xC) {
-		if (strcmp(emOwner(this)->getName(), "マリオ@1") == 0) {
-			unk388 = 3;
-			setGamePad(gpMarDirector->unk18[1]);
-		}
-		if (strcmp(emOwner(this)->getName(), "マリオ@2") == 0) {
-			unk388 = 4;
-			setGamePad(gpMarDirector->unk18[2]);
-		}
-		if (strcmp(emOwner(this)->getName(), "マリオ@3") == 0) {
-			unk388 = 5;
-			setGamePad(gpMarDirector->unk18[3]);
-		}
-		emDoing(this) = 0x1B;
-	}
-
 	if (emScenarioType(this) != 0 && emOwner(this)->unk124 != nullptr) {
 		char graphName[32];
 		snprintf(graphName, sizeof(graphName), "mariomodoki%d",
@@ -1898,6 +1882,22 @@ void TEnemyMario::initEnemyValues()
 		    "/scene/map/map/pad/tutorialHI.pad");
 		emInputReplay(this) = new TMarioInputReplay;
 		emInputReplay(this)->init(inviteReplay);
+	}
+
+	if (gpMarDirector->mMap == 0xC) {
+		if (strcmp(emOwner(this)->getName(), "マリオ@1") == 0) {
+			unk388 = 3;
+			setGamePad(gpMarDirector->unk18[1]);
+		}
+		if (strcmp(emOwner(this)->getName(), "マリオ@2") == 0) {
+			unk388 = 4;
+			setGamePad(gpMarDirector->unk18[2]);
+		}
+		if (strcmp(emOwner(this)->getName(), "マリオ@3") == 0) {
+			unk388 = 5;
+			setGamePad(gpMarDirector->unk18[3]);
+		}
+		emDoing(this) = 0x1B;
 	}
 
 	if (unk388 >= 3 && unk388 <= 5 && mModel != nullptr) {
