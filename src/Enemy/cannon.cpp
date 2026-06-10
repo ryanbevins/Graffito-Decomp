@@ -14,6 +14,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <System/Application.hpp>
+#include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
@@ -64,6 +65,10 @@ static const char* cannonParticleFiles[] = {
 	"/scene/cannon/jpa/ms_cannon_d.jpa",
 	"/scene/cannon/jpa/ms_cannon_e.jpa",
 	"/scene/cannon/jpa/ms_cannon_smoke.jpa",
+};
+
+static const f32 xzTable[] = {
+	1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
 };
 
 u8 TCannon::mChorobeiJntIdx     = 4;
@@ -226,7 +231,72 @@ MtxPtr TCannon::getTakingMtx()
 
 void TCannon::calcRootMatrix()
 {
-	TSmallEnemy::calcRootMatrix();
+	if (mSpine->getCurrentNerve() != &TNerveCannonObject::theNerve()) {
+		mHeadHeight = 50.0f;
+		JGeometry::TVec3<f32> base = mPosition;
+		MtxPtr chorobeiMtx
+		    = getMActor()->getModel()->getAnmMtx(mChorobeiJntIdx);
+		base.y = chorobeiMtx[1][3];
+
+		for (int i = 0; i < 4; ++i) {
+			unk25C[i] = base;
+			unk25C[i].x += 200.0f * xzTable[i * 2];
+			unk25C[i].z += 200.0f * xzTable[i * 2 + 1];
+		}
+
+		unk258->setVertexData(0, unk25C[2], unk25C[1], unk25C[0]);
+		unk258->setVertexData(1, unk25C[0], unk25C[3], unk25C[2]);
+	}
+
+	if (mHolder != nullptr) {
+		MtxPtr takingMtx = mHolder->getTakingMtx();
+		if (mSpine->getCurrentNerve() == &TNerveCannonObject::theNerve()) {
+			PSMTXCopy(takingMtx, getModel()->getBaseTRMtx());
+			mPosition.x = takingMtx[0][3];
+			mPosition.y = takingMtx[1][3];
+			mPosition.z = takingMtx[2][3];
+		} else {
+			if (gpMarDirector->unk124 == 3 || gpMarDirector->unk124 == 4)
+				mRotation.y = -80.0f;
+
+			mPosition.x = takingMtx[0][3];
+			mPosition.y = takingMtx[1][3];
+			mPosition.z = takingMtx[2][3];
+			MsMtxSetXYZRPH(getMActor()->getModel()->getBaseTRMtx(),
+			                mPosition.x, mPosition.y, mPosition.z,
+			                (s16)(mRotation.x * 182.04445f),
+			                (s16)(mRotation.y * 182.04445f),
+			                (s16)(mRotation.z * 182.04445f));
+		}
+	} else {
+		TSpineEnemy::calcRootMatrix();
+	}
+
+	if (unk1A8 != nullptr
+	    && unk1A8->unk6C->getMActor()->checkCurBckFromIndex(14)
+	    && unk1A8->unk6C->getMActor()->getFrameCtrl(0)->checkPass(2.0f)) {
+		for (int i = 0; i < 3; ++i) {
+			TCannonDom* dom = unk1AC[i];
+			MtxPtr mtx      = dom->getConnectedMtx();
+			unk294.x        = mtx[0][3];
+			unk294.y        = mtx[1][3];
+			unk294.z        = mtx[2][3];
+
+			dom->getMActor()->setBckFromIndex(2);
+			const char** bas = dom->unk10->getBasNameTable();
+			dom->unk20       = bas ? bas[2] : nullptr;
+			if (dom->unk20 != nullptr) {
+				void* res = JKRFileLoader::getGlbResource(dom->unk20);
+				dom->unk1C->initAnmSound(res, 1, 0.0f);
+			} else {
+				dom->unk1C->initAnmSound(nullptr, 1, 0.0f);
+			}
+
+			gpMarioParticleManager->emit(0x14, &unk294, 0, nullptr);
+			gpMarioParticleManager->emit(0x13, &unk294, 0, nullptr);
+			gpMarioParticleManager->emit(0x12, &unk294, 0, nullptr);
+		}
+	}
 }
 
 void TCannon::perform(u32 flags, JDrama::TGraphics* graphics)

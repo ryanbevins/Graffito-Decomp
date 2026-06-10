@@ -132,7 +132,9 @@ public:
 	/* 0x25C */ JGeometry::TVec3<f32> unk25C[4];
 	/* 0x28C */ TCannonSaveLoadParams* unk28C;
 	/* 0x290 */ bool unk290;
-	/* 0x291 */ u8 pad291[0x1B];
+	/* 0x291 */ u8 pad291[3];
+	/* 0x294 */ JGeometry::TVec3<f32> unk294;
+	/* 0x2A0 */ u8 pad2A0[0xC];
 	/* 0x2AC */ f32 unk2AC;
 	/* 0x2B0 */ TMapCollisionMove* unk2B0;
 };
