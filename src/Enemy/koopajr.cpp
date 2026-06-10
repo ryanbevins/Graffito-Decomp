@@ -649,6 +649,35 @@ void TKoopaJrSubmarine::checkNerve()
 	(void)&TNerveKoopaJrSubmarineLaunchKiller::theNerve();
 }
 
+void TKoopaJrSubmarine::makeRoundVelocity()
+{
+	JGeometry::TVec3<f32> round = unk164.calcDirectionVector();
+	round.scale(unk168);
+
+	JGeometry::TVec3<f32> target = unk1A0->unk15C->mPosition;
+	target.add(round);
+
+	JGeometry::TVec3<f32> toTarget(target.x - mPosition.x, 0.0f,
+	                               target.z - mPosition.z);
+	f32 dist = JGeometry::TUtil<f32>::sqrt(toTarget.squared());
+	if (dist < 100.0f) {
+		unk170 = 1;
+		return;
+	}
+
+	unk170 = 0;
+	toTarget.normalize();
+	toTarget.scale(getSaveParam2()->mSLAcceleration.get());
+	mVelocity.add(toTarget);
+
+	f32 speed = JGeometry::TUtil<f32>::sqrt(mVelocity.squared());
+	f32 max   = getSaveParam2()->mSLSpeedMax.get();
+	if (speed > max) {
+		mVelocity.normalize();
+		mVelocity.scale(max);
+	}
+}
+
 void TKoopaJrSubmarine::resetKoopaJrSubmarine()
 {
 	mSpine->reset();
