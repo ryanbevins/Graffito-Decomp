@@ -321,9 +321,9 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		f32 uy = *(f32*)((u8*)this + 0x34);
 		f32 uz = *(f32*)((u8*)this + 0x38);
 		JGeometry::TVec3<f32> side;
-		side.x = uy * fwd.z - uz * fwd.y;
-		side.y = uz * fwd.x - ux * fwd.z;
-		side.z = ux * fwd.y - uy * fwd.x;
+		side.x = fwd.y * uz - fwd.z * uy;
+		side.y = fwd.z * ux - fwd.x * uz;
+		side.z = fwd.x * uy - fwd.y * ux;
 		MsVECNormalize((Vec*)&side, (Vec*)&side);
 
 		JGeometry::TVec3<f32> up;
