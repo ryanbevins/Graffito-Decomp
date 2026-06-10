@@ -113,19 +113,19 @@ public:
 
 	void appearWithDemo(const char*);
 	void appearSimple(int);
-	void appearWithTimeCallback(u32, u32);
+	static s32 appearWithTimeCallback(u32, u32);
 	void appearWithTime(int, int, int, int);
 	void movingDown();
 	void movingUp();
 	void movingCircle();
 
-	static u32 mPromiLife;
-	static u32 mSenkoRate;
-	static u32 mKiraRate;
-	static u32 mBowRate;
-	static u32 mCircleRateY;
-	static u32 mUpSpeed;
-	static u32 mSpeedDownRate;
+	static u32 mPromiLife[4];
+	static f32 mSenkoRate[4];
+	static f32 mKiraRate[4];
+	static f32 mBowRate[4];
+	static f32 mCircleRateY;
+	static f32 mUpSpeed;
+	static f32 mSpeedDownRate;
 	static u32 mSpeedDownTime;
 
 public:

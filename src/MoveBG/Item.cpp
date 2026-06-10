@@ -15,10 +15,12 @@
 #include <System/EmitterViewObj.hpp>
 #include <System/Particles.hpp>
 #include <Strategic/MirrorActor.hpp>
+#include <Strategic/ObjModel.hpp>
 #include <Strategic/question.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <MarioUtil/LightUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <Player/MarioAccess.hpp>
@@ -410,14 +412,13 @@ TCoinBlue::TCoinBlue(const char* name)
 {
 }
 
-u32 TShine::mPromiLife     = 1;
-u32 TShine::mSenkoRate     = 1;
-u32 TShine::mKiraRate      = 1;
-u32 TShine::mBowRate       = 1;
-u32 TShine::mCircleRateY   = 1;
-u32 TShine::mUpSpeed       = 1;
-u32 TShine::mSpeedDownRate = 1;
-u32 TShine::mSpeedDownTime = 1;
+u32 TShine::mPromiLife[4] = { 30, 15, 0, 0 };
+f32 TShine::mSenkoRate[4] = { 0.15f, 0.1f, 0.05f, 0.025f };
+f32 TShine::mKiraRate[4]  = { 1.0f, 0.6f, 0.3f, 0.1f };
+f32 TShine::mBowRate[4]   = { 1.0f, 1.0f, 0.0f, 0.0f };
+f32 TShine::mCircleRateY  = 0.5f;
+f32 TShine::mUpSpeed      = 1.0f;
+f32 TShine::mSpeedDownRate = 0.99f;
 
 void TShine::calc() { }
 
@@ -431,26 +432,194 @@ BOOL TShine::receiveMessage(THitActor*, u32) { }
 
 void TShine::touchPlayer(THitActor*) { }
 
-void TShine::appearWithTime(int, int, int, int) { }
+void TShine::appearWithTime(int total_time, int up_time, int circle_time,
+                            int down_time)
+{
+	TMapObjGeneral::appear();
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+	mLifeTimer = unk150;
+	offMapObjFlag(0x80000);
+	TFlagManager::smInstance->setBool(true, 0x50000);
 
-void TShine::appearWithTimeCallback(u32, u32) { }
+	if (up_time >= 0)
+		unk174 = up_time;
+	if (circle_time >= 0)
+		unk170 = circle_time;
+	if (down_time >= 0)
+		unk178 = down_time;
 
-void TShine::appearSimple(int) { }
+	unk168 = total_time - (unk174 + unk170 + unk178);
+	unk158 = 0.0f;
+	unk17C = (mInitialPosition.x - mPosition.x) / unk168;
 
-void TShine::appearWithDemo(const char*) { }
+	f32 targetY = mPosition.y + mUpSpeed * unk170;
+	f32 yDiff   = mInitialPosition.y - targetY;
+	unk180      = yDiff / unk168;
+	unk184      = (mInitialPosition.z - mPosition.z) / unk168;
+	unk15C      = getDistanceXZ(mInitialPosition);
+	if (unk15C == 0.0f)
+		unk15C = 1000.0f;
+	if (yDiff > 0.0f)
+		unk15C += yDiff;
+	unk160 = unk15C * mCircleRateY;
 
-void TShine::kill() { }
+	if (gpMSound->gateCheck(0x4821))
+		MSoundSESystem::MSoundSE::startSoundActor(0x4821, mPosition, 0,
+		                                          nullptr, 0, 4);
 
-void TShine::makeMActors() { }
+	mLifeTimer = unk174;
+	mState     = 0xB;
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+}
 
-void TShine::initMapObj() { }
+s32 TShine::appearWithTimeCallback(u32 shine, u32 event)
+{
+	if (event == 0) {
+		TShine* self = (TShine*)shine;
+		self->appearWithTime(self->unk18C, -1, -1, -1);
+		gpMarDirector->unk4E |= 1;
+	} else if (event == 1) {
+		gpMarDirector->unk4E &= ~1;
+	}
 
-void TShine::loadAfter() { }
+	return 0;
+}
 
-void TShine::loadBeforeInit(JSUMemoryInputStream& stream) { }
+void TShine::appearSimple(int circle_time)
+{
+	TMapObjGeneral::appear();
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+	mLifeTimer = unk150;
+	offMapObjFlag(0x80000);
+	TFlagManager::smInstance->setBool(true, 0x50000);
+
+	unk174   = 60;
+	unk170   = circle_time;
+	unk178   = 60;
+	unk154   = 3;
+	unk158   = 0.0f;
+	unk15C   = 0.0f;
+	unk160   = 0.0f;
+	mUpSpeed = 2.0f;
+	mInitialPosition = mPosition;
+
+	if (gpMSound->gateCheck(0x4821))
+		MSoundSESystem::MSoundSE::startSoundActor(0x4821, mPosition, 0,
+		                                          nullptr, 0, 4);
+
+	mLifeTimer = unk174;
+	mState     = 0xB;
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+}
+
+void TShine::appearWithDemo(const char* camera_name)
+{
+	JDrama::TNameRef* camera
+	    = JDrama::TNameRefGen::search<JDrama::TNameRef>(camera_name);
+	unk18C = *(u32*)((u8*)camera + 0x2C);
+
+	gpMarDirector->fireStartDemoCamera(
+	    camera_name, &mPosition, -1, 0.0f, true, appearWithTimeCallback, 0, this,
+	    JDrama::TFlagT<u16>(0));
+}
+
+void TShine::kill()
+{
+	TMapObjGeneral::kill();
+	unk154 = 1;
+}
+
+void TShine::makeMActors()
+{
+	mMActorKeeper = new TMActorKeeper(mManager, 1);
+	mMActorKeeper->mModelLoaderFlags = 0x10220000;
+
+	if (TFlagManager::smInstance->getShineFlag((u8)unk134)
+	    && strcmp(mName, "シャイン（マニ屋用）") != 0) {
+		mMActor = initMActor("shine_empty.bmd", nullptr, getSDLModelFlag());
+		unk1B4  = TRUE;
+	} else {
+		mMActor = initMActor("shine.bmd", nullptr, getSDLModelFlag());
+	}
+}
+
+void TShine::initMapObj()
+{
+	TMapObjGeneral::initMapObj();
+	unk14C    = 480;
+	unk150    = 120;
+	unk1A4[0] = 0;
+	unk1A8    = 1.0f;
+	unk1AC    = 1.0f;
+	unk1B0    = 1.0f;
+	unk170    = 240;
+	unk174    = 0;
+	unk178    = 240;
+}
+
+void TShine::loadAfter()
+{
+	TMapObjGeneral::loadAfter();
+
+	if (unk154 == 2) {
+		mLifeTimer = 240;
+		mState     = 0x12;
+	} else if (unk154 == 1) {
+		makeObjDead();
+	}
+}
+
+void TShine::loadBeforeInit(JSUMemoryInputStream& stream)
+{
+	char type[0x20];
+	stream.readString(type, sizeof(type));
+
+	if (strcmp("normal", type) == 0)
+		unk154 = 0;
+	else if (strcmp("quickly", type) == 0)
+		unk154 = 2;
+	else
+		unk154 = 1;
+
+	int shine_id;
+	stream.read(&shine_id, sizeof(shine_id));
+	if (shine_id == -1)
+		shine_id = 120;
+	unk134 = shine_id;
+
+	int in_stage;
+	stream.read(&in_stage, sizeof(in_stage));
+	if (in_stage + 1 >= 2)
+		in_stage = -1;
+	unk190 = in_stage + 1;
+}
 
 TShine::TShine(const char* name)
     : TItem(name)
+    , unk154(0)
+    , unk158(0.0f)
+    , unk15C(0.0f)
+    , unk160(0.0f)
+    , unk164(0.0f)
+    , unk168(0)
+    , unk16C(2.0f)
+    , unk170(0)
+    , unk174(0)
+    , unk178(0)
+    , unk17C(0.0f)
+    , unk180(0.0f)
+    , unk184(0.0f)
+    , unk188(0.0f)
+    , unk18C(0)
+    , unk190(0)
+    , unk194(0)
+    , unk198(0)
+    , unk19C(0)
+    , unk1A0(0)
+    , unk1A8(0.0f)
+    , unk1AC(0.0f)
+    , unk1B0(0.0f)
+    , unk1B4(0)
 {
 }
 
