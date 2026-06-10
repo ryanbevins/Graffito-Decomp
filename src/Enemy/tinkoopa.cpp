@@ -2,6 +2,7 @@
 #include <Enemy/Conductor.hpp>
 #include <Enemy/CoasterKiller.hpp>
 #include <Enemy/EffectObj.hpp>
+#include <GC2D/GCConsole2.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -17,6 +18,7 @@
 #include <Strategic/Spine.hpp>
 #include <Strategic/Strategy.hpp>
 #include <Strategic/ObjManager.hpp>
+#include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 
 static const char* tinkoopa_bastable[] = {
@@ -372,6 +374,59 @@ void TTinKoopa::reset()
 	mMActor->setBckFromIndex(bck);
 	const char** bas = getBasNameTable();
 	setAnmSound(bas ? bas[bck] : nullptr);
+}
+
+void TTinKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 2) {
+		emitTinKoopaEffects();
+		if (mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve()) {
+			if (unk174 < unk170 && unk178 <= 0) {
+				launchKiller(unk169[unk174]);
+				++unk174;
+				TTinKoopaParams* params = (TTinKoopaParams*)getSaveParam();
+				unk178 = params->mSLKillerInterval.get();
+			}
+		}
+	}
+
+	if (flags & 1) {
+		if (unk178 > 0)
+			--unk178;
+		if (unk17C > 0)
+			--unk17C;
+		if (unk180 > 0)
+			--unk180;
+
+		if (unk164) {
+			J3DFrameCtrl* ctrl = unk164->getFrameCtrl(0);
+			if (ctrl->checkPass((f32)(ctrl->getEnd() - 1))) {
+				++unk15C;
+				if (unk15C > 2)
+					unk15C = 0;
+			}
+		}
+
+		for (int i = 0; i < unk1F4->unk0; ++i)
+			unk1F4->unk8[i]->checkOrder();
+
+		checkTinKoopaKillerApproachingMessage();
+
+		if (unk164) {
+			J3DFrameCtrl* ctrl = unk164->getFrameCtrl(0);
+			if (unk15C == 0 && ctrl->checkPass(300.0f))
+				gpMarDirector->getConsole()->startAppearBalloon(0xe000a,
+				                                                true);
+		}
+
+		checkTinKoopaFirstFlameMessage();
+	}
+
+	TSpineEnemy::perform(flags, graphics);
+	unk160->perform(flags, graphics);
+
+	for (int i = 0; i < 6; ++i)
+		unk1CC[i]->perform(flags, graphics);
 }
 
 void TTinKoopaMtxCalc::calc(u16 index)
