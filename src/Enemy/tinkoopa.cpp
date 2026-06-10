@@ -779,6 +779,7 @@ void TTinKoopa::checkTinKoopaKillerApproachingMessage()
 	}
 }
 
+#pragma dont_inline on
 void TTinKoopa::hitParts()
 {
 	if (mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve())
@@ -796,6 +797,7 @@ void TTinKoopa::hitParts()
 	else
 		mSpine->pushNerve(&TNerveTinKoopaDamage::theNerve());
 }
+#pragma dont_inline off
 
 #pragma dont_inline on
 f32 TTinKoopa::calcCoasterDistance(int start, int end)
