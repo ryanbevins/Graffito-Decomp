@@ -275,52 +275,53 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 
 		f32 stickX = *(f32*)((u8*)unk120 + 0xC0);
 		f32 stickY = *(f32*)((u8*)unk120 + 0xC4);
-		TCamSaveJetCoaster* save = unk2B8->unk0;
+		TCameraJetCoaster* coaster = unk2B8;
+		TCamSaveJetCoaster* save  = coaster->unk0;
 
-		unk2B8->unk8 = (s16)(s32)((f32)(s32)unk2B8->unk8
-		                          - stickY
-		                                * (f32)(s32)save
-		                                      ->mSLOffsetAngleXManualSpeed
-		                                      .value);
-		unk2B8->unkA = (s16)(s32)((f32)(s32)unk2B8->unkA
-		                          + stickX
-		                                * (f32)(s32)save
-		                                      ->mSLOffsetAngleYManualSpeed
-		                                      .value);
+		coaster->unk8 = (s16)(s32)((f32)(s32)coaster->unk8
+		                           - stickY
+		                                 * (f32)(s32)save
+		                                       ->mSLOffsetAngleXManualSpeed
+		                                       .value);
+		coaster->unkA = (s16)(s32)((f32)(s32)coaster->unkA
+		                           + stickX
+		                                 * (f32)(s32)save
+		                                       ->mSLOffsetAngleYManualSpeed
+		                                       .value);
 
 		{
 			s32 hi = save->mSLOffsetAngleXLimit.value;
-			if ((s32)unk2B8->unk8 > hi)
-				unk2B8->unk8 = (s16)hi;
-			else if ((s32)unk2B8->unk8 < -hi)
-				unk2B8->unk8 = (s16)-hi;
+			if ((s32)coaster->unk8 > hi)
+				coaster->unk8 = (s16)hi;
+			else if ((s32)coaster->unk8 < -hi)
+				coaster->unk8 = (s16)-hi;
 		}
 		{
 			s32 hi = save->mSLOffsetAngleYLimit.value;
-			if ((s32)unk2B8->unkA > hi)
-				unk2B8->unkA = (s16)hi;
-			else if ((s32)unk2B8->unkA < -hi)
-				unk2B8->unkA = (s16)-hi;
+			if ((s32)coaster->unkA > hi)
+				coaster->unkA = (s16)hi;
+			else if ((s32)coaster->unkA < -hi)
+				coaster->unkA = (s16)-hi;
 		}
 
-		CLBChaseAngleDecrease(&unk2B8->unk4, unk2B8->unk8,
+		CLBChaseAngleDecrease(&coaster->unk4, coaster->unk8,
 		                      save->mSLOffsetAngleXChase.value);
-		CLBChaseAngleDecrease(&unk2B8->unk6, unk2B8->unkA,
+		CLBChaseAngleDecrease(&coaster->unk6, coaster->unkA,
 		                      save->mSLOffsetAngleYChase.value);
 
-		*(u32*)((u8*)this + 0x98) = *(u32*)((u8*)unk2B8 + 0x10);
-		*(u32*)((u8*)this + 0x9C) = *(u32*)((u8*)unk2B8 + 0x14);
-		*(u32*)((u8*)this + 0xA0) = *(u32*)((u8*)unk2B8 + 0x18);
+		*(u32*)((u8*)this + 0x98) = *(u32*)((u8*)coaster + 0x10);
+		*(u32*)((u8*)this + 0x9C) = *(u32*)((u8*)coaster + 0x14);
+		*(u32*)((u8*)this + 0xA0) = *(u32*)((u8*)coaster + 0x18);
 
-		*(u32*)((u8*)this + 0x8C) = *(u32*)((u8*)unk2B8 + 0x1C);
-		*(u32*)((u8*)this + 0x90) = *(u32*)((u8*)unk2B8 + 0x20);
-		*(u32*)((u8*)this + 0x94) = *(u32*)((u8*)unk2B8 + 0x24);
+		*(u32*)((u8*)this + 0x8C) = *(u32*)((u8*)coaster + 0x1C);
+		*(u32*)((u8*)this + 0x90) = *(u32*)((u8*)coaster + 0x20);
+		*(u32*)((u8*)this + 0x94) = *(u32*)((u8*)coaster + 0x24);
 
-		*(u32*)((u8*)this + 0x30) = *(u32*)((u8*)unk2B8 + 0x28);
-		*(u32*)((u8*)this + 0x34) = *(u32*)((u8*)unk2B8 + 0x2C);
-		*(u32*)((u8*)this + 0x38) = *(u32*)((u8*)unk2B8 + 0x30);
+		*(u32*)((u8*)this + 0x30) = *(u32*)((u8*)coaster + 0x28);
+		*(u32*)((u8*)this + 0x34) = *(u32*)((u8*)coaster + 0x2C);
+		*(u32*)((u8*)this + 0x38) = *(u32*)((u8*)coaster + 0x30);
 
-		*(f32*)((u8*)this + 0x48) = *(f32*)((u8*)unk2B8 + 0x34);
+		*(f32*)((u8*)this + 0x48) = *(f32*)((u8*)coaster + 0x34);
 
 		at.x = *(f32*)((u8*)this + 0x8C);
 		at.y = *(f32*)((u8*)this + 0x90);
@@ -346,7 +347,7 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		up.y = uy;
 		up.z = uz;
 
-		CLBRotatePosAndUp(unk2B8->unk4, unk2B8->unk6, side, up, *gpMarioPos,
+		CLBRotatePosAndUp(coaster->unk4, coaster->unk6, side, up, *gpMarioPos,
 		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x98),
 		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x30));
 
