@@ -130,6 +130,11 @@ inline TMarioInputReplay*& emInputReplay(TEnemyMario* mario)
 	return *(TMarioInputReplay**)((u8*)mario + 0x4300);
 }
 
+inline TMarioInputReplay**& emInputReplayArray(TEnemyMario* mario)
+{
+	return *(TMarioInputReplay***)((u8*)mario + 0x42F8);
+}
+
 inline u8* emController(TEnemyMario* mario)
 {
 	return *(u8**)((u8*)mario + 0x108);
@@ -673,9 +678,32 @@ void TEnemyMario::changeEMDoing(u16 doing)
 
 void TEnemyMario::startMonteReplay(u32 node_id)
 {
-	*(u32*)((u8*)this + 0x42A8) = node_id;
-	emTimer(this)               = 0;
-	emDoing(this)               = 0x19;
+	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
+	int node         = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+
+	Vec current;
+	graph->getGraphNode(node).getPoint(&current);
+	mPosition = current;
+
+	Vec next;
+	graph->getGraphNode(node + 1).getPoint(&next);
+	mFaceAngle.y = matan(next.z - current.z, next.x - current.x);
+
+	f32 zero    = 0.0f;
+	mVel.x      = zero;
+	mVel.y      = zero;
+	mVel.z      = zero;
+	mForwardVel = zero;
+
+	resetHistory();
+	changePlayerStatus(0x0C400201, 0, true);
+
+	emReplayIndex(this) = node_id;
+	emInputReplayArray(this)[emReplayIndex(this)]->reset();
+	*(u16*)((u8*)emInputReplayArray(this)[emReplayIndex(this)] + 2) = 1;
+
+	emTimer(this) = 0;
+	emDoing(this) = 0x19;
 }
 
 void TEnemyMario::initEnemyValues()
