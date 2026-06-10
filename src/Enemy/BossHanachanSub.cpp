@@ -35,7 +35,8 @@ f32 BHSCalcCentrifugalForce(const JGeometry::TVec3<f32>& a,
 	} else if (abZ >= 0.0f) {
 		angAB = matan(abZ, abX) * (360.0f / 65536.0f);
 	} else {
-		angAB = 180.0f - matan(-abZ, abX) * (360.0f / 65536.0f);
+		f32 angle = matan(-abZ, abX) * (360.0f / 65536.0f);
+		angAB    = 180.0f - angle;
 	}
 	s16 a1 = CLBRoundf<s16>(angAB * (65536.0f / 360.0f));
 
@@ -48,7 +49,8 @@ f32 BHSCalcCentrifugalForce(const JGeometry::TVec3<f32>& a,
 	} else if (bcZ >= 0.0f) {
 		angBC = matan(bcZ, bcX) * (360.0f / 65536.0f);
 	} else {
-		angBC = 180.0f - matan(-bcZ, bcX) * (360.0f / 65536.0f);
+		f32 angle = matan(-bcZ, bcX) * (360.0f / 65536.0f);
+		angBC    = 180.0f - angle;
 	}
 	s16 a2 = CLBRoundf<s16>(angBC * (65536.0f / 360.0f));
 
