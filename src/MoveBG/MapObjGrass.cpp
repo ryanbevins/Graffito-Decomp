@@ -46,7 +46,7 @@ void TMapObjGrassGroup::drawNear() const
 		f32 bottomY                = mPosition.y;
 		GXPosition3f32(leftX, bottomY, bottomZ);
 		GXColor1x8(1);
-		GXPosition3f32(topX, pos.y, z);
+		GXPosition3f32(topX, unk6C[i].y, z);
 		GXColor1x8(0);
 		GXPosition3f32(rightX, bottomY, topZ);
 		GXColor1x8(1);
