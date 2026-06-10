@@ -135,8 +135,8 @@ DEFINE_NERVE(TNerveCannonDamageDemo, TLiveActor)
 		const char** bas = chorobei->unk68->getBasNameTable();
 		chorobei->unk78 = bas == nullptr ? nullptr : bas[14];
 		if (chorobei->unk78 != nullptr) {
-			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
-			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+			chorobei->unk74->initAnmSound(
+			    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
 		} else {
 			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
 		}
@@ -204,8 +204,8 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 			const char** bas = chorobei->unk68->getBasNameTable();
 			chorobei->unk78 = bas == nullptr ? nullptr : bas[13];
 			if (chorobei->unk78 != nullptr) {
-				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
-				chorobei->unk74->initAnmSound(res, 1, 0.0f);
+				chorobei->unk74->initAnmSound(
+				    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
 			} else {
 				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
 			}
@@ -249,8 +249,8 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 			const char** bas = chorobei->unk68->getBasNameTable();
 			chorobei->unk78 = bas == nullptr ? nullptr : bas[13];
 			if (chorobei->unk78 != nullptr) {
-				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
-				chorobei->unk74->initAnmSound(res, 1, 0.0f);
+				chorobei->unk74->initAnmSound(
+				    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
 			} else {
 				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
 			}
@@ -363,8 +363,8 @@ DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
 		const char** bas = chorobei->unk68->getBasNameTable();
 		chorobei->unk78 = bas == nullptr ? nullptr : bas[17];
 		if (chorobei->unk78 != nullptr) {
-			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
-			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+			chorobei->unk74->initAnmSound(
+			    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
 		} else {
 			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
 		}
@@ -378,8 +378,8 @@ DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
 			const char** bas = chorobei->unk68->getBasNameTable();
 			chorobei->unk78 = bas == nullptr ? nullptr : bas[16];
 			if (chorobei->unk78 != nullptr) {
-				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
-				chorobei->unk74->initAnmSound(res, 1, 0.0f);
+				chorobei->unk74->initAnmSound(
+				    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
 			} else {
 				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
 			}
@@ -420,8 +420,8 @@ DEFINE_NERVE(TNerveCannonShoot, TLiveActor)
 			const char** bas = chorobei->unk68->getBasNameTable();
 			chorobei->unk78 = bas == nullptr ? nullptr : bas[17];
 			if (chorobei->unk78 != nullptr) {
-				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
-				chorobei->unk74->initAnmSound(res, 1, 0.0f);
+				chorobei->unk74->initAnmSound(
+				    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
 			} else {
 				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
 			}
@@ -437,9 +437,9 @@ DEFINE_NERVE(TNerveCannonShoot, TLiveActor)
 				const char** bas = chorobei->unk68->getBasNameTable();
 				chorobei->unk78 = bas == nullptr ? nullptr : bas[16];
 				if (chorobei->unk78 != nullptr) {
-					void* res
-					    = JKRFileLoader::getGlbResource(chorobei->unk78);
-					chorobei->unk74->initAnmSound(res, 1, 0.0f);
+					chorobei->unk74->initAnmSound(
+					    JKRFileLoader::getGlbResource(chorobei->unk78), 1,
+					    0.0f);
 				} else {
 					chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
 				}
@@ -501,8 +501,8 @@ DEFINE_NERVE(TNerveCannonSearch, TLiveActor)
 		const char** bas = chorobei->unk68->getBasNameTable();
 		chorobei->unk78 = bas == nullptr ? nullptr : bas[19];
 		if (chorobei->unk78 != nullptr) {
-			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
-			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+			chorobei->unk74->initAnmSound(
+			    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
 		} else {
 			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
 		}
@@ -516,8 +516,8 @@ DEFINE_NERVE(TNerveCannonSearch, TLiveActor)
 		const char** bas = chorobei->unk68->getBasNameTable();
 		chorobei->unk78 = bas == nullptr ? nullptr : bas[18];
 		if (chorobei->unk78 != nullptr) {
-			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
-			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+			chorobei->unk74->initAnmSound(
+			    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
 		} else {
 			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
 		}
@@ -641,8 +641,8 @@ void TCannon::setKillerGoalPoint()
 	const char** bas = dom->unk10->getBasNameTable();
 	dom->unk20       = bas == nullptr ? nullptr : bas[1];
 	if (dom->unk20 != nullptr) {
-		void* res = JKRFileLoader::getGlbResource(dom->unk20);
-		dom->unk1C->initAnmSound(res, 1, 0.0f);
+		dom->unk1C->initAnmSound(JKRFileLoader::getGlbResource(dom->unk20),
+		                         1, 0.0f);
 	} else {
 		dom->unk1C->initAnmSound(nullptr, 1, 0.0f);
 	}
@@ -943,8 +943,8 @@ void TCannon::calcRootMatrix()
 			const char** bas = dom->unk10->getBasNameTable();
 			dom->unk20       = bas == nullptr ? nullptr : bas[2];
 			if (dom->unk20 != nullptr) {
-				void* res = JKRFileLoader::getGlbResource(dom->unk20);
-				dom->unk1C->initAnmSound(res, 1, 0.0f);
+				dom->unk1C->initAnmSound(
+				    JKRFileLoader::getGlbResource(dom->unk20), 1, 0.0f);
 			} else {
 				dom->unk1C->initAnmSound(nullptr, 1, 0.0f);
 			}
