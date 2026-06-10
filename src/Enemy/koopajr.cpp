@@ -766,6 +766,64 @@ void TKoopaJrSubmarine::launchKiller()
 		    0x285D, &killer->mPosition, 0, nullptr, 0, 4);
 }
 
+void TKoopaJrSubmarine::moveSwing()
+{
+	if (unk18C) {
+		unk18C = 0;
+		unk190 += 0.06283186f;
+		f32 maxSwing = getSaveParam2()->mSLSwingAmplitudeMax.get();
+		if (maxSwing < unk190)
+			unk190 = maxSwing;
+	}
+
+	unk190 -= 0.009424779f;
+	f32 minSwing = getSaveParam2()->mSLSwingAmplitudeMin.get();
+	if (minSwing > unk190)
+		unk190 = minSwing;
+
+	if (unk190 <= 0.0f)
+		unk194 = 0.0f;
+
+	unk194 = std::fmodf(6.2831855f
+	                        + (unk194
+	                           + getSaveParam2()->mSLSwingPhaseVelocity.get()
+	                           - 0.0f),
+	                    6.2831855f)
+	         + 0.0f;
+
+	f32 speed = JGeometry::TUtil<f32>::sqrt(mVelocity.squared());
+	f32 ratio = speed / getSaveParam2()->mSLSpeedMax.get();
+
+	if (unk150 > 0) {
+		unk198 += 0.03141593f;
+		f32 maxLaunchWave = getSaveParam2()->mSLWaveAmplitudeMaxLaunch.get();
+		if (maxLaunchWave < unk198)
+			unk198 = maxLaunchWave;
+	}
+
+	if (ratio > 0.5f) {
+		unk198 += 0.03141593f;
+		f32 maxWave = getSaveParam2()->mSLWaveAmplitudeMax.get();
+		if (maxWave < unk198)
+			unk198 = maxWave;
+	}
+
+	unk198 -= 0.018849557f;
+	f32 minWave = getSaveParam2()->mSLWaveAmplitudeMin.get();
+	if (minWave > unk198)
+		unk198 = minWave;
+
+	if (unk198 <= 0.0f)
+		unk19C = 0.0f;
+
+	unk19C = std::fmodf(6.2831855f
+	                        + (unk19C
+	                           + getSaveParam2()->mSLWavePhaseVelocity.get()
+	                           - 0.0f),
+	                    6.2831855f)
+	         + 0.0f;
+}
+
 void TKoopaJrSubmarine::makeCollisionPositions()
 {
 	f32 x = 0.0f;
