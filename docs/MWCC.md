@@ -5592,6 +5592,41 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### `.cpp` definition plus scoped `dont_inline` can recover same-TU static template-member call boundaries, but may emit the wrong owner kind/frame
+
+**Hypothesis.** When target asm owns a standalone helper for a header-visible
+static template member and same-TU callers branch to it, moving only that
+specialization's body out of the class/header and wrapping the `.cpp`
+definition in `#pragma dont_inline on/off` can make MWCC emit and call the
+helper. This is weaker than a settled rule because the recovered owner may be
+strong rather than weak and may still have frame-size residue; treat it as a
+call-boundary lever, not a final weak-owner explanation.
+
+**Observed.** `mario/Enemy/koopajr` (2026-06-10 MNL):
+`JGeometry::TUtil<f32>::mod(float, float)` was target-owned in this TU and
+called by `TDirectionCalc::absDirection`, `calcTurnDirection`, and `sub`, while
+the header in-class body inlined at all three sites and left the helper
+missing. Declaring `mod` in `JGUtil.hpp`, defining it in `koopajr.cpp` between
+`checkNerve` and `makeRoundVelocity`, and wrapping that definition in
+`#pragma dont_inline` emitted the owner and changed the callers to `bl mod`,
+moving `absDirection` 67.7 -> 85.7, `calcTurnDirection` 73.7 -> 83.5, and
+`sub` 66.8 -> 85.3. The body itself is 99.7%; residue is target 0x28 frame vs
+current 0x20 and weak target owner vs strong current owner. The helper body
+also needs a signed quotient cast, `(s64)(value / modulus)`, to get
+`__cvt_sll_flt`; `(u64)` emits `__cvt_ull_flt`.
+
+**Refuted local variants.** Header-only `#pragma dont_inline` around the
+in-class body still emitted no owner. Marking the `.cpp` definition `inline`
+also dropped the owner entirely. An explicit-specialization spelling compiled
+but still emitted a strong owner and did not change the frame.
+
+**Experiment to confirm/refute.** Find another target-owned static template
+member with same-TU callers where the current header body inlines. Try the
+`.cpp` definition + scoped `dont_inline` shape, then inspect whether the owner
+kind/frame mismatch repeats. If a second TU gains call boundaries but keeps a
+strong/small-frame owner, split this into two rules: call-boundary recovery is
+real, weak-owner/frame reproduction remains open.
+
 ### Direct member expressions can avoid preserving owner locals across calls
 
 **Hypothesis.** If target asm reloads an owner/member pointer after a call, but

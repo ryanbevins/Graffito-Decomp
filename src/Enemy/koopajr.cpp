@@ -759,6 +759,18 @@ void TKoopaJrSubmarine::checkNerve()
 	(void)&TNerveKoopaJrSubmarineLaunchKiller::theNerve();
 }
 
+#pragma dont_inline on
+namespace JGeometry {
+f32 TUtil<f32>::mod(f32 value, f32 modulus)
+{
+	if (__fabsf(modulus) > __fabsf(value))
+		return value;
+
+	return value - modulus * (f32)(s64)(value / modulus);
+}
+} // namespace JGeometry
+#pragma dont_inline off
+
 void TKoopaJrSubmarine::makeRoundVelocity()
 {
 	JGeometry::TVec3<f32> round = unk164.calcDirectionVector();
