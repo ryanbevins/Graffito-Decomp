@@ -85,6 +85,11 @@ inline s16& emTrampleTimer(TEnemyMario* mario)
 	return *(s16*)((u8*)mario + 0x42B8);
 }
 
+inline s16& emRunAwayNode(TEnemyMario* mario)
+{
+	return *(s16*)((u8*)mario + 0x42CC);
+}
+
 inline s16& emWaterCooldown(TEnemyMario* mario)
 {
 	return *(s16*)((u8*)mario + 0x42BA);
@@ -172,6 +177,14 @@ inline f32 distanceFromMario(const JGeometry::TVec3<f32>& pos)
 	f32 dx = pos.x - gpMarioPos->x;
 	f32 dy = pos.y - gpMarioPos->y;
 	f32 dz = pos.z - gpMarioPos->z;
+	return JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+inline f32 distanceFromPos(const JGeometry::TVec3<f32>& pos, const Vec& point)
+{
+	f32 dx = pos.x - point.x;
+	f32 dy = pos.y - point.y;
+	f32 dz = pos.z - point.z;
 	return JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
 }
 
@@ -412,7 +425,42 @@ void TEnemyMario::decideDoingAfterCarry()
 
 void TEnemyMario::emRunAwayToNearestNode() { }
 
-void TEnemyMario::findRunAwayNearestNode() { }
+void TEnemyMario::findRunAwayNearestNode()
+{
+	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
+	f32 nearestDist  = 100000.0f;
+	f32 secondDist   = 100000.0f;
+	int nearestIdx   = 0;
+	int secondIdx    = 0;
+	Vec nearestPoint;
+	Vec secondPoint;
+
+	for (int i = 0; i < graph->getNodeNum(); ++i) {
+		Vec point;
+		graph->getGraphNode(i).getPoint(&point);
+		f32 dist = distanceFromPos(mPosition, point);
+
+		if (dist < nearestDist) {
+			secondDist   = nearestDist;
+			secondIdx    = nearestIdx;
+			secondPoint  = nearestPoint;
+			nearestDist  = dist;
+			nearestIdx   = i;
+			nearestPoint = point;
+		} else if (dist < secondDist) {
+			secondDist  = dist;
+			secondIdx   = i;
+			secondPoint = point;
+		}
+	}
+
+	f32 secondCurrentDist  = distanceFromPos(mPosition, secondPoint);
+	f32 nearestCurrentDist = distanceFromPos(mPosition, nearestPoint);
+	if (nearestCurrentDist < secondCurrentDist)
+		emRunAwayNode(this) = nearestIdx;
+	else
+		emRunAwayNode(this) = secondIdx;
+}
 
 void TEnemyMario::startRunAway()
 {
