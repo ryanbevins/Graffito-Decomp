@@ -508,9 +508,8 @@ DEFINE_NERVE(TNerveCannonSearch, TLiveActor)
 		}
 	}
 
-	MActor* chorobeiActor = self->unk1A8->unk6C->getMActor();
-	if (chorobeiActor->curAnmEndsNext(0, nullptr)
-	    && chorobeiActor->checkCurBckFromIndex(19)) {
+	if (self->unk1A8->unk6C->getMActor()->curAnmEndsNext(0, nullptr)
+	    && self->unk1A8->unk6C->getMActor()->checkCurBckFromIndex(19)) {
 		TChorobei* chorobei = self->unk1A8;
 		chorobei->unk6C->getMActor()->setBckFromIndex(18);
 		const char** bas = chorobei->unk68->getBasNameTable();
