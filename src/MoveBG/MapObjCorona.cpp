@@ -486,9 +486,7 @@ void TBathtubGrip::control()
 			ctrl->setRate(unk250 * SMSGetAnmFrameRate() * 0.5f);
 
 		MtxPtr mtx = *unk1A8[0]->getRootJointMtx();
-		unk144.x   = mtx[0][3];
-		unk144.y   = mtx[1][3];
-		unk144.z   = mtx[2][3];
+		unk144.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 		if (gpMSound->gateCheck(0x300D)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x300D, (Vec*)&unk144, 0, nullptr, 0, 4);
