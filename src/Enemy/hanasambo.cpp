@@ -1,10 +1,17 @@
 #include <Enemy/HanaSambo.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <Map/Map.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
+#include <MoveBG/MapObjManager.hpp>
+#include <MSound/MSound.hpp>
 #include <Player/MarioAccess.hpp>
+#include <System/Application.hpp>
+#include <System/EmitterViewObj.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
@@ -85,6 +92,230 @@ DEFINE_NERVE(TNerveHanaSamboAttack, TLiveActor) { return FALSE; }
 DEFINE_NERVE(TNerveHanaSamboWait, TLiveActor) { return FALSE; }
 
 DEFINE_NERVE(TNerveHanaSamboAppear, TLiveActor) { return FALSE; }
+
+TSamboFlowerSaveLoadParams::TSamboFlowerSaveLoadParams(const char* path)
+    : TSpineEnemyParams(path)
+    , PARAM_INIT(mSLLeafVelocityXZ, 4.0f)
+    , PARAM_INIT(mSLLeafVelocityY, 6.0f)
+    , PARAM_INIT(mSLLeafGravity, 0.2f)
+    , PARAM_INIT(mSLBudDist, 2000.0f)
+    , PARAM_INIT(mSLBloomTimer, 300)
+    , PARAM_INIT(mSLCoinCircleR, 100.0f)
+    , PARAM_INIT(mSLCoinVelocityXZ, 12.0f)
+    , PARAM_INIT(mSLCoinVelocityY, 10.0f)
+    , PARAM_INIT(mSLSeedShootRange, 500.0f)
+    , PARAM_INIT(mSLSeedShootInterval, 200)
+    , PARAM_INIT(mSLSeedGravity, 0.1f)
+    , PARAM_INIT(mSLSeedSpeedXZ, 10.0f)
+    , PARAM_INIT(mSLSeedSpeedY, 10.0f)
+{
+	TParams::load(mPrmPath);
+}
+
+void TSamboFlower::setMActorAndKeeper()
+{
+	mMActorKeeper = new TMActorKeeper(mManager, 1);
+	mMActor       = mMActorKeeper->createMActor("flower.bmd", 3);
+	mMActor->getModel()->getModelData()->setMaterialTable(
+	    ((TSamboFlowerManager*)mManager)->mMaterialTable, J3DMatCopyFlag_All);
+	mMActor->initDL();
+	mMActor->getModel()->lock();
+}
+
+void TSamboFlower::init(TLiveManager* manager)
+{
+	mManager = manager;
+	mManager->manageActor(this);
+	setMActorAndKeeper();
+
+	unk130  = 1;
+	mParams = (TSamboFlowerSaveLoadParams*)getSaveParam();
+	if (mParams) {
+		mBodyRadius       = mParams->mSLBodyRadius.get();
+		mWallRadius       = mParams->mSLWallRadius.get();
+		mHeadHeight       = mParams->mSLHeadHeight.get();
+		mScaledBodyRadius = mBodyScale * mBodyRadius;
+	}
+
+	initHitActor(0x10000027, 1, 0x80000000, mBodyRadius, mHeadHeight,
+	             mBodyRadius, mHeadHeight);
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+	offLiveFlag(LIVE_FLAG_UNK800);
+	initAnmSound();
+	mActorType = 0x10000027;
+	unk150     = false;
+	onLiveFlag(LIVE_FLAG_DEAD);
+}
+
+void TSamboFlower::loadAfter()
+{
+	JDrama::TNameRef::loadAfter();
+	if (unk15C >= 0) {
+		JGeometry::TVec3<f32> pos(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> rot(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
+		TMapObjBase* coin = TMapObjBaseManager::newAndRegisterObj(
+		    "coin", pos, rot, scale);
+		if (coin)
+			unk168 = coin;
+	}
+}
+
+void TSamboFlower::load(JSUMemoryInputStream& stream)
+{
+	TSpineEnemy::load(stream);
+	stream.read(&unk15C, sizeof(unk15C));
+	stream.read(&unk158, sizeof(unk158));
+	unk160 = true;
+	setMActorAndKeeper();
+	offLiveFlag(LIVE_FLAG_UNK800);
+}
+
+void TSamboFlower::drawObject(JDrama::TGraphics*)
+{
+	if (checkLiveFlag(LIVE_FLAG_DEAD))
+		return;
+
+	TCircleShadowRequest request;
+	request.unk0  = mPosition;
+	request.unkC  = 120.0f;
+	request.unk10 = 120.0f;
+	gpBindShadowManager->request(request, getActorType() & 0xFFFF0000);
+
+	mMActor->setLightData(mGroundPlane, mPosition);
+	mMActor->entry();
+}
+
+void TSamboFlower::moveObject()
+{
+	if (unk150) {
+		if (checkCurAnmEnd(0) && mMActor->checkCurAnm("flower_hit", 0))
+			mMActor->setBck("flower_fwait");
+
+		if (unk160) {
+			++unk154;
+			if (unk154 > mParams->mSLBloomTimer.get()) {
+				if (mMActor->checkCurAnm("flower_fwait", 0)) {
+					unk150 = false;
+					if (unk164)
+						++*unk164;
+
+					mMActor->setBck("flower_hit");
+					J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+					s16 end            = ctrl->getEnd();
+					ctrl               = mMActor->getFrameCtrl(0);
+					ctrl->setFrame(end);
+					mMActor->setFrameRate(-SMSGetAnmFrameRate(), 0);
+				} else {
+					J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+					if (ctrl->getFrame() < 1.0f) {
+						unk154 = 0;
+						mMActor->setBck("flower_wait");
+					}
+				}
+			}
+		}
+	}
+
+	if (!checkLiveFlag(LIVE_FLAG_UNK10)) {
+		mPosition.y = gpMap->checkGround(mPosition.x, mPosition.y + 100.0f,
+		                                 mPosition.z, &mGroundPlane);
+	}
+}
+
+void TSamboFlower::reset()
+{
+	TSpineEnemy::reset();
+	mMActor->setBck("flower_wait");
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+	offLiveFlag(LIVE_FLAG_UNK800);
+	offLiveFlag(LIVE_FLAG_DEAD);
+	offLiveFlag(LIVE_FLAG_UNK10);
+}
+
+BOOL TSamboFlower::receiveMessage(THitActor*, u32 message)
+{
+	if (message != HIT_MESSAGE_SPRAYED_BY_WATER)
+		return FALSE;
+
+	if (!unk150) {
+		unk150 = true;
+		unk154 = 0;
+		gpMarioParticleManager->emit(0xB2, &mPosition, 0, nullptr);
+		mMActor->setBck("flower_hit");
+
+		if (unk160 && unk164) {
+			--*unk164;
+			u32 soundID = *unk164 + 0x89B9;
+			if (gpMSound->gateCheck(soundID)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    soundID, &mPosition, 0, nullptr, 0, 4);
+			}
+		}
+	}
+
+	return TRUE;
+}
+
+void TSamboFlower::control() { }
+
+void TSamboFlowerManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk38          = new TSamboFlowerSaveLoadParams("/enemy/samboflower.prm");
+	mMaterialTable = J3DModelLoaderDataBase::loadMaterialTable(
+	    JKRFileLoader::getGlbResource(
+	        "/scene/samboflower/flower_orange.bmt"));
+}
+
+void TSamboFlowerManager::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (mCoinUnitCount > 0 && (flags & 2)) {
+		for (int i = 0; i < mCoinUnitCount; ++i)
+			mCoinUnits[i]->checkGenCoin();
+	}
+
+	TEnemyManager::perform(flags, graphics);
+
+	if (mLeaves) {
+		for (int i = 0; i < 18; ++i)
+			mLeaves[i]->perform(flags, graphics);
+	}
+}
+
+void TSamboFlowerManager::createModelData()
+{
+	static const TModelDataLoadEntry entry[] = {
+		{ "flower.bmd", 0x10220000, 0 },
+		{ nullptr, 0, 0 },
+	};
+	createModelDataArray(entry);
+}
+
+TSpineEnemy* TSamboFlowerManager::createEnemyInstance()
+{
+	return new TSamboFlower("サンボフラワー");
+}
+
+void TSamboLeaf::perform(u32 flags, JDrama::TGraphics*)
+{
+	if (!mActive)
+		return;
+
+	if (flags & 1) {
+		mPosition.add(mVelocity);
+		if (mVelocity.y > -20.0f)
+			mVelocity.y
+			    -= ((TSamboFlowerSaveLoadParams*)mManager->getSaveParam())
+			           ->mSLLeafGravity.get();
+
+		const TBGCheckData* ground;
+		f32 groundY = gpMap->checkGround(mPosition.x, mPosition.y + 20.0f,
+		                                 mPosition.z, &ground);
+		if (mPosition.y < groundY)
+			mActive = false;
+	}
+}
 
 TSamboHeadManager::TSamboHeadManager(const char* name)
     : TSmallEnemyManager(name)

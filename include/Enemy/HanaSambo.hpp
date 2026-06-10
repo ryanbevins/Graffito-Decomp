@@ -2,10 +2,132 @@
 #define ENEMY_HANA_SAMBO_HPP
 
 #include <Enemy/WalkerEnemy.hpp>
+#include <JSystem/JDrama/JDRViewObj.hpp>
 
+class J3DMaterialTable;
+class SDLModel;
 class TMBindShadowBody;
+class TMapObjBase;
+class TSamboFlowerCoinUnit;
 class TSamboFlower;
+class TSamboFlowerManager;
 class THanaSambo;
+
+class TSamboFlowerSaveLoadParams : public TSpineEnemyParams {
+public:
+	TSamboFlowerSaveLoadParams(const char*);
+
+	/* 0x0A8 */ TParamRT<f32> mSLLeafVelocityXZ;
+	/* 0x0BC */ TParamRT<f32> mSLLeafVelocityY;
+	/* 0x0D0 */ TParamRT<f32> mSLLeafGravity;
+	/* 0x0E4 */ TParamRT<f32> mSLBudDist;
+	/* 0x0F8 */ TParamRT<s32> mSLBloomTimer;
+	/* 0x10C */ TParamRT<f32> mSLCoinCircleR;
+	/* 0x120 */ TParamRT<f32> mSLCoinVelocityXZ;
+	/* 0x134 */ TParamRT<f32> mSLCoinVelocityY;
+	/* 0x148 */ TParamRT<f32> mSLSeedShootRange;
+	/* 0x15C */ TParamRT<s32> mSLSeedShootInterval;
+	/* 0x170 */ TParamRT<f32> mSLSeedGravity;
+	/* 0x184 */ TParamRT<f32> mSLSeedSpeedXZ;
+	/* 0x198 */ TParamRT<f32> mSLSeedSpeedY;
+};
+
+class TSamboFlower : public TSpineEnemy {
+public:
+	TSamboFlower(const char*);
+
+	virtual void load(JSUMemoryInputStream&);
+	virtual void loadAfter();
+	virtual BOOL receiveMessage(THitActor*, u32);
+	virtual void init(TLiveManager*);
+	virtual void control();
+	virtual void moveObject();
+	virtual void drawObject(JDrama::TGraphics*);
+	virtual void reset();
+	virtual void setMActorAndKeeper();
+
+	TSamboFlowerSaveLoadParams* getSamboFlowerParams() const { return mParams; }
+
+public:
+	/* 0x150 */ u8 unk150;
+	/* 0x151 */ u8 unk151[3];
+	/* 0x154 */ s32 unk154;
+	/* 0x158 */ s32 unk158;
+	/* 0x15C */ s32 unk15C;
+	/* 0x160 */ u8 unk160;
+	/* 0x161 */ u8 unk161[3];
+	/* 0x164 */ s32* unk164;
+	/* 0x168 */ TMapObjBase* unk168;
+	/* 0x16C */ TSamboFlowerSaveLoadParams* mParams;
+};
+
+class TSamboFlowerCoinUnit {
+public:
+	TSamboFlowerCoinUnit(int capacity)
+	    : mFlowers(nullptr)
+	    , mCenter(0.0f, 0.0f, 0.0f)
+	    , mFlowerCount(0)
+	    , mCapacity(capacity)
+	    , mCoin(nullptr)
+	    , unk1C(capacity)
+	{
+		mFlowers = new TSamboFlower*[capacity];
+	}
+
+	void checkGenCoin();
+
+	/* 0x00 */ TSamboFlower** mFlowers;
+	/* 0x04 */ JGeometry::TVec3<f32> mCenter;
+	/* 0x10 */ s32 mFlowerCount;
+	/* 0x14 */ s32 mCapacity;
+	/* 0x18 */ TMapObjBase* mCoin;
+	/* 0x1C */ s32 unk1C;
+};
+
+class TSamboLeaf : public JDrama::TViewObj {
+public:
+	TSamboLeaf(const char* name, SDLModel* model, TSamboFlowerManager* manager)
+	    : JDrama::TViewObj(name)
+	    , mModel(model)
+	    , mPosition(0.0f, 0.0f, 0.0f)
+	    , mRotation(0.0f, 0.0f, 0.0f)
+	    , mScale(1.0f, 1.0f, 1.0f)
+	    , mVelocity(0.0f, 0.0f, 0.0f)
+	    , mActive(false)
+	    , mManager(manager)
+	{
+	}
+
+	virtual void perform(u32, JDrama::TGraphics*);
+
+	/* 0x10 */ SDLModel* mModel;
+	/* 0x14 */ JGeometry::TVec3<f32> mPosition;
+	/* 0x20 */ JGeometry::TVec3<f32> mRotation;
+	/* 0x2C */ JGeometry::TVec3<f32> mScale;
+	/* 0x38 */ JGeometry::TVec3<f32> mVelocity;
+	/* 0x44 */ bool mActive;
+	/* 0x45 */ u8 unk45[3];
+	/* 0x48 */ TSamboFlowerManager* mManager;
+};
+
+class TSamboFlowerManager : public TEnemyManager {
+public:
+	TSamboFlowerManager(const char*);
+
+	virtual void load(JSUMemoryInputStream&);
+	virtual void loadAfter();
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual void createModelData();
+	virtual TSpineEnemy* createEnemyInstance();
+
+	void dropLeaf(JGeometry::TVec3<f32>&, JGeometry::TVec3<f32>&);
+
+	/* 0x54 */ TSamboFlowerCoinUnit** mCoinUnits;
+	/* 0x58 */ s32 mCoinUnitCount;
+	/* 0x5C */ void* unk5C;
+	/* 0x60 */ TSamboLeaf** mLeaves;
+	/* 0x64 */ J3DMaterialTable* mMaterialTable;
+};
 
 class TSamboHeadSaveLoadParams : public TWalkerEnemyParams {
 public:
