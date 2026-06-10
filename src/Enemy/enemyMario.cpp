@@ -105,6 +105,11 @@ inline JGeometry::TVec3<f32>& emDisappearPos(TEnemyMario* mario)
 	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x42E0);
 }
 
+inline JGeometry::TVec3<f32>& emGateBasePos(TEnemyMario* mario)
+{
+	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x178);
+}
+
 inline u8* emSettings(TEnemyMario* mario)
 {
 	return *(u8**)((u8*)mario + 0x430C);
@@ -496,7 +501,38 @@ void TEnemyMario::emReplayJumpToNearestNode() { }
 
 void TEnemyMario::emReplay() { }
 
-void TEnemyMario::emDisappearToGate() { }
+void TEnemyMario::emDisappearToGate()
+{
+	if (emTimer(this) >= 8)
+		emFlags(this) &= ~2;
+	else
+		emFlags(this) |= 2;
+
+	unk64 |= 1;
+	emOwner(this)->unk64 |= 1;
+
+	gpMarioParticleManager->emitAndBindToPosPtr(0x1AA, &emDisappearPos(this),
+	                                            1, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x1AB, &emDisappearPos(this),
+	                                            1, this);
+
+	if (emTimer(this) == 0) {
+		emDisappearPos(this) = emGateBasePos(this);
+		gpMarioParticleManager->emit(0xED, &emDisappearPos(this), 0,
+		                             nullptr);
+
+		if (gpMSound->gateCheck(0x1976))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x1976, &mPosition, 0, nullptr, 0, 4);
+	}
+
+	if (emTimer(this) > 100) {
+		emDisappearPos(this).y += 0.025f * (f32)emTimer(this);
+		emDisappearPos(this).z -= 0.03f * (f32)emTimer(this);
+	}
+
+	emTimer(this)++;
+}
 
 void TEnemyMario::startDisappear(u16 doing)
 {
