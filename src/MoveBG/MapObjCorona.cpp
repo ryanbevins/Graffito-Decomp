@@ -22,6 +22,23 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+class JAISound;
+class MSound {
+public:
+	bool gateCheck(u32);
+};
+
+extern MSound* gpMSound;
+f32 SMSGetAnmFrameRate();
+
+namespace MSoundSESystem {
+class MSoundSE {
+public:
+	static JAISound* startSoundActor(u32, const Vec*, u32, JAISound**, u32,
+	                                 u8);
+};
+} // namespace MSoundSESystem
+
 static inline s32 getParamS32(const TBathtubParams* params, u32 offset)
 {
 	return *(const s32*)((const u8*)params + offset);
@@ -193,7 +210,90 @@ void TBathtubGrip::perform(u32 flags, JDrama::TGraphics* graphics)
 		unk25C->perform(flags, graphics);
 }
 
-BOOL TBathtubGrip::receiveMessage(THitActor*, u32) { return false; }
+BOOL TBathtubGrip::receiveMessage(THitActor* sender, u32 message)
+{
+	switch (message) {
+	case HIT_MESSAGE_TRAMPLE:
+		if (unk244->unk29A == 0
+		    && unk244->unk250 <= unk244->unk16C->trampleRelease.get()) {
+			unk244->unk250 = unk244->unk16C->trampleRelease.get();
+			unk244->unk258 = unk244->unk16C->trampleRecover.get();
+			unk244->unk25C = unk244->unk16C->trampleRecover.get();
+			unk244->unk254 = unk244->unk16C->hipdropRelease.get();
+		}
+		return true;
+
+	case HIT_MESSAGE_HIP_DROP:
+		unk244->hipdrop(sender->mPosition);
+		return true;
+
+	case HIT_MESSAGE_UNK3: {
+		if (unk248 != 0 || unk249 == 0)
+			return false;
+
+		unk138 = *gpMarioPos;
+		if (gpMSound->gateCheck(0x3821)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x3821, (Vec*)&unk138, 0, nullptr, 0, 4);
+		}
+
+		u16 deadCount = unk244->getNumGripsDead();
+		if (deadCount == 4) {
+			unk244->startDemo();
+			return true;
+		}
+
+		unk244->quake(sender->mPosition);
+
+		s32 breakCount;
+		f32 animSpeed;
+		switch (deadCount) {
+		case 1:
+			breakCount = unk244->unk16C->breakCount0.get();
+			animSpeed  = unk244->unk16C->animSpeed1.get();
+			break;
+		case 2:
+			breakCount = unk244->unk16C->breakCount1.get();
+			animSpeed  = unk244->unk16C->animSpeed2.get();
+			break;
+		case 3:
+			breakCount = unk244->unk16C->breakCount2.get();
+			animSpeed  = unk244->unk16C->animSpeed3.get();
+			break;
+		case 4:
+			breakCount = unk244->unk16C->breakCount3.get();
+			animSpeed  = unk244->unk16C->animSpeed4.get();
+			break;
+		default:
+			breakCount = unk244->unk16C->breakCount0.get();
+			animSpeed  = unk244->unk16C->animSpeed0.get();
+			break;
+		}
+
+		unk258 = breakCount;
+		unk250 = animSpeed;
+		unk254 = 1;
+		unk25C->setBck("stand_effect");
+		unk25C->setBtk("stand_effect");
+		unk25C->setBrk("stand_effect");
+		J3DFrameCtrl* ctrl = unk25C->getFrameCtrl(0);
+		if (ctrl != nullptr)
+			ctrl->setRate(6.0f * SMSGetAnmFrameRate());
+
+		unk248 = 1;
+		unk249 = 0;
+		if (deadCount == 0)
+			deadCount = 1;
+		else if (deadCount == 1)
+			deadCount = 0;
+		startAnim(deadCount);
+		return true;
+	}
+
+	default:
+		return false;
+	}
+}
 
 Mtx* TBathtubGrip::getRootJointMtx() const
 {
