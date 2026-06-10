@@ -236,7 +236,7 @@ BOOL TBathtubGripPartsHard::receiveMessage(THitActor* sender, u32 message)
 void TBathtubGrip::kill()
 {
 	unk24A = 1;
-	calcRootMatrix();
+	makeObjDead();
 
 	for (s32 i = 0; i < 17; ++i)
 		unk164[i]->remove();
