@@ -323,9 +323,9 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 
 		*(f32*)((u8*)this + 0x48) = *(f32*)((u8*)coaster + 0x34);
 
-		at.x = *(f32*)((u8*)this + 0x8C);
-		at.y = *(f32*)((u8*)this + 0x90);
-		at.z = *(f32*)((u8*)this + 0x94);
+		*(u32*)((u8*)&at + 0) = *(u32*)((u8*)this + 0x8C);
+		*(u32*)((u8*)&at + 4) = *(u32*)((u8*)this + 0x90);
+		*(u32*)((u8*)&at + 8) = *(u32*)((u8*)this + 0x94);
 
 		JGeometry::TVec3<f32> fwd;
 		fwd.x = gpMarioPos->x - *(f32*)((u8*)this + 0x98);
