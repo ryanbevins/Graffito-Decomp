@@ -2,6 +2,7 @@
 #include <Enemy/Conductor.hpp>
 #include <Enemy/CoasterKiller.hpp>
 #include <Enemy/EffectObj.hpp>
+#include <Enemy/Graph.hpp>
 #include <GC2D/GCConsole2.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
@@ -245,14 +246,6 @@ const char** TTinKoopa::getBasNameTable() const { return tinkoopa_bastable; }
 
 BOOL TTinKoopa::hasMapCollision() const { return true; }
 
-f32 TTinKoopa::calcCoasterDistance(int start, int end)
-{
-	f32 distance = 0.0f;
-	for (int i = start; i < end; ++i)
-		distance += unk1E8[i];
-	return distance;
-}
-
 void TTinKoopa::launchKiller(int direction)
 {
 	TCoasterKiller* killer = (TCoasterKiller*)unk1F0->getDeadEnemy();
@@ -428,6 +421,72 @@ void TTinKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 	for (int i = 0; i < 6; ++i)
 		unk1CC[i]->perform(flags, graphics);
 }
+
+void TTinKoopa::checkTinKoopaFirstFlameMessage()
+{
+	if (!unk164)
+		return;
+	if (unk168)
+		return;
+	if (mSpine->getCurrentNerve() != &TNerveTinKoopaWait::theNerve())
+		return;
+
+	J3DFrameCtrl* ctrl = unk164->getFrameCtrl(0);
+	if (unk150 == 0) {
+		if (ctrl->checkPass(2600.0f)) {
+			gpMarDirector->getConsole()->startAppearBalloon(0xe000b, true);
+			unk168 = true;
+		}
+	} else {
+		if (ctrl->checkPass(3100.0f)) {
+			gpMarDirector->getConsole()->startAppearBalloon(0xe000b, true);
+			unk168 = true;
+		}
+	}
+}
+
+void TTinKoopa::checkTinKoopaKillerApproachingMessage()
+{
+	for (int i = 0; i < unk1F0->getActiveObjNum(); ++i) {
+		TCoasterKiller* killer = (TCoasterKiller*)unk1F0->getObj(i);
+		if (killer->checkLiveFlag(LIVE_FLAG_DEAD))
+			continue;
+
+		TTinKoopaParams* params = (TTinKoopaParams*)getSaveParam();
+		f32 messageDistance
+		    = params->mSLKillerApproachingDistance.get();
+		JGeometry::TVec3<f32> marioPos = *gpMarioPos;
+
+		bool approaching = false;
+		if (!killer->checkLiveFlag(LIVE_FLAG_DEAD)
+		    && killer->mPathDir == 0) {
+			int marioNode = unk1EC->findNearestNodeIndex(marioPos, -1);
+			f32 distance;
+			if (marioNode >= killer->mPathIdx) {
+				distance = calcCoasterDistance(killer->mPathIdx, marioNode);
+			} else {
+				distance = calcCoasterDistance(killer->mPathIdx,
+				                               unk1EC->unk8 - 1);
+				distance += calcCoasterDistance(0, marioNode);
+			}
+			approaching = distance <= messageDistance;
+		}
+
+		if (approaching)
+			gpMarDirector->getConsole()->startAppearBalloon(0xe0009,
+			                                                true);
+	}
+}
+
+#pragma dont_inline on
+f32 TTinKoopa::calcCoasterDistance(int start, int end)
+{
+	f32 distance = 0.0f;
+	for (int i = start; i < end; ++i)
+		distance += unk1E8[i];
+	return distance;
+}
+#pragma dont_inline off
 
 void TTinKoopaMtxCalc::calc(u16 index)
 {

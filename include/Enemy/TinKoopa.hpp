@@ -11,6 +11,7 @@ class TMapCollisionMove;
 class TTinKoopaPartsBase;
 class TTinKoopaFlame;
 class TTinKoopa;
+class TGraphWeb;
 
 DECLARE_NERVE(TNerveTinKoopaWait, TLiveActor);
 DECLARE_NERVE(TNerveTinKoopaDamage, TLiveActor);
@@ -153,7 +154,7 @@ public:
 	/* 0x1CC */ TTinKoopaPartsBase* unk1CC[6];
 	/* 0x1E4 */ s32 unk1E4;
 	/* 0x1E8 */ f32* unk1E8;
-	/* 0x1EC */ void* unk1EC;
+	/* 0x1EC */ TGraphWeb* unk1EC;
 	/* 0x1F0 */ TEnemyManager* unk1F0;
 	/* 0x1F4 */ TTinKoopaLaunchOrderTable* unk1F4;
 	/* 0x1F8 */ void* unk1F8;
