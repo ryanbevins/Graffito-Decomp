@@ -1006,9 +1006,11 @@ void TEggYoshi::touchActor(THitActor* actor)
 {
 	if (isState(1) || isState(0xD)) {
 		if (actor->isActorType(0x80000001)) {
-			TTakeActor* held = ((TTakeActor*)actor)->mHeldObject;
-			if (held && TMapObjBase::isFruit(held))
+			TTakeActor* taker = (TTakeActor*)actor;
+			if (taker->mHeldObject && TMapObjBase::isFruit(taker->mHeldObject)) {
+				TTakeActor* held = taker->mHeldObject;
 				touchFruit(held);
+			}
 		}
 
 		if (TMapObjBase::isFruit(actor))
