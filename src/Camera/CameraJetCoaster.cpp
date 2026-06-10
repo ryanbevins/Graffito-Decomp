@@ -370,8 +370,8 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 			*(u32*)((u8*)this + 0x44) = *(u32*)((u8*)&at + 8);
 		}
 	} else {
-		u8* p68 = *(u8**)((u8*)this + 0x68);
 		if (*(u32*)((u8*)this + 0x78) == 0) {
+			u8* p68 = *(u8**)((u8*)this + 0x68);
 			CLBChaseDecrease((f32*)((u8*)this + 0x10),
 			                 *(f32*)((u8*)this + 0x80),
 			                 *(f32*)(p68 + 0x94), 0.0f);
@@ -383,6 +383,7 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 			                 *(f32*)(p68 + 0x94), 0.0f);
 		}
 		if (*(u32*)((u8*)this + 0x7C) == 0) {
+			u8* p68 = *(u8**)((u8*)this + 0x68);
 			CLBChaseDecrease((f32*)((u8*)this + 0x3C), at.x,
 			                 *(f32*)(p68 + 0xA4), 0.0f);
 			CLBChaseDecrease((f32*)((u8*)this + 0x40), at.y,
