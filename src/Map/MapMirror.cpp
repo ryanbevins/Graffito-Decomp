@@ -221,7 +221,7 @@ void TMirrorModelObj::setPlane()
 
 void TMirrorModelObj::calc()
 {
-	// TODO: what is unk28?
+	MTXCopy(unk28->mNodeMatrices[0], unk4->getModel()->mNodeMatrices[0]);
 }
 
 void TMirrorModelObj::init(const char* name)

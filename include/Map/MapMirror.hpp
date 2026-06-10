@@ -8,6 +8,7 @@
 struct ResTIMG;
 class MActor;
 class MActorAnmData;
+class J3DModel;
 
 class TMirrorCamera : public JDrama::TCamera {
 public:
@@ -72,7 +73,7 @@ public:
 	virtual void setPlane();
 
 public:
-	/* 0x28 */ void* unk28;
+	/* 0x28 */ J3DModel* unk28;
 };
 
 class TMirrorModelManager;
