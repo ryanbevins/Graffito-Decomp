@@ -8,6 +8,7 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
+#include <JSystem/JMath.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
@@ -1029,6 +1030,41 @@ void TSamboLeaf::perform(u32 flags, JDrama::TGraphics*)
 		if (mPosition.y < groundY)
 			mActive = false;
 	}
+
+	if (flags & 2) {
+		Mtx baseMtx;
+		MsMtxSetXYZRPH(baseMtx, mPosition.x, mPosition.y, mPosition.z, 0.0f,
+		               mRotation.y, 0.0f);
+
+		f32 rotX = MsGetRotFromZaxis(mVelocity).x;
+		f32 sin  = JMASin(-rotX);
+		f32 cos  = JMACos(-rotX);
+
+		Mtx rollMtx;
+		rollMtx[0][0] = cos;
+		rollMtx[0][1] = -sin;
+		rollMtx[0][2] = 0.0f;
+		rollMtx[0][3] = 0.0f;
+		rollMtx[1][0] = sin;
+		rollMtx[1][1] = cos;
+		rollMtx[1][2] = 0.0f;
+		rollMtx[1][3] = 0.0f;
+		rollMtx[2][0] = 0.0f;
+		rollMtx[2][1] = 0.0f;
+		rollMtx[2][2] = 1.0f;
+		rollMtx[2][3] = 0.0f;
+
+		PSMTXConcat(baseMtx, rollMtx, baseMtx);
+		PSMTXCopy(baseMtx, mModel->getBaseTRMtx());
+		mModel->setBaseScale(mScale);
+		mModel->calc();
+	}
+
+	if (flags & 4)
+		mModel->viewCalc();
+
+	if (flags & 0x200)
+		mModel->entry();
 }
 
 TSamboHeadManager::TSamboHeadManager(const char* name)
