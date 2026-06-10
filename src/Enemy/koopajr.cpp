@@ -1,7 +1,9 @@
 #include <Enemy/Koopa.hpp>
 #include <Enemy/BathtubBinder.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <MoveBG/MapObjCorona.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
 #include <System/Particles.hpp>
@@ -317,6 +319,21 @@ void TKoopaJr::reset()
 	unk158 = 0;
 	unk154 = getSaveParam2()->mSLLaunchKillerPeriod.get();
 	unk158 = 0;
+}
+
+void TKoopaJr::calcRootMatrix()
+{
+	J3DModel* model = getModel();
+	if (unk15C->getUnk29A()) {
+		MtxPtr mtx       = unk15C->getKoopaJrMtxInDemo();
+		J3DModel* model2 = getModel();
+		PSMTXCopy(mtx, model2->getBaseTRMtx());
+	} else {
+		unk164->getJointTransByIndex(TKoopaJr_jointIndexTable[0], &mPosition);
+		MsMtxSetXYZRPH(model->getBaseTRMtx(), mPosition.x, mPosition.y,
+		                mPosition.z, mRotation.x, mRotation.y, mRotation.z);
+	}
+	model->setBaseScale(mScaling);
 }
 
 TKoopaJrSubmarine::TKoopaJrSubmarine(const char* name)
