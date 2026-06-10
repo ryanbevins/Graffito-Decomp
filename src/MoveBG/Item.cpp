@@ -519,6 +519,7 @@ void TShine::calc()
 	unk1A4[0] = 1;
 }
 
+#pragma dont_inline on
 void TShine::movingCircle()
 {
 	f32 oldY = mPosition.y;
@@ -539,6 +540,7 @@ void TShine::movingCircle()
 		mState     = 0xF;
 	}
 }
+#pragma dont_inline off
 
 void TShine::control()
 {
