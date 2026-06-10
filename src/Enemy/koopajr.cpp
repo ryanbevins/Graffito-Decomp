@@ -50,6 +50,34 @@ DEFINE_NERVE(TNerveKoopaJrWait, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveKoopaJrSubmarineCannonOpenClose, TLiveActor)
+{
+	TKoopaJrSubmarine* actor = (TKoopaJrSubmarine*)spine->getBody();
+	if (spine->getTime() == 0) {
+		actor->mMActor->setBckFromIndex(0);
+
+		const char** bas = actor->getBasNameTable();
+		actor->setAnmSound(!bas ? nullptr : bas[0]);
+		f32 rate = actor->unk188;
+		actor->mMActor->getFrameCtrl(0)->setRate(rate);
+	}
+
+	return actor->mMActor->isCurAnmAlreadyEnd(0) ? TRUE : FALSE;
+}
+
+DEFINE_NERVE(TNerveKoopaJrLaunch, TLiveActor)
+{
+	TKoopaJr* actor = (TKoopaJr*)spine->getBody();
+	if (spine->getTime() == 0) {
+		actor->mMActor->setBckFromIndex(1);
+
+		const char** bas = actor->getBasNameTable();
+		actor->setAnmSound(!bas ? nullptr : bas[1]);
+	}
+
+	return actor->mMActor->isCurAnmAlreadyEnd(0) ? TRUE : FALSE;
+}
+
 TDirectionCalc::TDirectionCalc()
     : mDirection(0.0f)
 {
@@ -400,6 +428,56 @@ void TKoopaJr::calcRootMatrix()
 		                mPosition.z, mRotation.x, mRotation.y, mRotation.z);
 	}
 	model->setBaseScale(mScaling);
+}
+
+void TKoopaJr::checkNerveKillerLaunchFast()
+{
+	if (unk158 > 0)
+		return;
+
+	int num = unk15C->getNumKillerBurstable();
+	if (num == 0)
+		return;
+	TKoopaJrSubmarine* submarine = unk164;
+	if (num > 8)
+		num = 8;
+
+	submarine->unk180 = 0;
+	submarine->unk184 = num;
+	for (int i = 0; i < submarine->unk184; ++i)
+		submarine->unk178[i] = 2;
+
+	if (submarine->appearShineKiller(submarine->unk184))
+		submarine->unk178[submarine->unk184 - 1] = 1;
+
+	mSpine->pushNerve(&TNerveKoopaJrLaunch::theNerve());
+	submarine->mSpine->pushNerve(
+	    &TNerveKoopaJrSubmarineCannonOpenClose::theNerve());
+}
+
+void TKoopaJr::checkNerveKillerLaunchNormal()
+{
+	if (unk154 > 0)
+		return;
+
+	int num = unk15C->getNumKillerLaunchable();
+	if (num == 0)
+		return;
+	TKoopaJrSubmarine* submarine = unk164;
+	if (num > 8)
+		num = 8;
+
+	submarine->unk180 = 0;
+	submarine->unk184 = num;
+	for (int i = 0; i < submarine->unk184; ++i)
+		submarine->unk178[i] = 0;
+
+	if (submarine->appearShineKiller(submarine->unk184))
+		submarine->unk178[submarine->unk184 - 1] = 1;
+
+	mSpine->pushNerve(&TNerveKoopaJrLaunch::theNerve());
+	submarine->mSpine->pushNerve(
+	    &TNerveKoopaJrSubmarineCannonOpenClose::theNerve());
 }
 
 TKoopaJrSubmarine::TKoopaJrSubmarine(const char* name)

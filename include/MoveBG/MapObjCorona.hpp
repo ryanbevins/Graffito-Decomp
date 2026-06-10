@@ -36,9 +36,9 @@ public:
 	               f32, f32*) const;
 	void updatePosture_();
 	void load(JSUMemoryInputStream&);
-	u8 getNumKillerLaunchable() const;
+	s32 getNumKillerLaunchable() const;
 	bool isKillerAttackable() const;
-	u8 getNumKillerBurstable() const;
+	s32 getNumKillerBurstable() const;
 	bool isBreaking() const;                                // Unused
 	bool isKillerLaunchable() const;                        // Unused
 	void showMessage(u32);                                  // Unused

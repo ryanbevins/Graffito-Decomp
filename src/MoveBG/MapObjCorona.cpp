@@ -69,11 +69,11 @@ TBathtub::TBathtub(const char* name)
 
 void TBathtub::load(JSUMemoryInputStream&) { }
 
-u8 TBathtub::getNumKillerLaunchable() const { return 0; }
+s32 TBathtub::getNumKillerLaunchable() const { return 0; }
 
 bool TBathtub::isKillerAttackable() const { return false; }
 
-u8 TBathtub::getNumKillerBurstable() const { return 0; }
+s32 TBathtub::getNumKillerBurstable() const { return 0; }
 
 // Unused
 bool TBathtub::isBreaking() const { return false; }
