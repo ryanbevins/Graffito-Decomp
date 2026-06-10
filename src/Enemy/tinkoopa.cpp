@@ -1288,6 +1288,7 @@ void TTinKoopaPartsBase::startBreaking()
 	baseMtx[0][3]   = mPosition.x;
 	baseMtx[1][3]   = mPosition.y;
 	baseMtx[2][3]   = mPosition.z;
+	model->setBaseTRMtx(baseMtx);
 
 	switch (unkFC) {
 	case 1:
