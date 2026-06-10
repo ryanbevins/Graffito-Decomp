@@ -1206,7 +1206,7 @@ void TItemNozzle::put()
 BOOL TItemNozzle::receiveMessage(THitActor* sender, u32 message)
 {
 	if (message == HIT_MESSAGE_TAKE) {
-		put();
+		hold((TTakeActor*)sender);
 		return TRUE;
 	}
 
@@ -1224,7 +1224,7 @@ BOOL TItemNozzle::receiveMessage(THitActor* sender, u32 message)
 		return FALSE;
 
 	if (message == HIT_MESSAGE_UNKB) {
-		put();
+		taken(sender);
 		return TRUE;
 	}
 
