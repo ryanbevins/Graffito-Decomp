@@ -472,6 +472,43 @@ void TBathtub::load(JSUMemoryInputStream& stream)
 	unk168 = new TBathtubGrip*[5];
 	unk138 = new MActorAnmData;
 	unk138->init("scene/map/map/stand_effect", nullptr);
+
+	for (s32 i = 0; i < 5; ++i) {
+		f32 midAngle = 360.0f * (i + 0.5f) / 5.0f;
+		f32 angle    = midAngle - 180.0f;
+		unk168[i]
+		    = new TBathtubGrip(this, angle, unk138,
+		                       "壊れかけのバスタブの取っ手");
+		unk168[i]->initMapObj();
+		unk13C[i] = -180.0f + midAngle;
+		unk150[i] = -180.0f + (360.0f * i) / 5.0f;
+	}
+
+	JUTNameTab* names = getModel()->getModelData()->getJointName();
+	unk260            = names->getIndex("mario");
+	unk264            = names->getIndex("star");
+	unk27C            = names->getIndex("water4");
+	unk280            = names->getIndex("water5");
+	unk284            = names->getIndex("water1");
+	unk288            = names->getIndex("water2");
+	unk28C            = names->getIndex("water3");
+	unk270            = names->getIndex("ahiru");
+	unk26C            = names->getIndex("submarin");
+	unk274            = names->getIndex("Jr");
+	unk278            = names->getIndex("koopa");
+
+	MActorAnmData* shineData = new MActorAnmData;
+	shineData->init("/scene/map/map/shine", nullptr);
+	unk29C = new MActor(shineData);
+
+	void* res = JKRFileLoader::getGlbResource(
+	    "/scene/map/map/shine/shine_3bai.bmd");
+	J3DModelData* modelData = J3DModelLoaderDataBase::load(res, 0x10000000);
+	J3DModel* model         = new J3DModel(modelData, 0, 1);
+	unk29C->setModel(model, 0x10000000);
+	unk268 = unk29C->getModel()->getModelData()->getJointName()->getIndex(
+	    "body");
+	unk298 = 1;
 }
 
 s32 TBathtub::getNumKillerLaunchable() const
