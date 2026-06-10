@@ -1,6 +1,7 @@
 #include <Enemy/Cannon.hpp>
 #include <Enemy/Bombhei.hpp>
 #include <Enemy/Conductor.hpp>
+#include <Enemy/EffectObj.hpp>
 #include <Enemy/Graph.hpp>
 #include <Enemy/Igaiga.hpp>
 #include <Enemy/Killer.hpp>
@@ -17,6 +18,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <System/Application.hpp>
+#include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <Strategic/ObjModel.hpp>
@@ -122,7 +124,47 @@ DEFINE_NERVE(TNerveCannonObject, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveCannonDamageDemo, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveCannonDamageDemo, TLiveActor)
+{
+	TCannon* self = (TCannon*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		TChorobei* chorobei = self->unk1A8;
+		chorobei->unk6C->getMActor()->setBckFromIndex(14);
+		const char** bas = chorobei->unk68->getBasNameTable();
+		chorobei->unk78 = bas ? bas[14] : nullptr;
+		if (chorobei->unk78 != nullptr) {
+			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
+			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+		} else {
+			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+		}
+	}
+
+	if (spine->getTime() > 120
+	    && self->unk1A8->unk6C->getMActor()->curAnmEndsNext(0, nullptr)
+	    && !self->isBckAnm(4)) {
+		self->setBckAnm(4);
+
+		if (gpMSound->gateCheck(0x38B3))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x38B3, &self->mPosition, 0, nullptr, 0, 4);
+
+		TEffectExplosion* effect
+		    = (TEffectExplosion*)gpConductor->makeOneEnemyAppear(
+		        self->mPosition, "エフェクト爆発マネージャー", 1);
+		if (effect != nullptr) {
+			JGeometry::TVec3<f32> scale(2.5f, 2.5f, 2.5f);
+			effect->generate(self->mPosition, scale);
+		}
+
+		TFlagManager::smInstance->setBool(true, 0x5000C);
+		spine->pushAfterCurrent(&TNerveCannonObject::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveCannonDamage, TLiveActor) { return FALSE; }
 
