@@ -571,6 +571,18 @@ const char** TKoopaJrSubmarine::getBasNameTable() const
 	return &koopajrsubmarine_bastable;
 }
 
+BOOL TKoopaJrSubmarine::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
+		gpMSound->startSoundSet(0x6802, &mPosition, 0, 0.0f, 0, 0, 4);
+		unk18C = 1;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 void TKoopaJrSubmarine::resetKoopaJrSubmarine()
 {
 	mSpine->reset();
