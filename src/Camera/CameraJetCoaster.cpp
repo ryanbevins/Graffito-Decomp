@@ -369,8 +369,8 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		up.z = uz;
 
 		CLBRotatePosAndUp(unk2B8->unk4, unk2B8->unk6, side, up, *gpMarioPos,
-		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x30),
-		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x98));
+		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x98),
+		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x30));
 
 		// Tail snap/chase
 		*(f32*)((u8*)this + 0x80) = *(f32*)((u8*)this + 0x98);
