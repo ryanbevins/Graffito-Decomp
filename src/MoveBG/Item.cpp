@@ -1083,10 +1083,10 @@ void TEggYoshi::startFruit()
 		receiveMessage(nullptr, HIT_MESSAGE_UNK10);
 }
 
-BOOL TEggYoshi::receiveMessage(THitActor*, u32 message)
+BOOL TEggYoshi::receiveMessage(THitActor* sender, u32 message)
 {
 	if (message == HIT_MESSAGE_TAKE) {
-		startFruit();
+		hold((TTakeActor*)sender);
 		return TRUE;
 	}
 
