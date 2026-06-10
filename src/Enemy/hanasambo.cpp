@@ -446,7 +446,36 @@ DEFINE_NERVE(TNerveHanaSamboDie, TLiveActor) { return FALSE; }
 
 DEFINE_NERVE(TNerveHanaSamboHide, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveHanaSamboAttack, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveHanaSamboAttack, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setBckAnm(3);
+		self->mUseYDownAnim = true;
+	} else if (self->checkCurAnmEnd(0)) {
+		if (self->isBckAnm(3)) {
+			self->createPollen();
+			if (gpMSound->gateCheck(0x291B))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x291B, &self->mPosition, 0, nullptr, 0, 4);
+			self->setBckAnm(1);
+		} else if (self->isBckAnm(1)) {
+			if (spine->getTime() > self->mParams->mSLAttackingTime.get()) {
+				if (!self->unsetUnk165())
+					self->setBckAnm(2);
+				else
+					self->setBckAnm(1);
+			} else {
+				self->setBckAnm(1);
+			}
+		} else {
+			spine->pushAfterCurrent(&TNerveHanaSamboWait::theNerve());
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveHanaSamboWait, TLiveActor)
 {
