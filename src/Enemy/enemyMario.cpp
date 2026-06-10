@@ -5,9 +5,11 @@
 #include <JSystem/JMath.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <Map/MapData.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
+#include <MSound/MSound.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <Player/MarioAccess.hpp>
@@ -51,14 +53,34 @@ inline f32& emDistToMario(TEnemyMario* mario)
 	return *(f32*)((u8*)mario + 0x429C);
 }
 
+inline s16& emWaterCount(TEnemyMario* mario)
+{
+	return *(s16*)((u8*)mario + 0x4294);
+}
+
 inline TEMario*& emOwner(TEnemyMario* mario)
 {
 	return *(TEMario**)((u8*)mario + 0x42A0);
 }
 
+inline s16& emWaterTimer(TEnemyMario* mario)
+{
+	return *(s16*)((u8*)mario + 0x42B4);
+}
+
+inline s16& emWaterTimerReset(TEnemyMario* mario)
+{
+	return *(s16*)((u8*)mario + 0x42B6);
+}
+
 inline s16& emTrampleTimer(TEnemyMario* mario)
 {
 	return *(s16*)((u8*)mario + 0x42B8);
+}
+
+inline s16& emWaterCooldown(TEnemyMario* mario)
+{
+	return *(s16*)((u8*)mario + 0x42BA);
 }
 
 inline void*& emEnemyModel(TEnemyMario* mario)
@@ -71,6 +93,11 @@ inline JGeometry::TVec3<f32>& emDisappearPos(TEnemyMario* mario)
 	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x42E0);
 }
 
+inline u8* emSettings(TEnemyMario* mario)
+{
+	return *(u8**)((u8*)mario + 0x430C);
+}
+
 inline u8* emController(TEnemyMario* mario)
 {
 	return *(u8**)((u8*)mario + 0x108);
@@ -79,6 +106,11 @@ inline u8* emController(TEnemyMario* mario)
 inline u32& emControllerFlags(TEnemyMario* mario)
 {
 	return *(u32*)(emController(mario) + 4);
+}
+
+inline u32& emControllerFlags2(TEnemyMario* mario)
+{
+	return *(u32*)(emController(mario) + 8);
 }
 
 inline void setEMStick(TEnemyMario* mario, s16 angle, f32 scale)
@@ -126,7 +158,33 @@ void TEnemyMario::checkController(JDrama::TGraphics* graphics)
 	playerControl(graphics);
 }
 
-void TEnemyMario::checkReturn() { }
+void TEnemyMario::checkReturn()
+{
+	if (!mGroundPlane->checkFlag(0x10))
+		return;
+
+	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
+	int node         = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+	BOOL searching   = TRUE;
+
+	do {
+		Vec point;
+		graph->getGraphNode(node).getPoint(&point);
+
+		f32 dx = point.x - gpMarioPos->x;
+		f32 dy = point.y - gpMarioPos->y;
+		f32 dz = point.z - gpMarioPos->z;
+		if (JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz)
+		    > 1000.0f) {
+			mPosition.x = point.x;
+			mPosition.y = point.y;
+			mPosition.z = point.z;
+			searching = FALSE;
+		}
+
+		node = (node + 1) % graph->getNodeNum();
+	} while (searching);
+}
 
 void TEnemyMario::reachGoal()
 {
@@ -152,7 +210,57 @@ u8 TEnemyMario::thinkTrample()
 	return false;
 }
 
-void TEnemyMario::hitWater(THitActor*) { }
+void TEnemyMario::hitWater(THitActor* sender)
+{
+	if (emEnemyModel(this) != nullptr)
+		return;
+
+	if (*(emSettings(this) + 0xA4) != 0)
+		return;
+
+	if (emDoing(this) < 0xB || emDoing(this) > 0x19)
+		return;
+
+	if (emDoing(this) != 0xB && emDoing(this) != 0xC
+	    && emDoing(this) != 0xD)
+		return;
+
+	emWaterCooldown(this) = 600;
+
+	if (emWaterCount(this) > 0) {
+		emWaterCount(this)--;
+		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
+		gpMSound->startSoundSet(0x6802, &sender->mPosition, 0, 30.0f, 0, 0,
+		                         4);
+		emWaterTimer(this) = emWaterTimerReset(this);
+
+		if (emDoing(this) == 0xC) {
+			sleepingEffectKill();
+
+			TGraphWeb* graph = emOwner(this)->unk124->getGraph();
+			int node = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+			if (graph->getGraphNode(node).checkFlag(2)) {
+				mFaceAngle.y = emTargetYaw(this);
+				emControllerFlags2(this) |= 0x100;
+				emControllerFlags(this) |= 0x100;
+			}
+
+			emTimer(this) = 0;
+			emDoing(this) = 0xD;
+		}
+
+		return;
+	}
+
+	if (mAction == ACTION_RUNNING && canSleep()) {
+		if (mHeldObject != nullptr) {
+			*(u32*)((u8*)mHeldObject + 0xF0) &= ~0x100000;
+			dropObject();
+		}
+		emTimer(this) = 0;
+		emDoing(this) = 0xE;
+	}
+}
 
 void TEnemyMario::consider()
 {
