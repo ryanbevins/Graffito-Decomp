@@ -85,6 +85,33 @@ static inline bool canUseKiller(const TBathtub* bathtub)
 	return bathtub->unk248 == 0;
 }
 
+static inline void normalizeQuat(JGeometry::TVec3<f32>& v, f32& w)
+{
+	f32 lenSq = v.x * v.x + v.y * v.y + v.z * v.z + w * w;
+	if (lenSq <= 0.0000038146973f) {
+		v.x = 0.0f;
+		v.y = 0.0f;
+		v.z = 0.0f;
+		w   = 0.0f;
+	} else {
+		f32 scale = 1.0f * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
+		v.x *= scale;
+		v.y *= scale;
+		v.z *= scale;
+		w *= scale;
+	}
+}
+
+static inline void mulQuat(const JGeometry::TVec3<f32>& av, f32 aw,
+                           const JGeometry::TVec3<f32>& bv, f32 bw,
+                           JGeometry::TVec3<f32>& out, f32& outW)
+{
+	out.x = aw * bv.x + av.x * bw + av.y * bv.z - av.z * bv.y;
+	out.y = aw * bv.y + av.y * bw + av.z * bv.x - av.x * bv.z;
+	out.z = aw * bv.z + av.z * bw + av.x * bv.y - av.y * bv.x;
+	outW  = aw * bw - av.x * bv.x - av.y * bv.y - av.z * bv.z;
+}
+
 static inline MtxPtr getJointMtx(TBathtub* bathtub, s32 index)
 {
 	return bathtub->mMActor->unk4->getAnmMtx(index);
@@ -999,7 +1026,112 @@ u8 TBathtub::getNextGrip(const JGeometry::TVec3<f32>&,
 	return 0;
 }
 
-void TBathtub::updatePosture_() { }
+void TBathtub::updatePosture_()
+{
+	if (unk250 == 0) {
+		f32 recover = 1.0f;
+		if (unk258 != 0) {
+			--unk258;
+			recover = 1.0f - (f32)unk258 / (f32)unk25C;
+		}
+
+		f32 x = unk1D8.x;
+		f32 y = unk1D8.y;
+		f32 z = unk1D8.z;
+		f32 w = unk1E4;
+		f32 upX = 2.0f * (x * y - w * z);
+		f32 upY = 1.0f - 2.0f * (x * x + z * z);
+		f32 upZ = 2.0f * (y * z + w * x);
+
+		JGeometry::TVec3<f32> axis;
+		axis.x = -upZ;
+		axis.y = 0.0f;
+		axis.z = -upX;
+
+		f32 lenSq = axis.x * axis.x + axis.y * axis.y + axis.z * axis.z;
+		if (lenSq <= 0.0000038146973f) {
+			axis.x = 0.0f;
+			axis.y = 0.0f;
+			axis.z = 0.0f;
+		} else {
+			axis.scale(1.0f * JGeometry::TUtil<f32>::inv_sqrt(lenSq));
+		}
+
+		f32 correction = -acosf(upY) * recover * unk16C->rebound.get();
+		axis.x *= correction;
+		axis.y *= correction;
+		axis.z *= correction;
+
+		f32 damp = unk16C->angleVelDamp.get();
+		unk1E8.x = unk1E8.x * damp + axis.x;
+		unk1E8.y = unk1E8.y * damp + axis.y;
+		unk1E8.z = unk1E8.z * damp + axis.z;
+	} else {
+		--unk250;
+	}
+
+	JGeometry::TVec3<f32> delta;
+	delta.x = unk1E8.x * 0.5f;
+	delta.y = unk1E8.y * 0.5f;
+	delta.z = unk1E8.z * 0.5f;
+
+	JGeometry::TVec3<f32> step;
+	f32 stepW;
+	mulQuat(delta, 0.0f, unk1D8, unk1E4, step, stepW);
+
+	unk1D8.x += step.x;
+	unk1D8.y += step.y;
+	unk1D8.z += step.z;
+	unk1E4 += stepW;
+	normalizeQuat(unk1D8, unk1E4);
+
+	f32 x = unk1D8.x;
+	f32 y = unk1D8.y;
+	f32 z = unk1D8.z;
+	f32 w = unk1E4;
+	f32 upX = 2.0f * (x * y - w * z);
+	f32 upY = 1.0f - 2.0f * (x * x + z * z);
+	f32 upZ = 2.0f * (y * z + w * x);
+	f32 currentAngle = acosf(upY);
+	f32 maxAngle    = unk16C->maxAngle.get() * 0.017453292f;
+	f32 excess      = currentAngle - maxAngle;
+
+	if (excess > 0.0f) {
+		JGeometry::TVec3<f32> axis;
+		axis.x = -upZ;
+		axis.y = 0.0f;
+		axis.z = -upX;
+
+		f32 lenSq = axis.x * axis.x + axis.y * axis.y + axis.z * axis.z;
+		f32 len = 0.0f;
+		if (lenSq > 0.0f)
+			len = JGeometry::TUtil<f32>::sqrt(lenSq);
+
+		JGeometry::TVec3<f32> limit;
+		f32 limitW;
+		if (len <= 0.0000038146973f) {
+			limit.x = 0.0f;
+			limit.y = 0.0f;
+			limit.z = 0.0f;
+			limitW  = 1.0f;
+		} else {
+			f32 angle = 0.5f * atan2f(len, upY) * (excess / currentAngle);
+			f32 scale = sinf(angle) / len;
+			limit.x   = axis.x * scale;
+			limit.y   = axis.y * scale;
+			limit.z   = axis.z * scale;
+			limitW    = cosf(angle);
+		}
+
+		JGeometry::TVec3<f32> limited;
+		f32 limitedW;
+		mulQuat(limit, limitW, unk1D8, unk1E4, limited, limitedW);
+		unk1D8 = limited;
+		unk1E4 = limitedW;
+	}
+
+	normalizeQuat(unk1D8, unk1E4);
+}
 
 TBathtub::TBathtub(const char* name)
     : TMapObjBase(name)
