@@ -1,8 +1,11 @@
 #include <Enemy/EnemyMario.hpp>
 #include <Enemy/EMario.hpp>
+#include <Enemy/Graph.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/JMath.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <Map/PollutionManager.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MSound/MSSetSound.hpp>
@@ -11,6 +14,7 @@
 #include <System/EmitterViewObj.hpp>
 #include <System/MSoundMainSide.hpp>
 #include <System/MarDirector.hpp>
+#include <stdlib.h>
 
 static const char* cDirtyFileName = "/scene/map/pollution/H_ma_rak.bti";
 static const char* cDirtyTexName  = "H_ma_rak_dummy";
@@ -32,6 +36,26 @@ inline u32& emTimer(TEnemyMario* mario)
 	return *(u32*)((u8*)mario + 0x42A4);
 }
 
+inline s16& emTargetYaw(TEnemyMario* mario)
+{
+	return *(s16*)((u8*)mario + 0x4296);
+}
+
+inline u16& emRandomYaw(TEnemyMario* mario)
+{
+	return *(u16*)((u8*)mario + 0x4298);
+}
+
+inline f32& emDistToMario(TEnemyMario* mario)
+{
+	return *(f32*)((u8*)mario + 0x429C);
+}
+
+inline TEMario*& emOwner(TEnemyMario* mario)
+{
+	return *(TEMario**)((u8*)mario + 0x42A0);
+}
+
 inline s16& emTrampleTimer(TEnemyMario* mario)
 {
 	return *(s16*)((u8*)mario + 0x42B8);
@@ -45,6 +69,32 @@ inline void*& emEnemyModel(TEnemyMario* mario)
 inline JGeometry::TVec3<f32>& emDisappearPos(TEnemyMario* mario)
 {
 	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x42E0);
+}
+
+inline u8* emController(TEnemyMario* mario)
+{
+	return *(u8**)((u8*)mario + 0x108);
+}
+
+inline u32& emControllerFlags(TEnemyMario* mario)
+{
+	return *(u32*)(emController(mario) + 4);
+}
+
+inline void setEMStick(TEnemyMario* mario, s16 angle, f32 scale)
+{
+	f32 zero = 0.0f;
+	*(s16*)(emController(mario) + 0)
+	    = (s16)((JMASSin(angle) * zero) * scale);
+	*(s16*)(emController(mario) + 2)
+	    = (s16)((-JMASCos(angle) * zero) * scale);
+}
+
+inline void resetOwnerGraph(TEnemyMario* mario)
+{
+	TEMario* owner        = emOwner(mario);
+	owner->unk124->mPrevIdx = -1;
+	owner->goToShortestNextGraphNode();
 }
 
 } // namespace
@@ -197,13 +247,117 @@ void TEnemyMario::startDisappear(u16 doing)
 	emDoing(this) = doing;
 }
 
-void TEnemyMario::emWalkAround() { }
+void TEnemyMario::emWalkAround()
+{
+	if (emDistToMario(this) < 1500.0f) {
+		emTimer(this) = 0;
+		emDoing(this) = 0;
+		return;
+	}
 
-void TEnemyMario::emJumping() { }
+	if (rand() < 10) {
+		emTimer(this) = 0;
+		emDoing(this) = 3;
+	}
 
-void TEnemyMario::emWaiting() { }
+	if (rand() < 100) {
+		emControllerFlags(this) |= 0x100;
+		emTimer(this) = 0;
+		emDoing(this) = 2;
+		return;
+	}
 
-void TEnemyMario::tryTake() { }
+	if (rand() < 100) {
+		emRandomYaw(this) = rand();
+		emTimer(this)     = 0;
+		emDoing(this)     = 4;
+		return;
+	}
+
+	if (rand() < 50) {
+		resetOwnerGraph(this);
+		emTimer(this) = 0;
+		emDoing(this) = 6;
+		return;
+	}
+
+	if (rand() < 50) {
+		gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z, 384.0f);
+		emTimer(this) = 0;
+		emDoing(this) = 7;
+	}
+
+	if (mWallPlane != nullptr) {
+		emControllerFlags(this) |= 0x100;
+		emTimer(this) = 0;
+		emDoing(this) = 2;
+		return;
+	}
+
+	setEMStick(this, mFaceAngle.y, 0.5f);
+}
+
+void TEnemyMario::emJumping()
+{
+	if (mAction & 0x800) {
+		if (mAction == 0x8A7 && mActionTimer < 10)
+			return;
+
+		setEMStick(this, mFaceAngle.y, 1.0f);
+		emControllerFlags(this) |= 0x100;
+
+		if (-1.0f < mVel.y && mVel.y < 1.0f && rand() < 0xFFF)
+			emControllerFlags(this) |= 0x200;
+	} else if (mAction == ACTION_HANGING) {
+		if (mActionTimer >= 10)
+			emControllerFlags(this) |= 0x100;
+	} else if (mAction & 0x600) {
+		gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z, 384.0f);
+		emTimer(this) = 0;
+		emDoing(this) = 0;
+	}
+}
+
+void TEnemyMario::emWaiting()
+{
+	s16 diff = emTargetYaw(this) - mFaceAngle.y;
+	if (diff < -0x1555 || diff > 0x1555)
+		setEMStick(this, emTargetYaw(this), 0.2f);
+
+	if (emDistToMario(this) < 800.0f) {
+		emTimer(this) = 0;
+		emDoing(this) = 1;
+	}
+
+	if (emDistToMario(this) > 1500.0f || rand() < 0x88) {
+		resetOwnerGraph(this);
+		emTimer(this) = 0;
+		emDoing(this) = 6;
+	}
+}
+
+BOOL TEnemyMario::tryTake()
+{
+	if (mHeldObject != nullptr && mAction != 0x383)
+		return TRUE;
+
+	TEMario* owner = emOwner(this);
+	for (int i = 0; i < owner->mColCount; ++i) {
+		THitActor* actor = owner->mCollisions[i];
+		u32 type         = actor->mActorType;
+		if (type == 0x40000018 || type == 0x2000002A
+		    || type == 0x20000022 || type == 0x20000009) {
+			if (type == 0x40000018) {
+				*(u32*)((u8*)actor + 0xF0) |= 0x100000;
+				emFlags(this) |= 0x20;
+			}
+			unk384 = actor;
+			changePlayerStatus(0x383, 0, false);
+		}
+	}
+
+	return FALSE;
+}
 
 void TEnemyMario::changeEMDoing(u16 doing)
 {

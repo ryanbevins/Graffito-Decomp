@@ -32,7 +32,7 @@ public:
 	void emWalkAround();
 	void emJumping();
 	void emWaiting();
-	void tryTake();
+	BOOL tryTake();
 	void changeEMDoing(u16);
 	void startMonteReplay(u32);
 	void initEnemyValues();
