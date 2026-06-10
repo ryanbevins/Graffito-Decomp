@@ -224,15 +224,17 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		JGeometry::TRotation3<
 		    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >
 		    rot;
+		JGeometry::TVec3<f32> sideAxis
+		    = *(JGeometry::TVec3<f32>*)((u8*)this + 0x30);
 		rot.identity33();
 		setRotateVec(&rot, fwd, -1.570796f);
 
-		f32 sx = rot.at(0, 0) * upAxis.x + rot.at(1, 0) * upAxis.y
-		         + rot.at(2, 0) * upAxis.z;
-		f32 sy = rot.at(0, 1) * upAxis.x + rot.at(1, 1) * upAxis.y
-		         + rot.at(2, 1) * upAxis.z;
-		f32 sz = rot.at(0, 2) * upAxis.x + rot.at(1, 2) * upAxis.y
-		         + rot.at(2, 2) * upAxis.z;
+		f32 sx = rot.at(0, 0) * sideAxis.x + rot.at(1, 0) * sideAxis.y
+		         + rot.at(2, 0) * sideAxis.z;
+		f32 sy = rot.at(0, 1) * sideAxis.x + rot.at(1, 1) * sideAxis.y
+		         + rot.at(2, 1) * sideAxis.z;
+		f32 sz = rot.at(0, 2) * sideAxis.x + rot.at(1, 2) * sideAxis.y
+		         + rot.at(2, 2) * sideAxis.z;
 
 		f32 sideScale = *(f32*)(p68 + 0x5C);
 		sx *= sideScale;
