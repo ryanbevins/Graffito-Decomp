@@ -112,6 +112,65 @@ static inline void mulQuat(const JGeometry::TVec3<f32>& av, f32 aw,
 	outW  = aw * bw - av.x * bv.x - av.y * bv.y - av.z * bv.z;
 }
 
+static inline f32 wrapAngleDiff(f32 stored, f32 angle)
+{
+	f32 diff = std::fmodf(360.0f + (stored - angle + 180.0f), 360.0f);
+	diff     = -180.0f + diff;
+	if (diff < 0.0f)
+		diff = -diff;
+	return diff;
+}
+
+static inline f32 getLocalAngle(const TBathtub* bathtub,
+                                const JGeometry::TVec3<f32>& pos)
+{
+	MtxPtr rootMtx = *bathtub->getRootJointMtx();
+	f32 diffX      = pos.x - rootMtx[0][3];
+	f32 diffY      = pos.y - rootMtx[1][3];
+	f32 diffZ      = pos.z - rootMtx[2][3];
+	f32 localX = rootMtx[0][0] * diffX + rootMtx[1][0] * diffY
+	             + rootMtx[2][0] * diffZ;
+	f32 localZ = rootMtx[0][2] * diffX + rootMtx[1][2] * diffY
+	             + rootMtx[2][2] * diffZ;
+	return matan(localZ, localX) * 0.005493164f;
+}
+
+static inline f32 getNextLocalAngle(const TBathtub* bathtub,
+                                    const JGeometry::TVec3<f32>& pos,
+                                    const JGeometry::TVec3<f32>& dir)
+{
+	MtxPtr rootMtx = *bathtub->getRootJointMtx();
+	JGeometry::TVec3<f32> diff(pos.x - rootMtx[0][3],
+	                           pos.y - rootMtx[1][3],
+	                           pos.z - rootMtx[2][3]);
+
+	JGeometry::TVec3<f32> radial;
+	f32 lenSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+	if (lenSq <= 0.0000038146973f) {
+		radial.x = 0.0f;
+		radial.y = 0.0f;
+		radial.z = 0.0f;
+	} else {
+		f32 scale = 1.0f * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
+		radial.x  = diff.x * scale;
+		radial.y  = diff.y * scale;
+		radial.z  = diff.z * scale;
+	}
+
+	f32 dot = radial.x * dir.x + radial.y * dir.y + radial.z * dir.z;
+	JGeometry::TVec3<f32> tangent(dir.x - radial.x * dot,
+	                              dir.y - radial.y * dot,
+	                              dir.z - radial.z * dot);
+	JGeometry::TVec3<f32> next(diff.x + tangent.x, diff.y + tangent.y,
+	                           diff.z + tangent.z);
+
+	f32 localX = rootMtx[0][0] * next.x + rootMtx[1][0] * next.y
+	             + rootMtx[2][0] * next.z;
+	f32 localZ = rootMtx[0][2] * next.x + rootMtx[1][2] * next.y
+	             + rootMtx[2][2] * next.z;
+	return matan(localZ, localX) * 0.005493164f;
+}
+
 static inline MtxPtr getJointMtx(TBathtub* bathtub, s32 index)
 {
 	return bathtub->mMActor->unk4->getAnmMtx(index);
@@ -1009,21 +1068,69 @@ void TBathtub::calcRootMatrix()
 	mtx[2][3] = mPosition.z;
 }
 
-bool TBathtub::getNearGrip(const JGeometry::TVec3<f32>&, f32, f32*) const
+bool TBathtub::getNearGrip(const JGeometry::TVec3<f32>& pos, f32 threshold,
+                           f32* out) const
 {
+	f32 angle = getLocalAngle(this, pos);
+	f32 best  = 360.0f;
+	s32 index = 0;
+
+	for (s32 i = 0; i < 5; ++i) {
+		f32 diff = wrapAngleDiff(unk150[i], angle);
+		if (diff < best) {
+			index = i;
+			best  = diff;
+		}
+	}
+
+	if (best < threshold) {
+		*out = unk150[index];
+		return true;
+	}
+
 	return false;
 }
 
-u8 TBathtub::getNextJuncture(const JGeometry::TVec3<f32>&,
-                             const JGeometry::TVec3<f32>&) const
+f32 TBathtub::getNextJuncture(const JGeometry::TVec3<f32>& pos,
+                              const JGeometry::TVec3<f32>& dir) const
 {
-	return 0;
+	f32 angle = getNextLocalAngle(this, pos, dir);
+	f32 best  = 360.0f;
+	s32 index = 0;
+
+	for (s32 i = 0; i < 5; ++i) {
+		f32 diff = wrapAngleDiff(unk13C[i], angle);
+		if (diff < best) {
+			index = i;
+			best  = diff;
+		}
+	}
+
+	return unk13C[index];
 }
 
-u8 TBathtub::getNextGrip(const JGeometry::TVec3<f32>&,
-                         const JGeometry::TVec3<f32>&, f32, f32*) const
+u8 TBathtub::getNextGrip(const JGeometry::TVec3<f32>& pos,
+                         const JGeometry::TVec3<f32>& dir, f32 threshold,
+                         f32* out) const
 {
-	return 0;
+	f32 angle = getNextLocalAngle(this, pos, dir);
+	f32 best  = 360.0f;
+	s32 index = 0;
+
+	for (s32 i = 0; i < 5; ++i) {
+		f32 diff = wrapAngleDiff(unk150[i], angle);
+		if (diff < best) {
+			index = i;
+			best  = diff;
+		}
+	}
+
+	if (best < threshold) {
+		*out = unk150[index];
+		return true;
+	}
+
+	return false;
 }
 
 void TBathtub::updatePosture_()

@@ -139,8 +139,8 @@ public:
 	bool allowsTumble() const;
 	void calcRootMatrix();
 	bool getNearGrip(const JGeometry::TVec3<f32>&, f32, f32*) const;
-	u8 getNextJuncture(const JGeometry::TVec3<f32>&,
-	                   const JGeometry::TVec3<f32>&) const;
+	f32 getNextJuncture(const JGeometry::TVec3<f32>&,
+	                    const JGeometry::TVec3<f32>&) const;
 	u8 getNextGrip(const JGeometry::TVec3<f32>&, const JGeometry::TVec3<f32>&,
 	               f32, f32*) const;
 	void updatePosture_();
