@@ -62,11 +62,11 @@ void TSpider::bind(TLiveActor* param_1)
 	}
 
 	if (local_50.y <= fVar3) {
+		local_50.y = fVar3;
 		param_1->mVelocity = JGeometry::TVec3<f32>(0, 0, 0);
 
 		param_1->offLiveFlag(LIVE_FLAG_AIRBORNE);
 		param_1->offLiveFlag(LIVE_FLAG_UNK8000);
-		local_50.y = fVar3;
 	} else {
 		param_1->onLiveFlag(LIVE_FLAG_AIRBORNE);
 	}
@@ -75,8 +75,8 @@ void TSpider::bind(TLiveActor* param_1)
 	param_1->mGroundPlane  = local_60;
 
 	TBGWallCheckRecord local_90(
-	    local_50.x, local_50.y, local_50.z,
-	    ((TSpineEnemy*)param_1)->mBodyScale * param_1->mHeadHeight, 1, 0);
+	    local_50.x, local_50.y + ((TSpineEnemy*)param_1)->getHeadHeight(),
+	    local_50.z, ((TSpineEnemy*)param_1)->getWallRadius(), 1, 0);
 
 	JGeometry::TVec3<f32> local_bc;
 	f32 unaff_f29;
