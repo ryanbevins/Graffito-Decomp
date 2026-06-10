@@ -16,8 +16,6 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
-void TMirrorCamera::makeMirrorViewMtx() { }
-
 void TMirrorCamera::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (param_1 & 0x14) {
@@ -46,8 +44,6 @@ void TMirrorCamera::drawSetting(MtxPtr param_1)
 	MTXConcat(afStack_38, afStack_68, afStack_98);
 	GXLoadTexMtxImm(afStack_98, 0x1E, GX_MTX3x4);
 }
-
-void TMirrorCamera::calcEffectMtx(MtxPtr) { }
 
 TMirrorCamera::TMirrorCamera(const char* name)
     : JDrama::TCamera(10.0f, 300000.0f, name)
@@ -148,12 +144,6 @@ void TMirrorModel::initPlaneInfo()
 		unk18.z = 0.0f;
 	}
 }
-
-void TMirrorModel::entry() { }
-
-void TMirrorModel::calcView() { }
-
-void TMirrorModel::getMirrorTexInfo() { }
 
 inline static void identity34(MtxPtr mtx)
 {
