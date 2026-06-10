@@ -20,6 +20,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JMath.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <dolphin/mtx.h>
@@ -91,7 +92,38 @@ bool TCannon::isObject()
 	return mCurrentBckAnm == 4 && checkCurAnmEnd(0);
 }
 
-void TCannon::setKillerGoalPoint() { }
+void TCannon::setKillerGoalPoint()
+{
+	JGeometry::TVec3<f32> target;
+	if (unk239) {
+		target = *gpMarioPos;
+		f32 angle = 0.0f
+		            + (360000.0f - 0.0f)
+		                * ((f32)rand() * (1.0f / 32768.0f));
+		u16 angleShort = (u16)(s32)angle;
+		u32 index      = angleShort >> jmaSinShift;
+		target.x += 500.0f * jmaCosTable[index];
+		target.z += 500.0f * jmaSinTable[index];
+	} else {
+		target = unk248;
+	}
+
+	TPathNode node(target);
+	unkF4  = node;
+	unk104 = node;
+	unk114.clear();
+
+	TCannonDom* dom = unk1AC[unk214];
+	dom->getMActor()->setBckFromIndex(1);
+	const char** bas = dom->unk10->getBasNameTable();
+	dom->unk20       = bas ? bas[1] : nullptr;
+	if (dom->unk20 != nullptr) {
+		void* res = JKRFileLoader::getGlbResource(dom->unk20);
+		dom->unk1C->initAnmSound(res, 1, 0.0f);
+	} else {
+		dom->unk1C->initAnmSound(nullptr, 1, 0.0f);
+	}
+}
 
 void TCannon::killerShoot() { }
 
@@ -199,7 +231,7 @@ void TCannon::reset()
 	TSpineEnemyParams* params = getSaveParam();
 	mHitPoints = params ? params->mSLHitPointMax.get() : 1;
 	unk64 |= HIT_FLAG_NO_COLLISION;
-	unk214 = (void*)1;
+	unk214 = 1;
 	mHeadHeight = 40.0f;
 	mLiveFlag |= LIVE_FLAG_UNK10;
 	unk2AC = mRotation.y;
@@ -310,7 +342,7 @@ TCannon::TCannon(const char* name)
     , unk1A8(nullptr)
     , unk1B8(nullptr)
     , unk1E0(nullptr)
-    , unk214(nullptr)
+    , unk214(0)
     , unk218(nullptr)
     , unk21C(false)
     , unk220(0.0f)

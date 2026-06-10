@@ -112,7 +112,7 @@ public:
 	/* 0x1CC */ u8 pad1CC[0x14];
 	/* 0x1E0 */ TCannonDom* unk1E0;
 	/* 0x1E4 */ TPosition3f unk1E4;
-	/* 0x214 */ void* unk214;
+	/* 0x214 */ int unk214;
 	/* 0x218 */ void* unk218;
 	/* 0x21C */ bool unk21C;
 	/* 0x220 */ f32 unk220;
@@ -126,7 +126,7 @@ public:
 	/* 0x239 */ bool unk239;
 	/* 0x23A */ u8 pad23A[2];
 	/* 0x23C */ JGeometry::TVec3<f32> unk23C;
-	/* 0x248 */ u8 pad248[0xC];
+	/* 0x248 */ JGeometry::TVec3<f32> unk248;
 	/* 0x254 */ void* unk254;
 	/* 0x258 */ TMapCollisionMove* unk258;
 	/* 0x25C */ JGeometry::TVec3<f32> unk25C[4];
