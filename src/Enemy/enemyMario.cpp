@@ -4,9 +4,12 @@
 #include <Enemy/Graph.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JMath.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <M3DUtil/MActorUtil.hpp>
 #include <Map/MapData.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MarioUtil/DrawUtil.hpp>
@@ -14,6 +17,7 @@
 #include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
+#include <MarioUtil/TexUtil.hpp>
 #include <MoveBG/MapObjWave.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSSetSound.hpp>
@@ -28,6 +32,7 @@
 #include <System/MSoundMainSide.hpp>
 #include <System/MarDirector.hpp>
 #include <System/ParamInst.hpp>
+#include <System/Particles.hpp>
 #include <System/Params.hpp>
 #include <dolphin/gx.h>
 #include <math.h>
@@ -1623,6 +1628,26 @@ void TEnemyMario::initEnemyValues()
 	emEnemyModelScale(this) = 3.0f;
 	emDisappearPos(this).set(zero, zero, zero);
 
+	void* brushResource = JKRFileLoader::getGlbResource(
+	    "/scene/kagemario/kagemario_brush.bmd");
+	J3DModelData* brushData
+	    = J3DModelLoaderDataBase::load(brushResource, 0x11040000);
+	emEnemyShadowModel(this) = new J3DModel(brushData, 0, 1);
+
+	ResTIMG* dirtyTexture
+	    = (ResTIMG*)JKRFileLoader::getGlbResource(cDirtyFileName);
+	if (dirtyTexture != nullptr)
+		SMS_ChangeTextureAll(brushData, cDirtyTexName, *dirtyTexture);
+
+	emEnemyMActor(this) = SMS_MakeMActor(
+	    "/scene/kagemario/stamp_koopa_sign",
+	    "/scene/kagemario/stamp_koopa_sign/stamp_koopa_sign_model1.bmd", 3,
+	    0x10210000);
+
+	SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_change.jpa", 0xED);
+	SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_move_a.jpa", 0x1AA);
+	SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_move_b.jpa", 0x1AB);
+
 	int flagState = TFlagManager::smInstance->getFlag(0x60003);
 	if (flagState == 0) {
 		onHitFlag(1);
@@ -1650,6 +1675,21 @@ void TEnemyMario::initEnemyValues()
 	emInputReplayArray(this)      = nullptr;
 	emInputReplayArrayBackup(this) = nullptr;
 	emInputReplay(this)           = nullptr;
+
+	if (gpMarDirector->mMap == 0xC) {
+		if (strcmp(emOwner(this)->getName(), "マリオ@1") == 0) {
+			unk388 = 3;
+			setGamePad(gpMarDirector->unk18[1]);
+		}
+		if (strcmp(emOwner(this)->getName(), "マリオ@2") == 0) {
+			unk388 = 4;
+			setGamePad(gpMarDirector->unk18[2]);
+		}
+		if (strcmp(emOwner(this)->getName(), "マリオ@3") == 0) {
+			unk388 = 5;
+			setGamePad(gpMarDirector->unk18[3]);
+		}
+	}
 
 	if (emScenarioType(this) != 0 && emOwner(this)->unk124 != nullptr) {
 		char graphName[32];
