@@ -5592,6 +5592,32 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Direct const-reference `TVec3` temporaries can recover right-to-left argument stack construction
+
+**Hypothesis.** When a target call takes several `const TVec3<float>&`
+arguments and the asm constructs stack temporaries in reverse argument order
+(for example `scale`, then `rot`, then `pos`) while still passing the normal
+argument registers (`r4 = pos`, `r5 = rot`, `r6 = scale`), spelling the call
+with direct `TVec3` temporaries can match better than naming locals first.
+Named locals may preserve semantics but encourage MWCC to allocate and store
+the three vectors in declaration/order-of-use shapes that differ from the
+target.
+
+**Observed.** `mario/Enemy/hanasambo` (2026-06-11 MNL):
+`TSamboFlower::loadAfter()` changed from named `pos`, `rot`, and `scale`
+locals to
+`newAndRegisterObj("coin", TVec3(0,0,0), TVec3(0,0,0), TVec3(1,1,1))`.
+MWCC then constructed the const-reference temporaries in the target stack
+order and the function moved `98.7 -> 100.0`. Merely reordering named local
+declarations improved store order (`98.7 -> 99.5`) but put the argument
+registers on the wrong stack slots versus target.
+
+**Experiment to confirm/refute.** Find a second TU with a `const TVec3&`
+factory/helper call and target stack temps constructed right-to-left. Compare
+named locals, declaration-order permutations, and direct temporaries; confirm
+whether only the direct temporary spelling preserves both stack construction
+order and final argument-register slots.
+
 ### `TVec3::set(x, y, z)` can recover batched matrix-translation copies
 
 **Hypothesis.** When target asm loads three matrix translation components
