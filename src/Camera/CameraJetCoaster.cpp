@@ -241,10 +241,10 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 				angleDeg = 90.0f;
 			}
 		} else if (col1.y >= 0.0f) {
-			angleDeg = -((f32)matan(col1.x, col1.y) * (360.0f / 65536.0f));
+			angleDeg = -((f32)matan(col1.y, col1.x) * (360.0f / 65536.0f));
 		} else {
 			angleDeg
-			    = 180.0f + (f32)matan(-col1.x, col1.y) * (360.0f / 65536.0f);
+			    = 180.0f + (f32)matan(-col1.y, col1.x) * (360.0f / 65536.0f);
 		}
 
 		*(s16*)((u8*)this + 0x254)
