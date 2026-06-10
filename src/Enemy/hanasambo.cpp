@@ -5,8 +5,12 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <M3DUtil/SDLModel.hpp>
 #include <Map/Map.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
+#include <MoveBG/Item.hpp>
+#include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <MSound/MSound.hpp>
 #include <Player/MarioAccess.hpp>
@@ -16,6 +20,7 @@
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/Strategy.hpp>
+#include <string.h>
 
 static const char* sambo_bastable[] = {
 	"/scene/sambo/bas/sambo_down.bas",
@@ -268,6 +273,115 @@ void TSamboFlowerManager::load(JSUMemoryInputStream& stream)
 	        "/scene/samboflower/flower_orange.bmt"));
 }
 
+void TSamboFlowerManager::loadAfter()
+{
+	void* res = JKRFileLoader::getGlbResource("/scene/samboflower/leaf.bmd");
+	SDLModelData* leafModelData
+	    = new SDLModelData(J3DModelLoaderDataBase::load(res, 0x10210000));
+
+	mLeaves = new TSamboLeaf*[18];
+	for (int i = 0; i < 18; ++i) {
+		TSamboLeaf* leaf = new TSamboLeaf("サンボリーフ", nullptr, this);
+		leaf->mModel    = new SDLModel(leafModelData, 3, 1);
+		mLeaves[i]      = leaf;
+	}
+
+	mCoinUnitCount = 0;
+	for (int i = 0; i < gpItemManager->getObjNum(); ++i) {
+		THitActor* item = gpItemManager->getObj(i);
+		if (strstr(item->getName(), "コイン（フラワー用）"))
+			++mCoinUnitCount;
+	}
+
+	mCoinUnits = new TSamboFlowerCoinUnit*[mCoinUnitCount];
+	int* counts = new int[mCoinUnitCount];
+	for (int i = 0; i < mCoinUnitCount; ++i)
+		counts[i] = 0;
+
+	for (int i = 0; i < getObjNum(); ++i) {
+		TSamboFlower* flower = (TSamboFlower*)getObj(i);
+		if (strstr(flower->getName(), "フラワー（コイン用）")
+		    && flower->unk158 < mCoinUnitCount) {
+			++counts[flower->unk158];
+		}
+	}
+
+	for (int i = 0; i < mCoinUnitCount; ++i)
+		mCoinUnits[i] = new TSamboFlowerCoinUnit(counts[i]);
+
+	for (int i = 0; i < gpItemManager->getObjNum(); ++i) {
+		TMapObjBase* coin = (TMapObjBase*)gpItemManager->getObj(i);
+		if (!strstr(coin->getName(), "コイン（フラワー用）"))
+			continue;
+
+		int unitIndex = ((TFlowerCoin*)coin)->unk158;
+		if (unitIndex >= mCoinUnitCount)
+			continue;
+
+		TSamboFlowerCoinUnit* unit = mCoinUnits[unitIndex];
+		unit->mCoin                = coin;
+		unit->mCenter              = coin->mPosition;
+		coin->makeObjDead();
+	}
+
+	for (int i = 0; i < getObjNum(); ++i) {
+		TSamboFlower* flower = (TSamboFlower*)getObj(i);
+		if (!strstr(flower->getName(), "フラワー（コイン用）"))
+			continue;
+
+		int unitIndex = flower->unk158;
+		if (unitIndex >= mCoinUnitCount)
+			continue;
+
+		TSamboFlowerCoinUnit* unit = mCoinUnits[unitIndex];
+		if (unit->mFlowerCount >= unit->mCapacity)
+			continue;
+
+		unit->mFlowers[unit->mFlowerCount] = flower;
+		flower->unk164                    = &unit->unk1C;
+		++unit->mFlowerCount;
+	}
+
+	JDrama::TNameRef::loadAfter();
+}
+
+void TSamboFlowerManager::dropLeaf(JGeometry::TVec3<f32>& position,
+                                   JGeometry::TVec3<f32>& scale)
+{
+	static const f32 angles[] = { 0.0f, 120.0f, 240.0f };
+	int dropped               = 0;
+
+	for (int i = 0; i < 18 && dropped < 3; ++i) {
+		TSamboLeaf* leaf = mLeaves[i];
+		if (leaf->mActive)
+			continue;
+
+		leaf->mPosition = position;
+		leaf->mPosition.y += 10.0f;
+		leaf->mActive = true;
+
+		TSamboFlowerSaveLoadParams* params
+		    = (TSamboFlowerSaveLoadParams*)getSaveParam();
+		f32 minXZ = params->mSLLeafVelocityXZ.get();
+		f32 maxXZ = minXZ * 1.2f;
+		f32 minY  = params->mSLLeafVelocityY.get();
+		f32 maxY  = minY * 1.2f;
+		f32 randXZ
+		    = minXZ + (maxXZ - minXZ) * (rand() * (1.0f / 32768.0f));
+		f32 randY = minY + (maxY - minY) * (rand() * (1.0f / 32768.0f));
+
+		JGeometry::TVec3<f32> velocity(0.0f, randY, randXZ);
+		Mtx rot;
+		MsMtxSetRotRPH(rot, 0.0f, angles[dropped], 0.0f);
+		PSMTXMultVec(rot, (Vec*)&velocity, (Vec*)&velocity);
+		leaf->mVelocity = velocity;
+
+		leaf->mRotation.set(0.0f, angles[dropped] - 90.0f, 0.0f);
+		leaf->mScale = scale;
+		++dropped;
+	}
+}
+
 void TSamboFlowerManager::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if (mCoinUnitCount > 0 && (flags & 2)) {
@@ -295,6 +409,74 @@ void TSamboFlowerManager::createModelData()
 TSpineEnemy* TSamboFlowerManager::createEnemyInstance()
 {
 	return new TSamboFlower("サンボフラワー");
+}
+
+void TSamboFlowerCoinUnit::checkGenCoin()
+{
+	if (!mCoin)
+		return;
+
+	bool ready = true;
+	for (int i = 0; i < mFlowerCount; ++i) {
+		if (!mFlowers[i]->getMActor()->checkCurAnm("flower_fwait", 0))
+			ready = false;
+	}
+
+	if (!ready)
+		return;
+
+	int coinFlowerCount = 0;
+	for (int i = 0; i < mFlowerCount; ++i) {
+		if (mFlowers[i]->unk168)
+			++coinFlowerCount;
+		mFlowers[i]->unk160 = false;
+	}
+
+	if (coinFlowerCount <= 0) {
+		mCoin = nullptr;
+		return;
+	}
+
+	int spawned = 0;
+	for (int i = 0; i < mFlowerCount; ++i) {
+		TSamboFlower* flower = mFlowers[i];
+		if (!flower->unk168)
+			continue;
+
+		TSamboFlowerSaveLoadParams* params = flower->getSamboFlowerParams();
+		f32 ratio = spawned / (f32)coinFlowerCount;
+		JGeometry::TVec3<f32> offset(0.0f, 0.0f,
+		                             params->mSLCoinCircleR.get());
+		Mtx rot;
+		MsMtxSetRotRPH(rot, 0.0f, 360.0f * ratio, 0.0f);
+		PSMTXMultVec(rot, (Vec*)&offset, (Vec*)&offset);
+
+		TMapObjBase* coin = flower->unk168;
+		if (coin->getActorType() == 0x2000000E)
+			coin = gpItemManager->makeObjAppear(0x2000000E);
+
+		if (!coin)
+			continue;
+
+		coin->makeObjAppeared();
+		JGeometry::TVec3<f32> coinPos = mCenter;
+		coinPos.add(offset);
+		coin->mPosition = coinPos;
+
+		JGeometry::TVec3<f32> dir = offset;
+		MsVECNormalize((Vec*)&dir, (Vec*)&dir);
+		coin->mVelocity.x = dir.x * params->mSLCoinVelocityXZ.get();
+		coin->mVelocity.y = params->mSLCoinVelocityY.get() + 8.0f * ratio;
+		coin->mVelocity.z = dir.z * params->mSLCoinVelocityXZ.get();
+		coin->offLiveFlag(LIVE_FLAG_UNK10);
+		++spawned;
+	}
+
+	if (gpMSound->gateCheck(0x4813))
+		MSoundSESystem::MSoundSE::startSoundSystemSE(0x4813, spawned,
+		                                             nullptr, 0);
+
+	mCoin = nullptr;
 }
 
 void TSamboLeaf::perform(u32 flags, JDrama::TGraphics*)
