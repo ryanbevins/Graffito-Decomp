@@ -591,6 +591,138 @@ void TTinKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 		unk1CC[i]->perform(flags, graphics);
 }
 
+static inline MtxPtr getTinKoopaJointMtx(TTinKoopa* koopa, int jointNo)
+{
+	return koopa->getModel()->getAnmMtx(TTinKoopa_jointIndexTable[jointNo]);
+}
+
+static inline void copyTinKoopaJointPos(TTinKoopa* koopa, int jointNo,
+                                        JGeometry::TVec3<f32>* out)
+{
+	MtxPtr mtx = getTinKoopaJointMtx(koopa, jointNo);
+	out->set(mtx[0][3], mtx[1][3], mtx[2][3]);
+}
+
+static inline void emitTinKoopaMtxParticle(TTinKoopa* koopa, u32 particleId,
+                                           int jointNo, u8 kind,
+                                           const void* user)
+{
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    particleId, getTinKoopaJointMtx(koopa, jointNo), kind, user);
+}
+
+static inline void emitTinKoopaPosParticle(TTinKoopa* koopa, u32 particleId,
+                                           JGeometry::TVec3<f32>* pos, u8 kind,
+                                           const void* user)
+{
+	gpMarioParticleManager->emitAndBindToPosPtr(particleId, pos, kind, user);
+}
+
+static inline BOOL isTinKoopaBreakFrame(TTinKoopa* koopa, f32 frame)
+{
+	return koopa->mMActor->getFrameCtrl(0)->checkPass(frame);
+}
+
+void TTinKoopa::emitTinKoopaEffects()
+{
+	JGeometry::TVec3<f32>* effectPos = (JGeometry::TVec3<f32>*)unk184;
+	copyTinKoopaJointPos(this, 0, &effectPos[0]);
+	copyTinKoopaJointPos(this, 1, &effectPos[1]);
+	copyTinKoopaJointPos(this, 3, &effectPos[2]);
+	copyTinKoopaJointPos(this, 4, &effectPos[3]);
+
+	const void* otherUser = this + 1;
+
+	emitTinKoopaPosParticle(this, 0x1ac, &effectPos[1], 1, this);
+
+	if (unk150 > 1)
+		emitTinKoopaMtxParticle(this, 0x1ad, 3, 1, this);
+
+	if (unk150 > 2)
+		emitTinKoopaMtxParticle(this, 0x1ae, 4, 1, this);
+
+	BOOL isWait = mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve();
+	BOOL isDamage
+	    = mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve();
+	BOOL isBreak
+	    = mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve();
+
+	if (unk150 <= 0 && isWait)
+		emitTinKoopaMtxParticle(this, 0x1af, 2, 1, this);
+
+	emitTinKoopaMtxParticle(this, 0x1b0, 3, 1, this);
+	emitTinKoopaMtxParticle(this, 0x1b0, 4, 1, otherUser);
+	emitTinKoopaMtxParticle(this, 0x1b1, 10, 1, this);
+	emitTinKoopaMtxParticle(this, 0x1b2, 0, 1, this);
+
+	if (isDamage || isBreak) {
+		emitTinKoopaPosParticle(this, 0x1b3, &effectPos[1], 1, this);
+		emitTinKoopaPosParticle(this, 0x1b3, &effectPos[1], 1, otherUser);
+		emitTinKoopaPosParticle(this, 0x1b4, &effectPos[1], 1, this);
+		emitTinKoopaPosParticle(this, 0x1b4, &effectPos[1], 1, otherUser);
+	}
+
+	if ((isWait && unk150 > 1) || isDamage || isBreak)
+		emitTinKoopaPosParticle(this, 0x1b5, &effectPos[2], 1, this);
+
+	if ((isWait && unk150 > 2) || isDamage || isBreak)
+		emitTinKoopaPosParticle(this, 0x1b5, &effectPos[3], 1, otherUser);
+
+	if (((isWait || isDamage) && unk150 > 0)
+	    || (isBreak && (unk150 == 1 || unk150 == 2))) {
+		emitTinKoopaMtxParticle(this, 0x1b6, 1, 1, this);
+		emitTinKoopaMtxParticle(this, 0x1b7, 1, 1, this);
+	}
+
+	if ((isWait && unk150 > 2) || isDamage || isBreak)
+		emitTinKoopaPosParticle(this, 0x1b8, &effectPos[0], 1, this);
+
+	if (isDamage || isBreak) {
+		emitTinKoopaMtxParticle(this, 0x1ba, 10, 1, this);
+		emitTinKoopaMtxParticle(this, 0x1b9, 10, 1, this);
+	}
+
+	if (isBreak) {
+		if (unk150 == 0 || unk150 == 3) {
+			if (isTinKoopaBreakFrame(this, 100.0f))
+				gpCameraShake->startShake(CAM_SHAKE_MODE_UNK6, 1.0f);
+		}
+
+		if (unk150 == 1 || unk150 == 2) {
+			if (isTinKoopaBreakFrame(this, 104.0f))
+				gpCameraShake->startShake(CAM_SHAKE_MODE_UNK6, 1.0f);
+		}
+
+		if (unk150 == 0 || unk150 == 3) {
+			if (isTinKoopaBreakFrame(this, 108.0f))
+				emitTinKoopaMtxParticle(this, 0xf0, 2, 0, this);
+		}
+
+		if (unk150 == 0) {
+			if (isTinKoopaBreakFrame(this, 100.0f))
+				emitTinKoopaMtxParticle(this, 0xf1, 2, 0, this);
+		}
+
+		if (unk150 == 3) {
+			if (isTinKoopaBreakFrame(this, 100.0f))
+				emitTinKoopaMtxParticle(this, 0xf1, 1, 0, this);
+		}
+
+		if (unk150 == 1) {
+			if (isTinKoopaBreakFrame(this, 106.0f))
+				emitTinKoopaMtxParticle(this, 0xf2, 3, 0, this);
+		}
+
+		if (unk150 == 2) {
+			if (isTinKoopaBreakFrame(this, 106.0f))
+				emitTinKoopaMtxParticle(this, 0xf2, 4, 0, this);
+		}
+	}
+
+	if (unk1E4)
+		unk1E4->emitPartsDisappearEffects();
+}
+
 void TTinKoopa::checkTinKoopaFirstFlameMessage()
 {
 	if (!unk164)
