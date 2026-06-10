@@ -7724,6 +7724,24 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **What source or visibility cue selects the constructor depth MWCC emits for
+  nested empty geometry wrappers?** In `mario/Enemy/enemyMario`
+  `TEnemyMario::consider`, target state `0x1B` constructs a stack
+  `JDrama::TGraphics` but emits weak no-op calls to
+  `TRotation3<TMatrix44<SMatrix44C<f32>>>::TRotation3()` and
+  `TMatrix34<SMatrix34C<f32>>::TMatrix34()`. Current natural source
+  `JDrama::TGraphics graphics; TMario::checkController(&graphics);` with
+  existing `JDRGraphics.hpp` instead emits/uses the neighboring low-level
+  `TMatrix44<SMatrix44C<f32>>::TMatrix44()` and
+  `SMatrix34C<f32>::SMatrix34C()` constructors; changing `TGraphics` member
+  types globally to `TRotation3<TMtx44f>`/`TMtx34f` removed those extras but
+  still failed to call the target wrapper ctors and regressed other
+  `TGraphics` owners such as `JDRDirector`. Next experiment: compare
+  target/source include visibility and inline-depth pragmas for the small set
+  of stack `TGraphics` owners (`JDRDirector`, `Application`,
+  `MarDirectorSetup2`, `MovieDirector`, `enemyMario`) before attempting any
+  header-level change.
+
 - **How can a header-visible constructor inline in one TU while still emitting
   a matching standalone weak in its owner TU?** In
   `mario/System/MarDirectorInitECT`, moving
