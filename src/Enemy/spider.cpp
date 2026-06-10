@@ -114,9 +114,8 @@ void TSpider::bind(TLiveActor* param_1)
 
 			unk8 = 0x3C;
 
-			JGeometry::TVec3<f32> tmp;
-			tmp.scale(((TSpineEnemy*)param_1)->getWallRadius() * unk10, normal);
-			local_bc.sub(tmp, local_90.mCenter);
+			normal.scale(((TSpineEnemy*)param_1)->getWallRadius() * unk10);
+			local_bc.sub(normal);
 
 			unk10 += 1.0f / 60.0f;
 			if (unk10 > 1.0f)
