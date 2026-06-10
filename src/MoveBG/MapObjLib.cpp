@@ -657,18 +657,17 @@ f32 TMapObjBase::getRotYFromAxisZ(const JGeometry::TVec3<f32>& param_1) const
 
 f32 TMapObjBase::getDistanceXZ(const JGeometry::TVec3<f32>& param_1) const
 {
-	return JGeometry::TUtil<f32>::sqrt(
-	    (param_1.x - mPosition.x) * (param_1.x - mPosition.x)
-	    + (param_1.z - mPosition.z) * (param_1.z - mPosition.z));
+	f32 dx = param_1.x - mPosition.x;
+	f32 dz = param_1.z - mPosition.z;
+	return std::sqrtf(dx * dx + dz * dz);
 }
 
 f32 TMapObjBase::getDistance(const JGeometry::TVec3<f32>& param_1) const
 {
-	JGeometry::TVec3<f32> myPos(mPosition.x, mPosition.y - mYOffset,
-	                            mPosition.z);
-	JGeometry::TVec3<f32> diff;
-	diff.sub(param_1, myPos);
-	return diff.length();
+	f32 dx = param_1.x - mPosition.x;
+	f32 dy = param_1.y - (mPosition.y - mYOffset);
+	f32 dz = param_1.z - mPosition.z;
+	return std::sqrtf(dx * dx + dy * dy + dz * dz);
 }
 
 int TMapObjBase::getWaterID(THitActor* hit_actor)
