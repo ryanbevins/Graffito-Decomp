@@ -425,7 +425,7 @@ f32 TShine::mSpeedDownRate = 0.99f;
 
 void TShine::calc()
 {
-	MtxPtr mtx = getModel()->getAnmMtx(2);
+	MtxPtr mtx = mMActor->getModel()->mNodeMatrices[2];
 
 	if (checkLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_CLIPPED_OUT
 	                  | LIVE_FLAG_UNK200))
@@ -475,25 +475,45 @@ void TShine::calc()
 		bowRate   = mBowRate[3];
 	}
 
-	if (unk194) {
-		unk194->mBaseLifetime = promiLife;
-		unk194->unk154.set(unk1A8, unk1AC, unk1B0);
-		unk194->unk174.set(unk1A8, unk1AC, unk1B0);
+	JPABaseEmitter* emitter = unk194;
+	if (emitter) {
+		emitter->mBaseLifetime = promiLife;
+		emitter->unk154.x      = unk1A8;
+		emitter->unk154.y      = unk1AC;
+		emitter->unk154.z      = unk1B0;
+		emitter->unk174.x      = unk1A8;
+		emitter->unk174.y      = unk1AC;
+		emitter->unk174.z      = unk1B0;
 	}
-	if (unk198) {
-		unk198->mChildSpawnRate = senkoRate;
-		unk198->unk154.set(unk1A8, unk1AC, unk1B0);
-		unk198->unk174.set(unk1A8, unk1AC, unk1B0);
+	emitter = unk198;
+	if (emitter) {
+		emitter->mChildSpawnRate = senkoRate;
+		emitter->unk154.x        = unk1A8;
+		emitter->unk154.y        = unk1AC;
+		emitter->unk154.z        = unk1B0;
+		emitter->unk174.x        = unk1A8;
+		emitter->unk174.y        = unk1AC;
+		emitter->unk174.z        = unk1B0;
 	}
-	if (unk19C) {
-		unk19C->mChildSpawnRate = kiraRate;
-		unk19C->unk154.set(unk1A8, unk1AC, unk1B0);
-		unk19C->unk174.set(unk1A8, unk1AC, unk1B0);
+	emitter = unk19C;
+	if (emitter) {
+		emitter->mChildSpawnRate = kiraRate;
+		emitter->unk154.x        = unk1A8;
+		emitter->unk154.y        = unk1AC;
+		emitter->unk154.z        = unk1B0;
+		emitter->unk174.x        = unk1A8;
+		emitter->unk174.y        = unk1AC;
+		emitter->unk174.z        = unk1B0;
 	}
-	if (unk1A0) {
-		unk1A0->mChildSpawnRate = bowRate;
-		unk1A0->unk154.set(unk1A8, unk1AC, unk1B0);
-		unk1A0->unk174.set(unk1A8, unk1AC, unk1B0);
+	emitter = unk1A0;
+	if (emitter) {
+		emitter->mChildSpawnRate = bowRate;
+		emitter->unk154.x        = unk1A8;
+		emitter->unk154.y        = unk1AC;
+		emitter->unk154.z        = unk1B0;
+		emitter->unk174.x        = unk1A8;
+		emitter->unk174.y        = unk1AC;
+		emitter->unk174.z        = unk1B0;
 	}
 
 	unk1A4[0] = 1;
