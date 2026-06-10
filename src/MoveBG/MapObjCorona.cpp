@@ -88,7 +88,7 @@ static inline bool canUseKiller(const TBathtub* bathtub)
 	if (!koopa->allowsLaunch())
 		return false;
 
-	return bathtub->unk248 == 0;
+	return bathtub->unk248 <= 0;
 }
 
 static inline void normalizeQuat(JGeometry::TVec3<f32>& v, f32& w)
