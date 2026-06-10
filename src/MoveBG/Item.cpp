@@ -1020,12 +1020,22 @@ void TEggYoshi::control()
 {
 	TMapObjBase::control();
 
-	switch (mState) {
+	switch ((u32)mState) {
+	case 1:
+		break;
+	case 0xD:
+		if (animIsFinished()) {
+			startAnim(0);
+			startBalloonAnim();
+			mState = 1;
+		}
+		break;
 	case 0xB:
 		if (animIsFinished()) {
 			startAnim(3);
 			TYoshi* yoshi = (TYoshi*)SMS_GetYoshi();
-			if (yoshi->mState == TYoshi::EGG) {
+			BOOL notEgg = ((u8)yoshi->mState == TYoshi::EGG) ? FALSE : TRUE;
+			if (!notEgg) {
 				JGeometry::TVec3<f32> pos(mPosition);
 				yoshi->appearFromEgg(pos, mRotation.y, this);
 				yoshi->setEggYoshiPtr(this);
@@ -1039,19 +1049,14 @@ void TEggYoshi::control()
 			mState = 0;
 		}
 		break;
-	case 0xD:
-		if (animIsFinished()) {
-			startAnim(0);
-			startBalloonAnim();
-			mState = 1;
-		}
-		break;
 	case 0xF: {
 		JGeometry::TVec3<f32> velocity(mVelocity);
 		if (velocity.y == 0.0f)
 			mState = 0x10;
 		break;
 	}
+	case 0x10:
+		break;
 	}
 }
 
