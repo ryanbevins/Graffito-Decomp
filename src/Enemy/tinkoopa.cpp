@@ -1,4 +1,6 @@
 #include <Enemy/TinKoopa.hpp>
+#include <Enemy/Conductor.hpp>
+#include <Enemy/EffectObj.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
@@ -406,6 +408,57 @@ void TTinKoopaPartsBase::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (unkF8 && unk104)
 		unk104->perform(flags, graphics);
+}
+
+void TTinKoopaPartsBase::emitPartsDisappearEffects(const char** jointNames,
+                                                   int count, f32 scale)
+{
+	JGeometry::TVec3<f32> effectScale = mScaling;
+	effectScale *= scale;
+
+	JUTNameTab* jointNamesTable
+	    = unk104->getModel()->getModelData()->getJointName();
+	for (int i = 0; i < count; ++i) {
+		s32 jointIndex = jointNamesTable->getIndex(jointNames[i]);
+		if (jointIndex < 0)
+			break;
+
+		MtxPtr mtx = unk104->getModel()->getAnmMtx(jointIndex);
+		unk108[i].set(mtx[0][3], mtx[1][3], mtx[2][3]);
+
+		TEffectExplosion* effect
+		    = (TEffectExplosion*)gpConductor->makeOneEnemyAppear(
+		        unk108[i], "エフェクト爆発マネージャー", 1);
+		if (!effect)
+			break;
+
+		effect->generate(unk108[i], effectScale);
+	}
+}
+
+void TTinKoopaPartsBase::emitPartsDisappearEffects()
+{
+	if (!unk104)
+		return;
+
+	if (!unk104->checkCurBckFromIndex(partsBreakBckTable[unkFC]))
+		return;
+
+	s32 frame = 60;
+	if (!unk104->getFrameCtrl(0)->checkPass((f32)frame))
+		return;
+
+	if (unkFC == 1) {
+		emitPartsDisappearEffects(breastTrackJointNameTable, 6, 4.0f);
+	} else if (unkFC == 2) {
+		emitPartsDisappearEffects(bellyTrackJointNameTable, 6, 4.0f);
+	} else if (unkFC == 3) {
+		emitPartsDisappearEffects(rightArmTrackJointNameTable, 4, 3.0f);
+	} else if (unkFC == 4) {
+		emitPartsDisappearEffects(leftArmTrackJointNameTable, 4, 3.0f);
+	}
+
+	unk100->unk1E4 = 0;
 }
 
 void TTinKoopaPartsBase::emitPartsTrackEffects(const char** jointNames,
