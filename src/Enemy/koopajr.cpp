@@ -739,6 +739,33 @@ bool TKoopaJrSubmarine::appearShineKiller(int)
 	return result;
 }
 
+void TKoopaJrSubmarine::launchKiller()
+{
+	int jointSlot = unk180 % 4;
+	TBathtubKiller* killer
+	    = (TBathtubKiller*)unk1A0->unk16C->getDeadEnemy();
+	if (!killer)
+		return;
+
+	killer->unk194 = unk178[unk180];
+	killer->reset();
+
+	int jointIndexSlot = jointSlot + 1;
+	int jointIndex     = TKoopaJr_jointIndexTable[jointIndexSlot];
+	MtxPtr mtx         = getModel()->getAnmMtx(jointIndex);
+	killer->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+
+	JGeometry::TVec3<f32> direction;
+	direction.x = mtx[0][2];
+	direction.y = mtx[1][2];
+	direction.z = mtx[2][2];
+	makeKillerVelocity(killer, direction);
+
+	if (gpMSound->gateCheck(0x285D))
+		MSoundSESystem::MSoundSE::startSoundActor(
+		    0x285D, &killer->mPosition, 0, nullptr, 0, 4);
+}
+
 void TKoopaJrSubmarine::resetKoopaJrSubmarine()
 {
 	mSpine->reset();
