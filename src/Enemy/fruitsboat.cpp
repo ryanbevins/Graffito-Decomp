@@ -534,7 +534,7 @@ void TFruitsBoat::moveObject()
 	// 2) Mario-on-boat detection / wave-normal update.
 	const TBGCheckData* gp = SMS_GetMarioGrPlane();
 
-	if (!(mLiveFlag & 0x40000)) {
+	if (!(mLiveFlag & 0x20000)) {
 		if (gp && gp->mActor == this && SMS_IsMarioTouchGround4cm()) {
 			JGeometry::TVec3<f32> mp = *gpMarioPos;
 			mp.x -= mPosition.x;
@@ -577,14 +577,39 @@ void TFruitsBoat::moveObject()
 					nv.z *= inv;
 				}
 
-				mSwayAngle += 0.0003f * len;
+				mWaveNormalX = nv.x;
+				mWaveNormalY = nv.y;
+				mWaveNormalZ = nv.z;
+				mSwayVel += 0.0003f * len;
 				mLiveFlag |= 0x20000;
 				mLiveFlag &= ~0x10000;
+
+				if (gp->mBGType == 7 || gp->mBGType == 0x8007) {
+					const char* bck = nullptr;
+					switch (((TFruitsBoatManager*)mManager)->mBoatId) {
+					case 0:
+						bck = "shipdolpic";
+						break;
+					case 1:
+						bck = "shipdolpic2";
+						break;
+					case 2:
+						bck = "shipdolpic3";
+						break;
+					}
+
+					if (bck) {
+						if (!mMActor->checkCurAnm(bck, 0)
+						    || mMActor->curAnmEndsNext(0, nullptr))
+							mMActor->setBck(bck);
+					}
+					mLiveFlag &= ~0x20000;
+				}
 			}
 		}
 	} else {
 		if (!(gp && gp->mActor == this && SMS_IsMarioTouchGround4cm()))
-			mLiveFlag &= ~0x40000;
+			mLiveFlag &= ~0x20000;
 	}
 
 	if (mLiveFlag & 0x20000) {
@@ -644,4 +669,3 @@ void TFruitsBoat::moveObject()
 
 	TLiveActor::moveObject();
 }
-
