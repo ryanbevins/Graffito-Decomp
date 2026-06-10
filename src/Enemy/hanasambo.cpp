@@ -1354,7 +1354,7 @@ void THanaSambo::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	TSmallEnemy::perform(flags, graphics);
 	if ((mLiveFlag & 7) == 0)
-		mHead->perform(flags, graphics);
+		mHead->THitActor::perform(flags, graphics);
 }
 
 const char** THanaSambo::getBasNameTable() const { return sambo_bastable; }
