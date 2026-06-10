@@ -1,4 +1,5 @@
 #include <Enemy/EnemyMario.hpp>
+#include <Enemy/Conductor.hpp>
 #include <Enemy/EMario.hpp>
 #include <Enemy/Graph.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -729,32 +730,180 @@ void TEnemyMario::consider()
 		emWaiting();
 		break;
 	case 1:
-		emJumping();
+		if (emDistToMario(this) < 400.0f) {
+			emControllerFlags(this) |= 0x100;
+			emTimer(this) = 0;
+			emDoing(this) = 2;
+		}
+
+		if (emDistToMario(this) < 1300.0f) {
+			setEMStick(this, emTargetYaw(this), 1.0f);
+			*(s16*)emController(this) = -*(s16*)emController(this);
+			*(s16*)(emController(this) + 2)
+			    = -*(s16*)(emController(this) + 2);
+		} else {
+			emDoing(this) = 0;
+		}
 		break;
 	case 2:
+		emJumping();
+		break;
+	case 3:
+		if (emDistToMario(this) > 1500.0f) {
+			setEMStick(this, emTargetYaw(this), 1.0f);
+		} else {
+			emTimer(this) = 0;
+			emDoing(this) = 0;
+		}
+		break;
+	case 4: {
+		s16 diff = emRandomYaw(this) - mFaceAngle.y;
+		if (rand() < 100) {
+			emControllerFlags(this) |= 0x100;
+			emTimer(this) = 0;
+			emDoing(this) = 2;
+			break;
+		}
+
+		if (diff < -0x1555 || diff > 0x1555) {
+			setEMStick(this, emRandomYaw(this), 0.2f);
+		} else {
+			emTimer(this) = 0;
+			emDoing(this) = 0;
+		}
+		break;
+	}
+	case 5:
 		emWalkAround();
 		break;
+	case 6: {
+		TEMario* owner = emOwner(this);
+		JGeometry::TVec3<f32> ownerTarget = owner->unk104.getPoint();
+		Vec ownerPos;
+		ownerPos.x = owner->mPosition.x;
+		ownerPos.y = owner->mPosition.y;
+		ownerPos.z = owner->mPosition.z;
+
+		f32 dx = ownerTarget.x - ownerPos.x;
+		f32 dy = ownerTarget.y - ownerPos.y;
+		f32 dz = ownerTarget.z - ownerPos.z;
+		if (JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz)
+		    < 100.0f) {
+			if (emDistToMario(this) > 3000.0f)
+				owner->goToRandomNextGraphNode();
+			else
+				owner->goToRandomEscapeGraphNode();
+		}
+
+		const JGeometry::TVec3<f32>& goal = owner->unkF4.getPoint();
+		s16 yaw = matan(goal.z - mPosition.z, goal.x - mPosition.x);
+		setEMStick(this, yaw, 1.0f);
+		emTimer(this)++;
+		if (emTimer(this) % 100 == 0) {
+			gpConductor->makeEnemyAppear(mPosition, "ハムクリマネージャー",
+			                             1, 0);
+		}
+		break;
+	}
+	case 7:
+		unk64 |= 1;
+		emOwner(this)->unk64 |= 1;
+		emTimer(this)++;
+		if (gpPollution == nullptr
+		    || !gpPollution->isPolluted(mPosition.x, mPosition.y,
+		                                mPosition.z)
+		    || emTimer(this) > 7200) {
+			emTimer(this) = 0;
+			marioUnk14C(this) = 120;
+			emTimer(this) = 0;
+			emDoing(this) = 8;
+		}
+		break;
+	case 8:
+		if (marioUnk14C(this) == 0) {
+			emTimer(this) = 0;
+			emDoing(this) = 0;
+			unk64 &= ~1;
+			emOwner(this)->unk64 &= ~1;
+		}
+		break;
+	case 9:
+		unk64 |= 1;
+		emOwner(this)->unk64 |= 1;
+		emFlags(this) &= ~2;
+		*(u16*)((u8*)this + 0x114) &= ~2;
+		changePlayerStatus(0x133E, 0, false);
+		break;
+	case 0xA:
+		emDisappearToGate();
+		break;
+	case 0xC:
+		if (distanceFromMario(mPosition) < emSettingF32(this, 0x18)
+		    && gpMarioPos->y < mPosition.y + emSettingF32(this, 0x2C)) {
+			pushNearestFlaggedNodeInput(this);
+			emTimer(this) = 0;
+			emDoing(this) = 0xD;
+		}
+		break;
 	case 0xD:
+		emReplayJumpToNearestNode();
+		break;
+	case 0xE:
+		changePlayerStatus(0x133E, 0, true);
+		setAnimation(0x2C, 1.0f);
+		if (getMotionFrameCtrl().getFrame() > 25.0f) {
+			emTimer(this) = 0;
+			emDoing(this) = 0xF;
+		}
+		break;
+	case 0xF:
 		emDownAnimation();
 		break;
 	case 0x10:
 		emRunAwayToNearestNode();
 		break;
-	case 0x11:
-		emReplayJumpToNearestNode();
-		break;
 	case 0x12:
-		emReplay();
+		if (tryTake()) {
+			if (emEnemyMActor(this) != nullptr
+			    && emSettings(this)[0x68] == 1) {
+				emEnemyMActor(this)->setBck("stamp_koopa_sign_draw1");
+				emTimer(this) = 0;
+				emDoing(this) = 0x13;
+			} else {
+				decideDoingAfterCarry();
+			}
+		}
+		break;
+	case 0x13:
+		if (emEnemyMActor(this)->curAnmEndsNext(0, nullptr))
+			decideDoingAfterCarry();
 		break;
 	case 0x14:
-	case 0x15:
-		decideDoingAfterCarry();
+		emWaitingToInviteMario();
 		break;
+	case 0x16: {
+		s16 diff = emTargetYaw(this) - mFaceAngle.y;
+		mFaceAngle.y
+		    = emTargetYaw(this) - IConverge(diff, 0, 0x180, 0x180);
+		changePlayerStatus(ACTION_IDLE, 0, false);
+		changeMontemanWaitingAnim();
+		break;
+	}
 	case 0x17:
-		emDisappearToGate();
+		getOwnerGraphPoint(this, 8, &mPosition);
+		mFaceAngle.y      = -0x8000;
+		mModelFaceAngle   = -0x8000;
+		if (isLast1AnimeFrame())
+			startDisappear(0xA);
 		break;
-	case 0x19:
-		emReplay();
+	case 0x18: {
+		s16 diff = emTargetYaw(this) - mFaceAngle.y;
+		mFaceAngle.y
+		    = emTargetYaw(this) - IConverge(diff, 0, 0x180, 0x180);
+		break;
+	}
+	case 0x1A:
+		emWaitingToInviteMario();
 		break;
 	default:
 		break;
@@ -798,6 +947,7 @@ void TEnemyMario::emWaitingToInviteMario()
 	}
 }
 
+#pragma dont_inline on
 void TEnemyMario::decideDoingAfterCarry()
 {
 	if (emFlags(this) & 0x20) {
@@ -818,6 +968,7 @@ void TEnemyMario::decideDoingAfterCarry()
 	emTimer(this) = 0;
 	emDoing(this) = 0xD;
 }
+#pragma dont_inline off
 
 void TEnemyMario::emRunAwayToNearestNode()
 {
