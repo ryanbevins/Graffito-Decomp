@@ -63,6 +63,9 @@ public:
 
 	bool isFlaming() const;
 	f32 getFlameDirDegree() const;
+	bool allowsLaunch() const;
+	void stagger(bool);
+	void getDown();
 
 	/* 0x150 */ u8 unk150[0x6C];
 };

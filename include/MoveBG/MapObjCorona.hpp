@@ -3,6 +3,9 @@
 
 #include <MoveBG/MapObjBase.hpp>
 
+class TBathtubGrip;
+class TBathtubParams;
+
 class TBathtub : public TMapObjBase {
 public:
 	TBathtub(const char* name = "バスタブ");
@@ -51,7 +54,36 @@ public:
 	void trample(const JGeometry::TVec3<f32>&);             // Unused
 
 public:
-	// Will start at 0x138
+	/* 0x138 */ u8 unk138[0x2C];
+	/* 0x164 */ void* unk164;
+	/* 0x168 */ TBathtubGrip** unk168;
+	/* 0x16C */ TBathtubParams* unk16C;
+	/* 0x170 */ u8 unk170[0x18];
+	/* 0x188 */ u8 unk188[0x50];
+	/* 0x1D8 */ JGeometry::TVec3<f32> unk1D8;
+	/* 0x1E4 */ f32 unk1E4;
+	/* 0x1E8 */ JGeometry::TVec3<f32> unk1E8;
+	/* 0x1F4 */ u8 unk1F4[0x48];
+	/* 0x23C */ JGeometry::TVec3<f32> unk23C;
+	/* 0x248 */ s32 unk248;
+	/* 0x24C */ s32 unk24C;
+	/* 0x250 */ s32 unk250;
+	/* 0x254 */ s32 unk254;
+	/* 0x258 */ s32 unk258;
+	/* 0x25C */ s32 unk25C;
+	/* 0x260 */ s32 unk260;
+	/* 0x264 */ u8 unk264[8];
+	/* 0x26C */ s32 unk26C;
+	/* 0x270 */ s32 unk270;
+	/* 0x274 */ s32 unk274;
+	/* 0x278 */ u8 unk278[0x18];
+	/* 0x290 */ void* unk290;
+	/* 0x294 */ void* unk294;
+	/* 0x298 */ u8 unk298;
+	/* 0x299 */ u8 unk299;
+	/* 0x29A */ u8 unk29A;
+	/* 0x29B */ u8 unk29B[5];
+	/* 0x2A0 */ void* unk2A0;
 };
 
 #endif
