@@ -1123,8 +1123,7 @@ void TCannon::moveObject()
 void TCannon::reset()
 {
 	TSmallEnemy::reset();
-	TSpineEnemyParams* params = getSaveParam();
-	mHitPoints = params ? params->mSLHitPointMax.get() : 1;
+	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
 	unk64 |= HIT_FLAG_NO_COLLISION;
 	unk214 = 1;
 	mHeadHeight = 40.0f;
@@ -1134,8 +1133,9 @@ void TCannon::reset()
 	if (unk230 == 9) {
 		unk239 = false;
 		JGeometry::TVec3<f32> target(-565.0f, 8500.0f, 7675.0f);
-		unkF4  = TPathNode(target);
-		unk104 = TPathNode(target);
+		TPathNode node(target);
+		unkF4  = node;
+		unk104 = node;
 		unk114.clear();
 	}
 }
