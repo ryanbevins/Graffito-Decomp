@@ -798,6 +798,90 @@ bool TKoopaJrSubmarine::appearShineKiller(int)
 	return result;
 }
 
+void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
+                                           JGeometry::TVec3<f32> direction)
+{
+	int queuedType = unk178[unk180];
+	if (queuedType == 2) {
+		direction.set(0.0f, 1.0f, 0.0f);
+
+		JGeometry::TVec3<f32> toMario = *gpMarioPos;
+		toMario.sub(killer->mPosition);
+		toMario.y = 0.0f;
+		toMario.normalize();
+
+		JGeometry::TVec3<f32> axis;
+		axis.cross(direction, toMario);
+		axis.normalize();
+
+		f32 angle = 0.31415927f;
+		f32 s     = sinf(angle);
+		f32 c     = cosf(angle);
+		f32 dot   = axis.dot(direction);
+		f32 invC  = 1.0f - c;
+		JGeometry::TVec3<f32> cross;
+		cross.cross(axis, direction);
+		direction.set(direction.x * c + cross.x * s + axis.x * dot * invC,
+		              direction.y * c + cross.y * s + axis.y * dot * invC,
+		              direction.z * c + cross.z * s + axis.z * dot * invC);
+
+		int slot     = unk180 % 4;
+		f32 fanAngle = 0.62831855f;
+		if (slot == 0) {
+			fanAngle = -0.15707964f;
+		} else if (slot == 1) {
+			fanAngle = 0.15707964f;
+		} else if (slot == 2) {
+			fanAngle = -0.31415927f;
+		} else if (slot == 3) {
+			fanAngle = 0.31415927f;
+		}
+
+		angle = 0.5f * fanAngle;
+		s     = sinf(angle);
+		c     = cosf(angle);
+		dot   = toMario.dot(direction);
+		invC  = 1.0f - c;
+		cross.cross(toMario, direction);
+		direction.set(direction.x * c + cross.x * s + toMario.x * dot * invC,
+		              direction.y * c + cross.y * s + toMario.y * dot * invC,
+		              direction.z * c + cross.z * s + toMario.z * dot * invC);
+
+		direction.normalize();
+		direction.scale(killer->unk1A4);
+	} else {
+		direction.normalize();
+		direction.scale(killer->unk1A4);
+
+		JGeometry::TVec3<f32> target = *gpMarioPos;
+		Mtx* rootMtx                = unk1A0->unk15C->getRootJointMtx();
+		target.y                    = (*rootMtx)[1][3];
+
+		f32 dx       = target.x - killer->mPosition.x;
+		f32 dz       = target.z - killer->mPosition.z;
+		f32 distSq   = dx * dx + dz * dz;
+		f32 distance = JGeometry::TUtil<f32>::sqrt(distSq)
+		               - getSaveParam2()->killerTargetDistance.get();
+		f32 offset = getSaveParam2()->killerTargetDistanceMin.get();
+		if (distance >= offset)
+			offset = distance;
+
+		JGeometry::TVec3<f32> toTarget(dx, 0.0f, dz);
+		toTarget.normalize();
+
+		JGeometry::TVec3<f32> jumpTarget;
+		jumpTarget.x = killer->mPosition.x + toTarget.x * offset;
+		jumpTarget.y = target.y;
+		jumpTarget.z = killer->mPosition.z + toTarget.z * offset;
+
+		direction = calcVelocityToJumpToY(
+		    jumpTarget, direction.y,
+		    killer->getSaveParam2()->mSLFlyingGravityY.get());
+	}
+
+	killer->makeInitialVelocity(direction);
+}
+
 void TKoopaJrSubmarine::launchKiller()
 {
 	int jointSlot = unk180 % 4;
