@@ -36,6 +36,25 @@ them in future ticks.
 
 ## Settled
 
+### Explicit no-op state cases can force dense jump-table dispatch
+
+**Rule.** When target asm uses a jump table for a mostly sparse state-machine
+switch, add explicit `case` labels for semantically meaningful no-op states at
+the low/high bounds instead of relying on `default`. MWCC's jump-table decision
+depends on the visible case density/range, and empty cases can point to the
+same default exit while still making the dispatch table and range check match.
+Order non-empty case bodies by target body layout; jump-table entries can still
+map numeric cases to bodies emitted in source order.
+
+**Citations.**
+- `mario/MoveBG/Item` `TEggYoshi::control()` (2026-06-11 MNL): adding no-op
+  `case 1` and `case 0x10`, then ordering bodies `0xD -> 0xB -> 0xC -> 0xF`,
+  changed a compare tree to the target `0..0x10` jump table and moved the
+  function `14.1 -> 99.8`.
+- `mario/Enemy/Tongue` `TTongue::movement()` (t169): structuring the state
+  dispatch as contiguous `case 0` through `case 7` forced the target jump table
+  and moved the function from 0% to the first structurally aligned state.
+
 ### Signed `switch ((s32)x)` preserves sparse actor/selector compare trees
 
 **Rule.** When target asm lowers a small sparse selector as a signed compare
