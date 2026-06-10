@@ -239,6 +239,14 @@ const char** TTinKoopa::getBasNameTable() const { return tinkoopa_bastable; }
 
 BOOL TTinKoopa::hasMapCollision() const { return true; }
 
+f32 TTinKoopa::calcCoasterDistance(int start, int end)
+{
+	f32 distance = 0.0f;
+	for (int i = start; i < end; ++i)
+		distance += unk1E8[i];
+	return distance;
+}
+
 void TTinKoopaMtxCalc::calc(u16 index)
 {
 	M3UMtxCalcSIAnmBlendQuat::calc(index);
