@@ -355,18 +355,21 @@ DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
 
 	if (spine->getTime() == 0) {
 		f32 bombDist = self->unk28C->mSLBombDist.get();
-		if (self->mDistToMarioSquared >= 2.0f * bombDist * bombDist)
-			return TRUE;
-
-		TChorobei* chorobei = self->unk1A8;
-		chorobei->unk6C->getMActor()->setBckFromIndex(17);
-		const char** bas = chorobei->unk68->getBasNameTable();
-		chorobei->unk78 = bas == nullptr ? nullptr : bas[17];
-		if (chorobei->unk78 != nullptr) {
-			chorobei->unk74->initAnmSound(
-			    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
+		f32 limit    = 2.0f * (bombDist * bombDist);
+		if (self->mDistToMarioSquared < limit) {
+			TChorobei* chorobei = self->unk1A8;
+			chorobei->unk6C->getMActor()->setBckFromIndex(17);
+			const char** bas = chorobei->unk68->getBasNameTable();
+			chorobei->unk78 = bas == nullptr ? nullptr : bas[17];
+			if (chorobei->unk78 != nullptr) {
+				chorobei->unk74->initAnmSound(
+				    JKRFileLoader::getGlbResource(chorobei->unk78), 1,
+				    0.0f);
+			} else {
+				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+			}
 		} else {
-			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+			return TRUE;
 		}
 	}
 
