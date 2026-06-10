@@ -663,7 +663,7 @@ void TSamboFlower::setMActorAndKeeper()
 void TSamboFlower::init(TLiveManager* manager)
 {
 	mManager = manager;
-	mManager->manageActor(this);
+	manager->manageActor(this);
 	setMActorAndKeeper();
 
 	unk130  = 1;
@@ -678,7 +678,7 @@ void TSamboFlower::init(TLiveManager* manager)
 	initHitActor(0x10000027, 1, 0x80000000, mBodyRadius, mHeadHeight,
 	             mBodyRadius, mHeadHeight);
 	onHitFlag(HIT_FLAG_NO_COLLISION);
-	offLiveFlag(LIVE_FLAG_UNK800);
+	offLiveFlag(LIVE_FLAG_UNK400);
 	initAnmSound();
 	mActorType = 0x10000027;
 	unk150     = false;
