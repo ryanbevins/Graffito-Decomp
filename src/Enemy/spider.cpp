@@ -40,7 +40,8 @@ void TSpider::bind(TLiveActor* param_1)
 	if (param_1->mPosition.y - local_50.y > 0.0f) {
 		const TBGCheckData* local_64;
 		f32 dVar7 = gpMap->checkGround(
-		    local_50.x, local_50.y + ((TSpineEnemy*)param_1)->getHeadHeight(),
+		    local_50.x,
+		    param_1->mPosition.y + ((TSpineEnemy*)param_1)->getHeadHeight(),
 		    local_50.z, &local_64);
 		dVar7 += 1.0f;
 		if (dVar7 > fVar3) {
