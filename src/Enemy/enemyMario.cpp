@@ -129,6 +129,17 @@ inline void resetOwnerGraph(TEnemyMario* mario)
 	owner->goToShortestNextGraphNode();
 }
 
+inline void pushNearestFlaggedNodeInput(TEnemyMario* mario)
+{
+	TGraphWeb* graph = emOwner(mario)->unk124->getGraph();
+	int node         = graph->findNearestNodeIndex(mario->mPosition, 0xffffffff);
+	if (graph->getGraphNode(node).checkFlag(2)) {
+		mario->mFaceAngle.y = emTargetYaw(mario);
+		emControllerFlags2(mario) |= 0x100;
+		emControllerFlags(mario) |= 0x100;
+	}
+}
+
 } // namespace
 
 void TEnemyMario::drawHPMeter(MtxPtr) { }
@@ -312,7 +323,26 @@ void TEnemyMario::startGateDrawing()
 
 void TEnemyMario::emWaitingToInviteMario() { }
 
-void TEnemyMario::decideDoingAfterCarry() { }
+void TEnemyMario::decideDoingAfterCarry()
+{
+	if (emFlags(this) & 0x20) {
+		emFlags(this) &= ~0x20;
+		pushNearestFlaggedNodeInput(this);
+		emTimer(this) = 0;
+		emDoing(this) = 0xD;
+		return;
+	}
+
+	if (*(emSettings(this) + 0x54) == 1) {
+		emTimer(this) = 0;
+		emDoing(this) = 0xC;
+		return;
+	}
+
+	pushNearestFlaggedNodeInput(this);
+	emTimer(this) = 0;
+	emDoing(this) = 0xD;
+}
 
 void TEnemyMario::emRunAwayToNearestNode() { }
 
