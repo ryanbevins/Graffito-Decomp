@@ -233,7 +233,55 @@ DEFINE_NERVE(TNerveSamboHeadHide, TLiveActor)
 
 DEFINE_NERVE(TNerveSamboHeadAttack, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveSamboHeadAppear, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveSamboHeadAppear, TLiveActor)
+{
+	TSamboHead* self = (TSamboHead*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+		TSamboFlower* flower = (TSamboFlower*)self->unk198;
+		if (flower->unk150) {
+			flower->unk150 = true;
+			flower->unk154 = 0;
+			gpMarioParticleManager->emit(0xB2, &flower->mPosition, 0,
+			                             nullptr);
+			flower->mMActor->setBck("flower_hit");
+			if (flower->unk160 && flower->unk164) {
+				--*flower->unk164;
+				u32 soundID = *flower->unk164 + 0x89B9;
+				if (gpMSound->gateCheck(soundID))
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    soundID, &flower->mPosition, 0, nullptr, 0, 4);
+			}
+			self->setBckAnm(10);
+		} else {
+			self->setBckAnm(10);
+		}
+
+		gpMarioParticleManager->emit(0xB6, &self->mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(0xB7, &self->mPosition, 0, nullptr);
+
+		flower = (TSamboFlower*)self->unk198;
+		flower->onHitFlag(HIT_FLAG_NO_COLLISION);
+		flower->mMActor->setBck("flower_fwait");
+		flower->onLiveFlag(LIVE_FLAG_DEAD);
+	}
+
+	if (spine->getTime() == 20) {
+		TSamboFlower* flower = (TSamboFlower*)self->unk198;
+		((TSamboFlowerManager*)flower->mManager)
+		    ->dropLeaf(self->mPosition, self->mScaling);
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		self->setBckAnm(12);
+		spine->pushAfterCurrent(&TNerveSamboHeadAttack::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveHanaSamboFreeze, TLiveActor) { return FALSE; }
 

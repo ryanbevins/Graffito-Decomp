@@ -119,8 +119,7 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void createModelData();
 	virtual TSpineEnemy* createEnemyInstance();
-
-	void dropLeaf(JGeometry::TVec3<f32>&, JGeometry::TVec3<f32>&);
+	virtual void dropLeaf(JGeometry::TVec3<f32>&, JGeometry::TVec3<f32>&);
 
 	/* 0x54 */ TSamboFlowerCoinUnit** mCoinUnits;
 	/* 0x58 */ s32 mCoinUnitCount;
