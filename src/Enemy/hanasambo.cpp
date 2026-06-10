@@ -1,5 +1,6 @@
 #include <Enemy/HanaSambo.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
@@ -41,8 +42,13 @@ static const char* sambohead_bastable[] = {
 
 u8 THanaSambo::mHeadJntIndex   = 3;
 u8 THanaSambo::mPollenJntIndex = 6;
+u8 TSamboHead::mBodyJntIndex;
 
-static inline void initMarioGoal(THanaSambo* sambo)
+static TSamboHead* gpCurSamboHead;
+
+static int SamboHeadRollCallback(J3DNode*, int) { return 1; }
+
+static inline void initMarioGoal(TSpineEnemy* sambo)
 {
 	THitActor* mario = (THitActor*)gpMarioAddress;
 	JGeometry::TVec3<f32> pos(0.0f, 0.0f, 0.0f);
@@ -56,6 +62,18 @@ static inline void initMarioGoal(THanaSambo* sambo)
 	sambo->unk114.clear();
 }
 
+DEFINE_NERVE(TNerveSamboHeadHitWall, TLiveActor) { return FALSE; }
+
+DEFINE_NERVE(TNerveSamboHeadRecoverWater, TLiveActor) { return FALSE; }
+
+DEFINE_NERVE(TNerveSamboHeadHitWater, TLiveActor) { return FALSE; }
+
+DEFINE_NERVE(TNerveSamboHeadHide, TLiveActor) { return FALSE; }
+
+DEFINE_NERVE(TNerveSamboHeadAttack, TLiveActor) { return FALSE; }
+
+DEFINE_NERVE(TNerveSamboHeadAppear, TLiveActor) { return FALSE; }
+
 DEFINE_NERVE(TNerveHanaSamboFreeze, TLiveActor) { return FALSE; }
 
 DEFINE_NERVE(TNerveHanaSamboDie, TLiveActor) { return FALSE; }
@@ -67,6 +85,108 @@ DEFINE_NERVE(TNerveHanaSamboAttack, TLiveActor) { return FALSE; }
 DEFINE_NERVE(TNerveHanaSamboWait, TLiveActor) { return FALSE; }
 
 DEFINE_NERVE(TNerveHanaSamboAppear, TLiveActor) { return FALSE; }
+
+TSamboHeadManager::TSamboHeadManager(const char* name)
+    : TSmallEnemyManager(name)
+{
+	gpCurSamboHead = nullptr;
+}
+
+void TSamboHeadManager::load(JSUMemoryInputStream& stream)
+{
+	TSmallEnemyManager::load(stream);
+	unk38 = new TSamboHeadSaveLoadParams("/enemy/sambohead.prm");
+}
+
+void TSamboHeadManager::createModelData()
+{
+	static const TModelDataLoadEntry entry[] = {
+		{ "samboHead.bmd", 0x10220000, 0 },
+		{ nullptr, 0, 0 },
+	};
+	createModelDataArray(entry);
+}
+
+TSpineEnemy* TSamboHeadManager::createEnemyInstance()
+{
+	return new TSamboHead("サンボヘッド");
+}
+
+TSamboHead::TSamboHead(const char* name)
+    : TWalkerEnemy(name)
+    , mParams(nullptr)
+    , unk198(nullptr)
+    , unk19C(0)
+    , mRollAngle(0.0f)
+    , unk1B0(0)
+{
+}
+
+void TSamboHead::load(JSUMemoryInputStream& stream)
+{
+	TSmallEnemy::load(stream);
+	setMActorAndKeeper();
+	initMarioGoal(this);
+}
+
+void TSamboHead::init(TLiveManager* manager)
+{
+	TWalkerEnemy::init(manager);
+	mActorType = 0x1000001B;
+	unk150     = 17;
+	mParams    = (TSamboHeadSaveLoadParams*)getSaveParam();
+	mSpine->initWith(&TNerveSamboHeadHide::theNerve());
+	initMarioGoal(this);
+	mMActor->setJointCallback(mBodyJntIndex, SamboHeadRollCallback);
+}
+
+void TSamboHead::calcRootMatrix()
+{
+	gpCurSamboHead = this;
+	TSpineEnemy::calcRootMatrix();
+}
+
+void TSamboHead::setMActorAndKeeper()
+{
+	mMActorKeeper = new TMActorKeeper(mManager, 1);
+	mMActor       = mMActorKeeper->createMActor("samboHead.bmd", 3);
+}
+
+const char** TSamboHead::getBasNameTable() const { return sambohead_bastable; }
+
+void TSamboHead::reset()
+{
+	gpCurSamboHead = this;
+	TWalkerEnemy::reset();
+	unk165     = false;
+	unk1B0     = 0;
+	unk19C     = 0;
+	mRollAngle = 0.0f;
+	offLiveFlag(LIVE_FLAG_UNK8);
+}
+
+void TSamboHead::kill()
+{
+	mHitPoints = 1;
+	if (mSpine->getCurrentNerve() != &TNerveSmallEnemyDie::theNerve()) {
+		mSpine->reset();
+		mSpine->setNext(&TNerveSmallEnemyDie::theNerve());
+		mSpine->pushAfterCurrent(&TNerveSmallEnemyDie::theNerve());
+	}
+	onLiveFlag(LIVE_FLAG_UNK40);
+}
+
+void TSamboHead::setDeadAnm() { setBckAnm(3); }
+
+f32 TSamboHead::getGravityY() const
+{
+	f32 gravity = mGravity;
+	if (mSpine->getCurrentNerve() == &TNerveSamboHeadAttack::theNerve())
+		gravity = mParams->mSLMoveGravity.get();
+	if (mSpine->getCurrentNerve() == &TNerveSamboHeadHitWater::theNerve())
+		gravity = mParams->mSLHitJumpGravity.get();
+	return gravity;
+}
 
 THanaSamboManager::THanaSamboManager(const char* name)
     : TSmallEnemyManager(name)
