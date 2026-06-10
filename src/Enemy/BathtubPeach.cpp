@@ -111,7 +111,7 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 	TBathtubPeachParams* params3
 	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
 	f32 speed = params3->speed.value;
-	if (delta.x * delta.x + delta.y * delta.y <= speed * speed) {
+	if (delta.x * delta.x + delta.y * delta.y >= speed * speed) {
 		f32 lenSq = delta.dot(delta);
 		if (lenSq <= 3.8146973e-6f) {
 			delta.y = 0.0f;
