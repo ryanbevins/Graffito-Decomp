@@ -654,10 +654,13 @@ void TSamboFlower::setMActorAndKeeper()
 {
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
 	mMActor       = mMActorKeeper->createMActor("flower.bmd", 3);
-	mMActor->getModel()->getModelData()->setMaterialTable(
-	    ((TSamboFlowerManager*)mManager)->mMaterialTable, J3DMatCopyFlag_All);
-	mMActor->initDL();
-	mMActor->getModel()->lock();
+	MActor* actor                = mMActor;
+	TSamboFlowerManager* manager = (TSamboFlowerManager*)mManager;
+	J3DModel* model              = actor->getModel();
+	model->getModelData()->setMaterialTable(manager->mMaterialTable,
+	                                        J3DMatCopyFlag_All);
+	actor->initDL();
+	actor->getModel()->lock();
 }
 
 void TSamboFlower::init(TLiveManager* manager)
