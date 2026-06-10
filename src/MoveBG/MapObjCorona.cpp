@@ -616,7 +616,119 @@ void TBathtub::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 }
 
-void TBathtub::control() { }
+void TBathtub::control()
+{
+	if (unk29A != 0) {
+		if (mMActor->curAnmEndsNext(0, nullptr)) {
+			s32 demoStep = unk294++;
+			switch (demoStep) {
+			case 0:
+				startBck("bath_overturn2");
+				break;
+			case 1:
+				startBck("bath_overturn3");
+				break;
+			}
+		}
+
+		JGeometry::TVec3<f32> scale(3.0f);
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x128, unk29C->unk4->getAnmMtx(unk268), 1, this);
+		if (emitter != nullptr)
+			emitter->setScale(scale);
+
+		emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x129, unk29C->unk4->getAnmMtx(unk268), 1, this);
+		if (emitter != nullptr)
+			emitter->setScale(scale);
+
+		MtxPtr starMtx = mMActor->unk4->getAnmMtx(unk264);
+		unk200.x       = starMtx[0][3];
+		unk200.y       = starMtx[1][3];
+		unk200.z       = starMtx[2][3];
+		if (gpMSound->gateCheck(0x81C1)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x81C1, (Vec*)&unk200, 0, nullptr, 0, 4);
+		}
+
+		calcRootMatrix();
+		calcBathtubData();
+
+		for (s32 i = 0; i < 30; ++i)
+			unk164[i]->remove();
+
+		TLiveActor* mario = SMS_GetMarioLiveActor();
+		if (mario->receiveMessage(this, HIT_MESSAGE_TAKE))
+			mHeldObject = (TTakeActor*)mario;
+
+		*(u16*)((u8*)gpMarioOriginal + 0x96) = 0x7FFF;
+
+		if (unk290 > 0)
+			--unk290;
+		return;
+	}
+
+	if (unk24C > 0)
+		--unk24C;
+	if (unk248 > 0)
+		--unk248;
+
+	bool applyMarioWeight = false;
+	if (unk250 > unk16C->hipdropRelease.get()) {
+		applyMarioWeight = true;
+	} else if (marioIsOn() && mHeldObject == nullptr) {
+		applyMarioWeight = true;
+	}
+
+	if (applyMarioWeight) {
+		f32 weight = unk16C->marioWeight.get();
+		if (unk250 > 0)
+			weight += unk16C->marioDropWeight.get();
+
+		if (weight > 0.0000000001f) {
+			static JGeometry::TVec3<f32> yDown(0.0f, -1.0f, 0.0f);
+
+			f32 x = gpMarioPos->x - mPosition.x;
+			f32 y = gpMarioPos->y - mPosition.y;
+			f32 z = gpMarioPos->z - mPosition.z;
+
+			JGeometry::TVec3<f32> torque;
+			torque.x = y * yDown.z - z * yDown.y;
+			torque.y = z * yDown.x - x * yDown.z;
+			torque.z = x * yDown.y - y * yDown.x;
+
+			unk1E8.x += torque.x * weight;
+			unk1E8.y += torque.y * weight;
+			unk1E8.z += torque.z * weight;
+		}
+	}
+
+	updatePosture_();
+	calcRootMatrix();
+	TMapObjBase::control();
+	calcBathtubData();
+	getModel()->calc();
+
+	f32 uprightDot = unk17C.x * unk188[3] + unk17C.y * unk188[4]
+	                 + unk17C.z * unk188[5];
+	if (uprightDot > 0.995f)
+		gpMarioParticleManager->emit(0x1BE, &unk1F4, 1, this);
+
+	for (s32 i = 0; i < 5; ++i) {
+		if (unk168[i]->unk248 != 0) {
+			s32 joint = (&unk27C)[i];
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x1BF, mMActor->unk4->getAnmMtx(joint), 1, this);
+		}
+	}
+
+	if (mHeldObject == nullptr) {
+		setupCollisions_();
+	} else {
+		for (s32 i = 0; i < 30; ++i)
+			unk164[i]->remove();
+	}
+}
 
 void TBathtub::calcBathtubData() { }
 
