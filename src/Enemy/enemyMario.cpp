@@ -110,6 +110,11 @@ inline f32& emSettingF32(TEnemyMario* mario, u32 offset)
 	return *(f32*)(emSettings(mario) + offset);
 }
 
+inline s16& emSettingS16(TEnemyMario* mario, u32 offset)
+{
+	return *(s16*)(emSettings(mario) + offset);
+}
+
 inline TMarioInputReplay*& emInputReplay(TEnemyMario* mario)
 {
 	return *(TMarioInputReplay**)((u8*)mario + 0x4300);
@@ -168,6 +173,11 @@ inline f32 distanceFromMario(const JGeometry::TVec3<f32>& pos)
 	f32 dy = pos.y - gpMarioPos->y;
 	f32 dz = pos.z - gpMarioPos->z;
 	return JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+inline JGeometry::TVec3<f32>& emDownPos(TEnemyMario* mario)
+{
+	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x42C0);
 }
 
 } // namespace
@@ -414,6 +424,24 @@ void TEnemyMario::emDownAnimation()
 {
 	changePlayerStatus(0x133E, 0, true);
 	setAnimation(0x13E, 1.0f);
+
+	bool fixedMode = false;
+	u8 mode        = gpMarDirector->unk124;
+	if (mode == 3 || mode == 4 || mode == 1 || mode == 2)
+		fixedMode = true;
+
+	if (!fixedMode)
+		emTimer(this)++;
+
+	emDownPos(this)      = mPosition;
+	emDisappearPos(this) = emDownPos(this);
+
+	if (!fixedMode && gpMarDirector->getCurrentMap() != 1
+	    && emTimer(this) > (u32)emSettingS16(this, 0xCC)) {
+		emWaterCount(this) = emSettingS16(this, 0x40);
+		emTimer(this)      = 0;
+		emDoing(this)      = 0x10;
+	}
 }
 
 void TEnemyMario::emReplayJumpToNearestNode() { }
