@@ -683,11 +683,10 @@ void TSamboFlower::loadAfter()
 {
 	JDrama::TNameRef::loadAfter();
 	if (unk15C >= 0) {
-		JGeometry::TVec3<f32> pos(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> rot(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		TMapObjBase* coin = TMapObjBaseManager::newAndRegisterObj(
-		    "coin", pos, rot, scale);
+		    "coin", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		if (coin)
 			unk168 = coin;
 	}
