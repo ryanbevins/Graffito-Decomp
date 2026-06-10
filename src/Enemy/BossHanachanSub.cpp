@@ -82,7 +82,7 @@ void BHSCalcRevisionDistXZByRotateZ(f32 angleDeg, f32 a, f32 b, f32* outX,
 	*outZ    = -c * sinV + zero * cosV;
 }
 
-void TWaterHitActor::onWaterHitCounter() { unk68 = 0x3C; }
+void TWaterHitActor::onWaterHitCounter() { *(u16*)&unk68 = 0x3C; }
 
 BOOL TWaterHitActor::receiveMessage(THitActor* sender, u32 message)
 {
@@ -97,7 +97,7 @@ BOOL TWaterHitActor::receiveMessage(THitActor* sender, u32 message)
 				inOk = false;
 		}
 		if (inOk)
-			unk68 = 0;
+			*(u16*)&unk68 = 0;
 		else
 			onWaterHitCounter();
 		ret = TRUE;
