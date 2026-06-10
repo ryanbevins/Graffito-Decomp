@@ -103,7 +103,7 @@ public:
 public:
 	/* 0x194 */ JGeometry::TVec3<f32> unk194;
 	/* 0x1A0 */ TSmallEnemy* unk1A0;
-	/* 0x1A4 */ u8 pad1A4[4];
+	/* 0x1A4 */ TSmallEnemy* unk1A4;
 	/* 0x1A8 */ TChorobei* unk1A8;
 	/* 0x1AC */ TCannonDom* unk1AC[3];
 	/* 0x1B8 */ TCannonDom* unk1B8;

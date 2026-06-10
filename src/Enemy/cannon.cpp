@@ -1,6 +1,8 @@
 #include <Enemy/Cannon.hpp>
 #include <Enemy/Bombhei.hpp>
+#include <Enemy/Conductor.hpp>
 #include <Enemy/Killer.hpp>
+#include <Enemy/Popo.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
@@ -127,9 +129,81 @@ void TCannon::setKillerGoalPoint()
 
 void TCannon::killerShoot() { }
 
-void TCannon::bombShoot() { }
+void TCannon::bombShoot()
+{
+	if (unk1A4 == nullptr)
+		return;
 
-void TCannon::bombSet() { }
+	JGeometry::TVec3<f32> velocity;
+	velocity.x = gpMarioPos->x - mPosition.x;
+	velocity.y = 0.0f;
+	velocity.z = gpMarioPos->z - mPosition.z;
+	if (velocity.x == 0.0f && velocity.z == 0.0f)
+		velocity.x = 1.0f;
+	MsVECNormalize(&velocity, &velocity);
+
+	Mtx rot;
+	f32 angle = -30.0f
+	            + (30.0f - -30.0f) * ((f32)rand() * (1.0f / 32768.0f));
+	MsMtxSetRotRPH(rot, 0.0f, mRotation.y + angle, 0.0f);
+
+	f32 speed = unk28C->mSLThrowXZSpeed.get();
+	velocity.y = speed;
+	velocity.x *= speed;
+	velocity.z *= speed;
+
+	unk1A4->mVelocity = velocity;
+	if (unk21C) {
+		unk1A4->offLiveFlag(LIVE_FLAG_UNK10);
+	} else {
+		unk1A4->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		unk1A4->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
+	}
+
+	unk1A4->mPosition.y += 2.0f;
+	unk1A4->receiveMessage(this, HIT_MESSAGE_UNK6);
+}
+
+void TCannon::bombSet()
+{
+	unk21C = false;
+	unk1A4 = nullptr;
+
+	TSmallEnemy* spawned = nullptr;
+	f32 rate = (f32)rand() * (1.0f / 32768.0f);
+	if (rate < unk28C->mSLBombHeiGenerateRate.get()) {
+		spawned = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
+		    mPosition, "ボム兵マネージャー", 1);
+	} else {
+		int choice = (s32)(100.0f * ((f32)rand() * (1.0f / 32768.0f)));
+		if (choice % 2 == 1) {
+			spawned = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
+			    mPosition, "ポポマネージャ", 1);
+			if (spawned != nullptr)
+				((TPopo*)spawned)->thrownByChorobei();
+		} else {
+			spawned = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
+			    mPosition, "ハムクリマネージャ", 1);
+		}
+	}
+
+	if (unk1A4 == nullptr) {
+		unk1A4 = spawned;
+		if (spawned != nullptr) {
+			spawned->reset();
+			spawned->getMActor()->setFrameRate(0.0f, 0);
+		}
+	}
+
+	if (unk1A4 != nullptr) {
+		unk1A4->mPosition = unk1A8->mPosition;
+		unk220 = unk1A4->mScaling.x;
+		unk1A4->mScaling.zero();
+		unk1A4->mRotation = mRotation;
+		if (unk1A4->receiveMessage(this, HIT_MESSAGE_TAKE))
+			mHeldObject = unk1A4;
+	}
+}
 
 bool TCannon::isHitVallid(u32)
 {
