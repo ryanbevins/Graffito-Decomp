@@ -4,6 +4,7 @@
 #include <MoveBG/MapObjGeneral.hpp>
 
 class TMirrorActor;
+class MActor;
 
 class TItem : public TMapObjGeneral {
 public:
@@ -168,13 +169,13 @@ public:
 
 	void startFruit();
 	void touchFruit(THitActor*);
-	void startBalloonAnim();
+	inline void startBalloonAnim();
 	void decideRandomLoveFruit();
 
 public:
-	/* 0x148 */ u32 unk148;
+	/* 0x148 */ MActor* unk148;
 	/* 0x14C */ u32 unk14C;
-	/* 0x150 */ u32 unk150;
+	/* 0x150 */ TMapObjGeneral* unk150;
 };
 
 class TItemNozzle : public TItem {
