@@ -7,6 +7,7 @@
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <JSystem/JSupport/JSUMemoryInputStream.hpp>
 #include <JSystem/JMath.hpp>
 #include <M3DUtil/M3UJoint.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
@@ -62,6 +63,12 @@ static const char* sEnemyMarioBmdFileNames[] = {
 	nullptr,
 	nullptr,
 };
+
+static const char* sRecordFileNamesDolpic1[] = {
+	nullptr, "BH", "CH", "DH", "EH", "FH", "GH", nullptr,
+};
+
+static const char* sRecordFileNamesMonteMan[] = { "AB0", "AB1", "AB2" };
 
 class TEnemyMarioParams : public TParams {
 public:
@@ -1721,6 +1728,70 @@ void TEnemyMario::initEnemyValues()
 	emInputReplayArrayBackup(this) = nullptr;
 	emInputReplay(this)           = nullptr;
 
+	int replayCount       = 0;
+	const char** replayNames = nullptr;
+	{
+		char linkPath[256];
+		if (emScenarioType(this) == 0) {
+			snprintf(linkPath, sizeof(linkPath),
+			         "/scene/map/map/pad/linkdata.bin");
+		} else {
+			snprintf(linkPath, sizeof(linkPath),
+			         "/scene/map/map/pad%d/linkdata.bin",
+			         emScenarioType(this));
+		}
+
+		u8* linkData = (u8*)JKRFileLoader::getGlbResource(linkPath);
+		if (linkData != nullptr) {
+			JKRFileLoader* sceneVolume = JKRFileLoader::getVolume("scene");
+			JSUMemoryInputStream stream(
+			    linkData, sceneVolume->getResSize(linkData));
+
+			stream.skip(6);
+			stream.readString();
+			stream.skip(2);
+			stream.readString();
+
+			u32 linkCount;
+			stream.read(&linkCount, sizeof(linkCount));
+			emReplayLinkTable(this) = new u8[linkCount * 6];
+
+			char** names = new char*[linkCount * 3];
+			for (u32 i = 0; i < linkCount * 3; ++i)
+				names[i] = new char[3];
+
+			replayNames = (const char**)names;
+			for (u32 row = 0; row < linkCount; ++row) {
+				stream.skip(6);
+				stream.readString();
+				stream.skip(2);
+				stream.readString();
+
+				char rowName = (char)('A' + row);
+				for (int col = 0; col < 3; ++col) {
+					stream.skip(2);
+
+					char link;
+					stream.read(&link, 1);
+
+					u32 tableOffset = row * 6 + col * 2;
+					if (link == '*') {
+						emReplayLinkTable(this)[tableOffset]     = 0xFF;
+						emReplayLinkTable(this)[tableOffset + 1] = 0xFF;
+					} else {
+						snprintf(names[replayCount], 3, "%c%c", rowName,
+						         link);
+						emReplayLinkTable(this)[tableOffset]
+						    = link - 'A';
+						emReplayLinkTable(this)[tableOffset + 1]
+						    = replayCount;
+						replayCount++;
+					}
+				}
+			}
+		}
+	}
+
 	if (gpMarDirector->mMap == 0xC) {
 		if (strcmp(emOwner(this)->getName(), "マリオ@1") == 0) {
 			unk388 = 3;
@@ -1743,6 +1814,35 @@ void TEnemyMario::initEnemyValues()
 		         emScenarioType(this));
 		emOwner(this)->unk124->setGraph(gpConductor->getGraphByName(graphName));
 	}
+
+	emTremblePower(this) = 2.5f;
+	if (unk388 == 2) {
+		replayNames = sRecordFileNamesMonteMan;
+		replayCount = 3;
+	}
+
+	if (replayCount > 0) {
+		emInputReplayArray(this) = new TMarioInputReplay*[replayCount];
+		for (int i = 0; i < replayCount; ++i) {
+			char replayPath[256];
+			if (emScenarioType(this) == 0) {
+				snprintf(replayPath, sizeof(replayPath),
+				         "/scene/map/map/pad/tutorial%s.pad",
+				         replayNames[i]);
+			} else {
+				snprintf(replayPath, sizeof(replayPath),
+				         "/scene/map/map/pad%d/tutorial%s.pad",
+				         emScenarioType(this), replayNames[i]);
+			}
+
+			u8* replayData = (u8*)JKRFileLoader::getGlbResource(replayPath);
+			emInputReplayArray(this)[i] = new TMarioInputReplay;
+			emInputReplayArray(this)[i]->init(replayData);
+		}
+	}
+
+	setGamePad(gpMarDirector->unk18[1]);
+	emFlags(this) = 2;
 
 	switch (emOwner(this)->unk154) {
 	case 0:
@@ -1777,6 +1877,29 @@ void TEnemyMario::initEnemyValues()
 		TGraphWeb* graph = emOwner(this)->unk124->getGraph();
 		graph->getGraphNode(emReplayIndex(this)).getPoint(&mPosition);
 		emOwner(this)->mPosition = mPosition;
+	}
+
+	if (gpMarDirector->mMap == 1 && gpMarDirector->unk7D == 1) {
+		emInputReplayArrayBackup(this) = new TMarioInputReplay*[8];
+		for (int i = 0; i < 8; ++i) {
+			if (sRecordFileNamesDolpic1[i] != nullptr) {
+				char replayPath[256];
+				snprintf(replayPath, sizeof(replayPath),
+				         "/scene/map/map/pad/tutorial%s.pad",
+				         sRecordFileNamesDolpic1[i]);
+				u8* replayData
+				    = (u8*)JKRFileLoader::getGlbResource(replayPath);
+				emInputReplayArrayBackup(this)[i] = new TMarioInputReplay;
+				emInputReplayArrayBackup(this)[i]->init(replayData);
+			} else {
+				emInputReplayArrayBackup(this)[i] = nullptr;
+			}
+		}
+
+		u8* inviteReplay = (u8*)JKRFileLoader::getGlbResource(
+		    "/scene/map/map/pad/tutorialHI.pad");
+		emInputReplay(this) = new TMarioInputReplay;
+		emInputReplay(this)->init(inviteReplay);
 	}
 
 	if (unk388 >= 3 && unk388 <= 5 && mModel != nullptr) {
