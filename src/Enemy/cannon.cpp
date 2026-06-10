@@ -80,7 +80,47 @@ u8 TCannon::mChorobeiHandJntIdx = 4;
 f32 TCannon::mVelocityRate      = 0.62f;
 f32 TCannon::mSearchRate        = 0.02f;
 
-DEFINE_NERVE(TNerveCannonObject, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveCannonObject, TLiveActor)
+{
+	TCannon* self = (TCannon*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		if (!self->isBckAnm(4)) {
+			self->setBckAnm(4);
+			J3DFrameCtrl* ctrl = self->getMActor()->getFrameCtrl(0);
+			ctrl->setFrame((f32)ctrl->getEnd());
+		}
+
+		if (self->unk1A8 != nullptr)
+			self->unk1A8->unk70 = 1.0f;
+	}
+
+	if (self->isBckAnm(4)) {
+		if (self->getMActor()->getFrameCtrl(0)->checkPass(60.0f)) {
+			if (gpMSound->gateCheck(0x38B4))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x38B4, &self->mPosition, 0, nullptr, 0, 4);
+		}
+	}
+
+	if (spine->getTime() > 150 && self->unk254 != nullptr) {
+		if (self->unk254->checkLiveFlag(LIVE_FLAG_DEAD)) {
+			self->unk254->appear();
+			self->unk254->mPosition = self->mPosition;
+			self->unk254->mScaling.set(0.27f, 0.02f, 0.27f);
+			self->unk254->getMActor()->setBtk("maregate");
+		}
+
+		f32 scaleY = 1.01f * self->unk254->mScaling.y;
+		if (scaleY > 0.22f)
+			scaleY = 0.22f;
+		else if (scaleY < 0.0f)
+			scaleY = 0.0f;
+		self->unk254->mScaling.y = scaleY;
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveCannonDamageDemo, TLiveActor) { return FALSE; }
 

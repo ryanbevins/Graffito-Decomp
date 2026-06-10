@@ -29,6 +29,7 @@ public:
 };
 
 class TCannon;
+class TMareGate;
 
 class TCannonDom : public TSharedParts {
 public:
@@ -127,7 +128,7 @@ public:
 	/* 0x23A */ u8 pad23A[2];
 	/* 0x23C */ JGeometry::TVec3<f32> unk23C;
 	/* 0x248 */ JGeometry::TVec3<f32> unk248;
-	/* 0x254 */ void* unk254;
+	/* 0x254 */ TMareGate* unk254;
 	/* 0x258 */ TMapCollisionMove* unk258;
 	/* 0x25C */ JGeometry::TVec3<f32> unk25C[4];
 	/* 0x28C */ TCannonSaveLoadParams* unk28C;
