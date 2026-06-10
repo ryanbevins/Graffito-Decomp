@@ -300,7 +300,16 @@ Mtx* TBathtubGrip::getRootJointMtx() const
 	return (Mtx*)getModel()->getBaseTRMtx();
 }
 
-void TBathtubGrip::calcRootMatrix() { TMapObjBase::calcRootMatrix(); }
+void TBathtubGrip::calcRootMatrix()
+{
+	Mtx rot;
+	MsMtxSetRotRPH(rot, 0.0f, unk24C, 0.0f);
+	rot[0][3] = 0.0f;
+	rot[1][3] = 0.0f;
+	rot[2][3] = 0.0f;
+
+	PSMTXConcat(*unk244->getRootJointMtx(), rot, getModel()->getBaseTRMtx());
+}
 
 void TBathtubGrip::control()
 {
