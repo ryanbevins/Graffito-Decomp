@@ -1310,12 +1310,12 @@ void TNozzleBox::touchPlayer(THitActor*)
 	    && !TFlagManager::smInstance->getNozzleRight(
 	        gpMarDirector->getCurrentMap(), 1)
 	    && !unk166) {
-		gpMarDirector->mConsole->startAppearBalloon(0xE57, true);
+		gpMarDirector->mConsole->startAppearBalloon(0xE0057, true);
 		unk166 = TRUE;
 	}
 
 	if (!unk15C && !unk166) {
-		gpMarDirector->mConsole->startAppearBalloon(0xE56, true);
+		gpMarDirector->mConsole->startAppearBalloon(0xE0056, true);
 		unk166 = TRUE;
 	}
 }
