@@ -23,6 +23,14 @@ static inline void normalizeVec(JGeometry::TVec3<f32>* vec)
 	vec->normalize();
 }
 
+static inline void setRotateVec(
+    JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >*
+        rot,
+    const JGeometry::TVec3<f32>& axis, f32 angle)
+{
+	rot->setRotate(axis, angle);
+}
+
 class TCameraJetCoaster {
 public:
 	TCameraJetCoaster();
@@ -217,7 +225,7 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >
 		    rot;
 		rot.identity33();
-		rot.setRotate(fwd, -1.570796f);
+		setRotateVec(&rot, fwd, -1.570796f);
 
 		f32 sx = rot.at(0, 0) * upAxis.x + rot.at(1, 0) * upAxis.y
 		         + rot.at(2, 0) * upAxis.z;
