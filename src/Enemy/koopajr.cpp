@@ -6,6 +6,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <MoveBG/MapObjCorona.hpp>
 #include <MSound/MSound.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
@@ -676,6 +677,33 @@ void TKoopaJrSubmarine::makeRoundVelocity()
 		mVelocity.normalize();
 		mVelocity.scale(max);
 	}
+}
+
+void TKoopaJrSubmarine::makeRelativeAngle()
+{
+	f32 flameAngle
+	    = unk1A0->unk160->getFlameDirDegree() * 3.1415927f / 180.0f;
+	f32 nearerFlame = unk164.calcNearerDirection(flameAngle);
+	f32 flameDiff   = __fabsf(unk164.mDirection - nearerFlame);
+
+	JGeometry::TVec3<f32> marioDiff;
+	marioDiff.sub(*gpMarioPos, unk1A0->unk15C->mPosition);
+	marioDiff.y = 0.0f;
+
+	f32 marioAngle  = atan2f(marioDiff.z, marioDiff.x);
+	f32 nearerMario = unk164.calcNearerDirection(marioAngle);
+	f32 current     = unk164.mDirection;
+	f32 marioAbs    = __fabsf(current - nearerMario);
+
+	if (unk1A0->unk160->isFlaming()
+	    && flameDiff <= getSaveParam2()->aboidKoopaFlameAngle.get()) {
+		current = flameAngle + 3.1415927f;
+	} else if (marioAbs > getSaveParam2()->traceMarioAngle.get()) {
+		current = marioAngle;
+	}
+
+	f32 turn = getSaveParam2()->mSLRoundAngleVelocity.get() * 0.017453294f;
+	unk164.mDirection = unk164.calcTurnDirection(current, turn);
 }
 
 void TKoopaJrSubmarine::resetKoopaJrSubmarine()

@@ -61,6 +61,9 @@ class TKoopa : public TSpineEnemy {
 public:
 	TKoopa(const char*);
 
+	bool isFlaming() const;
+	f32 getFlameDirDegree() const;
+
 	/* 0x150 */ u8 unk150[0x6C];
 };
 
@@ -93,7 +96,7 @@ public:
 	/* 0x154 */ s32 unk154;
 	/* 0x158 */ s32 unk158;
 	/* 0x15C */ TBathtub* unk15C;
-	/* 0x160 */ TLiveActor* unk160;
+	/* 0x160 */ TKoopa* unk160;
 	/* 0x164 */ TKoopaJrSubmarine* unk164;
 	/* 0x168 */ TEnemyManager* unk168;
 	/* 0x16C */ TEnemyManager* unk16C;
