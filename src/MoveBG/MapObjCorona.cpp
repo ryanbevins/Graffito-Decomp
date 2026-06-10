@@ -499,8 +499,9 @@ void TBathtubGrip::control()
 	ctrl->setRate(0.0f);
 	if (unk254 > 0) {
 		ctrl->setFrame(1.0f);
-		++unk254;
-		if (unk254 > unk258) {
+		s32 nextTimer = unk254 + 1;
+		unk254       = nextTimer;
+		if (nextTimer > unk258) {
 			unk248 = 1;
 			unk254 = 0;
 			gpMarioParticleManager->emitAndBindToMtxPtr(
