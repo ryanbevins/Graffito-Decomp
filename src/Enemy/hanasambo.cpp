@@ -705,7 +705,7 @@ void TSamboFlower::load(JSUMemoryInputStream& stream)
 	stream.read(&unk15C, sizeof(unk15C));
 	stream.read(&unk158, sizeof(unk158));
 	unk160 = true;
-	setMActorAndKeeper();
+	reset();
 	offLiveFlag(LIVE_FLAG_UNK800);
 }
 
