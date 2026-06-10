@@ -1475,11 +1475,12 @@ BOOL THanaSamboHead::receiveMessage(THitActor*, u32 message)
 	}
 
 	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
-		mOwner->unk165 = true;
-		if (!mOwner->changeByJuice()) {
-			if (mOwner->mSpine->getCurrentNerve()
+		THanaSambo* owner = mOwner;
+		owner->unk165     = true;
+		if (!owner->changeByJuice()) {
+			if (owner->mSpine->getCurrentNerve()
 			    == &TNerveHanaSamboWait::theNerve()) {
-				mOwner->mSpine->setNext(&TNerveHanaSamboFreeze::theNerve());
+				owner->mSpine->pushNerve(&TNerveHanaSamboFreeze::theNerve());
 			}
 		}
 		return TRUE;
