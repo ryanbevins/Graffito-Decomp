@@ -786,6 +786,19 @@ void TKoopaJrSubmarine::makeCollisionPositions()
 	getJointTransByIndex(TKoopaJr_jointIndexTable[0], &unk1A8->mPosition);
 }
 
+void TKoopaJrSubmarine::bind()
+{
+	JGeometry::TVec3<f32> nextPosition;
+	nextPosition = mPosition;
+	nextPosition.add(mLinearVelocity);
+	nextPosition.add(mVelocity);
+
+	JGeometry::TVec3<f32> delta = nextPosition;
+	delta.sub(mPosition);
+	mLinearVelocity = delta;
+	unk174->bind(this);
+}
+
 void TKoopaJrSubmarine::resetKoopaJrSubmarine()
 {
 	mSpine->reset();
