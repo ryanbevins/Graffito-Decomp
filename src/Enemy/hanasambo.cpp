@@ -1,4 +1,5 @@
 #include <Enemy/HanaSambo.hpp>
+#include <Enemy/Conductor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
@@ -194,7 +195,41 @@ DEFINE_NERVE(TNerveSamboHeadRecoverWater, TLiveActor)
 
 DEFINE_NERVE(TNerveSamboHeadHitWater, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveSamboHeadHide, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveSamboHeadHide, TLiveActor)
+{
+	TSamboHead* self = (TSamboHead*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setBckAnm(4);
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+		gpMarioParticleManager->emit(0xB8, &self->mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(0xB9, &self->mPosition, 0, nullptr);
+	} else if (self->checkCurAnmEnd(0)) {
+		self->onLiveFlag(LIVE_FLAG_HIDDEN);
+		self->setBckAnm(12);
+
+		if (!self->unk198) {
+			self->unk198 = gpConductor->makeOneEnemyAppear(
+			    self->mPosition, "サンボフラワーマネージャー", 1);
+			((TSpineEnemy*)self->unk198)->reset();
+		}
+
+		self->unk198->offHitFlag(HIT_FLAG_NO_COLLISION);
+		self->unk198->onLiveFlag(LIVE_FLAG_UNK10);
+		self->unk198->offLiveFlag(LIVE_FLAG_DEAD);
+		self->unk198->mPosition.y = self->mGroundHeight;
+		self->unk198->mPosition   = self->mPosition;
+	} else if (self->isFindMario(1.0f)) {
+		self->updateSquareToMario();
+		f32 appearDist = self->mParams->mSLAppearDist.get();
+		if (self->mDistToMarioSquared < appearDist * appearDist) {
+			spine->pushAfterCurrent(&TNerveSamboHeadAppear::theNerve());
+			return TRUE;
+		}
+	}
+
+	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveSamboHeadAttack, TLiveActor) { return FALSE; }
 
