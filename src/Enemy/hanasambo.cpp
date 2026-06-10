@@ -444,7 +444,54 @@ DEFINE_NERVE(TNerveHanaSamboFreeze, TLiveActor)
 
 DEFINE_NERVE(TNerveHanaSamboDie, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveHanaSamboHide, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveHanaSamboHide, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setBckAnm(4);
+		gpMarioParticleManager->emit(0xB8, &self->mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(0xB9, &self->mPosition, 0, nullptr);
+	}
+
+	if (spine->getTime() == 75) {
+		if (!self->mFlower) {
+			self->mFlower = (TSamboFlower*)gpConductor->makeOneEnemyAppear(
+			    self->mPosition, "サンボフラワーマネージャー", 1);
+			self->mFlower->reset();
+		}
+
+		self->mFlower->onLiveFlag(LIVE_FLAG_UNK10);
+		self->mFlower->offLiveFlag(LIVE_FLAG_DEAD);
+		self->mFlower->mPosition = self->mPosition;
+		self->mFlower->mPosition.y = self->mGroundHeight;
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		if (!self->mFlower) {
+			self->mFlower = (TSamboFlower*)gpConductor->makeOneEnemyAppear(
+			    self->mPosition, "サンボフラワーマネージャー", 1);
+			self->mFlower->reset();
+		}
+
+		self->mFlower->onLiveFlag(LIVE_FLAG_UNK10);
+		self->mFlower->offLiveFlag(LIVE_FLAG_DEAD);
+		self->mFlower->mPosition = self->mPosition;
+		self->mFlower->mPosition.y = self->mGroundHeight;
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->setBckAnm(6);
+		self->mMActor->setFrameRate(0.0f, 0);
+		self->onLiveFlag(LIVE_FLAG_HIDDEN);
+	}
+
+	self->updateSquareToMario();
+	f32 appearDist = self->mParams->mSLAppearDist.get();
+	if (self->mDistToMarioSquared < appearDist * appearDist) {
+		spine->pushAfterCurrent(&TNerveHanaSamboAppear::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveHanaSamboAttack, TLiveActor)
 {
