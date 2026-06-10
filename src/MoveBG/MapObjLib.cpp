@@ -782,9 +782,9 @@ JPABaseEmitter* TMapObjBase::emitAndSRT(s32 param_1, u8 param_2,
 	    = gpMarioParticleManager->emit(param_1, param_3, param_2, this);
 
 	if (emitter) {
-		emitter->unk16C.x = param_3->x / 180.0f * 32768.0f;
-		emitter->unk16C.y = param_3->y / 180.0f * 32768.0f;
-		emitter->unk16C.z = param_3->z / 180.0f * 32768.0f;
+		emitter->unk16C.x = param_3->x;
+		emitter->unk16C.y = param_3->y;
+		emitter->unk16C.z = param_3->z;
 		JPAGetXYZRotateMtx(emitter->unk16C.x, emitter->unk16C.y,
 		                   emitter->unk16C.z, emitter->unk124);
 
