@@ -14,6 +14,7 @@
 #include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
+#include <MoveBG/MapObjWave.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -22,9 +23,12 @@
 #include <Strategic/question.hpp>
 #include <System/Application.hpp>
 #include <System/EmitterViewObj.hpp>
+#include <System/FlagManager.hpp>
 #include <System/MarioGamePad.hpp>
 #include <System/MSoundMainSide.hpp>
 #include <System/MarDirector.hpp>
+#include <System/ParamInst.hpp>
+#include <System/Params.hpp>
 #include <dolphin/gx.h>
 #include <math.h>
 #include <stdlib.h>
@@ -33,6 +37,40 @@ static const char* cDirtyFileName = "/scene/map/pollution/H_ma_rak.bti";
 static const char* cDirtyTexName  = "H_ma_rak_dummy";
 
 namespace {
+
+class TEnemyMarioParams : public TParams {
+public:
+	TEnemyMarioParams(const char* path, bool can_carry)
+	    : TParams(path)
+	    , PARAM_INIT(mSearchDist, 1000.0f)
+	    , PARAM_INIT(mSearchHeight, 300.0f)
+	    , PARAM_INIT(mWaterCtMax, (s16)64)
+	    , PARAM_INIT(mStopFlag, (u8)1)
+	    , PARAM_INIT(mStampFlag, (u8)1)
+	    , PARAM_INIT(mRandomFlag, (u8)1)
+	    , PARAM_INIT(mCarryFlag, (u8)(can_carry ? 1 : 0))
+	    , PARAM_INIT(mInvincibleFlag, (u8)0)
+	    , PARAM_INIT(mRandomPow, 1.0f)
+	    , PARAM_INIT(mDownTime, (s16)1200)
+	    , PARAM_INIT(mPolluteFlag, (u8)0)
+	    , PARAM_INIT(mPolluteSize, 160.0f)
+	{
+		TParams::load(mPrmPath);
+	}
+
+	TParamRT<f32> mSearchDist;
+	TParamRT<f32> mSearchHeight;
+	TParamRT<s16> mWaterCtMax;
+	TParamRT<u8> mStopFlag;
+	TParamRT<u8> mStampFlag;
+	TParamRT<u8> mRandomFlag;
+	TParamRT<u8> mCarryFlag;
+	TParamRT<u8> mInvincibleFlag;
+	TParamRT<f32> mRandomPow;
+	TParamRT<s16> mDownTime;
+	TParamRT<u8> mPolluteFlag;
+	TParamRT<f32> mPolluteSize;
+};
 
 inline u16& emFlags(TEnemyMario* mario)
 {
@@ -114,6 +152,21 @@ inline f32& emJumpSpeedCap(TEnemyMario* mario)
 	return *(f32*)((u8*)mario + 0x42BC);
 }
 
+inline f32& emTremblePower(TEnemyMario* mario)
+{
+	return *(f32*)((u8*)mario + 0x42AC);
+}
+
+inline f32& emWaterRange(TEnemyMario* mario)
+{
+	return *(f32*)((u8*)mario + 0x42B0);
+}
+
+inline u8& emScenarioType(TEnemyMario* mario)
+{
+	return *(u8*)((u8*)mario + 0x42D4);
+}
+
 inline u8*& emReplayLinkTable(TEnemyMario* mario)
 {
 	return *(u8**)((u8*)mario + 0x4304);
@@ -149,7 +202,7 @@ inline JGeometry::TVec3<f32>& emGateBasePos(TEnemyMario* mario)
 	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x178);
 }
 
-inline u8* emSettings(TEnemyMario* mario)
+inline u8*& emSettings(TEnemyMario* mario)
 {
 	return *(u8**)((u8*)mario + 0x430C);
 }
@@ -1539,10 +1592,125 @@ void TEnemyMario::startMonteReplay(u32 node_id)
 
 void TEnemyMario::initEnemyValues()
 {
-	initValues();
+	f32 zero = 0.0f;
+
+	emFlags(this)        = 2;
+	emDoing(this)        = 0x1A;
+	emWaterCount(this)   = 0;
+	emTargetYaw(this)    = 0;
+	emRandomYaw(this)    = 0;
+	emDistToMario(this)  = zero;
+	emTimer(this)        = 0;
+	emReplayIndex(this)  = 0;
+	emTremblePower(this) = 2.5f;
+	emScenarioType(this) = 0;
+	emWaterRange(this)   = 120.0f;
+	emWaterTimer(this)   = 0;
+	emWaterTimerReset(this) = 120;
+	emTrampleTimer(this) = 3;
+	emWaterCooldown(this) = 0;
+	emJumpSpeedCap(this) = 15.0f;
+	emRunAwayNode(this)  = 0;
+	emRunAwaySpeed(this) = 10.0f;
+
+	onHitFlag(1);
+	emOwner(this)->onHitFlag(1);
+
+	unk388                  = 1;
+	emEnemyModel(this)      = nullptr;
+	emEnemyShadowModel(this) = nullptr;
+	emEnemyMActor(this)     = nullptr;
+	emEnemyModelScale(this) = 3.0f;
+	emDisappearPos(this).set(zero, zero, zero);
+
+	int flagState = TFlagManager::smInstance->getFlag(0x60003);
+	if (flagState == 0) {
+		onHitFlag(1);
+		emOwner(this)->onHitFlag(1);
+	} else {
+		offHitFlag(1);
+		emOwner(this)->offHitFlag(1);
+	}
+
+	const char* prmPath = "/../map/pad/Setting.prm";
+	bool canCarry      = true;
+	if (flagState == 2) {
+		emScenarioType(this) = 1;
+		prmPath              = "/../map/pad2/Setting.prm";
+		canCarry             = false;
+	} else if (flagState == 3) {
+		emScenarioType(this) = 2;
+		prmPath              = "/../map/pad3/Setting.prm";
+	}
+
+	emSettings(this)   = (u8*)new TEnemyMarioParams(prmPath, canCarry);
+	emWaterCount(this) = emSettingS16(this, 0x40);
+
+	emReplayLinkTable(this)       = nullptr;
+	emInputReplayArray(this)      = nullptr;
+	emInputReplayArrayBackup(this) = nullptr;
+	emInputReplay(this)           = nullptr;
+
+	if (emScenarioType(this) != 0 && emOwner(this)->unk124 != nullptr) {
+		char graphName[32];
+		snprintf(graphName, sizeof(graphName), "mariomodoki%d",
+		         emScenarioType(this));
+		emOwner(this)->unk124->setGraph(gpConductor->getGraphByName(graphName));
+	}
+
+	switch (emOwner(this)->unk154) {
+	case 0:
+		emDoing(this) = 0xC;
+		break;
+	case 1:
+		emDoing(this) = 0xB;
+		break;
+	case 2:
+		emDoing(this) = 0x12;
+		break;
+	case 3:
+		emDoing(this) = 0x16;
+		break;
+	default:
+		emDoing(this) = 9;
+		break;
+	}
+
+	if (flagState == 0)
+		emDoing(this) = 9;
+
+	if (flagState == 2)
+		emReplayIndex(this) = emOwner(this)->unk15C;
+	else if (flagState == 3)
+		emReplayIndex(this) = emOwner(this)->unk160;
+	else
+		emReplayIndex(this) = emOwner(this)->unk158;
+
+	if (emOwner(this)->unk124 != nullptr
+	    && emOwner(this)->unk124->getGraph() != nullptr) {
+		TGraphWeb* graph = emOwner(this)->unk124->getGraph();
+		graph->getGraphNode(emReplayIndex(this)).getPoint(&mPosition);
+		emOwner(this)->mPosition = mPosition;
+	}
+
 	initModel();
-	emTimer(this) = 0;
-	emDoing(this) = 0;
+
+	mSubState |= 2;
+	mAction     = 0x0C400201;
+	mPrevAction = mAction;
+	mState &= ~0x8000;
+
+	if (unk388 == 2 && gpMapObjWave != nullptr)
+		gpMapObjWave->noWave();
+
+	mHandModels[0][0] = nullptr;
+	mHandModels[0][1] = nullptr;
+	mHandModels[1][0] = nullptr;
+	mHandModels[1][1] = nullptr;
+	mWaterGun         = nullptr;
+	mCap              = nullptr;
+	mYoshi            = nullptr;
+	mMultiMtxEffect   = nullptr;
 }
 
 void TEnemyMario::initModel()
