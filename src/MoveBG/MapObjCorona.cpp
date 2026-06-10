@@ -972,8 +972,6 @@ void TBathtub::setupCollisions_()
 	unk168[gripIndex]->unk24B = 1;
 }
 
-void TBathtub::removeCollisions_() { } // Unused
-
 void TBathtub::startDemo()
 {
 	if (unk29A != 0)
@@ -1498,33 +1496,3 @@ s32 TBathtub::getNumKillerBurstable() const
 		return 0;
 	}
 }
-
-// Unused
-bool TBathtub::isBreaking() const { return false; }
-
-// Unused
-bool TBathtub::isKillerLaunchable() const { return false; }
-
-// Unused
-void TBathtub::showMessage(u32) { }
-
-// Unused
-u8 TBathtub::getNearJuncture(const JGeometry::TVec3<f32>&) const { return 0; }
-
-// Unused
-MtxPtr TBathtub::getKoopaMtxInDemo() { return nullptr; }
-
-// Unused
-MtxPtr TBathtub::getWaterMtx(s32) { return nullptr; }
-
-// Unused
-MtxPtr TBathtub::getShineEffectMtx() { return nullptr; }
-
-// Unused
-MtxPtr TBathtub::getShineMtx() { return nullptr; }
-
-// Unused
-void TBathtub::liftMario(const JGeometry::TVec3<f32>&) { }
-
-// Unused
-void TBathtub::trample(const JGeometry::TVec3<f32>&) { }
