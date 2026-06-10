@@ -161,6 +161,11 @@ inline static void identity34(MtxPtr mtx)
 	mtx[0][0] = 1.0f;
 }
 
+inline void TMirrorModelManager::findMirrorCamera()
+{
+	unk24 = JDrama::TNameRefGen::search<TMirrorCamera>("鏡カメラ");
+}
+
 void TMirrorModel::init(const char* name)
 {
 	unk4 = SMS_MakeMActorWithAnmData(name, gpMirrorModelManager->getUnk20(), 2,
@@ -330,11 +335,6 @@ void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 			mirror->unk4->entry();
 		}
 	}
-}
-
-void TMirrorModelManager::findMirrorCamera()
-{
-	unk24 = JDrama::TNameRefGen::search<TMirrorCamera>("鏡カメラ");
 }
 
 void TMirrorModelManager::loadAfter()
