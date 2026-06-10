@@ -766,6 +766,26 @@ void TKoopaJrSubmarine::launchKiller()
 		    0x285D, &killer->mPosition, 0, nullptr, 0, 4);
 }
 
+void TKoopaJrSubmarine::makeCollisionPositions()
+{
+	f32 x = 0.0f;
+	f32 y = 0.0f;
+	f32 z = 0.0f;
+
+	for (int i = 0; i < 2; ++i) {
+		MtxPtr mtx = getModel()->getAnmMtx(TKoopaJr_jointIndexTable[i + 3]);
+		x += mtx[0][3];
+		y += mtx[1][3];
+		z += mtx[2][3];
+	}
+
+	x *= 0.5f;
+	y *= 0.5f;
+	z *= 0.5f;
+	unk1A4->mPosition.set(x, y, z);
+	getJointTransByIndex(TKoopaJr_jointIndexTable[0], &unk1A8->mPosition);
+}
+
 void TKoopaJrSubmarine::resetKoopaJrSubmarine()
 {
 	mSpine->reset();
