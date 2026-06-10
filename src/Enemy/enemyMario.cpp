@@ -91,6 +91,11 @@ inline s16& emRunAwayNode(TEnemyMario* mario)
 	return *(s16*)((u8*)mario + 0x42CC);
 }
 
+inline f32& emRunAwaySpeed(TEnemyMario* mario)
+{
+	return *(f32*)((u8*)mario + 0x42D0);
+}
+
 inline s16& emWaterCooldown(TEnemyMario* mario)
 {
 	return *(s16*)((u8*)mario + 0x42BA);
@@ -139,6 +144,11 @@ inline TMarioInputReplay*& emInputReplay(TEnemyMario* mario)
 inline TMarioInputReplay**& emInputReplayArray(TEnemyMario* mario)
 {
 	return *(TMarioInputReplay***)((u8*)mario + 0x42F8);
+}
+
+inline TMarioInputReplay**& emInputReplayArrayBackup(TEnemyMario* mario)
+{
+	return *(TMarioInputReplay***)((u8*)mario + 0x42FC);
 }
 
 inline u16& emInputReplayCanPlay(TMarioInputReplay* replay)
@@ -444,7 +454,107 @@ void TEnemyMario::decideDoingAfterCarry()
 	emDoing(this) = 0xD;
 }
 
-void TEnemyMario::emRunAwayToNearestNode() { }
+void TEnemyMario::emRunAwayToNearestNode()
+{
+	Vec target;
+	getOwnerGraphPoint(this, emRunAwayNode(this), &target);
+
+	gpMarioParticleManager->emitAndBindToPosPtr(0x1AA, &emDisappearPos(this),
+	                                            1, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x1AB, &emDisappearPos(this),
+	                                            1, this);
+
+	if (emTimer(this) >= 8 && emTimer(this) < 300)
+		emFlags(this) &= ~2;
+	else
+		emFlags(this) |= 2;
+
+	switch (emTimer(this)) {
+	case 0:
+		findRunAwayNearestNode();
+		emDisappearPos(this) = mPosition;
+		emDisappearPos(this).y += 80.0f;
+		gpMarioParticleManager->emit(0xED, &emDisappearPos(this), 0,
+		                             nullptr);
+		if (gpMSound->gateCheck(0x1976))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x1976, &mPosition, 0, nullptr, 0, 4);
+		break;
+	case 100: {
+		Vec dir;
+		dir.x = target.x - emDownPos(this).x;
+		dir.y = target.y - emDownPos(this).y;
+		dir.z = target.z - emDownPos(this).z;
+
+		f32 len = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
+		if (len <= 0.0000038146973f) {
+			dir.x = 0.0f;
+			dir.y = 0.0f;
+			dir.z = 0.0f;
+		} else {
+			f32 invLen = JGeometry::TUtil<f32>::inv_sqrt(len);
+			dir.x *= invLen;
+			dir.y *= invLen;
+			dir.z *= invLen;
+		}
+
+		dir.x *= emRunAwaySpeed(this);
+		dir.y *= emRunAwaySpeed(this);
+		dir.z *= emRunAwaySpeed(this);
+
+		emDisappearPos(this).x += dir.x;
+		emDisappearPos(this).y += dir.y;
+		emDisappearPos(this).z += dir.z;
+
+		f32 dx = target.x - emDisappearPos(this).x;
+		f32 dz = target.z - emDisappearPos(this).z;
+		f32 speed = emRunAwaySpeed(this);
+		if (dx * dx + dz * dz < speed * speed)
+			emTimer(this) = 200;
+		emTimer(this)--;
+		break;
+	}
+	case 200:
+		mPosition = target;
+		mPosition.y += 5.0f;
+		break;
+	case 220:
+		gpMarioParticleManager->emit(0xED, &emDisappearPos(this), 0,
+		                             nullptr);
+		if (gpMSound->gateCheck(0x197C))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x197C, &mPosition, 0, nullptr, 0, 4);
+		break;
+	case 300:
+		mPosition = target;
+		mPosition.y += 5.0f;
+		changePlayerStatus(0x0C400201, 0, true);
+		if (gpMarDirector->mMap == 1) {
+			Vec next;
+			getOwnerGraphPoint(this, 7, &next);
+			mFaceAngle.y
+			    = matan(next.z - target.z, next.x - target.x);
+			mModelFaceAngle = mFaceAngle.y;
+			emReplayIndex(this) = emRunAwayNode(this);
+			emInputReplayArray(this) = emInputReplayArrayBackup(this);
+			emInputReplayArray(this)[emReplayIndex(this)]->reset();
+			emInputReplayCanPlay(
+			    emInputReplayArray(this)[emReplayIndex(this)])
+			    = 1;
+			emTimer(this) = 0;
+			emDoing(this) = 0x11;
+		} else {
+			pushNearestFlaggedNodeInput(this);
+			emTimer(this) = 0;
+			emDoing(this) = 0xD;
+		}
+		break;
+	default:
+		break;
+	}
+
+	emTimer(this)++;
+}
 
 void TEnemyMario::findRunAwayNearestNode()
 {
