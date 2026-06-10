@@ -1491,6 +1491,7 @@ s32 TBathtub::getNumKillerBurstable() const
 	case 2:
 		return 6;
 	case 3:
+	case 4:
 		return 8;
 	default:
 		return 0;
