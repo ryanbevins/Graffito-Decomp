@@ -776,26 +776,27 @@ void TSamboFlower::reset()
 
 BOOL TSamboFlower::receiveMessage(THitActor*, u32 message)
 {
-	if (message != HIT_MESSAGE_SPRAYED_BY_WATER)
-		return FALSE;
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		if (!unk150) {
+			unk150 = true;
+			unk154 = 0;
+			gpMarioParticleManager->emit(0xB2, &mPosition, 0, nullptr);
+			mMActor->setBck("flower_hit");
 
-	if (!unk150) {
-		unk150 = true;
-		unk154 = 0;
-		gpMarioParticleManager->emit(0xB2, &mPosition, 0, nullptr);
-		mMActor->setBck("flower_hit");
-
-		if (unk160 && unk164) {
-			--*unk164;
-			u32 soundID = *unk164 + 0x89B9;
-			if (gpMSound->gateCheck(soundID)) {
-				MSoundSESystem::MSoundSE::startSoundActor(
-				    soundID, &mPosition, 0, nullptr, 0, 4);
+			if (unk160 && unk164) {
+				--*unk164;
+				u32 soundID = *unk164 + 0x89B9;
+				if (gpMSound->gateCheck(soundID)) {
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    soundID, &mPosition, 0, nullptr, 0, 4);
+				}
 			}
 		}
+
+		return TRUE;
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
 void TSamboFlower::control() { }
