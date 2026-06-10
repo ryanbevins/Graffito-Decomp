@@ -18,6 +18,11 @@
 
 template <> s16 CLBRoundf<s16>(f32);
 
+static inline void normalizeVec(JGeometry::TVec3<f32>* vec)
+{
+	vec->normalize();
+}
+
 class TCameraJetCoaster {
 public:
 	TCameraJetCoaster();
@@ -184,7 +189,7 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		fwd.x = at.x - *(f32*)((u8*)this + 0x98);
 		fwd.y = at.y - *(f32*)((u8*)this + 0x9C);
 		fwd.z = at.z - *(f32*)((u8*)this + 0xA0);
-		fwd.normalize(fwd);
+		normalizeVec(&fwd);
 
 		JGeometry::TVec3<f32> upAxis;
 		upAxis.x = *(f32*)((u8*)this + 0x30);
@@ -315,7 +320,7 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		fwd.x = gpMarioPos->x - *(f32*)((u8*)this + 0x98);
 		fwd.y = gpMarioPos->y - *(f32*)((u8*)this + 0x9C);
 		fwd.z = gpMarioPos->z - *(f32*)((u8*)this + 0xA0);
-		fwd.normalize(fwd);
+		normalizeVec(&fwd);
 
 		f32 ux = *(f32*)((u8*)this + 0x30);
 		f32 uy = *(f32*)((u8*)this + 0x34);
