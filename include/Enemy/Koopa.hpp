@@ -64,6 +64,7 @@ public:
 	bool isFlaming() const;
 	f32 getFlameDirDegree() const;
 	bool allowsLaunch() const;
+	bool effectsTumble() const;
 	void stagger(bool);
 	void getDown();
 	void fall();

@@ -730,7 +730,87 @@ void TBathtub::control()
 	}
 }
 
-void TBathtub::calcBathtubData() { }
+void TBathtub::calcBathtubData()
+{
+	MtxPtr rootMtx = *getRootJointMtx();
+
+	unk188[0] = rootMtx[0][0];
+	unk188[1] = rootMtx[1][0];
+	unk188[2] = rootMtx[2][0];
+	unk188[3] = rootMtx[0][1];
+	unk188[4] = rootMtx[1][1];
+	unk188[5] = rootMtx[2][1];
+	unk188[6] = rootMtx[0][2];
+	unk188[7] = rootMtx[1][2];
+	unk188[8] = rootMtx[2][2];
+
+	unk170.x = rootMtx[0][3];
+	unk170.y = rootMtx[1][3];
+	unk170.z = rootMtx[2][3];
+
+	f32 upright = 1.0f - unk188[4] * unk188[4];
+	if (upright > 0.0f)
+		upright = JGeometry::TUtil<f32>::sqrt(upright);
+	else
+		upright = 0.0f;
+
+	f32 waterLevel = unk16C->watermark.get();
+	if (waterLevel < upright)
+		waterLevel = upright;
+
+	unk1B4 = unk1AC * waterLevel;
+	unk1B8 = unk16C->outerHeight.get();
+
+	unk17C.x = unk188[3];
+	unk17C.y = unk188[4];
+	unk17C.z = unk188[5];
+	unk1C8.x = 0.0f;
+	unk1C8.y = 0.0f;
+	unk1C8.z = 0.0f;
+
+	if (getKoopa()->effectsTumble() || unk24C > 0) {
+		JGeometry::TVec3<f32> axis;
+		axis.x = unk17C.z;
+		axis.y = 0.0f;
+		axis.z = -unk17C.x;
+
+		f32 lengthSq = axis.x * axis.x + axis.y * axis.y + axis.z * axis.z;
+		if (lengthSq > 0.0f) {
+			axis.scale(1.0f * JGeometry::TUtil<f32>::inv_sqrt(lengthSq));
+
+			f32 angle = 0.5f * (unk16C->maxAngle.get() * 6.2831855f / 360.0f);
+			f32 sinAngle = sinf(angle);
+			f32 cosAngle = cosf(angle);
+			f32 oneMinusCos = 1.0f - cosAngle;
+			JGeometry::TVec3<f32> normal = unk17C;
+
+			JGeometry::TVec3<f32> cross;
+			cross.x = axis.y * normal.z - axis.z * normal.y;
+			cross.y = axis.z * normal.x - axis.x * normal.z;
+			cross.z = axis.x * normal.y - axis.y * normal.x;
+			f32 dot = axis.x * normal.x + axis.y * normal.y
+			          + axis.z * normal.z;
+
+			unk17C.x = normal.x * cosAngle + cross.x * sinAngle
+			           + axis.x * dot * oneMinusCos;
+			unk17C.y = normal.y * cosAngle + cross.y * sinAngle
+			           + axis.y * dot * oneMinusCos;
+			unk17C.z = normal.z * cosAngle + cross.z * sinAngle
+			           + axis.z * dot * oneMinusCos;
+
+			unk1C8.y = unk16C->shake.get();
+		}
+	} else {
+		unk17C.x = 0.0f;
+		unk17C.y = 1.0f;
+		unk17C.z = 0.0f;
+	}
+
+	unk1D4 = (unk250 < unk254 / 2 && unk258 > 0) ? 1 : 0;
+	unk1D5[0] = unk29A;
+	JGeometry::TVec3<f32> pos(unk170.x, unk170.y - unk1B4, unk170.z);
+	unk1F4 = pos;
+}
 
 void TBathtub::setupCollisions_() { }
 
