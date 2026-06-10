@@ -5,6 +5,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MoveBG/MapObjCorona.hpp>
+#include <MSound/MSound.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
@@ -394,6 +395,27 @@ TKoopaJr::TKoopaJr(const char* name)
 {
 	mLiveFlag |= 0x10;
 	mLiveFlag &= ~0x100;
+}
+
+BOOL TKoopaJr::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
+		gpMSound->startSoundSet(0x6802, &mPosition, 0, 0.0f, 0, 0, 4);
+
+		unk150 = getSaveParam2()->mSLDamagePeriod.get();
+
+		if (mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve())
+			mSpine->pushNerve(&TNerveKoopaJrDamage::theNerve());
+
+		if (mSpine->getCurrentNerve() == &TNerveKoopaJrLaunch::theNerve()
+		    || mSpine->getCurrentNerve() == &TNerveKoopaJrYahoo::theNerve())
+			mSpine->setNext(&TNerveKoopaJrDamage::theNerve());
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 const char** TKoopaJr::getBasNameTable() const { return koopajr_bastable; }
