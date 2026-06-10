@@ -366,7 +366,91 @@ DEFINE_NERVE(TNerveCannonShoot, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveCannonSearch, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveCannonSearch, TLiveActor)
+{
+	TCannon* self = (TCannon*)spine->getBody();
+	self->updateSquareToMario();
+
+	f32 distToMario = self->mDistToMarioSquared;
+	if (spine->getTime() == 0) {
+		f32 bombDist = self->unk28C->mSLBombDist.get();
+		if (distToMario < bombDist * bombDist)
+			self->setGoalPathMario();
+
+		TChorobei* chorobei = self->unk1A8;
+		chorobei->unk6C->getMActor()->setBckFromIndex(19);
+		const char** bas = chorobei->unk68->getBasNameTable();
+		chorobei->unk78 = bas ? bas[19] : nullptr;
+		if (chorobei->unk78 != nullptr) {
+			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
+			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+		} else {
+			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+		}
+	}
+
+	MActor* chorobeiActor = self->unk1A8->unk6C->getMActor();
+	if (chorobeiActor->curAnmEndsNext(0, nullptr)
+	    && chorobeiActor->checkCurBckFromIndex(19)) {
+		TChorobei* chorobei = self->unk1A8;
+		chorobei->unk6C->getMActor()->setBckFromIndex(18);
+		const char** bas = chorobei->unk68->getBasNameTable();
+		chorobei->unk78 = bas ? bas[18] : nullptr;
+		if (chorobei->unk78 != nullptr) {
+			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
+			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+		} else {
+			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+		}
+	}
+
+	f32 hideDist = self->unk28C->mSLHideDist.get();
+	if (distToMario < hideDist * hideDist) {
+		spine->pushAfterCurrent(&TNerveCannonClose::theNerve());
+		return TRUE;
+	}
+
+	f32 bombDist = self->unk28C->mSLBombDist.get();
+	if (distToMario < bombDist * bombDist) {
+		if (spine->getTime() > self->unk28C->mSLBombInterval.get()) {
+			self->unk290 = true;
+			spine->pushAfterCurrent(&TNerveCannonShoot::theNerve());
+			return TRUE;
+		}
+	} else if ((self->unk230 == 5 || self->unk230 == 9)
+	           && distToMario
+	                  < self->unk28C->mSLKillerDist.get()
+	                        * self->unk28C->mSLKillerDist.get()) {
+		if (spine->getTime() > self->unk28C->mSLShootInterval.get()) {
+			self->unk290 = false;
+			spine->pushAfterCurrent(&TNerveCannonSearch::theNerve());
+			spine->pushAfterCurrent(
+			    &TNerveCannonForceBombShoot::theNerve());
+			spine->pushAfterCurrent(&TNerveCannonShoot::theNerve());
+			spine->pushAfterCurrent(&TNerveCannonShoot::theNerve());
+			spine->pushAfterCurrent(&TNerveCannonShoot::theNerve());
+			return TRUE;
+		}
+	}
+
+	if (self->unk2AC != self->mRotation.y) {
+		self->unk2AC = self->mRotation.y;
+		if (gpMSound->gateCheck(0x20C8))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x20C8, &self->mPosition, 0, nullptr, 0, 4);
+	}
+
+	if (gpApplication.mCurrArea.unk0 == 5 && gpMarDirector->mState == 1) {
+		JGeometry::TVec3<f32> diff = *gpMarioPos;
+		diff.sub(self->mPosition);
+		JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(diff);
+		self->mRotation.y         = rot.y;
+	} else {
+		self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveCannonOpen, TLiveActor)
 {
