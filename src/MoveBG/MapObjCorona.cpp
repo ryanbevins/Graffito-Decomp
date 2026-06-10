@@ -1468,7 +1468,7 @@ s32 TBathtub::getNumKillerLaunchable() const
 	return count;
 }
 
-bool TBathtub::isKillerAttackable() const { return unk248 == 0; }
+bool TBathtub::isKillerAttackable() const { return unk248 <= 0; }
 
 s32 TBathtub::getNumKillerBurstable() const
 {
