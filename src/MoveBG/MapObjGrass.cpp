@@ -123,12 +123,15 @@ void TMapObjGrassManager::initDrawNear() const
 {
 	Mtx viewItm;
 	MTXInverse(j3dSys.getViewMtx(), viewItm);
-	mDrawVec.x    = viewItm[0][0] * mWidth;
-	mDrawVec.y    = viewItm[1][0] * mWidth;
-	mDrawVec.z    = viewItm[2][0] * mWidth;
-	mDrawVecS16.x = mDrawVec.x;
-	mDrawVecS16.y = mDrawVec.y;
-	mDrawVecS16.z = mDrawVec.z;
+	f32 drawX      = viewItm[0][0] * mWidth;
+	f32 drawY      = viewItm[1][0] * mWidth;
+	f32 drawZ      = viewItm[2][0] * mWidth;
+	mDrawVec.x    = drawX;
+	mDrawVec.y    = drawY;
+	mDrawVec.z    = drawZ;
+	mDrawVecS16.x = drawX;
+	mDrawVecS16.y = drawY;
+	mDrawVecS16.z = drawZ;
 	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
 	GXClearVtxDesc();
