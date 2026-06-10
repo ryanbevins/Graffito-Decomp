@@ -116,7 +116,7 @@ TSphereLink::TSphereLink(u16 count, const JGeometry::TVec3<f32>& pos,
 	m14          = d;
 	mAngleOffset = angleDeg;
 
-	s32 ang16 = (s32)(angleDeg * (65536.0f / 360.0f));
+	s32 ang16 = (s32)(mAngleOffset * (65536.0f / 360.0f));
 	f32 sinV  = jmaSinTable[(u16)ang16 >> jmaSinShift];
 	f32 cosV  = jmaCosTable[(u16)ang16 >> jmaSinShift];
 	f32 dx    = sinV * radius;
