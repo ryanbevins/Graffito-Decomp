@@ -88,13 +88,180 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor) { return FALSE; }
 
 DEFINE_NERVE(TNerveCannonClose, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
+{
+	TCannon* self = (TCannon*)spine->getBody();
 
-DEFINE_NERVE(TNerveCannonShoot, TLiveActor) { return FALSE; }
+	if (spine->getTime() == 0) {
+		f32 bombDist = self->unk28C->mSLBombDist.get();
+		if (self->mDistToMarioSquared >= 2.0f * bombDist * bombDist)
+			return TRUE;
+
+		TChorobei* chorobei = self->unk1A8;
+		chorobei->unk6C->getMActor()->setBckFromIndex(17);
+		const char** bas = chorobei->unk68->getBasNameTable();
+		chorobei->unk78 = bas ? bas[17] : nullptr;
+		if (chorobei->unk78 != nullptr) {
+			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
+			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+		} else {
+			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+		}
+	}
+
+	MActor* actor = self->unk1A8->unk6C->getMActor();
+	if (actor->checkCurBckFromIndex(17)) {
+		if (actor->curAnmEndsNext(0, nullptr)) {
+			TChorobei* chorobei = self->unk1A8;
+			chorobei->unk6C->getMActor()->setBckFromIndex(16);
+			const char** bas = chorobei->unk68->getBasNameTable();
+			chorobei->unk78 = bas ? bas[16] : nullptr;
+			if (chorobei->unk78 != nullptr) {
+				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
+				chorobei->unk74->initAnmSound(res, 1, 0.0f);
+			} else {
+				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+			}
+			self->bombSet();
+		}
+		self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
+	} else if (actor->checkCurBckFromIndex(16)) {
+		if (actor->curAnmEndsNext(0, nullptr))
+			return TRUE;
+
+		if (actor->getFrameCtrl(0)->checkPass(38.0f))
+			self->bombShoot();
+
+		if (actor->getFrameCtrl(0)->getFrame() > 26.0f
+		    && self->unk1A4 != nullptr) {
+			f32 scale = self->unk1A4->mScaling.x + 0.2f * self->unk220;
+			if (scale < 0.0f)
+				scale = 0.0f;
+			if (scale > self->unk220)
+				scale = self->unk220;
+			self->unk1A4->mScaling.set(scale, scale, scale);
+		}
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveCannonShoot, TLiveActor)
+{
+	TCannon* self = (TCannon*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		if (!self->unk290) {
+			self->setKillerGoalPoint();
+		} else {
+			TChorobei* chorobei = self->unk1A8;
+			chorobei->unk6C->getMActor()->setBckFromIndex(17);
+			const char** bas = chorobei->unk68->getBasNameTable();
+			chorobei->unk78 = bas ? bas[17] : nullptr;
+			if (chorobei->unk78 != nullptr) {
+				void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
+				chorobei->unk74->initAnmSound(res, 1, 0.0f);
+			} else {
+				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+			}
+		}
+	}
+
+	if (self->unk290) {
+		MActor* actor = self->unk1A8->unk6C->getMActor();
+		if (actor->checkCurBckFromIndex(17)) {
+			if (actor->curAnmEndsNext(0, nullptr)) {
+				TChorobei* chorobei = self->unk1A8;
+				chorobei->unk6C->getMActor()->setBckFromIndex(16);
+				const char** bas = chorobei->unk68->getBasNameTable();
+				chorobei->unk78 = bas ? bas[16] : nullptr;
+				if (chorobei->unk78 != nullptr) {
+					void* res
+					    = JKRFileLoader::getGlbResource(chorobei->unk78);
+					chorobei->unk74->initAnmSound(res, 1, 0.0f);
+				} else {
+					chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+				}
+				self->bombSet();
+			}
+			self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
+			return FALSE;
+		} else if (actor->checkCurBckFromIndex(16)) {
+			if (actor->curAnmEndsNext(0, nullptr)) {
+				spine->pushNerve(&TNerveCannonSearch::theNerve());
+				return TRUE;
+			}
+
+			if (actor->getFrameCtrl(0)->checkPass(38.0f))
+				self->bombShoot();
+
+			if (actor->getFrameCtrl(0)->getFrame() > 26.0f
+			    && self->unk1A4 != nullptr) {
+				f32 scale
+				    = self->unk1A4->mScaling.x + 0.2f * self->unk220;
+				if (scale < 0.0f)
+					scale = 0.0f;
+				if (scale > self->unk220)
+					scale = self->unk220;
+				self->unk1A4->mScaling.set(scale, scale, scale);
+			}
+		}
+	} else {
+		if (spine->getTime() < 40)
+			self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
+
+		if (spine->getTime() == 40)
+			self->killerShoot();
+
+		if (spine->getTime() > self->unk28C->mSLShootInterval.get()) {
+			self->unk214 += 1;
+			if (self->unk214 >= 3)
+				self->unk214 = 0;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveCannonSearch, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveCannonOpen, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveCannonOpen, TLiveActor)
+{
+	TCannon* self = (TCannon*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		TChorobei* chorobei = self->unk1A8;
+		chorobei->unk6C->getMActor()->setBckFromIndex(12);
+		const char** bas = chorobei->unk68->getBasNameTable();
+		chorobei->unk78 = bas ? bas[12] : nullptr;
+		if (chorobei->unk78 != nullptr) {
+			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
+			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+		} else {
+			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+		}
+
+		self->setBckAnm(3);
+	}
+
+	TChorobei* chorobei = self->unk1A8;
+	bool chorobeiOpened = false;
+	MActor* actor       = chorobei->unk6C->getMActor();
+	if (actor->curAnmEndsNext(0, nullptr)
+	    && actor->checkCurBckFromIndex(12)) {
+		chorobeiOpened = true;
+	} else {
+		chorobei->unk70 = 0.0f;
+	}
+
+	if (chorobeiOpened && self->checkCurAnmEnd(0)) {
+		spine->pushNerve(&TNerveCannonSearch::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 void TCannon::startChorobeiShout() { }
 
