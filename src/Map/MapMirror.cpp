@@ -77,7 +77,7 @@ TMirrorCamera::TMirrorCamera(const char* name)
 	unk98.zero();
 }
 
-static u8 getVertexFormat(const J3DModelData* model_data, GXAttr attr)
+inline static u8 getVertexFormat(const J3DModelData* model_data, GXAttr attr)
 {
 	const GXVtxAttrFmtList* list
 	    = model_data->getVertexData().getVtxAttrFmtList();
