@@ -600,7 +600,7 @@ DEFINE_NERVE(TNerveCannonOpen, TLiveActor)
 	}
 
 	if (chorobeiOpened && self->checkCurAnmEnd(0)) {
-		spine->pushNerve(&TNerveCannonSearch::theNerve());
+		spine->pushAfterCurrent(&TNerveCannonSearch::theNerve());
 		return TRUE;
 	}
 
