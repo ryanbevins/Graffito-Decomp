@@ -36,6 +36,25 @@ them in future ticks.
 
 ## Settled
 
+### Name repeated `f32` call parameters before helper calls to force saved-FPR lifetimes
+
+**Rule.** When target asm loads a float field into `f31`/`f30` before one or
+more helper calls and then passes that value after or repeatedly across those
+calls, bind the field to a real `f32` local before the call sequence. Repeating
+the member expression inline can make MWCC keep the base pointer in a saved GPR
+and reload the float after each call; the local form promotes the value into a
+callee-saved FPR and often matches the target's larger FPR save set.
+
+**Citations.**
+- `mario/Enemy/chuuhana` `TNerveChuuHanaJumpPrepare::execute` (t267):
+  naming `mSLJumpSp.get()` as `jumpSpeed` before `getGravityY()` changed the
+  live range from saved pointer `r29` to saved `f31`, moving `94.2 -> 99.8`.
+- `mario/Camera/CameraJetCoaster`
+  `CPolarSubCamera::ctrlJetCoasterCamera_()` (2026-06-11 MNL): naming repeated
+  tail chase speeds (`p68 + 0x94/0x9c` and `p68 + 0xa4/0xa8`) before three
+  `CLBChaseDecrease` calls forced saved FPRs instead of a saved `p68` reload
+  path, moving `74.6 -> 76.5`.
+
 ### Explicit no-op state cases can force dense jump-table dispatch
 
 **Rule.** When target asm uses a jump table for a mostly sparse state-machine
