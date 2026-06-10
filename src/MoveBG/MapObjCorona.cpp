@@ -1478,21 +1478,19 @@ s32 TBathtub::getNumKillerBurstable() const
 	if (count >= 4)
 		return 8;
 
-	if (allowsTumble())
-		return 0;
-
-	if (unk250 != 0 || unk258 != 0)
-		return 0;
-
-	switch (count) {
-	case 1:
-		return 4;
-	case 2:
-		return 6;
-	case 3:
-	case 4:
-		return 8;
-	default:
-		return 0;
+	if (!allowsTumble() && unk250 == 0 && unk258 == 0) {
+		switch (count) {
+		case 1:
+			return 4;
+		case 2:
+			return 6;
+		case 3:
+		case 4:
+			return 8;
+		default:
+			return 0;
+		}
 	}
+
+	return 0;
 }
