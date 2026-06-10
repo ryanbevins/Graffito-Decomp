@@ -1,4 +1,5 @@
 #include <MoveBG/MapObjBase.hpp>
+#include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjTurn.hpp>
 #include <MoveBG/MapObjMessenger.hpp>
 #include <MoveBG/MapObjLibWave.hpp>
@@ -935,7 +936,10 @@ TMapObjLibWave::TMapObjLibWave(f32 param_1, f32 param_2, f32 param_3,
 	unk14 = param_4;
 }
 
-BOOL TMapObjMessenger::receiveMessage(THitActor*, u32) { }
+BOOL TMapObjMessenger::receiveMessage(THitActor* sender, u32 message)
+{
+	return ((THitActor*)unk68)->receiveMessage(sender, message);
+}
 
 TMapObjMessenger::TMapObjMessenger(const char* name)
     : THitActor(name)
@@ -943,11 +947,195 @@ TMapObjMessenger::TMapObjMessenger(const char* name)
 {
 }
 
-u32 TMapObjTurn::touchWater(THitActor*) { }
+u32 TMapObjTurn::touchWater(THitActor*)
+{
+	if (fabsf(unk158) < unk164) {
+		unk158 += unk15C;
+	} else if (unk168) {
+		TMapObjBase* obj = unk138;
+		if (obj->isActorType(0x2000000E))
+			obj = gpItemManager->makeObjAppear(0x2000000E);
 
-void TMapObjTurn::turn() { }
+		if (obj != nullptr) {
+			f32 speed = unk13C;
+			f32 ySpeed = unk140;
+			obj->appear();
+			obj->mPosition.x = mPosition.x;
+			obj->mPosition.y = mPosition.y + 200.0f;
+			obj->mPosition.z = mPosition.z;
 
-void TMapObjTurn::control() { }
+			if (mMActor != nullptr) {
+				MtxPtr mtx = getModel()->getAnmMtx(0);
+				obj->mVelocity.x = mtx[0][2] * speed;
+				obj->mVelocity.y = mtx[1][2] * speed + ySpeed;
+				obj->mVelocity.z = mtx[2][2] * speed;
+			} else {
+				Mtx mtx;
+				MsMtxSetRotRPH(mtx, mRotation.x, mRotation.y, mRotation.z);
+				obj->mVelocity.x = mtx[0][2] * speed;
+				obj->mVelocity.y = mtx[1][2] * speed + ySpeed;
+				obj->mVelocity.z = mtx[2][2] * speed;
+			}
+			obj->offLiveFlag(LIVE_FLAG_UNK10);
+			unk168 = 0;
+		}
+	}
+
+	return 1;
+}
+
+void TMapObjTurn::turn()
+{
+	f32 rot = unk154 + unk158;
+	while (rot >= 360.0f)
+		rot -= 360.0f;
+	while (rot < 0.0f)
+		rot += 360.0f;
+	unk154 = rot;
+
+	if (checkMapObjFlag(0x10000)) {
+		if ((s32)fabsf(unk154) % 180 == 0) {
+			unk158 = 0.0f;
+		} else if (fabsf(unk158) > fabsf(unk160)) {
+			unk158 -= unk160;
+		}
+	} else {
+		unk158 -= unk160;
+		if (fabsf(unk158) < fabsf(unk160))
+			unk158 = 0.0f;
+	}
+}
+
+void TMapObjTurn::control()
+{
+	TMapObjBase::control();
+	if (unk158 == 0.0f)
+		return;
+
+	turn();
+
+	Mtx mtx;
+	switch (unk150) {
+	case 0: {
+		f32 rot = unk154 + mInitialRotation.x;
+		while (rot >= 360.0f)
+			rot -= 360.0f;
+		while (rot < 0.0f)
+			rot += 360.0f;
+		mRotation.x = rot;
+
+		f32 sx = JMASSin((s16)(rot * 182.04445f));
+		f32 cx = JMASCos((s16)(rot * 182.04445f));
+		mtx[0][0] = 1.0f;
+		mtx[0][1] = 0.0f;
+		mtx[0][2] = 0.0f;
+		mtx[0][3] = 0.0f;
+		mtx[1][0] = 0.0f;
+		mtx[1][1] = cx;
+		mtx[1][2] = -sx;
+		mtx[1][3] = 0.0f;
+		mtx[2][0] = 0.0f;
+		mtx[2][1] = sx;
+		mtx[2][2] = cx;
+		mtx[2][3] = 0.0f;
+
+		if (mRotation.y != 0.0f) {
+			Mtx yMtx;
+			f32 sy = JMASSin((s16)(mRotation.y * 182.04445f));
+			f32 cy = JMASCos((s16)(mRotation.y * 182.04445f));
+			yMtx[0][0] = cy;
+			yMtx[0][1] = 0.0f;
+			yMtx[0][2] = sy;
+			yMtx[0][3] = 0.0f;
+			yMtx[1][0] = 0.0f;
+			yMtx[1][1] = 1.0f;
+			yMtx[1][2] = 0.0f;
+			yMtx[1][3] = 0.0f;
+			yMtx[2][0] = -sy;
+			yMtx[2][1] = 0.0f;
+			yMtx[2][2] = cy;
+			yMtx[2][3] = 0.0f;
+			MTXConcat(yMtx, mtx, mtx);
+		}
+		break;
+	}
+	case 1: {
+		f32 rot = unk154 + mInitialRotation.y;
+		while (rot >= 360.0f)
+			rot -= 360.0f;
+		while (rot < 0.0f)
+			rot += 360.0f;
+		mRotation.y = rot;
+
+		f32 sy = JMASSin((s16)(rot * 182.04445f));
+		f32 cy = JMASCos((s16)(rot * 182.04445f));
+		mtx[0][0] = cy;
+		mtx[0][1] = 0.0f;
+		mtx[0][2] = sy;
+		mtx[0][3] = 0.0f;
+		mtx[1][0] = 0.0f;
+		mtx[1][1] = 1.0f;
+		mtx[1][2] = 0.0f;
+		mtx[1][3] = 0.0f;
+		mtx[2][0] = -sy;
+		mtx[2][1] = 0.0f;
+		mtx[2][2] = cy;
+		mtx[2][3] = 0.0f;
+		break;
+	}
+	case 2: {
+		f32 rot = unk154 + mInitialRotation.z;
+		while (rot >= 360.0f)
+			rot -= 360.0f;
+		while (rot < 0.0f)
+			rot += 360.0f;
+		mRotation.z = rot;
+
+		f32 sz = JMASSin((s16)(rot * 182.04445f));
+		f32 cz = JMASCos((s16)(rot * 182.04445f));
+		mtx[0][0] = cz;
+		mtx[0][1] = -sz;
+		mtx[0][2] = 0.0f;
+		mtx[0][3] = 0.0f;
+		mtx[1][0] = sz;
+		mtx[1][1] = cz;
+		mtx[1][2] = 0.0f;
+		mtx[1][3] = 0.0f;
+		mtx[2][0] = 0.0f;
+		mtx[2][1] = 0.0f;
+		mtx[2][2] = 1.0f;
+		mtx[2][3] = 0.0f;
+
+		if (mRotation.y != 0.0f) {
+			Mtx yMtx;
+			f32 sy = JMASSin((s16)(mRotation.y * 182.04445f));
+			f32 cy = JMASCos((s16)(mRotation.y * 182.04445f));
+			yMtx[0][0] = cy;
+			yMtx[0][1] = 0.0f;
+			yMtx[0][2] = sy;
+			yMtx[0][3] = 0.0f;
+			yMtx[1][0] = 0.0f;
+			yMtx[1][1] = 1.0f;
+			yMtx[1][2] = 0.0f;
+			yMtx[1][3] = 0.0f;
+			yMtx[2][0] = -sy;
+			yMtx[2][1] = 0.0f;
+			yMtx[2][2] = cy;
+			yMtx[2][3] = 0.0f;
+			MTXConcat(yMtx, mtx, mtx);
+		}
+		break;
+	}
+	default:
+		MTXIdentity(mtx);
+		break;
+	}
+
+	mtx[0][3] = mPosition.x;
+	mtx[1][3] = mPosition.y - mYOffset;
+	mtx[2][3] = mPosition.z;
+	MTXCopy(mtx, getModel()->getAnmMtx(0));
+}
 
 BOOL TMapObjTurn::receiveMessage(THitActor* sender, u32 message)
 {
