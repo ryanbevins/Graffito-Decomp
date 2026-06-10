@@ -2,9 +2,42 @@
 #define MOVE_BG_MAP_OBJ_CORONA_HPP
 
 #include <MoveBG/MapObjBase.hpp>
+#include <System/ParamInst.hpp>
+#include <System/Params.hpp>
 
 class TBathtubGrip;
-class TBathtubParams;
+
+class TBathtubParams : public TParams {
+public:
+	TBathtubParams();
+
+	/* 0x008 */ TParamRT<u8> resetGrip;
+	/* 0x01C */ TParamRT<s32> trampleRelease;
+	/* 0x030 */ TParamRT<s32> trampleRecover;
+	/* 0x044 */ TParamRT<s32> quakeRelease;
+	/* 0x058 */ TParamRT<s32> quakeRecover;
+	/* 0x06C */ TParamRT<s32> hipdropRelease;
+	/* 0x080 */ TParamRT<s32> hipdropRecover;
+	/* 0x094 */ TParamRT<s32> breakCount0;
+	/* 0x0A8 */ TParamRT<s32> breakCount1;
+	/* 0x0BC */ TParamRT<s32> breakCount2;
+	/* 0x0D0 */ TParamRT<s32> breakCount3;
+	/* 0x0E4 */ TParamRT<s32> launchStopCount;
+	/* 0x0F8 */ TParamRT<f32> animSpeed0;
+	/* 0x10C */ TParamRT<f32> animSpeed1;
+	/* 0x120 */ TParamRT<f32> animSpeed2;
+	/* 0x134 */ TParamRT<f32> animSpeed3;
+	/* 0x148 */ TParamRT<f32> animSpeed4;
+	/* 0x15C */ TParamRT<f32> shake;
+	/* 0x170 */ TParamRT<f32> watermark;
+	/* 0x184 */ TParamRT<f32> maxAngle;
+	/* 0x198 */ TParamRT<f32> angleVelDamp;
+	/* 0x1AC */ TParamRT<f32> rebound;
+	/* 0x1C0 */ TParamRT<f32> shakeDamp;
+	/* 0x1D4 */ TParamRT<f32> marioWeight;
+	/* 0x1E8 */ TParamRT<f32> marioDropWeight;
+	/* 0x1FC */ TParamRT<f32> outerHeight;
+};
 
 class TBathtub : public TMapObjBase {
 public:

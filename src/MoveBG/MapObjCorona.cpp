@@ -47,6 +47,40 @@ static inline MtxPtr getJointMtx(TBathtub* bathtub, s32 index)
 	return bathtub->mMActor->unk4->getAnmMtx(index);
 }
 
+// ============= TBathtubParams =============
+
+TBathtubParams::TBathtubParams()
+    : TParams("/MapObj/bathtub.prm")
+    , PARAM_INIT(resetGrip, 0)
+    , PARAM_INIT(trampleRelease, 10)
+    , PARAM_INIT(trampleRecover, 10)
+    , PARAM_INIT(quakeRelease, 500)
+    , PARAM_INIT(quakeRecover, 500)
+    , PARAM_INIT(hipdropRelease, 35)
+    , PARAM_INIT(hipdropRecover, 35)
+    , PARAM_INIT(breakCount0, 750)
+    , PARAM_INIT(breakCount1, 710)
+    , PARAM_INIT(breakCount2, 685)
+    , PARAM_INIT(breakCount3, 655)
+    , PARAM_INIT(launchStopCount, 1000)
+    , PARAM_INIT(animSpeed0, 0.15f)
+    , PARAM_INIT(animSpeed1, 0.15f)
+    , PARAM_INIT(animSpeed2, 0.15f)
+    , PARAM_INIT(animSpeed3, 0.15f)
+    , PARAM_INIT(animSpeed4, 0.22f)
+    , PARAM_INIT(shake, 0.0f)
+    , PARAM_INIT(watermark, 0.3f)
+    , PARAM_INIT(maxAngle, 35.0f)
+    , PARAM_INIT(angleVelDamp, 0.93f)
+    , PARAM_INIT(rebound, 0.0005f)
+    , PARAM_INIT(shakeDamp, 0.93f)
+    , PARAM_INIT(marioWeight, 0.01f)
+    , PARAM_INIT(marioDropWeight, 5.0f)
+    , PARAM_INIT(outerHeight, 20.0f)
+{
+	TParams::load(mPrmPath);
+}
+
 void TBathtub::loadAfter()
 {
 	SMS_LoadParticle("/scene/map/map/ms_lkp_yuge1.jpa", 0x1BE);
@@ -209,7 +243,39 @@ void TBathtub::updatePosture_() { }
 
 TBathtub::TBathtub(const char* name)
     : TMapObjBase(name)
+    , unk164(nullptr)
+    , unk290(nullptr)
 {
+	unk16C = new TBathtubParams;
+
+	unk1D8.x = 0.0f;
+	unk1D8.y = 0.0f;
+	unk1D8.z = 0.0f;
+	unk1E4   = 1.0f;
+
+	mPosition.z = 0.0f;
+	mPosition.y = 0.0f;
+	mPosition.x = 0.0f;
+
+	unk1E8.z = 0.0f;
+	unk1E8.y = 0.0f;
+	unk1E8.x = 0.0f;
+
+	unk250 = 0;
+	unk254 = 1;
+	unk258 = 0;
+	unk25C = 1;
+	unk248 = 0;
+	unk298 = 0;
+
+	unk23C.z = 0.0f;
+	unk23C.y = 0.0f;
+	unk23C.x = 0.0f;
+
+	unk299 = 0;
+	unk29A = 0;
+	unk2A0 = nullptr;
+	unk294 = nullptr;
 }
 
 void TBathtub::load(JSUMemoryInputStream&) { }
