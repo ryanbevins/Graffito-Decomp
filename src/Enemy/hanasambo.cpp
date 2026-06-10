@@ -716,8 +716,8 @@ void TSamboFlower::drawObject(JDrama::TGraphics*)
 
 	TCircleShadowRequest request;
 	request.unk0  = mPosition;
-	request.unkC  = 120.0f;
 	request.unk10 = 120.0f;
+	request.unkC  = 120.0f;
 	gpBindShadowManager->request(request, getActorType() & 0xFFFF0000);
 
 	mMActor->setLightData(mGroundPlane, mPosition);
