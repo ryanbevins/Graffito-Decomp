@@ -19,6 +19,7 @@
 #include <Strategic/Spine.hpp>
 #include <Strategic/Strategy.hpp>
 #include <Strategic/ObjManager.hpp>
+#include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 
@@ -150,6 +151,25 @@ inline const TNerveTinKoopaBreak& TNerveTinKoopaBreak::theNerve()
 {
 	static TNerveTinKoopaBreak instance;
 	return instance;
+}
+
+BOOL TNerveTinKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
+{
+	TTinKoopa* self = (TTinKoopa*)spine->getBody();
+	if (spine->getTime() == 0) {
+		int bck = waitBckTable[self->unk150];
+		self->mMActor->setBckFromIndex(bck);
+		const char** bas = self->getBasNameTable();
+		self->setAnmSound(bas ? bas[bck] : nullptr);
+
+		TTinKoopaParams* params = (TTinKoopaParams*)self->getSaveParam();
+		self->unk180 = params->mSLDefeatWaitTime.get();
+	}
+
+	if (self->unk150 == 4 && self->unk180 <= 0)
+		TFlagManager::smInstance->setBool(true, 0x5000a);
+
+	return false;
 }
 
 TTinKoopaManager::TTinKoopaManager(const char* name)
