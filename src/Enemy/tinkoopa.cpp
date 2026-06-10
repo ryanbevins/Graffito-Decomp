@@ -3,10 +3,13 @@
 #include <Enemy/EffectObj.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Strategic/ObjModel.hpp>
+#include <Strategic/Strategy.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <System/Particles.hpp>
 
@@ -62,6 +65,29 @@ static const char* leftArmTrackJointNameTable[] = {
 	"larm_2",
 	"larm_3",
 	"larm_4",
+};
+
+static const char* partsCollisionFileTable[] = {
+	"/scene/tinkoopa/head_col.col",
+	"/scene/tinkoopa/breast_col.col",
+	"/scene/tinkoopa/stomach_col.col",
+	"/scene/tinkoopa/rarm_col.col",
+	"/scene/tinkoopa/larm_col.col",
+	"/scene/tinkoopa/leg_col.col",
+};
+
+static const char* partsBreakModelTable[] = {
+	nullptr,
+	"tinkoopa_breast.bmd",
+	"tinkoopa_stomach.bmd",
+	"tinkoopa_rarm.bmd",
+	"tinkoopa_larm.bmd",
+	nullptr,
+};
+
+static const u32 partsHitActorTypeTable[] = {
+	0x08000019, 0x0800001A, 0x0800001B,
+	0x0800001D, 0x0800001C, 0x0800001E,
 };
 
 static const char* onetimeFilenames[] = {
@@ -518,4 +544,28 @@ void TTinKoopaPartsBase::startBreaking()
 	default:
 		break;
 	}
+}
+
+void TTinKoopaPartsBase::initTinKoopaPartsBase()
+{
+	initHitActor(partsHitActorTypeTable[unkFC], 0, 0, 0.0f, 0.0f, 0.0f,
+	             0.0f);
+	unk64 |= 1;
+
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
+
+	unkF4 = new TMapCollisionMove();
+	unkF4->init(partsCollisionFileTable[unkFC], 0, this);
+
+	JGeometry::TVec3<f32> zero(0.0f);
+	unkF4->setUpTrans(zero);
+
+	if (partsBreakModelTable[unkFC] != nullptr) {
+		unk104 = unk100->getActorKeeper()->createMActor(
+		    partsBreakModelTable[unkFC], 0);
+		unk104->setLightType(1);
+	}
+
+	unkF8 = 0;
+	unkF4->setUpTrans(zero);
 }
