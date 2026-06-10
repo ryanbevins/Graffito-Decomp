@@ -88,16 +88,17 @@ void TMapObjGrassGroup::load(JSUMemoryInputStream& stream)
 	unk6C = new JGeometry::TVec3<f32>[unk68];
 	unk70 = new JGeometry::TVec3<s16>[unk68];
 	unk74 = new s16[unk68];
-	JGeometry::TVec3<f32> scale(mScaling.x * 100.0f, mScaling.y,
-	                            mScaling.z * 100.0f);
+	f32 scaleX = mScaling.x * 100.0f;
+	f32 scaleZ = mScaling.z * 100.0f;
+	f32 scaleY = mScaling.y * 200.0f;
 
 	for (int i = 0; i < unk68; ++i) {
-		unk6C[i].x
-		    = scale.x * rand() / (f32)RAND_MAX * 2.0f + mPosition.x - scale.x;
+		unk6C[i].x = scaleX * (rand() * (1.0f / 32768.0f)) * 2.0f
+		             + mPosition.x - scaleX;
+		unk6C[i].z = scaleZ * (rand() * (1.0f / 32768.0f)) * 2.0f
+		             + mPosition.z - scaleZ;
 		unk6C[i].y
-		    = scale.y * rand() / (f32)RAND_MAX * 2.0f + mPosition.y - scale.y;
-		unk6C[i].z
-		    = scale.z * rand() / (f32)RAND_MAX * 2.0f + mPosition.z - scale.z;
+		    = scaleY * (rand() * (1.0f / 32768.0f)) + mPosition.y + 100.0f;
 
 		unk70[i].x = unk6C[i].x;
 		unk70[i].y = mPosition.y;
