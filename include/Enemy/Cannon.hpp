@@ -7,6 +7,7 @@
 #include <JSystem/JGeometry.hpp>
 
 class SDLModelData;
+class TMapCollisionMove;
 
 class TCannonSaveLoadParams : public TSmallEnemyParams {
 public:
@@ -104,9 +105,11 @@ public:
 	/* 0x1A0 */ THitActor* unk1A0;
 	/* 0x1A4 */ u8 pad1A4[4];
 	/* 0x1A8 */ TChorobei* unk1A8;
-	/* 0x1AC */ u8 pad1AC[0xC];
+	/* 0x1AC */ TCannonDom* unk1AC[3];
 	/* 0x1B8 */ TCannonDom* unk1B8;
-	/* 0x1BC */ u8 pad1BC[0x24];
+	/* 0x1BC */ TSharedParts* unk1BC;
+	/* 0x1C0 */ TMapCollisionMove* unk1C0[3];
+	/* 0x1CC */ u8 pad1CC[0x14];
 	/* 0x1E0 */ TCannonDom* unk1E0;
 	/* 0x1E4 */ TPosition3f unk1E4;
 	/* 0x214 */ void* unk214;
@@ -117,18 +120,21 @@ public:
 	/* 0x228 */ f32 unk228;
 	/* 0x22C */ f32 unk22C;
 	/* 0x230 */ bool unk230;
-	/* 0x231 */ u8 pad231[7];
+	/* 0x231 */ u8 pad231[3];
+	/* 0x234 */ f32 unk234;
 	/* 0x238 */ bool unk238;
 	/* 0x239 */ bool unk239;
-	/* 0x23A */ u8 pad23A[0x1A];
+	/* 0x23A */ u8 pad23A[2];
+	/* 0x23C */ JGeometry::TVec3<f32> unk23C;
+	/* 0x248 */ u8 pad248[0xC];
 	/* 0x254 */ void* unk254;
-	/* 0x258 */ void* unk258;
+	/* 0x258 */ TMapCollisionMove* unk258;
 	/* 0x25C */ JGeometry::TVec3<f32> unk25C[4];
-	/* 0x28C */ u8 pad28C[4];
+	/* 0x28C */ TCannonSaveLoadParams* unk28C;
 	/* 0x290 */ bool unk290;
 	/* 0x291 */ u8 pad291[0x1B];
 	/* 0x2AC */ f32 unk2AC;
-	/* 0x2B0 */ u8 pad2B0[4];
+	/* 0x2B0 */ TMapCollisionMove* unk2B0;
 };
 
 class TCannonManager : public TSmallEnemyManager {
