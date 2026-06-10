@@ -2,19 +2,23 @@
 #include <Enemy/EMario.hpp>
 #include <Enemy/Graph.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/JMath.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <Map/MapData.hpp>
 #include <Map/PollutionManager.hpp>
+#include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
+#include <MarioUtil/ShadowUtil.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioRecord.hpp>
+#include <Strategic/question.hpp>
 #include <System/Application.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/MarioGamePad.hpp>
@@ -103,14 +107,24 @@ inline s16& emWaterCooldown(TEnemyMario* mario)
 	return *(s16*)((u8*)mario + 0x42BA);
 }
 
-inline void*& emEnemyModel(TEnemyMario* mario)
+inline J3DModel*& emEnemyModel(TEnemyMario* mario)
 {
-	return *(void**)((u8*)mario + 0x42DC);
+	return *(J3DModel**)((u8*)mario + 0x42DC);
 }
 
 inline MActor*& emEnemyMActor(TEnemyMario* mario)
 {
 	return *(MActor**)((u8*)mario + 0x42F0);
+}
+
+inline J3DModel*& emEnemyShadowModel(TEnemyMario* mario)
+{
+	return *(J3DModel**)((u8*)mario + 0x42EC);
+}
+
+inline f32& emEnemyModelScale(TEnemyMario* mario)
+{
+	return *(f32*)((u8*)mario + 0x42F4);
 }
 
 inline JGeometry::TVec3<f32>& emDisappearPos(TEnemyMario* mario)
@@ -239,7 +253,166 @@ inline JGeometry::TVec3<f32>& emDownPos(TEnemyMario* mario)
 	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x42C0);
 }
 
+inline s16& marioUnk14C(TMario* mario)
+{
+	return *(s16*)((u8*)mario + 0x14C);
+}
+
+inline s16& marioUnk14E(TMario* mario)
+{
+	return *(s16*)((u8*)mario + 0x14E);
+}
+
+inline BOOL isEnemyModelDrawState(TEnemyMario* mario)
+{
+	return emDoing(mario) == 0x13 && emSettings(mario)[0x68] == 1;
+}
+
 } // namespace
+
+void TEnemyMario::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	MActor* ownerActor   = nullptr;
+	J3DModel* ownerModel = nullptr;
+
+	if (emEnemyModel(this) == nullptr) {
+		ownerActor  = emOwner(this)->mMActor;
+		ownerModel = ownerActor->getModel();
+	}
+
+	if (marioUnk14E(this) > 0)
+		marioUnk14E(this)--;
+
+	if (emWaterCooldown(this) > 0)
+		emWaterCooldown(this)--;
+
+	u32 doMovement = flags & 1;
+	if (doMovement != 0) {
+		if (emFlags(this) & 0x10) {
+			emWaterCount(this) = 0;
+			hitWater(this);
+		}
+
+		if (mAction != ACTION_RUNNING || marioUnk14E(this) == 0) {
+			checkController(graphics);
+			setPositions();
+		}
+	}
+
+	if (doMovement != 0) {
+		if (mAction != ACTION_RUNNING || marioUnk14E(this) == 0)
+			calcAnim(2, graphics);
+
+		if (emEnemyModel(this) != nullptr) {
+			J3DModel* model = mModel->getModel();
+			for (u16 i = 0; i < model->getModelData()->getJointNum(); ++i)
+				PSMTXCopy(emEnemyModel(this)->mNodeMatrices[i],
+				          model->mNodeMatrices[i]);
+			emEnemyModel(this)->calcWeightEnvelopeMtx();
+		} else {
+			ownerActor->calcAnm();
+			J3DModel* model = mModel->getModel();
+			for (u16 i = 0; i < model->getModelData()->getJointNum(); ++i)
+				PSMTXCopy(ownerModel->mNodeMatrices[i],
+				          model->mNodeMatrices[i]);
+			ownerModel->calcWeightEnvelopeMtx();
+			PSMTXCopy(ownerModel->mNodeMatrices[mBoneIDs[5]],
+			          emEnemyShadowModel(this)->unk20);
+			emEnemyShadowModel(this)->calc();
+
+			if (isEnemyModelDrawState(this)) {
+				Mtx scaleMtx;
+				Mtx rotMtx;
+				f32 scale = emEnemyModelScale(this);
+				PSMTXScale(scaleMtx, scale, scale, scale);
+				MsMtxSetRotRPH(rotMtx, 0.0f, 180.0f, 0.0f);
+				PSMTXConcat(mModel->getModel()->unk20, scaleMtx,
+				            scaleMtx);
+				PSMTXConcat(scaleMtx, rotMtx, scaleMtx);
+				PSMTXCopy(scaleMtx, emEnemyMActor(this)->getModel()->unk20);
+				emEnemyMActor(this)->calcAnm();
+			}
+		}
+
+		mAttackRadius = 800.0f;
+		mAttackHeight = 150.0f;
+		mDamageRadius = 60.0f;
+		mDamageHeight = 40.0f;
+		calcEntryRadius();
+
+		if (emWaterTimer(this) > 0)
+			emWaterTimer(this)--;
+		else
+			emWaterTimer(this) = 0;
+	}
+
+	if (flags & 4) {
+		calcView(graphics);
+
+		if (emFlags(this) & 2) {
+			((TMBindShadowBody*)unk390)->entryDrawShadow();
+			gpQuestionManager->request(mPosition, 50.0f);
+		}
+
+		if (emEnemyModel(this) != nullptr) {
+			emEnemyModel(this)->viewCalc();
+		} else {
+			ownerActor->viewCalc();
+			emEnemyShadowModel(this)->viewCalc();
+			if (isEnemyModelDrawState(this))
+				emEnemyMActor(this)->viewCalc();
+		}
+	}
+
+	if (flags & 0x200) {
+		if (emEnemyModel(this) == nullptr) {
+			if (emWaterTimer(this) > 0) {
+				SMS_AddDamageFogEffect(
+				    emOwner(this)->mMActor->getModel()->getModelData(),
+				    mPosition, graphics);
+			} else {
+				SMS_ResetDamageFogEffect(
+				    emOwner(this)->mMActor->getModel()->getModelData());
+			}
+
+			if (isEnemyModelDrawState(this))
+				gpPollution->stampModel(emEnemyMActor(this)->getModel());
+		}
+
+		if (emFlags(this) & 2) {
+			if (emEnemyModel(this) == nullptr) {
+				ownerActor->entry();
+				emEnemyShadowModel(this)->entry();
+			} else {
+				emEnemyModel(this)->entry();
+			}
+		}
+	}
+
+	if (flags & 8) {
+		if (mTrembleModelEffect != nullptr)
+			mTrembleModelEffect->movement();
+
+		BOOL drawBuffers = (mSubState & 2) != 0;
+		if (marioUnk14C(this) > 0 && !(marioUnk14C(this) & 4))
+			drawBuffers = false;
+		if (mState & 4)
+			drawBuffers = false;
+		if (emDoing(this) == 7)
+			drawBuffers = false;
+		if (marioUnk14E(this) > 0 && !(marioUnk14E(this) & 4))
+			drawBuffers = false;
+
+		if (drawBuffers && mTrembleModelEffect != nullptr) {
+			j3dSys.unk4C = 7;
+			unk394->draw();
+			unk398->draw();
+		}
+
+		if ((emFlags(this) & 0x80) && emWaterCooldown(this) > 0)
+			drawHPMeter(graphics->getUnkB4());
+	}
+}
 
 void TEnemyMario::drawHPMeter(MtxPtr mtx)
 {
