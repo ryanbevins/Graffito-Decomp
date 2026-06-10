@@ -1689,6 +1689,7 @@ void TEnemyMario::initEnemyValues()
 			unk388 = 5;
 			setGamePad(gpMarDirector->unk18[3]);
 		}
+		emDoing(this) = 0x1B;
 	}
 
 	if (emScenarioType(this) != 0 && emOwner(this)->unk124 != nullptr) {
@@ -1734,13 +1735,18 @@ void TEnemyMario::initEnemyValues()
 	}
 
 	initModel();
+	if (unk388 >= 3 && unk388 <= 5 && mModel != nullptr) {
+		mTrembleModelEffect = new TTrembleModelEffect;
+		mTrembleModelEffect->init(mModel->getModel());
+		mTrembleModelEffect->clash(emTremblePower(this));
+	}
 
 	mSubState |= 2;
 	mAction     = 0x0C400201;
 	mPrevAction = mAction;
 	mState &= ~0x8000;
 
-	if (unk388 == 2 && gpMapObjWave != nullptr)
+	if (emScenarioType(this) == 2 && gpMapObjWave != nullptr)
 		gpMapObjWave->noWave();
 
 	mHandModels[0][0] = nullptr;
