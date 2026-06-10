@@ -140,6 +140,18 @@ inline const TNerveTinKoopaWait& TNerveTinKoopaWait::theNerve()
 	return instance;
 }
 
+inline const TNerveTinKoopaDamage& TNerveTinKoopaDamage::theNerve()
+{
+	static TNerveTinKoopaDamage instance;
+	return instance;
+}
+
+inline const TNerveTinKoopaBreak& TNerveTinKoopaBreak::theNerve()
+{
+	static TNerveTinKoopaBreak instance;
+	return instance;
+}
+
 TTinKoopaManager::TTinKoopaManager(const char* name)
     : TEnemyManager(name)
 {
@@ -476,6 +488,24 @@ void TTinKoopa::checkTinKoopaKillerApproachingMessage()
 			gpMarDirector->getConsole()->startAppearBalloon(0xe0009,
 			                                                true);
 	}
+}
+
+void TTinKoopa::hitParts()
+{
+	if (mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve())
+		return;
+	if (unk150 == 4)
+		return;
+
+	gpMarDirector->getConsole()->startAppearBalloon(0xe0024, true);
+	--unk1C8;
+
+	if (unk1C8 <= 0)
+		mSpine->pushNerve(&TNerveTinKoopaBreak::theNerve());
+	else
+		mSpine->pushNerve(&TNerveTinKoopaDamage::theNerve());
 }
 
 #pragma dont_inline on
