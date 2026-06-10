@@ -9,6 +9,7 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSound.hpp>
+#include <System/EmitterViewObj.hpp>
 #include <dolphin/mtx.h>
 #include <fake_tgmath.h>
 #include <Camera/Camera.hpp>
@@ -18,96 +19,68 @@
 // doSwimming: 0x801522B4, size 0x384
 void TMario::doSwimming()
 {
-	// Check shallow water flag
-	if (mInput & (1 << 16)) {
+	if (mInput & 0x8000) {
 		changePlayerStatus(0x24D9, 0, false);
 		return;
 	}
 
-	// Check above swim end depth
-	f32 floorY = mFloorPosition.y;
-	f32 endDepth = mSwimParams.mEndDepth.value;
-	f32 posY = mPosition.y;
-	if (floorY + endDepth > posY) {
+	if (mFloorPosition.y + mSwimParams.mEndDepth.value > mFloorPosition.z) {
 		changePlayerStatus(0x0C400201, 0, false);
 		return;
 	}
 
-	// Apply swim movement
-	f32 stickMag = mIntendedMag;
-	f32 swimMoveSp = mSwimParams.mMoveSp.value;
-	f32 fwdVel = mForwardVel;
-	f32 startMult = *(f32*)((u8*)0 + 0);
-	fwdVel = startMult * stickMag * swimMoveSp + fwdVel;
-	mForwardVel = fwdVel;
+	mForwardVel += 0.03125f * mIntendedMag * mSwimParams.mMoveSp.value;
+	mForwardVel *= mSwimParams.mMoveBrake.value;
 
-	// Brake
-	f32 curVel = mForwardVel;
-	f32 brake = mSwimParams.mMoveBrake.value;
-	mForwardVel = curVel * brake;
-
-	// Rotation
+	s16 rotMin;
+	s16 rotMax;
 	u32 pumpState = mPumpState;
 	if (pumpState == 0 || pumpState == 1) {
-		s16 rotMin = mSwimParams.mPumpingRotSpMin.value;
-		s16 rotMax = mSwimParams.mPumpingRotSpMax.value;
-		// int-to-float conversion and interpolation
+		rotMin = mSwimParams.mPumpingRotSpMin.value;
+		rotMax = mSwimParams.mPumpingRotSpMax.value;
 	} else {
-		s16 rotMin = mSwimParams.mSwimmingRotSpMin.value;
-		s16 rotMax = mSwimParams.mSwimmingRotSpMax.value;
+		rotMin = mSwimParams.mSwimmingRotSpMin.value;
+		rotMax = mSwimParams.mSwimmingRotSpMax.value;
 	}
 
-	considerJumpRotate();
-
-	s16 yawDiff = mFaceAngle.y;
-	mModelFaceAngle = mIntendedYaw - yawDiff;
+	s16 rotSpeed = (s16)(0.03125f * mForwardVel
+	                         * ((f32)rotMax - (f32)rotMin)
+	                     + (f32)rotMin);
+	s16 yawDiff  = mIntendedYaw - mFaceAngle.y;
+	mFaceAngle.y = mIntendedYaw
+	               - IConverge(yawDiff, 0, rotSpeed, rotSpeed);
 
 	setPlayerVelocity(mForwardVel);
 
-	// Gravity
-	f32 velY = mVel.y;
-	f32 gravity = mSwimParams.mGravity.value;
-	mVel.y = velY - gravity;
+	mVel.y -= mSwimParams.mGravity.value;
 
-	// Depth ratio
-	f32 waterLevel = mPosition.y;
-	f32 curPosY = mPosition.y;
-	f32 floatHeight = mSwimParams.mFloatHeight.value;
-	f32 depthRatio = (waterLevel - curPosY) / floatHeight;
-	if (depthRatio < 0.0f) depthRatio = 0.0f;
-	if (depthRatio > 1.0f) depthRatio = 1.0f;
+	f32 depthRatio = (mFloorPosition.z - mPosition.y)
+	                 / mSwimParams.mFloatHeight.value;
+	if (depthRatio < 0.0f)
+		depthRatio = 0.0f;
+	if (depthRatio > 1.0f)
+		depthRatio = 1.0f;
 
 	u16 animId = mAnimationId;
 	if (animId == 0x107 || animId == 0x106 || mAction == 0x22D2) {
-		f32 mult = mSwimParams.mWaitBouyancy.value;
-		depthRatio *= mult;
+		depthRatio *= mSwimParams.mWaitBouyancy.value;
 	} else {
-		f32 mult = mSwimParams.mMoveBouyancy.value;
-		depthRatio *= mult;
+		depthRatio *= mSwimParams.mMoveBouyancy.value;
 	}
 
-	f32 curVelY = mVel.y;
-	mVel.y = curVelY + depthRatio;
+	mVel.y += depthRatio;
+	mVel.y *= mSwimParams.mUpDownBrake.value;
 
-	f32 brakeVelY = mVel.y;
-	f32 upDownBrake = mSwimParams.mUpDownBrake.value;
-	mVel.y = brakeVelY * upDownBrake;
-
-	// Swim paddle result
 	int result = jumpProcess(1);
 	if (result == 2) {
 		if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
-			if (checkSwimToHangFence()) {
-				f32 vel = mForwardVel;
-				f32 negMult = *(f32*)((u8*)0 + 0);
-				mForwardVel = -vel * negMult;
+			if (isUnderWater()) {
+				mForwardVel = -mForwardVel * 0.8f;
 				changePlayerStatus(0x24DA, 0, true);
 			} else {
 				changePlayerStatus(0x208B3, 0, true);
-				f32 vel = mForwardVel;
-				f32 negMult = *(f32*)((u8*)0 + 0);
-				mForwardVel = -vel * negMult;
-				mVel.y = 0.0f;
+				mForwardVel = -mForwardVel * 0.8f;
+				mVel.y      = 50.0f;
 			}
 		} else {
 			setPlayerVelocity(0.0f);
@@ -115,29 +88,21 @@ void TMario::doSwimming()
 		}
 	}
 
-	// Check above water surface
-	f32 checkConst = *(f32*)((u8*)0 + 0);
-	f32 flrY = mFloorPosition.y;
-	f32 pY = mPosition.y;
-	if (pY > checkConst + flrY) {
-		if (mPosition.y < *(f32*)((u8*)0 + 0) + flrY) {
+	if (mFloorPosition.z > 400.0f + mFloorPosition.y) {
+		if (mPosition.y < 0.03125f + mFloorPosition.y) {
 			if (mAction != 0x22D2) {
 				*(u32*)((u8*)this + 0x1A8) = *(u32*)((u8*)this + 0x10);
 				*(u32*)((u8*)this + 0x1AC) = *(u32*)((u8*)this + 0x14);
 				*(u32*)((u8*)this + 0x1B0) = *(u32*)((u8*)this + 0x18);
 				*(f32*)((u8*)this + 0x1AC) = mFloorPosition.y;
-				u32 director = *(u32*)((u8*)0 + 0);
-				inOutWaterEffect(0x11E);
+				gpMarioParticleManager->emitAndBindToPosPtr(
+				    0x11E, &unk1A8, 1, this);
 			}
 		}
 	}
 
-	// Clamp Y
-	f32 clampConst = *(f32*)((u8*)0 + 0);
-	f32 fY = mFloorPosition.y;
-	f32 myY = mPosition.y;
-	f32 minY = clampConst + fY;
-	if (myY < minY)
+	f32 minY = 35.0f + mFloorPosition.y;
+	if (mPosition.y < minY)
 		mPosition.y = minY;
 }
 
