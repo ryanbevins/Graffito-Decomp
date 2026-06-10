@@ -35,14 +35,20 @@ void TMapObjGrassGroup::drawNear() const
 	int iVar7 = 0;
 	for (int i = 0; i < unk68; ++i) {
 		f32* swingOffsets = gpMapObjGrassManager->unk20;
-		GXPosition3f32(unk6C[i].x - drawVec.x, mPosition.y,
-		               unk6C[i].z - drawVec.z);
+		JGeometry::TVec3<f32>& pos = unk6C[i];
+		f32 x                      = pos.x;
+		f32 z                      = pos.z;
+		f32 topX                   = x + swingOffsets[iVar7];
+		f32 leftX                  = x - drawVec.x;
+		f32 rightX                 = x + drawVec.x;
+		f32 bottomZ                = z - drawVec.z;
+		f32 topZ                   = z + drawVec.z;
+		f32 bottomY                = mPosition.y;
+		GXPosition3f32(leftX, bottomY, bottomZ);
 		GXColor1x8(1);
-		GXPosition3f32(unk6C[i].x + swingOffsets[iVar7], unk6C[i].y,
-		               unk6C[i].z);
+		GXPosition3f32(topX, pos.y, z);
 		GXColor1x8(0);
-		GXPosition3f32(unk6C[i].x + drawVec.x, mPosition.y,
-		               unk6C[i].z + drawVec.z);
+		GXPosition3f32(rightX, bottomY, topZ);
 		GXColor1x8(1);
 
 		++iVar7;
@@ -62,14 +68,20 @@ void TMapObjGrassGroup::drawFar() const
 	int iVar7 = 0;
 	for (int i = 0; i < unk68; ++i) {
 		s16* swingOffsets = gpMapObjGrassManager->unk24;
-		GXPosition3s16(unk70[i].x - drawVecS16.x, unk70[i].y,
-		               unk70[i].z - drawVecS16.z);
+		JGeometry::TVec3<s16>& pos = unk70[i];
+		int x                      = pos.x;
+		int y                      = pos.y;
+		int z                      = pos.z;
+		int topX                   = x + swingOffsets[iVar7];
+		int leftX                  = x - drawVecS16.x;
+		int rightX                 = x + drawVecS16.x;
+		int bottomZ                = z - drawVecS16.z;
+		int topZ                   = z + drawVecS16.z;
+		GXPosition3s16(leftX, y, bottomZ);
 		GXColor1x8(1);
-		GXPosition3s16(unk70[i].x + swingOffsets[iVar7], unk74[i],
-		               unk70[i].z);
+		GXPosition3s16(topX, unk74[i], z);
 		GXColor1x8(0);
-		GXPosition3s16(unk70[i].x + drawVecS16.x, unk70[i].y,
-		               unk70[i].z + drawVecS16.z);
+		GXPosition3s16(rightX, y, topZ);
 		GXColor1x8(1);
 
 		++iVar7;
