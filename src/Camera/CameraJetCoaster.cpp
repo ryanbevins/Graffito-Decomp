@@ -23,8 +23,8 @@ public:
 	TCameraJetCoaster();
 
 	/* 0x00 */ TCamSaveJetCoaster* unk0;
-	/* 0x04 */ u16 unk4;
-	/* 0x06 */ u16 unk6;
+	/* 0x04 */ s16 unk4;
+	/* 0x06 */ s16 unk6;
 	/* 0x08 */ s16 unk8;
 	/* 0x0A */ s16 unkA;
 	/* 0x0C */ u8 unkC;
@@ -288,9 +288,9 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 				unk2B8->unkA = (s16)-hi;
 		}
 
-		CLBChaseAngleDecrease((s16*)&unk2B8->unk4, unk2B8->unk8,
+		CLBChaseAngleDecrease(&unk2B8->unk4, unk2B8->unk8,
 		                      save->mSLOffsetAngleXChase.value);
-		CLBChaseAngleDecrease((s16*)&unk2B8->unk6, unk2B8->unkA,
+		CLBChaseAngleDecrease(&unk2B8->unk6, unk2B8->unkA,
 		                      save->mSLOffsetAngleYChase.value);
 
 		*(u32*)((u8*)this + 0x98) = *(u32*)((u8*)unk2B8 + 0x10);
