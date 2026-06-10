@@ -449,20 +449,31 @@ void TShine::calc()
 	f32 distance
 	    = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
 
-	int idx;
-	if (distance < 2000.0f)
-		idx = 0;
-	else if (distance < 4000.0f)
-		idx = 1;
-	else if (distance < 6000.0f)
-		idx = 2;
-	else
-		idx = 3;
-
-	s16 promiLife = (s16)mPromiLife[idx];
-	f32 senkoRate = mSenkoRate[idx];
-	f32 kiraRate  = mKiraRate[idx];
-	f32 bowRate   = mBowRate[idx];
+	s16 promiLife;
+	f32 senkoRate;
+	f32 kiraRate;
+	f32 bowRate;
+	if (distance < 2000.0f) {
+		promiLife = (s16)mPromiLife[0];
+		senkoRate = mSenkoRate[0];
+		kiraRate  = mKiraRate[0];
+		bowRate   = mBowRate[0];
+	} else if (distance < 4000.0f) {
+		promiLife = (s16)mPromiLife[1];
+		senkoRate = mSenkoRate[1];
+		kiraRate  = mKiraRate[1];
+		bowRate   = mBowRate[1];
+	} else if (distance < 6000.0f) {
+		promiLife = (s16)mPromiLife[2];
+		senkoRate = mSenkoRate[2];
+		kiraRate  = mKiraRate[2];
+		bowRate   = mBowRate[2];
+	} else {
+		promiLife = (s16)mPromiLife[3];
+		senkoRate = mSenkoRate[3];
+		kiraRate  = mKiraRate[3];
+		bowRate   = mBowRate[3];
+	}
 
 	if (unk194) {
 		unk194->mBaseLifetime = promiLife;
