@@ -741,9 +741,7 @@ void TBathtub::control()
 			emitter->setScale(scale);
 
 		MtxPtr starMtx = mMActor->unk4->getAnmMtx(unk264);
-		unk200.x       = starMtx[0][3];
-		unk200.y       = starMtx[1][3];
-		unk200.z       = starMtx[2][3];
+		unk200.set(starMtx[0][3], starMtx[1][3], starMtx[2][3]);
 		if (gpMSound->gateCheck(0x81C1)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x81C1, (Vec*)&unk200, 0, nullptr, 0, 4);
