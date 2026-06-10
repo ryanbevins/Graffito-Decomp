@@ -2,6 +2,7 @@
 #include "MoveBG/MapObjBase.hpp"
 
 #include <Camera/CameraShake.hpp>
+#include <Enemy/BathtubKiller.hpp>
 #include <Enemy/Koopa.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
@@ -14,6 +15,7 @@
 #include <Map/MapCollisionEntry.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/NozzleBase.hpp>
 #include <System/Particles.hpp>
 #include <math.h>
 #include <stdio.h>
@@ -24,6 +26,10 @@
 
 class JAISound;
 class TMario;
+class TWaterGun {
+public:
+	TNozzleBase* getCurrentNozzle() const;
+};
 class TGCConsole2 {
 public:
 	bool startAppearBalloon(u32, bool);
@@ -1026,7 +1032,62 @@ void TBathtub::startDemo()
 	unk29A = 1;
 }
 
-bool TBathtub::allowsTumble() const { return false; }
+bool TBathtub::allowsTumble() const
+{
+	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
+	f32 nearGripAngle;
+	if (!getNearGrip(marioPos, 18.0f, &nearGripAngle))
+		return false;
+
+	f32 diffX = marioPos.x - unk170.x;
+	f32 diffY = marioPos.y - unk170.y;
+	f32 diffZ = marioPos.z - unk170.z;
+
+	f32 localX = unk188[0] * diffX + unk188[1] * diffY
+	             + unk188[2] * diffZ;
+	f32 localY = unk188[3] * diffX + unk188[4] * diffY
+	             + unk188[5] * diffZ;
+	f32 localZ = unk188[6] * diffX + unk188[7] * diffY
+	             + unk188[8] * diffZ;
+
+	JGeometry::TVec3<f32> local;
+	local.set(localX, localY, localZ);
+	JGeometry::TVec3<f32> horizontal(local);
+	horizontal.y = 0.0f;
+
+	f32 dist = horizontal.length();
+	if (dist < 4200.0f)
+		return false;
+
+	if (4700.0f >= dist)
+		return true;
+
+	if (unk188[4] <= 0.99f)
+		return false;
+
+	TBathtubKillerManager* manager
+	    = JDrama::TNameRefGen::search<TBathtubKillerManager>(
+	        "バスタブキラーマネージャー");
+
+	u32 status = SMS_GetMarioStatus();
+	if (status == 0x8008A9)
+		return false;
+	if (status == 0x88B)
+		return false;
+	if (status == 0x88D)
+		return false;
+
+	TWaterGun* waterGun = *(TWaterGun**)((u8*)gpMarioOriginal + 0x3E4);
+	if (waterGun != nullptr) {
+		TNozzleBase* nozzle = waterGun->getCurrentNozzle();
+		if (nozzle != nullptr && nozzle->getNozzleKind() == 1) {
+			if (*(f32*)((u8*)nozzle + 0x388) > 0.0f)
+				return false;
+		}
+	}
+
+	return manager->countActiveKillers() == 0;
+}
 
 void TBathtub::calcRootMatrix()
 {
@@ -1068,6 +1129,7 @@ void TBathtub::calcRootMatrix()
 	mtx[2][3] = mPosition.z;
 }
 
+#pragma dont_inline on
 bool TBathtub::getNearGrip(const JGeometry::TVec3<f32>& pos, f32 threshold,
                            f32* out) const
 {
@@ -1090,6 +1152,7 @@ bool TBathtub::getNearGrip(const JGeometry::TVec3<f32>& pos, f32 threshold,
 
 	return false;
 }
+#pragma dont_inline off
 
 f32 TBathtub::getNextJuncture(const JGeometry::TVec3<f32>& pos,
                               const JGeometry::TVec3<f32>& dir) const
