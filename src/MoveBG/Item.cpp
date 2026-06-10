@@ -491,15 +491,16 @@ void TShine::calc()
 void TShine::movingCircle()
 {
 	f32 oldY = mPosition.y;
-	unk158 += 180.0f / unk168;
+	unk158 += 180.0f / (s32)unk168;
 	mPosition.x += unk17C;
 
-	f32 t = (f32)(unk168 - mLifeTimer) / (f32)unk168;
+	f32 t = (f32)((s32)unk168 - mLifeTimer) / (f32)(s32)unk168;
 	f32 y = unk164 + t * (mInitialPosition.y - unk164);
 	mPosition.y = y + unk160 * JMASSin((s16)(unk158 * 182.04445f));
 	unk188     = mPosition.y - oldY;
 	mPosition.z += unk184;
 	mRotation.y += 7.0f;
+	MsWrap<f32>(mRotation.y, 0.0f, 360.0f);
 
 	if (!isLifeTimerActive()) {
 		unk16C     = 7.0f;
