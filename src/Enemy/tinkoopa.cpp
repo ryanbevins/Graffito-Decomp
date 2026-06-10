@@ -1,3 +1,4 @@
+#include <Camera/CameraShake.hpp>
 #include <Enemy/TinKoopa.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/CoasterKiller.hpp>
@@ -55,6 +56,8 @@ static u32 TTinKoopa_jointIndexTable[15];
 static const int partsBreakBckTable[] = { 0, 4, 11, 9, 10, 0 };
 
 static const int waitBckTable[] = { 12, 13, 14, 15, 16 };
+
+static const int damageBckTable[] = { 5, 6, 7, 8, 16 };
 
 static const char* breastTrackJointNameTable[] = {
 	"breast_1", "breast_2", "breast_3", "breast_4", "breast_5", "breast_6",
@@ -168,6 +171,34 @@ BOOL TNerveTinKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 
 	if (self->unk150 == 4 && self->unk180 <= 0)
 		TFlagManager::smInstance->setBool(true, 0x5000a);
+
+	return false;
+}
+
+BOOL TNerveTinKoopaDamage::execute(TSpineBase<TLiveActor>* spine) const
+{
+	TTinKoopa* self = (TTinKoopa*)spine->getBody();
+	if (spine->getTime() == 0) {
+		int bck = damageBckTable[self->unk150];
+		self->mMActor->setBckFromIndex(bck);
+		const char** bas = self->getBasNameTable();
+		self->setAnmSound(bas ? bas[bck] : nullptr);
+
+		u32 jointIndex = TTinKoopa_jointIndexTable[0];
+		MtxPtr mtx     = self->getModel()->getAnmMtx(jointIndex);
+		gpMarioParticleManager->emitAndBindToMtxPtr(0xee, mtx, 0, this);
+		gpCameraShake->startShake(CAM_SHAKE_MODE_UNK6, 1.0f);
+	}
+
+	int damageBck = damageBckTable[self->unk150];
+	if (self->mMActor->checkCurBckFromIndex(damageBck)
+	    && self->mMActor->curAnmEndsNext(0, 0)) {
+		int waitBck = waitBckTable[self->unk150];
+		self->mMActor->setBckFromIndex(waitBck);
+		const char** bas = self->getBasNameTable();
+		self->setAnmSound(bas ? bas[waitBck] : nullptr);
+		return true;
+	}
 
 	return false;
 }
