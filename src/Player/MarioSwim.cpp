@@ -199,20 +199,13 @@ BOOL TMario::swimMain()
 	if (stickMag > 0.0f) {
 		const TBGCheckData* wall = mWallPlane;
 		if (wall != NULL) {
-			u16 wallType = *(u16*)((u8*)wall + 0);
-			if (wallType == 0x10A) {
-				f32 wallZ = *(f32*)((u8*)wall + 0x34 + 8);
-				f32 wallX = *(f32*)((u8*)wall + 0x34);
-				s16 angle = (s16)atan2f(wallZ, wallX);
-				s16 yawDiff = mModelFaceAngle - angle;
+			if (wall->mBGType == 0x10A) {
+				s16 angle   = matan(wall->mNormal.z, wall->mNormal.x);
+				s16 yawDiff = mFaceAngle.y - angle;
 				if (yawDiff < -21845 || yawDiff > 21845) {
-					s16 newAngle = angle + 0x8000;
-					mModelFaceAngle = (s16)newAngle;
-					s16 storedAngle = mModelFaceAngle;
-					mFaceAngle.z = storedAngle;
-					f32 posY = mPosition.y;
-					f32 addY = *(f32*)((u8*)0 + 0);
-					mPosition.y = posY + addY;
+					mFaceAngle.y     = angle + 0x8000;
+					mModelFaceAngle  = mFaceAngle.y;
+					mPosition.y     += 100.0f;
 					changePlayerStatus(0x3000036B, 0, false);
 				}
 			}
@@ -220,14 +213,11 @@ BOOL TMario::swimMain()
 	}
 
 	// Clamp Y
-	f32 waterSurface = mPosition.y;
-	f32 floatHeight = mSwimParams.mFloatHeight.value;
-	f32 curY = mPosition.y;
-	f32 minY = waterSurface - floatHeight;
-	if (curY <= minY)
+	f32 minY = mFloorPosition.z - mSwimParams.mFloatHeight.value;
+	if (mPosition.y <= minY)
 		mPosition.y = minY;
 
-	*(f32*)((u8*)this + 0x2AC) = mPosition.y;
+	*(f32*)((u8*)this + 0x2AC) = mFloorPosition.z;
 
 	// Check FLUDD
 	if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
@@ -240,99 +230,97 @@ BOOL TMario::swimMain()
 	switch (mAction) {
 	case 0x22D1:
 		doSwimming();
-		if (checkActionFlag(0x2000))
-			return 1;
-		setAnimation(0x115, 0.0f);
-		if (checkSwimJump())
+		if (!checkActionFlag(0x2000))
+			return TRUE;
+		setAnimation(0x115, 1.0f);
+		if (isLast1AnimeFrame())
 			changePlayerStatus(0x22D2, 0, false);
 		return FALSE;
 
 	case 0x22D2:
-		setAnimation(0x116, 0.0f);
-		if (mInput & 0x01)
+		setAnimation(0x116, 1.0f);
+		if (mInput & 0x01) {
 			changePlayerStatus(0x24D3, 0, false);
+			return FALSE;
+		}
 		doSwimming();
-		if (checkActionFlag(0x2000))
-			return 1;
-		setAnimation(0x116, 0.0f);
+		if (!checkActionFlag(0x2000))
+			return TRUE;
+		setAnimation(0x116, 1.0f);
 		if (gpMSound->gateCheck(0x1950))
-			startSoundActor(0x1950);
+			MSoundSESystem::MSRandPlay::startSeRandPlay(0x1950, 0);
 		return FALSE;
 
 	case 0x24D3:
-		setAnimation(0x117, 0.0f);
-		doSwimming();
-		if (checkSwimJump())
+		setAnimation(0x117, 1.0f);
+		if (isLast1AnimeFrame())
 			changePlayerStatus(0x24D4, 0, false);
 		doSwimming();
-		if (checkActionFlag(0x2000))
-			return 1;
+		if (!checkActionFlag(0x2000))
+			return TRUE;
 		return FALSE;
 
 	case 0x24D4: {
-		setAnimation(0x118, 0.0f);
+		setAnimation(0x118, 1.0f);
 		f32 fwdVel = mForwardVel;
 		f32 accel = mSwimParams.mPaddleSpeedUp.value;
 		mForwardVel = fwdVel + accel;
 		f32 velY = mVel.y;
 		f32 accelY = mSwimParams.mPaddleJumpUp.value;
 		mVel.y = velY + accelY;
-		doSwimming();
-		if (checkSwimJump())
+		if (isLast1AnimeFrame())
 			changePlayerStatus(0x24D5, 0, false);
 		doSwimming();
-		if (checkActionFlag(0x2000))
-			return 1;
+		if (!checkActionFlag(0x2000))
+			return TRUE;
 		return FALSE;
 	}
 
 	case 0x24D5:
-		swimPaddle();
-		return FALSE;
+		return swimPaddle();
 
 	case 0x24D6:
-		setAnimation(0x11A, 0.0f);
-		doSwimming();
-		if (checkSwimJump())
+		setAnimation(0x11A, 1.0f);
+		if (isLast1AnimeFrame()) {
 			changePlayerStatus(0x24D7, 0, false);
+			return FALSE;
+		}
 		doSwimming();
-		if (checkActionFlag(0x2000))
-			return 1;
+		if (!checkActionFlag(0x2000))
+			return TRUE;
 		return FALSE;
 
 	case 0x24D7:
-		setAnimation(0x11B, 0.0f);
-		doSwimming();
-		if (checkSwimJump())
+		setAnimation(0x11B, 1.0f);
+		if (isLast1AnimeFrame()) {
 			changePlayerStatus(0x22D2, 0, false);
+			return FALSE;
+		}
 		doSwimming();
-		if (checkActionFlag(0x2000))
-			return 1;
+		if (!checkActionFlag(0x2000))
+			return TRUE;
 		return FALSE;
 
 	case 0x24D8: {
-		setAnimation(0x11C, 0.0f);
+		setAnimation(0x11C, 1.0f);
 		f32 velY = mVel.y;
 		f32 accelUp = mSwimParams.mFloatUp.value;
 		mVel.y = velY + accelUp;
-		doSwimming();
-		if (checkSwimJump()) {
-			setAnimation(0x116, 0.0f);
+		if (isLast1AnimeFrame()) {
+			setAnimation(0x116, 1.0f);
 			changePlayerStatus(0x22D2, 0, false);
+			return FALSE;
 		}
 		doSwimming();
 		if (!(checkActionFlag(0x2000)))
-			return 1;
+			return TRUE;
 		return FALSE;
 	}
 
 	case 0x24D9:
-		doSwimming();
-		setAnimation(0x128, 296);
-		doSwimming();
-		if (checkSwimJump()) {
-			mSwimParams.mWaitSinkTime.value = *(s16*)((u8*)this + 0x0366);
-		}
+		setAnimation(0x128, 1.0f);
+		if (getMotionFrameCtrl().checkPass(16.0f))
+			*(s16*)((u8*)this + 0x0366) = mSwimParams.mWaitSinkTime.value;
 		{
 			s16 timer = *(s16*)((u8*)this + 0x0366);
 			if (timer > 0) {
@@ -342,32 +330,31 @@ BOOL TMario::swimMain()
 				mVel.y = velY - sinkSpeed;
 			}
 		}
-		doSwimming();
-		if (checkSwimJump()) {
-			setAnimation(0x116, 0.0f);
+		if (isLast1AnimeFrame()) {
+			setAnimation(0x116, 1.0f);
 			changePlayerStatus(0x24D6, 0, false);
+			return FALSE;
 		}
 		doSwimming();
-		if (checkActionFlag(0x2000))
-			return 1;
+		if (!checkActionFlag(0x2000))
+			return TRUE;
 		return FALSE;
 
 	case 0x24DA:
 		doSwimming();
-		setAnimation(0x24DA, 298);
-		doSwimming();
-		if (checkSwimJump())
+		jumpingDemoCommon(0x24DA, 0x12A, 0.0f);
+		if (isLast1AnimeFrame())
 			changePlayerStatus(0x22D2, 0, false);
 		return FALSE;
 
 	case 0x224E0:
 		doSwimming();
-		setAnimation(0x24E0, 268);
+		jumpingDemoCommon(0x224E0, 0x10C, 0.0f);
 		return FALSE;
 
 	case 0x224E1:
 		doSwimming();
-		setAnimation(0x24E1, 299);
+		jumpingDemoCommon(0x224E1, 0x12B, 0.0f);
 		return FALSE;
 	}
 
