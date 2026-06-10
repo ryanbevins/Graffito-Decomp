@@ -5,6 +5,7 @@
 
 class TMirrorActor;
 class MActor;
+class JPABaseEmitter;
 
 class TItem : public TMapObjGeneral {
 public:
@@ -145,10 +146,10 @@ public:
 	/* 0x188 */ f32 unk188;
 	/* 0x18C */ u32 unk18C;
 	/* 0x190 */ u8 unk190;
-	/* 0x194 */ u32 unk194;
-	/* 0x198 */ u32 unk198;
-	/* 0x19C */ u32 unk19C;
-	/* 0x1A0 */ u32 unk1A0;
+	/* 0x194 */ JPABaseEmitter* unk194;
+	/* 0x198 */ JPABaseEmitter* unk198;
+	/* 0x19C */ JPABaseEmitter* unk19C;
+	/* 0x1A0 */ JPABaseEmitter* unk1A0;
 	/* 0x1A4 */ char unk1A4[0x4];
 	/* 0x1A8 */ f32 unk1A8;
 	/* 0x1AC */ f32 unk1AC;

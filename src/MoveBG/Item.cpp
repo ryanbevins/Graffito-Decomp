@@ -1,5 +1,6 @@
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
+#include <Camera/Camera.hpp>
 #include <GC2D/GCConsole2.hpp>
 #include <Map/MapMirror.hpp>
 #include <Map/Map.hpp>
@@ -18,6 +19,8 @@
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/question.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JMath.hpp>
+#include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <MarioUtil/LightUtil.hpp>
@@ -420,11 +423,222 @@ f32 TShine::mCircleRateY  = 0.5f;
 f32 TShine::mUpSpeed      = 1.0f;
 f32 TShine::mSpeedDownRate = 0.99f;
 
-void TShine::calc() { }
+void TShine::calc()
+{
+	MtxPtr mtx = getModel()->getAnmMtx(2);
 
-void TShine::movingCircle() { }
+	if (checkLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_CLIPPED_OUT
+	                  | LIVE_FLAG_UNK200))
+		return;
 
-void TShine::control() { }
+	unk198 = gpMarioParticleManager->emitAndBindToMtxPtr(0x128, mtx, 1, this);
+	unk19C = gpMarioParticleManager->emitAndBindToMtxPtr(0x129, mtx, 1, this);
+
+	if (!unk1B4) {
+		unk194
+		    = gpMarioParticleManager->emitAndBindToMtxPtr(0x127, mtx, 1, this);
+		unk1A0
+		    = gpMarioParticleManager->emitAndBindToMtxPtr(0x12A, mtx, 1, this);
+	}
+
+	JGeometry::TVec3<f32>* cameraPos
+	    = (JGeometry::TVec3<f32>*)((u8*)gpCamera + 0x124);
+	f32 dx = cameraPos->x - mPosition.x;
+	f32 dy = cameraPos->y - mPosition.y;
+	f32 dz = cameraPos->z - mPosition.z;
+	f32 distance
+	    = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+
+	int idx;
+	if (distance < 2000.0f)
+		idx = 0;
+	else if (distance < 4000.0f)
+		idx = 1;
+	else if (distance < 6000.0f)
+		idx = 2;
+	else
+		idx = 3;
+
+	s16 promiLife = (s16)mPromiLife[idx];
+	f32 senkoRate = mSenkoRate[idx];
+	f32 kiraRate  = mKiraRate[idx];
+	f32 bowRate   = mBowRate[idx];
+
+	if (unk194) {
+		unk194->mBaseLifetime = promiLife;
+		unk194->unk154.set(unk1A8, unk1AC, unk1B0);
+		unk194->unk174.set(unk1A8, unk1AC, unk1B0);
+	}
+	if (unk198) {
+		unk198->mChildSpawnRate = senkoRate;
+		unk198->unk154.set(unk1A8, unk1AC, unk1B0);
+		unk198->unk174.set(unk1A8, unk1AC, unk1B0);
+	}
+	if (unk19C) {
+		unk19C->mChildSpawnRate = kiraRate;
+		unk19C->unk154.set(unk1A8, unk1AC, unk1B0);
+		unk19C->unk174.set(unk1A8, unk1AC, unk1B0);
+	}
+	if (unk1A0) {
+		unk1A0->mChildSpawnRate = bowRate;
+		unk1A0->unk154.set(unk1A8, unk1AC, unk1B0);
+		unk1A0->unk174.set(unk1A8, unk1AC, unk1B0);
+	}
+
+	unk1A4[0] = 1;
+}
+
+void TShine::movingCircle()
+{
+	f32 oldY = mPosition.y;
+	unk158 += 180.0f / unk168;
+	mPosition.x += unk17C;
+
+	f32 t = (f32)(unk168 - mLifeTimer) / (f32)unk168;
+	f32 y = unk164 + t * (mInitialPosition.y - unk164);
+	mPosition.y = y + unk160 * JMASSin((s16)(unk158 * 182.04445f));
+	unk188     = mPosition.y - oldY;
+	mPosition.z += unk184;
+	mRotation.y += 7.0f;
+
+	if (!isLifeTimerActive()) {
+		unk16C     = 7.0f;
+		mLifeTimer = unk178;
+		mState     = 0xF;
+	}
+}
+
+void TShine::control()
+{
+	if (!isState(0x10))
+		TMapObjGeneral::control();
+
+	if (isState(0x10)) {
+		mPosition.x = gpMarioPos->x;
+		mPosition.y = gpMarioPos->y;
+		mPosition.z = gpMarioPos->z;
+		return;
+	}
+
+	switch (mState) {
+	case 1: {
+		mRotation.y += unk16C;
+
+		if (gpMSound->gateCheck(0x81C1))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x81C1, mPosition, 0, nullptr, 0, 4);
+
+		u8* lightData = *(u8**)((u8*)getModel()->mModelData + 0x58);
+		TLightWithDBSetManager* light = gpLightManager;
+		light->unk18.r                = 0xFF;
+		light->unk18.g                = 0xFF;
+		light->unk18.b                = 0xFF;
+		light->unk18.a                = 0xFF;
+		light->unk54                  = 1;
+		light->unk1C.x                = *(f32*)(lightData + 0x6C);
+		light->unk1C.y                = *(f32*)(lightData + 0x7C);
+		light->unk1C.z                = *(f32*)(lightData + 0x8C);
+		light->unk54                  = 1;
+		break;
+	}
+	case 0xB:
+		if (isLifeTimerActive())
+			return;
+		unkF8 &= 0xF800FEFF;
+		mLifeTimer = unk170;
+		mState     = 0xC;
+		break;
+	case 0xC:
+		if (gpMSound->gateCheck(0x81C1))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x81C1, mPosition, 0, nullptr, 0, 4);
+
+		mPosition.y += mUpSpeed;
+		if (isLifeTimerActive())
+			return;
+
+		if (unk154 == 3) {
+			mLifeTimer = unk170;
+			mState     = 0xE;
+		} else {
+			unk164     = mPosition.y;
+			mLifeTimer = unk168;
+			mState     = 0xD;
+		}
+		break;
+	case 0xD:
+		if (gpMSound->gateCheck(0x81C1))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x81C1, mPosition, 0, nullptr, 0, 4);
+		movingCircle();
+		break;
+	case 0xE:
+		if (gpMSound->gateCheck(0x81C1))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x81C1, mPosition, 0, nullptr, 0, 4);
+
+		mPosition.y -= mUpSpeed;
+		if (isLifeTimerActive())
+			return;
+
+		unk16C     = 7.0f;
+		mLifeTimer = unk178;
+		mState     = 0xF;
+		break;
+	case 0xF:
+		if (gpMSound->gateCheck(0x81C1))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x81C1, mPosition, 0, nullptr, 0, 4);
+
+		if (mPosition.y > mInitialPosition.y) {
+			mPosition.y += unk188;
+			unk188 *= mSpeedDownRate;
+		} else {
+			mPosition.y = mInitialPosition.y;
+		}
+
+		if (unk16C > 2.0f)
+			unk16C -= 0.1f;
+		else
+			unk16C = 2.0f;
+
+		mRotation.y += unk16C;
+
+		if (isLifeTimerActive())
+			return;
+
+		if (checkMapObjFlag(0x20000000))
+			MSBgm::setTrackVolume(0, 1.0f, 10, 0);
+
+		offHitFlag(HIT_FLAG_NO_COLLISION);
+		mState = 0x11;
+		break;
+	case 0x11:
+		mRotation.y += unk16C;
+
+		if (gpMSound->gateCheck(0x81C1))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x81C1, mPosition, 0, nullptr, 0, 4);
+		break;
+	case 0x12: {
+		CPolarSubCamera* camera = gpCamera;
+		if (camera->isSimpleDemoCamera() || camera->isOnGoingDemoCamera())
+			return;
+		if (isLifeTimerActive())
+			return;
+
+		const char* cameraName = "シャイン（いききなり出現）カメラ";
+		JDrama::TNameRef* cameraRef
+		    = JDrama::TNameRefGen::search<JDrama::TNameRef>(cameraName);
+		unk18C = *(u32*)((u8*)cameraRef + 0x2C);
+		gpMarDirector->fireStartDemoCamera(
+		    cameraName, &mPosition, -1, 0.0f, true, appearWithTimeCallback, 0,
+		    this, JDrama::TFlagT<u16>(0));
+		mState = 0x11;
+		break;
+	}
+	}
+}
 
 void TShine::perform(u32 flags, JDrama::TGraphics* graphics)
 {
