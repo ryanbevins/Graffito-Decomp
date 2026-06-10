@@ -88,7 +88,7 @@ void TCannon::startChorobeiShout() { }
 
 bool TCannon::isObject()
 {
-	return mCurrentBckAnm == 2;
+	return mCurrentBckAnm == 4 && checkCurAnmEnd(0);
 }
 
 void TCannon::setKillerGoalPoint() { }
