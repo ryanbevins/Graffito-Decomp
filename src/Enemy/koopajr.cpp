@@ -1,6 +1,7 @@
 #include <Enemy/Koopa.hpp>
 #include <Enemy/BathtubBinder.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MoveBG/MapObjCorona.hpp>
@@ -30,6 +31,23 @@ static const char* TKoopaJr_jointNameTable[] = {
 
 static s32 TKoopaJr_jointIndexTable[5];
 static const char* koopajrsubmarine_bastable = nullptr;
+
+DEFINE_NERVE(TNerveKoopaJrWait, TLiveActor)
+{
+	TKoopaJr* actor = (TKoopaJr*)spine->getBody();
+	if (spine->getTime() == 0) {
+		actor->mMActor->setBckFromIndex(2);
+
+		const char** bas = actor->getBasNameTable();
+		actor->setAnmSound(!bas ? nullptr : bas[2]);
+
+		actor->unk154 = actor->getSaveParam2()->mSLLaunchKillerPeriod.get();
+		actor->unk158
+		    = actor->getSaveParam2()->mSLLaunchKillerPeriodFast.get();
+	}
+
+	return FALSE;
+}
 
 TDirectionCalc::TDirectionCalc()
     : mDirection(0.0f)
