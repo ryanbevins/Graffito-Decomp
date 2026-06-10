@@ -981,15 +981,13 @@ void TEnemyMario::consider()
 		if (isLast1AnimeFrame())
 			startDisappear(0xA);
 		break;
-	case 0x18: {
+	case 0x18:
+	case 0x1A: {
 		s16 diff = emTargetYaw(this) - mFaceAngle.y;
 		mFaceAngle.y
 		    = emTargetYaw(this) - IConverge(diff, 0, 0x180, 0x180);
 		break;
 	}
-	case 0x1A:
-		emWaitingToInviteMario();
-		break;
 	default:
 		break;
 	}
