@@ -1,6 +1,8 @@
 #include <Enemy/Cannon.hpp>
 #include <Enemy/Bombhei.hpp>
 #include <Enemy/Conductor.hpp>
+#include <Enemy/Graph.hpp>
+#include <Enemy/Igaiga.hpp>
 #include <Enemy/Killer.hpp>
 #include <Enemy/Popo.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
@@ -26,6 +28,7 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JMath.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <dolphin/mtx.h>
 #include <stdlib.h>
@@ -133,7 +136,148 @@ void TCannon::setKillerGoalPoint()
 	}
 }
 
-void TCannon::killerShoot() { }
+void TCannon::killerShoot()
+{
+	if (unk239) {
+		TKiller* killer = (TKiller*)gpConductor->makeOneEnemyAppear(
+		    mPosition, "キラーマネージャー", 0);
+		if (killer == nullptr)
+			return;
+
+		killer->reset();
+		unk1E0 = unk1AC[unk214]->getMActor()->getModel()->getAnmMtx(1);
+
+		TPosition3f localMtx;
+		localMtx.identity33();
+		localMtx.mMtx[0][3] = 0.0f;
+		localMtx.mMtx[1][3] = -60.0f;
+		localMtx.mMtx[2][3] = 150.0f;
+		PSMTXConcat(unk1E0, localMtx.mMtx, localMtx.mMtx);
+		killer->mPosition.x = localMtx.mMtx[0][3];
+		killer->mPosition.y = localMtx.mMtx[1][3];
+		killer->mPosition.z = localMtx.mMtx[2][3];
+
+		JGeometry::TVec3<f32> target = *gpMarioPos;
+		target.x += -300.0f
+		            + (300.0f - -300.0f)
+		                * ((f32)rand() * (1.0f / 32768.0f));
+
+		switch (unk214) {
+		case 0: {
+			f32 offset = -300.0f
+			             + (300.0f - -300.0f)
+			                 * ((f32)rand() * (1.0f / 32768.0f));
+			target.z -= 2.0f * __fabsf(offset);
+			break;
+		}
+		case 2: {
+			f32 offset = -300.0f
+			             + (300.0f - -300.0f)
+			                 * ((f32)rand() * (1.0f / 32768.0f));
+			target.z += 2.0f * __fabsf(offset);
+			break;
+		}
+		}
+
+		JGeometry::TVec3<f32> velocity
+		    = killer->calcVelocityToJumpToY(target, 5.0f,
+		                                    killer->getGravityY());
+		JGeometry::TVec3<f32> diff = target;
+		diff.sub(mPosition);
+		f32 flightTime
+		    = __fabsf(MsVECMag2((Vec*)&diff) / (velocity.x * mVelocityRate));
+
+		f32 velocityRate = mVelocityRate;
+		killer->mIsChaseMode = 0;
+		int roll             = (s32)(100.0f
+		                 * ((f32)rand() * (1.0f / 32768.0f)));
+		if (roll % 5 == 0) {
+			killer->mIsChaseMode = 1;
+		} else {
+			if (*gpMarioSpeedX > 2.0f)
+				velocityRate = 0.55f;
+			if (*gpMarioSpeedX < -2.0f)
+				velocityRate = 0.68f;
+		}
+
+		JGeometry::TVec3<f32> predicted;
+		predicted.x = target.x + mSearchRate * (*gpMarioSpeedX * flightTime);
+		predicted.y = target.y;
+		predicted.z = target.z + mSearchRate * (*gpMarioSpeedZ * flightTime);
+		velocity = killer->calcVelocityToJumpToY(predicted, 5.0f,
+		                                         killer->getGravityY());
+		velocity.scale(velocityRate);
+
+		killer->mRotation.x = 0.0f;
+		killer->mRotation.y = MsAngleWrap(MsGetRotFromZaxisY(velocity));
+		killer->mRotation.z = 0.0f;
+		killer->mScaling.set(0.1f, 0.1f, 0.1f);
+
+		if (gpMarDirector->mState == 1) {
+			velocity.x *= 0.2f;
+			velocity.y *= 0.4f;
+			velocity.z *= 0.2f;
+			killer->mScaling.set(0.6f, 0.6f, 0.6f);
+		}
+
+		killer->setColorType();
+		killer->mChaseTarget = velocity;
+		killer->mVelocity    = velocity;
+		killer->onLiveFlag(LIVE_FLAG_AIRBORNE);
+
+		JGeometry::TVec3<f32> goal = *gpMarioPos;
+		goal.sub(mPosition);
+		target.x += goal.x;
+		target.z += goal.z;
+		killer->setGoalPath(TPathNode(target));
+
+		if (gpMSound->gateCheck(0x285D))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x285D, &killer->mPosition, 0, nullptr, 0, 4);
+		if (gpMSound->gateCheck(0x20A9))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x20A9, &killer->mPosition, 0, nullptr, 0, 4);
+	} else {
+		TIgaiga* igaiga = (TIgaiga*)gpConductor->makeOneEnemyAppear(
+		    mPosition, "イガイガマネージャー", 1);
+		if (igaiga == nullptr)
+			return;
+
+		igaiga->reset();
+		unk1E0 = unk1AC[unk214]->getMActor()->getModel()->getAnmMtx(1);
+
+		TPosition3f localMtx;
+		localMtx.identity33();
+		localMtx.mMtx[0][3] = 0.0f;
+		localMtx.mMtx[1][3] = -60.0f;
+		localMtx.mMtx[2][3] = 150.0f;
+		PSMTXConcat(unk1E0, localMtx.mMtx, localMtx.mMtx);
+		igaiga->mPosition.x = localMtx.mMtx[0][3];
+		igaiga->mPosition.y = localMtx.mMtx[1][3];
+		igaiga->mPosition.z = localMtx.mMtx[2][3];
+
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitWithRotate(
+		    0xCB, &igaiga->mPosition, 0,
+		    (s16)(igaiga->mRotation.y * 182.04445f), 0, 0, nullptr);
+		if (emitter != nullptr) {
+			JGeometry::TVec3<f32> scale;
+			scale.x = 1.5f * mScaling.x;
+			scale.y = 1.5f * mScaling.y;
+			scale.z = 1.5f * mScaling.z;
+			emitter->setScale(scale);
+		}
+
+		JGeometry::TVec3<f32> target;
+		igaiga->getTracer()->getGraph()->getFirstGraphNode().getPoint(
+		    (Vec*)&target);
+		unk248 = target;
+		JGeometry::TVec3<f32> velocity
+		    = igaiga->calcVelocityToJumpToY(target, 10.0f,
+		                                    igaiga->getGravityY());
+		igaiga->mRotation = mRotation;
+		igaiga->shoot(velocity);
+	}
+}
 
 void TCannon::bombShoot()
 {

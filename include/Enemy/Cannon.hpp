@@ -110,7 +110,7 @@ public:
 	/* 0x1BC */ TSharedParts* unk1BC;
 	/* 0x1C0 */ TMapCollisionMove* unk1C0[3];
 	/* 0x1CC */ u8 pad1CC[0x14];
-	/* 0x1E0 */ TCannonDom* unk1E0;
+	/* 0x1E0 */ MtxPtr unk1E0;
 	/* 0x1E4 */ TPosition3f unk1E4;
 	/* 0x214 */ int unk214;
 	/* 0x218 */ void* unk218;
