@@ -334,22 +334,25 @@ void TTinKoopaManager::loadAfter()
 {
 	for (int i = 0; i < 7; ++i) {
 		u16 id = 0xee + i;
+		const char* filename = onetimeFilenames[i];
 		if (!gParticleFlagLoaded[id]) {
-			gpResourceManager->load(onetimeFilenames[i], id);
+			gpResourceManager->load(filename, id);
 			gParticleFlagLoaded[id] = true;
 		}
 	}
 
 	for (int i = 0; i < 17; ++i) {
 		u16 id = 0x1ac + i;
+		const char* filename = loopFilenames[i];
 		if (!gParticleFlagLoaded[id]) {
-			gpResourceManager->load(loopFilenames[i], id);
+			gpResourceManager->load(filename, id);
 			gParticleFlagLoaded[id] = true;
 		}
 	}
 
+	const char* filename = loopIndirectFilenames;
 	if (!gParticleFlagLoaded[0x1f2]) {
-		gpResourceManager->load(loopIndirectFilenames, 0x1f2);
+		gpResourceManager->load(filename, 0x1f2);
 		gParticleFlagLoaded[0x1f2] = true;
 	}
 }
