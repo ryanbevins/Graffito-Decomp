@@ -35,7 +35,9 @@ public:
 	                         f32, bool, s32 (*)(u32, u32), u32,
 	                         JDrama::TActor*, JDrama::TFlagT<u16>);
 
-	/* 0x00 */ u8 unk0[0x74];
+	/* 0x00 */ u8 unk0[0x58];
+	/* 0x58 */ s32 unk58;
+	/* 0x5C */ u8 unk5C[0x18];
 	/* 0x74 */ TGCConsole2* mConsole;
 };
 class MSound {
@@ -538,7 +540,81 @@ Mtx* TBathtub::getRootJointMtx() const
 	return (Mtx*)getModel()->getBaseTRMtx();
 }
 
-void TBathtub::perform(u32, JDrama::TGraphics*) { }
+void TBathtub::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	TMapObjBase::perform(flags, graphics);
+
+	if (flags & 1) {
+		PSMTXCopy(mMActor->unk4->getAnmMtx(unk264),
+		          unk29C->unk4->getBaseTRMtx());
+		Vec scale;
+		scale.x = 1.5f;
+		scale.y = 1.5f;
+		scale.z = 1.5f;
+		unk29C->unk4->setBaseScale(scale);
+	}
+
+	if (flags & 1) {
+		s32 deadCount = getNumGripsDead();
+		s32 frame     = gpMarDirector->unk58;
+		switch (deadCount) {
+		case 0:
+			if (frame >= 7200) {
+				if ((unk2A0 & 0x2) == 0)
+					gpMarDirector->mConsole->startAppearBalloon(0xE001F,
+					                                             true);
+				unk2A0 |= 0x2;
+			} else if (frame >= 3600) {
+				if ((unk2A0 & 0x1) == 0)
+					gpMarDirector->mConsole->startAppearBalloon(0xE001E,
+					                                             true);
+				unk2A0 |= 0x1;
+			}
+			break;
+		case 1:
+			if ((unk2A0 & 0x4) == 0)
+				gpMarDirector->mConsole->startAppearBalloon(0xE0020, true);
+			unk2A0 |= 0x4;
+			break;
+		case 2:
+			if ((unk2A0 & 0x8) == 0)
+				gpMarDirector->mConsole->startAppearBalloon(0xE0021, true);
+			unk2A0 |= 0x8;
+			break;
+		case 3:
+			if ((unk2A0 & 0x10) == 0)
+				gpMarDirector->mConsole->startAppearBalloon(0xE0022, true);
+			unk2A0 |= 0x10;
+			break;
+		case 4:
+			if ((unk2A0 & 0x40000) == 0)
+				gpMarDirector->mConsole->startAppearBalloon(0xE0030, true);
+			unk2A0 |= 0x40000;
+			break;
+		case 5:
+			if ((unk2A0 & 0x20) == 0)
+				gpMarDirector->mConsole->startAppearBalloon(0xE0023, true);
+			unk2A0 |= 0x20;
+			break;
+		}
+	}
+
+	if (flags & 2)
+		unk29C->calc();
+
+	if (flags & 4)
+		unk29C->viewCalc();
+
+	if (flags & 0x200) {
+		MtxPtr mtx = unk29C->getModel()->getBaseTRMtx();
+		JGeometry::TVec3<f32> lightPos;
+		lightPos.x = mtx[0][3];
+		lightPos.y = mtx[1][3];
+		lightPos.z = mtx[2][3];
+		unk29C->setLightData(mGroundPlane, lightPos);
+		unk29C->entry();
+	}
+}
 
 void TBathtub::control() { }
 
