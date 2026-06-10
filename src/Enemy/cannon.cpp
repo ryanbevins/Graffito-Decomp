@@ -212,7 +212,7 @@ bool TCannon::isHitVallid(u32)
 
 MtxPtr TCannon::getTakingMtx()
 {
-	if (checkLiveFlag(LIVE_FLAG_UNK4000))
+	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
 		return unk1A8->unk6C->getMActor()->getModel()->getBaseTRMtx();
 
 	MtxPtr takingMtx = unk1A8->unk6C->getMActor()->getModel()->getAnmMtx(
