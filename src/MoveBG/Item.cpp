@@ -426,11 +426,61 @@ void TShine::movingCircle() { }
 
 void TShine::control() { }
 
-void TShine::perform(u32, JDrama::TGraphics*) { }
+void TShine::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if ((flags & 2) && !checkLiveFlag(LIVE_FLAG_DEAD) && !isState(1))
+		offLiveFlag(LIVE_FLAG_UNK200);
 
-BOOL TShine::receiveMessage(THitActor*, u32) { }
+	TMapObjGeneral::perform(flags, graphics);
+}
 
-void TShine::touchPlayer(THitActor*) { }
+BOOL TShine::receiveMessage(THitActor*, u32)
+{
+	offMapObjFlag(0x8000000);
+	mPosition.x = gpMarioPos->x;
+	mPosition.y = gpMarioPos->y;
+	mPosition.z = gpMarioPos->z;
+	mRotation.y = ((f32)*gpMarioAngleY * 180.0f) / 32768.0f;
+
+	MsMtxSetXYZRPH(getModel()->getBaseTRMtx(), mPosition.x,
+	               mPosition.y - mYOffset, mPosition.z, mRotation.x,
+	               mRotation.y, mRotation.z);
+
+	if (SMS_IsMarioOnYoshi()) {
+		if (unk1B4)
+			mMActor->setBck("shine_empty_demo_shine_get_yo");
+		else
+			mMActor->setBck("shine_demo_shine_get_yo");
+	} else {
+		if (unk1B4)
+			mMActor->setBck("shine_empty_demo_shine_get");
+		else
+			mMActor->setBck("shine_demo_shine_get");
+	}
+
+	unk1A8 = 0.5f;
+	unk1AC = 0.5f;
+	unk1B0 = 0.5f;
+	mState = 0x10;
+	return TRUE;
+}
+
+void TShine::touchPlayer(THitActor* actor)
+{
+	actor->receiveMessage(this, HIT_MESSAGE_ATTACK);
+
+	TLightWithDBSetManager* light = gpLightManager;
+	light->unk1C.x = 200000.0f;
+	light->unk1C.y = 500000.0f;
+	light->unk1C.z = 200000.0f;
+
+	if (gpMSound->gateCheck(0x4814))
+		MSoundSESystem::MSoundSE::startSoundActor(0x4814, mPosition, 0,
+		                                          nullptr, 0, 4);
+
+	mMActor->setBck("shine_float");
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+}
 
 void TShine::appearWithTime(int total_time, int up_time, int circle_time,
                             int down_time)
