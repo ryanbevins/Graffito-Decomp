@@ -1648,10 +1648,6 @@ void TEnemyMario::initEnemyValues()
 
 	unk388                  = 1;
 	emEnemyModel(this)      = nullptr;
-	emEnemyShadowModel(this) = nullptr;
-	emEnemyMActor(this)     = nullptr;
-	emEnemyModelScale(this) = 3.0f;
-	emDisappearPos(this).set(zero, zero, zero);
 
 	int modelType = 6;
 	for (int i = 0; i < 5; ++i) {
@@ -1671,6 +1667,10 @@ void TEnemyMario::initEnemyValues()
 		    = J3DModelLoaderDataBase::load(enemyResource, 0x10040000);
 		unk388 = 2;
 	}
+
+	emEnemyShadowModel(this) = nullptr;
+	emEnemyMActor(this)     = nullptr;
+	emEnemyModelScale(this) = 3.0f;
 
 	if (enemyModelData != nullptr) {
 		unk388             = 2;
@@ -1697,6 +1697,8 @@ void TEnemyMario::initEnemyValues()
 		SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_move_a.jpa", 0x1AA);
 		SMS_LoadParticle("/scene/kagemario/jpa/ms_kgm_move_b.jpa", 0x1AB);
 	}
+
+	emDisappearPos(this).set(zero, zero, zero);
 
 	int flagState = TFlagManager::smInstance->getFlag(0x60003);
 	if (flagState == 0) {
