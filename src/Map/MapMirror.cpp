@@ -16,6 +16,11 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+static inline void setEffectMtxOnTex0(J3DMaterial* material, MtxPtr mtx)
+{
+	material->getTexGenBlock()->getTexMtx(0)->setEffectMtx(mtx);
+}
+
 void TMirrorCamera::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (param_1 & 0x14) {
@@ -331,7 +336,7 @@ void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 			                            ->getModelData()
 			                            ->getMaterialNodePointer(0);
 			material->change();
-			material->getTexGenBlock()->getTexMtx(0)->setEffectMtx(effectMtx);
+			setEffectMtxOnTex0(material, effectMtx);
 			mirror->unk4->entry();
 		}
 	}

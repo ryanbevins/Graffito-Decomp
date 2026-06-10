@@ -5076,6 +5076,10 @@ etc.) continue to inline as before.
   with `#pragma dont_inline on` matched setEffectMtx but regressed the
   ctor 62.5% → 43.3% and addJellyFishParts 89.5% → 76.5% by breaking
   unrelated accessor inlines.
+- `src/Map/MapMirror.cpp::TMirrorModelManager::perform` (2026-06-11 MNL):
+  routing the mirror material update through `setEffectMtxOnTex0` restored the
+  target call boundary for `J3DTexMtxInfo::setEffectMtx` and moved the function
+  36.0% → 47.4% (`MapMirror` TU 84.0651% → 86.089355%).
 - `mario/JSystem/JDrama/JDRNameRefGen` probe (t376): wrapping
   `return new TPolarCamera();` in a TU-local `static inline
   newPolarCamera()` made MWCC emit and call the exact weak
