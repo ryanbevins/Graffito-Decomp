@@ -200,14 +200,14 @@ public:
 	/* 0x284 */ s32 unk284;
 	/* 0x288 */ s32 unk288;
 	/* 0x28C */ s32 unk28C;
-	/* 0x290 */ void* unk290;
-	/* 0x294 */ void* unk294;
+	/* 0x290 */ s32 unk290;
+	/* 0x294 */ s32 unk294;
 	/* 0x298 */ u8 unk298;
 	/* 0x299 */ u8 unk299;
 	/* 0x29A */ u8 unk29A;
 	/* 0x29B */ u8 unk29B;
 	/* 0x29C */ MActor* unk29C;
-	/* 0x2A0 */ void* unk2A0;
+	/* 0x2A0 */ u32 unk2A0;
 };
 
 #endif

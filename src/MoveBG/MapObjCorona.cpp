@@ -23,11 +23,28 @@
 #include <MSound/MSoundBGM.hpp>
 
 class JAISound;
+class TMario;
+class TGCConsole2 {
+public:
+	bool startAppearBalloon(u32, bool);
+};
+class TMarDirector {
+public:
+	void fireStreamingMovie(u8);
+	void fireStartDemoCamera(const char*, const JGeometry::TVec3<f32>*, s32,
+	                         f32, bool, s32 (*)(u32, u32), u32,
+	                         JDrama::TActor*, JDrama::TFlagT<u16>);
+
+	/* 0x00 */ u8 unk0[0x74];
+	/* 0x74 */ TGCConsole2* mConsole;
+};
 class MSound {
 public:
 	bool gateCheck(u32);
 };
 
+extern TMarDirector* gpMarDirector;
+extern TMario* gpMarioOriginal;
 extern MSound* gpMSound;
 f32 SMSGetAnmFrameRate();
 
@@ -531,7 +548,70 @@ void TBathtub::setupCollisions_() { }
 
 void TBathtub::removeCollisions_() { } // Unused
 
-void TBathtub::startDemo() { }
+void TBathtub::startDemo()
+{
+	if (unk29A != 0)
+		return;
+
+	MSBgm::stopTrackBGMs(7, 10);
+
+	if ((unk2A0 & 0x20) == 0)
+		gpMarDirector->mConsole->startAppearBalloon(0xE0023, true);
+
+	unk2A0 |= 0x20;
+	unk290 = 10;
+
+	for (s32 i = 0; i < 5; ++i)
+		unk168[i]->kill();
+
+	TBathtubGrip* grip = unk168[2];
+	grip->offLiveFlag(LIVE_FLAG_DEAD);
+	grip->unk248 = 0;
+	grip->unk24A = 0;
+	grip->unk249 = 1;
+	grip->unk24B = 0;
+	grip->startAnim(0);
+	J3DFrameCtrl* ctrl = grip->mMActor->getFrameCtrl(0);
+	if (ctrl != nullptr) {
+		ctrl->setFrame(0.0f);
+		ctrl->setRate(0.0f);
+	}
+	grip->unk250 = 1.0f;
+	grip->unk258 = 100;
+	grip->unk260 = 0;
+
+	grip = unk168[2];
+	grip->unk258 = 2;
+	grip->unk250 = unk16C->animSpeed1.get();
+	grip->unk254 = 1;
+	grip->unk25C->setBck("stand_effect");
+	grip->unk25C->setBtk("stand_effect");
+	grip->unk25C->setBrk("stand_effect");
+	ctrl = grip->unk25C->getFrameCtrl(0);
+	if (ctrl != nullptr)
+		ctrl->setRate(12.0f * 0.5f * SMSGetAnmFrameRate());
+	grip->unk248 = 1;
+	grip->unk249 = 0;
+	grip->startAnim(1);
+
+	onMapObjFlag(0x8);
+	offMapObjFlag(0x100);
+	startBck("bath_overturn1");
+
+	TLiveActor* mario = SMS_GetMarioLiveActor();
+	if (mario->receiveMessage(this, HIT_MESSAGE_TAKE))
+		mHeldObject = (TTakeActor*)mario;
+
+	*(u16*)((u8*)gpMarioOriginal + 0x96) = 0x7FFF;
+
+	JDrama::TFlagT<u16> flags(0);
+	gpMarDirector->fireStartDemoCamera(
+	    "koopa_last2", &mPosition, -1, mRotation.y, false, nullptr, 0,
+	    nullptr, flags);
+	gpMarDirector->fireStreamingMovie(14);
+	getKoopa()->fall();
+	unk29A = 1;
+}
 
 bool TBathtub::allowsTumble() const { return false; }
 
@@ -597,7 +677,7 @@ void TBathtub::updatePosture_() { }
 TBathtub::TBathtub(const char* name)
     : TMapObjBase(name)
     , unk164(nullptr)
-    , unk290(nullptr)
+    , unk290(0)
 {
 	unk16C = new TBathtubParams;
 
@@ -627,8 +707,8 @@ TBathtub::TBathtub(const char* name)
 
 	unk299 = 0;
 	unk29A = 0;
-	unk2A0 = nullptr;
-	unk294 = nullptr;
+	unk2A0 = 0;
+	unk294 = 0;
 }
 
 void TBathtub::load(JSUMemoryInputStream& stream)

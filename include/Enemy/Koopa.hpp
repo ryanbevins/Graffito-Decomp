@@ -66,6 +66,7 @@ public:
 	bool allowsLaunch() const;
 	void stagger(bool);
 	void getDown();
+	void fall();
 
 	/* 0x150 */ u8 unk150[0x6C];
 };
