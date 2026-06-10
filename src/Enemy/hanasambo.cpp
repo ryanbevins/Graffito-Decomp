@@ -556,7 +556,39 @@ DEFINE_NERVE(TNerveHanaSamboWait, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveHanaSamboAppear, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveHanaSamboAppear, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->offHitFlag(HIT_FLAG_NO_COLLISION);
+		self->setBckAnm(6);
+		gpMarioParticleManager->emit(0xB6, &self->mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(0xB7, &self->mPosition, 0, nullptr);
+
+		TSamboFlower* flower = self->mFlower;
+		flower->onHitFlag(HIT_FLAG_NO_COLLISION);
+		flower->mMActor->setBck("flower_fwait");
+		flower->onLiveFlag(LIVE_FLAG_DEAD);
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		spine->pushAfterCurrent(&TNerveHanaSamboWait::theNerve());
+		self->setWaitAnm();
+
+		if (gpMarioPos->y < self->mPosition.y + 100.0f) {
+			self->updateSquareToMario();
+			f32 attackDist = self->mParams->mSLAttackDist.get();
+			if (self->mDistToMarioSquared < attackDist * attackDist)
+				spine->pushAfterCurrent(&TNerveHanaSamboAttack::theNerve());
+		}
+
+		return TRUE;
+	}
+
+	self->walkToCurPathNode(0.0f, 3.0f * self->mTurnSpeed, 0.0f);
+	return FALSE;
+}
 
 TSamboFlowerSaveLoadParams::TSamboFlowerSaveLoadParams(const char* path)
     : TSpineEnemyParams(path)
