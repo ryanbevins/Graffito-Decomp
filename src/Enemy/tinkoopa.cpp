@@ -13,6 +13,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <MSound/MSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
@@ -57,7 +58,13 @@ static const int partsBreakBckTable[] = { 0, 4, 11, 9, 10, 0 };
 
 static const int waitBckTable[] = { 12, 13, 14, 15, 16 };
 
+static const int breakBckTable[] = { 0, 1, 2, 3, 16 };
+
 static const int damageBckTable[] = { 5, 6, 7, 8, 16 };
+
+static const int breakStartFrameTable[] = { 100, 134, 134, 100, 0 };
+
+static const int breakPartIndexTable[] = { 2, 3, 4, 1, 2 };
 
 static const char* breastTrackJointNameTable[] = {
 	"breast_1", "breast_2", "breast_3", "breast_4", "breast_5", "breast_6",
@@ -198,6 +205,104 @@ BOOL TNerveTinKoopaDamage::execute(TSpineBase<TLiveActor>* spine) const
 		const char** bas = self->getBasNameTable();
 		self->setAnmSound(bas ? bas[waitBck] : nullptr);
 		return true;
+	}
+
+	return false;
+}
+
+BOOL TNerveTinKoopaBreak::execute(TSpineBase<TLiveActor>* spine) const
+{
+	TTinKoopa* self = (TTinKoopa*)spine->getBody();
+	if (spine->getTime() == 0) {
+		int bck = breakBckTable[self->unk150];
+		self->mMActor->setBckFromIndex(bck);
+		const char** bas = self->getBasNameTable();
+		self->setAnmSound(bas ? bas[bck] : nullptr);
+
+		u32 jointIndex = TTinKoopa_jointIndexTable[0];
+		MtxPtr mtx     = self->getModel()->getAnmMtx(jointIndex);
+		gpMarioParticleManager->emitAndBindToMtxPtr(0xee, mtx, 0, this);
+		gpCameraShake->startShake(CAM_SHAKE_MODE_UNK6, 1.0f);
+
+		if (self->unk150 == 3) {
+			((TCoasterKillerManager*)self->unk1F0)->unk60 = true;
+			MSBgm::stopTrackBGMs(7, 10);
+		}
+	}
+
+	int breakBck = breakBckTable[self->unk150];
+	if (self->mMActor->checkCurBckFromIndex(breakBck)) {
+		TTinKoopaPartsBase* part
+		    = self->unk1CC[breakPartIndexTable[self->unk150]];
+		if (self->mMActor->curAnmEndsNext(0, 0)) {
+			part->unkF4->remove();
+			++self->unk150;
+
+			if (self->unk150 == 0) {
+				TTinKoopaParams* params
+				    = (TTinKoopaParams*)self->getSaveParam();
+				f32 height = params->mSLDamageHeight0.get();
+				params     = (TTinKoopaParams*)self->getSaveParam();
+				self->mAttackRadius = 0.0f;
+				self->mAttackHeight = 0.0f;
+				self->mDamageRadius = params->mSLDamageRadius.get();
+				self->mDamageHeight = height;
+				self->calcEntryRadius();
+			} else if (self->unk150 == 1) {
+				TTinKoopaParams* params
+				    = (TTinKoopaParams*)self->getSaveParam();
+				f32 height = params->mSLDamageHeight1.get();
+				params     = (TTinKoopaParams*)self->getSaveParam();
+				self->mAttackRadius = 0.0f;
+				self->mAttackHeight = 0.0f;
+				self->mDamageRadius = params->mSLDamageRadius.get();
+				self->mDamageHeight = height;
+				self->calcEntryRadius();
+			} else if (self->unk150 == 2) {
+			}
+
+			TTinKoopaFlame* flame = self->unk160;
+			if (flame->unk68->unk150 == 0) {
+				TTinKoopaParams* params
+				    = (TTinKoopaParams*)flame->unk68->getSaveParam();
+				f32 height = params->mSLFlameDamageHeight0.get();
+				params = (TTinKoopaParams*)flame->unk68->getSaveParam();
+				flame->mAttackRadius = 0.0f;
+				flame->mAttackHeight = 0.0f;
+				flame->mDamageRadius
+				    = params->mSLFlameDamageRadius0.get();
+				flame->mDamageHeight = height;
+				flame->calcEntryRadius();
+			} else if (flame->unk68->unk150 == 1) {
+				TTinKoopaParams* params
+				    = (TTinKoopaParams*)flame->unk68->getSaveParam();
+				f32 height = params->mSLFlameDamageHeight1.get();
+				params = (TTinKoopaParams*)flame->unk68->getSaveParam();
+				flame->mAttackRadius = 0.0f;
+				flame->mAttackHeight = 0.0f;
+				flame->mDamageRadius
+				    = params->mSLFlameDamageRadius1.get();
+				flame->mDamageHeight = height;
+				flame->calcEntryRadius();
+			}
+
+			int waitBck = waitBckTable[self->unk150];
+			self->mMActor->setBckFromIndex(waitBck);
+			const char** bas = self->getBasNameTable();
+			self->setAnmSound(bas ? bas[waitBck] : nullptr);
+
+			TTinKoopaParams* params = (TTinKoopaParams*)self->getSaveParam();
+			self->unk1C8            = params->mSLPartsHP.get();
+			return true;
+		}
+
+		if (!part->unkF8) {
+			int frame = breakStartFrameTable[self->unk150];
+			if (self->mMActor->getFrameCtrl(0)->checkPass((f32)frame)) {
+				self->unk1E4 = part;
+				self->unk1E4->startBreaking();
+			}
+		}
 	}
 
 	return false;

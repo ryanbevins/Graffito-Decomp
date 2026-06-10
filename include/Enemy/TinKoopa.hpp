@@ -152,7 +152,7 @@ public:
 	/* 0x1C4 */ u8 unk1C4[4];
 	/* 0x1C8 */ s32 unk1C8;
 	/* 0x1CC */ TTinKoopaPartsBase* unk1CC[6];
-	/* 0x1E4 */ s32 unk1E4;
+	/* 0x1E4 */ TTinKoopaPartsBase* unk1E4;
 	/* 0x1E8 */ f32* unk1E8;
 	/* 0x1EC */ TGraphWeb* unk1EC;
 	/* 0x1F0 */ TEnemyManager* unk1F0;
