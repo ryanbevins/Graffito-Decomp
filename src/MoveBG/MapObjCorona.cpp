@@ -516,10 +516,9 @@ BOOL TBathtub::receiveMessage(THitActor* sender, u32 message)
 
 Mtx* TBathtub::getRootJointMtx() const
 {
-	J3DModel* model = mMActor->unk4;
 	if (unk29A != 0)
-		return (Mtx*)model->getAnmMtx(0);
-	return (Mtx*)model->getBaseTRMtx();
+		return (Mtx*)getModel()->getAnmMtx(0);
+	return (Mtx*)getModel()->getBaseTRMtx();
 }
 
 void TBathtub::perform(u32, JDrama::TGraphics*) { }
