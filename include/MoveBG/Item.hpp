@@ -204,15 +204,14 @@ public:
 	virtual void touchPlayer(THitActor*);
 	virtual void breaking();
 
-	void makeModelInvalid();
 	void makeModelValid();
 
 public:
 	/* 0x148 */ int unk148;
-	/* 0x14C */ u32 unk14C;
+	/* 0x14C */ TItem* unk14C;
 	/* 0x150 */ f32 unk150;
 	/* 0x154 */ f32 unk154;
-	/* 0x158 */ u32 unk158;
+	/* 0x158 */ const char* unk158;
 	/* 0x15C */ u8 unk15C;
 	/* 0x15E */ u16 unk15E;
 	/* 0x160 */ u16 unk160;
