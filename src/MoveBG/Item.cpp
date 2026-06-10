@@ -1065,12 +1065,16 @@ void TEggYoshi::perform(u32 flags, JDrama::TGraphics* graphics)
 	TMapObjGeneral::perform(flags, graphics);
 
 	if (isState(0xC) || isState(0) || isState(6) || isState(2)
-	    || isState(0xE) || isState(0xF) || isState(0x10))
+	    || isState(0xE) || isState(0xF))
 		return;
 
-	if (flags & 2)
-		PSMTXCopy(getModel()->mNodeMatrices[0],
-		          unk148->getModel()->getBaseTRMtx());
+	if (isState(0x10))
+		return;
+
+	if (flags & 2) {
+		MtxPtr modelMtx = getModel()->mNodeMatrices[0];
+		PSMTXCopy(modelMtx, unk148->getModel()->getBaseTRMtx());
+	}
 
 	unk148->perform(flags, graphics);
 }
