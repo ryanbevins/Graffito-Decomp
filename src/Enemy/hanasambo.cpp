@@ -421,7 +421,26 @@ DEFINE_NERVE(TNerveSamboHeadAppear, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveHanaSamboFreeze, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveHanaSamboFreeze, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setBckAnm(5);
+
+	if (self->checkCurAnmEnd(0)) {
+		if (self->isBckAnm(5)) {
+			if (self->unsetUnk165())
+				self->setBckAnm(8);
+		} else {
+			if (self->unsetUnk165())
+				self->setBckAnm(8);
+			else
+				return TRUE;
+		}
+	}
+
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveHanaSamboDie, TLiveActor) { return FALSE; }
 
