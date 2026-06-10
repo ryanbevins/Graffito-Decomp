@@ -812,7 +812,66 @@ void TBathtub::calcBathtubData()
 	unk1F4 = pos;
 }
 
-void TBathtub::setupCollisions_() { }
+void TBathtub::setupCollisions_()
+{
+	f32 diffX = gpMarioPos->x - unk170.x;
+	f32 diffY = gpMarioPos->y - unk170.y;
+	f32 diffZ = gpMarioPos->z - unk170.z;
+	f32 localZ = unk188[6] * diffX + unk188[7] * diffY + unk188[8] * diffZ;
+	f32 localX = unk188[0] * diffX + unk188[1] * diffY + unk188[2] * diffZ;
+	f32 distSq = localZ * localZ + localX * localX;
+
+	if (gpMarioPos->y < 300.0f || distSq < 0.01f) {
+		for (s32 i = 0; i < 30; ++i)
+			unk164[i]->remove();
+
+		for (s32 i = 0; i < 5; ++i)
+			unk168[i]->unk24B = 0;
+		return;
+	}
+
+	f32 angle = atan2f(localX, localZ);
+	if (angle < 0.0f)
+		angle += 6.2831855f;
+
+	f32 collisionPos = angle * 4.774648f;
+	if (collisionPos < 0.0f)
+		collisionPos += 30.0f;
+
+	s32 base = ((s32)(collisionPos + 0.5f - 1.0f) + 30) % 30;
+
+	for (s32 i = 0; i < 2; ++i) {
+		s32 index = (base + i) % 30;
+		f32 rot = (((f32)(index + 1) * 6.2831855f) / 30.0f) - 3.1415927f;
+		f32 sinRot = sinf(rot);
+		f32 cosRot = cosf(rot);
+		MtxPtr baseMtx = getModel()->getBaseTRMtx();
+		JGeometry::SMatrix34C<f32> mtx;
+
+		mtx.set(
+		    baseMtx[0][0] * cosRot - baseMtx[0][2] * sinRot, baseMtx[0][1],
+		    baseMtx[0][0] * sinRot + baseMtx[0][2] * cosRot,
+		    baseMtx[0][3] + baseMtx[0][1],
+		    baseMtx[1][0] * cosRot - baseMtx[1][2] * sinRot, baseMtx[1][1],
+		    baseMtx[1][0] * sinRot + baseMtx[1][2] * cosRot,
+		    baseMtx[1][3] + baseMtx[1][1],
+		    baseMtx[2][0] * cosRot - baseMtx[2][2] * sinRot, baseMtx[2][1],
+		    baseMtx[2][0] * sinRot + baseMtx[2][2] * cosRot,
+		    baseMtx[2][3] + baseMtx[2][1]);
+
+		unk164[index]->moveMtx(mtx);
+		unk164[index]->setUp();
+	}
+
+	for (s32 i = 2; i < 30; ++i)
+		unk164[(base + i) % 30]->remove();
+
+	for (s32 i = 0; i < 5; ++i)
+		unk168[i]->unk24B = 0;
+
+	s32 gripIndex = ((s32)(5.0f * angle / 6.2831855f) + 10) % 5;
+	unk168[gripIndex]->unk24B = 1;
+}
 
 void TBathtub::removeCollisions_() { } // Unused
 
