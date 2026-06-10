@@ -990,6 +990,11 @@ void TEnemyMario::consider()
 		    = emTargetYaw(this) - IConverge(diff, 0, 0x180, 0x180);
 		break;
 	}
+	case 0x1B: {
+		JDrama::TGraphics graphics;
+		TMario::checkController(&graphics);
+		break;
+	}
 	default:
 		break;
 	}
