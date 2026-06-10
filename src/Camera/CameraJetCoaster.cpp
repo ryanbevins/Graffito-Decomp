@@ -276,28 +276,27 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		f32 stickX = *(f32*)((u8*)unk120 + 0xC0);
 		f32 stickY = *(f32*)((u8*)unk120 + 0xC4);
 		TCameraJetCoaster* coaster = unk2B8;
-		TCamSaveJetCoaster* save  = coaster->unk0;
 
 		coaster->unk8 = (s16)(s32)((f32)(s32)coaster->unk8
 		                           - stickY
-		                                 * (f32)(s32)save
+		                                 * (f32)(s32)coaster->unk0
 		                                       ->mSLOffsetAngleXManualSpeed
 		                                       .value);
 		coaster->unkA = (s16)(s32)((f32)(s32)coaster->unkA
 		                           + stickX
-		                                 * (f32)(s32)save
+		                                 * (f32)(s32)coaster->unk0
 		                                       ->mSLOffsetAngleYManualSpeed
 		                                       .value);
 
 		{
-			s32 hi = save->mSLOffsetAngleXLimit.value;
+			s32 hi = coaster->unk0->mSLOffsetAngleXLimit.value;
 			if ((s32)coaster->unk8 > hi)
 				coaster->unk8 = (s16)hi;
 			else if ((s32)coaster->unk8 < -hi)
 				coaster->unk8 = (s16)-hi;
 		}
 		{
-			s32 hi = save->mSLOffsetAngleYLimit.value;
+			s32 hi = coaster->unk0->mSLOffsetAngleYLimit.value;
 			if ((s32)coaster->unkA > hi)
 				coaster->unkA = (s16)hi;
 			else if ((s32)coaster->unkA < -hi)
@@ -305,9 +304,9 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		}
 
 		CLBChaseAngleDecrease(&coaster->unk4, coaster->unk8,
-		                      save->mSLOffsetAngleXChase.value);
+		                      coaster->unk0->mSLOffsetAngleXChase.value);
 		CLBChaseAngleDecrease(&coaster->unk6, coaster->unkA,
-		                      save->mSLOffsetAngleYChase.value);
+		                      coaster->unk0->mSLOffsetAngleYChase.value);
 
 		*(u32*)((u8*)this + 0x98) = *(u32*)((u8*)coaster + 0x10);
 		*(u32*)((u8*)this + 0x9C) = *(u32*)((u8*)coaster + 0x14);
