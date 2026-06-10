@@ -353,20 +353,20 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 	}
 
 	// Tail snap/chase
-	*(f32*)((u8*)this + 0x80) = *(f32*)((u8*)this + 0x98);
-	*(f32*)((u8*)this + 0x84) = *(f32*)((u8*)this + 0x9C);
-	*(f32*)((u8*)this + 0x88) = *(f32*)((u8*)this + 0xA0);
+	*(u32*)((u8*)this + 0x80) = *(u32*)((u8*)this + 0x98);
+	*(u32*)((u8*)this + 0x84) = *(u32*)((u8*)this + 0x9C);
+	*(u32*)((u8*)this + 0x88) = *(u32*)((u8*)this + 0xA0);
 
 	if (isJet1stCamPressed) {
 		if (*(u32*)((u8*)this + 0x78) == 0) {
-			*(f32*)((u8*)this + 0x10) = *(f32*)((u8*)this + 0x80);
-			*(f32*)((u8*)this + 0x14) = *(f32*)((u8*)this + 0x84);
-			*(f32*)((u8*)this + 0x18) = *(f32*)((u8*)this + 0x88);
+			*(u32*)((u8*)this + 0x10) = *(u32*)((u8*)this + 0x80);
+			*(u32*)((u8*)this + 0x14) = *(u32*)((u8*)this + 0x84);
+			*(u32*)((u8*)this + 0x18) = *(u32*)((u8*)this + 0x88);
 		}
 		if (*(u32*)((u8*)this + 0x7C) == 0) {
-			*(f32*)((u8*)this + 0x3C) = at.x;
-			*(f32*)((u8*)this + 0x40) = at.y;
-			*(f32*)((u8*)this + 0x44) = at.z;
+			*(u32*)((u8*)this + 0x3C) = *(u32*)((u8*)&at + 0);
+			*(u32*)((u8*)this + 0x40) = *(u32*)((u8*)&at + 4);
+			*(u32*)((u8*)this + 0x44) = *(u32*)((u8*)&at + 8);
 		}
 	} else {
 		u8* p68 = *(u8**)((u8*)this + 0x68);
