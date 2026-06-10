@@ -619,7 +619,11 @@ void TCannon::startChorobeiShout() { }
 
 bool TCannon::isObject()
 {
-	return mCurrentBckAnm == 4 && checkCurAnmEnd(0);
+	bool isObject = mCurrentBckAnm == 4 ? true : false;
+	if (isObject && checkCurAnmEnd(0))
+		return true;
+
+	return false;
 }
 
 void TCannon::setKillerGoalPoint()
