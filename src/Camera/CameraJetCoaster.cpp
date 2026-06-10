@@ -64,7 +64,7 @@ TCameraJetCoaster::TCameraJetCoaster()
 
 void CPolarSubCamera::drawJetCoasterBalloonMessage_()
 {
-	static const Vec sFixCameraPos = { 3005.0f, 4024.0f, -9560.0f };
+	static const Vec sFixCameraPos = { 3005.0f, 4020.0f, -9560.0f };
 	gpMarioOriginal->loserExec();
 	*(u32*)((u8*)this + 0x78) = 0xE10;
 	*(u32*)((u8*)this + 0x7C) = 0;
