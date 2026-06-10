@@ -168,7 +168,67 @@ DEFINE_NERVE(TNerveCannonDamageDemo, TLiveActor)
 
 DEFINE_NERVE(TNerveCannonDamage, TLiveActor) { return FALSE; }
 
-DEFINE_NERVE(TNerveCannonClose, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveCannonClose, TLiveActor)
+{
+	TCannon* self = (TCannon*)spine->getBody();
+
+	if (spine->getTime() < 2) {
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->unk1A8->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		TChorobei* chorobei = self->unk1A8;
+		chorobei->unk6C->getMActor()->setBckFromIndex(15);
+		const char** bas = chorobei->unk68->getBasNameTable();
+		chorobei->unk78 = bas ? bas[15] : nullptr;
+		if (chorobei->unk78 != nullptr) {
+			void* res = JKRFileLoader::getGlbResource(chorobei->unk78);
+			chorobei->unk74->initAnmSound(res, 1, 0.0f);
+		} else {
+			chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
+		}
+
+		self->unk294 = self->mPosition;
+		self->unk294.y += 300.0f;
+		gpMarioParticleManager->emitAndBindToPosPtr(
+		    0xC9, &self->unk294, 0, nullptr);
+	}
+
+	TChorobei* chorobei = self->unk1A8;
+	bool hidden         = false;
+	MActor* chorobeiActor = chorobei->unk6C->getMActor();
+	if (chorobeiActor->curAnmEndsNext(0, nullptr)
+	    && chorobeiActor->checkCurBckFromIndex(15)) {
+		chorobei->unk70 = 1.0f;
+		hidden          = true;
+	}
+
+	if (hidden && !self->isBckAnm(0))
+		self->setBckAnm(0);
+
+	if (self->isBckAnm(0)
+	    && self->getMActor()->getFrameCtrl(0)->checkPass(10.0f)) {
+		self->unk294 = self->mPosition;
+		self->unk294.y += 290.0f;
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToPosPtr(
+		    0x11, &self->unk294, 0, nullptr);
+		if (emitter != nullptr) {
+			JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
+			emitter->setScale(scale);
+		}
+	}
+
+	self->updateSquareToMario();
+	f32 hideDist = 3.0f * self->unk28C->mSLHideDist.get();
+	if (self->mDistToMarioSquared > hideDist * hideDist) {
+		self->offHitFlag(HIT_FLAG_NO_COLLISION);
+		self->unk1A8->offHitFlag(HIT_FLAG_NO_COLLISION);
+		spine->pushAfterCurrent(&TNerveCannonOpen::theNerve());
+		return TRUE;
+	}
+
+	self->unk2B0->moveMtx(self->getMActor()->getModel()->getAnmMtx(4));
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
 {
