@@ -536,7 +536,45 @@ void TBathtub::startDemo() { }
 
 bool TBathtub::allowsTumble() const { return false; }
 
-void TBathtub::calcRootMatrix() { }
+void TBathtub::calcRootMatrix()
+{
+	MtxPtr mtx = getModel()->getBaseTRMtx();
+	if (unk29A != 0) {
+		MsMtxSetRotRPH(mtx, 0.0f, mRotation.y, 0.0f);
+		mtx[0][3] = mPosition.x;
+		mtx[1][3] = mPosition.y;
+		mtx[2][3] = mPosition.z;
+		return;
+	}
+
+	f32 x = unk1D8.x;
+	f32 y = unk1D8.y;
+	f32 z = unk1D8.z;
+	f32 w = unk1E4;
+
+	f32 xx = 2.0f * x * x;
+	f32 yy = 2.0f * y * y;
+	f32 zz = 2.0f * z * z;
+	f32 xy = 2.0f * x * y;
+	f32 xz = 2.0f * x * z;
+	f32 yz = 2.0f * y * z;
+	f32 wx = 2.0f * w * x;
+	f32 wy = 2.0f * w * y;
+	f32 wz = 2.0f * w * z;
+
+	mtx[0][0] = 1.0f - yy - zz;
+	mtx[0][1] = xy - wz;
+	mtx[0][2] = xz + wy;
+	mtx[1][0] = xy + wz;
+	mtx[1][1] = 1.0f - xx - zz;
+	mtx[1][2] = yz - wx;
+	mtx[2][0] = xz - wy;
+	mtx[2][1] = yz + wx;
+	mtx[2][2] = 1.0f - xx - yy;
+	mtx[0][3] = mPosition.x;
+	mtx[1][3] = mPosition.y;
+	mtx[2][3] = mPosition.z;
+}
 
 bool TBathtub::getNearGrip(const JGeometry::TVec3<f32>&, f32, f32*) const
 {
