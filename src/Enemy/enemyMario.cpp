@@ -15,6 +15,7 @@
 #include <MSound/MSoundBGM.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioRecord.hpp>
+#include <System/Application.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/MSoundMainSide.hpp>
 #include <System/MarDirector.hpp>
@@ -100,6 +101,11 @@ inline void*& emEnemyModel(TEnemyMario* mario)
 	return *(void**)((u8*)mario + 0x42DC);
 }
 
+inline MActor*& emEnemyMActor(TEnemyMario* mario)
+{
+	return *(MActor**)((u8*)mario + 0x42F0);
+}
+
 inline JGeometry::TVec3<f32>& emDisappearPos(TEnemyMario* mario)
 {
 	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x42E0);
@@ -133,6 +139,11 @@ inline TMarioInputReplay*& emInputReplay(TEnemyMario* mario)
 inline TMarioInputReplay**& emInputReplayArray(TEnemyMario* mario)
 {
 	return *(TMarioInputReplay***)((u8*)mario + 0x42F8);
+}
+
+inline u16& emInputReplayCanPlay(TMarioInputReplay* replay)
+{
+	return *(u16*)((u8*)replay + 2);
 }
 
 inline u8* emController(TEnemyMario* mario)
@@ -504,7 +515,57 @@ void TEnemyMario::emDownAnimation()
 
 void TEnemyMario::emReplayJumpToNearestNode() { }
 
-void TEnemyMario::emReplay() { }
+void TEnemyMario::emReplay()
+{
+	u8* controller          = emController(this);
+	TMarioInputReplay* replay = emInputReplayArray(this)[emReplayIndex(this)];
+	replay->play(&mIntendedMag, &mIntendedYaw, (u32*)(controller + 4),
+	             (u32*)(controller + 8), controller + 0xD, controller + 0xC);
+
+	u8* settings = emSettings(this);
+	if (settings[0xE0] != 0 && gpPollution != nullptr) {
+		gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z,
+		                   emSettingF32(this, 0xF4));
+	}
+
+	replay = emInputReplayArray(this)[emReplayIndex(this)];
+	if (emInputReplayCanPlay(replay) == 1)
+		return;
+
+	if (settings[0x90] == 1 && mHeldObject == nullptr) {
+		emTimer(this) = 0;
+		emDoing(this) = 0x12;
+		return;
+	}
+
+	if (emEnemyMActor(this) != nullptr && settings[0x68] == 1) {
+		emEnemyMActor(this)->setBck("stamp_koopa_sign_draw1");
+		emEnemyMActor(this)->setFrameRate(SMSGetAnmFrameRate(), 0);
+		emTimer(this) = 0;
+		emDoing(this) = 0x13;
+		startSoundActor(0x1980);
+		startSoundActor(0x1981);
+		return;
+	}
+
+	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
+	int node         = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+	if (graph->getGraphNode(node).checkFlag(0x40)) {
+		emTimer(this) = 0;
+		emDoing(this) = 0x16;
+		return;
+	}
+
+	if (settings[0x54] == 1) {
+		emTimer(this) = 0;
+		emDoing(this) = 0xC;
+		return;
+	}
+
+	pushNearestFlaggedNodeInput(this);
+	emTimer(this) = 0;
+	emDoing(this) = 0xD;
+}
 
 void TEnemyMario::emDisappearToGate()
 {
