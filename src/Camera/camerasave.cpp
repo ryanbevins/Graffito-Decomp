@@ -1,4 +1,5 @@
 #include <Camera/CameraKindParam.hpp>
+#include <Camera/CameraJetCoaster.hpp>
 #include <Camera/CameraShake.hpp>
 #include <System/ParamInst.hpp>
 #include <System/Params.hpp>
@@ -162,18 +163,6 @@ public:
 	/* 0x1D4 */ TParamRT<s16> mSLSlopeMaxAngleX;
 	/* 0x1E8 */ TParamRT<s16> mSLSlopeSpeedAngleX;
 	/* 0x1FC */ TParamRT<f32> mSLSlopeForwardDistXZ;
-};
-
-class TCamSaveJetCoaster : public TParams {
-public:
-	TCamSaveJetCoaster();
-
-	/* 0x08 */ TParamRT<s16> mSLOffsetAngleXLimit;
-	/* 0x1C */ TParamRT<s16> mSLOffsetAngleYLimit;
-	/* 0x30 */ TParamRT<s16> mSLOffsetAngleXManualSpeed;
-	/* 0x44 */ TParamRT<s16> mSLOffsetAngleYManualSpeed;
-	/* 0x58 */ TParamRT<s16> mSLOffsetAngleXChase;
-	/* 0x6C */ TParamRT<s16> mSLOffsetAngleYChase;
 };
 
 // TCamSaveShake is declared in <Camera/CameraShake.hpp> so camerashake.cpp can

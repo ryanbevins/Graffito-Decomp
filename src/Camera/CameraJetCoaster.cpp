@@ -1,4 +1,5 @@
 #include <Camera/Camera.hpp>
+#include <Camera/CameraJetCoaster.hpp>
 #include <Camera/cameralib.hpp>
 #include <GC2D/GCConsole2.hpp>
 #include <JSystem/JGeometry.hpp>
@@ -16,14 +17,6 @@
 #include <System/MarioGamePad.hpp>
 
 template <> s16 CLBRoundf<s16>(f32);
-
-class TCamSaveJetCoaster {
-public:
-	TCamSaveJetCoaster();
-
-private:
-	u8 _pad[0x80];
-};
 
 class TCameraJetCoaster {
 public:
@@ -197,11 +190,28 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		upAxis.y = *(f32*)((u8*)this + 0x34);
 		upAxis.z = *(f32*)((u8*)this + 0x38);
 
+		JGeometry::TVec3<f32> upOffset = upAxis;
+		MsVECNormalize((Vec*)&upOffset, (Vec*)&upOffset);
+
+		u8* p68 = *(u8**)((u8*)this + 0x68);
+		f32 chainScale
+		    = unkA8 * *(f32*)(p68 + 0x28) + *(f32*)(p68 + 0x24);
+		upOffset.x *= chainScale;
+		upOffset.y *= chainScale;
+		upOffset.z *= chainScale;
+
+		*(f32*)((u8*)this + 0x98) += upOffset.x;
+		*(f32*)((u8*)this + 0x9C) += upOffset.y;
+		*(f32*)((u8*)this + 0xA0) += upOffset.z;
+		at.x += upOffset.x;
+		at.y += upOffset.y;
+		at.z += upOffset.z;
+
 		JGeometry::TRotation3<
 		    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >
 		    rot;
 		rot.identity33();
-		rot.setRotate(upAxis, -1.570796f);
+		rot.setRotate(fwd, -1.570796f);
 
 		f32 sx = rot.at(0, 0) * upAxis.x + rot.at(1, 0) * upAxis.y
 		         + rot.at(2, 0) * upAxis.z;
@@ -209,13 +219,6 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		         + rot.at(2, 1) * upAxis.z;
 		f32 sz = rot.at(0, 2) * upAxis.x + rot.at(1, 2) * upAxis.y
 		         + rot.at(2, 2) * upAxis.z;
-
-		u8* p68 = *(u8**)((u8*)this + 0x68);
-		f32 chainScale
-		    = unkA8 * *(f32*)(p68 + 0x28) + *(f32*)(p68 + 0x24);
-		sx *= chainScale;
-		sy *= chainScale;
-		sz *= chainScale;
 
 		f32 sideScale = *(f32*)(p68 + 0x5C);
 		sx *= sideScale;
@@ -293,25 +296,28 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 
 		f32 stickX = *(f32*)((u8*)unk120 + 0xC0);
 		f32 stickY = *(f32*)((u8*)unk120 + 0xC4);
+		TCamSaveJetCoaster* save = unk2B8->unk0;
 
 		unk2B8->unk8 = (s16)(s32)((f32)(s32)unk2B8->unk8
 		                          - stickY
-		                                * (f32)(s32)(s16)*(u16*)(
-		                                    (u8*)unk2B8->unk0 + 0x40));
+		                                * (f32)(s32)save
+		                                      ->mSLOffsetAngleXManualSpeed
+		                                      .value);
 		unk2B8->unkA = (s16)(s32)((f32)(s32)unk2B8->unkA
 		                          + stickX
-		                                * (f32)(s32)(s16)*(u16*)(
-		                                    (u8*)unk2B8->unk0 + 0x54));
+		                                * (f32)(s32)save
+		                                      ->mSLOffsetAngleYManualSpeed
+		                                      .value);
 
 		{
-			s32 hi = (s32)(s16)*(u16*)((u8*)unk2B8->unk0 + 0x18);
+			s32 hi = save->mSLOffsetAngleXLimit.value;
 			if ((s32)unk2B8->unk8 > hi)
 				unk2B8->unk8 = (s16)hi;
 			else if ((s32)unk2B8->unk8 < -hi)
 				unk2B8->unk8 = (s16)-hi;
 		}
 		{
-			s32 hi = (s32)(s16)*(u16*)((u8*)unk2B8->unk0 + 0x2C);
+			s32 hi = save->mSLOffsetAngleYLimit.value;
 			if ((s32)unk2B8->unkA > hi)
 				unk2B8->unkA = (s16)hi;
 			else if ((s32)unk2B8->unkA < -hi)
@@ -319,9 +325,9 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		}
 
 		CLBChaseAngleDecrease((s16*)&unk2B8->unk4, unk2B8->unk8,
-		                      *(s16*)((u8*)unk2B8->unk0 + 0x68));
+		                      save->mSLOffsetAngleXChase.value);
 		CLBChaseAngleDecrease((s16*)&unk2B8->unk6, unk2B8->unkA,
-		                      *(s16*)((u8*)unk2B8->unk0 + 0x7C));
+		                      save->mSLOffsetAngleYChase.value);
 
 		*(u32*)((u8*)this + 0x98) = *(u32*)((u8*)unk2B8 + 0x10);
 		*(u32*)((u8*)this + 0x9C) = *(u32*)((u8*)unk2B8 + 0x14);
