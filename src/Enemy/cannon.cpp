@@ -394,12 +394,16 @@ DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
 
 		if (self->unk1A8->unk6C->getMActor()->getFrameCtrl(0)->getFrame() > 26.0f
 		    && self->unk1A4 != nullptr) {
-			f32 scale = self->unk1A4->mScaling.x + 0.2f * self->unk220;
-			if (scale < 0.0f)
-				scale = 0.0f;
+			f32 scaleDelta = 0.2f * self->unk220;
+			f32 scale      = self->unk1A4->mScaling.x;
+			scale += scaleDelta;
 			if (scale > self->unk220)
 				scale = self->unk220;
-			self->unk1A4->mScaling.set(scale, scale, scale);
+			if (scale < 0.0f)
+				scale = 0.0f;
+			self->unk1A4->mScaling.x = scale;
+			self->unk1A4->mScaling.set(self->mScaling.x, self->mScaling.x,
+			                           self->mScaling.x);
 		}
 	}
 
@@ -456,13 +460,16 @@ DEFINE_NERVE(TNerveCannonShoot, TLiveActor)
 
 			if (self->unk1A8->unk6C->getMActor()->getFrameCtrl(0)->getFrame() > 26.0f
 			    && self->unk1A4 != nullptr) {
-				f32 scale
-				    = self->unk1A4->mScaling.x + 0.2f * self->unk220;
-				if (scale < 0.0f)
-					scale = 0.0f;
+				f32 scaleDelta = 0.2f * self->unk220;
+				f32 scale      = self->unk1A4->mScaling.x;
+				scale += scaleDelta;
 				if (scale > self->unk220)
 					scale = self->unk220;
-				self->unk1A4->mScaling.set(scale, scale, scale);
+				if (scale < 0.0f)
+					scale = 0.0f;
+				self->unk1A4->mScaling.x = scale;
+				self->unk1A4->mScaling.set(self->mScaling.x, self->mScaling.x,
+				                           self->mScaling.x);
 			}
 		}
 	} else {
