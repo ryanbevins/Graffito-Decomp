@@ -193,7 +193,81 @@ DEFINE_NERVE(TNerveSamboHeadRecoverWater, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveSamboHeadHitWater, TLiveActor) { return FALSE; }
+DEFINE_NERVE(TNerveSamboHeadHitWater, TLiveActor)
+{
+	TSamboHead* self = (TSamboHead*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setBckAnm(5);
+		self->unk1A0 = self->mVelocity;
+	}
+
+	if (self->isHitWallInBound()) {
+		self->mRollAngle = 0.0f;
+		if (self->unk1B0)
+			self->mRotation.y += 180.0f;
+
+		spine->reset();
+		spine->setNext(&TNerveSamboHeadHitWall::theNerve());
+		spine->pushAfterCurrent(&TNerveSamboHeadHitWall::theNerve());
+		return TRUE;
+	}
+
+	f32 maxRoll = self->mParams->mSLJumpAngY.get();
+	if (self->isBckAnm(6)) {
+		if (spine->getTime() < 100) {
+			f32 roll = self->mRollAngle - 3.0f;
+			if (roll > maxRoll)
+				roll = maxRoll;
+			else if (roll < -maxRoll)
+				roll = -maxRoll;
+			self->mRollAngle = roll;
+		} else {
+			f32 roll = self->mRollAngle + 3.0f;
+			if (roll > 0.0f)
+				roll = 0.0f;
+			else if (roll < -maxRoll)
+				roll = -maxRoll;
+			self->mRollAngle = roll;
+		}
+	} else {
+		f32 roll = self->mRollAngle + 3.0f;
+		if (roll > maxRoll)
+			roll = maxRoll;
+		else if (roll < -maxRoll)
+			roll = -maxRoll;
+		self->mRollAngle = roll;
+	}
+
+	if (self->isBckAnm(5) && !self->isAirborne())
+		self->setBckAnm(7);
+
+	if (self->isBckAnm(6)) {
+		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		self->mPosition.y = self->mGroundHeight + 1.0f;
+		self->mVelocity   = self->unk1A0;
+	}
+
+	if (!self->isAirborne())
+		self->setBckAnm(6);
+
+	if (self->checkCurAnmEnd(0) && self->isBckAnm(6)) {
+		f32 rate = self->mParams->mSLHitJumpSpRateXZ.get();
+		self->setBckAnm(6);
+		self->unk1A0.x *= rate;
+		self->unk1A0.z *= rate;
+		self->unk1A0.y = 0.0f;
+		self->mVelocity = self->unk1A0;
+		self->mPosition.y = self->mGroundHeight;
+		self->offLiveFlag(LIVE_FLAG_AIRBORNE);
+		self->setBckAnm(12);
+		spine->setNext(&TNerveSamboHeadAttack::theNerve());
+		spine->pushAfterCurrent(&TNerveSamboHeadRecoverWater::theNerve());
+		return TRUE;
+	}
+
+	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
+	return FALSE;
+}
 
 DEFINE_NERVE(TNerveSamboHeadHide, TLiveActor)
 {

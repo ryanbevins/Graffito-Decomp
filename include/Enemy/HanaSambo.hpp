@@ -188,7 +188,7 @@ public:
 	/* 0x194 */ TSamboHeadSaveLoadParams* mParams;
 	/* 0x198 */ TLiveActor* unk198;
 	/* 0x19C */ s32 unk19C;
-	/* 0x1A0 */ u8 unk1A0[0xC];
+	/* 0x1A0 */ JGeometry::TVec3<f32> unk1A0;
 	/* 0x1AC */ f32 mRollAngle;
 	/* 0x1B0 */ u8 unk1B0;
 	/* 0x1B1 */ u8 unk1B1[3];
