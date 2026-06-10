@@ -317,8 +317,15 @@ TBathtubGrip::TBathtubGrip(TBathtub* bathtub, f32 angle, MActorAnmData* data,
 void TBathtubGrip::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	TMapObjBase::perform(flags, graphics);
-	if (unk260 == 0)
+	if (unk260 == 0) {
+		if (flags & 1) {
+			PSMTXCopy(*getRootJointMtx(), unk25C->getModel()->getBaseTRMtx());
+			if ((unk254 > 0 || unk248 != 0)
+			    && unk25C->curAnmEndsNext(0, nullptr))
+				unk260 = 1;
+		}
 		unk25C->perform(flags, graphics);
+	}
 }
 
 BOOL TBathtubGrip::receiveMessage(THitActor* sender, u32 message)
