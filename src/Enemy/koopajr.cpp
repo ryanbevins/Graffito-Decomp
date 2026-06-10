@@ -449,6 +449,64 @@ BOOL TKoopaJr::receiveMessage(THitActor* sender, u32 message)
 	return FALSE;
 }
 
+void TKoopaJr::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (!unk164) {
+		unk164        = (TKoopaJrSubmarine*)unk168->getObj(0);
+		unk164->unk1A0 = this;
+	}
+
+	if (!unk160) {
+		TKoopaManager* manager
+		    = JDrama::TNameRefGen::search<TKoopaManager>("クッパマネージャー");
+		unk160 = (TKoopa*)manager->getObj(0);
+	}
+
+	if (!unk15C)
+		unk15C = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+
+	if (flags & 2) {
+		f32 limit
+		    = 0.5f * unk164->getSaveParam2()->mSLSwingAmplitudeMax.get();
+		if (unk164->unk190 >= limit) {
+			unk150 = getSaveParam2()->mSLDamagePeriod.get();
+
+			if (mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve())
+				mSpine->pushNerve(&TNerveKoopaJrDamage::theNerve());
+
+			if (mSpine->getCurrentNerve() == &TNerveKoopaJrLaunch::theNerve()
+			    || mSpine->getCurrentNerve()
+			        == &TNerveKoopaJrYahoo::theNerve()) {
+				mSpine->becomeNerveAfterPop(&TNerveKoopaJrDamage::theNerve());
+			}
+		}
+	}
+
+	if (flags & 1) {
+		if (unk150 > 0)
+			--unk150;
+		if (unk154 > 0)
+			--unk154;
+		if (unk158 > 0)
+			--unk158;
+
+		if (!*((u8*)unk15C + 0x29A)) {
+			if (mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve()) {
+				checkNerveKillerLaunchNormal();
+				checkNerveKillerLaunchFast();
+				checkNerveKillerHit();
+			}
+
+			JGeometry::TVec3<f32> toMario;
+			toMario.sub(*gpMarioPos, mPosition);
+			toMario.y = 0.0f;
+			mRotation.y = 180.0f * atan2f(toMario.z, toMario.x) / 3.1415927f;
+		}
+	}
+
+	TSpineEnemy::perform(flags, graphics);
+}
+
 const char** TKoopaJr::getBasNameTable() const { return koopajr_bastable; }
 
 void TKoopaJr::reset()
