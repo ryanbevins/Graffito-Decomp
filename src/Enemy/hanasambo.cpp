@@ -3,6 +3,7 @@
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
+#include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
@@ -567,6 +568,48 @@ void TSamboHead::setMActorAndKeeper()
 
 const char** TSamboHead::getBasNameTable() const { return sambohead_bastable; }
 
+void TSamboHead::genEventCoin()
+{
+	if (isBckAnm(1)) {
+		for (int i = 0; i < 3; ++i) {
+			Mtx rot;
+			JGeometry::TVec3<f32> offset(0.0f, 0.0f, 100.0f);
+			f32 angle = mRotation.y - 60.0f + 60.0f * i;
+			MsMtxSetRotRPH(rot, 0.0f, angle, 0.0f);
+			PSMTXMultVec(rot, &offset, &offset);
+
+			TMapObjBase* coin;
+			if (i == 1 && mCoin) {
+				coin = mCoin;
+				if (coin->isActorType(0x2000000E))
+					coin = gpItemManager->makeObjAppear(0x2000000E);
+
+				if (coin) {
+					coin->makeObjAppeared();
+					coin->mPosition = mPosition;
+				}
+			} else {
+				coin = gpItemManager->makeObjAppear(
+				    mPosition.x + offset.x, mPosition.y,
+				    mPosition.z + offset.z, 0x2000000E, true);
+			}
+
+			if (coin) {
+				coin->mPosition.y = mPosition.y;
+				MsVECNormalize(&offset, &offset);
+				coin->mVelocity.x = offset.x * 4.0f;
+				coin->mVelocity.y
+				    = 8.0f + (16.0f - 8.0f)
+				                 * (rand() * (1.0f / 32768.0f));
+				coin->mVelocity.z = offset.z * 4.0f;
+				coin->offLiveFlag(LIVE_FLAG_UNK10);
+			}
+		}
+	} else {
+		TSmallEnemy::genEventCoin();
+	}
+}
+
 void TSamboHead::reset()
 {
 	gpCurSamboHead = this;
@@ -591,6 +634,25 @@ void TSamboHead::kill()
 
 void TSamboHead::setDeadAnm() { setBckAnm(3); }
 
+void TSamboHead::setAfterDeadEffect()
+{
+	if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+	        isBckAnm(1) ? 0xE5 : 0xE4, &mPosition, 0, nullptr)) {
+		JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
+		emitter->setScale(scale);
+	}
+
+	if (JPABaseEmitter* emitter
+	    = gpMarioParticleManager->emit(0xE6, &mPosition, 0, nullptr)) {
+		JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
+		emitter->setScale(scale);
+	}
+
+	if (gpMSound->gateCheck(0x295F))
+		MSoundSESystem::MSoundSE::startSoundActor(0x295F, &mPosition, 0,
+		                                          nullptr, 0, 4);
+}
+
 f32 TSamboHead::getGravityY() const
 {
 	f32 gravity = mGravity;
@@ -599,6 +661,56 @@ f32 TSamboHead::getGravityY() const
 	if (mSpine->getCurrentNerve() == &TNerveSamboHeadHitWater::theNerve())
 		gravity = mParams->mSLHitJumpGravity.get();
 	return gravity;
+}
+
+void TSamboHead::attackToMario()
+{
+	sendAttackMsgToMario();
+	if (checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
+		JGeometry::TVec3<f32> velocity(mPosition.x - gpMarioPos->x, 10.0f,
+		                               mPosition.z - gpMarioPos->z);
+		MsVECNormalize(&velocity, &velocity);
+		velocity.x *= 8.0f;
+		velocity.y *= 8.0f;
+		velocity.z *= 8.0f;
+		mVelocity = velocity;
+	} else if (mSpine->getCurrentNerve()
+	           == &TNerveSamboHeadAttack::theNerve()) {
+		mSpine->pushNerve(&TNerveSmallEnemyFreeze::theNerve());
+	}
+}
+
+void TSamboHead::behaveToWater(THitActor*)
+{
+	if (mSpine->getCurrentNerve() == &TNerveSamboHeadHide::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveSamboHeadAppear::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveSamboHeadHitWall::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveSmallEnemyDie::theNerve())
+		return;
+
+	JGeometry::TVec3<f32> prevVelocity(mVelocity);
+	prevVelocity.y = 0.0f;
+
+	JGeometry::TVec3<f32> velocity(mPosition.x - gpMarioPos->x, 0.0f,
+	                               mPosition.z - gpMarioPos->z);
+	MsVECNormalize(&velocity, &velocity);
+	velocity.x *= mParams->mSLHitJumpSpXZ.get();
+	velocity.y *= mParams->mSLHitJumpSpXZ.get();
+	velocity.z *= mParams->mSLHitJumpSpXZ.get();
+	velocity.y = mParams->mSLHitJumpSpY.get();
+
+	if (mSpine->getCurrentNerve() != &TNerveSamboHeadHitWater::theNerve()) {
+		mSpine->pushNerve(&TNerveSamboHeadHitWater::theNerve());
+	} else {
+		velocity.add(prevVelocity);
+	}
+
+	mVelocity = velocity;
+	mPosition.y += 2.0f;
+	onLiveFlag(LIVE_FLAG_AIRBORNE);
 }
 
 THanaSamboManager::THanaSamboManager(const char* name)
