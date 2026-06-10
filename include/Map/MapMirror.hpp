@@ -98,7 +98,7 @@ public:
 	bool isUnk18Present() { return unk18 != -1 ? true : false; }
 
 public:
-	/* 0x10 */ u32 unk10;
+	/* 0x10 */ int unk10;
 	/* 0x14 */ int unk14;
 	/* 0x18 */ int unk18;
 	/* 0x1C */ TMirrorModel** unk1C;
