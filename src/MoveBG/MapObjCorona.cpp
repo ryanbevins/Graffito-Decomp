@@ -483,7 +483,7 @@ void TBathtubGrip::control()
 
 		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
 		if (ctrl != nullptr)
-			ctrl->setRate(0.5f * unk250 * SMSGetAnmFrameRate());
+			ctrl->setRate(unk250 * SMSGetAnmFrameRate() * 0.5f);
 
 		MtxPtr mtx = *unk1A8[0]->getRootJointMtx();
 		unk144.x   = mtx[0][3];
