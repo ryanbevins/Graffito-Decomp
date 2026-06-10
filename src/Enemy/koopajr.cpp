@@ -609,6 +609,46 @@ BOOL TKoopaJrSubmarine::receiveMessage(THitActor* sender, u32 message)
 	return FALSE;
 }
 
+void TKoopaJrSubmarine::checkNerve()
+{
+	if (unk1A0->mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve()) {
+		makeRelativeAngle();
+		unk168 = getSaveParam2()->mSLRoundDistance.get();
+		makeRoundVelocity();
+	}
+
+	mVelocity.x *= 0.95f;
+	mVelocity.y *= 0.95f;
+	mVelocity.z *= 0.95f;
+
+	if (!unk170) {
+		JGeometry::TVec3<f32> direction = mVelocity;
+		direction.normalize();
+		unk16C.mDirection = unk16C.calcTurnDirection(
+		    atan2f(direction.z, direction.x),
+		    getSaveParam2()->mSLRotationSpeed.get() * 3.1415927f / 180.0f);
+	}
+
+	if (mSpine->getCurrentNerve() == &TNerveKoopaJrSubmarineWait::theNerve())
+		return;
+
+	if (mSpine->getCurrentNerve()
+	    == &TNerveKoopaJrSubmarineCannonOpenClose::theNerve()) {
+		if (unk180 != 0)
+			return;
+
+		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+		if (!ctrl->checkPass(30.0f))
+			return;
+
+		ctrl->setRate(0.0f);
+		mSpine->pushNerve(&TNerveKoopaJrSubmarineLaunchKiller::theNerve());
+		return;
+	}
+
+	(void)&TNerveKoopaJrSubmarineLaunchKiller::theNerve();
+}
+
 void TKoopaJrSubmarine::resetKoopaJrSubmarine()
 {
 	mSpine->reset();
@@ -628,8 +668,8 @@ void TKoopaJrSubmarine::resetKoopaJrSubmarine()
 	unk158 = 0.0f;
 	unk15C = 0.0f;
 	unk160 = 1.0f;
-	unk16C = 0.0f;
-	unk164 = 0.0f;
+	unk16C.mDirection = 0.0f;
+	unk164.mDirection = 0.0f;
 	unk170 = 0;
 	unk18C = 0;
 	unk190 = 0.0f;

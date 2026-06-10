@@ -141,9 +141,9 @@ public:
 	/* 0x158 */ f32 unk158;
 	/* 0x15C */ f32 unk15C;
 	/* 0x160 */ f32 unk160;
-	/* 0x164 */ f32 unk164;
+	/* 0x164 */ TDirectionCalc unk164;
 	/* 0x168 */ f32 unk168;
-	/* 0x16C */ f32 unk16C;
+	/* 0x16C */ TDirectionCalc unk16C;
 	/* 0x170 */ u8 unk170;
 	/* 0x171 */ u8 unk171[3];
 	/* 0x174 */ TBathtubBinder* unk174;
