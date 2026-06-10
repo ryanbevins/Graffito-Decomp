@@ -112,7 +112,7 @@ DEFINE_NERVE(TNerveFruitsBoatGraphWander, TLiveActor)
 				self->mRotation.y = w;
 			}
 		} else {
-			self->walkToCurPathNode(self->mTurnSpeed, 0.0f, 0.0f);
+			self->walkToCurPathNode(self->mMarchSpeed, self->mTurnSpeed, 0.0f);
 		}
 
 		if (gpMSound->gateCheck(0x302e))
@@ -152,7 +152,7 @@ DEFINE_NERVE(TNerveFruitsBoatGraphWander, TLiveActor)
 				self->mRotation.y = w;
 			}
 		} else {
-			self->walkToCurPathNode(self->mTurnSpeed, 0.0f, 0.0f);
+			self->walkToCurPathNode(self->mMarchSpeed, self->mTurnSpeed, 0.0f);
 		}
 	}
 
