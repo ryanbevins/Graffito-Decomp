@@ -1246,6 +1246,7 @@ void TTinKoopaPartsBase::emitPartsDisappearEffects()
 	unk100->unk1E4 = 0;
 }
 
+#pragma dont_inline on
 void TTinKoopaPartsBase::emitPartsTrackEffects(const char** jointNames,
                                                int count)
 {
@@ -1265,6 +1266,7 @@ void TTinKoopaPartsBase::emitPartsTrackEffects(const char** jointNames,
 		    0xf4, &unk108[i], 0, unk100);
 	}
 }
+#pragma dont_inline off
 
 void TTinKoopaPartsBase::startBreaking()
 {
