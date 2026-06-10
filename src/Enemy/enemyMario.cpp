@@ -764,12 +764,14 @@ void TEnemyMario::hitWater(THitActor* sender)
 	if (*(emSettings(this) + 0xA4) != 0)
 		return;
 
-	if (emDoing(this) < 0xB || emDoing(this) > 0x19)
+	switch (emDoing(this)) {
+	case 0xB:
+	case 0xC:
+	case 0xD:
+		break;
+	default:
 		return;
-
-	if (emDoing(this) != 0xB && emDoing(this) != 0xC
-	    && emDoing(this) != 0xD)
-		return;
+	}
 
 	emWaterCooldown(this) = 600;
 
