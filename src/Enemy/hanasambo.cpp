@@ -1025,8 +1025,9 @@ void TSamboLeaf::perform(u32 flags, JDrama::TGraphics*)
 
 	if (flags & 2) {
 		Mtx baseMtx;
-		MsMtxSetXYZRPH(baseMtx, mPosition.x, mPosition.y, mPosition.z, 0.0f,
-		               mRotation.y, 0.0f);
+		MtxPtr baseMtxPtr = baseMtx;
+		MsMtxSetXYZRPH(baseMtxPtr, mPosition.x, mPosition.y, mPosition.z,
+		               0.0f, mRotation.y, 0.0f);
 
 		f32 rotX = MsGetRotFromZaxis(mVelocity).x;
 		f32 sin  = JMASin(-rotX);
@@ -1046,8 +1047,8 @@ void TSamboLeaf::perform(u32 flags, JDrama::TGraphics*)
 		rollMtx[2][2] = 1.0f;
 		rollMtx[2][3] = 0.0f;
 
-		PSMTXConcat(baseMtx, rollMtx, baseMtx);
-		PSMTXCopy(baseMtx, mModel->getBaseTRMtx());
+		PSMTXConcat(baseMtxPtr, rollMtx, baseMtxPtr);
+		PSMTXCopy(baseMtxPtr, mModel->getBaseTRMtx());
 		mModel->setBaseScale(mScale);
 		mModel->calc();
 	}
