@@ -1012,7 +1012,7 @@ void TBathtub::startDemo()
 	grip->unk25C->setBrk("stand_effect");
 	ctrl = grip->unk25C->getFrameCtrl(0);
 	if (ctrl != nullptr)
-		ctrl->setRate(12.0f * 0.5f * SMSGetAnmFrameRate());
+		ctrl->setRate(12.0f * SMSGetAnmFrameRate() * 0.5f);
 	grip->unk248 = 1;
 	grip->unk249 = 0;
 	grip->startAnim(1);
