@@ -6,6 +6,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <MoveBG/MapObjCorona.hpp>
 #include <Strategic/ObjManager.hpp>
+#include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <System/Particles.hpp>
 #include <math.h>
@@ -331,6 +332,53 @@ const char** TKoopaJr::getBasNameTable() const { return koopajr_bastable; }
 void TKoopaJr::reset()
 {
 	TSpineEnemy::reset();
+	mSpine->reset();
+	unk150 = 0;
+	unk154 = 0;
+	unk158 = 0;
+	unk154 = getSaveParam2()->mSLLaunchKillerPeriod.get();
+	unk158 = 0;
+}
+
+void TKoopaJr::init(TLiveManager* manager)
+{
+	mManager = manager;
+	mManager->manageActor(this);
+
+	mMActorKeeper = new TMActorKeeper(mManager, 1);
+	mMActor       = mMActorKeeper->createMActor("koopajr_model.bmd", 0);
+	mMActor->setLightType(1);
+
+	initAnmSound();
+
+	f32 damageHeight = getSaveParam2()->mSLDamageHeight.get();
+	f32 damageRadius = getSaveParam2()->mSLDamageRadius.get();
+	initHitActor(0x8000028, 1, 0, 0.0f, 0.0f, damageRadius,
+	             damageHeight);
+	offHitFlag(1);
+
+	mSpine->initWith(&TNerveKoopaJrWait::theNerve());
+
+	const char* killerManagerName = "バスタブキラーマネージャー";
+	JDrama::TNameRef* root
+	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+	unk16C = (TEnemyManager*)root->searchF(
+	    JDrama::TNameRef::calcKeyCode(killerManagerName), killerManagerName);
+
+	if (!unk168) {
+		const char* submarineManagerName
+		    = "クッパジュニアサブマリンマネージャー";
+		root = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+		unk168 = (TEnemyManager*)root->searchF(
+		    JDrama::TNameRef::calcKeyCode(submarineManagerName),
+		    submarineManagerName);
+	}
+
+	f32 scale = getSaveParam2()->mSLKoopaJrScale.get();
+	mScaling.x = scale;
+	mScaling.y = scale;
+	mScaling.z = scale;
+
 	mSpine->reset();
 	unk150 = 0;
 	unk154 = 0;
