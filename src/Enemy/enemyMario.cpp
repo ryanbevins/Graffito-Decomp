@@ -19,6 +19,7 @@
 #include <System/EmitterViewObj.hpp>
 #include <System/MSoundMainSide.hpp>
 #include <System/MarDirector.hpp>
+#include <dolphin/gx.h>
 #include <stdlib.h>
 
 static const char* cDirtyFileName = "/scene/map/pollution/H_ma_rak.bti";
@@ -226,7 +227,60 @@ inline JGeometry::TVec3<f32>& emDownPos(TEnemyMario* mario)
 
 } // namespace
 
-void TEnemyMario::drawHPMeter(MtxPtr) { }
+void TEnemyMario::drawHPMeter(MtxPtr mtx)
+{
+	Vec worldPos = mPosition;
+	worldPos.y += 64.0f;
+
+	Vec screenPos;
+	PSMTXMultVec(mtx, &worldPos, &screenPos);
+
+	Mtx identity;
+	PSMTXIdentity(identity);
+	GXSetCurrentMtx(GX_PNMTX0);
+	GXLoadPosMtxImm(identity, GX_PNMTX0);
+	GXLoadNrmMtxImm(identity, GX_PNMTX0);
+
+	GXClearVtxDesc();
+	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GXSetNumChans(1);
+	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG,
+	              GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG,
+	              GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+	GXSetNumTexGens(0);
+	GXSetNumTevStages(1);
+	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+	              GX_COLOR0A0);
+	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+	GXSetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
+	GXSetCullMode(GX_CULL_NONE);
+
+	f32 left   = screenPos.x - 48.0f;
+	f32 top    = screenPos.y - 10.0f;
+	f32 bottom = screenPos.y + 10.0f;
+	f32 z      = screenPos.z;
+
+	GXColor backColor = { 0, 0, 0, 0xC0 };
+	GXSetChanMatColor(GX_COLOR0A0, backColor);
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(left - 5.0f, top - 5.0f, z);
+	GXPosition3f32(left + 101.0f, top - 5.0f, z);
+	GXPosition3f32(left + 101.0f, bottom + 5.0f, z);
+	GXPosition3f32(left - 5.0f, bottom + 5.0f, z);
+	GXEnd();
+
+	f32 gaugeRight = left + (f32)emWaterCount(this) * 1.5f;
+	GXColor gaugeColor = { 0x40, 0x40, 0xFF, 0xFF };
+	GXSetChanMatColor(GX_COLOR0A0, gaugeColor);
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition3f32(left, top, z);
+	GXPosition3f32(gaugeRight, top, z);
+	GXPosition3f32(gaugeRight, bottom, z);
+	GXPosition3f32(left, bottom, z);
+	GXEnd();
+}
 
 void TEnemyMario::damageExec(THitActor*, int, int, int, f32, int, f32, s16) { }
 
