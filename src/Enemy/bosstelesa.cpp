@@ -364,36 +364,32 @@ void TBossTelesa::init(TLiveManager* manager)
 		}
 	}
 
-	if (!unk16C)
-		unk16C = new TBossTelesaBody("ボステレサ体コリジョン");
-	if (!unk170)
-		unk170 = new TBossTelesaTongue("ボステレサ舌コリジョン");
-	if (!unk174)
-		unk174
-		    = new TBossTelesaKillSmallEnemy("ボステレサ雑魚敵死コリジョン");
-
-	((TBossTelesaBody*)unk16C)->unk68            = this;
-	((TBossTelesaTongue*)unk170)->unk68          = this;
-	((TBossTelesaKillSmallEnemy*)unk174)->unk68  = this;
+	unk16C = new TBossTelesaBody("ボステレサ体コリジョン");
 	TIdxGroupObj* enemyGroup
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
-	if (enemyGroup) {
-		enemyGroup->add(unk16C);
-		enemyGroup->add(unk170);
-		enemyGroup->add(unk174);
-	}
-
+	enemyGroup->add(unk16C);
 	unk16C->initHitActor(0x08000013, 5, 0xD1000000, 350.0f, 550.0f,
 	                     300.0f, 500.0f);
+	((TBossTelesaBody*)unk16C)->unk68 = this;
 	unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
 
+	unk170 = new TBossTelesaTongue("ボステレサ舌コリジョン");
+	enemyGroup
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	enemyGroup->add(unk170);
 	unk170->initHitActor(0x08000013, 5, 0xC0000000, 180.0f, 350.0f,
 	                     180.0f, 350.0f);
+	((TBossTelesaTongue*)unk170)->unk68 = this;
 	unk170->offHitFlag(HIT_FLAG_NO_COLLISION);
 
+	unk174 = new TBossTelesaKillSmallEnemy("ボステレサ雑魚敵死コリジョン");
+	enemyGroup
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	enemyGroup->add(unk174);
 	unk174->initHitActor(0x1000000C, 5, 0x10000000, 400.0f, 300.0f,
 	                     400.0f, 300.0f);
 	unk174->offHitFlag(HIT_FLAG_NO_COLLISION);
+	((TBossTelesaKillSmallEnemy*)unk174)->unk68 = this;
 
 	mMActor->setLightType(3);
 
