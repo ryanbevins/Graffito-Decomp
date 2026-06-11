@@ -203,22 +203,20 @@ const char** TBossTelesa::getBasNameTable() const { return btelesa_bastable; }
 void TBossTelesa::reset()
 {
 	TSpineEnemy::reset();
-	unk150 = 1;
-	unk160 = -1;
-	unk164 = -1;
-	unk168 = 0.0f;
-	unk350 = 0;
-	unk35A = 1;
-	unk35B = 1;
-	unk35C = 0;
-	unk360 = 0.0f;
-	unk364 = 0.0f;
-	unk368 = 0;
-	unk36C = 0;
-	unk370 = 3;
-	unk384 = 0;
-	if (mSpine)
-		mSpine->setNext(&TNerveBossTelesaFallDemo::theNerve());
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+	onLiveFlag(LIVE_FLAG_UNK8);
+	onLiveFlag(LIVE_FLAG_UNK10);
+	onLiveFlag(LIVE_FLAG_HIDDEN);
+
+	unk18C = 0;
+
+	TBossTelesaSaveLoadParams* params = (TBossTelesaSaveLoadParams*)unk15C;
+	setHitParams(params->mSLAttackRadius.get(), params->mSLAttackHeight.get(),
+	             params->mSLDamageRadius.get(), params->mSLDamageHeight.get());
+
+	gpMarDirector->fireStartDemoCamera("btelesa_roll_camera", nullptr, -1,
+	                                    0.0f, true, nullptr, 0, nullptr,
+	                                    JDrama::TFlagT<u16>(0));
 }
 
 void TBossTelesa::forceHide()
