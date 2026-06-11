@@ -550,15 +550,15 @@ check_sender_bit3:
 					TMarioCap* cap = mCap;
 					u16 flags = *(u16*)((u8*)cap + 4);
 					*(u16*)((u8*)cap + 4) = flags & ~1;
-					// damageExec with Namekuri params
+					// damageExec with EnemyCommon params
 					damageExec(sender,
-					           mDmgParamsNamekuri.mDamage.get(),
-					           mDmgParamsNamekuri.mDownType.get(),
-					           mDmgParamsNamekuri.mWaterEmit.get(),
-					           mDmgParamsNamekuri.mMinSpeed.get(),
-					           mDmgParamsNamekuri.mMotor.get(),
-					           mDmgParamsNamekuri.mDirty.get(),
-					           mDmgParamsNamekuri.mInvincibleTime.get());
+					           mDmgParamsEnemyCommon.mDamage.get(),
+					           mDmgParamsEnemyCommon.mDownType.get(),
+					           mDmgParamsEnemyCommon.mWaterEmit.get(),
+					           mDmgParamsEnemyCommon.mMinSpeed.get(),
+					           mDmgParamsEnemyCommon.mMotor.get(),
+					           mDmgParamsEnemyCommon.mDirty.get(),
+					           mDmgParamsEnemyCommon.mInvincibleTime.get());
 					return 1;
 				}
 			}
