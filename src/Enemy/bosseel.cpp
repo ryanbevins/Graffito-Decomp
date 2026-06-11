@@ -347,6 +347,8 @@ TBossEel::TBossEel(const char* name)
     , unk1A8(nullptr)
     , unk1AC(nullptr)
     , unk1B0(nullptr)
+    , unk1B4(0)
+    , unk1B8(0)
     , unk1BC(1.0f)
     , unk1C0(0)
     , unk1C4(0)
@@ -360,7 +362,7 @@ TBossEel::TBossEel(const char* name)
     , unk1FC(FALSE)
     , unk1FD(FALSE)
     , unk1FE(FALSE)
-    , unk200(nullptr)
+    , unk200(0)
     , unk210(nullptr)
     , unk214(nullptr)
     , unk218(nullptr)
@@ -462,6 +464,29 @@ void TBossEel::collideToMario()
 		closeEye->unk18->setBckFromIndex(1);                                  \
 		if (closeEye->unk18->unkC)                                             \
 			closeEye->unk18->unkC->setMotionBlendRatio(closeEye->unk64);       \
+	} while (0)
+
+#define START_BOSS_EEL_BCK(eel, bck_index)                                    \
+	do {                                                                       \
+		TBossEel* bckEel            = (eel);                                   \
+		bckEel->unk1B8             = bckEel->mMActor->getCurAnmIdx(0);        \
+		bckEel->unk1B4             = (bck_index);                             \
+		bckEel->unk1BC             = 1.0f;                                    \
+		J3DAnmTransform* bckOldAnm = nullptr;                                 \
+		if (bckEel->mMActor->unkC)                                            \
+			bckOldAnm = bckEel->mMActor->unkC->unk24;                         \
+		if (bckEel->mMActor->unkC)                                            \
+			bckEel->mMActor->unkC->setOldMotionBlendAnmPtr(bckOldAnm);        \
+		bckEel->mMActor->setBckFromIndex(bck_index);                          \
+		if (bckEel->mMActor->unkC)                                            \
+			bckEel->mMActor->unkC->setMotionBlendRatio(bckEel->unk1BC);       \
+		f32 bckRate = 0.25f * SMSGetAnmFrameRate();                           \
+		bckEel->mMActor->getFrameCtrl(0)->setRate(bckRate);                   \
+		const char* bckBas       = nullptr;                                   \
+		const char** bckBasTable = bckEel->getBasNameTable();                 \
+		if (bckBasTable)                                                      \
+			bckBas = bckBasTable[bck_index];                                  \
+		bckEel->setAnmSound(bckBas);                                          \
 	} while (0)
 
 void TBossEel::forceShedTears(bool use_back_eye)
@@ -1757,4 +1782,22 @@ TBEelTearsDrop::TBEelTearsDrop(TBEelTears* tears, int index,
 	                     *texture->getTexture()->getTexInfo());
 	actor->setBckFromIndex(0);
 	actor->setLightType(3);
+}
+
+DEFINE_NERVE(TNerveBossEelSleepOnBottom, TLiveActor)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		eel->unk200 = 0;
+		START_BOSS_EEL_BCK(eel, 10);
+	}
+
+	if (spine->getTime() % 100 == 1)
+		eel->forceShedTears(spine->getTime() % 2 != 0);
+
+	if (spine->getTime() > 1000 && eel->checkCurAnmEnd(0))
+		return TRUE;
+
+	return FALSE;
 }

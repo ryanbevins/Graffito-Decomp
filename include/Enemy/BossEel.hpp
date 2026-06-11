@@ -47,7 +47,8 @@ public:
 	/* 0x1A8 */ void* unk1A8;
 	/* 0x1AC */ void* unk1AC;
 	/* 0x1B0 */ void* unk1B0;
-	/* 0x1B4 */ u8 unk1B4[0x8];
+	/* 0x1B4 */ s32 unk1B4;
+	/* 0x1B8 */ s32 unk1B8;
 	/* 0x1BC */ f32 unk1BC;
 	/* 0x1C0 */ s32 unk1C0;
 	/* 0x1C4 */ s32 unk1C4;
@@ -68,7 +69,7 @@ public:
 	/* 0x1FD */ u8 unk1FD;
 	/* 0x1FE */ u8 unk1FE;
 	/* 0x1FF */ u8 unk1FF;
-	/* 0x200 */ void* unk200;
+	/* 0x200 */ s32 unk200;
 	/* 0x204 */ u8 unk204[0xC];
 	/* 0x210 */ void* unk210;
 	/* 0x214 */ void* unk214;
