@@ -24,38 +24,42 @@ void TMario::doSwimming()
 		return;
 	}
 
-	if (mFloorPosition.y + mSwimParams.mEndDepth.value > mFloorPosition.z) {
+	if (mFloorPosition.y + mSwimParams.mEndDepth.get() > mFloorPosition.z) {
 		changePlayerStatus(0x0C400201, 0, false);
 		return;
 	}
 
-	mForwardVel += 0.03125f * mIntendedMag * mSwimParams.mMoveSp.value;
-	mForwardVel *= mSwimParams.mMoveBrake.value;
+	mForwardVel += mIntendedMag * mSwimParams.mMoveSp.get() * 0.03125f;
+	mForwardVel *= mSwimParams.mMoveBrake.get();
 
-	s16 rotMin;
-	s16 rotMax;
+	f32 rotMin;
+	f32 rotMax;
 	u32 pumpState = mPumpState;
-	if (pumpState == 0 || pumpState == 1) {
-		rotMin = mSwimParams.mPumpingRotSpMin.value;
-		rotMax = mSwimParams.mPumpingRotSpMax.value;
+	bool isPumping;
+	if (pumpState == 0 || pumpState == 1)
+		isPumping = true;
+	else
+		isPumping = false;
+	if (isPumping) {
+		rotMin = mSwimParams.mPumpingRotSpMin.get();
+		rotMax = mSwimParams.mPumpingRotSpMax.get();
 	} else {
-		rotMin = mSwimParams.mSwimmingRotSpMin.value;
-		rotMax = mSwimParams.mSwimmingRotSpMax.value;
+		rotMin = mSwimParams.mSwimmingRotSpMin.get();
+		rotMax = mSwimParams.mSwimmingRotSpMax.get();
 	}
 
-	s16 rotSpeed = (s16)(0.03125f * mForwardVel
-	                         * ((f32)rotMax - (f32)rotMin)
-	                     + (f32)rotMin);
+	s16 rotSpeed = (s16)(mForwardVel * (rotMax - rotMin) * 0.03125f
+	                     + rotMin);
 	s16 yawDiff  = mIntendedYaw - mFaceAngle.y;
 	mFaceAngle.y = mIntendedYaw
 	               - IConverge(yawDiff, 0, rotSpeed, rotSpeed);
 
 	setPlayerVelocity(mForwardVel);
 
-	mVel.y -= mSwimParams.mGravity.value;
+	mVel.y -= mSwimParams.mGravity.get();
 
 	f32 depthRatio = (mFloorPosition.z - mPosition.y)
-	                 / mSwimParams.mFloatHeight.value;
+	                 / mSwimParams.mFloatHeight.get();
 	if (depthRatio < 0.0f)
 		depthRatio = 0.0f;
 	if (depthRatio > 1.0f)
@@ -63,16 +67,16 @@ void TMario::doSwimming()
 
 	u16 animId = mAnimationId;
 	if (animId == 0x107 || animId == 0x106 || mAction == 0x22D2) {
-		depthRatio *= mSwimParams.mWaitBouyancy.value;
+		depthRatio *= mSwimParams.mWaitBouyancy.get();
 	} else {
-		depthRatio *= mSwimParams.mMoveBouyancy.value;
+		depthRatio *= mSwimParams.mMoveBouyancy.get();
 	}
 
 	mVel.y += depthRatio;
-	mVel.y *= mSwimParams.mUpDownBrake.value;
+	mVel.y *= mSwimParams.mUpDownBrake.get();
 
-	int result = jumpProcess(1);
-	if (result == 2) {
+	switch (jumpProcess(1)) {
+	case 2:
 		if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
 			if (isUnderWater()) {
 				mForwardVel = -mForwardVel * 0.8f;
@@ -86,15 +90,14 @@ void TMario::doSwimming()
 			setPlayerVelocity(0.0f);
 			mVel.y = 0.0f;
 		}
+		break;
 	}
 
 	if (mFloorPosition.z > 400.0f + mFloorPosition.y) {
 		if (mPosition.y < 0.03125f + mFloorPosition.y) {
 			if (mAction != 0x22D2) {
-				*(u32*)((u8*)this + 0x1A8) = *(u32*)((u8*)this + 0x10);
-				*(u32*)((u8*)this + 0x1AC) = *(u32*)((u8*)this + 0x14);
-				*(u32*)((u8*)this + 0x1B0) = *(u32*)((u8*)this + 0x18);
-				*(f32*)((u8*)this + 0x1AC) = mFloorPosition.y;
+				unk1A8 = mPosition;
+				unk1A8.y = mFloorPosition.y;
 				gpMarioParticleManager->emitAndBindToPosPtr(
 				    0x11E, &unk1A8, 1, this);
 			}
