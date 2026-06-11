@@ -618,13 +618,13 @@ check_sender_bit3:
 			if (message == 0x0A || message == 0x0E) {
 				if (!isInvincible()) {
 					damageExec(sender,
-					           mDmgParamsBGTentacle.mDamage.get(),
-					           mDmgParamsBGTentacle.mDownType.get(),
-					           mDmgParamsBGTentacle.mWaterEmit.get(),
-					           mDmgParamsBGTentacle.mMinSpeed.get(),
-					           mDmgParamsBGTentacle.mMotor.get(),
-					           mDmgParamsBGTentacle.mDirty.get(),
-					           mDmgParamsBGTentacle.mInvincibleTime.get());
+					           mDmgParamsKiller.mDamage.get(),
+					           mDmgParamsKiller.mDownType.get(),
+					           mDmgParamsKiller.mWaterEmit.get(),
+					           mDmgParamsKiller.mMinSpeed.get(),
+					           mDmgParamsKiller.mMotor.get(),
+					           mDmgParamsKiller.mDirty.get(),
+					           mDmgParamsKiller.mInvincibleTime.get());
 
 					changePlayerStatus(0x000208B7, 1, false);
 
