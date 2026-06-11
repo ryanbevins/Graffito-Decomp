@@ -888,13 +888,13 @@ check_sender_bit3:
 			if (message == 0x0E) {
 				if (!isInvincible()) {
 					damageExec(sender,
-					           mDmgParamsEnemyMario.mDamage.get(),
-					           mDmgParamsEnemyMario.mDownType.get(),
-					           mDmgParamsEnemyMario.mWaterEmit.get(),
-					           mDmgParamsEnemyMario.mMinSpeed.get(),
-					           mDmgParamsEnemyMario.mMotor.get(),
-					           mDmgParamsEnemyMario.mDirty.get(),
-					           mDmgParamsEnemyMario.mInvincibleTime.get());
+					           mDmgParamsHinokuri.mDamage.get(),
+					           mDmgParamsHinokuri.mDownType.get(),
+					           mDmgParamsHinokuri.mWaterEmit.get(),
+					           mDmgParamsHinokuri.mMinSpeed.get(),
+					           mDmgParamsHinokuri.mMotor.get(),
+					           mDmgParamsHinokuri.mDirty.get(),
+					           mDmgParamsHinokuri.mInvincibleTime.get());
 					return 1;
 				}
 			}
