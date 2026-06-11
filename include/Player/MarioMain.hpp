@@ -896,11 +896,11 @@ public:
 	BOOL jumpMain();
 	void fallDead();
 	BOOL diving();
-	void hipAttacking();
+	BOOL hipAttacking();
 	void pullJumping();
 	void wireJumping();
 	void rotateJumping();
-	void rocketing();
+	BOOL rocketing();
 	BOOL rocketCheck();
 	BOOL boardJumping();
 	void rotateBroadJumping();
@@ -909,11 +909,11 @@ public:
 	void fireJumping();
 	void missJumping();
 	void trample();
-	void thrownDowning();
-	void fireDowning();
-	void slipFalling();
+	BOOL thrownDowning();
+	BOOL fireDowning();
+	BOOL slipFalling();
 	BOOL catchStop();
-	void stayWall();
+	BOOL stayWall();
 	void landSafeDown();
 	void jumpForeDown();
 	void jumpBackDown();
@@ -933,7 +933,7 @@ public:
 	void jumpingCommonEvents();
 	BOOL checkBackTrig();
 	BOOL considerJumpRotate();
-	void jumpingBasic(int, int, int);
+	int jumpingBasic(int, int, int);
 	void askStrongGroundTouch();
 	void doJumping();
 	void setJumpingAttackArea();
