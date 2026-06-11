@@ -531,13 +531,13 @@ check_sender_bit3:
 			if (message == 0x0E) {
 				if (!isInvincible()) {
 					damageExec(sender,
-					           mDmgParamsEnemyCommon.mDamage.get(),
-					           mDmgParamsEnemyCommon.mDownType.get(),
-					           mDmgParamsEnemyCommon.mWaterEmit.get(),
-					           mDmgParamsEnemyCommon.mMinSpeed.get(),
-					           mDmgParamsEnemyCommon.mMotor.get(),
-					           mDmgParamsEnemyCommon.mDirty.get(),
-					           mDmgParamsEnemyCommon.mInvincibleTime.get());
+					           mDmgParamsNamekuri.mDamage.get(),
+					           mDmgParamsNamekuri.mDownType.get(),
+					           mDmgParamsNamekuri.mWaterEmit.get(),
+					           mDmgParamsNamekuri.mMinSpeed.get(),
+					           mDmgParamsNamekuri.mMotor.get(),
+					           mDmgParamsNamekuri.mDirty.get(),
+					           mDmgParamsNamekuri.mInvincibleTime.get());
 					return 1;
 				}
 			}
