@@ -121,23 +121,32 @@ int TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 		if (mGroundPlane->getActor())
 			((TLiveActor*)mGroundPlane->getActor())->receiveMessage(this, 0);
 		u8 canCatch = 0, shouldCatch = 1;
-		u8 hy; if (mSubState & 0x100) hy = 1; else hy = 0;
-		if (hy) shouldCatch = 0;
-		// Pointer math slop
-		if (*(f32*)((u8*)this + 0x02AC) - mPosition.y <= mDeParams.mDamageFallHeight.value)
+		u8 hy = (mSubState & 0x100) ? shouldCatch : 0;
+		if (hy == true) shouldCatch = 0;
+		if (mLastGroundPos.y - mPosition.y <= mDeParams.mDamageFallHeight.value)
 			shouldCatch = 0;
 		if (onYoshi()) shouldCatch = 0;
-		// Pointer math slop
 		u16 bg = *(u16*)((u8*)mGroundPlane);
-		if (bg == 0x0A || bg == 0x800A || bg == 0x0108) shouldCatch = 0;
-		else {
+		u8 badGround;
+		if (bg != 0x0A && bg != 0x800A && bg != 0x0108) {
 			u8 r; if (bg == 0x07 || bg == 0x8007) r = 1; else r = 0;
-			if (r) shouldCatch = 0;
-			else {
-				if (bg == 0x08 || bg == 0x8008) shouldCatch = 0;
-				else { u8 w; if (bg == 0x09 || bg == 0x8009) w = 1; else w = 0; if (w) shouldCatch = 0; }
-			}
-		}
+			if (!r) {
+				u8 t;
+				if (bg == 0x0108 || bg == 0x08 || bg == 0x8008)
+					t = 1;
+				else
+					t = 0;
+				if (!t) {
+					u8 w; if (bg == 0x09 || bg == 0x8009) w = 1; else w = 0;
+					if (w) badGround = 1; else badGround = 0;
+				} else
+					badGround = 1;
+			} else
+				badGround = 1;
+		} else
+			badGround = 1;
+		if (badGround)
+			shouldCatch = 0;
 		if (mVel.y > -70.0f)
 			shouldCatch = 0;
 		if (shouldCatch) {
@@ -162,7 +171,7 @@ int TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 					    mJumpParams.mTremblePower.value,
 					    mJumpParams.mTrembleAccele.value,
 					    mJumpParams.mTrembleBrake.value,
-					    mJumpParams.mTrembleTime.value);
+					    mJumpParams.mTrembleTime.get());
 					changePlayerStatus(0x0479, 0, false);
 					rumbleStart(21, mMotorParams.mMotorHipDrop.value);
 					canCatch = 1;
@@ -177,8 +186,7 @@ int TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 				}
 			}
 		}
-		// Pointer math slop
-		*(f32*)((u8*)this + 0x02AC) = mPosition.y;
+		mLastGroundPos.y = mPosition.y;
 		changePlayerStatus(statusId, 0, false);
 		if (!canCatch) { rumbleStart(20, mMotorParams.mMotorWall.value / 2); stopVoice(); }
 		u32 pa = mPrevAction;
