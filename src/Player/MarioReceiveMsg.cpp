@@ -975,32 +975,32 @@ check_sender_bit3:
 			return 0;
 		}
 
-			case 0x0800002A:
-			case 0x0800002C: // Hit from object
-			{
-				if (message == 0x0E) {
-					if (!isInvincible()) {
-						damageExec(sender,
-						           mDmgParamsEnemyCommon.mDamage.get(),
-						           mDmgParamsEnemyCommon.mDownType.get(),
-						           mDmgParamsEnemyCommon.mWaterEmit.get(),
-						           mDmgParamsEnemyCommon.mMinSpeed.get(),
-						           mDmgParamsEnemyCommon.mMotor.get(),
-						           mDmgParamsEnemyCommon.mDirty.get(),
-						           mDmgParamsEnemyCommon.mInvincibleTime.get());
-						return 1;
-					}
+		case 0x0800002A:
+		case 0x0800002C: // Hit from object
+		{
+			if (message == 0x0E) {
+				if (!isInvincible()) {
+					damageExec(sender,
+					           mDmgParamsEnemyCommon.mDamage.get(),
+					           mDmgParamsEnemyCommon.mDownType.get(),
+					           mDmgParamsEnemyCommon.mWaterEmit.get(),
+					           mDmgParamsEnemyCommon.mMinSpeed.get(),
+					           mDmgParamsEnemyCommon.mMotor.get(),
+					           mDmgParamsEnemyCommon.mDirty.get(),
+					           mDmgParamsEnemyCommon.mInvincibleTime.get());
+					return 1;
 				}
-				if (message == 3) {
-					if (!isInvincible()) {
-						mState |= 0x800;
-						if (!(mAction & 0x800))
-							rumbleStart(21, 10);
-						return 1;
-					}
-				}
-				return 0;
 			}
+			if (message == 3) {
+				if (!isInvincible()) {
+					mState |= 0x800;
+					if (!(mAction & 0x800))
+						rumbleStart(21, 10);
+					return 1;
+				}
+			}
+			return 0;
+		}
 
 		case 0x0800000B: // Specific enemy damage
 		{
