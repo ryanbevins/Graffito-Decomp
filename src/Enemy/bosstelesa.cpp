@@ -2,6 +2,7 @@
 #include <Enemy/Conductor.hpp>
 #include <Enemy/HamuKuri.hpp>
 #include <Enemy/Telesa.hpp>
+#include <Camera/CameraShake.hpp>
 #include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -10,6 +11,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <Map/MapCollisionEntry.hpp>
@@ -18,10 +20,12 @@
 #include <MoveBG/ItemManager.hpp>
 #include <MSound/MSound.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/MarioMain.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
+#include <System/MarioGamePad.hpp>
 #include <dolphin/mtx.h>
 #include <math.h>
 #include <stdlib.h>
@@ -300,10 +304,42 @@ void TBossTelesa::generateSlotItem()
 
 void TBossTelesa::rouletteStart()
 {
-	unk350 = 1;
-	unk168 = 0.0f;
-	if (unk154)
-		unk154->moveStart();
+	TRoulette** roulettes = (TRoulette**)&unk178;
+	TTelesaSlot* slot     = (TTelesaSlot*)unk184;
+
+	f32 speedMin = 0.05f;
+	f32 speedMax = 0.1f;
+	f32 dirMin   = -1.0f;
+	f32 dirMax   = 1.0f;
+	f32 dirRange = dirMax - dirMin;
+	f32 dir      = dirMin + dirRange * (rand() * 0.000030517578f);
+
+	TSpineEnemyParams* params = getSaveParam();
+	u8 maxHitPoints          = params ? getSaveParam()->mSLHitPointMax.get() : 1;
+	f32 hpSpeed
+	    = (maxHitPoints - mHitPoints) * TBossTelesa::mRouletteUpRate;
+
+	for (int i = 0; i < 3; ++i) {
+		f32 direction = 1.0f;
+		if (dir > 0.0f)
+			direction = -1.0f;
+		if (i == 0 || i == 2)
+			direction = -direction;
+
+		f32 speedRange = speedMax - speedMin;
+		f32 speed      = speedMin + speedRange * (rand() * 0.000030517578f);
+		roulettes[i]->unk144 = direction * (speed + hpSpeed);
+
+		speedRange     = speedMax - speedMin;
+		speed          = speedMin + speedRange * (rand() * 0.000030517578f);
+		slot->unk1E4[i] = direction * (speed + hpSpeed);
+	}
+
+	for (int i = 0; i < 3; ++i)
+		roulettes[i]->setRollSp(slot->unk1E4[i]);
+
+	SMSRumbleMgr->start(0x14, 0xf, (f32*)nullptr);
+	gpCameraShake->startShake((EnumCamShakeMode)0x23, 1.0f);
 }
 
 void TBossTelesa::genAttacker()
@@ -322,17 +358,91 @@ void TBossTelesa::flashItem(int result)
 	unk168 = 0.0f;
 }
 
-void TBossTelesa::slotFall()
+BOOL TBossTelesa::slotFall()
 {
-	if (unk154)
-		unk154->mPosition.y -= 5.0f;
+	TRoulette* roulette0 = (TRoulette*)unk178;
+	TRoulette* roulette1 = (TRoulette*)unk17C;
+	TRoulette* roulette2 = (TRoulette*)unk180;
+	TTelesaSlot* slot     = (TTelesaSlot*)unk184;
+
+	if (slot->mPosition.y > roulette0->mPosition.y - 800.0f) {
+		slot->mPosition.y -= 5.0f;
+		return FALSE;
+	}
+
+	slot->mPosition.y -= 1.0f;
+
+	if (slot->mPosition.y < roulette0->mPosition.y - 900.0f) {
+		int rolling = 0;
+		if (roulette0->unk13C != 0.0f)
+			rolling = 1;
+		if (roulette1->unk13C != 0.0f)
+			++rolling;
+		if (roulette2->unk13C != 0.0f)
+			++rolling;
+
+		if (rolling != 3)
+			rouletteStart();
+	}
+
+	if (slot->mPosition.y < roulette0->mPosition.y - 1100.0f)
+		return TRUE;
+
+	THitActor* switchActor = roulette0->unk150;
+	switchActor->mAttackRadius = 280.0f;
+	switchActor->mAttackHeight = 100.0f;
+	switchActor->mDamageRadius = 280.0f;
+	switchActor->mDamageHeight = 100.0f;
+	switchActor->calcEntryRadius();
+
+	switchActor = roulette1->unk150;
+	switchActor->mAttackRadius = 280.0f;
+	switchActor->mAttackHeight = 100.0f;
+	switchActor->mDamageRadius = 280.0f;
+	switchActor->mDamageHeight = 100.0f;
+	switchActor->calcEntryRadius();
+
+	return FALSE;
 }
 
-void TBossTelesa::rouletteFall()
+BOOL TBossTelesa::rouletteFall()
 {
-	unk168 += mRouletteUpRate;
-	if (unk154)
-		unk154->mPosition.y -= unk168;
+	TRoulette* roulette0 = (TRoulette*)unk178;
+	TRoulette* roulette1 = (TRoulette*)unk17C;
+
+	if (roulette0->mPosition.y > roulette1->mPosition.y) {
+		roulette0->mPosition.y -= 1.0f;
+		roulette0->mMActor->setBck("rulet00");
+	} else {
+		roulette0->mPosition.y = roulette1->mPosition.y;
+		return TRUE;
+	}
+
+	if (roulette0->mPosition.y > roulette1->mPosition.y + 3.0f) {
+		if (SMS_SendMessageToMario(this, HIT_MESSAGE_TAKE))
+			mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
+	} else {
+		if (SMS_SendMessageToMario(this, HIT_MESSAGE_UNK8)) {
+			if (gpMSound->gateCheck(0x2926)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x2926, &mPosition, 0, nullptr, 0, 4);
+			}
+			mHeldObject = nullptr;
+		}
+	}
+
+	if (gpMSound->gateCheck(0x28DC)) {
+		MSoundSESystem::MSoundSE::startSoundActor(
+		    0x28DC, &mPosition, 0, nullptr, 0, 4);
+	}
+
+	if (gpMSound->gateCheck(0x2125)) {
+		MSoundSESystem::MSoundSE::startSoundActor(
+		    0x2125, &mPosition, 0, nullptr, 0, 4);
+	}
+
+	gpMarioOriginal->mGamePad->onNeutralMarioKey();
+	return FALSE;
 }
 
 void TBossTelesa::damageRecover()

@@ -253,7 +253,8 @@ public:
 	/* 0x1AB */ u8 unk1AB[0x31];
 	/* 0x1DC */ TMapCollisionMove* unk1DC;
 	/* 0x1E0 */ u8 unk1E0;
-	/* 0x1E1 */ u8 unk1E1[0xF];
+	/* 0x1E1 */ u8 unk1E1[0x3];
+	/* 0x1E4 */ f32 unk1E4[3];
 };
 
 class TRouletteSw : public THitActor {

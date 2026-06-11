@@ -55,8 +55,8 @@ public:
 	void rouletteStart();
 	void genAttacker();
 	void flashItem(int);
-	void slotFall();
-	void rouletteFall();
+	BOOL slotFall();
+	BOOL rouletteFall();
 	void damageRecover();
 	void setSpicy(TLiveActor*);
 	void checkHitObject(THitActor*);
