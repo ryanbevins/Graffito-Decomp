@@ -2526,7 +2526,208 @@ DEFINE_NERVE(TNerveBossTelesaSpit, TLiveActor)
 DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	boss->onLiveFlag(LIVE_FLAG_DEAD);
+	if (spine->getTime() == 0) {
+		boss->unk388 = 0;
+		if (boss->unk350 && boss->mHitPoints != 0)
+			--boss->mHitPoints;
+
+		boss->onHitFlag(HIT_FLAG_NO_COLLISION);
+		boss->unk16C->onHitFlag(HIT_FLAG_NO_COLLISION);
+		boss->unk170->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		if (boss->mHitPoints != 0) {
+			if (boss->unk350) {
+				boss->mMActor->setBrkFromIndex(1);
+				boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+				boss->unk160 = 2;
+				boss->unk168 = 1.0f;
+
+				J3DAnmTransform* oldAnm = nullptr;
+				if (boss->mMActor->unkC)
+					oldAnm = boss->mMActor->unkC->unk24;
+				if (boss->mMActor->unkC)
+					boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+				boss->mMActor->setBckFromIndex(2);
+				if (boss->mMActor->unkC)
+					boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+				const char** basTable = boss->getBasNameTable();
+				boss->setAnmSound(basTable ? basTable[2] : nullptr);
+				gpCameraShake->startShake((EnumCamShakeMode)0x1F, 1.0f);
+			} else {
+				boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+				boss->unk160 = 5;
+				boss->unk168 = 1.0f;
+
+				J3DAnmTransform* oldAnm = nullptr;
+				if (boss->mMActor->unkC)
+					oldAnm = boss->mMActor->unkC->unk24;
+				if (boss->mMActor->unkC)
+					boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+				boss->mMActor->setBckFromIndex(5);
+				if (boss->mMActor->unkC)
+					boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+				const char** basTable = boss->getBasNameTable();
+				boss->setAnmSound(basTable ? basTable[5] : nullptr);
+				boss->mMActor->setBrkFromIndex(0);
+				gpCameraShake->startShake((EnumCamShakeMode)0x20, 1.0f);
+			}
+		} else {
+			MSBgm::stopBGM(0x8001000D, 10);
+			gpCameraShake->startShake((EnumCamShakeMode)0x21, 1.0f);
+			boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+			boss->unk160 = 3;
+			boss->unk168 = 1.0f;
+
+			J3DAnmTransform* oldAnm = nullptr;
+			if (boss->mMActor->unkC)
+				oldAnm = boss->mMActor->unkC->unk24;
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+			boss->mMActor->setBckFromIndex(3);
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+			const char** basTable = boss->getBasNameTable();
+			boss->setAnmSound(basTable ? basTable[3] : nullptr);
+			boss->mMActor->setBrkFromIndex(1);
+			boss->unk184->mScaling.set(0.0f, 0.0f, 0.0f);
+
+			if (gpMSound->gateCheck(0x28DB)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x28DB, &boss->mPosition, 0, nullptr, 0, 4);
+			}
+		}
+	}
+
+	if (boss->mHitPoints == 0) {
+		if (boss->checkCurAnmEnd(0)) {
+			if (boss->unk388 == 0) {
+				MtxPtr mtx = boss->mMActor->getModel()->mNodeMatrices[1];
+				boss->unk374.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+
+				gpMarioParticleManager->emit(0xDC, &boss->unk374, 0,
+				                             nullptr);
+				if (boss->unk380 == 0xD8) {
+					gpMarioParticleManager->emit(0xDD, &boss->unk374,
+					                             0, nullptr);
+				} else if (boss->unk380 == 0xD9) {
+					gpMarioParticleManager->emit(0xDE, &boss->unk374,
+					                             0, nullptr);
+				} else {
+					gpMarioParticleManager->emit(0xDF, &boss->unk374,
+					                             0, nullptr);
+				}
+
+				boss->forceAllItemKill();
+				boss->unk178->unk144     = 0.0f;
+				boss->unk184->unk1E4[0] = 0.0f;
+				boss->unk17C->unk144     = 0.0f;
+				boss->unk184->unk1E4[1] = 0.0f;
+				boss->unk180->unk144     = 0.0f;
+				boss->unk184->unk1E4[2] = 0.0f;
+				boss->unk178->setRollSp(boss->unk184->unk1E4[0]);
+				boss->unk17C->setRollSp(boss->unk184->unk1E4[1]);
+				boss->unk180->setRollSp(boss->unk184->unk1E4[2]);
+			}
+
+			if (boss->unk388 > 240) {
+				boss->unk388 = 0;
+				gpItemManager->makeShineAppearWithDemo(
+				    "シャイン（ボス用）", "ボスシャインカメラ",
+				    boss->mPosition.x, boss->mPosition.y, boss->mPosition.z);
+				boss->onLiveFlag(LIVE_FLAG_DEAD);
+				boss->onLiveFlag(LIVE_FLAG_UNK8);
+				boss->offLiveFlag(LIVE_FLAG_UNK10000);
+				boss->mHolder = nullptr;
+				boss->onHitFlag(HIT_FLAG_NO_COLLISION);
+				boss->unk16C->onHitFlag(HIT_FLAG_NO_COLLISION);
+				boss->unk170->onHitFlag(HIT_FLAG_NO_COLLISION);
+				boss->stopAnmSound();
+				spine->reset();
+				return TRUE;
+			}
+
+			boss->unk388++;
+		}
+		return FALSE;
+	}
+
+	if (boss->checkCurAnmEnd(0)) {
+		if (boss->mMActor->checkCurBckFromIndex(5)) {
+			boss->mMActor->setBrkFromIndex(2);
+			boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+			boss->unk160 = 7;
+			boss->unk168 = 1.0f;
+
+			J3DAnmTransform* oldAnm = nullptr;
+			if (boss->mMActor->unkC)
+				oldAnm = boss->mMActor->unkC->unk24;
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+			boss->mMActor->setBckFromIndex(7);
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+			const char** basTable = boss->getBasNameTable();
+			boss->setAnmSound(basTable ? basTable[7] : nullptr);
+		} else if (boss->mMActor->checkCurBckFromIndex(7)) {
+			boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+			boss->unk160 = 6;
+			boss->unk168 = 1.0f;
+
+			J3DAnmTransform* oldAnm = nullptr;
+			if (boss->mMActor->unkC)
+				oldAnm = boss->mMActor->unkC->unk24;
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+			boss->mMActor->setBckFromIndex(6);
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+			const char** basTable = boss->getBasNameTable();
+			boss->setAnmSound(basTable ? basTable[6] : nullptr);
+		} else {
+			SMS_ResetDamageFogEffect(
+			    boss->mMActor->getModel()->getModelData());
+
+			if (boss->mMActor->checkCurBckFromIndex(6)) {
+				boss->offHitFlag(HIT_FLAG_NO_COLLISION);
+				boss->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
+				boss->unk170->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+				boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+				boss->unk160 = 15;
+				boss->unk168 = 1.0f;
+
+				J3DAnmTransform* oldAnm = nullptr;
+				if (boss->mMActor->unkC)
+					oldAnm = boss->mMActor->unkC->unk24;
+				if (boss->mMActor->unkC)
+					boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+				boss->mMActor->setBckFromIndex(15);
+				if (boss->mMActor->unkC)
+					boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+				const char** basTable = boss->getBasNameTable();
+				boss->setAnmSound(basTable ? basTable[15] : nullptr);
+				boss->mMActor->setBtpFromIndex(2);
+				spine->pushAfterCurrent(
+				    &TNerveBossTelesaPrepareSlot::theNerve());
+			} else {
+				boss->damageRecover();
+			}
+			return TRUE;
+		}
+	}
+
 	return FALSE;
 }
 

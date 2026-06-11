@@ -116,7 +116,8 @@ public:
 	/* 0x374 */ JGeometry::TVec3<f32> unk374;
 	/* 0x380 */ s32 unk380;
 	/* 0x384 */ u8 unk384;
-	/* 0x385 */ u8 unk385[0x7];
+	/* 0x385 */ u8 unk385[0x3];
+	/* 0x388 */ s32 unk388;
 };
 
 class TBossTelesaBody : public THitActor {
