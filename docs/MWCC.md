@@ -5634,6 +5634,30 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Branch-selected small-int params may need `f32` locals when target converts inside each branch
+
+**Hypothesis.** When a target chooses between two pairs of `TParamRT<s16>`
+fields, converts the selected min/max to floats inside each branch, then runs a
+shared float formula, model the selected values as `f32` locals assigned in the
+branches. Keeping `s16`/`s32` locals and casting in the shared formula lets
+MWCC select the integer fields first, then convert after the branch join,
+which can miss the target's `lha` -> `xoris` -> `lfd` conversion block layout.
+Using `.get()` on the params may also be part of the natural source shape and
+can move frame size toward target without adding call boundaries.
+
+**Observed.** `mario/Player/MarioSwim` `TMario::doSwimming()` (2026-06-11
+MNL): changing branch-selected swim rotation min/max from `s16`/`s32` locals to
+`f32 rotMin/rotMax` assigned through `mSwimParams.*.get()` matched the target's
+per-branch signed-int-to-float conversion blocks. Together with the target
+multiply order and predicate materialization, the function moved `77.2 ->
+99.2`.
+
+**Experiment to confirm/refute.** Find another TU where target selects
+`TParamRT<s16>` or raw `s16` min/max fields under a branch and immediately
+feeds them into a shared float interpolation formula. Compare `s16`, `s32`,
+and `f32` selected locals, with `.value` vs `.get()`, and check whether only
+the `f32` branch-local form reproduces conversion-before-join codegen.
+
 ### Direct const-reference `TVec3` temporaries can recover right-to-left argument stack construction
 
 **Hypothesis.** When a target call takes several `const TVec3<float>&`
