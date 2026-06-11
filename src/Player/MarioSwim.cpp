@@ -190,11 +190,11 @@ BOOL TMario::swimPaddle()
 // swimMain: 0x8015191C, size 0x6F8
 BOOL TMario::swimMain()
 {
-	if (checkFlag(MARIO_FLAG_IS_PERFORMING)) {
+	if (checkFlag(MARIO_FLAG_GAME_OVER)) {
 		changePlayerStatus(0x224E1, 0, false);
 	}
 
-	if (checkSwimJump())
+	if (checkSwimJump() == TRUE)
 		return FALSE;
 
 	// Wall collision check
@@ -202,8 +202,14 @@ BOOL TMario::swimMain()
 	if (stickMag > 0.0f) {
 		const TBGCheckData* wall = mWallPlane;
 		if (wall != NULL) {
-			if (wall->mBGType == 0x10A) {
-				s16 angle   = matan(wall->mNormal.z, wall->mNormal.x);
+			bool isFence;
+			if (wall->mBGType == 0x10A)
+				isFence = true;
+			else
+				isFence = false;
+			if (isFence) {
+				const JGeometry::TVec3<f32>& normal = wall->getNormal();
+				s16 angle   = matan(normal.z, normal.x);
 				s16 yawDiff = mFaceAngle.y - angle;
 				if (yawDiff < -21845 || yawDiff > 21845) {
 					mFaceAngle.y     = angle + 0x8000;
