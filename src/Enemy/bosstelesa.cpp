@@ -2083,11 +2083,29 @@ DEFINE_NERVE(TNerveBossTelesaHide, TLiveActor)
 DEFINE_NERVE(TNerveBossTelesaSpit, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	if (spine->getTime() == 0)
-		boss->genAttacker();
-	if (spine->getTime() > 120)
-		return TRUE;
-	return FALSE;
+	if (spine->getTime() == 0 || !boss->mMActor->checkCurBckFromIndex(14)) {
+		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+		boss->unk160 = 14;
+		boss->unk168 = 1.0f;
+
+		J3DAnmTransform* oldAnm = nullptr;
+		if (boss->mMActor->unkC)
+			oldAnm = boss->mMActor->unkC->unk24;
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+		boss->mMActor->setBckFromIndex(14);
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+		const char** basTable = boss->getBasNameTable();
+		boss->setAnmSound(basTable ? basTable[14] : nullptr);
+	} else {
+		if (boss->mMActor->getFrameCtrl(0)->checkPass(40.0f))
+			boss->genAttacker();
+	}
+
+	return boss->checkCurAnmEnd(0);
 }
 
 DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
