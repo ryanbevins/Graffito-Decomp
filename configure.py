@@ -444,7 +444,7 @@ config.libs = [
             Object(Matching, "JSystem/JAudio/JASystem/JASWaveArcLoader.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASWaveBank.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASWaveBankMgr.cpp"),
-            Object(NonMatching, "JSystem/JAudio/JASystem/JASWSParser.cpp"),
+            Object(Equivalent, "JSystem/JAudio/JASystem/JASWSParser.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASAudioThread.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASChAllocQueue.cpp"),
             Object(NonMatching, "JSystem/JAudio/JASystem/JASChannel.cpp"),
