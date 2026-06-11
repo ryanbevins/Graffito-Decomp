@@ -323,6 +323,32 @@ DEFINE_NERVE(TNerveBPTumbleOut, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveBPPivot, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		boss->changeBck(0x19);
+
+	JGeometry::TVec3<f32> toMario = boss->mPosition;
+	toMario -= *gpMarioPos;
+
+	f32 swingLength = boss->getBossPakkunSaveParam()->mSLSwingLength.value;
+	f32 pivotSpeed;
+	if (toMario.squared() < swingLength * swingLength)
+		pivotSpeed = boss->getBossPakkunSaveParam()->mSLPivotSpeedAware.value;
+	else
+		pivotSpeed = boss->getBossPakkunSaveParam()->mSLPivotSpeed.value;
+
+	if (boss->turnToCurPathNode(pivotSpeed)) {
+		if (boss->unk114.size() != 0)
+			boss->unkF4 = boss->unk114.pop();
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 DEFINE_NERVE(TNerveBPCannon, TLiveActor)
 {
 	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
