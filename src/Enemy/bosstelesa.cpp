@@ -1500,18 +1500,20 @@ void TTelesaSlot::forceStopSlot(int idx)
 {
 	volatile f32 min = 0.0f;
 	volatile f32 max = 1.0f;
+	f32 range;
+	f32 collectRate;
 
 	if (!unk19C)
 		return;
 
 	TBossTelesaSaveLoadParams* params
 	    = (TBossTelesaSaveLoadParams*)getSlotOwner(this)->unk15C;
-	f32 collectRate                  = params->mSLSlotFirstHitCollectRate.get();
+	collectRate                      = params->mSLSlotFirstHitCollectRate.get();
 
 	if (SMS_GetMarioHP() == 1)
 		collectRate = 0.9f;
 
-	f32 range = max - min;
+	range = max - min;
 	f32 randomValue = range * (rand() * 0.000030517578f);
 	randomValue     = min + randomValue;
 	if (randomValue <= collectRate) {
