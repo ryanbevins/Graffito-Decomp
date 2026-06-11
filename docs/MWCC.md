@@ -5687,6 +5687,14 @@ range in `f31` and the collection rate in `f30`. Source originally declared
 `collectRate` and `range` at the original asm points, moved the function
 `99.1 -> 99.4` and aligned those saved-FPR lifetimes.
 
+**Non-confirming local trial.** `mario/GC2D/BlendPane`
+`TBlendPane::update()` (2026-06-12 MNL) has a clean `cur`/`inv` `f30`/`f31`
+swap, but splitting the existing initialized declarations into
+`f32 inv; f32 cur; inv = 1.0f - mCurrent; cur = mCurrent;` emitted no codegen
+change. This may mean argument/store use order can dominate declaration order,
+or that the lever only applies when both locals are real call-live temps rather
+than direct argument stores.
+
 **Experiment to confirm/refute.** Find a second near-match where target and
 build agree on instruction structure but swap two saved FPR locals. Toggle only
 predeclaration order while preserving evaluation order and verify whether the
