@@ -916,18 +916,18 @@ check_sender_bit3:
 					return 1;
 				}
 				return 0;
-			case 0x0E: // Touch
-				if (!isInvincible()) {
-					damageExec(sender,
-					           mDmgParamsHanachanBoss.mDamage.get(),
-					           mDmgParamsHanachanBoss.mDownType.get(),
-					           mDmgParamsHanachanBoss.mWaterEmit.get(),
-					           mDmgParamsHanachanBoss.mMinSpeed.get(),
-					           mDmgParamsHanachanBoss.mMotor.get(),
-					           mDmgParamsHanachanBoss.mDirty.get(),
-					           mDmgParamsHanachanBoss.mInvincibleTime.get());
-					return 1;
-				}
+				case 0x0E: // Touch
+					if (!isInvincible()) {
+						damageExec(sender,
+						           mDmgParamsBGTentacle.mDamage.get(),
+						           mDmgParamsBGTentacle.mDownType.get(),
+						           mDmgParamsBGTentacle.mWaterEmit.get(),
+						           mDmgParamsBGTentacle.mMinSpeed.get(),
+						           mDmgParamsBGTentacle.mMotor.get(),
+						           mDmgParamsBGTentacle.mDirty.get(),
+						           mDmgParamsBGTentacle.mInvincibleTime.get());
+						return 1;
+					}
 				return 0;
 			case 8: // Release
 				if (checkFlag(0x1000)) {
