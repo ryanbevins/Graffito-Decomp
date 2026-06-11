@@ -948,10 +948,10 @@ check_sender_bit3:
 			}
 		}
 
-		case 0x08000029: // Hit from enemy
-		{
-			if (message == 0x0A) {
-				if (!isInvincible()) {
+			case 0x08000029: // Hit from enemy
+			{
+				if (message == 0x0A) {
+					if (!isInvincible()) {
 					damageExec(sender,
 					           mDmgParamsKiller.mDamage.get(),
 					           mDmgParamsKiller.mDownType.get(),
@@ -967,13 +967,13 @@ check_sender_bit3:
 						MSoundSESystem::MSoundSE::startSoundActor(
 						    0x1813, (const Vec*)&mPosition, 0, nullptr, 0, 4);
 					}
-					gpMarioParticleManager->emitAndBindToPosPtr(
-					    6, (const JGeometry::TVec3<f32>*)&mPosition, 0, nullptr);
+						gpMarioParticleManager->emitAndBindToPosPtr(
+						    6, (const JGeometry::TVec3<f32>*)&mPosition, 0, nullptr);
+					}
 					return 1;
 				}
+				return 0;
 			}
-			return 0;
-		}
 
 		case 0x0800002A:
 		case 0x0800002C: // Hit from object
