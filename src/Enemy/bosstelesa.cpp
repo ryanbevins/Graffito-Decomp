@@ -1877,8 +1877,8 @@ void TBubble::reset()
 	TWalkerEnemy::reset();
 	onLiveFlag(LIVE_FLAG_UNK8);
 
-	f32 min = 50.0f;
-	f32 max = 150.0f;
+	volatile f32 min = 50.0f;
+	volatile f32 max = 150.0f;
 	f32 range = max - min;
 	f32 factor = rand() * 0.000030517578f;
 	factor *= range;
@@ -1915,8 +1915,8 @@ void TBubble::appendEnemy()
 {
 	unk198 = nullptr;
 
-	f32 min = 0.0f;
-	f32 max = 100.0f;
+	volatile f32 min = 0.0f;
+	volatile f32 max = 100.0f;
 	f32 range = max - min;
 	f32 randValue = rand() * 0.000030517578f;
 	randValue *= range;
@@ -1951,7 +1951,9 @@ void TBubble::appendEnemy()
 	if (enemy && enemy->receiveMessage(this, HIT_MESSAGE_TAKE)) {
 		enemy->onHitFlag(HIT_FLAG_UNK8000000);
 		mHeldObject = enemy;
-		enemy->mVelocity.set(0.0f, 1.0f, -1.0f);
+		JGeometry::TVec3<f32> velocity;
+		velocity.set(0.0f, 1.0f, -1.0f);
+		enemy->mVelocity = velocity;
 		enemy->onLiveFlag(LIVE_FLAG_AIRBORNE);
 		unk198 = enemy;
 	}
@@ -1972,8 +1974,8 @@ void TBubble::split()
 		bubble->unk1CC = 0.0f;
 		bubble->unk1D0 = 1;
 
-		f32 min = -2.0f;
-		f32 max = 2.0f;
+		volatile f32 min = -2.0f;
+		volatile f32 max = 2.0f;
 		JGeometry::TVec3<f32> velocity;
 
 		f32 range = max - min;
