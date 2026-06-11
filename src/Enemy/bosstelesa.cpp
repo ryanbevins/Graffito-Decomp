@@ -307,12 +307,13 @@ void TBossTelesa::rouletteStart()
 	TRoulette** roulettes = (TRoulette**)&unk178;
 	TTelesaSlot* slot     = (TTelesaSlot*)unk184;
 
-	f32 speedMin = 0.05f;
-	f32 speedMax = 0.1f;
-	f32 dirMin   = -1.0f;
-	f32 dirMax   = 1.0f;
+	volatile f32 speedMin = 0.05f;
+	volatile f32 speedMax = 0.1f;
+	volatile f32 dirMin   = -1.0f;
+	volatile f32 dirMax   = 1.0f;
 	f32 dirRange = dirMax - dirMin;
-	f32 dir      = dirMin + dirRange * (rand() * 0.000030517578f);
+	f32 dir      = dirRange * (rand() * 0.000030517578f);
+	dir          = dirMin + dir;
 
 	TSpineEnemyParams* params = getSaveParam();
 	u8 maxHitPoints          = params ? getSaveParam()->mSLHitPointMax.get() : 1;
@@ -327,11 +328,13 @@ void TBossTelesa::rouletteStart()
 			direction = -direction;
 
 		f32 speedRange = speedMax - speedMin;
-		f32 speed      = speedMin + speedRange * (rand() * 0.000030517578f);
+		f32 speed      = speedRange * (rand() * 0.000030517578f);
+		speed          = speedMin + speed;
 		roulettes[i]->unk144 = direction * (speed + hpSpeed);
 
 		speedRange     = speedMax - speedMin;
-		speed          = speedMin + speedRange * (rand() * 0.000030517578f);
+		speed          = speedRange * (rand() * 0.000030517578f);
+		speed          = speedMin + speed;
 		slot->unk1E4[i] = direction * (speed + hpSpeed);
 	}
 
