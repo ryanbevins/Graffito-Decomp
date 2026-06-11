@@ -263,8 +263,8 @@ int TSelectDir::direct()
 
 			JUtility::TColor color(0xff, 0xff, 0xff, 0xff);
 			gpApplication.mFader->setColor(color);
-			gpMSound->fadeOutAllSound(
-			    (u32)((f32)SMSGetVSyncTimesPerSec()));
+			MSound* sound = gpMSound;
+			sound->fadeOutAllSound((u32)((f32)SMSGetVSyncTimesPerSec()));
 		}
 	}
 
@@ -272,7 +272,8 @@ int TSelectDir::direct()
 	    && !mResetTriggered) {
 		mResetTriggered = 1;
 		gpApplication.mFader->startWipe(4, 0.4f, 0.0f);
-		gpMSound->fadeOutAllSound(
+		MSound* sound = gpMSound;
+		sound->fadeOutAllSound(
 		    (u32)((f32)SMSGetVSyncTimesPerSec() * 0.4f));
 		((JDrama::TViewObj*)unk10)->unkC.on(3);
 	}

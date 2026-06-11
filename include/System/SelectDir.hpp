@@ -29,7 +29,7 @@ public:
 	void changeOrder();
 
 public:
-	// unk10/unk14 belong to JDrama::TDirector — TViewObj* root + TDStageGroup*
+	// unk10/unk14 belong to JDrama::TDirector - TViewObj* root + TDStageGroup*
 	/* 0x18 */ TMarioGamePad* mGamePad;
 	/* 0x1C */ JDrama::TDisplay* mDisplay;
 	/* 0x20 */ TSelectMenu* mMenu;
