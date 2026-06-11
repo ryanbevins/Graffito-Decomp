@@ -1157,8 +1157,8 @@ check_sender_bit3:
 			handle_player_throw:
 				*(u32*)((u8*)this + 0x68) = 0;
 				changePlayerStatus(0x02000880, 0, false);
-				setPlayerVelocity(0.0f);
-				mVel.y = 0.0f;
+				setPlayerVelocity(40.0f);
+				mVel.y = 10.0f;
 				unk78 &= ~0x100;
 				return 1;
 
