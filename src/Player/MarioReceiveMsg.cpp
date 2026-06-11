@@ -1189,6 +1189,7 @@ void TMario::getGesso(THitActor* sender)
 		mSurfGesso = gpMapObjManager->mYellowGesso;
 		unk389 = 1;
 		break;
+	case 0x400000C7:
 	default:
 		unk389 = 2;
 		mSurfGesso = gpMapObjManager->mGreenGesso;
