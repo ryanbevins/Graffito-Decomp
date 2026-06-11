@@ -2003,12 +2003,27 @@ void TBubbleManager::load(JSUMemoryInputStream& stream)
 DEFINE_NERVE(TNerveBossTelesaFallDemo, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	if (spine->getTime() == 0)
-		boss->offLiveFlag(LIVE_FLAG_HIDDEN);
-	if (spine->getTime() > 180) {
-		spine->setNext(&TNerveBossTelesaHideWait::theNerve());
-		return TRUE;
+	if (spine->getTime() == 0) {
+		boss->onLiveFlag(LIVE_FLAG_HIDDEN);
+		if (SMS_SendMessageToMario(boss, HIT_MESSAGE_TAKE))
+			boss->mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
+		boss->mMActor->setFrameRate(0.0f, 0);
+		boss->unk184->mScaling.set(0.0f, 0.0f, 0.0f);
 	}
+
+	if (boss->rouletteFall()) {
+		JGeometry::TVec3<f32> diff = boss->mPosition;
+		diff.sub(*gpMarioPos);
+
+		if (boss->slotFall()) {
+			boss->offHitFlag(HIT_FLAG_NO_COLLISION);
+			boss->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
+			boss->unk170->offHitFlag(HIT_FLAG_NO_COLLISION);
+			spine->pushAfterCurrent(&TNerveBossTelesaHideWait::theNerve());
+			return TRUE;
+		}
+	}
+
 	return FALSE;
 }
 
