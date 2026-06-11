@@ -1494,15 +1494,87 @@ void TBPHeadHit::throwActor(THitActor* actor)
 
 BOOL TBPHeadHit::receiveMessage(THitActor* sender, u32 message)
 {
-	if (sender->getActorType() == 0x1000001)
-		return FALSE;
+	if (mOwner->mSpine->getLatestNerve() == &TNerveBPSleep::theNerve())
+		return mOwner->receiveMessage(sender, message);
 
-	if (message == HIT_MESSAGE_HIP_DROP) {
-		mOwner->gotHipDropDamage();
+	TBossPakkun* boss = mOwner;
+
+	if (boss->unk16C == 3
+	    && (sender->getActorType() == 0x1000000D
+	        || sender->getActorType() == 0x1000001)) {
+		boss->unk16C = 0;
+		boss->mSpine->reset();
+		boss->mSpine->setNext(&TNerveBPFall::theNerve());
+
+		if (gpMSound->gateCheck(0x2817)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x2817, &boss->mPosition, 0, nullptr, 0, 4);
+		}
+
 		return TRUE;
 	}
 
-	return FALSE;
+	if (boss->unk16C != 2) {
+		if (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 4
+		    && boss->mSpine->getLatestNerve() == &TNerveBPFly::theNerve())
+			boss->showMessage(0xE0002);
+
+		if (sender->getActorType() == 0x1000001)
+			return TRUE;
+
+		return FALSE;
+	}
+
+	if (sender->getActorType() != 0x1000001)
+		return TRUE;
+
+	if (message != HIT_MESSAGE_SPRAYED_BY_WATER)
+		return TRUE;
+
+	JGeometry::TVec3<f32> toMario = *gpMarioPos;
+	toMario -= mPosition;
+
+	f32 targetYaw;
+	if (toMario.z == 0.0f) {
+		if (toMario.x >= 0.0f)
+			targetYaw = 90.0f;
+		else
+			targetYaw = -90.0f;
+	} else if (toMario.z >= 0.0f) {
+		targetYaw = matan(toMario.x, toMario.z) * (360.0f / 65536.0f);
+	} else {
+		targetYaw
+		    = 180.0f - matan(toMario.x, -toMario.z) * (360.0f / 65536.0f);
+	}
+
+	while (targetYaw >= 360.0f)
+		targetYaw -= 360.0f;
+	while (targetYaw < 0.0f)
+		targetYaw += 360.0f;
+
+	f32 wrappedYaw = callMsWrap(boss->mRotation.y, targetYaw - 180.0f,
+	                            targetYaw + 180.0f);
+	if (fabsf(targetYaw - wrappedYaw)
+	    < 0.5f * boss->getBossPakkunSaveParam()->mSLDamageAngle.value) {
+		if (boss->unk17C == 0) {
+			boss->unk170++;
+
+			if (boss->unk178
+			    < boss->getBossPakkunSaveParam()->mSLWaterMarkLimit.value)
+				boss->unk178++;
+
+			boss->unk174
+			    = boss->getBossPakkunSaveParam()->mSLWaterHitTimer.value;
+
+			if (boss->mSpine->getLatestNerve()
+			    != &TNerveBPSwallow::theNerve()) {
+				boss->mSpine->reset();
+				boss->mSpine->setNext(&TNerveBPSwallow::theNerve());
+			}
+		}
+	}
+
+	return TRUE;
 }
 
 TBPTornado::TBPTornado(TBossPakkun* owner, const char* name)
