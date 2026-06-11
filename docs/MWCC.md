@@ -5670,6 +5670,28 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Duplicating identical assignments in branch arms can prevent MWCC from merging target-distinct conversion blocks
+
+**Hypothesis.** When target asm repeats the same field load / conversion /
+assignment body under several mutually exclusive branch arms, spelling the
+source as one compound boolean condition with a single shared assignment can
+make MWCC merge those bodies behind one branch target. A natural
+`if`/`else if` or `switch` shape with the assignment repeated inside each arm
+can preserve the target's duplicated conversion blocks.
+
+**Observed.** `mario/Enemy/bosspakkun`
+`TBossPakkun::changeBck(int)` (2026-06-12 MNL): a compound transition predicate
+for five BCK-pair cases shared one `mSLAnmBlendTime0.value` int-to-float
+conversion and left the function at 60.2%. Rewriting it as a current-BCK
+branch ladder with the same assignment repeated inside each matching arm
+duplicated the virtual `getSaveParam()` / int-to-float sequence like target asm
+and moved the function to 85.4%.
+
+**Experiment to confirm/refute.** Find a second function where target repeats
+an identical int/float conversion or helper call under several branch arms but
+source has a compact `||` condition feeding one assignment. Toggle only the
+branch spelling and verify whether MWCC duplicates or merges the body.
+
 ### Materializing a bitmask predicate into `bool` can preserve target branch lattices and saved-local lifetimes
 
 **Hypothesis.** When target asm turns a bitmask/equality predicate into
