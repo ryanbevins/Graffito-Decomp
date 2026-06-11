@@ -1135,21 +1135,21 @@ check_sender_bit3:
 				if (playerMessage >= 8)
 					goto handle_player_msg;
 				if (playerMessage == 5)
-					return 0;
+					break;
 				if (playerMessage >= 6)
 					goto handle_player_throw;
 				if (playerMessage >= 4)
 					goto handle_player_take;
-				return 0;
+				break;
 
 			handle_player_msg:
 				if (playerMessage == 0x0E)
 					goto handle_player_damage;
-				return 0;
+				break;
 
 			handle_player_take:
-				if (*(u32*)((u8*)this + 0x6C) != 0) return 0;
-				if (*(u32*)((u8*)this + 0x68) != 0) return 0;
+				if (*(u32*)((u8*)this + 0x6C) != 0) break;
+				if (*(u32*)((u8*)this + 0x68) != 0) break;
 				mHolder = (TTakeActor*)sender;
 				changePlayerStatus(0x10020370, 0, false);
 				return 1;
@@ -1173,7 +1173,7 @@ check_sender_bit3:
 				           mDmgParamsEnemyMario.mInvincibleTime.get());
 				return 1;
 			}
-			return 0;
+			break;
 		}
 
 		case 0x08000005: // NPC greeting
