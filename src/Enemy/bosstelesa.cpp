@@ -2064,10 +2064,37 @@ DEFINE_NERVE(TNerveBossTelesaAppear, TLiveActor)
 DEFINE_NERVE(TNerveBossTelesaHideWait, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	if (spine->getTime() > boss->unk36C) {
-		spine->setNext(&TNerveBossTelesaAppear::theNerve());
-		return TRUE;
+	if (spine->getTime() == 0) {
+		boss->onLiveFlag(LIVE_FLAG_HIDDEN);
+		boss->unk350 = 0;
+
+		u8 maxHp = boss->getSaveParam()
+		    ? boss->getSaveParam()->mSLHitPointMax.get()
+		    : 1;
+		u8 alpha = TBossTelesa::mNormalAlpha
+		    + (maxHp - boss->mHitPoints) * 30;
+		if (alpha > 0xFE)
+			alpha = 0xFE;
+		if (alpha < 0)
+			alpha = 0;
+		boss->unk34C.a = alpha;
+
+		boss->unk184->mScaling.set(0.0f, 0.0f, 0.0f);
+		boss->mMActor->setBrkFromIndex(2);
+		s16 endFrame = boss->mMActor->getFrameCtrl(5)->getEnd();
+		boss->mMActor->getFrameCtrl(5)->setFrame((f32)endFrame);
+	} else {
+		JGeometry::TVec3<f32> pos = boss->mPosition;
+		pos.sub(*gpMarioPos);
+
+		if (spine->getTime() > 400
+		    && ((TBossTelesaKillSmallEnemy*)boss->unk174)->unk6C == 0) {
+			spine->pushAfterCurrent(&TNerveBossTelesaAppear::theNerve());
+			boss->offLiveFlag(LIVE_FLAG_HIDDEN);
+			return TRUE;
+		}
 	}
+
 	return FALSE;
 }
 
