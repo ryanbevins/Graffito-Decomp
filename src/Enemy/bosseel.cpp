@@ -1,4 +1,5 @@
 #include <Camera/CameraShake.hpp>
+#include <Camera/Camera.hpp>
 #include <Camera/cameralib.hpp>
 #include <Enemy/BossEel.hpp>
 #include <Enemy/Conductor.hpp>
@@ -25,6 +26,7 @@
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/MarioMain.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/SharedParts.hpp>
@@ -44,6 +46,8 @@ static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
 static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
 static u32 dummy1210[4] = { 0, 2, 1, 3 };
 static f32 testHeight;
+
+static s32 hoseiDiveCameraCallback(u32, u32);
 
 static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
@@ -392,6 +396,17 @@ BOOL TBossEel::receiveMessage(THitActor*, u32) { return FALSE; }
 BOOL TBossEel::hasMapCollision() const { return TRUE; }
 
 const char** TBossEel::getBasNameTable() const { return bosseel_bastable; }
+
+static s32 hoseiDiveCameraCallback(u32 actor, u32 state)
+{
+	if (state == 1) {
+		JGeometry::TVec3<f32> cameraPos = ((JDrama::TActor*)actor)->mPosition;
+		cameraPos.y += 12300.0f;
+		gpCamera->warpPosAndAt(cameraPos, *gpMarioPos);
+	}
+
+	return 0;
+}
 
 bool TBossEel::isInBossEelMoguDemo()
 {
@@ -2002,6 +2017,74 @@ DEFINE_NERVE(TNerveBossEelQuickBack, TLiveActor)
 
 		return TRUE;
 	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBossEelMouthOpenWait, TLiveActor)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		if (eel->unk1FD)
+			eel->unk1FD = FALSE;
+
+		START_BOSS_EEL_BCK(eel, 13);
+		gpCameraShake->startShake((EnumCamShakeMode)0x1b, 1.0f);
+	} else if (eel->checkCurAnmEnd(0)) {
+		if (eel->mMActor->checkCurBckFromIndex(13)) {
+			START_BOSS_EEL_BCK(eel, 14);
+			gpCameraShake->startShake((EnumCamShakeMode)0x1c, 1.0f);
+
+			TBossEelVortex* vortex
+			    = *(TBossEelVortex**)((u8*)eel + 0x18C);
+			vortex->reset();
+
+			MtxPtr mtx = eel->mMActor->getModel()->mNodeMatrices[eel->unk1A4];
+			vortex->mPosition.x = mtx[0][3];
+			vortex->mPosition.y = mtx[1][3];
+			vortex->mPosition.z = mtx[2][3];
+			vortex->unk6C       = FALSE;
+			vortex->mScaling.x  = eel->unk1E8->mSLVortexScaleXZ.value;
+			vortex->mScaling.y  = eel->unk1E8->mSLVortexScaleY.value;
+			vortex->mScaling.z  = eel->unk1E8->mSLVortexScaleXZ.value;
+			eel->offHitFlag(1);
+		} else {
+			s32 mouthOpenFrame = eel->unk1E8->mSLMouthOpenFrame.value;
+			s32 canEatFrame   = eel->unk1E8->mSLCanEatFrame.value;
+
+			if (spine->getTime() > mouthOpenFrame - canEatFrame) {
+				u8 canEat = *(u8*)((u8*)eel + 0x1C8);
+				if (!canEat) {
+					JGeometry::TVec3<f32> pos = *gpMarioPos;
+					MtxPtr mtx = eel->mMActor->getModel()
+					                 ->mNodeMatrices[*(u16*)((u8*)eel + 0x1A0)];
+					pos.x -= mtx[0][3];
+					pos.y -= mtx[1][3];
+					pos.z -= mtx[2][3];
+
+					if (MsVECMag2(&pos) < eel->unk1D4 * eel->unk1D8)
+						canEat = TRUE;
+				}
+
+				if (canEat) {
+					spine->pushAfterCurrent(&TNerveBossEelEat::theNerve());
+					return TRUE;
+				}
+			}
+
+			if (spine->getTime() > mouthOpenFrame) {
+				if (eel->mMActor->checkCurBckFromIndex(2))
+					return TRUE;
+
+				gpCameraShake->startShake((EnumCamShakeMode)0x1d, 1.0f);
+				START_BOSS_EEL_BCK(eel, 2);
+			}
+		}
+	}
+
+	if (eel->mMActor->checkCurBckFromIndex(14))
+		eel->mRotation.y += TBossEel::mOpenRollSpeed;
 
 	return FALSE;
 }
