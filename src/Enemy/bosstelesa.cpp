@@ -2030,10 +2030,45 @@ DEFINE_NERVE(TNerveBossTelesaFallDemo, TLiveActor)
 DEFINE_NERVE(TNerveBossTelesaFreeze, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	if (spine->getTime() > 120) {
-		boss->damageRecover();
-		return TRUE;
+	if (boss->mMActor->checkCurBckFromIndex(16)) {
+		if (boss->checkCurAnmEnd(0)) {
+			boss->unk350 = 0;
+
+			u8 maxHp = boss->getSaveParam()
+			               ? boss->getSaveParam()->mSLHitPointMax.get()
+			               : 1;
+			u8 alpha = TBossTelesa::mNormalAlpha
+			           + (maxHp - boss->mHitPoints) * 30;
+			if (alpha > 0xFE)
+				alpha = 0xFE;
+
+			boss->unk34C.a = alpha;
+			return TRUE;
+		}
+	} else {
+		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+		boss->unk160 = 16;
+		boss->unk168 = 1.0f;
+
+		J3DAnmTransform* oldAnm = nullptr;
+		if (boss->mMActor->unkC)
+			oldAnm = boss->mMActor->unkC->unk24;
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+		boss->mMActor->setBckFromIndex(16);
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+		const char** basTable = boss->getBasNameTable();
+		boss->setAnmSound(basTable ? basTable[16] : nullptr);
+
+		if (gpMSound->gateCheck(0x28E7)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x28E7, &boss->mPosition, 0, nullptr, 0, 4);
+		}
 	}
+
 	return FALSE;
 }
 
