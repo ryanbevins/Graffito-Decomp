@@ -90,6 +90,20 @@ DEFINE_NERVE(TNerveBPJumpReact, TLiveActor)
 	return actor->curAnmEndsNext(0, nullptr);
 }
 
+DEFINE_NERVE(TNerveBPFlyCannon, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0)
+		boss->changeBck(0x0C);
+
+	if (spine->getTime() == 0xA8)
+		boss->launchPolDrop();
+
+	return actor->curAnmEndsNext(0, nullptr);
+}
+
 TBossPakkunParams::TBossPakkunParams(const char* path)
     : TSpineEnemyParams(path)
     , PARAM_INIT(mSLWaitFrameStg0, 400)
