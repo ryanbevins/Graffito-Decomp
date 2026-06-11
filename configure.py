@@ -1045,7 +1045,7 @@ config.libs = [
             Object(Matching, "Map/JointModelManager.cpp"),
             Object(Matching, "Map/JointObj.cpp"),
             Object(NonMatching, "Map/Map.cpp"),
-            Object(NonMatching, "Map/MapArea.cpp"),
+            Object(Equivalent, "Map/MapArea.cpp"),
             Object(NonMatching, "Map/MapCheck.cpp"),
             Object(Matching, "Map/MapCollisionData.cpp"),
             Object(NonMatching, "Map/MapCollisionEntry.cpp"),
