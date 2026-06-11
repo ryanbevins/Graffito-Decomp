@@ -155,7 +155,7 @@ public:
 
 	TBossPakkunParams* getBossPakkunSaveParam() const
 	{
-		return (TBossPakkunParams*)TSpineEnemy::getSaveParam();
+		return (TBossPakkunParams*)getSaveParam();
 	}
 
 	/* 0x150 */ TBossPakkunMtxCalc* mMtxCalc;

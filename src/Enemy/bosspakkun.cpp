@@ -3,14 +3,17 @@
 #include <Enemy/Graph.hpp>
 #include <Enemy/Walker.hpp>
 #include <GC2D/GCConsole2.hpp>
+#include <JSystem/JMath.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/PollutionManager.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/MarioMain.hpp>
 #include <Player/ModelWaterManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/ObjManager.hpp>
@@ -339,14 +342,52 @@ void TBossPakkun::changeBck(int index)
 
 void TBossPakkun::launchPolDrop()
 {
-	if (mPolDrop == nullptr)
+	TBPPolDrop* drop = mPolDrop;
+	if (drop->unk80 != 0)
 		return;
 
-	mPolDrop->unk80    = 1;
-	mPolDrop->unk84    = 0;
-	mPolDrop->mPosition = mPosition;
-	mPolDrop->mVelocity.set(0.0f, 0.0f, 0.0f);
-	mPolDrop->offHitFlag(HIT_FLAG_NO_COLLISION);
+	JGeometry::TVec3<f32> launchPos;
+	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		launchPos = mPosition;
+		launchPos.x += 1.0f;
+	} else {
+		getJointTransByIndex(0x12, &launchPos);
+	}
+
+	f32 marioRotY = gpMarioOriginal->mRotation.y;
+	TBossPakkunParams* params = getBossPakkunSaveParam();
+	f32 front = params->mSLPollBallFront.value;
+	s16 marioAngle = (s16)(marioRotY * (65536.0f / 360.0f));
+
+	JGeometry::TVec3<f32> targetOffset;
+	targetOffset.set(front * JMASSin(marioAngle), 0.0f,
+	                 front * JMASCos(marioAngle));
+
+	JGeometry::TVec3<f32> targetPos = targetOffset;
+	targetPos.x += gpMarioPos->x;
+	targetPos.y += gpMarioPos->y;
+	targetPos.z += gpMarioPos->z;
+
+	JGeometry::TVec3<f32> velocity;
+	SMSCalcJumpVelocityXZ(targetPos, launchPos,
+	                      getBossPakkunSaveParam()->mSLPollBallSpeed.value, 0.1f,
+	                      &velocity);
+
+	drop             = mPolDrop;
+	drop->mVelocity  = velocity;
+	drop->mPosition  = launchPos;
+	drop->mScaling.x  = 0.0f;
+	drop->mScaling.y  = 0.0f;
+	drop->mScaling.z  = 0.0f;
+	drop->mRotation.z = 1.0f;
+	drop->mRotation.y = 1.0f;
+	drop->mRotation.x = 1.0f;
+	drop->unk80      = 1;
+	drop->unk84      = 0;
+	drop->unk78->setBck("pollut_ball");
+	drop->unk78->setBtk("pollut_ball_01");
+	drop->unk78->setBtk("pollut_ball_02");
+	drop->unk88 = launchPos.y;
 }
 
 void TBossPakkun::gotHipDropDamage()
