@@ -131,10 +131,11 @@ void TEffectEnemy::perform(u32 param_1, JDrama::TGraphics* gfx)
 		}
 		if ((param_1 & 2) && !(mLiveFlag & LIVE_FLAG_CLIPPED_OUT)) {
 			u8 maxHp
-			    = getSaveParam() ? getSaveParam()->mSLHitPointMax.value : 1;
+			    = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
+			u8 hitPoints = mHitPoints;
 			Vec scaled;
 			PSVECScale((Vec*)&mScaling, &scaled,
-			           (f32)((int)mHitPoints / (int)maxHp));
+			           (f32)((int)hitPoints / (int)maxHp));
 			gpMarioParticleManager->emitAndBindToPosPtr(0x1ED, &mPosition, 3,
 			                                            this);
 			gpMarioParticleManager->emitAndBindToPosPtr(0x135, &mPosition, 1,
