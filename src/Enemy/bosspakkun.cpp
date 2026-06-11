@@ -1,4 +1,5 @@
 #include <Enemy/BossPakkun.hpp>
+#include <Enemy/AreaCylinder.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
 #include <Enemy/Walker.hpp>
@@ -478,6 +479,48 @@ DEFINE_NERVE(TNerveBPFly, TLiveActor)
 	JGeometry::TVec3<f32> velocity = boss->mLinearVelocity;
 	velocity += dir;
 	boss->mLinearVelocity = velocity;
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBPHover, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		boss->changeBck(0x10);
+		boss->unk16C = 3;
+	}
+
+	f32 polBallRange = boss->getBossPakkunSaveParam()->mSLPollBallRange.value;
+	if (boss->unk188 == nullptr) {
+		boss->unk188
+		    = (TAreaCylinderManager*)gpConductor->search("ゲロエリアマネージャー");
+	}
+
+	BOOL marioInArea = FALSE;
+	if (boss->unk188 != nullptr)
+		marioInArea = boss->unk188->contain(*gpMarioPos);
+
+	if (marioInArea
+	    && boss->mDistToMarioSquared < polBallRange * polBallRange) {
+		spine->pushAfterCurrent(&TNerveBPHover::theNerve());
+		spine->pushAfterCurrent(&TNerveBPFlyCannon::theNerve());
+
+		TPathNode marioPath(*gpMarioPos);
+		boss->unk114.push(boss->unkF4);
+		boss->unkF4 = marioPath;
+
+		spine->pushAfterCurrent(&TNerveBPFlyPivot::theNerve());
+		return TRUE;
+	}
+
+	if (spine->getTime()
+	    >= boss->getBossPakkunSaveParam()->mSLHoverTimer.value) {
+		spine->pushAfterCurrent(&TNerveBPFly::theNerve());
+		boss->unk16C = 0;
+		return TRUE;
+	}
 
 	return FALSE;
 }

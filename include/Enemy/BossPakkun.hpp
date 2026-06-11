@@ -10,6 +10,7 @@
 class TLiveActor;
 class MActor;
 class TWaterEmitInfo;
+class TAreaCylinderManager;
 
 class TBossPakkunParams : public TSpineEnemyParams {
 public:
@@ -174,7 +175,7 @@ public:
 	/* 0x17D */ u8 unk17D[0x3];
 	/* 0x180 */ MActor* unk180;
 	/* 0x184 */ f32 unk184;
-	/* 0x188 */ void* unk188;
+	/* 0x188 */ TAreaCylinderManager* unk188;
 	/* 0x18C */ TWaterEmitInfo* unk18C;
 	/* 0x190 */ u8 unk190;
 	/* 0x191 */ u8 unk191[0x27];
