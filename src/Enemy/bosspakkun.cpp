@@ -20,6 +20,7 @@
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapData.hpp>
 #include <Map/PollutionManager.hpp>
+#include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
@@ -33,6 +34,7 @@
 #include <Strategic/Strategy.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
+#include <System/TargetArrow.hpp>
 #include <math.h>
 #include <stdlib.h>
 
@@ -1084,18 +1086,135 @@ const char** TBossPakkun::getBasNameTable() const { return bosspakkun_bastable; 
 
 void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	TSpineEnemy::perform(flags, graphics);
-
 	if (mPolDrop != nullptr)
 		mPolDrop->perform(flags, graphics);
 	if (mVomit != nullptr)
 		mVomit->perform(flags, graphics);
 	if (mTornado != nullptr)
 		mTornado->perform(flags, graphics);
+
+	if (checkLiveFlag(LIVE_FLAG_DEAD))
+		return;
+
 	if (mHeadHit != nullptr)
 		mHeadHit->perform(flags, graphics);
 	if (mNavel != nullptr)
 		mNavel->perform(flags, graphics);
+
+	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 1)) {
+		mMtxCalc->unk50 -= unk154;
+		if (mMtxCalc->unk50 < 0.0f)
+			mMtxCalc->unk50 = 0.0f;
+		else if (mMtxCalc->unk50 > 1.0f)
+			mMtxCalc->unk50 = 1.0f;
+
+		if ((s8)unk17C != 0) {
+			if (unk178 <= 0) {
+				unk17C = 0;
+				unk178 = 0;
+			} else {
+				s32 dec
+				    = getBossPakkunSaveParam()->mSLWaterMarkLimit.value / 100;
+				if (dec == 0)
+					dec = 1;
+				unk178 -= dec;
+				if (unk178 < 0)
+					unk178 = 0;
+			}
+		}
+
+		if ((s8)unk17C == 0 && unk174 > 0) {
+			--unk174;
+			++unk170;
+		}
+
+		if ((s8)unk1BC != 0) {
+			if (unk1B8 <= 0) {
+				unk1BC = 0;
+				unk1B8 = 0;
+			} else {
+				--unk1B8;
+			}
+		}
+
+		if (unk16C == 1 && checkMarioRiding()
+		    && mSpine->getLatestNerve() != &TNerveBPJumpReact::theNerve()) {
+			mSpine->pushNerve(&TNerveBPJumpReact::theNerve());
+		}
+	}
+
+	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 2)) {
+		if (mMActor->checkCurBckFromIndex(0x18)) {
+			MtxPtr mtx = getModel()->getAnmMtx(0x2B);
+			unk194.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+
+			mtx = getModel()->getAnmMtx(0x2C);
+			unk1A0.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+		}
+
+		if (mMActor->checkCurBckFromIndex(0x17)) {
+			MtxPtr mtx = getModel()->getAnmMtx(0x14);
+			unk1AC.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+
+			JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToPosPtr(
+			    0x124, &unk1AC, 1, this);
+			if (emitter != nullptr) {
+				static JGeometry::TVec3<f32> scale(2.5f, 2.5f, 2.5f);
+				emitter->setScale(scale);
+			}
+		}
+
+		if (mMActor->checkCurBckFromIndex(0x0B)
+		    || mMActor->checkCurBckFromIndex(0x0D)
+		    || mMActor->checkCurBckFromIndex(0x0C)) {
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x160, getModel()->getAnmMtx(0x26), 1, this);
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x160, getModel()->getAnmMtx(0x2E), 1, (u8*)this + 1);
+		}
+
+		if (mMActor->checkCurBckFromIndex(0x0B)
+		    || mMActor->checkCurBckFromIndex(0x06)
+		    || mMActor->checkCurBckFromIndex(0x1A)) {
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x15F, getModel()->getAnmMtx(0x14), 1, (u8*)this + 1);
+		}
+	}
+
+	if (((TBossPakkunManager*)mManager)->mIsLight == 0
+	    && mSpine->getLatestNerve() == &TNerveBPDie::theNerve()) {
+		MActor* oldActor = mMActor;
+		mMActor          = unk180;
+		TSpineEnemy::perform(flags, graphics);
+		mMActor = oldActor;
+		return;
+	}
+
+	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 2)) {
+		updateSquareToMario();
+		getModel()->getModelData()->mJointNodePointer[0]->setMtxCalc(mMtxCalc);
+		if (unk16C == 1) {
+			JGeometry::TVec3<f32> arrowPos = mNavel->mPosition;
+			arrowPos.y += 100.0f;
+			gpTargetArrow->unk14 = 1;
+			gpTargetArrow->setPos(arrowPos);
+		} else {
+			gpTargetArrow->unk14 = 0;
+		}
+	}
+
+	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 0x200)) {
+		J3DModelData* modelData = mMActor->getModel()->getModelData();
+		if (mSpine->getLatestNerve() == &TNerveBPPreDie::theNerve()
+		    || mSpine->getLatestNerve() == &TNerveBPStompReact::theNerve()) {
+			mMActor->offMakeDL();
+			SMS_AddDamageFogEffect(modelData, mPosition, graphics);
+		} else {
+			SMS_ResetDamageFogEffect(modelData);
+		}
+	}
+
+	TSpineEnemy::perform(flags, graphics);
 }
 
 BOOL TBossPakkun::receiveMessage(THitActor* sender, u32 message)
