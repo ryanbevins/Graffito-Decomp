@@ -1175,10 +1175,8 @@ check_sender_bit3:
 			if (!(mAction & 0x800)) {
 				setAnimation(77, 0.0f);
 				J3DFrameCtrl& ctrl = getMotionFrameCtrl();
-				s16 frameAngle = *(s16*)((u8*)&ctrl + 8);
-				getMotionFrameCtrl();
-				// Convert s16 to float and set
-				// ... complex frame setting
+				s16 frameAngle = ctrl.getEnd();
+				getMotionFrameCtrl().setFrame((f32)frameAngle);
 			}
 			changePlayerDropping(0x1336, 0);
 			return 1;
