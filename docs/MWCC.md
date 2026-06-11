@@ -5670,6 +5670,28 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Materializing a bitmask predicate into `bool` can preserve target branch lattices and saved-local lifetimes
+
+**Hypothesis.** When target asm turns a bitmask/equality predicate into
+`li 1` / `li 0`, tests the materialized byte, and only then promotes the
+guarded object pointer into a saved local, source should spell both pieces
+explicitly: first a true/false `bool`, then a narrower local inside the guarded
+block. A direct `if (ptr->flags & MASK)` lets MWCC branch directly and can keep
+the pointer live in a saved register too early.
+
+**Observed.** `mario/Enemy/bosstelesa`
+`TBossTelesaKillSmallEnemy::checkHit()` (2026-06-12 MNL): changing
+`if (actor->mActorType & ACTOR_TYPE_ENEMY)` to an explicit `bool isEnemy`
+raised the helper `85.1 -> 98.3` by restoring the target bool materialization.
+Then splitting `THitActor* collision = mCollisions[i]` outside the guard from
+`THitActor* actor = collision` inside `if (isEnemy)` raised it to `99.7` by
+matching the target's delayed saved-`r28` lifetime.
+
+**Experiment to confirm/refute.** Find another loop where target materializes a
+bitmask predicate and copies the object pointer into a saved register only
+inside the true block. Apply the same explicit-bool plus inner-local rewrite
+and verify that both the `li 1/0` lattice and saved-local placement follow.
+
 ### Predeclaring saved-FPR locals in target priority order can steer f30/f31 coloring
 
 **Hypothesis.** When two `f32` locals are both live across the same `bl` region
