@@ -594,14 +594,17 @@ check_sender_bit3:
 					           mDmgParamsHinokuri.mInvincibleTime.get());
 					return 1;
 				}
-			} else if (message == 9) {
+			}
+			// Fall through to keepDistance
+
+		case 0x1000000B:
+			if (message == 9) {
 				if (!isInvincible()) {
 					elecEffect();
 					changePlayerStatus(0x20338, 0, false);
 					return 1;
 				}
 			}
-			// Fall through to keepDistance
 			{
 				f32 height = sender->mAttackHeight;
 				keepDistance(sender->mPosition, 0.0f + height, 0.0f);
