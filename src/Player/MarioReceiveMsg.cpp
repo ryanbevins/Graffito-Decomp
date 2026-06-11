@@ -1131,6 +1131,7 @@ check_sender_bit3:
 			return 0;
 		}
 
+		case 0x08000002:
 		case 0x80000001: // Player contact
 		{
 			if (!isInvincible()) {
