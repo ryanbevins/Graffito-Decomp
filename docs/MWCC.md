@@ -5640,19 +5640,25 @@ for predicate functions.
 
 ### Infectious MtxCalc rodata may be followed by const zero/one `f32[3]` vectors in some TParams TUs
 
-**Hypothesis.** Some TUs that include the full `M3DUtil/InfectiousStrings.hpp`
-rodata cluster also need two file-scope `static const f32[3]` arrays after the
-MtxCalc type-name strings and before later TU-local strings: `{0,0,0}` then
-`{1,1,1}`. If they are absent, later static strings move 0x18 bytes earlier,
+**Hypothesis.** Some TUs that need the full infectious MtxCalc rodata string
+cluster also need two file-scope `static const f32[3]` arrays after the
+type-name strings and before later TU-local strings: `{0,0,0}` then `{1,1,1}`.
+If the float arrays are absent, later static strings move 0x18 bytes earlier,
 which can make otherwise correct TParams constructors nonmatching only because
-their rodata base-register offsets differ.
+their rodata base-register offsets differ. If the target data section does not
+contain the infectious pointer objects emitted by
+`M3DUtil/InfectiousStrings.hpp`, spell the strings as local `static const char[]`
+objects instead of including the pointer-based helper header.
 
 **Observed.** `mario/Enemy/BathtubPeach` (2026-06-11 MNL): original rodata has
 12 bytes of zero floats and 12 bytes of one floats between the MtxCalc strings
 and `"/scene/bathtubpeach/bas/peach_wait.bas"`. Adding TU-local
 `dummy2850`/`dummy2852` const arrays at that point moved parameter strings from
 base offsets `0x130/0x148/...` to the target `0x148/0x160/...`, matching
-`TBathtubPeachManager::load` and the `.rodata`/`.ctors` objects.
+`TBathtubPeachManager::load` and the `.rodata`/`.ctors` objects. Replacing
+`InfectiousStrings.hpp` with local char-array definitions for the same strings
+then removed extra `.data` pointer objects and improved the `.data` object
+`50.2 -> 62.2`.
 
 **Experiment to confirm/refute.** Inspect another TParams-heavy TU with
 `InfectiousStrings.hpp` where the original asm shows an extra `{0,0,0}` /
