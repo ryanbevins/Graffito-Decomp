@@ -654,6 +654,10 @@ check_sender_bit3:
 
 		case 0x10000004: // Common damage with keepDistance
 		case 0x10000006:
+		case 0x10000007:
+		case 0x10000008:
+		case 0x10000009:
+		case 0x1000000C:
 		case 0x10000010:
 		case 0x10000022:
 		case 0x10000033:
