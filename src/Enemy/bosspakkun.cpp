@@ -16,6 +16,7 @@
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <Map/Map.hpp>
+#include <Map/MapCollisionEntry.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapData.hpp>
 #include <Map/PollutionManager.hpp>
@@ -1169,8 +1170,20 @@ void TBossPakkun::init(TLiveManager* manager)
 
 void TBossPakkun::setGroundCollision()
 {
-	if (mMapCollisionManager != nullptr)
-		mMapCollisionManager->changeCollision(0);
+	const TNerveBPDie& dieNerve = TNerveBPDie::theNerve();
+	if (mSpine->getLatestNerve() == &dieNerve)
+		return;
+
+	if (mMapCollisionManager == nullptr)
+		return;
+
+	J3DModel* model          = getModel();
+	TMapCollisionBase* entry = mMapCollisionManager->unk8;
+	if (entry != nullptr) {
+		Mtx mtx;
+		PSMTXCopy(model->mNodeMatrices[2], mtx);
+		entry->moveMtx(mtx);
+	}
 }
 
 void TBossPakkun::kill()
