@@ -28,11 +28,10 @@ void TMario::startJumpWall()
 		emitParticle(24, newAngle);
 		emitParticle(25, newAngle);
 	}
-	mVel.y = 0.0f;
+	mVel.y = -8.0f;
 	mFaceAngle.y = mFaceAngle.y + 0x8000;
-	f32 ceiling = mJumpParams.mJumpJumpCatchSp.value;
-	if (mVel.y + ceiling + mPosition.y >= mFloorPosition.y)
-		mVel.y = 0.0f;
+	if ((-1.0f + mPosition.y) + mVel.y >= mFloorPosition.x)
+		mVel.y = 176.0f;
 	changePlayerStatus(0x02000886, 0, false);
 }
 
