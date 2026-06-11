@@ -847,7 +847,7 @@ config.libs = [
             Object(Matching, "System/ParamInst.cpp"),
             Object(NonMatching, "System/PerformList.cpp"),
             Object(NonMatching, "System/RenderModeObj.cpp"),
-            Object(NonMatching, "System/SnapTimeObj.cpp"),
+            Object(Equivalent, "System/SnapTimeObj.cpp"),
             Object(NonMatching, "System/TalkCursor.cpp"),
             Object(Matching, "System/TexCache.cpp"),
             Object(Matching, "System/ZBufferCatch.cpp"),
