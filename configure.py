@@ -884,7 +884,7 @@ config.libs = [
         "objects": [
             Object(NonMatching, "Strategic/liveactor.cpp"),
             Object(NonMatching, "Strategic/liveinterp.cpp"),
-            Object(NonMatching, "Strategic/livemanager.cpp"),
+            Object(Equivalent, "Strategic/livemanager.cpp"),
             Object(NonMatching, "Strategic/ObjHitCheck.cpp"),
             Object(NonMatching, "Strategic/objmanager.cpp"),
             Object(NonMatching, "Strategic/ObjModel.cpp"),
