@@ -1831,6 +1831,63 @@ DEFINE_NERVE(TNerveBossEelWaitAppear, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveBossEelFirstSpin, TLiveActor)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		eel->mTurnSpeed = 0.0f;
+		if (gpMSound->gateCheck(0x8921)) {
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x8921, &eel->mPosition, nullptr, 2.0f, 0, 0, nullptr, 0,
+			    4);
+		}
+
+		START_BOSS_EEL_BCK(eel, 10);
+
+		if (rand() * 0.000030517578f < 0.5f)
+			eel->onLiveFlag(LIVE_FLAG_UNK10000);
+		else
+			eel->offLiveFlag(LIVE_FLAG_UNK10000);
+	}
+
+	f32 turnSpeed = eel->mTurnSpeed;
+	CLBChaseGeneralConstantSpecifySpeed(
+	    &turnSpeed, eel->unk1E8->mSLSpinMaxSpeed.value,
+	    eel->unk1E8->mSLSpinAccel.value);
+	eel->mTurnSpeed = turnSpeed;
+	gpCameraShake->keepShake((EnumCamShakeMode)0x18, 1.0f);
+
+	if (eel->mLiveFlag & LIVE_FLAG_UNK10000) {
+		eel->mRotation.y -= turnSpeed;
+		if (eel->mRotation.y <= 0.0f) {
+			if (gpMSound->gateCheck(0x8921)) {
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x8921, &eel->mPosition, nullptr, turnSpeed, 0, 0,
+				    nullptr, 0, 4);
+			}
+		}
+	} else {
+		eel->mRotation.y += turnSpeed;
+		if (eel->mRotation.y >= 360.0f) {
+			if (gpMSound->gateCheck(0x8921)) {
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x8921, &eel->mPosition, nullptr, turnSpeed, 0, 0,
+				    nullptr, 0, 4);
+			}
+		}
+	}
+
+	eel->mRotation.y = callMsWrap(eel->mRotation.y, 0.0f, 360.0f);
+
+	if (spine->getTime() >= 360) {
+		spine->pushAfterCurrent(&TNerveBossEelAppear::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 DEFINE_NERVE(TNerveBossEelSecondSpin, TLiveActor)
 {
 	TBossEel* eel = (TBossEel*)spine->getBody();
