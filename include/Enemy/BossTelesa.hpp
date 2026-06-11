@@ -93,7 +93,9 @@ public:
 	/* 0x1AC */ TLiveActor* unk1AC[50];
 	/* 0x274 */ s32 unk274;
 	/* 0x278 */ JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > unk278;
-	/* 0x2A8 */ u8 unk2A8[0xA0];
+	/* 0x2A8 */ TLiveActor* unk2A8[20];
+	/* 0x2F8 */ TLiveActor* unk2F8[10];
+	/* 0x320 */ TLiveActor* unk320[10];
 	/* 0x348 */ u8 unk348;
 	/* 0x349 */ u8 unk349;
 	/* 0x34A */ u8 unk34A;
