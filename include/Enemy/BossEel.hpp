@@ -70,7 +70,7 @@ public:
 	/* 0x1FE */ u8 unk1FE;
 	/* 0x1FF */ u8 unk1FF;
 	/* 0x200 */ s32 unk200;
-	/* 0x204 */ u8 unk204[0xC];
+	/* 0x204 */ JGeometry::TVec3<f32> unk204;
 	/* 0x210 */ void* unk210;
 	/* 0x214 */ void* unk214;
 	/* 0x218 */ void* unk218;

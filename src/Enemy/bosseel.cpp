@@ -26,6 +26,7 @@
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <Player/MarioAccess.hpp>
+#include <System/MarioGamePad.hpp>
 #include <Player/MarioMain.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
@@ -2016,6 +2017,93 @@ DEFINE_NERVE(TNerveBossEelQuickBack, TLiveActor)
 		}
 
 		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBossEelEat, TLiveActor)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		START_BOSS_EEL_BCK(eel, 17);
+
+	if (eel->checkCurAnmEnd(0)) {
+		if (eel->mMActor->checkCurBckFromIndex(17)) {
+			u8 canEat = *(u8*)((u8*)eel + 0x1C8);
+			if (!canEat) {
+				JGeometry::TVec3<f32> pos = *gpMarioPos;
+				MtxPtr mtx = eel->mMActor->getModel()
+				                 ->mNodeMatrices[*(u16*)((u8*)eel + 0x1A0)];
+				pos.x -= mtx[0][3];
+				pos.y -= mtx[1][3];
+				pos.z -= mtx[2][3];
+
+				if (MsVECMag2(&pos) < eel->unk1D4 * eel->unk1D8)
+					canEat = TRUE;
+			}
+
+			if (canEat) {
+				START_BOSS_EEL_BCK(eel, 12);
+				if (SMS_SendMessageToMario(eel, HIT_MESSAGE_TAKE))
+					eel->mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
+
+				if (!eel->unk21C) {
+					gpMarDirector->mConsole->startAppearBalloon(0xE0015, true);
+					gpMarDirector->fireStartDemoCamera(
+					    "meoto_mogu_camera", &eel->mPosition, -1, 0.0f,
+					    false, hoseiDiveCameraCallback, (u32)eel, nullptr,
+					    JDrama::TFlagT<u16>(0));
+					eel->unk21C = TRUE;
+				}
+			} else {
+				START_BOSS_EEL_BCK(eel, 5);
+
+				MtxPtr mtx = eel->mMActor->getModel()->mNodeMatrices[5];
+				eel->unk204.x = mtx[0][3];
+				eel->unk204.y = mtx[1][3];
+				eel->unk204.z = mtx[2][3];
+
+				JPABaseEmitter* emitter
+				    = gpMarioParticleManager->emitAndBindToPosPtr(
+				        0xD4, &eel->unk204, 0, nullptr);
+				if (emitter)
+					emitter->setScale(eel->mScaling);
+			}
+		} else if (eel->mMActor->checkCurBckFromIndex(12)) {
+			if (SMS_SendMessageToMario(eel, HIT_MESSAGE_UNK8)) {
+				eel->mHeldObject = nullptr;
+				SMS_SendMessageToMario(eel, 0xE);
+				gpMarDirector->fireEndDemoCamera();
+				eel->unk21C = FALSE;
+			}
+
+			spine->reset();
+			spine->setDefaultNext();
+			spine->pushAfterCurrent(&TNerveBossEelQuickBack::theNerve());
+			return TRUE;
+		}
+	}
+
+	if (eel->mMActor->checkCurBckFromIndex(12)) {
+		if (eel->mMActor->getFrameCtrl(0)->getFrame() < 75.0f)
+			SMSRumbleMgr->start(8, &eel->mPosition);
+		else
+			SMSRumbleMgr->start(0x14, 10, (f32*)nullptr);
+
+		gpMarioOriginal->mGamePad->onNeutralMarioKey();
+		if (SMS_SendMessageToMario(eel, HIT_MESSAGE_TAKE)) {
+			eel->mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
+			if (!eel->unk21C) {
+				gpMarDirector->mConsole->startAppearBalloon(0xE0015, true);
+				gpMarDirector->fireStartDemoCamera(
+				    "meoto_mogu_camera", &eel->mPosition, -1, 0.0f, false,
+				    hoseiDiveCameraCallback, (u32)eel, nullptr,
+				    JDrama::TFlagT<u16>(0));
+				eel->unk21C = TRUE;
+			}
+		}
 	}
 
 	return FALSE;
