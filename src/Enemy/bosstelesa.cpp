@@ -775,7 +775,7 @@ void TBossTelesa::generateSlotItem()
 	s32 slotItemNum                   = params->mSLSlotItemNum.get();
 	MtxPtr rootMtx                    = mMActor->unk4->mNodeMatrices[5];
 	f32 angleStep                     = 120.0f / slotItemNum;
-	f32 angleOffset                   = slotItemNum * 0.5f;
+	f32 angleOffset                   = angleStep * slotItemNum * 0.5f;
 
 	if (result == 2) {
 		s32 numFruit = params->mSLSlotFruitNum.get();
@@ -882,7 +882,7 @@ void TBossTelesa::generateSlotItem()
 			unk370 = 0;
 
 		f32 itemAngleStep   = 120.0f / numItems;
-		f32 itemAngleOffset = numItems * 0.5f;
+		f32 itemAngleOffset = itemAngleStep * numItems * 0.5f;
 		for (int i = 0; i < numItems; ++i) {
 			if (i >= 10)
 				return;
