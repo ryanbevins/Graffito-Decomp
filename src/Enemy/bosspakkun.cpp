@@ -1041,9 +1041,10 @@ void TBossPakkun::rumblePad(int param_1, const JGeometry::TVec3<f32>& pos)
 	if (!SMS_IsMarioTouchGround4cm())
 		return;
 
+	f32 distance;
 	JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
 	delta -= pos;
-	f32 distance = delta.length();
+	distance     = delta.length();
 	f32 strength = (3000.0f - distance) / 1000.0f;
 
 	if (strength < 0.0f)
