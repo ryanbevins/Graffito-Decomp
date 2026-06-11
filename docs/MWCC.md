@@ -7896,6 +7896,21 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **What source shape preserves MWCC's large-stack `s16`-to-`f32` frame-control
+  write inside a huge dispatcher?** In `mario/Player/MarioReceiveMsg`
+  `TMario::receiveMessage`, target actor case `0x080000C0` reads
+  `J3DFrameCtrl::mEnd` at `+0x8` through one `getMotionFrameCtrl()` call,
+  calls `getMotionFrameCtrl()` again, converts the `s16` through the existing
+  double-constant stack path near the function's large `0x220` frame, and
+  stores the result to `mFrame` at `+0x10`. Leaving the write absent preserves
+  the surrounding dispatcher at `77.6%`; completing it as
+  `getEnd()`/`setFrame()` or as a raw `*(f32*)((u8*)&getMotionFrameCtrl()+0x10)
+  = frameAngle` both collapse/recolor the whole function and regress to about
+  `38%`. Next experiment: look for another large dispatcher that converts a
+  short animation frame to float after repeated accessor calls, and compare
+  whether a temp pointer, volatile-like escape, or declaration-order lever keeps
+  the caller's large frame alive without stack-padding hacks.
+
 - **What source or visibility cue selects the constructor depth MWCC emits for
   nested empty geometry wrappers?** In `mario/Enemy/enemyMario`
   `TEnemyMario::consider`, target state `0x1B` constructs a stack
