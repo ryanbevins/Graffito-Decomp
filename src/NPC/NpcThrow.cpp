@@ -4,6 +4,8 @@
 #include <Camera/cameralib.hpp>
 #include <JSystem/JMath.hpp>
 
+template <> s16 CLBRoundf<s16>(f32);
+
 void TNpcThrow::throwMario(THitActor* mario)
 {
 	JGeometry::TVec3<f32> dir;
