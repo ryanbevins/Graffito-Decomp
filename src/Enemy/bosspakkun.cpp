@@ -30,6 +30,7 @@
 #include <Strategic/Strategy.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
+#include <stdlib.h>
 
 static const char* bosspakkun_bastable[] = {
 	nullptr,
@@ -452,6 +453,85 @@ DEFINE_NERVE(TNerveBPCannonL, TLiveActor)
 			spine->pushAfterCurrent(&TNerveBPWaitL::theNerve());
 			return TRUE;
 		}
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBPVomit, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0)
+		boss->changeBck(0x15);
+
+	if (actor->checkCurBckFromIndex(0x15)) {
+		f32 frame = actor->getFrameCtrl(0)->getFrame();
+		if (25.0f < frame && frame < 165.0f)
+			boss->unk16C = 2;
+		else
+			boss->unk16C = 0;
+	}
+
+	if (actor->checkCurBckFromIndex(0x14)) {
+		if (rand() * 0.000030517578f < 0.2f && spine->getTime() == 500) {
+			f32 rotY = boss->mRotation.y;
+			s16 angle = (s16)(rotY * (65536.0f / 360.0f));
+
+			JGeometry::TVec3<f32> offset;
+			offset.set(700.0f * JMASSin(angle), 0.0f,
+			           700.0f * JMASCos(angle));
+
+			gpItemManager->makeObjAppear(boss->mPosition.x + offset.x,
+			                             boss->mPosition.y + 1.0f,
+			                             boss->mPosition.z + offset.z,
+			                             0x20000002, false);
+		}
+	}
+
+	if (actor->curAnmEndsNext(0, nullptr)) {
+		if (actor->checkCurBckFromIndex(0x15)) {
+			boss->unk16C = 0;
+			boss->changeBck(0x14);
+
+			TBPVomit* vomit = boss->mVomit;
+			vomit->unk14->setBckFromIndex(0);
+			vomit->unk18->setBckFromIndex(1);
+
+			J3DModel* bossModel = vomit->mOwner->getModel();
+			J3DModel* model     = vomit->unk14->getModel();
+			PSMTXCopy(bossModel->getBaseTRMtx(), model->getBaseTRMtx());
+			model->unk14 = vomit->mOwner->mScaling;
+
+			J3DModel* stampModel = vomit->unk18->getModel();
+			PSMTXCopy(bossModel->getBaseTRMtx(), stampModel->getBaseTRMtx());
+			stampModel->unk14 = vomit->mOwner->mScaling;
+
+			boss->rumblePad(1, boss->mPosition);
+		} else {
+			bool isBossStage = false;
+			if (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 4)
+				isBossStage = true;
+
+			if (!isBossStage) {
+				if ((boss->unk1C0 & 1) == 0)
+					gpMarDirector->mConsole->startAppearBalloon(0xE0000,
+					                                             true);
+				boss->unk1C0 |= 1;
+			}
+
+			return TRUE;
+		}
+	}
+
+	if (actor->checkCurBckFromIndex(0x14)) {
+		s16 angle = (s16)(boss->mRotation.y * (65536.0f / 360.0f));
+		JGeometry::TVec3<f32> dir;
+		dir.x = JMASSin(angle);
+		dir.y = 0.0f;
+		dir.z = JMASCos(angle);
+		gpModelWaterManager->wind(dir);
 	}
 
 	return FALSE;
