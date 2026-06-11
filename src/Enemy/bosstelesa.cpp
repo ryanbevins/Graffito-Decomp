@@ -862,13 +862,12 @@ void TBossTelesa::generateSlotItem()
 				actor->offLiveFlag(LIVE_FLAG_UNK10);
 			}
 
-			actor->mScaling.set(1.5f, 1.5f, 1.5f);
-
 			unk1AC[unk274] = actor;
-			actor->onHitFlag(HIT_FLAG_NO_COLLISION);
-			actor->mPosition.x = rootMtx[0][3] + dir.x;
-			actor->mPosition.y = rootMtx[1][3] - 50.0f;
-			actor->mPosition.z = rootMtx[2][3] + dir.z;
+			unk1AC[i]->onHitFlag(HIT_FLAG_NO_COLLISION);
+			unk1AC[i]->mScaling.set(1.5f, 1.5f, 1.5f);
+			unk1AC[unk274]->mPosition.x = rootMtx[0][3] + dir.x;
+			unk1AC[unk274]->mPosition.y = rootMtx[1][3] - 50.0f;
+			unk1AC[unk274]->mPosition.z = rootMtx[2][3] + dir.z;
 			unk274++;
 		}
 	} else if (result == 0) {
