@@ -146,11 +146,14 @@ TBossTelesa::TBossTelesa(const char* name)
 void TBossTelesa::loadAfter()
 {
 	u32 rouletteType = 0x4000019A;
-	if (gpMapObjManager->getObjNumWithActorType(rouletteType) != 0) {
+	if ((u32)gpMapObjManager->getObjNumWithActorType(rouletteType) != 0) {
 		int found = 0;
 		for (int i = 0; i < gpMapObjManager->getObjNum(); ++i) {
 			TMapObjBase* actor = gpMapObjManager->getObj(i);
-			if (actor->mActorType == rouletteType) {
+			bool isRoulette = false;
+			if (actor->mActorType == rouletteType)
+				isRoulette = true;
+			if (isRoulette) {
 				((TRoulette**)&unk178)[found] = (TRoulette*)actor;
 				found++;
 			}
@@ -158,10 +161,13 @@ void TBossTelesa::loadAfter()
 	}
 
 	u32 slotType = 0x400001A6;
-	if (gpMapObjManager->getObjNumWithActorType(slotType) != 0) {
+	if ((u32)gpMapObjManager->getObjNumWithActorType(slotType) != 0) {
 		for (int i = 0; i < gpMapObjManager->getObjNum(); ++i) {
 			TMapObjBase* actor = gpMapObjManager->getObj(i);
-			if (actor->mActorType == slotType) {
+			bool isSlot = false;
+			if (actor->mActorType == slotType)
+				isSlot = true;
+			if (isSlot) {
 				unk184       = (TTelesaSlot*)actor;
 				unk184->unk1A0 = this;
 			}
