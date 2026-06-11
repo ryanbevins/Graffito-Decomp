@@ -355,31 +355,62 @@ void TBossTelesa::flashItem(int result)
 {
 	int phase = result % 16;
 
-	for (int i = 0; i < 20; ++i) {
-		TLiveActor* actor = unk2A8[i];
-		if (!(actor->mLiveFlag & LIVE_FLAG_DEAD) && actor->mHolder == nullptr) {
+	int index = 0;
+	for (int i = 0; i < 5; ++i) {
+		TLiveActor* actor = unk2A8[index++];
+		u32* liveFlag     = &actor->mLiveFlag;
+		if (!(*liveFlag & LIVE_FLAG_DEAD) && actor->mHolder == nullptr) {
 			if (phase < 8)
-				actor->onLiveFlag(LIVE_FLAG_HIDDEN);
+				*liveFlag |= LIVE_FLAG_HIDDEN;
 			else
-				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
+				*liveFlag &= ~LIVE_FLAG_HIDDEN;
+		}
+
+		actor    = unk2A8[index++];
+		liveFlag = &actor->mLiveFlag;
+		if (!(*liveFlag & LIVE_FLAG_DEAD) && actor->mHolder == nullptr) {
+			if (phase < 8)
+				*liveFlag |= LIVE_FLAG_HIDDEN;
+			else
+				*liveFlag &= ~LIVE_FLAG_HIDDEN;
+		}
+
+		actor    = unk2A8[index++];
+		liveFlag = &actor->mLiveFlag;
+		if (!(*liveFlag & LIVE_FLAG_DEAD) && actor->mHolder == nullptr) {
+			if (phase < 8)
+				*liveFlag |= LIVE_FLAG_HIDDEN;
+			else
+				*liveFlag &= ~LIVE_FLAG_HIDDEN;
+		}
+
+		actor    = unk2A8[index++];
+		liveFlag = &actor->mLiveFlag;
+		if (!(*liveFlag & LIVE_FLAG_DEAD) && actor->mHolder == nullptr) {
+			if (phase < 8)
+				*liveFlag |= LIVE_FLAG_HIDDEN;
+			else
+				*liveFlag &= ~LIVE_FLAG_HIDDEN;
 		}
 	}
 
 	for (int i = 0; i < 10; ++i) {
 		TLiveActor* actor = unk2F8[i];
-		if (!(actor->mLiveFlag & LIVE_FLAG_DEAD) && actor->mHolder == nullptr) {
+		u32* liveFlag     = &actor->mLiveFlag;
+		if (!(*liveFlag & LIVE_FLAG_DEAD) && actor->mHolder == nullptr) {
 			if (phase < 8)
-				actor->onLiveFlag(LIVE_FLAG_HIDDEN);
+				*liveFlag |= LIVE_FLAG_HIDDEN;
 			else
-				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
+				*liveFlag &= ~LIVE_FLAG_HIDDEN;
 		}
 
 		actor = unk320[i];
-		if (!(actor->mLiveFlag & LIVE_FLAG_DEAD)) {
+		liveFlag = &actor->mLiveFlag;
+		if (!(*liveFlag & LIVE_FLAG_DEAD)) {
 			if (phase < 8)
-				actor->onLiveFlag(LIVE_FLAG_HIDDEN);
+				*liveFlag |= LIVE_FLAG_HIDDEN;
 			else
-				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
+				*liveFlag &= ~LIVE_FLAG_HIDDEN;
 		}
 	}
 }
