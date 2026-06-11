@@ -1786,16 +1786,22 @@ BOOL TBossTelesaTongue::receiveMessage(THitActor*, u32 message)
 
 BOOL TBossTelesaBody::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == HIT_MESSAGE_TRAMPLE
-	    && sender->mActorType != (ACTOR_TYPE_PLAYER | 1)) {
-		TBossTelesa* boss = unk68;
-		if (boss->mSpine->getCurrentNerve()
-		    == &TNerveBossTelesaPrepareSlot::theNerve())
-			boss->mSpine->pushNerve(&TNerveBossTelesaSpit::theNerve());
+	TBossTelesa* boss = unk68;
+
+	if (message == HIT_MESSAGE_TRAMPLE) {
+		bool isMario;
+		if (sender->mActorType == (ACTOR_TYPE_PLAYER | 1))
+			isMario = true;
+		else
+			isMario = false;
+		if (!isMario) {
+			if (boss->mSpine->getCurrentNerve()
+			    == &TNerveBossTelesaPrepareSlot::theNerve())
+				boss->mSpine->pushNerve(&TNerveBossTelesaSpit::theNerve());
+		}
 	}
 
 	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
-		TBossTelesa* boss = unk68;
 		if (boss->mSpine->getCurrentNerve()
 		    == &TNerveBossTelesaPrepareSlot::theNerve())
 			boss->mSpine->pushNerve(&TNerveBossTelesaFreeze::theNerve());
