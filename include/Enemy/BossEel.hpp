@@ -5,6 +5,7 @@
 #include <Enemy/EnemyManager.hpp>
 #include <Strategic/SharedParts.hpp>
 #include <Strategic/Nerve.hpp>
+#include <dolphin/gx/GXStruct.h>
 
 class TLiveActor;
 class TBEelTearsDrop;
@@ -31,6 +32,7 @@ public:
 	virtual const char** getBasNameTable() const;
 
 	bool isInBossEelMoguDemo();
+	void forceShedTears(bool);
 
 	static f32 mOpenRollSpeed;
 	static u8 mUseObjCollision;
@@ -261,6 +263,27 @@ public:
 	/* 0x68 */ TBossEelEye* unk68;
 	/* 0x6C */ s32 unk6C;
 	/* 0x70 */ JGeometry::TVec3<f32> unk70;
+};
+
+class TBossEelTooth : public THitActor {
+public:
+	TBossEelTooth(u8, TBossEel*, const char*, SDLModelData*, const char*);
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual BOOL receiveMessage(THitActor*, u32);
+
+	/* 0x68 */ TSharedParts* unk68;
+	/* 0x6C */ TBossEel* unk6C;
+	/* 0x70 */ s32 unk70;
+	/* 0x74 */ u8 unk74;
+	/* 0x75 */ u8 unk75[0x3];
+	/* 0x78 */ f32 unk78;
+	/* 0x7C */ f32 unk7C;
+	/* 0x80 */ f32 unk80;
+	/* 0x84 */ s32 unk84;
+	/* 0x88 */ Mtx unk88;
+	/* 0xB8 */ GXColor unkB8;
+	/* 0xBC */ u8 unkBC;
+	/* 0xBD */ u8 unkBD[0x3];
 };
 
 class TBEelTearsSaveLoadParams : public TSpineEnemyParams {

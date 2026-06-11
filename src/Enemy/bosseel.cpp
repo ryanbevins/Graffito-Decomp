@@ -1,4 +1,5 @@
 #include <Enemy/BossEel.hpp>
+#include <Enemy/Conductor.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
@@ -12,6 +13,7 @@
 #include <M3DUtil/SDLModel.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/MtxUtil.hpp>
+#include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
@@ -102,6 +104,37 @@ static const char* bossEelTears_bastable[] = {
 
 static const char cDummyTextureName[] = "M_dummy";
 static const char cTearsRecoverCollisionName[] = "回復コリジョン";
+static const char cBossEelTearsManagerName[] = "めおとウナギ涙マネージャー";
+
+static inline void setBossEelParticleScale(JPABaseEmitter* emitter,
+                                           const TBossEel* eel)
+{
+	if (!emitter)
+		return;
+
+	emitter->unk154.x = eel->mScaling.x;
+	emitter->unk154.y = eel->mScaling.y;
+	emitter->unk154.z = eel->mScaling.z;
+	emitter->unk174.x = eel->mScaling.x;
+	emitter->unk174.y = eel->mScaling.y;
+	emitter->unk174.z = eel->mScaling.z;
+}
+
+static inline void emitToothParticle(TBossEelTooth* tooth, s32 particle_id)
+{
+	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToPosPtr(
+	    particle_id, &tooth->mPosition, 1, tooth);
+	setBossEelParticleScale(emitter, tooth->unk6C);
+}
+
+static inline void playBossEelSound(u32 sound_id,
+                                    const JGeometry::TVec3<f32>* position)
+{
+	if (gpMSound->gateCheck(sound_id)) {
+		MSoundSESystem::MSoundSE::startSoundActor(sound_id, position, 0,
+		                                          nullptr, 0, 4);
+	}
+}
 
 DEFINE_NERVE(TNerveBEelTearsMoveUp, TLiveActor)
 {
@@ -801,6 +834,219 @@ void TBossEelVortex::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	THitActor::perform(flags, graphics);
+}
+
+void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (unk6C->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
+		return;
+
+	if (unk70 == 0)
+		return;
+
+	if (flags & 1) {
+		TBossEelSaveParams* params = unk6C->unk1E8;
+		f32 scale                  = unk6C->mScaling.x;
+		mAttackRadius              = params->mSLToothAttackRadius.value * scale;
+		mAttackHeight              = params->mSLToothAttackHeight.value * scale;
+		mDamageRadius              = params->mSLToothDamageRadius.value * scale;
+		mDamageHeight              = params->mSLToothDamageHeight.value * scale;
+		calcEntryRadius();
+
+		for (int i = 0; i < mColCount; ++i) {
+			THitActor* hit = mCollisions[i];
+			if (unk6C->mSpine->getCurrentNerve()
+			        != &TNerveBossEelEat::theNerve()
+			    && hit->isActorTypeOf(ACTOR_TYPE_PLAYER) && unk70 > 1) {
+				SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
+			}
+		}
+
+		if (unk84 > 0) {
+			--unk84;
+		} else {
+			MActor* actor = unk68->getMActor();
+			if (actor->checkCurBckFromIndex(0x16)
+			    && actor->curAnmEndsNext(0, nullptr))
+				actor->setFrameRate(0.0f, 0);
+
+			if (unk70 == 1) {
+				if (unk74 == 1) {
+					if (actor->checkCurBckFromIndex(0x16)) {
+						actor->setBckFromIndex(0x14);
+
+						JGeometry::TVec3<f32> pos;
+						pos.x = unk88[0][3];
+						pos.y = unk88[1][3] + unk7C;
+						pos.z = unk88[2][3];
+
+						TBEelTears* tears = (TBEelTears*)gpConductor
+						    ->makeOneEnemyAppear(pos, cBossEelTearsManagerName,
+						                         0);
+						if (tears) {
+							tears->unk16C->unk81 = FALSE;
+							tears->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
+							tears->unk16C->unk80 = TRUE;
+							tears->unk16C->mPosition = tears->mPosition;
+							tears->unk16C->mPosition = tears->mPosition;
+							tears->mSpine->initWith(
+							    &TNerveBEelTearsMarioRecover::theNerve());
+							tears->onLiveFlag(LIVE_FLAG_HIDDEN);
+							tears->unk16C->unk81 = TRUE;
+						}
+
+						actor->setFrameRate(SMSGetAnmFrameRate(), 0);
+					}
+
+					if (actor->checkCurBckFromIndex(0x14)
+					    && actor->curAnmEndsNext(0, nullptr))
+						actor->setBckFromIndex(0x15);
+
+					unk7C += unk6C->unk1E8->mSLToothUpSpeed.value;
+					if (unk7C > unk6C->unk1E8->mSLToothLiveHeight.value
+					    || mPosition.y > gpMarioPos->y + 2000.0f) {
+						unk70 = 0;
+						onHitFlag(HIT_FLAG_NO_COLLISION);
+					}
+				}
+			}
+		}
+	}
+
+	if (flags & 2) {
+		Mtx local;
+		if (unk70 > 1 || unk74 == 0 || unk74 == 2)
+			PSMTXCopy(unk68->getConnectedMtx(), local);
+		else
+			PSMTXCopy(unk88, local);
+
+		if (unk70 > 1)
+			emitToothParticle(this, 0x19C);
+
+		MActor* actor = unk68->getMActor();
+		if (actor->checkCurBckFromIndex(0x16)
+		    && actor->getFrameCtrl(0)->getRate() > 0.0f)
+			emitToothParticle(this, 0x19A);
+
+		if ((unk74 == 0 || unk74 == 2) && unk70 == 1)
+			emitToothParticle(this, 0x19B);
+
+		Mtx offset;
+		PSMTXIdentity(offset);
+		offset[2][3] = unk78;
+		PSMTXConcat(local, offset, local);
+
+		Mtx rot;
+		MsMtxSetRotRPH(rot, unk80, unk80, 0.0f);
+		PSMTXConcat(local, rot, local);
+
+		local[1][3] += unk7C;
+		mPosition.x = local[0][3];
+		mPosition.y = local[1][3];
+		mPosition.z = local[2][3];
+
+		PSMTXCopy(local, actor->getModel()->getBaseTRMtx());
+	}
+
+	THitActor::perform(flags, graphics);
+	unk68->getMActor()->perform(flags, graphics);
+}
+
+BOOL TBossEelTooth::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message != HIT_MESSAGE_SPRAYED_BY_WATER)
+		return FALSE;
+
+	if (unk84 != 0)
+		return TRUE;
+
+	if (unk6C->unk1FD)
+		return TRUE;
+
+	if (unk70 <= 1)
+		return TRUE;
+
+	unk84 = 2;
+	--unk70;
+	unk68->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
+	unk6C->unk1FC = TRUE;
+
+	unkB8.a = (unk70 * 255) / unk6C->unk1E8->mSLToothMaxHitPoint.value;
+
+	if (unk74 == 1 && unk70 % 20 == 1)
+		unk6C->forceShedTears(unkBC);
+
+	if (unk70 == 1) {
+		unkB8.a = 0;
+		PSMTXCopy(unk68->getConnectedMtx(), unk88);
+
+		if (unk74 == 1) {
+			playBossEelSound(0x8928, &mPosition);
+			if (unkBC)
+				playBossEelSound(0x892A, &unk6C->mPosition);
+			else
+				playBossEelSound(0x892B, &unk6C->mPosition);
+
+			unk6C->unk1FD = TRUE;
+			JPABaseEmitter* emitter
+			    = gpMarioParticleManager->emit(0xD3, &mPosition, 0, nullptr);
+			setBossEelParticleScale(emitter, unk6C);
+		} else {
+			playBossEelSound(0x8929, &mPosition);
+			if (unkBC)
+				playBossEelSound(0x892C, &unk6C->mPosition);
+			else
+				playBossEelSound(0x892D, &unk6C->mPosition);
+		}
+	}
+
+	return TRUE;
+}
+
+TBossEelTooth::TBossEelTooth(u8 tooth_id, TBossEel* boss,
+                             const char* joint_name, SDLModelData* model_data,
+                             const char* name)
+    : THitActor(name)
+    , unk68(nullptr)
+    , unk6C(boss)
+    , unk70(0)
+    , unk74(tooth_id)
+    , unk78(0.0f)
+    , unk7C(0.0f)
+    , unk80(0.0f)
+    , unk84(0)
+    , unkBC(TRUE)
+{
+	int jointIndex
+	    = boss->mMActor->getModel()->getModelData()->getJointName()->getIndex(
+	        joint_name);
+	unk68 = new TSharedParts(boss, jointIndex, model_data, 0, "<TSharedParts>");
+
+	MActor* actor = unk68->getMActor();
+	actor->setLightType(1);
+	actor->setBckFromIndex(0x16);
+	actor->setFrameRate(0.0f, 0);
+
+	for (u16 i = 0; i < actor->getModel()->getModelData()->getMaterialNum();
+	     ++i) {
+		SMS_InitPacket_OneTevKColorAndFog(actor->getModel(), i, GX_KCOLOR0,
+		                                  &unkB8);
+	}
+	unkB8.a = 0xFF;
+
+	TBossEelSaveParams* params = boss->unk1E8;
+	unk70                       = params->mSLToothMaxHitPoint.value;
+	initHitActor(0x08000022, 5, 0x81000000,
+	             params->mSLToothAttackRadius.value,
+	             params->mSLToothAttackHeight.value,
+	             params->mSLToothDamageRadius.value,
+	             params->mSLToothDamageHeight.value);
+
+	TIdxGroupObj* group = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	JGadget::TList_pointer_void* list
+	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
+	list->insert(list->end(), this);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 #define LOAD_BOSSEEL_PARTICLE(id, path)                                        \
