@@ -20,6 +20,9 @@
 
 extern "C" float fmodf(float, float);
 
+static const f32 dummy2850[3] = { 0.0f, 0.0f, 0.0f };
+static const f32 dummy2852[3] = { 1.0f, 1.0f, 1.0f };
+
 static const char* bathtubpeach_bastable[] = {
 	nullptr, nullptr, nullptr, nullptr,
 	nullptr, nullptr, nullptr, nullptr,
