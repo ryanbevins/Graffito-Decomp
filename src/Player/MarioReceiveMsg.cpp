@@ -690,7 +690,8 @@ check_sender_bit3:
 		case 0x10000053: // Special boss
 		{
 			// Check mState bits 14-15
-			if (!(mState & 0x0003C000))
+			bool hasStateBits = (mState & 0x00030000) ? true : false;
+			if (!hasStateBits)
 				goto default_msg;
 			if (message != 0x0E)
 				goto default_msg;
