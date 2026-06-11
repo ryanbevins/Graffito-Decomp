@@ -2074,9 +2074,35 @@ DEFINE_NERVE(TNerveBossTelesaHideWait, TLiveActor)
 DEFINE_NERVE(TNerveBossTelesaHide, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	boss->onLiveFlag(LIVE_FLAG_HIDDEN);
-	if (spine->getTime() > 60)
+	if (!boss->mMActor->checkCurBckFromIndex(4)) {
+		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+		boss->unk160 = 4;
+		boss->unk168 = 1.0f;
+
+		J3DAnmTransform* oldAnm = nullptr;
+		if (boss->mMActor->unkC)
+			oldAnm = boss->mMActor->unkC->unk24;
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+		boss->mMActor->setBckFromIndex(4);
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+		const char** basTable = boss->getBasNameTable();
+		boss->setAnmSound(basTable ? basTable[4] : nullptr);
+		boss->mMActor->setBtpFromIndex(2);
+	}
+
+	if (boss->checkCurAnmEnd(0)) {
+		boss->onHitFlag(HIT_FLAG_NO_COLLISION);
+		boss->unk16C->onHitFlag(HIT_FLAG_NO_COLLISION);
+		boss->unk170->onHitFlag(HIT_FLAG_NO_COLLISION);
+		SMSRumbleMgr->start(0x14, 0xF, (f32*)nullptr);
+		boss->rouletteStart();
+		spine->pushAfterCurrent(&TNerveBossTelesaHideWait::theNerve());
 		return TRUE;
+	}
 	return FALSE;
 }
 
