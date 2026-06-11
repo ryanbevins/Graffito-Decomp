@@ -137,27 +137,44 @@ void TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 				else { u8 w; if (bg == 0x09 || bg == 0x8009) w = 1; else w = 0; if (w) shouldCatch = 0; }
 			}
 		}
-		if (!(mVel.y > 0.0f))
-		if (shouldCatch) {
-			u8 cf; if (mState & 0x80000) cf = 1; else cf = 0;
-			if (cf) {
-				u8 fe; if (mState & 0x10000) fe = 1; else fe = 0;
-				if (fe) {
-					// Pointer math slop
-					if (*(u8*)((u8*)mWaterGun + 0x1C84) == 2) break;
-					jumpProcess(0);
-					changePlayerStatus(0x0479, 0, false);
-					rumbleStart(21, mMotorParams.mMotorHipDrop.value);
-					startVoice(0x789E);
-					canCatch = 1;
-					if (gpMSound->gateCheck(0x193E))
-						MSoundSESystem::MSoundSE::startSoundActor(0x193E, (const Vec*)&mPosition, 0, nullptr, 0, 4);
-					strongTouchDownEffect();
-					floorDamageExec(1, 3, 0, mMotorParams.mMotorReturn.value);
+			if (!(mVel.y > 0.0f))
+			if (shouldCatch) {
+				u8 inSand;
+				if (mState & 0x40000)
+					inSand = TRUE;
+				else
+					inSand = FALSE;
+				if (inSand) {
+					sinkInSandEffect();
+					changePlayerStatus(0x0002033C, 0, false);
 					break;
 				}
+				u8 hasFludd;
+				if (mState & MARIO_FLAG_HAS_FLUDD)
+					hasFludd = TRUE;
+				else
+					hasFludd = FALSE;
+				if (hasFludd) {
+					if (*(u8*)((u8*)mWaterGun + 0x1C84) != 2) {
+						mTrembleModelEffect->tremble(
+						    mJumpParams.mTremblePower.value,
+						    mJumpParams.mTrembleAccele.value,
+						    mJumpParams.mTrembleBrake.value,
+						    mJumpParams.mTrembleTime.value);
+						changePlayerStatus(0x0479, 0, false);
+						rumbleStart(21, mMotorParams.mMotorHipDrop.value);
+						canCatch = 1;
+						startVoice(0x789E);
+						if (gpMSound->gateCheck(0x193E))
+							MSoundSESystem::MSoundSE::startSoundActor(
+							    0x193E, (const Vec*)&mPosition, 0, nullptr,
+							    0, 4);
+						strongTouchDownEffect();
+						floorDamageExec(1, 3, 0,
+						                mMotorParams.mMotorReturn.value);
+					}
+				}
 			}
-		}
 		// Pointer math slop
 		*(f32*)((u8*)this + 0x02AC) = mPosition.y;
 		changePlayerStatus(statusId, 0, false);
@@ -198,11 +215,12 @@ void TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 		}
 		playerRefrection(0);
 		if (mWallPlane) {
-			changePlayerStatus(0x08A7, 0, false);
-			if (isMario()) {
-				rumbleStart(21, mMotorParams.mMotorWall.value);
-				gpCameraShake->startShake((EnumCamShakeMode)1, 0.0f);
-				u32 sid = gpMSound->getWallSound(0, mForwardVel);
+				changePlayerStatus(0x08A7, 0, false);
+				if (isMario()) {
+					rumbleStart(21, mMotorParams.mMotorWall.value);
+					gpCameraShake->startShake((EnumCamShakeMode)1, 1.0f);
+					u32 sid = gpMSound->getWallSound(
+					    *(u8*)((u8*)mWallPlane + 6), mForwardVel);
 				if (gpMSound->gateCheck(sid))
 					MSoundSESystem::MSoundSE::startSoundActor(sid, (const Vec*)&mPosition, 0, nullptr, 0, 4);
 			}
