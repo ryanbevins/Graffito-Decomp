@@ -380,6 +380,41 @@ DEFINE_NERVE(TNerveBPPivot, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveBPTornado, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0) {
+		boss->changeBck(0x18);
+		gpMarioParticleManager->emitAndBindToSRTMtxPtr(
+		    0xAB, boss->getModel()->getAnmMtx(3), 0, boss);
+		gpMarioParticleManager->emitAndBindToPosPtr(0xA9, &boss->unk194, 0,
+		                                            nullptr);
+		gpMarioParticleManager->emitAndBindToPosPtr(0xA9, &boss->unk1A0, 0,
+		                                            nullptr);
+	}
+
+	if (spine->getTime() == 0x96) {
+		TBPTornado* tornado = boss->mTornado;
+		tornado->unk98      = 1;
+		tornado->unk70      = *gpMarioPos;
+		tornado->mPosition  = tornado->mOwner->mPosition;
+		tornado->unk7C      = tornado->mOwner->mPosition;
+		tornado->unk94
+		    = tornado->mOwner->getBossPakkunSaveParam()->mSLTornadoMoveInit.value;
+		tornado->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+		J3DFrameCtrl* ctrl = tornado->mActor->getFrameCtrl(5);
+		ctrl->setFrame(0.0f);
+		ctrl->setRate(0.0f);
+	}
+
+	if (actor->isCurAnmAlreadyEnd(0))
+		return TRUE;
+	return FALSE;
+}
+
 DEFINE_NERVE(TNerveBPCannon, TLiveActor)
 {
 	TBossPakkun* boss = (TBossPakkun*)spine->getBody();

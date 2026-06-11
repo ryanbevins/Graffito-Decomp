@@ -97,7 +97,9 @@ public:
 
 	/* 0x68 */ TBossPakkun* mOwner;
 	/* 0x6C */ MActor* mActor;
-	/* 0x70 */ u8 unk70[0x24];
+	/* 0x70 */ JGeometry::TVec3<f32> unk70;
+	/* 0x7C */ JGeometry::TVec3<f32> unk7C;
+	/* 0x88 */ JGeometry::TVec3<f32> unk88;
 	/* 0x94 */ f32 unk94;
 	/* 0x98 */ s32 unk98;
 };
@@ -178,7 +180,10 @@ public:
 	/* 0x188 */ TAreaCylinderManager* unk188;
 	/* 0x18C */ TWaterEmitInfo* unk18C;
 	/* 0x190 */ u8 unk190;
-	/* 0x191 */ u8 unk191[0x27];
+	/* 0x191 */ u8 unk191[0x3];
+	/* 0x194 */ JGeometry::TVec3<f32> unk194;
+	/* 0x1A0 */ JGeometry::TVec3<f32> unk1A0;
+	/* 0x1AC */ JGeometry::TVec3<f32> unk1AC;
 	/* 0x1B8 */ s32 unk1B8;
 	/* 0x1BC */ u8 unk1BC;
 	/* 0x1BD */ u8 unk1BD[0x3];
