@@ -154,6 +154,10 @@ class TBEelTears : public TSpineEnemy {
 public:
 	TBEelTears(const char*);
 	virtual void perform(u32, JDrama::TGraphics*);
+	virtual BOOL receiveMessage(THitActor*, u32);
+	virtual void init(TLiveManager*);
+	virtual void calcRootMatrix();
+	virtual void moveObject();
 	virtual void kill();
 	virtual const char** getBasNameTable() const;
 	virtual void reset();
@@ -164,7 +168,7 @@ public:
 	/* 0x160 */ u8 unk160;
 	/* 0x161 */ u8 unk161[0x3];
 	/* 0x164 */ s32 unk164;
-	/* 0x168 */ void* unk168;
+	/* 0x168 */ MtxPtr unk168;
 	/* 0x16C */ THitActor* unk16C;
 };
 

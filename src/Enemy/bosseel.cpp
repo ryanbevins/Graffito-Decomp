@@ -448,6 +448,38 @@ void TBEelTears::perform(u32 flags, JDrama::TGraphics* graphics)
 	THitActor::perform(flags, graphics);
 }
 
+void TBEelTears::calcRootMatrix()
+{
+	if (unk168) {
+		if (mPosition.y < unk168[1][3])
+			mPosition.y = unk168[1][3];
+
+		TSpineEnemy::calcRootMatrix();
+
+		if (mSpine->getCurrentNerve() == &TNerveBEelTearsGenerate::theNerve()) {
+			f32 z = mPosition.z;
+			f32 y = mPosition.y;
+			f32 x = mPosition.x;
+			TPosition3f mtx;
+
+			mtx.translation(x, y, z);
+
+			mtx.ref(0, 3) += 0.1f * (unk168[0][3] - mtx.ref(0, 3));
+			mtx.ref(2, 3) += 0.1f * (unk168[2][3] - mtx.ref(2, 3));
+
+			f32 scale = unk15C->mSLBodyScaleLow.get();
+			mScaling.x = scale;
+			mScaling.y = scale;
+			mScaling.z = scale;
+			mMActor->getModel()->setBaseScale(mScaling);
+
+			PSMTXCopy(mtx.mMtx, mMActor->getModel()->getBaseTRMtx());
+		}
+	} else {
+		TSpineEnemy::calcRootMatrix();
+	}
+}
+
 void TBEelTearsDrop::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	THitActor::perform(flags, graphics);
