@@ -123,12 +123,8 @@ BOOL TMario::checkSwimJump()
 			}
 		}
 
-		f32 floorY = mFloorPosition.z;
-		f32 canJumpDepth = mSwimParams.mCanJumpDepth.value;
-		f32 curY = mPosition.y;
-		f32 depth = floorY - canJumpDepth;
-
-		if (depth < curY) {
+		f32 depth = mFloorPosition.z - mSwimParams.mCanJumpDepth.value;
+		if (depth < mPosition.y) {
 			u8 shouldDive = 0;
 			f32 stickMag  = mIntendedMag;
 			if (stickMag == 0.0f)
