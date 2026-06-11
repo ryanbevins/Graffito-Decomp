@@ -408,6 +408,101 @@ void TBossEelHeartCoin::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 }
 
+static inline void resetBossEelEyeMotionBlend(TBossEelEye* eye)
+{
+	eye->unk60 = eye->unk18->getCurAnmIdx(0);
+	eye->unk5C = 0;
+	eye->unk64 = 1.0f;
+
+	J3DAnmTransform* oldAnm = nullptr;
+	if (eye->unk18->unkC)
+		oldAnm = eye->unk18->unkC->unk24;
+
+	if (eye->unk18->unkC)
+		eye->unk18->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+	eye->unk18->setBckFromIndex(0);
+
+	if (eye->unk18->unkC)
+		eye->unk18->unkC->setMotionBlendRatio(eye->unk64);
+}
+
+void TBossEelEye::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (unk10->checkLiveFlag(
+	        LIVE_FLAG_DEAD | LIVE_FLAG_HIDDEN | LIVE_FLAG_CLIPPED_OUT))
+		return;
+
+	if (flags & 2) {
+		f32 z = getConnectedMtx()[2][3];
+		f32 y = getConnectedMtx()[1][3];
+		f32 x = getConnectedMtx()[0][3];
+		unk70.x = x;
+		unk70.y = y;
+		unk70.z = z;
+
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToPosPtr(
+		    0x192, &unk70, 1, this);
+		if (emitter) {
+			const JGeometry::TVec3<f32>& scale = unk10->mScaling;
+			emitter->unk154.x                  = scale.x;
+			emitter->unk154.y                  = scale.y;
+			emitter->unk154.z                  = scale.z;
+			emitter->unk174.x                  = scale.x;
+			emitter->unk174.y                  = scale.y;
+			emitter->unk174.z                  = scale.z;
+		}
+
+		Mtx mtx;
+		PSMTXCopy(getConnectedMtx(), mtx);
+		PSMTXCopy(mtx, unk18->getModel()->unk20);
+
+		if (unk50 == 0)
+			PSMTXCopy(mtx, unk1C);
+
+		f32 blend = unk64 - 0.01f;
+		if (blend > 1.0f)
+			blend = 1.0f;
+		else if (blend < 0.0f)
+			blend = 0.0f;
+		unk64 = blend;
+
+		if (unk18->unkC)
+			unk18->unkC->setMotionBlendRatio(unk64);
+
+		if (unk5C == 1 && unk18->curAnmEndsNext(0, nullptr)) {
+			++unk6C;
+			if (unk6C > 3) {
+				resetBossEelEyeMotionBlend(this);
+				resetBossEelEyeMotionBlend(unk68);
+			}
+		}
+	}
+
+	unk18->perform(flags, graphics);
+	unk50 = -1;
+}
+
+TBossEelEye::TBossEelEye(const TLiveActor* owner, int index,
+                         SDLModelData* model_data, u32 flags,
+                         const char* name)
+    : TSharedParts(owner, index, model_data, flags, name)
+    , unk4C(nullptr)
+    , unk50(-1)
+    , unk54(0)
+    , unk56(0)
+    , unk58(0)
+    , unk5A(50)
+{
+	unk4C = new SDLModel(model_data, flags, 1);
+	unk4C->getModelData()->getMaterialName()->getIndex("_mat7");
+
+	if (unk18->unkC)
+		unk18->unkC->initNormalMotionBlend();
+
+	resetBossEelEyeMotionBlend(this);
+}
+
 TBossEelSaveParams::TBossEelSaveParams()
     : TParams("/enemy/bosseel.prm")
     , PARAM_INIT(mSLInitTransYOffset, 0.0f)

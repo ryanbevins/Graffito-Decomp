@@ -8,6 +8,7 @@
 
 class TLiveActor;
 class TBEelTearsDrop;
+class SDLModel;
 class SDLModelData;
 class TSharedParts;
 class TBossEelSaveParams;
@@ -237,6 +238,26 @@ public:
 	/* 0x20 */ TCoin* mCoins[20];
 	/* 0x70 */ JGeometry::TVec3<f32> unk70;
 	/* 0x7C */ TBossEel* unk7C;
+};
+
+class TBossEelEye : public TSharedParts {
+public:
+	TBossEelEye(const TLiveActor*, int, SDLModelData*, u32, const char*);
+	virtual void perform(u32, JDrama::TGraphics*);
+
+	/* 0x1C */ Mtx unk1C;
+	/* 0x4C */ SDLModel* unk4C;
+	/* 0x50 */ s32 unk50;
+	/* 0x54 */ u16 unk54;
+	/* 0x56 */ u16 unk56;
+	/* 0x58 */ u16 unk58;
+	/* 0x5A */ u16 unk5A;
+	/* 0x5C */ s32 unk5C;
+	/* 0x60 */ s32 unk60;
+	/* 0x64 */ f32 unk64;
+	/* 0x68 */ TBossEelEye* unk68;
+	/* 0x6C */ s32 unk6C;
+	/* 0x70 */ JGeometry::TVec3<f32> unk70;
 };
 
 class TBEelTearsSaveLoadParams : public TSpineEnemyParams {
