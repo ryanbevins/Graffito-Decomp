@@ -307,8 +307,7 @@ void TBossPakkun::changeBck(int index)
 		}
 
 		if (index == 0x15) {
-			J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::ANM_TYPE_BCK);
-			ctrl->setRate(getBossPakkunSaveParam()->mSLVomitAnmRate.value);
+			bck->unk4.setRate(getBossPakkunSaveParam()->mSLVomitAnmRate.value);
 		}
 
 		f32 blendFrames = 60.0f;
