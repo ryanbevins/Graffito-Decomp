@@ -316,6 +316,27 @@ DEFINE_NERVE(TNerveBPTumbleOut, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveBPCannon, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0)
+		boss->changeBck(0x15);
+
+	if (actor->curAnmEndsNext(0, nullptr)) {
+		if (actor->checkCurBckFromIndex(0x15)) {
+			boss->changeBck(0x02);
+			boss->launchPolDrop();
+		} else {
+			spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 TBossPakkunParams::TBossPakkunParams(const char* path)
     : TSpineEnemyParams(path)
     , PARAM_INIT(mSLWaitFrameStg0, 400)
