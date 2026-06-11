@@ -327,11 +327,11 @@ BOOL TMario::swimMain()
 	case 0x24D9:
 		setAnimation(0x128, 1.0f);
 		if (getMotionFrameCtrl().checkPass(16.0f))
-			*(s16*)((u8*)this + 0x0366) = mSwimParams.mWaitSinkTime.value;
+			unk366 = mSwimParams.mWaitSinkTime.value;
 		{
-			int timer = *(s16*)((u8*)this + 0x0366);
+			int timer = unk366;
 			if (timer > 0) {
-				*(s16*)((u8*)this + 0x0366) = timer - 1;
+				unk366 = timer - 1;
 				f32 velY = mVel.y;
 				f32 sinkSpeed = mSwimParams.mWaitSinkSpeed.value;
 				mVel.y = velY - sinkSpeed;
