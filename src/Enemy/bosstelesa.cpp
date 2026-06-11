@@ -820,31 +820,49 @@ void TBossTelesa::generateSlotItem()
 			else
 				actor = (TMapObjBase*)unk2A8[i];
 
-			actor->makeObjAppeared();
-			actor->offLiveFlag(LIVE_FLAG_HIDDEN);
-
 			Vec velocity;
 			f32 minSpeed = 6.0f;
 			f32 maxSpeed = 10.0f;
 			f32 range    = maxSpeed - minSpeed;
-			velocity.x = dir.x
-			    * (minSpeed + range * (rand() * 0.000030517578f));
-			velocity.y = -2.0f;
-			velocity.z = dir.z
-			    * (minSpeed + range * (rand() * 0.000030517578f));
-			if (i == 0) {
+
+			if (i == 0 || i == 4) {
+				actor->makeObjAppeared();
+				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
+
 				velocity.x = dir.x
-				    * (minSpeed + range * (rand() * 0.000030517578f))
-				    * 2.0f;
+				    * (minSpeed + range * (rand() * 0.000030517578f));
+				velocity.y = -2.0f;
 				velocity.z = dir.z
-				    * (minSpeed + range * (rand() * 0.000030517578f))
-				    * 2.0f;
+				    * (minSpeed + range * (rand() * 0.000030517578f));
+				if (i == 0) {
+					velocity.x = dir.x
+					    * (minSpeed
+					       + range * (rand() * 0.000030517578f))
+					    * 2.0f;
+					velocity.z = dir.z
+					    * (minSpeed
+					       + range * (rand() * 0.000030517578f))
+					    * 2.0f;
+				}
+
+				actor->mVelocity = velocity;
+				actor->offLiveFlag(LIVE_FLAG_UNK10);
+				actor->mRotation.set(0.0f, 90.0f, 0.0f);
+			} else {
+				actor->makeObjAppeared();
+				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
+
+				velocity.x = dir.x
+				    * (minSpeed + range * (rand() * 0.000030517578f));
+				velocity.y = -2.0f;
+				velocity.z = dir.z
+				    * (minSpeed + range * (rand() * 0.000030517578f));
+
+				actor->mVelocity = velocity;
+				actor->offLiveFlag(LIVE_FLAG_UNK10);
 			}
 
-			actor->mVelocity = velocity;
-			actor->offLiveFlag(LIVE_FLAG_UNK10);
 			actor->mScaling.set(1.5f, 1.5f, 1.5f);
-			actor->mRotation.set(0.0f, 90.0f, 0.0f);
 
 			unk1AC[unk274] = actor;
 			actor->onHitFlag(HIT_FLAG_NO_COLLISION);
