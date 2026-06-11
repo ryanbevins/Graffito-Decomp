@@ -1864,6 +1864,44 @@ DEFINE_NERVE(TNerveBossEelSecondSpin, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveBossEelOutWait, TLiveActor)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	eel->unk200++;
+
+	if (spine->getTime() == 0) {
+		eel->unk1FC = FALSE;
+		START_BOSS_EEL_BCK(eel, 16);
+	}
+
+	if (eel->checkCurAnmEnd(0)) {
+		s32 mouthOpenInterval
+		    = eel->unk1E8->mSLMouthOpenInterval.value;
+
+		if (eel->mMActor->checkCurBckFromIndex(19)) {
+			spine->setNext(&TNerveBossEelQuickBack::theNerve());
+		} else if (eel->unk200 >= 3600) {
+			spine->pushAfterCurrent(&TNerveBossEelSlowBack::theNerve());
+			eel->unk200 = 0;
+			return TRUE;
+		} else if (spine->getTime() > mouthOpenInterval) {
+			spine->pushAfterCurrent(&TNerveBossEelOutWait::theNerve());
+			spine->pushAfterCurrent(&TNerveBossEelMouthOpenWait::theNerve());
+			return TRUE;
+		} else if (eel->unk1FD) {
+			START_BOSS_EEL_BCK(eel, 19);
+		} else if (eel->unk1FC) {
+			eel->unk1FC = FALSE;
+			START_BOSS_EEL_BCK(eel, 18);
+		} else {
+			START_BOSS_EEL_BCK(eel, 16);
+		}
+	}
+
+	return FALSE;
+}
+
 DEFINE_NERVE(TNerveBossEelAppear, TLiveActor)
 {
 	TBossEel* eel = (TBossEel*)spine->getBody();
