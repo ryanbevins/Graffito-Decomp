@@ -898,14 +898,15 @@ void TTelesaSlot::calcRootMatrix()
 
 void TTelesaSlot::randomReset()
 {
-	int min = 0;
-	int max = 8;
+	volatile int min = 0;
+	volatile int max = 8;
 
 	for (int i = 0; i < 3; ++i) {
+		int range = max - min;
 		unk13C[i] = (f32)(unk168
 		                   * (min
-		                      + (int)(rand() * 0.000030517578f
-		                              * (max - min))));
+		                      + (int)(range
+		                              * (rand() * 0.000030517578f))));
 		*(&unk198 + i) = 0;
 	}
 }
