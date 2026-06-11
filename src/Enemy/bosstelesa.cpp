@@ -280,25 +280,228 @@ void TBossTelesa::forceAllItemKill()
 
 void TBossTelesa::generateSlotItem()
 {
-	if (!unk154)
-		return;
+	static const char* manNameTable[] = {
+		"バブルマネージャー", "ハムクリマネージャー",
+		"ヤキグリマネージャー", "ボム兵マネージャー",
+		"ポイハナマネージャー", "電気ノコノコマネージャー",
+		"ポポマネージャー", "ゲッソーマネージャー",
+		"とびプクマネージャー",
+	};
 
-	switch (unk154->getSlotResult()) {
-	case 0:
-		genAttacker();
-		break;
-	case 1:
-		if (gpItemManager)
-			gpItemManager->makeObjAppear(mPosition.x, mPosition.y,
-			                             mPosition.z, 0x2000000E, false);
-		break;
-	case 2:
-		if (gpItemManager)
-			gpItemManager->makeObjAppear(mPosition.x, mPosition.y,
-			                             mPosition.z, 0x20000002, true);
-		break;
-	default:
-		break;
+	unk368 = 0;
+	unk274 = 0;
+
+	TTelesaSlot* slot = (TTelesaSlot*)unk184;
+	s32 result        = slot->getSlotResult();
+	unk1A8            = result;
+
+	TBossTelesaSaveLoadParams* params = (TBossTelesaSaveLoadParams*)unk15C;
+	s32 slotItemNum                   = params->mSLSlotItemNum.get();
+	MtxPtr rootMtx                    = mMActor->unk4->mNodeMatrices[5];
+	f32 angleStep                     = 120.0f / slotItemNum;
+	f32 angleOffset                   = slotItemNum * 0.5f;
+
+	if (result == 2) {
+		s32 numFruit = params->mSLSlotFruitNum.get();
+		if (numFruit > 20)
+			numFruit = 20;
+
+		s32 angleIndex
+		    = (s32)(numFruit * (rand() * 0.000030517578f));
+
+		for (int i = 0; i < numFruit; ++i) {
+			if (unk2A8[i]->mHolder)
+				continue;
+
+			Mtx rot;
+			Vec dir;
+			dir.x = 0.0f;
+			dir.y = 0.0f;
+			dir.z = 200.0f;
+
+			if (numFruit > 0) {
+				angleIndex += i;
+				while (angleIndex >= numFruit)
+					angleIndex -= numFruit;
+				while (angleIndex < 0)
+					angleIndex += numFruit;
+			} else {
+				angleIndex = 0;
+			}
+
+			MsMtxSetRotRPH(rot, mRotation.x,
+			               mRotation.y - angleOffset
+			                   + angleStep * angleIndex,
+			               mRotation.z);
+			PSMTXMultVec(rot, &dir, &dir);
+			MsVECNormalize(&dir, &dir);
+
+			TMapObjBase* actor;
+			if (i == 0 || i == 4)
+				actor = (TMapObjBase*)unk2F8[i];
+			else
+				actor = (TMapObjBase*)unk2A8[i];
+
+			actor->makeObjAppeared();
+			actor->offLiveFlag(LIVE_FLAG_HIDDEN);
+
+			Vec velocity;
+			f32 minSpeed = 6.0f;
+			f32 maxSpeed = 10.0f;
+			f32 range    = maxSpeed - minSpeed;
+			velocity.x = dir.x
+			    * (minSpeed + range * (rand() * 0.000030517578f));
+			velocity.y = -2.0f;
+			velocity.z = dir.z
+			    * (minSpeed + range * (rand() * 0.000030517578f));
+			if (i == 0) {
+				velocity.x = dir.x
+				    * (minSpeed + range * (rand() * 0.000030517578f))
+				    * 2.0f;
+				velocity.z = dir.z
+				    * (minSpeed + range * (rand() * 0.000030517578f))
+				    * 2.0f;
+			}
+
+			actor->mVelocity = velocity;
+			actor->offLiveFlag(LIVE_FLAG_UNK10);
+			actor->mScaling.set(1.5f, 1.5f, 1.5f);
+			actor->mRotation.set(0.0f, 90.0f, 0.0f);
+
+			unk1AC[unk274] = actor;
+			actor->onHitFlag(HIT_FLAG_NO_COLLISION);
+			actor->mPosition.x = rootMtx[0][3] + dir.x;
+			actor->mPosition.y = rootMtx[1][3] - 50.0f;
+			actor->mPosition.z = rootMtx[2][3] + dir.z;
+			unk274++;
+		}
+	} else if (result == 0) {
+		s32 numItems = params->mSLSlotFruitNum.get();
+		if (numItems > 10)
+			numItems = 10;
+
+		if (unk370)
+			unk370--;
+		else
+			unk370 = 0;
+
+		for (int i = 0; i < numItems; ++i) {
+			if (i >= 10)
+				return;
+
+			Mtx rot;
+			Vec dir;
+			dir.x = 0.0f;
+			dir.y = 0.0f;
+			dir.z = 250.0f;
+			MsMtxSetRotRPH(rot, mRotation.x,
+			               mRotation.y - angleOffset + angleStep * i,
+			               mRotation.z);
+			PSMTXMultVec(rot, &dir, &dir);
+			MsVECNormalize(&dir, &dir);
+			dir.y = 10.0f;
+
+			Vec velocity;
+			f32 minSpeed = 0.8f;
+			f32 maxSpeed = 3.5f;
+			f32 speed    = params->mSL1stBubbleSp.get();
+			f32 range    = maxSpeed - minSpeed;
+			velocity.x = dir.x * speed
+			    * (minSpeed + range * (rand() * 0.000030517578f));
+			velocity.y = dir.y;
+			velocity.z = dir.z * speed
+			    * (minSpeed + range * (rand() * 0.000030517578f));
+
+			TMapObjBase* item = gpItemManager->makeObjAppeared(0x2000000E);
+			item->mPosition.x = rootMtx[0][3];
+			item->mPosition.y = rootMtx[1][3] - 250.0f;
+			item->mPosition.z = rootMtx[2][3];
+			item->mVelocity   = velocity;
+			item->offLiveFlag(LIVE_FLAG_UNK10);
+			item->mScaling.set(0.0f, 0.0f, 0.0f);
+			((TItem*)item)->killByTimer(0x3C0);
+
+			unk320[i]       = item;
+			unk1AC[unk274] = unk320[i];
+			unk1AC[unk274]->offLiveFlag(LIVE_FLAG_HIDDEN);
+			unk274++;
+		}
+	} else {
+		s32 count = slotItemNum;
+		s32 kind  = 0;
+		if (result == -1) {
+			count *= 2;
+			kind = 0;
+		} else if (result == 1) {
+			if (mHitPoints > 2)
+				kind = 1;
+			else
+				kind = 2;
+		}
+
+		s32 maxKind = 7;
+		if (mHitPoints == 1)
+			maxKind = 8;
+
+		s32 randomKind
+		    = 1
+		    + (s32)((maxKind - 1) * (rand() * 0.000030517578f));
+
+		for (int i = 0; i < count; ++i) {
+			if (result == 3) {
+				if ((i & 1) == 0)
+					randomKind++;
+				if (randomKind > maxKind)
+					randomKind = 1;
+				kind = randomKind;
+			}
+
+			TSmallEnemy* enemy = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
+			    mPosition, manNameTable[kind], 2);
+			if (!enemy)
+				continue;
+
+			if (kind != 0) {
+				unk1AC[unk274] = enemy;
+				unk274++;
+			}
+
+			Mtx rot;
+			Vec dir;
+			dir.x = 0.0f;
+			dir.y = 0.0f;
+			dir.z = 200.0f;
+			MsMtxSetRotRPH(rot, mRotation.x,
+			               mRotation.y - angleOffset + angleStep * i,
+			               mRotation.z);
+			PSMTXMultVec(rot, &dir, &dir);
+			MsVECNormalize(&dir, &dir);
+			dir.y = 2.0f;
+
+			Vec velocity;
+			f32 minSpeed = 0.5f;
+			f32 maxSpeed = 1.0f;
+			f32 speed    = params->mSL1stBubbleSp.get();
+			f32 range    = maxSpeed - minSpeed;
+			velocity.x = dir.x * speed
+			    * (minSpeed + range * (rand() * 0.000030517578f));
+			velocity.y = dir.y
+			    * (2.0f
+			       + minSpeed
+			       + range * (rand() * 0.000030517578f));
+			velocity.z = dir.z * speed
+			    * (minSpeed + range * (rand() * 0.000030517578f));
+
+			enemy->mPosition.x = rootMtx[0][3];
+			enemy->mPosition.y = rootMtx[1][3] - 250.0f;
+			enemy->mPosition.z = rootMtx[2][3];
+			enemy->mVelocity   = velocity;
+			enemy->mPosition.y += 10.0f;
+			enemy->onLiveFlag(LIVE_FLAG_AIRBORNE);
+			PSMTXCopy(rootMtx, enemy->mMActor->unk4->unk20);
+			enemy->mMActor->calc();
+			enemy->initAttacker(this);
+		}
 	}
 }
 
