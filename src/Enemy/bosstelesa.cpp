@@ -2,6 +2,7 @@
 #include <Enemy/Conductor.hpp>
 #include <Enemy/HamuKuri.hpp>
 #include <Enemy/Telesa.hpp>
+#include <Camera/Camera.hpp>
 #include <Camera/CameraShake.hpp>
 #include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
@@ -149,7 +150,7 @@ void TBossTelesa::loadAfter()
 		for (int i = 0; i < gpMapObjManager->getObjNum(); ++i) {
 			TMapObjBase* actor = gpMapObjManager->getObj(i);
 			if (actor->mActorType == rouletteType) {
-				((TLiveActor**)&unk178)[found] = actor;
+				((TRoulette**)&unk178)[found] = (TRoulette*)actor;
 				found++;
 			}
 		}
@@ -160,8 +161,8 @@ void TBossTelesa::loadAfter()
 		for (int i = 0; i < gpMapObjManager->getObjNum(); ++i) {
 			TMapObjBase* actor = gpMapObjManager->getObj(i);
 			if (actor->mActorType == slotType) {
-				unk184 = (JDrama::TViewObj*)actor;
-				((TTelesaSlot*)unk184)->unk1A0 = this;
+				unk184       = (TTelesaSlot*)actor;
+				unk184->unk1A0 = this;
 			}
 		}
 	}
@@ -520,12 +521,152 @@ void TBossTelesa::calcRootMatrix()
 
 void TBossTelesa::moveObject()
 {
-	TSpineEnemy::moveObject();
-	if (unk154 && unk154->isRollDrum()) {
-		int result = unk154->getSlotResult();
-		if (result >= 0)
-			flashItem(result);
+	if (mLiveFlag & LIVE_FLAG_DEAD)
+		return;
+
+	JGeometry::TVec3<f32> cameraPos;
+	cameraPos.set(gpCamera->unk124);
+	JGeometry::TVec3<f32> marioDiff = *gpMarioPos;
+	marioDiff.sub(cameraPos);
+	f32 cameraDist = marioDiff.length();
+
+	if (cameraDist < mCameraMoveLimit) {
+		unk360 += mCameraMoveSp * (gpMarioPos->y - gpCamera->unk148.y);
+		gpCamera->unk290 = unk360;
+	} else if (__fabsf(unk360) > 1.0f) {
+		unk360 *= mCameraMoveSp;
+		gpCamera->unk290 = unk360;
 	}
+
+	if (*gpMarioFlag & 0x400) {
+		if (gpMSound->gateCheck(0x28D4)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x28D4, &mPosition, 0, nullptr, 0, 4);
+		}
+	}
+
+	if (mSpine->getCurrentNerve() == &TNerveBossTelesaFallDemo::theNerve()) {
+		if (unk178 && unk17C
+		    && unk178->mPosition.y > unk17C->mPosition.y + 5.0f) {
+			unk184->mPosition = unk178->mPosition;
+			unk184->mPosition.y += 300.0f;
+		}
+	}
+
+	if (mSpine->getCurrentNerve() != &TNerveBossTelesaPrepareSlot::theNerve()) {
+		mMActor->setFrameRate(0.0f, 3);
+		mMActor->getFrameCtrl(3)->setFrame(0.0f);
+	}
+
+	if (mSpine->getCurrentNerve() == &TNerveBossTelesaDie::theNerve()) {
+		u8 maxHp       = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
+		u8 targetAlpha = mNormalAlpha + (maxHp - mHitPoints) * 30;
+		if (targetAlpha > 0xFE)
+			targetAlpha = 0xFE;
+
+		if ((mMActor->checkCurBckFromIndex(7)
+		        && mMActor->getFrameCtrl(0)->getFrame() > 50.0f)
+		    || mMActor->checkCurBckFromIndex(6)) {
+			if (unk34C.a > targetAlpha)
+				--unk34C.a;
+		} else if (unk34C.a < 0xFF) {
+			++unk34C.a;
+		}
+	}
+
+	JGeometry::TVec3<f32> cameraDiff = *gpMarioPos;
+	cameraDiff.sub(gpCamera->unk124);
+	unk19C = unk178->mPosition;
+	unk19C.x += 0.67f * cameraDiff.x;
+	unk19C.z += 0.67f * cameraDiff.z;
+
+	int movingRoulettes = 0;
+	if (unk178->unk13C != 0.0f)
+		++movingRoulettes;
+	if (unk17C->unk13C != 0.0f)
+		++movingRoulettes;
+	if (unk180->unk13C != 0.0f)
+		++movingRoulettes;
+
+	switch (movingRoulettes) {
+	case 1:
+		if (gpMSound->gateCheck(0x30B7)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x30B7, &unk19C, 0, nullptr, 0, 4);
+		}
+		break;
+	case 2:
+		if (gpMSound->gateCheck(0x30B6)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x30B6, &unk19C, 0, nullptr, 0, 4);
+		}
+		break;
+	case 3:
+		if (gpMSound->gateCheck(0x30B5)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x30B5, &unk19C, 0, nullptr, 0, 4);
+		}
+		break;
+	}
+
+	mLinearVelocity.zero();
+	mAngularVelocity.zero();
+	control();
+
+	for (int i = 0; i < mColCount; ++i) {
+		if (mCollisions[i]->isActorTypeOf(ACTOR_TYPE_PLAYER))
+			SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
+	}
+
+	bind();
+	mPosition += mLinearVelocity;
+	mRotation += mAngularVelocity;
+	mPosition.y = mGroundHeight + 300.0f;
+
+	unk168 = MsClamp(unk168 - 0.05f, 0.0f, 1.0f);
+	if (mMActor->unkC)
+		mMActor->unkC->setMotionBlendRatio(unk168);
+
+	if (mLiveFlag & LIVE_FLAG_CLIPPED_OUT) {
+		unk16C->mPosition = mPosition;
+		unk170->mPosition = mPosition;
+		unk174->mPosition = mPosition;
+	} else {
+		J3DModel* model = mMActor->getModel();
+		MtxPtr node1   = model->mNodeMatrices[1];
+		MtxPtr node7   = model->mNodeMatrices[7];
+
+		unk16C->mPosition.set(node1[0][3], node1[1][3] - 200.0f,
+		                      node1[2][3]);
+		unk174->mPosition.set(node1[0][3], mPosition.y - 350.0f,
+		                      node1[2][3]);
+		unk170->mPosition.set(node7[0][3], node7[1][3] - 350.0f,
+		                      node7[2][3]);
+	}
+
+	TBossTelesaBody* body = (TBossTelesaBody*)unk16C;
+	body->unk6C           = 0;
+	for (int i = 0; i < body->mColCount; ++i) {
+		THitActor* actor = body->mCollisions[i];
+		if (actor->isActorTypeOf(ACTOR_TYPE_PLAYER))
+			SMS_SendMessageToMario(body, HIT_MESSAGE_ATTACK);
+		else
+			body->unk68->checkHitObject(actor);
+	}
+
+	TBossTelesaTongue* tongue = (TBossTelesaTongue*)unk170;
+	for (int i = 0; i < tongue->mColCount; ++i) {
+		THitActor* actor = tongue->mCollisions[i];
+		if (actor->isActorTypeOf(ACTOR_TYPE_PLAYER)) {
+			SMS_SendMessageToMario(tongue, HIT_MESSAGE_ATTACK);
+		} else if (actor->mActorType == 0x40000395) {
+			tongue->unk68->setSpicy((TLiveActor*)actor);
+		} else if (tongue->mPosition.y + 100.0f < actor->mPosition.y) {
+			tongue->unk68->checkHitObject(actor);
+		}
+	}
+
+	((TBossTelesaKillSmallEnemy*)unk174)->checkHit();
 }
 
 void TBossTelesa::kill()
