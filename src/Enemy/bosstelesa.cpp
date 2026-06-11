@@ -1,17 +1,20 @@
 #include <Enemy/BossTelesa.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/HamuKuri.hpp>
+#include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MSound/MSound.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
 #include <System/EmitterViewObj.hpp>
+#include <System/MarDirector.hpp>
 #include <dolphin/mtx.h>
 #include <math.h>
 #include <stdlib.h>
@@ -344,10 +347,69 @@ void TBossTelesa::setSpicy(TLiveActor* actor)
 
 void TBossTelesa::checkHitObject(THitActor* actor)
 {
-	if (!actor)
+	unk380 = -1;
+
+	if ((actor->mActorType & ACTOR_TYPE_MASK) != ACTOR_TYPE_UNK40000000)
 		return;
-	if (actor->checkActorType(ACTOR_TYPE_PLAYER))
-		actor->receiveMessage(this, HIT_MESSAGE_ATTACK);
+	if (mSpine->getCurrentNerve() != &TNerveBossTelesaPrepareSlot::theNerve())
+		return;
+
+	switch (actor->mActorType) {
+	case 0x40000390:
+		unk348 = 0xE6;
+		unk349 = 0x64;
+		unk34A = 0xB4;
+		unk380 = 0xD8;
+		kill();
+		break;
+	case 0x40000391:
+	case 0x40000392:
+		unk348 = 0xE6;
+		unk349 = 0xB4;
+		unk34A = 0;
+		unk380 = 0xDA;
+		kill();
+		break;
+	case 0x40000393:
+		unk348 = 0x96;
+		unk349 = 0x32;
+		unk34A = 0xE6;
+		unk380 = 0xD9;
+		kill();
+		break;
+	case 0x40000395:
+		break;
+	default:
+		return;
+	}
+
+	if (!unk350 && actor->mActorType != 0x40000395) {
+		if (unk35A) {
+			unk35A = 0;
+			gpMarDirector->mConsole->startAppearBalloon(0xE000F, true);
+		}
+		unk35C++;
+		if (unk35C > 2)
+			gpMarDirector->mConsole->startAppearBalloon(0xE0010, true);
+	} else {
+		unk35C = 0;
+	}
+
+	unk374 = actor->mPosition;
+	gpMarioParticleManager->emit(0xD7, &unk374, 0, nullptr);
+	if (unk380 >= 0)
+		gpMarioParticleManager->emit(unk380, &unk374, 0, nullptr);
+
+	if (unk350) {
+		gpMarioParticleManager->emit(0xDB, &unk374, 0, nullptr);
+	} else {
+		if (gpMSound->gateCheck(0x2944)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x2944, &mPosition, 0, nullptr, 0, 4);
+		}
+	}
+
+	((TMapObjBase*)actor)->makeObjDead();
 }
 
 int TTelesaSlot::getResultFromAng(f32 ang)

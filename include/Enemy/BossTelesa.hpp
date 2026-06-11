@@ -93,7 +93,11 @@ public:
 	/* 0x1AC */ TLiveActor* unk1AC[50];
 	/* 0x274 */ s32 unk274;
 	/* 0x278 */ JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > unk278;
-	/* 0x2A8 */ u8 unk2A8[0xA8];
+	/* 0x2A8 */ u8 unk2A8[0xA0];
+	/* 0x348 */ u8 unk348;
+	/* 0x349 */ u8 unk349;
+	/* 0x34A */ u8 unk34A;
+	/* 0x34B */ u8 unk34B[0x5];
 	/* 0x350 */ u8 unk350;
 	/* 0x351 */ u8 unk351[0x3];
 	/* 0x354 */ s32 unk354;
@@ -106,7 +110,9 @@ public:
 	/* 0x368 */ s32 unk368;
 	/* 0x36C */ s32 unk36C;
 	/* 0x370 */ u8 unk370;
-	/* 0x371 */ u8 unk371[0x13];
+	/* 0x371 */ u8 unk371[0x3];
+	/* 0x374 */ JGeometry::TVec3<f32> unk374;
+	/* 0x380 */ s32 unk380;
 	/* 0x384 */ u8 unk384;
 	/* 0x385 */ u8 unk385[0x7];
 };
