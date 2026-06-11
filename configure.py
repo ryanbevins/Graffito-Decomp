@@ -351,7 +351,7 @@ config.libs = [
             Object(Matching, "JSystem/JKernel/JKRFileLoader.cpp"),
             Object(NonMatching, "JSystem/JKernel/JKRHeap.cpp"),
             Object(Matching, "JSystem/JKernel/JKRMemArchive.cpp"),
-            Object(NonMatching, "JSystem/JKernel/JKRSolidHeap.cpp"),
+            Object(Equivalent, "JSystem/JKernel/JKRSolidHeap.cpp"),
             Object(Matching, "JSystem/JKernel/JKRStdHeap.cpp"),
             Object(Matching, "JSystem/JKernel/JKRThread.cpp"),
             Object(Matching, "JSystem/JKernel/JKRDvdRipper.cpp"),
