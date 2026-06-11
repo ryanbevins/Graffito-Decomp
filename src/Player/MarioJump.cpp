@@ -498,19 +498,27 @@ void TMario::boardJumping()
 		*(f32*)((u8*)this + 0x50) = mDeParams.mPushupRadius.value; calcEntryRadius();
 		*(f32*)((u8*)this + 0x54) = mDeParams.mPushupHeight.value; calcEntryRadius();
 	}
-	int r = jumpProcess(0);
-	if (r == 1 && mVel.y < 0.0f) changePlayerStatus(0x00810446, 0, false);
-	else if (r == 2) {
-		if (!mWallPlane) { setPlayerVelocity(0.0f); loserExec(); }
-		else {
+	switch (jumpProcess(0)) {
+	case 1:
+		if (mVel.y < 0.0f)
+			changePlayerStatus(0x00810446, 0, false);
+		break;
+	case 2:
+		if (!mWallPlane) {
+			setPlayerVelocity(0.0f);
+			loserExec();
+		} else {
 			s32 wa = matan(mWallPlane->getNormal().z, mWallPlane->getNormal().x);
-			s32 d = wa - mFaceAngle.y;
+			s16 d  = wa - mFaceAngle.y;
 			s32 mx = mSurfingParamsWaterRed.mClashAngle.value;
-			if ((s16)d < -mx || (s16)d > mx) {
-				if (mForwardVel > mSurfingParamsWaterRed.mClashSpeed.value) startJumpWall();
-				else setPlayerVelocity(0.0f);
-			} else setPlayerVelocity(0.0f);
+			if ((d < -mx || d > mx)
+			    && mForwardVel > mSurfingParamsWaterRed.mClashSpeed.value) {
+				loserExec();
+			} else {
+				setPlayerVelocity(0.0f);
+			}
 		}
+		break;
 	}
 }
 
