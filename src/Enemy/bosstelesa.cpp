@@ -1756,8 +1756,14 @@ void TBossTelesaKillSmallEnemy::checkHit()
 	unk6C = 0;
 
 	for (int i = 0; i < mColCount; ++i) {
-		THitActor* actor = mCollisions[i];
-		if (actor->mActorType & ACTOR_TYPE_ENEMY) {
+		THitActor* collision = mCollisions[i];
+		bool isEnemy;
+		if (collision->mActorType & ACTOR_TYPE_ENEMY)
+			isEnemy = true;
+		else
+			isEnemy = false;
+		if (isEnemy) {
+			THitActor* actor = collision;
 			if (actor->mActorType == (ACTOR_TYPE_ENEMY | 0x13))
 				((THamuKuri*)actor)->selectCapHolder();
 			((TLiveActor*)actor)->kill();
