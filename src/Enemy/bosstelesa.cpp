@@ -2769,18 +2769,18 @@ DEFINE_NERVE(TNerveBubbleLive, TLiveActor)
 		if (bubble->unk1D0) {
 			bubble->setBckAnm(10);
 			bubble->setGoalPathMario();
-
-			f32 min = 0.0f;
-			f32 max = 20.0f;
-			f32 range = max - min;
-			f32 randValue = rand() * 0.000030517578f;
-			randValue *= range;
-			randValue += min;
-			bubble->mMActor->getFrameCtrl(0)->setFrame(randValue);
-			bubble->onLiveFlag(LIVE_FLAG_UNK8);
 		} else {
 			bubble->setBckAnm(8);
 		}
+
+		f32 min = 0.0f;
+		f32 max = 20.0f;
+		f32 range = max - min;
+		f32 randValue = rand() * 0.000030517578f;
+		randValue *= range;
+		randValue += min;
+		bubble->mMActor->getFrameCtrl(0)->setFrame(randValue);
+		bubble->onLiveFlag(LIVE_FLAG_UNK8);
 	} else if (bubble->checkCurAnmEnd(0)) {
 		bubble->offHitFlag(HIT_FLAG_NO_COLLISION);
 		bubble->setBckAnm(10);
