@@ -902,7 +902,7 @@ public:
 	void rotateJumping();
 	void rocketing();
 	BOOL rocketCheck();
-	void boardJumping();
+	BOOL boardJumping();
 	void rotateBroadJumping();
 	void broadJumping();
 	void fireLanding();

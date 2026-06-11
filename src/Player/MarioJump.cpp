@@ -504,7 +504,7 @@ void TMario::thrownDowning()
 	setAnimation(288, 1.0f);
 }
 
-void TMario::boardJumping()
+BOOL TMario::boardJumping()
 {
 	setAnimation(109, 1.0f);
 	if (mVel.y < 0.0f) {
@@ -538,6 +538,7 @@ void TMario::boardJumping()
 		}
 		break;
 	}
+	return FALSE;
 }
 
 BOOL TMario::rocketCheck()
