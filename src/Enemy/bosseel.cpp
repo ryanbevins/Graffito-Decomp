@@ -21,6 +21,7 @@
 #include <Strategic/Strategy.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/Particles.hpp>
+#include <stdlib.h>
 
 // rogue includes needed for matching sinit
 #include <MSound/MSSetSound.hpp>
@@ -452,6 +453,64 @@ void TBEelTearsManager::perform(u32 flags, JDrama::TGraphics* graphics)
 TSpineEnemy* TBEelTearsManager::createEnemyInstance()
 {
 	return new TBEelTears("めおとウナギ涙");
+}
+
+void TBEelTearsManager::splitTears(JGeometry::TVec3<f32>& position)
+{
+	position.y += 600.0f;
+
+	int splitNum = ((TBEelTearsSaveLoadParams*)unk38)->mSLTearsSplitNum.get();
+	f32 minPos   = -250.0f;
+	f32 maxPos   = 250.0f;
+
+	for (int i = 0; i < 30; ++i) {
+		TBEelTearsDrop* drop = mDrops[i];
+		if (drop->unk6C)
+			continue;
+
+		JGeometry::TVec3<f32> dropPos = position;
+		f32 offset = rand() * 0.000030517578f;
+		offset *= maxPos - minPos;
+		offset += minPos;
+		dropPos.x += offset;
+		offset = rand() * 0.000030517578f;
+		offset *= maxPos - minPos;
+		offset += minPos;
+		dropPos.y += offset;
+		offset = rand() * 0.000030517578f;
+		offset *= maxPos - minPos;
+		offset += minPos;
+		dropPos.z += offset;
+
+		--splitNum;
+		drop->offHitFlag(HIT_FLAG_NO_COLLISION);
+		drop->unk6C = TRUE;
+
+		f32 minSpeed = 4.0f;
+		f32 maxSpeed = 6.0f;
+		f32 speed = rand() * 0.000030517578f;
+		speed *= maxSpeed - minSpeed;
+		speed += minSpeed;
+		drop->unk70 = speed;
+		drop->mPosition = dropPos;
+
+		f32 minScale = 1.0f;
+		f32 maxScale = 1.5f;
+		f32 scale    = rand() * 0.000030517578f;
+		scale *= maxScale - minScale;
+		scale += minScale;
+
+		TBEelTearsSaveLoadParams* params = drop->unk74->unk15C;
+		scale = rand() * 0.000030517578f;
+		scale *= params->mTearsDropScaleHigh - params->mTearsDropScaleLow;
+		scale += params->mTearsDropScaleLow;
+		drop->mScaling.x = scale;
+		drop->mScaling.y = scale;
+		drop->mScaling.z = scale;
+
+		if (splitNum < 0)
+			break;
+	}
 }
 
 void TBEelTearsManager::createEnemies(int count)
