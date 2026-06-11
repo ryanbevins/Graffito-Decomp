@@ -7978,7 +7978,11 @@ confirmed in ≥2 TUs._
   `TViewObj::TViewObj(const char*)` and `TPlacement::~TPlacement()` helpers in
   the campaign TU. Next experiment: find a source cue that keeps the base
   constructor body visible for `TOrthoProj` while routing the header-defined
-  `TViewObj`/`TPlacement` helpers to their existing owners.
+  `TViewObj`/`TPlacement` helpers to their existing owners. tick 536 replicated
+  the same tradeoff in `mario/GC2D/SelectDir`: TU-local `TCamera` plus
+  `TLookAtCamera` inline constructors lifted `TSelectDir::rsetup()` from 83.1%
+  to 95.9% and matched the local `TVec3<float>::set<float>` helper, while the
+  same target-absent `TViewObj`/`TPlacement` helper family remained extra.
 
 - **What source shape preserves an out-of-line
   `TVec3<float>::set(const Vec&)` call when the copied temp is only read back
