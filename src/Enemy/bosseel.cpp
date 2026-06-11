@@ -3,6 +3,7 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
+#include <Map/Map.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
@@ -230,6 +231,27 @@ TBEelTears::TBEelTears(const char* name)
 const char** TBEelTears::getBasNameTable() const
 {
 	return bossEelTears_bastable;
+}
+
+void TBEelTears::kill()
+{
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+	unk16C->onHitFlag(HIT_FLAG_NO_COLLISION);
+	onLiveFlag(LIVE_FLAG_DEAD);
+}
+
+void TBEelTears::reset()
+{
+	mActorType = 0x8000003;
+	TSpineEnemy::reset();
+	mSpine->initWith(&TNerveBEelTearsGenerate::theNerve());
+	onLiveFlag(LIVE_FLAG_UNK10);
+	offLiveFlag(LIVE_FLAG_DEAD);
+	offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+	offLiveFlag(LIVE_FLAG_UNK200);
+	offLiveFlag(LIVE_FLAG_HIDDEN);
+	mGroundPlane = TMap::getIllegalCheckData();
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 TBEelTearsManager::TBEelTearsManager(const char* name)

@@ -152,7 +152,9 @@ public:
 class TBEelTears : public TSpineEnemy {
 public:
 	TBEelTears(const char*);
+	virtual void kill();
 	virtual const char** getBasNameTable() const;
+	virtual void reset();
 
 	/* 0x150 */ JGeometry::TVec3<f32> unk150;
 	/* 0x15C */ TBEelTearsSaveLoadParams* unk15C;
@@ -160,7 +162,7 @@ public:
 	/* 0x161 */ u8 unk161[0x3];
 	/* 0x164 */ s32 unk164;
 	/* 0x168 */ void* unk168;
-	/* 0x16C */ void* unk16C;
+	/* 0x16C */ THitActor* unk16C;
 };
 
 class TBEelTearsManager : public TEnemyManager {
