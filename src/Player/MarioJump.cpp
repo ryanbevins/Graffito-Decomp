@@ -526,24 +526,27 @@ BOOL TMario::fireDowning()
 BOOL TMario::thrownDowning()
 {
 	s16 ad = mIntendedYaw - mFaceAngle.y; u16 au = (u16)ad;
-	// Pointer math slop
-	f32 ac = mIntendedMag * *(f32*)((u8*)this + 0x0B8C);
+	f32 ac = 160.0f * mIntendedMag;
 	f32 ta = mJumpParams.mThrownAccel.value;
-	mForwardVel += ac * JMASSin(au) * ta;
+	mForwardVel += ac * JMASCos(au) * ta;
 	f32 ts = mJumpParams.mThrownSlide.value;
-	mFaceAngle.y = (s16)(ac * JMASCos(au) * ts + (f32)mFaceAngle.y);
+	mFaceAngle.y = (s16)(ac * JMASSin(au) * ts + (f32)mFaceAngle.y);
 	mForwardVel *= mJumpParams.mThrownBrake.value;
-	u16 fa = mFaceAngle.y;
-	f32 vx = mForwardVel * JMASSin(fa); mSlideVelX = vx; mVel.x = vx;
-	f32 vz = mForwardVel * JMASCos(fa); mSlideVelZ = vz; mVel.z = vz;
+	f32 vx = mForwardVel * JMASSin(mFaceAngle.y); mSlideVelX = vx; mVel.x = vx;
+	f32 vz = mForwardVel * JMASCos(mFaceAngle.y); mSlideVelZ = vz; mVel.z = vz;
 	int jr = jumpProcess(0);
-	if (jr == 1) {
+	switch (jr) {
+	case 1:
 		if (mActionState < 2 && mVel.y < 0.0f) {
-			mVel.y = -mVel.y * mJumpParams.mBroadJumpForce.value;
-			setPlayerVelocity(mJumpParams.mBroadJumpForce.value * mForwardVel);
+			mVel.y = -mVel.y * 2.0f;
+			setPlayerVelocity(1024.0f * mForwardVel);
 			mActionState = mActionState + 1;
 		} else changePlayerStatus(0x0C000223, 0, false);
-	} else if (jr == 2) playerRefrection(0);
+		break;
+	case 2:
+		playerRefrection(0);
+		break;
+	}
 	setAnimation(288, 1.0f);
 	return FALSE;
 }
