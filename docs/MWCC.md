@@ -8920,3 +8920,50 @@ moving code into/out of an inline, or adding/removing neighbors (e.g. a new
 coalesced variable) to bump it between priority "levels". For stack-size deltas,
 compare `variables.txt` against the target frame and look for an unused local or a
 missing/extra inline that adds a slot.
+
+## Finding: saved-register priority — call-result outranks short-lived temp (getIndex)
+
+*Worked example using mwcc-debugger; status: observed on one TU, needs a second to promote to Settled.*
+
+`JUTNameTab::getIndex` (`getIndex__10JUTNameTabCFPCc`) sits at 98.21% with a
+**pure saved-register permutation** — identical instructions, identical order,
+only the register *numbers* differ on four loop-live locals:
+
+| local | role | ours | target |
+|------|------|-----:|-------:|
+| `i` | loop counter (`u16`) | r29 | **r28** |
+| `pEntry` | key-table pointer | r30 | **r29** |
+| `keyCode` | `= calcKeyCode(pName)` (call result, live whole loop) | r31 | **r30** |
+| `idx` | `s32` return temp (`(u16)i` held across `strcmp`) | r28 | **r31** |
+
+MWCC (Chaitin) assigns saved registers **r31→r28 in descending priority** — the
+highest-priority variable gets r31. The objdiff says the target's priority is
+`idx > keyCode > pEntry > i`; ours is `keyCode > pEntry > i > idx`.
+
+**What moved it (verified by recompile + objdump diff each step):**
+- Declaring `idx` *before* the loop (longer live range) raised it r28→r29 and
+  pushed `i` down to r28 → **`i` now matches**.
+- Declaring `idx` *first* among the locals raised it r29→r30 → **`pEntry` now matches**.
+- That leaves a single adjacent swap: `idx` (r30) vs `keyCode` (r31).
+
+**What did NOT move it:** decl/init splitting, reordering `keyCode` before
+`pEntry`, and the `register` keyword on `idx`. `keyCode` is a **function-call
+result that is live across the entire loop**, and it stays the top-priority
+saved register regardless — declaration order/scope/`register` reorder the
+*other* locals but cannot lift a short-lived temp above a call-result-held-across-loop.
+
+**Takeaways**
+- Extending a local's scope / declaring it earlier is a real, monotonic lever on
+  its saved-register rank — use it to place 2–3 of N registers, confirming each
+  with objdump.
+- A call-result kept live across a loop is "sticky" at the top of saved-register
+  priority. If the target ranks a shorter-lived temp above it, decl-order won't
+  do it.
+
+**Untried escape hatch (next experiment):** the coalesced-variable / neighbor
+trick from the *Using mwcc-debugger* notes — introduce a redundant copy MWCC
+coalesces so `keyCode` gains a phantom neighbor and drops a priority "level"
+below `idx`. Read `regalloc-gpr-pass-1-all.txt` (includes coalesced vars) to
+target it. Confirming this on `getIndex` *and* one other TU would promote the
+rule to Settled. Until then this stays a documented instance of the
+register-coloring wall, not a solved lever.
