@@ -1,4 +1,7 @@
 #include <Enemy/BossEel.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <M3DUtil/SDLModel.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <System/Particles.hpp>
 
@@ -210,6 +213,20 @@ TSpineEnemy* TBEelTearsManager::createEnemyInstance()
 	return new TBEelTears("めおとウナギ涙");
 }
 
+void TBEelTearsManager::createEnemies(int count)
+{
+	TEnemyManager::createEnemies(count);
+
+	void* resource
+	    = JKRFileLoader::getGlbResource("/scene/bossEelTears/tears_drop.bmd");
+	SDLModelData* modelData
+	    = new SDLModelData(J3DModelLoaderDataBase::load(resource, 0x11240000));
+	TBEelTears* tears = (TBEelTears*)unk18[0];
+
+	for (int i = 0; i < 30; ++i)
+		mDrops[i] = new TBEelTearsDrop(tears, 0, modelData, "涙粒");
+}
+
 void TBEelTearsManager::createModelData()
 {
 	static const TModelDataLoadEntry entry[] = {
@@ -263,3 +280,13 @@ TBEelTearsSaveLoadParams::TBEelTearsSaveLoadParams(const char* path)
 	mTearsDropScaleLow  = mSLTearsDropScaleLow.get();
 	mTearsDropScaleHigh = mSLTearsDropScaleHigh.get();
 }
+
+void TOilBall::load(JSUMemoryInputStream& stream)
+{
+	unk160 = FALSE;
+	TSpineEnemy::load(stream);
+	unk150 = mPosition;
+	reset();
+}
+
+void TOilBall::calcRootMatrix() { TSpineEnemy::calcRootMatrix(); }

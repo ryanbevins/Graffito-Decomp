@@ -154,7 +154,7 @@ public:
 	TBEelTears(const char*);
 	virtual const char** getBasNameTable() const;
 
-	/* 0x150 */ u8 unk150[0xC];
+	/* 0x150 */ JGeometry::TVec3<f32> unk150;
 	/* 0x15C */ TBEelTearsSaveLoadParams* unk15C;
 	/* 0x160 */ u8 unk160;
 	/* 0x161 */ u8 unk161[0x3];
@@ -197,6 +197,10 @@ public:
 	}
 
 	virtual ~TOilBall();
+	virtual void load(JSUMemoryInputStream&);
+	virtual void calcRootMatrix();
+	virtual void moveObject();
+	virtual void reset();
 };
 
 DECLARE_NERVE(TNerveBEelTearsGenerate, TLiveActor);
