@@ -113,9 +113,9 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			// Check MARIO_FLAG_HAS_FLUDD
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-					mWaterGun->mCurrentWater += nozzle->mEmitParams.mAmountMax.get() / 2;
-					nozzle = mWaterGun->getCurrentNozzle();
-					s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
+				mWaterGun->mCurrentWater += nozzle->mEmitParams.mAmountMax.get() / 2;
+				nozzle = mWaterGun->getCurrentNozzle();
+				s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
 				if (mWaterGun->mCurrentWater > maxWater) {
 					mWaterGun->mCurrentWater = maxWater;
 				}
@@ -312,9 +312,9 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			emitGetCoinEffect((JGeometry::TVec3<f32>*)&mPosition);
 			incHP(1);
 
-				s32 coinFlag = TFlagManager::smInstance->getFlag(0x40002);
-				// Check if coins are multiple of 50
-				if (coinFlag % 50 == 0) {
+			s32 coinFlag = TFlagManager::smInstance->getFlag(0x40002);
+			// Check if coins are multiple of 50
+			if (coinFlag % 50 == 0) {
 				TFlagManager::smInstance->incMario(1);
 				if (gpMSound->gateCheck(0x4841)) {
 					MSoundSESystem::MSoundSE::startSoundSystemSE(0x4841, 0, nullptr, 0);
