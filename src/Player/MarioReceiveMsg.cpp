@@ -544,6 +544,7 @@ check_sender_bit3:
 			goto default_enemy_handle;
 
 		case 0x10000013: // Namekuri (snail enemy)
+		case 0x10000037:
 			if (message == 0x0E) {
 				if (!isInvincible()) {
 					// Clear sticky flag on cap
