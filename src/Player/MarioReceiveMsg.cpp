@@ -667,7 +667,14 @@ check_sender_bit3:
 		case 0x1000001B:
 		case 0x1000001C:
 		case 0x1000001D:
+		case 0x10000020:
 		case 0x10000022:
+		case 0x10000025:
+		case 0x1000002A:
+		case 0x1000002C:
+		case 0x1000002D:
+		case 0x1000002E:
+		case 0x1000002F:
 		case 0x10000033:
 		case 0x10000036:
 			if (message == 0x0E) {
