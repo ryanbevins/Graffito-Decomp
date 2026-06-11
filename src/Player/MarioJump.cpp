@@ -550,7 +550,7 @@ BOOL TMario::boardJumping()
 
 BOOL TMario::rocketCheck()
 {
-	s32 canRocket = TRUE;
+	u8 canRocket = TRUE;
 	if (mAction == ACTION_ROCKETING) canRocket = FALSE;
 	if (mAction == ACTION_ROCKET_END) canRocket = FALSE;
 	u8 hasFludd; if (mState & MARIO_FLAG_HAS_FLUDD) hasFludd = TRUE; else hasFludd = FALSE;
@@ -560,9 +560,10 @@ BOOL TMario::rocketCheck()
 		u8 isPumpIdle; if (mPumpState == 0) isPumpIdle = TRUE; else isPumpIdle = FALSE;
 		if (!isPumpIdle) canRocket = FALSE;
 		TWaterGun* g = mWaterGun;
-		if (g->mCurrentWater == 0) canRocket = FALSE;
+		u8 nozzleReady;
+		if (g->mCurrentWater == 0)
+			nozzleReady = FALSE;
 		else {
-			u8 nozzleReady;
 			s32 k = g->getCurrentNozzle()->getNozzleKind();
 			if (k == 1) {
 				TNozzleTrigger* t = (TNozzleTrigger*)g->getCurrentNozzle();
@@ -572,8 +573,8 @@ BOOL TMario::rocketCheck()
 				if (g->getCurrentNozzle()->unk378 > 0.0f) nozzleReady = TRUE;
 				else nozzleReady = FALSE;
 			}
-			if (!nozzleReady) canRocket = FALSE;
 		}
+		if (!nozzleReady) canRocket = FALSE;
 	} else canRocket = FALSE;
 	if ((u8)canRocket == TRUE) {
 		mRocketTargetY = mPosition.y + mWaterGun->mWatergunParams.mHoverHeight.get();
