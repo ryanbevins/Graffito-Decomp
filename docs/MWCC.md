@@ -36,6 +36,27 @@ them in future ticks.
 
 ## Settled
 
+### `TPosition3f::translation` can preserve an out-of-line `identity33` call where direct identity setup inlines
+
+**Rule.** When target asm calls the weak
+`TRotation3<TMatrix34<SMatrix34C<f>>>::identity33()` before filling translation
+slots, spelling the source as a higher-level `TPosition3f::translation(x,y,z)`
+can keep the `identity33` call boundary. Direct
+`mtx.identity33(); mtx.setTrans(...)`, direct `identity33()` on `TRotation3f`,
+or a raw `Mtx` cast can inline the 3x3 identity stores. This rule only covers
+the call boundary; weak owner placement and stack/FPR residue may still need
+separate investigation.
+
+**Citations.**
+- `mario/System/TalkCursor` `TTalkCursor::associateNPC` (t317):
+  `mtx.translation(pos.x,pos.y,pos.z)` restored the `identity33` call where
+  direct `identity33(); setTrans(pos)` inlined the identity stores, moving
+  `41.5 -> 82.5`.
+- `mario/Enemy/bosseel` `TBEelTears::calcRootMatrix` (2026-06-11 MNL):
+  direct `TRotation3f`/raw-`Mtx` `identity33()` inlined and scored 69.5%;
+  `TPosition3f::translation(x,y,z)` preserved the target call boundary and
+  moved the function to 97.3%.
+
 ### Name repeated `f32` call parameters before helper calls to force saved-FPR lifetimes
 
 **Rule.** When target asm loads a float field into `f31`/`f30` before one or
@@ -6680,24 +6701,6 @@ where target omits caller-side narrowing but the SDK callee masks its args. If a
 second independent TU needs the same "wide caller, narrow callee" split, promote
 this as a header/prototype matching rule. If no second site appears, keep it as
 a MarioMain-specific prototype accident.
-
-### A higher-level inline wrapper can force an out-of-line weak call that a direct inline method call would expand
-
-**Hypothesis.** For template matrix helpers, calling a higher-level wrapper can
-change MWCC's deferred-inline decision even when the wrapper itself is inline.
-In `mario/System/TalkCursor::associateNPC` (t317), direct
-`mtx.identity33(); mtx.setTrans(pos);` inlined the 3x3 identity stores, but
-`mtx.translation(pos.x, pos.y, pos.z)` emitted a `bl` to
-`TRotation3<TMatrix34<SMatrix34C<f>>>::identity33()` and moved the function
-`41.5 -> 82.5`. The remaining residue is not solved: the call currently emits a
-local weak `identity33` body in `TalkCursor.o`, while the target calls the weak
-owner in `mario/MarioUtil/DrawUtil`, and scalar arguments are homed before the
-call whereas the target loads `pos` after the identity call.
-
-**Experiment to confirm/refute.** Find a second site where target calls
-`identity33` but direct `identity33(); setTrans(...)` inlines. Test whether
-`translation(...)` reliably restores the call boundary, then solve weak-owner
-placement separately before promoting this pattern.
 
 ### Direct `this->memberPtr` access may force post-call reloads where a cached local pins the pointer across the call
 
