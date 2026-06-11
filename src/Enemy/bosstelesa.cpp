@@ -545,10 +545,113 @@ void TTelesaSlot::moveStart()
 
 void TTelesaSlot::moveObject()
 {
-	TSlotDrum::moveObject();
-	for (int i = 0; i < 3; ++i) {
-		if (*(&unk198 + i) && getForcastResult(i) == unk1A4)
-			forceStopSlot(i);
+	TLiveActor::moveObject();
+
+	for (int i = 0; i < unk148; ++i) {
+		u8* isRolling = &unk198 + i;
+		u8* doStop    = &unk1A8 + i;
+
+		if (*doStop) {
+			if (getForcastResult(i) == unk1A4) {
+				*isRolling = 0;
+				*doStop    = 0;
+			}
+		}
+
+		f32 speed = unk138[i];
+		if (speed == 0.0f)
+			continue;
+
+		if (fabsf(speed) > unk160) {
+			unk13C[i] += speed;
+
+			if (!*isRolling) {
+				if (unk138[i] > 0.0f)
+					unk138[i] -= unk15C;
+				else
+					unk138[i] += unk15C;
+			}
+
+			if (unk13C[i] >= 360.0f)
+				unk13C[i] -= 360.0f;
+			if (unk13C[i] < 0.0f)
+				unk13C[i] += 360.0f;
+		} else {
+			unk13C[i] += speed;
+
+			if (unk13C[i] >= 360.0f)
+				unk13C[i] -= 360.0f;
+			if (unk13C[i] < 0.0f)
+				unk13C[i] += 360.0f;
+
+			if (*isRolling)
+				continue;
+
+			if ((int)fabsf(unk13C[i]) % unk168 != 0)
+				continue;
+
+			unk13C[i] = unk168 * (int)(unk13C[i] / (f32)unk168);
+			unk138[i] = 0.0f;
+
+			if (gpMSound->gateCheck(0x292C)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x292C, &mPosition, 0, nullptr, 0, 4);
+			}
+
+			for (int j = 0; j < unk148; ++j) {
+				u8* otherRolling = &unk198 + j;
+				if (*otherRolling) {
+					f32 min = 0.0f;
+					f32 max = 1.0f;
+					TBossTelesa* owner = getSlotOwner(this);
+					TBossTelesaSaveLoadParams* params
+					    = (TBossTelesaSaveLoadParams*)owner->unk15C;
+					f32 rate = params->mSLSlotHitCollectRate.get();
+
+					if (min
+					        + (max - min)
+					            * (rand() * 0.000030517578f)
+					    <= rate) {
+						*(&unk1A8 + j) = 1;
+					} else {
+						*otherRolling = 0;
+					}
+				}
+			}
+
+			u8 allStopped = 1;
+			if (unk138[0] != 0.0f)
+				allStopped = 0;
+			if (unk138[1] != 0.0f)
+				allStopped = 0;
+			if (unk138[2] != 0.0f)
+				allStopped = 0;
+
+			if (allStopped) {
+				TBossTelesa* owner = getSlotOwner(this);
+				TTelesaSlot* slot = (TTelesaSlot*)owner->unk184;
+				int result        = slot->getSlotResult();
+
+				if (result == 2 || result == 0) {
+					owner->unk374.x = 0.0f;
+					owner->unk374.y = 0.0f;
+					owner->unk374.z = 0.0f;
+					gpMarioParticleManager->emit(0xE1, &owner->unk374,
+					                             0, nullptr);
+
+					u32 sound = result == 2 ? 0x293F : 0x2940;
+					if (gpMSound->gateCheck(sound)) {
+						MSoundSESystem::MSoundSE::startSoundActor(
+						    sound, &owner->mPosition, 0, nullptr, 0, 4);
+					}
+				} else {
+					if (gpMSound->gateCheck(0x294D)) {
+						MSoundSESystem::MSoundSE::startSoundActor(
+						    0x294D, &owner->mPosition, 0, nullptr, 0, 4);
+					}
+				}
+			}
+		}
 	}
 }
 
