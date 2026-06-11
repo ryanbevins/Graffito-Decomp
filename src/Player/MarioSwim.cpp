@@ -76,6 +76,8 @@ void TMario::doSwimming()
 	mVel.y *= mSwimParams.mUpDownBrake.get();
 
 	switch (jumpProcess(1)) {
+	case 1:
+		break;
 	case 2:
 		if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
 			if (isUnderWater()) {
