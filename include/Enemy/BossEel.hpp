@@ -175,7 +175,6 @@ public:
 class TBEelTearsManager : public TEnemyManager {
 public:
 	TBEelTearsManager(const char*);
-	virtual ~TBEelTearsManager();
 	virtual void load(JSUMemoryInputStream&);
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual TSpineEnemy* createEnemyInstance();
