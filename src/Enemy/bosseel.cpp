@@ -1,4 +1,5 @@
 #include <Camera/CameraShake.hpp>
+#include <Camera/cameralib.hpp>
 #include <Enemy/BossEel.hpp>
 #include <Enemy/Conductor.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
@@ -135,6 +136,11 @@ static inline void playBossEelSound(u32 sound_id,
 		MSoundSESystem::MSoundSE::startSoundActor(sound_id, position, 0,
 		                                          nullptr, 0, 4);
 	}
+}
+
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
 }
 
 DEFINE_NERVE(TNerveBEelTearsMoveUp, TLiveActor)
@@ -1783,6 +1789,76 @@ TBEelTearsDrop::TBEelTearsDrop(TBEelTears* tears, int index,
 	                     *texture->getTexture()->getTexInfo());
 	actor->setBckFromIndex(0);
 	actor->setLightType(3);
+}
+
+DEFINE_NERVE(TNerveBossEelSecondSpin, TLiveActor)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		START_BOSS_EEL_BCK(eel, 10);
+
+		TBossEelUnk1EC* spinState = eel->unk1EC;
+		spinState->unk0           = 0;
+		spinState->unk4
+		    = (s32)(rand() * 0.000030517578f * 960.0f) + 241;
+		eel->mTurnSpeed = 0.0f;
+
+		if (gpMSound->gateCheck(0x8921)) {
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x8921, &eel->mPosition, nullptr, 2.0f, 0, 0, nullptr, 0,
+			    4);
+		}
+
+		if (rand() * 0.000030517578f < 0.5f)
+			eel->onLiveFlag(LIVE_FLAG_UNK10000);
+		else
+			eel->offLiveFlag(LIVE_FLAG_UNK10000);
+	}
+
+	f32 turnSpeed = eel->mTurnSpeed;
+	CLBChaseGeneralConstantSpecifySpeed(
+	    &turnSpeed, eel->unk1E8->mSLSpinMaxSpeed.value,
+	    eel->unk1E8->mSLSpinAccel.value);
+	eel->mTurnSpeed = turnSpeed;
+	gpCameraShake->keepShake((EnumCamShakeMode)0x18, 1.0f);
+
+	if (eel->mLiveFlag & LIVE_FLAG_UNK10000) {
+		eel->mRotation.y -= turnSpeed;
+		if (eel->mRotation.y <= 0.0f) {
+			if (gpMSound->gateCheck(0x8921)) {
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x8921, &eel->mPosition, nullptr, turnSpeed, 0, 0,
+				    nullptr, 0, 4);
+			}
+		}
+	} else {
+		eel->mRotation.y += turnSpeed;
+		if (eel->mRotation.y >= 360.0f) {
+			if (gpMSound->gateCheck(0x8921)) {
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x8921, &eel->mPosition, nullptr, turnSpeed, 0, 0,
+				    nullptr, 0, 4);
+			}
+		}
+	}
+
+	eel->mRotation.y = callMsWrap(eel->mRotation.y, 0.0f, 360.0f);
+
+	TBossEelUnk1EC* spinState = eel->unk1EC;
+	++spinState->unk0;
+	bool finished = false;
+	if (spinState->unk0 >= spinState->unk4) {
+		spinState->unk0 = spinState->unk4;
+		finished        = true;
+	}
+
+	if (finished) {
+		spine->pushAfterCurrent(&TNerveBossEelAppear::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 static BOOL ExecBackNerve_Sub(TSpineBase<TLiveActor>* spine, f32)
