@@ -125,6 +125,58 @@ DEFINE_NERVE(TNerveBEelTearsGenerate, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveBEelTearsSplit, TLiveActor)
+{
+	TBEelTears* tears = (TBEelTears*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		if (gpMSound->gateCheck(0x8926)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x8926, &tears->mPosition, 0, nullptr, 0, 4);
+		}
+
+		tears->mMActor
+		    = tears->mMActorKeeper->getMActor("tears_waterhit.bmd");
+		tears->mMActor->setBckFromIndex(3);
+
+		MActor* actor = tears->mMActor;
+		actor->setFrameRate(
+		    tears->unk15C->mSLHitAnmFrameRate.get() * SMSGetAnmFrameRate(),
+		    0);
+	}
+
+	if (tears->checkCurAnmEnd(0)) {
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToPosPtr(
+		    0xd5, &tears->mPosition, 0, nullptr);
+		if (emitter) {
+			emitter->unk154.x = tears->mScaling.x;
+			emitter->unk154.y = tears->mScaling.y;
+			emitter->unk154.z = tears->mScaling.z;
+			emitter->unk174.x = tears->mScaling.x;
+			emitter->unk174.y = tears->mScaling.y;
+			emitter->unk174.z = tears->mScaling.z;
+		}
+
+		((u8*)tears->unk16C)[0x81] = FALSE;
+		tears->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
+		((u8*)tears->unk16C)[0x80] = TRUE;
+		tears->unk16C->mPosition = tears->mPosition;
+
+		((TBEelTearsManager*)tears->mManager)->splitTears(tears->mPosition);
+
+		if (gpMSound->gateCheck(0x8927)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x8927, &tears->mPosition, 0, nullptr, 0, 4);
+		}
+
+		tears->onLiveFlag(LIVE_FLAG_HIDDEN);
+		spine->pushAfterCurrent(&TNerveBEelTearsMarioRecover::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 DEFINE_NERVE(TNerveBEelTearsWaterHit, TLiveActor)
 {
 	TBEelTears* tears = (TBEelTears*)spine->getBody();
@@ -668,6 +720,63 @@ void TBEelTears::calcRootMatrix()
 	} else {
 		TSpineEnemy::calcRootMatrix();
 	}
+}
+
+void TBEelTears::moveObject()
+{
+	mVelocity.x *= 0.9f;
+	mVelocity.z *= 0.9f;
+	f32 liveHeight = unk15C->mSLTearsLiveHeight.get();
+
+	mPosition.x += mVelocity.x;
+	mPosition.z += mVelocity.z;
+
+	if (((u8*)unk16C)[0x81] == FALSE && unk168) {
+		if (mPosition.y > gpMarioPos->y + 3000.0f
+		    || mPosition.y > unk168[1][3] + liveHeight) {
+			kill();
+			return;
+		}
+	}
+
+	f32 scale      = mScaling.x;
+	mAttackRadius  = unk15C->mSLTearsAttackRadius.get() * scale;
+	mAttackHeight  = unk15C->mSLTearsAttackHeight.get() * scale;
+	mDamageRadius  = unk15C->mSLTearsDamageRadius.get() * scale;
+	mDamageHeight  = unk15C->mSLTearsDamageHeight.get() * scale;
+	calcEntryRadius();
+
+	for (int i = 0; i < mColCount; ++i) {
+		THitActor* hitActor = mCollisions[i];
+
+		if (hitActor->isActorTypeOf(ACTOR_TYPE_PLAYER)) {
+			if (mSpine->getCurrentNerve() == &TNerveBEelTearsMoveUp::theNerve()) {
+				SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
+				mSpine->pushNerve(&TNerveBEelTearsSplit::theNerve());
+			}
+		} else {
+			JGeometry::TVec3<f32> velocity;
+			velocity.zero();
+
+			JGeometry::TVec3<f32> direction;
+			direction.x = mPosition.x - hitActor->mPosition.x;
+			direction.y = mPosition.y - hitActor->mPosition.y;
+			direction.z = mPosition.z - hitActor->mPosition.z;
+
+			if (direction.x == 0.0f && direction.y == 0.0f
+			    && direction.z == 0.0f)
+				direction.x += 1.0f;
+
+			MsVECNormalize(&direction, &direction);
+			direction.x *= 5.0f;
+			direction.y *= 5.0f;
+			direction.z *= 5.0f;
+			velocity.add(direction);
+			mLinearVelocity = velocity;
+		}
+	}
+
+	TLiveActor::moveObject();
 }
 
 void TBEelTearsDrop::perform(u32 flags, JDrama::TGraphics* graphics)
