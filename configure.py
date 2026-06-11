@@ -1096,7 +1096,7 @@ config.libs = [
             Object(NonMatching, "GC2D/Talk2D2.cpp"),
             Object(Equivalent, "GC2D/BoundPane.cpp"),
             Object(NonMatching, "GC2D/PauseMenu2.cpp"),
-            Object(NonMatching, "GC2D/MessageLoader.cpp"),
+            Object(Equivalent, "GC2D/MessageLoader.cpp"),
             Object(Matching, "GC2D/HelpActor.cpp"),
             Object(Matching, "GC2D/MessageUtil.cpp"),
             Object(NonMatching, "GC2D/CardSave.cpp"),
