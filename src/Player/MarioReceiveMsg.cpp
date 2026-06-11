@@ -917,7 +917,7 @@ check_sender_bit3:
 				if (!isInvincible()) {
 					if (*(u32*)((u8*)this + 0x6C) != 0) return 0;
 					if (*(u32*)((u8*)this + 0x68) != 0) return 0;
-					unk384 = (THitActor*)sender;
+					mHolder = (TTakeActor*)sender;
 					changePlayerStatus(0x10020370, 0, false);
 					return 1;
 				}
