@@ -116,7 +116,7 @@ msg7_check_sound:
 			// Check MARIO_FLAG_HAS_FLUDD
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater += nozzle->mEmitParams.mSuckRate.get() / 2;
+				mWaterGun->mCurrentWater += nozzle->mEmitParams.mAmountMax.get() / 2;
 				nozzle = mWaterGun->getCurrentNozzle();
 				s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
 				if (mWaterGun->mCurrentWater > maxWater) {
@@ -132,7 +132,7 @@ msg7_check_sound:
 			// Same pattern but multiply by full rate
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater += nozzle->mEmitParams.mSuckRate.get();
+				mWaterGun->mCurrentWater += nozzle->mEmitParams.mAmountMax.get();
 				nozzle = mWaterGun->getCurrentNozzle();
 				s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
 				if (mWaterGun->mCurrentWater > maxWater) {
@@ -156,7 +156,7 @@ msg7_check_sound:
 			// Check FLUDD
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater += nozzle->mEmitParams.mSuckRate.get();
+				mWaterGun->mCurrentWater += nozzle->mEmitParams.mAmountMax.get();
 				nozzle = mWaterGun->getCurrentNozzle();
 				s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
 				if (mWaterGun->mCurrentWater > maxWater) {
@@ -185,7 +185,7 @@ msg7_check_sound:
 			// Check FLUDD
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater += nozzle->mEmitParams.mSuckRate.get();
+				mWaterGun->mCurrentWater += nozzle->mEmitParams.mAmountMax.get();
 				nozzle = mWaterGun->getCurrentNozzle();
 				s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
 				if (mWaterGun->mCurrentWater > maxWater) {
@@ -210,7 +210,7 @@ msg7_check_sound:
 			unk148 = (u32)sender;
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mSuckRate.get();
+				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
 			}
 			emitGetEffect();
 			return 1;
@@ -230,7 +230,7 @@ msg7_check_sound:
 			unk148 = (u32)sender;
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mSuckRate.get();
+				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
 			}
 			emitGetEffect();
 			return 1;
@@ -250,7 +250,7 @@ msg7_check_sound:
 			unk148 = (u32)sender;
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mSuckRate.get();
+				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
 			}
 			emitGetEffect();
 			return 1;
@@ -271,7 +271,7 @@ msg7_check_sound:
 			unk148 = (u32)sender;
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mSuckRate.get();
+				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
 			}
 			emitGetEffect();
 			return 1;
@@ -291,7 +291,7 @@ msg7_check_sound:
 			unk148 = (u32)sender;
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mSuckRate.get();
+				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
 			}
 			emitGetEffect();
 			return 1;
