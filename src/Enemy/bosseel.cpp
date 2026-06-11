@@ -81,6 +81,22 @@ DEFINE_NERVE(TNerveBEelTearsGenerate, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveOilBallStay, TLiveActor)
+{
+	TLiveActor* body = spine->getBody();
+	MActor* actor    = body->mMActor;
+	TOilBall* oilBall = (TOilBall*)body;
+
+	if (actor->checkCurBckFromIndex(3)
+	    || (oilBall->checkCurAnmEnd(0)
+	        && !oilBall->mMActor->checkCurBckFromIndex(1))) {
+		oilBall->mMActor = oilBall->mMActorKeeper->getMActor("tears.bmd");
+		oilBall->mMActor->setBckFromIndex(1);
+	}
+
+	return FALSE;
+}
+
 TBossEel::TBossEel(const char* name)
     : TSpineEnemy(name)
     , unk1A8(nullptr)
