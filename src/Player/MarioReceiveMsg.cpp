@@ -22,8 +22,7 @@
 
 BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 {
-	// 0x24: Check if MARIO_FLAG_IS_PERFORMING is set
-	if (checkFlag(MARIO_FLAG_IS_PERFORMING))
+	if (checkFlag(MARIO_FLAG_GAME_OVER))
 		return 0;
 
 	u32 senderType = sender->mActorType;
@@ -31,7 +30,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 	// 0x50: Check sender has ACTOR_TYPE_UNK4000000 (bit 2)
 	if (senderType & 0x20000000) {
 		// List of actor types that should NOT trigger the sound
-		BOOL skip = 1;
+		bool skip = true;
 		if ((senderType - 0x20000000) == 0x0E) skip = 0;
 		if ((senderType - 0x20000000) == 0x0F) skip = 0;
 		if ((senderType - 0x20000000) == 0x10) skip = 0;
@@ -42,7 +41,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 		if ((senderType - 0x20000000) == 0x22) skip = 0;
 		if ((senderType - 0x20000000) == 0x2A) skip = 0;
 
-		if (skip) {
+		if (skip == true) {
 			if (gpMSound->gateCheck(0x180C)) {
 				MSoundSESystem::MSoundSE::startSoundActor(
 				    0x180C, (const Vec*)&mPosition, 0, nullptr, 0, 4);
