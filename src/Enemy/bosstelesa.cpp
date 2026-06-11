@@ -733,20 +733,23 @@ BOOL TTelesaSlot::isRollDrum()
 
 void TTelesaSlot::forceStopSlot(int idx)
 {
+	volatile f32 min = 0.0f;
+	volatile f32 max = 1.0f;
+
 	if (!unk19C)
 		return;
 
-	f32 min = 0.0f;
-	f32 max = 1.0f;
-
-	TBossTelesa* owner                = getSlotOwner(this);
-	TBossTelesaSaveLoadParams* params = (TBossTelesaSaveLoadParams*)owner->unk15C;
+	TBossTelesaSaveLoadParams* params
+	    = (TBossTelesaSaveLoadParams*)getSlotOwner(this)->unk15C;
 	f32 collectRate                  = params->mSLSlotFirstHitCollectRate.get();
 
 	if (SMS_GetMarioHP() == 1)
 		collectRate = 0.9f;
 
-	if (min + (max - min) * (rand() * 0.000030517578f) <= collectRate) {
+	f32 range = max - min;
+	f32 randomValue = range * (rand() * 0.000030517578f);
+	randomValue     = min + randomValue;
+	if (randomValue <= collectRate) {
 		unk1A4 = 2;
 		if (SMS_GetMarioHP() <= 3)
 			unk1A4 = 0;
@@ -756,11 +759,11 @@ void TTelesaSlot::forceStopSlot(int idx)
 		*(&unk198 + idx) = 0;
 	}
 
-	if (unk1A4 == owner->unk1A8)
+	if (unk1A4 == getSlotOwner(this)->unk1A8)
 		unk1A4 = 3;
 
 	if (unk1A4 == 0) {
-		if (owner->unk370 == 0)
+		if (getSlotOwner(this)->unk370 == 0)
 			unk1A4 = 1;
 		else if (SMS_GetMarioHP() >= 6)
 			unk1A4 = 3;
