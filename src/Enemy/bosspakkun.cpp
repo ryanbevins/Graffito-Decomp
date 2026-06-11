@@ -1455,8 +1455,41 @@ void TBPHeadHit::throwActor(THitActor* actor)
 	if (actor->getActorType() != 0x80000001)
 		return;
 
-	if (mOwner->mMActor != nullptr && mOwner->mMActor->checkCurBckFromIndex(15))
-		actor->receiveMessage(this, HIT_MESSAGE_ATTACK);
+	if (!mOwner->mMActor->checkCurBckFromIndex(15))
+		return;
+
+	static JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+
+	JGeometry::TVec3<f32> dir = mOwner->mPosition;
+	dir -= actor->mPosition;
+
+	if (dir.squared() <= JGeometry::TUtil<f32>::epsilon()) {
+		dir.x = 0.0f;
+		dir.y = 0.0f;
+		dir.z = 1.0f;
+	} else {
+		PSVECNormalize((Vec*)&dir, (Vec*)&dir);
+	}
+
+	JGeometry::TVec3<f32> throwVec;
+	throwVec.x = up.y * dir.z - up.z * dir.y;
+	throwVec.y = up.z * dir.x - up.x * dir.z;
+	throwVec.z = up.x * dir.y - up.y * dir.x;
+
+	if (throwVec.squared() <= JGeometry::TUtil<f32>::epsilon()) {
+		throwVec.x = 1.0f;
+		throwVec.y = 0.0f;
+		throwVec.z = 0.0f;
+	} else {
+		PSVECNormalize((Vec*)&throwVec, (Vec*)&throwVec);
+	}
+
+	throwVec *= 2.0f;
+	throwVec += up;
+
+	SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
+	SMS_SendMessageToMario(this, HIT_MESSAGE_UNK7);
+	SMS_ThrowMario(throwVec, 60.0f);
 }
 
 BOOL TBPHeadHit::receiveMessage(THitActor* sender, u32 message)
