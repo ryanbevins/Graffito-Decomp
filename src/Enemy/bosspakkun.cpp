@@ -1147,9 +1147,14 @@ void TBossPakkun::setGroundCollision()
 
 void TBossPakkun::kill()
 {
-	onLiveFlag(LIVE_FLAG_DEAD);
-	if (mSpine != nullptr)
-		mSpine->pushAfterCurrent(&TNerveBPPreDie::theNerve());
+	TLiveActor::kill();
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+	if (mHeadHit != nullptr)
+		mHeadHit->onHitFlag(HIT_FLAG_NO_COLLISION);
+	if (mNavel != nullptr)
+		mNavel->onHitFlag(HIT_FLAG_NO_COLLISION);
+	if (mPolDrop != nullptr)
+		mPolDrop->onHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 void TBossPakkun::changeBck(int index)
@@ -1329,8 +1334,21 @@ void TBossPakkun::rumblePad(int param_1, const JGeometry::TVec3<f32>& pos)
 
 BOOL TBossPakkun::checkMarioRiding()
 {
-	if (mGroundActor == (TLiveActor*)gpMarioAddress)
-		return TRUE;
+	const TBGCheckData* ground = SMS_GetMarioGrPlane();
+	if ((s8)unk190 == 0) {
+		if (ground != nullptr && ground->getActor() == this
+		    && SMS_IsMarioTouchGround4cm()) {
+			u32 status = SMS_GetMarioStatus();
+			if ((status & 0x200) && !(status & 0x200000)) {
+				unk190 = 1;
+				return TRUE;
+			}
+		}
+	} else {
+		if (ground == nullptr || ground->getActor() != this
+		    || !SMS_IsMarioTouchGround4cm())
+			unk190 = 0;
+	}
 
 	return FALSE;
 }
