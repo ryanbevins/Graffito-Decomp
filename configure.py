@@ -592,7 +592,6 @@ config.libs = [
             Object(Matching, "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/string.c"),
             Object(Matching, "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/strtoul.c"),
             Object(Matching, "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/float.c"),
-            Object(Matching, "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common_Embedded/uart_consolle_io.c"),
             Object(Matching, "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/wchar_io.c"),
             Object(Matching, "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_asin.c"),
             Object(Matching, "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_atan2.c"),
