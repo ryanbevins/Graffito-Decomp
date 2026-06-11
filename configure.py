@@ -810,7 +810,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(NonMatching, "M3DUtil/M3UJoint.cpp"),
-            Object(NonMatching, "M3DUtil/M3UModel.cpp"),
+            Object(Equivalent, "M3DUtil/M3UModel.cpp"),
             Object(NonMatching, "M3DUtil/MActor.cpp"),
             Object(NonMatching, "M3DUtil/MActorAnm.cpp"),
             Object(NonMatching, "M3DUtil/MActorData.cpp"),
