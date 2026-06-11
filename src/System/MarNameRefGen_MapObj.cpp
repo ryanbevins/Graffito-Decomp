@@ -133,15 +133,6 @@ public:
 	virtual ~TSirenaGate() {}
 };
 
-class TTelesaSlot : public TSlotDrum {
-public:
-	TTelesaSlot(const char* name)
-	    : TSlotDrum(name)
-	{
-	}
-	char _stub[0x1f0 - 0x198];
-};
-
 class TWoodLog : public TMapObjFloatOnSea {
 public:
 	TWoodLog(const char* name) : TMapObjFloatOnSea(name) {}

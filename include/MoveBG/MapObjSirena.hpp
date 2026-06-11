@@ -206,6 +206,52 @@ public:
 	/* 0x194 */ u8 unk194;
 };
 
+class TTelesaSlot : public TSlotDrum {
+public:
+	TTelesaSlot(const char* name)
+	    : TSlotDrum(name)
+	    , unk1A0(nullptr)
+	    , unk1A4(0)
+	{
+		unk198 = 0;
+		unk199 = 0;
+		unk19A = 0;
+		unk19B = 0;
+		unk19C = 0;
+		unk1A8 = 0;
+		unk1A9 = 0;
+		unk1AA = 0;
+	}
+
+	virtual void calcRootMatrix();
+	virtual void initMapObj();
+	virtual void moveObject();
+	virtual u32 touchWater(THitActor*);
+	virtual void initNeonMatColor() { }
+
+	void randomReset();
+	void moveStart();
+	void forceStopSlot(int);
+	BOOL isRollDrum();
+	int getSlotResult();
+	int getForcastResult(int);
+	int getResultFromAng(f32);
+
+public:
+	/* 0x198 */ u8 unk198;
+	/* 0x199 */ u8 unk199;
+	/* 0x19A */ u8 unk19A;
+	/* 0x19B */ u8 unk19B;
+	/* 0x19C */ u8 unk19C;
+	/* 0x19D */ u8 unk19D[0x3];
+	/* 0x1A0 */ void* unk1A0;
+	/* 0x1A4 */ s32 unk1A4;
+	/* 0x1A8 */ u8 unk1A8;
+	/* 0x1A9 */ u8 unk1A9;
+	/* 0x1AA */ u8 unk1AA;
+	/* 0x1AB */ u8 unk1AB[0x45];
+};
+
 class TRouletteSw : public THitActor {
 public:
 	TRouletteSw(const char* name)
