@@ -329,7 +329,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			emitGetCoinEffect((JGeometry::TVec3<f32>*)&mPosition);
 			s32 redCoins = TFlagManager::smInstance->getFlag(0x60000);
 			s32 adjustedCoins = redCoins + 70;
-				gpMarioParticleManager->emitAndBindToPosPtr(adjustedCoins, (const JGeometry::TVec3<f32>*)&mPosition, 0, this);
+			gpMarioParticleManager->emitAndBindToPosPtr(adjustedCoins, (const JGeometry::TVec3<f32>*)&mPosition, 0, this);
 			return 1;
 		}
 
