@@ -922,7 +922,7 @@ public:
 	void checkWallJumping();
 	int jumpDownCommon(int, int, f32);
 	void jumpingThrow();
-	void jumpCatch();
+	BOOL jumpCatch();
 	void jumpWall();
 	void uTurnJumping();
 	BOOL landing();

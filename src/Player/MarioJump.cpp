@@ -288,11 +288,11 @@ BOOL TMario::landing()
 	return FALSE;
 }
 
-void TMario::jumpCatch()
+BOOL TMario::jumpCatch()
 {
-	if (mInput & 0x10000) {
+	if (mInput & 0x8000) {
 		TMarioGamePad* pad = mGamePad;
-		if (pad->mEnabledFrameMeaning & 0x4000) { changePlayerStatus(0x008008A9, 0, false); return; }
+		if (pad->mEnabledFrameMeaning & 0x2000) { return changePlayerStatus(0x008008A9, 0, false); }
 	}
 	setAnimation(136, 1.0f);
 	doJumping();
@@ -335,6 +335,7 @@ void TMario::jumpCatch()
 		break;
 	}
 	}
+	return FALSE;
 }
 
 int TMario::jumpDownCommon(int statusId, int anmId, f32 velY)
