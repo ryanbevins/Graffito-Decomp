@@ -27,6 +27,7 @@
 #include <MoveBG/MapObjManager.hpp>
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <MSound/MSound.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
@@ -1661,6 +1662,7 @@ void TTelesaSlot::calcRootMatrix()
 	TSlotDrum::calcRootMatrix();
 }
 
+#pragma dont_inline on
 void TTelesaSlot::randomReset()
 {
 	volatile int min = 0;
@@ -1675,6 +1677,7 @@ void TTelesaSlot::randomReset()
 		*(&unk198 + i) = 0;
 	}
 }
+#pragma dont_inline off
 
 void TTelesaSlot::initMapObj()
 {
@@ -2054,10 +2057,93 @@ DEFINE_NERVE(TNerveBossTelesaSlotStart, TLiveActor)
 DEFINE_NERVE(TNerveBossTelesaAppear, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	if (spine->getTime() == 0)
-		boss->offLiveFlag(LIVE_FLAG_HIDDEN);
-	if (spine->getTime() > 120)
-		return TRUE;
+	if (spine->getTime() == 0) {
+		if (!boss->mMActor->checkCurBckFromIndex(0)) {
+			boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+			boss->unk160 = 0;
+			boss->unk168 = 1.0f;
+
+			J3DAnmTransform* oldAnm = nullptr;
+			if (boss->mMActor->unkC)
+				oldAnm = boss->mMActor->unkC->unk24;
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+			boss->mMActor->setBckFromIndex(0);
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+			const char** basTable = boss->getBasNameTable();
+			boss->setAnmSound(basTable ? basTable[0] : nullptr);
+
+			if (!boss->unk384) {
+				boss->unk384 = 1;
+				MSBgm::startBGM(0x8001000D);
+			}
+
+			boss->unk184->mScaling.set(1.0f, 1.0f, 1.0f);
+			boss->unk184->randomReset();
+			boss->offHitFlag(HIT_FLAG_NO_COLLISION);
+			boss->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
+			boss->unk170->offHitFlag(HIT_FLAG_NO_COLLISION);
+		}
+	} else if (boss->checkCurAnmEnd(0)
+	           && !boss->mMActor->checkCurBckFromIndex(15)) {
+		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+		boss->unk160 = 15;
+		boss->unk168 = 1.0f;
+
+		J3DAnmTransform* oldAnm = nullptr;
+		if (boss->mMActor->unkC)
+			oldAnm = boss->mMActor->unkC->unk24;
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+		boss->mMActor->setBckFromIndex(15);
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+		const char** basTable = boss->getBasNameTable();
+		boss->setAnmSound(basTable ? basTable[15] : nullptr);
+		boss->mMActor->setBtpFromIndex(2);
+	}
+
+	if (boss->mMActor->checkCurBckFromIndex(0)
+	    && boss->mMActor->getFrameCtrl(0)->checkPass(78.0f)) {
+		gpCameraShake->startShake((EnumCamShakeMode)0x22, 1.0f);
+		if (gpMSound->gateCheck(0x292A)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x292A, &boss->mPosition, 0, nullptr, 0, 4);
+		}
+	}
+
+	if (spine->getTime() > 800) {
+		u8 maxHp = boss->getSaveParam()
+		    ? boss->getSaveParam()->mSLHitPointMax.get()
+		    : 1;
+		int interval = TBossTelesa::mTelesaGenerateInterval
+		    + (maxHp - boss->mHitPoints) * 100;
+		if (spine->getTime() % interval == 1) {
+			boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+			boss->unk160 = 14;
+			boss->unk168 = 1.0f;
+
+			J3DAnmTransform* oldAnm = nullptr;
+			if (boss->mMActor->unkC)
+				oldAnm = boss->mMActor->unkC->unk24;
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+			boss->mMActor->setBckFromIndex(14);
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+			const char** basTable = boss->getBasNameTable();
+			boss->setAnmSound(basTable ? basTable[14] : nullptr);
+		}
+	}
+
+	boss->unk364 *= 0.96f;
 	return FALSE;
 }
 
