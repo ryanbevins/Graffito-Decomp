@@ -1168,7 +1168,7 @@ config.libs = [
             Object(NonMatching, "Enemy/hanasambo.cpp"),
             Object(NonMatching, "Enemy/popo.cpp"),
             Object(NonMatching, "Enemy/SleepBossHanachan.cpp"),
-            Object(NonMatching, "Enemy/DemoBossHanachanBase.cpp"),
+            Object(Equivalent, "Enemy/DemoBossHanachanBase.cpp"),
             Object(NonMatching, "Enemy/fruitsboat.cpp"),
             Object(NonMatching, "Enemy/BossHanachanSub.cpp"),
             Object(NonMatching, "Enemy/BossHanachanMain.cpp"),
