@@ -782,8 +782,10 @@ check_sender_bit3:
 			goto default_msg;
 
 		case 0x1000000F:
-		case 0x10000030:
 		case 0x10000035:
+			break;
+
+		case 0x10000030:
 			goto default_msg;
 
 		default:
