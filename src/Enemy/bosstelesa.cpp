@@ -552,7 +552,30 @@ void TTelesaSlot::moveObject()
 	}
 }
 
-void TTelesaSlot::calcRootMatrix() { TSlotDrum::calcRootMatrix(); }
+void TTelesaSlot::calcRootMatrix()
+{
+	u8 rolling = 0;
+
+	if (unk138[0] != 0.0f)
+		rolling = 1;
+	if (unk138[1] != 0.0f)
+		rolling = 1;
+	if (unk138[2] != 0.0f)
+		rolling = 1;
+
+	if (rolling) {
+		if (unk1E0) {
+			if (gpMSound->gateCheck(0x308D)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x308D, &mPosition, 0, nullptr, 0, 4);
+			}
+		}
+
+		unk1E0 = 1 - unk1E0;
+	}
+
+	TSlotDrum::calcRootMatrix();
+}
 
 void TTelesaSlot::randomReset()
 {
