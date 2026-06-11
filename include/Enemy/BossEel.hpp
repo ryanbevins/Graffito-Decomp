@@ -132,8 +132,6 @@ public:
 	    , unk74(0.0f)
 	    , unk78(0.0f)
 	    , unk7C(nullptr)
-	    , unk80(FALSE)
-	    , unk81(FALSE)
 	{
 	}
 
@@ -147,20 +145,23 @@ public:
 	/* 0x74 */ f32 unk74;
 	/* 0x78 */ f32 unk78;
 	/* 0x7C */ TBossEel* unk7C;
-	/* 0x80 */ u8 unk80;
-	/* 0x81 */ u8 unk81;
 };
 
 class TBossEelTearsRecoverCollision : public TBossEelCollision {
 public:
 	TBossEelTearsRecoverCollision(MtxPtr mtx, const char* name)
 	    : TBossEelCollision(mtx, name)
+	    , unk80(FALSE)
+	    , unk81(FALSE)
 	{
 	}
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void initCollision();
 	virtual void behaveToMario();
+
+	/* 0x80 */ u8 unk80;
+	/* 0x81 */ u8 unk81;
 };
 
 class TBEelTearsSaveLoadParams : public TSpineEnemyParams {
