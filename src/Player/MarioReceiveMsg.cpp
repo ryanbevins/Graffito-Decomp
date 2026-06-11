@@ -694,9 +694,9 @@ check_sender_bit3:
 			// Check mState bits 14-15
 			bool hasStateBits = (mState & 0x00030000) ? true : false;
 			if (!hasStateBits)
-				goto default_msg;
+				break;
 			if (message != 0x0E)
-				goto default_msg;
+				break;
 			if (!isInvincible()) {
 				damageExec(sender,
 				           mDmgParamsEnemyCommon.mDamage.get(),
@@ -708,7 +708,7 @@ check_sender_bit3:
 				           mDmgParamsEnemyCommon.mInvincibleTime.get());
 				return 1;
 			}
-			goto default_msg;
+			break;
 		}
 
 		case 0x1000000D:
@@ -718,15 +718,14 @@ check_sender_bit3:
 					u16 flags2 = *(u16*)((u8*)mWaterGun + 4);
 					*(u16*)((u8*)mWaterGun + 4) = flags2 | 4;
 				}
-				goto default_msg;
+				break;
 			}
-			// Fall through
-			goto default_msg;
+			break;
 
 		case 0x10000015: // Poihana
 			if (!isInvincible()) {
 				if (message != 0x0E)
-					goto default_msg;
+					break;
 				damageExec(sender,
 				           mDmgParamsPoihana.mDamage.get(),
 				           mDmgParamsPoihana.mDownType.get(),
@@ -737,7 +736,7 @@ check_sender_bit3:
 				           mDmgParamsPoihana.mInvincibleTime.get());
 				return 1;
 			}
-			goto default_msg;
+			break;
 
 		case 0x10000005:
 		case 0x1000000E:
@@ -779,14 +778,14 @@ check_sender_bit3:
 					return 1;
 				}
 			}
-			goto default_msg;
+			break;
 
 		case 0x1000000F:
 		case 0x10000035:
 			break;
 
 		case 0x10000030:
-			goto default_msg;
+			break;
 
 		default:
 			break;
