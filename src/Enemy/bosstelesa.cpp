@@ -6,8 +6,11 @@
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MoveBG/ItemManager.hpp>
+#include <MSound/MSound.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
+#include <System/EmitterViewObj.hpp>
 #include <dolphin/mtx.h>
 #include <math.h>
 #include <stdlib.h>
@@ -212,19 +215,51 @@ void TBossTelesa::reset()
 
 void TBossTelesa::forceHide()
 {
-	onLiveFlag(LIVE_FLAG_HIDDEN);
-	if (mSpine)
-		mSpine->setNext(&TNerveBossTelesaHide::theNerve());
+	if (mSpine->getCurrentNerve() == &TNerveBossTelesaDie::theNerve())
+		return;
+	if (mMActor->checkCurBckFromIndex(4))
+		return;
+	if (mMActor->checkCurBckFromIndex(0))
+		return;
+
+	forceAllItemKill();
+	unk368 = 0;
+
+	if (unk350) {
+		if (gpMSound->gateCheck(0x2968)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x2968, &mPosition, 0, nullptr, 0, 4);
+		}
+	} else {
+		if (gpMSound->gateCheck(0x28D5)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x28D5, &mPosition, 0, nullptr, 0, 4);
+		}
+	}
+
+	mSpine->reset();
+	mSpine->setNext(&TNerveBossTelesaHide::theNerve());
 }
 
 void TBossTelesa::forceAllItemKill()
 {
-	if (unk16C)
-		unk16C->onHitFlag(HIT_FLAG_NO_COLLISION);
-	if (unk170)
-		unk170->onHitFlag(HIT_FLAG_NO_COLLISION);
-	if (unk174)
-		unk174->onHitFlag(HIT_FLAG_NO_COLLISION);
+	f32 zero = 0.0f;
+
+	for (int i = 0; i < unk274; ++i) {
+		if (unk1AC[i]->mHolder) {
+			SMS_SendMessageToMario(unk1AC[i], HIT_MESSAGE_UNK8);
+			unk1AC[i]->mHolder = nullptr;
+		}
+
+		unk1AC[i]->mPosition.set(zero, zero, zero);
+		unk1AC[i]->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		if (!(unk1AC[i]->mLiveFlag & LIVE_FLAG_DEAD)) {
+			unk1AC[i]->kill();
+			gpMarioParticleManager->emit(0xCD, &unk1AC[i]->mPosition, 0,
+			                             nullptr);
+		}
+	}
 }
 
 void TBossTelesa::generateSlotItem()
