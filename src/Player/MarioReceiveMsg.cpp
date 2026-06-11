@@ -1214,7 +1214,7 @@ check_sender_bit3:
 		case 0x40000393:
 			// Damage touch with rumble.
 			if (*(s16*)((u8*)this + 0x150) > 0)
-				return 0;
+				break;
 
 			*(s16*)((u8*)this + 0x14E) = *(s16*)((u8*)this + 0x938);
 			rumbleStart(21, *(s16*)((u8*)this + 0x27F8));
