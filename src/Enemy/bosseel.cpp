@@ -482,6 +482,75 @@ void TBossEelTearsRecoverCollision::initCollision()
 	initHitActor(0x2000002C, 3, 0x80000000, unk6C, unk70, unk74, unk78);
 }
 
+void TBossEelBarrierCollision::behaveToMario()
+{
+	JGeometry::TVec3<f32> velocity(0.0f, TBossEel::mForcePow, 0.0f);
+	velocity.add(*gpMarioPos);
+	SMS_MarioMoveRequest(velocity);
+}
+
+void TBossEelBarrierCollision::initCollision()
+{
+	unk74 = 0.0f;
+	unk6C = 0.0f;
+	unk78 = 0.0f;
+	unk70 = 0.0f;
+	initHitActor(0x08000023, 5, 0x80000000, unk6C, unk70, unk74, unk78);
+}
+
+void TBossEelAwaCollision::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 1) {
+		calcEntryRadius();
+
+		if (gpMarioPos->y < mPosition.y + 500.0f)
+			offHitFlag(HIT_FLAG_NO_COLLISION);
+
+		if (gpMarioPos->y > mPosition.y + mAttackHeight)
+			onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		for (int i = 0; i < mColCount; ++i) {
+			if (mCollisions[i]->isActorTypeOf(ACTOR_TYPE_PLAYER))
+				behaveToMario();
+		}
+	}
+
+	if (flags & 2) {
+		mPosition.x = unk68[0][3];
+		mPosition.y = unk68[1][3] + 11000.0f;
+		mPosition.z = unk68[2][3];
+	}
+
+	THitActor::perform(flags, graphics);
+}
+
+void TBossEelAwaCollision::behaveToMario()
+{
+	JGeometry::TVec3<f32> velocity(0.0f, 10.0f, 0.0f);
+	velocity.y = 15.0f;
+	*gpMarioSpeedY = 0.0f;
+	velocity.add(*gpMarioPos);
+	SMS_MarioMoveRequest(velocity);
+}
+
+void TBossEelAwaCollision::initCollision()
+{
+	unk74 = 2000.0f;
+	unk6C = 2000.0f;
+	unk78 = 2000.0f;
+	unk70 = 2000.0f;
+	initHitActor(0x08000003, 2, 0x80000000, unk6C, unk70, unk74, unk78);
+}
+
+void TBossEelBodyCollision::initCollision()
+{
+	unk6C = 2000.0f;
+	unk74 = 2000.0f;
+	unk70 = 5800.0f;
+	unk78 = 5000.0f;
+	initHitActor(0x08000023, 5, 0x80000000, unk6C, unk70, unk74, unk78);
+}
+
 #define LOAD_BOSSEEL_PARTICLE(id, path)                                        \
 	do {                                                                       \
 		if (!gParticleFlagLoaded[id]) {                                        \
