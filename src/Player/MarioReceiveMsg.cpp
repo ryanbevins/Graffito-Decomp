@@ -652,7 +652,7 @@ check_sender_bit3:
 			}
 			goto default_enemy_handle;
 
-		case 0x10000004: // Fire enemy
+		case 0x10000004: // Common damage with keepDistance
 		case 0x10000006:
 		case 0x10000010:
 		case 0x10000022:
@@ -661,13 +661,13 @@ check_sender_bit3:
 			if (message == 0x0E) {
 				if (!isInvincible()) {
 					damageExec(sender,
-					           mDmgParamsFire.mDamage.get(),
-					           mDmgParamsFire.mDownType.get(),
-					           mDmgParamsFire.mWaterEmit.get(),
-					           mDmgParamsFire.mMinSpeed.get(),
-					           mDmgParamsFire.mMotor.get(),
-					           mDmgParamsFire.mDirty.get(),
-					           mDmgParamsFire.mInvincibleTime.get());
+					           mDmgParamsEnemyCommon.mDamage.get(),
+					           mDmgParamsEnemyCommon.mDownType.get(),
+					           mDmgParamsEnemyCommon.mWaterEmit.get(),
+					           mDmgParamsEnemyCommon.mMinSpeed.get(),
+					           mDmgParamsEnemyCommon.mMotor.get(),
+					           mDmgParamsEnemyCommon.mDirty.get(),
+					           mDmgParamsEnemyCommon.mInvincibleTime.get());
 					return 1;
 				}
 			}
