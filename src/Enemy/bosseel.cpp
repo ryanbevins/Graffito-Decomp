@@ -1017,20 +1017,16 @@ void TBossEel::init(TLiveManager* manager)
 
 void TBossEelHeartCoin::generate(JGeometry::TVec3<f32>& position)
 {
-	unk70.x = position.x;
-	unk70.y = position.y;
-	unk70.z = position.z;
+	unk70.set(position.x, position.y, position.z);
 	unk1C = TRUE;
 
 	for (int i = 0; i < 20; ++i) {
-		TCoin* coin = mCoins[i];
-		coin->appear();
-		coin->onMapObjFlag(0x10000000);
+		mCoins[i]->appear();
+		mCoins[i]->onMapObjFlag(0x10000000);
 
 		MtxPtr mtx = unk18->getModel()->mNodeMatrices[0];
-		coin->mPosition.x = mtx[0][3];
-		coin->mPosition.y = mtx[1][3];
-		coin->mPosition.z = mtx[2][3];
+		TCoin* coin = mCoins[i];
+		coin->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 	}
 }
 
