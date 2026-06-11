@@ -195,7 +195,7 @@ void TBathtubPeach::reset()
 	if (!mMActor->checkCurBckFromIndex(1)) {
 		mMActor->setBckFromIndex(1);
 		const char** table = getBasNameTable();
-		setAnmSound(table ? table[1] : nullptr);
+		setAnmSound(!table ? nullptr : table[1]);
 	}
 	if (mMActor->getCurAnmIdx(3) != 1)
 		mMActor->setBtpFromIndex(1);
