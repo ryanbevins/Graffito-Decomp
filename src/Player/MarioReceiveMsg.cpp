@@ -53,28 +53,23 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 	if (message == 7) {
 		u32 aType = sender->mActorType;
 
-		// Check if sender has bit 0 set (odd actor type)
-		if (aType & 0x1) {
-			// do nothing here, falls through
-		} else if (aType & 0x04000000) {
-			// do nothing
-		} else if (aType & 0x10000000) {
-			// do nothing
-		} else if (aType & 0x08000000) {
-			// fall through to below
-		} else {
-			// No special flags - check for sound
-			goto msg7_check_sound;
+		bool playTakeSound = (aType & 0x80000000) ? true : false;
+		if (!playTakeSound) {
+			playTakeSound = (aType & 0x04000000) ? true : false;
+			if (!playTakeSound) {
+				playTakeSound = (aType & 0x10000000) ? true : false;
+				if (!playTakeSound)
+					playTakeSound = (aType & 0x08000000) ? true : false;
+			}
 		}
 
 		// Play sound 0x193D
-		if (gpMSound->gateCheck(0x193D)) {
+		if (playTakeSound && gpMSound->gateCheck(0x193D)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x193D, (const Vec*)&mPosition, 0,
 			    (JAISound**)&mSound, 0, 4);
 		}
 
-msg7_check_sound:
 		// Check actor type 0x10000015 (specific actor)
 		if (sender->mActorType - 0x10000000 == 0x15) {
 			startVoice(0x78CF);
