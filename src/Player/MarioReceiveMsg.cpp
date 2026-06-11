@@ -1085,7 +1085,9 @@ check_sender_bit3:
 					mPosition = sender->mPosition;
 					mFaceAngle.y = sAngle;
 					changePlayerStatus(0x1320, 0, false);
-					if (*(u32*)((u8*)this + 0x6C)) {
+					bool hasTakenActor
+					    = (*(u32*)((u8*)this + 0x6C)) ? true : false;
+					if (hasTakenActor) {
 						mPumpState = 2;
 						setAnimation(233, 0.0f);
 					} else {
@@ -1101,7 +1103,9 @@ check_sender_bit3:
 					s16 newAngle = sAngle + 0x8000;
 					mFaceAngle.y = newAngle;
 					changePlayerStatus(0x1321, 0, false);
-					if (*(u32*)((u8*)this + 0x6C)) {
+					bool hasTakenActor
+					    = (*(u32*)((u8*)this + 0x6C)) ? true : false;
+					if (hasTakenActor) {
 						mPumpState = 2;
 						setAnimation(233, 0.0f);
 					} else {
@@ -1110,7 +1114,9 @@ check_sender_bit3:
 					startVoice(0x78E5);
 					return 1;
 				}
-				if (*(u32*)((u8*)this + 0x6C))
+				bool hasTakenActor
+				    = (*(u32*)((u8*)this + 0x6C)) ? true : false;
+				if (hasTakenActor)
 					return 0;
 				mPosition = sender->mPosition;
 				s16 newAngle2 = sAngle + 0x8000;
