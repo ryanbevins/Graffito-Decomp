@@ -115,10 +115,15 @@ class TBossTelesaBody : public THitActor {
 public:
 	TBossTelesaBody(const char* name)
 	    : THitActor(name)
+	    , unk6C(0)
 	{
 	}
 
 	virtual BOOL receiveMessage(THitActor*, u32);
+
+public:
+	/* 0x68 */ TBossTelesa* unk68;
+	/* 0x6C */ u8 unk6C;
 };
 
 class TBossTelesaTongue : public THitActor {
@@ -129,16 +134,25 @@ public:
 	}
 
 	virtual BOOL receiveMessage(THitActor*, u32);
+
+public:
+	/* 0x68 */ TBossTelesa* unk68;
 };
 
 class TBossTelesaKillSmallEnemy : public THitActor {
 public:
 	TBossTelesaKillSmallEnemy(const char* name)
 	    : THitActor(name)
+	    , unk68(nullptr)
+	    , unk6C(0)
 	{
 	}
 
-	BOOL checkHit();
+	void checkHit();
+
+public:
+	/* 0x68 */ TBossTelesa* unk68;
+	/* 0x6C */ u8 unk6C;
 };
 
 class TBossTelesaManager : public TEnemyManager {

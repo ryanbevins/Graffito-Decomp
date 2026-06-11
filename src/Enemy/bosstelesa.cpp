@@ -1,5 +1,6 @@
 #include <Enemy/BossTelesa.hpp>
 #include <Enemy/Conductor.hpp>
+#include <Enemy/HamuKuri.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -161,6 +162,10 @@ void TBossTelesa::init(TLiveManager* manager)
 	if (!unk174)
 		unk174
 		    = new TBossTelesaKillSmallEnemy("ボステレサ雑魚敵死コリジョン");
+
+	((TBossTelesaBody*)unk16C)->unk68            = this;
+	((TBossTelesaTongue*)unk170)->unk68          = this;
+	((TBossTelesaKillSmallEnemy*)unk174)->unk68  = this;
 
 	if (mSpine)
 		mSpine->initWith(&TNerveBossTelesaFallDemo::theNerve());
@@ -484,20 +489,57 @@ void TTelesaSlot::initMapObj()
 	randomReset();
 }
 
-BOOL TBossTelesaKillSmallEnemy::checkHit() { return FALSE; }
-
-BOOL TBossTelesaTongue::receiveMessage(THitActor* sender, u32 message)
+void TBossTelesaKillSmallEnemy::checkHit()
 {
-	if (sender && message == HIT_MESSAGE_ATTACK)
-		return TRUE;
-	return FALSE;
+	unk6C = 0;
+
+	for (int i = 0; i < mColCount; ++i) {
+		THitActor* actor = mCollisions[i];
+		if (actor->mActorType & ACTOR_TYPE_ENEMY) {
+			if (actor->mActorType == (ACTOR_TYPE_ENEMY | 0x13))
+				((THamuKuri*)actor)->selectCapHolder();
+			((TLiveActor*)actor)->kill();
+		}
+	}
+
+	JGeometry::TVec3<f32> diff = *gpMarioPos;
+	diff -= mPosition;
+	diff.y = 0.0f;
+	if (MsVECMag2(&diff) < 300.0f) {
+		unk68->forceHide();
+		unk6C = 1;
+	}
+}
+
+BOOL TBossTelesaTongue::receiveMessage(THitActor*, u32 message)
+{
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		TBossTelesa* boss = unk68;
+		if (boss->mSpine->getCurrentNerve()
+		    == &TNerveBossTelesaAppear::theNerve())
+			boss->mSpine->pushNerve(&TNerveBossTelesaSlotStart::theNerve());
+	}
+	return TRUE;
 }
 
 BOOL TBossTelesaBody::receiveMessage(THitActor* sender, u32 message)
 {
-	if (sender && message == HIT_MESSAGE_ATTACK)
-		return TRUE;
-	return FALSE;
+	if (message == HIT_MESSAGE_TRAMPLE
+	    && sender->mActorType != (ACTOR_TYPE_PLAYER | 1)) {
+		TBossTelesa* boss = unk68;
+		if (boss->mSpine->getCurrentNerve()
+		    == &TNerveBossTelesaPrepareSlot::theNerve())
+			boss->mSpine->pushNerve(&TNerveBossTelesaSpit::theNerve());
+	}
+
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		TBossTelesa* boss = unk68;
+		if (boss->mSpine->getCurrentNerve()
+		    == &TNerveBossTelesaPrepareSlot::theNerve())
+			boss->mSpine->pushNerve(&TNerveBossTelesaFreeze::theNerve());
+	}
+
+	return TRUE;
 }
 
 TBossTelesaManager::TBossTelesaManager(const char* name)
