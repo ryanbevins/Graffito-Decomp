@@ -348,6 +348,20 @@ BOOL TBossEel::hasMapCollision() const { return TRUE; }
 
 const char** TBossEel::getBasNameTable() const { return bosseel_bastable; }
 
+bool TBossEel::isInBossEelMoguDemo()
+{
+	if (mMActor->checkCurBckFromIndex(12)
+	    || mMActor->checkCurBckFromIndex(3))
+		return true;
+
+	return false;
+}
+
+MtxPtr TBossEel::getTakingMtx()
+{
+	return mMActor->getModel()->mNodeMatrices[7];
+}
+
 void TBossEelHeartCoin::generate(JGeometry::TVec3<f32>& position)
 {
 	unk70.x = position.x;

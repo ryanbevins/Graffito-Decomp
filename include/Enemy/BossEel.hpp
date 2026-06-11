@@ -25,9 +25,12 @@ public:
 	virtual ~TBossEel();
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor*, u32);
+	virtual MtxPtr getTakingMtx();
 	virtual void init(TLiveManager*);
 	virtual BOOL hasMapCollision() const;
 	virtual const char** getBasNameTable() const;
+
+	bool isInBossEelMoguDemo();
 
 	static f32 mOpenRollSpeed;
 	static u8 mUseObjCollision;
