@@ -170,7 +170,7 @@ public:
 	/* 0x16D */ u8 unk16D[0x3];
 	/* 0x170 */ void* unk170;
 	/* 0x174 */ void* unk174;
-	/* 0x178 */ void* unk178;
+	/* 0x178 */ s32 unk178;
 	/* 0x17C */ u8 unk17C;
 	/* 0x17D */ u8 unk17D[0x3];
 	/* 0x180 */ MActor* unk180;

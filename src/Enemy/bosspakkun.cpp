@@ -323,6 +323,37 @@ DEFINE_NERVE(TNerveBPTumbleOut, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveBPSwallow, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		boss->changeBck(0x1A);
+
+	if (boss->unk178
+	    >= boss->getBossPakkunSaveParam()->mSLWaterMarkLimit.value) {
+		spine->pushAfterCurrent(&TNerveBPTumbleIn::theNerve());
+		boss->unk16C = 0;
+		boss->unk170 = nullptr;
+		return TRUE;
+	}
+
+	MtxPtr mouthMtx = boss->getModel()->getAnmMtx(0x12);
+	gpMarioParticleManager->emitAndBindToMtxPtr(0x15D, mouthMtx, 1, boss);
+	gpMarioParticleManager->emitAndBindToMtxPtr(0x15E, mouthMtx, 1,
+	                                            (const u8*)boss + 1);
+
+	if (boss->unk170 != nullptr) {
+		boss->changeBck(0x1A);
+		boss->unk170 = nullptr;
+		return FALSE;
+	}
+
+	boss->unk16C = 0;
+	spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+	return TRUE;
+}
+
 DEFINE_NERVE(TNerveBPPivot, TLiveActor)
 {
 	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
@@ -735,7 +766,7 @@ TBossPakkun::TBossPakkun(const char* name)
 	unk16C   = 0;
 	unk170   = nullptr;
 	unk174   = nullptr;
-	unk178   = nullptr;
+	unk178   = 0;
 	unk17C   = 0;
 	unk180   = nullptr;
 	unk184   = 0.0f;
