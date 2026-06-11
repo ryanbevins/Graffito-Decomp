@@ -163,7 +163,7 @@ BOOL TMario::swimPaddle()
 	setAnimation(0x119, animSpeed);
 
 	if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
-		f32 paddleUp = mDeParams.mDashMax.value;
+		f32 paddleUp = mDeParams.mDashMax.get();
 		setPlayerVelocity(paddleUp);
 		startSoundActor(0x19);
 		startSoundActor(0x117D);
