@@ -495,30 +495,6 @@ void TBossTelesaManager::load(JSUMemoryInputStream& stream)
 	TEnemyManager::load(stream);
 }
 
-TBubbleSaveLoadParams::TBubbleSaveLoadParams(const char* path)
-    : TWalkerEnemyParams(path)
-    , PARAM_INIT(mSLLiveTime, 200)
-    , PARAM_INIT(mSLNumDivision, 5)
-    , PARAM_INIT(mSLMaxScale, 1.5f)
-    , PARAM_INIT(mSLAddPosBase, 50.0f)
-    , PARAM_INIT(mSLRateExpand, 1.001f)
-    , PARAM_INIT(mSLDeadHeight, 300.0f)
-{
-	TParams::load(mPrmPath);
-}
-
-TBubble::TBubble(const char* name)
-    : TWalkerEnemy(name)
-    , unk194(nullptr)
-    , unk198(0)
-    , unk1CC(0.0f)
-    , unk1D0(0)
-    , unk1D1(0)
-    , unk1D2(0)
-    , unk1D3(0)
-{
-}
-
 MtxPtr TBubble::getTakingMtx() { return mMActor->unk4->unk20; }
 
 void TBubble::init(TLiveManager* manager)
@@ -587,7 +563,7 @@ void TBubble::appendEnemy()
 	TConductor* conductor
 	    = JDrama::TNameRefGen::search<TConductor>("TConductor");
 	if (conductor)
-		conductor->makeOneEnemyAppear(mPosition, "バブル", 1);
+		conductor->makeOneEnemyAppear(mPosition, "パブル", 1);
 }
 
 void TBubble::split()

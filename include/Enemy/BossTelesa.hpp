@@ -154,7 +154,17 @@ public:
 
 class TBubbleSaveLoadParams : public TWalkerEnemyParams {
 public:
-	TBubbleSaveLoadParams(const char*);
+	TBubbleSaveLoadParams(const char* path)
+	    : TWalkerEnemyParams(path)
+	    , PARAM_INIT(mSLLiveTime, 200)
+	    , PARAM_INIT(mSLNumDivision, 5)
+	    , PARAM_INIT(mSLMaxScale, 1.5f)
+	    , PARAM_INIT(mSLAddPosBase, 50.0f)
+	    , PARAM_INIT(mSLRateExpand, 1.001f)
+	    , PARAM_INIT(mSLDeadHeight, 300.0f)
+	{
+		TParams::load(mPrmPath);
+	}
 
 	/* 0x32C */ TParamRT<s32> mSLLiveTime;
 	/* 0x340 */ TParamRT<s32> mSLNumDivision;
@@ -166,7 +176,17 @@ public:
 
 class TBubble : public TWalkerEnemy {
 public:
-	TBubble(const char* name = "バブル");
+	TBubble(const char* name = "パブル")
+	    : TWalkerEnemy(name)
+	    , unk194(nullptr)
+	    , unk198(0)
+	    , unk1CC(0.0f)
+	    , unk1D0(0)
+	    , unk1D1(0)
+	    , unk1D2(0)
+	    , unk1D3(0)
+	{
+	}
 
 	virtual MtxPtr getTakingMtx();
 	virtual void init(TLiveManager*);
