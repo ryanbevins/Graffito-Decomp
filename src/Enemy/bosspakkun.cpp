@@ -1329,11 +1329,41 @@ void TBossPakkun::gotHipDropDamage()
 	if (mHitPoints > 0)
 		mHitPoints--;
 
-	rumblePad(2, mPosition);
-	if (mHitPoints == 0)
-		kill();
-	else if (mSpine != nullptr)
+	unk16C = 0;
+
+	if (mHitPoints == 0) {
+		const TNerveBase<TLiveActor>* preDie = &TNerveBPPreDie::theNerve();
+		if (mSpine->getLatestNerve() == preDie)
+			return;
+		if (mSpine->getLatestNerve() == &TNerveBPDie::theNerve())
+			return;
+
+		mSpine->setNext(preDie);
+		if (gpMSound->gateCheck(0x284E))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x284E, &mPosition, 0, nullptr, 0, 4);
+		return;
+	}
+
+	const TNerveBase<TLiveActor>* tumbleOut = &TNerveBPTumbleOut::theNerve();
+	if (mSpine->getLatestNerve() == tumbleOut)
+		return;
+
+	if (gpMSound->gateCheck(0x284D))
+		MSoundSESystem::MSoundSE::startSoundActor(0x284D, &mPosition, 0,
+		                                          nullptr, 0, 4);
+
+	if (gpMarDirector->unk7D == 4) {
+		mSpine->reset();
+		mSpine->setNext(&TNerveBPTakeOff::theNerve());
+		mSpine->pushAfterCurrent(&TNerveBPGetUp::theNerve());
 		mSpine->pushAfterCurrent(&TNerveBPStompReact::theNerve());
+	} else {
+		mSpine->reset();
+		mSpine->setNext(&TNerveBPWait::theNerve());
+		mSpine->pushAfterCurrent(&TNerveBPGetUp::theNerve());
+		mSpine->pushAfterCurrent(&TNerveBPStompReact::theNerve());
+	}
 }
 
 void TBossPakkun::showMessage(u32 message)
