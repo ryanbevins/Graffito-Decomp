@@ -92,6 +92,58 @@ DEFINE_NERVE(TNerveBPSleep, TLiveActor)
 	return false;
 }
 
+DEFINE_NERVE(TNerveBPFall, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0) {
+		boss->offLiveFlag(LIVE_FLAG_UNK10);
+		boss->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		boss->changeBck(0x0A);
+	}
+
+	if (actor->checkCurBckFromIndex(0x0A)) {
+		if (actor->curAnmEndsNext(0, nullptr))
+			boss->changeBck(0x09);
+	} else if (actor->checkCurBckFromIndex(0x09)) {
+		if (!boss->checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
+			boss->changeBck(0x08);
+			gpCameraShake->startShake((EnumCamShakeMode)0x0F, 1.0f);
+			boss->rumblePad(2, boss->mPosition);
+		}
+	} else if (actor->checkCurBckFromIndex(0x08)) {
+		if (actor->curAnmEndsNext(0, nullptr)) {
+			boss->changeBck(0x0E);
+			gpCameraShake->startShake((EnumCamShakeMode)0x10, 1.0f);
+			boss->rumblePad(0, boss->mPosition);
+		}
+	} else if (actor->checkCurBckFromIndex(0x0E)
+	           && actor->curAnmEndsNext(0, nullptr)) {
+		bool isBossStage = false;
+		if (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 4)
+			isBossStage = true;
+
+		if (isBossStage) {
+			f32 tornadoProp
+			    = boss->getBossPakkunSaveParam()->mSLTornadoProp.value;
+			if (boss->mTornado->unk98 != 0
+			    || rand() * 0.000030517578f < tornadoProp) {
+				spine->pushAfterCurrent(&TNerveBPTakeOff::theNerve());
+				spine->pushAfterCurrent(&TNerveBPVomit::theNerve());
+			} else {
+				spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+				spine->pushAfterCurrent(&TNerveBPTornado::theNerve());
+			}
+		} else {
+			spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+		}
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 DEFINE_NERVE(TNerveBPJumpReact, TLiveActor)
 {
 	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
