@@ -199,15 +199,12 @@ public:
 
 class TBubble : public TWalkerEnemy {
 public:
-	TBubble(const char* name = "パブル")
+	TBubble(const char* name = "バブル")
 	    : TWalkerEnemy(name)
-	    , unk194(nullptr)
 	    , unk198(0)
 	    , unk1CC(0.0f)
 	    , unk1D0(0)
 	    , unk1D1(0)
-	    , unk1D2(0)
-	    , unk1D3(0)
 	{
 	}
 
