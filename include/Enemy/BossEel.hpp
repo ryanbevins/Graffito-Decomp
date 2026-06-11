@@ -3,6 +3,7 @@
 
 #include <Enemy/Enemy.hpp>
 #include <Enemy/EnemyManager.hpp>
+#include <Strategic/SharedParts.hpp>
 #include <Strategic/Nerve.hpp>
 
 class TLiveActor;
@@ -10,6 +11,7 @@ class TBEelTearsDrop;
 class SDLModelData;
 class TSharedParts;
 class TBossEelSaveParams;
+class TCoin;
 
 struct TBossEelUnk1EC {
 	s32 unk0;
@@ -222,6 +224,19 @@ public:
 	/* 0x6C */ u8 unk6C;
 	/* 0x6D */ u8 unk6D[0x3];
 	/* 0x70 */ s32 unk70;
+};
+
+class TBossEelHeartCoin : public TSharedParts {
+public:
+	TBossEelHeartCoin(TBossEel*, int, SDLModelData*, u32, const char*);
+	virtual void perform(u32, JDrama::TGraphics*);
+	void generate(JGeometry::TVec3<f32>&);
+
+	/* 0x1C */ u8 unk1C;
+	/* 0x1D */ u8 unk1D[0x3];
+	/* 0x20 */ TCoin* mCoins[20];
+	/* 0x70 */ JGeometry::TVec3<f32> unk70;
+	/* 0x7C */ TBossEel* unk7C;
 };
 
 class TBEelTearsSaveLoadParams : public TSpineEnemyParams {

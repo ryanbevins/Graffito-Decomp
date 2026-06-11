@@ -1,10 +1,12 @@
 #include <Enemy/BossEel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JMath.hpp>
+#include <JSystem/JUtility/JUTNameTab.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
@@ -15,6 +17,8 @@
 #include <MarioUtil/TexUtil.hpp>
 #include <Map/Map.hpp>
 #include <MSound/MSound.hpp>
+#include <MoveBG/Item.hpp>
+#include <MoveBG/ItemManager.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
@@ -343,6 +347,66 @@ BOOL TBossEel::receiveMessage(THitActor*, u32) { return FALSE; }
 BOOL TBossEel::hasMapCollision() const { return TRUE; }
 
 const char** TBossEel::getBasNameTable() const { return bosseel_bastable; }
+
+void TBossEelHeartCoin::generate(JGeometry::TVec3<f32>& position)
+{
+	unk70.x = position.x;
+	unk70.y = position.y;
+	unk70.z = position.z;
+	unk1C = TRUE;
+
+	for (int i = 0; i < 20; ++i) {
+		TCoin* coin = mCoins[i];
+		coin->appear();
+		coin->onMapObjFlag(0x10000000);
+
+		MtxPtr mtx = unk18->getModel()->mNodeMatrices[0];
+		coin->mPosition.x = mtx[0][3];
+		coin->mPosition.y = mtx[1][3];
+		coin->mPosition.z = mtx[2][3];
+	}
+}
+
+void TBossEelHeartCoin::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (!unk1C)
+		return;
+
+	u32 calcFlag = flags & 2;
+
+	if (calcFlag) {
+		MActor* bossActor = unk7C->mMActor;
+		int jointIndex = bossActor->getModel()
+		                     ->getModelData()
+		                     ->getJointName()
+		                     ->getIndex("ha7");
+		MtxPtr mtx = bossActor->getModel()->mNodeMatrices[jointIndex];
+
+		if (bossActor->checkCurBckFromIndex(3)
+		    && bossActor->getFrameCtrl(0)->getFrame() < 700.0f) {
+			unk70.x = mtx[0][3];
+			unk70.y = mtx[1][3];
+			unk70.z = mtx[2][3];
+		}
+
+		unk70.y = mtx[1][3];
+
+		TPosition3f partMtx;
+		partMtx.translation(unk70.x, unk70.y, unk70.z);
+		PSMTXCopy(partMtx, unk18->getModel()->unk20);
+	}
+
+	unk18->perform(flags, graphics);
+
+	if (calcFlag) {
+		for (int i = 0; i < 20; ++i) {
+			MtxPtr mtx = unk18->getModel()->mNodeMatrices[i + 2];
+			mCoins[i]->mPosition.x = mtx[0][3];
+			mCoins[i]->mPosition.y = mtx[1][3];
+			mCoins[i]->mPosition.z = mtx[2][3];
+		}
+	}
+}
 
 TBossEelSaveParams::TBossEelSaveParams()
     : TParams("/enemy/bosseel.prm")
