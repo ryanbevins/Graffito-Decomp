@@ -27,6 +27,21 @@ extern u8* gpSetupThreadStack;
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
+// Gives this TU visibility to inline camera construction while JDRNameRefGen
+// keeps the standalone TCamera constructor owner.
+inline JDrama::TCamera::TCamera(float near, float far, const char* name)
+    : TPlacement(name)
+    , mFlag(0)
+    , mNear(near)
+    , mFar(far)
+{
+}
+
+inline JDrama::TLookAtCamera::TLookAtCamera()
+    : TCamera(50.0f, 10000.0f, "<TLookAtCamera>")
+{
+}
+
 TSelectDir::TSelectDir()
 {
 	mMenu           = nullptr;
@@ -96,14 +111,14 @@ int TSelectDir::rsetup()
 	JDrama::TViewObjPtrListT<JDrama::TViewObj>* group2dParticle
 	    = new JDrama::TViewObjPtrListT<JDrama::TViewObj>("Group 2D Particle");
 
-	root->getChildren().push_back(group3d);
 	root->getChildren().push_back(group2d);
+	root->getChildren().push_back(group3d);
 	root->getChildren().push_back(groupGrad);
 	root->getChildren().push_back(group2dParticle);
 
 	group2d->getChildren().push_back(mMenu);
+	group3d->getChildren().push_back(mShineManager);
 	groupGrad->getChildren().push_back(mGrad);
-	group2dParticle->getChildren().push_back(mShineManager);
 
 	mGamePad->mFlags = 1;
 	mMenu->mGamePad  = mGamePad;
@@ -127,7 +142,7 @@ int TSelectDir::rsetup()
 
 	TEmitterViewObj* emitter1
 	    = new TEmitterViewObj(mEmitterMgr1, "<EmitterViewObj>");
-	group2dParticle->getChildren().push_back(emitter1);
+	group3d->getChildren().push_back(emitter1);
 	TEmitterViewObj* emitter2
 	    = new TEmitterViewObj(mEmitterMgr2, "<EmitterViewObj>");
 	group2dParticle->getChildren().push_back(emitter2);
@@ -140,8 +155,8 @@ int TSelectDir::rsetup()
 	                   SMSGetTitleRenderHeight());
 	stageDisp->getEfbCtrlDisp()->TEfbCtrl::setSrcRect(rect);
 
-	JDrama::TOrthoProj* projGrad
-	    = new JDrama::TOrthoProj(0.0f, 16.0f, 600.0f, 464.0f);
+	JDrama::TOrthoProj* projGrad = new JDrama::TOrthoProj(
+	    -100.0f, 100.0f, 0.0f, 16.0f, 600.0f, 464.0f);
 	groupGrad->getChildren().push_back(projGrad);
 
 	JDrama::TScreen* screenGrad = new JDrama::TScreen(rect, "Screen Grad");
@@ -149,8 +164,8 @@ int TSelectDir::rsetup()
 	screenGrad->assignCamera(projGrad);
 	screenGrad->assignViewObj(groupGrad);
 
-	JDrama::TOrthoProj* proj2d
-	    = new JDrama::TOrthoProj(-500.0f, 500.0f, 600.0f, 464.0f);
+	JDrama::TOrthoProj* proj2d = new JDrama::TOrthoProj(
+	    -100.0f, 100.0f, 0.0f, 16.0f, 600.0f, 464.0f);
 	group2d->getChildren().push_back(proj2d);
 
 	JDrama::TScreen* screen2d = new JDrama::TScreen(rect, "Screen 2D");
@@ -162,8 +177,9 @@ int TSelectDir::rsetup()
 	JDrama::TLookAtCamera* lookCam = new JDrama::TLookAtCamera();
 	lookCam->mNear   = 50.0f;
 	lookCam->mFar    = 10000.0f;
-	lookCam->mUp.set(0.0f, 16.0f, 600.0f);
-	lookCam->mTarget.set(464.0f, 300.0f, 240.0f);
+	lookCam->mPosition.set(300.0f, 240.0f, 1300.0f);
+	lookCam->mUp.set(0.0f, 1.0f, 0.0f);
+	lookCam->mTarget.set(300.0f, 240.0f, 0.0f);
 	lookCam->mFovy   = 30.0f;
 	lookCam->mAspect = 1.3333334f;
 	group3d->getChildren().push_back(lookCam);
@@ -172,7 +188,26 @@ int TSelectDir::rsetup()
 	stageDisp->getUnk14()->getChildren().push_back(screen3d);
 	screen3d->assignCamera(lookCam);
 	screen3d->assignViewObj(group3d);
-	mScreenGrad = screen3d;
+
+	JDrama::TOrthoProj* proj2dBack = new JDrama::TOrthoProj(
+	    -100.0f, 100.0f, 0.0f, 16.0f, 600.0f, 464.0f);
+	group2d->getChildren().push_back(proj2dBack);
+
+	JDrama::TScreen* screen2dBack = new JDrama::TScreen(rect, "Screen 2D");
+	stageDisp->getUnk14()->getChildren().push_back(screen2dBack);
+	screen2dBack->assignCamera(proj2dBack);
+	screen2dBack->assignViewObj(group2d);
+	mScreenGrad = screen2dBack;
+
+	JDrama::TOrthoProj* projParticle = new JDrama::TOrthoProj(
+	    -500.0f, 500.0f, 0.0f, 16.0f, 600.0f, 464.0f);
+	group2dParticle->getChildren().push_back(projParticle);
+
+	JDrama::TScreen* screenParticle
+	    = new JDrama::TScreen(rect, "Screen Grad");
+	stageDisp->getUnk14()->getChildren().push_back(screenParticle);
+	screenParticle->assignCamera(projParticle);
+	screenParticle->assignViewObj(group2dParticle);
 
 	mScreenGrad->unkC.off(0xb);
 	mScreen2D->unkC.on(0xb);

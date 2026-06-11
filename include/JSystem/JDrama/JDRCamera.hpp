@@ -100,6 +100,15 @@ public:
 		mField[3] = d;
 	}
 
+	TOrthoProj(f32 nearClip, f32 farClip, f32 a, f32 b, f32 c, f32 d)
+	    : TCamera(nearClip, farClip, "<TOrthoProj>")
+	{
+		mField[0] = a;
+		mField[1] = b;
+		mField[2] = c;
+		mField[3] = d;
+	}
+
 	virtual ~TOrthoProj() { }
 
 	virtual void load(JSUMemoryInputStream&);
