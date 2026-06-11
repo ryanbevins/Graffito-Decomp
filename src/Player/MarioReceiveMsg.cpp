@@ -351,7 +351,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			mPosition.x = sender->mPosition.x;
 			mPosition.z = sender->mPosition.z;
 
-			s16 angle = (s16)(65536.0f * sender->mAttackHeight);
+				s16 angle = (s16)(65536.0f * *(f32*)((u8*)sender + 0x11C));
 			mFaceAngle.y = angle;
 			mModelFaceAngle = angle;
 
