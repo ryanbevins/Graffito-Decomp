@@ -116,6 +116,11 @@ static const char* bossEelTears_bastable[] = {
 static const char cDummyTextureName[] = "M_dummy";
 static const char cTearsRecoverCollisionName[] = "回復コリジョン";
 static const char cBossEelTearsManagerName[] = "めおとウナギ涙マネージャー";
+static const char cBossEelEndCameraName[] = "meoto_end_camera";
+static const char cBossEelShineName[]     = "シャイン（ボス用）";
+static const char cBossEelShineCameraName[]
+    = "めおとウナギシャインカメラ";
+static const char cBossEelEnemyGroupJointName[] = "敵グルーブ";
 
 static inline void setBossEelParticleScale(JPABaseEmitter* emitter,
                                            const TBossEel* eel)
@@ -2181,6 +2186,82 @@ DEFINE_NERVE(TNerveBossEelEat, TLiveActor)
 				    JDrama::TFlagT<u16>(0));
 				eel->unk21C = TRUE;
 			}
+		}
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBossEelDie, TLiveActor)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		if (gpMSound->gateCheck(0x892F)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x892F, &eel->mPosition, 0, nullptr, 0, 4);
+		}
+
+		gpMarDirector->mConsole->startAppearBalloon(0xE0014, true);
+		MSBgm::stopTrackBGMs(7, 10);
+		gpCameraShake->startShake((EnumCamShakeMode)0x1e, 1.0f);
+		START_BOSS_EEL_BCK(eel, 3);
+
+		((THitActor*)eel->unk1B0)->onHitFlag(HIT_FLAG_NO_COLLISION);
+		((THitActor*)eel->unk210)->onHitFlag(HIT_FLAG_NO_COLLISION);
+		((THitActor*)*(void**)((u8*)eel + 0x18C))
+		    ->onHitFlag(HIT_FLAG_NO_COLLISION);
+		((THitActor*)eel->unk1A8)->onHitFlag(HIT_FLAG_NO_COLLISION);
+		((THitActor*)eel->unk214)->offHitFlag(HIT_FLAG_NO_COLLISION);
+		((TBossEelHeartCoin*)eel->unk218)->generate(eel->mPosition);
+
+		if (SMS_SendMessageToMario(eel, HIT_MESSAGE_TAKE)) {
+			eel->mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
+			gpMarDirector->fireStartDemoCamera(
+			    cBossEelEndCameraName, &eel->mPosition, -1, 0.0f, false,
+			    nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
+		}
+	}
+
+	if (eel->mMActor->checkCurBckFromIndex(3)) {
+		if (eel->mMActor->getFrameCtrl(0)->checkPass(650.0f))
+			((TBossEelHeartCoin*)eel->unk218)->getMActor()->setBckFromIndex(8);
+
+		if (eel->checkCurAnmEnd(0)) {
+			if (SMS_SendMessageToMario(eel, HIT_MESSAGE_UNK8)) {
+				eel->mHeldObject = nullptr;
+				SMS_SendMessageToMario(eel, HIT_MESSAGE_ATTACK);
+				gpMarDirector->fireEndDemoCamera();
+			}
+
+			JGeometry::TVec3<f32> pos = *gpMarioPos;
+			TBEelTears* tears = (TBEelTears*)gpConductor->makeOneEnemyAppear(
+			    pos, cBossEelTearsManagerName, 0);
+			if (tears) {
+				tears->unk16C->unk81 = FALSE;
+				tears->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
+				tears->unk16C->unk80      = TRUE;
+				tears->unk16C->mPosition = tears->mPosition;
+				tears->unk16C->mPosition = tears->mPosition;
+				tears->mSpine->initWith(
+				    &TNerveBEelTearsMarioRecover::theNerve());
+				tears->onLiveFlag(LIVE_FLAG_HIDDEN);
+				tears->unk16C->unk81 = TRUE;
+			}
+
+			s32 jointIndex = eel->mMActor->getModel()
+			                     ->getModelData()
+			                     ->getJointName()
+			                     ->getIndex(cBossEelEnemyGroupJointName);
+			MtxPtr mtx = eel->mMActor->getModel()->mNodeMatrices[jointIndex];
+			gpItemManager->makeShineAppearWithDemo(
+			    cBossEelShineName, cBossEelShineCameraName, mtx[0][3],
+			    mtx[1][3], mtx[2][3]);
+
+			void* part = *(void**)((u8*)eel + 0x184);
+			*(s32*)((u8*)part + 0x70) = 0;
+			((THitActor*)part)->onHitFlag(HIT_FLAG_NO_COLLISION);
+			START_BOSS_EEL_BCK(eel, 4);
 		}
 	}
 
