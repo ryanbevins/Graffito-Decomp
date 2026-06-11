@@ -192,6 +192,10 @@ the accessor can be a legitimate frame-shape lever without adding a call.
   `getSaveParam()->mSLHitPointMax.value` to `.get()` preserved the `lbz`
   field read at `0x7c` and grew the frame from `0x20` to target `0x28`, making
   the function exact.
+- `mario/Player/MarioSwim` `TMario::swimPaddle()` (2026-06-11 MNL):
+  switching the lone `mDeParams.mDashMax.value` read to `.get()` preserved the
+  field-load instruction stream, grew the frame from `0x18` to target `0x20`,
+  and moved the 304-byte function `99.9 -> 100.0`.
 
 ### Explicit template specialization declarations make a TU call the existing weak owner instead of emitting a local helper copy
 
