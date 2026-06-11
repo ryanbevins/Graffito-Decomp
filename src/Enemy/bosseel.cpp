@@ -4,11 +4,13 @@
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <JSystem/JMath.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/MtxUtil.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <Map/Map.hpp>
@@ -21,6 +23,7 @@
 #include <Strategic/Strategy.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/Particles.hpp>
+#include <math.h>
 #include <stdlib.h>
 
 // rogue includes needed for matching sinit
@@ -549,6 +552,82 @@ void TBossEelBodyCollision::initCollision()
 	unk70 = 5800.0f;
 	unk78 = 5000.0f;
 	initHitActor(0x08000023, 5, 0x80000000, unk6C, unk70, unk74, unk78);
+}
+
+void TBossEelVortex::reset()
+{
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+	onHitFlag(0x80000000);
+	unk70 = 0;
+}
+
+void TBossEelVortex::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (unk6C)
+		return;
+
+	if (flags & 1) {
+		TBossEelSaveParams* params = unk68->unk1E8;
+		f32 scale                  = unk68->mScaling.x;
+		f32 attackRadius           = params->mSLVortexAttackRadius.get() * scale;
+		f32 attackHeight           = params->mSLVortexAttackHeight.get() * scale;
+		f32 damageHeight           = params->mSLVortexDamageHeight.get() * scale;
+		f32 damageRadius           = params->mSLVortexDamageRadius.get() * scale;
+		mAttackRadius              = attackRadius;
+		mAttackHeight              = attackHeight;
+		mDamageRadius              = damageRadius;
+		mDamageHeight              = damageHeight;
+		calcEntryRadius();
+
+		++unk70;
+		if (unk70 > 30) {
+			if (unk68->mMActor->checkCurBckFromIndex(14)
+			    || unk68->mMActor->checkCurBckFromIndex(17)) {
+				for (int i = 0; i < mColCount; ++i) {
+					if (mCollisions[i]->isActorTypeOf(ACTOR_TYPE_PLAYER)) {
+						JGeometry::TVec3<f32> velocity;
+						velocity.x = unk68->mPosition.x - gpMarioPos->x;
+						velocity.y = unk68->mPosition.y - gpMarioPos->y;
+						velocity.z = unk68->mPosition.z - gpMarioPos->z;
+						MsVECNormalize(&velocity, &velocity);
+
+						f32 power = params->mSLBreathInPower.get();
+						f32 pulse = fabsf(JMASin(unk70 * 0.9f));
+						if (pulse > 1.0f)
+							pulse = 1.0f;
+						else if (pulse < 0.1f)
+							pulse = 0.1f;
+
+						power *= pulse;
+						SMSRumbleMgr->start(8, &mPosition);
+
+						if (unk68->mMActor->checkCurBckFromIndex(17))
+							power *= 0.5f;
+
+						velocity.x *= power;
+						velocity.y *= power;
+						velocity.z *= power;
+						velocity.add(*gpMarioPos);
+						SMS_MarioMoveRequest(velocity);
+					}
+				}
+			} else {
+				onHitFlag(HIT_FLAG_NO_COLLISION);
+			}
+		}
+	}
+
+	if (flags & 2) {
+		mPosition.x
+		    = unk68->mMActor->getModel()->mNodeMatrices[unk68->unk1A4][0][3];
+		mPosition.y = unk68->mMActor->getModel()
+		                  ->mNodeMatrices[unk68->unk1A4][1][3]
+		            + 1000.0f;
+		mPosition.z
+		    = unk68->mMActor->getModel()->mNodeMatrices[unk68->unk1A4][2][3];
+	}
+
+	THitActor::perform(flags, graphics);
 }
 
 #define LOAD_BOSSEEL_PARTICLE(id, path)                                        \

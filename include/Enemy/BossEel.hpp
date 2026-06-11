@@ -9,6 +9,7 @@ class TLiveActor;
 class TBEelTearsDrop;
 class SDLModelData;
 class TSharedParts;
+class TBossEelSaveParams;
 
 struct TBossEelUnk1EC {
 	s32 unk0;
@@ -30,7 +31,9 @@ public:
 	static f32 mForcePow;
 	static u8 mUseMapCollision;
 
-	/* 0x150 */ u8 unk150[0x58];
+	/* 0x150 */ u8 unk150[0x54];
+	/* 0x1A4 */ u16 unk1A4;
+	/* 0x1A6 */ u8 unk1A6[0x2];
 	/* 0x1A8 */ void* unk1A8;
 	/* 0x1AC */ void* unk1AC;
 	/* 0x1B0 */ void* unk1B0;
@@ -45,7 +48,7 @@ public:
 	/* 0x1D4 */ f32 unk1D4;
 	/* 0x1D8 */ f32 unk1D8;
 	/* 0x1DC */ u8 unk1DC[0xC];
-	/* 0x1E8 */ void* unk1E8;
+	/* 0x1E8 */ TBossEelSaveParams* unk1E8;
 	/* 0x1EC */ TBossEelUnk1EC* unk1EC;
 	/* 0x1F0 */ u8 unk1F0;
 	/* 0x1F1 */ u8 unk1F1[0x3];
@@ -200,6 +203,25 @@ public:
 	}
 
 	virtual void initCollision();
+};
+
+class TBossEelVortex : public THitActor {
+public:
+	TBossEelVortex(TBossEel* eel, const char* name)
+	    : THitActor(name)
+	    , unk68(eel)
+	    , unk6C(FALSE)
+	    , unk70(0)
+	{
+	}
+
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual void reset();
+
+	/* 0x68 */ TBossEel* unk68;
+	/* 0x6C */ u8 unk6C;
+	/* 0x6D */ u8 unk6D[0x3];
+	/* 0x70 */ s32 unk70;
 };
 
 class TBEelTearsSaveLoadParams : public TSpineEnemyParams {
