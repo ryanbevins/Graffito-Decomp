@@ -246,7 +246,6 @@ public:
 	{
 	}
 
-	virtual ~TOilBall();
 	virtual void load(JSUMemoryInputStream&);
 	virtual void calcRootMatrix();
 	virtual void moveObject();

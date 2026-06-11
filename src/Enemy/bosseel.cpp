@@ -729,6 +729,25 @@ void TOilBall::load(JSUMemoryInputStream& stream)
 
 void TOilBall::calcRootMatrix() { TSpineEnemy::calcRootMatrix(); }
 
+void TOilBall::reset()
+{
+	mActorType = 0x08000003;
+	TSpineEnemy::reset();
+	mSpine->initWith(&TNerveBEelTearsGenerate::theNerve());
+	onLiveFlag(LIVE_FLAG_UNK10);
+	offLiveFlag(LIVE_FLAG_DEAD);
+	offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+	offLiveFlag(LIVE_FLAG_UNK200);
+	offLiveFlag(LIVE_FLAG_HIDDEN);
+	mGroundPlane = TMap::getIllegalCheckData();
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+	mPosition = unk150;
+	mSpine->initWith(&TNerveOilBallStay::theNerve());
+	mMActor = mMActorKeeper->getMActor("tears.bmd");
+	mMActor->setBckFromIndex(2);
+	unk160 = FALSE;
+}
+
 void TBEelTears::setMActorAndKeeper()
 {
 	mMActorKeeper = new TMActorKeeper(mManager, 2);
