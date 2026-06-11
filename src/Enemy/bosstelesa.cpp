@@ -6,9 +6,12 @@
 #include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <M3DUtil/SDLModel.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
@@ -16,16 +19,19 @@
 #include <MarioUtil/TexUtil.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <MoveBG/MapObjBase.hpp>
+#include <MoveBG/MapObjManager.hpp>
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MSound/MSound.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
 #include <Strategic/ObjManager.hpp>
+#include <Strategic/SharedParts.hpp>
 #include <Strategic/Spine.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
 #include <System/MarioGamePad.hpp>
+#include <System/Particles.hpp>
 #include <dolphin/mtx.h>
 #include <math.h>
 #include <stdlib.h>
@@ -129,7 +135,122 @@ TBossTelesa::TBossTelesa(const char* name)
 {
 }
 
-void TBossTelesa::loadAfter() { JDrama::TNameRef::loadAfter(); }
+void TBossTelesa::loadAfter()
+{
+	u32 rouletteType = 0x4000019A;
+	if (gpMapObjManager->getObjNumWithActorType(rouletteType) != 0) {
+		int found = 0;
+		for (int i = 0; i < gpMapObjManager->getObjNum(); ++i) {
+			TMapObjBase* actor = gpMapObjManager->getObj(i);
+			if (actor->mActorType == rouletteType) {
+				((TLiveActor**)&unk178)[found] = actor;
+				found++;
+			}
+		}
+	}
+
+	u32 slotType = 0x400001A6;
+	if (gpMapObjManager->getObjNumWithActorType(slotType) != 0) {
+		for (int i = 0; i < gpMapObjManager->getObjNum(); ++i) {
+			TMapObjBase* actor = gpMapObjManager->getObj(i);
+			if (actor->mActorType == slotType) {
+				unk184 = (JDrama::TViewObj*)actor;
+				((TTelesaSlot*)unk184)->unk1A0 = this;
+			}
+		}
+	}
+
+	JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
+	JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
+	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
+	int fruitIndex = 0;
+	for (int i = 0; i < 6; ++i)
+		unk2A8[fruitIndex++] = TMapObjBaseManager::newAndRegisterObj(
+		    "FruitCoconut", position, rotation, scale);
+	for (int i = 0; i < 6; ++i)
+		unk2A8[fruitIndex++] = TMapObjBaseManager::newAndRegisterObj(
+		    "FruitPapaya", position, rotation, scale);
+	for (int i = 0; i < 2; ++i)
+		unk2A8[fruitIndex++] = TMapObjBaseManager::newAndRegisterObj(
+		    "FruitPine", position, rotation, scale);
+	for (int i = 0; i < 6; ++i)
+		unk2A8[fruitIndex++] = TMapObjBaseManager::newAndRegisterObj(
+		    "FruitDurian", position, rotation, scale);
+
+	for (int i = 0; i < 20; ++i) {
+		TMapObjBase* actor = (TMapObjBase*)unk2A8[i];
+		actor->onMapObjFlag(0x04000000);
+		actor->makeObjDead();
+	}
+
+	const char* spicyNames[] = {
+		"唐辛子 0", "唐辛子 1", "唐辛子 2", "唐辛子 3", "唐辛子 4",
+		"唐辛子 5", "唐辛子 6", "唐辛子 7", "唐辛子 8", "唐辛子 9",
+	};
+	for (int i = 0; i < 10; ++i) {
+		unk2F8[i] = JDrama::TNameRefGen::search<TLiveActor>(spicyNames[i]);
+		((TMapObjBase*)unk2F8[i])->makeObjDead();
+	}
+
+	const char* coinNames[] = {
+		"コイン 0", "コイン 1", "コイン 2", "コイン 3", "コイン 4",
+		"コイン 5", "コイン 6", "コイン 7", "コイン 8", "コイン 9",
+	};
+	for (int i = 0; i < 10; ++i) {
+		unk320[i] = JDrama::TNameRefGen::search<TLiveActor>(coinNames[i]);
+		((TMapObjBase*)unk320[i])->makeObjDead();
+	}
+
+	TTelesaSlot* slot = (TTelesaSlot*)unk184;
+	slot->unk1E4[0] = 0.0f;
+	slot->unk1E4[1] = 0.0f;
+	slot->unk1E4[2] = 0.0f;
+
+	unk354 = JDrama::TNameRefGen::search<TObjManager>("テレサマネージャー");
+
+	for (int i = 0; i < 5; ++i)
+		TMapObjBaseManager::newAndRegisterObj("bottle_large", position,
+		                                      rotation, scale);
+
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_fhit.jpa", 0xD7);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_fhit_pe.jpa", 0xD8);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_fhit_gr.jpa", 0xD9);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_fhit_or.jpa", 0xDA);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_damage.jpa", 0xDB);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_down.jpa", 0xDC);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_down_pe.jpa", 0xDD);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_down_gr.jpa", 0xDE);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_down_or.jpa", 0xDF);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_spicy_hit.jpa", 0xE0);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_fubuki.jpa", 0xE1);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_yodare1.jpa", 0x19E);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_yodare2.jpa", 0x19F);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_yodare3.jpa", 0x1A0);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_ase.jpa", 0x1A1);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_spicy_a.jpa", 0x1A2);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_spicy_b.jpa", 0x1A3);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_spicy_d.jpa", 0x1A4);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_chika_a.jpa", 0x1A5);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_chika_b.jpa", 0x1A6);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_glow.jpa", 0x1A7);
+	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_spicy_c.jpa", 0x1F0);
+
+	void* res = JKRFileLoader::getGlbResource("/scene/btelesa/srot_waku.bmd");
+	SDLModelData* data
+	    = new SDLModelData(J3DModelLoaderDataBase::load(res, 0x10220000));
+	unk188 = new TSharedParts((TLiveActor*)unk184, 0, data, 3,
+	                          "<TSharedParts>");
+
+	TLiveActor* gesso0 = JDrama::TNameRefGen::search<TLiveActor>("ゲッソー 0");
+	if (gesso0)
+		gesso0->onLiveFlag(LIVE_FLAG_DEAD);
+
+	TLiveActor* gesso1 = JDrama::TNameRefGen::search<TLiveActor>("ゲッソー 1");
+	if (gesso1)
+		gesso1->onLiveFlag(LIVE_FLAG_DEAD);
+
+	JDrama::TNameRef::loadAfter();
+}
 
 void TBossTelesa::perform(u32 flags, JDrama::TGraphics* gfx)
 {
