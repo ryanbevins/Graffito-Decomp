@@ -815,7 +815,7 @@ config.libs = [
             Object(NonMatching, "M3DUtil/MActorAnm.cpp"),
             Object(NonMatching, "M3DUtil/MActorData.cpp"),
             Object(NonMatching, "M3DUtil/SDLModel.cpp"),
-            Object(NonMatching, "M3DUtil/MActorUtil.cpp", flags=cflags_system),
+            Object(Equivalent, "M3DUtil/MActorUtil.cpp", flags=cflags_system),
             Object(NonMatching, "M3DUtil/SampleCtrlNode.cpp"),
             Object(NonMatching, "M3DUtil/SampleCtrlModel.cpp"),
             Object(Matching, "M3DUtil/MotionBlendCtrl.cpp"),
