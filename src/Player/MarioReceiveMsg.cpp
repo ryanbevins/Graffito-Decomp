@@ -517,8 +517,10 @@ check_sender_bit3:
 	}
 
 	// Check sender type bit 3 (0x10000000 = ACTOR_TYPE_ENEMY)
-	if (senderType & 0x10000000) {
-		u32 eType = senderType;
+	u32 enemyType = sender->mActorType;
+	bool hasEnemyType = (enemyType & 0x10000000) ? true : false;
+	if (hasEnemyType) {
+		u32 eType = enemyType;
 
 		// Large binary search tree on enemy actor types
 		// This is an enormous switch statement with many cases
