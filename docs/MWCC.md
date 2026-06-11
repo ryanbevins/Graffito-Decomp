@@ -3293,6 +3293,13 @@ interleaved loads. Test with both before committing.
   fix that restored 4 inlined-fallback instructions. Remaining
   0.12% is just stack-temp slot allocation order (different
   unsolved MWCC quirk).
+- `Enemy/bosseel` `TBossEelHeartCoin::generate` (2026-06-11 MNL):
+  changing cached-position and final coin-position copies from component
+  assignments to `TVec3::set(...)` moved the function 65.1% -> 94.5%.
+  The target loads matrix Z/Y/X first, then stores X/Y/Z.
+- `Enemy/bosseel` `TBossEelHeartCoin::perform` (2026-06-11 MNL):
+  the same `TVec3::set(...)` form for the BCK3 cached heart position and the
+  20 child-coin matrix-copy loop moved the function 55.8% -> 86.7%.
 
 **Where to try it next:** Any `TVec3` member being filled from
 three matrix-cell or struct-field reads using component assignment,
@@ -5806,26 +5813,6 @@ factory/helper call and target stack temps constructed right-to-left. Compare
 named locals, declaration-order permutations, and direct temporaries; confirm
 whether only the direct temporary spelling preserves both stack construction
 order and final argument-register slots.
-
-### `TVec3::set(x, y, z)` can recover batched matrix-translation copies
-
-**Hypothesis.** When target asm loads three matrix translation components
-(`mtx[2][3]`, `mtx[1][3]`, `mtx[0][3]`) before storing a `TVec3` destination,
-component-by-component assignments may interleave each load with its store.
-Writing the copy as `dst.set(mtx[0][3], mtx[1][3], mtx[2][3])` can force MWCC
-to evaluate the three arguments first and then store `x/y/z`, matching the
-target's batched load/store shape. Expect possible FPR naming residue.
-
-**Observed.** `mario/MoveBG/MapObjCorona` (2026-06-11 MNL):
-`TBathtubGrip::control()` improved 98.7 -> 99.3 after replacing three stores
-to `unk144` with `unk144.set(...)`; `TBathtub::control()` improved
-89.8 -> 91.6 after replacing three stores to `unk200` with `unk200.set(...)`.
-Both target blocks used the same batched translation-copy shape.
-
-**Experiment to confirm/refute.** Find a second TU with a nonmatching
-matrix-translation-to-`TVec3` copy where target loads all three components
-before storing. Toggle only component assignments vs. `TVec3::set(...)` and
-verify whether the batched argument evaluation repeats.
 
 ### `.cpp` definition plus scoped `dont_inline` can recover same-TU static template-member call boundaries, but may emit the wrong owner kind/frame
 
