@@ -193,8 +193,7 @@ void TBossTelesa::moveObject()
 
 void TBossTelesa::kill()
 {
-	onLiveFlag(LIVE_FLAG_DEAD);
-	if (mSpine)
+	if (mSpine->getCurrentNerve() != &TNerveBossTelesaDie::theNerve())
 		mSpine->pushNerve(&TNerveBossTelesaDie::theNerve());
 }
 
