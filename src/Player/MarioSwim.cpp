@@ -112,44 +112,45 @@ void TMario::doSwimming()
 // checkSwimJump: 0x80152144, size 0x170
 BOOL TMario::checkSwimJump()
 {
-	if (!(mInput & 0x02))
-		return FALSE;
-
-	if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
-		if (!isUnderWater()) {
-			mPosition.y = 1.0f + mFloorPosition.z;
-			startSoundActor(0x828);
-			return changePlayerJumping(0x888, 0);
+	if (mInput & 0x02) {
+		if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
+			if (!isUnderWater()) {
+				mPosition.y = 1.0f + mFloorPosition.z;
+				startSoundActor(0x828);
+				return changePlayerJumping(0x888, 0);
+			}
 		}
+
+		f32 floorY = mFloorPosition.z;
+		f32 canJumpDepth = mSwimParams.mCanJumpDepth.value;
+		f32 curY = mPosition.y;
+		f32 depth = floorY - canJumpDepth;
+
+		if (depth < curY) {
+			u8 shouldDive = 0;
+			f32 stickMag  = mIntendedMag;
+			if (stickMag == 0.0f)
+				shouldDive = 1;
+			if (mWallPlane != NULL)
+				shouldDive = 1;
+			s16 diff = mModelFaceAngle - mIntendedYaw;
+			if (diff < -21845 || diff > 21845)
+				shouldDive = 1;
+
+			if ((u8)shouldDive == 1) {
+				inOutWaterEffect(mFloorPosition.z);
+				changePlayerStatus(0x02000880, 0, false);
+				return TRUE;
+			}
+		}
+
+		if (mIntendedMag == 0.0f)
+			return changePlayerStatus(0x24D8, 0, false);
+
+		return changePlayerStatus(0x24D4, 0, false);
 	}
 
-	f32 floorY = mFloorPosition.z;
-	f32 canJumpDepth = mSwimParams.mCanJumpDepth.value;
-	f32 curY = mPosition.y;
-	f32 depth = floorY - canJumpDepth;
-
-	if (depth >= curY) {
-		u8 shouldDive = 0;
-		f32 stickMag  = mIntendedMag;
-		if (stickMag == 0.0f)
-			shouldDive = 1;
-		if (mWallPlane != NULL)
-			shouldDive = 1;
-		s16 diff = mModelFaceAngle - mIntendedYaw;
-		if (diff < -21845 || diff > 21845)
-			shouldDive = 1;
-
-		if ((u8)shouldDive == 1) {
-			inOutWaterEffect(mFloorPosition.z);
-			changePlayerStatus(0x02000880, 0, false);
-			return TRUE;
-		}
-	}
-
-	if (mIntendedMag == 0.0f)
-		return changePlayerStatus(0x24D8, 0, false);
-
-	return changePlayerStatus(0x24D4, 0, false);
+	return FALSE;
 }
 
 // swimPaddle: 0x80152014, size 0x130
