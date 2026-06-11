@@ -22,6 +22,7 @@
 #include <Map/PollutionManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
+#include <MarioUtil/ShadowUtil.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
@@ -1548,13 +1549,61 @@ void TBPPolDrop::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (flags & 1) {
 		move();
 		unk84++;
+
+		for (int i = 0; i < mColCount; ++i) {
+			THitActor* actor = mCollisions[i];
+			if (actor->getActorType() == 0x80000001) {
+				actor->receiveMessage(this, HIT_MESSAGE_ATTACK);
+				mOwner->rumblePad(2, mPosition);
+				if (SMS_IsMarioTouchGround4cm())
+					unk80 = 2;
+				else
+					unk80 = 0;
+			}
+		}
 	}
 
-	if ((flags & 2) && unk78 != nullptr)
+	if (flags & 2) {
+		J3DModel* model = unk78->getModel();
+		PSMTXIdentity(model->unk20);
+		model->unk20[0][3] = mPosition.x;
+		model->unk20[1][3] = mPosition.y;
+		model->unk20[2][3] = mPosition.z;
+		model->unk14.x     = mScaling.x;
+		model->unk14.y     = mScaling.y;
+		model->unk14.z     = mScaling.z;
+
+		if (unk80 == 2) {
+			f32 scale = mOwner->getBossPakkunSaveParam()->mSLPollBallStampScale.get();
+			J3DModel* stampModel = unk7C->getModel();
+			stampModel->unk14.x  = scale;
+			stampModel->unk14.y  = scale;
+			stampModel->unk14.z  = scale;
+			PSMTXCopy(model->unk20, stampModel->unk20);
+		}
+	}
+
+	if (unk80 == 1) {
 		unk78->perform(flags, graphics);
 
-	if ((flags & 0x200) && unk7C != nullptr)
-		gpPollution->stampModel(unk7C->getModel());
+		if (flags & 4) {
+			TCircleShadowRequest request;
+			request.unk0  = mPosition;
+			request.unkC  = 400.0f;
+			request.unk10 = 400.0f;
+			request.unk14 = 0.0f;
+			request.unk1C = 0;
+			gpBindShadowManager->request(request, 0);
+		}
+	}
+
+	if (unk80 == 2) {
+		if (flags & 2)
+			unk7C->calcAnm();
+
+		if (flags & 0x200)
+			gpPollution->stampModel(unk7C->getModel());
+	}
 }
 
 void TBPPolDrop::move()
@@ -1564,19 +1613,57 @@ void TBPPolDrop::move()
 		return;
 	}
 
-	mPosition.add(mVelocity);
+	JGeometry::TVec3<f32> nextPos = mPosition;
+	nextPos.add(mVelocity);
 
 	if (unk80 == 1) {
+		if (unk78->curAnmEndsNext(0, nullptr))
+			unk78->setBck("pollut_ball");
+
 		mVelocity.y -= 0.1f;
-		if (unk84 >= 60) {
+
+		if (unk84 >= 60
+		    || (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 4)) {
 			const TBGCheckData* ground = nullptr;
-			f32 y = gpMap->checkGround(mPosition.x, mPosition.y,
-			                           mPosition.z, &ground);
-			if (mPosition.y <= y + 1.0f) {
-				mPosition.y = y;
+			f32 y = gpMap->checkGround(nextPos.x, mPosition.y, nextPos.z,
+			                           &ground)
+			        + 1.0f;
+			if (ground->checkFlag(BG_CHECK_FLAG_ILLEGAL))
+				y = unk88;
+			unk88 = y;
+
+			if (nextPos.y < y) {
 				unk80       = 2;
 				mVelocity.set(0.0f, 0.0f, 0.0f);
+				unk7C->setBck("pollut_ball_stamp");
+				gpMarioParticleManager->emit(0x52, &mPosition, 0, nullptr);
+				if (gpMSound->gateCheck(0x2841))
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x2841, &mPosition, 0, nullptr, 0, 4);
+				mOwner->rumblePad(2, mPosition);
+				nextPos.y = y;
+				onHitFlag(HIT_FLAG_NO_COLLISION);
+				return;
 			}
+
+			offHitFlag(HIT_FLAG_NO_COLLISION);
+			if (gpMap->isTouchedOneWallAndMoveXZ(&nextPos.x, nextPos.y,
+			                                     &nextPos.z, 80.0f))
+				unk80 = 0;
+
+			if (gpMSound->gateCheck(0x2052))
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x2052, &mPosition, nullptr, -mVelocity.y, 0, 0, nullptr,
+				    0, 4);
+			if (gpMSound->gateCheck(0x2045))
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x2045, &mPosition, nullptr, -mVelocity.y, 0, 0, nullptr,
+				    0, 4);
 		}
+	} else if (unk80 == 2) {
+		if (unk7C->curAnmEndsNext(0, nullptr))
+			unk80 = 0;
 	}
+
+	mPosition = nextPos;
 }
