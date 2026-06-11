@@ -1180,15 +1180,19 @@ void TMario::getGesso(THitActor* sender)
 
 	// Set gesso type based on sender's actor type
 	u32 aType = sender->mActorType;
-	if (aType == 0x400000C5) {
+	switch (aType) {
+	case 0x400000C5:
 		mSurfGesso = gpMapObjManager->mRedGesso;
 		unk389 = 0;
-	} else if (aType == 0x400000C6) {
+		break;
+	case 0x400000C6:
 		mSurfGesso = gpMapObjManager->mYellowGesso;
 		unk389 = 1;
-	} else {
+		break;
+	default:
 		unk389 = 2;
 		mSurfGesso = gpMapObjManager->mGreenGesso;
+		break;
 	}
 
 	mSurfGesso->setBck("surfgesso_wait01");
