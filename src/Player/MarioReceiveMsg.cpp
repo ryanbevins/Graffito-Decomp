@@ -1045,7 +1045,10 @@ check_sender_bit3:
 			return 0;
 		}
 
-		case 0x0800000B: // Specific enemy damage
+		case 0x0800000B:
+		case 0x0800000C:
+		case 0x0800000D:
+		case 0x0800000E: // Specific enemy damage
 		{
 			if (message == 0x0A) {
 				if (!isInvincible()) {
