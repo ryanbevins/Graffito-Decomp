@@ -347,11 +347,69 @@ void TBossTelesa::rouletteStart()
 
 void TBossTelesa::genAttacker()
 {
-	TConductor* conductor
-	    = JDrama::TNameRefGen::search<TConductor>("TConductor");
-	if (conductor)
-		conductor->makeOneEnemyAppear(mPosition, "テレサ", 1);
-	unk36C = mTelesaGenerateInterval;
+	if (unk150) {
+		TTelesa* telesa = (TTelesa*)gpConductor->makeOneEnemyAppear(
+		    mPosition, "テレサマネージャー", 1);
+		if (telesa)
+			telesa->initAttacker(this);
+		return;
+	}
+
+	TBossTelesaSaveLoadParams* params = (TBossTelesaSaveLoadParams*)unk15C;
+	s32 count                         = params->mSLNumGenBubble.get();
+	MtxPtr rootMtx                    = mMActor->unk4->mNodeMatrices[5];
+	f32 angleStep                     = 180.0f / count;
+	f32 angleOffset                   = count * 0.5f;
+
+	for (int i = 0; i < count; ++i) {
+		TBubble* bubble = (TBubble*)gpConductor->makeOneEnemyAppear(
+		    mPosition, "バブルマネージャー", 1);
+		if (!bubble)
+			return;
+
+		Mtx rot;
+		Vec velocity;
+		velocity.x = 0.0f;
+		velocity.y = 0.0f;
+		velocity.z = -50.0f;
+		MsMtxSetRotRPH(rot, mRotation.x,
+		               mRotation.y - angleOffset + angleStep * i,
+		               mRotation.z);
+		PSMTXMultVec(rot, &velocity, &velocity);
+		MsVECNormalize(&velocity, &velocity);
+
+		velocity.y = 2.0f;
+		f32 speed  = params->mSL1stBubbleSp.get();
+		velocity.x *= speed;
+		velocity.z *= speed;
+
+		bubble->mPosition.x = rootMtx[0][3];
+		bubble->mPosition.y = rootMtx[1][3] - 50.0f;
+		bubble->mPosition.z = rootMtx[2][3];
+		bubble->mVelocity   = velocity;
+		bubble->mPosition.y += 10.0f;
+		bubble->onLiveFlag(LIVE_FLAG_AIRBORNE);
+
+		f32 itemRoll = rand() * 0.000030517578f;
+		if (itemRoll < mItemGenRate) {
+			bubble->unk198 = nullptr;
+			TMapObjBase* item = gpItemManager->makeObjAppear(
+			    bubble->mPosition.x, bubble->mPosition.y,
+			    bubble->mPosition.z, 0x20000008, true);
+			if (item && item->receiveMessage(bubble, HIT_MESSAGE_TAKE)) {
+				item->makeObjAppeared();
+				item->mPosition = bubble->mPosition;
+				item->mVelocity.set(0.0f, 15.0f, 0.0f);
+				item->offLiveFlag(LIVE_FLAG_UNK10);
+				bubble->mHeldObject = item;
+				bubble->unk198      = item;
+			}
+		} else {
+			f32 enemyRoll = rand() * 0.000030517578f;
+			if (enemyRoll < mEnemyGenRate)
+				bubble->appendEnemy();
+		}
+	}
 }
 
 void TBossTelesa::flashItem(int result)
