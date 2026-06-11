@@ -9,10 +9,32 @@
 #include <Strategic/Spine.hpp>
 #include <System/Particles.hpp>
 
-// rogue includes needed for matching sinit & rodata
-#include <M3DUtil/InfectiousStrings.hpp>
+// rogue includes needed for matching sinit
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
+static const char MtxCalcTypeName0[]
+    = "MActorMtxCalcType_Basic クラシックスケールＯＮ";
+static const char MtxCalcTypeName1[]
+    = "MActorMtxCalcType_Softimage クラシックスケールＯＦＦ";
+static const char MtxCalcTypeName2[]
+    = "MActorMtxCalcType_MotionBlend モーションブレンド";
+static const char MtxCalcTypeName3[]
+    = "MActorMtxCalcType_User ユーザー定義";
+static const char* MtxCalcTypeName[] = {
+	MtxCalcTypeName0,
+	MtxCalcTypeName1,
+	MtxCalcTypeName2,
+	MtxCalcTypeName3,
+};
+static const f32 dummy2933[3] = { 0.0f, 0.0f, 0.0f };
+static const f32 dummy2935[3] = { 1.0f, 1.0f, 1.0f };
 
 f32 TBossEel::mOpenRollSpeed = 0.3f;
 u8 TBossEel::mUseObjCollision = TRUE;

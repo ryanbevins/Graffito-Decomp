@@ -5664,6 +5664,16 @@ base offsets `0x130/0x148/...` to the target `0x148/0x160/...`, matching
 then removed extra `.data` pointer objects and improved the `.data` object
 `50.2 -> 62.2`.
 
+`mario/Enemy/bosseel` (2026-06-11 MNL) shows the related but not-yet-exact
+variant: target `.data` starts with non-const `{1,1,1}`, `{1,1,1}`,
+`{0,2,1,3}` arrays before `MtxCalcTypeName`, and target `.rodata` has const
+`{0,0,0}` / `{1,1,1}` vectors after the MtxCalc strings. Replacing the helper
+header with TU-local char arrays plus those dummy arrays improved aggregate
+`.data` `15.2 -> 16.9` and `.rodata` `70.3 -> 70.8`, but the anonymous target
+symbols (`@1431`, `@1411`, `@1210`, `@2933`, `@2935`) still show as missing
+and text string-base operands did not improve. The array ownership/form remains
+part of the experiment, not settled.
+
 **Experiment to confirm/refute.** Inspect another TParams-heavy TU with
 `InfectiousStrings.hpp` where the original asm shows an extra `{0,0,0}` /
 `{1,1,1}` pair before later strings. Add the same const arrays and verify that
