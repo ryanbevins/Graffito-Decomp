@@ -14,6 +14,7 @@ class SDLModelData;
 class TSharedParts;
 class TBossEelSaveParams;
 class TCoin;
+class TCubeManagerBase;
 
 struct TBossEelUnk1EC {
 	s32 unk0;
@@ -45,7 +46,7 @@ public:
 	/* 0x1A4 */ u16 unk1A4;
 	/* 0x1A6 */ u8 unk1A6[0x2];
 	/* 0x1A8 */ void* unk1A8;
-	/* 0x1AC */ void* unk1AC;
+	/* 0x1AC */ TCubeManagerBase* unk1AC;
 	/* 0x1B0 */ void* unk1B0;
 	/* 0x1B4 */ s32 unk1B4;
 	/* 0x1B8 */ s32 unk1B8;

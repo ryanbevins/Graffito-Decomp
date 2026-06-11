@@ -1,5 +1,6 @@
 #include <Camera/CameraShake.hpp>
 #include <Camera/Camera.hpp>
+#include <Camera/CubeManagerBase.hpp>
 #include <Camera/cameralib.hpp>
 #include <Enemy/BossEel.hpp>
 #include <Enemy/Conductor.hpp>
@@ -1808,6 +1809,26 @@ TBEelTearsDrop::TBEelTearsDrop(TBEelTears* tears, int index,
 	                     *texture->getTexture()->getTexInfo());
 	actor->setBckFromIndex(0);
 	actor->setLightType(3);
+}
+
+DEFINE_NERVE(TNerveBossEelWaitAppear, TLiveActor)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		START_BOSS_EEL_BCK(eel, 10);
+
+	if (spine->getTime() == 2500)
+		gpMarDirector->mConsole->startAppearBalloon(0xE0012, true);
+
+	Vec pos = *gpMarioPos;
+	pos.y += 75.0f;
+	if (eel->unk1AC->isInCube(pos, 0)) {
+		spine->pushAfterCurrent(&TNerveBossEelFirstSpin::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 DEFINE_NERVE(TNerveBossEelSecondSpin, TLiveActor)
