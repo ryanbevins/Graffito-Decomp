@@ -8874,3 +8874,49 @@ Reverted in t174.
 - **Date entries are not needed** — git history serves that purpose. The structural
   order (newest first within each section) gives readers the sense of "what's been
   on the bot's mind recently".
+
+## Using mwcc-debugger (regalloc + stack evidence)
+
+When a function is *functionally* correct but won't byte-match because of
+**register coloring** (r29/r30/r31, f30/f31 swaps) or **stack-frame size**
+(phantom inlines, `startTimer +16`, unused-local padding), stop guessing — dump
+what the compiler actually decided:
+
+```
+python tools/agent/mwcc_dump.py <source.cpp> <mangled_symbol>
+# e.g. python tools/agent/mwcc_dump.py src/Player/MarioMove.cpp move__9TMarioFv
+```
+
+This wraps [cadmic/mwcc-debugger](https://github.com/cadmic/mwcc-debugger), which
+runs the real MWCC executable under retrowin32 + gdb and dumps its internal state.
+The wrapper derives the exact compile command from `ninja -t commands` and swaps
+in a debugger-supported compiler automatically.
+
+**Compiler approximation.** The debugger only has breakpoint offsets for GC/1.1
+and GC/2.6. GC/1.1 is used for our game code (real GC/1.0–1.2.5) and GC/2.6 for
+the SDK (GC/1.3.2–2.7). The regalloc *algorithm* and stack-allocation *order* are
+shared across each range, so the dumps are representative for diagnosing
+coloring/stack issues — but the binary isn't byte-identical to 1.2.5, so don't
+treat the emitted instructions as ground truth (objdiff against the original asm
+remains the source of truth for that).
+
+**Key outputs** (printed summary + full set in the temp dir):
+- `variables.txt` — stack allocation by category (temps / spills / locals /
+  arguments) with offsets and vreg→machine-reg mapping. On GC/1.0–1.2.5 the
+  compiler does **not** remove unused stack space, so locals that are optimized
+  out before regalloc still consume a slot — this is usually the cause of
+  unexplained stack-size deltas.
+- `regalloc-gpr/fpr-pass-N-assigned.txt` — variables in priority order with their
+  assigned register, neighbor graph, and spill cost.
+- `regalloc-*-all.txt` — includes *coalesced* variables (the coalescing bug leaves
+  them as phantom neighbors, which influences ordering).
+- `backend-05-before-regalloc.txt` — cross-ref the virtual regs (`r35`+) back to
+  source variables/temps.
+
+**Strategy for regalloc mismatches:** read the `assigned` list top-down and find
+the first variable that differs from what the target needs, then influence it by
+reordering locals, turning a real local into a compiler temp (or vice-versa),
+moving code into/out of an inline, or adding/removing neighbors (e.g. a new
+coalesced variable) to bump it between priority "levels". For stack-size deltas,
+compare `variables.txt` against the target frame and look for an unused local or a
+missing/extra inline that adds a slot.
