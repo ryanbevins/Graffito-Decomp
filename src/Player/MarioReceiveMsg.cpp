@@ -28,7 +28,8 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 	u32 senderType = sender->mActorType;
 
 	// 0x50: Check sender has ACTOR_TYPE_UNK4000000 (bit 2)
-	if (senderType & 0x20000000) {
+	bool hasEarlyItemType = (senderType & 0x20000000) ? true : false;
+	if (hasEarlyItemType) {
 		// List of actor types that should NOT trigger the sound
 		bool skip = true;
 		if ((senderType - 0x20000000) == 0x0E) skip = 0;
@@ -97,7 +98,8 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 	// After message 7, check sender type bits for enemy contact
 	senderType = sender->mActorType;
 
-	if (senderType & 0x20000000) {
+	bool hasItemType = (senderType & 0x20000000) ? true : false;
+	if (hasItemType) {
 		// Jump table based on (senderType - 0x20000001) with 60 entries
 		u32 tableIdx = (senderType - 0x20000001);
 		if (tableIdx > 59)
