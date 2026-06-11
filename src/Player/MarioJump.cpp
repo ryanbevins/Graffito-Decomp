@@ -408,7 +408,7 @@ BOOL TMario::catchStop()
 		else setAnimation(86, 1.0f);
 		break;
 	case 1: changePlayerStatus(0x0C000232, 0, false); break;
-	case 2: case 3: setPlayerVelocity(0.0f); break;
+	case 2: setPlayerVelocity(0.0f); break;
 	}
 	if (mActionState == 1 && isLast1AnimeFrame()) mActionState = 2;
 	return FALSE;
