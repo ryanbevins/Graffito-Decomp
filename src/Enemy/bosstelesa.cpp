@@ -7,6 +7,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -412,9 +413,109 @@ void TBossTelesa::init(TLiveManager* manager)
 
 void TBossTelesa::calcRootMatrix()
 {
-	TSpineEnemy::calcRootMatrix();
-	if (unk154)
-		unk154->mPosition.y = mPosition.y + mBaseHoseiPosY;
+	J3DModel* model = mMActor->getModel();
+	model->setBaseScale(mScaling);
+
+	f32 offsetY = unk364;
+	if (offsetY > 0.0f)
+		offsetY = 0.0f;
+	else if (offsetY < mBaseHoseiPosY)
+		offsetY = mBaseHoseiPosY;
+
+	TPosition3f translateMtx;
+	translateMtx.translation(
+	    mPosition.x,
+	    mPosition.y
+	        + ((TBossTelesaSaveLoadParams*)unk15C)->mSLTransYOffset.get()
+	        + offsetY,
+	    mPosition.z);
+
+	Mtx rotateMtx;
+	MsMtxSetRotRPH(rotateMtx, mRotation.x, mRotation.y, mRotation.z);
+	PSMTXConcat(translateMtx, rotateMtx, translateMtx);
+	PSMTXCopy(translateMtx, model->getBaseTRMtx());
+
+	TTelesaSlot* slot = (TTelesaSlot*)unk184;
+	if (slot) {
+		slot->mRotation = mRotation;
+
+		f32 slotOffsetY = -700.0f;
+		MtxPtr slotMtx;
+		if (mMActor->checkCurBckFromIndex(4)
+		    || mMActor->checkCurBckFromIndex(0)
+		    || mMActor->checkCurBckFromIndex(2)
+		    || mMActor->checkCurBckFromIndex(5)) {
+			slotMtx = model->mNodeMatrices[1];
+			if (!mMActor->checkCurBckFromIndex(0))
+				slotOffsetY = -2400.0f;
+		} else {
+			slotMtx = model->mNodeMatrices[0];
+		}
+
+		slot->mPosition.x = slotMtx[0][3];
+		slot->mPosition.y = unk364 + slotMtx[1][3] + slotOffsetY;
+		slot->mPosition.z = slotMtx[2][3];
+	}
+
+	for (u16 i = 0; i < model->getModelData()->getMaterialNum(); ++i) {
+		Mtx lightMtx;
+		SMS_GetLightPerspectiveForEffectMtx(lightMtx);
+		model->getModelData()->getMaterialNodePointer(i)->getTexMtx(1)
+		    ->setEffectMtx(lightMtx);
+	}
+
+	unk374.set(0.0f, 0.0f, 0.0f);
+	gpMarioParticleManager->emit(0x1A5, &unk374, 1, this);
+	gpMarioParticleManager->emit(0x1A6, &unk374, 1, this);
+
+	MtxPtr baseMtx = model->mNodeMatrices[1];
+	unk374.set(baseMtx[0][3], baseMtx[1][3], baseMtx[2][3]);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x1A7, &unk374, 1, this);
+
+	if (!mMActor->checkCurBckFromIndex(4) && !mMActor->checkCurBckFromIndex(6)
+	    && !mMActor->checkCurBckFromIndex(12)
+	    && !mMActor->checkCurBckFromIndex(13)) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x19E, model->mNodeMatrices[5], 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x19F, model->mNodeMatrices[5], 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1A0, model->mNodeMatrices[10], 1, this);
+	}
+
+	if (mMActor->checkCurBckFromIndex(1)
+	    && mMActor->getFrameCtrl(0)->getFrame() < 20.0f) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0xE0, model->mNodeMatrices[5], 0, nullptr);
+	}
+
+	if (mMActor->checkCurBckFromIndex(12)) {
+		if (gpMSound->gateCheck(0x20FE)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x20FE, &mPosition, 0, nullptr, 0, 4);
+		}
+
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1A1, model->mNodeMatrices[1], 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1A2, model->mNodeMatrices[9], 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1A3, model->mNodeMatrices[9], 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1A4, model->mNodeMatrices[9], 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1F0, model->mNodeMatrices[9], 3, this);
+	}
+
+	if (mMActor->checkCurBckFromIndex(14)
+	    && mMActor->getFrameCtrl(0)->checkPass(40.0f)) {
+		if (mSpine->getCurrentNerve()
+		    == &TNerveBossTelesaSpitSlotItem::theNerve()) {
+			generateSlotItem();
+		} else {
+			genAttacker();
+		}
+	}
 }
 
 void TBossTelesa::moveObject()
