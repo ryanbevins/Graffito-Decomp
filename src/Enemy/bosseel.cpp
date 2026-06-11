@@ -1256,23 +1256,30 @@ void TBossEelCollision::behaveToMario()
 	if (eel == nullptr)
 		return;
 
-	u8 canEat = *(u8*)((u8*)eel + 0x1C8);
-	if (!canEat) {
-		JGeometry::TVec3<f32> pos = *gpMarioPos;
+	bool canEat;
+	if (*(u8*)((u8*)eel + 0x1C8)) {
+		canEat = true;
+	} else {
 		MtxPtr mtx = eel->mMActor->getModel()
 		                 ->mNodeMatrices[*(u16*)((u8*)eel + 0x1A0)];
+		JGeometry::TVec3<f32> pos = *gpMarioPos;
 		pos.x -= mtx[0][3];
 		pos.y -= mtx[1][3];
 		pos.z -= mtx[2][3];
 
 		f32 dist = MsVECMag2(&pos);
 		if (dist < eel->unk1D4 * eel->unk1D8)
-			canEat = TRUE;
+			canEat = true;
+		else
+			canEat = false;
 	}
 
-	if (canEat
-	    && eel->mSpine->getCurrentNerve() != &TNerveBossEelEat::theNerve())
-		eel->mSpine->pushNerve(&TNerveBossEelEat::theNerve());
+	if (canEat) {
+		TBossEel* parent = unk7C;
+		if (parent->mSpine->getCurrentNerve()
+		    != &TNerveBossEelEat::theNerve())
+			parent->mSpine->pushNerve(&TNerveBossEelEat::theNerve());
+	}
 }
 
 void TBossEelCollision::initCollision()
