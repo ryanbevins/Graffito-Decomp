@@ -1463,6 +1463,7 @@ BOOL TTelesaSlot::isRollDrum()
 	return FALSE;
 }
 
+#pragma dont_inline on
 void TTelesaSlot::forceStopSlot(int idx)
 {
 	volatile f32 min = 0.0f;
@@ -1503,9 +1504,11 @@ void TTelesaSlot::forceStopSlot(int idx)
 
 	unk19C = 0;
 }
+#pragma dont_inline off
 
 u32 TTelesaSlot::touchWater(THitActor*) { return FALSE; }
 
+#pragma dont_inline on
 void TTelesaSlot::moveStart()
 {
 	unk19C = 1;
@@ -1524,6 +1527,7 @@ void TTelesaSlot::moveStart()
 		unk138[i] = speed * unk158;
 	}
 }
+#pragma dont_inline off
 
 void TTelesaSlot::moveObject()
 {
@@ -2071,12 +2075,62 @@ DEFINE_NERVE(TNerveBossTelesaSpitSlotItem, TLiveActor)
 DEFINE_NERVE(TNerveBossTelesaSlotStart, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	if (spine->getTime() == 0)
-		boss->rouletteStart();
-	if (spine->getTime() > 60) {
-		spine->setNext(&TNerveBossTelesaPrepareSlot::theNerve());
+	if (spine->getTime() == 0) {
+		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+		boss->unk160 = 11;
+		boss->unk168 = 1.0f;
+
+		J3DAnmTransform* oldAnm = nullptr;
+		if (boss->mMActor->unkC)
+			oldAnm = boss->mMActor->unkC->unk24;
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+		boss->mMActor->setBckFromIndex(11);
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+		const char** basTable = boss->getBasNameTable();
+		boss->setAnmSound(basTable ? basTable[11] : nullptr);
+	}
+
+	if (boss->mMActor->checkCurBckFromIndex(11)) {
+		if (boss->mMActor->getFrameCtrl(0)->checkPass(53.0f)) {
+			boss->unk18C = 1;
+			boss->unk184->moveStart();
+			((TTelesaManager*)boss->unk354)->telesaForceKill();
+		}
+
+		if (boss->checkCurAnmEnd(0)) {
+			boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+			boss->unk160 = 15;
+			boss->unk168 = 1.0f;
+
+			J3DAnmTransform* oldAnm = nullptr;
+			if (boss->mMActor->unkC)
+				oldAnm = boss->mMActor->unkC->unk24;
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+			boss->mMActor->setBckFromIndex(15);
+			if (boss->mMActor->unkC)
+				boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+			const char** basTable = boss->getBasNameTable();
+			boss->setAnmSound(basTable ? basTable[15] : nullptr);
+			boss->mMActor->setBtpFromIndex(2);
+			boss->unk184->forceStopSlot(1);
+		}
+	}
+
+	if (!boss->unk184->isRollDrum() && boss->unk18C) {
+		boss->unk18C = 0;
+		boss->mSpine->pushAfterCurrent(
+		    &TNerveBossTelesaSpitSlotItem::theNerve());
 		return TRUE;
 	}
+
+	boss->unk364 *= 0.99f;
 	return FALSE;
 }
 
