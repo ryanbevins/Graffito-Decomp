@@ -14,6 +14,7 @@
 #include <MSound/MSModBgm.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+#include <MSound/MSoundSE.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapData.hpp>
@@ -1097,12 +1098,39 @@ void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 
 BOOL TBossPakkun::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == HIT_MESSAGE_HIP_DROP) {
-		gotHipDropDamage();
+	if (((TBossPakkunManager*)mManager)->mIsLight != 0)
+		return FALSE;
+
+	const TNerveBPSleep& sleepNerve = TNerveBPSleep::theNerve();
+	if (mSpine->getLatestNerve() == &sleepNerve
+	    && sender->getActorType() == 0x1000000D) {
+		mSpine->reset();
+		mSpine->setNext(&TNerveBPBreakSleep::theNerve());
 		return TRUE;
 	}
 
-	return TSpineEnemy::receiveMessage(sender, message);
+	if (unk16C == 3
+	    && (sender->getActorType() == 0x1000000D
+	        || sender->getActorType() == 0x1000001)) {
+		if (mPosition.y - 300.0f > sender->mPosition.y)
+			return TRUE;
+
+		if (mPosition.y + 1500.0f < sender->mPosition.y)
+			return TRUE;
+
+		unk16C = 0;
+		mSpine->reset();
+		mSpine->setNext(&TNerveBPFall::theNerve());
+
+		if (gpMSound->gateCheck(0x2817)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x2817, &mPosition, 0, nullptr, 0, 4);
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 void TBossPakkun::init(TLiveManager* manager)
