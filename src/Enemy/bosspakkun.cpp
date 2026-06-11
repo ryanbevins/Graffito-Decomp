@@ -410,6 +410,34 @@ DEFINE_NERVE(TNerveBPTakeOff, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveBPTouchDown, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0)
+		boss->changeBck(0x0B);
+
+	if (actor->checkCurBckFromIndex(0x0B)) {
+		boss->mPosition.y -= 5.0f;
+
+		JGeometry::TVec3<f32> point = boss->unk104.getPoint();
+		if (point.y > boss->mPosition.y) {
+			boss->mPosition.y = point.y;
+			boss->changeBck(0x12);
+			boss->offLiveFlag(LIVE_FLAG_UNK10);
+		}
+	}
+
+	if (actor->checkCurBckFromIndex(0x12)
+	    && actor->curAnmEndsNext(0, nullptr)) {
+		spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 TBossPakkunParams::TBossPakkunParams(const char* path)
     : TSpineEnemyParams(path)
     , PARAM_INIT(mSLWaitFrameStg0, 400)
