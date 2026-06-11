@@ -395,6 +395,59 @@ static inline TBossEelEye* getBossEelEye(TBossEel* eel, int index)
 	return *(TBossEelEye**)((u8*)eel + 0x15C + index * 4);
 }
 
+void TBossEel::collideToMario()
+{
+	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
+	JGeometry::TVec3<f32> correction;
+	correction.zero();
+
+	for (int i = 0; i < 2; ++i) {
+		u16 jointIndex = *(u16*)((u8*)this + 0x1A0 + i * 2);
+		MtxPtr mtx     = mMActor->getModel()->mNodeMatrices[jointIndex];
+
+		JGeometry::TVec3<f32> normal;
+		normal.x = mtx[0][1];
+		normal.y = mtx[1][1];
+		normal.z = mtx[2][1];
+		if (i == 0)
+			normal.scale(-1.0f);
+		normal.normalize();
+
+		JGeometry::TVec3<f32> jointPos;
+		jointPos.x = mtx[0][3];
+		jointPos.y = mtx[1][3];
+		jointPos.z = mtx[2][3];
+
+		JGeometry::TVec3<f32> delta;
+		delta.x = marioPos.x - jointPos.x;
+		delta.y = marioPos.y - jointPos.y;
+		delta.z = marioPos.z - jointPos.z;
+
+		f32 dist = delta.length();
+		if (dist == 0.0f || dist >= unk1D4)
+			continue;
+
+		f32 dot = delta.dot(normal);
+		if (dot >= 0.0f)
+			continue;
+
+		JGeometry::TVec3<f32> localCorrection;
+		f32 penetration = unk1D4 - dist;
+		if (-dot < penetration) {
+			localCorrection = normal;
+			localCorrection.scale(-dot);
+		} else {
+			localCorrection.normalize(delta);
+			localCorrection.scale(penetration);
+		}
+
+		correction.add(localCorrection);
+	}
+
+	marioPos.add(correction);
+	SMS_MarioMoveRequest(marioPos);
+}
+
 #define START_BOSS_EEL_EYE_CLOSE(eye)                                         \
 	do {                                                                       \
 		TBossEelEye* closeEye          = (eye);                                \

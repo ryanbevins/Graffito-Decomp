@@ -31,6 +31,7 @@ public:
 	virtual const char** getBasNameTable() const;
 
 	bool isInBossEelMoguDemo();
+	void collideToMario();
 	void forceShedTears(bool);
 	void shedTears(MtxPtr);
 	void updateTearsCnt();
