@@ -501,9 +501,36 @@ void TBossTelesa::damageRecover()
 
 void TBossTelesa::setSpicy(TLiveActor* actor)
 {
-	if (actor)
-		actor->onLiveFlag(LIVE_FLAG_UNK200);
-	unk35C = 1;
+	if (mSpine->getCurrentNerve() == &TNerveBossTelesaSpitSlotItem::theNerve())
+		return;
+	if (mMActor->checkCurBckFromIndex(1))
+		return;
+
+	unk350 = 1;
+	unk36C = 0;
+	unk164 = mMActor->getCurAnmIdx(0);
+	unk160 = 1;
+	unk168 = 1.0f;
+
+	J3DAnmTransform* oldAnm = nullptr;
+	if (mMActor->unkC)
+		oldAnm = mMActor->unkC->unk24;
+	if (mMActor->unkC)
+		mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+	mMActor->setBckFromIndex(1);
+	if (mMActor->unkC)
+		mMActor->unkC->setMotionBlendRatio(unk168);
+
+	const char** basTable = getBasNameTable();
+	setAnmSound(basTable ? basTable[1] : nullptr);
+
+	if (unk35B) {
+		unk35B = 0;
+		gpMarDirector->mConsole->startAppearBalloon(0xE0011, true);
+	}
+
+	actor->kill();
 }
 
 void TBossTelesa::checkHitObject(THitActor* actor)
