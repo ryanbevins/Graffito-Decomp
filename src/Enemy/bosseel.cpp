@@ -1,11 +1,13 @@
 #include <Enemy/BossEel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/MtxUtil.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <Map/Map.hpp>
@@ -43,6 +45,11 @@ static const char* MtxCalcTypeName[] = {
 };
 static const f32 dummy2933[3] = { 0.0f, 0.0f, 0.0f };
 static const f32 dummy2935[3] = { 1.0f, 1.0f, 1.0f };
+
+static inline void setEffectMtxOnTex1(J3DMaterial* mat, MtxPtr mtx)
+{
+	mat->getTexGenBlock()->getTexMtx(1)->setEffectMtx(mtx);
+}
 
 f32 TBossEel::mOpenRollSpeed = 0.3f;
 u8 TBossEel::mUseObjCollision = TRUE;
@@ -399,6 +406,46 @@ void TBEelTears::setMActorAndKeeper()
 	mMActorKeeper = new TMActorKeeper(mManager, 2);
 	mMActor       = mMActorKeeper->createMActor("tears.bmd", 0);
 	mMActorKeeper->createMActor("tears_waterhit.bmd", 0);
+}
+
+void TBEelTears::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	unk16C->perform(flags, graphics);
+
+	if (mLiveFlag & LIVE_FLAG_DEAD)
+		return;
+
+	if (flags & 1)
+		moveObject();
+
+	u32 calcFlags = flags & 2;
+	if (calcFlags) {
+		Mtx mtx;
+		SMS_GetLightPerspectiveForEffectMtx(mtx);
+		setEffectMtxOnTex1(
+		    mMActor->getModel()->getModelData()->getMaterialNodePointer(0),
+		    mtx);
+		updateAnmSound();
+	}
+
+	if (calcFlags)
+		mMActor->frameUpdate();
+
+	if (mLiveFlag & (LIVE_FLAG_HIDDEN | LIVE_FLAG_CLIPPED_OUT))
+		return;
+
+	if (calcFlags) {
+		calcRootMatrix();
+		mMActor->calc();
+	}
+
+	if (flags & 4)
+		mMActor->viewCalc();
+
+	if (flags & 0x200)
+		mMActor->entry();
+
+	THitActor::perform(flags, graphics);
 }
 
 void TBEelTearsDrop::perform(u32 flags, JDrama::TGraphics* graphics)

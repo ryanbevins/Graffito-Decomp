@@ -153,6 +153,7 @@ public:
 class TBEelTears : public TSpineEnemy {
 public:
 	TBEelTears(const char*);
+	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void kill();
 	virtual const char** getBasNameTable() const;
 	virtual void reset();
