@@ -791,6 +791,7 @@ void TBossTelesa::generateSlotItem()
 
 			Mtx rot;
 			Vec dir;
+			Vec normalizedDir;
 			dir.x = 0.0f;
 			dir.y = 0.0f;
 			dir.z = 200.0f;
@@ -812,7 +813,7 @@ void TBossTelesa::generateSlotItem()
 			}
 
 			PSMTXMultVec(rot, &dir, &dir);
-			MsVECNormalize(&dir, &dir);
+			MsVECNormalize(&dir, &normalizedDir);
 
 			TMapObjBase* actor;
 			if (i == 0 || i == 4)
@@ -829,17 +830,17 @@ void TBossTelesa::generateSlotItem()
 				actor->makeObjAppeared();
 				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
 
-				velocity.x = dir.x
+				velocity.x = normalizedDir.x
 				    * (minSpeed + range * (rand() * 0.000030517578f));
 				velocity.y = -2.0f;
-				velocity.z = dir.z
+				velocity.z = normalizedDir.z
 				    * (minSpeed + range * (rand() * 0.000030517578f));
 				if (i == 0) {
-					velocity.x = dir.x
+					velocity.x = normalizedDir.x
 					    * (minSpeed
 					       + range * (rand() * 0.000030517578f))
 					    * 2.0f;
-					velocity.z = dir.z
+					velocity.z = normalizedDir.z
 					    * (minSpeed
 					       + range * (rand() * 0.000030517578f))
 					    * 2.0f;
@@ -852,10 +853,10 @@ void TBossTelesa::generateSlotItem()
 				actor->makeObjAppeared();
 				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
 
-				velocity.x = dir.x
+				velocity.x = normalizedDir.x
 				    * (minSpeed + range * (rand() * 0.000030517578f));
 				velocity.y = -2.0f;
-				velocity.z = dir.z
+				velocity.z = normalizedDir.z
 				    * (minSpeed + range * (rand() * 0.000030517578f));
 
 				actor->mVelocity = velocity;
