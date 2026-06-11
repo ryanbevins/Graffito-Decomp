@@ -2,6 +2,7 @@
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
 #include <Enemy/Walker.hpp>
+#include <Camera/CameraShake.hpp>
 #include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JMath.hpp>
@@ -180,6 +181,28 @@ DEFINE_NERVE(TNerveBPSwing, TLiveActor)
 
 	if (actor->curAnmEndsNext(0, nullptr))
 		return TRUE;
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBPGetUp, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0) {
+		boss->changeBck(0x0E);
+		gpCameraShake->startShake((EnumCamShakeMode)0x10, 1.0f);
+		boss->rumblePad(0, boss->mPosition);
+	}
+
+	if (actor->curAnmEndsNext(0, nullptr)) {
+		if (actor->checkCurBckFromIndex(0x0E)) {
+			boss->changeBck(0x13);
+		} else {
+			return TRUE;
+		}
+	}
+
 	return FALSE;
 }
 
@@ -496,8 +519,33 @@ void TBossPakkun::showMessage(u32 message)
 
 void TBossPakkun::rumblePad(int param_1, const JGeometry::TVec3<f32>& pos)
 {
-	if (SMSRumbleMgr != nullptr)
-		SMSRumbleMgr->start(param_1, (Vec*)&pos);
+	if (!SMS_IsMarioTouchGround4cm())
+		return;
+
+	JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
+	delta -= pos;
+	f32 distance = delta.length();
+	f32 strength = (3000.0f - distance) / 1000.0f;
+
+	if (strength < 0.0f)
+		return;
+
+	if (strength > 1.0f)
+		strength = 1.0f;
+
+	switch (param_1) {
+	case 0:
+		strength *= 0.4f;
+		break;
+	case 1:
+		strength *= 0.7f;
+		break;
+	case 2:
+		break;
+	}
+
+	unk1C8 = strength;
+	SMSRumbleMgr->start(8, &unk1C8);
 }
 
 BOOL TBossPakkun::checkMarioRiding()

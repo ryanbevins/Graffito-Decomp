@@ -183,7 +183,8 @@ public:
 	/* 0x1BD */ u8 unk1BD[0x3];
 	/* 0x1C0 */ s32 unk1C0;
 	/* 0x1C4 */ u8 unk1C4;
-	/* 0x1C5 */ u8 unk1C5[0x7];
+	/* 0x1C5 */ u8 unk1C5[0x3];
+	/* 0x1C8 */ f32 unk1C8;
 	/* 0x1CC */ u8 unk1CC;
 };
 
