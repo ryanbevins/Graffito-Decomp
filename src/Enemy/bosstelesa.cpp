@@ -1,12 +1,17 @@
 #include <Enemy/BossTelesa.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/HamuKuri.hpp>
+#include <Enemy/Telesa.hpp>
 #include <GC2D/GCConsole2.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JUtility/JUTTexture.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/ScreenUtil.hpp>
+#include <MarioUtil/TexUtil.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/Item.hpp>
@@ -802,10 +807,16 @@ MtxPtr TBubble::getTakingMtx() { return mMActor->unk4->unk20; }
 void TBubble::init(TLiveManager* manager)
 {
 	TWalkerEnemy::init(manager);
-	unk194     = (TBubbleSaveLoadParams*)getSaveParam();
 	mActorType = 0x10000020;
-	if (mSpine)
-		mSpine->initWith(&TNerveBubbleLive::theNerve());
+	unk150     = 0x11;
+	unk194     = (TBubbleSaveLoadParams*)getSaveParam();
+	mSpine->initWith(&TNerveBubbleLive::theNerve());
+	mMActor->setLightType(3);
+
+	TScreenTexture* tex
+	    = JDrama::TNameRefGen::search<TScreenTexture>("スクリーンテクスチャ");
+	SMS_ChangeTextureAll(mMActor->getModel()->getModelData(), "H_ma_rak_dummy",
+	                     *tex->getTexture()->getTexInfo());
 }
 
 void TBubble::calcRootMatrix()
@@ -899,10 +910,48 @@ void TBubble::attackToMario()
 
 void TBubble::appendEnemy()
 {
-	TConductor* conductor
-	    = JDrama::TNameRefGen::search<TConductor>("TConductor");
-	if (conductor)
-		conductor->makeOneEnemyAppear(mPosition, "パブル", 1);
+	unk198 = nullptr;
+
+	f32 min = 0.0f;
+	f32 max = 100.0f;
+	f32 range = max - min;
+	f32 randValue = rand() * 0.000030517578f;
+	randValue *= range;
+	randValue += min;
+
+	TSmallEnemy* enemy;
+	if (randValue < 50.0f) {
+		enemy = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
+		    mPosition, "ポポマネージャー", 1);
+		enemy->unk154 = 0.6f;
+		enemy->reset();
+	} else if (randValue < 100.0f) {
+		enemy = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
+		    mPosition, "ボム兵マネージャー", 1);
+		enemy->unk154 = 0.3f;
+		enemy->reset();
+	} else if (randValue < 150.0f) {
+		enemy = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
+		    mPosition, "テレサマネージャー", 1);
+		if (!enemy)
+			return;
+		enemy->unk154 = 0.6f;
+		enemy->reset();
+		((TTelesa*)enemy)->setAttacker();
+	} else {
+		enemy = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
+		    mPosition, "パックンマネージャー", 1);
+		enemy->unk154 = 0.6f;
+		enemy->reset();
+	}
+
+	if (enemy && enemy->receiveMessage(this, HIT_MESSAGE_TAKE)) {
+		enemy->onHitFlag(HIT_FLAG_UNK8000000);
+		mHeldObject = enemy;
+		enemy->mVelocity.set(0.0f, 1.0f, -1.0f);
+		enemy->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		unk198 = enemy;
+	}
 }
 
 void TBubble::split()
@@ -1075,18 +1124,84 @@ DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
 DEFINE_NERVE(TNerveBubbleSplit, TLiveActor)
 {
 	TBubble* bubble = getBubble(spine);
-	if (spine->getTime() == 0)
+	if (spine->getTime() == 0) {
+		bubble->onHitFlag(HIT_FLAG_NO_COLLISION);
 		bubble->split();
-	return TRUE;
+	}
+
+	if (spine->getTime() == 10)
+		bubble->setBckAnm(9);
+
+	if (bubble->checkCurAnmEnd(0) && bubble->mMActor->checkCurBckFromIndex(9)) {
+		bubble->unk1D2 = 0;
+		bubble->kill();
+	}
+
+	return FALSE;
 }
 
 DEFINE_NERVE(TNerveBubbleLive, TLiveActor)
 {
 	TBubble* bubble = getBubble(spine);
-	if (bubble->unk194
-	    && spine->getTime() > bubble->unk194->mSLLiveTime.get()) {
+	if (spine->getTime() == 0) {
+		bubble->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+		if (bubble->unk1D0) {
+			bubble->setBckAnm(10);
+			bubble->setGoalPathMario();
+
+			f32 min = 0.0f;
+			f32 max = 20.0f;
+			f32 range = max - min;
+			f32 randValue = rand() * 0.000030517578f;
+			randValue *= range;
+			randValue += min;
+			bubble->mMActor->getFrameCtrl(0)->setFrame(randValue);
+			bubble->onLiveFlag(LIVE_FLAG_UNK8);
+		} else {
+			bubble->setBckAnm(8);
+		}
+	} else if (bubble->checkCurAnmEnd(0)) {
+		bubble->offHitFlag(HIT_FLAG_NO_COLLISION);
+		bubble->setBckAnm(10);
+	}
+
+	if (!bubble->unk1D0) {
+		if (bubble->unk1CC < bubble->unk194->mSLAddPosBase.get())
+			bubble->unk1CC += 1.0f;
+	} else {
+		if (spine->getTime() > 40 && bubble->unk1D1) {
+			JGeometry::TVec3<f32> velocity = bubble->mVelocity;
+			velocity.scale(0.98f);
+			bubble->mVelocity = velocity;
+		} else {
+			bubble->walkBehavior(0, 0.8f);
+		}
+
+		if (spine->getTime() == 80) {
+			bubble->unk1D1 = 0;
+			bubble->mVelocity.set(0.0f, 0.0f, 0.0f);
+		}
+	}
+
+	bubble->unk1CC += 0.001f;
+	if (bubble->unk1CC
+	    > bubble->mPosition.y + bubble->unk194->mSLDeadHeight.get()) {
+		bubble->unk1D2 = 0;
 		bubble->kill();
+	}
+
+	if (bubble->mScaling.x < bubble->unk194->mSLMaxScale.get()) {
+		f32 scale = bubble->mScaling.z * bubble->unk194->mSLRateExpand.get();
+		bubble->mScaling.z = scale;
+		bubble->mScaling.y = scale;
+		bubble->mScaling.x = scale;
+	}
+
+	if (spine->getTime() > bubble->unk194->mSLLiveTime.get()) {
+		spine->pushAfterCurrent(&TNerveBubbleSplit::theNerve());
 		return TRUE;
 	}
+
 	return FALSE;
 }
