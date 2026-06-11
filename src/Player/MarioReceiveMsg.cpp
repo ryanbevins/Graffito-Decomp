@@ -843,31 +843,37 @@ check_sender_bit3:
 
 		case 0x08000013: // NPC interaction (talk)
 		{
-			if (message == 8) {
-				if (message == 8) {
-					switch (message) {
-					case 4:
-						// Take
-						if (*(u32*)((u8*)this + 0x6C) != 0) return 0;
-						if (*(u32*)((u8*)this + 0x68) != 0) return 0;
-						unk384 = (THitActor*)sender;
-						changePlayerStatus(0x0C400201, 0, false);
-						return 1;
-					case 8:
-						// Release
-						if (checkFlag(0x1000)) {
-							changePlayerStatus(0x891, 0, true);
-						} else {
-							changePlayerStatus(0x0C400201, 0, false);
-						}
-						*(u32*)((u8*)this + 0x68) = 0;
-						return 1;
-					default:
-						return 0;
-					}
+			switch (message) {
+			case 4:
+				if (*(u32*)((u8*)this + 0x6C) != 0) return 0;
+				if (*(u32*)((u8*)this + 0x68) != 0) return 0;
+				mHolder = (TTakeActor*)sender;
+				changePlayerStatus(0x0C400201, 0, false);
+				return 1;
+			case 8:
+				if (checkFlag(0x1000)) {
+					changePlayerStatus(0x891, 0, true);
+				} else {
+					changePlayerStatus(0x0C400201, 0, false);
 				}
+				*(u32*)((u8*)this + 0x68) = 0;
+				return 1;
+			case 0x0E:
+				if (!isInvincible()) {
+					damageExec(sender,
+					           mDmgParamsBGTentacle.mDamage.get(),
+					           mDmgParamsBGTentacle.mDownType.get(),
+					           mDmgParamsBGTentacle.mWaterEmit.get(),
+					           mDmgParamsBGTentacle.mMinSpeed.get(),
+					           mDmgParamsBGTentacle.mMotor.get(),
+					           mDmgParamsBGTentacle.mDirty.get(),
+					           mDmgParamsBGTentacle.mInvincibleTime.get());
+					return 1;
+				}
+				return 0;
+			default:
+				return 0;
 			}
-			return 0;
 		}
 
 		case 0x08000001: // Basic enemy contact/damage
