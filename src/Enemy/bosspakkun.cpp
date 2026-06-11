@@ -311,12 +311,27 @@ void TBossPakkun::changeBck(int index)
 		}
 
 		f32 blendFrames = 60.0f;
-		if ((curBck == 0x19 && (index == 0x15 || index == 0x1A))
-		    || (curBck == 0x12 && index == 0x19)
-		    || (curBck == 0x02 && index == 0x19)
-		    || (curBck == 0x14 && index == 0x19)
-		    || (curBck == 0x1A && index == 0x16))
-			blendFrames = getBossPakkunSaveParam()->mSLAnmBlendTime0.value;
+		if (curBck == 0x19) {
+			if (index == 0x15 || index == 0x1A)
+				blendFrames
+				    = getBossPakkunSaveParam()->mSLAnmBlendTime0.value;
+		} else if (curBck == 0x12) {
+			if (index == 0x19)
+				blendFrames
+				    = getBossPakkunSaveParam()->mSLAnmBlendTime0.value;
+		} else if (curBck == 0x02) {
+			if (index == 0x19)
+				blendFrames
+				    = getBossPakkunSaveParam()->mSLAnmBlendTime0.value;
+		} else if (curBck == 0x14) {
+			if (index == 0x19)
+				blendFrames
+				    = getBossPakkunSaveParam()->mSLAnmBlendTime0.value;
+		} else if (curBck == 0x1A) {
+			if (index == 0x16)
+				blendFrames
+				    = getBossPakkunSaveParam()->mSLAnmBlendTime0.value;
+		}
 
 		if (blendFrames < 1.0f) {
 			J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::ANM_TYPE_BCK);
