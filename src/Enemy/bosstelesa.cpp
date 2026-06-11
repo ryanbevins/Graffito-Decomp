@@ -795,6 +795,12 @@ void TBossTelesa::generateSlotItem()
 			dir.y = 0.0f;
 			dir.z = 200.0f;
 
+			f32 fruitAngleStep = 160.0f / numFruit;
+			MsMtxSetRotRPH(rot, mRotation.x,
+			               mRotation.y - angleOffset
+			                   + fruitAngleStep * angleIndex,
+			               mRotation.z);
+
 			if (numFruit > 0) {
 				angleIndex += i;
 				while (angleIndex >= numFruit)
@@ -805,10 +811,6 @@ void TBossTelesa::generateSlotItem()
 				angleIndex = 0;
 			}
 
-			MsMtxSetRotRPH(rot, mRotation.x,
-			               mRotation.y - angleOffset
-			                   + angleStep * angleIndex,
-			               mRotation.z);
 			PSMTXMultVec(rot, &dir, &dir);
 			MsVECNormalize(&dir, &dir);
 
@@ -861,6 +863,8 @@ void TBossTelesa::generateSlotItem()
 		else
 			unk370 = 0;
 
+		f32 itemAngleStep   = 120.0f / numItems;
+		f32 itemAngleOffset = numItems * 0.5f;
 		for (int i = 0; i < numItems; ++i) {
 			if (i >= 10)
 				return;
@@ -871,7 +875,8 @@ void TBossTelesa::generateSlotItem()
 			dir.y = 0.0f;
 			dir.z = 250.0f;
 			MsMtxSetRotRPH(rot, mRotation.x,
-			               mRotation.y - angleOffset + angleStep * i,
+			               mRotation.y - itemAngleOffset
+			                   + itemAngleStep * i,
 			               mRotation.z);
 			PSMTXMultVec(rot, &dir, &dir);
 			MsVECNormalize(&dir, &dir);
