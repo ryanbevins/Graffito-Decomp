@@ -337,7 +337,7 @@ config.libs = [
 
             # JKernel
             Object(NonMatching, "JSystem/JKernel/JKRArchivePri.cpp"),
-            Object(NonMatching, "JSystem/JKernel/JKRAramArchive.cpp"),
+            Object(Equivalent, "JSystem/JKernel/JKRAramArchive.cpp"),
             Object(Matching, "JSystem/JKernel/JKRAramHeap.cpp"),
             Object(NonMatching, "JSystem/JKernel/JKRAram.cpp"),
             Object(NonMatching, "JSystem/JKernel/JKRArchivePub.cpp"),
