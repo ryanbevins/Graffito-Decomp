@@ -797,27 +797,6 @@ check_sender_bit3:
 		u32 aType = sender->mActorType;
 
 		switch (aType) {
-		case 0x080000C0: // Water surface contact
-		{
-			if (mAction == 0x1336)
-				return 0;
-			if (message != 4)
-				return 0;
-
-			mHolder = (TTakeActor*)sender;
-			// Check state flag for grounded
-			if (!(mAction & 0x800)) {
-				setAnimation(77, 0.0f);
-				J3DFrameCtrl& ctrl = getMotionFrameCtrl();
-				s16 frameAngle = *(s16*)((u8*)&ctrl + 8);
-				getMotionFrameCtrl();
-				// Convert s16 to float and set
-				// ... complex frame setting
-			}
-			changePlayerDropping(0x1336, 0);
-			return 1;
-		}
-
 		case 0x08000013: // NPC interaction (talk)
 		{
 			switch (message) {
@@ -1183,6 +1162,27 @@ check_sender_bit3:
 		case 0x40000033:
 		case 0x40000246:
 			return 0;
+
+		case 0x080000C0: // Water surface contact
+		{
+			if (mAction == 0x1336)
+				return 0;
+			if (message != 4)
+				return 0;
+
+			mHolder = (TTakeActor*)sender;
+			// Check state flag for grounded
+			if (!(mAction & 0x800)) {
+				setAnimation(77, 0.0f);
+				J3DFrameCtrl& ctrl = getMotionFrameCtrl();
+				s16 frameAngle = *(s16*)((u8*)&ctrl + 8);
+				getMotionFrameCtrl();
+				// Convert s16 to float and set
+				// ... complex frame setting
+			}
+			changePlayerDropping(0x1336, 0);
+			return 1;
+		}
 
 		case 0x4000009C:
 		case 0x400000A5:
