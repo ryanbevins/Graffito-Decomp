@@ -8,6 +8,7 @@
 class TLiveActor;
 class TBEelTearsDrop;
 class SDLModelData;
+class TSharedParts;
 
 struct TBossEelUnk1EC {
 	s32 unk0;
@@ -184,7 +185,7 @@ public:
 	TBEelTearsDrop(TBEelTears*, int, SDLModelData*, const char*);
 	virtual void perform(u32, JDrama::TGraphics*);
 
-	/* 0x068 */ void* unk68;
+	/* 0x068 */ TSharedParts* unk68;
 	/* 0x06C */ u8 unk6C;
 	/* 0x06D */ u8 unk6D[0x3];
 	/* 0x070 */ f32 unk70;

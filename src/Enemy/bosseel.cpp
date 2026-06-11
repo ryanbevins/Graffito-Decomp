@@ -1,12 +1,20 @@
 #include <Enemy/BossEel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
+#include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/ScreenUtil.hpp>
+#include <MarioUtil/TexUtil.hpp>
 #include <Map/Map.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
+#include <Strategic/SharedParts.hpp>
 #include <Strategic/Spine.hpp>
+#include <Strategic/Strategy.hpp>
 #include <System/Particles.hpp>
 
 // rogue includes needed for matching sinit
@@ -73,6 +81,8 @@ static const char* bossEelTears_bastable[] = {
 	nullptr,
 	nullptr,
 };
+
+static const char cDummyTextureName[] = "M_dummy";
 
 DEFINE_NERVE(TNerveBEelTearsMoveUp, TLiveActor)
 {
@@ -383,3 +393,63 @@ void TOilBall::load(JSUMemoryInputStream& stream)
 }
 
 void TOilBall::calcRootMatrix() { TSpineEnemy::calcRootMatrix(); }
+
+void TBEelTearsDrop::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	THitActor::perform(flags, graphics);
+
+	if (flags & 1) {
+		mPosition.y += unk70;
+		if (mPosition.y > gpMarioPos->y + 2000.0f)
+			unk6C = FALSE;
+	}
+
+	if (flags & 2) {
+		Mtx mtx;
+		MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z,
+		               mRotation.x, mRotation.y, mRotation.z);
+
+		MActor* actor = unk68->getMActor();
+		PSMTXCopy(mtx, actor->getModel()->getBaseTRMtx());
+
+		f32 scale = unk74->unk15C->mSLTearsDropScaleLow.get();
+		mScaling.x = scale;
+		mScaling.y = scale;
+		mScaling.z = scale;
+		actor->getModel()->setBaseScale(mScaling);
+	}
+
+	unk68->getMActor()->perform(flags, graphics);
+}
+
+TBEelTearsDrop::TBEelTearsDrop(TBEelTears* tears, int index,
+                               SDLModelData* model_data, const char* name)
+    : THitActor(name)
+    , unk68(nullptr)
+    , unk74(tears)
+{
+	unk68 = new TSharedParts(tears, index, model_data, 0, "<TSharedParts>");
+
+	TBEelTearsSaveLoadParams* params = tears->unk15C;
+	initHitActor(0x2000002c, 3, 0x80000000,
+	             params->mSLTearsDropAttackRadius.get(),
+	             params->mSLTearsDropAttackHeight.get(),
+	             params->mSLTearsDropDamageRadius.get(),
+	             params->mSLTearsDropDamageHeight.get());
+
+	TIdxGroupObj* group = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	JGadget::TList_pointer_void* list
+	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
+	list->insert(list->end(), this);
+	unk6C = FALSE;
+
+	TScreenTexture* texture
+	    = JDrama::TNameRefGen::search<TScreenTexture>("スクリーンテクスチャ");
+	new J3DSkinDeform;
+
+	MActor* actor = unk68->getMActor();
+	SMS_ChangeTextureAll(actor->getModel()->getModelData(), cDummyTextureName,
+	                     *texture->getTexture()->getTexInfo());
+	actor->setBckFromIndex(0);
+	actor->setLightType(3);
+}
