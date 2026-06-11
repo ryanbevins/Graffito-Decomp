@@ -156,6 +156,7 @@ public:
 	virtual void kill();
 	virtual const char** getBasNameTable() const;
 	virtual void reset();
+	virtual void setMActorAndKeeper();
 
 	/* 0x150 */ JGeometry::TVec3<f32> unk150;
 	/* 0x15C */ TBEelTearsSaveLoadParams* unk15C;

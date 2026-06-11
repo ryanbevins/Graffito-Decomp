@@ -394,6 +394,13 @@ void TOilBall::load(JSUMemoryInputStream& stream)
 
 void TOilBall::calcRootMatrix() { TSpineEnemy::calcRootMatrix(); }
 
+void TBEelTears::setMActorAndKeeper()
+{
+	mMActorKeeper = new TMActorKeeper(mManager, 2);
+	mMActor       = mMActorKeeper->createMActor("tears.bmd", 0);
+	mMActorKeeper->createMActor("tears_waterhit.bmd", 0);
+}
+
 void TBEelTearsDrop::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	THitActor::perform(flags, graphics);
