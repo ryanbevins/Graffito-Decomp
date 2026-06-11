@@ -5638,6 +5638,28 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Infectious MtxCalc rodata may be followed by const zero/one `f32[3]` vectors in some TParams TUs
+
+**Hypothesis.** Some TUs that include the full `M3DUtil/InfectiousStrings.hpp`
+rodata cluster also need two file-scope `static const f32[3]` arrays after the
+MtxCalc type-name strings and before later TU-local strings: `{0,0,0}` then
+`{1,1,1}`. If they are absent, later static strings move 0x18 bytes earlier,
+which can make otherwise correct TParams constructors nonmatching only because
+their rodata base-register offsets differ.
+
+**Observed.** `mario/Enemy/BathtubPeach` (2026-06-11 MNL): original rodata has
+12 bytes of zero floats and 12 bytes of one floats between the MtxCalc strings
+and `"/scene/bathtubpeach/bas/peach_wait.bas"`. Adding TU-local
+`dummy2850`/`dummy2852` const arrays at that point moved parameter strings from
+base offsets `0x130/0x148/...` to the target `0x148/0x160/...`, matching
+`TBathtubPeachManager::load` and the `.rodata`/`.ctors` objects.
+
+**Experiment to confirm/refute.** Inspect another TParams-heavy TU with
+`InfectiousStrings.hpp` where the original asm shows an extra `{0,0,0}` /
+`{1,1,1}` pair before later strings. Add the same const arrays and verify that
+only rodata offsets and dependent constructor operands move, without requiring
+source-level behavior changes.
+
 ### Switch-assigned locals can intentionally skip default initialization and force saved-GPR coloring
 
 **Hypothesis.** When target asm stores `this` in one callee-saved GPR and uses
