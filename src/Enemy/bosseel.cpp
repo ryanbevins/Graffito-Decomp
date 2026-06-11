@@ -1,3 +1,4 @@
+#include <Camera/CameraShake.hpp>
 #include <Enemy/BossEel.hpp>
 #include <Enemy/Conductor.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
@@ -1782,6 +1783,66 @@ TBEelTearsDrop::TBEelTearsDrop(TBEelTears* tears, int index,
 	                     *texture->getTexture()->getTexInfo());
 	actor->setBckFromIndex(0);
 	actor->setLightType(3);
+}
+
+static BOOL ExecBackNerve_Sub(TSpineBase<TLiveActor>* spine, f32)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	if (spine->getTime() == 1) {
+		playBossEelSound(0x8923, &eel->mPosition);
+
+		if (eel->unk1FD) {
+			eel->unk1FD = FALSE;
+			START_BOSS_EEL_BCK(eel, 6);
+			gpCameraShake->startShake((EnumCamShakeMode)0x1a, 1.0f);
+		} else {
+			START_BOSS_EEL_BCK(eel, 9);
+		}
+	}
+
+	J3DFrameCtrl* frameCtrl = eel->mMActor->getFrameCtrl(0);
+	f32 frameEnd           = frameCtrl->getEnd() * 2;
+	eel->unk1F4 -= eel->unk1E8->mSLAppearMoveDistY.value / frameEnd;
+
+	if (eel->unk1F4 < 0.0f) {
+		eel->unk1F4 = 0.0f;
+		if (eel->checkCurAnmEnd(0)) {
+			eel->unk1F0 = FALSE;
+			spine->pushAfterCurrent(&TNerveBossEelSecondSpin::theNerve());
+			if (eel->mMActor->checkCurBckFromIndex(6))
+				spine->pushAfterCurrent(
+				    &TNerveBossEelSleepOnBottom::theNerve());
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBossEelSlowBack, TLiveActor)
+{
+	return ExecBackNerve_Sub(spine, 10.0f);
+}
+
+DEFINE_NERVE(TNerveBossEelQuickBack, TLiveActor)
+{
+	if (ExecBackNerve_Sub(spine, 40.0f)) {
+		TBossEel* eel = (TBossEel*)spine->getBody();
+		TBossEelTooth** teeth = (TBossEelTooth**)((u8*)eel + 0x16C);
+
+		for (int i = 0; i < 8; ++i) {
+			TBossEelTooth* tooth = teeth[i];
+			if (tooth && tooth->unk70 > 1) {
+				tooth->unk70 = tooth->unk6C->unk1E8->mSLToothMaxHitPoint.value;
+				tooth->unkB8.a = 0xff;
+			}
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 DEFINE_NERVE(TNerveBossEelSleepOnBottom, TLiveActor)
