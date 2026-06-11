@@ -748,6 +748,50 @@ void TOilBall::reset()
 	unk160 = FALSE;
 }
 
+void TOilBall::moveObject()
+{
+	TBEelTearsSaveLoadParams* params = unk15C;
+	f32 scale                       = mScaling.x;
+	mAttackRadius  = params->mSLTearsAttackRadius.get() * scale;
+	mAttackHeight  = params->mSLTearsAttackHeight.get() * scale;
+	mDamageRadius  = params->mSLTearsDamageRadius.get() * scale;
+	mDamageHeight  = params->mSLTearsDamageHeight.get() * scale;
+	calcEntryRadius();
+
+	for (int i = 0; i < mColCount; ++i) {
+		THitActor* hitActor = mCollisions[i];
+
+		if (hitActor->isActorTypeOf(ACTOR_TYPE_PLAYER)) {
+			if (mSpine->getCurrentNerve() == &TNerveBEelTearsMoveUp::theNerve()
+			    || mSpine->getCurrentNerve() == &TNerveOilBallStay::theNerve()) {
+				SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
+				mSpine->pushNerve(&TNerveBEelTearsSplit::theNerve());
+			}
+		} else {
+			JGeometry::TVec3<f32> velocity;
+			velocity.zero();
+
+			JGeometry::TVec3<f32> direction;
+			direction.x = mPosition.x - hitActor->mPosition.x;
+			direction.y = mPosition.y - hitActor->mPosition.y;
+			direction.z = mPosition.z - hitActor->mPosition.z;
+
+			if (direction.x == 0.0f && direction.y == 0.0f
+			    && direction.z == 0.0f)
+				direction.x += 1.0f;
+
+			MsVECNormalize(&direction, &direction);
+			direction.x *= 5.0f;
+			direction.y *= 5.0f;
+			direction.z *= 5.0f;
+			velocity.add(direction);
+			mLinearVelocity = velocity;
+		}
+	}
+
+	TLiveActor::moveObject();
+}
+
 void TBEelTears::setMActorAndKeeper()
 {
 	mMActorKeeper = new TMActorKeeper(mManager, 2);
