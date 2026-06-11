@@ -485,21 +485,40 @@ BOOL TTelesaSlot::isRollDrum()
 
 void TTelesaSlot::forceStopSlot(int idx)
 {
-	if (idx < 0 || idx >= 3)
-		return;
 	if (!unk19C)
 		return;
 
-	*(&unk198 + idx) = 0;
-	*(&unk1A8 + idx) = 1;
-	unk138[idx]      = unk160;
+	f32 min = 0.0f;
+	f32 max = 1.0f;
 
-	if (!isRollDrum()) {
-		unk19C = 0;
-		unk19B = 0;
-		if (getSlotOwner(this))
-			getSlotOwner(this)->generateSlotItem();
+	TBossTelesa* owner                = getSlotOwner(this);
+	TBossTelesaSaveLoadParams* params = (TBossTelesaSaveLoadParams*)owner->unk15C;
+	f32 collectRate                  = params->mSLSlotFirstHitCollectRate.get();
+
+	if (SMS_GetMarioHP() == 1)
+		collectRate = 0.9f;
+
+	if (min + (max - min) * (rand() * 0.000030517578f) <= collectRate) {
+		unk1A4 = 2;
+		if (SMS_GetMarioHP() <= 3)
+			unk1A4 = 0;
+		*(&unk1A8 + idx) = 1;
+	} else {
+		unk1A4           = getForcastResult(idx);
+		*(&unk198 + idx) = 0;
 	}
+
+	if (unk1A4 == owner->unk1A8)
+		unk1A4 = 3;
+
+	if (unk1A4 == 0) {
+		if (owner->unk370 == 0)
+			unk1A4 = 1;
+		else if (SMS_GetMarioHP() >= 6)
+			unk1A4 = 3;
+	}
+
+	unk19C = 0;
 }
 
 u32 TTelesaSlot::touchWater(THitActor*) { return FALSE; }
