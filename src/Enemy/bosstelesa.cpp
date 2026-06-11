@@ -3,6 +3,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <Strategic/ObjManager.hpp>
@@ -114,16 +115,20 @@ void TBossTelesa::loadAfter() { JDrama::TNameRef::loadAfter(); }
 
 void TBossTelesa::perform(u32 flags, JDrama::TGraphics* gfx)
 {
+	if ((flags & 0x200) && !(mLiveFlag & (LIVE_FLAG_DEAD | LIVE_FLAG_CLIPPED_OUT))) {
+		if (mSpine->getCurrentNerve() == &TNerveBossTelesaDie::theNerve()
+		    && unk350) {
+			mMActor->offMakeDL();
+			SMS_AddDamageFogEffect(mMActor->unk4->mModelData, mPosition, gfx);
+		}
+	}
+
+	offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
 	TSpineEnemy::perform(flags, gfx);
 
-	if (unk16C)
-		unk16C->perform(flags, gfx);
-	if (unk170)
-		unk170->perform(flags, gfx);
-	if (unk174)
-		unk174->perform(flags, gfx);
-	if (unk178)
-		unk178->perform(flags, gfx);
+	unk16C->THitActor::perform(flags, gfx);
+	unk170->THitActor::perform(flags, gfx);
+	unk174->THitActor::perform(flags, gfx);
 	if (unk184)
 		unk184->testPerform(flags, gfx);
 	if (unk188)
