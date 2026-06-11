@@ -5670,6 +5670,28 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Predeclaring a scalar before a `TVec3` local can reserve an otherwise unused stack slot and shift the vector to target offsets
+
+**Hypothesis.** When target and build have the same visible instruction stream
+and frame size, but a local `TVec3<f32>` lives four bytes higher in the target,
+the original source may have declared a scalar local before the vector and
+assigned it later. MWCC can reserve a stack slot for that scalar even when the
+scalar value is kept in FPRs/registers, shifting the following aggregate local
+without adding visible loads/stores.
+
+**Observed.** `mario/Enemy/bosspakkun`
+`TBossPakkun::rumblePad(int, const TVec3f&)` (2026-06-12 MNL): target and build
+both used a `0x40` frame, but the Mario-delta `TVec3` stack slot was offset by
+four bytes. Predeclaring `f32 distance;` before `JGeometry::TVec3<f32> delta`
+and assigning `distance = delta.length()` after `delta -= pos` made the
+352-byte function exact.
+
+**Experiment to confirm/refute.** Find a second near-exact function where a
+`TVec3<f32>` local's slot is off by exactly four bytes while the frame size
+already matches. Predeclare the adjacent scalar result before the vector and
+verify whether only the aggregate slot shifts into place without visible
+instruction changes.
+
 ### Duplicating identical assignments in branch arms can prevent MWCC from merging target-distinct conversion blocks
 
 **Hypothesis.** When target asm repeats the same field load / conversion /
