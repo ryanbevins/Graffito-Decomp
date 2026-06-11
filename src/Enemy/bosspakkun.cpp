@@ -1,6 +1,7 @@
 #include <Enemy/BossPakkun.hpp>
 #include <Enemy/AreaCylinder.hpp>
 #include <Enemy/Conductor.hpp>
+#include <Enemy/EnemyManager.hpp>
 #include <Enemy/Graph.hpp>
 #include <Enemy/Walker.hpp>
 #include <Camera/CameraShake.hpp>
@@ -10,6 +11,8 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <MSound/MSModBgm.hpp>
+#include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionManager.hpp>
@@ -17,6 +20,7 @@
 #include <Map/PollutionManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
+#include <MoveBG/ItemManager.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
 #include <Player/ModelWaterManager.hpp>
@@ -446,6 +450,70 @@ DEFINE_NERVE(TNerveBPTakeOff, TLiveActor)
 
 			return TRUE;
 		}
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBPDie, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	((MSModBgm*)gpMSound->unk98)->modBgm(0, 1);
+
+	if (actor->checkCurBckFromIndex(0x07) && spine->getTime() == 0x2A8)
+		boss->onLiveFlag(LIVE_FLAG_UNK8);
+
+	if (actor->curAnmEndsNext(0, nullptr)
+	    && actor->checkCurBckFromIndex(0x07)) {
+		boss->kill();
+		gpItemManager->makeShineAppearWithDemo("シャイン（ボス用）",
+		                                       "ボスシャインカメラ",
+		                                       boss->mPosition.x,
+		                                       boss->mPosition.y,
+		                                       boss->mPosition.z);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBPPreDie, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0) {
+		boss->changeBck(0x05);
+		boss->mHeadHit->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		if ((s8)boss->unk17C == 0) {
+			boss->unk17C = 1;
+			boss->unk174 = nullptr;
+			boss->unk170 = nullptr;
+			boss->unk1B8 = 0x32;
+
+			if (boss->unk18C != nullptr) {
+				JGeometry::TVec3<f32> pos;
+				boss->getJointTransByIndex(0x12, &pos);
+				pos.y += 250.0f;
+				boss->unk18C->mPos.value = pos;
+				gpModelWaterManager->emitRequest(*boss->unk18C);
+			}
+		}
+
+		TEnemyManager* nameKuriManager
+		    = JDrama::TNameRefGen::search<TEnemyManager>("ナメクリマネージャ");
+		if (nameKuriManager != nullptr)
+			nameKuriManager->killChildren();
+
+		MSBgm::stopTrackBGM(1, 10);
+	}
+
+	if (actor->curAnmEndsNext(0, nullptr)) {
+		spine->pushAfterCurrent(&TNerveBPDie::theNerve());
+		return TRUE;
 	}
 
 	return FALSE;
