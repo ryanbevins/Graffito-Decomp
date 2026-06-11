@@ -1078,7 +1078,7 @@ check_sender_bit3:
 				return 0;
 			s16 attackAngle = getAttackAngle(sender);
 			s16 angleDiff = (s16)(attackAngle - mFaceAngle.y);
-			s16 sAngle = (s16)(65536.0f * sender->mAttackHeight * 1.0f);
+			s16 sAngle = (s16)(65536.0f * sender->mRotation.y * 1.0f);
 			s16 adjAngle = (s16)(sAngle - mFaceAngle.y);
 			if (angleDiff > -8192 && angleDiff < 8192) {
 				if (adjAngle > -8192 && adjAngle < 8192) {
