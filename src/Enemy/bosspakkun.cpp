@@ -13,6 +13,7 @@
 #include <MSound/MSoundBGM.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionManager.hpp>
+#include <Map/MapData.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
@@ -352,6 +353,45 @@ DEFINE_NERVE(TNerveBPCannonL, TLiveActor)
 			actor->setBck("bosspaku_ball_end");
 			boss->launchPolDrop();
 		} else {
+			spine->pushAfterCurrent(&TNerveBPWaitL::theNerve());
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBPWaitL, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0)
+		actor->setBck("bosspaku_wait");
+
+	if (spine->getTime()
+	    >= boss->getBossPakkunSaveParam()->mSLWaitFrameStg0.value) {
+		if (boss->unk188 == nullptr) {
+			boss->unk188 = (TAreaCylinderManager*)gpConductor->search(
+			    "ゲロエリアマネージャー");
+		}
+
+		if (boss->unk188 != nullptr && boss->unk188->contain(*gpMarioPos)) {
+			u16 bgType = (*gpMarioGroundPlane)->getBGType();
+			BOOL isWaterSurface;
+			if (bgType == 0x100 || (u16)(bgType - 0x101) <= 4
+			    || bgType == 0x4104)
+				isWaterSurface = TRUE;
+			else
+				isWaterSurface = FALSE;
+
+			if (isWaterSurface == FALSE) {
+				spine->pushAfterCurrent(&TNerveBPCannonL::theNerve());
+				return TRUE;
+			}
+		}
+
+		if (actor->curAnmEndsNext(0, nullptr)) {
 			spine->pushAfterCurrent(&TNerveBPWaitL::theNerve());
 			return TRUE;
 		}
