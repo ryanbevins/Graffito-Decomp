@@ -925,7 +925,7 @@ public:
 	void jumpCatch();
 	void jumpWall();
 	void uTurnJumping();
-	void landing();
+	BOOL landing();
 	void backJumping();
 	void ultraJumping();
 	void secJumping();
