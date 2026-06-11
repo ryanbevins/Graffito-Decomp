@@ -1368,8 +1368,11 @@ void TBossPakkun::gotHipDropDamage()
 
 void TBossPakkun::showMessage(u32 message)
 {
-	if (gpMarDirector != nullptr && gpMarDirector->getConsole() != nullptr)
+	u32 bit = message - 0xE0000 == 1 ? 0 : 1 << (message - 0xE0000);
+
+	if ((unk1C0 & bit) == 0)
 		gpMarDirector->getConsole()->startAppearBalloon(message, true);
+	unk1C0 |= bit;
 }
 
 void TBossPakkun::rumblePad(int param_1, const JGeometry::TVec3<f32>& pos)
