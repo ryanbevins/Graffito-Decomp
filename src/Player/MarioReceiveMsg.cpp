@@ -669,6 +669,7 @@ check_sender_bit3:
 		case 0x1000001D:
 		case 0x10000020:
 		case 0x10000022:
+		case 0x10000024:
 		case 0x10000025:
 		case 0x1000002A:
 		case 0x1000002C:
@@ -774,31 +775,6 @@ check_sender_bit3:
 				keepDistance(sender->mPosition, 0.0f + height, 0.0f);
 			}
 			return 1;
-
-		case 0x10000024: // Hanachan boss damage
-		{
-			if (!isInvincible()) {
-				if (message != 0x0E)
-					goto default_msg;
-				// Check action state
-				if (mAction == 0x800008A9) {
-					if (mActionState == 3)
-						goto default_msg;
-				}
-				damageExec(sender,
-				           mDmgParamsHanachanBoss.mDamage.get(),
-				           mDmgParamsHanachanBoss.mDownType.get(),
-				           mDmgParamsHanachanBoss.mWaterEmit.get(),
-				           mDmgParamsHanachanBoss.mMinSpeed.get(),
-				           mDmgParamsHanachanBoss.mMotor.get(),
-				           mDmgParamsHanachanBoss.mDirty.get(),
-				           mDmgParamsHanachanBoss.mInvincibleTime.get());
-
-				changePlayerStatus(0x000208B8, 0, false);
-				return 1;
-			}
-			goto default_msg;
-		}
 
 		case 0x10000026: // Specific enemy (just keepDistance)
 			goto default_enemy_fallthrough;
