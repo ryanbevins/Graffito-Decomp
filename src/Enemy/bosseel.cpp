@@ -1045,9 +1045,7 @@ void TBossEelHeartCoin::perform(u32 flags, JDrama::TGraphics* graphics)
 
 		if (bossActor->checkCurBckFromIndex(3)
 		    && bossActor->getFrameCtrl(0)->getFrame() < 700.0f) {
-			unk70.x = mtx[0][3];
-			unk70.y = mtx[1][3];
-			unk70.z = mtx[2][3];
+			unk70.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 		}
 
 		unk70.y = mtx[1][3];
@@ -1062,9 +1060,8 @@ void TBossEelHeartCoin::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (calcFlag) {
 		for (int i = 0; i < 20; ++i) {
 			MtxPtr mtx = unk18->getModel()->mNodeMatrices[i + 2];
-			mCoins[i]->mPosition.x = mtx[0][3];
-			mCoins[i]->mPosition.y = mtx[1][3];
-			mCoins[i]->mPosition.z = mtx[2][3];
+			TCoin* coin = mCoins[i];
+			coin->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 		}
 	}
 }
