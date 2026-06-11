@@ -810,9 +810,16 @@ void TBubble::init(TLiveManager* manager)
 
 void TBubble::calcRootMatrix()
 {
-	MsMtxSetXYZRPH(getModel()->getBaseTRMtx(), mPosition.x, mPosition.y,
-	               mPosition.z, mRotation.x, mRotation.y, mRotation.z);
-	getModel()->setBaseScale(mScaling);
+	if (!isEaten()) {
+		mPosition.y = mGroundHeight + unk1CC + 150.0f;
+
+		MtxPtr mtx = mMActor->getModel()->getBaseTRMtx();
+		MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z,
+		               (s16)(mRotation.x * 182.04445f),
+		               (s16)(mRotation.y * 182.04445f),
+		               (s16)(mRotation.z * 182.04445f));
+		mMActor->getModel()->setBaseScale(mScaling);
+	}
 }
 
 void TBubble::kill()
