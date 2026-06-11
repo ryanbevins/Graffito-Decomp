@@ -9,6 +9,7 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/PollutionManager.hpp>
@@ -353,6 +354,23 @@ DEFINE_NERVE(TNerveBPCannonL, TLiveActor)
 			spine->pushAfterCurrent(&TNerveBPWaitL::theNerve());
 			return TRUE;
 		}
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBPBreakSleep, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		boss->changeBck(0x0E);
+		MSBgm::stopTrackBGMs(7, 10);
+	}
+
+	if (boss->mMActor->curAnmEndsNext(0, nullptr)) {
+		spine->pushAfterCurrent(&TNerveBPTakeOff::theNerve());
+		return TRUE;
 	}
 
 	return FALSE;
