@@ -1115,29 +1115,44 @@ check_sender_bit3:
 		case 0x08000005: // NPC greeting
 			return 0;
 
+		case 0x4000002D:
+		case 0x4000002E:
 		case 0x40000032:
+		case 0x40000039:
+		case 0x4000003A:
+		case 0x4000005A:
+			if (message == 8) {
+				changePlayerStatus(0x0C400201, 0, false);
+				*(u32*)((u8*)this + 0x6C) = 0;
+			}
+			return 0;
+
 		case 0x40000038:
 		case 0x0800002B:
 		case 0x40000033:
 		case 0x40000246:
-		case 0x40000393:
 			return 0;
 
-		case 0x40000064:
 		case 0x4000009C:
 		case 0x400000A5:
-			// Damage touch (keepDistance with rumble)
 			if (message == 0x0E) {
-				if (*(s16*)((u8*)this + 0x150) > 0)
-					return 0;
-				s16 timerVal = *(s16*)((u8*)this + 0x938);
-				*(s16*)((u8*)this + 0x14E) = timerVal;
-				rumbleStart(21, *(s16*)((u8*)this + 0x27F8));
-				calcDamagePos(sender->mPosition);
-				kickFruitEffect();
+				keepDistance(sender->mPosition, 30.0f + sender->mDamageRadius,
+				             0.0f);
 				return 1;
 			}
 			return 0;
+
+		case 0x40000064:
+		case 0x40000393:
+			// Damage touch with rumble.
+			if (*(s16*)((u8*)this + 0x150) > 0)
+				return 0;
+
+			*(s16*)((u8*)this + 0x14E) = *(s16*)((u8*)this + 0x938);
+			rumbleStart(21, *(s16*)((u8*)this + 0x27F8));
+			calcDamagePos(sender->mPosition);
+			kickFruitEffect();
+			return 1;
 
 		default:
 		default_msg:
