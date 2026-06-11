@@ -3,6 +3,7 @@
 #include <Enemy/Graph.hpp>
 #include <Enemy/Walker.hpp>
 #include <GC2D/GCConsole2.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JMath.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -109,6 +110,77 @@ DEFINE_NERVE(TNerveBPFlyCannon, TLiveActor)
 	if (actor->curAnmEndsNext(0, nullptr))
 		return true;
 	return false;
+}
+
+DEFINE_NERVE(TNerveBPFlyPivot, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		boss->changeBck(0x0B);
+
+	if (boss->turnToCurPathNode(
+	        boss->getBossPakkunSaveParam()->mSLPivotSpeed.value)) {
+		if (boss->unk114.size() != 0)
+			boss->unkF4 = boss->unk114.pop();
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBPStompReact, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0) {
+		boss->changeBck(0x05);
+		boss->mHeadHit->onHitFlag(HIT_FLAG_NO_COLLISION);
+	}
+
+	if (spine->getTime() == 0x1E && boss->unk17C == 0) {
+		boss->unk17C = 1;
+		boss->unk174 = nullptr;
+		boss->unk170 = nullptr;
+		boss->unk1B8 = 0x32;
+
+		if (boss->unk18C != nullptr) {
+			JGeometry::TVec3<f32> pos;
+			boss->getJointTransByIndex(0x12, &pos);
+			pos.y += 250.0f;
+			boss->unk18C->mPos.value = pos;
+			gpModelWaterManager->emitRequest(*boss->unk18C);
+		}
+	}
+
+	if (spine->getTime() == 0x32)
+		boss->unk1BC = 1;
+
+	if (actor->curAnmEndsNext(0, nullptr)) {
+		boss->mHeadHit->offHitFlag(HIT_FLAG_NO_COLLISION);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBPSwing, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0)
+		boss->changeBck(0x0F);
+
+	if (spine->getTime() == 0) {
+		gpMarioParticleManager->emitAndBindToSRTMtxPtr(
+		    0xAC, boss->getModel()->getAnmMtx(0x12), 0, boss);
+	}
+
+	if (actor->curAnmEndsNext(0, nullptr))
+		return TRUE;
+	return FALSE;
 }
 
 TBossPakkunParams::TBossPakkunParams(const char* path)
