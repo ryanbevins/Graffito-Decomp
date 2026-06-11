@@ -876,11 +876,11 @@ check_sender_bit3:
 			}
 		}
 
-		case 0x08000001: // Basic enemy contact/damage
-		{
-			if (message == 0x0E) {
-				if (!isInvincible()) {
-					damageExec(sender,
+			case 0x08000001: // Basic enemy contact/damage
+			{
+				if (message == 0x0E) {
+					if (!isInvincible()) {
+						damageExec(sender,
 					           mDmgParamsEnemyMario.mDamage.get(),
 					           mDmgParamsEnemyMario.mDownType.get(),
 					           mDmgParamsEnemyMario.mWaterEmit.get(),
@@ -888,11 +888,19 @@ check_sender_bit3:
 					           mDmgParamsEnemyMario.mMotor.get(),
 					           mDmgParamsEnemyMario.mDirty.get(),
 					           mDmgParamsEnemyMario.mInvincibleTime.get());
-					return 1;
+						return 1;
+					}
 				}
+				if (message == 3) {
+					if (!isInvincible()) {
+						mState |= 0x800;
+						if (!(mAction & 0x800))
+							rumbleStart(21, 10);
+						return 1;
+					}
+				}
+				return 0;
 			}
-			return 0;
-		}
 
 		case 0x08000003:
 		case 0x0800001F:
