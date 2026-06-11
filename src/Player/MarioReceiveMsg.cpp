@@ -1131,18 +1131,19 @@ check_sender_bit3:
 		case 0x80000001: // Player contact
 		{
 			if (!isInvincible()) {
-				if (message >= 8)
+				s32 playerMessage = message;
+				if (playerMessage >= 8)
 					goto handle_player_msg;
-				if (message == 5)
+				if (playerMessage == 5)
 					return 0;
-				if (message >= 6)
+				if (playerMessage >= 6)
 					goto handle_player_throw;
-				if (message >= 4)
+				if (playerMessage >= 4)
 					goto handle_player_take;
 				return 0;
 
 			handle_player_msg:
-				if (message == 0x0E)
+				if (playerMessage == 0x0E)
 					goto handle_player_damage;
 				return 0;
 
