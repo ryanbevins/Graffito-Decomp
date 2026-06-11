@@ -1,1 +1,496 @@
+#include <Enemy/BossPakkun.hpp>
+#include <Enemy/Conductor.hpp>
+#include <Enemy/Graph.hpp>
+#include <Enemy/Walker.hpp>
+#include <GC2D/GCConsole2.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <M3DUtil/MActor.hpp>
+#include <Map/Map.hpp>
+#include <Map/MapCollisionManager.hpp>
+#include <Map/PollutionManager.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
+#include <Player/MarioAccess.hpp>
+#include <Player/ModelWaterManager.hpp>
+#include <Strategic/ObjModel.hpp>
+#include <Strategic/ObjManager.hpp>
+#include <Strategic/Spine.hpp>
+#include <Strategic/Strategy.hpp>
+#include <System/MarDirector.hpp>
+#include <System/Particles.hpp>
 
+static const char* bosspakkun_bastable[] = {
+	nullptr,
+	nullptr,
+	"/scene/bosspakkun/bas/bosspaku_ball_end.bas",
+	"/scene/bosspakkun/bas/bosspaku_down.bas",
+	"/scene/bosspakkun/bas/bosspaku_down_end.bas",
+	nullptr,
+	"/scene/bosspakkun/bas/bosspaku_down_loop.bas",
+	nullptr,
+	"/scene/bosspakkun/bas/bosspaku_fall_end.bas",
+	nullptr,
+	"/scene/bosspakkun/bas/bosspaku_fall_start.bas",
+	"/scene/bosspakkun/bas/bosspaku_fly.bas",
+	"/scene/bosspakkun/bas/bosspaku_fly_pollut.bas",
+	"/scene/bosspakkun/bas/bosspaku_fly_start.bas",
+	"/scene/bosspakkun/bas/bosspaku_getup.bas",
+	"/scene/bosspakkun/bas/bosspaku_head.bas",
+	"/scene/bosspakkun/bas/bosspaku_hovering.bas",
+	"/scene/bosspakkun/bas/bosspaku_jump_reaction.bas",
+	"/scene/bosspakkun/bas/bosspaku_land.bas",
+	"/scene/bosspakkun/bas/bosspaku_panpan.bas",
+	"/scene/bosspakkun/bas/bosspaku_pollut_end.bas",
+	"/scene/bosspakkun/bas/bosspaku_pollut_start.bas",
+	"/scene/bosspakkun/bas/bosspaku_return.bas",
+	"/scene/bosspakkun/bas/bosspaku_sleep.bas",
+	"/scene/bosspakkun/bas/bosspaku_tornado.bas",
+	nullptr,
+	"/scene/bosspakkun/bas/bosspaku_water_hit.bas",
+	nullptr,
+	nullptr,
+	nullptr,
+};
+
+static const TModelDataLoadEntry sLightEntries[] = {
+	{ "bosspaku_model.bmd", 0x10010000, 0 },
+	{ "pollut_ball.bmd", 0x11040000, 0 },
+	{ "pollut_ball_stamp.bmd", 0x10010000, 0 },
+	{ nullptr, 0, 0 },
+};
+
+static const TModelDataLoadEntry sNormalEntries[] = {
+	{ "bosspaku_model.bmd", 0x10010000, 0 },
+	{ "bosspaku_end.bmd", 0x10100000, 0 },
+	{ "pollut_ball.bmd", 0x11040000, 0 },
+	{ "pollut_ball_stamp.bmd", 0x10010000, 0 },
+	{ "bosspakuPollut.bmd", 0x11020000, 0 },
+	{ "bosspakuPollut_white.bmd", 0x10010000, 0 },
+	{ "trunade.bmd", 0x10020000, 0 },
+	{ nullptr, 0, 0 },
+};
+
+DEFINE_NERVE(TNerveBPSleep, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	if (spine->getTime() == 0)
+		boss->changeBck(0x17);
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBPJumpReact, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+	MActor* actor      = boss->mMActor;
+
+	if (spine->getTime() == 0)
+		boss->changeBck(0x11);
+
+	return actor->curAnmEndsNext(0, nullptr);
+}
+
+TBossPakkunParams::TBossPakkunParams(const char* path)
+    : TSpineEnemyParams(path)
+    , PARAM_INIT(mSLWaitFrameStg0, 400)
+    , PARAM_INIT(mSLWaterMarkLimit, 600)
+    , PARAM_INIT(mSLSwingLength, 600.0f)
+    , PARAM_INIT(mSLPollBallStampScale, 1.0f)
+    , PARAM_INIT(mSLTumbleTime, 2400)
+    , PARAM_INIT(mSLAnmBlendTime0, 60)
+    , PARAM_INIT(mSLFlySpeed, 5.0f)
+    , PARAM_INIT(mSLPivotSpeed, 0.7f)
+    , PARAM_INIT(mSLPivotSpeedAware, 1.5f)
+    , PARAM_INIT(mSLVomitAnmRate, 0.6f)
+    , PARAM_INIT(mSLHeadHomingLimit, 30.0f)
+    , PARAM_INIT(mSLDamageAngle, 180.0f)
+    , PARAM_INIT(mSLTornadoProp, 0.4f)
+    , PARAM_INIT(mSLTornadoSpeed, 2.0f)
+    , PARAM_INIT(mSLTornadoRollSpeed, 0.06f)
+    , PARAM_INIT(mSLTornadoMoveInit, 10000.0f)
+    , PARAM_INIT(mSLTornadoMoveInc, 1.0f)
+    , PARAM_INIT(mSLTornadoMoveLimit, 10720.0f)
+    , PARAM_INIT(mSLWaterHitTimer, 20)
+    , PARAM_INIT(mSLHoverTimer, 1200)
+    , PARAM_INIT(mSLPollBallRange, 10000.0f)
+    , PARAM_INIT(mSLPollBallSpeed, 20.0f)
+    , PARAM_INIT(mSLPollBallFront, 1000.0f)
+{
+	TParams::load(mPrmPath);
+}
+
+TBossPakkunManager::TBossPakkunManager(const char* name, int is_light)
+    : TEnemyManager(name)
+    , mIsLight(is_light)
+{
+}
+
+void TBossPakkunManager::load(JSUMemoryInputStream& stream)
+{
+	unk38 = new TBossPakkunParams("/enemy/bosspakkun.prm");
+	TEnemyManager::load(stream);
+
+	if (mIsLight == 0) {
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_blur1.jpa", 0xA9);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_down.jpa", 0xAA);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_swing1.jpa", 0xAB);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_swing2.jpa", 0xAC);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_wathit.jpa", 0x15D);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_wathit_w.jpa", 0x15E);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_ase.jpa", 0x15F);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_blur2.jpa", 0x160);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_jita.jpa", 0x161);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_tr_rock.jpa", 0x162);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_tr_smoke.jpa", 0x163);
+		SMS_LoadParticle("/scene/bosspakkun/jpa/ms_bopa_tr_weed.jpa", 0x164);
+	}
+}
+
+void TBossPakkunManager::createModelData()
+{
+	if (mIsLight != 0)
+		createModelDataArray(sLightEntries);
+	else
+		createModelDataArray(sNormalEntries);
+}
+
+TBossPakkun::TBossPakkun(const char* name)
+    : TSpineEnemy(name)
+{
+	unk154   = 0.0f;
+	mPolDrop = nullptr;
+	mVomit   = nullptr;
+	mTornado = nullptr;
+	mHeadHit = nullptr;
+	mNavel   = nullptr;
+	unk16C   = 0;
+	unk170   = nullptr;
+	unk174   = nullptr;
+	unk178   = nullptr;
+	unk17C   = 0;
+	unk180   = nullptr;
+	unk184   = 0.0f;
+	unk188   = nullptr;
+	unk18C   = nullptr;
+	unk190   = 0;
+	unk1B8   = 0;
+	unk1BC   = 0;
+	unk1C0   = 0;
+	unk1C4   = 0;
+	unk1CC   = 0;
+
+	offLiveFlag(LIVE_FLAG_UNK100);
+	mBinder = new TWalker;
+}
+
+const char** TBossPakkun::getBasNameTable() const { return bosspakkun_bastable; }
+
+void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	TSpineEnemy::perform(flags, graphics);
+
+	if (mPolDrop != nullptr)
+		mPolDrop->perform(flags, graphics);
+	if (mVomit != nullptr)
+		mVomit->perform(flags, graphics);
+	if (mTornado != nullptr)
+		mTornado->perform(flags, graphics);
+	if (mHeadHit != nullptr)
+		mHeadHit->perform(flags, graphics);
+	if (mNavel != nullptr)
+		mNavel->perform(flags, graphics);
+}
+
+BOOL TBossPakkun::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == HIT_MESSAGE_HIP_DROP) {
+		gotHipDropDamage();
+		return TRUE;
+	}
+
+	return TSpineEnemy::receiveMessage(sender, message);
+}
+
+void TBossPakkun::init(TLiveManager* manager)
+{
+	TSpineEnemy::init(manager);
+
+	if (((TBossPakkunManager*)manager)->mIsLight == 0) {
+		mHeadHit = new TBPHeadHit(this, "ボスパックン頭部");
+		mHeadHit->initHitActor(0x8000010, 5, 0x81000000, 300.0f, 500.0f,
+		                       300.0f, 500.0f);
+		mHeadHit->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+		mNavel = new TBPNavel(this, "ボスパックンおへそ");
+		mNavel->initHitActor(0x8000011, 1, -0x80000000, 200.0f, 300.0f,
+		                     200.0f, 300.0f);
+		mNavel->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+		mPolDrop = new TBPPolDrop(this, "<TBPPolDrop>");
+		mVomit   = new TBPVomit(this, "<TBPVomit>");
+		mTornado = new TBPTornado(this, "<TBPTornado>");
+		unk18C   = new TWaterEmitInfo("/enemy/bosspakuwater.prm");
+	}
+
+	initAnmSound();
+	onLiveFlag(LIVE_FLAG_UNK400);
+	mScaledBodyRadius = 400.0f;
+
+	if (unk124 != nullptr && gpConductor != nullptr) {
+		unk124->unk0 = gpConductor->getGraphByName("bosspakkun");
+		if (unk124->unk0 != nullptr) {
+			unk124->mPrevIdx = -1;
+			goToShortestNextGraphNode();
+		}
+	}
+}
+
+void TBossPakkun::setGroundCollision()
+{
+	if (mMapCollisionManager != nullptr)
+		mMapCollisionManager->changeCollision(0);
+}
+
+void TBossPakkun::kill()
+{
+	onLiveFlag(LIVE_FLAG_DEAD);
+	if (mSpine != nullptr)
+		mSpine->pushAfterCurrent(&TNerveBPPreDie::theNerve());
+}
+
+void TBossPakkun::changeBck(int index)
+{
+	if (mMActor != nullptr)
+		mMActor->setBckFromIndex(index);
+}
+
+void TBossPakkun::launchPolDrop()
+{
+	if (mPolDrop == nullptr)
+		return;
+
+	mPolDrop->unk80    = 1;
+	mPolDrop->unk84    = 0;
+	mPolDrop->mPosition = mPosition;
+	mPolDrop->mVelocity.set(0.0f, 0.0f, 0.0f);
+	mPolDrop->offHitFlag(HIT_FLAG_NO_COLLISION);
+}
+
+void TBossPakkun::gotHipDropDamage()
+{
+	if (mHitPoints > 0)
+		mHitPoints--;
+
+	rumblePad(2, mPosition);
+	if (mHitPoints == 0)
+		kill();
+	else if (mSpine != nullptr)
+		mSpine->pushAfterCurrent(&TNerveBPStompReact::theNerve());
+}
+
+void TBossPakkun::showMessage(u32 message)
+{
+	if (gpMarDirector != nullptr && gpMarDirector->getConsole() != nullptr)
+		gpMarDirector->getConsole()->startAppearBalloon(message, true);
+}
+
+void TBossPakkun::rumblePad(int param_1, const JGeometry::TVec3<f32>& pos)
+{
+	if (SMSRumbleMgr != nullptr)
+		SMSRumbleMgr->start(param_1, (Vec*)&pos);
+}
+
+BOOL TBossPakkun::checkMarioRiding()
+{
+	if (mGroundActor == (TLiveActor*)gpMarioAddress)
+		return TRUE;
+
+	return FALSE;
+}
+
+void TBossPakkunMtxCalc::calc(u16 joint_no)
+{
+	if (joint_no == 1)
+		calcBellyScale(joint_no);
+	if (joint_no == 6)
+		calcHeadDir(joint_no);
+
+	M3UMtxCalcSIAnmBlendQuat::calc(joint_no);
+}
+
+void TBossPakkunMtxCalc::calcHeadDir(u16) { }
+
+void TBossPakkunMtxCalc::calcBellyScale(u16) { }
+
+void TBPNavel::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 2)
+		mOwner->getJointTransByIndex(6, &mPosition);
+
+	THitActor::perform(flags, graphics);
+}
+
+BOOL TBPNavel::receiveMessage(THitActor* sender, u32 message)
+{
+	if (mOwner->mSpine->getLatestNerve() == &TNerveBPSleep::theNerve())
+		return mOwner->receiveMessage(sender, message);
+
+	if (sender->getActorType() == 0x1000001)
+		return FALSE;
+
+	if (mOwner->unk16C != 1)
+		return TRUE;
+
+	if (sender->getActorType() == 0x80000001 && message == HIT_MESSAGE_HIP_DROP)
+		mOwner->gotHipDropDamage();
+
+	return TRUE;
+}
+
+void TBPHeadHit::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if ((flags & 1) && mOwner->unk16C != 1) {
+		for (int i = 0; i < mColCount; ++i) {
+			THitActor* actor = mCollisions[i];
+			if (actor->getActorType() == 0x80000001)
+				throwActor(actor);
+		}
+	}
+
+	if (flags & 2)
+		mOwner->getJointTransByIndex(1, &mPosition);
+
+	THitActor::perform(flags, graphics);
+}
+
+void TBPHeadHit::throwActor(THitActor* actor)
+{
+	if (actor->getActorType() != 0x80000001)
+		return;
+
+	if (mOwner->mMActor != nullptr && mOwner->mMActor->checkCurBckFromIndex(15))
+		actor->receiveMessage(this, HIT_MESSAGE_ATTACK);
+}
+
+BOOL TBPHeadHit::receiveMessage(THitActor* sender, u32 message)
+{
+	if (sender->getActorType() == 0x1000001)
+		return FALSE;
+
+	if (message == HIT_MESSAGE_HIP_DROP) {
+		mOwner->gotHipDropDamage();
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+TBPTornado::TBPTornado(TBossPakkun* owner, const char* name)
+    : THitActor(name)
+    , mOwner(owner)
+    , mActor(nullptr)
+    , unk94(0.0f)
+    , unk98(0)
+{
+	mActor = owner->mMActorKeeper->createMActor("trunade.bmd", 0);
+	initHitActor(0x8000010, 5, 0x81000000, 150.0f, 600.0f, 100.0f,
+	             600.0f);
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+	if (mActor != nullptr) {
+		mActor->setBtkFromIndex(2);
+		mActor->setBckFromIndex(29);
+		mActor->setBrkFromIndex(1);
+	}
+	mScaling.set(2.0f, 2.0f, 2.0f);
+}
+
+void TBPTornado::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (mActor == nullptr)
+		return;
+
+	if (flags & 2)
+		mActor->calcAnm();
+
+	mActor->perform(flags, graphics);
+}
+
+void TBPVomit::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (unk14 == nullptr)
+		return;
+
+	if (unk14->getCurAnmIdx(0) < 0)
+		return;
+
+	if ((flags & 2) && unk14->curAnmEndsNext(0, nullptr)) {
+		unk14->setBckFromIndex(-1);
+		if (unk18 != nullptr)
+			unk18->setBckFromIndex(-1);
+		return;
+	}
+
+	if ((flags & 2) && unk18 != nullptr)
+		unk18->calcAnm();
+
+	if (flags & 0x200 && unk18 != nullptr)
+		gpPollution->stampModel(unk18->getModel());
+
+	unk14->perform(flags, graphics);
+}
+
+TBPPolDrop::TBPPolDrop(TBossPakkun* owner, const char* name)
+    : THitActor(name)
+    , mOwner(owner)
+    , mVelocity(0.0f, 0.0f, 0.0f)
+    , unk78(nullptr)
+    , unk7C(nullptr)
+    , unk80(0)
+    , unk84(0)
+    , unk88(0.0f)
+{
+	initHitActor(0x800000F, 1, -0x80000000, 0.0f, 0.0f, 100.0f, 200.0f);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
+}
+
+void TBPPolDrop::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (unk80 == 0)
+		return;
+
+	if (flags & 1) {
+		move();
+		unk84++;
+	}
+
+	if ((flags & 2) && unk78 != nullptr)
+		unk78->perform(flags, graphics);
+
+	if ((flags & 0x200) && unk7C != nullptr)
+		gpPollution->stampModel(unk7C->getModel());
+}
+
+void TBPPolDrop::move()
+{
+	if (unk80 == 0) {
+		onHitFlag(HIT_FLAG_NO_COLLISION);
+		return;
+	}
+
+	mPosition.add(mVelocity);
+
+	if (unk80 == 1) {
+		mVelocity.y -= 0.1f;
+		if (unk84 >= 60) {
+			const TBGCheckData* ground = nullptr;
+			f32 y = gpMap->checkGround(mPosition.x, mPosition.y,
+			                           mPosition.z, &ground);
+			if (mPosition.y <= y + 1.0f) {
+				mPosition.y = y;
+				unk80       = 2;
+				mVelocity.set(0.0f, 0.0f, 0.0f);
+			}
+		}
+	}
+}
