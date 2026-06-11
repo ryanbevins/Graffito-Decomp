@@ -377,7 +377,7 @@ config.libs = [
             Object(Matching, "JSystem/JUtility/JUTResFont.cpp"),
             Object(Matching, "JSystem/JUtility/JUTRomFont.cpp"),
             Object(NonMatching, "JSystem/JUtility/JUTConsole.cpp"),
-            Object(NonMatching, "JSystem/JUtility/JUTDirectFile.cpp"),
+            Object(Equivalent, "JSystem/JUtility/JUTDirectFile.cpp"),
 
             # JDrama
             Object(NonMatching, "JSystem/JDrama/JDRActor.cpp"),
