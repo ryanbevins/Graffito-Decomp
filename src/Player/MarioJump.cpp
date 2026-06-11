@@ -542,28 +542,36 @@ void TMario::boardJumping()
 
 BOOL TMario::rocketCheck()
 {
-	s32 cr = 1;
-	if (mAction == ACTION_ROCKETING) cr = 0;
-	if (mAction == ACTION_ROCKET_END) cr = 0;
-	s32 hf; if (mState & MARIO_FLAG_IN_SHALLOW_WATER) hf = 1; else hf = 0;
-	if (hf) {
+	s32 canRocket = TRUE;
+	if (mAction == ACTION_ROCKETING) canRocket = FALSE;
+	if (mAction == ACTION_ROCKET_END) canRocket = FALSE;
+	u8 hasFludd; if (mState & MARIO_FLAG_HAS_FLUDD) hasFludd = TRUE; else hasFludd = FALSE;
+	if (hasFludd) {
 		// Pointer math slop
-		if (*(u8*)((u8*)mWaterGun->getCurrentNozzle() + 0x18) != 1) cr = 0;
-		s32 nw; if (mPumpState == 0) nw = 1; else nw = 0;
-		if (nw) cr = 0;
+		if (*(u8*)((u8*)mWaterGun->getCurrentNozzle() + 0x18) != 1) canRocket = FALSE;
+		u8 isPumpIdle; if (mPumpState == 0) isPumpIdle = TRUE; else isPumpIdle = FALSE;
+		if (!isPumpIdle) canRocket = FALSE;
 		TWaterGun* g = mWaterGun;
-		if (g->mCurrentWater == 0) cr = 0;
+		if (g->mCurrentWater == 0) canRocket = FALSE;
 		else {
+			u8 nozzleReady;
 			s32 k = g->getCurrentNozzle()->getNozzleKind();
-			if (k == 1) { TNozzleTrigger* t = (TNozzleTrigger*)g->getCurrentNozzle(); if (t->unk385 != TNozzleTrigger::ACTIVE) cr = 0; }
-			else { if (g->getCurrentNozzle()->unk378 <= 0.0f) cr = 0; }
+			if (k == 1) {
+				TNozzleTrigger* t = (TNozzleTrigger*)g->getCurrentNozzle();
+				if (t->unk385 == TNozzleTrigger::ACTIVE) nozzleReady = TRUE;
+				else nozzleReady = FALSE;
+			} else {
+				if (g->getCurrentNozzle()->unk378 > 0.0f) nozzleReady = TRUE;
+				else nozzleReady = FALSE;
+			}
+			if (!nozzleReady) canRocket = FALSE;
 		}
-	} else cr = 0;
-	if ((u8)cr == 1) {
+	} else canRocket = FALSE;
+	if ((u8)canRocket == TRUE) {
 		mRocketTargetY = mPosition.y + mWaterGun->mWatergunParams.mHoverHeight.get();
-		changePlayerStatus(ACTION_ROCKETING, 0, false);
+		return changePlayerStatus(ACTION_ROCKETING, 0, false);
 	}
-	return 0;
+	return FALSE;
 }
 
 void TMario::rocketing()
