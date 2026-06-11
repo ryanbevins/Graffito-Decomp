@@ -5670,6 +5670,29 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Predeclaring saved-FPR locals in target priority order can steer f30/f31 coloring
+
+**Hypothesis.** When two `f32` locals are both live across the same `bl` region
+and the remaining diff is a clean `f30`/`f31` swap, predeclare the locals in
+the target's desired priority order while keeping assignments at the original
+evaluation points. This appears to extend the settled callee-saved GPR
+declaration-order lever to saved FPRs: the earlier declaration gets the higher
+priority saved FPR (`f31`), even if a later-declared local is assigned first.
+
+**Observed.** `mario/Enemy/bosstelesa`
+`TTelesaSlot::forceStopSlot(int)` (2026-06-12 MNL): target keeps the random
+range in `f31` and the collection rate in `f30`. Source originally declared
+`collectRate` before `range`, producing the opposite assignment. Predeclaring
+`f32 range; f32 collectRate;` before the early return, then assigning
+`collectRate` and `range` at the original asm points, moved the function
+`99.1 -> 99.4` and aligned those saved-FPR lifetimes.
+
+**Experiment to confirm/refute.** Find a second near-match where target and
+build agree on instruction structure but swap two saved FPR locals. Toggle only
+predeclaration order while preserving evaluation order and verify whether the
+saved-FPR assignments follow declaration order without introducing frame or
+instruction-order regressions.
+
 ### Infectious MtxCalc rodata may be followed by const zero/one `f32[3]` vectors in some TParams TUs
 
 **Hypothesis.** Some TUs that need the full infectious MtxCalc rodata string
