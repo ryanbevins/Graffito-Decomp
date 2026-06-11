@@ -317,7 +317,7 @@ void TBossPakkun::changeBck(int index)
 		    || (curBck == 0x02 && index == 0x19)
 		    || (curBck == 0x14 && index == 0x19)
 		    || (curBck == 0x1A && index == 0x16))
-			blendFrames = getBossPakkunSaveParam()->mSLVomitAnmRate.value;
+			blendFrames = getBossPakkunSaveParam()->mSLAnmBlendTime0.value;
 
 		if (blendFrames < 1.0f) {
 			J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::ANM_TYPE_BCK);
