@@ -1072,16 +1072,6 @@ check_sender_bit3:
 			return 0;
 		}
 
-		case 0x0800002D: // Hit and release
-		{
-			if (message == 8) {
-				changePlayerStatus(0x0C400201, 0, false);
-				*(u32*)((u8*)this + 0x6C) = 0;
-				return 0;
-			}
-			return 0;
-		}
-
 		case 0x4000002C: // Wire actor grab
 		{
 			if (!(mInput & 0x8000))
