@@ -358,8 +358,8 @@ msg7_check_sound:
 
 			setPlayerVelocity(0.0f);
 			mHealth = *(s16*)((u8*)this + 0x58C);
+			unk12C = unk130;
 			changePlayerStatus(0x1302, 0, true);
-			mForwardVel = unk130;
 			return 1;
 		}
 
