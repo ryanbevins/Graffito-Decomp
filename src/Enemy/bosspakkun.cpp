@@ -1734,23 +1734,19 @@ void TBPTornado::perform(u32 flags, JDrama::TGraphics* graphics)
 
 void TBPVomit::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	if (unk14 == nullptr)
-		return;
-
 	if (unk14->getCurAnmIdx(0) < 0)
 		return;
 
 	if ((flags & 2) && unk14->curAnmEndsNext(0, nullptr)) {
 		unk14->setBckFromIndex(-1);
-		if (unk18 != nullptr)
-			unk18->setBckFromIndex(-1);
+		unk18->setBckFromIndex(-1);
 		return;
 	}
 
-	if ((flags & 2) && unk18 != nullptr)
+	if (flags & 2)
 		unk18->calcAnm();
 
-	if (flags & 0x200 && unk18 != nullptr)
+	if (flags & 0x200)
 		gpPollution->stampModel(unk18->getModel());
 
 	unk14->perform(flags, graphics);
