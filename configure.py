@@ -1073,7 +1073,7 @@ config.libs = [
             Object(NonMatching, "Map/PollutionLayer.cpp"),
             Object(Equivalent, "Map/PollutionEvent.cpp"),
             Object(NonMatching, "Map/MapCollisionPlane.cpp"),
-            Object(NonMatching, "Map/MarineSnow.cpp"),
+            Object(Equivalent, "Map/MarineSnow.cpp"),
             Object(Matching, "Map/MapData.cpp"),
             Object(NonMatching, "Map/MapEventDolpic.cpp"),
             Object(NonMatching, "Map/MapEventMare.cpp"),
