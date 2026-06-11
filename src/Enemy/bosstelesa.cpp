@@ -139,10 +139,7 @@ BOOL TBossTelesa::receiveMessage(THitActor*, u32) { return FALSE; }
 
 MtxPtr TBossTelesa::getTakingMtx()
 {
-	if (!unk178 || !unk178->getMActor())
-		return TLiveActor::getTakingMtx();
-
-	PSMTXCopy(unk178->getMActor()->getModel()->getAnmMtx(1), unk278.mMtx);
+	unk278.set(unk178->mMActor->unk4->mNodeMatrices[1]);
 	unk278.mMtx[1][3] = unk178->mPosition.y - 120.0f;
 	return unk278.mMtx;
 }
@@ -522,7 +519,7 @@ TBubble::TBubble(const char* name)
 {
 }
 
-MtxPtr TBubble::getTakingMtx() { return getModel()->getBaseTRMtx(); }
+MtxPtr TBubble::getTakingMtx() { return mMActor->unk4->unk20; }
 
 void TBubble::init(TLiveManager* manager)
 {
@@ -552,9 +549,12 @@ void TBubble::kill()
 
 f32 TBubble::getGravityY() const
 {
-	if (!unk1D0)
-		return mGravity;
-	return unk1D1 ? 0.001f : 0.0f;
+	if (unk1D0) {
+		if (unk1D1)
+			return 0.001f;
+		return 0.0f;
+	}
+	return mGravity;
 }
 
 const char** TBubble::getBasNameTable() const { return btelesa_bastable; }
