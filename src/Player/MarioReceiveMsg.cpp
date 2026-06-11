@@ -827,7 +827,7 @@ check_sender_bit3:
 			if (message != 4)
 				return 0;
 
-			unk384 = (THitActor*)sender;
+			mHolder = (TTakeActor*)sender;
 			// Check state flag for grounded
 			if (!(mAction & 0x800)) {
 				setAnimation(77, 0.0f);
