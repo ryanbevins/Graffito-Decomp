@@ -348,8 +348,8 @@ TBossEel::TBossEel(const char* name)
     , unk1AC(nullptr)
     , unk1B0(nullptr)
     , unk1BC(1.0f)
-    , unk1C0(nullptr)
-    , unk1C4(nullptr)
+    , unk1C0(0)
+    , unk1C4(0)
     , unk1CC(500.0f)
     , unk1D0(TRUE)
     , unk1D4(2350.0f)
@@ -388,6 +388,112 @@ bool TBossEel::isInBossEelMoguDemo()
 		return true;
 
 	return false;
+}
+
+static inline TBossEelEye* getBossEelEye(TBossEel* eel, int index)
+{
+	return *(TBossEelEye**)((u8*)eel + 0x15C + index * 4);
+}
+
+#define START_BOSS_EEL_EYE_CLOSE(eye)                                         \
+	do {                                                                       \
+		TBossEelEye* closeEye          = (eye);                                \
+		closeEye->unk60               = closeEye->unk18->getCurAnmIdx(0);     \
+		closeEye->unk5C               = 1;                                     \
+		closeEye->unk64               = 1.0f;                                  \
+		J3DAnmTransform* closeOldAnm  = nullptr;                               \
+		if (closeEye->unk18->unkC)                                             \
+			closeOldAnm = closeEye->unk18->unkC->unk24;                        \
+		if (closeEye->unk18->unkC)                                             \
+			closeEye->unk18->unkC->setOldMotionBlendAnmPtr(closeOldAnm);       \
+		closeEye->unk18->setBckFromIndex(1);                                  \
+		if (closeEye->unk18->unkC)                                             \
+			closeEye->unk18->unkC->setMotionBlendRatio(closeEye->unk64);       \
+	} while (0)
+
+void TBossEel::forceShedTears(bool use_back_eye)
+{
+	unk1D0 = !unk1D0;
+
+	int eyeIndex;
+	if (use_back_eye)
+		eyeIndex = unk1D0 ? 3 : 2;
+	else
+		eyeIndex = unk1D0 ? 1 : 0;
+
+	TBossEelEye* eye = getBossEelEye(this, eyeIndex);
+	MtxPtr mtx       = eye->getConnectedMtx();
+	START_BOSS_EEL_EYE_CLOSE(eye);
+	eye->unk6C = 0;
+	shedTears(mtx);
+}
+
+void TBossEel::shedTears(MtxPtr mtx)
+{
+	JGeometry::TVec3<f32> position;
+	position.x = mtx[0][3];
+	position.y = mtx[1][3];
+	position.z = mtx[2][3];
+
+	TBEelTears* tears = (TBEelTears*)gpConductor->makeOneEnemyAppear(
+	    position, cBossEelTearsManagerName, 0);
+	if (!tears)
+		return;
+
+	tears->unk168 = mtx;
+	tears->reset();
+
+	JGeometry::TVec3<f32> velocity;
+	velocity.x = 0.0f;
+	velocity.y = 0.0f;
+	velocity.z = 100.0f;
+
+	Mtx rot;
+	MsMtxSetRotRPH(rot, 0.0f, rand() * 0.000030517578f * 360.0f, 0.0f);
+	PSMTXMultVec(rot, &velocity, &velocity);
+
+	tears->mPosition.x += velocity.x;
+	tears->mPosition.z += velocity.z;
+
+	MsVECNormalize(&velocity, &velocity);
+	velocity.x *= 10.0f;
+	velocity.z *= 10.0f;
+	tears->mVelocity = velocity;
+}
+
+void TBossEel::updateTearsCnt()
+{
+	++unk1C4;
+
+	int interval = unk1E8->mSLGenTearsTime.value;
+	f32 diff     = fabsf(mPosition.y - gpMarioPos->y);
+	if (diff > 30000.0f)
+		interval *= 4;
+	else if (diff > 15000.0f)
+		interval *= 3;
+	else if (diff > 6000.0f)
+		interval *= 2;
+
+	if (unk1C4 == interval - 100) {
+		int eyeIndex     = dummy1210[unk1C0];
+		TBossEelEye* eye = getBossEelEye(this, eyeIndex);
+		START_BOSS_EEL_EYE_CLOSE(eye);
+		START_BOSS_EEL_EYE_CLOSE(eye->unk68);
+	}
+
+	if (unk1C4 > interval) {
+		unk1C4           = 0;
+		int eyeIndex     = dummy1210[unk1C0];
+		TBossEelEye* eye = getBossEelEye(this, eyeIndex);
+		MtxPtr mtx       = eye->getConnectedMtx();
+		START_BOSS_EEL_EYE_CLOSE(eye);
+		eye->unk6C = 0;
+		shedTears(mtx);
+
+		++unk1C0;
+		if (unk1C0 >= 4)
+			unk1C0 = 0;
+	}
 }
 
 MtxPtr TBossEel::getTakingMtx()

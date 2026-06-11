@@ -33,6 +33,8 @@ public:
 
 	bool isInBossEelMoguDemo();
 	void forceShedTears(bool);
+	void shedTears(MtxPtr);
+	void updateTearsCnt();
 
 	static f32 mOpenRollSpeed;
 	static u8 mUseObjCollision;
@@ -47,8 +49,8 @@ public:
 	/* 0x1B0 */ void* unk1B0;
 	/* 0x1B4 */ u8 unk1B4[0x8];
 	/* 0x1BC */ f32 unk1BC;
-	/* 0x1C0 */ void* unk1C0;
-	/* 0x1C4 */ void* unk1C4;
+	/* 0x1C0 */ s32 unk1C0;
+	/* 0x1C4 */ s32 unk1C4;
 	/* 0x1C8 */ u32 unk1C8;
 	/* 0x1CC */ f32 unk1CC;
 	/* 0x1D0 */ u8 unk1D0;
