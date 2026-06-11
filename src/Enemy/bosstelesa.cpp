@@ -5,6 +5,7 @@
 #include <Camera/CameraShake.hpp>
 #include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
@@ -14,9 +15,11 @@
 #include <M3DUtil/SDLModel.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
+#include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/MapObjManager.hpp>
@@ -25,9 +28,11 @@
 #include <MSound/MSound.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
+#include <Strategic/ObjModel.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/SharedParts.hpp>
 #include <Strategic/Spine.hpp>
+#include <Strategic/Strategy.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
 #include <System/MarioGamePad.hpp>
@@ -285,10 +290,76 @@ MtxPtr TBossTelesa::getTakingMtx()
 
 void TBossTelesa::init(TLiveManager* manager)
 {
-	TSpineEnemy::init(manager);
-	initHitActor(0x08000024, 1, 0x80000000, mBodyRadius, mHeadHeight,
+	mManager = manager;
+	manager->manageActor(this);
+	mMActorKeeper = new TMActorKeeper(manager, 1);
+	mMActor       = mMActorKeeper->createMActor("btelesa.bmd", 3);
+
+	onLiveFlag(LIVE_FLAG_DEAD);
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+
+	TSpineEnemyParams* params = getSaveParam();
+	if (params) {
+		mBodyRadius       = params->mSLBodyRadius.get();
+		mWallRadius       = params->mSLWallRadius.get();
+		mHeadHeight       = params->mSLHeadHeight.get();
+		mScaledBodyRadius = mBodyScale * mBodyRadius;
+		mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
+	}
+
+	initHitActor(0, 5, 0x98000000, mBodyRadius, mHeadHeight,
 	             mBodyRadius, mHeadHeight);
-	mActorType = 0x08000024;
+	mGroundPlane = TMap::getIllegalCheckData();
+	setGoalPathMario();
+	initAnmSound();
+	unk15C       = getSaveParam();
+	mActorType   = 0x08000013;
+	onHitFlag(0xD0000000);
+	mSpine->initWith(&TNerveBossTelesaFallDemo::theNerve());
+	onLiveFlag(LIVE_FLAG_UNK8);
+
+	mMActor->setLightType(1);
+	mMActor->unk40 = 1;
+	if (mMActor->unkC)
+		mMActor->unkC->initNormalMotionBlend();
+
+	J3DModel* model = mMActor->getModel();
+	if (!model->getSkinDeform())
+		model->setSkinDeform(new J3DSkinDeform,
+		                      J3D_DEFORM_ATTACH_FLAG_UNK_1);
+	mMActor->resetDL();
+
+	unk348.r = 0xFF;
+	unk348.g = 0xFF;
+	unk348.b = 0xFF;
+	unk348.a = 0xFF;
+
+	unk34C.r = mNormalAlpha;
+	unk34C.g = mNormalAlpha;
+	unk34C.b = mNormalAlpha;
+	unk34C.a = mNormalAlpha;
+
+	J3DModelData* modelData = model->getModelData();
+	s32 bodyMatIndex = modelData->getMaterialName()->getIndex("_mat_body");
+	for (u16 i = 0; i < modelData->getMaterialNum(); ++i) {
+		if (i == bodyMatIndex) {
+			SMS_InitPacket_TwoTevKColor(model, i, GX_KCOLOR0, &unk34C,
+			                            GX_KCOLOR1, &unk348);
+		} else {
+			SMS_InitPacket_OneTevKColor(model, i, GX_KCOLOR0, &unk34C);
+		}
+	}
+
+	reset();
+
+	for (int i = 0; i < gpMapObjManager->getObjNum(); ++i) {
+		TMapObjBase* actor = gpMapObjManager->getObj(i);
+		if (actor->mActorType == 0x4000019A) {
+			unk154 = nullptr;
+			unk158 = nullptr;
+			mPosition = actor->mPosition;
+		}
+	}
 
 	if (!unk16C)
 		unk16C = new TBossTelesaBody("ボステレサ体コリジョン");
@@ -301,9 +372,42 @@ void TBossTelesa::init(TLiveManager* manager)
 	((TBossTelesaBody*)unk16C)->unk68            = this;
 	((TBossTelesaTongue*)unk170)->unk68          = this;
 	((TBossTelesaKillSmallEnemy*)unk174)->unk68  = this;
+	TIdxGroupObj* enemyGroup
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	if (enemyGroup) {
+		enemyGroup->add(unk16C);
+		enemyGroup->add(unk170);
+		enemyGroup->add(unk174);
+	}
 
-	if (mSpine)
-		mSpine->initWith(&TNerveBossTelesaFallDemo::theNerve());
+	unk16C->initHitActor(0x08000013, 5, 0xD1000000, 350.0f, 550.0f,
+	                     300.0f, 500.0f);
+	unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	unk170->initHitActor(0x08000013, 5, 0xC0000000, 180.0f, 350.0f,
+	                     180.0f, 350.0f);
+	unk170->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	unk174->initHitActor(0x1000000C, 5, 0x10000000, 400.0f, 300.0f,
+	                     400.0f, 300.0f);
+	unk174->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	mMActor->setLightType(3);
+
+	JDrama::TViewObj* screenTex
+	    = JDrama::TNameRefGen::search<JDrama::TViewObj>("スクリーンテクスチャ");
+	if (screenTex) {
+		void* dataOwner = *(void**)((u8*)screenTex + 0x10);
+		if (dataOwner) {
+			ResTIMG* texture = *(ResTIMG**)((u8*)dataOwner + 0x20);
+			if (texture) {
+				SMS_ChangeTextureAll(model->getModelData(), "H_ma_rak_dummy",
+				                     *texture);
+			}
+		}
+	}
+
+	unk358 = SMS_GetMarioHP();
 }
 
 void TBossTelesa::calcRootMatrix()
@@ -986,24 +1090,24 @@ void TBossTelesa::checkHitObject(THitActor* actor)
 
 	switch (actor->mActorType) {
 	case 0x40000390:
-		unk348 = 0xE6;
-		unk349 = 0x64;
-		unk34A = 0xB4;
+		unk348.r = 0xE6;
+		unk348.g = 0x64;
+		unk348.b = 0xB4;
 		unk380 = 0xD8;
 		kill();
 		break;
 	case 0x40000391:
 	case 0x40000392:
-		unk348 = 0xE6;
-		unk349 = 0xB4;
-		unk34A = 0;
+		unk348.r = 0xE6;
+		unk348.g = 0xB4;
+		unk348.b = 0;
 		unk380 = 0xDA;
 		kill();
 		break;
 	case 0x40000393:
-		unk348 = 0x96;
-		unk349 = 0x32;
-		unk34A = 0xE6;
+		unk348.r = 0x96;
+		unk348.g = 0x32;
+		unk348.b = 0xE6;
 		unk380 = 0xD9;
 		kill();
 		break;

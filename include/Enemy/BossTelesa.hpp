@@ -8,6 +8,7 @@
 #include <JSystem/JGeometry.hpp>
 #include <MoveBG/MapObjSirena.hpp>
 #include <Strategic/HitActor.hpp>
+#include <dolphin/gx/GXStruct.h>
 
 class TBossTelesaSaveLoadParams : public TSpineEnemyParams {
 public:
@@ -96,10 +97,8 @@ public:
 	/* 0x2A8 */ TLiveActor* unk2A8[20];
 	/* 0x2F8 */ TLiveActor* unk2F8[10];
 	/* 0x320 */ TLiveActor* unk320[10];
-	/* 0x348 */ u8 unk348;
-	/* 0x349 */ u8 unk349;
-	/* 0x34A */ u8 unk34A;
-	/* 0x34B */ u8 unk34B[0x5];
+	/* 0x348 */ GXColor unk348;
+	/* 0x34C */ GXColor unk34C;
 	/* 0x350 */ u8 unk350;
 	/* 0x351 */ u8 unk351[0x3];
 	/* 0x354 */ TObjManager* unk354;
