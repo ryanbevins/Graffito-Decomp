@@ -1002,6 +1002,49 @@ check_sender_bit3:
 			return 0;
 		}
 
+		case 0x08000014:
+		case 0x08000015: // Hanachan boss parts
+		{
+			if (message == 0x0E) {
+				if (!isInvincible()) {
+					damageExec(sender,
+					           mDmgParamsHanachanBoss.mDamage.get(),
+					           mDmgParamsHanachanBoss.mDownType.get(),
+					           mDmgParamsHanachanBoss.mWaterEmit.get(),
+					           mDmgParamsHanachanBoss.mMinSpeed.get(),
+					           mDmgParamsHanachanBoss.mMotor.get(),
+					           mDmgParamsHanachanBoss.mDirty.get(),
+					           mDmgParamsHanachanBoss.mInvincibleTime.get());
+					return 1;
+				}
+			}
+			return 0;
+		}
+
+		case 0x08000024: // BathtubKiller hit
+		{
+			if (!isInvincible()) {
+				if (message != 0x0E)
+					return 0;
+				if (mAction == 0x800008A9) {
+					if (mActionState == 3)
+						return 0;
+				}
+				damageExec(sender,
+				           mDmgParamsBGTentacle.mDamage.get(),
+				           mDmgParamsBGTentacle.mDownType.get(),
+				           mDmgParamsBGTentacle.mWaterEmit.get(),
+				           mDmgParamsBGTentacle.mMinSpeed.get(),
+				           mDmgParamsBGTentacle.mMotor.get(),
+				           mDmgParamsBGTentacle.mDirty.get(),
+				           mDmgParamsBGTentacle.mInvincibleTime.get());
+
+				changePlayerStatus(0x000208B8, 0, false);
+				return 1;
+			}
+			return 0;
+		}
+
 		case 0x0800000B: // Specific enemy damage
 		{
 			if (message == 0x0A) {
