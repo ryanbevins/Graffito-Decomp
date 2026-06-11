@@ -1098,7 +1098,7 @@ void TBossTelesa::genAttacker()
 			    bubble->mPosition.x, bubble->mPosition.y,
 			    bubble->mPosition.z, 0x20000008, true);
 			if (item && item->receiveMessage(bubble, HIT_MESSAGE_TAKE)) {
-				item->makeObjAppeared();
+				item->appear();
 				item->mPosition = bubble->mPosition;
 				item->mVelocity.set(0.0f, 15.0f, 0.0f);
 				item->offLiveFlag(LIVE_FLAG_UNK10);
