@@ -182,6 +182,7 @@ public:
 	virtual void createEnemies(int);
 	virtual void createModelData();
 	virtual void loadAfter();
+	void splitTears(JGeometry::TVec3<f32>&);
 
 	/* 0x054 */ TBEelTearsDrop* mDrops[30];
 };
