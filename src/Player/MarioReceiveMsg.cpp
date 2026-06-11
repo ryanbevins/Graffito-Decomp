@@ -699,13 +699,13 @@ check_sender_bit3:
 				goto default_msg;
 			if (!isInvincible()) {
 				damageExec(sender,
-				           mDmgParamsFire.mDamage.get(),
-				           mDmgParamsFire.mDownType.get(),
-				           mDmgParamsFire.mWaterEmit.get(),
-				           mDmgParamsFire.mMinSpeed.get(),
-				           mDmgParamsFire.mMotor.get(),
-				           mDmgParamsFire.mDirty.get(),
-				           mDmgParamsFire.mInvincibleTime.get());
+				           mDmgParamsEnemyCommon.mDamage.get(),
+				           mDmgParamsEnemyCommon.mDownType.get(),
+				           mDmgParamsEnemyCommon.mWaterEmit.get(),
+				           mDmgParamsEnemyCommon.mMinSpeed.get(),
+				           mDmgParamsEnemyCommon.mMotor.get(),
+				           mDmgParamsEnemyCommon.mDirty.get(),
+				           mDmgParamsEnemyCommon.mInvincibleTime.get());
 				return 1;
 			}
 			goto default_msg;
