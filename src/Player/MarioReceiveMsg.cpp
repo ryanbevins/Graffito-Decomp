@@ -903,7 +903,13 @@ check_sender_bit3:
 		}
 
 		case 0x08000003:
+		case 0x08000004:
+		case 0x08000006:
+		case 0x08000007:
+		case 0x08000008:
 		case 0x0800001F:
+		case 0x08000022:
+		case 0x08000023:
 		case 0x08000027: // General enemy interaction
 		{
 			switch (message) {
