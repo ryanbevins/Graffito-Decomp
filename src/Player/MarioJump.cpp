@@ -30,7 +30,8 @@ void TMario::startJumpWall()
 	}
 	mVel.y = -8.0f;
 	mFaceAngle.y = mFaceAngle.y + 0x8000;
-	if ((-1.0f + mPosition.y) + mVel.y >= mFloorPosition.x)
+	f32 height = -1.0f + mPosition.y;
+	if (mVel.y + height >= mFloorPosition.x)
 		mVel.y = 176.0f;
 	changePlayerStatus(0x02000886, 0, false);
 }
