@@ -9,6 +9,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <MoveBG/MapObjBase.hpp>
+#include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MSound/MSound.hpp>
 #include <Player/MarioAccess.hpp>
@@ -871,8 +872,14 @@ void TBubble::reset()
 
 void TBubble::behaveToWater(THitActor*)
 {
-	if (mSpine)
-		mSpine->pushNerve(&TNerveBubbleSplit::theNerve());
+	if (mSpine->getCurrentNerve() == &TNerveBubbleLive::theNerve()
+	    && mMActor->checkCurBckFromIndex(10)) {
+		kill();
+		TMapObjBase* item = gpItemManager->makeObjAppear(
+		    mPosition.x, mPosition.y + 50.0f, mPosition.z, 0x20000002, true);
+		if (item)
+			((TItem*)item)->killByTimer(0x4B0);
+	}
 }
 
 void TBubble::setDeadAnm() { setBckAnm(9); }
