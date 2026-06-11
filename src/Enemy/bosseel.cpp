@@ -1,8 +1,11 @@
 #include <Enemy/BossEel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
+#include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
 #include <Strategic/ObjManager.hpp>
+#include <Strategic/ObjModel.hpp>
+#include <Strategic/Spine.hpp>
 #include <System/Particles.hpp>
 
 // rogue includes needed for matching sinit & rodata
@@ -47,6 +50,19 @@ static const char* bossEelTears_bastable[] = {
 	nullptr,
 	nullptr,
 };
+
+DEFINE_NERVE(TNerveBEelTearsMoveUp, TLiveActor)
+{
+	TBEelTears* tears = (TBEelTears*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		tears->mMActor = tears->mMActorKeeper->getMActor("tears.bmd");
+		tears->mMActor->setBckFromIndex(1);
+	}
+
+	tears->mPosition.y += tears->unk15C->mSLTearsUpSpeed.get();
+	return FALSE;
+}
 
 TBossEel::TBossEel(const char* name)
     : TSpineEnemy(name)
