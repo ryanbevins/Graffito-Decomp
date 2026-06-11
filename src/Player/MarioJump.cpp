@@ -550,59 +550,119 @@ BOOL TMario::rocketCheck()
 
 void TMario::rocketing()
 {
-	u8 hf; if (mState & MARIO_FLAG_IN_SHALLOW_WATER) hf = 1; else hf = 0;
-	if (!hf) { changePlayerStatus(ACTION_ROCKET_END, 0, false); return; }
-	// Pointer math slop
-	if (*(u8*)((u8*)mWaterGun->getCurrentNozzle() + 0x18) != 1) { changePlayerStatus(ACTION_ROCKET_END, 0, false); return; }
-	u8 nw; if (mPumpState == 0) nw = 1; else nw = 0;
-	if (nw) { changePlayerStatus(ACTION_ROCKET_END, 0, false); return; }
+	u8 hasFludd;
+	if (mState & MARIO_FLAG_HAS_FLUDD)
+		hasFludd = TRUE;
+	else
+		hasFludd = FALSE;
+	if (!hasFludd) {
+		changePlayerStatus(ACTION_ROCKET_END, 0, false);
+		return;
+	}
+
+	if (*(u8*)((u8*)mWaterGun->getCurrentNozzle() + 0x18) != 1) {
+		changePlayerStatus(ACTION_ROCKET_END, 0, false);
+		return;
+	}
+
+	u8 isPumpIdle;
+	if (mPumpState == 0)
+		isPumpIdle = TRUE;
+	else
+		isPumpIdle = FALSE;
+	if (!isPumpIdle) {
+		changePlayerStatus(ACTION_ROCKET_END, 0, false);
+		return;
+	}
+
+	TWaterGun* gun = mWaterGun;
+	u8 canRocket;
+	if (gun->mCurrentWater == 0) {
+		canRocket = FALSE;
+	} else {
+		s32 nozzleKind = gun->getCurrentNozzle()->getNozzleKind();
+		if (nozzleKind == 1) {
+			TNozzleTrigger* nozzle = (TNozzleTrigger*)gun->getCurrentNozzle();
+			if (nozzle->unk385 == TNozzleTrigger::ACTIVE)
+				canRocket = TRUE;
+			else
+				canRocket = FALSE;
+		} else {
+			if (gun->getCurrentNozzle()->unk378 > 0.0f)
+				canRocket = TRUE;
+			else
+				canRocket = FALSE;
+		}
+	}
+	if (!canRocket) {
+		changePlayerStatus(ACTION_ROCKET_END, 0, false);
+		return;
+	}
+
 	if (mInput & 1) {
-		u8 rp = mWaterGun->mCurrentNozzle;
-		if (rp == TWaterGun::Hover) {
-			s16 ad = mIntendedYaw - mFaceAngle.y;
-			f32 im = mIntendedMag;
-			s16 ade = (s16)ad;
-			if (ade > -5461 && ade < 5461) {
-			} else if (ade >= -27306 && ade <= 27306) {
-				// Pointer math slop
-				s16 fa2 = *(s16*)((u8*)mWaterGun->getCurrentNozzle() + 0x0310);
-				f32 ac = *(f32*)((u8*)this + 0x0B8C) * (-im);
-				u16 au = (u16)ad;
-				s16 ra = (s16)(ac * (f32)fa2 * JMASSin(au));
-				u8 fo; if (mState & MARIO_FLAG_IN_SHALLOW_WATER) fo = 1; else fo = 0;
-				if (fo) {
-					mWaterGun->unk1CC2 = -ra;
-					mWaterGun->unk1CC4 = ra;
-					IConverge((int)mFaceAngle.y, (int)mIntendedYaw, (int)mHoverParams.mRotSp.value, (int)mHoverParams.mRotSp.value);
-					mFaceAngle.y = mIntendedYaw - ra;
-				}
+		if (mWaterGun->mCurrentNozzle == TWaterGun::Hover) {
+			s16 angleDiff = mIntendedYaw - mFaceAngle.y;
+			f32 stickMag  = mIntendedMag;
+			if ((angleDiff > -0x1555 && angleDiff < 0x1555)
+			    || angleDiff < -0x6AAA || angleDiff > 0x6AAA) {
+				s16 gunAngle;
+				if (angleDiff >= -0x4000 && angleDiff <= 0x4000)
+					gunAngle
+					    = *(s16*)((u8*)mWaterGun->getCurrentNozzle() + 0x324);
+				else
+					gunAngle
+					    = *(s16*)((u8*)mWaterGun->getCurrentNozzle() + 0x338);
+				s16 reaction = (s16)(0.03125f * -stickMag * (f32)gunAngle
+				                     * JMASCos(angleDiff));
+				mWaterGun->unk1CC2 = reaction;
+				mWaterGun->unk1CC4 = reaction;
+				mForwardVel += stickMag * JMASCos(angleDiff)
+				                * mDivingParams.mAccelControl.value;
 			} else {
-				// Pointer math slop
-				s16 ta;
-				if (ade >= -16384 && ade <= 16384) ta = *(s16*)((u8*)mWaterGun->getCurrentNozzle() + 0x0324);
-				else ta = *(s16*)((u8*)mWaterGun->getCurrentNozzle() + 0x0338);
-				f32 ac = *(f32*)((u8*)this + 0x0B8C) * (-im);
-				u16 au = (u16)ad;
-				s16 ra = (s16)(ac * (f32)ta * JMASSin(au));
-				mWaterGun->unk1CC2 = ra;
-				mWaterGun->unk1CC4 = ra;
-				mForwardVel += im * JMASCos(au) * mDivingParams.mAccelControl.value;
+				s16 gunAngle
+				    = *(s16*)((u8*)mWaterGun->getCurrentNozzle() + 0x310);
+				s16 reaction = (s16)(0.03125f * -stickMag * (f32)gunAngle
+				                     * JMASSin(angleDiff));
+				u8 hasFludd2;
+				if (mState & MARIO_FLAG_HAS_FLUDD)
+					hasFludd2 = TRUE;
+				else
+					hasFludd2 = FALSE;
+				if (hasFludd2) {
+					mWaterGun->unk1CC2 = -reaction;
+					mWaterGun->unk1CC4 = reaction;
+					s16 convergeAngle = mIntendedYaw - mFaceAngle.y;
+					mFaceAngle.y
+					    = mIntendedYaw
+					      - IConverge(convergeAngle, 0,
+					                  mHoverParams.mRotSp.value,
+					                  mHoverParams.mRotSp.value);
+				}
 			}
 		}
-	} else { mWaterGun->unk1CC2 = 0; mWaterGun->unk1CC4 = 0; }
+	} else {
+		mWaterGun->unk1CC2 = 0;
+		mWaterGun->unk1CC4 = 0;
+	}
+
 	u16 fa = mFaceAngle.y;
 	mSlideVelX = mForwardVel * JMASSin(fa); mSlideVelZ = mForwardVel * JMASCos(fa);
 	mVel.x = mSlideVelX; mVel.z = mSlideVelZ;
-	u8 rp2 = mWaterGun->mCurrentNozzle;
-	if (rp2 == TWaterGun::Hover) {
+	if (mWaterGun->mCurrentNozzle == TWaterGun::Hover) {
 		mVel.y = (mRocketTargetY - mPosition.y) * mHoverParams.mAccelRate.value;
 		mForwardVel *= mHoverParams.mBrake.value;
 	}
-	int res = jumpProcess(2);
-	if (res >= 3 && res < 5) { rumbleStart(21, mMotorParams.mMotorWall.value); changePlayerStatus(ACTION_ROOF_CHECK, 0, false); }
+	switch (jumpProcess(2)) {
+	case 3:
+	case 4:
+		rumbleStart(21, mMotorParams.mMotorWall.value);
+		changePlayerStatus(ACTION_ROOF_CHECK, 0, false);
+		break;
+	}
+
 	if (mRoofPlane) {
-		f32 c = mJumpParams.mJumpJumpCatchSp.value;
-		if (c + mPosition.y > mFloorPosition.y) mPosition.y = mFloorPosition.y - c;
+		if (160.0f + mPosition.y > mFloorPosition.x)
+			mPosition.y = mFloorPosition.x - 160.0f;
 	}
 	setAnimation(86, 1.0f);
 }
