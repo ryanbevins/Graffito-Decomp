@@ -598,6 +598,8 @@ check_sender_bit3:
 			// Fall through to keepDistance
 
 		case 0x1000000B:
+		case 0x10000021:
+		case 0x10000034:
 			if (message == 9) {
 				if (!isInvincible()) {
 					elecEffect();
@@ -636,22 +638,6 @@ check_sender_bit3:
 			}
 			goto default_enemy_handle;
 
-		case 0x1000001E: // Boss eel / special enemy contact
-			if (message == 0x0E) {
-				if (!isInvincible()) {
-					damageExec(sender,
-					           mDmgParamsBossEel.mDamage.get(),
-					           mDmgParamsBossEel.mDownType.get(),
-					           mDmgParamsBossEel.mWaterEmit.get(),
-					           mDmgParamsBossEel.mMinSpeed.get(),
-					           mDmgParamsBossEel.mMotor.get(),
-					           mDmgParamsBossEel.mDirty.get(),
-					           mDmgParamsBossEel.mInvincibleTime.get());
-					return 1;
-				}
-			}
-			goto default_enemy_handle;
-
 		case 0x10000004: // Common damage with keepDistance
 		case 0x10000006:
 		case 0x10000007:
@@ -659,9 +645,11 @@ check_sender_bit3:
 		case 0x10000009:
 		case 0x1000000C:
 		case 0x10000010:
+		case 0x10000012:
 		case 0x10000014:
 		case 0x10000016:
 		case 0x10000017:
+		case 0x10000018:
 		case 0x10000019:
 		case 0x1000001A:
 		case 0x1000001B:
@@ -671,6 +659,7 @@ check_sender_bit3:
 		case 0x10000022:
 		case 0x10000024:
 		case 0x10000025:
+		case 0x10000029:
 		case 0x1000002A:
 		case 0x1000002C:
 		case 0x1000002D:
@@ -747,37 +736,52 @@ check_sender_bit3:
 			}
 			goto default_msg;
 
-		case 0x1000000F:
-		case 0x10000012:
-		case 0x10000018:
+		case 0x10000005:
 		case 0x1000000E:
-		case 0x10000021:
-		case 0x10000035:
-		case 0x10000029:
-		case 0x10000030:
-			// Enemy common (default damage)
+		case 0x10000011:
+		case 0x1000001E:
+		case 0x10000026:
 			if (message == 0x0E) {
 				if (!isInvincible()) {
 					damageExec(sender,
-					           mDmgParamsEnemyCommon.mDamage.get(),
-					           mDmgParamsEnemyCommon.mDownType.get(),
-					           mDmgParamsEnemyCommon.mWaterEmit.get(),
-					           mDmgParamsEnemyCommon.mMinSpeed.get(),
-					           mDmgParamsEnemyCommon.mMotor.get(),
-					           mDmgParamsEnemyCommon.mDirty.get(),
-					           mDmgParamsEnemyCommon.mInvincibleTime.get());
+					           mDmgParamsFire.mDamage.get(),
+					           mDmgParamsFire.mDownType.get(),
+					           mDmgParamsFire.mWaterEmit.get(),
+					           mDmgParamsFire.mMinSpeed.get(),
+					           mDmgParamsFire.mMotor.get(),
+					           mDmgParamsFire.mDirty.get(),
+					           mDmgParamsFire.mInvincibleTime.get());
 					return 1;
 				}
 			}
-			// Fall through to keepDistance
-			{
-				f32 height = sender->mAttackHeight;
-				keepDistance(sender->mPosition, 0.0f + height, 0.0f);
-			}
-			return 1;
+			if (message - 9 <= 1) {
+				if (!isInvincible()) {
+					damageExec(sender,
+					           mDmgParamsFire.mDamage.get(),
+					           mDmgParamsFire.mDownType.get(),
+					           mDmgParamsFire.mWaterEmit.get(),
+					           mDmgParamsFire.mMinSpeed.get(),
+					           mDmgParamsFire.mMotor.get(),
+					           mDmgParamsFire.mDirty.get(),
+					           mDmgParamsFire.mInvincibleTime.get());
 
-		case 0x10000026: // Specific enemy (just keepDistance)
-			goto default_enemy_fallthrough;
+					changePlayerStatus(0x000208B7, 1, false);
+
+					if (gpMSound->gateCheck(0x1813)) {
+						MSoundSESystem::MSoundSE::startSoundActor(
+						    0x1813, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+					}
+					gpMarioParticleManager->emitAndBindToPosPtr(
+					    6, (const JGeometry::TVec3<f32>*)&mPosition, 0, nullptr);
+					return 1;
+				}
+			}
+			goto default_msg;
+
+		case 0x1000000F:
+		case 0x10000030:
+		case 0x10000035:
+			goto default_msg;
 
 		default:
 		default_enemy_handle:
