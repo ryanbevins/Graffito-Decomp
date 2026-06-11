@@ -397,7 +397,7 @@ void TMario::stayWall()
 	}
 }
 
-void TMario::catchStop()
+BOOL TMario::catchStop()
 {
 	if (mActionState == 0) { mVel.y = 0.0f; mActionState = 1; }
 	doJumping();
@@ -411,6 +411,7 @@ void TMario::catchStop()
 	case 2: case 3: setPlayerVelocity(0.0f); break;
 	}
 	if (mActionState == 1 && isLast1AnimeFrame()) mActionState = 2;
+	return FALSE;
 }
 
 void TMario::slipFalling()

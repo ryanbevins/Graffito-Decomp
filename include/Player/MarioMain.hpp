@@ -912,7 +912,7 @@ public:
 	void thrownDowning();
 	void fireDowning();
 	void slipFalling();
-	void catchStop();
+	BOOL catchStop();
 	void stayWall();
 	void landSafeDown();
 	void jumpForeDown();
