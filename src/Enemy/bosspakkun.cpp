@@ -438,6 +438,50 @@ DEFINE_NERVE(TNerveBPTouchDown, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveBPFly, TLiveActor)
+{
+	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		boss->changeBck(0x0B);
+		boss->goToRandomNextGraphNode();
+
+		if ((s8)boss->unk1CC == 0) {
+			MSBgm::startBGM(0x8001000D);
+			boss->unk1CC = 1;
+		}
+	}
+
+	JGeometry::TVec3<f32> toGoal = boss->unk104.getPoint();
+	toGoal -= boss->mPosition;
+	toGoal.y = 0.0f;
+
+	if (PSVECMag((Vec*)&toGoal) < 100.0f) {
+		if (!boss->unk124->unk0->getGraphNode(boss->unk124->mCurrIdx)
+		         .checkFlag(0x800)) {
+			boss->goToRandomNextGraphNode();
+		} else {
+			spine->pushAfterCurrent(&TNerveBPHover::theNerve());
+			return TRUE;
+		}
+	}
+
+	f32 turnSpeed = boss->mTurnSpeed;
+	f32 flySpeed  = boss->getBossPakkunSaveParam()->mSLFlySpeed.value;
+	boss->turnToCurPathNode(turnSpeed);
+
+	JGeometry::TVec3<f32> dir = boss->unkF4.getPoint();
+	dir -= boss->mPosition;
+	PSVECNormalize((Vec*)&dir, (Vec*)&dir);
+	dir *= flySpeed;
+
+	JGeometry::TVec3<f32> velocity = boss->mLinearVelocity;
+	velocity += dir;
+	boss->mLinearVelocity = velocity;
+
+	return FALSE;
+}
+
 TBossPakkunParams::TBossPakkunParams(const char* path)
     : TSpineEnemyParams(path)
     , PARAM_INIT(mSLWaitFrameStg0, 400)
