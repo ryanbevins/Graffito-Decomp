@@ -438,7 +438,7 @@ config.libs = [
             Object(NonMatching, "JSystem/JAudio/JASystem/JASBNKParser.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASDrumSet.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASInstEffect.cpp"),
-            Object(NonMatching, "JSystem/JAudio/JASystem/JASInstRand.cpp"),
+            Object(Equivalent, "JSystem/JAudio/JASystem/JASInstRand.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASInstSense.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASSimpleWaveBank.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASWaveArcLoader.cpp"),
