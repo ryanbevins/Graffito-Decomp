@@ -329,7 +329,7 @@ BOOL TMario::swimMain()
 		if (getMotionFrameCtrl().checkPass(16.0f))
 			*(s16*)((u8*)this + 0x0366) = mSwimParams.mWaitSinkTime.value;
 		{
-			s16 timer = *(s16*)((u8*)this + 0x0366);
+			int timer = *(s16*)((u8*)this + 0x0366);
 			if (timer > 0) {
 				*(s16*)((u8*)this + 0x0366) = timer - 1;
 				f32 velY = mVel.y;
