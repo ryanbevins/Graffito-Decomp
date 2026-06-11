@@ -1598,11 +1598,136 @@ TBPTornado::TBPTornado(TBossPakkun* owner, const char* name)
 
 void TBPTornado::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	if (mActor == nullptr)
+	THitActor::perform(flags, graphics);
+
+	if (mOwner->mLiveFlag & LIVE_FLAG_DEAD)
 		return;
 
-	if (flags & 2)
-		mActor->calcAnm();
+	if (unk98 == 0)
+		return;
+
+	if (flags & 1) {
+		if (unk98 == 2) {
+			mPosition.add(unk88);
+			if (mActor->curAnmEndsNext(5, nullptr)) {
+				unk98 = 0;
+				return;
+			}
+		} else {
+			unk94 += mOwner->getBossPakkunSaveParam()->mSLTornadoMoveInc.value;
+
+			if (unk94
+			    > mOwner->getBossPakkunSaveParam()->mSLTornadoMoveLimit.value) {
+				onHitFlag(HIT_FLAG_NO_COLLISION);
+				unk98 = 2;
+				J3DFrameCtrl* ctrl = mActor->getFrameCtrl(5);
+				ctrl->setFrame(0.0f);
+				ctrl->setRate(SMSGetAnmFrameRate());
+				return;
+			}
+
+			int phase  = (int)unk94;
+			f32 angle  = 360.0f - (phase % 360);
+			f32 radius = unk94
+			             * mOwner->getBossPakkunSaveParam()
+			                   ->mSLTornadoRollSpeed.value;
+
+			JGeometry::TVec3<f32> toTarget = unk70;
+			toTarget -= unk7C;
+			if (PSVECMag((Vec*)&toTarget) < 60.0f) {
+				onHitFlag(HIT_FLAG_NO_COLLISION);
+				unk98 = 2;
+				J3DFrameCtrl* ctrl = mActor->getFrameCtrl(5);
+				ctrl->setFrame(0.0f);
+				ctrl->setRate(SMSGetAnmFrameRate());
+				return;
+			}
+
+			PSVECNormalize((Vec*)&toTarget, (Vec*)&toTarget);
+			toTarget.scale(
+			    mOwner->getBossPakkunSaveParam()->mSLTornadoSpeed.value);
+			unk7C += toTarget;
+
+			JGeometry::TVec3<f32> nextPos;
+			nextPos.x = unk7C.x + radius * JMACos(angle);
+			nextPos.y = unk7C.y;
+			nextPos.z = unk7C.z + radius * JMASin(angle);
+
+			const TBGCheckData* ground = nullptr;
+			f32 groundY = gpMap->checkGround(nextPos.x, nextPos.y + 200.0f,
+			                                 nextPos.z, &ground);
+			if (!ground->checkFlag(BG_CHECK_FLAG_ILLEGAL))
+				nextPos.y = groundY;
+
+			if (gpMap->isTouchedOneWallAndMoveXZ(&nextPos.x, nextPos.y,
+			                                     &nextPos.z, 80.0f)) {
+				onHitFlag(HIT_FLAG_NO_COLLISION);
+				unk98 = 2;
+				J3DFrameCtrl* ctrl = mActor->getFrameCtrl(5);
+				ctrl->setFrame(0.0f);
+				ctrl->setRate(SMSGetAnmFrameRate());
+			}
+
+			unk88 = nextPos;
+			unk88 -= mPosition;
+			mPosition = nextPos;
+
+			for (int i = 0; i < getColNum(); ++i) {
+				THitActor* actor = getCollision(i);
+				if (actor->getActorType() == 0x80000001) {
+					static JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+					SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
+					SMS_SendMessageToMario(this, HIT_MESSAGE_UNK7);
+					SMS_ThrowMario(up, 60.0f);
+
+					onHitFlag(HIT_FLAG_NO_COLLISION);
+					unk98 = 2;
+					J3DFrameCtrl* ctrl = mActor->getFrameCtrl(5);
+					ctrl->setFrame(0.0f);
+					ctrl->setRate(SMSGetAnmFrameRate());
+				}
+			}
+		}
+	}
+
+	u32 doCalc = flags & 2;
+	if (doCalc) {
+		J3DModel* model = mActor->getModel();
+		PSMTXIdentity(model->unk20);
+		model->unk20[0][3] = mPosition.x;
+		model->unk20[1][3] = mPosition.y;
+		model->unk20[2][3] = mPosition.z;
+		model->unk14.x     = mScaling.x;
+		model->unk14.y     = mScaling.y;
+		model->unk14.z     = mScaling.z;
+	}
+
+	if (doCalc) {
+		MtxPtr mtx = mActor->getModel()->unk20;
+		JPABaseEmitter* emitter
+		    = gpMarioParticleManager->emitAndBindToMtxPtr(0x162, mtx, 1, this);
+		if (emitter)
+			emitter->setScale(mScaling);
+
+		emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x163, mtx, 1, (u8*)this + 1);
+		if (emitter)
+			emitter->setScale(mScaling);
+
+		emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x164, mtx, 1, (u8*)this + 2);
+		if (emitter)
+			emitter->setScale(mScaling);
+	}
+
+	if (doCalc) {
+		JGeometry::TVec3<f32> soundDist = mPosition;
+		soundDist -= *gpMarioPos;
+		f32 dist = soundDist.length();
+		if (gpMSound->gateCheck(0x210C))
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x210C, &mPosition, nullptr, dist, 0, 0, nullptr, 0, 4);
+	}
 
 	mActor->perform(flags, graphics);
 }
