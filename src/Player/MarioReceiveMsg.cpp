@@ -586,13 +586,13 @@ check_sender_bit3:
 			if (message == 0x0E) {
 				if (!isInvincible()) {
 					damageExec(sender,
-					           mDmgParamsHinokuri.mDamage.get(),
-					           mDmgParamsHinokuri.mDownType.get(),
-					           mDmgParamsHinokuri.mWaterEmit.get(),
-					           mDmgParamsHinokuri.mMinSpeed.get(),
-					           mDmgParamsHinokuri.mMotor.get(),
-					           mDmgParamsHinokuri.mDirty.get(),
-					           mDmgParamsHinokuri.mInvincibleTime.get());
+					           mDmgParamsHamakuri.mDamage.get(),
+					           mDmgParamsHamakuri.mDownType.get(),
+					           mDmgParamsHamakuri.mWaterEmit.get(),
+					           mDmgParamsHamakuri.mMinSpeed.get(),
+					           mDmgParamsHamakuri.mMotor.get(),
+					           mDmgParamsHamakuri.mDirty.get(),
+					           mDmgParamsHamakuri.mInvincibleTime.get());
 					return 1;
 				}
 			}
