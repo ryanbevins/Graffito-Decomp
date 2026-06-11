@@ -95,6 +95,10 @@ boolean expressions may collapse into `subfic/cntlzw` materialization.
   (2026-06-10 MNL): rewriting actor-type scale selection and the three
   bind-joint inline predicates as signed switches with explicit/inverse-guard
   returns and target case-body order moved the constructor `55.5 -> 81.3`.
+- `mario/GC2D/SelectDir` `TSelectDir::direct()` (2026-06-11 MNL):
+  rewriting `1 <= fadeStatus < 3` as `switch (fadeStatus) { case 1: case 2: }`
+  emitted the target `cmpwi 3; bge exit; cmpwi 1; bge body; b exit` range
+  check and moved the function `99.1 -> 99.7`.
 
 ### Static inline wrappers can preserve local `MsWrap<float>` helper ownership and call boundaries
 
