@@ -1703,7 +1703,17 @@ void TTelesaSlot::initMapObj()
 	unk144 = mDamageHeight;
 	unk1DC = new TMapCollisionMove();
 	unk1DC->init(2, 0, 0, nullptr);
-	randomReset();
+
+	volatile int min = 0;
+	volatile int max = 8;
+	for (int i = 0; i < 3; ++i) {
+		int range = max - min;
+		unk13C[i] = (f32)(unk168
+		                   * (min
+		                      + (int)(range
+		                              * (rand() * 0.000030517578f))));
+		*(&unk198 + i) = 0;
+	}
 }
 
 void TBossTelesaKillSmallEnemy::checkHit()
