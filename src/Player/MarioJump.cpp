@@ -241,14 +241,17 @@ void TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 	}
 }
 
-void TMario::considerJumpRotate()
+BOOL TMario::considerJumpRotate()
 {
 	int dir;
-	if (checkStickRotate(&dir) != 1) return;
-	switch (dir) {
-	case 2: mAction = 0x0896; break;
-	case 3: mAction = 0x0895; break;
+	if (checkStickRotate(&dir) == 1) {
+		switch (dir) {
+		case 2: mAction = 0x0896; break;
+		case 3: mAction = 0x0895; break;
+		}
+		return TRUE;
 	}
+	return FALSE;
 }
 
 void TMario::checkBackTrig()
