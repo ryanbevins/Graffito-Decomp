@@ -555,18 +555,16 @@ void TTelesaSlot::calcRootMatrix() { TSlotDrum::calcRootMatrix(); }
 
 void TTelesaSlot::randomReset()
 {
+	int min = 0;
+	int max = 8;
+
 	for (int i = 0; i < 3; ++i) {
-		unk138[i] = 0.0f;
-		unk13C[i] = (f32)(rand() % 8) * 45.0f;
+		unk13C[i] = (f32)(unk168
+		                   * (min
+		                      + (int)(rand() * 0.000030517578f
+		                              * (max - min))));
+		*(&unk198 + i) = 0;
 	}
-	unk198 = 0;
-	unk199 = 0;
-	unk19A = 0;
-	unk19B = 0;
-	unk19C = 0;
-	unk1A8 = 0;
-	unk1A9 = 0;
-	unk1AA = 0;
 }
 
 void TTelesaSlot::initMapObj()
