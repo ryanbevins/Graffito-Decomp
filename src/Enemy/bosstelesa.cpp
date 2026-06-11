@@ -2033,11 +2033,37 @@ DEFINE_NERVE(TNerveBossTelesaPrepareSlot, TLiveActor)
 DEFINE_NERVE(TNerveBossTelesaSpitSlotItem, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	if (spine->getTime() == 0)
-		boss->generateSlotItem();
-	if (spine->getTime() > 90) {
-		spine->setNext(&TNerveBossTelesaHideWait::theNerve());
+	if (!boss->mMActor->checkCurBckFromIndex(14)
+	    && boss->unk364 < TBossTelesa::mBaseHoseiPosY - 200.0f) {
+		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+		boss->unk160 = 14;
+		boss->unk168 = 1.0f;
+
+		J3DAnmTransform* oldAnm = nullptr;
+		if (boss->mMActor->unkC)
+			oldAnm = boss->mMActor->unkC->unk24;
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+		boss->mMActor->setBckFromIndex(14);
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+		const char** basTable = boss->getBasNameTable();
+		boss->setAnmSound(basTable ? basTable[14] : nullptr);
+	} else if (boss->checkCurAnmEnd(0) && spine->getTime() > 600) {
+		spine->pushAfterCurrent(&TNerveBossTelesaPrepareSlot::theNerve());
+		boss->unk368 = 0;
+		for (int i = 0; i < boss->unk274; ++i) {
+			TLiveActor* actor = boss->unk1AC[i];
+			if (!(actor->mLiveFlag & LIVE_FLAG_DEAD)
+			    && !actor->isActorType(0x2000000E)
+			    && !actor->isActorType(0x20000002))
+				actor->offHitFlag(HIT_FLAG_NO_COLLISION);
+		}
 		return TRUE;
+	} else if (spine->getTime() > 200) {
+		boss->unk364 -= 100.0f;
 	}
 	return FALSE;
 }
