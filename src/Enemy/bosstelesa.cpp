@@ -351,8 +351,9 @@ void TBossTelesa::init(TLiveManager* manager)
 	unk34C.a = mNormalAlpha;
 
 	J3DModelData* modelData = model->getModelData();
-	s32 bodyMatIndex = modelData->getMaterialName()->getIndex("_mat_body");
 	for (u16 i = 0; i < modelData->getMaterialNum(); ++i) {
+		s32 bodyMatIndex
+		    = getModel()->getModelData()->getMaterialName()->getIndex("_mat_body");
 		if (i == bodyMatIndex) {
 			SMS_InitPacket_TwoTevKColor(model, i, GX_KCOLOR0, &unk34C,
 			                            GX_KCOLOR1, &unk348);
