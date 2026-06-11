@@ -254,15 +254,19 @@ BOOL TMario::considerJumpRotate()
 	return FALSE;
 }
 
-void TMario::checkBackTrig()
+BOOL TMario::checkBackTrig()
 {
-	if (!(mInput & 0x10000)) return;
-	TMarioGamePad* pad = mGamePad;
-	if (pad->mEnabledFrameMeaning & 0x4000) { changePlayerStatus(0x008008A9, 0, false); return; }
-	if (!onYoshi()) {
-		setPlayerVelocity(mJumpParams.mJumpJumpCatchSp.value);
-		changePlayerStatus(0x0080088A, 0, false);
+	if (mInput & 0x8000) {
+		TMarioGamePad* pad = mGamePad;
+		if (pad->mEnabledFrameMeaning & 0x2000)
+			return changePlayerStatus(0x008008A9, 0, false);
+		if (!onYoshi()) {
+			f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+			setPlayerVelocity(jumpCatchSpeed);
+			return changePlayerStatus(0x0080088A, 0, false);
+		}
 	}
+	return FALSE;
 }
 
 void TMario::landing()

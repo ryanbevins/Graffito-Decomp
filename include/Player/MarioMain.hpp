@@ -931,7 +931,7 @@ public:
 	void secJumping();
 	void jumping();
 	void jumpingCommonEvents();
-	void checkBackTrig();
+	BOOL checkBackTrig();
 	BOOL considerJumpRotate();
 	void jumpingBasic(int, int, int);
 	void askStrongGroundTouch();
