@@ -762,8 +762,14 @@ void TBossTelesa::generateSlotItem()
 	unk274 = 0;
 
 	TTelesaSlot* slot = (TTelesaSlot*)unk184;
-	s32 result        = slot->getSlotResult();
-	unk1A8            = result;
+	s32 result        = slot->getResultFromAng(slot->unk13C[0]);
+	for (int i = 1; i < 3; ++i) {
+		if (slot->getResultFromAng(slot->unk13C[i]) != result) {
+			result = -1;
+			break;
+		}
+	}
+	unk1A8 = result;
 
 	TBossTelesaSaveLoadParams* params = (TBossTelesaSaveLoadParams*)unk15C;
 	s32 slotItemNum                   = params->mSLSlotItemNum.get();
