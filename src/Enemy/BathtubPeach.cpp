@@ -66,7 +66,7 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 	if (!peach->getMActor()->checkCurBckFromIndex(1)) {
 		peach->getMActor()->setBckFromIndex(1);
 		const char** table = peach->getBasNameTable();
-		peach->setAnmSound(table ? table[1] : nullptr);
+		peach->setAnmSound(!table ? nullptr : table[1]);
 	}
 	if (peach->getMActor()->getCurAnmIdx(3) != 1)
 		peach->getMActor()->setBtpFromIndex(1);
