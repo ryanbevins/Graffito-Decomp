@@ -2,6 +2,7 @@
 #include <Camera/cameralib.hpp>
 #include <Enemy/BossEel.hpp>
 #include <Enemy/Conductor.hpp>
+#include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
@@ -30,6 +31,7 @@
 #include <Strategic/Spine.hpp>
 #include <Strategic/Strategy.hpp>
 #include <System/EmitterViewObj.hpp>
+#include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <math.h>
 #include <stdlib.h>
@@ -41,6 +43,7 @@
 static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
 static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
 static u32 dummy1210[4] = { 0, 2, 1, 3 };
+static f32 testHeight;
 
 static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
@@ -1855,6 +1858,50 @@ DEFINE_NERVE(TNerveBossEelSecondSpin, TLiveActor)
 
 	if (finished) {
 		spine->pushAfterCurrent(&TNerveBossEelAppear::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBossEelAppear, TLiveActor)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		playBossEelSound(0x8922, &eel->mPosition);
+
+		*(u32*)((u8*)eel->unk210 + 0x64) &= ~1U;
+		START_BOSS_EEL_BCK(eel, 15);
+		eel->unk1F0 = TRUE;
+		gpCameraShake->startShake((EnumCamShakeMode)0x19, 1.0f);
+
+		f32 frameCount = eel->mMActor->getFrameCtrl(0)->getEnd() * 2;
+		eel->unk1F8
+		    = eel->unk1E8->mSLAppearMoveDistY.value / frameCount / frameCount;
+		testHeight = 0.0f;
+	}
+
+	s32 frameCount = eel->mMActor->getFrameCtrl(0)->getEnd() * 2;
+	if (spine->getTime() < frameCount) {
+		eel->unk1F4 += eel->unk1E8->mSLAppearMoveDistY.value / frameCount;
+		eel->mTurnSpeed *= 0.98f;
+
+		if (eel->mLiveFlag & LIVE_FLAG_UNK10000)
+			eel->mRotation.y -= eel->mTurnSpeed;
+		else
+			eel->mRotation.y += eel->mTurnSpeed;
+
+		eel->mRotation.y = MsWrap(eel->mRotation.y, 0.0f, 360.0f);
+	} else if (eel->checkCurAnmEnd(0)) {
+		spine->pushAfterCurrent(&TNerveBossEelOutWait::theNerve());
+		*(u32*)((u8*)eel->unk210 + 0x64) |= 1;
+
+		if (eel->unk21D) {
+			eel->unk21D = FALSE;
+			gpMarDirector->mConsole->startAppearBalloon(0xE0013, true);
+		}
+
 		return TRUE;
 	}
 

@@ -64,7 +64,7 @@ public:
 	/* 0x1F0 */ u8 unk1F0;
 	/* 0x1F1 */ u8 unk1F1[0x3];
 	/* 0x1F4 */ f32 unk1F4;
-	/* 0x1F8 */ u32 unk1F8;
+	/* 0x1F8 */ f32 unk1F8;
 	/* 0x1FC */ u8 unk1FC;
 	/* 0x1FD */ u8 unk1FD;
 	/* 0x1FE */ u8 unk1FE;
