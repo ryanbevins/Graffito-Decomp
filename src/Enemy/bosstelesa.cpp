@@ -819,9 +819,23 @@ void TBubble::kill()
 	if (checkLiveFlag(LIVE_FLAG_DEAD))
 		return;
 
-	onLiveFlag(LIVE_FLAG_DEAD);
-	if (mSpine)
-		mSpine->pushNerve(&TNerveSmallEnemyDie::theNerve());
+	if (unk198) {
+		if (unk1D2)
+			unk198->receiveMessage(this, HIT_MESSAGE_UNK7);
+		else
+			unk198->kill();
+		unk198 = nullptr;
+	}
+
+	mHitPoints = 1;
+	if (mSpine->getCurrentNerve() != &TNerveSmallEnemyDie::theNerve()) {
+		mSpine->reset();
+		mSpine->setNext(&TNerveSmallEnemyDie::theNerve());
+		mSpine->pushAfterCurrent(mSpine->getDefault());
+	}
+
+	onLiveFlag(LIVE_FLAG_UNK20000);
+	onLiveFlag(LIVE_FLAG_UNK40);
 }
 
 f32 TBubble::getGravityY() const

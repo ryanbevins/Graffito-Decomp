@@ -225,7 +225,7 @@ public:
 
 public:
 	/* 0x194 */ TBubbleSaveLoadParams* unk194;
-	/* 0x198 */ s32 unk198;
+	/* 0x198 */ TLiveActor* unk198;
 	/* 0x19C */ JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > unk19C;
 	/* 0x1CC */ f32 unk1CC;
 	/* 0x1D0 */ u8 unk1D0;
