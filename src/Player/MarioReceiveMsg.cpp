@@ -1181,6 +1181,10 @@ check_sender_bit3:
 		case 0x4000002D:
 		case 0x4000002E:
 		case 0x40000032:
+		case 0x40000034:
+		case 0x40000035:
+		case 0x40000036:
+		case 0x40000037:
 		case 0x40000039:
 		case 0x4000003A:
 		case 0x4000005A:
