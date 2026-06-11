@@ -138,14 +138,14 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			emitGetWaterEffect();
 			return 1;
 
-		case 0x20000003: // HP+8
+		case 0x2000002C: // HP+8
 			if (message != 0x0E)
 				goto check_sender_bit3;
 			incHP(8);
 			emitGetEffect();
 			return 1;
 
-		case 0x20000004: // HP+4
+		case 0x20000003: // HP+4
 			if (message != 0x0E)
 				goto check_sender_bit3;
 			incHP(4);
@@ -162,14 +162,16 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			emitGetEffect();
 			return 1;
 
-		case 0x20000005: // HP+1
+		case 0x20000004: // HP+1
 			if (message != 0x0E)
 				goto check_sender_bit3;
 			incHP(1);
 			emitGetEffect();
 			return 1;
 
-		case 0x20000006: // Special item with blooper check
+		case 0x20000005:
+		case 0x20000006:
+		case 0x20000007: // Special item with blooper check
 			if (message != 0x0E)
 				goto check_sender_bit3;
 			// Check blooper not-stuck and timer < 120
@@ -192,27 +194,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			emitGetEffect();
 			return 1;
 
-		case 0x20000007: // Nozzle pickup - Spray
-		{
-			if (onYoshi())
-				return 0;
-
-			mState |= 0x8000;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->changeNozzle(TWaterGun::Spray, true);
-			}
-			unk144 = 3600;
-			resetNozzle();
-			unk148 = (u32)sender;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
-			}
-			emitGetEffect();
-			return 1;
-		}
-
-		case 0x20000008: // Nozzle pickup - Rocket
+		case 0x20000022: // Nozzle pickup - Rocket
 		{
 			if (onYoshi())
 				return 0;
@@ -232,7 +214,27 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			return 1;
 		}
 
-		case 0x20000009: // Nozzle pickup - Turbo
+		case 0x20000026: // Nozzle pickup - Hover
+		{
+			if (onYoshi())
+				return 0;
+
+			mState |= 0x8000;
+			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+				mWaterGun->changeNozzle(TWaterGun::Hover, true);
+			}
+			unk144 = 3600;
+			resetNozzle();
+			unk148 = (u32)sender;
+			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
+				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
+			}
+			emitGetEffect();
+			return 1;
+		}
+
+		case 0x2000002A: // Nozzle pickup - Turbo
 		{
 			if (onYoshi())
 				return 0;
@@ -252,7 +254,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			return 1;
 		}
 
-		case 0x2000000A: // Hover nozzle (changePlayerStatus + damageExec)
+		case 0x2000002B: // Underwater nozzle (changePlayerStatus + pickup)
 		{
 			changePlayerStatus(0x891, 0, false);
 			if (onYoshi())
@@ -260,7 +262,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 
 			mState |= 0x8000;
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->changeNozzle(TWaterGun::Hover, true);
+				mWaterGun->changeNozzle(TWaterGun::Underwater, true);
 			}
 			unk144 = 3600;
 			resetNozzle();
@@ -273,27 +275,27 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			return 1;
 		}
 
-		case 0x2000000B: // No-keep-pull/direct damage
+		case 0x2000001F: // Nozzle pickup - Spray
 		{
-			if (onYoshi())
-				return 0;
-
-			mState |= 0x8000;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->changeNozzle(TWaterGun::Spray, true);
+			if (!onYoshi()) {
+				mState |= 0x8000;
+				if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+					mWaterGun->changeNozzle(TWaterGun::Spray, true);
+				}
+				unk144 = 3600;
+				resetNozzle();
+				unk148 = (u32)sender;
+				if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+					TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
+					mWaterGun->mCurrentWater
+					    = nozzle->mEmitParams.mAmountMax.get();
+				}
+				emitGetEffect();
 			}
-			unk144 = 3600;
-			resetNozzle();
-			unk148 = (u32)sender;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
-			}
-			emitGetEffect();
 			return 1;
 		}
 
-		case 0x2000000C: // Yoshi release flag
+		case 0x2000003C: // Yoshi release flag
 		{
 			TMarioCap* cap = mCap;
 			u16 flags = *(u16*)((u8*)cap + 4);
@@ -303,7 +305,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			return 1;
 		}
 
-		case 0x2000000D: // Coin pickup
+		case 0x2000000E: // Coin pickup
 		{
 			mCoinCount++;
 			emitGetCoinEffect((JGeometry::TVec3<f32>*)&mPosition);
@@ -320,7 +322,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			return 1;
 		}
 
-		case 0x2000000E: // Red coin
+		case 0x2000000F: // Red coin
 		{
 			incHP(2);
 			emitGetCoinEffect((JGeometry::TVec3<f32>*)&mPosition);
@@ -330,14 +332,14 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			return 1;
 		}
 
-		case 0x2000000F: // Blue coin
+		case 0x20000010: // Blue coin
 		{
 			incHP(2);
 			emitGetCoinEffect((JGeometry::TVec3<f32>*)&mPosition);
 			return 1;
 		}
 
-		case 0x2000003C: // Wire actor
+		case 0x20000013: // Wire actor
 		{
 			if (message != 0x0E)
 				goto check_sender_bit3;
