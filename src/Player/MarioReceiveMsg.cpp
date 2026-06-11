@@ -369,9 +369,89 @@ msg7_check_sound:
 	}
 
 check_sender_bit3:
+	senderType = sender->mActorType;
+
+	if (senderType & 0x40000000) {
+		switch (senderType) {
+		case 0x4000001D:
+			if (message == 0x0A) {
+				if (!isInvincible()) {
+					damageExec(sender,
+					           mDmgParamsLampTrapIron.mDamage.get(),
+					           mDmgParamsLampTrapIron.mDownType.get(),
+					           mDmgParamsLampTrapIron.mWaterEmit.get(),
+					           mDmgParamsLampTrapIron.mMinSpeed.get(),
+					           mDmgParamsLampTrapIron.mMotor.get(),
+					           mDmgParamsLampTrapIron.mDirty.get(),
+					           mDmgParamsLampTrapIron.mInvincibleTime.get());
+
+					changePlayerStatus(0x000208B7, 1, false);
+
+					if (gpMSound->gateCheck(0x1813)) {
+						MSoundSESystem::MSoundSE::startSoundActor(
+						    0x1813, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+					}
+					gpMarioParticleManager->emitAndBindToPosPtr(
+					    6, (const JGeometry::TVec3<f32>*)&mPosition, 0, nullptr);
+					return 1;
+				}
+			}
+			break;
+
+		case 0x4000001E:
+			if (message == 0x0E) {
+				if (!isInvincible()) {
+					damageExec(sender,
+					           mDmgParamsLampTrapSpike.mDamage.get(),
+					           mDmgParamsLampTrapSpike.mDownType.get(),
+					           mDmgParamsLampTrapSpike.mWaterEmit.get(),
+					           mDmgParamsLampTrapSpike.mMinSpeed.get(),
+					           mDmgParamsLampTrapSpike.mMotor.get(),
+					           mDmgParamsLampTrapSpike.mDirty.get(),
+					           mDmgParamsLampTrapSpike.mInvincibleTime.get());
+					return 1;
+				}
+			}
+			break;
+
+		case 0x400000C5:
+		case 0x400000C6:
+		case 0x400000C7:
+			getGesso(sender);
+			return 1;
+
+		case 0x40000258:
+			if (message == 4) {
+				*(u32*)((u8*)this + 0x68) = (u32)sender;
+				changePlayerStatus(0x133E, 0, false);
+				return 1;
+			}
+			break;
+
+		case 0x4000025B:
+			if (message == 0x0A) {
+				if (!isInvincible()) {
+					damageExec(sender,
+					           mDmgParamsFire.mDamage.get(),
+					           mDmgParamsFire.mDownType.get(),
+					           mDmgParamsFire.mWaterEmit.get(),
+					           mDmgParamsFire.mMinSpeed.get(),
+					           mDmgParamsFire.mMotor.get(),
+					           mDmgParamsFire.mDirty.get(),
+					           mDmgParamsFire.mInvincibleTime.get());
+					startVoice(0x78CF);
+					changePlayerStatus(0x000208B8, 1, false);
+					return 1;
+				}
+				return 0;
+			}
+			break;
+		}
+	}
+
 	// Check sender type bit 3 (0x10000000 = ACTOR_TYPE_ENEMY)
-	if (sender->mActorType & 0x10000000) {
-		u32 eType = sender->mActorType;
+	if (senderType & 0x10000000) {
+		u32 eType = senderType;
 
 		// Large binary search tree on enemy actor types
 		// This is an enormous switch statement with many cases
