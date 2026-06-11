@@ -902,7 +902,6 @@ void TBossTelesa::generateSlotItem()
 			item->mScaling.set(0.0f, 0.0f, 0.0f);
 			((TItem*)item)->killByTimer(0x3C0);
 
-			unk320[i]       = item;
 			unk1AC[unk274] = unk320[i];
 			unk1AC[unk274]->offLiveFlag(LIVE_FLAG_HIDDEN);
 			unk274++;
