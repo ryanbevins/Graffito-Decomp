@@ -64,6 +64,23 @@ DEFINE_NERVE(TNerveBEelTearsMoveUp, TLiveActor)
 	return FALSE;
 }
 
+DEFINE_NERVE(TNerveBEelTearsGenerate, TLiveActor)
+{
+	TBEelTears* tears = (TBEelTears*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		tears->mMActor = tears->mMActorKeeper->getMActor("tears.bmd");
+		tears->mMActor->setBckFromIndex(2);
+	}
+
+	if (tears->checkCurAnmEnd(0)) {
+		spine->pushAfterCurrent(&TNerveBEelTearsMoveUp::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 TBossEel::TBossEel(const char* name)
     : TSpineEnemy(name)
     , unk1A8(nullptr)
