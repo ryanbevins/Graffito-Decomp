@@ -87,7 +87,9 @@ DEFINE_NERVE(TNerveBPJumpReact, TLiveActor)
 	if (spine->getTime() == 0)
 		boss->changeBck(0x11);
 
-	return actor->curAnmEndsNext(0, nullptr);
+	if (actor->curAnmEndsNext(0, nullptr))
+		return true;
+	return false;
 }
 
 DEFINE_NERVE(TNerveBPFlyCannon, TLiveActor)
@@ -101,7 +103,9 @@ DEFINE_NERVE(TNerveBPFlyCannon, TLiveActor)
 	if (spine->getTime() == 0xA8)
 		boss->launchPolDrop();
 
-	return actor->curAnmEndsNext(0, nullptr);
+	if (actor->curAnmEndsNext(0, nullptr))
+		return true;
+	return false;
 }
 
 TBossPakkunParams::TBossPakkunParams(const char* path)
@@ -274,8 +278,63 @@ void TBossPakkun::kill()
 
 void TBossPakkun::changeBck(int index)
 {
-	if (mMActor != nullptr)
-		mMActor->setBckFromIndex(index);
+	MActor* actor = mMActor;
+
+	if (!actor->checkCurBckFromIndex(index)
+	    || actor->curAnmEndsNext(MActor::ANM_TYPE_BCK, nullptr)) {
+		int curBck = actor->getCurAnmIdx(MActor::ANM_TYPE_BCK);
+
+		MActorAnmDataEach<J3DAnmTransformKey>* data
+		    = mMtxCalc->mOwner->mMActorKeeper->getMActorAnmData()->getUnk2C();
+		J3DAnmTransform* nextAnm = data->getAnmPtr(index);
+
+		if (mMtxCalc->unk54 != nextAnm) {
+			mMtxCalc->unk58 = mMtxCalc->unk54;
+			mMtxCalc->unk54 = nextAnm;
+			mMtxCalc->unk50 = 1.0f;
+		}
+
+		MActorAnmBck* bck = actor->unkC;
+		bck->unk0         = index;
+		if (index >= 0) {
+			bck->unk24 = bck->getData()->getAnmPtr(index);
+			bck->unk4.init(bck->unk24->getFrameMax());
+			bck->unk4.setAttribute(bck->unk24->getAttribute());
+			bck->unk4.setRate(SMSGetAnmFrameRate());
+		}
+
+		if (index == 0x15) {
+			J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::ANM_TYPE_BCK);
+			ctrl->setRate(getBossPakkunSaveParam()->mSLVomitAnmRate.value);
+		}
+
+		f32 blendFrames = 60.0f;
+		if ((curBck == 0x19 && (index == 0x15 || index == 0x1A))
+		    || (curBck == 0x12 && index == 0x19)
+		    || (curBck == 0x02 && index == 0x19)
+		    || (curBck == 0x14 && index == 0x19)
+		    || (curBck == 0x1A && index == 0x16))
+			blendFrames = getBossPakkunSaveParam()->mSLVomitAnmRate.value;
+
+		if (blendFrames < 1.0f) {
+			J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::ANM_TYPE_BCK);
+			if (ctrl)
+				blendFrames = 0.2f * ctrl->getEnd();
+		}
+
+		if (blendFrames == 1.0f)
+			unk154 = 1.0f;
+		else
+			unk154 = 1.0f / blendFrames;
+
+		const char** basTable = getBasNameTable();
+		const char* basName;
+		if (basTable == nullptr)
+			basName = nullptr;
+		else
+			basName = basTable[index];
+		setAnmSound(basName);
+	}
 }
 
 void TBossPakkun::launchPolDrop()
