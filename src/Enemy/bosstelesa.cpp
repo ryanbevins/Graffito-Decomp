@@ -843,7 +843,11 @@ void TBubble::reset()
 
 	f32 min = 50.0f;
 	f32 max = 150.0f;
-	unk1CC  = min + (max - min) * (rand() * 0.000030517578f);
+	f32 range = max - min;
+	f32 factor = rand() * 0.000030517578f;
+	factor *= range;
+	factor += min;
+	unk1CC = factor;
 	unk1D0 = 0;
 	unk1D1 = 1;
 	unk1D2 = 0;
