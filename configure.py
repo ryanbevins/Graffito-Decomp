@@ -905,7 +905,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(NonMatching, "Player/Atom.cpp"),
-            Object(NonMatching, "Player/MarioAction.cpp"),
+            Object(Equivalent, "Player/MarioAction.cpp"),
             Object(NonMatching, "Player/MarioAutodemo.cpp"),
             Object(NonMatching, "Player/MarioBlend.cpp"),
             Object(NonMatching, "Player/MarioCap.cpp"),
