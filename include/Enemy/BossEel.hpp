@@ -23,7 +23,6 @@ struct TBossEelUnk1EC {
 class TBossEel : public TSpineEnemy {
 public:
 	TBossEel(const char*);
-	virtual ~TBossEel();
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor*, u32);
 	virtual MtxPtr getTakingMtx();
@@ -127,7 +126,6 @@ public:
 	{
 	}
 
-	virtual ~TBossEelManager();
 	virtual void loadAfter();
 	virtual void createModelData();
 	virtual void clipEnemies(JDrama::TGraphics*);
