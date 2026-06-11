@@ -655,6 +655,224 @@ MtxPtr TBossEel::getTakingMtx()
 	return mMActor->getModel()->mNodeMatrices[7];
 }
 
+void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	u32 calcFlag = flags & 2;
+
+	if (calcFlag && mSpine->getCurrentNerve() == &TNerveBossEelDie::theNerve()) {
+		unk1DC.set(0.0f, -14000.0f, 0.0f);
+		gpMarioParticleManager->emit(0x198, &unk1DC, 1, this);
+	}
+
+	if (mMActor->checkCurBckFromIndex(4))
+		((TBossEelAwaCollision*)unk214)->perform(flags, graphics);
+
+	if (mLiveFlag & LIVE_FLAG_UNK200)
+		return;
+
+	if (flags & 1) {
+		f32 scale = unk1E8->mSLBodyScale.value;
+		mScaling.set(scale, scale, scale);
+		mPosition.y = unk150.y + unk1E8->mSLInitTransYOffset.value + unk1F4;
+
+		TCubeGeneralInfo* largeCube = &(*unk1AC->unk14)[0];
+		largeCube->unkC.x          = mPosition.x;
+		largeCube->unkC.y          = mPosition.y + 9600.0f * mScaling.y;
+		largeCube->unkC.z          = mPosition.z;
+		largeCube->unk24.x         = 7000.0f * mScaling.x;
+		largeCube->unk24.y         = 10000.0f * mScaling.y;
+		largeCube->unk24.z         = 7000.0f * mScaling.z;
+
+		moveObject();
+		mMActor->calcAnm();
+		calcRootMatrix();
+		collideToMario();
+
+		Mtx jointMtx;
+		PSMTXCopy(mMActor->getModel()->mNodeMatrices[unk1A0[2]], jointMtx);
+		unk190[2]->moveMtx(jointMtx);
+
+		if (mUseMapCollision) {
+			for (int i = 0; i < 2; ++i) {
+				PSMTXCopy(mMActor->getModel()->mNodeMatrices[unk1A0[i]],
+				          jointMtx);
+				unk190[i]->moveMtx(jointMtx);
+			}
+		}
+
+		if (mUseObjCollision
+		    && mSpine->getCurrentNerve() != &TNerveBossEelDie::theNerve())
+			((THitActor*)unk1B0)->offHitFlag(HIT_FLAG_NO_COLLISION);
+		else
+			((THitActor*)unk1B0)->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		THitActor* head = (THitActor*)unk1A8;
+		head->mPosition = mPosition;
+		head->mPosition.y += unk1E8->mSLBodyToHeadDistance.value * mScaling.y;
+		head->mAttackRadius = unk1E8->mSLHeadAttackRadius.value * mScaling.x;
+		head->mAttackHeight = unk1E8->mSLHeadAttackHeight.value * mScaling.x;
+		head->mDamageRadius = unk1E8->mSLHeadDamageRadius.value * mScaling.x;
+		head->mDamageHeight = unk1E8->mSLHeadDamageHeight.value * mScaling.x;
+		head->calcEntryRadius();
+
+		mAttackRadius = unk1E8->mSLBodyAttackRadius.value * mScaling.x;
+		mAttackHeight = unk1E8->mSLBodyAttackHeight.value * mScaling.x;
+		mDamageRadius = unk1E8->mSLBodyDamageRadius.value * mScaling.x;
+		mDamageHeight = unk1E8->mSLBodyDamageHeight.value * mScaling.x;
+		calcEntryRadius();
+
+		TCubeGeneralInfo* smallCube = &(*unk1AC->unk14)[1];
+		smallCube->unk18.x          = mRotation.x;
+		smallCube->unk18.y          = mRotation.y;
+		smallCube->unk18.z          = mRotation.z;
+		smallCube->unkC.x           = mPosition.x;
+		smallCube->unkC.y           = mPosition.y + 1900.0f;
+		smallCube->unkC.z           = mPosition.z;
+		smallCube->unk24.x          = 1100.0f;
+		smallCube->unk24.y          = 1000.0f;
+		smallCube->unk24.z          = 1100.0f;
+
+		largeCube->unkC.x  = mPosition.x;
+		largeCube->unkC.y  = mPosition.y + 9600.0f * mScaling.y;
+		largeCube->unkC.z  = mPosition.z;
+		largeCube->unk24.x = 7000.0f * mScaling.x;
+		largeCube->unk24.y = 10000.0f * mScaling.y;
+		largeCube->unk24.z = 7000.0f * mScaling.z;
+
+		if (mHitPoints != 0) {
+			unk1C8 = FALSE;
+			for (int i = 0; i < head->getColNum(); ++i) {
+				THitActor* hitActor = head->getCollision(i);
+				if (hitActor->isActorTypeOf(ACTOR_TYPE_PLAYER))
+					unk1C8 = TRUE;
+			}
+
+			if (mSpine->getCurrentNerve()
+			        != &TNerveBossEelFirstSpin::theNerve()
+			    && mSpine->getCurrentNerve()
+			        != &TNerveBossEelSecondSpin::theNerve()
+			    && mSpine->getCurrentNerve()
+			        != &TNerveBossEelMouthOpenWait::theNerve()) {
+				if (mMActor->checkCurBckFromIndex(10)
+				    || mMActor->checkCurBckFromIndex(16)
+				    || mMActor->checkCurBckFromIndex(18)
+				    || mMActor->checkCurBckFromIndex(19))
+					updateTearsCnt();
+			}
+
+			unk1BC -= 0.01f;
+			if (unk1BC > 1.0f)
+				unk1BC = 1.0f;
+			else if (unk1BC < 0.0f)
+				unk1BC = 0.0f;
+
+			if (mMActor->unkC)
+				mMActor->unkC->setMotionBlendRatio(unk1BC);
+		}
+
+		bool allTeethBroken = true;
+		for (int i = 0; i < 8; ++i) {
+			if (unk16C[i]->unk70 > 1) {
+				allTeethBroken = false;
+				break;
+			}
+		}
+
+		if (allTeethBroken
+		    && mSpine->getCurrentNerve() != &TNerveBossEelDie::theNerve()) {
+			mSpine->setNext(&TNerveBossEelDie::theNerve());
+			head->onHitFlag(HIT_FLAG_NO_COLLISION);
+		}
+	}
+
+	if (calcFlag) {
+		offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+		updateAnmSound();
+
+		if (mSpine->getCurrentNerve()
+		        == &TNerveBossEelSecondSpin::theNerve()
+		    || mSpine->getCurrentNerve()
+		        == &TNerveBossEelFirstSpin::theNerve()) {
+			MtxPtr mtx = mMActor->getModel()->mNodeMatrices[5];
+			unk204.x   = mtx[0][3];
+			unk204.y   = mtx[1][3];
+			unk204.z   = mtx[2][3];
+
+			JPABaseEmitter* emitter;
+			if (mLiveFlag & LIVE_FLAG_UNK10000)
+				emitter = gpMarioParticleManager->emit(0x193, &unk204, 1, this);
+			else
+				emitter = gpMarioParticleManager->emit(0x194, &unk204, 1, this);
+			setBossEelParticleScale(emitter, this);
+
+			if (mLiveFlag & LIVE_FLAG_UNK10000)
+				emitter = gpMarioParticleManager->emit(0x195, &unk204, 1, this);
+			else
+				emitter = gpMarioParticleManager->emit(0x196, &unk204, 1, this);
+			setBossEelParticleScale(emitter, this);
+		}
+
+		if (mMActor->checkCurBckFromIndex(15)) {
+			J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(0);
+			MtxPtr mtx              = mMActor->getModel()->mNodeMatrices[5];
+			unk204.x                = mtx[0][3];
+			unk204.y                = mtx[1][3];
+			unk204.z                = mtx[2][3];
+
+			if (frameCtrl->checkPass(102.0f)) {
+				JPABaseEmitter* emitter
+				    = gpMarioParticleManager->emitAndBindToPosPtr(
+				        0xD4, &unk204, 0, nullptr);
+				setBossEelParticleScale(emitter, this);
+			}
+
+			if (frameCtrl->getFrame() < 40.0f) {
+				JPABaseEmitter* emitter
+				    = gpMarioParticleManager->emit(0x197, &unk204, 1, this);
+				setBossEelParticleScale(emitter, this);
+			}
+		}
+
+		if (mMActor->checkCurBckFromIndex(14)) {
+			mMActor->getFrameCtrl(0);
+			MtxPtr mtx = mMActor->getModel()->mNodeMatrices[5];
+			unk204.x   = mtx[0][3];
+			unk204.y   = mtx[1][3];
+			unk204.z   = mtx[2][3];
+			playBossEelSound(0x8120, &mPosition);
+
+			JPABaseEmitter* emitter
+			    = gpMarioParticleManager->emitAndBindToPosPtr(
+			        0x199, &unk204, 1, this);
+			if (emitter) {
+				emitter->unk154.x = 3.0f;
+				emitter->unk154.y = 3.0f;
+				emitter->unk154.z = 3.0f;
+				emitter->unk174.x = 3.0f;
+				emitter->unk174.y = 3.0f;
+				emitter->unk174.z = 3.0f;
+			}
+		}
+	}
+
+	if (flags & 4)
+		mMActor->viewCalc();
+
+	if (flags & 0x200)
+		mMActor->entry();
+
+	for (int i = 0; i < 4; ++i)
+		unk15C[i]->testPerform(flags, graphics);
+
+	for (int i = 0; i < 8; ++i)
+		unk16C[i]->testPerform(flags, graphics);
+
+	((TBossEelHeartCoin*)unk218)->perform(flags, graphics);
+	unk18C->perform(flags, graphics);
+	((TBossEelBodyCollision*)unk1B0)->perform(flags, graphics);
+	((TBossEelBarrierCollision*)unk210)->perform(flags, graphics);
+}
+
 void TBossEel::init(TLiveManager* manager)
 {
 	mManager = manager;

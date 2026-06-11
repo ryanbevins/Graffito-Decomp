@@ -60,13 +60,14 @@ public:
 	/* 0x1BC */ f32 unk1BC;
 	/* 0x1C0 */ s32 unk1C0;
 	/* 0x1C4 */ s32 unk1C4;
-	/* 0x1C8 */ u32 unk1C8;
+	/* 0x1C8 */ u8 unk1C8;
+	/* 0x1C9 */ u8 unk1C9[0x3];
 	/* 0x1CC */ f32 unk1CC;
 	/* 0x1D0 */ u8 unk1D0;
 	/* 0x1D1 */ u8 unk1D1[0x3];
 	/* 0x1D4 */ f32 unk1D4;
 	/* 0x1D8 */ f32 unk1D8;
-	/* 0x1DC */ u8 unk1DC[0xC];
+	/* 0x1DC */ JGeometry::TVec3<f32> unk1DC;
 	/* 0x1E8 */ TBossEelSaveParams* unk1E8;
 	/* 0x1EC */ TBossEelUnk1EC* unk1EC;
 	/* 0x1F0 */ u8 unk1F0;
