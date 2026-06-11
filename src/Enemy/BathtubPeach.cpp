@@ -1,5 +1,4 @@
 #include <Enemy/BathtubPeach.hpp>
-#include <M3DUtil/InfectiousStrings.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JMath.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
@@ -20,6 +19,16 @@
 
 extern "C" float fmodf(float, float);
 
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
+static const char MtxCalcTypeName0[]
+    = "MActorMtxCalcType_Basic クラシックスケールＯＮ";
+static const char MtxCalcTypeName1[]
+    = "MActorMtxCalcType_Softimage クラシックスケールＯＦＦ";
+static const char MtxCalcTypeName2[]
+    = "MActorMtxCalcType_MotionBlend モーションブレンド";
+static const char MtxCalcTypeName3[]
+    = "MActorMtxCalcType_User ユーザー定義";
 static const f32 dummy2850[3] = { 0.0f, 0.0f, 0.0f };
 static const f32 dummy2852[3] = { 1.0f, 1.0f, 1.0f };
 
