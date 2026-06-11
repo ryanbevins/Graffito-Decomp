@@ -464,24 +464,21 @@ BOOL TMario::slipFalling()
 	if (mInput & 1) {
 		s16 ad = mIntendedYaw - mFaceAngle.y;
 		u16 au = (u16)ad;
-		f32 im = mIntendedMag;
-		// Pointer math slop
-		f32 cr = *(f32*)((u8*)this + 0x0B8C);
-		f32 ac = im * cr;
-		mForwardVel += ac * JMASSin(au);
-		mFaceAngle.y = (s16)(ac * JMASCos(au) + (f32)mFaceAngle.y);
+		f32 control = 0.03125f * mIntendedMag;
+		mForwardVel += control * JMASCos(au) * getJumpAccelControl();
+		mFaceAngle.y = (s16)(control * JMASSin(au) * getJumpSlideControl()
+		                       + (f32)mFaceAngle.y);
 	}
-	if (mForwardVel > 0.0f) mForwardVel -= mJumpParams.mJumpAccelControl.value;
-	if (mForwardVel < 0.0f) mForwardVel += mJumpParams.mJumpAccelControl.value;
-	u16 fa = mFaceAngle.y;
-	f32 vx = mForwardVel * JMASSin(fa); mSlideVelX = vx; mVel.x = vx;
-	f32 vz = mForwardVel * JMASCos(fa); mSlideVelZ = vz; mVel.z = vz;
+	if (mForwardVel > 32.0f) mForwardVel -= 0.2f;
+	if (mForwardVel < -16.0f) mForwardVel += 0.4f;
+	f32 vx = mForwardVel * JMASSin(mFaceAngle.y); mSlideVelX = vx; mVel.x = vx;
+	f32 vz = mForwardVel * JMASCos(mFaceAngle.y); mSlideVelZ = vz; mVel.z = vz;
 	int jr = jumpProcess(0);
 	switch (jr) {
 	case 1:
-		if (mActionState == 0 && mVel.y < 0.0f && mGroundPlane->getNormal().y >= 0.0f) {
-			// Pointer math slop
-			mVel.y = -mVel.y * *(f32*)((u8*)this + 0x0BA0); mActionState = 1;
+		if (mActionState == 0 && mVel.y < 0.0f
+		    && mGroundPlane->getNormal().y >= 0.9848077f) {
+			mVel.y = -mVel.y * 0.5f; mActionState = 1;
 		} else changePlayerStatus(0x00840452, 0, false);
 		break;
 	case 2:
