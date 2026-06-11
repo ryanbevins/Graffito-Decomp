@@ -370,7 +370,8 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 check_sender_bit3:
 	senderType = sender->mActorType;
 
-	if (senderType & 0x40000000) {
+	bool hasMapObjType = (senderType & 0x40000000) ? true : false;
+	if (hasMapObjType) {
 		switch (senderType) {
 		case 0x4000001D:
 			if (message == 0x0A) {
