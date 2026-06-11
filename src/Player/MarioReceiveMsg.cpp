@@ -541,7 +541,7 @@ check_sender_bit3:
 					return 1;
 				}
 			}
-			goto default_enemy_handle;
+			break;
 
 		case 0x10000013: // Namekuri (snail enemy)
 		case 0x10000037:
@@ -563,7 +563,7 @@ check_sender_bit3:
 					return 1;
 				}
 			}
-			goto default_enemy_handle;
+			break;
 
 		case 0x10000002: // Hamakuri
 		case 0x4000019B: // Also hamakuri variant
@@ -580,7 +580,7 @@ check_sender_bit3:
 					return 1;
 				}
 			}
-			goto default_enemy_handle;
+			break;
 
 		case 0x1000000A: // Hinokuri
 			if (message == 0x0E) {
@@ -637,7 +637,7 @@ check_sender_bit3:
 					return 1;
 				}
 			}
-			goto default_enemy_handle;
+			break;
 
 		case 0x10000004: // Common damage with keepDistance
 		case 0x10000006:
@@ -789,36 +789,7 @@ check_sender_bit3:
 			goto default_msg;
 
 		default:
-		default_enemy_handle:
-			// Default enemy: check message type and apply damage or keepDistance
-			if (message == 9) {
-				if (!isInvincible()) {
-					damageExec(sender,
-					           mDmgParamsEnemyCommon.mDamage.get(),
-					           mDmgParamsEnemyCommon.mDownType.get(),
-					           mDmgParamsEnemyCommon.mWaterEmit.get(),
-					           mDmgParamsEnemyCommon.mMinSpeed.get(),
-					           mDmgParamsEnemyCommon.mMotor.get(),
-					           mDmgParamsEnemyCommon.mDirty.get(),
-					           mDmgParamsEnemyCommon.mInvincibleTime.get());
-
-					changePlayerStatus(0x000208B7, 1, false);
-
-					if (gpMSound->gateCheck(0x1813)) {
-						MSoundSESystem::MSoundSE::startSoundActor(
-						    0x1813, (const Vec*)&mPosition, 0, nullptr, 0, 4);
-					}
-					gpMarioParticleManager->emitAndBindToPosPtr(
-					    6, (const JGeometry::TVec3<f32>*)&mPosition, 0, nullptr);
-					return 1;
-				}
-			}
-		default_enemy_fallthrough:
-			{
-				f32 height = sender->mAttackHeight;
-				keepDistance(sender->mPosition, 0.0f + height, 0.0f);
-			}
-			return 1;
+			break;
 		}
 	}
 
