@@ -353,9 +353,35 @@ void TBossTelesa::genAttacker()
 
 void TBossTelesa::flashItem(int result)
 {
-	unk160 = result;
-	unk164 = result;
-	unk168 = 0.0f;
+	int phase = result % 16;
+
+	for (int i = 0; i < 20; ++i) {
+		TLiveActor* actor = unk2A8[i];
+		if (!(actor->mLiveFlag & LIVE_FLAG_DEAD) && actor->mHolder == nullptr) {
+			if (phase < 8)
+				actor->onLiveFlag(LIVE_FLAG_HIDDEN);
+			else
+				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
+		}
+	}
+
+	for (int i = 0; i < 10; ++i) {
+		TLiveActor* actor = unk2F8[i];
+		if (!(actor->mLiveFlag & LIVE_FLAG_DEAD) && actor->mHolder == nullptr) {
+			if (phase < 8)
+				actor->onLiveFlag(LIVE_FLAG_HIDDEN);
+			else
+				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
+		}
+
+		actor = unk320[i];
+		if (!(actor->mLiveFlag & LIVE_FLAG_DEAD)) {
+			if (phase < 8)
+				actor->onLiveFlag(LIVE_FLAG_HIDDEN);
+			else
+				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
+		}
+	}
 }
 
 BOOL TBossTelesa::slotFall()
