@@ -918,6 +918,8 @@ check_sender_bit3:
 		case 0x08000022:
 		case 0x08000023:
 		case 0x08000027: // General enemy interaction
+		case 0x1000000F:
+		case 0x10000035:
 		{
 			switch (message) {
 			case 4: // Take
