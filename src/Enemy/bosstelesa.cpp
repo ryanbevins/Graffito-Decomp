@@ -460,16 +460,20 @@ int TTelesaSlot::getForcastResult(int idx)
 int TTelesaSlot::getSlotResult()
 {
 	int result = getResultFromAng(unk13C[0]);
-	if (getResultFromAng(unk13C[1]) != result)
-		return -1;
-	if (getResultFromAng(unk13C[2]) != result)
-		return -1;
+	for (int i = 1; i < 3; ++i) {
+		if (getResultFromAng(unk13C[i]) != result)
+			return -1;
+	}
 	return result;
 }
 
 BOOL TTelesaSlot::isRollDrum()
 {
-	if (unk198 || unk199 || unk19A)
+	if (unk198)
+		return TRUE;
+	if (unk199)
+		return TRUE;
+	if (unk19A)
 		return TRUE;
 
 	unk19B = 0;
