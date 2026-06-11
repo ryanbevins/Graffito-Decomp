@@ -895,7 +895,7 @@ public:
 	void getJumpIntoWaterModelData();
 	BOOL jumpMain();
 	void fallDead();
-	void diving();
+	BOOL diving();
 	void hipAttacking();
 	void pullJumping();
 	void wireJumping();

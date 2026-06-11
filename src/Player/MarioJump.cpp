@@ -683,9 +683,95 @@ void TMario::hipAttacking()
 	mModelFaceAngle = mFaceAngle.y;
 }
 
-void TMario::diving()
+BOOL TMario::diving()
 {
+	if (mHolder != nullptr) {
+		MtxPtr mtx = mHolder->getTakingMtx();
+		mPosition.x = mtx[0][3];
+		mPosition.y = mtx[1][3];
+		mPosition.z = mtx[2][3];
+		mFaceAngle.x = 0;
+		mModelFaceAngle = mFaceAngle.y;
+		mFaceAngle.z = 0;
+		setAnimation(0x120, 1.0f);
+		return FALSE;
+	}
+
+	if (mInput & 1) {
+		s16 angleDiff = mIntendedYaw - mFaceAngle.y;
+		f32 stickMag  = mIntendedMag;
+		if ((angleDiff > -0x1555 && angleDiff < 0x1555)
+		    || angleDiff < -0x6AAA || angleDiff > 0x6AAA) {
+			s16 gunAngle
+			    = *(s16*)((u8*)mWaterGun->getCurrentNozzle() + 0x310);
+			s16 reaction = (s16)(0.03125f * -stickMag * (f32)gunAngle
+			                     * JMASCos(angleDiff));
+			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+				mWaterGun->unk1CC2 = reaction;
+				mWaterGun->unk1CC4 = reaction;
+				mForwardVel += stickMag * JMASCos(angleDiff)
+				                * mDivingParams.mAccelControl.value;
+			}
+		} else {
+			s16 gunAngle
+			    = *(s16*)((u8*)mWaterGun->getCurrentNozzle() + 0x310);
+			s16 reaction = (s16)(0.03125f * -stickMag * (f32)gunAngle
+			                     * JMASSin(angleDiff));
+			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+				mWaterGun->unk1CC2 = -reaction;
+				mWaterGun->unk1CC4 = reaction;
+				s16 convergeAngle = mIntendedYaw - mFaceAngle.y;
+				mFaceAngle.y
+				    = mIntendedYaw
+				      - IConverge(convergeAngle, 0,
+				                  mDivingParams.mRotSp.value,
+				                  mDivingParams.mRotSp.value);
+			}
+		}
+		setAnimation(0x137, 1.0f);
+	} else {
+		u8 isNearFloor;
+		if (mPosition.y <= mFloorPosition.y + 4.0f)
+			isNearFloor = TRUE;
+		else
+			isNearFloor = FALSE;
+		if (isNearFloor) {
+			setPlayerVelocity(0.0f);
+			switch (mAnimationId) {
+			case 0x138:
+				if (isLast1AnimeFrame())
+					setAnimation(0xC3, 1.0f);
+				break;
+			case 0xC3:
+				break;
+			default:
+				setAnimation(0x138, 1.0f);
+				break;
+			}
+		} else {
+			setAnimation(0x137, 1.0f);
+		}
+
+		if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+			mWaterGun->unk1CC2 = 0;
+			mWaterGun->unk1CC4 = 0;
+		}
+	}
+
+	if (gpMSound->gateCheck(0x101F)) {
+		MSoundSESystem::MSoundSE::startSoundActor(0x101F, nullptr, 0,
+		                                          nullptr, 0, 4);
+	}
+
+	bubbleFromBody();
+	mForwardVel *= mDivingParams.mSeaBrake.value;
+	mSlideVelX = mForwardVel * JMASSin(mFaceAngle.y);
+	mSlideVelZ = mForwardVel * JMASCos(mFaceAngle.y);
+	mVel.x     = mSlideVelX;
+	mVel.y *= mDivingParams.mSeaBrakeY.value;
+	mVel.z = mSlideVelZ;
 	jumpProcess(0);
+	return FALSE;
 }
 
 BOOL TMario::jumpMain()
