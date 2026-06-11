@@ -77,7 +77,8 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 		}
 
 		// Check if sender has bit 0x40000000
-		if (sender->mActorType & 0x40000000) {
+		bool hasObjectType = (sender->mActorType & 0x40000000) ? true : false;
+		if (hasObjectType) {
 			if (gpMSound->getMarioVoiceID(0) != 0x78D3) {
 				startVoice(0x78D3);
 			}
