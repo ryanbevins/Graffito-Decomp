@@ -449,67 +449,69 @@ check_sender_bit3:
 
 		case 0x40000098:
 		{
-			if (*(u32*)((u8*)this + 0x68) != 0)
-				return 0;
+			if (*(u32*)((u8*)this + 0x68) == 0) {
+				if (mAction == 0x892 && mVel.y > 0.0f)
+					return 0;
 
-			if (mAction == 0x892 && mVel.y > 0.0f)
-				return 0;
+				if (mAction == 0x893 && mVel.y > 0.0f)
+					return 0;
 
-			if (mAction == 0x893 && mVel.y > 0.0f)
-				return 0;
+				if (mAction == 0x000208BA)
+					return 0;
 
-			if (mAction == 0x000208BA)
-				return 0;
+				if (onYoshi())
+					return 0;
 
-			if (onYoshi())
-				return 0;
+				*(u32*)((u8*)this + 0x68) = (u32)sender;
 
-			*(u32*)((u8*)this + 0x68) = (u32)sender;
+				TMapWireActor* wireActor = (TMapWireActor*)sender;
+				wireActor->getTipPoints(&mWireStartPos, &mWireEndPos);
+				mWirePosRatio = wireActor->getPosInWire();
 
-			TMapWireActor* wireActor = (TMapWireActor*)sender;
-			wireActor->getTipPoints(&mWireStartPos, &mWireEndPos);
-			mWirePosRatio = wireActor->getPosInWire();
+				wireMove(0.0f);
+				mState &= ~0x100;
 
-			wireMove(0.0f);
-			mState &= ~0x100;
+				JGeometry::TVec3<f32> wireDiff = mWireEndPos;
+				wireDiff.sub(mWireStartPos);
+				s16 angleDiff
+				    = (s16)(matan(wireDiff.z, wireDiff.x) - mFaceAngle.y);
 
-			JGeometry::TVec3<f32> wireDiff = mWireEndPos;
-			wireDiff.sub(mWireStartPos);
-			s16 angleDiff = (s16)(matan(wireDiff.z, wireDiff.x) - mFaceAngle.y);
+				mWireBounceVel = -mVel.y * 0.1f;
+				mWireSag       = 0.0f;
 
-			mWireBounceVel = -mVel.y * 0.1f;
-			mWireSag       = 0.0f;
+				BOOL hangFromWire;
+				if (mAction == 0x893 || mAction == 0x8000088A) {
+					hangFromWire = true;
+				} else if (mVel.y < 0.0f) {
+					hangFromWire = false;
+				} else {
+					hangFromWire = true;
+				}
 
-			BOOL hangFromWire;
-			if (mAction == 0x893 || mAction == 0x8000088A) {
-				hangFromWire = true;
-			} else if (mVel.y < 0.0f) {
-				hangFromWire = false;
-			} else {
-				hangFromWire = true;
-			}
+				if (hangFromWire) {
+					if (angleDiff > 0) {
+						JGeometry::TVec3<f32> temp = mWireStartPos;
+						mWireStartPos              = mWireEndPos;
+						mWireEndPos                = temp;
+						mWirePosRatio              = 1.0f - mWirePosRatio;
+					}
 
-			if (hangFromWire) {
-				if (angleDiff > 0) {
+					changeWireHanging();
+					return 1;
+				}
+
+				if (angleDiff <= -0x4000 || angleDiff > 0x4000) {
 					JGeometry::TVec3<f32> temp = mWireStartPos;
 					mWireStartPos              = mWireEndPos;
 					mWireEndPos                = temp;
 					mWirePosRatio              = 1.0f - mWirePosRatio;
 				}
 
-				changeWireHanging();
+				changePlayerStatus(0x350, 0, false);
 				return 1;
 			}
 
-			if (angleDiff <= -0x4000 || angleDiff > 0x4000) {
-				JGeometry::TVec3<f32> temp = mWireStartPos;
-				mWireStartPos              = mWireEndPos;
-				mWireEndPos                = temp;
-				mWirePosRatio              = 1.0f - mWirePosRatio;
-			}
-
-			changePlayerStatus(0x350, 0, false);
-			return 1;
+			return 0;
 		}
 		}
 	}
