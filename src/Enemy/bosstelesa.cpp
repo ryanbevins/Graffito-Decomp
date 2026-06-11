@@ -7,6 +7,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <Map/MapCollisionEntry.hpp>
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MSound/MSound.hpp>
@@ -570,8 +571,19 @@ void TTelesaSlot::randomReset()
 void TTelesaSlot::initMapObj()
 {
 	TSlotDrum::initMapObj();
+	onLiveFlag(LIVE_FLAG_UNK10);
+	unk14C = 160.0f;
+	unk150 = mPosition.y;
+	unk154 = 2.0f;
+	unk158 = 2.0f;
+	unk15C = 0.01f;
+	unk160 = 0.5f;
+	unk164 = 0;
 	unk168 = 45;
-	unk1A4 = 0;
+	unk140 = mDamageRadius / 3.0f;
+	unk144 = mDamageHeight;
+	unk1DC = new TMapCollisionMove();
+	unk1DC->init(2, 0, 0, nullptr);
 	randomReset();
 }
 

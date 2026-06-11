@@ -45,6 +45,7 @@ public:
 };
 
 class TMultiBtk;
+class TMapCollisionMove;
 
 class TWarpAreaActor : public THitActor {
 public:
@@ -249,7 +250,10 @@ public:
 	/* 0x1A8 */ u8 unk1A8;
 	/* 0x1A9 */ u8 unk1A9;
 	/* 0x1AA */ u8 unk1AA;
-	/* 0x1AB */ u8 unk1AB[0x45];
+	/* 0x1AB */ u8 unk1AB[0x31];
+	/* 0x1DC */ TMapCollisionMove* unk1DC;
+	/* 0x1E0 */ u8 unk1E0;
+	/* 0x1E1 */ u8 unk1E1[0xF];
 };
 
 class TRouletteSw : public THitActor {
