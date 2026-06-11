@@ -94,6 +94,7 @@ static const char* bossEelTears_bastable[] = {
 };
 
 static const char cDummyTextureName[] = "M_dummy";
+static const char cTearsRecoverCollisionName[] = "回復コリジョン";
 
 DEFINE_NERVE(TNerveBEelTearsMoveUp, TLiveActor)
 {
@@ -396,6 +397,91 @@ void TBossEelManager::createModelData()
 	createModelDataArray(entry);
 }
 
+void TBossEelCollision::perform(u32 flags, JDrama::TGraphics* graphics)
+{
+	if (flags & 1) {
+		calcEntryRadius();
+
+		for (int i = 0; i < mColCount; ++i) {
+			if (mCollisions[i]->isActorTypeOf(ACTOR_TYPE_PLAYER))
+				behaveToMario();
+		}
+	}
+
+	if (flags & 2) {
+		mPosition.x = unk68[0][3];
+		mPosition.y = unk68[1][3];
+		mPosition.z = unk68[2][3];
+	}
+
+	THitActor::perform(flags, graphics);
+}
+
+void TBossEelCollision::behaveToMario()
+{
+	JGeometry::TVec3<f32> velocity(0.0f, TBossEel::mForcePow, 0.0f);
+	velocity.add(*gpMarioPos);
+	SMS_MarioMoveRequest(velocity);
+
+	TBossEel* eel = unk7C;
+	if (eel == nullptr)
+		return;
+
+	u8 canEat = *(u8*)((u8*)eel + 0x1C8);
+	if (!canEat) {
+		JGeometry::TVec3<f32> pos = *gpMarioPos;
+		MtxPtr mtx = eel->mMActor->getModel()
+		                 ->mNodeMatrices[*(u16*)((u8*)eel + 0x1A0)];
+		pos.x -= mtx[0][3];
+		pos.y -= mtx[1][3];
+		pos.z -= mtx[2][3];
+
+		f32 dist = MsVECMag2(&pos);
+		if (dist < eel->unk1D4 * eel->unk1D8)
+			canEat = TRUE;
+	}
+
+	if (canEat
+	    && eel->mSpine->getCurrentNerve() != &TNerveBossEelEat::theNerve())
+		eel->mSpine->pushNerve(&TNerveBossEelEat::theNerve());
+}
+
+void TBossEelCollision::initCollision()
+{
+	initHitActor(0x08000023, 5, 0x80000000, unk6C, unk70, unk74, unk78);
+}
+
+void TBossEelTearsRecoverCollision::perform(u32 flags,
+                                            JDrama::TGraphics* graphics)
+{
+	if (flags & 1) {
+		calcEntryRadius();
+
+		for (int i = 0; i < mColCount; ++i) {
+			if (mCollisions[i]->isActorTypeOf(ACTOR_TYPE_PLAYER))
+				behaveToMario();
+		}
+	}
+
+	THitActor::perform(flags, graphics);
+}
+
+void TBossEelTearsRecoverCollision::behaveToMario()
+{
+	SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
+	unk80 = FALSE;
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+}
+
+void TBossEelTearsRecoverCollision::initCollision()
+{
+	unk74 = 400.0f;
+	unk6C = 400.0f;
+	unk78 = 400.0f;
+	unk70 = 400.0f;
+	initHitActor(0x2000002C, 3, 0x80000000, unk6C, unk70, unk74, unk78);
+}
+
 #define LOAD_BOSSEEL_PARTICLE(id, path)                                        \
 	do {                                                                       \
 		if (!gParticleFlagLoaded[id]) {                                        \
@@ -648,6 +734,51 @@ void TBEelTears::setMActorAndKeeper()
 	mMActorKeeper = new TMActorKeeper(mManager, 2);
 	mMActor       = mMActorKeeper->createMActor("tears.bmd", 0);
 	mMActorKeeper->createMActor("tears_waterhit.bmd", 0);
+}
+
+void TBEelTears::init(TLiveManager* manager)
+{
+	TSpineEnemy::init(manager);
+	mActorType = 0x08000003;
+	unk64 |= 0x80000000;
+	setMActorAndKeeper();
+	unk15C = (TBEelTearsSaveLoadParams*)getSaveParam();
+	mSpine->initWith(&TNerveBEelTearsGenerate::theNerve());
+
+	TScreenTexture* texture
+	    = JDrama::TNameRefGen::search<TScreenTexture>("スクリーンテクスチャ");
+	const ResTIMG* texInfo = texture->getTexture()->getTexInfo();
+	J3DSkinDeform* skinDeform = new J3DSkinDeform;
+
+	MActor* actor = mMActorKeeper->getMActor("tears.bmd");
+	actor->getModel()->setSkinDeform(skinDeform,
+	                                 J3D_DEFORM_ATTACH_FLAG_UNK_1);
+	actor->resetDL();
+	SMS_ChangeTextureAll(actor->getModel()->getModelData(), cDummyTextureName,
+	                     *texInfo);
+	actor->setLightType(3);
+
+	actor = mMActorKeeper->getMActor("tears_waterhit.bmd");
+	SMS_ChangeTextureAll(actor->getModel()->getModelData(), cDummyTextureName,
+	                     *texInfo);
+	actor->setLightType(3);
+
+	onLiveFlag(LIVE_FLAG_DEAD);
+
+	f32 scaleMin = unk15C->mBodyScaleLow;
+	f32 scaleMax = unk15C->mBodyScaleHigh;
+	mBodyScale   = scaleMin
+	             + (scaleMax - scaleMin) * (rand() * 0.000030517578f);
+
+	TIdxGroupObj* group = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	MtxPtr mtx          = mMActor->getModel()->mNodeMatrices[0];
+	unk16C = new TBossEelTearsRecoverCollision(mtx, cTearsRecoverCollisionName);
+	unk16C->initCollision();
+
+	JGadget::TList_pointer_void* list
+	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
+	list->insert(list->end(), unk16C);
+	unk16C->onHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 void TBEelTears::perform(u32 flags, JDrama::TGraphics* graphics)
