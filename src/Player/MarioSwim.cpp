@@ -234,8 +234,7 @@ BOOL TMario::swimMain()
 	// Check FLUDD
 	if (checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
 		if (mAction != 0x24D4 && mAction != 0x24D5) {
-			changePlayerStatus(0x24D4, 0, false);
-			return FALSE;
+			return changePlayerStatus(0x24D4, 0, false);
 		}
 	}
 
@@ -252,8 +251,7 @@ BOOL TMario::swimMain()
 	case 0x22D2:
 		setAnimation(0x116, 1.0f);
 		if (mInput & 0x01) {
-			changePlayerStatus(0x24D3, 0, false);
-			return FALSE;
+			return changePlayerStatus(0x24D3, 0, false);
 		}
 		doSwimming();
 		if (!checkActionFlag(0x2000))
@@ -294,8 +292,7 @@ BOOL TMario::swimMain()
 	case 0x24D6:
 		setAnimation(0x11A, 1.0f);
 		if (isLast1AnimeFrame()) {
-			changePlayerStatus(0x24D7, 0, false);
-			return FALSE;
+			return changePlayerStatus(0x24D7, 0, false);
 		}
 		doSwimming();
 		if (!checkActionFlag(0x2000))
@@ -305,8 +302,7 @@ BOOL TMario::swimMain()
 	case 0x24D7:
 		setAnimation(0x11B, 1.0f);
 		if (isLast1AnimeFrame()) {
-			changePlayerStatus(0x22D2, 0, false);
-			return FALSE;
+			return changePlayerStatus(0x22D2, 0, false);
 		}
 		doSwimming();
 		if (!checkActionFlag(0x2000))
@@ -320,8 +316,7 @@ BOOL TMario::swimMain()
 		mVel.y = velY + accelUp;
 		if (isLast1AnimeFrame()) {
 			setAnimation(0x116, 1.0f);
-			changePlayerStatus(0x22D2, 0, false);
-			return FALSE;
+			return changePlayerStatus(0x22D2, 0, false);
 		}
 		doSwimming();
 		if (!(checkActionFlag(0x2000)))
@@ -344,8 +339,7 @@ BOOL TMario::swimMain()
 		}
 		if (isLast1AnimeFrame()) {
 			setAnimation(0x116, 1.0f);
-			changePlayerStatus(0x24D6, 0, false);
-			return FALSE;
+			return changePlayerStatus(0x24D6, 0, false);
 		}
 		doSwimming();
 		if (!checkActionFlag(0x2000))
