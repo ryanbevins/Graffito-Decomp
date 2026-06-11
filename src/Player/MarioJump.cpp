@@ -515,12 +515,12 @@ BOOL TMario::boardJumping()
 	setAnimation(109, 1.0f);
 	if (mVel.y < 0.0f) {
 		// Pointer math slop
-		*(f32*)((u8*)this + 0x50) = mDeParams.mTrampleRadius.value; calcEntryRadius();
-		*(f32*)((u8*)this + 0x54) = mDeParams.mAttackHeight.value; calcEntryRadius();
+		*(f32*)((u8*)this + 0x50) = mDeParams.mTrampleRadius.get(); calcEntryRadius();
+		*(f32*)((u8*)this + 0x54) = mDeParams.mAttackHeight.get(); calcEntryRadius();
 	} else {
 		// Pointer math slop
-		*(f32*)((u8*)this + 0x50) = mDeParams.mPushupRadius.value; calcEntryRadius();
-		*(f32*)((u8*)this + 0x54) = mDeParams.mPushupHeight.value; calcEntryRadius();
+		*(f32*)((u8*)this + 0x50) = mDeParams.mPushupRadius.get(); calcEntryRadius();
+		*(f32*)((u8*)this + 0x54) = mDeParams.mPushupHeight.get(); calcEntryRadius();
 	}
 	switch (jumpProcess(0)) {
 	case 1:
@@ -532,11 +532,11 @@ BOOL TMario::boardJumping()
 			setPlayerVelocity(0.0f);
 			loserExec();
 		} else {
-			s32 wa = matan(mWallPlane->getNormal().z, mWallPlane->getNormal().x);
-			s16 d  = wa - mFaceAngle.y;
-			s32 mx = mSurfingParamsWaterRed.mClashAngle.value;
-			if ((d < -mx || d > mx)
-			    && mForwardVel > mSurfingParamsWaterRed.mClashSpeed.value) {
+			s16 d = matan(mWallPlane->getNormal().z, mWallPlane->getNormal().x)
+			        - mFaceAngle.y;
+			s32 mx = mSurfingParamsWaterRed.mClashAngle.get();
+			if ((d < -mx || mx < d)
+			    && mForwardVel > mSurfingParamsWaterRed.mClashSpeed.get()) {
 				loserExec();
 			} else {
 				setPlayerVelocity(0.0f);
