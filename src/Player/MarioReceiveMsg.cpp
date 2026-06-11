@@ -1082,9 +1082,7 @@ check_sender_bit3:
 			s16 adjAngle = (s16)(sAngle - mFaceAngle.y);
 			if (angleDiff > -8192 && angleDiff < 8192) {
 				if (adjAngle > -8192 && adjAngle < 8192) {
-					mPosition.x = sender->mPosition.x;
-					mPosition.y = sender->mPosition.y;
-					mPosition.z = sender->mPosition.z;
+					mPosition = sender->mPosition;
 					mFaceAngle.y = sAngle;
 					changePlayerStatus(0x1320, 0, false);
 					if (*(u32*)((u8*)this + 0x6C)) {
@@ -1099,9 +1097,7 @@ check_sender_bit3:
 			}
 			if (adjAngle < -24576 || adjAngle > 24576) {
 				if (message == 0x11) {
-					mPosition.x = sender->mPosition.x;
-					mPosition.y = sender->mPosition.y;
-					mPosition.z = sender->mPosition.z;
+					mPosition = sender->mPosition;
 					s16 newAngle = sAngle + 0x8000;
 					mFaceAngle.y = newAngle;
 					changePlayerStatus(0x1321, 0, false);
@@ -1116,9 +1112,7 @@ check_sender_bit3:
 				}
 				if (*(u32*)((u8*)this + 0x6C))
 					return 0;
-				mPosition.x = sender->mPosition.x;
-				mPosition.y = sender->mPosition.y;
-				mPosition.z = sender->mPosition.z;
+				mPosition = sender->mPosition;
 				s16 newAngle2 = sAngle + 0x8000;
 				mFaceAngle.y = newAngle2;
 				changePlayerStatus(0x1321, 0, false);
