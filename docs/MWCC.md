@@ -5638,6 +5638,30 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Switch-assigned locals can intentionally skip default initialization and force saved-GPR coloring
+
+**Hypothesis.** When target asm stores `this` in one callee-saved GPR and uses
+another callee-saved GPR as a small integer selected by a later `switch`, but
+there is no visible pre-switch load of the semantic default value, the original
+source may have left the local uninitialized and assigned it only in explicit
+`case` labels. Adding a source default initializer can make MWCC keep `this` in
+the only saved GPR and preload the parameter in a volatile argument register,
+creating an extra instruction and the wrong save set. Use this only when the
+target really lacks the default materialization; otherwise it risks preserving a
+source bug that was not present.
+
+**Observed.** `mario/Player/MarioJump` `TMario::landing()` (2026-06-11 MNL):
+changing `s32 anm = 86;` to `s32 anm;` assigned only in `case 0`, `case 1`,
+and `case 3` removed the pre-switch `li r5, 0x56`, forced `this` into `r30`
+and `anm` into saved `r31`, and moved the function from `93.8 -> 100.0`.
+
+**Experiment to confirm/refute.** Find a second function where a switch-fed
+small integer local is live into a trailing call, target saves a GPR for that
+local, and the default/fall-through path has no initializing instruction.
+Toggle a semantic default initializer versus case-only assignment and verify
+whether the saved-register set and pre-switch materialization follow the same
+pattern.
+
 ### BOOL-return helpers preserve source branch order; positive-body/false-tail may be required
 
 **Hypothesis.** For small `BOOL` helpers that return `TRUE` only after a
