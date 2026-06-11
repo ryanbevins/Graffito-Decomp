@@ -566,7 +566,7 @@ check_sender_bit3:
 			goto default_enemy_handle;
 
 		case 0x10000002: // Hamakuri
-		case 0x1000019B: // Also hamakuri variant
+		case 0x4000019B: // Also hamakuri variant
 			if (message == 0x0E) {
 				if (!isInvincible()) {
 					damageExec(sender,
@@ -689,6 +689,7 @@ check_sender_bit3:
 			return 1;
 
 		case 0x10000053: // Special boss
+		case 0x40000053:
 		{
 			// Check mState bits 14-15
 			bool hasStateBits = (mState & 0x00030000) ? true : false;
