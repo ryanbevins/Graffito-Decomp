@@ -323,29 +323,40 @@ BOOL TMario::jumpCatch()
 	switch (r) {
 	case 1: {
 		u8 cc = 1;
-		u8 hy; if (mSubState & 0x100) hy = 1; else hy = 0;
-		if (hy) cc = 0;
-		// Pointer math slop
-		if (*(f32*)((u8*)this + 0x02AC) - mPosition.y <= mDeParams.mDamageFallHeight.value) cc = 0;
+		u8 hy = (mSubState & 0x100) ? cc : 0;
+		if (hy == true) cc = 0;
+		if (mLastGroundPos.y - mPosition.y <= mDeParams.mDamageFallHeight.value) cc = 0;
 		if (onYoshi()) cc = 0;
-		// Pointer math slop
 		u16 bg = *(u16*)((u8*)mGroundPlane);
-		if (bg == 0x0A || bg == 0x800A || bg == 0x0108) cc = 0;
-		else {
+		u8 badGround;
+		if (bg != 0x0A && bg != 0x800A && bg != 0x0108) {
 			u8 t; if (bg == 0x07 || bg == 0x8007) t = 1; else t = 0;
-			if (t) cc = 0;
-			else { if (bg == 0x08 || bg == 0x8008) cc = 0;
-			else { u8 w; if (bg == 0x09 || bg == 0x8009) w = 1; else w = 0; if (w) cc = 0; } }
-		}
+			if (!t) {
+				u8 r;
+				if (bg == 0x0108 || bg == 0x08 || bg == 0x8008)
+					r = 1;
+				else
+					r = 0;
+				if (!r) {
+					u8 w; if (bg == 0x09 || bg == 0x8009) w = 1; else w = 0;
+					if (w) badGround = 1; else badGround = 0;
+				} else
+					badGround = 1;
+			} else
+				badGround = 1;
+		} else
+			badGround = 1;
+		if (badGround)
+			cc = 0;
 		if (mVel.y > 0.0f) cc = 0;
 		if (cc) {
-			u8 cf; if (mState & 0x80000) cf = 1; else cf = 0;
+			u8 cf; if (mState & 0x40000) cf = 1; else cf = 0;
 			if (cf) { sinkInSandEffect(); changePlayerStatus(0x0002033C, 1, false); break; }
 		}
 		changePlayerStatus(0x00800456, 0, false);
 		break;
 	}
-	case 2: case 3: {
+	case 2: {
 		if (mWallPlane) {
 			// Pointer math slop
 			u8 fc; if (*(u16*)((u8*)mWallPlane) == 0x010A) fc = 1; else fc = 0;
