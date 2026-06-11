@@ -237,6 +237,7 @@ public:
 	int getSlotResult();
 	int getForcastResult(int);
 	int getResultFromAng(f32);
+	f32* getDrumSpeeds() const { return unk138; }
 
 public:
 	/* 0x198 */ u8 unk198;

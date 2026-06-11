@@ -906,11 +906,11 @@ void TTelesaSlot::calcRootMatrix()
 {
 	u8 rolling = 0;
 
-	if (unk138[0] != 0.0f)
+	if (getDrumSpeeds()[0] != 0.0f)
 		rolling = 1;
-	if (unk138[1] != 0.0f)
+	if (getDrumSpeeds()[1] != 0.0f)
 		rolling = 1;
-	if (unk138[2] != 0.0f)
+	if (getDrumSpeeds()[2] != 0.0f)
 		rolling = 1;
 
 	if (rolling) {
