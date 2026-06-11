@@ -527,16 +527,19 @@ void TTelesaSlot::moveStart()
 {
 	unk19C = 1;
 	unk19B = 1;
-	unk198 = 1;
-	unk199 = 1;
-	unk19A = 1;
-	unk1A8 = 0;
-	unk1A9 = 0;
-	unk1AA = 0;
 
-	unk138[0] = -unk158;
-	unk138[1] = -0.8f * unk158;
-	unk138[2] = unk158;
+	for (int i = 0; i < 3; ++i) {
+		*(&unk198 + i) = 1;
+		*(&unk1A8 + i) = 0;
+
+		f32 speed = 1.0f;
+		if (i == 0)
+			speed = -1.0f;
+		if (i == 1)
+			speed = -0.8f;
+
+		unk138[i] = speed * unk158;
+	}
 }
 
 void TTelesaSlot::moveObject()
