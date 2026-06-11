@@ -5638,6 +5638,38 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### BOOL-return helpers preserve source branch order; positive-body/false-tail may be required
+
+**Hypothesis.** For small `BOOL` helpers that return `TRUE` only after a
+guarded body, MWCC preserves whether the source spells the guard as an early
+false return or as a positive-body block with a trailing false return. If target
+asm falls through into the body, then emits `li r3, 1; b epilogue` and leaves
+`li r3, 0` as the tail block, write:
+
+```cpp
+if (predicate) {
+	...
+	return TRUE;
+}
+return FALSE;
+```
+
+The logically equivalent early-return form
+`if (!predicate) return FALSE; ...; return TRUE;` can invert the first branch,
+put the false return before the body, and regress even when the instruction
+count is similar.
+
+**Observed.** `mario/Player/MarioJump` `TMario::considerJumpRotate()`
+(2026-06-11 MNL): correcting the signature from `void` to `BOOL` exposed this
+layout. The early-false form regressed `89.5 -> 85.8`; rewriting as
+positive-body/false-tail matched the target exactly (`89.5 -> 100.0`).
+
+**Experiment to confirm/refute.** Find another small `BOOL` helper where target
+has `li r3, 1` after the true body and `li r3, 0` as the trailing block. Toggle
+the early-false and positive-body source forms while keeping the same return
+values. Promote this if a second independent TU shows the same branch-order
+control.
+
 ### Branch-selected small-int params may need `f32` locals when target converts inside each branch
 
 **Hypothesis.** When a target chooses between two pairs of `TParamRT<s16>`
@@ -8497,10 +8529,6 @@ confirmed in ≥2 TUs._
   twice, MWCC sometimes emits two loads where common-subexpression elimination should
   have collapsed them. What inhibits CSE here? Is it the inline's parameter aliasing
   assumption? A `this`-pointer barrier?
-- **Block ordering in boolean-return functions.** Compiler picks fall-through-through-true
-  vs fall-through-through-false. The choice may correlate with branch-prediction hints,
-  expression nesting, or the position of the `return` in the source AST. Reduce to a
-  rule by varying source structure on a minimal test case.
 
 - **Large functions stop inlining cheap helpers (`dot`, `sqrt`) that inline
   fine elsewhere (t201, Kazekun/flyAroundMario).** In the 916-byte
