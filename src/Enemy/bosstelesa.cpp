@@ -839,10 +839,16 @@ const char** TBubble::getBasNameTable() const { return btelesa_bastable; }
 void TBubble::reset()
 {
 	TWalkerEnemy::reset();
-	unk198 = 0;
-	unk1CC = 0.0f;
+	onLiveFlag(LIVE_FLAG_UNK8);
+
+	f32 min = 50.0f;
+	f32 max = 150.0f;
+	unk1CC  = min + (max - min) * (rand() * 0.000030517578f);
 	unk1D0 = 0;
-	unk1D1 = 0;
+	unk1D1 = 1;
+	unk1D2 = 0;
+	unk198 = 0;
+	mSpine->initWith(&TNerveBubbleLive::theNerve());
 }
 
 void TBubble::behaveToWater(THitActor*)
