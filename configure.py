@@ -426,7 +426,7 @@ config.libs = [
             Object(NonMatching, "JSystem/JAudio/JAInterface/JAIGFrameSe.cpp"),
             Object(NonMatching, "JSystem/JAudio/JAInterface/JAIGFrameSequence.cpp"),
             Object(NonMatching, "JSystem/JAudio/JAInterface/JAIGFrameStream.cpp"),
-            Object(NonMatching, "JSystem/JAudio/JAInterface/JAIGlobalParameter.cpp"),
+            Object(Equivalent, "JSystem/JAudio/JAInterface/JAIGlobalParameter.cpp"),
             Object(NonMatching, "JSystem/JAudio/JAInterface/JAISound.cpp"),
             Object(NonMatching, "JSystem/JAudio/JAInterface/JAISystemInterface.cpp"),
             # JASystem
