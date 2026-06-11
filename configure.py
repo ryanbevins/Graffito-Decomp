@@ -892,7 +892,7 @@ config.libs = [
             Object(NonMatching, "Strategic/Strategy.cpp"),
             Object(NonMatching, "Strategic/question.cpp"),
             Object(Matching, "Strategic/smplcharacter.cpp"),
-            Object(NonMatching, "Strategic/HitActor.cpp"),
+            Object(Equivalent, "Strategic/HitActor.cpp"),
             Object(Matching, "Strategic/binder.cpp"),
             Object(Matching, "Strategic/SharedParts.cpp"),
             Object(NonMatching, "Strategic/MirrorActor.cpp"),
