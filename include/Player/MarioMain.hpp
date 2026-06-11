@@ -920,7 +920,7 @@ public:
 	void jumpShortForeDown();
 	void jumpShortBackDown();
 	void checkWallJumping();
-	void jumpDownCommon(int, int, f32);
+	int jumpDownCommon(int, int, f32);
 	void jumpingThrow();
 	void jumpCatch();
 	void jumpWall();

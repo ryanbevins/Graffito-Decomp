@@ -339,20 +339,21 @@ void TMario::jumpCatch()
 	}
 }
 
-void TMario::jumpDownCommon(int statusId, int anmId, f32 velY)
+int TMario::jumpDownCommon(int statusId, int anmId, f32 velY)
 {
 	setPlayerVelocity(velY);
 	int r = jumpProcess(0);
 	switch (r) {
 	case 0: setAnimation(anmId, 1.0f); break;
 	case 1: changePlayerStatus(statusId, mActionArg, false); break;
-	case 2: case 3:
-		setAnimation(0, 1.0f);
+	case 2:
+		setAnimation(2, 1.0f);
 		playerRefrection(0);
 		if (mVel.y > 0.0f) mVel.y = 0.0f;
 		setPlayerVelocity(-velY);
 		break;
 	}
+	return r;
 }
 
 void TMario::stayWall()
