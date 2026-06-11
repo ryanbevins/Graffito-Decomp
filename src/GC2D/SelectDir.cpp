@@ -247,8 +247,9 @@ int TSelectDir::direct()
 
 	JDrama::TDirector::direct();
 
-	if (gpApplication.mFader->mFadeStatus < 3
-	    && gpApplication.mFader->mFadeStatus >= 1) {
+	switch (gpApplication.mFader->mFadeStatus) {
+	case 1:
+	case 2: {
 		u8 ready = mMenu->_104[0x14B - 0x104];
 		if (ready) {
 			return 4;
@@ -266,6 +267,8 @@ int TSelectDir::direct()
 			MSound* sound = gpMSound;
 			sound->fadeOutAllSound((u32)((f32)SMSGetVSyncTimesPerSec()));
 		}
+		break;
+	}
 	}
 
 	if ((TMarioGamePad::mResetFlag.check(1 << mGamePad->getPortNum()))
