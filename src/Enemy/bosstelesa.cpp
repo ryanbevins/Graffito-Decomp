@@ -1184,42 +1184,37 @@ void TBossTelesa::flashItem(int result)
 
 BOOL TBossTelesa::slotFall()
 {
-	TRoulette* roulette0 = (TRoulette*)unk178;
-	TRoulette* roulette1 = (TRoulette*)unk17C;
-	TRoulette* roulette2 = (TRoulette*)unk180;
-	TTelesaSlot* slot     = (TTelesaSlot*)unk184;
-
-	if (slot->mPosition.y > roulette0->mPosition.y - 800.0f) {
-		slot->mPosition.y -= 5.0f;
+	if (unk184->mPosition.y > unk178->mPosition.y - 800.0f) {
+		unk184->mPosition.y -= 5.0f;
 		return FALSE;
 	}
 
-	slot->mPosition.y -= 1.0f;
+	unk184->mPosition.y -= 1.0f;
 
-	if (slot->mPosition.y < roulette0->mPosition.y - 900.0f) {
+	if (unk184->mPosition.y < unk178->mPosition.y - 900.0f) {
 		int rolling = 0;
-		if (roulette0->unk13C != 0.0f)
+		if (unk178->unk13C != 0.0f)
 			rolling = 1;
-		if (roulette1->unk13C != 0.0f)
+		if (unk17C->unk13C != 0.0f)
 			++rolling;
-		if (roulette2->unk13C != 0.0f)
+		if (unk180->unk13C != 0.0f)
 			++rolling;
 
 		if (rolling != 3)
 			rouletteStart();
 	}
 
-	if (slot->mPosition.y < roulette0->mPosition.y - 1100.0f)
+	if (unk184->mPosition.y < unk178->mPosition.y - 1100.0f)
 		return TRUE;
 
-	THitActor* switchActor = roulette0->unk150;
+	THitActor* switchActor = unk178->unk150;
 	switchActor->mAttackRadius = 280.0f;
 	switchActor->mAttackHeight = 100.0f;
 	switchActor->mDamageRadius = 280.0f;
 	switchActor->mDamageHeight = 100.0f;
 	switchActor->calcEntryRadius();
 
-	switchActor = roulette1->unk150;
+	switchActor = unk17C->unk150;
 	switchActor->mAttackRadius = 280.0f;
 	switchActor->mAttackHeight = 100.0f;
 	switchActor->mDamageRadius = 280.0f;
