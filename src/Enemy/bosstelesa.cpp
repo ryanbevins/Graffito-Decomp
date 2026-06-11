@@ -725,6 +725,7 @@ void TBossTelesa::forceHide()
 	mSpine->setNext(&TNerveBossTelesaHide::theNerve());
 }
 
+#pragma dont_inline on
 void TBossTelesa::forceAllItemKill()
 {
 	f32 zero = 0.0f;
@@ -745,6 +746,7 @@ void TBossTelesa::forceAllItemKill()
 		}
 	}
 }
+#pragma dont_inline off
 
 void TBossTelesa::generateSlotItem()
 {
@@ -1440,6 +1442,7 @@ int TTelesaSlot::getForcastResult(int idx)
 	return getResultFromAng(unk168 * (int)(ang / (f32)unk168));
 }
 
+#pragma dont_inline on
 int TTelesaSlot::getSlotResult()
 {
 	int result = getResultFromAng(unk13C[0]);
@@ -1449,6 +1452,7 @@ int TTelesaSlot::getSlotResult()
 	}
 	return result;
 }
+#pragma dont_inline off
 
 BOOL TTelesaSlot::isRollDrum()
 {
@@ -2075,12 +2079,154 @@ DEFINE_NERVE(TNerveBossTelesaFreeze, TLiveActor)
 DEFINE_NERVE(TNerveBossTelesaPrepareSlot, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	if (spine->getTime() == 0)
-		boss->rouletteStart();
-	if (boss->unk154 && !boss->unk154->isRollDrum()) {
-		spine->setNext(&TNerveBossTelesaSpitSlotItem::theNerve());
-		return TRUE;
+	if (spine->getTime() == 0) {
+		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+		boss->unk160 = 15;
+		boss->unk168 = 1.0f;
+
+		J3DAnmTransform* oldAnm = nullptr;
+		if (boss->mMActor->unkC)
+			oldAnm = boss->mMActor->unkC->unk24;
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+		boss->mMActor->setBckFromIndex(15);
+		if (boss->mMActor->unkC)
+			boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+		const char** basTable = boss->getBasNameTable();
+		boss->setAnmSound(basTable ? basTable[15] : nullptr);
+		boss->mMActor->setBtpFromIndex(2);
 	}
+
+	if (boss->unk350) {
+		boss->unk36C++;
+		if (boss->checkCurAnmEnd(0)) {
+			if (boss->mMActor->checkCurBckFromIndex(1)) {
+				boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+				boss->unk160 = 12;
+				boss->unk168 = 1.0f;
+
+				J3DAnmTransform* oldAnm = nullptr;
+				if (boss->mMActor->unkC)
+					oldAnm = boss->mMActor->unkC->unk24;
+				if (boss->mMActor->unkC)
+					boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+				boss->mMActor->setBckFromIndex(12);
+				if (boss->mMActor->unkC)
+					boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+				const char** basTable = boss->getBasNameTable();
+				boss->setAnmSound(basTable ? basTable[12] : nullptr);
+				boss->mMActor->setBtpFromIndex(1);
+			} else if (boss->mMActor->checkCurBckFromIndex(12)) {
+				TBossTelesaSaveLoadParams* params
+				    = (TBossTelesaSaveLoadParams*)boss->unk15C;
+				if (boss->unk36C > params->mSLSpicyTime.get()) {
+					boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+					boss->unk160 = 13;
+					boss->unk168 = 1.0f;
+
+					J3DAnmTransform* oldAnm = nullptr;
+					if (boss->mMActor->unkC)
+						oldAnm = boss->mMActor->unkC->unk24;
+					if (boss->mMActor->unkC)
+						boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+					boss->mMActor->setBckFromIndex(13);
+					if (boss->mMActor->unkC)
+						boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+					const char** basTable = boss->getBasNameTable();
+					boss->setAnmSound(basTable ? basTable[13] : nullptr);
+				}
+			} else {
+				boss->unk36C = 0;
+				boss->unk350 = 0;
+
+				u8 maxHp = boss->getSaveParam()
+				               ? boss->getSaveParam()->mSLHitPointMax.get()
+				               : 1;
+				u8 alpha = TBossTelesa::mNormalAlpha
+				           + (maxHp - boss->mHitPoints) * 30;
+				if (alpha > 0xFE)
+					alpha = 0xFE;
+
+				boss->unk34C.a = alpha;
+
+				boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+				boss->unk160 = 15;
+				boss->unk168 = 1.0f;
+
+				J3DAnmTransform* oldAnm = nullptr;
+				if (boss->mMActor->unkC)
+					oldAnm = boss->mMActor->unkC->unk24;
+				if (boss->mMActor->unkC)
+					boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+
+				boss->mMActor->setBckFromIndex(15);
+				if (boss->mMActor->unkC)
+					boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+
+				const char** basTable = boss->getBasNameTable();
+				boss->setAnmSound(basTable ? basTable[15] : nullptr);
+				boss->mMActor->setBtpFromIndex(2);
+			}
+		}
+	}
+
+	boss->unk368++;
+
+	TBossTelesaSaveLoadParams* params
+	    = (TBossTelesaSaveLoadParams*)boss->unk15C;
+	int waitTime = params->mSLStopSlotTime0.get();
+	if (boss->mHitPoints == 2)
+		waitTime = params->mSLStopSlotTime1.get();
+	if (boss->mHitPoints == 1)
+		waitTime = params->mSLStopSlotTime2.get();
+
+	if (boss->unk184->getSlotResult() == 0)
+		waitTime = waitTime * 0.5f;
+
+	if (boss->unk368 > waitTime - 120)
+		boss->flashItem(waitTime - boss->unk368);
+
+	if (boss->mMActor->checkCurBckFromIndex(15)) {
+		BOOL done;
+		if (boss->unk1A8 == -1) {
+			done = TRUE;
+		} else {
+			done = TRUE;
+			for (int i = 0; i < boss->unk274; ++i) {
+				if (!(boss->unk1AC[i]->mLiveFlag & LIVE_FLAG_DEAD)) {
+					done = FALSE;
+					break;
+				}
+			}
+		}
+
+		if (done || boss->unk368 > waitTime) {
+			boss->unk368 = 0;
+			boss->forceAllItemKill();
+
+			if (boss->unk350) {
+				if (gpMSound->gateCheck(0x2968)) {
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x2968, &boss->mPosition, 0, nullptr, 0, 4);
+				}
+			} else {
+				if (gpMSound->gateCheck(0x28D5)) {
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x28D5, &boss->mPosition, 0, nullptr, 0, 4);
+				}
+			}
+
+			spine->pushAfterCurrent(&TNerveBossTelesaHide::theNerve());
+			return TRUE;
+		}
+	}
+
 	return FALSE;
 }
 
