@@ -138,44 +138,45 @@ int TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 				else { u8 w; if (bg == 0x09 || bg == 0x8009) w = 1; else w = 0; if (w) shouldCatch = 0; }
 			}
 		}
-			if (!(mVel.y > 0.0f))
-			if (shouldCatch) {
-				u8 inSand;
-				if (mState & 0x40000)
-					inSand = TRUE;
-				else
-					inSand = FALSE;
-				if (inSand) {
-					sinkInSandEffect();
-					changePlayerStatus(0x0002033C, 0, false);
-					break;
-				}
-				u8 hasFludd;
-				if (mState & MARIO_FLAG_HAS_FLUDD)
-					hasFludd = TRUE;
-				else
-					hasFludd = FALSE;
-				if (hasFludd) {
-					if (*(u8*)((u8*)mWaterGun + 0x1C84) != 2) {
-						mTrembleModelEffect->tremble(
-						    mJumpParams.mTremblePower.value,
-						    mJumpParams.mTrembleAccele.value,
-						    mJumpParams.mTrembleBrake.value,
-						    mJumpParams.mTrembleTime.value);
-						changePlayerStatus(0x0479, 0, false);
-						rumbleStart(21, mMotorParams.mMotorHipDrop.value);
-						canCatch = 1;
-						startVoice(0x789E);
-						if (gpMSound->gateCheck(0x193E))
-							MSoundSESystem::MSoundSE::startSoundActor(
-							    0x193E, (const Vec*)&mPosition, 0, nullptr,
-							    0, 4);
-						strongTouchDownEffect();
-						floorDamageExec(1, 3, 0,
-						                mMotorParams.mMotorReturn.value);
-					}
+		if (mVel.y > -70.0f)
+			shouldCatch = 0;
+		if (shouldCatch) {
+			u8 inSand;
+			if (mState & 0x40000)
+				inSand = TRUE;
+			else
+				inSand = FALSE;
+			if (inSand) {
+				sinkInSandEffect();
+				changePlayerStatus(0x0002033C, 0, false);
+				break;
+			}
+			u8 hasFludd;
+			if (mState & MARIO_FLAG_HAS_FLUDD)
+				hasFludd = TRUE;
+			else
+				hasFludd = FALSE;
+			if (hasFludd) {
+				if (*(u8*)((u8*)mWaterGun + 0x1C84) != 2) {
+					mTrembleModelEffect->tremble(
+					    mJumpParams.mTremblePower.value,
+					    mJumpParams.mTrembleAccele.value,
+					    mJumpParams.mTrembleBrake.value,
+					    mJumpParams.mTrembleTime.value);
+					changePlayerStatus(0x0479, 0, false);
+					rumbleStart(21, mMotorParams.mMotorHipDrop.value);
+					canCatch = 1;
+					startVoice(0x789E);
+					if (gpMSound->gateCheck(0x193E))
+						MSoundSESystem::MSoundSE::startSoundActor(
+						    0x193E, (const Vec*)&mPosition, 0, nullptr,
+						    0, 4);
+					strongTouchDownEffect();
+					floorDamageExec(1, 3, 0,
+					                mMotorParams.mMotorReturn.value);
 				}
 			}
+		}
 		// Pointer math slop
 		*(f32*)((u8*)this + 0x02AC) = mPosition.y;
 		changePlayerStatus(statusId, 0, false);
@@ -214,21 +215,33 @@ int TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 				break;
 			}
 		}
-		playerRefrection(0);
-		if (mWallPlane) {
+		if (mForwardVel > 16.0f && mAction != 0x088D) {
+			playerRefrection(0);
+			mFaceAngle.y += 0x8000;
+			if (mWallPlane) {
 				changePlayerStatus(0x08A7, 0, false);
 				if (isMario()) {
 					rumbleStart(21, mMotorParams.mMotorWall.value);
 					gpCameraShake->startShake((EnumCamShakeMode)1, 1.0f);
 					u32 sid = gpMSound->getWallSound(
 					    *(u8*)((u8*)mWallPlane + 6), mForwardVel);
-				if (gpMSound->gateCheck(sid))
-					MSoundSESystem::MSoundSE::startSoundActor(sid, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+					if (gpMSound->gateCheck(sid))
+						MSoundSESystem::MSoundSE::startSoundActor(sid, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+				}
+				break;
 			}
-			break;
+			if (mVel.y > 0.0f)
+				mVel.y = 0.0f;
+			if (mForwardVel >= 38.0f) {
+				changePlayerStatus(0x000208B0, 0, false);
+				break;
+			}
+			if (mForwardVel > 8.0f)
+				setPlayerVelocity(-8.0f);
+			changePlayerStatus(0x000208B6, 0, false);
+		} else {
+			setPlayerVelocity(0.0f);
 		}
-		if (!(mVel.y > 0.0f))
-		changePlayerStatus(0x000208B0, 0, false);
 		break;
 	}
 	case 3:
