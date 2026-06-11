@@ -191,23 +191,31 @@ void TBossTelesa::loadAfter()
 		actor->makeObjDead();
 	}
 
-	const char* spicyNames[] = {
-		"唐辛子 0", "唐辛子 1", "唐辛子 2", "唐辛子 3", "唐辛子 4",
-		"唐辛子 5", "唐辛子 6", "唐辛子 7", "唐辛子 8", "唐辛子 9",
-	};
-	for (int i = 0; i < 10; ++i) {
-		unk2F8[i] = JDrama::TNameRefGen::search<TLiveActor>(spicyNames[i]);
+	unk2F8[0] = JDrama::TNameRefGen::search<TLiveActor>("唐辛子 0");
+	unk2F8[1] = JDrama::TNameRefGen::search<TLiveActor>("唐辛子 1");
+	unk2F8[2] = JDrama::TNameRefGen::search<TLiveActor>("唐辛子 2");
+	unk2F8[3] = JDrama::TNameRefGen::search<TLiveActor>("唐辛子 3");
+	unk2F8[4] = JDrama::TNameRefGen::search<TLiveActor>("唐辛子 4");
+	unk2F8[5] = JDrama::TNameRefGen::search<TLiveActor>("唐辛子 5");
+	unk2F8[6] = JDrama::TNameRefGen::search<TLiveActor>("唐辛子 6");
+	unk2F8[7] = JDrama::TNameRefGen::search<TLiveActor>("唐辛子 7");
+	unk2F8[8] = JDrama::TNameRefGen::search<TLiveActor>("唐辛子 8");
+	unk2F8[9] = JDrama::TNameRefGen::search<TLiveActor>("唐辛子 9");
+	for (int i = 0; i < 10; ++i)
 		((TMapObjBase*)unk2F8[i])->makeObjDead();
-	}
 
-	const char* coinNames[] = {
-		"コイン 0", "コイン 1", "コイン 2", "コイン 3", "コイン 4",
-		"コイン 5", "コイン 6", "コイン 7", "コイン 8", "コイン 9",
-	};
-	for (int i = 0; i < 10; ++i) {
-		unk320[i] = JDrama::TNameRefGen::search<TLiveActor>(coinNames[i]);
+	unk320[0] = JDrama::TNameRefGen::search<TLiveActor>("コイン 0");
+	unk320[1] = JDrama::TNameRefGen::search<TLiveActor>("コイン 1");
+	unk320[2] = JDrama::TNameRefGen::search<TLiveActor>("コイン 2");
+	unk320[3] = JDrama::TNameRefGen::search<TLiveActor>("コイン 3");
+	unk320[4] = JDrama::TNameRefGen::search<TLiveActor>("コイン 4");
+	unk320[5] = JDrama::TNameRefGen::search<TLiveActor>("コイン 5");
+	unk320[6] = JDrama::TNameRefGen::search<TLiveActor>("コイン 6");
+	unk320[7] = JDrama::TNameRefGen::search<TLiveActor>("コイン 7");
+	unk320[8] = JDrama::TNameRefGen::search<TLiveActor>("コイン 8");
+	unk320[9] = JDrama::TNameRefGen::search<TLiveActor>("コイン 9");
+	for (int i = 0; i < 10; ++i)
 		((TMapObjBase*)unk320[i])->makeObjDead();
-	}
 
 	TTelesaSlot* slot = (TTelesaSlot*)unk184;
 	slot->unk1E4[0] = 0.0f;
