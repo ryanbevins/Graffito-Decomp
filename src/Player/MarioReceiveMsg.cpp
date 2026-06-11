@@ -932,13 +932,13 @@ check_sender_bit3:
 			if (message == 0x0A) {
 				if (!isInvincible()) {
 					damageExec(sender,
-					           mDmgParamsKiller.mDamage.get(),
-					           mDmgParamsKiller.mDownType.get(),
-					           mDmgParamsKiller.mWaterEmit.get(),
-					           mDmgParamsKiller.mMinSpeed.get(),
-					           mDmgParamsKiller.mMotor.get(),
-					           mDmgParamsKiller.mDirty.get(),
-					           mDmgParamsKiller.mInvincibleTime.get());
+					           mDmgParamsFire.mDamage.get(),
+					           mDmgParamsFire.mDownType.get(),
+					           mDmgParamsFire.mWaterEmit.get(),
+					           mDmgParamsFire.mMinSpeed.get(),
+					           mDmgParamsFire.mMotor.get(),
+					           mDmgParamsFire.mDirty.get(),
+					           mDmgParamsFire.mInvincibleTime.get());
 
 					changePlayerStatus(0x000208B7, 1, false);
 
@@ -1032,13 +1032,13 @@ check_sender_bit3:
 			if (message == 0x0A) {
 				if (!isInvincible()) {
 					damageExec(sender,
-					           mDmgParamsKiller.mDamage.get(),
-					           mDmgParamsKiller.mDownType.get(),
-					           mDmgParamsKiller.mWaterEmit.get(),
-					           mDmgParamsKiller.mMinSpeed.get(),
-					           mDmgParamsKiller.mMotor.get(),
-					           mDmgParamsKiller.mDirty.get(),
-					           mDmgParamsKiller.mInvincibleTime.get());
+					           mDmgParamsFire.mDamage.get(),
+					           mDmgParamsFire.mDownType.get(),
+					           mDmgParamsFire.mWaterEmit.get(),
+					           mDmgParamsFire.mMinSpeed.get(),
+					           mDmgParamsFire.mMotor.get(),
+					           mDmgParamsFire.mDirty.get(),
+					           mDmgParamsFire.mInvincibleTime.get());
 
 					changePlayerStatus(0x000208B7, 1, false);
 
