@@ -23,6 +23,7 @@
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <Map/Map.hpp>
+#include <Map/MapCollisionEntry.hpp>
 #include <MSound/MSound.hpp>
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
@@ -121,6 +122,49 @@ static const char cBossEelShineName[]     = "シャイン（ボス用）";
 static const char cBossEelShineCameraName[]
     = "めおとウナギシャインカメラ";
 static const char cBossEelEnemyGroupJointName[] = "敵グルーブ";
+static const char cBossEelEnemyGroupName[]      = "敵グループ";
+static const char cBossEelHeadName[] = "めおとウナギの頭部";
+static const char cBossEelBodyCollisionName[]    = "体コリジョン";
+static const char cBossEelBarrierCollisionName[] = "障害コリジョン";
+static const char cBossEelEyeModelPath[]         = "/scene/bosseel/eye.bmd";
+static const char cBossEelEyeName[]              = "めおとウナギ目";
+static const char cBossEelToothModelPath[]       = "/scene/bosseel/tooth.bmd";
+static const char cBossEelBadToothModelPath[]
+    = "/scene/bosseel/bad_tooth.bmd";
+static const char cBossEelGoldToothModelPath[]
+    = "/scene/bosseel/gold_tooth.bmd";
+static const char cBossEelToothName[] = "めおとウナギの歯";
+static const char cBossEelHeartCoinModelPath[]
+    = "/scene/bosseel/meoto_heartcoin.bmd";
+static const char cBossEelHeartCoinName[] = "めおとウナギハートコイン";
+static const char cBossEelAwaCollisionName[] = "泡コリジョン";
+static const char cBossEelVortexName[]       = "めおとウナギ渦";
+static const char cBossEelCollisionCubeName[] = "コリジョンキューブ";
+
+static const char* sEyePartsJointTable[] = {
+	"eye1",
+	"eye2",
+	"eye3",
+	"eye4",
+};
+
+static const char* sToothPartsJointTable[] = {
+	"ha1", "ha2", "ha3", "ha4", "ha5", "ha6", "ha7", "ha8",
+};
+
+static const char* sCollisionJointTable[] = {
+	"headcol1",
+	"headcol2",
+	"sebone5",
+	"sebone5",
+};
+
+static const char* sCollisionFileTable[] = {
+	"/bosseel/meoto_head",
+	"/bosseel/meoto_head2",
+	"/bosseel/meoto_camera",
+	"/bosseel/meoto_out_loop",
+};
 
 static inline void setBossEelParticleScale(JPABaseEmitter* emitter,
                                            const TBossEel* eel)
@@ -611,6 +655,148 @@ MtxPtr TBossEel::getTakingMtx()
 	return mMActor->getModel()->mNodeMatrices[7];
 }
 
+void TBossEel::init(TLiveManager* manager)
+{
+	mManager = manager;
+	manager->manageActor(this);
+
+	mMActorKeeper = new TMActorKeeper(manager);
+	mMActor       = mMActorKeeper->createMActorFromAllBmd(0);
+	unk1E8       = &((TBossEelManager*)manager)->mSaveParams;
+	unk150       = mPosition;
+
+	onLiveFlag(LIVE_FLAG_UNK8 | LIVE_FLAG_UNK10);
+
+	mGroundHeight
+	    = gpMap->checkGround(mPosition.x, mPosition.y + mBodyScale * mHeadHeight,
+	                         mPosition.z, nullptr);
+
+	if (mMActor->unkC)
+		mMActor->unkC->initNormalMotionBlend();
+
+	mSpine->initWith(&TNerveBossEelWaitAppear::theNerve());
+
+	initHitActor(0x08000003, 1, 0x80000000,
+	             unk1E8->mSLBodyAttackRadius.value,
+	             unk1E8->mSLBodyAttackHeight.value,
+	             unk1E8->mSLBodyDamageRadius.value,
+	             unk1E8->mSLBodyDamageHeight.value);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	J3DModel* model = mMActor->getModel();
+	if (!model->getSkinDeform())
+		model->setSkinDeform(new J3DSkinDeform, J3D_DEFORM_ATTACH_FLAG_UNK_1);
+	mMActor->resetDL();
+
+	TIdxGroupObj* enemyGroup
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>(cBossEelEnemyGroupName);
+	JGadget::TList_pointer_void* enemyList
+	    = (JGadget::TList_pointer_void*)((u8*)enemyGroup + 0x10);
+	JUTNameTab* jointName = model->getModelData()->getJointName();
+
+	unk1A8 = new THitActor(cBossEelHeadName);
+	((THitActor*)unk1A8)
+	    ->initHitActor(0x08000003, 2, 0x80000000,
+	                   unk1E8->mSLHeadAttackRadius.value,
+	                   unk1E8->mSLHeadAttackHeight.value,
+	                   unk1E8->mSLHeadDamageRadius.value,
+	                   unk1E8->mSLHeadDamageHeight.value);
+	enemyList->insert(enemyList->end(), unk1A8);
+	((THitActor*)unk1A8)->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	unk1B0
+	    = new TBossEelBodyCollision(model->getBaseTRMtx(),
+	                                cBossEelBodyCollisionName);
+	((TBossEelBodyCollision*)unk1B0)->initCollision();
+	((TBossEelBodyCollision*)unk1B0)->unk7C = this;
+	enemyList->insert(enemyList->end(), unk1B0);
+	((THitActor*)unk1B0)->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	unk210 = new TBossEelBarrierCollision(model->mNodeMatrices[7],
+	                                      cBossEelBarrierCollisionName);
+	((TBossEelBarrierCollision*)unk210)->initCollision();
+	enemyList->insert(enemyList->end(), unk210);
+	((THitActor*)unk210)->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	SDLModelData* eyeModelData = new SDLModelData(J3DModelLoaderDataBase::load(
+	    JKRFileLoader::getGlbResource(cBossEelEyeModelPath), 0x10240000));
+	for (int i = 0; i < 4; ++i) {
+		unk15C[i] = new TBossEelEye(this,
+		                            jointName->getIndex(sEyePartsJointTable[i]),
+		                            eyeModelData, 3, cBossEelEyeName);
+	}
+	unk15C[0]->unk68 = unk15C[1];
+	unk15C[1]->unk68 = unk15C[0];
+	unk15C[2]->unk68 = unk15C[3];
+	unk15C[3]->unk68 = unk15C[2];
+	unk15C[2]->getMActor()->getFrameCtrl(0)->setFrame(100.0f);
+	unk15C[3]->getMActor()->getFrameCtrl(0)->setFrame(100.0f);
+
+	SDLModelData* toothModelData[3];
+	toothModelData[0] = new SDLModelData(J3DModelLoaderDataBase::load(
+	    JKRFileLoader::getGlbResource(cBossEelToothModelPath), 0x10100000));
+	toothModelData[1] = new SDLModelData(J3DModelLoaderDataBase::load(
+	    JKRFileLoader::getGlbResource(cBossEelBadToothModelPath),
+	    0x10100000));
+	toothModelData[2] = new SDLModelData(J3DModelLoaderDataBase::load(
+	    JKRFileLoader::getGlbResource(cBossEelGoldToothModelPath),
+	    0x10100000));
+
+	for (int i = 0; i < 8; ++i) {
+		u8 toothType = 0;
+		if (i == 1 || i == 4 || i == 7)
+			toothType = 1;
+		if (i == 6)
+			toothType = 2;
+
+		unk16C[i] = new TBossEelTooth(toothType, this,
+		                              sToothPartsJointTable[i],
+		                              toothModelData[toothType],
+		                              cBossEelToothName);
+		unk16C[i]->unkBC = (i <= 2 || i == 7) ? TRUE : FALSE;
+	}
+
+	SDLModelData* heartModelData = new SDLModelData(J3DModelLoaderDataBase::load(
+	    JKRFileLoader::getGlbResource(cBossEelHeartCoinModelPath),
+	    0x10240000));
+	unk218 = new TBossEelHeartCoin(this, 0, heartModelData, 3,
+	                               cBossEelHeartCoinName);
+
+	for (int i = 0; i < 4; ++i) {
+		unk1A0[i]  = jointName->getIndex(sCollisionJointTable[i]);
+		unk190[i] = new TMapCollisionMove();
+		unk190[i]->init(sCollisionFileTable[i], 2, this);
+		unk190[i]->moveTrans(mPosition);
+	}
+
+	unk214 = new TBossEelAwaCollision(model->mNodeMatrices[unk1A0[2]],
+	                                  cBossEelAwaCollisionName);
+	((TBossEelAwaCollision*)unk214)->initCollision();
+	enemyList->insert(enemyList->end(), unk214);
+	((THitActor*)unk214)->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+	unk18C = new TBossEelVortex(this, cBossEelVortexName);
+	unk18C->initHitActor(0x08000003, 3, 0x80000000,
+	                      unk1E8->mSLVortexAttackRadius.value,
+	                      unk1E8->mSLVortexAttackHeight.value,
+	                      unk1E8->mSLVortexDamageRadius.value,
+	                      unk1E8->mSLVortexDamageHeight.value);
+	enemyList->insert(enemyList->end(), unk18C);
+	unk18C->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	unk1AC = new TCubeManagerBase(cBossEelCollisionCubeName, (u8)2);
+	TCubeGeneralInfo* cubeInfo = &(*unk1AC->unk14)[0];
+	cubeInfo->unkC.x  = mPosition.x;
+	cubeInfo->unkC.y  = mPosition.y + 9600.0f;
+	cubeInfo->unkC.z  = mPosition.z;
+	cubeInfo->unk24.x = 7000.0f;
+	cubeInfo->unk24.y = 10000.0f;
+	cubeInfo->unk24.z = 7000.0f;
+
+	initAnmSound();
+	model->calc();
+}
+
 void TBossEelHeartCoin::generate(JGeometry::TVec3<f32>& position)
 {
 	unk70.x = position.x;
@@ -1041,12 +1227,12 @@ void TBossEelVortex::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (flags & 2) {
 		mPosition.x
-		    = unk68->mMActor->getModel()->mNodeMatrices[unk68->unk1A4][0][3];
+		    = unk68->mMActor->getModel()->mNodeMatrices[unk68->unk1A0[2]][0][3];
 		mPosition.y = unk68->mMActor->getModel()
-		                  ->mNodeMatrices[unk68->unk1A4][1][3]
+		                  ->mNodeMatrices[unk68->unk1A0[2]][1][3]
 		            + 1000.0f;
 		mPosition.z
-		    = unk68->mMActor->getModel()->mNodeMatrices[unk68->unk1A4][2][3];
+		    = unk68->mMActor->getModel()->mNodeMatrices[unk68->unk1A0[2]][2][3];
 	}
 
 	THitActor::perform(flags, graphics);
@@ -2287,7 +2473,8 @@ DEFINE_NERVE(TNerveBossEelMouthOpenWait, TLiveActor)
 			    = *(TBossEelVortex**)((u8*)eel + 0x18C);
 			vortex->reset();
 
-			MtxPtr mtx = eel->mMActor->getModel()->mNodeMatrices[eel->unk1A4];
+			MtxPtr mtx
+			    = eel->mMActor->getModel()->mNodeMatrices[eel->unk1A0[2]];
 			vortex->mPosition.x = mtx[0][3];
 			vortex->mPosition.y = mtx[1][3];
 			vortex->mPosition.z = mtx[2][3];

@@ -9,12 +9,16 @@
 
 class TLiveActor;
 class TBEelTearsDrop;
+class TBossEelEye;
+class TBossEelTooth;
+class TBossEelVortex;
 class SDLModel;
 class SDLModelData;
 class TSharedParts;
 class TBossEelSaveParams;
 class TCoin;
 class TCubeManagerBase;
+class TMapCollisionMove;
 
 struct TBossEelUnk1EC {
 	s32 unk0;
@@ -42,9 +46,12 @@ public:
 	static f32 mForcePow;
 	static u8 mUseMapCollision;
 
-	/* 0x150 */ u8 unk150[0x54];
-	/* 0x1A4 */ u16 unk1A4;
-	/* 0x1A6 */ u8 unk1A6[0x2];
+	/* 0x150 */ JGeometry::TVec3<f32> unk150;
+	/* 0x15C */ TBossEelEye* unk15C[4];
+	/* 0x16C */ TBossEelTooth* unk16C[8];
+	/* 0x18C */ TBossEelVortex* unk18C;
+	/* 0x190 */ TMapCollisionMove* unk190[4];
+	/* 0x1A0 */ u16 unk1A0[4];
 	/* 0x1A8 */ void* unk1A8;
 	/* 0x1AC */ TCubeManagerBase* unk1AC;
 	/* 0x1B0 */ void* unk1B0;
