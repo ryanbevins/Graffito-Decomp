@@ -399,7 +399,96 @@ void TBossWanwan::control()
 	updateSquareToMario();
 }
 
-void TBossWanwan::emitEffects() { }
+void TBossWanwan::emitEffects()
+{
+	BOOL emitLanding = FALSE;
+	if (mMActor->checkCurBckFromIndex(4) || mMActor->checkCurBckFromIndex(5)) {
+		if (mMActor->checkBckPass(8.0f))
+			emitLanding = TRUE;
+	} else if (mMActor->checkCurBckFromIndex(2)) {
+		if (mMActor->checkBckPass(38.0f))
+			emitLanding = TRUE;
+	}
+
+	if (emitLanding) {
+		gpMarioParticleManager->emit(0xAD, &mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(0xAE, &mPosition, 0, nullptr);
+
+		if (mHitPoints == 0) {
+			const JGeometry::TVec3<f32>* chainPos
+			    = &mLeash->mRope->mPoints[0].mPosition;
+			if (gpMSound->gateCheck(0x2975))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x2975, chainPos, 0, nullptr, 0, 4);
+
+			const JGeometry::TVec3<f32>* picketPos = &mPicket->mPosition;
+			if (gpMSound->gateCheck(0x2976))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x2976, picketPos, 0, nullptr, 0, 4);
+		} else {
+			const JGeometry::TVec3<f32>* chainPos
+			    = &mLeash->mRope->mPoints[0].mPosition;
+			if (gpMSound->gateCheck(0x2973))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x2973, chainPos, 0, nullptr, 0, 4);
+
+			const JGeometry::TVec3<f32>* picketPos = &mPicket->mPosition;
+			if (gpMSound->gateCheck(0x2974))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x2974, picketPos, 0, nullptr, 0, 4);
+		}
+	}
+
+	BOOL emitBodySmoke = FALSE;
+	if (mMActor->checkCurBckFromIndex(0)) {
+		if (mMActor->checkBckPass(72.0f))
+			emitBodySmoke = TRUE;
+	} else if (mMActor->checkCurBckFromIndex(4)
+	           || mMActor->checkCurBckFromIndex(5)) {
+		if (mMActor->checkBckPass(6.0f) || mMActor->checkBckPass(12.0f))
+			emitBodySmoke = TRUE;
+	} else if (mMActor->checkCurBckFromIndex(2)) {
+		if (mMActor->checkBckPass(4.0f))
+			emitBodySmoke = TRUE;
+	}
+
+	if (emitBodySmoke)
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0xAF, getModel()->mNodeMatrices[1], 0, this);
+
+	if (mMActor->checkCurBckFromIndex(4) || mMActor->checkCurBckFromIndex(5)) {
+		if (mMActor->checkBckPass(10.0f))
+			shakeCamera(0x16);
+	}
+
+	if (mMActor->checkCurBckFromIndex(0)) {
+		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+		if (ctrl->checkPass(60.0f) || ctrl->checkPass(127.0f)) {
+			shakeCamera(0x16);
+			gpMarioParticleManager->emit(0xAD, &mPosition, 0, nullptr);
+			gpMarioParticleManager->emit(0xAE, &mPosition, 0, nullptr);
+		}
+
+		if (ctrl->checkPass(202.0f)) {
+			shakeCamera(0x17);
+			gpMarioParticleManager->emit(0xAD, &mPosition, 0, nullptr);
+			gpMarioParticleManager->emit(0xAE, &mPosition, 0, nullptr);
+		}
+	}
+
+	if (mMActor->checkCurBckFromIndex(2) && mMActor->checkBckPass(40.0f))
+		shakeCamera(0x16);
+
+	if (mHitPoints != 0)
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1EE, getModel()->mNodeMatrices[1], 3, this);
+
+	if (unk190 != 0 && mHitPoints != 0) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x167, getModel()->mNodeMatrices[1], 1, this);
+		unk190 = 0;
+	}
+}
 
 void TBossWanwan::perform(u32 flags, JDrama::TGraphics* graphics)
 {
