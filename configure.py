@@ -1142,7 +1142,7 @@ config.libs = [
             Object(Matching, "Enemy/spline.cpp"),
             Object(Matching, "Enemy/typicalenemy.cpp"),
             Object(Equivalent, "Enemy/walker.cpp"),
-            Object(NonMatching, "Enemy/walkerEnemy.cpp"),
+            Object(Equivalent, "Enemy/walkerEnemy.cpp"),
             Object(NonMatching, "Enemy/bossgesso.cpp"),
             Object(NonMatching, "Enemy/elecNokonoko.cpp"),
             Object(NonMatching, "Enemy/telesa.cpp"),
