@@ -222,7 +222,7 @@ BOOL TMario::swimMain()
 
 	// Clamp Y
 	f32 minY = mFloorPosition.z - mSwimParams.mFloatHeight.value;
-	if (mPosition.y <= minY)
+	if (mPosition.y >= minY)
 		mPosition.y = minY;
 
 	*(f32*)((u8*)this + 0x2AC) = mFloorPosition.z;
