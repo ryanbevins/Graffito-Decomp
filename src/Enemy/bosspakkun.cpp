@@ -1741,30 +1741,24 @@ void TBossPakkunMtxCalc::calcBellyScale(u16 joint_no)
 	MtxPtr jointMtx = model->mNodeMatrices[joint_no];
 	Mtx scaleMtx;
 
-	f32 startX = 1.0f;
-	f32 startY;
-	f32 startZ;
-	f32 targetX;
-	f32 targetY;
-	f32 targetZ;
 	if (joint_no == 0x24) {
-		startY  = 0.8f;
-		startZ  = 0.8f;
-		targetX = 1.4f;
-		targetY = 1.4f;
-		targetZ = 1.6f;
+		static JGeometry::TVec3<f32> targetScale(1.4f, 1.4f, 1.6f);
+		static JGeometry::TVec3<f32> startScale(1.0f, 0.8f, 0.8f);
+
+		PSMTXScale(scaleMtx,
+		           blend * (targetScale.x - startScale.x) + startScale.x,
+		           blend * (targetScale.y - startScale.y) + startScale.y,
+		           blend * (targetScale.z - startScale.z) + startScale.z);
 	} else {
-		startY  = 0.9f;
-		startZ  = 0.9f;
-		targetX = 1.3f;
-		targetY = 1.7f;
-		targetZ = 1.7f;
+		static JGeometry::TVec3<f32> targetScale(1.3f, 1.7f, 1.7f);
+		static JGeometry::TVec3<f32> startScale(1.0f, 0.9f, 0.9f);
+
+		PSMTXScale(scaleMtx,
+		           blend * (targetScale.x - startScale.x) + startScale.x,
+		           blend * (targetScale.y - startScale.y) + startScale.y,
+		           blend * (targetScale.z - startScale.z) + startScale.z);
 	}
 
-	f32 scaleX = blend * (targetX - startX) + startX;
-	f32 scaleY = blend * (targetY - startY) + startY;
-	f32 scaleZ = blend * (targetZ - startZ) + startZ;
-	PSMTXScale(scaleMtx, scaleX, scaleY, scaleZ);
 	PSMTXConcat(jointMtx, scaleMtx, jointMtx);
 	PSMTXCopy(jointMtx, J3DSys::mCurrentMtx);
 }
