@@ -961,7 +961,7 @@ config.libs = [
             Object(NonMatching, "NPC/NpcEffect.cpp"),
             Object(Equivalent, "NPC/NpcInitAnmData.cpp"),
             Object(Matching, "NPC/NpcInitActionData.cpp"),
-            Object(NonMatching, "NPC/NpcCoin.cpp"),
+            Object(Equivalent, "NPC/NpcCoin.cpp"),
             Object(Matching, "NPC/NpcBalloon.cpp"),
             Object(NonMatching, "NPC/NpcWalkTurn.cpp"),
             Object(NonMatching, "NPC/NpcCollision.cpp"),

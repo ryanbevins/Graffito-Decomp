@@ -3,6 +3,7 @@
 #include <JSystem/JMath.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/MapObjManager.hpp>
