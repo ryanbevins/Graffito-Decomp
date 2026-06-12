@@ -743,9 +743,7 @@ DEFINE_NERVE(TNerveBPVomit, TLiveActor)
 	if (actor->checkCurBckFromIndex(0x14)) {
 		s16 angle = (s16)(boss->mRotation.y * (65536.0f / 360.0f));
 		JGeometry::TVec3<f32> dir;
-		dir.x = JMASSin(angle);
-		dir.y = 0.0f;
-		dir.z = JMASCos(angle);
+		dir.set(JMASSin(angle), 0.0f, JMASCos(angle));
 		gpModelWaterManager->wind(dir);
 	}
 
