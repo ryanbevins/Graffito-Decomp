@@ -1090,7 +1090,7 @@ config.libs = [
             Object(Matching, "GC2D/ChangeValue.cpp"),
             Object(Matching, "GC2D/Coord2D.cpp"),
             Object(Matching, "GC2D/ExPane.cpp"),
-            Object(NonMatching, "GC2D/Menu.cpp"),
+            Object(Equivalent, "GC2D/Menu.cpp"),
             Object(NonMatching, "GC2D/ScrnFader.cpp"),
             Object(NonMatching, "GC2D/GCConsole2.cpp"),
             Object(NonMatching, "GC2D/Talk2D2.cpp"),
