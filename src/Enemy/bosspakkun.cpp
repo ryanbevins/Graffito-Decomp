@@ -577,13 +577,14 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 		if (actor->isCurAnmAlreadyEnd(0)) {
 			if (gpMarDirector->mMap == 2) {
 				if (gpMarDirector->unk7D == 0 || gpMarDirector->unk7D == 1) {
+					JGeometry::TVec3<f32>* marioPos = gpMarioPos;
 					if (boss->unk188 == nullptr) {
 						boss->unk188 = (TAreaCylinderManager*)gpConductor->search(
 						    "ゲロエリアマネージャー");
 					}
 
 					if (boss->unk188 != nullptr
-					    && boss->unk188->contain(*gpMarioPos)) {
+					    && boss->unk188->contain(*marioPos)) {
 						u16 bgType = (*gpMarioGroundPlane)->getBGType();
 						BOOL isWaterSurface;
 						if (bgType == 0x100 || (u16)(bgType - 0x101) <= 4
