@@ -911,14 +911,14 @@ DEFINE_NERVE(TNerveKoopaGetDown, TLiveActor)
 DEFINE_NERVE(TNerveKoopaGetShowered, TLiveActor)
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	self->changeAnm(14, 1, self->getSaveParam2()->waterhitSpeed.get());
+	self->changeAnm(14, 0, self->getSaveParam2()->waterhitSpeed.get());
 	return self->mMActor->curAnmEndsNext(0, nullptr) ? TRUE : FALSE;
 }
 
 DEFINE_NERVE(TNerveKoopaStagger, TLiveActor)
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	self->changeAnm(9, 1, self->getSaveParam2()->staggerSpeed.get());
+	self->changeAnm(9, 0, self->getSaveParam2()->staggerSpeed.get());
 	return self->mMActor->curAnmEndsNext(0, nullptr) ? TRUE : FALSE;
 }
 
