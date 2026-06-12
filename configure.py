@@ -991,7 +991,7 @@ config.libs = [
         "cflags": [*cflags_game, "-opt all,nostrength", "-inline deferred"],
         "progress_category": "game",
         "objects": [
-            Object(NonMatching, "MoveBG/WoodBarrel.cpp"),
+            Object(Equivalent, "MoveBG/WoodBarrel.cpp"),
             Object(NonMatching, "MoveBG/MapObjBase.cpp"),
             Object(NonMatching, "MoveBG/MapObjInit.cpp"),
             Object(NonMatching, "MoveBG/MapObjGeneral.cpp"),
