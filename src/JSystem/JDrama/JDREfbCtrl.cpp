@@ -47,10 +47,10 @@ void TEfbCtrlDisp::perform(u32 param_1, TGraphics* param_2)
 	}
 
 	if (((param_1 & 8) != 0) && !param_2->unkFC.check(0x40)) {
+		JUtility::TColor clearColor = param_2->mClearColor;
 		IssueGXCopyDisp(param_2->mFrameBuffer, param_2->mDisplayRect,
-		                param_2->mRenderMode, param_2->mClearColor,
-		                param_2->mClearZ, param_2->mFBClamp,
-		                param_2->unkFC.mValue);
+		                param_2->mRenderMode, clearColor, param_2->mClearZ,
+		                param_2->mFBClamp, param_2->unkFC.mValue);
 	}
 }
 
@@ -103,7 +103,7 @@ void TEfbCtrlTex::perform(u32 param_1, TGraphics* param_2)
 		                     unk20.check(0x20), unk44);
 
 		if (mImagePtr != nullptr) {
-			u32 iVar2 = IssueGXSetCopyClear(unk38, unk3C, unk20.get());
+			GXBool iVar2 = IssueGXSetCopyClear(unk38, unk3C, unk20.get());
 			GXSetTexCopySrc(unk10.x1, unk10.y1, unk10.getWidth(),
 			                unk10.getHeight());
 			GXSetTexCopyDst(mWidth, mHeight, mTexFmt, unk20.check(0x1000));

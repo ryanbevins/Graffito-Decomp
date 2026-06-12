@@ -5712,6 +5712,27 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### SDK typedef booleans can avoid caller-side `bool` normalization before GX calls
+
+**Hypothesis.** When a helper returns a value that is immediately passed to an
+SDK function taking `GXBool`/`u8`, the local temporary's declared type can decide
+whether MWCC inserts a caller-side `clrlwi ..., 24` normalization. Assigning the
+helper result to `u32` after a `bool`-declared callee may force a zero-extend;
+assigning it to `GXBool` can preserve a plain `mr` handoff into the saved
+register used for the later SDK call.
+
+**Observed.** `mario/JSystem/JDrama/JDREfbCtrl`
+`JDrama::TEfbCtrlTex::perform(unsigned long, JDrama::TGraphics*)`
+(2026-06-12 MNL): changing the `IssueGXSetCopyClear(...)` result temporary
+from `u32` to `GXBool` removed the extra `clrlwi r28, r3, 24`, restored the
+target `mr r28, r3`, and made the 504-byte function exact.
+
+**Experiment to confirm/refute.** Find another caller where a helper returning
+`bool`/byte-like state feeds a GX function taking `GXBool`, and the only
+visible mismatch is a redundant `clrlwi ..., 24` after the call. Toggle only
+the receiving local between `u32`/`bool` and the SDK typedef, then verify
+whether the handoff switches between normalized and raw forms.
+
 ### Predeclaring a scalar before a `TVec3` local can reserve an otherwise unused stack slot and shift the vector to target offsets
 
 **Hypothesis.** When target and build have the same visible instruction stream
