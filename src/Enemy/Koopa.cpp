@@ -419,10 +419,12 @@ void TKoopa::init(TLiveManager* manager)
 		mMActor->setBtpFromIndex(1);
 
 	mMActor->getFrameCtrl(0)->setRate(0.5f * 2.0f * SMSGetAnmFrameRate());
+	changeAnm(6, 0, 2.0f);
 
 	if (mMActor->getAnmBck())
 		mMActor->getAnmBck()->initSimpleMotionBlend(0x10);
 
+	unk150 = getTargetDir(*gpMarioPos);
 	initAnmSound();
 	loadAfter();
 
