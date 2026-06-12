@@ -8,7 +8,8 @@
 #include <System/StageEventInfo.hpp>
 #include <Map/PollutionManager.hpp>
 #include <Map/MapEventSink.hpp>
-#include <Player/MarioMain.hpp>
+#include <Strategic/TakeActor.hpp>
+#include <System/DrawSyncCallback.hpp>
 #include <Camera/SunMgr.hpp>
 #include <GC2D/GCConsole2.hpp>
 #include <GC2D/ScrnFader.hpp>
@@ -32,11 +33,19 @@
 static void dummy(Vec* v)
 {
 	*v = (Vec) { 0.0f, 0.0f, 0.0f };
+	*v = (Vec) { 1.0f, 1.0f, 1.0f };
 }
 
 class JPAEmitterManager;
 
+class TMario : public TTakeActor, public TDrawSyncCallback {
+public:
+	TMario();
+	void setGamePad(TMarioGamePad*);
+};
+
 extern JPAEmitterManager* gpEmitterManager4D2;
+extern TMario* gpMarioOriginal;
 
 void TMarDirector::setup2()
 {
