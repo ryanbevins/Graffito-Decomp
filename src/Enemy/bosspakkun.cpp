@@ -6,6 +6,7 @@
 #include <Enemy/Walker.hpp>
 #include <Camera/CameraShake.hpp>
 #include <GC2D/GCConsole2.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JMath.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
@@ -1621,17 +1622,65 @@ BOOL TBossPakkun::checkMarioRiding()
 
 void TBossPakkunMtxCalc::calc(u16 joint_no)
 {
-	if (joint_no == 1)
-		calcBellyScale(joint_no);
-	if (joint_no == 6)
-		calcHeadDir(joint_no);
-
 	M3UMtxCalcSIAnmBlendQuat::calc(joint_no);
+	calcBellyScale(joint_no);
+	calcHeadDir(joint_no);
 }
 
 void TBossPakkunMtxCalc::calcHeadDir(u16) { }
 
-void TBossPakkunMtxCalc::calcBellyScale(u16) { }
+void TBossPakkunMtxCalc::calcBellyScale(u16 joint_no)
+{
+	if (joint_no != 4 && joint_no != 0x24)
+		return;
+
+	TBossPakkun* owner = mOwner;
+	f32 ratio;
+	if (owner->unk17C) {
+		ratio = (f32)owner->unk1B8 / 50.0f;
+	} else {
+		s32 limit = owner->getBossPakkunSaveParam()->mSLWaterMarkLimit.value;
+		s32 count = owner->unk178;
+		if (count > limit)
+			count = limit;
+
+		ratio = (f32)count / (f32)limit;
+	}
+
+	f32 blend = JMAHermiteInterpolation(ratio, 0.0f, 0.0f, 10.0f, 1.0f,
+	                                    1.0f, 0.0f);
+
+	J3DModel* model = owner->getModel();
+	MtxPtr jointMtx = model->mNodeMatrices[joint_no];
+	Mtx scaleMtx;
+
+	f32 startX = 1.0f;
+	f32 startY;
+	f32 startZ;
+	f32 targetX;
+	f32 targetY;
+	f32 targetZ;
+	if (joint_no == 0x24) {
+		startY  = 0.8f;
+		startZ  = 0.8f;
+		targetX = 1.4f;
+		targetY = 1.4f;
+		targetZ = 1.6f;
+	} else {
+		startY  = 0.9f;
+		startZ  = 0.9f;
+		targetX = 1.3f;
+		targetY = 1.7f;
+		targetZ = 1.7f;
+	}
+
+	f32 scaleX = blend * (targetX - startX) + startX;
+	f32 scaleY = blend * (targetY - startY) + startY;
+	f32 scaleZ = blend * (targetZ - startZ) + startZ;
+	PSMTXScale(scaleMtx, scaleX, scaleY, scaleZ);
+	PSMTXConcat(jointMtx, scaleMtx, jointMtx);
+	PSMTXCopy(jointMtx, J3DSys::mCurrentMtx);
+}
 
 void TBPNavel::perform(u32 flags, JDrama::TGraphics* graphics)
 {
