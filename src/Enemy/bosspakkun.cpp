@@ -586,14 +586,14 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 					if (boss->unk188 != nullptr
 					    && boss->unk188->contain(*marioPos)) {
 						u16 bgType = (*gpMarioGroundPlane)->getBGType();
-						BOOL isWaterSurface;
+						bool isWaterSurface;
 						if (bgType == 0x100 || (u16)(bgType - 0x101) <= 4
 						    || bgType == 0x4104)
-							isWaterSurface = TRUE;
+							isWaterSurface = true;
 						else
-							isWaterSurface = FALSE;
+							isWaterSurface = false;
 
-						if (isWaterSurface == FALSE) {
+						if (!isWaterSurface) {
 							spine->pushAfterCurrent(&TNerveBPCannon::theNerve());
 							return TRUE;
 						}
