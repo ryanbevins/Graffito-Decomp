@@ -216,7 +216,7 @@ DEFINE_NERVE(TNerveBPFlyPivot, TLiveActor)
 		boss->changeBck(0x0B);
 
 	if (boss->turnToCurPathNode(
-	        boss->getBossPakkunSaveParam()->mSLPivotSpeed.value)) {
+	        boss->getBossPakkunSaveParam()->mSLPivotSpeed.get())) {
 		if (boss->unk114.size() != 0)
 			boss->unkF4 = boss->unk114.pop();
 		return TRUE;

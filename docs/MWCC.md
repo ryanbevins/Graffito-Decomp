@@ -253,6 +253,10 @@ the accessor can be a legitimate frame-shape lever without adding a call.
   switching three save-param float reads from `.value` to `.get()` preserved
   the visible instruction stream, grew the frame from `0x48` to target `0x70`,
   and moved the function `99.4 -> 99.5`.
+- `mario/Enemy/bosspakkun` `TNerveBPFlyPivot::execute` (2026-06-12 MNL):
+  switching the lone `mSLPivotSpeed.value` read to `.get()` preserved the
+  visible instruction stream, grew the frame from `0x38` to target `0x40`, and
+  moved the function `99.8 -> 99.9`.
 
 ### Explicit template specialization declarations make a TU call the existing weak owner instead of emitting a local helper copy
 
