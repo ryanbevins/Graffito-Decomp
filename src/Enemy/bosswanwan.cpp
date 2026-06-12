@@ -90,7 +90,57 @@ void TBWLeashNode::calcTemperature()
 		unk74 = 1.0f;
 }
 
-void TBWLeashNode::calcMatrix() { }
+void TBWLeashNode::calcMatrix()
+{
+	TRope* rope       = mLeash->mRope;
+	TRopePoint* point = &rope->mPoints[mIndex];
+	JGeometry::TVec3<f32> position = point->mPosition;
+	MtxPtr mtx = mMActor->getModel()->getBaseTRMtx();
+
+	JGeometry::TVec3<f32> direction;
+	if (mIndex < rope->mNumPoints - 1) {
+		direction = rope->mPoints[mIndex + 1].mPosition;
+		direction.sub(position);
+	} else {
+		direction = rope->mPoints[mIndex - 1].mPosition;
+		direction.sub(position);
+		direction.negate();
+	}
+
+	PSVECNormalize((Vec*)&direction, (Vec*)&direction);
+
+	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+	JGeometry::TVec3<f32> side;
+	side.cross(up, direction);
+	PSVECNormalize((Vec*)&side, (Vec*)&side);
+	up.cross(direction, side);
+	PSVECNormalize((Vec*)&up, (Vec*)&up);
+
+	mtx[0][2] = direction.x;
+	mtx[1][2] = direction.y;
+	mtx[2][2] = direction.z;
+
+	if (mIndex & 1) {
+		mtx[0][0] = side.x;
+		mtx[1][0] = side.y;
+		mtx[2][0] = side.z;
+		mtx[0][1] = up.x;
+		mtx[1][1] = up.y;
+		mtx[2][1] = up.z;
+	} else {
+		mtx[0][0] = up.x;
+		mtx[1][0] = up.y;
+		mtx[2][0] = up.z;
+		mtx[0][1] = side.x;
+		mtx[1][1] = side.y;
+		mtx[2][1] = side.z;
+	}
+
+	mtx[0][3] = position.x;
+	mtx[1][3] = position.y + 30.0f;
+	mtx[2][3] = position.z;
+	mPosition = position;
+}
 
 void TBWLeashNode::perform(u32 flags, JDrama::TGraphics* graphics)
 {
