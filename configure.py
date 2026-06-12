@@ -339,7 +339,7 @@ config.libs = [
             Object(Equivalent, "JSystem/JKernel/JKRArchivePri.cpp"),
             Object(Equivalent, "JSystem/JKernel/JKRAramArchive.cpp"),
             Object(Matching, "JSystem/JKernel/JKRAramHeap.cpp"),
-            Object(NonMatching, "JSystem/JKernel/JKRAram.cpp"),
+            Object(Equivalent, "JSystem/JKernel/JKRAram.cpp"),
             Object(Equivalent, "JSystem/JKernel/JKRArchivePub.cpp"),
             Object(Equivalent, "JSystem/JKernel/JKRCompArchive.cpp"),
             Object(Matching, "JSystem/JKernel/JKRDisposer.cpp"),
