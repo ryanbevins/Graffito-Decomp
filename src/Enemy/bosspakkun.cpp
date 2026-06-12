@@ -712,9 +712,11 @@ DEFINE_NERVE(TNerveBPVomit, TLiveActor)
 
 			boss->rumblePad(1, boss->mPosition);
 		} else {
-			bool isBossStage = false;
+			bool isBossStage;
 			if (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 4)
 				isBossStage = true;
+			else
+				isBossStage = false;
 
 			if (!isBossStage) {
 				if ((boss->unk1C0 & 1) == 0)
