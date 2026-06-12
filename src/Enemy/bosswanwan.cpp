@@ -1,5 +1,6 @@
 #include <Enemy/BossWanwan.hpp>
 #include <Camera/CameraShake.hpp>
+#include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
@@ -13,6 +14,7 @@
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
+#include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 
 static const char* bwanwan_bastable[] = {
@@ -208,9 +210,7 @@ TBossWanwan::TBossWanwan(const char* name)
     , unk198(0)
     , unk19C(0)
     , unk1A0(0)
-    , unk1A4(0.0f)
-    , unk1A8(0.0f)
-    , unk1AC(0.0f)
+    , unk1A4(0.0f, 0.0f, 0.0f)
     , unk1B0(0)
     , unk1B4(0)
 {
@@ -492,10 +492,133 @@ void TBossWanwan::emitEffects()
 
 void TBossWanwan::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	if (mLeash != nullptr)
-		mLeash->perform(flags, graphics);
+	if ((s8)unk18C != 0) {
+		mHeadHit->perform(flags, graphics);
+		TSpineEnemy::perform(flags, graphics);
+
+		if (flags & 1) {
+			mMtxCalc->unk50 -= unk178;
+			if (mMtxCalc->unk50 < 0.0f)
+				mMtxCalc->unk50 = 0.0f;
+			else if (mMtxCalc->unk50 > 1.0f)
+				mMtxCalc->unk50 = 1.0f;
+		}
+
+		if (flags & 0x200) {
+			J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(5);
+			if (ctrl != nullptr
+			    && ctrl->getFrame() > 0.5f * (f32)ctrl->getEnd()) {
+				unk1A4 = mPosition;
+				unk1A4.y += 500.0f;
+				gpMarioParticleManager->emitAndBindToPosPtr(
+				    0x168, &unk1A4, 1, this);
+			}
+		}
+		return;
+	}
+
+	if (flags & 2) {
+		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(5);
+		TBWParams* params  = (TBWParams*)getSaveParam();
+		u8 maxHP           = params->mSLBWHitPointMax.get();
+		f32 ratio          = (f32)mHitPoints / (f32)maxHP;
+		ctrl->setFrame(ratio * (f32)(ctrl->getEnd() - 1));
+		ctrl->setRate(0.0f);
+
+		if (mHitPoints == 0 || mHitPoints == maxHP)
+			mLeash->mNodes[0]->unk74 = ratio;
+
+		emitEffects();
+	}
+
+	mHeadHit->perform(flags, graphics);
+
+	BOOL moveStep = flags & 1;
+	if (moveStep) {
+		mBodyHit->mPosition = mHeadHit->mPosition;
+		mBodyHit->mPosition.y -= 500.0f;
+	}
+	mBodyHit->perform(flags, graphics);
+
+	if (moveStep && (s8)unk194 == 0) {
+		++unk19C;
+		if (unk19C < 0)
+			unk19C = 1;
+
+		if (unk19C > 600) {
+			if ((unk198 & 1) == 0)
+				gpMarDirector->mConsole->startAppearBalloon(0xE001A, true);
+			unk198 |= 1;
+		}
+	}
+
+	if (moveStep && (s8)unk1A0 == 0 && gpMarDirector->unk58 >= 0x7080) {
+		if ((unk198 & 8) == 0)
+			gpMarDirector->mConsole->startAppearBalloon(0xE001D, true);
+		unk198 |= 8;
+	}
+
+	if (moveStep
+	    && mSpine->getLatestNerve() != &TNerveBWDie::theNerve()
+	    && mSpine->getLatestNerve() != &TNerveBWJumpToBath::theNerve()) {
+		if (mHitPoints != 0) {
+			if (unk17C != 0 && (s8)unk194 == 0) {
+				++unk184;
+				if (unk184 > 600) {
+					mSpine->pushNerve(&TNerveBWShake::theNerve());
+					unk184 = 0;
+				}
+			}
+
+			if (gpMarDirector->unk58 % 20 == 0) {
+				u8 maxHP
+				    = ((TBWParams*)getSaveParam())->mSLBWHitPointMax.get();
+				if (mHitPoints < maxHP)
+					++mHitPoints;
+			}
+			unk180 = 0;
+		} else {
+			unk184 = 0;
+
+			if (mSpine->getLatestNerve() != &TNerveBWBark::theNerve()) {
+				++unk180;
+				if (unk180 > 2400
+				    && mSpine->getLatestNerve() != &TNerveBWBark::theNerve()) {
+					mSpine->setNext(&TNerveBWBark::theNerve());
+				}
+			} else {
+				if (gpMarDirector->unk58 % 20 == 0) {
+					u8 maxHP = ((TBWParams*)getSaveParam())
+					               ->mSLBWHitPointMax.get();
+					if (mHitPoints < maxHP)
+						++mHitPoints;
+				}
+				unk180 = 0;
+			}
+		}
+	}
+
+	if (moveStep
+	    && mSpine->getLatestNerve() == &TNerveBWGraphWander::theNerve()
+	    && mPicket->isTaken()) {
+		f32 pull = unk15C.length();
+		if (gpMSound->gateCheck(0x20D2))
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x20D2, &mLeash->mRope->mPoints[6].mPosition, nullptr, pull,
+			    0, 0, nullptr, 0, 4);
+	}
 
 	TSpineEnemy::perform(flags, graphics);
+	mLeash->testPerform(flags, graphics);
+	mPicket->testPerform(flags, graphics);
+
+	if (moveStep) {
+		mMtxCalc->unk50 -= unk178;
+		if (mMtxCalc->unk50 < 0.0f)
+			mMtxCalc->unk50 = 0.0f;
+		else if (mMtxCalc->unk50 > 1.0f)
+			mMtxCalc->unk50 = 1.0f;
+	}
 }
 
 void TBossWanwan::kill() { }

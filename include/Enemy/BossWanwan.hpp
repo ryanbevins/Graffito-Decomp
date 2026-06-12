@@ -166,9 +166,7 @@ public:
 	/* 0x19C */ s32 unk19C;
 	/* 0x1A0 */ u8 unk1A0;
 	/* 0x1A1 */ u8 unk1A1[3];
-	/* 0x1A4 */ f32 unk1A4;
-	/* 0x1A8 */ f32 unk1A8;
-	/* 0x1AC */ f32 unk1AC;
+	/* 0x1A4 */ JGeometry::TVec3<f32> unk1A4;
 	/* 0x1B0 */ s32 unk1B0;
 	/* 0x1B4 */ u16 unk1B4;
 	/* 0x1B6 */ u8 unk1B6[2];
