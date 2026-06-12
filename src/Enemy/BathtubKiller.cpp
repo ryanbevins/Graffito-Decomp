@@ -621,7 +621,7 @@ void TBathtubKiller::calcRootMatrix()
 
 BOOL TBathtubKiller::receiveMessage(THitActor* sender, u32 msg)
 {
-	if (msg == 0 || msg == 1 || msg == 3) {
+	if (msg == 3 || msg <= 1) {
 		if (mSpine->getCurrentNerve()
 		        != &TNerveBathtubKillerExplosion::theNerve()
 		    && mSpine->getCurrentNerve()
