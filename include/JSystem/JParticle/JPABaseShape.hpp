@@ -89,12 +89,12 @@ public:
 	s16 getLoopOffset() { return mLoopOffset; }
 
 	f32 getTexStaticTransX() { return mTexStaticTransX; }
-	f32 getTexStaticTransY() { return mTexStaticTransY; }
-	f32 getTexStaticScaleX() { return mTexStaticScaleX; }
+	f32 getTexStaticTransY() { return mTexStaticScaleX; }
+	f32 getTexStaticScaleX() { return mTexStaticTransY; }
 	f32 getTexStaticScaleY() { return mTexStaticScaleY; }
 	f32 getTexScrollTransX() { return mTexScrollTransX; }
-	f32 getTexScrollTransY() { return mTexScrollTransY; }
-	f32 getTexScrollScaleX() { return mTexScrollScaleX; }
+	f32 getTexScrollTransY() { return mTexScrollScaleX; }
+	f32 getTexScrollScaleX() { return mTexScrollTransY; }
 	f32 getTexScrollScaleY() { return mTexScrollScaleY; }
 
 	f32 getTexScrollRotate() { return mTexScrollRotate; }

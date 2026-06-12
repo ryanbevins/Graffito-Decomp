@@ -451,7 +451,7 @@ void JPADrawExecRotYBillBoard::exec(const JPADrawContext* dc,
 
 	JGeometry::TVec3<f32> pt;
 	particle->getGlobalPosition(pt);
-	MTXMultVec(dc->pcb->unk34, &pt, &pt);
+	MTXMultVecSR(dc->pcb->unk34, &pt, &pt);
 
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 	GXPosition3f32(offs[0].x + pt.x, offs[0].y + pt.y, offs[0].z + pt.z);
@@ -804,7 +804,7 @@ void JPADrawExecDirectionalCross::exec(const JPADrawContext* dc,
 	JGeometry::TVec3<f32> pt;
 	particle->getGlobalPosition(pt);
 
-	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXBegin(GX_QUADS, GX_VTXFMT0, ARRAY_COUNT(offs));
 	GXPosition3f32(offs[0].x + pt.x, offs[0].y + pt.y, offs[0].z + pt.z);
 	GXTexCoord2f32(dc->pcb->mTexCoords[0].x, dc->pcb->mTexCoords[0].y);
 	GXPosition3f32(offs[1].x + pt.x, offs[1].y + pt.y, offs[1].z + pt.z);
@@ -895,7 +895,7 @@ void JPADrawExecRotDirectionalCross::exec(const JPADrawContext* dc,
 	JGeometry::TVec3<f32> pt;
 	particle->getGlobalPosition(pt);
 
-	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXBegin(GX_QUADS, GX_VTXFMT0, ARRAY_COUNT(offs));
 	GXPosition3f32(offs[0].x + pt.x, offs[0].y + pt.y, offs[0].z + pt.z);
 	GXTexCoord2f32(dc->pcb->mTexCoords[0].x, dc->pcb->mTexCoords[0].y);
 	GXPosition3f32(offs[1].x + pt.x, offs[1].y + pt.y, offs[1].z + pt.z);
@@ -925,8 +925,8 @@ void JPADrawExecDirBillBoard::exec(const JPADrawContext* dc,
 
 	JGeometry::TVec3<f32> local_9C;
 	dc->pcb->mDirTypeFunc(particle, dc->mBaseEmitter, local_9C);
-	JGeometry::TVec3<f32> dir(dc->pcb->unk34[0][1], dc->pcb->unk34[1][1],
-	                          dc->pcb->unk34[2][1]);
+	JGeometry::TVec3<f32> dir(dc->pcb->unk34[2][0], dc->pcb->unk34[2][1],
+	                          dc->pcb->unk34[2][2]);
 
 	local_9C.cross(local_9C, dir);
 	if (local_9C.isZero())
@@ -1214,6 +1214,7 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* dc)
 		fVar2   = 1.0f;
 		getNext = &stripeGetPrev;
 	}
+	f32 startTexCoord = fVar2;
 
 	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, elems * 2);
 	for (JSULink<JPABaseParticle>* link = start; link != nullptr;
@@ -1267,6 +1268,7 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* dc)
 	}
 	GXEnd();
 
+	fVar2 = startTexCoord;
 	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, elems * 2);
 	for (JSULink<JPABaseParticle>* link = start; link != nullptr;
 	     link                           = getNext(link), fVar2 += fVar9) {
