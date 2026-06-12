@@ -336,11 +336,11 @@ config.libs = [
             Object(Matching, "JSystem/JGadget/singlelinklist.cpp"),
 
             # JKernel
-            Object(NonMatching, "JSystem/JKernel/JKRArchivePri.cpp"),
+            Object(Equivalent, "JSystem/JKernel/JKRArchivePri.cpp"),
             Object(Equivalent, "JSystem/JKernel/JKRAramArchive.cpp"),
             Object(Matching, "JSystem/JKernel/JKRAramHeap.cpp"),
             Object(NonMatching, "JSystem/JKernel/JKRAram.cpp"),
-            Object(NonMatching, "JSystem/JKernel/JKRArchivePub.cpp"),
+            Object(Equivalent, "JSystem/JKernel/JKRArchivePub.cpp"),
             Object(NonMatching, "JSystem/JKernel/JKRCompArchive.cpp"),
             Object(Matching, "JSystem/JKernel/JKRDisposer.cpp"),
             Object(Equivalent, "JSystem/JKernel/JKRDvdArchive.cpp"),
