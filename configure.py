@@ -1240,7 +1240,7 @@ config.libs = [
             Object(NonMatching, "Camera/CameraBck.cpp"),
             Object(Equivalent, "Camera/CameraOption.cpp"),
             Object(NonMatching, "Camera/CameraDemo.cpp"),
-            Object(NonMatching, "Camera/CameraWarp.cpp"),
+            Object(Equivalent, "Camera/CameraWarp.cpp"),
             Object(NonMatching, "Camera/CameraMode.cpp"),
             Object(Equivalent, "Camera/CameraSecureView.cpp"),
             Object(Equivalent, "Camera/CamShakeDefine.cpp"),
