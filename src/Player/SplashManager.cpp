@@ -12,6 +12,8 @@
 
 extern f32 SMSGetAnmFrameRate();
 
+TSplashManager* gpSplashManager;
+
 void TSplashManager::load(JSUMemoryInputStream& stream)
 {
 	TViewObj::load(stream);
