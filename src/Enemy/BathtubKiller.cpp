@@ -607,15 +607,11 @@ f32 TBathtubKiller::getGravityY() const
 
 void TBathtubKiller::calcRootMatrix()
 {
-	Mtx m;
-	((JGeometry::TRotation3<
-	    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >*)&m)
-	    ->setQuat(mQuat);
-	m[0][3] = mPosition.x;
-	m[1][3] = mPosition.y;
-	m[2][3] = mPosition.z;
+	TPosition3f mtx;
+
+	mtx.setQT(mQuat, mPosition);
 	getModel()->setBaseScale(mScaling);
-	PSMTXCopy(m, getModel()->getBaseTRMtx());
+	getModel()->setBaseTRMtx(mtx);
 }
 
 BOOL TBathtubKiller::receiveMessage(THitActor* sender, u32 msg)
