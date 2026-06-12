@@ -748,9 +748,9 @@ DEFINE_NERVE(TNerveNameKuriJumpAttack, TLiveActor)
 			if (self->getMActor()->getFrameCtrl(0)->checkPass(62.0f)) {
 				JGeometry::TVec3<f32> local_44 = SMS_GetMarioPos();
 				f32 jumpAttackSp = self->unk1A4->mSLJumpAttackSp.get();
-				f32 grav         = self->getGravityY();
 				JGeometry::TVec3<f32> local_6c
-				    = self->calcVelocityToJumpToY(local_44, jumpAttackSp, grav);
+				    = self->calcVelocityToJumpToY(local_44, jumpAttackSp,
+				                                  self->getGravityY());
 				self->mPosition.y += 2.0f;
 				self->setVelocity(local_6c);
 				self->onLiveFlag(LIVE_FLAG_AIRBORNE);
