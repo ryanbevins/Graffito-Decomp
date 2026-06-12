@@ -32,7 +32,6 @@
 static void dummy(Vec* v)
 {
 	*v = (Vec) { 0.0f, 0.0f, 0.0f };
-	*v = (Vec) { 1.0f, 1.0f, 1.0f };
 }
 
 class JPAEmitterManager;
@@ -46,7 +45,7 @@ void TMarDirector::setup2()
 	if (unkBC) {
 		int i = 0;
 		for (TStageEventInfo* it = unkBC->begin(); it != unkBC->end();
-		     ++it, ++i) {
+		     ++i, ++it) {
 			TMapObjBase* ref
 			    = JDrama::TNameRefGen::search<TMapObjBase>(it->unk14);
 			if (ref) {
@@ -57,7 +56,8 @@ void TMarDirector::setup2()
 	}
 
 	JDrama::TNameRefGen::search<TMario>("マリオ")->setGamePad(unk18[0]);
-	JDrama::TNameRefGen::search<CPolarSubCamera>("camera 1")->unk120 = unk18[0];
+	TMarioGamePad* gamePad = unk18[0];
+	JDrama::TNameRefGen::search<CPolarSubCamera>("camera 1")->unk120 = gamePad;
 
 	unk84 = JDrama::TNameRefGen::search<TTalkCursor>("会話カーソル");
 
@@ -102,7 +102,9 @@ void TMarDirector::setup2()
 	gpMSound->setCameraInfo(&gpCamera->unk124, gpCamera->unk13C,
 	                        gpCamera->unk1EC, 0);
 
-	unk258 = MSStage::init(mMap, unk7D);
+	u8 stageScenario = unk7D;
+	u8 stageArea     = mMap;
+	unk258           = MSStage::init(stageArea, stageScenario);
 
 	JDrama::TGraphics graphics;
 	unk40->perform(0xffffffff, &graphics);
