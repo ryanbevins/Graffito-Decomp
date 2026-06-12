@@ -2111,13 +2111,15 @@ void TBPVomit::perform(u32 flags, JDrama::TGraphics* graphics)
 TBPPolDrop::TBPPolDrop(TBossPakkun* owner, const char* name)
     : THitActor(name)
     , mOwner(owner)
-    , mVelocity(0.0f, 0.0f, 0.0f)
-    , unk78(nullptr)
-    , unk7C(nullptr)
-    , unk80(0)
-    , unk84(0)
-    , unk88(0.0f)
 {
+	unk78       = nullptr;
+	unk7C       = nullptr;
+	unk80       = 0;
+	unk84       = 0;
+	unk88       = 0.0f;
+	mVelocity.z = 0.0f;
+	mVelocity.y = 0.0f;
+	mVelocity.x = 0.0f;
 	initHitActor(0x800000F, 1, -0x80000000, 0.0f, 0.0f, 100.0f, 200.0f);
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
