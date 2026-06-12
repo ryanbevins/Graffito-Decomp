@@ -1309,7 +1309,7 @@ BOOL TBossPakkun::receiveMessage(THitActor* sender, u32 message)
 		return TRUE;
 	}
 
-	if (unk16C == 3
+	if ((s8)unk16C == 3
 	    && (sender->getActorType() == 0x1000000D
 	        || sender->getActorType() == 0x1000001)) {
 		if (mPosition.y - 300.0f > sender->mPosition.y)
