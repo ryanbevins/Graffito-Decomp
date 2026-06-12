@@ -1921,7 +1921,7 @@ BOOL TBPHeadHit::receiveMessage(THitActor* sender, u32 message)
 	                            targetYaw + 180.0f);
 	if (fabsf(targetYaw - wrappedYaw)
 	    < 0.5f * boss->getBossPakkunSaveParam()->mSLDamageAngle.value) {
-		if (boss->unk17C == 0) {
+		if ((s8)boss->unk17C == 0) {
 			boss->unk170++;
 
 			if (boss->unk178
