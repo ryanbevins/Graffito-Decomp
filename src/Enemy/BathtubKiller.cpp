@@ -415,8 +415,12 @@ void TBathtubKiller::bind()
 			           != &TNerveBathtubKillerBreak::theNerve())
 				mSpine->pushNerve(
 				    &TNerveBathtubKillerExplosion::theNerve());
-			unk1BC.zero();
-			mVelocity.set(unk1BC);
+			unk1BC.x    = 0.0f;
+			unk1BC.y    = 0.0f;
+			unk1BC.z    = 0.0f;
+			mVelocity.x = unk1BC.x;
+			mVelocity.y = unk1BC.y;
+			mVelocity.z = unk1BC.z;
 			target.y = mGroundHeight;
 		}
 
