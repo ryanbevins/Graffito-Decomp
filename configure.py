@@ -514,7 +514,7 @@ config.libs = [
             Object(Matching, "JSystem/J3D/J3DGraphLoader/J3DModelLoader.cpp"),
             Object(Matching, "JSystem/J3D/J3DGraphLoader/J3DShapeFactory.cpp"),
             Object(Matching, "JSystem/J3D/J3DGraphLoader/J3DAnmLoader.cpp"),
-            Object(NonMatching, "JSystem/J3D/J3DGraphLoader/J3DMaterialFactory_v21.cpp"),
+            Object(Equivalent, "JSystem/J3D/J3DGraphLoader/J3DMaterialFactory_v21.cpp"),
 
             # JParticle
             Object(NonMatching, "JSystem/JParticle/JPAEmitter.cpp"),
