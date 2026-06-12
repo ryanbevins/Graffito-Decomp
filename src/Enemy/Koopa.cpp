@@ -206,8 +206,9 @@ void TKoopaFlame::attack_(THitActor* actor)
 {
 	if (actor->receiveMessage(this, 0xA)) {
 		if (actor == (THitActor*)gpMarioAddress) {
+			f32 jump = mOwner->getSaveParam2()->flameJump.get();
 			JGeometry::TVec3<f32> throwVec(0.0f, 1.0f, 0.0f);
-			SMS_ThrowMario(throwVec, mOwner->getSaveParam2()->flameJump.get());
+			SMS_ThrowMario(throwVec, jump);
 			mOwner->unk155 = 1;
 			mOwner->changeAnm(3, 0, mOwner->getSaveParam2()->fireSpeed.get());
 			mOwner->unk19C = 240;
