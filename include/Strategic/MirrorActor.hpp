@@ -7,7 +7,6 @@ class J3DModel;
 
 class TMirrorActor : public JDrama::TViewObj {
 public:
-	void isInMirror() const;
 	void checkIsInMirror();
 	void perform(u32, JDrama::TGraphics*);
 	static void entryMirrorDrawBufferAlways(J3DModel*);

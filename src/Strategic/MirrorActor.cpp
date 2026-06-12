@@ -15,8 +15,6 @@
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
-void TMirrorActor::isInMirror() const { }
-
 void TMirrorActor::checkIsInMirror()
 {
 	if (unk1A & 1) {
