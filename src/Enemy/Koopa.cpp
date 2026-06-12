@@ -1,4 +1,5 @@
 #include <Enemy/Koopa.hpp>
+#include <Camera/CameraShake.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
@@ -8,6 +9,7 @@
 #include <JSystem/JGeometry/JGUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
 #include <MSound/MAnmSound.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -883,7 +885,16 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 BOOL TNerveKoopaTumble::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	self->changeAnm(8, 1, self->getSaveParam2()->tumbleSpeed.get());
+	self->changeAnm(8, 0, self->getSaveParam2()->tumbleSpeed.get());
+	self->mMActor->getFrameCtrl(0);
+	if (spine->getTime() == 190) {
+		gpCameraShake->startShake((EnumCamShakeMode)0x27, 1.0f);
+		TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+		gpMarioParticleManager->emitAndBindToMtx(
+		    0xF5, *bathtub->getRootJointMtx(), 0, this);
+		if (SMS_IsMarioTouchGround4cm())
+			SMSRumbleMgr->start(1, (f32*)nullptr);
+	}
 	if (self->mMActor->curAnmEndsNext(0, nullptr))
 		return TRUE;
 	return FALSE;
@@ -966,14 +977,15 @@ DEFINE_NERVE(TNerveKoopaStagger, TLiveActor)
 DEFINE_NERVE(TNerveKoopaProvoke, TLiveActor)
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	if (spine->getTime() == 0)
-		self->changeAnm(6, 0, 2.0f);
-	return self->mMActor->curAnmEndsNext(0, nullptr) ? TRUE : FALSE;
+	self->changeAnm(6, 0, 2.0f);
+	if (self->mMActor->curAnmEndsNext(0, nullptr))
+		spine->setNext(&TNerveKoopaWait::theNerve());
+	return FALSE;
 }
 
 DEFINE_NERVE(TNerveKoopaFall, TLiveActor)
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	self->changeAnm(2, 1, self->getSaveParam2()->fallSpeed.get());
-	return self->mMActor->curAnmEndsNext(0, nullptr) ? TRUE : FALSE;
+	self->changeAnm(2, 0, self->getSaveParam2()->fallSpeed.get());
+	return FALSE;
 }
