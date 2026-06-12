@@ -36,6 +36,29 @@ them in future ticks.
 
 ## Settled
 
+### Passing a just-returned float directly as a later argument can force immediate FPR argument shuffle
+
+**Rule.** When a virtual/helper call returns a float in `f1` and that value is
+used as a later float argument (`f2`/`f3`) to the next call, binding it to a
+named local can make MWCC keep it in a temporary FPR and delay the argument move
+until just before the call. Passing the getter/callee expression directly at
+the argument site can emit the target's immediate `fmr f2, f1` after the first
+call, then load earlier float arguments. Apply only when target asm has the
+immediate FPR shuffle; naming a repeated float before calls is still the right
+shape for saved-FPR lifetime cases.
+
+**Citations.**
+- `mario/Enemy/bosswanwan` jump nerves (2026-06-12 MNL): rewriting
+  `f32 gravity = self->getGravityY(); calcVelocityToJumpToY(..., gravity);` to
+  pass `self->getGravityY()` directly moved the `fmr f2, f1` immediately after
+  the virtual call in `TNerveBWJumpAway::execute` `99.1 -> 99.7`,
+  `TNerveBWJump::execute` `89.2 -> 90.2`, and
+  `TNerveBWJumpToBath::execute` `92.1 -> 92.6`.
+- `mario/Enemy/hinokuri2` `TNerveHino2JumpIn::execute` (2026-06-12 MNL):
+  the same direct third-argument shape changed the delayed `fmr f0, f1` /
+  later `fmr f2, f0` into the target immediate `fmr f2, f1`, moving
+  `95.4 -> 96.5`.
+
 ### Returning a polar `TVec3` from a tiny inline helper can preserve the local `TVec3<f32>::set<f32>` owner
 
 **Rule.** When target asm computes X/Z polar components, passes a stack
@@ -5711,29 +5734,6 @@ for predicate functions.
   rather than `if (...) return true; ... return false;`.
 
 ## Hypotheses under investigation
-
-### Passing a just-returned float directly as a later argument can force immediate FPR argument shuffle
-
-**Hypothesis.** When a virtual/helper call returns a float in `f1` and that
-value is used as a later float argument (`f2`/`f3`) to the next call, binding it
-to a named local can make MWCC keep it in a temporary FPR and delay the argument
-move until just before the call. Passing the getter/callee expression directly
-at the argument site can make MWCC emit the target's immediate `fmr f2, f1`
-after the first call, then load earlier float arguments.
-
-**Observed.** `mario/Enemy/bosswanwan` (2026-06-12 MNL): rewriting
-`f32 gravity = self->getGravityY(); calcVelocityToJumpToY(..., gravity);` to
-pass `self->getGravityY()` directly as the third argument moved the
-`fmr f2, f1` immediately after the virtual call in three jump nerves:
-`TNerveBWJumpAway::execute` `99.1 -> 99.7`,
-`TNerveBWJump::execute` `89.2 -> 90.2`, and
-`TNerveBWJumpToBath::execute` `92.1 -> 92.6`.
-
-**Experiment to confirm/refute.** Find a second function where target performs
-`bl getterReturningFloat; fmr f2/f3, f1; lfs/load earlier float arg; bl callee`,
-while current source has a named `f32` local and delays the `fmr` until the call
-setup. Toggle only the named local versus direct argument expression and verify
-whether the FPR move schedule follows.
 
 ### SDK typedef booleans can avoid caller-side `bool` normalization before GX calls
 
