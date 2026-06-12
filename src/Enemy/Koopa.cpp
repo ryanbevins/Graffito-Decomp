@@ -205,11 +205,13 @@ BOOL TKoopaHand::receiveMessage(THitActor* sender, u32 message) { return TRUE; }
 void TKoopaFlame::attack_(THitActor* actor)
 {
 	if (actor->receiveMessage(this, 0xA)) {
-		MActor* mactor = mOwner->getMActor();
-		if (!mactor->checkCurBckFromIndex(3))
-			mactor->setBckFromIndex(3);
-		mOwner->getMActor()->getFrameCtrl(0)->setRate(
-		    mOwner->getSaveParam2()->fireSpeed.get());
+		if (actor == (THitActor*)gpMarioAddress) {
+			JGeometry::TVec3<f32> throwVec(0.0f, 1.0f, 0.0f);
+			SMS_ThrowMario(throwVec, mOwner->getSaveParam2()->flameJump.get());
+			mOwner->unk155 = 1;
+			mOwner->changeAnm(3, 0, mOwner->getSaveParam2()->fireSpeed.get());
+			mOwner->unk19C = 240;
+		}
 	}
 }
 
@@ -427,6 +429,7 @@ f32 TKoopa::getFlameDirRate() const { return unk150; }
 
 f32 TKoopa::getFlameDirDegree() const { return unk150 * 360.0f + -180.0f; }
 
+#pragma dont_inline on
 void TKoopa::changeAnm(int bck, int btp, f32 rate)
 {
 	if (!mMActor->checkCurBckFromIndex(bck)) {
@@ -444,6 +447,7 @@ void TKoopa::changeAnm(int bck, int btp, f32 rate)
 	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
 	ctrl->setRate(rate * SMSGetAnmFrameRate() * 0.5f);
 }
+#pragma dont_inline off
 
 void TKoopa::setUpHitActors()
 {
