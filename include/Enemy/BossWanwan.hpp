@@ -56,9 +56,10 @@ public:
 
 class TBWHit : public THitActor {
 public:
-	TBWHit(TBossWanwan* owner, const char* name)
+	TBWHit(TBossWanwan* owner, int joint_index, const char* name)
 	    : THitActor(name)
 	    , mOwner(owner)
+	    , mJointIndex(joint_index)
 	{
 	}
 
@@ -66,6 +67,7 @@ public:
 	virtual BOOL receiveMessage(THitActor*, u32);
 
 	/* 0x68 */ TBossWanwan* mOwner;
+	/* 0x6C */ s32 mJointIndex;
 };
 
 class TBWPicket : public TTakeActor {

@@ -91,11 +91,25 @@ void TBWPicket::perform(u32 flags, JDrama::TGraphics* graphics)
 	THitActor::perform(flags, graphics);
 }
 
-BOOL TBWHit::receiveMessage(THitActor*, u32) { return FALSE; }
+BOOL TBWHit::receiveMessage(THitActor* sender, u32 message)
+{
+	return mOwner->receiveMessage(sender, message);
+}
 
 void TBWHit::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	mPosition = mOwner->mPosition;
+	if (flags & 1) {
+		if (mJointIndex >= 0)
+			mOwner->getJointTransByIndex(mJointIndex, &mPosition);
+
+		for (int i = 0; i < mColCount; ++i) {
+			THitActor* actor = mCollisions[i];
+			if (mOwner->mHitPoints != 0
+			    && actor->getActorType() == 0x80000001)
+				actor->receiveMessage(mOwner, HIT_MESSAGE_UNKA);
+		}
+	}
+
 	THitActor::perform(flags, graphics);
 }
 
@@ -150,7 +164,7 @@ void TBossWanwan::init(TLiveManager* manager)
 	mMActor->setCalcForBck(mMtxCalc);
 	mMActor->calc();
 
-	unk154 = new TBWHit(this, "ボスワンワンヒット");
+	unk154 = new TBWHit(this, 0, "ボスワンワンヒット");
 	unk158 = new TBWPicket(this, "ボスワンワンつかみ");
 	unk170 = new TBWLeash(this, 10, "ボスワンワン鎖");
 
