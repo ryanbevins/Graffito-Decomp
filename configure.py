@@ -400,7 +400,7 @@ config.libs = [
             Object(Matching, "JSystem/JDrama/JDRResolution.cpp"),
             Object(Matching, "JSystem/JDrama/JDRScreen.cpp"),
             Object(NonMatching, "JSystem/JDrama/JDRSmJ3DAct.cpp"),
-            Object(NonMatching, "JSystem/JDrama/JDRSmJ3DScn.cpp"),
+            Object(Equivalent, "JSystem/JDrama/JDRSmJ3DScn.cpp"),
             Object(Matching, "JSystem/JDrama/JDRVideo.cpp"),
             Object(Matching, "JSystem/JDrama/JDRViewConnecter.cpp"),
             Object(Matching, "JSystem/JDrama/JDRViewObj.cpp"),
