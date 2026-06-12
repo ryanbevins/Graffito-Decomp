@@ -736,7 +736,7 @@ const char** TBathtubKiller::getBasNameTable() const
 	return bathtubkiller_bastable;
 }
 
-void TBathtubKiller::setNormalBathtubKillerAnm()
+inline void TBathtubKiller::setNormalBathtubKillerAnm()
 {
 	mMActor = mMActorKeeper->getMActor("bathtubkiller_model1.bmd");
 	setBckAnm(1);
@@ -744,7 +744,7 @@ void TBathtubKiller::setNormalBathtubKillerAnm()
 
 void TBathtubKiller::setChaseBathtubKillerAnm() { }
 
-void TBathtubKiller::setStraightBathtubKillerAnm()
+inline void TBathtubKiller::setStraightBathtubKillerAnm()
 {
 	mMActor = mMActorKeeper->getMActor("bathtubkiller_model1.bmd");
 	setBckAnm(2);
