@@ -357,6 +357,104 @@ MtxPtr TBWPicket::getTakingMtx() { return unk74; }
 
 void TBWPicket::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	if (flags & 1) {
+		TRope* rope = mOwner->mLeash->mRope;
+		mPosition  = rope->mPoints[rope->mNumPoints - 1].mPosition;
+
+		ensureTakeSituation();
+		if (mHolder != nullptr) {
+			JGeometry::TVec3<f32> direction;
+			direction.x = mHolder->mPosition.x;
+			direction.y = mHolder->mPosition.y;
+			direction.z = mHolder->mPosition.z;
+			direction.sub(rope->mPoints[0].mPosition);
+
+			JGeometry::TVec3<f32> up;
+			up.x = 0.0f;
+			up.y = 1.0f;
+			up.z = 0.0f;
+
+			JGeometry::TVec3<f32> side;
+			side.cross(up, direction);
+			PSVECNormalize((Vec*)&side, (Vec*)&side);
+			up.cross(direction, side);
+			PSVECNormalize((Vec*)&up, (Vec*)&up);
+			direction.cross(side, up);
+			PSVECNormalize((Vec*)&direction, (Vec*)&direction);
+
+			unk74.mMtx[0][0] = side.x;
+			unk74.mMtx[1][0] = side.y;
+			unk74.mMtx[2][0] = side.z;
+			unk74.mMtx[0][1] = up.x;
+			unk74.mMtx[1][1] = up.y;
+			unk74.mMtx[2][1] = up.z;
+			unk74.mMtx[0][2] = direction.x;
+			unk74.mMtx[1][2] = direction.y;
+			unk74.mMtx[2][2] = direction.z;
+			unk74.mMtx[0][3] = mPosition.x;
+			unk74.mMtx[1][3] = mPosition.y;
+			unk74.mMtx[2][3] = mPosition.z;
+
+			mHolder->moveRequest(mPosition);
+		}
+	}
+
+	if (flags & 2) {
+		MtxPtr mtx = mMActor->getModel()->getBaseTRMtx();
+		PSMTXIdentity(mtx);
+
+		TRope* rope = mOwner->mLeash->mRope;
+		JGeometry::TVec3<f32> direction;
+		direction.x = mPosition.x;
+		direction.y = mPosition.y;
+		direction.z = mPosition.z;
+		direction.sub(rope->mPoints[rope->mNumPoints - 3].mPosition);
+
+		if (direction.squared() <= 0.0000038146973f) {
+			direction.x = 0.0f;
+			direction.y = 0.0f;
+			direction.z = 1.0f;
+		}
+
+		JGeometry::TVec3<f32> up;
+		up.x = 0.0f;
+		up.y = 1.0f;
+		up.z = 0.0f;
+
+		JGeometry::TVec3<f32> side;
+		side.cross(up, direction);
+		PSVECNormalize((Vec*)&side, (Vec*)&side);
+		up.cross(direction, side);
+		PSVECNormalize((Vec*)&up, (Vec*)&up);
+		direction.cross(side, up);
+		PSVECNormalize((Vec*)&direction, (Vec*)&direction);
+
+		mtx[0][0] = side.x;
+		mtx[1][0] = side.y;
+		mtx[2][0] = side.z;
+		mtx[0][1] = up.x;
+		mtx[1][1] = up.y;
+		mtx[2][1] = up.z;
+		mtx[0][2] = direction.x;
+		mtx[1][2] = direction.y;
+		mtx[2][2] = direction.z;
+		mtx[0][3] = mPosition.x;
+		mtx[1][3] = mPosition.y;
+		mtx[2][3] = mPosition.z;
+
+		if (mOwner->unk17C == 0)
+			mtx[1][3] += 70.0f;
+
+		if (mHolder != nullptr) {
+			mtx[0][3] -= 50.0f * direction.x;
+			mtx[2][3] -= 50.0f * direction.z;
+		} else {
+			mtx[0][3] -= 60.0f * direction.x;
+			mtx[2][3] -= 60.0f * direction.z;
+		}
+	}
+
+	mMActor->perform(flags, graphics);
 	THitActor::perform(flags, graphics);
 }
 
