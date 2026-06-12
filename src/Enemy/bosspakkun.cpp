@@ -544,9 +544,8 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 		} else if (toMario.z >= 0.0f) {
 			targetYaw = matan(toMario.z, toMario.x) * (360.0f / 65536.0f);
 		} else {
-			targetYaw = 180.0f
-			            - matan(-toMario.z, toMario.x)
-			                * (360.0f / 65536.0f);
+			f32 yaw = matan(-toMario.z, toMario.x) * (360.0f / 65536.0f);
+			targetYaw = 180.0f - yaw;
 		}
 
 		f32 wrappedYaw = callMsWrap(boss->mRotation.y, targetYaw - 180.0f,
