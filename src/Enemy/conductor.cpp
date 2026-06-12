@@ -128,7 +128,9 @@ void TConductor::polluterExterminated() { }
 BOOL TConductor::isBossDefeated()
 {
 	switch (gpMarDirector->mMap) {
-	case 2: {
+	case 2:
+	default:
+	{
 		TLiveManager* mgr = getManagerByName("ヒノクリ２マネージャー");
 		if (!mgr)
 			return true;
@@ -303,9 +305,9 @@ void TConductor::genEnemyFromPollution()
 		return;
 
 	enemy->resetToPosition(targetPos);
-	enemy->moveObject();
+	enemy->calcRootMatrix();
 	if (enemy->getModel())
-		enemy->getModel()->entry();
+		enemy->getModel()->calc();
 }
 
 void TConductor::clipAloneActors(JDrama::TGraphics* param_1)
