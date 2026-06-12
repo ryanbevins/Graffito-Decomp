@@ -207,8 +207,95 @@ TBWLeash::TBWLeash(TBossWanwan* owner, int node_count, const char* name)
 
 void TBWLeash::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	if (flags & 1) {
+		JGeometry::TVec3<f32> headPos;
+		mOwner->getJointTransByIndex(5, &headPos);
+		mRope->moveHead(headPos);
+
+		mOwner->unk188 = 0;
+		if (mOwner->unk17C != 0) {
+			JGeometry::TVec3<f32> headBefore = mRope->mPoints[0].mPosition;
+			mRope->constraintTail(mOwner->mPicket->mPosition);
+
+			JGeometry::TVec3<f32> pull = mRope->mPoints[0].mPosition;
+			pull.sub(headBefore);
+			mOwner->unk15C = pull;
+
+			JGeometry::TVec3<f32> toHead = mRope->mPoints[0].mPosition;
+			JGeometry::TVec3<f32> ownerPos = mOwner->mPosition;
+			ownerPos.y += 500.0f;
+			toHead.sub(ownerPos);
+
+			if (PSVECMag((Vec*)&toHead) > 650.0f) {
+				PSVECNormalize((Vec*)&toHead, (Vec*)&toHead);
+				toHead.scale(20.0f);
+				toHead.y = 0.0f;
+				mOwner->mPosition.add(toHead);
+				mOwner->unk188 = 1;
+			}
+
+			f32 targetYaw;
+			if (toHead.z == 0.0f) {
+				if (toHead.x >= 0.0f)
+					targetYaw = 90.0f;
+				else
+					targetYaw = -90.0f;
+			} else if (toHead.z >= 0.0f) {
+				targetYaw = matan(toHead.z, toHead.x) * (360.0f / 65536.0f);
+			} else {
+				f32 yaw = matan(-toHead.z, toHead.x) * (360.0f / 65536.0f);
+				targetYaw = 180.0f - yaw;
+			}
+
+			targetYaw += 180.0f;
+			while (targetYaw >= 360.0f)
+				targetYaw -= 360.0f;
+			while (targetYaw < 0.0f)
+				targetYaw += 360.0f;
+
+			f32 wrappedYaw = callMsWrap(mOwner->mRotation.y, targetYaw - 180.0f,
+			                            targetYaw + 180.0f);
+			f32 turn       = targetYaw - wrappedYaw;
+			if (turn > 0.0f) {
+				f32 turnMax = 1.5f * mOwner->mTurnSpeed;
+				if (turn > turnMax)
+					turn = turnMax;
+			} else {
+				f32 turnMin = 1.5f * -mOwner->mTurnSpeed;
+				if (turn <= turnMin)
+					turn = turnMin;
+			}
+
+			f32 newYaw = mOwner->mRotation.y + turn;
+			while (newYaw >= 360.0f)
+				newYaw -= 360.0f;
+			while (newYaw < 0.0f)
+				newYaw += 360.0f;
+			mOwner->mRotation.y = newYaw;
+		}
+	}
+
+	if (flags & 2) {
+		JGeometry::TVec3<f32> bodyPos;
+		mOwner->getJointTransByIndex(1, &bodyPos);
+		for (int i = 0; i < 15; ++i) {
+			TRopePoint& point = mRope->mPoints[i];
+			JGeometry::TVec3<f32> offset = point.mPosition;
+			offset.sub(bodyPos);
+			f32 distance = PSVECMag((Vec*)&offset);
+			if (distance < 500.0f) {
+				offset.scale(500.0f / distance);
+				JGeometry::TVec3<f32> position = bodyPos;
+				position.add(offset);
+				point.mVelocity.zero();
+				point.mPosition = position;
+				point.mPrevPos  = point.mPosition;
+			}
+		}
+	}
+
 	for (int i = 0; i < mRope->mNumPoints; ++i)
-		mNodes[i]->perform(flags, graphics);
+		mNodes[i]->testPerform(flags, graphics);
 }
 
 BOOL TBWPicket::receiveMessage(THitActor* sender, u32 message)
