@@ -149,7 +149,7 @@ public:
 	/* 0x0BC */ TParamRT<f32> mSLGroundHeightReadyGun;
 	/* 0x0D0 */ TParamRT<f32> mSLRoofChangeY;
 	/* 0x0E4 */ TParamRT<f32> mSLRoofHeight;
-	/* 0x0F8 */ TParamRT<s8>  mInHouseMinFrame;
+	/* 0x0F8 */ TParamRT<u8>  mInHouseMinFrame;
 	/* 0x10C */ TParamRT<s16> mYButtonRotateChase;
 	/* 0x120 */ TParamRT<s16> mLButtonRotateChase;
 	/* 0x134 */ TParamRT<s16> mSLAddAngleYSpeed;

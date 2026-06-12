@@ -1225,7 +1225,7 @@ config.libs = [
             Object(NonMatching, "Camera/CameraMarioData.cpp"),
             Object(NonMatching, "Camera/CameraNotice.cpp"),
             Object(NonMatching, "Camera/CameraNormal.cpp"),
-            Object(NonMatching, "Camera/camerasave.cpp"),
+            Object(Equivalent, "Camera/camerasave.cpp"),
             Object(NonMatching, "Camera/camerashake.cpp"),
             Object(NonMatching, "Camera/CameraTalk.cpp"),
             Object(NonMatching, "Camera/lensflare.cpp"),
