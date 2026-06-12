@@ -1065,7 +1065,7 @@ config.libs = [
             Object(NonMatching, "Map/PollutionAction.cpp"),
             Object(NonMatching, "Map/PollutionCount.cpp"),
             Object(NonMatching, "Map/PollutionManager.cpp"),
-            Object(NonMatching, "Map/PollutionObj.cpp"),
+            Object(Equivalent, "Map/PollutionObj.cpp"),
             Object(NonMatching, "Map/PollutionPos.cpp"),
             Object(NonMatching, "Map/Shimmer.cpp"),
             Object(NonMatching, "Map/Sky.cpp"),
