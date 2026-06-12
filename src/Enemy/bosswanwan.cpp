@@ -12,8 +12,10 @@
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/MapCollisionManager.hpp>
+#include <Map/MapData.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
@@ -498,8 +500,162 @@ void TBWHit::perform(u32 flags, JDrama::TGraphics* graphics)
 
 void TBWBinder::bind(TLiveActor* actor)
 {
-	actor->mPosition.add(actor->mLinearVelocity);
-	actor->mPosition.add(actor->mVelocity);
+	TBossWanwan* self = (TBossWanwan*)actor;
+	JGeometry::TVec3<f32> nextPos = actor->mPosition;
+	nextPos += actor->mLinearVelocity;
+
+	if (actor->isAirborne()) {
+		nextPos += actor->mVelocity;
+		actor->mVelocity.y -= actor->getGravityY();
+		if (actor->mVelocity.y < TLiveActor::mVelocityMinY)
+			actor->mVelocity.y = TLiveActor::mVelocityMinY;
+	}
+
+	if (actor->mSpine->getLatestNerve() == &TNerveBWJumpToBath::theNerve()
+	    || actor->mSpine->getLatestNerve() == &TNerveBWDie::theNerve()) {
+		actor->mLinearVelocity = nextPos;
+		actor->mLinearVelocity -= actor->mPosition;
+		return;
+	}
+
+	if (actor->isAirborne()) {
+		const TBGCheckData* groundPlane;
+		f32 groundY = gpMap->checkGround(
+		    nextPos.x, nextPos.y + actor->mHeadHeight, nextPos.z, &groundPlane);
+		groundY += 1.0f;
+
+		if (actor->mPosition.y - nextPos.y > 0.0f
+		    && !groundPlane->isEnemyThrough()) {
+			const TBGCheckData* groundPlane2;
+			f32 groundY2 = gpMap->checkGround(
+			    nextPos.x, actor->mPosition.y + actor->mHeadHeight, nextPos.z,
+			    &groundPlane2);
+			groundY2 += 1.0f;
+			if (groundY2 > groundY) {
+				groundY     = groundY2;
+				groundPlane = groundPlane2;
+			}
+		}
+
+		if (nextPos.y <= groundY
+		    && !groundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
+		    && !groundPlane->isEnemyThrough()) {
+			nextPos.y = groundY;
+			actor->mVelocity.zero();
+			actor->offLiveFlag(LIVE_FLAG_AIRBORNE);
+			actor->offLiveFlag(LIVE_FLAG_UNK8000);
+		} else {
+			actor->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		}
+
+		actor->mGroundHeight = groundY;
+		actor->mGroundPlane  = groundPlane;
+	}
+
+	JGeometry::TVec3<f32> movement = nextPos;
+	movement -= actor->mPosition;
+
+	if (!actor->isAirborne()) {
+		TGraphTracer* tracer = self->unk124;
+		if (tracer->unk0 != nullptr && tracer->mCurrIdx >= 0
+		    && tracer->mPrevIdx >= 0 && tracer->mCurrIdx != tracer->mPrevIdx) {
+			JGeometry::TVec3<f32> currPoint;
+			JGeometry::TVec3<f32> prevPoint;
+			tracer->unk0->getGraphNode(tracer->mCurrIdx).getPoint(&currPoint);
+			tracer->unk0->getGraphNode(tracer->mPrevIdx).getPoint(&prevPoint);
+
+			JGeometry::TVec3<f32> linkDir = currPoint;
+			linkDir -= prevPoint;
+			PSVECNormalize(&linkDir, &linkDir);
+
+			f32 len = linkDir.squared();
+			f32 step;
+			if (len == 0.0f) {
+				step = 0.0f;
+			} else {
+				step = movement.dot(linkDir) / len;
+			}
+
+			if (step < 0.0f) {
+				if (step > -3.0f)
+					step = -3.0f;
+			} else if (step > 0.0f) {
+				if (step < 3.0f)
+					step = 3.0f;
+			}
+
+			movement = linkDir;
+			movement *= step;
+		}
+	}
+
+	if (!actor->isAirborne()) {
+		JGeometry::TVec3<f32> movementForRoll = movement;
+		f32 moveLength = PSVECMag(&movementForRoll);
+		if (moveLength != 0.0f) {
+			f32 twistStep = 360.0f * (moveLength / 3141.5928f);
+			s16 yaw       = (s16)(self->mRotation.y * (65536.0f / 360.0f));
+			JGeometry::TVec3<f32> facing(JMASSin(yaw), 0.0f, JMASCos(yaw));
+			if (movement.dot(facing) < 0.0f)
+				twistStep = -twistStep;
+
+			twistStep *= 2.0f;
+			if (self->unk16C != 0) {
+				self->unk168 = callMsWrap(self->unk168 + twistStep, 0.0f,
+				                          360.0f);
+			} else if (self->unk168 != 0.0f) {
+				f32 twist = self->unk168 + twistStep;
+				if (twist > 360.0f)
+					twist = 0.0f;
+				self->unk168 = twist;
+			}
+		}
+	}
+
+	if (self->unk17C != 0) {
+		JGeometry::TVec3<f32> oldPos = actor->mPosition;
+		JGeometry::TVec3<f32> clampedPos = oldPos;
+		clampedPos += movement;
+
+		JGeometry::TVec3<f32> toRope = clampedPos;
+		JGeometry::TVec3<f32> ropePos
+		    = self->mLeash->mRope->mPoints[3].mPosition;
+		toRope -= ropePos;
+		if (PSVECMag(&toRope) > 860.0f) {
+			PSVECNormalize(&toRope, &toRope);
+			toRope *= 860.0f;
+			clampedPos = ropePos;
+			clampedPos += toRope;
+			movement = clampedPos;
+			movement -= oldPos;
+		}
+	}
+
+	if (!actor->isAirborne()) {
+		TGraphTracer* tracer = self->unk124;
+		TGraphWeb* graph     = tracer->unk0;
+		JGeometry::TVec3<f32> currPoint;
+		JGeometry::TVec3<f32> prevPoint;
+		graph->getGraphNode(tracer->mCurrIdx).getPoint(&currPoint);
+		graph->getGraphNode(tracer->mPrevIdx).getPoint(&prevPoint);
+
+		JGeometry::TVec3<f32> foot
+		    = MsPerpendicFootToLineR(prevPoint, currPoint, actor->mPosition);
+		JGeometry::TVec3<f32> correction = foot;
+		correction -= actor->mPosition;
+		f32 dist = PSVECMag(&correction);
+		if (dist > 10.0f)
+			dist = 10.0f;
+		if (dist < 0.0001f) {
+			correction.zero();
+		} else {
+			PSVECNormalize(&correction, &correction);
+			correction *= dist;
+		}
+		movement += correction;
+	}
+
+	actor->mLinearVelocity = movement;
 }
 
 void TBossWanwanMtxCalc::calc(u16 joint_no)
