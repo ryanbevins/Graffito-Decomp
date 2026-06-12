@@ -262,7 +262,58 @@ void TBossWanwan::shakeCamera(int mode)
 	SMSRumbleMgr->start(8, &mPosition);
 }
 
-BOOL TBossWanwan::receiveMessage(THitActor*, u32) { return FALSE; }
+BOOL TBossWanwan::receiveMessage(THitActor* sender, u32 message)
+{
+	u32 actorType = sender->getActorType();
+	if (actorType == 0x80000001)
+		return FALSE;
+
+	if (actorType == 0x1000001) {
+		if (unk18C)
+			return TRUE;
+
+		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
+
+		if (mHitPoints == 0) {
+			if (gpMSound->gateCheck(0x28D1))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x28D1, &mPosition, 0, nullptr, 0, 4);
+		} else if (mHitPoints == 1) {
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0xB0, getModel()->mNodeMatrices[1], 0, nullptr);
+			if (gpMSound->gateCheck(0x28C5))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x28C5, &mPosition, 0, nullptr, 0, 4);
+		} else {
+			if (gpMSound->gateCheck(0x28BE))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x28BE, &mPosition, 0, nullptr, 0, 4);
+		}
+
+		if (mHitPoints != 0)
+			--mHitPoints;
+
+		++unk190;
+		return TRUE;
+	}
+
+	if (actorType == 0x4000005A) {
+		sender->receiveMessage(this, HIT_MESSAGE_HIP_DROP);
+		mHitPoints = 0;
+		++unk190;
+
+		if (!unk1A0)
+			++unk1A0;
+
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0xB0, getModel()->mNodeMatrices[1], 0, nullptr);
+		if (gpMSound->gateCheck(0x28C5))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x28C5, &mPosition, 0, nullptr, 0, 4);
+	}
+
+	return TSpineEnemy::receiveMessage(sender, message);
+}
 
 void TBossWanwan::calcRootMatrix()
 {
