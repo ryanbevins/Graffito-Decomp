@@ -984,9 +984,11 @@ DEFINE_NERVE(TNerveBPHover, TLiveActor)
 		    = (TAreaCylinderManager*)gpConductor->search("ゲロエリアマネージャー");
 	}
 
-	BOOL marioInArea = FALSE;
+	BOOL marioInArea;
 	if (boss->unk188 != nullptr)
 		marioInArea = boss->unk188->contain(*gpMarioPos);
+	else
+		marioInArea = FALSE;
 
 	if (marioInArea
 	    && boss->mDistToMarioSquared < polBallRange * polBallRange) {
