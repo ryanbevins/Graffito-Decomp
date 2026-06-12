@@ -1216,7 +1216,7 @@ config.libs = [
         "objects": [
             Object(NonMatching, "Camera/CameraBGCheck.cpp"),
             Object(NonMatching, "Camera/CameraChange.cpp"),
-            Object(NonMatching, "Camera/CameraCodeControl.cpp"),
+            Object(Equivalent, "Camera/CameraCodeControl.cpp"),
             Object(NonMatching, "Camera/cameragc.cpp"),
             Object(NonMatching, "Camera/CameraHeightPan.cpp"),
             Object(NonMatching, "Camera/CameraInbetween.cpp"),
