@@ -2,6 +2,7 @@
 #include <Camera/CameraShake.hpp>
 #include <Camera/cameralib.hpp>
 #include <Enemy/Conductor.hpp>
+#include <Enemy/EffectObj.hpp>
 #include <Enemy/Graph.hpp>
 #include <GC2D/GCConsole2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
@@ -1359,6 +1360,52 @@ DEFINE_NERVE(TNerveBWWakeup, TLiveActor)
 
 DEFINE_NERVE(TNerveBWJumpToBath, TLiveActor)
 {
+	TBossWanwan* self = (TBossWanwan*)spine->getBody();
+	if (spine->getTime() == 0) {
+		f32 gravity = self->getGravityY();
+		JGeometry::TVec3<f32> velocity = self->calcVelocityToJumpToY(
+		    BW_BATH_POS, 360.0f / 65536.0f, gravity);
+		TPathNode bathNode(BW_BATH_POS);
+		self->unkF4  = bathNode;
+		self->unk104 = bathNode;
+		self->unk114.clear();
+		self->mVelocity = velocity;
+		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		self->unk16C = 0;
+	}
+
+	if (spine->getTime() > 0x78 && (s8)self->unk195 == 0
+	    && self->mPosition.y < BW_BATH_POS.y + (360.0f / 65536.0f)) {
+		TEffectColumWater* water
+		    = (TEffectColumWater*)gpConductor->makeOneEnemyAppear(
+		        self->mPosition, "エフェクト水柱マネージャー", 1);
+		if (water != nullptr) {
+			JGeometry::TVec3<f32> scale;
+			scale.x = 500.0f;
+			scale.y = 500.0f;
+			scale.z = 500.0f;
+			JGeometry::TVec3<f32> position;
+			position.x = self->mPosition.x;
+			position.y = self->mPosition.y + 0.2f - 8.0f;
+			position.z = self->mPosition.z;
+			water->generate(position, scale);
+			self->unk195 = 1;
+		}
+
+		if (gpMSound->gateCheck(0x2917))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x2917, &self->mPosition, 0, nullptr, 0, 4);
+	}
+
+	JGeometry::TVec3<f32> bathDelta = BW_BATH_POS;
+	bathDelta.sub(self->mPosition);
+	if (bathDelta.squared() < 38.0f && self->mPosition.y <= BW_BATH_POS.y) {
+		self->mPosition = BW_BATH_POS;
+		spine->pushAfterCurrent(&TNerveBWRoll::theNerve());
+		return true;
+	}
+
+	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
 	return false;
 }
 
