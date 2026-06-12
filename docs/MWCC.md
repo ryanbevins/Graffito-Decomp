@@ -1745,6 +1745,12 @@ callers require `bool` but the wrapper body normalizes the wrapped call with
   was declared `BOOL`, so the two call sites emitted `cmpwi r3, 0`. Target
   uses `clrlwi. r0, r3, 24`; changing the declaration and owner local to
   `bool` kept `NpcChange`'s owner exact and moved the caller 94.4% -> 96.5%.
+- `mario/Enemy/bosspakkun` (2026-06-12 MNL):
+  `TAreaCylinderManager::contain` callers compare the result with
+  `cmpwi r3, 0`; changing the shared declaration and owner return type from
+  `bool` to `BOOL` removed caller-side `clrlwi.` narrowing in `BPWait`,
+  `BPWaitL`, and `BPHover`. Pairing that with null-first `BOOL` locals moved
+  the TU 94.228035% -> 94.32751%.
 
 ### Don't cache a global pointer in a local across function calls — MWCC pins it to a callee-save register and changes register allocation throughout
 

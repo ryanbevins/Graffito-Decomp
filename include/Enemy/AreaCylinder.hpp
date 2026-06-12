@@ -29,7 +29,7 @@ public:
 
 	virtual void perform(u32, JDrama::TGraphics*);
 
-	bool contain(const JGeometry::TVec3<f32>&);
+	BOOL contain(const JGeometry::TVec3<f32>&);
 	TAreaCylinder* getCylinderContains(const JGeometry::TVec3<f32>&);
 
 public:

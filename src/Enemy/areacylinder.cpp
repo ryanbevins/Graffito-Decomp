@@ -82,16 +82,16 @@ static inline BOOL insideCylinder(const TAreaCylinder* cyl,
 	return dxSq + dzSq <= rSq;
 }
 
-bool TAreaCylinderManager::contain(const JGeometry::TVec3<f32>& pos)
+BOOL TAreaCylinderManager::contain(const JGeometry::TVec3<f32>& pos)
 {
 	for (JGadget::TList<TAreaCylinder*>::iterator it = mList.begin();
 	     it != mList.end(); ++it) {
 		TAreaCylinder* cyl = *it;
 		if (insideCylinder(cyl, pos)) {
-			return true;
+			return TRUE;
 		}
 	}
-	return false;
+	return FALSE;
 }
 
 TAreaCylinder*

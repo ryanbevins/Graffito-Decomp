@@ -589,8 +589,13 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 						    "ゲロエリアマネージャー");
 					}
 
-					if (boss->unk188 != nullptr
-					    && boss->unk188->contain(*marioPos)) {
+					BOOL marioInArea;
+					if (boss->unk188 == nullptr)
+						marioInArea = FALSE;
+					else
+						marioInArea = boss->unk188->contain(*marioPos);
+
+					if (marioInArea) {
 						u16 bgType = (*gpMarioGroundPlane)->getBGType();
 						bool isWaterSurface;
 						if (bgType == 0x100 || (u16)(bgType - 0x101) <= 4
@@ -767,7 +772,13 @@ DEFINE_NERVE(TNerveBPWaitL, TLiveActor)
 			    "ゲロエリアマネージャー");
 		}
 
-		if (boss->unk188 != nullptr && boss->unk188->contain(*marioPos)) {
+		BOOL marioInArea;
+		if (boss->unk188 == nullptr)
+			marioInArea = FALSE;
+		else
+			marioInArea = boss->unk188->contain(*marioPos);
+
+		if (marioInArea) {
 			u16 bgType = (*gpMarioGroundPlane)->getBGType();
 			bool isWaterSurface;
 			if (bgType == 0x100 || (u16)(bgType - 0x101) <= 4
@@ -1016,16 +1027,17 @@ DEFINE_NERVE(TNerveBPHover, TLiveActor)
 	}
 
 	f32 polBallRange = boss->getBossPakkunSaveParam()->mSLPollBallRange.value;
+	JGeometry::TVec3<f32>* marioPos = gpMarioPos;
 	if (boss->unk188 == nullptr) {
 		boss->unk188
 		    = (TAreaCylinderManager*)gpConductor->search("ゲロエリアマネージャー");
 	}
 
 	BOOL marioInArea;
-	if (boss->unk188 != nullptr)
-		marioInArea = boss->unk188->contain(*gpMarioPos);
-	else
+	if (boss->unk188 == nullptr)
 		marioInArea = FALSE;
+	else
+		marioInArea = boss->unk188->contain(*marioPos);
 
 	if (marioInArea
 	    && boss->mDistToMarioSquared < polBallRange * polBallRange) {
