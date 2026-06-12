@@ -21,6 +21,7 @@
 #include <MarioUtil/MtxUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/MarioMain.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
@@ -1161,11 +1162,160 @@ void TBossWanwanManager::load(JSUMemoryInputStream& stream)
 DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 {
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
-	if (spine->getTime() == 0)
-		self->mMActor->setBck(bwanwan_bastable[4]);
+	MActor* actor = self->mMActor;
 
-	self->slideToCurPathNode(((TBWParams*)self->getSaveParam())->mSLMarchSpeed.get(),
-	                         ((TBWParams*)self->getSaveParam())->mSLTurnSpeed.get());
+	if (spine->getTime() == 0) {
+		self->unk16C = 0;
+
+		if (!actor->checkCurBckFromIndex(4)) {
+			s32 waitIndex = self->mHitPoints == 0 ? 5 : 4;
+			TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
+			J3DAnmTransform* waitAnm
+			    = mtxCalc->mOwner->mMActorKeeper->getMActorAnmData()
+			          ->getUnk2C()
+			          ->getAnmPtr(waitIndex);
+			if (mtxCalc->unk54 != waitAnm) {
+				mtxCalc->unk58 = mtxCalc->unk54;
+				mtxCalc->unk54 = waitAnm;
+				mtxCalc->unk50 = 1.0f;
+			}
+
+			actor->getAnmBck()->setFrameCtrl(waitIndex);
+			J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(0);
+			self->unk178            = 10.0f / (f32)frameCtrl->getEnd();
+			self->setAnmSound(bwanwan_bastable[waitIndex]);
+			frameCtrl->setFrame(30.0f);
+			frameCtrl->setRate(SMSGetAnmFrameRate());
+		}
+
+		actor->setBtpFromIndex(0);
+		J3DFrameCtrl* btpCtrl = actor->getFrameCtrl(3);
+		btpCtrl->setFrame(30.0f);
+		btpCtrl->setRate(30.0f);
+	}
+
+	if (actor->curAnmEndsNext(0, nullptr) && self->mHitPoints == 0
+	    && !actor->checkCurBckFromIndex(5)) {
+		TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
+		J3DAnmTransform* waitAnm
+		    = mtxCalc->mOwner->mMActorKeeper->getMActorAnmData()
+		          ->getUnk2C()
+		          ->getAnmPtr(5);
+		if (mtxCalc->unk54 != waitAnm) {
+			mtxCalc->unk58 = mtxCalc->unk54;
+			mtxCalc->unk54 = waitAnm;
+			mtxCalc->unk50 = 1.0f;
+		}
+
+		actor->getAnmBck()->setFrameCtrl(5);
+		J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(0);
+		self->unk178            = 10.0f / (f32)frameCtrl->getEnd();
+		self->setAnmSound(bwanwan_bastable[5]);
+		frameCtrl->setFrame(30.0f);
+		frameCtrl->setRate(SMSGetAnmFrameRate());
+	}
+
+	if (self->unk17C == 0 && self->mPicket->isTaken()) {
+		f32 pull = self->unk15C.x * self->unk15C.x
+		           + self->unk15C.y * self->unk15C.y
+		           + self->unk15C.z * self->unk15C.z;
+		TBWParams* params = (TBWParams*)self->getSaveParam();
+		if (pull >= params->mSLPullLimit.get()) {
+			TGraphTracer* tracer = self->unk124;
+			TGraphWeb* graph     = tracer->unk0;
+			s32 prevIndex        = tracer->mPrevIdx;
+			JGeometry::TVec3<f32> nodeDelta;
+			graph->getGraphNode(prevIndex).getPoint(&nodeDelta);
+			nodeDelta -= self->mPosition;
+
+			if (PSVECMag(&nodeDelta) < 400.0f && prevIndex == graph->unk10) {
+				spine->pushAfterCurrent(&TNerveBWJumpToBath::theNerve());
+				return true;
+			}
+
+			if (PSVECMag(&nodeDelta) < 400.0f) {
+				TGraphTracer* tracer2 = self->unk124;
+				s32 oldPrev          = tracer2->mPrevIdx;
+				s32 curr             = tracer2->mCurrIdx;
+				JGeometry::TVec3<f32> toMario = *gpMarioPos;
+				toMario -= self->mPosition;
+				s32 next = tracer2->unk0->getAimToDirNextIndex(
+				    oldPrev, curr, toMario, self->mPosition, -1);
+				tracer2->mPrevIdx = next;
+				tracer2->mCurrIdx = oldPrev;
+				self->setGoalPathFromGraph();
+				self->unk128 = 0;
+				self->unk12C = 30.0f;
+			}
+
+			f32 ratio = (f32)self->mHitPoints
+			            / (f32)params->mSLBWHitPointMax.get();
+			self->slideToCurPathNode(400.0f * ratio * self->mMarchSpeed,
+			                         self->mTurnSpeed);
+			return false;
+		}
+	}
+
+	if (self->isReachedToGoal()) {
+		if (self->jumpToNextGraphNode() >= 0) {
+			spine->pushAfterCurrent(&TNerveBWGraphWander::theNerve());
+			spine->pushAfterCurrent(&TNerveBWJump::theNerve());
+			return true;
+		}
+
+		spine->pushAfterCurrent(&TNerveBWGraphWander::theNerve());
+
+		TGraphTracer* tracer = self->unk124;
+		s32 prevIndex        = tracer->mPrevIdx;
+		s32 currIndex        = tracer->mCurrIdx;
+		TGraphWeb* graph     = tracer->unk0;
+
+		if (prevIndex >= 0
+		    && graph->getGraphNode(prevIndex).getRailNode()->mConnectionNum >= 2
+		    && gpMarDirector->unk58 >= 0x3840) {
+			if ((self->unk198 & 4) == 0)
+				gpMarDirector->mConsole->startAppearBalloon(0xE001C, true);
+			self->unk198 |= 4;
+		}
+
+		JGeometry::TVec3<f32> escapeDir(
+		    JMASSin((s16)(self->mRotation.y * (65536.0f / 360.0f))), 30.0f,
+		    JMASCos((s16)(self->mRotation.y * (65536.0f / 360.0f))));
+		s32 next = graph->getEscapeDirLimited(currIndex, prevIndex, escapeDir,
+		                                      self->mPosition, 1.1f, -1);
+		tracer->moveTo(next);
+		self->setGoalPathFromGraph();
+		self->unk128 = 0;
+		self->unk12C = 30.0f;
+		return true;
+	}
+
+	self->unk16C = 0;
+
+	TBWParams* params = (TBWParams*)self->getSaveParam();
+	f32 hpRatio = (f32)self->mHitPoints / (f32)params->mSLBWHitPointMax.get();
+	if (self->mPicket->isTaken()) {
+		f32 marioAngle = SHORTANGLE2DEG(gpMarioOriginal->mIntendedYaw);
+		JGeometry::TVec3<f32> intendedDir(JMASin(marioAngle), 30.0f,
+		                                  JMACos(marioAngle));
+		JGeometry::TVec3<f32> bossToMario = self->mPosition;
+		bossToMario -= gpMarioOriginal->mPosition;
+		PSVECNormalize(&bossToMario, &bossToMario);
+
+		f32 speedScale = 1.0f
+		                 - (0.03125f * gpMarioOriginal->mIntendedMag * 0.75f)
+		                       * -(bossToMario.dot(intendedDir));
+		if (speedScale < 0.0f)
+			speedScale = 0.0f;
+		else if (speedScale > 1.5f)
+			speedScale = 1.5f;
+
+		self->slideToCurPathNode(speedScale * hpRatio * self->mMarchSpeed,
+		                         self->mTurnSpeed);
+	} else {
+		self->slideToCurPathNode(hpRatio * self->mMarchSpeed + 0.2f,
+		                         self->mTurnSpeed);
+	}
 	return false;
 }
 
