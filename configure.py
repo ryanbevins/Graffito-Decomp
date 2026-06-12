@@ -1113,7 +1113,7 @@ config.libs = [
             Object(NonMatching, "GC2D/hx_wiper.c"),
             Object(Equivalent, "GC2D/MovieSubtitle.cpp"),
             Object(NonMatching, "GC2D/Option.cpp"),
-            Object(NonMatching, "GC2D/MovieRumble.cpp"),
+            Object(Equivalent, "GC2D/MovieRumble.cpp"),
         ],
     },
     {
