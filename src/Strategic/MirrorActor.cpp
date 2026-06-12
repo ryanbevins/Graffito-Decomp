@@ -69,7 +69,7 @@ void TMirrorActor::perform(u32 param_1, JDrama::TGraphics* param_2)
 		for (u16 i = 0; i < unk10->getModelData()->getJointNum(); ++i)
 			unk14->setAnmMtx(i, unk10->getAnmMtx(i));
 
-		for (u16 i = 0; i < unk10->getModelData()->getJointNum(); ++i)
+		for (u16 i = 0; i < unk10->getModelData()->getWEvlpMtxNum(); ++i)
 			unk14->setWeightAnmMtx(i, unk10->getWeightAnmMtx(i));
 	}
 
