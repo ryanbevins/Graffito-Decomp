@@ -28,11 +28,11 @@ const char* cSunsetVolumeName = "/scene/sunset";
 JDrama::TNameRef* TMarNameRefGen::getNameRef_Map(const char* name) const
 {
 	if (strcmp(name, "Map") == 0)
-		return new TMap("Map");
+		return new TMap("\x83\x7d\x83\x62\x83\x76");
 	if (strcmp(name, "MapDrawWall") == 0)
 		return new TMapDrawWall("\x83\x4a\x83\x81\x83\x89\x90\x48\x82\xa2\x8d\x9e\x82\xdd\x95\xc7");
 	if (strcmp(name, "Sky") == 0)
-		return new TSky("Sky");
+		return new TSky("\x8b\xf3");
 	if (strcmp(name, "Shimmer") == 0)
 		return new TShimmer("<Shimmer>");
 	if (strcmp(name, "Pollution") == 0)
