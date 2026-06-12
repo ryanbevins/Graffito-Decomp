@@ -5742,6 +5742,40 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Runtime random intervals may need caller-owned `r = min; r += (max - r) * MsRandF()` to reuse the min FPR
+
+**Hypothesis.** Some runtime min/max random interval sites are not shaped like
+the shared `MsRandF(l, r)` helper, even when both endpoints are param/member
+loads. When target asm loads `min` and `max`, calls `rand()`, computes
+`max - min` after the call, and writes the final random value back into the
+same FPR that held `min`, spell the caller as:
+
+```cpp
+f32 value = min;
+f32 maxValue = max;
+value += (maxValue - value) * MsRandF();
+```
+
+The key source signals may be that the destination variable is initialized from
+`min` before the call, not that a generic range helper existed. This is a
+source-shape exception to the settled runtime-`MsRandF(l, r)` helper rule; use
+only when target has the after-call `fsubs` and final `fmadds` into the `min`
+register.
+
+**Observed.** `mario/Enemy/conductor`
+`TConductor::genEnemyFromPollution()` (2026-06-12 MNL): replacing
+`MsRandF(mGenerateRadiusMin.get(), mGenerateRadiusMax.get())` with caller-owned
+`r = min; r += (max - r) * MsRandF()` changed the random-radius cluster from
+pre-call range computation and final `f30` result to target post-call range
+computation and final `f31` result, moving the function `98.4 -> 99.7`.
+
+**Experiment to confirm/refute.** Find another runtime min/max interval where
+target keeps `min` live in an FPR across `rand()` and writes the result back to
+that same FPR. Toggle only the call between shared `MsRandF(l, r)` and
+caller-owned `value = min; value += (max - value) * MsRandF();`; if the
+after-call `fsubs` plus destination FPR follows the caller-owned shape in a
+second TU, promote this as a settled sub-case.
+
 ### Negated float `<` can emit a direct ordered-compare branch where `>=` emits `cror`
 
 **Hypothesis.** For float threshold guards, spelling the condition as
