@@ -1274,6 +1274,54 @@ DEFINE_NERVE(TNerveBWJump, TLiveActor)
 
 DEFINE_NERVE(TNerveBWStun, TLiveActor)
 {
+	TBossWanwan* self = (TBossWanwan*)spine->getBody();
+	if (self->mPicket->isTaken()) {
+		BOOL pulled = false;
+		if (self->unk15C.x * self->unk15C.x
+		        + self->unk15C.y * self->unk15C.y
+		        + self->unk15C.z * self->unk15C.z
+		    >= ((TBWParams*)self->getSaveParam())->mSLPullLimit.get())
+			pulled = true;
+
+		if (pulled) {
+			TGraphTracer* tracer = self->unk124;
+			TGraphWeb* graph     = tracer->getGraph();
+			int prevIndex        = tracer->mPrevIdx;
+			JGeometry::TVec3<f32> nodeDelta;
+			graph->getGraphNode(prevIndex).getPoint(&nodeDelta);
+			nodeDelta.sub(self->mPosition);
+
+			if (PSVECMag((Vec*)&nodeDelta) < 1.1f) {
+				if (prevIndex == graph->unk10) {
+					spine->pushAfterCurrent(
+					    &TNerveBWGraphWander::theNerve());
+					return true;
+				}
+
+				JGeometry::TVec3<f32> marioDelta = *gpMarioPos;
+				marioDelta.sub(self->mPosition);
+				int nextIndex = graph->getAimToDirNextIndex(
+				    prevIndex, tracer->mCurrIdx, marioDelta, self->mPosition,
+				    -1);
+				tracer->mPrevIdx = nextIndex;
+				tracer->mCurrIdx = prevIndex;
+				self->setGoalPathFromGraph();
+				self->unk128 = 0;
+				self->unk12C = 0.0f;
+			}
+
+			return false;
+		}
+	}
+
+	if (spine->getTime()
+	    > ((TBWParams*)self->getSaveParam())->mSLStunTimer.get()) {
+		self->mHitPoints
+		    = ((TBWParams*)self->getSaveParam())->mSLBWHitPointMax.get();
+		spine->pushAfterCurrent(&TNerveBWWakeup::theNerve());
+		return true;
+	}
+
 	return false;
 }
 
