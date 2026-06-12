@@ -5742,6 +5742,41 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Declaring `JGadget::TList` iterators in the `for` initializer can reserve target iterator temporaries
+
+**Hypothesis.** For `JGadget::TList` loops, source shape controls whether MWCC
+reserves the target-sized iterator temporary area. A predeclared pair followed
+by assignment:
+
+```cpp
+JGadget::TList<T*>::iterator it, e;
+for (it = list.begin(), e = list.end(); it != e; ++it) { ... }
+```
+
+can produce a smaller frame than target. Declaring both iterators in the
+`for` initializer:
+
+```cpp
+for (JGadget::TList<T*>::iterator it = list.begin(), e = list.end();
+     it != e; ++it) { ... }
+```
+
+can add the missing iterator temp slots while keeping the visible list walk
+instruction stream. Verify per loop: it may fix frame size but still leave
+slot-order residue.
+
+**Observed.** `mario/Enemy/conductor` (2026-06-12 MNL): changing
+`TConductor::getManagerByName()` to `for`-init iterators moved it
+`99.6 -> 100.0` and improved inlined call sites. Applying the same source
+shape to `killEnemiesWithin()` changed its frame to target `0x70` and moved
+`99.6 -> 99.8`; applying it to `init()` narrowed the frame gap from target
+`0x80` vs build `0x68` to target `0x80` vs build `0x78`.
+
+**Experiment to confirm/refute.** Find a second TU with a near-exact
+`JGadget::TList` loop where only frame size/iterator stack slots differ.
+Toggle only predeclared iterators vs `for`-init iterators and verify whether
+frame size follows the declaration site without changing loop semantics.
+
 ### Runtime random intervals may need caller-owned `r = min; r += (max - r) * MsRandF()` to reuse the min FPR
 
 **Hypothesis.** Some runtime min/max random interval sites are not shaped like
