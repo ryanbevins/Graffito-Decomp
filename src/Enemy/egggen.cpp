@@ -6,6 +6,8 @@
 
 #include <M3DUtil/InfectiousStrings.hpp>
 
+#include <Player/MarioMain.hpp>
+
 TEggGenManager::TEggGenManager(const char* name)
     : TEnemyManager(name)
 {
@@ -49,21 +51,30 @@ void TEggGenerator::init(TLiveManager* param_1)
 	mRotation.x = MsWrap(mRotation.x - 90.0f, 0.0f, 360.0f);
 }
 
+// fabricated
+static inline BOOL isYoshiAppeared(TYoshi* yoshi)
+{
+	return (u8)yoshi->mState == TYoshi::EGG ? 0 : 1;
+}
+
+// fabricated
+static inline BOOL isMarioYoshiAppeared()
+{
+	return isYoshiAppeared(gpMarioOriginal->mYoshi);
+}
+
+// fabricated
+static inline f32 squareDistanceToMario(Vec* pos)
+{
+	return PSVECSquareDistance(pos, &gpMarioOriginal->mPosition);
+}
+
 void TEggGenerator::control()
 {
-	f32 _pad[6];
-	(void)_pad;
-
-	f32 dist = PSVECSquareDistance((Vec*)&mPosition, (Vec*)(gpMarioAddress + 0x10));
+	f32 dist = squareDistanceToMario(&mPosition);
 
 	if (dist < 250000.0f) {
-		TYoshi* yoshi = *(TYoshi**)(gpMarioAddress + 0x3F0);
-		int result;
-		if ((u8)yoshi->mState == 0) {
-			result = 0;
-		} else {
-			result = 1;
-		}
+		BOOL result = isMarioYoshiAppeared();
 		if (!result) {
 			mMActor->setBckFromIndex(0);
 		}

@@ -36,6 +36,31 @@ them in future ticks.
 
 ## Settled
 
+### Inline-result materialization charges +8 stack bytes per nested layer (lever for inline stack inflation)
+
+**Rule:** in MWCC 1.2.5, when an inline function's *return value is materialized
+into a local* in the caller — or forwarded through another inline layer — the
+caller's stack frame grows by **+8 bytes**, even though nothing is ever spilled.
+The emitted body code is identical; only the frame size changes. Nesting inline
+calls stacks the effect (+8 per layer).
+
+**Worked example — `TEggGenerator::control` (`Enemy/egggen`):** target frame is
+`0x30`; plain typed code produces `0x18`. Adding inline layers walked the frame
+up exactly: `0x18` (plain) → `0x20` (one materialized inline result) → `0x28`
+(distance via an inline wrapper) → `0x30` (a two-level inline yoshi-state check).
+This reproduced the original `0x30` frame with **no `_pad` hack** — a fully
+legitimate match. The original therefore used small helper inlines for the
+distance and a two-level state check.
+
+**Use:** a real source-level lever for the "stack-frame inflation from inlining"
+pattern that was previously skipped as hack-only. Instead of a `_pad[N]` hack,
+reconstruct the inline structure the target frame implies — add plausible helper
+inlines and calibrate by frame size (+8 per materialized inline result).
+
+**Confidence:** confirmed on 1 TU (egggen). Verify on 2+ more stuck
+stack-inflation TUs before treating the exact +8 figure as universal.
+
+
 ### Passing a just-returned float directly as a later argument can force immediate FPR argument shuffle
 
 **Rule.** When a virtual/helper call returns a float in `f1` and that value is

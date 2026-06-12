@@ -18,6 +18,8 @@
 
 extern "C" void GXPeekARGB(u32, u32, u32*);
 
+TMario* gpMarioOriginal;
+
 static JGeometry::TVec3<f32> cDeformedTerrainCenter(0.0f, 5000.0f, 0.0f);
 
 class TWaterGun {

@@ -86,6 +86,8 @@ Next, local variables can expand the stack even if they are always stored in a r
 
 When no obviously correct way to make stack frame size match exists, a trick should be used to correctly match the function's context: a temporary char array of required size to inflate the stack. Such hacks however should be removed or commented out after the function is matching to allow for a possible proper solution in the future.
 
+**Lever (often beats the char-array hack):** each inline call whose return value is *materialized into a local* — or forwarded through another inline layer — charges the caller's frame **+8 bytes** in MWCC 1.2.5 (no spill needed); nesting stacks the effect. So instead of a `_pad`/char-array hack, reconstruct the inline structure the target frame implies: add plausible helper inlines and calibrate by frame size (+8 per materialized inline result). Worked example: `Enemy/egggen` `TEggGenerator::control` — `0x18` plain → `0x30` via two inline layers, hack-free. See `docs/MWCC.md` "Inline-result materialization". (Confirmed on 1 TU; verify before fully trusting the exact +8.)
+
 ## Control Flow Codegen
 
 ### Ifs
