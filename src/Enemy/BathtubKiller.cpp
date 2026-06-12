@@ -996,8 +996,6 @@ void TBathtubKillerManager::loadAfter()
 	}
 }
 
-void TBathtubKillerManager::generateMushroom(JGeometry::TVec3<f32>) { }
-
 int TBathtubKillerManager::countActiveKillers()
 {
 	int count = 0;
@@ -1012,8 +1010,6 @@ int TBathtubKillerManager::countActiveKillers()
 	}
 	return count;
 }
-
-int TBathtubKillerManager::countActiveShineKillers() { return 0; }
 
 void TBathtubKillerManager::createModelData()
 {
