@@ -1,5 +1,6 @@
 #include <Enemy/BossWanwan.hpp>
 #include <Camera/CameraShake.hpp>
+#include <Camera/cameralib.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
 #include <GC2D/GCConsole2.hpp>
@@ -1168,6 +1169,24 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 
 DEFINE_NERVE(TNerveBWRoll, TLiveActor)
 {
+	TBossWanwan* self = (TBossWanwan*)spine->getBody();
+	if (spine->getTime() == 0) {
+		J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
+		frameCtrl->setFrame(0.0f);
+		frameCtrl->setRate(0.0f);
+		self->unk16C = 1;
+	}
+
+	if (self->isReachedToGoal()) {
+		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
+		frameCtrl->setRate(SMSGetAnmFrameRate());
+		return true;
+	}
+
+	self->walkToCurPathNode(
+	    ((TBWParams*)self->getSaveParam())->mSLAttackSpeed.get(),
+	    self->mTurnSpeed, 0.0f);
 	return false;
 }
 
