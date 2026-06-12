@@ -386,8 +386,12 @@ JGeometry::TVec3<f32> TKoopa::getNeckFocus() const
 
 BOOL TKoopa::isFlaming() const
 {
-	const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
-	return nerve == &TNerveKoopaFlame::theNerve() ? TRUE : FALSE;
+	int idx = mMActor->getCurAnmIdx(0);
+	if (idx < 6) {
+		if (idx >= 3)
+			return TRUE;
+	}
+	return FALSE;
 }
 
 f32 TKoopa::getFlameDirRate() const { return unk150; }
