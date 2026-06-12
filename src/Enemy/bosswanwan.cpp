@@ -1200,6 +1200,24 @@ DEFINE_NERVE(TNerveBWBark, TLiveActor)
 
 DEFINE_NERVE(TNerveBWJump, TLiveActor)
 {
+	TBossWanwan* self = (TBossWanwan*)spine->getBody();
+	if (spine->getTime() == 0) {
+		const JGeometry::TVec3<f32>& target = self->unk104.getPoint();
+		f32 speed = self->unk124->unkC;
+		f32 gravity = self->getGravityY();
+		JGeometry::TVec3<f32> velocity
+		    = self->calcVelocityToJumpToY(target, speed, gravity);
+		self->mVelocity = velocity;
+		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		self->unk16C = 0;
+	}
+
+	if (self->isReachedToGoal()) {
+		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		return true;
+	}
+
+	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
 	return false;
 }
 
