@@ -887,7 +887,7 @@ config.libs = [
             Object(Equivalent, "Strategic/livemanager.cpp"),
             Object(Equivalent, "Strategic/ObjHitCheck.cpp"),
             Object(Equivalent, "Strategic/objmanager.cpp"),
-            Object(NonMatching, "Strategic/ObjModel.cpp"),
+            Object(Equivalent, "Strategic/ObjModel.cpp"),
             Object(NonMatching, "Strategic/spcinterp.cpp"),
             Object(Equivalent, "Strategic/Strategy.cpp"),
             Object(Equivalent, "Strategic/question.cpp"),
