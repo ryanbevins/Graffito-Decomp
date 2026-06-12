@@ -975,7 +975,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(Equivalent, "MSound/MAnmSound.cpp"),
-            Object(NonMatching, "MSound/MSound.cpp"),
+            Object(Equivalent, "MSound/MSound.cpp"),
             Object(NonMatching, "MSound/MSoundBGM.cpp"),
             Object(Equivalent, "MSound/MSoundDebug.cpp"),
             Object(NonMatching, "MSound/MSoundScene.cpp"),
