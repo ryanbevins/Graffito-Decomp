@@ -2136,13 +2136,22 @@ void TBPPolDrop::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (unk80 == 0)
 		return;
 
-	if (flags & 1) {
+	u32 doMove = flags & 1;
+	if (doMove) {
 		move();
 		unk84++;
+	}
 
+	if (doMove) {
 		for (int i = 0; i < mColCount; ++i) {
 			THitActor* actor = mCollisions[i];
-			if (actor->getActorType() == 0x80000001) {
+			bool isMario;
+			if (actor->getActorType() == 0x80000001)
+				isMario = true;
+			else
+				isMario = false;
+
+			if (isMario) {
 				actor->receiveMessage(this, HIT_MESSAGE_ATTACK);
 				mOwner->rumblePad(2, mPosition);
 				if (SMS_IsMarioTouchGround4cm())
@@ -2154,22 +2163,18 @@ void TBPPolDrop::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (flags & 2) {
-		J3DModel* model = unk78->getModel();
-		PSMTXIdentity(model->unk20);
-		model->unk20[0][3] = mPosition.x;
-		model->unk20[1][3] = mPosition.y;
-		model->unk20[2][3] = mPosition.z;
-		model->unk14.x     = mScaling.x;
-		model->unk14.y     = mScaling.y;
-		model->unk14.z     = mScaling.z;
+		MtxPtr modelMtx = unk78->getModel()->unk20;
+		PSMTXIdentity(modelMtx);
+		modelMtx[0][3] = mPosition.x;
+		modelMtx[1][3] = mPosition.y;
+		modelMtx[2][3] = mPosition.z;
+		unk78->getModel()->unk14 = mScaling;
 
 		if (unk80 == 2) {
 			f32 scale = mOwner->getBossPakkunSaveParam()->mSLPollBallStampScale.get();
-			J3DModel* stampModel = unk7C->getModel();
-			stampModel->unk14.x  = scale;
-			stampModel->unk14.y  = scale;
-			stampModel->unk14.z  = scale;
-			PSMTXCopy(model->unk20, stampModel->unk20);
+			JGeometry::TVec3<f32> stampScale(scale);
+			unk7C->getModel()->unk14 = stampScale;
+			PSMTXCopy(modelMtx, unk7C->getModel()->unk20);
 		}
 	}
 
