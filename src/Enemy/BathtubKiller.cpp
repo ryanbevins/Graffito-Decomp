@@ -529,8 +529,9 @@ void TBathtubKiller::perform(u32 param1, JDrama::TGraphics* graphics)
 
 void TBathtubKiller::makeInitialVelocity(JGeometry::TVec3<f32> vel)
 {
+	f32 speed    = vel.length();
 	f32 maxSpeed = getSaveParam2()->mSLFlyingSpeedMax.value;
-	if (vel.length() > maxSpeed) {
+	if (speed > maxSpeed) {
 		vel.normalize();
 		vel.scale(maxSpeed);
 	}
