@@ -381,7 +381,7 @@ config.libs = [
 
             # JDrama
             Object(NonMatching, "JSystem/JDrama/JDRActor.cpp"),
-            Object(NonMatching, "JSystem/JDrama/JDRCamera.cpp"),
+            Object(Equivalent, "JSystem/JDrama/JDRCamera.cpp"),
             Object(Matching, "JSystem/JDrama/JDRCharacter.cpp"),
             Object(NonMatching, "JSystem/JDrama/JDRDirector.cpp"),
             Object(Equivalent, "JSystem/JDrama/JDRDisplay.cpp"),
