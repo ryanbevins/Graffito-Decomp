@@ -1795,10 +1795,16 @@ BOOL TBPNavel::receiveMessage(THitActor* sender, u32 message)
 
 void TBPHeadHit::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	if ((flags & 1) && mOwner->unk16C != 1) {
+	if ((flags & 1) && (s8)mOwner->unk16C != 1) {
 		for (int i = 0; i < mColCount; ++i) {
 			THitActor* actor = mCollisions[i];
+			bool isMario;
 			if (actor->getActorType() == 0x80000001)
+				isMario = true;
+			else
+				isMario = false;
+
+			if (isMario)
 				throwActor(actor);
 		}
 	}
