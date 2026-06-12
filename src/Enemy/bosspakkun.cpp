@@ -140,7 +140,13 @@ DEFINE_NERVE(TNerveBPFall, TLiveActor)
 		if (actor->curAnmEndsNext(0, nullptr))
 			boss->changeBck(0x09);
 	} else if (actor->checkCurBckFromIndex(0x09)) {
-		if (!boss->checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
+		BOOL isAirborne;
+		if (boss->mLiveFlag & LIVE_FLAG_AIRBORNE)
+			isAirborne = TRUE;
+		else
+			isAirborne = FALSE;
+
+		if (!isAirborne) {
 			boss->changeBck(0x08);
 			gpCameraShake->startShake((EnumCamShakeMode)0x0F, 1.0f);
 			boss->rumblePad(2, boss->mPosition);
