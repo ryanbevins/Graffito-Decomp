@@ -1063,7 +1063,7 @@ config.libs = [
             Object(NonMatching, "Map/MapWireManager.cpp"),
             Object(Equivalent, "Map/MapXlu.cpp"),
             Object(Equivalent, "Map/PollutionAction.cpp"),
-            Object(NonMatching, "Map/PollutionCount.cpp"),
+            Object(Equivalent, "Map/PollutionCount.cpp"),
             Object(Equivalent, "Map/PollutionManager.cpp"),
             Object(Equivalent, "Map/PollutionObj.cpp"),
             Object(Equivalent, "Map/PollutionPos.cpp"),
