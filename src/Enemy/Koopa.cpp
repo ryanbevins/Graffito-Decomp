@@ -1,12 +1,16 @@
 #include <Enemy/Koopa.hpp>
 #include <Camera/CameraShake.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DNode.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/JDrama/JDRNameRef.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JGadget/std-list.hpp>
 #include <JSystem/JGeometry/JGMatrix34.hpp>
+#include <JSystem/JGeometry/JGQuat4.hpp>
+#include <JSystem/JGeometry/JGRotation3.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -57,7 +61,80 @@ static const char* koopa_bastable[] = {
 };
 
 namespace {
-int KoopaNeckCallBack(J3DNode*, int) { return 1; }
+int KoopaNeckCallBack(J3DNode* node, int timing)
+{
+	if (timing != 0)
+		return 1;
+
+	TKoopa* koopa  = (TKoopa*)node->mCallBackUserData;
+	J3DJoint* joint = (J3DJoint*)node;
+	MtxPtr mtx = j3dSys.getModel()->mNodeMatrices[joint->getJntNo()];
+
+	JGeometry::TVec3<f32> mario(*gpMarioPos);
+	mario.y += 180.0f;
+
+	JGeometry::TVec3<f32> toMario(mario.x - mtx[0][3],
+	                              mario.y - mtx[1][3],
+	                              mario.z - mtx[2][3]);
+
+	if (koopa->isFlaming()) {
+		TKoopaParams* prm = koopa->getSaveParam2();
+		f32 angle = koopa->getFlameDirRate() * 6.2831855f
+		            * prm->flameNeckRange.get() / 360.0f;
+		f32 pitch = angle * prm->flameNeckDownRate.get();
+		if (pitch > 0.0f)
+			pitch = -pitch;
+		if (koopa->unk154)
+			angle = -angle;
+
+		Mtx flameRot;
+		MTXRotRad(flameRot, 'y', angle);
+		PSMTXConcat(mtx, flameRot, mtx);
+		MTXRotRad(flameRot, 'x', pitch);
+		PSMTXConcat(mtx, flameRot, mtx);
+	}
+
+	f32 focus = koopa->getNeckFocus();
+	if (focus > 0.0f) {
+		JGeometry::TVec3<f32> localX(mtx[0][0], mtx[1][0], mtx[2][0]);
+		JGeometry::TVec3<f32> localY(mtx[0][1], mtx[1][1], mtx[2][1]);
+
+		f32 yDot = localY.dot(toMario);
+		JGeometry::TVec3<f32> projected(
+		    toMario.x - localY.x * yDot, toMario.y - localY.y * yDot,
+		    toMario.z - localY.z * yDot);
+
+		if (!projected.isZero())
+			projected.normalize();
+		if (!toMario.isZero())
+			toMario.normalize();
+
+		f32 frontDot = localX.dot(projected);
+		if (frontDot < 0.5f)
+			focus *= (1.0f + frontDot) / 1.5f;
+
+		JGeometry::TQuat4<f32> turn;
+		turn.setRotate(localX, projected, focus);
+
+		if (!koopa->isFlaming()) {
+			JGeometry::TQuat4<f32> pitch;
+			pitch.setRotate(projected, toMario, focus);
+			turn.mul(pitch, turn);
+		}
+
+		Mtx turnMtx;
+		((JGeometry::TRotation3<
+		     JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >*)&turnMtx)
+		    ->setQuat(turn);
+		turnMtx[0][3] = 0.0f;
+		turnMtx[1][3] = 0.0f;
+		turnMtx[2][3] = 0.0f;
+		PSMTXConcat(mtx, turnMtx, mtx);
+	}
+
+	PSMTXCopy(mtx, J3DSys::mCurrentMtx);
+	return 1;
+}
 } // namespace
 
 inline TKoopaParams::TKoopaParams(const char* path)
