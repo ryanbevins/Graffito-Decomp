@@ -1099,7 +1099,7 @@ config.libs = [
             Object(Equivalent, "GC2D/MessageLoader.cpp"),
             Object(Matching, "GC2D/HelpActor.cpp"),
             Object(Matching, "GC2D/MessageUtil.cpp"),
-            Object(NonMatching, "GC2D/CardSave.cpp"),
+            Object(Equivalent, "GC2D/CardSave.cpp"),
             Object(NonMatching, "GC2D/CardLoad.cpp"),
             Object(NonMatching, "GC2D/ConsoleStr.cpp"),
             Object(Equivalent, "GC2D/SelectMenu.cpp"),
