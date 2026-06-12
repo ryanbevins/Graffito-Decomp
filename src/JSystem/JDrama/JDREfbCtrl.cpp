@@ -104,7 +104,8 @@ void TEfbCtrlTex::perform(u32 param_1, TGraphics* param_2)
 
 		if (mImagePtr != nullptr) {
 			u32 iVar2 = IssueGXSetCopyClear(unk38, unk3C, unk20.get());
-			GXSetTexCopySrc(unk10.x1, unk10.y1, unk10.x2, unk10.y2);
+			GXSetTexCopySrc(unk10.x1, unk10.y1, unk10.getWidth(),
+			                unk10.getHeight());
 			GXSetTexCopyDst(mWidth, mHeight, mTexFmt, unk20.check(0x1000));
 			GXCopyTex(mImagePtr, iVar2);
 		}
