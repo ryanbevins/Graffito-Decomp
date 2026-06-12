@@ -758,21 +758,22 @@ DEFINE_NERVE(TNerveBPWaitL, TLiveActor)
 
 	if (spine->getTime()
 	    >= boss->getBossPakkunSaveParam()->mSLWaitFrameStg0.value) {
+		JGeometry::TVec3<f32>* marioPos = gpMarioPos;
 		if (boss->unk188 == nullptr) {
 			boss->unk188 = (TAreaCylinderManager*)gpConductor->search(
 			    "ゲロエリアマネージャー");
 		}
 
-		if (boss->unk188 != nullptr && boss->unk188->contain(*gpMarioPos)) {
+		if (boss->unk188 != nullptr && boss->unk188->contain(*marioPos)) {
 			u16 bgType = (*gpMarioGroundPlane)->getBGType();
-			BOOL isWaterSurface;
+			bool isWaterSurface;
 			if (bgType == 0x100 || (u16)(bgType - 0x101) <= 4
 			    || bgType == 0x4104)
-				isWaterSurface = TRUE;
+				isWaterSurface = true;
 			else
-				isWaterSurface = FALSE;
+				isWaterSurface = false;
 
-			if (isWaterSurface == FALSE) {
+			if (!isWaterSurface) {
 				spine->pushAfterCurrent(&TNerveBPCannonL::theNerve());
 				return TRUE;
 			}
