@@ -809,7 +809,7 @@ config.libs = [
         "cflags": [*cflags_system, "-inline deferred"],
         "progress_category": "game",
         "objects": [
-            Object(NonMatching, "M3DUtil/M3UJoint.cpp"),
+            Object(Equivalent, "M3DUtil/M3UJoint.cpp"),
             Object(Equivalent, "M3DUtil/M3UModel.cpp"),
             Object(Equivalent, "M3DUtil/MActor.cpp"),
             Object(Equivalent, "M3DUtil/MActorAnm.cpp"),
