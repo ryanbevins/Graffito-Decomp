@@ -147,9 +147,11 @@ DEFINE_NERVE(TNerveBPFall, TLiveActor)
 		}
 	} else if (actor->checkCurBckFromIndex(0x0E)
 	           && actor->curAnmEndsNext(0, nullptr)) {
-		bool isBossStage = false;
+		bool isBossStage;
 		if (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 4)
 			isBossStage = true;
+		else
+			isBossStage = false;
 
 		if (isBossStage) {
 			f32 tornadoProp
