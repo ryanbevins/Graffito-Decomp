@@ -572,77 +572,78 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 		boss->changeBck(0x19);
 
 	if (spine->getTime()
-	    < boss->getBossPakkunSaveParam()->mSLWaitFrameStg0.value)
-		return FALSE;
+	    >= boss->getBossPakkunSaveParam()->mSLWaitFrameStg0.value) {
+		MActor* actor = boss->mMActor;
+		if (actor->isCurAnmAlreadyEnd(0)) {
+			if (gpMarDirector->mMap == 2) {
+				if (gpMarDirector->unk7D == 0 || gpMarDirector->unk7D == 1) {
+					if (boss->unk188 == nullptr) {
+						boss->unk188 = (TAreaCylinderManager*)gpConductor->search(
+						    "ゲロエリアマネージャー");
+					}
 
-	MActor* actor = boss->mMActor;
-	if (!actor->isCurAnmAlreadyEnd(0))
-		return FALSE;
+					if (boss->unk188 != nullptr
+					    && boss->unk188->contain(*gpMarioPos)) {
+						u16 bgType = (*gpMarioGroundPlane)->getBGType();
+						BOOL isWaterSurface;
+						if (bgType == 0x100 || (u16)(bgType - 0x101) <= 4
+						    || bgType == 0x4104)
+							isWaterSurface = TRUE;
+						else
+							isWaterSurface = FALSE;
 
-	if (gpMarDirector->mMap == 2) {
-		if (gpMarDirector->unk7D == 0 || gpMarDirector->unk7D == 1) {
-			if (boss->unk188 == nullptr) {
-				boss->unk188 = (TAreaCylinderManager*)gpConductor->search(
-				    "ゲロエリアマネージャー");
-			}
+						if (isWaterSurface == FALSE) {
+							spine->pushAfterCurrent(&TNerveBPCannon::theNerve());
+							return TRUE;
+						}
+					}
 
-			if (boss->unk188 != nullptr && boss->unk188->contain(*gpMarioPos)) {
-				u16 bgType = (*gpMarioGroundPlane)->getBGType();
-				BOOL isWaterSurface;
-				if (bgType == 0x100 || (u16)(bgType - 0x101) <= 4
-				    || bgType == 0x4104)
-					isWaterSurface = TRUE;
-				else
-					isWaterSurface = FALSE;
+					spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+					return TRUE;
+				}
 
-				if (isWaterSurface == FALSE) {
-					spine->pushAfterCurrent(&TNerveBPCannon::theNerve());
+				if (gpMarDirector->unk7D == 4) {
+					f32 tornadoProp
+					    = boss->getBossPakkunSaveParam()->mSLTornadoProp.value;
+					if (boss->mTornado->unk98 != 0
+					    || rand() * 0.000030517578f < tornadoProp) {
+						spine->pushAfterCurrent(&TNerveBPTakeOff::theNerve());
+						spine->pushAfterCurrent(&TNerveBPVomit::theNerve());
+						return TRUE;
+					}
+
+					if (boss->mTornado->unk98 == 0) {
+						spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+						spine->pushAfterCurrent(&TNerveBPTornado::theNerve());
+						return TRUE;
+					}
+
+					spine->pushAfterCurrent(&TNerveBPWait::theNerve());
 					return TRUE;
 				}
 			}
 
 			spine->pushAfterCurrent(&TNerveBPWait::theNerve());
-			return TRUE;
-		}
+			spine->pushAfterCurrent(&TNerveBPVomit::theNerve());
 
-		if (gpMarDirector->unk7D == 4) {
-			f32 tornadoProp
-			    = boss->getBossPakkunSaveParam()->mSLTornadoProp.value;
-			if (boss->mTornado->unk98 != 0
-			    || rand() * 0.000030517578f < tornadoProp) {
-				spine->pushAfterCurrent(&TNerveBPTakeOff::theNerve());
-				spine->pushAfterCurrent(&TNerveBPVomit::theNerve());
-				return TRUE;
-			}
+			JGeometry::TVec3<f32> randomPos = boss->mPosition;
+			f32 randX = rand() * 0.000030517578f;
+			randX -= 0.5f;
+			randomPos.x += 10000.0f * randX;
+			f32 randZ = rand() * 0.000030517578f;
+			randZ -= 0.5f;
+			randomPos.z += 10000.0f * randZ;
 
-			if (boss->mTornado->unk98 == 0) {
-				spine->pushAfterCurrent(&TNerveBPWait::theNerve());
-				spine->pushAfterCurrent(&TNerveBPTornado::theNerve());
-				return TRUE;
-			}
+			TPathNode randomPath(randomPos);
+			boss->unk114.push(boss->unkF4);
+			boss->unkF4 = randomPath;
 
-			spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+			spine->pushAfterCurrent(&TNerveBPPivot::theNerve());
 			return TRUE;
 		}
 	}
 
-	spine->pushAfterCurrent(&TNerveBPWait::theNerve());
-	spine->pushAfterCurrent(&TNerveBPVomit::theNerve());
-
-	JGeometry::TVec3<f32> randomPos = boss->mPosition;
-	f32 randX = rand() * 0.000030517578f;
-	randX -= 0.5f;
-	randomPos.x += 10000.0f * randX;
-	f32 randZ = rand() * 0.000030517578f;
-	randZ -= 0.5f;
-	randomPos.z += 10000.0f * randZ;
-
-	TPathNode randomPath(randomPos);
-	boss->unk114.push(boss->unkF4);
-	boss->unkF4 = randomPath;
-
-	spine->pushAfterCurrent(&TNerveBPPivot::theNerve());
-	return TRUE;
+	return FALSE;
 }
 
 DEFINE_NERVE(TNerveBPCannonL, TLiveActor)
