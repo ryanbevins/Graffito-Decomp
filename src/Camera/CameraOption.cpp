@@ -13,6 +13,7 @@ template <> s16 CLBRoundf<s16>(f32);
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 const char* cLoadCamName = "\x8d\xb6\x83\x54\x83\x43\x83\x68\x83\x4a\x83\x81\x83\x89"; // 左サイドカメラ
+TCameraOption* gpCameraOption;
 
 void TCameraOption::moveToDown()
 {
