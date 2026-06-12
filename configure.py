@@ -788,7 +788,7 @@ config.libs = [
             Object(NonMatching, "MarioUtil/LightUtil.cpp"),
             Object(NonMatching, "MarioUtil/MathUtil.cpp"),
             Object(NonMatching, "MarioUtil/MtxUtil.cpp"),
-            Object(NonMatching, "MarioUtil/ScreenUtil.cpp"),
+            Object(Equivalent, "MarioUtil/ScreenUtil.cpp"),
             Object(NonMatching, "MarioUtil/ShadowUtil.cpp"),
             Object(Matching, "MarioUtil/gd-reinit-gx.cpp"),
             Object(Equivalent, "MarioUtil/EffectUtil.cpp"),
