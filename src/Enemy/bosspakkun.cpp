@@ -1865,7 +1865,8 @@ void TBPHeadHit::throwActor(THitActor* actor)
 
 BOOL TBPHeadHit::receiveMessage(THitActor* sender, u32 message)
 {
-	if (mOwner->mSpine->getLatestNerve() == &TNerveBPSleep::theNerve())
+	const TNerveBPSleep& sleepNerve = TNerveBPSleep::theNerve();
+	if (mOwner->mSpine->getLatestNerve() == &sleepNerve)
 		return mOwner->receiveMessage(sender, message);
 
 	TBossPakkun* boss = mOwner;
