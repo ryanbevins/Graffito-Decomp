@@ -1379,8 +1379,10 @@ void TBossPakkun::init(TLiveManager* manager)
 		goToShortestNextGraphNode();
 	}
 
-	TSpineEnemyParams* params = getSaveParam();
-	mHitPoints = params ? params->mSLHitPointMax.get() : 1;
+	if (getSaveParam())
+		mHitPoints = getSaveParam()->mSLHitPointMax.get();
+	else
+		mHitPoints = 1;
 }
 
 void TBossPakkun::setGroundCollision()
