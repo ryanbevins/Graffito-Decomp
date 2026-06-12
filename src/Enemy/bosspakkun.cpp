@@ -344,7 +344,7 @@ DEFINE_NERVE(TNerveBPTumble, TLiveActor)
 		boss->rumblePad(0, boss->mPosition);
 
 	if (spine->getTime()
-	    >= boss->getBossPakkunSaveParam()->mSLTumbleTime.value) {
+	    >= boss->getBossPakkunSaveParam()->mSLTumbleTime.get()) {
 		boss->unk16C = 0;
 		spine->pushAfterCurrent(&TNerveBPTumbleOut::theNerve());
 		return TRUE;
@@ -421,7 +421,7 @@ DEFINE_NERVE(TNerveBPSwallow, TLiveActor)
 		boss->changeBck(0x1A);
 
 	if (boss->unk178
-	    >= boss->getBossPakkunSaveParam()->mSLWaterMarkLimit.value) {
+	    >= boss->getBossPakkunSaveParam()->mSLWaterMarkLimit.get()) {
 		spine->pushAfterCurrent(&TNerveBPTumbleIn::theNerve());
 		boss->unk16C = 0;
 		boss->unk170 = nullptr;
