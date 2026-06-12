@@ -360,9 +360,11 @@ DEFINE_NERVE(TNerveBPTumbleOut, TLiveActor)
 		if (actor->checkCurBckFromIndex(0x0E)) {
 			boss->changeBck(0x16);
 
-			bool isBossStage = false;
+			bool isBossStage;
 			if (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 4)
 				isBossStage = true;
+			else
+				isBossStage = false;
 
 			if (!isBossStage) {
 				++boss->unk1C4;
