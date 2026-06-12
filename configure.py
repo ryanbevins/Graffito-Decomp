@@ -811,7 +811,7 @@ config.libs = [
         "objects": [
             Object(NonMatching, "M3DUtil/M3UJoint.cpp"),
             Object(Equivalent, "M3DUtil/M3UModel.cpp"),
-            Object(NonMatching, "M3DUtil/MActor.cpp"),
+            Object(Equivalent, "M3DUtil/MActor.cpp"),
             Object(Equivalent, "M3DUtil/MActorAnm.cpp"),
             Object(NonMatching, "M3DUtil/MActorData.cpp"),
             Object(NonMatching, "M3DUtil/SDLModel.cpp"),
