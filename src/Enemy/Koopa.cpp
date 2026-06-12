@@ -13,6 +13,7 @@
 #include <Player/MarioAccess.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
+#include <Strategic/Strategy.hpp>
 #include <System/Particles.hpp>
 
 static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
@@ -125,15 +126,7 @@ TKoopaParts::TKoopaParts(const char* name, u32 actorType, TKoopa* owner,
     : THitActor(name)
     , mOwner(owner)
 {
-	JDrama::TNameRef* root
-	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-	const char* groupName = "敵グループ";
-	JDrama::TNameRef* group
-	    = root->searchF(JDrama::TNameRef::calcKeyCode(groupName), groupName);
-	JGadget::TList_pointer_void* list
-	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
-	void* self = this;
-	list->insert(list->end(), self);
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
 
 	initHitActor(actorType, 5, 0x88000000, radius, radius, radius, radius);
 	onHitFlag(0x2);
