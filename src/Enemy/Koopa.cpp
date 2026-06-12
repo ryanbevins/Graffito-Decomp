@@ -1028,8 +1028,146 @@ BOOL TNerveKoopaTumble::execute(TSpineBase<TLiveActor>* spine) const
 BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	if (spine->getTime() == 0)
-		self->changeAnm(5, 1, self->getSaveParam2()->fireSpeed.get());
+	TKoopaParams* prm = self->getSaveParam2();
+
+	switch (self->mMActor->getCurAnmIdx(0)) {
+	case 5:
+		if (self->mMActor->curAnmEndsNext(0, nullptr)) {
+			self->changeAnm(4, 0, 2.0f);
+			spine->setNext(&TNerveKoopaFlame::theNerve());
+		} else {
+			self->unk155 = 0;
+		}
+		break;
+
+	case 3:
+		if (!self->mMActor->curAnmEndsNext(0, nullptr))
+			break;
+
+		if (self->unk155) {
+			if (gpMSound->gateCheck(0x89AD)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x89AD, &self->unk158, 0, nullptr, 0, 4);
+			}
+			self->unk155 = 0;
+		}
+
+		if (self->unk19C > 0) {
+			spine->setNext(&TNerveKoopaWait::theNerve());
+			return FALSE;
+		} else {
+			TBathtub* bathtub
+			    = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+			JGeometry::TVec3<f32> speed(*gpMarioSpeedX, *gpMarioSpeedY,
+			                             *gpMarioSpeedZ);
+			JGeometry::TVec3<f32> predicted;
+			predicted.x = speed.x * prm->marioEstimationWait.get();
+			predicted.y = speed.y * prm->marioEstimationWait.get();
+			predicted.z = speed.z * prm->marioEstimationWait.get();
+
+			BOOL hasGrip = bathtub->getNextGrip(
+			    *gpMarioPos, predicted, prm->waitRange.get(), &self->unk150);
+			if (!hasGrip) {
+				JGeometry::TVec3<f32> speed2(
+				    *gpMarioSpeedX, *gpMarioSpeedY, *gpMarioSpeedZ);
+				predicted.x = speed2.x * prm->marioEstimationFire.get();
+				predicted.y = speed2.y * prm->marioEstimationFire.get();
+				predicted.z = speed2.z * prm->marioEstimationFire.get();
+				self->unk150
+				    = bathtub->getNextJuncture(*gpMarioPos, predicted);
+			}
+
+			f32 turn = std::fmodf(
+			    360.0f + ((self->unk150 - self->mRotation.y) - -180.0f),
+			    360.0f);
+			turn += -180.0f;
+			int turnDir;
+			if (turn < -prm->focusRange.get())
+				turnDir = -1;
+			else if (turn > prm->focusRange.get())
+				turnDir = 1;
+			else
+				turnDir = 0;
+
+			if (hasGrip) {
+				spine->setNext(&TNerveKoopaWait::theNerve());
+			} else if (turnDir < 0) {
+				spine->pushNerve(&TNerveKoopaTurnL::theNerve());
+			} else if (turnDir > 0) {
+				spine->pushNerve(&TNerveKoopaTurnR::theNerve());
+			} else {
+				f32 flameDiff = std::fmodf(
+				    360.0f
+				        + ((self->getTargetDir(*gpMarioPos) - self->unk150)
+				           - -180.0f),
+				    360.0f);
+				flameDiff += -180.0f;
+				self->unk154 = flameDiff < 0.0f;
+				self->changeAnm(5, 0, prm->fireSpeed.get());
+				spine->setNext(&TNerveKoopaFlame::theNerve());
+			}
+		}
+		break;
+
+	case 4:
+		if (spine->getTime() < prm->flameCount.get())
+			break;
+
+		if ((spine->getTime() & 7) == 0) {
+			TBathtub* bathtub
+			    = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+			JGeometry::TVec3<f32> speed(*gpMarioSpeedX, *gpMarioSpeedY,
+			                             *gpMarioSpeedZ);
+			JGeometry::TVec3<f32> predicted;
+			predicted.x = speed.x * prm->marioEstimationWait.get();
+			predicted.y = speed.y * prm->marioEstimationWait.get();
+			predicted.z = speed.z * prm->marioEstimationWait.get();
+
+			BOOL hasGrip = bathtub->getNextGrip(
+			    *gpMarioPos, predicted, prm->waitRange.get(), &self->unk150);
+			if (!hasGrip) {
+				JGeometry::TVec3<f32> speed2(
+				    *gpMarioSpeedX, *gpMarioSpeedY, *gpMarioSpeedZ);
+				predicted.x = speed2.x * prm->marioEstimationFire.get();
+				predicted.y = speed2.y * prm->marioEstimationFire.get();
+				predicted.z = speed2.z * prm->marioEstimationFire.get();
+				self->unk150
+				    = bathtub->getNextJuncture(*gpMarioPos, predicted);
+			}
+
+			f32 turn = std::fmodf(
+			    360.0f + ((self->unk150 - self->mRotation.y) - -180.0f),
+			    360.0f);
+			turn += -180.0f;
+			int turnDir;
+			if (turn < -prm->focusRange.get())
+				turnDir = -1;
+			else if (turn > prm->focusRange.get())
+				turnDir = 1;
+			else
+				turnDir = 0;
+
+			if (hasGrip || turnDir != 0)
+				self->changeAnm(3, 0, prm->fireSpeed.get());
+		} else if (self->mMActor->curAnmEndsNext(0, nullptr)
+		           && spine->getTime() >= prm->flameFocusEndStep.get()) {
+			self->changeAnm(3, 0, prm->fireSpeed.get());
+		}
+		break;
+
+	default: {
+		f32 flameDiff = std::fmodf(
+		    360.0f + ((self->getTargetDir(*gpMarioPos) - self->unk150)
+		              - -180.0f),
+		    360.0f);
+		flameDiff += -180.0f;
+		self->unk154 = flameDiff < 0.0f;
+		self->changeAnm(5, 0, prm->fireSpeed.get());
+		spine->setNext(&TNerveKoopaFlame::theNerve());
+		break;
+	}
+	}
+
 	return FALSE;
 }
 
