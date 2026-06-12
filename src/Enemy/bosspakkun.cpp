@@ -1723,7 +1723,7 @@ void TBossPakkunMtxCalc::calcBellyScale(u16 joint_no)
 
 	TBossPakkun* owner = mOwner;
 	f32 ratio;
-	if (owner->unk17C) {
+	if ((s8)owner->unk17C != 0) {
 		ratio = (f32)owner->unk1B8 / 50.0f;
 	} else {
 		s32 limit = owner->getBossPakkunSaveParam()->mSLWaterMarkLimit.value;
