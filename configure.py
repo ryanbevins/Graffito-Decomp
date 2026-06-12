@@ -1053,7 +1053,7 @@ config.libs = [
             Object(Matching, "Map/MapDraw.cpp"),
             Object(Matching, "Map/MapEvent.cpp"),
             Object(NonMatching, "Map/MapEventSink.cpp"),
-            Object(NonMatching, "Map/MapMakeData.cpp"),
+            Object(Equivalent, "Map/MapMakeData.cpp"),
             Object(NonMatching, "Map/MapMakeList.cpp"),
             Object(NonMatching, "Map/MapMirror.cpp"),
             Object(Equivalent, "Map/MapModel.cpp"),
