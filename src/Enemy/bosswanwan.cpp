@@ -32,6 +32,11 @@ static const TModelDataLoadEntry sModelDataEntries[] = {
 	{ nullptr, 0, 0 },
 };
 
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
 TBWParams::TBWParams(const char* path)
     : TSpineEnemyParams(path)
     , PARAM_INIT(mSLMarchSpeed, 6.0f)
@@ -332,7 +337,67 @@ void TBossWanwan::slideToCurPathNode(f32 march_speed, f32 turn_speed)
 	walkToCurPathNode(march_speed, turn_speed, 0.0f);
 }
 
-void TBossWanwan::control() { TSpineEnemy::control(); }
+void TBossWanwan::control()
+{
+	TLiveActor::control();
+
+	if (unk17C != 0
+	    || (mPicket->isTaken()
+	        && unk15C.x * unk15C.x + unk15C.y * unk15C.y + unk15C.z * unk15C.z
+	               >= ((TBWParams*)getSaveParam())->mSLPullLimit.get())) {
+		mLinearVelocity.x += unk15C.x;
+		mLinearVelocity.y += unk15C.y;
+		mLinearVelocity.z += unk15C.z;
+
+		JGeometry::TVec3<f32> ropeDir = mPosition;
+		ropeDir.sub(mLeash->mRope->mPoints[3].mPosition);
+
+		f32 targetYaw;
+		if (ropeDir.z == 0.0f) {
+			if (ropeDir.x >= 0.0f)
+				targetYaw = 90.0f;
+			else
+				targetYaw = -90.0f;
+		} else if (ropeDir.z >= 0.0f) {
+			targetYaw = matan(ropeDir.z, ropeDir.x) * (360.0f / 65536.0f);
+		} else {
+			f32 yaw = matan(-ropeDir.z, ropeDir.x) * (360.0f / 65536.0f);
+			targetYaw = 180.0f - yaw;
+		}
+
+		while (targetYaw >= 360.0f)
+			targetYaw -= 360.0f;
+		while (targetYaw < 0.0f)
+			targetYaw += 360.0f;
+
+		f32 wrappedYaw
+		    = callMsWrap(mRotation.y, targetYaw - 180.0f, targetYaw + 180.0f);
+		f32 turn = targetYaw - wrappedYaw;
+		if (turn > 0.0f) {
+			f32 turnMax = 4.0f * mTurnSpeed;
+			if (turn > turnMax)
+				turn = turnMax;
+		} else {
+			f32 turnMin = 4.0f * -mTurnSpeed;
+			if (turn <= turnMin)
+				turn = turnMin;
+		}
+
+		f32 newYaw = mRotation.y + turn;
+		while (newYaw >= 360.0f)
+			newYaw -= 360.0f;
+		while (newYaw < 0.0f)
+			newYaw += 360.0f;
+
+		mRotation.y = newYaw;
+	}
+
+	unk15C.z = 0.0f;
+	unk15C.y = 0.0f;
+	unk15C.x = 0.0f;
+
+	updateSquareToMario();
+}
 
 void TBossWanwan::emitEffects() { }
 
