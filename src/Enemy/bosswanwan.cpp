@@ -6,6 +6,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JMath.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -499,7 +500,74 @@ void TBWBinder::bind(TLiveActor* actor)
 
 void TBossWanwanMtxCalc::calc(u16 joint_no)
 {
+	if (joint_no == 0) {
+		bool airborne;
+		if (mOwner->checkLiveFlag(LIVE_FLAG_AIRBORNE))
+			airborne = true;
+		else
+			airborne = false;
+
+		if (airborne) {
+			J3DTransformInfo info;
+
+			j3dSys.setCurrentMtxCalc(this);
+			if (unk54 != nullptr) {
+				unk54->getTransform(joint_no, &info);
+			} else {
+				info = j3dSys.getModel()
+				           ->getModelData()
+				           ->getJointNodePointer(joint_no)
+				           ->getTransformInfo();
+			}
+
+			info.mTranslate.x = 0.0f;
+			info.mTranslate.y = 0.0f;
+			info.mTranslate.z = 0.0f;
+			calcTransform(joint_no, info);
+			return;
+		}
+	}
+
 	M3UMtxCalcSIAnmBlendQuat::calc(joint_no);
+
+	if (joint_no == 1) {
+		Mtx mtx;
+		MtxPtr mtxPtr = mtx;
+		f32 zero      = 0.0f;
+		mtxPtr[2][3]  = zero;
+		mtxPtr[1][3]  = zero;
+		mtxPtr[0][3]  = zero;
+		mtxPtr[2][2]  = zero;
+		mtxPtr[1][2]  = zero;
+		mtxPtr[0][2]  = zero;
+		mtxPtr[2][1]  = zero;
+		mtxPtr[1][1]  = zero;
+		mtxPtr[0][1]  = zero;
+		mtxPtr[2][0]  = zero;
+		mtxPtr[1][0]  = zero;
+		mtxPtr[0][0]  = zero;
+
+		s16 angle = static_cast<s16>(mOwner->unk168 * (65536.0f / 360.0f));
+		f32 sin   = JMASSin(angle);
+		f32 cos   = JMASCos(angle);
+
+		mtxPtr[0][0] = 1.0f;
+		mtxPtr[0][1] = zero;
+		mtxPtr[0][2] = zero;
+		mtxPtr[0][3] = zero;
+		mtxPtr[1][0] = zero;
+		mtxPtr[1][1] = cos;
+		mtxPtr[1][2] = -sin;
+		mtxPtr[1][3] = zero;
+		mtxPtr[2][0] = zero;
+		mtxPtr[2][1] = sin;
+		mtxPtr[2][2] = cos;
+		mtxPtr[2][3] = zero;
+
+		MtxPtr jointMtx = mOwner->getModel()->getAnmMtx(joint_no);
+		PSMTXConcat(jointMtx, mtxPtr, jointMtx);
+		PSMTXCopy(jointMtx, J3DSys::mCurrentMtx);
+	}
 }
 
 TBossWanwan::TBossWanwan(const char* name)
