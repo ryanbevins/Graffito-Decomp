@@ -115,8 +115,9 @@ TLiveManager* TConductor::getManagerByName(const char* name)
 {
 	u16 key = JDrama::TNameRef::calcKeyCode(name);
 
-	JGadget::TList<TLiveManager*>::iterator it, e;
-	for (it = unk10.begin(), e = unk10.end(); it != e; ++it)
+	for (JGadget::TList<TLiveManager*>::iterator it = unk10.begin(),
+	                                             e  = unk10.end();
+	     it != e; ++it)
 		if ((*it)->searchF(key, name))
 			return *it;
 
