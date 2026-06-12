@@ -44,11 +44,13 @@ void TMarDirector::setup2()
 	unkBC = JDrama::TNameRefGen::search<TNameRefAryT<TStageEventInfo> >(
 	    "イベントテーブル");
 	if (unkBC) {
-		for (TStageEventInfo* it = unkBC->begin(); it != unkBC->end(); ++it) {
-			JDrama::TNameRef* ref
-			    = JDrama::TNameRefGen::search<JDrama::TNameRef>(it->unk14);
+		int i = 0;
+		for (TStageEventInfo* it = unkBC->begin(); it != unkBC->end();
+		     ++it, ++i) {
+			TMapObjBase* ref
+			    = JDrama::TNameRefGen::search<TMapObjBase>(it->unk14);
 			if (ref) {
-				// TODO: what is ref?
+				ref->unk134 = (u16)i;
 				it->unk28 = ref;
 			}
 		}
@@ -71,7 +73,9 @@ void TMarDirector::setup2()
 	unkE0 = JDrama::TNameRefGen::search<TSunGlass>("サングラスフェーダ");
 	unk78 = JDrama::TNameRefGen::search<TGuide>("ガイド画面");
 	unkAC = JDrama::TNameRefGen::search<TPauseMenu2>("ポーズメニュー");
+	unkAC->unk10C = unk18[0];
 	unkB0 = JDrama::TNameRefGen::search<TTalk2D2>("会話表示");
+	unkB0->unk24C = (u32)unk18[0];
 	unk70 = JDrama::TNameRefGen::search<TCardLoad>("データロード");
 
 	unk70->unk38 = unk18[0];
