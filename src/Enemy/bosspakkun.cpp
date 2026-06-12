@@ -713,13 +713,13 @@ DEFINE_NERVE(TNerveBPVomit, TLiveActor)
 			vomit->unk18->setBckFromIndex(1);
 
 			J3DModel* bossModel = vomit->mOwner->getModel();
-			J3DModel* model     = vomit->unk14->getModel();
-			PSMTXCopy(bossModel->getBaseTRMtx(), model->getBaseTRMtx());
-			model->unk14 = vomit->mOwner->mScaling;
+			PSMTXCopy(bossModel->getBaseTRMtx(),
+			          vomit->unk14->getModel()->getBaseTRMtx());
+			vomit->unk14->getModel()->unk14 = vomit->mOwner->mScaling;
 
-			J3DModel* stampModel = vomit->unk18->getModel();
-			PSMTXCopy(bossModel->getBaseTRMtx(), stampModel->getBaseTRMtx());
-			stampModel->unk14 = vomit->mOwner->mScaling;
+			PSMTXCopy(bossModel->getBaseTRMtx(),
+			          vomit->unk18->getModel()->getBaseTRMtx());
+			vomit->unk18->getModel()->unk14 = vomit->mOwner->mScaling;
 
 			boss->rumblePad(1, boss->mPosition);
 		} else {
