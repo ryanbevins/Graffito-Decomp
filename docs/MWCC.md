@@ -5735,6 +5735,27 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Negated float `<` can emit a direct ordered-compare branch where `>=` emits `cror`
+
+**Hypothesis.** For float threshold guards, spelling the condition as
+`!(a < b)` can make MWCC branch on the direct ordered compare (`blt` to the
+else block) instead of materializing `a >= b` with `cror` followed by `bne`.
+Use this only when target asm has the simple condition-code branch immediately
+after `fcmpo`; the two spellings are not interchangeable for NaN-sensitive
+source intent, so verify against the target path.
+
+**Observed.** `mario/Enemy/Koopa`
+`TKoopaFlame::control()` (2026-06-12 MNL): changing
+`if (unk8C >= unk88)` to `if (!(unk8C < unk88))` replaced the build's
+`cror eq, gt, eq; bne` with the target direct `blt` branch and moved the
+function `90.3 -> 92.1` before later local-order polish.
+
+**Experiment to confirm/refute.** Find a second float guard where target asm
+uses `fcmpo; blt/bgt` while the source's `>=`/`<=` spelling emits `cror`.
+Toggle only the relational spelling to the equivalent negated strict
+comparison and verify whether the branch shape changes without altering nearby
+load/store order.
+
 ### SDK typedef booleans can avoid caller-side `bool` normalization before GX calls
 
 **Hypothesis.** When a helper returns a value that is immediately passed to an
