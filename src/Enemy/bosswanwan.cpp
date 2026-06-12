@@ -1,10 +1,15 @@
 #include <Enemy/BossWanwan.hpp>
+#include <Camera/CameraShake.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/MtxUtil.hpp>
+#include <MarioUtil/RumbleMgr.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
@@ -226,11 +231,50 @@ void TBossWanwan::init(TLiveManager* manager)
 	mSpine->initWith(&TNerveBWGraphWander::theNerve());
 }
 
-void TBossWanwan::shakeCamera(int) { }
+void TBossWanwan::shakeCamera(int mode)
+{
+	if (!SMS_IsMarioTouchGround4cm())
+		return;
+
+	f32 marioDist = JGeometry::TUtil<f32>::sqrt(mDistToMarioSquared);
+	TBWParams* params = (TBWParams*)getSaveParam();
+	f32 lengthMax     = params->mSLShakeLengthMax.get();
+	f32 lengthMaxHP0  = params->mSLShakeLengthMaxHP0.get();
+	f32 ratio;
+
+	if (mMActor->checkCurBckFromIndex(0)) {
+		ratio = 1.0f;
+	} else {
+		ratio = (f32)mHitPoints / (f32)params->mSLBWHitPointMax.get();
+	}
+
+	f32 length = lengthMax * ratio + lengthMaxHP0 * (1.0f - ratio);
+	f32 power  = length - marioDist;
+	if (power < 0.0f)
+		return;
+
+	power /= length;
+	if (power > 1.0f)
+		power = 1.0f;
+
+	power *= ratio;
+	gpCameraShake->startShake((EnumCamShakeMode)mode, power);
+	SMSRumbleMgr->start(8, &mPosition);
+}
 
 BOOL TBossWanwan::receiveMessage(THitActor*, u32) { return FALSE; }
 
-void TBossWanwan::calcRootMatrix() { calcEnemyRootMatrix(); }
+void TBossWanwan::calcRootMatrix()
+{
+	J3DModel* model = getModel();
+	model->unk14.x  = mScaling.x;
+	model->unk14.y  = mScaling.y;
+	model->unk14.z  = mScaling.z;
+
+	MsMtxSetXYZRPH(getModel()->getBaseTRMtx(), mPosition.x,
+	               mPosition.y + 500.0f, mPosition.z, mRotation.x,
+	               mRotation.y, mRotation.z);
+}
 
 void TBossWanwan::slideToCurPathNode(f32 march_speed, f32 turn_speed)
 {
