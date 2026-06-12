@@ -523,7 +523,6 @@ DEFINE_NERVE(TNerveBPCannon, TLiveActor)
 DEFINE_NERVE(TNerveBPWait, TLiveActor)
 {
 	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
-	MActor* actor      = boss->mMActor;
 
 	JGeometry::TVec3<f32> toMario = boss->mPosition;
 	toMario -= *gpMarioPos;
@@ -574,6 +573,7 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 	    < boss->getBossPakkunSaveParam()->mSLWaitFrameStg0.value)
 		return FALSE;
 
+	MActor* actor = boss->mMActor;
 	if (!actor->isCurAnmAlreadyEnd(0))
 		return FALSE;
 
