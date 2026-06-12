@@ -399,11 +399,17 @@ void TKoopa::changeAnm(int bck, int btp, f32 rate)
 	if (!mMActor->checkCurBckFromIndex(bck)) {
 		mMActor->setBckFromIndex(bck);
 		const char** bas = getBasNameTable();
-		setAnmSound(!bas ? nullptr : bas[bck]);
+		const char* sound;
+		if (bas == nullptr)
+			sound = nullptr;
+		else
+			sound = bas[bck];
+		setAnmSound(sound);
 	}
 	if (mMActor->getCurAnmIdx(3) != btp)
 		mMActor->setBtpFromIndex(btp);
-	mMActor->getFrameCtrl(0)->setRate(rate * SMSGetAnmFrameRate());
+	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+	ctrl->setRate(rate * SMSGetAnmFrameRate() * 0.5f);
 }
 
 void TKoopa::setUpHitActors()
