@@ -21,6 +21,10 @@
 #include <Strategic/Strategy.hpp>
 #include <System/Particles.hpp>
 
+namespace std {
+float fmodf(float, float);
+}
+
 static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
 static const char MtxCalcTypeName0[]
@@ -877,8 +881,70 @@ inline const TNerveKoopaTurnR& TNerveKoopaTurnR::theNerve()
 BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	if (spine->getTime() == 0)
-		self->changeAnm(12, 1, self->getSaveParam2()->waitSpeed.get());
+	TKoopaParams* prm = self->getSaveParam2();
+
+	if (self->unk19C > 0) {
+		self->changeAnm(12, 1, prm->waitSpeed.get());
+		return FALSE;
+	}
+
+	TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+	JGeometry::TVec3<f32> marioSpeed(*gpMarioSpeedX, *gpMarioSpeedY,
+	                                 *gpMarioSpeedZ);
+	JGeometry::TVec3<f32> predicted = marioSpeed;
+	predicted.scale(prm->marioEstimationWait.get());
+
+	BOOL hasGrip = bathtub->getNextGrip(*gpMarioPos, predicted,
+	                                    prm->waitRange.get(), &self->unk150);
+	if (!hasGrip) {
+		predicted = marioSpeed;
+		predicted.scale(prm->marioEstimationFire.get());
+		self->unk150 = bathtub->getNextJuncture(*gpMarioPos, predicted);
+	}
+
+	f32 turnDiff = std::fmodf(
+	    360.0f + ((self->unk150 - self->mRotation.y) - -180.0f), 360.0f);
+	turnDiff += -180.0f;
+
+	s32 turn = 0;
+	if (turnDiff < -prm->focusRange.get())
+		turn = -1;
+	else if (turnDiff > prm->focusRange.get())
+		turn = 1;
+
+	if (turn < 0) {
+		spine->pushNerve(&TNerveKoopaTurnL::theNerve());
+		return FALSE;
+	}
+	if (turn > 0) {
+		spine->pushNerve(&TNerveKoopaTurnR::theNerve());
+		return FALSE;
+	}
+
+	if (hasGrip) {
+		self->changeAnm(12, 1, prm->waitSpeed.get());
+		bool shouldTumble = false;
+		if (self->mMActor->getCurAnmIdx(0) == 12) {
+			if (self->mMActor->curAnmEndsNext(0, nullptr)) {
+				shouldTumble = true;
+			} else {
+				J3DFrameCtrl* ctrl = self->mMActor->getFrameCtrl(0);
+				shouldTumble = ctrl->checkPass(2.0f)
+				               || ctrl->checkPass(400.0f)
+				               || ctrl->checkPass(700.0f);
+			}
+		}
+		if (shouldTumble && bathtub->allowsTumble())
+			spine->pushNerve(&TNerveKoopaTumble::theNerve());
+		return FALSE;
+	}
+
+	f32 flameDiff = std::fmodf(
+	    360.0f + ((self->getTargetDir(*gpMarioPos) - self->unk150) - -180.0f),
+	    360.0f);
+	flameDiff += -180.0f;
+	self->unk154 = flameDiff < 0.0f;
+	spine->setNext(&TNerveKoopaFlame::theNerve());
 	return FALSE;
 }
 
