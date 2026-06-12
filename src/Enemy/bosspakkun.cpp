@@ -1026,7 +1026,7 @@ DEFINE_NERVE(TNerveBPHover, TLiveActor)
 		boss->unk16C = 3;
 	}
 
-	f32 polBallRange = boss->getBossPakkunSaveParam()->mSLPollBallRange.value;
+	f32 polBallRange = boss->getBossPakkunSaveParam()->mSLPollBallRange.get();
 	JGeometry::TVec3<f32>* marioPos = gpMarioPos;
 	if (boss->unk188 == nullptr) {
 		boss->unk188
@@ -1053,7 +1053,7 @@ DEFINE_NERVE(TNerveBPHover, TLiveActor)
 	}
 
 	if (spine->getTime()
-	    >= boss->getBossPakkunSaveParam()->mSLHoverTimer.value) {
+	    >= boss->getBossPakkunSaveParam()->mSLHoverTimer.get()) {
 		spine->pushAfterCurrent(&TNerveBPFly::theNerve());
 		boss->unk16C = 0;
 		return TRUE;
