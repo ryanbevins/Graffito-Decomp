@@ -104,6 +104,8 @@ public:
 	virtual void control();
 	virtual void attack_(THitActor*);
 
+	f32 getCurrentTime() const { return unk8C; }
+
 	/* 0x6C */ f32 unk6C;
 	/* 0x70 */ f32 unk70;
 	/* 0x74 */ f32 unk74;

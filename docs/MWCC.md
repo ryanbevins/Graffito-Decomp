@@ -617,15 +617,22 @@ accessor + one direct read-modify-write is enough to break the CSE
 accessor count.
 
 **Symptom that signals this lever.** Target shows two `lwz rX, OFF(rThis)`
+or `lfs fX, OFF(rThis)`
 of the same field straddling a compare/branch with no store between
-them; our build shows a single `lwz` whose register is reused.
+them; our build shows a single load whose register is reused.
 
 **Why.** Each inline accessor presents the field load as a fresh
 expression at its own inline boundary; MWCC's CSE doesn't merge loads
 across distinct inline expansions even though both read the same
 address with no intervening write.
 
-**Citations (2 TUs).**
+**Citations (3 TUs).**
+- `Enemy/Koopa` `TKoopaFlame::control()` (2026-06-12 MNL): direct
+  `if (!(unk8C < unk88)) ... else { unk8C += unk84; f32 time = unk8C; ... }`
+  reused the initial `lfs` across the branch. Routing only the guard read
+  through `getCurrentTime()` forced the target reload of `unk8C` in the active
+  branch; swapping `radius` before `y` then matched the remaining
+  radius/position FPR allocation and moved the function `92.6% -> 94.8%`.
 - `Enemy/wireTrap::kill` (t186): direct `mLiveFlag & 1` / `mLiveFlag |= 1`
   was 92.06% (single load). Switching to `checkLiveFlag(1)` (read accessor)
   + `onLiveFlag(1)` (write accessor) → 96.91%, size-exact.
