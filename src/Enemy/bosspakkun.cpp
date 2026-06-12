@@ -486,9 +486,10 @@ DEFINE_NERVE(TNerveBPTornado, TLiveActor)
 	}
 
 	if (spine->getTime() == 0x96) {
+		JGeometry::TVec3<f32>* marioPos = gpMarioPos;
 		TBPTornado* tornado = boss->mTornado;
 		tornado->unk98      = 1;
-		tornado->unk70      = *gpMarioPos;
+		tornado->unk70      = *marioPos;
 		tornado->mPosition  = tornado->mOwner->mPosition;
 		tornado->unk7C      = tornado->mOwner->mPosition;
 		tornado->unk94
