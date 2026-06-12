@@ -1923,8 +1923,9 @@ BOOL TBPHeadHit::receiveMessage(THitActor* sender, u32 message)
 		return mOwner->receiveMessage(sender, message);
 
 	TBossPakkun* boss = mOwner;
+	s32 mouthState    = (s8)boss->unk16C;
 
-	if (boss->unk16C == 3
+	if (mouthState == 3
 	    && (sender->getActorType() == 0x1000000D
 	        || sender->getActorType() == 0x1000001)) {
 		boss->unk16C = 0;
@@ -1939,7 +1940,7 @@ BOOL TBPHeadHit::receiveMessage(THitActor* sender, u32 message)
 		return TRUE;
 	}
 
-	if (boss->unk16C != 2) {
+	if (mouthState != 2) {
 		if (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 4
 		    && boss->mSpine->getLatestNerve() == &TNerveBPFly::theNerve())
 			boss->showMessage(0xE0002);
