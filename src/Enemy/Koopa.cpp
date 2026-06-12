@@ -376,7 +376,12 @@ BOOL TKoopa::effectsTumble() const { return FALSE; }
 
 void TKoopa::getDown() { mSpine->pushNerve(&TNerveKoopaGetDown::theNerve()); }
 
-BOOL TKoopa::allowsLaunch() const { return !isFlaming(); }
+BOOL TKoopa::allowsLaunch() const
+{
+	if (mSpine->getCurrentNerve() == &TNerveKoopaGetDown::theNerve())
+		return FALSE;
+	return TRUE;
+}
 
 JGeometry::TVec3<f32> TKoopa::getNeckFocus() const
 {
