@@ -372,7 +372,15 @@ void TKoopa::stagger(bool down)
 
 void TKoopa::getShowered() { mSpine->pushNerve(&TNerveKoopaGetShowered::theNerve()); }
 
-BOOL TKoopa::effectsTumble() const { return FALSE; }
+BOOL TKoopa::effectsTumble() const
+{
+	if (mSpine->getCurrentNerve() == &TNerveKoopaGetDown::theNerve()) {
+		int time = mSpine->getTime();
+		if (time < 900 && time > 190)
+			return TRUE;
+	}
+	return FALSE;
+}
 
 void TKoopa::getDown() { mSpine->pushNerve(&TNerveKoopaGetDown::theNerve()); }
 
