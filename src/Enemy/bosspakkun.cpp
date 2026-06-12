@@ -602,26 +602,26 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 					spine->pushAfterCurrent(&TNerveBPWait::theNerve());
 					return TRUE;
 				}
+			}
 
-				if (gpMarDirector->unk7D == 4) {
-					f32 tornadoProp
-					    = boss->getBossPakkunSaveParam()->mSLTornadoProp.value;
-					if (boss->mTornado->unk98 != 0
-					    || rand() * 0.000030517578f < tornadoProp) {
-						spine->pushAfterCurrent(&TNerveBPTakeOff::theNerve());
-						spine->pushAfterCurrent(&TNerveBPVomit::theNerve());
-						return TRUE;
-					}
-
-					if (boss->mTornado->unk98 == 0) {
-						spine->pushAfterCurrent(&TNerveBPWait::theNerve());
-						spine->pushAfterCurrent(&TNerveBPTornado::theNerve());
-						return TRUE;
-					}
-
-					spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+			if (gpMarDirector->unk7D == 4) {
+				f32 tornadoProp
+				    = boss->getBossPakkunSaveParam()->mSLTornadoProp.value;
+				if (boss->mTornado->unk98 != 0
+				    || rand() * 0.000030517578f < tornadoProp) {
+					spine->pushAfterCurrent(&TNerveBPTakeOff::theNerve());
+					spine->pushAfterCurrent(&TNerveBPVomit::theNerve());
 					return TRUE;
 				}
+
+				if (boss->mTornado->unk98 == 0) {
+					spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+					spine->pushAfterCurrent(&TNerveBPTornado::theNerve());
+					return TRUE;
+				}
+
+				spine->pushAfterCurrent(&TNerveBPWait::theNerve());
+				return TRUE;
 			}
 
 			spine->pushAfterCurrent(&TNerveBPWait::theNerve());
