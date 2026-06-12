@@ -924,7 +924,14 @@ DEFINE_NERVE(TNerveBPTouchDown, TLiveActor)
 	if (actor->checkCurBckFromIndex(0x0B)) {
 		boss->mPosition.y -= 5.0f;
 
-		JGeometry::TVec3<f32> point = boss->unk104.getPoint();
+		const TPathNode& path       = boss->unk104;
+		THitActor* pathActor       = path.unk0;
+		const JGeometry::TVec3<f32>* pointRef;
+		if (pathActor != nullptr)
+			pointRef = &pathActor->getPosition();
+		else
+			pointRef = &path.unk4;
+		JGeometry::TVec3<f32> point = *pointRef;
 		if (point.y > boss->mPosition.y) {
 			boss->mPosition.y = point.y;
 			boss->changeBck(0x12);
