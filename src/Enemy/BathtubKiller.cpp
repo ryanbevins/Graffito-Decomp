@@ -268,8 +268,9 @@ void TBathtubKiller::generateItemBathtubKiller()
 		return;
 
 	TMapObjBase* item = nullptr;
+	TFlagManager* flagManager = TFlagManager::smInstance;
 	TBathtubKillerManager* manager = (TBathtubKillerManager*)mManager;
-	s32 flag = TFlagManager::smInstance->getFlag(0x20001);
+	s32 flag = flagManager->getFlag(0x20001);
 
 	if (((TWaterGun*)SMS_GetMarioWaterGun())->mCurrentWater == 0) {
 		item = gpItemManager->makeObjAppear(mPosition.x, mPosition.y,
