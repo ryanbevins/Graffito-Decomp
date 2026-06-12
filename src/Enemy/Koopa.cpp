@@ -8,6 +8,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MSound/MAnmSound.hpp>
+#include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <Player/MarioAccess.hpp>
@@ -161,6 +162,8 @@ void TKoopaBody::attack_(THitActor* actor)
 
 BOOL TKoopaBody::receiveMessage(THitActor* sender, u32 message)
 {
+	if (message == HIT_MESSAGE_ATTACK && sender->mActorType == 0x08000024)
+		mOwner->stagger(false);
 	return TRUE;
 }
 
@@ -176,16 +179,18 @@ void TKoopaHead::attack_(THitActor* actor)
 
 BOOL TKoopaHead::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == 0xF) {
-		if (mOwner->mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve())
-			return TRUE;
-		if (mOwner->mSpine->getCurrentNerve() == &TNerveKoopaGetDown::theNerve())
-			return TRUE;
-		if (mOwner->mSpine->getCurrentNerve()
-		    == &TNerveKoopaStagger::theNerve())
-			mOwner->mSpine->setNext(&TNerveKoopaGetShowered::theNerve());
-
-		mOwner->mSpine->pushNerve(&TNerveKoopaGetShowered::theNerve());
+	switch ((s32)message) {
+	case HIT_MESSAGE_SPRAYED_BY_WATER:
+		if (mOwner->getShowered()) {
+			gpMarioParticleManager->emit(0xe7, &sender->mPosition, 0, nullptr);
+			gpMSound->startSoundSet(0x6802, &mOwner->mPosition, 0, 0.0f,
+			                         0, 0, 4);
+		}
+		break;
+	case HIT_MESSAGE_ATTACK:
+		if (sender->mActorType == 0x08000024)
+			mOwner->stagger(false);
+		break;
 	}
 
 	return TRUE;
@@ -407,15 +412,53 @@ f32 TKoopa::getTargetDir(const JGeometry::TVec3<f32>& pos) const
 	return matan(diff.x, diff.z) * (360.0f / 65536.0f);
 }
 
-void TKoopa::stagger(bool down)
+void TKoopa::stagger(bool ignoreFlame)
 {
-	if (down)
-		mSpine->pushNerve(&TNerveKoopaGetDown::theNerve());
-	else
-		mSpine->pushNerve(&TNerveKoopaStagger::theNerve());
+	if (mSpine->getCurrentNerve() == &TNerveKoopaFall::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaProvoke::theNerve())
+		return;
+	if (!ignoreFlame
+	    && mSpine->getCurrentNerve() == &TNerveKoopaFlame::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaGetDown::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaGetShowered::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaStagger::theNerve())
+		return;
+
+	mSpine->pushNerve(&TNerveKoopaStagger::theNerve());
 }
 
-void TKoopa::getShowered() { mSpine->pushNerve(&TNerveKoopaGetShowered::theNerve()); }
+BOOL TKoopa::getShowered()
+{
+	if (mSpine->getCurrentNerve() == &TNerveKoopaFall::theNerve())
+		return FALSE;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaProvoke::theNerve())
+		return FALSE;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve())
+		return FALSE;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaGetDown::theNerve())
+		return FALSE;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaGetShowered::theNerve())
+		return TRUE;
+
+	if (mSpine->getCurrentNerve() == &TNerveKoopaStagger::theNerve()) {
+		mSpine->setNext(&TNerveKoopaGetShowered::theNerve());
+		return TRUE;
+	}
+
+	if (mSpine->getCurrentNerve() == &TNerveKoopaFlame::theNerve()) {
+		mSpine->setNext(&TNerveKoopaWait::theNerve());
+		return FALSE;
+	}
+
+	mSpine->pushNerve(&TNerveKoopaGetShowered::theNerve());
+	return TRUE;
+}
 
 BOOL TKoopa::effectsTumble() const
 {
@@ -427,7 +470,22 @@ BOOL TKoopa::effectsTumble() const
 	return FALSE;
 }
 
-void TKoopa::getDown() { mSpine->pushNerve(&TNerveKoopaGetDown::theNerve()); }
+void TKoopa::getDown()
+{
+	if (mSpine->getCurrentNerve() == &TNerveKoopaFall::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaProvoke::theNerve())
+		return;
+	if (mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve())
+		return;
+
+	if (mSpine->getCurrentNerve() == &TNerveKoopaStagger::theNerve())
+		mSpine->setNext(&TNerveKoopaGetDown::theNerve());
+	if (mSpine->getCurrentNerve() == &TNerveKoopaGetShowered::theNerve())
+		mSpine->setNext(&TNerveKoopaGetDown::theNerve());
+
+	mSpine->pushNerve(&TNerveKoopaGetDown::theNerve());
+}
 
 BOOL TKoopa::allowsLaunch() const
 {

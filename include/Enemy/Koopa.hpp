@@ -186,7 +186,7 @@ public:
 	f32 getTargetDir(const JGeometry::TVec3<f32>&) const;
 	void setUpHitActors();
 	void stagger(bool);
-	void getShowered();
+	BOOL getShowered();
 	void getDown();
 	void fall();
 
