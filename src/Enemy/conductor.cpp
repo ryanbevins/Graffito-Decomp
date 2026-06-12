@@ -92,8 +92,9 @@ void TConductor::registerEnemyInfoTable(TStageEnemyInfoTable* param_1)
 
 void TConductor::init()
 {
-	JGadget::TList<TEnemyManager*>::iterator it, e;
-	for (it = unk20.begin(), e = unk20.end(); it != e; ++it)
+	for (JGadget::TList<TEnemyManager*>::iterator it = unk20.begin(),
+	                                             e  = unk20.end();
+	     it != e; ++it)
 		if (!(*it)->search("ヒノクリ２マネージャー")
 		    && !(*it)->search("ボスゲッソーマネージャー"))
 			(*it)->createEnemies((*it)->getCapacity());
@@ -244,8 +245,9 @@ TConductor::makeOneEnemyAppear(const JGeometry::TVec3<f32>& param_1,
 void TConductor::killEnemiesWithin(const JGeometry::TVec3<f32>& param_1,
                                    f32 param_2)
 {
-	JGadget::TList<TEnemyManager*>::iterator it, e;
-	for (it = unk20.begin(), e = unk20.end(); it != e; ++it) {
+	for (JGadget::TList<TEnemyManager*>::iterator it = unk20.begin(),
+	                                             e  = unk20.end();
+	     it != e; ++it) {
 		if ((*it)->search("ボスワンワンマネージャー") == nullptr)
 			(*it)->killChildrenWithin(param_1, param_2);
 	}
