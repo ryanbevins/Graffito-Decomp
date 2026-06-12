@@ -1783,7 +1783,8 @@ void TBPNavel::perform(u32 flags, JDrama::TGraphics* graphics)
 
 BOOL TBPNavel::receiveMessage(THitActor* sender, u32 message)
 {
-	if (mOwner->mSpine->getLatestNerve() == &TNerveBPSleep::theNerve())
+	const TNerveBPSleep& sleepNerve = TNerveBPSleep::theNerve();
+	if (mOwner->mSpine->getLatestNerve() == &sleepNerve)
 		return mOwner->receiveMessage(sender, message);
 
 	if (sender->getActorType() == 0x1000001)
