@@ -495,9 +495,19 @@ void TKoopa::fall()
 
 f32 TKoopa::getTargetDir(const JGeometry::TVec3<f32>& pos) const
 {
-	JGeometry::TVec3<f32> diff = pos;
-	diff.sub(mPosition);
-	return matan(diff.x, diff.z) * (360.0f / 65536.0f);
+	TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+	MtxPtr rootMtx    = *bathtub->getRootJointMtx();
+
+	f32 y = pos.y - rootMtx[1][3];
+	f32 x = pos.x - rootMtx[0][3];
+	f32 z = pos.z - rootMtx[2][3];
+
+	f32 targetZ = rootMtx[0][2] * x + rootMtx[1][2] * y
+	              + rootMtx[2][2] * z;
+	f32 targetX = rootMtx[0][0] * x + rootMtx[1][0] * y
+	              + rootMtx[2][0] * z;
+
+	return matan(targetZ, targetX) * (360.0f / 65536.0f);
 }
 
 void TKoopa::stagger(bool ignoreFlame)
