@@ -1591,9 +1591,8 @@ DEFINE_NERVE(TNerveBWJump, TLiveActor)
 	if (spine->getTime() == 0) {
 		const JGeometry::TVec3<f32>& target = self->unk104.getPoint();
 		f32 speed = self->unk124->unkC;
-		f32 gravity = self->getGravityY();
 		JGeometry::TVec3<f32> velocity
-		    = self->calcVelocityToJumpToY(target, speed, gravity);
+		    = self->calcVelocityToJumpToY(target, speed, self->getGravityY());
 		self->mVelocity = velocity;
 		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
 		self->unk16C = 0;
@@ -1697,9 +1696,8 @@ DEFINE_NERVE(TNerveBWJumpToBath, TLiveActor)
 {
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
 	if (spine->getTime() == 0) {
-		f32 gravity = self->getGravityY();
 		JGeometry::TVec3<f32> velocity = self->calcVelocityToJumpToY(
-		    BW_BATH_POS, 360.0f / 65536.0f, gravity);
+		    BW_BATH_POS, 360.0f / 65536.0f, self->getGravityY());
 		TPathNode bathNode(BW_BATH_POS);
 		self->unkF4  = bathNode;
 		self->unk104 = bathNode;

@@ -5721,12 +5721,13 @@ move until just before the call. Passing the getter/callee expression directly
 at the argument site can make MWCC emit the target's immediate `fmr f2, f1`
 after the first call, then load earlier float arguments.
 
-**Observed.** `mario/Enemy/bosswanwan`
-`TNerveBWJumpAway::execute(TSpineBase<TLiveActor>*)` (2026-06-12 MNL):
-rewriting `f32 gravity = self->getGravityY(); calcVelocityToJumpToY(..., 1.5f,
-gravity);` to pass `self->getGravityY()` directly as the third argument moved
-the `fmr f2, f1` immediately after the virtual call, matching target scheduling
-and lifting the function `99.1 -> 99.7`.
+**Observed.** `mario/Enemy/bosswanwan` (2026-06-12 MNL): rewriting
+`f32 gravity = self->getGravityY(); calcVelocityToJumpToY(..., gravity);` to
+pass `self->getGravityY()` directly as the third argument moved the
+`fmr f2, f1` immediately after the virtual call in three jump nerves:
+`TNerveBWJumpAway::execute` `99.1 -> 99.7`,
+`TNerveBWJump::execute` `89.2 -> 90.2`, and
+`TNerveBWJumpToBath::execute` `92.1 -> 92.6`.
 
 **Experiment to confirm/refute.** Find a second function where target performs
 `bl getterReturningFloat; fmr f2/f3, f1; lfs/load earlier float arg; bl callee`,
