@@ -1416,6 +1416,35 @@ DEFINE_NERVE(TNerveBWDie, TLiveActor)
 
 DEFINE_NERVE(TNerveBWJumpAway, TLiveActor)
 {
+	TBossWanwan* self = (TBossWanwan*)spine->getBody();
+	if (spine->getTime() == 0) {
+		f32 gravity = self->getGravityY();
+		JGeometry::TVec3<f32> velocity
+		    = self->calcVelocityToJumpToY(BW_HEAD_START, 1.5f, gravity);
+		TPathNode headNode(BW_HEAD_START);
+		self->unkF4  = headNode;
+		self->unk104 = headNode;
+		self->unk114.clear();
+		self->mVelocity = velocity;
+		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		self->unk16C = 0;
+	}
+
+	if (self->unk188 != 0) {
+		spine->pushAfterCurrent(&TNerveBWStun::theNerve());
+		return true;
+	}
+
+	if (self->isReachedToGoal()) {
+		self->mPosition = BW_HEAD_START;
+		self->unk124->mPrevIdx = -1;
+		self->unk124->mCurrIdx = -1;
+		self->goToShortestNextGraphNode();
+		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		return true;
+	}
+
+	self->walkToCurPathNode(30.0f, self->mTurnSpeed, 30.0f);
 	return false;
 }
 
