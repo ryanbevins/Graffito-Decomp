@@ -853,7 +853,7 @@ config.libs = [
             Object(Matching, "System/ZBufferCatch.cpp"),
             Object(NonMatching, "System/Application.cpp"),
             Object(Matching, "System/ScenarioArchiveName.cpp"),
-            Object(NonMatching, "System/MarioGamePad.cpp"),
+            Object(Equivalent, "System/MarioGamePad.cpp"),
             Object(Matching, "System/StageEventInfo.cpp"),
             Object(Matching, "System/StageUtil.cpp"),
             Object(Matching, "System/Resolution.cpp"),
