@@ -956,7 +956,7 @@ config.libs = [
             Object(Equivalent, "NPC/NpcColor.cpp"),
             Object(Equivalent, "NPC/NpcSound.cpp"),
             Object(NonMatching, "NPC/NpcChange.cpp"),
-            Object(Equivalent, "NPC/NpcThrow.cpp"),
+            Object(Matching, "NPC/NpcThrow.cpp"),
             Object(Equivalent, "NPC/NpcTrample.cpp"),
             Object(NonMatching, "NPC/NpcEffect.cpp"),
             Object(Equivalent, "NPC/NpcInitAnmData.cpp"),
