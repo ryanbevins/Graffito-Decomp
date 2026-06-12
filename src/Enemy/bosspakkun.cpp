@@ -1784,7 +1784,7 @@ BOOL TBPNavel::receiveMessage(THitActor* sender, u32 message)
 	if (sender->getActorType() == 0x1000001)
 		return FALSE;
 
-	if (mOwner->unk16C != 1)
+	if ((s8)mOwner->unk16C != 1)
 		return TRUE;
 
 	if (sender->getActorType() == 0x80000001 && message == HIT_MESSAGE_HIP_DROP)
