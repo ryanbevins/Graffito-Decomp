@@ -12,6 +12,7 @@
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSSetSound.hpp>
+#include <MoveBG/MapObjCorona.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
@@ -384,19 +385,105 @@ void TKoopa::updateAnmSound()
 
 void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	if (flags & 1) {
+		unk1B8 = getNeckFocus();
+		if (unk19C > 0)
+			--unk19C;
+	}
+
 	TSpineEnemy::perform(flags, graphics);
 
 	for (int i = 0; i < 10; ++i)
 		mFlameHitActors[i]->perform(flags, graphics);
+
+	mHeadHitActor->perform(flags, graphics);
 	for (int i = 0; i < 2; ++i)
 		mHandHitActors[i]->perform(flags, graphics);
-	mHeadHitActor->perform(flags, graphics);
 	mBodyHitActor->perform(flags, graphics);
 
 	if (flags & 1) {
+		TKoopaParams* prm  = getSaveParam2();
+		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+		f32 frame          = ctrl->getFrame();
+		BOOL shouldTumble  = FALSE;
+		if (mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve()
+		    && frame >= prm->tumbleStartFrame.get()) {
+			if (frame <= prm->tumbleEndFrame.get())
+				shouldTumble = TRUE;
+		}
+
+		if (shouldTumble) {
+			TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+			bathtub->tumble(mRotation.y, prm->tumbleWeight.get());
+		}
+
 		setUpHitActors();
-		if (unk19C > 0)
-			--unk19C;
+	}
+
+	if (flags & 2) {
+		BOOL emitFlame = FALSE;
+		int idx        = mMActor->getCurAnmIdx(0);
+		if (idx == 4) {
+			emitFlame = TRUE;
+		} else if (idx == 5) {
+			if (mMActor->getFrameCtrl(0)->getFrame() >= 85.0f)
+				emitFlame = TRUE;
+		} else if (idx == 6) {
+			f32 frame = mMActor->getFrameCtrl(0)->getFrame();
+			if (frame >= 68.0f && frame <= 164.0f)
+				emitFlame = TRUE;
+		}
+
+		if (emitFlame) {
+			mMActor->calc();
+
+			f32 flameScale = getSaveParam2()->flameScale.get();
+			JGeometry::TVec3<f32> scale;
+			scale.x = flameScale;
+			scale.y = flameScale;
+			scale.z = flameScale;
+
+			MtxPtr mtx = mMActor->getModel()->getAnmMtx(mNeckJointIndex);
+			JPABaseEmitter* emitter
+			    = gpMarioParticleManager->emitAndBindToMtxPtr(0x1F3, mtx, 3,
+			                                                  this);
+			if (emitter) {
+				emitter->unk154.x = scale.x;
+				emitter->unk154.y = scale.y;
+				emitter->unk154.z = scale.z;
+				emitter->unk174.x = scale.x;
+				emitter->unk174.y = scale.y;
+				emitter->unk174.z = scale.z;
+			}
+
+			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(0x1C3, mtx, 1,
+			                                                      this);
+			if (emitter) {
+				emitter->unk154.set(scale);
+				emitter->unk174.set(scale);
+			}
+
+			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(0x1C2, mtx, 1,
+			                                                      this);
+			if (emitter) {
+				emitter->unk154.set(scale);
+				emitter->unk174.set(scale);
+			}
+
+			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(0x1C1, mtx, 1,
+			                                                      this);
+			if (emitter) {
+				emitter->unk154.set(scale);
+				emitter->unk174.set(scale);
+			}
+
+			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(0x1C0, mtx, 1,
+			                                                      this);
+			if (emitter) {
+				emitter->unk154.set(scale);
+				emitter->unk174.set(scale);
+			}
+		}
 	}
 }
 
