@@ -962,7 +962,14 @@ DEFINE_NERVE(TNerveBPFly, TLiveActor)
 		}
 	}
 
-	JGeometry::TVec3<f32> toGoal = boss->unk104.getPoint();
+	const TPathNode& goalPath = boss->unk104;
+	THitActor* goalActor     = goalPath.unk0;
+	const JGeometry::TVec3<f32>* goalRef;
+	if (goalActor != nullptr)
+		goalRef = &goalActor->getPosition();
+	else
+		goalRef = &goalPath.unk4;
+	JGeometry::TVec3<f32> toGoal = *goalRef;
 	toGoal -= boss->mPosition;
 	toGoal.y = 0.0f;
 
@@ -980,7 +987,14 @@ DEFINE_NERVE(TNerveBPFly, TLiveActor)
 	f32 flySpeed  = boss->getBossPakkunSaveParam()->mSLFlySpeed.value;
 	boss->turnToCurPathNode(turnSpeed);
 
-	JGeometry::TVec3<f32> dir = boss->unkF4.getPoint();
+	const TPathNode& dirPath = boss->unkF4;
+	THitActor* dirActor     = dirPath.unk0;
+	const JGeometry::TVec3<f32>* dirRef;
+	if (dirActor != nullptr)
+		dirRef = &dirActor->getPosition();
+	else
+		dirRef = &dirPath.unk4;
+	JGeometry::TVec3<f32> dir = *dirRef;
 	dir -= boss->mPosition;
 	PSVECNormalize((Vec*)&dir, (Vec*)&dir);
 	dir *= flySpeed;
