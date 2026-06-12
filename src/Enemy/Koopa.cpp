@@ -904,8 +904,39 @@ BOOL TNerveKoopaTurnR::execute(TSpineBase<TLiveActor>* spine) const
 DEFINE_NERVE(TNerveKoopaGetDown, TLiveActor)
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	self->changeAnm(0, 1, self->getSaveParam2()->downSpeed.get());
-	return self->mMActor->curAnmEndsNext(0, nullptr) ? TRUE : FALSE;
+	TKoopaParams* prm = self->getSaveParam2();
+
+	switch (self->mMActor->getCurAnmIdx(0)) {
+	case 0:
+		if (self->mMActor->curAnmEndsNext(0, nullptr))
+			self->changeAnm(1, 0, prm->downSpeed.get());
+		break;
+
+	case 1: {
+		TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+		s32 step = spine->getTime() * (bathtub->getNumGripsDead() + 2);
+		if ((f32)step >= prm->downStep.get()) {
+			if (self->mMActor->curAnmEndsNext(0, nullptr))
+				self->changeAnm(7, 0, prm->downSpeed.get());
+		}
+		break;
+	}
+
+	case 7:
+		if (self->mMActor->curAnmEndsNext(0, nullptr))
+			return TRUE;
+		break;
+
+	default: {
+		self->changeAnm(0, 0, prm->downSpeed.get());
+		TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+		gpMarioParticleManager->emitAndBindToMtx(
+		    0xF5, *bathtub->getRootJointMtx(), 0, this);
+		break;
+	}
+	}
+
+	return FALSE;
 }
 
 DEFINE_NERVE(TNerveKoopaGetShowered, TLiveActor)
