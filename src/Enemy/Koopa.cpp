@@ -448,9 +448,11 @@ JGeometry::TVec3<f32> TKoopa::getNeckFocus() const
 BOOL TKoopa::isFlaming() const
 {
 	int idx = mMActor->getCurAnmIdx(0);
-	if (idx < 6) {
-		if (idx >= 3)
-			return TRUE;
+	switch (idx) {
+	case 3:
+	case 4:
+	case 5:
+		return TRUE;
 	}
 	return FALSE;
 }
