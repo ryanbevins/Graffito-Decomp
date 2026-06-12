@@ -62,7 +62,33 @@ TBWParams::TBWParams(const char* path)
 	TParams::load(mPrmPath);
 }
 
-void TBWLeashNode::calcTemperature() { }
+void TBWLeashNode::calcTemperature()
+{
+	if (mIndex == 0)
+		return;
+
+	int prevIndex     = mIndex - 1;
+	TBWLeashNode* prev = mLeash->mNodes[prevIndex];
+	f32 diff           = prev->unk74 - unk74;
+	f32 step;
+	if (diff < 0.0f) {
+		if (diff < -0.1f)
+			step = -0.02f;
+		else
+			step = -0.005f;
+	} else {
+		if (diff > 0.1f)
+			step = 0.02f;
+		else
+			step = 0.005f;
+	}
+
+	unk74 += step;
+	if (unk74 < 0.0f)
+		unk74 = 0.0f;
+	if (unk74 > 1.0f)
+		unk74 = 1.0f;
+}
 
 void TBWLeashNode::calcMatrix() { }
 
