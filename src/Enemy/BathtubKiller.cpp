@@ -963,10 +963,16 @@ TBathtubKillerManager::TBathtubKillerManager(const char* name)
 {
 }
 
+#define ASSERT_MSG(msg, line) (void)((msg), (line))
+#define ASSERT_TEST(expr)                                                      \
+	(void)((expr) ? true : (ASSERT_MSG(__FILE__, __LINE__), false));
+
 void TBathtubKillerManager::load(JSUMemoryInputStream& stream)
 {
+	ASSERT_TEST(unk38);
 	TSmallEnemyManager::load(stream);
 	unk38 = new TBathtubKillerParams("/enemy/bathtubkiller.prm");
+	ASSERT_TEST(unk38);
 }
 
 void TBathtubKillerManager::loadAfter()
@@ -978,6 +984,7 @@ void TBathtubKillerManager::loadAfter()
 	unk64 = nullptr;
 	unk68 = 0;
 	unk69 = 0;
+	ASSERT_TEST(unk38);
 
 	static const char* loopFilenames[] = {
 		"/scene/map/map/ms_kp_kill_smoke.jpa",
