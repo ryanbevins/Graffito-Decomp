@@ -54,9 +54,9 @@ static inline f32 calcBossPakkunYaw(f32 x, f32 z)
 	}
 
 	if (z >= 0.0f)
-		return matan(x, z) * (360.0f / 65536.0f);
+		return matan(z, x) * (360.0f / 65536.0f);
 
-	return 180.0f - matan(x, -z) * (360.0f / 65536.0f);
+	return 180.0f - matan(-z, x) * (360.0f / 65536.0f);
 }
 
 static const char* bosspakkun_bastable[] = {
@@ -529,9 +529,11 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 
 	f32 swingLength = boss->getBossPakkunSaveParam()->mSLSwingLength.value;
 	if (toMario.squared() < swingLength * swingLength) {
-		toMario.x = -toMario.x;
-		toMario.y = -toMario.y;
-		toMario.z = -toMario.z;
+		JGeometry::TVec3<f32> yawDir;
+		yawDir.x = -toMario.x;
+		yawDir.y = -toMario.y;
+		yawDir.z = -toMario.z;
+		toMario  = yawDir;
 
 		f32 targetYaw;
 		if (toMario.z == 0.0f) {
@@ -540,10 +542,10 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 			else
 				targetYaw = -90.0f;
 		} else if (toMario.z >= 0.0f) {
-			targetYaw = matan(toMario.x, toMario.z) * (360.0f / 65536.0f);
+			targetYaw = matan(toMario.z, toMario.x) * (360.0f / 65536.0f);
 		} else {
 			targetYaw = 180.0f
-			            - matan(toMario.x, -toMario.z)
+			            - matan(-toMario.z, toMario.x)
 			                * (360.0f / 65536.0f);
 		}
 
@@ -1911,10 +1913,10 @@ BOOL TBPHeadHit::receiveMessage(THitActor* sender, u32 message)
 		else
 			targetYaw = -90.0f;
 	} else if (toMario.z >= 0.0f) {
-		targetYaw = matan(toMario.x, toMario.z) * (360.0f / 65536.0f);
+		targetYaw = matan(toMario.z, toMario.x) * (360.0f / 65536.0f);
 	} else {
 		targetYaw
-		    = 180.0f - matan(toMario.x, -toMario.z) * (360.0f / 65536.0f);
+		    = 180.0f - matan(-toMario.z, toMario.x) * (360.0f / 65536.0f);
 	}
 
 	while (targetYaw >= 360.0f)
