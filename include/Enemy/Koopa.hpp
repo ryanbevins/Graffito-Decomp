@@ -182,7 +182,7 @@ public:
 	BOOL effectsTumble() const;
 	f32 getFlameDirRate() const;
 	void changeAnm(int, int, f32);
-	JGeometry::TVec3<f32> getNeckFocus() const;
+	f32 getNeckFocus() const;
 	f32 getTargetDir(const JGeometry::TVec3<f32>&) const;
 	void setUpHitActors();
 	void stagger(bool);

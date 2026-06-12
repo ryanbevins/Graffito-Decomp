@@ -495,10 +495,84 @@ BOOL TKoopa::allowsLaunch() const
 	return TRUE;
 }
 
-JGeometry::TVec3<f32> TKoopa::getNeckFocus() const
+f32 TKoopa::getNeckFocus() const
 {
-	MtxPtr mtx = getMActor()->getModel()->getAnmMtx(mNeckJointIndex);
-	return JGeometry::TVec3<f32>(mtx[0][3], mtx[1][3], mtx[2][3]);
+	int idx            = mMActor->getCurAnmIdx(0);
+	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+	f32 end            = ctrl->getEnd();
+	f32 frame          = ctrl->getFrame();
+
+	switch (idx) {
+	case 0:
+		if (frame <= 40.0f)
+			return 1.0f - frame / 40.0f;
+		return 0.0f;
+
+	case 1:
+	case 2:
+	case 4:
+		return 0.0f;
+
+	case 3:
+		return frame / end;
+
+	case 5:
+		if (frame <= 103.0f)
+			return 1.0f - frame / 103.0f;
+		return 0.0f;
+
+	case 6:
+		if (frame >= 164.0f)
+			return (frame - 164.0f) / (end - 164.0f);
+		return 0.0f;
+
+	case 7:
+		if (frame <= 125.0f)
+			return 0.0f;
+		return (frame - 125.0f) / (end - 125.0f);
+
+	case 8:
+		if (frame <= 30.0f)
+			return 1.0f - frame / 30.0f;
+		if (frame <= 170.0f)
+			return 0.0f;
+		return (frame - 170.0f) / (end - 170.0f);
+
+	case 9:
+		if (frame <= 30.0f)
+			return 1.0f - frame / 30.0f;
+		if (frame <= 65.0f)
+			return 0.0f;
+		return (frame - 65.0f) / (end - 65.0f);
+
+	case 12:
+		if (frame <= 200.0f)
+			return 1.0f;
+		if (frame <= 255.0f)
+			return 1.0f - (frame - 200.0f) / 55.0f;
+		if (frame <= 330.0f)
+			return 0.0f;
+		if (frame <= 390.0f)
+			return (frame - 330.0f) / 60.0f;
+		if (frame <= 440.0f)
+			return 1.0f;
+		if (frame <= 480.0f)
+			return 1.0f - (frame - 440.0f) / 40.0f;
+		if (frame <= 555.0f)
+			return 0.0f;
+		if (frame <= 615.0f)
+			return (frame - 555.0f) / 60.0f;
+		return 1.0f;
+
+	case 14:
+		if (frame <= 20.0f)
+			return 1.0f - frame / 20.0f;
+		if (frame <= 40.0f)
+			return 0.0f;
+		return (frame - 40.0f) / (end - 40.0f);
+	}
+
+	return 1.0f;
 }
 
 BOOL TKoopa::isFlaming() const
