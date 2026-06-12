@@ -1235,7 +1235,7 @@ config.libs = [
             Object(NonMatching, "Camera/CubeManagerBase.cpp"),
             Object(Equivalent, "Camera/CameraMapTool.cpp"),
             Object(Equivalent, "Camera/CubeMapTool.cpp"),
-            Object(NonMatching, "Camera/CameraMultiPlayer.cpp"),
+            Object(Equivalent, "Camera/CameraMultiPlayer.cpp"),
             Object(NonMatching, "Camera/CameraJetCoaster.cpp"),
             Object(NonMatching, "Camera/CameraBck.cpp"),
             Object(Equivalent, "Camera/CameraOption.cpp"),
