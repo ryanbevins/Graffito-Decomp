@@ -2229,7 +2229,9 @@ void TBPPolDrop::move()
 
 			if (nextPos.y < y) {
 				unk80       = 2;
-				mVelocity.set(0.0f, 0.0f, 0.0f);
+				mVelocity.z = 0.0f;
+				mVelocity.y = 0.0f;
+				mVelocity.x = 0.0f;
 				unk7C->setBck("pollut_ball_stamp");
 				gpMarioParticleManager->emit(0x52, &mPosition, 0, nullptr);
 				if (gpMSound->gateCheck(0x2841))
@@ -2246,13 +2248,15 @@ void TBPPolDrop::move()
 			                                     &nextPos.z, 80.0f))
 				unk80 = 0;
 
+			f32 soundSpeed = -mVelocity.y;
 			if (gpMSound->gateCheck(0x2052))
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x2052, &mPosition, nullptr, -mVelocity.y, 0, 0, nullptr,
+				    0x2052, &mPosition, nullptr, soundSpeed, 0, 0, nullptr,
 				    0, 4);
+			soundSpeed = -mVelocity.y;
 			if (gpMSound->gateCheck(0x2045))
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x2045, &mPosition, nullptr, -mVelocity.y, 0, 0, nullptr,
+				    0x2045, &mPosition, nullptr, soundSpeed, 0, 0, nullptr,
 				    0, 4);
 		}
 	} else if (unk80 == 2) {
