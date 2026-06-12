@@ -390,7 +390,7 @@ config.libs = [
             Object(NonMatching, "JSystem/JDrama/JDRDStageGroup.cpp"),
             Object(NonMatching, "JSystem/JDrama/JDREfbCtrl.cpp"),
             Object(Equivalent, "JSystem/JDrama/JDREfbSetting.cpp"),
-            Object(NonMatching, "JSystem/JDrama/JDRFrmGXSet.cpp"),
+            Object(Equivalent, "JSystem/JDrama/JDRFrmGXSet.cpp"),
             Object(Matching, "JSystem/JDrama/JDRGraphics.cpp"),
             Object(NonMatching, "JSystem/JDrama/JDRLighting.cpp"),
             Object(Matching, "JSystem/JDrama/JDRNameRef.cpp"),
