@@ -361,10 +361,13 @@ void TKoopa::updateAnmSound()
 	if (mMActor->getCurAnmIdx(0) == 8) {
 		unk158.set(mPosition);
 	} else {
-		MtxPtr mtx = getModel()->getAnmMtx(mNeckJointIndex);
-		unk158.x   = mtx[0][3];
-		unk158.y   = mtx[1][3];
-		unk158.z   = mtx[2][3];
+		MtxPtr mtx = mMActor->getModel()->getAnmMtx(mNeckJointIndex);
+		f32 z      = mtx[2][3];
+		f32 y      = mtx[1][3];
+		f32 x      = mtx[0][3];
+		unk158.x   = x;
+		unk158.y   = y;
+		unk158.z   = z;
 	}
 
 	if (mAnmSound && mAnmSoundPath) {
