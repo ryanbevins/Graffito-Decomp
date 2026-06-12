@@ -156,14 +156,30 @@ void TKoopaParts::perform(u32 flags, JDrama::TGraphics* graphics)
 
 void TKoopaParts::control() { }
 
-void TKoopaBody::attack_(THitActor* actor) { actor->receiveMessage(this, 0xE); }
+void TKoopaBody::attack_(THitActor* actor)
+{
+	if (actor->receiveMessage(this, 0xE)) {
+		if (actor == SMS_GetMarioLiveActor()) {
+			JGeometry::TVec3<f32> throwVec(0.0f, 1.0f, 0.0f);
+			SMS_ThrowMario(throwVec, 60.0f);
+		}
+	}
+}
 
 BOOL TKoopaBody::receiveMessage(THitActor* sender, u32 message)
 {
 	return TRUE;
 }
 
-void TKoopaHead::attack_(THitActor* actor) { actor->receiveMessage(this, 0xE); }
+void TKoopaHead::attack_(THitActor* actor)
+{
+	if (actor->receiveMessage(this, 0xE)) {
+		if (actor == SMS_GetMarioLiveActor()) {
+			JGeometry::TVec3<f32> throwVec(0.0f, 1.0f, 0.0f);
+			SMS_ThrowMario(throwVec, 60.0f);
+		}
+	}
+}
 
 BOOL TKoopaHead::receiveMessage(THitActor* sender, u32 message)
 {
