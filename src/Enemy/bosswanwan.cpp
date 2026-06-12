@@ -1,10 +1,16 @@
 #include <Enemy/BossWanwan.hpp>
 #include <Camera/CameraShake.hpp>
+#include <Enemy/Conductor.hpp>
+#include <Enemy/Graph.hpp>
 #include <GC2D/GCConsole2.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionManager.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -14,6 +20,7 @@
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
+#include <Strategic/Strategy.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 
@@ -33,6 +40,10 @@ static const TModelDataLoadEntry sModelDataEntries[] = {
 	{ "bwanwan_picket.bmd", 0x10220000, 0 },
 	{ nullptr, 0, 0 },
 };
+
+static JGeometry::TVec3<f32> BW_BATH_POS(-1000.0f, 4.5f, -6217.2f);
+static JGeometry::TVec3<f32> BW_PICKET_START(6012.84f, 0.0f, 7323.15f);
+static JGeometry::TVec3<f32> BW_HEAD_START(5741.72f, -100.0f, 6311.62f);
 
 static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 {
@@ -524,18 +535,94 @@ void TBossWanwan::init(TLiveManager* manager)
 	mManager = manager;
 	manager->manageActor(this);
 
-	mMActorKeeper = new TMActorKeeper(manager, 3);
+	mMActorKeeper = new TMActorKeeper(manager, 0x11);
 	mMActor       = mMActorKeeper->createMActor("bwanwan_body.bmd", 0);
-	mMtxCalc      = new TBossWanwanMtxCalc(this);
-	mMActor->setCalcForBck(mMtxCalc);
-	mMActor->calc();
+
+	TGraphWeb* web = gpConductor->getGraphByName("bwanwan");
+	web->initGoalIndex(BW_BATH_POS);
+	unk124->setGraph(web);
 
 	mLeash   = new TBWLeash(this, 15, "ボスワンワン鎖");
 	mPicket  = new TBWPicket(this, "ボスワンワンつかみ");
-	mHeadHit = new TBWHit(this, 3, "ボスワンワンヒット");
-	mBodyHit = new TBWHit(this, -1, "ボスワンワンヒット");
-
 	mSpine->initWith(&TNerveBWGraphWander::theNerve());
+
+	TBWParams* params = (TBWParams*)getSaveParam();
+	mMarchSpeed       = params->mSLMarchSpeed.get();
+	mTurnSpeed        = params->mSLTurnSpeed.get();
+	mPosition         = BW_HEAD_START;
+	reset();
+
+	mPicket->initHitActor(0x0800000D, 1, 0x80000000,
+	                      params->mSLPicketRadius.get(),
+	                      params->mSLPicketHeight.get(),
+	                      params->mSLPicketRadius.get(),
+	                      params->mSLPicketHeight.get());
+	TIdxGroupObj* shadowGroup
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("影グループ");
+	shadowGroup->add(mPicket);
+	mPicket->offHitFlag(HIT_FLAG_NO_COLLISION);
+	mPicket->mMActor
+	    = mPicket->mOwner->mMActorKeeper->createMActor("bwanwan_picket.bmd", 0);
+	mPicket->mPosition = BW_PICKET_START;
+
+	unk17C = 1;
+	unk184 = 0;
+	goToRandomNextGraphNode();
+	initHitActor(0x0800000B, 1, 0x80000000, 0.0f, 0.0f, 0.0f, 0.0f);
+
+	mHeadHit = new TBWHit(this, 3, "ボスワンワンヒット");
+	mHeadHit->initHitActor(0x0800000B, 3, 0xA0000000, 500.0f, 500.0f,
+	                       450.0f, 500.0f);
+	mBodyHit = new TBWHit(this, -1, "ボスワンワンヒット");
+	mBodyHit->initHitActor(0x0800000B, 3, 0xA0000000, 300.0f, 500.0f,
+	                       270.0f, 500.0f);
+
+	shadowGroup->add(mHeadHit);
+	mHeadHit->offHitFlag(HIT_FLAG_NO_COLLISION);
+	shadowGroup->add(mBodyHit);
+	mBodyHit->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	initAnmSound();
+	mScaledBodyRadius = 500.0f;
+
+	mMtxCalc = new TBossWanwanMtxCalc(this);
+	mMActor->setCalcForBck(mMtxCalc);
+	mMActor->calc();
+	offLiveFlag(LIVE_FLAG_UNK100);
+
+	J3DAnmTransform* waitAnm
+	    = mMActorKeeper->getMActorAnmData()->getUnk2C()->getAnmPtr(4);
+	if (mMtxCalc->unk54 != waitAnm) {
+		mMtxCalc->unk58 = mMtxCalc->unk54;
+		mMtxCalc->unk54 = waitAnm;
+		mMtxCalc->unk50 = 1.0f;
+	}
+	mMActor->getAnmBck()->setFrameCtrl(4);
+	J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(0);
+	unk178 = 10.0f / (f32)frameCtrl->getEnd();
+	setAnmSound(bwanwan_bastable[4]);
+	mMActor->setBrkFromIndex(0);
+	mMActor->setLightType(1);
+
+	if (mMActor->getModel()->getSkinDeform() == nullptr)
+		mMActor->getModel()->setSkinDeform(new J3DSkinDeform,
+		                                    J3D_DEFORM_ATTACH_FLAG_UNK_1);
+
+	mHitPoints = params->mSLBWHitPointMax.get();
+	unk15C.zero();
+
+	mMapCollisionManager = new TMapCollisionManager(1, "/scene/bwanwan", this);
+	mMapCollisionManager->init("bwanwan_ofuro_col.col", 2, nullptr);
+
+	TMapCollisionBase* collision = mMapCollisionManager->unk8;
+	Mtx mtx;
+	MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
+	            mRotation.y, mRotation.z, mScaling.x, mScaling.y, mScaling.z);
+	PSMTXCopy(mtx, collision->unk20);
+	collision->setUp();
+	collision = mMapCollisionManager->unk8;
+	if (collision != nullptr)
+		collision->remove();
 }
 
 void TBossWanwan::shakeCamera(int mode)

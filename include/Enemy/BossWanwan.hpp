@@ -41,7 +41,7 @@ public:
 class TBossWanwanMtxCalc : public M3UMtxCalcSIAnmBlendQuat {
 public:
 	TBossWanwanMtxCalc(TBossWanwan* owner)
-	    : M3UMtxCalcSIAnmBlendQuat(true)
+	    : M3UMtxCalcSIAnmBlendQuat(false)
 	    , mOwner(owner)
 	{
 	}
