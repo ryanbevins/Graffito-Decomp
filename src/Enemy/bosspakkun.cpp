@@ -974,8 +974,8 @@ DEFINE_NERVE(TNerveBPFly, TLiveActor)
 	toGoal.y = 0.0f;
 
 	if (PSVECMag((Vec*)&toGoal) < 100.0f) {
-		if (!boss->unk124->unk0->getGraphNode(boss->unk124->mCurrIdx)
-		         .checkFlag(0x800)) {
+		if (!(boss->unk124->unk0->unk0[boss->unk124->mCurrIdx].unk0->mFlags
+		      & 0x800)) {
 			boss->goToRandomNextGraphNode();
 		} else {
 			spine->pushAfterCurrent(&TNerveBPHover::theNerve());
