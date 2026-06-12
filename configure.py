@@ -1021,7 +1021,7 @@ config.libs = [
             Object(Matching, "MoveBG/MapObjPole.cpp"),
             Object(Equivalent, "MoveBG/MapObjWater.cpp"),
             Object(NonMatching, "MoveBG/ModelGate.cpp"),
-            Object(NonMatching, "MoveBG/MapObjFence.cpp"),
+            Object(Equivalent, "MoveBG/MapObjFence.cpp"),
             Object(Equivalent, "MoveBG/MapObjOption.cpp"),
             Object(NonMatching, "MoveBG/MapObjRailBlock.cpp"),
             Object(NonMatching, "MoveBG/MapObjMonte.cpp"),
