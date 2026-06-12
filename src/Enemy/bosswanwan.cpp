@@ -1193,8 +1193,59 @@ DEFINE_NERVE(TNerveBWRoll, TLiveActor)
 DEFINE_NERVE(TNerveBWBark, TLiveActor)
 {
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
-	if (spine->getTime() == 0)
-		self->mMActor->setBck(bwanwan_bastable[0]);
+	if (spine->getTime() == 0) {
+		TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
+		J3DAnmTransform* barkAnm
+		    = mtxCalc->mOwner->mMActorKeeper->getMActorAnmData()
+		          ->getUnk2C()
+		          ->getAnmPtr(0);
+		if (mtxCalc->unk54 != barkAnm) {
+			mtxCalc->unk58 = mtxCalc->unk54;
+			mtxCalc->unk54 = barkAnm;
+			mtxCalc->unk50 = 1.0f;
+		}
+
+		self->mMActor->getAnmBck()->setFrameCtrl(0);
+		J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
+		self->unk178 = (360.0f / 65536.0f) / (f32)frameCtrl->getEnd();
+		self->setAnmSound(bwanwan_bastable[0]);
+		self->unk16C = 0;
+		self->unk168 = 0.0f;
+
+		if (!self->unk194) {
+			if (self->unk17C != 0) {
+				JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+				    0xAE, &self->mPicket->mPosition, 0, nullptr);
+				if (emitter != nullptr) {
+					emitter->unk154.x = 0.03125f;
+					emitter->unk154.y = 10000.0f;
+					emitter->unk154.z = 0.03125f;
+					emitter->unk174.x = 0.03125f;
+					emitter->unk174.y = 10000.0f;
+					emitter->unk174.z = 0.03125f;
+				}
+			}
+
+			self->unk194 = 0;
+			self->unk17C = 0;
+			if (gpMSound->gateCheck(0x2966))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x2966, &self->mPicket->mPosition, 0, nullptr, 0, 4);
+		}
+	}
+
+	if (spine->getTime() == 0x118)
+		self->mHitPoints = ((TBWParams*)self->getSaveParam())
+		                       ->mSLBWHitPointMax.get();
+
+	if (self->mMActor->curAnmEndsNext(0, nullptr)) {
+		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		if (!(self->unk198 & 2))
+			gpMarDirector->mConsole->startAppearBalloon(0xE001B, true);
+		self->unk198 |= 2;
+		return true;
+	}
+
 	return false;
 }
 
