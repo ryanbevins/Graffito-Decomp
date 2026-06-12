@@ -770,7 +770,7 @@ config.libs = [
         "cflags": [*cflags_base, "-O4,p", "-inline auto", "-fp_contract on", "-str reuse,readonly", "-lang=c++", "-inline deferred"],
         "progress_category": "game",
         "objects": [
-            Object(NonMatching, "THPPlayer/THPAudioDecode.c"),
+            Object(Equivalent, "THPPlayer/THPAudioDecode.c"),
             Object(Matching, "THPPlayer/THPDraw.c"),
             Object(NonMatching, "THPPlayer/THPPlayer.c"),
             Object(Matching, "THPPlayer/THPRead.c"),
