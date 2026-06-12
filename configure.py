@@ -1230,7 +1230,7 @@ config.libs = [
             Object(NonMatching, "Camera/CameraTalk.cpp"),
             Object(NonMatching, "Camera/lensflare.cpp"),
             Object(NonMatching, "Camera/lensglow.cpp"),
-            Object(NonMatching, "Camera/sunmgr.cpp"),
+            Object(Equivalent, "Camera/sunmgr.cpp"),
             Object(NonMatching, "Camera/sunmodel.cpp"),
             Object(NonMatching, "Camera/CubeManagerBase.cpp"),
             Object(Equivalent, "Camera/CameraMapTool.cpp"),
