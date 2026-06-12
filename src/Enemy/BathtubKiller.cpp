@@ -1028,6 +1028,5 @@ void TBathtubKillerManager::createModelData()
 TSpineEnemy* TBathtubKillerManager::createEnemyInstance()
 {
 	TBathtubKiller* k = new TBathtubKiller;
-	new (&k->unk220) TMtx34f();
 	return k;
 }

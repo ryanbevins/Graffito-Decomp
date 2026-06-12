@@ -8315,7 +8315,10 @@ confirmed in ≥2 TUs._
   Our `template <class TY> void set(TY,TY,TY)` (JGVec3.hpp) gets fully inlined at
   each site instead. This is the only TU in the whole tree whose target emits an
   out-of-line *int* `set<i>` (grep of `build/GMSJ01/asm`). Caps both execute
-  nerves (~48-52%) and the `set<i>` fn at 0%. **Open:** what makes MWCC keep the
+  nerves (~48-52%) and the `set<i>` fn at 0%. **Refuted t592:** replacing
+  `TVec3<f32> vel(0, 0, 0)` with `TVec3<f32> vel; int zero = 0;
+  vel.set(zero, zero, zero);` still inlined scalar zero stores and inflated the
+  caller frame from `0x30` to `0x40`. **Open:** what makes MWCC keep the
   int-conversion template out-of-line here — inline-budget at this nesting depth,
   or a `-inline` interaction. No source lever found; part of the
   kill/break/explode "helper inline" cluster already noted in campaign_tu.md.
