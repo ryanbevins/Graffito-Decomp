@@ -148,6 +148,7 @@ void TKoopaParts::perform(u32 flags, JDrama::TGraphics* graphics)
 	THitActor::perform(flags, graphics);
 
 	if (flags & 1) {
+		control();
 		for (int i = 0; i < mColCount; ++i)
 			attack_(mCollisions[i]);
 	}
