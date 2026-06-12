@@ -217,10 +217,38 @@ TBWLeash::TBWLeash(TBossWanwan* owner, int node_count, const char* name)
 	mRope = new TRope(node_count, mOwner->mPosition,
 	                  ((TBWParams*)mOwner->getSaveParam())
 	                      ->mSLLeashNodeLen.get(),
-	                  mOwner->mTurnSpeed, 0.0f, 0.0f);
+	                  ((TBWParams*)mOwner->getSaveParam())
+	                      ->mSLChainGroundRadius.get(),
+	                  0.7f, -2.0f);
 	mNodes = new TBWLeashNode*[node_count];
-	for (int i = 0; i < node_count; ++i)
-		mNodes[i] = new TBWLeashNode(this, i, "鎖部");
+	for (int i = 0; i < node_count; ++i) {
+		TBWLeashNode* node = new TBWLeashNode(this, i, "鎖部");
+		node->mMActor = mOwner->mMActorKeeper->createMActor(
+		    "bwanwan_chain.bmd", 0);
+		node->mMActor->setBrkFromIndex(2);
+
+		TBWParams* params = (TBWParams*)mOwner->getSaveParam();
+		f32 radius        = params->mSLChainHitRadius.get();
+		f32 height        = params->mSLChainHitHeight.get();
+		node->initHitActor(0x0800000C, 1, 0x80000000, radius * 1.2f,
+		                   height * 1.2f, radius, height);
+		mNodes[i] = node;
+	}
+
+	TIdxGroupObj* enemyGroup
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	for (int i = 0; i < node_count; ++i) {
+		enemyGroup->add(mNodes[i]);
+		if (i < node_count - 2)
+			mNodes[i]->offHitFlag(HIT_FLAG_NO_COLLISION);
+		else
+			mNodes[i]->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		if (i < 2)
+			mRope->mPoints[i].mFlags |= 1;
+		else
+			mRope->mPoints[i].mFlags &= ~1;
+	}
 }
 
 void TBWLeash::perform(u32 flags, JDrama::TGraphics* graphics)
