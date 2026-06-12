@@ -331,7 +331,7 @@ void TBathtubKiller::generateItemBathtubKiller()
 	}
 }
 
-void TBathtubKiller::killBathtubKiller()
+inline void TBathtubKiller::killBathtubKiller()
 {
 	mMActor = mMActorKeeper->getMActor("bathtubdownkiller_model1.bmd");
 	setBckAnm(0);
@@ -340,26 +340,58 @@ void TBathtubKiller::killBathtubKiller()
 	mQuat.y = 0.0f;
 	mQuat.z = 0.0f;
 	mQuat.w = 1.0f;
-	unk1BC.zero();
+	unk1BC.x = 0.0f;
+	unk1BC.y = 0.0f;
+	unk1BC.z = 0.0f;
 
-	JGeometry::TVec3<f32> vel;
-	vel.set(0, 0, 0);
+	JGeometry::TVec3<f32> vel(0, 0, 0);
 	setVelocity(vel);
 
 	onLiveFlag(LIVE_FLAG_UNK8);
 	unk1E0 = unk1D8;
 }
 
-void TBathtubKiller::breakBathtubKiller()
+inline void TBathtubKiller::breakBathtubKiller()
 {
-	killBathtubKiller();
+	mMActor = mMActorKeeper->getMActor("bathtubdownkiller_model1.bmd");
+	setBckAnm(0);
+
+	mQuat.x = 0.0f;
+	mQuat.y = 0.0f;
+	mQuat.z = 0.0f;
+	mQuat.w = 1.0f;
+	unk1BC.x = 0.0f;
+	unk1BC.y = 0.0f;
+	unk1BC.z = 0.0f;
+
+	JGeometry::TVec3<f32> vel(0, 0, 0);
+	setVelocity(vel);
+
+	onLiveFlag(LIVE_FLAG_UNK8);
+	unk1E0 = unk1D8;
+
 	generateItemBathtubKiller();
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
-void TBathtubKiller::explodeBathtubKiller()
+inline void TBathtubKiller::explodeBathtubKiller()
 {
-	killBathtubKiller();
+	mMActor = mMActorKeeper->getMActor("bathtubdownkiller_model1.bmd");
+	setBckAnm(0);
+
+	mQuat.x = 0.0f;
+	mQuat.y = 0.0f;
+	mQuat.z = 0.0f;
+	mQuat.w = 1.0f;
+	unk1BC.x = 0.0f;
+	unk1BC.y = 0.0f;
+	unk1BC.z = 0.0f;
+
+	JGeometry::TVec3<f32> vel(0, 0, 0);
+	setVelocity(vel);
+
+	onLiveFlag(LIVE_FLAG_UNK8);
+	unk1E0 = unk1D8;
 
 	TEffectExplosion* effect = (TEffectExplosion*)gpConductor->makeOneEnemyAppear(
 	    mPosition, "エフェクト爆発マネージャー", 1);
