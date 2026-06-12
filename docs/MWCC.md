@@ -36,6 +36,32 @@ them in future ticks.
 
 ## Settled
 
+### Returning a polar `TVec3` from a tiny inline helper can preserve the local `TVec3<f32>::set<f32>` owner
+
+**Rule.** When target asm computes X/Z polar components, passes a stack
+destination in `r3`, and calls the TU-local
+`JGeometry::TVec3<float>::set<float>(float, float, float)`, spelling the
+source as a small inline helper that returns `TVec3(s, 0.0f, c)` can keep the
+member-template `set` call boundary. Direct caller-side
+`TVec3 tmp; tmp.set(s, 0.0f, c);` and direct local construction may inline the
+three stores and leave the 16-byte local helper missing. Keep the helper
+source-faithful and verify per call site; this is an expression-shape lever,
+not a reason to force weak emission globally.
+
+**Citations.**
+- `mario/Enemy/bosspakkun` `TNerveBPVomit::execute` and
+  `TBossPakkun::launchPolDrop` (2026-06-12 MNL): routing the two offset-vector
+  sites through a `polarXZ(s16, f32)` inline helper emitted the exact local
+  `TVec3<float>::set<float>` owner, moved `BPVomit` `78.0 -> 90.8`,
+  `launchPolDrop` `94.1 -> 94.8`, and raised the TU `93.62099 -> 93.94799`.
+- `mario/Enemy/enemy` `TSpineEnemy::zigzagToCurPathNode` /
+  `goToDirLimitedNextGraphNode`: the existing `polarXZ(f32, f32)` helper
+  returning `TVec3(s, 0.0f, c)` owns a byte-exact local
+  `TVec3<float>::set<float>` and its callers retain the target call boundary.
+- `mario/Enemy/fireWanwan`: the existing `fromPolar(f32, f32)` helper uses the
+  same return-by-value construction shape and owns a byte-exact local
+  `TVec3<float>::set<float>` helper.
+
 ### `TPosition3f::translation` can preserve an out-of-line `identity33` call where direct identity setup inlines
 
 **Rule.** When target asm calls the weak

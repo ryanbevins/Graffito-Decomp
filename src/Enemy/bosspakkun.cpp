@@ -45,6 +45,12 @@ static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 	return MsWrap<f32>(t, l, r);
 }
 
+static inline JGeometry::TVec3<f32> polarXZ(s16 angle, f32 radius)
+{
+	return JGeometry::TVec3<f32>(radius * JMASSin(angle), 0.0f,
+	                             radius * JMASCos(angle));
+}
+
 static inline f32 calcBossPakkunYaw(f32 x, f32 z)
 {
 	if (z == 0.0f) {
@@ -688,9 +694,7 @@ DEFINE_NERVE(TNerveBPVomit, TLiveActor)
 			f32 rotY = boss->mRotation.y;
 			s16 angle = (s16)(rotY * (65536.0f / 360.0f));
 
-			JGeometry::TVec3<f32> offset;
-			offset.set(700.0f * JMASSin(angle), 0.0f,
-			           700.0f * JMASCos(angle));
+			JGeometry::TVec3<f32> offset = polarXZ(angle, 700.0f);
 
 			gpItemManager->makeObjAppear(boss->mPosition.x + offset.x,
 			                             boss->mPosition.y + 1.0f,
@@ -1523,9 +1527,7 @@ void TBossPakkun::launchPolDrop()
 	f32 front = params->mSLPollBallFront.value;
 	s16 marioAngle = (s16)(marioRotY * (65536.0f / 360.0f));
 
-	JGeometry::TVec3<f32> targetOffset;
-	targetOffset.set(front * JMASSin(marioAngle), 0.0f,
-	                 front * JMASCos(marioAngle));
+	JGeometry::TVec3<f32> targetOffset = polarXZ(marioAngle, front);
 
 	JGeometry::TVec3<f32> targetPos = targetOffset;
 	targetPos.x += gpMarioPos->x;
