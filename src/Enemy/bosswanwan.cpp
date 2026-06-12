@@ -1835,9 +1835,9 @@ DEFINE_NERVE(TNerveBWJumpAway, TLiveActor)
 {
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
 	if (spine->getTime() == 0) {
-		f32 gravity = self->getGravityY();
 		JGeometry::TVec3<f32> velocity
-		    = self->calcVelocityToJumpToY(BW_HEAD_START, 1.5f, gravity);
+		    = self->calcVelocityToJumpToY(BW_HEAD_START, 1.5f,
+		                                  self->getGravityY());
 		TPathNode headNode(BW_HEAD_START);
 		self->unkF4  = headNode;
 		self->unk104 = headNode;
