@@ -514,12 +514,7 @@ void TBathtubKiller::perform(u32 param1, JDrama::TGraphics* graphics)
 				unk1D4++;
 				if (unk1D4 >= getSaveParam2()->mSLSmokeInterval.value) {
 					unk1D4 = 0;
-					((JGeometry::TRotation3<JGeometry::TMatrix34<
-					      JGeometry::SMatrix34C<f32> > >*)&unk220)
-					    ->setQuat(mQuat);
-					unk220.mMtx[0][3] = mPosition.x;
-					unk220.mMtx[1][3] = mPosition.y;
-					unk220.mMtx[2][3] = mPosition.z;
+					((TPosition3f*)&unk220)->setQT(mQuat, mPosition);
 					gpMarioParticleManager->emitAndBindToMtxPtr(
 					    0x1bd, (MtxPtr)unk220.mMtx, 1, this);
 				}
