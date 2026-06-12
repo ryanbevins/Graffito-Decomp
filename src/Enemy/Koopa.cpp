@@ -227,15 +227,15 @@ BOOL TKoopaFlame::receiveMessage(THitActor* sender, u32 message)
 
 void TKoopaFlame::control()
 {
-	if (unk8C >= unk88) {
+	if (!(unk8C < unk88)) {
 		onHitFlag(0x2);
 		onHitFlag(0x4);
 		onHitFlag(0x1);
 	} else {
 		unk8C += unk84;
 
-		f32 height = unk94;
 		f32 time   = unk8C;
+		f32 height = unk94;
 		f32 x      = unk6C + unk78 * time;
 		f32 y      = unk70 + unk7C * time;
 		f32 z      = unk74 + unk80 * time;
