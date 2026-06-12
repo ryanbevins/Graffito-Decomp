@@ -454,12 +454,12 @@ DEFINE_NERVE(TNerveBPPivot, TLiveActor)
 	JGeometry::TVec3<f32> toMario = boss->mPosition;
 	toMario -= *gpMarioPos;
 
-	f32 swingLength = boss->getBossPakkunSaveParam()->mSLSwingLength.value;
+	f32 swingLength = boss->getBossPakkunSaveParam()->mSLSwingLength.get();
 	f32 pivotSpeed;
 	if (toMario.squared() < swingLength * swingLength)
-		pivotSpeed = boss->getBossPakkunSaveParam()->mSLPivotSpeedAware.value;
+		pivotSpeed = boss->getBossPakkunSaveParam()->mSLPivotSpeedAware.get();
 	else
-		pivotSpeed = boss->getBossPakkunSaveParam()->mSLPivotSpeed.value;
+		pivotSpeed = boss->getBossPakkunSaveParam()->mSLPivotSpeed.get();
 
 	if (boss->turnToCurPathNode(pivotSpeed)) {
 		if (boss->unk114.size() != 0)

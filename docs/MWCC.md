@@ -215,15 +215,17 @@ ternary or from an explicit `bool b = false; if (cond) b = true;` local.
   `if (jumping)` changed the retest back to `clrlwi.; beq` and regressed to
   `84.7`.
 
-### Inline `TParamRT<T>::get()` can preserve direct field-load codegen while inflating leaf stack frames
+### Inline `TParamRT<T>::get()` can preserve direct field-load codegen while inflating stack frames
 
 **Rule.** Outside `#pragma dont_inline`, a small `TParamRT<T>::get()` accessor
 can inline away to the same visible field load as direct `.value` access, while
-still changing MWCC's frame allocation. Use this when a near-exact leaf function
+still changing MWCC's frame allocation. Use this when a near-exact function
 reads one or more `TParamRT<T>` fields directly, the target frame is larger than
 the build, and the displayed instruction stream is otherwise already correct.
-Toggle direct `.value` reads to `.get()` one at a time and verify that the frame
-grows without introducing a `bl` or changing load/order codegen.
+Toggle direct `.value` reads to `.get()` one at a time and verify that the
+frame grows without introducing a `bl` or changing load/order codegen. Most
+known exact wins are leaf functions, but call-heavy nerves can use the same
+lever when the accessor inlines.
 
 This is the inverse of the `dont_inline` TParam rule: under `dont_inline`,
 `.get()` emits a real accessor call and `.value` is required; in a normal TU,
@@ -247,6 +249,10 @@ the accessor can be a legitimate frame-shape lever without adding a call.
   switching the lone `mDeParams.mDashMax.value` read to `.get()` preserved the
   field-load instruction stream, grew the frame from `0x18` to target `0x20`,
   and moved the 304-byte function `99.9 -> 100.0`.
+- `mario/Enemy/bosspakkun` `TNerveBPPivot::execute` (2026-06-12 MNL):
+  switching three save-param float reads from `.value` to `.get()` preserved
+  the visible instruction stream, grew the frame from `0x48` to target `0x70`,
+  and moved the function `99.4 -> 99.5`.
 
 ### Explicit template specialization declarations make a TU call the existing weak owner instead of emitting a local helper copy
 
