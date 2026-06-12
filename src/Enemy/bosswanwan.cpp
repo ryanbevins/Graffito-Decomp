@@ -144,9 +144,50 @@ void TBWLeashNode::calcMatrix()
 
 void TBWLeashNode::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	calcTemperature();
-	calcMatrix();
-	THitActor::perform(flags, graphics);
+	if (flags & 1) {
+		calcTemperature();
+		calcMatrix();
+
+		if (mLeash->mOwner->mHitPoints != 0 && mIndex < 8) {
+			for (int i = 0; i < mColCount; ++i) {
+				THitActor* actor = mCollisions[i];
+				if (actor->getActorType() == 0x80000001)
+					actor->receiveMessage(this, HIT_MESSAGE_UNKA);
+			}
+		}
+	}
+
+	if (flags & 2) {
+		J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(5);
+		if (frameCtrl != nullptr) {
+			f32 frame = unk74 * (f32)(frameCtrl->getEnd() - 1);
+			f32 scale;
+			if (mIndex < 5) {
+				TBossWanwan* owner = mLeash->mOwner;
+				u8 maxHP = ((TBWParams*)owner->getSaveParam())
+				               ->mSLBWHitPointMax.get();
+				scale = (f32)mIndex * 0.25f
+				        + (f32)owner->mHitPoints / (f32)maxHP;
+			} else {
+				int pointCount = mLeash->mRope->mNumPoints;
+				if (mIndex >= pointCount - 10)
+					scale = (f32)(pointCount - mIndex) / 10.0f;
+				else
+					scale = 1.0f;
+			}
+
+			if (scale > 1.0f)
+				scale = 1.0f;
+			else if (scale < 0.0f)
+				scale = 0.0f;
+
+			frameCtrl->setFrame(frame * scale);
+			frameCtrl->setRate(0.0f);
+		}
+	}
+
+	if (mIndex < mLeash->mRope->mNumPoints - 1)
+		mMActor->perform(flags, graphics);
 }
 
 TBWLeash::TBWLeash(TBossWanwan* owner, int node_count, const char* name)
