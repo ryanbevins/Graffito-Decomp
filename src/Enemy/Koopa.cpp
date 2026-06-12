@@ -233,13 +233,19 @@ void TKoopa::reset()
 	if (!mMActor->checkCurBckFromIndex(12)) {
 		mMActor->setBckFromIndex(12);
 		const char** bas = getBasNameTable();
-		setAnmSound(bas ? bas[12] : nullptr);
+		const char* sound;
+		if (bas == nullptr)
+			sound = nullptr;
+		else
+			sound = bas[12];
+		setAnmSound(sound);
 	}
 
 	if (mMActor->getCurAnmIdx(3) != 1)
 		mMActor->setBtpFromIndex(1);
 
-	mMActor->getFrameCtrl(0)->setRate(0.5f * waitSpeed * SMSGetAnmFrameRate());
+	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+	ctrl->setRate(waitSpeed * SMSGetAnmFrameRate() * 0.5f);
 	unk19C = 600;
 }
 
