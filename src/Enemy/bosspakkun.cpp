@@ -525,10 +525,8 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
 	MActor* actor      = boss->mMActor;
 
-	JGeometry::TVec3<f32> toMario;
-	toMario.x = boss->mPosition.x - gpMarioPos->x;
-	toMario.y = boss->mPosition.y - gpMarioPos->y;
-	toMario.z = boss->mPosition.z - gpMarioPos->z;
+	JGeometry::TVec3<f32> toMario = boss->mPosition;
+	toMario -= *gpMarioPos;
 
 	f32 swingLength = boss->getBossPakkunSaveParam()->mSLSwingLength.value;
 	if (toMario.squared() < swingLength * swingLength) {
