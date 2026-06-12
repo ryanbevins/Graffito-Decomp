@@ -59,10 +59,9 @@ DEFINE_NERVE(TNerveHauntLegHaunt, TLiveActor)
 
 	if (spine->getTime() == 0) {
 		f32 speed = 10.0f;
-		f32 grav            = self->getGravityY();
 		self->mJumpVelocity = self->calcVelocityToJumpToY(
 		    *(const JGeometry::TVec3<f32>*)((u8*)self->mTarget + 0x10),
-		    speed, grav);
+		    speed, self->getGravityY());
 		self->setVelocity(self->mJumpVelocity);
 		self->mPosition.y += speed;
 		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
