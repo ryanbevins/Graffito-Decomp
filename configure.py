@@ -834,7 +834,7 @@ config.libs = [
             Object(Equivalent, "System/FlagManager.cpp"),
             Object(NonMatching, "System/GCLogoDir.cpp"),
             Object(Matching, "System/J3DSysFlag.cpp"),
-            Object(NonMatching, "System/MarDirector.cpp"),
+            Object(Equivalent, "System/MarDirector.cpp"),
             Object(NonMatching, "System/MarDirectorDirect.cpp"),
             Object(NonMatching, "System/MarDirectorEvent.cpp"),
             Object(NonMatching, "System/MarDirectorInitECT.cpp"),
