@@ -512,9 +512,52 @@ BOOL TKoopa::isFlaming() const
 	return FALSE;
 }
 
-f32 TKoopa::getFlameDirRate() const { return unk150; }
+f32 TKoopa::getFlameDirRate() const
+{
+	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+	f32 frame          = ctrl->getFrame();
+	f32 end            = mMActor->getFrameCtrl(0)->getEnd();
+	TKoopaParams* prm  = getSaveParam2();
+	f32 overStart      = prm->flameOverStart.get();
+	s32 focusStart     = prm->flameFocusStartStep.get();
+	s32 focusEnd       = prm->flameFocusEndStep.get();
+	s32 time           = mSpine->getTime();
+	int idx            = mMActor->getCurAnmIdx(0);
 
-f32 TKoopa::getFlameDirDegree() const { return unk150 * 360.0f + -180.0f; }
+	switch (idx) {
+	case 5:
+		return -((frame * overStart) / end);
+
+	case 3:
+	case 4: {
+		f32 rate;
+		if (time <= focusStart) {
+			rate = -overStart;
+		} else if (time <= focusEnd) {
+			rate = (overStart * (time - focusStart)) / (focusEnd - focusStart)
+			       - overStart;
+		} else {
+			rate = 0.0f;
+		}
+
+		if (idx == 3)
+			rate *= 1.0f - frame / end;
+
+		return rate;
+	}
+	}
+
+	return 1.0f;
+}
+
+f32 TKoopa::getFlameDirDegree() const
+{
+	f32 degree = getFlameDirRate() * getSaveParam2()->flameNeckRange.get();
+	if (unk154)
+		degree = -degree;
+
+	return mRotation.y + degree;
+}
 
 #pragma dont_inline on
 void TKoopa::changeAnm(int bck, int btp, f32 rate)
