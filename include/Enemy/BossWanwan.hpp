@@ -7,10 +7,13 @@
 #include <M3DUtil/M3UJoint.hpp>
 #include <Strategic/Binder.hpp>
 #include <Strategic/Nerve.hpp>
+#include <dolphin/mtx.h>
 
 class TLiveActor;
 class MActor;
 class TBossWanwan;
+class TBWLeash;
+class TRope;
 
 class TBWParams : public TSpineEnemyParams {
 public:
@@ -76,7 +79,9 @@ public:
 	    : TTakeActor(name)
 	    , mOwner(owner)
 	    , unk74()
+	    , mMActor(nullptr)
 	{
+		PSMTXIdentity(unk74);
 	}
 
 	virtual void perform(u32, JDrama::TGraphics*);
@@ -86,17 +91,17 @@ public:
 
 	/* 0x70 */ TBossWanwan* mOwner;
 	/* 0x74 */ TPosition3f unk74;
+	/* 0xA4 */ MActor* mMActor;
 };
 
 class TBWLeashNode : public THitActor {
 public:
-	TBWLeashNode(const char* name)
+	TBWLeashNode(TBWLeash* leash, int index, const char* name)
 	    : THitActor(name)
-	    , unk68(nullptr)
-	    , unk6C(nullptr)
-	    , unk70(0)
+	    , mLeash(leash)
+	    , mMActor(nullptr)
 	    , unk74(0.0f)
-	    , unk78(0.0f)
+	    , mIndex(index)
 	{
 	}
 
@@ -105,12 +110,10 @@ public:
 	void calcMatrix();
 	void calcTemperature();
 
-	/* 0x68 */ TBossWanwan* unk68;
-	/* 0x6C */ MActor* unk6C;
-	/* 0x70 */ s32 unk70;
-	/* 0x74 */ f32 unk74;
-	/* 0x78 */ f32 unk78;
-	/* 0x7C */ TMtx34f unk7C;
+	/* 0x68 */ TBWLeash* mLeash;
+	/* 0x6C */ MActor* mMActor;
+	/* 0x70 */ f32 unk74;
+	/* 0x74 */ s32 mIndex;
 };
 
 class TBWLeash : public JDrama::TViewObj {
@@ -120,10 +123,8 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 
 	/* 0x10 */ TBossWanwan* mOwner;
-	/* 0x14 */ s32 unk14;
-	/* 0x18 */ TBWLeashNode** unk18;
-	/* 0x1C */ f32 unk1C;
-	/* 0x20 */ f32 unk20;
+	/* 0x14 */ TRope* mRope;
+	/* 0x18 */ TBWLeashNode** mNodes;
 };
 
 class TBossWanwan : public TSpineEnemy {
@@ -142,18 +143,18 @@ public:
 	void shakeCamera(int);
 
 	/* 0x150 */ TBossWanwanMtxCalc* mMtxCalc;
-	/* 0x154 */ TBWHit* unk154;
-	/* 0x158 */ TBWPicket* unk158;
+	/* 0x154 */ TBWLeash* mLeash;
+	/* 0x158 */ TBWPicket* mPicket;
 	/* 0x15C */ JGeometry::TVec3<f32> unk15C;
 	/* 0x168 */ f32 unk168;
 	/* 0x16C */ s32 unk16C;
-	/* 0x170 */ TBWLeash* unk170;
-	/* 0x174 */ f32 unk174;
+	/* 0x170 */ TBWHit* mHeadHit;
+	/* 0x174 */ TBWHit* mBodyHit;
 	/* 0x178 */ f32 unk178;
-	/* 0x17C */ MActor* unk17C;
-	/* 0x180 */ MActor* unk180;
-	/* 0x184 */ MActor* unk184;
-	/* 0x188 */ MActor* unk188;
+	/* 0x17C */ s32 unk17C;
+	/* 0x180 */ s32 unk180;
+	/* 0x184 */ s32 unk184;
+	/* 0x188 */ s32 unk188;
 	/* 0x18C */ u8 unk18C;
 	/* 0x18D */ u8 unk18D;
 	/* 0x18E */ u8 unk18E[2];

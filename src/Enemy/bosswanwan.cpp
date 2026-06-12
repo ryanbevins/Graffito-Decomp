@@ -1,6 +1,10 @@
 #include <Enemy/BossWanwan.hpp>
+#include <JSystem/JParticle/JPAEmitter.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <MSound/MSound.hpp>
+#include <MSound/MSoundSE.hpp>
+#include <MarioUtil/MtxUtil.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
@@ -60,27 +64,76 @@ void TBWLeashNode::perform(u32 flags, JDrama::TGraphics* graphics)
 TBWLeash::TBWLeash(TBossWanwan* owner, int node_count, const char* name)
     : JDrama::TViewObj(name)
     , mOwner(owner)
-    , unk14(node_count)
-    , unk18(nullptr)
-    , unk1C(0.0f)
-    , unk20(0.0f)
+    , mRope(nullptr)
+    , mNodes(nullptr)
 {
-	unk18 = new TBWLeashNode*[unk14];
-	for (int i = 0; i < unk14; ++i)
-		unk18[i] = new TBWLeashNode("鎖部");
+	mRope = new TRope(node_count, mOwner->mPosition,
+	                  ((TBWParams*)mOwner->getSaveParam())
+	                      ->mSLLeashNodeLen.get(),
+	                  mOwner->mTurnSpeed, 0.0f, 0.0f);
+	mNodes = new TBWLeashNode*[node_count];
+	for (int i = 0; i < node_count; ++i)
+		mNodes[i] = new TBWLeashNode(this, i, "鎖部");
 }
 
 void TBWLeash::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	for (int i = 0; i < unk14; ++i)
-		unk18[i]->perform(flags, graphics);
+	for (int i = 0; i < mRope->mNumPoints; ++i)
+		mNodes[i]->perform(flags, graphics);
 }
 
-BOOL TBWPicket::receiveMessage(THitActor*, u32) { return FALSE; }
+BOOL TBWPicket::receiveMessage(THitActor* sender, u32 message)
+{
+	if (sender->getActorType() != 0x80000001)
+		return FALSE;
+
+	if (message == HIT_MESSAGE_HIP_DROP) {
+		mOwner->unk17C = 1;
+		mOwner->unk184 = 0;
+		if (gpMSound->gateCheck(0x28C0))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x28C0, &mPosition, 0, nullptr, 0, 4);
+		return TRUE;
+	}
+
+	if (message == HIT_MESSAGE_TAKE) {
+		if (mOwner->unk17C != 0) {
+			JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+			    0xAE, &mOwner->mPicket->mPosition, 0, nullptr);
+			if (emitter != nullptr) {
+				JGeometry::TVec3<f32> scale(0.3f, 0.5f, 0.3f);
+				emitter->setScale(scale);
+			}
+		}
+		mOwner->unk194 = 0;
+		mOwner->unk17C = 0;
+		mHolder        = (TTakeActor*)sender;
+		return TRUE;
+	}
+
+	if (message == HIT_MESSAGE_UNK7 || message == HIT_MESSAGE_UNK8) {
+		mHolder = nullptr;
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 bool TBWPicket::moveRequest(const JGeometry::TVec3<f32>& position)
 {
-	mPosition = position;
+	if (mOwner->mSpine->getLatestNerve()
+	        == &TNerveBWJumpToBath::theNerve()
+	    || mOwner->mSpine->getLatestNerve() == &TNerveBWDie::theNerve())
+		return false;
+
+	if (mOwner->mHitPoints != 0)
+		return false;
+
+	TRope* rope = mOwner->mLeash->mRope;
+	JGeometry::TVec3<f32> tailBefore = rope->mPoints[0].mPosition;
+	rope->constraintTail(position);
+	mOwner->unk15C = rope->mPoints[0].mPosition;
+	mOwner->unk15C.sub(tailBefore);
 	return true;
 }
 
@@ -127,15 +180,16 @@ void TBossWanwanMtxCalc::calc(u16 joint_no)
 TBossWanwan::TBossWanwan(const char* name)
     : TSpineEnemy(name)
     , mMtxCalc(nullptr)
-    , unk154(nullptr)
-    , unk158(nullptr)
+    , mLeash(nullptr)
+    , mPicket(nullptr)
     , unk168(0.0f)
     , unk16C(0)
-    , unk170(nullptr)
-    , unk17C(nullptr)
-    , unk180(nullptr)
-    , unk184(nullptr)
-    , unk188(nullptr)
+    , mHeadHit(nullptr)
+    , mBodyHit(nullptr)
+    , unk17C(0)
+    , unk180(0)
+    , unk184(0)
+    , unk188(0)
     , unk18C(0)
     , unk18D(0)
     , unk190(0)
@@ -164,9 +218,10 @@ void TBossWanwan::init(TLiveManager* manager)
 	mMActor->setCalcForBck(mMtxCalc);
 	mMActor->calc();
 
-	unk154 = new TBWHit(this, 0, "ボスワンワンヒット");
-	unk158 = new TBWPicket(this, "ボスワンワンつかみ");
-	unk170 = new TBWLeash(this, 10, "ボスワンワン鎖");
+	mLeash   = new TBWLeash(this, 15, "ボスワンワン鎖");
+	mPicket  = new TBWPicket(this, "ボスワンワンつかみ");
+	mHeadHit = new TBWHit(this, 3, "ボスワンワンヒット");
+	mBodyHit = new TBWHit(this, -1, "ボスワンワンヒット");
 
 	mSpine->initWith(&TNerveBWGraphWander::theNerve());
 }
@@ -188,8 +243,8 @@ void TBossWanwan::emitEffects() { }
 
 void TBossWanwan::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	if (unk170 != nullptr)
-		unk170->perform(flags, graphics);
+	if (mLeash != nullptr)
+		mLeash->perform(flags, graphics);
 
 	TSpineEnemy::perform(flags, graphics);
 }
