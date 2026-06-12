@@ -1180,7 +1180,7 @@ config.libs = [
             Object(NonMatching, "Enemy/gatekeeper.cpp"),
             Object(NonMatching, "Enemy/BossHanachanEffect.cpp"),
             Object(NonMatching, "Enemy/egggen.cpp"),
-            Object(NonMatching, "Enemy/seal.cpp"),
+            Object(Equivalent, "Enemy/seal.cpp"),
             Object(NonMatching, "Enemy/bgpoldrop.cpp"),
             Object(NonMatching, "Enemy/bgtentacle.cpp"),
             Object(Equivalent, "Enemy/effectEnemy.cpp"),
