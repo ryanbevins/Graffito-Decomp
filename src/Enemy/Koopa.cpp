@@ -198,12 +198,11 @@ void TKoopaFlame::attack_(THitActor* actor)
 
 BOOL TKoopaFlame::receiveMessage(THitActor* sender, u32 message)
 {
-	BOOL result;
-	if ((s32)message == 0xF)
-		result = FALSE;
-	else
-		result = TRUE;
-	return result;
+	switch ((s32)message) {
+	case 0xF:
+		return FALSE;
+	}
+	return TRUE;
 }
 
 void TKoopaFlame::control() { }
