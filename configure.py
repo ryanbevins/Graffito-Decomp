@@ -974,7 +974,7 @@ config.libs = [
         "cflags": [*cflags_game, "-inline deferred", "-opt all,nostrength"],
         "progress_category": "game",
         "objects": [
-            Object(NonMatching, "MSound/MAnmSound.cpp"),
+            Object(Equivalent, "MSound/MAnmSound.cpp"),
             Object(NonMatching, "MSound/MSound.cpp"),
             Object(NonMatching, "MSound/MSoundBGM.cpp"),
             Object(Equivalent, "MSound/MSoundDebug.cpp"),
