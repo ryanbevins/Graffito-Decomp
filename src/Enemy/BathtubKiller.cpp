@@ -989,7 +989,11 @@ void TBathtubKillerManager::loadAfter()
 	static const char* loopFilenames[] = {
 		"/scene/map/map/ms_kp_kill_smoke.jpa",
 	};
-	SMS_LoadParticle(loopFilenames[0], 0x1bd);
+	bool* particleFlag = &gParticleFlagLoaded[0x1bd];
+	if (!*particleFlag) {
+		gpResourceManager->load(loopFilenames[0], 0x1bd);
+		*particleFlag = true;
+	}
 }
 
 void TBathtubKillerManager::generateMushroom(JGeometry::TVec3<f32>) { }
