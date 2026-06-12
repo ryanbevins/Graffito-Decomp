@@ -34,14 +34,6 @@ static const char* bathtubkiller_bastable[] = {
 	nullptr,
 };
 
-TBathtubKillerPersonality::TBathtubKillerPersonality() { }
-
-void TBathtubKillerPersonality::makeFast(const TBathtubKillerParams*) { }
-
-void TBathtubKillerPersonality::makeShine(const TBathtubKillerParams*) { }
-
-void TBathtubKillerPersonality::makeNormal(const TBathtubKillerParams*) { }
-
 TBathtubKillerParams::TBathtubKillerParams(const char* prm)
     : TSmallEnemyParams(prm)
     , PARAM_INIT(fastAccelerationQuatRate, 0.0f)
@@ -535,10 +527,6 @@ void TBathtubKiller::perform(u32 param1, JDrama::TGraphics* graphics)
 	}
 }
 
-void TBathtubKiller::makeNoseColor() { }
-
-f32 TBathtubKiller::getBathtubY() { return 0.0f; }
-
 void TBathtubKiller::makeInitialVelocity(JGeometry::TVec3<f32> vel)
 {
 	f32 maxSpeed = getSaveParam2()->mSLFlyingSpeedMax.value;
@@ -556,8 +544,6 @@ void TBathtubKiller::makeInitialVelocity(JGeometry::TVec3<f32> vel)
 	rot.setRotate(forward, vel);
 	mQuat.mul(rot);
 }
-
-void TBathtubKiller::moveParabolic() { }
 
 void TBathtubKiller::moveChasing()
 {
@@ -583,12 +569,6 @@ void TBathtubKiller::moveChasing()
 		forward.y = (0.0f < forward.y) ? forward.y : 0.0f;
 	mVelocity.scale(unk1A0, forward);
 }
-
-void TBathtubKiller::moveStraight() { }
-
-void TBathtubKiller::makeVelocityQuat() { }
-
-void TBathtubKiller::makeAccelerationQuat() { }
 
 void TBathtubKiller::makeQuat(JGeometry::TVec3<f32> axis, f32 moveAmountY,
                               f32 moveAmountX)
@@ -624,8 +604,6 @@ void TBathtubKiller::makeQuat(JGeometry::TVec3<f32> axis, f32 moveAmountY,
 
 	mQuat.normalize();
 }
-
-void TBathtubKiller::makeScrewQuat(JGeometry::TVec3<f32>, f32, f32) { }
 
 f32 TBathtubKiller::getGravityY() const
 {
@@ -742,19 +720,11 @@ inline void TBathtubKiller::setNormalBathtubKillerAnm()
 	setBckAnm(1);
 }
 
-void TBathtubKiller::setChaseBathtubKillerAnm() { }
-
 inline void TBathtubKiller::setStraightBathtubKillerAnm()
 {
 	mMActor = mMActorKeeper->getMActor("bathtubkiller_model1.bmd");
 	setBckAnm(2);
 }
-
-void TBathtubKiller::setDeadBathtubKillerAnm() { }
-
-void TBathtubKiller::updateTimers() { }
-
-bool TBathtubKiller::isAttackable() { return false; }
 
 bool TBathtubKiller::isAboided()
 {
@@ -797,10 +767,6 @@ bool TBathtubKiller::isAboided()
 		return false;
 	return true;
 }
-
-bool TBathtubKiller::canChase() { return false; }
-
-void TBathtubKiller::generateExplosion() { }
 
 DEFINE_NERVE(TNerveBathtubKillerWander, TLiveActor)
 {
