@@ -235,7 +235,7 @@ DEFINE_NERVE(TNerveBPStompReact, TLiveActor)
 		boss->mHeadHit->onHitFlag(HIT_FLAG_NO_COLLISION);
 	}
 
-	if (spine->getTime() == 0x1E && boss->unk17C == 0) {
+	if (spine->getTime() == 0x1E && (s8)boss->unk17C == 0) {
 		boss->unk17C = 1;
 		boss->unk174 = nullptr;
 		boss->unk170 = nullptr;
