@@ -5,6 +5,7 @@
 #include <JSystem/JDrama/JDRNameRef.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JGadget/std-list.hpp>
+#include <JSystem/JGeometry/JGUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MSound/MAnmSound.hpp>
@@ -582,18 +583,92 @@ void TKoopa::changeAnm(int bck, int btp, f32 rate)
 void TKoopa::setUpHitActors()
 {
 	TKoopaParams* prm = getSaveParam2();
-	for (int i = 0; i < 10; ++i) {
-		TKoopaFlame* hit = mFlameHitActors[i];
-		hit->mAttackRadius = prm->flameRadius.get();
-		hit->mAttackHeight = prm->flameHeight.get();
-		hit->mDamageRadius = prm->flameRadius.get();
-		hit->mDamageHeight = prm->flameHeight.get();
-		hit->calcEntryRadius();
+	BOOL canEmitFlame = FALSE;
+	if (mMActor->getCurAnmIdx(0) == 4) {
+		canEmitFlame = TRUE;
+	} else if (mMActor->getCurAnmIdx(0) == 5) {
+		if (mMActor->getFrameCtrl(0)->getFrame() >= 85.0f)
+			canEmitFlame = TRUE;
 	}
 
+	if (canEmitFlame) {
+		int available = -1;
+		BOOL waiting  = FALSE;
+		for (int i = 0; i < 10; ++i) {
+			TKoopaFlame* flame = mFlameHitActors[i];
+			if (!(flame->unk8C < flame->unk88)) {
+				available = i;
+			} else if (flame->unk8C < 2.0f * prm->flameRadius.get()) {
+				waiting = TRUE;
+			}
+		}
+
+		if (!waiting && available >= 0) {
+			MtxPtr mtx = mMActor->getModel()->getAnmMtx(mNeckJointIndex);
+			f32 axisX  = mtx[0][0];
+			f32 axisZ  = mtx[2][0];
+			f32 dirX;
+			f32 dirY;
+			f32 dirZ;
+			f32 mag = axisX * axisX + axisZ * axisZ;
+			if (mag <= 0.0000038146973f) {
+				dirY = 0.0f;
+				dirX = dirY;
+				dirZ = dirY;
+			} else {
+				f32 inv = 1.0f * JGeometry::TUtil<f32>::inv_sqrt(mag);
+				dirX    = axisX * inv;
+				dirY    = 0.0f * inv;
+				dirZ    = axisZ * inv;
+			}
+
+			TKoopaFlame* flame = mFlameHitActors[available];
+			flame->mPosition.x = mtx[0][3];
+			flame->mPosition.y = mtx[1][3] - 500.0f;
+			flame->mPosition.z = mtx[2][3];
+			flame->unk78       = dirX;
+			flame->unk7C       = dirY;
+			flame->unk80       = dirZ;
+			flame->unk6C       = flame->mPosition.x;
+			flame->unk70       = flame->mPosition.y;
+			flame->unk74       = flame->mPosition.z;
+			flame->unk84       = prm->flameVelocity.get();
+			flame->unk88       = 4000.0f;
+			flame->unk8C       = 0.0f;
+			flame->unk90       = prm->flameRadius.get();
+			flame->unk94       = prm->flameHeight.get();
+		}
+	} else {
+		for (int i = 0; i < 10; ++i) {
+			mFlameHitActors[i]->unk88 = 0.0f;
+			mFlameHitActors[i]->unk8C = 1.0f;
+		}
+	}
+
+	MtxPtr headMtx = mMActor->getModel()->getAnmMtx(mHeadJointIndex);
+	mHeadHitActor->mPosition.x = headMtx[0][3];
+	mHeadHitActor->mPosition.y = headMtx[1][3] - 200.0f;
+	mHeadHitActor->mPosition.z = headMtx[2][3];
+	mHeadHitActor->offHitFlag(0x2);
+	mHeadHitActor->offHitFlag(0x4);
+	mHeadHitActor->offHitFlag(0x1);
+	mHeadHitActor->mAttackRadius = prm->headRadius.get();
+	mHeadHitActor->mAttackHeight = prm->headRadius.get() * 2.0f;
 	mHeadHitActor->mDamageRadius = prm->headRadius.get();
 	mHeadHitActor->mDamageHeight = prm->headRadius.get() * 2.0f;
 	mHeadHitActor->calcEntryRadius();
+
+	mBodyHitActor->mPosition.x = mPosition.x;
+	mBodyHitActor->mPosition.y = mPosition.y;
+	mBodyHitActor->mPosition.z = mPosition.z;
+	mBodyHitActor->offHitFlag(0x2);
+	mBodyHitActor->offHitFlag(0x4);
+	mBodyHitActor->offHitFlag(0x1);
+	mBodyHitActor->mAttackRadius = 800.0f;
+	mBodyHitActor->mAttackHeight = 2000.0f;
+	mBodyHitActor->mDamageRadius = 800.0f;
+	mBodyHitActor->mDamageHeight = 2000.0f;
+	mBodyHitActor->calcEntryRadius();
 }
 
 inline const TNerveKoopaWait& TNerveKoopaWait::theNerve()
