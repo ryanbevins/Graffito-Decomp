@@ -883,7 +883,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(NonMatching, "Strategic/liveactor.cpp"),
-            Object(NonMatching, "Strategic/liveinterp.cpp"),
+            Object(Equivalent, "Strategic/liveinterp.cpp"),
             Object(Equivalent, "Strategic/livemanager.cpp"),
             Object(NonMatching, "Strategic/ObjHitCheck.cpp"),
             Object(Equivalent, "Strategic/objmanager.cpp"),
