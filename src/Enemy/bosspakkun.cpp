@@ -45,6 +45,20 @@ static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 	return MsWrap<f32>(t, l, r);
 }
 
+static inline f32 calcBossPakkunYaw(f32 x, f32 z)
+{
+	if (z == 0.0f) {
+		if (x >= 0.0f)
+			return 90.0f;
+		return -90.0f;
+	}
+
+	if (z >= 0.0f)
+		return matan(x, z) * (360.0f / 65536.0f);
+
+	return 180.0f - matan(x, -z) * (360.0f / 65536.0f);
+}
+
 static const char* bosspakkun_bastable[] = {
 	nullptr,
 	nullptr,
@@ -1627,7 +1641,79 @@ void TBossPakkunMtxCalc::calc(u16 joint_no)
 	calcHeadDir(joint_no);
 }
 
-void TBossPakkunMtxCalc::calcHeadDir(u16) { }
+void TBossPakkunMtxCalc::calcHeadDir(u16 joint_no)
+{
+	if (joint_no != 0x12)
+		return;
+
+	TBossPakkun* owner = mOwner;
+	J3DModel* model    = owner->getModel();
+	MtxPtr jointMtx    = model->mNodeMatrices[joint_no];
+
+	JGeometry::TVec3<f32> toMario = *gpMarioPos;
+	toMario.x -= jointMtx[0][3];
+	toMario.y -= jointMtx[1][3];
+	toMario.z -= jointMtx[2][3];
+
+	f32 matrixYaw = calcBossPakkunYaw(jointMtx[0][1], jointMtx[2][0]);
+	f32 headYaw   = owner->unk184;
+
+	f32 targetYaw;
+	if (owner->mMActor->checkCurBckFromIndex(0x19)) {
+		targetYaw = headYaw + calcBossPakkunYaw(toMario.x, toMario.z);
+		while (targetYaw >= 360.0f)
+			targetYaw -= 360.0f;
+		while (targetYaw < 0.0f)
+			targetYaw += 360.0f;
+	} else {
+		targetYaw = matrixYaw;
+	}
+
+	f32 wrappedMatrix
+	    = callMsWrap(matrixYaw, targetYaw - 180.0f, targetYaw + 180.0f);
+	f32 desiredOffset = targetYaw - wrappedMatrix;
+	f32 homingLimit = owner->getBossPakkunSaveParam()->mSLHeadHomingLimit.value;
+	if (desiredOffset > 0.0f) {
+		if (desiredOffset > homingLimit)
+			desiredOffset = homingLimit;
+	} else {
+		if (desiredOffset <= -homingLimit)
+			desiredOffset = -homingLimit;
+	}
+
+	f32 wrappedHead
+	    = callMsWrap(headYaw, desiredOffset - 180.0f, desiredOffset + 180.0f);
+	f32 delta = desiredOffset - wrappedHead;
+	if (delta > 0.0f) {
+		if (delta > 1.0f)
+			delta = 1.0f;
+	} else {
+		if (delta <= -1.0f)
+			delta = -1.0f;
+	}
+
+	headYaw += delta;
+	owner->unk184 = headYaw;
+
+	Mtx headMtx;
+	f32 sin = JMASin(headYaw);
+	f32 cos = JMACos(headYaw);
+	headMtx[0][0] = 25.0f;
+	headMtx[0][1] = 0.0f;
+	headMtx[0][2] = 0.0f;
+	headMtx[0][3] = 0.0f;
+	headMtx[1][0] = 0.0f;
+	headMtx[1][1] = cos;
+	headMtx[1][2] = -sin;
+	headMtx[1][3] = 0.0f;
+	headMtx[2][0] = 0.0f;
+	headMtx[2][1] = sin;
+	headMtx[2][2] = cos;
+	headMtx[2][3] = 0.0f;
+
+	PSMTXConcat(jointMtx, headMtx, jointMtx);
+	PSMTXConcat(J3DSys::mCurrentMtx, headMtx, J3DSys::mCurrentMtx);
+}
 
 void TBossPakkunMtxCalc::calcBellyScale(u16 joint_no)
 {
