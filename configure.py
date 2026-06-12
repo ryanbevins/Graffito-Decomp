@@ -1253,7 +1253,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(NonMatching, "Animal/boid.cpp"),
-            Object(NonMatching, "Animal/fishoid.cpp"),
+            Object(Equivalent, "Animal/fishoid.cpp"),
             Object(NonMatching, "Animal/AnimalBase.cpp"),
             Object(NonMatching, "Animal/AnimalManager.cpp"),
             Object(Matching, "Animal/AnimalSave.cpp"),
