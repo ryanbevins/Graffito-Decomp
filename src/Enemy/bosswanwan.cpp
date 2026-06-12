@@ -14,6 +14,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/MapCollisionManager.hpp>
+#include <MoveBG/ItemManager.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -1411,6 +1412,88 @@ DEFINE_NERVE(TNerveBWJumpToBath, TLiveActor)
 
 DEFINE_NERVE(TNerveBWDie, TLiveActor)
 {
+	TBossWanwan* self = (TBossWanwan*)spine->getBody();
+	MActor* actor     = self->mMActor;
+	if (spine->getTime() == 0) {
+		JGeometry::TVec3<f32> velocity(30.0f, 30.0f, 30.0f);
+		self->mVelocity       = velocity;
+		self->mLinearVelocity = velocity;
+		self->onLiveFlag(LIVE_FLAG_UNK10);
+		self->offLiveFlag(LIVE_FLAG_AIRBORNE);
+		gpMarioParticleManager->emit(0xB1, &self->mPosition, 0, nullptr);
+	}
+
+	if (self->mHitPoints != 0) {
+		if (self->mHitPoints != 0)
+			--self->mHitPoints;
+
+		J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(0);
+		frameCtrl->setFrame(30.0f);
+		frameCtrl->setRate(30.0f);
+		spine->pushAfterCurrent(&TNerveBWDie::theNerve());
+		return true;
+	}
+
+	if (spine->getTime() == 0) {
+		JDrama::TFlagT<u16> flag(0);
+		gpMarDirector->fireStartDemoCamera(
+		    "bwanwan_down_camera", nullptr, -1, 30.0f, true, nullptr, 0,
+		    nullptr, flag);
+		self->unk16C = 0;
+		self->unk168 = 30.0f;
+		self->unk18C = 1;
+		self->mPosition = BW_BATH_POS;
+
+		JGeometry::TVec3<f32> position = self->mPosition;
+		position.y += 500.0f;
+		JGeometry::TVec3<f32> scaling = self->mScaling;
+		scaling.scale(1.1f);
+		Mtx mtx;
+		MsMtxSetTRS(mtx, position.x, position.y, position.z,
+		            self->mRotation.x, self->mRotation.y, self->mRotation.z,
+		            scaling.x, scaling.y, scaling.z);
+		TMapCollisionBase* collision = self->mMapCollisionManager->unk8;
+		collision->setMtx(mtx);
+		collision->setUp();
+
+		self->mHeadHit->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->mBodyHit->onHitFlag(HIT_FLAG_NO_COLLISION);
+		for (int i = 0; i < self->mLeash->mRope->mNumPoints; ++i)
+			self->mLeash->mNodes[i]->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->mPicket->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
+		J3DAnmTransform* dieAnm
+		    = mtxCalc->mOwner->mMActorKeeper->getMActorAnmData()
+		          ->getUnk2C()
+		          ->getAnmPtr(1);
+		if (mtxCalc->unk54 != dieAnm) {
+			mtxCalc->unk58 = mtxCalc->unk54;
+			mtxCalc->unk54 = dieAnm;
+			mtxCalc->unk50 = 1.0f;
+		}
+
+		self->mMActor->getAnmBck()->setFrameCtrl(1);
+		J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
+		self->unk178 = (10.0f) / (f32)frameCtrl->getEnd();
+		self->setAnmSound(bwanwan_bastable[1]);
+		actor->setBtpFromIndex(0);
+		actor->setBrkFromIndex(1);
+	}
+
+	if (spine->getTime() > 0x3C && (s8)self->unk18D == 0
+	    && gpMarDirector->unk124 != 3) {
+		gpItemManager->makeShineAppearWithDemo(
+		    "シャイン（ボス用）", "ボスシャイカメラ", self->mPosition.x,
+		    self->mPosition.y, self->mPosition.z);
+		self->unk18D = 1;
+	}
+
+	if (actor->curAnmEndsNext(5, nullptr)) {
+		J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(5);
+		frameCtrl->setRate(30.0f);
+	}
+
 	return false;
 }
 
