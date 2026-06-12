@@ -104,10 +104,17 @@ public:
 	virtual void control();
 	virtual void attack_(THitActor*);
 
-	/* 0x6C */ u8 unk6C[0x1C];
+	/* 0x6C */ f32 unk6C;
+	/* 0x70 */ f32 unk70;
+	/* 0x74 */ f32 unk74;
+	/* 0x78 */ f32 unk78;
+	/* 0x7C */ f32 unk7C;
+	/* 0x80 */ f32 unk80;
+	/* 0x84 */ f32 unk84;
 	/* 0x88 */ f32 unk88;
 	/* 0x8C */ f32 unk8C;
-	/* 0x90 */ u8 unk90[0x08];
+	/* 0x90 */ f32 unk90;
+	/* 0x94 */ f32 unk94;
 };
 
 class TKoopaJrParams : public TSpineEnemyParams {

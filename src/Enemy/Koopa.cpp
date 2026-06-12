@@ -224,7 +224,37 @@ BOOL TKoopaFlame::receiveMessage(THitActor* sender, u32 message)
 	return TRUE;
 }
 
-void TKoopaFlame::control() { }
+void TKoopaFlame::control()
+{
+	if (unk8C >= unk88) {
+		onHitFlag(0x2);
+		onHitFlag(0x4);
+		onHitFlag(0x1);
+	} else {
+		unk8C += unk84;
+
+		f32 height = unk94;
+		f32 time   = unk8C;
+		f32 x      = unk6C + unk78 * time;
+		f32 y      = unk70 + unk7C * time;
+		f32 z      = unk74 + unk80 * time;
+		f32 radius = unk90;
+		if (height <= 0.0f)
+			height = 2.0f * radius;
+
+		mPosition.x = x;
+		mPosition.y = y;
+		mPosition.z = z;
+		offHitFlag(0x2);
+		offHitFlag(0x4);
+		offHitFlag(0x1);
+		mAttackRadius = radius;
+		mAttackHeight = height;
+		mDamageRadius = radius;
+		mDamageHeight = height;
+		calcEntryRadius();
+	}
+}
 
 TKoopa::TKoopa(const char* name)
     : TSpineEnemy(name)
