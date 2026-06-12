@@ -334,7 +334,54 @@ void TBossWanwan::calcRootMatrix()
 
 void TBossWanwan::slideToCurPathNode(f32 march_speed, f32 turn_speed)
 {
-	walkToCurPathNode(march_speed, turn_speed, 0.0f);
+	JGeometry::TVec3<f32> pathDir = getUnkF4().getPoint();
+	pathDir.sub(mPosition);
+
+	f32 distance = PSVECMag((Vec*)&pathDir);
+
+	f32 targetYaw;
+	if (pathDir.z == 0.0f) {
+		if (pathDir.x >= 0.0f)
+			targetYaw = 90.0f;
+		else
+			targetYaw = -90.0f;
+	} else if (pathDir.z >= 0.0f) {
+		targetYaw = matan(pathDir.z, pathDir.x) * (360.0f / 65536.0f);
+	} else {
+		f32 yaw  = matan(-pathDir.z, pathDir.x) * (360.0f / 65536.0f);
+		targetYaw = 180.0f - yaw;
+	}
+
+	while (targetYaw >= 360.0f)
+		targetYaw -= 360.0f;
+	while (targetYaw < 0.0f)
+		targetYaw += 360.0f;
+
+	f32 wrappedYaw
+	    = callMsWrap(mRotation.y, targetYaw - 180.0f, targetYaw + 180.0f);
+	f32 turn = targetYaw - wrappedYaw;
+	if (turn > 0.0f) {
+		if (turn > turn_speed)
+			turn = turn_speed;
+	} else {
+		f32 turnMin = -turn_speed;
+		if (turn <= turnMin)
+			turn = turnMin;
+	}
+
+	f32 newYaw = mRotation.y + turn;
+	while (newYaw >= 360.0f)
+		newYaw -= 360.0f;
+	while (newYaw < 0.0f)
+		newYaw += 360.0f;
+	mRotation.y = newYaw;
+
+	JGeometry::TVec3<f32> velocity = mLinearVelocity;
+	if (distance > 0.0f)
+		pathDir.scale(march_speed / distance);
+
+	velocity.add(pathDir);
+	mLinearVelocity = velocity;
 }
 
 void TBossWanwan::control()
