@@ -355,9 +355,9 @@ BOOL TBWPicket::receiveMessage(THitActor* sender, u32 message)
 
 bool TBWPicket::moveRequest(const JGeometry::TVec3<f32>& position)
 {
-	if (mOwner->mSpine->getLatestNerve()
-	        == &TNerveBWJumpToBath::theNerve()
-	    || mOwner->mSpine->getLatestNerve() == &TNerveBWDie::theNerve())
+	TNerveBase<TLiveActor>* nerve = mOwner->mSpine->getLatestNerve();
+	if (nerve == &TNerveBWJumpToBath::theNerve()
+	    || nerve == &TNerveBWDie::theNerve())
 		return false;
 
 	if (mOwner->mHitPoints != 0)
