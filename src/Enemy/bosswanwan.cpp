@@ -1228,6 +1228,33 @@ DEFINE_NERVE(TNerveBWStun, TLiveActor)
 
 DEFINE_NERVE(TNerveBWWakeup, TLiveActor)
 {
+	TBossWanwan* self = (TBossWanwan*)spine->getBody();
+	if (spine->getTime() == 0) {
+		TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
+		J3DAnmTransform* wakeAnm
+		    = mtxCalc->mOwner->mMActorKeeper->getMActorAnmData()
+		          ->getUnk2C()
+		          ->getAnmPtr(6);
+		if (mtxCalc->unk54 != wakeAnm) {
+			mtxCalc->unk58 = mtxCalc->unk54;
+			mtxCalc->unk54 = wakeAnm;
+			mtxCalc->unk50 = 1.0f;
+		}
+
+		self->mMActor->getAnmBck()->setFrameCtrl(6);
+		J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
+		self->unk178 = (360.0f / 65536.0f) / (f32)frameCtrl->getEnd();
+		self->setAnmSound(bwanwan_bastable[6]);
+		self->mMActor->setBtpFromIndex(2);
+		self->unk16C = 0;
+		self->unk168 = 0.0f;
+	}
+
+	if (self->mMActor->curAnmEndsNext(0, nullptr)) {
+		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		return true;
+	}
+
 	return false;
 }
 
