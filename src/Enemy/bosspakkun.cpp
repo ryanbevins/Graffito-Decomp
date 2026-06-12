@@ -1384,11 +1384,12 @@ void TBossPakkun::setGroundCollision()
 	if (mMapCollisionManager == nullptr)
 		return;
 
-	J3DModel* model          = getModel();
+	J3DModel* model = getModel();
+	Mtx mtx;
+	PSMTXCopy(model->mNodeMatrices[2], mtx);
+
 	TMapCollisionBase* entry = mMapCollisionManager->unk8;
 	if (entry != nullptr) {
-		Mtx mtx;
-		PSMTXCopy(model->mNodeMatrices[2], mtx);
 		entry->moveMtx(mtx);
 	}
 }
