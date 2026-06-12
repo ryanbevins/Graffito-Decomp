@@ -630,8 +630,12 @@ DEFINE_NERVE(TNerveBPWait, TLiveActor)
 	spine->pushAfterCurrent(&TNerveBPVomit::theNerve());
 
 	JGeometry::TVec3<f32> randomPos = boss->mPosition;
-	randomPos.x += 10000.0f * (rand() * 0.000030517578f - 0.5f);
-	randomPos.z += 10000.0f * (rand() * 0.000030517578f - 0.5f);
+	f32 randX = rand() * 0.000030517578f;
+	randX -= 0.5f;
+	randomPos.x += 10000.0f * randX;
+	f32 randZ = rand() * 0.000030517578f;
+	randZ -= 0.5f;
+	randomPos.z += 10000.0f * randZ;
 
 	TPathNode randomPath(randomPos);
 	boss->unk114.push(boss->unkF4);
