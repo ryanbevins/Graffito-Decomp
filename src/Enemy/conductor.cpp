@@ -213,12 +213,13 @@ TSpineEnemy*
 TConductor::makeOneEnemyAppear(const JGeometry::TVec3<f32>& param_1,
                                const char* param_2, int param_3)
 {
+	TSpineEnemy* actor;
 	TEnemyManager* mgr = (TEnemyManager*)getManagerByName(param_2);
 
 	if (!mgr)
 		return nullptr;
 
-	if (TSpineEnemy* actor = (TSpineEnemy*)mgr->getActorByFlag(0x1)) {
+	if (actor = (TSpineEnemy*)mgr->getActorByFlag(0x1)) {
 		actor->resetToPosition(param_1);
 		return actor;
 	}
@@ -226,7 +227,7 @@ TConductor::makeOneEnemyAppear(const JGeometry::TVec3<f32>& param_1,
 	if (param_3 == 0)
 		return nullptr;
 
-	if (TSpineEnemy* actor = (TSpineEnemy*)mgr->getActorByFlag(0x804)) {
+	if (actor = (TSpineEnemy*)mgr->getActorByFlag(0x804)) {
 		actor->resetToPosition(param_1);
 		return actor;
 	}
