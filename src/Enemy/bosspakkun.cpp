@@ -24,6 +24,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
+#include <MarioUtil/TexUtil.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
@@ -1256,36 +1257,107 @@ BOOL TBossPakkun::receiveMessage(THitActor* sender, u32 message)
 
 void TBossPakkun::init(TLiveManager* manager)
 {
-	TSpineEnemy::init(manager);
+	mManager = manager;
+	manager->manageActor(this);
 
-	if (((TBossPakkunManager*)manager)->mIsLight == 0) {
+	mMActorKeeper = new TMActorKeeper(manager, 7);
+	mMActor       = mMActorKeeper->createMActor("bosspaku_model.bmd", 0);
+
+	BOOL isLight = ((TBossPakkunManager*)mManager)->mIsLight;
+
+	if (isLight == 0) {
+		unk180 = mMActorKeeper->createMActor("bosspaku_end.bmd", 0);
+		unk180->setBckFromIndex(7);
+		unk180->setBrkFromIndex(0);
+	}
+
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+
+	initHitActor(0x800000F, 1, 0x80000000, 2.5f, 100.0f, 2.5f,
+	             100.0f);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	if (isLight == 0) {
 		mHeadHit = new TBPHeadHit(this, "ボスパックン頭部");
-		mHeadHit->initHitActor(0x8000010, 5, 0x81000000, 300.0f, 500.0f,
-		                       300.0f, 500.0f);
+		mHeadHit->initHitActor(0x8000010, 5, 0x81000000, 100.0f, 500.0f,
+		                       100.0f, 500.0f);
 		mHeadHit->offHitFlag(HIT_FLAG_NO_COLLISION);
 
 		mNavel = new TBPNavel(this, "ボスパックンおへそ");
-		mNavel->initHitActor(0x8000011, 1, -0x80000000, 200.0f, 300.0f,
-		                     200.0f, 300.0f);
+		mNavel->initHitActor(0x8000011, 1, 0x80000000, 200.0f, 100.0f,
+		                     200.0f, 100.0f);
 		mNavel->offHitFlag(HIT_FLAG_NO_COLLISION);
 
-		mPolDrop = new TBPPolDrop(this, "<TBPPolDrop>");
-		mVomit   = new TBPVomit(this, "<TBPVomit>");
+		group->add(mHeadHit);
+		group->add(mNavel);
+
+		mMapCollisionManager
+		    = new TMapCollisionManager(1, "/scene/bosspakkun", this);
+		mMapCollisionManager->init("col_body.col", 1, nullptr);
+
+		TMapCollisionBase* entry = mMapCollisionManager->unk8;
+		Mtx mtx;
+		MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z,
+		            mRotation.x, mRotation.y, mRotation.z, mScaling.x,
+		            mScaling.y, mScaling.z);
+		PSMTXCopy(mtx, entry->unk20);
+		entry->setUp();
+
+		mMtxCalc = new TBossPakkunMtxCalc(this);
+		mMActor->setCalcForBck(mMtxCalc);
+		mMActor->calc();
+	}
+
+	if (isLight != 0) {
+		mSpine->initWith(&TNerveBPWaitL::theNerve());
+	} else if (gpMarDirector->mMap == 0x37) {
+		mSpine->initWith(&TNerveBPFall::theNerve());
+	} else if (gpMarDirector->unk7D == 4) {
+		mSpine->initWith(&TNerveBPSleep::theNerve());
+	} else {
+		mSpine->initWith(&TNerveBPWait::theNerve());
+	}
+
+	mPolDrop        = new TBPPolDrop(this, "<TBPPolDrop>");
+	MActor* stamp   = mMActorKeeper->createMActor("pollut_ball_stamp.bmd", 0);
+	MActor* ball    = mMActorKeeper->createMActor("pollut_ball.bmd", 0);
+	mPolDrop->unk78 = ball;
+	mPolDrop->unk7C = stamp;
+
+	ResTIMG* texture = (ResTIMG*)JKRFileLoader::getGlbResource(
+	    "/scene/map/pollution/H_ma_rak.bti");
+	if (texture != nullptr) {
+		SMS_ChangeTextureAll(mPolDrop->unk78->getModel()->getModelData(),
+		                     "M_dummy", *texture);
+	}
+
+	if (isLight == 0) {
+		mVomit        = new TBPVomit(this, "<TBPVomit>");
+		MActor* white = mMActorKeeper->createMActor("bosspakuPollut_white.bmd",
+		                                            0);
+		MActor* black = mMActorKeeper->createMActor("bosspakuPollut.bmd", 0);
+		mVomit->unk14 = black;
+		mVomit->unk18 = white;
+
 		mTornado = new TBPTornado(this, "<TBPTornado>");
-		unk18C   = new TWaterEmitInfo("/enemy/bosspakuwater.prm");
+		group->add(mTornado);
+
+		unk18C = new TWaterEmitInfo("/enemy/bosspakuwater.prm");
 	}
 
 	initAnmSound();
 	onLiveFlag(LIVE_FLAG_UNK400);
 	mScaledBodyRadius = 400.0f;
 
-	if (unk124 != nullptr && gpConductor != nullptr) {
-		unk124->unk0 = gpConductor->getGraphByName("bosspakkun");
-		if (unk124->unk0 != nullptr) {
-			unk124->mPrevIdx = -1;
-			goToShortestNextGraphNode();
-		}
+	unk124->unk0 = gpConductor->getGraphByName("bosspakkun");
+	if (unk124->unk0 != nullptr) {
+		unk124->mPrevIdx = -1;
+		goToShortestNextGraphNode();
 	}
+
+	TSpineEnemyParams* params = getSaveParam();
+	mHitPoints = params ? params->mSLHitPointMax.get() : 1;
 }
 
 void TBossPakkun::setGroundCollision()
