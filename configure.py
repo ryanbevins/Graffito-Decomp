@@ -882,7 +882,7 @@ config.libs = [
         "cflags": [*cflags_game, "-inline deferred", "-opt all,nostrength"],
         "progress_category": "game",
         "objects": [
-            Object(NonMatching, "Strategic/liveactor.cpp"),
+            Object(Equivalent, "Strategic/liveactor.cpp"),
             Object(Equivalent, "Strategic/liveinterp.cpp"),
             Object(Equivalent, "Strategic/livemanager.cpp"),
             Object(Equivalent, "Strategic/ObjHitCheck.cpp"),

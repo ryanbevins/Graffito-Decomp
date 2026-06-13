@@ -155,7 +155,7 @@ public:
 	TSpineEnemy* getBody() const { return mBody; }
 
 	// fabricated
-	bool isIdle() const { return mCurrent == nullptr && mVertebrae.empty(); }
+	bool isIdle() const { return mCurrent == nullptr && mVertebrae.size() <= 0; }
 };
 
 #endif
