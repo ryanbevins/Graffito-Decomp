@@ -5,7 +5,9 @@
 #include <JSystem/JDrama/JDRCamera.hpp>
 #include <JSystem/JDrama/JDRSmJ3DAct.hpp>
 #include <JSystem/JDrama/JDRCharacter.hpp>
+#define JDRAMA_NO_INLINE_LIGHT_CTOR
 #include <JSystem/JDrama/JDRLighting.hpp>
+#undef JDRAMA_NO_INLINE_LIGHT_CTOR
 #include <JSystem/JDrama/JDRNameRefPtrList.hpp>
 #include <JSystem/JDrama/JDRDrawBufObj.hpp>
 #include <JSystem/JDrama/JDRViewport.hpp>
@@ -34,6 +36,14 @@ TCamera::TCamera(float near, float far, const char* name)
     , mNear(near)
     , mFar(far)
 {
+}
+
+TLight::TLight(const char* name)
+    : TPlacement(name)
+    , mLightType(JStage::TELIGHT_Unk1)
+{
+	GXInitLightAttn(&unk24, 1.875f, 0.0f, 0.0f, 1.875f, 0.0f, 0.0f);
+	GXInitLightColor(&unk24, JUtility::TColor(0xff, 0xff, 0xff, 0xff));
 }
 
 TNameRef* TNameRefGen::getNameRef(const char* name) const
