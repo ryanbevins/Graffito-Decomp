@@ -73,13 +73,13 @@ void TShimmer::perform(u32 param_1, JDrama::TGraphics* param_2)
 		MTXConcat(afStack_80, afStack_b0, afStack_80);
 		MTXConcat(afStack_80, afStack_e0, afStack_80);
 		unk48->setBaseTRMtx(afStack_80);
-		unk48->entry();
 		unk48->calc();
+		unk48->viewCalc();
 	}
 
 	if (param_1 & 0x200) {
 		if (gpMarDirector->mMap == 2 || !(gpCamera->unk124.y < 0.0f))
-			unk48->update();
+			unk48->entry();
 	}
 }
 
