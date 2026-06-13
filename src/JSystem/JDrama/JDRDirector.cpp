@@ -29,9 +29,9 @@ TNameRef* TDirector::searchF(u16 key, const char* name)
 int TDirector::direct()
 {
 	TGraphics graphics;
-	graphics.unk2 = 1;
+	graphics.unk0 = 1;
 	unk10->testPerform(3, &graphics);
-	graphics.unk2 = 0;
+	graphics.unk0 = 0;
 	unk14->testPerform(8, &graphics);
 	return 0;
 }
