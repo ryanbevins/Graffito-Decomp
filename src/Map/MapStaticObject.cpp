@@ -72,7 +72,7 @@ static const TMapStaticObj::ActorDataTableEntry actor_data_table[] = {
 
 	{ "TopOfCorona", 0x40000024, 0x0, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, nullptr,
 	  0x10210000, nullptr, 0x0, 0xFFFFFFFF, "/scene/mapObj/ms_coronasmoke.jpa",
-	  0x146, 0x1000000, 0x0 },
+	  0x146, 0x1, 0x0 },
 
 	{ "BiancoRiver", 0x0, 0x0, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, "BiancoRiver",
 	  0x10210000, nullptr, 0x0, 0xFFFFFFFF, 0x0, 0x0, 0x0, 0x40 },
@@ -88,7 +88,7 @@ static const TMapStaticObj::ActorDataTableEntry actor_data_table[] = {
 
 	{ "BiancoBossEffectLight", 0x0, 0x0, 0.0f, 0.0f, 0.0f, 0.0f, nullptr,
 	  nullptr, 0x10210000, nullptr, 0x0, 0xFFFFFFFF,
-	  "/scene/map/map/ms_wmlin_light.jpa", 0x151, 0x1000000, 0x0 },
+	  "/scene/map/map/ms_wmlin_light.jpa", 0x151, 0x1, 0x0 },
 
 	{ "BiaWaterPollution", 0x0, 0x0, 0.0f, 0.0f, 0.0f, 0.0f, nullptr,
 	  "BiaWaterPollution", 0x11220000, nullptr, 0x0, 0xFFFFFFFF, 0x0, 0x0, 0x0,
@@ -307,7 +307,7 @@ void TMapStaticObj::init(const char* name)
 	const ActorDataTableEntry* entry;
 	for (int i = 0;; ++i) {
 		entry = &actor_data_table[i];
-		if (strcmp(name, actor_data_table[i].unk0))
+		if (!strcmp(name, actor_data_table[i].unk0))
 			break;
 	}
 	unk68 = entry;
