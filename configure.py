@@ -1123,7 +1123,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(NonMatching, "Enemy/conductor.cpp"),
-            Object(NonMatching, "Enemy/effectObj.cpp"),
+            Object(Equivalent, "Enemy/effectObj.cpp"),
             Object(NonMatching, "Enemy/emario.cpp"),
             Object(NonMatching, "Enemy/enemy.cpp"),
             Object(NonMatching, "Enemy/enemyAttachment.cpp"),
