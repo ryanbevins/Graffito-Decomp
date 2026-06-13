@@ -792,7 +792,7 @@ config.libs = [
             Object(NonMatching, "MarioUtil/ShadowUtil.cpp"),
             Object(Matching, "MarioUtil/gd-reinit-gx.cpp"),
             Object(Equivalent, "MarioUtil/EffectUtil.cpp"),
-            Object(NonMatching, "MarioUtil/ModelUtil.cpp"),
+            Object(Equivalent, "MarioUtil/ModelUtil.cpp"),
             Object(Matching, "MarioUtil/RumbleMgr.cpp"),
             Object(Matching, "MarioUtil/RumbleData.cpp"),
             Object(Matching, "MarioUtil/RumbleType.cpp"),
