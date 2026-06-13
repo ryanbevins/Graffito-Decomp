@@ -1232,7 +1232,7 @@ config.libs = [
             Object(NonMatching, "Camera/lensglow.cpp"),
             Object(Equivalent, "Camera/sunmgr.cpp"),
             Object(Equivalent, "Camera/sunmodel.cpp"),
-            Object(NonMatching, "Camera/CubeManagerBase.cpp"),
+            Object(Equivalent, "Camera/CubeManagerBase.cpp"),
             Object(Equivalent, "Camera/CameraMapTool.cpp"),
             Object(Equivalent, "Camera/CubeMapTool.cpp"),
             Object(Equivalent, "Camera/CameraMultiPlayer.cpp"),
