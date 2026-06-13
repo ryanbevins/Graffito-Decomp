@@ -156,7 +156,7 @@ bool CPolarSubCamera::execWallCheck_(Vec* p)
 				f32 sdist = trg.x * nx + trg.y * ny + trg.z * nz
 				            + wall->mPlaneDistance;
 				f32 absD = sdist >= 0.0f ? sdist : -sdist;
-				if (absD >= radius)
+				if (!(absD < radius))
 					continue;
 
 				void* opt   = getKindOpt(this);
