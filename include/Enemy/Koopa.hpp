@@ -174,7 +174,7 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void init(TLiveManager*);
 	virtual void calcRootMatrix();
-	virtual void updateAnmSound();
+	virtual BOOL updateAnmSound();
 	virtual const char** getBasNameTable() const;
 	virtual void reset();
 

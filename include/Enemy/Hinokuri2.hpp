@@ -155,7 +155,7 @@ public:
 	void makeQuake(f32);
 	void setLevel(int);
 	void generateEnemy();
-	void updateAnmSound();
+	BOOL updateAnmSound();
 	void changeBck(int);
 	BOOL receiveMessageLv0(THitActor*, u32);
 	BOOL receiveMessageLv1(THitActor*, u32);

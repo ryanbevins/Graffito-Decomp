@@ -341,7 +341,7 @@ public:
 	/* 0xFC */ u16 mState;
 	/* 0xFE */ u16 unkFE;
 	/* 0x100 */ u16 unk100;
-	/* 0x102 */ u16 unk102;
+	/* 0x102 */ s16 unk102;
 	/* 0x104 */ int mLifeTimer;
 	/* 0x108 */ f32 mYOffset; // TODO: offset from what to what?
 	/* 0x10C */ JGeometry::TVec3<f32> mInitialPosition;

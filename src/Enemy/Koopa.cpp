@@ -505,7 +505,7 @@ void TKoopa::calcRootMatrix()
 	mScaling.z = 1.0f;
 }
 
-void TKoopa::updateAnmSound()
+BOOL TKoopa::updateAnmSound()
 {
 	if (mMActor->getCurAnmIdx(0) == 8) {
 		unk158.set(mPosition);

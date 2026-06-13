@@ -373,7 +373,7 @@ public:
 	virtual void init(TLiveManager*);
 	virtual void calcRootMatrix();
 	virtual void moveObject();
-	virtual void updateAnmSound();
+	virtual BOOL updateAnmSound();
 	virtual void reset();
 	virtual void behaveToWater(THitActor*);
 	virtual bool changeByJuice();

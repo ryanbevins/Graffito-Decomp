@@ -555,9 +555,11 @@ void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
 				SMS_ShowAllShapePacket(getModel());
 		}
 	}
-	if (mLiveFlag & 0x400)
+	if (mLiveFlag & 0x200)
 		return;
 	moveObject();
+	if (updateAnmSound())
+		param_1 &= ~2;
 	if (param_1 & 1) {
 		if (mLifeTimer > 0)
 			mLifeTimer -= 1;

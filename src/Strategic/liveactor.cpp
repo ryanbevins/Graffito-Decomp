@@ -447,7 +447,7 @@ void TLiveActor::initAnmSound()
 	mAnmSound->initAnmSound(nullptr, 1, 0.0f);
 }
 
-void TLiveActor::updateAnmSound()
+BOOL TLiveActor::updateAnmSound()
 {
 	if (!mAnmSound)
 		return;

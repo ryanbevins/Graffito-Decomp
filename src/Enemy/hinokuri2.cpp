@@ -711,7 +711,7 @@ void THinokuri2::generateEnemy()
 	    mannameTable[rand() * (1.0f / (RAND_MAX + 1.0f)) > 0.5f ? 0 : 1], 1, 0);
 }
 
-void THinokuri2::updateAnmSound()
+BOOL THinokuri2::updateAnmSound()
 {
 	TSpineEnemy::updateAnmSound();
 	if (unk158 > 0)

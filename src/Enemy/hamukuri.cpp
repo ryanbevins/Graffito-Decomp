@@ -1601,7 +1601,7 @@ void TDangoHamuKuri::moveObject()
 		offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
 }
 
-void TDangoHamuKuri::updateAnmSound()
+BOOL TDangoHamuKuri::updateAnmSound()
 {
 	TSmallEnemy::updateAnmSound();
 	if (mBoss)

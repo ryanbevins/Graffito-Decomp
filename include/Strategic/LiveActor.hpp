@@ -62,7 +62,7 @@ public:
 	virtual f32 getGravityY() const;
 	virtual BOOL hasMapCollision() const;
 	virtual Vec getFocalPoint() const;
-	virtual void updateAnmSound();
+	virtual BOOL updateAnmSound();
 	virtual const char** getBasNameTable() const;
 
 	void stopAnmSound();

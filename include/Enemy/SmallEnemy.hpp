@@ -118,7 +118,7 @@ public:
 	virtual void init(TLiveManager*);
 	virtual void moveObject();
 	virtual void kill();
-	virtual void updateAnmSound();
+	virtual BOOL updateAnmSound();
 	virtual void reset();
 	virtual void genRandomItem();
 	virtual void genEventCoin();
