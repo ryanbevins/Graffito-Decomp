@@ -386,7 +386,7 @@ config.libs = [
             Object(Equivalent, "JSystem/JDrama/JDRDirector.cpp"),
             Object(Equivalent, "JSystem/JDrama/JDRDisplay.cpp"),
             Object(Equivalent, "JSystem/JDrama/JDRDrawBufObj.cpp"),
-            Object(NonMatching, "JSystem/JDrama/JDRDStage.cpp"),
+            Object(Equivalent, "JSystem/JDrama/JDRDStage.cpp"),
             Object(Equivalent, "JSystem/JDrama/JDRDStageGroup.cpp"),
             Object(Equivalent, "JSystem/JDrama/JDREfbCtrl.cpp"),
             Object(Equivalent, "JSystem/JDrama/JDREfbSetting.cpp"),
