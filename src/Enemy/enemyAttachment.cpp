@@ -70,7 +70,7 @@ void TEnemyAttachment::bind()
 	JGeometry::TVec3<f32> local_1C = mPosition;
 	local_1C += mLinearVelocity;
 	local_1C += mVelocity;
-	setBehavior();
+	recoverScale();
 	mVelocity.y -= getNowGravity();
 	if (mVelocity.y < mVelocityMinY)
 		mVelocity.y = mVelocityMinY;
@@ -144,9 +144,8 @@ void TEnemyAttachment::sendMessage()
 			continue;
 		}
 
-		if (mCollisions[i] != unk160) {
-			((TLiveActor*)mCollisions[i])->kill();
-		}
+		if (mCollisions[i] != unk160)
+			kill();
 	}
 }
 
@@ -162,7 +161,7 @@ void TEnemyAttachment::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (unk150 == nullptr) {
 		if (param_1 & 2)
-			kill();
+			behaveToHost();
 		return;
 	}
 
