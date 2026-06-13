@@ -447,7 +447,7 @@ config.libs = [
             Object(Equivalent, "JSystem/JAudio/JASystem/JASWSParser.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASAudioThread.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASChAllocQueue.cpp"),
-            Object(NonMatching, "JSystem/JAudio/JASystem/JASChannel.cpp"),
+            Object(Equivalent, "JSystem/JAudio/JASystem/JASChannel.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASDriverTables.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASChannelMgr.cpp"),
             Object(Matching, "JSystem/JAudio/JASystem/JASChGlobal.cpp"),
