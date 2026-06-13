@@ -144,15 +144,10 @@ public:
 	virtual void kill();
 	virtual void reset();
 
-	void emitPolParticle();
-	void stopPolParticle();
-	void updatePolTrans();
 	void resetPolInterval();
 	void invalidateCollisionAll();
 	void validateCollisionAll();
 	void emitWaterParticle();
-	void shakeCamera(int);
-	void makeQuake(f32);
 	void setLevel(int);
 	void generateEnemy();
 	BOOL updateAnmSound();

@@ -585,15 +585,6 @@ void THinokuri2::kill()
 	TSpineEnemy::kill();
 }
 
-// TODO: figure out which parts of code belong into these inlines
-
-void THinokuri2::emitPolParticle() { }
-
-void THinokuri2::stopPolParticle() { }
-
-void THinokuri2::updatePolTrans() { }
-
-// TODO: fake & wrong
 template <class T> static inline T randy(T l, T r)
 {
 	r -= l;
@@ -644,10 +635,6 @@ void THinokuri2::emitWaterParticle()
 	unk19C->mPos.value = position;
 	gpModelWaterManager->emitRequest(*unk19C);
 }
-
-void THinokuri2::shakeCamera(int) { }
-
-void THinokuri2::makeQuake(f32) { }
 
 void THinokuri2::setLevel(int level)
 {
@@ -1098,7 +1085,7 @@ DEFINE_NERVE(TNerveHino2GraphWander, TLiveActor)
 			local_60 = self->mPosition;
 			local_60.y += 500.0f;
 		} else {
-			self->getJointTransByIndex(0x14, &local_60);
+			self->getJointTransByIndex(0x18, &local_60);
 		}
 
 		self->resetPolInterval();
