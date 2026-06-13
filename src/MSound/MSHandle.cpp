@@ -192,7 +192,7 @@ f32 MSHandle::calcVolume(f32 param1, f32 param2, f32 param3, u8 param4,
 f32 MSHandle::calcPan(const Vec& vec, f32 param1, f32 param2)
 {
 	f32 maxAmp = cPan_MaxAmp;
-	f32 angle  = (param1 > 0.0f) ? MSACos(-vec.x / param1) : 0.0f;
+	f32 angle  = (param1 <= 0.0f) ? 0.0f : MSACos(-vec.x / param1);
 	f32 x = cPan_CAdjust + 2.0f * maxAmp * angle / 3.14159265f - maxAmp
 	    - cPan_CAdjust;
 
@@ -221,7 +221,7 @@ f32 MSHandle::calcPan(const Vec& vec, f32 param1, f32 param2)
 
 f32 MSHandle::calcDolby(const Vec& vec, f32 param)
 {
-	f32 angle = (param > 0.0f) ? MSACos(-vec.z / param) : 0.0f;
+	f32 angle = (param <= 0.0f) ? 0.0f : MSACos(-vec.z / param);
 
 	f32 d;
 	if (angle < cDol_0Rad) {
