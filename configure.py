@@ -1109,7 +1109,7 @@ config.libs = [
             Object(NonMatching, "GC2D/Guide.cpp"),
             Object(Equivalent, "GC2D/SunGlass.cpp"),
             Object(Equivalent, "GC2D/ShineFader.cpp"),
-            Object(NonMatching, "GC2D/ProgSelect.cpp"),
+            Object(Equivalent, "GC2D/ProgSelect.cpp"),
             Object(Equivalent, "GC2D/hx_wiper.c"),
             Object(Equivalent, "GC2D/MovieSubtitle.cpp"),
             Object(NonMatching, "GC2D/Option.cpp"),
