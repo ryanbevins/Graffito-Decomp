@@ -149,8 +149,8 @@ void TAnimalBase::perform(u32 flags, JDrama::TGraphics* gfx)
 				sharedMtx[0] = sharedModel->mNodeMatrices;
 				sharedMtx[1] = sharedModel->unk5C;
 
-				u16 count = data->getDrawMtxNum();
-				for (u16 i = 0; i < count; ++i) {
+				int count = data->getDrawMtxNum();
+				for (int i = 0; i < count; ++i) {
 					u8 flag = data->getDrawMtxFlag(i);
 					u16 index = data->getDrawMtxIndex(i);
 					PSMTXConcat(j3dSys.mViewMtx, sharedMtx[flag][index],
