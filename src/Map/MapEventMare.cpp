@@ -36,26 +36,21 @@ void TMareWallRock::appear()
 	mCollisions[0]->moveTrans(trans);
 
 	JPABaseEmitter* emitter
-	    = gpMarioParticleManager->emit(0x69, &mEffectPos, 0, this);
+	    = gpMarioParticleManager->emit(0x69, &mEffectPos, 0, &mEffectPos);
 	if (emitter != nullptr) {
 		emitter->setRotation(0, (s16)mEffectRotY, 0);
 		emitter->unk154.x = mEffectScale.x;
 		emitter->unk154.y = mEffectScale.y;
 		emitter->unk154.z = mEffectScale.z;
-		emitter->unk174.x = mEffectScale.x;
-		emitter->unk174.y = mEffectScale.y;
-		emitter->unk174.z = mEffectScale.z;
 	}
 
-	emitter = gpMarioParticleManager->emit(0x1e5, &mEffectPos, 2, this);
+	emitter = gpMarioParticleManager->emit(0x1e5, &mEffectPos, 2,
+	                                       &mEffectPos);
 	if (emitter != nullptr) {
 		emitter->setRotation(0, (s16)mEffectRotY, 0);
 		emitter->unk154.x = mEffectScale.x;
 		emitter->unk154.y = mEffectScale.y;
 		emitter->unk154.z = mEffectScale.z;
-		emitter->unk174.x = mEffectScale.x;
-		emitter->unk174.y = mEffectScale.y;
-		emitter->unk174.z = mEffectScale.z;
 	}
 
 	mState = 2;
@@ -68,9 +63,8 @@ void TMareWallRock::movement()
 
 	switch (mState) {
 	case 0:
-		if (gpPollution != nullptr
-		    && gpPollution->getLayer(mLayerIndex)->getPollutionDegree()
-		           < mCleanedDegree) {
+		if (gpPollution->getLayer(mLayerIndex)->getPollutionDegree()
+		    < mCleanedDegree) {
 			appear();
 			gpPollution->offLayer(mLayerIndex);
 		}
@@ -87,6 +81,13 @@ void TMareWallRock::movement()
 			transform.mTranslate.z -= mAppearSpeed;
 			if (TMapObjBase::marioIsOn(this))
 				mPosition.z -= mAppearSpeed;
+
+			if (gpMSound->gateCheck(0x3008)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x3008, &mPosition, 0, nullptr, 0, 4);
+			}
+			SMSRumbleMgr->start(0x13, -1, (f32*)nullptr);
+			gpCameraShake->keepShake(CAM_SHAKE_MODE_UNK5, 0.5f);
 		}
 		((TMapObjBase*)this)->calcMap();
 		if (transform.mTranslate.z < 0.0f) {
@@ -598,6 +599,7 @@ u32 TMareEventBumpyWall::touchWater(THitActor*)
 void TMareEventBumpyWall::bumpDownZ()
 {
 	f32 current = TMapObjBase::getJointTransZ(mJoint);
+	JGeometry::TVec3<f32> trans(0.0f, 0.0f, current);
 	if (current > -mBumpLimit) {
 		if (!TMapObjBase::isDemo()) {
 			current -= mBumpSpeed;
@@ -611,7 +613,6 @@ void TMareEventBumpyWall::bumpDownZ()
 			SMSRumbleMgr->stop();
 		}
 
-		JGeometry::TVec3<f32> trans(0.0f, 0.0f, current);
 		TMapObjBase::setJointTransZ(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
@@ -620,13 +621,14 @@ void TMareEventBumpyWall::bumpDownZ()
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
 		SMSRumbleMgr->stop(0x13);
-		makeObjDefault();
+		kill();
 	}
 }
 
 void TMareEventBumpyWall::bumpUpZ()
 {
 	f32 current = TMapObjBase::getJointTransZ(mJoint);
+	JGeometry::TVec3<f32> trans(0.0f, 0.0f, current);
 	if (current < mBumpLimit) {
 		if (!TMapObjBase::isDemo()) {
 			current += mBumpSpeed;
@@ -640,7 +642,6 @@ void TMareEventBumpyWall::bumpUpZ()
 			SMSRumbleMgr->stop(0x13);
 		}
 
-		JGeometry::TVec3<f32> trans(0.0f, 0.0f, current);
 		TMapObjBase::setJointTransZ(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
@@ -649,13 +650,14 @@ void TMareEventBumpyWall::bumpUpZ()
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
 		SMSRumbleMgr->stop(0x13);
-		makeObjDefault();
+		kill();
 	}
 }
 
 void TMareEventBumpyWall::bumpDownX()
 {
 	f32 current = TMapObjBase::getJointTransX(mJoint);
+	JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
 	if (current > -mBumpLimit) {
 		if (!TMapObjBase::isDemo()) {
 			current -= mBumpSpeed;
@@ -669,7 +671,6 @@ void TMareEventBumpyWall::bumpDownX()
 			SMSRumbleMgr->stop(0x13);
 		}
 
-		JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
 		TMapObjBase::setJointTransX(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
@@ -678,13 +679,14 @@ void TMareEventBumpyWall::bumpDownX()
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
 		SMSRumbleMgr->stop(0x13);
-		makeObjDefault();
+		kill();
 	}
 }
 
 void TMareEventBumpyWall::bumpUpX()
 {
 	f32 current = TMapObjBase::getJointTransX(mJoint);
+	JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
 	if (current < mBumpLimit) {
 		if (!TMapObjBase::isDemo()) {
 			current += mBumpSpeed;
@@ -698,7 +700,6 @@ void TMareEventBumpyWall::bumpUpX()
 			SMSRumbleMgr->stop(0x13);
 		}
 
-		JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
 		TMapObjBase::setJointTransX(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
@@ -707,7 +708,7 @@ void TMareEventBumpyWall::bumpUpX()
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
 		SMSRumbleMgr->stop(0x13);
-		makeObjDefault();
+		kill();
 	}
 }
 
@@ -744,7 +745,7 @@ void TMareEventBumpyWall::load(JSUMemoryInputStream& stream)
 	    mBuildingIndex, nullptr);
 	mMoveCollision = TMapObjBase::newAndInitBuildingCollisionMove(
 	    mBuildingIndex, nullptr);
-	mWarpCollision->remove();
+	mWarpCollision->setUp();
 
 	mBumpSpeed = 2.0f;
 	mBumpLimit = 400.0f;
