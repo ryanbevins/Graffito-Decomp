@@ -432,9 +432,7 @@ void TEffectBombColumWater::generate(JGeometry::TVec3<f32>& param_1,
                                      JGeometry::TVec3<f32>& param_2)
 {
 	reset();
-	JGeometry::TVec3<f32> local_28 = param_2;
-	local_28.scale(1.3f);
-	mScaling = local_28;
+	mScaling = param_2;
 
 	if (JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(0x2F, &param_1, 0, nullptr)) {
@@ -449,7 +447,7 @@ void TEffectBombColumWater::generate(JGeometry::TVec3<f32>& param_1,
 	}
 
 	if (JPABaseEmitter* emitter
-	    = gpMarioParticleManager->emit(0x1D4, &param_1, 0, nullptr)) {
+	    = gpMarioParticleManager->emit(0x1D4, &param_1, 2, nullptr)) {
 		emitter->unk154.set(mScaling);
 		emitter->unk174.set(mScaling);
 	}
