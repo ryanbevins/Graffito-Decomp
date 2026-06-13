@@ -1,7 +1,9 @@
+#define JDRAMA_NO_INLINE_BASE_CTORS
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JDrama/JDRActor.hpp>
 #include <JSystem/JDrama/JDRLighting.hpp>
 #include <JSystem/JDrama/JDRCharacter.hpp>
+#undef JDRAMA_NO_INLINE_BASE_CTORS
 
 void JDrama::TActor::load(JSUMemoryInputStream& stream)
 {

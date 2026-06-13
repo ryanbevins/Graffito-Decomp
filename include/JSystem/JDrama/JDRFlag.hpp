@@ -5,7 +5,7 @@ namespace JDrama {
 
 template <class T> class TFlagT {
 public:
-	TFlagT(T v = T()) { set(v); }
+	TFlagT(T v = T());
 
 	TFlagT(const TFlagT<T>& other)
 	    : mValue(other.mValue)
@@ -37,6 +37,14 @@ public:
 public:
 	T mValue;
 };
+
+#ifdef JDRAMA_NO_INLINE_BASE_CTORS
+#pragma dont_inline on
+template <class T> TFlagT<T>::TFlagT(T v) { set(v); }
+#pragma dont_inline off
+#else
+template <class T> inline TFlagT<T>::TFlagT(T v) { set(v); }
+#endif
 
 }; // namespace JDrama
 

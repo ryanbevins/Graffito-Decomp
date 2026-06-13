@@ -9,11 +9,7 @@ namespace JDrama {
 
 class TNameRef {
 public:
-	TNameRef(const char* name)
-	    : mName(name)
-	    , mKeyCode(calcKeyCode(name))
-	{
-	}
+	TNameRef(const char* name);
 
 	static u16 calcKeyCode(char const*);
 	static const char* getType(JSUMemoryInputStream&, JSUMemoryInputStream&);
@@ -38,6 +34,22 @@ protected:
 	/* 0x4 */ const char* mName;
 	/* 0x8 */ u16 mKeyCode;
 };
+
+#ifdef JDRAMA_NO_INLINE_BASE_CTORS
+#pragma dont_inline on
+TNameRef::TNameRef(const char* name)
+    : mName(name)
+    , mKeyCode(calcKeyCode(name))
+{
+}
+#pragma dont_inline off
+#else
+inline TNameRef::TNameRef(const char* name)
+    : mName(name)
+    , mKeyCode(calcKeyCode(name))
+{
+}
+#endif
 
 } // namespace JDrama
 
