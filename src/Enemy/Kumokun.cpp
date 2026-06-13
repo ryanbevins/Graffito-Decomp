@@ -369,7 +369,7 @@ bool TKumokun::checkOnMovingFloor(JGeometry::TVec3<f32>* param_1,
 			uVar7 = true;
 			local_8C.set(local_98);
 		} else {
-			local_8C.y = yTmp;
+			local_8C.y = dVar10;
 		}
 	} else {
 		uVar7 = true;
@@ -418,9 +418,9 @@ bool TKumokun::checkOnMovingRoof(JGeometry::TVec3<f32>* param_1,
 	    = gpMap->checkRoof(local_A8.x, yTmp - mHeadHeight, local_A8.z, param_2);
 	dVar10 -= 1.0f;
 	if (yTmp > dVar10 - 0.05f) {
-		local_A8.y = yTmp;
+		local_A8.y = dVar10;
 	} else if (mHeadHeight < dVar10 - yTmp) {
-		local_A8.y = yTmp;
+		local_A8.y = dVar10;
 	} else {
 		uVar7 = true;
 		local_A8.set(local_b4);
@@ -472,7 +472,7 @@ void TKumokun::bindOnFlying()
 	}
 
 	const TBGCheckData* wall
-	    = checkWallPlane(&local_74, mWallRadius, mBodyRadius);
+	    = checkWallPlane(&local_74, mHeadHeight, mBodyRadius);
 
 	if (wall)
 		hit = true;
@@ -820,7 +820,7 @@ void TKumokun::prepareFly()
 {
 	JGeometry::TVec3<f32> vel = getPlaneNormal();
 	vel.setLength(getSaveParam2()->mFlySpeed.get());
-	mLinearVelocity = vel;
+	mVelocity = vel;
 
 	resetHitPlaneCounter();
 
@@ -1029,7 +1029,7 @@ void TKumokunManager::load(JSUMemoryInputStream& stream)
 	unk38 = params;
 
 	params->mSLAttackRadius.set(60);
-	params->mSLAttackRadius.set(50);
+	params->mSLAttackHeight.set(50);
 	params->mSLDamageRadius.set(60);
 	params->mSLDamageHeight.set(70);
 	TSmallEnemyManager::load(stream);

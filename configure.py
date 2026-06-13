@@ -1194,7 +1194,7 @@ config.libs = [
             Object(Equivalent, "Enemy/wireBinder.cpp"),
             Object(Equivalent, "Enemy/yunbo.cpp"),
             Object(NonMatching, "Enemy/koopajr.cpp"),
-            Object(NonMatching, "Enemy/Kumokun.cpp"),
+            Object(Equivalent, "Enemy/Kumokun.cpp"),
             Object(NonMatching, "Enemy/Koopa.cpp"),
             Object(NonMatching, "Enemy/Kukku.cpp"),
             Object(NonMatching, "Enemy/Amenbo.cpp"),
