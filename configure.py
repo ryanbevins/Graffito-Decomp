@@ -1214,7 +1214,7 @@ config.libs = [
         "cflags": [*cflags_game, "-inline deferred"],
         "progress_category": "game",
         "objects": [
-            Object(NonMatching, "Camera/CameraBGCheck.cpp"),
+            Object(Equivalent, "Camera/CameraBGCheck.cpp"),
             Object(NonMatching, "Camera/CameraChange.cpp"),
             Object(Equivalent, "Camera/CameraCodeControl.cpp"),
             Object(NonMatching, "Camera/cameragc.cpp"),
