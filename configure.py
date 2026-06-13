@@ -978,7 +978,7 @@ config.libs = [
             Object(Equivalent, "MSound/MSound.cpp"),
             Object(Equivalent, "MSound/MSoundBGM.cpp"),
             Object(Matching, "MSound/MSoundDebug.cpp"),
-            Object(NonMatching, "MSound/MSoundScene.cpp"),
+            Object(Equivalent, "MSound/MSoundScene.cpp"),
             Object(NonMatching, "MSound/MSoundSE.cpp"),
             Object(Equivalent, "MSound/MSoundStruct.cpp"),
             Object(Equivalent, "MSound/MSHandle.cpp"),

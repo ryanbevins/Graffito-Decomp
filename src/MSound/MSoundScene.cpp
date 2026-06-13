@@ -83,7 +83,7 @@ void MSSceneSE::frameLoop(u32 id, Vec* trans, u8 count)
 		} else {
 			f32 d_trans = MSGMSound->getDistFromCamera(trans_i);
 			f32 d_cur   = MSGMSound->getDistFromCamera(mPool[sector][0]);
-			if (d_cur < d_trans) {
+			if (d_cur >= d_trans) {
 				sortMaxTrans(mPool[sector][0], sector, 1);
 				mPool[sector][0] = trans_i;
 			} else {
@@ -135,9 +135,9 @@ void MSSceneSE::sortMaxTrans(Vec* trans, u8 idx, u8 depth)
 		return;
 	}
 	Vec* cur = mPool[idx][depth];
-	f32 d_cur   = MSGMSound->getDistFromCamera(cur);
 	f32 d_trans = MSGMSound->getDistFromCamera(trans);
-	if (d_cur < d_trans) {
+	f32 d_cur   = MSGMSound->getDistFromCamera(cur);
+	if (d_cur >= d_trans) {
 		u8 nd = depth + 1;
 		if (nd < 3) {
 			if (mPool[idx][nd] == 0) {
@@ -145,7 +145,7 @@ void MSSceneSE::sortMaxTrans(Vec* trans, u8 idx, u8 depth)
 			} else {
 				f32 d_cur2 = MSGMSound->getDistFromCamera(cur);
 				f32 d_next = MSGMSound->getDistFromCamera(mPool[idx][nd]);
-				if (d_next < d_cur2) {
+				if (d_next >= d_cur2) {
 					u8 nd2 = nd + 1;
 					if (nd2 < 3)
 						sortMaxTrans(mPool[idx][nd], idx, nd2);
@@ -166,7 +166,7 @@ void MSSceneSE::sortMaxTrans(Vec* trans, u8 idx, u8 depth)
 			} else {
 				f32 d_trans2 = MSGMSound->getDistFromCamera(trans);
 				f32 d_next   = MSGMSound->getDistFromCamera(mPool[idx][nd]);
-				if (d_next < d_trans2) {
+				if (d_next >= d_trans2) {
 					u8 nd2 = nd + 1;
 					if (nd2 < 3)
 						sortMaxTrans(mPool[idx][nd], idx, nd2);
