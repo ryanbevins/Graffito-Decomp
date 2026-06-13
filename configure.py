@@ -864,7 +864,7 @@ config.libs = [
             Object(Matching, "System/THPRender.cpp"),
             Object(Equivalent, "System/MarNameRefGen_BossEnemy.cpp"),
             Object(NonMatching, "System/MarNameRefGen_Enemy.cpp"),
-            Object(NonMatching, "System/MarNameRefGen_Map.cpp"),
+            Object(Equivalent, "System/MarNameRefGen_Map.cpp"),
             Object(NonMatching, "System/MarNameRefGen_MapObj.cpp"),
             Object(NonMatching, "System/MarNameRefGen_NPC.cpp"),
             Object(NonMatching, "System/CardManager.cpp"),
