@@ -164,6 +164,7 @@ DEFINE_NERVE(TNerveYumboDancing, TLiveActor)
 
 	if (absDy < self->getSaveParam2()->mSLSearchHeight.get()) {
 		JGeometry::TVec3<f32> mp = *gpMarioPos;
+		mp.y = self->mPosition.y;
 		f32 sl = self->getSaveParam2()->mSLSearchLength.get();
 		f32 sa = self->getSaveParam2()->mSLSearchAngle.get();
 		f32 sw = self->getSaveParam2()->mSLSearchAware.get();
@@ -359,14 +360,14 @@ void TYumbo::shotSeeds()
 	dir.x -= mPosition.x;
 	dir.y -= mPosition.y;
 	dir.z -= mPosition.z;
-	dir.y  = 0.5f * (200.0f + (s16)rand() * (1.0f / 32768.0f));
+	dir.y += 200.0f * (0.5f + (f32)rand() * (1.0f / 32768.0f));
 
-	f32 angleX = getSaveParam2()->mShootAngleX.get();
-	f32 lenSq  = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
-	if (lenSq < 0.0000038146973f) {
+	f32 speed = getSaveParam2()->mShootSpeed.get();
+	f32 lenSq = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
+	if (lenSq <= 0.0000038146973f) {
 		dir.set(0.0f, 0.0f, 0.0f);
 	} else {
-		f32 inv = JGeometry::TUtil<f32>::inv_sqrt(lenSq);
+		f32 inv = speed * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
 		dir.x  *= inv;
 		dir.y  *= inv;
 		dir.z  *= inv;
@@ -374,36 +375,59 @@ void TYumbo::shotSeeds()
 
 	f32 yawDeg = MsGetRotFromZaxisY(dir);
 	f32 yawRad = -(0.017453294f * 0.5f * yawDeg);
-	f32 cosY   = cosf(yawRad);
 	f32 sinY   = sinf(yawRad);
+	f32 cosY   = cosf(yawRad);
 
-	JGeometry::TVec3<f32> dir2;
-	dir2.x = cosY * dir.x + sinY * dir.z;
-	dir2.y = dir.y;
-	dir2.z = -sinY * dir.x + cosY * dir.z;
+	f32 qx = 0.0f;
+	f32 qy = sinY;
+	f32 qz = 0.0f;
+	f32 qw = cosY;
+	f32 x  = dir.x;
+	f32 y  = dir.y;
+	f32 z  = dir.z;
 
-	f32 pitch
-	    = 0.5f * 0.017453294f
-	      * (6.2831855f * ((s16)rand() * (1.0f / 32768.0f)) - 3.1415927f);
-	f32 cosP = cosf(pitch);
-	f32 sinP = sinf(pitch);
+	dir.x = (1.0f - 2.0f * (qy * qy + qz * qz)) * x
+	        + 2.0f * (qx * qy - qz * qw) * y
+	        + 2.0f * (qx * qz + qy * qw) * z;
+	dir.y = 2.0f * (qx * qy + qz * qw) * x
+	        + (1.0f - 2.0f * (qx * qx + qz * qz)) * y
+	        + 2.0f * (qy * qz - qx * qw) * z;
+	dir.z = 2.0f * (qx * qz - qy * qw) * x
+	        + 2.0f * (qy * qz + qx * qw) * y
+	        + (1.0f - 2.0f * (qx * qx + qy * qy)) * z;
 
-	JGeometry::TVec3<f32> dir3;
-	dir3.x = dir2.x;
-	dir3.y = cosP * dir2.y - sinP * dir2.z;
-	dir3.z = sinP * dir2.y + cosP * dir2.z;
+	f32 randomHalf = 0.5f * (6.2831855f * ((f32)rand() * (1.0f / 32768.0f)));
+	f32 randSin    = sinf(randomHalf);
+	f32 randCos    = cosf(randomHalf);
+	f32 angleX     = getSaveParam2()->mShootAngleX.get();
+	f32 spreadHalf = 0.5f * (-3.1415927f * angleX);
+	f32 spreadSin  = sinf(spreadHalf);
+	f32 spreadCos  = cosf(spreadHalf);
+
+	qx = randCos * spreadSin;
+	qy = randSin * spreadCos;
+	qz = -randSin * spreadSin;
+	qw = randCos * spreadCos;
+	x  = dir.x;
+	y  = dir.y;
+	z  = dir.z;
 
 	JGeometry::TVec3<f32> dir4;
-	dir4.x = cosY * dir3.x - sinY * dir3.z;
-	dir4.y = dir3.y;
-	dir4.z = sinY * dir3.x + cosY * dir3.z;
+	dir4.x = (1.0f - 2.0f * (qy * qy + qz * qz)) * x
+	         + 2.0f * (qx * qy - qz * qw) * y
+	         + 2.0f * (qx * qz + qy * qw) * z;
+	dir4.y = 2.0f * (qx * qy + qz * qw) * x
+	         + (1.0f - 2.0f * (qx * qx + qz * qz)) * y
+	         + 2.0f * (qy * qz - qx * qw) * z;
+	dir4.z = 2.0f * (qx * qz - qy * qw) * x
+	         + 2.0f * (qy * qz + qx * qw) * y
+	         + (1.0f - 2.0f * (qx * qx + qy * qy)) * z;
 
-	(void)angleX;
-
+	s32 seedLife = getSaveParam2()->mSeedLife.get();
 	seed->mState &= ~1;
 	seed->mPosition = mPosition;
 	seed->mVelocity.set(dir4.x, dir4.y, dir4.z);
-	seed->mLife = getSaveParam2()->mSeedLife.get();
+	seed->mLife = seedLife;
 	seed->mScaling.set(2.0f, 2.0f, 2.0f);
 	seed->unk64 &= ~1;
 	seed->unk64 |= 4;
