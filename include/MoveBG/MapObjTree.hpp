@@ -30,8 +30,6 @@ public:
 	int controlLeaf(int);
 	void initEach();
 
-	static f32 mNearMiddle;
-	static f32 mMiddleFar;
 	static f32 mBananaTreeJumpPower;
 
 public:

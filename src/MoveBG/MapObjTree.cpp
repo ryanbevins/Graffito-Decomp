@@ -22,16 +22,14 @@
 #include <stdio.h>
 #include <MSound/MSoundBGM.hpp>
 
-static int sWaitTime = 5;
+static int sWaitTime = 1;
 
-f32 TMapObjTree::mNearMiddle          = 1500.0f;
-f32 TMapObjTree::mMiddleFar           = 4000.0f;
-f32 TMapObjTree::mBananaTreeJumpPower = 35.0f;
+f32 TMapObjTree::mBananaTreeJumpPower = 1000.0f;
 
-f32 TMapObjTreeScale::mScaleSpeedY        = 0.04f;
-f32 TMapObjTreeScale::mStatusChangeScaleY = 0.5f;
-f32 TMapObjTreeScale::mScaleSpeedXZ       = 0.04f;
-f32 TMapObjTreeScale::mScaleMin           = 0.01f;
+f32 TMapObjTreeScale::mScaleSpeedY        = 0.005f;
+f32 TMapObjTreeScale::mStatusChangeScaleY = 0.3f;
+f32 TMapObjTreeScale::mScaleSpeedXZ       = 0.007f;
+f32 TMapObjTreeScale::mScaleMin           = 0.1f;
 
 //
 // TMapObjLeaf
@@ -105,48 +103,48 @@ void TMapObjTree::initEach()
 {
 	switch (mActorType) {
 	case 0x40000034:
-		unk148               = 60.0f;
-		unk14C               = 90.0f;
+		unk148               = 20.0f;
+		unk14C               = 95.0f;
 		mLeafCount           = 12;
-		mMarioIsOnRotImpulse = 0.0035f;
-		mHipAttackRotImpulse = 0.025f;
-		mSpring              = 0.025f;
-		mDamping             = 0.92f;
+		mMarioIsOnRotImpulse = 0.001f;
+		mHipAttackRotImpulse = 0.006f;
+		mSpring              = 0.01f;
+		mDamping             = 0.97f;
 		break;
 	case 0x40000035:
-		unk148               = 60.0f;
-		unk14C               = 130.0f;
+		unk148               = 20.0f;
+		unk14C               = 100.0f;
 		mLeafCount           = 8;
-		mMarioIsOnRotImpulse = 0.0035f;
-		mHipAttackRotImpulse = 0.025f;
-		mSpring              = 0.025f;
-		mDamping             = 0.92f;
+		mMarioIsOnRotImpulse = 0.001f;
+		mHipAttackRotImpulse = 0.006f;
+		mSpring              = 0.01f;
+		mDamping             = 0.97f;
 		break;
 	case 0x40000036:
-		unk148               = 200.0f;
-		unk14C               = 130.0f;
+		unk148               = 50.0f;
+		unk14C               = 100.0f;
 		mLeafCount           = 12;
-		mMarioIsOnRotImpulse = 0.0035f;
-		mHipAttackRotImpulse = 0.025f;
-		mSpring              = 0.025f;
-		mDamping             = 0.92f;
+		mMarioIsOnRotImpulse = 0.001f;
+		mHipAttackRotImpulse = 0.006f;
+		mSpring              = 0.01f;
+		mDamping             = 0.97f;
 		break;
 	case 0x40000037:
-		unk148               = 90.0f;
-		unk14C               = 220.0f;
+		unk148               = 95.0f;
+		unk14C               = 60.0f;
 		mLeafCount           = 8;
-		mMarioIsOnRotImpulse = 0.0035f;
-		mHipAttackRotImpulse = 0.025f;
-		mSpring              = 0.025f;
-		mDamping             = 0.92f;
+		mMarioIsOnRotImpulse = 0.001f;
+		mHipAttackRotImpulse = 0.006f;
+		mSpring              = 0.01f;
+		mDamping             = 0.97f;
 		break;
 	case 0x40000039:
-		unk148               = 80.0f;
-		unk14C               = 130.0f;
+		unk148               = 70.0f;
+		unk14C               = 100.0f;
 		mLeafCount           = 8;
-		mMarioIsOnRotImpulse = 0.0085f;
-		mHipAttackRotImpulse = 0.085f;
-		mSpring              = 0.08f;
+		mMarioIsOnRotImpulse = 0.004f;
+		mHipAttackRotImpulse = 0.008f;
+		mSpring              = 0.03f;
 		mDamping             = 0.9f;
 		break;
 	}
@@ -258,7 +256,7 @@ void TMapObjTreeScale::loadAfter()
 		setObjHitData(0);
 		mDamageRadius = mAttackRadius;
 		calcEntryRadius();
-		mDamageHeight = 0.0f;
+		mDamageHeight = 30.0f;
 		calcEntryRadius();
 		removeMapCollision();
 		unkF8 &= ~0x100;
@@ -334,7 +332,7 @@ void TMapObjTreeScale::control()
 	}
 
 	if (!inMapEvent) {
-		if (mEventSink == NULL || !mEventSink->isBuried(1)) {
+		if (mEventSink == NULL || mEventSink->isBuried(1)) {
 			SMSRumbleMgr->start(0x13, (Vec*)&mPosition);
 			gpCameraShake->keepShake(CAM_SHAKE_MODE_UNK5, 1.0f);
 		}
@@ -342,9 +340,9 @@ void TMapObjTreeScale::control()
 
 	if (mWaitTimer > sWaitTime) {
 		mParticlePos[mParticleIndex].set(
-		    (rand() * (1.0f / 32768.0f) * 200.0f + mPosition.x) - 100.0f,
+		    (rand() * (1.0f / 32768.0f) * 400.0f + mPosition.x) - 200.0f,
 		    mPosition.y,
-		    (rand() * (1.0f / 32768.0f) * 200.0f + mPosition.z) - 100.0f);
+		    (rand() * (1.0f / 32768.0f) * 400.0f + mPosition.z) - 200.0f);
 		gpMarioParticleManager->emit(
 		    0x1db, &mParticlePos[mParticleIndex], 2, this);
 		mParticleIndex++;
