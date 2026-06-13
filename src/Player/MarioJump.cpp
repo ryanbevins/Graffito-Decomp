@@ -88,8 +88,8 @@ void TMario::doJumping()
 			} else accel = getJumpAccelControl();
 		} else accel = getJumpAccelControl();
 		u16 au = (u16)angleDiff;
-		mForwardVel = accel * intendedMag * JMASSin(au) + mForwardVel;
-		sideVel = intendedMag * JMASCos(au) * getJumpSlideControl();
+		mForwardVel = accel * intendedMag * JMASCos(au) + mForwardVel;
+		sideVel = intendedMag * JMASSin(au) * getJumpSlideControl();
 	}
 	if (mForwardVel > 32.0f) mForwardVel -= 0.2f;
 	if (mForwardVel < -16.0f) mForwardVel += 0.4f;
@@ -406,17 +406,24 @@ BOOL TMario::stayWall()
 			s16 na = wa + 0x8000;
 			emitParticle(24, na); emitParticle(25, na);
 		}
-		mVel.y = 0.0f;
+		mVel.y = 52.0f;
 		mFaceAngle.y = mFaceAngle.y + 0x8000;
-		f32 c = mJumpParams.mJumpJumpCatchSp.value;
-		if (!(mVel.y + c + mPosition.y >= mFloorPosition.y))
-			return changePlayerStatus(0x02000886, 0, false);
+		if (mVel.y + 160.0f + mPosition.y >= mFloorPosition.x)
+			mVel.y = 1.0f;
+		return changePlayerStatus(0x02000886, 0, false);
 	}
-	if (mInput & 0x10000) {
+	BOOL handled = FALSE;
+	if (mInput & 0x8000) {
 		TMarioGamePad* pad = mGamePad;
-		if (pad->mEnabledFrameMeaning & 0x4000) { return changePlayerStatus(0x008008A9, 0, false); }
-		if (!onYoshi()) { setPlayerVelocity(mJumpParams.mJumpJumpCatchSp.value); return changePlayerStatus(0x0080088A, 0, false); }
+		if (pad->mEnabledFrameMeaning & 0x2000) {
+			handled = changePlayerStatus(0x008008A9, 0, false);
+		} else if (!onYoshi()) {
+			setPlayerVelocity(mJumpParams.mJumpJumpCatchSp.value);
+			handled = changePlayerStatus(0x0080088A, 0, false);
+		}
 	}
+	if (handled)
+		return TRUE;
 	if (mActionTimer < 20) {
 		mActionTimer = mActionTimer + 1;
 		mVel.x = 0.0f; mVel.y = 0.0f; mVel.z = 0.0f;
@@ -431,7 +438,7 @@ BOOL TMario::stayWall()
 	if (jr == 1) { mFaceAngle.y += 0x8000; return changePlayerStatus(0x088C, 0, false); }
 	if (!mWallPlane) {
 		mFaceAngle.y += 0x8000;
-		setPlayerVelocity(mJumpParams.mJumpJumpCatchSp.value);
+		setPlayerVelocity(0.0f);
 		mVel.y = 0.0f;
 		return changePlayerStatus(0x088C, 0, false);
 	}
@@ -753,7 +760,7 @@ BOOL TMario::rocketing()
 
 BOOL TMario::hipAttacking()
 {
-	s32 i = 0; f32 md = 0.0f;
+	s32 i = 0; f32 md = 70.0f;
 	// Pointer math slop
 	while (i < *(u16*)((u8*)this + 0x48)) {
 		// Pointer math slop
