@@ -31,6 +31,8 @@ public:
 
 template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
 
+TCameraMarioData* gpCameraMario;
+
 TCameraMarioData::TCameraMarioData()
 {
 	mPosX             = 0.0f;
