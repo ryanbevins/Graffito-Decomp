@@ -394,7 +394,7 @@ config.libs = [
             Object(Matching, "JSystem/JDrama/JDRGraphics.cpp"),
             Object(Equivalent, "JSystem/JDrama/JDRLighting.cpp"),
             Object(Matching, "JSystem/JDrama/JDRNameRef.cpp"),
-            Object(NonMatching, "JSystem/JDrama/JDRNameRefGen.cpp"),
+            Object(Equivalent, "JSystem/JDrama/JDRNameRefGen.cpp"),
             Object(Matching, "JSystem/JDrama/JDRPlacement.cpp"),
             Object(Matching, "JSystem/JDrama/JDRRenderMode.cpp"),
             Object(Matching, "JSystem/JDrama/JDRResolution.cpp"),
