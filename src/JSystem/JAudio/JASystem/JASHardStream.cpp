@@ -19,27 +19,7 @@ namespace HardStream {
 	static void secondBgmCallback(s32, DVDFileInfo*);
 	static void getAddrCallback(s32, DVDCommandBlock*);
 
-	static void dummy(f32* f) { *f = 0.0f; }
-
-	void init() { }
-
-	void setMaxBgmPairs(u32) { }
-
-	void setMaxFilenames(u32) { }
-
-	void setRootDir(const char*) { }
-
-	void setMasterVol(f32) { }
-
-	void setFile(u32, const char*, f32) { }
-
-	void setBgmPair(u32, u16, u16) { }
-
-	void registBgmPair(u32, u32) { }
-
-	void unregistBgmPair(u32) { }
-
-	BOOL unregistBgmAll()
+	inline BOOL unregistBgmAll()
 	{
 		if (strCtrl.getList() == nullptr)
 			return 0;
@@ -50,14 +30,6 @@ namespace HardStream {
 
 		return 1;
 	}
-
-	void playBgm(u32) { }
-
-	void stopBgm(u32) { }
-
-	bool checkPlaying() { return false; }
-
-	void moveVolume(f32, u32) { }
 
 	void main()
 	{
@@ -214,8 +186,6 @@ namespace HardStream {
 		}
 	}
 
-	TPlayList* getFreeList() { return 0; }
-
 	static void firstBgmCallback(s32, DVDFileInfo*)
 	{
 		if (strCtrl.unkA == 0) {
@@ -286,8 +256,6 @@ namespace HardStream {
 		unk4C = 0;
 	}
 
-	void TControl::setMasterVol(f32) { }
-
 	u16 TControl::getIntroNum()
 	{
 		if (!mList)
@@ -310,7 +278,7 @@ namespace HardStream {
 		return mList->getPair()->getLoop();
 	}
 
-	BOOL TControl::fileOpen(u16 param_1, DVDFileInfo* param_2)
+	inline BOOL TControl::fileOpen(u16 param_1, DVDFileInfo* param_2)
 	{
 		char buffer[64];
 		char* ptr = streamFiles + param_1 * 0x24;
@@ -333,7 +301,7 @@ namespace HardStream {
 		return TRUE;
 	}
 
-	void TControl::setLastAddr(DVDFileInfo* param_1)
+	inline void TControl::setLastAddr(DVDFileInfo* param_1)
 	{
 		unk44[unk4C] = param_1->startAddr + param_1->length - 0x8000;
 		unk4C ^= 1;
@@ -461,10 +429,6 @@ namespace HardStream {
 		unk10 = f0;
 	}
 
-	void TControl::extendFilename(char*, char*) { }
-
-	u32 TControl::msecToFrames(u32) { return 0; }
-
 	u8 TControl::volFloatToU8(f32 param_1)
 	{
 		if (param_1 > 1.0f)
@@ -475,14 +439,6 @@ namespace HardStream {
 
 		return param_1 * 255.0f;
 	}
-
-	THardStreamFile::THardStreamFile() { }
-
-	void THardStreamFile::setNameVol(const char*, f32) { }
-
-	TPlayPair::TPlayPair() { }
-
-	bool TPlayPair::getRegisted() { return false; }
 
 } // namespace HardStream
 
