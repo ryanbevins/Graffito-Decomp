@@ -119,7 +119,7 @@ DEFINE_NERVE(TNerveBombHeiThrown, TLiveActor)
 	}
 
 	if (spine->getTime() == 0x78)
-		self->mLiveFlag &= ~0x1;
+		self->unk64 &= ~0x1;
 
 	if (!(self->mLiveFlag & 0x80)) {
 		self->genEventCoin();
@@ -513,6 +513,7 @@ void TBombHei::genEventCoin()
 
 		coin->mVelocity.x = 20.0f * dir.x;
 		coin->mVelocity.z = 20.0f * dir.z;
+		coin->mLiveFlag &= ~0x10;
 	}
 }
 
