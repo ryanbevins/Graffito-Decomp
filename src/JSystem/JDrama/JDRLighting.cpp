@@ -1,7 +1,11 @@
+#define JDRAMA_NO_INLINE_VIEWOBJ_CTOR
+#define JUTILITY_NO_INLINE_COLOR_SET
 #include <JSystem/JDrama/JDRLighting.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <dolphin/gx.h>
 #include <dolphin/os/OSCache.h>
+#undef JUTILITY_NO_INLINE_COLOR_SET
+#undef JDRAMA_NO_INLINE_VIEWOBJ_CTOR
 
 using namespace JDrama;
 

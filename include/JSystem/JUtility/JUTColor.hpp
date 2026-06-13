@@ -16,6 +16,9 @@ struct TColor : public GXColor {
 	operator u32() const { return toUInt32(); }
 	u32 toUInt32() const { return *(u32*)&r; }
 
+#ifdef JUTILITY_NO_INLINE_COLOR_SET
+	void set(u8 cR, u8 cG, u8 cB, u8 cA);
+#else
 	void set(u8 cR, u8 cG, u8 cB, u8 cA)
 	{
 		r = cR;
@@ -23,11 +26,24 @@ struct TColor : public GXColor {
 		b = cB;
 		a = cA;
 	}
+#endif
 
 	void set(u32 u32Color) { *(u32*)&r = u32Color; }
 	void set(GXColor gxColor) { *(GXColor*)&r = gxColor; }
 	GXColor get() const { return *this; }
 };
+
+#ifdef JUTILITY_NO_INLINE_COLOR_SET
+#pragma dont_inline on
+void TColor::set(u8 cR, u8 cG, u8 cB, u8 cA)
+{
+	r = cR;
+	g = cG;
+	b = cB;
+	a = cA;
+}
+#pragma dont_inline off
+#endif
 
 } // namespace JUtility
 
