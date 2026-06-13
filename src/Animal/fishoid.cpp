@@ -120,7 +120,7 @@ void TFishoid::load(JSUMemoryInputStream& stream)
 	if (mCoinObj != nullptr) {
 		TRealoidActor* last = mActors[mBoidLeader->mNumActors - 1];
 		last->unk74 |= 2;
-		mCoinObj->appear();
+		mCoinObj->makeObjAppeared();
 		mCoinObj->mPosition = last->mPosition;
 	}
 }
