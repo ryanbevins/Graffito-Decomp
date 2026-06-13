@@ -143,8 +143,8 @@ void TMarDirector::initECDisp(
 	}
 
 	JDrama::TOrthoProj* ortho2
-	    = new JDrama::TOrthoProj(0.0f, 0.0f, (u16)SMSGetGameRenderHeight(),
-	                             (u16)SMSGetGameRenderWidth());
+	    = new JDrama::TOrthoProj(0.0f, 0.0f, (u16)SMSGetGameRenderWidth(),
+	                             (u16)SMSGetGameRenderHeight());
 
 	param_1->push_back(stageDisp, 0x80);
 	param_1->push_back(
@@ -198,8 +198,8 @@ void TMarDirector::initECDisp(
 	param_1->push_back(drawBufChrXlu, 0x8);
 
 	JDrama::TOrthoProj* ortho3
-	    = new JDrama::TOrthoProj(0.0f, 0.0f, (u16)SMSGetGameRenderHeight(),
-	                             (u16)SMSGetGameRenderWidth());
+	    = new JDrama::TOrthoProj(0.0f, 0.0f, (u16)SMSGetGameRenderWidth(),
+	                             (u16)SMSGetGameRenderHeight());
 	param_1->push_back(ortho3, 0x10);
 
 	JDrama::TViewObj* group2D2
