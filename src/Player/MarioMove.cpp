@@ -1,5 +1,6 @@
 #define MSOUND_EMIT_START_FORCE_JUMP_SOUND
 #include <Player/MarioMain.hpp>
+#include <Player/YoshiInline.hpp>
 
 #include <Map/Map.hpp>
 #include <JSystem/JMath.hpp>
