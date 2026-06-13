@@ -28,7 +28,7 @@
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
-bool TBombHei::mSerialBomb;
+bool TBombHei::mSerialBomb = true;
 
 const char* bombhei_bastable[] = {
 	"/scene/bombhei/bas/downnejibomb_down1.bas",
