@@ -523,7 +523,7 @@ config.libs = [
             Object(Equivalent, "JSystem/JParticle/JPAMath.cpp"),
             Object(Equivalent, "JSystem/JParticle/JPAParticle.cpp"),
             Object(Matching, "JSystem/JParticle/JPADrawSetupTev.cpp"),
-            Object(NonMatching, "JSystem/JParticle/JPADraw.cpp"),
+            Object(Equivalent, "JSystem/JParticle/JPADraw.cpp"),
             Object(Equivalent, "JSystem/JParticle/JPADrawVisitor.cpp"),
             Object(Matching, "JSystem/JParticle/JPAExTexShape.cpp"),
             Object(Matching, "JSystem/JParticle/JPADataBlock.cpp"),
