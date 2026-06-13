@@ -237,6 +237,7 @@ public:
 	/* 0x1D14 */ TWaterGunParams mWatergunParams;
 };
 
+#ifdef WATERGUN_EMIT_IS_EMITTING
 bool TWaterGun::isEmitting()
 {
 	if (mCurrentWater == 0) {
@@ -257,5 +258,6 @@ bool TWaterGun::isEmitting()
 		return false;
 	}
 }
+#endif
 
 #endif

@@ -9,7 +9,9 @@
 #include <Map/MapCollisionData.hpp>
 #include <MSound/MSound.hpp>
 #include <Map/PollutionManager.hpp>
+#define WATERGUN_EMIT_IS_EMITTING
 #include <Player/Watergun.hpp>
+#undef WATERGUN_EMIT_IS_EMITTING
 #include <Player/NozzleBase.hpp>
 #include <Player/NozzleTrigger.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
