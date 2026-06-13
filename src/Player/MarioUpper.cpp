@@ -14,11 +14,9 @@ void TMario::checkPumping()
 {
 	// Check pump trigger active (controller work offset 0x1C)
 	f32 pumpFrame = *(f32*)((u8*)unk108 + 0x1C);
-	if (pumpFrame > 0.0f) {
-		if (mPumpState != 0) {
-			mPumpState = 0;
-			unk37E = 0;
-		}
+	if (pumpFrame > 0.0f && mPumpState != 0) {
+		mPumpState = 0;
+		unk37E = 0;
 		return;
 	}
 
@@ -40,11 +38,9 @@ void TMario::checkPumping()
 	}
 
 	// Check action 0xC008220
-	if ((action - 0xC000000) == 0x8220) {
-		if (mPumpState == 5) {
-			mPumpState = 1;
-			unk37E = 0;
-		}
+	if ((action - 0xC000000) == 0x8220 && mPumpState == 5) {
+		mPumpState = 1;
+		unk37E = 0;
 		return;
 	}
 
@@ -196,7 +192,7 @@ void TMario::stateMachineUpper()
 
 		if ((mAction - 0x04000000) == 0x440) {
 			if (mForwardVel > 0.0f)
-				checkPumping();
+				emitSweatSometimes();
 		}
 		break;
 	}
