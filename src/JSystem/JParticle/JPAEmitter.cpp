@@ -248,13 +248,13 @@ void JPABaseEmitter::calcEmitterGlobalParams()
 	JPAEmitterInfoObj.unk48[0][2] = xDir.z;
 
 	JGeometry::TVec3<f32> yDir;
-	JPAEmitterInfoObj.unkCC.getXDir(yDir);
+	JPAEmitterInfoObj.unkCC.getYDir(yDir);
 	JPAEmitterInfoObj.unk48[1][0] = yDir.x;
 	JPAEmitterInfoObj.unk48[1][1] = yDir.y;
 	JPAEmitterInfoObj.unk48[1][2] = yDir.z;
 
 	JGeometry::TVec3<f32> zDir;
-	JPAEmitterInfoObj.unkCC.getXDir(zDir);
+	JPAEmitterInfoObj.unkCC.getZDir(zDir);
 	JPAEmitterInfoObj.unk48[2][0] = zDir.x;
 	JPAEmitterInfoObj.unk48[2][1] = zDir.y;
 	JPAEmitterInfoObj.unk48[2][2] = zDir.z;
@@ -899,7 +899,7 @@ void JPABaseEmitter::calcKeyFrameAnime()
 			unk1E4 = getKeyValue(time, frameNum, keyFrames);
 			break;
 		case 10:
-			unk1E4 = getKeyValue(time, frameNum, keyFrames);
+			mDraw.unkB4 = getKeyValue(time, frameNum, keyFrames);
 			break;
 		}
 	}
