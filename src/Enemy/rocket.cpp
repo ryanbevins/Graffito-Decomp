@@ -308,19 +308,38 @@ void TRocket::calcRootMatrix()
 			MtxPtr emit   = wg->getEmitMtx(0);
 			PSMTXCopy(emit, tmp);
 
-			for (int col = 0; col < 3; ++col) {
-				f32 x   = tmp[0][col];
-				f32 y   = tmp[1][col];
-				f32 z   = tmp[2][col];
-				f32 sq  = x * x + y * y + z * z;
-				f32 len = 0.0f;
-				if (sq > 0.0f)
-					len = JGeometry::TUtil<f32>::sqrt(sq);
-				if (len != 0.0f) {
-					tmp[0][col] /= len;
-					tmp[1][col] /= len;
-					tmp[2][col] /= len;
-				}
+			f32 len0 = tmp[0][0] * tmp[0][0] + tmp[1][0] * tmp[1][0]
+			           + tmp[2][0] * tmp[2][0];
+			if (len0 > 0.0f)
+				len0 = JGeometry::TUtil<f32>::sqrt(len0);
+
+			f32 len1 = tmp[0][1] * tmp[0][1] + tmp[1][1] * tmp[1][1]
+			           + tmp[2][1] * tmp[2][1];
+			if (len1 > 0.0f)
+				len1 = JGeometry::TUtil<f32>::sqrt(len1);
+
+			f32 len2 = tmp[0][2] * tmp[0][2] + tmp[1][2] * tmp[1][2]
+			           + tmp[2][2] * tmp[2][2];
+			if (len2 > 0.0f)
+				len2 = JGeometry::TUtil<f32>::sqrt(len2);
+
+			// Target guards the normalized columns in this cross order.
+			if (len2 != 0.0f) {
+				tmp[0][0] /= len0;
+				tmp[1][0] /= len0;
+				tmp[2][0] /= len0;
+			}
+
+			if (len0 != 0.0f) {
+				tmp[0][1] /= len1;
+				tmp[1][1] /= len1;
+				tmp[2][1] /= len1;
+			}
+
+			if (len1 != 0.0f) {
+				tmp[0][2] /= len2;
+				tmp[1][2] /= len2;
+				tmp[2][2] /= len2;
 			}
 
 			Mtx rotOff;
@@ -331,9 +350,9 @@ void TRocket::calcRootMatrix()
 			f32* tr = (f32*)rotOff;
 			for (int i = 0; i < 12; ++i)
 				tr[i] = ((f32*)&r)[i];
-			rotOff[0][3] = 0.0f;
+			rotOff[0][3] = mNozzleOffsetZ;
 			rotOff[1][3] = 0.0f;
-			rotOff[2][3] = mNozzleOffsetZ;
+			rotOff[2][3] = 0.0f;
 			PSMTXConcat(tmp, rotOff, tmp);
 
 			mPosition.x = tmp[0][3];
