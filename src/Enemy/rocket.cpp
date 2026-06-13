@@ -289,13 +289,10 @@ void TRocket::calcRootMatrix()
 {
 	if (mUnk1A0) {
 		J3DModel* model = getModel();
-		// model->unk14 (mBaseScale) = mScaling
-		((f32*)((u8*)model + 0x14))[0] = mScaling.x;
-		((f32*)((u8*)model + 0x14))[1] = mScaling.y;
-		((f32*)((u8*)model + 0x14))[2] = mScaling.z;
+		model->setBaseScale(mScaling);
 
 		Mtx tmp;
-		if (mSpine->getCurrentNerve() != &TNerveRocketFly::theNerve()) {
+		if (mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve()) {
 			JGeometry::TRotation3<
 			    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >
 			    r;
@@ -402,7 +399,7 @@ void TRocketManager::perform(u32 param, JDrama::TGraphics* graphics)
 			if (i >= limit)
 				break;
 			TRocket* a = (TRocket*)unk18[i];
-			if (!(a->mLiveFlag & LIVE_FLAG_DEAD))
+			if (a->mLiveFlag & LIVE_FLAG_DEAD)
 				a->reset();
 			++i;
 		}
