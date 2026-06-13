@@ -1070,7 +1070,7 @@ config.libs = [
             Object(Equivalent, "Map/Shimmer.cpp"),
             Object(Equivalent, "Map/Sky.cpp"),
             Object(Equivalent, "Map/MapEventSirena.cpp"),
-            Object(NonMatching, "Map/PollutionLayer.cpp"),
+            Object(Equivalent, "Map/PollutionLayer.cpp"),
             Object(Equivalent, "Map/PollutionEvent.cpp"),
             Object(Equivalent, "Map/MapCollisionPlane.cpp"),
             Object(Equivalent, "Map/MarineSnow.cpp"),

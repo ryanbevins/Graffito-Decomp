@@ -335,11 +335,17 @@ void TPollutionLayer::initTexImage(const char* param_1)
 	for (int y = 0; y < unk5C.mHeight; ++y) {
 		for (int x = 0; x < unk5C.mWidth; ++x) {
 			int depth = unk5C.getDepth(x, y);
+			bool shouldClear = false;
 			if (cVar1
-			    && ((x < 0 || unk5C.mWidth <= x || y < 0 || unk5C.mHeight <= y)
-			        || depth == 0 || unk5C.isProhibit(x, y))) {
+			    && (x <= 0 || x >= unk5C.mWidth - 1 || y <= 0
+			        || y >= unk5C.mHeight - 1))
+				shouldClear = true;
+			if (depth == 0 || unk5C.isProhibit(x, y))
+				shouldClear = true;
+
+			if (!shouldClear) {
 				int degree = unk5C.getEdgeDegree(x, y);
-				if (degree == 0) {
+				if (degree != 0) {
 					unk54[unk5C.index(x, y)]
 					    = depth - degree * TPollutionManager::mEdgeAlpha;
 				} else {
