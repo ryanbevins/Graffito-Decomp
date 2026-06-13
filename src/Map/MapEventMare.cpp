@@ -91,7 +91,6 @@ void TMareWallRock::movement()
 		}
 		((TMapObjBase*)this)->calcMap();
 		if (transform.mTranslate.z < 0.0f) {
-			transform.mTranslate.z = 0.0f;
 			mTimer                = mWaitTimeToDepress;
 			mCollisions[1]->setUp();
 			mState = 1;
@@ -117,7 +116,6 @@ void TMareWallRock::movement()
 		}
 		((TMapObjBase*)this)->calcMap();
 		if (transform.mTranslate.z > mSinkDepth) {
-			transform.mTranslate.z = mSinkDepth;
 			mCollisions[0]->remove();
 			mJointObj->sleep();
 			mTimer = mWaitTimeToAppear;
