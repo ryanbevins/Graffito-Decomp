@@ -772,7 +772,7 @@ config.libs = [
         "objects": [
             Object(Equivalent, "THPPlayer/THPAudioDecode.c"),
             Object(Matching, "THPPlayer/THPDraw.c"),
-            Object(NonMatching, "THPPlayer/THPPlayer.c"),
+            Object(Equivalent, "THPPlayer/THPPlayer.c"),
             Object(Matching, "THPPlayer/THPRead.c"),
             Object(Matching, "THPPlayer/THPVideoDecode.c"),
         ],

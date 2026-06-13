@@ -4,6 +4,7 @@
 #include <THPPlayer/THPRead.h>
 #include <THPPlayer/THPAudioDecode.h>
 #include <THPPlayer/THPVideoDecode.h>
+#include <JSystem/JAudio/JASystem/JASAiCtrl.hpp>
 
 #include <dolphin/ai.h>
 #include <dolphin/os.h>
@@ -78,12 +79,12 @@ static s16* audioCallbackWithMSound(s32 p1)
 
 static void initAudio()
 {
-	// JASDriver::registerMixCallback(audioCallback, MixMode_InterLeave);
+	JASystem::Kernel::registerMixCallback(audioCallbackWithMSound, 3);
 }
 
 static void quitAudio()
 {
-	// JASDriver::registerMixCallback(nullptr, MixMode_Mono);
+	JASystem::Kernel::registerMixCallback(nullptr, 0);
 }
 
 BOOL THPPlayerInit()
