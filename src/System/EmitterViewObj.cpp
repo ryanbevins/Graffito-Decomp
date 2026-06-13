@@ -157,11 +157,11 @@ void TMarioParticleManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 				    && (info->mFlags & INFO_FLAG_UNK4)) {
 					JPABaseEmitter* emitter = info->mEmitter;
 					if (emitter == nullptr) {
-						emitTry(i, info, 3);
+						emitTry(i, info, 1);
 					} else if (emitter->isEnableDeleteEmitter()) {
 						emitter->becomeInvalidEmitter();
 						info->mEmitter = nullptr;
-						emitTry(i, info, 3);
+						emitTry(i, info, 1);
 					}
 				}
 				if ((info->mPrevFrameFlags & INFO_FLAG_UNK4)

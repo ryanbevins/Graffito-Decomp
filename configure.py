@@ -829,7 +829,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(Matching, "System/BaseParam.cpp"),
-            Object(NonMatching, "System/EmitterViewObj.cpp"),
+            Object(Equivalent, "System/EmitterViewObj.cpp"),
             Object(NonMatching, "System/EventWatcher.cpp"),
             Object(Equivalent, "System/FlagManager.cpp"),
             Object(NonMatching, "System/GCLogoDir.cpp"),
