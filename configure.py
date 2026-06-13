@@ -933,7 +933,7 @@ config.libs = [
             Object(Equivalent, "Player/MarioPositionObj.cpp"),
             Object(NonMatching, "Player/MarioCheckCol.cpp"),
             Object(NonMatching, "Player/MarioReceiveMsg.cpp"),
-            Object(NonMatching, "Player/MarioSound.cpp"),
+            Object(Equivalent, "Player/MarioSound.cpp"),
         ],
     },
     {

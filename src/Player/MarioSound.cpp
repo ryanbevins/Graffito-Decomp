@@ -212,7 +212,7 @@ void TMario::soundMovement()
 
 #define MARIO_START_VOICE(id)                                                  \
 	do {                                                                       \
-		gpMSound->startMarioVoice((id), mHealth, getVoiceStatus());            \
+		startVoice((id));                                                      \
 	} while (0)
 
 #define MARIO_START_VOICE_HP(high_id, low_id)                                  \
