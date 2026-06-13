@@ -170,43 +170,43 @@ void JALSystem::appendGrpMember(JALSystem::ModType param_1, u32 param_2,
 		JALSeModDataGrp<JALSeModVolFGrp>* found
 		    = JALListS<JALSeModVolFGrp, u32>::search(param_2);
 		if (found)
-			found->append(new JALSeModDataGrpMemb(param_1, nullptr));
-		spFManager->addUseFlag(param_2, param_1);
+			found->append(new JALSeModDataGrpMemb(param_3, nullptr));
+		spFManager->addUseFlag(param_3, param_1);
 	} break;
 	case ModType_JALSeModPitFGrp: {
 		JALSeModDataGrp<JALSeModPitFGrp>* found
 		    = JALListS<JALSeModPitFGrp, u32>::search(param_2);
 		if (found)
-			found->append(new JALSeModDataGrpMemb(param_1, nullptr));
-		spFManager->addUseFlag(param_2, param_1);
+			found->append(new JALSeModDataGrpMemb(param_3, nullptr));
+		spFManager->addUseFlag(param_3, param_1);
 	} break;
 	case ModType_JALSeModEffFGrp: {
 		JALSeModDataGrp<JALSeModEffFGrp>* found
 		    = JALListS<JALSeModEffFGrp, u32>::search(param_2);
 		if (found)
-			found->append(new JALSeModDataGrpMemb(param_1, nullptr));
-		spFManager->addUseFlag(param_2, param_1);
+			found->append(new JALSeModDataGrpMemb(param_3, nullptr));
+		spFManager->addUseFlag(param_3, param_1);
 	} break;
 	case ModType_JALSeModVolDGrp: {
 		JALSeModDataGrp<JALSeModVolDGrp>* found
 		    = JALListS<JALSeModVolDGrp, u32>::search(param_2);
 		if (found)
-			found->append(new JALSeModDataGrpMemb(param_1, nullptr));
-		spFManager->addUseFlag(param_2, param_1);
+			found->append(new JALSeModDataGrpMemb(param_3, nullptr));
+		spFManager->addUseFlag(param_3, param_1);
 	} break;
 	case ModType_JALSeModEffDGrp: {
 		JALSeModDataGrp<JALSeModEffDGrp>* found
 		    = JALListS<JALSeModEffDGrp, u32>::search(param_2);
 		if (found)
-			found->append(new JALSeModDataGrpMemb(param_1, nullptr));
-		spFManager->addUseFlag(param_2, param_1);
+			found->append(new JALSeModDataGrpMemb(param_3, nullptr));
+		spFManager->addUseFlag(param_3, param_1);
 	} break;
 	case ModType_JALSeModPitDGrp: {
 		JALSeModDataGrp<JALSeModPitDGrp>* found
 		    = JALListS<JALSeModPitDGrp, u32>::search(param_2);
 		if (found)
-			found->append(new JALSeModDataGrpMemb(param_1, nullptr));
-		spFManager->addUseFlag(param_2, param_1);
+			found->append(new JALSeModDataGrpMemb(param_3, nullptr));
+		spFManager->addUseFlag(param_3, param_1);
 	} break;
 	}
 }
