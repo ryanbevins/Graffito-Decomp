@@ -58,9 +58,6 @@ void TMareWallRock::appear()
 
 void TMareWallRock::movement()
 {
-	J3DJoint* joint = mJointObj->getJoint();
-	J3DTransformInfo& transform = joint->getTransformInfo();
-
 	switch (mState) {
 	case 0:
 		if (gpPollution->getLayer(mLayerIndex)->getPollutionDegree()
@@ -76,7 +73,9 @@ void TMareWallRock::movement()
 				appear();
 		}
 		break;
-	case 2:
+	case 2: {
+		J3DJoint* joint              = mJointObj->getJoint();
+		J3DTransformInfo& transform = joint->getTransformInfo();
 		if (!TMapObjBase::isDemo()) {
 			transform.mTranslate.z -= mAppearSpeed;
 			if (TMapObjBase::marioIsOn(this))
@@ -101,6 +100,7 @@ void TMareWallRock::movement()
 			mCollisions[0]->moveTrans(trans);
 		}
 		break;
+	}
 	case 3:
 		if (!TMapObjBase::isDemo()) {
 			--mTimer;
@@ -108,7 +108,9 @@ void TMareWallRock::movement()
 				appear();
 		}
 		break;
-	case 4:
+	case 4: {
+		J3DJoint* joint              = mJointObj->getJoint();
+		J3DTransformInfo& transform = joint->getTransformInfo();
 		if (!TMapObjBase::isDemo()) {
 			transform.mTranslate.z += mDepressSpeed;
 			if (TMapObjBase::marioIsOn(this))
@@ -126,6 +128,7 @@ void TMareWallRock::movement()
 			mCollisions[0]->moveTrans(trans);
 		}
 		break;
+	}
 	}
 }
 
