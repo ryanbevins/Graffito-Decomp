@@ -6952,7 +6952,7 @@ member body out of the class body, while keeping it in the header, can still
 provide the visible template definition/weak instance but lower the inline bias
 enough for `-inline deferred` to keep a `bl` to the template member.
 
-**Citation (1 TU).** `mario/JSystem/JDrama/JDRSmJ3DScn`
+**Citations.** `mario/JSystem/JDrama/JDRSmJ3DScn`
 `JDrama::TSmJ3DScn::perform` (t331): the target calls
 `TViewObjPtrListT<TViewObj, TViewObj>::perform` twice. With the base template
 body defined in-class, MWCC recursively inlined the list walk and left
@@ -6962,12 +6962,19 @@ regressing the exact ctor/dtor; a report compare showed only this unit/function
 changed. A local `MtxPtr viewMtx` then fixed the `PSMTXCopy` argument order,
 leaving `TSmJ3DScn::perform` at `99.9%` with only a +8B frame-size residue.
 
-**Experiment to confirm/refute.** Find a second class-template virtual where a
-derived function should call an emitted template instance but an in-class
-template body inlines into the derived method. Move only that body out of class
-and verify whether the call boundary appears without collateral constructor or
-weak-owner regressions. If the pattern repeats, promote this as the less blunt
-alternative to `#pragma dont_inline` for header template virtuals.
+`mario/System/MarNameRefGen` (t686): an in-class
+`TList_pointer<T>::TList_pointer(const TAllocator<void*>&)` body inlined through
+to `TList_pointer_void` and left the target's 48B weak
+`TList_pointer<THitActor*>` constructor missing. Moving the same constructor
+body to an out-of-class template definition in `std-list.hpp` emitted the weak
+constructor at 100% and preserved the normal checksum build.
+
+**Experiment to confirm/refute.** Find another class-template member where the
+target keeps an emitted template instance but an in-class body inlines into a
+caller. Move only that body out of class and verify whether the call boundary
+or weak owner appears without collateral constructor or weak-owner regressions.
+If the pattern repeats, promote this as the less blunt alternative to
+`#pragma dont_inline` for header template members.
 
 ### Some SDK call sites may have a wider local prototype than the callee definition when the callee masks its arguments
 

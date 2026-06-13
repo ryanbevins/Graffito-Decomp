@@ -233,6 +233,10 @@ template <class T> class TList_pointer : TList_pointer_void {
 	typedef TList_pointer_void Base;
 
 public:
+	TList_pointer(
+	    const JGadget::TAllocator<void*>& allocator
+	    = JGadget::TAllocator<void*>());
+
 	class iterator : Base::iterator {
 		friend class TList_pointer;
 		typedef Base::iterator Base;
@@ -277,6 +281,12 @@ public:
 	void push_front(const T& what) { insert(begin(), what); }
 	void push_back(const T& what) { insert(end(), what); }
 };
+
+template <class T>
+TList_pointer<T>::TList_pointer(const JGadget::TAllocator<void*>& allocator)
+    : Base(allocator)
+{
+}
 
 }; // namespace JGadget
 
