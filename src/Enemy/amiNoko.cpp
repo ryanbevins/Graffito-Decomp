@@ -23,7 +23,6 @@
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
-extern "C" f32 sqrtf(f32);
 extern "C" void* __vt__7TAmiHit[];
 
 DEFINE_NERVE(TNerveAmiNokoFreeze, TLiveActor)
@@ -249,7 +248,7 @@ DEFINE_NERVE(TNerveAmiNokoWalkOnFence, TLiveActor)
 	toGoal.z -= self->mPosition.z;
 
 	// Calculate distance
-	f32 dist = sqrtf(
+	f32 dist = JGeometry::TUtil<f32>::sqrt(
 	    toGoal.x * toGoal.x + toGoal.y * toGoal.y + toGoal.z * toGoal.z);
 
 	if (dist < 150.0f) {
