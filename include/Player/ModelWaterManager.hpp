@@ -59,7 +59,7 @@ public:
 	void onWaterHitCounter();
 
 public:
-	/* 0x68 */ s32 unk68;
+	/* 0x68 */ s16 unk68;
 };
 
 class TModelWaterManager;
