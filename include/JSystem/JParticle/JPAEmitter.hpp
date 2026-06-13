@@ -164,9 +164,9 @@ public:
 
 	void setEnviColor(u8 r, u8 g, u8 b)
 	{
-		unk180.r = r;
-		unk180.g = g;
-		unk180.b = b;
+		unk184 = r;
+		unk185 = g;
+		unk186 = b;
 	}
 
 	// Status stuff is taken from TP
