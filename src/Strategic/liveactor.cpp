@@ -23,6 +23,25 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+namespace {
+struct TLiveActorUnk90VTable {
+	void* unk0;
+	void* unk4;
+	void* unk8;
+	void* unkC;
+	void (*unk10)(void*);
+};
+
+struct TLiveActorUnk90 {
+	void* unk0;
+	s32 unk4;
+	u8 unk8[0x54];
+	TLiveActorUnk90VTable* unk5C;
+
+	void control() { unk5C->unk10(this); }
+};
+} // namespace
+
 f32 TLiveActor::mVelocityMinY = -40.0f;
 
 TLiveActor::TLiveActor(const char* name)
@@ -229,17 +248,15 @@ void TLiveActor::bind()
 
 void TLiveActor::control()
 {
-	// TODO: what is unk90???
-	if (unk90 == nullptr || *(int*)((char*)unk90 + 4) == 0) {
+	if (unk90 == nullptr || ((TLiveActorUnk90*)unk90)->unk4 == 0) {
 		if (mSpine)
 			mSpine->update();
 	} else {
 		if (!mSpine) {
-			if (unk90 && *(int*)((char*)unk90 + 4) != 0) {
-				// call on unk90
-			}
+			if (unk90 && ((TLiveActorUnk90*)unk90)->unk4 != 0)
+				((TLiveActorUnk90*)unk90)->control();
 		} else if (mSpine->isIdle()) {
-			// call on unk90
+			((TLiveActorUnk90*)unk90)->control();
 		} else {
 			mSpine->update();
 		}
