@@ -83,7 +83,7 @@ TMarioCap::TMarioCap(TMario* mario)
 	unk24->mMtxEffectType = unk24unk4Ptr;
 	unk24->setup(unk10[1], "Mario/MarioCap");
 
-	setModelActive(E_CAP_MODEL_HAT);
+	unk4 = E_CAP_MODEL_HAT;
 	unkC = unk10[0];
 
 	// TMultiMtxEffect stuff
@@ -174,20 +174,20 @@ void TMarioCap::perform(unsigned long param_1, JDrama::TGraphics* param_2)
 
 			J3DModelData* modelData = unk10[2]->mModelData;
 			for (u16 i = 0; i < modelData->getShapeNum(); ++i) {
-				modelData->getShapeNodePointer(i)->onFlag(1);
+				modelData->getShapeNodePointer(i)->offFlag(1);
 			}
 		} else {
 			J3DModelData* modelData = unk10[2]->mModelData;
 			for (u16 i = 0; i < modelData->getShapeNum(); ++i) {
-				modelData->getShapeNodePointer(i)->offFlag(1);
+				modelData->getShapeNodePointer(i)->onFlag(1);
 			}
 		}
 
 		if (isModelActive(E_CAP_MODEL_SUNGLASSES)) {
-			unk10[3]->update();
+			unk10[3]->calc();
 		}
-		unkC->update();
-		unk10[2]->update();
+		unkC->calc();
+		unk10[2]->calc();
 
 		for (u16 i = 0; i < unkC->getModelData()->getMaterialNum(); i++) {
 			J3DGXColor* color
