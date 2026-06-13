@@ -338,10 +338,14 @@ void TBossHanachanPartsBase::considerSetAnm_(
 		if (fastAnm)
 			return;
 
-		if (hipDropping) {
-			setAnm_((EnumBossHanachanAnmKind)2, (EnumBossHanachanStopMotionBlendOnOff)1);
-		} else {
-			setAnm_((EnumBossHanachanAnmKind)3, (EnumBossHanachanStopMotionBlendOnOff)0);
+		if (mCurAnm == 2) {
+			if (!hipDropping) {
+				setAnm_((EnumBossHanachanAnmKind)3,
+				        (EnumBossHanachanStopMotionBlendOnOff)1);
+			}
+		} else if (hipDropping) {
+			setAnm_((EnumBossHanachanAnmKind)2,
+			        (EnumBossHanachanStopMotionBlendOnOff)1);
 		}
 		return;
 	}
