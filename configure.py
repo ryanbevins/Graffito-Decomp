@@ -1122,7 +1122,7 @@ config.libs = [
         "cflags": [*cflags_game, "-opt all,nostrength", "-inline deferred"],
         "progress_category": "game",
         "objects": [
-            Object(NonMatching, "Enemy/conductor.cpp"),
+            Object(Equivalent, "Enemy/conductor.cpp"),
             Object(Equivalent, "Enemy/effectObj.cpp"),
             Object(NonMatching, "Enemy/emario.cpp"),
             Object(NonMatching, "Enemy/enemy.cpp"),
