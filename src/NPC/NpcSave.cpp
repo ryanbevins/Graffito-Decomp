@@ -4,8 +4,6 @@
 #include <NPC/NpcManager.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
-TNpcSaveNormal* TBaseNPC::mPtrSaveNormal;
-
 TNpcSaveStageFarClip::TNpcSaveStageFarClip()
     : TParams("/Npc/npcFarClip.prm")
     , PARAM_INIT(mSLFarAirport, 15000.0f)

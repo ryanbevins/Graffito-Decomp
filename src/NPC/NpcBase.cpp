@@ -71,6 +71,8 @@ Vec TBaseNPC::getCursorPos() const
 	    mPosition.z);
 }
 
+TNpcSaveNormal* TBaseNPC::mPtrSaveNormal;
+s16 TBaseNPC::mAngleYDiffWhenTaken;
 TBaseNPC* gpCurrentNpc;
 
 void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
