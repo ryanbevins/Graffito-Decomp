@@ -1076,7 +1076,7 @@ config.libs = [
             Object(Equivalent, "Map/MarineSnow.cpp"),
             Object(Matching, "Map/MapData.cpp"),
             Object(Equivalent, "Map/MapEventDolpic.cpp"),
-            Object(NonMatching, "Map/MapEventMare.cpp"),
+            Object(Equivalent, "Map/MapEventMare.cpp"),
             Object(NonMatching, "Map/BathWaterManager.cpp"),
             Object(Matching, "Map/StickyStainManager.cpp"),
         ],
