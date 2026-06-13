@@ -837,7 +837,7 @@ config.libs = [
             Object(Equivalent, "System/MarDirector.cpp"),
             Object(NonMatching, "System/MarDirectorDirect.cpp"),
             Object(NonMatching, "System/MarDirectorEvent.cpp"),
-            Object(NonMatching, "System/MarDirectorInitECT.cpp"),
+            Object(Equivalent, "System/MarDirectorInitECT.cpp"),
             Object(Equivalent, "System/MarDirectorPreEntry.cpp"),
             Object(Equivalent, "System/MarDirectorSetup2.cpp"),
             Object(Matching, "System/marerr.cpp"),
