@@ -355,7 +355,7 @@ u32 JUTGamePad::CStick::update(s8 x, s8 y, JUTGamePad::EStickMode mode,
 	}
 
 	if (mValue > 0.0f)
-		mAngle = 32768.0f * std::atan2f(mPosX, -mPosY) / 3.1415926;
+		mAngle = 32768.0f * ::atan2f(mPosX, -mPosY) / 3.1415926;
 
 	return getButton();
 }
