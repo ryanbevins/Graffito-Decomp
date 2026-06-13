@@ -5,10 +5,17 @@
 #include <System/MarDirector.hpp>
 #include <string.h>
 
+TCubeManagerBase* gpCubeCamera;
+TCubeManagerBase* gpCubeMirror;
+TCubeManagerBase* gpCubeWire;
+TCubeManagerBase* gpCubeStream;
+TCubeManagerBase* gpCubeShadow;
 TCubeManagerArea* gpCubeArea;
 TCubeManagerFast* gpCubeFastA;
 TCubeManagerFast* gpCubeFastB;
 TCubeManagerFast* gpCubeFastC;
+TCubeManagerBase* gpCubeSoundChange;
+TCubeManagerBase* gpCubeSoundEffect;
 
 TCubeManagerBase::TCubeManagerBase(const char* name, const char* param_2)
     : JDrama::TViewObj(name)
