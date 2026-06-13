@@ -995,7 +995,7 @@ config.libs = [
             Object(Equivalent, "MoveBG/MapObjBase.cpp"),
             Object(NonMatching, "MoveBG/MapObjInit.cpp"),
             Object(NonMatching, "MoveBG/MapObjGeneral.cpp"),
-            Object(NonMatching, "MoveBG/MapObjManager.cpp"),
+            Object(Equivalent, "MoveBG/MapObjManager.cpp"),
             Object(NonMatching, "MoveBG/MapObjLib.cpp"),
             Object(Equivalent, "MoveBG/Item.cpp"),
             Object(Equivalent, "MoveBG/ItemManager.cpp"),
