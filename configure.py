@@ -1174,7 +1174,7 @@ config.libs = [
             Object(NonMatching, "Enemy/BossHanachanMain.cpp"),
             Object(Equivalent, "Enemy/BossHanachanNerve.cpp"),
             Object(Equivalent, "Enemy/BossHanachanAnm.cpp"),
-            Object(NonMatching, "Enemy/BossHanachanParts.cpp"),
+            Object(Equivalent, "Enemy/BossHanachanParts.cpp"),
             Object(Matching, "Enemy/BossHanachanSave.cpp"),
             Object(Equivalent, "Enemy/amiNoko.cpp"),
             Object(NonMatching, "Enemy/gatekeeper.cpp"),

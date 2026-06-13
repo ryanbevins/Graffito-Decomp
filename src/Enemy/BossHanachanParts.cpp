@@ -60,7 +60,7 @@ static inline bool BHPartsIsCurBckDone(MActor* a)
 		skip = false;
 	}
 	if (!skip) {
-		if (!(fc->getFrame() + 0.1f > (f32)fc->getEnd()))
+		if (!(fc->getFrame() + 0.1f >= (f32)fc->getEnd()))
 			result = false;
 	}
 	return result;
@@ -85,7 +85,7 @@ BOOL TBossHanachanPartsHead::receiveMessage(THitActor* sender, u32 message)
 	if (cur == &TNerveBossHanachanTumble::theNerve()
 	    || cur == &TNerveBossHanachanDown::theNerve()) {
 		if (mActorType == 0x08000015) {
-			bool isFlipped = (mRotation.x == 179.0f || mRotation.x == -179.0f) ? true : false;
+			bool isFlipped = (mRotation.z == 179.0f || mRotation.z == -179.0f) ? true : false;
 			if (isFlipped) isTumble = true;
 		} else {
 			isTumble = true;
@@ -133,7 +133,7 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 	if (cur == &TNerveBossHanachanTumble::theNerve()
 	    || cur == &TNerveBossHanachanDown::theNerve()) {
 		if (mActorType == 0x08000015) {
-			bool isFlipped = (mRotation.x == 179.0f || mRotation.x == -179.0f) ? true : false;
+			bool isFlipped = (mRotation.z == 179.0f || mRotation.z == -179.0f) ? true : false;
 			if (isFlipped) isTumble = true;
 		} else {
 			isTumble = true;
@@ -379,7 +379,7 @@ void TBossHanachanPartsBase::considerSetAnm_(
 		default:
 			break;
 		}
-		if (mRotation.x < 0.0f) {
+		if (mRotation.z < 0.0f) {
 			setAnm_((EnumBossHanachanAnmKind)7, (EnumBossHanachanStopMotionBlendOnOff)1);
 		} else {
 			setAnm_((EnumBossHanachanAnmKind)0xA, (EnumBossHanachanStopMotionBlendOnOff)1);
@@ -598,8 +598,8 @@ void TBossHanachanPartsBase::initMapCollisionAndHitActor_(TIdxGroupObj* group)
 	mMapCollision = new TMapCollisionMove();
 	mMapCollision->init(filename, 0x8000, this);
 
-	mWaterHit = new TFootHitActor("ボスハナチャンのパーツ");
-	mWaterHit->initHitActor(mActorType | 0x10000, 1, 0, attRad, attHei, damRad,
+	mWaterHit = new TWaterHitActor("ボスハナチャンのパーツ");
+	mWaterHit->initHitActor(mActorType, 1, 0x80000000, attRad, attHei, damRad,
 	                        damHei);
 	group->add((THitActor*&)mWaterHit);
 	mWaterHit->unk64 &= ~1;
@@ -628,7 +628,7 @@ TBossHanachanPartsBase::TBossHanachanPartsBase(TBossHanachan* owner,
 		mMActor->unkC->initNormalMotionBlend();
 	}
 
-	initHitActor(actorType, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f);
+	initHitActor(actorType, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f);
 	unk64 |= 1;
 	if (actorType == 0x08000015) {
 		mScaledBodyRadius = owner->mParams->mSLBodyShadowSize.value;
