@@ -927,7 +927,7 @@ config.libs = [
             Object(NonMatching, "Player/Yoshi.cpp"),
             Object(Equivalent, "Player/MarioEffect.cpp"),
             Object(NonMatching, "Player/MarioSwim.cpp"),
-            Object(NonMatching, "Player/MarioAccess.cpp"),
+            Object(Equivalent, "Player/MarioAccess.cpp"),
             Object(NonMatching, "Player/MarioInit.cpp"),
             Object(NonMatching, "Player/ModelWaterManager.cpp"),
             Object(Equivalent, "Player/MarioPositionObj.cpp"),
