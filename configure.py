@@ -1222,7 +1222,7 @@ config.libs = [
             Object(Equivalent, "Camera/CameraInbetween.cpp"),
             Object(Matching, "Camera/CameraKindParam.cpp"),
             Object(NonMatching, "Camera/cameralib.cpp"),
-            Object(NonMatching, "Camera/CameraMarioData.cpp"),
+            Object(Equivalent, "Camera/CameraMarioData.cpp"),
             Object(NonMatching, "Camera/CameraNotice.cpp"),
             Object(NonMatching, "Camera/CameraNormal.cpp"),
             Object(Equivalent, "Camera/camerasave.cpp"),
