@@ -9,10 +9,12 @@
 #include <MarioUtil/PacketUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorAnm.hpp>
+#include <M3DUtil/SDLModel.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <System/MarDirector.hpp>
@@ -25,9 +27,9 @@ void TMapCollisionBase::setMtx(MtxPtr mtx) { PSMTXCopy(mtx, unk20); }
 
 void TMapObjBase::changeObjMtx(MtxPtr mtx)
 {
-	mPosition.x = mtx[3][0];
-	mPosition.y = mtx[3][1] + mYOffset;
-	mPosition.z = mtx[3][2];
+	mPosition.x = mtx[0][3];
+	mPosition.y = mtx[1][3] + mYOffset;
+	mPosition.z = mtx[2][3];
 	if (mMActor) {
 		if (checkMapObjFlag(0x100)) {
 			setModelMtx(mtx);
@@ -274,7 +276,7 @@ void TMapObjBase::startAnim(u16 param_1)
 	if (anim->unk4 != 0) {
 		unkF8 &= ~0x140;
 		mMActor->setAnimation(anim->unk4, anim->unk8);
-		if (unkF8 & 0x400)
+		if (unkF8 & 0x200)
 			unkF8 &= ~0x140;
 		if (anim->unk10) {
 			setAnmSound(anim->unk10);
@@ -282,9 +284,7 @@ void TMapObjBase::startAnim(u16 param_1)
 	} else {
 		MActor* m = mMActor;
 		J3DModel* mdl = m->getModel();
-		u32 v = (u32)m->unk8;
-		*(u32*)((char*)mdl->mModelData + 0x20 - 4 + 0x58 + 4)
-		    = v;
+		mdl->getModelData()->getJointNodePointer(0)->setMtxCalc(m->unk8);
 	}
 }
 
@@ -543,7 +543,7 @@ void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
 	if (isType3B)
 		return;
 	if (param_1 & 1) {
-		control();
+		setGroundCollision();
 		param_1 &= ~1;
 	}
 	if ((param_1 & 2) && mMActor) {
@@ -557,13 +557,12 @@ void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
 	}
 	if (mLiveFlag & 0x200)
 		return;
-	moveObject();
-	if (updateAnmSound())
+	if (hasMapCollision())
 		param_1 &= ~2;
 	if (param_1 & 1) {
 		if (mLifeTimer > 0)
 			mLifeTimer -= 1;
-		if (unk100 != 0) {
+		if (unk100 == 0) {
 			u32 sound;
 			if (mMapObjData->mSound == nullptr) {
 				sound = TMapObjGeneral::mDefaultSound.unk0[unk100];
@@ -584,13 +583,13 @@ void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
 	if (mLiveFlag & 0x4000) {
 		if (param_1 & 2)
 			param_1 &= ~2;
-		if (param_1 & 0x400)
-			param_1 &= ~0x400;
+		if (param_1 & 0x200)
+			param_1 &= ~0x200;
 		if (param_1 & 4)
 			param_1 &= ~4;
 	}
 	if (param_1 & 2) {
-		setUpCurrentMapCollision();
+		calc();
 		if (mMActor) {
 			if (mLiveFlag & 0x204) {
 				if (getModel()->mShapePackets->unk30 != 0)
@@ -607,16 +606,16 @@ void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
 			unkF8 |= 0x100;
 		}
 	}
-	if (param_1 & 0x400) {
+	if (param_1 & 0x200) {
 		if (unkF8 & 0x1000)
-			param_1 &= ~0x400;
+			param_1 &= ~0x200;
 		if (unkF8 & 0x800)
-			param_1 &= ~0x400;
+			param_1 &= ~0x200;
 	}
 	if ((param_1 & 4) && mMActor && (unkF8 & 0x400)) {
 		J3DModel* model = getModel();
-		model->calc();
-		calc();
+		((SDLModel*)model)->viewCalcSimple();
+		requestShadow();
 		param_1 &= ~4;
 	}
 	TLiveActor::perform(param_1, gfx);

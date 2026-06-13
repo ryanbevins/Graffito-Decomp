@@ -992,7 +992,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(Equivalent, "MoveBG/WoodBarrel.cpp"),
-            Object(NonMatching, "MoveBG/MapObjBase.cpp"),
+            Object(Equivalent, "MoveBG/MapObjBase.cpp"),
             Object(NonMatching, "MoveBG/MapObjInit.cpp"),
             Object(NonMatching, "MoveBG/MapObjGeneral.cpp"),
             Object(NonMatching, "MoveBG/MapObjManager.cpp"),
