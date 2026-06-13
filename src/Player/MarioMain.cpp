@@ -1,5 +1,6 @@
 // This TU's caller passes full-width EFB coordinates; GXPeekARGB masks them.
 #define GXPeekARGB GXPeekARGB_u16
+#define GXSetDstAlpha GXSetDstAlpha_u8
 #include <Player/MarioMain.hpp>
 #include <Camera/CubeManagerBase.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -15,8 +16,10 @@
 #include <JSystem/JGeometry.hpp>
 #include <dolphin/gx.h>
 #undef GXPeekARGB
+#undef GXSetDstAlpha
 
 extern "C" void GXPeekARGB(u32, u32, u32*);
+extern "C" void GXSetDstAlpha(GXBool, u32);
 
 TMario* gpMarioOriginal;
 
