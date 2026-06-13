@@ -206,8 +206,15 @@ void TYumboManager::createModelData()
 
 void TYumboManager::load(JSUMemoryInputStream& stream)
 {
-	unk38 = new TYumboParams("/enemy/Yumbo.prm");
+	TYumboParams* params = new TYumboParams("/enemy/Yumbo.prm");
+	unk38                = params;
 	TSmallEnemyManager::load(stream);
+
+	params->mSLAttackRadius.set(97);
+	params->mSLAttackHeight.set(225);
+	params->mSLDamageRadius.set(90);
+	params->mSLDamageHeight.set(225);
+
 	void* res       = JKRGetResource("/scene/samboHead/flower_blue.bmt");
 	mFlowerMatTable = J3DModelLoaderDataBase::loadMaterialTable(res);
 }
