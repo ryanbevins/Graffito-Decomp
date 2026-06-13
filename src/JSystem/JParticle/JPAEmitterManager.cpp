@@ -16,7 +16,7 @@ JPAEmitterManager::JPAEmitterManager(JPAResourceManager* param_1, s32 param_2,
 		param_5 = JKRHeap::getCurrentHeap();
 
 	u32 bytesForParticles
-	    = ALIGN_NEXT(param_2 * sizeof(JPABaseParticle), 0x20) + 0x80;
+	    = ALIGN_NEXT(param_2 * sizeof(JPAParticle), 0x20) + 0x80;
 	unkC = JKRCreateSolidHeap(bytesForParticles, param_5, false);
 	if (unkC) {
 		for (int i = 0; i < param_2; ++i) {
@@ -77,12 +77,6 @@ JPAEmitterManager::JPAEmitterManager(JPAResourceManager* param_1, s32 param_2,
 	}
 }
 
-u32 JPAEmitterManager::getEmitterNumber() { }
-
-u32 JPAEmitterManager::getParticleNumber() { }
-
-u32 JPAEmitterManager::getFieldNumber() { }
-
 void JPAEmitterManager::calcBase(u8 group_id)
 {
 	if (!unk44[group_id].getNumLinks())
@@ -116,8 +110,6 @@ void JPAEmitterManager::calc()
 		calcBase(gid);
 }
 
-void JPAEmitterManager::calc(u8) { }
-
 void JPAEmitterManager::drawBase(JPADrawInfo* info, u8 group_id)
 {
 	JPAGetEmitterInfoPtr()->mFovy   = info->getFovy();
@@ -143,8 +135,6 @@ void JPAEmitterManager::draw(JPADrawInfo* info)
 		drawBase(info, i);
 }
 
-void JPAEmitterManager::draw(MtxPtr) { }
-
 void JPAEmitterManager::draw(JPADrawInfo* info, u8 group_id)
 {
 	if (group_id >= 8)
@@ -152,10 +142,6 @@ void JPAEmitterManager::draw(JPADrawInfo* info, u8 group_id)
 
 	drawBase(info, group_id);
 }
-
-void JPAEmitterManager::draw(MtxPtr, u8) { }
-
-JPABaseEmitter* JPAEmitterManager::createVolumeEmitter(JPADataBlock*, u8) { }
 
 JPABaseEmitter* JPAEmitterManager::createEmitterBase(
     s32 param_1, u8 param_2, u8 param_3,
@@ -239,13 +225,6 @@ JPABaseEmitter* JPAEmitterManager::createSimpleEmitterID(
 	return nullptr;
 }
 
-JPABaseEmitter* JPAEmitterManager::createSimpleEmitter(
-    const JGeometry::TVec3<f32>& param_1, s32 param_2,
-    JPACallBackBase<JPABaseEmitter*>* param_3,
-    JPACallBackBase2<JPABaseEmitter*, JPABaseParticle*>* param_4)
-{
-}
-
 bool JPAEmitterManager::createEmitter(
     const JGeometry::TVec3<f32>& param_1, s32 param_2,
     JPACallBackBase<JPABaseEmitter*>* param_3,
@@ -275,5 +254,3 @@ void JPAEmitterManager::forceDeleteEmitter(JPABaseEmitter* emitter)
 	emitter->deleteAllParticle();
 	deleteEmitter(emitter);
 }
-
-void JPAEmitterManager::forceDeleteAllEmitter() { }
