@@ -1085,7 +1085,7 @@ DEFINE_NERVE(TNerveTelesaImitate, TLiveActor)
 		// TODO: this is an inline
 
 		if (!self->resetBaseGround()) {
-			if (self->isInSight(SMS_GetMarioPos(), 0.0f, 0.0f, searchAware))
+			if (!self->isInSight(SMS_GetMarioPos(), 0.0f, 0.0f, searchAware))
 				return false;
 		}
 
