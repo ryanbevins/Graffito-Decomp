@@ -120,7 +120,7 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_NPC(const char* name) const
 	if (strcmp(name, "SunflowerSManager") == 0)
 		return new TSunflowerSManager;
 	if (strcmp(name, "MareJellyFish") == 0)
-		return new TMareJellyFishManager("MareJellyFish");
+		return new TMareJellyFishManager("?");
 	if (strcmp(name, "BoardNpcManager") == 0)
 		return new TBoardNpcManager;
 	return nullptr;
