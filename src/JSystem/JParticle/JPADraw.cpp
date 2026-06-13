@@ -323,8 +323,6 @@ const ResTIMG* JPADraw::swapImage(const ResTIMG* param_1, s16 param_2)
 	return mDrawCtx.mTexResource->swapImage(param_1, idx);
 }
 
-void JPADraw::loadTexture(u8 idx, GXTexMapID map_id) { }
-
 void JPADraw::setDrawExecVisitorsBeforeCB(
     const JPADraw::JPADrawVisitorDefFlags& flags)
 {
@@ -842,7 +840,7 @@ void JPADraw::setParticleClipBoard()
 
 void JPADraw::setChildClipBoard()
 {
-	switch (mDrawCtx.mBaseShape->getType()) {
+	switch (mDrawCtx.mSweepShape->getType()) {
 	case 2:
 	case 9:
 		MTXIdentity(cb.unk68);
@@ -997,7 +995,6 @@ void JPADraw::drawChild()
 	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, 0x3C, 0, 0x7D);
 	GXEnableTexOffsets(GX_TEXCOORD0, GX_TRUE, GX_TRUE);
 
-	// TODO: figure out how to use JPADraw::loadTexture
 	if (mDrawCtx.mBaseShape->textureIsEmpty()) {
 		mDrawCtx.mTexResource->loadDefaultTexture(GX_TEXMAP0);
 	} else {
@@ -1119,7 +1116,6 @@ void JPADraw::zDrawChild()
 	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, 0x3C, 0, 0x7D);
 	GXEnableTexOffsets(GX_TEXCOORD0, GX_TRUE, GX_TRUE);
 
-	// TODO: figure out how to use JPADraw::loadTexture
 	if (mDrawCtx.mBaseShape->textureIsEmpty()) {
 		mDrawCtx.mTexResource->loadDefaultTexture(GX_TEXMAP0);
 	} else {
@@ -1179,12 +1175,6 @@ s16 JPADraw::getMainTextureID(u8 i)
 	}
 	return result;
 }
-
-void JPADraw::getIndTextureID() { }
-
-void JPADraw::getIndSubTextureID() { }
-
-void JPADraw::getSecondTextureID() { }
 
 void JPADraw::loadYBBMtx(MtxPtr mtx)
 {
