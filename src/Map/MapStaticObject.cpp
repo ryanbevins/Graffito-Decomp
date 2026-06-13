@@ -24,6 +24,7 @@
 #include <M3DUtil/MActorUtil.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JDrama/JDRDrawBufObj.hpp>
+#include <JSystem/JGadget/std-list.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
@@ -334,10 +335,16 @@ void TMapStaticObj::init(const char* name)
 	}
 
 	if (unk68->unk1C != nullptr) {
-		JDrama::TNameRef* ref
-		    = JDrama::TNameRefGen::getInstance()->getRootNameRef()->search(
-		        unk68->unk1C);
-		// TODO: insert into some list?
+		const char* groupName = unk68->unk1C;
+		JDrama::TNameRef* root
+		    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
+		JDrama::TNameRef* group
+		    = root->searchF(JDrama::TNameRef::calcKeyCode(groupName),
+		                    groupName);
+		JGadget::TList_pointer_void* list
+		    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
+		void* self = this;
+		list->insert(list->end(), self);
 	}
 
 	if (unk68->unk40 & 1) {
@@ -397,23 +404,27 @@ void TMapObjSoundGroup::perform(u32 param_1, JDrama::TGraphics* param_2)
 		return;
 
 	if (param_1 & 1) {
-		JGeometry::TVec3<f32> local_c18[0x100];
-		JGeometry::TVec3<f32> local_c24;
-		unk14->unk0->getPoint(&local_c24);
+		JGeometry::TVec3<f32> points[0x100];
+		JGeometry::TVec3<f32> startPoint;
+		unk14->unk0->getPoint(&startPoint);
+		int pointCount = 0;
 		for (int i = 1; i < unk14->unk8; ++i) {
-			Vec local_c30;
-			unk14->unk0[i].getPoint(&local_c30);
+			Vec endPoint;
+			unk14->unk0[i].getPoint(&endPoint);
 
-			// TODO: camera?
-			JGeometry::TVec3<f32> local_c54; // gpCamera->unk124;
-			local_c18[i]
-			    = MsPerpendicFootToLineR(local_c24, local_c30, local_c54);
+			JGeometry::TVec3<f32> cameraPos = gpCamera->unk124;
+			points[pointCount]
+			    = MsPerpendicFootToLineR(startPoint, endPoint, cameraPos);
+			startPoint = endPoint;
 
-			if (unk14->unk0[i].unkC == 1 && i < unk14->unk8 - 1) {
-				unk14->unk0[i].getPoint(local_c24);
+			if (unk14->unk0[i].getRailNode()->mConnectionNum == 1
+			    && i < unk14->unk8 - 1) {
+				++i;
+				unk14->unk0[i].getPoint(startPoint);
 			}
+			++pointCount;
 		}
-		unk10->frameLoop(unk18, local_c18, unk14->unk8);
+		unk10->frameLoop(unk18, points, pointCount);
 	}
 }
 
