@@ -253,6 +253,11 @@ void TMareEventDepressWall::rising()
 	int i       = mCurrentIndex;
 	f32 current = TMapObjBase::getJointTransX(mJoints[i]);
 
+	if (gpMSound->gateCheck(0x3008)) {
+		MSoundSESystem::MSoundSE::startSoundActor(0x3008, &mPositions[i], 0,
+		                                          nullptr, 0, 4);
+	}
+
 	JPABaseEmitter* emitter = gpMarioParticleManager->emit(
 	    0x15b, &mPositions[i], 1, &mPositions[i]);
 	if (emitter != nullptr) {
@@ -268,29 +273,28 @@ void TMareEventDepressWall::rising()
 		emitter->unk174.z        = mParticleChildRates[i];
 	}
 
-	if (gpMSound->gateCheck(0x3008)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x3008, &mPositions[i], 0,
-		                                          nullptr, 0, 4);
-	}
-
-	if (mDirections[i] ? current > 0.0f : current < 0.0f) {
-		if (!TMapObjBase::isDemo()) {
-			if (mDirections[i])
-				current -= mRiseSpeed;
-			else
-				current += mRiseSpeed;
+	if (mDirections[i]) {
+		if (current > 0.0f) {
+			current -= mRiseSpeed;
+			JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
+			TMapObjBase::setJointTransX(mJoints[i], current);
+			mMoveCollisions[i].moveTrans(trans);
+			return;
 		}
-
-		JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
-		TMapObjBase::setJointTransX(mJoints[i], current);
-		mMoveCollisions[i].moveTrans(trans);
-		return;
+	} else {
+		if (current < 0.0f) {
+			current += mRiseSpeed;
+			JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
+			TMapObjBase::setJointTransX(mJoints[i], current);
+			mMoveCollisions[i].moveTrans(trans);
+			return;
+		}
 	}
 
-	TMapObjBase::setJointTransX(mJoints[i], 0.0f);
-	mMoveCollisions[i].remove();
 	JGeometry::TVec3<f32> trans(0.0f, 0.0f, 0.0f);
+	mMoveCollisions[i].remove();
 	mWarpCollisions[i].setUpTrans(trans);
+	TMapObjBase::setJointTransX(mJoints[i], 0.0f);
 	SMSRumbleMgr->stop(0x13);
 
 	++mCurrentIndex;
@@ -345,18 +349,15 @@ void TMareEventDepressWall::depressing()
 				SMSRumbleMgr->stop(0x13);
 			}
 
+			JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
+			TMapObjBase::setJointTransX(mJoints[i], current);
+			mMoveCollisions[i].moveTrans(trans);
+
 			if (mDirections[i] ? current >= limit : current <= limit) {
-				current = limit;
 				mMoveCollisions[i].remove();
-				JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
 				mWarpCollisions[i].setUpTrans(trans);
 				++finished;
-			} else {
-				JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
-				mMoveCollisions[i].moveTrans(trans);
 			}
-
-			TMapObjBase::setJointTransX(mJoints[i], current);
 		} else {
 			++finished;
 		}
