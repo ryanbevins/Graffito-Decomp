@@ -380,7 +380,7 @@ config.libs = [
             Object(Equivalent, "JSystem/JUtility/JUTDirectFile.cpp"),
 
             # JDrama
-            Object(NonMatching, "JSystem/JDrama/JDRActor.cpp"),
+            Object(Equivalent, "JSystem/JDrama/JDRActor.cpp"),
             Object(Equivalent, "JSystem/JDrama/JDRCamera.cpp"),
             Object(Matching, "JSystem/JDrama/JDRCharacter.cpp"),
             Object(NonMatching, "JSystem/JDrama/JDRDirector.cpp"),
