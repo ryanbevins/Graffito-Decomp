@@ -23,7 +23,6 @@ public:
 	TRiccoHookManager(const char* name);
 
 	virtual void load(JSUMemoryInputStream&);
-	virtual void perform(u32, JDrama::TGraphics*);
 	virtual TSpineEnemy* createEnemyInstance();
 	virtual void createModelData();
 
