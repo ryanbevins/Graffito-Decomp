@@ -8,10 +8,11 @@
 #include <JSystem/JAudio/JASystem/JASTrack.hpp>
 
 template <typename T, typename U> class JALListVirtualNode;
-class MSBgm : public JALListHioNode<MSBgm, u32> {
+class MSBgm : public JALList<MSBgm> {
 public:
 	MSBgm(int i)
-	    : JALListHioNode<MSBgm, u32>("", i, this)
+	    : JALList<MSBgm>(this, true)
+	    , unk10(i)
 	    , unk14(nullptr)
 	{
 	}
@@ -49,6 +50,7 @@ public:
 	}
 
 public:
+	/* 0x10 */ u32 unk10;
 	/* 0x14 */ JAISound* unk14;
 };
 

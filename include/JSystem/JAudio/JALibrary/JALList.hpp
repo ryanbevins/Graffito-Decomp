@@ -5,12 +5,17 @@
 
 template <class T> class JALList : public JSULink<T> {
 public:
+#ifdef JALLIST_DECLARE_CTOR_ONLY
+	// Lets a TU provide a target-owned constructor specialization.
+	JALList(T* param_1, bool param_2);
+#else
 	JALList(T* param_1, bool param_2)
 	    : JSULink<T>(param_1)
 	{
 		if (param_2)
 			smList.append(this);
 	}
+#endif
 	~JALList();
 
 	static JSUList<T> smList;
