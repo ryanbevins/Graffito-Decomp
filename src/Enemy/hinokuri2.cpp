@@ -790,7 +790,7 @@ BOOL THinokuri2::receiveMessageLv1(THitActor* param_1, u32 param_2)
 		if (dmgAmount <= 0)
 			return true;
 
-		if (mHitPoints >= dmgAmount)
+		if (mHitPoints <= dmgAmount)
 			mHitPoints = 0;
 		else
 			mHitPoints -= dmgAmount;
@@ -910,8 +910,9 @@ void THinokuri2::moveObject()
 
 	if (mLevel == 1) {
 		f32 dhp    = calcHitPoints() - mHitPoints;
-		f32 fVar12 = (getSaveParam()->getSLDamageHeadScale() - 1.0f)
-		                 * (1.0f + dhp / calcHitPoints())
+		f32 fVar12 = 1.0f
+		             + (getSaveParam()->getSLDamageHeadScale() - 1.0f)
+		                 * (dhp / calcHitPoints())
 		             - unk194;
 
 		unk194 += symmetric_clamp(fVar12, 0.004f);
@@ -934,8 +935,8 @@ void THinokuri2::moveObject()
 
 	f32 headHitR = getSaveParam()->mSLHeadHitR.value;
 	mHead->setDamageRadius(unk194 * (headHitR * mBodyScale));
-	f32 bodyScale = getSaveParam()->mSLBodyScale.value;
-	mHead->setDamageHeight(unk194 * (mBodyScale * bodyScale));
+	f32 headHitH = getSaveParam()->mSLHeadHitH.value;
+	mHead->setDamageHeight(unk194 * (mBodyScale * headHitH));
 
 	if (mLevel == 0) {
 		f32 bodyHitR0 = getSaveParam()->mSLBodyHitR0.value;
@@ -1257,7 +1258,7 @@ DEFINE_NERVE(TNerveHino2Pollute, TLiveActor)
 			int polWait = self->getSaveParam()->mSLPolWaitCount.get();
 			if (uVar1 > polWait) {
 				self->unk180 = FALSE;
-				self->changeBck(3);
+				self->changeBck(0x10);
 				uVar1 = 0;
 			}
 			self->mWaitTimer = uVar1;
@@ -1267,7 +1268,7 @@ DEFINE_NERVE(TNerveHino2Pollute, TLiveActor)
 
 	if (self->mCurrentBck == 16) {
 		if (self->getMActor()->curAnmEndsNext()) {
-			self->changeBck(3);
+			self->changeBck(0x11);
 			self->unk15C = 0;
 
 			JGeometry::TVec3<f32> local_40;
@@ -1275,7 +1276,7 @@ DEFINE_NERVE(TNerveHino2Pollute, TLiveActor)
 				local_40 = self->mPosition;
 				local_40.y += 500.0f;
 			} else {
-				self->getJointTransByIndex(0x14, &local_40);
+				self->getJointTransByIndex(0x18, &local_40);
 			}
 		}
 		return false;
