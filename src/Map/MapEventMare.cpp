@@ -181,7 +181,7 @@ void TMareWallRock::loadAfter()
 	mCollisions[0] = new TMapCollisionMove;
 	mCollisions[1] = new TMapCollisionWarp;
 
-	char path[128];
+	char path[256];
 	snprintf(path, sizeof(path), "/map/map/building%02d", mIndex + 1);
 	mCollisions[0]->init(path, 0, this);
 	mCollisions[1]->init(path, 0, this);
