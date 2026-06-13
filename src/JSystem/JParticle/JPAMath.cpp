@@ -53,8 +53,6 @@ void JPAGetXYRotateMtx(s16 x, s16 y, MtxPtr dst)
 	*ptr++ = 0.0f;
 }
 
-void JPAGetScaleXYRotateMtx(JGeometry::TVec3<f32>&, s16, s16, MtxPtr) { }
-
 void JPAGetYZRotateMtx(s16 y, s16 z, MtxPtr dst)
 {
 	f32* ptr = &dst[0][0];
@@ -74,8 +72,6 @@ void JPAGetYZRotateMtx(s16 y, s16 z, MtxPtr dst)
 	*ptr++ = JMASCos(y);
 	*ptr++ = 0.0f;
 }
-
-void JPAGetScaleYZRotateMtx(JGeometry::TVec3<f32>&, s16, s16, MtxPtr) { }
 
 void JPAGetYRotateMtx(s16 y, MtxPtr dst)
 {
@@ -97,26 +93,6 @@ void JPAGetYRotateMtx(s16 y, MtxPtr dst)
 	*ptr++ = 0.0f;
 }
 
-void JPAGetZRotateMtx(s16 z, MtxPtr dst)
-{
-	f32* ptr = &dst[0][0];
-
-	*ptr++ = JMASCos(z);
-	*ptr++ = JMASSin(z);
-	*ptr++ = 0.0f;
-	*ptr++ = 0.0f;
-
-	*ptr++ = -JMASSin(z);
-	*ptr++ = JMASCos(z);
-	*ptr++ = 0.0f;
-	*ptr++ = 0.0f;
-
-	*ptr++ = 0.0f;
-	*ptr++ = 0.0f;
-	*ptr++ = 1.0f;
-	*ptr++ = 0.0f;
-}
-
 void JPAVecToRotaMtx(MtxPtr dst, JGeometry::TVec3<f32> a,
                      JGeometry::TVec3<f32> b)
 {
@@ -126,10 +102,15 @@ void JPAVecToRotaMtx(MtxPtr dst, JGeometry::TVec3<f32> a,
 
 	f32 crossLen = r * r + p * p + q * q;
 	f32 dot      = a.x * b.x + a.y * b.y + a.z * b.z;
-	crossLen     = JPASqrtf(crossLen);
+	if (crossLen > 0.0f) {
+		f32 estimate = (f32)__frsqrte(crossLen);
+		f32 estimate2 = estimate * estimate;
+		estimate = 0.5f * estimate * (3.0f - crossLen * estimate2);
+		crossLen *= estimate;
+	}
 
-	if (crossLen > 3.814697e-06) {
-		f32 inv = 1.0f / crossLen;
+	if (crossLen > 3.8146973e-06f) {
+		f32 inv = __fres(crossLen);
 		p *= inv;
 		q *= inv;
 		r *= inv;
@@ -173,8 +154,6 @@ f32 JPAConvertFixToFloat(s16 param_1)
 	return (float)r5 * 1e-05f;
 }
 
-s16 JPAConvertFloatToFix(f32) { }
-
 void JPAConvertFixVecToFloatVec(JGeometry::TVec3<f32>& param_1,
                                 const JGeometry::TVec3<s16>& param_2)
 {
@@ -182,18 +161,6 @@ void JPAConvertFixVecToFloatVec(JGeometry::TVec3<f32>& param_1,
 	param_1.y = JPAConvertFixToFloat(param_2.y);
 	param_1.z = JPAConvertFixToFloat(param_2.z);
 }
-
-void JPAConvertFloatVecToFixVec(JGeometry::TVec3<s16>&,
-                                const JGeometry::TVec3<f32>&)
-{
-}
-
-void JPABound(JGeometry::TVec3<f32>&, const JGeometry::TVec3<f32>&,
-              const JGeometry::TVec3<f32>&, f32, f32)
-{
-}
-
-void JPAGetSVecElement(MtxPtr, JGeometry::TVec3<f32>&) { }
 
 void JPAGetRMtxSTVecElement(MtxPtr param_1, MtxPtr param_2,
                             JGeometry::TVec3<f32>& param_3,
@@ -261,12 +228,6 @@ void JPAGetRMtxTVecElement(MtxPtr param_1, MtxPtr param_2,
 
 	param_3.set(param_1[0][3], param_1[1][3], param_1[2][3]);
 }
-
-void JPAGetRMtxElement(MtxPtr, MtxPtr) { }
-
-void JPAGetRTMtxElement(MtxPtr, MtxPtr) { }
-
-void JPARadVecToSVec(JGeometry::TVec3<f32>&, JGeometry::TVec3<s16>&) { }
 
 f32 JPAGetKeyFrameValue(f32 time, u16 frame_num, f32* frames)
 {
