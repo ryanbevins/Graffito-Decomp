@@ -120,7 +120,7 @@ void TMonumentShine::hitByWater(THitActor* actor)
 	f32 cy = sUpHBW.z * marioDir.x - sUpHBW.x * marioDir.z;
 	f32 cz = sUpHBW.x * marioDir.y - sUpHBW.y * marioDir.x;
 
-	f32 dot = cx * waterDir.y + cy * waterDir.x + cz * waterDir.z;
+	f32 dot = cx * waterDir.x + cy * waterDir.y + cz * waterDir.z;
 	if (dot > 0.0f) {
 		unk140 += 0.004f;
 	} else {
@@ -594,9 +594,6 @@ void TDemoCannon::perform(u32 flags, JDrama::TGraphics* gfx)
 
 void TTurboNozzleDoor::loadAfter()
 {
-	f32 _pad[8];
-	(void)_pad;
-
 	if (strcmp("空港ドアＡ０", mName) == 0) {
 		unk144 = JDrama::TNameRefGen::search<TLiveActor>("空港ドアＡ１");
 	} else if (strcmp("空港ドアＡ１", mName) == 0) {
