@@ -255,7 +255,8 @@ void TEffectModel::reset()
 	volatile f32 mn = 0.0f;
 	volatile f32 mx = 360.0f;
 	f32 range       = mx - mn;
-	mRotation.y     = mn + range * MsRandF();
+	f32 rot         = range * MsRandF();
+	mRotation.y     = mn + rot;
 	onLiveFlag(LIVE_FLAG_UNK8);
 	onLiveFlag(LIVE_FLAG_UNK10);
 	offLiveFlag(LIVE_FLAG_DEAD);
@@ -518,7 +519,7 @@ void TEffectColumSand::generate(JGeometry::TVec3<f32>& param_1,
 {
 	reset();
 	mScaling  = param_2;
-	f32 fVar1 = param_2.y;
+	f32 fVar1 = param_2.x;
 
 	if (JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(0x7E, &param_1, 0, nullptr)) {
@@ -594,7 +595,7 @@ void TEffectExplosion::generate(JGeometry::TVec3<f32>& param_1,
 {
 	reset();
 	mScaling  = param_2;
-	f32 fVar1 = param_2.y;
+	f32 fVar1 = param_2.x;
 
 	if (JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(0xC4, &param_1, 0, nullptr)) {
