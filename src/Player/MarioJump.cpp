@@ -48,23 +48,30 @@ void TMario::doJumping()
 		s16 angleDiff = intendedYaw - faceY;
 		if (mAction == 0x088B) {
 			u8 hasFludd;
-			if (mState & 0x10000) hasFludd = 1; else hasFludd = 0;
+			if (mState & MARIO_FLAG_HAS_FLUDD) hasFludd = 1; else hasFludd = 0;
 			if (hasFludd) {
 				TWaterGun* gun = mWaterGun;
-				if (gun->mCurrentWater != 0) {
+				u8 nozzleReady;
+				if (gun->mCurrentWater == 0) {
+					nozzleReady = FALSE;
+				} else {
 					s32 kind = gun->getCurrentNozzle()->getNozzleKind();
 					if (kind == 1) {
 						TNozzleTrigger* t = (TNozzleTrigger*)gun->getCurrentNozzle();
-						if (t->unk385 == 1) {}
+						if (t->unk385 == TNozzleTrigger::ACTIVE) nozzleReady = TRUE;
+						else nozzleReady = FALSE;
 					} else {
-						if (gun->getCurrentNozzle()->unk378 > 0.0f) {}
+						if (gun->getCurrentNozzle()->unk378 > 0.0f)
+							nozzleReady = TRUE;
+						else
+							nozzleReady = FALSE;
 					}
 				}
-				intendedMag = mDivingParams.mAccelControl.value * intendedMag;
+				if (nozzleReady)
+					intendedMag = 2.5f * intendedMag;
 			}
 		}
-		u32 actionBase = mAction - 0xFE000000;
-		if (actionBase <= 2182) {
+		if (mAction == 0x02000886) {
 			if (mVel.y > 0.0f) {
 				s16 d = (s16)angleDiff;
 				if (d < -16384 || d > 16384) intendedMag = 0.0f;
@@ -82,10 +89,10 @@ void TMario::doJumping()
 		} else accel = getJumpAccelControl();
 		u16 au = (u16)angleDiff;
 		mForwardVel = accel * intendedMag * JMASSin(au) + mForwardVel;
-		sideVel = intendedMag * intendedMag * JMASCos(au);
+		sideVel = intendedMag * JMASCos(au) * getJumpSlideControl();
 	}
-	if (mForwardVel > 0.0f) mForwardVel -= mJumpParams.mJumpAccelControl.value;
-	if (mForwardVel < 0.0f) mForwardVel += mJumpParams.mJumpAccelControl.value;
+	if (mForwardVel > 32.0f) mForwardVel -= 0.2f;
+	if (mForwardVel < -16.0f) mForwardVel += 0.4f;
 	u16 fa = mFaceAngle.y;
 	mSlideVelX = mForwardVel * JMASSin(fa);
 	mSlideVelZ = mForwardVel * JMASCos(fa);
