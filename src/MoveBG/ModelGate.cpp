@@ -27,21 +27,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-// dummy data anchors that produce @1431/@1411/@1210 anchors in .data
-static void dummy() { static Vec data_2100 = { 1.0f, 1.0f, 1.0f }; }
-static void dummy2() { static Vec data_2100 = { 1.0f, 1.0f, 1.0f }; }
-static void dummy3() { static u32 data_2100[] = { 0, 2, 1, 3 }; }
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
 
 #include <M3DUtil/InfectiousStrings.hpp>
 
 static const char* gateMActorNames[] = {
 	"05_gate01",       "05_gate02rico", "05_gate03manma",
 	"05_gate04monte",  "05_gate05mare",
-};
-
-static const char* gateNames[] = {
-	"Gate",         "GateToRicco", "GateToMamma",
-	"GateToMonte",  "GateToMare",  nullptr,
 };
 
 MtxPtr TModelGate::getTakingMtx() { return nullptr; }
@@ -335,10 +329,16 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 
 void TModelGate::loadAfter()
 {
-	initHitActor(0, 5, 0, 300.0f, 400.0f, 300.0f, 400.0f);
+	initHitActor(0x080000C0, 5, 0x80000000, 300.0f, 400.0f, 300.0f,
+	             400.0f);
 	unk64 |= 1;
 	unk70 = 0;
 	unk71 = 0;
+
+	static const char* gateNames[] = {
+		"Gate",         "GateToRicco", "GateToMamma",
+		"GateToMonte",  "GateToMare",  nullptr,
+	};
 
 	for (u8 i = 0; i < 5; ++i) {
 		if (strcmp(gateNames[i], mName) == 0) {
