@@ -54,7 +54,6 @@ namespace Dvd {
 	static void writeBufferSize(u8*, u32, u32);
 	static void updateBuffer();
 	static void aramDmaFinish(u32);
-	static void aramDmaFinish2(u32);
 } // namespace Dvd
 
 void Dvd::init()
@@ -63,9 +62,6 @@ void Dvd::init()
 	msgBuf         = new (JASDram, 0) void*[dvdMsgsSize];
 }
 
-void Dvd::setNumOfMsgs(s32 num) { }
-void Dvd::setDvdBufSize(u32 size) { }
-void Dvd::setRootPath(char* path) { }
 void Dvd::extendPath(char* path1, char* path2)
 {
 	if (audioRootPath[0]) {
@@ -78,8 +74,6 @@ void Dvd::extendPath(char* path1, char* path2)
 		strcpy(path1, path2);
 	}
 }
-void Dvd::addTaskHigh(s32 (*func)(void*), void* param, u32 param3) { }
-void Dvd::addTask(s32 (*func)(void*), void* param, u32 param3) { }
 void Dvd::dvdProcInit()
 {
 	OSInitMessageQueue(&mq, msgBuf, 0x20);
@@ -172,10 +166,6 @@ int Dvd::loadToDramDvdT(u32 param1, char* path, void* buffer, u32 size,
 
 	return 0;
 }
-
-void Dvd::setBufferDvdT(u8* buffer, u32 size, u32 param3) { }
-void Dvd::closeBufferDvdT(u8* buffer) { }
-void Dvd::getCurrentBufferDvdT(u8** buffer) { }
 
 int Dvd::loadToAramDvdTMain(void* param)
 {
@@ -270,27 +260,10 @@ int Dvd::loadToAramDvdT(u32 param1, char* path, void* buffer, u32 size,
 	return 0;
 }
 
-void* Dvd::aramToDramDvdTMain(void* param)
-{
-
-	static DVDFileInfo finfo;
-	static ARQRequest req;
-	return 0;
-}
-void* Dvd::dramToAramDvdTMain(void* param)
-{
-	static DVDFileInfo finfo;
-	static ARQRequest req;
-	return 0;
-}
-void Dvd::aramToDramDvdT(u32 param1, void* src, void* dest, u32 size,
-                         u32* param5, void (*callback)(u32))
-{
-}
-void Dvd::dramToAramDvdT(u32 param1, void* src, void* dest, u32 size,
-                         u32* param5, void (*callback)(u32))
-{
-}
+static DVDFileInfo deadAramToDramFinfo;
+static ARQRequest deadAramToDramReq;
+static DVDFileInfo deadDramToAramFinfo;
+static ARQRequest deadDramToAramReq;
 
 u32 Dvd::checkFileExtend(char* path)
 {
@@ -380,9 +353,6 @@ void Dvd::unpauseDvdT()
 	dvdThreadPauseFlag = 0;
 }
 
-void Dvd::registerDvdErrorCallback(void (*callback)(char*, u8*)) { }
-void Dvd::setFastOpenMaxDic(s32 max) { }
-void Dvd::registerExtFastOpen(char* path) { }
 int Dvd::registerFastOpen(char* path)
 {
 	if (strlen(path) > 63)
@@ -519,6 +489,5 @@ static void Dvd::updateBuffer()
 }
 
 static void Dvd::aramDmaFinish(u32 param) { --bufferFull; }
-static void Dvd::aramDmaFinish2(u32 param) { }
 
 } // namespace JASystem
