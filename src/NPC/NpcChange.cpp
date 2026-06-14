@@ -264,9 +264,7 @@ void TBaseNPC::behaveToBeTrampled_()
 			mSpine->setNext(nullptr);
 		} else if (cur == nullptr
 		           && latest == &TNerveNPCWet::theNerve()) {
-			TNerveBase<TLiveActor>* popped = mSpine->popNerve();
-			if (popped != nullptr)
-				mSpine->becomeNerveAfterPop(popped);
+			mSpine->setNext(&TNerveNPCWet::theNerve());
 		}
 		return;
 	}
