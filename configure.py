@@ -519,7 +519,7 @@ config.libs = [
             # JParticle
             Object(Equivalent, "JSystem/JParticle/JPAEmitter.cpp"),
             Object(Equivalent, "JSystem/JParticle/JPAEmitterManager.cpp"),
-            Object(NonMatching, "JSystem/JParticle/JPAField.cpp"),
+            Object(Equivalent, "JSystem/JParticle/JPAField.cpp"),
             Object(Equivalent, "JSystem/JParticle/JPAMath.cpp"),
             Object(Equivalent, "JSystem/JParticle/JPAParticle.cpp"),
             Object(Matching, "JSystem/JParticle/JPADrawSetupTev.cpp"),

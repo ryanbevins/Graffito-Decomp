@@ -123,7 +123,7 @@ void JPABaseField::loadFieldBlock(JPADataBlock* block)
 	stream.read(&unk51, 1);
 	stream.read(&unk52, 1);
 	stream.read(&unk53, 1);
-	stream.read(&mMaxDistanceSq, 1);
+	stream.read(&unk54, 2);
 	stream.skip(0x2);
 	stream.read(&unk10, 4);
 	stream.read(&unk14, 4);
@@ -349,7 +349,6 @@ void JPAConvectionField::affect(JPAParticle* particle)
 	unk7C.cross(thing3, thing4);
 	unk7C.setLength(unk10);
 	if (unk34 != 0.0f) {
-		JGeometry::TVec3<f32> thing4;
 		thing4.setLength(thing4, unk34);
 		unk7C.add(thing4);
 	}
