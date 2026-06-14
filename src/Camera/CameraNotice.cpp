@@ -6,7 +6,6 @@
 #include <JSystem/JGeometry.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
-#include <Player/Watergun.hpp>
 #include <Strategic/HitActor.hpp>
 #include <Strategic/LiveManager.hpp>
 #include <System/MarioGamePad.hpp>
@@ -16,6 +15,15 @@ template <> f32 CLBCalcRatio<f32>(f32, f32, f32);
 template <> f32 CLBSquared<f32>(f32);
 template <> s16 CLBRoundf<s16>(f32);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
+
+class TWaterGun {
+public:
+	MtxPtr getNozzleMtx();
+};
+
+static const char dummyMactorStringValue1[]
+    = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[] = "メモリが足りません\n";
 
 const char* bossGesoViewObjName = "ボスゲッソー";
 
@@ -135,7 +143,7 @@ void* CPolarSubCamera::getNoticeActor_()
 			continue;
 
 		s16 marioAng = *gpMarioAngleY;
-		f32 deg      = (f32)(s16)(marioAng ^ 0x8000) * (360.0f / 65536.0f);
+		f32 deg      = (f32)marioAng * (360.0f / 65536.0f);
 		f32 farClip
 		    = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x68);
 		if (MsIsInSight(*gpMarioPos, deg,
@@ -295,11 +303,11 @@ void CPolarSubCamera::ctrlLButtonCamera_()
 	if (*(s32*)((u8*)this + 0x78) == 0) {
 		u16& flags = *(u16*)((u8*)this + 0x64);
 		if ((flags & 0x20) != 0) {
-			void* notice = this->unk2A4;
-			if (notice == nullptr) {
-				rotateY_ByStickX_(stickX);
-			} else {
+			if (stickX == 0.0f) {
+				void* notice = this->unk2A4;
 				calcNoticeTargetYrot_(*(const Vec*)((u8*)notice + 0x10));
+			} else {
+				rotateY_ByStickX_(stickX);
 			}
 		} else {
 			rotateY_ByStickX_(stickX);
