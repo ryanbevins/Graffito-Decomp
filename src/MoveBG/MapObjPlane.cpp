@@ -129,8 +129,8 @@ void TMapObjPlane::calcNrm(int x, int z)
 	f32 hN0 = heightAt(MsWrap(x - 1, 0, mExtents), z);
 	f32 hP0 = heightAt(MsWrap(x + 1, 0, mExtents), z);
 
-	// TODO: figure out the inlines here. Definitely some subtracting and
-	// cross producting is occurring.
+	// TODO: recover the original helper shape for the cross products and
+	// normalizations; the current math matches target behavior.
 
 	JGeometry::TVec3<f32> local_9c;
 	local_9c.x = (h0N - hN0) * 0.0f - (fVar7 - 0.0f) * (hN0 - h00);
@@ -151,9 +151,11 @@ void TMapObjPlane::calcNrm(int x, int z)
 	local_b4.normalize();
 
 	JGeometry::TVec3<f32> local_c0;
-	local_c0.x = (h0P - hP0) * 0.0f - h0N * (hP0 - h00);
-	local_c0.y = h0N * h0N - (0.0f - fVar1) * 0.0f;
-	local_c0.z = (0.0f - fVar1) * (hP0 - h00) - (h0P - hP0) * h0N;
+	local_c0.x = (h0P - hP0) * 0.0f - (fVar1 - 0.0f) * (hP0 - h00);
+	local_c0.y = (fVar1 - 0.0f) * (fVar1 - 0.0f)
+	             - (0.0f - fVar1) * 0.0f;
+	local_c0.z = (0.0f - fVar1) * (hP0 - h00)
+	             - (h0P - hP0) * (fVar1 - 0.0f);
 	local_c0.normalize();
 
 	mNormalMap[x + z * mExtents] = local_9c + local_a8 + local_b4 + local_c0;
