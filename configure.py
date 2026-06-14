@@ -1252,7 +1252,7 @@ config.libs = [
         "cflags": cflags_game,
         "progress_category": "game",
         "objects": [
-            Object(NonMatching, "Animal/boid.cpp"),
+            Object(Equivalent, "Animal/boid.cpp"),
             Object(Equivalent, "Animal/fishoid.cpp"),
             Object(Equivalent, "Animal/AnimalBase.cpp"),
             Object(Equivalent, "Animal/AnimalManager.cpp"),
