@@ -62,7 +62,7 @@ TSplineRail::TSplineRail(const TGraphWeb* graph)
 	char trash[0x50]; // TODO: skill issue, need more inlines
 }
 
-f32 TSplineRail::wrapT(f32 param_1)
+inline f32 TSplineRail::wrapT(f32 param_1)
 {
 	if (unk4)
 		param_1 = MsWrap<f32>(param_1, unk0->getNthT(1),
@@ -72,9 +72,9 @@ f32 TSplineRail::wrapT(f32 param_1)
 }
 
 // TODO: you'd think this is correct, but the size is wrong...
-f32 TSplineRail::getNthT(int n) { return unk0->mParametrization[n]; }
+inline f32 TSplineRail::getNthT(int n) { return unk0->mParametrization[n]; }
 
-JGeometry::TVec3<f32> TSplineRail::getPosition(f32 t)
+inline JGeometry::TVec3<f32> TSplineRail::getPosition(f32 t)
 {
 	return unk0->getPoint(wrapT(t));
 }
