@@ -24,21 +24,21 @@
 
 #include <M3DUtil/InfectiousStrings.hpp>
 
-s32 TCraneRotY::mWaitTime = 60;
-f32 TCraneUpDown::mRotSpeed = 0.05f;
-s32 TCraneUpDown::mWaitTime = 60;
-f32 TRiccoWatermill::mRotAccel = 0.005f;
-f32 TRiccoWatermill::mRotSpeedMaxUp = 0.5f;
-f32 TRiccoWatermill::mRotSpeedMaxDown = 0.5f;
-f32 TRiccoWatermill::mRotDown = 0.01f;
-f32 TRiccoWatermill::mSubmarineMoveRate = 1.0f;
-f32 TRiccoWatermill::mSubmarineMaxTransY = 1500.0f;
-f32 TRiccoWatermill::mSubmarineBottomTransY = 0.0f;
-s32 TRiccoWatermill::mWaitTime = 120;
+s32 TCraneRotY::mWaitTime = 120;
+f32 TCraneUpDown::mRotSpeed = 0.1f;
+s32 TCraneUpDown::mWaitTime = 120;
+f32 TRiccoWatermill::mRotAccel = 1.0f;
+f32 TRiccoWatermill::mRotSpeedMaxUp = 3.0f;
+f32 TRiccoWatermill::mRotSpeedMaxDown = 1.0f;
+f32 TRiccoWatermill::mRotDown = 0.05f;
+f32 TRiccoWatermill::mSubmarineMoveRate = 0.5f;
+f32 TRiccoWatermill::mSubmarineMaxTransY = 750.0f;
+f32 TRiccoWatermill::mSubmarineBottomTransY = -950.0f;
+s32 TRiccoWatermill::mWaitTime = 600;
 f32 TRiccoWatermill::mSubmarineSurfaceTransY;
-f32 TFruitLauncher::mObjSpeedXZ = 5.0f;
-f32 TFruitLauncher::mObjSpeedY = 30.0f;
-s32 TFruitLauncher::mFruitLiveTime = 600;
+f32 TFruitLauncher::mObjSpeedXZ = 1.0f;
+f32 TFruitLauncher::mObjSpeedY = 20.0f;
+s32 TFruitLauncher::mFruitLiveTime = 4800;
 
 Vec submarineCranePos_forSound;
 
@@ -133,12 +133,12 @@ void TCraneUpDown::control()
 		pos->x                     = 0.0f;
 		pos->y                     = 0.0f;
 		pos->z                     = 100.0f;
+		MtxPtr rotY                = getModel()->mNodeMatrices[0];
 		Mtx scratch;
 		PSMTXIdentity(scratch);
 		s16 angY  = (s16)(mRotation.x * 182.04445f);
 		f32 sinY  = jmaSinTable[(u16)angY >> jmaSinShift];
 		f32 cosY  = jmaCosTable[(u16)angY >> jmaSinShift];
-		Mtx rotY;
 		rotY[0][0] = 1.0f;
 		rotY[0][1] = 0.0f;
 		rotY[0][2] = 0.0f;
@@ -280,15 +280,16 @@ void TRiccoWatermill::control()
 	case 2:
 		if (unk13C->mPosition.y > mSubmarineMaxTransY) {
 			unk13C->mPosition.y = mSubmarineMaxTransY;
-			if (!(mLifeTimer > 0 ? true : false) && !unk144) {
+			if (!(mLifeTimer > 0 ? true : false)) {
 				if (gpMSound->gateCheck(0x3832)) {
 					MSoundSESystem::MSoundSE::startSoundActor(
 					    0x3832, (Vec*)&unk13C->mPosition, 0, 0, 0, 4);
 				}
-				JGeometry::TVec3<f32> target(50.0f,
-				                             mSubmarineMaxTransY + 200.0f,
-				                             100.0f);
-				throwObjToFrontFromPoint(unk148, target, 0.0f, 0.0f);
+				if (!unk144) {
+					JGeometry::TVec3<f32> target(
+					    50.0f, mSubmarineMaxTransY + 200.0f, 100.0f);
+					throwObjToFrontFromPoint(unk148, target, 0.0f, 0.0f);
+				}
 				unk144 = 1;
 			}
 			if (unk138 < 0.0f) {
@@ -386,7 +387,7 @@ void TSurfGesoObj::initMapObj()
 	SDLModelData* modelData = gpMapObjManager->mSurfGessoModelData;
 	mMActor                 = SMS_MakeMActorFromSDLModelData(
         modelData, gpMapObjManager->getMActorAnmData(), 3);
-	initPacketMatColor(getModel(), GX_TEVREG2, &unk154);
+	initPacketMatColor(getModel(), GX_TEVREG1, &unk154);
 	mMActor->setBck("surfgeso_run1");
 }
 
@@ -405,12 +406,6 @@ BOOL TFruitSwitch::receiveMessage(THitActor* sender, u32 message)
 	return FALSE;
 }
 
-static void fireFruitOnce(TMapObjBase* sw, u32* result)
-{
-	(void)sw;
-	(void)result;
-}
-
 void TFruitLauncher::fireObj()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(
@@ -427,27 +422,27 @@ void TFruitLauncher::fireObj()
 	TFruitSwitch* sw    = (&unk138)[unk140];
 	sw->getMActor()->getFrameCtrl(0)->setFrame(0.0f);
 	sw->unk64 &= ~1;
-	sw->getModel()->entry();
+	sw->getModel()->calc();
 	PSMTXCopy(sw->getModel()->mNodeMatrices[0],
 	          sw->mMapCollisionManager->unk8->unk20);
 	sw->mMapCollisionManager->unk8->setUp();
 
 	TMapObjBase* obj = (TMapObjBase*)NULL;
 	{
-		f32 r1 = MsRandF() * 5.0f;
-		if (r1 < 1.0f) {
+		f32 r1 = MsRandF() * 100.0f;
+		if (r1 < 20.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000390,
 			                                   false);
-		} else if (r1 < 2.0f) {
+		} else if (r1 < 40.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000391,
 			                                   false);
-		} else if (r1 < 3.0f) {
+		} else if (r1 < 60.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000392,
 			                                   false);
-		} else if (r1 < 4.0f) {
+		} else if (r1 < 80.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000393,
 			                                   false);
@@ -458,20 +453,20 @@ void TFruitLauncher::fireObj()
 		}
 	}
 	if (obj == NULL) {
-		f32 r2 = MsRandF() * 5.0f;
-		if (r2 < 1.0f) {
+		f32 r2 = MsRandF() * 100.0f;
+		if (r2 < 20.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000390,
 			                                   false);
-		} else if (r2 < 2.0f) {
+		} else if (r2 < 40.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000391,
 			                                   false);
-		} else if (r2 < 3.0f) {
+		} else if (r2 < 60.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000392,
 			                                   false);
-		} else if (r2 < 4.0f) {
+		} else if (r2 < 80.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000393,
 			                                   false);
@@ -482,20 +477,20 @@ void TFruitLauncher::fireObj()
 		}
 	}
 	if (obj == NULL) {
-		f32 r3 = MsRandF() * 5.0f;
-		if (r3 < 1.0f) {
+		f32 r3 = MsRandF() * 100.0f;
+		if (r3 < 20.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000390,
 			                                   false);
-		} else if (r3 < 2.0f) {
+		} else if (r3 < 40.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000391,
 			                                   false);
-		} else if (r3 < 3.0f) {
+		} else if (r3 < 60.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000392,
 			                                   false);
-		} else if (r3 < 4.0f) {
+		} else if (r3 < 80.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
 			                                   sw->mPosition.z, 0x4000393,
 			                                   false);
@@ -509,13 +504,14 @@ void TFruitLauncher::fireObj()
 		obj->mPosition.x = sw->mPosition.x;
 		obj->mPosition.y = sw->mPosition.y;
 		obj->mPosition.z = sw->mPosition.z;
-		f32 angle        = MsRandF() * 6.2831855f - 3.1415927f;
-		f32 speedXZ      = mObjSpeedXZ;
 		f32 speedY       = -mObjSpeedY;
-		obj->mLinearVelocity.x = speedXZ * sinf(angle);
-		obj->mLinearVelocity.y = speedY;
-		obj->mLinearVelocity.z = speedXZ * cosf(angle);
-		obj->unkF8 &= ~0x10;
+		f32 speedXZ      = mObjSpeedXZ;
+		f32 speedZ       = speedXZ * (MsRandF() - 0.5f);
+		f32 speedX       = speedXZ * (MsRandF() - 0.5f);
+		obj->mVelocity.x = speedX;
+		obj->mVelocity.y = speedY;
+		obj->mVelocity.z = speedZ;
+		obj->mLiveFlag &= ~0x10;
 		gpMarDirector->fireStartDemoCamera(
 		    "フルーツスイッチメラメラ",
 		    (JGeometry::TVec3<f32>*)&obj->mPosition, -1, 0.0f, true,
@@ -574,7 +570,7 @@ void TFruitLauncher::loadAfter()
 	    JDrama::TNameRef::calcKeyCode("テレサスイッチ1"), "テレサスイッチ1");
 	unk13C->unk138 = (TMapObjBase*)this;
 	unk140         = 1;
-	unk138->startBck("@1490");
+	unk138->startBck("riccoswitch");
 	unk138->unk64 |= 1;
 	{
 		TMapCollisionBase* coll = unk138->mMapCollisionManager->unk8;

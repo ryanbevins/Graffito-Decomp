@@ -8265,6 +8265,19 @@ _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *H
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
 
+- **What source shape makes MWCC emit one weak out-of-line owner for a tiny
+  in-class accessor while other TUs keep undefined `bl` call sites?** In
+  `mario/MoveBG/MapObjRicco`, target emits weak
+  `TLiveActor::getMActor() const` (8 bytes, `lwz r3, 0x74(r3); blr`) and
+  calls it from `TFruitLauncher::fireObj`; current source inlines the
+  header-defined accessor as a direct `lwz`. A `--non-matching` link also fails
+  on undefined `TLiveActor::getMActor() const` references from
+  `MapObjMamma.o` and `MapObjMare.o`, so the project needs a real weak-owner
+  explanation rather than a one-off symbol shim. Next experiment: compare the
+  target TUs that own/call this accessor and test whether moving the body out
+  of the in-class definition, or changing only the calling source shape in the
+  owner TU, produces a callable owner without broad `dont_inline` side effects.
+
 - **What source shape preserves MWCC's large-stack `s16`-to-`f32` frame-control
   write inside a huge dispatcher?** In `mario/Player/MarioReceiveMsg`
   `TMario::receiveMessage`, target actor case `0x080000C0` reads
