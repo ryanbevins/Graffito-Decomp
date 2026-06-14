@@ -9054,6 +9054,13 @@ missing.
 does not compile under MWCC 1.2.5 (`unimplemented C++ feature`). This is not an
 available call-boundary lever for the member-template `set` overload.
 
+**Tried & REFUTED (`mario/Enemy/Kazekun`):** guarding the inline bodies out of
+the header and adding out-of-class explicit member-template definitions for the
+local `TVec4<f32>::set<f32>` / `TVec3<f32>::set<f32>` owners also is not a clean
+lever. MWCC rejected the nested `template <> template <>` spelling needed for
+`TVec4<f32>::set<f32>` with a declaration-syntax error before reaching the
+`TVec3` body.
+
 **Tried & REFUTED:** wrapping the caller as
 `static inline void rotateBirdVec(const TQuat4<f32>&, const TVec3<f32>&,
 TVec3<f32>&) { quat.rotate(src, dst); }` and calling that wrapper from

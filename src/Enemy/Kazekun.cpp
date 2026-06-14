@@ -1,3 +1,5 @@
+#define JGEOMETRY_KAZEKUN_OWNER_HELPERS
+
 #include <Enemy/Kazekun.hpp>
 #include <Enemy/EnemyManager.hpp>
 #include <Player/MarioAccess.hpp>
@@ -234,6 +236,51 @@ DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 		return TRUE;
 	}
 	return FALSE;
+}
+
+template <>
+void JGeometry::TRotation3<
+    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >::getQuat(
+    JGeometry::TQuat4<f32>& quat) const
+{
+	if (this->at(0, 0) + this->at(1, 1) + this->at(2, 2) >= 0.0f) {
+		f32 scale = TUtil<f32>::sqrt(this->at(0, 0) + this->at(1, 1)
+		                             + this->at(2, 2) + 1.0f);
+		quat.w    = 0.5f * scale;
+		quat.x    = 0.5f / scale * (this->at(2, 1) - this->at(1, 2));
+		quat.y    = 0.5f / scale * (this->at(0, 2) - this->at(2, 0));
+		quat.z    = 0.5f / scale * (this->at(1, 0) - this->at(0, 1));
+		return;
+	}
+
+	f32 maxDiag = max(max(this->at(0, 0), this->at(1, 1)), this->at(2, 2));
+
+	if (maxDiag == this->at(0, 0)) {
+		f32 scale = TUtil<f32>::sqrt(
+		    this->at(0, 0) - (this->at(1, 1) + this->at(2, 2)) + 1.0f);
+		quat.x = 0.5f * scale;
+		quat.y = 0.5f / scale * (this->at(0, 1) + this->at(1, 0));
+		quat.z = 0.5f / scale * (this->at(2, 0) + this->at(0, 2));
+		quat.w = 0.5f / scale * (this->at(2, 1) - this->at(1, 2));
+		return;
+	}
+
+	if (maxDiag == this->at(1, 1)) {
+		f32 scale = TUtil<f32>::sqrt(
+		    this->at(1, 1) - (this->at(2, 2) + this->at(0, 0)) + 1.0f);
+		quat.y = 0.5f * scale;
+		quat.z = 0.5f / scale * (this->at(1, 2) + this->at(2, 1));
+		quat.x = 0.5f / scale * (this->at(0, 1) + this->at(1, 0));
+		quat.w = 0.5f / scale * (this->at(0, 2) - this->at(2, 0));
+		return;
+	}
+
+	f32 scale = TUtil<f32>::sqrt(
+	    this->at(2, 2) - (this->at(0, 0) + this->at(1, 1)) + 1.0f);
+	quat.z = 0.5f * scale;
+	quat.x = 0.5f / scale * (this->at(2, 0) + this->at(0, 2));
+	quat.y = 0.5f / scale * (this->at(1, 2) + this->at(2, 1));
+	quat.w = 0.5f / scale * (this->at(1, 0) - this->at(0, 1));
 }
 
 // ============= TKazekun =============

@@ -170,6 +170,9 @@ public:
 	}
 
 	void getQuat(JGeometry::TQuat4<f32>& quat) const
+#ifdef JGEOMETRY_KAZEKUN_OWNER_HELPERS
+	    ;
+#else
 	{
 		// TODO: nasty regswap
 		if (this->at(0, 0) + this->at(1, 1) + this->at(2, 2) >= 0.0f) {
@@ -211,6 +214,7 @@ public:
 		quat.y = 0.5f / scale * (this->at(1, 2) + this->at(2, 1));
 		quat.w = 0.5f / scale * (this->at(1, 0) - this->at(0, 1));
 	}
+#endif
 
 	void setSQ(const JGeometry::TVec3<f32>& scale,
 	           const JGeometry::TQuat4<f32>& qt)
