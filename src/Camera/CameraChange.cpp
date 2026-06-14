@@ -1,3 +1,4 @@
+#define MSCLAMP_OUT_OF_LINE
 #include <Camera/Camera.hpp>
 #include <Camera/CameraInbetween.hpp>
 #include <Camera/CameraKindParam.hpp>
@@ -51,6 +52,15 @@ TTargetCamera& TTargetCamera::operator=(const TTargetCamera& other)
 	unk2C = other.unk2C;
 	unk30 = other.unk30;
 	return *this;
+}
+
+template <> f32 MsClamp<f32>(f32 t, f32 l, f32 r)
+{
+	if (t > r)
+		return r;
+	if (t < l)
+		return l;
+	return t;
 }
 
 void CPolarSubCamera::execCameraModeChangeProc_(int mode)

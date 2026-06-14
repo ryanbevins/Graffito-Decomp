@@ -38,19 +38,26 @@ them in future ticks.
 
 ### Owner-only declaration split can emit one target weak body while preserving non-owner inline bodies
 
-**Rule.** For a tiny in-class method whose target object owns one weak
-out-of-line body, keep the normal in-class body for ordinary TUs, but let only
-the owner TU see a declaration via a narrow macro and define the method
-out-of-line in that source file at the target symbol-order position. Wrap the
-owner definition in `#pragma dont_inline` when same-TU call sites must stay as
-`bl` calls. Non-owner TUs continue seeing the inline body, so they do not gain
-target-absent weak owners. This is an owner-routing mechanism: verify the target
-owner in `symbols.txt`, place the source definition for `-inline deferred`
-order, and prove source-linking. If the target helper body is a leaf, spell the
-leaf arithmetic directly inside the owner body; calling another inline helper
-from inside a `dont_inline` owner can emit a target-absent nested helper call.
+**Rule.** For a tiny in-class method or header-defined function template whose
+target object owns one out-of-line body, keep the normal inline body for
+ordinary TUs, but let only the owner TU see a declaration via a narrow macro and
+define the body out-of-line in that source file at the target symbol-order
+position. Wrap the owner definition in `#pragma dont_inline` when same-TU call
+sites must stay as `bl` calls. Non-owner TUs continue seeing the inline body, so
+they do not gain target-absent owners. This is an owner-routing mechanism:
+verify the target owner in `symbols.txt`, place the source definition for
+`-inline deferred` order, and prove source-linking. If the target helper body is
+a leaf, spell the leaf arithmetic directly inside the owner body; calling
+another inline helper from inside a `dont_inline` owner can emit a target-absent
+nested helper call.
 
 **Citations.**
+- `mario/Camera/CameraChange` (2026-06-14 MNL):
+  `MsClamp<float>(float, float, float)` (32B) was missing while the call site
+  inlined the clamp. `MSCLAMP_OUT_OF_LINE` made only this TU see the template
+  declaration, and an explicit `template <> f32 MsClamp<f32>(...)` definition
+  after `TTargetCamera::operator=` emitted a 100% local owner; a temporary
+  `Equivalent` source-link proof passed.
 - `mario/MoveBG/MapObjRicco` (2026-06-14 MNL):
   `TLiveActor::getMActor() const` (8B) was missing for source-linked
   `MapObjMamma`/`MapObjMare`; `LIVEACTOR_GETMACTOR_OUT_OF_LINE` plus a
@@ -9092,9 +9099,11 @@ file-local `callMsClamp` wrapper also inlined completely and did not emit the
 target owner.
 
 **Conclusion.** The `MsWrap` static-wrapper rule does not mechanically apply to
-very small branch-only templates. Future `MsClamp` experiments need a different
-inline-budget or call-boundary lever; do not retry the explicit specialization
-declaration or a trivial wrapper alone.
+very small branch-only templates. Do not retry the explicit specialization
+declaration or a trivial wrapper alone. A later `mario/Camera/CameraChange`
+owner split succeeded only by hiding the header body from the owner TU and
+providing an out-of-line explicit specialization definition; that is a distinct
+route covered by the settled owner-only declaration split rule.
 
 ### File-scope or inline-static arrays do not replace dummy-local anonymous rodata in `JKRCompArchive`
 

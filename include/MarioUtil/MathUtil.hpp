@@ -54,6 +54,9 @@ template <class T> inline T MsWrap(T t, T l, T r)
 	return t;
 }
 
+#ifdef MSCLAMP_OUT_OF_LINE
+template <class T> T MsClamp(T t, T l, T r);
+#else
 template <class T> inline T MsClamp(T t, T l, T r)
 {
 	if (t > r)
@@ -62,6 +65,7 @@ template <class T> inline T MsClamp(T t, T l, T r)
 		t = l;
 	return t;
 }
+#endif
 
 // fabricated
 inline f32 MsAngleDiff(f32 alpha, f32 beta)
