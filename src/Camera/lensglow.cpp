@@ -19,8 +19,8 @@ template <> f32 CLBTwoDegreeGeneralInbetween<f32>(f32, f32, f32, f32);
 static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE     = "メモリが足りません\n";
 
-const char* cSunVolumeName    = "/scene/sun";
-const char* cSunsetVolumeName = "/scene/sunset";
+extern const char* cSunVolumeName;
+extern const char* cSunsetVolumeName;
 
 TLensGlow::TLensGlow(bool sunset, const char* name)
     : JDrama::TViewObj(name)
