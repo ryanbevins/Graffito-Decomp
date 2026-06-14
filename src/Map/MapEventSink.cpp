@@ -220,6 +220,7 @@ bool TMapEventSinkInPollution::watch()
 	return false;
 }
 
+#pragma dont_inline on
 void TMapEventSinkInPollution::initBuriedBuilding()
 {
 	for (int i = 0; i < mBuildingNum; ++i) {
@@ -230,6 +231,7 @@ void TMapEventSinkInPollution::initBuriedBuilding()
 		}
 	}
 }
+#pragma dont_inline off
 
 void TMapEventSinkInPollution::loadAfter()
 {
@@ -376,7 +378,7 @@ bool TMapEventSinkBianco::watch()
 
 void TMapEventSinkBianco::loadAfter()
 {
-	TMapEventSinkInPollution::loadAfter();
+	initBuriedBuilding();
 	for (int i = 0; i < mBuildingNum; ++i) {
 		gpPollution->getLayer(unk60[i].unk0)->getObj(unk60[i].unk2)->alive();
 		gpPollution->getLayer(unk60[i].unk0)->getObj(unk60[i].unk2 + 1)->kill();
