@@ -148,7 +148,7 @@ void* CPolarSubCamera::getNoticeActor_()
 		    = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x68);
 		if (MsIsInSight(*gpMarioPos, deg,
 		                *(const JGeometry::TVec3<f32>*)((u8*)a + 0x10),
-		                farClip, distSq, -1.0f)) {
+		                distSq, farClip, -1.0f)) {
 			picked     = a;
 			bestDistSq = distSq;
 		}
