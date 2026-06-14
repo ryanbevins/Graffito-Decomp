@@ -665,9 +665,7 @@ void TBaseNPC::setPosAndInitAfterSinkBottom()
 	if (mPollutionStartHelper)
 		*(s32*)mPollutionStartHelper = 0;
 
-	mHitPoints = isPollutionNpc()
-	                 ? *(u8*)((u8*)isPollutionNpc() + 0x7C)
-	                 : 1;
+	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
 
 	if (mMultiMtxEffect != nullptr) {
 		s32 i      = 0;
