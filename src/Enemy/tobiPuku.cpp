@@ -123,7 +123,7 @@ BOOL TNerveTobiPukuSwimWander::execute(TSpineBase<TLiveActor>* spine) const
 
 	if (self->isReachedToGoalXZ()) {
 		self->goToRandomNextGraphNode();
-		self->walkBehavior(0, 1.0f);
+		self->walkBehavior(0, 1.5f);
 	}
 
 	return FALSE;
