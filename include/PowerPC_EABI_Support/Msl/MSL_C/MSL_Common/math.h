@@ -94,7 +94,11 @@ inline float atan2(float x, float y) { return atan2f(x, y); }
 namespace std {
 inline float fabsf(float f) { return ::fabsf(f); }
 inline float abs(float f) { return ::fabs(f); }
+#ifndef MSL_STDFMODF_OUT_OF_LINE
 inline float fmodf(float x, float y) { return ::fmod(x, y); }
+#else
+float fmodf(float, float);
+#endif
 inline float atan2f(float y, float x) { return ::atan2((double)y, (double)x); }
 inline float sinf(float x) { return ::sin((double)x); }
 inline float cosf(float x) { return ::cos((double)x); }

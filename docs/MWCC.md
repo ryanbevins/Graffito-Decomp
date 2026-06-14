@@ -63,6 +63,12 @@ nested helper call.
   `MapObjMamma`/`MapObjMare`; `LIVEACTOR_GETMACTOR_OUT_OF_LINE` plus a
   `dont_inline` owner body in target order emitted a 100% weak owner and made
   `python configure.py --non-matching && ninja` link.
+- `mario/Enemy/BathtubPeach` (2026-06-15 MNL):
+  `std::fmodf(float, float)` is owned by `MoveBG/MapObjCorona` in the target.
+  `MSL_STDFMODF_OUT_OF_LINE` made only this TU see the MSL overload as a
+  declaration, so `TNervePeachEscape::execute` referenced the existing weak
+  owner instead of inlining the wrapper to unavailable `fmod`; source-link and
+  normal DOL builds passed.
 - `mario/Enemy/BossHanachanSub` (2026-06-14 MNL):
   `TBGCheckData::isIllegalData() const` (28B) was a missing target weak body.
   `TBGCHECKDATA_ISILLEGAL_OUT_OF_LINE` plus a `dont_inline` owner body between

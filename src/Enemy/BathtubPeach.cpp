@@ -1,3 +1,5 @@
+#define MSL_STDFMODF_OUT_OF_LINE
+
 #include <Enemy/BathtubPeach.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JMath.hpp>
@@ -17,7 +19,9 @@
 
 #include <dolphin/mtx.h>
 
-extern "C" float fmodf(float, float);
+namespace std {
+float fmodf(float, float);
+}
 
 static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
@@ -96,7 +100,7 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 	f32 peachDeg = SHORTANGLE2DEG((s16)matan(peach->mPosition.z - bathtubZ,
 	                                         peach->mPosition.x - bathtubX));
 	f32 angleDiff
-	    = fmodf(360.0f + peachDeg - marioDeg - -180.0f, 360.0f) + -180.0f;
+	    = std::fmodf(360.0f + peachDeg - marioDeg - -180.0f, 360.0f) + -180.0f;
 
 	TBathtubPeachParams* params
 	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
@@ -104,10 +108,12 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 	f32 newAngle;
 	if (angleDiff < 0.0f) {
 		newAngle
-		    = fmodf(360.0f + (marioDeg - angleParam) - -180.0f, 360.0f) + -180.0f;
+		    = std::fmodf(360.0f + (marioDeg - angleParam) - -180.0f, 360.0f)
+		      + -180.0f;
 	} else {
 		newAngle
-		    = fmodf(360.0f + (marioDeg + angleParam) - -180.0f, 360.0f) + -180.0f;
+		    = std::fmodf(360.0f + (marioDeg + angleParam) - -180.0f, 360.0f)
+		      + -180.0f;
 	}
 
 	TBathtubPeachParams* params2
@@ -146,18 +152,21 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 	if (dx * dx + dz * dz > 3.8146973e-6f) {
 		f32 targetRot
 		    = SHORTANGLE2DEG((s16)matan(dz, dx)) - 90.0f;
-		f32 diff = fmodf(360.0f + (targetRot - peach->mRotation.y) - -180.0f,
-		                 360.0f)
+		f32 diff = std::fmodf(
+		               360.0f + (targetRot - peach->mRotation.y) - -180.0f,
+		               360.0f)
 		           + -180.0f;
 		if (diff < -turnSpeed2) {
 			peach->mRotation.y
-			    = fmodf(360.0f + (peach->mRotation.y - turnSpeed2) - -180.0f,
-			            360.0f)
+			    = std::fmodf(
+			          360.0f + (peach->mRotation.y - turnSpeed2) - -180.0f,
+			          360.0f)
 			      + -180.0f;
 		} else if (diff > turnSpeed2) {
 			peach->mRotation.y
-			    = fmodf(360.0f + (peach->mRotation.y + turnSpeed2) - -180.0f,
-			            360.0f)
+			    = std::fmodf(
+			          360.0f + (peach->mRotation.y + turnSpeed2) - -180.0f,
+			          360.0f)
 			      + -180.0f;
 		} else {
 			peach->mRotation.y = targetRot;
