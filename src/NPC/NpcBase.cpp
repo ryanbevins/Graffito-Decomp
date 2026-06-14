@@ -452,10 +452,10 @@ void TBaseNPC::moveObject()
 
 	control();
 
-	if (!(mLiveFlag & 0x80))
+	if (!(mLiveFlag & 0x400000))
 		calcRideMomentum();
 
-	if ((mLiveFlag & 0x80) && !(mLiveFlag & 0x200))
+	if ((mLiveFlag & 0x400000) && !(mLiveFlag & 0x1000000))
 		emitSinkEffect_();
 
 	const TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
@@ -463,7 +463,7 @@ void TBaseNPC::moveObject()
 		return;
 
 	execNpcObjCollision_();
-	if (!(mLiveFlag & 0x20))
+	if (!(mLiveFlag & 0x10))
 		bind();
 
 	if (mHolder != nullptr) {
@@ -472,14 +472,14 @@ void TBaseNPC::moveObject()
 		mPosition.y    = mtx[1][3];
 		mPosition.z    = mtx[2][3];
 		if (mSDLModel == nullptr) {
-			f32 angle = CLBRoundf<s16>((180.0f / 3.14159265358979f) * mtx[1][0]);
+			s16 angle = CLBRoundf<s16>(182.04445f * mHolder->mRotation.y);
 			mRotation.y
 			    = (f32)(s16)(angle - mAngleYDiffWhenTaken) * (360.0f / 65536.0f);
 		}
 	} else {
-		if (!(mLiveFlag & 0x20) && isNerveWalk() && belongToGround() == 0
-		    && mLinearVelocity.y > 0.0f)
-			mLinearVelocity.y = 0.0f;
+		if (!(mLiveFlag & 0x10) && isNerveWalk() && belongToGround() == 0
+		    && mLinearVelocity.y > 5.0f)
+			mLinearVelocity.y = 5.0f;
 		mPosition.x += mLinearVelocity.x;
 		mPosition.y += mLinearVelocity.y;
 		mPosition.z += mLinearVelocity.z;
