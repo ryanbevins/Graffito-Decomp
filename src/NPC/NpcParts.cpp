@@ -67,22 +67,26 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 			if (subIdx >= unk60->mManager->unk28)
 				break;
 
+			const char* jointName
+			    = subIdx == 0 ? modelData->unk0 : modelData->unk4;
+			const char* partsName = modelData->unk8[subIdx];
+			if (partsName == nullptr)
+				continue;
+
 			int index;
-			if (strcmp(modelData->unk8[subIdx],
-			        cNpcPartsNameRootJoint)
-			    == 0) {
+			if (strcmp(jointName, cNpcPartsNameRootJoint) == 0) {
 				index = -1;
 			} else {
 				MActor* keeperActor = unk60->mMActorKeeper
 				    ->mActors[subIdx];
 				index = keeperActor->getModel()
 				    ->getModelData()->getJointName()
-				    ->getIndex(modelData->unk8[subIdx]);
+				    ->getIndex(jointName);
 			}
 
 			SDLModelData* sdlData =
 			    ((TNPCManager*)unk60->mManager)
-			        ->getPartsSDLModelData(modelData->unk8[subIdx]);
+			        ->getPartsSDLModelData(partsName);
 
 			TSharedParts* parts = new TSharedParts(
 			    unk60, index, sdlData, 3, "<TSharedParts>");
@@ -173,8 +177,8 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 						    pollutionColor);
 					}
 				}
-				parts->unk18->setLightType(1);
 			}
+			parts->unk18->setLightType(1);
 		}
 	}
 }
@@ -318,7 +322,7 @@ void TNpcParts::partsPerform(u32 flag, JDrama::TGraphics* graphics)
 				J3DModelData* mdata = mactor->getModel()
 				    ->getModelData();
 				int starglowIdx
-				    = mdata->getJointName()->getIndex("_starglow1");
+				    = mdata->getMaterialName()->getIndex("_starglow1");
 				u16 numTexMtx = mdata->getMaterialNum();
 				for (u16 j = 0; j < numTexMtx; j++) {
 					if ((int)j == starglowIdx)
