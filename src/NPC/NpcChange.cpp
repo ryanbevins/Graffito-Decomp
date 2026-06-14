@@ -149,9 +149,9 @@ void TBaseNPC::releaseTaken_()
 {
 	s16 angle          = CLBRoundf<s16>(mTakenBy->mRotation.y * 182.04445f);
 	f32 dist           = mPtrSaveNormal->mThrowSpeedXZ.get();
-	mAngularVelocity.x = JMASSin(angle) * dist;
-	mAngularVelocity.y = mPtrSaveNormal->mThrowSpeedY.get();
-	mAngularVelocity.z = JMASCos(angle) * dist;
+	mVelocity.x        = JMASSin(angle) * dist;
+	mVelocity.y        = mPtrSaveNormal->mThrowSpeedY.get();
+	mVelocity.z        = JMASCos(angle) * dist;
 	mLiveFlag         |= 0x10000000;
 	unk1DC             = CLBPalFrame<long>(15);
 	mTakenBy           = nullptr;
@@ -698,19 +698,19 @@ void TBaseNPC::setPosAndInitAfterSinkBottom()
 		                                     resetPos.z, &gp);
 		mGroundHeight = resetPos.y;
 		mSinkBaseY    = resetPos.y;
-		mAngularVelocity.x = 0.0f;
-		mAngularVelocity.y = 0.0f;
-		mAngularVelocity.z = 0.0f;
+		mVelocity.x   = 0.0f;
+		mVelocity.y   = 0.0f;
+		mVelocity.z   = 0.0f;
 	} else {
 		unk64 &= ~0x1;
 		mSpine->setNext(*(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
 		mSpine->becomeNerveAfterPop(
 		    *(TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
-		mAngularVelocity.x = 0.0f;
-		mAngularVelocity.y = 5.0f;
-		mAngularVelocity.z = 0.0f;
-		mLiveFlag         |= 0x8000;
-		mLiveFlag         |= 0x80;
+		mVelocity.x = 0.0f;
+		mVelocity.y = 5.0f;
+		mVelocity.z = 0.0f;
+		mLiveFlag |= 0x8000;
+		mLiveFlag |= 0x80;
 	}
 
 	mPosition.x = resetPos.x;
