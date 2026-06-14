@@ -224,7 +224,7 @@ bool TGCLogoDir::direct_nlogo()
 		break;
 
 	case 3:
-		if (mProgSelect->unkC.mValue) {
+		if (mProgSelect->mHideTextBoxes) {
 			mLogoShowTimer = 0;
 			nextState      = 4;
 		}
