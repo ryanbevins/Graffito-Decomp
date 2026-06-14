@@ -25,7 +25,7 @@ public:
 	virtual void touchPlayer(THitActor*);
 	virtual u32 touchWater(THitActor*);
 	virtual u32 getLivingTime() const { return mNormalLivingTime; }
-	virtual int getFlushTime() const { }
+	virtual int getFlushTime() const { return mNormalFlushTime; }
 	virtual bool isPollutedGround(const JGeometry::TVec3<f32>&) const;
 	virtual void work();
 	virtual void appearing();

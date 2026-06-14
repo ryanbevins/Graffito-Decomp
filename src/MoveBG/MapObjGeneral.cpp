@@ -618,7 +618,7 @@ BOOL TMapObjGeneral::receiveMessage(THitActor* sender, u32 message)
 		return true;
 	}
 
-	if (message == HIT_MESSAGE_TAKE && isActorType(0x10000025)
+	if (message == HIT_MESSAGE_TAKE && sender->isActorType(0x10000025)
 	    && (isState(2) || isState(1))) {
 		hold((TTakeActor*)sender);
 		return 1;
@@ -640,7 +640,7 @@ BOOL TMapObjGeneral::receiveMessage(THitActor* sender, u32 message)
 		return true;
 	}
 
-	if (isActorType(0x80000001)
+	if (sender->isActorType(0x80000001)
 	    && (message == HIT_MESSAGE_TRAMPLE
 	        || message == HIT_MESSAGE_HIP_DROP)) {
 		receiveMessageFromPlayer();
