@@ -22,7 +22,7 @@
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
-f32 TMapObjFlag::mFlutterSpeed = 8.0f;
+f32 TMapObjFlag::mFlutterSpeed = 4.0f;
 
 TMapObjFlagManager* gpMapObjFlagManager;
 
