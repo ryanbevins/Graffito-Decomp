@@ -1983,7 +1983,7 @@ s8 TCardLoad::selectFunction()
 				unkAC->setUnk190(0.9f, 1.0f, 0.1f);
 			} else if (unkC4 == 44) {
 				unk378[unkB0][unkB6]->setCenteredSize(
-				    20, unk3A8[unkB0][unkB6].getWidth(),
+				    40, unk3A8[unkB0][unkB6].getWidth(),
 				    unk3A8[unkB0][unkB6].getHeight(),
 				    unk3A8[unkB0][unkB6].getWidth() * 1.5f,
 				    unk3A8[unkB0][unkB6].getHeight() * 1.5f);
