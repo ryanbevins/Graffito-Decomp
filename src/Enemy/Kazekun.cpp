@@ -163,7 +163,8 @@ DEFINE_NERVE(TNerveKazekunTurn, TLiveActor)
 		return TRUE;
 	}
 
-	if (self->getKazekunParam()->mAroundTime.get() < spine->getTime()) {
+	if ((f32)self->getKazekunParam()->mAroundTime.get()
+	    < (f32)spine->getTime()) {
 		spine->pushAfterCurrent(&TNerveKazekunPreAttack::theNerve());
 		return TRUE;
 	}
