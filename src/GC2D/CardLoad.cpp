@@ -293,7 +293,7 @@ void TCardLoad::load(JSUMemoryInputStream& stream)
 	unk580 = (J2DTextBox*)unk28->search('m_6b');
 	makeBuffer(unk580, 0x400);
 
-	int local_90[] = { 2, 3, 4, 5, 6, 7, 8 };
+	int local_90[] = { 2, 3, 4, 5, 6, 8, 7 };
 
 	for (int i = 0; i < 7; ++i) {
 		unk584[i].unk0 = (J2DPicture*)unk2C->search('st_0' + i);
@@ -348,7 +348,7 @@ void TCardLoad::setupScoreScreen()
 	}
 
 	int iVar8      = 0;
-	int local_90[] = { 2, 3, 4, 5, 6, 8, 7 };
+	int local_90[] = { 2, 3, 4, 5, 6, 7, 8 };
 
 	for (int i = 0; i < 7; ++i) {
 		int shineCount = 0;
