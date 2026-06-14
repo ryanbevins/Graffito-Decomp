@@ -690,11 +690,11 @@ void TBaseNPC::setPosAndInitAfterSinkBottom()
 		mSpine->pushNerve(&TNerveNPCSink::theNerve());
 
 		mLiveFlag |= 0x00C00010;
-		const TBGCheckData* gp = nullptr;
-		gpMap->checkGroundIgnoreWaterSurface(resetPos.x, mPosition.y,
-		                                     resetPos.z, &gp);
-		mGroundHeight = resetPos.y;
-		mSinkBaseY    = resetPos.y;
+		mGroundHeight = gpMap->checkGroundIgnoreWaterSurface(
+		    resetPos.x, resetPos.y + mBodyScale * mHeadHeight, resetPos.z,
+		    &mGroundPlane);
+		mSinkBaseY  = mGroundHeight;
+		resetPos.y  = mSinkBaseY - mNpcSaveIndividual->mSinkHeight.value;
 		mVelocity.x   = 0.0f;
 		mVelocity.y   = 0.0f;
 		mVelocity.z   = 0.0f;
