@@ -5341,6 +5341,13 @@ named local introduces a sequence point that MWCC respects: it will
 not fuse across the assignment.
 
 **Where observed:**
+- `src/MoveBG/MapObjWave.cpp::TMapObjWave::draw` (2026-06-14 MNL) —
+  texture-coordinate expressions `unk6C + x * unk74` and
+  `unk70 + z * unk78` emitted behavior-different `fmadds` under
+  `-fp_contract on`. Naming the `x/z * scale` products before
+  `GXTexCoord2f32` restored the target's separate `fmuls; fadds`
+  rounding and cleared the AUDIT blocker; fuzz dropped due to FPR/frame
+  fallout, but source-link equivalence passed.
 - `src/NPC/NpcTrample.cpp::updateTrample` —
   `*out = dt * (1.0f + unk0 * (-JMASSin(angle)))` produced
   `fmadds` instead of target's `fmuls; fadds; fmuls`. Splitting

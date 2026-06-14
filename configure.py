@@ -1009,7 +1009,7 @@ config.libs = [
             Object(Matching, "MoveBG/MapObjSample.cpp"),
             Object(NonMatching, "MoveBG/MapObjMare.cpp"),
             Object(NonMatching, "MoveBG/MapObjFlag.cpp"),
-            Object(NonMatching, "MoveBG/MapObjWave.cpp"),
+            Object(Equivalent, "MoveBG/MapObjWave.cpp"),
             Object(Equivalent, "MoveBG/MapObjFloat.cpp"),
             Object(Equivalent, "MoveBG/MapObjPlane.cpp"),
             Object(Equivalent, "MoveBG/MapObjCloud.cpp"),
