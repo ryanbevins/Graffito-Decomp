@@ -266,11 +266,11 @@ void TEMario::init(TLiveManager* manager)
 		gpScreenTexture->replace(mMActor->getModel()->getModelData(),
 		                         "H_kagemario_dummy");
 	}
-	mActorType |= 1;
+	onHitFlag(HIT_FLAG_NO_COLLISION);
 	mLiveFlag &= ~0x400;
 	if (mAnmSound == NULL)
 		initAnmSound();
 	initHitActor(0x08000002, 4, 0xE5000000, 70.0f, 45.0f, 60.0f, 40.0f);
-	mActorType &= ~1;
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 	mLiveFlag |= 0x10;
 }
