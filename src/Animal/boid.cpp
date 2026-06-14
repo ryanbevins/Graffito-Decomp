@@ -1,3 +1,4 @@
+#define JGEOMETRY_TVEC3_DIV_OUT_OF_LINE
 #include <Animal/BoidLeader.hpp>
 #include <Enemy/Graph.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -7,6 +8,16 @@ static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 {
 	return MsWrap<f32>(t, l, r);
 }
+
+#pragma dont_inline on
+void JGeometry::TVec3<f32>::div(f32 divisor)
+{
+	f32 scale = 1.0f / divisor;
+	x *= scale;
+	y *= scale;
+	z *= scale;
+}
+#pragma dont_inline off
 
 TBoid::TBoid()
 {
@@ -234,7 +245,7 @@ TBoidLeader::calcGoalForce(const JGeometry::TVec3<f32>& pos) const
 
 	f32 length = result.length();
 	if (length > 0.0f) {
-		result.div(length);
+		result.scale(1.0f / length);
 		result.scale(mGoalForce);
 	} else {
 		result.zero();

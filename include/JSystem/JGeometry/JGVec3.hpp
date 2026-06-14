@@ -145,7 +145,11 @@ public:
 		z = fst.z * snd.z;
 	}
 
+#ifdef JGEOMETRY_TVEC3_DIV_OUT_OF_LINE
+	void div(f32 divisor);
+#else
 	void div(f32 divisor) { scale(1.0f / divisor); }
+#endif
 
 	TVec3& operator+=(const TVec3& other)
 	{

@@ -46,7 +46,9 @@ owner definition in `#pragma dont_inline` when same-TU call sites must stay as
 `bl` calls. Non-owner TUs continue seeing the inline body, so they do not gain
 target-absent weak owners. This is an owner-routing mechanism: verify the target
 owner in `symbols.txt`, place the source definition for `-inline deferred`
-order, and prove source-linking.
+order, and prove source-linking. If the target helper body is a leaf, spell the
+leaf arithmetic directly inside the owner body; calling another inline helper
+from inside a `dont_inline` owner can emit a target-absent nested helper call.
 
 **Citations.**
 - `mario/MoveBG/MapObjRicco` (2026-06-14 MNL):
@@ -59,6 +61,13 @@ order, and prove source-linking.
   `TBGCHECKDATA_ISILLEGAL_OUT_OF_LINE` plus a `dont_inline` owner body between
   `TSphereLink` ctor and `moveHead()` emitted a 100% helper in target order;
   source-link and normal DOL builds passed.
+- `mario/Animal/boid` (2026-06-14 MNL):
+  `JGeometry::TVec3<float>::div(float)` (48B) was a missing target helper.
+  `JGEOMETRY_TVEC3_DIV_OUT_OF_LINE` plus a `dont_inline` owner body emitted a
+  100% helper and cleared all missing rows. A first body written as
+  `scale(1.0f / divisor)` emitted an extra `TVec3::scale(float)` call; spelling
+  `x/y/z *= scale` directly matched the target leaf body. A temporary
+  `Equivalent` source-link proof passed.
 
 ### Inline-result materialization charges +8 stack bytes per nested layer (lever for inline stack inflation)
 
