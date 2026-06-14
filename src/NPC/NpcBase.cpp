@@ -656,7 +656,7 @@ BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 		kinoMatch = true;
 	} else if (message == 0xE) {
 		if (sender->mActorType != 0x4000005A)
-			return TRUE;
+			return FALSE;
 		kinoMatch = true;
 	}
 	if (!kinoMatch)
