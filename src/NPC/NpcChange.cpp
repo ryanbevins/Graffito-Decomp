@@ -642,12 +642,12 @@ void TBaseNPC::changeNerveProc_()
 	if (!canSink)
 		return;
 
-	mSinkBaseY         = mPosition.y;
-	mAngularVelocity.x = 0.0f;
-	mAngularVelocity.y = 0.0f;
-	mAngularVelocity.z = 0.0f;
-	mLiveFlag         &= 0xF7FDFFFF;
-	mLiveFlag         |= 0x00400010;
+	mSinkBaseY   = mPosition.y;
+	mVelocity.x  = 0.0f;
+	mVelocity.y  = 0.0f;
+	mVelocity.z  = 0.0f;
+	mLiveFlag   &= 0xF7FDFFFF;
+	mLiveFlag   |= 0x00400010;
 	npcFallIn();
 	mSpine->pushNerve(&TNerveNPCSink::theNerve());
 }
