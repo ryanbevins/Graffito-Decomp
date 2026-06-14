@@ -760,7 +760,7 @@ void THangingBridge::loadAfter()
 		        objName, pos, rot, scale);
 		unk14[i]     = board;
 		board->unk1BC = this;
-		((TMapObjBase*)board)->initMapObj();
+		board->appear();
 	}
 
 	if (gpMarDirector->mMap == 0x08) {
