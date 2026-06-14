@@ -573,9 +573,8 @@ void TBaseNPC::load(JSUMemoryInputStream& stream)
 
 BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 {
-	BOOL result = TRUE;
 	if (mActorType == 0x0400001C)
-		return result;
+		return FALSE;
 
 	if (message == 4) {
 		if ((mLiveFlag & 0x100000) && mHolder == nullptr) {
@@ -614,7 +613,7 @@ BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 		kinoMatch = true;
 	}
 	if (!kinoMatch)
-		return TRUE;
+		return FALSE;
 
 	if (unk1E4 == 0) {
 		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
@@ -650,7 +649,7 @@ BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 		    = message == 0x10 ? (EnumHitNpcObjectKind)1 : (EnumHitNpcObjectKind)2;
 		behaveToHitObject_(sender, kind);
 	}
-	return result;
+	return TRUE;
 }
 
 bool TBaseNPC::isNeedNeckStraight() const
