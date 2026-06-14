@@ -1,3 +1,4 @@
+#define EXPANE_SET_HELPERS_OUT_OF_LINE
 #include <GC2D/Guide.hpp>
 #include <GC2D/BoundPane.hpp>
 #include <GC2D/ExPane.hpp>
@@ -175,6 +176,24 @@ void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx)
 		}
 		}
 	}
+}
+
+void TExPane::setPaneSize(s32 time, s32 target_w, s32 target_h, s32 initial_w,
+                          s32 initial_h)
+{
+	mSizeInterpolator.setValue(time, target_w, target_h, initial_w, initial_h);
+	mPane->resize(initial_w, initial_h);
+	mSizeAnimPending = true;
+}
+
+void TExPane::setPaneAlpha(s32 time, s16 target_alpha, s16 initial_alpha)
+{
+	mPane->setAlpha(clapAlpha(initial_alpha));
+
+	mCurrentAlpha     = initial_alpha;
+	mAlphaStep        = f32(target_alpha - initial_alpha) / time;
+	mTargetAlpha      = target_alpha;
+	mAlphaAnimPending = true;
 }
 
 void TGuide::appearGuidePane(int idx)

@@ -51,6 +51,10 @@ public:
 	}
 
 	/// Initiates a pane's size animation.
+#ifdef EXPANE_SET_HELPERS_OUT_OF_LINE
+	void setPaneSize(s32 time, s32 target_w, s32 target_h, s32 initial_w,
+	                 s32 initial_h);
+#else
 	void setPaneSize(s32 time, s32 target_w, s32 target_h, s32 initial_w,
 	                 s32 initial_h)
 	{
@@ -59,6 +63,7 @@ public:
 		mPane->resize(initial_w, initial_h);
 		mSizeAnimPending = true;
 	}
+#endif
 
 	// fabricated
 	void updatePaneSize(s32 time, s32 target_w, s32 target_h)
@@ -68,6 +73,9 @@ public:
 	}
 
 	/// Initiates a pane's alpha animation.
+#ifdef EXPANE_SET_HELPERS_OUT_OF_LINE
+	void setPaneAlpha(s32 time, s16 target_alpha, s16 initial_alpha);
+#else
 	void setPaneAlpha(s32 time, s16 target_alpha, s16 initial_alpha)
 	{
 		mPane->setAlpha(clapAlpha(initial_alpha));
@@ -77,6 +85,7 @@ public:
 		mTargetAlpha      = target_alpha;
 		mAlphaAnimPending = true;
 	}
+#endif
 
 	// fabricated and incorrect
 	void setCenteredSize(s32 time, s32 target_w, s32 target_h, s32 initial_w,
