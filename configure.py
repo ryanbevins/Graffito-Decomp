@@ -945,7 +945,7 @@ config.libs = [
             Object(NonMatching, "NPC/NpcAnm.cpp"),
             Object(NonMatching, "NPC/NpcBase.cpp"),
             Object(Equivalent, "NPC/NpcCallback.cpp"),
-            Object(NonMatching, "NPC/NpcManager.cpp"),
+            Object(Equivalent, "NPC/NpcManager.cpp"),
             Object(Equivalent, "NPC/NpcNerve.cpp"),
             Object(Equivalent, "NPC/NpcSave.cpp"),
             Object(NonMatching, "NPC/NpcEvent.cpp"),
