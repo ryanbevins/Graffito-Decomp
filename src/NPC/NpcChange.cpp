@@ -668,11 +668,10 @@ void TBaseNPC::setPosAndInitAfterSinkBottom()
 	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
 
 	if (mMultiMtxEffect != nullptr) {
-		s32 i      = 0;
-		void** arr = *(void***)((u8*)mMultiMtxEffect + 0x10);
-		while (i < *(s16*)mMultiMtxEffect) {
-			void* p                  = (void*)((u32*)arr)[i];
-			*(u16*)((u8*)p + 0x4)   |= 0x2;
+		s32 i = 0;
+		while (i < *(u16*)mMultiMtxEffect) {
+			void* p = (*(void***)((u8*)mMultiMtxEffect + 0x10))[i];
+			*(u16*)((u8*)p + 0x4) |= 0x2;
 			i++;
 		}
 	}
