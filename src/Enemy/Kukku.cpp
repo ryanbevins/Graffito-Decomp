@@ -35,9 +35,9 @@ static char* tori_bastable[] = {
 	(char*)"/scene/tori/bas/tori_back.bas",
 	(char*)"/scene/tori/bas/tori_down.bas",
 	(char*)0,
+	(char*)"/scene/tori/bas/tori_fall_end.bas",
 	(char*)"/scene/tori/bas/tori_hit.bas",
 	(char*)"/scene/tori/bas/tori_wait.bas",
-	(char*)"/scene/tori/bas/tori_fall_end.bas",
 };
 
 static inline JGeometry::TVec3<f32> makeForwardVec(f32 speed)
