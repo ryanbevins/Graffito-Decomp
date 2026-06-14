@@ -61,7 +61,7 @@ f32 BHSCalcCentrifugalForce(const JGeometry::TVec3<f32>& a,
 	s16 deltaS = a1 - a2;
 	s16 absD   = deltaS < 0 ? -deltaS : deltaS;
 	f32 ratio  = absD * (1.0f / 32768.0f);
-	if (ratio > 0.5f)
+	if (ratio >= 0.5f)
 		return 0.0f;
 
 	f32 scaled = abSq * ratio;
