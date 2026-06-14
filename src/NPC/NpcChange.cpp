@@ -165,8 +165,8 @@ void TBaseNPC::releaseTaken_()
 void TBaseNPC::behaveToBeTaken_(THitActor* taker)
 {
 	mAngleYDiffWhenTaken
-	    = (s16)CLBRoundf<s16>(mRotation.y * 182.04445f)
-	      - (s16)CLBRoundf<s16>(taker->mRotation.y * 182.04445f);
+	    = (s16)CLBRoundf<s16>(taker->mRotation.y * 182.04445f)
+	      - (s16)CLBRoundf<s16>(mRotation.y * 182.04445f);
 	*(u32*)((u8*)mUnk18C + 8) = *(u32*)mUnk18C;
 	unk64 |= 0x1;
 	mLiveFlag &= ~0x00420010;
