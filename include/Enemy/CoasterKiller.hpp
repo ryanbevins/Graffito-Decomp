@@ -8,6 +8,11 @@
 #include <Strategic/Strategy.hpp>
 #include <JSystem/JGeometry/JGVec4.hpp>
 
+#ifdef COASTER_KILLER_PARAMS_USE_SMALL_DATA
+extern f32 cCoasterSpeedInOrder;
+extern f32 cCoasterSpeedReverse;
+#endif
+
 class TCoasterEnemyParams : public TWalkerEnemyParams {
 public:
 	TCoasterEnemyParams(const char* path)
@@ -16,8 +21,13 @@ public:
 	    , PARAM_INIT(mSLCoasterSpeedReverse, 20.0f)
 	{
 		TParams::load(mPrmPath);
+#ifdef COASTER_KILLER_PARAMS_USE_SMALL_DATA
+		mSLCoasterSpeedInOrder.value = cCoasterSpeedInOrder;
+		mSLCoasterSpeedReverse.value = cCoasterSpeedReverse;
+#else
 		mSLCoasterSpeedInOrder.value = 20.0f;
 		mSLCoasterSpeedReverse.value = 16.0f;
+#endif
 	}
 
 	/* 0x338 */ TParamRT<f32> mSLCoasterSpeedInOrder;

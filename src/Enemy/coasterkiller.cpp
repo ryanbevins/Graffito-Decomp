@@ -2,6 +2,7 @@
 #include "Enemy/Enemy.hpp"
 #include "Enemy/SmallEnemy.hpp"
 #include "Strategic/LiveActor.hpp"
+#define COASTER_KILLER_PARAMS_USE_SMALL_DATA
 #include <Enemy/CoasterKiller.hpp>
 #include <Enemy/Walker.hpp>
 #include <Enemy/Graph.hpp>
@@ -36,6 +37,9 @@
 #include <Enemy/Rocket.hpp>
 #include <Enemy/EffectObj.hpp>
 #include <macros.h>
+
+f32 cCoasterSpeedInOrder = 20.0f;
+f32 cCoasterSpeedReverse = 16.0f;
 
 #include <M3DUtil/InfectiousStrings.hpp>
 
@@ -218,7 +222,7 @@ void TCoasterKiller::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	TCoasterEnemy::perform(param_1, param_2);
 
-	if ((param_1 * 2) && (param_1 & 1) == 0) {
+	if ((param_1 & 2) && !checkLiveFlag(LIVE_FLAG_DEAD)) {
 		mParticlePos.setQT(getQuat(), mPosition);
 		gpMarioParticleManager->emitAndBindToMtxPtr(0x174, mParticlePos.mMtx, 1,
 		                                            this);
@@ -328,7 +332,7 @@ void TCoasterKiller::setDeadAnm()
 	if (effectBase != nullptr) {
 		TEffectExplosion* effect = (TEffectExplosion*)effectBase;
 		effect->generate(mPosition, mScaling);
-		mScaling *= 0.6f;
+		effect->mScaling *= 0.6f;
 	}
 }
 
