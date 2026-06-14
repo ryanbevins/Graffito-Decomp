@@ -1258,7 +1258,7 @@ config.libs = [
             Object(Equivalent, "Animal/AnimalManager.cpp"),
             Object(Matching, "Animal/AnimalSave.cpp"),
             Object(Equivalent, "Animal/AnimalNerve.cpp"),
-            Object(NonMatching, "Animal/Bird.cpp"),
+            Object(Equivalent, "Animal/Bird.cpp"),
             Object(Equivalent, "Animal/BeeHive.cpp"),
             Object(Equivalent, "Animal/Butterfly.cpp"),
         ],
