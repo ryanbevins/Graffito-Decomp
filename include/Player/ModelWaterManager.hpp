@@ -113,15 +113,15 @@ public:
 	// fabricated
 	BOOL checkParticleFlag(TWaterHitActor* hit, u16 flag)
 	{
-		return mParticleFlagSOA[hit->unk68] & flag ? TRUE : FALSE;
+		return mParticleFlagSOA[*(s32*)&hit->unk68] & flag ? TRUE : FALSE;
 	}
 	u16 getParticleFlag(TWaterHitActor* hit)
 	{
-		return mParticleFlagSOA[hit->unk68];
+		return mParticleFlagSOA[*(s32*)&hit->unk68];
 	}
 	s16 getParticleAttack(TWaterHitActor* hit)
 	{
-		return mParticleAttackSOA[hit->unk68];
+		return mParticleAttackSOA[*(s32*)&hit->unk68];
 	}
 	int getFlagBottom4Bits(int i) const { return mParticleFlagSOA[i] & 0xf; }
 	void setFlagBottom4Bits(int i, int flag)

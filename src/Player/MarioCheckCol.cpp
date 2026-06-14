@@ -79,7 +79,7 @@ void TMario::hitNormal(THitActor* actor)
 	TWaterHitActor* hitActor = &TModelWaterManager::mStaticHitActor;
 	hitActor->mPosition      = mPosition;
 	hitActor->mPosition.y += 80.0f;
-	hitActor->unk68 = 0;
+	*(s32*)&hitActor->unk68 = 0;
 	actor->receiveMessage(hitActor, HIT_MESSAGE_SPRAYED_BY_WATER);
 }
 
