@@ -47,7 +47,7 @@ void TEMario::perform(u32 flags, JDrama::TGraphics* gfx)
 	if (mLiveFlag & LIVE_FLAG_UNK40)
 		return;
 
-	bool drawing = (flags & 1) != 0;
+	u32 drawing = flags & 1;
 	if (drawing) {
 		u16 doing = *(u16*)((u8*)mEnemyMario + 0x4292);
 		bool relevant;
@@ -60,6 +60,18 @@ void TEMario::perform(u32 flags, JDrama::TGraphics* gfx)
 				THitActor* coll = mCollisions[i];
 				u32 type        = coll->mActorType;
 				switch (type) {
+				case 0x80000001: {
+					JGeometry::TVec3<f32> diff
+					    = mPosition - coll->mPosition;
+					f32 dist = JGeometry::TUtil<f32>::sqrt(
+					    diff.x * diff.x + diff.y * diff.y
+					    + diff.z * diff.z);
+					f32 range = *(f32*)((u8*)mEnemyMario + 0x42b0);
+					if (dist >= range)
+						break;
+					coll->receiveMessage(this, 0xe);
+					break;
+				}
 				case 0x400000BC: {
 					bool airborne;
 					if (mEnemyMario->mAction & 0x10000)
@@ -79,18 +91,6 @@ void TEMario::perform(u32 flags, JDrama::TGraphics* gfx)
 						break;
 					mEnemyMario->changePlayerStatus(0x810446, 0, false);
 					mEnemyMario->emitGetEffect();
-					break;
-				}
-				case 0x80000001: {
-					JGeometry::TVec3<f32> diff
-					    = mPosition - coll->mPosition;
-					f32 dist = JGeometry::TUtil<f32>::sqrt(
-					    diff.x * diff.x + diff.y * diff.y
-					    + diff.z * diff.z);
-					f32 range = *(f32*)((u8*)mEnemyMario + 0x42b0);
-					if (dist >= range)
-						break;
-					coll->receiveMessage(this, 0xe);
 					break;
 				}
 				}
