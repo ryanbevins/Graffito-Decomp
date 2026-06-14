@@ -1150,7 +1150,7 @@ config.libs = [
             Object(Equivalent, "Enemy/enemytable.cpp"),
             Object(Equivalent, "Enemy/generator.cpp"),
             Object(NonMatching, "Enemy/bosspakkun.cpp"),
-            Object(NonMatching, "Enemy/tobiPuku.cpp"),
+            Object(Equivalent, "Enemy/tobiPuku.cpp"),
             Object(NonMatching, "Enemy/tinkoopa.cpp"),
             Object(Equivalent, "Enemy/launcher.cpp"),
             Object(NonMatching, "Enemy/bosswanwan.cpp"),
