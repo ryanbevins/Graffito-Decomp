@@ -187,7 +187,7 @@ TNameIndParCallback::TNameIndParCallback(TNameKuri* owner)
 void TNameIndParCallback::execute(JPABaseEmitter* param_1,
                                   JPABaseParticle* param_2)
 {
-	if (mOwner->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+	if (!mOwner->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
 		MtxPtr mA = mOwner->getMActor()->getModel()->getAnmMtx(1);
 
 		f32 s = JMASin(mOwner->unk1AC);
@@ -369,7 +369,7 @@ void TNameKuri::calcRootMatrix()
 		unk1A8 = true;
 		JGeometry::TVec3<f32> local_30(0.0f, 1.0f, 0.0f);
 
-		JGeometry::TVec3<f32> normal = mGroundPlane->getNormal();
+		JGeometry::TVec3<f32> normal = unk138->getNormal();
 
 		JGeometry::TVec3<f32> local_a0;
 		local_a0.cross(normal, local_30);
@@ -575,7 +575,7 @@ void TNameKuri::setWaitAnm() { setBckAnm(6); }
 
 void TNameKuri::setMeltAnm()
 {
-	setBckAnm(0);
+	setBckAnm(1);
 
 	MtxPtr mtx = getMActor()->getModel()->getAnmMtx(2);
 
@@ -611,6 +611,7 @@ void TNameKuri::reset()
 {
 	gpCurNameKuri = this;
 	TWalkerEnemy::reset();
+	unk1B0          = 1.0f;
 	volatile f32 mn = 0.0f;
 	volatile f32 mx = 360.0f;
 	f32 range       = mx - mn;
