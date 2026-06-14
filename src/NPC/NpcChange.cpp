@@ -375,7 +375,7 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 	if (!transitionable)
 		return;
 
-	if (mActionFlag & 0x400)
+	if (mActionFlag & 0x800)
 		return;
 
 	bool specialBlock = false;
@@ -404,7 +404,7 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 		return;
 
 	if ((s32)kind == 1)
-		mActionFlag |= 0x400;
+		mLiveFlag |= 0x04000000;
 
 	mSpine->pushNerve(&TNerveNPCWet::theNerve());
 }
