@@ -1,22 +1,22 @@
 #include <System/MarNameRefGen.hpp>
 #include <string.h>
-#include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <Animal/AnimalBase.hpp>
 #include <Animal/AnimalManager.hpp>
 #include <Enemy/Amenbo.hpp>
 #include <Enemy/Beam.hpp>
 #include <Enemy/EffectEnemy.hpp>
-#include <Enemy/EffectObj.hpp>
 #include <Enemy/EggGen.hpp>
 #include <Enemy/EnemyManager.hpp>
 #include <Enemy/FireWanwan.hpp>
 #include <Enemy/Gesso.hpp>
 #include <Enemy/HamuKuri.hpp>
+#include <Enemy/HanaSambo.hpp>
 #include <Enemy/Kumokun.hpp>
 #include <Enemy/Launcher.hpp>
 #include <Enemy/MameGesso.hpp>
 #include <Enemy/NameKuri.hpp>
+#include <Enemy/Pakkun.hpp>
 #include <Enemy/PoiHana.hpp>
 #include <Enemy/RiccoHook.hpp>
 #include <Enemy/Rocket.hpp>
@@ -24,154 +24,183 @@
 #include <Enemy/WalkerEnemy.hpp>
 #include <Enemy/TamaNoko.hpp>
 #include <Enemy/Telesa.hpp>
+#include <Enemy/TobiPuku.hpp>
 #include <Enemy/TypicalEnemy.hpp>
 #include <JSystem/JDrama/JDRActor.hpp>
 #include <JSystem/JGeometry.hpp>
+
+extern TBeamManager* gpBeamManager;
 
 // Forward declarations for classes whose headers don't exist yet.
 // Sizes are pinned to match what the original asm passed to operator new.
 class TAmiNoko : public JDrama::TNameRef {
 public:
 	TAmiNoko(const char*);
-	char _stub[0x20c];
+	char _stub[0x208];
 };
 
 class TAmiNokoManager : public JDrama::TNameRef {
 public:
 	TAmiNokoManager(const char*);
-	char _stub[0x58];
+	char _stub[0x54];
 };
 
 class TAnimalBird : public JDrama::TNameRef {
 public:
 	TAnimalBird(const char*);
-	char _stub[0x17c];
+	char _stub[0x178];
 };
 
 class TAnimalBirdManager : public JDrama::TNameRef {
 public:
 	TAnimalBirdManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TBeeHive : public JDrama::TNameRef {
 public:
 	TBeeHive(const char*);
-	char _stub[0x1b8];
+	char _stub[0x1b4];
 };
 
 class TBeeHiveManager : public JDrama::TNameRef {
 public:
 	TBeeHiveManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TBiancoGateKeeper : public JDrama::TNameRef {
 public:
 	TBiancoGateKeeper(const char*);
-	char _stub[0x298];
+	char _stub[0x294];
 };
 
 class TBiancoGateKeeperManager : public JDrama::TNameRef {
 public:
 	TBiancoGateKeeperManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TBombHei : public JDrama::TNameRef {
 public:
 	TBombHei(const char*);
-	char _stub[0x1a0];
+	char _stub[0x19c];
 };
 
 class TBombHeiManager : public JDrama::TNameRef {
 public:
 	TBombHeiManager(const char*);
-	char _stub[0x5c];
+	char _stub[0x58];
 };
 
 class TButterfloid : public JDrama::TNameRef {
 public:
 	TButterfloid(int, const char*);
-	char _stub[0x15c];
+	char _stub[0x158];
 };
 
 class TButterfloidManager : public JDrama::TNameRef {
 public:
 	TButterfloidManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TCannon : public JDrama::TNameRef {
 public:
 	TCannon(const char*);
-	char _stub[0x2ac];
+	char _stub[0x2a8];
 };
 
 class TCannonManager : public JDrama::TNameRef {
 public:
 	TCannonManager(const char*);
-	char _stub[0x58];
+	char _stub[0x54];
 };
 
 class TChuuHanaManager : public JDrama::TNameRef {
 public:
 	TChuuHanaManager(const char*);
-	char _stub[0x5c];
+	char _stub[0x58];
 };
 
 class TDebuTelesa : public JDrama::TNameRef {
 public:
 	TDebuTelesa(const char*);
-	char _stub[0x1a4];
+	char _stub[0x1a0];
 };
 
 class TDebuTelesaManager : public JDrama::TNameRef {
 public:
 	TDebuTelesaManager(const char*);
-	char _stub[0x58];
+	char _stub[0x54];
+};
+
+class TEffectBombColumWaterManager : public JDrama::TNameRef {
+public:
+	TEffectBombColumWaterManager(const char*);
+	char _stub[0x48];
+};
+
+class TEffectBiancoFunsui;
+
+class TEffectColumSandManager : public JDrama::TNameRef {
+public:
+	TEffectColumSandManager(const char*);
+	char _stub[0x48];
+};
+
+class TEffectColumWaterManager : public JDrama::TNameRef {
+public:
+	TEffectColumWaterManager(const char*);
+	char _stub[0x48];
+};
+
+class TEffectExplosionManager : public JDrama::TNameRef {
+public:
+	TEffectExplosionManager(const char*);
+	char _stub[0x48];
 };
 
 class TElecNokonoko : public JDrama::TNameRef {
 public:
 	TElecNokonoko(const char*);
-	char _stub[0x1ac];
+	char _stub[0x1a8];
 };
 
 class TElecNokonokoManager : public JDrama::TNameRef {
 public:
 	TElecNokonokoManager(const char*);
-	char _stub[0x5c];
+	char _stub[0x58];
 };
 
 class TFishoid : public JDrama::TNameRef {
 public:
 	TFishoid(int, const char*);
-	char _stub[0x158];
+	char _stub[0x154];
 };
 
 class TFishoidManager : public JDrama::TNameRef {
 public:
 	TFishoidManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TFruitsBoat : public JDrama::TNameRef {
 public:
 	TFruitsBoat(const char*);
-	char _stub[0x170];
+	char _stub[0x16c];
 };
 
 class TFruitsBoatManager : public JDrama::TNameRef {
 public:
 	TFruitsBoatManager(int, const char*);
-	char _stub[0x50];
+	char _stub[0x4c];
 };
 
 class TGorogoroManager : public JDrama::TNameRef {
 public:
 	TGorogoroManager(const char*);
-	char _stub[0x6c];
+	char _stub[0x68];
 };
 
 class THamuKuriLauncherManager : public TLauncherManager {
@@ -180,64 +209,52 @@ public:
 	virtual ~THamuKuriLauncherManager() {}
 };
 
-class THanaSambo : public JDrama::TNameRef {
-public:
-	THanaSambo(const char*);
-	char _stub[0x1dc];
-};
-
-class THanaSamboManager : public JDrama::TNameRef {
-public:
-	THanaSamboManager(const char*);
-	char _stub[0x58];
-};
-
 class THauntLegManager : public JDrama::TNameRef {
 public:
 	THauntLegManager(const char*);
-	char _stub[0x58];
+	char _stub[0x54];
 };
 
 class TIgaigaManager : public JDrama::TNameRef {
 public:
 	TIgaigaManager(const char*);
-	char _stub[0x64];
+	char _stub[0x60];
 };
 
 class TKazekun : public JDrama::TNameRef {
 public:
 	TKazekun(const char*);
-	char _stub[0x1cc];
+	char _stub[0x1c8];
 };
 
 class TKazekunManager : public JDrama::TNameRef {
 public:
 	TKazekunManager(const char*);
-	char _stub[0x58];
+	char _stub[0x54];
 };
 
 class TKiller : public JDrama::TNameRef {
 public:
 	TKiller(const char*);
-	char _stub[0x208];
+	char _stub[0x204];
 };
 
 class TKillerManager : public JDrama::TNameRef {
 public:
 	TKillerManager(const char*);
-	char _stub[0x58];
+	char _stub[0x54];
 };
 
 class TKukku : public JDrama::TNameRef {
 public:
 	TKukku(const char*);
-	char _stub[0x1ac];
+	char _stub[0x1a8];
 };
 
 class TKukkuManager : public JDrama::TNameRef {
 public:
 	TKukkuManager(const char*);
-	char _stub[0x5c];
+	char _stub[0x58];
 };
 
 
@@ -247,171 +264,124 @@ public:
 	virtual ~TNameKuriLauncherManager() {}
 };
 
-class TPakkun : public TSmallEnemy {
-public:
-	TPakkun(const char* name) : TSmallEnemy(name) {}
-};
-
-class TPakkunManager : public JDrama::TNameRef {
-public:
-	TPakkunManager(const char*);
-	char _stub[0x64];
-};
-
 class TPopo : public JDrama::TNameRef {
 public:
 	TPopo(const char*);
-	char _stub[0x238];
+	char _stub[0x234];
 };
 
 class TPopoManager : public JDrama::TNameRef {
 public:
 	TPopoManager(const char*);
-	char _stub[0x64];
-};
-
-class TPukuPuku : public JDrama::TNameRef {
-public:
-	TPukuPuku(const char*);
-	char _stub[0x1ec];
-};
-
-class TSamboFlower : public TSpineEnemy {
-public:
-	TSamboFlower(const char* name);
-
-	/* 0x150 */ u8 unk150;
-	/* 0x154 */ s32 unk154;
-	/* 0x158 */ s32 unk158;
-	/* 0x15c */ s32 unk15c;
-	/* 0x160 */ u8 unk160;
-	/* 0x164 */ s32 unk164;
-	/* 0x168 */ s32 unk168;
-	/* 0x16c */ s32 unk16c;
-};
-
-TSamboFlower::TSamboFlower(const char* name)
-    : TSpineEnemy(name)
-    , unk150(0)
-    , unk154(0)
-    , unk158(-1)
-    , unk15c(-1)
-    , unk160(0)
-    , unk164(0)
-    , unk168(0)
-{
-}
-
-class TSamboFlowerManager : public TEnemyManager {
-public:
-	TSamboFlowerManager(const char* name) : TEnemyManager(name) {}
-	virtual ~TSamboFlowerManager() {}
-};
-
-class TSamboHead : public JDrama::TNameRef {
-public:
-	TSamboHead(const char*);
-	char _stub[0x1ac];
-};
-
-class TSamboHeadManager : public JDrama::TNameRef {
-public:
-	TSamboHeadManager(const char*);
-	char _stub[0x58];
+	char _stub[0x60];
 };
 
 class TSeal : public JDrama::TNameRef {
 public:
 	TSeal(const char*);
-	char _stub[0x14c];
+	char _stub[0x148];
 };
 
 class TSealManager : public JDrama::TNameRef {
 public:
 	TSealManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
-class TStayPakkun : public JDrama::TNameRef {
+class TSimpleEffect : public JDrama::TActor {
 public:
-	TStayPakkun(const char*);
-	char _stub[0x1b8];
+	TSimpleEffect(const char* name)
+	    : JDrama::TActor(name)
+	    , unk44(true)
+	{
+	}
+
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual void emitEffect() = 0;
+
+	/* 0x44 */ u8 unk44;
+	/* 0x48 */ TRotation3f unk48;
+};
+
+class TEffectPinnaFunsui : public TSimpleEffect {
+public:
+	TEffectPinnaFunsui(const char* name)
+	    : TSimpleEffect(name)
+	{
+	}
+
+	virtual void loadAfter();
+	virtual void emitEffect();
+};
+
+class TEffectBiancoFunsui : public TSimpleEffect {
+public:
+	TEffectBiancoFunsui(const char* name)
+	    : TSimpleEffect(name)
+	{
+	}
+
+	virtual void loadAfter();
+	virtual void emitEffect();
 };
 
 class TTabePuku : public JDrama::TNameRef {
 public:
 	TTabePuku(const char*);
-	char _stub[0x1e8];
+	char _stub[0x1e4];
 };
 
 class TTabePukuManager : public JDrama::TNameRef {
 public:
 	TTabePukuManager(const char*);
-	char _stub[0x58];
+	char _stub[0x54];
 };
 
-class TTobiPuku : public TWalkerEnemy {
-public:
-	TTobiPuku(const char* name) : TWalkerEnemy(name) {}
-};
+#pragma dont_inline on
+TSamboFlower::TSamboFlower(const char* name)
+    : TSpineEnemy(name)
+    , unk150(0)
+    , unk154(0)
+    , unk158(-1)
+    , unk15C(-1)
+    , unk160(0)
+    , unk164(0)
+    , unk168(0)
+{
+}
+#pragma dont_inline off
 
-class TTobiPukuLaunchPad : public TSmallEnemy {
-public:
-	TTobiPukuLaunchPad(const char* name) : TSmallEnemy(name) {}
-};
-
-class TTobiPukuLaunchPadManager : public TSmallEnemyManager {
-public:
-	TTobiPukuLaunchPadManager(const char* name) : TSmallEnemyManager(name) {}
-};
-
-class TTobiPukuManager : public TSmallEnemyManager {
-public:
-	TTobiPukuManager(const char* name) : TSmallEnemyManager(name) {}
-};
-
-class TMoePuku : public TTobiPuku {
-public:
-	TMoePuku(const char* name) : TTobiPuku(name) {}
-};
-
-class TMoePukuLaunchPad : public TTobiPukuLaunchPad {
-public:
-	TMoePukuLaunchPad(const char* name) : TTobiPukuLaunchPad(name) {}
-};
-
-class TMoePukuLaunchPadManager : public TTobiPukuLaunchPadManager {
-public:
-	TMoePukuLaunchPadManager(const char* name) : TTobiPukuLaunchPadManager(name) {}
-};
-
-class TMoePukuManager : public TTobiPukuManager {
-public:
-	TMoePukuManager(const char* name) : TTobiPukuManager(name) {}
-};
+inline TSamboFlowerManager::TSamboFlowerManager(const char* name)
+    : TEnemyManager(name)
+    , mCoinUnits(0)
+    , mCoinUnitCount(0)
+    , unk5C(0)
+    , mLeaves(0)
+{
+}
 
 class TWireTrap : public JDrama::TNameRef {
 public:
 	TWireTrap(const char*);
-	char _stub[0x17c];
+	char _stub[0x178];
 };
 
 class TWireTrapManager : public JDrama::TNameRef {
 public:
 	TWireTrapManager(const char*);
-	char _stub[0x4c];
+	char _stub[0x48];
 };
 
 class TYumbo : public JDrama::TNameRef {
 public:
 	TYumbo(const char*);
-	char _stub[0x1d4];
+	char _stub[0x1d0];
 };
 
 class TYumboManager : public JDrama::TNameRef {
 public:
 	TYumboManager(const char*);
-	char _stub[0x5c];
+	char _stub[0x58];
 };
 
 JDrama::TNameRef* TMarNameRefGen::getNameRef_Enemy(const char* name) const
@@ -443,7 +413,7 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_Enemy(const char* name) const
 	if (strcmp(name, "FruitsBoatManagerD") == 0)
 		return new TFruitsBoatManager(3, "フルーツ運搬船マネージャ");
 	if (strcmp(name, "AnimalMew") == 0)
-		return new TAnimalBase(0, "?");
+		return new TAnimalBase(0x800001, "?");
 	if (strcmp(name, "MewManager") == 0)
 		return new TMewManager("?");
 	if (strcmp(name, "AnimalBird") == 0)
@@ -674,8 +644,11 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_Enemy(const char* name) const
 		return new TTamaNokoManager("タマノコマネージャー");
 	if (strcmp(name, "TamaNoko") == 0)
 		return new TTamaNoko("タマノコ");
-	if (strcmp(name, "BeamManager") == 0)
-		return new TBeamManager("ビームマネージャ");
+	if (strcmp(name, "BeamManager") == 0) {
+		TBeamManager* manager = new TBeamManager("ビームマネージャ");
+		gpBeamManager         = manager;
+		return manager;
+	}
 	if (strcmp(name, "KukkuManager") == 0)
 		return new TKukkuManager("クックマネージャー");
 	if (strcmp(name, "Kukku") == 0)
