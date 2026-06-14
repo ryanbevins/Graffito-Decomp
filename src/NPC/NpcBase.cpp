@@ -6,6 +6,7 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/MtxUtil.hpp>
 #include <System/Particles.hpp>
 #include <JSystem/JDrama/JDRActor.hpp>
@@ -17,6 +18,7 @@
 #include <NPC/NpcBase.hpp>
 #include <NPC/NpcCoin.hpp>
 #include <NPC/NpcInbetween.hpp>
+#include <NPC/NpcManager.hpp>
 #include <NPC/NpcNerve.hpp>
 #include <NPC/NpcParts.hpp>
 #include <NPC/NpcSave.hpp>
@@ -146,8 +148,24 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 	           && mActorType != 0x04000018
 	           && isNerveMaybeDontMovement()
 	           && !(mLiveFlag & 0x800000)) {
-		updateSquareToMario();
-		doUpdate = false;
+		f32 clip = gpConductor->unk84.mEnemyFarClip.value;
+		if (mManager != nullptr)
+			clip = *((TNPCManager*)mManager)->unk58;
+
+		CPolarSubCamera* camera = gpCamera;
+		f32 sight = matan(camera->unk148.z - camera->unk124.z,
+		                  camera->unk148.x - camera->unk124.x)
+		            * (360.0f / 65536.0f);
+		camera = gpCamera;
+		JGeometry::TVec3<f32> cameraPos;
+		cameraPos.x = camera->unk124.x;
+		cameraPos.y = camera->unk124.y;
+		cameraPos.z = camera->unk124.z;
+		if (!MsIsInSight(cameraPos, sight, mPosition, clip + 500.0f, 120.0f,
+		                 800.0f)) {
+			updateSquareToMario();
+			doUpdate = false;
+		}
 	}
 
 	if (!doUpdate) {
