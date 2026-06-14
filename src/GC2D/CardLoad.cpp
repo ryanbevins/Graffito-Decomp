@@ -1802,7 +1802,7 @@ s8 TCardLoad::selectBookmark(TEProgress param_1, TEProgress param_2,
 			if (param_3) {
 				for (int i = 0; i < 3; ++i)
 					if (i != unkB0 || unk1C == PROGRESS_UNK1C
-					    || unk40[i].unk0 == 1)
+					    || unk40[unkB0].unk0 == 1)
 						unk2A4[i]->getPane()->hide();
 			}
 			unk10 = 5;
