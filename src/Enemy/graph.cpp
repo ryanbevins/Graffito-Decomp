@@ -669,7 +669,7 @@ void TGraphWeb::initGoalIndex(const Vec& param_1)
 	calcGraphDirection(unk10);
 }
 
-void TGraphWeb::attachToGround()
+inline void TGraphWeb::attachToGround()
 {
 	for (int j = 0; j < unk8; ++j) {
 		TRailNode* railNode = &unk4[j];
