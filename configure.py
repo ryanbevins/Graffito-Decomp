@@ -993,7 +993,7 @@ config.libs = [
         "objects": [
             Object(Equivalent, "MoveBG/WoodBarrel.cpp"),
             Object(Equivalent, "MoveBG/MapObjBase.cpp"),
-            Object(NonMatching, "MoveBG/MapObjInit.cpp"),
+            Object(Equivalent, "MoveBG/MapObjInit.cpp"),
             Object(Equivalent, "MoveBG/MapObjGeneral.cpp"),
             Object(Equivalent, "MoveBG/MapObjManager.cpp"),
             Object(Equivalent, "MoveBG/MapObjLib.cpp"),
