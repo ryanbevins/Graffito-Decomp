@@ -121,7 +121,7 @@ int TMarDirector::direct()
 					pad->mButton.mRelease = 0;
 
 					unk18[i]->updateMeaning();
-					unk18[i]->offFlag(0x10);
+					unk18[i]->offFlag(0x40);
 				}
 			}
 
@@ -587,18 +587,32 @@ void TMarDirector::setMario()
 		break;
 	}
 
-	switch (gpApplication.mCurrArea.getStage()) {
-	case 0x3C:
-		gpMarioOriginal->mWaterGun->changeNozzle(TWaterGun::Rocket, true);
-		break;
+	if (gpMarioOriginal->checkFlag(0x8000)) {
+		switch (gpApplication.mCurrArea.getStage()) {
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 8:
+		case 9:
+		case 0x10:
+		case 0x2C:
+		case 0x34:
+		case 0x39:
+			break;
 
-		// TODO: crazy cases
-	case 0:
-	case 7:
-		gpMarioOriginal->mWaterGun->changeNozzle((TWaterGun::TNozzleType)
-			TFlagManager::getInstance()->getFlag(0x40004), true);
-		gpMarioOriginal->mWaterGun->changeNozzle(TWaterGun::Spray, true);
-		break;
+		case 0x3C:
+			gpMarioOriginal->mWaterGun->changeNozzle(TWaterGun::Rocket, true);
+			break;
+
+		default:
+			gpMarioOriginal->mWaterGun->changeNozzle((TWaterGun::TNozzleType)
+			    TFlagManager::getInstance()->getFlag(0x40004), true);
+			gpMarioOriginal->mWaterGun->changeNozzle(TWaterGun::Spray, true);
+			break;
+		}
 	}
 
 	u32 uVar6 = SMS_getShineIDofExStage(gpApplication.mCurrArea.getStage());
@@ -883,7 +897,7 @@ u8 TMarDirector::updateGameMode()
 			unk4C &= ~0x80;
 		} else {
 			if (!gpCamera->getRestDemoFrames()) {
-				if (!MSBgm::getHandle(2) || unk5C - unk60 >= 1200) {
+				if (!MSBgm::getHandle(2) || unk5C - unk60 >= 720) {
 					bVar5  = true;
 					uVar15 = unk12C[unk24D].unk10;
 				}
@@ -916,7 +930,7 @@ u8 TMarDirector::updateGameMode()
 	}
 
 	if (unk24D == unk24C)
-		unk4C &= ~0x80;
+		unk4C &= ~0x40;
 
 	unk125 = unk124;
 
@@ -1101,8 +1115,8 @@ void TMarDirector::moveStage()
 		case 5:
 		case 6:
 		case 8:
-			unkE4 = 2;
-			unkB4 = TApplication::APP_STATE_BOOT;
+			unkE4 = 8;
+			unkB4 = TApplication::APP_STATE_TITLE;
 			break;
 
 		case 9:
