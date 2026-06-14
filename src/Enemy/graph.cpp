@@ -7,12 +7,9 @@
 #include <stdlib.h>
 #include <types.h>
 
-static void dummy(Vec* v)
-{
-	static Vec v1  = { 1.0f, 1.0f, 1.0f };
-	static Vec v2  = { 1.0f, 1.0f, 1.0f };
-	static int a[] = { 0, 2, 1, 3 };
-}
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
 
 // rogue include
 #include <M3DUtil/InfectiousStrings.hpp>
