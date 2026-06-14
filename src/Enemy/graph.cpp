@@ -472,7 +472,7 @@ int TGraphWeb::getRandomButDirLimited(int param_1, int param_2,
 		}
 	}
 
-	if (result > 0)
+	if (iVar13 > 0)
 		return result;
 
 	result     = -1;
