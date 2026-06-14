@@ -76,8 +76,8 @@ int TMovieDirector::rsetup()
 	JKRMemArchive* subtitleArc = new JKRMemArchive;
 	subtitleArc->mountFixed(subtitleArcBlob, MBF_0);
 
-	if (gpApplication.getMovie() < 20) {
-		if (gpApplication.getMovie() < 16) {
+	if ((s32)gpApplication.getMovie() < 20) {
+		if ((s32)gpApplication.getMovie() < 16) {
 			(void)gpApplication.getMovie();
 		} else {
 			void* arcBlob
@@ -115,11 +115,11 @@ int TMovieDirector::rsetup()
 	unk2C->init(movie);
 	group2d->getChildren().push_back(unk2C);
 
-	if (gpApplication.getMovie() < 20) {
-		if (gpApplication.getMovie() < 16) {
+	if ((s32)gpApplication.getMovie() < 20) {
+		if ((s32)gpApplication.getMovie() < 16) {
 			(void)gpApplication.getMovie();
 		} else {
-			unk24 = new TCardSave;
+			unk24 = new TCardSave("<TCardSave>", true);
 			unk24->initData(unk20);
 			group2d->getChildren().push_back(unk24);
 		}
@@ -160,9 +160,8 @@ int TMovieDirector::rsetup()
 	THPVideoInfo videoInfo;
 	THPPlayerGetVideoInfo(&videoInfo);
 
-	// TODO: Huh? TBox2 or something?
-	thpRender->setParams(SMSGetGameRenderWidth() - videoInfo.xSize / 2,
-	                     SMSGetGameRenderHeight() - videoInfo.ySize / 2,
+	thpRender->setParams(((u16)SMSGetGameRenderWidth() - videoInfo.xSize) / 2,
+	                     ((u16)SMSGetGameRenderHeight() - videoInfo.ySize) / 2,
 	                     videoInfo.xSize, videoInfo.ySize);
 
 	DVDChangeDir("/");
@@ -370,7 +369,7 @@ int TMovieDirector::direct()
 			THPPlayerStop();
 			unk28->unkC.on(0x9);
 			unk2C->unkC.on(0x9);
-			gpApplication.mFader->startWipe(15, 0.3f, 0.0f);
+			gpApplication.mFader->startWipe(14, 0.3f, 0.0f);
 			gpApplication.mFader->setColor(JUtility::TColor(0, 0, 0, 255));
 			unk24->init(gpApplication.getMovie() == 17 ? 8 : 0);
 			break;

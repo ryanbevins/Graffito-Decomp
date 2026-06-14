@@ -869,7 +869,7 @@ config.libs = [
             Object(Equivalent, "System/MarNameRefGen_NPC.cpp"),
             Object(NonMatching, "System/CardManager.cpp"),
             Object(NonMatching, "System/MarDirectorLoadResource.cpp"),
-            Object(NonMatching, "System/MovieDirector.cpp"),
+            Object(Equivalent, "System/MovieDirector.cpp"),
             Object(Matching, "System/MarDirectorCreateObjects.cpp"),
             Object(NonMatching, "System/MarDirectorSetupObjects.cpp"),
             Object(NonMatching, "System/MSoundMainSide.cpp"),
