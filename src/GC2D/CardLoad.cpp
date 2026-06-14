@@ -739,7 +739,7 @@ void TCardLoad::perform(u32 param_1, JDrama::TGraphics* param_2)
 		case 10:
 			MSBgm::startBGM(0x80010010);
 			unk38->onFlag(0x1);
-			gpMarioOriginal->mState &= ~0x400;
+			gpMarioOriginal->mState &= ~0x8000;
 			unk14 = 9;
 			unk18 = 1;
 			unkF0->getPane()->setAlpha(0);
@@ -1881,7 +1881,7 @@ s8 TCardLoad::selectFunction()
 
 	case 1: {
 		bool done = true;
-		for (int i = 0; i < 4; ++i)
+		for (int i = 0; i < 3; ++i)
 			done &= unk2A4[i]->update();
 		done &= unk33C[unkB0]->update();
 		if (done) {
@@ -2039,7 +2039,7 @@ s8 TCardLoad::selectFunction()
 	case 4: {
 		bool done = true;
 		done &= unk33C[unkB0]->update();
-		for (int i = 0; i < 4; ++i)
+		for (int i = 0; i < 3; ++i)
 			done &= unk2A4[i]->update();
 		if (done) {
 			unk33C[unkB0]->getPane()->hide();
