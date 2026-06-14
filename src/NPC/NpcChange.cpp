@@ -207,9 +207,9 @@ void TBaseNPC::behaveToBeTrampled_()
 			if (isType) {
 				if (isChildFlag) {
 					soundId = 0x88AD;
-				} else if (mActorType >= 0x04000012) {
+				} else if ((s32)mActorType >= 0x04000012) {
 					soundId = 0x8846;
-				} else if (mActorType >= 0x04000010) {
+				} else if ((s32)mActorType >= 0x04000010) {
 					soundId = 0x88AF;
 				}
 			} else {
@@ -224,8 +224,8 @@ void TBaseNPC::behaveToBeTrampled_()
 				} else {
 					if (mActorType == 0x04000017) {
 						soundId = 0x8848;
-					} else if (mActorType < 0x04000017
-					           && mActorType >= 0x04000016) {
+					} else if ((s32)mActorType < 0x04000017
+					           && (s32)mActorType >= 0x04000016) {
 						soundId = 0x8849;
 					}
 				}
