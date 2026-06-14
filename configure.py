@@ -863,7 +863,7 @@ config.libs = [
             Object(Equivalent, "System/DrawSyncManager.cpp"),
             Object(Matching, "System/THPRender.cpp"),
             Object(Equivalent, "System/MarNameRefGen_BossEnemy.cpp"),
-            Object(NonMatching, "System/MarNameRefGen_Enemy.cpp"),
+            Object(Equivalent, "System/MarNameRefGen_Enemy.cpp"),
             Object(Equivalent, "System/MarNameRefGen_Map.cpp"),
             Object(NonMatching, "System/MarNameRefGen_MapObj.cpp"),
             Object(Equivalent, "System/MarNameRefGen_NPC.cpp"),

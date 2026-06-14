@@ -14,7 +14,10 @@ class TSharedParts;
 
 class TNameKuriLauncher : public TLauncher {
 public:
-	TNameKuriLauncher(const char*);
+	TNameKuriLauncher(const char* name)
+	    : TLauncher(name)
+	{
+	}
 
 	virtual void stateLaunch();
 };
