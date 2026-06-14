@@ -126,7 +126,7 @@ f32 FConverge(f32 param_1, f32 param_2, f32 param_3, f32 param_4)
 	return result;
 }
 
-static u16 GetAtanTable(f32 param_1, f32 param_2)
+static inline u16 GetAtanTable(f32 param_1, f32 param_2)
 {
 	if (param_1 == 0)
 		return atntable[0];
@@ -137,21 +137,18 @@ static u16 GetAtanTable(f32 param_1, f32 param_2)
 
 s16 matan(f32 param_1, f32 param_2)
 {
-	// TODO: currently too lazy to figure out how exactly they use symmetries
-	// here and what exact result transforms are needed in various branches.
-	// Probably should be something nice and symmetric and not this.
 	if (param_2 >= 0.0f) {
 		if (param_1 >= 0.0f) {
 			if (param_1 >= param_2)
 				return 0x0000 + GetAtanTable(param_1, param_2);
 			else
-				return 0x4000 - GetAtanTable(param_1, param_2);
+				return 0x4000 - GetAtanTable(param_2, param_1);
 		} else {
 			param_1 = -param_1;
 			if (param_1 < param_2)
-				return GetAtanTable(param_1, param_2) + 0x4000;
+				return GetAtanTable(param_2, param_1) + 0x4000;
 			else
-				return GetAtanTable(param_1, param_2) + 0x8000;
+				return 0x8000 - GetAtanTable(param_1, param_2);
 		}
 	} else {
 		param_2 = -param_2;
@@ -159,12 +156,12 @@ s16 matan(f32 param_1, f32 param_2)
 		if (param_1 < 0.0f) {
 			param_1 = -param_1;
 			if (param_1 <= param_2)
-				return GetAtanTable(param_1, param_2) + 0x8000;
+				return GetAtanTable(param_2, param_1) + 0x8000;
 			else
-				return GetAtanTable(param_1, param_2) + -0x4000;
+				return 0xC000 - GetAtanTable(param_1, param_2);
 		} else {
 			if (param_1 < param_2)
-				return GetAtanTable(param_1, param_2) - 0x4000;
+				return GetAtanTable(param_2, param_1) - 0x4000;
 			else
 				return -GetAtanTable(param_1, param_2);
 		}
@@ -192,33 +189,28 @@ static inline void MsGetRotFromZaxisY2(const JGeometry::TVec3<f32>& axis,
 	}
 }
 
-// TODO: very much fake
-static inline f32 fake_sqrt(f32 mag)
+static inline f32 sqrtPositive(f32 mag)
 {
 	if (mag > 0.0f) {
 		f64 root = __frsqrte(mag);
 		return 0.5f * root * (3.0f - mag * (root * root)) * mag;
 	}
-	return 0.0f;
+	return mag;
 }
 
-// TODO: very much fake
 static inline void MsGetRotFromZaxisX2(const JGeometry::TVec3<f32>& axis,
                                        f32* out)
 {
 	if (axis.y == 1.0f) {
-		*out = 90.0f;
+		*out = -90.0f;
 		return;
 	} else if (axis.y == -1.0f) {
-		*out = -90.0f;
+		*out = 90.0f;
 		return;
 	}
 
 	f32 a = 1.0f - axis.y * axis.y;
-
-	// TODO: it smells to me like this entire function is not real but a result
-	// of MWCC optimizing out stuff for once
-	f32 dVar3 = fake_sqrt(a);
+	f32 dVar3 = sqrtPositive(a);
 
 	*out = -(matan(dVar3, axis.y) * (360.0f / 65536.0f));
 }
