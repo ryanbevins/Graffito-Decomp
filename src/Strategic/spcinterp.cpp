@@ -185,7 +185,8 @@ void TSpcInterp::execflt()
 
 void TSpcInterp::execstr()
 {
-	const char* val = fetchString();
+	TSpcSlice val;
+	val.setDataString(fetchString());
 	mProcessStack.push(val);
 }
 
