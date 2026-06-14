@@ -6,6 +6,9 @@
 
 namespace JGeometry {
 
+#ifdef JGEOMETRY_GEKKO_PS_COPY12_OUT_OF_LINE
+void gekko_ps_copy12(void* dst, void* src);
+#else
 inline void gekko_ps_copy12(register void* dst, register void* src)
 {
 	register f32 src0;
@@ -31,6 +34,7 @@ inline void gekko_ps_copy12(register void* dst, register void* src)
 	}
 #endif // clang-format on
 }
+#endif
 
 template <typename T> struct SMatrix34C {
 	T mMtx[3][4];

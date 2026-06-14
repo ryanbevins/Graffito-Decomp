@@ -1,3 +1,4 @@
+#define JGEOMETRY_GEKKO_PS_COPY12_OUT_OF_LINE
 #include <MoveBG/MapObjBlock.hpp>
 #include <MoveBG/MapObjHide.hpp>
 #include <MoveBG/MapObjGeneral.hpp>
@@ -20,6 +21,7 @@
 #include <MarioUtil/PacketUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
@@ -60,11 +62,11 @@ void TSandBlock::control()
 {
 	TMapObjBase::control();
 	switch (mState) {
-	case 1: {
+	case 2: {
 		mScaling.x += mSandScaleUp;
 		mScaling.y += mSandScaleUp;
 		mScaling.z += mSandScaleUp;
-		if (mScaling.y >= mInitialScaling.y) {
+		if (mScaling.x >= mInitialScaling.x) {
 			mScaling.x = mInitialScaling.x;
 			mScaling.y = mInitialScaling.y;
 			mScaling.z = mInitialScaling.z;
@@ -72,7 +74,7 @@ void TSandBlock::control()
 		}
 		break;
 	}
-	case 2: {
+	case 4: {
 		mScaling.y -= mSandScaleDown;
 		if (gpMSound->gateCheck(0x30aa)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
@@ -146,6 +148,12 @@ void TLeanBlock::touchPlayer(THitActor* sender)
 	}
 }
 
+static inline f32 calcLeanLength(f32 mag)
+{
+	f64 root = __frsqrte(mag);
+	return (f32)(0.5 * root * (3.0 - mag * (root * root)) * mag);
+}
+
 void TLeanBlock::control()
 {
 	TMapObjBase::control();
@@ -168,7 +176,7 @@ void TLeanBlock::control()
 	f32 lenSq = unk14C.x * unk14C.x + unk14C.z * unk14C.z;
 	f32 len   = 0.0f;
 	if (lenSq > 0.0f) {
-		len = JGeometry::TUtil<f32>::sqrt(lenSq);
+		len = calcLeanLength(lenSq);
 	}
 	f32 angle = len * unk148;
 	Mtx tmp;
@@ -199,12 +207,40 @@ void TLeanBlock::calcLeanMtx(MtxPtr out)
 	f32 lenSq = unk14C.x * unk14C.x + unk14C.z * unk14C.z;
 	f32 len   = 0.0f;
 	if (lenSq > 0.0f) {
-		len = JGeometry::TUtil<f32>::sqrt(lenSq);
+		len = calcLeanLength(lenSq);
 	}
 	f32 angle = len * unk148;
 	makeObjMtxRotByAxis(axis, angle, out);
 	concatOnlyRotFromRight(out, unk164, out);
 }
+
+#pragma dont_inline on
+void JGeometry::gekko_ps_copy12(register void* dst, register void* src)
+{
+	register f32 src0;
+	register f32 src1;
+	register f32 src2;
+	register f32 src3;
+	register f32 src4;
+	register f32 src5;
+#ifdef __MWERKS__ // clang-format off
+	asm {
+		psq_l src0, 0(src), 0, 0
+		psq_l src1, 8(src), 0, 0
+		psq_l src2, 16(src), 0, 0
+		psq_l src3, 24(src), 0, 0
+		psq_l src4, 32(src), 0, 0
+		psq_l src5, 40(src), 0, 0
+		psq_st src0, 0(dst), 0, 0
+		psq_st src1, 8(dst), 0, 0
+		psq_st src2, 16(dst), 0, 0
+		psq_st src3, 24(dst), 0, 0
+		psq_st src4, 32(dst), 0, 0
+		psq_st src5, 40(dst), 0, 0
+	}
+#endif // clang-format on
+}
+#pragma dont_inline off
 
 void TLeanBlock::calcDefaultMtx()
 {
@@ -256,11 +292,11 @@ u32 TIceBlock::touchWater(THitActor* sender)
 	if ((waterFlags & 0xF) != 1) {
 		return 0;
 	}
-	gpMarioParticleManager->emit(0xE7, &mPosition, 0, 0);
-	gpMSound->startSoundSet(0x6802, (Vec*)&sender->mPosition, 0, 0.0f, 0, 0, 0);
+	gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, 0);
+	gpMSound->startSoundSet(0x6802, (Vec*)&mPosition, 0, 0.0f, 0, 0, 4);
 	if (gpMSound->gateCheck(0x3079)) {
 		MSoundSESystem::MSoundSE::startSoundActor(
-		    0x3079, (Vec*)&sender->mPosition, 0, 0, 0, 4);
+		    0x3079, (Vec*)&mPosition, 0, 0, 0, 4);
 	}
 	mScaling.x -= mMeltSpeedWater;
 	mScaling.y -= mMeltSpeedWater;
@@ -294,9 +330,9 @@ void TIceBlock::control()
 		emt->unk154.z = mScaling.z;
 	}
 	unk64 &= ~1;
-	mScaling.z = 80.0f * mScaling.x;
+	mDamageRadius = 80.0f * mScaling.x;
 	calcEntryRadius();
-	mScaling.z = 250.0f * mScaling.y;
+	mDamageHeight = 250.0f * mScaling.y;
 	calcEntryRadius();
 	if (mScaling.y < mAutoMeltScale * mInitialScaling.y) {
 		mScaling.x -= mMeltSpeedAuto;
@@ -325,13 +361,8 @@ void TIceBlock::calc()
 {
 	Mtx mtx;
 	SMS_GetLightPerspectiveForEffectMtx(mtx);
-	// fabricated: chain of unk pointers through J3DModelData
-	void* model       = (void*)getModel();
-	void* data        = *(void**)((char*)model + 0x4);
-	void* chain       = *(void**)((char*)data + 0x28);
-	void* entry       = *(void**)chain;
-	void* info        = *(void**)((char*)entry + 0x24);
-	(*(void (**)(void*, MtxPtr))((*(void***)info)[1]))(info, mtx);
+	J3DMaterial* mat = getModel()->getModelData()->getMaterialNodePointer(0);
+	mat->getTexGenBlock()->getTexMtx(1)->setEffectMtx(mtx);
 }
 
 void TIceBlock::initMapObj()
@@ -441,8 +472,23 @@ void TTelesaBlock::perform(u32 param, JDrama::TGraphics* graphics)
 		scratch[2][1] = 0.0f;
 		scratch[2][2] = unk140.z;
 		scratch[2][3] = 0.0f;
-		PSMTXConcat(getModel()->unk20, scratch, scratch);
-		// Note: original has two concat calls; second writes back
+		J3DModel* model = getModel();
+		PSMTXConcat(model->mNodeMatrices[1], scratch, model->mNodeMatrices[1]);
+
+		scratch[0][0] = unk140.y;
+		scratch[0][1] = 0.0f;
+		scratch[0][2] = 0.0f;
+		scratch[0][3] = 0.0f;
+		scratch[1][0] = 0.0f;
+		scratch[1][1] = unk140.y;
+		scratch[1][2] = 0.0f;
+		scratch[1][3] = 0.0f;
+		scratch[2][0] = 0.0f;
+		scratch[2][1] = 0.0f;
+		scratch[2][2] = unk140.z;
+		scratch[2][3] = 0.0f;
+		model = getModel();
+		PSMTXConcat(model->mNodeMatrices[0], scratch, model->mNodeMatrices[0]);
 	}
 }
 

@@ -58,6 +58,13 @@ nested helper call.
   declaration, and an explicit `template <> f32 MsClamp<f32>(...)` definition
   after `TTargetCamera::operator=` emitted a 100% local owner; a temporary
   `Equivalent` source-link proof passed.
+- `mario/MoveBG/MapObjBlock` (2026-06-15 MNL):
+  `JGeometry::gekko_ps_copy12(void*, void*)` was missing while same-TU call
+  sites inlined the paired-single copy. `JGEOMETRY_GEKKO_PS_COPY12_OUT_OF_LINE`
+  made only this TU see a declaration, and an out-of-line `#pragma dont_inline`
+  definition placed between `TLeanBlock::calcLeanMtx` and
+  `TLeanBlock::calcDefaultMtx` emitted the target owner and source-linked
+  under a temporary `Equivalent` flip.
 - `mario/MoveBG/MapObjRicco` (2026-06-14 MNL):
   `TLiveActor::getMActor() const` (8B) was missing for source-linked
   `MapObjMamma`/`MapObjMare`; `LIVEACTOR_GETMACTOR_OUT_OF_LINE` plus a
@@ -8781,32 +8788,6 @@ confirmed in ≥2 TUs._
     TUs using `inv_sqrt` in distance-normalization paths.
   - High-value cross-TU sweep target.
 
-- **`gekko_ps_copy12` inlined in our build but emitted as a callable
-  function in target.** Symptom (tick 115, `MoveBG/MapObjTree`):
-  target asm calls `bl gekko_ps_copy12__9JGeometryFPvPv` at 3 sites
-  (controlLeaf, initMapObj, plus another in controlLeaf). Our build
-  inlines the 12 `psq_l` + 12 `psq_st` op pairs at every call site,
-  ballooning function size by ~120 bytes and dragging controlLeaf
-  to 69.82%, initMapObj to 78.28%.
-  - Function definition is in `include/JSystem/JGeometry/JGMatrix34.hpp`,
-    marked `inline`, and uses an asm block (~24 paired-single ops).
-  - Both our and target compilation use same flags: `-O4,p
-    -inline auto -inline deferred`. Same compiler version (MWCC 1.2.5).
-  - Other TUs (MapObjFlag, MapObjFence) also call `gekko_ps_copy12`
-    as a function in target — pattern is consistent.
-  - Tried in this TU: `#pragma inline_max_size 0` at TU-top — no
-    effect; gekko_ps_copy12 still inlines.
-  - Suspect causes (untested): (a) reference / address-of in target
-    forces emission; (b) some other TU in the build references it
-    non-inline and the linker pulls a deferred version; (c) the
-    `register` keyword on params + `asm` block plays differently with
-    `-inline deferred` than expected; (d) total TU code-size threshold
-    in `-inline deferred` heuristic.
-  - Next experiment ideas: try `void (*p)(void*, void*) =
-    &JGeometry::gekko_ps_copy12;` somewhere to force address-of; try
-    `#pragma inline_depth(0)` (different from inline_max_size); try
-    defining a TU-local non-inline wrapper that calls the inline (but
-    that creates a new symbol — won't match unless target also has one).
 - **Vtables in target asm get per-vtable @ha/@l individual relocations;
   ours coalesces multiple vtables under one `...data.0@ha` base + offset.**
   Symptom: dtors at 86-89% diff at the vtable-chain unwind:
@@ -8838,24 +8819,6 @@ confirmed in ≥2 TUs._
   it too (e.g. `Enemy/enemy.cpp::moveTo*`) and DO get the weak-emit
   pattern — so something about the *caller* context controls it.
 
-- **`JGeometry::gekko_ps_copy12` inlined in our build but called via `bl` in
-  target.** Symptom: target asm has `bl gekko_ps_copy12__9JGeometryFPvPv`,
-  ours emits 12 `psq_l`/`psq_st` instructions at the call site. Confirmed
-  on `MoveBG/MapObjFlag::draw` and `MoveBG/MapObjBall::calcCurrentMtx`;
-  asm files for MapObjBall/Block/Cloud/Fence/Flag/Monte/Pinna/RailBlock/Tree
-  all contain `bl` calls; MapObjBlock emits the weak symbol. The function
-  is `inline` in `include/JSystem/JGeometry/JGMatrix34.hpp` and uses an
-  `asm {}` block with `register f32` locals. Our build inlines despite
-  `-inline deferred` flag for the `MoveBG` lib. Tried (all no effect):
-  (a) `#pragma inline_max_size(0)` + `inline_max_total_size(0)` before
-  draw definition; (b) wrapping arg as `j3dSys.getViewMtx()` to add an
-  inline forwarder; (c) explicit `(void*)` casts at call site. Hypotheses:
-  (1) MWCC under `-inline deferred` decides per-TU based on something
-  about parse order that we're not replicating; (2) a specific local-decl
-  ordering before the call inhibits inlining; (3) the original source uses
-  a non-inline wrapper we haven't found. Affected: `MoveBG/MapObjFlag::draw`
-  at 71.82%, `MoveBG/MapObjBall::calcCurrentMtx` at 62.32%. Risk: if the
-  lever is found, it could lift 8+ TUs simultaneously.
 - **MAnmSoundNPC::startAnimSound: `lwzx` indexed-load vs target's
   `add+lwz`.** Target loads v as `add r3, r31, r5; lwz r3, 0x18(r3)`
   (mData held in NV r31, regular lwz at constant offset 0x18). Ours
@@ -9022,6 +8985,17 @@ confirmed in ≥2 TUs._
   inline-budget control, not expression order.
 
 ## Refuted / wrong turns
+
+### `gekko_ps_copy12` address-of / pragma levers are not the route; use owner-only declaration split
+
+**Tried & resolved.** Earlier `MoveBG` investigations saw target calls to
+`JGeometry::gekko_ps_copy12(void*, void*)` while our build inlined the
+paired-single body, and proposed address-of tricks, `inline_max_size`, or local
+wrappers. The successful route in `mario/MoveBG/MapObjBlock` was the settled
+owner-only declaration split: hide the header inline body only from the owner
+TU, define the helper out-of-line at the target symbol-order position, and keep
+normal inline bodies elsewhere. Do not retry the old pragma/address-of levers
+alone for this helper.
 
 ### `#line` does not force MWCC local-class `$line` mangling
 
