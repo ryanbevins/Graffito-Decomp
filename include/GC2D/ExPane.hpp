@@ -103,8 +103,8 @@ public:
 	void updateCenteredSize(s32 time, s32 target_w, s32 target_h)
 	{
 		setCenteredSize(time, target_w, target_h,
-		                mSizeInterpolator.getCurrentX(),
-		                mSizeInterpolator.getCurrentY());
+		                mOffsetInterpolator.getCurrentX(),
+		                mOffsetInterpolator.getCurrentY());
 	}
 
 	J2DPane* getPane() const { return mPane; }
