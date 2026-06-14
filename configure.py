@@ -1031,7 +1031,7 @@ config.libs = [
             Object(Matching, "MoveBG/Pool.cpp"),
             Object(NonMatching, "MoveBG/MapObjCorona.cpp"),
             Object(NonMatching, "MoveBG/MapObjItem2.cpp"),
-            Object(NonMatching, "MoveBG/MapObjHide.cpp"),
+            Object(Equivalent, "MoveBG/MapObjHide.cpp"),
             Object(Equivalent, "MoveBG/MapObjTrap.cpp"),
         ],
     },
