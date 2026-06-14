@@ -1215,7 +1215,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(Equivalent, "Camera/CameraBGCheck.cpp"),
-            Object(NonMatching, "Camera/CameraChange.cpp"),
+            Object(Equivalent, "Camera/CameraChange.cpp"),
             Object(Equivalent, "Camera/CameraCodeControl.cpp"),
             Object(NonMatching, "Camera/cameragc.cpp"),
             Object(Equivalent, "Camera/CameraHeightPan.cpp"),

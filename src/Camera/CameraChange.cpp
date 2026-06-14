@@ -746,7 +746,7 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 
 	if (!isNormalCameraSpecifyMode(mMode)
 	    && !isTowerCameraSpecifyMode(mMode)) {
-		*(u16*)((u8*)this + 0x64) &= ~0x10;
+		*(u16*)((u8*)this + 0x64) &= ~0x1C;
 	}
 
 	int pm = *(int*)((u8*)this + 0x54);
