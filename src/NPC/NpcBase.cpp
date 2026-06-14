@@ -630,92 +630,91 @@ void TBaseNPC::load(JSUMemoryInputStream& stream)
 
 BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 {
-	if (mActorType == 0x0400001C)
-		return FALSE;
+	BOOL result = FALSE;
+	if (mActorType != 0x0400001C) {
+		if (message == 4) {
+			if ((mLiveFlag & 0x100000) && mHolder == nullptr) {
+				behaveToBeTaken_(sender);
+				result = TRUE;
+			}
+		} else if (message == 0) {
+			behaveToBeTrampled_();
+			result = TRUE;
+		} else if (message == 0xF) {
+			bool shouldBehave = true;
+			switch (mActorType) {
+			case 0x04000007:
+			case 0x04000008:
+			case 0x0400000F:
+			case 0x04000014:
+			case 0x0400001C:
+			case 0x0400001D:
+				shouldBehave = false;
+			}
+			if (shouldBehave)
+				behaveToHitObject_(sender, (EnumHitNpcObjectKind)0);
+			result = TRUE;
+		} else {
+			bool kinoMatch = false;
+			if (message == 0x10) {
+				kinoMatch = true;
+			} else if (message == 0xE) {
+				if (sender->mActorType == 0x4000005A)
+					kinoMatch = true;
+			}
+			if (kinoMatch) {
+				if (unk1E4 == 0) {
+					JGeometry::TVec3<f32> scale;
+					scale.x = 1.0f;
+					scale.y = 1.0f;
+					scale.z = 1.0f;
+					SMS_EasyEmitParticle(
+					    (E_SMS_EFFECT_ONETIME_NORMAL)0xA,
+					    (const JGeometry::TVec3<f32>*)&sender->mPosition,
+					    nullptr, scale);
+					JGeometry::TVec3<f32> scale2;
+					scale2.x = 1.0f;
+					scale2.y = 1.0f;
+					scale2.z = 1.0f;
+					SMS_EasyEmitParticle(
+					    (E_SMS_EFFECT_ONETIME_NORMAL)0xB,
+					    (const JGeometry::TVec3<f32>*)&sender->mPosition,
+					    nullptr, scale2);
+					JGeometry::TVec3<f32> scale3;
+					scale3.x = 1.0f;
+					scale3.y = 1.0f;
+					scale3.z = 1.0f;
+					SMS_EasyEmitParticle(
+					    (E_SMS_EFFECT_ONETIME_NORMAL)0xC,
+					    (const JGeometry::TVec3<f32>*)&sender->mPosition,
+					    nullptr, scale3);
+					unk1E4 = 0x10;
+				}
 
-	if (message == 4) {
-		if ((mLiveFlag & 0x100000) && mHolder == nullptr) {
-			behaveToBeTaken_(sender);
-			return TRUE;
+				bool shouldHit = isMadNpc();
+				if (!shouldHit) {
+					switch (mActorType) {
+					case 0x0400000E:
+					case 0x04000010:
+					case 0x04000011:
+					case 0x04000013:
+					case 0x04000015:
+					case 0x04000016:
+					case 0x04000017:
+						shouldHit = true;
+					}
+				}
+				if (shouldHit) {
+					EnumHitNpcObjectKind kind
+					    = message == 0x10 ? (EnumHitNpcObjectKind)1
+					                      : (EnumHitNpcObjectKind)2;
+					behaveToHitObject_(sender, kind);
+				}
+				result = TRUE;
+			}
 		}
 	}
-
-	if (message == 0) {
-		behaveToBeTrampled_();
-		return TRUE;
-	}
-
-	if (message == 0xF) {
-		bool shouldBehave = true;
-		switch (mActorType) {
-		case 0x04000007:
-		case 0x04000008:
-		case 0x0400000F:
-		case 0x04000014:
-		case 0x0400001C:
-		case 0x0400001D:
-			shouldBehave = false;
-		}
-		if (shouldBehave)
-			behaveToHitObject_(sender, (EnumHitNpcObjectKind)0);
-		return TRUE;
-	}
-
-	bool kinoMatch = false;
-	if (message == 0x10) {
-		kinoMatch = true;
-	} else if (message == 0xE) {
-		if (sender->mActorType != 0x4000005A)
-			return FALSE;
-		kinoMatch = true;
-	}
-	if (!kinoMatch)
-		return FALSE;
-
-	if (unk1E4 == 0) {
-		JGeometry::TVec3<f32> scale;
-		scale.x = 1.0f;
-		scale.y = 1.0f;
-		scale.z = 1.0f;
-		SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xA,
-		                     (const JGeometry::TVec3<f32>*)&sender->mPosition,
-		                     nullptr, scale);
-		JGeometry::TVec3<f32> scale2;
-		scale2.x = 1.0f;
-		scale2.y = 1.0f;
-		scale2.z = 1.0f;
-		SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xB,
-		                     (const JGeometry::TVec3<f32>*)&sender->mPosition,
-		                     nullptr, scale2);
-		JGeometry::TVec3<f32> scale3;
-		scale3.x = 1.0f;
-		scale3.y = 1.0f;
-		scale3.z = 1.0f;
-		SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xC,
-		                     (const JGeometry::TVec3<f32>*)&sender->mPosition,
-		                     nullptr, scale3);
-		unk1E4 = 0x10;
-	}
-
-	bool shouldHit = isMadNpc();
-	if (!shouldHit) {
-		switch (mActorType) {
-		case 0x0400000E:
-		case 0x04000010:
-		case 0x04000011:
-		case 0x04000013:
-		case 0x04000015:
-		case 0x04000016:
-		case 0x04000017:
-			shouldHit = true;
-		}
-	}
-	if (shouldHit) {
-		EnumHitNpcObjectKind kind
-		    = message == 0x10 ? (EnumHitNpcObjectKind)1 : (EnumHitNpcObjectKind)2;
-		behaveToHitObject_(sender, kind);
-	}
-	return TRUE;
+	return result;
 }
 
 bool TBaseNPC::isNeedNeckStraight() const
