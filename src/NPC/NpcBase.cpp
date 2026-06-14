@@ -757,12 +757,12 @@ bool TBaseNPC::isNeedNeckStraight() const
 f32 TBaseNPC::getAnmOffDist_()
 {
 	bool useOff = false;
+	int  state   = *(int*)((u8*)unkD0 + 0x14);
+	f32  result  = gpCamera->mFar;
 	f32  camDist = mPtrSaveNormal->mSLDanceAnmOffDist.value;
-	int  state  = *(int*)((u8*)unkD0 + 0x14);
 	if ((mActionFlag & 0x204) || mActorType == 0x0400000D || state == 0xA
 	    || state == 0x17)
 		useOff = true;
-	f32 result = camDist;  // default to dance off dist
 	if (isNerveMaybeDontCalcAnim0()) {
 		f32 v = mNpcSaveIndividual->mWaitAnmOffDist0.value;
 		result = v;
