@@ -618,7 +618,7 @@ void TNPCManager::clipEnemies(JDrama::TGraphics* gfx)
 		}
 
 		if (((isParaCam ? true : false) || (gpCamera->mMode == 0xd)
-		        || (*(int*)gpCamera->unk54 == 0xd
+		        || (gpCamera->unk54 == 0xd
 		            && (gpCamera->isNowInbetween()
 		                || gpCamera->mMode == 0x13)))
 		    && farClipFromUnk58 < 15000.0f)
@@ -702,6 +702,12 @@ void TNPCManager::makePartsModelData_(u32 actorType, u32 flags,
 			}
 		}
 	}
+}
+
+void TNPCManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk3C = 250.0f;
 }
 
 // =====================================================================
