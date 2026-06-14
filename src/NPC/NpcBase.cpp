@@ -136,7 +136,7 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 	bool doUpdate = true;
 	if (mLiveFlag & 1) {
 		doUpdate = false;
-	} else if (mLiveFlag & 0x400) {
+	} else if (mLiveFlag & LIVE_FLAG_UNK200) {
 		doUpdate = false;
 	} else if ((flags & 0x204) && (mLiveFlag & 6)) {
 		doUpdate = false;
