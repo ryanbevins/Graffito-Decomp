@@ -18,6 +18,8 @@
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
+bool TEnemyManager::mIsCopyAnmMtx = true;
+
 TSpineEnemyParams::TSpineEnemyParams(const char* path)
     : TParams(path)
     , PARAM_INIT(mSLHeadHeight, 120.0f)
@@ -259,7 +261,8 @@ void TEnemyManager::copyFromShared()
 
 void TEnemyManager::performShared(u32 param_1, JDrama::TGraphics* param_2)
 {
-	TTimeRec::startTimer();
+	if (unk30 & 1)
+		TTimeRec::startTimer();
 
 	int num2     = getActiveObjNum();
 	int aliveNum = 0;
@@ -363,7 +366,7 @@ void TEnemyManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 	int num = getActiveObjNum();
 	if (param_1 & 1) {
 		for (int i = num; i < mObjNum; ++i)
-			getObj(i)->onLiveFlag(LIVE_FLAG_DEAD);
+			getObj(i)->onHitFlag(HIT_FLAG_NO_COLLISION);
 	} else {
 		for (s32 i = num; i < mObjNum; ++i)
 			; // TODO: debug print or something?
