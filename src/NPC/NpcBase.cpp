@@ -169,7 +169,7 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (!doUpdate) {
-		mLiveFlag &= ~0x10000;
+		mLiveFlag &= ~0x60000;
 		return;
 	}
 
@@ -188,7 +188,7 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 				unk1DC = unk1DC - 1;
 				if (unk1DC == 0 && mHolder == nullptr) {
 					unk64 &= ~1;
-					mLiveFlag &= ~0x10000;
+					mLiveFlag &= ~0x10000000;
 				}
 			}
 			bool isLock = false;
