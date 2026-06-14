@@ -124,7 +124,7 @@ void TCardLoad::load(JSUMemoryInputStream& stream)
 		unk222[i] = 4;
 	}
 
-	for (int i = 0; i < 8; ++i) {
+	for (int i = 0; i < 13; ++i) {
 		unk22E[i] = 400 * i;
 		unk248[i] = 4;
 	}
