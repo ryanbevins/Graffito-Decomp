@@ -178,8 +178,10 @@ void TMameGesso::reset()
 {
 	TWalkerEnemy::reset();
 
-	// TODO: still don't know the real rand function/class...
-	unk1CC    = MsRandF(0, unk194->mSLGenerateInterval.get());
+	volatile int min = 0;
+	volatile int max = unk194->mSLGenerateInterval.get();
+	int range        = max - min;
+	unk1CC          = min + (int)(range * MsRandF());
 	unk1D0    = 0;
 	unk1E8    = 0.0f;
 	unk1EC    = 1;
@@ -250,6 +252,12 @@ void TMameGesso::setFreezeAnm()
 
 void TMameGesso::setDeadAnm() { unk164 = 1; }
 
+inline void TSmallEnemy::setBehavior() { }
+
+inline void TSmallEnemy::setWalkAnm() { }
+
+inline void TSmallEnemy::setRunAnm() { }
+
 void TMameGesso::behaveToWater(THitActor*)
 {
 	if (mSpine->getCurrentNerve() != &TNerveMameGessoGraphJumpWander::theNerve()
@@ -285,7 +293,7 @@ void TMameGesso::calcObjCollision()
 {
 	mHeadHeight = 50.0f;
 
-	f32 scale = unk194->mSLCollisionScale.get() * mAttackRadius * mBodyScale;
+	f32 scale = (mAttackRadius * mBodyScale) * unk194->mSLCollisionScale.get();
 
 	MtxPtr mtx = mMActor->getModel()->getAnmMtx(1);
 	JGeometry::TVec3<f32> pos;
@@ -388,7 +396,7 @@ DEFINE_NERVE(TNerveMameGessoGraphJumpWander, TLiveActor)
 				    local_34, returnJumpSp, self->getGravityY());
 				self->mPosition.y += 2.0f;
 				self->setVelocity(vel);
-				self->onHitFlag(LIVE_FLAG_AIRBORNE);
+				self->onLiveFlag(LIVE_FLAG_AIRBORNE);
 			}
 		}
 	}
@@ -548,9 +556,9 @@ DEFINE_NERVE(TNerveMameGessoThrown, TLiveActor)
 		// TODO: ugly matching
 		s16 angle = *gpMarioAngleY & 0xffff;
 		JGeometry::TVec3<f32> vel(
-		    thrownRateXZ * *gpMarioThrowPower * JMASSin(angle),
+		    thrownRateXZ * (*gpMarioThrowPower * JMASSin(angle)),
 		    params->mSLThrownVY.get(),
-		    thrownRateXZ * *gpMarioThrowPower * JMASCos(angle));
+		    thrownRateXZ * (*gpMarioThrowPower * JMASCos(angle)));
 
 		self->setVelocity(vel);
 
