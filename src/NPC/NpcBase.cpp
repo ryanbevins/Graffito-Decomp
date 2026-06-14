@@ -1,3 +1,5 @@
+#define JG_TUTIL_SQRT_OUT_OF_LINE
+
 #include <Camera/Camera.hpp>
 #include <Camera/cameralib.hpp>
 #include <Enemy/Conductor.hpp>
@@ -39,6 +41,29 @@ void TBaseNPC::setDummyConnectActor(const JDrama::TActor* actor)
 	mDummyConnectActor    = actor;
 	*(Vec*)&mPosition     = *(Vec*)&mDummyConnectActor->mPosition;
 	*(Vec*)&mRotation     = *(Vec*)&mDummyConnectActor->mRotation;
+}
+
+BOOL TSpineEnemy::isReachedToGoal() const
+{
+	const Vec* point;
+	if (unk104.unk0 != nullptr)
+		point = (const Vec*)&unk104.unk0->mPosition;
+	else
+		point = (const Vec*)&unk104.unk4;
+
+	Vec diff;
+	diff.x = point->x;
+	diff.y = point->y;
+	diff.z = point->z;
+	diff.x -= mPosition.x;
+	diff.y -= mPosition.y;
+	diff.z -= mPosition.z;
+
+	f32 length = JGeometry::TUtil<f32>::sqrt(
+	    diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
+	if (length < 100.0f)
+		return TRUE;
+	return FALSE;
 }
 
 void TBaseNPC::updateForbidCount_()
