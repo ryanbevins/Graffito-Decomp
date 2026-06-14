@@ -12,6 +12,8 @@
 #include <dolphin/os/OSCache.h>
 #include <math.h>
 
+static f32 J3DUnit01[2] = { 0.0f, 1.0f };
+
 void J3DModelData::clear()
 {
 	unk4              = 0;
@@ -663,7 +665,111 @@ void J3DModel::setSkinDeform(J3DSkinDeform* pSkinDeform,
 }
 
 #pragma dont_inline on
-void J3DModel::calcWeightEnvelopeMtx() { }
+void J3DModel::calcWeightEnvelopeMtx()
+{
+	u16* mtxIndex = mModelData->unk8C;
+	f32* weight   = mModelData->unk90;
+
+	for (s32 i = 0; i < mModelData->mWEvlpMtxNum; ++i) {
+		mEvlpScaleFlagArr[i] = 1;
+
+		f32 m00 = 0.0f;
+		f32 m01 = 0.0f;
+		f32 m02 = 0.0f;
+		f32 m03 = 0.0f;
+		f32 m10 = 0.0f;
+		f32 m11 = 0.0f;
+		f32 m12 = 0.0f;
+		f32 m13 = 0.0f;
+		f32 m20 = 0.0f;
+		f32 m21 = 0.0f;
+		f32 m22 = 0.0f;
+		f32 m23 = 0.0f;
+
+		u8 mixCount = mModelData->unk88[i];
+		s32 j       = 0;
+		do {
+			u16 index     = *mtxIndex++;
+			MtxPtr invMtx = mModelData->unk94[index];
+			MtxPtr anmMtx = mNodeMatrices[index];
+			f32 w         = *weight++;
+
+			m00 += (anmMtx[0][0] * invMtx[0][0]
+			           + anmMtx[0][1] * invMtx[1][0]
+			           + anmMtx[0][2] * invMtx[2][0])
+			       * w;
+			m01 += (anmMtx[0][0] * invMtx[0][1]
+			           + anmMtx[0][1] * invMtx[1][1]
+			           + anmMtx[0][2] * invMtx[2][1])
+			       * w;
+			m02 += (anmMtx[0][0] * invMtx[0][2]
+			           + anmMtx[0][1] * invMtx[1][2]
+			           + anmMtx[0][2] * invMtx[2][2]
+			           + J3DUnit01[0] * anmMtx[0][2])
+			       * w;
+			m03 += (anmMtx[0][0] * invMtx[0][3]
+			           + anmMtx[0][1] * invMtx[1][3]
+			           + anmMtx[0][2] * invMtx[2][3]
+			           + J3DUnit01[1] * anmMtx[0][3])
+			       * w;
+
+			m10 += (anmMtx[1][0] * invMtx[0][0]
+			           + anmMtx[1][1] * invMtx[1][0]
+			           + anmMtx[1][2] * invMtx[2][0])
+			       * w;
+			m11 += (anmMtx[1][0] * invMtx[0][1]
+			           + anmMtx[1][1] * invMtx[1][1]
+			           + anmMtx[1][2] * invMtx[2][1])
+			       * w;
+			m12 += (anmMtx[1][0] * invMtx[0][2]
+			           + anmMtx[1][1] * invMtx[1][2]
+			           + anmMtx[1][2] * invMtx[2][2]
+			           + J3DUnit01[0] * anmMtx[1][2])
+			       * w;
+			m13 += (anmMtx[1][0] * invMtx[0][3]
+			           + anmMtx[1][1] * invMtx[1][3]
+			           + anmMtx[1][2] * invMtx[2][3]
+			           + J3DUnit01[1] * anmMtx[1][3])
+			       * w;
+
+			m20 += (anmMtx[2][0] * invMtx[0][0]
+			           + anmMtx[2][1] * invMtx[1][0]
+			           + anmMtx[2][2] * invMtx[2][0])
+			       * w;
+			m21 += (anmMtx[2][0] * invMtx[0][1]
+			           + anmMtx[2][1] * invMtx[1][1]
+			           + anmMtx[2][2] * invMtx[2][1])
+			       * w;
+			m22 += (anmMtx[2][0] * invMtx[0][2]
+			           + anmMtx[2][1] * invMtx[1][2]
+			           + anmMtx[2][2] * invMtx[2][2]
+			           + J3DUnit01[0] * anmMtx[2][2])
+			       * w;
+			m23 += (anmMtx[2][0] * invMtx[0][3]
+			           + anmMtx[2][1] * invMtx[1][3]
+			           + anmMtx[2][2] * invMtx[2][3]
+			           + J3DUnit01[1] * anmMtx[2][3])
+			       * w;
+
+			mEvlpScaleFlagArr[i] &= mScaleFlagArr[index];
+			++j;
+		} while (j < mixCount);
+
+		Mtx& dst  = unk5C[i];
+		dst[0][0] = m00;
+		dst[0][1] = m01;
+		dst[0][2] = m02;
+		dst[0][3] = m03;
+		dst[1][0] = m10;
+		dst[1][1] = m11;
+		dst[1][2] = m12;
+		dst[1][3] = m13;
+		dst[2][0] = m20;
+		dst[2][1] = m21;
+		dst[2][2] = m22;
+		dst[2][3] = m23;
+	}
+}
 #pragma dont_inline off
 
 void J3DModel::update()
