@@ -231,8 +231,8 @@ void SDLModel::entryModelDataSDL(SDLModelData* param_1, u32 param_2,
 				for (int k = 0; k < param_3; ++k) {
 					mBumpMtxArr[i][matsWithBumpMtxs][k]
 					    = new (0x20) Mtx33[md->getDrawMtxData().mEntryNum];
-					++matsWithBumpMtxs;
 				}
+				++matsWithBumpMtxs;
 			}
 		}
 	}
