@@ -32,6 +32,9 @@ public:
 	}
 
 	void setRotate(const JGeometry::TVec3<f32>& param_1, f32 param_2)
+#ifdef JGEOMETRY_MAPOBJLIB_OWNER_HELPERS
+	    ;
+#else
 	{
 		TVec3<f32> f27f28f29;
 		f27f28f29.normalize(param_1);
@@ -62,6 +65,7 @@ public:
 		this->ref(2, 1) = fVar5 + f6;
 		this->ref(2, 2) = f11 * f0 + f1;
 	}
+#endif
 
 	void setEular(s16 yaw, s16 pitch, s16 roll)
 	{
@@ -83,6 +87,9 @@ public:
 	}
 
 	void setEular(f32 yaw, f32 pitch, f32 roll)
+#ifdef JGEOMETRY_MAPOBJLIB_OWNER_HELPERS
+	    ;
+#else
 	{
 		f32 f3 = sin(yaw);
 		f32 f5 = sin(pitch);
@@ -99,6 +106,7 @@ public:
 		setYDir(f10 * f8 - f11, f10 * f4 + f9, f3 * f7);
 		setZDir(f9 * f5 + f3 * f4, f11 * f5 - f3 * f8, f6 * f7);
 	}
+#endif
 	void setLookDir(const JGeometry::TVec3<f32>& param_1,
 	                const JGeometry::TVec3<f32>& param_2)
 	{

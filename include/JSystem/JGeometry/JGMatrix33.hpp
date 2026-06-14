@@ -11,7 +11,12 @@ template <typename T> struct SMatrix33C {
 
 // Same explicit specialization trick as with 3x4 and 4x4 versions
 template <> struct SMatrix33C<f32> {
+#ifdef JGEOMETRY_MAPOBJLIB_OWNER_HELPERS
+	SMatrix33C();
+	f32 at(u32 i, u32 j) const;
+#else
 	f32 at(u32 i, u32 j) const { return mMtx[i][j]; }
+#endif
 	f32& ref(u32 i, u32 j) { return mMtx[i][j]; }
 
 	f32 mMtx[3][3];

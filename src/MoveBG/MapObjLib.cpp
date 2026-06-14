@@ -1,3 +1,5 @@
+#define JGEOMETRY_MAPOBJLIB_OWNER_HELPERS
+
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjTurn.hpp>
@@ -30,6 +32,69 @@
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+
+JGeometry::SMatrix33C<f32>::SMatrix33C() { }
+
+f32 JGeometry::SMatrix33C<f32>::at(u32 i, u32 j) const
+{
+	return mMtx[i][j];
+}
+
+template <>
+void JGeometry::TRotation3<
+    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >::setEular(f32 yaw,
+                                                                  f32 pitch,
+                                                                  f32 roll)
+{
+	f32 f3 = sin(yaw);
+	f32 f5 = sin(pitch);
+	f32 f4 = sin(roll);
+	f32 f6 = cos(yaw);
+	f32 f7 = cos(pitch);
+	f32 f8 = cos(roll);
+
+	f32 f9  = f6 * f8;
+	f32 f10 = f3 * f5;
+	f32 f11 = f6 * f4;
+
+	setXDir(f7 * f8, f7 * f4, -f5);
+	setYDir(f10 * f8 - f11, f10 * f4 + f9, f3 * f7);
+	setZDir(f9 * f5 + f3 * f4, f11 * f5 - f3 * f8, f6 * f7);
+}
+
+template <>
+void JGeometry::TRotation3<
+    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >::setRotate(
+    const JGeometry::TVec3<f32>& axis, f32 angle)
+{
+	TVec3<f32> normalized;
+	normalized.normalize(axis);
+	f32 s = sin(angle);
+	f32 c = cos(angle);
+	f32 t = 1.0f - c;
+
+	f32 xx = normalized.x * normalized.x;
+	f32 yy = normalized.y * normalized.y;
+	f32 zz = normalized.z * normalized.z;
+	f32 sx = s * normalized.x;
+	f32 sy = s * normalized.y;
+	f32 sz = s * normalized.z;
+	f32 xy = normalized.y * (t * normalized.x);
+	f32 yz = normalized.z * (t * normalized.y);
+	f32 xz = normalized.z * (t * normalized.x);
+
+	this->ref(0, 0) = t * xx + c;
+	this->ref(0, 1) = xy - sz;
+	this->ref(0, 2) = xz + sy;
+
+	this->ref(1, 0) = xy + sz;
+	this->ref(1, 1) = t * yy + c;
+	this->ref(1, 2) = yz - sx;
+
+	this->ref(2, 0) = xz - sy;
+	this->ref(2, 1) = yz + sx;
+	this->ref(2, 2) = t * zz + c;
+}
 
 bool TMapObjBase::isHideObj(THitActor* param_1)
 {
