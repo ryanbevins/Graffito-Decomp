@@ -1124,7 +1124,7 @@ config.libs = [
         "objects": [
             Object(Equivalent, "Enemy/conductor.cpp"),
             Object(Equivalent, "Enemy/effectObj.cpp"),
-            Object(NonMatching, "Enemy/emario.cpp"),
+            Object(Equivalent, "Enemy/emario.cpp"),
             Object(NonMatching, "Enemy/enemy.cpp"),
             Object(Equivalent, "Enemy/enemyAttachment.cpp"),
             Object(Equivalent, "Enemy/enemymanager.cpp"),

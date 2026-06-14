@@ -228,7 +228,7 @@ void TEMario::load(JSUMemoryInputStream& stream)
 		          ->searchF(JDrama::TNameRef::calcKeyCode(buf), buf);
 	}
 
-	mEnemyMario->loadAfter();
+	mEnemyMario->initValues();
 	mEnemyMario->mPosition = mPosition;
 	mEnemyMario->mRotation = mRotation;
 	mEnemyMario->mScaling  = mScaling;
