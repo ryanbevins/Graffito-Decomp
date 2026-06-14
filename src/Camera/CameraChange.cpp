@@ -92,16 +92,16 @@ void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 		execNoticeOnOffProc_((EnumNoticeOnOffMode)1);
 	}
 
-	u32 origState = gpMarioOriginal->mState;
+	u32 origAction = gpMarioOriginal->mAction;
 	int  prevMode = mMode;
 	bool hipAttackCancel
-	    = (origState - 0xC400000 == 0x202) || (origState - 0xC000000 == 0x203);
+	    = (origAction - 0xC400000 == 0x202) || (origAction - 0xC000000 == 0x203);
 
 	if (!hipAttackCancel
-	    && !(*gpMarioFlag & 0x4)
-	    && !(SMS_GetMarioStatus() & 0x20000)
+	    && !(*gpMarioFlag & 0x2)
+	    && !(SMS_GetMarioStatus() & 0x10000)
 	    && !gpCameraMario->isMarioRocketing()
-	    && !(gpMarioOriginal->mPrevState & 0x4000)
+	    && !(gpMarioOriginal->mState & 0x4000)
 	    && !gpCameraMario->isMarioClimb(SMS_GetMarioStatus())) {
 		// non-Mario-state-driven block (climb/jump-cancel handling)
 		if (!isLButtonCameraSpecifyMode(mMode)) {
@@ -109,8 +109,8 @@ void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 			    && !isTowerCameraSpecifyMode(mMode))
 				goto end_mode_picker;
 			u16 flags = *(u16*)((u8*)this + 0x64);
-			if (flags & 0x20) {
-				*(u16*)((u8*)this + 0x64) = (u16)(flags & ~0x20);
+			if (flags & 0x10) {
+				*(u16*)((u8*)this + 0x64) = (u16)(flags & ~0x10);
 				if (isLButtonCameraSpecifyMode(mMode))
 					goto end_mode_picker;
 				if (isLButtonCameraInbetween())
@@ -147,7 +147,7 @@ void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 			}
 			goto end_mode_picker;
 		}
-		if (SMS_GetMarioStatus() & 0x40000) {
+		if (SMS_GetMarioStatus() & 0x20000) {
 			doLButtonCameraOff_(true);
 			goto end_mode_picker;
 		}
@@ -164,9 +164,8 @@ void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 	{
 		if (isLButtonCameraSpecifyMode(mMode)) {
 			doLButtonCameraOff_(true);
-			goto end_mode_picker;
 		}
-		if (unk120->mEnabledFrameMeaning & 0x10000) {
+		if (unk120->mEnabledFrameMeaning & 0x8000) {
 			execFrontRotate_();
 		}
 	}
@@ -177,23 +176,23 @@ end_mode_picker:
 	if (isLButtonCameraSpecifyMode(mMode))
 		return;
 
-	u32 status        = SMS_GetMarioStatus();
-	u32 prevStateFlag = gpMarioOriginal->mPrevState;
-	u32 origGround    = *(u32*)((u8*)gpMarioOriginal + 0x80);
-	u8  stage         = *(u8*)((u8*)gpMarDirector + 0x7C);
+	u32 status         = SMS_GetMarioStatus();
+	u32 marioStateFlag = gpMarioOriginal->mState;
+	u32 origGround     = *(u32*)((u8*)gpMarioOriginal + 0x80);
+	u8  stage          = *(u8*)((u8*)gpMarDirector + 0x7C);
 
 	int newMode = 0;
 	bool decided = false;
 
-	if (prevStateFlag & 0x1000) {
+	if (marioStateFlag & 0x1000) {
 		newMode = 0x2B;
 		decided = true;
-	} else if (*gpMarioFlag & 0x4) {
+	} else if (*gpMarioFlag & 0x2) {
 		newMode = (stage == 9) ? 0x8 : 0xD;
 		decided = true;
-	} else if (prevStateFlag & 0x4000) {
+	} else if (marioStateFlag & 0x4000) {
 		if (stage == 7
-		    || ((status & 0x2000)
+		    || (!(status & 0x2000)
 		        && (!(origGround & 0x2000) || !(status & 0x800)))) {
 			newMode = 0x2C;
 		} else {
@@ -210,16 +209,17 @@ end_mode_picker:
 			decided = true;
 		}
 	}
-	if (!decided && !SMS_IsMarioOnWire()
-	    && (status == 0x892 || (origGround == 0x892 && status - 0x800000 == 0x8A9))) {
+	if (!decided
+	    && (SMS_IsMarioOnWire() || status == 0x892
+	        || (origGround == 0x892 && status - 0x800000 == 0x8A9))) {
 		newMode = 0x6;
 		decided = true;
 	}
-	if (!decided && (status & 0x20000)) {
+	if (!decided && (status & 0x10000)) {
 		newMode = 0x30;
 		decided = true;
 	}
-	if (!decided && (status & 0x40000000)) {
+	if (!decided && (status & 0x20000000)) {
 		const TLiveActor* held = (const TLiveActor*)*(void**)((u8*)gpMarioOriginal + 0x2C0);
 		if (held != nullptr) {
 			u32 type = *(u32*)((u8*)held + 0x4C);
@@ -230,10 +230,9 @@ end_mode_picker:
 		}
 	}
 	if (!decided) {
-		u32 s = SMS_GetMarioStatus();
+		s32 s = SMS_GetMarioStatus();
 		bool flagB = (s == 0x30000569)
-		    || (s >= 0x30000569 && s < 0x3800368)
-		    || (s >= 0x30000369 && s < 0x30000369)
+		    || (s >= 0x3000036A && s < 0x3000036D)
 		    || (s == 0x38000368);
 		if (flagB) {
 			newMode = (stage == 8) ? 0x3D : 0x3C;
@@ -287,7 +286,7 @@ end_mode_picker:
 		newMode = 0x11;
 		decided = true;
 	}
-	if (!decided && (stage == 7 || status == 0x884)) {
+	if (!decided && stage != 7 && status == 0x884) {
 		newMode = 0x13;
 		decided = true;
 	}
@@ -305,7 +304,7 @@ end_mode_picker:
 			newMode = mode;
 			decided = true;
 		} else {
-			bool ex = SMS_isExMap() && (stage < 0x1F && stage >= 0x1D);
+			bool ex = SMS_isExMap() && (stage >= 0x1F || stage < 0x1D);
 			newMode = ex ? 0x26 : 4;
 			decided = true;
 		}
@@ -327,14 +326,14 @@ end_mode_picker:
 				newMode = 0x32;
 				decided = true;
 			} else {
-				bool ex = SMS_isExMap() && (stage < 0x1F && stage >= 0x1D);
+				bool ex = SMS_isExMap() && (stage >= 0x1F || stage < 0x1D);
 				newMode = ex ? 0x26 : 3;
 				decided = true;
 			}
 		}
 	}
 	if (!decided) {
-		bool ex = SMS_isExMap() && (stage < 0x1F && stage >= 0x1D);
+		bool ex = SMS_isExMap() && (stage >= 0x1F || stage < 0x1D);
 		if (ex) {
 			newMode = 0x26;
 			decided = true;
