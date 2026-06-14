@@ -528,21 +528,21 @@ void TBaseNPC::changeNerveProc_()
 					if (inCube) {
 						f32 maxDist, sightHeight;
 						if (unk17C != nullptr) {
-							sightHeight = mPtrSaveNormal->mTalkAcceptHeight.get();
-							maxDist     = mPtrSaveNormal->mSLSitTalkAcceptDegree.get();
-						} else if (mActorType - 0x04000000 == 0x1A) {
+							sightHeight = mPtrSaveNormal->mSLThrowTalkAcceptHeight.get();
 							maxDist     = mPtrSaveNormal->mSLThrowTalkAcceptDist.get();
-							sightHeight = mPtrSaveNormal->mTalkAcceptDegree.get();
+						} else if (mActorType - 0x04000000 == 0x1A) {
+							maxDist     = mPtrSaveNormal->mSLSunflowerLTalkDist.get();
+							sightHeight = mPtrSaveNormal->mTalkAcceptHeight.get();
 						} else {
 							maxDist     = mPtrSaveNormal->mTalkAcceptDist.get();
-							sightHeight = mPtrSaveNormal->mTalkAcceptDegree.get();
+							sightHeight = mPtrSaveNormal->mTalkAcceptHeight.get();
 						}
 						f32 zRad;
 						if ((mActionFlag & 0x401) || isSunflower()
 						    || mActorType - 0x04000000 == 0x1D)
-							zRad = mPtrSaveNormal->mSLSunflowerLTalkDist.get();
-						else
 							zRad = mPtrSaveNormal->mSLSitTalkAcceptDegree.get();
+						else
+							zRad = mPtrSaveNormal->mTalkAcceptDegree.get();
 
 						f32 diffY = gpMarioPos->y - mPosition.y;
 						f32 absY  = fabsf(diffY);
@@ -552,8 +552,9 @@ void TBaseNPC::changeNerveProc_()
 						           mPosition,
 						           (f32)(*gpMarioAngleY ^ 0x8000)
 						               * 0.005493164f,
-						           *gpMarioPos, maxDist, zRad,
-						           mPtrSaveNormal->mSLMarioTalkAcceptDegree.get())) {
+						           *gpMarioPos, maxDist,
+						           mPtrSaveNormal->mSLMarioTalkAcceptDegree.get(),
+						           0.0f)) {
 							doTransition = true;
 						}
 					}
