@@ -839,7 +839,7 @@ TGraphTracer::TGraphTracer()
 {
 }
 
-void TGraphTracer::setParamFromGraph()
+inline void TGraphTracer::setParamFromGraph()
 {
 	if (mCurrIdx >= 0) {
 		unk10 = (u16)unk0->unk0[mCurrIdx].unk0->mPitch * (1.0f / 65535.0f);
