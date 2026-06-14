@@ -588,9 +588,9 @@ void TCardLoad::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 			bool done = true;
 
-			int alpha1 = root1->getAlpha() + 4;
-			if (alpha1 > 255)
-				alpha1 = 255;
+			int alpha1 = root1->getAlpha() - 4;
+			if (alpha1 < 0)
+				alpha1 = 0;
 			else
 				done = false;
 			root1->setAlpha(alpha1);
@@ -599,9 +599,9 @@ void TCardLoad::perform(u32 param_1, JDrama::TGraphics* param_2)
 			unk744->setAlpha(alpha1);
 			unk740->setAlpha(alpha1);
 
-			int alpha2 = root2->getAlpha() - 4;
-			if (alpha2 < 0)
-				alpha2 = 0;
+			int alpha2 = root2->getAlpha() + 4;
+			if (alpha2 > 255)
+				alpha2 = 255;
 			else
 				done = false;
 			root2->setAlpha(alpha2);
