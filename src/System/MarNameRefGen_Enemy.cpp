@@ -501,7 +501,7 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_Enemy(const char* name) const
 	if (strcmp(name, "HaneHamuKuri") == 0)
 		return new THaneHamuKuri("はねハムクリ");
 	if (strcmp(name, "HaneHamuKuri2") == 0)
-		return new THaneHamuKuri2("はねハムクリ");
+		return new THaneHamuKuri2("はねハムクリ2");
 	if (strcmp(name, "DoroHaneKuriManager") == 0)
 		return new TDoroHaneKuriManager("ドロハネクリマネージャー");
 	if (strcmp(name, "DoroHaneKuri") == 0)
