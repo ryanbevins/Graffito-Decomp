@@ -106,7 +106,7 @@ public:
 	void isOnePath() const;
 	BOOL startIsEnd() const;
 	JGeometry::TVec3<f32> indexToPoint(int) const;
-	void perform(u32, JDrama::TGraphics*);
+	void perform(u32, JDrama::TGraphics*) { }
 	BOOL isDummy() const;
 	JGeometry::TVec3<f32>
 	getNearestPosOnGraphLink(const JGeometry::TVec3<f32>&) const;

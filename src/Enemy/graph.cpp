@@ -219,8 +219,6 @@ void TGraphWeb::translateNodes(TRailNode* param_1)
 	}
 }
 
-void TGraphWeb::getAimToGoalNextIndex(int, int, u32, f32) const { }
-
 int TGraphWeb::getShortestNextIndex(int param_1, int param_2, u32 param_3) const
 {
 	TGraphNode* graphNode = &unk0[param_1];
@@ -612,9 +610,6 @@ int TGraphWeb::findNearestNodeIndex(const JGeometry::TVec3<f32>& param_1,
 	return result;
 }
 
-int TGraphWeb::findFarthestNodeIndex(const JGeometry::TVec3<f32>&, u32) const {
-}
-
 int TGraphWeb::findNearestVisibleIndex(const JGeometry::TVec3<f32>& param_1,
                                        f32 param_2, f32 param_3, f32 param_4,
                                        u32 param_5) const
@@ -640,16 +635,6 @@ int TGraphWeb::findNearestVisibleIndex(const JGeometry::TVec3<f32>& param_1,
 	}
 
 	return result;
-}
-
-int TGraphWeb::findNearestNodeIndexCheckY(const JGeometry::TVec3<f32>&, f32,
-                                          u32) const
-{
-}
-
-void TGraphWeb::getNodeIndexInXZRange(const JGeometry::TVec3<f32>&, f32,
-                                      u32) const
-{
 }
 
 #pragma dont_inline on
@@ -700,8 +685,6 @@ void TGraphWeb::attachToGround()
 	}
 }
 
-void TGraphWeb::isOnePath() const { }
-
 BOOL TGraphWeb::startIsEnd() const
 {
 	if (getFirstGraphNode().unk0->mConnectionNum > 2
@@ -727,8 +710,6 @@ JGeometry::TVec3<f32> TGraphWeb::indexToPoint(int param_1) const
 	result.z                    = railNode->mPosition.z;
 	return result;
 }
-
-void TGraphWeb::perform(u32, JDrama::TGraphics*) { }
 
 BOOL TGraphWeb::isDummy() const
 {
@@ -795,8 +776,6 @@ int TGraphWeb::getNeighborNodeIndexByFlag(int param_1, int param_2,
 	return goodConnections[(int)(MsRandF() * goodConnectionNum)];
 }
 
-void TGraphWeb::getDesignatedNodeIndex(u32, int, f32) const { }
-
 TGraphGroup::TGraphGroup(void* param_1)
     : unk0((GraphDesc*)param_1)
     , unk4(0)
@@ -820,8 +799,6 @@ TGraphGroup::TGraphGroup(void* param_1)
 
 	unkC = new TGraphWeb(nullptr, "<nullrail>", -1);
 }
-
-TGraphGroup::~TGraphGroup() { }
 
 void TGraphGroup::initGraphGroup()
 {
