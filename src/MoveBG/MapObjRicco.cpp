@@ -1,3 +1,4 @@
+#define LIVEACTOR_GETMACTOR_OUT_OF_LINE
 #include <MoveBG/MapObjRicco.hpp>
 #include <MoveBG/MapObjBall.hpp>
 #include <MoveBG/MapObjManager.hpp>
@@ -405,6 +406,10 @@ BOOL TFruitSwitch::receiveMessage(THitActor* sender, u32 message)
 	}
 	return FALSE;
 }
+
+#pragma dont_inline on
+MActor* TLiveActor::getMActor() const { return mMActor; }
+#pragma dont_inline off
 
 void TFruitLauncher::fireObj()
 {

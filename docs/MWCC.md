@@ -5767,6 +5767,35 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Owner-only declaration split can emit a single weak accessor body while preserving other TUs' inline body
+
+**Hypothesis.** For a tiny in-class accessor whose target has exactly one weak
+owner, keep the normal in-class body for all ordinary TUs, but let the owner TU
+see only a declaration via a narrow macro and define the member out-of-line in
+the owner source at the symbol-order position. Wrapping that owner definition
+in `#pragma dont_inline` prevents the owner call site from inlining, while
+other TUs still include the header body and keep their existing inline/call
+shape. This is an owner-routing mechanism, not a general symbol shim: the owner
+TU must be the target owner in `symbols.txt`, and the source definition must be
+placed so `-inline deferred` emits it in target order.
+
+**Observed in `MoveBG/MapObjRicco` (2026-06-14 MNL).** Target
+`MapObjRicco.o` owns weak `TLiveActor::getMActor() const` (8B:
+`lwz r3, 0x74(r3); blr`) between `TFruitLauncher::fireObj` and
+`TFruitSwitch::receiveMessage`. Defining
+`LIVEACTOR_GETMACTOR_OUT_OF_LINE` before including `MapObjRicco.hpp`, changing
+`LiveActor.hpp` to declare instead of define the accessor under that macro,
+and placing a `#pragma dont_inline` out-of-line body between
+`receiveMessage` and `fireObj` made the rebuilt Ricco object emit a 100% weak
+owner and made `python configure.py --non-matching && ninja` link past the old
+`MapObjMamma.o`/`MapObjMare.o` undefined references.
+
+**Experiment to confirm/refute.** Apply the same owner-only declaration split
+to another target-owned weak accessor with source-linked undefined references
+or a missing 8-16B weak owner. Confirm that the owner TU emits the body in
+target order, non-owner TUs do not gain target-absent weak bodies, and the
+`--non-matching` link proof passes without broad `dont_inline` fallout.
+
 ### First out-of-line virtual body controls vtable home; earlier inline virtuals keep slot order without becoming the home
 
 **Hypothesis.** For MWCC C++ classes, vtable/data home is chosen by the
@@ -8264,19 +8293,6 @@ declaration trick, or moving inline source out of header) is required.
 _Seeded from the "currently-hard patterns" list in `CLAUDE.md` — promote to *Hypotheses
 under investigation* the moment you have a testable theory, and to *Settled* once
 confirmed in ≥2 TUs._
-
-- **What source shape makes MWCC emit one weak out-of-line owner for a tiny
-  in-class accessor while other TUs keep undefined `bl` call sites?** In
-  `mario/MoveBG/MapObjRicco`, target emits weak
-  `TLiveActor::getMActor() const` (8 bytes, `lwz r3, 0x74(r3); blr`) and
-  calls it from `TFruitLauncher::fireObj`; current source inlines the
-  header-defined accessor as a direct `lwz`. A `--non-matching` link also fails
-  on undefined `TLiveActor::getMActor() const` references from
-  `MapObjMamma.o` and `MapObjMare.o`, so the project needs a real weak-owner
-  explanation rather than a one-off symbol shim. Next experiment: compare the
-  target TUs that own/call this accessor and test whether moving the body out
-  of the in-class definition, or changing only the calling source shape in the
-  owner TU, produces a callable owner without broad `dont_inline` side effects.
 
 - **What source shape preserves MWCC's large-stack `s16`-to-`f32` frame-control
   write inside a huge dispatcher?** In `mario/Player/MarioReceiveMsg`

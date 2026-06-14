@@ -81,7 +81,11 @@ public:
 	void calcRideMomentum();
 	void calcRidePos();
 
+#ifdef LIVEACTOR_GETMACTOR_OUT_OF_LINE
+	MActor* getMActor() const;
+#else
 	MActor* getMActor() const { return mMActor; }
+#endif
 
 	static f32 mVelocityMinY;
 
