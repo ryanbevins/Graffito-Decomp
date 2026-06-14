@@ -18,6 +18,18 @@ static u8* firstSrcData();
 static u8* nextSrcData(u8*);
 static u32 dmaBufferFlush(u32);
 
+JKRAramBlock* JKRDvdAramRipper::loadToAram(char* path, u32 address,
+                                           JKRExpandSwitch expandSwitch,
+                                           u32 param_3, u32 param_4)
+{
+	JKRDvdFile dvdFile;
+	if (!dvdFile.open(path)) {
+		return nullptr;
+	} else {
+		return loadToAram(&dvdFile, address, expandSwitch, param_3, param_4);
+	}
+}
+
 JKRAramBlock* JKRDvdAramRipper::loadToAram(s32 entryNumber, u32 address,
                                            JKRExpandSwitch expandSwitch,
                                            u32 param_3, u32 param_4)
