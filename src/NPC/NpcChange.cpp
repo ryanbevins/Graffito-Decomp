@@ -701,8 +701,9 @@ void TBaseNPC::setPosAndInitAfterSinkBottom()
 	} else {
 		unk64 &= ~0x1;
 		mSpine->setNext(*(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
-		mSpine->becomeNerveAfterPop(
-		    *(TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		mSpine->pushNerve(
+		    *(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		resetPos.y += 50.0f;
 		mVelocity.x = 0.0f;
 		mVelocity.y = 5.0f;
 		mVelocity.z = 0.0f;
