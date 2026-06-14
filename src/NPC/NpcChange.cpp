@@ -129,7 +129,7 @@ void TBaseNPC::changeNerveFromTalk_()
 		if (mLiveFlag & 0x20000000) {
 			mLiveFlag &= ~0x20000000;
 		} else {
-			mSpine->pushNerve(&TNerveNPCThrow::theNerve());
+			mSpine->setNext(&TNerveNPCThrow::theNerve());
 		}
 	}
 
