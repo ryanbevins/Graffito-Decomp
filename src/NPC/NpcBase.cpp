@@ -182,6 +182,20 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 			if (mHolder == nullptr) {
 				if (isNerveWalk())
 					walkAnmRateChange_();
+				if (*(int*)((u8*)unkD0 + 0x14) == 4) {
+					f32 frameRate = SMSGetAnmFrameRate();
+					f32 rate = frameRate * mTurnSpeed
+					           * mNpcSaveIndividual->mTurnAnmRate.value;
+					f32 maxRate
+					    = frameRate * mNpcSaveIndividual->mTurnAnmMaxRate.value;
+					f32 minRate
+					    = frameRate * mNpcSaveIndividual->mTurnAnmMinRate.value;
+					if (rate > maxRate)
+						rate = maxRate;
+					else if (rate < minRate)
+						rate = minRate;
+					mMActor->setFrameRate(rate, 0);
+				}
 			}
 			((TNpcInbetween*)mUnk18C)->execPosInbetween(&mPosition);
 			if (unk1DC > 0) {
@@ -558,13 +572,7 @@ TBaseNPC::TBaseNPC(u32 actorType, const char* name)
 	mAngleYDiffWhenTaken    = 0;
 	mActorType              = actorType;
 
-	bool isLock = false;
-	switch (actorType) {
-	case 0x0400000F:
-	case 0x04000014:
-		isLock = true;
-	}
-	if (isLock)
+	if (mActorType == 0x0400001C)
 		return;
 
 	TNpcAnmRequest* req = new TNpcAnmRequest;
@@ -574,12 +582,21 @@ TBaseNPC::TBaseNPC(u32 actorType, const char* name)
 	}
 	mAnmRequest = req;
 
+	bool isLock = false;
+	switch (actorType) {
+	case 0x0400000F:
+	case 0x04000014:
+		isLock = true;
+	}
+	if (isLock)
+		return;
+
 	bool wantTrample = false;
 	if (isNormalMonteM() || isNormalMonteW()) {
 		wantTrample = true;
 	} else if (isSpecialMonteM() || isSpecialMonteW()) {
 		wantTrample = true;
-	} else if (mActorType == 0x0400000E || isNormalMareW()) {
+	} else if (isNormalMareM() || isNormalMareW()) {
 		wantTrample = true;
 	} else if (isSpecialMareM() || isSpecialMareW()) {
 		wantTrample = true;
