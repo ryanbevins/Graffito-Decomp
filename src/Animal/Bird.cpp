@@ -30,6 +30,11 @@ extern JGeometry::TVec3<f32>* gpMarioPos;
 JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
 f32 SMSGetAnmFrameRate();
 
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
 namespace {
 const int cRandomAnims[5] = { 7, 4, 0, 2, 8 };
 
@@ -362,7 +367,7 @@ BOOL TNerveAnimalBirdWalkOnGround::execute(TSpineBase<TLiveActor>* spine) const
 	TAnimalBirdParams* p = (TAnimalBirdParams*)bird->getSaveParam();
 	f32 turn              = p->mWalkingTorqueY.value;
 	turn *= SMSGetAnmFrameRate();
-	bird->mRotation.y = MsWrap<f32>(
+	bird->mRotation.y = callMsWrap(
 	    bird->mRotation.y + bird->unk170 * turn,
 	    0.0f, 360.0f);
 
@@ -583,7 +588,7 @@ bool TAnimalBird::doLanding(bool initFrame)
 
 	f32 savedY  = unk164.y;
 	f32 wrappedY
-	    = MsWrap<f32>(mRotation.y, savedY - 180.0f, savedY + 180.0f);
+	    = callMsWrap(mRotation.y, savedY - 180.0f, savedY + 180.0f);
 	f32 delta = savedY - wrappedY;
 	f32 clamped;
 	if (delta < -torque)
