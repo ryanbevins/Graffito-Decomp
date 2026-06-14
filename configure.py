@@ -943,7 +943,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(NonMatching, "NPC/NpcAnm.cpp"),
-            Object(NonMatching, "NPC/NpcBase.cpp"),
+            Object(Equivalent, "NPC/NpcBase.cpp"),
             Object(Equivalent, "NPC/NpcCallback.cpp"),
             Object(Equivalent, "NPC/NpcManager.cpp"),
             Object(Equivalent, "NPC/NpcNerve.cpp"),
