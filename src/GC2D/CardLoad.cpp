@@ -354,9 +354,9 @@ void TCardLoad::setupScoreScreen()
 		int shineCount = 0;
 
 		if (TFlagManager::getInstance()->getBool(0x103A5 + local_90[i]))
-			unk584[i].unk0->hide();
-		else
 			unk584[i].unk0->show();
+		else
+			unk584[i].unk0->hide();
 
 		for (int j = 0; j < 8; ++j)
 			if (SMS_isGetShine(local_90[i], j, false))
@@ -377,7 +377,7 @@ void TCardLoad::setupScoreScreen()
 		}
 
 		for (int j = 0; j < 2; ++j) {
-			if (SMS_isGetShine(local_90[i], j, true)) {
+			if (SMS_isGetShine(local_90[i], j + 1, true)) {
 				iVar8 += 1;
 				unk584[i].unk30[j]->show();
 			} else {
