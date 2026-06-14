@@ -40,6 +40,10 @@ static char* tori_bastable[] = {
 	(char*)"/scene/tori/bas/tori_wait.bas",
 };
 
+namespace {
+const int cDropCoinNumTable[] = { 3, 3, 1, 2 };
+}
+
 static inline JGeometry::TVec3<f32> makeForwardVec(f32 speed)
 {
 	return JGeometry::TVec3<f32>(0.0f, 0.0f, speed);
@@ -501,10 +505,6 @@ void TKukku::behaveToWater(THitActor* sender)
 
 	mSpine->reset();
 	mSpine->setNext(&TNerveKukkuFall::theNerve());
-}
-
-namespace {
-int cDropCoinNumTable[] = { 3, 3, 1, 2 };
 }
 
 void TKukku::dropCoins()
