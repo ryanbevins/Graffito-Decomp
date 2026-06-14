@@ -493,23 +493,22 @@ void TCardLoad::perform(u32 param_1, JDrama::TGraphics* param_2)
 		switch (unk14) {
 		case 0: {
 			changeScene();
-			int alpha1 = unk25C->getAlpha();
-			if (unk275 && alpha1 < 255) {
-				alpha1 += 8;
-				if (alpha1 > 255)
-					alpha1 = 255;
-				unk25C->setAlpha(alpha1);
+			int alpha = unk25C->getAlpha();
+			if (unk275 && alpha < 255) {
+				alpha += 8;
+				if (alpha > 255)
+					alpha = 255;
+				unk25C->setAlpha(alpha);
 			}
 
-			int alpha2 = unk25C->getAlpha();
-			if (!unk275 && alpha2 > 0) {
-				alpha2 -= 8;
-				if (alpha2 < 0)
-					alpha2 = 0;
-				unk25C->setAlpha(alpha2);
+			if (!unk275 && alpha > 0) {
+				alpha -= 8;
+				if (alpha < 0)
+					alpha = 0;
+				unk25C->setAlpha(alpha);
 			}
 
-			if (unk25C->getAlpha() != 0) {
+			if (alpha != 0) {
 				// TODO: copy-pasta from TArrowControl::calcMoveX? inline?
 				int iVar9 = unk274;
 				int iVar3 = unk274 < 50 ? iVar9 : 100 - iVar9;
@@ -524,7 +523,6 @@ void TCardLoad::perform(u32 param_1, JDrama::TGraphics* param_2)
 					unk274 = 0;
 			}
 
-			int alpha = unk25C->getAlpha();
 			if (unk1C == 19 || unk1C == 12 || unk1C == 13 || unk1C == 3
 			    || unk1C == 4 || unk1C == 5 || unk1C == 45 || unk1C == 16) {
 				unk284->offCollision();
