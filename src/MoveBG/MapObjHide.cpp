@@ -25,6 +25,9 @@
 #include <stdio.h>
 #include <MSound/MSoundBGM.hpp>
 
+static const Vec cHideObjZeroVec = { 0.0f, 0.0f, 0.0f };
+static const Vec cHideObjOneVec  = { 1.0f, 1.0f, 1.0f };
+
 //
 // TWoodBox
 //
@@ -49,7 +52,7 @@ void TWoodBox::loadAfter()
 		if (isShine) {
 			int nlen = strlen(mName);
 			unk144   = (u32) new char[nlen + 0x13];
-			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
+			snprintf((char*)unk144, nlen + 0x13, "シャイン（%s）カメラ", mName);
 		}
 	}
 	checkOnManhole();
@@ -174,7 +177,7 @@ THideObjPictureTwin::THideObjPictureTwin(const char* name)
 void THideObjPictureTwin::initMapObj()
 {
 	TMapObjBase::initMapObj();
-	snprintf(unk178, 0x19, "%sCamera", mName);
+	snprintf(unk178, 0x19, "%sカメラ", mName);
 }
 
 void THideObjPictureTwin::loadAfter()
@@ -319,7 +322,7 @@ void TWaterHitPictureHideObj::loadAfter()
 		if (isShine) {
 			int nlen = strlen(mName);
 			unk144   = (u32) new char[nlen + 0x13];
-			snprintf((char*)unk144, nlen + 0x13, "シャッン（%s）カメラ", mName);
+			snprintf((char*)unk144, nlen + 0x13, "シャイン（%s）カメラ", mName);
 		}
 	}
 	bool isBlueCoin2 = false;
@@ -595,7 +598,7 @@ void TFruitBasket::loadAfter()
 		if (isShine) {
 			int nlen = strlen(mName);
 			unk144   = (u32) new char[nlen + 0x13];
-			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
+			snprintf((char*)unk144, nlen + 0x13, "シャイン（%s）カメラ", mName);
 		}
 	}
 	if (mRotation.x != 0.0f) {
@@ -754,7 +757,7 @@ void THideObjBase::loadAfter()
 		if (isShine) {
 			int nlen = strlen(mName);
 			unk144   = (u32) new char[nlen + 0x13];
-			snprintf((char*)unk144, nlen + 0x13, "shine_%s", mName);
+			snprintf((char*)unk144, nlen + 0x13, "シャイン（%s）カメラ", mName);
 		}
 	}
 }
