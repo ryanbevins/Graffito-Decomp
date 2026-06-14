@@ -82,7 +82,7 @@ int TMenuDirector::rsetup()
 	unk3C = new J2DSetScreen("title.blo", arc);
 
 	if (!unk3C)
-		return 0;
+		return 1;
 
 	group2d->getChildren().push_back(new TMenuBase(unk3C));
 
@@ -171,9 +171,9 @@ int TMenuDirector::direct()
 		void* res;
 		OSJoinThread(&gSetupThread, &res);
 		gpApplication.mFader->startFadeinT(0.25f);
-		if (TFlagManager::getInstance()->getBool(0x30007)) {
+		if (!TFlagManager::getInstance()->getBool(0x30007)) {
 			TFlagManager::getInstance()->setBool(true, 0x30007);
-			gpMSound->loadWave(MS_WAVE_UNK128);
+			gpMSound->loadWave(MS_WAVE_DEFAULT);
 		}
 		unk50 = true;
 	}
@@ -332,7 +332,7 @@ int TMenuDirector::direct()
 
 	case 2:
 		if (gpApplication.mFader->isFullyFadedOut()
-		    && gpMSound->checkWaveOnAram(MS_WAVE_UNK128)) {
+		    && gpMSound->checkWaveOnAram(MS_WAVE_DEFAULT)) {
 			if (unk40->unk2C == 0x11 || unk40->unk2C == 0x12)
 				uVar13 = TApplication::APP_STATE_MOVIE;
 			else
