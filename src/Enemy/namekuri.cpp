@@ -4,6 +4,8 @@
 #include <Enemy/Spider.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/Watergun.hpp>
+#include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <Map/MapData.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -209,8 +211,6 @@ void TNameIndParCallback::execute(JPABaseEmitter* param_1,
 
 		MTXConcat(mA, local_4c, mA);
 
-		// TODO: definitely some inlines missing. Row/column extract func?
-		// Maybe a function to extract the scale vector from a matrix?
 		JGeometry::TVec3<f32> local_7c;
 
 		JGeometry::TVec3<f32> tmp1(mA[0][0], mA[1][0], mA[2][0]);
@@ -497,9 +497,10 @@ void TNameKuri::setBehavior() { }
 void TNameKuri::behaveToWater(THitActor* param_1)
 {
 	if (mSpine->getCurrentNerve() != &TNerveSmallEnemyHitWaterJump::theNerve()
-	    && mSpine->getCurrentNerve() != &TNerveSmallEnemyDie::theNerve()) {
+	    && mSpine->getCurrentNerve() != &TNerveSmallEnemyDie::theNerve()
+	    && mSpine->getCurrentNerve() != &TNerveNameKuriExplosion::theNerve()) {
 
-		mSpine->pushNerve(&TNerveNameKuriExplosion::theNerve());
+		mSpine->pushNerve(&TNerveSmallEnemyDie::theNerve());
 
 		if (!isAirborne())
 			onLiveFlag(0x10000);
@@ -560,8 +561,13 @@ void TNameKuri::setDeadAnm()
 void TNameKuri::setAfterDeadEffect()
 {
 	if (unk198) {
-		void* waterGun = SMS_GetMarioWaterGun();
-		// TODO: where my water gun
+		TWaterGun* waterGun = (TWaterGun*)SMS_GetMarioWaterGun();
+		s32 maxAmount
+		    = waterGun->getCurrentNozzle()->mEmitParams.mAmountMax.get();
+		waterGun = (TWaterGun*)SMS_GetMarioWaterGun();
+		if (waterGun->mCurrentWater * 2 < maxAmount)
+			gpItemManager->makeObjAppear(mPosition.x, mPosition.y,
+			                             mPosition.z, 0x20000001, true);
 	}
 }
 
@@ -621,7 +627,6 @@ void TNameKuri::reset()
 	unk1BC.g = 0;
 	unk1BC.r = 0;
 
-	// TODO: inline?
 	TNameKuriManager* man = ((TNameKuriManager*)mManager);
 	man->unk60 += 1;
 	if (man->unk60 >= 7)
@@ -668,8 +673,6 @@ bool TNameKuri::isHitWaterJump() const
 	else
 		return false;
 }
-
-bool TNameKuri::canJumpAttack() const { }
 
 bool TNameKuri::isHitValid(u32 param_1)
 {
@@ -728,8 +731,6 @@ DEFINE_NERVE(TNerveNameKuriJumpAttack, TLiveActor)
 	TNameKuri* self = (TNameKuri*)spine->getBody();
 
 	if (spine->getTime() < 2) {
-		// TODO: WTF?! Why does it use SMS_GetMarioHitActor here
-		// but directly use gpMarioAddress everywhere else?
 		self->setGoalPathMario();
 
 		self->unk1B0 = self->mScaling.y;
@@ -757,8 +758,7 @@ DEFINE_NERVE(TNerveNameKuriJumpAttack, TLiveActor)
 				self->unk1AC = 0.0f;
 				self->unk1B8 = 0.0f;
 
-				// TODO: It's different here too?!
-				self->setGoalPathMario();
+				self->setGoalPath(SMS_GetMarioPos());
 			}
 
 			self->walkToCurPathNode(0.0f, 6.0f, 0.0f);
