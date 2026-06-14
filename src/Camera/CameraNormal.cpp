@@ -1,20 +1,54 @@
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMarioData.hpp>
 #include <Camera/cameralib.hpp>
-#include <Enemy/FireWanwan.hpp>
 #include <JSystem/JMath.hpp>
-#include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
-#include <Player/MarioMain.hpp>
-#include <Strategic/NameRefAry.hpp>
 #include <System/MarioGamePad.hpp>
-#include <System/PositionHolder.hpp>
+
+class TFireWanwanTailHit {
+public:
+	const JGeometry::TVec3<f32>& getHostPos() const;
+};
+
+class TStagePositionInfo : public JDrama::TNameRef {
+public:
+	TStagePositionInfo(const char*);
+
+	Vec unkC;
+};
+
+class TStagePositionHolder : public JDrama::TNameRef {
+public:
+	TStagePositionHolder(const char*);
+
+	virtual JDrama::TNameRef* searchF(u16, const char*);
+};
+
+extern void* gpMarioOriginal;
+extern TStagePositionHolder* gpPositionHolder;
 
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
 template <> s16 CLBRoundf<s16>(f32);
 template <> s16 CLBTwoDegreeGeneralInbetween<s16>(s16, s16, f32, f32);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
+
+static const char dummyMactorStringValue1[]
+    = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[] = "メモリが足りません\n";
+static const char MtxCalcTypeName0[]
+    = "MActorMtxCalcType_Basic クラシックスケールＯＮ";
+static const char MtxCalcTypeName1[]
+    = "MActorMtxCalcType_Softimage クラシックスケールＯＦＦ";
+static const char MtxCalcTypeName2[]
+    = "MActorMtxCalcType_MotionBlend モーションブレンド";
+static const char MtxCalcTypeName3[]
+    = "MActorMtxCalcType_User ユーザー定義";
+
+static const char* sPositionNameTable[] = {
+	"塔カメラＡ中心", "塔カメラＢ中心", "塔カメラＣ中心",
+	"塔カメラＤ中心", "塔カメラＥ中心",
+};
 
 template <> s16 CLBEaseInInbetween<s16>(s16 a, s16 b, f32 ratio)
 {
@@ -23,10 +57,6 @@ template <> s16 CLBEaseInInbetween<s16>(s16 a, s16 b, f32 ratio)
 
 void CPolarSubCamera::calcTowerCenterPos_(Vec* out)
 {
-	static const char* sPositionNameTable[] = {
-		"塔カメラＡ中心", "塔カメラＢ中心", "塔カメラＣ中心",
-		"塔カメラＤ中心", "塔カメラＥ中心",
-	};
 	const char* name = nullptr;
 	switch (mMode) {
 	case 0x27: name = sPositionNameTable[0]; break;
