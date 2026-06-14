@@ -220,21 +220,49 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	bool drewWithAnim = false;
-	if ((flags & 2) && !(mLiveFlag & 7) && mHolder == nullptr) {
-		drewWithAnim = true;
-		setGroundCollision();
-		execMotionBlend_();
-		getMActor()->frameUpdate();
-		if (mNpcParts != nullptr && isPartsAnmNpc())
-			mNpcParts->partsFrameUpdate();
-	}
+	if (flags & 2) {
+		bool hasMtxEffectFlag = (mLiveFlag & 0x1000000) ? true : false;
+		if (mLiveFlag & 7) {
+			drewWithAnim = true;
+			setGroundCollision();
+			execMotionBlend_();
+			getMActor()->frameUpdate();
+			if (mNpcParts != nullptr && isPartsAnmNpc())
+				mNpcParts->partsFrameUpdate();
+		} else if (mHolder == nullptr && !(mLiveFlag & 0x80)
+		           && belongToGround() == 0
+		           && (isNerveMaybeDontCalcAnim0()
+		               || isNerveMaybeDontCalcAnim1())) {
+			f32 anmOffDist = getAnmOffDist_();
+			JGeometry::TVec3<f32> diff;
+			diff.x      = mPosition.x - gpCamera->unk124.x;
+			diff.y      = mPosition.y - gpCamera->unk124.y;
+			diff.z      = mPosition.z - gpCamera->unk124.z;
+			f32 distSq  = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+			f32 distMax = CLBSquared<f32>(anmOffDist);
+			if (distSq > distMax && !hasMtxEffectFlag
+			    && *(int*)((u8*)mSpine + 0x20) > 2) {
+				drewWithAnim = true;
+				execMotionBlend_();
+			}
+		}
 
-	if (!drewWithAnim && (flags & 2) && mMultiMtxEffect != nullptr) {
-		mMultiMtxEffect->setUserArea();
-	}
+		if (hasMtxEffectFlag && !drewWithAnim && mMultiMtxEffect != nullptr) {
+			for (int i = 0; i < mMultiMtxEffect->mNumBones; ++i)
+				mMultiMtxEffect->mMtxEffectTbl[i]->mFlags |= 0x2;
+		}
 
-	if (drewWithAnim)
-		flags &= ~2;
+		if (drewWithAnim)
+			flags &= ~2;
+
+		if ((flags & 2) && mMultiMtxEffect != nullptr) {
+			mMultiMtxEffect->setUserArea();
+			if (mActorType == 0x04000018 && mHolder != nullptr) {
+				for (int i = 0; i < mMultiMtxEffect->mNumBones; ++i)
+					mMultiMtxEffect->mMtxEffectTbl[i]->mFlags |= 0x2;
+			}
+		}
+	}
 
 	if (flags & 0x200) {
 		mLiveFlag &= ~0x1000000;
