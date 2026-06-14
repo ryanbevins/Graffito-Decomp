@@ -32,15 +32,15 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 
 // Static const class members (matching mAutoMeltScale__9TIceBlock etc in sdata)
-f32 TSandBlock::mSandScaleUp    = 0.005f;
-f32 TSandBlock::mSandScaleDown  = 0.0125f;
-f32 TSandBlock::mSandScaleMin   = 0.01f;
-s32 TSandBlock::mWaitTimeToFall = 60;
-s32 TSandBlock::mSandWaitTime   = 120;
+f32 TSandBlock::mSandScaleUp    = 0.075f;
+f32 TSandBlock::mSandScaleDown  = 0.0075f;
+f32 TSandBlock::mSandScaleMin   = 0.05f;
+s32 TSandBlock::mWaitTimeToFall = 40;
+s32 TSandBlock::mSandWaitTime   = 400;
 
-f32 TIceBlock::mMeltSpeedWater = 0.01f;
-f32 TIceBlock::mMeltSpeedAuto  = 0.0005f;
-f32 TIceBlock::mAutoMeltScale  = 0.8f;
+f32 TIceBlock::mMeltSpeedWater = 0.003f;
+f32 TIceBlock::mMeltSpeedAuto  = 0.004f;
+f32 TIceBlock::mAutoMeltScale  = 0.2f;
 
 void TBreakableBlock::touchPlayer(THitActor* sender)
 {
@@ -66,7 +66,7 @@ void TSandBlock::control()
 		mScaling.x += mSandScaleUp;
 		mScaling.y += mSandScaleUp;
 		mScaling.z += mSandScaleUp;
-		if (mScaling.x >= mInitialScaling.x) {
+		if (mScaling.y >= mInitialScaling.x) {
 			mScaling.x = mInitialScaling.x;
 			mScaling.y = mInitialScaling.y;
 			mScaling.z = mInitialScaling.z;
@@ -286,7 +286,7 @@ u32 TIceBlock::getSDLModelFlag() const { return 0; }
 
 u32 TIceBlock::touchWater(THitActor* sender)
 {
-	getWaterSpeed(sender);
+	((TMapObjBase*)sender)->getWaterSpeed(sender);
 	int waterId    = TMapObjBase::getWaterID(sender);
 	u16 waterFlags = ((u16*)((char*)gpModelWaterManager + 0x414))[waterId];
 	if ((waterFlags & 0xF) != 1) {
@@ -308,7 +308,7 @@ u32 TIceBlock::touchWater(THitActor* sender)
 		mScaling.y = 0.01f;
 	}
 	if (mScaling.x < 0.0f) {
-		kill();
+		makeObjDead();
 	}
 	mColCount = 0;
 	return 1;
@@ -348,11 +348,11 @@ void TIceBlock::control()
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x3079, (Vec*)&mPosition, 0, 0, 0, 4);
 		}
-		performOnlyDraw(0, (JDrama::TGraphics*)NULL);
+		setObjHitData(0);
 		unk64 |= 1;
 		removeMapCollision();
 		if (mScaling.x < 0.1f) {
-			kill();
+			makeObjDead();
 		}
 	}
 }
@@ -496,7 +496,7 @@ void TTelesaBlock::setGroundCollision()
 {
 	if (mMapCollisionManager && mMapCollisionManager->unk8) {
 		// virtual call vtable[0x3] (changeData-like, accepts pos/rot/scale)
-		(*(void (**)(TMapCollisionBase*, Vec*, S16Vec*, Vec*))(
+		((void (*)(TMapCollisionBase*, Vec*, S16Vec*, Vec*))(
 		    (*(void***)mMapCollisionManager->unk8)[3]))(
 		    mMapCollisionManager->unk8, (Vec*)&mPosition,
 		    (S16Vec*)&mRotation, (Vec*)&unk140);
