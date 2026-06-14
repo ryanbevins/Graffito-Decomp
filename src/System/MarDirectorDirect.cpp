@@ -1,3 +1,4 @@
+#define JDRAMA_TFLAG_COPY_CTOR_OUT_OF_LINE
 #include <System/MarDirector.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>

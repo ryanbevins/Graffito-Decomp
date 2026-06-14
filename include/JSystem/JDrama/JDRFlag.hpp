@@ -7,10 +7,14 @@ template <class T> class TFlagT {
 public:
 	TFlagT(T v = T());
 
+#ifdef JDRAMA_TFLAG_COPY_CTOR_OUT_OF_LINE
+	TFlagT(const TFlagT<T>& other);
+#else
 	TFlagT(const TFlagT<T>& other)
 	    : mValue(other.mValue)
 	{
 	}
+#endif
 
 	// fabricated
 	TFlagT& operator=(const TFlagT<T>& other)
@@ -44,6 +48,16 @@ template <class T> TFlagT<T>::TFlagT(T v) { set(v); }
 #pragma dont_inline off
 #else
 template <class T> inline TFlagT<T>::TFlagT(T v) { set(v); }
+#endif
+
+#ifdef JDRAMA_TFLAG_COPY_CTOR_OUT_OF_LINE
+#pragma dont_inline on
+template <class T>
+TFlagT<T>::TFlagT(const TFlagT<T>& other)
+    : mValue(other.mValue)
+{
+}
+#pragma dont_inline off
 #endif
 
 }; // namespace JDrama
