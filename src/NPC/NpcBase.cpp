@@ -367,14 +367,14 @@ void TBaseNPC::moveObject()
 		s32 prevMsg = mNpcBalloon->_000;
 		u8  state   = gpMarDirector->unk124;
 		bool isEvent = (state == 1 || state == 2 || state == 3 || state == 4);
-		if (isEvent && mNpcBalloon->updateBalloon()) {
+		if (!isEvent && mNpcBalloon->updateBalloon()) {
 			if (mHolder != nullptr) {
 				if (prevMsg < 0xE0050) {
 					if (prevMsg >= 0xE004F)
-						mNpcBalloon->setNextMessage(0xE004F, 0x1C20);
+						mNpcBalloon->setNextMessage(0xE0051, 0x1C20);
 				} else if (prevMsg > 0xE0050) {
 					if (prevMsg < 0xE0052)
-						mNpcBalloon->setNextMessage(0xE0051, 0x1C20);
+						mNpcBalloon->setNextMessage(0xE004F, 0x1C20);
 				}
 			} else {
 				if (prevMsg == 0xE0050)
