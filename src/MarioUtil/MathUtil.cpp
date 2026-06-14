@@ -161,7 +161,7 @@ s16 matan(f32 param_1, f32 param_2)
 				return 0xC000 - GetAtanTable(param_1, param_2);
 		} else {
 			if (param_1 < param_2)
-				return GetAtanTable(param_2, param_1) - 0x4000;
+				return GetAtanTable(param_2, param_1) + 0xC000;
 			else
 				return -GetAtanTable(param_1, param_2);
 		}
