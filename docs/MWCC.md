@@ -5767,6 +5767,31 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### First out-of-line virtual body controls vtable home; earlier inline virtuals keep slot order without becoming the home
+
+**Hypothesis.** For MWCC C++ classes, vtable/data home is chosen by the
+first virtual declaration that has an out-of-line body visible to the build,
+not necessarily by the constructor TU. Earlier virtual declarations with
+in-class inline bodies still occupy their normal vtable slots but do not become
+the vtable home.
+
+**Observed in `MoveBG/MapObjGeneral` (2026-06-14 MNL).** Target
+`MapObjGeneral.o` references `__vt__14TMapObjGeneral` externally, while
+target `MapObjInit.o` owns the vtable and the `@32@` destructor adjustor.
+With `getLivingTime`/`getFlushTime` declared after the override list, source
+`MapObjGeneral.o` owned the vtable. Moving the new virtuals before the
+override list made the first out-of-line one own the vtable: `getLivingTime`
+out-of-line in `WoodBarrel.cpp` moved ownership to WoodBarrel; making
+`getLivingTime` inline and leaving `getFlushTime` out-of-line in
+`MapObjInit.cpp` made `MapObjGeneral.o` import the vtable and allowed
+`MoveBG/MapObjGeneral.cpp` to source-link with the original MapObjInit owner.
+
+**Experiment to confirm/refute.** Find another target class whose constructor
+TU imports its vtable while a different TU owns it. Reorder only the lexical
+declarations of newly introduced virtuals, and toggle earlier inline bodies,
+then inspect `nm` ownership and vtable slot order. Promote only after a second
+independent TU reproduces the same owner movement without slot drift.
+
 ### Declaring `JGadget::TList` iterators in the `for` initializer can reserve target iterator temporaries
 
 **Hypothesis.** For `JGadget::TList` loops, source shape controls whether MWCC

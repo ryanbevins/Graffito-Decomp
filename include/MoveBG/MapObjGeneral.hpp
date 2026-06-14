@@ -11,6 +11,8 @@ public:
 
 	TMapObjGeneral(const char*);
 
+	virtual u32 getLivingTime() const { return mNormalLivingTime; }
+	virtual int getFlushTime() const;
 	virtual void loadAfter();
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
@@ -21,11 +23,9 @@ public:
 	virtual void kill();
 	virtual void appear();
 	virtual void initMapObj();
-	virtual void checkIllegalAttr() const { }
+	virtual void checkIllegalAttr() const;
 	virtual void touchPlayer(THitActor*);
 	virtual u32 touchWater(THitActor*);
-	virtual u32 getLivingTime() const { return mNormalLivingTime; }
-	virtual int getFlushTime() const { return mNormalFlushTime; }
 	virtual bool isPollutedGround(const JGeometry::TVec3<f32>&) const;
 	virtual void work();
 	virtual void appearing();

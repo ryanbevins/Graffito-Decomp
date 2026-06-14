@@ -14,6 +14,8 @@ s32 TWoodBarrel::mWaitAppearTime     = 360;
 int TWoodBarrel::mBreakTime          = 7200;
 int TWoodBarrel::mOilBarrelFlushTime = 600;
 
+void TMapObjGeneral::checkIllegalAttr() const { }
+
 void TWoodBarrel::put()
 {
 	TMapObjGeneral::put();

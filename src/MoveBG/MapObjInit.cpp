@@ -11205,3 +11205,5 @@ void TMapObjManager::initKeyCode()
 		sObjDataTable[i]->unk38
 		    = JDrama::TNameRef::calcKeyCode(sObjDataTable[i]->unk0);
 }
+
+int TMapObjGeneral::getFlushTime() const { return mNormalFlushTime; }
