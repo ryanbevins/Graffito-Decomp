@@ -925,7 +925,7 @@ bool TCardLoad::titleDraw()
 		break;
 	}
 
-	return (u32)unk18 > 4;
+	return unk18 > 4;
 }
 
 void TCardLoad::makeBuffer(J2DTextBox* text_box, int size)
