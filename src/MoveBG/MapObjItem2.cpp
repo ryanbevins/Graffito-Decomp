@@ -112,10 +112,22 @@ void TMushroom1up::control()
 {
 	TMapObjBase::control();
 	if (mTaken == 1) {
-		if (180 - mTimer < 0) {
+		int remaining = 180 - mTimer;
+		if (remaining < 0) {
 			kill();
 			return;
 		}
+		JGeometry::TVec3<f32> pos = *gpMarioPos;
+		s16 angle = (s16)(remaining * 5.0f * (65536.0f / 360.0f));
+		pos.y += 200.0f;
+		pos.x += 1.5f * (50.0f * JMASCos(angle));
+		pos.z += 1.5f * (50.0f * JMASSin(angle));
+		mPosition = pos;
+		mScaling.set(1.5f, 1.5f, 1.5f);
+		mVelocity.zero();
+		mLinearVelocity.zero();
+		mTimer += 1;
+		return;
 	} else {
 		mTimer += 1;
 		if (mType == 2) {
@@ -338,7 +350,7 @@ void TJumpBase::control()
 	case 3:
 		if (mTimer == 0) {
 			unk64 &= ~1;
-			if (mMapCollisionManager && mMapCollisionManager->unk8)
+			if (mMapCollisionManager)
 				mMapCollisionManager->unk8->remove();
 			mMActor->setBck("jumpbase_set");
 			J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
@@ -365,14 +377,10 @@ void TJumpBase::control()
 	case 5:
 		if (mTimer == 0) {
 			mLiveFlag |= 0x80;
-			f32 cosY = JMASCos(*gpMarioAngleY) * 0.0f;
-			f32 sinY = JMASSin(*gpMarioAngleY) * 0.0f;
-			mAngularVelocity.x = cosY;
-			mAngularVelocity.y = 0.0f;
-			mAngularVelocity.z = sinY;
-			mPosition.x += mAngularVelocity.x;
-			mPosition.y += mAngularVelocity.y;
-			mPosition.z += mAngularVelocity.z;
+			JGeometry::TVec3<f32> velocity(JMASSin(*gpMarioAngleY), 0.0f,
+			                                JMASCos(*gpMarioAngleY));
+			mVelocity = velocity;
+			mPosition.add(mVelocity);
 			mLiveFlag &= ~0x10;
 		}
 		if (!isAirborne()) {
