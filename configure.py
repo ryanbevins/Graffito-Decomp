@@ -1106,7 +1106,7 @@ config.libs = [
             Object(Equivalent, "GC2D/SelectDir.cpp"),
             Object(NonMatching, "GC2D/SelectShine2.cpp"),
             Object(Equivalent, "GC2D/BlendPane.cpp"),
-            Object(NonMatching, "GC2D/Guide.cpp"),
+            Object(Equivalent, "GC2D/Guide.cpp"),
             Object(Equivalent, "GC2D/SunGlass.cpp"),
             Object(Equivalent, "GC2D/ShineFader.cpp"),
             Object(Equivalent, "GC2D/ProgSelect.cpp"),

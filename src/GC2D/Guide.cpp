@@ -54,7 +54,7 @@ void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx)
 			_42C     = stage;
 			resetObjects();
 			changeBotStatus((int)stage);
-			for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < 10; i++) {
 				if (i == (int)stage) {
 					_3D0[i]->mVisible = true;
 				} else {
