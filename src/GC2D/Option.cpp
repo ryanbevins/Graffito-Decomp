@@ -222,7 +222,7 @@ void TPaneScalingControl::update()
 	int iVar5  = mInitialBounds.getHeight();
 
 	f32 progress = (f32)mFrameCtrl.getFrame() / (f32)mFrameCtrl.getEnd();
-	f32 fVar2    = mAmplitude * JMASin(RAD_TO_DEG(progress * (2 * M_PI)));
+	f32 fVar2    = mAmplitude * JMASin(progress * TAU * 57.295776f);
 
 	int uVar6 = fVar2 * iVar10;
 	int uVar1 = fVar2 * iVar5;
