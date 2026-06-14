@@ -737,29 +737,30 @@ f32 TMapObjBase::getDistance(const JGeometry::TVec3<f32>& param_1) const
 
 int TMapObjBase::getWaterID(THitActor* hit_actor)
 {
-	return ((TWaterHitActor*)hit_actor)->unk68;
+	return *(s32*)&((TWaterHitActor*)hit_actor)->unk68;
 }
 
 const TBGCheckData* TMapObjBase::getWaterPlane(THitActor*)
 {
-	return gpModelWaterManager->unk2914[((TWaterHitActor*)this)->unk68];
+	return gpModelWaterManager
+	    ->unk2914[*(s32*)&((TWaterHitActor*)this)->unk68];
 }
 
 JGeometry::TVec3<f32>* TMapObjBase::getWaterSpeed(THitActor*)
 {
 	return &gpModelWaterManager
-	            ->mParticleVelocitySOA[((TWaterHitActor*)this)->unk68];
+	            ->mParticleVelocitySOA[*(s32*)&((TWaterHitActor*)this)->unk68];
 }
 
 JGeometry::TVec3<f32>* TMapObjBase::getWaterPos(THitActor*)
 {
 	return &gpModelWaterManager
-	            ->mParticlePositionSOA[((TWaterHitActor*)this)->unk68];
+	            ->mParticlePositionSOA[*(s32*)&((TWaterHitActor*)this)->unk68];
 }
 
 bool TMapObjBase::waterHitPlane(THitActor*)
 {
-	int water_id            = ((TWaterHitActor*)this)->unk68;
+	int water_id            = *(s32*)&((TWaterHitActor*)this)->unk68;
 	const TBGCheckData* pln = gpModelWaterManager->unk2914[water_id];
 	if (!pln)
 		return false;
@@ -1196,9 +1197,6 @@ void TMapObjTurn::control()
 		}
 		break;
 	}
-	default:
-		MTXIdentity(mtx);
-		break;
 	}
 
 	mtx[0][3] = mPosition.x;
