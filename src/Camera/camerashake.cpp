@@ -6,6 +6,8 @@
 
 extern const char* mCamShakeNameSave__12TCameraShake[];
 
+TCameraShake* gpCameraShake;
+
 static inline void fakeSetRotate(
     JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >* rot,
     const JGeometry::TVec3<f32>& axis, f32 angle)

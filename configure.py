@@ -1226,7 +1226,7 @@ config.libs = [
             Object(NonMatching, "Camera/CameraNotice.cpp"),
             Object(NonMatching, "Camera/CameraNormal.cpp"),
             Object(Equivalent, "Camera/camerasave.cpp"),
-            Object(NonMatching, "Camera/camerashake.cpp"),
+            Object(Equivalent, "Camera/camerashake.cpp"),
             Object(Equivalent, "Camera/CameraTalk.cpp"),
             Object(NonMatching, "Camera/lensflare.cpp"),
             Object(Equivalent, "Camera/lensglow.cpp"),
