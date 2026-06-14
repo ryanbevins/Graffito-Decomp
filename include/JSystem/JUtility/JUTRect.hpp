@@ -4,7 +4,11 @@
 class JUTRect {
 public:
 	JUTRect() { set(0, 0, 0, 0); }
+#ifdef JUTRECT_CTOR_OUT_OF_LINE
+	JUTRect(int x1, int y1, int x2, int y2);
+#else
 	JUTRect(int x1, int y1, int x2, int y2) { set(x1, y1, x2, y2); }
+#endif
 
 	JUTRect(const JUTRect& other) { copy(other); }
 

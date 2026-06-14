@@ -1,4 +1,6 @@
+#define JUTRECT_CTOR_OUT_OF_LINE
 #include <GC2D/Option.hpp>
+#undef JUTRECT_CTOR_OUT_OF_LINE
 #include <macros.h>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
@@ -849,6 +851,13 @@ bool TOptionControl::movementCard2Option()
 
 	return false;
 }
+
+#pragma dont_inline on
+JUTRect::JUTRect(int x1, int y1, int x2, int y2)
+{
+	set(x1, y1, x2, y2);
+}
+#pragma dont_inline off
 
 bool TOptionControl::movementOption()
 {
