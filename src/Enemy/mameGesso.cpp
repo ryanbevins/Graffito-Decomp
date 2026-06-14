@@ -402,9 +402,9 @@ DEFINE_NERVE(TNerveMameGessoGraphJumpWander, TLiveActor)
 	}
 
 	if (self->unk1EC != 0) {
-		// TODO: one more condition that is kind of like
-		// mGroundPlane->isWaterSurface() but not really
-		if (!self->isReachedToGoal() || self->isAirborne()) {
+		// TODO: target evaluates an unused ground-type predicate in the
+		// reached-and-airborne path.
+		if (!self->isReachedToGoal()) {
 			if (!self->isAirborne())
 				self->walkBehavior(2, 1.0f);
 			else
