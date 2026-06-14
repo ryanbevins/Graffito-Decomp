@@ -9054,9 +9054,17 @@ missing.
 does not compile under MWCC 1.2.5 (`unimplemented C++ feature`). This is not an
 available call-boundary lever for the member-template `set` overload.
 
+**Tried & REFUTED:** wrapping the caller as
+`static inline void rotateBirdVec(const TQuat4<f32>&, const TVec3<f32>&,
+TVec3<f32>&) { quat.rotate(src, dst); }` and calling that wrapper from
+`mario/Animal/Bird` `TNerveAnimalBirdWalkOnGround::execute` did not emit the
+missing local `set<f>` owner. It also regressed the function (`75.4% -> 70.1%`)
+by changing stack/register shape, so a trivial caller-side rotate wrapper is
+not the answer for this family.
+
 **Conclusion.** Future `TVec3::set<f32>` owner experiments need a different
-source shape, such as a caller-side rotate wrapper or inline-budget lever; do
-not retry the explicit member-template specialization declaration.
+source shape or inline-budget lever; do not retry the explicit member-template
+specialization declaration or the trivial caller-side rotate wrapper.
 
 ### An explicit specialization declaration does not force tiny `MsClamp<f32>` local-owner emission
 
