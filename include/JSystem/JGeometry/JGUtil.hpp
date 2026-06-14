@@ -50,6 +50,9 @@ template <> struct TUtil<f32> {
 		return value;
 	}
 
+#ifdef JG_TUTIL_SQRT_OUT_OF_LINE
+	static f32 sqrt(f32 mag);
+#else
 	static f32 sqrt(f32 mag)
 	{
 		if (mag <= 0.0f)
@@ -58,6 +61,7 @@ template <> struct TUtil<f32> {
 		f32 root = __frsqrte(mag);
 		return 0.5f * root * (3.0f - mag * (root * root)) * mag;
 	}
+#endif
 
 	static f32 mod(f32 value, f32 modulus);
 

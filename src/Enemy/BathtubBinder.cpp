@@ -1,5 +1,6 @@
 #include <Enemy/BathtubBinder.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#define JG_TUTIL_SQRT_OUT_OF_LINE
 #include <JSystem/JGeometry/JGUtil.hpp>
 #include <JSystem/JGeometry/JGVec3.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
@@ -8,6 +9,14 @@
 #include <MoveBG/MapObjCorona.hpp>
 #include <PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/math.h>
 #include <Strategic/LiveActor.hpp>
+
+static inline JGeometry::TVec3<f32> getBathtubCenter(TBathtub* bathtub)
+{
+	u8* tub = (u8*)bathtub;
+	return JGeometry::TVec3<f32>(
+	    *(f32*)(tub + 0x170), *(f32*)(tub + 0x174) - *(f32*)(tub + 0x1B4),
+	    *(f32*)(tub + 0x178));
+}
 
 TBathtubBinder::TBathtubBinder()
 {
@@ -60,10 +69,7 @@ void TBathtubBinder::float_(TLiveActor* actor)
 
 	if (mBathtub != nullptr) {
 		u8* tub = (u8*)mBathtub;
-		JGeometry::TVec3<f32> tmp;
-		tmp.set(*(f32*)(tub + 0x170),
-		        *(f32*)(tub + 0x174) - *(f32*)(tub + 0x1B4),
-		        *(f32*)(tub + 0x178));
+		JGeometry::TVec3<f32> tmp  = getBathtubCenter(mBathtub);
 		JGeometry::TVec3<f32> base = tmp;
 
 		f32 cap   = *(f32*)(tub + 0x1AC);
@@ -98,10 +104,7 @@ void TBathtubBinder::float_(TLiveActor* actor)
 
 	if (mBathtub != nullptr) {
 		u8* tub = (u8*)mBathtub;
-		JGeometry::TVec3<f32> tmp;
-		tmp.set(*(f32*)(tub + 0x170),
-		        *(f32*)(tub + 0x174) - *(f32*)(tub + 0x1B4),
-		        *(f32*)(tub + 0x178));
+		JGeometry::TVec3<f32> tmp  = getBathtubCenter(mBathtub);
 		JGeometry::TVec3<f32> base = tmp;
 
 		f32 cap   = *(f32*)(tub + 0x1AC);
@@ -170,10 +173,7 @@ void TBathtubBinder::float_(TLiveActor* actor)
 
 	{
 		u8* tub = (u8*)mBathtub;
-		JGeometry::TVec3<f32> tmp;
-		tmp.set(*(f32*)(tub + 0x170),
-		        *(f32*)(tub + 0x174) - *(f32*)(tub + 0x1B4),
-		        *(f32*)(tub + 0x178));
+		JGeometry::TVec3<f32> tmp  = getBathtubCenter(mBathtub);
 		JGeometry::TVec3<f32> base = tmp;
 
 		f32 cap   = *(f32*)(tub + 0x1AC);
