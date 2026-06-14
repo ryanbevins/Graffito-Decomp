@@ -502,7 +502,7 @@ config.libs = [
             # J3DGraphAnimator
             Object(Equivalent, "JSystem/J3D/J3DGraphAnimator/J3DCluster.cpp"),
             Object(Equivalent, "JSystem/J3D/J3DGraphAnimator/J3DJoint.cpp"),
-            Object(NonMatching, "JSystem/J3D/J3DGraphAnimator/J3DModel.cpp"),
+            Object(Equivalent, "JSystem/J3D/J3DGraphAnimator/J3DModel.cpp"),
             Object(Matching, "JSystem/J3D/J3DGraphAnimator/J3DNode.cpp"),
             Object(Matching, "JSystem/J3D/J3DGraphAnimator/J3DAnimation.cpp"),
             Object(Matching, "JSystem/J3D/J3DGraphAnimator/J3DMaterialAnm.cpp"),
