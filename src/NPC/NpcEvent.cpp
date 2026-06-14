@@ -1,3 +1,4 @@
+#define TSPINEBASE_GETLATESTNERVE_OUT_OF_LINE
 #include <NPC/NpcEvent.hpp>
 #include <stdio.h>
 #include <MSound/MSoundBGM.hpp>
@@ -42,6 +43,16 @@ static void evCheckCurNerve4Npc(TSpcTypedInterp<TEventWatcher>* interp,
 		match = TRUE;
 	interp->push(TSpcSlice((int)match));
 }
+
+#pragma dont_inline on
+template <>
+TNerveBase<TLiveActor>* TSpineBase<TLiveActor>::getLatestNerve() const
+{
+	if (mCurrent)
+		return mCurrent;
+	return mPrevious;
+}
+#pragma dont_inline off
 
 static void evCheckLatestNerve4Npc(TSpcTypedInterp<TEventWatcher>* interp,
                                    u32 arg_num)

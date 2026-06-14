@@ -31,12 +31,16 @@ public:
 	{
 	}
 
+#ifdef TSPINEBASE_GETLATESTNERVE_OUT_OF_LINE
+	TNerveBase<T>* getLatestNerve() const;
+#else
 	TNerveBase<T>* getLatestNerve() const
 	{
 		if (mCurrent)
 			return mCurrent;
 		return mPrevious;
 	}
+#endif
 
 	Nerve peekTopNerveOrNull() const
 	{
