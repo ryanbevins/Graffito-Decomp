@@ -36,6 +36,30 @@ them in future ticks.
 
 ## Settled
 
+### Owner-only declaration split can emit one target weak body while preserving non-owner inline bodies
+
+**Rule.** For a tiny in-class method whose target object owns one weak
+out-of-line body, keep the normal in-class body for ordinary TUs, but let only
+the owner TU see a declaration via a narrow macro and define the method
+out-of-line in that source file at the target symbol-order position. Wrap the
+owner definition in `#pragma dont_inline` when same-TU call sites must stay as
+`bl` calls. Non-owner TUs continue seeing the inline body, so they do not gain
+target-absent weak owners. This is an owner-routing mechanism: verify the target
+owner in `symbols.txt`, place the source definition for `-inline deferred`
+order, and prove source-linking.
+
+**Citations.**
+- `mario/MoveBG/MapObjRicco` (2026-06-14 MNL):
+  `TLiveActor::getMActor() const` (8B) was missing for source-linked
+  `MapObjMamma`/`MapObjMare`; `LIVEACTOR_GETMACTOR_OUT_OF_LINE` plus a
+  `dont_inline` owner body in target order emitted a 100% weak owner and made
+  `python configure.py --non-matching && ninja` link.
+- `mario/Enemy/BossHanachanSub` (2026-06-14 MNL):
+  `TBGCheckData::isIllegalData() const` (28B) was a missing target weak body.
+  `TBGCHECKDATA_ISILLEGAL_OUT_OF_LINE` plus a `dont_inline` owner body between
+  `TSphereLink` ctor and `moveHead()` emitted a 100% helper in target order;
+  source-link and normal DOL builds passed.
+
 ### Inline-result materialization charges +8 stack bytes per nested layer (lever for inline stack inflation)
 
 **Rule:** in MWCC 1.2.5, when an inline function's *return value is materialized
@@ -5766,35 +5790,6 @@ for predicate functions.
   rather than `if (...) return true; ... return false;`.
 
 ## Hypotheses under investigation
-
-### Owner-only declaration split can emit a single weak accessor body while preserving other TUs' inline body
-
-**Hypothesis.** For a tiny in-class accessor whose target has exactly one weak
-owner, keep the normal in-class body for all ordinary TUs, but let the owner TU
-see only a declaration via a narrow macro and define the member out-of-line in
-the owner source at the symbol-order position. Wrapping that owner definition
-in `#pragma dont_inline` prevents the owner call site from inlining, while
-other TUs still include the header body and keep their existing inline/call
-shape. This is an owner-routing mechanism, not a general symbol shim: the owner
-TU must be the target owner in `symbols.txt`, and the source definition must be
-placed so `-inline deferred` emits it in target order.
-
-**Observed in `MoveBG/MapObjRicco` (2026-06-14 MNL).** Target
-`MapObjRicco.o` owns weak `TLiveActor::getMActor() const` (8B:
-`lwz r3, 0x74(r3); blr`) between `TFruitLauncher::fireObj` and
-`TFruitSwitch::receiveMessage`. Defining
-`LIVEACTOR_GETMACTOR_OUT_OF_LINE` before including `MapObjRicco.hpp`, changing
-`LiveActor.hpp` to declare instead of define the accessor under that macro,
-and placing a `#pragma dont_inline` out-of-line body between
-`receiveMessage` and `fireObj` made the rebuilt Ricco object emit a 100% weak
-owner and made `python configure.py --non-matching && ninja` link past the old
-`MapObjMamma.o`/`MapObjMare.o` undefined references.
-
-**Experiment to confirm/refute.** Apply the same owner-only declaration split
-to another target-owned weak accessor with source-linked undefined references
-or a missing 8-16B weak owner. Confirm that the owner TU emits the body in
-target order, non-owner TUs do not gain target-absent weak bodies, and the
-`--non-matching` link proof passes without broad `dont_inline` fallout.
 
 ### First out-of-line virtual body controls vtable home; earlier inline virtuals keep slot order without becoming the home
 

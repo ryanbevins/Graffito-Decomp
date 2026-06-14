@@ -75,10 +75,14 @@ public:
 	TBGCheckData();
 
 	const JGeometry::TVec3<f32>& getNormal() const { return mNormal; }
+#ifdef TBGCHECKDATA_ISILLEGAL_OUT_OF_LINE
+	bool isIllegalData() const;
+#else
 	bool isIllegalData() const
 	{
 		return mFlags & BG_CHECK_FLAG_ILLEGAL ? true : false;
 	}
+#endif
 	f32 getActiveJumpPower() const;
 	u32 getPlaneType();
 	void setVertex(const JGeometry::TVec3<f32>& point1,

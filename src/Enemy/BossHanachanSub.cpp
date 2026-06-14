@@ -1,3 +1,4 @@
+#define TBGCHECKDATA_ISILLEGAL_OUT_OF_LINE
 #include <Enemy/BossHanachanSub.hpp>
 
 #include <Camera/cameralib.hpp>
@@ -143,6 +144,13 @@ TSphereLink::TSphereLink(u16 count, const JGeometry::TVec3<f32>& pos,
 		sp.mDegree       = 0.0f;
 	}
 }
+
+#pragma dont_inline on
+bool TBGCheckData::isIllegalData() const
+{
+	return mFlags & BG_CHECK_FLAG_ILLEGAL ? true : false;
+}
+#pragma dont_inline off
 
 void TSphereLink::moveHead(const JGeometry::TVec3<f32>& head)
 {
