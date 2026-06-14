@@ -117,12 +117,12 @@ shape for saved-FPR lifetime cases.
   later `fmr f2, f0` into the target immediate `fmr f2, f1`, moving
   `95.4 -> 96.5`.
 
-### Returning a polar `TVec3` from a tiny inline helper can preserve the local `TVec3<f32>::set<f32>` owner
+### Returning a `TVec3` from a tiny inline helper can preserve the local `TVec3<f32>::set<f32>` owner
 
-**Rule.** When target asm computes X/Z polar components, passes a stack
+**Rule.** When target asm computes a three-float vector, passes a stack
 destination in `r3`, and calls the TU-local
 `JGeometry::TVec3<float>::set<float>(float, float, float)`, spelling the
-source as a small inline helper that returns `TVec3(s, 0.0f, c)` can keep the
+source as a small inline helper that returns a constructed `TVec3` can keep the
 member-template `set` call boundary. Direct caller-side
 `TVec3 tmp; tmp.set(s, 0.0f, c);` and direct local construction may inline the
 three stores and leave the 16-byte local helper missing. Keep the helper
@@ -142,6 +142,10 @@ not a reason to force weak emission globally.
 - `mario/Enemy/fireWanwan`: the existing `fromPolar(f32, f32)` helper uses the
   same return-by-value construction shape and owns a byte-exact local
   `TVec3<float>::set<float>` helper.
+- `mario/Enemy/Kazekun` `TNerveKazekunAttack::execute` (2026-06-14 MNL):
+  routing the up vector and `getYDir` vector through tiny return-by-value
+  helpers emitted the target-local 16B `TVec3<float>::set<float>` owner. The
+  direct constructor / `getYDir(axis)` spelling left that helper missing.
 
 ### `TPosition3f::translation` can preserve an out-of-line `identity33` call where direct identity setup inlines
 

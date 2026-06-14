@@ -32,6 +32,16 @@ const char* Kazekun_bastable[] = {
 	"/scene/Kazekun/bas/kazekun_wait.bas",
 };
 
+static inline JGeometry::TVec3<f32> makeVec3(f32 x, f32 y, f32 z)
+{
+	return JGeometry::TVec3<f32>(x, y, z);
+}
+
+static inline JGeometry::TVec3<f32> getYDirVec(const TPosition3f& mtx)
+{
+	return JGeometry::TVec3<f32>(mtx.at(0, 1), mtx.at(1, 1), mtx.at(2, 1));
+}
+
 // ============= nerves =============
 
 DEFINE_NERVE(TNerveKazekunHitWater, TLiveActor)
@@ -212,13 +222,12 @@ DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 	}
 
 	TPosition3f mtx;
-	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+	JGeometry::TVec3<f32> up = makeVec3(0.0f, 1.0f, 0.0f);
 	SMS_CalcToDirMatrix(mtx, self->mVelocity, up);
 
 	JGeometry::TQuat4<f32> aim;
 	mtx.getQuat(aim);
-	JGeometry::TVec3<f32> axis;
-	mtx.getYDir(axis);
+	JGeometry::TVec3<f32> axis = getYDirVec(mtx);
 	JGeometry::TQuat4<f32> rot;
 	rot.setRotate(axis, 0.0f);
 	aim.mul(rot, aim);
