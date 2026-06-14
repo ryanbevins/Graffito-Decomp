@@ -1404,12 +1404,12 @@ s8 TCardLoad::waitForAnyKeyBM(TEProgress param_1)
 				} else {
 					unk500->show();
 					unk510->hide();
-					unk514[0]->changeTexture(unkC8[score / 100]->getTexInfo(),
+					unk504[0]->changeTexture(unkC8[score / 100]->getTexInfo(),
 					                         0);
 					score -= int(score * 0.01f) * 100;
 					unk504[1]->changeTexture(unkC8[score / 10]->getTexInfo(),
 					                         0);
-					unk514[2]->changeTexture(unkC8[score % 10]->getTexInfo(),
+					unk504[2]->changeTexture(unkC8[score % 10]->getTexInfo(),
 					                         0);
 				}
 			}
@@ -1473,7 +1473,7 @@ s8 TCardLoad::waitForStart(TEProgress param_1)
 		unk564->hide();
 		if (unk1C == 12 || unk1C == 13) {
 			unk54C->getPane()->show();
-			unk568->setCenteredSize(20, unk550.getWidth(), unk550.getHeight(),
+			unk54C->setCenteredSize(20, unk550.getWidth(), unk550.getHeight(),
 			                        0, 0);
 		}
 		unk10 = 1;
