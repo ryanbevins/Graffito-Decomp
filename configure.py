@@ -845,7 +845,7 @@ config.libs = [
             Object(Equivalent, "System/MenuDir.cpp"),
             Object(Matching, "System/Params.cpp"),
             Object(Matching, "System/ParamInst.cpp"),
-            Object(NonMatching, "System/PerformList.cpp"),
+            Object(Equivalent, "System/PerformList.cpp"),
             Object(Equivalent, "System/RenderModeObj.cpp"),
             Object(Equivalent, "System/SnapTimeObj.cpp"),
             Object(Equivalent, "System/TalkCursor.cpp"),
