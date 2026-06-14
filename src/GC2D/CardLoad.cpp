@@ -1,4 +1,6 @@
+#define JSUINPUTSTREAM_CTOR_OUT_OF_LINE
 #include <GC2D/CardLoad.hpp>
+#undef JSUINPUTSTREAM_CTOR_OUT_OF_LINE
 #include <stdio.h>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
@@ -484,6 +486,10 @@ void TCardLoad::loadAfter()
 	unk284 = JDrama::TNameRefGen::search<TMapObjOptionWall>("オプション用壁");
 }
 
+#pragma dont_inline on
+JSUInputStream::JSUInputStream() { }
+#pragma dont_inline off
+
 void TCardLoad::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (param_1 & 1) {
@@ -781,7 +787,7 @@ void TCardLoad::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 bool TCardLoad::titleDraw()
 {
-	switch (unk18) {
+	switch ((u32)unk18) {
 	case 0:
 		unk18 = 1;
 		break;
@@ -861,7 +867,7 @@ bool TCardLoad::titleDraw()
 	} break;
 
 	case 4: {
-		for (int i = 0; i < 13; ++i) {
+		for (int i = 0; i < 11; ++i) {
 			switch (unk222[i]) {
 			case 0:
 				if (unkF8[i]->update()) {
@@ -875,7 +881,7 @@ bool TCardLoad::titleDraw()
 				if (unk20C[i] > 500) {
 					JUTRect bounds = unkF8[i]->getPane()->getBounds();
 					unkF8[i]->setPaneAlpha(25, 0, 255);
-					unk222[i] = 3;
+					unk222[i] = 2;
 				}
 				break;
 
@@ -922,7 +928,7 @@ bool TCardLoad::titleDraw()
 		break;
 	}
 
-	return unk18 - 5;
+	return (u32)unk18 > 4;
 }
 
 void TCardLoad::makeBuffer(J2DTextBox* text_box, int size)

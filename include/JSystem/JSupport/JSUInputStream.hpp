@@ -6,6 +6,12 @@
 
 class JSUInputStream : public JSUIosBase {
 public:
+#ifdef JSUINPUTSTREAM_CTOR_OUT_OF_LINE
+	JSUInputStream();
+#else
+	JSUInputStream() { }
+#endif
+
 	virtual ~JSUInputStream();
 	virtual int getAvailable() const = 0;
 	virtual int skip(s32 amount);
