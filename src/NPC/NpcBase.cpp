@@ -236,14 +236,15 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (drewWithAnim)
 		flags &= ~2;
 
-	if (flags & 4) {
-		mLiveFlag &= ~0x80;
+	if (flags & 0x200) {
+		mLiveFlag &= ~0x1000000;
 		JGeometry::TVec3<f32> diff;
 		diff.x = mPosition.x - gpCamera->unk124.x;
 		diff.y = mPosition.y - gpCamera->unk124.y;
 		diff.z = mPosition.z - gpCamera->unk124.z;
 		f32 distSq    = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-		f32 distSqMax = CLBSquared<f32>(mNpcSaveIndividual->mLodChangeDist.value);
+		f32 distSqMax
+		    = CLBSquared<f32>(mNpcSaveIndividual->mAllDLLockDist.value);
 		if (distSq > distSqMax) {
 			bool isSunflower = false;
 			if ((s32)mActorType < 0x0400001C
