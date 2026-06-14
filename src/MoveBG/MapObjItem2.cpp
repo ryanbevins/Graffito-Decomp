@@ -139,8 +139,11 @@ void TMushroom1up::control()
 			mLinearVelocity.z = 0.0f;
 			return;
 		}
-		if (mState == 0 && !isAirborne())
+		if (mState == 0) {
+			if (isAirborne())
+				return;
 			mState = 1;
+		}
 	}
 	JGeometry::TVec3<f32> diff;
 	diff.x = gpMarioPos->x - mPosition.x;
@@ -355,8 +358,8 @@ void TJumpBase::control()
 			mMActor->setBck("jumpbase_set");
 			J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
 			if (fc) {
-				fc->setFrame(0.0f);
-				fc->setRate(SMSGetAnmFrameRate());
+				fc->setFrame((f32)fc->getEnd());
+				fc->setRate(0.0f);
 			}
 		}
 		break;
