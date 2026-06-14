@@ -40,6 +40,11 @@ static char* tori_bastable[] = {
 	(char*)"/scene/tori/bas/tori_fall_end.bas",
 };
 
+static inline JGeometry::TVec3<f32> makeForwardVec(f32 speed)
+{
+	return JGeometry::TVec3<f32>(0.0f, 0.0f, speed);
+}
+
 DEFINE_NERVE(TNerveKukkuFall, TLiveActor)
 {
 	TKukku* self = (TKukku*)spine->getBody();
@@ -207,7 +212,8 @@ DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor)
 
 	self->updateRotation();
 	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(self->mRotation);
-	JGeometry::TVec3<f32> fwd(0.0f, 0.0f, self->getSaveParam2()->mMarchSpeed.get());
+	JGeometry::TVec3<f32> fwd
+	    = makeForwardVec(self->getSaveParam2()->mMarchSpeed.get());
 	q.rotate(fwd, fwd);
 	self->mLinearVelocity = fwd;
 	return FALSE;
