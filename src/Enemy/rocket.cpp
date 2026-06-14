@@ -168,7 +168,7 @@ DEFINE_NERVE(TNerveRocketPossessedNozzle, TLiveActor)
 	}
 
 	if (firePressed)
-		spine->pushNerve(&TNerveRocketFly::theNerve());
+		spine->pushAfterCurrent(&TNerveRocketFly::theNerve());
 
 	return firePressed ? TRUE : FALSE;
 }
