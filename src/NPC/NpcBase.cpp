@@ -663,15 +663,24 @@ BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 		return FALSE;
 
 	if (unk1E4 == 0) {
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
+		JGeometry::TVec3<f32> scale;
+		scale.x = 1.0f;
+		scale.y = 1.0f;
+		scale.z = 1.0f;
 		SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xA,
 		                     (const JGeometry::TVec3<f32>*)&sender->mPosition,
 		                     nullptr, scale);
-		JGeometry::TVec3<f32> scale2(1.0f, 1.0f, 1.0f);
+		JGeometry::TVec3<f32> scale2;
+		scale2.x = 1.0f;
+		scale2.y = 1.0f;
+		scale2.z = 1.0f;
 		SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xB,
 		                     (const JGeometry::TVec3<f32>*)&sender->mPosition,
 		                     nullptr, scale2);
-		JGeometry::TVec3<f32> scale3(1.0f, 1.0f, 1.0f);
+		JGeometry::TVec3<f32> scale3;
+		scale3.x = 1.0f;
+		scale3.y = 1.0f;
+		scale3.z = 1.0f;
 		SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xC,
 		                     (const JGeometry::TVec3<f32>*)&sender->mPosition,
 		                     nullptr, scale3);
