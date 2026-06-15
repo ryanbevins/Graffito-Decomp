@@ -13,6 +13,17 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
+static const char cDirtyFileName[]          = "/scene/map/pollution/H_ma_rak.bti";
+static const char cDirtyTexName[]           = "H_ma_rak_dummy";
+static const char* MtxCalcTypeName[] = {
+	"MActorMtxCalcType_Basic クラシックスケールＯＮ",
+	"MActorMtxCalcType_Softimage クラシックスケールＯＦＦ",
+	"MActorMtxCalcType_MotionBlend モーションブレンド",
+	"MActorMtxCalcType_User ユーザー定義",
+};
+
 static const u32 cParticleIDs[] = { 0x50, 0x126, 0x12B };
 
 static const u32 warpInEffectIDs[] = {
@@ -316,7 +327,7 @@ void TWarpInCallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* particle
 	f32 x           = particle->unk14.x;
 	f32 y           = particle->unk14.y;
 	f32 z           = particle->unk14.z;
-	f32 randomScale = 1.0f + (((u32)particle >> 2) & 0x3F) * 0.0625f;
+	f32 randomScale = 1.0f + (s32)(((u32)particle >> 2) & 0x3F) * 0.0625f;
 	f32 marioScale  = mario->unk468;
 
 	JGeometry::TVec3<f32> dir
