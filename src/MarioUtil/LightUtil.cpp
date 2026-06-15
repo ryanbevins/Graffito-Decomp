@@ -145,7 +145,7 @@ void TLightCommon::setLight(const JDrama::TGraphics* graphics, int index)
 
 	TLightWithDBSetManager* manager = gpLightManager;
 	if (manager->unk54 && manager->unk55) {
-		PSMTXMultVec(viewMtx, &manager->unk48, &pos);
+		PSMTXMultVec(viewMtx, &manager->unk1C, &pos);
 		GXInitLightPos(&light, pos.x, pos.y, pos.z);
 		GXColor color = manager->unk18;
 		color.a = (u8)(color.a * manager->unk28);
@@ -216,7 +216,7 @@ void TLightMario::setLight(const JDrama::TGraphics* graphics, int index)
 
 	TLightWithDBSetManager* manager = gpLightManager;
 	if (manager->unk54 && manager->unk55) {
-		PSMTXMultVec(viewMtx, &manager->unk48, &pos);
+		PSMTXMultVec(viewMtx, &manager->unk1C, &pos);
 		GXInitLightPos(&light, pos.x, pos.y, pos.z);
 		GXColor color = manager->unk18;
 		color.a = (u8)(color.a * manager->unk28);
