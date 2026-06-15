@@ -5,9 +5,9 @@
 #include <JSystem/JSupport/JSUMemoryOutputStream.hpp>
 #include <System/FlagManager.hpp>
 
-f32 dummy[]  = { 1.0f, 1.0f, 1.0f };
-f32 dummy2[] = { 1.0f, 1.0f, 1.0f };
-u32 dummy3[] = { 0, 2, 1, 3 };
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
 
 static u8 sDetach[2];
 const char CardFileName[0x20] = "super_mario_sunshine\0\0\0\0\0\0\0\0\0\0\0";
@@ -55,7 +55,6 @@ void TCardSector::setCheckSum(u32 write_count)
 	mCheckSum = (top << 16) | bottom & 0xffff;
 }
 
-// TODO: incorrect
 s32 TCardSector::read(CARDFileInfo* file, s32 index,
                       TCardManager::TCriteria* criteria)
 {
@@ -94,7 +93,6 @@ void TCardManager::TCriteria::setEmpty()
 	}
 }
 
-// TODO: incorrect
 #pragma dont_inline on
 s32 TCardManager::decideUseSector(TCardManager::TCriteria* criteria)
 {
@@ -118,9 +116,6 @@ s32 TCardManager::decideUseSector(TCardManager::TCriteria* criteria)
 	return idx;
 }
 #pragma dont_inline off
-
-// TODO: what is this?
-s32 TCardManager::getLoadIndex(TCardManager::TCriteria* criteria) { }
 
 s32 TCardManager::getWriteCount(TCardManager::TCriteria* criteria)
 {
@@ -706,7 +701,6 @@ s32 TCardManager::writeOptionBlock_()
 	return result;
 }
 
-// TODO: incorrect
 s32 TCardManager::writeCardSector_(CARDFileInfo* file, s32 index,
                                    TCardSector* sector,
                                    TCardManager::TCriteria* criteria)
