@@ -252,12 +252,16 @@ public:
 		z = b.z * scale;
 	}
 
+#ifdef JGEOMETRY_MAPMIRROR_TVEC3_SCALEADD_OUT_OF_LINE
+	void scaleAdd(f32 scale, const TVec3& b, const TVec3& c);
+#else
 	void scaleAdd(f32 scale, const TVec3& b, const TVec3& c)
 	{
 		x = b.x + c.x * scale;
 		y = b.y + c.y * scale;
 		z = b.z + c.z * scale;
 	}
+#endif
 
 	// === length stuff ===
 

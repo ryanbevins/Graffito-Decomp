@@ -1,3 +1,4 @@
+#define JGEOMETRY_MAPMIRROR_TVEC3_SCALEADD_OUT_OF_LINE
 #include <Map/MapMirror.hpp>
 #include <Map/MapData.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -11,6 +12,8 @@
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+
+#undef JGEOMETRY_MAPMIRROR_TVEC3_SCALEADD_OUT_OF_LINE
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -258,6 +261,18 @@ bool TMirrorModelManager::isInMirror(JGeometry::TVec3<f32>& param_1) const
 	           : false;
 }
 
+#pragma dont_inline on
+namespace JGeometry {
+void TVec3<f32>::scaleAdd(f32 scale, const TVec3<f32>& b,
+                          const TVec3<f32>& c)
+{
+	x = b.x * scale + c.x;
+	y = b.y * scale + c.y;
+	z = b.z * scale + c.z;
+}
+}
+#pragma dont_inline off
+
 void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (param_1 & 1) {
@@ -313,15 +328,15 @@ void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 			f32 scale
 			    = (normal.dot(gpCamera->unk124) - planeDistance) * -2.0f;
-			camera->unk98.scaleAdd(scale, gpCamera->unk124, normal);
+			camera->unk98.scaleAdd(scale, normal, gpCamera->unk124);
 
 			JGeometry::TVec3<f32> target;
 			scale = (normal.dot(gpCamera->unk148) - planeDistance) * -2.0f;
-			target.scaleAdd(scale, gpCamera->unk148, normal);
+			target.scaleAdd(scale, normal, gpCamera->unk148);
 
 			JGeometry::TVec3<f32> up;
 			scale = (normal.dot(gpCamera->mUp) - planeDistance) * -2.0f;
-			up.scaleAdd(scale, gpCamera->mUp, normal);
+			up.scaleAdd(scale, normal, gpCamera->mUp);
 
 			C_MTXLookAt(camera->unk30, &camera->unk98, &up, &target);
 
