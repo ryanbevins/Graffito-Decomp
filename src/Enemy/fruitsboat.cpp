@@ -6,6 +6,7 @@
 #include <Map/MapCollisionManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorData.hpp>
 #include <MoveBG/MapObjWave.hpp>
@@ -24,6 +25,19 @@
 // rogue includes needed for matching sinit
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
+static inline JGeometry::TVec3<f32> makeVec3(f32 x, f32 y, f32 z)
+{
+	return JGeometry::TVec3<f32>(x, y, z);
+}
+
+static const f32 dummy2333[3] = { 0.0f, 0.0f, 0.0f };
+static const f32 dummy2335[3] = { 1.0f, 1.0f, 1.0f };
 
 DEFINE_NERVE(TNerveFruitsBoatBckTrace, TLiveActor)
 {
@@ -107,7 +121,7 @@ DEFINE_NERVE(TNerveFruitsBoatGraphWander, TLiveActor)
 			self->mRotation.y = r.x;
 
 			if (saved < 0.0f) {
-				f32 w = MsWrap<f32>(self->mRotation.y + 180.0f, 0.0f,
+				f32 w = callMsWrap(self->mRotation.y + 180.0f, 0.0f,
 				                    360.0f);
 				self->mRotation.y = w;
 			}
@@ -147,7 +161,7 @@ DEFINE_NERVE(TNerveFruitsBoatGraphWander, TLiveActor)
 			self->mRotation.y = r.x;
 
 			if (saved < 0.0f) {
-				f32 w = MsWrap<f32>(self->mRotation.y + 180.0f, 0.0f,
+				f32 w = callMsWrap(self->mRotation.y + 180.0f, 0.0f,
 				                    360.0f);
 				self->mRotation.y = w;
 			}
@@ -186,36 +200,39 @@ void TFruitsBoatManager::load(JSUMemoryInputStream& stream)
 
 void TFruitsBoatManager::createModelData()
 {
-	static const TModelDataLoadEntry entry0[] = {
-		{ "ShipDolpic.bmd", 0x10210000, 0 },
-		{ nullptr, 0, 0 },
-	};
-	static const TModelDataLoadEntry entry1[] = {
-		{ "ShipDolpic2.bmd", 0x10210000, 0 },
-		{ nullptr, 0, 0 },
-	};
-	static const TModelDataLoadEntry entry2[] = {
-		{ "ShipDolpic3.bmd", 0x10210000, 0 },
-		{ nullptr, 0, 0 },
-	};
-	static const TModelDataLoadEntry entry3[] = {
-		{ "ShipDolpic4.bmd", 0x10210000, 0 },
-		{ nullptr, 0, 0 },
-	};
-
 	switch (mBoatId) {
-	case 0:
-		createModelDataArray(entry0);
+	case 0: {
+		static const TModelDataLoadEntry entry[] = {
+			{ "ShipDolpic.bmd", 0x10210000, 0 },
+			{ nullptr, 0, 0 },
+		};
+		createModelDataArray(entry);
 		break;
-	case 1:
-		createModelDataArray(entry1);
+	}
+	case 1: {
+		static const TModelDataLoadEntry entry[] = {
+			{ "ShipDolpic2.bmd", 0x10210000, 0 },
+			{ nullptr, 0, 0 },
+		};
+		createModelDataArray(entry);
 		break;
-	case 2:
-		createModelDataArray(entry2);
+	}
+	case 2: {
+		static const TModelDataLoadEntry entry[] = {
+			{ "ShipDolpic3.bmd", 0x10210000, 0 },
+			{ nullptr, 0, 0 },
+		};
+		createModelDataArray(entry);
 		break;
-	default:
-		createModelDataArray(entry3);
+	}
+	default: {
+		static const TModelDataLoadEntry entry[] = {
+			{ "ShipDolpic4.bmd", 0x10210000, 0 },
+			{ nullptr, 0, 0 },
+		};
+		createModelDataArray(entry);
 		break;
+	}
 	}
 }
 
@@ -496,8 +513,8 @@ void TFruitsBoat::moveObject()
 	// 1) Tilt from wave heights at two probe points along the boat's yaw.
 	JGeometry::TVec3<f32> dirVec;
 	f32 yawShort = mRotation.y * 182.04445f;
-	dirVec.set(JMASSin((s16)(s32)yawShort) * 300.0f, 0.0f,
-	           JMASCos((s16)(s32)yawShort) * 300.0f);
+	dirVec = makeVec3(JMASSin((s16)(s32)yawShort) * 300.0f, 0.0f,
+	                  JMASCos((s16)(s32)yawShort) * 300.0f);
 
 	JGeometry::TVec3<f32> dirCopy = dirVec;
 	(void)dirCopy;
@@ -519,8 +536,8 @@ void TFruitsBoat::moveObject()
 	JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(delta);
 
 	f32 rotXDeg = rot.x * 0.005493164f;
-	f32 wrapped = MsWrap<f32>(rotXDeg, mRotation.x - 180.0f,
-	                          mRotation.x + 180.0f);
+	f32 wrapped = callMsWrap(rotXDeg, mRotation.x - 180.0f,
+	                         mRotation.x + 180.0f);
 	f32 diffAng = wrapped - mRotation.x;
 	f32 clamped;
 	if (diffAng > 1.0f)
@@ -661,7 +678,7 @@ void TFruitsBoat::moveObject()
 
 	// 3) Sway integration (pendulum)
 	f32 sinShort = JMASSin((s16)(s32)(mSwayAngle * 182.04445f));
-	mSwayVel     = 0.0003f * -sinShort + mSwayVel;
+	mSwayVel     = 0.01f * -sinShort + mSwayVel;
 	mSwayAngle += mSwayVel;
 	if (mSwayAngle < -10.0f || mSwayAngle > 10.0f)
 		mSwayVel = -mSwayVel;
