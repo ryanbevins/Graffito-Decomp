@@ -1,4 +1,6 @@
+#define JGEOMETRY_MARIOCOLLISION_TVEC3_MUL_ASSIGN_OUT_OF_LINE
 #include <Player/MarioMain.hpp>
+#undef JGEOMETRY_MARIOCOLLISION_TVEC3_MUL_ASSIGN_OUT_OF_LINE
 #include <MSound/MSoundBGM.hpp>
 
 #include <MarioUtil/RumbleMgr.hpp>
@@ -278,6 +280,14 @@ void TMario::calcDamagePos(const JGeometry::TVec3<f32>& pos)
 	unk19C = mPosition + offset * 50.0f;
 }
 
+#pragma dont_inline on
+JGeometry::TVec3<f32>& JGeometry::TVec3<f32>::operator*=(f32 other)
+{
+	scale(other);
+	return *this;
+}
+#pragma dont_inline off
+
 void TMario::damageExec(THitActor* hittingActor, int damage, int damageAnimType,
                         int waterEmit, f32 knockbackSpeed, int rumbleFrames,
                         f32 pollutionAmount, s16 invincibilityFrames)
@@ -344,7 +354,7 @@ void TMario::damageExec(THitActor* hittingActor, int damage, int damageAnimType,
 		}
 
 		if (checkActionFlag(0x2000)) {
-			canPlayAnimation = true;
+			canPlayAnimation = false;
 		}
 
 		if (canPlayAnimation) {

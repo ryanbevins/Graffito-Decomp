@@ -909,7 +909,7 @@ config.libs = [
             Object(Equivalent, "Player/MarioAutodemo.cpp"),
             Object(Equivalent, "Player/MarioBlend.cpp"),
             Object(Equivalent, "Player/MarioCap.cpp"),
-            Object(NonMatching, "Player/MarioCollision.cpp"),
+            Object(Equivalent, "Player/MarioCollision.cpp"),
             Object(NonMatching, "Player/MarioDraw.cpp"),
             Object(Equivalent, "Player/MarioJump.cpp"),
             Object(Equivalent, "Player/MarioMain.cpp"),

@@ -178,12 +178,16 @@ public:
 		mul(other);
 		return *this;
 	}
+#ifdef JGEOMETRY_MARIOCOLLISION_TVEC3_MUL_ASSIGN_OUT_OF_LINE
+	TVec3& operator*=(f32 other);
+#else
 	// @fabricated
 	TVec3& operator*=(f32 other)
 	{
 		scale(other);
 		return *this;
 	}
+#endif
 
 	// fabricated and fake and UB but it makes things match??
 	friend const TVec3& operator-(TVec3 fst, const TVec3& snd)
