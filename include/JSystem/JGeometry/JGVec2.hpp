@@ -62,11 +62,15 @@ template <typename T> struct TVec2 {
 		y += other.y;
 	}
 
+#ifdef JGEOMETRY_SELECTSHINE2_OWNER_HELPERS
+	void sub(const TVec2<T>& other);
+#else
 	void sub(const TVec2<T>& other)
 	{
 		x -= other.x;
 		y -= other.y;
 	}
+#endif
 
 	void scale(f32 scale)
 	{

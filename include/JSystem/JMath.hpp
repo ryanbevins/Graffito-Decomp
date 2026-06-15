@@ -68,6 +68,10 @@ extern u32 jmaSinShift;
 extern f32* jmaSinTable;
 extern f32* jmaCosTable;
 
+#ifdef JMATH_SELECTSHINE2_TRIG_OUT_OF_LINE
+f32 JMASCos(s16 v);
+f32 JMASSin(s16 v);
+#else
 inline f32 JMASCos(s16 v)
 {
 	return jmaCosTable[static_cast<u16>(v) >> jmaSinShift];
@@ -77,6 +81,7 @@ inline f32 JMASSin(s16 v)
 {
 	return jmaSinTable[static_cast<u16>(v) >> jmaSinShift];
 }
+#endif
 
 inline f32 JMACos(f32 v) { return JMASCos(DEG2SHORTANGLE(v)); }
 

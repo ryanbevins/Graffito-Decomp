@@ -1,3 +1,5 @@
+#define JGEOMETRY_SELECTSHINE2_OWNER_HELPERS
+#define JMATH_SELECTSHINE2_TRIG_OUT_OF_LINE
 #include <GC2D/SelectShine2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
@@ -15,10 +17,18 @@
 #include <dolphin/mtx.h>
 #include <stdlib.h>
 
+#undef JGEOMETRY_SELECTSHINE2_OWNER_HELPERS
+#undef JMATH_SELECTSHINE2_TRIG_OUT_OF_LINE
+
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
 JGeometry::TVec3<f32> TSelectShineManager::cCenter(300.0f, 160.0f, -9000.0f);
+
+static inline JGeometry::TVec3<f32> makeShinePos(f32 x, f32 y, f32 z)
+{
+	return JGeometry::TVec3<f32>(x, y, z);
+}
 
 TSelectShineManager::TSelectShineManager(const char* name)
     : JDrama::TViewObj(name)
@@ -68,7 +78,7 @@ void TSelectShineManager::initData(u8* shineTypes, u8 startIdx, u8 count,
 
 	J3DModelData* mdEmpty = J3DModelLoaderDataBase::load(bmdE, 0x51040000);
 	J3DAnmColor* anmEmpty = (J3DAnmColor*)J3DAnmLoaderDataBase::load(bpkE);
-	anmEmpty->searchUpdateMaterialID(mdShine);
+	anmEmpty->searchUpdateMaterialID(mdEmpty);
 
 	for (u16 i = 0; i < mdShine->getMaterialNum(); ++i) {
 		J3DMaterialAnm* anm = new J3DMaterialAnm;
@@ -84,12 +94,13 @@ void TSelectShineManager::initData(u8* shineTypes, u8 startIdx, u8 count,
 	u8* typePtr = shineTypes;
 	s32 offset  = 0;
 	for (int i = 0; i < 8; ++i) {
-		JGeometry::TVec3<f32> pos;
 		s16 angle = (s16)(unk9C + offset);
-		f32 cosA  = JMASCos(angle);
-		f32 sinA  = JMASSin(angle);
-		pos.set(9000.0f * sinA + cCenter.x, 1500.0f * cosA + cCenter.y,
-		        cCenter.z);
+		u16 tblIdx = static_cast<u16>(angle) >> jmaSinShift;
+		f32 cosA  = jmaCosTable[tblIdx];
+		f32 sinA  = jmaSinTable[tblIdx];
+		JGeometry::TVec3<f32> pos
+		    = makeShinePos(9000.0f * sinA + cCenter.x,
+		                   1500.0f * cosA + cCenter.y, cCenter.z);
 
 		JGeometry::TVec2<f32> diff;
 		diff.x = pos.x;
@@ -97,14 +108,15 @@ void TSelectShineManager::initData(u8* shineTypes, u8 startIdx, u8 count,
 		JGeometry::TVec2<f32> ref;
 		ref.x = 1300.0f;
 		ref.y = cCenter.y;
-		diff.sub(ref);
+		diff.x -= ref.x;
+		diff.y -= ref.y;
 
 		f32 a   = diff.x;
 		f32 b   = diff.y;
 		s16 yaw = (s16)(57.295776f
 		                * fabsf(atan2f(b * 0.0f - a * 1.0f,
 		                               a * 0.0f + b * 1.0f)));
-		if (pos.x > cCenter.z) {
+		if (pos.x > cCenter.x) {
 			yaw = -yaw;
 		}
 
@@ -200,6 +212,26 @@ void TSelectShineManager::startDecrease(int delta)
 	}
 }
 
+#pragma dont_inline on
+namespace JGeometry {
+template <> void TVec2<f32>::sub(const TVec2<f32>& other)
+{
+	x -= other.x;
+	y -= other.y;
+}
+}
+
+f32 JMASSin(s16 v)
+{
+	return jmaSinTable[static_cast<u16>(v) >> jmaSinShift];
+}
+
+f32 JMASCos(s16 v)
+{
+	return jmaCosTable[static_cast<u16>(v) >> jmaSinShift];
+}
+#pragma dont_inline off
+
 void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 {
 	if (flags & 1) {
@@ -227,12 +259,12 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 		}
 
 		for (int i = 0; i < mShineCount; ++i) {
-			JGeometry::TVec3<f32> tmp;
 			s16 angle = (s16)(unk9C + i * 40);
 			f32 cosA  = JMASCos(angle);
 			f32 sinA  = JMASSin(angle);
-			tmp.set(9000.0f * sinA + cCenter.x,
-			        1500.0f * cosA + cCenter.y, cCenter.z);
+			JGeometry::TVec3<f32> tmp
+			    = makeShinePos(9000.0f * sinA + cCenter.x,
+			                   1500.0f * cosA + cCenter.y, cCenter.z);
 
 			TSelectShine* shine = mShines[i];
 
@@ -253,7 +285,7 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 			s16 yaw = (s16)(57.295776f
 			                * fabsf(atan2f(b * 0.0f - a * 1.0f,
 			                               a * 0.0f + b * 1.0f)));
-			if (sum.x > cCenter.z) {
+			if (sum.x > cCenter.x) {
 				yaw = -yaw;
 			}
 

@@ -180,6 +180,11 @@ not a reason to force weak emission globally.
   routing the up vector and `getYDir` vector through tiny return-by-value
   helpers emitted the target-local 16B `TVec3<float>::set<float>` owner. The
   direct constructor / `getYDir(axis)` spelling left that helper missing.
+- `mario/GC2D/SelectShine2` `TSelectShineManager::initData` / `perform`
+  (2026-06-15 MNL): routing the carousel position construction through
+  `makeShinePos(x, y, z)` emitted the exact local 16B
+  `TVec3<float>::set<float>` owner and moved `perform` `63.2 -> 69.0` after
+  the trig/vector owner split.
 
 ### `TPosition3f::translation` can preserve an out-of-line `identity33` call where direct identity setup inlines
 
