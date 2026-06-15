@@ -630,7 +630,7 @@ s32 TCardManager::readOptionBlock_()
 	if (result == CARD_RESULT_READY) {
 		TCardSector* sector = (TCardSector*)mSector;
 
-		if (mSectorCriteria[0].mState == TCriteria::STATE_UNREAD) {
+		if (mSectorCriteria[0].mState == TCriteria::STATE_EMPTY) {
 			sector->clearData();
 			sector->setCheckSum(0);
 		} else {

@@ -867,7 +867,7 @@ config.libs = [
             Object(Equivalent, "System/MarNameRefGen_Map.cpp"),
             Object(NonMatching, "System/MarNameRefGen_MapObj.cpp"),
             Object(Equivalent, "System/MarNameRefGen_NPC.cpp"),
-            Object(NonMatching, "System/CardManager.cpp"),
+            Object(Equivalent, "System/CardManager.cpp"),
             Object(Equivalent, "System/MarDirectorLoadResource.cpp"),
             Object(Equivalent, "System/MovieDirector.cpp"),
             Object(Matching, "System/MarDirectorCreateObjects.cpp"),
