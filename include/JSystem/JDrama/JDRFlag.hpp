@@ -7,7 +7,8 @@ template <class T> class TFlagT {
 public:
 	TFlagT(T v = T());
 
-#ifdef JDRAMA_TFLAG_COPY_CTOR_OUT_OF_LINE
+#if defined(JDRAMA_TFLAG_COPY_CTOR_OUT_OF_LINE)                              \
+    || defined(JDRAMA_TFLAG_COPY_CTOR_DECL_ONLY)
 	TFlagT(const TFlagT<T>& other);
 #else
 	TFlagT(const TFlagT<T>& other)

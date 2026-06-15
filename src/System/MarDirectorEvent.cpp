@@ -1,3 +1,4 @@
+#define JDRAMA_TFLAG_COPY_CTOR_DECL_ONLY
 #include <System/MarDirector.hpp>
 #include <System/TalkCursor.hpp>
 #include <System/MarioGamePad.hpp>
@@ -20,6 +21,7 @@ const char* cCameraBckNameShineGetInside
 const char* cCameraBckNameShineGetOutside
     = "/common/camera/camera_demo_shine_get_outside";
 const char* cCameraBckNameGate = "/common/camera/camera_demo_gate_in";
+static const char* cNicoMamaName = "ニコママ";
 
 void TMarDirector::entryNPC(TBaseNPC* npc) { unk88.push_back(npc); }
 
@@ -168,7 +170,7 @@ void TMarDirector::movement()
 #pragma dont_inline on
 void TMarDirector::setNextStage(u16 param_1, JDrama::TActor* param_2)
 {
-	if (unk4C & 0x4)
+	if (unk4C & 0x2)
 		return;
 
 	JDrama::TFlagT<u16> flag(0);
