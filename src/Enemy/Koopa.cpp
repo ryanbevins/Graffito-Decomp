@@ -1,4 +1,7 @@
+#define MSL_STDFMODF_OUT_OF_LINE
+#define ENEMYMANAGER_GETSAVEPARAM_OUT_OF_LINE
 #include <Enemy/Koopa.hpp>
+#undef ENEMYMANAGER_GETSAVEPARAM_OUT_OF_LINE
 #include <Camera/CameraShake.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
@@ -25,6 +28,7 @@
 #include <Strategic/Spine.hpp>
 #include <Strategic/Strategy.hpp>
 #include <System/Particles.hpp>
+#undef MSL_STDFMODF_OUT_OF_LINE
 
 namespace std {
 float fmodf(float, float);
@@ -1360,6 +1364,10 @@ DEFINE_NERVE(TNerveKoopaProvoke, TLiveActor)
 		spine->setNext(&TNerveKoopaWait::theNerve());
 	return FALSE;
 }
+
+#pragma dont_inline on
+TSpineEnemyParams* TEnemyManager::getSaveParam() const { return unk38; }
+#pragma dont_inline off
 
 DEFINE_NERVE(TNerveKoopaFall, TLiveActor)
 {
