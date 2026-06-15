@@ -148,6 +148,7 @@ TFlyEnemyParams::TFlyEnemyParams(const char* path)
     , PARAM_INIT(mSLChaseDist, 2000.0f)
     , PARAM_INIT(mSLForceGravityY, 0.1f)
 {
+	TParams::load(mPrmPath);
 }
 
 TKillerParams::TKillerParams(const char* path)
@@ -156,6 +157,7 @@ TKillerParams::TKillerParams(const char* path)
     , PARAM_INIT(mSLChaseTimer, 1000)
     , PARAM_INIT(mSLBombRange, 300.0f)
 {
+	TParams::load(mPrmPath);
 }
 
 // ---------------------------------------------------------------------------
@@ -309,17 +311,26 @@ void TKiller::init(TLiveManager* manager)
 	mFlyParams       = p;
 	mActorType       = 0x1000001F;
 	unk150           = 0x11;
-	mKillerParams    = p;
+	mKillerParams    = (TKillerParams*)getSaveParam();
 
 	mSpine->initWith(&TNerveFlyEnemyNormalFly::theNerve());
 	onLiveFlag(0x400);
 	offLiveFlag(0x800);
 	onHitFlag(0x40000000);
 
-	J3DSkinDeform* deform = new J3DSkinDeform;
-	mMActor->getModel()->setSkinDeform(deform, J3D_DEFORM_ATTACH_FLAG_UNK_1);
+	J3DModel* model = mMActor->getModel();
+	if (model->getSkinDeform() == nullptr) {
+		J3DSkinDeform* deform = new J3DSkinDeform;
+		model->setSkinDeform(deform, J3D_DEFORM_ATTACH_FLAG_UNK_1);
+	}
 	mMActor->resetDL();
+	if (mInstanceIndex == 0) {
+		u8 i = 0;
+		while (i < getModel()->getModelData()->getJointNum())
+			i++;
+	}
 	mMActor->setJointCallback(1, &KillerBodyCallback);
+	unk188 = 0.0f;
 }
 
 void TKiller::reset()
@@ -593,6 +604,8 @@ void TKiller::attackToMario()
 		if (mSpine->getCurrentNerve() != &TNerveKillerExplosion::theNerve()) {
 			mSpine->pushNerve(&TNerveKillerExplosion::theNerve());
 			sendAttackMsgToMario();
+		} else {
+			SMS_SendMessageToMario(this, HIT_MESSAGE_UNKA);
 		}
 	}
 }
