@@ -36,34 +36,34 @@ static const char* bathtubkiller_bastable[] = {
 
 TBathtubKillerParams::TBathtubKillerParams(const char* prm)
     : TSmallEnemyParams(prm)
-    , PARAM_INIT(fastAccelerationQuatRate, 0.0f)
-    , PARAM_INIT(fastChaseAcceleration, 5.0f)
-    , PARAM_INIT(fastChaseSpeed, 40.0f)
-    , PARAM_INIT(fastInitialSpeed, 15.0f)
+    , PARAM_INIT(fastAccelerationQuatRate, 0.05f)
+    , PARAM_INIT(fastChaseAcceleration, 0.2f)
+    , PARAM_INIT(fastChaseSpeed, 15.0f)
+    , PARAM_INIT(fastInitialSpeed, 50.0f)
     , PARAM_INIT(fastDeadPeriod, 1800)
-    , PARAM_INIT(shineAccelerationQuatRate, 0.0f)
-    , PARAM_INIT(shineChaseAcceleration, 5.0f)
-    , PARAM_INIT(shineChaseSpeed, 40.0f)
-    , PARAM_INIT(shineInitialSpeed, 15.0f)
+    , PARAM_INIT(shineAccelerationQuatRate, 0.05f)
+    , PARAM_INIT(shineChaseAcceleration, 0.2f)
+    , PARAM_INIT(shineChaseSpeed, 15.0f)
+    , PARAM_INIT(shineInitialSpeed, 50.0f)
     , PARAM_INIT(shineDeadPeriod, 1800)
-    , PARAM_INIT(mushroomProbability, 0.0f)
-    , PARAM_INIT(mSLColorChangeRateDelta, 0.0f)
-    , PARAM_INIT(mSLAccelerationQuatRate, 0.0f)
-    , PARAM_INIT(mSLChaseAcceleration, 5.0f)
-    , PARAM_INIT(mSLChaseSpeed, 40.0f)
-    , PARAM_INIT(mSLInitialSpeed, 15.0f)
+    , PARAM_INIT(mushroomProbability, 0.05f)
+    , PARAM_INIT(mSLColorChangeRateDelta, 0.05f)
+    , PARAM_INIT(mSLAccelerationQuatRate, 0.05f)
+    , PARAM_INIT(mSLChaseAcceleration, 0.2f)
+    , PARAM_INIT(mSLChaseSpeed, 15.0f)
+    , PARAM_INIT(mSLInitialSpeed, 20.0f)
     , PARAM_INIT(mSLDeadPeriod, 1800)
-    , PARAM_INIT(mSLStraightDistance, 0.0f)
-    , PARAM_INIT(mSLChaseMinY, 0.0f)
-    , PARAM_INIT(mSLChaseMaxY, 0.0f)
-    , PARAM_INIT(mSLAboidDistanceY, 0.0f)
-    , PARAM_INIT(mSLAboidDistance, 0.0f)
-    , PARAM_INIT(mSLChaseDistanceY, 5.0f)
-    , PARAM_INIT(mSLChaseDistance, 5.0f)
-    , PARAM_INIT(mSLTrampleVelocity, 40.0f)
-    , PARAM_INIT(mSLFlyingSpeedMax, 0.0f)
-    , PARAM_INIT(mSLFlyingGravityY, 5.0f)
-    , PARAM_INIT(mSLBombRange, 1.0f)
+    , PARAM_INIT(mSLStraightDistance, 50.0f)
+    , PARAM_INIT(mSLChaseMinY, 50.0f)
+    , PARAM_INIT(mSLChaseMaxY, 100.0f)
+    , PARAM_INIT(mSLAboidDistanceY, 0.05f)
+    , PARAM_INIT(mSLAboidDistance, 500.0f)
+    , PARAM_INIT(mSLChaseDistanceY, 200.0f)
+    , PARAM_INIT(mSLChaseDistance, 1000.0f)
+    , PARAM_INIT(mSLTrampleVelocity, 100.0f)
+    , PARAM_INIT(mSLFlyingSpeedMax, 200.0f)
+    , PARAM_INIT(mSLFlyingGravityY, 0.1f)
+    , PARAM_INIT(mSLBombRange, 300.0f)
     , PARAM_INIT(aboidAngle, 10.0f)
     , PARAM_INIT(mSLChaseStraightPeriod, 360)
     , PARAM_INIT(mSLSmokeInterval, 3)
@@ -344,6 +344,11 @@ inline void TBathtubKiller::killBathtubKiller()
 	unk1E0 = unk1D8;
 }
 
+static inline JGeometry::TVec3<f32> makeZeroVelocity()
+{
+	return JGeometry::TVec3<f32>(0, 0, 0);
+}
+
 inline void TBathtubKiller::breakBathtubKiller()
 {
 	mMActor = mMActorKeeper->getMActor("bathtubdownkiller_model1.bmd");
@@ -357,7 +362,7 @@ inline void TBathtubKiller::breakBathtubKiller()
 	unk1BC.y = 0.0f;
 	unk1BC.z = 0.0f;
 
-	JGeometry::TVec3<f32> vel(0, 0, 0);
+	JGeometry::TVec3<f32> vel = makeZeroVelocity();
 	setVelocity(vel);
 
 	onLiveFlag(LIVE_FLAG_UNK8);
@@ -380,7 +385,7 @@ inline void TBathtubKiller::explodeBathtubKiller()
 	unk1BC.y = 0.0f;
 	unk1BC.z = 0.0f;
 
-	JGeometry::TVec3<f32> vel(0, 0, 0);
+	JGeometry::TVec3<f32> vel = makeZeroVelocity();
 	setVelocity(vel);
 
 	onLiveFlag(LIVE_FLAG_UNK8);
