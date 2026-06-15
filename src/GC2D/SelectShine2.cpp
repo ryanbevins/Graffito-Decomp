@@ -94,7 +94,7 @@ void TSelectShineManager::initData(u8* shineTypes, u8 startIdx, u8 count,
 	u8* typePtr = shineTypes;
 	s32 offset  = 0;
 	for (int i = 0; i < 8; ++i) {
-		s16 angle = (s16)(unk9C + offset);
+		s16 angle = (s16)(57.295776f * (f32)(s16)(unk9C + offset));
 		u16 tblIdx = static_cast<u16>(angle) >> jmaSinShift;
 		f32 cosA  = jmaCosTable[tblIdx];
 		f32 sinA  = jmaSinTable[tblIdx];
@@ -114,7 +114,7 @@ void TSelectShineManager::initData(u8* shineTypes, u8 startIdx, u8 count,
 		f32 a   = diff.x;
 		f32 b   = diff.y;
 		s16 yaw = (s16)(57.295776f
-		                * fabsf(atan2f(b * 0.0f - a * 1.0f,
+		                * fabsf(atan2f(a * 1.0f - b * 0.0f,
 		                               a * 0.0f + b * 1.0f)));
 		if (pos.x > cCenter.x) {
 			yaw = -yaw;
@@ -124,13 +124,15 @@ void TSelectShineManager::initData(u8* shineTypes, u8 startIdx, u8 count,
 		if (*typePtr == 3) {
 			shine = new TSelectShine(
 			    mdShine, anmShine, emitterMgr, pos, yaw, 0,
-			    (f32)((rand() - 0x8000) * 0.01f) * 4000.0f, 0.0f,
-			    (f32)(unk8C - i) / 1000.0f);
+			    (f32)(s32)((f32)rand() * (1.0f / 32768.0f) * 4000.0f)
+			        / 1000.0f,
+			    0.01f, 10.0f);
 		} else if ((u8)(*typePtr - 1) <= 1) {
 			shine = new TSelectShine(
 			    mdEmpty, anmEmpty, emitterMgr, pos, yaw, 1,
-			    (f32)((rand() - 0x8000) * 0.01f) * 4000.0f, 0.0f,
-			    (f32)(unk8C - i) / 1000.0f);
+			    (f32)(s32)((f32)rand() * (1.0f / 32768.0f) * 4000.0f)
+			        / 1000.0f,
+			    0.01f, 10.0f);
 		}
 		mShines[i] = shine;
 		typePtr++;
@@ -244,14 +246,14 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 			unk9C = (s32)((f32)unk9C + unkA0);
 			if (unkA4 != 0) {
 				s32 cap = unk8C * -40;
-				if (unk9C >= cap) {
+				if (unk9C < cap) {
 					unk9C = cap;
 					unkA4 = 0;
 				}
 			}
 			if (unkA5 != 0) {
 				s32 cap = unk8C * -40;
-				if (unk9C <= cap) {
+				if (unk9C > cap) {
 					unk9C = cap;
 					unkA5 = 0;
 				}
@@ -259,7 +261,7 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 		}
 
 		for (int i = 0; i < mShineCount; ++i) {
-			s16 angle = (s16)(unk9C + i * 40);
+			s16 angle = (s16)(57.295776f * (f32)(s16)(unk9C + i * 40));
 			f32 cosA  = JMASCos(angle);
 			f32 sinA  = JMASSin(angle);
 			JGeometry::TVec3<f32> tmp
@@ -283,7 +285,7 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 			f32 a   = diff.x;
 			f32 b   = diff.y;
 			s16 yaw = (s16)(57.295776f
-			                * fabsf(atan2f(b * 0.0f - a * 1.0f,
+			                * fabsf(atan2f(a * 1.0f - b * 0.0f,
 			                               a * 0.0f + b * 1.0f)));
 			if (sum.x > cCenter.x) {
 				yaw = -yaw;
@@ -309,7 +311,7 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 		}
 	}
 
-	if (flags & 4) {
+	if (flags & 8) {
 		PSMTXCopy(gfx->mViewMtx.mMtx, j3dSys.mViewMtx);
 		j3dSys.drawInit();
 		j3dSys.unk4C = 3;

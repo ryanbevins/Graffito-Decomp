@@ -1104,7 +1104,7 @@ config.libs = [
             Object(NonMatching, "GC2D/ConsoleStr.cpp"),
             Object(Equivalent, "GC2D/SelectMenu.cpp"),
             Object(Equivalent, "GC2D/SelectDir.cpp"),
-            Object(NonMatching, "GC2D/SelectShine2.cpp"),
+            Object(Equivalent, "GC2D/SelectShine2.cpp"),
             Object(Equivalent, "GC2D/BlendPane.cpp"),
             Object(Equivalent, "GC2D/Guide.cpp"),
             Object(Equivalent, "GC2D/SunGlass.cpp"),
