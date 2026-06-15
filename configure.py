@@ -1199,7 +1199,7 @@ config.libs = [
             Object(Equivalent, "Enemy/Kukku.cpp"),
             Object(Equivalent, "Enemy/Amenbo.cpp"),
             Object(Equivalent, "Enemy/BathtubPeach.cpp"),
-            Object(NonMatching, "Enemy/BathtubKiller.cpp"),
+            Object(Equivalent, "Enemy/BathtubKiller.cpp"),
             Object(Equivalent, "Enemy/coasterkiller.cpp"),
             Object(Equivalent, "Enemy/DebuTelesa.cpp"),
             Object(Equivalent, "Enemy/TabePuku.cpp"),
