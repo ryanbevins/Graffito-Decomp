@@ -171,18 +171,21 @@ BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
 			mState = 0xB;
 		}
 	}
-	if (TMapObjGeneral::receiveMessage(sender, message))
-		return 1;
-	if (message == 4 && (unkF8 & 0x100000)) {
+	BOOL result = 0;
+	if (TMapObjGeneral::receiveMessage(sender, message)) {
+		result = 1;
+	} else if (message == 4 && (unkF8 & 0x100000)) {
 		hold((TTakeActor*)sender);
-		return 1;
-	}
-	if (sender->isActorType(0x80000001) && !isActorType(0x400000D0)
-	    && message != 4) {
+		result = 1;
+	} else if (sender->isActorType(0x80000001) && !isActorType(0x400000D0)
+	           && message != 4) {
 		kicked();
-		return 1;
+		result = 1;
 	}
-	return 0;
+	if (message == 6 && isState(1)) {
+		mState = 0xB;
+	}
+	return result;
 }
 
 void TResetFruit::touchActor(THitActor* actor)
@@ -413,7 +416,8 @@ u32 TResetFruit::touchWater(THitActor* actor)
 {
 	if (!isState(6) && !isState(2)) {
 		JGeometry::TVec3<f32> vel    = mVelocity;
-		JGeometry::TVec3<f32>* speed = getWaterSpeed(actor);
+		JGeometry::TVec3<f32>* speed
+		    = ((TMapObjBase*)actor)->getWaterSpeed(actor);
 		f32 factor                   = unk17C;
 		vel.x                        = speed->x * factor + vel.x;
 		vel.y                        = speed->y * factor + vel.y;
@@ -725,7 +729,7 @@ u32 TMapObjBall::touchWater(THitActor* actor)
 	if (isState(6) || isState(2))
 		return 1;
 	JGeometry::TVec3<f32> v      = mVelocity;
-	JGeometry::TVec3<f32>* speed = getWaterSpeed(actor);
+	JGeometry::TVec3<f32>* speed = ((TMapObjBase*)actor)->getWaterSpeed(actor);
 	f32 factor                   = unk17C;
 	v.x                          = speed->x * factor + v.x;
 	v.y                          = speed->y * factor + v.y;
@@ -1029,7 +1033,7 @@ void TMapObjBall::calcCurrentMtx()
 
 			JGeometry::TVec3<f32> axis;
 			f32 dot = result.dot(result);
-			if (dot < 0.0000038146973f) {
+			if (dot <= 0.0000038146973f) {
 				axis.x = 0.0f;
 				axis.y = 0.0f;
 				axis.z = 0.0f;
@@ -1148,8 +1152,7 @@ void TMapObjBall::boundByActor(THitActor* actor)
 		JGeometry::TVec3<f32> vc  = mVelocity;
 		JGeometry::TVec3<f32> vc2 = vc;
 		if (vc2.y < 0.0f) {
-			if (mPosition.y + mBodyRadius
-			    > 130.0f + actor->mPosition.y) {
+			if (mPosition.y + mBodyRadius > 130.0f + gpMarioPos->y) {
 				mVelocity.y = unk160 * (-vc.y);
 				mVelocity.x
 				    = mVelocity.x + unk158 * (*gpMarioSpeedX);
@@ -1571,6 +1574,9 @@ void TBigWatermelon::rebound(JGeometry::TVec3<f32>* pos)
 			    soundId, (Vec*)&mPosition, (Vec*)&mVelocity, 0.0f, 0, 0,
 			    nullptr, 0, 4);
 		}
+	}
+	if (isState(0xB)) {
+		mState = 0xC;
 	}
 }
 
