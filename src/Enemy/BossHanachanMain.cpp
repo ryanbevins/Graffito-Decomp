@@ -1022,7 +1022,7 @@ void TBossHanachan::init(TLiveManager* manager)
 	linkPos.z -= cosV * mParams->mSLBodyLength.value;
 
 	mSphereLink = new TSphereLink(8, linkPos, mParams->mSLBodyLength.value,
-	                              mChangeParams->mSLSandSlopeForce.value, 0.2f,
+	                              mParams->mSLBodyAttackRadius.value, 0.2f,
 	                              -2.0f, -3.5f, mRotation.y);
 
 	mHead->mPosition    = mPosition;
