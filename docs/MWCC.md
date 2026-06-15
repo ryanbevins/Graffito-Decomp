@@ -9086,6 +9086,13 @@ missing local `set<f>` owner. It also regressed the function (`75.4% -> 70.1%`)
 by changing stack/register shape, so a trivial caller-side rotate wrapper is
 not the answer for this family.
 
+**Tried & REFUTED (`mario/Camera/cameragc`):** making the header declaration-only
+under an owner macro and adding an out-of-class generic member-template
+definition `template <class TY> void TVec3<f32>::set(TY, TY, TY)` also failed.
+MWCC rejected the body as an illegal function definition. In this TU the local
+owner appeared only after the local `JDrama::TLookAtCamera` constructor body was
+visible and naturally referenced the existing inline `TVec3::set` body.
+
 **Conclusion.** Future `TVec3::set<f32>` owner experiments need a different
 source shape or inline-budget lever; do not retry the explicit member-template
 specialization declaration or the trivial caller-side rotate wrapper.

@@ -1,3 +1,6 @@
+#define JGEOMETRY_CAMERAGC_OWNER_HELPERS
+#define MSCLAMP_OUT_OF_LINE
+
 // cameragc.cpp -- main CPolarSubCamera implementation. Large TU (~12KB).
 // Stub for portability; key functions need full decomp:
 // - perform, ctrlGameCamera_, calcPosAndAt_, calcFinalPosAndAt_,
@@ -28,14 +31,21 @@
 #include <dolphin/gx.h>
 #include <stdio.h>
 
+#undef JGEOMETRY_CAMERAGC_OWNER_HELPERS
+#undef MSCLAMP_OUT_OF_LINE
+
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
 template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
 template <> f32 CLBCalcRatio<f32>(f32, f32, f32);
 template <> f32 CLBCalcRatio<long>(long, long, long);
 template <> s16 CLBRoundf<s16>(f32);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
+template <> f32 CLBEaseInInbetween<f32>(f32, f32, f32);
+template <> f32 CLBTwoDegreeGeneralInbetween<f32>(f32, f32, f32, f32);
 
 extern Vec CLBConstUpVec;
+
+CPolarSubCamera* gpCamera;
 
 const char* cStartCamName
     = "\x8A\x4A\x8E\x6E\x83\x4A\x83\x81\x83\x89";
@@ -134,6 +144,19 @@ private:
 	void* unk14;
 };
 
+inline JDrama::TCamera::TCamera(float near, float far, const char* name)
+    : TPlacement(name)
+    , mFlag(0)
+    , mNear(near)
+    , mFar(far)
+{
+}
+
+inline JDrama::TLookAtCamera::TLookAtCamera()
+    : TCamera(50.0f, 10000.0f, "<TLookAtCamera>")
+{
+}
+
 CPolarSubCamera::CPolarSubCamera(const char* name)
     : JDrama::TLookAtCamera()
 {
@@ -222,6 +245,22 @@ CPolarSubCamera::CPolarSubCamera(const char* name)
 	unk2C8 = -1;
 	unk2CC = 0;
 }
+
+#pragma dont_inline on
+template <> f32 CLBEaseInInbetween<f32>(f32 a, f32 b, f32 t)
+{
+	return CLBTwoDegreeGeneralInbetween<f32>(a, b, t, b - a);
+}
+
+template <>
+f32 CLBTwoDegreeGeneralInbetween<f32>(f32 a, f32 b, f32 t, f32 ba)
+{
+	f32 diff = b - a;
+	f32 tba  = ba * t;
+	f32 ease = t * (diff - ba);
+	return t * tba + ease + a;
+}
+#pragma dont_inline off
 
 CPolarSubCamera::~CPolarSubCamera() { }
 
@@ -341,6 +380,33 @@ s16 CPolarSubCamera::getFinalAngleZ() const
 }
 s16 CPolarSubCamera::getOffsetAngleY() const { return unk68->unk5A; }
 s16 CPolarSubCamera::getOffsetAngleX() const { return unk68->unk58; }
+
+#pragma dont_inline on
+template <class T> T MsClamp(T t, T l, T r)
+{
+	if (t > r)
+		return r;
+	if (t < l)
+		return l;
+	return t;
+}
+
+namespace JGeometry {
+f32 TUtil<f32>::one() { return 1.0f; }
+} // namespace JGeometry
+
+f32 MsSqrtf(f32 mag)
+{
+	if (mag > 0.0f) {
+		f64 root           = __frsqrte(mag);
+		volatile f32 result
+		    = 0.5 * root * (3.0 - mag * (root * root)) * mag;
+		return result;
+	}
+
+	return mag;
+}
+#pragma dont_inline off
 
 void CPolarSubCamera::ctrlGameCamera_()
 {
