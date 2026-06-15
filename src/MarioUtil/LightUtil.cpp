@@ -1,4 +1,8 @@
+#define JGADGET_TLIST_POINTER_END_OUT_OF_LINE
+#define JGADGET_TLIST_POINTER_ITERATOR_OUT_OF_LINE
 #include <MarioUtil/LightUtil.hpp>
+#undef JGADGET_TLIST_POINTER_END_OUT_OF_LINE
+#undef JGADGET_TLIST_POINTER_ITERATOR_OUT_OF_LINE
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <MarioUtil/DrawUtil.hpp>
@@ -517,6 +521,24 @@ void TLightWithDBSetManager::perform(u32 flags, JDrama::TGraphics* graphics)
 				unk14[i]->perform(flags, graphics);
 	}
 }
+
+#pragma dont_inline on
+namespace JGadget {
+template <>
+TList_pointer<JDrama::TViewObj*>::iterator::iterator(
+    TList<void*, TAllocator<void*> >::iterator it)
+    : TList<void*, TAllocator<void*> >::iterator(it)
+{
+}
+
+template <>
+TList_pointer<JDrama::TViewObj*>::iterator
+TList_pointer<JDrama::TViewObj*>::end()
+{
+	return iterator(Base::end());
+}
+} // namespace JGadget
+#pragma dont_inline off
 
 void TLightWithDBSetManager::addChildGroupObj(
     JDrama::TViewObjPtrListT<JDrama::TViewObj, JDrama::TViewObj>* group)

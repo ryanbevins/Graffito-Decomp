@@ -244,10 +244,14 @@ public:
 	public:
 		iterator() { }
 
+#ifdef JGADGET_TLIST_POINTER_ITERATOR_OUT_OF_LINE
+		iterator(Base it);
+#else
 		iterator(Base it)
 		    : Base(it)
 		{
 		}
+#endif
 
 		T operator*() { return (T)this->Base::operator*(); }
 		T operator->() { return *(T*)this->Base::operator->(); }
@@ -271,13 +275,15 @@ public:
 	};
 
 	iterator begin() { return iterator(Base::begin()); }
-#ifdef JGADGET_TLIST_POINTER_END_INSERT_OUT_OF_LINE
+#if defined(JGADGET_TLIST_POINTER_END_INSERT_OUT_OF_LINE)                      \
+    || defined(JGADGET_TLIST_POINTER_END_OUT_OF_LINE)
 	iterator end();
 #else
 	iterator end() { return iterator(Base::end()); }
 #endif
 
-#ifdef JGADGET_TLIST_POINTER_END_INSERT_OUT_OF_LINE
+#if defined(JGADGET_TLIST_POINTER_END_INSERT_OUT_OF_LINE)                      \
+    || defined(JGADGET_TLIST_POINTER_INSERT_OUT_OF_LINE)
 	iterator insert(iterator where, const T& what);
 #else
 	iterator insert(iterator where, const T& what)
