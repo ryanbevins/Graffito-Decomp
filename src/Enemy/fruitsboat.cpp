@@ -62,11 +62,11 @@ DEFINE_NERVE(TNerveFruitsBoatBckTrace, TLiveActor)
 	self->mPosition.z = info0.mTranslate.z + info1.mTranslate.z;
 
 	self->mRotation.x
-	    = (s16)(info0.mRotation.x + info1.mRotation.x) * (1.0f / 182.04445f);
+	    = (info0.mRotation.x + info1.mRotation.x) * (1.0f / 182.04445f);
 	self->mRotation.y
-	    = (s16)(info0.mRotation.y + info1.mRotation.y) * (1.0f / 182.04445f);
+	    = (info0.mRotation.y + info1.mRotation.y) * (1.0f / 182.04445f);
 	self->mRotation.z
-	    = (s16)(info0.mRotation.z + info1.mRotation.z) * (1.0f / 182.04445f);
+	    = (info0.mRotation.z + info1.mRotation.z) * (1.0f / 182.04445f);
 
 	self->mScaling.x = info0.mScale.x * info1.mScale.x;
 	self->mScaling.y = info0.mScale.y * info1.mScale.y;
@@ -507,6 +507,8 @@ void TFruitsBoat::requestShadow()
 
 static JGeometry::TVec3<f32> up;
 static JGeometry::TVec3<f32> up2733;
+static bool upInitialized;
+static bool up2733Initialized;
 
 void TFruitsBoat::moveObject()
 {
@@ -566,9 +568,9 @@ void TFruitsBoat::moveObject()
 				len = lenSq * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
 			}
 			if (len != 0.0f) {
-				if (!*(u8*)&up.x) {
+				if (!upInitialized) {
 					up.set(0.0f, 1.0f, 0.0f);
-					*(u8*)&up.x = 1;
+					upInitialized = true;
 				}
 				if (lenSq < 0.0000038146973f) {
 					mp.set(0.0f, 0.0f, 0.0f);
@@ -651,9 +653,9 @@ void TFruitsBoat::moveObject()
 				mp.y *= inv;
 				mp.z *= inv;
 			}
-			if (!*(u8*)&up2733.x) {
+			if (!up2733Initialized) {
 				up2733.set(0.0f, 1.0f, 0.0f);
-				*(u8*)&up2733.x = 1;
+				up2733Initialized = true;
 			}
 			JGeometry::TVec3<f32> nv;
 			nv.x = up2733.y * mp.z - up2733.z * mp.y;
