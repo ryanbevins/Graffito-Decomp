@@ -796,7 +796,7 @@ config.libs = [
             Object(Matching, "MarioUtil/RumbleMgr.cpp"),
             Object(Matching, "MarioUtil/RumbleData.cpp"),
             Object(Matching, "MarioUtil/RumbleType.cpp"),
-            Object(NonMatching, "MarioUtil/PacketUtil.cpp"),
+            Object(Equivalent, "MarioUtil/PacketUtil.cpp"),
             Object(Matching, "MarioUtil/GDUtil.cpp"),
             Object(Matching, "MarioUtil/TexUtil.cpp"),
             Object(Matching, "MarioUtil/MapUtil.cpp"),
