@@ -784,7 +784,7 @@ config.libs = [
         "progress_category": "game",
         "objects": [
             Object(Matching, "MarioUtil/DLUtil.cpp"),
-            Object(NonMatching, "MarioUtil/DrawUtil.cpp"),
+            Object(Equivalent, "MarioUtil/DrawUtil.cpp"),
             Object(NonMatching, "MarioUtil/LightUtil.cpp"),
             Object(Equivalent, "MarioUtil/MathUtil.cpp"),
             Object(Equivalent, "MarioUtil/MtxUtil.cpp"),

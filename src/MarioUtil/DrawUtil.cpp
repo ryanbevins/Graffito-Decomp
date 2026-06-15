@@ -202,8 +202,9 @@ void TTrembleModelEffect::init(J3DModel* model)
 				unkC = 1;
 				break;
 			}
+
+			break;
 		}
-		fmt++;
 	}
 
 	if (!found)
