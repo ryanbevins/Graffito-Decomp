@@ -20,6 +20,8 @@
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
+#include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <Strategic/Strategy.hpp>
@@ -1150,8 +1152,10 @@ void TElecNokonokoManager::createModelData()
 
 void TElecNokonokoManager::load(JSUMemoryInputStream& stream)
 {
-	unk38 = new TElecNokonokoSaveLoadParams("/enemy/elecNokonoko.prm");
 	TSmallEnemyManager::load(stream);
+	unk38 = new TElecNokonokoSaveLoadParams("/enemy/elecNokonoko.prm");
+	mMaterialTable = J3DModelLoaderDataBase::loadMaterialTable(
+	    JKRFileLoader::getGlbResource("/scene/dennoko/dennoko_model1.bmt"));
 }
 
 void TElecNokonokoManager::perform(u32 flags, JDrama::TGraphics* graphics)
