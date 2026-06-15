@@ -836,7 +836,7 @@ config.libs = [
             Object(Matching, "System/J3DSysFlag.cpp"),
             Object(Equivalent, "System/MarDirector.cpp"),
             Object(Equivalent, "System/MarDirectorDirect.cpp"),
-            Object(NonMatching, "System/MarDirectorEvent.cpp"),
+            Object(Equivalent, "System/MarDirectorEvent.cpp"),
             Object(Equivalent, "System/MarDirectorInitECT.cpp"),
             Object(Equivalent, "System/MarDirectorPreEntry.cpp"),
             Object(Equivalent, "System/MarDirectorSetup2.cpp"),
