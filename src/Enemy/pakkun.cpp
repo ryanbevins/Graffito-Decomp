@@ -571,11 +571,11 @@ void TStayPakkun::load(JSUMemoryInputStream& stream)
 
 void TPakkunSeed::forceKill()
 {
-	if (mGroundPlane && (mGroundPlane->getBGType() == 0x104
-	                     || mGroundPlane->getBGType() == 0x105
-	                     || mGroundPlane->getBGType() == 0x4104
-	                     || mGroundPlane->checkFlag(0x10)
-	                     || !gpMap->isInArea(mPosition.x, mPosition.z))) {
+	if (mGroundPlane->getBGType() == 0x104
+	    || mGroundPlane->getBGType() == 0x105
+	    || mGroundPlane->getBGType() == 0x4104
+	    || mGroundPlane->checkFlag(0x10)
+	    || !gpMap->isInArea(mPosition.x, mPosition.z)) {
 		kill();
 		if (!mHost->mHasSubSeeds && mHost->mSeed->checkLiveFlag(LIVE_FLAG_DEAD)) {
 			mHost->mSeed->kill();
@@ -686,11 +686,10 @@ f32 TPakkunSeed::getNowGravity()
 void TPakkunSeed::behaveToHitGround()
 {
 	if (fabsf(mVelocity.y) < 1.0f
-	    || (mGroundPlane
-	        && (mGroundPlane->getBGType() == 0x100
-	            || mGroundPlane->getBGType() == 0x101
-	            || (mGroundPlane->getBGType() - 0x102U) <= 3
-	            || mGroundPlane->getBGType() == 0x4104))) {
+	    || mGroundPlane->getBGType() == 0x100
+	    || mGroundPlane->getBGType() == 0x101
+	    || (mGroundPlane->getBGType() - 0x102U) <= 3
+	    || mGroundPlane->getBGType() == 0x4104) {
 		unk168 = 1;
 		offLiveFlag(LIVE_FLAG_UNK100);
 		mVelocity.set(0.0f, -0.3f, 0.0f);
@@ -852,7 +851,7 @@ void TPakkun::onShootLiner(JGeometry::TVec3<f32>& dir)
 		dir.x += 1.0f;
 
 	MsVECNormalize((Vec*)&dir, (Vec*)&dir);
-	f32 speed = mPakkunParams->mSLSeedGravityC.get();
+	f32 speed = mPakkunParams->mSLSeedSpeedS.get();
 	dir.x *= speed;
 	dir.y = -5.0f;
 	dir.z *= speed;
@@ -883,8 +882,8 @@ void TPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (flags & 2) {
-		control();
 		calcRootMatrix();
+		updateAnmSound();
 		mMActor->calcAnm();
 	}
 	if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
@@ -1057,7 +1056,6 @@ void TPakkunManager::load(JSUMemoryInputStream& stream)
 
 TPakkunManager::TPakkunManager(const char* name)
     : TSmallEnemyManager(name)
-    , mStayParams(nullptr)
     , mWaterEmitInfo(nullptr)
     , mHideWaterEmitInfo(nullptr)
 {
