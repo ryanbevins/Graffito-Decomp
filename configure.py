@@ -1146,7 +1146,7 @@ config.libs = [
             Object(NonMatching, "Enemy/bossgesso.cpp"),
             Object(Equivalent, "Enemy/elecNokonoko.cpp"),
             Object(Equivalent, "Enemy/telesa.cpp"),
-            Object(NonMatching, "Enemy/fireWanwan.cpp"),
+            Object(Equivalent, "Enemy/fireWanwan.cpp"),
             Object(Equivalent, "Enemy/enemytable.cpp"),
             Object(Equivalent, "Enemy/generator.cpp"),
             Object(NonMatching, "Enemy/bosspakkun.cpp"),
