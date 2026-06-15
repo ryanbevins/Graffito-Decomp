@@ -30,11 +30,11 @@
 #include <MSound/MSSetSound.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
-s32 TResetFruit::mFruitLivingTime;
-f32 TResetFruit::mScaleUpSpeed;
+s32 TResetFruit::mFruitLivingTime = 14400;
+f32 TResetFruit::mScaleUpSpeed    = 1.05f;
 f32 TResetFruit::mRottingScaleSpeed;
-f32 TResetFruit::mBreakingScaleSpeed;
-s32 TResetFruit::mFruitWaitTimeToAppear;
+f32 TResetFruit::mBreakingScaleSpeed    = 0.96f;
+s32 TResetFruit::mFruitWaitTimeToAppear = 360;
 u32 TResetFruit::mRottenColor;
 
 TMapObjBall::TMapObjBall(const char* name)
@@ -862,17 +862,17 @@ void TMapObjBall::initMapObj()
 	case 0x40000393:
 		unk148      = 0.6f;
 		unk14C      = 0.2f;
-		unk150      = 0.02f;
-		unk154      = 0.0f;
-		unk158      = 0.055f;
-		unk15C      = 0.02f;
+		unk150      = 1.3f;
+		unk154      = 15.0f;
+		unk158      = 0.5f;
+		unk15C      = 1.3f;
 		unk160      = 1.0f;
 		unk170      = 0.9f;
 		unk174      = 0.13f;
 		unk178      = 20.0f;
 		unk164      = 0.2f;
 		unk168      = 0.02f;
-		unk16C      = 0.06f;
+		unk16C      = 0.3f;
 		unk17C      = 0.05f;
 		unk180      = 0.5f;
 		unk184      = 1.0f;
