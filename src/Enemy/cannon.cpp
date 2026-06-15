@@ -59,16 +59,6 @@ static const char* cannon_bastable[] = {
 	nullptr,
 };
 
-static const char* sCannonDomPartsJointTable[] = {
-	"nullC",
-	"nullB",
-	"nullA",
-};
-
-static const f32 xzTable[] = {
-	1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
-};
-
 u8 TCannon::mChorobeiJntIdx     = 4;
 u8 TCannon::mChorobeiHandJntIdx = 4;
 f32 TCannon::mVelocityRate      = 0.62f;
@@ -890,6 +880,10 @@ MtxPtr TCannon::getTakingMtx()
 
 void TCannon::calcRootMatrix()
 {
+	static const f32 xzTable[] = {
+		1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
+	};
+
 	if (mSpine->getCurrentNerve() != &TNerveCannonObject::theNerve()) {
 		mHeadHeight = 50.0f;
 		JGeometry::TVec3<f32> base = mPosition;
@@ -1167,11 +1161,17 @@ void TCannon::init(TLiveManager* manager)
 		    unk28C->mSLChorobeiDamageHeight.get());
 		JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(unk1A8);
 
+		static const char* sCannonDomPartsJointTable[] = {
+			"nullC",
+			"nullB",
+			"nullA",
+		};
+
 		JUTNameTab* joints
 		    = getMActor()->getModel()->getModelData()->getJointName();
 		for (int i = 0; i < 3; ++i) {
 			u16 index = joints->getIndex(sCannonDomPartsJointTable[i]);
-			unk1AC[i] = new TCannonDom(this, index, domData, 3, "砲台");
+			unk1AC[i] = new TCannonDom(this, index, domData, 3, "砲身");
 			unk1C0[i] = new TMapCollisionMove();
 			unk1C0[i]->init("/cannon/CannonDom", 2, this);
 			unk1C0[i]->moveTrans(mPosition);
@@ -1185,7 +1185,7 @@ void TCannon::init(TLiveManager* manager)
 		JUTNameTab* joints
 		    = getMActor()->getModel()->getModelData()->getJointName();
 		u16 index = joints->getIndex("nullA");
-		unk1B8    = new TCannonDom(this, index, domData, 3, "砲台");
+		unk1B8    = new TCannonDom(this, index, domData, 3, "砲身");
 		unk1B8->unk24 = true;
 	}
 
