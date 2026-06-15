@@ -249,7 +249,7 @@ void TMario::floorDamageExec(const TMario::TEParams& params)
 	mFloorHitActor.mPosition.z = mPosition.z + JMASCos(mFaceAngle.y);
 	damageExec(&mFloorHitActor, params.mDamage.get(), params.mDownType.get(),
 	           params.mWaterEmit.get(), params.mMinSpeed.get(),
-	           params.mMotor.get(), params.mDamage.get(),
+	           params.mMotor.get(), params.mDirty.get(),
 	           params.mInvincibleTime.get());
 }
 void TMario::floorDamageExec(int damage, int damageAnimType, int waterEmit,
