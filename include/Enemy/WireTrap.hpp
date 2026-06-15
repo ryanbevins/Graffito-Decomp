@@ -37,7 +37,12 @@ public:
 	virtual void moveObject();
 	virtual void kill();
 
-	TWireBinder* getWireBinder() const { return (TWireBinder*)mBinder; }
+	TWireBinder* getWireBinderDirect() const { return (TWireBinder*)mBinder; }
+#ifdef WIRETRAP_GETWIREBINDER_OUT_OF_LINE
+	TWireBinder* getWireBinder() const;
+#else
+	TWireBinder* getWireBinder() const { return getWireBinderDirect(); }
+#endif
 	const JGeometry::TVec3<f32>& getWireDir() const;
 	const TNerveBase<TLiveActor>* getNerveFromMode(int);
 	void checkHitActors();

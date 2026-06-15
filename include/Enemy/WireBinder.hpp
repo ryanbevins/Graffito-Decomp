@@ -9,7 +9,12 @@ class TWireBinder : public TBinder {
 public:
 	bool init(const JGeometry::TVec3<f32>&);
 	void bind(TLiveActor*);
-	const JGeometry::TVec3<f32>& getDir() const { return mDir; }
+	const JGeometry::TVec3<f32>& getDirDirect() const { return mDir; }
+#ifdef WIREBINDER_GETDIR_OUT_OF_LINE
+	const JGeometry::TVec3<f32>& getDir() const;
+#else
+	const JGeometry::TVec3<f32>& getDir() const { return getDirDirect(); }
+#endif
 	JGeometry::TVec3<f32> getDirAtPos(const JGeometry::TVec3<f32>&, f32) const;
 	void getPoint(JGeometry::TVec3<f32>*, f32) const;
 	void getPoint(JGeometry::TVec3<f32>*, const JGeometry::TVec3<f32>&) const;

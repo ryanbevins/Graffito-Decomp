@@ -1,3 +1,6 @@
+#define MSL_STDFMODF_OUT_OF_LINE
+#define WIRETRAP_GETWIREBINDER_OUT_OF_LINE
+#define WIREBINDER_GETDIR_OUT_OF_LINE
 #include <Enemy/WireTrap.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Player/MarioAccess.hpp>
@@ -23,6 +26,9 @@
 
 #include <M3DUtil/InfectiousStrings.hpp>
 
+#undef WIREBINDER_GETDIR_OUT_OF_LINE
+#undef WIRETRAP_GETWIREBINDER_OUT_OF_LINE
+
 extern "C" bool SMS_IsMarioOnWire();
 
 namespace std {
@@ -34,6 +40,11 @@ const char cMatName[]      = "_mat_1";
 const GXColorS10 cRedColor  = { 0xD2, 0x14, 0x0F, 0x00 };
 const GXColorS10 cBlueColor = { 0x0F, 0x14, 0xD2, 0x00 };
 } // namespace
+
+static inline JGeometry::TVec3<f32> makeWireTrapDir(f32 x, f32 z)
+{
+	return JGeometry::TVec3<f32>(x, 0.0f, z);
+}
 
 DEFINE_NERVE(TNerveWireTrapGoWait, TLiveActor)
 {
@@ -67,7 +78,8 @@ DEFINE_NERVE(TNerveWireTrapSearch, TLiveActor)
 		delta.y -= self->mPosition.y;
 		delta.z -= self->mPosition.z;
 
-		const JGeometry::TVec3<f32>& wdir = self->getWireBinder()->getDir();
+		const JGeometry::TVec3<f32>& wdir
+		    = self->getWireBinderDirect()->getDirDirect();
 		f32 dot = delta.x * wdir.x + delta.y * wdir.y + delta.z * wdir.z;
 		int sign;
 		if (dot > 0.0f)
@@ -116,8 +128,8 @@ DEFINE_NERVE(TNerveWireTrapOnewayMoveEnd, TLiveActor)
 
 	if (done) {
 		f32 sign = 0.0f > self->mWireDir ? -1.0f : 1.0f;
-		self->getWireBinder()->getPoint(&self->mPosition,
-		                                sign * 0.01f + self->mWireDir);
+		self->getWireBinderDirect()->getPoint(&self->mPosition,
+		                                      sign * 0.01f + self->mWireDir);
 		return TRUE;
 	}
 	return FALSE;
@@ -138,7 +150,8 @@ DEFINE_NERVE(TNerveWireTrapOnewayMove, TLiveActor)
 		self->mBiriTimer -= 1;
 
 	bool transit;
-	if (self->getWireBinder()->isEndWire(self->mPosition, self->mWireDir)) {
+	if (self->getWireBinderDirect()->isEndWire(self->mPosition,
+	                                           self->mWireDir)) {
 		transit = true;
 	} else {
 		JGeometry::TVec3<f32> vel = self->getWireDir();
@@ -191,7 +204,8 @@ DEFINE_NERVE(TNerveWireTrapReturnMove, TLiveActor)
 		self->mBiriTimer -= 1;
 
 	bool transit;
-	if (self->getWireBinder()->isEndWire(self->mPosition, self->mWireDir)) {
+	if (self->getWireBinderDirect()->isEndWire(self->mPosition,
+	                                           self->mWireDir)) {
 		self->mWireDir *= -1.0f;
 		transit = true;
 	} else {
@@ -235,9 +249,14 @@ TWireTrapManager::TWireTrapManager(const char* name)
 }
 
 #pragma dont_inline on
+TWireBinder* TWireTrap::getWireBinder() const
+{
+	return getWireBinderDirect();
+}
+
 const JGeometry::TVec3<f32>& TWireTrap::getWireDir() const
 {
-	return getWireBinder()->getDir();
+	return getWireBinderDirect()->getDirDirect();
 }
 #pragma dont_inline off
 
@@ -299,6 +318,13 @@ void TWireTrap::checkHitActors()
 	}
 }
 
+#pragma dont_inline on
+const JGeometry::TVec3<f32>& TWireBinder::getDir() const
+{
+	return getDirDirect();
+}
+#pragma dont_inline off
+
 void TWireTrap::moveObject()
 {
 	if (mShakeTimer > 0) {
@@ -343,7 +369,7 @@ void TWireTrap::calcRootMatrix()
 
 	TPosition3f mtx;
 	JGeometry::TVec3<f32> dir
-	    = getWireBinder()->getDirAtPos(mPosition, mWireDir);
+	    = getWireBinderDirect()->getDirAtPos(mPosition, mWireDir);
 	dir.scale(mWireDir);
 	SMS_CalcToDirMatrix(mtx, dir, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
 
@@ -401,7 +427,7 @@ BOOL TWireTrap::receiveMessage(THitActor* sender, u32 message)
 		delta.y -= gpMarioPos->y;
 		delta.z -= gpMarioPos->z;
 
-		JGeometry::TVec3<f32> dir = getWireBinder()->getDir();
+		JGeometry::TVec3<f32> dir = getWireBinderDirect()->getDirDirect();
 		dir.scale(mWireDir);
 		if (0.0f <= delta.x * dir.x + delta.y * dir.y + delta.z * dir.z)
 			mShakeWidth = getSaveParam2()->mInWaterPowerRate.get();
@@ -460,17 +486,16 @@ void TWireTrap::load(JSUMemoryInputStream& stream)
 		SMS_InitPacket_OneTevColor(getModel(), idx, GX_TEVREG2, &cBlueColor);
 	}
 
-	getWireBinder()->init(mPosition);
+	getWireBinderDirect()->init(mPosition);
 
 	mSpine->reset();
 	mSpine->setNext(getNerveFromMode(mColorType));
 
-	JGeometry::TVec3<f32> v;
 	s16 ang = (s16)(182.04445f * mRotation.y);
-	v.set(1.0f * jmaSinTable[(ang >> jmaSinShift)],
-	      0.0f,
-	      1.0f * jmaCosTable[(ang >> jmaSinShift)]);
-	JGeometry::TVec3<f32> wdir = getWireBinder()->getDir();
+	JGeometry::TVec3<f32> v = makeWireTrapDir(
+	    1.0f * jmaSinTable[(ang >> jmaSinShift)],
+	    1.0f * jmaCosTable[(ang >> jmaSinShift)]);
+	JGeometry::TVec3<f32> wdir = getWireBinderDirect()->getDirDirect();
 	if (0.0f <= v.x * wdir.x + v.y * wdir.y + v.z * wdir.z)
 		mWireDir = 1.0f;
 	else
