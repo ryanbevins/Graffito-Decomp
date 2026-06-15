@@ -27,15 +27,49 @@ int TMarDirector::loadResource()
 
 	gpMarioParticleManager = this_00;
 
-	int lVar10 = 100;
-	int iVar9  = 100;
+	int emitterCount    = 1000;
+	int drawCount       = 0x100;
+	int effectInfoCount = 0x20;
 
-	// TODO: giant switch, can't be bothered right now, sorry
+	TMarDirector* director = gpMarDirector;
+	switch (director->mMap) {
+	case 0x21:
+		emitterCount    = 3000;
+		effectInfoCount = 0x78;
+		break;
+	case 5:
+		if (director->unk7D == 1)
+			emitterCount = 1500;
+		break;
+	case 0x3A:
+		emitterCount = 4000;
+		break;
+	case 0x38:
+	case 0x39:
+		emitterCount = 3000;
+		break;
+	case 9:
+		if (director->unk7D == 0)
+			emitterCount = 1500;
+		break;
+	case 0x34:
+		emitterCount = 3000;
+		break;
+	case 4:
+		if (director->unk7D == 2)
+			emitterCount = 3000;
+		break;
+	case 0x3C:
+		emitterCount = 5000;
+		break;
+	default:
+		break;
+	}
 
-	this_00->createEffectInfoAry(iVar9);
+	gpMarioParticleManager->createEffectInfoAry(effectInfoCount);
 	gpResourceManager = new JPAResourceManager(0x201, 0x800, nullptr);
-	// gpMarioParticleManager->unk3B8 =
-	new JPAEmitterManager(gpResourceManager, lVar10, 0x100, 0x200, nullptr);
+	gpMarioParticleManager->unk3B8 = new JPAEmitterManager(
+	    gpResourceManager, emitterCount, 0x100, drawCount * 2, nullptr);
 	gpEmitterManager4D2
 	    = new JPAEmitterManager(nullptr, 200, 0x20, 0x40, nullptr);
 	loadParticle();
@@ -58,11 +92,11 @@ int TMarDirector::loadResource()
 			return 1;
 	}
 
-	void* paramsBlob = new (0x20) char[0x80000];
+	void* paramsBlob = new (-0x20) char[0x80000];
 	if (!SMSLoadArchive("/data/params.arc", paramsBlob, 0x80000, nullptr))
 		return 1;
 
-	JKRMemArchive* paramsArch = new (0x20) JKRMemArchive;
+	JKRMemArchive* paramsArch = new (-0x20) JKRMemArchive;
 	if (!paramsArch->mountFixed(paramsBlob, MBF_0))
 		return 1;
 
