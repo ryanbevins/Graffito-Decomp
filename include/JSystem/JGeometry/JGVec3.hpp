@@ -164,11 +164,15 @@ public:
 		add(other);
 		return *this;
 	}
+#ifdef JGEOMETRY_TONGUE_TVEC3_MINUS_ASSIGN_OUT_OF_LINE
+	TVec3& operator-=(const TVec3& other);
+#else
 	TVec3& operator-=(const TVec3& other)
 	{
 		sub(other);
 		return *this;
 	}
+#endif
 	TVec3& operator*=(const TVec3& other)
 	{
 		mul(other);

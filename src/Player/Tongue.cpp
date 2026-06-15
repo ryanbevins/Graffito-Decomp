@@ -1,3 +1,4 @@
+#define JGEOMETRY_TONGUE_TVEC3_MINUS_ASSIGN_OUT_OF_LINE
 #include <Player/Tongue.hpp>
 #include <Player/Yoshi.hpp>
 #include <Player/MarioAccess.hpp>
@@ -18,6 +19,11 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <dolphin/mtx.h>
 
+#undef JGEOMETRY_TONGUE_TVEC3_MINUS_ASSIGN_OUT_OF_LINE
+
+static const char* SMS_NO_MEMORY_MESSAGE = "メモリが足りません\n";
+static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
+static const char cDirtyTexName[]  = "H_ma_rak_dummy";
 
 void TYoshiTongue::entry()
 {
@@ -296,6 +302,18 @@ void TYoshiTongue::movement()
 	mPosition.z = mTipPos.z;
 	mPosition.y -= 0.5f * mAttackHeight;
 }
+
+#pragma dont_inline on
+namespace JGeometry {
+TVec3<f32>& TVec3<f32>::operator-=(const TVec3<f32>& other)
+{
+	x -= other.x;
+	y -= other.y;
+	z -= other.z;
+	return *this;
+}
+}
+#pragma dont_inline off
 
 THitActor* TYoshiTongue::findTarget(bool flagB1, bool flagB2)
 {
