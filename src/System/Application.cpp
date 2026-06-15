@@ -1,3 +1,4 @@
+#define TIMEREC_CRTIMEARY_OUT_OF_LINE
 #include <System/Application.hpp>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,6 +46,7 @@
 #include <System/SelectDir.hpp>
 #include <System/MenuDir.hpp>
 #include <MSound/MSound.hpp>
+#undef TIMEREC_CRTIMEARY_OUT_OF_LINE
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -589,6 +591,10 @@ void TApplication::proc()
 		mCurrArea = mNextArea;
 	}
 }
+
+#pragma dont_inline on
+TTimeArray* TTimeRec::crTimeAry() { return unk4[unk814]; }
+#pragma dont_inline off
 
 int TApplication::gameLoop()
 {

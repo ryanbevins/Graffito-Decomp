@@ -43,7 +43,6 @@ public:
 	{
 		reset();
 	}
-	virtual ~TMarioGamePad();
 
 	enum PadMeanings {
 		MEANING_0x1      = 0x1,

@@ -47,7 +47,11 @@ public:
 
 	static TTimeRec* _instance;
 
+#ifdef TIMEREC_CRTIMEARY_OUT_OF_LINE
+	TTimeArray* crTimeAry();
+#else
 	TTimeArray* crTimeAry() { return unk4[unk814]; }
+#endif
 
 	// fabricated
 	static void snapGxTimeStart(u8 r, u8 g, u8 b, u8 a)
