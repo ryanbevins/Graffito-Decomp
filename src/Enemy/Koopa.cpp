@@ -402,7 +402,7 @@ void TKoopa::loadAfter()
 
 void TKoopa::init(TLiveManager* manager)
 {
-	mBodyRadius = getSaveParam2()->attackRadius.get();
+	mBodyRadius = 300.0f;
 	mHeadHeight = 2000.0f;
 
 	TSpineEnemy::init(manager);
@@ -1237,14 +1237,7 @@ BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 		break;
 
 	default: {
-		f32 flameDiff = std::fmodf(
-		    360.0f + ((self->getTargetDir(*gpMarioPos) - self->unk150)
-		              - -180.0f),
-		    360.0f);
-		flameDiff += -180.0f;
-		self->unk154 = flameDiff < 0.0f;
 		self->changeAnm(5, 0, prm->fireSpeed.get());
-		spine->setNext(&TNerveKoopaFlame::theNerve());
 		break;
 	}
 	}
