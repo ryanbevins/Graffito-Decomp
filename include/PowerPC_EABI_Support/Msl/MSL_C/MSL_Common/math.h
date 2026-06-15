@@ -105,6 +105,7 @@ inline float cosf(float x) { return ::cos((double)x); }
 inline float tanf(float x) { return ::tan((double)x); }
 inline float powf(float e, float x) { return ::powf(e, x); }
 
+#ifndef MSL_STDSQRTF_OUT_OF_LINE
 extern inline float sqrtf(float x)
 {
 	const double _half  = .5;
@@ -123,6 +124,9 @@ extern inline float sqrtf(float x)
 	}
 	return x;
 }
+#else
+float sqrtf(float);
+#endif
 }; // namespace std
 #endif
 

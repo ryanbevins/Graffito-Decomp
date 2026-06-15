@@ -121,7 +121,11 @@ public:
 	size_t size() const { return pBegin_ == nullptr ? 0 : pEnd_ - pBegin_; }
 	size_t capacity() const { return mCapacity; }
 	bool empty() const { return pBegin_ == pEnd_; }
+#ifdef JGADGET_TVECTOR_BEGIN_OUT_OF_LINE
+	iterator begin();
+#else
 	iterator begin() { return pBegin_; }
+#endif
 	const_iterator begin() const { return pBegin_; }
 	iterator end() { return pEnd_; }
 	const_iterator end() const { return pEnd_; }

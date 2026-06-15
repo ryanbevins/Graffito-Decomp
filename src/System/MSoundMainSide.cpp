@@ -1,3 +1,6 @@
+#define JGADGET_TVECTOR_BEGIN_OUT_OF_LINE
+#define MSL_STDSQRTF_OUT_OF_LINE
+
 #include <System/MSoundMainSide.hpp>
 #include <Camera/CubeManagerBase.hpp>
 #include <MSound/MSound.hpp>
@@ -10,6 +13,9 @@
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <math.h>
+
+#undef JGADGET_TVECTOR_BEGIN_OUT_OF_LINE
+#undef MSL_STDSQRTF_OUT_OF_LINE
 
 static const u32 cMSBgmNone = 0xfffffff0;
 
@@ -196,6 +202,17 @@ void MSStageCubeFadeMonte::proc()
 	unk14         = unk10;
 }
 
+#pragma dont_inline on
+namespace JGadget {
+template <>
+TVector<void*, TAllocator<void*> >::iterator
+TVector<void*, TAllocator<void*> >::begin()
+{
+	return pBegin_;
+}
+} // namespace JGadget
+#pragma dont_inline off
+
 void MSStageCubeFade::proc()
 {
 	JAISound* track1 = MSBgm::getHandle(1);
@@ -335,6 +352,26 @@ void MSStageDistFadeMonte::proc()
 	unk20 = unk1C;
 	unk4++;
 }
+
+#pragma dont_inline on
+namespace std {
+float sqrtf(float x)
+{
+	const double _half  = .5;
+	const double _three = 3.0;
+	volatile float y;
+	if (x > 0.0f) {
+		double guess = __frsqrte((double)x);
+		guess        = _half * guess * (_three - guess * guess * x);
+		guess        = _half * guess * (_three - guess * guess * x);
+		guess        = _half * guess * (_three - guess * guess * x);
+		y            = (float)(x * guess);
+		return y;
+	}
+	return x;
+}
+} // namespace std
+#pragma dont_inline off
 
 void MSStageDistFade::proc()
 {

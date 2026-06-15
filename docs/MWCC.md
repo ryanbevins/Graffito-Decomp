@@ -102,6 +102,13 @@ nested helper call.
   TU see declarations, and out-of-line `dont_inline` owner bodies in deferred
   source order emit all five helpers as exact rows. A temporary `Equivalent`
   source-link proof passed.
+- `mario/System/MSoundMainSide` (2026-06-15 MNL):
+  target-owned weak helpers `JGadget::TVector<void*>::begin()` and
+  `std::sqrtf(float)` were missing while source call sites inlined them.
+  TU-only declaration splits (`JGADGET_TVECTOR_BEGIN_OUT_OF_LINE` and
+  `MSL_STDSQRTF_OUT_OF_LINE`) plus `dont_inline` owner bodies at the target
+  source-order slots emitted both helpers at 100%. A temporary `Equivalent`
+  source-link proof passed.
 
 ### Inline-result materialization charges +8 stack bytes per nested layer (lever for inline stack inflation)
 
