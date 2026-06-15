@@ -320,10 +320,10 @@ void TBaseNPC::emitParticle_()
 			scaleW.y *= 1.5f;
 			scaleW.z *= 1.5f;
 			emit = true;
-		} else if (!(mPosition.y > 30.0f)) {
+		} else if (mPosition.y <= 30.0f) {
 			if (mLinearVelocity.x != 0.0f || mLinearVelocity.z != 0.0f) {
 				waveY = gpMapObjWave->getWaveHeight(mPosition.x, mPosition.z);
-				if (!(mPosition.y > waveY))
+				if (mPosition.y <= waveY)
 					emit = true;
 			}
 		}
@@ -391,7 +391,8 @@ void TBaseNPC::emitParticle_()
 		s32 idx = -1;
 		if (isNormalMonteM() || isNormalMonteW())
 			idx = 0x172;
-		else if (isNormalMareW() || mActorType == 0x04000016)
+		else if (isNormalMareM() || isNormalMareW()
+		         || mActorType == 0x04000016)
 			idx = 0x173;
 		if (idx != -1) {
 			JPABaseEmitter* em = gpMarioParticleManager->emitAndBindToMtxPtr(
