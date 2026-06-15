@@ -974,6 +974,8 @@ TPakkun::TPakkun(const char* name)
 }
 #pragma dont_inline off
 
+void TSmallEnemy::initAttacker(THitActor*) { unk184 = 1; }
+
 void TPakkunManager::clipEnemies(JDrama::TGraphics* graphics)
 {
 	f32 farClip;
