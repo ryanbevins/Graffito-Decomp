@@ -804,9 +804,9 @@ void TMario::fallProcess()
 	} else {
 		u32 diff = action - 0x0895;
 		if (diff <= 1 && mVel.y < 0.0f) {
-			mVel.y -= mJumpParams.mJumpAccelControl.value;
+			mVel.y -= mJumpParams.mSpinJumpGravity.value;
 		} else {
-			mVel.y -= mJumpParams.mJumpSpeedBrake.value;
+			mVel.y -= mJumpParams.mGravity.value;
 		}
 	}
 
@@ -828,10 +828,10 @@ int TMario::jumpProcess(int param)
 	f32 velZ = mVel.z;
 	f32 speed = sqrtf(velX * velX + velZ * velZ);
 
-	f32 maxSpeed = mJumpParams.mJumpSlideControl.value;
+	f32 maxSpeed = mJumpParams.mJumpingMax.value;
 	if (speed > maxSpeed) {
 		mVel.x = mVel.x * (maxSpeed / speed);
-		mVel.z = mVel.z * (mJumpParams.mJumpSlideControl.value / speed);
+		mVel.z = mVel.z * (mJumpParams.mJumpingMax.value / speed);
 	}
 
 	f32 factor = 0.25f;
