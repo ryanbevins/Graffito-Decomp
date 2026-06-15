@@ -1,9 +1,11 @@
 #include <Enemy/HauntLeg.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
+#include <Enemy/Spider.hpp>
 #include <Enemy/Walker.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/Strategy.hpp>
+#include <Map/MapData.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorData.hpp>
 #include <Strategic/ObjModel.hpp>
@@ -29,28 +31,6 @@ static const char* hauntleg_bastable[] = {
 	nullptr,
 	nullptr,
 	nullptr,
-};
-
-static const GXColorS10 tevColorData1[8] = {
-	{ 0x0000, 0x0000, 0x0000, 0x00FF },
-	{ 0x0078, 0x0000, 0x0078, 0x0000 },
-	{ 0x0000, 0x00FF, 0x0000, 0x0000 },
-	{ 0x0078, 0x0000, 0x0000, 0x00FF },
-	{ 0x0078, 0x0078, 0x0064, 0x0000 },
-	{ 0x00C8, 0x0000, 0x0000, 0x00FF },
-	{ 0x0000, 0x0064, 0x00C8, 0x0000 },
-	{ 0x00FF, 0x00C8, 0x0064, 0x0096 },
-};
-
-static const GXColorS10 tevColorData2[8] = {
-	{ 0x0000, 0x0000, 0x0000, 0x00FF },
-	{ 0x00FA, 0x0000, 0x00FA, 0x0000 },
-	{ 0x0000, 0x00FF, 0x0000, 0x0000 },
-	{ 0x00FA, 0x0000, 0x0000, 0x00FF },
-	{ 0x00FA, 0x00FA, 0x0096, 0x0000 },
-	{ 0x00FA, 0x0000, 0x0000, 0x00FF },
-	{ 0x0000, 0x0096, 0x00FA, 0x0000 },
-	{ 0x00FA, 0x0096, 0x00C8, 0x00FF },
 };
 
 DEFINE_NERVE(TNerveHauntLegHaunt, TLiveActor)
@@ -193,18 +173,55 @@ void THauntLeg::calcRootMatrix()
 
 	MtxPtr anmMtx = (MtxPtr)((u8*)getModel() + 0x20);
 
-	if (((TWalker*)mBinder)->unk2C != nullptr) {
-		// Approximate the "tilt by binder slope" path; full struct path requires
-		// TSpider/TBGCheckData; matched-incoming-asm not yet reachable
-	}
+	if (getWalker()->unk2C->unk10 > 0.0f && unk138 != nullptr) {
+		JGeometry::TVec3<f32> dir(0.0f, 1.0f, 0.0f);
+		JGeometry::TVec3<f32> normal = unk138->getNormal();
+		JGeometry::TVec3<f32> sideways;
+		sideways.cross(normal, dir);
+		MsVECNormalize(&sideways, &sideways);
 
-	{
+		dir.cross(sideways, normal);
+		MsVECNormalize(&dir, &dir);
+
+		anmMtx[0][0] = sideways.x;
+		anmMtx[1][0] = sideways.y;
+		anmMtx[2][0] = sideways.z;
+
+		anmMtx[0][1] = normal.x;
+		anmMtx[1][1] = normal.y;
+		anmMtx[2][1] = normal.z;
+
+		anmMtx[0][2] = dir.x;
+		anmMtx[1][2] = dir.y;
+		anmMtx[2][2] = dir.z;
+
+		anmMtx[0][3] = 0.0f;
+		anmMtx[1][3] = 0.0f;
+		anmMtx[2][3] = 0.0f;
+
+		f32 angle = (1.0f - getWalker()->unk2C->unk10) * 90.0f;
+		f32 s     = JMASin(angle);
+		f32 c     = JMACos(angle);
+
+		Mtx tilt;
+		tilt[0][0] = 1.0f;
+		tilt[0][1] = 0.0f;
+		tilt[0][2] = 0.0f;
+		tilt[0][3] = 0.0f;
+		tilt[1][0] = 0.0f;
+		tilt[1][1] = c;
+		tilt[1][2] = -s;
+		tilt[1][3] = 0.0f;
+		tilt[2][0] = 0.0f;
+		tilt[2][1] = s;
+		tilt[2][2] = c;
+		tilt[2][3] = 0.0f;
+
+		PSMTXConcat(anmMtx, tilt, anmMtx);
+	} else {
 		JGeometry::TVec3<f32> dir(JMASin(mRotation.y), 0.0f,
 		                          JMACos(mRotation.y));
-		JGeometry::TVec3<f32> normal;
-		normal.x = 0.0f;
-		normal.y = 1.0f;
-		normal.z = 0.0f;
+		JGeometry::TVec3<f32> normal = mGroundPlane->getNormal();
 
 		JGeometry::TVec3<f32> sideways;
 		sideways.cross(normal, dir);
@@ -230,12 +247,10 @@ void THauntLeg::calcRootMatrix()
 	anmMtx[1][3] = mPosition.y;
 	anmMtx[2][3] = mPosition.z;
 
-	if (checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
-		mHauntedObject->mPosition.x = mPosition.x;
-		mHauntedObject->mPosition.y = mPosition.y;
-		mHauntedObject->mPosition.z = mPosition.z;
+	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		*(Vec*)&mHauntedObject->mPosition = *(Vec*)&mPosition;
 	} else {
-		MtxPtr m = (MtxPtr)((u8*)getModel()->getBaseTRMtx() + 0x60);
+		MtxPtr m = (MtxPtr)((u8*)getModel()->getAnmMtx(0) + 0x60);
 		mHauntedObject->mPosition.x = m[0][3];
 		mHauntedObject->mPosition.y = m[1][3];
 		mHauntedObject->mPosition.z = m[2][3];
@@ -305,6 +320,27 @@ void THauntLegManager::createModelData()
 
 void THauntLegManager::initSetEnemies()
 {
+	static const GXColorS10 tevColorData1[8] = {
+		{ 0x0000, 0x0000, 0x0078, 0x00FF },
+		{ 0x0078, 0x0000, 0x0000, 0x00FF },
+		{ 0x0000, 0x0078, 0x0000, 0x00FF },
+		{ 0x0078, 0x0078, 0x0000, 0x00FF },
+		{ 0x0078, 0x0000, 0x0078, 0x00FF },
+		{ 0x0064, 0x00C8, 0x0000, 0x00FF },
+		{ 0x0000, 0x0064, 0x00C8, 0x00FF },
+		{ 0x00C8, 0x0064, 0x0096, 0x00FF },
+	};
+	static const GXColorS10 tevColorData2[8] = {
+		{ 0x0000, 0x0000, 0x00FA, 0x00FF },
+		{ 0x00FA, 0x0000, 0x0000, 0x00FF },
+		{ 0x0000, 0x00FA, 0x0000, 0x00FF },
+		{ 0x00FA, 0x00FA, 0x0000, 0x00FF },
+		{ 0x00FA, 0x0000, 0x00FA, 0x00FF },
+		{ 0x0096, 0x00FA, 0x0000, 0x00FF },
+		{ 0x0000, 0x0096, 0x00FA, 0x00FF },
+		{ 0x00FA, 0x0096, 0x00C8, 0x00FF },
+	};
+
 	int tevIdx = 0;
 	for (int i = 0; i < mObjNum; ++i) {
 		TGraphWeb* graph = gpConductor->getGraphByName("main");
@@ -360,8 +396,8 @@ BOOL HauntLegCallback(J3DNode* node, int when)
 			if (match) {
 				f32 angle      = self->unk1AC * 182.04445f;
 				s16 angleFixed = (s16)(s32)angle;
-				f32 s          = JMASin(angleFixed);
-				f32 c          = JMACos(angleFixed);
+				f32 s          = JMASSin(angleFixed);
+				f32 c          = JMASCos(angleFixed);
 
 				MtxPtr base
 				    = self->getMActor()->getModel()->getAnmMtx(
