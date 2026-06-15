@@ -11,7 +11,11 @@ namespace JGeometry {
 template <typename T> class TVec4 : public Quaternion {
 public:
 	/* Constructors */
+#ifdef JGEOMETRY_FIREWANWAN_TVEC4_CTOR_OUT_OF_LINE
+	TVec4();
+#else
 	inline TVec4() { }
+#endif
 
 	TVec4(const TVec4& other) { *(Quaternion*)this = *(Quaternion*)&other; }
 

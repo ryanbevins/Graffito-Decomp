@@ -28,7 +28,11 @@ public:
 	}
 	virtual f32 getRadiusAtY(f32) const;
 
+#ifdef TAKEACTOR_ISTAKEN_OUT_OF_LINE
+	BOOL isTaken() const;
+#else
 	BOOL isTaken() const { return mHolder != nullptr ? TRUE : FALSE; }
+#endif
 	bool isHolding() const { return mHeldObject != nullptr ? true : false; }
 	TTakeActor* getHolder() { return mHolder; }
 	TTakeActor* getHeldObject() { return mHeldObject; }

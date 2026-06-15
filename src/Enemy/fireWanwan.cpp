@@ -1,4 +1,10 @@
+#define ARRAYWRAPPER_FIREWANWAN_ACCESSORS_OUT_OF_LINE
+#define JGEOMETRY_FIREWANWAN_TVEC4_CTOR_OUT_OF_LINE
+#define TAKEACTOR_ISTAKEN_OUT_OF_LINE
 #include <Enemy/FireWanwan.hpp>
+#undef TAKEACTOR_ISTAKEN_OUT_OF_LINE
+#undef JGEOMETRY_FIREWANWAN_TVEC4_CTOR_OUT_OF_LINE
+#undef ARRAYWRAPPER_FIREWANWAN_ACCESSORS_OUT_OF_LINE
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
@@ -523,6 +529,23 @@ void TFireWanwanTailHit::init()
 	onHitFlag(HIT_FLAG_UNK2);
 	mIsOnFire = false;
 }
+
+#pragma dont_inline on
+namespace {
+template <>
+s32 ArrayWrapper<TTailRubber::Node>::size() const
+{
+	return mSize;
+}
+
+template <>
+const TTailRubber::Node& ArrayWrapper<TTailRubber::Node>::operator[](
+    int idx) const
+{
+	return mData[idx];
+}
+} // namespace
+#pragma dont_inline off
 
 void TFireWanwanTailHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
@@ -1419,6 +1442,13 @@ void TFireWanwan::initEscapeNextGraphNode()
 	}
 }
 
+#pragma dont_inline on
+BOOL TTakeActor::isTaken() const
+{
+	return mHolder != nullptr ? TRUE : FALSE;
+}
+#pragma dont_inline off
+
 void TFireWanwan::recoverFire()
 {
 	mHitPoints        = getMaxHitPoints();
@@ -1919,6 +1949,15 @@ DEFINE_NERVE(TNerveFireWanwanTired, TLiveActor)
 
 	return false;
 }
+
+#pragma dont_inline on
+namespace JGeometry {
+template <>
+TVec4<f32>::TVec4()
+{
+}
+} // namespace JGeometry
+#pragma dont_inline off
 
 DEFINE_NERVE(TNerveFireWanwanRecoverGraph, TLiveActor)
 {

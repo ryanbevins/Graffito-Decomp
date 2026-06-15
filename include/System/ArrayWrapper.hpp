@@ -31,8 +31,13 @@ public:
 	T* end() { return mData + mSize; }
 	const T* begin() const { return mData; }
 	const T* end() const { return mData + mSize; }
+#ifdef ARRAYWRAPPER_FIREWANWAN_ACCESSORS_OUT_OF_LINE
+	s32 size() const;
+	const T& operator[](int idx) const;
+#else
 	s32 size() const { return mSize; }
 	const T& operator[](int idx) const { return mData[idx]; }
+#endif
 	T& operator[](int idx) { return mData[idx]; }
 	const T& front() const { return mData[0]; }
 	T& front() { return mData[0]; }
