@@ -45,10 +45,6 @@ static const char* tyuhana_bastable[] = {
 	"/scene/tyuhana/bas/tyuhana_walk.bas",
 };
 
-static const char* graphlist[] = {
-	"kohana0", "kohana1", "kohana1", "kohana2", "kohana2", "kohana2",
-};
-
 static TChuuHana* gpCurChuuHana;
 
 s32 TChuuHana::mCheckOnPanelTimeRoll = 20;
@@ -128,6 +124,10 @@ TSmallEnemy* TChuuHanaManager::createEnemyInstance()
 
 void TChuuHanaManager::initSetEnemies()
 {
+	static const char* graphlist[] = {
+		"kohana0", "kohana1", "kohana1", "kohana2", "kohana2", "kohana2",
+	};
+
 	for (int i = 0; i < mCapacity; ++i) {
 		TGraphWeb* graph = gpConductor->getGraphByName(graphlist[i]);
 		TChuuHana* enemy = (TChuuHana*)unk18[i];
