@@ -384,8 +384,10 @@ void TPoiHana::walkBehavior(int param_1, float param_2)
 			    > unk19C->mSLWakeFrame.get() + mInstanceIndex * 100) {
 				mGoToSleepTimer = 0;
 
-				// TODO: random interval class
-				mGoToSleepTimer = MsRandF(-500.0f, 500.0f);
+				int minFrame = -500;
+				int maxFrame = 500;
+				mGoToSleepTimer
+				    = minFrame + (int)((maxFrame - minFrame) * MsRandF());
 
 				mSpine->setNext(&TNervePoihanaSleep::theNerve());
 				unk195 = true;
@@ -663,8 +665,8 @@ DEFINE_NERVE(TNervePoihanaThrow, TLiveActor)
 			SMS_SendMessageToMario(self, HIT_MESSAGE_UNK7);
 			f32 backThrowVal = self->unk19C->mSLBackThrowVal.get();
 			Mtx afStack_4c;
-			MsMtxSetRotRPH(afStack_4c, self->mPosition.x, self->mPosition.y,
-			               self->mPosition.z);
+			MsMtxSetRotRPH(afStack_4c, self->mRotation.x, self->mRotation.y,
+			               self->mRotation.z);
 			JGeometry::TVec3<f32> local_58(0.0f, 1.0f, -backThrowVal);
 			MTXMultVec(afStack_4c, &local_58, &local_58);
 			SMS_ThrowMario(local_58, self->unk19C->mSLThrowSpeed.get());
@@ -717,8 +719,7 @@ DEFINE_NERVE(TNervePoihanaTrapped, TLiveActor)
 					local_48 = self->mPosition - groundActor->mPosition;
 				else
 					local_48 = self->mPosition - SMS_GetMarioPos();
-				if (local_48.x == 0.0f && local_48.y == 0.0f
-				    && local_48.z == 0.0f)
+				if ((local_48.x == local_48.y) == local_48.z)
 					local_48.x = 1.0f;
 
 				VECNormalize(&local_48, &local_48);
