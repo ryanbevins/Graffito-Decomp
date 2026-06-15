@@ -1,3 +1,4 @@
+#define JGEOMETRY_DRAWUTIL_OWNER_HELPERS
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
@@ -21,6 +22,8 @@
 #include <dolphin/mtx.h>
 #include <dolphin/os/OSCache.h>
 #include <stdlib.h>
+
+#undef JGEOMETRY_DRAWUTIL_OWNER_HELPERS
 
 TSilhouette* gpSilhouetteManager;
 
@@ -314,6 +317,24 @@ void TTrembleModelEffect::tremble(f32 power, f32 spring, f32 damping,
 	unk8 &= ~4;
 }
 
+#pragma dont_inline on
+namespace JGeometry {
+void TVec3<s16>::add(const TVec3<s16>& operand)
+{
+	x += operand.x;
+	y += operand.y;
+	z += operand.z;
+}
+
+void TVec3<f32>::add(const TVec3<f32>& operand)
+{
+	x += operand.x;
+	y += operand.y;
+	z += operand.z;
+}
+}
+#pragma dont_inline off
+
 void TTrembleModelEffect::clash(f32 power)
 {
 	tremble(power, 0.0f, 0.0f, 0);
@@ -343,6 +364,24 @@ void TTrembleModelEffect::clash(f32 power)
 
 	unk8 |= 4;
 }
+
+#pragma dont_inline on
+namespace JGeometry {
+void TVec3<s16>::sub(const TVec3<s16>& operand)
+{
+	x -= operand.x;
+	y -= operand.y;
+	z -= operand.z;
+}
+
+void TVec3<f32>::sub(const TVec3<f32>& operand)
+{
+	x -= operand.x;
+	y -= operand.y;
+	z -= operand.z;
+}
+}
+#pragma dont_inline off
 
 void TTrembleModelEffect::movement()
 {
@@ -794,6 +833,25 @@ void SMS_ShowJoint(J3DMaterial* param_1, bool param_2)
 			param_1->getShape()->onFlag(1);
 	}
 }
+
+#pragma dont_inline on
+namespace JGeometry {
+void TRotation3<TMatrix34<SMatrix34C<f32> > >::identity33()
+{
+	this->ref(0, 0) = 1.0f;
+	this->ref(1, 0) = 0.0f;
+	this->ref(2, 0) = 0.0f;
+
+	this->ref(0, 1) = 0.0f;
+	this->ref(1, 1) = 1.0f;
+	this->ref(2, 1) = 0.0f;
+
+	this->ref(0, 2) = 0.0f;
+	this->ref(1, 2) = 0.0f;
+	this->ref(2, 2) = 1.0f;
+}
+}
+#pragma dont_inline off
 
 void SMS_CalcMatAnmAndMakeDL(J3DModel* param_1, u16 param_2)
 {

@@ -95,6 +95,13 @@ nested helper call.
   and `TList_pointer<THitActor*>::end/insert`. TU-only declaration splits plus
   `dont_inline` owner bodies emitted all six local owners in target order; a
   temporary `Equivalent` source-link proof passed.
+- `mario/MarioUtil/DrawUtil` (2026-06-15 MNL):
+  target-owned JGeometry member helpers were missing while the source inlined
+  the same leaf arithmetic: `TRotation3<TMtx34f>::identity33()` and
+  `TVec3<f32/s16>::add/sub`. `JGEOMETRY_DRAWUTIL_OWNER_HELPERS` makes only this
+  TU see declarations, and out-of-line `dont_inline` owner bodies in deferred
+  source order emit all five helpers as exact rows. A temporary `Equivalent`
+  source-link proof passed.
 
 ### Inline-result materialization charges +8 stack bytes per nested layer (lever for inline stack inflation)
 

@@ -103,12 +103,16 @@ public:
 
 	// === arithmetic stuff ===
 
+#ifdef JGEOMETRY_DRAWUTIL_OWNER_HELPERS
+	void add(const TVec3& operand);
+#else
 	void add(const TVec3& operand)
 	{
 		x += operand.x;
 		y += operand.y;
 		z += operand.z;
 	}
+#endif
 
 	void add(const TVec3& a, const TVec3& b)
 	{
@@ -117,12 +121,16 @@ public:
 		z = a.z + b.z;
 	}
 
+#ifdef JGEOMETRY_DRAWUTIL_OWNER_HELPERS
+	void sub(const TVec3& translate);
+#else
 	void sub(const TVec3& translate)
 	{
 		x -= translate.x;
 		y -= translate.y;
 		z -= translate.z;
 	}
+#endif
 
 	void sub(const TVec3& fst, const TVec3& snd)
 	{

@@ -16,6 +16,9 @@ template <class T> class TRotation3 : public T {
 public:
 	TRotation3() { }
 
+#ifdef JGEOMETRY_DRAWUTIL_OWNER_HELPERS
+	void identity33();
+#else
 	void identity33()
 	{
 		this->ref(0, 0) = 1.0f;
@@ -30,6 +33,7 @@ public:
 		this->ref(1, 2) = 0.0f;
 		this->ref(2, 2) = 1.0f;
 	}
+#endif
 
 	void setRotate(const JGeometry::TVec3<f32>& param_1, f32 param_2)
 #ifdef JGEOMETRY_MAPOBJLIB_OWNER_HELPERS
