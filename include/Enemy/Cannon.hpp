@@ -81,7 +81,6 @@ public:
 	virtual void reset();
 	virtual bool isCollidMove(THitActor*) { return false; }
 	virtual BOOL isInhibitedForceMove() { return TRUE; }
-	virtual bool isHitValid(u32) { return false; }
 
 	void startChorobeiShout();
 	bool isObject();
@@ -89,7 +88,7 @@ public:
 	void killerShoot();
 	void bombShoot();
 	void bombSet();
-	bool isHitVallid(u32);
+	virtual bool isHitVallid(u32);
 
 	TCannonSaveLoadParams* getCannonParams() const
 	{

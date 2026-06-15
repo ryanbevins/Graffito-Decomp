@@ -463,7 +463,7 @@ DEFINE_NERVE(TNerveCannonShoot, TLiveActor)
 		if (spine->getTime() == 40)
 			self->killerShoot();
 
-		if (spine->getTime() > self->unk28C->mSLShootInterval.get()) {
+		if (spine->getTime() > self->unk28C->mSLKillerInterval.get()) {
 			self->unk214 += 1;
 			if (self->unk214 >= 3)
 				self->unk214 = 0;
@@ -1174,12 +1174,12 @@ void TCannon::init(TLiveManager* manager)
 			unk1AC[i] = new TCannonDom(this, index, domData, 3, "砲身");
 			unk1C0[i] = new TMapCollisionMove();
 			unk1C0[i]->init("/cannon/CannonDom", 2, this);
-			unk1C0[i]->moveTrans(mPosition);
+			unk1C0[i]->setUpTrans(mPosition);
 		}
 
 		unk2B0 = new TMapCollisionMove();
 		unk2B0->init("/cannon/CannonFuta", 2, this);
-		unk2B0->moveTrans(mPosition);
+		unk2B0->setUpTrans(mPosition);
 	} else {
 		mSpine->initWith(&TNerveCannonObject::theNerve());
 		JUTNameTab* joints
@@ -1216,7 +1216,7 @@ void TCannon::loadAfter()
 void TCannon::load(JSUMemoryInputStream& stream)
 {
 	TSmallEnemy::load(stream);
-	setMActorAndKeeper();
+	reset();
 	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
 	unk230 = gpApplication.mCurrArea.unk0;
 	unk23C = mPosition;
