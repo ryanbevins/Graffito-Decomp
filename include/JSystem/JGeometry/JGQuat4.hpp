@@ -125,7 +125,13 @@ public:
 
 		f32 len = axis.length();
 		if (len <= TUtil<f32>::epsilon()) {
-			this->set(0.0f, 0.0f, 0.0f, 1.0f);
+			f32 dot = from.dot(to);
+			f32 antiParallel = dot + 1.0f;
+			if (-TUtil<f32>::epsilon() <= antiParallel
+			    && antiParallel <= TUtil<f32>::epsilon())
+				setRotate(TVec3<T>(0.0f, 1.0f, 0.0f), TUtil<f32>::PI());
+			else
+				this->set(0.0f, 0.0f, 0.0f, 1.0f);
 			return;
 		}
 

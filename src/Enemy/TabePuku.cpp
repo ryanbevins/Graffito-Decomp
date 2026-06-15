@@ -27,6 +27,10 @@
 JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
 s16 matan(f32, f32);
 
+namespace {
+f32 cAngleMax = JGeometry::TUtil<f32>::PI() / 8.0f;
+}
+
 static const char* tabepuku_bastable[] = {
 	"/scene/tabepuku/bas/pukupuku_chase.bas",
 	"/scene/tabepuku/bas/pukupuku_search.bas",
@@ -282,7 +286,7 @@ BOOL TNerveTabePukuGraphWander::execute(TSpineBase<TLiveActor>* spine) const
 
 void TTabePukuManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "tabepuku.bmd", 0x10210000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -307,7 +311,6 @@ TTabePuku::TTabePuku(const char* name)
 	onLiveFlag(LIVE_FLAG_UNK1000);
 }
 
-#pragma dont_inline on
 void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 {
 	JGeometry::TVec3<f32> dir(target);
@@ -345,7 +348,6 @@ void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 	}
 	mRotation.y = rotation;
 }
-#pragma dont_inline off
 
 bool TTabePuku::doKeepDistance()
 {
