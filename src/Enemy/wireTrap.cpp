@@ -292,6 +292,7 @@ void TWireTrap::checkHitActors()
 			else
 				ms = 1.0f;
 			myDir.scale(mWireDir * ms);
+			myDir.scale(mScaleSpeed);
 
 			TWireTrap* o = (TWireTrap*)other;
 			JGeometry::TVec3<f32> otDir = o->getWireBinder()->getDir();
@@ -301,6 +302,10 @@ void TWireTrap::checkHitActors()
 			else
 				os = 1.0f;
 			otDir.scale(o->mWireDir * os);
+			otDir.scale(o->mScaleSpeed);
+
+			f32 dot = myDir.x * otDir.x + myDir.y * otDir.y
+			          + myDir.z * otDir.z;
 
 			if (mBiriTimer <= 0 && mColorType == 0) {
 				mBiriTimer = 0x1e;
@@ -308,9 +313,19 @@ void TWireTrap::checkHitActors()
 				a.scale(mWireDir * ms);
 				JGeometry::TVec3<f32> b = o->getWireDir();
 				b.scale(o->mWireDir * os);
-				if (a.x * b.x + a.y * b.y + a.z * b.z < 0.0f)
+				if (dot < 0.0f)
 					mWireDir *= -1.0f;
 				mSpine->initWith(&TNerveWireTrapWait::theNerve());
+			}
+			if (o->mBiriTimer <= 0 && o->mColorType == 0) {
+				o->mBiriTimer = 0x1e;
+				JGeometry::TVec3<f32> a = o->getWireDir();
+				a.scale(o->mWireDir * os);
+				JGeometry::TVec3<f32> b = o->getWireDir();
+				b.scale(o->mWireDir * os);
+				if (dot < 0.0f)
+					o->mWireDir *= -1.0f;
+				o->mSpine->initWith(&TNerveWireTrapWait::theNerve());
 			}
 		} else if (other->mActorType == 0x80000001) {
 			SMS_SendMessageToMario(this, 9);
@@ -491,7 +506,7 @@ void TWireTrap::load(JSUMemoryInputStream& stream)
 	mSpine->reset();
 	mSpine->setNext(getNerveFromMode(mColorType));
 
-	s16 ang = (s16)(182.04445f * mRotation.y);
+	u16 ang = (u16)(182.04445f * mRotation.y);
 	JGeometry::TVec3<f32> v = makeWireTrapDir(
 	    1.0f * jmaSinTable[(ang >> jmaSinShift)],
 	    1.0f * jmaCosTable[(ang >> jmaSinShift)]);
