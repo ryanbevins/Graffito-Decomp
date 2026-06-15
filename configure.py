@@ -1184,7 +1184,7 @@ config.libs = [
             Object(Equivalent, "Enemy/bgpoldrop.cpp"),
             Object(NonMatching, "Enemy/bgtentacle.cpp"),
             Object(Equivalent, "Enemy/effectEnemy.cpp"),
-            Object(NonMatching, "Enemy/hauntLeg.cpp"),
+            Object(Equivalent, "Enemy/hauntLeg.cpp"),
             Object(Equivalent, "Enemy/areacylinder.cpp"),
             Object(Equivalent, "Enemy/wireTrap.cpp"),
             Object(Matching, "Enemy/BossHanachanSound.cpp"),
