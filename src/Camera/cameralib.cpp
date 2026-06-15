@@ -9,6 +9,8 @@
 static const f32 SHORTANGLE_TO_DEGREES = 0.005493164f; // 360/65536
 static const f32 DEGREES_TO_RADIANS    = 0.017453294f; // pi/180
 
+JGeometry::TVec3<f32> CLBConstUpVec(0.0f, 1.0f, 0.0f);
+
 template <> f32 CLBCalcRatio<f32>(f32, f32, f32);
 template <> s16 CLBRoundf<s16>(f32);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<f32>(f32*, f32, f32);
