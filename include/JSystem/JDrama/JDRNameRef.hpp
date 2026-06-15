@@ -22,10 +22,14 @@ public:
 	virtual void loadAfter();
 
 	virtual TNameRef* searchF(u16 key, char const* name);
+#ifdef JDRAMA_NAMEREF_SEARCH_OUT_OF_LINE
+	TNameRef* search(const char* name);
+#else
 	TNameRef* search(const char* name)
 	{
 		return searchF(calcKeyCode(name), name);
 	}
+#endif
 
 	// fabricated
 	const char* getName() const { return mName; }

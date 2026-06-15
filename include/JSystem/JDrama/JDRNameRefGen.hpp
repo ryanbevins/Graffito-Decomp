@@ -12,8 +12,13 @@ public:
 	virtual TNameRef* load(JSUMemoryInputStream&);
 	virtual TNameRef* getNameRef(const char*) const;
 
+#ifdef JDRAMA_NAMEREFGEN_ACCESSORS_OUT_OF_LINE
+	TNameRef* getRootNameRef();
+	static TNameRefGen* getInstance();
+#else
 	TNameRef* getRootNameRef() { return mRootNameRef; }
 	static TNameRefGen* getInstance() { return instance; }
+#endif
 
 	// fabricated
 	template <class T> static T* search(const char* name)

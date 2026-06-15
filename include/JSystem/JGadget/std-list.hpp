@@ -271,12 +271,20 @@ public:
 	};
 
 	iterator begin() { return iterator(Base::begin()); }
+#ifdef JGADGET_TLIST_POINTER_END_INSERT_OUT_OF_LINE
+	iterator end();
+#else
 	iterator end() { return iterator(Base::end()); }
+#endif
 
+#ifdef JGADGET_TLIST_POINTER_END_INSERT_OUT_OF_LINE
+	iterator insert(iterator where, const T& what);
+#else
 	iterator insert(iterator where, const T& what)
 	{
 		return Base::insert(where, what);
 	}
+#endif
 
 	void push_front(const T& what) { insert(begin(), what); }
 	void push_back(const T& what) { insert(end(), what); }

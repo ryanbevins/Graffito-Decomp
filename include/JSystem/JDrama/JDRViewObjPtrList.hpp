@@ -70,7 +70,11 @@ public:
 	virtual void loadAfterSuper() { TNameRef::loadAfter(); }
 
 	// surprisingly, real. TODO: reconsider the rest of this class based on this
+#ifdef JDRAMA_VIEWOBJ_PTRLIST_GETCHILDREN_OUT_OF_LINE
+	JGadget::TList_pointer<T*>& getChildren();
+#else
 	JGadget::TList_pointer<T*>& getChildren() { return *this; }
+#endif
 
 	// fabricated
 	void insert(T* const& obj) { getChildren().push_back(obj); }

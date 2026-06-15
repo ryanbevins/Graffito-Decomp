@@ -88,6 +88,13 @@ nested helper call.
   `scale(1.0f / divisor)` emitted an extra `TVec3::scale(float)` call; spelling
   `x/y/z *= scale` directly matched the target leaf body. A temporary
   `Equivalent` source-link proof passed.
+- `mario/Map/MapWireManager` (2026-06-15 MNL):
+  six inline JDrama/JGadget wrappers in the `loadAfter()` item-group insertion
+  path were missing: `TNameRefGen::getInstance`, `getRootNameRef`,
+  `TNameRef::search`, `TViewObjPtrListT<THitActor, TViewObj>::getChildren`,
+  and `TList_pointer<THitActor*>::end/insert`. TU-only declaration splits plus
+  `dont_inline` owner bodies emitted all six local owners in target order; a
+  temporary `Equivalent` source-link proof passed.
 
 ### Inline-result materialization charges +8 stack bytes per nested layer (lever for inline stack inflation)
 

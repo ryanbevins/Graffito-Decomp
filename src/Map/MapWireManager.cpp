@@ -1,3 +1,7 @@
+#define JDRAMA_NAMEREF_SEARCH_OUT_OF_LINE
+#define JDRAMA_NAMEREFGEN_ACCESSORS_OUT_OF_LINE
+#define JDRAMA_VIEWOBJ_PTRLIST_GETCHILDREN_OUT_OF_LINE
+#define JGADGET_TLIST_POINTER_END_INSERT_OUT_OF_LINE
 #include <Map/MapWireManager.hpp>
 #include <Player/MarioMain.hpp>
 #include <Camera/CubeManagerBase.hpp>
@@ -8,6 +12,10 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <dolphin/gx.h>
+#undef JDRAMA_NAMEREF_SEARCH_OUT_OF_LINE
+#undef JDRAMA_NAMEREFGEN_ACCESSORS_OUT_OF_LINE
+#undef JDRAMA_VIEWOBJ_PTRLIST_GETCHILDREN_OUT_OF_LINE
+#undef JGADGET_TLIST_POINTER_END_INSERT_OUT_OF_LINE
 
 void TMapWireActor::getTipPoints(JGeometry::TVec3<f32>* out_start,
                                  JGeometry::TVec3<f32>* out_end) const
@@ -212,6 +220,41 @@ void TMapWireManager::perform(u32 flags, JDrama::TGraphics*)
 		}
 	}
 }
+
+#pragma dont_inline on
+namespace JDrama {
+TNameRefGen* TNameRefGen::getInstance() { return instance; }
+
+TNameRef* TNameRefGen::getRootNameRef() { return mRootNameRef; }
+
+TNameRef* TNameRef::search(const char* name)
+{
+	return searchF(calcKeyCode(name), name);
+}
+
+template <>
+JGadget::TList_pointer<THitActor*>&
+TViewObjPtrListT<THitActor, TViewObj>::getChildren()
+{
+	return *this;
+}
+} // namespace JDrama
+
+namespace JGadget {
+template <>
+TList_pointer<THitActor*>::iterator TList_pointer<THitActor*>::end()
+{
+	return iterator(Base::end());
+}
+
+template <>
+TList_pointer<THitActor*>::iterator
+TList_pointer<THitActor*>::insert(iterator where, THitActor* const& what)
+{
+	return Base::insert(where, what);
+}
+} // namespace JGadget
+#pragma dont_inline off
 
 void TMapWireManager::loadAfter()
 {
