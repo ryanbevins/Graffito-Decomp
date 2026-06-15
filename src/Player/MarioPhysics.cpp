@@ -336,15 +336,15 @@ int TMario::waitProcess()
 		normalY = ground->mNormal.y;
 
 	Vec nextPos;
-	nextPos.x = mPosition.x + mVel.x * 1.0f * normalY;
-	nextPos.z = mPosition.z + mVel.z * 1.0f * normalY;
+	nextPos.x = mPosition.x + mVel.x * 0.25f * normalY;
+	nextPos.z = mPosition.z + mVel.z * 0.25f * normalY;
 	nextPos.y = mPosition.y;
 
 	int result = checkGroundAtWalking(&nextPos);
 	mFaceAngle.x = 0;
+	mModelFaceAngle = mFaceAngle.y;
 	if (result == 3)
 		return 2;
-	mModelFaceAngle = mFaceAngle.y;
 	return result;
 }
 
@@ -365,15 +365,15 @@ int TMario::walkProcess()
 		normalY = ground->mNormal.y;
 
 	Vec nextPos;
-	nextPos.x = mPosition.x + mVel.x * 1.0f * normalY;
-	nextPos.z = mPosition.z + mVel.z * 1.0f * normalY;
+	nextPos.x = mPosition.x + mVel.x * 0.25f * normalY;
+	nextPos.z = mPosition.z + mVel.z * 0.25f * normalY;
 	nextPos.y = mPosition.y;
 
 	int result = checkGroundAtWalking(&nextPos);
 	mFaceAngle.x = 0;
+	mModelFaceAngle = mFaceAngle.y;
 	if (result == 3)
 		return 2;
-	mModelFaceAngle = mFaceAngle.y;
 	return result;
 }
 
