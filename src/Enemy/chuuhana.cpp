@@ -555,7 +555,7 @@ void TChuuHana::moveObject()
 	if (!isAirborne()
 	    && (mGroundPlane->getActor() == nullptr
 	        || mGroundPlane->getActor() != unk218))
-		bind();
+		kill();
 }
 
 bool TChuuHana::isCollidMove(THitActor* actor)
