@@ -290,7 +290,7 @@ DEFINE_NERVE(TNerveElecNokonokoCollect, TLiveActor)
 		}
 		if (frame > 32) {
 			self->unk1A4 = 0;
-			self->mCarapace->shoot();
+			self->mCarapace->kill();
 		}
 		if (self->checkCurAnmEnd(0)) {
 			return true;
