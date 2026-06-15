@@ -6,6 +6,7 @@
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Strategy.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>
@@ -14,6 +15,9 @@
 // rogue includes needed for matching sinit
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+
+static const f32 dummy2659[3] = { 0.0f, 0.0f, 0.0f };
+static const f32 dummy2661[3] = { 1.0f, 1.0f, 1.0f };
 
 static const char* koopajr_bastable[] = {
 	"/scene/koopajr/bas/koopajr_damage.bas",
@@ -412,7 +416,7 @@ void TLimitKoopaJrManager::load(JSUMemoryInputStream& stream)
 
 void TLimitKoopaJrManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "koopajr_model.bmd", 0x14240000, 0 },
 		{ nullptr, 0, 0 },
 	};
