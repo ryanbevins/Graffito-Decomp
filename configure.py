@@ -1205,7 +1205,7 @@ config.libs = [
             Object(Equivalent, "Enemy/TabePuku.cpp"),
             Object(Equivalent, "Enemy/BathtubBinder.cpp"),
             Object(NonMatching, "Enemy/limitkoopa.cpp"),
-            Object(NonMatching, "Enemy/limitkoopajr.cpp"),
+            Object(Equivalent, "Enemy/limitkoopajr.cpp"),
         ],
     },
     {
