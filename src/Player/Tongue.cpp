@@ -213,7 +213,7 @@ void TYoshiTongue::movement()
 		THitActor* target = findTarget(true, true);
 		if (target != nullptr && mHeldObject == nullptr) {
 			JGeometry::TVec3<f32> targetMid(target->mPosition);
-			targetMid.y += 0.5f * target->mAttackHeight;
+			targetMid.y += 0.5f * target->mDamageHeight;
 			f32 speed = mExtendAmount;
 
 			JGeometry::TVec3<f32> tipPos = mTipPos;
@@ -269,7 +269,7 @@ void TYoshiTongue::movement()
 		else
 			normInvScale = JGeometry::TUtil<f32>::inv_sqrt(lsq) * lsq;
 
-		MtxPtr yoshiMtx = mYoshi->mActor->unk4->getAnmMtx(0);
+		MtxPtr yoshiMtx = getTakingMtx();
 		f32 dx          = -yoshiMtx[0][0];
 		f32 dy          = -yoshiMtx[1][0];
 		f32 dz          = -yoshiMtx[2][0];
@@ -285,8 +285,7 @@ void TYoshiTongue::movement()
 		JGeometry::TVec3<f32> newTip = mTipPos;
 		newTip.add(pullVec);
 
-		if (mYoshi->mActor->unk4 // dummy; real call: this->mHolder->moveRequest(newTip)
-		    && mHolder->moveRequest(newTip) == 1) {
+		if (mHolder->moveRequest(newTip) == 1) {
 			mTipPos.x += pullVec.x;
 			mTipPos.y += pullVec.y;
 			mTipPos.z += pullVec.z;
@@ -350,7 +349,7 @@ THitActor* TYoshiTongue::findTarget(bool flagB1, bool flagB2)
 		if (isHittable != 1) continue;
 
 		JGeometry::TVec3<f32> targetMid(h->mPosition);
-		targetMid.y += 0.5f * h->mAttackHeight;
+		targetMid.y += 0.5f * h->mDamageHeight;
 		JGeometry::TVec3<f32> diff = targetMid - mTipPos;
 
 		f32 lsq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
@@ -468,11 +467,11 @@ void TYoshiTongue::init(TYoshi* yoshi)
 		}
 	}
 
-	void* tipData
-	    = JKRFileLoader::getGlbResource("/mario/bmd/yoshi_tongue_tip.bmd");
-	J3DModelData* tipModelData
-	    = J3DModelLoaderDataBase::load(tipData, 0x10040000);
-	mTipModel = new J3DModel(tipModelData, 0x10000, 1);
+	mTipModel = new J3DModel(
+	    J3DModelLoaderDataBase::load(JKRFileLoader::getGlbResource(
+	                                     "/mario/bmd/yoshi_tongue_tip.bmd"),
+	                                 0x10040000),
+	    0x10000, 1);
 
 	{
 		J3DModelData* md = mTipModel->getModelData();
