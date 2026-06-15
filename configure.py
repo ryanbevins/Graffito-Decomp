@@ -1059,7 +1059,7 @@ config.libs = [
             Object(Equivalent, "Map/MapModel.cpp"),
             Object(Equivalent, "Map/MapWarp.cpp"),
             Object(Equivalent, "Map/MapStaticObject.cpp"),
-            Object(NonMatching, "Map/MapWire.cpp"),
+            Object(Equivalent, "Map/MapWire.cpp"),
             Object(Equivalent, "Map/MapWireManager.cpp"),
             Object(Equivalent, "Map/MapXlu.cpp"),
             Object(Equivalent, "Map/PollutionAction.cpp"),
