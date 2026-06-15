@@ -171,6 +171,11 @@ source-faithful and verify per call site; this is an expression-shape lever,
 not a reason to force weak emission globally.
 
 **Citations.**
+- `mario/Enemy/BossHanachanMain` (2026-06-15 MNL): routing the head-hit and
+  target-arrow three-float vector constructions through a local
+  `makeVec3(x,y,z)` helper emitted the exact uncalled 16B
+  `TVec3<float>::set<float>` owner and cleared the TU's last missing target
+  text row. A temporary `Equivalent` source-link proof passed.
 - `mario/Enemy/bosspakkun` `TNerveBPVomit::execute` and
   `TBossPakkun::launchPolDrop` (2026-06-12 MNL): routing the two offset-vector
   sites through a `polarXZ(s16, f32)` inline helper emitted the exact local
@@ -297,6 +302,10 @@ emission globally. Verify per TU; some direct `MsWrap` uses are supposed to
 inline.
 
 **Citations.**
+- `mario/Enemy/BossHanachanMain` (2026-06-15 MNL): routing the four
+  `perform()` angle-wrap sites through `callMsWrap` emitted the exact 72B local
+  `MsWrap<float>` owner and cleared the missing text row. A temporary
+  `Equivalent` source-link proof passed.
 - `mario/MoveBG/MapObjRailBlock` `TRailBlock::control` (2026-06-09): routing
   the three angle-delta wraps through `callMsWrap` emitted the exact 72-byte
   local `MsWrap<float>` symbol and moved `control` `66.2 -> 76.5`.

@@ -56,6 +56,16 @@ static f32 getRotFromXZ(f32 x, f32 z)
 	return 180.0f - matan(-z, x) * (360.0f / 65536.0f);
 }
 
+static inline f32 callMsWrap(f32 t, f32 l, f32 r)
+{
+	return MsWrap<f32>(t, l, r);
+}
+
+static inline JGeometry::TVec3<f32> makeVec3(f32 x, f32 y, f32 z)
+{
+	return JGeometry::TVec3<f32>(x, y, z);
+}
+
 static inline bool isBossHanachanDirectorBlocked()
 {
 	bool result = true;
@@ -379,7 +389,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 				JGeometry::TVec3<f32> diff = mSphereLink->mPoints[i - 1].mPos;
 				diff.sub(mSphereLink->mPoints[i].mPos);
 				mBody[i]->mRotation.y
-				    = MsWrap(getRotFromXZ(diff.x, diff.z), 0.0f, 360.0f);
+				    = callMsWrap(getRotFromXZ(diff.x, diff.z), 0.0f, 360.0f);
 			}
 
 			mSphereLink->mAngleOffset = mBody[0]->mRotation.y;
@@ -457,13 +467,13 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 						if (dist2 <= CLBSquared<f32>(50.0f)) {
 							body->unk120 = 0.0f;
 						} else {
-							f32 sandAngle = MsWrap(
+							f32 sandAngle = callMsWrap(
 							    getRotFromXZ(toSand.x, toSand.z), -180.0f,
 							    180.0f);
 							f32 bossAngle
-							    = MsWrap(mRotation.y, -180.0f, 180.0f);
+							    = callMsWrap(mRotation.y, -180.0f, 180.0f);
 							f32 diff
-							    = MsWrap(sandAngle - bossAngle, -180.0f,
+							    = callMsWrap(sandAngle - bossAngle, -180.0f,
 							             180.0f);
 							f32 absDiff = __fabsf(diff);
 							if (absDiff <= 15.0f || absDiff >= 165.0f) {
@@ -718,7 +728,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 				TBossHanachanPartsHead* head
 				    = (TBossHanachanPartsHead*)mHead;
 				MtxPtr mtx = head->mCenterJointMtx;
-				JGeometry::TVec3<f32> hitPos(
+				JGeometry::TVec3<f32> hitPos = makeVec3(
 				    mtx[0][3],
 				    mtx[1][3] - mParams->mSLHeadHitOffsetY.value,
 				    mtx[2][3]);
@@ -813,8 +823,8 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 			    || curNerve == &TNerveBossHanachanDown::theNerve()) {
 				MtxPtr mtx = ((TBossHanachanPartsBody*)mBody[unk174])
 				                 ->mCenterJointMtx;
-				JGeometry::TVec3<f32> arrowPos(mtx[0][3], mtx[1][3] + 400.0f,
-				                                mtx[2][3]);
+				JGeometry::TVec3<f32> arrowPos
+				    = makeVec3(mtx[0][3], mtx[1][3] + 400.0f, mtx[2][3]);
 				gpTargetArrow->setPos(arrowPos);
 				gpTargetArrow->unk14 = 1;
 			}
