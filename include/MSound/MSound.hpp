@@ -140,9 +140,7 @@ public:
 	/* 0xCF */ u8 unkCF;
 	/* 0xD0 */ u8 unkD0;
 	/* 0xD1 */ u8 unkD1;
-	/* 0xD2 */ char unkD2[0x304 - 0xD2];
-	/* 0x304 */ JASystem::TTrack::TOuterParam* unk304;
-	/* 0x308 */ char unk308[0x4];
+	/* 0xD2 */ u8 unkD2[0xD4 - 0xD2];
 
 	// real
 	void startSoundSystemSE(u32 param_1, u32 param_2, JAISound** param_3,

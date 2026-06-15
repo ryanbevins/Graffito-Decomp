@@ -851,7 +851,7 @@ config.libs = [
             Object(Equivalent, "System/TalkCursor.cpp"),
             Object(Matching, "System/TexCache.cpp"),
             Object(Matching, "System/ZBufferCatch.cpp"),
-            Object(NonMatching, "System/Application.cpp"),
+            Object(Equivalent, "System/Application.cpp"),
             Object(Matching, "System/ScenarioArchiveName.cpp"),
             Object(Equivalent, "System/MarioGamePad.cpp"),
             Object(Matching, "System/StageEventInfo.cpp"),

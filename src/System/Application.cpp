@@ -356,7 +356,7 @@ void TApplication::initialize_nlogoAfter()
 
 	gpRomFont = nullptr;
 	((JKRExpHeap*)mHeap)->destroy();
-	JKRGetRootHeap()->getSize(spGameHeapBlock);
+	JKRGetRootHeap()->free(spGameHeapBlock);
 
 	JKRMemArchive* this_00 = new JKRMemArchive(arcBufMario, 0, MBF_0);
 	gpCardManager->mIcons
@@ -551,7 +551,8 @@ void TApplication::proc()
 		if (!iVar9)
 			nextState = gameLoop();
 
-		delete mDirector;
+		if (mDirector != nullptr)
+			mDirector->~TDirector();
 		mDirector = nullptr;
 
 		switch (mAppState) {
