@@ -920,7 +920,7 @@ config.libs = [
             Object(NonMatching, "Player/MarioSpecial.cpp"),
             Object(Equivalent, "Player/MarioUpper.cpp"),
             Object(NonMatching, "Player/MarioParticle.cpp"),
-            Object(NonMatching, "Player/MarioWait.cpp"),
+            Object(Equivalent, "Player/MarioWait.cpp"),
             Object(Equivalent, "Player/SplashManager.cpp"),
             Object(NonMatching, "Player/Tongue.cpp"),
             Object(NonMatching, "Player/WaterGun.cpp"),
