@@ -206,7 +206,7 @@ void TTamaNokoManager::initSetEnemies()
 	for (int i = 0; i < mObjNum; ++i) {
 		TTamaNoko* enemy = (TTamaNoko*)unk18[i];
 		enemy->unk19C
-		    = new TTamaNokoFlower(enemy, 0, modelData, 0x3, "TamaNokoFlower");
+		    = new TTamaNokoFlower(enemy, 0, modelData, 0x3, "タマノコフラワー");
 	}
 }
 
@@ -549,11 +549,11 @@ void TTamaNoko::landEffect()
 	if (mGroundPlane->isSand()) {
 		if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
 		        PARTICLE_MS_HIPDROP_C, &mPosition, 0, nullptr)) {
-			emitter->setScale(mScaling);
+			emitter->setScale(mScaling * 0.8f);
 		}
 		if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
 		        PARTICLE_MS_POI_SAND, &mPosition, 0, nullptr)) {
-			emitter->setScale(mScaling);
+			emitter->setScale(mScaling * 0.8f);
 		}
 	}
 
@@ -565,11 +565,11 @@ void TTamaNoko::landEffect()
 	} else {
 		if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
 		        PARTICLE_MS_HIPDROP_C, &mPosition, 0, nullptr)) {
-			emitter->setScale(mScaling);
+			emitter->setScale(mScaling * 0.8f);
 		}
 		if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
 		        PARTICLE_MS_HIPDROP_B, &mPosition, 0, nullptr)) {
-			emitter->setScale(mScaling);
+			emitter->setScale(mScaling * 0.8f);
 		}
 	}
 
