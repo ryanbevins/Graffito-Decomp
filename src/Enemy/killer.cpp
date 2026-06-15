@@ -37,9 +37,9 @@
 
 static TKiller* gpCurKiller;
 
-bool TKiller::mTrampleDie;
+bool TKiller::mSerialBomb = true;
+bool TKiller::mTrampleDie = true;
 bool TKiller::mRollSw;
-bool TKiller::mSerialBomb;
 
 f32 TFlyEnemy::mTestSp         = 2.5f;
 s32 TFlyEnemy::mInvalidTime    = 200;
@@ -726,8 +726,15 @@ bool TKiller::isRollFly()
 // Nerves
 // ---------------------------------------------------------------------------
 
-inline f32 MsSin(f32 v) { return JMASin(v); }
-inline f32 MsCos(f32 v) { return JMACos(v); }
+#pragma dont_inline on
+f32 MsSin(f32 v) { return JMASin(v); }
+f32 MsCos(f32 v) { return JMACos(v); }
+#pragma dont_inline off
+
+static inline JGeometry::TVec3<f32> makeKillerMove(f32 x, f32 y, f32 z)
+{
+	return JGeometry::TVec3<f32>(x, y, z);
+}
 
 DEFINE_NERVE(TNerveFlyEnemyChaseFly, TLiveActor)
 {
@@ -783,8 +790,8 @@ DEFINE_NERVE(TNerveFlyEnemyChaseFly, TLiveActor)
 		f32 yaw = self->mRotation.y;
 		f32 sp  = self->mMarchSpeed;
 		f32 cz  = sp * MsCos(yaw);
-		JGeometry::TVec3<f32> move;
-		move.set(sp * MsSin(yaw), 0.0f, cz);
+		JGeometry::TVec3<f32> move
+		    = makeKillerMove(sp * MsSin(yaw), 0.0f, cz);
 		vel.add(move);
 		self->mLinearVelocity = vel;
 		break;
