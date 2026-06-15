@@ -872,7 +872,7 @@ config.libs = [
             Object(Equivalent, "System/MovieDirector.cpp"),
             Object(Matching, "System/MarDirectorCreateObjects.cpp"),
             Object(NonMatching, "System/MarDirectorSetupObjects.cpp"),
-            Object(NonMatching, "System/MSoundMainSide.cpp"),
+            Object(Equivalent, "System/MSoundMainSide.cpp"),
             Object(Matching, "System/TargetArrow.cpp"),
         ],
     },
