@@ -14,6 +14,7 @@
 #include <MSound/MSoundBGM.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -175,7 +176,11 @@ void TCogwheel::initDraw() const
 	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
 	              GX_DF_NONE, GX_AF_NONE);
 
-	GXColor color = { 0xFF, 0xFF, 0xFF, 0xFF };
+	static const GXColor sCogwheelColor = { 0x00, 0x00, 0x64, 0xFF };
+	GXColor color;
+	volatile GXColor temp;
+	temp  = sCogwheelColor;
+	color = *(GXColor*)&temp;
 	GXSetChanMatColor(GX_COLOR0A0, color);
 	GXSetNumTexGens(1);
 	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, 0x3C, 0,
@@ -194,8 +199,7 @@ void TCogwheel::initDraw() const
 	                GX_CA_ZERO);
 	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, 1,
 	                GX_TEVPREV);
-	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
-	               GX_LO_NOOP);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ZERO, GX_LO_NOOP);
 	GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
 	GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	GXSetCullMode(GX_CULL_BACK);
@@ -391,7 +395,11 @@ void TMapObjElasticCode::draw() const
 	              GX_DF_NONE, GX_AF_NONE);
 	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
 	              GX_DF_NONE, GX_AF_NONE);
-	GXColor color = { 0x80, 0x80, 0x80, 0x80 };
+	static const GXColor sElasticColor = { 0x00, 0x00, 0x64, 0xFF };
+	GXColor color;
+	volatile GXColor temp;
+	temp  = sElasticColor;
+	color = *(GXColor*)&temp;
 	GXSetChanMatColor(GX_COLOR0A0, color);
 	GXSetNumTexGens(0);
 	GXSetNumTevStages(1);
@@ -405,8 +413,7 @@ void TMapObjElasticCode::draw() const
 	                GX_CA_ZERO);
 	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, 1,
 	                GX_TEVPREV);
-	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
-	               GX_LO_NOOP);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ZERO, GX_LO_NOOP);
 	GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
 	GXSetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
 	GXSetCullMode(GX_CULL_NONE);
@@ -579,7 +586,11 @@ void TWireBell::initDraw() const
 	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
 	              GX_DF_NONE, GX_AF_NONE);
 
-	GXColor color = { 0xFF, 0xFF, 0xFF, 0xFF };
+	static const GXColor sWireBellColor = { 0x00, 0x00, 0x64, 0xFF };
+	GXColor color;
+	volatile GXColor temp;
+	temp  = sWireBellColor;
+	color = *(GXColor*)&temp;
 	GXSetChanMatColor(GX_COLOR0A0, color);
 	GXSetNumTexGens(1);
 	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, 0x3C, 0,
@@ -598,8 +609,7 @@ void TWireBell::initDraw() const
 	                GX_CA_ZERO);
 	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, 1,
 	                GX_TEVPREV);
-	GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
-	               GX_LO_NOOP);
+	GXSetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ZERO, GX_LO_NOOP);
 	GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
 	GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	GXSetCullMode(GX_CULL_BACK);

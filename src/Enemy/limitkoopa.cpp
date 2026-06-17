@@ -16,6 +16,8 @@
 #include <JSystem/JGadget/std-list.hpp>
 
 // rogue includes needed for matching sinit & rodata
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
 namespace {

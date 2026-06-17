@@ -6,6 +6,10 @@
 
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
+
+#include <MarioUtil/TexUtil.hpp>
+#include <MarioUtil/MtxUtil.hpp>
 
 #include <System/MarDirector.hpp>
 
@@ -17,6 +21,14 @@
 #include <System/EmitterViewObj.hpp>
 
 extern size_t gpMarioAddress;
+
+const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
+const char cDirtyTexName[]  = "H_ma_rak_dummy";
+
+static BOOL NozzleCtrl(J3DNode* node, BOOL param_2);
+static BOOL RotateCtrl(J3DNode* node, BOOL param_2);
+static BOOL WaterGunDivingCtrlL(J3DNode* node, BOOL param_2);
+static BOOL WaterGunDivingCtrlR(J3DNode* node, BOOL param_2);
 
 TNozzleBmdData nozzleBmdData = {
 	{
@@ -122,7 +134,7 @@ TWaterGun::TWaterGun(TMario* mario)
 	mMario = mario;
 }
 
-static bool NozzleCtrl(J3DNode* node, BOOL param_2)
+static BOOL NozzleCtrl(J3DNode* node, BOOL param_2)
 {
 	// TODO: Inlined stack space
 	if (!param_2) {
@@ -141,7 +153,7 @@ static bool NozzleCtrl(J3DNode* node, BOOL param_2)
 	return true;
 }
 
-static bool RotateCtrl(J3DNode* node, BOOL param_2)
+static BOOL RotateCtrl(J3DNode* node, BOOL param_2)
 {
 	if (!param_2 && gpMarioForCallBack != nullptr) {
 		s16 local1cd0 = gpMarioForCallBack->mWaterGun->unk1CD0;
@@ -154,7 +166,7 @@ static bool RotateCtrl(J3DNode* node, BOOL param_2)
 	return true;
 }
 
-static bool WaterGunDivingCtrlL(J3DNode* node, BOOL param_2)
+static BOOL WaterGunDivingCtrlL(J3DNode* node, BOOL param_2)
 {
 	if (!param_2) {
 		// This looks very weird to me, probably because of some inline?
@@ -171,7 +183,7 @@ static bool WaterGunDivingCtrlL(J3DNode* node, BOOL param_2)
 	return true;
 }
 
-static bool WaterGunDivingCtrlR(J3DNode* node, BOOL param_2)
+static BOOL WaterGunDivingCtrlR(J3DNode* node, BOOL param_2)
 {
 	if (!param_2) {
 		// This looks very weird to me, probably because of some inline?
@@ -202,7 +214,6 @@ void TWaterGun::init()
 	mCurrentNozzle             = Spray;
 	mSecondNozzle              = Hover;
 	mNozzleRocket.unk38C       = 0x81b;
-	mNozzleTurbo.unk38C        = 0x814;
 	mNozzleDeform.mBomb.unk38C = 0x813;
 	mCurrentWater = mNozzleList[mCurrentNozzle]->mEmitParams.mAmountMax.get();
 	mIsEmitWater  = false;
@@ -220,7 +231,7 @@ void TWaterGun::init()
 	unk1D06           = -0x1800;
 	unk1D08           = 0;
 
-	// mEmitInfo = new TWaterEmitInfo; TODO
+	mEmitInfo = new TWaterEmitInfo("/Mario/GunEmit.prm");
 
 	unk1D08                         = 0;
 	mNozzleDeform.mBomb.unk384      = true;
@@ -251,18 +262,25 @@ void TWaterGun::init()
 	    J3DModelLoaderDataBase::load(fluddModelData, 0x10040000), 0, 1);
 	mFluddModel->setModel(fluddModel, 0);
 
-	// Requires M3UModelMario at 0x3a8 in TMario
-	// Missing decompilation
-	// MTXCopy(
-	//     mMario->mModelMario->unk8->mJointArray[mMario->mBindBoneIDArray[0]],
-	//     mFluddModel->unk4->unk20);
+	MTXCopy(mMario->mModel->getModel()->getAnmMtx(mMario->mBoneIDs[0]),
+	        mFluddModel->unk4->unk20);
 
-	mFluddModel->unk4->initialize();
+	mFluddModel->unk4->calc();
 
-	s32 handleIdx
+	u16 handleIdx
 	    = mFluddModel->unk4->mModelData->unkB0->getIndex("jnt_G_handle");
 
-	// unk1CDC is TMultiMtxEffect, but confused from implementation atm
+	unk1CDC                  = new TMultiMtxEffect();
+	unk1CDC->mNumBones       = 2;
+	u16* boneIds             = new u16[2];
+	boneIds[0]               = 0;
+	boneIds[1]               = handleIdx;
+	unk1CDC->mBoneIDs        = boneIds;
+	u8* effectTypes          = new u8[2];
+	effectTypes[0]           = 0;
+	effectTypes[1]           = 1;
+	unk1CDC->mMtxEffectType  = effectTypes;
+	unk1CDC->setup(mFluddModel->unk4, "Mario/WaterGun");
 
 	unk1CD8 = mFluddModel->unk4->mModelData->unkB0->getIndex("nozzle_center");
 
@@ -282,10 +300,9 @@ void TWaterGun::init()
 		    J3DModelLoaderDataBase::load(nozzleModelData, 0x10040000), 0, 1);
 		mNozzleList[i]->unk380->setModel(nozzleModel, 0);
 
-		// TODO: Figure out
-		// ResTIMG* img = mFluddModel->unk4->mModelData->unkAC->getResTIMG(0);
-		// SMS_ChangeTextureAll(mNozzleList[i]->unk380->unk4->mModelData,
-		//                      "H_watergun_main_dummy", img);
+		ResTIMG* img = mFluddModel->unk4->mModelData->unkAC->getResTIMG(0);
+		SMS_ChangeTextureAll(mNozzleList[i]->unk380->unk4->mModelData,
+		                     "H_watergun_main_dummy", *img);
 
 		mNozzleList[i]->unk380->initDL();
 		// Definitely inline potential
@@ -309,15 +326,44 @@ void TWaterGun::init()
 		}
 	}
 
-	s32 jointIdx
+	u16 sprayMuzzleIdx
 	    = mNozzleList[Spray]->unk380->unk4->mModelData->unkB0->getIndex(
-	        "chn_muzzle_l");
-	// mNozzleList[Spray]
-	//     ->unk380->unk4->mModelData->mJointNodePointer[jointIdx]
-	//     ->mCallBack = functionPtr;
-	// 5 more of these
+	        "chn_muzzle_1");
+	mNozzleList[Spray]
+	    ->unk380->unk4->mModelData->getJointNodePointer(sprayMuzzleIdx)
+	    ->setCallBack(NozzleCtrl);
 
-	// MTXCopy that requires M3UModelMario at 0x3a8 in TMario
+	u16 hoverLIdx
+	    = mNozzleList[Hover]->unk380->unk4->mModelData->unkB0->getIndex(
+	        "jnt_nozzle_L");
+	mNozzleList[Hover]
+	    ->unk380->unk4->mModelData->getJointNodePointer(hoverLIdx)
+	    ->setCallBack(WaterGunDivingCtrlL);
+
+	u16 hoverRIdx
+	    = mNozzleList[Hover]->unk380->unk4->mModelData->unkB0->getIndex(
+	        "jnt_nozzle_R");
+	mNozzleList[Hover]
+	    ->unk380->unk4->mModelData->getJointNodePointer(hoverRIdx)
+	    ->setCallBack(WaterGunDivingCtrlR);
+
+	u16 turboPropIdx
+	    = mNozzleList[Turbo]->unk380->unk4->mModelData->unkB0->getIndex(
+	        "chn_back_nozzle_prop");
+	mNozzleList[Turbo]
+	    ->unk380->unk4->mModelData->getJointNodePointer(turboPropIdx)
+	    ->setCallBack(RotateCtrl);
+
+	u16 turboNeckIdx
+	    = mNozzleList[Turbo]->unk380->unk4->mModelData->unkB0->getIndex(
+	        "jnt_back_nozzle_neck");
+	mNozzleList[Turbo]
+	    ->unk380->unk4->mModelData->getJointNodePointer(turboNeckIdx)
+	    ->setCallBack(NozzleCtrl);
+
+	MTXCopy(mMario->mModel->getModel()->getAnmMtx(mMario->mBoneIDs[0]),
+	        mFluddModel->unk4->unk20);
+	mFluddModel->unk4->calc();
 
 	unk1D10 = new TMirrorActor("水鉄砲in鏡");
 	unk1D10->init(mFluddModel->unk4, 4);
@@ -417,7 +463,7 @@ MtxPtr TWaterGun::getEmitMtx(int jointIndex)
 	volatile u32 unused2[24]; // TODO: A lot of stack space, possibly a lot of
 	                          // inlined functions.
 	MtxPtr result;
-	if (!mMario->onYoshi()) {
+	if (mMario->onYoshi()) {
 		result = getYoshiMtx();
 	} else {
 		// This entire block is likely an inlined function.

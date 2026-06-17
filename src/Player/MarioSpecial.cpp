@@ -927,7 +927,7 @@ void TMario::getCurrentPullParams(f32* outSpeed, f32* outAccel)
 
 void TMario::wireRolling()
 {
-	u32 savedAngle = mFaceAngle.x;
+	s16 savedAngle = mFaceAngle.x;
 
 	JGeometry::TVec3<f32> startPos = mWireStartPos;
 	JGeometry::TVec3<f32> diff = mWireEndPos;
@@ -973,24 +973,23 @@ void TMario::wireRolling()
 	}
 
 	u32 actionState = mActionState;
-	u32 maxRotSpeed = mWireParams.mRotSpeedMax.get();
+	s16 maxRotSpeed = mWireParams.mRotSpeedMax.get();
 	u8 bit0 = actionState & 1;
 
-	if (bit0 && (u16)unkF6 < 0 && mFaceAngle.x > -8192
+	if (bit0 && (s16)unkF6 < 0 && mFaceAngle.x > -8192
 	    && mFaceAngle.x <= maxRotSpeed - 8192) {
 		changePlayerStatus(0x893, 0, false);
 		return;
 	}
 
-	if (bit0 && (u16)unkF6 > 0 && (24576 - maxRotSpeed) <= mFaceAngle.x
+	if (bit0 && (s16)unkF6 > 0 && (24576 - maxRotSpeed) <= mFaceAngle.x
 	    && mFaceAngle.x < 24576) {
 		changePlayerStatus(0x893, 1, false);
 		return;
 	}
 
 	if (mInput & 0x1) {
-		u32 angleDiff = (u16)wireAngle - mIntendedYaw;
-		u32 diff16 = angleDiff;
+		s16 diff16 = (s16)wireAngle - mIntendedYaw;
 		if (diff16 > -8192 && diff16 < 13653) {
 			wireMove(3.0f);
 		}
@@ -1022,7 +1021,7 @@ void TMario::wireRolling()
 				}
 			}
 			if (emitting) {
-				u32 rotAccel;
+				s16 rotAccel;
 				if (mWaterGun == NULL) {
 					rotAccel = 0;
 				} else {
@@ -1041,13 +1040,13 @@ void TMario::wireRolling()
 						break;
 					}
 				}
-				unkF6 = unkF6 + rotAccel;
+				unkF6 = (s16)unkF6 + rotAccel;
 			}
 		}
 	}
 
-	u32 gravity = mWireParams.mRotGravity.get();
-	unkF6 = unkF6 - (u16)(JMASSin(mFaceAngle.x) * (f32)gravity);
+	s16 gravity = mWireParams.mRotGravity.get();
+	unkF6 = (s16)unkF6 - (s16)(JMASSin(mFaceAngle.x) * (f32)gravity);
 
 	u8 hasBrake;
 	if (mInput & 0x4000) {
@@ -1056,23 +1055,23 @@ void TMario::wireRolling()
 		hasBrake = 0;
 	}
 	if (hasBrake) {
-		unkF6 = (u16)((f32)(u16)unkF6 * mWireParams.mRotBrake.get());
+		unkF6 = (s16)((f32)(s16)unkF6 * mWireParams.mRotBrake.get());
 	}
 
-	if ((u16)unkF6 < -maxRotSpeed) {
+	if ((s16)unkF6 < -maxRotSpeed) {
 		unkF6 = -maxRotSpeed;
 	}
-	if ((u16)unkF6 > maxRotSpeed) {
+	if ((s16)unkF6 > maxRotSpeed) {
 		unkF6 = maxRotSpeed;
 	}
 
-	mFaceAngle.x = mFaceAngle.x + (u16)unkF6;
-	mWireSag = 0.1f * __fabsf((f32)(u16)unkF6);
+	mFaceAngle.x = mFaceAngle.x + (s16)unkF6;
+	mWireSag = 0.1f * __fabsf((f32)(s16)unkF6);
 	mWireBounceVel = 0.0f;
 
-	if (savedAngle < -16384 && (u16)mFaceAngle.x > 16384) {
+	if (savedAngle < -16384 && mFaceAngle.x > 16384) {
 		mActionState |= 2;
-	} else if (savedAngle >= (u16)mFaceAngle.x) {
+	} else if (savedAngle >= mFaceAngle.x) {
 		// do nothing
 	} else {
 		mActionState &= ~2;
@@ -1082,7 +1081,7 @@ void TMario::wireRolling()
 	u32 soundId = 0;
 	u8 shouldPlay = 0;
 	if (state & 2) {
-		if ((u16)mFaceAngle.x < mWireSwingPosAngle
+		if (mFaceAngle.x < mWireSwingPosAngle
 		    && mWireSwingPosAngle <= savedAngle) {
 			mWireQueuedSfxID = 0x381E;
 			soundId = 0x1817;
@@ -1104,18 +1103,18 @@ void TMario::wireRolling()
 			}
 		}
 
-		if ((u16)mFaceAngle.x < mWireSwingNegAngle
+		if (mFaceAngle.x < mWireSwingNegAngle
 		    && mWireSwingNegAngle <= savedAngle) {
 			soundId = 0x180F;
 			shouldPlay = 1;
 		}
 
-		if ((u16)savedAngle > 0 && (u16)mFaceAngle.x <= 0) {
+		if (savedAngle > 0 && mFaceAngle.x <= 0) {
 			mWireQueuedSfxID = 0x381E;
 			mWireSfxTimer = mWireSfxDelay;
 		}
 	} else {
-		if ((u16)mFaceAngle.x < mWireRollAngle
+		if (mFaceAngle.x < mWireRollAngle
 		    && mWireRollAngle <= savedAngle) {
 			mWireQueuedSfxID = 0x381F;
 			soundId = 0x1815;
@@ -1123,9 +1122,9 @@ void TMario::wireRolling()
 			mWireSfxTimer = mWireSfxDelay;
 		}
 
-		u32 rollAngle = mWireRollAngle;
+		s16 rollAngle = mWireRollAngle;
 		if (savedAngle < rollAngle
-		    && rollAngle <= (u16)mFaceAngle.x) {
+		    && rollAngle <= mFaceAngle.x) {
 			mWireQueuedSfxID = 0x3820;
 			soundId = 0x1816;
 			shouldPlay = 1;
@@ -1143,9 +1142,9 @@ void TMario::wireRolling()
 
 	blurEffect();
 
-	u32 rotStop = mWireParams.mRotStop.get();
-	if ((u16)mFaceAngle.x > -512 && (u16)mFaceAngle.x < 512
-	    && (u16)unkF6 > -rotStop && (u16)unkF6 < rotStop) {
+	s16 rotStop = mWireParams.mRotStop.get();
+	if (mFaceAngle.x > -512 && mFaceAngle.x < 512
+	    && (s16)unkF6 > -rotStop && (s16)unkF6 < rotStop) {
 		u8 canHang = 0;
 		mFaceAngle.x = 0;
 		unkF6 = 0;
@@ -1797,7 +1796,7 @@ void TMario::hanging()
 	mPosition.z = wallCheck2.mCenter.z;
 
 	if (mActionTimer >= 40 && (mInput & 0x1)) {
-		s32 stickDiffExt = (u16)stickAngleDiff;
+		s32 stickDiffExt = (s16)stickAngleDiff;
 		if (stickDiffExt >= -1024 && stickDiffExt <= 1024) {
 			if (highEnough) {
 				setAnimation(0, 1.0f);
@@ -1806,7 +1805,7 @@ void TMario::hanging()
 			}
 		}
 
-		s32 stickDiffExt2 = (u16)stickAngleDiff;
+		s32 stickDiffExt2 = (s16)stickAngleDiff;
 		if (stickDiffExt2 > -29127 && stickDiffExt2 < 29127) {
 			if (mActionTimer >= mHangingParams.mRapidTime.value && wallCheck1.mResultWallsNum > 0) {
 				JGeometry::TVec3<f32> targetPos;
@@ -1821,7 +1820,7 @@ void TMario::hanging()
 					targetPos.y = mPosition.y;
 					targetPos.z = mPosition.z + moveSpeed * (mag * bestWall->mNormal.x);
 				}
-				if ((u16)stickAngleDiff > -29127 && (u16)stickAngleDiff < -1024) {
+				if ((s16)stickAngleDiff > -29127 && (s16)stickAngleDiff < -1024) {
 					f32 mag = mIntendedMag;
 					targetPos.x = mPosition.x + moveSpeed * (mag * bestWall->mNormal.z);
 					targetPos.y = mPosition.y;
@@ -1953,7 +1952,7 @@ void TMario::hanging()
 			dist = distSq * (0.5f * guess * (3.0f - distSq * guess * guess));
 		}
 		f32 animSpeed = dist * mHangingParams.mAnmRate.value;
-		if ((u16)stickAngleDiff < 0) {
+		if ((s16)stickAngleDiff < 0) {
 			setAnimation(0xD7, animSpeed);
 		} else {
 			setAnimation(0xD8, animSpeed);

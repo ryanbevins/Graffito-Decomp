@@ -3,6 +3,7 @@
 
 #include <JSystem/JDrama/JDRNameRef.hpp>
 #include <JSystem/JGadget/std-vector.hpp>
+#include <dolphin/os.h>
 
 template <class T, class U = JDrama::TNameRef>
 class TNameRefAryT : public U, public JGadget::TVector<T> {
@@ -40,9 +41,21 @@ public:
 		if (JDrama::TNameRef* candidate = JDrama::TNameRef::searchF(key, name))
 			return candidate;
 
-		for (T* it = getChildren().begin(); it != getChildren().end(); ++it)
+		for (T* it = getChildren().begin(); it != getChildren().end(); ++it) {
+			u32 a    = (u32)it;
+			bool bad = (a < 0x80003100u || a >= 0x81800000u || (a & 3));
+			if (!bad) {
+				u32 vt = *(u32*)a;
+				bad = (vt < 0x80003100u || vt >= 0x81800000u || (vt & 3));
+			}
+			if (bad) {
+				OSReport((char*)"BADARY %s elem=%p\n", this->getName(),
+				         (void*)it);
+				break;
+			}
 			if (JDrama::TNameRef* candidate = it->searchF(key, name))
 				return candidate;
+		}
 
 		return nullptr;
 	}

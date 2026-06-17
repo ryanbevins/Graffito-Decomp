@@ -73,12 +73,16 @@ public:
 
 	void zero() { x = y = z = 0.0f; }
 
+#ifdef JGEOMETRY_EVENTWATCHER_TVEC3_SET_VEC_OUT_OF_LINE
+	void set(const Vec& v);
+#else
 	void set(const Vec& v)
 	{
 		x = v.x;
 		y = v.y;
 		z = v.z;
 	}
+#endif
 
 	template <class TY> void set(TY x_, TY y_, TY z_)
 	{

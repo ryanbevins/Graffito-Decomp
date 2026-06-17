@@ -1,9 +1,15 @@
 #include <Player/MarioMain.hpp>
 #include <Player/Watergun.hpp>
 #include <Player/MarioCap.hpp>
+#include <Player/MarioEffect.hpp>
 #include <Player/MarioAccess.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
-#include <System/StageUtil.hpp>
+#include <Map/Map.hpp>
+#include <dolphin/mtx.h>
+
+// Forward-declared instead of including <System/StageUtil.hpp>, which would
+// pull in the static shine tables/helpers that the original TU does not emit.
+bool SMS_isMultiPlayerMap();
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
@@ -16,9 +22,6 @@ class JSUMemoryInputStream;
 
 extern CPolarSubCamera* gpCamera;
 extern MSound* gpMSound;
-
-// TMarioEffect forward declaration - init called via symbol
-extern "C" void init__12TMarioEffectFP6TMario(void*, TMario*);
 
 // TODO: stuff from other rogue includes
 static JGeometry::TVec3<f32> cDeformedTerrainCenter(0.0f, 5000.0f, 0.0f);
@@ -615,13 +618,8 @@ void TMario::initValues()
 	mYoshi->init(this);
 
 	// Allocate and init TMarioEffect (THitActor subclass, 0x84 bytes)
-	void* marioEffect = operator new(0x84);
-	if (marioEffect) {
-		new (marioEffect) THitActor("マリオエフェクト");
-		// In original code, TMarioEffect vtable is set here
-	}
-	mMarioEffect = marioEffect;
-	init__12TMarioEffectFP6TMario(mMarioEffect, this);
+	mMarioEffect = new TMarioEffect("マリオエフェクト");
+	((TMarioEffect*)mMarioEffect)->init(this);
 
 	// Init unk414 and related float vectors
 	unk414.x = 0.0f;
@@ -651,7 +649,7 @@ void TMario::initValues()
 	resetHistory();
 
 	// Init this as a hit actor
-	initHitActor(0x80000001, 5, -1024,
+	initHitActor(0x80000001, 5, 0xFC000000,
 	    mDeParams.mTrampleRadius.get(),
 	    mDeParams.mAttackHeight.get(),
 	    mDeParams.mDamageRadius.get(),
@@ -801,4 +799,228 @@ TMario::TMario()
     , mDmgMapParams9("/Mario/DmgMapCode9.prm")
     , mOptionParams("/Mario/Option.prm")
 {
+	mSubState      = 0x412;
+	mSubStateTimer = 0;
+	mInput         = 0;
+	unk78          = 0;
+	mAction        = 0x133f;
+	mPrevAction    = 0x133f;
+	mActionState   = 0;
+	mActionTimer   = 0;
+	mActionArg     = 0;
+	mIntendedMag   = 0.0f;
+	mIntendedYaw   = 0;
+	mFaceAngle.x   = 0;
+	mFaceAngle.y   = 0;
+	mFaceAngle.z   = 0;
+	mModelFaceAngle = 0;
+	unk9C          = 0;
+	mSlideAngle    = 0;
+	unkA0          = 0;
+	mVel.x         = 0.0f;
+	mVel.y         = 0.0f;
+	mVel.z         = 0.0f;
+	mForwardVel    = 0.0f;
+	mSlideVelX     = 0.0f;
+	mSlideVelZ     = 0.0f;
+	unkBC          = 0.0f;
+	mDashSpeed     = 0.0f;
+	mDashTimer     = 0;
+	*(f32*)((u8*)this + 0xC8) = 0.0f;
+	*(f32*)((u8*)this + 0xCC) = 0.033333335f;
+	*(f32*)((u8*)this + 0xD0) = 0.016666668f;
+	*(u8*)((u8*)this + 0xD4)  = 0xB4;
+	*(u8*)((u8*)this + 0xD5)  = 0xB4;
+	mWallPlane     = 0;
+	mRoofPlane     = 0;
+	mGroundPlane   = TMap::getIllegalCheckData();
+	mWaterFloor    = 0;
+	unk144         = 0xFFFFFFFF;
+	mFloorPosition.x = 0.0f;
+	mFloorPosition.y = 0.0f;
+	mFloorPosition.z = 0.0f;
+	mSlopeAngle    = 0;
+	unkF6          = 0;
+	mLightID       = 0;
+	mAnimationId   = 0xC3;
+	unkFC          = 0;
+	*(s16*)((u8*)this + 0xFE) = 0;
+	unk100         = 0;
+	unk104         = 0.0f;
+	unk108         = 0;
+	mState         = 0;
+	mPrevState     = 0;
+	mHealth        = mDeParams.mHpMax.get();
+	unk122         = 0;
+	unk124         = 0;
+	unk126         = 0;
+	unk128_s16     = 0;
+	unk130         = (f32)(mHealth + 1) - 0.00001f;
+	unk12C         = unk130;
+	unk148         = 0;
+	unk14C         = 0;
+	unk14E         = 0;
+	unk154         = 0;
+	unk158         = 0;
+	unk15C         = 0.0f;
+	unk160[0].x    = 0.0f;
+	unk160[0].y    = 0.0f;
+	unk160[0].z    = 0.0f;
+	unk160[1].x    = 0.0f;
+	unk160[1].y    = 0.0f;
+	unk160[1].z    = 0.0f;
+	unk160[2].x    = 0.0f;
+	unk160[2].y    = 0.0f;
+	unk160[2].z    = 0.0f;
+	unk160[3].x    = 0.0f;
+	unk160[3].y    = 0.0f;
+	unk160[3].z    = 0.0f;
+	unk190         = 0.0f;
+	unk194         = 0.0f;
+	unk198         = 0.0f;
+	unk19C.x       = 0.0f;
+	unk19C.y       = 0.0f;
+	unk19C.z       = 0.0f;
+	unk1A8.x       = 0.0f;
+	unk1A8.y       = 0.0f;
+	unk1A8.z       = 0.0f;
+	mSleepPos.x    = 0.0f;
+	mSleepPos.y    = 0.0f;
+	mSleepPos.z    = 0.0f;
+	PSMTXIdentity(mJointMtx0);
+	PSMTXIdentity(mJointMtx1);
+	PSMTXIdentity(mJointMtx2);
+	PSMTXIdentity(mGroundMtx);
+	*(JGeometry::TVec3<f32>*)((u8*)this + 0x280) = mPosition;
+	*(JGeometry::TVec3<f32>*)((u8*)this + 0x28C) = mRotation;
+	mLastSafePos   = mPosition;
+	mLastGroundPos = mPosition;
+	unk2B4         = 0;
+	unk2B8         = 0;
+	unk2BA         = 0;
+	mLastGroundY   = 0.0f;
+	mRidingActor   = 0;
+	PSMTXIdentity((MtxPtr)((u8*)this + 0x2C4));
+	mRideLocalPos.x    = 0.0f;
+	mRideLocalPos.y    = 0.0f;
+	mRideLocalPos.z    = 0.0f;
+	mRidePrevLocalPos.x = 0.0f;
+	mRidePrevLocalPos.y = 0.0f;
+	mRidePrevLocalPos.z = 0.0f;
+	mRidePrevRotY  = 0.0f;
+	unk310         = 0;
+	mRocketTargetY = 0.0f;
+	PSMTXIdentity(mJointMtx3);
+	unk348         = 0.0f;
+	unk34C         = 0;
+	unk34E         = 0;
+	unk350         = 0;
+	*(f32*)((u8*)this + 0x354) = 0.0f;
+	*(f32*)((u8*)this + 0x358) = 0.0f;
+	*(f32*)((u8*)this + 0x35C) = 0.0f;
+	unk360         = 0;
+	unk362         = 0;
+	unk364         = 0;
+	unk366         = 0;
+	unk368         = 0.0f;
+	unk36C         = 0.0f;
+	unk370         = 0.0f;
+	unk374         = 0.0f;
+	unk378         = 0.0f;
+	unk37E         = 0;
+	mPumpState     = 5;
+	unk384         = 0;
+	unk388         = 6;
+	unk390         = 0;
+	unk394         = 0;
+	unk398         = 0;
+	unk39C         = 0;
+	unk3A0         = 0;
+	mModel         = 0;
+	mHandModels[0][0] = 0;
+	mHandModels[0][1] = 0;
+	mHandModels[1][0] = 0;
+	mHandModels[1][1] = 0;
+	mBoneIDs[0]    = 0;
+	mBoneIDs[1]    = 0;
+	mBoneIDs[2]    = 0;
+	mBoneIDs[3]    = 0;
+	mBoneIDs[4]    = 0;
+	mBoneIDs[5]    = 0;
+	mBoneIDs[6]    = 0;
+	mBoneIDs[7]    = 0;
+	mBoneIDs[8]    = 0;
+	mBoneIDs[9]    = 0;
+	mBoneIDs[10]   = 0;
+	mBoneIDs[11]   = 0;
+	unk3D4         = 0;
+	unk3D6         = 0;
+	unk3D8         = 0.0f;
+	unk3DC         = 0.0f;
+	mCap           = 0;
+	mWaterGun      = 0;
+	unk3E8         = 4;
+	*(f32*)((u8*)this + 0x3EC) = 0.0f;
+	mYoshi         = 0;
+	mSurfGesso     = 0;
+	mTorocco       = 0;
+	mPinaRail      = 0;
+	mKoopaRail     = 0;
+	mToroccoPos.z  = 0.0f;
+	mToroccoPos.y  = 0.0f;
+	mToroccoPos.x  = 0.0f;
+	mToroccoAngle  = 0;
+	mRailType      = 0;
+	unk414.x       = 0.0f;
+	unk414.y       = 0.0f;
+	unk414.z       = 0.0f;
+	mMultiMtxEffect = 0;
+	mMarioEffect   = 0;
+	mWireStartPos.x = -1000.0f;
+	mWireStartPos.y = 3000.0f;
+	mWireStartPos.z = -1000.0f;
+	mWireEndPos.x  = 1000.0f;
+	mWireEndPos.y  = 3000.0f;
+	mWireEndPos.z  = 1000.0f;
+	mWirePosRatio  = 0.5f;
+	mWireBounceVel = 0.0f;
+	mWireBounceVelPrev = 0.0f;
+	mWireSag       = 0.0f;
+	*(f32*)((u8*)this + 0x458) = 0.0f;
+	*(f32*)((u8*)this + 0x454) = 0.0f;
+	*(f32*)((u8*)this + 0x450) = 0.0f;
+	mAnmSound      = 0;
+	mAnmSoundTbl   = 0;
+	mSound         = 0;
+	mSoundFlags    = 0;
+	unk4EC         = 0;
+	mBlendLogicOp  = 0;
+	unk4F0.x       = 0.0f;
+	unk4F0.y       = 0.0f;
+	unk4F0.z       = 0.0f;
+	mGamePad       = 0;
+	unk530         = 0;
+	unk534         = 0;
+	unk536         = 0;
+	unk538         = 0;
+	unk53A         = 0;
+	unk53B         = 0;
+	mTrembleModelEffect = 0;
+	mWireSfx0MinVel = -5.0f;
+	mWireSfx1MinVel = -10.0f;
+	mWireSfxTimer  = 0;
+	mWireSfxDelay  = 0x14;
+	mWireQueuedSfxID = 0;
+	unk54E         = 0x400;
+	mWireSwingPosAngle = 0x4000;
+	mWireSwingNegAngle = -0x4000;
+	mWireRollAngle = 0;
+	*(int*)((u8*)this + 0x558) = 0;
+	*(f32*)((u8*)this + 0x55C) = 50.0f;
+	unk560         = 200.0f;
+	unk564         = 8.0f;
+	unk568         = 128.0f;
+	unk56C         = 10.0f;
+	unk570         = 0.0f;
+	unk390         = 0;
 }

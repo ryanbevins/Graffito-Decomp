@@ -831,14 +831,12 @@ void TTrack::writeTimeParam(u8 param)
 	}
 }
 
-// TODO: This is pure pain
 void TTrack::writeRegParam(u8 param)
 {
-
 	u8 bVar9 = param & 0xC;
 	u8 bVar8 = param & 0x3;
 
-	u16 r26;
+	u32 r26;
 
 	if ((param & 0xF) == 0xB) {
 		bVar9 = 0;
@@ -878,120 +876,120 @@ void TTrack::writeRegParam(u8 param)
 	case 8: {
 		u16 byte = mSeqCtrl.readByte();
 		if (byte & 0x80)
-			r24 = byte << 8;
+			r24 = (s16)(byte << 8);
 		else
-			r24 = byte << 8 | byte << 1;
+			r24 = (s16)(byte << 8 | byte << 1);
 		break;
 	}
 	case 0xC:
 		r24 = mSeqCtrl.read16();
 		break;
 	case 0x10:
-		r24 = 0xffff;
+		r24 = -1;
 		break;
 	}
 
 	s32 uVar5 = readRegDirect(bVar1);
 
 	switch (bVar8) {
-	case 0x1:
+	case 0x1: // add
 		if (bVar9 == 4)
 			r24 = Player::extend8to16(r24);
 		r24 = uVar5 + r24;
 		break;
-	case 0x2:
-		writeRegDirect(4, (uVar5 * r24) >> 0x10);
-		writeRegDirect(5, uVar5 * r24);
-		break;
-	case 0x3:
+	case 0x2: // multiply -> reg4/reg5
+		uVar5 = (s16)uVar5 * (s16)r24;
+		writeRegDirect(4, (u32)uVar5 >> 0x10);
+		writeRegDirect(5, uVar5);
+		return;
+	case 0x3: // subtract -> reg3
 		mRegisterParam.unk0[3] = uVar5 - r24;
+		return;
+	case 0xB: // subtract
+		r24 = uVar5 - r24;
 		break;
-	case 0xA:
-		r25 = loadTbl(r25, r24, r26);
-		r24 = r25;
+	case 0xA: // table load
+		r25 = loadTbl(r25, (s16)r24, r26);
+		r24 = (u16)r25;
 		break;
-	case 0x10:
+	case 0x10: // shift (unsigned source)
 		if (bVar9 == 4)
 			r24 = Player::extend8to16(r24);
-		if (r24 < 0)
-			r24 = uVar5 >> -r24;
+		if ((s16)r24 < 0)
+			r24 = (s16)((u16)uVar5 >> -(s16)r24);
 		else
-			r24 = uVar5 << r24;
+			r24 = (s16)((u16)uVar5 << (s16)r24);
 		break;
-	case 0x20:
+	case 0x20: // shift (signed source)
 		if (bVar9 == 4)
 			r24 = Player::extend8to16(r24);
-		if (r24 < 0)
-			r24 = uVar5 >> -r24;
+		if ((s16)r24 < 0)
+			r24 = (s16)((s16)uVar5 >> -(s16)r24);
 		else
-			r24 = uVar5 << r24;
+			r24 = (s16)((s16)uVar5 << (s16)r24);
 		break;
-	case 0x30:
+	case 0x30: // and
 		r24 = uVar5 & r24;
 		break;
-	case 0x40:
+	case 0x40: // or
 		r24 = uVar5 | r24;
 		break;
-	case 0x50:
+	case 0x50: // xor
 		r24 = uVar5 ^ r24;
 		break;
-	case 0x60:
+	case 0x60: // negate
 		r24 = -uVar5;
 		break;
-	case 0x90:
+	case 0x90: // random modulo
 		r25 = Player::getRandomS32();
-		r24 = r25 - (r25 / r24) * r24;
+		r24 = (s16)(r25 - (r25 / (u16)r24) * (u16)r24);
 		break;
 	}
 
 	u32 uVar10 = bVar1;
-	switch (uVar10) {
-	case 0x1F:
-		uVar5 = r24;
-		if (uVar10 < 3) {
-			uVar5 = Player::extend8to16(r24);
-			r24 &= 0xff;
-		}
-		break;
-	case 0x21:
-		r24    = (mRegisterParam.getBankNumber() & 0xff) << 8 | r24 & 0xff;
-		uVar10 = 6;
-		break;
-	case 0x20:
-		r24    = mRegisterParam.getProgramNumber() | (r24 << 8);
-		uVar10 = 6;
-		break;
-	case 0x2E:
-		uVar10 = 0xd;
-		r24    = mRegisterParam.unk1A & 0xff00 | r24 & 0xff;
-		break;
-	case 0x27:
-		uVar5 = r24;
-		if (uVar10 < 0x2C && uVar10 > 0x27)
-			mRegisterParam.mPanPower[uVar10 - 0x28] = r25;
-		break;
-	case 0x22:
-		writeRegDirect(0, r24 >> 8);
+	u16 storeVal;
+	if (bVar1 <= 2) {
 		r24 &= 0xff;
-		uVar10 = 1;
-		uVar5  = r24;
-		break;
+		storeVal = Player::extend8to16(r24);
+	} else if (bVar1 == 0x20) {
+		r24    = ((s16)r24 << 8) | (mRegisterParam.getProgramNumber() & 0xff);
+		uVar10 = 6;
+	} else if (bVar1 == 0x21) {
+		r24    = (r24 & 0xff) | ((mRegisterParam.getBankNumber() & 0xff) << 8);
+		uVar10 = 6;
+	} else if (bVar1 == 0x22) {
+		uVar5 = (s16)r24;
+		writeRegDirect(0, (u16)(uVar5 >> 8));
+		r24      = (s16)(uVar5 & 0xff);
+		storeVal = r24;
+		uVar10   = 1;
+	} else if (bVar1 >= 0x28 && bVar1 <= 0x2B) {
+		mRegisterParam.unk20[bVar1 - 0x28] = r25;
+		return;
+	} else if (bVar1 == 0x2E) {
+		r24    = (r24 & 0xff) | (mRegisterParam.unk1A & 0xff00);
+		uVar10 = 0xd;
+	} else if (bVar1 == 0x2F) {
+		r24    = (mRegisterParam.unk1A & 0xff) | ((s16)r24 << 8);
+		uVar10 = 0xd;
+	} else {
+		storeVal = r24;
 	}
 
 	mRegisterParam.unk0[uVar10] = r24;
-	mRegisterParam.unk0[3]      = uVar5;
+	mRegisterParam.unk0[3]      = storeVal;
 
-	if (uVar10 == 6) {
+	if ((u8)uVar10 == 6) {
 		if (unk3A0[0] != 0xE)
 			unk3A0[0] = 0xF;
 		if (unk3A0[1] != 0xE)
 			unk3A0[1] = 0xF;
 	}
 
-	if (uVar10 == 7)
+	if ((u8)uVar10 == 7)
 		unk3B4 |= 2;
 
-	if (uVar10 == 0xD) {
+	if ((u8)uVar10 == 0xD) {
 		mChannelUpdater.unk68 = mRegisterParam.unk1A | 0x10000;
 		mChannelUpdater.unk6C = 0;
 	}
@@ -1531,10 +1529,9 @@ s32 TTrack::rootCallback(void* param)
 		} else {
 			self->unk3AC += self->unk3B0;
 
-			// TODO: this if is completely wrong, control flow is crazy here,
-			// probably an inline?
-			if (self->unk3AC > 1.0f) {
+			if (self->unk3AC < 1.0f) {
 				self->updateSeq(0, true);
+			} else {
 				while (self->unk3AC >= 1.0f) {
 					self->unk3AC -= 1.0f;
 					if ((int)self->mainProc() != -1)

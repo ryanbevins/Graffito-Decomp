@@ -7,6 +7,7 @@
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/MapData.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorUtil.hpp>
 #include <MSound/MSound.hpp>
@@ -470,7 +471,7 @@ void TShellCup::initMapObj()
 
 		shell.unk88 = new TDamageObj("ダメージオブジェ");
 		shell.unk88->mPosition = mPosition;
-		shell.unk88->mScaling.set(2.0f, 0.0f, 2.0f);
+		shell.unk88->mScaling.set(2.0f, 1.2f, 2.0f);
 		shell.unk88->init(0x10000036);
 		shell.unk88->onHitFlag(HIT_FLAG_NO_COLLISION);
 	}

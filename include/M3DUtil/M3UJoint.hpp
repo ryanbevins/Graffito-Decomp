@@ -6,8 +6,7 @@
 
 class M3UMtxCalcSIAnmBlendQuat : public J3DMtxCalcSoftimage {
 public:
-	M3UMtxCalcSIAnmBlendQuat();
-	M3UMtxCalcSIAnmBlendQuat(bool);
+	M3UMtxCalcSIAnmBlendQuat(bool = false);
 	~M3UMtxCalcSIAnmBlendQuat() { }
 
 	void calc(u16);

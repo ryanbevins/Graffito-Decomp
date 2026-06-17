@@ -11,6 +11,7 @@ template <typename T> void TParamT<T>::load(JSUMemoryInputStream& stream)
 
 template class TParamT<u8>;
 template class TParamT<s16>;
+template class TParamT<u16>;
 template class TParamT<s32>;
 template class TParamT<f32>;
 template class TParamT<JGeometry::TVec3<f32> >;

@@ -17,6 +17,8 @@
 #undef JDRAMA_VIEWOBJ_PTRLIST_GETCHILDREN_OUT_OF_LINE
 #undef JGADGET_TLIST_POINTER_END_INSERT_OUT_OF_LINE
 
+TMapWireManager* gpMapWireManager;
+
 void TMapWireActor::getTipPoints(JGeometry::TVec3<f32>* out_start,
                                  JGeometry::TVec3<f32>* out_end) const
 {
@@ -144,6 +146,7 @@ inline TMapWireActorManager::TMapWireActorManager(TTakeActor* param_1)
     , unk4("アクター補助")
     , unk7C(0)
 {
+	unk4.unk74 = this;
 	unk4.initHitActor(0x40000098, 1, -0x80000000,
 	                  TMapWireActor::mCommonAttackRadius,
 	                  TMapWireActor::mCommonAttackHeight, 0.0f, 0.0f);

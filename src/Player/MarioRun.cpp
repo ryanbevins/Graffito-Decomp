@@ -84,9 +84,9 @@ void TMario::doRunningAnimation()
 		u16 anmId = mAnimationId;
 		if (anmId == 0x92) {
 			// softStep animation
-			if (clampedSpeed > mRunParams.mWalk2Soft.get()) {
+			if (clampedSpeed > mRunParams.mSoft2Walk.get()) {
 				setAnimation(0x72, anmSpd1);
-				redo = 1;
+				redo = 0;
 				continue;
 			}
 			f32 mult = clampedSpeed;
@@ -97,9 +97,9 @@ void TMario::doRunningAnimation()
 			continue;
 		} else if (anmId == 0xF5) {
 			// pumping slide animation
-			if (mForwardVel < mRunParams.mPumpingSlideSp.get() - anmSpd1) {
+			if (mForwardVel < mDeParams.mDashMax.get() - anmSpd1) {
 				setAnimation(0x72, anmSpd1);
-				redo = 1;
+				redo = 0;
 				continue;
 			}
 			f32 anmSpeed = mRunParams.mRunAnmSpeedMult.get() * clampedSpeed + mRunParams.mRunAnmSpeedBase.get();
@@ -108,15 +108,15 @@ void TMario::doRunningAnimation()
 			continue;
 		} else {
 			// default (0x72 run animation)
-			if (mForwardVel >= mRunParams.mPumpingSlideSp.get() - anmSpd1) {
+			if (mForwardVel >= mDeParams.mDashMax.get() - anmSpd1) {
 				setAnimation(0xF5, anmSpd1);
-				redo = 1;
+				redo = 0;
 				continue;
 			}
 
-			if (clampedSpeed < mRunParams.mSoft2Walk.get()) {
+			if (clampedSpeed < mRunParams.mWalk2Soft.get()) {
 				setAnimation(0x92, anmSpd1);
-				redo = 1;
+				redo = 0;
 				continue;
 			}
 
@@ -130,12 +130,12 @@ void TMario::doRunningAnimation()
 
 			if (isShallow) {
 				u8 isSwimDepth;
-				if (mFloorPosition.y < mPosition.y + mRunParams.mSwimDepth.get())
+				if (mFloorPosition.z < mPosition.y + mRunParams.mSwimDepth.get())
 					isSwimDepth = 1;
 				else
 					isSwimDepth = 0;
 				if (isSwimDepth) {
-					f32 ratio = (mFloorPosition.y - mPosition.y) / mRunParams.mSwimDepth.get();
+					f32 ratio = (mFloorPosition.z - mPosition.y) / mRunParams.mSwimDepth.get();
 					f32 factor = anmSpd1 - mRunParams.mInWaterAnmBrake.get();
 					anmSpeed = anmSpeed * (anmSpd1 - ratio * factor) * mRunParams.mInWaterBrake.get();
 				}
@@ -156,7 +156,7 @@ void TMario::doRunningAnimation()
 
 			*(f32*)((u8*)this + 0x41C) = anmSpd1 - blend;
 
-			if (isRunningInWater()) {
+			if (onYoshi()) {
 				mModel->unk20->unk18->unk50 = walk2Soft;
 			} else {
 				mModel->unk20->unk18->unk50 = *(f32*)((u8*)this + 0x41C);
@@ -509,76 +509,7 @@ int TMario::doSliding(f32 stopThreshold)
 		}
 	}
 
-	// Check for specific sliding action
-	u32 action = mAction;
-	if ((action - 0x007C0000) == 0x045D) {
-		f32 slideStop = mSlipParamsOil.mSlipFriction.value;
-	} else {
-		u8 forceSlip;
-		forceSlip = isForceSlip();
-		if (forceSlip) {
-			f32 slideStop = mSlipParamsAll.mSlipFriction.value;
-		} else {
-			const TBGCheckData* ground = mGroundPlane;
-			u16 type = ground->mBGType;
-
-			u8 isOil;
-			if (!(type == 0x0c || type == 0x800c || type == 0xa00c))
-				isOil = 1;
-			else
-				isOil = 0;
-			if (isOil) {
-				f32 slideStop = mSlipParamsAllSlider.mSlipFriction.value;
-			} else {
-				u8 isAll;
-				if (type == 0x02 || type == 0x8002)
-					isAll = 1;
-				else
-					isAll = 0;
-				if (isAll) {
-					f32 slideStop = mSlipParams45.mSlipFriction.value;
-				} else {
-					u8 isWater;
-					if (type == 0x04 || type == 0x4004 || type == 0x8004 || type == 0xc004)
-						isWater = 1;
-					else
-						isWater = 0;
-					if (isWater) {
-						if (ground->mNormal.y > 0.99f) {
-							f32 slideStop = mSlipParamsWaterGround.mSlipFriction.value;
-						} else {
-							f32 slideStop = mSlipParamsWaterSlope.mSlipFriction.value;
-						}
-					} else {
-						u8 isYoshi;
-						isYoshi = onYoshi();
-						if (isYoshi) {
-							f32 slideStop = mSlipParamsYoshi.mSlipFriction.value;
-						} else {
-							f32 slideStop2 = mSlipParamsNormal.mSlipFriction.value;
-							u32 action2 = mAction;
-							if ((action2 - 0x00800000) == 0x0456) {
-								if (mActionState == 1)
-									slideStop2 = mDeParams.mWasOnWaterSlip.value;
-								u8 isInShallow;
-								if (mState & 0x30000)
-									isInShallow = 1;
-								else
-									isInShallow = 0;
-								if (isInShallow) {
-									slideStop2 = mDeParams.mInWaterSlip.value;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// This is getting too complex - the real logic involves computing slideStop
-	// and using it in slideProcess. Let me use a simpler approach.
-
+	// Select slide friction (slideStop) based on action / ground type
 	f32 slideStop;
 	if ((mAction - 0x007C0000) == 0x045D) {
 		slideStop = mSlipParamsOil.mSlipFriction.value;
@@ -756,7 +687,7 @@ void TMario::doRunning()
 
 	f32 runMult = maxSpeed;
 
-	if (isRunningInWater()) {
+	if (onYoshi()) {
 		runMult = runMult * mYoshiParams.mRunYoshiMult.value;
 	}
 
@@ -805,7 +736,7 @@ void TMario::doRunning()
 		angleChange = (s16)((f32)minRot + scale * fwdSpd * (f32)(maxRot - minRot));
 	}
 
-	if (isRunningInWater()) {
+	if (onYoshi()) {
 		angleChange = (s16)((f32)angleChange * mYoshiParams.mRotYoshiMult.value);
 	}
 
@@ -862,11 +793,10 @@ TMario::TSurfingParams& TMario::getSurfingParamsWater()
 void TMario::doSurfing()
 {
 	f32 waterHeight = mPosition.y - mVel.y;
-	const TBGCheckData* waterPlane = nullptr;
-	checkGroundPlane(mPosition.x, waterHeight, mPosition.z, nullptr,
-	                 &waterPlane);
+	const TBGCheckData* waterPlane;
+	gpMap->checkGround(mPosition.x, waterHeight, mPosition.z, &waterPlane);
 
-	s32 groundType = waterPlane ? *(u16*)waterPlane : 0;
+	s32 groundType = waterPlane->mBGType;
 
 	u8 isSurfType;
 	if (groundType == 0x100 || groundType == 0x101
@@ -929,7 +859,7 @@ void TMario::doSurfing()
 		mForwardVel = fwdVel + rotMin;
 	} else if (fwdVel <= speedInput) {
 		// Under target speed - check ground and accelerate
-		s32 gt2 = mGroundPlane ? *(u16*)mGroundPlane : 0;
+		s32 gt2 = mGroundPlane->mBGType;
 		u8 isSurf2;
 		if (gt2 == 0x100 || gt2 == 0x101
 		    || (u16)(gt2 - 0x102) <= 3
@@ -979,7 +909,7 @@ void TMario::doSurfing()
 	slopeProcess();
 
 	// Check if on surfing ground for special handling
-	s32 gt3 = waterPlane ? *(u16*)waterPlane : 0;
+	s32 gt3 = waterPlane->mBGType;
 	u8 isSurf3;
 	if (gt3 == 0x100 || gt3 == 0x101
 	    || (u16)(gt3 - 0x102) <= 3
@@ -988,7 +918,7 @@ void TMario::doSurfing()
 	else
 		isSurf3 = 0;
 	if (isSurf3) {
-		postureControl();
+		surfingEffect();
 	}
 }
 
@@ -998,7 +928,7 @@ void TMario::doPushingAnimation(const Vec& target)
 	f32 dz = mPosition.z - target.z;
 
 	if (mForwardVel > 6.0f) {
-		setPlayerVelocity(0.0f);
+		setPlayerVelocity(6.0f);
 	}
 
 	s16 wallAngle;
@@ -1021,7 +951,7 @@ void TMario::doPushingAnimation(const Vec& target)
 		return;
 	}
 
-	f32 distSq = dz * dz + dx * dx;
+	f32 distSq = dx * dx + dz * dz;
 	f32 dist;
 	if (distSq > 0.0f) {
 		f32 root = __frsqrte(distSq);
@@ -1044,11 +974,10 @@ void TMario::doPushingAnimation(const Vec& target)
 	mModelFaceAngle = (s16)(wallAngle + 0x18000);
 }
 
-// running - 0x801398B0
+// running - 0x80139FA8
 void TMario::running()
 {
-	u16 timer = mActionTimer;
-	mActionTimer = timer + 1;
+	mActionTimer++;
 
 	// Check held object throw
 	TTakeActor* held = mHeldObject;
@@ -1074,7 +1003,7 @@ void TMario::running()
 				throwResult = changePlayerStatus(0x80000588, 0, false);
 			} else if (heldType == (u32)0x80000001) {
 				throwResult = changePlayerStatus(0x80000588, 0, false);
-			} else if (mForwardVel > 0.0f) {
+			} else if (mForwardVel > 16.0f) {
 				throwResult = changePlayerStatus(0x80000588, 0, false);
 			} else if (canPut()) {
 				throwResult = changePlayerStatus(0x80000387, 0, false);
@@ -1087,107 +1016,134 @@ void TMario::running()
 	if (throwResult != 0)
 		return;
 
-	// Check jump inputs
-	u32 input = mInput;
-	if (input & 0x08) {
-		if (mForwardVel <= 0.0f || isFrontSlip(0)) {
-			changePlayerStatus(0x50, 0, false);
+	// Check jump input
+	u8 doJump;
+	if (mInput & 0x08) {
+		if (mForwardVel <= 0.1f || isFrontSlip(0))
+			doJump = 1;
+		else
+			doJump = 0;
+	} else {
+		doJump = 0;
+	}
+	if (doJump) {
+		changePlayerStatus(0x50, 0, false);
+		return;
+	}
+
+	// Check crouch (0x10)
+	if (mInput & 0x10) {
+		if (mActionState == 1) {
+			mFaceAngle.y = (s16)mActionArg;
+			changePlayerStatus(0x0C400209, 0, false);
 			return;
 		}
-	}
-
-	if (input & 0x02) {
-		changePlayerJumping(0x0887, 0);
-		return;
-	}
-
-	// Check stick rotate
-	int stickDir;
-	BOOL rotated = checkStickRotate(&stickDir);
-	if (rotated == 1 && mWaterGun != nullptr) {
-		if (mWaterGun->isEmitting()) {
-			if (stickDir > 0) {
-				changePlayerStatus(0x441, 0, false);
-			} else {
-				changePlayerStatus(0x442, 0, false);
-			}
+		if (mActionTimer > 0xF0 && mForwardVel >= 16.0f
+		    && mGroundPlane->mNormal.y >= 0.17364818f) {
+			changePlayerStatus(0x04000445, 0, false);
 		} else {
-			rotated = 0;
+			changePlayerStatus(0x0400044A, 0, false);
 		}
-	} else {
-		rotated = 0;
+		return;
 	}
 
-	if (rotated != 0)
+	// Check dash jump while in water-jet state (0x4000)
+	u8 inJetState;
+	if (mState & 0x4000)
+		inJetState = 1;
+	else
+		inJetState = 0;
+	if (inJetState && (mInput & 0x2)
+	    && mForwardVel > mDeParams.mDashMax.value - 1.0f) {
+		changePlayerJumping(0x0888, 0);
 		return;
+	}
 
-	// Check crouch/slide
+	// Check B button (0x2) for tri jump
+	if (mInput & 0x2) {
+		changePlayerTriJump();
+		return;
+	}
+
+	// Check spray jump (0x8000) unless on Yoshi
+	if (!onYoshi() && (mInput & 0x8000)) {
+		BOOL sprayResult;
+		if (mForwardVel > *(f32*)((u8*)this + 0x1020)
+		    && mIntendedMag > 0.75f) {
+			mVel.y = 20.0f;
+			sprayResult = changePlayerStatus(0x0080088A, 1, false);
+		} else {
+			sprayResult = 0;
+		}
+		if (sprayResult != 0)
+			return;
+		changePlayerStatus(0x384, 0, false);
+	}
+
+	// Check crouch (0x20)
 	if (mInput & 0x20) {
-		changePlayerStatus(0x04000445, 0, false);
+		if (mActionState == 1) {
+			mFaceAngle.y = (s16)mActionArg;
+			changePlayerStatus(0x0C400209, 0, false);
+			return;
+		}
+		if (mActionTimer > 0xF0 && mForwardVel >= 16.0f
+		    && mGroundPlane->mNormal.y >= 0.17364818f) {
+			changePlayerStatus(0x04000445, 0, false);
+		} else {
+			changePlayerStatus(0x0400044A, 0, false);
+		}
 		return;
 	}
 
 	// Check turn
-	u8 isTurnable;
-	u32 pumpState = mPumpState;
-	if (pumpState == 0 || pumpState == 1)
-		isTurnable = 1;
+	u8 isPumping;
+	if (mPumpState == 0 || mPumpState == 1)
+		isPumping = 1;
 	else
-		isTurnable = 0;
+		isPumping = 0;
 	u8 shouldTurn;
-	if (!isTurnable) {
-		if (isRunningTurnning()) {
-			shouldTurn = 0;
-		} else {
-			s16 yawDiff = (s16)(mIntendedYaw - mFaceAngle.y);
-			shouldTurn = 1;
-			if (yawDiff >= -18204 && yawDiff <= 18204)
-				shouldTurn = 0;
-		}
-	} else {
+	if (isPumping) {
 		shouldTurn = 0;
+	} else if (onYoshi()) {
+		shouldTurn = 0;
+	} else {
+		s16 yawDiff = (s16)(mIntendedYaw - mFaceAngle.y);
+		shouldTurn = 1;
+		if (yawDiff >= -18204 && yawDiff <= 18204)
+			shouldTurn = 0;
 	}
 
 	if (shouldTurn) {
-		if (mForwardVel >= mRunParams.mTurnNeedSp.value) {
-			// Set up turn wall checks
-			s16 turnAngle = mFaceAngle.y;
-			checkPlayerAround(21, (f32)(turnAngle + 0x18000));
-			checkPlayerAround(23, (f32)(turnAngle + 0x18000));
-			checkPlayerAround(22, (f32)(turnAngle + 0x18000));
+		if (mForwardVel > *(f32*)((u8*)this + 0x1034)) {
+			emitParticle(0x15, (s16)(mFaceAngle.y + 0x18000));
+			emitParticle(0x17, (s16)(mFaceAngle.y + 0x18000));
+			emitParticle(0x16, (s16)(mFaceAngle.y + 0x18000));
 			changePlayerStatus(0x0443, 0, false);
 			return;
 		}
 	}
 
-	// Check if on dirt
-	u8 isDirty;
-	isDirty = isRunningSlipStart();
-	if (isDirty) {
+	// Check squat slip start
+	if (canSquat()) {
 		setPlayerVelocity(0.0f);
 		changePlayerStatus(0x0C018220, 0, false);
 		return;
 	}
 
-	// Check slip start
-	if (isSlipStart()) {
-		TWaterGun* gun = mWaterGun;
-		f32 gunHeight = *(f32*)((u8*)gun + 0x1D40);
-		*(f32*)((u8*)this + 0x314) = mFloorPosition.y + gunHeight;
+	// Check rocket start
+	if (rocketCheck()) {
+		mRocketTargetY = mFloorPosition.y + *(f32*)((u8*)mWaterGun + 0x1D40);
 		changePlayerStatus(0x088B, 0, false);
 		return;
 	}
 
 	// Main running logic
-	s32 pushWall = 0;
 	mActionState = 0;
-	Vec prevPos;
-	prevPos.x = mPosition.x;
-	prevPos.y = mPosition.y;
-	prevPos.z = mPosition.z;
+	Vec prevPos = *(Vec*)&mPosition;
 
 	doRunning();
-	doRunningAnimation();
+	setNormalAttackArea();
 
 	int walkResult = walkProcess();
 	switch (walkResult) {
@@ -1196,105 +1152,72 @@ void TMario::running()
 		setAnimation(0x56, 1.0f);
 		break;
 	case 1:
-		slopeProcess();
+		doRunningAnimation();
 		break;
-	case 2:
-	case 3:
-		if (isThrowStart()) {
+	case 2: {
+		if (onYoshi()) {
 			setPlayerVelocity(0.0f);
+			break;
 		}
 
 		u8 isWallBit;
-		if (mState & 0x4)
+		if (mState & 0x2)
 			isWallBit = 1;
 		else
 			isWallBit = 0;
 		if (isWallBit)
-			pushWall = 1;
-		break;
-	}
+			break;
 
-	if (!pushWall) {
 		if (mForwardVel > mDeParams.mClashSpeed.value) {
-			checkPlayerAround(12, 0.0f);
+			emitParticle(12);
 			changePlayerDropping(0x000208B0, 0);
 			return;
 		}
 
 		if (mInput & 0x2) {
-			if (mPosition.y + mDeParams.mJumpWallHeight.value > mFloorPosition.y) {
-				if (mIntendedMag > 0.0f && mForwardVel > mDeParams.mDashMax.value - 1.0f) {
-					mVel.y = 0.0f;
-					changePlayerStatus(0x0080088A, 1, false);
-					return;
-				}
+			f32 wallY = mPosition.y + *(f32*)((u8*)this + 0x80C);
+			if (gpMap->isTouchedOneWall(mPosition.x, wallY, mPosition.z, 50.0f) == 1) {
+				mVel.y = 52.0f;
+				mFaceAngle.y = (s16)(mFaceAngle.y + 0x18000);
+				setPlayerVelocity(50.0f);
+				changePlayerStatus(0x02000886, 0, false);
+				return;
 			}
-			changePlayerStatus(0x384, 0, false);
+		}
+
+		const TBGCheckData* wall = mWallPlane;
+		u8 isWallType;
+		if (wall != nullptr && wall->mBGType == 0x10A)
+			isWallType = 1;
+		else
+			isWallType = 0;
+		if (isWallType) {
+			s16 wallAngle = matan(wall->mNormal.z, wall->mNormal.x);
+			mFaceAngle.y = (s16)(wallAngle + 0x18000);
+			mModelFaceAngle = mFaceAngle.y;
+			changePlayerStatus(0x3000036B, 0, false);
 			return;
 		}
 
-		if (mInput & 0x4) {
-			if (mInput & 0x4000) {
-				if (mForwardVel > mRunParams.mDoJumpCatchSp.value) {
-					changePlayerJumping(0x0888, 0);
-					return;
-				}
-			}
-
-			if (mInput & 0x2) {
-				changePlayerTriJump();
-				return;
-			}
-
-			if (considerRotateStart())
-				return;
-
-			if (mInput & 0x10000) {
-				if (mForwardVel > mDeParams.mDashMax.value - 1.0f) {
-					if (mIntendedMag > 0.0f) {
-						mVel.y = 0.0f;
-						s16 turnAngle = mFaceAngle.y;
-						mFaceAngle.y = (s16)(turnAngle + 0x18000);
-						setPlayerVelocity(-1.0f);
-						changePlayerStatus(0x02000886, 0, false);
-						return;
-					}
-				}
-			}
-
-			const TBGCheckData* wall = mWallPlane;
-			if (wall != nullptr) {
-				u8 isWallType;
-				if (*(u16*)wall == 0x10A)
-					isWallType = 1;
-				else
-					isWallType = 0;
-				if (isWallType) {
-					s16 wallAngle = matan(wall->mNormal.z + 52, wall->mNormal.x);
-					s16 faceAngle = mFaceAngle.y;
-					mFaceAngle.y = (s16)(wallAngle + 0x18000);
-					mModelFaceAngle = mFaceAngle.y;
-					changePlayerStatus(0x3000036B, 0, false);
-					return;
-				}
-			}
-
-			doPushingAnimation(prevPos);
-			mFaceAngle.x = 0;
-			mState = mState & ~0x4000;
-		}
+		doPushingAnimation(prevPos);
+		mDashTimer = 0;
+		mState = mState & ~0x4000;
+		break;
+	}
+	default:
+		break;
 	}
 
-	doRunningAnimation();
+	checkDescent();
 
-	u8 isInWater;
+	u8 inJetState2;
 	if (mState & 0x4000)
-		isInWater = 1;
+		inJetState2 = 1;
 	else
-		isInWater = 0;
-	if (isInWater) {
+		inJetState2 = 0;
+	if (inJetState2) {
 		setPlayerVelocity(mDeParams.mDashMax.value);
-		checkPlayerAround(25, 0.0f);
+		startSoundActor(0x19);
 	}
 }
 
@@ -1632,7 +1555,7 @@ void TMario::turnning()
 				throwResult = changePlayerStatus(0x80000588, 0, false);
 			} else if (heldType == (u32)0x80000001) {
 				throwResult = changePlayerStatus(0x80000588, 0, false);
-			} else if (mForwardVel > 0.0f) {
+			} else if (mForwardVel > 16.0f) {
 				throwResult = changePlayerStatus(0x80000588, 0, false);
 			} else if (canPut()) {
 				throwResult = changePlayerStatus(0x80000387, 0, false);
@@ -1684,39 +1607,40 @@ void TMario::turnning()
 	}
 
 	// Check turn state
-	u8 shouldStop;
+	u8 shouldTurn;
 	u32 pumpState = mPumpState;
+	u8 isPump;
 	if (pumpState == 0 || pumpState == 1)
-		shouldStop = 1;
+		isPump = 1;
 	else
-		shouldStop = 0;
-	if (!shouldStop) {
-		if (isRunningTurnning()) {
-			shouldStop = 0;
-		} else {
-			s16 yawDiff = (s16)(mIntendedYaw - mFaceAngle.y);
-			shouldStop = 1;
-			if (yawDiff >= -18204 && yawDiff <= 18204)
-				shouldStop = 0;
-		}
+		isPump = 0;
+	if (isPump) {
+		shouldTurn = 0;
+	} else if (onYoshi()) {
+		shouldTurn = 0;
+	} else {
+		s16 yawDiff = (s16)(mIntendedYaw - mFaceAngle.y);
+		shouldTurn = 1;
+		if (yawDiff >= -18204 && yawDiff <= 18204)
+			shouldTurn = 0;
 	}
 
-	if (!shouldStop) {
+	if (!shouldTurn) {
 		changePlayerStatus(0x04000440, 0, false);
 		return;
 	}
 
 	// Decelerate
 	s32 stopped = 0;
-	mForwardVel = FConverge(mForwardVel, 0.0f, 0.0f, 0.0f);
+	mForwardVel = FConverge(mForwardVel, 0.0f, 4.0f, 4.0f);
 	if (0.0f == mForwardVel)
 		stopped = 1;
 
-	doRunning();
+	slopeProcess();
 
 	if (stopped) {
 		mFaceAngle.y = mIntendedYaw;
-		setPlayerVelocity(0.0f);
+		setPlayerVelocity(8.0f);
 		changePlayerStatus(0x0444, 0, false);
 		return;
 	}
@@ -1727,7 +1651,7 @@ void TMario::turnning()
 		changePlayerStatus(0x088C, 0, false);
 	}
 
-	if (mForwardVel >= 0.0f) {
+	if (mForwardVel >= 18.0f) {
 		setAnimation(0xBC, 1.0f);
 	} else {
 		setAnimation(0xBD, 1.0f);
@@ -1739,7 +1663,7 @@ void TMario::turnning()
 				changePlayerStatus(0x04000440, 0, false);
 			} else {
 				mFaceAngle.y = mIntendedYaw;
-				setPlayerVelocity(0.0f);
+				setPlayerVelocity(8.0f);
 				changePlayerStatus(0x04000440, 0, false);
 			}
 		}
@@ -1840,108 +1764,107 @@ void TMario::turnEnd()
 	mModelFaceAngle = (s16)(modelAngle + 0x18000);
 }
 
-// slippingBasic - 0x80138F00
+// slippingBasic - 0x80138DF8
 void TMario::slippingBasic(int statusOnStop, int slipStatus, int slipArg)
 {
-	slopeProcess();
+	isForceSlip();
 
-	// Check for jump/crouch to enter fire slide
-	if (mInput & 0x2) {
-		if (walkProcess() == 1) {
-			changePlayerStatus(0x02000880, 0, false);
+	// Check for B button to enter fire slide jump
+	if ((mInput & 0x2) && canSlipJump() == 1) {
+		changePlayerStatus(0x02000880, 0, false);
+		return;
+	}
+
+	if (mInput & 0x10000) {
+		// L trigger water landing
+		mVel.y = 20.0f;
+		changePlayerStatus(0x0080088A, 1, false);
+		return;
+	} else {
+		int walkResult = walkProcess();
+		switch (walkResult) {
+		case 0:
+			changePlayerStatus(slipStatus, 0, false);
+			return;
+		case 1:
+			setAnimation(slipArg, 1.0f);
+			mSubState |= 0x8;
+			frontSlipEffect();
+			return;
+		case 2: {
+			if (onYoshi()) {
+				setPlayerVelocity(0.0f);
+				return;
+			}
+
+			// Check speed for emit particle
+			f32 fwdVel = mForwardVel;
+			if (fwdVel < 0.0f)
+				fwdVel = -fwdVel;
+			if (fwdVel > mDeParams.mClashSpeed.value) {
+				emitParticle(12);
+			}
+
+			if (isSlipStart()) {
+				const TBGCheckData* wall = mWallPlane;
+				if (wall != nullptr) {
+					s16 wallAngle = matan(wall->mNormal.z, wall->mNormal.x);
+
+					f32 svx = mSlideVelX;
+					f32 svz = mSlideVelZ;
+					f32 velSq = svx * svx + svz * svz;
+					f32 speed;
+					if (velSq > 0.0f) {
+						f32 root = __frsqrte(velSq);
+						f32 refined = 0.5f * root * (3.0f - velSq * (root * root));
+						speed = velSq * refined;
+						speed = (f32)speed;
+					} else {
+						speed = velSq;
+					}
+
+					f32 speedScaled = speed * 0.9f;
+					if (speedScaled < 4.0f)
+						speedScaled = 4.0f;
+
+					s16 slideDirAngle = mSlideAngle;
+					s16 wallDiff = (s16)(slideDirAngle - wallAngle);
+					s16 newAngle = (s16)(wallAngle - wallDiff + 0x18000);
+					mSlideAngle = newAngle;
+
+					u16 uAngle = mSlideAngle;
+					mSlideVelX = speedScaled * JMASSin(uAngle);
+					mVel.x = mSlideVelX;
+
+					uAngle = mSlideAngle;
+					mSlideVelZ = speedScaled * JMASCos(uAngle);
+					mVel.z = mSlideVelZ;
+
+					// Play wall slip sound
+					u8 groundAttr = ((u8*)mWallPlane)[6];
+					u32 soundId = gpMSound->getWallSound(groundAttr, mForwardVel);
+					if (gpMSound->gateCheck(soundId)) {
+						MSoundSESystem::MSoundSE::startSoundActor(soundId, (const Vec*)&mPosition,
+						                                           0, nullptr, 0, 4);
+					}
+				}
+			} else {
+				if (mForwardVel > 16.0f) {
+					playerRefrection(1);
+					changePlayerDropping(0x00020466, 0);
+				} else {
+					setPlayerVelocity(0.0f);
+					changePlayerStatus(statusOnStop, 0, false);
+				}
+			}
+
+			mSubState |= 0x8;
+			return;
+		}
+		default:
 			return;
 		}
 	}
-
-	// Check for L trigger water landing
-	if (mInput & 0x10000) {
-		mVel.y = 0.0f;
-		changePlayerStatus(0x0080088A, 1, false);
-		return;
-	}
-
-	int walkResult = walkProcess();
-	switch (walkResult) {
-	case 0:
-		changePlayerStatus(slipStatus, 0, false);
-		return;
-	case 1:
-		setAnimation(0x6C, 1.0f);
-		*(u16*)((u8*)this + 0x114) = *(u16*)((u8*)this + 0x114) | 0x8;
-		loserExec();
-		return;
-	case 2:
-	case 3:
-		if (isThrowStart()) {
-			setPlayerVelocity(0.0f);
-		}
-		break;
-	}
-
-	// Check speed for down state
-	f32 fwdVel = mForwardVel;
-	if (fwdVel < 0.0f)
-		fwdVel = -fwdVel;
-	if (fwdVel > mDeParams.mClashSpeed.value) {
-		checkPlayerAround(12, 0.0f);
-	}
-
-	if (isSlipStart()) {
-		const TBGCheckData* wall = mWallPlane;
-		if (wall != nullptr) {
-			s16 wallAngle = matan(wall->mNormal.z + 52, wall->mNormal.x);
-
-			f32 svx = mSlideVelX;
-			f32 svz = mSlideVelZ;
-			f32 velSq = svx * svx + svz * svz;
-			f32 speed;
-			if (velSq > 0.0f) {
-				f32 root = __frsqrte(velSq);
-				f32 refined = 0.5f * root * (3.0f - velSq * (root * root));
-				speed = velSq * refined;
-				speed = (f32)speed;
-			} else {
-				speed = velSq;
-			}
-
-			f32 speedHalf = speed * 0.5f;
-			if (speedHalf < 0.0f)
-				speedHalf = 0.0f;
-
-			s16 slideDirAngle = mSlideAngle;
-			s16 wallDiff = (s16)(slideDirAngle - wallAngle);
-			s16 wallDiffExt = (s16)wallDiff;
-			s16 newAngle = (s16)(wallAngle - wallDiffExt + 0x18000);
-			mSlideAngle = newAngle;
-
-			u16 uAngle = mSlideAngle;
-			mSlideVelX = speedHalf * JMASSin(uAngle);
-			mVel.x = mSlideVelX;
-
-			uAngle = mSlideAngle;
-			mSlideVelZ = speedHalf * JMASCos(uAngle);
-			mVel.z = mSlideVelZ;
-
-			// Play slip sound
-			u8 groundAttr = mWallPlane ? ((u8*)mWallPlane)[6] : 0;
-			s32 soundId;
-			soundId = *(s32*)((u8*)gpMSound + 0);
-			if (gpMSound->gateCheck(soundId)) {
-				MSoundSESystem::MSoundSE::startSoundActor(soundId, (const Vec*)&mPosition,
-				                                           0, nullptr, 0, 4);
-			}
-		}
-	} else {
-		if (mForwardVel > 0.0f) {
-			checkPlayerAround(1, 0.0f);
-			changePlayerDropping(0x00020466, 0);
-		} else {
-			setPlayerVelocity(0.0f);
-			changePlayerStatus(statusOnStop, 0, false);
-		}
-	}
-
-	*(u16*)((u8*)this + 0x114) = *(u16*)((u8*)this + 0x114) | 0x8;
 }
 
 // slipForeCommon - 0x80138D30
@@ -2071,8 +1994,8 @@ void TMario::oilRun()
 	}
 
 	// Stamp pollution
-	gpPollution->stamp(mDirtyParams.mPolSizeRun.value, mPosition.x, mPosition.y,
-	                   mPosition.z, 1);
+	gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z,
+	                   mDirtyParams.mPolSizeRun.value);
 
 	// Compute angle rotation
 	s16 rotSpeed = mDirtyParams.mSlipRotate.value;
@@ -2123,7 +2046,7 @@ void TMario::oilRun()
 	} else {
 		f32 anmSpeed = 0.5f * mag * mDirtyParams.mSlipAnmSpeed.value;
 		setAnimation(0x72, anmSpeed);
-		startVoice(30931);
+		startVoiceIfNoVoice(30931);
 
 		if (gpMSound->gateCheck(0x1001)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
@@ -2164,8 +2087,8 @@ void TMario::oilSlip()
 	}
 
 	// Pollution stamp
-	gpPollution->stamp(mDirtyParams.mPolSizeSlip.value, mPosition.x, mPosition.y,
-	                   mPosition.z, 1);
+	gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z,
+	                   mDirtyParams.mPolSizeSlip.value);
 
 	// Sound effect
 	if (gpMSound->gateCheck(0x1141)) {
@@ -2360,7 +2283,7 @@ BOOL TMario::moveMain()
 
 	BOOL result = 0;
 	checkEnforceJump();
-	checkController(nullptr);
+	checkReturn();
 
 	u32 action = mAction;
 	u8 flag;
@@ -2368,7 +2291,7 @@ BOOL TMario::moveMain()
 		flag = 1;
 	else
 		flag = 0;
-	if (!flag) {
+	if (flag) {
 		if (!(action & 0x4045C)) {
 			if (!(action & 0x84045D)) {
 				if (gpMSound->gateCheck(0x1009)) {

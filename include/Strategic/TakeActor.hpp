@@ -26,7 +26,7 @@ public:
 		mPosition = where_to;
 		return true;
 	}
-	virtual f32 getRadiusAtY(f32) const;
+	virtual f32 getRadiusAtY(f32) const { return mDamageRadius; }
 
 #ifdef TAKEACTOR_ISTAKEN_OUT_OF_LINE
 	BOOL isTaken() const;

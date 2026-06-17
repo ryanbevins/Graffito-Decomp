@@ -404,11 +404,12 @@ BOOL TBossManta::getIntoGraphVec(JGeometry::TVec3<f32>* out)
 
 	for (int i = 0; i < 12; ++i) {
 		JGeometry::TVec3<f32> current = graph->indexToPoint(i);
-		JGeometry::TVec3<f32> next    = graph->indexToPoint(i + 1);
 		f32 dx                       = current.x - mPosition.x;
 		f32 dz                       = current.z - mPosition.z;
-		f32 edgeZ = current.z - next.z;
-		f32 edgeX = current.x - next.x;
+		JGeometry::TVec3<f32> next    = graph->indexToPoint(i + 1);
+		JGeometry::TVec3<f32> current2 = graph->indexToPoint(i);
+		f32 edgeZ = current2.z - next.z;
+		f32 edgeX = current2.x - next.x;
 		if (dz * edgeX - dx * edgeZ < 0.0f) {
 			JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 			JGeometry::TVec3<f32> edge(edgeX, 0.0f, edgeZ);
@@ -419,11 +420,12 @@ BOOL TBossManta::getIntoGraphVec(JGeometry::TVec3<f32>* out)
 	}
 
 	JGeometry::TVec3<f32> current = graph->indexToPoint(12);
-	JGeometry::TVec3<f32> next    = graph->indexToPoint(0);
 	f32 dx                       = current.x - mPosition.x;
 	f32 dz                       = current.z - mPosition.z;
-	f32 edgeZ                    = current.z - next.z;
-	f32 edgeX                    = current.x - next.x;
+	JGeometry::TVec3<f32> next    = graph->indexToPoint(0);
+	JGeometry::TVec3<f32> current2 = graph->indexToPoint(12);
+	f32 edgeZ                    = current2.z - next.z;
+	f32 edgeX                    = current2.x - next.x;
 	if (dz * edgeX - dx * edgeZ < 0.0f) {
 		JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 		JGeometry::TVec3<f32> edge(edgeX, 0.0f, edgeZ);
@@ -509,10 +511,12 @@ bool TBossManta::collidedWithWater()
 	if (unk1A0 > 0)
 		return false;
 
-	TNerveBase<TLiveActor>* current = mSpine->getLatestNerve();
-	bool inHitWater = current == &TNerveMantaHitWater::theNerve();
-	if (current != &TNerveMantaMove::theNerve() && !inHitWater)
+	if (mSpine->getLatestNerve() != &TNerveMantaMove::theNerve()
+	    && mSpine->getLatestNerve() != &TNerveMantaHitWater::theNerve())
 		return false;
+
+	bool inHitWater
+	    = mSpine->getLatestNerve() == &TNerveMantaHitWater::theNerve();
 
 	int damage[] = { 16, 8, 4, 2, 1, 1 };
 	if (mWaterHitCount >= damage[mGeneration])

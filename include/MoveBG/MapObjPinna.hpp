@@ -145,7 +145,11 @@ public:
 	void touchActor(THitActor*);
 	void kill();
 	void load(JSUMemoryInputStream&);
-	TBalloonKoopaJr();
+	TBalloonKoopaJr()
+	    : TMapObjGeneral("風船（クッパＪｒ）")
+	    , unk148(0.0f, 0.0f, 0.0f)
+	{
+	}
 
 public:
 	/* 0x148 */ JGeometry::TVec3<f32> unk148;
@@ -154,13 +158,19 @@ public:
 class TPinnaEntrance : public TMapObjBase {
 public:
 	void loadAfter();
-	TPinnaEntrance();
+	TPinnaEntrance()
+	    : TMapObjBase("ピンナ入り口")
+	{
+	}
 };
 
 class TWaterRecoverObj : public TMapObjBase {
 public:
 	void touchPlayer(THitActor*);
-	TWaterRecoverObj();
+	TWaterRecoverObj()
+	    : TMapObjBase("水回復オブジェ")
+	{
+	}
 };
 
 class TAmiKing : public TMapObjBase {
@@ -172,7 +182,11 @@ public:
 	void calcRootMatrix();
 	void bind();
 	void touchPlayer(THitActor*);
-	TAmiKing();
+	TAmiKing()
+	    : TMapObjBase("アミキング")
+	    , unk138(0)
+	{
+	}
 
 public:
 	/* 0x138 */ u8 unk138;

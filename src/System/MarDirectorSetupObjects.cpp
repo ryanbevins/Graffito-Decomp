@@ -131,8 +131,8 @@ bool TMarDirector::setupObjects()
 	TFlagManager::getInstance()->setFlag(0x60003, 1);
 	switch (gpApplication.mCurrArea.unk0) {
 	case 1: {
-		TFlagManager::getInstance()->setBool(true, 0x3000D);
-		TFlagManager::getInstance()->setBool(true, 0x30005);
+		TFlagManager::getInstance()->setBool(false, 0x3000D);
+		TFlagManager::getInstance()->setBool(false, 0x30005);
 		if (!TFlagManager::getInstance()->getBool(0x30003)) {
 			TFlagManager::getInstance()->setBool(true, 0x30003);
 			unk4E |= 0x2;
@@ -228,13 +228,13 @@ bool TMarDirector::setupObjects()
 	JDrama::TNameRef* root
 	    = JDrama::TNameRefGen::search<JDrama::TNameRef>("Root View Obj");
 
-	JDrama::TNameRefPtrListT<JDrama::TViewObj>* gameObjs;
+	JDrama::TViewObjPtrListT<JDrama::TViewObj>* gameObjs;
 	if (root) {
-		gameObjs = (JDrama::TNameRefPtrListT<JDrama::TViewObj>*)root->search(
+		gameObjs = (JDrama::TViewObjPtrListT<JDrama::TViewObj>*)root->search(
 		    "ゲームオブジェクト");
 	} else {
 		gameObjs = JDrama::TNameRefGen::search<
-		    JDrama::TNameRefPtrListT<JDrama::TViewObj> >("ゲームオブジェクト");
+		    JDrama::TViewObjPtrListT<JDrama::TViewObj> >("ゲームオブジェクト");
 	}
 
 	gameObjs->insert(gpMarioParticleManager);
@@ -380,7 +380,7 @@ bool TMarDirector::setupObjects()
 	    ->mSortType
 	    = J3DDrawBuffer::SORT_MAT_ANM;
 	gpLightManager->addChildGroupObj(drawBufferGroup);
-	unk40->push_back(drawBufferGroup, 8);
+	unk40->push_back(drawInit, 8);
 	initECTGft(unk38, unk3C, perfEventGroup, normalScene);
 	initECTMir(mPerformListGX, perfEventGroup);
 
@@ -406,12 +406,12 @@ bool TMarDirector::setupObjects()
 	{
 		JKRDvdFile auStack_1d8;
 		auStack_1d8.open("/data/PerformLists.bin");
-		JKRDvdRipper::loadToMainRAM(
+		void* perfBuf = JKRDvdRipper::loadToMainRAM(
 		    &auStack_1d8, nullptr, EXPAND_SWITCH_DEFAULT, 0, nullptr,
 		    JKRDvdRipper::ALLOC_DIRECTION_FORWARD, 0, nullptr);
 
 		{
-			JSUMemoryInputStream stream(auStack_1d8.getFileInfo(),
+			JSUMemoryInputStream stream(perfBuf,
 			                            auStack_1d8.getFileSize());
 			JSUMemoryInputStream leftoversStream(nullptr, nullptr);
 			JDrama::TViewObj* performLists

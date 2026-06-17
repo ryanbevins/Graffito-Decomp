@@ -47,10 +47,12 @@ void TEfbCtrlDisp::perform(u32 param_1, TGraphics* param_2)
 	}
 
 	if (((param_1 & 8) != 0) && !param_2->unkFC.check(0x40)) {
+		GXFBClamp fbClamp = param_2->mFBClamp;
+		u32 clearZ = param_2->mClearZ;
 		JUtility::TColor clearColor = param_2->mClearColor;
 		IssueGXCopyDisp(param_2->mFrameBuffer, param_2->mDisplayRect,
-		                param_2->mRenderMode, clearColor, param_2->mClearZ,
-		                param_2->mFBClamp, param_2->unkFC.mValue);
+		                param_2->mRenderMode, clearColor, clearZ, fbClamp,
+		                param_2->unkFC.get());
 	}
 }
 
@@ -72,14 +74,22 @@ void TEfbCtrlTex::setTexAttb(const GXTexObj& param_1)
 	u16 width;
 	u16 height;
 	u8 mipmap;
-
 	GXGetTexObjAll(&param_1, &mImagePtr, &width, &height, &mTexFmt, &wrap_s,
 	               &wrap_t, &mipmap);
 
-	// TODO: inline
-	char trash[0x10];
-	mWidth  = width;
-	mHeight = height;
+	// The original stores width/height into a temporary 2-word block and copies
+	// that block over the adjacent mWidth/mHeight fields in one struct assignment
+	// (batched lwz/lwz; stw/stw). This reproduces the exact materialization the
+	// target uses, with no padding hack.
+	struct Dims {
+		u32 w;
+		u32 h;
+	} dims;
+	u32 w = width;
+	u32 h = height;
+	dims.w = w;
+	dims.h = h;
+	*(Dims*)&mWidth = dims;
 }
 
 void TEfbCtrlTex::perform(u32 param_1, TGraphics* param_2)

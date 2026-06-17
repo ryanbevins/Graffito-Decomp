@@ -1432,23 +1432,32 @@ void TTalk2D2::makeBoxLine(s8 line, char* text)
 			t += unk94 * (0.7f * width.field_0x1 + 4.0f);
 		}
 
-		f32 inv = 1.0f - t;
-		f32 x   = inv * inv * startX + 2.0f * inv * t * ctrlX
-		    + t * t * endX;
-		f32 y = inv * inv * startY + 2.0f * inv * t * ctrlY
-		    + t * t * endY;
+		f32 inv  = 1.0f - t;
+		f32 endXt2 = t * t * endX;
+		f32 endYt2 = t * t * endY;
+		f32 x = endXt2 + (inv * inv * startX + 2.0f * t * inv * ctrlX);
+		f32 y = endYt2 + (inv * inv * startY + 2.0f * t * inv * ctrlY);
 
-		f32 dx       = x - prevX;
-		f32 dy       = y - prevY;
-		f32 rotation = atan2f(dy, dx) * 180.0f / 3.1415927f;
-		if (rotation < 0.0f)
-			rotation = -rotation;
+		f32 dx    = x - prevX;
+		f32 dy    = y - prevY;
+		f32 angle = fabsf(atan2f(dy, dx));
+		if (x > 0.0f)
+			angle = angle * -1.0f;
 
-		int moveX = x > 0.0f ? x + 0.5f : x - 0.5f;
-		int moveY = y > 0.0f ? y + 0.5f : y - 0.5f;
+		f32 cosV = cosf(angle);
+		f32 sinV = sinf(angle);
+		f32 sumX = prevX + x;
+		f32 sumY = prevY + y;
+		f32 mvX
+		    = -0.5f * sumX + (prevX * cosV - prevY * sinV) + 0.5f * sumX;
+		f32 mvY
+		    = -0.5f * sumY + (prevX * sinV + prevY * cosV) + 0.5f * sumY;
+
+		int moveX = mvX > 0.0f ? mvX + 0.5f : mvX - 0.5f;
+		int moveY = mvY > 0.0f ? mvY + 0.5f : mvY - 0.5f;
 		textBox->move((s16)moveX, (s16)(-0x25 - moveY));
 		textBox->setBasePosition(J2DBasePosition_4);
-		textBox->mRotation = rotation;
+		textBox->mRotation = angle * 180.0f / 3.1415927f;
 		linePane->mPaneTree.appendChild(&textBox->mPaneTree);
 
 		if (t > 1.1f) {

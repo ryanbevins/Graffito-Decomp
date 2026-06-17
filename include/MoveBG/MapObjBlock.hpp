@@ -18,7 +18,10 @@ public:
 
 class TSandBlock : public TMapObjBase {
 public:
-	TSandBlock();
+	TSandBlock()
+	    : TMapObjBase("砂ブロック")
+	{
+	}
 	void initMapObj();
 	void control();
 	void touchPlayer(THitActor*);

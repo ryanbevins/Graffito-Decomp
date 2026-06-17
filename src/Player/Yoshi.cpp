@@ -135,9 +135,18 @@ void TYoshi::init(TMario* mario) {
 	*(J3DModel**)((u8*)this + 0x44) = handL;
 	*(J3DModel**)((u8*)this + 0x48) = handR;
 
-	for (int i = 0; i < 2; ++i) {
-		J3DModel* hand = *(J3DModel**)((u8*)this + 0x44 + i * 4);
-		u8* dst = *(u8**)((u8*)hand->getModelData()->getTexture() + 4);
+	{
+		u8* dst = *(u8**)((u8*)handL->getModelData()->getTexture() + 4);
+		u8* src
+		    = *(u8**)((u8*)mActor->unk4->getModelData()->getTexture() + 4);
+		for (int j = 0; j < 8; ++j)
+			((u32*)dst)[j] = ((u32*)src)[j];
+		*(u32*)(dst + 0x1C) = (u32)((src + *(u32*)(dst + 0x1C)) - dst);
+		*(u32*)(dst + 0x0C) = (u32)((src + *(u32*)(dst + 0x0C)) - dst);
+		DCFlushRange(dst, 0x20);
+	}
+	{
+		u8* dst = *(u8**)((u8*)handR->getModelData()->getTexture() + 4);
 		u8* src
 		    = *(u8**)((u8*)mActor->unk4->getModelData()->getTexture() + 4);
 		for (int j = 0; j < 8; ++j)
@@ -221,7 +230,7 @@ void TYoshi::init(TMario* mario) {
 	mCurBtpIdx = 4;
 	mEgg = 0;
 
-	mEmitJoint = jointName->getIndex(0);
+	mEmitJoint = jointName->getIndex("jnt_mouth");
 	mFootLJoint2 = jointName->getIndex("jnt_neck_2");
 	mMtxTrans.x = 0.0f;
 	mMtxTrans.y = 0.0f;
@@ -1243,10 +1252,11 @@ void TYoshi::calcAnim()
 	mMtxTrans2.z   = footMtx[2][3];
 
 	u32 soundFlags       = mMario->mSoundFlags;
-	J3DFrameCtrl* ctrl   = mActor->getFrameCtrl(0);
 	MAnmSound* bckSound  = (MAnmSound*)mBckPlayer;
 	MAnmSound* bckSound2 = (MAnmSound*)mBckPlayer2;
-	bckSound->animeLoop((Vec*)&mTranslation, ctrl->getRate(), ctrl->getFrame(),
+	bckSound->animeLoop((Vec*)&mTranslation,
+	                    mActor->getFrameCtrl(0)->getFrame(),
+	                    mActor->getFrameCtrl(0)->getRate(),
 	                    soundFlags + 0x10000000, 4);
 	bckSound2->animeLoop((Vec*)&mMtxTrans, *(f32*)((u8*)this + 0x6c),
 	                     *(f32*)((u8*)this + 0x68),

@@ -1176,6 +1176,59 @@ static inline void updateStarHudAutoHide(TGCConsole2* console)
 	console->unk5A = 0;
 }
 
+static inline void updateLifeMeterBlink(TGCConsole2* console)
+{
+	if (!console->unk1C4->getPane()->isVisible())
+		return;
+
+	f32 rate = 100.0f;
+	if (console->unk1CC[0] == 3)
+		rate = 80.0f;
+	if (console->unk1CC[0] == 2)
+		rate = 60.0f;
+	if (console->unk1CC[0] == 1)
+		rate = 35.0f;
+
+	if ((f32)console->unk86 < rate * 2.0f) {
+		if (console->unk1CC[0] <= 3 && console->unk1CC[0] != 0
+		    && console->unk86 == (int)(1.5f * rate)
+		    && gpMarDirector->mState == TMarDirector::STATE_UNK4
+		    && gpMarDirector->unk124 == 0 && gpMSound->gateCheck(0x4800)) {
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4800, 0, nullptr,
+			                                             0);
+		}
+
+		f32 diff = (f32)console->unk86 - rate;
+		if (diff < 0.0f)
+			diff = -diff;
+
+		f32 mul = console->unk1CC[0] > 3 ? 3.0f : 5.0f;
+		int delta = (int)(0.5f + diff / rate);
+		int scaledY = (int)(mul * (f32)(-delta));
+
+		for (int i = 0; i < 9; ++i) {
+			if (console->unk17C[i * 2]->isVisible()) {
+				console->unk17C[i * 2]->setBounds(
+				    JUTRect(console->unk1D0[i].x1 - scaledY,
+				            console->unk1D0[i].y1 - scaledY,
+				            console->unk1D0[i].x2 + scaledY,
+				            console->unk1D0[i].y2 + scaledY));
+				console->unk17C[i * 2 + 1]->setBounds(
+				    JUTRect(console->unk1D0[i].x1 - scaledY,
+				            console->unk1D0[i].y1 - scaledY,
+				            console->unk1D0[i].x2 + scaledY,
+				            console->unk1D0[i].y2 + scaledY));
+			}
+		}
+
+		++console->unk86;
+	} else if ((f32)console->unk86 < rate * 2.0f) {
+		++console->unk86;
+	} else {
+		console->unk86 = 0;
+	}
+}
+
 static inline bool updateDownPane(TBoundPane* pane)
 {
 	if (pane->update()) {
@@ -1576,7 +1629,7 @@ void TGCConsole2::load(JSUMemoryInputStream& stream)
 
 	((J2DPicture*)unk414[2]->getPane())->changeTexture(unkE0[8]->mTexInfo, 0);
 
-	unk428 = new TExPane(unkB0, '\0b_1');
+	unk428 = new TExPane(unkB0, '\0r_0');
 	unk42C = new TBoundPane(unkB0, 'r_ba');
 	unk430 = new TBoundPane(unkB0, 'r_ic');
 	unk434 = new TBoundPane(unkB0, '\0r_x');
@@ -3801,6 +3854,8 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 				unk34[18] = 0;
 			}
 		}
+
+		updateLifeMeterBlink(this);
 
 		if (unk34[27]) {
 			if (processAppearCoin(unk88++)) {

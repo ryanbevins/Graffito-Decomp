@@ -1013,6 +1013,21 @@ void TBossEel::init(TLiveManager* manager)
 	model->calc();
 }
 
+TBossEelHeartCoin::TBossEelHeartCoin(TBossEel* boss, int index,
+                                     SDLModelData* model_data, u32 flags,
+                                     const char* name)
+    : TSharedParts(boss, index, model_data, flags, name)
+    , unk1C(FALSE)
+    , unk7C(nullptr)
+{
+	unk7C = boss;
+
+	for (int i = 0; i < 20; ++i) {
+		mCoins[i] = gpItemManager->newAndRegisterCoinReal();
+		mCoins[i]->kill();
+	}
+}
+
 void TBossEelHeartCoin::generate(JGeometry::TVec3<f32>& position)
 {
 	unk70.set(position.x, position.y, position.z);

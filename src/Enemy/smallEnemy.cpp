@@ -58,6 +58,16 @@ u8 TSmallEnemyManager::mTestJuiceType    = 0;
 bool TSmallEnemy::mIsPolluter    = true;
 bool TSmallEnemy::mIsAmpPolluter = true;
 
+// Picks a uniform random value in [lo, hi]. Written with the intermediate
+// product split out so the compiler emits fmuls + fadds (matching the
+// original) instead of contracting to a fused fmadds like MsRandF(l, r) does.
+static inline f32 smallEnemyRandRange(f32 lo, f32 hi)
+{
+	f32 range = hi - lo;
+	f32 r     = range * MsRandF();
+	return lo + r;
+}
+
 TSmallEnemyParams::TSmallEnemyParams(const char* name)
     : TSpineEnemyParams(name)
     , PARAM_INIT(mSLJumpForce, 10.0f)
@@ -178,12 +188,11 @@ void TSmallEnemy::init(TLiveManager* param_1)
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 	unk158 = 1.0f;
 
-	// TODO: are these f32 pairs some kind of rng interval class?
 	TSmallEnemyParams* params1 = getSaveParam2();
-	mTurnSpeed                 = MsRandF(params1->unk2C4, params1->unk2C8);
+	mTurnSpeed                 = smallEnemyRandRange(params1->unk2C4, params1->unk2C8);
 
 	TSmallEnemyParams* params2 = getSaveParam2();
-	mBodyScale                 = MsRandF(params2->unk2D0, params2->unk2CC);
+	mBodyScale                 = smallEnemyRandRange(params2->unk2CC, params2->unk2D0);
 
 	unk154            = mBodyScale;
 	mBodyRadius       = getSaveParam2()->mSLBodyRadius.get();
@@ -258,10 +267,10 @@ void TSmallEnemy::reset()
 	TSpineEnemy::reset();
 
 	TSmallEnemyParams* params1 = getSaveParam2();
-	mTurnSpeed                 = MsRandF(params1->unk2C4, params1->unk2C8);
+	mTurnSpeed                 = smallEnemyRandRange(params1->unk2C4, params1->unk2C8);
 
 	TSmallEnemyParams* params2 = getSaveParam2();
-	mBodyScale                 = MsRandF(params2->unk2D0, params2->unk2CC);
+	mBodyScale                 = smallEnemyRandRange(params2->unk2CC, params2->unk2D0);
 
 	unk190 = unk154 = mBodyScale;
 
@@ -884,11 +893,10 @@ void TSmallEnemy::setBckAnm(int index)
 
 void TSmallEnemy::expandCollision()
 {
-	TSmallEnemyParams* params = getSaveParam2();
-	f32 attackRadius = params->getSLAttackRadius();
-	f32 attackHeight = params->getSLAttackHeight();
-	f32 damageRadius = params->getSLDamageRadius();
-	f32 damageHeight = params->getSLDamageHeight();
+	f32 attackRadius = getSaveParam2()->getSLAttackRadius();
+	f32 attackHeight = getSaveParam2()->getSLAttackHeight();
+	f32 damageRadius = getSaveParam2()->getSLDamageRadius();
+	f32 damageHeight = getSaveParam2()->getSLDamageHeight();
 
 	f32 expansionFactor = unk190 / unk154;
 

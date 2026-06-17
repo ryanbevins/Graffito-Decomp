@@ -1,3 +1,11 @@
+// This TU owns the weak out-of-line copy of JGeometry::TVec3<f32>::set(const
+// Vec&). Several other TUs (CameraWarp, lensflare, sunmodel, bosstelesa)
+// reference it but none emit it, so it must be defined here.
+#define JGEOMETRY_EVENTWATCHER_TVEC3_SET_VEC_OUT_OF_LINE
+
+// TUtil<f32>::sqrt is called out-of-line in this TU (owner lives elsewhere).
+#define JG_TUTIL_SQRT_OUT_OF_LINE
+
 #include <System/EventWatcher.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -40,9 +48,25 @@ public:
 #include <Player/MarioAccess.hpp>
 #include <Camera/CubeManagerBase.hpp>
 #include <GC2D/SunGlass.hpp>
+#include <JSystem/JMath.hpp>
+#include <System/EmitterViewObj.hpp>
+#include <MoveBG/MapObjTown.hpp>
 
 // rogue includes needed for matching sinit & bss
 #include <M3DUtil/InfectiousStrings.hpp>
+
+#undef JGEOMETRY_EVENTWATCHER_TVEC3_SET_VEC_OUT_OF_LINE
+
+#pragma dont_inline on
+namespace JGeometry {
+void TVec3<f32>::set(const Vec& v)
+{
+	x = v.x;
+	y = v.y;
+	z = v.z;
+}
+}
+#pragma dont_inline off
 
 // TODO: from M3UJoint or J3DJoint?
 static void dummy()
@@ -50,6 +74,11 @@ static void dummy()
 	(Vec) { 0.0f, 0.0f, 0.0f };
 	(Vec) { 1.0f, 1.0f, 1.0f };
 }
+
+// Owned by this TU (weak): a trace/debug helper that is stripped to an empty
+// body in the release build. Several other TUs reference it but only this TU
+// emits the definition, so it must live here for the project to link.
+void SpcTrace(const char*, ...) { }
 
 template <class T> inline T* get_name_ref(TSpcSlice slice)
 {
@@ -176,10 +205,69 @@ static void evSetFlagNPCDead(TSpcTypedInterp<TEventWatcher>* interp,
 static void evIsNearSameActors(TSpcTypedInterp<TEventWatcher>* interp,
                                u32 arg_num)
 {
+	interp->verifyArgNum(3, &arg_num);
+
+	TLiveActor* base = get_name_ref<TLiveActor>(interp->pop());
+	if (!base) {
+		interp->push(0);
+		return;
+	}
+
+	u32 actorType      = base->mActorType;
+	f32 radius         = interp->pop().getDataFloat();
+	TLiveActor* center = get_name_ref<TLiveActor>(interp->pop());
+	if (!center) {
+		interp->push(0);
+		return;
+	}
+
+	int count = 0;
+	int num   = gpMapObjManager->getObjNum();
+	for (int i = 0; i < num; ++i) {
+		THitActor* o = gpMapObjManager->getObj(i);
+		if (o->mActorType == actorType) {
+			JGeometry::TVec3<f32> diff = center->mPosition;
+			diff.sub(o->mPosition);
+			if (JGeometry::TUtil<f32>::sqrt(diff.squared()) <= radius)
+				++count;
+		}
+	}
+
+	interp->push(count);
 }
 
 static void evIsNearActors(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
+	int count = 0;
+	if (arg_num >= 3) {
+		TLiveActor* base = get_name_ref<TLiveActor>(
+		    interp->mProcessStack
+		        .mData[interp->mProcessStack.mSize - (arg_num - 0)]);
+		if (base) {
+			f32 radius = interp->mProcessStack
+			                 .mData[interp->mProcessStack.mSize
+			                        - (arg_num - 1)]
+			                 .getDataFloat();
+			count = 1;
+			for (u32 i = 2; i < arg_num; ++i) {
+				TLiveActor* other = get_name_ref<TLiveActor>(
+				    interp->mProcessStack
+				        .mData[interp->mProcessStack.mSize
+				               - (arg_num - i)]);
+				if (other) {
+					JGeometry::TVec3<f32> diff = base->mPosition;
+					diff.sub(other->mPosition);
+					if (JGeometry::TUtil<f32>::sqrt(diff.squared())
+					    <= radius)
+						++count;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < (int)arg_num; ++i)
+		interp->pop();
+	interp->push(count);
 }
 
 static void evGetTalkNPC(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
@@ -637,6 +725,24 @@ static void evAppearMushroom1up(TSpcTypedInterp<TEventWatcher>* interp,
 static void evAppearShineFromNPC(TSpcTypedInterp<TEventWatcher>* interp,
                                  u32 arg_num)
 {
+	interp->verifyArgNum(3, &arg_num);
+	const char* src       = interp->pop().getDataString();
+	const char* shineName = interp->pop().getDataString();
+	TLiveActor* npc       = get_name_ref<TLiveActor>(interp->pop());
+
+	if (strcmp(src, "") != 0) {
+		gpItemManager->makeShineAppearWithDemo(shineName, src,
+		                                       npc->mPosition.x,
+		                                       npc->mPosition.y,
+		                                       npc->mPosition.z);
+	} else {
+		TShine* shine = JDrama::TNameRefGen::search<TShine>(shineName);
+		shine->mInitialPosition = npc->mPosition;
+		shine->mPosition        = npc->mPosition;
+		shine->appearWithTime(1200, -1, -1, -1);
+	}
+
+	interp->push();
 }
 
 static void evAppearShine(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
@@ -655,9 +761,17 @@ static void evAppearShine(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 	interp->push();
 }
 
-static void evAppearShineFromNPCWithoutDemo(TSpcTypedInterp<TEventWatcher>*,
-                                            u32)
+static void evAppearShineFromNPCWithoutDemo(TSpcTypedInterp<TEventWatcher>* interp,
+                                            u32 arg_num)
 {
+	interp->verifyArgNum(2, &arg_num);
+	TSpcSlice fromSlice = interp->pop();
+	const char* dstName = interp->pop().getDataString();
+	TShine* shine       = JDrama::TNameRefGen::search<TShine>(dstName);
+	TLiveActor* from    = get_name_ref<TLiveActor>(fromSlice);
+	shine->mPosition.set(from->mPosition);
+	shine->makeObjAppeared();
+	interp->push();
 }
 
 static void evAppearShineFromKageMario(TSpcTypedInterp<TEventWatcher>* interp,
@@ -915,7 +1029,13 @@ static void evEggYoshiStartFruit(TSpcTypedInterp<TEventWatcher>* interp,
 	interp->push();
 }
 
-static void evPutNozzle(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num) { }
+static void evPutNozzle(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
+{
+	interp->verifyArgNum(1, &arg_num);
+	TItemNozzle* nozzle = get_name_ref<TItemNozzle>(interp->pop());
+	nozzle->put();
+	interp->push();
+}
 
 static void evStopBGM(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
@@ -1042,11 +1162,67 @@ static void evAppearReadyGo(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evAppear8RedCoinsAndTimer(TSpcTypedInterp<TEventWatcher>* interp,
                                       u32 arg_num)
 {
+	interp->verifyArgNum(0, &arg_num);
+
+	TRedCoinSwitch* sw
+	    = JDrama::TNameRefGen::search<TRedCoinSwitch>("赤コイン用スイッチ");
+	int time = sw->unk138;
+
+	for (int i = 0; i < 8; ++i) {
+		TCoinRed* coin = (TCoinRed*)gpItemManager->makeObjAppeared(0x2000000f);
+		coin->killByTimer(time - coin->unk150);
+
+		coin->unk158 = coin->mPosition.x;
+		coin->unk15C = 70.0f + coin->mPosition.y;
+		coin->unk160 = coin->mPosition.z;
+
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x58, coin->getModel()->mNodeMatrices[0], 0, coin);
+		gpMarioParticleManager->emit(
+		    0xE5, (const JGeometry::TVec3<f32>*)&coin->unk158, 0, nullptr);
+		gpMarioParticleManager->emit(
+		    0xE6, (const JGeometry::TVec3<f32>*)&coin->unk158, 0, nullptr);
+	}
+
+	gpMarDirector->getConsole()->startAppearTimer(
+	    1, (s32)((f32)time * (1.0f / 120.0f)));
+	gpMarDirector->startTimer();
+	gpMarDirector->getConsole()->startMoveTimer(10);
+
+	interp->push();
 }
 
 static void evWarpFrontToMario(TSpcTypedInterp<TEventWatcher>* interp,
                                u32 arg_num)
 {
+	interp->verifyArgNum(1, &arg_num);
+	THitActor* actor = (THitActor*)interp->pop().getDataInt();
+
+	s16 angle = *gpMarioAngleY;
+
+	Vec front;
+	front.x = 0.0f;
+	front.y = 0.0f;
+	front.z = 400.0f;
+
+	f32 s = JMASSin(angle);
+	f32 c = JMASCos(angle);
+
+	Vec rotated;
+	rotated.x = front.x * c + front.z * s;
+	rotated.y = front.y;
+	rotated.z = -front.x * s + front.z * c;
+
+	JGeometry::TVec3<f32> offset;
+	offset.set(rotated);
+
+	JGeometry::TVec3<f32> pos = *gpMarioPos;
+	pos.add(offset);
+
+	actor->mPosition = pos;
+	actor->mRotation.y = SHORTANGLE2DEG((f32)(s16)(angle - 0x8000));
+
+	interp->push();
 }
 
 static void evOnNeutralMarioKey(TSpcTypedInterp<TEventWatcher>* interp,

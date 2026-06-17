@@ -118,7 +118,7 @@ public:
 	TBGCork(TBossGesso* owner);
 
 	void crush();
-	void perform(u32, JDrama::TGraphics*);
+	inline void perform(u32, JDrama::TGraphics*);
 
 public:
 	/* 0x0 */ TBossGesso* mOwner;
@@ -182,7 +182,7 @@ public:
 	void doAttackShoot();
 	void doAttackGuard();
 	void doAttackRoll();
-	void performInContainer(u32, JDrama::TGraphics*);
+	void performInContainer(u32, JDrama::TGraphics*) { }
 
 	// fabricated
 	TBossGessoParams* getSaveParam() const
@@ -225,18 +225,18 @@ public:
 	/* 0x170 */ TBGEyeHit* mLeftEye;
 	/* 0x174 */ TBGEyeHit* mRightEye;
 	/* 0x178 */ MActor* unk178;
-	/* 0x17C */ u8 unk17C;
+	/* 0x17C */ s8 unk17C;
 	/* 0x180 */ TBGPolDrop* mPolDrop;
 	/* 0x184 */ TBGBodyHit* mBody;
 	/* 0x188 */ f32 unk188;
 	/* 0x18C */ TBGCork* mCork;
 	/* 0x190 */ J3DGXColor unk190;
-	/* 0x194 */ u8 unk194;
+	/* 0x194 */ s8 unk194;
 	/* 0x195 */ s8 unk195;
 	/* 0x196 */ s8 unk196;
 	/* 0x198 */ u32 unk198;
-	/* 0x19C */ u32 unk19C;
-	/* 0x1A0 */ u8 unk1A0;
+	/* 0x19C */ s32 unk19C;
+	/* 0x1A0 */ s8 unk1A0;
 	/* 0x1A1 */ s8 unk1A1;
 	/* 0x1A4 */ f32 unk1A4;
 	/* 0x1A8 */ int unk1A8;

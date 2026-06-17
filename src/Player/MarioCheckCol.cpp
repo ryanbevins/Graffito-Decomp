@@ -143,7 +143,7 @@ void TMario::hangPole(THitActor* actor)
 
 		f32 cosVal = JMASCos(mFaceAngle.y);
 		f32 sinVal = JMASSin(mFaceAngle.y);
-		f32 catchRadius = *(f32*)((u8*)actor + 0x58);
+		f32 catchRadius = 50.0f + *(f32*)((u8*)actor + 0x58);
 		f32 dot = cosVal * normZ + sinVal * normX;
 		f32 poleRadius = mBarParams.mCatchRadius.value;
 		f32 poleHeight = mBarParams.mCatchAngle.value;

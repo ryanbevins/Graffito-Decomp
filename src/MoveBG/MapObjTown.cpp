@@ -75,12 +75,12 @@ void TDoor::touchPlayer(THitActor* player)
 		return;
 
 	if (gpMarioOriginal->mAction == 0x1320) {
-		if (gpMarioOriginal->mHolder)
+		if (gpMarioOriginal->mHeldObject)
 			startAnim(4);
 		else
 			startAnim(2);
 	} else if (gpMarioOriginal->mAction == 0x1321) {
-		if (gpMarioOriginal->mHolder)
+		if (gpMarioOriginal->mHeldObject)
 			startAnim(3);
 		else
 			startAnim(1);
@@ -125,15 +125,22 @@ void TManhole::makeManholeUnuseful(const TMapObjBase* obj)
 
 void TManhole::setGroundCollision()
 {
-	u8* yoshi = (u8*)SMS_GetYoshi();
-	if (yoshi != nullptr && *yoshi != 0) {
-		JGeometry::TVec3<f32>* yoshiPos
-		    = (JGeometry::TVec3<f32>*)(yoshi + 0x10);
-		f32 dx = yoshiPos->x - mPosition.x;
-		f32 dz = yoshiPos->z - mPosition.z;
-		if (dx * dx + dz * dz < mBodyRadius * mBodyRadius) {
-			if (mMapCollisionManager != nullptr && mMapCollisionManager->unk8)
-				mMapCollisionManager->unk8->moveTrans(mPosition);
+	void* yoshi = SMS_GetYoshi();
+	int hasYoshi;
+	if (!*(u8*)yoshi)
+		hasYoshi = 0;
+	else
+		hasYoshi = 1;
+
+	if (hasYoshi) {
+		if (mPosition.x - mBodyRadius < *(f32*)((u8*)SMS_GetYoshi() + 0x20)
+		    && mPosition.x + mBodyRadius > *(f32*)((u8*)SMS_GetYoshi() + 0x20)
+		    && mPosition.z - mBodyRadius < *(f32*)((u8*)SMS_GetYoshi() + 0x28)
+		    && mPosition.z + mBodyRadius
+		           > *(f32*)((u8*)SMS_GetYoshi() + 0x28)) {
+			TMapCollisionBase* coll = mMapCollisionManager->unk8;
+			if (coll)
+				coll->moveTrans(mPosition);
 			return;
 		}
 	}
@@ -143,12 +150,12 @@ void TManhole::setGroundCollision()
 
 void TManhole::calc()
 {
-	J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(0);
+	f32 sum = mMActor->getFrameCtrl(0)->getRate()
+	          + mMActor->getFrameCtrl(0)->getFrame();
 
-	if (frameCtrl->checkPass(45.0f) || frameCtrl->checkPass(125.0f))
+	if ((mMActor->getFrameCtrl(0)->getFrame() <= 45.0f && sum > 45.0f)
+	    || (mMActor->getFrameCtrl(0)->getFrame() <= 125.0f && sum > 125.0f))
 		START_MAP_OBJ_SOUND(0x383c, mPosition);
-
-	TMapObjGeneral::calc();
 }
 
 void TManhole::appeared()
@@ -159,15 +166,14 @@ void TManhole::appeared()
 	}
 
 	if (unk150 != 0 && *gpMarioSpeedY <= 0.0f) {
-		if (mMapCollisionManager != nullptr && mMapCollisionManager->unk8)
-			mMapCollisionManager->unk8->setAllBGType(0x107);
+		mMapCollisionManager->unk8->setAllBGType(0x107);
 		unk150 = 0;
 	}
 
 	if (!animationFinished())
 		return;
 
-	if (unk152 != 0 && mColCount == 0) {
+	if (unk152 == 1 && mColCount == 0) {
 		unk152 = 0;
 		START_MAP_OBJ_SOUND(0x383e, mPosition);
 	}
@@ -176,7 +182,7 @@ void TManhole::appeared()
 		s16 phase = (s16)(unk148 * 32768.0f);
 		mPosition.y = mInitialPosition.y + unk14C * JMASCos(phase);
 		unk148 += mVibrationSpeed;
-		if (unk148 > 2.0f)
+		if (unk148 >= 2.0f)
 			unk148 -= 2.0f;
 		unk14C -= mVibrationDecreaseRate;
 	} else {
@@ -195,11 +201,21 @@ BOOL TManhole::animationFinished()
 	if (frameCtrl->getRate() == 0.0f)
 		return TRUE;
 
-	if (frameCtrl->checkPass(79.0f)
-	    || frameCtrl->getFrame() + frameCtrl->getRate() >= frameCtrl->getEnd()) {
+	if (frameCtrl->getFrame() < 79.0f
+	    && frameCtrl->getFrame() + frameCtrl->getRate() >= 79.0f) {
+		frameCtrl->setFrame(79.0f);
+		frameCtrl->setRate(0.0f);
+		calcRootMatrix();
+		getModel()->calc();
+		onMapObjFlag(0x100);
+		return TRUE;
+	}
+
+	if (frameCtrl->getFrame() < frameCtrl->getEnd()
+	    && frameCtrl->getFrame() + frameCtrl->getRate() >= frameCtrl->getEnd()) {
 		frameCtrl->setFrame(0.0f);
 		frameCtrl->setRate(0.0f);
-		appeared();
+		calcRootMatrix();
 		getModel()->calc();
 		onMapObjFlag(0x100);
 		return TRUE;
@@ -217,29 +233,32 @@ void TManhole::touchPlayer(THitActor*)
 		return;
 	}
 
-	if (gpMarioOriginal->mAction == 0x80008a9 && gpMarioPos->y < mPosition.y) {
-		J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(0);
-		frameCtrl->setRate(SMSGetAnmFrameRate());
-		frameCtrl->setFrame(frameCtrl->getFrame() + SMSGetAnmFrameRate());
+	if (gpMarioOriginal->mAction == 0x8008a9
+	    && gpMarioOriginal->mPosition.y < mPosition.y) {
+		mMActor->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
+		mMActor->getFrameCtrl(0)->setFrame(
+		    mMActor->getFrameCtrl(0)->getFrame() + SMSGetAnmFrameRate());
 		START_MAP_OBJ_SOUND(0x383b, mPosition);
 		offMapObjFlag(0x100);
 		SMSRumbleMgr->start(0x15, 0xf, (f32*)nullptr);
 		return;
 	}
 
-	if (gpMarioPos->y < mPosition.y && *gpMarioSpeedY > 0.0f) {
-		J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(0);
-		frameCtrl->setRate(SMSGetAnmFrameRate());
-		frameCtrl->setFrame(frameCtrl->getFrame() + SMSGetAnmFrameRate());
-		if (mMapCollisionManager != nullptr && mMapCollisionManager->unk8)
-			mMapCollisionManager->unk8->setAllBGType(0x400);
+	if (gpMarioOriginal->mPosition.y < mPosition.y
+	    && gpMarioOriginal->mVel.y > 0.0f) {
+		mMActor->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
+		mMActor->getFrameCtrl(0)->setFrame(
+		    mMActor->getFrameCtrl(0)->getFrame() + SMSGetAnmFrameRate());
+		offMapObjFlag(0x100);
+		mMapCollisionManager->unk8->setAllBGType(0x400);
 		START_MAP_OBJ_SOUND(0x383b, mPosition);
 		unk150 = 1;
 		SMSRumbleMgr->start(0x15, 0xf, (f32*)nullptr);
 		return;
 	}
 
-	if (gpMarioPos->y <= SMS_GetMarioGrLevel() + 4.0f) {
+	if (gpMarioOriginal->mPosition.y
+	    <= 4.0f + gpMarioOriginal->mFloorPosition.y) {
 		if (unk151 != 0) {
 			setUpMapCollision(1);
 			unk151 = 0;
@@ -249,17 +268,19 @@ void TManhole::touchPlayer(THitActor*)
 			START_MAP_OBJ_SOUND(0x383d, mPosition);
 		}
 		f32 minY = mInitialPosition.y - mDownHeight;
-		if (mPosition.y > minY) {
+		if (mPosition.y > minY)
 			mPosition.y -= mDownSpeed;
-			if (mPosition.y < minY)
-				mPosition.y = minY;
-		}
+		else
+			mPosition.y = minY;
 		unk148 = 1.0f;
 		unk14C = mInitialPosition.y - mPosition.y;
 		offMapObjFlag(0x100);
-	} else if (unk152 != 0) {
-		unk152 = 0;
-		START_MAP_OBJ_SOUND(0x383e, mPosition);
+	} else {
+		if (unk152 != 0) {
+			unk152 = 0;
+			START_MAP_OBJ_SOUND(0x383e, mPosition);
+		}
+		appeared();
 	}
 }
 
@@ -305,6 +326,11 @@ u32 TMapObjBillboard::touchWater(THitActor* actor)
 	}
 
 	if (unk138 != nullptr && unk14C != 0) {
+		JGeometry::TVec3<f32> rot = mRotation;
+		JGeometry::TVec3<f32> pos = mPosition;
+		rot.y -= 90.0f;
+		pos.y += mYOffset;
+
 		TMapObjBase* obj = nullptr;
 		if (unk138->mActorType == 0x2000000e)
 			obj = gpItemManager->makeObjAppear(0x2000000e);
@@ -312,8 +338,8 @@ u32 TMapObjBillboard::touchWater(THitActor* actor)
 			obj = unk138;
 
 		if (obj != nullptr) {
-			TMapObjBase::throwObjFromPointWithRot(obj, mPosition, mRotation,
-			                                      unk13C, unk140);
+			TMapObjBase::throwObjFromPointWithRot(obj, pos, rot, unk13C,
+			                                      unk140);
 			emitEffect();
 		}
 		unk14C = 0;
@@ -501,12 +527,14 @@ TMapObjSwitch::TMapObjSwitch(const char* name)
     , unk138(0)
     , unk13C(0)
     , unk140(0)
-    , unk144(nullptr)
     , unk148(0xff)
     , unk14A(0xff)
     , unk14C(0xff)
     , unk14E(0xff)
 {
+	for (int i = 0; i < unk138; ++i)
+		unk144[i] = nullptr;
+
 	gpMapObjSwitch = this;
 }
 
@@ -651,5 +679,5 @@ void TBasketReverse::kill()
 	START_MAP_OBJ_SOUND(0x380a, mPosition);
 	if (gpMSound->gateCheck(0x4849))
 		MSoundSESystem::MSoundSE::startSoundSystemSE(0x4849, 0, nullptr, 0);
-	makeObjDead();
+	TMapObjBase::makeObjDead();
 }

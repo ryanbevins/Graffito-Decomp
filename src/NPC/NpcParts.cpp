@@ -25,7 +25,7 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <string.h>
 
-extern const char* cNpcPartsNameRootJoint;
+const char* cNpcPartsNameRootJoint = "__ROOT_JOINT__";
 const char* cPeachPartsTextureName              = "H_peach_main_dummy";
 const char* cPeachHostTextureName               = "H_peach_main_s3tc";
 static const char* cNpcPartsNameRootJointStringInfectious

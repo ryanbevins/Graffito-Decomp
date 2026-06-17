@@ -70,6 +70,7 @@ class TFruitBasket : public TFruitHitHideObj {
 public:
 	TFruitBasket(const char* name)
 	    : TFruitHitHideObj(name)
+	    , unk150(0)
 	{
 	}
 

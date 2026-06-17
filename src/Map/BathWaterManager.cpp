@@ -1024,7 +1024,7 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 		JGeometry::TVec3<f32> soundPos = unk20[0]->unk78;
 		if (unk20[0]->unk84 > 0.0f && gpMSound->gateCheck(0x819d))
 			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-			    0x819d, (Vec*)&soundPos, 0, unk20[0]->unk84, 0, 0, 0, 4, 0);
+			    0x819d, (Vec*)&soundPos, 0, unk20[0]->unk84, 0, 0, 0, 0, 4);
 	}
 
 	if ((flags & 8) && unk30 != 0)

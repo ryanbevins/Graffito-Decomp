@@ -1,4 +1,5 @@
 #include <Enemy/Conductor.hpp>
+#include <dolphin/os.h>
 #include <Enemy/NpcSave.hpp>
 #include <Enemy/EnemyManager.hpp>
 #include <Enemy/Graph.hpp>
@@ -339,6 +340,15 @@ void TConductor::clipAloneActors(JDrama::TGraphics* param_1)
 
 void TConductor::clipGenerators(JDrama::TGraphics* param_1) { }
 
+static bool _sfBad(void* p)
+{
+	u32 a = (u32)p;
+	if (a < 0x80003100u || a >= 0x81800000u || (a & 3))
+		return true;
+	u32 vt = *(u32*)p;
+	return vt < 0x80003100u || vt >= 0x81800000u || (vt & 3);
+}
+
 JDrama::TNameRef* TConductor::searchF(u16 key, const char* name)
 {
 	if (JDrama::TNameRef* ref = JDrama::TNameRef::searchF(key, name))
@@ -346,27 +356,47 @@ JDrama::TNameRef* TConductor::searchF(u16 key, const char* name)
 
 	for (JGadget::TList<TLiveManager*>::iterator it = unk10.begin(),
 	                                             e  = unk10.end();
-	     it != e; ++it)
+	     it != e; ++it) {
+		if (_sfBad((void*)*it)) {
+			OSReport((char*)"BADCOND unk10 child=%p\n", (void*)*it);
+			break;
+		}
 		if (JDrama::TNameRef* ref = (*it)->searchF(key, name))
 			return ref;
+	}
 
 	for (JGadget::TList<TLiveActor*>::iterator it = unk30.begin(),
 	                                           e  = unk30.end();
-	     it != e; ++it)
+	     it != e; ++it) {
+		if (_sfBad((void*)*it)) {
+			OSReport((char*)"BADCOND unk30 child=%p\n", (void*)*it);
+			break;
+		}
 		if (JDrama::TNameRef* ref = (*it)->searchF(key, name))
 			return ref;
+	}
 
 	for (JGadget::TList<TAreaCylinderManager*>::iterator it = unk50.begin(),
 	                                                     e  = unk50.end();
-	     it != e; ++it)
+	     it != e; ++it) {
+		if (_sfBad((void*)*it)) {
+			OSReport((char*)"BADCOND unk50 child=%p\n", (void*)*it);
+			break;
+		}
 		if (JDrama::TNameRef* ref = (*it)->searchF(key, name))
 			return ref;
+	}
 
 	for (JGadget::TList<JDrama::TViewObj*>::iterator it = unk40.begin(),
 	                                                 e  = unk40.end();
-	     it != e; ++it)
+	     it != e; ++it) {
+		if (_sfBad((void*)*it)) {
+			OSReport((char*)"BADCOND unk40 child=%p\n", (void*)*it);
+			break;
+		}
 		if (JDrama::TNameRef* ref = (*it)->searchF(key, name))
 			return ref;
+	}
 
 	return nullptr;
 }

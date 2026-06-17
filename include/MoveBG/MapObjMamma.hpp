@@ -6,6 +6,9 @@
 
 class TMapObjFlag;
 class TShiningStone;
+class TMapObjBall;
+class TJointObj;
+class TJointModel;
 
 class TSandLeaf : public TMapObjBase {
 public:
@@ -23,7 +26,7 @@ public:
 
 class TSandBase : public TMapObjBase {
 public:
-	virtual void grow() = 0;
+	virtual BOOL grow() = 0;
 	virtual BOOL withering();
 	TSandBase(const char*);
 
@@ -41,7 +44,7 @@ class TSandLeafBase : public TSandBase {
 public:
 	virtual void control();
 	virtual void initMapObj();
-	virtual void grow();
+	virtual BOOL grow();
 	TSandLeafBase();
 	TSandLeafBase(const char* name)
 	    : TSandBase(name)
@@ -73,7 +76,7 @@ public:
 	virtual void control();
 	virtual void initMapObj();
 	virtual void loadAfter();
-	virtual void grow();
+	virtual BOOL grow();
 	virtual void waitBeforeExplode();
 	virtual void explode();
 	virtual void exploding();
@@ -194,9 +197,9 @@ public:
 	static u32 mWaitTime;
 
 public:
-	/* 0x138 */ J3DJoint* unk138;
-	/* 0x13C */ J3DJoint* unk13C;
-	/* 0x140 */ f32 unk140;
+	/* 0x138 */ TJointModel* unk138;
+	/* 0x13C */ TJointObj* unk13C;
+	/* 0x140 */ TJointObj* unk140;
 	/* 0x144 */ TMapCollisionMove* unk144;
 	/* 0x148 */ TMapCollisionMove* unk148;
 };
@@ -205,7 +208,10 @@ class TMammaYacht : public TMapObjBase {
 public:
 	virtual void control();
 	virtual void initMapObj();
-	TMammaYacht();
+	TMammaYacht()
+	    : TMapObjBase("砂の城")
+	{
+	}
 
 public:
 	/* 0x138 */ TMapObjFlag* unk138;
@@ -236,7 +242,7 @@ public:
 
 public:
 	/* 0x138 */ TMapObjBase* unk138;
-	/* 0x13C */ THitActor* unk13C;
+	/* 0x13C */ TMapObjBall* unk13C;
 	/* 0x140 */ JGeometry::TVec3<f32> unk140;
 };
 
@@ -259,7 +265,10 @@ public:
 class TSandEgg : public TMapObjBase {
 public:
 	virtual u32 getSDLModelFlag() const;
-	TSandEgg();
+	TSandEgg()
+	    : TMapObjBase("すなのたまご")
+	{
+	}
 };
 
 #endif

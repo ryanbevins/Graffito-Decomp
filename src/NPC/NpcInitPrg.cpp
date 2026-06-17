@@ -167,7 +167,7 @@ void TBaseNPC::init(TLiveManager* manager)
 		mSpine->initWith(&TNerveNPCWaitMarioApproach::theNerve());
 	} else {
 		mSpine->initWith(&TNerveNPCGraphWander::theNerve());
-		unk124->mCurrIdx = -1;
+		unk124->mPrevIdx = -1;
 		goToShortestNextGraphNode();
 	}
 
@@ -216,12 +216,16 @@ void TBaseNPC::init(TLiveManager* manager)
 	JUTNameTab* nameTab = getModel()->getModelData()->unkB0;
 	mNpcKind            = nameTab->getIndex(cNeckJointName);
 	if (mNpcKind != -1) {
-		s16* angles = new s16[2];
+		struct TNeckAngles {
+			s16 a;
+			s16 b;
+		};
+		TNeckAngles* angles = new TNeckAngles;
 		if (angles != nullptr) {
-			angles[0] = 0;
-			angles[1] = 0;
+			angles->a = 0;
+			angles->b = 0;
 		}
-		mNeckAngles = angles;
+		mNeckAngles = (s16*)angles;
 		mMActor->setJointCallback(mNpcKind, NPCNeckCallBack);
 	}
 

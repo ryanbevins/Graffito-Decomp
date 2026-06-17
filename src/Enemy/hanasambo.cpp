@@ -10,6 +10,7 @@
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JMath.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/SDLModel.hpp>
 #include <Map/Map.hpp>
@@ -924,7 +925,7 @@ void TSamboFlowerManager::perform(u32 flags, JDrama::TGraphics* graphics)
 
 void TSamboFlowerManager::createModelData()
 {
-	static const TModelDataLoadEntry entry[] = {
+	static TModelDataLoadEntry entry[] = {
 		{ "flower.bmd", 0x10220000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -1074,7 +1075,7 @@ void TSamboHeadManager::load(JSUMemoryInputStream& stream)
 
 void TSamboHeadManager::createModelData()
 {
-	static const TModelDataLoadEntry entry[] = {
+	static TModelDataLoadEntry entry[] = {
 		{ "samboHead.bmd", 0x10220000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -1286,7 +1287,7 @@ void THanaSamboManager::load(JSUMemoryInputStream& stream)
 
 void THanaSamboManager::createModelData()
 {
-	static const TModelDataLoadEntry entry[] = {
+	static TModelDataLoadEntry entry[] = {
 		{ "sambo.bmd", 0x10220000, 0 },
 		{ "samboD.bmd", 0x10220000, 0 },
 		{ nullptr, 0, 0 },

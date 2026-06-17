@@ -182,8 +182,6 @@ void TBGTentacleMtxCalc::calc(u16 param_1)
 	dst[0][2] = local_80.x;
 	dst[1][2] = local_80.y;
 	dst[2][2] = local_80.z;
-
-	char trash[0x10]; // TODO: removeme
 }
 
 TBGTakeHit::TBGTakeHit(TBGTentacle* owner, const char* name)
@@ -324,9 +322,9 @@ void TBGTakeHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 			unk80.mMtx[1][2] = vec3.y;
 			unk80.mMtx[2][2] = vec3.z;
 
-			unk80.mMtx[0][2] = mtx[0][3] + vec3.x * mDamageRadius;
-			unk80.mMtx[1][2] = mtx[1][3] + vec3.y * mDamageRadius;
-			unk80.mMtx[2][2] = mtx[2][3] + vec3.z * mDamageRadius;
+			unk80.mMtx[0][3] = mtx[0][3] + vec3.x * mDamageRadius;
+			unk80.mMtx[1][3] = mtx[1][3] + vec3.y * mDamageRadius;
+			unk80.mMtx[2][3] = mtx[2][3] + vec3.z * mDamageRadius;
 
 			const JGeometry::TVec3<f32>& lastVel
 			    = mOwner->getLastNode()->getVelocity();
@@ -345,7 +343,7 @@ void TBGTakeHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 			unk74.zero();
 		}
 
-		if (mOwner->isThing3() || mOwner->mOwner->getAttackMode() == 7) {
+		if (mOwner->isAttacking()) {
 			for (int i = 0; i < mColCount; ++i) {
 				THitActor* col = mCollisions[i];
 				if (!col->isActorType(0x80000001))
@@ -387,9 +385,7 @@ void TBGAttackHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 	if (param_1 & 1) {
 		mPosition = mOwner->mSpline->getPoint(mPosOnSpline);
 
-		if (mOwner->mTakeHit->checkHitFlag(HIT_FLAG_UNK2) && mOwner->isThing3()
-		    || mOwner->getState() == 1
-		    || mOwner->mOwner->getAttackMode() == 7) {
+		if (mOwner->isAttacking()) {
 			for (int i = 0; i < mColCount; ++i) {
 				THitActor* col = mCollisions[i];
 				if (gpMarioOriginal->isActionCoolOrSomethingIdk())
@@ -611,7 +607,22 @@ void TBGTentacle::throwMario(THitActor* param_1, THitActor* param_2)
 	mOwner->stopIfRoll();
 }
 
-BOOL TBGTentacle::isAttacking() const { }
+BOOL TBGTentacle::isAttacking() const
+{
+	if (mTakeHit->checkHitFlag(HIT_FLAG_UNK2))
+		return false;
+	if (mState == 10)
+		return false;
+	if (mState == 4)
+		return false;
+	if (mState == 6)
+		return false;
+	if (mState == 1)
+		return true;
+	if (mOwner->getAttackMode() == 7)
+		return true;
+	return false;
+}
 
 bool TBGTentacle::canTake() const { }
 
@@ -1232,14 +1243,21 @@ void TBGTentacle::calcAttackGuideAnm()
 	local_3c -= local_30;
 	JGeometry::TVec3<f32> local_b4 = MsGetRotFromZaxis(local_3c);
 
-	if (mState != 10) {
-		unk80->checkCurBckFromIndex(20);
-		// TODO: a bunch of stuff ghidra refuses to show
+	f32 scale;
+	if (mState == 10) {
+		scale = 1.0f;
+	} else if (unk80->checkCurBckFromIndex(20)) {
+		scale = local_3c.length() * (1.0f / 1500.0f);
+	} else {
+		scale = local_3c.length() * (1.0f / 1200.0f);
 	}
+
+	if (scale > 2.0f)
+		scale = 2.0f;
 
 	Mtx afStack_78;
 	MsMtxSetTRS(afStack_78, local_30.x, local_30.y, local_30.z, local_b4.x,
-	            local_b4.y, local_b4.z, 1.875f, 1.875f, 1.875f);
+	            local_b4.y, local_b4.z, 1.0f, 1.0f, scale);
 
 	Mtx local_a8;
 	if (mState == 10) {

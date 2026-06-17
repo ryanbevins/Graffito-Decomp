@@ -1,10 +1,13 @@
 // NPC/NpcAnm.cpp -- TBaseNPC animation dispatch.
 
 #include <NPC/NpcBase.hpp>
+#include <NPC/NpcCoin.hpp>
+#include <NPC/NpcNerve.hpp>
 #include <NPC/NpcParts.hpp>
 #include <NPC/NpcSave.hpp>
 #include <NPC/NpcThrow.hpp>
 
+#include <Camera/cameralib.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/JGeometry/JGVec3.hpp>
 #include <M3DUtil/LodAnm.hpp>
@@ -13,10 +16,13 @@
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
+#include <Enemy/Graph.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>
+#include <Player/MarioAccess.hpp>
 #include <Strategic/LiveActor.hpp>
 #include <Strategic/Spine.hpp>
+#include <System/MarDirector.hpp>
 #include <stdlib.h>
 
 // Local view of the inbetween/blend control block stored at TBaseNPC.mUnk18C
@@ -35,42 +41,45 @@ struct TUnk18CStruct {
 	/* 0x28 */ f32 unk28;
 };
 
-extern "C" f32 SMSGetAnmFrameRate();
-extern "C" void CLBChaseDecrease__FPffff(f32*, f32, f32, f32);
-
-template <typename T> extern T CLBPalFrame(T);
-
-// fabricated; matches the inline templates emitted weak by this TU.
-template <typename T>
-static inline T CLBLinearInbetween(T a, T b, T t)
+// Double-precision Newton sqrt used by the sink-recovery jump computation;
+// matches the inlined frsqrte sequence with double 0.5/3.0 constants.
+static inline f32 recoverSqrt(f32 mag)
 {
-	return (b - a) * t + a;
+	if (mag > 0.0f) {
+		double root = __frsqrte(mag);
+		return 0.5 * root * (3.0 - mag * (root * root)) * mag;
+	}
+	return mag;
 }
 
-template <typename T>
-static inline T CLBCalcRatio(T cur, T target, T extent)
+// Forces MWCC to materialize the "forbid animation" predicate as an explicit
+// 0/1 byte (matching the li/clrlwi pattern in requestNpcAnm_) rather than
+// folding it directly into a branch.
+static inline u8 isForbidAnm(const TUnk18CStruct* ib)
 {
-	if (cur == target)
-		return 0;
-	return ((extent - cur) / (target - cur)) * (target - cur);
+	u8 result;
+	if (ib->unk24 > 0)
+		result = 1;
+	else
+		result = 0;
+	return result;
 }
 
-template <typename T>
-static inline void CLBChaseConstantSpecifyFrame(T* slot, T target, T frame)
+// `CLBChaseConstantSpecifyFrame` is only declared (not defined) in
+// cameralib.hpp; provide the body so this TU owns the weak instantiation.
+template <class T> void CLBChaseConstantSpecifyFrame(T* slot, T target, T frame)
 {
 	if (frame < 0.001f) {
 		*slot = target;
 		return;
 	}
-	// fabricated body
-	*slot = target;
+	*slot = (target - *slot) * (1.0f / frame) + *slot;
 }
 
-template <typename T>
-static inline T CLBRoundf(f32 v)
-{
-	return (T)(v + 0.0f);
-}
+// Shared peach revive mapping tables (local $2904/$2905), referenced by both
+// npcTalking and npcTalkOut.
+static const s32 sIndividualPeachBck[] = { 0x15, 0x0, -1, -1 };
+static const s32 sIndividualPeachBtp[] = { 0x5, 0x0, -1, -1 };
 
 // `EnumNpcAnmKind` and `EnumNpcStopMotionBlendOnOff` are forward-declared in
 // NpcBase.hpp as empty enums; cast through `int` to ease working with literals.
@@ -87,7 +96,8 @@ static inline EnumNpcStopMotionBlendOnOff asBlend(int v)
 // range 0x0400001C..0x0400001E) where animation requests must be ignored.
 static inline bool isLockedAnmActor(u32 actorType)
 {
-	return actorType >= 0x0400001C && actorType < 0x0400001E;
+	return (s32)actorType >= (s32)0x0400001C
+	    && (s32)actorType < (s32)0x0400001E;
 }
 
 // ============================================================
@@ -107,11 +117,11 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 	if (!unkD0->setBckAndBtpAnm((int)kind))
 		return;
 
-	if ((int)kind == 0x11 && unk1D9 >= 0 && unk1D9 < 3) {
+	if ((int)kind == 0x11 && unk1D9 < 3 && unk1D9 >= 0) {
 		emitHappyEffect_();
-		if (gpMSound->gateCheck(0x18808)) {
+		if (gpMSound->gateCheck(0x8808)) {
 			MSoundSESystem::MSoundSE::startSoundNpcActor(
-			    0x18808,
+			    0x8808,
 			    (const Vec*)((u8*)this + 0x10),
 			    0, (JAISound**)NULL, 0, 4);
 		}
@@ -121,19 +131,16 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 		J3DFrameCtrl* fc = mMActor->getFrameCtrl(MActor::ANM_TYPE_BRK);
 		if (unk1D8 & 0x1) {
 			if ((int)kind == 0x5) {
-				mMActor->setBrkFromIndex(1);
-				if (fc)
-					*(u8*)((u8*)fc + 4) = 0;
+				mMActor->setBrkFromIndex(mActorType == 0x0400001A ? 1 : 1);
+				*(u8*)((u8*)fc + 4) = 0;
 			} else {
-				mMActor->setBrkFromIndex(0);
-				if (fc)
-					*(f32*)((u8*)fc + 0xC) = 0.0f;
+				mMActor->setBrkFromIndex(mActorType == 0x0400001A ? 0 : 0);
+				*(f32*)((u8*)fc + 0xC) = 0.0f;
 			}
 		} else if (unk1D8 & 0x2) {
 			if ((int)kind == 0x1A) {
-				mMActor->setBrkFromIndex(0);
-				if (fc)
-					*(u8*)((u8*)fc + 4) = 0;
+				mMActor->setBrkFromIndex(mActorType == 0x0400001A ? 0 : 0);
+				*(u8*)((u8*)fc + 4) = 0;
 			}
 		}
 	}
@@ -244,13 +251,13 @@ void TBaseNPC::requestNpcAnm_(EnumNpcAnmKind kind,
 {
 	if ((s32)mActorType < (s32)0x0400001E && (s32)mActorType >= (s32)0x0400001C)
 		return;
-	bool forbid = ((TUnk18CStruct*)mUnk18C)->unk24 > 0;
-	if (forbid) {
+	if (isForbidAnm((TUnk18CStruct*)mUnk18C)) {
 		if ((int)kind == unkD0->mCurrentAnmKind) {
 			mAnmRequest->mKind = -1;
 		} else {
-			mAnmRequest->mKind  = (int)kind;
-			mAnmRequest->mBlend = blend;
+			TNpcAnmRequest* req = mAnmRequest;
+			req->mKind          = (int)kind;
+			req->mBlend         = blend;
 		}
 	} else {
 		setNpcAnm_(kind, blend);
@@ -322,7 +329,7 @@ void TBaseNPC::walkAnmRateChange_()
 		if (anmKind == 8 || anmKind == 0) {
 			int frame
 			    = CLBPalFrame<long>(mPtrSaveNormal->mStopWalkAnmRateFrame.value);
-			CLBChaseDecrease__FPffff(&unk1D0, 0.0f,
+			CLBChaseDecrease(&unk1D0, 0.0f,
 			    mPtrSaveNormal->mStopWalkAnmRateChase.value, 0.001f);
 			if (unk1CC < frame)
 				unk1CC++;
@@ -349,26 +356,28 @@ void TBaseNPC::walkAnmRateChange_()
 		int anmKind = unkD0->mCurrentAnmKind;
 		if (anmKind == 8 || anmKind == 0) {
 			f32 individualRate
-			    = mNpcSaveIndividual->mTurnAnmRate.value * SMSGetAnmFrameRate();
+			    = mNpcSaveIndividual->mSLMinWalkAnmRate.value
+			    * SMSGetAnmFrameRate();
 			f32 baseRate;
-			f32 maxRate = mNpcSaveIndividual->mTurnAnmMaxRate.value;
+			f32 maxRate;
 			if (anmKind == 8) {
 				baseRate = mNpcSaveIndividual->mSLMaxRunAnmRate.value
 				         * SMSGetAnmFrameRate();
+				maxRate  = mNpcSaveIndividual->mSLMaxRunSpeed.value;
 				if (mActionFlag & 0x4000) {
-					f32 mul = mPtrSaveNormal->mPosInbetweenFrame.value;
-					(void)mul;
+					f32 mul  = mPtrSaveNormal->mSLSmokeRunMagnif.value;
+					baseRate = baseRate * mul;
+					maxRate  = maxRate * mul;
 				}
-				maxRate = mNpcSaveIndividual->mSLMaxRunSpeed.value;
 			} else {
-				baseRate = mNpcSaveIndividual->mSLMinMarchSpeed.value
+				baseRate = mNpcSaveIndividual->mSLMaxWalkAnmRate.value
 				         * SMSGetAnmFrameRate();
 				maxRate  = mNpcSaveIndividual->mMaxMarchSpeed.value;
 			}
 			if (speed > maxRate)
 				speed = maxRate;
 			f32 ratio
-			    = CLBCalcRatio<f32>(mNpcSaveIndividual->mSLMinWalkAnmRate.value,
+			    = CLBCalcRatio<f32>(mNpcSaveIndividual->mSLMinMarchSpeed.value,
 			                        maxRate, speed);
 			if (ratio > 1.0f)
 				ratio = 1.0f;
@@ -377,7 +386,7 @@ void TBaseNPC::walkAnmRateChange_()
 			f32 newRate = CLBLinearInbetween<f32>(individualRate, baseRate, ratio);
 			if (mColCount != 0)
 				newRate = baseRate;
-			CLBChaseDecrease__FPffff(&unk1D0, newRate,
+			CLBChaseDecrease(&unk1D0, newRate,
 			    mPtrSaveNormal->mMoveWalkAnmRateChase.value, 0.0f);
 			mMActor->setFrameRate(unk1D0, 0);
 		} else {
@@ -425,6 +434,14 @@ void TBaseNPC::npcWaitIn()
 				kind = 0x13;
 			else
 				kind = 0x12;
+		} else if (!unk124->getGraph()->isDummy()) {
+			if (mSpine->getLatestNerve() == &TNerveNPCGraphWait::theNerve()) {
+				u8 state    = gpMarDirector->unk124;
+				bool inMode = (state == 1 || state == 2);
+				bool keep   = inMode || state == 4;
+				if (!keep)
+					kind = getNpcWaitAnmBase_();
+			}
 		} else {
 			kind = getNpcWaitAnmBase_();
 		}
@@ -448,16 +465,38 @@ void TBaseNPC::npcFallIn()
 bool TBaseNPC::npcRecoverFromSinking()
 {
 	bool changed = false;
-	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
-	(void)cur;
-	if (mLiveFlag & 0x80) {
-		requestNpcAnm_(asKind(0xE), asBlend(1));
-	} else if (mActionFlag & 0x1) {
-		requestNpcAnm_(asKind(0x12), asBlend(1));
-		changed = true;
-	} else {
-		requestNpcAnm_(asKind(0x11), asBlend(1));
-		changed = true;
+	if (!(mLiveFlag & 0x08000000)) {
+		J3DFrameCtrl* fc = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
+		if (fc->checkPass(32.0f)) {
+			mLiveFlag |= 0x08000000;
+			f32 grav = getGravityY();
+			f32 v    = 150.0f + (mSinkBaseY - mPosition.y);
+			f32 init = 0.0f;
+			if (grav > 0.0f) {
+				v    = 8.0f * (v * (1.0f / grav)) + 1.0f;
+				v    = recoverSqrt(v);
+				init = (0.5f * grav) * (1.0f + v);
+			}
+			mVelocity.y = init;
+			if (mVelocity.y < 5.0f)
+				mVelocity.y = 5.0f;
+		}
+	}
+	if (mMActor->isCurAnmAlreadyEnd(0)) {
+		mLiveFlag &= ~0x80;
+		changed     = true;
+		mVelocity.x = 0.0f;
+		mVelocity.y = 0.0f;
+		mVelocity.z = 0.0f;
+		mPosition.y = mSinkBaseY;
+		mLiveFlag &= ~0x08400010;
+	} else if (mLiveFlag & 0x08000000) {
+		mVelocity.y -= getGravityY();
+		if (mVelocity.y < TLiveActor::mVelocityMinY)
+			mVelocity.y = TLiveActor::mVelocityMinY;
+		mPosition.y += mVelocity.y;
+		if (mVelocity.y <= 0.0f && mPosition.y < mSinkBaseY)
+			mPosition.y = mSinkBaseY;
 	}
 	return changed;
 }
@@ -483,17 +522,29 @@ void TBaseNPC::npcStepIn()
 void TBaseNPC::npcTalkIn()
 {
 	mLiveFlag |= 0x00080000;
-	if (mActorType == 0x0400001C || mActorType == 0x0400001D)
-		return;
-	int kind;
-	if (mActionFlag & 0x400) {
-		kind = 1;
-	} else if ((mActionFlag & 0x1) && !(mActionFlag & 0x4)) {
-		kind = 0x13;
-	} else {
-		kind = 6;
+	if (mActorType != 0x0400001C && mActorType != 0x0400001D) {
+		bool sunDown = false;
+		if (isSunflower() && (unk1D8 & 0x2))
+			sunDown = true;
+		if (!sunDown) {
+			bool peach = false;
+			if (mActorType == 0x04000018 && (unk1D8 & 0x2))
+				peach = true;
+			if (peach) {
+				requestNpcAnm_(asKind(0x1A), asBlend(1));
+			} else {
+				int kind;
+				if (mActionFlag & 0x400) {
+					kind = 1;
+				} else if ((mActionFlag & 0x1) && !(mActionFlag & 0x4)) {
+					kind = 0x13;
+				} else {
+					kind = 6;
+				}
+				requestNpcAnm_(asKind(kind), asBlend(1));
+			}
+		}
 	}
-	requestNpcAnm_(asKind(kind), asBlend(1));
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -502,25 +553,72 @@ void TBaseNPC::npcTalkIn()
 
 void TBaseNPC::npcTalking()
 {
-	if (mLiveFlag & 0x80000)
-		requestTalkAnm_();
-	else
-		npcWaitIn();
+	bool sunDown = false;
+	if (isSunflower() && (unk1D8 & 0x2))
+		sunDown = true;
+	if (sunDown) {
+		if ((unk1D8 & 0x2) && unkD0->mCurrentAnmKind == 0x1A
+		    && mMActor->isCurAnmAlreadyEnd(0)) {
+			unk1D8 &= ~0x2;
+			if (mLiveFlag & 0x00080000)
+				requestTalkAnm_();
+			else
+				npcWaitIn();
+		}
+		return;
+	}
+	if (isTurnToMarioWhenTalk()) {
+		SMS_GoRotate(mPosition, *gpMarioPos, mTurnSpeed,
+		             &((JGeometry::TVec3<f32>*)((u8*)this + 0x30))->y);
+		if (!unk124->getGraph()->isDummy())
+			unk1DA |= 0x1;
+	}
+	bool revive = false;
+	if (mActorType == 0x04000018 && (unk1D8 & 0x2))
+		revive = true;
+	if (revive && unkD0->mCurrentAnmKind == 0x1A
+	    && mMActor->isCurAnmAlreadyEnd(0) && (unk1D8 & 0x2)) {
+		unk1D8 &= ~0x2;
+		unk1D8 |= 0x4;
+		unkD0->unk18 = (const TAnmBckMapping*)sIndividualPeachBck;
+		unkD0->unk1C = (const TAnmBtpMapping*)sIndividualPeachBtp;
+		requestNpcAnm_(asKind(6), asBlend(0));
+	}
 }
 
 void TBaseNPC::npcTalkOut()
 {
 	unk1E0 = 0x3C;
-	if (!(mLiveFlag & 0x80000))
+	if (!(mLiveFlag & 0x00080000))
 		return;
-	unk1E2     = 0x78;
+	unk1E2 = 0x78;
+
+	bool peach = false;
+	if (mActorType == 0x04000018 && (unk1D8 & 0x2))
+		peach = true;
+	if (peach && (unk1D8 & 0x2)) {
+		unk1D8 &= ~0x2;
+		unk1D8 |= 0x4;
+		unkD0->unk18 = (const TAnmBckMapping*)sIndividualPeachBck;
+		unkD0->unk1C = (const TAnmBtpMapping*)sIndividualPeachBtp;
+		requestNpcAnm_(asKind(6), asBlend(0));
+	}
+
+	if (mActionFlag & 0x200) {
+		mActionFlag &= ~0x200;
+		if (mNpcCoin != 0) {
+			Vec cursor = getCursorPos();
+			mNpcCoin->requestAppearCoin(cursor, mRotation.y, 0x28);
+			unk1E0 = 0x168;
+			unk1E2 = 0x168;
+		}
+	}
+
 	mLiveFlag &= ~0x00080000;
 	changeNerveFromTalk_();
 	if (unk17C != 0)
 		return;
 	if (mActorType != 0x04000006)
-		return;
-	if (mActorType >= 0x0400001C && mActorType < 0x0400001E)
 		return;
 	requestNpcAnm_(asKind(0x4), asBlend(1));
 }
@@ -557,26 +655,295 @@ void TBaseNPC::npcHappyIn(unsigned char arg)
 
 void TBaseNPC::npcWetIn()
 {
-	requestNpcAnm_(asKind(0xB), asBlend(1));
+	bool sunDown = false;
+	if (isSunflower() && (unk1D8 & 0x2))
+		sunDown = true;
+	if (!sunDown) {
+		int anm   = 5;
+		int blend = 1;
+		if (unk178 != 0.0f) {
+			anm = 0x19;
+		} else if (mActionFlag & 0x1) {
+			anm = 0x14;
+			if (!(isNormalMonteM() || isNormalMonteW()))
+				blend = 0;
+		} else {
+			bool isMonte = isNormalMonteM() || isNormalMonteW();
+			if (isMonte || mActorType == 0x0400000D) {
+				if (mLiveFlag & 0x04000000) {
+					blend = 0;
+				} else if (MsRandF() < 0.5f) {
+					anm = 0xB;
+				} else {
+					blend = 0;
+				}
+			} else {
+				bool isMare = isNormalMareM() || isNormalMareW();
+				if (isMare || mActorType == 0x04000011) {
+					if (MsRandF() < 0.5f)
+						anm = 0xB;
+				} else if ((s32)mActorType < (s32)0x04000018
+				           && (s32)mActorType >= (s32)0x04000016) {
+					if (!(mLiveFlag & 0x04000000) && MsRandF() < 0.5f)
+						anm = 0xB;
+				}
+			}
+		}
+		requestNpcAnm_(asKind(anm), asBlend(blend));
+	}
+	mMarchSpeed = 0.0f;
+	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
+	unk1CC      = 0;
+	unk1D0      = 0.0f;
 	mAnmFrameCounter->mCurFrame = 0;
+}
+
+void TBaseNPC::npcWetOut()
+{
+	mLiveFlag &= ~0x02000000;
+	mLiveFlag &= ~0x04000000;
+	if (mSpine->peekTopNerveOrNull() == &TNerveNPCTalk::theNerve()) {
+		requestTalkAnm_();
+	} else if (mActorType == 0x04000006) {
+		requestNpcAnm_(asKind(0x4), asBlend(1));
+	}
 }
 
 bool TBaseNPC::npcWetting()
 {
-	// State machine that drives the "wet" reaction sequence; uses jump
-	// tables stored in .data. Functional skeleton — actual transitions
-	// dispatch on mActorType, mCurrentAnmKind and mAnmFrameCounter.
-	bool done = false;
-	int kind  = unkD0->mCurrentAnmKind;
-	if (kind == 0xB || kind == 0xC) {
+	bool ret = false;
+	if (unk1DA & 0x2) {
+		unk1DA &= ~0x2;
+		unk1D9       = 0;
+		mActionFlag |= 0x200;
+		requestNpcAnm_(asKind(0x11), asBlend(1));
+		mMarchSpeed = 0.0f;
+		mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
+		unk1CC      = 0;
+		unk1D0      = 0.0f;
+		npcWetOut();
+		ret = true;
+		return ret;
+	}
+	if (unkD0->mCurrentAnmKind == 0x19) {
+		if (unk178 == 0.0f) {
+			unk1D9       = 0;
+			mActionFlag |= 0x200;
+			requestNpcAnm_(asKind(0x11), asBlend(1));
+			mMarchSpeed = 0.0f;
+			mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
+			unk1CC      = 0;
+			unk1D0      = 0.0f;
+			npcWetOut();
+			ret = true;
+			return ret;
+		}
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			done = true;
+			npcWetOut();
+			ret = true;
+		}
+		return ret;
+	}
+
+	bool isMare = isNormalMareM() || isNormalMareW();
+	if (isMare || mActorType == 0x04000011) {
+		int k = unkD0->mCurrentAnmKind;
+		switch (k) {
+		case 5:
+		case 0xB:
+		case 0x14:
+			// shiver wait
+			if (mMActor->isCurAnmAlreadyEnd(0)) {
+				TNpcAnmFrameCounter* fc = mAnmFrameCounter;
+				if (fc->mCurFrame == 0) {
+					fc->mCurFrame = 0;
+					f32 r         = MsRandF();
+					fc->mMaxFrame = (s32)(240.0f * r) + 0xF1;
+				}
+				fc->mCurFrame++;
+				bool atMax = false;
+				if (fc->mCurFrame >= fc->mMaxFrame) {
+					fc->mCurFrame = fc->mMaxFrame;
+					atMax         = true;
+				}
+				if (atMax) {
+					int anm = 7;
+					if (MsRandF() < 0.5f)
+						anm = 0x1B;
+					requestNpcAnm_(asKind(anm), asBlend(0));
+				}
+			}
+			break;
+		case 7:
+		case 0x1B:
+			if (mMActor->isCurAnmAlreadyEnd(0)) {
+				if (isStateGoToMad_()) {
+					mLiveFlag |= 0x02000000;
+					if (mActorType == 0x04000007 || (mActionFlag & 0x1))
+						requestNpcAnm_(asKind(0xA), asBlend(1));
+					else {
+						requestNpcAnm_(asKind(0x4), asBlend(1));
+						mMarchSpeed = 0.0f;
+						mTurnSpeed
+						    = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
+						unk1CC = 0;
+						unk1D0 = 0.0f;
+					}
+				} else {
+					npcWetOut();
+					ret = true;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+		if (isMadNpc() && mActorType != 0x04000006) {
+			int k2 = unkD0->mCurrentAnmKind;
+			if (k2 == 5 || (k2 >= 0xC && k2 <= 0x14)) {
+				if (mLiveFlag & 0x02000000) {
+					if (npcMadding()) {
+						npcWetOut();
+						ret = true;
+					}
+				} else {
+					if (mMActor->isCurAnmAlreadyEnd(0)) {
+						npcWetOut();
+						ret = true;
+					}
+				}
+			} else if (k2 >= 4 && k2 < 5) {
+				if (mLiveFlag & 0x02000000)
+					npcMadding();
+			}
+		}
+		return ret;
+	}
+
+	// monte branch
+	bool isMonte = isNormalMonteM() || isNormalMonteW() || isSpecialMonteM()
+	            || isSpecialMonteW();
+	if (isMonte) {
+		if (isMadNpc() && mActorType != 0x04000006) {
+			int k = unkD0->mCurrentAnmKind;
+			if (k == 5 || (k >= 0xC && k <= 0x14)) {
+				if (mLiveFlag & 0x02000000) {
+					if (npcMadding()) {
+						npcWetOut();
+						ret = true;
+					}
+				} else {
+					if (mMActor->isCurAnmAlreadyEnd(0)) {
+						npcWetOut();
+						ret = true;
+					}
+				}
+			} else if (k >= 4 && k < 5) {
+				if (mLiveFlag & 0x02000000)
+					npcMadding();
+			}
+			return ret;
 		}
 	}
-	if (done) {
-		requestNpcAnm_(asKind(0xC), asBlend(1));
+
+	bool sunWet = false;
+	if (isSunflower() && (unk1D8 & 0x2))
+		sunWet = true;
+	if (sunWet) {
+		bool acted = false;
+		if ((unk1D8 & 0x2) && unkD0->mCurrentAnmKind == 0x1A
+		    && mMActor->isCurAnmAlreadyEnd(0)) {
+			unk1D8 &= ~0x2;
+			if (mLiveFlag & 0x00080000)
+				requestTalkAnm_();
+			else
+				npcWaitIn();
+			acted = true;
+		}
+		if (acted) {
+			npcWetOut();
+			ret = true;
+		}
+		return ret;
 	}
-	return done;
+
+	if (mActorType >= 0x04000016 && mActorType < 0x04000018) {
+		int k = unkD0->mCurrentAnmKind;
+		if (mMActor->isCurAnmAlreadyEnd(0) && (u32)(k - 5) <= 0x13) {
+			switch (k) {
+			case 5:
+				// requestNpcAnm_(7, 0)
+				if (mActorType < 0x0400001E && mActorType >= 0x0400001C)
+					break;
+				if (((TUnk18CStruct*)mUnk18C)->unk24 > 0) {
+					if (k == unkD0->mCurrentAnmKind)
+						mAnmRequest->mKind = -1;
+					else {
+						mAnmRequest->mKind  = 7;
+						mAnmRequest->mBlend = 0;
+					}
+				} else {
+					setNpcAnm_(asKind(7), asBlend(0));
+				}
+				break;
+			case 0xB:
+				if (mActorType < 0x0400001E && mActorType >= 0x0400001C)
+					break;
+				if (((TUnk18CStruct*)mUnk18C)->unk24 > 0) {
+					if (k == 0xA)
+						mAnmRequest->mKind = -1;
+					else {
+						mAnmRequest->mKind  = 0xA;
+						mAnmRequest->mBlend = 1;
+					}
+				} else {
+					setNpcAnm_(asKind(0xA), asBlend(1));
+				}
+				break;
+			case 0x14:
+				if (mActorType < 0x0400001E && mActorType >= 0x0400001C)
+					break;
+				if (((TUnk18CStruct*)mUnk18C)->unk24 > 0) {
+					if (k == 0x18)
+						mAnmRequest->mKind = -1;
+					else {
+						mAnmRequest->mKind  = 0x18;
+						mAnmRequest->mBlend = 1;
+					}
+				} else {
+					setNpcAnm_(asKind(0x18), asBlend(1));
+				}
+				break;
+			case 7:
+			case 0xA:
+			case 0x18:
+				npcWetOut();
+				ret = true;
+				break;
+			default:
+				break;
+			}
+		}
+		return ret;
+	}
+
+	if (mMActor->isCurAnmAlreadyEnd(0)) {
+		int k = unkD0->mCurrentAnmKind;
+		if ((u32)(k - 5) <= 0x14) {
+			switch (k) {
+			case 5:
+			case 0xB:
+			case 0x14:
+			case 0x19:
+				npcWetOut();
+				ret = true;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	return ret;
 }
 
 void TBaseNPC::npcSinking()
@@ -591,9 +958,8 @@ void TBaseNPC::npcSinking()
 		CLBChaseConstantSpecifyFrame<f32>(
 		    &unk178, (mPosition.y - targetY) * ratio, sinkSpeed);
 	}
-	f32 yVal = mPosition.y;
-	(void)yVal;
-	if (mPosition.y == targetY)
+	if (CLBChaseGeneralConstantSpecifySpeed<f32>(&mPosition.y, targetY,
+	                                             sinkSpeed))
 		return;
 	mLiveFlag |= 0x00800000;
 	unk64     |= 0x1;
@@ -643,19 +1009,36 @@ void TBaseNPC::npcMadIn()
 
 bool TBaseNPC::npcMadding()
 {
-	bool done = false;
-	if (mLiveFlag & 0x02000000) {
-		done = true;
+	bool ret = false;
+	if (!(mLiveFlag & 0x02000000)) {
+		ret = true;
+		return ret;
 	}
-	if (!done) {
+	int k = unkD0->mCurrentAnmKind;
+	if (k == 4) {
+		SMS_GoRotate(mPosition, *gpMarioPos,
+		             *(f32*)((u8*)mNpcSaveIndividual + 0x2ac), &mRotation.y);
+		JGeometry::TVec3<f32> diff = *gpMarioPos;
+		diff.x -= mPosition.x;
+		diff.y -= mPosition.y;
+		diff.z -= mPosition.z;
+		f32 targetYaw = MsGetRotFromZaxisY(diff);
+		f32 delta     = fabs(mRotation.y - targetYaw);
+		while (delta >= 360.0f)
+			delta -= 360.0f;
+		while (delta < 0.0f)
+			delta += 360.0f;
+		if (delta < 0.001f)
+			requestNpcAnm_(asKind(0xA), asBlend(0));
+		if (!unk124->getGraph()->isDummy())
+			unk1DA |= 0x1;
+	} else if (k == 0xA || k == 0xB) {
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			done = true;
+			ret        = true;
+			mLiveFlag &= ~0x02000000;
 		}
 	}
-	if (done) {
-		requestNpcAnm_(asKind(0), asBlend(1));
-	}
-	return done;
+	return ret;
 }
 
 void TBaseNPC::npcBlownIn()

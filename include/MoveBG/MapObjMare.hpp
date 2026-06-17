@@ -67,7 +67,13 @@ public:
 
 class TMapObjElasticCode : public TMapObjBase {
 public:
-	TMapObjElasticCode();
+	TMapObjElasticCode()
+	    : TMapObjBase("ゴムひも")
+	    , unk138(0.0f)
+	    , unk13C(0.0f)
+	    , unk140(0.0f)
+	{
+	}
 	virtual ~TMapObjElasticCode() { }
 	virtual void control();
 	virtual void initMapObj();
@@ -117,7 +123,11 @@ public:
 
 class TMapObjPuncher : public TMapObjBase {
 public:
-	TMapObjPuncher();
+	TMapObjPuncher()
+	    : TMapObjBase("パンチャー")
+	    , unk138(0.0f)
+	{
+	}
 	virtual ~TMapObjPuncher() { }
 	virtual void load(JSUMemoryInputStream&);
 	virtual void control();
@@ -162,7 +172,10 @@ public:
 
 class TMareFall : public TMapObjBase {
 public:
-	TMareFall();
+	TMareFall()
+	    : TMapObjBase("マーレ滝")
+	{
+	}
 	virtual ~TMareFall() { }
 	virtual void load(JSUMemoryInputStream&);
 	virtual void calc();
@@ -170,7 +183,12 @@ public:
 
 class TMareCork : public TMapObjBase {
 public:
-	TMareCork();
+	TMareCork()
+	    : TMapObjBase("マーレコルク")
+	    , unk138(nullptr)
+	    , unk154(0)
+	{
+	}
 	virtual ~TMareCork() { }
 	virtual void loadAfter();
 	virtual MtxPtr getTakingMtx();
@@ -187,7 +205,11 @@ public:
 
 class TMareEventPoint : public THitActor {
 public:
-	TMareEventPoint();
+	TMareEventPoint()
+	    : THitActor("イベントポイント")
+	    , unk68(nullptr)
+	{
+	}
 	virtual ~TMareEventPoint();
 	virtual void load(JSUMemoryInputStream&);
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);

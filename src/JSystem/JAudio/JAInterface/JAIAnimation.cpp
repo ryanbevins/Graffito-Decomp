@@ -19,6 +19,8 @@ JAIAnimeSound::JAIAnimeSound()
 	mLoopCount   = 0;
 }
 
+JAIAnimeSound::~JAIAnimeSound() { }
+
 void JAIAnimeSound::initActorAnimSound(void* data, u32 param, f32 value)
 {
 	mData = (u8*)data;

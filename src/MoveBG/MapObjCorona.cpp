@@ -1,3 +1,5 @@
+#define MSL_STDFMODF_OUT_OF_LINE
+
 #include "MoveBG/MapObjCorona.hpp"
 #include "MoveBG/MapObjBase.hpp"
 
@@ -19,6 +21,21 @@
 #include <System/Particles.hpp>
 #include <math.h>
 #include <stdio.h>
+
+#undef MSL_STDFMODF_OUT_OF_LINE
+
+// MapObjCorona is the owner TU for the out-of-line std::fmodf(float, float).
+// Other TUs (e.g. Enemy/BathtubPeach) reference this weak owner via
+// MSL_STDFMODF_OUT_OF_LINE; reconstruct the real MSL float implementation so
+// it links and behaves identically to the target.
+namespace std {
+float fmodf(float x, float y)
+{
+	if (fabsf(y) > fabsf(x))
+		return x;
+	return x - y * (f32)(s64)(x / y);
+}
+} // namespace std
 
 // rogue includes for matching __sinit (15 JALList<T> templates)
 #include <MSound/MSSetSound.hpp>
@@ -1200,6 +1217,8 @@ u8 TBathtub::getNextGrip(const JGeometry::TVec3<f32>& pos,
 
 void TBathtub::updatePosture_()
 {
+	static JGeometry::TVec3<f32> yDown(0.0f, -1.0f, 0.0f);
+
 	if (unk250 == 0) {
 		f32 recover = 1.0f;
 		if (unk258 != 0) {
@@ -1207,6 +1226,8 @@ void TBathtub::updatePosture_()
 			recover = 1.0f - (f32)unk258 / (f32)unk25C;
 		}
 
+		// up = quaternion rotation of (0,1,0): the 2nd column of the
+		// orientation matrix built from the quaternion.
 		f32 x = unk1D8.x;
 		f32 y = unk1D8.y;
 		f32 z = unk1D8.z;
@@ -1215,10 +1236,11 @@ void TBathtub::updatePosture_()
 		f32 upY = 1.0f - 2.0f * (x * x + z * z);
 		f32 upZ = 2.0f * (y * z + w * x);
 
+		// axis = cross(yDown, up)
 		JGeometry::TVec3<f32> axis;
-		axis.x = -upZ;
-		axis.y = 0.0f;
-		axis.z = -upX;
+		axis.x = yDown.y * upZ - yDown.z * upY;
+		axis.y = yDown.z * upX - yDown.x * upZ;
+		axis.z = yDown.x * upY - yDown.y * upX;
 
 		f32 lenSq = axis.x * axis.x + axis.y * axis.y + axis.z * axis.z;
 		if (lenSq <= 0.0000038146973f) {
@@ -1229,7 +1251,9 @@ void TBathtub::updatePosture_()
 			axis.scale(1.0f * JGeometry::TUtil<f32>::inv_sqrt(lenSq));
 		}
 
-		f32 correction = -acosf(upY) * recover * unk16C->rebound.get();
+		f32 dot = yDown.x * upX + yDown.y * upY + yDown.z * upZ;
+		f32 correction
+		    = -acosf(dot) * recover * unk16C->rebound.get();
 		axis.x *= correction;
 		axis.y *= correction;
 		axis.z *= correction;
@@ -1264,18 +1288,20 @@ void TBathtub::updatePosture_()
 	f32 upX = 2.0f * (x * y - w * z);
 	f32 upY = 1.0f - 2.0f * (x * x + z * z);
 	f32 upZ = 2.0f * (y * z + w * x);
-	f32 currentAngle = acosf(upY);
-	f32 maxAngle    = unk16C->maxAngle.get() * 0.017453292f;
-	f32 excess      = currentAngle - maxAngle;
+
+	f32 dot          = yDown.x * upX + yDown.y * upY + yDown.z * upZ;
+	f32 currentAngle = acosf(dot);
+	f32 maxAngle     = unk16C->maxAngle.get() * 0.017453292f;
+	f32 excess       = currentAngle - maxAngle;
 
 	if (excess > 0.0f) {
 		JGeometry::TVec3<f32> axis;
-		axis.x = -upZ;
-		axis.y = 0.0f;
-		axis.z = -upX;
+		axis.x = upZ * yDown.x - upX * yDown.y;
+		axis.y = upY * yDown.y - upZ * yDown.z;
+		axis.z = upX * yDown.z - upY * yDown.x;
 
 		f32 lenSq = axis.x * axis.x + axis.y * axis.y + axis.z * axis.z;
-		f32 len = 0.0f;
+		f32 len   = 0.0f;
 		if (lenSq > 0.0f)
 			len = JGeometry::TUtil<f32>::sqrt(lenSq);
 
@@ -1287,7 +1313,9 @@ void TBathtub::updatePosture_()
 			limit.z = 0.0f;
 			limitW  = 1.0f;
 		} else {
-			f32 angle = 0.5f * atan2f(len, upY) * (excess / currentAngle);
+			f32 axisDot
+			    = upX * yDown.x + upY * yDown.z + upZ * yDown.y;
+			f32 angle = 0.5f * atan2f(len, axisDot) * (excess / currentAngle);
 			f32 scale = sinf(angle) / len;
 			limit.x   = axis.x * scale;
 			limit.y   = axis.y * scale;

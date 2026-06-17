@@ -17,7 +17,7 @@ public:
 	virtual void touchActor(THitActor*);
 	virtual u32 touchWater(THitActor*);
 	virtual void makeObjDefault();
-	virtual void getDepthAtFloating() { }
+	virtual f32 getDepthAtFloating() { return unk18C; }
 	virtual void hold(TTakeActor*);
 	virtual void put();
 	virtual void touchGround(JGeometry::TVec3<f32>*);
@@ -113,7 +113,10 @@ public:
 
 class TCoverFruit : public TMapObjBase {
 public:
-	TCoverFruit();
+	TCoverFruit()
+	    : TMapObjBase("フタのフルーツ")
+	{
+	}
 	virtual ~TCoverFruit() { }
 	virtual void loadAfter();
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);

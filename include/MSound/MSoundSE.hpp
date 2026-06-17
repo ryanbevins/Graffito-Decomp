@@ -80,7 +80,6 @@ public:
 
 class MSoundSE {
 public:
-	MSoundSE();
 	static void construct();
 	static bool checkMonoSound(u32, JAIActor*);
 	static bool checkSoundArea(u32, const Vec&);

@@ -256,6 +256,8 @@ public:
 		T operator*() { return (T)this->Base::operator*(); }
 		T operator->() { return *(T*)this->Base::operator->(); }
 
+		void* dbgNode() { return (void*)p_; }
+
 		iterator& operator++()
 		{
 			this->Base::operator++();

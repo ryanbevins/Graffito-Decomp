@@ -1,3 +1,5 @@
+#define MSL_STDSQRTF_OUT_OF_LINE
+
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSRandVol.hpp>
@@ -7,6 +9,8 @@
 #include <MarioUtil/MapUtil.hpp>
 #include <System/MSoundMainSide.hpp>
 #include <math.h>
+
+#undef MSL_STDSQRTF_OUT_OF_LINE
 
 namespace MSoundSESystem {
 

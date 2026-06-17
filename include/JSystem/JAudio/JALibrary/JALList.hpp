@@ -23,10 +23,15 @@ public:
 
 template <class T> JSUList<T> JALList<T>::smList;
 
+template <class T> JALList<T>::~JALList()
+{
+	smList.remove(this);
+}
+
 template <class T, class U> class JALListHioNode : public JALList<T> {
 public:
 	JALListHioNode(const char* param_1, U param_2, T* param_3);
-	~JALListHioNode() { }
+	~JALListHioNode();
 
 public:
 	/* 0x10 */ U unk10;
@@ -38,6 +43,8 @@ JALListHioNode<T, U>::JALListHioNode(const char* param_1, U param_2, T* param_3)
     , unk10(param_2)
 {
 }
+
+template <class T, class U> JALListHioNode<T, U>::~JALListHioNode() { }
 
 template <class T, class U> class JALListVirtualNode {
 public:

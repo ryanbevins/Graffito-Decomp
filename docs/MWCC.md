@@ -5866,6 +5866,54 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Dead-parameter scratch-register reservation: target keeps a once-used parameter register (e.g. `r4`) un-reused as scratch, ours reuses it — driven by parameter liveness, not frame size, and not reproducible without an extra instruction
+
+**Observed (JDrama::TFrmGXSet::perform, `JSystem/JDrama/JDRFrmGXSet`).** The function
+gates on `param_1 & 0x8` then copies display state into the `TGraphics` (framebuffer,
+render mode, 7 `unkFC` setBits, FBClamp/ClearColor/ClearZ). Body is **instruction-identical**
+to target — same opcodes, same order, same memory writes — but two things differ, and they
+are **orthogonal**:
+
+1. **Stack frame size.** Target `stwu r1,-0x130` (304) vs ours `-0x90` (144), +0xA0. This is
+   tunable and instruction-clean: a by-value `GXRenderModeObj rmo = unk10->getRenderMode();
+   param_2->mRenderMode = rmo;` (declared *after* the `mFrameBuffer` store, to preserve order)
+   homes a ~0x38–0x40 slot that MWCC DCEs back into the direct member copy — frame grows, zero
+   instruction change. But no plausible source produces exactly 304 for a function this small,
+   and frame size has **zero** effect on (2) below (proven: a `char[160]` probe and 1–3 stacked
+   `rmo` copies all reach the target frame yet leave the coloring wrong).
+
+2. **Scratch-register coloring.** In the render-mode field-copy + setBit blocks the target uses
+   `{unkFC-ptr=r6, temp=r7, base=r8}`; ours uses `{r4, r6, r7}` — i.e. **ours reuses the dead
+   parameter register `r4` as scratch; the target leaves `r4` untouched after the entry gate.**
+   The target has **exactly one** `r4` instruction (the gate `rlwinm. r0,r4,0,28,28`) and no
+   store of `param_1` anywhere, yet still reserves `r4`.
+
+**Mechanism (confirmed).** The coloring flips **only** when `param_1` is kept live. Probe:
+appending `param_2->unk0 = param_1;` drops our `r4`-scratch-uses from 21 → 0 and makes the
+entire body byte-identical to target (`r6/r7/r8`) — but adds one `sth r4,0(r5)` the target
+lacks. Every behavior-neutral way to keep `param_1` live costs exactly one instruction the
+target does not have: a store (`sth`/`stw`), a redundant inner `if (param_1 & 0x8)` (MWCC will
+**not** drop the provably-true `cmplwi/beq`), or a `volatile` local home. Every instruction-free
+spelling (`(void)(param_1&8)`, empty `touch(param_1)`, `&& (param_1&8)`, `?x:x`, `param_1&0`,
+`u32 keep = param_1;`) is DCE'd and the live range vanishes. So the target's `r4` reservation
+reflects an MWCC IR state where `param_1` was used and that use was eliminated **after** register
+allocation — a pass ordering not reachable from C++ source under these flags (`-inline auto`).
+
+**Why it matters / the lever.** When a near-match's only diff is a uniform GPR permutation where
+**ours reuses a dead incoming-parameter register and the target doesn't**, suspect this artifact.
+It is the GPR analogue of the known FPR f30/f31 swap and `addi rN,rN,0` vs `mr` encoding choices.
+Do **not** "fix" it with a behavior-changing store or a `volatile`/`_pad` forcing local — that is
+fake matching. The function is **behaviorally equivalent** (identical instructions, order, and
+memory effects; only scratch numbers + frame padding differ).
+
+**Experiment to confirm/promote.** Find other leaf functions that (a) gate on a single parameter
+test and never use the parameter again, and (b) show our build reusing the parameter's register as
+scratch where target leaves it reserved. If the `param_2->unk0 = param_1`-style liveness probe
+flips the coloring to match on ≥1 more TU, this is a settled MWCC-version codegen-drift artifact
+(our 1.2.5 build's allocator/DCE pass order differs from the original toolchain) and should move to
+`CLAUDE.md`'s Currently-Hard Patterns as "dead-parameter-register reuse." Audited 2026-06-17; see
+`docs/AUDIT.md`.
+
 ### First out-of-line virtual body controls vtable home; earlier inline virtuals keep slot order without becoming the home
 
 **Hypothesis.** For MWCC C++ classes, vtable/data home is chosen by the

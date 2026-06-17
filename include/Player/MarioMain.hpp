@@ -556,7 +556,7 @@ public:
 		TParamRT<s16> mRotGravity;
 		TParamRT<f32> mRotBrake;
 		TParamRT<f32> mJumpRate;
-		TParamRT<s32> mSwingRate;
+		TParamRT<f32> mSwingRate;
 		TParamRT<f32> mWireJumpAccelControl;
 		TParamRT<f32> mWireJumpSlideControl;
 		TParamRT<f32> mWireJumpMult;

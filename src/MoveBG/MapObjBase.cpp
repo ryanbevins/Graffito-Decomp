@@ -349,7 +349,7 @@ void TMapObjBase::makeObjAppeared()
 	mLiveFlag |= 0x10;
 	mLifeTimer = 0;
 	unk64 &= ~1;
-	appear();
+	setObjHitData(0);
 	if (unk100 != 0)
 		unk100 = 0;
 	if (mMapObjData->mSound == nullptr) {

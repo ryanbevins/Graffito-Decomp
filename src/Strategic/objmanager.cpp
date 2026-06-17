@@ -1,4 +1,5 @@
 #include <Strategic/ObjManager.hpp>
+#include <dolphin/os.h>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/HitActor.hpp>
 #include <System/TimeRec.hpp>
@@ -119,6 +120,15 @@ TModelDataKeeper* TObjManager::getModelDataKeeper()
 	return mModelDataKeeper;
 }
 
+static bool _sfBadOM(void* p)
+{
+	u32 a = (u32)p;
+	if (a < 0x80003100u || a >= 0x81800000u || (a & 3))
+		return true;
+	u32 vt = *(u32*)p;
+	return vt < 0x80003100u || vt >= 0x81800000u || (vt & 3);
+}
+
 JDrama::TNameRef* TObjManager::searchF(u16 key, const char* name)
 {
 	JDrama::TNameRef* res = JDrama::TNameRef::searchF(key, name);
@@ -126,6 +136,11 @@ JDrama::TNameRef* TObjManager::searchF(u16 key, const char* name)
 		return res;
 
 	for (int i = 0; i < mObjNum; ++i) {
+		if (_sfBadOM((void*)unk18[i])) {
+			OSReport((char*)"BADOBJM name=%s i=%d/%d child=%p\n", getName(), i,
+			         mObjNum, (void*)unk18[i]);
+			break;
+		}
 		JDrama::TNameRef* r = unk18[i]->searchF(key, name);
 		if (r)
 			return r;

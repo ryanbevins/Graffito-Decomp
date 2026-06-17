@@ -236,55 +236,122 @@ BOOL JAIBasic::checkInitDataFile()
 void JAIBasic::checkInitDataOnMemory()
 {
 	JAIData* data = unk0;
+	u32* d        = (u32*)unk4C;
 
 	bool shouldContinue = true;
 	u32 i               = 0;
 	while (shouldContinue) {
-		u32 command = unk4C[i];
+		u32 command = d[i];
 		++i;
 		switch (command) {
 		case 0:
 			shouldContinue = false;
 			break;
 		case 1:
-			if (unk4C[i] == 0) {
-				u32 offset        = unk4C[i + 1];
-				data->unk88.unk28 = unk4C[i + 2];
-				data->unk88.unk78 = (u8*)transInitDataFile(
-				    ((u8*)unk4C) + offset, data->unk88.unk28);
+			if (d[i + 2] == 0) {
+				u8* buffer        = (u8*)unk4C + d[i];
+				data->unk88.unk28 = d[i + 1];
+				data->unk88.unk78
+				    = (u8*)transInitDataFile(buffer, data->unk88.unk28);
 				data->unk1B0 = 0;
-				i += 4;
+				i += 3;
 			} else {
-				// TODO: should this all be done via header structs? probably
-				u32 offset        = unk4C[i + 1];
-				data->unk88.unk28 = unk4C[i + 2];
-				data->unk88.unk78 = (u8*)transInitDataFile(
-				    ((u8*)unk4C) + offset, data->unk88.unk28);
+				u8* buffer0       = (u8*)unk4C + d[i];
+				data->unk88.unk28 = d[i + 1];
+				data->unk88.unk78
+				    = (u8*)transInitDataFile(buffer0, data->unk88.unk28);
 
-				u8* buffer1      = ((u8*)unk4C) + unk4C[i + 3];
-				data->unkC.unk28 = unk4C[i + 4];
+				u8* buffer1      = (u8*)unk4C + d[i + 2];
+				data->unkC.unk28 = d[i + 3];
 				data->unkC.unk78
-				    = (u8*)transInitDataFile(buffer1, data->unk88.unk28);
+				    = (u8*)transInitDataFile(buffer1, data->unkC.unk28);
 
-				u8* buffer         = ((u8*)unk4C) + unk4C[i + 5];
-				data->unk104.unk28 = unk4C[i + 6];
+				data->unk104.unk78 = (u8*)((u8*)unk4C + d[i + 4]);
+				data->unk104.unk28 = d[i + 5];
 				data->unk104.unk78
-				    = (u8*)transInitDataFile(buffer, data->unk104.unk28);
+				    = (u8*)transInitDataFile(buffer1, data->unk104.unk28);
 				data->unk1B0 = 0;
 
-				i += 7;
+				i += 6;
 			}
 			break;
 		case 2: {
 			u32 uVar7 = 0;
-			while (unk4C[i + uVar7] != 0)
+			while (d[i + uVar7] != 0)
 				uVar7 += 3;
 
 			unk50 = (FabricatedUnk50Struct*)transInitDataFile(
-			    (u8*)&unk4C[i], (uVar7 / 3) * 0xC + 4);
-			// TODO: lots more stuff in here but I'm sick of it tbh
+			    (u8*)&d[i], (uVar7 / 3) * 0xC + 4);
+
+			u32 size = (uVar7 / 3) * 0xC + 4;
+			u8 k     = 0;
+			while (d[i] != 0) {
+				unk50[k].unk0 = (void*)((u8*)unk4C + (u32)unk50[k].unk0);
+				++k;
+				i += 3;
+			}
+			++i;
 			break;
 		}
+		case 3: {
+			u32 uVar7 = 0;
+			while (d[i + uVar7] != 0)
+				uVar7 += 3;
+
+			unk54 = (FabricatedUnk54Struct*)transInitDataFile(
+			    (u8*)&d[i], (uVar7 / 3) * 0xC + 4);
+
+			u32 size = (uVar7 / 3) * 0xC + 4;
+			u8 k     = 0;
+			while (d[i] != 0) {
+				unk54[k].unk0 = (void*)((u8*)unk4C + (u32)unk54[k].unk0);
+				++k;
+				i += 3;
+			}
+			unk60 = (s32*)allocHeap((k & 0xff) << 2);
+			unk64 = (s32*)allocHeap((k & 0xff) << 2);
+			++i;
+			break;
+		}
+		case 4: {
+			unk58       = (u8**)transInitDataFile((u8*)&d[i], 8);
+			u8* buffer  = (u8*)unk4C + d[i];
+			void* res   = transInitDataFile(buffer, d[i + 1]);
+			*(void**)unk58 = res;
+			i += 3;
+			break;
+		}
+		case 5: {
+			unk5C       = (u32)transInitDataFile((u8*)&d[i], 8);
+			u8* buffer  = (u8*)unk4C + d[i];
+			void* res   = transInitDataFile(buffer, d[i + 1]);
+			*(void**)unk5C = res;
+			i += 3;
+			data->unk1F8 = (JAIData::FabricatedUnk1F8Struct*)*(void**)unk5C;
+			break;
+		}
+		case 6: {
+			void* res = transInitDataFile((u8*)unk4C + d[i], d[i + 1]);
+			JAIGlobalParameter::soundSceneMax = *(u32*)res;
+			unk68                             = (u8**)((u8*)res + 4);
+			for (u32 m = 0; m < JAIGlobalParameter::soundSceneMax; ++m)
+				((u32*)unk68)[m] += (u32)res;
+			i += 3;
+			break;
+		}
+		case 7:
+			unk6C = (u32*)transInitDataFile((u8*)unk4C + d[i], d[i + 1]);
+			i += 3;
+			break;
+		case 8:
+			unk78 = (u32)transInitDataFile((u8*)unk4C + d[i],
+			                               (d[i + 1] & 0xFFF0) + 0x10);
+			i += 3;
+			break;
+		default:
+			while (d[i++] != 0)
+				;
+			break;
 		}
 	}
 }
@@ -583,12 +650,87 @@ void JAIBasic::startSoundIndirectID(u32 id, JAISound** sound, JAIActor* actor,
 void JAIBasic::startSoundBasic(u32 id, JAISound** sound, JAIActor* actor,
                                u32 param, u8 flag, void* data)
 {
+	switch (id & 0xC0000000) {
+	case 0x80000000:
+		if (unk1C.flag4)
+			return;
+		if (unk38 && (unk38->unk8 & 0x3FF) == (id & 0x3FF))
+			return;
+		if (sound == nullptr)
+			sound = (JAISound**)((u8*)unk0->unk1E0
+			                     + (getSeqTrackNumber(data) & 0xff) * 4);
+		unk0->unk1FC.storeBuffer(sound, actor, id, param, flag, data);
+		break;
+	case 0x00000000:
+		if (unk18[id >> 12] == 0) {
+			unk0->unk200.storeBuffer(sound, actor, id, param, flag, data);
+		} else {
+			if (sound)
+				*sound = nullptr;
+		}
+		break;
+	case 0xC0000000:
+		if (unk1C.flag6)
+			return;
+		if (unk1C.flag5)
+			return;
+		unk0->unk204.storeBuffer(sound, actor, id, param, flag, data);
+		break;
+	}
 }
 
 void JAIBasic::getPlayingSoundHandle(JAISound** sound, u32 param) { }
 
 #pragma dont_inline on
-void JAIBasic::stopSoundHandle(JAISound* sound, u32 param) { }
+void JAIBasic::stopSoundHandle(JAISound* sound, u32 param)
+{
+	if (sound == nullptr)
+		return;
+
+	switch (sound->unk8 & 0xC0000000) {
+	case 0x80000000:
+		if (sound->unk1 >= 4 && param != 0) {
+			unk0->unk180[sound->unk0].unk8 |= 2;
+			unk0->unk180[sound->unk0].unk48->unk10 = param;
+		} else {
+			if (sound->unk1 >= 3) {
+				JAISystemInterface::stopSeq(sound->getSeqParameter()->unk0);
+			} else if (sound->unk1 >= 1) {
+				unk0->releaseAutoHeapPointer(
+				    sound->getSeqParameter()->unk1754);
+			}
+			sound->clearMainSoundPPointer();
+			stopSeq(sound);
+		}
+		break;
+	case 0x00000000:
+		if (sound->unk1 == 0)
+			return;
+		if (param == 0 || sound->unk1 == 1) {
+			releaseSeRegist(sound);
+		} else {
+			sound->unk10 = param;
+			sound->setSeInterVolume(6, 0.0f, param, 0);
+		}
+		break;
+	case 0xC0000000:
+		if (param == 0) {
+			JAInter::StreamLib::stop();
+			sound->unk1                  = 0;
+			unk0->unk184->unk14          = nullptr;
+			sound->clearMainSoundPPointer();
+			releaseStreamParameterPointer((JAIStreamParameter*)sound->unk38);
+			releaseControllerHandle(&unk0->unk21C, sound);
+			JASystem::Dvd::unpauseDvdT();
+		} else {
+			if (sound->getStreamParameter()->unk3D4) {
+				sound->getStreamParameter()->unk3D4->unk10 |= 2;
+				sound->unk10 = param;
+			}
+		}
+		break;
+	}
+}
 #pragma dont_inline off
 
 u32 JAIBasic::changeIDToCategory(u32 id) { return id >> 0xc & 0xff; }

@@ -56,7 +56,11 @@ public:
 	void swing(THitActor*);
 	virtual void touchActor(THitActor*);
 	virtual u32 touchWater(THitActor*);
-	TMapObjBillboard();
+	TMapObjBillboard()
+	    : THideObjBase("看板")
+	    , unk150(nullptr)
+	{
+	}
 
 public:
 	/* 0x150 */ JAISound* unk150;
@@ -90,7 +94,11 @@ class TMapObjStartDemo : public TMapObjBase {
 public:
 	virtual void load(JSUMemoryInputStream&);
 	virtual void touchPlayer(THitActor*);
-	TMapObjStartDemo();
+	TMapObjStartDemo()
+	    : TMapObjBase("デモ開始オブジェ")
+	    , unk138(0)
+	{
+	}
 
 public:
 	/* 0x138 */ u32 unk138;
@@ -180,7 +188,10 @@ class TBasketReverse : public TMapObjBase {
 public:
 	virtual void kill();
 	virtual void initMapObj();
-	TBasketReverse();
+	TBasketReverse()
+	    : TMapObjBase("さかさバスケット")
+	{
+	}
 };
 
 #endif

@@ -1,3 +1,5 @@
+#define MSL_STDFMODF_OUT_OF_LINE
+
 #include <Enemy/Koopa.hpp>
 #include <Enemy/BathtubBinder.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
@@ -16,6 +18,15 @@
 #include <System/FlagManager.hpp>
 #include <math.h>
 #include <stdlib.h>
+
+#undef MSL_STDFMODF_OUT_OF_LINE
+
+// The out-of-line std::fmodf(float, float) is owned by MoveBG/MapObjCorona;
+// reference it here so std::fmodf calls resolve to fmodf__3stdFff (single
+// precision) instead of the inline ::fmod (double), matching the target.
+namespace std {
+float fmodf(float, float);
+}
 
 // rogue includes needed for matching sinit
 #include <MSound/MSSetSound.hpp>

@@ -240,7 +240,7 @@ public:
 		if (count == 0)
 			return pIt;
 
-		if (mCapacity <= count + size()) {
+		if (count + size() <= mCapacity) {
 			T* holeEnd = pIt + count;
 			if (holeEnd < pEnd_) {
 				T* split = pEnd_ - count;

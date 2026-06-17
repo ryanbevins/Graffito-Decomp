@@ -39,7 +39,10 @@ public:
 	virtual void load(JSUMemoryInputStream&);
 	virtual void control();
 
-	TMapObjSteam();
+	TMapObjSteam()
+	    : THideObjBase("水蒸気")
+	{
+	}
 };
 
 #endif

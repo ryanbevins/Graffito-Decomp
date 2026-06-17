@@ -2,6 +2,7 @@
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Enemy/Conductor.hpp>
+#include <Strategic/Strategy.hpp>
 #include <Player/MarioAccess.hpp>
 #include <MarioUtil/ModelUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -81,11 +82,6 @@ static int partsRollCallback(J3DNode* node, int param)
 	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
 
 	return 1;
-}
-
-Vec* TWaterHitPictureHideObj::getObjAppearPos() const
-{
-	return (Vec*)&mPosition;
 }
 
 void TPictureTelesa::control()
@@ -1243,7 +1239,7 @@ void TItemSlotDrum::generateItem()
 	}
 	if (result == 1) {
 		TSpineEnemy* enemy
-		    = gpConductor->makeOneEnemyAppear(mPosition, "テレサ", 1);
+		    = gpConductor->makeOneEnemyAppear(mPosition, "テレサマネージャー", 1);
 		if (!enemy)
 			return;
 		Mtx rot;
@@ -1413,8 +1409,10 @@ void TRoulette::initMapObj()
 	TRouletteSw* sw = new TRouletteSw("ルーレットスイッチ");
 	sw->unk68 = this;
 	unk150 = sw;
-	TConductor* cond = JDrama::TNameRefGen::search<TConductor>("TConductor");
-	cond->unk10.insert(cond->unk10.end(), (TLiveManager*)unk150);
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ");
+	group->getChildren().insert(group->getChildren().end(),
+	                            (THitActor*)unk150);
 	if (gpApplication.mCurrArea.getStage() == 14) {
 		sw->initHitActor(0x4000019A, 2, 0x80000000, 40.0f, 80.0f, 40.0f, 80.0f);
 	} else {

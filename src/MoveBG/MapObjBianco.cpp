@@ -7,6 +7,7 @@
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapData.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorUtil.hpp>
 #include <MSound/MSound.hpp>
@@ -59,6 +60,44 @@ static f32 sMessengerPosY = 6400.0f;
 f32 TLeafBoatRotten::mAlphaDownSpeed          = 0.5f;
 f32 TLeafBoatRotten::mCollisionRemoveAlpha    = 100.0f;
 s16 TLeafBoatRotten::mRottenColor[4]          = { 100, 100, 180, 255 };
+
+static inline void makeRotZMtx(Mtx mtx, f32 deg)
+{
+	s16 angle = DEG2SHORTANGLE(deg);
+	f32 s     = JMASSin(angle);
+	f32 c     = JMASCos(angle);
+	mtx[0][0] = c;
+	mtx[0][1] = -s;
+	mtx[0][2] = 0.0f;
+	mtx[0][3] = 0.0f;
+	mtx[1][0] = s;
+	mtx[1][1] = c;
+	mtx[1][2] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = 1.0f;
+	mtx[2][3] = 0.0f;
+}
+
+static inline void makeRotYMtx(Mtx mtx, f32 deg)
+{
+	s16 angle = DEG2SHORTANGLE(deg);
+	f32 s     = JMASSin(angle);
+	f32 c     = JMASCos(angle);
+	mtx[0][0] = c;
+	mtx[0][1] = 0.0f;
+	mtx[0][2] = s;
+	mtx[0][3] = 0.0f;
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = 1.0f;
+	mtx[1][2] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][0] = -s;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = c;
+	mtx[2][3] = 0.0f;
+}
 
 void TWoodLog::control()
 {
@@ -141,9 +180,10 @@ static inline void ringBiancoBell(TBiancoBell* bell)
 	if (bell == nullptr)
 		return;
 
-	J3DFrameCtrl* ctrl = bell->mMActor->getFrameCtrl(0);
-	if (ctrl->getFrame() == 0.0f
-	    || ctrl->getFrame() + ctrl->getRate() >= (f32)ctrl->getEnd() - 1.0f) {
+	if (bell->mMActor->getFrameCtrl(0)->getFrame() == 0.0f
+	    || bell->mMActor->getFrameCtrl(0)->getFrame()
+	            + bell->mMActor->getFrameCtrl(0)->getRate()
+	        >= (f32)bell->mMActor->getFrameCtrl(0)->getEnd() - 1.0f) {
 		bell->startAnim(bell->unk138);
 		bell->mMActor->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
 		if (bell->unk13A && gpMSound->gateCheck(0x89B8)) {
@@ -160,12 +200,13 @@ void TBellWatermill::control()
 	if (unk158 == 0.0f && unk178 == 0.0f && unk170 == 0.0f)
 		return;
 
-	if (unk158 > unk16C)
-		unk158 = unk16C;
-	else if (unk158 < -unk16C)
-		unk158 = -unk16C;
+	f32 turnSpeed = unk158;
+	if (turnSpeed > unk16C)
+		turnSpeed = unk16C;
+	else if (turnSpeed < -unk16C)
+		turnSpeed = -unk16C;
 
-	unk154 += unk158;
+	unk154 += turnSpeed;
 	while (unk154 >= 360.0f)
 		unk154 -= 360.0f;
 	while (unk154 < 0.0f)
@@ -207,12 +248,12 @@ void TBellWatermill::control()
 			for (int i = 0; i < 5; ++i) {
 				TMapObjBase* coin = gpItemManager->makeObjAppeared(0x2000000E);
 				if (coin != nullptr) {
-					coin->mPosition = mPosition;
+					coin->mPosition.set(mPosition);
+					f32 zRand         = (f32)rand() * (1.0f / 32768.0f);
 					coin->mVelocity.x = 10.0f;
 					coin->mVelocity.y
 					    = 10.0f + 100.0f * ((f32)rand() * (1.0f / 32768.0f));
-					coin->mVelocity.z
-					    = 10.0f * ((f32)rand() * (1.0f / 32768.0f)) - 5.0f;
+					coin->mVelocity.z = 10.0f * zRand - 5.0f;
 					coin->offLiveFlag(LIVE_FLAG_UNK10);
 				}
 			}
@@ -220,22 +261,16 @@ void TBellWatermill::control()
 		}
 	}
 
-	mPosition.y = mInitialPosition.y + mYOffset + unk170;
+	mPosition.y = unk170 + mInitialPosition.y + mYOffset;
 	unk190     = 0;
 	mRotation.z = unk154;
 
 	Mtx zRot;
-	makeRootMtxRotZ(zRot);
-	zRot[0][3] = 0.0f;
-	zRot[1][3] = 0.0f;
-	zRot[2][3] = 0.0f;
+	makeRotZMtx(zRot, mRotation.z);
 
 	if (mRotation.y != 0.0f) {
 		Mtx yRot;
-		makeRootMtxRotY(yRot);
-		yRot[0][3] = 0.0f;
-		yRot[1][3] = 0.0f;
-		yRot[2][3] = 0.0f;
+		makeRotYMtx(yRot, mRotation.y);
 		PSMTXConcat(yRot, zRot, zRot);
 	}
 

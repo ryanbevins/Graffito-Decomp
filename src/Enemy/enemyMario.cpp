@@ -3,6 +3,8 @@
 #include <Enemy/EMario.hpp>
 #include <Enemy/Graph.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+#include <JSystem/J3D/J3DGraphAnimator/J3DMaterialAnm.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
@@ -27,6 +29,7 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <Player/MarioAccess.hpp>
+#include <Player/MarioAnimeData.hpp>
 #include <Player/MarioEffect.hpp>
 #include <Player/MarioRecord.hpp>
 #include <Player/ModelWaterManager.hpp>
@@ -46,6 +49,223 @@
 
 static const char* cDirtyFileName = "/scene/map/pollution/H_ma_rak.bti";
 static const char* cDirtyTexName  = "H_ma_rak_dummy";
+
+static unkTMarioAnimeFilesStruct marioAnimeFiles[199] = {
+	{ 0x00000001, "hgup" },
+	{ 0x00000001, "bdwn" },
+	{ 0x00000001, "bkdwn" },
+	{ 0x00000001, "tree_climb" },
+	{ 0x00000001, "tree_catch" },
+	{ 0x00000000, "tree_stand" },
+	{ 0x00000000, "tree_wait" },
+	{ 0x00000000, "brake" },
+	{ 0x00000001, "brend" },
+	{ 0x00000001, "hgdwn" },
+	{ 0x00000001, "fjpend" },
+	{ 0x00000000, "firejmp" },
+	{ 0x00000001, "sdwnf" },
+	{ 0x00000001, "jfdwn" },
+	{ 0x00000000, "hang" },
+	{ 0x00000001, "hgjmp" },
+	{ 0x00000001, "ladder_hang_catch" },
+	{ 0x00000000, "hiped" },
+	{ 0x00000001, "hipsr" },
+	{ 0x00000000, "hipat" },
+	{ 0x00000001, "run1" },
+	{ 0x00000001, "2jmed" },
+	{ 0x00000000, "2jmp2" },
+	{ 0x00000001, "jump" },
+	{ 0x00000001, "jmped" },
+	{ 0x00000001, "2jmp1" },
+	{ 0x00000000, "land" },
+	{ 0x00000001, "laend" },
+	{ 0x00000001, "lost" },
+	{ 0x00000001, "door_openr" },
+	{ 0x00000001, "door_openl" },
+	{ 0x00000001, "throw" },
+	{ 0x00000001, "ladder_hang_move_l" },
+	{ 0x00000001, "ladder_hang_move_r" },
+	{ 0x00000001, "raise" },
+	{ 0x00000001, "push" },
+	{ 0x00000001, "ride_shell" },
+	{ 0x00000001, "put" },
+	{ 0x00000001, "roll" },
+	{ 0x00000001, "run2" },
+	{ 0x00000000, "shock" },
+	{ 0x00000001, "sfbdn" },
+	{ 0x00000001, "sffdn" },
+	{ 0x00000001, "sdown" },
+	{ 0x00000001, "shfdn" },
+	{ 0x00000000, "swait" },
+	{ 0x00000001, "swlkl" },
+	{ 0x00000001, "swlkr" },
+	{ 0x00000000, "sldct" },
+	{ 0x00000000, "slpbk" },
+	{ 0x00000001, "sldwn" },
+	{ 0x00000001, "slped" },
+	{ 0x00000000, "slpla" },
+	{ 0x00000000, "slip" },
+	{ 0x00000001, "sstep" },
+	{ 0x00000000, "sqend" },
+	{ 0x00000000, "sqsta" },
+	{ 0x00000000, "sqwat" },
+	{ 0x00000000, "turn" },
+	{ 0x00000000, "trned" },
+	{ 0x00000001, "tjmp2" },
+	{ 0x00000001, "tjmp1" },
+	{ 0x00000000, "wait" },
+	{ 0x00000000, "ladder_hang_wait_l" },
+	{ 0x00000000, "ladder_hang_wait_r" },
+	{ 0x00000000, "walk" },
+	{ 0x00000001, "wjmp" },
+	{ 0x00000000, "wsld" },
+	{ 0x00000000, "pump" },
+	{ 0x00000000, "hgpmp" },
+	{ 0x00000000, "step1" },
+	{ 0x00000001, "step2" },
+	{ 0x00000001, "step3" },
+	{ 0x00000000, "jkick" },
+	{ 0x00000000, "dgrun" },
+	{ 0x00000000, "carry_p" },
+	{ 0x00000001, "hmov_l" },
+	{ 0x00000001, "hmov_r" },
+	{ 0x00000000, "t_wait" },
+	{ 0x00000001, "hot_wait" },
+	{ 0x00000000, "rope_walk" },
+	{ 0x00000001, "rope_run" },
+	{ 0x00000000, "rope_wait" },
+	{ 0x00000000, "rope_wtosw" },
+	{ 0x00000000, "rope_wtosw_r" },
+	{ 0x00000000, "rope_swait" },
+	{ 0x00000001, "rope_whg" },
+	{ 0x00000001, "rope_swhg" },
+	{ 0x00000000, "rope_hgwat" },
+	{ 0x00000001, "rope_return" },
+	{ 0x00000001, "rope_hmovr" },
+	{ 0x00000001, "rope_hmovl" },
+	{ 0x00000000, "sinking" },
+	{ 0x00000000, "sink_down" },
+	{ 0x00000001, "door_kick" },
+	{ 0x00000001, "hold" },
+	{ 0x00000000, "hold_wait" },
+	{ 0x00000001, "hold_back" },
+	{ 0x00000001, "hold_move_r" },
+	{ 0x00000001, "hold_move_l" },
+	{ 0x00000001, "hold_drag" },
+	{ 0x00000000, "hold_to_hang" },
+	{ 0x00000000, "hold_hang" },
+	{ 0x00000001, "hang_to_hold" },
+	{ 0x00000001, "hold_return" },
+	{ 0x00000000, "spin_p" },
+	{ 0x00000001, "turbo_dash" },
+	{ 0x00000001, "broad_jump" },
+	{ 0x00000001, "jump_rolling" },
+	{ 0x00000001, "giant_rolling" },
+	{ 0x00000001, "fence_catch" },
+	{ 0x00000001, "fence_jcatch" },
+	{ 0x00000000, "fence_wait" },
+	{ 0x00000001, "fence_move_l" },
+	{ 0x00000001, "fence_move_r" },
+	{ 0x00000001, "fence_move_up" },
+	{ 0x00000001, "fence_move_down" },
+	{ 0x00000001, "fence_punch" },
+	{ 0x00000001, "ladder_hang_kick" },
+	{ 0x00000001, "ladder_roll_up" },
+	{ 0x00000001, "ladder_roll_down" },
+	{ 0x00000001, "ride_shell" },
+	{ 0x00000000, "ride_shell_wait" },
+	{ 0x00000001, "swim_start" },
+	{ 0x00000000, "swim_wait" },
+	{ 0x00000001, "wait_to_swim" },
+	{ 0x00000001, "swim" },
+	{ 0x00000001, "swim_to_wait" },
+	{ 0x00000001, "swim_damage" },
+	{ 0x00000001, "swim_down" },
+	{ 0x00000001, "demo_shine_get" },
+	{ 0x00000000, "demo_gate_in" },
+	{ 0x00000001, "demo_gate_out" },
+	{ 0x00000001, "roll_jump" },
+	{ 0x00000001, "get_fail" },
+	{ 0x00000001, "tree_move_l" },
+	{ 0x00000001, "tree_move_r" },
+	{ 0x00000001, "die" },
+	{ 0x00000000, "monteman_wait" },
+	{ 0x00000001, "swim_start" },
+	{ 0x00000000, "swim_wait" },
+	{ 0x00000001, "wait_to_paddle" },
+	{ 0x00000001, "paddle_start" },
+	{ 0x00000001, "swim" },
+	{ 0x00000001, "paddle_end" },
+	{ 0x00000001, "paddle_to_wait" },
+	{ 0x00000001, "float" },
+	{ 0x00000000, "damage_wait" },
+	{ 0x00000000, "fepmp" },
+	{ 0x00000000, "swpmp" },
+	{ 0x00000000, "thrown" },
+	{ 0x00000001, "thrown_end" },
+	{ 0x00000001, "bottle_in" },
+	{ 0x00000001, "sand_fill_head" },
+	{ 0x00000001, "sand_fill_head_end" },
+	{ 0x00000001, "sandfill_leg" },
+	{ 0x00000001, "sandfill_leg_end" },
+	{ 0x00000000, "damage_wait_start" },
+	{ 0x00000001, "swim_dive" },
+	{ 0x00000001, "draw" },
+	{ 0x00000000, "swim_p_damage" },
+	{ 0x00000000, "swim_p_down" },
+	{ 0x00000001, "pivot" },
+	{ 0x00000000, "demo_gate_out_get2" },
+	{ 0x00000001, "demo_gate_out_appear" },
+	{ 0x00000000, "belt_up" },
+	{ 0x00000000, "yawn" },
+	{ 0x00000001, "sit" },
+	{ 0x00000001, "sit_wait" },
+	{ 0x00000001, "sit_end" },
+	{ 0x00000001, "sleep" },
+	{ 0x00000001, "sleep_wait" },
+	{ 0x00000001, "sleep_end" },
+	{ 0x00000000, "dive_wait" },
+	{ 0x00000001, "dive_land" },
+	{ 0x00000001, "door_gacha_l" },
+	{ 0x00000001, "door_gacha_r" },
+	{ 0x00000001, "shock_down" },
+	{ 0x00000001, "demo_gate_out_appear_get" },
+	{ 0x00000000, "demo_gate_out_rolling_get" },
+	{ 0x00000000, "demo_gate_out_rolling" },
+	{ 0x00000000, "fall_down_wait" },
+	{ 0x00000000, "yo_wait" },
+	{ 0x00000000, "yo_walk" },
+	{ 0x00000000, "yo_run" },
+	{ 0x00000000, "yo_eat" },
+	{ 0x00000000, "yo_eat_end" },
+	{ 0x00000000, "yo_jump" },
+	{ 0x00000000, "yo_jump_fall" },
+	{ 0x00000000, "yo_jump_end" },
+	{ 0x00000000, "yo_hold_jump" },
+	{ 0x00000000, "yo_ride" },
+	{ 0x00000000, "yo_hip_start" },
+	{ 0x00000000, "yo_hip_pose" },
+	{ 0x00000000, "yo_hip_end" },
+	{ 0x00000000, "yo_damage" },
+	{ 0x00000001, "demo_shine_get_yo" },
+	{ 0x00000001, "yo_slide_pose" },
+	{ 0x00000001, "yo_slide_end" },
+};
+
+static char* marioAnimeTexPatternFilenames[24] = {
+	"/mario/btp/ma_wink_tx.btp",        "/mario/btp/ma_bdwn_tx.btp",
+	"/mario/btp/ma_bkdwn_tx.btp",       "/mario/btp/ma_sdwnf_tx.btp",
+	"/mario/btp/ma_jfdwn_tx.btp",       "/mario/btp/ma_sdown_tx.btp",
+	"/mario/btp/ma_sldwn_tx.btp",       "/mario/btp/ma_dgrun_tx.btp",
+	"/mario/btp/ma_hot_wait_tx.btp",    "/mario/btp/ma_firejmp_tx.btp",
+	"/mario/btp/ma_fjpend_tx.btp",      "/mario/btp/ma_shock_tx.btp",
+	"/mario/btp/ma_gate_out_tx.btp",    "/mario/btp/ma_die_tx.btp",
+	"/mario/btp/ma_d_wait_tx.btp",      "/mario/btp/ma_swim_p_damage_tx.btp",
+	"/mario/btp/ma_swim_p_down_tx.btp", "/mario/btp/ma_yawn_tx.btp",
+	"/mario/btp/ma_sit_tx.btp",         "/mario/btp/ma_sit_wait_tx.btp",
+	"/mario/btp/ma_sit_end_tx.btp",     "/mario/btp/ma_sleep_tx.btp",
+	"/mario/btp/ma_sleep_wait_tx.btp",  "/mario/btp/ma_sleep_end_tx.btp"
+};
 
 namespace {
 
@@ -1950,8 +2170,8 @@ void TEnemyMario::initModel()
 	M3UModelMario* originalModel = gpMarioOriginal->mModel;
 	mBodyModelData              = originalModel->getModel()->getModelData();
 	unk3C4       = mBodyModelData->getJointName()->getIndex("center");
-	mBoneIDs[0]  = mBodyModelData->getJointName()->getIndex("chn_chest");
-	mBoneIDs[1]  = mBodyModelData->getJointName()->getIndex("jnt_chest");
+	mBoneIDs[1]  = mBodyModelData->getJointName()->getIndex("chn_chest");
+	mBoneIDs[0]  = mBodyModelData->getJointName()->getIndex("jnt_chest");
 	mBoneIDs[2]  = mBodyModelData->getJointName()->getIndex("jnt_arm_R1");
 	mBoneIDs[3]  = mBodyModelData->getJointName()->getIndex("jnt_arm_L1");
 	mBoneIDs[4]  = mBodyModelData->getJointName()->getIndex("jnt_hand_R");
@@ -1970,8 +2190,25 @@ void TEnemyMario::initModel()
 	mHandModels[1][1]  = nullptr;
 
 	mAnmSoundTbl = new JAIAnimeSound*[199];
-	for (int i = 0; i < 199; ++i)
-		mAnmSoundTbl[i] = gpMarioOriginal->mAnmSoundTbl[i];
+	char buffer[0x100];
+	for (int i = 0; i < 199; ++i) {
+		snprintf(buffer, 0xff, "/mario/bas/ma_%s.bas",
+		         marioAnimeFiles[i].unk4);
+		loadBas((void**)&mAnmSoundTbl[i], buffer);
+	}
+
+	J3DAnmTexPattern** anmTexPattern = new J3DAnmTexPattern*[0x18];
+	J3DTexNoAnm** anmTexNoAnm        = new J3DTexNoAnm*[0x18];
+	for (int i = 0; i < 0x18; ++i) {
+		loadAnmTexPattern(&anmTexPattern[i], marioAnimeTexPatternFilenames[i],
+		                  mBodyModelData);
+		u16 matCount   = anmTexPattern[i]->getUpdateMaterialNum();
+		anmTexNoAnm[i] = new J3DTexNoAnm[matCount];
+		for (int j = 0; j < matCount; ++j) {
+			anmTexNoAnm[i][j].setAnmIndex(j);
+			anmTexNoAnm[i][j].setAnmTexPattern(anmTexPattern[i]);
+		}
+	}
 
 	M3UMtxCalcSIAnmBlendQuat* anmBlendQuat
 	    = new M3UMtxCalcSIAnmBlendQuat[2];
@@ -1981,8 +2218,9 @@ void TEnemyMario::initModel()
 	M3UModelCommonMario* marioCommon = new M3UModelCommonMario;
 	marioCommon->unk4                = originalModel->unk4->unk4;
 	marioCommon->unk18               = anmBlendQuat;
+	marioCommon->unk8                = anmTexPattern;
 	marioCommon->unk8                = originalModel->unk4->unk8;
-	marioCommon->unkC                = originalModel->unk4->unkC;
+	marioCommon->unkC                = anmTexNoAnm;
 
 	M3UModelMario* modelMario = new M3UModelMario;
 	modelMario->unk8          = bodyModel;
@@ -1996,12 +2234,12 @@ void TEnemyMario::initModel()
 	setInfo[0].mJointIdx           = 0;
 	setInfo[0].unk2                = 2;
 	setInfo[0].mMtxCalcIdx         = 0;
-	setInfo[0].mAnmTransformIdx[0] = 0;
-	setInfo[0].mAnmTransformIdx[1] = 0;
+	setInfo[0].mAnmTransformIdx[0] = 0x14;
+	setInfo[0].mAnmTransformIdx[1] = 0x41;
 	setInfo[0].mFrameCtrlIdx       = 0;
 	setInfo[1].mJointIdx           = mBoneIDs[0];
-	setInfo[1].unk2                = 0;
-	setInfo[1].mMtxCalcIdx         = 0;
+	setInfo[1].unk2                = 2;
+	setInfo[1].mMtxCalcIdx         = 1;
 	setInfo[1].mAnmTransformIdx[0] = 0;
 	setInfo[1].mAnmTransformIdx[1] = 0;
 	setInfo[1].mFrameCtrlIdx       = 1;
@@ -2012,11 +2250,11 @@ void TEnemyMario::initModel()
 	blendFlags[0]       = 0;
 	blendFlags[1]       = 2;
 	modelMario->unk1C   = blendFlags;
-	mModel              = modelMario;
-	mModel->changeMtxCalcSIAnmBQAnmTransform(0, 0, 0x3E);
-	mModel->changeMtxCalcSIAnmBQAnmTransform(1, 0, 0x41);
-	mModel->getFrameCtrl(1).setRate(0.0f);
+	modelMario->changeMtxCalcSIAnmBQAnmTransform(0, 0, 0x3E);
+	modelMario->changeMtxCalcSIAnmBQAnmTransform(1, 0, 0x41);
+	modelMario->getFrameCtrl(1).setRate(0.0f);
 	marioCommon->unk18[1].unk50 = 0.0f;
+	mModel                      = modelMario;
 
 	setAnimation(0xC3, 1.0f);
 
@@ -2042,7 +2280,16 @@ void TEnemyMario::initModel()
 	mPinaRail  = nullptr;
 	mKoopaRail = nullptr;
 
-	mMultiMtxEffect = new TMultiMtxEffect;
+	mMultiMtxEffect              = new TMultiMtxEffect;
+	mMultiMtxEffect->mNumBones   = 3;
+	mMultiMtxEffect->mBoneIDs    = new u16[3];
+	mMultiMtxEffect->mBoneIDs[0] = mBoneIDs[0];
+	mMultiMtxEffect->mBoneIDs[1] = mBoneIDs[2];
+	mMultiMtxEffect->mBoneIDs[2] = mBoneIDs[3];
+	mMultiMtxEffect->mMtxEffectType    = new u8[3];
+	mMultiMtxEffect->mMtxEffectType[0] = 0;
+	mMultiMtxEffect->mMtxEffectType[1] = 0;
+	mMultiMtxEffect->mMtxEffectType[2] = 0;
 	mMultiMtxEffect->setup(mModel->getModel(), "Mario");
 }
 

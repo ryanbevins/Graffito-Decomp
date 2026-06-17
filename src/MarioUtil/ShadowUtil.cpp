@@ -1,4 +1,5 @@
 #include <MarioUtil/ShadowUtil.hpp>
+#include <MarioUtil/GDUtil.hpp>
 #include <Camera/Camera.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -16,6 +17,7 @@
 #include <Strategic/HitActor.hpp>
 #include <System/Application.hpp>
 #include <dolphin/gx.h>
+#include <dolphin/gd/GDTransform.h>
 #include <dolphin/mtx.h>
 #include <math.h>
 
@@ -665,10 +667,255 @@ void TMBindShadowManager::drawShadow(u32 flags, JDrama::TGraphics* graphics)
 	GXSetDstAlpha(GX_TRUE, 0);
 }
 
+static inline void GDLoadPosMtxImm(MtxPtr mtx)
+{
+	GXWGFifo.u8  = GX_CMD_LOAD_XF_REG;
+	GXWGFifo.u16 = 0x000B;
+	GXWGFifo.u16 = 0x0000;
+	GXWGFifo.f32 = mtx[0][0];
+	GXWGFifo.f32 = mtx[0][1];
+	GXWGFifo.f32 = mtx[0][2];
+	GXWGFifo.f32 = mtx[0][3];
+	GXWGFifo.f32 = mtx[1][0];
+	GXWGFifo.f32 = mtx[1][1];
+	GXWGFifo.f32 = mtx[1][2];
+	GXWGFifo.f32 = mtx[1][3];
+	GXWGFifo.f32 = mtx[2][0];
+	GXWGFifo.f32 = mtx[2][1];
+	GXWGFifo.f32 = mtx[2][2];
+	GXWGFifo.f32 = mtx[2][3];
+}
+
+static inline void GDDrawCube(const JGeometry::TVec3<f32>& min,
+                              const JGeometry::TVec3<f32>& max)
+{
+	GXWGFifo.u8  = GX_QUADS;
+	GXWGFifo.u16 = 24;
+
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = min.z;
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = max.z;
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = max.z;
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = min.z;
+
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = min.z;
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = min.z;
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = min.z;
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = min.z;
+
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = min.z;
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = min.z;
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = max.z;
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = max.z;
+
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = max.z;
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = max.z;
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = max.z;
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = max.z;
+
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = max.z;
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = max.z;
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = min.z;
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = min.y; GXWGFifo.f32 = min.z;
+
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = max.z;
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = max.z;
+	GXWGFifo.f32 = min.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = min.z;
+	GXWGFifo.f32 = max.x; GXWGFifo.f32 = max.y; GXWGFifo.f32 = min.z;
+}
+
 void TMBindShadowManager::drawShadowGD(u32 flags, JDrama::TGraphics* graphics)
 {
-	// TODO: recover the original TGDLStatic display-list helpers.
-	drawShadow(flags, graphics);
+	GXSetZCompLoc(GX_TRUE);
+
+	// Top-level GX state, baked into a display list once.
+	static class TSetup1 : public TGDLStatic {
+	public:
+		TSetup1() { alloc(0x100); }
+		void makeDL()
+		{
+			GDSetGenMode2(0, 1, 1, 0, GX_CULL_BACK);
+			GDSetChanCtrl(GX_COLOR0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+			              GX_DF_NONE, GX_AF_NONE);
+			GDSetChanCtrl(GX_ALPHA0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+			              GX_DF_NONE, GX_AF_NONE);
+			GDSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+			GDSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+			              GX_COLOR0A0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+			              GX_COLOR0A0);
+			GXColor color = { 0x1E, 0x32, 0x73, 0xB4 };
+			GDSetChanMatColor(GX_COLOR0A0, color);
+			GDSetCurrentMtx(GX_PNMTX0, 60, 60, 60, 60, 60, 60, 60, 60);
+			static const GXVtxDescList vl[] = {
+				{ GX_VA_POS, GX_DIRECT }, { GX_VA_NULL, GX_NONE }
+			};
+			GDSetVtxDescv(vl);
+			static const GXVtxAttrFmtList fl[] = {
+				{ GX_VA_POS, GX_POS_XYZ, GX_F32, 0 },
+				{ GX_VA_NULL, GX_POS_XY, GX_U8, 0 }
+			};
+			GDSetVtxAttrFmtv(GX_VTXFMT0, fl);
+		}
+	} setup1;
+	if (!setup1.unk10)
+		setup1.make();
+	GXCallDisplayList(setup1.mDispListObj.start,
+	                  setup1.mDispListObj.ptr - setup1.mDispListObj.start);
+
+	// Cylinder helper list (allocated here, built lazily on demand).
+	static class TCylinder : public TGDLStatic {
+	public:
+		TCylinder() { alloc(0x400); }
+		void makeDL()
+		{
+			f32 vCos[11];
+			f32 vSin[11];
+			for (int i = 0; i <= 10; ++i) {
+				f32 angle = (f32)i * 2.0f * 3.1415927f / 10.0f;
+				vCos[i]   = cosf(angle);
+				vSin[i]   = sinf(angle);
+			}
+
+			GXWGFifo.u8  = GX_TRIANGLESTRIP;
+			GXWGFifo.u16 = 22;
+			for (int i = 0; i <= 10; ++i) {
+				GDWrite_f32(vCos[i]);
+				GDWrite_f32(1.0f);
+				GDWrite_f32(vSin[i]);
+				GDWrite_f32(vCos[i]);
+				GDWrite_f32(-1.0f);
+				GDWrite_f32(vSin[i]);
+			}
+
+			GXWGFifo.u8  = GX_TRIANGLEFAN;
+			GXWGFifo.u16 = 12;
+			GDWrite_f32(0.0f);
+			GDWrite_f32(0.0f);
+			GDWrite_f32(0.0f);
+			for (int i = 0; i <= 10; ++i) {
+				GDWrite_f32(vCos[i]);
+				GDWrite_f32(-1.0f);
+				GDWrite_f32(vSin[i]);
+			}
+		}
+	} cylinder;
+	(void)cylinder;
+
+	for (int i = 0; i < (int)unk20; ++i) {
+		TAlphaShadowQuadAry& group = unk1C[i];
+		if (group.unk4 == nullptr || group.unkC == nullptr)
+			continue;
+		if (!(flags & group.unk0))
+			continue;
+
+		// First state group + cube.
+		static class TSetup2 : public TGDLStatic {
+		public:
+			TSetup2() { alloc(0x80); }
+			void makeDL()
+			{
+				GDSetCullMode(GX_CULL_NONE);
+				GDSetZMode(GX_TRUE, GX_ALWAYS, GX_FALSE);
+				GDSetBlendModeEtc(GX_BM_BLEND, GX_BL_ONE, GX_BL_ONE,
+				                  GX_LO_NOOP, GX_FALSE, GX_TRUE, GX_FALSE);
+				GDSetDstAlpha(GX_TRUE, 0);
+			}
+		} setup2;
+		if (!setup2.unk10)
+			setup2.make();
+		GXCallDisplayList(setup2.mDispListObj.start,
+		                  setup2.mDispListObj.ptr - setup2.mDispListObj.start);
+
+		JGeometry::TVec3<f32> min;
+		JGeometry::TVec3<f32> max;
+		min.set(group.unkC->unk0.x, group.unkC->unk0.y - group.unkC->unkC.y,
+		        group.unkC->unk0.z);
+		max.set(group.unkC->unkC.x, group.unkC->unk0.y + group.unkC->unkC.y,
+		        group.unkC->unkC.z);
+		GDLoadPosMtxImm(graphics->mViewMtx.mMtx);
+		GDDrawCube(min, max);
+
+		TAlphaShadowQuad* first = group.unk4;
+
+		// Second state group.
+		static class TSetup3 : public TGDLStatic {
+		public:
+			TSetup3() { alloc(0x80); }
+			void makeDL()
+			{
+				GDSetDstAlpha(GX_FALSE, 0);
+				GDSetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
+				GDSetCullMode(GX_CULL_BACK);
+				GDSetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ZERO,
+				               GX_LO_NOOP);
+			}
+		} setup3;
+		if (!setup3.unk10)
+			setup3.make();
+		GXCallDisplayList(setup3.mDispListObj.start,
+		                  setup3.mDispListObj.ptr - setup3.mDispListObj.start);
+
+		bool highQuality;
+		if (first->unk68->unk18 < 20000000.0f) {
+			SMS_SettingDrawShape(unk3C[0]->getModelData(), 0);
+			highQuality = true;
+		} else {
+			SMS_SettingDrawShape(unk3C[1]->getModelData(), 0);
+			highQuality = false;
+		}
+
+		for (TAlphaShadowQuad* quad = first; quad != nullptr;
+		     quad = quad->unk6C) {
+			GDLoadPosMtxImm(quad->unk4);
+			drawShadowVolume(highQuality, quad);
+		}
+
+		// Third state group.
+		static class TSetup4 : public TGDLStatic {
+		public:
+			TSetup4() { alloc(0x80); }
+			void makeDL()
+			{
+				GDSetDstAlpha(GX_TRUE, 0);
+				GDSetZMode(GX_TRUE, GX_GEQUAL, GX_FALSE);
+				GDSetCullMode(GX_CULL_FRONT);
+				GDSetBlendModeEtc(GX_BM_BLEND, GX_BL_DSTALPHA,
+				                  GX_BL_INVDSTALPHA, GX_LO_NOOP, GX_TRUE,
+				                  GX_TRUE, GX_FALSE);
+			}
+		} setup4;
+		if (!setup4.unk10)
+			setup4.make();
+		GXCallDisplayList(setup4.mDispListObj.start,
+		                  setup4.mDispListObj.ptr - setup4.mDispListObj.start);
+
+		for (TAlphaShadowQuad* quad = first; quad != nullptr;
+		     quad = quad->unk6C) {
+			GDLoadPosMtxImm(quad->unk4);
+			drawShadowVolume(highQuality, quad);
+		}
+
+		// Fourth state group + final cube.
+		static class TSetup5 : public TGDLStatic {
+		public:
+			TSetup5() { alloc(0x100); }
+			void makeDL()
+			{
+				GDSetDstAlpha(GX_TRUE, 0);
+				GDSetZMode(GX_TRUE, GX_ALWAYS, GX_FALSE);
+				GDSetCullMode(GX_CULL_BACK);
+				GDSetBlendModeEtc(GX_BM_BLEND, GX_BL_DSTALPHA,
+				                  GX_BL_INVDSTALPHA, GX_LO_NOOP, GX_FALSE,
+				                  GX_TRUE, GX_FALSE);
+			}
+		} setup5;
+		if (!setup5.unk10)
+			setup5.make();
+		GXCallDisplayList(setup5.mDispListObj.start,
+		                  setup5.mDispListObj.ptr - setup5.mDispListObj.start);
+
+		GDLoadPosMtxImm(graphics->mViewMtx.mMtx);
+		GDDrawCube(min, max);
+	}
 }
 
 void TMBindShadowManager::drawShadowVolume(bool high_quality,
