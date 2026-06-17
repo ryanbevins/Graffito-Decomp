@@ -7,70 +7,70 @@
 namespace JASystem {
 
 TSeqParser::CmdFunc TSeqParser::sCmdPList[] = {
-	nullptr,
-	&TSeqParser::cmdOpenTrack,
-	&TSeqParser::cmdOpenTrackBros,
-	nullptr,
-	&TSeqParser::cmdCall,
-	nullptr,
-	&TSeqParser::cmdRet,
-	nullptr,
-	&TSeqParser::cmdJmp,
-	&TSeqParser::cmdLoopS,
-	&TSeqParser::cmdLoopE,
-	&TSeqParser::cmdReadPort,
-	&TSeqParser::cmdWritePort,
-	&TSeqParser::cmdCheckPortImport,
-	&TSeqParser::cmdCheckPortExport,
-	&TSeqParser::cmdWait,
-	nullptr,
-	&TSeqParser::cmdConnectName,
-	&TSeqParser::cmdParentWritePort,
-	&TSeqParser::cmdChildWritePort,
-	nullptr,
-	&TSeqParser::cmdSetLastNote,
-	&TSeqParser::cmdTimeRelate,
-	&TSeqParser::cmdSimpleOsc,
-	&TSeqParser::cmdSimpleEnv,
-	&TSeqParser::cmdSimpleADSR,
-	&TSeqParser::cmdTranspose,
-	&TSeqParser::cmdCloseTrack,
-	&TSeqParser::cmdOutSwitch,
-	&TSeqParser::cmdUpdateSync,
-	&TSeqParser::cmdBusConnect,
-	&TSeqParser::cmdPauseStatus,
-	&TSeqParser::cmdSetInterrupt,
-	&TSeqParser::cmdDisInterrupt,
-	&TSeqParser::cmdClrI,
-	&TSeqParser::cmdSetI,
-	&TSeqParser::cmdRetI,
-	&TSeqParser::cmdIntTimer,
-	nullptr,
-	&TSeqParser::cmdConnectOpen,
-	&TSeqParser::cmdConnectClose,
-	nullptr,
-	&TSeqParser::cmdSyncCPU,
-	&TSeqParser::cmdFlushAll,
-	&TSeqParser::cmdFlushRelease,
-	&TSeqParser::cmdWait,
-	&TSeqParser::cmdPanPowSet,
-	&TSeqParser::cmdIIRSet,
-	&TSeqParser::cmdFIRSet,
-	&TSeqParser::cmdEXTSet,
-	&TSeqParser::cmdPanSwSet,
-	&TSeqParser::cmdOscRoute,
-	&TSeqParser::cmdIIRCutOff,
-	&TSeqParser::cmdOscFull,
-	&TSeqParser::cmdVolumeMode,
-	nullptr,
-	nullptr,
-	nullptr,
-	&TSeqParser::cmdCheckWave,
-	&TSeqParser::cmdPrintf,
-	&TSeqParser::cmdNop,
-	&TSeqParser::cmdTempo,
-	&TSeqParser::cmdTimeBase,
-	&TSeqParser::cmdFinish,
+	nullptr,                          // 0xC0
+	&TSeqParser::cmdOpenTrack,        // 0xC1
+	&TSeqParser::cmdOpenTrackBros,    // 0xC2
+	nullptr,                          // 0xC3
+	&TSeqParser::cmdCall,             // 0xC4
+	nullptr,                          // 0xC5
+	&TSeqParser::cmdRet,              // 0xC6
+	nullptr,                          // 0xC7
+	&TSeqParser::cmdJmp,              // 0xC8
+	&TSeqParser::cmdLoopS,            // 0xC9
+	&TSeqParser::cmdLoopE,            // 0xCA
+	&TSeqParser::cmdReadPort,         // 0xCB
+	&TSeqParser::cmdWritePort,        // 0xCC
+	&TSeqParser::cmdCheckPortImport,  // 0xCD
+	&TSeqParser::cmdCheckPortExport,  // 0xCE
+	&TSeqParser::cmdWait,             // 0xCF
+	&TSeqParser::cmdConnectName,      // 0xD0
+	&TSeqParser::cmdParentWritePort,  // 0xD1
+	&TSeqParser::cmdChildWritePort,   // 0xD2
+	nullptr,                          // 0xD3
+	&TSeqParser::cmdSetLastNote,      // 0xD4
+	&TSeqParser::cmdTimeRelate,       // 0xD5
+	&TSeqParser::cmdSimpleOsc,        // 0xD6
+	&TSeqParser::cmdSimpleEnv,        // 0xD7
+	&TSeqParser::cmdSimpleADSR,       // 0xD8
+	&TSeqParser::cmdTranspose,        // 0xD9
+	&TSeqParser::cmdCloseTrack,       // 0xDA
+	&TSeqParser::cmdOutSwitch,        // 0xDB
+	&TSeqParser::cmdUpdateSync,       // 0xDC
+	&TSeqParser::cmdBusConnect,       // 0xDD
+	&TSeqParser::cmdPauseStatus,      // 0xDE
+	&TSeqParser::cmdSetInterrupt,     // 0xDF
+	&TSeqParser::cmdDisInterrupt,     // 0xE0
+	&TSeqParser::cmdClrI,             // 0xE1
+	&TSeqParser::cmdSetI,             // 0xE2
+	&TSeqParser::cmdRetI,             // 0xE3
+	&TSeqParser::cmdIntTimer,         // 0xE4
+	&TSeqParser::cmdConnectOpen,      // 0xE5
+	&TSeqParser::cmdConnectClose,     // 0xE6
+	&TSeqParser::cmdSyncCPU,          // 0xE7
+	&TSeqParser::cmdFlushAll,         // 0xE8
+	&TSeqParser::cmdFlushRelease,     // 0xE9
+	&TSeqParser::cmdWait,             // 0xEA
+	&TSeqParser::cmdPanPowSet,        // 0xEB
+	&TSeqParser::cmdIIRSet,           // 0xEC
+	&TSeqParser::cmdFIRSet,           // 0xED
+	&TSeqParser::cmdEXTSet,           // 0xEE
+	&TSeqParser::cmdPanSwSet,         // 0xEF
+	&TSeqParser::cmdOscRoute,         // 0xF0
+	&TSeqParser::cmdIIRCutOff,        // 0xF1
+	&TSeqParser::cmdOscFull,          // 0xF2
+	&TSeqParser::cmdVolumeMode,       // 0xF3
+	nullptr,                          // 0xF4
+	nullptr,                          // 0xF5
+	nullptr,                          // 0xF6
+	nullptr,                          // 0xF7
+	nullptr,                          // 0xF8
+	nullptr,                          // 0xF9
+	&TSeqParser::cmdCheckWave,        // 0xFA
+	&TSeqParser::cmdPrintf,           // 0xFB
+	&TSeqParser::cmdNop,              // 0xFC
+	&TSeqParser::cmdTempo,            // 0xFD
+	&TSeqParser::cmdTimeBase,         // 0xFE
+	&TSeqParser::cmdFinish,           // 0xFF
 };
 
 // Fabricated
@@ -773,7 +773,7 @@ int TSeqParser::cmdNoteOn(TTrack* track, u8 note)
 	// to the stack =/
 	volatile u8 r25_or_0x1C = track->mSeqCtrl.readByte();
 	if (r25_or_0x1C & 0x80) {
-		r31 = track->exchangeRegisterValue(note);
+		r31 = track->exchangeRegisterValue(r31);
 		r31 += track->unk3C0;
 	}
 
