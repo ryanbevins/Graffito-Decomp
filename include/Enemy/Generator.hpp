@@ -22,6 +22,7 @@ public:
 	/* 0x34 */ TGraphWeb* mGraph;
 	/* 0x38 */ s32 mTimerMax;
 	/* 0x3C */ s32 mTimer;
+	/* 0x40 */ u32 unk40;
 };
 
 class TOneShotGenerator : public THitActor {

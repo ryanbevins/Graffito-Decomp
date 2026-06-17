@@ -92,6 +92,7 @@ public:
 	    : TSmplFader(param_1, name)
 	    , mFadeoutDelay(0)
 	{
+		mFadeStatus = FADE_STATUS_FULLY_FADED_IN;
 	}
 
 	virtual void load(JSUMemoryInputStream&);

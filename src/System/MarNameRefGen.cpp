@@ -31,6 +31,7 @@
 #include <Map/MapMirror.hpp>
 #include <Map/MapEventDolpic.hpp>
 #include <Map/MapEventSink.hpp>
+#include <Map/MapEventMare.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EffectObj.hpp>
 #include <Enemy/AreaCylinder.hpp>
@@ -242,9 +243,8 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef(const char* name) const
 	if (strcmp(name, "MapEventSinkShadowMario") == 0)
 		return new TMapEventSinkShadowMario;
 
-	// TODO:
-	// if (strcmp(name, "MapEventSirenaSink") == 0)
-	// 	return new TMapEventSirenaSink;
+	if (strcmp(name, "MapEventSirenaSink") == 0)
+		return new TMapEventSirenaSink;
 
 	if (strcmp(name, "MapEventSinkBianco") == 0)
 		return new TMapEventSinkBianco;
@@ -258,11 +258,11 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef(const char* name) const
 	if (strcmp(name, "DolpicEventMammaGate") == 0)
 		return new TDolpicEventRiccoMammaGate;
 
-	// if (strcmp(name, "MareEventBumpyWall") == 0)
-	// 	return new TMareEventBumpyWall;
+	if (strcmp(name, "MareEventBumpyWall") == 0)
+		return new TMareEventBumpyWall("MareEventBumpyWall");
 
-	// if (strcmp(name, "MareEventWallRock") == 0)
-	// 	return new TMareEventWallRock;
+	if (strcmp(name, "MareEventWallRock") == 0)
+		return new TMareEventWallRock("MareEventWallRock");
 
 	if (strcmp(name, "StageEnemyInfoHeader") == 0)
 		return new TStageEnemyInfoTable;

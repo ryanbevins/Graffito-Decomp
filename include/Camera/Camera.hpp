@@ -10,6 +10,7 @@ class TCameraMapTool;
 class TCameraKindParam;
 class TCameraInbetween;
 class TMarioGamePad;
+class TCamSaveKindParam;
 
 class TCameraJetCoaster;
 struct TMultiPlayerContainer;
@@ -232,6 +233,7 @@ public:
 	/* 0x2CD */ char unk2CD[0x2D0 - 0x2CD];
 	/* 0x2D0 */ void* unk2D0;
 	/* 0x2D4 */ void* unk2D4;
+	/* 0x2D8 */ TCamSaveKindParam* unk2D8[0x49];
 
 	static const char* mCamKindNameSaveFile[0x49];
 };
