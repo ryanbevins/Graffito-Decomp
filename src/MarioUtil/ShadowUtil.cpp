@@ -487,39 +487,40 @@ void TMBindShadowManager::forceRequest(const TCircleShadowRequest& request,
 
 void TMBindShadowManager::drawShadow(u32 flags, JDrama::TGraphics* graphics)
 {
-	ReInitializeGX();
-
-	GXSetZCompLoc(GX_TRUE);
-	GXClearVtxDesc();
-	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-	GXSetNumChans(1);
-	GXSetChanCtrl(GX_COLOR0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
-	              GX_DF_NONE, GX_AF_NONE);
-	GXSetChanCtrl(GX_ALPHA0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
-	              GX_DF_NONE, GX_AF_NONE);
-	GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
-	              GX_DF_NONE, GX_AF_NONE);
-	GXSetNumTexGens(0);
-	GXSetNumTevStages(1);
-	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
-	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
-	              GX_COLOR0A0);
-	GXSetAlphaUpdate(GX_TRUE);
-	GXSetChanMatColor(GX_COLOR0A0, unk5C);
-	GXSetCurrentMtx(GX_PNMTX0);
-	GXLoadNrmMtxImm(graphics->mViewMtx.mMtx, GX_PNMTX0);
-
 	if (!mTestSw) {
-		for (int i = 0; i < unk20; ++i) {
-			TAlphaShadowQuadAry& group = unk1C[i];
-			if (group.unk4 == nullptr || group.unkC == nullptr)
+		ReInitializeGX();
+
+		GXSetZCompLoc(GX_TRUE);
+		GXClearVtxDesc();
+		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+		GXSetNumChans(1);
+		GXSetChanCtrl(GX_COLOR0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+		              GX_DF_NONE, GX_AF_NONE);
+		GXSetChanCtrl(GX_ALPHA0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+		              GX_DF_NONE, GX_AF_NONE);
+		GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+		              GX_DF_NONE, GX_AF_NONE);
+		GXSetNumTexGens(0);
+		GXSetNumTevStages(1);
+		GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+		              GX_COLOR0A0);
+		GXSetAlphaUpdate(GX_TRUE);
+		GXSetChanMatColor(GX_COLOR0A0, unk5C);
+		GXSetCurrentMtx(GX_PNMTX0);
+		MtxPtr viewMtx = graphics->mViewMtx.mMtx;
+		MtxPtr cubeViewMtx = graphics->mViewMtx.mMtx;
+		GXLoadNrmMtxImm(viewMtx, GX_PNMTX0);
+
+		for (int i = 0; i < (int)unk20; ++i) {
+			if (unk1C[i].unk4 == nullptr || unk1C[i].unkC == nullptr)
 				continue;
-			if (!(flags & group.unk0))
+			if (!(flags & unk1C[i].unk0))
 				continue;
 
 			GXSetCullMode(GX_CULL_NONE);
-			GXLoadPosMtxImm(graphics->mViewMtx.mMtx, GX_PNMTX0);
+			GXLoadPosMtxImm(viewMtx, GX_PNMTX0);
 			GXSetColorUpdate(GX_FALSE);
 			GXSetDstAlpha(GX_TRUE, 0);
 			GXSetZMode(GX_TRUE, GX_ALWAYS, GX_FALSE);
@@ -528,18 +529,21 @@ void TMBindShadowManager::drawShadow(u32 flags, JDrama::TGraphics* graphics)
 
 			JGeometry::TVec3<f32> min;
 			JGeometry::TVec3<f32> max;
-			min.set(group.unkC->unk0.x, group.unkC->unk0.y - group.unkC->unkC.y,
-			        group.unkC->unk0.z);
-			max.set(group.unkC->unkC.x, group.unkC->unk0.y + group.unkC->unkC.y,
-			        group.unkC->unkC.z);
+			TAlphaShadowBlendQuad* blend = unk1C[i].unkC;
+			min.set(blend->unk0.x, blend->unk0.y - blend->unkC.y,
+			        blend->unk0.z);
+			max.set(blend->unkC.x, blend->unk0.y + blend->unkC.y,
+			        blend->unkC.z);
 			SMS_DrawCube(min, max);
 
-			TAlphaShadowQuad* first = group.unk4;
-			bool highQuality = first->unk68->unk18 < 20000000.0f;
-			J3DModelData* modelData
-			    = highQuality ? unk3C[0]->getModelData()
-			                  : unk3C[1]->getModelData();
-			SMS_SettingDrawShape(modelData, 0);
+			TAlphaShadowQuad* first = unk1C[i].unk4;
+			u8 highQuality          = false;
+			if (first->unk68->unk18 < 20000000.0f) {
+				SMS_SettingDrawShape(unk3C[0]->getModelData(), 0);
+				highQuality = 1;
+			} else {
+				SMS_SettingDrawShape(unk3C[1]->getModelData(), 0);
+			}
 
 			GXSetDstAlpha(GX_FALSE, 0);
 			GXSetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
@@ -560,7 +564,7 @@ void TMBindShadowManager::drawShadow(u32 flags, JDrama::TGraphics* graphics)
 			GXSetDstAlpha(GX_TRUE, 0);
 			GXSetColorUpdate(GX_TRUE);
 
-			for (TAlphaShadowQuad* quad = first; quad != nullptr;
+			for (TAlphaShadowQuad* quad = unk1C[i].unk4; quad != nullptr;
 			     quad = quad->unk6C) {
 				GXLoadPosMtxImm(quad->unk4, GX_PNMTX0);
 				drawShadowVolume(highQuality, quad);
@@ -571,21 +575,20 @@ void TMBindShadowManager::drawShadow(u32 flags, JDrama::TGraphics* graphics)
 			GXSetDstAlpha(GX_TRUE, 0);
 			GXSetZMode(GX_TRUE, GX_ALWAYS, GX_FALSE);
 
-			for (TAlphaShadowQuad* quad = first; quad != nullptr;
+			for (TAlphaShadowQuad* quad = unk1C[i].unk4; quad != nullptr;
 			     quad = quad->unk6C) {
 				if (quad->unk68->unk1C != 3)
 					continue;
 
-				J3DModelData* shipModel = unk3C[3]->getModelData();
 				GXLoadPosMtxImm(quad->unk4, GX_PNMTX0);
-				SMS_SettingDrawShape(shipModel, 0);
-				SMS_DrawShape(shipModel, 0);
+				SMS_SettingDrawShape(unk3C[3]->getModelData(), 0);
+				SMS_DrawShape(unk3C[3]->getModelData(), 0);
 			}
 
 			GXClearVtxDesc();
 			GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
 			GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-			GXLoadPosMtxImm(graphics->mViewMtx.mMtx, GX_PNMTX0);
+			GXLoadPosMtxImm(cubeViewMtx, GX_PNMTX0);
 			SMS_DrawCube(min, max);
 
 			if (unk64) {
@@ -597,30 +600,66 @@ void TMBindShadowManager::drawShadow(u32 flags, JDrama::TGraphics* graphics)
 			}
 		}
 	} else {
+		ReInitializeGX();
+
+		GXSetZCompLoc(GX_TRUE);
+		GXClearVtxDesc();
+		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+		GXSetNumChans(1);
+		GXSetChanCtrl(GX_COLOR0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+		              GX_DF_NONE, GX_AF_NONE);
+		GXSetChanCtrl(GX_ALPHA0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+		              GX_DF_NONE, GX_AF_NONE);
+		GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+		              GX_DF_NONE, GX_AF_NONE);
+		GXSetNumTexGens(0);
+		GXSetNumTevStages(1);
+		GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+		              GX_COLOR0A0);
+		GXSetAlphaUpdate(GX_TRUE);
+		GXSetChanMatColor(GX_COLOR0A0, unk5C);
+		GXSetCurrentMtx(GX_PNMTX0);
+		GXLoadNrmMtxImm(graphics->mViewMtx.mMtx, GX_PNMTX0);
+
 		Mtx identity;
 		PSMTXIdentity(identity);
 		GXSetCurrentMtx(GX_PNMTX0);
 		GXLoadPosMtxImm(identity, GX_PNMTX0);
 		GXLoadNrmMtxImm(identity, GX_PNMTX0);
 
+		GXClearVtxDesc();
+		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+		GXSetNumChans(1);
 		GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
 		              GX_DF_NONE, GX_AF_NONE);
 		GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
 		              GX_DF_NONE, GX_AF_NONE);
-		GXSetChanMatColor(GX_COLOR0A0, unk5C);
+		GXSetChanMatColor(GX_COLOR0A0,
+		                  (GXColor) { 0xff, 0xff, 0xff, 0x80 });
+		GXSetNumTexGens(0);
+		GXSetNumTevStages(1);
+		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+		              GX_COLOR0A0);
+		GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+		GXSetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
 		GXSetColorUpdate(GX_FALSE);
 		GXSetAlphaUpdate(GX_TRUE);
 		GXSetDstAlpha(GX_FALSE, 0);
 		SMS_SettingDrawShape(unk3C[0]->getModelData(), 0);
 
-		bool drawFlagged = (flags & 0x40000000) != 0;
-		for (int i = 0; i < unk14; ++i) {
-			TAlphaShadowQuad& quad = unk18[i];
-			bool flagged = (quad.unk68->unk20 & 0x40000000) != 0;
-			if (drawFlagged != flagged)
+		u32 drawFlagged = flags & 0x40000000;
+		for (int i = 0; i < (int)unk14; ++i) {
+			if (drawFlagged) {
+				if (!(unk18[i].unk68->unk20 & 0x40000000))
+					continue;
+			} else if (unk18[i].unk68->unk20 & 0x40000000) {
 				continue;
+			}
 
-			GXLoadPosMtxImm(quad.unk4, GX_PNMTX0);
+			GXLoadPosMtxImm(unk18[i].unk4, GX_PNMTX0);
 			GXSetCullMode(GX_CULL_BACK);
 			GXSetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ONE,
 			               GX_LO_NOOP);
@@ -637,11 +676,35 @@ void TMBindShadowManager::drawShadow(u32 flags, JDrama::TGraphics* graphics)
 		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
 		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 		GXSetCullMode(GX_CULL_FRONT);
-		GXSetColorUpdate(GX_TRUE);
-		GXSetBlendMode(GX_BM_BLEND, GX_BL_DSTALPHA, GX_BL_INVDSTALPHA,
+		GXSetNumChans(1);
+		GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+		              GX_DF_NONE, GX_AF_NONE);
+		GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
+		              GX_DF_NONE, GX_AF_NONE);
+		GXSetChanMatColor(GX_COLOR0A0,
+		                  (GXColor) { 0xff, 0xff, 0xff, 0xff });
+		GXSetNumTevStages(1);
+		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+		              GX_COLOR0A0);
+		GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+		GXSetBlendMode(GX_BM_BLEND, GX_BL_DSTALPHA, GX_BL_ONE,
 		               GX_LO_NOOP);
 		GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
 
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition3f32(-1000.0f, 1000.0f, -200.0f);
+		GXPosition3f32(1000.0f, 1000.0f, -200.0f);
+		GXPosition3f32(1000.0f, -1000.0f, -200.0f);
+		GXPosition3f32(-1000.0f, -1000.0f, -200.0f);
+
+		GXClearVtxDesc();
+		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+		GXSetCullMode(GX_CULL_FRONT);
+		GXSetChanMatColor(GX_COLOR0A0,
+		                  (GXColor) { 0xff, 0xff, 0xff, 0x5a });
+		GXSetBlendMode(GX_BM_BLEND, GX_BL_DSTALPHA, GX_BL_ZERO,
+		               GX_LO_NOOP);
 		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 		GXPosition3f32(-1000.0f, 1000.0f, -200.0f);
 		GXPosition3f32(1000.0f, 1000.0f, -200.0f);
@@ -926,14 +989,11 @@ void TMBindShadowManager::drawShadowVolume(bool high_quality,
 
 	if (kind == 1) {
 		if (quad->unk64 == nullptr) {
-			J3DModelData* modelData = unk3C[2]->getModelData();
-			SMS_SettingDrawShape(modelData, 0);
-			SMS_DrawShape(modelData, 0);
+			SMS_SettingDrawShape(unk3C[2]->getModelData(), 0);
+			SMS_DrawShape(unk3C[2]->getModelData(), 0);
 		} else {
-			static const s32 topIndices[] = { 2, 1, 0, 3, 2,
-				                              0, 4, 3, 0 };
-			static const s32 bottomIndices[] = { 0, 1, 2, 0, 2,
-				                                 3, 0, 3, 4 };
+			const s32 topIndices[] = { 2, 1, 0, 3, 2, 0, 4, 3, 0 };
+			const s32 bottomIndices[] = { 0, 1, 2, 0, 2, 3, 0, 3, 4 };
 
 			GXClearVtxDesc();
 			GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
@@ -950,44 +1010,62 @@ void TMBindShadowManager::drawShadowVolume(bool high_quality,
 			}
 
 			GXBegin(GX_TRIANGLES, GX_VTXFMT0, 60);
-			for (int i = 0; i < 5; ++i) {
-				Vec& a = quad->unk64->unk0[i];
-				Vec& b = quad->unk64->unk0[(i + 1) % 5];
-
-				GXPosition3f32(a.x, a.y + 50.0f, a.z);
-				GXPosition3f32(b.x, b.y + 50.0f, b.z);
-				GXPosition3f32(b.x, b.y - 50.0f, b.z);
-
-				GXPosition3f32(a.x, a.y + 50.0f, a.z);
-				GXPosition3f32(b.x, b.y - 50.0f, b.z);
-				GXPosition3f32(a.x, a.y - 50.0f, a.z);
-
-				GXPosition3f32(b.x, b.y + 50.0f, b.z);
-				GXPosition3f32(a.x, a.y + 50.0f, a.z);
-				GXPosition3f32(b.x, b.y - 50.0f, b.z);
-
-				GXPosition3f32(b.x, b.y - 50.0f, b.z);
-				GXPosition3f32(a.x, a.y - 50.0f, a.z);
-				GXPosition3f32(a.x, a.y + 50.0f, a.z);
-			}
+			TSquareShadowInfo* info = quad->unk64;
+#define DRAW_SHADOW_SIDE(a, b)                                                \
+	do {                                                                       \
+		GXPosition3f32(info->unk0[(a)].x, info->unk0[(a)].y + 50.0f,           \
+		               info->unk0[(a)].z);                                    \
+		GXPosition3f32(info->unk0[(b)].x, info->unk0[(b)].y + 50.0f,           \
+		               info->unk0[(b)].z);                                    \
+		GXPosition3f32(info->unk0[(b)].x, info->unk0[(b)].y - 50.0f,           \
+		               info->unk0[(b)].z);                                    \
+		GXPosition3f32(info->unk0[(b)].x, info->unk0[(b)].y - 50.0f,           \
+		               info->unk0[(b)].z);                                    \
+		GXPosition3f32(info->unk0[(a)].x, info->unk0[(a)].y - 50.0f,           \
+		               info->unk0[(a)].z);                                    \
+		GXPosition3f32(info->unk0[(a)].x, info->unk0[(a)].y + 50.0f,           \
+		               info->unk0[(a)].z);                                    \
+		GXPosition3f32(info->unk0[(b)].x, info->unk0[(b)].y + 50.0f,           \
+		               info->unk0[(b)].z);                                    \
+		GXPosition3f32(info->unk0[(a)].x, info->unk0[(a)].y + 50.0f,           \
+		               info->unk0[(a)].z);                                    \
+		GXPosition3f32(info->unk0[(b)].x, info->unk0[(b)].y - 50.0f,           \
+		               info->unk0[(b)].z);                                    \
+		GXPosition3f32(info->unk0[(b)].x, info->unk0[(b)].y - 50.0f,           \
+		               info->unk0[(b)].z);                                    \
+		GXPosition3f32(info->unk0[(a)].x, info->unk0[(a)].y + 50.0f,           \
+		               info->unk0[(a)].z);                                    \
+		GXPosition3f32(info->unk0[(a)].x, info->unk0[(a)].y - 50.0f,           \
+		               info->unk0[(a)].z);                                    \
+	} while (0)
+			DRAW_SHADOW_SIDE(0, 1);
+			DRAW_SHADOW_SIDE(1, 2);
+			DRAW_SHADOW_SIDE(2, 3);
+			DRAW_SHADOW_SIDE(3, 4);
+			DRAW_SHADOW_SIDE(4, 0);
+#undef DRAW_SHADOW_SIDE
 		}
 
-		J3DModelData* modelData
-		    = high_quality ? unk3C[0]->getModelData() : unk3C[1]->getModelData();
-		SMS_SettingDrawShape(modelData, 0);
-		return;
+		goto set_next_shape;
 	}
 
 	if (kind == 3) {
-		J3DModelData* modelData = unk3C[3]->getModelData();
-		SMS_SettingDrawShape(modelData, 0);
-		SMS_DrawShape(modelData, 0);
-		return;
+		SMS_SettingDrawShape(unk3C[3]->getModelData(), 0);
+		SMS_DrawShape(unk3C[3]->getModelData(), 0);
+		goto set_next_shape;
 	}
 
-	J3DModelData* modelData
-	    = high_quality ? unk3C[0]->getModelData() : unk3C[1]->getModelData();
-	SMS_DrawShape(modelData, 0);
+	if (high_quality)
+		SMS_DrawShape(unk3C[0]->getModelData(), 0);
+	else
+		SMS_DrawShape(unk3C[1]->getModelData(), 0);
+	return;
+
+set_next_shape:
+	if (high_quality)
+		SMS_SettingDrawShape(unk3C[0]->getModelData(), 0);
+	else
+		SMS_SettingDrawShape(unk3C[1]->getModelData(), 0);
 }
 
 static bool conectCubeSame(TAlphaShadowBlendQuad* a,
@@ -1064,31 +1142,42 @@ void TMBindShadowManager::calcVtx()
 	unk2C = 0;
 
 	TAlphaShadowQuad* quad = unk18;
-	for (int i = 0; i < unk14; ++i, ++quad) {
+	for (int i = 0; i < (int)unk14; ++i, ++quad) {
 		TCircleShadowRequest* request = &unk10[i];
 		JGeometry::TVec3<f32> original = request->unk0;
 
 		if (request->unk1C == 1) {
-			JGeometry::TVec3<f32> top = request->unk0;
+			JGeometry::TVec3<f32> base = request->unk0;
+			JGeometry::TVec3<f32> top  = base;
 			top.y += mSquareShadowHeight;
 
-			f32 dy = top.y - request->unk0.y;
-			request->unk0.x
-			    = (top.x - unk30.x * dy + request->unk0.x) * 0.5f;
-			request->unk0.z
-			    = (top.z - unk30.z * dy + request->unk0.z) * 0.5f;
+			f32 baseDY = base.y - base.y;
+			f32 topDY  = top.y - base.y;
+			JGeometry::TVec3<f32>* dir = &gpBindShadowManager->unk30;
+			f32 baseX = base.x - dir->x * baseDY;
+			f32 topX  = top.x - dir->x * topDY;
+			f32 baseZ = base.z - dir->z * baseDY;
+			f32 topZ  = top.z - dir->z * topDY;
+			f32 projectedX = (topX + baseX) * 0.5f;
+			f32 projectedY = (base.y + base.y) * 0.5f;
+			f32 projectedZ = (topZ + baseZ) * 0.5f;
+			request->unk0.x = projectedX;
+			request->unk0.y = projectedY;
+			request->unk0.z = projectedZ;
 		}
 
-		f32 groundY = request->unk0.y;
-		const TBGCheckData* checkData = nullptr;
+		JGeometry::TVec3<f32> groundPos = request->unk0;
+		f32 checkY  = groundPos.y;
+		f32 groundY = checkY;
+		const TBGCheckData* checkData;
 		if (request->unk1D) {
-			groundY = gpMap->checkGround(request->unk0.x,
-			                             request->unk0.y + unk60,
-			                             request->unk0.z, &checkData);
+			f32 groundZ = groundPos.z;
+			groundY = gpMap->checkGround(groundPos.x,
+			                             checkY + gpBindShadowManager->unk60,
+			                             groundZ, &checkData);
 			if (checkData != nullptr && checkData->isWaterSurface()) {
 				groundY = gpMap->checkGroundIgnoreWaterSurface(
-				    request->unk0.x, request->unk0.y, request->unk0.z,
-				    &checkData);
+				    groundPos.x, checkY, groundZ, &checkData);
 			}
 		}
 
@@ -1103,11 +1192,12 @@ void TMBindShadowManager::calcVtx()
 		if (maxRadius < request->unk10)
 			maxRadius = request->unk10;
 
+		f32 typeScale = 1.0f;
 		f32 rotX   = 90.0f;
 		f32 rotY   = request->unk14;
-		f32 scaleX = request->unkC * 0.08f;
-		f32 scaleY = request->unk10 * 0.08f;
-		f32 scaleZ = maxRadius * farScale * 0.08f;
+		f32 scaleX = request->unkC * 0.08f * typeScale;
+		f32 scaleY = request->unk10 * 0.08f * typeScale;
+		f32 scaleZ = maxRadius * farScale * 0.08f * typeScale;
 
 		if (request->unk1C == 3) {
 			rotX   = 0.0f;
@@ -1118,13 +1208,15 @@ void TMBindShadowManager::calcVtx()
 			request->unkC  = 1.0f;
 		}
 
+		JGeometry::TVec3<f32> mtxPos = request->unk0;
 		request->unkC *= 0.8f;
 		request->unk10 *= 0.8f;
 
 		quad->unk0  = 0.01f;
 		quad->unk64 = nullptr;
-		quad->unk68 = request;
+		quad->unk68 = nullptr;
 		quad->unk6C = nullptr;
+		quad->unk68 = request;
 		quad->unk0  = request->unkC;
 		if (quad->unk0 < request->unk10)
 			quad->unk0 = request->unk10;
@@ -1132,98 +1224,124 @@ void TMBindShadowManager::calcVtx()
 			quad->unk0 = 200.0f;
 		quad->unk0 *= 1.1f;
 
-		JGeometry::TVec3<f32> mtxPos = request->unk0;
-		if (request->unk1C == 1 && unk2C < 0x1D
+		if (request->unk1C == 1 && (int)unk2C < 0x1D
 		    && __fabsf(groundY - request->unk0.y) < 1.0f) {
-			TSquareShadowInfo& square = unk28[unk2C];
-			f32 dx                    = request->unk0.x - original.x;
-			f32 dz                    = request->unk0.z - original.z;
+			scaleX       = 1.0f;
+			scaleY       = 1.0f;
+			scaleZ       = 1.0f;
+			mtxPos       = original;
+			u8 madeShape = false;
 
-			if (original.x >= request->unk0.x
-			    && original.z >= request->unk0.z) {
-				square.unk0[0].x = request->unkC;
-				square.unk0[0].z = -request->unk10;
-				square.unk0[1].x = dx + request->unkC;
-				square.unk0[1].z = dz - request->unk10;
-				square.unk0[2].x = dx - request->unkC;
-				square.unk0[2].z = dz - request->unk10;
-				square.unk0[3].x = dx - request->unkC;
-				square.unk0[3].z = dz + request->unk10;
-				square.unk0[4].x = -request->unkC;
-				square.unk0[4].z = request->unk10;
-			} else {
-				square.unk0[0].x = 1.0f;
-				square.unk0[0].z = 1.0f;
-				square.unk0[1].x = dx + 1.0f;
-				square.unk0[1].z = dz - 1.0f;
-				square.unk0[2].x = dx - 1.0f;
-				square.unk0[2].z = dz - 1.0f;
-				square.unk0[3].x = dx - 1.0f;
-				square.unk0[3].z = dz + 1.0f;
-				square.unk0[4].x = -1.0f;
-				square.unk0[4].z = 1.0f;
+			if (original.x >= groundPos.x
+			    && !(original.z < groundPos.z)) {
+				JGeometry::TVec3<f32> shapeBase = original;
+				f32 dx                    = groundPos.x - shapeBase.x;
+				f32 dz                    = groundPos.z - shapeBase.z;
+				madeShape                = true;
+				unk28[unk2C].unk0[0].x = request->unkC;
+				unk28[unk2C].unk0[0].z = -request->unk10;
+				unk28[unk2C].unk0[1].x = dx + request->unkC;
+				unk28[unk2C].unk0[1].z = dz - request->unk10;
+				unk28[unk2C].unk0[2].x = dx - request->unkC;
+				unk28[unk2C].unk0[2].z = dz - request->unk10;
+				unk28[unk2C].unk0[3].x = dx - request->unkC;
+				unk28[unk2C].unk0[3].z = dz + request->unk10;
+				unk28[unk2C].unk0[4].x = -request->unkC;
+				unk28[unk2C].unk0[4].z = request->unk10;
+				unk28[unk2C].unk0[0].y = 0.0f;
+				unk28[unk2C].unk0[1].y = 0.0f;
+				unk28[unk2C].unk0[2].y = 0.0f;
+				unk28[unk2C].unk0[3].y = 0.0f;
+				unk28[unk2C].unk0[4].y = 0.0f;
 			}
 
-			for (int j = 0; j < 5; ++j)
-				square.unk0[j].y = 0.0f;
+			if (!madeShape) {
+				JGeometry::TVec3<f32> shapeBase = original;
+				f32 dx                    = groundPos.x - shapeBase.x;
+				f32 dz                    = groundPos.z - shapeBase.z;
+				unk28[unk2C].unk0[0].x = 1.0f;
+				unk28[unk2C].unk0[0].z = 1.0f;
+				unk28[unk2C].unk0[1].x = dx + 1.0f;
+				unk28[unk2C].unk0[1].z = dz - 1.0f;
+				unk28[unk2C].unk0[2].x = dx - 1.0f;
+				unk28[unk2C].unk0[2].z = dz - 1.0f;
+				unk28[unk2C].unk0[3].x = dx - 1.0f;
+				unk28[unk2C].unk0[3].z = dz + 1.0f;
+				unk28[unk2C].unk0[4].x = -1.0f;
+				unk28[unk2C].unk0[4].z = 1.0f;
+				unk28[unk2C].unk0[0].y = 0.0f;
+				unk28[unk2C].unk0[1].y = 0.0f;
+				unk28[unk2C].unk0[2].y = 0.0f;
+				unk28[unk2C].unk0[3].y = 0.0f;
+				unk28[unk2C].unk0[4].y = 0.0f;
+			}
 
 			quad->unk64 = unk28;
 			++unk2C;
 		}
 
+		f32 shadowScale = 1.0f;
 		if (request->unk20 == ACTOR_TYPE_SHADOW_MARIO)
-			scaleZ *= 1.5f;
+			shadowScale = 1.5f;
+		scaleZ *= shadowScale;
 
 		MsMtxSetTRS(quad->unk4, mtxPos.x, mtxPos.y, mtxPos.z, rotX, rotY,
 		            0.0f, scaleX, scaleY, scaleZ);
-		PSMTXConcat(J3DSys::mCurrentMtx, quad->unk4, quad->unk4);
+		PSMTXConcat(j3dSys.getViewMtx(), quad->unk4, quad->unk4);
 
 		for (int j = 0; j < 4; ++j) {
 			quad->unk34[j].x
 			    = request->unk0.x + request->unkC * calctablex[j];
-			quad->unk34[j].y = groundY;
 			quad->unk34[j].z
 			    = request->unk0.z + request->unk10 * calctablez[j];
+			quad->unk34[j].y = groundY;
 		}
 
-		if (unk14 >= 0x200)
+		if ((int)unk14 >= 0x200)
 			return;
 	}
 
-	if (unk14 == 0 || mTestSw)
+	if ((int)unk14 == 0)
 		return;
 
-	for (int i = 0; i < unk20; ++i) {
-		unk1C[i].unk0  = 0x20000000;
-		unk1C[i].unk4  = nullptr;
-		unk1C[i].unk8  = nullptr;
-		unk1C[i].unkC  = nullptr;
-		unk1C[i].unk10 = nullptr;
+	if (mTestSw)
+		return;
+
+	TAlphaShadowQuad* shadowQuads      = unk18;
+	TAlphaShadowBlendQuad* blendQuads  = unk24;
+	TAlphaShadowQuadAry* shadowGroups  = unk1C;
+
+	for (int i = 0; i < (int)unk20; ++i) {
+		shadowGroups[i].unk4  = nullptr;
+		shadowGroups[i].unkC  = nullptr;
+		shadowGroups[i].unk8  = nullptr;
+		shadowGroups[i].unk10 = nullptr;
+		shadowGroups[i].unk0  = 0x20000000;
 	}
 
 	unk20 = 0;
-	for (int i = 0; i < unk14; ++i) {
-		TAlphaShadowQuad* shadowQuad = &unk18[i];
+	for (int i = 0; i < (int)unk14; ++i) {
+		TAlphaShadowQuad* shadowQuad = &shadowQuads[i];
 		shadowQuad->unk6C           = nullptr;
 
-		TAlphaShadowBlendQuad* blend = &unk24[i];
+		TAlphaShadowBlendQuad* blend = &blendQuads[i];
 		blend->unk1C                 = nullptr;
 		blend->unk0.x                = shadowQuad->unk34[0].x;
 		blend->unk0.z                = shadowQuad->unk34[0].z;
 		blend->unkC.x                = shadowQuad->unk34[2].x;
 		blend->unkC.z                = shadowQuad->unk34[2].z;
 		blend->unk0.y                = shadowQuad->unk34[0].y;
-		blend->unkC.y                = shadowQuad->unk0 + mYScalePlus;
+		blend->unkC.y                = mYScalePlus + shadowQuad->unk0;
 		blend->unk18                 = 0;
 
-		bool connected = false;
-		for (int j = 0; j < unk20; ++j) {
-			if (conectCubeDiffer(unk1C[j].unkC, blend)) {
+		u8 connected = false;
+		for (int j = 0; j < (int)unk20; ++j) {
+			if (conectCubeDiffer(shadowGroups[j].unkC, blend)) {
 				connected        = true;
-				unk1C[j].unk8->unk6C = shadowQuad;
-				unk1C[j].unk8        = shadowQuad;
-				unk1C[j].unk10->unk1C = blend;
-				unk1C[j].unk10       = blend;
+				shadowGroups[j].unk8->unk6C = shadowQuad;
+				shadowGroups[j].unk8        = shadowQuad;
+				shadowGroups[j].unk10->unk1C = blend;
+				shadowGroups[j].unk10       = blend;
 				break;
 			}
 		}
@@ -1231,41 +1349,40 @@ void TMBindShadowManager::calcVtx()
 		if (connected)
 			continue;
 
-		if (unk20 >= 0x100) {
+		if ((int)unk20 >= 0x100) {
 			unk20 = 0x100;
 			continue;
 		}
 
-		TAlphaShadowQuadAry& group = unk1C[unk20];
-		group.unk4                 = shadowQuad;
-		group.unk8                 = shadowQuad;
-		group.unkC                 = blend;
-		group.unk10                = blend;
-		group.unk0                 = 0x20000000;
+		shadowGroups[unk20].unk4  = shadowQuad;
+		shadowGroups[unk20].unk8  = shadowQuad;
+		shadowGroups[unk20].unkC  = blend;
+		shadowGroups[unk20].unk10 = blend;
+		shadowGroups[unk20].unk0  = 0x20000000;
 		if (shadowQuad->unk68->unk20 & 0x40000000)
-			group.unk0 = 0x40000000;
+			shadowGroups[unk20].unk0 = 0x40000000;
 		++unk20;
 	}
 
-	for (int i = 0; i < unk20; ++i) {
-		for (int j = 0; j < unk20; ++j) {
+	for (int i = 0; i < (int)unk20; ++i) {
+		for (int j = 0; j < (int)unk20; ++j) {
 			if (i == j)
 				continue;
-			if (unk1C[i].unk4 == nullptr || unk1C[j].unk4 == nullptr)
+			if (shadowGroups[i].unk4 == nullptr || shadowGroups[j].unk4 == nullptr)
 				continue;
-			if (!conectCubeSame(unk1C[i].unkC, unk1C[j].unkC))
+			if (!conectCubeSame(shadowGroups[i].unkC, shadowGroups[j].unkC))
 				continue;
 
-			unk1C[i].unk8->unk6C  = unk1C[j].unk4;
-			unk1C[i].unk8         = unk1C[j].unk8;
-			unk1C[i].unk10->unk1C = unk1C[j].unkC;
-			unk1C[i].unk10        = unk1C[j].unk10;
-			if ((unk1C[i].unk4->unk68->unk20 & 0x40000000)
-			    || (unk1C[j].unk4->unk68->unk20 & 0x40000000)) {
-				unk1C[i].unk0 = 0x40000000;
+			shadowGroups[i].unk8->unk6C  = shadowGroups[j].unk4;
+			shadowGroups[i].unk8         = shadowGroups[j].unk8;
+			shadowGroups[i].unk10->unk1C = shadowGroups[j].unkC;
+			shadowGroups[i].unk10        = shadowGroups[j].unk10;
+			if ((shadowGroups[i].unk4->unk68->unk20 & 0x40000000)
+			    || (shadowGroups[j].unk4->unk68->unk20 & 0x40000000)) {
+				shadowGroups[i].unk0 = 0x40000000;
 			}
-			unk1C[j].unk4 = nullptr;
-			unk1C[j].unkC = nullptr;
+			shadowGroups[j].unk4 = nullptr;
+			shadowGroups[j].unkC = nullptr;
 		}
 	}
 }

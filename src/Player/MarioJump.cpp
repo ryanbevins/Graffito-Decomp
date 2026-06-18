@@ -428,7 +428,7 @@ BOOL TMario::stayWall()
 		mActionTimer = mActionTimer + 1;
 		mVel.x = 0.0f; mVel.y = 0.0f; mVel.z = 0.0f;
 	} else {
-		mVel.y = -(f32)mActionTimer * mJumpParams.mJumpAccelControl.value;
+		mVel.y = -(f32)mActionTimer * 1024.0f;
 	}
 	if (mWallPlane) {
 		mPosition.x -= mWallPlane->mNormal.x;

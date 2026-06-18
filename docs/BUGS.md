@@ -329,3 +329,42 @@ Current isolation notes:
 - Source-linked deployed DOL:
   `12A84D44183B64D72DDBBBD3B65F1C7B4027CE3A`
 - User test result: fixed.
+
+## BUG 0006 - Mario shadow not rendering
+
+Status: open; isolating likely shadow/render TUs
+
+Symptom:
+- Mario's ground shadow is missing.
+
+Current isolation notes:
+- First-pass core Mario shadow pipeline original-linked:
+  - `MarioUtil/ShadowUtil.cpp`
+  - `M3DUtil/MActor.cpp`
+  - `Strategic/liveactor.cpp`
+  - `Player/MarioMain.cpp`
+  - `Player/MarioInit.cpp`
+- First-pass deployed DOL:
+  `9F5684F6717046D05BBA511659FF94FAA2BA003A`
+- User test result: fixed; Mario shadow renders.
+- Second-pass trimmed isolation removed least-likely generic/model TUs and keeps
+  only:
+  - `MarioUtil/ShadowUtil.cpp`
+  - `Player/MarioMain.cpp`
+  - `Player/MarioInit.cpp`
+- Second-pass deployed DOL:
+  `283DBBFA40828094B7736FF5A1043C0B5170C85A`
+- User test result: fixed; Mario shadow renders.
+- Third-pass isolation source-links `MarioUtil/ShadowUtil.cpp` again, leaving
+  only:
+  - `Player/MarioMain.cpp`
+  - `Player/MarioInit.cpp`
+- Third-pass deployed DOL:
+  `1C5C7DA6771EAAC7C922CCEEDAD0F0ED4352C58D`
+- User test result: not fixed; Mario shadow does not render.
+- This rules out `Player/MarioMain.cpp` and `Player/MarioInit.cpp` as
+  sufficient fixes by themselves, and points back to `MarioUtil/ShadowUtil.cpp`.
+- Fourth-pass isolation keeps only:
+  - `MarioUtil/ShadowUtil.cpp`
+- Fourth-pass deployed DOL:
+  `512308AA7763132C9FC14CC14D0BF6A1C969C926`
