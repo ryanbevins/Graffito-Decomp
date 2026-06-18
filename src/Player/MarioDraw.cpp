@@ -615,29 +615,27 @@ int MarioHeadCtrl(J3DNode* param_1, int param_2)
 			if (gpMarDirector->unkA0 == nullptr) {
 				return 0;
 			}
-			JGeometry::TVec3<f32> npcResetToPos;
-			gpMarDirector->unkA0->resetToPosition(npcResetToPos);
+			JGeometry::TVec3<f32> npcResetToPos
+			    = gpMarDirector->unkA0->getFocalPoint();
 			JGeometry::TVec3<f32> pos;
 			pos.x = gpMarioForCallBack->mPosition.x;
 			pos.y = gpMarioForCallBack->mPosition.y + 112.0f;
 			pos.z = gpMarioForCallBack->mPosition.z;
 			JGeometry::TVec3<f32> other = npcResetToPos - pos;
-			f32 mult                    = other.squared();
-			if (mult > 0.0f) { }
+			f32 mult                    = other.x * other.x + other.z * other.z;
+			if (mult > 0.0f) {
+				mult = JGeometry::TUtil<f32>::sqrt(mult);
+			}
 
 			s16 angle = -matan(mult, other.y);
 			MsMtxSetRotRPH(transform, 0.0f, 0.0f, SHORTANGLE2DEG(angle));
-		} else if (gpMarioForCallBack->mAction == 0x88b) {
-			if (gpMarioForCallBack->mWaterGun->canSpray() == true) {
-
-				s16 headAngle = gpMarioForCallBack->mUpperBodyParams
-				                    .mHoverHeadAngle.get();
-				MsMtxSetRotRPH(transform, 0.0f, 0.0f,
-				               SHORTANGLE2DEG(headAngle));
-			}
+		} else if (gpMarioForCallBack->mAction == 0x88b
+		           && gpMarioForCallBack->mWaterGun->canSpray() == true) {
+			s16 headAngle
+			    = gpMarioForCallBack->mUpperBodyParams.mHoverHeadAngle.get();
+			MsMtxSetRotRPH(transform, 0.0f, 0.0f, SHORTANGLE2DEG(headAngle));
 		} else if (gpMarioForCallBack->mAction == 0xC400201
-		           && gpMarioForCallBack->mUpperBodyParams.mFeelDeepHeadAngle
-		                      .get()
+		           && gpMarioForCallBack->mDeParams.mFeelDeep.get()
 		                  < gpMarioForCallBack->unk370) {
 			s16 headAngle
 			    = gpMarioForCallBack->mUpperBodyParams.mFeelDeepHeadAngle.get();
@@ -657,7 +655,7 @@ int MarioHeadCtrl(J3DNode* param_1, int param_2)
 				anmSpeed = mario->mDirtyParams.mSlipAnmSpeed.get();
 			}
 
-			s16 headAngle = mario->unk100 * anmSpeed;
+			s16 headAngle = -mario->unk100 * anmSpeed;
 			MsMtxSetRotRPH(transform, 0.0f, SHORTANGLE2DEG(headAngle), 0.0f);
 			s16 gunAngle = gpMarioForCallBack->mWaterGun->getCurrentNozzle()
 			                   ->getGunAngle()
@@ -683,13 +681,14 @@ int MarioWaistCtrl(J3DNode* param_1, int param_2)
 		if (mario == gpMarioOriginal
 		    && gpCamera->isLButtonCameraSpecifyMode(gpCamera->mMode) == 1
 		    && gpMarioForCallBack->canBendBody() != 0 && gpCamera->unkA4 > 0) {
-			unk = &gpCamera->unkA4; // This feels wrong
+			*unk = gpCamera->unkA4;
 			Mtx transform;
-			MsMtxSetRotRPH(transform, SHORTANGLE2DEG(mario->unk100), 0.0f,
-			               SHORTANGLE2DEG(gpCamera->unkA4));
+			MsMtxSetRotRPH(transform, SHORTANGLE2DEG(-mario->unk100), 0.0f,
+			               SHORTANGLE2DEG(*unk));
 			MTXConcat(J3DSys::mCurrentMtx, transform, J3DSys::mCurrentMtx);
 			return 1;
-		} else if (gpMarioForCallBack->checkActionFlag(MARIO_FLAG_HAS_FLUDD)
+		}
+		if (gpMarioForCallBack->checkActionFlag(MARIO_FLAG_HAS_FLUDD)
 		           && !gpMarioForCallBack->onYoshi()) {
 			TNozzleBase* currentNozzle
 			    = gpMarioForCallBack->mWaterGun->getCurrentNozzle();
@@ -700,11 +699,11 @@ int MarioWaistCtrl(J3DNode* param_1, int param_2)
 				MTXConcat(J3DSys::mCurrentMtx, gunMtx, J3DSys::mCurrentMtx);
 				return 1;
 			}
-		} else if (gpMarioForCallBack->mAnimationId == 0x48
-		           || gpMarioForCallBack->mAnimationId == 0x72
-		           || gpMarioForCallBack->mAnimationId == 0x6D
-		                  && !gpMarioForCallBack->checkActionFlag(
-		                      MARIO_FLAG_FLUDD_EMITTING)) {
+		}
+		if ((gpMarioForCallBack->mAnimationId == 0x48
+		     || gpMarioForCallBack->mAnimationId == 0x72
+		     || gpMarioForCallBack->mAnimationId == 0x6D)
+		    && !gpMarioForCallBack->checkFlag(MARIO_FLAG_FLUDD_EMITTING)) {
 
 			// Ah, i love storing floats, casting them to s16
 			// and then transforming them to floats again...
@@ -733,7 +732,7 @@ int MarioFootPosRCtrl(J3DNode* param_1, int param_2)
 	if (param_2 == 0) {
 
 		BOOL check2;
-		bool check;
+		BOOL check = FALSE;
 
 		// Definitely some inline shenanigans
 		// And this is wrong
@@ -745,9 +744,12 @@ int MarioFootPosRCtrl(J3DNode* param_1, int param_2)
 			           && gpMarioForCallBack->mAction != 0xC000203)
 			             ? TRUE
 			             : FALSE;
+			if (check2) {
+				check = TRUE;
+			}
 		}
 
-		if (check2) {
+		if (check) {
 
 			MtxPtr footMtx = gpMarioForCallBack->mModel->getModel()->getAnmMtx(
 			    gpMarioForCallBack->mBoneIDs[6]);
@@ -776,7 +778,7 @@ int MarioFootDirRCtrl(J3DNode* param_1, int param_2)
 	if (param_2 == 0) {
 
 		BOOL check2;
-		bool check;
+		BOOL check = FALSE;
 
 		// Definitely some inline shenanigans
 		// And this is wrong
@@ -788,9 +790,12 @@ int MarioFootDirRCtrl(J3DNode* param_1, int param_2)
 			           && gpMarioForCallBack->mAction != 0xC000203)
 			             ? TRUE
 			             : FALSE;
+			if (check2) {
+				check = TRUE;
+			}
 		}
 
-		if (check2) {
+		if (check) {
 
 			MtxPtr footMtx = gpMarioForCallBack->mModel->getModel()->getAnmMtx(
 			    gpMarioForCallBack->mBoneIDs[7]);
@@ -855,7 +860,7 @@ int MarioFootPosLCtrl(J3DNode* param_1, int param_2)
 	if (param_2 == 0) {
 
 		BOOL check2;
-		bool check;
+		BOOL check = FALSE;
 
 		// Definitely some inline shenanigans
 		// And this is wrong
@@ -867,9 +872,12 @@ int MarioFootPosLCtrl(J3DNode* param_1, int param_2)
 			           && gpMarioForCallBack->mAction != 0xC000203)
 			             ? TRUE
 			             : FALSE;
+			if (check2) {
+				check = TRUE;
+			}
 		}
 
-		if (check2) {
+		if (check) {
 
 			MtxPtr footMtx = gpMarioForCallBack->mModel->getModel()->getAnmMtx(
 			    gpMarioForCallBack->mBoneIDs[8]);
@@ -898,7 +906,7 @@ int MarioFootDirLCtrl(J3DNode* param_1, int param_2)
 	if (param_2 == 0) {
 
 		BOOL check2;
-		bool check;
+		BOOL check = FALSE;
 
 		// Definitely some inline shenanigans
 		// And this is wrong
@@ -910,9 +918,12 @@ int MarioFootDirLCtrl(J3DNode* param_1, int param_2)
 			           && gpMarioForCallBack->mAction != 0xC000203)
 			             ? TRUE
 			             : FALSE;
+			if (check2) {
+				check = TRUE;
+			}
 		}
 
-		if (check2) {
+		if (check) {
 
 			MtxPtr footMtx = gpMarioForCallBack->mModel->getModel()->getAnmMtx(
 			    gpMarioForCallBack->mBoneIDs[9]);
@@ -1235,7 +1246,7 @@ f32 TMario::setAnimation(int param_1, f32 param_2)
 			    0, 0, gMarioAnimeData[param_1].unk0);
 			mModel->unk20->unk18->unk50 = 0.0f;
 			getMotionFrameCtrl().setAttribute(
-			    mModel->unk4->unk4[param_1]->mAttribute);
+			    mModel->unk4->unk4[gMarioAnimeData[param_1].unk0]->mAttribute);
 			s8 unk1 = gMarioAnimeData[param_1].unk4;
 			if (mTrembleModelEffect != nullptr
 			    && (mTrembleModelEffect->checkUnk8(1))) {
@@ -1247,12 +1258,12 @@ f32 TMario::setAnimation(int param_1, f32 param_2)
 
 			u32 unk; // SoundId?
 			if (param_2 >= 0.0f) {
-				unk = -1;
-			} else {
 				unk = 1;
+			} else {
+				unk = -1;
 			}
 			mAnmSound->initAnmSound(
-			    &mAnmSoundTbl[gMarioAnimeData[param_1].unk0], unk, 0.0f);
+			    mAnmSoundTbl[gMarioAnimeData[param_1].unk0], unk, 0.0f);
 
 			changeHand(gMarioAnimeData[param_1].unk5);
 		}
@@ -1321,8 +1332,8 @@ void TMario::initModel()
 	mBodyModelData = J3DModelLoaderDataBase::load(
 	    JKRFileLoader::getGlbResource("/mario/bmd/ma_mdl1.bmd"), 0x10100000);
 	unk3C4       = mBodyModelData->getJointName()->getIndex("center");
-	mBoneIDs[0]  = mBodyModelData->getJointName()->getIndex("chn_chest");
-	mBoneIDs[1]  = mBodyModelData->getJointName()->getIndex("jnt_chest");
+	mBoneIDs[1]  = mBodyModelData->getJointName()->getIndex("chn_chest");
+	mBoneIDs[0]  = mBodyModelData->getJointName()->getIndex("jnt_chest");
 	mBoneIDs[2]  = mBodyModelData->getJointName()->getIndex("jnt_arm_R1");
 	mBoneIDs[3]  = mBodyModelData->getJointName()->getIndex("jnt_arm_L1");
 	mBoneIDs[4]  = mBodyModelData->getJointName()->getIndex("jnt_hand_R");
@@ -1486,7 +1497,7 @@ void TMario::initModel()
 	transformInfo.mScale.y     = 1.0f;
 	transformInfo.mScale.z     = 1.0f;
 	transformInfo.mRotation.x  = mFaceAngle.x;
-	transformInfo.mRotation.y  = mFaceAngle.y;
+	transformInfo.mRotation.y  = mModelFaceAngle;
 	transformInfo.mRotation.z  = mFaceAngle.z;
 	transformInfo.mTranslate.x = mPosition.x;
 	transformInfo.mTranslate.y = mPosition.y;

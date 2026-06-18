@@ -136,8 +136,9 @@ void TMario::doRunningAnimation()
 					isSwimDepth = 0;
 				if (isSwimDepth) {
 					f32 ratio = (mFloorPosition.z - mPosition.y) / mRunParams.mSwimDepth.get();
-					f32 factor = anmSpd1 - mRunParams.mInWaterAnmBrake.get();
-					anmSpeed = anmSpeed * (anmSpd1 - ratio * factor) * mRunParams.mInWaterBrake.get();
+					f32 factor = anmSpd1 - mRunParams.mInWaterBrake.get();
+					anmSpeed = anmSpeed * (anmSpd1 - ratio * factor)
+					           * mRunParams.mInWaterAnmBrake.get();
 				}
 			}
 
@@ -147,7 +148,7 @@ void TMario::doRunningAnimation()
 			f32 runSp = mRunParams.mMotBlendRunSp.get();
 			f32 blend = 0.0f;
 			if (anmSpeed < walkSp)
-				blend = 1.0f;
+				blend = 0.0f;
 			if (runSp < anmSpeed)
 				blend = 1.0f;
 			if (walkSp <= anmSpeed && anmSpeed <= runSp) {
@@ -704,8 +705,6 @@ void TMario::doRunning()
 		// Decelerate from above target
 		const TBGCheckData* ground = mGroundPlane;
 		if (ground->mNormal.y >= mRunParams.mDecStartNrmY.value) {
-			// Normal ground - no extra deceleration
-		} else {
 			f32 decBrake = mRunParams.mDecBrake.value;
 			mForwardVel = fwdVel - decBrake;
 			mForwardVel = mForwardVel - mYoshiParams.mDecBrake.value;
@@ -1364,7 +1363,7 @@ void TMario::walkEnd()
 	}
 
 	s32 stopped = 0;
-	mForwardVel = FConverge(mForwardVel, 0.0f, 4.0f, 0.0f);
+	mForwardVel = FConverge(mForwardVel, 0.0f, 4.0f, 4.0f);
 	if (0.0f == mForwardVel)
 		stopped = 1;
 
