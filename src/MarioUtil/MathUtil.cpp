@@ -155,10 +155,10 @@ s16 matan(f32 param_1, f32 param_2)
 
 		if (param_1 < 0.0f) {
 			param_1 = -param_1;
-			if (param_1 <= param_2)
-				return GetAtanTable(param_2, param_1) + 0x8000;
+			if (param_1 >= param_2)
+				return GetAtanTable(param_1, param_2) + 0x8000;
 			else
-				return 0xC000 - GetAtanTable(param_1, param_2);
+				return 0xC000 - GetAtanTable(param_2, param_1);
 		} else {
 			if (param_1 < param_2)
 				return GetAtanTable(param_2, param_1) + 0xC000;
@@ -193,9 +193,7 @@ static inline f32 sqrtPositive(f32 mag)
 {
 	if (mag > 0.0f) {
 		f64 root = __frsqrte(mag);
-		volatile f32 result
-		    = 0.5f * root * (3.0f - mag * (root * root)) * mag;
-		return result;
+		return 0.5f * root * (3.0f - mag * (root * root)) * mag;
 	}
 	return mag;
 }
@@ -226,7 +224,7 @@ JGeometry::TVec3<f32> MsGetRotFromZaxis(const JGeometry::TVec3<f32>& param_1)
 
 	JGeometry::TVec3<f32> axis = param_1;
 
-	char stackPadding[0x0C]; // Preserve MWCC local stack layout.
+	char stackPadding[0x10]; // Preserve MWCC local stack layout.
 
 	axis.normalize();
 

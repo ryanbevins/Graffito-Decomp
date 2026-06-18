@@ -247,3 +247,10 @@ Current isolation notes:
   movement issues were also corrected.
 - Final source-linked cleanup deployed DOL:
   `DD193C2DB1192D6BE60BEF955A37DF8F6A8FCF3C`
+- Later user testing found that top-left Mario/camera movement still triggered
+  the direction lock/flip. Root cause was the both-negative quadrant in
+  `matan`: the source used the wrong absolute-axis split and table argument
+  order compared with original asm.
+- Corrected source-linked deployed DOL:
+  `DACB0A268CACB9379D144AC264AC2C1CBE8F0566`
+- User test result: fixed.
