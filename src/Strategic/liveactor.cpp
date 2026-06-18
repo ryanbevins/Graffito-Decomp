@@ -248,19 +248,25 @@ void TLiveActor::bind()
 
 void TLiveActor::control()
 {
-	if (unk90 == nullptr || ((TLiveActorUnk90*)unk90)->unk4 == 0) {
+	TLiveActorUnk90* unk = (TLiveActorUnk90*)unk90;
+
+	if (unk == nullptr || unk->unk4 == 0) {
 		if (mSpine)
 			mSpine->update();
-	} else {
-		if (!mSpine) {
-			if (unk90 && ((TLiveActorUnk90*)unk90)->unk4 != 0)
-				((TLiveActorUnk90*)unk90)->control();
-		} else if (mSpine->isIdle()) {
-			((TLiveActorUnk90*)unk90)->control();
-		} else {
-			mSpine->update();
-		}
+		return;
 	}
+
+	if (!mSpine) {
+		unk->control();
+		return;
+	}
+
+	if (mSpine->isActive()) {
+		mSpine->update();
+		return;
+	}
+
+	unk->control();
 }
 
 void TLiveActor::calcRootMatrix()

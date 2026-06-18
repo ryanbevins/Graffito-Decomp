@@ -160,6 +160,9 @@ public:
 
 	// fabricated
 	bool isIdle() const { return mCurrent == nullptr && mVertebrae.size() <= 0; }
+
+	// fabricated
+	bool isActive() const { return mCurrent != nullptr || mVertebrae.size() > 0; }
 };
 
 #endif

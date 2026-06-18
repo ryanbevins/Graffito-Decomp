@@ -849,6 +849,7 @@ bool TCardLoad::titleDraw()
 	case 2: {
 		u16 alpha = unkF0->getPane()->getAlpha() + 1;
 		if (alpha > 255) {
+			alpha = 255;
 			bool any = true;
 			for (int i = 0; i < 13; ++i)
 				any &= unk1D4[i]->update();
@@ -893,8 +894,8 @@ bool TCardLoad::titleDraw()
 					JUTRect local_124 = unkF8[i]->getPane()->getBounds();
 
 					unkF8[i]->setCenteredSize(
-					    25, local_124.getWidth() * 2, local_124.getHeight() * 2,
-					    local_124.getWidth(), local_124.getHeight());
+					    25, local_124.getWidth(), local_124.getHeight(),
+					    local_124.getWidth() * 2, local_124.getHeight() * 2);
 
 					unkF8[i]->setPaneAlpha(25, 255, 0);
 					unk222[i] = 0;

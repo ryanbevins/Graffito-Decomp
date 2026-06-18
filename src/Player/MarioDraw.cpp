@@ -1242,7 +1242,7 @@ f32 TMario::setAnimation(int param_1, f32 param_2)
 				unk1 = 8;
 			}
 			if (unk1 < 0x18) {
-				mModel->changeMtxCalcAnmTransform(0, unk1);
+				mModel->changeAnmTexPattern(0, unk1);
 			}
 
 			u32 unk; // SoundId?
@@ -1456,9 +1456,14 @@ void TMario::initModel()
 	setInfo[0].mAnmTransformIdx[0]  = 0x14;
 	setInfo[0].mAnmTransformIdx[1]  = 0x41;
 	setInfo[0].mFrameCtrlIdx        = 0;
+	setInfo[0].mPad                 = 0;
 	setInfo[1].mJointIdx            = mBoneIDs[0];
+	setInfo[1].unk2                 = 2;
+	setInfo[1].mMtxCalcIdx          = 1;
 	setInfo[1].mAnmTransformIdx[0]  = 0;
+	setInfo[1].mAnmTransformIdx[1]  = 0;
 	setInfo[1].mFrameCtrlIdx        = 1;
+	setInfo[1].mPad                 = 0;
 	modelMario->unk10               = 2;
 	modelMario->unk24               = setInfo;
 

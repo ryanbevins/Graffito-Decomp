@@ -961,6 +961,14 @@ void TMBindShadowManager::drawShadowVolume(bool high_quality,
 				GXPosition3f32(a.x, a.y + 50.0f, a.z);
 				GXPosition3f32(b.x, b.y - 50.0f, b.z);
 				GXPosition3f32(a.x, a.y - 50.0f, a.z);
+
+				GXPosition3f32(b.x, b.y + 50.0f, b.z);
+				GXPosition3f32(a.x, a.y + 50.0f, a.z);
+				GXPosition3f32(b.x, b.y - 50.0f, b.z);
+
+				GXPosition3f32(b.x, b.y - 50.0f, b.z);
+				GXPosition3f32(a.x, a.y - 50.0f, a.z);
+				GXPosition3f32(a.x, a.y + 50.0f, a.z);
 			}
 		}
 
