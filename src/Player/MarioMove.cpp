@@ -3279,7 +3279,7 @@ void TMario::thinkWaterSurface()
 		}
 		if (!shouldDrown) {
 			s32 isDiving;
-			if (mState & 0x8000)
+			if (mState & 0x1000)
 				isDiving = 1;
 			else
 				isDiving = 0;
