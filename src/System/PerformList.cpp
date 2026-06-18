@@ -1,4 +1,5 @@
 #include <System/PerformList.hpp>
+#include <System/MarDirector.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JSupport/JSURandomInputStream.hpp>
 #include <dolphin/os.h>
@@ -24,12 +25,23 @@ static bool isPerformProbeName(const char* name)
 void TPerformList::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	static s32 sPerformProbeLogCount;
+	bool codexPreEntryProbe
+	    = gpMarDirector && gpMarDirector->mMap == 1 && gpMarDirector->unk7D == 2
+	      && this == gpMarDirector->unk34;
+	s32 codexPreEntryIndex = 0;
 
 	for (JGadget::TSingleLinkList<TPerformLink, 0>::iterator it
 	     = getChildren().begin();
 	     it != getChildren().end(); ++it) {
 		u32 maskedFlags = param_1 & it->unk8;
 		JDrama::TViewObj* obj = it->unk4;
+
+		if (codexPreEntryProbe) {
+			OSReport((char*)"CODEX_PENTRY before idx=%d obj=%p objName=%s in=%08x filter=%08x masked=%08x\n",
+			         codexPreEntryIndex, obj,
+			         obj ? obj->getName() : "<null>", param_1, it->unk8,
+			         maskedFlags);
+		}
 
 		if (sPerformProbeLogCount < 512
 		    && ((maskedFlags & 0x8) || isPerformProbeName(getName())
@@ -41,6 +53,12 @@ void TPerformList::perform(u32 param_1, JDrama::TGraphics* param_2)
 		}
 
 		obj->testPerform(maskedFlags, param_2);
+		if (codexPreEntryProbe) {
+			OSReport((char*)"CODEX_PENTRY after idx=%d obj=%p objName=%s\n",
+			         codexPreEntryIndex, obj,
+			         obj ? obj->getName() : "<null>");
+			++codexPreEntryIndex;
+		}
 	}
 }
 

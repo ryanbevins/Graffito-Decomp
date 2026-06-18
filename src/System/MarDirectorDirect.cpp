@@ -176,7 +176,7 @@ int TMarDirector::direct()
 			unk38->perform(0xffffffff, &local_140);
 			unk3C->perform(0xffffffff, &local_140);
 			mPerformListGX->perform(0xffffffff, &local_140);
-		if ((gpSilhouetteManager->unk48 > 0.0f ? true : false)
+			if ((gpSilhouetteManager->unk48 > 0.0f ? true : false)
 			    || gpCamera->unk2C8 != -1) {
 				mPerformListSilhouette->perform(0xffffffff, &local_140);
 			}
@@ -209,10 +209,6 @@ static void decideNextStage()
 	}
 	gpApplication.setNextArea(local_3C);
 }
-
-static void decideNextStageOfMiss() { }
-
-static void checkDefeatShadowMarioAll() { }
 
 // fabricated
 static inline bool decideSomething()
@@ -412,7 +408,9 @@ int TMarDirector::changeState()
 				const TGameSequence& curArea = gpApplication.mCurrArea;
 				if (SMS_isExMap() || curArea.getStage() == 0
 				    || curArea.getStage() == 60) {
-					gpApplication.mNextArea.set(curArea.getStage(), 0, 0);
+					gpApplication.mNextArea.unk0 = curArea.getStage();
+					gpApplication.mNextArea.unk1 = 0;
+					gpApplication.mNextArea.unk2.set(0);
 				} else {
 					decideNextStage();
 				}
@@ -579,7 +577,7 @@ void TMarDirector::setMario()
 		gpMarioOriginal->toroccoStart();
 		break;
 
-	case 3:
+	default:
 		const JGeometry::TVec3<f32>* pos = nullptr;
 		if (uVar10)
 			pos = &marioSetPosition->getUnk10(uVar10 - 1);
@@ -736,7 +734,8 @@ void TMarDirector::nextStateInitialize(u8 next_state)
 		JDrama::TNameRefGen::search<JDrama::TViewObj>("Group 2D")->unkC.on(0xB);
 		JDrama::TNameRefGen::search<JDrama::TViewObj>("Guide")->unkC.off(0xB);
 		if (gpMSound->gateCheck(0x4817))
-			SMSGetMSound()->startSoundSystemSE(0x4817, 0, nullptr, 0);
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4817, 0, nullptr,
+			                                             0);
 		gpApplication.mFader->startWipe(6, 1.0f, 0.0f);
 		unk78->setup(nullptr);
 		unk78->startMoveCursor();
@@ -913,6 +912,7 @@ u8 TMarDirector::updateGameMode()
 				if (info->unk14 != nullptr)
 					(*info->unk14)(info->unk18, 1);
 
+				info = &unk12C[unk24D];
 				gpCamera->startDemoCamera(info->unk0, info->unk4, info->unk8,
 				                          info->unkC, info->unk10);
 				if (info->unk14 != nullptr)
@@ -940,7 +940,7 @@ u8 TMarDirector::updateGameMode()
 			if (unk126 == 0) {
 				unkA0 = 0;
 				unkA4 = 0;
-				unk18[0]->mFlags &= ~0x2;
+				unk18[0]->mFlags &= ~0x8;
 				OSStartStopwatch(&unkE8);
 			}
 			break;
@@ -951,7 +951,7 @@ u8 TMarDirector::updateGameMode()
 				MSMainProc::fromTalkingCameraDemo(unk124 == 4);
 			else
 				MSMainProc::fromInnerCameraDemo();
-			unk18[0]->mFlags &= ~0x80;
+			unk18[0]->mFlags &= ~0x10;
 			OSStartStopwatch(&unkE8);
 			break;
 		}
@@ -1153,8 +1153,8 @@ void TMarDirector::moveStage()
 	}
 
 	if (gpMarioOriginal->checkFlag(0x8000)) {
-		u32 r5 = 0;
-		if ((int)gpMarioOriginal->mWaterGun->mSecondNozzle == 3)
+		u32 r5 = gpMarioOriginal->mWaterGun->mSecondNozzle;
+		if ((int)r5 == 3)
 			r5 = 4;
 		TFlagManager::smInstance->setFlag(0x40004, r5);
 	}
@@ -1164,15 +1164,16 @@ JStage::TObject* TMarDirector::JSGFindObject(const char* param_1,
                                              JStage::TEObject param_2) const
 {
 	if (strcmp("cam_int1", param_1) == 0) {
+		TMarDirector* director = const_cast<TMarDirector*>(this);
 		JDrama::TCamera* cam
-		    = (JDrama::TCamera*)const_cast<TMarDirector*>(this)->search(
-		        "camera 1");
+		    = (JDrama::TCamera*)director->search("camera 1");
 		return cam;
 	}
 
 	if (strcmp("mario", param_1) == 0) {
+		TMarDirector* director = const_cast<TMarDirector*>(this);
 		JDrama::TActor* mario
-		    = (JDrama::TActor*)const_cast<TMarDirector*>(this)->search(
+		    = (JDrama::TActor*)director->search(
 		        "マリオ");
 		return mario;
 	}

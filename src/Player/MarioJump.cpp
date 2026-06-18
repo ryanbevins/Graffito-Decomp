@@ -224,7 +224,7 @@ int TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 				s16 wa = matan(mWallPlane->getNormal().z, mWallPlane->getNormal().x);
 				mFaceAngle.y = wa + 0x8000;
 				mModelFaceAngle = mFaceAngle.y;
-				if (mAction == 0x0887) mModelFaceAngle = mFaceAngle.y - 0x8000;
+				if (mAction == 0x0887) mModelFaceAngle = mModelFaceAngle - 0x8000;
 				rumbleStart(21, mMotorParams.mMotorWall.value);
 				changePlayerStatus(0x3000036C, 0, false);
 				break;
@@ -743,7 +743,6 @@ BOOL TMario::rocketing()
 		mForwardVel *= mHoverParams.mBrake.value;
 	}
 	switch (jumpProcess(2)) {
-	case 3:
 	case 4:
 		rumbleStart(21, mMotorParams.mMotorWall.value);
 		changePlayerStatus(ACTION_ROOF_CHECK, 0, false);
@@ -766,7 +765,7 @@ BOOL TMario::hipAttacking()
 		// Pointer math slop
 		THitActor* a = ((THitActor**)*(u32*)((u8*)this + 0x44))[i];
 		u32 at = *(u32*)((u8*)a + 0x4C);
-		u8 it; if (at - 0xC0000000 <= 11) it = 1; else it = 0;
+		u8 it; if (at == 0x4000000B) it = 1; else it = 0;
 		if (it) {
 			// Pointer math slop
 			f32 dx = *(f32*)((u8*)a + 0x10) - mPosition.x;
@@ -780,11 +779,11 @@ BOOL TMario::hipAttacking()
 	switch (mActionState) {
 	case 0: startVoice(0x788F); mActionState = 1;
 	case 1: {
-		if (mFloorPosition.y > mPosition.y) { mPosition.y = 10.0f + mFloorPosition.y; changePlayerStatus(0x0080023C, 0, false); break; }
+		if (mFloorPosition.y > mPosition.y) { mPosition.y = 1.0f + mFloorPosition.y; changePlayerStatus(0x0080023C, 0, false); break; }
 		if (mActionTimer < 40) {
-			f32 f = (f32)(40 - mActionTimer) * mJumpParams.mHipAttackSpeedY.value;
-			if (mJumpParams.mJumpJumpCatchSp.value + mPosition.y + f < mFloorPosition.y) {
-				mPosition.y += f * mJumpParams.mHipAttackSpeedY.value;
+			f32 f = (f32)(40 - mActionTimer) * 0.5f;
+			if (160.0f + mPosition.y + f < mFloorPosition.x) {
+				mPosition.y += f * 0.25f;
 				// Pointer math slop
 				*(f32*)((u8*)this + 0x104) = mPosition.y;
 			}
@@ -798,7 +797,7 @@ BOOL TMario::hipAttacking()
 		mVel.y = 0.0f;
 		int r = jumpProcess(0);
 		if (r == 1) { changePlayerStatus(0x0C000230, 0, false); break; }
-		if (r == 2) { setPlayerVelocity(0.0f); if (mVel.y > 0.0f) mVel.y = 0.0f; changePlayerStatus(0x000208B0, 0, false); break; }
+		if (r == 2) { setPlayerVelocity(-16.0f); if (mVel.y > 0.0f) mVel.y = 0.0f; changePlayerStatus(0x000208B0, 0, false); break; }
 		break;
 	}
 	case 2: case 3: {
@@ -813,12 +812,12 @@ BOOL TMario::hipAttacking()
 		int r = jumpProcess(0);
 		if (r == 1) {
 			if (isMario()) {
-				if (mActionState == 2) { SMSRumbleMgr->start(0, (f32*)nullptr); gpCameraShake->startShake((EnumCamShakeMode)0, 0.0f); }
-				else { rumbleStart(21, 30); gpCameraShake->startShake((EnumCamShakeMode)39, 0.0f); }
+				if (mActionState == 2) { SMSRumbleMgr->start(0, (f32*)nullptr); gpCameraShake->startShake((EnumCamShakeMode)0, 1.0f); }
+				else { rumbleStart(21, 30); gpCameraShake->startShake((EnumCamShakeMode)39, 1.0f); }
 			}
 			if (mGroundPlane->getActor()) {
 				// Pointer math slop
-				if (!onYoshi() && *(u32*)((u8*)mGroundPlane->getActor() + 0x4C) - 0xC0000000 <= 106) {
+				if (!onYoshi() && *(u32*)((u8*)mGroundPlane->getActor() + 0x4C) == 0x4000006A) {
 					emitParticle(57, (const JGeometry::TVec3<f32>*)&mPosition);
 					mPosition.y -= 5.0f;
 					((TLiveActor*)mGroundPlane->getActor())->receiveMessage(this, 3);
@@ -831,7 +830,7 @@ BOOL TMario::hipAttacking()
 			else { emitParticle(67); emitParticle(68); emitParticle(69); emitParticle(70); }
 			changePlayerStatus(0x0080023C, 0, false);
 		} else if (r == 2) {
-			setPlayerVelocity(0.0f); if (mVel.y > 0.0f) mVel.y = 0.0f;
+			setPlayerVelocity(-16.0f); if (mVel.y > 0.0f) mVel.y = 0.0f;
 			changePlayerStatus(0x000208B0, 0, false);
 			rumbleStart(21, mMotorParams.mMotorWall.value);
 			if (gpMSound->gateCheck(0x180E)) MSoundSESystem::MSoundSE::startSoundActor(0x180E, (const Vec*)&mPosition, 0, nullptr, 0, 4);
@@ -1052,7 +1051,7 @@ BOOL TMario::jumpMain()
 		}
 		break;
 	}
-	case 0x08000887: {
+	case 0x0887: {
 		BOOL handled = FALSE;
 		if (checkBackTrig())
 			handled = TRUE;

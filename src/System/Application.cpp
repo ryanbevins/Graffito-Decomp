@@ -647,6 +647,18 @@ int TApplication::gameLoop()
 				nextState = mDirector->direct();
 			}
 
+			static u32 sAppLoopProbeCount;
+			if ((sAppLoopProbeCount++ % 60) == 0) {
+				OSReport((char*)"CODEX_APP_LOOP app=%u ret=%u curr=%u:%u:%u next=%u:%u:%u fader=%u rate=%f wipe=%d wipeRate=%f director=%p\n",
+				         mAppState, nextState, mCurrArea.getStage(),
+				         mCurrArea.getScenario(), mCurrArea.unk2,
+				         mNextArea.getStage(), mNextArea.getScenario(),
+				         mNextArea.unk2, mFader ? mFader->mFadeStatus : 0xff,
+				         mFader ? mFader->mRate : -1.0f,
+				         mFader ? mFader->unk30 : -1,
+				         mFader ? mFader->unk34 : -1.0f, mDirector);
+			}
+
 			JDrama::TGraphics graphics;
 
 			JDrama::TVideo* video = mDisplay->unk60;

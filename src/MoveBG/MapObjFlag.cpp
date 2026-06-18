@@ -290,33 +290,33 @@ void TMapObjFlag::draw()
 	int totalCols = mNumCols;
 	int step      = mStepSize;
 	int rowsToDraw = totalRows - 1;
-	int colsPerStrip = ((totalCols - 2 * step) / step + 2) & 0xfffe;
+	int vertsPerStrip = (((totalRows - 2 * step) / step + 2) << 1) & 0xfffe;
 
 	f32 invRows = 1.0f / (f32)(totalRows - 1);
 	f32 invCols = 1.0f / (f32)(totalCols - 1);
 
 	for (int col = 0; col < totalCols - step; col += step) {
-		f32 u0 = (f32)col * invCols;
-		f32 u1 = (f32)(col + step) * invCols;
+		f32 u0 = (f32)(totalCols - 1 - col) * invCols;
+		f32 u1 = (f32)(totalCols - 1 - (col + 1)) * invCols;
 
-		GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, (u16)colsPerStrip);
+		GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, (u16)vertsPerStrip);
 
 		Vec& v0 = mVertexGrid[col][0];
 		GXPosition3f32(v0.x, v0.y, v0.z);
 		GXTexCoord2f32(0.0f, u0);
 
-		Vec& v1 = mVertexGrid[col + step][0];
+		Vec& v1 = mVertexGrid[col + 1][0];
 		GXPosition3f32(v1.x, v1.y, v1.z);
 		GXTexCoord2f32(0.0f, u1);
 
 		for (int row = 1; row < rowsToDraw - step; row += step) {
 			f32 vCoord = (f32)row * invRows;
 
-			Vec& va = mVertexGrid[col][row * step];
+			Vec& va = mVertexGrid[col][row];
 			GXPosition3f32(va.x, va.y, va.z);
 			GXTexCoord2f32(vCoord, u0);
 
-			Vec& vb = mVertexGrid[col + step][row * step];
+			Vec& vb = mVertexGrid[col + 1][row];
 			GXPosition3f32(vb.x, vb.y, vb.z);
 			GXTexCoord2f32(vCoord, u1);
 		}
@@ -325,7 +325,7 @@ void TMapObjFlag::draw()
 		GXPosition3f32(vLastA.x, vLastA.y, vLastA.z);
 		GXTexCoord2f32(1.0f, u0);
 
-		Vec& vLastB = mVertexGrid[col + step][totalRows - 1];
+		Vec& vLastB = mVertexGrid[col + 1][totalRows - 1];
 		GXPosition3f32(vLastB.x, vLastB.y, vLastB.z);
 		GXTexCoord2f32(1.0f, u1);
 	}

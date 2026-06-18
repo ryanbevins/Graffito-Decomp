@@ -927,9 +927,9 @@ void TAnimalBird::load(JSUMemoryInputStream& stream)
 
 	if (itemId >= 0) {
 		unk150
-		    = TMapObjBaseManager::newAndRegisterObjByEventID((u32)itemId, nullptr);
+		    = TMapObjBaseManager::newAndRegisterObjByEventID((u32)itemId, "鳥用");
 	} else {
-		unk150 = TMapObjBaseManager::newAndRegisterObjByEventID(0x64, nullptr);
+		unk150 = TMapObjBaseManager::newAndRegisterObjByEventID(0x64, "");
 	}
 
 	TMapObjBase* item = unk150;

@@ -224,9 +224,9 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (flags & 2) {
 		if (mActionFlag & 0x4000) {
-			if (gpMSound->gateCheck(0x18017)) {
+			if (gpMSound->gateCheck(0x8017)) {
 				MSoundSESystem::MSoundSE::startSoundNpcActor(
-				    0x18017, (const Vec*)&mPosition, 0, nullptr, 0, 4);
+				    0x8017, (const Vec*)&mPosition, 0, nullptr, 0, 4);
 			}
 		}
 		if (!(mLiveFlag & 0x10006))

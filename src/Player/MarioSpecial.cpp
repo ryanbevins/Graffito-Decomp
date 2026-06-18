@@ -1676,7 +1676,7 @@ void TMario::hanging()
 		unkF6 = 0;
 	}
 
-	u16* hangTimerParam = (u16*)((u8*)this + 0x12EC);
+	s16* hangTimerParam = (s16*)((u8*)this + 0x12EC);
 	if (mActionTimer < *hangTimerParam) {
 		mActionTimer = mActionTimer + 1;
 	}
@@ -1807,7 +1807,7 @@ void TMario::hanging()
 
 		s32 stickDiffExt2 = (s16)stickAngleDiff;
 		if (stickDiffExt2 > -29127 && stickDiffExt2 < 29127) {
-			if (mActionTimer >= mHangingParams.mRapidTime.value && wallCheck1.mResultWallsNum > 0) {
+			if (mActionTimer < mHangingParams.mRapidTime.value && wallCheck1.mResultWallsNum > 0) {
 				JGeometry::TVec3<f32> targetPos;
 				targetPos.x = mPosition.x;
 				targetPos.y = mPosition.y;
@@ -1925,8 +1925,7 @@ void TMario::hanging()
 		return;
 	}
 
-	checkPlayerAround(-0x8000, 30.0f);
-	f32 heightAboveGround = mPosition.y - mPosition.y;
+	f32 heightAboveGround = mPosition.y - checkPlayerAround(-0x8000, 30.0f);
 
 	if (highEnough && heightAboveGround < 100.0f) {
 		startVoice(0x788F);
@@ -2126,22 +2125,25 @@ int TMario::hangingCheckRoof(JGeometry::TVec3<f32>* pos)
 	f32 groundY = gpMap->checkGround(pos->x, pos->y, pos->z, &groundPlane);
 	f32 roofY = gpMap->checkRoof(pos->x, 80.0f + groundY, pos->z, &roofPlane);
 
-	wall = checkWallPlane((Vec*)pos, 50.0f, 50.0f);
-	if (wall == 0) {
+	if (groundPlane == 0) {
+		return 1;
+	}
+
+	if (roofPlane == 0) {
 		return 2;
 	}
 
-	u8 isFence2 = (wall->mBGType == 0x10a) ? 1 : 0;
+	u8 isFence2 = (roofPlane->mBGType == 0x10a) ? 1 : 0;
 	if (!isFence2) {
 		return 2;
 	}
 
 	f32 gap = roofY - groundY;
-	if (gap <= 10.0f) {
+	if (gap <= 160.0f) {
 		return 1;
 	}
 
-	f32 headroom = roofY - (10.0f + pos->y);
+	f32 headroom = roofY - (160.0f + pos->y);
 	if (headroom < -30.0f) {
 		return 1;
 	}
@@ -2150,11 +2152,11 @@ int TMario::hangingCheckRoof(JGeometry::TVec3<f32>* pos)
 		return 2;
 	}
 
-	pos->y = mFloorPosition.x - 10.0f;
+	pos->y = mFloorPosition.x - 160.0f;
 	mGroundPlane = groundPlane;
-	mFloorPosition.y = roofY;
+	mFloorPosition.y = groundY;
 	mRoofPlane = roofPlane;
-	mFloorPosition.x = groundY;
+	mFloorPosition.x = roofY;
 	return 0;
 }
 

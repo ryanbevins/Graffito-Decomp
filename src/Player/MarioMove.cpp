@@ -998,14 +998,14 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 	return status;
 }
 
-void TMario::checkPlayerAround(int angleOffset, f32 distance)
+f32 TMario::checkPlayerAround(int angleOffset, f32 distance)
 {
 	u16 angle = mFaceAngle.y + angleOffset;
 	f32 sinVal = JMASSin(angle) * distance;
 	f32 cosVal = JMASCos(angle) * distance;
 	const TBGCheckData* result;
-	gpMap->checkGround(mPosition.x + sinVal, mPosition.y + 100.0f,
-	                   mPosition.z + cosVal, &result);
+	return gpMap->checkGround(mPosition.x + sinVal, mPosition.y + 100.0f,
+	                          mPosition.z + cosVal, &result);
 }
 
 void TMario::checkRideReCalc()

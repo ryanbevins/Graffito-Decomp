@@ -350,7 +350,7 @@ void TModelGate::loadAfter()
 	char buf[256];
 	snprintf(buf, sizeof(buf), "/scene/map/map/gate/%s.bmd",
 	         gateMActorNames[unk71]);
-	unk78 = SMS_MakeMActor(buf, "/scene/map/map/gate", 0, 0x11100000);
+	unk78 = SMS_MakeMActor("/scene/map/map/gate", buf, 0, 0x11100000);
 	unk72 = unk78->getModel()->getModelData()->getJointName()->getIndex("center");
 
 	if (ActivePlayer.open) {

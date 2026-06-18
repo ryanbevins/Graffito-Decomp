@@ -3,6 +3,7 @@
 #include <Enemy/Graph.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
+#include <Map/MapCollisionEntry.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
@@ -345,7 +346,7 @@ void TFruitsBoat::init(TLiveManager* manager)
 	case 0:
 		mMapCollisionManager
 		    = new TMapCollisionManager(1, "/scene/fruitsboat", this);
-		mMActor = mMActorKeeper->createMActor("shipdolpic", 0);
+		mMActor = mMActorKeeper->createMActor("ShipDolpic.bmd", 0);
 		mMapCollisionManager->init("ShipDolpic.col", 1, nullptr);
 		setAttackRadius(850.0f);
 		setAttackHeight(600.0f);
@@ -353,7 +354,7 @@ void TFruitsBoat::init(TLiveManager* manager)
 	case 1:
 		mMapCollisionManager
 		    = new TMapCollisionManager(1, "/scene/fruitsboatb", this);
-		mMActor = mMActorKeeper->createMActor("shipdolpic2", 0);
+		mMActor = mMActorKeeper->createMActor("ShipDolpic2.bmd", 0);
 		mMapCollisionManager->init("ShipDolpic2.col", 1, nullptr);
 		setAttackRadius(750.0f);
 		setAttackHeight(480.0f);
@@ -361,7 +362,7 @@ void TFruitsBoat::init(TLiveManager* manager)
 	case 2:
 		mMapCollisionManager
 		    = new TMapCollisionManager(1, "/scene/fruitsboatc", this);
-		mMActor = mMActorKeeper->createMActor("shipdolpic3", 0);
+		mMActor = mMActorKeeper->createMActor("ShipDolpic3.bmd", 0);
 		mMapCollisionManager->init("ShipDolpic3.col", 1, nullptr);
 		setAttackRadius(1000.0f);
 		setAttackHeight(300.0f);
@@ -369,7 +370,7 @@ void TFruitsBoat::init(TLiveManager* manager)
 	default:
 		mMapCollisionManager
 		    = new TMapCollisionManager(1, "/scene/fruitsboatd", this);
-		mMActor = mMActorKeeper->createMActor("shipdolpic4", 0);
+		mMActor = mMActorKeeper->createMActor("ShipDolpic4.bmd", 0);
 		mMapCollisionManager->init("ShipDolpic4.col", 1, nullptr);
 		setAttackRadius(760.0f);
 		setAttackHeight(270.0f);
@@ -382,10 +383,9 @@ void TFruitsBoat::init(TLiveManager* manager)
 		MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
 		            mRotation.y, mRotation.z, mScaling.x, mScaling.y,
 		            mScaling.z);
-		PSMTXCopy(mtx, *(MtxPtr*)((u8*)mgr->getUnk8() + 0x20));
-		typedef void (*FN)(void*);
-		void* base = mgr->getUnk8();
-		((FN)(((u32*)(*(u32**)base))[6]))(base);
+		TMapCollisionBase* base = mgr->getUnk8();
+		PSMTXCopy(mtx, base->unk20);
+		base->setUp();
 	}
 
 	mSpine->initWith(&TNerveFruitsBoatGraphWander::theNerve());

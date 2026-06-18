@@ -89,7 +89,7 @@ enum E_MARIO_ACTION {
 	ACTION_GROUND_POUND_BOUNCE = 0x0884,
 	ACTION_JUMP_FROM_STATE   = 0x02000885,
 	ACTION_SPECIAL_JUMP      = 0x02000886,
-	ACTION_SPIN_JUMP         = 0x08000887,
+	ACTION_SPIN_JUMP         = 0x0887,
 	ACTION_WALL_KICK         = 0x0888,
 	ACTION_LONG_JUMP         = 0x02000889,
 	ACTION_DIVE_RECOVERY     = 0x0080088A,
@@ -1001,7 +1001,7 @@ public:
 	void setMissJumping();
 	void isTurnning();
 	void isTurnStart();
-	void checkPlayerAround(int, f32);
+	f32 checkPlayerAround(int, f32);
 	void isJumpMiss();
 	void isSlipLimit();
 	f32 getSlideStopCatch();

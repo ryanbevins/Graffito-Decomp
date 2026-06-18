@@ -104,7 +104,7 @@ void TManhole::initMapObj()
 {
 	TMapObjGeneral::initMapObj();
 	unk158 = new TMapCollisionWarp;
-	unk158->init("/scene/map/manholeRoof.col", 0, this);
+	unk158->init("/scene/mapObj/manholeRoof.col", 0, this);
 }
 
 void TManhole::loadAfter()
