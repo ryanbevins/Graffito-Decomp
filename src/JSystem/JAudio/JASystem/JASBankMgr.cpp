@@ -153,7 +153,7 @@ namespace BankMgr {
 		chan->unk0  = param_5;
 		chan->unk1  = param_4;
 		chan->unk48 = instParam.unk14 * (waveInfo->unk4 / Kernel::getDacRate());
-		chan->unk50 = chan->unk48 * instParam.unk18;
+		chan->unk50 = chan->unk48 * instParam.unk1C;
 		if (instParam.unk38 == 0) {
 			int var = (param_4 + 0x3C) - waveInfo->unk2;
 			if (var < 0)

@@ -254,3 +254,78 @@ Current isolation notes:
 - Corrected source-linked deployed DOL:
   `DACB0A268CACB9379D144AC264AC2C1CBE8F0566`
 - User test result: fixed.
+
+## BUG 0005 - Delfino Plaza music pitch/notes broken
+
+Status: fixed
+
+Symptom:
+- Delfino Plaza BGM sounds pitched far down and the notes are wrong/mangled.
+
+Current isolation notes:
+- Broad first-pass audio isolation original-linked JAudio interface, JAS
+  sequence/track/channel/DSP, and MSound BGM/control suspects:
+  - `JSystem/JAudio/JAInterface/JAIBasic.cpp`
+  - `JSystem/JAudio/JAInterface/JAIGFrameSequence.cpp`
+  - `JSystem/JAudio/JAInterface/JAISound.cpp`
+  - `JSystem/JAudio/JAInterface/JAISystemInterface.cpp`
+  - `JSystem/JAudio/JASystem/JASChannel.cpp`
+  - `JSystem/JAudio/JASystem/JASDSPChannel.cpp`
+  - `JSystem/JAudio/JASystem/JASDSPInterface.cpp`
+  - `JSystem/JAudio/JASystem/JASTrack.cpp`
+  - `JSystem/JAudio/JASystem/JASSeqParser.cpp`
+  - `MSound/MSound.cpp`
+  - `MSound/MSoundBGM.cpp`
+  - `MSound/MSModBgm.cpp`
+- Broad batch deployed DOL:
+  `402F053389AF3F2BFA832FBF282B17A85AA6D8A7`
+- User test result: OSPanic on boot, so the broad interface/channel/DSP swap is
+  too wide or crosses badly with source-linked audio init/state.
+- Narrow MSound-only isolation original-linked:
+  - `MSound/MSound.cpp`
+  - `MSound/MSoundBGM.cpp`
+  - `MSound/MSModBgm.cpp`
+- MSound-only deployed DOL:
+  `C4F6B6C71BA695FD6941EAB64AF537507D11DD16`
+- User test result: not fixed.
+- Current isolation keeps MSound-only and additionally original-links narrow JAS
+  sequence/track suspects:
+  - `JSystem/JAudio/JASystem/JASTrack.cpp`
+  - `JSystem/JAudio/JASystem/JASSeqParser.cpp`
+  - `MSound/MSound.cpp`
+  - `MSound/MSoundBGM.cpp`
+  - `MSound/MSModBgm.cpp`
+- Current deployed DOL:
+  `29C439E7BBAA8DC3C8FB051D6711DC29252A3C6F`
+- User test result: not fixed.
+- JAS channel runtime isolation original-linked:
+  - `JSystem/JAudio/JASystem/JASChannel.cpp`
+- JASChannel-only deployed DOL:
+  `DB2FE8CA0785DACC61BAE26AAEE39C651C17DF7E`
+- User test result: not fixed.
+- Bank/wave metadata isolation original-linked:
+  - `JSystem/JAudio/JASystem/JASBankMgr.cpp`
+  - `JSystem/JAudio/JASystem/JASBasicWaveBank.cpp`
+  - `JSystem/JAudio/JASystem/JASBNKParser.cpp`
+  - `JSystem/JAudio/JASystem/JASWSParser.cpp`
+- Bank/wave metadata deployed DOL:
+  `9E66DBEAEF2F9E5EC87DA6BA6948DD25814600C5`
+- User test result: fixed.
+- Bank-side half split original-linked:
+  - `JSystem/JAudio/JASystem/JASBankMgr.cpp`
+  - `JSystem/JAudio/JASystem/JASBNKParser.cpp`
+- Bank-side half split deployed DOL:
+  `FE710B77A8EA26BB1CACE7B3DA616DE26084D786`
+- User test result: fixed.
+- JASBankMgr-only isolation original-linked:
+  - `JSystem/JAudio/JASystem/JASBankMgr.cpp`
+- JASBankMgr-only deployed DOL:
+  `B6CA9F4AE60A9A7FB69D7CDC5E1502119956D02A`
+- User test result: fixed. BUG 0005 is isolated to
+  `JSystem/JAudio/JASystem/JASBankMgr.cpp`.
+- Source fix: `BankMgr::noteOn` was initializing `chan->unk50` from
+  `TInstParam::unk18`, but the original asm uses the next float field,
+  `TInstParam::unk1C`, as the channel pitch multiplier.
+- Source-linked deployed DOL:
+  `12A84D44183B64D72DDBBBD3B65F1C7B4027CE3A`
+- User test result: fixed.
