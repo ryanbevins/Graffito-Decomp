@@ -209,10 +209,12 @@ static inline void MsGetRotFromZaxisX2(const JGeometry::TVec3<f32>& axis,
 		return;
 	}
 
-	f32 a = 1.0f - axis.y * axis.y;
-	f32 dVar3 = sqrtPositive(a);
+	f32 y = axis.y;
+	f32 a = 1.0f - y * y;
+	f32 dVar3;
+	dVar3 = sqrtPositive(a);
 
-	*out = -(matan(dVar3, axis.y) * (360.0f / 65536.0f));
+	*out = -(matan(dVar3, y) * (360.0f / 65536.0f));
 }
 
 JGeometry::TVec3<f32> MsGetRotFromZaxis(const JGeometry::TVec3<f32>& param_1)
@@ -221,6 +223,9 @@ JGeometry::TVec3<f32> MsGetRotFromZaxis(const JGeometry::TVec3<f32>& param_1)
 	result.zero();
 
 	JGeometry::TVec3<f32> axis = param_1;
+
+	char stackPadding[0x10]; // Preserve MWCC local stack layout.
+
 	axis.normalize();
 
 	MsGetRotFromZaxisX2(axis, &result.x);
@@ -260,25 +265,25 @@ void MsMtxSetRotRPH(MtxPtr param_1, f32 r, f32 p, f32 h)
 
 void MsMtxSetXYZRPH(MtxPtr param_1, f32 x, f32 y, f32 z, s16 r, s16 p, s16 h)
 {
-	f32 sr = JMASSin(r);
-	f32 sp = JMASSin(p);
-	f32 sh = JMASSin(h);
+	f32 sx = JMASSin(r), cx = JMASCos(r);
+	f32 sy = JMASSin(p), cy = JMASCos(p);
+	f32 sz = JMASSin(h), cz = JMASCos(h);
 
-	f32 cr = JMASCos(r);
-	f32 cp = JMASCos(p);
-	f32 ch = JMASCos(h);
+	param_1[2][0] = -sy;
+	param_1[0][0] = cz * cy;
+	param_1[1][0] = sz * cy;
+	param_1[2][1] = cy * sx;
+	param_1[2][2] = cy * cx;
 
-	param_1[0][0] = ch * cp;
-	param_1[1][0] = sh * cp;
-	param_1[2][0] = -sp;
+	f32 cxsz = cx * sz;
+	f32 sxcz = sx * cz;
+	param_1[0][1] = sxcz * sy - cxsz;
+	param_1[1][2] = cxsz * sy - sxcz;
 
-	param_1[0][1] = sr * (ch * sp) - (sh * cr);
-	param_1[1][1] = sr * (sh * sp) + (ch * cr);
-	param_1[2][1] = cp * sr;
-
-	param_1[0][2] = cr * (ch * sp) + (sh * sr);
-	param_1[1][2] = cr * (sh * sp) - (ch * sr);
-	param_1[2][2] = cp * cr;
+	f32 sxsz = sx * sz;
+	f32 cxcz = cx * cz;
+	param_1[0][2] = cxcz * sy + sxsz;
+	param_1[1][1] = sxsz * sy + cxcz;
 
 	param_1[0][3] = x;
 	param_1[1][3] = y;

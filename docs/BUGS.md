@@ -162,7 +162,7 @@ Current isolation notes:
 
 ## BUG 0004 - Camera flips randomly while walking
 
-Status: isolated; runtime fixed by original-linked `MarioUtil/MathUtil.cpp`
+Status: fixed; source-linked `MarioUtil/MathUtil.cpp`
 
 Symptom:
 - Camera randomly flips to different directions while Mario is walking.
@@ -237,11 +237,11 @@ Current isolation notes:
 - User test result: fixed. Camera flipping stopped, and this also fixed some
   player movement issues.
 - After the successful test, all prior Camera/Player/GamePad isolation TUs were
-  returned to source-linking. The only active BUG 0004 isolation is:
-  - `MarioUtil/MathUtil.cpp`
+  returned to source-linking. `MarioUtil/MathUtil.cpp` was the isolated
+  responsible TU.
 - Narrowed isolation deployed DOL:
   `3F2A3CFA477764A9B7D29E2CEABCE78A80007D3E`
-
-Next step:
-- Fix `MarioUtil/MathUtil.cpp` against original ASM, especially `matan` and
-  camera/player rotation helpers, then return it to source-linking.
+- Source-linked candidate deployed DOL:
+  `946CB568A19F2F0D55D396B91E38836479932109`
+- User test result: fixed. Camera flipping stopped, and related player
+  movement issues were also corrected.
