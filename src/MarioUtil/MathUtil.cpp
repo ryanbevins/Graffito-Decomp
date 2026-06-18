@@ -193,7 +193,9 @@ static inline f32 sqrtPositive(f32 mag)
 {
 	if (mag > 0.0f) {
 		f64 root = __frsqrte(mag);
-		return 0.5f * root * (3.0f - mag * (root * root)) * mag;
+		volatile f32 result
+		    = 0.5f * root * (3.0f - mag * (root * root)) * mag;
+		return result;
 	}
 	return mag;
 }
@@ -224,7 +226,7 @@ JGeometry::TVec3<f32> MsGetRotFromZaxis(const JGeometry::TVec3<f32>& param_1)
 
 	JGeometry::TVec3<f32> axis = param_1;
 
-	char stackPadding[0x10]; // Preserve MWCC local stack layout.
+	char stackPadding[0x0C]; // Preserve MWCC local stack layout.
 
 	axis.normalize();
 

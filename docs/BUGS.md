@@ -245,3 +245,5 @@ Current isolation notes:
   `946CB568A19F2F0D55D396B91E38836479932109`
 - User test result: fixed. Camera flipping stopped, and related player
   movement issues were also corrected.
+- Final source-linked cleanup deployed DOL:
+  `DD193C2DB1192D6BE60BEF955A37DF8F6A8FCF3C`
