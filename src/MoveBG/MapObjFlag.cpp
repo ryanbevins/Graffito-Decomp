@@ -1,3 +1,4 @@
+#define JGEOMETRY_GEKKO_PS_COPY12_OUT_OF_LINE
 #include <MoveBG/MapObjFlag.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <System/MarDirector.hpp>
@@ -289,7 +290,6 @@ void TMapObjFlag::draw()
 	int totalRows = mNumRows;
 	int totalCols = mNumCols;
 	int step      = mStepSize;
-	int rowsToDraw = totalRows - 1;
 	int vertsPerStrip = (((totalRows - 2 * step) / step + 2) << 1) & 0xfffe;
 
 	f32 invRows = 1.0f / (f32)(totalRows - 1);
@@ -309,7 +309,7 @@ void TMapObjFlag::draw()
 		GXPosition3f32(v1.x, v1.y, v1.z);
 		GXTexCoord2f32(0.0f, u1);
 
-		for (int row = 1; row < rowsToDraw - step; row += step) {
+		for (int row = 1; row < totalRows - step; row += step) {
 			f32 vCoord = (f32)row * invRows;
 
 			Vec& va = mVertexGrid[col][row];

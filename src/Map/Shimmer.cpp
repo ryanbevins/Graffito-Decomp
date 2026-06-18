@@ -63,7 +63,9 @@ void TShimmer::perform(u32 param_1, JDrama::TGraphics* param_2)
 		info.mRotation.x = 0.0f;
 		info.mRotation.y = 0.0f;
 		info.mRotation.z = 0.0f;
-		info.mTranslate  = mPosition;
+		info.mTranslate.x = mPosition.x;
+		info.mTranslate.y = mPosition.y;
+		info.mTranslate.z = mPosition.z;
 		Mtx afStack_b0;
 		J3DGetTranslateRotateMtx(info, afStack_b0);
 		Mtx afStack_e0;
