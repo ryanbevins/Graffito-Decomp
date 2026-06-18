@@ -159,3 +159,89 @@ Current isolation notes:
   are source-linked again.
 - Post-isolation deployed DOL:
   `A34EC1AC7B499A770532F2ADC1802DF5A167BD66`
+
+## BUG 0004 - Camera flips randomly while walking
+
+Status: isolated; runtime fixed by original-linked `MarioUtil/MathUtil.cpp`
+
+Symptom:
+- Camera randomly flips to different directions while Mario is walking.
+
+Current isolation notes:
+- Isolation batch 1 original-links the highest-probability camera control and
+  walking-mode TUs:
+  - `Camera/CameraBGCheck.cpp`
+  - `Camera/CameraChange.cpp`
+  - `Camera/cameragc.cpp`
+  - `Camera/CameraInbetween.cpp`
+  - `Camera/cameralib.cpp`
+  - `Camera/CameraMarioData.cpp`
+  - `Camera/CameraNormal.cpp`
+  - `Camera/CameraMode.cpp`
+  - `Camera/CameraSecureView.cpp`
+- Isolation batch 1 deployed DOL:
+  `E8018B6B3ECCD25E68C519892EF94CA2CF322B80`
+- User test result: not fixed with isolation batch 1.
+- Isolation batch 2 keeps batch 1 original-linked and additionally
+  original-links likely world/camera trigger TUs:
+  - `Camera/CubeManagerBase.cpp`
+  - `Camera/CameraMapTool.cpp`
+  - `Camera/CubeMapTool.cpp`
+- Isolation batch 2 deployed DOL:
+  `948AE5E0F04E4805B2AEA18945D074C897D143AC`
+- User test result: not fixed with isolation batch 2.
+- Isolation batch 3 keeps batches 1-2 original-linked and additionally
+  original-links all remaining non-matching-capable Camera TUs:
+  - `Camera/CameraCodeControl.cpp`
+  - `Camera/CameraHeightPan.cpp`
+  - `Camera/CameraNotice.cpp`
+  - `Camera/camerasave.cpp`
+  - `Camera/camerashake.cpp`
+  - `Camera/CameraTalk.cpp`
+  - `Camera/lensflare.cpp`
+  - `Camera/lensglow.cpp`
+  - `Camera/sunmgr.cpp`
+  - `Camera/sunmodel.cpp`
+  - `Camera/CameraMultiPlayer.cpp`
+  - `Camera/CameraJetCoaster.cpp`
+  - `Camera/CameraBck.cpp`
+  - `Camera/CameraOption.cpp`
+  - `Camera/CameraDemo.cpp`
+  - `Camera/CameraWarp.cpp`
+- Isolation batch 3 deployed DOL:
+  `B285297DBFD587B9FAD0490CFF8365F7FF28C29B`
+- User test result: not fixed with isolation batch 3. Since all Camera TUs were
+  original-linked and the flip still happened, the source bug is probably
+  feeding bad position/yaw/state data into the original camera.
+- Isolation batch 4 keeps all Camera TUs original-linked and additionally
+  original-links Player/input yaw feeder TUs:
+  - `System/MarioGamePad.cpp`
+  - `Player/MarioCollision.cpp`
+  - `Player/MarioJump.cpp`
+  - `Player/MarioMove.cpp`
+  - `Player/MarioPhysics.cpp`
+  - `Player/MarioRun.cpp`
+  - `Player/MarioCheckCol.cpp`
+- Isolation batch 4 deployed DOL:
+  `853AC32C5427090DC899B2F9BBE120580E1D5308`
+- User test result: not fixed with isolation batch 4.
+- Isolation batch 5 keeps all prior original-linked Camera and Player/input
+  feeder TUs and additionally original-links the shared math helper TU:
+  - `MarioUtil/MathUtil.cpp`
+  - Rationale: this TU provides `matan`, `MsMtxSetXYZRPH`, and rotation helpers
+    used by camera polar math, camera cube helpers, player stick yaw, and player
+    facing/ground matrix code. It remains source-linked even when Camera and
+    Player TUs are original-linked unless isolated separately.
+- Isolation batch 5 deployed DOL:
+  `A7B1ED114EF1369D6CCBE492E9DEF07F4AFA847A`
+- User test result: fixed. Camera flipping stopped, and this also fixed some
+  player movement issues.
+- After the successful test, all prior Camera/Player/GamePad isolation TUs were
+  returned to source-linking. The only active BUG 0004 isolation is:
+  - `MarioUtil/MathUtil.cpp`
+- Narrowed isolation deployed DOL:
+  `3F2A3CFA477764A9B7D29E2CEABCE78A80007D3E`
+
+Next step:
+- Fix `MarioUtil/MathUtil.cpp` against original ASM, especially `matan` and
+  camera/player rotation helpers, then return it to source-linking.
