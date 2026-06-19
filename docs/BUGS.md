@@ -541,3 +541,188 @@ Current notes:
   `4E82FFC3EAC7DD90D4E048022A105F80852771E6`
 - User test result: fixed. FLUDD spray water renders correctly, including when
   using less analog trigger pressure.
+
+## BUG 0010 - Dolpic fog/mist planes spawn in wrong positions
+
+Status: fixed; source fix in `JSystem/JParticle/JPAEmitter.cpp`
+
+Symptom:
+- In Delfino Plaza/Dolpic, persistent fog or mist planes appear in the main
+  play area at incorrect positions.
+
+Current isolation notes:
+- First-pass Dolpic/object-side isolation did not fix the misplaced planes:
+  - `MoveBG/MapObjInit.cpp`
+  - `MoveBG/MapObjDolpic.cpp`
+  - `MoveBG/MapObjEx.cpp`
+  - `Map/MapEventDolpic.cpp`
+  - `Map/BathWaterManager.cpp`
+- First-pass deployed DOL:
+  `484B2789B2F463D0F79EAFACBA14826BD943C284`
+- User test result: not fixed.
+- Second-pass JParticle/effect isolation fixed or changed the issue enough to
+  confirm the responsible code is somewhere in this batch:
+  - `JSystem/JParticle/JPAEmitter.cpp`
+  - `JSystem/JParticle/JPAEmitterManager.cpp`
+  - `JSystem/JParticle/JPAParticle.cpp`
+  - `JSystem/JParticle/JPADraw.cpp`
+  - `JSystem/JParticle/JPADrawVisitor.cpp`
+  - `JSystem/JParticle/JPABaseShape.cpp`
+  - `JSystem/JParticle/JPAResourceManager.cpp`
+  - `JSystem/JParticle/JPATexture.cpp`
+  - `MarioUtil/EffectUtil.cpp`
+  - `System/EmitterViewObj.cpp`
+- Second-pass deployed DOL:
+  `C41FEE0A68A8EBBBF16CC7F56A06D981439EDA70`
+- User test result: isolated somewhere in this batch.
+- Third-pass source-links the lower-probability resource/manager/texture and
+  view-object side again, leaving only this original-linked subset:
+  - `JSystem/JParticle/JPAEmitter.cpp`
+  - `JSystem/JParticle/JPAParticle.cpp`
+  - `JSystem/JParticle/JPADraw.cpp`
+  - `JSystem/JParticle/JPADrawVisitor.cpp`
+  - `MarioUtil/EffectUtil.cpp`
+- Third-pass deployed DOL:
+  `D4F4C033D651885437CA47300B603C95E5026B9D`
+- User test result: BUG 0010 is not present and particles are working. The
+  issue is therefore still inside this five-TU subset, or requires a
+  combination within it.
+- Fourth-pass keeps only the particle draw executors original-linked:
+  - `JSystem/JParticle/JPADraw.cpp`
+  - `JSystem/JParticle/JPADrawVisitor.cpp`
+- Fourth-pass deployed DOL:
+  `900608556903AE59C68560D40BBBDD662125A8EA`
+- User test result: BUG 0010 appeared again and particles were gone. Therefore
+  `JPADraw.cpp` and `JPADrawVisitor.cpp` alone are not sufficient; at least one
+  of `JPAEmitter.cpp`, `JPAParticle.cpp`, or `MarioUtil/EffectUtil.cpp` is also
+  required.
+- Fifth-pass adds `JPAEmitter.cpp` back to the original-linked draw pair:
+  - `JSystem/JParticle/JPAEmitter.cpp`
+  - `JSystem/JParticle/JPADraw.cpp`
+  - `JSystem/JParticle/JPADrawVisitor.cpp`
+- Fifth-pass deployed DOL:
+  `89AEA245A85C62BF1D44A448B5FF36AEA0575AC3`
+- User test result: BUG 0010 is gone and particles render. This proves
+  `JPAEmitter.cpp` is required for the currently working isolation set, while
+  `JPAParticle.cpp` and `MarioUtil/EffectUtil.cpp` are not required.
+- Sixth-pass keeps only `JPAEmitter.cpp` original-linked:
+  - `JSystem/JParticle/JPAEmitter.cpp`
+- Sixth-pass deployed DOL:
+  `F10FBC7903498FC082806C95F0A46674BBBE4EFD`
+- User test result: BUG 0010 is gone and particles render. This isolates the
+  Dolpic fog/mist placement issue to source-linked `JPAEmitter.cpp`.
+- Source fix:
+  - In `JPABaseEmitter::calcEmitterGlobalParams`, the emitter translation was
+    being stored on the scale-only matrix and `JPAEmitterInfoObj.unk24` was read
+    back from that matrix.
+  - Retail behavior stores `mTrans` on the copied rotation matrix, concatenates
+    that through `JPAEmitterInfoObj.unk9C`, then reads `unk24` from the
+    transformed matrix.
+- Source-linked deployed DOL:
+  `50D190094B991D59D58DDBE277ED876904C16526`
+- User test result: appears fixed.
+
+## BUG 0011 - General particles not rendering
+
+Status: fixed; source fix in `JSystem/JParticle/JPAEmitter.cpp`
+
+Symptom:
+- Some general particles were not rendering.
+
+Current isolation notes:
+- The same second-pass JParticle/effect isolation used for BUG 0010 caused
+  particles to start rendering again:
+  - `JSystem/JParticle/JPAEmitter.cpp`
+  - `JSystem/JParticle/JPAEmitterManager.cpp`
+  - `JSystem/JParticle/JPAParticle.cpp`
+  - `JSystem/JParticle/JPADraw.cpp`
+  - `JSystem/JParticle/JPADrawVisitor.cpp`
+  - `JSystem/JParticle/JPABaseShape.cpp`
+  - `JSystem/JParticle/JPAResourceManager.cpp`
+  - `JSystem/JParticle/JPATexture.cpp`
+  - `MarioUtil/EffectUtil.cpp`
+  - `System/EmitterViewObj.cpp`
+- Deployed DOL:
+  `C41FEE0A68A8EBBBF16CC7F56A06D981439EDA70`
+- User test result: particles render again with this batch original-linked.
+- Third-pass BUG 0010 isolation also kept particles working with only these
+  original-linked:
+  - `JSystem/JParticle/JPAEmitter.cpp`
+  - `JSystem/JParticle/JPAParticle.cpp`
+  - `JSystem/JParticle/JPADraw.cpp`
+  - `JSystem/JParticle/JPADrawVisitor.cpp`
+  - `MarioUtil/EffectUtil.cpp`
+- Deployed DOL:
+  `D4F4C033D651885437CA47300B603C95E5026B9D`
+- Fourth-pass BUG 0010 isolation kept only `JPADraw.cpp` and
+  `JPADrawVisitor.cpp` original-linked.
+- Deployed DOL:
+  `900608556903AE59C68560D40BBBDD662125A8EA`
+- User test result: particles were gone, so at least one of
+  `JPAEmitter.cpp`, `JPAParticle.cpp`, or `MarioUtil/EffectUtil.cpp` is also
+  required for BUG 0011.
+- Fifth-pass added `JPAEmitter.cpp` back to the original-linked draw pair.
+- Deployed DOL:
+  `89AEA245A85C62BF1D44A448B5FF36AEA0575AC3`
+- User test result: particles render, clearing `JPAParticle.cpp` and
+  `MarioUtil/EffectUtil.cpp` as required TUs for this working subset.
+- Sixth-pass keeps only `JPAEmitter.cpp` original-linked.
+- Deployed DOL:
+  `F10FBC7903498FC082806C95F0A46674BBBE4EFD`
+- User test result: particles still render, isolating the general missing
+  particle issue to source-linked `JPAEmitter.cpp`.
+- Source-linked deployed DOL:
+  `50D190094B991D59D58DDBE277ED876904C16526`
+- User test result: appears fixed by the same
+  `JPABaseEmitter::calcEmitterGlobalParams` translation fix as BUG 0010.
+
+## BUG 0012 - Heatwave effects render poorly
+
+Status: candidate fixed; source fix in `JSystem/JParticle/JPAEmitter.cpp`
+
+Symptom:
+- Heatwave/distortion effects render poorly.
+
+Current isolation notes:
+- While testing BUG 0010/BUG 0011, the user noticed that the previous heatwave
+  rendering issue also appears to be fixed by original-linking only:
+  - `JSystem/JParticle/JPAEmitter.cpp`
+- Deployed DOL:
+  `F10FBC7903498FC082806C95F0A46674BBBE4EFD`
+- User test result: particles render, BUG 0010 is gone, and the previous
+  heatwave rendering issue appears to be isolated here as well.
+- Source-linked deployed DOL:
+  `50D190094B991D59D58DDBE277ED876904C16526`
+- User test result: BUG 0010/BUG 0011 appear fixed. Re-check heatwave if it
+  needs separate confirmation.
+
+## BUG 0013 - Mario ledgegrab climb regression
+
+Status: open; testing `Player/MarioSpecial.cpp`
+
+Symptom:
+- Mario often fails to ledgegrab, and when he does grab a ledge he can get stuck
+  instead of climbing up.
+
+Current notes:
+- The ledge hang/climb path is in `TMario::hanging()` and the hang landing cases
+  in `Player/MarioSpecial.cpp`.
+- A sister-project `MarioSpecial.cpp` comparison found the local hang movement
+  branch had several suspicious divergences:
+  - the ground check for side movement used `targetPos.y + 10.0f` instead of
+    `targetPos.y + 50.0f`,
+  - the follow-up wall probe used a 20-unit forward offset instead of 30,
+  - successful wall transfer placed Mario from the earlier wall-check center
+    instead of the corrected follow-up wall-check center,
+  - the final animation branch was reversed, playing ledge-move animations when
+    Mario had not actually moved along the ledge.
+- Source-linked candidate deployed DOL:
+  `233C5C703129D086DAA335E170ED08E2E8FA173D`
+- User test result: Mario still often fails to ledgegrab.
+- Isolation test original-links only `Player/MarioSpecial.cpp` while keeping the
+  JPAEmitter particle fix source-linked.
+- Original-`MarioSpecial.cpp` isolation deployed DOL:
+  `FCD46A102E7E653A18E473076B48C3F08A3B5953`
+- Next result needed: if this build fixes ledgegrab/climb, the offending object
+  is `Player/MarioSpecial.cpp`; otherwise continue the Mario/action isolation
+  outward.

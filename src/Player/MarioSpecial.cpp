@@ -1841,15 +1841,15 @@ void TMario::hanging()
 				targetPos.y = wallCheck3.mCenter.y;
 				targetPos.z = wallCheck3.mCenter.z;
 
-				f32 targetGroundY = gpMap->checkGround(targetPos.x, 10.0f + targetPos.y, targetPos.z, &plane);
+				f32 targetGroundY = gpMap->checkGround(targetPos.x, 50.0f + targetPos.y, targetPos.z, &plane);
 				f32 f31Save = targetPos.z;
 
 				f32 limit1 = mPosition.y - 100.0f;
 				if (limit1 < targetGroundY && targetGroundY < 50.0f + mPosition.y) {
 					TBGWallCheckRecord wallCheck4;
-					wallCheck4.mCenter.x = targetPos.x - 20.0f * JMASSin(mFaceAngle.y);
+					wallCheck4.mCenter.x = targetPos.x - 30.0f * JMASSin(mFaceAngle.y);
 					wallCheck4.mCenter.y = targetGroundY - 20.0f;
-					wallCheck4.mCenter.z = f31Save - 20.0f * JMASCos(mFaceAngle.y);
+					wallCheck4.mCenter.z = f31Save - 30.0f * JMASCos(mFaceAngle.y);
 					wallCheck4.mRadius = 30.0f;
 					wallCheck4.mMaxResults = 4;
 					wallCheck4.mFlags = 0;
@@ -1882,8 +1882,8 @@ void TMario::hanging()
 							s32 newAngle = matan(bestWall3->mNormal.z, bestWall3->mNormal.x);
 							mFaceAngle.y = (u16)(newAngle + 0x8000);
 
-							mPosition.x = wallCheck3.mCenter.x - 40.0f * bestWall3->mNormal.x;
-							mPosition.z = wallCheck3.mCenter.z - 40.0f * bestWall3->mNormal.z;
+							mPosition.x = wallCheck4.mCenter.x - 40.0f * bestWall3->mNormal.x;
+							mPosition.z = wallCheck4.mCenter.z - 40.0f * bestWall3->mNormal.z;
 
 							f32 groundY = gpMap->checkGround(mPosition.x, 160.0f + mPosition.y, mPosition.z, &plane);
 							mPosition.y = groundY;
@@ -1939,7 +1939,7 @@ void TMario::hanging()
 	mPosition.y = mFloorPosition.y;
 	mModelFaceAngle = mFaceAngle.y;
 
-	if (movedToWall != 1) {
+	if (movedToWall == 1) {
 		f32 dz = mPosition.z - mLastSafePos.z;
 		f32 dx = mPosition.x - mLastSafePos.x;
 		f32 distSq = dz * dz + dx * dx;

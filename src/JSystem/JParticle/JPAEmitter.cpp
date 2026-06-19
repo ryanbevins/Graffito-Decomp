@@ -151,12 +151,18 @@ void JPABaseEmitter::createChildParticle(JPABaseParticle* parent)
 			particle->mFieldAcceleration.set(local_c0);
 		}
 
-		if (sweepShape->unkC != 0.0f) {
-			f32 f18 = getRandomRF() * (sweepShape->unkC * sweepShape->unk20);
-			f18 += sweepShape->unkC;
+		f32 sweepShapeUnkC = sweepShape->unkC;
+		if (sweepShapeUnkC != 0.0f) {
+			f32 f18 = getRandomRF() * (sweepShapeUnkC * sweepShape->unk20);
+			f18 += sweepShapeUnkC;
 
-			JGeometry::TVec3<f32> vec(getRandomSF(), getRandomSF(),
-			                          getRandomSF());
+			f32 z = getRandomF();
+			f32 y = getRandomF();
+			f32 x = getRandomF();
+			x -= 0.5f;
+			y -= 0.5f;
+			z -= 0.5f;
+			JGeometry::TVec3<f32> vec(x, y, z);
 			vec.setLength(f18);
 			particle->addBaseVelVec(vec);
 		}
@@ -219,7 +225,9 @@ void JPABaseEmitter::calcEmitterGlobalParams()
 	TPosition3f local_A0;
 	MTXScale(local_A0, mScale.x, mScale.y, mScale.z);
 	MTXConcat(JPAEmitterInfoObj.unkCC, local_A0, JPAEmitterInfoObj.unkFC);
-	local_A0.setTrans(mTrans);
+	afStack_48[0][3] = mTrans.x;
+	afStack_48[1][3] = mTrans.y;
+	afStack_48[2][3] = mTrans.z;
 
 	JPAEmitterInfoObj.unk18.set(unk154);
 	JPAEmitterInfoObj.unk30.mul(unk154);
@@ -239,7 +247,9 @@ void JPABaseEmitter::calcEmitterGlobalParams()
 	JPAEmitterInfoObj.unk9C.setTrans(unk160);
 
 	MTXConcat(JPAEmitterInfoObj.unk9C, afStack_48, afStack_48);
-	local_A0.getTrans(JPAEmitterInfoObj.unk24);
+	JPAEmitterInfoObj.unk24.x = afStack_48[0][3];
+	JPAEmitterInfoObj.unk24.y = afStack_48[1][3];
+	JPAEmitterInfoObj.unk24.z = afStack_48[2][3];
 
 	JGeometry::TVec3<f32> xDir;
 	JPAEmitterInfoObj.unkCC.getXDir(xDir);
@@ -346,58 +356,53 @@ JPABaseParticle* JPABaseEmitter::createParticle()
 
 		particle->unk14.set(JPAEmitterInfoObj.unk24);
 
-		s16 r24_param174;
-		s16 r25_param176;
-		s16 r26_param164;
-		s32 r27_param168;
+		s16 fixedSpherePitch;
+		s16 fixedSphereYaw;
+		s16 emitCount;
+		s32 emitIndex;
 
 		if (checkFlag(EMIT_FLAG_FIXED_INTERVAL)) {
-			r27_param168 = JPAEmitterInfoObj.mVolumeEmitIdx;
-			r26_param164 = JPAEmitterInfoObj.mEmitCount;
+			JPAEmitterInfo& eio = JPAEmitterInfoObj;
+
+			emitIndex = eio.mVolumeEmitIdx;
+			emitCount = (s16)eio.mEmitCount;
 
 			if (mVolumeType == VOLUME_TYPE_SPHERE) {
-				r24_param174 = JPAEmitterInfoObj.mSphereCurrentPitch;
-				r25_param176 = JPAEmitterInfoObj.mSphereCurrentYaw;
+				fixedSpherePitch = eio.mSphereCurrentPitch;
+				fixedSphereYaw   = eio.mSphereCurrentYaw;
 
-				JPAEmitterInfoObj.mSphereParticlesEmittedForCurrentLayer++;
-				JPAEmitterInfoObj.mSphereCurrentYaw
-				    += JPAEmitterInfoObj.mSphereYawStep;
+				eio.mSphereParticlesEmittedForCurrentLayer++;
+				eio.mSphereCurrentYaw += eio.mSphereYawStep;
 
-				if (JPAEmitterInfoObj.mSphereParticlesEmittedForCurrentLayer
-				    == JPAEmitterInfoObj.mSphereParticlesInCurrentLayer) {
+				if (eio.mSphereParticlesEmittedForCurrentLayer
+				    == eio.mSphereParticlesInCurrentLayer) {
 
-					JPAEmitterInfoObj.mSphereParticlesEmittedForCurrentLayer
-					    = 0;
+					eio.mSphereParticlesEmittedForCurrentLayer = 0;
 
-					if (JPAEmitterInfoObj.mHemisphereFlipFlop) {
-						JPAEmitterInfoObj.mSphereParticlesInCurrentLayer -= 4;
-						if (JPAEmitterInfoObj.mSphereParticlesInCurrentLayer
-						    == 0) {
-							JPAEmitterInfoObj.mSphereParticlesInCurrentLayer
-							    = 1;
+					if (eio.mHemisphereFlipFlop) {
+						eio.mSphereParticlesInCurrentLayer -= 4;
+						if (eio.mSphereParticlesInCurrentLayer == 0) {
+							eio.mSphereParticlesInCurrentLayer = 1;
 						} else {
-							JPAEmitterInfoObj.mSphereYawStep
+							eio.mSphereYawStep
 							    = (s16)((int)(mVolumeYawSweep * 65536.0f)
-							            / (int)JPAEmitterInfoObj
-							                  .mSphereParticlesInCurrentLayer);
+							            / (int)eio.mSphereParticlesInCurrentLayer);
 						}
-						JPAEmitterInfoObj.mSphereCurrentPitch
-						    = -JPAEmitterInfoObj.mSphereCurrentPitch;
-						JPAEmitterInfoObj.mSphereCurrentPitch
-						    += JPAEmitterInfoObj.mSpherePitchStep;
-						JPAEmitterInfoObj.mHemisphereFlipFlop = false;
+
+						eio.mSphereCurrentPitch = -eio.mSphereCurrentPitch;
+						eio.mSphereCurrentPitch += eio.mSpherePitchStep;
+						eio.mHemisphereFlipFlop = false;
 					} else {
-						JPAEmitterInfoObj.mSphereCurrentPitch
-						    = -JPAEmitterInfoObj.mSphereCurrentPitch;
-						JPAEmitterInfoObj.mHemisphereFlipFlop = true;
+						eio.mSphereCurrentPitch = -eio.mSphereCurrentPitch;
+						eio.mHemisphereFlipFlop = true;
 					}
 				}
-				JPAEmitterInfoObj.mSphereCurrentYaw = 0;
+				eio.mSphereCurrentYaw = 0;
 			}
 		}
 
 		JGeometry::TVec3<f32> local_468;
-		JGeometry::TVec3<f32> f31_f30_f29;
+		JGeometry::TVec3<f32> radialVec;
 
 		f32 volumeSize = (f32)mVolumeSize;
 
@@ -411,7 +416,7 @@ JPABaseParticle* JPABaseEmitter::createParticle()
 		case VOLUME_TYPE_LINE: {
 			f32 z;
 			if (checkFlag(EMIT_FLAG_FIXED_INTERVAL)) {
-				z = (volumeSize * (f32)r27_param168) / (f32)(r26_param164 - 1)
+				z = (volumeSize * (f32)emitIndex) / (f32)(emitCount - 1)
 				    - volumeSize * 0.5f;
 			} else {
 				z = volumeSize * getRandomSF();
@@ -424,15 +429,16 @@ JPABaseParticle* JPABaseEmitter::createParticle()
 			s16 angle;
 
 			if (checkFlag(EMIT_FLAG_FIXED_INTERVAL)) {
-				angle = (r27_param168 << 16) / r26_param164;
+				angle = (s16)((emitIndex << 16) / emitCount);
 			} else {
-				u32 uVar25 = mRng.get();
-				u32 uVar26 = mRng.get();
-				angle      = uVar25;
+				u32 rand = mRng.get();
+				mRng.get();
+				angle = (s16)rand;
 			}
 
 			if (mVolumeYawSweep < 1.0f) {
-				JPAGetYRotateMtx(angle * mVolumeYawSweep, local_438);
+				s16 sweptAngle = (s16)((f32)angle * mVolumeYawSweep);
+				JPAGetYRotateMtx(sweptAngle, local_438);
 			} else {
 				JPAGetYRotateMtx(angle, local_438);
 			}
@@ -450,16 +456,23 @@ JPABaseParticle* JPABaseEmitter::createParticle()
 			break;
 		}
 		case VOLUME_TYPE_CUBE: {
-			local_468.set(getRandomSF() * volumeSize,
-			              getRandomSF() * volumeSize,
-			              getRandomSF() * volumeSize);
+			f32 z = getRandomF();
+			f32 y = getRandomF();
+			f32 x = getRandomF();
+			x -= 0.5f;
+			y -= 0.5f;
+			z -= 0.5f;
+			local_468.x = x * volumeSize;
+			local_468.y = y * volumeSize;
+			local_468.z = z * volumeSize;
 			break;
 		}
 		case VOLUME_TYPE_SPHERE: {
 			Mtx local_408;
 
 			if (checkFlag(EMIT_FLAG_FIXED_INTERVAL)) {
-				JPAGetXYRotateMtx(r24_param174, r25_param176, local_408);
+				JPAGetXYRotateMtx(fixedSpherePitch, fixedSphereYaw,
+				                  local_408);
 			} else {
 				if (mVolumeYawSweep < 1.0f) {
 					f32 y = mVolumeYawSweep * getRandomSS();
@@ -497,8 +510,9 @@ JPABaseParticle* JPABaseEmitter::createParticle()
 			f32 r = volumeSize
 			        * (mVolumeMinRadius + distance * (1.0f - mVolumeMinRadius));
 
-			local_468.set(r * JMASSin(uVar11), volumeSize * getRandomRF(),
-			              r * JMASCos(uVar11));
+			local_468.x = r * JMASSin(uVar11);
+			local_468.y = (getRandomF() - 0.5f) * (2.0f * volumeSize);
+			local_468.z = r * JMASCos(uVar11);
 			break;
 		}
 		case VOLUME_TYPE_TORUS: {
@@ -512,25 +526,28 @@ JPABaseParticle* JPABaseEmitter::createParticle()
 			Mtx afStack_170;
 			JPAGetYRotateMtx(theta, afStack_170);
 
-			local_468.set(volumeSize * JMASSin(theta), 0.0f,
-			              volumeSize * JMASCos(theta));
+			local_468.x = volumeSize * JMASSin(theta);
+			local_468.y = 0.0f;
+			local_468.z = volumeSize * JMASCos(theta);
 
 			JGeometry::TVec3<f32> local_3C8;
 
 			f32 rad = volumeSize * mVolumeMinRadius;
 			s16 phi = mRng.get();
 
-			local_3C8.set(0.0f, rad * JMASSin(phi), rad * JMASCos(phi));
+			local_3C8.x = 0.0f;
+			local_3C8.y = rad * JMASSin(phi);
+			local_3C8.z = rad * JMASCos(phi);
 
 			MTXMultVec(afStack_170, &local_3C8, &local_3C8);
 			local_468 += local_3C8;
-			f31_f30_f29.set(local_3C8);
+			radialVec.set(local_3C8);
 			break;
 		}
 		}
 
 		if (mVolumeType != VOLUME_TYPE_TORUS)
-			f31_f30_f29.set(local_468.x, 0.0f, local_468.z);
+			radialVec.set(local_468.x, 0.0f, local_468.z);
 
 		JGeometry::TVec3<f32> f21_f20_f19;
 		f21_f20_f19.mul(local_468, JPAEmitterInfoObj.unk30);
@@ -544,7 +561,10 @@ JPABaseParticle* JPABaseEmitter::createParticle()
 		JGeometry::TVec3<f32> f26_f25_f28(0.0f, 0.0f, 0.0f);
 		if (unk1FC != 0.0f) {
 			if (mVolumeType == VOLUME_TYPE_POINT) {
-				f26_f25_f28.set(getRandomSF(), getRandomSF(), getRandomSF());
+				f32 z = getRandomSF();
+				f32 y = getRandomSF();
+				f32 x = getRandomSF();
+				f26_f25_f28.set(x, y, z);
 				f26_f25_f28.setLength(unk1FC);
 			} else {
 				f26_f25_f28.set(f21_f20_f19);
@@ -556,7 +576,7 @@ JPABaseParticle* JPABaseEmitter::createParticle()
 		if (unk200 != 0.0f) {
 			if (mVolumeType == VOLUME_TYPE_POINT) {
 				if (checkFlag(EMIT_FLAG_FIXED_INTERVAL)) {
-					s16 ang = (s16)((r27_param168 << 16) / r26_param164);
+					s16 ang = (s16)((emitIndex << 16) / emitCount);
 					f22_f23_f24.set(JMASSin(ang), 0.0f, JMASCos(ang));
 				} else {
 					f22_f23_f24.x = getRandomSF();
@@ -565,15 +585,18 @@ JPABaseParticle* JPABaseEmitter::createParticle()
 				}
 				f22_f23_f24.setLength(unk200);
 			} else {
-				f22_f23_f24.setLength(f31_f30_f29, unk200);
+				f22_f23_f24.setLength(radialVec, unk200);
 			}
 		}
 
 		JGeometry::TVec3<f32> add3_vec(0.0f, 0.0f, 0.0f);
 		if (unk204 != 0.0f) {
-			add3_vec.x = getRandomSF() * unk204;
-			add3_vec.y = getRandomSF() * unk204;
-			add3_vec.z = getRandomSF() * unk204;
+			f32 z = getRandomSF();
+			f32 y = getRandomSF();
+			f32 x = getRandomSF();
+			add3_vec.x = x * unk204;
+			add3_vec.y = y * unk204;
+			add3_vec.z = z * unk204;
 		}
 
 		if (unk208 != 0.0f) {
@@ -591,9 +614,12 @@ JPABaseParticle* JPABaseEmitter::createParticle()
 		}
 
 		JGeometry::TVec3<f32> local_35c;
-		local_35c.x = local_398.x + add3_vec.x + f26_f25_f28.x + f22_f23_f24.x;
-		local_35c.y = local_398.y + add3_vec.y + f26_f25_f28.y + f22_f23_f24.y;
-		local_35c.z = local_398.z + add3_vec.z + f26_f25_f28.z + f22_f23_f24.z;
+		f32 vx = add3_vec.x + f26_f25_f28.x + f22_f23_f24.x;
+		f32 vy = add3_vec.y + f26_f25_f28.y + f22_f23_f24.y;
+		f32 vz = add3_vec.z + f26_f25_f28.z + f22_f23_f24.z;
+		local_35c.x = local_398.x + vx;
+		local_35c.y = local_398.y + vy;
+		local_35c.z = local_398.z + vz;
 
 		if (unk1C4 != 0.0f)
 			local_35c *= random_scale;
