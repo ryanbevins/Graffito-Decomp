@@ -93,24 +93,14 @@ BOOL TMario::canSleep()
 // canPut - 0x80145AC8
 BOOL TMario::canPut()
 {
-	s32 shift = jmaSinShift;
-	u16 faceAngle = mFaceAngle.y;
-	TTakeActor* heldObj = mHeldObject;
-	s32 idx = (s32)faceAngle >> shift;
-	f32 sinVal = jmaSinTable[idx];
-	f32 cosVal = jmaCosTable[idx];
-	f32 x = 100.0f * sinVal + mPosition.x;
-	f32 z = 100.0f * cosVal + mPosition.z;
-	f32 y = 10.0f + mPosition.y;
-	f32 radius = heldObj->mDamageRadius;
-
-	if (gpMap->isTouchedOneWall(x, y, z, radius))
+	if (gpMap->isTouchedOneWall(mPosition.x + 100.0f * JMASSin(mFaceAngle.y),
+	                            10.0f + mPosition.y,
+	                            mPosition.z + 100.0f * JMASCos(mFaceAngle.y),
+	                            mHeldObject->getDamageRadius()))
 		return 0;
 
-	f32 y2 = 10.0f + mPosition.y;
-	f32 radius2 = mHeldObject->mDamageRadius;
-
-	if (gpMap->isTouchedOneWall(mPosition.x, y2, mPosition.z, radius2))
+	if (gpMap->isTouchedOneWall(mPosition.x, 10.0f + mPosition.y, mPosition.z,
+	                            mHeldObject->getDamageRadius()))
 		return 0;
 
 	return 1;
@@ -451,23 +441,22 @@ BOOL TMario::squating()
 		return changePlayerStatus(0x0C008222, 0, false);
 	}
 
-	TWaterGun* gun = mWaterGun;
-	if (gun == nullptr) {
-		return changePlayerStatus(0x0C008222, 0, false);
-	}
-
-	{
+	TWaterGun* gun;
+	if ((gun = mWaterGun) != nullptr) {
 		u8 hasFlag;
 		if (mState & 0x00008000) {
 			hasFlag = 1;
 		} else {
 			hasFlag = 0;
 		}
-		if (!hasFlag) {
-			return changePlayerStatus(0x0C008222, 0, false);
-		}
+		if (hasFlag)
+			goto squatMain;
 	}
 
+squatStandup:
+	return changePlayerStatus(0x0C008222, 0, false);
+
+squatMain:
 	if (input & 0x02) {
 		TMarioGamePad* pad = mGamePad;
 		if (pad->mMeaning & 0x0400) {
@@ -485,22 +474,22 @@ BOOL TMario::squating()
 		TNozzleBase* nozzle = gun->getCurrentNozzle();
 		u8 nozzleKind = *(u8*)((u8*)nozzle + 0x18);
 		if (nozzleKind == 1) {
-			TWaterGun* gun2 = mWaterGun;
+			gun = mWaterGun;
 			u8 canSpray;
-			if (gun2->mCurrentWater == 0) {
+			if (gun->mCurrentWater == 0) {
 				canSpray = 0;
 			} else {
-				TNozzleBase* nozzle2 = gun2->getCurrentNozzle();
+				TNozzleBase* nozzle2 = gun->getCurrentNozzle();
 				s32 kind = nozzle2->getNozzleKind();
 				if (kind == 1) {
-					TNozzleTrigger* trigger = (TNozzleTrigger*)gun2->getCurrentNozzle();
+					TNozzleTrigger* trigger = (TNozzleTrigger*)gun->getCurrentNozzle();
 					if (trigger->unk385 == 1) {
 						canSpray = 1;
 					} else {
 						canSpray = 0;
 					}
 				} else {
-					if (gun2->getCurrentNozzle()->unk378 > 0.0f) {
+					if (gun->getCurrentNozzle()->unk378 > 0.0f) {
 						canSpray = 1;
 					} else {
 						canSpray = 0;
@@ -622,6 +611,7 @@ BOOL TMario::squatStandup()
 }
 
 // jumpEndCommon - 0x80144C50
+#pragma dont_inline on
 BOOL TMario::jumpEndCommon(int animId, int nextState)
 {
 	waitProcess();
@@ -632,6 +622,7 @@ BOOL TMario::jumpEndCommon(int animId, int nextState)
 	}
 	return 0;
 }
+#pragma dont_inline off
 
 // jumpEndEvents - 0x80144BD8
 #pragma dont_inline on
@@ -680,34 +671,16 @@ BOOL TMario::waitMain()
 			hasInput = 0;
 		}
 		if (hasInput) {
-			if (heldObj->mActorType == (u32)0x80000001) {
+			s32 actorType = heldObj->mActorType;
+			switch (actorType) {
+			case 0x80000001:
 				changePlayerStatus(0x80000588, 0, false);
-			} else {
-				u16 faceAngle = mFaceAngle.y;
-				s32 idx = (s32)faceAngle >> jmaSinShift;
-				f32 sinVal = jmaSinTable[idx];
-				f32 cosVal = jmaCosTable[idx];
-				f32 x = 100.0f * sinVal + mPosition.x;
-				f32 z = 100.0f * cosVal + mPosition.z;
-				f32 y = 10.0f + mPosition.y;
-				f32 radius = heldObj->mDamageRadius;
-				int putResult;
-
-				if (gpMap->isTouchedOneWall(x, y, z, radius)) {
-					putResult = 0;
-				} else {
-					f32 y2 = 10.0f + mPosition.y;
-					f32 radius2 = mHeldObject->mDamageRadius;
-
-					if (gpMap->isTouchedOneWall(mPosition.x, y2, mPosition.z, radius2))
-						putResult = 0;
-					else
-						putResult = 1;
-				}
-
-				if (putResult) {
+				break;
+			default:
+				if (canPut()) {
 					changePlayerStatus(0x80000387, 0, false);
 				}
+				break;
 			}
 		}
 	}
@@ -726,13 +699,14 @@ BOOL TMario::waitMain()
 		break;
 	case 0x0C000204: {
 		// Wakeup
+		register BOOL tmpResult;
 		u32 input = mInput;
 		if (input & 0x04) {
 			sleepingEffectKill();
-			changePlayerStatus(0x088C, 0, false);
+			tmpResult = changePlayerStatus(0x088C, 0, false);
 		} else if (input & 0x08) {
 			sleepingEffectKill();
-			changePlayerStatus(0x50, 0, false);
+			tmpResult = changePlayerStatus(0x50, 0, false);
 		} else if (waitingCommonEvents()) {
 			sleepingEffectKill();
 			return 1;
@@ -747,12 +721,12 @@ BOOL TMario::waitMain()
 			setAnimation(animId, 1.0f);
 			if (isLast1AnimeFrame()) {
 				sleepingEffectKill();
-				changePlayerStatus(0x0C400201, 0, false);
+				tmpResult = changePlayerStatus(0x0C400201, 0, false);
 			} else {
-				result = 0;
+				tmpResult = 0;
 			}
 		}
-		result = result;
+		result = tmpResult;
 		break;
 	}
 	case 0x0C008220:
@@ -767,116 +741,135 @@ BOOL TMario::waitMain()
 		break;
 	case 0x0C00022F: {
 		// action == 0x0C00022F: squat landing
+		BOOL tmpResult;
 		u32 input = mInput;
 		if (input & 0x04) {
-			changePlayerStatus(0x088C, 0, false);
+			tmpResult = changePlayerStatus(0x088C, 0, false);
 		} else if (input & 0x08) {
-			changePlayerStatus(0x50, 0, false);
+			tmpResult = changePlayerStatus(0x50, 0, false);
 		} else {
 			waitProcess();
 			setAnimation(0xF3, 1.0f);
 			if (isLast1AnimeFrame()) {
 				changePlayerStatus(0x0C400201, 0, false);
 			}
-			result = 0;
+			tmpResult = 0;
 		}
-		result = result;
+		result = tmpResult;
 		break;
 	}
-	case 0x0C000230:
+	case 0x0C000230: {
 		// jumpEnd - landing type 1
+		BOOL tmpResult;
 		if (jumpEndEvents(0)) {
-			result = 1;
+			tmpResult = 1;
 		} else {
 			waitProcess();
 			setAnimation(0x4E, 1.0f);
 			if (isLast1AnimeFrame()) {
 				changePlayerStatus(0x0C400201, 0, false);
 			}
-			result = 0;
+			tmpResult = 0;
 		}
+		result = tmpResult;
 		break;
-	case 0x0C000231:
+	}
+	case 0x0C000231: {
 		// jumpEnd - landing type 2
+		BOOL tmpResult;
 		if (jumpEndEvents(0)) {
-			result = 1;
+			tmpResult = 1;
 		} else {
 			waitProcess();
 			setAnimation(0x4B, 1.0f);
 			if (isLast1AnimeFrame()) {
 				changePlayerStatus(0x0C400201, 0, false);
 			}
-			result = 0;
+			tmpResult = 0;
 		}
+		result = tmpResult;
 		break;
-	case 0x0C000232:
+	}
+	case 0x0C000232: {
 		// jumpEnd - landing type 3 (broadjump/fire)
+		BOOL tmpResult;
 		if (jumpEndEvents(0)) {
-			result = 1;
+			tmpResult = 1;
 		} else {
 			waitProcess();
 			setAnimation(0x57, 1.0f);
 			if (isLast1AnimeFrame()) {
 				changePlayerStatus(0x0C400201, 0, false);
 			}
-			result = 0;
+			tmpResult = 0;
 		}
+		result = tmpResult;
 		break;
-	case 0x0C000233:
+	}
+	case 0x0C000233: {
 		// fire jump end
+		BOOL tmpResult;
 		if (jumpEndEvents(0)) {
-			result = 1;
+			tmpResult = 1;
 		} else {
 			waitProcess();
 			setAnimation(0xBE, 1.0f);
 			if (isLast1AnimeFrame()) {
 				changePlayerStatus(0x0C400201, 0, false);
 			}
-			mFaceAngle.x     = 0;
+			mFaceAngle.x     = (tmpResult = 0);
 			mModelFaceAngle += 0x8000;
-			result = 0;
 		}
+		result = tmpResult;
 		break;
+	}
 	case 0x80000A36:
 		// throw end
 		checkThrowObject();
 		jumpEndCommon(0x65, 0x0C400201);
 		result = 0;
 		break;
-	case 0x08000239:
+	case 0x08000239: {
 		// pullEnd
+		BOOL tmpResult;
 		mInput &= ~0x2010;
 		if (jumpEndEvents(0)) {
-			result = 1;
+			tmpResult = 1;
 		} else {
 			waitProcess();
 			setAnimation(0x28, 1.0f);
 			if (isLast1AnimeFrame()) {
 				changePlayerStatus(0x0C400201, 0, false);
 			}
-			result = 0;
+			tmpResult = 0;
 		}
+		result = tmpResult;
 		break;
-	case 0x0800023A:
+	}
+	case 0x0800023A: {
+		BOOL tmpResult;
 		if (jumpEndEvents(0x02000880)) {
-			result = 1;
+			tmpResult = 1;
 		} else {
 			waitProcess();
 			setAnimation(0x57, 1.0f);
 			if (isLast1AnimeFrame()) {
 				changePlayerStatus(0x0C400201, 0, false);
 			}
-			result = 0;
+			tmpResult = 0;
 		}
+		result = tmpResult;
 		break;
-	case 0x0800023B:
+	}
+	case 0x0800023B: {
 		// uTurnJumpEnd
+		BOOL tmpResult;
 		mInput &= ~0x2000;
 		if (jumpEndEvents(0x02000880)) {
-			if (mAction - 0x04000440 == 0) {
-				changePlayerStatus(0x0C008222, 0, false);
+			if (mAction == 0x04000440) {
+				tmpResult = changePlayerStatus(0x0C008222, 0, false);
 			} else {
-				result = 1;
+				tmpResult = 1;
 			}
 		} else {
 			waitProcess();
@@ -884,53 +877,57 @@ BOOL TMario::waitMain()
 			if (isLast1AnimeFrame()) {
 				changePlayerStatus(0x0C008222, 0, false);
 			}
-			result = 0;
+			tmpResult = 0;
 		}
+		result = tmpResult;
 		break;
+	}
 	case 0x0080023C: {
 		// broadJumpEnd
+		BOOL tmpResult;
 		mActionState = 1;
 		u32 input = mInput;
 		if (input & 0x04) {
-			changePlayerStatus(0x088C, 0, false);
+			tmpResult = changePlayerStatus(0x088C, 0, false);
 		} else if (input & 0x08) {
-			changePlayerStatus(0x00840452, 0, false);
+			tmpResult = changePlayerStatus(0x00840452, 0, false);
 		} else {
 			waitProcess();
 			setAnimation(0x3A, 1.0f);
 			if (isLast1AnimeFrame()) {
 				changePlayerStatus(0x0C00023E, 0, false);
 			}
-			result = 0;
+			tmpResult = 0;
 		}
-		result = result;
+		result = tmpResult;
 		break;
 	}
 	case 0x0C00023D: {
 		// hipAttackEnd
+		BOOL tmpResult;
 		u32 input = mInput;
 		if (!(input & 0x10) && (input & 0x0F)) {
-			result = checkAllMotions();
+			tmpResult = checkAllMotions();
 		} else {
 			stopCommon(0x10, 0x0C400201);
-			result = 0;
+			tmpResult = 0;
 		}
+		result = tmpResult;
 		break;
 	}
-	case 0x0C00023F: {
+	case 0x0C00023E: {
 		// slipEnd
+		BOOL tmpResult;
 		u32 input = mInput;
 		if (input & 0x0F) {
-			result = checkAllMotions();
+			tmpResult = checkAllMotions();
 		} else {
 			stopCommon(0x8F, 0x0C400201);
-			result = 0;
+			tmpResult = 0;
 		}
+		result = tmpResult;
 		break;
 	}
-	default:
-		result = 0;
-		break;
 	}
 
 	return result;

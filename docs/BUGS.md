@@ -368,3 +368,62 @@ Current isolation notes:
   - `MarioUtil/ShadowUtil.cpp`
 - Fourth-pass deployed DOL:
   `512308AA7763132C9FC14CC14D0BF6A1C969C926`
+
+## BUG 0007 - Ground pound sticks in landing pose
+
+Status: complete; source-linked `Player/MarioWait.cpp`
+
+Symptom:
+- When Mario performs a ground pound, he can get stuck on the ground forever
+  in the ground-pound pose and cannot transition out of the state.
+
+Current isolation notes:
+- First-pass original-linked the likely hip-drop, jump landing, and special
+  state/collision cluster:
+  - `Player/MarioJump.cpp`
+  - `Player/MarioPhysics.cpp`
+  - `Player/MarioSpecial.cpp`
+  - `Player/MarioWait.cpp`
+- First-pass deployed DOL:
+  `0ECFAC85F42B2364430A087639D634242DE692D4`
+- User test result: fixed; ground pound works.
+- Trimmed isolation source-linked `Player/MarioPhysics.cpp` and
+  `Player/MarioSpecial.cpp` again, leaving only:
+  - `Player/MarioJump.cpp`
+  - `Player/MarioWait.cpp`
+- Trimmed deployed DOL:
+  `12CBC9572C4C455A93540A88D1EEFE8598775F21`
+- User test result: still fixed; ground pound works.
+- Final isolation source-links `Player/MarioJump.cpp` again, leaving only:
+  - `Player/MarioWait.cpp`
+- Final isolation deployed DOL:
+  `3E7D5A83BE9F5A493F74AF80821B6054ED8B5D99`
+- User test result: still fixed; ground pound works.
+- BUG 0007 is isolated to source-linked `Player/MarioWait.cpp`.
+- Source fix:
+  - `TMario::waitMain()` now handles slip-end as `0x0C00023E`, matching the
+    original switch routing. The previous source used `0x0C00023F`, which sent
+    the landing/end state through the wrong default path.
+  - `TMario::waitMain()` now compares `mAction == 0x04000440` directly for
+    the u-turn jump end transition, matching the original compare shape.
+  - `TMario::squating()` was reshaped to keep the water-gun pointer flow close
+    to original ASM; remaining differences are stack/register allocation noise.
+- Source-linked deployed DOL:
+  `DCF4055D7D00E02804E4BD8022668577A41F1CEA`
+- User test result: still fixed; ground pound works with source-linked
+  `Player/MarioWait.cpp`.
+- Follow-up source cleanup:
+  - `TMario::waitMain()` now lets unhandled switch cases fall through to the
+    initially-zero result, matching the original tail instead of emitting a
+    redundant default block.
+  - The squat-landing case now preserves the `changePlayerStatus()` return
+    through a shared local result handoff, matching the original branch shape.
+- Follow-up source-linked deployed DOL:
+  `D18F943B8624A9DD6FE600ACF9C8125376F947DE`
+- Final cleanup:
+  - `TMario::canPut()` now uses the original inline/accessor source shape:
+    `JMASSin(mFaceAngle.y)`, `JMASCos(mFaceAngle.y)`, and
+    `mHeldObject->getDamageRadius()`.
+  - `TMario::canPut()` is now a 100% instruction match.
+- Final source-linked deployed DOL:
+  `8CE88E923E08BB0122BD185528ABEA93D7D215AF`
