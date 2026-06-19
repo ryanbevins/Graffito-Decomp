@@ -647,7 +647,8 @@ BOOL TMario::rocketCheck()
 		if (!nozzleReady) canRocket = FALSE;
 	} else canRocket = FALSE;
 	if ((u8)canRocket == TRUE) {
-		mRocketTargetY = mPosition.y + mWaterGun->mWatergunParams.mHoverHeight.get();
+		mRocketTargetY
+		    = mPosition.y + mWaterGun->mWatergunParams.mHHoverHeight.get();
 		return changePlayerStatus(ACTION_ROCKETING, 0, false);
 	}
 	return FALSE;

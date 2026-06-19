@@ -49,7 +49,7 @@ public:
 
 class TWaterHitActor : public THitActor {
 public:
-	TWaterHitActor() { unk68 = 0; }
+	TWaterHitActor() { }
 	TWaterHitActor(const char* name)
 	    : THitActor(name)
 	{

@@ -427,3 +427,117 @@ Current isolation notes:
   - `TMario::canPut()` is now a 100% instruction match.
 - Final source-linked deployed DOL:
   `8CE88E923E08BB0122BD185528ABEA93D7D215AF`
+
+## BUG 0008 - FLUDD nozzle/action state behaves like rocket
+
+Status: complete; source-linked `Player/WaterGun.cpp`
+
+Symptom:
+- The normal FLUDD water nozzle behaves like the rocket nozzle and crashes
+  when used.
+- The correct nozzle must render and enter the normal spray action instead of
+  the rocket action.
+
+Current isolation notes:
+- First-pass original-links the likely FLUDD/nozzle emission and player action
+  cluster:
+  - `Player/WaterGun.cpp`
+  - `Player/MarioMove.cpp`
+  - `Player/MarioJump.cpp`
+  - `Player/MarioDraw.cpp`
+  - `Player/MarioEffect.cpp`
+  - `Player/ModelWaterManager.cpp`
+- First-pass isolation deployed DOL:
+  `3F02D68822E71253C74D517C641764360359C1B8`
+- Isolation batch 2 keeps only these original-linked:
+  - `Player/WaterGun.cpp`
+  - `Player/MarioMove.cpp`
+  - `Player/MarioJump.cpp`
+- Isolation batch 2 deployed DOL:
+  `17B3D0EF91AE905C82476B0F5A9BC284A8C9EE49`
+- Batch 2 result: nozzle/action side works. FLUDD shows the correct nozzle and
+  pretends to shoot, but visible spray water is still missing. Split that into
+  BUG 0009 and continue isolating this action-state bug first.
+- Isolation batch 3 source-links `Player/MarioJump.cpp` again, leaving only:
+  - `Player/WaterGun.cpp`
+  - `Player/MarioMove.cpp`
+- Isolation batch 3 deployed DOL:
+  `ACE85792C467A93AD11860C10251EF6378850E5B`
+- Batch 3 result: still works correctly, so `Player/MarioJump.cpp` is not
+  required for this action-state fix.
+- Isolation batch 4 source-links `Player/MarioMove.cpp` again, leaving only:
+  - `Player/WaterGun.cpp`
+- Isolation batch 4 deployed DOL:
+  `BE9FDC2B7B325916F8022244D6512314D9A52D19`
+- Source-linked test imported the mostly matched external `Player/WaterGun.cpp`
+  and adapted it to local headers/API names. `Player/WaterGun.cpp` is now
+  marked `Equivalent` so the DOL links our source instead of the retail object.
+- Source-linked WaterGun deployed DOL:
+  `7A933B0C886A57A8C09529A98215309D2C2EFF7B`
+- White nozzle texture regression was confirmed to disappear when
+  `Player/WaterGun.cpp` was linked as retail/original. Retail asm passes body
+  texture slot 1 (`getResTIMG(1)`, pointer offset `+0x20`) into
+  `SMS_ChangeTextureAll`; our source was using slot 0. Patched and redeployed
+  source-linked WaterGun DOL:
+  `8BB1CA1C96AA22B797358781AC119A52F22160FE`
+- Runtime result: fixed. Normal nozzle/action state works and the nozzle
+  texture renders correctly with source-linked `Player/WaterGun.cpp`.
+
+## BUG 0009 - FLUDD spray water does not render
+
+Status: fixed; source-linked `Player/ModelWaterManager.cpp` and
+`Player/WaterGun.cpp`
+
+Symptom:
+- FLUDD enters the correct spray/nozzle state and pretends to shoot.
+- Visible spray water does not render from the nozzle.
+
+Current notes:
+- Split from BUG 0008 after isolation batch 2. The missing water stream is
+  likely in the restored render/effect/water-manager half, not the current
+  nozzle/action-state isolation target.
+- The source-linked WaterGun import also corrected local nozzle model callback
+  wiring for spray, hover, and turbo nozzle joints, so this DOL should be used
+  to test both nozzle action state and visible spray rendering.
+- If nozzle textures are still white after
+  `8BB1CA1C96AA22B797358781AC119A52F22160FE`, continue in
+  `TWaterGun::init()` around nozzle model setup and texture replacement.
+- Isolation batch 1 keeps source-linked `Player/WaterGun.cpp` and
+  original-links likely downstream water/effect render TUs:
+  - `Player/ModelWaterManager.cpp`
+  - `Player/MarioEffect.cpp`
+  - `Player/MarioParticle.cpp`
+  - `Player/SplashManager.cpp`
+  - `System/EmitterViewObj.cpp`
+- Isolation batch 1 deployed DOL:
+  `56B896F304F3BEB39A5A715388A9580E95ECCA16`
+- Batch 1 result: visible FLUDD water renders, so BUG 0009 is inside this
+  downstream batch, not `Player/WaterGun.cpp`.
+- Isolation batch 2 keeps only `Player/ModelWaterManager.cpp` original-linked;
+  `Player/MarioEffect.cpp`, `Player/MarioParticle.cpp`,
+  `Player/SplashManager.cpp`, and `System/EmitterViewObj.cpp` are source-linked
+  again.
+- Isolation batch 2 deployed DOL:
+  `7353EEA00CE362ED452B4D5241B69923B7E097BF`
+- Source pass 1 focuses on the two missing/rough render-bound functions in
+  `Player/ModelWaterManager.cpp`:
+  - `TModelWaterManager::calcWorldMinMax()` now follows the retail scalar
+    min/max scan and is 97.1% size-matched against retail asm.
+  - `TModelWaterManager::calcDrawVtx(MtxPtr)` now rebuilds the retail
+    view-space water quad path and is 90.2% size-matched against retail asm.
+  - `Player/ModelWaterManager.cpp` is source-linked again as `Equivalent`.
+- Source pass 1 deployed DOL:
+  `B1CA4994A3192FE420EBC07D37F22F718D68D946`
+- Source fix:
+  - `TModelWaterManager::calcDrawVtx(MtxPtr)` now uses the retail airborne
+    water-particle draw scale: `1.414f * (0.5f * particleSize)`. The previous
+    source used `1.5f * (2.0f * particleSize)`, making in-air spray quads far
+    too large even though the renderer path was otherwise structurally close.
+  - `TNozzleDeform::emit(int)` now uses the retail analog-pressure size lerp:
+    `(pressure - sizeMinPressure) / (sizeMaxPressure - sizeMinPressure)`.
+    The previous source divided by `(sizeMaxPressure - pressure)`, which made
+    feathered trigger pressure produce unstable particle sizes.
+- Fixed deployed DOL:
+  `4E82FFC3EAC7DD90D4E048022A105F80852771E6`
+- User test result: fixed. FLUDD spray water renders correctly, including when
+  using less analog trigger pressure.

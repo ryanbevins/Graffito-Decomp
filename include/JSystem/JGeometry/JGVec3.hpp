@@ -107,7 +107,8 @@ public:
 
 	// === arithmetic stuff ===
 
-#ifdef JGEOMETRY_DRAWUTIL_OWNER_HELPERS
+#if defined(JGEOMETRY_DRAWUTIL_OWNER_HELPERS)                                  \
+    || defined(JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE)
 	void add(const TVec3& operand);
 #else
 	void add(const TVec3& operand)
@@ -125,7 +126,8 @@ public:
 		z = a.z + b.z;
 	}
 
-#ifdef JGEOMETRY_DRAWUTIL_OWNER_HELPERS
+#if defined(JGEOMETRY_DRAWUTIL_OWNER_HELPERS)                                  \
+    || defined(JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE)
 	void sub(const TVec3& translate);
 #else
 	void sub(const TVec3& translate)
@@ -246,12 +248,16 @@ public:
 		z = -z;
 	}
 
+#ifdef JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE
+	void scale(f32 scale);
+#else
 	void scale(f32 scale)
 	{
 		x *= scale;
 		y *= scale;
 		z *= scale;
 	}
+#endif
 
 	void scale(f32 scale, const TVec3& b)
 	{

@@ -1,4 +1,6 @@
+#define JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE
 #include <Player/ModelWaterManager.hpp>
+#undef JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE
 #include <Player/MarioAccess.hpp>
 #include <Player/SplashManager.hpp>
 #include <Strategic/LiveActor.hpp>
@@ -38,6 +40,17 @@ GXColor gModelWaterManagerWaterColor[4] = {
 	{ 0xFD, 0x62, 0xA7, 0x6E },
 };
 
+static inline f32 sqrtOneStep(f32 mag)
+{
+	if (mag > 0.0f) {
+		f64 root            = __frsqrte(mag);
+		volatile f32 result = 0.5 * root * (3.0 - mag * (root * root)) * mag;
+		return result;
+	}
+
+	return mag;
+}
+
 TWaterEmitInfo::TWaterEmitInfo(const char* name)
     : TParams(name)
     , PARAM_INIT(mNum, 1)
@@ -49,10 +62,10 @@ TWaterEmitInfo::TWaterEmitInfo(const char* name)
     , PARAM_INIT(mDirTremble, 0.0f)
     , PARAM_INIT(mPow, 0.0f)
     , PARAM_INIT(mPowTremble, 0.0f)
-    , PARAM_INIT(mSize, 0.0f)
+    , PARAM_INIT(mSize, 17.0f)
     , PARAM_INIT(mSizeTremble, 0.0f)
-    , PARAM_INIT(mHitRadius, 0.0f)
-    , PARAM_INIT(mHitHeight, 0.0f)
+    , PARAM_INIT(mHitRadius, 50.0f)
+    , PARAM_INIT(mHitHeight, 80.0f)
     , PARAM_INIT(mFlag, 0)
     , PARAM_INIT(mType, 0)
     , PARAM_INIT(__padding, 0)
@@ -72,7 +85,9 @@ const char* prmNames[] = {
 	"/Mario/WTP16_SpRocket.prm",
 };
 
-TWaterParticleType::TWaterParticleType(const char* path)
+static const Vec shineShadowOffset = { 0.0f, 3600.0f, -7458.0f };
+
+inline TWaterParticleType::TWaterParticleType(const char* path)
     : TParams(path)
     , PARAM_INIT(mExtension, 0.5f)
     , PARAM_INIT(mMagnify, 0.3f)
@@ -211,15 +226,15 @@ void TModelWaterManager::loadAfter()
 		unk5D60 &= ~0x100;
 }
 
-f32 TModelWaterManager::getWPGravity(int i) const
+inline f32 TModelWaterManager::getWPGravity(int i) const
 {
 	if (SMS_isDivingMap())
-		return unk5D88[0];
+		return unk5D88[12];
 	else
 		return mWaterParticleTypes[mParticleTypeSOA[i]]->mGravity.get();
 }
 
-void TModelWaterManager::getWaterAlpha() const { }
+inline void TModelWaterManager::getWaterAlpha() const { }
 
 bool TModelWaterManager::askHitWaterParticleOnGround(
     const JGeometry::TVec3<f32>& param_1)
@@ -252,8 +267,7 @@ void TModelWaterManager::makeEmit(const TWaterEmitInfo& param_1)
 		local_3c.y = rand11();
 		local_3c.z = rand11();
 
-		f32 dirScale = param_1.mDirTremble.get();
-		VECScale(&local_3c, &local_3c, dirScale);
+		VECScale(&local_3c, &local_3c, param_1.mDirTremble.get());
 		VECAdd(param_1.mDir.get(), &local_3c, &local_3c);
 		if (local_3c.x == 0.0f && local_3c.y == 0.0f && local_3c.z == 0.0f)
 			local_3c.y = -1.0f;
@@ -294,27 +308,27 @@ int TModelWaterManager::emitRequest(const TWaterEmitInfo& param_1)
 	return (param_1.mNum.get() - particlesToSpawn) & 0xff;
 }
 
-void TModelWaterManager::splashSound(const JGeometry::TVec3<f32>& pos,
-                                     f32 volume) const
+inline void TModelWaterManager::splashSound(const JGeometry::TVec3<f32>& pos,
+                                            f32 volume) const
 {
 	// TODO: is this the splash sound or some other sound?
 	gpMSound->startSoundSet(0x6800, &pos, 0, volume, 0.0f, 0, 4);
 }
 
 // TODO: contents of this inline are a wild guess
-void TModelWaterManager::splashGround(int i)
+inline void TModelWaterManager::splashGround(int i)
 {
 	mParticleLifetimeSOA[i] -= getPlaneVanishSpeed(unk2914[i]);
 	gpPollution->clean(
 	    mParticlePositionSOA[i].x, mParticlePositionSOA[i].y,
 	    mParticlePositionSOA[i].z,
-	    mWaterParticleTypes[mParticleTypeSOA[i]]->mCleanSize.get() * 10.0f);
+	    mWaterParticleTypes[mParticleTypeSOA[i]]->mCleanSize.get() * 32.0f);
 }
 
-void TModelWaterManager::touchingExec(int i) { }
+inline void TModelWaterManager::touchingExec(int i) { }
 
 // TODO: contents of this inline are a wild guess
-void TModelWaterManager::splashWall(int i)
+inline void TModelWaterManager::splashWall(int i)
 {
 	mParticleLifetimeSOA[i] -= getPlaneVanishSpeed(unk2914[i]);
 
@@ -324,8 +338,9 @@ void TModelWaterManager::splashWall(int i)
 	    mWaterParticleTypes[mParticleTypeSOA[i]]->mCleanSize.get() * 32.0f);
 }
 
-void TModelWaterManager::splashWallPosSize(const JGeometry::TVec3<f32>& param_1,
-                                           f32 param_2)
+inline void
+TModelWaterManager::splashWallPosSize(const JGeometry::TVec3<f32>& param_1,
+                                      f32 param_2)
 {
 }
 
@@ -340,7 +355,7 @@ struct UnknownMWMStruct {
 
 // TODO: these 3 inlines could be confused with one another
 
-f32 TModelWaterManager::getPlaneFriction(const TBGCheckData* plane)
+inline f32 TModelWaterManager::getPlaneFriction(const TBGCheckData* plane)
 {
 	if (plane->isWaterSlip())
 		return gWaterManagerPlaneInfo.unk0;
@@ -348,7 +363,7 @@ f32 TModelWaterManager::getPlaneFriction(const TBGCheckData* plane)
 		return gWaterManagerPlaneInfo.unkC;
 }
 
-f32 TModelWaterManager::getPlaneFall(const TBGCheckData* plane)
+inline f32 TModelWaterManager::getPlaneFall(const TBGCheckData* plane)
 {
 	if (plane->isWaterSlip())
 		return gWaterManagerPlaneInfo.unk4;
@@ -356,7 +371,7 @@ f32 TModelWaterManager::getPlaneFall(const TBGCheckData* plane)
 		return gWaterManagerPlaneInfo.unk10;
 }
 
-f32 TModelWaterManager::getPlaneVanishSpeed(const TBGCheckData* plane)
+inline f32 TModelWaterManager::getPlaneVanishSpeed(const TBGCheckData* plane)
 {
 	if (plane->isWaterSlip())
 		return gWaterManagerPlaneInfo.unk8;
@@ -403,27 +418,28 @@ void TModelWaterManager::garbageCollect()
 
 void TModelWaterManager::move()
 {
-	f32 fVar1 = unk5E08;
+	f32 maxMarioDistSq = unk5E08 * unk5E08;
 	for (int i = 0; i < mParticleCount; ++i) {
 		if (unk2514[i] != nullptr) {
 			mStaticHitActor.mPosition = mParticlePositionSOA[i];
 			*(s32*)&mStaticHitActor.unk68 = i;
 
-			if (!unk2514[i]->receiveMessage(&mStaticHitActor,
-			                                HIT_MESSAGE_SPRAYED_BY_WATER))
+			if (unk2514[i]->receiveMessage(&mStaticHitActor,
+			                                HIT_MESSAGE_SPRAYED_BY_WATER)) {
+				splashSound(mParticlePositionSOA[i], mParticleSizeSOA[i]);
+
+				if (MsRandF() < unk5D88[8])
+					gpSplashManager->newSplash(mParticlePositionSOA[i], 5.0f);
+
+				mParticleLifetimeSOA[i] = 0.0f;
 				continue;
+			}
+		}
 
-			splashSound(mParticlePositionSOA[i], mParticleSizeSOA[i]);
-
-			if (MsRandF() < unk5D88[8])
-				gpSplashManager->newSplash(mParticlePositionSOA[i], 5.0f);
-
-			mParticleLifetimeSOA[i] = 0.0f;
-		} else {
-			JGeometry::TVec3<f32> thing;
-			thing.sub(SMS_GetMarioPos(), mParticlePositionSOA[i]);
-
-			if (thing.x * thing.x + thing.z * thing.z > fVar1 * fVar1) {
+		{
+			f32 distX = gpMarioPos->x - mParticlePositionSOA[i].x;
+			f32 distZ = gpMarioPos->z - mParticlePositionSOA[i].z;
+			if (distX * distX + distZ * distZ > maxMarioDistSq) {
 				mParticleLifetimeSOA[i] = 0.0f;
 				continue;
 			}
@@ -454,8 +470,8 @@ void TModelWaterManager::move()
 				    = mParticleVelocitySOA[i].x * getPlaneFriction(unk2914[i])
 				      + unk2914[i]->getNormal().x;
 				mParticleVelocitySOA[i].y = getWPGravity(i);
-				mParticleVelocitySOA[i].x
-				    = mParticleVelocitySOA[i].x * getPlaneFriction(unk2914[i])
+				mParticleVelocitySOA[i].z
+				    = mParticleVelocitySOA[i].z * getPlaneFriction(unk2914[i])
 				      + unk2914[i]->getNormal().z;
 
 				mParticlePositionSOA[i].x += mParticleVelocitySOA[i].x;
@@ -477,11 +493,13 @@ void TModelWaterManager::move()
 	for (int i = 0; i < mParticleCount; ++i) {
 		if (mParticleVelocitySOA[i].y < 0.0f) {
 			f31 = gpMap->checkGroundIgnoreWaterThrough(
-			    mParticlePositionSOA[i].x, mParticlePositionSOA[i].y - fVar1,
+			    mParticlePositionSOA[i].x,
+			    mParticlePositionSOA[i].y - mParticleVelocitySOA[i].y,
 			    mParticlePositionSOA[i].z, &local_248);
 
-			if (!local_248->isLegal() || 1.0f + f31 < mParticlePositionSOA[i].y)
-				continue;
+			if (!local_248->isLegal()
+			    || 1.0f + f31 < mParticlePositionSOA[i].y) {
+			} else {
 
 			if (local_248->isWaterSurface()) {
 				if (MsRandF() < unk5D88[11])
@@ -520,17 +538,16 @@ void TModelWaterManager::move()
 				    *= mWaterParticleTypes[mParticleTypeSOA[i]]->mMagnify.get();
 				f32 fVar1;
 				if (gpCamera->isLButtonCameraSpecifyMode(gpCamera->mMode))
-					fVar1 = unk5D88[0];
-				else
 					fVar1 = unk5D88[1];
+				else
+					fVar1 = unk5D88[0];
 
 				if (MsRandF() < fVar1) {
 					setFlagBottom4Bits(i, 2);
 				} else {
 					mParticleLifetimeSOA[i] = 0.0f;
+					continue;
 				}
-
-				continue;
 			}
 
 			unk2914[i] = local_248;
@@ -542,7 +559,11 @@ void TModelWaterManager::move()
 				                        HIT_MESSAGE_SPRAYED_BY_WATER))
 					mParticleLifetimeSOA[i] = 0.0f;
 			}
-		} else {
+				continue;
+			}
+		}
+
+		{
 			static TBGWallCheckRecord wcheck;
 
 			wcheck.set(mParticlePositionSOA[i].x,
@@ -578,7 +599,9 @@ void TModelWaterManager::move()
 						    r27->mPlaneDistance
 						    + mParticlePositionSOA[i].dot(r27->getNormal()));
 
-						mParticlePositionSOA[i] -= local_194;
+						mParticlePositionSOA[i].x -= local_194.x;
+						mParticlePositionSOA[i].y -= local_194.y;
+						mParticlePositionSOA[i].z -= local_194.z;
 
 						if (getFlagBottom4Bits(i) == 1) {
 							JGeometry::TVec3<f32> local_1d4 = r27->getNormal();
@@ -713,15 +736,8 @@ void TModelWaterManager::move()
 void TModelWaterManager::calcWorldMinMax()
 {
 	if (mParticleCount == 0) {
-		JGeometry::TVec3<f32> marioPos = SMS_GetMarioPos();
-
-		unk5D70.x = marioPos.x;
-		unk5D70.y = marioPos.y;
-		unk5D70.z = marioPos.z;
-
-		unk5D7C.x = marioPos.x;
-		unk5D7C.y = marioPos.y;
-		unk5D7C.z = marioPos.z;
+		unk5D70 = *gpMarioPos;
+		unk5D7C = *gpMarioPos;
 
 		unk5D70.x -= 1.0f;
 		unk5D70.y -= 1.0f;
@@ -733,30 +749,115 @@ void TModelWaterManager::calcWorldMinMax()
 		return;
 	}
 
-	JGeometry::TVec3<f32> fVar789 = mParticlePositionSOA[0];
-	fVar789.x -= 1.0f;
-	fVar789.y -= 1.0f;
-	fVar789.z -= 1.0f;
-	JGeometry::TVec3<f32> fVar123 = mParticlePositionSOA[0];
-	fVar789.x += 1.0f;
-	fVar789.y += 1.0f;
-	fVar789.z += 1.0f;
-	for (int i = 0; i < mParticleCount; ++i) {
-		fVar789.setMax(mParticlePositionSOA[i]);
-		fVar123.setMin(mParticlePositionSOA[i]);
+	f32 minX = mParticlePositionSOA[0].x - 1.0f;
+	f32 minY = mParticlePositionSOA[0].y - 1.0f;
+	f32 minZ = mParticlePositionSOA[0].z - 1.0f;
+	f32 maxX = mParticlePositionSOA[0].x + 1.0f;
+	f32 maxY = mParticlePositionSOA[0].y + 1.0f;
+	f32 maxZ = mParticlePositionSOA[0].z + 1.0f;
+
+	for (int i = 1; i < mParticleCount; ++i) {
+		if (minX > mParticlePositionSOA[i].x)
+			minX = mParticlePositionSOA[i].x;
+
+		if (minY > mParticlePositionSOA[i].y)
+			minY = mParticlePositionSOA[i].y;
+
+		if (minZ > mParticlePositionSOA[i].z)
+			minZ = mParticlePositionSOA[i].z;
+
+		if (maxX < mParticlePositionSOA[i].x)
+			maxX = mParticlePositionSOA[i].x;
+		if (maxY < mParticlePositionSOA[i].y)
+			maxY = mParticlePositionSOA[i].y;
+		if (maxZ < mParticlePositionSOA[i].z)
+			maxZ = mParticlePositionSOA[i].z;
 	}
 
-	unk5D70.x = fVar789.x - 200.0f;
-	unk5D70.y = fVar789.y - 200.0f;
-	unk5D70.z = fVar789.z - 200.0f;
+	unk5D70.x = minX - 200.0f;
+	unk5D70.y = minY - 200.0f;
+	unk5D70.z = minZ - 200.0f;
 
-	unk5D7C.x = fVar123.x + 200.0f;
-	unk5D7C.y = fVar123.y + 200.0f;
-	unk5D7C.z = fVar123.z + 200.0f;
+	unk5D7C.x = maxX + 200.0f;
+	unk5D7C.y = maxY + 200.0f;
+	unk5D7C.z = maxZ + 200.0f;
 }
 
 #pragma dont_inline on
-void TModelWaterManager::calcDrawVtx(MtxPtr) { }
+void TModelWaterManager::calcDrawVtx(MtxPtr viewMtx)
+{
+	unk5D30->reset();
+
+	for (int i = 0; i < mParticleCount; ++i) {
+		if (getFlagBottom4Bits(i) != 1)
+			continue;
+
+		u8* type = &mParticleTypeSOA[i];
+		if (!(mParticleLifetimeSOA[i]
+		      < mWaterParticleTypes[*type]->mAlive.get() - unk5D88[7]))
+			continue;
+
+		JGeometry::TVec3<f32> vtx[4];
+		JGeometry::TVec3<f32> pos;
+		JGeometry::TVec3<f32> speed;
+
+		PSMTXMultVec(viewMtx, &mParticlePositionSOA[i], &pos);
+
+		if (pos.z > 0.0f)
+			continue;
+		if (pos.z < -unk5D28)
+			continue;
+
+		PSMTXMultVecSR(viewMtx, &mParticleVelocitySOA[i], &speed);
+
+		f32 extension = mWaterParticleTypes[*type]->mExtension.get();
+		speed.x *= extension;
+		speed.y *= extension;
+		speed.z *= extension;
+
+		f32 speedXZ = speed.x * speed.x + speed.y * speed.y;
+		f32 baseSize = 0.5f * mParticleSizeSOA[i];
+		f32 drawSize = 1.414f * baseSize;
+
+		if (speedXZ > 1.0f) {
+			f32 len = sqrtOneStep(speedXZ);
+			f32 scale = (1.0f / len) * drawSize;
+			f32 xSize = speed.x * scale;
+			f32 ySize = speed.y * scale;
+			f32 negXSize = -xSize;
+
+			vtx[0].x = pos.x + xSize + speed.x * unk5D18;
+			vtx[0].y = pos.y + ySize + speed.y * unk5D18;
+			vtx[0].z = pos.z;
+			vtx[1].x = pos.x + ySize;
+			vtx[1].y = pos.y + negXSize;
+			vtx[1].z = pos.z;
+			vtx[2].x = pos.x - xSize - speed.x * unk5D18;
+			vtx[2].y = pos.y - ySize - speed.y * unk5D18;
+			vtx[2].z = pos.z;
+			vtx[3].x = pos.x - ySize;
+			vtx[3].y = pos.y - negXSize;
+			vtx[3].z = pos.z;
+		} else {
+			vtx[0].x = pos.x - drawSize;
+			vtx[0].y = pos.y + drawSize;
+			vtx[0].z = pos.z;
+			vtx[1].x = pos.x + drawSize;
+			vtx[1].y = pos.y + drawSize;
+			vtx[1].z = pos.z;
+			vtx[2].x = pos.x + drawSize;
+			vtx[2].y = pos.y - drawSize;
+			vtx[2].z = pos.z;
+			vtx[3].x = pos.x - drawSize;
+			vtx[3].y = pos.y - drawSize;
+			vtx[3].z = pos.z;
+		}
+
+		unk5D30->request(vtx);
+	}
+
+	unk5D30->setEnd();
+}
 #pragma dont_inline off
 
 void TModelWaterManager::calcVMMtxGround(MtxPtr param_1, f32 param_2,
@@ -766,47 +867,82 @@ void TModelWaterManager::calcVMMtxGround(MtxPtr param_1, f32 param_2,
 {
 	// TODO: matching this is ewwwwwwwwwwwwwwwwww
 
-	f32 fVar6  = param_2 * param_4.x;
-	f32 fVar7  = param_2 * param_4.y;
-	f32 fVar11 = param_4.y * 2.0 + param_3.y;
-	f32 fVar12 = -fVar6;
-
-	f32 fVar10 = param_4.x * 2.0 + param_3.x;
-	f32 fVar8  = param_2 * param_4.z;
-	f32 fVar9  = param_4.z * 2.0 + param_3.z;
-	f32 fVar13 = -fVar8;
+	f32 normalX = param_4.x;
+	f32 normalY = param_4.y;
+	f32 scaledX = param_2 * normalX;
+	f32 normalZ = param_4.z;
+	f32 scaledY = param_2 * normalY;
+	f32 transY  = normalY * 2.0f + param_3.y;
+	f32 negScaledX = -scaledX;
+	f32 transX     = normalX * 2.0f + param_3.x;
+	f32 scaledZ    = param_2 * normalZ;
+	f32 transZ     = normalZ * 2.0f + param_3.z;
+	f32 negScaledZ = -scaledZ;
 
 	{
-		f32 fVar4     = param_1[0][0];
-		f32 fVar2     = param_1[0][1];
-		f32 fVar1     = param_1[0][2];
-		f32 fVar5     = param_1[0][3];
-		param_5[0][0] = fVar4 * fVar7 + fVar2 * fVar12;
-		param_5[0][1] = fVar1 * fVar8 + fVar4 * fVar6 + fVar2 * fVar7;
-		param_5[0][2] = fVar2 * fVar13 + fVar1 * fVar7;
-		param_5[0][3] = fVar5 + fVar1 * fVar9 + fVar4 * fVar10 + fVar2 * fVar11;
+		f32 m00 = param_1[0][0];
+		f32 m01 = param_1[0][1];
+		f32 m02 = param_1[0][2];
+		f32 m03 = param_1[0][3];
+		f32 out1 = m01 * scaledY;
+		f32 out0 = m01 * negScaledX;
+		f32 out3 = m01 * transY;
+		out1 = m00 * scaledX + out1;
+		out0 = m00 * scaledY + out0;
+		out3 = m00 * transX + out3;
+		f32 out2 = m02 * scaledY;
+		param_5[0][0] = out0;
+		out1 = m02 * scaledZ + out1;
+		out3 = m02 * transZ + out3;
+		out2 = m01 * negScaledZ + out2;
+		param_5[0][1] = out1;
+		out3 = m03 + out3;
+		param_5[0][2] = out2;
+		param_5[0][3] = out3;
 	}
 
 	{
-		f32 fVar1     = param_1[1][1];
-		f32 fVar2     = param_1[1][2];
-		f32 fVar3     = param_1[1][0];
-		f32 fVar4     = param_1[1][3];
-		param_5[1][0] = fVar3 * fVar7 + fVar1 * fVar12;
-		param_5[1][1] = fVar2 * fVar8 + fVar3 * fVar6 + fVar1 * fVar7;
-		param_5[1][2] = fVar1 * fVar13 + fVar2 * fVar7;
-		param_5[1][3] = fVar4 + fVar2 * fVar9 + fVar3 * fVar10 + fVar1 * fVar11;
+		f32 m10 = param_1[1][0];
+		f32 m11 = param_1[1][1];
+		f32 m12 = param_1[1][2];
+		f32 m13 = param_1[1][3];
+		f32 out1 = m11 * scaledY;
+		f32 out0 = m11 * negScaledX;
+		f32 out3 = m11 * transY;
+		out1 = m10 * scaledX + out1;
+		out0 = m10 * scaledY + out0;
+		out3 = m10 * transX + out3;
+		f32 out2 = m12 * scaledY;
+		param_5[1][0] = out0;
+		out1 = m12 * scaledZ + out1;
+		out3 = m12 * transZ + out3;
+		out2 = m11 * negScaledZ + out2;
+		param_5[1][1] = out1;
+		out3 = m13 + out3;
+		param_5[1][2] = out2;
+		param_5[1][3] = out3;
 	}
 
 	{
-		f32 fVar1     = param_1[2][1];
-		f32 fVar2     = param_1[2][2];
-		f32 fVar3     = param_1[2][0];
-		f32 fVar4     = param_1[2][3];
-		param_5[2][0] = fVar3 * fVar7 + fVar1 * fVar12;
-		param_5[2][1] = fVar2 * fVar8 + fVar3 * fVar6 + fVar1 * fVar7;
-		param_5[2][2] = fVar1 * fVar13 + fVar2 * fVar7;
-		param_5[2][3] = fVar4 + fVar2 * fVar9 + fVar3 * fVar10 + fVar1 * fVar11;
+		f32 m20 = param_1[2][0];
+		f32 m21 = param_1[2][1];
+		f32 m22 = param_1[2][2];
+		f32 m23 = param_1[2][3];
+		f32 out1 = m21 * scaledY;
+		f32 out0 = m21 * negScaledX;
+		f32 out3 = m21 * transY;
+		out1 = m20 * scaledX + out1;
+		out0 = m20 * scaledY + out0;
+		out3 = m20 * transX + out3;
+		f32 out2 = m22 * scaledY;
+		param_5[2][0] = out0;
+		out1 = m22 * scaledZ + out1;
+		out3 = m22 * transZ + out3;
+		out2 = m21 * negScaledZ + out2;
+		param_5[2][1] = out1;
+		out3 = m23 + out3;
+		param_5[2][2] = out2;
+		param_5[2][3] = out3;
 	}
 }
 
@@ -817,42 +953,73 @@ void TModelWaterManager::calcVMMtxWall(MtxPtr param_1, f32 scale,
 {
 	// TODO: matching this is ewwwwwwwwwwwwwwwwww
 
-	f32 fVar7  = scale * param_4.x;
-	f32 fVar4  = param_3.y;
-	f32 fVar8  = scale * param_4.z;
-	f32 fVar11 = -fVar7;
-	f32 fVar10 = param_4.x * 2.0 + param_3.x;
-	f32 fVar9  = param_4.z * 2.0 + param_3.z;
+	f32 normalX = param_4.x;
+	f32 normalZ = param_4.z;
+	f32 scaledX = scale * normalX;
+	f32 scaledZ = scale * normalZ;
+	f32 negScaledX = -scaledX;
+	f32 transY = param_3.y;
+	f32 transX = normalX * 2.0f + param_3.x;
+	f32 transZ = normalZ * 2.0f + param_3.z;
 
 	{
-		f32 fVar3     = param_1[0][1];
-		f32 fVar5     = param_1[0][2];
-		f32 fVar6     = param_1[0][0];
-		f32 fVar1     = param_1[0][3];
-		(*param_5)[0] = fVar6 * fVar8 + fVar5 * fVar11;
-		(*param_5)[1] = fVar3 * scale;
-		(*param_5)[2] = fVar6 * fVar7 + fVar5 * fVar8;
-		(*param_5)[3] = fVar1 + fVar5 * fVar9 + fVar6 * fVar10 + fVar3 * fVar4;
+		f32 m01 = param_1[0][1];
+		f32 m02 = param_1[0][2];
+		f32 out3 = m01 * transY;
+		f32 out0 = m02 * negScaledX;
+		f32 m00 = param_1[0][0];
+		f32 m03 = param_1[0][3];
+		out0 = m00 * scaledZ + out0;
+		out3 = m00 * transX + out3;
+		f32 out2 = m02 * scaledZ;
+		f32 out1 = m01 * scale;
+		param_5[0][0] = out0;
+		out3 = m02 * transZ + out3;
+		out2 = m00 * scaledX + out2;
+		param_5[0][1] = out1;
+		out3 = m03 + out3;
+		param_5[0][2] = out2;
+		param_5[0][3] = out3;
 	}
+
 	{
-		f32 fVar1     = param_1[1][2];
-		f32 fVar2     = param_1[1][1];
-		f32 fVar3     = param_1[1][0];
-		f32 fVar5     = param_1[1][3];
-		param_5[1][0] = fVar3 * fVar8 + fVar1 * fVar11;
-		param_5[1][1] = fVar2 * scale;
-		param_5[1][2] = fVar3 * fVar7 + fVar1 * fVar8;
-		param_5[1][3] = fVar5 + fVar1 * fVar9 + fVar3 * fVar10 + fVar2 * fVar4;
+		f32 m12 = param_1[1][2];
+		f32 m10 = param_1[1][0];
+		f32 m11 = param_1[1][1];
+		f32 m13 = param_1[1][3];
+		f32 out0 = m12 * negScaledX;
+		f32 out3 = m11 * transY;
+		f32 out2 = m12 * scaledZ;
+		out0 = m10 * scaledZ + out0;
+		out3 = m10 * transX + out3;
+		f32 out1 = m11 * scale;
+		param_5[1][0] = out0;
+		out2 = m10 * scaledX + out2;
+		out3 = m12 * transZ + out3;
+		param_5[1][1] = out1;
+		out3 = m13 + out3;
+		param_5[1][2] = out2;
+		param_5[1][3] = out3;
 	}
+
 	{
-		f32 fVar1     = param_1[2][2];
-		f32 fVar2     = param_1[2][1];
-		f32 fVar3     = param_1[2][0];
-		f32 fVar5     = param_1[2][3];
-		param_5[2][0] = fVar3 * fVar8 + fVar1 * fVar11;
-		param_5[2][1] = fVar2 * scale;
-		param_5[2][2] = fVar3 * fVar7 + fVar1 * fVar8;
-		param_5[2][3] = fVar5 + fVar1 * fVar9 + fVar3 * fVar10 + fVar2 * fVar4;
+		f32 m22 = param_1[2][2];
+		f32 m20 = param_1[2][0];
+		f32 m21 = param_1[2][1];
+		f32 m23 = param_1[2][3];
+		f32 out0 = m22 * negScaledX;
+		f32 out3 = m21 * transY;
+		f32 out2 = m22 * scaledZ;
+		out0 = m20 * scaledZ + out0;
+		out3 = m20 * transX + out3;
+		f32 out1 = m21 * scale;
+		param_5[2][0] = out0;
+		out2 = m20 * scaledX + out2;
+		out3 = m22 * transZ + out3;
+		param_5[2][1] = out1;
+		out3 = m23 + out3;
+		param_5[2][2] = out2;
+		param_5[2][3] = out3;
 	}
 }
 
@@ -959,7 +1126,7 @@ void TModelWaterManager::drawSilhouette(MtxPtr param_1)
 
 	SMS_SettingDrawShape(unk5D58, 0);
 	for (int i = 0; i < mParticleCount; ++i) {
-		if ((mParticleFlagSOA[i] & 0xf) == 2) {
+		if ((mParticleFlagSOA[i] & 0xf) == 3) {
 			GXLoadPosMtxImm(unk2D14[i], 0);
 			SMS_DrawShape(unk5D58, 0);
 		}
@@ -974,7 +1141,7 @@ void TModelWaterManager::drawSilhouette(MtxPtr param_1)
 	GXSetChanMatColor(
 	    GX_COLOR0A0,
 	    (GXColor) { 0xff, 0xff, 0xff,
-	                unk5D5D * gpSilhouetteManager->unk48 * 0.00390625f });
+	                gpSilhouetteManager->unk48 * 0.00390625f * unk5D5D });
 	GXSetBlendMode(GX_BM_BLEND, GX_BL_DSTALPHA, GX_BL_ZERO, GX_LO_NOOP);
 	if (unk5D60 & 0x20)
 		SMS_DrawCube(unk5D70, unk5D7C);
@@ -1099,7 +1266,7 @@ void TModelWaterManager::drawWaterVolume(MtxPtr param_1)
 		GXSetBlendMode(GX_BM_BLEND, GX_BL_DSTALPHA, GX_BL_ONE, GX_LO_NOOP);
 		GXSetColorUpdate(GX_FALSE);
 		GXSetAlphaUpdate(GX_TRUE);
-		GXSetDstAlpha(GX_TRUE, 0);
+		GXSetDstAlpha(GX_FALSE, 0);
 		if (unk5D60 & 0x10)
 			for (int i = 0; i < unk5D63; ++i)
 				drawTouchingMask();
@@ -1179,6 +1346,7 @@ void TModelWaterManager::drawMirror(MtxPtr param_1)
 
 	const TBGCheckData* pTVar4 = SMS_GetMarioGroundPlane();
 	f32 fVar1                  = pTVar4->getPlaneDistance();
+	const JGeometry::TVec3<f32>* normal = &pTVar4->getNormal();
 	for (int i = 0; i < mParticleCount; ++i) {
 		if ((mParticleFlagSOA[i] & 0xf) == 2
 		    && SMS_GetMarioGroundPlane()->isLegal()) {
@@ -1186,26 +1354,36 @@ void TModelWaterManager::drawMirror(MtxPtr param_1)
 			SMS_DrawShape(unk5D54, 0);
 		}
 	}
-	JGeometry::TVec3<f32> local_bc[4][2];
+	JGeometry::TVec3<f32> local_bc[8];
 
-	f32 fVar3 = 1.0 / pTVar4->getNormal().y;
+	f32 fVar3 = 1.0f / normal->y;
 
-	for (int i = 0; i < 4; ++i) {
-		local_bc[i][0].x = SMS_GetMarioPos().x + JMASSin(i * 0x4000) * 1000.0f;
-		local_bc[i][0].z = SMS_GetMarioPos().z + JMASCos(i * 0x4000) * 1000.0f;
-		local_bc[i][0].y
-		    = fVar3
-		          * -(fVar1 + pTVar4->getNormal().x * local_bc[0][0].x
-		              + pTVar4->getNormal().z * local_bc[0][0].z)
-		      + 4.0f;
+	JGeometry::TVec3<f32>* vtx = &local_bc[0];
+	int angle                  = 0;
+	for (int count = 4; count > 0; --count) {
+		vtx->x = SMS_GetMarioPos().x + JMASSin(angle) * 1000.0f;
+		vtx->z = SMS_GetMarioPos().z + JMASCos(angle) * 1000.0f;
+		{
+			f32 y = normal->z * local_bc[0].z;
+			y     = normal->x * local_bc[0].x + y;
+			y     = fVar1 + y;
+			y     = -y;
+			vtx->y = fVar3 * y + 4.0f;
+		}
+		++vtx;
+		angle += 0x2000;
 
-		local_bc[i][1].x = JMASSin(i * 0x4000) * 1000.0f + SMS_GetMarioPos().x;
-		local_bc[i][1].z = JMASSin(i * 0x4000) * 1000.0f + SMS_GetMarioPos().z;
-		local_bc[i][1].y
-		    = fVar3
-		          * -(fVar1 + pTVar4->getNormal().x * local_bc[0][0].x
-		              + pTVar4->getNormal().z * local_bc[0][0].z)
-		      + 4.0f;
+		vtx->x = SMS_GetMarioPos().x + JMASSin(angle) * 1000.0f;
+		vtx->z = SMS_GetMarioPos().z + JMASCos(angle) * 1000.0f;
+		{
+			f32 y = normal->z * local_bc[0].z;
+			y     = normal->x * local_bc[0].x + y;
+			y     = fVar1 + y;
+			y     = -y;
+			vtx->y = fVar3 * y + 4.0f;
+		}
+		++vtx;
+		angle += 0x2000;
 	}
 
 	GXClearVtxDesc();
@@ -1236,23 +1414,23 @@ void TModelWaterManager::drawMirror(MtxPtr param_1)
 	GXPosition3f32(SMS_GetMarioPos().x, SMS_GetMarioPos().y + 4.0f,
 	               SMS_GetMarioPos().z);
 	GXColor4u8(0xff, 0xff, 0xff, unk5D64);
-	GXPosition3f32(local_bc[0][0].x, local_bc[0][0].y, local_bc[0][0].z);
+	GXPosition3f32(local_bc[0].x, local_bc[0].y, local_bc[0].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[0][1].x, local_bc[0][1].y, local_bc[0][1].z);
+	GXPosition3f32(local_bc[1].x, local_bc[1].y, local_bc[1].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[1][0].x, local_bc[1][0].y, local_bc[1][0].z);
+	GXPosition3f32(local_bc[2].x, local_bc[2].y, local_bc[2].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[1][1].x, local_bc[1][1].y, local_bc[1][1].z);
+	GXPosition3f32(local_bc[3].x, local_bc[3].y, local_bc[3].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[2][0].x, local_bc[2][0].y, local_bc[2][0].z);
+	GXPosition3f32(local_bc[4].x, local_bc[4].y, local_bc[4].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[2][1].x, local_bc[2][1].y, local_bc[2][1].z);
+	GXPosition3f32(local_bc[5].x, local_bc[5].y, local_bc[5].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[3][0].x, local_bc[3][0].y, local_bc[3][0].z);
+	GXPosition3f32(local_bc[6].x, local_bc[6].y, local_bc[6].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[3][1].x, local_bc[3][1].y, local_bc[3][1].z);
+	GXPosition3f32(local_bc[7].x, local_bc[7].y, local_bc[7].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[0][0].x, local_bc[0][0].y, local_bc[0][0].z);
+	GXPosition3f32(local_bc[0].x, local_bc[0].y, local_bc[0].z);
 	GXColor4u8(0, 0, 0, 0);
 	GXEnd();
 
@@ -1270,23 +1448,23 @@ void TModelWaterManager::drawMirror(MtxPtr param_1)
 	GXPosition3f32(SMS_GetMarioPos().x, SMS_GetMarioPos().y + 4.0f,
 	               SMS_GetMarioPos().z);
 	GXColor4u8(0xff, 0xff, 0xff, unk5D64);
-	GXPosition3f32(local_bc[0][0].x, local_bc[0][0].y, local_bc[0][0].z);
+	GXPosition3f32(local_bc[0].x, local_bc[0].y, local_bc[0].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[0][1].x, local_bc[0][1].y, local_bc[0][1].z);
+	GXPosition3f32(local_bc[1].x, local_bc[1].y, local_bc[1].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[1][0].x, local_bc[1][0].y, local_bc[1][0].z);
+	GXPosition3f32(local_bc[2].x, local_bc[2].y, local_bc[2].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[1][1].x, local_bc[1][1].y, local_bc[1][1].z);
+	GXPosition3f32(local_bc[3].x, local_bc[3].y, local_bc[3].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[2][0].x, local_bc[2][0].y, local_bc[2][0].z);
+	GXPosition3f32(local_bc[4].x, local_bc[4].y, local_bc[4].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[2][1].x, local_bc[2][1].y, local_bc[2][1].z);
+	GXPosition3f32(local_bc[5].x, local_bc[5].y, local_bc[5].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[3][0].x, local_bc[3][0].y, local_bc[3][0].z);
+	GXPosition3f32(local_bc[6].x, local_bc[6].y, local_bc[6].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[3][1].x, local_bc[3][1].y, local_bc[3][1].z);
+	GXPosition3f32(local_bc[7].x, local_bc[7].y, local_bc[7].z);
 	GXColor4u8(0, 0, 0, 0);
-	GXPosition3f32(local_bc[0][0].x, local_bc[0][0].y, local_bc[0][0].z);
+	GXPosition3f32(local_bc[0].x, local_bc[0].y, local_bc[0].z);
 	GXColor4u8(0, 0, 0, 0);
 	GXEnd();
 
@@ -1491,14 +1669,18 @@ void TModelWaterManager::drawShineShadowVolume(MtxPtr param_1)
 		if (!initialized) {
 			sphere_glist_p = tmp_data;
 			initialized    = 1;
-			sphere_pos_t   = (u8*)tmp_data + 0x760;
+			sphere_pos_t   = (u8*)sphere_glist_p + 0x760;
 		}
 
+		Vec local_30;
+		local_30 = shineShadowOffset;
+		Vec local_dc = local_30;
 		f32 f30 = (((unk5E0C + unk5E40) - unk5E0C) / f32(unk5E44 - 1));
 		f32 f31 = unk5E0C;
 
 		GXColor local_2C;
 		int r27 = unk5E45;
+		int r31 = unk5E44;
 
 		ReInitializeGX();
 
@@ -1512,9 +1694,9 @@ void TModelWaterManager::drawShineShadowVolume(MtxPtr param_1)
 		local_c8[1][0] = 0.0;
 		local_c8[0][2] = 0.0;
 		local_c8[0][1] = 0.0;
-		local_c8[0][3] = 0.0;
-		local_c8[1][3] = 3600.0;
-		local_c8[2][3] = -7458.0;
+		local_c8[0][3] = local_dc.x;
+		local_c8[1][3] = local_dc.y;
+		local_c8[2][3] = local_dc.z;
 
 		GXClearVtxDesc();
 		GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
@@ -1548,17 +1730,19 @@ void TModelWaterManager::drawShineShadowVolume(MtxPtr param_1)
 		GXLoadPosMtxImm(afStack_f8, 0);
 
 		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXColor local_28;
+		f32 alpha = f32(0xff - r27) / r31;
 		GXPosition3s16(-1000, 1000, -200);
 		GXPosition3s16(1000, 1000, -200);
-		GXPosition3s16(1000, -1000, -200);
+		GXWGFifo.s16 = 1000;
+		local_28.a   = alpha + 0.5f;
+		GXWGFifo.s16 = -1000;
+		GXWGFifo.s16 = -200;
 		GXPosition3s16(-1000, -1000, -200);
 		GXEnd();
 
-		GXColor local_28;
-		int r31    = unk5E44;
-		local_28.a = f32(0xff - unk5E45) / unk5E44 + 0.5f;
 		GXSetTevColor(GX_TEVREG0, local_28);
-		GXSetZMode(GX_TRUE, GX_GREATER, GX_TRUE);
+		GXSetZMode(GX_TRUE, GX_GREATER, GX_FALSE);
 		GXClearVtxDesc();
 		GXSetVtxDesc(GX_VA_POS, GX_INDEX16);
 		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_CLR_RGBA, GX_RGBA4, 15);

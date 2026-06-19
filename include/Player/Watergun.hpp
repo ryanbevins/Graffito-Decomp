@@ -14,23 +14,23 @@ public:
 	TWaterGunParams(const char* prm)
 	    : TParams(prm)
 	    , PARAM_INIT(mRocketHeight, 1500.0f)
-	    , PARAM_INIT(mHoverHeight, 160.0f)
+	    , PARAM_INIT(mHHoverHeight, 160.0f)
 	    , PARAM_INIT(mLAngleNormal, 60.0f)
 	    , PARAM_INIT(mNozzleAngleYSpeed, 1.0f)
 	    , PARAM_INIT(mNozzleAngleYBrake, 0.995f)
-	    , PARAM_INIT(mHoverRotMax, 0x2000)
 	    , PARAM_INIT(mNozzleAngleYSpeedMax, 0x2000)
+	    , PARAM_INIT(mHoverRotMax, 0x2000)
 	    , PARAM_INIT(mHoverSmooth, 0.05f)
 	    , PARAM_INIT(mChangeSpeed, 0.1f)
 	{
 	}
 	TParamRT<f32> mRocketHeight;
-	TParamRT<f32> mHoverHeight;
+	TParamRT<f32> mHHoverHeight;
 	TParamRT<f32> mLAngleNormal;
 	TParamRT<f32> mNozzleAngleYSpeed;
 	TParamRT<f32> mNozzleAngleYBrake;
-	TParamRT<s16> mHoverRotMax;
 	TParamRT<s16> mNozzleAngleYSpeedMax;
+	TParamRT<s16> mHoverRotMax;
 	TParamRT<f32> mHoverSmooth;
 	TParamRT<f32> mChangeSpeed;
 };
@@ -83,9 +83,7 @@ extern TNozzleBmdData nozzleBmdData;
 
 class TWaterGun {
 public:
-#pragma enumsalwaysint off
 	enum TNozzleType { Spray = 0, Rocket, Underwater, Yoshi, Hover, Turbo };
-#pragma enumsalwaysint reset
 
 	TWaterGun(TMario* mario);
 
@@ -148,6 +146,9 @@ public:
 	}
 
 	// Fabricated
+	inline void offFlag(u16 flag) { mFlags &= ~flag; }
+
+	// Fabricated
 	s32 getSuckRate()
 	{
 		return mCurrentPressure
@@ -162,6 +163,35 @@ public:
 
 	// Fabricated
 	bool hasWater() const { return mCurrentWater > 0; }
+
+	// Fabricated
+	bool isSwitchingToSecondaryNozzle() const { return unk1D00 > 0.0f; }
+
+	// Fabricated
+	bool isSwitchingToSprayNozzle() const { return unk1D00 < 0.0f; }
+
+	// Fabricated
+	void depleteWater(s32 amount)
+	{
+		mCurrentWater -= amount;
+		if (mCurrentWater < 0) {
+			mCurrentWater = 0;
+		}
+	}
+
+	// Fabricated
+	void updateUnk1C88(s32 emittedWater)
+	{
+		mIsEmitWater = emittedWater != 0;
+
+		TNozzleBase* nozzle = getCurrentNozzle();
+		u32 current         = (u32)unk1C88;
+		f32 emitted         = emittedWater;
+		f32 decRate         = nozzle->mEmitParams.mDecRate.get();
+		f32 currentF        = current;
+		unk1C88 += nozzle->mEmitParams.mEmitPowScale.get()
+		           * (emitted * decRate / currentF);
+	}
 
 	// Fabricated
 	bool canSpray() const
@@ -205,7 +235,8 @@ public:
 	/* 0x1C8D */ u8 mPreviousPressure;
 	/* 0x1C8E */ u8 unk1C8E;
 	/* 0x1C8F */ u8 unk1C8F;
-	/* 0x1C90 */ JGeometry::TVec3<f32> mEmitPos[4];
+	/* 0x1C90 */ JGeometry::TVec3<f32> mEmitPos[3];
+	/* 0x1CB4 */ JGeometry::TVec3<f32> unk1CB4;
 	/* 0x1CC0 */ s16 unk1CC0;
 	/* 0x1CC2 */ s16 unk1CC2;
 	/* 0x1CC4 */ s16 unk1CC4;
@@ -227,11 +258,18 @@ public:
 	/* 0x1CF4 */ f32 unk1CF4;
 	/* 0x1CF8 */ u16 unk1CF8;
 	/* 0x1CFA */ u16 unk1CFA;
-	/* 0x1CFC */ f32 unk1CFC; // mFluddSwitchTween
-	/* 0x1D00 */ f32 unk1D00;
+	/* 0x1CFC */ union {
+		f32 unk1CFC; // mFluddSwitchTween
+		f32 mSwitchToSecondNozzleProgress;
+	};
+	/* 0x1D00 */ union {
+		f32 unk1D00;
+		f32 mSwitchToSecondNozzleSpeed;
+	};
 	/* 0x1D04 */ s16 unk1D04;
 	/* 0x1D06 */ s16 unk1D06;
-	/* 0x1D08 */ u32 unk1D08;
+	/* 0x1D08 */ u16 unk1D08;
+	/* 0x1D0A */ u16 unk1D0A;
 	/* 0x1D0C */ TWaterEmitInfo* mEmitInfo; // TWaterEmitInfo
 	/* 0x1D10 */ TMirrorActor* unk1D10;
 	/* 0x1D14 */ TWaterGunParams mWatergunParams;
