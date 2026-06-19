@@ -238,6 +238,7 @@ public:
 };
 
 #ifdef WATERGUN_EMIT_IS_EMITTING
+#pragma dont_inline on
 bool TWaterGun::isEmitting()
 {
 	if (mCurrentWater == 0) {
@@ -258,6 +259,7 @@ bool TWaterGun::isEmitting()
 		return false;
 	}
 }
+#pragma dont_inline off
 #endif
 
 #endif

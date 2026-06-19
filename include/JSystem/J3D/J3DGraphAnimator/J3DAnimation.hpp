@@ -33,7 +33,11 @@ public:
 
 	J3DFrameCtrl() { init(0); };
 	J3DFrameCtrl(s16 end) { init(end); };
+#ifdef J3D_FRAMECTRL_NO_INLINE_DTOR
+	virtual ~J3DFrameCtrl();
+#else
 	virtual ~J3DFrameCtrl() { }
+#endif
 
 	/// Initialize to ATTR_LOOP with rate 1.0 and frame range [0, @p end).
 	void init(s16 end);

@@ -58,7 +58,7 @@ void TMario::flowMove(const JGeometry::TVec3<f32>& flow)
 	mPosition.z += flow.z;
 }
 
-bool TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
+BOOL TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 {
 	JGeometry::TVec3<f32> localPos(pos);
 	localPos.sub(mPosition);
@@ -510,7 +510,7 @@ f32 TMario::checkRoofPlane(const Vec& pos, f32 height,
 	return gpMap->checkRoof(pos.x, height + 80.0f, pos.z, result);
 }
 
-bool TMario::isFrontSlip(int param)
+BOOL TMario::isFrontSlip(int param)
 {
 	int angle = mFaceAngle.y;
 	if (param != 0) {

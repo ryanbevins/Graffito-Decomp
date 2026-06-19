@@ -126,7 +126,7 @@ f32 FConverge(f32 param_1, f32 param_2, f32 param_3, f32 param_4)
 	return result;
 }
 
-static inline u16 GetAtanTable(f32 param_1, f32 param_2)
+static inline s32 GetAtanTable(f32 param_1, f32 param_2)
 {
 	if (param_1 == 0)
 		return atntable[0];
@@ -135,13 +135,14 @@ static inline u16 GetAtanTable(f32 param_1, f32 param_2)
 	return atntable[idx];
 }
 
-s16 matan(f32 param_1, f32 param_2)
+s32 matan(f32 param_1, f32 param_2)
 {
 	if (param_2 >= 0.0f) {
 		if (param_1 >= 0.0f) {
-			if (param_1 >= param_2)
-				return 0x0000 + GetAtanTable(param_1, param_2);
-			else
+			if (param_1 >= param_2) {
+				s32 angle = GetAtanTable(param_1, param_2);
+				return angle;
+			} else
 				return 0x4000 - GetAtanTable(param_2, param_1);
 		} else {
 			param_1 = -param_1;

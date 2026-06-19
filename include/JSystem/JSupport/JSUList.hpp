@@ -57,7 +57,11 @@ public:
 	    : JSUPtrList(thing)
 	{
 	}
+#ifdef JSULIST_DTOR_DECL_ONLY
+	~JSUList();
+#else
 	~JSUList() { }
+#endif
 
 	bool append(JSULink<T>* link)
 	{

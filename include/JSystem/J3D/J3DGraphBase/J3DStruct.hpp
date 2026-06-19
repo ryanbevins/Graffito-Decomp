@@ -87,6 +87,9 @@ struct J3DTexMtxInfo {
 		mSRT        = other.mSRT;
 		return *this;
 	}
+#ifdef J3D_TEXMTXINFO_SETEFFECTMTX_DECL_ONLY
+	void setEffectMtx(Mtx m);
+#else
 	void setEffectMtx(Mtx m)
 	{
 		for (int i = 0; i < 3; i++)
@@ -97,6 +100,7 @@ struct J3DTexMtxInfo {
 
 		mEffectMtx[3][3] = 1.0f;
 	}
+#endif
 
 	/* 0x00 */ u8 mProjection;
 	/* 0x01 */ u8 mInfo;

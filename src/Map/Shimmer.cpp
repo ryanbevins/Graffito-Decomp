@@ -1,3 +1,10 @@
+#define J3D_FRAMECTRL_NO_INLINE_DTOR
+#define J3D_TEXMTXINFO_SETEFFECTMTX_DECL_ONLY
+#define JDRAMA_NAMEREF_CTOR_DECL_ONLY
+#define JDRAMA_PLACEMENT_DTOR_DECL_ONLY
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
+#define JDRAMA_VIEWOBJ_DTOR_DECL_ONLY
+#define JSULIST_DTOR_DECL_ONLY
 #include <Map/Shimmer.hpp>
 #include <Map/MapData.hpp>
 #include <System/MarDirector.hpp>
@@ -16,19 +23,22 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <stdio.h>
+#undef J3D_FRAMECTRL_NO_INLINE_DTOR
+#undef J3D_TEXMTXINFO_SETEFFECTMTX_DECL_ONLY
+#undef JDRAMA_NAMEREF_CTOR_DECL_ONLY
+#undef JDRAMA_PLACEMENT_DTOR_DECL_ONLY
+#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
+#undef JDRAMA_VIEWOBJ_DTOR_DECL_ONLY
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+#undef JSULIST_DTOR_DECL_ONLY
 
 static inline void setEffectMtxOnTex1(J3DMaterial* mat, MtxPtr mtx)
 {
 	mat->getTexGenBlock()->getTexMtx(1)->setEffectMtx(mtx);
 }
-
-void TShimmer::near() { }
-
-void TShimmer::far() { }
 
 void TShimmer::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
@@ -55,6 +65,7 @@ void TShimmer::perform(u32 param_1, JDrama::TGraphics* param_2)
 		setEffectMtxOnTex1(
 		    unk48->getModelData()->getMaterialNodePointer(0),
 		    effectMtx);
+		MtxPtr viewMtx = param_2->getUnkB4();
 
 		J3DTransformInfo info;
 		info.mScale.x    = 1.0f;
@@ -71,7 +82,7 @@ void TShimmer::perform(u32 param_1, JDrama::TGraphics* param_2)
 		Mtx afStack_e0;
 		MTXScale(afStack_e0, mScaling.x, mScaling.y, mScaling.z);
 		Mtx afStack_80;
-		MTXInverse(param_2->mViewMtx, afStack_80);
+		MTXInverse(viewMtx, afStack_80);
 		MTXConcat(afStack_80, afStack_b0, afStack_80);
 		MTXConcat(afStack_80, afStack_e0, afStack_80);
 		unk48->setBaseTRMtx(afStack_80);

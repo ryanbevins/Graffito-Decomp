@@ -43,7 +43,8 @@ public:
 	T mValue;
 };
 
-#ifdef JDRAMA_NO_INLINE_BASE_CTORS
+#ifdef JDRAMA_TFLAG_CTOR_DECL_ONLY
+#elif defined(JDRAMA_NO_INLINE_BASE_CTORS)
 #pragma dont_inline on
 template <class T> TFlagT<T>::TFlagT(T v) { set(v); }
 #pragma dont_inline off

@@ -39,7 +39,8 @@ protected:
 	/* 0x8 */ u16 mKeyCode;
 };
 
-#ifdef JDRAMA_NO_INLINE_BASE_CTORS
+#ifdef JDRAMA_NAMEREF_CTOR_DECL_ONLY
+#elif defined(JDRAMA_NO_INLINE_BASE_CTORS)
 #pragma dont_inline on
 TNameRef::TNameRef(const char* name)
     : mName(name)

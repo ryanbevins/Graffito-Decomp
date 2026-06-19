@@ -16,9 +16,6 @@ public:
 	virtual void loadAfter();
 	virtual void perform(u32, JDrama::TGraphics*);
 
-	void far();
-	void near();
-
 public:
 	/* 0x44 */ J3DModelData* unk44;
 	/* 0x48 */ J3DModel* unk48;

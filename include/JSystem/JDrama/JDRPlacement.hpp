@@ -15,6 +15,10 @@ public:
 	{
 	}
 
+#ifdef JDRAMA_PLACEMENT_DTOR_DECL_ONLY
+	virtual ~TPlacement();
+#endif
+
 	virtual void load(JSUMemoryInputStream&);
 
 	// fabricated

@@ -5,7 +5,7 @@
 
 int IConverge(int, int, int, int);
 f32 FConverge(f32, f32, f32, f32);
-s16 matan(f32, f32);
+s32 matan(f32, f32);
 
 // fabricated
 inline f32 MsAtan2(f32 y, f32 x)

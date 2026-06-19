@@ -675,7 +675,7 @@ f32 TFireWanwanTailHit::calcApartPow()
 
 MtxPtr TFireWanwanTailHit::getTakingMtx() { return unk74; }
 
-bool TFireWanwanTailHit::moveRequest(const JGeometry::TVec3<f32>& param_1)
+BOOL TFireWanwanTailHit::moveRequest(const JGeometry::TVec3<f32>& param_1)
 {
 	JGeometry::TVec3<f32> next = param_1;
 

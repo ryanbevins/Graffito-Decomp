@@ -20,6 +20,10 @@ public:
 	}
 #endif
 
+#ifdef JDRAMA_VIEWOBJ_DTOR_DECL_ONLY
+	virtual ~TViewObj();
+#endif
+
 	void testPerform(u32, TGraphics*);
 
 	virtual void perform(u32, TGraphics*) = 0;

@@ -78,14 +78,10 @@ void TMario::doJumping()
 			}
 		}
 		f32 accel;
-		if (onYoshi()) {
-			TYoshi* y = mYoshi;
-			u8 sw; if (y->mFlutterState == 1) sw = 1; else sw = 0;
-			if (sw) {
-				s16 d = (s16)angleDiff;
-				if (d > -16384 && d < 16384) accel = mYoshiParams.mHoldOutAccCtrlF.value;
-				else accel = mYoshiParams.mHoldOutAccCtrlB.value;
-			} else accel = getJumpAccelControl();
+		if (onYoshi() && mYoshi->mFlutterState == 1) {
+			s16 d = (s16)angleDiff;
+			if (d > -16384 && d < 16384) accel = mYoshiParams.mHoldOutAccCtrlF.value;
+			else accel = mYoshiParams.mHoldOutAccCtrlB.value;
 		} else accel = getJumpAccelControl();
 		u16 au = (u16)angleDiff;
 		mForwardVel = accel * intendedMag * JMASCos(au) + mForwardVel;
@@ -93,12 +89,10 @@ void TMario::doJumping()
 	}
 	if (mForwardVel > 32.0f) mForwardVel -= 0.2f;
 	if (mForwardVel < -16.0f) mForwardVel += 0.4f;
-	u16 fa = mFaceAngle.y;
-	mSlideVelX = mForwardVel * JMASSin(fa);
-	mSlideVelZ = mForwardVel * JMASCos(fa);
-	u16 pa = (u16)(mFaceAngle.y + 16384);
-	mSlideVelX += sideVel * JMASSin(pa);
-	mSlideVelZ += sideVel * JMASCos(pa);
+	mSlideVelX = mForwardVel * JMASSin(mFaceAngle.y);
+	mSlideVelZ = mForwardVel * JMASCos(mFaceAngle.y);
+	mSlideVelX += sideVel * JMASSin((u16)(mFaceAngle.y + 16384));
+	mSlideVelZ += sideVel * JMASCos((u16)(mFaceAngle.y + 16384));
 	mVel.x = mSlideVelX;
 	mVel.z = mSlideVelZ;
 	if (mVel.y < 0.0f) {
@@ -271,6 +265,7 @@ int TMario::jumpingBasic(int statusId, int anmId, int groundCheck)
 	return result;
 }
 
+#pragma dont_inline on
 BOOL TMario::considerJumpRotate()
 {
 	int dir;
@@ -283,7 +278,9 @@ BOOL TMario::considerJumpRotate()
 	}
 	return FALSE;
 }
+#pragma dont_inline off
 
+#pragma dont_inline on
 BOOL TMario::checkBackTrig()
 {
 	if (mInput & 0x8000) {
@@ -298,6 +295,7 @@ BOOL TMario::checkBackTrig()
 	}
 	return FALSE;
 }
+#pragma dont_inline off
 
 BOOL TMario::landing()
 {
@@ -379,6 +377,7 @@ BOOL TMario::jumpCatch()
 	return FALSE;
 }
 
+#pragma dont_inline on
 int TMario::jumpDownCommon(int statusId, int anmId, f32 velY)
 {
 	setPlayerVelocity(velY);
@@ -395,6 +394,7 @@ int TMario::jumpDownCommon(int statusId, int anmId, f32 velY)
 	}
 	return r;
 }
+#pragma dont_inline off
 
 BOOL TMario::stayWall()
 {
@@ -408,34 +408,45 @@ BOOL TMario::stayWall()
 		}
 		mVel.y = 52.0f;
 		mFaceAngle.y = mFaceAngle.y + 0x8000;
-		if (mVel.y + 160.0f + mPosition.y >= mFloorPosition.x)
+		if (160.0f + mPosition.y + mVel.y >= mFloorPosition.x)
 			mVel.y = 1.0f;
 		return changePlayerStatus(0x02000886, 0, false);
 	}
-	BOOL handled = FALSE;
+	int handled;
 	if (mInput & 0x8000) {
 		TMarioGamePad* pad = mGamePad;
 		if (pad->mEnabledFrameMeaning & 0x2000) {
 			handled = changePlayerStatus(0x008008A9, 0, false);
-		} else if (!onYoshi()) {
-			setPlayerVelocity(mJumpParams.mJumpJumpCatchSp.value);
-			handled = changePlayerStatus(0x0080088A, 0, false);
+			goto checkHandled;
+		} else {
+			if (!onYoshi()) {
+				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+				setPlayerVelocity(jumpCatchSpeed);
+				handled = changePlayerStatus(0x0080088A, 0, false);
+				goto checkHandled;
+			}
 		}
 	}
+	handled = FALSE;
+checkHandled:
 	if (handled)
 		return TRUE;
 	if (mActionTimer < 20) {
 		mActionTimer = mActionTimer + 1;
 		mVel.x = 0.0f; mVel.y = 0.0f; mVel.z = 0.0f;
 	} else {
-		mVel.y = -(f32)mActionTimer * 1024.0f;
+		mVel.y = (f32)-(s32)mActionTimer * 0.5f;
 	}
 	if (mWallPlane) {
 		mPosition.x -= mWallPlane->mNormal.x;
 		mPosition.z -= mWallPlane->mNormal.z;
 	}
 	int jr = jumpProcess(0);
-	if (jr == 1) { mFaceAngle.y += 0x8000; return changePlayerStatus(0x088C, 0, false); }
+	switch (jr) {
+	case 1:
+		mFaceAngle.y += 0x8000;
+		return changePlayerStatus(0x088C, 0, false);
+	}
 	if (!mWallPlane) {
 		mFaceAngle.y += 0x8000;
 		setPlayerVelocity(0.0f);
@@ -443,7 +454,7 @@ BOOL TMario::stayWall()
 		return changePlayerStatus(0x088C, 0, false);
 	}
 	setAnimation(204, 1.0f);
-	if (mVel.y < 0.0f) {
+	if (mVel.y < -10.0f) {
 		wallSlipEffect();
 		if (gpMSound->gateCheck(0x113F))
 			MSoundSESystem::MSoundSE::startSoundActor(0x113F, (const Vec*)&mPosition, 0, nullptr, 0, 4);
@@ -945,21 +956,24 @@ BOOL TMario::jumpMain()
 			changePlayerStatus(0x820008AB, 0, false);
 	}
 
-	BOOL result = FALSE;
+	BOOL result;
 	switch (mAction) {
 	case 0x0884:
 	case 0x089C:
 	case 0x02000880: {
-		BOOL handled = FALSE;
+		BOOL caseResult;
+		BOOL handled;
 		if (checkBackTrig())
 			handled = TRUE;
 		else if (rocketCheck())
 			handled = TRUE;
 		else if (considerJumpRotate())
 			handled = TRUE;
+		else
+			handled = FALSE;
 
 		if (handled) {
-			result = TRUE;
+			caseResult = TRUE;
 		} else {
 			switch (mAction) {
 			case 0x089C:
@@ -967,7 +981,7 @@ BOOL TMario::jumpMain()
 				break;
 			case 0x0884: {
 				int anm;
-				if (mVel.y <= 0.0f)
+				if (mVel.y >= 0.0f)
 					anm = 0x50;
 				else
 					anm = 0x4C;
@@ -978,67 +992,107 @@ BOOL TMario::jumpMain()
 				jumpingBasic(0x04000470, 0x4D, 3);
 				break;
 			}
-			result = FALSE;
+			caseResult = FALSE;
 		}
+		result = caseResult;
 		break;
 	}
 	case 0x02000881: {
+		BOOL caseResult;
 		if (mActionTimer == 0) {
-			mActionTimer = 1;
-			rumbleStart(20, mMotorParams.mMotorWall.value);
+			mActionTimer++;
+			TMario* mario = this;
+			mario->rumbleStart(20, mMotorParams.mMotorWall.value);
 		}
 
 		int anm;
-		if (mVel.y <= 0.0f)
+		if (mVel.y >= 0.0f)
 			anm = 0x50;
 		else
 			anm = 0x4C;
 
-		BOOL handled = FALSE;
+		BOOL handled;
 		if (checkBackTrig())
 			handled = TRUE;
 		else if (rocketCheck())
 			handled = TRUE;
 		else if (considerJumpRotate())
 			handled = TRUE;
+		else
+			handled = FALSE;
 
 		if (handled)
-			result = TRUE;
+			caseResult = TRUE;
 		else {
 			jumpingBasic(0x04000472, anm, 3);
-			result = FALSE;
+			caseResult = FALSE;
 		}
+		result = caseResult;
 		break;
 	}
+	case 0x088C:
+	case 0x088D:
+		result = landing();
+		break;
 	case 0x0882: {
+		BOOL caseResult;
 		if (mActionTimer == 0) {
-			mActionTimer = 1;
-			rumbleStart(21, mMotorParams.mMotorWall.value);
+			mActionTimer++;
+			TMario* mario = this;
+			mario->rumbleStart(21, mMotorParams.mMotorWall.value);
 		}
 
-		BOOL handled = FALSE;
-		if (checkBackTrig())
-			handled = TRUE;
-		else if (rocketCheck())
-			handled = TRUE;
+		BOOL handled;
+		if (mInput & 0x8000) {
+			TMarioGamePad* pad = mGamePad;
+			if (pad->mEnabledFrameMeaning & 0x2000) {
+				handled = changePlayerStatus(0x008008A9, 0, false);
+			} else if (!onYoshi()) {
+				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+				setPlayerVelocity(jumpCatchSpeed);
+				handled = changePlayerStatus(0x0080088A, 0, false);
+			} else {
+				goto checkBackTrigFalse882;
+			}
+		} else {
+checkBackTrigFalse882:
+			handled = FALSE;
+		}
 
 		if (handled)
-			result = TRUE;
+			caseResult = TRUE;
+		else if (rocketCheck())
+			caseResult = TRUE;
 		else {
 			jumpingBasic(0x04000478, 0x6F, 0);
-			result = FALSE;
+			caseResult = FALSE;
 		}
+		result = caseResult;
 		break;
 	}
 	case 0x0883: {
-		BOOL handled = FALSE;
-		if (checkBackTrig())
-			handled = TRUE;
-		else if (rocketCheck())
-			handled = TRUE;
+		BOOL caseResult;
+		BOOL handled;
+		if (mInput & 0x8000) {
+			TMarioGamePad* pad = mGamePad;
+			if (pad->mEnabledFrameMeaning & 0x2000) {
+				handled = changePlayerStatus(0x008008A9, 0, false);
+			} else if (!onYoshi()) {
+				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+				setPlayerVelocity(jumpCatchSpeed);
+				handled = changePlayerStatus(0x0080088A, 0, false);
+			} else {
+				goto checkBackTrigFalse883;
+			}
+		} else {
+checkBackTrigFalse883:
+			handled = FALSE;
+		}
 
 		if (handled) {
-			result = TRUE;
+			caseResult = TRUE;
+		} else if (rocketCheck()) {
+			caseResult = TRUE;
 		} else {
 			if (mActionState == 0 && isLast1AnimeFrame())
 				mActionState = 1;
@@ -1047,91 +1101,195 @@ BOOL TMario::jumpMain()
 				jumpingBasic(0x04000472, 0xF7, 0);
 			else
 				jumpingBasic(0x04000472, 0x56, 0);
-			result = FALSE;
+			caseResult = FALSE;
 		}
+		result = caseResult;
 		break;
 	}
 	case 0x0887: {
-		BOOL handled = FALSE;
+		BOOL caseResult;
+		BOOL handled;
 		if (checkBackTrig())
 			handled = TRUE;
 		else if (rocketCheck())
 			handled = TRUE;
 		else if (considerJumpRotate())
 			handled = TRUE;
-		else if (checkBackTrig())
-			handled = TRUE;
+		else
+			handled = FALSE;
 
 		if (handled) {
-			result = TRUE;
+			caseResult = TRUE;
 		} else {
-			int jumpResult = jumpingBasic(0x04000473, 0xBF, 1);
-			if (jumpResult != 3) {
-				mFaceAngle.x = 0;
-				mModelFaceAngle += 0x8000;
+			BOOL backHandled;
+			if (mInput & 0x8000) {
+				TMarioGamePad* pad = mGamePad;
+				if (pad->mEnabledFrameMeaning & 0x2000) {
+					backHandled = changePlayerStatus(0x008008A9, 0, false);
+				} else if (!onYoshi()) {
+					f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+					setPlayerVelocity(jumpCatchSpeed);
+					backHandled = changePlayerStatus(0x0080088A, 0, false);
+				} else {
+					goto checkBackTrigFalse887;
+				}
+			} else {
+checkBackTrigFalse887:
+				backHandled = FALSE;
 			}
-			result = FALSE;
+
+			if (backHandled) {
+				caseResult = TRUE;
+			} else {
+				int jumpResult = jumpingBasic(0x04000473, 0xBF, 1);
+				if (jumpResult != 3) {
+					mFaceAngle.x = 0;
+					mModelFaceAngle += 0x8000;
+				}
+				caseResult = FALSE;
+			}
 		}
+		result = caseResult;
 		break;
 	}
-	case 0x0888:
-		jumpingBasic(0x04000440, 0xF6, 1);
-		mState |= 0x4000;
-		result = FALSE;
-		break;
-	case 0x02000885:
+	case 0x02000886: {
+		BOOL caseResult;
+		BOOL handled;
 		if (mInput & 0x8000) {
-			result = changePlayerStatus(0x0080088A, 0, false);
+			TMarioGamePad* pad = mGamePad;
+			if (pad->mEnabledFrameMeaning & 0x2000) {
+				handled = changePlayerStatus(0x008008A9, 0, false);
+			} else if (!onYoshi()) {
+				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+				setPlayerVelocity(jumpCatchSpeed);
+				handled = changePlayerStatus(0x0080088A, 0, false);
+			} else {
+				goto checkBackTrigFalse20886;
+			}
+		} else {
+checkBackTrigFalse20886:
+			handled = FALSE;
+		}
+
+		if (handled) {
+			caseResult = TRUE;
+		} else if (considerJumpRotate()) {
+			caseResult = TRUE;
+		} else if (rocketCheck()) {
+			caseResult = TRUE;
+		} else {
+			jumpingBasic(0x04000470, 0xCB, 3);
+			caseResult = FALSE;
+		}
+		result = caseResult;
+		break;
+	}
+	case 0x02000885: {
+		BOOL caseResult;
+		if (mInput & 0x8000) {
+			caseResult = changePlayerStatus(0x0080088A, 0, false);
 		} else {
 			setPlayerVelocity(0.98f * mForwardVel);
 			switch (jumpProcess(0)) {
-			case 1:
+			case 1: {
+				u32 status;
 				if (mForwardVel < 0.0f)
-					changePlayerStatus(0x50, 0, false);
+					status = 0x50;
 				else
-					changePlayerStatus(0x04000470, 0, false);
+					status = 0x04000470;
+				changePlayerStatus(status, 0, false);
 				break;
+			}
 			case 2:
 				setPlayerVelocity(0.0f);
 				break;
 			}
 			setAnimation(0x4D, 1.0f);
-			result = FALSE;
+			caseResult = FALSE;
 		}
-		break;
-	case 0x02000886: {
-		BOOL handled = FALSE;
-		if (checkBackTrig())
-			handled = TRUE;
-		else if (considerJumpRotate())
-			handled = TRUE;
-		else if (rocketCheck())
-			handled = TRUE;
-
-		if (handled)
-			result = TRUE;
-		else {
-			jumpingBasic(0x04000470, 0xCB, 3);
-			result = FALSE;
-		}
+		result = caseResult;
 		break;
 	}
+	case 0x000208B4:
+		if (mActionTimer == 1)
+			startVoice(0x7849);
+		mActionTimer++;
+		setPlayerVelocity(mForwardVel);
+		if (jumpProcess(0) == 1)
+			changePlayerStatus(0x00020449, 0, false);
+		int anim;
+		if (mActionArg == 0)
+			anim = 0x4D;
+		else
+			anim = 0x29;
+		setAnimation(anim, 1.0f);
+		result = FALSE;
+		break;
+	case 0x000208B5:
+		setPlayerVelocity(mForwardVel);
+		if (jumpProcess(0) == 1)
+			changePlayerStatus(0x00020449, 0, false);
+		setAnimation(0x56, 1.0f);
+		result = FALSE;
+		break;
+	case 0x0888:
+		jumpingBasic(0x04000440, 0xF6, 1);
+		mState |= 0x4000;
+		result = FALSE;
+		break;
 	case 0x02000889:
 		jumpingBasic(0x04000440, 0x10F, 1);
 		result = FALSE;
 		break;
+	case 0x0081089B:
+	case 0x0281089A:
+		result = boardJumping();
+		break;
 	case 0x088B:
 		result = rocketing();
 		break;
-	case 0x088C:
-	case 0x088D:
-		result = landing();
+	case 0x0895:
+	case 0x0896: {
+		BOOL caseResult;
+		BOOL handled;
+		if (mInput & 0x8000) {
+			TMarioGamePad* pad = mGamePad;
+			if (pad->mEnabledFrameMeaning & 0x2000) {
+				handled = changePlayerStatus(0x008008A9, 0, false);
+			} else if (!onYoshi()) {
+				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+				setPlayerVelocity(jumpCatchSpeed);
+				handled = changePlayerStatus(0x0080088A, 0, false);
+			} else {
+				goto checkBackTrigFalse895;
+			}
+		} else {
+checkBackTrigFalse895:
+			handled = FALSE;
+		}
+
+		if (handled) {
+			caseResult = TRUE;
+		} else if (rocketCheck()) {
+			caseResult = TRUE;
+		} else {
+			setAnimation(0xF4, 1.0f);
+			emitBlurSpinJump();
+			jumpingBasic(0x04000472, mAnimationId, 0);
+			mActionTimer++;
+			if (mAction == 0x0896)
+				mModelFaceAngle = (s16)(mActionTimer << 12);
+			else
+				mModelFaceAngle = (u16)-(mActionTimer << 12);
+			if ((gpMarDirector->unk58 & 0x3F) == 0)
+				rumbleStart(20, mMotorParams.mMotorWall.value / 2);
+			caseResult = FALSE;
+		}
+		result = caseResult;
 		break;
-	case 0x0891:
-		result = diving();
-		break;
-	case 0x0892:
-	case 0x0893: {
+	}
+	case 0x0892: {
+		BOOL caseResult;
 		if (mPrevAction == 0x10000358) {
 			if (mActionArg == 0)
 				setAnimation(0xF8, 1.0f);
@@ -1141,20 +1299,53 @@ BOOL TMario::jumpMain()
 			setAnimation(0x4D, 1.0f);
 		}
 
-		BOOL handled = FALSE;
+		BOOL handled;
 		if (checkBackTrig())
 			handled = TRUE;
 		else if (rocketCheck())
 			handled = TRUE;
 		else if (considerJumpRotate())
 			handled = TRUE;
+		else
+			handled = FALSE;
 
 		if (handled)
-			result = TRUE;
+			caseResult = TRUE;
 		else {
 			jumpingBasic(0x04000472, mAnimationId, 3);
-			result = FALSE;
+			caseResult = FALSE;
 		}
+		result = caseResult;
+		break;
+	}
+	case 0x0893: {
+		BOOL caseResult;
+		if (mPrevAction == 0x10000358) {
+			if (mActionArg == 0)
+				setAnimation(0xF8, 1.0f);
+			else
+				setAnimation(0x6F, 1.0f);
+		} else {
+			setAnimation(0x4D, 1.0f);
+		}
+
+		BOOL handled;
+		if (checkBackTrig())
+			handled = TRUE;
+		else if (rocketCheck())
+			handled = TRUE;
+		else if (considerJumpRotate())
+			handled = TRUE;
+		else
+			handled = FALSE;
+
+		if (handled)
+			caseResult = TRUE;
+		else {
+			jumpingBasic(0x04000472, mAnimationId, 3);
+			caseResult = FALSE;
+		}
+		result = caseResult;
 		break;
 	}
 	case 0x0894: {
@@ -1168,133 +1359,14 @@ BOOL TMario::jumpMain()
 			setAnimation(0xF2, 1.0f);
 
 		JGeometry::TVec3<f32> pos = mPosition;
-		if (mHeldObject->moveRequest(pos) == true)
+		if (mHeldObject->moveRequest(pos) == 1)
 			mPosition = pos;
 		result = FALSE;
 		break;
 	}
-	case 0x0895:
-	case 0x0896: {
-		BOOL handled = FALSE;
-		if (checkBackTrig())
-			handled = TRUE;
-		else if (rocketCheck())
-			handled = TRUE;
-
-		if (handled) {
-			result = TRUE;
-		} else {
-			setAnimation(0xF4, 1.0f);
-			emitBlurSpinJump();
-			jumpingBasic(0x04000472, mAnimationId, 0);
-			mActionTimer++;
-			if (mAction == 0x0896)
-				mModelFaceAngle = (s16)(mActionTimer << 12);
-			else
-				mModelFaceAngle = -(s16)(mActionTimer << 12);
-			if ((gpMarDirector->unk58 & 0x3F) == 0)
-				rumbleStart(20, mMotorParams.mMotorWall.value / 2);
-			result = FALSE;
-		}
-		break;
-	}
-	case 0x000208B0:
-		if (mActionTimer == 0) {
-			mActionTimer = 1;
-			rumbleStart(21, 20);
-		}
-		jumpDownCommon(0x00020462, 2, -16.0f);
-		result = FALSE;
-		break;
-	case 0x000208B1:
-		if (mActionTimer == 0) {
-			mActionTimer = 1;
-			rumbleStart(21, 20);
-		}
-		jumpDownCommon(0x00020463, 0x2D, 16.0f);
-		result = FALSE;
-		break;
-	case 0x000208B2:
-		if (mActionTimer == 0) {
-			mActionTimer = 1;
-			rumbleStart(21, 20);
-		}
-		jumpDownCommon(0x00020461, 0x2D, 16.0f);
-		result = FALSE;
-		break;
-	case 0x000208B3:
-		if (mActionTimer == 0) {
-			mActionTimer = 1;
-			rumbleStart(21, 20);
-		}
-		jumpDownCommon(0x00020460, 2, -16.0f);
-		result = FALSE;
-		break;
-	case 0x000208B4:
-		if (mActionTimer == 1)
-			startVoice(0x7849);
-		mActionTimer++;
-		setPlayerVelocity(mForwardVel);
-		if (jumpProcess(0) == 1)
-			changePlayerStatus(0x00020449, 0, false);
-		if (mActionArg == 0)
-			setAnimation(0x4D, 1.0f);
-		else
-			setAnimation(0x29, 1.0f);
-		result = FALSE;
-		break;
-	case 0x000208B6:
-	case 0x000208BA:
-		jumpDownCommon(0x04000471, 0x56, mForwardVel);
-		result = FALSE;
-		break;
-	case 0x000208B7:
-		result = fireDowning();
-		break;
-	case 0x000208B8:
-		result = thrownDowning();
-		break;
-	case 0x000208B9:
-		jumpProcess(0);
-		result = FALSE;
-		break;
 	case 0x0080088A:
 		result = jumpCatch();
 		break;
-	case 0x008008A6:
-		result = catchStop();
-		break;
-	case 0x008008A7:
-		result = stayWall();
-		break;
-	case 0x008008A9:
-		result = hipAttacking();
-		break;
-	case 0x00810446:
-	case 0x0081089B:
-	case 0x0281089A:
-		result = boardJumping();
-		break;
-	case 0x0200088E:
-		result = slipFalling();
-		break;
-	case 0x02000890: {
-		BOOL handled = FALSE;
-		if (checkBackTrig())
-			handled = TRUE;
-		else if (rocketCheck())
-			handled = TRUE;
-		else if (considerJumpRotate())
-			handled = TRUE;
-
-		if (handled)
-			result = TRUE;
-		else {
-			jumpingBasic(0x04000472, mAnimationId, 3);
-			result = FALSE;
-		}
-		break;
-	}
 	case 0x820008AB:
 		setAnimation(0x65, 1.0f);
 		checkThrowObject();
@@ -1307,6 +1379,92 @@ BOOL TMario::jumpMain()
 			setPlayerVelocity(0.0f);
 			break;
 		}
+		result = FALSE;
+		break;
+	case 0x000208B0:
+		if (mActionTimer == 0) {
+			mActionTimer++;
+			rumbleStart(21, 20);
+		}
+		jumpDownCommon(0x00020462, 2, -16.0f);
+		result = FALSE;
+		break;
+	case 0x000208B1:
+		if (mActionTimer == 0) {
+			mActionTimer++;
+			rumbleStart(21, 20);
+		}
+		jumpDownCommon(0x00020463, 0x2D, 16.0f);
+		result = FALSE;
+		break;
+	case 0x000208B2:
+		if (mActionTimer == 0) {
+			mActionTimer++;
+			rumbleStart(21, 20);
+		}
+		jumpDownCommon(0x00020461, 0x2D, 16.0f);
+		result = FALSE;
+		break;
+	case 0x000208B3:
+		if (mActionTimer == 0) {
+			mActionTimer++;
+			rumbleStart(21, 20);
+		}
+		jumpDownCommon(0x00020460, 2, -16.0f);
+		result = FALSE;
+		break;
+	case 0x000208B6:
+		jumpDownCommon(0x04000471, 0x56, mForwardVel);
+		result = FALSE;
+		break;
+	case 0x000208BA:
+		jumpDownCommon(0x04000471, 0x56, mForwardVel);
+		result = FALSE;
+		break;
+	case 0x08A7:
+		result = stayWall();
+		break;
+	case 0x08A6:
+		result = catchStop();
+		break;
+	case 0x0200088E:
+		result = slipFalling();
+		break;
+	case 0x000208B7:
+		result = fireDowning();
+		break;
+	case 0x000208B8:
+		result = thrownDowning();
+		break;
+	case 0x02000890: {
+		BOOL caseResult;
+		BOOL handled;
+		if (checkBackTrig())
+			handled = TRUE;
+		else if (rocketCheck())
+			handled = TRUE;
+		else if (considerJumpRotate())
+			handled = TRUE;
+		else
+			handled = FALSE;
+
+		if (handled)
+			caseResult = TRUE;
+		else {
+			jumpingBasic(0x04000472, mAnimationId, 3);
+			caseResult = FALSE;
+		}
+		result = caseResult;
+		break;
+	}
+	case 0x008008A9:
+		result = hipAttacking();
+		break;
+	case 0x0891:
+		result = diving();
+		break;
+	case 0x000208B9:
+		jumpProcess(0);
 		result = FALSE;
 		break;
 	}

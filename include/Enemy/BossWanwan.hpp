@@ -87,7 +87,7 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor*, u32);
 	virtual MtxPtr getTakingMtx();
-	virtual bool moveRequest(const JGeometry::TVec3<f32>&);
+	virtual BOOL moveRequest(const JGeometry::TVec3<f32>&);
 
 	/* 0x70 */ TBossWanwan* mOwner;
 	/* 0x74 */ TPosition3f unk74;
