@@ -3050,7 +3050,7 @@ void TMario::thinkWaterSurface()
 
 		// Check deep water threshold
 		f32 deepThreshold = posY2 + mRunParams.mSwimDepth.get();
-		if (waterLvl <= deepThreshold) {
+		if (waterLvl > deepThreshold) {
 			// Deep water - check yoshi
 			TYoshi* yoshi = (TYoshi*)mYoshi;
 			r30 = 0;
