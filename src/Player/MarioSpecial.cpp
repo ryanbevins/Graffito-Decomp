@@ -1830,7 +1830,7 @@ void TMario::hanging()
 				const TBGCheckData* bestWall3 = (const TBGCheckData*)0;
 				TBGWallCheckRecord wallCheck3;
 				wallCheck3.mCenter.x = targetPos.x;
-				wallCheck3.mCenter.y = 10.0f + targetPos.y;
+				wallCheck3.mCenter.y = targetPos.y;
 				wallCheck3.mCenter.z = targetPos.z;
 				wallCheck3.mRadius = 50.0f;
 				wallCheck3.mMaxResults = 1;

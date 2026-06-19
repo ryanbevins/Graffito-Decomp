@@ -526,8 +526,8 @@ int TMario::checkGroundAtJumping(const Vec& pos, int flags)
 	((u32*)&stackPos)[1] = ((const u32*)&pos)[1];
 	((u32*)&stackPos)[2] = ((const u32*)&pos)[2];
 
-	const TBGCheckData* wall1 = checkWallPlane(&stackPos, 30.0f, unk15C);
-	const TBGCheckData* wall2 = checkWallPlane(&stackPos, 60.0f, unk15C);
+	const TBGCheckData* wall1 = checkWallPlane(&stackPos, 150.0f, unk15C);
+	const TBGCheckData* wall2 = checkWallPlane(&stackPos, 30.0f, unk15C);
 
 	u8 isOnWater;
 	if (mAction & 0x10000)
