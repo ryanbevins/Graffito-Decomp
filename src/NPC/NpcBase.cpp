@@ -176,7 +176,7 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 	gpCurrentNpc = this;
 
 	if (flags & 1) {
-		ensureTakeSituation();
+		moveObject();
 		if (graphics->unk0 & 2) {
 			changeNerveProc_();
 			if (mHolder == nullptr) {
