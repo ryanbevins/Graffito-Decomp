@@ -930,7 +930,7 @@ Current isolation notes:
 
 ## BUG 0018 - FLUDD nozzle boxes loop open animation and do not connect nozzle
 
-Status: open; isolating item/nozzle box state TUs
+Status: fixed; source-linked `MoveBG/MapObjBase.cpp`
 
 Symptom:
 - FLUDD/nozzle item boxes render correctly after BUG 0002, but when opened they
@@ -940,12 +940,78 @@ Symptom:
 Current notes:
 - This is separate from BUG 0002's material color regression. BUG 0002 is fixed
   by the `TNozzleBox::load()` TEV register correction in `MoveBG/Item.cpp`.
-- The most likely first isolation target is still `MoveBG/Item.cpp`, because it
-  owns `TNozzleBox`, `TItemNozzle`, `TNozzleBox::loadAfter()`,
-  `TNozzleBox::receiveMessage()`, `TNozzleBox::makeModelValid()`, and the
-  inner item pointer wiring (`unk14C->unk148 = this`).
-- Nearby follow-up candidates if `MoveBG/Item.cpp` alone is not sufficient:
-  `MoveBG/ItemManager.cpp`, `MoveBG/MapObjGeneral.cpp`,
-  `MoveBG/MapObjBase.cpp`, `MoveBG/MapObjManager.cpp`, and
-  `Player/WaterGun.cpp` / `System/MarDirector.cpp` for nozzle acquisition
-  state.
+- Original-linking `MoveBG/Item.cpp` alone did not fix this issue, so the
+  source fix for BUG 0002 is not the cause of this state/animation bug.
+- Broad map-object support isolation fixed the issue:
+  - `MoveBG/MapObjBase.cpp`
+  - `MoveBG/MapObjGeneral.cpp`
+  - `MoveBG/MapObjManager.cpp`
+  - `MoveBG/ItemManager.cpp`
+- Broad map-object support deployed DOL:
+  `019E7ABA2874273B8D690A6B6E9C14BDF4767510`
+- Trimmed split kept only these original-linked and the issue stayed fixed:
+  - `MoveBG/MapObjBase.cpp`
+  - `MoveBG/MapObjGeneral.cpp`
+- Trimmed split deployed DOL:
+  `F0C42F7821AF607260497C35F8B4AD2A63331C02`
+- `MoveBG/MapObjManager.cpp`, `MoveBG/ItemManager.cpp`, and `MoveBG/Item.cpp`
+  are source-linked in the trimmed fixed build.
+- Final isolation kept only `MoveBG/MapObjBase.cpp` original-linked and both
+  BUG 0018 and BUG 0019 stayed fixed.
+- Source candidate in `TMapObjBase::makeObjAppeared()`:
+  - map-collision setup now checks map-object flag `0x8`, matching original
+    `rlwinm. ..., 28, 28`; source had incorrectly checked `0x10`.
+  - fallback collision matrix Y now uses `mPosition.y - mYOffset` after the
+    temporary appearance Y adjustment, matching the original extra `fsubs`.
+- Source-linked candidate deployed DOL:
+  `0502B8D4B84D99D1AF29783A19A1DE2BC4EA3C50`
+- User test result: not fixed. Nozzle boxes still loop the opening animation
+  indefinitely and do not shoot the nozzle item out.
+- Second source candidate in `TMapObjBase::perform()`:
+  - the pre-calc block that can call `hasMapCollision()` and clear the calc
+    phase now only runs inside the same `gpMarDirector->unk124` state gate as
+    the original assembly.
+  - this matches the retail branch shape where non-1/2 director states skip
+    that block and continue into the common update path instead of stripping
+    the model/animation calc phase unconditionally.
+- Second source-linked candidate deployed DOL:
+  `29771E597E032E82D1AE8DA8C9C4CEF11A29B6AB`
+- User test result: fixed. Nozzle boxes stop looping and correctly shoot the
+  nozzle item out.
+
+## BUG 0019 - Save select blocks do not move correctly
+
+Status: fixed; source-linked `MoveBG/MapObjBase.cpp`
+
+Symptom:
+- Save select blocks in the save select menu were not moving properly.
+
+Current notes:
+- User observed this bug was fixed by the same link set that keeps BUG 0018
+  fixed.
+- Verified fixed with only these original-linked:
+  - `MoveBG/MapObjBase.cpp`
+  - `MoveBG/MapObjGeneral.cpp`
+- Source-linked in the same build:
+  - `MoveBG/MapObjManager.cpp`
+  - `MoveBG/ItemManager.cpp`
+  - `MoveBG/Item.cpp`
+- Deployed DOL:
+  `F0C42F7821AF607260497C35F8B4AD2A63331C02`
+- Because this affects a menu object and BUG 0018 affects a nozzle box, the
+  common suspect is shared `TMapObjBase` / `TMapObjGeneral` animation or state
+  transition logic rather than item-specific code.
+- Final isolation kept only `MoveBG/MapObjBase.cpp` original-linked and both
+  BUG 0018 and BUG 0019 stayed fixed.
+- Candidate source fix is shared with BUG 0018: the `makeObjAppeared()`
+  map-collision setup now uses the original flag `0x8` and original collision
+  Y value.
+- Source-linked candidate deployed DOL:
+  `0502B8D4B84D99D1AF29783A19A1DE2BC4EA3C50`
+- User test result: not fixed. Save select blocks still stay stationary when
+  jumped into.
+- Second source candidate is shared with BUG 0018: `TMapObjBase::perform()`
+  now gates the pre-calc map-collision phase clear like the original assembly.
+- Second source-linked candidate deployed DOL:
+  `29771E597E032E82D1AE8DA8C9C4CEF11A29B6AB`
+- User test result: fixed. Save select blocks animate upward when jumped into.

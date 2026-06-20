@@ -383,10 +383,10 @@ void TMapObjBase::makeObjAppeared()
 	if (mMapObjData->mCollision
 	    && mMapObjData->mCollision->unk4[0].unk0) {
 		f32 px = mPosition.x;
-		f32 py = mPosition.y;
+		f32 py = mPosition.y - mYOffset;
 		f32 pz = mPosition.z;
 		mMapCollisionManager->changeCollision(0);
-		if (unkF8 & 0x10) {
+		if (unkF8 & 0x8) {
 			J3DModel* model = getModel();
 			TMapCollisionBase* col = mMapCollisionManager->unk8;
 			PSMTXCopy(model->getAnmMtx(0), col->unk20);
@@ -530,35 +530,36 @@ void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
 			state2 = 1;
 		else
 			state2 = 0;
-		if (state2)
-			return;
-	}
-	if (mLiveFlag & 1)
-		return;
-	u8 isType3B;
-	if ((mActorType - 0x40000000) == 0x3B)
-		isType3B = 1;
-	else
-		isType3B = 0;
-	if (isType3B)
-		return;
-	if (param_1 & 1) {
-		setGroundCollision();
-		param_1 &= ~1;
-	}
-	if ((param_1 & 2) && mMActor) {
-		if (mLiveFlag & 0x204) {
-			if (getModel()->mShapePackets->unk30 != 0)
-				SMS_HideAllShapePacket(getModel());
-		} else {
-			if (getModel()->mShapePackets->unk30 == 0)
-				SMS_ShowAllShapePacket(getModel());
+
+		if (!state2) {
+			if (mLiveFlag & 1)
+				return;
+			u8 isType3B;
+			if ((mActorType - 0x40000000) == 0x3B)
+				isType3B = 1;
+			else
+				isType3B = 0;
+			if (isType3B)
+				return;
+			if (param_1 & 1) {
+				setGroundCollision();
+				param_1 &= ~1;
+			}
+			if ((param_1 & 2) && mMActor) {
+				if (mLiveFlag & 0x204) {
+					if (getModel()->mShapePackets->unk30 != 0)
+						SMS_HideAllShapePacket(getModel());
+				} else {
+					if (getModel()->mShapePackets->unk30 == 0)
+						SMS_ShowAllShapePacket(getModel());
+				}
+			}
+			if (mLiveFlag & 0x200)
+				return;
+			if (hasMapCollision())
+				param_1 &= ~2;
 		}
 	}
-	if (mLiveFlag & 0x200)
-		return;
-	if (hasMapCollision())
-		param_1 &= ~2;
 	if (param_1 & 1) {
 		if (mLifeTimer > 0)
 			mLifeTimer -= 1;
