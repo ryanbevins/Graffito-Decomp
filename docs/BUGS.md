@@ -42,22 +42,35 @@ Notes:
 
 ## BUG 0002 - FLUDD nozzle box rendering regression
 
-Status: open
+Status: fixed; source fix in `MoveBG/Item.cpp`
+
+Fixed in:
+- `TNozzleBox::load()` now initializes the box packet material colors with
+  `GX_TEVREG1`, matching the original assembly immediate `2`.
+
+Verified:
+- User test passed on 2026-06-20 with deployed source-linked DOL
+  `EFA30B2A601F548466EC30AD2F5C68F684D04221`.
 
 Symptom:
 - Delfino Plaza boots with the BUG 0001 minimum, but FLUDD nozzle boxes render
   incorrectly/weirdly in some source-linked combinations.
 
-Current isolation notes:
+Isolation notes:
 - The regression appeared after removing `MoveBG/Item.cpp` from the
   original-linked set.
 - `MoveBG/Item.cpp` is therefore not needed for BUG 0001 boot, but may be
   required for this rendering issue or may expose a separate source bug.
-
-Next step:
-- Re-test with `MoveBG/Item.cpp` original-linked while keeping the BUG 0001
-  booting set otherwise unchanged to confirm whether BUG 0002 is specifically
-  caused by source-linked `MoveBG/Item.cpp`.
+- Reconfirmed on 2026-06-20: original-linking only `MoveBG/Item.cpp` fixed the
+  item/nozzle box rendering issue.
+- Source bug found in `TNozzleBox::load()`: the three
+  `TMapObjBase::initPacketMatColor()` calls used `GX_TEVREG2`.
+- Original assembly for those calls passes immediate `2`, which corresponds to
+  `GX_TEVREG1` in the local SDK enum (`GX_TEVPREV`, `GX_TEVREG0`,
+  `GX_TEVREG1`, `GX_TEVREG2`).
+- Fixed source-linked DOL deployed:
+  `EFA30B2A601F548466EC30AD2F5C68F684D04221`
+- User test result: fixed. Item/nozzle boxes render correctly again.
 
 ## BUG 0003 - Mario dies after standing on ground
 
@@ -914,3 +927,25 @@ Current isolation notes:
   `npcWaitIn()`.
 - Source-linked verification deployed DOL:
   `07ED5B5EB43C54EBA88DE2CD45AE4CF685E7F002`
+
+## BUG 0018 - FLUDD nozzle boxes loop open animation and do not connect nozzle
+
+Status: open; isolating item/nozzle box state TUs
+
+Symptom:
+- FLUDD/nozzle item boxes render correctly after BUG 0002, but when opened they
+  play a looping animation repeatedly.
+- The inner nozzle item does not connect/attach correctly after the box opens.
+
+Current notes:
+- This is separate from BUG 0002's material color regression. BUG 0002 is fixed
+  by the `TNozzleBox::load()` TEV register correction in `MoveBG/Item.cpp`.
+- The most likely first isolation target is still `MoveBG/Item.cpp`, because it
+  owns `TNozzleBox`, `TItemNozzle`, `TNozzleBox::loadAfter()`,
+  `TNozzleBox::receiveMessage()`, `TNozzleBox::makeModelValid()`, and the
+  inner item pointer wiring (`unk14C->unk148 = this`).
+- Nearby follow-up candidates if `MoveBG/Item.cpp` alone is not sufficient:
+  `MoveBG/ItemManager.cpp`, `MoveBG/MapObjGeneral.cpp`,
+  `MoveBG/MapObjBase.cpp`, `MoveBG/MapObjManager.cpp`, and
+  `Player/WaterGun.cpp` / `System/MarDirector.cpp` for nozzle acquisition
+  state.

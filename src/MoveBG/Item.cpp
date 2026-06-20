@@ -1404,13 +1404,13 @@ void TNozzleBox::load(JSUMemoryInputStream& stream)
 	if (unk154 < 0.0f)
 		unk154 = 20.0f;
 
-	TMapObjBase::initPacketMatColor(getModel(), GX_TEVREG2,
+	TMapObjBase::initPacketMatColor(getModel(), GX_TEVREG1,
 	                                (const GXColorS10*)&unk15E);
 	startAnim(3);
-	TMapObjBase::initPacketMatColor(getModel(), GX_TEVREG2,
+	TMapObjBase::initPacketMatColor(getModel(), GX_TEVREG1,
 	                                (const GXColorS10*)&unk15E);
 	startAnim(2);
-	TMapObjBase::initPacketMatColor(getModel(), GX_TEVREG2,
+	TMapObjBase::initPacketMatColor(getModel(), GX_TEVREG1,
 	                                (const GXColorS10*)&unk15E);
 	startAnim(0);
 }
