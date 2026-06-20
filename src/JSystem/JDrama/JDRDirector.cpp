@@ -39,7 +39,8 @@ int TDirector::direct()
 JStage::TObject* TDirector::JSGFindObject(const char* name,
                                           JStage::TEObject type) const
 {
-	TNameRef* candidate = ((TDirector*)this)->search(name);
+	TDirector* self     = const_cast<TDirector*>(this);
+	TNameRef* candidate = self->search(name);
 
 	if (candidate) {
 		switch (candidate->getType()) {

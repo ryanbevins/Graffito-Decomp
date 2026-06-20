@@ -32,6 +32,11 @@ public:
 	void* allocFromHead(u32 size, int align);
 	void* allocFromTail(u32 size, int align);
 
+	static s32 getUsedSize_(JKRSolidHeap* solidHeap)
+	{
+		return solidHeap->mSize - solidHeap->getTotalFreeSize();
+	}
+
 private:
 	// _00     = VTBL
 	// _00-_68 = JKRHeap

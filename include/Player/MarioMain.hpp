@@ -222,6 +222,22 @@ enum E_MARIO_ACTION {
 	ACTION_SQUISH_RECOVER    = 0x0C000227,
 };
 
+enum {
+	MARIO_STATUS_WAIT       = ACTION_IDLE,
+	MARIO_STATUS_TAKE       = 0x383,
+	MARIO_STATUS_TAKE_POSE  = ACTION_SLIP_START,
+	MARIO_STATUS_CATCH_LOST = 0x386,
+	MARIO_STATUS_PUTTING    = ACTION_NPC_TALK,
+	MARIO_STATUS_PITCHING   = ACTION_YOSHI_TONGUE,
+	MARIO_STATUS_JUMP       = ACTION_JUMP,
+	MARIO_STATUS_LANDING    = ACTION_SLIP_FALLING,
+	MARIO_STATUS_SLIP       = ACTION_UNKNOWN_50,
+};
+
+enum {
+	MSD_SE_MV15_EXERT_INST_01 = 0x788F,
+};
+
 struct TRidingInfo {
 	const TLiveActor* unk0;
 	Vec localPos;
@@ -255,6 +271,25 @@ class TMarioGamePad;
 
 class TMario : public TTakeActor, public TDrawSyncCallback {
 public:
+	enum {
+		ANIM_JUMP     = 0x4D,
+		ANIM_LOST     = 0x5A,
+		ANIM_THROW    = 0x65,
+		ANIM_RAISE    = 0x6B,
+		ANIM_PUT      = 0x6E,
+		ANIM_WAIT     = 0xC3,
+		ANIM_GET_FAIL = 0x110,
+	};
+
+	enum {
+		UPPER_STATE_PUMPING,
+		UPPER_STATE_HOLDING_PUMP,
+		UPPER_STATE_HOLDING_OBJECT,
+		UPPER_STATE_UNK3,
+		UPPER_STATE_FIXED_ANIMATION,
+		UPPER_STATE_IDLE,
+	};
+
 	struct JumpSlipRecord {
 		s16 mTimer;
 		u16 _pad;
@@ -803,10 +838,10 @@ public:
 	virtual void drawSyncCallback(u16);
 
 	BOOL actnMain();
-	void pitching();
-	void putting();
-	void catchLost();
-	void takePose();
+	BOOL pitching();
+	BOOL putting();
+	BOOL catchLost();
+	BOOL takePose();
 	BOOL taking();
 	BOOL demoMain();
 	void disappear();
@@ -1399,7 +1434,10 @@ public:
 public:
 	/* 0x74 */ u32 mInput;
 	/* 0x78 */ u32 unk78;
-	/* 0x7C */ u32 mAction;
+	/* 0x7C */ union {
+		u32 mAction;
+		u32 mStatus;
+	};
 	/* 0x80 */ u32 mPrevAction;
 	/* 0x84 */ u16 mActionState;
 	/* 0x86 */ u16 mActionTimer;
@@ -1520,8 +1558,14 @@ public:
 	/* 0x374 */ f32 unk374; // sink gravity velocity
 	/* 0x378 */ f32 unk378; // sink Y offset
 	/* 0x37C */ u16 unk37C;
-	/* 0x37E */ u16 unk37E;
-	/* 0x380 */ u32 mPumpState;    // FLUDD pump phase (0=idle, 1=requested, 2=active, 3=holding)
+	/* 0x37E */ union {
+		u16 unk37E;
+		u16 mPumpCooldown;
+	};
+	/* 0x380 */ union {
+		u32 mPumpState; // FLUDD pump phase (0=idle, 1=requested, 2=active, 3=holding)
+		u32 mUpperState;
+	};
 	/* 0x384 */ THitActor* unk384; // Last receiveMessage sender
 	/* 0x388 */ u8 unk388;
 	// TODO: Make enum (0 = red, 1 = yellow, 2 = green)

@@ -3,6 +3,9 @@
 
 #include <JSystem/JDrama/JDRActor.hpp>
 #include <JSystem/JDrama/JDRCamera.hpp>
+#include <Camera/CameraMarioData.hpp>
+#include <Camera/CameraMode.hpp>
+#include <Player/MarioAccess.hpp>
 #include <dolphin/mtx.h>
 
 class TBaseNPC;
@@ -11,12 +14,30 @@ class TCameraKindParam;
 class TCameraInbetween;
 class TMarioGamePad;
 class TCamSaveKindParam;
+class TCamSaveEx;
 
 class TCameraJetCoaster;
 struct TMultiPlayerContainer;
 
 class CPolarSubCamera : public JDrama::TLookAtCamera {
 public:
+	struct TCameraTargetState {
+		/* 0x00 */ JGeometry::TVec3<f32> mPosition;
+		/* 0x0C */ JGeometry::TVec3<f32> mTarget;
+		/* 0x18 */ JGeometry::TVec3<f32> unk18;
+		/* 0x24 */ s16 mPitch;
+		/* 0x26 */ s16 mYaw;
+		/* 0x28 */ f32 unk28;
+		/* 0x2C */ s16 unk2C;
+		/* 0x2E */ char unk2E[0x30 - 0x2E];
+		/* 0x30 */ f32 unk30;
+	};
+
+	enum {
+		CAMERA_FLAG_UNK1 = 0x1,
+		CAMERA_FLAG_UNK2 = 0x2,
+	};
+
 	enum EnumNoticeOnOffMode { };
 
 	void calcSecureViewTarget_(s16, f32*, f32*);
@@ -81,9 +102,43 @@ public:
 	void getNozzleTopPos_(JGeometry::TVec3<f32>*) const;
 	void ctrlLButtonCamera_();
 	void killHeightPanWhenChangeCamMode_();
-	bool isNotHeightPanCamMode_() const;
 	void execHeightPan_();
 	void killHeightPan_();
+
+	bool isNotHeightPanCamMode_() const
+	{
+		bool result = false;
+		if (isLButtonCameraSpecifyMode(mMode)
+		    || isRailCameraSpecifyMode(mMode)) {
+			result = true;
+		} else {
+			switch (mMode) {
+			case CAMERA_MODE_MARE_UNDER_GROUND:
+			case CAMERA_MODE_UNDER_GROUND:
+			case CAMERA_MODE_HANG:
+			case CAMERA_MODE_HOVERING:
+			case CAMERA_MODE_JUMP_CODE:
+			case CAMERA_MODE_DIVING:
+			case CAMERA_MODE_SWIMMING:
+			case CAMERA_MODE_LOOK_DOWN:
+			case CAMERA_MODE_MONTE_HANG:
+			case CAMERA_MODE_TOWER_E:
+				result = true;
+			}
+		}
+		return result;
+	}
+
+	bool fabricatedInline()
+	{
+		bool result = false;
+		if (!isNotHeightPanCamMode_() && !SMS_IsMarioTouchGround4cm()
+		    && !gpCameraMario->isMarioGoDown() && !SMS_IsMarioOnWire()
+		    && SMS_GetMarioStatus() != 0x200345) {
+			result = true;
+		}
+		return result;
+	}
 
 	CPolarSubCamera(const char* = "<CPolarCamera>");
 	void startJetCoasterCam1();
@@ -144,13 +199,19 @@ public:
 
 public:
 	/* 0x50 */ int mMode;
-	/* 0x54 */ int unk54;
+	/* 0x54 */ union {
+		int unk54;
+		int mPrevMode;
+	};
 	/* 0x58 */ u32 unk58;
 	/* 0x5C */ int unk5C;
 	/* 0x60 */ void* unk60;
 	/* 0x64 */ u16 unk64;
 	/* 0x66 */ char unk66[0x68 - 0x66];
-	/* 0x68 */ TCameraKindParam* unk68;
+	/* 0x68 */ union {
+		TCameraKindParam* unk68;
+		TCameraKindParam* mCurrentParams;
+	};
 	/* 0x6C */ TCameraInbetween* unk6C;
 	/* 0x70 */ TCameraMapTool* unk70;
 	/* 0x74 */ TCameraMapTool* unk74;
@@ -195,7 +256,10 @@ public:
 	/* 0x1AC */ Mtx44 unk1AC;
 	/* 0x1EC */ Mtx unk1EC;
 	/* 0x21C */ Mtx unk21C;
-	/* 0x24C */ f32 unk24C;
+	/* 0x24C */ union {
+		f32 unk24C;
+		f32 mHeightPanOffset;
+	};
 	/* 0x250 */ f32 unk250;
 	/* 0x254 */ s16 unk254;
 	/* 0x256 */ s16 unk256;
@@ -232,7 +296,10 @@ public:
 	/* 0x2CC */ u8 unk2CC;
 	/* 0x2CD */ char unk2CD[0x2D0 - 0x2CD];
 	/* 0x2D0 */ void* unk2D0;
-	/* 0x2D4 */ void* unk2D4;
+	/* 0x2D4 */ union {
+		void* unk2D4;
+		TCamSaveEx* mSaveEx;
+	};
 	/* 0x2D8 */ TCamSaveKindParam* unk2D8[0x49];
 
 	static const char* mCamKindNameSaveFile[0x49];

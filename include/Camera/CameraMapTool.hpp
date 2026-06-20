@@ -15,13 +15,29 @@ public:
 	void calcPosAndAt(JGeometry::TVec3<f32>*, JGeometry::TVec3<f32>*) const;
 	void load(JSUMemoryInputStream&);
 
+	f32 getYaw() const { return mPitchYaw.y; }
+	s32 getCameraMode() const { return mCameraMode; }
+	u32 getDemoLengthFrames() const { return mDemoLengthFrames; }
+
 public:
-	/* 0xC */ JGeometry::TVec3<f32> unkC;
-	/* 0x18 */ JGeometry::TVec2<f32> unk18;
+	/* 0xC */ union {
+		JGeometry::TVec3<f32> unkC;
+		JGeometry::TVec3<f32> mPosition;
+	};
+	/* 0x18 */ union {
+		JGeometry::TVec2<f32> unk18;
+		JGeometry::TVec2<f32> mPitchYaw;
+	};
 	/* 0x20 */ u32 unk20;
-	/* 0x24 */ int unk24;
-	/* 0x28 */ int unk28;
-	/* 0x2C */ u32 unk2C;
+	/* 0x24 */ union {
+		s32 unk24;
+		s32 mCameraMode;
+	};
+	/* 0x28 */ s32 unk28;
+	/* 0x2C */ union {
+		u32 unk2C;
+		u32 mDemoLengthFrames;
+	};
 };
 
 extern TNameRefAryT<TCameraMapTool>* gpCamMapToolTable;

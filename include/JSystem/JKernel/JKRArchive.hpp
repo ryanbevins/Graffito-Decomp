@@ -77,9 +77,12 @@ public:
 		bool getFlag40() { return mFlag >> 0x18 & 0x40; }
 		bool getFlag80() { return mFlag >> 0x18 & 0x80; }
 
-		u16 mFileID;     // _00
-		u16 mHash;       // _02
-		u32 mFlag;       // _04
+		u16 mFileID; // _00
+		u16 mHash;   // _02
+		union {
+			u32 mFlag;               // _04
+			u32 mFlagsAndNameOffset; // _04
+		};
 		u32 mDataOffset; // _08
 		u32 mSize;       // _0C
 		void* mData;     // _10

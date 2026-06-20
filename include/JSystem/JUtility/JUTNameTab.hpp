@@ -19,16 +19,11 @@ struct ResNTAB {
 
 class JUTNameTab {
 public:
-	JUTNameTab() { }
+	JUTNameTab();
 	JUTNameTab(const ResNTAB* pNameTable);
 	~JUTNameTab() { }
 
-	void setResource(const ResNTAB* pNameTable)
-	{
-		mNameTable = pNameTable;
-		mStrData   = (const char*)(pNameTable->mEntries + pNameTable->mEntryNum);
-		mNameNum   = pNameTable->mEntryNum;
-	}
+	void setResource(const ResNTAB* pNameTable);
 	s32 getIndex(char const*) const;
 	const char* getName(u16 index) const;
 	u16 calcKeyCode(char const* pName) const;

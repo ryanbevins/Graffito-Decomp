@@ -100,10 +100,13 @@ public:
 
 	virtual void update();
 
-	BOOL registFadeout(u16, u16);
+	bool registFadeout(u16, u16);
 
 public:
-	/* 0x38 */ u16 mFadeoutDelay;
+	/* 0x38 */ union {
+		u16 mFadeoutDelay;
+		u16 unk38;
+	};
 };
 
 #endif
