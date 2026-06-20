@@ -1176,7 +1176,7 @@ void TItemNozzle::touchPlayer(THitActor* actor)
 
 	if ((actor->isActorType(0x80000001) || actor->isActorType(0x8000083))
 	    && !checkHitFlag(HIT_FLAG_NO_COLLISION))
-		put();
+		taken(actor);
 
 	int nozzleType;
 	if (isActorType(0x2000001F)) {

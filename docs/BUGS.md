@@ -1015,3 +1015,28 @@ Current notes:
 - Second source-linked candidate deployed DOL:
   `29771E597E032E82D1AE8DA8C9C4CEF11A29B6AB`
 - User test result: fixed. Save select blocks animate upward when jumped into.
+
+## BUG 0020 - Nozzle pickup does not update current nozzle
+
+Status: fixed; source-linked `MoveBG/Item.cpp`
+
+Symptom:
+- After a nozzle box opens and Mario collects the spawned nozzle item, the
+  active/current nozzle does not update.
+
+Current notes:
+- The box opening and item ejection path is fixed by BUG 0018, so this is now
+  the separate pickup path for the spawned `TItemNozzle`.
+- Original `TItemNozzle::touchPlayer(THitActor*)` passes Mario's actor pointer
+  into the virtual at vtable offset `0x1E0`.
+- The `TItemNozzle` vtable shows offset `0x1E0` is `TItem::taken(THitActor*)`.
+- The source incorrectly called `TItemNozzle::put()` at vtable offset `0x1A0`,
+  skipping the normal item-taken message sent to Mario.
+- Candidate source fix:
+  - `TItemNozzle::touchPlayer()` now calls `taken(actor)` when Mario touches a
+    collectable nozzle item, matching the original call target and preserving
+    the nozzle event path.
+- Source-linked candidate deployed DOL:
+  `3977251E90F3F94D57CE600F1DDB3CA606688948`
+- User test result: fixed. Collecting nozzles from boxes now updates Mario's
+  current nozzle.
