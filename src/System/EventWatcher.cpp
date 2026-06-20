@@ -330,7 +330,7 @@ static void evSetValue2TalkVariable(TSpcTypedInterp<TEventWatcher>* interp,
 
 static void evIsTalkModeNow(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
-	interp->verifyArgNum(2, &arg_num);
+	interp->verifyArgNum(0, &arg_num);
 	int value = gpMarDirector->isTalkModeNow() ? 1 : 0;
 	interp->push(value);
 }

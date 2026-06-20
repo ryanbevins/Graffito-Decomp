@@ -1043,8 +1043,7 @@ Current notes:
 
 ## BUG 0021 - NPCs and signs always show the same dialogue line
 
-Status: fixed in current link set; `System/EventWatcher.cpp` remains
-original-linked
+Status: fixed; all isolated talk/message TUs are source-linked
 
 Symptom:
 - NPCs and signs do not display their intended dialogue.
@@ -1116,5 +1115,14 @@ Current notes:
 - User test result: fixed. NPCs and signs now show the correct dialogue with
   the corrected source `GC2D/Talk2D2.cpp` and original-linked
   `System/EventWatcher.cpp`.
-- Current working set keeps `System/EventWatcher.cpp` marked `NonMatching` in
-  `configure.py`; the remaining source-side issue is in that TU.
+- The intermediate working set kept `System/EventWatcher.cpp` marked
+  `NonMatching`; this was superseded by the source fix below.
+- Follow-up source fix: original `evIsTalkModeNow` verifies 0 arguments, but
+  source verified 2. This is in the same EventWatcher talk builtin cluster and
+  can corrupt the dialogue script's expected stack flow around talk-state
+  checks. `System/EventWatcher.cpp` is source-linked again for validation.
+- Source-linked EventWatcher validation DOL:
+  `06EF1AE7F6D92AEE1EB7DD07CAFBFE50A1FC96C5`
+- User test result: fixed. NPCs/signs show correct dialogue with
+  `System/EventWatcher.cpp`, `System/TalkCursor.cpp`, `GC2D/Talk2D2.cpp`, and
+  `GC2D/MessageLoader.cpp` all source-linked.
