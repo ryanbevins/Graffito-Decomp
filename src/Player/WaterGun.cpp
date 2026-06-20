@@ -542,8 +542,10 @@ void TNozzleTrigger::movement(const TMarioControllerWork& controllerWork)
 			} else {
 				soundId = 0x805;
 			}
-			MSoundSESystem::MSoundSE::startSoundActor(
-			    soundId, &mFludd->mEmitPos[0], 0, nullptr, 0, 4);
+			if (gpMSound->gateCheck(soundId)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    soundId, &mFludd->mEmitPos[0], 0, nullptr, 0, 4);
+			}
 		}
 		unk386 = mEmitParams.mTriggerTime.get();
 	}
@@ -566,10 +568,12 @@ void TNozzleTrigger::movement(const TMarioControllerWork& controllerWork)
 				SMSRumbleMgr->start(20, (int)mFludd->mMario->unk564,
 				                    (f32*)nullptr);
 		}
-		if (unk384 && unk385 == TNozzleTrigger::INACTIVE
+		if (!unk384 && unk385 == TNozzleTrigger::INACTIVE
 		    && controllerWork.mAnalogR > 0.0f) {
-			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x4022, &mFludd->mEmitPos[0], 0, nullptr, 0, 4);
+			if (gpMSound->gateCheck(0x4022)) {
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x4022, &mFludd->mEmitPos[0], 0, nullptr, 0, 4);
+			}
 		}
 	}
 	unk388 -= mEmitParams.mInsidePressureDec.get();
@@ -584,8 +588,10 @@ void TNozzleTrigger::movement(const TMarioControllerWork& controllerWork)
 			unk386      = mEmitParams.mTriggerTime.get();
 			u32 soundId = unk38C;
 			if (soundId != 0xffffffff) {
-				MSoundSESystem::MSoundSE::startSoundActor(
-				    soundId, &mFludd->mEmitPos[0], 0, nullptr, 0, 4);
+				if (gpMSound->gateCheck(soundId)) {
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    soundId, &mFludd->mEmitPos[0], 0, nullptr, 0, 4);
+				}
 			}
 			if (mFludd->mCurrentNozzle == (s8)TWaterGun::Hover) {
 				SMSRumbleMgr->start((int)0x15, 0x8, (f32*)nullptr);

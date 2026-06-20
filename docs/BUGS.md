@@ -1126,3 +1126,49 @@ Current notes:
 - User test result: fixed. NPCs/signs show correct dialogue with
   `System/EventWatcher.cpp`, `System/TalkCursor.cpp`, `GC2D/Talk2D2.cpp`, and
   `GC2D/MessageLoader.cpp` all source-linked.
+
+## BUG 0022 - Rocket/turbo nozzle charge sound and effect missing
+
+Status: fixed; source-linked `Player/WaterGun.cpp`
+
+Symptom:
+- When using the rocket or turbo nozzle, the charging sound/effect does not
+  play.
+
+Current notes:
+- All TUs were source-linked when this bug was filed.
+- First isolation original-links the narrow player-side nozzle/effect path:
+  - `Player/WaterGun.cpp`
+  - `Player/MarioEffect.cpp`
+- Rationale: `TNozzleTrigger::movement()` in `Player/WaterGun.cpp` owns trigger
+  pressure, the rocket/turbo active transition, charge/trigger sound starts,
+  and nozzle-bound particles. `Player/MarioEffect.cpp` owns the waterboost
+  visual actor bound to the water-gun emit matrix.
+- First isolation deployed DOL:
+  `E4E532518F2579F6629B3400A90428E73F9968A1`
+- User test result: fixed. Rocket/turbo nozzle charge sound/effect plays with
+  `Player/WaterGun.cpp` and `Player/MarioEffect.cpp` original-linked.
+- Current trim source-links `Player/MarioEffect.cpp` again and keeps only
+  `Player/WaterGun.cpp` original-linked.
+- Trimmed `Player/WaterGun.cpp`-only isolation deployed DOL:
+  `927C3DD6154A5BE7CD39F42EEDBB82B82958A417`
+- User test result: fixed. BUG 0022 is isolated to `Player/WaterGun.cpp`.
+- Source candidate:
+  - `TNozzleTrigger::movement()` now gates the trigger/charge sound starts with
+    `gpMSound->gateCheck(...)`, matching the original assembly before each
+    `MSoundSESystem::MSoundSE::startSoundActor(...)` call.
+  - The missing gates were on the charged trigger sounds `0x805`/`0x806`, the
+    charge-loop sound `0x4022`, and the nozzle trigger sound from `unk38C`.
+- Source candidate deployed DOL:
+  `9D2C8492E40F7C050B118E0F9B843E63E944A170`
+- User test result: not fixed. Rocket/turbo charging sound still did not play.
+- Follow-up source candidate:
+  - The `0x4022` pressure charge-loop sound condition was inverted. Original
+    assembly skips this sound when `unk384 == true`, while the source only
+    played it when `unk384 == true`.
+  - `TNozzleTrigger::movement()` now plays the `0x4022` charging sound on the
+    `!unk384` pressure-charge path used by rocket/turbo nozzles.
+- Follow-up source-linked DOL:
+  `AA2DC8ECDDF380EED2892C0D7CB537FF91499950`
+- User test result: fixed. Rocket/turbo nozzle charging sound/effect plays
+  with `Player/WaterGun.cpp` source-linked.
