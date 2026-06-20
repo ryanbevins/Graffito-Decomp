@@ -162,7 +162,7 @@ void TAnimalBase::perform(u32 flags, JDrama::TGraphics* gfx)
 				DCStoreRange(model->getNrmMtxPtr(), count * sizeof(Mtx33));
 				model->prepareShapePackets();
 			}
-			PSMTXCopy(j3dSys.mViewMtx, tmp1);
+			PSMTXCopy(tmp1, j3dSys.mViewMtx);
 		}
 		flags &= ~4;
 	}

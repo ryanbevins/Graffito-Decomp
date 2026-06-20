@@ -294,7 +294,7 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 	}
 
 	if (isPollutionNpc()) {
-		unk178               = colorData[0] * (1.0f / 255.0f);
+		unk178               = colorData[2] * (1.0f / 255.0f);
 		u8 pollMax           = mNpcSaveIndividual->mPollutionMax.value;
 		*((u8*)this + 0x177) = (u8)(s32)(unk178 * (f32)pollMax);
 	}
@@ -342,7 +342,7 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 		u16 numMaterials        = modelData->mMaterialNum;
 		for (u16 i = 0; i < numMaterials; i++) {
 			const char* matName = matNameTab->getName(i);
-			if (strcmp(matName, cEyeMaterialName) == 0) {
+			if (strcmp(matName, cEyeMaterialName) != 0) {
 				J3DMaterial* mat   = modelData->mMaterials[i];
 				void* sub          = *(void**)((u8*)mat + 0x4);
 				u16 matIdx         = *(u16*)((u8*)sub + 0x4);
@@ -362,9 +362,9 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 		if ((streamS32a & 0x10) != 0) {
 			streamS32a |= 0x60;
 			peachParasolIn_();
+		} else {
+			streamS32a &= ~0x60;
 		}
-	} else {
-		streamS32a &= ~0x60;
 	}
 
 	if (TFlagManager::smInstance->getBool(0x50003) && isSunflower())

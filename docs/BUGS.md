@@ -726,3 +726,191 @@ Current notes:
 - Next result needed: if this build fixes ledgegrab/climb, the offending object
   is `Player/MarioSpecial.cpp`; otherwise continue the Mario/action isolation
   outward.
+
+## BUG 0014 - Actor meshes teleport around on screen
+
+Status: isolated; testing common actor/model stack
+
+Symptom:
+- Pianta meshes jump/teleport around on screen, including positions in the air.
+- Birds showed the same teleporting behavior, so this is not Pianta-only NPC
+  logic.
+
+Current isolation notes:
+- Broad original-link batch fixed the teleporting/despawn behavior:
+  - `System/MarNameRefGen_NPC.cpp`
+  - all source-linked `NPC/*.cpp` equivalents
+  - all source-linked `M3DUtil/*.cpp` equivalents
+  - all source-linked `Strategic/*.cpp` equivalents
+  - all source-linked `Animal/*.cpp` equivalents
+- Broad deployed DOL:
+  `DD42969E5937937177C5245D9BB92060E4EBEF61`
+- Massive trim kept only the common actor/model stack original-linked:
+  - `M3DUtil/M3UJoint.cpp`
+  - `M3DUtil/M3UModel.cpp`
+  - `M3DUtil/MActor.cpp`
+  - `M3DUtil/MActorAnm.cpp`
+  - `M3DUtil/MActorData.cpp`
+  - `M3DUtil/SDLModel.cpp`
+  - `M3DUtil/MActorUtil.cpp`
+  - `M3DUtil/SampleCtrlNode.cpp`
+  - `Strategic/liveactor.cpp`
+  - `Strategic/liveinterp.cpp`
+  - `Strategic/livemanager.cpp`
+  - `Strategic/ObjHitCheck.cpp`
+  - `Strategic/objmanager.cpp`
+  - `Strategic/ObjModel.cpp`
+  - `Strategic/spcinterp.cpp`
+  - `Strategic/Strategy.cpp`
+  - `Strategic/question.cpp`
+  - `Strategic/HitActor.cpp`
+  - `Strategic/MirrorActor.cpp`
+- Trimmed deployed DOL:
+  `959FCAEA6E6DB47AADB545180712FD647A07F7C3`
+- User test result: teleporting is gone, but despawning still happens.
+- Next split for this bug should be `M3DUtil` vs `Strategic` after BUG 0015 is
+  handled.
+
+## BUG 0015 - Actor meshes despawn randomly
+
+Status: open; isolating despawn separately from BUG 0014
+
+Symptom:
+- Pianta meshes randomly despawn.
+- Birds also showed despawn-like behavior during broad testing, but Piantas are
+  the primary repro target for this bug.
+- This is separate from BUG 0014 because the `M3DUtil` + `Strategic` trimmed
+  isolation removes teleporting but leaves despawning.
+
+Current isolation notes:
+- Broad original-link batch fixed both teleporting and despawning:
+  `DD42969E5937937177C5245D9BB92060E4EBEF61`
+- Massive trim with only `M3DUtil` + `Strategic` original-linked fixes
+  teleporting but not despawning:
+  `959FCAEA6E6DB47AADB545180712FD647A07F7C3`
+- Pianta-focused test kept the BUG 0014 common-stack isolation and added
+  `System/MarNameRefGen_NPC.cpp` plus the non-matching `NPC/*.cpp`
+  equivalents original-linked, while leaving `Animal/*.cpp` source-linked:
+  `926C0FD6BA433ABB0EEA32BD73979CB82DA93E92`
+- User test result: Piantas still despawn.
+- Current reconfirmation build restores the broad original-link set by adding
+  the non-matching `Animal/*.cpp` equivalents original-linked too:
+  `DD42969E5937937177C5245D9BB92060E4EBEF61`
+- User test result: fixed. Pianta despawn stops only after adding `Animal`
+  back on top of the NPC/common-stack original-link baseline.
+- Current split test keeps only the Animal core TUs original-linked:
+  `Animal/AnimalBase.cpp`, `Animal/AnimalManager.cpp`, and
+  `Animal/AnimalNerve.cpp`; species/behavior TUs are source-linked.
+- Animal core split deployed DOL:
+  `C9BF7D051C9B053F36C290F5EC928660762FAACB`
+- User test result: fixed; Piantas did not despawn.
+- Current split test keeps only `Animal/AnimalManager.cpp` original-linked from
+  the Animal core set; `Animal/AnimalBase.cpp` and `Animal/AnimalNerve.cpp` are
+  source-linked again.
+- AnimalManager-only split deployed DOL:
+  `A3483D164976BDFB744091A8047D50289CCD81CE`
+- User test result: despawning returned, and the repro depends on where Mario
+  stands in the world.
+- Current split test adds `Animal/AnimalBase.cpp` back to the original-linked
+  set while keeping `Animal/AnimalManager.cpp` original-linked and
+  `Animal/AnimalNerve.cpp` source-linked. If this fixes the bug, suspect an
+  `AnimalBase` position/culling/global-list interaction.
+- AnimalBase + AnimalManager split deployed DOL:
+  `CD283D7709DAB2A3181BFA53EF4AE1D04DE04946`
+- User test result: fixed; Piantas did not despawn.
+- Isolated to `Animal/AnimalBase.cpp`: the `AnimalManager`-only build was bad,
+  and the only source/original difference between the bad and fixed splits was
+  `AnimalBase`.
+- Source bug found in `TAnimalBase::perform`: after temporarily replacing
+  `j3dSys.mViewMtx` with the animal-local view matrix, the restore call copied
+  the live matrix back into the stack save instead of restoring the stack save
+  into `j3dSys.mViewMtx`. This leaks an animal transform into later rendering,
+  matching the position-dependent Pianta despawn symptom.
+- Current verification build leaves all Animal TUs source-linked with the
+  `AnimalBase` view-matrix restore fixed.
+- Source-fixed verification deployed DOL:
+  `1059CE2B0E742D9E39A539589902DD3E7630D5C0`
+- Fully source-linked verification for the previously isolated
+  `M3DUtil`/`Strategic`/`NPC`/`System/MarNameRefGen_NPC`/`Animal` buckets:
+  `18BFF94128D137F9C3ECC42F4D39681F306B8B1B`
+
+## BUG 0016 - Pianta skirt/cloth colors render incorrectly
+
+Status: open; isolating NPC color/material setup
+
+Symptom:
+- Pianta skirt/cloth geometry renders, but its color/material result is wrong
+  compared with the rest of the model. It looks like bad NPC cloth color,
+  material, or packet color setup rather than missing geometry.
+
+Current isolation notes:
+- Fully source-linked build after BUG 0015 fix:
+  `18BFF94128D137F9C3ECC42F4D39681F306B8B1B`
+- Source inspection points at the NPC color/init path:
+  - `NPC/NpcInitData.cpp` owns Monte/Pianta body and cloth color tables.
+  - `NPC/NpcInitPrg.cpp` calls `SMS_InitChangeNpcColor` during individual
+    difference setup.
+  - `NPC/NpcColor.cpp` writes those color entries into material packets.
+  - `NPC/NpcParts.cpp` applies the same path for attached parts.
+- First isolation attempted to original-link `NPC/NpcParts.cpp` too, but the
+  original `NpcParts.o` leaves `cNpcPartsNameRootJoint` unresolved while the
+  source object provides it, so keep `NpcParts.cpp` source-linked for this
+  pass.
+- Current first isolation build original-links:
+  - `NPC/NpcBase.cpp`
+  - `NPC/NpcInitData.cpp`
+  - `NPC/NpcInitPrg.cpp`
+  - `NPC/NpcColor.cpp`
+- First color/init isolation deployed DOL:
+  `DD26270E2B33B4485A2981857602B85A5F0321DC`
+- User test result: fixed; skirt/cloth colors render correctly with this
+  NPC color/init cluster original-linked.
+- Current split test keeps only `NPC/NpcInitData.cpp` original-linked from that
+  cluster, because it owns the Monte cloth color tables and has many
+  nonmatching static color/init objects.
+- `NpcInitData`-only split deployed DOL:
+  `28476E9DD7E854DD84EA144E176D80F818256B6B`
+- User test result: broke again; `NPC/NpcInitData.cpp` alone is not sufficient.
+- Current split test keeps only `NPC/NpcColor.cpp` original-linked from the
+  fixed color/init cluster.
+- `NpcColor`-only split deployed DOL:
+  `D0B860F3293FD45ED148CAB71FE9F8D7C9EF5406`
+- User test result: not fixed; `NPC/NpcColor.cpp` alone is not sufficient.
+- Current split test keeps only `NPC/NpcInitPrg.cpp` original-linked from the
+  fixed color/init cluster.
+- `NpcInitPrg`-only split deployed DOL:
+  `CC801EB8C1336AC77D45791DA6A1EE3F7278EF10`
+- User test result: fixed; skirt/cloth colors render correctly.
+- BUG 0016 is isolated to source-linked `NPC/NpcInitPrg.cpp`.
+- Source fix in `TBaseNPC::setIndividualDifference_`:
+  - compute `unk178` from the third color component (`colorData[2]`), not the
+    first component, so clean NPCs do not get a bogus pollution amount.
+  - skip `_eye_mat` when applying fallback pollution KColor packets; the source
+    had the condition inverted and only touched the eye material.
+  - only clear Peach parasol part-mask bits on the Peach path instead of
+    clearing those bits for every non-Peach NPC.
+- Source-linked verification deployed DOL:
+  `07ED5B5EB43C54EBA88DE2CD45AE4CF685E7F002`
+
+## BUG 0017 - Piantas play dirty/goop stuck animation when clean
+
+Status: isolated with BUG 0016 to `NPC/NpcInitPrg.cpp`
+
+Symptom:
+- Before `NPC/NpcInitPrg.cpp` was original-linked, Piantas were playing the
+  stuck-in-goop/dirty animation even when they should be using their normal
+  animations.
+- With the `NpcInitPrg`-only original-linked build, Piantas return to their
+  normal animations.
+
+Current isolation notes:
+- Same deployed DOL as the BUG 0016 `NpcInitPrg`-only split:
+  `CC801EB8C1336AC77D45791DA6A1EE3F7278EF10`
+- This strongly suggests the source bug is in
+  `TBaseNPC::setIndividualDifference_` or nearby NPC init code that sets
+  individual color/state/action data.
+- Source fix is shared with BUG 0016: the wrong pollution amount component made
+  clean NPCs look dirty and enter dirty/goop animation selection through
+  `npcWaitIn()`.
+- Source-linked verification deployed DOL:
+  `07ED5B5EB43C54EBA88DE2CD45AE4CF685E7F002`
