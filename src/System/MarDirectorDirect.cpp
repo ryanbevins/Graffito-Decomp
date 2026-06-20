@@ -887,6 +887,7 @@ u8 TMarDirector::updateGameMode()
 		}
 		break;
 
+	case 3:
 	case 4: {
 		bool bVar5  = false;
 		bool uVar15 = 0;

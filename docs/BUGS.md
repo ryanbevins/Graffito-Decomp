@@ -1214,3 +1214,78 @@ Current notes:
   `63FF325290E92D3F1DD9B51B355BC74A1E9224C4`
 - User test result: fixed. Delfino Plaza no longer warns or crashes with
   `MoveBG/Item.cpp` source-linked.
+
+## BUG 0024 - Painting warp does not open level select
+
+Status: fixed; functional transition restored, cosmetic cutscene skip remains separate
+
+Symptom:
+- When entering paintings, Mario dissolves into the painting semi-correctly,
+  but the game never transitions to the level-select screen.
+- Camera remains locked facing the painting/camera and Mario is gone.
+
+Current notes:
+- All TUs were source-linked when this bug was filed.
+- First isolation original-links the warp-to-select transition chain:
+  - `System/MarDirectorEvent.cpp`
+  - `System/MarDirectorDirect.cpp`
+  - `System/Application.cpp`
+  - `Map/MapWarp.cpp`
+  - `Player/MarioAutodemo.cpp`
+  - `Player/MarioMove.cpp`
+  - `GC2D/SelectDir.cpp`
+- Rationale:
+  - `TMarDirector::setNextStage()` records the target stage/scenario and sets
+    the transition flags.
+  - `TMarDirector::updateGameMode()` and `moveStage()` advance from the warp
+    demo/camera lock into gameplay or `APP_STATE_TITLE`, which constructs the
+    scenario-select director.
+  - `TMapWarp::watchToWarp()` and Mario's warp request/autodemo code own the
+    initial dissolve/warp state.
+  - `TApplication::proc()` and `TSelectDir` own the actual handoff into the
+    level-select screen once the director returns `APP_STATE_TITLE`.
+- First isolation deployed DOL:
+  `EDA5C6D64C3EED45496DDE44E7E79C705E5E14FC`
+- User test result: fixed. Painting entry transitions to level select with the
+  first isolation set.
+- Trim 1 source-links the non-director handoff pieces again and keeps only:
+  - `System/MarDirectorEvent.cpp`
+  - `System/MarDirectorDirect.cpp`
+- Trim 1 deployed DOL:
+  `3B8DC31CDAAFF3A6BE4B04BBD6EFAA55A7F49B16`
+- User test result: still fixed. Painting entry transitions to level select
+  with only `System/MarDirectorEvent.cpp` and `System/MarDirectorDirect.cpp`
+  original-linked.
+- Trim 2 source-links `System/MarDirectorEvent.cpp` again and keeps only:
+  - `System/MarDirectorDirect.cpp`
+- Trim 2 deployed DOL:
+  `9EF504D94466D4181229FE1779D3BDF0D942DFB6`
+- User test result: fixed. Painting entry transitions to level select with
+  only `System/MarDirectorDirect.cpp` original-linked.
+- Source candidate:
+  - `TMarDirector::updateGameMode()` only handled demo-camera completion in
+    `case 4`, but original assembly routes both `unk124 == 3` and
+    `unk124 == 4` to that block.
+  - Painting gates set `unk126 = 3` after starting the gate demo camera, so
+    source started the dissolve/camera lock but never drained the demo queue,
+    never cleared the demo flag, and never reached the pending `moveStage()`.
+- Source candidate deployed DOL:
+  `DC5382A02324E1994FC8D59AE032D18CC4B5DFAC`
+- User test result: functionally fixed. Painting entry now starts the level
+  select menu immediately instead of hanging with Mario gone.
+
+## BUG 0025 - Painting warp skips entry cutscene
+
+Status: open; cosmetic follow-up
+
+Symptom:
+- With BUG 0024's source fix, painting entry reaches the level select menu, but
+  it starts immediately instead of playing the expected painting-entry cutscene.
+
+Current notes:
+- The functional transition was restored by routing `unk124 == 3` through the
+  same demo-completion block as `unk124 == 4` in
+  `TMarDirector::updateGameMode()`.
+- This likely means one of the surrounding director/demo timing states is still
+  advanced too aggressively or incompletely reconstructed, but the blocking
+  game-flow bug is fixed for now.
