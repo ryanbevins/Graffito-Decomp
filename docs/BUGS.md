@@ -1040,3 +1040,81 @@ Current notes:
   `3977251E90F3F94D57CE600F1DDB3CA606688948`
 - User test result: fixed. Collecting nozzles from boxes now updates Mario's
   current nozzle.
+
+## BUG 0021 - NPCs and signs always show the same dialogue line
+
+Status: fixed in current link set; `System/EventWatcher.cpp` remains
+original-linked
+
+Symptom:
+- NPCs and signs do not display their intended dialogue.
+- They repeatedly show the same line instead:
+  `あっ! きがつけば もうこんなに そとが あかるいぞ!!`
+
+Current notes:
+- Because both NPCs and signs show the wrong line, the shared talk/message
+  path is more likely than NPC-specific behavior.
+- Broad original-link isolation fixed the issue:
+  - `System/EventWatcher.cpp`
+  - `System/TalkCursor.cpp`
+  - `GC2D/Talk2D2.cpp`
+  - `GC2D/MessageLoader.cpp`
+- Broad isolation deployed DOL:
+  `071E5106E17436CA14729B11149FE3B0CD02E848`
+- User test result: fixed. NPCs and signs showed correct dialogue with the
+  broad talk-stack isolation.
+- Current trim source-links likely-cleared support TUs again:
+  - `System/TalkCursor.cpp`
+  - `GC2D/MessageLoader.cpp`
+- Current trim keeps original-linked:
+  - `System/EventWatcher.cpp`
+  - `GC2D/Talk2D2.cpp`
+- Trimmed isolation deployed DOL:
+  `6158261BCB90D07278C61DE0604316C66DFAC761`
+- User test result: still fixed. `System/TalkCursor.cpp` and
+  `GC2D/MessageLoader.cpp` are cleared for this bug.
+- Current one-TU isolation source-links `System/EventWatcher.cpp` again and
+  keeps only `GC2D/Talk2D2.cpp` original-linked.
+- `GC2D/Talk2D2.cpp`-only isolation deployed DOL:
+  `32ED422ADE3D40CDDF2A6A45E723C52D28CA4A4C`
+- User test result: not fixed. NPCs/signs still repeat one dialogue line,
+  though the repeated line changed to the 30-second crate message. This means
+  `GC2D/Talk2D2.cpp` original-linked alone is not sufficient.
+- Current opposite one-TU isolation source-links `GC2D/Talk2D2.cpp` again and
+  keeps only `System/EventWatcher.cpp` original-linked.
+- `System/EventWatcher.cpp`-only isolation deployed DOL:
+  `FAE6CE0CBDAAD5A8502E7DEF6643C0AAF94E9BCB`
+- User test result: not fixed. NPCs/signs still repeat one dialogue line,
+  again the `あっ! きがつけば...` line. This means
+  `System/EventWatcher.cpp` original-linked alone is not sufficient either;
+  the fixed broad set depends on both `System/EventWatcher.cpp` and
+  `GC2D/Talk2D2.cpp`.
+- Current source attempt restores both TUs to source-linked and rewrites
+  `evSetTalkMsgID` to keep the two popped `TSpcSlice` values as explicit
+  temporaries before converting them, matching the original assembly's
+  source-level data flow more closely.
+- Source-attempt deployed DOL:
+  `084193234313DDC959805FEC05E94AE5F22CDFD0`
+- User test result: not fixed. NPCs still repeated the
+  `あっ! きがつけば...` line.
+- `System/EventWatcher.cpp` pop-shape experiment was reverted because it did
+  not affect the runtime bug and made `evSetTalkMsgID` less accurate.
+- Original `TTalk2D2::setMessageID` calls `setupTextBox(data, entry)` after
+  selecting the message entry. `setupTextBox` delegates to `setupBoardTextBox`
+  only when `unk28` marks the talking actor as a board/sign. The source was
+  incorrectly calling `setupBoardTextBox(data, entry)` directly from
+  `setMessageID`, bypassing the normal NPC dialogue text setup path.
+- Source candidate deployed DOL:
+  `FEE06CBED1BC5665310CA45B206B815422565F0C`
+- User test result: not fixed. The repeated line changed to the 30-second
+  crate/minigame line, which means the `setupTextBox` call-target fix changed
+  the displayed entry but the message ID/loader selection is still wrong.
+- Current isolation keeps the corrected source `GC2D/Talk2D2.cpp` linked and
+  original-links only `System/EventWatcher.cpp`.
+- Corrected-`Talk2D2` plus original-`EventWatcher` isolation deployed DOL:
+  `D829B9A674FA6F6618E595D54CAC71321F8364EA`
+- User test result: fixed. NPCs and signs now show the correct dialogue with
+  the corrected source `GC2D/Talk2D2.cpp` and original-linked
+  `System/EventWatcher.cpp`.
+- Current working set keeps `System/EventWatcher.cpp` marked `NonMatching` in
+  `configure.py`; the remaining source-side issue is in that TU.

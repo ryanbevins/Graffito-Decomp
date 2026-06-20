@@ -1656,12 +1656,12 @@ void TTalk2D2::setMessageID(u32 message_id, u32 flags)
 			loader = unk25C;
 			entry = (JMSMesgEntry*)loader->getMessageEntry((u16)unk264);
 		}
-		setupBoardTextBox(loader->unk4, entry);
+		setupTextBox(loader->unk4, entry);
 	} else {
 		unk264 = 3;
 		loader = unk25C;
 		entry = (JMSMesgEntry*)loader->getMessageEntry((u16)unk264);
-		setupBoardTextBox(loader->unk4, entry);
+		setupTextBox(loader->unk4, entry);
 	}
 
 	unk260 = loader;

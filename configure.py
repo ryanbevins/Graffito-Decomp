@@ -830,7 +830,7 @@ config.libs = [
         "objects": [
             Object(Matching, "System/BaseParam.cpp"),
             Object(Equivalent, "System/EmitterViewObj.cpp"),
-            Object(Equivalent, "System/EventWatcher.cpp"),
+            Object(NonMatching, "System/EventWatcher.cpp"),
             Object(Equivalent, "System/FlagManager.cpp"),
             Object(Equivalent, "System/GCLogoDir.cpp"),
             Object(Matching, "System/J3DSysFlag.cpp"),
