@@ -49,7 +49,7 @@ TSelectShineManager::TSelectShineManager(const char* name)
 {
 }
 
-void TSelectShineManager::initData(u8* shineTypes, u8 startIdx, u8 count,
+void TSelectShineManager::initData(u8* shineTypes, u8 count, u8 startIdx,
                                    JPAEmitterManager* emitterMgr)
 {
 	mDrawBufOpa = new J3DDrawBuffer(0x400);

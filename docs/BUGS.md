@@ -1289,3 +1289,36 @@ Current notes:
 - This likely means one of the surrounding director/demo timing states is still
   advanced too aggressively or incompletely reconstructed, but the blocking
   game-flow bug is fixed for now.
+
+## BUG 0026 - Level select invalid read on load
+
+Status: fixed; source-linked DOL no longer warns on level-select load
+
+Symptom:
+- Dolphin warns when loading the level select:
+  `Invalid read from 0x0000004a, PC = 0x802372f0`.
+- The issue has reportedly been present for a long time and is unrelated to
+  the BUG 0024 painting-warp source change.
+
+Current notes:
+- In the current source-linked DOL, `0x802372f0` resolves through the linked
+  ELF to `TSelectShineManager::initData()`, not to the original target address
+  from `symbols.txt`.
+- The crashing instruction is `lbz r0, 0x4a(r4)`, reading
+  `TSelectShine::unk4A` from `mShines[unk8C]`; `r4 == 0` means the selected
+  shine pointer is null.
+- Source bug:
+  - `TSelectMenu::startMove()` passes `_13C` as the shine count and
+    `mScenarioIndex` as the selected shine index. This call site matches the
+    original assembly.
+  - `TSelectShineManager::initData()` had those two `u8` parameters labeled
+    backwards, so it stored `_13C` into `unk8C`.
+  - `_13C` is one past the last valid scenario index, so the manager selected
+    a null `mShines[_13C]` slot and read `unk4A` through it.
+- Source fix:
+  - Rename/reinterpret the `initData()` parameters so the second argument is
+    `count` (`mShineCount`) and the third argument is `startIdx` (`unk8C`),
+    matching the original assembly assignment order.
+- Fixed deployed DOL:
+  `43BE0E980448B1DE57F36B18B8BBE8F4C4000BCE`
+- User test result: fixed. Level select loads without the invalid read warning.
