@@ -1172,3 +1172,45 @@ Current notes:
   `AA2DC8ECDDF380EED2892C0D7CB537FF91499950`
 - User test result: fixed. Rocket/turbo nozzle charging sound/effect plays
   with `Player/WaterGun.cpp` source-linked.
+
+## BUG 0023 - Delfino Plaza shine light-data invalid read on load
+
+Status: fixed; source-linked `MoveBG/Item.cpp`
+
+Symptom:
+- Dolphin warns while loading Delfino Plaza:
+  `Invalid read from 0x0000006c, PC = 0x80196160`
+- Follow-up warnings read from `0x0000007c` at `PC = 0x80196168`
+  and `0x0000008c` at `PC = 0x80196170`.
+- Pressing "Ignore for this session" lets Delfino Plaza continue loading.
+
+Current notes:
+- Initial symbol-address lookup pointed at `TCoinBlue::taken(THitActor*)`, but
+  the linked `build/GMSJ01/mario.elf` for the deployed build maps the failing
+  PCs into `TShine::control()`.
+- The three warnings line up with this `TShine::control()` block:
+  `lfs f0, 0x6c(r4)`, `lfs f0, 0x7c(r4)`, and `lfs f0, 0x8c(r4)`, where
+  `r4` is the model light-data pointer loaded from `getModel()->mModelData`.
+  Dolphin is warning because that pointer is null.
+- Failed isolation:
+  - `MoveBG/MapObjHide.cpp`
+  - `MoveBG/MapObjSirena.cpp`
+- Failed isolation deployed DOL:
+  `5C89343826C3F09B0A4E23756A4E06E24E7E912B`
+- Current isolation original-links only `MoveBG/Item.cpp`, which owns
+  `TShine::control()` and the surrounding shine setup/state transitions.
+- Current `MoveBG/Item.cpp` isolation deployed DOL:
+  `0951B0D610E128B541A6D3C92F5F3B953A9BE61F`
+- User test result: fixed. The invalid-read warnings stop when
+  `MoveBG/Item.cpp` is original-linked.
+- Source candidate:
+  - `TShine::control()` state 1 was reading the shine light position from
+    `getModel()->mModelData + 0x58`. Original assembly reads the pointer at
+    `mMActor->getModel() + 0x58`, which is `J3DModel::mNodeMatrices`.
+  - The source now uses `mMActor->getModel()->mNodeMatrices[2]`, matching the
+    original `0x6c/0x7c/0x8c` matrix translation reads and avoiding the null
+    `J3DModelData` path.
+- Source candidate deployed DOL:
+  `63FF325290E92D3F1DD9B51B355BC74A1E9224C4`
+- User test result: fixed. Delfino Plaza no longer warns or crashes with
+  `MoveBG/Item.cpp` source-linked.

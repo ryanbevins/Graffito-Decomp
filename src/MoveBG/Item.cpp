@@ -562,16 +562,19 @@ void TShine::control()
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x81C1, mPosition, 0, nullptr, 0, 4);
 
-		u8* lightData = *(u8**)((u8*)getModel()->mModelData + 0x58);
+		Mtx* nodeMatrices = mMActor->getModel()->mNodeMatrices;
+		f32 lightX        = nodeMatrices[2][0][3];
+		f32 lightY        = nodeMatrices[2][1][3];
+		f32 lightZ        = nodeMatrices[2][2][3];
 		TLightWithDBSetManager* light = gpLightManager;
 		light->unk18.r                = 0xFF;
 		light->unk18.g                = 0xFF;
 		light->unk18.b                = 0xFF;
 		light->unk18.a                = 0xFF;
 		light->unk54                  = 1;
-		light->unk1C.x                = *(f32*)(lightData + 0x6C);
-		light->unk1C.y                = *(f32*)(lightData + 0x7C);
-		light->unk1C.z                = *(f32*)(lightData + 0x8C);
+		light->unk1C.x                = lightX;
+		light->unk1C.y                = lightY;
+		light->unk1C.z                = lightZ;
 		light->unk54                  = 1;
 		break;
 	}
