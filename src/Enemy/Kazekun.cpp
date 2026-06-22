@@ -308,8 +308,7 @@ void TKazekun::init(TLiveManager* manager)
 	mManager->manageActor(this);
 
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
-	mMActor = mMActorKeeper->createMActor(
-	    "\x83\x4A\x83\x5A\x83\x4E\x83\x93", 0); // "Kazekun"
+	mMActor = mMActorKeeper->createMActor("kazekun.bmd", 0);
 
 	mSpine->initWith(&TNerveKazekunSearch::theNerve());
 

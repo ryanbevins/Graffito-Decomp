@@ -2,45 +2,14 @@
 #include <System/MarDirector.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JSupport/JSURandomInputStream.hpp>
-#include <dolphin/os.h>
-#include <string.h>
-
-static bool isPerformProbeName(const char* name)
-{
-	if (!name)
-		return false;
-
-	return strcmp(name, "ZBufferCatch") == 0
-	       || strcmp(name, "<ZBufferCatch>") == 0
-	       || strcmp(name, "AlphaCatch") == 0
-	       || strcmp(name, "<AlphaCatch>") == 0
-	       || strcmp(name, "J3DSysFlag") == 0
-	       || strcmp(name, "<J3DSysFlag>") == 0
-	       || strcmp(name, "SMSDrawInit") == 0
-	       || strcmp(name, "<SMSDrawInit>") == 0
-	       || strcmp(name, "J3DSysSetViewMtx") == 0
-	       || strcmp(name, "<J3DSysSetViewMtx>") == 0;
-}
 
 void TPerformList::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
-	static s32 sPerformProbeLogCount;
 	for (JGadget::TSingleLinkList<TPerformLink, 0>::iterator it
 	     = getChildren().begin();
 	     it != getChildren().end(); ++it) {
 		u32 maskedFlags = param_1 & it->unk8;
-		JDrama::TViewObj* obj = it->unk4;
-
-		if (sPerformProbeLogCount < 512
-		    && ((maskedFlags & 0x8) || isPerformProbeName(getName())
-		        || isPerformProbeName(obj ? obj->getName() : 0))) {
-			OSReport((char*)"PFLIST_PERFORM list=%s obj=%p objName=%s in=%08x filter=%08x masked=%08x\n",
-			         getName(), obj, obj ? obj->getName() : "<null>", param_1,
-			         it->unk8, maskedFlags);
-			++sPerformProbeLogCount;
-		}
-
-		obj->testPerform(maskedFlags, param_2);
+		it->unk4->testPerform(maskedFlags, param_2);
 	}
 }
 
@@ -60,12 +29,7 @@ void TPerformList::load(JSUMemoryInputStream& stream)
 		u32 uVar5 = value;
 		if (value & 1)
 			uVar5 |= 0x3000;
-		if (!obj || isPerformProbeName(acStack_6c)
-		    || isPerformProbeName(obj->getName())) {
-			OSReport((char*)"PFLIST_LOAD list=%s ref=%s obj=%p objName=%s flags=%08x\n",
-			         getName(), acStack_6c, obj,
-			         obj ? obj->getName() : "<null>", uVar5);
-		}
+
 		if (obj)
 			getChildren().Push_back(new TPerformLink(obj, uVar5));
 	}

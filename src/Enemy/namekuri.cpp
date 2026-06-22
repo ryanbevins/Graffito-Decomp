@@ -48,7 +48,7 @@ static inline void setEffectMtxOnTex2(J3DMaterial* mat, MtxPtr mtx)
 }
 
 const char* namekuri2_bastable[] = {
-	nullptr, nullptr, nullptr, "/scene/namekuri2/bas/name_jump_start.base",
+	nullptr, nullptr, nullptr, "/scene/namekuri2/bas/name_jump_start.bas",
 	nullptr, nullptr, nullptr, nullptr,
 };
 
@@ -454,7 +454,7 @@ void TNameKuri::perform(u32 param_1, JDrama::TGraphics* param_2)
 	TWalkerEnemy::perform(param_1, param_2);
 	unk1CC->perform(param_1, param_2);
 	if (param_1 & 2) {
-		Mtx afStack_50;
+		Mtx44 afStack_50;
 		SMS_GetLightPerspectiveForEffectMtx(afStack_50);
 
 		setEffectMtxOnTex2(

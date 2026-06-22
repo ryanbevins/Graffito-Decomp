@@ -233,6 +233,7 @@ void TWireTrapManager::createModelData()
 {
 	static const TModelDataLoadEntry entry[] = {
 		{ "wire_trap.bmd", 0x10210000, 0 },
+		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
 }
@@ -533,13 +534,13 @@ void TWireTrap::init(TLiveManager* manager)
 	initHitActor(0x10000026, 2, 0x90000000, 20.0f, 30.0f, 40.0f, 40.0f);
 	unk64 &= ~1;
 
-	if (!gParticleFlagLoaded[0]) {
+	if (!gParticleFlagLoaded[0x190]) {
 		gpResourceManager->load("/scene/wireTrap/jpa/ms_wrt_biri_a.jpa", 0x190);
-		gParticleFlagLoaded[0] = 1;
+		gParticleFlagLoaded[0x190] = 1;
 	}
-	if (!gParticleFlagLoaded[1]) {
+	if (!gParticleFlagLoaded[0x191]) {
 		gpResourceManager->load("/scene/wireTrap/jpa/ms_wrt_biri_b.jpa", 0x191);
-		gParticleFlagLoaded[1] = 1;
+		gParticleFlagLoaded[0x191] = 1;
 	}
 }
 

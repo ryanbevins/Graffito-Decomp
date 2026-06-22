@@ -1322,3 +1322,491 @@ Current notes:
 - Fixed deployed DOL:
   `43BE0E980448B1DE57F36B18B8BBE8F4C4000BCE`
 - User test result: fixed. Level select loads without the invalid read warning.
+
+## BUG 0027 - Bianco Hills invalid read in strlen on load
+
+Status: open
+
+Symptom:
+- Dolphin warns when trying to load Bianco Hills:
+  `Invalid read from 0x6d496e57, PC = 0x80085d0c`.
+
+Current notes:
+- In the current source-linked DOL, `0x80085d0c` resolves to `strlen+0x8`.
+  The faulting instruction is `lbzu r0, 1(r3)`.
+- This means the direct failing point is a bad C string pointer passed into
+  `strlen()`, not a Bianco actor function itself.
+- The bad pointer value `0x6d496e57` looks like packed text bytes, which points
+  toward a corrupted/incorrectly interpreted filename, object name, or stream
+  field rather than a simple null pointer.
+- Temporary `strlen()` diagnostics showed the bad pointer was consumed by the
+  `__pformatter` `%s` path (`callsite=0x80084584`), so the fault is a formatted
+  print/report call passing non-string data as a string.
+- Current isolation pass original-links `System/PerformList.cpp`, because the
+  source version contains probe `OSReport("%s")` calls in `TPerformList::perform`
+  and `TPerformList::load`.
+- First isolation with only `System/PerformList.cpp` still crashed.
+- Second isolation widens to resource/path builders, name-ref/object-manager
+  traversal, Mario param init, and core Bianco/map-object TUs.
+- Second isolation still crashed with the same bad pointer.
+- Third isolation widens to the map/stage-load TUs plus NameRef container users
+  that can inline non-original `%s` probe paths.
+- Third isolation still crashed with the same bad pointer.
+- The bad pointer sequence matches 4-byte chunks from `TWireTrapParams`
+  (`mInWaterPowerRate`, `mScaleTimerMax`, `mGoTimerMax`) and nearby
+  `/scene/wireTrap/jpa/ms_wrt_biri_*.jpa` resource strings, so the next
+  isolation adds `Enemy/wireTrap.cpp`.
+- `Enemy/wireTrap.cpp` alone still crashed; next isolation original-links the
+  whole `Enemy` library so enemy manager/base code is removed too.
+- Enemy-wide isolation changed the visible crash to `Invalid read from
+  0x0000001c, PC = 0x800d8b6c`.
+- In the current linked DOL, `0x800d8b6c` is
+  `SDLModel::entryModelDataSDL(SDLModelData*, unsigned long, unsigned long)`
+  reading `md->getJointNum()` with `md == 0`, so the next isolation
+  original-links `M3DUtil/SDLModel.cpp`.
+- `M3DUtil/SDLModel.cpp` original-linked still crashes in the same function,
+  now at `0x800d8b68`; `SDLModel` is receiving a null `J3DModelData*`.
+- Next isolation original-links the remaining M3DUtil actor/model wrapper TUs
+  (`M3UModel`, `MActor`, `MActorAnm`, `MActorUtil`, `SampleCtrlNode`).
+- M3DUtil wrapper isolation still crashes in `SDLModel::entryModelDataSDL`.
+- Next isolation original-links the full `NPC` library because `NpcManager`
+  still source-links extensive `createModelDataArray` paths for Monte/Kinopio
+  model variants.
+- Full `NPC` isolation still crashes in `SDLModel::entryModelDataSDL`.
+- Next isolation original-links the remaining direct model-data creator groups:
+  `Strategic/SharedParts`, `Strategic/MirrorActor`, all remaining `MoveBG`
+  TUs, and all `Animal` TUs.
+- This broad model-creator isolation still shows the same
+  `Invalid read from 0x0000001c, PC = 0x800d8b68` warning, but after pressing
+  Ignore, Bianco Hills loads successfully. This is a behavior change from the
+  earlier blocking crash state.
+- Next isolation original-links the remaining direct model-loader TUs in
+  `MarioUtil`, `Player`, `Camera`, `GC2D/SelectShine2`, `System/TalkCursor`,
+  and `JSystem/JDrama/JDRSmJ3DAct`.
+- Direct model-loader isolation still crashes in
+  `SDLModel::entryModelDataSDL`, now at the shifted address `0x800d8d48`.
+- Next isolation original-links the source-linked JSystem resource/archive
+  layer (`JSUInputStream`, JKernel archive/heap/ripper pieces, `JUTNameTab`,
+  `JUTDirectFile`, `JDRNameRefGen`, and J3D material factories).
+- JSystem resource/archive isolation still crashes in
+  `SDLModel::entryModelDataSDL`, but it also makes the level-select shines
+  render correctly. Track that separately as BUG 0028 and continue isolating
+  this Bianco load warning.
+- JDrama scene/stage plus J3D graph-animator isolation deployed DOL:
+  `36D846D41B4300150B8C17A8C6E0545AAAB155A9`
+- User test result: this build causes an OSPanic, so that isolation is rejected
+  as not testable. Source-link the added JDrama/J3D graph TUs again before
+  continuing.
+- Next isolation original-links the remaining `Camera` TUs, keeping the direct
+  camera model-loader TUs already original-linked.
+- Camera-wide isolation deployed DOL:
+  `1BFF76DA907FCEA499DF3AD29096C849DFDBAC1B`
+- User test result: still crashes with
+  `Invalid read from 0x0000001c, PC = 0x800d8ce8`.
+- Add a temporary guarded breakpoint hook in `SDLModel::entryModelDataSDL()`
+  before the first `J3DModelData` dereference. The hook is only called when
+  `SDLModelData*` is null or `SDLModelData::unk0` is null, so a debugger
+  breakpoint on `CODEX_BIANCO_NULL_SDL_MODEL_DATA` should capture the failing
+  call stack without firing for normal `SDLModel` construction.
+- Debugger breakpoint result:
+  - Top failure is guarded branch at `0x800D8CD4`.
+  - The useful caller chain includes `SMS_MakeMActor`, `TSpcInterp::update`,
+    `TBossManta::initNthGeneration`, and `TEnemyMario::initModel`.
+  - The loaded `SDLModelData` wrapper exists, but its inner `J3DModelData*` is
+    null.
+- Add a second temporary guarded hook in `MActorUtil.cpp` immediately after
+  `J3DModelLoaderDataBase::load()` returns null, so the debugger can stop with
+  the failing model-path pointer and load flags still available.
+- User test result: breakpoint on the `MActorUtil` null-loader hook never hit.
+  That means this path is not a fresh failed load through those helpers; the
+  null inner model data is coming from an existing `SDLModelData*` or a
+  different constructor path.
+- Next isolation original-links `Enemy/enemyMario.cpp`. This now links because
+  the current broader isolation already original-links `Player/MarioDraw.cpp`,
+  which provides the previously missing Mario animation texture-pattern table.
+- `Enemy/enemyMario.cpp` original-linked deployed DOL:
+  `E081547B96CB6480667C09B96C25F004EFE7C25C`
+- User test result: still crashes with
+  `Invalid read from 0x0000001c, PC = 0x800d8d18`.
+- Next isolation original-links `Strategic/spcinterp.cpp`, because the captured
+  call stack included `TSpcInterp::update()` between the failing model
+  construction and the actor initialization chain.
+- `Strategic/spcinterp.cpp` original-linked deployed DOL:
+  `0DFAACC123015128ABF8BB805A562247301853B5`
+- User test result: still crashes with
+  `Invalid read from 0x0000001c, PC = 0x800d8d18`.
+- Next isolation original-links `System/EventWatcher.cpp`, because the captured
+  stack looks like an event/script dispatch path is invoking unrelated native
+  callbacks (`TEnemyMario`, `TBossManta`, walker nerve) during Bianco load.
+- `System/EventWatcher.cpp` original-linked deployed DOL:
+  `4558E230ADD4C17631818F544194FEB8ED0A6EA0`
+- User test result: still crashes.
+- Source-link the negative `Enemy/enemyMario.cpp`, `Strategic/spcinterp.cpp`,
+  and `System/EventWatcher.cpp` isolation cuts again.
+- Add a constructor-side breakpoint hook in `SDLModelData::SDLModelData()`.
+  `CODEX_NULL_SDL_MODEL_DATA_CTOR` fires only when an `SDLModelData` wrapper is
+  created with `J3DModelData* == 0`, which should identify the producer of the
+  bad wrapper. If this hook does not fire before the existing
+  `entryModelDataSDL` hook, then `SDLModelData::unk0` is being corrupted after
+  construction.
+- Updated Dolphin symbol map call stack shows the null `J3DModelData*` is
+  produced by:
+  `TModelDataKeeper::loadModelData -> TMActorKeeper::createMActor -> TKazekun::init`.
+- `TKazekun::init()` source was passing the Japanese actor display/name string
+  into `TMActorKeeper::createMActor()`. The original assembly passes the model
+  basename `"kazekun.bmd"` from this TU's rodata. Using the actor name misses
+  the manager model table entry and creates an `SDLModelData` wrapper with a
+  null inner `J3DModelData*`.
+- Source fix: call `mMActorKeeper->createMActor("kazekun.bmd", 0)` in
+  `src/Enemy/Kazekun.cpp`. Temporary breakpoint/OSReport diagnostics were
+  removed from `M3DUtil/SDLModel.cpp` and `M3DUtil/MActorUtil.cpp`; those TUs
+  are original-linked again.
+- User test result: this deployed build no longer crashes. The Kazekun null
+  model issue is fixed; continue source-linking isolated TUs to expose any
+  remaining hidden Bianco load crashes.
+- Next isolation restore: source-link the full M3DUtil model wrapper set
+  (`M3UModel`, `MActor`, `MActorAnm`, `MActorData`, `SDLModel`, `MActorUtil`,
+  and `SampleCtrlNode`) and test Bianco again.
+- User test result: M3DUtil wrapper restore still boots.
+- Next isolation restore: source-link the full `Enemy` library while keeping
+  `TKazekun::init()` fixed.
+- User test result: full `Enemy` source-link crashes again with
+  `Invalid read from 0x6d496e57, PC = 0x80085c6c`.
+- Next split test: original-link the early/common Enemy half and keep the later
+  Enemy half source-linked. This keeps `wireTrap.cpp` source-linked because the
+  bad value still matches the earlier wire-trap parameter/string-byte clue.
+- User test result: later Enemy half still warns with
+  `Invalid read from 0x6d496e57, PC = 0x80085c6c`, but after pressing Ignore,
+  Bianco boots instead of freezing on a white screen.
+- Next split test: restore the later Enemy half to original-linked except keep
+  `Enemy/wireTrap.cpp` source-linked, plus the already-required
+  `Enemy/Kazekun.cpp` source fix.
+- User test result: `Enemy/wireTrap.cpp` alone still triggers
+  `Invalid read from 0x6d496e57, PC = 0x80085c6c`, but Bianco boots after
+  pressing Ignore.
+- Next stress test: source-link every remaining original-linked TU so the full
+  current source state can be tested with the confirmed Kazekun fix and known
+  wireTrap warning.
+- User test result: full-source stress build does not boot past the Bianco
+  white screen. Ignore the known `wireTrap.cpp` bad-string warning for now and
+  isolate the white-screen regression.
+- Next split test: keep the first 129 newly restored TUs source-linked and put
+  the second 129 back to original-linked. The source half runs through
+  `Map/PollutionAction.cpp`; the original-linked half begins at
+  `Map/PollutionCount.cpp`. Keep `Enemy/wireTrap.cpp` and
+  `Enemy/Kazekun.cpp` source-linked as baseline.
+- User test result: this split still does not boot past the Bianco white
+  screen, so the white-screen regression is in the half that stayed
+  source-linked.
+- Next split test: keep the earlier source chunk source-linked
+  (`JSystem` resource/archive, `MarioUtil` model helpers, `System`,
+  `Strategic`, `Player`, and `NPC`) and original-link `MoveBG` plus all `Map`
+  TUs. Keep `Enemy/wireTrap.cpp` and `Enemy/Kazekun.cpp` source-linked as
+  baseline.
+- Link adjustment: keep `Map/MapCheck.cpp` source-linked because original-linked
+  Map/MapCheck references the out-of-line weak
+  `TBGCheckData::isWaterSurface() const`, which our source-linked
+  `MarioUtil/ShadowUtil.cpp` does not emit.
+- User test result: this narrower split also does not boot past the Bianco
+  white screen, so there may be more than one white-screen source issue or an
+  intermittent factor.
+- Control check: put the full white-screen suspect set back to original-linked,
+  including `Enemy/wireTrap.cpp`, while keeping the confirmed
+  `Enemy/Kazekun.cpp` source fix and already-cleared M3DUtil wrapper source
+  restore.
+- User test result: control build does not white-screen.
+- 20-at-a-time restore batch 1 source-links:
+  `JSystem/JSupport/JSUInputStream.cpp`, `JSystem/JGadget/std-vector.cpp`,
+  `JSystem/JKernel/JKRArchivePri.cpp`, `JSystem/JKernel/JKRAramArchive.cpp`,
+  `JSystem/JKernel/JKRAram.cpp`, `JSystem/JKernel/JKRArchivePub.cpp`,
+  `JSystem/JKernel/JKRCompArchive.cpp`, `JSystem/JKernel/JKRDvdArchive.cpp`,
+  `JSystem/JKernel/JKRExpHeap.cpp`, `JSystem/JKernel/JKRHeap.cpp`,
+  `JSystem/JKernel/JKRSolidHeap.cpp`,
+  `JSystem/JKernel/JKRDvdAramRipper.cpp`,
+  `JSystem/JUtility/JUTNameTab.cpp`,
+  `JSystem/JUtility/JUTDirectFile.cpp`,
+  `JSystem/JDrama/JDRNameRefGen.cpp`,
+  `JSystem/JDrama/JDRSmJ3DAct.cpp`,
+  `JSystem/J3D/J3DGraphLoader/J3DMaterialFactory.cpp`,
+  `JSystem/J3D/J3DGraphLoader/J3DMaterialFactory_v21.cpp`,
+  `MarioUtil/ShadowUtil.cpp`, and `MarioUtil/ModelUtil.cpp`.
+- User test result: batch 1 still boots.
+- 20-at-a-time restore batch 2 source-links:
+  `System/MarNameRefGen.cpp`, `System/MenuDir.cpp`,
+  `System/PerformList.cpp`, `System/TalkCursor.cpp`,
+  `System/Application.cpp`, `System/ScenarioArchiveName.cpp`,
+  `System/StageEventInfo.cpp`, `System/PositionHolder.cpp`,
+  `System/MarDirectorLoadResource.cpp`, `Strategic/liveactor.cpp`,
+  `Strategic/objmanager.cpp`, `Strategic/ObjModel.cpp`,
+  `Strategic/smplcharacter.cpp`, `Strategic/SharedParts.cpp`,
+  `Strategic/MirrorActor.cpp`, `Player/MarioCap.cpp`,
+  `Player/MarioDraw.cpp`, `Player/Tongue.cpp`,
+  `Player/WaterGun.cpp`, and `Player/Yoshi.cpp`.
+- User test result: batch 2 does not boot past the Bianco white screen.
+- Batch 2A split source-links only the first 10 batch-2 TUs:
+  `System/MarNameRefGen.cpp`, `System/MenuDir.cpp`,
+  `System/PerformList.cpp`, `System/TalkCursor.cpp`,
+  `System/Application.cpp`, `System/ScenarioArchiveName.cpp`,
+  `System/StageEventInfo.cpp`, `System/PositionHolder.cpp`,
+  `System/MarDirectorLoadResource.cpp`, and `Strategic/liveactor.cpp`.
+  The remaining batch-2 TUs are original-linked again.
+- User test result: batch 2A white-screens.
+- Batch 2A.1 split source-links only the first five 2A TUs:
+  `System/MarNameRefGen.cpp`, `System/MenuDir.cpp`,
+  `System/PerformList.cpp`, `System/TalkCursor.cpp`, and
+  `System/Application.cpp`. The remaining 2A TUs are original-linked again.
+- User test result: batch 2A.1 white-screens.
+- Batch 2A.2 split source-links only `System/MarNameRefGen.cpp`,
+  `System/MenuDir.cpp`, and `System/PerformList.cpp`; `System/TalkCursor.cpp`
+  and `System/Application.cpp` are original-linked again.
+- User test result: batch 2A.2 white-screens.
+- Batch 2A.3 split source-links only `System/MarNameRefGen.cpp`;
+  `System/MenuDir.cpp` and `System/PerformList.cpp` are original-linked again.
+- User test result: batch 2A.3 white-screens. Mark
+  `System/MarNameRefGen.cpp` as required original-linked for this issue.
+- Follow-up check: keep `System/MarNameRefGen.cpp` original-linked, and
+  source-link the other 19 TUs from batch 2 to see whether this pack has any
+  additional white-screen-required TUs.
+- User test result: follow-up boots. Batch 2 has only one white-screen-required
+  TU: `System/MarNameRefGen.cpp`.
+- User test result: the follow-up also boots without the invalid-read warning,
+  confirming the warning is suppressed when `Enemy/wireTrap.cpp` is
+  original-linked.
+- Keep required/original-linked for now:
+  `System/MarNameRefGen.cpp` for the Bianco white screen, and
+  `Enemy/wireTrap.cpp` for the bad-string warning.
+- 20-at-a-time restore batch 3 source-links:
+  `Player/MarioEffect.cpp`, `Player/MarioInit.cpp`,
+  `Player/ModelWaterManager.cpp`, `NPC/NpcAnm.cpp`, `NPC/NpcBase.cpp`,
+  `NPC/NpcCallback.cpp`, `NPC/NpcManager.cpp`, `NPC/NpcNerve.cpp`,
+  `NPC/NpcSave.cpp`, `NPC/NpcEvent.cpp`, `NPC/NpcInitData.cpp`,
+  `NPC/NpcInitPrg.cpp`, `NPC/NpcInbetween.cpp`, `NPC/NpcParts.cpp`,
+  `NPC/NpcColor.cpp`, `NPC/NpcSound.cpp`, `NPC/NpcChange.cpp`,
+  `NPC/NpcThrow.cpp`, `NPC/NpcTrample.cpp`, and `NPC/NpcEffect.cpp`.
+- User test result: batch 3 still boots.
+- 20-at-a-time restore batch 4 source-links:
+  `NPC/NpcInitAnmData.cpp`, `NPC/NpcInitActionData.cpp`,
+  `NPC/NpcCoin.cpp`, `NPC/NpcBalloon.cpp`, `NPC/NpcWalkTurn.cpp`,
+  `NPC/NpcCollision.cpp`, `MoveBG/WoodBarrel.cpp`,
+  `MoveBG/MapObjBase.cpp`, `MoveBG/MapObjInit.cpp`,
+  `MoveBG/MapObjGeneral.cpp`, `MoveBG/MapObjManager.cpp`,
+  `MoveBG/MapObjLib.cpp`, `MoveBG/Item.cpp`, `MoveBG/ItemManager.cpp`,
+  `MoveBG/MapObjTown.cpp`, `MoveBG/MapObjBlock.cpp`,
+  `MoveBG/MapObjBianco.cpp`, `MoveBG/MapObjSirena.cpp`,
+  `MoveBG/MapObjRicco.cpp`, and `MoveBG/MapObjMamma.cpp`.
+- Link adjustment: also source-link `MoveBG/MapObjHide.cpp` because
+  source-linked `MoveBG/MapObjSirena.cpp` references the weak virtual
+  `TWaterHitPictureHideObj::getObjAppearPos() const` from `MapObjHide.cpp`.
+- User test result: batch 4 still boots.
+- 20-at-a-time restore batch 5 source-links:
+  `MoveBG/MapObjPinna.cpp`, `MoveBG/MapObjSample.cpp`,
+  `MoveBG/MapObjMare.cpp`, `MoveBG/MapObjFlag.cpp`,
+  `MoveBG/MapObjWave.cpp`, `MoveBG/MapObjFloat.cpp`,
+  `MoveBG/MapObjPlane.cpp`, `MoveBG/MapObjCloud.cpp`,
+  `MoveBG/MapObjBall.cpp`, `MoveBG/MapObjAirport.cpp`,
+  `MoveBG/MapObjDolpic.cpp`, `MoveBG/MapObjPollution.cpp`,
+  `MoveBG/MapObjGrass.cpp`, `MoveBG/MapObjPole.cpp`,
+  `MoveBG/MapObjWater.cpp`, `MoveBG/ModelGate.cpp`,
+  `MoveBG/MapObjFence.cpp`, `MoveBG/MapObjOption.cpp`,
+  `MoveBG/MapObjRailBlock.cpp`, and `MoveBG/MapObjMonte.cpp`.
+- User test result: batch 5 still boots.
+- 20-at-a-time restore batch 6 source-links:
+  `MoveBG/MapObjTree.cpp`, `MoveBG/MapObjTumblePole.cpp`,
+  `MoveBG/MapObjEx.cpp`, `MoveBG/Pool.cpp`, `MoveBG/MapObjCorona.cpp`,
+  `MoveBG/MapObjItem2.cpp`, `MoveBG/MapObjTrap.cpp`,
+  `Map/JointModel.cpp`, `Map/JointModelManager.cpp`, `Map/JointObj.cpp`,
+  `Map/Map.cpp`, `Map/MapArea.cpp`, `Map/MapCollisionData.cpp`,
+  `Map/MapCollisionEntry.cpp`, `Map/MapCollisionManager.cpp`,
+  `Map/MapDraw.cpp`, `Map/MapEvent.cpp`, `Map/MapEventSink.cpp`,
+  `Map/MapMakeData.cpp`, and `Map/MapMakeList.cpp`.
+- User test result: batch 6 still boots.
+- 20-at-a-time restore batch 7 source-links:
+  `Map/MapMirror.cpp`, `Map/MapModel.cpp`, `Map/MapWarp.cpp`,
+  `Map/MapStaticObject.cpp`, `Map/MapWire.cpp`, `Map/MapWireManager.cpp`,
+  `Map/MapXlu.cpp`, `Map/PollutionAction.cpp`, `Map/PollutionCount.cpp`,
+  `Map/PollutionManager.cpp`, `Map/PollutionObj.cpp`,
+  `Map/PollutionPos.cpp`, `Map/Shimmer.cpp`, `Map/Sky.cpp`,
+  `Map/MapEventSirena.cpp`, `Map/PollutionLayer.cpp`,
+  `Map/PollutionEvent.cpp`, `Map/MapCollisionPlane.cpp`,
+  `Map/MarineSnow.cpp`, and `Map/MapData.cpp`.
+- User test result: batch 7 still boots.
+- 50-at-a-time restore batch 8 source-links:
+  `Map/MapEventDolpic.cpp`, `Map/MapEventMare.cpp`,
+  `Map/BathWaterManager.cpp`, `Map/StickyStainManager.cpp`,
+  `GC2D/SelectShine2.cpp`, `Enemy/conductor.cpp`, `Enemy/effectObj.cpp`,
+  `Enemy/emario.cpp`, `Enemy/enemy.cpp`, `Enemy/enemyAttachment.cpp`,
+  `Enemy/enemymanager.cpp`, `Enemy/feetinv.cpp`, `Enemy/gesso.cpp`,
+  `Enemy/graph.cpp`, `Enemy/hamukuri.cpp`, `Enemy/hinokuri2.cpp`,
+  `Enemy/mameGesso.cpp`, `Enemy/namekuri.cpp`, `Enemy/pakkun.cpp`,
+  `Enemy/smallEnemy.cpp`, `Enemy/spider.cpp`, `Enemy/spline.cpp`,
+  `Enemy/typicalenemy.cpp`, `Enemy/walker.cpp`, `Enemy/walkerEnemy.cpp`,
+  `Enemy/bossgesso.cpp`, `Enemy/elecNokonoko.cpp`, `Enemy/telesa.cpp`,
+  `Enemy/fireWanwan.cpp`, `Enemy/enemytable.cpp`, `Enemy/generator.cpp`,
+  `Enemy/bosspakkun.cpp`, `Enemy/tobiPuku.cpp`, `Enemy/tinkoopa.cpp`,
+  `Enemy/launcher.cpp`, `Enemy/bosswanwan.cpp`, `Enemy/chuuhana.cpp`,
+  `Enemy/poihana.cpp`, `Enemy/tamaNoko.cpp`, `Enemy/riccohook.cpp`,
+  `Enemy/bombhei.cpp`, `Enemy/cannon.cpp`, `Enemy/bosseel.cpp`,
+  `Enemy/beam.cpp`, `Enemy/hanasambo.cpp`, `Enemy/popo.cpp`,
+  `Enemy/SleepBossHanachan.cpp`, `Enemy/DemoBossHanachanBase.cpp`,
+  `Enemy/fruitsboat.cpp`, and `Enemy/BossHanachanMain.cpp`.
+- User test result: batch 8 does not boot.
+- Batch 8A split source-links the first 25 batch-8 TUs:
+  `Map/MapEventDolpic.cpp`, `Map/MapEventMare.cpp`,
+  `Map/BathWaterManager.cpp`, `Map/StickyStainManager.cpp`,
+  `GC2D/SelectShine2.cpp`, `Enemy/conductor.cpp`, `Enemy/effectObj.cpp`,
+  `Enemy/emario.cpp`, `Enemy/enemy.cpp`, `Enemy/enemyAttachment.cpp`,
+  `Enemy/enemymanager.cpp`, `Enemy/feetinv.cpp`, `Enemy/gesso.cpp`,
+  `Enemy/graph.cpp`, `Enemy/hamukuri.cpp`, `Enemy/hinokuri2.cpp`,
+  `Enemy/mameGesso.cpp`, `Enemy/namekuri.cpp`, `Enemy/pakkun.cpp`,
+  `Enemy/smallEnemy.cpp`, `Enemy/spider.cpp`, `Enemy/spline.cpp`,
+  `Enemy/typicalenemy.cpp`, `Enemy/walker.cpp`, and `Enemy/walkerEnemy.cpp`.
+  The remaining batch-8 TUs are original-linked again.
+- User test result: batch 8A crashes.
+- Batch 8A.1 split source-links only the first 12 batch-8A TUs:
+  `Map/MapEventDolpic.cpp`, `Map/MapEventMare.cpp`,
+  `Map/BathWaterManager.cpp`, `Map/StickyStainManager.cpp`,
+  `GC2D/SelectShine2.cpp`, `Enemy/conductor.cpp`, `Enemy/effectObj.cpp`,
+  `Enemy/emario.cpp`, `Enemy/enemy.cpp`, `Enemy/enemyAttachment.cpp`,
+  `Enemy/enemymanager.cpp`, and `Enemy/feetinv.cpp`. The remaining batch-8A
+  TUs are original-linked again.
+- User test result: batch 8A.1 boots, so the batch 8 crash is in the remaining
+  batch-8A TUs from `Enemy/gesso.cpp` through `Enemy/walkerEnemy.cpp`.
+- Batch 8A.2 split source-links `Enemy/gesso.cpp`, `Enemy/graph.cpp`,
+  `Enemy/hamukuri.cpp`, `Enemy/hinokuri2.cpp`, `Enemy/mameGesso.cpp`,
+  `Enemy/namekuri.cpp`, and `Enemy/pakkun.cpp`; `Enemy/smallEnemy.cpp`
+  through `Enemy/walkerEnemy.cpp` stay original-linked.
+- User test result: batch 8A.2 does not boot.
+- Batch 8A.3 split source-links `Enemy/gesso.cpp`, `Enemy/graph.cpp`,
+  `Enemy/hamukuri.cpp`, and `Enemy/hinokuri2.cpp`; `Enemy/mameGesso.cpp`,
+  `Enemy/namekuri.cpp`, and `Enemy/pakkun.cpp` are original-linked again.
+- User test result: batch 8A.3 boots, so the batch-8 crash is in
+  `Enemy/mameGesso.cpp`, `Enemy/namekuri.cpp`, or `Enemy/pakkun.cpp`.
+- Batch 8A.4 split source-links only `Enemy/mameGesso.cpp`;
+  `Enemy/namekuri.cpp` and `Enemy/pakkun.cpp` remain original-linked.
+- User test result: batch 8A.4 boots, clearing `Enemy/mameGesso.cpp`.
+- Batch 8A.5 source-links `Enemy/namekuri.cpp` as well; `Enemy/pakkun.cpp`
+  remains original-linked.
+- User test result: batch 8A.5 does not boot. Mark `Enemy/namekuri.cpp` as
+  required original-linked for this issue.
+- Follow-up check: keep `Enemy/namekuri.cpp` original-linked, keep cleared
+  `Enemy/mameGesso.cpp` source-linked, and source-link `Enemy/pakkun.cpp` to
+  test whether it is also required.
+- User test result: follow-up boots, clearing `Enemy/pakkun.cpp`. Keep
+  `Enemy/namekuri.cpp` original-linked as required.
+- 50-at-a-time restore batch 9 source-links the remaining Enemy set from
+  `Enemy/smallEnemy.cpp` through `Enemy/Kukku.cpp`, skipping the pinned
+  `Enemy/wireTrap.cpp`.
+- Link adjustment: source-link `Enemy/limitkoopa.cpp` too because the
+  original-linked object references weak
+  `TSpineBase<TLiveActor>::pushNerve(const TNerveBase<TLiveActor>*)`, which is
+  not emitted by the current source-linked set.
+- Deployed DOL for batch 9 plus the `Enemy/limitkoopa.cpp` link adjustment:
+  `17D46BE046FD7559B56190E2F3C0B531430D63DB`.
+- User test result: batch 9 boots.
+- Full-clear test: source-link every remaining TU except the three confirmed
+  required original-linked TUs: `System/MarNameRefGen.cpp`,
+  `Enemy/namekuri.cpp`, and `Enemy/wireTrap.cpp`.
+- Deployed DOL for the full-clear test:
+  `0DA87AEEB3F1BAE1112C28EACCE1BA6D76B72C51`.
+- User test result: full-clear build boots.
+- First source fix for `Enemy/wireTrap.cpp`: the original assembly for
+  `TWireTrap::init()` checks and sets `gParticleFlagLoaded[0x190]` and
+  `[0x191]`; source was using `[0]` and `[1]`, so it could skip loading the
+  wire-trap JPA resources based on unrelated particle flags.
+- Source fix for the `Enemy/namekuri.cpp` boot blocker: original rodata has
+  `/scene/namekuri2/bas/name_jump_start.bas`, but source had the non-existent
+  `.base` suffix in `namekuri2_bastable`. `Enemy/namekuri.cpp` is source-linked
+  again for validation.
+- Source fix for the `System/MarNameRefGen.cpp` Bianco white-screen blocker:
+  the original `TargetArrow` factory path inlines `TTargetArrow()` and zeroes
+  `unk10` and `unk14` after installing the vtable. Our header constructor was
+  empty, so source-linked `MarNameRefGen` returned a target-arrow object with
+  stale heap state. `TTargetArrow()` now initializes `unk10 = nullptr` and
+  `unk14 = 0`, matching the original factory block.
+- All TUs are source-linked again for validation; no `Object(NonMatching, ...)`
+  entries remain in `configure.py`.
+- Validation DOL deployed:
+  `23F0E4B8262970096703D1252FB2416E6C477D3B`
+- User test result: all-source validation no longer white-screens, but still
+  warns with `Invalid read from 0x6d496e57, PC = 0x80085d0c`.
+- Current focused split keeps `System/MarNameRefGen.cpp` and
+  `Enemy/namekuri.cpp` original-linked again, with `Enemy/wireTrap.cpp`
+  source-linked by itself.
+- `TWireTrapManager::createModelData()` was the actual bad-string source:
+  original rodata has two 12-byte `TModelDataLoadEntry` records
+  (`"wire_trap.bmd"` plus a null sentinel), but source only emitted the first
+  record. `TObjManager::createModelDataArrayBase()` walks entries with a
+  12-byte stride, so it continued into the next rodata symbol and treated
+  `"mInWaterPowerRate"` bytes as another model filename pointer.
+- Source fix: add the missing `{ nullptr, 0, 0 }` sentinel to
+  `Enemy/wireTrap.cpp`. `TWireTrapManager::createModelData()` and
+  `TWireTrap::init()` both compare as 100% text matches after the change.
+- WireTrap-only validation DOL deployed:
+  `7301ACA9DA451F2968033E086C343BBCB79CCB3C`
+- User test result: WireTrap-only validation boots without the bad-string
+  warning.
+- Next one-TU validation source-links `Enemy/namekuri.cpp` as well, while
+  keeping `System/MarNameRefGen.cpp` original-linked. The source fix is the
+  original `.bas` path for `/scene/namekuri2/bas/name_jump_start.bas`.
+- Namekuri validation DOL deployed:
+  `BE0053DE0114A4307C969F44BEA0DB36575F070E`
+- User test result: still fails while loading Bianco with
+  `Invalid read from 0x00000018, PC = 0x8024fcec`.
+- Diagnostic split original-linked `Enemy/enemymanager.cpp` while keeping
+  `Enemy/namekuri.cpp` source-linked. Deployed DOL:
+  `3AF0BBE327DD92329D019EFAB7E5CC53C89B9A32`.
+- User test result: still fails with
+  `Invalid read from 0x00000018, PC = 0x8024fcf0`. That keeps the failure in
+  the common enemy manager perform loop even when that TU is original-linked,
+  so the active suspect is still bad Namekuri manager/object/shared-part state
+  being handed to the loop rather than `Enemy/enemymanager.cpp` itself.
+- Diagnostic build `BA802B96FF67945948FE58AC0B84FE5971D288E8` source-linked
+  `Enemy/enemymanager.cpp` again and added `CODEX_NK_*` probes in
+  `Enemy/namekuri.cpp`; user reports this build boots. Treat this as a probe
+  masking the crash by perturbing codegen/layout, not as a source fix.
+- Follow-up manager-only probe `F3C70D14F4A075AF3BD1062828E8D89A1E58D849`
+  crashes again. Dolphin log shows the Namekuri manager state is sane before
+  the common perform loop: object array is non-null, `num=2`, `active=2`, and
+  the two active object pointers are valid-looking. This points into the actor
+  `testPerform`/`TNameKuri::perform` path, not manager array setup.
+- Source fix for the `TNameKuri::perform` crash: original assembly uses a
+  `-0x90` stack frame for the light perspective effect block. Our source used a
+  3x4 `Mtx` local for `SMS_GetLightPerspectiveForEffectMtx`; changing it to
+  `Mtx44` gives the original-sized frame and prevents the 4x4 perspective
+  matrix write from trampling saved registers on return. This explains why the
+  actor-level `OSReport` probe masked the crash by expanding/perturbing the
+  stack frame.
+
+## BUG 0028 - Level select shines do not render
+
+Status: fixed by isolation; source fix pending
+
+Symptom:
+- Shines in the level select menu were not rendering.
+
+Current notes:
+- User test result: the JSystem resource/archive isolation build made the
+  level-select shines render.
+- The fixing isolation set original-links the source-linked JSystem
+  resource/archive pieces:
+  - `JSystem/JSupport/JSUInputStream.cpp`
+  - `JSystem/JGadget/std-vector.cpp`
+  - `JSystem/JKernel/JKRArchivePri.cpp`
+  - `JSystem/JKernel/JKRAramArchive.cpp`
+  - `JSystem/JKernel/JKRAram.cpp`
+  - `JSystem/JKernel/JKRArchivePub.cpp`
+  - `JSystem/JKernel/JKRCompArchive.cpp`
+  - `JSystem/JKernel/JKRDvdArchive.cpp`
+  - `JSystem/JKernel/JKRExpHeap.cpp`
+  - `JSystem/JKernel/JKRHeap.cpp`
+  - `JSystem/JKernel/JKRSolidHeap.cpp`
+  - `JSystem/JKernel/JKRDvdAramRipper.cpp`
+  - `JSystem/JUtility/JUTNameTab.cpp`
+  - `JSystem/JUtility/JUTDirectFile.cpp`
+  - `JSystem/JDrama/JDRNameRefGen.cpp`
+  - `JSystem/J3D/J3DGraphLoader/J3DMaterialFactory.cpp`
+  - `JSystem/J3D/J3DGraphLoader/J3DMaterialFactory_v21.cpp`
+- Fixing isolation deployed DOL:
+  `2CEB67DC17DEAD21BB1BB0A06DE5C10491F213ED`
+- Continue trimming/source-fixing later; active isolation stays focused on
+  BUG 0027.
