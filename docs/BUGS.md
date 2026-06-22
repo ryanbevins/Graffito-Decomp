@@ -1325,7 +1325,7 @@ Current notes:
 
 ## BUG 0027 - Bianco Hills invalid read in strlen on load
 
-Status: open
+Status: fixed; all TUs source-linked
 
 Symptom:
 - Dolphin warns when trying to load Bianco Hills:
@@ -1776,6 +1776,10 @@ Current notes:
   matrix write from trampling saved registers on return. This explains why the
   actor-level `OSReport` probe masked the crash by expanding/perturbing the
   stack frame.
+- Final all-source validation DOL deployed:
+  `BC2EDD98082428E3C3997AAA336A07DAB3690D29`.
+- User test result: all-source build boots. No `Object(NonMatching, ...)`
+  entries remain in `configure.py`.
 
 ## BUG 0028 - Level select shines do not render
 
