@@ -203,7 +203,7 @@ BOOL TMario::specMain()
 			changePlayerStatus(0x3800034b, 0, false);
 		}
 		return 0;
-	case 0x30000550:
+	case 0x3000054F:
 		// hang landing wait 3
 		if (mInput & 0x4) {
 			startHangLanding(0x208b6);
@@ -1830,7 +1830,7 @@ void TMario::hanging()
 				const TBGCheckData* bestWall3 = (const TBGCheckData*)0;
 				TBGWallCheckRecord wallCheck3;
 				wallCheck3.mCenter.x = targetPos.x;
-				wallCheck3.mCenter.y = targetPos.y;
+				wallCheck3.mCenter.y = targetPos.y + 10.0f;
 				wallCheck3.mCenter.z = targetPos.z;
 				wallCheck3.mRadius = 50.0f;
 				wallCheck3.mMaxResults = 1;

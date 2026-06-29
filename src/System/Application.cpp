@@ -70,6 +70,13 @@ static void* arcBufCmn;
 static void* bufStageArcBin;
 static void* spGameHeapBlock;
 
+// DEBUG: Set to 0 to restore retail post-logo flow for matching checks.
+#define SMS_FORCE_DEBUG_STAGE_SELECT_ON_BOOT 1
+// DEBUG: Set to 0 to disable D-pad Up returning from gameplay to stage select.
+#define SMS_DEBUG_STAGE_SELECT_RETURN_WITH_DPAD_UP 1
+// DEBUG: Temporary probe: boot directly to Delfino Plaza 1 and force its movie.
+#define SMS_DEBUG_AUTO_DOLPIC1_MOVIE_PROBE 1
+
 TARAMBlock gArBkConsole;
 TARAMBlock gArBkGuide;
 
@@ -641,10 +648,27 @@ int TApplication::gameLoop()
 					sGameInit |= 2;
 				}
 
-				if (sGameInit == 3)
+				if (sGameInit == 3) {
+#if SMS_DEBUG_AUTO_DOLPIC1_MOVIE_PROBE
+					mNextArea.set(1, 1, 0);
+					TFlagManager::getInstance()->setBool(false, 0x3000C);
+					nextState = APP_STATE_GAMEPLAY;
+#elif SMS_FORCE_DEBUG_STAGE_SELECT_ON_BOOT
+					nextState = APP_STATE_MENU;
+#else
 					nextState = APP_STATE_DONE;
+#endif
+				}
 			} else {
-				nextState = mDirector->direct();
+#if SMS_DEBUG_STAGE_SELECT_RETURN_WITH_DPAD_UP
+				if (mAppState == APP_STATE_GAMEPLAY
+				    && (mGamePads[0]->getTrigger() & JUTGamePad::DPAD_UP)) {
+					nextState = APP_STATE_MENU;
+				} else
+#endif
+				{
+					nextState = mDirector->direct();
+				}
 			}
 
 			static u32 sAppLoopProbeCount;

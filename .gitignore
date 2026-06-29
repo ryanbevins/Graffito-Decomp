@@ -22,6 +22,7 @@ orig/*/*
 build/
 .ninja_*
 build.ninja
+editor/
 
 # decompctx output
 ctx.*
