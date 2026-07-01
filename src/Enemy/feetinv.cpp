@@ -1,4 +1,6 @@
+#define JGEOMETRY_TVEC3_ADD_OUT_OF_LINE
 #include <Enemy/FeetInv.hpp>
+#undef JGEOMETRY_TVEC3_ADD_OUT_OF_LINE
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>

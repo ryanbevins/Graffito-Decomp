@@ -108,7 +108,8 @@ public:
 	// === arithmetic stuff ===
 
 #if defined(JGEOMETRY_DRAWUTIL_OWNER_HELPERS)                                  \
-    || defined(JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE)
+    || defined(JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE)                  \
+    || defined(JGEOMETRY_TVEC3_ADD_OUT_OF_LINE)
 	void add(const TVec3& operand);
 #else
 	void add(const TVec3& operand)
