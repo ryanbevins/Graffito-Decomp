@@ -12,6 +12,15 @@ static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
 static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
 static u32 dummy1210[4] = { 0, 2, 1, 3 };
 
+static inline f32 sqrtPositive(f32 mag)
+{
+	if (mag > 0.0f) {
+		f64 root = __frsqrte(mag);
+		return 0.5f * root * (3.0f - mag * (root * root)) * mag;
+	}
+	return mag;
+}
+
 void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
                  f32 threshold)
 {
@@ -148,14 +157,12 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	f32 zAxisLenSq = kneeMtx[0][2] * kneeMtx[0][2]
 	               + kneeMtx[1][2] * kneeMtx[1][2]
 	               + kneeMtx[2][2] * kneeMtx[2][2];
-	f32 zAxisLen
-	    = (zAxisLenSq > 0.0f) ? JGeometry::TUtil<f32>::sqrt(zAxisLenSq) : 0.0f;
+	f32 zAxisLen = sqrtPositive(zAxisLenSq);
 
 	f32 xAxisLenSq = kneeMtx[0][0] * kneeMtx[0][0]
 	               + kneeMtx[1][0] * kneeMtx[1][0]
 	               + kneeMtx[2][0] * kneeMtx[2][0];
-	f32 xAxisLen
-	    = (xAxisLenSq > 0.0f) ? JGeometry::TUtil<f32>::sqrt(xAxisLenSq) : 0.0f;
+	f32 xAxisLen = sqrtPositive(xAxisLenSq);
 
 	kneeToFoot.x -= newKneePos.x;
 	kneeToFoot.y -= newKneePos.y;
@@ -211,16 +218,12 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	f32 footYLenSq = footMtx[0][1] * footMtx[0][1]
 	               + footMtx[1][1] * footMtx[1][1]
 	               + footMtx[2][1] * footMtx[2][1];
-	f32 footYLen = (footYLenSq > 0.0f)
-	                   ? JGeometry::TUtil<f32>::sqrt(footYLenSq)
-	                   : 0.0f;
+	f32 footYLen = sqrtPositive(footYLenSq);
 
 	f32 footXLenSq = footMtx[0][0] * footMtx[0][0]
 	               + footMtx[1][0] * footMtx[1][0]
 	               + footMtx[2][0] * footMtx[2][0];
-	f32 footXLen = (footXLenSq > 0.0f)
-	                   ? JGeometry::TUtil<f32>::sqrt(footXLenSq)
-	                   : 0.0f;
+	f32 footXLen = sqrtPositive(footXLenSq);
 
 	newFootYAxis.x = -newFootYAxis.x;
 	newFootYAxis.y = -newFootYAxis.y;
