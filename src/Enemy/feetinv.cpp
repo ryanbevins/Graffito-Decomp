@@ -145,12 +145,7 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	newKneeXAxis.x = hipMtx[0][0];
 	newKneeXAxis.y = hipMtx[1][0];
 	newKneeXAxis.z = hipMtx[2][0];
-	if (newKneeXAxis.squared() <= 3.81469727e-06f) {
-		newKneeXAxis.zero();
-	} else {
-		f32 inv = JGeometry::TUtil<f32>::inv_sqrt(newKneeXAxis.squared());
-		newKneeXAxis.scale(inv);
-	}
+	newKneeXAxis.normalize();
 	newKneeXAxis.scale(thigh);
 
 	JGeometry::TVec3<f32> newKneePos;
@@ -183,12 +178,7 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	kneeToFoot.y -= newKneePos.y;
 	kneeToFoot.z -= newKneePos.z;
 
-	if (kneeToFoot.squared() <= 3.81469727e-06f) {
-		kneeToFoot.zero();
-	} else {
-		f32 inv = JGeometry::TUtil<f32>::inv_sqrt(kneeToFoot.squared());
-		kneeToFoot.scale(inv);
-	}
+	kneeToFoot.normalize();
 	kneeToFoot.scale(xAxisLen);
 
 	kneeMtx[0][0] = kneeToFoot.x;
@@ -207,13 +197,7 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 		newKneeZAxis.x = fy * yz - fz * yy;
 		newKneeZAxis.y = fz * yx - fx * yz;
 		newKneeZAxis.z = fx * yy - fy * yx;
-		f32 mag2 = newKneeZAxis.squared();
-		if (mag2 <= 3.81469727e-06f) {
-			newKneeZAxis.zero();
-		} else {
-			f32 inv = JGeometry::TUtil<f32>::inv_sqrt(mag2);
-			newKneeZAxis.scale(inv);
-		}
+		newKneeZAxis.normalize();
 		newKneeZAxis.scale(zAxisLen);
 	}
 	kneeMtx[0][2] = newKneeZAxis.x;
@@ -261,13 +245,7 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 		newFootXAxis.x = fy * zz - fz * zy;
 		newFootXAxis.y = fz * zx - fx * zz;
 		newFootXAxis.z = fx * zy - fy * zx;
-		f32 mag2 = newFootXAxis.squared();
-		if (mag2 <= 3.81469727e-06f) {
-			newFootXAxis.zero();
-		} else {
-			f32 inv = JGeometry::TUtil<f32>::inv_sqrt(mag2);
-			newFootXAxis.scale(inv);
-		}
+		newFootXAxis.normalize();
 		newFootXAxis.scale(footXLen);
 	}
 	footMtx[0][0] = newFootXAxis.x;
