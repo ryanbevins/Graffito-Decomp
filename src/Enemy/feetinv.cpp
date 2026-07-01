@@ -83,12 +83,11 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	f32 dotV = footFromHip.x * kneeFromHip.x + footFromHip.y * kneeFromHip.y
 	         + footFromHip.z * kneeFromHip.z;
 
-	f32 lcAngle = matan(dotV, MsVECMag2((Vec*)&cross)) * (360.0f / 65536.0f);
-	if (lcAngle < 0.0f)
-		lcAngle = -lcAngle;
-
+	s16 lcAngleS = matan(dotV, MsVECMag2((Vec*)&cross));
+	f32 lcAngle = __fabsf(lcAngleS * (360.0f / 65536.0f));
 	f32 cosLaw = (thigh * thigh + shin * shin - hipFoot * hipFoot)
 	           / (2.0f * thigh * shin);
+
 	f32 ankleAngle;
 	if (cosLaw == 1.0f) {
 		ankleAngle = 0.0f;
