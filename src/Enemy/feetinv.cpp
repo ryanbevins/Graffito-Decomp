@@ -23,6 +23,12 @@ static inline f32 sqrtPositive(f32 mag)
 	return mag;
 }
 
+static inline f32 sqrtEstimate(f32 mag)
+{
+	volatile f32 result = mag * __frsqrte(mag);
+	return result;
+}
+
 void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
                  f32 threshold)
 {
@@ -96,8 +102,9 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	} else if (cosLaw == -1.0f) {
 		ankleAngle = 180.0f;
 	} else {
-		f32 sinLaw = JGeometry::TUtil<f32>::sqrt(1.0f - cosLaw * cosLaw);
-		ankleAngle = 90.0f - matan(sinLaw, cosLaw) * (360.0f / 65536.0f);
+		f32 sinLaw = sqrtEstimate(1.0f - cosLaw * cosLaw);
+		s16 ankleAngleS = matan(sinLaw, cosLaw);
+		ankleAngle = 90.0f - ankleAngleS * (360.0f / 65536.0f);
 	}
 
 	f32 sinAng
@@ -108,8 +115,9 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	} else if (sinAng == -1.0f) {
 		sinDeg = -90.0f;
 	} else {
-		f32 cosAng = JGeometry::TUtil<f32>::sqrt(1.0f - sinAng * sinAng);
-		sinDeg = matan(cosAng, sinAng) * (360.0f / 65536.0f);
+		f32 cosAng = sqrtEstimate(1.0f - sinAng * sinAng);
+		s16 sinDegS = matan(cosAng, sinAng);
+		sinDeg = sinDegS * (360.0f / 65536.0f);
 	}
 	f32 finalAngle = sinDeg - lcAngle;
 
