@@ -144,8 +144,12 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	newKneeXAxis.scale(thigh);
 
 	JGeometry::TVec3<f32> newKneePos;
-	newKneePos = hipPos;
-	newKneePos.add(newKneeXAxis);
+	{
+		JGeometry::TVec3<f32> newKneePosTemp;
+		newKneePosTemp = hipPos;
+		newKneePosTemp.add(newKneeXAxis);
+		newKneePos = newKneePosTemp;
+	}
 
 	kneeMtx[0][3] = newKneePos.x;
 	kneeMtx[1][3] = newKneePos.y;
