@@ -194,9 +194,9 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 
 	// new knee Z-axis = normalize(cross(xAxis, yAxis)) scaled by old Z length
 	{
-		f32 fx = kneeMtx[0][0];
-		f32 fy = kneeMtx[1][0];
-		f32 fz = kneeMtx[2][0];
+		f32 fx = kneeToFoot.x;
+		f32 fy = kneeToFoot.y;
+		f32 fz = kneeToFoot.z;
 		f32 yx = kneeMtx[0][1];
 		f32 yy = kneeMtx[1][1];
 		f32 yz = kneeMtx[2][1];
@@ -243,8 +243,8 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	// foot X-axis = normalize(cross(Y, Z)) * xLen
 	{
 		f32 fx = newFootYAxis.x;
-		f32 fy = footMtx[1][1];
-		f32 fz = footMtx[2][1];
+		f32 fy = newFootYAxis.y;
+		f32 fz = newFootYAxis.z;
 		f32 zx = footMtx[0][2];
 		f32 zy = footMtx[1][2];
 		f32 zz = footMtx[2][2];
