@@ -5866,6 +5866,33 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
+### Keep `matan` results wide when target wraps the angle with `addis/addi`
+
+**Hypothesis.** Although `matan(float, float)` semantically returns a 16-bit
+angle, binding its result to `s16` can emit a target-absent `extsh r3, r3`
+before subsequent wrap arithmetic. When target asm does:
+
+```asm
+bl     matan__Fff
+addis  rN, r3, 1
+addi   rN, rN, -0x8000
+```
+
+keep the `matan` result in an `int`/`s32` local and narrow only at the final
+`s16` consumer. This preserves the wide return register through the wrap while
+still passing the wrapped angle as the expected short parameter.
+
+**Observed.** `mario/Player/MarioJump` `TMario::startJumpWall()`:
+changing `s16 wallAngle = matan(...); s16 newAngle = wallAngle + 0x8000;` to
+`int wallAngle = matan(...); s16 newAngle = wallAngle + 0x8000;` removed the
+extra `extsh` after `matan` and moved the function `97.8 -> 99.7`.
+
+**Experiment to confirm/refute.** Find a second `matan` call followed by
+`addis/addi` wrap arithmetic where the build has a lone `extsh` after the
+call. Toggle only the result local between `s16` and `int`; promote if the
+same wide-local spelling removes the extra sign-extension without disturbing
+the surrounding call/argument order.
+
 ### Dead-parameter scratch-register reservation: target keeps a once-used parameter register (e.g. `r4`) un-reused as scratch, ours reuses it — driven by parameter liveness, not frame size, and not reproducible without an extra instruction
 
 **Observed (JDrama::TFrmGXSet::perform, `JSystem/JDrama/JDRFrmGXSet`).** The function

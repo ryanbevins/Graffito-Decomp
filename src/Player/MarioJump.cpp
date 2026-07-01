@@ -24,7 +24,7 @@
 void TMario::startJumpWall()
 {
 	if (mWallPlane != nullptr) {
-		s16 wallAngle = matan(mWallPlane->getNormal().z, mWallPlane->getNormal().x);
+		int wallAngle = matan(mWallPlane->getNormal().z, mWallPlane->getNormal().x);
 		s16 newAngle = wallAngle + 0x8000;
 		emitParticle(24, newAngle);
 		emitParticle(25, newAngle);
