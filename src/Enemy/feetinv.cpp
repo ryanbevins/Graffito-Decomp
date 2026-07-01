@@ -144,9 +144,7 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	PSMTXConcat(hipMtx, zRot, hipMtx);
 
 	// new knee X direction = normalize(hip x-axis) * thigh; new knee pos = hip + that
-	newKneeXAxis.x = hipMtx[0][0];
-	newKneeXAxis.y = hipMtx[1][0];
-	newKneeXAxis.z = hipMtx[2][0];
+	newKneeXAxis.set(hipMtx[0][0], hipMtx[1][0], hipMtx[2][0]);
 	newKneeXAxis.normalize();
 	newKneeXAxis.scale(thigh);
 
