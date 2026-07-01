@@ -75,17 +75,19 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	hipPos.x = hipMtx[0][3];
 	hipPos.y = hipMtx[1][3];
 	hipPos.z = hipMtx[2][3];
+	f32 hipY = hipPos.y;
+	f32 hipZ = hipPos.z;
 
 	kneeFromHip = kneePos;
 	kneeFromHip.x -= hipPos.x;
-	kneeFromHip.y -= hipPos.y;
-	kneeFromHip.z -= hipPos.z;
+	kneeFromHip.y -= hipY;
+	kneeFromHip.z -= hipZ;
 	f32 thigh = JGeometry::TUtil<f32>::sqrt(kneeFromHip.squared());
 
 	footFromHip = footPos;
 	footFromHip.x -= hipPos.x;
-	footFromHip.y -= hipPos.y;
-	footFromHip.z -= hipPos.z;
+	footFromHip.y -= hipY;
+	footFromHip.z -= hipZ;
 	f32 hipFoot = JGeometry::TUtil<f32>::sqrt(footFromHip.squared());
 
 	cross.x = footFromHip.y * kneeFromHip.z - footFromHip.z * kneeFromHip.y;
