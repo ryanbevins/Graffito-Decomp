@@ -107,7 +107,8 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	} else {
 		f32 sinLaw = sqrtEstimate(1.0f - cosLaw * cosLaw);
 		s16 ankleAngleS = matan(sinLaw, cosLaw);
-		ankleAngle = 90.0f - ankleAngleS * (360.0f / 65536.0f);
+		f32 ankleAngleDeg = ankleAngleS * (360.0f / 65536.0f);
+		ankleAngle = 90.0f - ankleAngleDeg;
 	}
 
 	f32 sinAng
