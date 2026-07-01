@@ -84,19 +84,22 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	kneeFromHip.y -= hipY;
 	hipZ = hipPos.z;
 	kneeFromHip.z -= hipZ;
+	f32 kneeY = kneeFromHip.y;
+	f32 kneeZ = kneeFromHip.z;
 	f32 thigh = JGeometry::TUtil<f32>::sqrt(kneeFromHip.squared());
 
 	footFromHip = footPos;
 	footFromHip.x -= hipPos.x;
 	footFromHip.y -= hipY;
 	footFromHip.z -= hipZ;
+	f32 footY = footFromHip.y;
+	f32 footZ = footFromHip.z;
 	f32 hipFoot = JGeometry::TUtil<f32>::sqrt(footFromHip.squared());
 
-	cross.x = footFromHip.y * kneeFromHip.z - footFromHip.z * kneeFromHip.y;
-	cross.y = footFromHip.z * kneeFromHip.x - footFromHip.x * kneeFromHip.z;
-	cross.z = footFromHip.x * kneeFromHip.y - footFromHip.y * kneeFromHip.x;
-	f32 dotV = footFromHip.x * kneeFromHip.x + footFromHip.y * kneeFromHip.y
-	         + footFromHip.z * kneeFromHip.z;
+	cross.x = footY * kneeZ - footZ * kneeY;
+	cross.y = footZ * kneeFromHip.x - footFromHip.x * kneeZ;
+	cross.z = footFromHip.x * kneeY - footY * kneeFromHip.x;
+	f32 dotV = footFromHip.x * kneeFromHip.x + footY * kneeY + footZ * kneeZ;
 
 	s16 lcAngleS = matan(dotV, MsVECMag2((Vec*)&cross));
 	f32 lcAngle = __fabsf(lcAngleS * (360.0f / 65536.0f));
