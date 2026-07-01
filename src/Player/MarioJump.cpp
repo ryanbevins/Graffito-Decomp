@@ -958,6 +958,7 @@ BOOL TMario::jumpMain()
 	}
 
 	BOOL result;
+	JGeometry::TVec3<f32> pos;
 	switch (mAction) {
 	case 0x0884:
 	case 0x089C:
@@ -1003,7 +1004,7 @@ BOOL TMario::jumpMain()
 		if (mActionTimer == 0) {
 			mActionTimer++;
 			TMario* mario = this;
-			mario->rumbleStart(20, mMotorParams.mMotorWall.value);
+			mario->rumbleStart(20, mMotorParams.mMotorWall.get());
 		}
 
 		int anm;
@@ -1040,7 +1041,7 @@ BOOL TMario::jumpMain()
 		if (mActionTimer == 0) {
 			mActionTimer++;
 			TMario* mario = this;
-			mario->rumbleStart(21, mMotorParams.mMotorWall.value);
+			mario->rumbleStart(21, mMotorParams.mMotorWall.get());
 		}
 
 		BOOL handled;
@@ -1049,7 +1050,7 @@ BOOL TMario::jumpMain()
 			if (pad->mEnabledFrameMeaning & 0x2000) {
 				handled = changePlayerStatus(0x008008A9, 0, false);
 			} else if (!onYoshi()) {
-				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.get();
 				setPlayerVelocity(jumpCatchSpeed);
 				handled = changePlayerStatus(0x0080088A, 0, false);
 			} else {
@@ -1079,7 +1080,7 @@ checkBackTrigFalse882:
 			if (pad->mEnabledFrameMeaning & 0x2000) {
 				handled = changePlayerStatus(0x008008A9, 0, false);
 			} else if (!onYoshi()) {
-				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.get();
 				setPlayerVelocity(jumpCatchSpeed);
 				handled = changePlayerStatus(0x0080088A, 0, false);
 			} else {
@@ -1128,7 +1129,7 @@ checkBackTrigFalse883:
 				if (pad->mEnabledFrameMeaning & 0x2000) {
 					backHandled = changePlayerStatus(0x008008A9, 0, false);
 				} else if (!onYoshi()) {
-					f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+					f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.get();
 					setPlayerVelocity(jumpCatchSpeed);
 					backHandled = changePlayerStatus(0x0080088A, 0, false);
 				} else {
@@ -1161,7 +1162,7 @@ checkBackTrigFalse887:
 			if (pad->mEnabledFrameMeaning & 0x2000) {
 				handled = changePlayerStatus(0x008008A9, 0, false);
 			} else if (!onYoshi()) {
-				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.get();
 				setPlayerVelocity(jumpCatchSpeed);
 				handled = changePlayerStatus(0x0080088A, 0, false);
 			} else {
@@ -1258,7 +1259,7 @@ checkBackTrigFalse20886:
 			if (pad->mEnabledFrameMeaning & 0x2000) {
 				handled = changePlayerStatus(0x008008A9, 0, false);
 			} else if (!onYoshi()) {
-				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+				f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.get();
 				setPlayerVelocity(jumpCatchSpeed);
 				handled = changePlayerStatus(0x0080088A, 0, false);
 			} else {
@@ -1283,7 +1284,7 @@ checkBackTrigFalse895:
 			else
 				mModelFaceAngle = (u16)-(mActionTimer << 12);
 			if ((gpMarDirector->unk58 & 0x3F) == 0)
-				rumbleStart(20, mMotorParams.mMotorWall.value / 2);
+				rumbleStart(20, mMotorParams.mMotorWall.get() / 2);
 			caseResult = FALSE;
 		}
 		result = caseResult;
@@ -1359,7 +1360,7 @@ checkBackTrigFalse895:
 		if (mAction == 0x560)
 			setAnimation(0xF2, 1.0f);
 
-		JGeometry::TVec3<f32> pos = mPosition;
+		pos = mPosition;
 		if (mHeldObject->moveRequest(pos) == 1)
 			mPosition = pos;
 		result = FALSE;
