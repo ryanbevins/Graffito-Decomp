@@ -64,9 +64,10 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	diff.z -= kneePos.z;
 	f32 shin = JGeometry::TUtil<f32>::sqrt(diff.squared());
 
-	f32 groundY = gpMap->checkGround(footPos.x, footPos.y + shin, footPos.z,
-	                                 &groundData);
-	if (groundY + threshold < footPos.y)
+	f32 footPosY = footPos.y;
+	f32 groundY
+	    = gpMap->checkGround(footPos.x, footPosY + shin, footPos.z, &groundData);
+	if (groundY + threshold < footPosY)
 		return;
 	footPos.y = groundY + threshold;
 
