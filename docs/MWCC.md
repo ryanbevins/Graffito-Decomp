@@ -5866,11 +5866,12 @@ for predicate functions.
 
 ## Hypotheses under investigation
 
-### Keep `matan` results wide when target wraps the angle with `addis/addi`
+### Choose `matan` result width from the target's first consumer
 
 **Hypothesis.** Although `matan(float, float)` semantically returns a 16-bit
-angle, binding its result to `s16` can emit a target-absent `extsh r3, r3`
-before subsequent wrap arithmetic. When target asm does:
+angle, MWCC preserves either the wide `s32` return register or an explicit
+`s16` sign-extension depending on the first source-level consumer. When target
+asm wraps the returned angle directly:
 
 ```asm
 bl     matan__Fff
@@ -5880,18 +5881,37 @@ addi   rN, rN, -0x8000
 
 keep the `matan` result in an `int`/`s32` local and narrow only at the final
 `s16` consumer. This preserves the wide return register through the wrap while
-still passing the wrapped angle as the expected short parameter.
+still passing the wrapped angle as the expected short parameter. Conversely,
+when target asm sign-extends before a float degree conversion:
 
-**Observed.** `mario/Player/MarioJump` `TMario::startJumpWall()`:
-changing `s16 wallAngle = matan(...); s16 newAngle = wallAngle + 0x8000;` to
-`int wallAngle = matan(...); s16 newAngle = wallAngle + 0x8000;` removed the
-extra `extsh` after `matan` and moved the function `97.8 -> 99.7`.
+```asm
+bl     matan__Fff
+extsh  r0, r3
+xoris  r0, r0, 0x8000
+...
+fabs   fN, fM
+```
 
-**Experiment to confirm/refute.** Find a second `matan` call followed by
-`addis/addi` wrap arithmetic where the build has a lone `extsh` after the
-call. Toggle only the result local between `s16` and `int`; promote if the
-same wide-local spelling removes the extra sign-extension without disturbing
-the surrounding call/argument order.
+bind the result to `s16` and express the absolute value directly with
+`__fabsf(result * (360.0f / 65536.0f))`. A branchy `if (angle < 0)` or a
+postponed conversion can improve one part of the instruction stream but
+disturb scheduling or `.sdata2` constant order.
+
+**Observed.**
+- `mario/Player/MarioJump` `TMario::startJumpWall()`: changing
+  `s16 wallAngle = matan(...); s16 newAngle = wallAngle + 0x8000;` to
+  `int wallAngle = matan(...); s16 newAngle = wallAngle + 0x8000;` removed the
+  extra `extsh` after `matan` and moved the function `97.8 -> 99.7`.
+- `mario/Enemy/feetinv` `FeetInvCalc`: changing the first `lcAngle` conversion
+  to `s16 lcAngleS = matan(...); f32 lcAngle = __fabsf(lcAngleS *
+  (360.0f / 65536.0f));` matched the target `extsh` / `fabs` block, kept
+  `.sdata2` byte-identical, and moved the function `66.1 -> 71.2`.
+
+**Experiment to confirm/refute.** Find at least one more target of each shape:
+an `addis/addi` wrap with no sign-extension, and a degree-conversion block with
+target `extsh`. Toggle only the result local width and absolute-value spelling;
+promote if the same consumer-driven rule fixes both without disturbing
+surrounding call/argument order or constant ordering.
 
 ### Dead-parameter scratch-register reservation: target keeps a once-used parameter register (e.g. `r4`) un-reused as scratch, ours reuses it — driven by parameter liveness, not frame size, and not reproducible without an extra instruction
 
