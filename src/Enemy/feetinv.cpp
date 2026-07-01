@@ -18,7 +18,9 @@ static inline f32 sqrtPositive(f32 mag)
 {
 	if (mag > 0.0f) {
 		f64 root = __frsqrte(mag);
-		return 0.5f * root * (3.0f - mag * (root * root)) * mag;
+		volatile f32 result
+		    = 0.5f * root * (3.0f - mag * (root * root)) * mag;
+		return result;
 	}
 	return mag;
 }
