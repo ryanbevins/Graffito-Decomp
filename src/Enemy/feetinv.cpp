@@ -42,7 +42,7 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	JGeometry::TVec3<f32> cross;
 	JGeometry::TVec3<f32> newKneeXAxis;
 	JGeometry::TVec3<f32> newKneeZAxis;
-	JGeometry::TVec3<f32> newFootYAxis;
+	Vec newFootYAxis;
 	JGeometry::TVec3<f32> newFootXAxis;
 	Mtx zRot;
 
@@ -224,9 +224,7 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	footMtx[2][3] = footPos.z;
 
 	// foot Y-axis = -groundNormal * footYLen
-	newFootYAxis.x = groundData->mNormal.x;
-	newFootYAxis.y = groundData->mNormal.y;
-	newFootYAxis.z = groundData->mNormal.z;
+	newFootYAxis = groundData->mNormal;
 
 	f32 footYLenSq = footMtx[0][1] * footMtx[0][1]
 	               + footMtx[1][1] * footMtx[1][1]
