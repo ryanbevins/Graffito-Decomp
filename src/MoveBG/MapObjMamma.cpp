@@ -1247,8 +1247,8 @@ void TSandBombBase::control()
 		break;
 	}
 
-	if (unk144->mColCount == 0)
-		((TSandBomb*)unk144)->unk140 = 0;
+	if (trigger->mColCount == 0)
+		((TSandBomb*)trigger)->unk140 = 0;
 }
 
 BOOL TSandBombBase::grow()
