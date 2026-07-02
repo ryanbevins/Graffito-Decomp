@@ -1194,34 +1194,40 @@ void TSandBombBase::control()
 		break;
 	}
 	case 5: {
+		f32 explodeFrameSpeed = mExplodeFrameSpeed;
+		f32 frame0
+		    = unk144->getMActor()->getFrameCtrl(0)->getFrame();
 		unk144->getMActor()->getFrameCtrl(0)->setFrame(
-		    mExplodeFrameSpeed
-		    + unk144->getMActor()->getFrameCtrl(0)->getFrame());
+		    explodeFrameSpeed + frame0);
+		explodeFrameSpeed = mExplodeFrameSpeed;
+		f32 frame5
+		    = unk144->getMActor()->getFrameCtrl(5)->getFrame();
 		unk144->getMActor()->getFrameCtrl(5)->setFrame(
-		    mExplodeFrameSpeed
-		    + unk144->getMActor()->getFrameCtrl(5)->getFrame());
+		    explodeFrameSpeed + frame5);
+		explodeFrameSpeed = mExplodeFrameSpeed;
+		f32 frame3
+		    = unk144->getMActor()->getFrameCtrl(3)->getFrame();
 		unk144->getMActor()->getFrameCtrl(3)->setFrame(
-		    mExplodeFrameSpeed
-		    + unk144->getMActor()->getFrameCtrl(3)->getFrame());
+		    explodeFrameSpeed + frame3);
 		if (unk144->animIsFinished())
-			withering();
+			waitBeforeExplode();
 		break;
 	}
 	case 6: {
 		if (!isLifeTimerActive())
-			waitBeforeExplode();
+			explode();
 		break;
 	}
 	case 7:
-		explode();
+		exploding();
 		break;
 	case 8:
-		exploding();
+		expanded();
 		break;
 	case 2: {
 		SMSRumbleMgr->start(0x13, -1, (Vec*)&mPosition);
-		if (grow()) {
-			expanded();
+		if (withering()) {
+			withered();
 			SMSRumbleMgr->stop(0x13);
 		}
 		break;
@@ -1283,10 +1289,14 @@ void TSandBombBase::explode()
 
 void TSandBombBase::exploding()
 {
+	f32 explodeFrameSpeed = mExplodeFrameSpeed;
+	f32 frame0 = getMActor()->getFrameCtrl(0)->getFrame();
 	getMActor()->getFrameCtrl(0)->setFrame(
-	    mExplodeFrameSpeed + getMActor()->getFrameCtrl(0)->getFrame());
+	    explodeFrameSpeed + frame0);
+	explodeFrameSpeed = mExplodeFrameSpeed;
+	frame0 = unk144->getMActor()->getFrameCtrl(0)->getFrame();
 	unk144->getMActor()->getFrameCtrl(0)->setFrame(
-	    mExplodeFrameSpeed + unk144->getMActor()->getFrameCtrl(0)->getFrame());
+	    explodeFrameSpeed + frame0);
 
 	f32 dist = getDistanceXZ(*gpMarioPos);
 
@@ -1318,12 +1328,15 @@ void TSandBombBase::exploding()
 void TSandBombBase::expanded()
 {
 	TMapObjBase* trigger = unk144;
+	f32 speed           = unk150;
+	f32 frame           = trigger->getMActor()->getFrameCtrl(0)->getFrame();
 	trigger->getMActor()->getFrameCtrl(0)->setFrame(
-	    unk150 + trigger->getMActor()->getFrameCtrl(0)->getFrame());
+	    speed + frame);
 
+	const JGeometry::TVec3<f32>* pos = &unk144->mPosition;
 	if (gpMSound->gateCheck(0x20C6)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x20C6, &unk144->mPosition, 0,
-		                                          nullptr, 0, 4);
+		MSoundSESystem::MSoundSE::startSoundActor(0x20C6, pos, 0, nullptr, 0,
+		                                          4);
 	}
 
 	if (unk144->animIsFinished())
