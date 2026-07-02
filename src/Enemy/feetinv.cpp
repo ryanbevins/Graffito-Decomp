@@ -31,7 +31,7 @@ static inline f32 squareSum(const JGeometry::TVec3<f32>& v)
 	f32 yy = y * y;
 	f32 zz = z * z;
 	f32 xy = xx + yy;
-	return xy + zz;
+	return zz + xy;
 }
 
 void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
