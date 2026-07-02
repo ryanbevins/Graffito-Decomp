@@ -1343,12 +1343,12 @@ u32 TSandBomb::getSDLModelFlag() const { return 0; }
 
 u32 TSandBomb::touchWater(THitActor*)
 {
+	f32 firingFrameSpeed = TSandBombBase::mFiringFrameSpeed;
 	f32 frame0 = getMActor()->getFrameCtrl(0)->getFrame();
-	getMActor()->getFrameCtrl(0)->setFrame(TSandBombBase::mFiringFrameSpeed
-	                                       + frame0);
+	getMActor()->getFrameCtrl(0)->setFrame(frame0 + firingFrameSpeed);
+	firingFrameSpeed = TSandBombBase::mFiringFrameSpeed;
 	f32 frame5 = getMActor()->getFrameCtrl(5)->getFrame();
-	getMActor()->getFrameCtrl(5)->setFrame(TSandBombBase::mFiringFrameSpeed
-	                                       + frame5);
+	getMActor()->getFrameCtrl(5)->setFrame(frame5 + firingFrameSpeed);
 	getMActor()->getFrameCtrl(0);
 
 	soundBas(0x289A, 7.0f, TSandBombBase::mFiringFrameSpeed);
