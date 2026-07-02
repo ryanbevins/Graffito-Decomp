@@ -1482,7 +1482,7 @@ BOOL TSandBase::withering()
 	if (mScaling.y < mScaleMin)
 		mScaling.y = mScaleMin;
 
-	const JGeometry::TVec3<f32>* pos = &unk144->mPosition;
+	const JGeometry::TVec3<f32>* pos = &unk144->getPosition();
 	if (gpMSound->gateCheck(0x2099)) {
 		MSoundSESystem::MSoundSE::startSoundActor(0x2099, pos, 0, nullptr, 0, 4);
 	}
