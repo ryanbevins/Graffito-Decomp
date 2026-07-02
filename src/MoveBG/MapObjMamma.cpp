@@ -1357,7 +1357,7 @@ u32 TSandBomb::touchWater(THitActor*)
 	soundBas(0x289D, 150.0f, TSandBombBase::mFiringFrameSpeed);
 
 	if (getMActor()->curAnmEndsNext(0, 0)) {
-		((TMapObjBall*)unk138)->getDepthAtFloating();
+		unk138->grow();
 		startControlAnim(3);
 		startControlAnim(4);
 		startControlAnim(5);
