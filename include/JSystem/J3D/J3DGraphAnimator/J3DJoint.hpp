@@ -15,16 +15,28 @@ class J3DMaterial;
 
 class J3DMtxCalc {
 public:
+#ifdef J3DMTXCALC_BASE_OUT_OF_LINE
+	virtual void init(const Vec&, const Mtx&);
+	virtual void recursiveUpdate(J3DNode*);
+	virtual void recursiveCalc(J3DNode*);
+	virtual void recursiveEntry(J3DNode*);
+	virtual void calcTransform(u16, const J3DTransformInfo&);
+	virtual void calc(u16);
+#else
 	virtual void init(const Vec&, const Mtx&) { }
 	virtual void recursiveUpdate(J3DNode*) { }
 	virtual void recursiveCalc(J3DNode*) { }
 	virtual void recursiveEntry(J3DNode*) { }
 	virtual void calcTransform(u16, const J3DTransformInfo&) { }
 	virtual void calc(u16) { }
+#endif
 };
 
 class J3DMtxCalcAnm : public virtual J3DMtxCalc {
 public:
+#ifdef J3DMTXCALC_BASE_OUT_OF_LINE
+	J3DMtxCalcAnm(J3DAnmTransform* transform);
+#else
 	J3DMtxCalcAnm(J3DAnmTransform* transform)
 	{
 		for (int i = 0; i < 2; i++) {
@@ -33,6 +45,7 @@ public:
 		}
 		mOne[0] = transform;
 	}
+#endif
 
 	virtual ~J3DMtxCalcAnm()
 	{
@@ -56,7 +69,13 @@ class J3DMtxCalcBasic : public virtual J3DMtxCalc {
 public:
 	J3DMtxCalcBasic();
 
-	virtual ~J3DMtxCalcBasic() { }
+#ifdef J3DMTXCALC_BASE_OUT_OF_LINE
+	virtual ~J3DMtxCalcBasic();
+#else
+	virtual ~J3DMtxCalcBasic()
+	{
+	}
+#endif
 	virtual void init(const Vec& vec, const Mtx& mtx)
 	{
 		J3DSys::mCurrentS         = vec;
@@ -140,12 +159,22 @@ class J3DMtxCalcSoftimage : public J3DMtxCalcBasic {
 public:
 	J3DMtxCalcSoftimage() { }
 
-	virtual ~J3DMtxCalcSoftimage() { }
+#ifdef J3DMTXCALC_BASE_OUT_OF_LINE
+	virtual ~J3DMtxCalcSoftimage();
+#else
+	virtual ~J3DMtxCalcSoftimage()
+	{
+	}
+#endif
+#ifdef J3DMTXCALC_BASE_OUT_OF_LINE
+	virtual void init(const Vec& vec, const Mtx& mtx);
+#else
 	virtual void init(const Vec& vec, const Mtx& mtx)
 	{
 		J3DSys::mCurrentS = vec;
 		MTXCopy((Mtx&)mtx, J3DSys::mCurrentMtx);
 	}
+#endif
 	virtual void calcTransform(u16, const J3DTransformInfo&);
 };
 
@@ -158,8 +187,14 @@ public:
 	{
 	}
 
-	virtual ~J3DMtxCalcSoftimageAnm() { }
+	virtual ~J3DMtxCalcSoftimageAnm()
+	{
+	}
+#ifdef J3DMTXCALC_BASE_OUT_OF_LINE
+	virtual void calc(u16 v);
+#else
 	virtual void calc(u16 v) { J3DMtxCalcAnm::calc(v); }
+#endif
 };
 
 J3DMtxCalc* J3DNewMtxCalcAnm(u32, J3DAnmTransform*);
