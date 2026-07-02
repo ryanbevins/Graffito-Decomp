@@ -1340,7 +1340,7 @@ void TSandBombBase::expanded()
 	f32 speed           = unk150;
 	f32 frame           = trigger->getMActor()->getFrameCtrl(0)->getFrame();
 	trigger->getMActor()->getFrameCtrl(0)->setFrame(
-	    speed + frame);
+	    frame + speed);
 
 	const JGeometry::TVec3<f32>* pos = &unk144->mPosition;
 	if (gpMSound->gateCheck(0x20C6)) {
