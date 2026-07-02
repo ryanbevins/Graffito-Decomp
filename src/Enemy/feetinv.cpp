@@ -206,8 +206,10 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	kneeToFoot.scale(xAxisLen);
 
 	kneeMtx[0][0] = kneeToFoot.x;
-	kneeMtx[1][0] = kneeToFoot.y;
-	kneeMtx[2][0] = kneeToFoot.z;
+	f32 kneeToFootY = kneeToFoot.y;
+	kneeMtx[1][0] = kneeToFootY;
+	f32 kneeToFootZ = kneeToFoot.z;
+	kneeMtx[2][0] = kneeToFootZ;
 
 	// new knee Z-axis = normalize(cross(xAxis, yAxis)) scaled by old Z length
 	{
@@ -215,9 +217,9 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 		kneeYAxis.x = kneeMtx[0][1];
 		kneeYAxis.y = kneeMtx[1][1];
 		kneeYAxis.z = kneeMtx[2][1];
-		newKneeZAxis.set(kneeToFoot.y * kneeYAxis.z - kneeToFoot.z * kneeYAxis.y,
-		                  kneeToFoot.z * kneeYAxis.x - kneeToFoot.x * kneeYAxis.z,
-		                  kneeToFoot.x * kneeYAxis.y - kneeToFoot.y * kneeYAxis.x);
+		newKneeZAxis.set(kneeToFootY * kneeYAxis.z - kneeToFootZ * kneeYAxis.y,
+		                  kneeToFootZ * kneeYAxis.x - kneeToFoot.x * kneeYAxis.z,
+		                  kneeToFoot.x * kneeYAxis.y - kneeToFootY * kneeYAxis.x);
 		newKneeZAxis.normalize();
 		newKneeZAxis.scale(zAxisLen);
 	}
