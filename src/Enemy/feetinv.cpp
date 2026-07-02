@@ -207,16 +207,11 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 
 	// new knee Z-axis = normalize(cross(xAxis, yAxis)) scaled by old Z length
 	{
-		f32 fx = kneeToFoot.x;
-		f32 fy = kneeToFoot.y;
-		f32 fz = kneeToFoot.z;
-		f32 yx = kneeMtx[0][1];
-		f32 yy = kneeMtx[1][1];
-		f32 yz = kneeMtx[2][1];
-
-		newKneeZAxis.x = fy * yz - fz * yy;
-		newKneeZAxis.y = fz * yx - fx * yz;
-		newKneeZAxis.z = fx * yy - fy * yx;
+		JGeometry::TVec3<f32> kneeYAxis;
+		kneeYAxis.x = kneeMtx[0][1];
+		kneeYAxis.y = kneeMtx[1][1];
+		kneeYAxis.z = kneeMtx[2][1];
+		newKneeZAxis.cross(kneeToFoot, kneeYAxis);
 		newKneeZAxis.normalize();
 		newKneeZAxis.scale(zAxisLen);
 	}
@@ -265,16 +260,15 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 
 	// foot X-axis = normalize(cross(Y, Z)) * xLen
 	{
-		f32 fx = newFootYAxis.x;
-		f32 fy = newFootYAxis.y;
-		f32 fz = newFootYAxis.z;
-		f32 zx = footMtx[0][2];
-		f32 zy = footMtx[1][2];
-		f32 zz = footMtx[2][2];
-
-		newFootXAxis.x = fy * zz - fz * zy;
-		newFootXAxis.y = fz * zx - fx * zz;
-		newFootXAxis.z = fx * zy - fy * zx;
+		JGeometry::TVec3<f32> footYAxis;
+		footYAxis.x = newFootYAxis.x;
+		footYAxis.z = newFootYAxis.z;
+		footYAxis.y = newFootYAxis.y;
+		JGeometry::TVec3<f32> footZAxis;
+		footZAxis.x = footMtx[0][2];
+		footZAxis.y = footMtx[1][2];
+		footZAxis.z = footMtx[2][2];
+		newFootXAxis.cross(footYAxis, footZAxis);
 		newFootXAxis.normalize();
 		newFootXAxis.scale(footXLen);
 	}
