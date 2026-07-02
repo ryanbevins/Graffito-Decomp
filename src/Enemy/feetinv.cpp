@@ -174,9 +174,9 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	JGeometry::TVec3<f32> kneeToFoot;
 	kneeToFoot = footPos;
 
-	f32 zAxisLen = kneeMtx[0][2] * kneeMtx[0][2]
-	             + kneeMtx[1][2] * kneeMtx[1][2]
-	             + kneeMtx[2][2] * kneeMtx[2][2];
+	f32 zAxisLen = kneeMtx[0][2] * kneeMtx[0][2];
+	zAxisLen += kneeMtx[1][2] * kneeMtx[1][2];
+	zAxisLen += kneeMtx[2][2] * kneeMtx[2][2];
 	if (zAxisLen > 0.0f) {
 		f64 root = __frsqrte(zAxisLen);
 		volatile f32 result
@@ -184,9 +184,9 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 		zAxisLen = result;
 	}
 
-	f32 xAxisLen = kneeMtx[0][0] * kneeMtx[0][0]
-	             + kneeMtx[1][0] * kneeMtx[1][0]
-	             + kneeMtx[2][0] * kneeMtx[2][0];
+	f32 xAxisLen = kneeMtx[0][0] * kneeMtx[0][0];
+	xAxisLen += kneeMtx[1][0] * kneeMtx[1][0];
+	xAxisLen += kneeMtx[2][0] * kneeMtx[2][0];
 	if (xAxisLen > 0.0f) {
 		f64 root = __frsqrte(xAxisLen);
 		volatile f32 result
@@ -227,9 +227,9 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	// foot Y-axis = -groundNormal * footYLen
 	newFootYAxis = groundData->mNormal;
 
-	f32 footYLen = footMtx[0][1] * footMtx[0][1]
-	             + footMtx[1][1] * footMtx[1][1]
-	             + footMtx[2][1] * footMtx[2][1];
+	f32 footYLen = footMtx[0][1] * footMtx[0][1];
+	footYLen += footMtx[1][1] * footMtx[1][1];
+	footYLen += footMtx[2][1] * footMtx[2][1];
 	if (footYLen > 0.0f) {
 		f64 root = __frsqrte(footYLen);
 		volatile f32 result
@@ -237,9 +237,9 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 		footYLen = result;
 	}
 
-	f32 footXLen = footMtx[0][0] * footMtx[0][0]
-	             + footMtx[1][0] * footMtx[1][0]
-	             + footMtx[2][0] * footMtx[2][0];
+	f32 footXLen = footMtx[0][0] * footMtx[0][0];
+	footXLen += footMtx[1][0] * footMtx[1][0];
+	footXLen += footMtx[2][0] * footMtx[2][0];
 	if (footXLen > 0.0f) {
 		f64 root = __frsqrte(footXLen);
 		volatile f32 result
