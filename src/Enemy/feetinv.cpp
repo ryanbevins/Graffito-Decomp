@@ -22,11 +22,14 @@ static inline f32 sqrtEstimate(f32 mag)
 
 static inline f32 squareSum(const JGeometry::TVec3<f32>& v)
 {
-	f32 x = v.x * v.x;
-	f32 y = v.y * v.y;
-	f32 z = v.z * v.z;
-	f32 xy = x + y;
-	return xy + z;
+	f32 x = v.x;
+	f32 y = v.y;
+	f32 z = v.z;
+	f32 xx = x * x;
+	f32 yy = y * y;
+	f32 zz = z * z;
+	f32 xy = xx + yy;
+	return xy + zz;
 }
 
 void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
