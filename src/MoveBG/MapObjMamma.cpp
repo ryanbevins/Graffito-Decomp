@@ -1228,7 +1228,7 @@ void TSandBombBase::control()
 		break;
 	case 2: {
 		SMSRumbleMgr->start(0x13, -1, (Vec*)&mPosition);
-		if (withering()) {
+		if ((u8)withering()) {
 			withered();
 			SMSRumbleMgr->stop(0x13);
 		}
