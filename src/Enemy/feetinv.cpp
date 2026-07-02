@@ -14,17 +14,6 @@ static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
 static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
 static u32 dummy1210[4] = { 0, 2, 1, 3 };
 
-static inline f32 sqrtPositive(f32 mag)
-{
-	if (mag > 0.0f) {
-		f64 root = __frsqrte(mag);
-		volatile f32 result
-		    = 0.5f * root * (3.0f - mag * (root * root)) * mag;
-		return result;
-	}
-	return mag;
-}
-
 static inline f32 sqrtEstimate(f32 mag)
 {
 	volatile f32 result = mag * __frsqrte(mag);
@@ -183,12 +172,24 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	f32 zAxisLenSq = kneeMtx[0][2] * kneeMtx[0][2]
 	               + kneeMtx[1][2] * kneeMtx[1][2]
 	               + kneeMtx[2][2] * kneeMtx[2][2];
-	f32 zAxisLen = sqrtPositive(zAxisLenSq);
+	f32 zAxisLen = zAxisLenSq;
+	if (zAxisLen > 0.0f) {
+		f64 root = __frsqrte(zAxisLen);
+		volatile f32 result
+		    = 0.5f * root * (3.0f - zAxisLen * (root * root)) * zAxisLen;
+		zAxisLen = result;
+	}
 
 	f32 xAxisLenSq = kneeMtx[0][0] * kneeMtx[0][0]
 	               + kneeMtx[1][0] * kneeMtx[1][0]
 	               + kneeMtx[2][0] * kneeMtx[2][0];
-	f32 xAxisLen = sqrtPositive(xAxisLenSq);
+	f32 xAxisLen = xAxisLenSq;
+	if (xAxisLen > 0.0f) {
+		f64 root = __frsqrte(xAxisLen);
+		volatile f32 result
+		    = 0.5f * root * (3.0f - xAxisLen * (root * root)) * xAxisLen;
+		xAxisLen = result;
+	}
 
 	kneeToFoot.x -= newKneePos.x;
 	kneeToFoot.y -= newKneePos.y;
@@ -231,12 +232,24 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	f32 footYLenSq = footMtx[0][1] * footMtx[0][1]
 	               + footMtx[1][1] * footMtx[1][1]
 	               + footMtx[2][1] * footMtx[2][1];
-	f32 footYLen = sqrtPositive(footYLenSq);
+	f32 footYLen = footYLenSq;
+	if (footYLen > 0.0f) {
+		f64 root = __frsqrte(footYLen);
+		volatile f32 result
+		    = 0.5f * root * (3.0f - footYLen * (root * root)) * footYLen;
+		footYLen = result;
+	}
 
 	f32 footXLenSq = footMtx[0][0] * footMtx[0][0]
 	               + footMtx[1][0] * footMtx[1][0]
 	               + footMtx[2][0] * footMtx[2][0];
-	f32 footXLen = sqrtPositive(footXLenSq);
+	f32 footXLen = footXLenSq;
+	if (footXLen > 0.0f) {
+		f64 root = __frsqrte(footXLen);
+		volatile f32 result
+		    = 0.5f * root * (3.0f - footXLen * (root * root)) * footXLen;
+		footXLen = result;
+	}
 
 	newFootYAxis.x = -newFootYAxis.x;
 	newFootYAxis.y = -newFootYAxis.y;
