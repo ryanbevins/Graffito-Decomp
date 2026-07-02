@@ -31,6 +31,15 @@ static inline f32 sqrtEstimate(f32 mag)
 	return result;
 }
 
+static inline f32 squareSum(const JGeometry::TVec3<f32>& v)
+{
+	f32 x = v.x * v.x;
+	f32 y = v.y * v.y;
+	f32 z = v.z * v.z;
+	f32 xy = x + y;
+	return xy + z;
+}
+
 void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
                  f32 threshold)
 {
@@ -86,7 +95,7 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	kneeFromHip.z -= hipZ;
 	f32 kneeY = kneeFromHip.y;
 	f32 kneeZ = kneeFromHip.z;
-	f32 thigh = JGeometry::TUtil<f32>::sqrt(kneeFromHip.squared());
+	f32 thigh = JGeometry::TUtil<f32>::sqrt(squareSum(kneeFromHip));
 
 	footFromHip = footPos;
 	footFromHip.x -= hipPos.x;
@@ -94,7 +103,7 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	footFromHip.z -= hipZ;
 	f32 footY = footFromHip.y;
 	f32 footZ = footFromHip.z;
-	f32 hipFoot = JGeometry::TUtil<f32>::sqrt(footFromHip.squared());
+	f32 hipFoot = JGeometry::TUtil<f32>::sqrt(squareSum(footFromHip));
 
 	cross.x = footY * kneeZ - footZ * kneeY;
 	cross.y = footZ * kneeFromHip.x - footFromHip.x * kneeZ;
