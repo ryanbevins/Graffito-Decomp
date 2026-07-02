@@ -9,6 +9,7 @@ class TShiningStone;
 class TMapObjBall;
 class TJointObj;
 class TJointModel;
+class TSandBase;
 
 class TSandLeaf : public TMapObjBase {
 public:
@@ -21,7 +22,7 @@ public:
 	}
 
 public:
-	/* 0x138 */ u32 unk138;
+	/* 0x138 */ TSandBase* unk138;
 };
 
 class TSandBase : public TMapObjBase {

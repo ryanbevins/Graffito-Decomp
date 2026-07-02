@@ -1001,7 +1001,7 @@ void TSandCastle::initMapObj()
 void TSandCastle::loadAfter()
 {
 	unk144 = findTriggerActor();
-	((TSandLeaf*)unk144)->unk138 = (u32)this;
+	((TSandLeaf*)unk144)->unk138 = this;
 	unk144->appear();
 
 	unk158 = findMapObj("ステージ切替（砂の城）");
@@ -1167,7 +1167,7 @@ void TSandBombBase::initMapObj()
 void TSandBombBase::loadAfter()
 {
 	unk144 = findTriggerActor();
-	((TSandLeaf*)unk144)->unk138 = (u32)this;
+	((TSandLeaf*)unk144)->unk138 = this;
 	unk144->appear();
 }
 
@@ -1383,7 +1383,7 @@ void TSandLeafBase::initMapObj()
 	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 	unk144 = TMapObjBaseManager::newAndRegisterObj("SandLeaf", mPosition,
 	                                              mRotation, scale);
-	((TSandLeaf*)unk144)->unk138 = (u32)this;
+	((TSandLeaf*)unk144)->unk138 = this;
 	unk144->appear();
 }
 
@@ -1505,6 +1505,6 @@ void TSandLeaf::control()
 
 u32 TSandLeaf::touchWater(THitActor*)
 {
-	((TMapObjBase*)unk138)->makeObjAppeared();
+	unk138->grow();
 	return 1;
 }
