@@ -167,8 +167,10 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	}
 
 	kneeMtx[0][3] = newKneePos.x;
-	kneeMtx[1][3] = newKneePos.y;
-	kneeMtx[2][3] = newKneePos.z;
+	f32 newKneePosY = newKneePos.y;
+	kneeMtx[1][3] = newKneePosY;
+	f32 newKneePosZ = newKneePos.z;
+	kneeMtx[2][3] = newKneePosZ;
 
 	// new knee X-axis (col 0) = direction from new knee to foot, scaled to original X length
 	JGeometry::TVec3<f32> kneeToFoot;
@@ -195,8 +197,8 @@ void FeetInvCalc(J3DModel* model, u16 hipIdx, u16 kneeIdx, u16 footIdx,
 	}
 
 	kneeToFoot.x -= newKneePos.x;
-	kneeToFoot.y -= newKneePos.y;
-	kneeToFoot.z -= newKneePos.z;
+	kneeToFoot.y -= newKneePosY;
+	kneeToFoot.z -= newKneePosZ;
 
 	kneeToFoot.normalize();
 	kneeToFoot.scale(xAxisLen);
