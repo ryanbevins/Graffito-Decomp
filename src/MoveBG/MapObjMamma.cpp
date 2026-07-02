@@ -1296,8 +1296,9 @@ void TSandBombBase::exploding()
 	getMActor()->getFrameCtrl(0)->setFrame(
 	    explodeFrameSpeed + frame0);
 	explodeFrameSpeed = mExplodeFrameSpeed;
-	frame0 = unk144->getMActor()->getFrameCtrl(0)->getFrame();
-	unk144->getMActor()->getFrameCtrl(0)->setFrame(
+	TMapObjBase* trigger = unk144;
+	frame0 = trigger->getMActor()->getFrameCtrl(0)->getFrame();
+	trigger->getMActor()->getFrameCtrl(0)->setFrame(
 	    explodeFrameSpeed + frame0);
 
 	f32 dist = getDistanceXZ(*gpMarioPos);
@@ -1308,7 +1309,13 @@ void TSandBombBase::exploding()
 	else
 		isType = false;
 
-	if (isType) {
+	bool skipThrow;
+	if (isType)
+		skipThrow = true;
+	else
+		skipThrow = false;
+
+	if (!skipThrow) {
 		if (getMActor()->getFrameCtrl(0)->getFrame() < 80.0f) {
 			f32 grLevel = SMS_GetMarioGrLevel();
 			if (grLevel > gpMarioPos->y - 30.0f) {
