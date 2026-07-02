@@ -37,11 +37,23 @@ static const char* MtxCalcTypeName[4]
 	    "MActorMtxCalcType_User "
         "\x83\x86\x81\x5B\x83\x55\x81\x5B\x92\xE8\x8B\x60" };
 
+static inline BOOL checkRotateStartInput(TMario* mario, int* stickDir)
+{
+	BOOL result = mario->checkStickRotate(stickDir);
+	return result;
+}
+
+static inline BOOL checkRotateStartTrigger(TMario* mario, int* stickDir)
+{
+	BOOL result = checkRotateStartInput(mario, stickDir);
+	return result;
+}
+
 // considerRotateStart - 0x8013C118
 BOOL TMario::considerRotateStart()
 {
 	int stickDir;
-	if (checkStickRotate(&stickDir) != 1)
+	if (checkRotateStartTrigger(this, &stickDir) != 1)
 		goto fail;
 
 	TWaterGun* gun;

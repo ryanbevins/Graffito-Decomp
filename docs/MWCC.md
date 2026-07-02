@@ -110,13 +110,15 @@ nested helper call.
   source-order slots emitted both helpers at 100%. A temporary `Equivalent`
   source-link proof passed.
 
-### Inline-result materialization charges +8 stack bytes per nested layer (lever for inline stack inflation)
+### Inline-result materialization is a source-level lever for inline stack inflation
 
-**Rule:** in MWCC 1.2.5, when an inline function's *return value is materialized
-into a local* in the caller — or forwarded through another inline layer — the
-caller's stack frame grows by **+8 bytes**, even though nothing is ever spilled.
-The emitted body code is identical; only the frame size changes. Nesting inline
-calls stacks the effect (+8 per layer).
+**Rule:** in MWCC 1.2.5, when an inline function's *return value is
+materialized into a local* in the caller, or forwarded through another inline
+layer whose result is also materialized, the caller's stack frame can grow even
+when no extra code or live spill is emitted. Additional nested materialized
+layers often add **+8 bytes** each, but the first jump can interact with the
+existing frame minimum/alignment, so calibrate with objdiff instead of assuming
+the exact total from the layer count alone.
 
 **Worked example — `TEggGenerator::control` (`Enemy/egggen`):** target frame is
 `0x30`; plain typed code produces `0x18`. Adding inline layers walked the frame
@@ -129,10 +131,16 @@ distance and a two-level state check.
 **Use:** a real source-level lever for the "stack-frame inflation from inlining"
 pattern that was previously skipped as hack-only. Instead of a `_pad[N]` hack,
 reconstruct the inline structure the target frame implies — add plausible helper
-inlines and calibrate by frame size (+8 per materialized inline result).
+inlines and calibrate by frame size.
 
-**Confidence:** confirmed on 1 TU (egggen). Verify on 2+ more stuck
-stack-inflation TUs before treating the exact +8 figure as universal.
+**Additional citation — `TMario::considerRotateStart` (`Player/MarioRun`):**
+direct source produced a target-identical instruction stream but a `0x18` frame
+where target used `0x30`. Routing the initial `checkStickRotate(&stickDir)`
+predicate through two nested `static inline` helpers that materialize the
+`BOOL` result in each layer made the function byte-identical with no emitted
+helper symbols. A third nested layer preserved the body but overshot the frame
+to `0x38`, confirming this is a real frame-control lever and that the exact
+delta must be measured per site.
 
 
 ### Passing a just-returned float directly as a later argument can force immediate FPR argument shuffle
