@@ -526,25 +526,11 @@ void TBaseNPC::npcTalkIn()
 {
 	mLiveFlag |= 0x00080000;
 	if (mActorType != 0x0400001C && mActorType != 0x0400001D) {
-		bool sunDown = false;
-		if (isSunflower() && (unk1D8 & 0x2))
-			sunDown = true;
-		if (!sunDown) {
-			bool peach = false;
-			if (mActorType == 0x04000018 && (unk1D8 & 0x2))
-				peach = true;
-			if (peach) {
+		if (!(isSunflower() && (unk1D8 & 0x2))) {
+			if (mActorType == 0x04000018 && (unk1D8 & 0x2)) {
 				requestNpcAnm_(asKind(0x1A), asBlend(1));
 			} else {
-				int kind;
-				if (mActionFlag & 0x400) {
-					kind = 1;
-				} else if ((mActionFlag & 0x1) && !(mActionFlag & 0x4)) {
-					kind = 0x13;
-				} else {
-					kind = 6;
-				}
-				requestNpcAnm_(asKind(kind), asBlend(1));
+				requestTalkAnm_();
 			}
 		}
 	}
