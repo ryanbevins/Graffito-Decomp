@@ -266,14 +266,17 @@ void TBaseNPC::requestNpcAnm_(EnumNpcAnmKind kind,
 
 void TBaseNPC::setKeepAnm_()
 {
-	int prevKind            = mAnmRequest->mKind;
-	int prevBlend           = mAnmRequest->mBlend;
-	mAnmRequest->mKind      = -1;
-	if (prevKind != -1) {
-		if (prevKind == unkD0->mCurrentAnmKind) {
+	TNpcAnmRequest* req = mAnmRequest;
+	EnumNpcAnmKind prevKind
+	    = (EnumNpcAnmKind)req->mKind;
+	EnumNpcStopMotionBlendOnOff prevBlend
+	    = (EnumNpcStopMotionBlendOnOff)req->mBlend;
+	req->mKind = -1;
+	if ((int)prevKind != -1) {
+		if ((int)prevKind == unkD0->mCurrentAnmKind) {
 			mAnmRequest->mKind = -1;
 		} else {
-			setNpcAnm_(asKind(prevKind), asBlend(prevBlend));
+			setNpcAnm_(prevKind, prevBlend);
 		}
 	}
 }
