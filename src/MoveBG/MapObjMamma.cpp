@@ -762,7 +762,7 @@ void TLeanMirror::control()
 	switch (mState) {
 	case 1:
 		controlShake();
-		f32 volume1 = vecLength(unk14C);
+		f32 volume1 = __fabsf(vecLength(unk14C));
 		if (gpMSound->gateCheck(0x3048)) {
 			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 			    0x3048, &mPosition, nullptr, volume1, 0, 0, nullptr, 0, 4);
@@ -770,7 +770,7 @@ void TLeanMirror::control()
 		break;
 	case 2:
 		controlGoTarget();
-		f32 volume2 = vecLength(unk14C);
+		f32 volume2 = __fabsf(vecLength(unk14C));
 		if (gpMSound->gateCheck(0x304A)) {
 			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 			    0x304A, &mPosition, nullptr, volume2, 0, 0, nullptr, 0, 4);
@@ -778,11 +778,12 @@ void TLeanMirror::control()
 		break;
 	case 3:
 		if (!(mLifeTimer > 0 ? true : false)) {
-			if (unk17C->unk74 < 3)
+			TShiningStone* stone = unk17C;
+			if (stone->unk74 < 3)
 				MSBgm::setTrackVolume(0, 1.0f, 10, 0);
 
-			if (unk17C->unk7C > 0.0f)
-				unk17C->unk78->mChildSpawnRate = unk17C->unk7C;
+			if (stone->unk7C > 0.0f)
+				stone->unk78->mChildSpawnRate = stone->unk7C;
 
 			mState = 4;
 		}
