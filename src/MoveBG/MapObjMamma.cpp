@@ -762,18 +762,18 @@ void TLeanMirror::control()
 	switch (mState) {
 	case 1:
 		controlShake();
+		f32 volume1 = vecLength(unk14C);
 		if (gpMSound->gateCheck(0x3048)) {
 			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-			    0x3048, &mPosition, nullptr, vecLength(unk14C), 0, 0, nullptr,
-			    0, 4);
+			    0x3048, &mPosition, nullptr, volume1, 0, 0, nullptr, 0, 4);
 		}
 		break;
 	case 2:
 		controlGoTarget();
+		f32 volume2 = vecLength(unk14C);
 		if (gpMSound->gateCheck(0x304A)) {
 			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-			    0x304A, &mPosition, nullptr, vecLength(unk14C), 0, 0, nullptr,
-			    0, 4);
+			    0x304A, &mPosition, nullptr, volume2, 0, 0, nullptr, 0, 4);
 		}
 		break;
 	case 3:
