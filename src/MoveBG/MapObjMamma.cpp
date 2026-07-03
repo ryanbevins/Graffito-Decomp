@@ -1436,14 +1436,15 @@ void TSandLeafBase::control()
 	switch (mState) {
 	case 2: {
 		SMSRumbleMgr->start(0x13, -1, (Vec*)&mPosition);
-		if (grow()) {
+		if ((u8)withering()) {
 			SMSRumbleMgr->stop(0x13);
 			mMapCollisionManager->changeCollision(0);
-			TMapCollisionBase* col = mMapCollisionManager->unk8;
+			TMapCollisionManager* mgr = mMapCollisionManager;
 			Mtx mtx;
 			MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z,
 			            mRotation.x, mRotation.y, mRotation.z, mScaling.x,
 			            mScaling.y, mScaling.z);
+			TMapCollisionBase* col = mgr->unk8;
 			PSMTXCopy(mtx, col->unk20);
 			col->setUp();
 			mLifeTimer = unk140;
@@ -1455,9 +1456,10 @@ void TSandLeafBase::control()
 		if (!isLifeTimerActive() && unk144->animIsFinished()) {
 			unk144->awake();
 			unk144->startAnim(1);
+			const Vec* soundPos = (Vec*)&unk144->mPosition;
 			if (gpMSound->gateCheck(0x3802)) {
 				MSoundSESystem::MSoundSE::startSoundActor(
-				    0x3802, &unk144->mPosition, 0, nullptr, 0, 4);
+				    0x3802, soundPos, 0, nullptr, 0, 4);
 			}
 			mState = 5;
 		}
@@ -1501,12 +1503,14 @@ BOOL TSandLeafBase::grow()
 	}
 
 	f32 rate = SMSGetAnmFrameRate();
-	getMActorInline(unk144)->getFrameCtrl(0)->setFrame(
-	    rate + getMActorInline(unk144)->getFrameCtrl(0)->getFrame());
+	TMapObjBase* leaf = unk144;
+	getMActorInline(leaf)->getFrameCtrl(0)->setFrame(
+	    rate + getMActorInline(leaf)->getFrameCtrl(0)->getFrame());
 	SMSRumbleMgr->start(0x15, 5, (Vec*)&mPosition);
+	const Vec* soundPos = (Vec*)&unk144->mPosition;
 	if (gpMSound->gateCheck(0x2099)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x2099, &unk144->mPosition, 0,
-		                                          nullptr, 0, 4);
+		MSoundSESystem::MSoundSE::startSoundActor(0x2099, soundPos, 0, nullptr,
+		                                          0, 4);
 	}
 	mLifeTimer = mWitherTime;
 }
