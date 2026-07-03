@@ -1084,12 +1084,14 @@ void TSandCastle::explode()
 void TSandCastle::expanded()
 {
 	TMapObjBase* trigger = unk144;
-	trigger->getMActor()->getFrameCtrl(0)->setFrame(
-	    unk150 + trigger->getMActor()->getFrameCtrl(0)->getFrame());
+	f32 speed           = unk150;
+	f32 frame           = trigger->getMActor()->getFrameCtrl(0)->getFrame();
+	trigger->getMActor()->getFrameCtrl(0)->setFrame(frame + speed);
 
+	const JGeometry::TVec3<f32>* pos = &unk144->mPosition;
 	if (gpMSound->gateCheck(0x20C6)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x20C6, &unk144->mPosition, 0,
-		                                          nullptr, 0, 4);
+		MSoundSESystem::MSoundSE::startSoundActor(0x20C6, pos, 0, nullptr, 0,
+		                                          4);
 	}
 
 	if (unk144->animIsFinished())
