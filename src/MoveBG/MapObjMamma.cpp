@@ -539,14 +539,14 @@ u32 TMammaBlockRotate::touchWater(THitActor*)
 
 TShiningStone::TShiningStone(const char* name)
     : THitActor(name)
-    , unk70(0)
-    , unk71(0)
-    , unk72(0)
-    , unk73(0)
     , unk74(0)
     , unk78(0)
     , unk7C(0.0f)
 {
+	unk70 = 0;
+	unk71 = 0;
+	unk72 = 0;
+	unk73 = 0;
 }
 
 void TShiningStone::load(JSUMemoryInputStream& stream)
