@@ -243,6 +243,9 @@ void TGoalWatermelon::control()
 {
 	TMapObjBase::control();
 	switch (mState) {
+	case 0:
+	case 1:
+		break;
 	case 2:
 		if (unk13C->animIsFinished()) {
 			gpItemManager->makeShineAppearWithDemoOffset(
@@ -250,6 +253,8 @@ void TGoalWatermelon::control()
 			    0.0f);
 			mState = 3;
 		}
+		break;
+	case 3:
 		break;
 	default:
 		break;
