@@ -1176,17 +1176,15 @@ bool TBaseNPC::sunflowerReviving()
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
 			unk1D8 &= ~0x2;
 			if (mLiveFlag & 0x80000) {
-				int kind;
+				EnumNpcAnmKind kind;
 				if (mActionFlag & 0x400) {
-					kind = 1;
-				} else if (!(mActionFlag & 0x1)) {
-					kind = 6;
-				} else if (mActionFlag & 0x4) {
-					kind = 6;
+					kind = asKind(1);
+				} else if ((mActionFlag & 0x1) && !(mActionFlag & 0x4)) {
+					kind = asKind(0x13);
 				} else {
-					kind = 0x13;
+					kind = asKind(6);
 				}
-				requestNpcAnm_(asKind(kind), asBlend(1));
+				setNpcAnm_(kind, asBlend(1));
 			} else {
 				npcWaitIn();
 			}
