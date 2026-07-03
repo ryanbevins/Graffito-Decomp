@@ -571,11 +571,7 @@ void TBaseNPC::npcTalking()
 		revive = true;
 	if (revive && unkD0->mCurrentAnmKind == 0x1A
 	    && mMActor->isCurAnmAlreadyEnd(0) && (unk1D8 & 0x2)) {
-		unk1D8 &= ~0x2;
-		unk1D8 |= 0x4;
-		unkD0->unk18 = (const TAnmBckMapping*)sIndividualPeachBck;
-		unkD0->unk1C = (const TAnmBtpMapping*)sIndividualPeachBtp;
-		requestNpcAnm_(asKind(6), asBlend(0));
+		peachTiredOut_();
 	}
 }
 
@@ -590,11 +586,7 @@ void TBaseNPC::npcTalkOut()
 	if (mActorType == 0x04000018 && (unk1D8 & 0x2))
 		peach = true;
 	if (peach && (unk1D8 & 0x2)) {
-		unk1D8 &= ~0x2;
-		unk1D8 |= 0x4;
-		unkD0->unk18 = (const TAnmBckMapping*)sIndividualPeachBck;
-		unkD0->unk1C = (const TAnmBtpMapping*)sIndividualPeachBtp;
-		requestNpcAnm_(asKind(6), asBlend(0));
+		peachTiredOut_();
 	}
 
 	if (mActionFlag & 0x200) {
@@ -1134,6 +1126,17 @@ void TBaseNPC::peachTiredIn_()
 		return;
 	unk1D8 |= 0x2;
 	requestNpcAnm_(asKind(0x10), asBlend(1));
+}
+
+inline void TBaseNPC::peachTiredOut_()
+{
+	if (!(unk1D8 & 0x2))
+		return;
+	unk1D8 &= ~0x2;
+	unk1D8 |= 0x4;
+	unkD0->unk18 = (const TAnmBckMapping*)sIndividualPeachBck;
+	unkD0->unk1C = (const TAnmBtpMapping*)sIndividualPeachBtp;
+	requestNpcAnm_(asKind(6), asBlend(0));
 }
 
 void TBaseNPC::sunflowerDownIn_()
