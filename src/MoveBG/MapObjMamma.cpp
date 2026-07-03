@@ -1198,19 +1198,19 @@ void TSandBombBase::control()
 		f32 frame0
 		    = trigger->getMActor()->getFrameCtrl(0)->getFrame();
 		trigger->getMActor()->getFrameCtrl(0)->setFrame(
-		    explodeFrameSpeed + frame0);
+		    frame0 + explodeFrameSpeed);
 		explodeFrameSpeed = mExplodeFrameSpeed;
 		TMapObjBase* trigger5 = unk144;
 		f32 frame5
 		    = trigger5->getMActor()->getFrameCtrl(5)->getFrame();
 		trigger5->getMActor()->getFrameCtrl(5)->setFrame(
-		    explodeFrameSpeed + frame5);
+		    frame5 + explodeFrameSpeed);
 		explodeFrameSpeed = mExplodeFrameSpeed;
 		TMapObjBase* trigger3 = unk144;
 		f32 frame3
 		    = trigger3->getMActor()->getFrameCtrl(3)->getFrame();
 		trigger3->getMActor()->getFrameCtrl(3)->setFrame(
-		    explodeFrameSpeed + frame3);
+		    frame3 + explodeFrameSpeed);
 		if (unk144->animIsFinished())
 			waitBeforeExplode();
 		break;
