@@ -6215,6 +6215,17 @@ FPR rows remained. `mwcc_dump.py` shows the current source assigns
 `explodeFrameSpeed` to `f30` and the frame temps (`@1360`/`@1364`) to `f31`, so
 simple local splitting does not raise speed priority.
 
+**Non-confirming local-lifetime trials.** `mario/MoveBG/MapObjMamma`
+`TSandBombBase::{expanded,exploding,control}` (2026-07-03 MNL) did not respond
+to three small lifetime/source-shape variants: nesting the `expanded()` frame
+getter inside the `setFrame()` argument regressed to 99.35% by reintroducing a
+commutative-source-swap row; predeclaring the `exploding()` throw `TVec3` near
+the distance local and assigning its fields only at the throw site was neutral
+at 99.64%; splitting `control()` case-1 into `frame` then `newFrame` was neutral
+at 99.62%. These variants did not move the saved-FPR assignment or frame-size
+residue, so the remaining sand-family mismatch likely needs a different lever
+than simple local lifetime widening/narrowing.
+
 **Experiment to confirm/refute.** Find a second near-match where target and
 build agree on instruction structure but swap two saved FPR locals. Toggle only
 predeclaration order while preserving evaluation order and verify whether the
