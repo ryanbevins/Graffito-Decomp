@@ -1200,18 +1200,24 @@ void TBaseNPC::monteMESetAnmWhenFar()
 		break;
 
 	case 2:
-		if (mMActor->isCurAnmAlreadyEnd(0))
-			requestNpcAnm_(asKind(1), asBlend(0));
+		if (mMActor->isCurAnmAlreadyEnd(0)) {
+			EnumNpcAnmKind kind = asKind(1);
+			requestNpcAnm_(kind, asBlend(0));
+		}
 		break;
 
 	case 3:
-		if (mMActor->isCurAnmAlreadyEnd(0))
-			requestNpcAnm_(asKind(2), asBlend(0));
+		if (mMActor->isCurAnmAlreadyEnd(0)) {
+			EnumNpcAnmKind kind = asKind(2);
+			requestNpcAnm_(kind, asBlend(0));
+		}
 		break;
 
-	default:
-		requestNpcAnm_(asKind(2), asBlend(1));
+	default: {
+		EnumNpcAnmKind kind = asKind(2);
+		requestNpcAnm_(kind, asBlend(1));
 		break;
+	}
 	}
 }
 
@@ -1223,17 +1229,23 @@ void TBaseNPC::monteMESetAnmWhenNear()
 
 	case 3:
 	case 0xA:
-		if (mMActor->isCurAnmAlreadyEnd(0))
-			requestNpcAnm_(asKind(4), asBlend(0));
+		if (mMActor->isCurAnmAlreadyEnd(0)) {
+			EnumNpcAnmKind kind = asKind(4);
+			requestNpcAnm_(kind, asBlend(0));
+		}
 		break;
 
 	case 2:
-		if (mMActor->isCurAnmAlreadyEnd(0))
-			requestNpcAnm_(asKind(3), asBlend(0));
+		if (mMActor->isCurAnmAlreadyEnd(0)) {
+			EnumNpcAnmKind kind = asKind(3);
+			requestNpcAnm_(kind, asBlend(0));
+		}
 		break;
 
-	default:
-		requestNpcAnm_(asKind(3), asBlend(0));
+	default: {
+		EnumNpcAnmKind kind = asKind(3);
+		requestNpcAnm_(kind, asBlend(0));
 		break;
+	}
 	}
 }
