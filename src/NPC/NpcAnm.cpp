@@ -1195,41 +1195,45 @@ bool TBaseNPC::sunflowerReviving()
 
 void TBaseNPC::monteMESetAnmWhenFar()
 {
-	int k = unkD0->mCurrentAnmKind;
-	if (k == 1) {
-		// fall-through to default
-		requestNpcAnm_(asKind(0), asBlend(0));
-	} else if (k == 2) {
+	switch (unkD0->mCurrentAnmKind) {
+	case 1:
+		break;
+
+	case 2:
 		if (mMActor->isCurAnmAlreadyEnd(0))
-			requestNpcAnm_(asKind(0), asBlend(0));
-	} else if (k == 3) {
+			requestNpcAnm_(asKind(1), asBlend(0));
+		break;
+
+	case 3:
 		if (mMActor->isCurAnmAlreadyEnd(0))
-			requestNpcAnm_(asKind(0), asBlend(0));
-	} else if (k == 4) {
-		if (mMActor->isCurAnmAlreadyEnd(0))
-			requestNpcAnm_(asKind(0), asBlend(0));
-	} else {
-		// idle / unknown — no-op
+			requestNpcAnm_(asKind(2), asBlend(0));
+		break;
+
+	default:
+		requestNpcAnm_(asKind(2), asBlend(1));
+		break;
 	}
 }
 
 void TBaseNPC::monteMESetAnmWhenNear()
 {
-	int k = unkD0->mCurrentAnmKind;
-	if (k == 4) {
-		// stay
-	} else if (k == 2 || k == 0xA) {
-		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			if (!isLockedAnmActor(mActorType))
-				requestNpcAnm_(asKind(4), asBlend(0));
-		}
-	} else if (k == 3) {
-		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			if (!isLockedAnmActor(mActorType))
-				requestNpcAnm_(asKind(3), asBlend(0));
-		}
-	} else {
-		if (!isLockedAnmActor(mActorType))
+	switch (unkD0->mCurrentAnmKind) {
+	case 4:
+		break;
+
+	case 3:
+	case 0xA:
+		if (mMActor->isCurAnmAlreadyEnd(0))
+			requestNpcAnm_(asKind(4), asBlend(0));
+		break;
+
+	case 2:
+		if (mMActor->isCurAnmAlreadyEnd(0))
 			requestNpcAnm_(asKind(3), asBlend(0));
+		break;
+
+	default:
+		requestNpcAnm_(asKind(3), asBlend(0));
+		break;
 	}
 }
