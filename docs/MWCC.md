@@ -6231,6 +6231,16 @@ at 99.62%. These variants did not move the saved-FPR assignment or frame-size
 residue, so the remaining sand-family mismatch likely needs a different lever
 than simple local lifetime widening/narrowing.
 
+**Additional non-confirming source-shape trials.** `mario/MoveBG/MapObjMamma`
+`TSandBombBase` (2026-07-03 MNL): changing `expanded()`'s sound position from a
+pointer local to a reference local was neutral at 99.56% with the same two
+saved-FPR rows and stack rows. Naming a repeated `pos = &mPosition` pointer in
+`explode()` regressed to 94.09% with structural insert/delete/opcode rows.
+Hoisting `control()` case-1 `newFrame` to an uninitialized top-level local was
+neutral at 99.62% with the same ignored register/stack rows. These probes
+further suggest that the sand-family f30/f31 and frame-size residue is not
+controlled by ordinary reference/pointer spelling or local declaration scope.
+
 **Experiment to confirm/refute.** Find a second near-match where target and
 build agree on instruction structure but swap two saved FPR locals. Toggle only
 predeclaration order while preserving evaluation order and verify whether the
