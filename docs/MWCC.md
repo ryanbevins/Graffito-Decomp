@@ -6196,6 +6196,15 @@ change. This may mean argument/store use order can dominate declaration order,
 or that the lever only applies when both locals are real call-live temps rather
 than direct argument stores.
 
+**Non-confirming local trial.** `mario/MoveBG/MapObjMamma`
+`TSandBombBase::expanded()` (2026-07-03 MNL) has matching instruction
+structure but target loads `unk150` into `f31` and the frame into `f30`, while
+the current source gives `speed` `f30` and the anonymous frame temp `f31`.
+Adding `const` to `speed` and predeclaring `speed/frame` before assignment were
+neutral at 99.56%; rewriting as `speed += frame; setFrame(speed)` regressed to
+83.9% with structural rows. `mwcc_dump.py` confirms GC/1.1 assigns `speed` to
+`f30` and optimized frame temp `@1330` to `f31`.
+
 **Experiment to confirm/refute.** Find a second near-match where target and
 build agree on instruction structure but swap two saved FPR locals. Toggle only
 predeclaration order while preserving evaluation order and verify whether the
