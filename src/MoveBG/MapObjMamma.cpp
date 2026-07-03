@@ -283,9 +283,10 @@ void TGoalWatermelon::touchActor(THitActor* actor)
 	getMActorInline(unk13C)->setBck("watermelon_shrink");
 	unk13C->unkF8 &= ~0x100;
 	unk13C->mVelocity = JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
+	TMarDirector* director = gpMarDirector;
 	JDrama::TFlagT<u16> flag(0);
-	gpMarDirector->fireStartDemoCamera("スイカゴールカメラ", &actor->mPosition,
-	                                   -1, 0.0f, true, 0, 0, actor, flag);
+	director->fireStartDemoCamera("スイカゴールカメラ", &unk13C->mPosition, -1,
+	                              0.0f, true, 0, 0, nullptr, flag);
 	mState = 2;
 }
 
