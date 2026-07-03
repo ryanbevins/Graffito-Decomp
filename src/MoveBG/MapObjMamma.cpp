@@ -508,8 +508,7 @@ void TMammaBlockRotate::control()
 		moveJoint(unk140->getJoint(), 0.0f, mMapBackSpeed, 0.0f);
 		moveJoint(unk13C->getJoint(), 0.0f, mMapBackSpeed, 0.0f);
 
-		J3DJoint* joint       = unk140->getJoint();
-		J3DTransformInfo& info = joint->getTransformInfo();
+		J3DTransformInfo& info = unk140->getJoint()->getTransformInfo();
 		vec.set(0.0f, info.mTranslate.y, 0.0f);
 		unk144->moveTrans(vec);
 		vec.set(0.0f, info.mTranslate.y, 0.0f);
@@ -517,7 +516,8 @@ void TMammaBlockRotate::control()
 
 		unk138->getModel()->calc();
 
-		if (info.mTranslate.y > joint->getMax().y - joint->getMin().y)
+		if (info.mTranslate.y
+		    > unk140->getJoint()->getMax().y - unk140->getJoint()->getMin().y)
 			mState = 1;
 		break;
 	}
