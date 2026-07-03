@@ -864,16 +864,17 @@ void TLeanMirror::controlGoTarget()
 			                unk17C->mPosition.z);
 		}
 
+		TMarDirector* director = gpMarDirector;
 		JDrama::TFlagT<u16> flag(0);
-		gpMarDirector->fireStartDemoCamera(
+		director->fireStartDemoCamera(
 		    "demohanatyan_cam01", nullptr, -1, 0.0f, true,
 		    startCameraShakeSE, (u32)&mPosition, nullptr, flag);
 	} else {
+		TMarDirector* director = gpMarDirector;
 		JDrama::TFlagT<u16> flag(0);
-		gpMarDirector->fireStartDemoCamera("太陽石点灯カメラ",
-		                                   &unk17C->mPosition, mDemoLightTime,
-		                                   0.0f, true, nullptr, 0, nullptr,
-		                                   flag);
+		director->fireStartDemoCamera("太陽石点灯カメラ",
+		                              &unk17C->mPosition, mDemoLightTime, 0.0f,
+		                              true, nullptr, 0, nullptr, flag);
 	}
 
 	mLifeTimer = mDemoLightTime;
