@@ -78,6 +78,9 @@ public:
 	void onStopMotionBlend();
 	void offStopMotionBlend();
 	void isNowMotionBlend() const;
+	void onUnk1D8(u32 flag) { unk1D8 |= flag; }
+	void offUnk1D8(u32 flag) { unk1D8 &= ~flag; }
+	bool checkUnk1D8(u32 flag) const { return (unk1D8 & flag) != 0; }
 	~TBaseNPC();
 	const GXColor* getPtrInitPollutionColor() const;
 	void setBalloonMessage(u32, long);

@@ -1109,9 +1109,9 @@ void TBaseNPC::peachParasolIn_()
 
 void TBaseNPC::peachParasolOut_()
 {
-	if (!(unk1D8 & 0x1))
+	if (!checkUnk1D8(0x1))
 		return;
-	unk1D8 &= ~0x1;
+	offUnk1D8(0x1);
 	unkD0->unk18 = 0;
 	unkD0->unk1C = 0;
 }
