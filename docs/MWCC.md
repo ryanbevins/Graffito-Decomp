@@ -6249,6 +6249,13 @@ neutral at 99.56% with the same saved-FPR swap. `mwcc_dump.py` for the baseline
 shows both FPR nodes have identical neighbor counts; the frame temp `f33`
 outranks `speed` (`f32`) and receives `f31`, while the target needs the
 opposite coloring.
+Further `control()` probes were neutral at 99.62%: hoisting only the case-5
+`explodeFrameSpeed` declaration to switch scope did not move speed from `f30`,
+and naming the first case-5 `J3DFrameCtrl* ctrl0` for read/write did not change
+frame size or saved-FPR coloring. A fresh `control__13TSandBombBaseFv`
+`mwcc_dump.py` run (`/tmp/mwccdbg-z488kw7l`) shows GC/1.1 still assigns the
+named `explodeFrameSpeed` (`f32`) to `f30`, while optimized frame temps receive
+`f31`; this mirrors the `expanded()`/`exploding()` failure mode.
 
 **Experiment to confirm/refute.** Find a second near-match where target and
 build agree on instruction structure but swap two saved FPR locals. Toggle only
