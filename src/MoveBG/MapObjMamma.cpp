@@ -1418,9 +1418,10 @@ void TSandLeafBase::initMapObj()
 	unk140 = 0;
 	mScaling.y = mScaleMin;
 	TMapObjBase::initMapObj();
-	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 	unk144 = TMapObjBaseManager::newAndRegisterObj("SandLeaf", mPosition,
-	                                              mRotation, scale);
+	                                              mRotation,
+	                                              JGeometry::TVec3<f32>(
+	                                                  1.0f, 1.0f, 1.0f));
 	((TSandLeaf*)unk144)->unk138 = this;
 	unk144->appear();
 }
