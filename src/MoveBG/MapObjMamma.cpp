@@ -1294,12 +1294,12 @@ void TSandBombBase::exploding()
 	f32 explodeFrameSpeed = mExplodeFrameSpeed;
 	f32 frame0 = getMActor()->getFrameCtrl(0)->getFrame();
 	getMActor()->getFrameCtrl(0)->setFrame(
-	    explodeFrameSpeed + frame0);
+	    frame0 + explodeFrameSpeed);
 	explodeFrameSpeed = mExplodeFrameSpeed;
 	TMapObjBase* trigger = unk144;
 	frame0 = trigger->getMActor()->getFrameCtrl(0)->getFrame();
 	trigger->getMActor()->getFrameCtrl(0)->setFrame(
-	    explodeFrameSpeed + frame0);
+	    frame0 + explodeFrameSpeed);
 
 	f32 dist = getDistanceXZ(*gpMarioPos);
 
