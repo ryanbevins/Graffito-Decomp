@@ -6240,6 +6240,13 @@ Hoisting `control()` case-1 `newFrame` to an uninitialized top-level local was
 neutral at 99.62% with the same ignored register/stack rows. These probes
 further suggest that the sand-family f30/f31 and frame-size residue is not
 controlled by ordinary reference/pointer spelling or local declaration scope.
+Naming the repeated `MActor* actor = trigger->getMActor()` owner in
+`expanded()` regressed to 89.67% with structural insert/delete/opcode rows,
+while naming a reusable `J3DFrameCtrl* ctrl` for the read and second write was
+neutral at 99.56% with the same saved-FPR swap. `mwcc_dump.py` for the baseline
+shows both FPR nodes have identical neighbor counts; the frame temp `f33`
+outranks `speed` (`f32`) and receives `f31`, while the target needs the
+opposite coloring.
 
 **Experiment to confirm/refute.** Find a second near-match where target and
 build agree on instruction structure but swap two saved FPR locals. Toggle only
