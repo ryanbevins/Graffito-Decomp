@@ -1,3 +1,4 @@
+#define LIVEACTOR_GETMACTOR_OUT_OF_LINE
 #include <MoveBG/MapObjMamma.hpp>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraShake.hpp>
@@ -45,6 +46,11 @@
 #include <string.h>
 
 extern TBeamManager* gpBeamManager;
+
+static inline MActor* getMActorInline(const TLiveActor* actor)
+{
+	return actor->mMActor;
+}
 
 u32 TSandBase::mWitherTime = 800;
 f32 TSandBase::mScaleMin   = 0.00001f;
@@ -269,7 +275,7 @@ void TGoalWatermelon::touchActor(THitActor* actor)
 		return;
 
 	unk13C = (TMapObjBall*)actor;
-	unk13C->getMActor()->setBck("watermelon_shrink");
+	getMActorInline(unk13C)->setBck("watermelon_shrink");
 	unk13C->unkF8 &= ~0x100;
 	unk13C->mVelocity = JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
 	JDrama::TFlagT<u16> flag(0);
@@ -1106,13 +1112,13 @@ void TSandCastle::expanded()
 
 BOOL TSandCastle::withering()
 {
-	getMActor()->getFrameCtrl(0)->setFrame(
-	    unk13C + getMActor()->getFrameCtrl(0)->getFrame());
-	getMActor()->getFrameCtrl(5)->setFrame(
-	    unk13C + getMActor()->getFrameCtrl(5)->getFrame());
+	getMActorInline(this)->getFrameCtrl(0)->setFrame(
+	    unk13C + getMActorInline(this)->getFrameCtrl(0)->getFrame());
+	getMActorInline(this)->getFrameCtrl(5)->setFrame(
+	    unk13C + getMActorInline(this)->getFrameCtrl(5)->getFrame());
 
-	f32 current = getMActor()->getFrameCtrl(0)->getFrame();
-	f32 end     = (f32)getMActor()->getFrameCtrl(0)->getEnd();
+	f32 current = getMActorInline(this)->getFrameCtrl(0)->getFrame();
+	f32 end     = (f32)getMActorInline(this)->getFrameCtrl(0)->getEnd();
 	mScaling.y  = mCollisionRate * ((end - current) / end);
 
 	if (current > 240.0f && !unk158->checkLiveFlag(1)) {
@@ -1187,31 +1193,31 @@ void TSandBombBase::control()
 	switch (mState) {
 	case 1: {
 		f32 newFrame
-		    = trigger->getMActor()->getFrameCtrl(0)->getFrame()
+		    = getMActorInline(trigger)->getFrameCtrl(0)->getFrame()
 		      - mFiringFrameDownSpeed;
 		if (newFrame >= 0.0f) {
-			unk144->getMActor()->getFrameCtrl(0)->setFrame(newFrame);
-			unk144->getMActor()->getFrameCtrl(5)->setFrame(newFrame);
+			getMActorInline(unk144)->getFrameCtrl(0)->setFrame(newFrame);
+			getMActorInline(unk144)->getFrameCtrl(5)->setFrame(newFrame);
 		}
 		break;
 	}
 	case 5: {
 		f32 explodeFrameSpeed = mExplodeFrameSpeed;
 		f32 frame0
-		    = trigger->getMActor()->getFrameCtrl(0)->getFrame();
-		trigger->getMActor()->getFrameCtrl(0)->setFrame(
+		    = getMActorInline(trigger)->getFrameCtrl(0)->getFrame();
+		getMActorInline(trigger)->getFrameCtrl(0)->setFrame(
 		    frame0 + explodeFrameSpeed);
 		explodeFrameSpeed = mExplodeFrameSpeed;
 		TMapObjBase* trigger5 = unk144;
 		f32 frame5
-		    = trigger5->getMActor()->getFrameCtrl(5)->getFrame();
-		trigger5->getMActor()->getFrameCtrl(5)->setFrame(
+		    = getMActorInline(trigger5)->getFrameCtrl(5)->getFrame();
+		getMActorInline(trigger5)->getFrameCtrl(5)->setFrame(
 		    frame5 + explodeFrameSpeed);
 		explodeFrameSpeed = mExplodeFrameSpeed;
 		TMapObjBase* trigger3 = unk144;
 		f32 frame3
-		    = trigger3->getMActor()->getFrameCtrl(3)->getFrame();
-		trigger3->getMActor()->getFrameCtrl(3)->setFrame(
+		    = getMActorInline(trigger3)->getFrameCtrl(3)->getFrame();
+		getMActorInline(trigger3)->getFrameCtrl(3)->setFrame(
 		    frame3 + explodeFrameSpeed);
 		if (unk144->animIsFinished())
 			waitBeforeExplode();
@@ -1294,13 +1300,13 @@ void TSandBombBase::explode()
 void TSandBombBase::exploding()
 {
 	f32 explodeFrameSpeed = mExplodeFrameSpeed;
-	f32 frame0 = getMActor()->getFrameCtrl(0)->getFrame();
-	getMActor()->getFrameCtrl(0)->setFrame(
+	f32 frame0 = getMActorInline(this)->getFrameCtrl(0)->getFrame();
+	getMActorInline(this)->getFrameCtrl(0)->setFrame(
 	    frame0 + explodeFrameSpeed);
 	explodeFrameSpeed = mExplodeFrameSpeed;
 	TMapObjBase* trigger = unk144;
-	frame0 = trigger->getMActor()->getFrameCtrl(0)->getFrame();
-	trigger->getMActor()->getFrameCtrl(0)->setFrame(
+	frame0 = getMActorInline(trigger)->getFrameCtrl(0)->getFrame();
+	getMActorInline(trigger)->getFrameCtrl(0)->setFrame(
 	    frame0 + explodeFrameSpeed);
 
 	f32 dist = getDistanceXZ(*gpMarioPos);
@@ -1318,7 +1324,7 @@ void TSandBombBase::exploding()
 		skipThrow = false;
 
 	if (!skipThrow) {
-		if (getMActor()->getFrameCtrl(0)->getFrame() < 80.0f) {
+		if (getMActorInline(this)->getFrameCtrl(0)->getFrame() < 80.0f) {
 			f32 grLevel = SMS_GetMarioGrLevel();
 			if (grLevel > gpMarioPos->y - 30.0f) {
 				if (dist < unk154) {
@@ -1340,8 +1346,8 @@ void TSandBombBase::expanded()
 {
 	TMapObjBase* trigger = unk144;
 	f32 speed           = unk150;
-	f32 frame           = trigger->getMActor()->getFrameCtrl(0)->getFrame();
-	trigger->getMActor()->getFrameCtrl(0)->setFrame(
+	f32 frame           = getMActorInline(trigger)->getFrameCtrl(0)->getFrame();
+	getMActorInline(trigger)->getFrameCtrl(0)->setFrame(
 	    frame + speed);
 
 	const JGeometry::TVec3<f32>* pos = &unk144->mPosition;
@@ -1368,19 +1374,19 @@ u32 TSandBomb::getSDLModelFlag() const { return 0; }
 u32 TSandBomb::touchWater(THitActor*)
 {
 	f32 firingFrameSpeed = TSandBombBase::mFiringFrameSpeed;
-	f32 frame0 = getMActor()->getFrameCtrl(0)->getFrame();
-	getMActor()->getFrameCtrl(0)->setFrame(frame0 + firingFrameSpeed);
+	f32 frame0 = getMActorInline(this)->getFrameCtrl(0)->getFrame();
+	getMActorInline(this)->getFrameCtrl(0)->setFrame(frame0 + firingFrameSpeed);
 	firingFrameSpeed = TSandBombBase::mFiringFrameSpeed;
-	f32 frame5 = getMActor()->getFrameCtrl(5)->getFrame();
-	getMActor()->getFrameCtrl(5)->setFrame(frame5 + firingFrameSpeed);
-	getMActor()->getFrameCtrl(0);
+	f32 frame5 = getMActorInline(this)->getFrameCtrl(5)->getFrame();
+	getMActorInline(this)->getFrameCtrl(5)->setFrame(frame5 + firingFrameSpeed);
+	getMActorInline(this)->getFrameCtrl(0);
 
 	soundBas(0x289A, 7.0f, TSandBombBase::mFiringFrameSpeed);
 	soundBas(0x289B, 50.0f, TSandBombBase::mFiringFrameSpeed);
 	soundBas(0x289C, 100.0f, TSandBombBase::mFiringFrameSpeed);
 	soundBas(0x289D, 150.0f, TSandBombBase::mFiringFrameSpeed);
 
-	if (getMActor()->curAnmEndsNext(0, 0)) {
+	if (getMActorInline(this)->curAnmEndsNext(0, 0)) {
 		unk138->grow();
 		startControlAnim(3);
 		startControlAnim(4);
@@ -1482,8 +1488,8 @@ BOOL TSandLeafBase::grow()
 	}
 
 	f32 rate = SMSGetAnmFrameRate();
-	unk144->getMActor()->getFrameCtrl(0)->setFrame(
-	    rate + unk144->getMActor()->getFrameCtrl(0)->getFrame());
+	getMActorInline(unk144)->getFrameCtrl(0)->setFrame(
+	    rate + getMActorInline(unk144)->getFrameCtrl(0)->getFrame());
 	SMSRumbleMgr->start(0x15, 5, (Vec*)&mPosition);
 	if (gpMSound->gateCheck(0x2099)) {
 		MSoundSESystem::MSoundSE::startSoundActor(0x2099, &unk144->mPosition, 0,

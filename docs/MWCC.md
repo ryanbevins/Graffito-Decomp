@@ -70,6 +70,15 @@ nested helper call.
   `MapObjMamma`/`MapObjMare`; `LIVEACTOR_GETMACTOR_OUT_OF_LINE` plus a
   `dont_inline` owner body in target order emitted a 100% weak owner and made
   `python configure.py --non-matching && ninja` link.
+- `mario/MoveBG/MapObjMamma` (2026-07-03 MNL):
+  `TSandCastle::expanded()` needed same-TU `bl getMActor__10TLiveActorCFv`
+  call boundaries, but a TU-wide declaration regressed adjacent sand functions
+  that still wanted the inline accessor expression layer. Keeping
+  `LIVEACTOR_GETMACTOR_OUT_OF_LINE` for the TU and routing the inline-shaped
+  sites through a tiny local `getMActorInline(TLiveActor*)` helper preserved
+  their original scheduling while lifting `TSandCastle::expanded()` from 90.3%
+  to 99.7%; a raw `actor->mMActor` field spelling did not preserve scheduling
+  and regressed `TSandBomb::touchWater()` to 89.7%.
 - `mario/Enemy/BathtubPeach` (2026-06-15 MNL):
   `std::fmodf(float, float)` is owned by `MoveBG/MapObjCorona` in the target.
   `MSL_STDFMODF_OUT_OF_LINE` made only this TU see the MSL overload as a
