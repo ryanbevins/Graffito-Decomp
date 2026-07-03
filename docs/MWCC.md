@@ -6205,6 +6205,16 @@ neutral at 99.56%; rewriting as `speed += frame; setFrame(speed)` regressed to
 83.9% with structural rows. `mwcc_dump.py` confirms GC/1.1 assigns `speed` to
 `f30` and optimized frame temp `@1330` to `f31`.
 
+**Non-confirming local trial.** `mario/MoveBG/MapObjMamma`
+`TSandBombBase::exploding()` (2026-07-03 MNL) has the same delayed frame-bump
+shape as `expanded`: target gives `mExplodeFrameSpeed` `f31` and the frame temp
+`f30`, while current source gives the named speed local `f30` and the frame temp
+`f31`. Splitting the reused speed local into per-bump locals
+(`explodeFrameSpeed0`/`explodeFrameSpeed1`) was neutral at 99.64%; the same four
+FPR rows remained. `mwcc_dump.py` shows the current source assigns
+`explodeFrameSpeed` to `f30` and the frame temps (`@1360`/`@1364`) to `f31`, so
+simple local splitting does not raise speed priority.
+
 **Experiment to confirm/refute.** Find a second near-match where target and
 build agree on instruction structure but swap two saved FPR locals. Toggle only
 predeclaration order while preserving evaluation order and verify whether the
