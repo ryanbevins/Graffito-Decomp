@@ -76,9 +76,9 @@ u32 TMammaBlockRotate::mWaitTime       = 600;
 
 static void zeroVec(JGeometry::TVec3<f32>& v)
 {
-	v.x = 0.0f;
-	v.y = 0.0f;
 	v.z = 0.0f;
+	v.y = 0.0f;
+	v.x = 0.0f;
 }
 
 static void oneVec(JGeometry::TVec3<f32>& v)
@@ -663,17 +663,21 @@ TLeanMirror::TLeanMirror(const char* name)
     : TMapObjBase(name)
     , unk138(0.0f)
     , unk13C(0.0f)
-    , unk170(0.0f)
-    , unk17C(0)
-    , unk198(0.0f)
-    , unk19C(0)
-    , unk1AC(0)
-    , unk1AE(0)
 {
+	unk158.x = 0.0f;
+	unk158.y = 0.0f;
+	unk158.z = 0.0f;
+	unk164.x = 0.0f;
+	unk164.y = 0.0f;
+	unk164.z = 0.0f;
+	unk170 = 0.0f;
+	unk17C = 0;
+	unk198 = 0.0f;
+	unk19C = 0;
+	unk1AC = 0;
+	unk1AE = 0;
 	zeroVec(unk140);
 	zeroVec(unk14C);
-	zeroVec(unk158);
-	zeroVec(unk164);
 	zeroVec(unk180);
 	zeroVec(unk18C);
 	zeroVec(unk1A0);
