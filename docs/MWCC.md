@@ -6202,8 +6202,10 @@ structure but target loads `unk150` into `f31` and the frame into `f30`, while
 the current source gives `speed` `f30` and the anonymous frame temp `f31`.
 Adding `const` to `speed` and predeclaring `speed/frame` before assignment were
 neutral at 99.56%; rewriting as `speed += frame; setFrame(speed)` regressed to
-83.9% with structural rows. `mwcc_dump.py` confirms GC/1.1 assigns `speed` to
-`f30` and optimized frame temp `@1330` to `f31`.
+83.9% with structural rows, and `frame += speed; setFrame(frame)` regressed to
+89.35% by moving the add before the second `getFrameCtrl()` call.
+`mwcc_dump.py` confirms GC/1.1 assigns `speed` to `f30` and optimized frame
+temp `@1330` to `f31`.
 Follow-up probes were also neutral at 99.56% with the same frame/FPR rows:
 using `&unk144->getPosition()` for the sound position, declaring `speed` before
 the `trigger` pointer, and naming the first `J3DFrameCtrl*` before reading its
