@@ -984,11 +984,7 @@ void TBaseNPC::npcMadIn()
 	if (mActorType == 0x04000007 || (mActionFlag & 0x1)) {
 		requestNpcAnm_(asKind(0xA), asBlend(1));
 	} else {
-		requestNpcAnm_(asKind(0x4), asBlend(1));
-		mMarchSpeed = 0.0f;
-		mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
-		unk1CC      = 0;
-		unk1D0      = 0.0f;
+		npcStepIn();
 	}
 }
 
