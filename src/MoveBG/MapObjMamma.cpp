@@ -396,7 +396,8 @@ void TMammaYacht::initMapObj()
 {
 	TMapObjBase::initMapObj();
 	unk138 = new TMapObjFlag("旗");
-	unk138->mPosition.set(mPosition.x + 2.0f, mPosition.y + 1125.0f,
+	unk138->mPosition.set(mPosition.x + 2.0f,
+	                      mPosition.y + 1315.0f - 190.0f,
 	                      mPosition.z - 15.0f);
 	unk138->mRotation.set(0.0f, 180.0f, 0.0f);
 	unk138->mScaling.set(1.0f, 2.5f, 3.8f);
@@ -1434,6 +1435,8 @@ void TSandLeafBase::control()
 {
 	TMapObjBase::control();
 	switch (mState) {
+	case 1:
+		break;
 	case 2: {
 		SMSRumbleMgr->start(0x13, -1, (Vec*)&mPosition);
 		if ((u8)withering()) {
