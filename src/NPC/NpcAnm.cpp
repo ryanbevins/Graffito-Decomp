@@ -325,11 +325,12 @@ void TBaseNPC::walkAnmRateChange_()
 {
 	f32 speedSq = mLinearVelocity.x * mLinearVelocity.x
 	            + mLinearVelocity.z * mLinearVelocity.z;
-	f32 speed
-	    = (speedSq > 0.0f) ? JGeometry::TUtil<f32>::sqrt(speedSq) : 0.0f;
+	f32 speed   = recoverSqrt(speedSq);
 	if (speed < 0.001f) {
 		int anmKind = unkD0->mCurrentAnmKind;
-		if (anmKind == 8 || anmKind == 0) {
+		switch (anmKind) {
+		case 8:
+		case 0: {
 			int frame
 			    = CLBPalFrame<long>(mPtrSaveNormal->mStopWalkAnmRateFrame.value);
 			CLBChaseDecrease(&unk1D0, 0.0f,
@@ -351,8 +352,11 @@ void TBaseNPC::walkAnmRateChange_()
 			} else {
 				mMActor->setFrameRate(unk1D0, 0);
 			}
-		} else {
+			break;
+		}
+		default:
 			npcWaitIn();
+			break;
 		}
 	} else {
 		unk1CC      = 0;
