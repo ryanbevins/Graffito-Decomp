@@ -324,10 +324,10 @@ TMapObjBase* TSandBird::makeObjFromJointName(const char* name, u16 joint_id)
 	if (obj)
 		return obj;
 
-	if (strstr(name, "none"))
-		return 0;
+	if (!strstr(name, "none"))
+		return makeObj("SandBirdBlock", joint_id);
 
-	return makeObj("SandBirdBlock", joint_id);
+	return 0;
 }
 
 void TSandBird::control()
