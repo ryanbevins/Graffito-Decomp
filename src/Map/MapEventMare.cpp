@@ -145,7 +145,7 @@ void TMareWallRock::initEffect()
 	switch (mIndex + 1) {
 	case 1:
 		mEffectScale.set(1.3f, 4.0f, 1.0f);
-		mEffectPos.set(-7080.0f, 1390.0f, 3600.0f);
+		mEffectPos.set(-7085.0f, 1390.0f, 3600.0f);
 		break;
 	case 2:
 		mEffectScale.set(1.0f, 1.0f, 1.0f);
@@ -153,7 +153,7 @@ void TMareWallRock::initEffect()
 		break;
 	case 3:
 		mEffectScale.set(0.9f, 1.2f, 1.0f);
-		mEffectPos.set(-7120.0f, 3420.0f, 3820.0f);
+		mEffectPos.set(-7120.0f, 3430.0f, 3820.0f);
 		break;
 	case 4:
 		mEffectScale.set(2.3f, 1.0f, 1.0f);
@@ -165,7 +165,7 @@ void TMareWallRock::initEffect()
 		break;
 	case 6:
 		mEffectScale.set(1.4f, 1.6f, 1.0f);
-		mEffectPos.set(-5000.0f, 7160.0f, 4955.0f);
+		mEffectPos.set(-5000.0f, 7160.0f, 4950.0f);
 		break;
 	case 7:
 		mEffectScale.set(1.3f, 1.3f, 1.0f);
