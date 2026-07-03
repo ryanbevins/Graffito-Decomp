@@ -1112,10 +1112,12 @@ void TSandCastle::expanded()
 
 BOOL TSandCastle::withering()
 {
-	getMActorInline(this)->getFrameCtrl(0)->setFrame(
-	    unk13C + getMActorInline(this)->getFrameCtrl(0)->getFrame());
-	getMActorInline(this)->getFrameCtrl(5)->setFrame(
-	    unk13C + getMActorInline(this)->getFrameCtrl(5)->getFrame());
+	f32 speed = unk13C;
+	f32 frame0 = getMActorInline(this)->getFrameCtrl(0)->getFrame();
+	getMActorInline(this)->getFrameCtrl(0)->setFrame(frame0 + speed);
+	speed = unk13C;
+	f32 frame5 = getMActorInline(this)->getFrameCtrl(5)->getFrame();
+	getMActorInline(this)->getFrameCtrl(5)->setFrame(frame5 + speed);
 
 	f32 current = getMActorInline(this)->getFrameCtrl(0)->getFrame();
 	f32 end     = (f32)getMActorInline(this)->getFrameCtrl(0)->getEnd();
