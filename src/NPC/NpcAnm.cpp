@@ -697,232 +697,133 @@ bool TBaseNPC::npcWetting()
 	bool ret = false;
 	if (unk1DA & 0x2) {
 		unk1DA &= ~0x2;
-		unk1D9       = 0;
-		mActionFlag |= 0x200;
-		requestNpcAnm_(asKind(0x11), NPC_STOP_MOTION_BLEND_ON);
-		mMarchSpeed = 0.0f;
-		mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
-		unk1CC      = 0;
-		unk1D0      = 0.0f;
+		npcHappyIn(0);
 		npcWetOut();
 		ret = true;
-		return ret;
-	}
-	if (unkD0->mCurrentAnmKind == 0x19) {
+	} else if (unkD0->mCurrentAnmKind == 0x19) {
 		if (unk178 == 0.0f) {
-			unk1D9       = 0;
-			mActionFlag |= 0x200;
-			requestNpcAnm_(asKind(0x11), NPC_STOP_MOTION_BLEND_ON);
-			mMarchSpeed = 0.0f;
-			mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
-			unk1CC      = 0;
-			unk1D0      = 0.0f;
+			npcHappyIn(0);
 			npcWetOut();
 			ret = true;
-			return ret;
-		}
-		if (mMActor->isCurAnmAlreadyEnd(0)) {
+		} else if (mMActor->isCurAnmAlreadyEnd(0)) {
 			npcWetOut();
 			ret = true;
 		}
-		return ret;
-	}
-
-	bool isMare = isNormalMareM() || isNormalMareW();
-	if (isMare || mActorType == 0x04000011) {
-		int k = unkD0->mCurrentAnmKind;
-		switch (k) {
-		case 5:
-		case 0xB:
-		case 0x14:
-			// shiver wait
-			if (mMActor->isCurAnmAlreadyEnd(0)) {
-				TNpcAnmFrameCounter* fc = mAnmFrameCounter;
-				if (fc->mCurFrame == 0) {
-					fc->mCurFrame = 0;
-					f32 r         = MsRandF();
-					fc->mMaxFrame = (s32)(240.0f * r) + 0xF1;
-				}
-				fc->mCurFrame++;
-				bool atMax = false;
-				if (fc->mCurFrame >= fc->mMaxFrame) {
-					fc->mCurFrame = fc->mMaxFrame;
-					atMax         = true;
-				}
-				if (atMax) {
-					int anm = 7;
-					if (MsRandF() < 0.5f)
-						anm = 0x1B;
-					requestNpcAnm_(asKind(anm), NPC_STOP_MOTION_BLEND_OFF);
-				}
-			}
-			break;
-		case 7:
-		case 0x1B:
-			if (mMActor->isCurAnmAlreadyEnd(0)) {
-				if (isStateGoToMad_()) {
-					mLiveFlag |= 0x02000000;
-					if (mActorType == 0x04000007 || (mActionFlag & 0x1))
-						requestNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_ON);
-					else {
-						requestNpcAnm_(asKind(0x4), NPC_STOP_MOTION_BLEND_ON);
-						mMarchSpeed = 0.0f;
-						mTurnSpeed
-						    = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
-						unk1CC = 0;
-						unk1D0 = 0.0f;
-					}
-				} else {
-					npcWetOut();
-					ret = true;
-				}
-			}
-			break;
-		default:
-			break;
-		}
-		if (isMadNpc() && mActorType != 0x04000006) {
-			int k2 = unkD0->mCurrentAnmKind;
-			if (k2 == 5 || (k2 >= 0xC && k2 <= 0x14)) {
-				if (mLiveFlag & 0x02000000) {
-					if (npcMadding()) {
-						npcWetOut();
-						ret = true;
-					}
-				} else {
-					if (mMActor->isCurAnmAlreadyEnd(0)) {
-						npcWetOut();
-						ret = true;
-					}
-				}
-			} else if (k2 >= 4 && k2 < 5) {
-				if (mLiveFlag & 0x02000000)
-					npcMadding();
-			}
-		}
-		return ret;
-	}
-
-	// monte branch
-	bool isMonte = isNormalMonteM() || isNormalMonteW() || isSpecialMonteM()
-	            || isSpecialMonteW();
-	if (isMonte) {
-		if (isMadNpc() && mActorType != 0x04000006) {
-			int k = unkD0->mCurrentAnmKind;
-			if (k == 5 || (k >= 0xC && k <= 0x14)) {
-				if (mLiveFlag & 0x02000000) {
-					if (npcMadding()) {
-						npcWetOut();
-						ret = true;
-					}
-				} else {
-					if (mMActor->isCurAnmAlreadyEnd(0)) {
-						npcWetOut();
-						ret = true;
-					}
-				}
-			} else if (k >= 4 && k < 5) {
-				if (mLiveFlag & 0x02000000)
-					npcMadding();
-			}
-			return ret;
-		}
-	}
-
-	bool sunWet = false;
-	if (isSunflower() && (unk1D8 & 0x2))
-		sunWet = true;
-	if (sunWet) {
-		bool acted = false;
-		if ((unk1D8 & 0x2) && unkD0->mCurrentAnmKind == 0x1A
-		    && mMActor->isCurAnmAlreadyEnd(0)) {
-			unk1D8 &= ~0x2;
-			if (mLiveFlag & 0x00080000)
-				requestTalkAnm_();
-			else
-				npcWaitIn();
-			acted = true;
-		}
-		if (acted) {
-			npcWetOut();
-			ret = true;
-		}
-		return ret;
-	}
-
-	if (mActorType >= 0x04000016 && mActorType < 0x04000018) {
-		int k = unkD0->mCurrentAnmKind;
-		if (mMActor->isCurAnmAlreadyEnd(0) && (u32)(k - 5) <= 0x13) {
-			switch (k) {
+	} else {
+		bool isMare = isNormalMareM() || isNormalMareW();
+		if (isMare || mActorType == 0x04000011) {
+			switch (unkD0->mCurrentAnmKind) {
 			case 5:
-				// requestNpcAnm_(7, 0)
-				if (mActorType < 0x0400001E && mActorType >= 0x0400001C)
-					break;
-				if (((TUnk18CStruct*)mUnk18C)->unk24 > 0) {
-					if (k == unkD0->mCurrentAnmKind)
-						mAnmRequest->mKind = -1;
-					else {
-						mAnmRequest->mKind  = 7;
-						mAnmRequest->mBlend = 0;
-					}
-				} else {
-					setNpcAnm_(asKind(7), NPC_STOP_MOTION_BLEND_OFF);
-				}
-				break;
 			case 0xB:
-				if (mActorType < 0x0400001E && mActorType >= 0x0400001C)
-					break;
-				if (((TUnk18CStruct*)mUnk18C)->unk24 > 0) {
-					if (k == 0xA)
-						mAnmRequest->mKind = -1;
-					else {
-						mAnmRequest->mKind  = 0xA;
-						mAnmRequest->mBlend = 1;
-					}
-				} else {
-					setNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_ON);
-				}
-				break;
 			case 0x14:
-				if (mActorType < 0x0400001E && mActorType >= 0x0400001C)
-					break;
-				if (((TUnk18CStruct*)mUnk18C)->unk24 > 0) {
-					if (k == 0x18)
-						mAnmRequest->mKind = -1;
-					else {
-						mAnmRequest->mKind  = 0x18;
-						mAnmRequest->mBlend = 1;
+				if (mMActor->isCurAnmAlreadyEnd(0)) {
+					TNpcAnmFrameCounter* fc = mAnmFrameCounter;
+					if (fc->mCurFrame == 0) {
+						fc->mCurFrame = 0;
+						f32 r         = MsRandF();
+						fc->mMaxFrame = (s32)(240.0f * r) + 0xF1;
 					}
-				} else {
-					setNpcAnm_(asKind(0x18), NPC_STOP_MOTION_BLEND_ON);
+					fc->mCurFrame++;
+					if (fc->mCurFrame >= fc->mMaxFrame) {
+						fc->mCurFrame = fc->mMaxFrame;
+						EnumNpcAnmKind kind = asKind(7);
+						if (MsRandF() < 0.5f)
+							kind = asKind(0x1B);
+						requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
+					}
 				}
 				break;
 			case 7:
-			case 0xA:
-			case 0x18:
-				npcWetOut();
-				ret = true;
-				break;
-			default:
+			case 0x1B:
+				if (mMActor->isCurAnmAlreadyEnd(0)) {
+					npcWetOut();
+					ret = true;
+				}
 				break;
 			}
-		}
-		return ret;
-	}
-
-	if (mMActor->isCurAnmAlreadyEnd(0)) {
-		int k = unkD0->mCurrentAnmKind;
-		if ((u32)(k - 5) <= 0x14) {
-			switch (k) {
-			case 5:
-			case 0xB:
-			case 0x14:
-			case 0x19:
-				npcWetOut();
-				ret = true;
-				break;
-			default:
-				break;
+		} else {
+			bool isMonte = isNormalMonteM() || isNormalMonteW()
+			             || isSpecialMonteM() || isSpecialMonteW();
+			if (isMonte && isMadNpc() && mActorType != 0x04000006) {
+				switch (unkD0->mCurrentAnmKind) {
+				case 5:
+				case 0x14:
+					if (mMActor->isCurAnmAlreadyEnd(0)) {
+						if (isStateGoToMad_()) {
+							npcMadIn();
+						} else {
+							npcWetOut();
+							ret = true;
+						}
+					}
+					break;
+				case 4:
+					if (mLiveFlag & 0x02000000)
+						npcMadding();
+					break;
+				case 0xA:
+				case 0xB:
+					if (mLiveFlag & 0x02000000) {
+						if (npcMadding()) {
+							npcWetOut();
+							ret = true;
+						}
+					} else {
+						if (mMActor->isCurAnmAlreadyEnd(0)) {
+							npcWetOut();
+							ret = true;
+						}
+					}
+					break;
+				}
+			} else {
+				if (isSunflower() && (unk1D8 & 0x2)) {
+					if (sunflowerReviving()) {
+						npcWetOut();
+						ret = true;
+					}
+				} else {
+					switch (mActorType) {
+					case 0x04000016:
+					case 0x04000017:
+						if (mMActor->isCurAnmAlreadyEnd(0)) {
+							switch (unkD0->mCurrentAnmKind) {
+							case 5:
+								requestNpcAnm_(asKind(7),
+								               NPC_STOP_MOTION_BLEND_OFF);
+								break;
+							case 0xB:
+								requestNpcAnm_(asKind(0xA),
+								               NPC_STOP_MOTION_BLEND_ON);
+								break;
+							case 0x14:
+								requestNpcAnm_(asKind(0x18),
+								               NPC_STOP_MOTION_BLEND_ON);
+								break;
+							case 7:
+							case 0x10:
+							case 0x18:
+								npcWetOut();
+								ret = true;
+								break;
+							}
+						}
+						break;
+					default:
+						if (mMActor->isCurAnmAlreadyEnd(0)) {
+							switch (unkD0->mCurrentAnmKind) {
+							case 5:
+							case 0xB:
+							case 0x14:
+							case 0x19:
+								npcWetOut();
+								ret = true;
+								break;
+							}
+						}
+						break;
+					}
+				}
 			}
 		}
 	}
