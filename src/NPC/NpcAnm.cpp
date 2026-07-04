@@ -839,23 +839,20 @@ bool TBaseNPC::npcWetting()
 void TBaseNPC::npcSinking()
 {
 	f32 sinkHeight = *(f32*)((u8*)mNpcSaveIndividual + 0x2FC);
-	f32 sinkSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x2E8);
 	f32 targetY    = mSinkBaseY - sinkHeight;
-	if (mPosition.y == targetY)
-		return;
-	if (isPollutionNpc()) {
-		f32 ratio = 1.0f / sinkSpeed;
-		CLBChaseConstantSpecifyFrame<f32>(
-		    &unk178, (mPosition.y - targetY) * ratio, sinkSpeed);
+	if (mPosition.y != targetY) {
+		f32 sinkSpeed = *(f32*)((u8*)mNpcSaveIndividual + 0x2E8);
+		if (isPollutionNpc()) {
+			CLBChaseConstantSpecifyFrame<f32>(
+			    &unk178, 1.0f, (1.0f / sinkSpeed) * (mPosition.y - targetY));
+		}
+		if (!CLBChaseGeneralConstantSpecifySpeed<f32>(&mPosition.y, targetY,
+		                                              sinkSpeed)) {
+			mLiveFlag |= 0x00800000;
+			unk64     |= 0x1;
+			requestNpcAnm_(asKind(0x10), NPC_STOP_MOTION_BLEND_ON);
+		}
 	}
-	if (CLBChaseGeneralConstantSpecifySpeed<f32>(&mPosition.y, targetY,
-	                                             sinkSpeed))
-		return;
-	mLiveFlag |= 0x00800000;
-	unk64     |= 0x1;
-	if (mActorType >= 0x0400001C && mActorType < 0x0400001E)
-		return;
-	requestNpcAnm_(asKind(0x10), NPC_STOP_MOTION_BLEND_ON);
 }
 
 void TBaseNPC::npcThrowIn()
