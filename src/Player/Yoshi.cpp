@@ -401,15 +401,14 @@ bool TYoshi::appearFromEgg(const JGeometry::TVec3<f32>& pos, f32 angle, TEggYosh
 
 	changeAnimation(0);
 
-	TMapObjGeneral* fruit     = (TMapObjGeneral*)((TEggYoshi*)egg)->unk150;
-	TMapObjGeneral* heldFruit = fruit;
-	if (mMario->mHeldObject == fruit) {
-		heldFruit->receiveMessage(&mMario->mFloorHitActor, HIT_MESSAGE_UNK8);
-		heldFruit->mHolder  = nullptr;
+	TTakeActor* fruit = (TTakeActor*)egg->getFruit();
+	if (mMario->getHeldObject() == fruit) {
+		fruit->receiveMessage(mMario->getFloorHitActor(), HIT_MESSAGE_UNK8);
+		fruit->mHolder      = nullptr;
 		mMario->mHeldObject = nullptr;
 	}
-	fruit->receiveMessage(&mMario->mFloorHitActor, HIT_MESSAGE_UNKB);
-	doEat(fruit->mActorType);
+	fruit->receiveMessage(mMario->getFloorHitActor(), HIT_MESSAGE_UNKB);
+	doEat(fruit->getActorType());
 	mCurJuice = mMaxJuice;
 	mEgg      = egg;
 	*(s16*)((u8*)this + 0x02) = *(s16*)((u8*)this + 0x04);

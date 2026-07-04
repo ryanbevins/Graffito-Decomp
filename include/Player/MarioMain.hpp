@@ -1373,6 +1373,7 @@ public:
 	const TBGCheckData* getRoofPlane() const { return mRoofPlane; }
 
 	// Inline combinator accessors
+	THitActor* getFloorHitActor() { return &mFloorHitActor; }
 	THitActor getFloorHitActor() const { return mFloorHitActor; }
 	f32 getMfloorpositionZ() const { return mFloorPosition.z; }
 	f32 getMpositionX() const { return mPosition.x; }

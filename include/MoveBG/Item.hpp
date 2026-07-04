@@ -168,6 +168,7 @@ public:
 	virtual void touchActor(THitActor*);
 	virtual u16 getHitObjNumMax() { return 10; }
 
+	THitActor* getFruit() { return unk150; }
 	void startFruit();
 	void touchFruit(THitActor*);
 	inline void startBalloonAnim();
