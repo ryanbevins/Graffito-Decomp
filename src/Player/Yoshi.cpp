@@ -18,6 +18,7 @@
 #include <Player/ModelWaterManager.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ModelUtil.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
@@ -774,8 +775,7 @@ void TYoshi::doSearch()
 			s16 min = *(s16*)((u8*)this + 0xE8);
 			s16 max = *(s16*)((u8*)this + 0xEA);
 			*(s16*)((u8*)this + 0xDE)
-			    = min
-			      + (s16)((max - min) * (rand() * 0.000030517578f));
+			    = min + (s16)((max - min) * MsRandF());
 		}
 		break;
 	}
@@ -832,8 +832,7 @@ void TYoshi::doSearch()
 			s16 min = *(s16*)((u8*)this + 0xE8);
 			s16 max = *(s16*)((u8*)this + 0xEA);
 			*(s16*)((u8*)this + 0xDE)
-			    = min
-			      + (s16)((max - min) * (rand() * 0.000030517578f));
+			    = min + (s16)((max - min) * MsRandF());
 			*(u8*)((u8*)this + 0xDC) = 0;
 		}
 		break;
@@ -853,7 +852,7 @@ void TYoshi::doSearch()
 		    = *(s16*)((u8*)this + 0xE8)
 		      + (s16)((*(s16*)((u8*)this + 0xEA)
 		               - *(s16*)((u8*)this + 0xE8))
-		              * (rand() * 0.000030517578f));
+		              * MsRandF());
 		*(u8*)((u8*)this + 0xDC) = 0;
 		changeAnimation(23);
 		break;
