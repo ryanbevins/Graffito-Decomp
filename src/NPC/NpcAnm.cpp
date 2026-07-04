@@ -1077,19 +1077,23 @@ bool TBaseNPC::npcMareStanding()
 	case 0xE:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
 			TNpcAnmFrameCounter* fc = mAnmFrameCounter;
+			bool atMax              = false;
 			fc->mCurFrame++;
 			if (fc->mCurFrame >= fc->mMaxFrame) {
 				fc->mCurFrame = fc->mMaxFrame;
-				finished      = true;
+				atMax         = true;
 			}
-			if (finished) {
-				requestNpcAnm_(asKind(7), NPC_STOP_MOTION_BLEND_ON);
+			if (atMax) {
+				requestNpcAnm_(asKind(7), NPC_STOP_MOTION_BLEND_OFF);
 			}
 		}
 		break;
 	case 7:
 		if (mMActor->isCurAnmAlreadyEnd(0))
 			finished = true;
+		break;
+	default:
+		finished = true;
 		break;
 	}
 	return finished;
