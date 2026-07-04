@@ -751,16 +751,42 @@ void TMareEventBumpyWall::load(JSUMemoryInputStream& stream)
 	mBumpSpeed = 2.0f;
 	mBumpLimit = 400.0f;
 
-	if ((mBuildingIndex >= 0x22 && mBuildingIndex < 0x27)
-	    || mBuildingIndex == 0x2a) {
-		mBumpDirection = 1;
-	} else if (mBuildingIndex >= 0x27 && mBuildingIndex < 0x2a) {
-		mBumpDirection = 2;
-	} else if (mBuildingIndex >= 0x3b && mBuildingIndex < 0x3f) {
-		mBumpDirection = 3;
-	} else if ((mBuildingIndex >= 0x32 && mBuildingIndex < 0x3b)
-	           || (mBuildingIndex >= 0x3f && mBuildingIndex < 0x44)) {
+	switch (mBuildingIndex) {
+	case 0x32:
+	case 0x33:
+	case 0x34:
+	case 0x35:
+	case 0x36:
+	case 0x37:
+	case 0x38:
+	case 0x39:
+	case 0x3A:
+	case 0x3F:
+	case 0x40:
+	case 0x41:
+	case 0x42:
+	case 0x43:
 		mBumpDirection = 0;
+		break;
+	case 0x22:
+	case 0x23:
+	case 0x24:
+	case 0x25:
+	case 0x26:
+	case 0x2A:
+		mBumpDirection = 1;
+		break;
+	case 0x27:
+	case 0x28:
+	case 0x29:
+		mBumpDirection = 2;
+		break;
+	case 0x3B:
+	case 0x3C:
+	case 0x3D:
+	case 0x3E:
+		mBumpDirection = 3;
+		break;
 	}
 }
 
