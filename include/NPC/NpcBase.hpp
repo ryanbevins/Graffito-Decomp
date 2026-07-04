@@ -17,7 +17,10 @@ class TNpcTrample;
 
 // TODO: should this be here?
 enum EnumNpcAnmKind { };
-enum EnumNpcStopMotionBlendOnOff { };
+enum EnumNpcStopMotionBlendOnOff {
+	NPC_STOP_MOTION_BLEND_OFF = 0,
+	NPC_STOP_MOTION_BLEND_ON  = 1,
+};
 enum EnumHitNpcObjectKind { };
 
 // Pending animation request set by request*Anm_; consumed by perform/state code.
