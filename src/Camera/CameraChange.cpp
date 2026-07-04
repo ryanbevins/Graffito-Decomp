@@ -813,8 +813,8 @@ int CPolarSubCamera::getCameraInbetweenFrame_(int newMode)
 	int mode  = mMode;
 	int frame = 1;
 	if (mode < 0x49 && newMode < 0x49) {
-	u8* p_base = (u8*)this + mode * 4;
-	u8* save   = *(u8**)(p_base + 0x2D8);
+	TCamSaveKindParam** saveTable = (TCamSaveKindParam**)((u8*)this + 0x2D8);
+	u8* save = (u8*)saveTable[mode];
 	switch (newMode) {
 	case 0:  frame = *(s16*)(save + 0x3C4); break;
 	case 1:  frame = *(s16*)(save + 0x3D8); break;
