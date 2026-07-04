@@ -372,6 +372,7 @@ void TYoshi::changeAnimation(int id) {
 	((MAnmSound*)mBckPlayer)->initAnmSound((void*)mAnimFrameRates[id], 1, 0.0f);
 }
 
+#pragma dont_inline on
 // getEmitPosDir - 0x8014FBF0
 void TYoshi::getEmitPosDir(JGeometry::TVec3<f32>* pos, JGeometry::TVec3<f32>* dir) const {
 	J3DModel* model = mActor->unk4;
@@ -383,6 +384,7 @@ void TYoshi::getEmitPosDir(JGeometry::TVec3<f32>* pos, JGeometry::TVec3<f32>* di
 	pos->y = mtx[1][3];
 	pos->z = mtx[2][3];
 }
+#pragma dont_inline off
 
 // setEggYoshiPtr - 0x8014FBE8
 void TYoshi::setEggYoshiPtr(TEggYoshi* egg) {
@@ -795,11 +797,10 @@ void TYoshi::doSearch()
 
 		for (int i = 0; i < 10; ++i) {
 			tongue->movement();
-			f32 dx = tongue->mTipPos.x - pos.x;
-			f32 dy = tongue->mTipPos.y - pos.y;
-			f32 dz = tongue->mTipPos.z - pos.z;
-			f32 dist = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy
-			                                        + dz * dz);
+			JGeometry::TVec3<f32> diff = tongue->mTipPos;
+			diff.sub(pos);
+			f32 dist = JGeometry::TUtil<f32>::sqrt(
+			    diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
 			if (dist > *(f32*)((u8*)this + 0x90))
 				break;
 		}
@@ -818,11 +819,10 @@ void TYoshi::doSearch()
 
 			for (int i = 0; i < 10; ++i) {
 				tongue->movement();
-				f32 dx = tongue->mTipPos.x - pos.x;
-				f32 dy = tongue->mTipPos.y - pos.y;
-				f32 dz = tongue->mTipPos.z - pos.z;
-				f32 dist = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy
-				                                        + dz * dz);
+				JGeometry::TVec3<f32> diff = tongue->mTipPos;
+				diff.sub(pos);
+				f32 dist = JGeometry::TUtil<f32>::sqrt(
+				    diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
 				if (dist > *(f32*)((u8*)this + 0x90))
 					break;
 			}
@@ -1065,11 +1065,10 @@ void TYoshi::movement()
 
 			for (int i = 0; i < 10; ++i) {
 				tongue->movement();
-				f32 dx = tongue->mTipPos.x - pos.x;
-				f32 dy = tongue->mTipPos.y - pos.y;
-				f32 dz = tongue->mTipPos.z - pos.z;
-				f32 dist = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy
-				                                        + dz * dz);
+				JGeometry::TVec3<f32> diff = tongue->mTipPos;
+				diff.sub(pos);
+				f32 dist = JGeometry::TUtil<f32>::sqrt(
+				    diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
 				if (dist > *(f32*)((u8*)this + 0x90))
 					break;
 			}
