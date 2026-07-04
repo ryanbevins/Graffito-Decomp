@@ -1142,7 +1142,7 @@ void TBaseNPC::sunflowerDownIn_()
 	static const s32 sIndividualSunflowerBtp[]
 	    = { 0x3, 0x0, 0x2, 0x0, -1, -1 };
 	unk1D8 |= 0x1;
-	unk1D8 &= ~0x4;
+	unk1D8 &= ~0x2;
 	unkD0->unk18 = (const TAnmBckMapping*)sIndividualSunflowerBck;
 	unkD0->unk1C = (const TAnmBtpMapping*)sIndividualSunflowerBtp;
 }
