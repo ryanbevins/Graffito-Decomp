@@ -330,12 +330,13 @@ void TBaseNPC::walkAnmRateChange_()
 		case 8:
 		case 0: {
 			int frame
-			    = CLBPalFrame<long>(mPtrSaveNormal->mStopWalkAnmRateFrame.value);
-			CLBChaseDecrease(&unk1D0, 0.0f,
-			    mPtrSaveNormal->mStopWalkAnmRateChase.value, 0.001f);
+			    = CLBPalFrame<long>(mPtrSaveNormal->mStopWalkAnmRateFrame.get());
+			BOOL chasing = CLBChaseDecrease(
+			    &unk1D0, 0.0f, mPtrSaveNormal->mStopWalkAnmRateChase.get(),
+			    0.001f);
 			if (unk1CC < frame)
 				unk1CC++;
-			if (unk1CC >= frame || unk1D0 == 0.0f) {
+			if (unk1CC >= frame || !chasing) {
 				unk1CC = 0;
 				unk1D0 = 0.0f;
 				TUnk18CStruct* ib = (TUnk18CStruct*)mUnk18C;
