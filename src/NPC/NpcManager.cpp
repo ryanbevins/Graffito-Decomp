@@ -682,21 +682,15 @@ void TNPCManager::makePartsModelData_(u32 actorType, u32 flags,
 			    = keeper->createAndKeepData(modelData->unk8[j], localFlags);
 
 			if (modelData->unk2B) {
-				if (J3DMaterialTable* bmt = getBmt_(modelData->unk2A)) {
-					sdlModel->unk0->setMaterialTable(
+				J3DMaterialTable* bmt = getBmt_(modelData->unk2A);
+				if (bmt != NULL) {
+					sdlModel->getModelData()->setMaterialTable(
 					    bmt, J3DMatCopyFlag_All);
 				}
 			}
 
-			if (modelData->unk2A) {
-				const ResTIMG* tex
-				    = (const ResTIMG*)JKRFileLoader::getGlbResource(
-				        cRealPollutionTexName);
-				if (tex != NULL) {
-					SMS_ChangeTextureAll(sdlModel->unk0,
-					                     cDummyPollutionTexName, *tex);
-				}
-			}
+			if (modelData->unk2A)
+				changeTextureToPollution_(sdlModel->getModelData());
 		}
 	}
 }
@@ -705,6 +699,15 @@ void TNPCManager::load(JSUMemoryInputStream& stream)
 {
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
+}
+
+inline void TNPCManager::changeTextureToPollution_(J3DModelData* model)
+{
+	const ResTIMG* pollutionTex
+	    = (const ResTIMG*)JKRFileLoader::getGlbResource(cRealPollutionTexName);
+
+	if (pollutionTex != NULL)
+		SMS_ChangeTextureAll(model, cDummyPollutionTexName, *pollutionTex);
 }
 
 // =====================================================================
