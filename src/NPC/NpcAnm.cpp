@@ -460,7 +460,8 @@ void TBaseNPC::npcWaitIn()
 
 void TBaseNPC::npcFallIn()
 {
-	requestNpcAnm_(asKind(0x2), NPC_STOP_MOTION_BLEND_ON);
+	requestNpcAnm_((EnumNpcAnmKind)0x2,
+	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -508,7 +509,8 @@ bool TBaseNPC::npcRecoverFromSinking()
 
 void TBaseNPC::npcRecoverAfterIn()
 {
-	requestNpcAnm_(asKind(0x3), NPC_STOP_MOTION_BLEND_ON);
+	requestNpcAnm_((EnumNpcAnmKind)0x3,
+	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -517,7 +519,8 @@ void TBaseNPC::npcRecoverAfterIn()
 
 void TBaseNPC::npcStepIn()
 {
-	requestNpcAnm_(asKind(0x4), NPC_STOP_MOTION_BLEND_ON);
+	requestNpcAnm_((EnumNpcAnmKind)0x4,
+	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -608,7 +611,8 @@ void TBaseNPC::npcTalkOut()
 
 void TBaseNPC::npcTakenIn()
 {
-	requestNpcAnm_(asKind(0x9), NPC_STOP_MOTION_BLEND_ON);
+	requestNpcAnm_((EnumNpcAnmKind)0x9,
+	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -618,7 +622,8 @@ void TBaseNPC::npcTakenIn()
 void TBaseNPC::npcDanceIn()
 {
 	mActionFlag |= 0x4;
-	requestNpcAnm_(asKind(0x16), NPC_STOP_MOTION_BLEND_ON);
+	requestNpcAnm_((EnumNpcAnmKind)0x16,
+	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -629,7 +634,8 @@ void TBaseNPC::npcHappyIn(unsigned char arg)
 {
 	unk1D9        = arg;
 	mActionFlag  |= 0x200;
-	requestNpcAnm_(asKind(0x11), NPC_STOP_MOTION_BLEND_ON);
+	requestNpcAnm_((EnumNpcAnmKind)0x11,
+	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -854,7 +860,8 @@ void TBaseNPC::npcSinking()
 
 void TBaseNPC::npcThrowIn()
 {
-	requestNpcAnm_(asKind(0xD), NPC_STOP_MOTION_BLEND_ON);
+	requestNpcAnm_((EnumNpcAnmKind)0xD,
+	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -923,7 +930,8 @@ bool TBaseNPC::npcMadding()
 
 void TBaseNPC::npcBlownIn()
 {
-	requestNpcAnm_(asKind(0xE), NPC_STOP_MOTION_BLEND_ON);
+	requestNpcAnm_((EnumNpcAnmKind)0xE,
+	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
