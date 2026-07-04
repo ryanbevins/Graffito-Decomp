@@ -362,38 +362,35 @@ void TBaseNPC::walkAnmRateChange_()
 		int anmKind = unkD0->mCurrentAnmKind;
 		if (anmKind == 8 || anmKind == 0) {
 			f32 individualRate
-			    = mNpcSaveIndividual->mSLMinWalkAnmRate.value
+			    = mNpcSaveIndividual->mSLMinWalkAnmRate.get()
 			    * SMSGetAnmFrameRate();
 			f32 baseRate;
 			f32 maxRate;
-			if (anmKind == 8) {
-				baseRate = mNpcSaveIndividual->mSLMaxRunAnmRate.value
+			if (unkD0->mCurrentAnmKind == 8) {
+				baseRate = mNpcSaveIndividual->mSLMaxRunAnmRate.get()
 				         * SMSGetAnmFrameRate();
-				maxRate  = mNpcSaveIndividual->mSLMaxRunSpeed.value;
+				maxRate  = mNpcSaveIndividual->mSLMaxRunSpeed.get();
 				if (mActionFlag & 0x4000) {
-					f32 mul  = mPtrSaveNormal->mSLSmokeRunMagnif.value;
+					f32 mul  = mPtrSaveNormal->mSLSmokeRunMagnif.get();
 					baseRate = baseRate * mul;
 					maxRate  = maxRate * mul;
 				}
 			} else {
-				baseRate = mNpcSaveIndividual->mSLMaxWalkAnmRate.value
+				baseRate = mNpcSaveIndividual->mSLMaxWalkAnmRate.get()
 				         * SMSGetAnmFrameRate();
-				maxRate  = mNpcSaveIndividual->mMaxMarchSpeed.value;
+				maxRate  = mNpcSaveIndividual->mMaxMarchSpeed.get();
 			}
 			if (speed > maxRate)
 				speed = maxRate;
-			f32 ratio
-			    = CLBCalcRatio<f32>(mNpcSaveIndividual->mSLMinMarchSpeed.value,
-			                        maxRate, speed);
-			if (ratio > 1.0f)
-				ratio = 1.0f;
-			else if (ratio < 0.0f)
-				ratio = 0.0f;
+			f32 ratio = MsClamp(
+			    CLBCalcRatio<f32>(mNpcSaveIndividual->mSLMinMarchSpeed.get(),
+			                      maxRate, speed),
+			    0.0f, 1.0f);
 			f32 newRate = CLBLinearInbetween<f32>(individualRate, baseRate, ratio);
 			if (mColCount != 0)
 				newRate = baseRate;
 			CLBChaseDecrease(&unk1D0, newRate,
-			    mPtrSaveNormal->mMoveWalkAnmRateChase.value, 0.0f);
+			    mPtrSaveNormal->mMoveWalkAnmRateChase.get(), 0.0f);
 			mMActor->setFrameRate(unk1D0, 0);
 		} else {
 			unk1D0 = 0.0f;
