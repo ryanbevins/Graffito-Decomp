@@ -158,6 +158,9 @@ public:
 	bool isPolWaitCEffectEmitTime_() const;
 	bool isPolWaitLEffectEmitTime_() const;
 	bool isPolWaitREffectEmitTime_() const;
+	void emitPollutionParticle_(int, MtxPtr);
+	void emitDirtyEffect_();
+	void emitWashEffect_();
 	void emitHappyEffect_();
 	void emitSinkEffect_();
 	JGeometry::TVec3<f32> getEffectScale_() const;

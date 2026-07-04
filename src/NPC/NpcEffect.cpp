@@ -139,15 +139,12 @@ void TBaseNPC::setSmokeEffectMtxPtr_(bool isSmoke)
 
 JGeometry::TVec3<f32> TBaseNPC::getEffectScale_() const
 {
-	JGeometry::TVec3<f32> result;
-	if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
-		result.x = 1.0f;
-		result.y = 1.0f;
-		result.z = 1.0f;
-	} else {
-		result = mEffectScaleBase;
+	switch (mActorType) {
+	case 0x04000016:
+	case 0x04000017:
+		return JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f);
 	}
-	return result;
+	return mEffectScaleBase;
 }
 
 void TBaseNPC::emitSinkEffect_()
@@ -191,6 +188,58 @@ void TBaseNPC::emitHappyEffect_()
 		if (isMare || mActorType == 0x04000016) {
 			SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0x71,
 			                     mPtrHappyEffectMtx, this, scale2);
+		}
+	}
+}
+
+inline void TBaseNPC::emitPollutionParticle_(int particle, MtxPtr mtx)
+{
+	JPABaseEmitter* emitter
+	    = gpMarioParticleManager->emitAndBindToMtxPtr(particle, mtx, 0, NULL);
+	if (emitter) {
+		emitter->setScale(getEffectScale_());
+		SMSSetEmitterPolColor(emitter, 6);
+	}
+}
+
+inline void TBaseNPC::emitDirtyEffect_()
+{
+	if (isPolWaitCEffectEmitTime_()) {
+		s32 idx = -1;
+		if (isNormalMonteM() || isNormalMonteW())
+			idx = 0x72;
+		else if (isNormalMareW())
+			idx = 0x74;
+		else if (mActorType == 0x04000016)
+			idx = 0x75;
+
+		if (idx != -1)
+			emitPollutionParticle_(idx, mPtrPollutionEffectMtx);
+	}
+
+	if (isNormalMonteM() || isNormalMonteW()) {
+		if (isPolWaitLEffectEmitTime_())
+			emitPollutionParticle_(0x73, mPtrPollutionLEffectMtx);
+
+		if (isPolWaitREffectEmitTime_())
+			emitPollutionParticle_(0x73, mPtrPollutionREffectMtx);
+	}
+}
+
+inline void TBaseNPC::emitWashEffect_()
+{
+	s32 idx = -1;
+	if (isNormalMonteM() || isNormalMonteW())
+		idx = 0x172;
+	else if (isNormalMareM() || isNormalMareW() || mActorType == 0x04000016)
+		idx = 0x173;
+
+	if (idx != -1) {
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    idx, mPtrPollutionEffectMtx, 1, this);
+		if (emitter) {
+			emitter->setScale(getEffectScale_());
+			SMSSetEmitterPolColor(emitter, 6);
 		}
 	}
 }
@@ -247,26 +296,15 @@ inline bool TBaseNPC::isPolWaitREffectEmitTime_() const
 
 void TBaseNPC::emitParticle_()
 {
-	// Block 1: smoke + fire chain
 	if (mPtrSmokeEffectMtx && (mActionFlag & 0x4000)) {
-		JGeometry::TVec3<f32> scale;
-		if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
-			scale.set(1.0f, 1.0f, 1.0f);
-		} else {
-			scale = mEffectScaleBase;
-		}
-		JGeometry::TVec3<f32> scaleSmoke = scale;
-		MtxPtr mtxSmoke                  = mPtrSmokeEffectMtx;
-		mSmokeEffectPos.x                = mtxSmoke[0][3];
-		mSmokeEffectPos.y                = mtxSmoke[1][3];
-		mSmokeEffectPos.z                = mtxSmoke[2][3];
+		JGeometry::TVec3<f32> scale = getEffectScale_();
+		mSmokeEffectPos.set(mPtrSmokeEffectMtx[0][3], mPtrSmokeEffectMtx[1][3],
+		                    mPtrSmokeEffectMtx[2][3]);
 		SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x170,
-		                     &mSmokeEffectPos, this, scaleSmoke);
+		                     &mSmokeEffectPos, this, scale);
 
-		JGeometry::TVec3<f32> scaleFire = scaleSmoke;
-		scaleFire.x *= mFireScaleMul;
-		scaleFire.y *= mFireScaleMul;
-		scaleFire.z *= mFireScaleMul;
+		JGeometry::TVec3<f32> scaleFire = scale;
+		scaleFire *= mFireScaleMul;
 		SMS_EasyEmitParticle(PARTICLE_MS_MOE_FIRE_C, &mSmokeEffectPos, this,
 		                     scaleFire);
 		SMS_EasyEmitParticle(PARTICLE_MS_MOE_FIRE_A, &mSmokeEffectPos, this,
@@ -275,145 +313,49 @@ void TBaseNPC::emitParticle_()
 		                     scaleFire);
 	}
 
-	// Block 2: note effect
-	if (mPtrNoteEffectMtx) {
-		if (mActorType == 0x04000012 && unkD0->mCurrentAnmKind != 5) {
-			JGeometry::TVec3<f32> scale;
-			if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
-				scale.set(1.0f, 1.0f, 1.0f);
-			} else {
-				scale = mEffectScaleBase;
-			}
-			JGeometry::TVec3<f32> scaleNote = scale;
-			scaleNote.x *= 0.75f;
-			scaleNote.y *= 0.75f;
-			scaleNote.z *= 0.75f;
-			MtxPtr mtxNote   = mPtrNoteEffectMtx;
-			mNoteEffectPos.x = mtxNote[0][3];
-			mNoteEffectPos.y = mtxNote[1][3];
-			mNoteEffectPos.z = mtxNote[2][3];
-			SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x18B,
-			                     &mNoteEffectPos, this, scaleNote);
-		}
+	if (mPtrNoteEffectMtx
+	    && (mActorType != 0x04000012 || unkD0->getCurrentAnmKind() != 5)) {
+		JGeometry::TVec3<f32> scale = getEffectScale_();
+		scale *= 0.75f;
+
+		mNoteEffectPos.set(mPtrNoteEffectMtx[0][3], mPtrNoteEffectMtx[1][3],
+		                   mPtrNoteEffectMtx[2][3]);
+		SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x18B, &mNoteEffectPos,
+		                     this, scale);
 	}
 
-	// Block 3: water hamon
-	bool doWater = false;
-	if (mActorType == 0x04000007) {
-		doWater = true;
-	} else if (gpMarDirector->mMap == 4) {
-		doWater = true;
-	}
-	if (doWater) {
+	if (mActorType == 0x04000007 || gpMarDirector->mMap == 4) {
 		f32 waveY = 0.0f;
-		JGeometry::TVec3<f32> scale;
-		if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
-			scale.set(1.0f, 1.0f, 1.0f);
-		} else {
-			scale = mEffectScaleBase;
-		}
-		JGeometry::TVec3<f32> scaleW = scale;
-
 		bool emit = false;
+		JGeometry::TVec3<f32> scale = getEffectScale_();
+
 		if (mActorType == 0x04000007) {
-			scaleW.x *= 1.5f;
-			scaleW.y *= 1.5f;
-			scaleW.z *= 1.5f;
 			emit = true;
-		} else if (mPosition.y <= 30.0f) {
-			if (mLinearVelocity.x != 0.0f || mLinearVelocity.z != 0.0f) {
-				waveY = gpMapObjWave->getWaveHeight(mPosition.x, mPosition.z);
-				if (mPosition.y <= waveY)
-					emit = true;
-			}
+			scale *= 1.5f;
+		} else if (mPosition.y <= 30.0f
+		           && (mLinearVelocity.x != 0.0f
+		               || mLinearVelocity.z != 0.0f)) {
+			waveY = gpMapObjWave->getWaveHeight(mPosition.x, mPosition.z);
+			if (mPosition.y <= waveY)
+				emit = true;
 		}
+
 		if (emit) {
-			mWaterEffectPos.x = mPosition.x;
-			mWaterEffectPos.y = waveY;
-			mWaterEffectPos.z = mPosition.z;
+			mWaterEffectPos.set(mPosition.x, waveY, mPosition.z);
 			SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_INDIRECT)0x1F7,
-			                     &mWaterEffectPos, this, scaleW);
+			                     &mWaterEffectPos, this, scale);
 			SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x171,
-			                     &mWaterEffectPos, this, scaleW);
+			                     &mWaterEffectPos, this, scale);
 		}
 	}
 
-	// Block 4: pollution emission gated on anm state
-	switch (unkD0->mCurrentAnmKind) {
-	case 0xF: {
-		if (isPolWaitCEffectEmitTime_()) {
-			s32 idx = -1;
-			if (isNormalMonteM() || isNormalMonteW())
-				idx = 0x72;
-			else if (isNormalMareW())
-				idx = 0x74;
-			else if (mActorType == 0x04000016)
-				idx = 0x75;
-			if (idx != -1) {
-				JPABaseEmitter* em
-				    = gpMarioParticleManager->emitAndBindToMtxPtr(
-				        idx, mPtrPollutionEffectMtx, 0, NULL);
-				if (em) {
-					JGeometry::TVec3<f32> sc = getEffectScale_();
-					em->unk154.set(sc);
-					em->unk174.set(sc);
-					SMSSetEmitterPolColor(em, 6);
-				}
-			}
-		}
-		if (isNormalMonteM() || isNormalMonteW()) {
-			if (isPolWaitLEffectEmitTime_()) {
-				JPABaseEmitter* em
-				    = gpMarioParticleManager->emitAndBindToMtxPtr(
-				        0x73, mPtrPollutionLEffectMtx, 0, NULL);
-				if (em) {
-					JGeometry::TVec3<f32> sc = getEffectScale_();
-					em->unk154.set(sc);
-					em->unk174.set(sc);
-					SMSSetEmitterPolColor(em, 6);
-				}
-			}
-			if (isPolWaitREffectEmitTime_()) {
-				JPABaseEmitter* em
-				    = gpMarioParticleManager->emitAndBindToMtxPtr(
-				        0x73, mPtrPollutionREffectMtx, 0, NULL);
-				if (em) {
-					JGeometry::TVec3<f32> sc = getEffectScale_();
-					em->unk154.set(sc);
-					em->unk174.set(sc);
-					SMSSetEmitterPolColor(em, 6);
-				}
-			}
-		}
+	switch (unkD0->getCurrentAnmKind()) {
+	case 0xF:
+		emitDirtyEffect_();
 		break;
-	}
-	case 0x19: {
-		s32 idx = -1;
-		if (isNormalMonteM() || isNormalMonteW())
-			idx = 0x172;
-		else if (isNormalMareM() || isNormalMareW()
-		         || mActorType == 0x04000016)
-			idx = 0x173;
-		if (idx != -1) {
-			JPABaseEmitter* em = gpMarioParticleManager->emitAndBindToMtxPtr(
-			    idx, mPtrPollutionEffectMtx, 1, this);
-			if (em) {
-				JGeometry::TVec3<f32> sc;
-				if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
-					sc.set(1.0f, 1.0f, 1.0f);
-				} else {
-					sc = mEffectScaleBase;
-				}
-				em->unk154.x = sc.x;
-				em->unk154.y = sc.y;
-				em->unk154.z = sc.z;
-				em->unk174.x = sc.x;
-				em->unk174.y = sc.y;
-				em->unk174.z = sc.z;
-				SMSSetEmitterPolColor(em, 6);
-			}
-		}
+
+	case 0x19:
+		emitWashEffect_();
 		break;
-	}
 	}
 }
