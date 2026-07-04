@@ -26,6 +26,7 @@ public:
 	J3DFrameCtrl* getFrameCtrl() const;
 	MtxPtr getMtxPtrFootL() const;
 	MtxPtr getMtxPtrFootR() const;
+	const JGeometry::TVec3<f32>& getTranslation() const { return mTranslation; }
 	void getOff(bool knockedOff);
 	void init(TMario*);
 	void initInLoadAfter();
