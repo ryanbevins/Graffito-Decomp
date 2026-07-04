@@ -22,199 +22,6 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
-// DEBUG: Set to 0 to restore the original BMG/Japanese debug-menu strings.
-#define SMS_DEBUG_STAGE_SELECT_ENGLISH 1
-// DEBUG: Set to 0 to show test maps, movie entries, and No Data rows again.
-#define SMS_DEBUG_STAGE_SELECT_PROPER_LEVELS_ONLY 1
-#define SMS_DEBUG_STAGE_SELECT_PROPER_LEVEL_COUNT 10
-
-#if SMS_DEBUG_STAGE_SELECT_ENGLISH
-static const char* const sDebugStageSelectLines[19] = {
-	"00 Delfino Airstrip",
-	"01 Delfino Plaza",
-	"02 Bianco Hills",
-	"03 Ricco Harbor",
-	"04 Gelato Beach",
-	"05 Pinna Park",
-	"06 Sirena Beach",
-	"07 Pianta Village",
-	"08 Noki Bay",
-	"09 Corona Mountain",
-	"10 Scale Map",
-	"11 Test Map 1",
-	"12 No Data",
-	"13 No Data",
-	"14 No Data",
-	"15 No Data",
-	"16 No Data",
-	"show movie 1",
-	"show movie 2",
-};
-
-#define SMS_DEBUG_MENU_BEACH "Beach %d"
-#define SMS_DEBUG_MENU_HOTEL "Hotel %d"
-#define SMS_DEBUG_MENU_CASINO "Casino %d"
-#define SMS_DEBUG_MENU_BOSS "Boss"
-#define SMS_DEBUG_MENU_BOSS_NUM "Boss %d"
-#define SMS_DEBUG_MENU_BEACHSIDE "Beachside %d"
-#define SMS_DEBUG_MENU_PINNA_PARK "Pinna Park %d"
-#define SMS_DEBUG_MENU_DEMO "Demo %d"
-#define SMS_DEBUG_MENU_NOKI "Noki %d"
-#define SMS_DEBUG_MENU_UNDERSEA "Undersea"
-#define SMS_DEBUG_MENU_SCENE "%02d Scene %d"
-#endif
-
-static J2DTextBox* getDebugStageTextBox(J2DSetScreen* screen, int index)
-{
-	int code = index < 9 ? 'tx01' + index : 'tx10' + index - 9;
-	return (J2DTextBox*)screen->search(code);
-}
-
-#if SMS_DEBUG_STAGE_SELECT_PROPER_LEVELS_ONLY
-struct TDebugScenarioEntry {
-	u8 mStage;
-	u8 mScenario;
-	const char* mName;
-};
-
-struct TDebugScenarioMenu {
-	u8 mCount;
-	const TDebugScenarioEntry* mEntries;
-};
-
-static const TDebugScenarioEntry sAirportDebugScenarios[] = {
-	{ 0, 0, "Airstrip 0" },
-	{ 0, 1, "Airstrip 1" },
-};
-
-static const TDebugScenarioEntry sDolpicDebugScenarios[] = {
-	{ 1, 0, "Plaza 0" },     { 1, 1, "Plaza 1" },
-	{ 1, 2, "Plaza 10" },    { 1, 5, "Plaza 5" },
-	{ 1, 6, "Plaza 6" },     { 1, 7, "Plaza 7" },
-	{ 1, 8, "Plaza 8" },     { 1, 9, "Plaza 9" },
-	{ 20, 0, "Plaza EX 0" }, { 21, 0, "Plaza EX 1" },
-	{ 22, 0, "Plaza EX 2" }, { 23, 0, "Plaza EX 3" },
-	{ 24, 0, "Plaza EX 4" }, { 25, 0, "Plaza EX 5" },
-	{ 26, 0, "Plaza EX 6" }, { 27, 0, "Plaza EX 7" },
-};
-
-static const TDebugScenarioEntry sBiancoDebugScenarios[] = {
-	{ 2, 0, "Scene 0" },  { 2, 1, "Scene 1" },
-	{ 2, 2, "Scene 2" },  { 2, 3, "Scene 3" },
-	{ 2, 4, "Scene 4" },  { 2, 5, "Scene 5" },
-	{ 2, 6, "Scene 6" },  { 2, 7, "Scene 7" },
-	{ 55, 0, "Boss" },    { 28, 0, "EX 0" },
-	{ 29, 0, "EX 1" },
-};
-
-static const TDebugScenarioEntry sRiccoDebugScenarios[] = {
-	{ 3, 0, "Scene 0" }, { 3, 1, "Scene 1" },
-	{ 3, 2, "Scene 2" }, { 3, 3, "Scene 3" },
-	{ 3, 4, "Scene 4" }, { 3, 5, "Scene 5" },
-	{ 3, 6, "Scene 6" }, { 3, 7, "Scene 7" },
-	{ 30, 0, "EX 0" },   { 31, 0, "EX 1" },
-	{ 59, 0, "Boss" },
-};
-
-static const TDebugScenarioEntry sMammaDebugScenarios[] = {
-	{ 4, 0, "Scene 0" }, { 4, 1, "Scene 1" },
-	{ 4, 2, "Scene 2" }, { 4, 3, "Scene 3" },
-	{ 4, 4, "Scene 4" }, { 4, 5, "Scene 5" },
-	{ 4, 6, "Scene 6" }, { 4, 7, "Scene 7" },
-	{ 32, 0, "EX 0" },   { 33, 0, "EX 1" },
-};
-
-static const TDebugScenarioEntry sPinnaDebugScenarios[] = {
-	{ 5, 0, "Beach 0" }, { 5, 1, "Beach 1" },
-	{ 5, 2, "Beach 2" }, { 5, 3, "Beach 3" },
-	{ 5, 4, "Beach 4" }, { 13, 0, "Park 0" },
-	{ 13, 1, "Park 1" }, { 13, 2, "Park 2" },
-	{ 13, 3, "Park 3" }, { 13, 4, "Park 4" },
-	{ 13, 5, "Park 5" }, { 13, 6, "Park 6" },
-	{ 13, 7, "Park 7" }, { 37, 0, "EX 3" },
-	{ 38, 0, "EX 4" },   { 39, 0, "EX 5" },
-	{ 58, 0, "Boss 0" }, { 58, 1, "Boss 1" },
-};
-
-static const TDebugScenarioEntry sSirenaDebugScenarios[] = {
-	{ 6, 0, "Beach 0" },  { 6, 1, "Beach 1" },
-	{ 6, 2, "Beach 2" },  { 6, 3, "Beach 3" },
-	{ 6, 4, "Beach 4" },  { 6, 5, "Beach 5" },
-	{ 6, 6, "Beach 6" },  { 6, 7, "Beach 7" },
-	{ 7, 0, "Hotel 0" },  { 7, 1, "Hotel 1" },
-	{ 7, 2, "Hotel 2" },  { 7, 3, "Hotel 3" },
-	{ 7, 4, "Hotel 4" },  { 14, 0, "Casino 0" },
-	{ 14, 1, "Casino 1" }, { 40, 0, "EX 0" },
-	{ 41, 0, "EX 1" },    { 56, 0, "Boss" },
-};
-
-static const TDebugScenarioEntry sMonteDebugScenarios[] = {
-	{ 8, 0, "Scene 0" }, { 8, 1, "Scene 1" },
-	{ 8, 2, "Scene 2" }, { 8, 3, "Scene 3" },
-	{ 8, 4, "Scene 4" }, { 8, 5, "Scene 5" },
-	{ 8, 6, "Scene 6" }, { 8, 7, "Scene 7" },
-	{ 42, 0, "EX 0" },   { 43, 0, "EX 1" },
-};
-
-static const TDebugScenarioEntry sMareDebugScenarios[] = {
-	{ 9, 0, "Scene 0" }, { 9, 1, "Scene 1" },
-	{ 9, 2, "Scene 2" }, { 9, 3, "Scene 3" },
-	{ 9, 4, "Scene 4" }, { 9, 5, "Scene 5" },
-	{ 9, 6, "Scene 6" }, { 9, 7, "Scene 7" },
-	{ 16, 0, "Undersea" }, { 44, 0, "EX 0" },
-	{ 45, 0, "EX 1" },     { 57, 0, "Boss" },
-};
-
-static const TDebugScenarioEntry sCoronaDebugScenarios[] = {
-	{ 46, 0, "Corona 0" }, { 47, 0, "Corona 1" },
-	{ 48, 0, "Corona 2" }, { 49, 0, "Corona 3" },
-	{ 50, 0, "Corona 4" }, { 51, 0, "Corona 5" },
-	{ 52, 0, "Corona 6" }, { 60, 0, "Bowser" },
-};
-
-#define DEBUG_SCENARIO_MENU(entries)                                           \
-	{ sizeof(entries) / sizeof(entries[0]), entries }
-
-static const TDebugScenarioMenu sDebugScenarioMenus[] = {
-	DEBUG_SCENARIO_MENU(sAirportDebugScenarios),
-	DEBUG_SCENARIO_MENU(sDolpicDebugScenarios),
-	DEBUG_SCENARIO_MENU(sBiancoDebugScenarios),
-	DEBUG_SCENARIO_MENU(sRiccoDebugScenarios),
-	DEBUG_SCENARIO_MENU(sMammaDebugScenarios),
-	DEBUG_SCENARIO_MENU(sPinnaDebugScenarios),
-	DEBUG_SCENARIO_MENU(sSirenaDebugScenarios),
-	DEBUG_SCENARIO_MENU(sMonteDebugScenarios),
-	DEBUG_SCENARIO_MENU(sMareDebugScenarios),
-	DEBUG_SCENARIO_MENU(sCoronaDebugScenarios),
-};
-
-static J2DTextBox* getDebugScenarioTextBox(J2DSetScreen* screen, int index)
-{
-	int code = index < 9 ? 'st_1' + index : 'st_a' + index - 9;
-	return (J2DTextBox*)screen->search(code);
-}
-
-static void applyDebugScenarioMenu(J2DSetScreen* screen, TMenuPlane* menu,
-                                   int stageIndex)
-{
-	const TDebugScenarioMenu& scenarioMenu = sDebugScenarioMenus[stageIndex];
-
-	for (int i = 0; i < 20; ++i) {
-		J2DTextBox* box = getDebugScenarioTextBox(screen, i);
-		if (i < scenarioMenu.mCount) {
-			box->setString(scenarioMenu.mEntries[i].mName);
-			box->show();
-		} else {
-			box->setString("");
-			box->hide();
-		}
-	}
-
-	menu->unk28 = scenarioMenu.mCount;
-	menu->unk2C = 0;
-}
-#endif
-
 TMenuDirector::TMenuDirector()
     : unk18(0)
     , unk1C(nullptr)
@@ -309,14 +116,6 @@ int TMenuDirector::rsetup()
 	unk38->hide();
 
 	unk1C = JKRGetResource("/title/marisun_stage.bmg");
-#if SMS_DEBUG_STAGE_SELECT_ENGLISH
-	for (int i = 0; i < 19; ++i) {
-		char acStack_40[22];
-		snprintf(acStack_40, 22, "%s", sDebugStageSelectLines[i]);
-
-		getDebugStageTextBox(unk3C, i)->setString(acStack_40);
-	}
-#else
 	if (unk1C) {
 		for (int i = 0; i < 19; ++i) {
 			const char* message = SMSGetMessageData(unk1C, i);
@@ -328,19 +127,14 @@ int TMenuDirector::rsetup()
 			else
 				snprintf(acStack_40, 22, "%02d No Data            ", i);
 
-			getDebugStageTextBox(unk3C, i)->setString(acStack_40);
+			if (i < 9) {
+				((J2DTextBox*)unk3C->search('tx01' + i))->setString(acStack_40);
+			} else {
+				((J2DTextBox*)unk3C->search('tx10' + i - 9))
+				    ->setString(acStack_40);
+			}
 		}
 	}
-#endif
-
-#if SMS_DEBUG_STAGE_SELECT_PROPER_LEVELS_ONLY
-	for (int i = SMS_DEBUG_STAGE_SELECT_PROPER_LEVEL_COUNT; i < 19; ++i) {
-		J2DTextBox* box = getDebugStageTextBox(unk3C, i);
-		box->setString("");
-		box->hide();
-	}
-	unk40->unk28 = SMS_DEBUG_STAGE_SELECT_PROPER_LEVEL_COUNT;
-#endif
 
 	for (int i = 0; i < 20; ++i) {
 		int code            = i < 9 ? 'st_1' + i : 'st_a' + i - 9;
@@ -404,124 +198,6 @@ int TMenuDirector::direct()
 
 			unk38->setString(unk40->unk30[unk40->unk2C]->getStringPtr());
 
-#if SMS_DEBUG_STAGE_SELECT_ENGLISH
-			if (unk40->unk2C == 6) {
-				for (int i = 0; i < 10; ++i) {
-					int code = i + 'st_1';
-					if (i == 9)
-						code = 'st_a';
-					J2DTextBox* box = (J2DTextBox*)unk3C->search(code);
-					if (i < 6)
-						snprintf(box->getStringPtr(), 22,
-						         SMS_DEBUG_MENU_BEACH, i);
-					else
-						snprintf(box->getStringPtr(), 22,
-						         SMS_DEBUG_MENU_HOTEL, i - 6);
-				}
-
-				snprintf(((J2DTextBox*)unk3C->search('st_f'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_BEACH, 6);
-				snprintf(((J2DTextBox*)unk3C->search('st_g'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_BEACH, 7);
-				snprintf(((J2DTextBox*)unk3C->search('st_h'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_HOTEL, 4);
-				snprintf(((J2DTextBox*)unk3C->search('st_i'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_CASINO, 0);
-				snprintf(((J2DTextBox*)unk3C->search('st_j'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_CASINO, 1);
-				snprintf(((J2DTextBox*)unk3C->search('st_k'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_BOSS);
-			} else if (unk40->unk2C == 5) {
-				for (int i = 0; i < 10; ++i) {
-					int code = i + 'st_1';
-					if (i == 9)
-						code = 'st_a';
-					J2DTextBox* box = (J2DTextBox*)unk3C->search(code);
-					if (i < 4)
-						snprintf(box->getStringPtr(), 22,
-						         SMS_DEBUG_MENU_BEACHSIDE, i);
-					else
-						snprintf(box->getStringPtr(), 22,
-						         SMS_DEBUG_MENU_PINNA_PARK,
-						         i - 4);
-				}
-
-				snprintf(((J2DTextBox*)unk3C->search('st_b'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_PINNA_PARK, 6);
-				snprintf(((J2DTextBox*)unk3C->search('st_c'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_PINNA_PARK, 7);
-				snprintf(((J2DTextBox*)unk3C->search('st_d'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_BEACHSIDE, 4);
-				snprintf(((J2DTextBox*)unk3C->search('st_h'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_BOSS_NUM, 0);
-				snprintf(((J2DTextBox*)unk3C->search('st_i'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_BOSS_NUM, 1);
-				snprintf(((J2DTextBox*)unk3C->search('st_j'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_DEMO, 0);
-				snprintf(((J2DTextBox*)unk3C->search('st_k'))->getStringPtr(),
-				         22, SMS_DEBUG_MENU_DEMO, 1);
-			} else if (unk40->unk2C == 8) {
-				for (int i = 0; i < 10; ++i) {
-					int code = i + 'st_1';
-					if (i == 9)
-						code = 'st_a';
-					J2DTextBox* box = (J2DTextBox*)unk3C->search(code);
-					if (i < 8)
-						snprintf(box->getStringPtr(), 22,
-						         SMS_DEBUG_MENU_NOKI, i);
-					if (i == 8)
-						snprintf(box->getStringPtr(), 22,
-						         SMS_DEBUG_MENU_UNDERSEA);
-					if (i == 9)
-						snprintf(box->getStringPtr(), 22,
-						         SMS_DEBUG_MENU_BOSS);
-				}
-			} else if (unk40->unk2C == 0x11 || unk40->unk2C == 0x12) {
-				for (int i = 0; i < 20; ++i) {
-					int code;
-					if (i < 9)
-						code = i + 'st_1';
-					else
-						code = i - 9 + 'st_a';
-
-					J2DTextBox* box = (J2DTextBox*)unk3C->search(code);
-
-					int movie = i;
-
-					if (unk40->unk2C == 0x12)
-						movie += 20;
-
-					const char* movieName
-					    = TMovieDirector::getStreamMovieName(movie);
-					if (movieName) {
-						snprintf(box->getStringPtr(), 22, "%s", movieName);
-						char* it = strrchr(box->getStringPtr(), '.');
-						if (it)
-							*it = '\0';
-					} else {
-						snprintf(box->getStringPtr(), 22, "%02d not found",
-						         movie);
-					}
-				}
-			} else {
-				for (int i = 0; i < 20; ++i) {
-					int code;
-					if (i < 9)
-						code = i + 'st_1';
-					else
-						code = i - 9 + 'st_a';
-
-					J2DTextBox* box = (J2DTextBox*)unk3C->search(code);
-
-					if (i < 10)
-						snprintf(box->getStringPtr(), 22,
-						         SMS_DEBUG_MENU_SCENE, i, i);
-					else
-						snprintf(box->getStringPtr(), 22, "%02d EX %d", i,
-						         i - 10);
-				}
-			}
-#else
 			if (unk40->unk2C == 6) {
 				for (int i = 0; i < 10; ++i) {
 					int code = i + 'st_1';
@@ -631,12 +307,6 @@ int TMenuDirector::direct()
 						         i - 10);
 				}
 			}
-#endif
-
-#if SMS_DEBUG_STAGE_SELECT_PROPER_LEVELS_ONLY
-			applyDebugScenarioMenu(unk3C, unk44, unk40->unk2C);
-#endif
-
 			unk38->show();
 			unk44->show();
 			unk18 = 1;
@@ -680,15 +350,6 @@ int TMenuDirector::direct()
 
 void TMenuDirector::setFixedStageValue()
 {
-#if SMS_DEBUG_STAGE_SELECT_PROPER_LEVELS_ONLY
-	const TDebugScenarioMenu& scenarioMenu
-	    = sDebugScenarioMenus[unk40->unk2C];
-	const TDebugScenarioEntry& entry = scenarioMenu.mEntries[unk44->unk2C];
-	unk48                           = entry.mStage;
-	unk4C                           = entry.mScenario;
-	return;
-#endif
-
 	unk48 = unk40->unk2C;
 	unk4C = unk44->unk2C;
 	int local_30[]
