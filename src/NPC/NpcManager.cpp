@@ -362,7 +362,7 @@ void TMareWBaseManager::createModelData()
 
 void TMareJellyFishManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "jellyFish_A.bmd", 0x11240000, 0 },
 		{ "jellyFish_B.bmd", 0x11240000, 0 },
 		{ "jellyFish_C.bmd", 0x11240000, 0 },
@@ -375,15 +375,14 @@ void TMareJellyFishManager::createModelData()
 	const ResTIMG* realTex = (const ResTIMG*)JKRFileLoader::getGlbResource(
 	    cJellyFishRealTexName);
 	TScreenTexture* screenTex
-	    = (TScreenTexture*)JDrama::TNameRefGen::getInstance()
-	          ->getRootNameRef()
-	          ->search(cScreenTexViewObjName);
+	    = JDrama::TNameRefGen::search<TScreenTexture>(cScreenTexViewObjName);
 	const ResTIMG* screenTexInfo = screenTex->getTexture()->getTexInfo();
-	int dataNum                 = getModelDataKeeper()->getModelDataNum();
+	J3DModelData* modelData;
+	int dataNum = getModelDataKeeper()->getModelDataNum();
 	for (int i = 0; i < dataNum; ++i) {
-		J3DModelData* data = getModelDataKeeper()->getNthData(i)->unk0;
-		SMS_ChangeTextureAll(data, cJellyFishDummyTexName, *realTex);
-		SMS_ChangeTextureAll(data, cJellyFishDummyScreenTexName,
+		modelData = getModelDataKeeper()->getNthData(i)->getModelData();
+		SMS_ChangeTextureAll(modelData, cJellyFishDummyTexName, *realTex);
+		SMS_ChangeTextureAll(modelData, cJellyFishDummyScreenTexName,
 		                     *screenTexInfo);
 	}
 }
@@ -571,9 +570,9 @@ TNPCManager::TNPCManager(const char* name)
 void TNPCManager::perform(u32 flags, JDrama::TGraphics* gfx)
 {
 	if (flags & 0x200) {
-		for (int i = 0, objNum = mObjNum; i < objNum; i++) {
+		for (int i = 0, e = mObjNum; i < e; ++i) {
 			TBaseNPC* npc = (TBaseNPC*)unk18[i];
-			npc->onLiveFlag(0x01000000);
+			npc->onLiveFlag(LIVE_FLAG_UNK1000000);
 		}
 	}
 	TEnemyManager::perform(flags, gfx);
