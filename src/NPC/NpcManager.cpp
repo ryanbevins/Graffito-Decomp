@@ -550,20 +550,21 @@ TNPCManager::TNPCManager(const char* name)
 	unk5C = (TModelDataKeeper*)NULL;
 	unk60 = (TModelDataKeeper*)NULL;
 	TNpcSaveStageFarClip* far = gpConductor->unkF4->unk0;
-	switch (gpMarDirector->mMap) {
-	case 0:  unk58 = &far->mSLFarAirport.value; break;
-	case 1:  unk58 = &far->mSLFarDolpicTown.value; break;
-	case 2:  unk58 = &far->mSLFarBiancoHills.value; break;
-	case 3:  unk58 = &far->mSLFarRiccoHarbor.value; break;
-	case 4:  unk58 = &far->mSLFarMammaBeach.value; break;
-	case 5:  unk58 = &far->mSLFarPinnaBeach.value; break;
-	case 13: unk58 = &far->mSLFarPinnaParco.value; break;
-	case 6:  unk58 = &far->mSLFarSirenaBeach.value; break;
-	case 7:  unk58 = &far->mSLFarHotelDelfino.value; break;
-	case 9:  unk58 = &far->mSLFarMareVillage.value; break;
-	case 8:  unk58 = &far->mSLFarMonteVillage.value; break;
-	case 10: unk58 = &far->mSLFarCoronaMountain.value; break;
-	default: unk58 = &far->mSLFarOthers.value; break;
+	u8 area = gpMarDirector->getCurrentMap();
+	switch (area) {
+	case 0:  unk58 = &far->mSLFarAirport.get(); break;
+	case 1:  unk58 = &far->mSLFarDolpicTown.get(); break;
+	case 2:  unk58 = &far->mSLFarBiancoHills.get(); break;
+	case 3:  unk58 = &far->mSLFarRiccoHarbor.get(); break;
+	case 4:  unk58 = &far->mSLFarMammaBeach.get(); break;
+	case 5:  unk58 = &far->mSLFarPinnaBeach.get(); break;
+	case 13: unk58 = &far->mSLFarPinnaParco.get(); break;
+	case 6:  unk58 = &far->mSLFarSirenaBeach.get(); break;
+	case 7:  unk58 = &far->mSLFarHotelDelfino.get(); break;
+	case 9:  unk58 = &far->mSLFarMareVillage.get(); break;
+	case 8:  unk58 = &far->mSLFarMonteVillage.get(); break;
+	case 10: unk58 = &far->mSLFarCoronaMountain.get(); break;
+	default: unk58 = &far->mSLFarOthers.get(); break;
 	}
 }
 
