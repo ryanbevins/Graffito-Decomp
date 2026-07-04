@@ -673,7 +673,7 @@ void TYoshi::thinkUpper()
 	                           + 0x20);
 	upperAnm      = *(void**)((u8*)upperAnm + 0x48);
 
-	int active;
+	u8 active;
 	if (mTongue->mState != TYoshiTongue::STATE_IDLE) {
 		active = 1;
 	} else {
