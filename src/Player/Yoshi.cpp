@@ -233,18 +233,13 @@ void TYoshi::init(TMario* mario) {
 
 	mEmitJoint = jointName->getIndex("jnt_mouth");
 	mFootLJoint2 = jointName->getIndex("jnt_neck_2");
-	mMtxTrans.x = 0.0f;
-	mMtxTrans.y = 0.0f;
-	mMtxTrans.z = 0.0f;
-	mMtxTrans2.x = 0.0f;
-	mMtxTrans2.y = 0.0f;
-	mMtxTrans2.z = 0.0f;
+	mMtxTrans.zero();
+	mMtxTrans2.zero();
 	mSpineScale = 80.0f;
 
-	mActor->getFrameCtrl(0)->setFrame(0.0f);
-	mActor->getFrameCtrl(3)->setFrame(0.0f);
-	PSMTXCopy(mario->mModel->getModel()->getBaseTRMtx(),
-	          mActor->unk4->getBaseTRMtx());
+	mActor->getFrameCtrl(0)->setRate(0.5f);
+	mActor->getFrameCtrl(3)->setRate(0.5f);
+	mActor->unk4->setBaseTRMtx(mMario->mModel->getModel()->getBaseTRMtx());
 	mActor->unk4->calc();
 
 	modelData = mActor->unk4->getModelData();
