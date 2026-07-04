@@ -601,7 +601,8 @@ void TMareEventBumpyWall::bumpDownZ()
 {
 	f32 current = TMapObjBase::getJointTransZ(mJoint);
 	JGeometry::TVec3<f32> trans(0.0f, 0.0f, current);
-	f32 limit = -mBumpLimit;
+	f32 limit = mBumpLimit;
+	limit = -limit;
 	if (current > limit) {
 		if (!TMapObjBase::isDemo()) {
 			current -= mBumpSpeed;
@@ -661,7 +662,8 @@ void TMareEventBumpyWall::bumpDownX()
 {
 	f32 current = TMapObjBase::getJointTransX(mJoint);
 	JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
-	f32 limit = -mBumpLimit;
+	f32 limit = mBumpLimit;
+	limit = -limit;
 	if (current > limit) {
 		if (!TMapObjBase::isDemo()) {
 			current -= mBumpSpeed;
