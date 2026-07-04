@@ -617,7 +617,7 @@ void TMareEventBumpyWall::bumpDownZ()
 		TMapObjBase::setJointTransZ(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
-		JGeometry::TVec3<f32> trans(0.0f, 0.0f, -mBumpLimit);
+		trans.z = -mBumpLimit;
 		TMapObjBase::setJointTransZ(mJoint, -mBumpLimit);
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
@@ -646,7 +646,7 @@ void TMareEventBumpyWall::bumpUpZ()
 		TMapObjBase::setJointTransZ(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
-		JGeometry::TVec3<f32> trans(0.0f, 0.0f, mBumpLimit);
+		trans.z = mBumpLimit;
 		TMapObjBase::setJointTransZ(mJoint, mBumpLimit);
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
@@ -675,7 +675,7 @@ void TMareEventBumpyWall::bumpDownX()
 		TMapObjBase::setJointTransX(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
-		JGeometry::TVec3<f32> trans(-mBumpLimit, 0.0f, 0.0f);
+		trans.x = -mBumpLimit;
 		TMapObjBase::setJointTransX(mJoint, -mBumpLimit);
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
@@ -704,7 +704,7 @@ void TMareEventBumpyWall::bumpUpX()
 		TMapObjBase::setJointTransX(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
-		JGeometry::TVec3<f32> trans(mBumpLimit, 0.0f, 0.0f);
+		trans.x = mBumpLimit;
 		TMapObjBase::setJointTransX(mJoint, mBumpLimit);
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
@@ -718,6 +718,8 @@ void TMareEventBumpyWall::control()
 	TMapObjBase::control();
 
 	switch (mState) {
+	case 1:
+		break;
 	case 2:
 		bumpUpX();
 		break;
@@ -732,7 +734,7 @@ void TMareEventBumpyWall::control()
 		break;
 	}
 
-	if (mState != 1)
+	if (!isState(1))
 		calcMap();
 }
 
