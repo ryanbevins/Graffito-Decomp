@@ -654,13 +654,14 @@ void TNPCManager::makePartsModelData_(u32 actorType, u32 flags,
                                       TModelDataKeeper* keeper)
 {
 	const TNpcInitInfo* initInfo = SMSGetNpcInitData(actorType);
+	u32 localFlags;
 
 	for (int i = 0; i < 12; i++) {
 		const TNpcModelData* modelData = initInfo->unk4[i];
 		if (modelData == NULL)
 			continue;
 
-		u32 localFlags = flags;
+		localFlags = flags;
 		if (modelData->unk2A) {
 			localFlags &= ~0x00070000;
 			localFlags |= 0x00100000;
