@@ -601,7 +601,8 @@ void TMareEventBumpyWall::bumpDownZ()
 {
 	f32 current = TMapObjBase::getJointTransZ(mJoint);
 	JGeometry::TVec3<f32> trans(0.0f, 0.0f, current);
-	if (current > -mBumpLimit) {
+	f32 limit = -mBumpLimit;
+	if (current > limit) {
 		if (!TMapObjBase::isDemo()) {
 			current -= mBumpSpeed;
 			SMSRumbleMgr->start(0x13, -1, (f32*)nullptr);
@@ -617,8 +618,8 @@ void TMareEventBumpyWall::bumpDownZ()
 		TMapObjBase::setJointTransZ(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
-		trans.z = -mBumpLimit;
-		TMapObjBase::setJointTransZ(mJoint, -mBumpLimit);
+		trans.z = limit;
+		TMapObjBase::setJointTransZ(mJoint, limit);
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
 		SMSRumbleMgr->stop(0x13);
@@ -630,7 +631,8 @@ void TMareEventBumpyWall::bumpUpZ()
 {
 	f32 current = TMapObjBase::getJointTransZ(mJoint);
 	JGeometry::TVec3<f32> trans(0.0f, 0.0f, current);
-	if (current < mBumpLimit) {
+	f32 limit = mBumpLimit;
+	if (current < limit) {
 		if (!TMapObjBase::isDemo()) {
 			current += mBumpSpeed;
 			SMSRumbleMgr->start(0x13, -1, (f32*)nullptr);
@@ -646,8 +648,8 @@ void TMareEventBumpyWall::bumpUpZ()
 		TMapObjBase::setJointTransZ(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
-		trans.z = mBumpLimit;
-		TMapObjBase::setJointTransZ(mJoint, mBumpLimit);
+		trans.z = limit;
+		TMapObjBase::setJointTransZ(mJoint, limit);
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
 		SMSRumbleMgr->stop(0x13);
@@ -659,7 +661,8 @@ void TMareEventBumpyWall::bumpDownX()
 {
 	f32 current = TMapObjBase::getJointTransX(mJoint);
 	JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
-	if (current > -mBumpLimit) {
+	f32 limit = -mBumpLimit;
+	if (current > limit) {
 		if (!TMapObjBase::isDemo()) {
 			current -= mBumpSpeed;
 			SMSRumbleMgr->start(0x13, -1, (f32*)nullptr);
@@ -675,8 +678,8 @@ void TMareEventBumpyWall::bumpDownX()
 		TMapObjBase::setJointTransX(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
-		trans.x = -mBumpLimit;
-		TMapObjBase::setJointTransX(mJoint, -mBumpLimit);
+		trans.x = limit;
+		TMapObjBase::setJointTransX(mJoint, limit);
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
 		SMSRumbleMgr->stop(0x13);
@@ -688,7 +691,8 @@ void TMareEventBumpyWall::bumpUpX()
 {
 	f32 current = TMapObjBase::getJointTransX(mJoint);
 	JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
-	if (current < mBumpLimit) {
+	f32 limit = mBumpLimit;
+	if (current < limit) {
 		if (!TMapObjBase::isDemo()) {
 			current += mBumpSpeed;
 			SMSRumbleMgr->start(0x13, -1, (f32*)nullptr);
@@ -704,8 +708,8 @@ void TMareEventBumpyWall::bumpUpX()
 		TMapObjBase::setJointTransX(mJoint, current);
 		mMoveCollision->moveTrans(trans);
 	} else {
-		trans.x = mBumpLimit;
-		TMapObjBase::setJointTransX(mJoint, mBumpLimit);
+		trans.x = limit;
+		TMapObjBase::setJointTransX(mJoint, limit);
 		mMoveCollision->remove();
 		mWarpCollision->setUpTrans(trans);
 		SMSRumbleMgr->stop(0x13);
