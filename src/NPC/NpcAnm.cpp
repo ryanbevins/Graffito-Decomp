@@ -593,8 +593,7 @@ void TBaseNPC::npcTalkOut()
 	if (mActionFlag & 0x200) {
 		mActionFlag &= ~0x200;
 		if (mNpcCoin != 0) {
-			Vec cursor = getCursorPos();
-			mNpcCoin->requestAppearCoin(cursor, mRotation.y, 0x28);
+			mNpcCoin->requestAppearCoin(getCursorPos(), mRotation.y, 0x28);
 			unk1E0 = 0x168;
 			unk1E2 = 0x168;
 		}
