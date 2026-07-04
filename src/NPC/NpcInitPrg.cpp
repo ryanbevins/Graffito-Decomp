@@ -2,6 +2,9 @@
 #include <Enemy/Conductor.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <Enemy/Graph.hpp>
+#include <JSystem/J3D/J3DGraphBase/Components/J3DGXColorS10.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -281,75 +284,59 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 	const TNpcInitInfo* initData       = SMSGetNpcInitData(idx);
 	const TNpcInitAnmInfo* initAnmData = SMSGetNpcInitAnmData(idx);
 
-	s16 colorData[8];
+	J3DGXColorS10 colorData[2];
 	for (int i = 0; i < 2; i++) {
-		s32 r, g, b;
-		stream.read(&r, 4);
-		colorData[i * 4 + 0] = (s16)r;
-		stream.read(&g, 4);
-		colorData[i * 4 + 1] = (s16)g;
-		stream.read(&b, 4);
-		colorData[i * 4 + 2] = (s16)b;
-		colorData[i * 4 + 3] = (s16)0xff;
+		colorData[i].color.r = stream.readS32();
+		colorData[i].color.g = stream.readS32();
+		colorData[i].color.b = stream.readS32();
+		colorData[i].color.a = 0xff;
 	}
 
 	if (isPollutionNpc()) {
-		unk178               = colorData[2] * (1.0f / 255.0f);
+		unk178               = colorData[0].color.b * (1.0f / 255.0f);
 		u8 pollMax           = mNpcSaveIndividual->mPollutionMax.value;
 		*((u8*)this + 0x177) = (u8)(s32)(unk178 * (f32)pollMax);
 	}
 
-	s32 streamS32a;
-	stream.read(&streamS32a, 4);
-	s32 streamS32b;
-	stream.read(&streamS32b, 4);
-	_16C = streamS32b;
-	s32 streamS32c;
-	stream.read(&streamS32c, 4);
-	s32 streamS32d;
-	stream.read(&streamS32d, 4);
-	f32 fStream2 = (f32)streamS32d;
-	s32 streamS32e;
-	stream.read(&streamS32e, 4);
-	f32 fStream3 = (f32)streamS32e;
-	s32 sFlag;
-	stream.read(&sFlag, 4);
+	s32 streamS32a = stream.readS32();
+	_16C           = stream.readS32();
+	s32 streamS32c = stream.readS32();
+	f32 fStream2   = (f32)stream.readS32();
+	f32 fStream3   = (f32)stream.readS32();
+	s32 sFlag      = stream.readU32();
 
 	if (streamS32a < 0)
 		streamS32a = 0;
 	if (streamS32c < 0)
 		streamS32c = 0;
 
-	u32 nColorEntries       = mManager->unk28;
-	const GXColor* polColor = getPtrInitPollutionColor();
+	{
+		int nColorEntries      = mManager->unk28;
+		s16* indices           = &colorData[0].color.r;
+		const GXColor* polColor = getPtrInitPollutionColor();
 
-	for (s32 entryIdx = 0; entryIdx < (s32)nColorEntries; entryIdx++) {
-		for (int slot = 0; slot < 2; slot++) {
-			const TColorChangeInfo* info
-			    = initData->unk34[slot][entryIdx];
-			s16 idx = ((s16*)colorData)[slot];
-			if (info != nullptr) {
-				SMS_InitChangeNpcColor(
-				    mMActorKeeper->mActors[entryIdx], info, idx, polColor);
+		for (int entryIdx = 0; entryIdx < nColorEntries; entryIdx++) {
+			for (int slot = 0; slot < 2; slot++) {
+				s16 idx = indices[slot];
+				if (initData->unk34[slot][entryIdx] != nullptr) {
+					SMS_InitChangeNpcColor(
+					    mMActorKeeper->mActors[entryIdx],
+					    initData->unk34[slot][entryIdx], idx, polColor);
+				}
 			}
 		}
 	}
 
 	if (getPtrInitPollutionColor() != nullptr) {
 		J3DModel* model         = getModel();
-		J3DModelData* modelData = model->mModelData;
-		JUTNameTab* matNameTab  = *(JUTNameTab**)((u8*)modelData + 0xB4);
-		u16 numMaterials        = modelData->mMaterialNum;
-		for (u16 i = 0; i < numMaterials; i++) {
-			const char* matName = matNameTab->getName(i);
-			if (strcmp(matName, cEyeMaterialName) != 0) {
-				J3DMaterial* mat   = modelData->mMaterials[i];
-				void* sub          = *(void**)((u8*)mat + 0x4);
-				u16 matIdx         = *(u16*)((u8*)sub + 0x4);
-				void* matPacketArr = *(void**)((u8*)model + 0x84);
-				void* matPacket
-				    = *(void**)((u8*)matPacketArr + matIdx * 0x34 + 0xC);
-				if (matPacket == NULL) {
+		J3DModelData* modelData = model->getModelData();
+		JUTNameTab* matNameTab  = modelData->getMaterialName();
+		for (u16 i = 0, e = modelData->getMaterialNum(); i < e; i++) {
+			if (strcmp(matNameTab->getName(i), cEyeMaterialName) != 0) {
+				J3DMaterial* mat = modelData->getMaterialNodePointer(i);
+				J3DShapePacket* shape
+				    = model->getShapePacket(mat->getShape()->getIndex());
+				if (shape->unkC == nullptr) {
 					SMS_InitPacket_OneTevKColor(
 					    model, i, GX_KCOLOR0, &unk174);
 				}
@@ -371,8 +358,7 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 		sunflowerDownIn_();
 
 	if (streamS32a > 0)
-		mNpcParts = new TNpcParts((u32)streamS32a,
-		                          (const J3DGXColorS10*)&colorData[4], this);
+		mNpcParts = new TNpcParts((u32)streamS32a, &colorData[1], this);
 
 	if (initAnmData->unk4 != nullptr)
 		*(const TAnmBtpMapping**)((u8*)unkD0 + 0x1C) = initAnmData->unk4;
