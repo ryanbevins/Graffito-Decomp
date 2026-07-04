@@ -257,7 +257,7 @@ void TBaseNPC::requestNpcAnm_(EnumNpcAnmKind kind,
 		} else {
 			TNpcAnmRequest* req = mAnmRequest;
 			req->mKind          = (int)kind;
-			req->mBlend         = blend;
+			req->mBlend         = blend != NPC_STOP_MOTION_BLEND_OFF;
 		}
 	} else {
 		setNpcAnm_(kind, blend);
@@ -291,7 +291,7 @@ void TBaseNPC::requestTalkAnm_()
 	} else {
 		kind = 6;
 	}
-	requestNpcAnm_(asKind(kind), asBlend(1));
+	requestNpcAnm_(asKind(kind), NPC_STOP_MOTION_BLEND_ON);
 }
 
 void TBaseNPC::randomizeBckAndBtpFrame_()
@@ -399,9 +399,9 @@ void TBaseNPC::walkAnmRateChange_()
 		} else {
 			unk1D0 = 0.0f;
 			if (mActionFlag & 0x8) {
-				requestNpcAnm_(asKind(8), asBlend(1));
+				requestNpcAnm_(asKind(8), NPC_STOP_MOTION_BLEND_ON);
 			} else {
-				requestNpcAnm_(asKind(0), asBlend(1));
+				requestNpcAnm_(asKind(0), NPC_STOP_MOTION_BLEND_ON);
 			}
 		}
 	}
@@ -453,7 +453,7 @@ void TBaseNPC::npcWaitIn()
 			kind = getNpcWaitAnmBase_();
 		}
 	}
-	requestNpcAnm_(asKind(kind), asBlend(1));
+	requestNpcAnm_(asKind(kind), NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -462,7 +462,7 @@ void TBaseNPC::npcWaitIn()
 
 void TBaseNPC::npcFallIn()
 {
-	requestNpcAnm_(asKind(0x2), asBlend(1));
+	requestNpcAnm_(asKind(0x2), NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -510,7 +510,7 @@ bool TBaseNPC::npcRecoverFromSinking()
 
 void TBaseNPC::npcRecoverAfterIn()
 {
-	requestNpcAnm_(asKind(0x3), asBlend(1));
+	requestNpcAnm_(asKind(0x3), NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -519,7 +519,7 @@ void TBaseNPC::npcRecoverAfterIn()
 
 void TBaseNPC::npcStepIn()
 {
-	requestNpcAnm_(asKind(0x4), asBlend(1));
+	requestNpcAnm_(asKind(0x4), NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -532,7 +532,7 @@ void TBaseNPC::npcTalkIn()
 	if (mActorType != 0x0400001C && mActorType != 0x0400001D) {
 		if (!(isSunflower() && (unk1D8 & 0x2))) {
 			if (mActorType == 0x04000018 && (unk1D8 & 0x2)) {
-				requestNpcAnm_(asKind(0x1A), asBlend(1));
+				requestNpcAnm_(asKind(0x1A), NPC_STOP_MOTION_BLEND_ON);
 			} else {
 				requestTalkAnm_();
 			}
@@ -605,12 +605,12 @@ void TBaseNPC::npcTalkOut()
 		return;
 	if (mActorType != 0x04000006)
 		return;
-	requestNpcAnm_(asKind(0x4), asBlend(1));
+	requestNpcAnm_(asKind(0x4), NPC_STOP_MOTION_BLEND_ON);
 }
 
 void TBaseNPC::npcTakenIn()
 {
-	requestNpcAnm_(asKind(0x9), asBlend(1));
+	requestNpcAnm_(asKind(0x9), NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -620,7 +620,7 @@ void TBaseNPC::npcTakenIn()
 void TBaseNPC::npcDanceIn()
 {
 	mActionFlag |= 0x4;
-	requestNpcAnm_(asKind(0x16), asBlend(1));
+	requestNpcAnm_(asKind(0x16), NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -631,7 +631,7 @@ void TBaseNPC::npcHappyIn(unsigned char arg)
 {
 	unk1D9        = arg;
 	mActionFlag  |= 0x200;
-	requestNpcAnm_(asKind(0x11), asBlend(1));
+	requestNpcAnm_(asKind(0x11), NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -690,7 +690,7 @@ void TBaseNPC::npcWetOut()
 	if (mSpine->peekTopNerveOrNull() == &TNerveNPCTalk::theNerve()) {
 		requestTalkAnm_();
 	} else if (mActorType == 0x04000006) {
-		requestNpcAnm_(asKind(0x4), asBlend(1));
+		requestNpcAnm_(asKind(0x4), NPC_STOP_MOTION_BLEND_ON);
 	}
 }
 
@@ -701,7 +701,7 @@ bool TBaseNPC::npcWetting()
 		unk1DA &= ~0x2;
 		unk1D9       = 0;
 		mActionFlag |= 0x200;
-		requestNpcAnm_(asKind(0x11), asBlend(1));
+		requestNpcAnm_(asKind(0x11), NPC_STOP_MOTION_BLEND_ON);
 		mMarchSpeed = 0.0f;
 		mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 		unk1CC      = 0;
@@ -714,7 +714,7 @@ bool TBaseNPC::npcWetting()
 		if (unk178 == 0.0f) {
 			unk1D9       = 0;
 			mActionFlag |= 0x200;
-			requestNpcAnm_(asKind(0x11), asBlend(1));
+			requestNpcAnm_(asKind(0x11), NPC_STOP_MOTION_BLEND_ON);
 			mMarchSpeed = 0.0f;
 			mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 			unk1CC      = 0;
@@ -755,7 +755,7 @@ bool TBaseNPC::npcWetting()
 					int anm = 7;
 					if (MsRandF() < 0.5f)
 						anm = 0x1B;
-					requestNpcAnm_(asKind(anm), asBlend(0));
+					requestNpcAnm_(asKind(anm), NPC_STOP_MOTION_BLEND_OFF);
 				}
 			}
 			break;
@@ -765,9 +765,9 @@ bool TBaseNPC::npcWetting()
 				if (isStateGoToMad_()) {
 					mLiveFlag |= 0x02000000;
 					if (mActorType == 0x04000007 || (mActionFlag & 0x1))
-						requestNpcAnm_(asKind(0xA), asBlend(1));
+						requestNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_ON);
 					else {
-						requestNpcAnm_(asKind(0x4), asBlend(1));
+						requestNpcAnm_(asKind(0x4), NPC_STOP_MOTION_BLEND_ON);
 						mMarchSpeed = 0.0f;
 						mTurnSpeed
 						    = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
@@ -868,7 +868,7 @@ bool TBaseNPC::npcWetting()
 						mAnmRequest->mBlend = 0;
 					}
 				} else {
-					setNpcAnm_(asKind(7), asBlend(0));
+					setNpcAnm_(asKind(7), NPC_STOP_MOTION_BLEND_OFF);
 				}
 				break;
 			case 0xB:
@@ -882,7 +882,7 @@ bool TBaseNPC::npcWetting()
 						mAnmRequest->mBlend = 1;
 					}
 				} else {
-					setNpcAnm_(asKind(0xA), asBlend(1));
+					setNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_ON);
 				}
 				break;
 			case 0x14:
@@ -896,7 +896,7 @@ bool TBaseNPC::npcWetting()
 						mAnmRequest->mBlend = 1;
 					}
 				} else {
-					setNpcAnm_(asKind(0x18), asBlend(1));
+					setNpcAnm_(asKind(0x18), NPC_STOP_MOTION_BLEND_ON);
 				}
 				break;
 			case 7:
@@ -950,12 +950,12 @@ void TBaseNPC::npcSinking()
 	unk64     |= 0x1;
 	if (mActorType >= 0x0400001C && mActorType < 0x0400001E)
 		return;
-	requestNpcAnm_(asKind(0x10), asBlend(1));
+	requestNpcAnm_(asKind(0x10), NPC_STOP_MOTION_BLEND_ON);
 }
 
 void TBaseNPC::npcThrowIn()
 {
-	requestNpcAnm_(asKind(0xD), asBlend(1));
+	requestNpcAnm_(asKind(0xD), NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -982,7 +982,7 @@ void TBaseNPC::npcMadIn()
 {
 	mLiveFlag |= 0x02000000;
 	if (mActorType == 0x04000007 || (mActionFlag & 0x1)) {
-		requestNpcAnm_(asKind(0xA), asBlend(1));
+		requestNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_ON);
 	} else {
 		npcStepIn();
 	}
@@ -1010,7 +1010,7 @@ bool TBaseNPC::npcMadding()
 		while (delta < 0.0f)
 			delta += 360.0f;
 		if (delta < 0.001f)
-			requestNpcAnm_(asKind(0xA), asBlend(0));
+			requestNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_OFF);
 		if (!unk124->getGraph()->isDummy())
 			unk1DA |= 0x1;
 	} else if (k == 0xA || k == 0xB) {
@@ -1024,7 +1024,7 @@ bool TBaseNPC::npcMadding()
 
 void TBaseNPC::npcBlownIn()
 {
-	requestNpcAnm_(asKind(0xE), asBlend(1));
+	requestNpcAnm_(asKind(0xE), NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
@@ -1061,7 +1061,7 @@ void TBaseNPC::npcMareStandIn()
 		break;
 	}
 	default:
-		requestNpcAnm_(asKind(7), asBlend(1));
+		requestNpcAnm_(asKind(7), NPC_STOP_MOTION_BLEND_ON);
 		break;
 	}
 	mMarchSpeed = 0.0f;
@@ -1085,7 +1085,7 @@ bool TBaseNPC::npcMareStanding()
 				finished      = true;
 			}
 			if (finished) {
-				requestNpcAnm_(asKind(7), asBlend(1));
+				requestNpcAnm_(asKind(7), NPC_STOP_MOTION_BLEND_ON);
 			}
 		}
 		break;
@@ -1121,7 +1121,7 @@ void TBaseNPC::peachTiredIn_()
 	if (unk1D8 & 0x2)
 		return;
 	unk1D8 |= 0x2;
-	requestNpcAnm_(asKind(0x10), asBlend(1));
+	requestNpcAnm_(asKind(0x10), NPC_STOP_MOTION_BLEND_ON);
 }
 
 inline void TBaseNPC::peachTiredOut_()
@@ -1132,7 +1132,7 @@ inline void TBaseNPC::peachTiredOut_()
 	unk1D8 |= 0x4;
 	unkD0->unk18 = (const TAnmBckMapping*)sIndividualPeachBck;
 	unkD0->unk1C = (const TAnmBtpMapping*)sIndividualPeachBtp;
-	requestNpcAnm_(asKind(6), asBlend(0));
+	requestNpcAnm_(asKind(6), NPC_STOP_MOTION_BLEND_OFF);
 }
 
 void TBaseNPC::sunflowerDownIn_()
@@ -1174,7 +1174,7 @@ bool TBaseNPC::sunflowerReviving()
 				} else {
 					kind = asKind(6);
 				}
-				setNpcAnm_(kind, asBlend(1));
+				setNpcAnm_(kind, NPC_STOP_MOTION_BLEND_ON);
 			} else {
 				npcWaitIn();
 			}
@@ -1193,20 +1193,20 @@ void TBaseNPC::monteMESetAnmWhenFar()
 	case 2:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
 			EnumNpcAnmKind kind = asKind(1);
-			requestNpcAnm_(kind, asBlend(0));
+			requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
 		}
 		break;
 
 	case 3:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
 			EnumNpcAnmKind kind = asKind(2);
-			requestNpcAnm_(kind, asBlend(0));
+			requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
 		}
 		break;
 
 	default: {
 		EnumNpcAnmKind kind = asKind(2);
-		requestNpcAnm_(kind, asBlend(1));
+		requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_ON);
 		break;
 	}
 	}
@@ -1222,20 +1222,20 @@ void TBaseNPC::monteMESetAnmWhenNear()
 	case 0xA:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
 			EnumNpcAnmKind kind = asKind(4);
-			requestNpcAnm_(kind, asBlend(0));
+			requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
 		}
 		break;
 
 	case 2:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
 			EnumNpcAnmKind kind = asKind(3);
-			requestNpcAnm_(kind, asBlend(0));
+			requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
 		}
 		break;
 
 	default: {
 		EnumNpcAnmKind kind = asKind(3);
-		requestNpcAnm_(kind, asBlend(0));
+		requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
 		break;
 	}
 	}
