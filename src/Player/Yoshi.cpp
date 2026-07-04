@@ -61,17 +61,17 @@ static const GXColor bodyColor[]   = {
 	{ 0xff, 0xa0, 0xbe, 0xff },
 };
 
-static int YoshiHeadCtrl(J3DNode* node, int param)
+static BOOL YoshiHeadCtrl(J3DNode* node, int param)
 {
-	Mtx mtx;
 	if (param == 0) {
 		s16 gunAngle = ((TWaterGun*)SMS_GetMarioWaterGun())
 		                   ->getCurrentNozzle()
 		                   ->getGunAngle();
+		Mtx mtx;
 		MsMtxSetRotRPH(mtx, 0.0f, 0.0f, SHORTANGLE2DEG(gunAngle));
 		MTXConcat(J3DSys::mCurrentMtx, mtx, J3DSys::mCurrentMtx);
 	}
-	return 1;
+	return TRUE;
 }
 
 // Reverse address order for -inline deferred
@@ -333,7 +333,7 @@ void TYoshi::initInLoadAfter()
 
 // thinkBtp - 0x8014FCD8
 void TYoshi::thinkBtp(int animIdx) {
-	int btpIdx = 4;
+	u16 btpIdx = 4;
 	switch (animIdx) {
 	case 0:
 		btpIdx = 0;
@@ -347,14 +347,12 @@ void TYoshi::thinkBtp(int animIdx) {
 	case 25:
 		btpIdx = 3;
 		break;
-	default:
-		break;
 	}
 
-	if (mCurBtpIdx != (u16)btpIdx) {
+	if (mCurBtpIdx != btpIdx) {
 		mActor->setBtpFromIndex(btpIdx);
 		J3DFrameCtrl* ctrl = mActor->getFrameCtrl(3);
-		ctrl->setRate(0.0f);
+		ctrl->setRate(0.5f);
 		mCurBtpIdx = btpIdx;
 	}
 }
