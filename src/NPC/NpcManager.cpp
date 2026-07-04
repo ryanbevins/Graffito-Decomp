@@ -654,45 +654,42 @@ void TNPCManager::clipEnemies(JDrama::TGraphics* gfx)
 void TNPCManager::makePartsModelData_(u32 actorType, u32 flags,
                                       TModelDataKeeper* keeper)
 {
-	const TNpcInitInfo* info = SMSGetNpcInitData(actorType);
-	const TNpcModelData* const* models = info->unk4;
+	const TNpcInitInfo* initInfo = SMSGetNpcInitData(actorType);
 
 	for (int i = 0; i < 12; i++) {
-		const TNpcModelData* model = models[i];
-		if (model == NULL)
+		const TNpcModelData* modelData = initInfo->unk4[i];
+		if (modelData == NULL)
 			continue;
 
 		u32 localFlags = flags;
-		if (model->unk2A) {
+		if (modelData->unk2A) {
 			localFlags &= ~0x00070000;
 			localFlags |= 0x00100000;
 		}
 
-		const char* const* names = model->unk8;
 		for (int j = 0; j < 2; j++) {
-			const char* name = names[j];
-			if (name == NULL)
+			if (modelData->unk8[j] == NULL)
 				continue;
 
 			char fname[256];
-			snprintf(fname, 256, "%s/%s", keeper->mFolder, name);
+			snprintf(fname, 256, "%s/%s", keeper->mFolder,
+			         modelData->unk8[j]);
 
-			void* res = JKRFileLoader::getGlbResource(fname);
+			void* res = JKRGetResource(fname);
 			if (res == NULL)
 				continue;
 
 			SDLModelData* sdlModel
-			    = keeper->createAndKeepData(names[j], localFlags);
+			    = keeper->createAndKeepData(modelData->unk8[j], localFlags);
 
-			if (model->unk2B) {
-				J3DMaterialTable* bmt = getBmt_(model->unk2A);
-				if (bmt != NULL) {
+			if (modelData->unk2B) {
+				if (J3DMaterialTable* bmt = getBmt_(modelData->unk2A)) {
 					sdlModel->unk0->setMaterialTable(
-					    bmt, (J3DMaterialCopyFlag)3);
+					    bmt, J3DMatCopyFlag_All);
 				}
 			}
 
-			if (model->unk2A) {
+			if (modelData->unk2A) {
 				const ResTIMG* tex
 				    = (const ResTIMG*)JKRFileLoader::getGlbResource(
 				        cRealPollutionTexName);
