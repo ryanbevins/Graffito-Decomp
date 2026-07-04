@@ -867,8 +867,8 @@ void TBaseNPC::npcThrowIn()
 bool TBaseNPC::npcThrowing()
 {
 	bool done    = false;
-	s32 spineCtr = *(s32*)((u8*)mSpine + 0x20);
-	s16 startF   = mPtrSaveNormal->mSLThrowStartFrame.value;
+	int startF   = mPtrSaveNormal->mSLThrowStartFrame.get();
+	int spineCtr = mSpine->getTime();
 	if ((spineCtr == 0 && startF < 0x14) || spineCtr == startF - 0x14) {
 		unk64 |= 0x1;
 		unk1DC = CLBPalFrame<long>(0x1E);
