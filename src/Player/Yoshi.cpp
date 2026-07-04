@@ -744,6 +744,34 @@ void TYoshi::thinkUpper()
 }
 
 // doSearch - 0x8014EA18
+inline void TYoshi::emitTongue()
+{
+	JGeometry::TVec3<f32> pos;
+	JGeometry::TVec3<f32> dir;
+	getEmitPosDir(&pos, &dir);
+	JGeometry::TVec3<f32> vel;
+	vel.set(mMario->mVel);
+	mTongue->emit(pos, dir, vel);
+
+	for (int i = 0; i < 10; ++i) {
+		mTongue->movement();
+		if ((mTongue->mTipPos - pos).length() > *(f32*)((u8*)this + 0x90))
+			break;
+	}
+
+	*(u8*)((u8*)this + 0xDC) = 3;
+}
+
+inline void TYoshi::thinkEat()
+{
+	if (mTongue->mActorTypeInMouth != 0) {
+		doEat(mTongue->mActorTypeInMouth);
+		if (mMario->onYoshi())
+			SMSRumbleMgr->start(0x15, 0x14, (f32*)nullptr);
+		mTongue->mActorTypeInMouth = 0;
+	}
+}
+
 void TYoshi::doSearch()
 {
 	TYoshiTongue* tongue = mTongue;
@@ -777,44 +805,14 @@ void TYoshi::doSearch()
 		if (step <= -0x100 || step >= 0x100)
 			return;
 
-		JGeometry::TVec3<f32> pos;
-		JGeometry::TVec3<f32> dir;
-		getEmitPosDir(&pos, &dir);
-		tongue->emit(pos, dir, mMario->mVel);
-
-		for (int i = 0; i < 10; ++i) {
-			tongue->movement();
-			JGeometry::TVec3<f32> diff = tongue->mTipPos;
-			diff.sub(pos);
-			f32 dist = JGeometry::TUtil<f32>::sqrt(
-			    diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
-			if (dist > *(f32*)((u8*)this + 0x90))
-				break;
-		}
-
-		*(u8*)((u8*)this + 0xDC) = 3;
+		emitTongue();
 		changeAnimation(3);
 		break;
 	}
 	case 2: {
 		THitActor* target = tongue->findTarget(false, true);
 		if (target != nullptr) {
-			JGeometry::TVec3<f32> pos;
-			JGeometry::TVec3<f32> dir;
-			getEmitPosDir(&pos, &dir);
-			tongue->emit(pos, dir, mMario->mVel);
-
-			for (int i = 0; i < 10; ++i) {
-				tongue->movement();
-				JGeometry::TVec3<f32> diff = tongue->mTipPos;
-				diff.sub(pos);
-				f32 dist = JGeometry::TUtil<f32>::sqrt(
-				    diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
-				if (dist > *(f32*)((u8*)this + 0x90))
-					break;
-			}
-
-			*(u8*)((u8*)this + 0xDC) = 3;
+			emitTongue();
 		} else {
 			s16 min = *(s16*)((u8*)this + 0xE8);
 			s16 max = *(s16*)((u8*)this + 0xEA);
@@ -825,12 +823,7 @@ void TYoshi::doSearch()
 		break;
 	}
 	case 3:
-		if (tongue->mActorTypeInMouth != 0) {
-			doEat(tongue->mActorTypeInMouth);
-			if (mMario->onYoshi())
-				SMSRumbleMgr->start(0x15, 0x14, (f32*)nullptr);
-			tongue->mActorTypeInMouth = 0;
-		}
+		thinkEat();
 
 		if (tongue->mState != TYoshiTongue::STATE_IDLE)
 			return;
@@ -933,12 +926,7 @@ void TYoshi::movement()
 	}
 
 	TYoshiTongue* tongue = mTongue;
-	if (tongue->mActorTypeInMouth != 0) {
-		doEat(tongue->mActorTypeInMouth);
-		if (mMario->onYoshi())
-			SMSRumbleMgr->start(0x15, 0x14, (f32*)nullptr);
-		tongue->mActorTypeInMouth = 0;
-	}
+	thinkEat();
 
 	switch ((u8)mState) {
 	case 1:
@@ -1045,20 +1033,7 @@ void TYoshi::movement()
 		*(s16*)((u8*)this + 0x70) = mMario->mFaceAngle.y;
 
 		if (mMario->mGamePad->mEnabledFrameMeaning & 0x100) {
-			JGeometry::TVec3<f32> pos;
-			JGeometry::TVec3<f32> dir;
-			getEmitPosDir(&pos, &dir);
-			tongue->emit(pos, dir, mMario->mVel);
-
-			for (int i = 0; i < 10; ++i) {
-				tongue->movement();
-				JGeometry::TVec3<f32> diff = tongue->mTipPos;
-				diff.sub(pos);
-				f32 dist = JGeometry::TUtil<f32>::sqrt(
-				    diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
-				if (dist > *(f32*)((u8*)this + 0x90))
-					break;
-			}
+			emitTongue();
 		}
 
 		if (mCurJuice <= 0 && (u8)mState != 0) {

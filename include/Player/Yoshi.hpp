@@ -20,6 +20,7 @@ public:
 	bool disappear();
 	void doEat(u32 fruitID);
 	void doSearch();
+	void emitTongue();
 	void entry();
 	void getEmitPosDir(JGeometry::TVec3<f32>*, JGeometry::TVec3<f32>*) const;
 	J3DFrameCtrl* getFrameCtrl() const;
@@ -36,6 +37,7 @@ public:
 	void setEggYoshiPtr(TEggYoshi*);
 	void thinkAnimation();
 	void thinkBtp(int);
+	void thinkEat();
 	void thinkHoldOut();
 	void thinkUpper();
 	void viewCalc();
