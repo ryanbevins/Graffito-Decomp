@@ -755,7 +755,8 @@ inline void TYoshi::emitTongue()
 
 	for (int i = 0; i < 10; ++i) {
 		mTongue->movement();
-		if ((mTongue->mTipPos - pos).length() > *(f32*)((u8*)this + 0x90))
+		if (JGeometry::TVec3<f32>(mTongue->mTipPos - pos).length()
+		    > *(f32*)((u8*)this + 0x90))
 			break;
 	}
 
