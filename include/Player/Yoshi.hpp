@@ -27,6 +27,7 @@ public:
 	void getOff(bool knockedOff);
 	void init(TMario*);
 	void initInLoadAfter();
+	BOOL isHatched() const { return mState == EGG ? FALSE : TRUE; }
 	void kill();
 	void movement();
 	BOOL onYoshi();
@@ -38,7 +39,7 @@ public:
 	void thinkUpper();
 	void viewCalc();
 
-	s8 mState;                          // 0x0000
+	u8 mState;                          // 0x0000
 	u16 mSubState;                      // 0x0002 ??
 	u32 _01;                            // 0x0004
 	s32 mMaxJuice;                      // 0x0008

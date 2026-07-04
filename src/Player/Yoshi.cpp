@@ -419,13 +419,7 @@ bool TYoshi::appearFromEgg(const JGeometry::TVec3<f32>& pos, f32 angle, TEggYosh
 // disappear - 0x8014F94C
 bool TYoshi::disappear() {
 	u8 state = (u8)mState;
-	int active;
-	if (state != 0) {
-		active = 1;
-	} else {
-		active = 0;
-	}
-	if (active) {
+	if (isHatched()) {
 		if (state == MOUNTED) {
 			mMario->getOffYoshi(true);
 		}
@@ -452,13 +446,7 @@ bool TYoshi::disappear() {
 // kill - 0x8014F834
 void TYoshi::kill() {
 	u8 state = (u8)mState;
-	int active;
-	if (state != 0) {
-		active = 1;
-	} else {
-		active = 0;
-	}
-	if (active) {
+	if (isHatched()) {
 		if (state == MOUNTED) {
 			mMario->getOffYoshi(true);
 		}
