@@ -13,6 +13,7 @@
 #include <Camera/Camera.hpp>
 #include <Camera/CubeManagerBase.hpp>
 #include <MarioUtil/DrawUtil.hpp>
+#include <NPC/NpcBase.hpp>
 #include <NPC/NpcSave.hpp>
 #include <NPC/NpcInitData.hpp>
 #include <System/MarDirector.hpp>
@@ -570,9 +571,9 @@ TNPCManager::TNPCManager(const char* name)
 void TNPCManager::perform(u32 flags, JDrama::TGraphics* gfx)
 {
 	if (flags & 0x200) {
-		int objNum = mObjNum;
-		for (int i = 0; i < objNum; i++) {
-			((TLiveActor*)unk18[i])->mLiveFlag |= 0x01000000;
+		for (int i = 0, objNum = mObjNum; i < objNum; i++) {
+			TBaseNPC* npc = (TBaseNPC*)unk18[i];
+			npc->onLiveFlag(0x01000000);
 		}
 	}
 	TEnemyManager::perform(flags, gfx);
