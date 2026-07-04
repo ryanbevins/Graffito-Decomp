@@ -784,9 +784,10 @@ void TYoshi::doSearch()
 
 		THitActor* target = tongue->findTarget(false, false);
 		if (target != nullptr) {
+			JGeometry::TVec3<f32> diff;
+			diff.sub(target->mPosition, mTranslation);
 			*(s16*)((u8*)this + 0xE0)
-			    = matan(target->mPosition.z - mTranslation.z,
-			            target->mPosition.x - mTranslation.x);
+			    = matan(diff.z, diff.x);
 			*(u8*)((u8*)this + 0xDC) = 1;
 		} else {
 			s16 min = *(s16*)((u8*)this + 0xE8);
