@@ -52,7 +52,7 @@ TMareJellyFishManager* gpMareJellyFishManager;
 
 void TSunflowerSManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "sunflower_s.bmd", 0x10220000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -61,7 +61,7 @@ void TSunflowerSManager::createModelData()
 
 void TSunflowerLManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "sunflower.bmd", 0x10020000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -70,7 +70,7 @@ void TSunflowerLManager::createModelData()
 
 void TRaccoonDogManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "tanuki.bmd", 0x10210000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -79,7 +79,7 @@ void TRaccoonDogManager::createModelData()
 
 void TPeachManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "peach_model.bmd", 0x10010000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -88,7 +88,7 @@ void TPeachManager::createModelData()
 
 void TKinojiiManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "kinoji_body.bmd", 0x10010000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -97,7 +97,7 @@ void TKinojiiManager::createModelData()
 
 void TBoardNpcManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "boardNpc.bmd", 0x10220000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -106,7 +106,7 @@ void TBoardNpcManager::createModelData()
 
 void TMonteMEManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "momE_model.bmd", 0x10010000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -119,7 +119,7 @@ void TMonteMEManager::createModelData()
 
 void TKinopioManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "kinopio_body.bmd", 0x10300000, 1 },
 		{ nullptr, 0, 0 },
 	};
@@ -137,7 +137,7 @@ void TKinopioManager::createModelData()
 
 void TMonteMBManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "momB_model.bmd", 0x10210000, 1 },
 		{ nullptr, 0, 0 },
 	};
@@ -150,7 +150,7 @@ void TMonteMBManager::createModelData()
 
 void TMonteMDManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "momD_model.bmd", 0x10210000, 1 },
 		{ nullptr, 0, 0 },
 	};
@@ -163,7 +163,7 @@ void TMonteMDManager::createModelData()
 
 void TMonteWBManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "mowB_model.bmd", 0x10210000, 1 },
 		{ nullptr, 0, 0 },
 	};
@@ -180,7 +180,7 @@ void TMonteWBManager::createModelData()
 
 void TMonteMManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "mom_model.bmd", 0x10300000, 1 },
 		{ nullptr, 0, 0 },
 	};
@@ -198,7 +198,7 @@ void TMonteMManager::createModelData()
 
 void TMonteMAManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "momA_model.bmd", 0x10300000, 1 },
 		{ nullptr, 0, 0 },
 	};
@@ -216,7 +216,7 @@ void TMonteMAManager::createModelData()
 
 void TMonteMCManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "momC_model.bmd", 0x10300000, 1 },
 		{ nullptr, 0, 0 },
 	};
@@ -234,7 +234,7 @@ void TMonteMCManager::createModelData()
 
 void TMonteWManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "mow_model.bmd", 0x10300000, 1 },
 		{ nullptr, 0, 0 },
 	};
@@ -252,7 +252,7 @@ void TMonteWManager::createModelData()
 
 void TMonteWAManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "mowA_model.bmd", 0x10300000, 1 },
 		{ nullptr, 0, 0 },
 	};
@@ -274,7 +274,7 @@ void TMonteWAManager::createModelData()
 
 void TMonteMHManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "momA_model.bmd", 0x10210000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -287,7 +287,7 @@ void TMonteMHManager::createModelData()
 
 void TMonteMGManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "momC_model.bmd", 0x10210000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -300,7 +300,7 @@ void TMonteMGManager::createModelData()
 
 void TMonteMFManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "mom_model.bmd", 0x10210000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -313,7 +313,7 @@ void TMonteMFManager::createModelData()
 
 void TMonteWCManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "mow_model.bmd", 0x10210000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -330,7 +330,7 @@ void TMonteWCManager::createModelData()
 
 void TMareMBaseManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "mareM.bmd", 0x10300000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -344,7 +344,7 @@ void TMareMBaseManager::createModelData()
 
 void TMareWBaseManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "mareW.bmd", 0x10300000, 0 },
 		{ nullptr, 0, 0 },
 	};
