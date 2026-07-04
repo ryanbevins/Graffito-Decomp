@@ -29,16 +29,17 @@ int TMareEventDepressWall::mWaitTimeToWatch = 120;
 
 void TMareWallRock::appear()
 {
-	JGeometry::TVec3<f32> trans(0.0f, 0.0f, mSinkDepth);
-
 	mCollisions[0]->setUp();
 	mJointObj->awake();
+	JGeometry::TVec3<f32> trans(0.0f, 0.0f, mSinkDepth);
 	mCollisions[0]->moveTrans(trans);
+	f32 rotY = mEffectRotY;
+	f32 zero = 0.0f;
 
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(0x69, &mEffectPos, 0, &mEffectPos);
 	if (emitter != nullptr) {
-		emitter->setRotation(0, (s16)mEffectRotY, 0);
+		emitter->setRotation((s16)zero, (s16)rotY, (s16)zero);
 		emitter->unk154.x = mEffectScale.x;
 		emitter->unk154.y = mEffectScale.y;
 		emitter->unk154.z = mEffectScale.z;
@@ -47,7 +48,7 @@ void TMareWallRock::appear()
 	emitter = gpMarioParticleManager->emit(0x1e5, &mEffectPos, 2,
 	                                       &mEffectPos);
 	if (emitter != nullptr) {
-		emitter->setRotation(0, (s16)mEffectRotY, 0);
+		emitter->setRotation((s16)zero, (s16)rotY, (s16)zero);
 		emitter->unk154.x = mEffectScale.x;
 		emitter->unk154.y = mEffectScale.y;
 		emitter->unk154.z = mEffectScale.z;
