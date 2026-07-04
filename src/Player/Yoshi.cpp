@@ -185,7 +185,7 @@ void TYoshi::init(TMario* mario) {
 		*(void**)tongue = __vt__12TYoshiTongue;
 		*(void**)((u8*)tongue + 0x20) = (u8*)__vt__12TYoshiTongue + 0x24;
 	}
-	_38 = (u32)tongue;
+	mTongue = tongue;
 	tongue->init(this);
 
 	*(f32*)((u8*)this + 0x80) = 0.01f;
@@ -318,7 +318,7 @@ void TYoshi::init(TMario* mario) {
 // initInLoadAfter - 0x8014FD88
 void TYoshi::initInLoadAfter()
 {
-	((TYoshiTongue*)_38)->initInLoadAfter();
+	mTongue->initInLoadAfter();
 
 	TMirrorActor* mirror = new TMirrorActor("ヨッシーin鏡");
 	mirror->init(mActor->unk4, 4);
@@ -674,7 +674,7 @@ void TYoshi::thinkUpper()
 	upperAnm      = *(void**)((u8*)upperAnm + 0x48);
 
 	int active;
-	if (*(u16*)((u8*)_38 + 0x7C) != 0) {
+	if (mTongue->mState != TYoshiTongue::STATE_IDLE) {
 		active = 1;
 	} else {
 		active              = 0;
@@ -746,7 +746,7 @@ void TYoshi::thinkUpper()
 // doSearch - 0x8014EA18
 void TYoshi::doSearch()
 {
-	TYoshiTongue* tongue = (TYoshiTongue*)_38;
+	TYoshiTongue* tongue = mTongue;
 
 	switch (*(u8*)((u8*)this + 0xDC)) {
 	case 0: {
@@ -879,7 +879,7 @@ void TYoshi::doEat(u32 fruitID)
 		gpMarioParticleManager->emitAndBindToPosPtr(0x3e, &mMtxTrans2, 0,
 		                                            this);
 
-		Vec* soundPos = (Vec*)((u8*)_38 + 0xb8);
+		Vec* soundPos = (Vec*)&mTongue->mTipPos;
 		if (gpMSound->gateCheck(0x1947))
 			MSoundSESystem::MSoundSE::startSoundActor(0x1947, soundPos, 0,
 			                                           nullptr, 0, 4);
@@ -932,7 +932,7 @@ void TYoshi::movement()
 		--mCurJuice;
 	}
 
-	TYoshiTongue* tongue = (TYoshiTongue*)_38;
+	TYoshiTongue* tongue = mTongue;
 	if (tongue->mActorTypeInMouth != 0) {
 		doEat(tongue->mActorTypeInMouth);
 		if (mMario->onYoshi())
@@ -1151,7 +1151,7 @@ void TYoshi::movement()
 void TYoshi::calcAnim()
 {
 	Mtx rootMtx;
-	TYoshiTongue* tongue = (TYoshiTongue*)_38;
+	TYoshiTongue* tongue = mTongue;
 
 	switch ((u8)mState) {
 	case 1:
@@ -1261,7 +1261,7 @@ void TYoshi::viewCalc() {
 	mActor->viewCalc();
 	(*(J3DModel**)((u8*)this + 0x44))->viewCalc();
 	(*(J3DModel**)((u8*)this + 0x48))->viewCalc();
-	((TYoshiTongue*)_38)->viewCalc();
+	mTongue->viewCalc();
 }
 
 // entry - 0x8014D37C
@@ -1323,7 +1323,7 @@ void TYoshi::entry()
 	mActor->entry();
 	(*(J3DModel**)((u8*)this + 0x44))->entry();
 	(*(J3DModel**)((u8*)this + 0x48))->entry();
-	((TYoshiTongue*)_38)->entry();
+	mTongue->entry();
 
 	TCircleShadowRequest request;
 	request.unk0  = mTranslation;

@@ -7,6 +7,7 @@
 
 class TMario;
 class TEggYoshi;
+class TYoshiTongue;
 
 class TYoshi {
 public:
@@ -49,7 +50,7 @@ public:
 	JGeometry::TVec3<f32> mTranslation; // 0x0020
 	u32 _03[0x8 / 4];                   // 0x002C
 	MActor* mActor;                     // 0x0034
-	u32 _38;                            // 0x0038
+	TYoshiTongue* mTongue;              // 0x0038
 	u16 mJoint;                         // 0x003c
 	u16 _3e;                            // 0x003e
 	u32 _04[0x44 / 4];                  // 0x0040
