@@ -2,7 +2,7 @@
 #include <Camera/CameraShake.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
-#include <JSystem/JGadget/std-list.hpp>
+#include <JSystem/JDrama/JDRViewObjPtrList.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <MSound/MSSetSound.hpp>
@@ -230,16 +230,13 @@ void TMareEventWallRock::load(JSUMemoryInputStream& stream)
 
 	mRocks = new TMareWallRock[mRockNum];
 
-	JDrama::TNameRef* group
-	    = JDrama::TNameRefGen::getInstance()->getRootNameRef()->search(
-	        "マップグループ");
-	JGadget::TList_pointer_void* list
-	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
+	JDrama::TViewObjPtrListT<JDrama::TViewObj>* group
+	    = JDrama::TNameRefGen::search<
+	        JDrama::TViewObjPtrListT<JDrama::TViewObj> >("マップグループ");
 
 	for (int i = 0; i < mRockNum; ++i) {
 		mRocks[i].mIndex = i;
-		void* rock       = &mRocks[i];
-		list->insert(list->end(), rock);
+		group->getChildren().push_back((JDrama::TViewObj*)&mRocks[i]);
 	}
 }
 
