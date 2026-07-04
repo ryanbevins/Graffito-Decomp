@@ -2,7 +2,6 @@
 
 using namespace JDrama;
 
-#pragma dont_inline on
 void TDStageGroup::perform(u32 param_1, TGraphics* param_2)
 {
 	if (!(param_1 & 8))
