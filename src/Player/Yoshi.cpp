@@ -1088,29 +1088,21 @@ void TYoshi::movement()
 			}
 		}
 
-		J3DModelData* data = mActor->unk4->getModelData();
-		for (u16 i = 0; i < data->getShapeNum(); ++i)
-			data->getShapeNodePointer(i)->offFlag(1);
-
-		data = (*(J3DModel**)((u8*)this + 0x44))->getModelData();
-		for (u16 i = 0; i < data->getShapeNum(); ++i)
-			data->getShapeNodePointer(i)->offFlag(1);
-
-		data = (*(J3DModel**)((u8*)this + 0x48))->getModelData();
-		for (u16 i = 0; i < data->getShapeNum(); ++i)
-			data->getShapeNodePointer(i)->offFlag(1);
+		mActor->unk4->getModelData()->offFlag1OnAllShapes();
+		(*(J3DModel**)((u8*)this + 0x44))
+		    ->getModelData()
+		    ->offFlag1OnAllShapes();
+		(*(J3DModel**)((u8*)this + 0x48))
+		    ->getModelData()
+		    ->offFlag1OnAllShapes();
 	} else {
-		J3DModelData* data = mActor->unk4->getModelData();
-		for (u16 i = 0; i < data->getShapeNum(); ++i)
-			data->getShapeNodePointer(i)->onFlag(1);
-
-		data = (*(J3DModel**)((u8*)this + 0x44))->getModelData();
-		for (u16 i = 0; i < data->getShapeNum(); ++i)
-			data->getShapeNodePointer(i)->onFlag(1);
-
-		data = (*(J3DModel**)((u8*)this + 0x48))->getModelData();
-		for (u16 i = 0; i < data->getShapeNum(); ++i)
-			data->getShapeNodePointer(i)->onFlag(1);
+		mActor->unk4->getModelData()->onFlag1OnAllShapes();
+		(*(J3DModel**)((u8*)this + 0x44))
+		    ->getModelData()
+		    ->onFlag1OnAllShapes();
+		(*(J3DModel**)((u8*)this + 0x48))
+		    ->getModelData()
+		    ->onFlag1OnAllShapes();
 	}
 
 	if (mMario->onYoshi())
@@ -1164,25 +1156,23 @@ void TYoshi::calcAnim()
 			data->getShapeNodePointer(0)->onFlag(1);
 			data->getShapeNodePointer(1)->onFlag(1);
 
-			data = (*(J3DModel**)((u8*)this + 0x44))->getModelData();
-			for (u16 i = 0; i < data->getShapeNum(); ++i)
-				data->getShapeNodePointer(i)->offFlag(1);
-
-			data = (*(J3DModel**)((u8*)this + 0x48))->getModelData();
-			for (u16 i = 0; i < data->getShapeNum(); ++i)
-				data->getShapeNodePointer(i)->offFlag(1);
+			(*(J3DModel**)((u8*)this + 0x44))
+			    ->getModelData()
+			    ->offFlag1OnAllShapes();
+			(*(J3DModel**)((u8*)this + 0x48))
+			    ->getModelData()
+			    ->offFlag1OnAllShapes();
 		} else {
 			J3DModelData* data = mActor->unk4->getModelData();
 			data->getShapeNodePointer(0)->offFlag(1);
 			data->getShapeNodePointer(1)->offFlag(1);
 
-			data = (*(J3DModel**)((u8*)this + 0x44))->getModelData();
-			for (u16 i = 0; i < data->getShapeNum(); ++i)
-				data->getShapeNodePointer(i)->onFlag(1);
-
-			data = (*(J3DModel**)((u8*)this + 0x48))->getModelData();
-			for (u16 i = 0; i < data->getShapeNum(); ++i)
-				data->getShapeNodePointer(i)->onFlag(1);
+			(*(J3DModel**)((u8*)this + 0x44))
+			    ->getModelData()
+			    ->onFlag1OnAllShapes();
+			(*(J3DModel**)((u8*)this + 0x48))
+			    ->getModelData()
+			    ->onFlag1OnAllShapes();
 		}
 
 		mActor->unk4->setBaseTRMtx(rootMtx);
