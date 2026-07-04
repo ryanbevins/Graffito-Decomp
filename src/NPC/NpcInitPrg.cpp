@@ -362,13 +362,16 @@ inline void TBaseNPC::initIndividualAnm_()
 	};
 
 	switch (mActorType) {
-	case 0x4000014: {
-		f32 r   = (f32)rand() * (1.0f / 32768.0f);
-		s32 sel = (s32)(2.0f * r);
-		if (sel == 0)
-			unkD0->unk18 = sIndividualMareWA0Bck;
+	case 0x4000019:
+		if (strcmp(mName, cManiyaParentViewObjName) == 0) {
+			mActionFlag |= 0x800;
+			unkD0->unk18 = sIndividualParentRaccoonDogAnmBck;
+		} else if (strcmp(mName, cManiyaChildViewObjName) == 0) {
+			mActionFlag |= 0x800;
+			onLiveFlag(LIVE_FLAG_UNK10000);
+			unkD0->unk18 = sIndividualChildRaccoonDogAnmBck;
+		}
 		break;
-	}
 	case 0x400000F: {
 		f32 r   = (f32)rand() * (1.0f / 32768.0f);
 		s32 sel = (s32)(3.0f * r);
@@ -381,16 +384,13 @@ inline void TBaseNPC::initIndividualAnm_()
 		}
 		break;
 	}
-	case 0x4000019:
-		if (strcmp(mName, cManiyaParentViewObjName) == 0) {
-			mActionFlag |= 0x800;
-			unkD0->unk18 = sIndividualParentRaccoonDogAnmBck;
-		} else if (strcmp(mName, cManiyaChildViewObjName) == 0) {
-			mActionFlag |= 0x800;
-			onLiveFlag(LIVE_FLAG_UNK10000);
-			unkD0->unk18 = sIndividualChildRaccoonDogAnmBck;
-		}
+	case 0x4000014: {
+		f32 r   = (f32)rand() * (1.0f / 32768.0f);
+		s32 sel = (s32)(2.0f * r);
+		if (sel == 0)
+			unkD0->unk18 = sIndividualMareWA0Bck;
 		break;
+	}
 	}
 }
 
