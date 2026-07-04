@@ -312,54 +312,99 @@ void TMareEventDepressWall::depressing()
 	int finished = 0;
 
 	for (int i = 0; i < mWallNum; ++i) {
-		f32 target  = mTargets[i];
 		f32 current = TMapObjBase::getJointTransX(mJoints[i]);
-		f32 limit   = mDirections[i] ? target : -target;
-		bool moving = mDirections[i] ? current < limit : current > limit;
-
-		if (moving) {
-			if (!TMapObjBase::isDemo()) {
-				if (mDirections[i])
+		if (mDirections[i]) {
+			if (current < mTargets[i]) {
+				if (!TMapObjBase::isDemo()) {
 					current += mDepressSpeed;
-				else
-					current -= mDepressSpeed;
 
-				SMSRumbleMgr->start(0x13, -1, (f32*)nullptr);
-				gpCameraShake->keepShake(CAM_SHAKE_MODE_UNK5, 0.5f);
-				if (gpMSound->gateCheck(0x3008)) {
-					MSoundSESystem::MSoundSE::startSoundActor(
-					    0x3008, &mPositions[i], 0, nullptr, 0, 4);
+					SMSRumbleMgr->start(0x13, -1, (f32*)nullptr);
+					gpCameraShake->keepShake(CAM_SHAKE_MODE_UNK5, 0.5f);
+					JGeometry::TVec3<f32>* pos = &mPositions[i];
+					if (gpMSound->gateCheck(0x3008)) {
+						MSoundSESystem::MSoundSE::startSoundActor(
+						    0x3008, pos, 0, nullptr, 0, 4);
+					}
+
+					JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+					    0x15b, &mPositions[i], 1, &mPositions[i]);
+					if (emitter != nullptr) {
+						JGeometry::TVec3<f32>* effectDir = &mEffectDirs[i];
+						emitter->unk154.x                = effectDir->x;
+						emitter->unk154.y                = effectDir->y;
+						emitter->unk154.z                = effectDir->z;
+						emitter->unk174.x                = effectDir->x;
+						emitter->unk174.y                = effectDir->y;
+						emitter->unk174.z                = effectDir->z;
+						emitter->mChildSpawnRate = mParticleScales[i];
+						f32 childRate            = mParticleChildRates[i];
+						emitter->unk174.x        = childRate;
+						emitter->unk174.y        = childRate;
+						emitter->unk174.z        = childRate;
+					}
+				} else {
+					SMSRumbleMgr->stop(0x13);
 				}
 
-				JPABaseEmitter* emitter = gpMarioParticleManager->emit(
-				    0x15b, &mPositions[i], 1, &mPositions[i]);
-				if (emitter != nullptr) {
-					emitter->unk154.x = mEffectDirs[i].x;
-					emitter->unk154.y = mEffectDirs[i].y;
-					emitter->unk154.z = mEffectDirs[i].z;
-					emitter->unk174.x = mEffectDirs[i].x;
-					emitter->unk174.y = mEffectDirs[i].y;
-					emitter->unk174.z = mEffectDirs[i].z;
-					emitter->mChildSpawnRate = mParticleScales[i];
-					emitter->unk174.x        = mParticleChildRates[i];
-					emitter->unk174.y        = mParticleChildRates[i];
-					emitter->unk174.z        = mParticleChildRates[i];
+				TMapObjBase::setJointTransX(mJoints[i], current);
+				JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
+				mMoveCollisions[i].moveTrans(trans);
+
+				if (current >= mTargets[i]) {
+					mMoveCollisions[i].remove();
+					JGeometry::TVec3<f32> trans2(current, 0.0f, 0.0f);
+					mWarpCollisions[i].setUpTrans(trans2);
+					++finished;
 				}
 			} else {
-				SMSRumbleMgr->stop(0x13);
-			}
-
-			JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
-			TMapObjBase::setJointTransX(mJoints[i], current);
-			mMoveCollisions[i].moveTrans(trans);
-
-			if (mDirections[i] ? current >= limit : current <= limit) {
-				mMoveCollisions[i].remove();
-				mWarpCollisions[i].setUpTrans(trans);
 				++finished;
 			}
 		} else {
-			++finished;
+			if (current > -mTargets[i]) {
+				if (!TMapObjBase::isDemo()) {
+					current -= mDepressSpeed;
+
+					SMSRumbleMgr->start(0x13, -1, (f32*)nullptr);
+					gpCameraShake->keepShake(CAM_SHAKE_MODE_UNK5, 0.5f);
+					JGeometry::TVec3<f32>* pos = &mPositions[i];
+					if (gpMSound->gateCheck(0x3008)) {
+						MSoundSESystem::MSoundSE::startSoundActor(
+						    0x3008, pos, 0, nullptr, 0, 4);
+					}
+
+					JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+					    0x15b, &mPositions[i], 1, &mPositions[i]);
+					if (emitter != nullptr) {
+						JGeometry::TVec3<f32>* effectDir = &mEffectDirs[i];
+						emitter->unk154.x                = effectDir->x;
+						emitter->unk154.y                = effectDir->y;
+						emitter->unk154.z                = effectDir->z;
+						emitter->unk174.x                = effectDir->x;
+						emitter->unk174.y                = effectDir->y;
+						emitter->unk174.z                = effectDir->z;
+						emitter->mChildSpawnRate = mParticleScales[i];
+						f32 childRate            = mParticleChildRates[i];
+						emitter->unk174.x        = childRate;
+						emitter->unk174.y        = childRate;
+						emitter->unk174.z        = childRate;
+					}
+				} else {
+					SMSRumbleMgr->stop(0x13);
+				}
+
+				TMapObjBase::setJointTransX(mJoints[i], current);
+				JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
+				mMoveCollisions[i].moveTrans(trans);
+
+				if (current <= -mTargets[i]) {
+					mMoveCollisions[i].remove();
+					JGeometry::TVec3<f32> trans2(current, 0.0f, 0.0f);
+					mWarpCollisions[i].setUpTrans(trans2);
+					++finished;
+				}
+			} else {
+				++finished;
+			}
 		}
 	}
 
