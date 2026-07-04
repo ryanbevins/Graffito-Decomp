@@ -774,15 +774,13 @@ inline void TYoshi::thinkEat()
 
 void TYoshi::doSearch()
 {
-	TYoshiTongue* tongue = mTongue;
-
 	switch (*(u8*)((u8*)this + 0xDC)) {
 	case 0: {
 		--*(s16*)((u8*)this + 0xDE);
 		if (*(s16*)((u8*)this + 0xDE) > 0)
 			return;
 
-		THitActor* target = tongue->findTarget(false, false);
+		THitActor* target = mTongue->findTarget(false, false);
 		if (target != nullptr) {
 			JGeometry::TVec3<f32> diff;
 			diff.sub(target->mPosition, mTranslation);
@@ -811,7 +809,7 @@ void TYoshi::doSearch()
 		break;
 	}
 	case 2: {
-		THitActor* target = tongue->findTarget(false, true);
+		THitActor* target = mTongue->findTarget(false, true);
 		if (target != nullptr) {
 			emitTongue();
 		} else {
@@ -826,7 +824,7 @@ void TYoshi::doSearch()
 	case 3:
 		thinkEat();
 
-		if (tongue->mState != TYoshiTongue::STATE_IDLE)
+		if (mTongue->mState != TYoshiTongue::STATE_IDLE)
 			return;
 
 		*(s16*)((u8*)this + 0xDE)
