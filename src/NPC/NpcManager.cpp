@@ -39,10 +39,10 @@ const char* cMareCommonPollutionBmtName = "/scene/mareCommon/mare_yogore.bmt";
 
 TModelDataKeeper* TMonteMBaseManager::mStaticCommonKeeper;
 TModelDataKeeper* TMonteWBaseManager::mStaticCommonKeeper;
-J3DMaterialTable* TMareBaseManager::mStaticBmtNormal;
-J3DMaterialTable* TMareBaseManager::mStaticBmtPollution;
 TModelDataKeeper* TMareMBaseManager::mStaticCommonKeeper;
 TModelDataKeeper* TMareWBaseManager::mStaticCommonKeeper;
+J3DMaterialTable* TMareBaseManager::mStaticBmtNormal;
+J3DMaterialTable* TMareBaseManager::mStaticBmtPollution;
 
 TMareJellyFishManager* gpMareJellyFishManager;
 
