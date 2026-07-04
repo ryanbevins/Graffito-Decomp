@@ -2,6 +2,7 @@
 #define CAMERA_CAMERAMARIODATA_HPP
 
 #include <types.h>
+#include <dolphin/mtx.h>
 
 class TCameraMarioData {
 public:
@@ -14,6 +15,12 @@ public:
 	bool isMarioRocketing() const;
 	bool isMarioGoDown() const;
 	void calcAndSetMarioData();
+	void addMoveCameraAndMario(const Vec& v)
+	{
+		mPosX += v.x;
+		mPosY += v.y;
+		mPosZ += v.z;
+	}
 
 	/* 0x00 */ f32 mPosX;
 	/* 0x04 */ f32 mPosY;

@@ -3,15 +3,11 @@
 #include <Camera/CameraKindParam.hpp>
 #include <Camera/CameraMarioData.hpp>
 #include <Camera/cameralib.hpp>
-#include <Player/MarioAccess.hpp>
+#include <JSystem/JGeometry.hpp>
+#include <MarioUtil/MathUtil.hpp>
 
-static inline void addVec3At(void* base, u32 off, const Vec& d)
-{
-	f32* p = (f32*)((u8*)base + off);
-	p[0] += d.x;
-	p[1] += d.y;
-	p[2] += d.z;
-}
+#define mCurrentTarget (*(CPolarSubCamera::TCameraTargetState*)&unk80)
+#define mPreviousTarget (*(CPolarSubCamera::TCameraTargetState*)&unkB4)
 
 static inline void copyCameraState(CPolarSubCamera* camera)
 {
@@ -25,43 +21,38 @@ static inline void copyCameraState(CPolarSubCamera* camera)
 	*(f32*)((u8*)camera + 0xE4) = *(f32*)((u8*)camera + 0xB0);
 }
 
-void CPolarSubCamera::addMoveCameraAndMario(const Vec& delta)
+void CPolarSubCamera::warpPosAndAt(const Vec& pos, const Vec& lookat)
 {
-	addVec3At(this, 0x10, delta);
-	addVec3At(this, 0x3C, delta);
-	addVec3At(this, 0x124, delta);
-	addVec3At(this, 0x148, delta);
+	if (mMode >= CAMERA_MODE_REPRODUCE_DEMO)
+		return;
 
-	TCameraMarioData* mario = gpCameraMario;
-	JGeometry::TVec3<f32> tmp;
-	tmp.set(delta);
-	mario->mPosX += tmp.x;
-	mario->mPosY += tmp.y;
-	mario->mPosZ += tmp.z;
+	mCurrentParams->copySaveParam(*unk2D8[mMode]);
 
-	unk6C->addMoveCameraAndMario(delta);
+	killHeightPan_();
 
-	addVec3At(this, 0x80, delta);
-	addVec3At(this, 0x8C, delta);
-	addVec3At(this, 0x98, delta);
-	addVec3At(this, 0xB4, delta);
-	addVec3At(this, 0xC0, delta);
-	addVec3At(this, 0xCC, delta);
+	mPosition.set(pos);
+	mTarget.set(lookat);
+	unk124.set(pos);
+	unk148.set(lookat);
+
+	unk6C->warpPosAndAt(pos, lookat);
+	unk6C->mFrameCount = 0;
+
+	calcNowTargetFromPosAndAt_(pos, lookat);
+
+	copyCameraState(this);
 }
 
 void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 {
-	if (mMode >= 0x49)
+	if (mMode >= CAMERA_MODE_REPRODUCE_DEMO)
 		return;
 
-	u8* saveParam = (u8*)this + (mMode << 2);
-	unk68->copySaveParam(
-	    **(const TCamSaveKindParam**)(saveParam + 0x2D8));
+	mCurrentParams->copySaveParam(*unk2D8[mMode]);
 
 	JGeometry::TVec3<f32> lookat;
 	lookat.set(getUsualLookat());
 
-	// Clamp dist
 	if (isLButtonCameraSpecifyMode(mMode)) {
 		f32 v = dist;
 		if (dist > 1.0f)
@@ -70,8 +61,8 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 			v = 0.0f;
 		unkA8 = v;
 	} else {
-		f32 hi = *(f32*)((u8*)this + 0x26C);
-		f32 lo = *(f32*)((u8*)this + 0x268);
+		f32 hi = unk26C;
+		f32 lo = unk268;
 		f32 v  = dist;
 		if (dist > hi)
 			v = hi;
@@ -87,64 +78,28 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 	JGeometry::TVec3<f32> pos;
 	CLBPolarToCross(lookat, &pos, polarDist, unkA4, unkA6);
 
-	if (mMode >= 0x49)
-		return;
-
-	saveParam = (u8*)this + (mMode << 2);
-	unk68->copySaveParam(
-	    **(const TCamSaveKindParam**)(saveParam + 0x2D8));
-	killHeightPan_();
-
-	// Sync pos and lookat into several fields
-	*(f32*)((u8*)this + 0x10)  = pos.x;
-	*(f32*)((u8*)this + 0x14)  = pos.y;
-	*(f32*)((u8*)this + 0x18)  = pos.z;
-	*(f32*)((u8*)this + 0x3C)  = lookat.x;
-	*(f32*)((u8*)this + 0x40)  = lookat.y;
-	*(f32*)((u8*)this + 0x44)  = lookat.z;
-	*(f32*)((u8*)this + 0x124) = pos.x;
-	*(f32*)((u8*)this + 0x128) = pos.y;
-	*(f32*)((u8*)this + 0x12C) = pos.z;
-	*(f32*)((u8*)this + 0x148) = lookat.x;
-	*(f32*)((u8*)this + 0x14C) = lookat.y;
-	*(f32*)((u8*)this + 0x150) = lookat.z;
-
-	unk6C->warpPosAndAt(pos, lookat);
-	unk6C->mFrameCount = 0;
-
-	calcNowTargetFromPosAndAt_(pos, lookat);
-
-	copyCameraState(this);
+	warpPosAndAt(pos, lookat);
 }
 
-void CPolarSubCamera::warpPosAndAt(const Vec& pos, const Vec& lookat)
+void CPolarSubCamera::addMoveCameraAndMario(const Vec& v)
 {
-	if (mMode >= 0x49)
-		return;
+	mPosition += v;
+	mTarget += v;
+	unk124 += v;
+	unk148 += v;
 
-	u8* saveParam = (u8*)this + (mMode << 2);
-	unk68->copySaveParam(
-	    **(const TCamSaveKindParam**)(saveParam + 0x2D8));
+	gpCameraMario->addMoveCameraAndMario(v);
 
-	killHeightPan_();
+	unk6C->addMoveCameraAndMario(v);
 
-	*(f32*)((u8*)this + 0x10)  = pos.x;
-	*(f32*)((u8*)this + 0x14)  = pos.y;
-	*(f32*)((u8*)this + 0x18)  = pos.z;
-	*(f32*)((u8*)this + 0x3C)  = lookat.x;
-	*(f32*)((u8*)this + 0x40)  = lookat.y;
-	*(f32*)((u8*)this + 0x44)  = lookat.z;
-	*(f32*)((u8*)this + 0x124) = pos.x;
-	*(f32*)((u8*)this + 0x128) = pos.y;
-	*(f32*)((u8*)this + 0x12C) = pos.z;
-	*(f32*)((u8*)this + 0x148) = lookat.x;
-	*(f32*)((u8*)this + 0x14C) = lookat.y;
-	*(f32*)((u8*)this + 0x150) = lookat.z;
+	mCurrentTarget.mPosition += v;
+	mCurrentTarget.mTarget += v;
+	mCurrentTarget.unk18 += v;
 
-	unk6C->warpPosAndAt(pos, lookat);
-	unk6C->mFrameCount = 0;
-
-	calcNowTargetFromPosAndAt_(pos, lookat);
-
-	copyCameraState(this);
+	mPreviousTarget.mPosition += v;
+	mPreviousTarget.mTarget += v;
+	mPreviousTarget.unk18 += v;
 }
+
+#undef mPreviousTarget
+#undef mCurrentTarget
