@@ -23,7 +23,7 @@ enum EnumHitNpcObjectKind { };
 // Pending animation request set by request*Anm_; consumed by perform/state code.
 struct TNpcAnmRequest {
 	/* 0x0 */ s32 mKind;
-	/* 0x4 */ bool mBlend;
+	/* 0x4 */ u8 mBlend;
 };
 
 // Frame counter used to track how long the current wait/idle animation has

@@ -1149,13 +1149,14 @@ void TBaseNPC::sunflowerDownIn_()
 
 void TBaseNPC::sunflowerReviveIn()
 {
-	if (!(unk1D8 & 0x1))
-		return;
-	unk1D8 &= ~0x1;
-	unk1D8 |= 0x2;
-	unkD0->unk18 = 0;
-	unkD0->unk1C = 0;
-	requestNpcAnm_(asKind(0x1A), asBlend(1));
+	if (checkUnk1D8(0x1)) {
+		offUnk1D8(0x1);
+		onUnk1D8(0x2);
+		unkD0->unk18 = 0;
+		unkD0->unk1C = 0;
+		requestNpcAnm_((EnumNpcAnmKind)0x1A,
+		               (EnumNpcStopMotionBlendOnOff)1);
+	}
 }
 
 bool TBaseNPC::sunflowerReviving()
