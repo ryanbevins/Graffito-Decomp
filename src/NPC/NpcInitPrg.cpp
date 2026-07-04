@@ -278,6 +278,122 @@ void TBaseNPC::init(TLiveManager* manager)
 	}
 }
 
+inline void TBaseNPC::initBaseActionFlag_()
+{
+	static const TAnmBckMapping sIndividualHoldArrowBck[] = {
+		{ 0xE, 0x10 },
+		{ -1, -1 },
+	};
+	static const TAnmBckMapping sIndividualKinopioBck[] = {
+		{ 0xF, 0x10 }, { 6, 7 },        { 4, 5 },   { 0xE, 0x18 },
+		{ 9, 0xB },    { 0x13, 0x14 },  { -1, -1 },
+	};
+	static const TAnmBtpMapping sIndividualKinopioBtp[] = {
+		{ 1, 2 },
+		{ 0, 5 },
+		{ -1, -1 },
+	};
+	static const TAnmBckMapping sIndividualKinojiiBck[] = {
+		{ 0xB, 0xC }, { 2, 3 },     { 0xA, 0x11 },
+		{ 5, 7 },     { 0xD, 0xE }, { -1, -1 },
+	};
+	static const TAnmBtpMapping sIndividualKinojiiBtp[] = {
+		{ 1, 2 },
+		{ 0, 5 },
+		{ -1, -1 },
+	};
+
+	if (isNormalMonteM() || isNormalMonteW() || isSpecialMonteM()
+	    || isSpecialMonteW()) {
+		setMonteActionFlag_();
+		if (mActionFlag & 0x400)
+			unkD0->unk18 = sIndividualHoldArrowBck;
+	} else if (isNormalMareM() || isNormalMareW() || isSpecialMareM()
+	           || isSpecialMareW()) {
+		setMareActionFlag_();
+	} else if (mActorType == 0x4000016 || mActorType == 0x4000017) {
+		setKinoActionFlag_();
+		if (mActionFlag & 0x100) {
+			switch (mActorType) {
+			case 0x4000016:
+				unkD0->unk18 = sIndividualKinopioBck;
+				unkD0->unk1C = sIndividualKinopioBtp;
+				break;
+			case 0x4000017:
+				unkD0->unk18 = sIndividualKinojiiBck;
+				unkD0->unk1C = sIndividualKinojiiBtp;
+				break;
+			}
+		}
+	} else {
+		_16C        = 0;
+		mActionFlag = 0;
+	}
+}
+
+inline void TBaseNPC::initIndividualAnm_()
+{
+	static const TAnmBckMapping sIndividualParentRaccoonDogAnmBck[] = {
+		{ 0, 1 },
+		{ -1, -1 },
+	};
+	static const TAnmBckMapping sIndividualChildRaccoonDogAnmBck[] = {
+		{ 0, 2 },
+		{ -1, -1 },
+	};
+	static const TAnmBckMapping sIndividualMareMA0Bck[] = {
+		{ 0, 3 },
+		{ -1, -1 },
+	};
+	static const TAnmBtpMapping sIndividualMareMA0Btp[] = {
+		{ 2, 3 },
+		{ -1, -1 },
+	};
+	static const TAnmBckMapping sIndividualMareMA1Bck[] = {
+		{ 0, 4 },
+		{ -1, -1 },
+	};
+	static const TAnmBtpMapping sIndividualMareMA1Btp[] = {
+		{ 2, 0 },
+		{ -1, -1 },
+	};
+	static const TAnmBckMapping sIndividualMareWA0Bck[] = {
+		{ 0, 3 },
+	};
+
+	switch (mActorType) {
+	case 0x4000014: {
+		f32 r   = (f32)rand() * (1.0f / 32768.0f);
+		s32 sel = (s32)(2.0f * r);
+		if (sel == 0)
+			unkD0->unk18 = sIndividualMareWA0Bck;
+		break;
+	}
+	case 0x400000F: {
+		f32 r   = (f32)rand() * (1.0f / 32768.0f);
+		s32 sel = (s32)(3.0f * r);
+		if (sel == 1) {
+			unkD0->unk18 = sIndividualMareMA1Bck;
+			unkD0->unk1C = sIndividualMareMA1Btp;
+		} else if (sel == 0) {
+			unkD0->unk18 = sIndividualMareMA0Bck;
+			unkD0->unk1C = sIndividualMareMA0Btp;
+		}
+		break;
+	}
+	case 0x4000019:
+		if (strcmp(mName, cManiyaParentViewObjName) == 0) {
+			mActionFlag |= 0x800;
+			unkD0->unk18 = sIndividualParentRaccoonDogAnmBck;
+		} else if (strcmp(mName, cManiyaChildViewObjName) == 0) {
+			mActionFlag |= 0x800;
+			onLiveFlag(LIVE_FLAG_UNK10000);
+			unkD0->unk18 = sIndividualChildRaccoonDogAnmBck;
+		}
+		break;
+	}
+}
+
 void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 {
 	u32 idx                            = mActorType - 0x4000001;
@@ -361,95 +477,10 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 		mNpcParts = new TNpcParts((u32)streamS32a, &colorData[1], this);
 
 	if (initAnmData->unk4 != nullptr)
-		*(const TAnmBtpMapping**)((u8*)unkD0 + 0x1C) = initAnmData->unk4;
+		unkD0->unk1C = initAnmData->unk4;
 
-	{
-		if (isNormalMonteM() || isNormalMonteW() || isSpecialMonteM()
-		    || isSpecialMonteW()) {
-			setMonteActionFlag_();
-			if ((mActionFlag & 0x400) != 0) {
-				static const s32 sIndividualHoldArrowBck[]
-				    = { 0xE, 0x10, -1, -1 };
-				*(const s32**)((u8*)unkD0 + 0x18) = sIndividualHoldArrowBck;
-			}
-		} else if (isNormalMareM() || isNormalMareW() || isSpecialMareM()
-		           || isSpecialMareW()) {
-			setMareActionFlag_();
-		} else if (mActorType == 0x4000016 || mActorType == 0x4000017) {
-			setKinoActionFlag_();
-			if ((mActionFlag & 0x100) != 0) {
-				switch (mActorType) {
-				case 0x4000017: {
-					static const s32 sIndividualKinojiiBck[]
-					    = { 0xB, 0xC, 2, 3, 0xA, 0x11,
-						    5,   7,   0xD, 0xE, -1,  -1 };
-					static const s32 sIndividualKinojiiBtp[]
-					    = { 1, 2, 0, 5, -1, -1 };
-					*(const s32**)((u8*)unkD0 + 0x18) = sIndividualKinojiiBck;
-					*(const s32**)((u8*)unkD0 + 0x1C) = sIndividualKinojiiBtp;
-					break;
-				}
-				case 0x4000016: {
-					static const s32 sIndividualKinopioBck[]
-					    = { 0xF, 0x10, 6, 7,    4,    5, 0xE, 0x18,
-						    9,   0xB,  0x13, 0x14, -1,   -1 };
-					static const s32 sIndividualKinopioBtp[]
-					    = { 1, 2, 0, 5, -1, -1 };
-					*(const s32**)((u8*)unkD0 + 0x18) = sIndividualKinopioBck;
-					*(const s32**)((u8*)unkD0 + 0x1C) = sIndividualKinopioBtp;
-					break;
-				}
-				}
-			}
-		} else {
-			_16C        = 0;
-			mActionFlag = 0;
-		}
-	}
-
-	switch (mActorType) {
-	case 0x4000014: {
-		f32 r   = (f32)rand() * (1.0f / 32768.0f);
-		s32 sel = (s32)(2.0f * r);
-		if (sel == 0) {
-			static const s32 sIndividualMareWA0Bck[] = { 0, 3 };
-			*(const s32**)((u8*)unkD0 + 0x18) = sIndividualMareWA0Bck;
-		}
-		break;
-	}
-	case 0x400000F: {
-		f32 r   = (f32)rand() * (1.0f / 32768.0f);
-		s32 sel = (s32)(3.0f * r);
-		if (sel == 1) {
-			static const s32 sIndividualMareMA1Bck[] = { 0, 4, -1, -1 };
-			static const s32 sIndividualMareMA1Btp[] = { 2, 0, -1, -1 };
-			*(const s32**)((u8*)unkD0 + 0x18) = sIndividualMareMA1Bck;
-			*(const s32**)((u8*)unkD0 + 0x1C) = sIndividualMareMA1Btp;
-		} else if (sel == 0) {
-			static const s32 sIndividualMareMA0Bck[] = { 0, 3, -1, -1 };
-			static const s32 sIndividualMareMA0Btp[] = { 2, 3, -1, -1 };
-			*(const s32**)((u8*)unkD0 + 0x18) = sIndividualMareMA0Bck;
-			*(const s32**)((u8*)unkD0 + 0x1C) = sIndividualMareMA0Btp;
-		}
-		break;
-	}
-	case 0x4000019:
-		if (strcmp(mName, cManiyaParentViewObjName) == 0) {
-			static const s32 sIndividualParentRaccoonDogAnmBck[]
-			    = { 0, 1, -1, -1 };
-			mActionFlag |= 0x800;
-			*(const s32**)((u8*)unkD0 + 0x18)
-			    = sIndividualParentRaccoonDogAnmBck;
-		} else if (strcmp(mName, cManiyaChildViewObjName) == 0) {
-			static const s32 sIndividualChildRaccoonDogAnmBck[]
-			    = { 0, 2, -1, -1 };
-			mActionFlag |= 0x800;
-			onLiveFlag(LIVE_FLAG_UNK10000);
-			*(const s32**)((u8*)unkD0 + 0x18)
-			    = sIndividualChildRaccoonDogAnmBck;
-		}
-		break;
-	}
+	initBaseActionFlag_();
+	initIndividualAnm_();
 
 	if ((streamS32c & 1) != 0) {
 		struct TwoFloats {
