@@ -1023,10 +1023,11 @@ void TBaseNPC::peachParasolOut_()
 
 void TBaseNPC::peachTiredIn_()
 {
-	if (unk1D8 & 0x2)
+	if (checkUnk1D8(0x2))
 		return;
-	unk1D8 |= 0x2;
-	requestNpcAnm_(asKind(0x10), NPC_STOP_MOTION_BLEND_ON);
+	onUnk1D8(0x2);
+	requestNpcAnm_((EnumNpcAnmKind)0x10,
+	               (EnumNpcStopMotionBlendOnOff)1);
 }
 
 inline void TBaseNPC::peachTiredOut_()
