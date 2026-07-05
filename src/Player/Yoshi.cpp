@@ -522,7 +522,8 @@ void TYoshi::thinkAnimation()
 		if (!changed) {
 			nextAnim = 0xF;
 			if (action == 0x00800456 || action == 0x0084045D
-			    || action == 0x0004045E || (action & 0x40000)) {
+			    || action == 0x0004045E
+			    || ((action & 0x40000) ? true : false)) {
 				nextAnim = 0x13;
 			}
 		}
