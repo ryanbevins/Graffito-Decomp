@@ -1084,21 +1084,18 @@ void TBaseNPC::monteMESetAnmWhenFar()
 
 	case 2:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			EnumNpcAnmKind kind = asKind(1);
-			requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
+			requestNpcAnm_(NPC_ANM_KIND_UNK1, NPC_STOP_MOTION_BLEND_OFF);
 		}
 		break;
 
 	case 3:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			EnumNpcAnmKind kind = asKind(2);
-			requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
+			requestNpcAnm_(NPC_ANM_KIND_UNK2, NPC_STOP_MOTION_BLEND_OFF);
 		}
 		break;
 
 	default: {
-		EnumNpcAnmKind kind = asKind(2);
-		requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_ON);
+		requestNpcAnm_(NPC_ANM_KIND_UNK2, NPC_STOP_MOTION_BLEND_ON);
 		break;
 	}
 	}
@@ -1113,21 +1110,18 @@ void TBaseNPC::monteMESetAnmWhenNear()
 	case 3:
 	case 0xA:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			EnumNpcAnmKind kind = asKind(4);
-			requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
+			requestNpcAnm_(NPC_ANM_KIND_UNK4, NPC_STOP_MOTION_BLEND_OFF);
 		}
 		break;
 
 	case 2:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			EnumNpcAnmKind kind = asKind(3);
-			requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
+			requestNpcAnm_(NPC_ANM_KIND_UNK3, NPC_STOP_MOTION_BLEND_OFF);
 		}
 		break;
 
 	default: {
-		EnumNpcAnmKind kind = asKind(3);
-		requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_OFF);
+		requestNpcAnm_(NPC_ANM_KIND_UNK3, NPC_STOP_MOTION_BLEND_OFF);
 		break;
 	}
 	}

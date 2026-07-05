@@ -5,6 +5,7 @@
 #include <JSystem/JGeometry/JGVec3.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <MarioUtil/RandomUtil.hpp>
+#include <NPC/NpcAnmKind.hpp>
 #include <NPC/NpcInitData.hpp>
 #include <dolphin/mtx.h>
 
@@ -16,8 +17,6 @@ class TMultiMtxEffect;
 class TNpcCoin;
 class TNpcTrample;
 
-// TODO: should this be here?
-enum EnumNpcAnmKind { };
 enum EnumNpcStopMotionBlendOnOff {
 	NPC_STOP_MOTION_BLEND_OFF = 0,
 	NPC_STOP_MOTION_BLEND_ON  = 1,
