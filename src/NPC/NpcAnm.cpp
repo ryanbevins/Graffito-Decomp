@@ -688,7 +688,7 @@ void TBaseNPC::npcWetIn()
 	mAnmFrameCounter->mCurFrame = 0;
 }
 
-void TBaseNPC::npcWetOut()
+inline void TBaseNPC::npcWetOut()
 {
 	mLiveFlag &= ~0x02000000;
 	mLiveFlag &= ~0x04000000;
