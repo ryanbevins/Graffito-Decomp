@@ -1,19 +1,30 @@
 #ifndef CAMERA_CAMERAJETCOASTER_HPP
 #define CAMERA_CAMERAJETCOASTER_HPP
 
-#include <System/ParamInst.hpp>
-#include <System/Params.hpp>
+#include <JSystem/JGeometry/JGVec3.hpp>
 
-class TCamSaveJetCoaster : public TParams {
+class TCamSaveJetCoaster;
+
+class TCameraJetCoaster {
 public:
-	TCamSaveJetCoaster();
+	TCameraJetCoaster();
+	void calcNowOffsetAngle(f32, f32);
 
-	/* 0x08 */ TParamRT<s16> mSLOffsetAngleXLimit;
-	/* 0x1C */ TParamRT<s16> mSLOffsetAngleYLimit;
-	/* 0x30 */ TParamRT<s16> mSLOffsetAngleXManualSpeed;
-	/* 0x44 */ TParamRT<s16> mSLOffsetAngleYManualSpeed;
-	/* 0x58 */ TParamRT<s16> mSLOffsetAngleXChase;
-	/* 0x6C */ TParamRT<s16> mSLOffsetAngleYChase;
+	void toggleLButtonMode() { mLButtonMode ^= 1; }
+	bool isLButtonMode() { return mLButtonMode & 1; }
+
+public:
+	/* 0x00 */ TCamSaveJetCoaster* unk0;
+	/* 0x04 */ s16 unk4;
+	/* 0x06 */ s16 unk6;
+	/* 0x08 */ s16 unk8;
+	/* 0x0A */ s16 unkA;
+	/* 0x0C */ u8 mLButtonMode;
+	/* 0x10 */ JGeometry::TVec3<f32> unk10;
+	/* 0x1C */ JGeometry::TVec3<f32> unk1C;
+	/* 0x28 */ JGeometry::TVec3<f32> unk28;
+	/* 0x34 */ f32 unk34;
+	/* 0x38 */ u16 unk38;
 };
 
 #endif

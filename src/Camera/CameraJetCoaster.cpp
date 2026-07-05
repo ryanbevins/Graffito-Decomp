@@ -1,396 +1,265 @@
-#include <Camera/Camera.hpp>
 #include <Camera/CameraJetCoaster.hpp>
+#include <Camera/camerasave.hpp>
+#include <Camera/CameraKindParam.hpp>
 #include <Camera/cameralib.hpp>
-#include <GC2D/GCConsole2.hpp>
-#include <JSystem/JGeometry.hpp>
-#include <JSystem/JGeometry/JGRotation3.hpp>
-#include <JSystem/JMath.hpp>
-#include <MarioUtil/MathUtil.hpp>
-#include <MoveBG/ItemManager.hpp>
-#include <MSound/MSound.hpp>
-#include <MSound/MSoundBGM.hpp>
-#include <MSound/MSoundSE.hpp>
+#include <Camera/Camera.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/MarioMain.hpp>
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <System/MarioGamePad.hpp>
+#include <MoveBG/ItemManager.hpp>
+#include <MoveBG/MapObjManager.hpp>
+#include <MSound/MSound.hpp>
+#include <GC2D/GCConsole2.hpp>
+#include <JSystem/JGeometry.hpp>
+#include <JSystem/JGeometry/JGRotation3.hpp>
+#include <JSystem/JGeometry/JGUtil.hpp>
+#include <MarioUtil/MathUtil.hpp>
 
-template <> s16 CLBRoundf<s16>(f32);
+// rogue includes needed for matching sinit & bss
+#include <MSound/MSSetSound.hpp>
+#include <MSound/MSoundBGM.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 
-static inline void normalizeVec(JGeometry::TVec3<f32>* vec)
+#define mPosFreezeFrames unk78
+#define mTargetFreezeFrames unk7C
+#define mCurrentTarget (*(CPolarSubCamera::TCameraTargetState*)&unk80)
+
+inline void CPolarSubCamera::drawJetCoasterBalloonMessage_()
 {
-	vec->normalize();
+	u32 flagCount = TFlagManager::smInstance->getFlag(0x60001U);
+	u32 objCount  = gpItemManager->getObjNumWithActorType(0x40000132U);
+
+	if (unk2B8->unk38 > 2) {
+		unk2B8->unk38 -= 1;
+		if (unk2B8->unk38 == 2) {
+			unk2B8->unk38 = 1;
+			gpMarDirector->setNextStage(0xE05, nullptr);
+		}
+		return;
+	}
+
+	if (unk2B8->unk38 == 1)
+		return;
+
+	s32 balloonCode = -1;
+	if (flagCount == objCount) {
+		TFlagManager::smInstance->setBool(true, 0x30005U);
+		unk2B8->unk38 = 300;
+		balloonCode   = 0xE002D;
+	} else {
+		switch (gpMarDirector->unk58) {
+		case 0x3C:
+			gpMarDirector->getConsole()->startAppearJetBalloon(0, objCount);
+			break;
+		case 0x1DB:
+			balloonCode = 0xE0029;
+			break;
+		case 0x1D4C:
+			balloonCode = 0xE002A;
+			break;
+		case 0x3A98:
+			if ((u32)(objCount - flagCount) >= 7U)
+				balloonCode = 0xE002B;
+			else
+				balloonCode = 0xE002C;
+			break;
+		case 0x57E4:
+			gpMarioOriginal->loserExec();
+			mPosFreezeFrames    = 3600;
+			mTargetFreezeFrames = 0;
+
+			static const Vec sFixCameraPos = { 3005.0f, 4020.0f, -9560.0f };
+			warpPosAndAt(sFixCameraPos, mTarget);
+
+			unk2B8->unk38 = 1;
+			break;
+		}
+	}
+
+	if (balloonCode != -1)
+		gpMarDirector->mConsole->startAppearBalloon(balloonCode, true);
 }
 
-static inline void setRotateVec(
-    JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >*
-        rot,
-    const JGeometry::TVec3<f32>& axis, f32 angle)
+static inline void unitVecTo(const JGeometry::TVec3<f32>& from,
+                             const JGeometry::TVec3<f32>& to,
+                             JGeometry::TVec3<f32>* out)
 {
-	rot->setRotate(axis, angle);
-}
-
-class TCameraJetCoaster {
-public:
-	TCameraJetCoaster();
-
-	/* 0x00 */ TCamSaveJetCoaster* unk0;
-	/* 0x04 */ s16 unk4;
-	/* 0x06 */ s16 unk6;
-	/* 0x08 */ s16 unk8;
-	/* 0x0A */ s16 unkA;
-	/* 0x0C */ u8 unkC;
-	/* 0x10 */ f32 unk10;
-	/* 0x14 */ f32 unk14;
-	/* 0x18 */ f32 unk18;
-	/* 0x1C */ f32 unk1C;
-	/* 0x20 */ f32 unk20;
-	/* 0x24 */ f32 unk24;
-	/* 0x28 */ f32 unk28;
-	/* 0x2C */ f32 unk2C;
-	/* 0x30 */ f32 unk30;
-	/* 0x34 */ f32 unk34;
-	/* 0x38 */ u16 unk38;
-};
-
-TCameraJetCoaster::TCameraJetCoaster()
-{
-	unk4  = 0;
-	unk6  = 0;
-	unk8  = 0;
-	unkA  = 0;
-	unkC  = 1;
-	unk10 = 0.0f;
-	unk14 = 0.0f;
-	unk18 = 500.0f;
-	unk1C = 0.0f;
-	unk20 = 0.0f;
-	unk24 = 0.0f;
-	unk28 = 0.0f;
-	unk2C = 1.0f;
-	unk30 = 0.0f;
-	unk34 = 60.0f;
-	unk38 = 0;
-	unk0  = new TCamSaveJetCoaster();
-}
-
-void CPolarSubCamera::drawJetCoasterBalloonMessage_()
-{
-	static const Vec sFixCameraPos = { 3005.0f, 4020.0f, -9560.0f };
-	gpMarioOriginal->loserExec();
-	*(u32*)((u8*)this + 0x78) = 0xE10;
-	*(u32*)((u8*)this + 0x7C) = 0;
-	warpPosAndAt(sFixCameraPos, *(const Vec*)((u8*)this + 0x3C));
-	unk2B8->unk38 = 1;
+	out->set(to.x - from.x, to.y - from.y, to.z - from.z);
+	out->normalize();
 }
 
 void CPolarSubCamera::ctrlJetCoasterCamera_()
 {
-	if (gpMarDirector->mMap == 0x3A && gpMarDirector->unk7D == 0) {
-		s32 flagState = TFlagManager::smInstance->getFlag(0x60001);
-		int balloonCount
-		    = gpItemManager->getObjNumWithActorType(0x40000132);
+	if (gpMarDirector->getCurrentMap() == 0x3A
+	    && gpMarDirector->getCurrentStage() == 0)
+		drawJetCoasterBalloonMessage_();
 
-		if (unk2B8->unk38 > 2) {
-			--unk2B8->unk38;
-			if (unk2B8->unk38 == 2) {
-				unk2B8->unk38 = 1;
-				gpMarDirector->setNextStage(0xE05, nullptr);
-			}
-		} else if (unk2B8->unk38 != 1) {
-			s32 msgId = -1;
-			if (flagState == balloonCount) {
-				TFlagManager::smInstance->setBool(true, 0x30005);
-				unk2B8->unk38 = 0x12C;
-				msgId         = 0xE002D;
-			} else {
-				int scene = gpMarDirector->unk58;
-				switch (scene) {
-				case 0x3C:
-					gpMarDirector->mConsole->startAppearJetBalloon(
-					    0, balloonCount);
-					break;
-				case 0x1DB:
-					msgId = 0xE0029;
-					break;
-				case 0x1D4C:
-					msgId = 0xE002A;
-					break;
-				case 0x3A98:
-					if ((u32)(balloonCount - flagState) >= 7)
-						msgId = 0xE002B;
-					else
-						msgId = 0xE002C;
-					break;
-				case 0x57E4:
-					drawJetCoasterBalloonMessage_();
-					break;
-				}
-			}
-
-			if (msgId != -1) {
-				gpMarDirector->mConsole->startAppearBalloon(msgId, true);
-			}
-		}
+	bool startedLButton = false;
+	if (unk120->checkFrameMeaning(0x4000)) {
+		startedLButton = true;
+		u32 soundID    = 0x4825;
+		unk2B8->toggleLButtonMode();
+		if (unk2B8->isLButtonMode())
+			soundID = 0x4824;
+		SMSGetMSound()->startSoundSystemSE(soundID, 0, nullptr, 0);
 	}
 
-	bool isJet1stCamPressed = false;
-	if (unk120->mEnabledFrameMeaning & 0x4000) {
-		isJet1stCamPressed = true;
-		s32 soundId        = 0x4825;
-		unk2B8->unkC ^= 1;
-		if (unk2B8->unkC & 1) {
-			soundId = 0x4824;
-		}
-		if (gpMSound->gateCheck(soundId)) {
-			MSoundSESystem::MSoundSE::startSoundSystemSE(soundId, 0, nullptr,
-			                                             0);
-		}
-	}
+	JGeometry::TVec3<f32> newTarget;
 
-	JGeometry::TVec3<f32> at;
+	if (unk2B8->isLButtonMode()) {
+		if (startedLButton)
+			setUpToLButtonCamera_(CAMERA_MODE_JET_COASTER);
 
-	if (unk2B8->unkC & 1) {
-		// 1st-person camera mode
-		if (isJet1stCamPressed) {
-			setUpToLButtonCamera_(0x2E);
+		f32 stickY = -unk120->mCompSPos[1];
+		if (mTargetFreezeFrames == 0)
+			getNozzleTopPos_(&mCurrentTarget.mTarget);
+
+		if (mPosFreezeFrames == 0) {
+			rotateX_ByStickY_(stickY);
+			mCurrentTarget.mPitch = calcAngleXFromXRotRatio_();
+			mCurrentTarget.mYaw   = gpMarioOriginal->mToroccoAngle;
 		}
 
-		f32 stickInput = -*(f32*)((u8*)unk120 + 0xAC);
+		newTarget = mCurrentTarget.mTarget;
 
-		if (*(u32*)((u8*)this + 0x7C) == 0) {
-			getNozzleTopPos_(&unk8C);
-		}
+		s16 angleX        = mCurrentTarget.mPitch + getOffsetAngleX();
+		s16 angleY        = mCurrentTarget.mYaw + getOffsetAngleY();
+		MtxPtr toroccoMtx = getToroccoMtx_();
 
-		if (*(u32*)((u8*)this + 0x78) == 0) {
-			rotateX_ByStickY_(stickInput);
-			unkA4 = calcAngleXFromXRotRatio_();
-			unkA6 = *(s16*)((u8*)gpMarioOriginal + 0x410);
-		}
+		JGeometry::TVec3<f32> toroccoAxisX;
+		JGeometry::TVec3<f32> toroccoAxisY;
+		JGeometry::TVec3<f32> toroccoAxisZ;
+		toroccoAxisX.set(toroccoMtx[0][0], toroccoMtx[1][0],
+		                  toroccoMtx[2][0]);
+		toroccoAxisY.set(toroccoMtx[0][1], toroccoMtx[1][1],
+		                  toroccoMtx[2][1]);
+		toroccoAxisZ.set(toroccoMtx[0][2], toroccoMtx[1][2],
+		                  toroccoMtx[2][2]);
+		mUp.set(toroccoAxisY);
 
-		at = unk8C;
+		mCurrentTarget.unk18.scaleAdd(-calcDistFromXRotRatio_(), newTarget,
+		                              toroccoAxisZ);
 
-		s16 yawAngle   = unkA4 + getOffsetAngleX();
-		s16 pitchAngle = unkA6 + getOffsetAngleY();
+		CLBRotatePosAndUp(angleX, angleY, toroccoAxisX, toroccoAxisY, newTarget,
+		                  &mCurrentTarget.unk18, &mUp);
 
-		MtxPtr mtx = getToroccoMtx_();
+		JGeometry::TVec3<f32> toTarget;
+		unitVecTo(mCurrentTarget.unk18, newTarget, &toTarget);
 
-		JGeometry::TVec3<f32> col0(mtx[0][0], mtx[1][0], mtx[2][0]);
-		JGeometry::TVec3<f32> col1(mtx[0][1], mtx[1][1], mtx[2][1]);
+		JGeometry::TVec3<f32> lookUp = mUp;
+		MsVECNormalize(&lookUp, &lookUp);
 
-		*(f32*)((u8*)this + 0x30) = col1.x;
-		*(f32*)((u8*)this + 0x34) = col1.y;
-		*(f32*)((u8*)this + 0x38) = col1.z;
+		lookUp *= mCurrentTarget.unk28 * mCurrentParams->mXRotRatioAtOffsetY
+		          + mCurrentParams->mAtOffsetY;
 
-		f32 nd = -calcDistFromXRotRatio_();
+		mCurrentTarget.unk18 += lookUp;
+		newTarget += lookUp;
 
-		*(f32*)((u8*)this + 0x98) = at.x + nd * mtx[0][2];
-		*(f32*)((u8*)this + 0x9C) = at.y + nd * mtx[1][2];
-		*(f32*)((u8*)this + 0xA0) = at.z + nd * mtx[2][2];
+		JGeometry::TVec3<f32> offsetUp = mUp;
+		JGeometry::TRotation3<TMtx33f> rotation;
+		rotation.identity33();
+		rotation.setRotate(toTarget, -1.570796f);
+		JGeometry::TVec3<f32> offsetUpTmp = offsetUp;
+		rotation.mult33(offsetUpTmp, offsetUp);
+		offsetUp *= mCurrentParams->mOffsetLookatXZ;
 
-		CLBRotatePosAndUp(yawAngle, pitchAngle, col0, col1, at,
-		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x98),
-		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x30));
+		mCurrentTarget.unk18 += offsetUpTmp;
+		newTarget += offsetUpTmp;
 
-		JGeometry::TVec3<f32> fwd;
-		fwd.x = at.x - *(f32*)((u8*)this + 0x98);
-		fwd.y = at.y - *(f32*)((u8*)this + 0x9C);
-		fwd.z = at.z - *(f32*)((u8*)this + 0xA0);
-		normalizeVec(&fwd);
-
-		JGeometry::TVec3<f32> upAxis;
-		upAxis.x = *(f32*)((u8*)this + 0x30);
-		upAxis.y = *(f32*)((u8*)this + 0x34);
-		upAxis.z = *(f32*)((u8*)this + 0x38);
-
-		JGeometry::TVec3<f32> upOffset = upAxis;
-		MsVECNormalize((Vec*)&upOffset, (Vec*)&upOffset);
-
-		u8* p68 = *(u8**)((u8*)this + 0x68);
-		f32 chainScale
-		    = unkA8 * *(f32*)(p68 + 0x28) + *(f32*)(p68 + 0x24);
-		upOffset.x *= chainScale;
-		upOffset.y *= chainScale;
-		upOffset.z *= chainScale;
-
-		*(f32*)((u8*)this + 0x98) += upOffset.x;
-		*(f32*)((u8*)this + 0x9C) += upOffset.y;
-		*(f32*)((u8*)this + 0xA0) += upOffset.z;
-		at.x += upOffset.x;
-		at.y += upOffset.y;
-		at.z += upOffset.z;
-
-		JGeometry::TRotation3<
-		    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >
-		    rot;
-		JGeometry::TVec3<f32> sideAxis
-		    = *(JGeometry::TVec3<f32>*)((u8*)this + 0x30);
-		rot.identity33();
-		setRotateVec(&rot, fwd, -1.570796f);
-
-		f32 sx = rot.at(0, 0) * sideAxis.x + rot.at(1, 0) * sideAxis.y
-		         + rot.at(2, 0) * sideAxis.z;
-		f32 sy = rot.at(0, 1) * sideAxis.x + rot.at(1, 1) * sideAxis.y
-		         + rot.at(2, 1) * sideAxis.z;
-		f32 sz = rot.at(0, 2) * sideAxis.x + rot.at(1, 2) * sideAxis.y
-		         + rot.at(2, 2) * sideAxis.z;
-
-		p68           = *(u8**)((u8*)this + 0x68);
-		f32 sideScale = *(f32*)(p68 + 0x5C);
-		sx *= sideScale;
-		sy *= sideScale;
-		sz *= sideScale;
-
-		*(f32*)((u8*)this + 0x98) += sx;
-		*(f32*)((u8*)this + 0x9C) += sy;
-		*(f32*)((u8*)this + 0xA0) += sz;
-		at.x += sx;
-		at.y += sy;
-		at.z += sz;
-
-		f32 angleDeg;
-		if (0.0f == col1.y) {
-			if (col1.x >= 0.0f) {
-				angleDeg = -90.0f;
-			} else {
-				angleDeg = 90.0f;
-			}
-		} else if (col1.y >= 0.0f) {
-			angleDeg = -((f32)matan(col1.y, col1.x) * (360.0f / 65536.0f));
-		} else {
-			angleDeg
-			    = 180.0f + (f32)matan(-col1.y, col1.x) * (360.0f / 65536.0f);
-		}
-
-		*(s16*)((u8*)this + 0x254)
-		    = CLBRoundf<s16>(angleDeg * (65536.0f / 360.0f));
-
-		*(f32*)((u8*)this + 0x48)
-		    = *(f32*)*(u8**)((u8*)this + 0x68);
-
+		unk254 = CLBDegToShortAngle(MsGetRotFromYaxisZ(newTarget));
+		mFovy  = mCurrentParams->mFovy;
 	} else {
-		// 3rd-person camera mode
-		if (isJet1stCamPressed) {
+		if (startedLButton)
 			setUpFromLButtonCamera_();
-		}
-
-		f32 stickX = *(f32*)((u8*)unk120 + 0xC0);
-		f32 stickY = *(f32*)((u8*)unk120 + 0xC4);
-		TCameraJetCoaster* coaster = unk2B8;
-
-		coaster->unk8 = (s16)(s32)((f32)(s32)coaster->unk8
-		                           - stickY
-		                                 * (f32)(s32)coaster->unk0
-		                                       ->mSLOffsetAngleXManualSpeed
-		                                       .value);
-		coaster->unkA = (s16)(s32)((f32)(s32)coaster->unkA
-		                           + stickX
-		                                 * (f32)(s32)coaster->unk0
-		                                       ->mSLOffsetAngleYManualSpeed
-		                                       .value);
 
 		{
-			s32 hi = coaster->unk0->mSLOffsetAngleXLimit.value;
-			if ((s32)coaster->unk8 > hi)
-				coaster->unk8 = (s16)hi;
-			else if ((s32)coaster->unk8 < -hi)
-				coaster->unk8 = (s16)-hi;
+			TCameraJetCoaster* jc = unk2B8;
+
+			jc->unk8 -= unk120->mCompSPos[7]
+			            * (f32)jc->unk0->mSLOffsetAngleXManualSpeed.get();
+
+			jc->unkA += unk120->mCompSPos[6]
+			            * (f32)jc->unk0->mSLOffsetAngleYManualSpeed.get();
+
+			jc->unk8
+			    = MsClamp<s16>(jc->unk8, -jc->unk0->mSLOffsetAngleXLimit.get(),
+			                   jc->unk0->mSLOffsetAngleXLimit.get());
+			jc->unkA
+			    = MsClamp<s16>(jc->unkA, -jc->unk0->mSLOffsetAngleYLimit.get(),
+			                   jc->unk0->mSLOffsetAngleYLimit.get());
+
+			CLBChaseAngleDecrease(&jc->unk4, jc->unk8,
+			                      jc->unk0->mSLOffsetAngleXChase.get());
+			CLBChaseAngleDecrease(&jc->unk6, jc->unkA,
+			                      jc->unk0->mSLOffsetAngleYChase.get());
 		}
-		{
-			s32 hi = coaster->unk0->mSLOffsetAngleYLimit.value;
-			if ((s32)coaster->unkA > hi)
-				coaster->unkA = (s16)hi;
-			else if ((s32)coaster->unkA < -hi)
-				coaster->unkA = (s16)-hi;
-		}
 
-		CLBChaseAngleDecrease(&coaster->unk4, coaster->unk8,
-		                      coaster->unk0->mSLOffsetAngleXChase.value);
-		CLBChaseAngleDecrease(&coaster->unk6, coaster->unkA,
-		                      coaster->unk0->mSLOffsetAngleYChase.value);
+		mCurrentTarget.unk18   = unk2B8->unk10;
+		mCurrentTarget.mTarget = unk2B8->unk1C;
+		mUp                    = unk2B8->unk28;
+		mFovy                  = unk2B8->unk34;
 
-		*(u32*)((u8*)this + 0x98) = *(u32*)((u8*)coaster + 0x10);
-		*(u32*)((u8*)this + 0x9C) = *(u32*)((u8*)coaster + 0x14);
-		*(u32*)((u8*)this + 0xA0) = *(u32*)((u8*)coaster + 0x18);
+		newTarget = mCurrentTarget.mTarget;
 
-		*(u32*)((u8*)this + 0x8C) = *(u32*)((u8*)coaster + 0x1C);
-		*(u32*)((u8*)this + 0x90) = *(u32*)((u8*)coaster + 0x20);
-		*(u32*)((u8*)this + 0x94) = *(u32*)((u8*)coaster + 0x24);
+		JGeometry::TVec3<f32> local_bc;
+		unitVecTo(mCurrentTarget.unk18, *gpMarioPos, &local_bc);
 
-		*(u32*)((u8*)this + 0x30) = *(u32*)((u8*)coaster + 0x28);
-		*(u32*)((u8*)this + 0x34) = *(u32*)((u8*)coaster + 0x2C);
-		*(u32*)((u8*)this + 0x38) = *(u32*)((u8*)coaster + 0x30);
+		JGeometry::TVec3<f32> local_b0;
+		local_b0.cross(mUp, local_bc);
+		MsVECNormalize(&local_b0, &local_b0);
 
-		*(f32*)((u8*)this + 0x48) = *(f32*)((u8*)coaster + 0x34);
-
-		*(u32*)((u8*)&at + 0) = *(u32*)((u8*)this + 0x8C);
-		*(u32*)((u8*)&at + 4) = *(u32*)((u8*)this + 0x90);
-		*(u32*)((u8*)&at + 8) = *(u32*)((u8*)this + 0x94);
-
-		JGeometry::TVec3<f32> fwd;
-		fwd.x = gpMarioPos->x - *(f32*)((u8*)this + 0x98);
-		fwd.y = gpMarioPos->y - *(f32*)((u8*)this + 0x9C);
-		fwd.z = gpMarioPos->z - *(f32*)((u8*)this + 0xA0);
-		normalizeVec(&fwd);
-
-		f32 ux = *(f32*)((u8*)this + 0x30);
-		f32 uy = *(f32*)((u8*)this + 0x34);
-		f32 uz = *(f32*)((u8*)this + 0x38);
-		JGeometry::TVec3<f32> side;
-		side.x = fwd.y * uz - fwd.z * uy;
-		side.y = fwd.z * ux - fwd.x * uz;
-		side.z = fwd.x * uy - fwd.y * ux;
-		MsVECNormalize((Vec*)&side, (Vec*)&side);
-
-		JGeometry::TVec3<f32> up;
-		up.x = ux;
-		up.y = uy;
-		up.z = uz;
-
-		CLBRotatePosAndUp(coaster->unk4, coaster->unk6, side, up, *gpMarioPos,
-		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x98),
-		                  (JGeometry::TVec3<f32>*)((u8*)this + 0x30));
-
+		CLBRotatePosAndUp(unk2B8->unk4, unk2B8->unk6, local_b0, mUp,
+		                  SMS_GetMarioPos(), &mCurrentTarget.unk18, &mUp);
 	}
 
-	// Tail snap/chase
-	*(u32*)((u8*)this + 0x80) = *(u32*)((u8*)this + 0x98);
-	*(u32*)((u8*)this + 0x84) = *(u32*)((u8*)this + 0x9C);
-	*(u32*)((u8*)this + 0x88) = *(u32*)((u8*)this + 0xA0);
+	mCurrentTarget.mPosition = mCurrentTarget.unk18;
 
-	if (isJet1stCamPressed) {
-		if (*(u32*)((u8*)this + 0x78) == 0) {
-			*(u32*)((u8*)this + 0x10) = *(u32*)((u8*)this + 0x80);
-			*(u32*)((u8*)this + 0x14) = *(u32*)((u8*)this + 0x84);
-			*(u32*)((u8*)this + 0x18) = *(u32*)((u8*)this + 0x88);
-		}
-		if (*(u32*)((u8*)this + 0x7C) == 0) {
-			*(u32*)((u8*)this + 0x3C) = *(u32*)((u8*)&at + 0);
-			*(u32*)((u8*)this + 0x40) = *(u32*)((u8*)&at + 4);
-			*(u32*)((u8*)this + 0x44) = *(u32*)((u8*)&at + 8);
-		}
+	if (startedLButton) {
+		if (mPosFreezeFrames == 0)
+			mPosition = mCurrentTarget.mPosition;
+
+		if (mTargetFreezeFrames == 0)
+			mTarget = newTarget;
 	} else {
-		if (*(u32*)((u8*)this + 0x78) == 0) {
-			u8* p68 = *(u8**)((u8*)this + 0x68);
-			f32 chaseXZ = *(f32*)(p68 + 0x94);
-			f32 chaseY  = *(f32*)(p68 + 0x9C);
-			CLBChaseDecrease((f32*)((u8*)this + 0x10),
-			                 *(f32*)((u8*)this + 0x80), chaseXZ, 0.0f);
-			CLBChaseDecrease((f32*)((u8*)this + 0x14),
-			                 *(f32*)((u8*)this + 0x84), chaseY, 0.0f);
-			CLBChaseDecrease((f32*)((u8*)this + 0x18),
-			                 *(f32*)((u8*)this + 0x88), chaseXZ, 0.0f);
+		if (mPosFreezeFrames == 0) {
+			f32 chaseXZ = mCurrentParams->mPosChaseRateXZ;
+			f32 chaseY  = mCurrentParams->mPosChaseRateY;
+			CLBChaseDecrease(&mPosition.x, mCurrentTarget.mPosition.x, chaseXZ,
+			                 0.0f);
+			CLBChaseDecrease(&mPosition.y, mCurrentTarget.mPosition.y, chaseY,
+			                 0.0f);
+			CLBChaseDecrease(&mPosition.z, mCurrentTarget.mPosition.z, chaseXZ,
+			                 0.0f);
 		}
-		if (*(u32*)((u8*)this + 0x7C) == 0) {
-			u8* p68 = *(u8**)((u8*)this + 0x68);
-			f32 chaseXZ = *(f32*)(p68 + 0xA4);
-			f32 chaseY  = *(f32*)(p68 + 0xA8);
-			CLBChaseDecrease((f32*)((u8*)this + 0x3C), at.x, chaseXZ,
-			                 0.0f);
-			CLBChaseDecrease((f32*)((u8*)this + 0x40), at.y, chaseY, 0.0f);
-			CLBChaseDecrease((f32*)((u8*)this + 0x44), at.z, chaseXZ,
-			                 0.0f);
+		if (mTargetFreezeFrames == 0) {
+			f32 chaseXZ = mCurrentParams->mAtChaseRateXZ;
+			f32 chaseY  = mCurrentParams->mAtChaseRateY;
+			CLBChaseDecrease(&mTarget.x, newTarget.x, chaseXZ, 0.0f);
+			CLBChaseDecrease(&mTarget.y, newTarget.y, chaseY, 0.0f);
+			CLBChaseDecrease(&mTarget.z, newTarget.z, chaseXZ, 0.0f);
 		}
 	}
 }
+
+TCameraJetCoaster::TCameraJetCoaster()
+    : unk4(0)
+    , unk6(0)
+    , unk8(0)
+    , unkA(0)
+    , mLButtonMode(1)
+    , unk10(0.0f, 0.0f, 500.0f)
+    , unk1C(0.0f, 0.0f, 0.0f)
+    , unk28(0.0f, 1.0f, 0.0f)
+    , unk34(60.0f)
+    , unk38(0)
+{
+	unk0 = new TCamSaveJetCoaster;
+}
+
+void TCameraJetCoaster::calcNowOffsetAngle(f32, f32) { }
+
+#undef mCurrentTarget
+#undef mTargetFreezeFrames
+#undef mPosFreezeFrames
