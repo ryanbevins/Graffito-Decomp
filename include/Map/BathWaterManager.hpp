@@ -120,7 +120,7 @@ public:
 	virtual ~TBathWater() { }
 
 public:
-	/* 0x68 */ JMath::TRandom_fast_ unk68;
+	/* 0x68 */ JMath::TRandomFast unk68;
 	/* 0x6C */ u32 unk6C;
 	/* 0x70 */ s32 unk70;
 	/* 0x74 */ s32 unk74;
@@ -230,7 +230,7 @@ public:
 	TBathWaterPreprocessor* getPreprocessor() { return &unk34; }
 
 public:
-	/* 0x10 */ JMath::TRandom_fast_ unk10;
+	/* 0x10 */ JMath::TRandomFast unk10;
 	/* 0x14 */ TBathWaterParams** unk14;
 	/* 0x18 */ TBathWaterGlobalParams* unk18;
 	/* 0x1C */ u8 unk1C;

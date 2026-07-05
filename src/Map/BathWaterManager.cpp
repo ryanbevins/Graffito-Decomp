@@ -626,7 +626,7 @@ static inline void simulateBathWater(TBathWater& water, const TBathtubData& data
 		if (drop.unk0.y < floorY) {
 			if (params->suppliesDrops.get() && data.unk65 == 0) {
 				initDrop(drop, data.getPos(respawnIndex, water.unk70, radius),
-				         water.unk68.get_ufloat_1());
+				         water.unk68.get_float01());
 				respawnIndex += 1;
 			} else if (removeDrop(water, i)) {
 				end = water.unk88 + water.unk74;
@@ -652,7 +652,7 @@ static inline void simulateBathWater(TBathWater& water, const TBathtubData& data
 		if (params->suppliesDrops.get() && data.unk65 == 0) {
 			TBathWater::TDrop& drop = water.unk88[water.unk74++];
 			initDrop(drop, data.getPos(respawnIndex, water.unk70, radius),
-			         water.unk68.get_ufloat_1());
+			         water.unk68.get_float01());
 		}
 	} else if (water.unk74 > params->numDrops.get()) {
 		water.unk74 = params->numDrops.get();
@@ -781,7 +781,7 @@ void TBathWaterManager::initializeIfYet_()
 		for (int j = 0; j < water->unk70; ++j) {
 			initDrop(water->unk88[j],
 			         data.getPos(j, water->unk70, params->dropRadius.get()),
-			         water->unk68.get_ufloat_1());
+			         water->unk68.get_float01());
 		}
 
 		water->initHitActor(0x4000025b, 1, 0x80000000,
@@ -977,7 +977,7 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 					side.cross(dir, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
 					side.normalize();
 					side.scale(0.18f
-					           * (-1.0f + 2.0f * unk10.get_ufloat_1()));
+					           * unk10.get_float(-1.0f, 1.0f));
 					dir += side;
 					dir.setLength(0.9f
 					              * (data.unk3C
@@ -988,8 +988,8 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 					                               + dir.y,
 					                           data.unk0.z + dir.z);
 					TBathWater::TDrop& drop = overflow->unk88[overflow->unk74];
-					initDrop(drop, pos, overflow->unk68.get_ufloat_1());
-					drop.unkC.y = 10.0f * (unk10.get_ufloat_1() - 1.0f);
+					initDrop(drop, pos, overflow->unk68.get_float01());
+					drop.unkC.y = 10.0f * (unk10.get_float01() - 1.0f);
 					OSReport("BathWaterManager.cpp(%d): ...\n", 0x28f,
 					         overflow->unk74, 0.0f);
 					overflow->unk74 += 1;
