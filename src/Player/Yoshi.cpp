@@ -680,7 +680,7 @@ void TYoshi::thinkUpper()
 			    = *(GetNozzleKind*)(*(u32*)((u8*)nozzle + 0x364) + 0xC);
 			if (getNozzleKind(nozzle) == 1) {
 				nozzle = waterGun->getCurrentNozzle();
-				if (*(u8*)((u8*)nozzle + 0x385) == 1) {
+				if (*(s8*)((u8*)nozzle + 0x385) == 1) {
 					active = 1;
 				} else {
 					active = 0;
