@@ -1121,19 +1121,23 @@ void TYoshi::calcAnim()
 	if (state != 0) {
 		thinkUpper();
 
-		int anim = mActor->getCurAnmIdx(0);
-		if (anim == 10 || anim == 12 || anim == 15) {
+		switch (mActor->getCurAnmIdx(0)) {
+		case 12:
+		case 10:
+		case 15:
 			mActor->unk4->getModelData()->getShapeNodePointer(0)->onFlag(1);
 			mActor->unk4->getModelData()->getShapeNodePointer(1)->onFlag(1);
 
 			mHandL->getModelData()->offFlag1OnAllShapes();
 			mHandR->getModelData()->offFlag1OnAllShapes();
-		} else {
+			break;
+		default:
 			mActor->unk4->getModelData()->getShapeNodePointer(0)->offFlag(1);
 			mActor->unk4->getModelData()->getShapeNodePointer(1)->offFlag(1);
 
 			mHandL->getModelData()->onFlag1OnAllShapes();
 			mHandR->getModelData()->onFlag1OnAllShapes();
+			break;
 		}
 
 		mActor->unk4->setBaseTRMtx(rootMtx);
