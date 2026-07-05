@@ -899,7 +899,6 @@ void TYoshi::movement()
 		}
 	}
 
-	TYoshiTongue* tongue = mTongue;
 	thinkEat();
 
 	switch ((u8)mState) {
@@ -1036,7 +1035,7 @@ void TYoshi::movement()
 		f32 blueBlend = blend * ((f32)bodyColor[mType].b - mBlueComponent);
 		mBlueComponent += blueBlend;
 
-		tongue->movement();
+		mTongue->movement();
 
 		const TBGCheckData* ground;
 		f32 groundY = gpMap->checkGround(mTranslation.x, mTranslation.y + 200.0f,
