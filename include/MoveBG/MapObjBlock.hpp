@@ -4,7 +4,9 @@
 #include <MoveBG/MapObjHide.hpp>
 #include <MoveBG/MapObjGeneral.hpp>
 
-// TODO: mark virtual methods as such
+#include <MarioUtil/MathUtil.hpp>
+#include <MSound/MSound.hpp>
+
 class TSmallEnemy;
 
 class TBreakableBlock : public TMapObjGeneral {
@@ -13,24 +15,32 @@ public:
 	    : TMapObjGeneral("壊れるブロック")
 	{
 	}
-	void touchPlayer(THitActor*);
+	virtual void touchPlayer(THitActor*);
 };
 
 class TSandBlock : public TMapObjBase {
 public:
+	enum {
+		STATE_NORMAL    = 1,
+		STATE_RESTORING = 2,
+		STATE_TOUCHED   = 3,
+		STATE_FALLING   = 4,
+		STATE_GONE      = 5
+	};
+
 	TSandBlock()
 	    : TMapObjBase("砂ブロック")
 	{
 	}
-	void initMapObj();
-	void control();
-	void touchPlayer(THitActor*);
+	virtual void initMapObj();
+	virtual void control();
+	virtual void touchPlayer(THitActor*);
 
 	static f32 mSandScaleUp;
 	static f32 mSandScaleDown;
 	static f32 mSandScaleMin;
-	static s32 mWaitTimeToFall;
-	static s32 mSandWaitTime;
+	static u32 mWaitTimeToFall;
+	static u32 mSandWaitTime;
 };
 
 class TLeanBlock : public TMapObjBase {
@@ -43,6 +53,7 @@ public:
 	virtual void calcDefaultMtx();
 
 	void calcLeanMtx(MtxPtr);
+	JGeometry::SMatrix34C<f32>& getDefaultMtx() { return unk164; }
 
 public:
 	/* 0x138 */ f32 unk138;
@@ -52,7 +63,7 @@ public:
 	/* 0x148 */ f32 unk148;
 	/* 0x14C */ JGeometry::TVec3<f32> unk14C;
 	/* 0x158 */ JGeometry::TVec3<f32> unk158;
-	/* 0x164 */ Mtx unk164;
+	/* 0x164 */ JGeometry::SMatrix34C<f32> unk164;
 };
 
 class TIceBlock : public TMapObjBase {
@@ -62,9 +73,9 @@ public:
 	    : TMapObjBase(name)
 	{
 	}
-	void initMapObj();
-	void calc();
-	void control();
+	virtual void initMapObj();
+	virtual void calc();
+	virtual void control();
 
 	u32 touchWater(THitActor*);
 	u32 getSDLModelFlag() const;
@@ -81,9 +92,9 @@ public:
 	    : THideObjBase(name)
 	{
 	}
-	void initMapObj();
-	BOOL receiveMessage(THitActor* sender, u32 message);
-	void kill();
+	virtual void initMapObj();
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual void kill();
 };
 
 class TJuiceBlock : public TMapObjBase {
@@ -95,9 +106,9 @@ public:
 		unk140.set(1.0f, 1.0f, 1.0f);
 	}
 
-	void kill();
-	void moveObject();
-	void initMapObj();
+	virtual void kill();
+	virtual void moveObject();
+	virtual void initMapObj();
 
 	JGeometry::TVec3<f32>& getUnk140() { return unk140; }
 
@@ -114,23 +125,23 @@ public:
 	{
 	}
 
-	void setGroundCollision();
-	void perform(u32, JDrama::TGraphics*);
-	void initMapObj();
+	virtual void setGroundCollision();
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual void initMapObj();
 };
 
 class TSuperHipDropBlock : public TBreakHideObj {
 public:
 	TSuperHipDropBlock(const char* name)
 	    : TBreakHideObj(name)
-	    , unk150(0)
+	    , mMonteBlockBroken(false)
 	{
 	}
-	void loadAfter();
-	BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual void loadAfter();
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
 
 public:
-	/* 0x150 */ u8 unk150;
+	/* 0x150 */ bool mMonteBlockBroken;
 };
 
 #endif

@@ -339,8 +339,15 @@ public:
 	void offMapObjFlag(u32 flag) { unkF8 &= ~flag; }
 	TMapObjData* getMapObjData() { return mMapObjData; }
 	bool isState(u32 v) { return mState == v ? true : false; }
+	void setState(u16 state) { mState = state; }
+	void startStateTimer(int timer) { mLifeTimer = timer; }
+	bool isStateTimerEngaged() { return mLifeTimer > 0 ? true : false; }
 	bool isLifeTimerActive() { return mLifeTimer > 0 ? true : false; }
 	int getLifeTimer() { return mLifeTimer; }
+	const JGeometry::TVec3<f32>& getInitialScaling() const
+	{
+		return mInitialScaling;
+	}
 	u32 getUnk134() { return unk134; }
 	void setUnk134(u32 v) { unk134 = v; }
 	const char* getUnkF4() { return unkF4; }
