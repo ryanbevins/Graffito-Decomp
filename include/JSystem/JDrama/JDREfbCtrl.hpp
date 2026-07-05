@@ -44,7 +44,7 @@ public:
 
 class TEfbCtrlTex : public TEfbCtrl {
 public:
-	TEfbCtrlTex(const char*, TFlagT<u16> = 0);
+	TEfbCtrlTex(const char* = "<EfbCtrlTex>", TFlagT<u16> = 0);
 
 	virtual ~TEfbCtrlTex() { }
 	virtual void perform(u32, TGraphics*);

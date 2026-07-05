@@ -24,8 +24,8 @@ public:
 		TViewObj* unk4;
 	};
 
-	TLightMap()
-	    : TViewObj("<LightMap>")
+	TLightMap(const char* name = "<LightMap>")
+	    : TViewObj(name)
 	    , mLightInfoCount(0)
 	    , mLightInfos(nullptr)
 	{
@@ -42,17 +42,15 @@ public:
 
 class TLight : public TPlacement, public JStage::TLight {
 public:
-#ifdef JDRAMA_NO_INLINE_LIGHT_CTOR
-	TLight(const char* name = "<Light>");
-#else
 	TLight(const char* name = "<Light>")
 	    : TPlacement(name)
 	    , mLightType(JStage::TELIGHT_Unk1)
 	{
-		GXInitLightAttn(&unk24, 1.875f, 0.0f, 0.0f, 1.875f, 0.0f, 0.0f);
-		GXInitLightColor(&unk24, JUtility::TColor(0xff, 0xff, 0xff, 0xff));
+		GXInitLightAttn(&unk24, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+		const JUtility::TColor& color
+		    = JUtility::TColor(0xff, 0xff, 0xff, 0xff);
+		GXInitLightColor(&unk24, color);
 	}
-#endif
 
 	virtual ~TLight() { }
 
@@ -77,8 +75,8 @@ public:
 
 class TIdxLight : public TLight {
 public:
-	TIdxLight()
-	    : TLight("<IdxLight>")
+	TIdxLight(const char* name = "<IdxLight>")
+	    : TLight(name)
 	    , unk68(0)
 	{
 	}
@@ -91,8 +89,8 @@ public:
 
 class TLightAry : public TViewObj {
 public:
-	TLightAry()
-	    : TViewObj("<LightAry>")
+	TLightAry(const char* name = "<LightAry>")
+	    : TViewObj(name)
 	    , mLights(nullptr)
 	    , mLightCount(0)
 	{
@@ -113,8 +111,8 @@ public:
 
 class TAmbColor : public TViewObj, public JStage::TAmbientLight {
 public:
-	TAmbColor()
-	    : TViewObj("<AmbColor>")
+	TAmbColor(const char* name = "<AmbColor>")
+	    : TViewObj(name)
 	    , mColor(0x4C, 0x4C, 0x4C, 0xFF)
 	{
 	}
@@ -131,8 +129,8 @@ public:
 
 class TAmbAry : public TViewObj {
 public:
-	TAmbAry()
-	    : TViewObj("<AmbAry>")
+	TAmbAry(const char* name = "<AmbAry>")
+	    : TViewObj(name)
 	    , mAmbColors(nullptr)
 	    , mAmbColorCount(0)
 	{

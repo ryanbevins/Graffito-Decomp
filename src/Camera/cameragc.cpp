@@ -144,14 +144,6 @@ private:
 	void* unk14;
 };
 
-inline JDrama::TCamera::TCamera(float near, float far, const char* name)
-    : TPlacement(name)
-    , mFlag(0)
-    , mNear(near)
-    , mFar(far)
-{
-}
-
 inline JDrama::TLookAtCamera::TLookAtCamera()
     : TCamera(50.0f, 10000.0f, "<TLookAtCamera>")
 {

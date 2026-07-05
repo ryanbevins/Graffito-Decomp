@@ -5,18 +5,15 @@
 #include <JSystem/JDrama/JDRCamera.hpp>
 #include <JSystem/JDrama/JDRSmJ3DAct.hpp>
 #include <JSystem/JDrama/JDRCharacter.hpp>
-#define JDRAMA_NO_INLINE_LIGHT_CTOR
 #include <JSystem/JDrama/JDRLighting.hpp>
-#undef JDRAMA_NO_INLINE_LIGHT_CTOR
 #include <JSystem/JDrama/JDRNameRefPtrList.hpp>
 #include <JSystem/JDrama/JDRDrawBufObj.hpp>
 #include <JSystem/JDrama/JDRViewport.hpp>
 #include <JSystem/JDrama/JDREfbCtrl.hpp>
 
-using namespace JDrama;
+static void dummy() { (void)(Vec) { 0.0f, 0.0f, 0.0f }; }
 
-static const char dummyMactorStringValue1[]
-    = "\0\0\0\0\0\0\0\0\0\0\0";
+using namespace JDrama;
 
 TNameRefGen* TNameRefGen::instance;
 
@@ -30,53 +27,48 @@ TNameRef* TNameRefGen::load(JSUMemoryInputStream& stream)
 	return mRootNameRef;
 }
 
-TCamera::TCamera(float near, float far, const char* name)
-    : TPlacement(name)
-    , mFlag(0)
-    , mNear(near)
-    , mFar(far)
-{
-}
-
-TLight::TLight(const char* name)
-    : TPlacement(name)
-    , mLightType(JStage::TELIGHT_Unk1)
-{
-	GXInitLightAttn(&unk24, 1.875f, 0.0f, 0.0f, 1.875f, 0.0f, 0.0f);
-	GXInitLightColor(&unk24, JUtility::TColor(0xff, 0xff, 0xff, 0xff));
-}
-
 TNameRef* TNameRefGen::getNameRef(const char* name) const
 {
-	if (strcmp(name, "GroupObj") == 0) {
+	if (strcmp(name, "GroupObj") == 0)
 		return new TViewObjPtrListT<TViewObj, TViewObj>;
-	} else if (strcmp(name, "SmJ3DScn") == 0) {
-		return new TSmJ3DScn("<SmJ3DScn>", 2);
-	} else if (strcmp(name, "PolarCamera") == 0) {
-		return new TPolarCamera();
-	} else if (strcmp(name, "SmJ3DAct") == 0) {
-		return new TSmJ3DAct();
-	} else if (strcmp(name, "SmplChara") == 0) {
-		return new TSmplChara();
-	} else if (strcmp(name, "Light") == 0) {
-		return new TLight();
-	} else if (strcmp(name, "IdxLight") == 0) {
-		return new TIdxLight();
-	} else if (strcmp(name, "LightAry") == 0) {
-		return new TLightAry();
-	} else if (strcmp(name, "AmbColor") == 0) {
-		return new TAmbColor();
-	} else if (strcmp(name, "AmbAry") == 0) {
-		return new TAmbAry();
-	} else if (strcmp(name, "NameRefGrp") == 0) {
-		return new TNameRefPtrListT<TNameRef, TNameRef>();
-	} else if (strcmp(name, "DrawBufObj") == 0) {
-		return new TDrawBufObj();
-	} else if (strcmp(name, "EfbCtrlTex") == 0) {
-		return new TEfbCtrlTex("<EfbCtrlTex>", 0);
-	} else if (strcmp(name, "Viewport") == 0) {
-		return new TViewport(TRect(0, 0, 640, 528), "<Viewport>");
-	} else {
-		return nullptr;
-	}
+
+	if (strcmp(name, "SmJ3DScn") == 0)
+		return new TSmJ3DScn;
+
+	if (strcmp(name, "PolarCamera") == 0)
+		return new TPolarCamera;
+
+	if (strcmp(name, "SmJ3DAct") == 0)
+		return new TSmJ3DAct;
+
+	if (strcmp(name, "SmplChara") == 0)
+		return new TSmplChara;
+
+	if (strcmp(name, "Light") == 0)
+		return new TLight;
+
+	if (strcmp(name, "IdxLight") == 0)
+		return new TIdxLight;
+
+	if (strcmp(name, "LightAry") == 0)
+		return new TLightAry;
+
+	if (strcmp(name, "AmbColor") == 0)
+		return new TAmbColor;
+
+	if (strcmp(name, "AmbAry") == 0)
+		return new TAmbAry;
+
+	if (strcmp(name, "NameRefGrp") == 0)
+		return new TNameRefPtrListT<TNameRef, TNameRef>;
+
+	if (strcmp(name, "DrawBufObj") == 0)
+		return new TDrawBufObj;
+
+	if (strcmp(name, "EfbCtrlTex") == 0)
+		return new TEfbCtrlTex;
+
+	if (strcmp(name, "Viewport") == 0)
+		return new TViewport;
+	return nullptr;
 }

@@ -27,16 +27,6 @@ extern u8* gpSetupThreadStack;
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
-// Gives this TU visibility to inline camera construction while JDRNameRefGen
-// keeps the standalone TCamera constructor owner.
-inline JDrama::TCamera::TCamera(float near, float far, const char* name)
-    : TPlacement(name)
-    , mFlag(0)
-    , mNear(near)
-    , mFar(far)
-{
-}
-
 inline JDrama::TLookAtCamera::TLookAtCamera()
     : TCamera(50.0f, 10000.0f, "<TLookAtCamera>")
 {
