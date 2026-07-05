@@ -234,9 +234,13 @@ void TMario::soundMovement()
 #define MARIO_NOZZLE_UNK378(nozzle) (*(f32*)((u8*)(nozzle) + 0x378))
 #define MARIO_NOZZLE_TRIGGER_STATE(nozzle) (*(u8*)((u8*)(nozzle) + 0x385))
 
+	bool dryGround = true;
 	u32 action = mAction;
 
-	mSoundValues.unk18 = (*(u8*)((u8*)gpMSound + 0xA8) & 1) ? 0 : 1;
+	if (*(u8*)((u8*)gpMSound + 0xA8) & 1)
+		mSoundValues.unk18 = 0;
+	else
+		mSoundValues.unk18 = 1;
 
 	if (onYoshi()) {
 		TWaterGun* waterGun = mWaterGun;
@@ -530,7 +534,6 @@ void TMario::soundMovement()
 		    && mSoundValues.unk2B == 0 && mSoundValues.unk18 == 0)
 			MARIO_START_VOICE(0x7094);
 
-		bool dryGround = true;
 		if (mGroundPlane != nullptr) {
 			u16 bgType = mGroundPlane->mBGType;
 			if (bgType == BG_TYPE_WATER || bgType == BG_TYPE_DAMAGING_WATER
