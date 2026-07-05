@@ -888,33 +888,33 @@ bool TBaseNPC::npcMadding()
 	bool ret = false;
 	if (!(mLiveFlag & 0x02000000)) {
 		ret = true;
-		return ret;
-	}
-	switch (unkD0->mCurrentAnmKind) {
-	case 4:
-		SMS_GoRotate(mPosition, *gpMarioPos,
-		             *(f32*)((u8*)mNpcSaveIndividual + 0x2ac), &mRotation.y);
-		JGeometry::TVec3<f32> axis = *gpMarioPos;
-		axis -= mPosition;
-		JGeometry::TVec3<f32> copy  = axis;
-		JGeometry::TVec3<f32> copy2 = copy;
-		JGeometry::TVec3<f32> copy3;
-		copy3.set(copy2);
-		f32 delta = MsWrap(abs(mRotation.y - MsGetRotFromZaxisY(copy3)), 0.0f,
-		                   360.0f);
-		if (delta < 0.001f)
-			requestNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_OFF);
-		if (!unk124->getGraph()->isDummy())
-			unk1DA |= 0x1;
-		break;
+	} else {
+		switch (unkD0->mCurrentAnmKind) {
+		case 4:
+			SMS_GoRotate(mPosition, *gpMarioPos,
+			             *(f32*)((u8*)mNpcSaveIndividual + 0x2ac), &mRotation.y);
+			JGeometry::TVec3<f32> axis = *gpMarioPos;
+			axis -= mPosition;
+			JGeometry::TVec3<f32> copy  = axis;
+			JGeometry::TVec3<f32> copy2 = copy;
+			JGeometry::TVec3<f32> copy3;
+			copy3.set(copy2);
+			f32 delta = MsWrap(abs(mRotation.y - MsGetRotFromZaxisY(copy3)), 0.0f,
+			                   360.0f);
+			if (delta < 0.001f)
+				requestNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_OFF);
+			if (!unk124->getGraph()->isDummy())
+				unk1DA |= 0x1;
+			break;
 
-	case 0xA:
-	case 0xB:
-		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			ret        = true;
-			mLiveFlag &= ~0x02000000;
+		case 0xA:
+		case 0xB:
+			if (mMActor->isCurAnmAlreadyEnd(0)) {
+				ret        = true;
+				mLiveFlag &= ~0x02000000;
+			}
+			break;
 		}
-		break;
 	}
 	return ret;
 }
