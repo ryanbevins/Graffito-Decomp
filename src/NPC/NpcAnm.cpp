@@ -675,9 +675,11 @@ void TBaseNPC::npcWetIn()
 				if (isMare || mActorType == 0x04000011) {
 					if (MsRandF() < 0.5f)
 						anm = asKind(0xB);
-				} else if ((s32)mActorType < (s32)0x04000018
-				           && (s32)mActorType >= (s32)0x04000016) {
-					if (!(mLiveFlag & 0x04000000) && MsRandF() < 0.5f)
+				} else if (!((s32)mActorType < (s32)0x04000018
+				             && (s32)mActorType >= (s32)0x04000016)) {
+					(void)mActorType;
+				} else if (!(mLiveFlag & 0x04000000)) {
+					if (MsRandF() < 0.5f)
 						anm = asKind(0xB);
 				}
 			}
