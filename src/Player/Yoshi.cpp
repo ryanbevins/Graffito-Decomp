@@ -1241,11 +1241,10 @@ void TYoshi::entry()
 	for (u16 i = 0; i < data->getMaterialNum(); ++i)
 		data->getMaterialNodePointer(i)->getTevBlock()->setTevColor(2, color);
 
-	data = (*(J3DModel**)((u8*)this + 0x44))->getModelData();
-	data->getMaterialNodePointer(0)->getTevBlock()->setTevColor(2, color);
-
-	data = (*(J3DModel**)((u8*)this + 0x48))->getModelData();
-	data->getMaterialNodePointer(0)->getTevBlock()->setTevColor(2, color);
+	mHandL->getModelData()->getMaterialNodePointer(0)->getTevBlock()->setTevColor(
+	    2, color);
+	mHandR->getModelData()->getMaterialNodePointer(0)->getTevBlock()->setTevColor(
+	    2, color);
 
 	mActor->entry();
 	(*(J3DModel**)((u8*)this + 0x44))->entry();
@@ -1254,8 +1253,9 @@ void TYoshi::entry()
 
 	TCircleShadowRequest request;
 	request.unk0  = mTranslation;
-	request.unkC  = mSpineScale;
-	request.unk10 = mSpineScale;
+	f32 spineScale = mSpineScale;
+	request.unkC   = spineScale;
+	request.unk10  = spineScale;
 	gpBindShadowManager->request(request, 0);
 
 	gpQuestionManager->request(mTranslation, mSpineScale);
