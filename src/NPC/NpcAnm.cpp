@@ -953,17 +953,12 @@ void TBaseNPC::npcMareStandIn()
 	switch (k) {
 	case 5:
 	case 0xE: {
-		TNpcAnmFrameCounter* fc = mAnmFrameCounter;
-		if (fc->mCurFrame == 0) {
-			fc->mCurFrame = 0;
-			f32 r         = (f32)rand() * (1.0f / 32768.0f);
-			s32 v         = (s32)(r * 120.0f);
-			fc->mMaxFrame = v + 0xF1;
-		}
+		mAnmFrameCounter->doThing3(240, 360);
 		break;
 	}
 	default:
-		requestNpcAnm_(asKind(7), NPC_STOP_MOTION_BLEND_ON);
+		requestNpcAnm_((EnumNpcAnmKind)0x7,
+		               (EnumNpcStopMotionBlendOnOff)1);
 		break;
 	}
 	mMarchSpeed = 0.0f;
@@ -980,15 +975,9 @@ bool TBaseNPC::npcMareStanding()
 	case 5:
 	case 0xE:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			TNpcAnmFrameCounter* fc = mAnmFrameCounter;
-			bool atMax              = false;
-			fc->mCurFrame++;
-			if (fc->mCurFrame >= fc->mMaxFrame) {
-				fc->mCurFrame = fc->mMaxFrame;
-				atMax         = true;
-			}
-			if (atMax) {
-				requestNpcAnm_(asKind(7), NPC_STOP_MOTION_BLEND_OFF);
+			if (mAnmFrameCounter->doThing2()) {
+				requestNpcAnm_((EnumNpcAnmKind)0x7,
+				               (EnumNpcStopMotionBlendOnOff)0);
 			}
 		}
 		break;
