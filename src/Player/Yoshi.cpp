@@ -892,11 +892,11 @@ void TYoshi::thinkHoldOut()
 // movement - 0x8014DAF4
 void TYoshi::movement()
 {
-	u8 directorState = gpMarDirector->unk124;
-	if (directorState != 3 && directorState != 4 && directorState != 1
-	    && directorState != 2 && !(mMario->mAction & 0x1000)
-	    && mCurJuice > 0) {
-		--mCurJuice;
+	if (!gpMarDirector->checkUnk124Thing2()
+	    && !gpMarDirector->isTalkModeNow()) {
+		if (!mMario->checkStatusType(0x1000) && mCurJuice > 0) {
+			--mCurJuice;
+		}
 	}
 
 	TYoshiTongue* tongue = mTongue;
@@ -949,8 +949,9 @@ void TYoshi::movement()
 		*(s16*)((u8*)this + 0x70) = angle * (65536.0f / 360.0f);
 
 		const TBGCheckData* ground;
-		f32 groundY = gpMap->checkGround(mTranslation.x, mTranslation.y + 200.0f,
-		                                 mTranslation.z, &ground);
+		JGeometry::TVec3<f32> trans = mTranslation;
+		f32 groundY
+		    = gpMap->checkGround(trans.x, 200.0f + trans.y, trans.z, &ground);
 		mActor->setLightData(ground, mTranslation);
 
 		*(f32*)((u8*)this + 0x2c)
