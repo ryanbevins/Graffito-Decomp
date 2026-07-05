@@ -439,10 +439,7 @@ void TBaseNPC::npcWaitIn()
 				kind = 0x12;
 		} else if (!unk124->getGraph()->isDummy()) {
 			if (mSpine->getLatestNerve() == &TNerveNPCGraphWait::theNerve()) {
-				u8 state    = gpMarDirector->unk124;
-				bool inMode = (state == 1 || state == 2);
-				bool keep   = inMode || state == 4;
-				if (!keep)
+				if (!gpMarDirector->isThing())
 					kind = getNpcWaitAnmBase_();
 			}
 		} else {
