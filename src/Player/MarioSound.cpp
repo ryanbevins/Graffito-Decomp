@@ -1,10 +1,12 @@
 #define JG_TUTIL_SQRT_OUT_OF_LINE
+#define JSULIST_DTOR_DECL_ONLY
 #include <Player/MarioMain.hpp>
 #include <Map/MapData.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <System/Application.hpp>
+#undef JSULIST_DTOR_DECL_ONLY
 
 class TNozzleBase {
 public:
