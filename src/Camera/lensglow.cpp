@@ -63,14 +63,14 @@ TLensGlow::TLensGlow(bool sunset, const char* name)
 	unk14 = new J3DModel(unk10, 0, 1);
 
 	snprintf(buf, 0x100, "%s/%s", volume, "glow.btk");
-	unk18 = (J3DAnmBase*)J3DAnmLoaderDataBase::load(
+	unk18 = (J3DAnmTextureSRTKey*)J3DAnmLoaderDataBase::load(
 	    JKRFileLoader::getGlbResource(buf));
-	((J3DAnmTextureSRTKey*)unk18)->searchUpdateMaterialID(unk10);
+	unk18->searchUpdateMaterialID(unk10);
 
 	snprintf(buf, 0x100, "%s/%s", volume, "glow.brk");
-	unk30 = (J3DAnmBase*)J3DAnmLoaderDataBase::load(
+	unk30 = (J3DAnmTevRegKey*)J3DAnmLoaderDataBase::load(
 	    JKRFileLoader::getGlbResource(buf));
-	((J3DAnmTevRegKey*)unk30)->searchUpdateMaterialID(unk10);
+	unk30->searchUpdateMaterialID(unk10);
 
 	int num = unk10->getMaterialNum();
 	for (u16 i = 0; i < num; i++) {
@@ -79,8 +79,8 @@ TLensGlow::TLensGlow(bool sunset, const char* name)
 		unk10->getMaterialNodePointer(i)->unk38 = anm;
 	}
 
-	unk10->entryTexMtxAnimator((J3DAnmTextureSRTKey*)unk18);
-	unk10->entryTevRegAnimator((J3DAnmTevRegKey*)unk30);
+	unk10->entryTexMtxAnimator(unk18);
+	unk10->entryTevRegAnimator(unk30);
 
 	unk1C.init(unk18->getFrameMax());
 	unk1C.setRate(SMSGetAnmFrameRate());
@@ -119,7 +119,7 @@ void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
 		if (visCount <= unk5D) {
 			unk4C = 0.0f;
 		} else {
-			f32 t = (f32)(visCount - unk5D) / (f32)(17 - unk5D);
+			f32 t = (f32)(visCount - unk5D) * (1.0f / (f32)(17 - unk5D));
 			unk4C = CLBEaseOutInbetween(0.0f, (f32)unk5C,
 			                            CLBLinearInbetween(0.0f, 1.0f, t));
 		}
@@ -136,10 +136,10 @@ void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
 		unk64 = CLBLinearInbetween(0.002f * unk6C, 0.002f * unk68, sunRatio);
 		CLBChaseDecrease(&unk60, unk64, unk70, 0.0f);
 
-		f32 baseX = gpSunModel->mFPos[0].x
-		          * (f32)((u16)SMSGetGameRenderWidth() >> 1);
-		f32 baseY = gpSunModel->mFPos[0].y
-		          * (f32)((u16)SMSGetGameRenderHeight() >> 1);
+		f32 sunX  = gpSunModel->mFPos[0].x;
+		f32 baseX = sunX * (f32)((u16)SMSGetGameRenderWidth() >> 1);
+		f32 sunY  = gpSunModel->mFPos[0].y;
+		f32 baseY = sunY * (f32)((u16)SMSGetGameRenderHeight() >> 1);
 
 		if (visCount == 0) {
 			unk8C = 0.0f;
@@ -160,8 +160,12 @@ void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
 			f32 tt  = 2.0f * sunRatio;
 			f32 rx  = CLBLinearInbetween(sumX * inv, sun->mFPos[0].x, tt);
 			f32 ry  = CLBLinearInbetween(sumY * inv, sun->mFPos[0].y, tt);
-			unk88 = rx * (f32)((u16)SMSGetGameRenderWidth() >> 1) - baseX;
-			unk8C = ry * (f32)((u16)SMSGetGameRenderHeight() >> 1) - baseY;
+			u32 width  = SMSGetGameRenderWidth();
+			u32 height = SMSGetGameRenderHeight();
+			f32 x      = rx * (f32)((u16)width >> 1);
+			f32 y      = ry * (f32)((u16)height >> 1);
+			unk88      = x - baseX;
+			unk8C      = y - baseY;
 		}
 
 		CLBChaseDecrease(&unk80, unk88, unk90, 0.0f);

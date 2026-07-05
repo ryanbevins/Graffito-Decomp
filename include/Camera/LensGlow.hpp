@@ -6,7 +6,6 @@
 
 class J3DModelData;
 class J3DModel;
-class J3DAnmBase;
 
 class TLensGlow : public JDrama::TViewObj {
 public:
@@ -16,9 +15,9 @@ public:
 public:
 	/* 0x10 */ J3DModelData* unk10;
 	/* 0x14 */ J3DModel* unk14;
-	/* 0x18 */ J3DAnmBase* unk18;
+	/* 0x18 */ J3DAnmTextureSRTKey* unk18;
 	/* 0x1C */ J3DFrameCtrl unk1C;
-	/* 0x30 */ J3DAnmBase* unk30;
+	/* 0x30 */ J3DAnmTevRegKey* unk30;
 	/* 0x34 */ J3DFrameCtrl unk34;
 	/* 0x48 */ f32 unk48;
 	/* 0x4C */ f32 unk4C;
