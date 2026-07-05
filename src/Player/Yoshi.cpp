@@ -751,11 +751,11 @@ inline void TYoshi::emitTongue()
 	for (int i = 0; i < 10; ++i) {
 		mTongue->movement();
 		if (JGeometry::TVec3<f32>(mTongue->mTipPos - pos).length()
-		    > *(f32*)((u8*)this + 0x90))
+		    > mTongueSearchLength)
 			break;
 	}
 
-	*(u8*)((u8*)this + 0xDC) = 3;
+	mSearch.mState = 3;
 }
 
 inline void TYoshi::thinkEat()
@@ -770,31 +770,29 @@ inline void TYoshi::thinkEat()
 
 void TYoshi::doSearch()
 {
-	switch (*(u8*)((u8*)this + 0xDC)) {
+	switch (mSearch.mState) {
 	case 0: {
-		--*(s16*)((u8*)this + 0xDE);
-		if (*(s16*)((u8*)this + 0xDE) <= 0) {
+		--mSearch.mWait;
+		if (mSearch.mWait <= 0) {
 			THitActor* target = mTongue->findTarget(false, false);
 			if (target != nullptr) {
 				JGeometry::TVec3<f32> diff;
 				diff.sub(target->mPosition, mTranslation);
-				*(s16*)((u8*)this + 0xE0) = matan(diff.z, diff.x);
-				*(u8*)((u8*)this + 0xDC) = 1;
+				mSearch.mTargetAngle = matan(diff.z, diff.x);
+				mSearch.mState       = 1;
 				return;
 			}
-			*(s16*)((u8*)this + 0xDE)
-			    = (s16)((f32)(*(s16*)((u8*)this + 0xEA)
-			                   - *(s16*)((u8*)this + 0xE8))
-			            * MsRandF()
-			            + (f32)*(s16*)((u8*)this + 0xE8));
+			mSearch.mWait = (s16)((f32)(mSearch.mWaitMax - mSearch.mWaitMin)
+			                           * MsRandF()
+			                       + (f32)mSearch.mWaitMin);
 		}
 		return;
 	}
 	case 1: {
-		s16 prev  = *(s16*)((u8*)this + 0x70);
-		s16 delta = (s16)(*(f32*)((u8*)this + 0xE4)
-		                  * (f32)(*(s16*)((u8*)this + 0xE0) - prev));
-		*(s16*)((u8*)this + 0x70) = prev + delta;
+		s16 prev  = mEggRotSpeed;
+		s16 delta = (s16)(mSearch.mTurnRate
+		                  * (f32)((s16)mSearch.mTargetAngle - prev));
+		mEggRotSpeed = prev + delta;
 		if (delta > -0x100 && delta < 0x100) {
 			emitTongue();
 			changeAnimation(3);
@@ -805,24 +803,20 @@ void TYoshi::doSearch()
 		if (mTongue->findTarget(false, true) != nullptr) {
 			emitTongue();
 		} else {
-			*(s16*)((u8*)this + 0xDE)
-			    = (s16)((f32)(*(s16*)((u8*)this + 0xEA)
-			                   - *(s16*)((u8*)this + 0xE8))
-			            * MsRandF()
-			            + (f32)*(s16*)((u8*)this + 0xE8));
-			*(u8*)((u8*)this + 0xDC) = 0;
+			mSearch.mWait = (s16)((f32)(mSearch.mWaitMax - mSearch.mWaitMin)
+			                           * MsRandF()
+			                       + (f32)mSearch.mWaitMin);
+			mSearch.mState = 0;
 		}
 		break;
 	}
 	case 3:
 		thinkEat();
 		if (mTongue->mState == TYoshiTongue::STATE_IDLE) {
-			*(s16*)((u8*)this + 0xDE)
-			    = (s16)((f32)(*(s16*)((u8*)this + 0xEA)
-			                   - *(s16*)((u8*)this + 0xE8))
-			            * MsRandF()
-			            + (f32)*(s16*)((u8*)this + 0xE8));
-			*(u8*)((u8*)this + 0xDC) = 0;
+			mSearch.mWait = (s16)((f32)(mSearch.mWaitMax - mSearch.mWaitMin)
+			                           * MsRandF()
+			                       + (f32)mSearch.mWaitMin);
+			mSearch.mState = 0;
 			changeAnimation(23);
 		}
 		break;

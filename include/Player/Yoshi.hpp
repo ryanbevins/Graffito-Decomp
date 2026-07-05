@@ -8,6 +8,8 @@
 class TMario;
 class TEggYoshi;
 class TYoshiTongue;
+struct TRidingInfo;
+class J3DDrawBuffer;
 
 class TYoshi {
 public:
@@ -56,11 +58,23 @@ public:
 	TYoshiTongue* mTongue;              // 0x0038
 	u16 mJoint;                         // 0x003c
 	u16 _3e;                            // 0x003e
-	u32 _04[0x44 / 4];                  // 0x0040
+	u32 _04[0x30 / 4];                  // 0x0040
+	s16 mEggRotSpeed;                   // 0x0070
+	u16 _72;                            // 0x0072
+	u32 _04b[0x10 / 4];                 // 0x0074
 	f32 mRedComponent;                  // 0x0084
 	f32 mGreenComponent;                // 0x0088
 	f32 mBlueComponent;                 // 0x008C
-	u32 _05[0x28 / 4];                  // 0x0090
+	f32 mTongueSearchLength;            // 0x0090
+	TRidingInfo* mRidingInfo;           // 0x0094
+	f32 _98;                            // 0x0098
+	f32 _9C;                            // 0x009C
+	f32 _A0;                            // 0x00A0
+	f32 _A4;                            // 0x00A4
+	J3DDrawBuffer* mOpaDrawBuffer;      // 0x00A8
+	J3DDrawBuffer* mXluDrawBuffer;      // 0x00AC
+	u32 _B0;                            // 0x00B0
+	u32 _B4;                            // 0x00B4
 	u8 mFlutterState;                   // 0x00B8
 	u8 _06;                             // 0x00B9
 	u16 mFlutterTimer;                  // 0x00BA
@@ -72,7 +86,22 @@ public:
 	u8 mType;                           // 0x00D0
 	u8 _09;                             // 0x00D1
 	u16 _10;                            // 0x00D2
-	u32 _11[0x1C / 4];                  // 0x00D4
+	union {
+		u32 _11[0x1C / 4];              // 0x00D4
+		struct {
+			u32 _D4;                    // 0x00D4
+			u32 _D8;                    // 0x00D8
+			u8 mState;                  // 0x00DC
+			u8 _DD;                     // 0x00DD
+			s16 mWait;                  // 0x00DE
+			u16 mTargetAngle;           // 0x00E0
+			u16 _E2;                    // 0x00E2
+			f32 mTurnRate;              // 0x00E4
+			s16 mWaitMin;               // 0x00E8
+			s16 mWaitMax;               // 0x00EA
+			f32 _EC;                    // 0x00EC
+		} mSearch;
+	};
 	TEggYoshi* mEgg;                    // 0x00F0
 	u16 mCurBtpIdx;                     // 0x00F4
 	u16 mEmitJoint;                     // 0x00F6
