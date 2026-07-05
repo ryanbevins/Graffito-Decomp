@@ -1069,11 +1069,15 @@ bool CPolarSubCamera::isMarioReadyGun_() const { return false; }
 
 void CPolarSubCamera::onMoveApproach_()
 {
-	f32 dist = MsSqrtf((mPosition.x - mTarget.x) * (mPosition.x - mTarget.x)
-	                   + (mPosition.y - mTarget.y)
-	                       * (mPosition.y - mTarget.y)
-	                   + (mPosition.z - mTarget.z)
-	                       * (mPosition.z - mTarget.z));
+	f32 dist = (mPosition.x - mTarget.x) * (mPosition.x - mTarget.x)
+	           + (mPosition.y - mTarget.y) * (mPosition.y - mTarget.y)
+	           + (mPosition.z - mTarget.z) * (mPosition.z - mTarget.z);
+	if (dist > 0.0f) {
+		f64 root = __frsqrte(dist);
+		volatile f32 result
+		    = 0.5 * root * (3.0 - dist * (root * root)) * dist;
+		dist = result;
+	}
 	unk6C->mChaseFrame
 	    = dist - CLBLinearInbetween(unk68->unk08, unk68->unk0C, unkA8);
 }
