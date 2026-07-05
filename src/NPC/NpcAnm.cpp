@@ -92,14 +92,6 @@ static inline EnumNpcStopMotionBlendOnOff asBlend(int v)
 	return (EnumNpcStopMotionBlendOnOff)v;
 }
 
-// True when this NPC is one of the "sink/peach interior" actor types (BaseY
-// range 0x0400001C..0x0400001E) where animation requests must be ignored.
-static inline bool isLockedAnmActor(u32 actorType)
-{
-	return (s32)actorType >= (s32)0x0400001C
-	    && (s32)actorType < (s32)0x0400001E;
-}
-
 // ============================================================
 // Definition order is *reverse* of binary layout because this
 // TU is compiled with -inline deferred.
@@ -107,7 +99,7 @@ static inline bool isLockedAnmActor(u32 actorType)
 
 void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend)
 {
-	if (isLockedAnmActor(mActorType))
+	if ((s32)mActorType < (s32)0x0400001E && (s32)mActorType >= (s32)0x0400001C)
 		return;
 
 	mAnmRequest->mKind = -1;
@@ -117,7 +109,7 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 	if (!unkD0->setBckAndBtpAnm((int)kind))
 		return;
 
-	if ((int)kind == 0x11 && unk1D9 < 3 && unk1D9 >= 0) {
+	if ((int)kind == 0x11 && (s32)unk1D9 < 3 && (s32)unk1D9 >= 0) {
 		emitHappyEffect_();
 		if (gpMSound->gateCheck(0x8808)) {
 			MSoundSESystem::MSoundSE::startSoundNpcActor(
