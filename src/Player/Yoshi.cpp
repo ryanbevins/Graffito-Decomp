@@ -1094,6 +1094,8 @@ void TYoshi::calcAnim()
 	u8 state = (u8)mState;
 
 	switch (state) {
+	case 0:
+		break;
 	case 1:
 		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
 		                         mTranslation.x,
@@ -1113,6 +1115,8 @@ void TYoshi::calcAnim()
 		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
 		                         mTranslation.x, mTranslation.y,
 		                         mTranslation.z, rootMtx);
+		break;
+	case 4:
 		break;
 	case 8:
 		thinkAnimation();
