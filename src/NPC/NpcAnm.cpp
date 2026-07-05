@@ -139,10 +139,11 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 
 	if (mNpcParts && isPartsAnmNpc()) {
 		// Parts animation overrides per actor variant.
-		if (mActorType == 0x04000018) {
+		switch (mActorType) {
+		case 0x04000018: {
 			// Hat/parasol parts.
-			MActor* parts = mNpcParts->getPartsMActor(0, 0);
 			bool down     = (unk1D8 & 0x1) ? false : true;
+			MActor* parts = mNpcParts->getPartsMActor(0, 0);
 			if (parts) {
 				int bck;
 				if ((int)kind == 5)
@@ -189,7 +190,28 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 				if (!parts4->checkCurBckFromIndex(bck))
 					parts4->setBckFromIndex(bck);
 			}
-		} else if (mActorType == 0x04000015) {
+			break;
+		}
+		case 0x04000010: {
+			// Tail / pouch parts.
+			int bck;
+			int k = (int)kind;
+			if (k == 6)
+				bck = 2;
+			else if (k > 6)
+				bck = 1;
+			else if (k >= 5)
+				bck = 3;
+			else
+				bck = 1;
+			MActor* parts = mNpcParts->getPartsMActor(9, 0);
+			if (parts) {
+				if (!parts->checkCurBckFromIndex(bck))
+					parts->setBckFromIndex(bck);
+			}
+			break;
+		}
+		case 0x04000015: {
 			// Hair / topknot parts.
 			int bck;
 			int btp = 0;
@@ -208,23 +230,8 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 					parts->setBckFromIndex(bck);
 				parts->setBtpFromIndex(btp);
 			}
-		} else if (mActorType == 0x04000010) {
-			// Tail / pouch parts.
-			int bck;
-			int k = (int)kind;
-			if (k == 6)
-				bck = 2;
-			else if (k > 6)
-				bck = 1;
-			else if (k >= 5)
-				bck = 3;
-			else
-				bck = 1;
-			MActor* parts = mNpcParts->getPartsMActor(9, 0);
-			if (parts) {
-				if (!parts->checkCurBckFromIndex(bck))
-					parts->setBckFromIndex(bck);
-			}
+			break;
+		}
 		}
 	}
 
