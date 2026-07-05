@@ -1091,8 +1091,9 @@ void TYoshi::movement()
 void TYoshi::calcAnim()
 {
 	Mtx rootMtx;
+	u8 state = (u8)mState;
 
-	switch ((u8)mState) {
+	switch (state) {
 	case 1:
 		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
 		                         mTranslation.x,
@@ -1119,7 +1120,7 @@ void TYoshi::calcAnim()
 		break;
 	}
 
-	if ((u8)mState != 0) {
+	if (state != 0) {
 		thinkUpper();
 
 		int anim = mActor->getCurAnmIdx(0);
