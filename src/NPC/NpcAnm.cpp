@@ -740,9 +740,7 @@ bool TBaseNPC::npcWetting()
 				break;
 			}
 		} else {
-			bool isMonte = isNormalMonteM() || isNormalMonteW()
-			             || isSpecialMonteM() || isSpecialMonteW();
-			if (isMonte && isMadNpc() && mActorType != 0x04000006) {
+			if (isMonte() && isMadNpc() && mActorType != 0x04000006) {
 				switch (unkD0->mCurrentAnmKind) {
 				case 5:
 				case 0x14:

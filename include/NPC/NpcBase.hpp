@@ -141,6 +141,12 @@ public:
 	bool isSpecialMonteM() const;
 	bool isNormalMonteW() const;
 	bool isNormalMonteM() const;
+	bool isNormalMonte() const { return isNormalMonteM() || isNormalMonteW(); }
+	bool isSpecialMonte() const
+	{
+		return isSpecialMonteM() || isSpecialMonteW();
+	}
+	bool isMonte() const { return isNormalMonte() || isSpecialMonte(); }
 	void loadAfter();
 	void load(JSUMemoryInputStream&);
 	TBaseNPC(u32, const char*);
