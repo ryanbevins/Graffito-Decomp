@@ -729,15 +729,8 @@ bool TBaseNPC::npcWetting()
 			case 0xB:
 			case 0x14:
 				if (mMActor->isCurAnmAlreadyEnd(0)) {
-					TNpcAnmFrameCounter* fc = mAnmFrameCounter;
-					if (fc->mCurFrame == 0) {
-						fc->mCurFrame = 0;
-						f32 r         = MsRandF();
-						fc->mMaxFrame = (s32)(240.0f * r) + 0xF1;
-					}
-					fc->mCurFrame++;
-					if (fc->mCurFrame >= fc->mMaxFrame) {
-						fc->mCurFrame = fc->mMaxFrame;
+					mAnmFrameCounter->doThing3(240, 480);
+					if (mAnmFrameCounter->doThing2()) {
 						EnumNpcAnmKind kind = asKind(7);
 						if (MsRandF() < 0.5f)
 							kind = asKind(0x1B);

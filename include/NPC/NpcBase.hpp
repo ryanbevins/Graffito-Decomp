@@ -4,6 +4,7 @@
 #include <Enemy/Enemy.hpp>
 #include <JSystem/JGeometry/JGVec3.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <NPC/NpcInitData.hpp>
 #include <dolphin/mtx.h>
 
@@ -32,6 +33,25 @@ struct TNpcAnmRequest {
 // Frame counter used to track how long the current wait/idle animation has
 // run; advances each tick until it hits its max.
 struct TNpcAnmFrameCounter {
+	bool doThing2()
+	{
+		bool result = false;
+		mCurFrame += 1;
+		if (mCurFrame >= mMaxFrame) {
+			mCurFrame = mMaxFrame;
+			result    = true;
+		}
+		return result;
+	}
+
+	void doThing3(int l, int r)
+	{
+		if (mCurFrame == 0) {
+			mCurFrame = 0;
+			mMaxFrame = MsRandI(l, r);
+		}
+	}
+
 	/* 0x0 */ s32 mCurFrame;
 	/* 0x4 */ s32 mMaxFrame;
 };
