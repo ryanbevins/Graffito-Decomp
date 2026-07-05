@@ -1,3 +1,4 @@
+#define JG_TUTIL_SQRT_OUT_OF_LINE
 #include <Player/MarioMain.hpp>
 #include <MSound/MSoundBGM.hpp>
 
@@ -1983,15 +1984,15 @@ void TMario::startHangLanding(u32 status)
 	changePlayerStatus(status, 0, false);
 }
 
-void TMario::moveRoof()
+BOOL TMario::moveRoof()
 {
 	// roofCommonEvents inlined
+	BOOL result;
 	{
 		u32 input = mInput;
 		if (input & 0x8000) {
 			mInput = input & ~0x8000;
-			changePlayerStatus(0x88c, 0, false);
-			return;
+			result = changePlayerStatus(0x88c, 0, false);
 		} else if (input & 0x2) {
 			TLiveActor* actor = (TLiveActor*)mRoofPlane->mActor;
 			if (actor != 0) {
@@ -1999,28 +2000,32 @@ void TMario::moveRoof()
 				if (actor->mActorType == 0x4000006a) {
 					emitParticle(0x39, &unk160[1]);
 					rumbleStart(0x15, mMotorParams.mMotorWall.value);
-					changePlayerStatus(0x00200345, 0, false);
-					return;
+					result = changePlayerStatus(0x00200345, 0, false);
+				} else {
+					result = changePlayerStatus(0x00200347, 0, false);
 				}
+			} else {
+				result = changePlayerStatus(0x00200347, 0, false);
 			}
-			changePlayerStatus(0x00200347, 0, false);
-			return;
+		} else {
+			result = 0;
 		}
 	}
+	if (result)
+		return 1;
 
 	if (mInput & 1) {
-		int result = doRoofMovingProcess();
-		if (result == 2) {
-			changePlayerStatus(0x88c, 0, false);
-			return;
-		} else if (result == 3) {
+		switch (doRoofMovingProcess()) {
+		case 2:
+			return changePlayerStatus(0x88c, 0, false);
+		case 3:
 			changePlayerStatus(0x3000036b, 0, false);
+			break;
 		}
 	}
 
 	if (mInput & 0x20) {
-		changePlayerStatus(0x00200349, mActionArg, false);
-		return;
+		return changePlayerStatus(0x00200349, mActionArg, false);
 	}
 
 	JGeometry::TVec3<f32> diff;
@@ -2043,7 +2048,7 @@ void TMario::moveRoof()
 		mActionArg = 1 - mActionArg;
 	}
 
-	return;
+	return 0;
 }
 
 BOOL TMario::roofCommonEvents()

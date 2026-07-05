@@ -1180,7 +1180,7 @@ public:
 	void kickRoofRollDown();
 	void kickRoofRollUp();
 	void kickRoof();
-	void moveRoof();
+	BOOL moveRoof();
 	void waitRoof();
 	void hangRoof();
 	BOOL roofCommonEvents();
