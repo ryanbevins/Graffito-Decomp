@@ -384,20 +384,27 @@ namespace StreamLib {
 
 	static void __DecodePCM()
 	{
+		s16* p1;
+		s16* p2;
+		s16* src;
+
+		u32 lsz     = loadsize;
 		u32 samples = loadsize / 4;
-		s16* p1     = loop_buffer[0][playside];
-		s16* p2     = loop_buffer[1][playside];
-		s16* p3     = adpcm_buffer;
+
+		p1  = loop_buffer[0][playside];
+		p2  = loop_buffer[1][playside];
+		src = adpcm_buffer;
 		for (s32 i = 0; i < samples; ++i) {
-			*p1 = p3[0];
-			*p2 = p3[1];
+			*p1 = src[0];
+			*p2 = src[1];
 			++p1;
 			++p2;
-			p3 += 2;
+			src += 2;
 		}
 
 		loadup_samples += loadsize / 4;
-		DCStoreRange(loop_buffer[0][playside], loadsize / 2);
+		DCStoreRange(loop_buffer[0][playside], lsz / 2);
+
 		DCStoreRange(loop_buffer[1][playside], loadsize / 2);
 	}
 
