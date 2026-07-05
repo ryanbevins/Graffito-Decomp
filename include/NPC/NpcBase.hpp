@@ -91,7 +91,7 @@ public:
 	bool npcRecoverFromSinking();
 	void npcFallIn();
 	void npcWaitIn();
-	int getNpcWaitAnmBase_();
+	EnumNpcAnmKind getNpcWaitAnmBase_();
 	void walkAnmRateChange_();
 	void randomizeBckAndBtpFrame_();
 	void requestTalkAnm_();

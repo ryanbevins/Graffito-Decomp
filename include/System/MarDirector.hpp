@@ -135,7 +135,14 @@ public:
 		return result;
 	}
 
-	bool isThing() const { return isTalkModeNow() || unk124 == 4; }
+	bool isThing() const
+	{
+		bool result = true;
+		bool isTalk = isTalkModeNow();
+		if (!isTalk && unk124 != 4)
+			result = false;
+		return result;
+	}
 
 	void* getUnkD4() { return unkD4; }
 	TBaseNPC* getTalkingNPC() { return unkA0; }

@@ -403,21 +403,21 @@ void TBaseNPC::walkAnmRateChange_()
 	}
 }
 
-int TBaseNPC::getNpcWaitAnmBase_()
+EnumNpcAnmKind TBaseNPC::getNpcWaitAnmBase_()
 {
-	int result = 1;
+	EnumNpcAnmKind result = asKind(1);
 	if (unk1E2 == 0) {
 		u32 flag = mActionFlag;
 		if (flag & 0x2) {
-			result = 0xC;
+			result = asKind(0xC);
 		} else if (flag & 0x10) {
-			result = 0x15;
+			result = asKind(0x15);
 		} else if (flag & 0x20) {
-			result = 6;
+			result = asKind(6);
 		} else if (flag & 0x40) {
-			result = 0x17;
+			result = asKind(0x17);
 		} else if (flag & 0x4) {
-			result = 0x16;
+			result = asKind(0x16);
 		}
 	}
 	return result;
@@ -425,18 +425,18 @@ int TBaseNPC::getNpcWaitAnmBase_()
 
 void TBaseNPC::npcWaitIn()
 {
-	int kind = 1;
+	EnumNpcAnmKind kind = asKind(1);
 	u32 flag = mActionFlag;
 	if (!(flag & 0x400)) {
 		if (unk178 != 0.0f) {
-			kind = 0xF;
+			kind = asKind(0xF);
 		} else if (flag & 0x200) {
-			kind = 0x11;
+			kind = asKind(0x11);
 		} else if ((flag & 0x1) && !(flag & 0x4)) {
 			if (flag & 0x20)
-				kind = 0x13;
+				kind = asKind(0x13);
 			else
-				kind = 0x12;
+				kind = asKind(0x12);
 		} else if (!unk124->getGraph()->isDummy()) {
 			if (mSpine->getLatestNerve() == &TNerveNPCGraphWait::theNerve()) {
 				if (!gpMarDirector->isThing())
@@ -446,7 +446,7 @@ void TBaseNPC::npcWaitIn()
 			kind = getNpcWaitAnmBase_();
 		}
 	}
-	requestNpcAnm_(asKind(kind), NPC_STOP_MOTION_BLEND_ON);
+	requestNpcAnm_(kind, NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
