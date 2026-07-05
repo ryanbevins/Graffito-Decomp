@@ -404,9 +404,10 @@ BOOL TYoshiTongue::canGo()
 	}
 
 	const TBGCheckData* rp;
-	f32 rh = gpMap->checkRoof(mTipPos.x, mTipPos.y, mTipPos.z, &rp);
-	if (rh - 50.0f < mTipPos.y) {
-		mTipPos.y = rh - 50.0f;
+	f32 rh = gpMap->checkRoof(mTipPos.x, mTipPos.y, mTipPos.z, &rp) - 50.0f;
+	if (rh < mTipPos.y) {
+		mTipPos.y = rh;
+		return TRUE;
 	}
 	return TRUE;
 }
