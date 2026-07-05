@@ -782,10 +782,11 @@ void TYoshi::doSearch()
 				*(u8*)((u8*)this + 0xDC) = 1;
 				return;
 			}
-			s16 min = *(s16*)((u8*)this + 0xE8);
-			s16 max = *(s16*)((u8*)this + 0xEA);
 			*(s16*)((u8*)this + 0xDE)
-			    = (s16)((f32)(max - min) * MsRandF() + (f32)min);
+			    = (s16)((f32)(*(s16*)((u8*)this + 0xEA)
+			                   - *(s16*)((u8*)this + 0xE8))
+			            * MsRandF()
+			            + (f32)*(s16*)((u8*)this + 0xE8));
 		}
 		return;
 	}
@@ -804,10 +805,11 @@ void TYoshi::doSearch()
 		if (mTongue->findTarget(false, true) != nullptr) {
 			emitTongue();
 		} else {
-			s16 min = *(s16*)((u8*)this + 0xE8);
-			s16 max = *(s16*)((u8*)this + 0xEA);
 			*(s16*)((u8*)this + 0xDE)
-			    = (s16)((f32)(max - min) * MsRandF() + (f32)min);
+			    = (s16)((f32)(*(s16*)((u8*)this + 0xEA)
+			                   - *(s16*)((u8*)this + 0xE8))
+			            * MsRandF()
+			            + (f32)*(s16*)((u8*)this + 0xE8));
 			*(u8*)((u8*)this + 0xDC) = 0;
 		}
 		break;
