@@ -16,6 +16,7 @@
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <Camera/Camera.hpp>
 #include <MarioUtil/MtxUtil.hpp>
+#include <MoveBG/MapObjCorona.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <System/Resolution.hpp>
 #include <dolphin/os/OSCache.h>
@@ -408,8 +409,7 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
 				JGeometry::TVec3<f32> push(normal.x * (dist - inner),
 				                           normal.y * (dist - inner),
 				                           normal.z * (dist - inner));
-				unk18.setMin(push);
-				unk24.setMax(push);
+				unk18.extend(push);
 
 				f32 speed = -(normal.x * unkC.x + normal.y * unkC.y
 				              + normal.z * unkC.z);
@@ -419,21 +419,18 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
 				JGeometry::TVec3<f32> bounce(data.unk58.x + normal.x * speed,
 				                             data.unk58.y + normal.y * speed,
 				                             data.unk58.z + normal.z * speed);
-				unk30.setMin(bounce);
-				unk3C.setMax(bounce);
+				unk30.extend(bounce);
 			} else {
 				f32 floor = radius + (data.unk0.y - data.unk44);
 				if (unk0.y < floor) {
 					f32 pushY = floor - unk0.y;
 					JGeometry::TVec3<f32> push(0.0f, pushY, 0.0f);
-					unk18.setMin(push);
-					unk24.setMax(push);
+					unk18.extend(push);
 
 					JGeometry::TVec3<f32> bounce(data.unk58.x,
 					                             data.unk58.y - unkC.y,
 					                             data.unk58.z);
-					unk30.setMin(bounce);
-					unk3C.setMax(bounce);
+					unk30.extend(bounce);
 				} else {
 					addDropToAverage(*this, count, average);
 				}
@@ -442,16 +439,14 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
 			addDropToAverage(*this, count, average);
 		}
 
-		unk30.setMin(minClamp);
-		unk3C.setMax(minClamp);
+		unk30.extend(minClamp);
 	} else if (wallDist > 0.0f && wallDist < radius + data.unk48
 	           && distSq > innerSq && distSq < outerSq) {
 		f32 depth = radius + data.unk48 - wallDist;
 		JGeometry::TVec3<f32> push(data.unk24.x * depth,
 		                           data.unk24.y * depth,
 		                           data.unk24.z * depth);
-		unk18.setMin(push);
-		unk24.setMax(push);
+		unk18.extend(push);
 
 		f32 speed = 1.5f
 		    * -(data.unk24.x * unkC.x + data.unk24.y * unkC.y
@@ -467,31 +462,27 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
 			bounce.z += dz * scale;
 		}
 
-		unk30.setMin(bounce);
-		unk3C.setMax(bounce);
-		unk30.setMin(maxClamp);
-		unk3C.setMax(maxClamp);
+		unk30.extend(bounce);
+		unk30.extend(maxClamp);
 	} else {
-		unk30.setMin(maxClamp);
-		unk3C.setMax(maxClamp);
+		unk30.extend(maxClamp);
 		addDropToAverage(*this, count, average);
 	}
 }
 
-static inline TBathtubData& bathData(u8* bathtub)
+static inline const TBathtubData& bathData(u8* bathtub)
 {
-	return *(TBathtubData*)(bathtub + 0x170);
+	return ((TBathtub*)bathtub)->getBathtubData();
 }
 
-static inline f32& rawF32(u8* base, u32 offset) { return *(f32*)(base + offset); }
 static inline u8& rawU8(u8* base, u32 offset) { return *(u8*)(base + offset); }
 
 static inline void clearDropForces(TBathWater::TDrop& drop)
 {
-	drop.unk18.zero();
-	drop.unk24.zero();
-	drop.unk30.zero();
-	drop.unk3C.zero();
+	drop.unk18.i.zero();
+	drop.unk18.f.zero();
+	drop.unk30.i.zero();
+	drop.unk30.f.zero();
 }
 
 static inline void initDrop(TBathWater::TDrop& drop,
@@ -506,11 +497,11 @@ static inline void initDrop(TBathWater::TDrop& drop,
 
 static inline void applyDropForces(TBathWater::TDrop& drop, f32 damp)
 {
-	drop.unk0 += drop.unk18;
-	drop.unk0 += drop.unk24;
+	drop.unk0 += drop.unk18.i;
+	drop.unk0 += drop.unk18.f;
 	drop.unkC.scale(damp);
-	drop.unkC += drop.unk30;
-	drop.unkC += drop.unk3C;
+	drop.unkC += drop.unk30.i;
+	drop.unkC += drop.unk30.f;
 }
 
 static inline bool removeDrop(TBathWater& water, int index)
@@ -549,8 +540,7 @@ static inline void simulateBathWater(TBathWater& water, const TBathtubData& data
 		for (TBathWater::TDrop* drop = water.unk88; drop < end; ++drop) {
 			drop->unk0 += drop->unkC;
 			clearDropForces(*drop);
-			drop->unk30.setMin(zero);
-			drop->unk3C.setMax(zero);
+			drop->unk30.extend(zero);
 			addDropToAverage(*drop, active, average);
 		}
 	}
@@ -590,14 +580,12 @@ static inline void simulateBathWater(TBathWater& water, const TBathtubData& data
 				JGeometry::TVec3<f32> push(normal.x * half,
 				                           (1.0f + normal.y) * yMove,
 				                           normal.z * half);
-				other->unk18.setMin(push);
-				other->unk24.setMax(push);
+				other->unk18.extend(push);
 
 				push.x = -push.x;
 				push.y = (normal.y - 1.0f) * yMove;
 				push.z = -push.z;
-				drop->unk18.setMin(push);
-				drop->unk24.setMax(push);
+				drop->unk18.extend(push);
 
 				if (yMove < overlap)
 					yMove = overlap;
@@ -606,12 +594,10 @@ static inline void simulateBathWater(TBathWater& water, const TBathtubData& data
 				    normal.x * yMove * params->bounceXZ.get(),
 				    normal.y * yMove * params->bounceY.get(),
 				    normal.z * yMove * params->bounceXZ.get());
-				other->unk30.setMin(bounce);
-				other->unk3C.setMax(bounce);
+				other->unk30.extend(bounce);
 
 				bounce.negate();
-				drop->unk30.setMin(bounce);
-				drop->unk3C.setMax(bounce);
+				drop->unk30.extend(bounce);
 			}
 		}
 	}
@@ -771,7 +757,7 @@ void TBathWaterManager::initializeIfYet_()
 	if (bathtub == 0 || rawU8(bathtub, 0x298) == 0)
 		return;
 
-	TBathtubData& data = bathData(bathtub);
+	const TBathtubData& data = bathData(bathtub);
 	for (int i = 0; i < 2; ++i) {
 		TBathWater* water       = unk20[i];
 		TBathWaterParams* params = unk14[i];
@@ -807,12 +793,12 @@ void TBathWaterManager::throwMario(f32 jump)
 	                           gpMarioPos->y - data.unk0.y,
 	                           gpMarioPos->z - data.unk0.z);
 	JGeometry::TVec3<f32> local(
-	    rawF32(bathtub, 0x188) * diff.x + rawF32(bathtub, 0x18c) * diff.y
-	        + rawF32(bathtub, 0x190) * diff.z,
-	    rawF32(bathtub, 0x194) * diff.x + rawF32(bathtub, 0x198) * diff.y
-	        + rawF32(bathtub, 0x19c) * diff.z,
-	    rawF32(bathtub, 0x1a0) * diff.x + rawF32(bathtub, 0x1a4) * diff.y
-	        + rawF32(bathtub, 0x1a8) * diff.z);
+	    data.unk18.x * diff.x + data.unk18.y * diff.y
+	        + data.unk18.z * diff.z,
+	    data.unk24.x * diff.x + data.unk24.y * diff.y
+	        + data.unk24.z * diff.z,
+	    data.unk30.x * diff.x + data.unk30.y * diff.y
+	        + data.unk30.z * diff.z);
 
 	local.y = 0.0f;
 	f32 dist = JGeometry::TUtil<f32>::sqrt(local.squared());
@@ -891,7 +877,7 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 		unk1C += 1;
 
 		if ((unk1C & 3) == 0) {
-			TBathtubData& data = bathData(unk24);
+			const TBathtubData& data = bathData(unk24);
 			for (int i = 0; i < 2; ++i)
 				simulateBathWater(*unk20[i], data);
 
@@ -968,9 +954,8 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 		if ((unk1C & 7) == 4 && rawU8(unk24, 0x1d4) != 0) {
 			TBathWater* overflow = unk20[1];
 			if (overflow->unk74 < overflow->unk8C->numDrops.get()) {
-				TBathtubData& data = bathData(unk24);
-				JGeometry::TVec3<f32> dir(rawF32(unk24, 0x194), 0.0f,
-				                           rawF32(unk24, 0x19c));
+				const TBathtubData& data = bathData(unk24);
+				JGeometry::TVec3<f32> dir(data.unk24.x, 0.0f, data.unk24.z);
 				if (!dir.isZero()) {
 					dir.normalize();
 					JGeometry::TVec3<f32> side;

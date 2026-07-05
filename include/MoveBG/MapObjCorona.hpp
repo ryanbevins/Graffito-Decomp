@@ -6,6 +6,7 @@
 #include <System/Params.hpp>
 
 class TBathtub;
+class TBathtubData;
 class TBathtubGrip;
 class MActor;
 class MActorAnmData;
@@ -128,6 +129,10 @@ public:
 	// fabricated
 	u8 getUnk29A() const { return *((u8*)this + 0x29A); }
 	u8 getUnk1D4() const { return unk1D4; }
+	const TBathtubData& getBathtubData() const
+	{
+		return *(const TBathtubData*)&unk170;
+	}
 	BOOL receiveMessage(THitActor* sender, u32 message);
 	Mtx* getRootJointMtx() const;
 	void perform(u32, JDrama::TGraphics*);

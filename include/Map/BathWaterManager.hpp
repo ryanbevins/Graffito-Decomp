@@ -108,10 +108,8 @@ public:
 	public:
 		/* 0x00 */ JGeometry::TVec3<f32> unk0;
 		/* 0x0C */ JGeometry::TVec3<f32> unkC;
-		/* 0x18 */ JGeometry::TVec3<f32> unk18;
-		/* 0x24 */ JGeometry::TVec3<f32> unk24;
-		/* 0x30 */ JGeometry::TVec3<f32> unk30;
-		/* 0x3C */ JGeometry::TVec3<f32> unk3C;
+		/* 0x18 */ JGeometry::TBox3<f32> unk18;
+		/* 0x30 */ JGeometry::TBox3<f32> unk30;
 		/* 0x48 */ f32 unk48;
 		/* 0x4C */ s32 unk4C;
 	};

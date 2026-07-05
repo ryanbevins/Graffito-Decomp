@@ -3,6 +3,7 @@
 
 #include <dolphin/types.h>
 #include <JSystem/JGeometry/JGVec2.hpp>
+#include <JSystem/JGeometry/JGVec3.hpp>
 
 namespace JGeometry {
 
@@ -16,6 +17,12 @@ template <class T> struct TBox {
 	    : i(other.i)
 	    , f(other.f)
 	{
+	}
+
+	void extend(const T& point)
+	{
+		i.setMin(point);
+		f.setMax(point);
 	}
 
 	T i, f;
@@ -77,6 +84,27 @@ template <typename T> struct TBox2 : TBox<TVec2<T> > {
 		this->i.set(x0, y0);
 		this->f.set(x1, y1);
 	}
+};
+
+template <typename T> struct TBox3 : TBox<TVec3<T> > {
+	TBox3() { }
+	TBox3(const TBox3& other) { set(other); }
+
+	TBox3& operator=(const TBox3& other)
+	{
+		*(TBox<TVec3<T> >*)this = other;
+		return *this;
+	}
+
+	TBox3(const TVec3<T>& min, const TVec3<T>& max) { set(min, max); }
+
+	void set(const TVec3<T>& min, const TVec3<T>& max)
+	{
+		this->i.set(min);
+		this->f.set(max);
+	}
+
+	void set(const TBox<TVec3<T> >& other) { set(other.i, other.f); }
 };
 
 } // namespace JGeometry
