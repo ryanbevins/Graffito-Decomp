@@ -87,7 +87,7 @@ void CPolarSubCamera::ctrlNormalOrTowerCamera_()
 	TMarioGamePad* pad         = unk120;
 	f32 stickX                 = pad->mCompSPos[6];
 	f32 stickY                 = pad->mCompSPos[7];
-	*(f32*)((u8*)this + 0x250) = 0.0f;
+	unk250 = 0.0f;
 
 	if (unk7C == 0) {
 		TCameraMarioData* mario = gpCameraMario;
@@ -97,22 +97,22 @@ void CPolarSubCamera::ctrlNormalOrTowerCamera_()
 	}
 
 	if (*(u32*)((u8*)this + 0x78) == 0) {
-		if (*(u16*)((u8*)this + 0x64) & 0x4) {
+		if (unk64 & 0x4) {
 			if (!CLBChaseAngleDecrease(
 			        &unkA6, *(s16*)((u8*)this + 0x274),
 			        *(s16*)((u8*)this + 0x276))) {
-				*(u16*)((u8*)this + 0x64) &= ~0x4;
-				if (*(u16*)((u8*)this + 0x64) & 0x8) {
-					*(u16*)((u8*)this + 0x64) &= ~0x8;
-					*(u16*)((u8*)this + 0x64) |= 0x10;
+				unk64 &= ~0x4;
+				if (unk64 & 0x8) {
+					unk64 &= ~0x8;
+					unk64 |= 0x10;
 				}
 			}
 		} else if (isTowerCameraSpecifyMode(mMode)) {
 			if (stickX != 0.0f) {
 				rotateY_ByStickX_(stickX);
 				execInvalidAutoChase_();
-				*(u16*)((u8*)this + 0x64) |= 0x80;
-			} else if (!(*(u16*)((u8*)this + 0x64) & 0x80) && !isMarioCrabWalk_()) {
+				unk64 |= 0x80;
+			} else if (!(unk64 & 0x80) && !isMarioCrabWalk_()) {
 				Vec center;
 				calcTowerCenterPos_(&center);
 				calcNoticeTargetYrot_(center);
@@ -133,47 +133,39 @@ void CPolarSubCamera::ctrlNormalOrTowerCamera_()
 				calcNoticeTargetYrot_(hit->getHostPos());
 			}
 		} else {
-			u8* p68 = *(u8**)((u8*)this + 0x68);
 			if (!SMS_IsMarioTouchGround4cm()) {
-				*(f32*)((u8*)this + 0x250) = CLBLinearInbetween<f32>(
-				    *(f32*)(p68 + 0x74), *(f32*)(p68 + 0x78), unkA8);
+				unk250 = CLBLinearInbetween<f32>(
+				    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x74),
+				    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x78), unkA8);
 			} else {
-				*(f32*)((u8*)this + 0x250) = CLBLinearInbetween<f32>(
-				    *(f32*)(p68 + 0x6C), *(f32*)(p68 + 0x70), unkA8);
+				unk250 = CLBLinearInbetween<f32>(
+				    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x6C),
+				    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x70), unkA8);
 			}
 
 			if (isMomentDefinite_()) {
 				unkA6 = matan(*(f32*)((u8*)this + 0xBC) - unk8C.z,
 				              *(f32*)((u8*)this + 0xB4) - unk8C.x);
-			} else if (!(*(u16*)((u8*)this + 0x64) & 0x80) && !isMarioCrabWalk_()) {
-				bool doSpeedCalc;
-				if (isMarioAimWithGun_()) {
-					if (isChangeToParallelCameraByMoveBG_()
-					    || isChangeToParallelCameraCByMoveBG_()) {
-						doSpeedCalc = true;
-					} else {
-						doSpeedCalc = false;
-						if (*(f32*)((u8*)this + 0x288) != 0.0f) {
-							f32 ratio = CLBEaseInInbetween<f32>(0.0f, 1.0f,
-							                                    unkA8);
-							void* p2D4 = *(void**)((u8*)this + 0x2D4);
-							s16 sf     = CLBEaseInInbetween<s16>(
-                                *(s16*)((u8*)p2D4 + 0x194),
-                                *(s16*)((u8*)p2D4 + 0x1A8), ratio);
-							CLBChaseAngleDecrease(
-							    &unkA6, *gpMarioAngleY - 0x8000, sf);
-						}
+			} else if (!(unk64 & 0x80) && !isMarioCrabWalk_()) {
+				if (isMarioAimWithGun_()
+				    && !isChangeToParallelCameraByMoveBG_()
+				    && !isChangeToParallelCameraCByMoveBG_()) {
+					if (unk288 != 0.0f) {
+						f32 ratio = CLBEaseInInbetween<f32>(0.0f, 1.0f,
+						                                    unkA8);
+						void* p2D4 = *(void**)((u8*)this + 0x2D4);
+						s16 sf     = CLBEaseInInbetween<s16>(
+                            *(s16*)((u8*)p2D4 + 0x194),
+                            *(s16*)((u8*)p2D4 + 0x1A8), ratio);
+						CLBChaseAngleDecrease(&unkA6, *gpMarioAngleY - 0x8000,
+						                      sf);
 					}
 				} else {
-					doSpeedCalc = true;
-				}
-
-				if (doSpeedCalc) {
 					s16 angleY = *gpMarioAngleY;
 					s16 r31    = angleY - 0x8000;
 					s16 cur258 = *(s16*)((u8*)this + 0x258);
 					f32 f29;
-					if (mMode == 0x12 || mMode == 0x2B) {
+					if (mMode == 0x2B || mMode == 0x12) {
 						s16 diff    = r31 - cur258;
 						s16 absDiff = (diff < 0) ? -diff : diff;
 						f29         = (f32)absDiff * (1.0f / 32768.0f);
@@ -183,23 +175,26 @@ void CPolarSubCamera::ctrlNormalOrTowerCamera_()
 
 					f32 f30 = 1.0f;
 					if (*(s16*)((u8*)this + 0x2CA) != -1) {
-						f30 = CLBLinearInbetween<f32>(*(f32*)(p68 + 0x84),
-						                              *(f32*)(p68 + 0x88),
-						                              unkA8);
-					} else if (*gpMarioFlag & 0x1) {
-						f30 = CLBLinearInbetween<f32>(*(f32*)(p68 + 0x7C),
-						                              *(f32*)(p68 + 0x80),
-						                              unkA8);
+						f30 = CLBLinearInbetween<f32>(
+						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x84),
+						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x88),
+						    unkA8);
+					} else if ((*gpMarioFlag & 0x1) ? true : false) {
+						f30 = CLBLinearInbetween<f32>(
+						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x7C),
+						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x80),
+						    unkA8);
 					}
 
-					if ((s32)pad->mCompSPos[2] != 0) {
-						f30 *= CLBLinearInbetween<f32>(*(f32*)(p68 + 0x8C),
-						                               *(f32*)(p68 + 0x90),
-						                               unkA8);
+					if ((u8)(s32)pad->mCompSPos[2] != 0) {
+						f30 *= CLBLinearInbetween<f32>(
+						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x8C),
+						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x90),
+						    unkA8);
 					}
 
 					f32 fMult;
-					if (mMode == 0x12 || mMode == 0x2B) {
+					if (mMode == 0x2B || mMode == 0x12) {
 						fMult = 100.0f;
 					} else {
 						fMult = gpCameraMario->mDistXZ;
@@ -207,9 +202,7 @@ void CPolarSubCamera::ctrlNormalOrTowerCamera_()
 
 					f32 speed
 					    = *(f32*)((u8*)this + 0x288)
-					      * (fMult
-					         * (f30
-					            * (*(f32*)((u8*)this + 0x250) * f29)));
+					      * (fMult * (f30 * (unk250 * f29)));
 					if (speed > 32766.998f)
 						speed = 32766.998f;
 					s16 delta = CLBRoundf<s16>(speed);
