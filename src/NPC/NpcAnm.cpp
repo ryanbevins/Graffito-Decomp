@@ -652,37 +652,37 @@ void TBaseNPC::npcWetIn()
 	if (isSunflower() && (unk1D8 & 0x2))
 		sunDown = true;
 	if (!sunDown) {
-		int anm   = 5;
-		int blend = 1;
+		EnumNpcAnmKind anm = asKind(5);
+		EnumNpcStopMotionBlendOnOff blend = NPC_STOP_MOTION_BLEND_ON;
 		if (unk178 != 0.0f) {
-			anm = 0x19;
+			anm = asKind(0x19);
 		} else if (mActionFlag & 0x1) {
-			anm = 0x14;
-			if (!(isNormalMonteM() || isNormalMonteW()))
-				blend = 0;
+			anm = asKind(0x14);
+			if (isNormalMonteM() || isNormalMonteW())
+				blend = NPC_STOP_MOTION_BLEND_OFF;
 		} else {
 			bool isMonte = isNormalMonteM() || isNormalMonteW();
 			if (isMonte || mActorType == 0x0400000D) {
 				if (mLiveFlag & 0x04000000) {
-					blend = 0;
+					blend = NPC_STOP_MOTION_BLEND_OFF;
 				} else if (MsRandF() < 0.5f) {
-					anm = 0xB;
+					anm = asKind(0xB);
 				} else {
-					blend = 0;
+					blend = NPC_STOP_MOTION_BLEND_OFF;
 				}
 			} else {
 				bool isMare = isNormalMareM() || isNormalMareW();
 				if (isMare || mActorType == 0x04000011) {
 					if (MsRandF() < 0.5f)
-						anm = 0xB;
+						anm = asKind(0xB);
 				} else if ((s32)mActorType < (s32)0x04000018
 				           && (s32)mActorType >= (s32)0x04000016) {
 					if (!(mLiveFlag & 0x04000000) && MsRandF() < 0.5f)
-						anm = 0xB;
+						anm = asKind(0xB);
 				}
 			}
 		}
-		requestNpcAnm_(asKind(anm), asBlend(blend));
+		requestNpcAnm_(anm, blend);
 	}
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
