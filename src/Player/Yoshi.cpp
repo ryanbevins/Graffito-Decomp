@@ -1090,7 +1090,6 @@ void TYoshi::movement()
 void TYoshi::calcAnim()
 {
 	Mtx rootMtx;
-	TYoshiTongue* tongue = mTongue;
 
 	switch ((u8)mState) {
 	case 1:
@@ -1124,16 +1123,14 @@ void TYoshi::calcAnim()
 
 		int anim = mActor->getCurAnmIdx(0);
 		if (anim == 10 || anim == 12 || anim == 15) {
-			J3DModelData* data = mActor->unk4->getModelData();
-			data->getShapeNodePointer(0)->onFlag(1);
-			data->getShapeNodePointer(1)->onFlag(1);
+			mActor->unk4->getModelData()->getShapeNodePointer(0)->onFlag(1);
+			mActor->unk4->getModelData()->getShapeNodePointer(1)->onFlag(1);
 
 			mHandL->getModelData()->offFlag1OnAllShapes();
 			mHandR->getModelData()->offFlag1OnAllShapes();
 		} else {
-			J3DModelData* data = mActor->unk4->getModelData();
-			data->getShapeNodePointer(0)->offFlag(1);
-			data->getShapeNodePointer(1)->offFlag(1);
+			mActor->unk4->getModelData()->getShapeNodePointer(0)->offFlag(1);
+			mActor->unk4->getModelData()->getShapeNodePointer(1)->offFlag(1);
 
 			mHandL->getModelData()->onFlag1OnAllShapes();
 			mHandR->getModelData()->onFlag1OnAllShapes();
@@ -1148,7 +1145,7 @@ void TYoshi::calcAnim()
 
 		Mtx tongueMtx;
 		PSMTXCopy(mActor->unk4->getAnmMtx(mJoint), tongueMtx);
-		tongue->calcAnim(tongueMtx);
+		mTongue->calcAnim(tongueMtx);
 	}
 
 	MtxPtr emitMtx = mActor->unk4->getAnmMtx(mEmitJoint);
