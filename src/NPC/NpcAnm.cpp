@@ -537,7 +537,8 @@ void TBaseNPC::npcTalkIn()
 			if (mActorType == 0x04000018 && (unk1D8 & 0x2))
 				peach = true;
 			if (peach) {
-				requestNpcAnm_(asKind(0x1A), NPC_STOP_MOTION_BLEND_ON);
+				requestNpcAnm_((EnumNpcAnmKind)0x1A,
+				               (EnumNpcStopMotionBlendOnOff)1);
 			} else {
 				requestTalkAnm_();
 			}
