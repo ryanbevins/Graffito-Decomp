@@ -581,33 +581,30 @@ void TBaseNPC::npcTalking()
 void TBaseNPC::npcTalkOut()
 {
 	unk1E0 = 0x3C;
-	if (!(mLiveFlag & 0x00080000))
-		return;
-	unk1E2 = 0x78;
 
-	bool peach = false;
-	if (mActorType == 0x04000018 && (unk1D8 & 0x2))
-		peach = true;
-	if (peach && (unk1D8 & 0x2)) {
-		peachTiredOut_();
-	}
+	if (checkLiveFlag(0x00080000)) {
+		unk1E2 = 0x78;
 
-	if (mActionFlag & 0x200) {
-		mActionFlag &= ~0x200;
-		if (mNpcCoin != 0) {
-			mNpcCoin->requestAppearCoin(getCursorPos(), mRotation.y, 0x28);
-			unk1E0 = 0x168;
-			unk1E2 = 0x168;
+		bool peach = false;
+		if (mActorType == 0x04000018 && (unk1D8 & 0x2))
+			peach = true;
+		if (peach)
+			peachTiredOut_();
+
+		if (checkActionFlag(0x200)) {
+			offActionFlag(0x200);
+			if (mNpcCoin != 0) {
+				mNpcCoin->requestAppearCoin(getCursorPos(), mRotation.y, 0x28);
+				unk1E0 = 0x168;
+				unk1E2 = 0x168;
+			}
 		}
-	}
 
-	mLiveFlag &= ~0x00080000;
-	changeNerveFromTalk_();
-	if (unk17C != 0)
-		return;
-	if (mActorType != 0x04000006)
-		return;
-	requestNpcAnm_(asKind(0x4), NPC_STOP_MOTION_BLEND_ON);
+		mLiveFlag &= ~0x00080000;
+		changeNerveFromTalk_();
+		if (unk17C == 0 && mActorType == 0x04000006)
+			requestNpcAnm_(asKind(0x4), NPC_STOP_MOTION_BLEND_ON);
+	}
 }
 
 void TBaseNPC::npcTakenIn()
