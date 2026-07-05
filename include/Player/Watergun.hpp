@@ -180,6 +180,25 @@ public:
 	}
 
 	// Fabricated
+	void addWater(s32 amount)
+	{
+		mCurrentWater += amount;
+		s32 maxWater = getMaxWater();
+		if (mCurrentWater > maxWater) {
+			mCurrentWater = maxWater;
+		}
+	}
+
+	// Fabricated
+	void resetWaterToFull() { mCurrentWater = getMaxWater(); }
+
+	// Fabricated
+	s32 getMaxWater() const
+	{
+		return getCurrentNozzle()->mEmitParams.mAmountMax.get();
+	}
+
+	// Fabricated
 	void updateUnk1C88(s32 emittedWater)
 	{
 		mIsEmitWater = emittedWater != 0;

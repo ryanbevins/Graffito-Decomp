@@ -112,13 +112,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 				goto check_sender_bit3;
 			// Check MARIO_FLAG_HAS_FLUDD
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater += nozzle->mEmitParams.mAmountMax.get() / 2;
-				nozzle = mWaterGun->getCurrentNozzle();
-				s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
-				if (mWaterGun->mCurrentWater > maxWater) {
-					mWaterGun->mCurrentWater = maxWater;
-				}
+				mWaterGun->addWater(mWaterGun->getMaxWater() / 2);
 			}
 			emitGetWaterEffect();
 			return 1;
@@ -128,13 +122,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 				goto check_sender_bit3;
 			// Same pattern but multiply by full rate
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater += nozzle->mEmitParams.mAmountMax.get();
-				nozzle = mWaterGun->getCurrentNozzle();
-				s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
-				if (mWaterGun->mCurrentWater > maxWater) {
-					mWaterGun->mCurrentWater = maxWater;
-				}
+				mWaterGun->addWater(mWaterGun->getMaxWater());
 			}
 			emitGetWaterEffect();
 			return 1;
@@ -152,13 +140,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			incHP(4);
 			// Check FLUDD
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater += nozzle->mEmitParams.mAmountMax.get();
-				nozzle = mWaterGun->getCurrentNozzle();
-				s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
-				if (mWaterGun->mCurrentWater > maxWater) {
-					mWaterGun->mCurrentWater = maxWater;
-				}
+				mWaterGun->addWater(mWaterGun->getMaxWater());
 			}
 			emitGetEffect();
 			return 1;
@@ -181,14 +163,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 				mHealth = *(s16*)((u8*)this + 0x58C);
 				// Check FLUDD
 				if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-					TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-					mWaterGun->mCurrentWater
-					    += nozzle->mEmitParams.mAmountMax.get();
-					nozzle = mWaterGun->getCurrentNozzle();
-					s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
-					if (mWaterGun->mCurrentWater > maxWater) {
-						mWaterGun->mCurrentWater = maxWater;
-					}
+					mWaterGun->addWater(mWaterGun->getMaxWater());
 				}
 				TFlagManager::smInstance->incMario(1);
 				emitGetEffect();
@@ -209,8 +184,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			resetNozzle();
 			unk148 = (u32)sender;
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
+				mWaterGun->resetWaterToFull();
 			}
 			emitGetEffect();
 			return 1;
@@ -229,8 +203,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			resetNozzle();
 			unk148 = (u32)sender;
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
+				mWaterGun->resetWaterToFull();
 			}
 			emitGetEffect();
 			return 1;
@@ -249,8 +222,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			resetNozzle();
 			unk148 = (u32)sender;
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
+				mWaterGun->resetWaterToFull();
 			}
 			emitGetEffect();
 			return 1;
@@ -270,8 +242,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			resetNozzle();
 			unk148 = (u32)sender;
 			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
+				mWaterGun->resetWaterToFull();
 			}
 			emitGetEffect();
 			return 1;
@@ -288,9 +259,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 				resetNozzle();
 				unk148 = (u32)sender;
 				if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-					TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-					mWaterGun->mCurrentWater
-					    = nozzle->mEmitParams.mAmountMax.get();
+					mWaterGun->resetWaterToFull();
 				}
 				emitGetEffect();
 			}
