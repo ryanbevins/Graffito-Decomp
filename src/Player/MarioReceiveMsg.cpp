@@ -176,24 +176,25 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			if (message != 0x0E)
 				goto check_sender_bit3;
 			// Check blooper not-stuck and timer < 120
-			if (!*(s8*)((u8*)sender + 0x13A) &&
-			    *(s32*)((u8*)sender + 0x13C) < 120) {
-				return 0;
-			}
-			mHealth = *(s16*)((u8*)this + 0x58C);
-			// Check FLUDD
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
-				mWaterGun->mCurrentWater += nozzle->mEmitParams.mAmountMax.get();
-				nozzle = mWaterGun->getCurrentNozzle();
-				s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
-				if (mWaterGun->mCurrentWater > maxWater) {
-					mWaterGun->mCurrentWater = maxWater;
+			if (*(s8*)((u8*)sender + 0x13A) == 0
+			    && !(*(s32*)((u8*)sender + 0x13C) < 120 ? true : false)) {
+				mHealth = *(s16*)((u8*)this + 0x58C);
+				// Check FLUDD
+				if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+					TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
+					mWaterGun->mCurrentWater
+					    += nozzle->mEmitParams.mAmountMax.get();
+					nozzle = mWaterGun->getCurrentNozzle();
+					s32 maxWater = nozzle->mEmitParams.mAmountMax.get();
+					if (mWaterGun->mCurrentWater > maxWater) {
+						mWaterGun->mCurrentWater = maxWater;
+					}
 				}
+				TFlagManager::smInstance->incMario(1);
+				emitGetEffect();
+				return 1;
 			}
-			TFlagManager::smInstance->incMario(1);
-			emitGetEffect();
-			return 1;
+			return 0;
 
 		case 0x20000022: // Nozzle pickup - Rocket
 		{
