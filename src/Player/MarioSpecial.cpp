@@ -2160,19 +2160,17 @@ int TMario::hangingCheckRoof(JGeometry::TVec3<f32>* pos)
 	return 0;
 }
 
-void TMario::barClimb()
+BOOL TMario::barClimb()
 {
 	if ((u32)mHolder == 0) {
-		changePlayerStatus(0x208b6, 0, false);
-		return;
+		return changePlayerStatus(0x208b6, 0, false);
 	}
 
 	if (mInput & 0x2) {
 		mPosition.x -= 200.0f * JMASSin(mFaceAngle.y);
 		mPosition.z -= 200.0f * JMASCos(mFaceAngle.y);
 		mFaceAngle.y = mFaceAngle.y + 0x8000;
-		changePlayerStatus(0x02000886, 0, false);
-		return;
+		return changePlayerStatus(0x02000886, 0, false);
 	}
 
 	mPosition.x = mHolder->mPosition.x;
@@ -2181,16 +2179,15 @@ void TMario::barClimb()
 
 	f32 climbParam = *(f32*)((u8*)unk108 + 0x14);
 	if (climbParam < 8.0f) {
-		changePlayerStatus(0x18100340, 0, false);
-		return;
+		return changePlayerStatus(0x18100340, 0, false);
 	}
 
 	mVel.y = 0.0f;
 	f32 climbRate = mBarParams.mClimbSp.value;
-	mPosition.y = mPosition.y + climbParam * climbRate;
+	mPosition.y = mPosition.y + *(f32*)((u8*)unk108 + 0x14) * climbRate;
 	mHolderHeightDiff = mPosition.y - mHolder->mPosition.y;
 
-	if (mPosition.y > mHolder->mPosition.y + *(f32*)((u8*)mHolder + 0x5c)) {
+	if (mPosition.y > *(f32*)((u8*)mHolder + 0x5c) + mHolder->mPosition.y) {
 		setPlayerVelocity(0.0f);
 		changePlayerStatus(0x02000880, 0, false);
 		unk78 &= ~0x100;
@@ -2228,21 +2225,21 @@ void TMario::barClimb()
 			}
 		}
 	}
+
+	return 0;
 }
 
-void TMario::barWait()
+BOOL TMario::barWait()
 {
 	if ((u32)mHolder == 0) {
-		changePlayerStatus(0x208b6, 0, false);
-		return;
+		return changePlayerStatus(0x208b6, 0, false);
 	}
 
 	if (mInput & 0x2) {
 		mPosition.x -= 200.0f * JMASSin(mFaceAngle.y);
 		mPosition.z -= 200.0f * JMASCos(mFaceAngle.y);
 		mFaceAngle.y = mFaceAngle.y + 0x8000;
-		changePlayerStatus(0x02000886, 0, false);
-		return;
+		return changePlayerStatus(0x02000886, 0, false);
 	}
 
 	mPosition.x = mHolder->mPosition.x;
@@ -2253,14 +2250,12 @@ void TMario::barWait()
 		setPlayerVelocity(-2.0f);
 		mPosition.x -= 200.0f * JMASSin(mFaceAngle.y);
 		mPosition.z -= 200.0f * JMASCos(mFaceAngle.y);
-		changePlayerStatus(0x208b6, 0, false);
-		return;
+		return changePlayerStatus(0x208b6, 0, false);
 	}
 
 	f32 climbParam = *(f32*)((u8*)unk108 + 0x14);
 	if (climbParam > 16.0f) {
-		changePlayerStatus(0x10100343, 0, false);
-		return;
+		return changePlayerStatus(0x10100343, 0, false);
 	}
 
 	if (climbParam < -16.0f) {
@@ -2328,4 +2323,6 @@ void TMario::barWait()
 			setAnimation(0x111, 1.0f);
 		}
 	}
+
+	return 0;
 }

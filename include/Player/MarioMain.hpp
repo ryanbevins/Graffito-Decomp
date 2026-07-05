@@ -1188,8 +1188,8 @@ public:
 	int doRoofMovingProcess();
 	int hangingCheckRoof(JGeometry::TVec3<f32>*);
 	void barHang();
-	void barClimb();
-	void barWait();
+	BOOL barClimb();
+	BOOL barWait();
 	void barJumpSetting();
 	void stateMachineUpper();
 	BOOL checkPumpEnable();
