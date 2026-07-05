@@ -529,11 +529,11 @@ void TYoshi::thinkAnimation()
 	} else if (action & 0x800) {
 		if (mFlutterState == 1) {
 			nextAnim = 9;
-		} else if (action == 0x008008A9) {
+		} else if (action == 0x008008A9 && mMario->mActionState < 4) {
 			u16 actionState = mMario->mActionState;
 			if (actionState < 2) {
 				nextAnim = 8;
-			} else if (actionState < 4) {
+			} else {
 				nextAnim = 7;
 			}
 		} else if (mMario->mVel.y > 0.0f) {
