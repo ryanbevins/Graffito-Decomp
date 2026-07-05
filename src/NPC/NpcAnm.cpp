@@ -564,7 +564,8 @@ void TBaseNPC::npcTalking()
 		return;
 	}
 	if (isTurnToMarioWhenTalk()) {
-		SMS_GoRotate(mPosition, *gpMarioPos, mTurnSpeed,
+		f32 turnSpeed = mTurnSpeed;
+		SMS_GoRotate(mPosition, *gpMarioPos, turnSpeed,
 		             &((JGeometry::TVec3<f32>*)((u8*)this + 0x30))->y);
 		if (!unk124->getGraph()->isDummy())
 			unk1DA |= 0x1;
