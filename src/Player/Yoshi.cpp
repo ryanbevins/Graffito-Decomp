@@ -542,59 +542,52 @@ void TYoshi::thinkAnimation()
 		} else {
 			nextAnim = 0xC;
 		}
+	} else if ((action & 0x200)
+	           && (action == 0x386 || action == 0x0C00023D
+	               || action == 0x0C00023E)) {
+		nextAnim = 0x12;
 	} else {
-		int selected = 0;
-		if (action & 0x200) {
-			if (action == 0x386 || action == 0x0C00023D
-			    || action == 0x0C00023E) {
-				nextAnim = 0x12;
-				selected = 1;
+		int pumping;
+		if (action & 0x8000) {
+			pumping = 1;
+		} else {
+			pumping = 0;
+		}
+
+		int pumpSelected = 0;
+		if (pumping) {
+			if (mMario->mGamePad->mMeaning & 0x2000) {
+				E_SIDEWALK_TYPE sideType;
+				f32 sideStick;
+				mMario->getSideWalkValues(&sideType, &frameRate,
+				                           &sideStick);
+				switch (sideType) {
+				case (E_SIDEWALK_TYPE)0:
+					nextAnim = 0x16;
+					pumpSelected = 1;
+					break;
+				case (E_SIDEWALK_TYPE)1:
+					nextAnim = 0x10;
+					pumpSelected = 1;
+					break;
+				case (E_SIDEWALK_TYPE)2:
+					nextAnim = 0x11;
+					pumpSelected = 1;
+					break;
+				}
+			} else if (mMario->mGamePad->mMeaning & 0x400) {
+				nextAnim = 0xD;
+				pumpSelected = 1;
 			}
 		}
 
-		if (!selected) {
-			int pumping;
-			if (action & 0x8000) {
-				pumping = 1;
+		if (!pumpSelected) {
+			if (mMario->mAction == 0x0080023C) {
+				nextAnim = 6;
+			} else if (mMario->mAction == 0x1302) {
+				nextAnim = 2;
 			} else {
-				pumping = 0;
-			}
-
-			int pumpSelected = 0;
-			if (pumping) {
-				if (mMario->mGamePad->mMeaning & 0x2000) {
-					E_SIDEWALK_TYPE sideType;
-					f32 sideStick;
-					mMario->getSideWalkValues(&sideType, &frameRate,
-					                           &sideStick);
-					switch (sideType) {
-					case (E_SIDEWALK_TYPE)0:
-						nextAnim = 0x16;
-						pumpSelected = 1;
-						break;
-					case (E_SIDEWALK_TYPE)1:
-						nextAnim = 0x10;
-						pumpSelected = 1;
-						break;
-					case (E_SIDEWALK_TYPE)2:
-						nextAnim = 0x11;
-						pumpSelected = 1;
-						break;
-					}
-				} else if (mMario->mGamePad->mMeaning & 0x400) {
-					nextAnim = 0xD;
-					pumpSelected = 1;
-				}
-			}
-
-			if (!pumpSelected) {
-				if (mMario->mAction == 0x0080023C) {
-					nextAnim = 6;
-				} else if (mMario->mAction == 0x1302) {
-					nextAnim = 2;
-				} else {
-					nextAnim = 0x16;
-				}
+				nextAnim = 0x16;
 			}
 		}
 	}
