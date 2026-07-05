@@ -415,7 +415,7 @@ void TYoshiTongue::emit(const JGeometry::TVec3<f32>& headPos,
                         const JGeometry::TVec3<f32>& headDir,
                         const JGeometry::TVec3<f32>& initialVel)
 {
-	if ((int)mState != 0)
+	if (mState != 0)
 		return;
 	mProgress = 0;
 	mState    = STATE_EXTENDING;
