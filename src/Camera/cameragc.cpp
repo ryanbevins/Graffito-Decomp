@@ -1181,11 +1181,9 @@ bool CPolarSubCamera::isNowInbetween() const
 static s32 JetCoasterDemoCallBack(u32 user_data, u32 event)
 {
 	if (event == 1) {
-		CPolarSubCamera* camera = (CPolarSubCamera*)user_data;
-		((TCameraBck*)camera->unk2B0)->startDemo(cJetCoasterCam1BckName,
-		                                         nullptr);
-		((TCameraBck*)camera->unk2B0)
-		    ->setFrame(0.5f * (f32)gpMarDirector->unk58);
+		void** bck = &((CPolarSubCamera*)user_data)->unk2B0;
+		((TCameraBck*)*bck)->startDemo(cJetCoasterCam1BckName, nullptr);
+		((TCameraBck*)*bck)->setFrame(0.5f * (f32)gpMarDirector->unk58);
 	}
 	return 1;
 }
