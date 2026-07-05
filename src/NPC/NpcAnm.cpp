@@ -892,8 +892,8 @@ bool TBaseNPC::npcMadding()
 		ret = true;
 		return ret;
 	}
-	int k = unkD0->mCurrentAnmKind;
-	if (k == 4) {
+	switch (unkD0->mCurrentAnmKind) {
+	case 4:
 		SMS_GoRotate(mPosition, *gpMarioPos,
 		             *(f32*)((u8*)mNpcSaveIndividual + 0x2ac), &mRotation.y);
 		JGeometry::TVec3<f32> axis = *gpMarioPos;
@@ -908,11 +908,15 @@ bool TBaseNPC::npcMadding()
 			requestNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_OFF);
 		if (!unk124->getGraph()->isDummy())
 			unk1DA |= 0x1;
-	} else if (k == 0xA || k == 0xB) {
+		break;
+
+	case 0xA:
+	case 0xB:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
 			ret        = true;
 			mLiveFlag &= ~0x02000000;
 		}
+		break;
 	}
 	return ret;
 }
