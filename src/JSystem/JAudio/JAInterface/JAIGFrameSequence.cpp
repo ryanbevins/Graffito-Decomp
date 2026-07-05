@@ -146,392 +146,375 @@ void JAIBasic::checkEntriedSeq()
 	}
 }
 
-#pragma dont_inline on
 void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 {
-	JAISeqUpdateData* seqData = &unk0->unk180[trackID];
-	JAISound** soundSlot      = &seqData->unk48;
-	JAISound* sound           = *soundSlot;
-	JAISeqParameter* seqParam = sound->getSeqParameter();
-
-	if (seqParam->unk1755 == 2)
+	JAISeqUpdateData* sud = &unk0->unk180[trackID];
+	JAISound** sound      = &sud->unk48;
+	if ((*sound)->getSeqParameter()->unk1755 == 2)
 		return;
 
-	u32* flags = &seqData->unk8;
-	seqParam  = (*soundSlot)->getSeqParameter();
-	u32* markFlags = seqData->unk44;
+	u32& r30 = sud->unk8;
 
-	for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax + 1; ++i)
-		markFlags[i] = 0;
+	JAISeqParameter* seqParam = (*sound)->getSeqParameter();
+	u32* portFlags            = sud->unk44;
 
-	if (*flags & 0x2) {
-		if ((*soundSlot)->unk10 == 0 || (*soundSlot)->unk1 < 4) {
-			if ((*soundSlot)->unk1 >= 3)
+	for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax + 1; ++j)
+		portFlags[j] = 0;
+
+	if (r30 & 2) {
+		JAISound* snd = (*sound);
+		if (snd->unk10 == 0 || snd->unk1 < 4) {
+			if (snd->unk1 >= 3) {
 				JAISystemInterface::stopSeq(seqParam->unk0);
-			(*soundSlot)->clearMainSoundPPointer();
-			stopSeq(*soundSlot);
-			*flags = 0;
-			return;
-		}
-
-		(*soundSlot)->setSeqInterVolume(6, 0.0f, (*soundSlot)->unk10);
-		(*soundSlot)->unk1 = 5;
-		*flags ^= 0x2;
-	}
-
-	if (*soundSlot != nullptr && (*soundSlot)->unk20 != nullptr) {
-		u32 startCamera;
-		u32 endCamera;
-		if ((*soundSlot)->unk4 == 4) {
-			startCamera = 0;
-			endCamera   = JAIGlobalParameter::audioCameraMax;
-		} else {
-			startCamera = (*soundSlot)->unk4;
-			endCamera   = (*soundSlot)->unk4 + 1;
-		}
-
-		for (u32 i = startCamera; i < endCamera; ++i) {
-			JAISound::FabricatedPositionInfo* info = &(*soundSlot)->unk1C[i];
-
-			info->unkC = info->unk0;
-			PSMTXMultVec(unk8[i].unk8, (*soundSlot)->unk24, &info->unk0);
-
-			f32 distance = info->unk0.x * info->unk0.x
-			               + info->unk0.y * info->unk0.y
-			               + info->unk0.z * info->unk0.z;
-			if (distance > 0.0f) {
-				double root = __frsqrte(distance);
-				root        = 0.5 * root * (3.0 - distance * (root * root));
-				root        = 0.5 * root * (3.0 - distance * (root * root));
-				root        = 0.5 * root * (3.0 - distance * (root * root));
-				volatile f32 sqrtValue = distance * root;
-				distance               = sqrtValue;
 			}
-			info->unk18 = distance;
-
-			f32 volume = (u8)((*soundSlot)->setDistanceVolumeCommon(
-			                     JAIGlobalParameter::distanceMax, 0)
-			                 * 127.0f);
-			(*soundSlot)->setSeqInterVolume(
-			    4, volume, JAIGlobalParameter::distanceParameterMoveTime);
-
-			f32 pan = (u8)(*soundSlot)->setDistancePanCommon();
-			(*soundSlot)->setSeqInterPan(
-			    4, pan, JAIGlobalParameter::distanceParameterMoveTime);
-
-			f32 pitch = (*soundSlot)->setPositionDopplarCommon(0x100);
-			(*soundSlot)->setSeqInterPitch(
-			    4, pitch, JAIGlobalParameter::dopplarMoveTime);
+			(*sound)->clearMainSoundPPointer();
+			stopSeq((*sound));
+			r30 = 0;
+			return;
+		} else {
+			snd->setSeqInterVolume(6, 0.0f, snd->unk10);
+			(*sound)->unk1 = 5;
+			r30 ^= 2;
 		}
 	}
 
-	if (*soundSlot != nullptr)
-		(*soundSlot)->unk14++;
+	if ((*sound) != nullptr && (*sound)->unk20 != 0) {
+		u32 i;
+		u32 s, e;
+		if ((*sound)->unk4 == 4) {
+			s = 0;
+			e = JAIGlobalParameter::audioCameraMax;
+		} else {
+			s = (*sound)->unk4;
+			e = (*sound)->unk4 + 1;
+		}
 
-	if (*flags == 0)
+		for (i = s; i < e; ++i) {
+			JAISound::FabricatedPositionInfo* pi = &(*sound)->unk1C[i];
+
+			pi->unkC = pi->unk0;
+			MTXMultVec(unk8[i].unk8, (Vec*)(*sound)->unk24, &pi->unk0);
+
+			pi->unk18
+			    = std::sqrtf(pi->unk0.x * pi->unk0.x + pi->unk0.y * pi->unk0.y
+			                 + pi->unk0.z * pi->unk0.z);
+
+			(*sound)->setSeqInterVolume(
+			    4,
+			    (f32)(u8)(127.0f
+			              * (*sound)->setDistanceVolumeCommon(
+			                  JAIGlobalParameter::distanceMax, 0)),
+			    JAIGlobalParameter::distanceParameterMoveTime);
+
+			(*sound)->setSeqInterPan(
+			    4, (f32)(u8)(*sound)->setDistancePanCommon(),
+			    JAIGlobalParameter::distanceParameterMoveTime);
+
+			(*sound)->setSeqInterPitch(
+			    4, (*sound)->setPositionDopplarCommon(0x100),
+			    JAIGlobalParameter::dopplarMoveTime);
+		}
+	}
+
+	if ((*sound) != nullptr)
+		(*sound)->unk14++;
+
+	if (r30 == 0)
 		return;
 
-	u32 seqMoveCount = (u8)(JAIGlobalParameter::seqPlayTrackMax + 0xC);
+	u8 envMax = JAIGlobalParameter::seqPlayTrackMax + 12;
 
-	if (*flags & 0x40000) {
-		f32 value = 1.0f;
-		for (u8 i = 0; i < seqMoveCount; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk1760 & bit) {
-				if (!unk0->moveParameter(&seqParam->unk114[i]))
-					seqParam->unk1760 ^= bit;
+	if (r30 & 0x40000) {
+		f32 vol = 1.0f;
+		for (u8 j = 0; j < envMax; ++j) {
+			JAIMoveParaSet* mps = &seqParam->unk114[j];
+			if (seqParam->unk1760 & (1 << j)) {
+				if (!unk0->moveParameter(mps)) {
+					seqParam->unk1760 ^= 1 << j;
+				}
 			}
-			value *= seqParam->unk114[i].unk4;
+			vol *= mps->unk4;
 		}
-
-		if (seqData->unkC != value) {
-			seqData->unkC = value;
+		if (sud->unkC != vol) {
+			sud->unkC = vol;
 			JAISystemInterface::setSeqPortargsF32(
-			    seqData, JAIGlobalParameter::seqTrackMax, 2, value);
-			seqData->unk44[JAIGlobalParameter::seqTrackMax] |= 0x1;
+			    &unk0->unk180[trackID], JAIGlobalParameter::seqTrackMax, 2,
+			    vol);
+			portFlags[JAIGlobalParameter::seqTrackMax] |= 1;
 		}
-
-		if (seqParam->unk1760 == 0)
-			*flags ^= 0x40000;
+		if (seqParam->unk1760 == 0) {
+			r30 ^= 0x40000;
+		}
 	}
 
-	if (*flags & 0x80000) {
-		f32 value = 0.0f;
-		for (u8 i = 0; i < seqMoveCount; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk1764 & bit) {
-				if (!unk0->moveParameter(&seqParam->unk254[i]))
-					seqParam->unk1764 ^= bit;
+	if (r30 & 0x80000) {
+		f32 pan = 0.0f;
+		for (u8 j = 0; j < envMax; ++j) {
+			JAIMoveParaSet* mps = &seqParam->unk254[j];
+			if (seqParam->unk1764 & (1 << j)) {
+				if (!unk0->moveParameter(mps)) {
+					seqParam->unk1764 ^= 1 << j;
+				}
 			}
-			value += seqParam->unk254[i].unk4 - 0.5f;
+			pan += mps->unk4 - 0.5f;
 		}
-
-		value += 0.5f;
-		if (value > 1.0f)
-			value = 1.0f;
-		else if (value < 0.0f)
-			value = 0.0f;
-
-		if (seqData->unk18 != value) {
-			seqData->unk18 = value;
+		pan += 0.5f;
+		if (pan > 1.0f)
+			pan = 1.0f;
+		else if (pan < 0.0f)
+			pan = 0.0f;
+		if (sud->unk18 != pan) {
+			sud->unk18 = pan;
 			JAISystemInterface::setSeqPortargsF32(
-			    seqData, JAIGlobalParameter::seqTrackMax, 4, value);
-			seqData->unk44[JAIGlobalParameter::seqTrackMax] |= 0x4;
+			    &unk0->unk180[trackID], JAIGlobalParameter::seqTrackMax, 4,
+			    pan);
+			portFlags[JAIGlobalParameter::seqTrackMax] |= 4;
 		}
-
-		if (seqParam->unk1764 == 0)
-			*flags ^= 0x80000;
+		if (seqParam->unk1764 == 0) {
+			r30 ^= 0x80000;
+		}
 	}
 
-	if (*flags & 0x100000) {
-		f32 value = 1.0f;
-		for (u8 i = 0; i < seqMoveCount; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk1768 & bit) {
-				if (!unk0->moveParameter(&seqParam->unk394[i]))
-					seqParam->unk1768 ^= bit;
+	if (r30 & 0x100000) {
+		f32 pitch = 1.0f;
+		for (u8 j = 0; j < envMax; ++j) {
+			JAIMoveParaSet* mps = &seqParam->unk394[j];
+			if (seqParam->unk1768 & (1 << j)) {
+				if (!unk0->moveParameter(mps)) {
+					seqParam->unk1768 ^= 1 << j;
+				}
 			}
-			value *= seqParam->unk394[i].unk4;
+			pitch *= mps->unk4;
 		}
-
-		if (seqData->unk10 != value) {
-			seqData->unk10 = value;
+		if (sud->unk10 != pitch) {
+			sud->unk10 = pitch;
 			JAISystemInterface::setSeqPortargsF32(
-			    seqData, JAIGlobalParameter::seqTrackMax, 3, value);
-			seqData->unk44[JAIGlobalParameter::seqTrackMax] |= 0x2;
+			    &unk0->unk180[trackID], JAIGlobalParameter::seqTrackMax, 3,
+			    pitch);
+			portFlags[JAIGlobalParameter::seqTrackMax] |= 2;
 		}
-
-		if (seqParam->unk1768 == 0)
-			*flags ^= 0x100000;
+		if (seqParam->unk1768 == 0) {
+			r30 ^= 0x100000;
+		}
 	}
 
-	if (*flags & 0x200000) {
-		f32 value = 0.0f;
-		for (u8 i = 0; i < seqMoveCount; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk176C & bit) {
-				if (!unk0->moveParameter(&seqParam->unk4D4[i]))
-					seqParam->unk176C ^= bit;
+	if (r30 & 0x200000) {
+		f32 fxmix = 0.0f;
+		for (u8 j = 0; j < envMax; ++j) {
+			JAIMoveParaSet* mps = &seqParam->unk4D4[j];
+			if (seqParam->unk176C & (1 << j)) {
+				if (!unk0->moveParameter(mps)) {
+					seqParam->unk176C ^= 1 << j;
+				}
+				fxmix += mps->unk4;
 			}
-			value += seqParam->unk4D4[i].unk4;
 		}
-
-		if (value > 1.0f)
-			value = 1.0f;
-
-		if (seqData->unk14 != value) {
-			seqData->unk14 = value;
+		if (fxmix > 1.0f)
+			fxmix = 1.0f;
+		if (sud->unk14 != fxmix) {
+			sud->unk14 = fxmix;
 			JAISystemInterface::setSeqPortargsF32(
-			    seqData, JAIGlobalParameter::seqTrackMax, 5, value);
-			seqData->unk44[JAIGlobalParameter::seqTrackMax] |= 0x8;
+			    &unk0->unk180[trackID], JAIGlobalParameter::seqTrackMax, 5,
+			    fxmix);
+			portFlags[JAIGlobalParameter::seqTrackMax] |= 8;
 		}
-
-		if (seqParam->unk176C == 0)
-			*flags ^= 0x200000;
+		if (seqParam->unk176C == 0) {
+			r30 ^= 0x200000;
+		}
 	}
 
-	if (*flags & 0x400000) {
-		f32 value = 1.0f;
-		for (u8 i = 0; i < seqMoveCount; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk1770 & bit) {
-				if (!unk0->moveParameter(&seqParam->unk614[i]))
-					seqParam->unk1770 ^= bit;
+	if (r30 & 0x400000) {
+		f32 dolby = 1.0f;
+		for (u8 j = 0; j < envMax; ++j) {
+			JAIMoveParaSet* mps = &seqParam->unk614[j];
+			if (seqParam->unk1770 & (1 << j)) {
+				if (!unk0->moveParameter(mps)) {
+					seqParam->unk1770 ^= 1 << j;
+				}
+				dolby *= mps->unk4;
 			}
-			value *= seqParam->unk614[i].unk4;
 		}
-
-		if (seqData->unk1C != value) {
-			seqData->unk1C = value;
+		if (sud->unk1C != dolby) {
+			sud->unk1C = dolby;
 			JAISystemInterface::setSeqPortargsF32(
-			    seqData, JAIGlobalParameter::seqTrackMax, 6, value);
-			seqData->unk44[JAIGlobalParameter::seqTrackMax] |= 0x10;
+			    &unk0->unk180[trackID], JAIGlobalParameter::seqTrackMax, 6,
+			    dolby);
+			portFlags[JAIGlobalParameter::seqTrackMax] |= 0x10;
 		}
-
-		if (seqParam->unk1770 == 0)
-			*flags ^= 0x400000;
+		if (seqParam->unk1770 == 0) {
+			r30 ^= 0x400000;
+		}
 	}
 
-	if (*flags & 0x4) {
-		if (!unk0->moveParameter(&seqParam->unk4))
-			*flags ^= 0x4;
-
-		if (seqData->unk20 != seqParam->unk4.unk4) {
-			seqData->unk20 = seqParam->unk4.unk4;
+	if (r30 & 4) {
+		if (!unk0->moveParameter(&seqParam->unk4)) {
+			r30 ^= 4;
+		}
+		if (sud->unk20 != seqParam->unk4.unk4) {
+			sud->unk20 = seqParam->unk4.unk4;
 			JAISystemInterface::setSeqPortargsF32(
-			    seqData, JAIGlobalParameter::seqTrackMax, 9,
+			    &unk0->unk180[trackID], JAIGlobalParameter::seqTrackMax, 9,
 			    seqParam->unk4.unk4);
-			seqData->unk44[JAIGlobalParameter::seqTrackMax] |= 0x80;
+			portFlags[JAIGlobalParameter::seqTrackMax] |= 0x80;
 		}
 	}
 
-	if (*flags & 0x10) {
-		for (u8 i = 0; i < 16; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk175C & bit) {
-				if (!unk0->moveParameter(&seqParam->unk14[i]))
-					seqParam->unk175C ^= bit;
-			}
+	if (r30 & 0x10) {
+		for (u8 j = 0; j < 16; ++j) {
+			if (seqParam->unk175C & (1 << j))
+				if (!unk0->moveParameter(&seqParam->unk14[j]))
+					seqParam->unk175C ^= (1 << j);
 
-			u16 portValue;
-			u32 route  = i << 16;
-			u16 target = (u16)seqParam->unk14[i].unk4;
-			JAISystemInterface::readPortApp(seqParam->unk0, route, &portValue);
-			if (portValue != target)
-				JAISystemInterface::writePortApp(seqParam->unk0, route, target);
+			u16 readVal;
+			JAISystemInterface::readPortApp(seqParam->unk0, j << 16, &readVal);
+			if (readVal != (u16)seqParam->unk14[j].unk4)
+				JAISystemInterface::writePortApp(seqParam->unk0, j << 16,
+				                                 seqParam->unk14[j].unk4);
 		}
-
 		if (seqParam->unk175C == 0)
-			*flags ^= 0x10;
+			r30 ^= 0x10;
 	}
 
-	if (*flags & 0x40) {
-		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk1774 & bit) {
-				if (!unk0->moveParameter(&seqParam->unk754[i]))
-					seqParam->unk1774 ^= bit;
+	if (r30 & 0x40) {
+		for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax; ++j) {
+			JAIMoveParaSet* mps = &seqParam->unk754[j];
+			if (seqParam->unk1774 & (1 << j)) {
+				if (!unk0->moveParameter(mps))
+					seqParam->unk1774 ^= 1 << j;
 
-				if (seqData->unk24[i] != seqParam->unk754[i].unk4) {
-					seqData->unk24[i] = seqParam->unk754[i].unk4;
-					seqData->unk44[i] |= 0x1;
+				if (mps->unk4 != sud->unk24[j]) {
+					sud->unk24[j] = mps->unk4;
+					portFlags[j] |= 1;
 					JAISystemInterface::setSeqPortargsF32(
-					    seqData, i, 2, seqParam->unk754[i].unk4);
+					    &unk0->unk180[trackID], j, 2, mps->unk4);
 				}
 			}
 		}
-
 		if (seqParam->unk1774 == 0)
-			*flags ^= 0x40;
+			r30 ^= 0x40;
 	}
 
-	if (*flags & 0x20) {
-		*flags ^= 0x20;
-		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
-			MuteBit* mute = &seqParam->unk1830[i];
-			if (mute->flag3 == 1 && mute->flag1 != mute->flag2) {
-				JASystem::TTrack* track
-				    = JAISystemInterface::trackToSeqp(sound, i);
-				if (track != nullptr)
-					track->muteTrack(mute->flag2);
-				mute->flag1 = mute->flag2;
+	if (r30 & 0x20) {
+		r30 ^= 0x20;
+		for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax; ++j) {
+			if (seqParam->unk1830[j].flag3 == 1
+			    && seqParam->unk1830[j].flag1 != seqParam->unk1830[j].flag2) {
+				JASystem::TTrack* tt
+				    = JAISystemInterface::trackToSeqp((*sound), j);
+				if (tt != nullptr)
+					tt->muteTrack(seqParam->unk1830[j].flag2);
+				seqParam->unk1830[j].flag1 = seqParam->unk1830[j].flag2;
 			}
 		}
 	}
 
-	if (*flags & 0x80) {
-		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk1778 & bit) {
-				if (!unk0->moveParameter(&seqParam->unk954[i]))
-					seqParam->unk1778 ^= bit;
+	if (r30 & 0x80) {
+		for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax; ++j) {
+			JAIMoveParaSet* mps = &seqParam->unk954[j];
+			if (seqParam->unk1778 & (1 << j)) {
+				if (!unk0->moveParameter(mps))
+					seqParam->unk1778 ^= 1 << j;
 
-				if (seqData->unk30[i] != seqParam->unk954[i].unk4) {
-					seqData->unk30[i] = seqParam->unk954[i].unk4;
-					seqData->unk44[i] |= 0x4;
+				if (mps->unk4 != sud->unk30[j]) {
+					sud->unk30[j] = mps->unk4;
+					portFlags[j] |= 4;
 					JAISystemInterface::setSeqPortargsF32(
-					    seqData, i, 4, seqParam->unk954[i].unk4);
+					    &unk0->unk180[trackID], j, 4, seqParam->unk954[j].unk4);
 				}
 			}
 		}
-
 		if (seqParam->unk1778 == 0)
-			*flags ^= 0x80;
+			r30 ^= 0x80;
 	}
 
-	if (*flags & 0x200) {
-		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk177C & bit) {
-				if (!unk0->moveParameter(&seqParam->unkB54[i]))
-					seqParam->unk177C ^= bit;
-
-				if (seqData->unk28[i] != seqParam->unkB54[i].unk4) {
-					seqData->unk28[i] = seqParam->unkB54[i].unk4;
-					seqData->unk44[i] |= 0x2;
+	if (r30 & 0x200) {
+		for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax; ++j) {
+			JAIMoveParaSet* mps = &seqParam->unkB54[j];
+			if (seqParam->unk177C & (1 << j)) {
+				if (!unk0->moveParameter(mps)) {
+					seqParam->unk177C ^= 1 << j;
+				}
+				if (mps->unk4 != sud->unk28[j]) {
+					sud->unk28[j] = mps->unk4;
+					portFlags[j] |= 2;
 					JAISystemInterface::setSeqPortargsF32(
-					    seqData, i, 3, seqParam->unkB54[i].unk4);
+					    &unk0->unk180[trackID], j, 3, seqParam->unkB54[j].unk4);
 				}
 			}
 		}
-
 		if (seqParam->unk177C == 0)
-			*flags ^= 0x200;
+			r30 ^= 0x200;
 	}
 
-	if (*flags & 0x800) {
-		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk1780 & bit) {
-				if (!unk0->moveParameter(&seqParam->unkD54[i]))
-					seqParam->unk1780 ^= bit;
-
-				if (seqData->unk2C[i] != seqParam->unkD54[i].unk4) {
-					seqData->unk2C[i] = seqParam->unkD54[i].unk4;
-					seqData->unk44[i] |= 0x8;
+	if (r30 & 0x800) {
+		for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax; ++j) {
+			JAIMoveParaSet* mps = &seqParam->unkD54[j];
+			if (seqParam->unk1780 & (1 << j)) {
+				if (!unk0->moveParameter(mps)) {
+					seqParam->unk1780 ^= 1 << j;
+				}
+				if (mps->unk4 != sud->unk2C[j]) {
+					sud->unk2C[j] = mps->unk4;
+					portFlags[j] |= 8;
 					JAISystemInterface::setSeqPortargsF32(
-					    seqData, i, 5, seqParam->unkD54[i].unk4);
+					    &unk0->unk180[trackID], j, 5, seqParam->unkD54[j].unk4);
 				}
 			}
 		}
-
 		if (seqParam->unk1780 == 0)
-			*flags ^= 0x800;
+			r30 ^= 0x800;
 	}
 
-	if (*flags & 0x100) {
-		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
-			u32 bit = 1 << i;
-			if (seqParam->unk1784 & bit) {
-				if (!unk0->moveParameter(&seqParam->unkF54[i]))
-					seqParam->unk1784 ^= bit;
-
-				if (seqData->unk34[i] != seqParam->unkF54[i].unk4) {
-					seqData->unk34[i] = seqParam->unkF54[i].unk4;
-					seqData->unk44[i] |= 0x10;
+	if (r30 & 0x100) {
+		for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax; ++j) {
+			JAIMoveParaSet* mps = &seqParam->unkF54[j];
+			if (seqParam->unk1784 & (1 << j)) {
+				if (!unk0->moveParameter(mps)) {
+					seqParam->unk1784 ^= 1 << j;
+				}
+				if (mps->unk4 != sud->unk34[j]) {
+					sud->unk34[j] = mps->unk4;
+					portFlags[j] |= 0x10;
 					JAISystemInterface::setSeqPortargsF32(
-					    seqData, i, 6, seqParam->unkF54[i].unk4);
+					    &unk0->unk180[trackID], j, 6, seqParam->unkF54[j].unk4);
 				}
 			}
 		}
-
 		if (seqParam->unk1784 == 0)
-			*flags ^= 0x100;
+			r30 ^= 0x100;
 	}
 
-	if (*flags & 0x800000) {
-		*flags ^= 0x800000;
-		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
-			if (seqParam->unk1810[i] == 1) {
-				seqData->unk44[i] |= 0x40;
-				JAISystemInterface::setSeqPortargsU32(seqData, i, 8, 1);
-				seqParam->unk1810[i] = 0;
+	if (r30 & 0x800000) {
+		r30 ^= 0x800000;
+		for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax; ++j) {
+			u8* slot = &seqParam->unk1810[j];
+			if (*slot == 1) {
+				portFlags[j] |= 0x40;
+				JAISystemInterface::setSeqPortargsU32(&unk0->unk180[trackID], j,
+				                                      8, 1);
+				*slot = 0;
 			}
 		}
 	}
 
-	if (*flags & 0x1000) {
-		for (u8 i = 0; i < JAIGlobalParameter::seqTrackMax; ++i) {
-			u32 trackBit = 1 << i;
-			if (seqParam->unk178C & trackBit) {
-				seqParam->unk178C ^= trackBit;
-				for (u8 port = 0; port < 16; ++port) {
-					u32 portBit = 1 << port;
-					if (seqParam->unk1790[i] & portBit) {
-						u32 route = sound->getTrackPortRoute(i, port);
+	if (r30 & 0x1000) {
+		for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax; ++j) {
+			if (seqParam->unk178C & (1 << j)) {
+				seqParam->unk178C ^= 1 << j;
+				for (u8 k = 0; k < 16; ++k) {
+					if (seqParam->unk1790[j] & (1 << k)) {
 						JAISystemInterface::writePortApp(
-						    seqParam->unk0, route, seqParam->unk1354[i][port]);
-						seqParam->unk1790[i] ^= portBit;
+						    seqParam->unk0, (*sound)->getTrackPortRoute(j, k),
+						    seqParam->unk1354[j][k]);
+						seqParam->unk1790[j] ^= 1 << k;
 					}
 				}
 			}
 		}
-
 		if (seqParam->unk178C == 0)
-			*flags ^= 0x1000;
+			r30 ^= 0x1000;
 	}
 }
-#pragma dont_inline off
 
 void JAIBasic::checkPlayingSeq()
 {
