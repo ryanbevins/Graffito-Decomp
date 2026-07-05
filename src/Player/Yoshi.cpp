@@ -1227,13 +1227,14 @@ void TYoshi::entry()
 	if (shouldDraw != 1)
 		return;
 
+	J3DModelData* data = mActor->unk4->getModelData();
+
 	J3DGXColorS10 color;
 	color.color.r = mRedComponent;
 	color.color.g = mGreenComponent;
 	color.color.b = mBlueComponent;
 	color.color.a = 0xff;
 
-	J3DModelData* data = mActor->unk4->getModelData();
 	for (u16 i = 0; i < data->getMaterialNum(); ++i)
 		data->getMaterialNodePointer(i)->getTevBlock()->setTevColor(2, color);
 
