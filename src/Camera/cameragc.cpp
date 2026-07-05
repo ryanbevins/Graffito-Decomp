@@ -961,27 +961,22 @@ void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 		}
 
 		if (canSampleSlope && isSlopeCameraMode()) {
-			Vec toMario;
-			toMario.x = gpMarioPos->x - mPosition.x;
-			toMario.y = 0.0f;
-			toMario.z = gpMarioPos->z - mPosition.z;
-			if (toMario.x * toMario.x + toMario.y * toMario.y
-			        + toMario.z * toMario.z
-			    > 0.0000038146973f) {
+			JGeometry::TVec3<f32> toMario;
+			toMario.set(gpMarioPos->x - mPosition.x, 0.0f,
+			            gpMarioPos->z - mPosition.z);
+			if (!toMario.isZero()) {
 				const u8* save     = (const u8*)unk2D4;
 				f32 marioGroundY   = SMS_GetMarioGrLevel();
 				f32 forwardDist    = *(const f32*)(save + 0x20C);
 				s16 maxSlopeAngle  = *(const s16*)(save + 0x1E4);
-				Vec forwardOffset;
+				JGeometry::TVec3<f32> forwardOffset;
 				MsVECNormalize(&toMario, &forwardOffset);
-				forwardOffset.x *= forwardDist;
-				forwardOffset.y *= forwardDist;
-				forwardOffset.z *= forwardDist;
+				forwardOffset *= forwardDist;
 
-				Vec checkPos = *gpMarioPos;
-				checkPos.x += forwardOffset.x;
-				checkPos.y += forwardOffset.y;
-				checkPos.z += forwardOffset.z;
+				JGeometry::TVec3<f32> sample = SMS_GetMarioPos();
+				sample += forwardOffset;
+				JGeometry::TVec3<f32> checkPos = sample;
+				JGeometry::TVec3<f32> checkPos2 = checkPos;
 
 				const TBGCheckData* checkData;
 				f32 checkY = gpMarioPos->y + 10.0f
@@ -989,7 +984,7 @@ void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 				                 * (JMASSin(maxSlopeAngle)
 				                    * (1.0f / JMASCos(maxSlopeAngle)));
 				f32 groundY = gpMap->checkGroundIgnoreWaterSurface(
-				    checkPos.x, checkY, checkPos.z, &checkData);
+				    checkPos2.x, checkY, checkPos2.z, &checkData);
 				f32 rise = groundY - marioGroundY;
 				s16 sampleAngle = 0;
 				if (rise > 0.0f)
