@@ -2110,9 +2110,7 @@ int TMario::hangingCheckRoof(JGeometry::TVec3<f32>* pos)
 	if (wall != 0) {
 		u8 isFence = (wall->mBGType == 0x10a) ? 1 : 0;
 		if (isFence) {
-			s16 angle = matan(wall->getNormal().z, wall->getNormal().x);
-			angle = angle + 0x18000;
-			mFaceAngle.y = angle;
+			mFaceAngle.y = matan(wall->getNormal().z, wall->getNormal().x) + 0x8000;
 			mModelFaceAngle = mFaceAngle.y;
 			return 3;
 		}
