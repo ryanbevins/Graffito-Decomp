@@ -333,69 +333,45 @@ static void drawCap(const JGeometry::TVec3<f32>& center, f32 radius)
 JGeometry::TVec3<f32> TBathtubData::getPos(int index, int count,
                                            f32 height) const
 {
-	f32 radiusFactor              = unk3C - height;
-	JGeometry::TVec3<f32> result = unk0;
-	f32 t                         = (f32)index / (f32)count;
-	f32 radius                    = t * radiusFactor;
-	f32 angle                     = (f32)index * 0.31415927f;
-	f32 s                         = radius * sinf(angle);
+	f32 t     = (f32)index / (f32)count;
+	f32 amp   = t * (unk3C - height);
+	f32 angle = (f32)index * 0.31415927f;
+
+	JGeometry::TVec3<f32> result;
+	result = unk0;
+
+	f32 s = amp * sinf(angle);
 
 	result.x += unk18.x * s;
 	result.y += unk18.y * s;
 	result.z += unk18.z * s;
 
-	f32 c = radius * cosf(angle);
+	f32 c = amp * cosf(angle);
 	result.x += unk30.x * c;
 	result.y += unk30.y * c;
 	result.z += unk30.z * c;
 
-	f32 down = (1.0f - t) * -(unk44 - height);
-	result.x += unk24.x * down;
-	result.y += unk24.y * down;
-	result.z += unk24.z * down;
+	f32 yScale = (1.0f - t) * -(unk44 - height);
+	result.x += unk24.x * yScale;
+	result.y += unk24.y * yScale;
+	result.z += unk24.z * yScale;
 
 	return result;
 }
 
 JGeometry::TVec3<f32> TBathtubData::getGravityDir(f32 rate) const
 {
-	JGeometry::TVec3<f32> result(0.0f, 1.0f, 0.0f);
-
-	if (unk65 != 0)
+	if (unk65 == 0) {
+		JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+		(void)&up;
+		JGeometry::TQuat4<f32> quat;
+		quat.setRotate(unkC, up, rate);
+		JGeometry::TVec3<f32> result;
+		quat.rotate(up, result);
 		return result;
-
-	JGeometry::TVec3<f32> axis;
-	axis.cross(unkC, result);
-	f32 len = JGeometry::TUtil<f32>::sqrt(axis.squared());
-
-	f32 qx, qy, qz, qw;
-	if (len <= JGeometry::TUtil<f32>::epsilon()) {
-		qx = 0.0f;
-		qy = 0.0f;
-		qz = 0.0f;
-		qw = 1.0f;
-	} else {
-		f32 angle = rate * (0.5f * atan2f(len, unkC.dot(result)));
-		f32 s     = sinf(angle) / len;
-		qx        = axis.x * s;
-		qy        = axis.y * s;
-		qz        = axis.z * s;
-		qw        = cosf(angle);
 	}
 
-	f32 x = result.x;
-	f32 y = result.y;
-	f32 z = result.z;
-
-	f32 t0 = qw * y + (-qx * z + qz * x);
-	f32 t1 = qw * x + (qy * z - qz * y);
-	f32 t2 = qw * z + (qx * y - qy * x);
-	f32 t3 = -((qx * x + qy * y) + qz * z);
-
-	result.x = t3 * -qx + (t2 * qy + (t1 * qw - t0 * qz));
-	result.y = t3 * -qy + (t2 * -qx + (t1 * qz + t0 * qw));
-	result.z = t3 * -qz + (t2 * qw + (t1 * -qy + t0 * qx));
-	return result;
+	return JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f);
 }
 
 static inline void addDropToAverage(const TBathWater::TDrop& drop, int& count,
