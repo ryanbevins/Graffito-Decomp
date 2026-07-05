@@ -196,21 +196,13 @@ void TMario::soundMovement()
 {
 #define MARIO_START_SOUND(id, pos)                                             \
 	do {                                                                       \
-		u32 marioSoundID = (id);                                               \
-		const Vec* marioSoundPos = (const Vec*)(pos);                         \
-		if (gpMSound->gateCheck(marioSoundID))                                 \
-			MSoundSESystem::MSoundSE::startSoundActor(                        \
-			    marioSoundID, marioSoundPos, 0, nullptr, 0, 4);               \
+		gpMSound->startSoundActor((id), (const Vec*)(pos), 0, nullptr, 0, 4); \
 	} while (0)
 
 #define MARIO_START_SOUND_INFO(id, pos, volume)                                \
 	do {                                                                       \
-		u32 marioSoundID = (id);                                               \
-		f32 vol     = (volume);                                                \
-		if (gpMSound->gateCheck(marioSoundID))                                 \
-			MSoundSESystem::MSoundSE::startSoundActorWithInfo(                \
-			    marioSoundID, (const Vec*)(pos), nullptr, vol, 0, 0, nullptr,  \
-			    0, 4);                                                         \
+		gpMSound->startSoundActorWithInfo((id), (const Vec*)(pos), nullptr,   \
+		                                  (volume), 0, 0, nullptr, 0, 4);     \
 	} while (0)
 
 #define MARIO_START_VOICE(id)                                                  \

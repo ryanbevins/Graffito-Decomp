@@ -150,7 +150,24 @@ public:
 			MSoundSESystem::MSoundSE::startSoundSystemSE(param_1, param_2,
 			                                             param_3, param_4);
 	}
-	// TODO: startSoundActor was also very likely here
+
+	void startSoundActor(u32 param_1, const Vec* param_2, u32 param_3,
+	                     JAISound** param_4, u32 param_5, u8 param_6)
+	{
+		if (gateCheck(param_1))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    param_1, param_2, param_3, param_4, param_5, param_6);
+	}
+
+	void startSoundActorWithInfo(u32 param_1, const Vec* param_2, Vec* param_3,
+	                             f32 param_4, u32 param_5, u32 param_6,
+	                             JAISound** param_7, u32 param_8, u8 param_9)
+	{
+		if (gateCheck(param_1))
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    param_1, param_2, param_3, param_4, param_5, param_6, param_7,
+			    param_8, param_9);
+	}
 
 	void startForceJumpSound(Vec*, u32, f32, u32);
 };
