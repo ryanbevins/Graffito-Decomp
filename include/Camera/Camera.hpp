@@ -12,6 +12,7 @@ class TBaseNPC;
 class TCameraMapTool;
 class TCameraKindParam;
 class TCameraInbetween;
+class TCameraBck;
 class TMarioGamePad;
 class TCamSaveKindParam;
 class TCamSaveEx;
@@ -285,7 +286,7 @@ public:
 	/* 0x2A4 */ void* unk2A4;
 	/* 0x2A8 */ char unk2A8[0x2AC - 0x2A8];
 	/* 0x2AC */ void* unk2AC;
-	/* 0x2B0 */ void* unk2B0;
+	/* 0x2B0 */ TCameraBck* unk2B0;
 	/* 0x2B4 */ void* unk2B4;
 	/* 0x2B8 */ TCameraJetCoaster* unk2B8;
 	/* 0x2BC */ TMultiPlayerContainer* unk2BC;

@@ -1172,13 +1172,17 @@ bool CPolarSubCamera::isNowInbetween() const
 	return false;
 }
 
+inline void CPolarSubCamera::startJetCoasterCam1()
+{
+	unk2B0->startDemo(cJetCoasterCam1BckName, nullptr);
+	unk2B0->setFrame(0.5f * (f32)gpMarDirector->unk58);
+}
+
 static s32 JetCoasterDemoCallBack(u32 user_data, u32 event)
 {
-	if (event == 1) {
-		void** bck = &((CPolarSubCamera*)user_data)->unk2B0;
-		((TCameraBck*)*bck)->startDemo(cJetCoasterCam1BckName, nullptr);
-		((TCameraBck*)*bck)->setFrame(0.5f * (f32)gpMarDirector->unk58);
-	}
+	if (event == 1)
+		((CPolarSubCamera*)user_data)->startJetCoasterCam1();
+
 	return 1;
 }
 
@@ -1388,4 +1392,3 @@ void CPolarSubCamera::loadAfter()
 
 void CPolarSubCamera::calcExternalData_() { }
 void CPolarSubCamera::setMarioLookat_() { }
-void CPolarSubCamera::startJetCoasterCam1() { }
