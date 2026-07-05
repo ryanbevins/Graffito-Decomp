@@ -1036,36 +1036,22 @@ bool CPolarSubCamera::isMomentDefinite_() const
 }
 
 void CPolarSubCamera::execInvalidAutoChase_() { unk284 = unk68->unk68; }
+
+static inline bool isMarioReadyGun()
+{
+	return gpMarioOriginal->checkFlag(MARIO_FLAG_HAS_FLUDD)
+	       && gpMarioOriginal->checkStatusType(0x8000);
+}
+
 bool CPolarSubCamera::isMarioCrabWalk_() const
 {
-	bool result       = false;
-	bool canUseNozzle = false;
-	bool hasFludd
-	    = gpMarioOriginal->mState & MARIO_FLAG_HAS_FLUDD ? true : false;
-	if (hasFludd) {
-		if (gpMarioOriginal->checkStatusType(0x8000))
-			canUseNozzle = true;
-	}
-	if (canUseNozzle && (unk120->mMeaning & TMarioGamePad::MEANING_0x8000))
-		result = true;
-	return result;
+	return isMarioReadyGun() && (unk120->mMeaning & TMarioGamePad::MEANING_0x8000);
 }
 
 bool CPolarSubCamera::isMarioAimWithGun_() const
 {
-	bool result       = false;
-	bool canUseNozzle = false;
-	bool hasFludd
-	    = gpMarioOriginal->mState & MARIO_FLAG_HAS_FLUDD ? true : false;
-	if (hasFludd) {
-		if (gpMarioOriginal->checkStatusType(0x8000))
-			canUseNozzle = true;
-	}
-	if (canUseNozzle && (unk120->mMeaning & TMarioGamePad::MEANING_0x400))
-		result = true;
-	return result;
+	return isMarioReadyGun() && (unk120->mMeaning & TMarioGamePad::MEANING_0x400);
 }
-bool CPolarSubCamera::isMarioReadyGun_() const { return false; }
 
 void CPolarSubCamera::onMoveApproach_()
 {
