@@ -1,38 +1,46 @@
 #include <Camera/Camera.hpp>
-#include <Camera/CameraKindParam.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <Camera/cameralib.hpp>
-#include <JSystem/JMath.hpp>
+#include <Camera/CameraKindParam.hpp>
 #include <Player/MarioAccess.hpp>
+#include <JSystem/JMath.hpp>
 
 extern void* gpMarioOriginal;
 
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
+
+void CPolarSubCamera::calcSecureViewTarget_(s16 angle, f32* outX, f32* outZ)
+{
+	s16 base = *gpMarioAngleY - 0x8000;
+	s16 diff = angle - base;
+
+	f32 first = CLBLinearInbetween<f32>(mCurrentParams->mSecureViewDistXMin,
+	                                    mCurrentParams->mSecureViewDistXMax,
+	                                    unkA8);
+	f32 cos_d = JMASCos(diff);
+
+	f32 second;
+	if (cos_d >= 0.0f) {
+		second = 0.0f;
+	} else {
+		second = CLBLinearInbetween<f32>(mCurrentParams->mSecureViewDistZMin,
+		                                 mCurrentParams->mSecureViewDistZMax,
+		                                 unkA8);
+	}
+
+	f32 mag = -ABS(first * JMASSin(diff) + second * cos_d);
+
+	*outX = mag * JMASSin(base);
+	*outZ = mag * JMASCos(base);
+}
 
 void CPolarSubCamera::execSecureView_(s16 angle, Vec* out)
 {
-	s16 marioBack = (s16)(*gpMarioAngleY - 0x8000);
-
-	f32 nearVal = CLBLinearInbetween<f32>(
-	    unk68->unk3C, unk68->unk44, this->unkA8);
-
-	u16 delta    = (u16)(angle - marioBack);
-	f32 cosDelta = jmaCosTable[delta >> jmaSinShift];
-
-	f32 farVal = (cosDelta >= 0.0f)
-	                 ? 0.0f
-	                 : CLBLinearInbetween<f32>(unk68->unk40, unk68->unk48,
-	                                           this->unkA8);
-
-	f32 sinDelta = jmaSinTable[delta >> jmaSinShift];
-	f32 sum      = nearVal * sinDelta + farVal * cosDelta;
-	if (sum < 0.0f) {
-		sum = -(nearVal * sinDelta + farVal * cosDelta);
-	}
-	sum = -sum;
-
-	u16 marioBackU = (u16)marioBack;
-	f32 dx         = sum * jmaSinTable[marioBackU >> jmaSinShift];
-	f32 dz         = sum * jmaCosTable[marioBackU >> jmaSinShift];
+	f32 px;
+	f32 pz;
+	calcSecureViewTarget_(angle, &px, &pz);
 
 	s16 prevAngle = *(s16*)((u8*)gpMarioOriginal + 0x9C);
 	s16 curAngle  = *gpMarioAngleY;
@@ -42,50 +50,18 @@ void CPolarSubCamera::execSecureView_(s16 angle, Vec* out)
 	else
 		ad = -(curAngle - prevAngle);
 
-	f32 deg = (f32)(s16)ad * (360.0f / 65536.0f);
-	f32 factor;
-	if (deg <= 1.0f)
-		factor = 1.0f;
+	f32 ratio = SHORTANGLE2DEG((s16)ad);
+	f32 inv;
+	if (ratio <= 1.0f)
+		inv = 1.0f;
 	else
-		factor = 1.0f / deg;
+		inv = 1.0f / ratio;
 
-	f32 clamped = unk68->unk38 * factor;
-	if (clamped > 1.0f)
-		clamped = 1.0f;
-	else if (clamped < 0.0f)
-		clamped = 0.0f;
+	f32 v = MsClamp(mCurrentParams->mSecureViewChase * inv, 0.0f, 1.0f);
 
-	CLBChaseDecrease(&unk294, dx, clamped, 0.0f);
-	CLBChaseDecrease(&unk298, dz, clamped, 0.0f);
+	CLBChaseDecrease(&unk294, px, v, 0.0f);
+	CLBChaseDecrease(&unk298, pz, v, 0.0f);
 
 	out->x += unk294;
 	out->z += unk298;
-}
-
-void CPolarSubCamera::calcSecureViewTarget_(s16 angle, f32* outX, f32* outZ)
-{
-	s16 marioBack = (s16)(*gpMarioAngleY - 0x8000);
-
-	f32 nearVal = CLBLinearInbetween<f32>(unk68->unk3C, unk68->unk44,
-	                                      this->unkA8);
-
-	u16 delta    = (u16)(angle - marioBack);
-	f32 cosDelta = jmaCosTable[delta >> jmaSinShift];
-
-	f32 farVal;
-	if (cosDelta >= 0.0f) {
-		farVal = 0.0f;
-	} else {
-		farVal = CLBLinearInbetween<f32>(unk68->unk40, unk68->unk48,
-		                                 this->unkA8);
-	}
-
-	f32 sinDelta = jmaSinTable[delta >> jmaSinShift];
-	f32 sum      = farVal * cosDelta + nearVal * sinDelta;
-	sum          = sum >= 0.0f ? sum : -sum;
-	sum = -sum;
-
-	u16 marioBackU = (u16)marioBack;
-	*outX          = sum * jmaSinTable[marioBackU >> jmaSinShift];
-	*outZ          = sum * jmaCosTable[marioBackU >> jmaSinShift];
 }
