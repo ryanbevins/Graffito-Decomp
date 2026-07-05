@@ -1090,9 +1090,9 @@ void CPolarSubCamera::rotateX_ByStickY_(f32 stick)
 				ratio = 0.0f;
 			unkA8 = ratio;
 		} else {
+			f32 min   = unk268;
 			f32 max   = unk26C;
 			f32 ratio = unkA8;
-			f32 min   = unk268;
 			if (ratio > max)
 				ratio = max;
 			else if (ratio < min)
@@ -1117,9 +1117,9 @@ void CPolarSubCamera::calcNowTargetFromPosAndAt_(const Vec& pos, const Vec& at)
 			ratio = 0.0f;
 		unkA8 = ratio;
 	} else {
+		f32 min   = unk268;
 		f32 max   = unk26C;
 		f32 ratio = unkA8;
-		f32 min   = unk268;
 		if (ratio > max)
 			ratio = max;
 		else if (ratio < min)
