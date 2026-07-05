@@ -889,7 +889,8 @@ void TBaseNPC::npcMadIn()
 {
 	mLiveFlag |= 0x02000000;
 	if (mActorType == 0x04000007 || (mActionFlag & 0x1)) {
-		requestNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_ON);
+		requestNpcAnm_((EnumNpcAnmKind)0xA,
+		               (EnumNpcStopMotionBlendOnOff)1);
 	} else {
 		npcStepIn();
 	}
