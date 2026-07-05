@@ -16,6 +16,12 @@ template <class T> class TRotation3 : public T {
 public:
 	TRotation3() { }
 
+	TRotation3(const JGeometry::TVec3<f32>& axis, f32 angle)
+	{
+		this->identity();
+		setRotate(axis, angle);
+	}
+
 #ifdef JGEOMETRY_DRAWUTIL_OWNER_HELPERS
 	void identity33();
 #else

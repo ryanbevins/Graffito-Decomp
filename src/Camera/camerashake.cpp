@@ -8,16 +8,11 @@ extern const char* mCamShakeNameSave__12TCameraShake[];
 
 TCameraShake* gpCameraShake;
 
-static inline void fakeSetRotate(
-    JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >* rot,
-    const JGeometry::TVec3<f32>& axis, f32 angle)
+static inline void unitVecTo(const Vec& from, const Vec& to,
+                             JGeometry::TVec3<f32>* out)
 {
-	rot->setRotate(axis, angle);
-}
-
-static inline void normalizeAxis(JGeometry::TVec3<f32>* vec)
-{
-	vec->normalize();
+	out->set(to.x - from.x, to.y - from.y, to.z - from.z);
+	out->normalize();
 }
 
 TCameraShake::TCameraShake()
@@ -189,89 +184,77 @@ void TCameraShake::keepShake(EnumCamShakeMode mode, f32 strength)
 	}
 }
 
-void TCameraShake::execShake(const JGeometry::TVec3<f32>& center,
-                             JGeometry::TVec3<f32>* outPos,
-                             JGeometry::TVec3<f32>* outAt)
+void TCameraShake::execShake(const JGeometry::TVec3<f32>& origin,
+                             JGeometry::TVec3<f32>* pos,
+                             JGeometry::TVec3<f32>* up)
 {
-	JGeometry::TVec3<f32> saved = *outPos;
-	bool anyActive = false;
+	bool anyActive                = false;
+	JGeometry::TVec3<f32> origPos = *pos;
 
 	mYaw = 0;
 
-	{
-		TCamShakeInfo* p = mShakeInfos;
-		for (s32 i = 0; i < 32; i++, p++) {
-			if (p->isActive()) {
-				anyActive = true;
-				break;
-			}
+	TCamShakeInfo* it = mShakeInfos;
+	for (int i = 0; i < 32; ++i, ++it) {
+		if (it->isActive()) {
+			anyActive = true;
+			break;
 		}
 	}
 
 	if (anyActive) {
-		f32 dist;
-		s16 polarY;
-		s16 polarX;
-		CLBCrossToPolar(center, *outPos, &dist, &polarY, &polarX);
+		f32 r;
+		s16 vAngle, hAngle;
+		CLBCrossToPolar(origin, *pos, &r, &vAngle, &hAngle);
 
-		for (s32 i = 0; i < 32; i++) {
-			TCamShakeInfo& info = mShakeInfos[i];
-			if (!info.isActive()) {
-				continue;
-			}
+		TCamShakeInfo* it = mShakeInfos;
+		for (int i = 0; i < 32; ++i, ++it) {
+			if (it->isActive()) {
+				vAngle
+				    += (s16)(it->mAngleX.mPhase
+				             * JMASSin((s16)(it->mAngleX.mAngle
+				                              * it->mCurFrame)));
+				hAngle
+				    += (s16)(it->mAngleY.mPhase
+				             * JMASSin((s16)(it->mAngleY.mAngle
+				                              * it->mCurFrame)));
+				mYaw
+				    += (s16)(it->mAngleZ.mPhase
+				             * JMASSin((s16)(it->mAngleZ.mAngle
+				                              * it->mCurFrame)));
+				it->mCurFrame += 1;
 
-			// Accumulate sinusoidal shake into polar Y, polar X, and yaw.
-			s16 freqX = (s16)((s16)info.mAngleX.mAngle * (u16)info.mCurFrame);
-			polarY = (s16)(polarY + (s32)(info.mAngleX.mPhase * JMASSin(freqX)));
+				bool finished = false;
+				if (it->mPause != 0) {
+					it->mDuration += 1;
+					it->mPause = 0;
+				} else {
+					it->mActiveSet = 1;
+					it->mAngleX.mPhase -= it->mAngleX.mDecrement;
+					it->mAngleY.mPhase -= it->mAngleY.mDecrement;
+					it->mAngleZ.mPhase -= it->mAngleZ.mDecrement;
+					if (it->mCurFrame >= it->mDuration)
+						finished = true;
+				}
 
-			s16 freqY = (s16)((s16)info.mAngleY.mAngle * (u16)info.mCurFrame);
-			polarX = (s16)(polarX + (s32)(info.mAngleY.mPhase * JMASSin(freqY)));
-
-			s16 freqZ = (s16)((s16)info.mAngleZ.mAngle * (u16)info.mCurFrame);
-			mYaw = (s16)(mYaw + (s32)(info.mAngleZ.mPhase * JMASSin(freqZ)));
-
-			info.mCurFrame++;
-
-			bool done;
-			if (info.mPause != 0) {
-				info.mDuration++;
-				info.mPause = 0;
-				done        = false;
-			} else {
-				info.mActiveSet = 1;
-				info.mAngleX.mPhase -= info.mAngleX.mDecrement;
-				info.mAngleY.mPhase -= info.mAngleY.mDecrement;
-				info.mAngleZ.mPhase -= info.mAngleZ.mDecrement;
-				done = info.mCurFrame >= info.mDuration ? true : false;
-			}
-
-			if (done) {
-				info.reset();
+				if (finished)
+					it->reset();
 			}
 		}
 
-		CLBPolarToCross(center, outPos, dist, polarY, polarX);
+		CLBPolarToCross(origin, pos, r, vAngle, hAngle);
 	}
 
-	// Compute axis = normalize(saved - center)
-	JGeometry::TVec3<f32> axis;
-	axis.x = saved.x - center.x;
-	axis.y = saved.y - center.y;
-	axis.z = saved.z - center.z;
-	normalizeAxis(&axis);
+	JGeometry::TVec3<f32> dir;
+	unitVecTo(*pos, origPos, &dir);
 
-	// Build rotation matrix for mYaw degrees about 'axis'.
-	JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > > rot;
-	rot.identity();
-	f32 angleRad = -((f32)mYaw * 0.005493164f * 0.017453294f);
-	fakeSetRotate(&rot, axis, angleRad);
+	JGeometry::TRotation3<TMtx33f> rot(
+	    dir, -(0.017453294f * (0.005493164f * (f32)mYaw)));
 
-	// outAt' = rot^T * outAt (column-vector convention via column dot)
-	JGeometry::TVec3<f32> saved_at = *outAt;
-	outAt->x = saved_at.x * rot.mMtx[0][0] + saved_at.y * rot.mMtx[1][0]
-	         + saved_at.z * rot.mMtx[2][0];
-	outAt->y = saved_at.x * rot.mMtx[0][1] + saved_at.y * rot.mMtx[1][1]
-	         + saved_at.z * rot.mMtx[2][1];
-	outAt->z = saved_at.x * rot.mMtx[0][2] + saved_at.y * rot.mMtx[1][2]
-	         + saved_at.z * rot.mMtx[2][2];
+	JGeometry::TVec3<f32> oldUp = *up;
+	up->x = oldUp.x * rot.at(0, 0) + oldUp.y * rot.at(1, 0)
+	        + oldUp.z * rot.at(2, 0);
+	up->y = oldUp.x * rot.at(0, 1) + oldUp.y * rot.at(1, 1)
+	        + oldUp.z * rot.at(2, 1);
+	up->z = oldUp.x * rot.at(0, 2) + oldUp.y * rot.at(1, 2)
+	        + oldUp.z * rot.at(2, 2);
 }
