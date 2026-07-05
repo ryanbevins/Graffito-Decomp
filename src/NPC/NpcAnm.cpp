@@ -76,11 +76,6 @@ template <class T> void CLBChaseConstantSpecifyFrame(T* slot, T target, T frame)
 	*slot = (target - *slot) * (1.0f / frame) + *slot;
 }
 
-// Shared peach revive mapping tables (local $2904/$2905), referenced by both
-// npcTalking and npcTalkOut.
-static const s32 sIndividualPeachBck[] = { 0x15, 0x0, -1, -1 };
-static const s32 sIndividualPeachBtp[] = { 0x5, 0x0, -1, -1 };
-
 // `EnumNpcAnmKind` and `EnumNpcStopMotionBlendOnOff` are forward-declared in
 // NpcBase.hpp as empty enums; cast through `int` to ease working with literals.
 static inline EnumNpcAnmKind asKind(int v)
@@ -1017,10 +1012,12 @@ void TBaseNPC::peachTiredIn_()
 
 inline void TBaseNPC::peachTiredOut_()
 {
-	if (!(unk1D8 & 0x2))
+	if (!checkUnk1D8(0x2))
 		return;
-	unk1D8 &= ~0x2;
-	unk1D8 |= 0x4;
+	offUnk1D8(0x2);
+	onUnk1D8(0x4);
+	static const s32 sIndividualPeachBck[] = { 0x15, 0x0, -1, -1 };
+	static const s32 sIndividualPeachBtp[] = { 0x5, 0x0, -1, -1 };
 	unkD0->unk18 = (const TAnmBckMapping*)sIndividualPeachBck;
 	unkD0->unk1C = (const TAnmBtpMapping*)sIndividualPeachBtp;
 	requestNpcAnm_(asKind(6), NPC_STOP_MOTION_BLEND_OFF);
