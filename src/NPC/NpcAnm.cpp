@@ -104,13 +104,19 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 	if (!unkD0->setBckAndBtpAnm((int)kind))
 		return;
 
-	if ((int)kind == 0x11 && (s32)unk1D9 < 3 && (s32)unk1D9 >= 0) {
-		emitHappyEffect_();
-		if (gpMSound->gateCheck(0x8808)) {
-			MSoundSESystem::MSoundSE::startSoundNpcActor(
-			    0x8808,
-			    (const Vec*)((u8*)this + 0x10),
-			    0, (JAISound**)NULL, 0, 4);
+	if ((int)kind == 0x11) {
+		switch (unk1D9) {
+		case 0:
+		case 1:
+		case 2:
+			emitHappyEffect_();
+			if (gpMSound->gateCheck(0x8808)) {
+				MSoundSESystem::MSoundSE::startSoundNpcActor(
+				    0x8808,
+				    (const Vec*)((u8*)this + 0x10),
+				    0, (JAISound**)NULL, 0, 4);
+			}
+			break;
 		}
 	}
 
