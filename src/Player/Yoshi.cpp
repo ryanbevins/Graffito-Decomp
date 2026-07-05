@@ -1088,15 +1088,6 @@ void TYoshi::calcAnim()
 	u8 state = (u8)mState;
 
 	switch (state) {
-	case 0:
-		break;
-	case 1:
-		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
-		                         mTranslation.x,
-		                         mTranslation.y
-		                             + 100.0f * *(s16*)((u8*)this + 0x02),
-		                         mTranslation.z, rootMtx);
-		break;
 	case 2:
 	case 3:
 	case 6:
@@ -1105,20 +1096,28 @@ void TYoshi::calcAnim()
 		                         mTranslation.x, mTranslation.y,
 		                         mTranslation.z, rootMtx);
 		break;
+	case 8:
+		thinkAnimation();
+		PSMTXCopy(mMario->getTakenMtx(), rootMtx);
+		break;
+	case 1:
+		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
+		                         mTranslation.x,
+		                         mTranslation.y
+		                             + 100.0f * *(s16*)((u8*)this + 0x02),
+		                         mTranslation.z, rootMtx);
+		break;
 	case 5:
 		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
 		                         mTranslation.x, mTranslation.y,
 		                         mTranslation.z, rootMtx);
 		break;
+	case 0:
 	case 4:
-		break;
-	case 8:
-		thinkAnimation();
-		PSMTXCopy(mMario->getTakenMtx(), rootMtx);
 		break;
 	}
 
-	if (state != 0) {
+	if (isHatched()) {
 		thinkUpper();
 
 		switch (mActor->getCurAnmIdx(0)) {
@@ -1162,16 +1161,14 @@ void TYoshi::calcAnim()
 	mMtxTrans2.y   = footMtx[1][3];
 	mMtxTrans2.z   = footMtx[2][3];
 
-	u32 soundFlags       = mMario->mSoundFlags;
-	MAnmSound* bckSound  = mBckPlayer;
-	MAnmSound* bckSound2 = mBckPlayer2;
-	bckSound->animeLoop((Vec*)&mTranslation,
-	                    mActor->getFrameCtrl(0)->getFrame(),
-	                    mActor->getFrameCtrl(0)->getRate(),
-	                    soundFlags + 0x10000000, 4);
-	bckSound2->animeLoop((Vec*)&mMtxTrans, *(f32*)((u8*)this + 0x6c),
-	                     *(f32*)((u8*)this + 0x68),
-	                     soundFlags + 0x10000000, 4);
+	u32 soundFlags = mMario->mSoundFlags;
+	mBckPlayer->animeLoop((Vec*)&mTranslation,
+	                      mActor->getFrameCtrl(0)->getFrame(),
+	                      mActor->getFrameCtrl(0)->getRate(),
+	                      soundFlags + 0x10000000, 4);
+	mBckPlayer2->animeLoop((Vec*)&mMtxTrans, *(f32*)((u8*)this + 0x6c),
+	                       *(f32*)((u8*)this + 0x68),
+	                       soundFlags + 0x10000000, 4);
 }
 
 // viewCalc - 0x8014D638
