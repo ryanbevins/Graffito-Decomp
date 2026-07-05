@@ -21,7 +21,8 @@
 
 #undef JGEOMETRY_TONGUE_TVEC3_MINUS_ASSIGN_OUT_OF_LINE
 
-static const char* SMS_NO_MEMORY_MESSAGE = "メモリが足りません\n";
+static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
 static const char cDirtyTexName[]  = "H_ma_rak_dummy";
 
@@ -444,10 +445,10 @@ void TYoshiTongue::initInLoadAfter()
 	    ->getChildren()
 	    .push_back(this);
 
-	TMirrorActor* parentMirror = new TMirrorActor("ヨッシー親in鏡");
+	TMirrorActor* parentMirror = new TMirrorActor("ヨッシー舌in鏡");
 	parentMirror->init(mModel, 4);
 
-	TMirrorActor* tipMirror = new TMirrorActor("ヨッシー親先in鏡");
+	TMirrorActor* tipMirror = new TMirrorActor("ヨッシー舌先in鏡");
 	tipMirror->init(mTipModel, 4);
 }
 
