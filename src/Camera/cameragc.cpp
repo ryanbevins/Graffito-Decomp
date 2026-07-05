@@ -1069,10 +1069,11 @@ bool CPolarSubCamera::isMarioReadyGun_() const { return false; }
 
 void CPolarSubCamera::onMoveApproach_()
 {
-	f32 dx   = mPosition.x - mTarget.x;
-	f32 dy   = mPosition.y - mTarget.y;
-	f32 dz   = mPosition.z - mTarget.z;
-	f32 dist = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+	f32 dist = MsSqrtf((mPosition.x - mTarget.x) * (mPosition.x - mTarget.x)
+	                   + (mPosition.y - mTarget.y)
+	                       * (mPosition.y - mTarget.y)
+	                   + (mPosition.z - mTarget.z)
+	                       * (mPosition.z - mTarget.z));
 	unk6C->mChaseFrame
 	    = dist - CLBLinearInbetween(unk68->unk08, unk68->unk0C, unkA8);
 }
