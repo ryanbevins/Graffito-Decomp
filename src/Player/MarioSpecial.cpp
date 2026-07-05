@@ -2078,8 +2078,7 @@ int TMario::doRoofMovingProcess()
 
 	if (mIntendedMag > 0.0f) {
 		s16 diff = mIntendedYaw - mFaceAngle.y;
-		s16 turn = IConverge(diff, 0, 0x800, 0x800);
-		mFaceAngle.y = mIntendedYaw - turn;
+		mFaceAngle.y = mIntendedYaw - IConverge(diff, 0, 0x800, 0x800);
 	}
 
 	mSlideAngle = mFaceAngle.y;
@@ -2090,10 +2089,9 @@ int TMario::doRoofMovingProcess()
 	mVel.y = 0.0f;
 	mVel.z = mSlideVelZ;
 
-	f32 normalX = *(f32*)((u8*)mRoofPlane + 0x38);
 	JGeometry::TVec3<f32> nextPos;
-	nextPos.x = mPosition.x - mSlideVelX * normalX;
-	nextPos.z = mPosition.z - mSlideVelZ * normalX;
+	nextPos.x = mPosition.x - mVel.x * mRoofPlane->getNormal().y;
+	nextPos.z = mPosition.z - mVel.z * mRoofPlane->getNormal().y;
 	nextPos.y = mPosition.y;
 
 	int result = hangingCheckRoof(&nextPos);
