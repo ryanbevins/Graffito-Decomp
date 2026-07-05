@@ -844,7 +844,8 @@ void TBaseNPC::npcSinking()
 		                                              sinkSpeed)) {
 			mLiveFlag |= 0x00800000;
 			unk64     |= 0x1;
-			requestNpcAnm_(asKind(0x10), NPC_STOP_MOTION_BLEND_ON);
+			requestNpcAnm_((EnumNpcAnmKind)0x10,
+			               (EnumNpcStopMotionBlendOnOff)1);
 		}
 	}
 }
