@@ -10,6 +10,7 @@ class TEggYoshi;
 class TYoshiTongue;
 struct TRidingInfo;
 class J3DDrawBuffer;
+class MAnmSound;
 
 class TYoshi {
 public:
@@ -58,7 +59,11 @@ public:
 	TYoshiTongue* mTongue;              // 0x0038
 	u16 mJoint;                         // 0x003c
 	u16 _3e;                            // 0x003e
-	u32 _04[0x30 / 4];                  // 0x0040
+	u16 mJointFootR;                    // 0x0040
+	u16 mJointCenter;                   // 0x0042
+	J3DModel* mHandL;                   // 0x0044
+	J3DModel* mHandR;                   // 0x0048
+	u32 _04[0x24 / 4];                  // 0x004C
 	s16 mEggRotSpeed;                   // 0x0070
 	u16 _72;                            // 0x0072
 	u32 _04b[0x10 / 4];                 // 0x0074
@@ -110,9 +115,9 @@ public:
 	JGeometry::TVec3<f32> mMtxTrans;    // 0x00FC
 	JGeometry::TVec3<f32> mMtxTrans2;   // 0x0108
 	f32 mSpineScale;                    // 0x0114
-	void* mBckPlayer;                   // 0x0118
-	u32* mAnimFrameRates;               // 0x011C
-	void* mBckPlayer2;                  // 0x0120
+	MAnmSound* mBckPlayer;              // 0x0118
+	void** mAnimFrameRates;             // 0x011C
+	MAnmSound* mBckPlayer2;             // 0x0120
 	u32 _124;
 };
 

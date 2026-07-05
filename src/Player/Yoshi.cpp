@@ -89,8 +89,7 @@ MtxPtr TYoshi::getMtxPtrFootL() const {
 
 // getMtxPtrFootR - 0x801508E8
 MtxPtr TYoshi::getMtxPtrFootR() const {
-	u16 footRJoint = *(u16*)((u8*)this + 0x40);
-	return mActor->unk4->getAnmMtx(footRJoint);
+	return mActor->unk4->getAnmMtx(mJointFootR);
 }
 
 // init - 0x8014FE5C
@@ -128,13 +127,13 @@ void TYoshi::init(TMario* mario) {
 	JUTNameTab* jointName = mActor->unk4->getModelData()->getJointName();
 	mJoint = jointName->getIndex("null_tongue");
 	_3e = jointName->getIndex("jnt_foot_L");
-	*(u16*)((u8*)this + 0x40) = jointName->getIndex("jnt_foot_R");
-	*(u16*)((u8*)this + 0x42) = jointName->getIndex("center");
+	mJointFootR = jointName->getIndex("jnt_foot_R");
+	mJointCenter = jointName->getIndex("center");
 
 	J3DModel* handL = SMS_CreatePartsModel("/yoshi/yoshi_hand2_l.bmd", 0x10040000);
 	J3DModel* handR = SMS_CreatePartsModel("/yoshi/yoshi_hand2_r.bmd", 0x10040000);
-	*(J3DModel**)((u8*)this + 0x44) = handL;
-	*(J3DModel**)((u8*)this + 0x48) = handR;
+	mHandL = handL;
+	mHandR = handR;
 
 	{
 		u8* dst = *(u8**)((u8*)handL->getModelData()->getTexture() + 4);
@@ -257,55 +256,55 @@ void TYoshi::init(TMario* mario) {
 		handR->getModelData()->getShapeNodePointer(i)->onFlag(1);
 
 	mBckPlayer = new MAnmSound(gpMSound);
-	((MAnmSound*)mBckPlayer)->initAnmSound(0, 1, 0.0f);
+	mBckPlayer->initAnmSound(0, 1, 0.0f);
 	mBckPlayer2 = new MAnmSound(gpMSound);
-	((MAnmSound*)mBckPlayer2)->initAnmSound(0, 1, 0.0f);
+	mBckPlayer2->initAnmSound(0, 1, 0.0f);
 
-	mAnimFrameRates = new u32[26];
+	mAnimFrameRates = new void*[26];
 	for (int i = 0; i < 26; ++i)
 		mAnimFrameRates[i] = 0;
 	mAnimFrameRates[0]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_born.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_born.bas");
 	mAnimFrameRates[1]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_damage.bas");
-	mAnimFrameRates[2] = (u32)JKRFileLoader::getGlbResource(
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_damage.bas");
+	mAnimFrameRates[2] = JKRFileLoader::getGlbResource(
 	    "/yoshi/bas/yoshi_demo_shine_get.bas");
 	mAnimFrameRates[3]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_eat.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_eat.bas");
 	mAnimFrameRates[4]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_eat_end.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_eat_end.bas");
 	mAnimFrameRates[5]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_goff.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_goff.bas");
 	mAnimFrameRates[6]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_hip_end.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_hip_end.bas");
 	mAnimFrameRates[8]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_hip_start.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_hip_start.bas");
 	mAnimFrameRates[9]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_hold_jump.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_hold_jump.bas");
 	mAnimFrameRates[10]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_jump.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_jump.bas");
 	mAnimFrameRates[11]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_jump_end.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_jump_end.bas");
 	mAnimFrameRates[13]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_pivot.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_pivot.bas");
 	mAnimFrameRates[14]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_ride.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_ride.bas");
 	mAnimFrameRates[15]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_run.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_run.bas");
 	mAnimFrameRates[16]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_sidewalk_l.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_sidewalk_l.bas");
 	mAnimFrameRates[17]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_sidewalk_r.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_sidewalk_r.bas");
 	mAnimFrameRates[18]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_slide_end.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_slide_end.bas");
 	mAnimFrameRates[22]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_wait.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_wait.bas");
 	mAnimFrameRates[23]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_wait_alone.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_wait_alone.bas");
 	mAnimFrameRates[24]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_walk.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_walk.bas");
 	mAnimFrameRates[25]
-	    = (u32)JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_water_die.bas");
+	    = JKRFileLoader::getGlbResource("/yoshi/bas/yoshi_water_die.bas");
 
 	changeAnimation(23);
 }
@@ -320,7 +319,7 @@ void TYoshi::initInLoadAfter()
 
 	for (int i = 0; i < 2; ++i) {
 		TMirrorActor* footMirror = new TMirrorActor("ヨッシー手in鏡");
-		footMirror->init(*(J3DModel**)((u8*)this + 0x44 + i * 4), 4);
+		footMirror->init((&mHandL)[i], 4);
 	}
 
 	mActor->unk4->getModelData()->getJointNodePointer(21)->setCallBack(
@@ -364,7 +363,7 @@ void TYoshi::changeAnimation(int id) {
 		actor->setBckFromIndex(id);
 	}
 	thinkBtp(id);
-	((MAnmSound*)mBckPlayer)->initAnmSound((void*)mAnimFrameRates[id], 1, 0.0f);
+	mBckPlayer->initAnmSound(mAnimFrameRates[id], 1, 0.0f);
 }
 
 #pragma dont_inline on
@@ -460,8 +459,8 @@ void TYoshi::kill() {
 		mType = 0;
 		mSubState = 30;
 	}
-	((MAnmSound*)mBckPlayer)->stop();
-	((MAnmSound*)mBckPlayer2)->stop();
+	mBckPlayer->stop();
+	mBckPlayer2->stop();
 }
 
 // ride - 0x8014F744
@@ -617,8 +616,7 @@ void TYoshi::thinkAnimation()
 		}
 
 		thinkBtp((u16)nextAnim);
-		((MAnmSound*)mBckPlayer)
-		    ->initAnmSound((void*)mAnimFrameRates[(u16)nextAnim], 1, 0.0f);
+		mBckPlayer->initAnmSound(mAnimFrameRates[(u16)nextAnim], 1, 0.0f);
 	}
 
 	if ((u16)nextAnim == 0xF) {
@@ -706,8 +704,7 @@ void TYoshi::thinkUpper()
 			    = *(s16*)(*(u32*)((u8*)this + 0x4C) + 0x2);
 			*(f32*)((u8*)this + 0x6C) = 0.0f;
 			*(void**)((u8*)upperAnm + 0x58) = *(void**)((u8*)this + 0x54);
-			((MAnmSound*)mBckPlayer2)
-			    ->initAnmSound((void*)mAnimFrameRates[3], 1, 0.0f);
+			mBckPlayer2->initAnmSound(mAnimFrameRates[3], 1, 0.0f);
 		}
 		*(f32*)(*(u32*)((u8*)this + 0x4C) + 0x4)
 		    = *(f32*)((u8*)this + 0x6C);
@@ -720,8 +717,7 @@ void TYoshi::thinkUpper()
 			    = *(s16*)(*(u32*)((u8*)this + 0x50) + 0x2);
 			*(f32*)((u8*)this + 0x6C) = 0.0f;
 			*(void**)((u8*)upperAnm + 0x58) = *(void**)((u8*)this + 0x58);
-			((MAnmSound*)mBckPlayer2)
-			    ->initAnmSound((void*)mAnimFrameRates[4], 1, 0.0f);
+			mBckPlayer2->initAnmSound(mAnimFrameRates[4], 1, 0.0f);
 		} else if (*(void**)((u8*)upperAnm + 0x58)
 		           == *(void**)((u8*)this + 0x58)) {
 			int ended;
@@ -1073,26 +1069,18 @@ void TYoshi::movement()
 		}
 
 		mActor->unk4->getModelData()->offFlag1OnAllShapes();
-		(*(J3DModel**)((u8*)this + 0x44))
-		    ->getModelData()
-		    ->offFlag1OnAllShapes();
-		(*(J3DModel**)((u8*)this + 0x48))
-		    ->getModelData()
-		    ->offFlag1OnAllShapes();
+		mHandL->getModelData()->offFlag1OnAllShapes();
+		mHandR->getModelData()->offFlag1OnAllShapes();
 	} else {
 		mActor->unk4->getModelData()->onFlag1OnAllShapes();
-		(*(J3DModel**)((u8*)this + 0x44))
-		    ->getModelData()
-		    ->onFlag1OnAllShapes();
-		(*(J3DModel**)((u8*)this + 0x48))
-		    ->getModelData()
-		    ->onFlag1OnAllShapes();
+		mHandL->getModelData()->onFlag1OnAllShapes();
+		mHandR->getModelData()->onFlag1OnAllShapes();
 	}
 
 	if (mMario->onYoshi())
 		gpModelWaterManager->unk5D5F = mType;
 
-	MtxPtr mtx = mActor->unk4->getAnmMtx(*(u16*)((u8*)this + 0x42));
+	MtxPtr mtx = mActor->unk4->getAnmMtx(mJointCenter);
 	*(f32*)((u8*)this + 0x74) = mtx[0][3];
 	*(f32*)((u8*)this + 0x78) = mtx[1][3];
 	*(f32*)((u8*)this + 0x7c) = mtx[2][3];
@@ -1140,33 +1128,23 @@ void TYoshi::calcAnim()
 			data->getShapeNodePointer(0)->onFlag(1);
 			data->getShapeNodePointer(1)->onFlag(1);
 
-			(*(J3DModel**)((u8*)this + 0x44))
-			    ->getModelData()
-			    ->offFlag1OnAllShapes();
-			(*(J3DModel**)((u8*)this + 0x48))
-			    ->getModelData()
-			    ->offFlag1OnAllShapes();
+			mHandL->getModelData()->offFlag1OnAllShapes();
+			mHandR->getModelData()->offFlag1OnAllShapes();
 		} else {
 			J3DModelData* data = mActor->unk4->getModelData();
 			data->getShapeNodePointer(0)->offFlag(1);
 			data->getShapeNodePointer(1)->offFlag(1);
 
-			(*(J3DModel**)((u8*)this + 0x44))
-			    ->getModelData()
-			    ->onFlag1OnAllShapes();
-			(*(J3DModel**)((u8*)this + 0x48))
-			    ->getModelData()
-			    ->onFlag1OnAllShapes();
+			mHandL->getModelData()->onFlag1OnAllShapes();
+			mHandR->getModelData()->onFlag1OnAllShapes();
 		}
 
 		mActor->unk4->setBaseTRMtx(rootMtx);
 		mActor->calcAnm();
-		(*(J3DModel**)((u8*)this + 0x44))
-		    ->setBaseTRMtx(mActor->unk4->getAnmMtx(37));
-		(*(J3DModel**)((u8*)this + 0x48))
-		    ->setBaseTRMtx(mActor->unk4->getAnmMtx(32));
-		(*(J3DModel**)((u8*)this + 0x44))->calc();
-		(*(J3DModel**)((u8*)this + 0x48))->calc();
+		mHandL->setBaseTRMtx(mActor->unk4->getAnmMtx(37));
+		mHandR->setBaseTRMtx(mActor->unk4->getAnmMtx(32));
+		mHandL->calc();
+		mHandR->calc();
 
 		Mtx tongueMtx;
 		PSMTXCopy(mActor->unk4->getAnmMtx(mJoint), tongueMtx);
@@ -1184,8 +1162,8 @@ void TYoshi::calcAnim()
 	mMtxTrans2.z   = footMtx[2][3];
 
 	u32 soundFlags       = mMario->mSoundFlags;
-	MAnmSound* bckSound  = (MAnmSound*)mBckPlayer;
-	MAnmSound* bckSound2 = (MAnmSound*)mBckPlayer2;
+	MAnmSound* bckSound  = mBckPlayer;
+	MAnmSound* bckSound2 = mBckPlayer2;
 	bckSound->animeLoop((Vec*)&mTranslation,
 	                    mActor->getFrameCtrl(0)->getFrame(),
 	                    mActor->getFrameCtrl(0)->getRate(),
@@ -1208,8 +1186,8 @@ void TYoshi::viewCalc() {
 		return;
 
 	mActor->viewCalc();
-	(*(J3DModel**)((u8*)this + 0x44))->viewCalc();
-	(*(J3DModel**)((u8*)this + 0x48))->viewCalc();
+	mHandL->viewCalc();
+	mHandR->viewCalc();
 	mTongue->viewCalc();
 }
 
