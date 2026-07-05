@@ -653,7 +653,8 @@ void TBaseNPC::npcWetIn()
 			anm = asKind(0x19);
 		} else if (mActionFlag & 0x1) {
 			anm = asKind(0x14);
-			if (isNormalMonteM() || isNormalMonteW())
+			bool isMonte = isNormalMonteM() || isNormalMonteW();
+			if (isMonte)
 				blend = NPC_STOP_MOTION_BLEND_OFF;
 		} else {
 			bool isMonte = isNormalMonteM() || isNormalMonteW();
