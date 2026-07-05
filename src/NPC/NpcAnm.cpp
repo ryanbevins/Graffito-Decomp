@@ -659,13 +659,10 @@ void TBaseNPC::npcWetIn()
 		} else {
 			bool isMonte = isNormalMonteM() || isNormalMonteW();
 			if (isMonte || mActorType == 0x0400000D) {
-				if (mLiveFlag & 0x04000000) {
-					blend = NPC_STOP_MOTION_BLEND_OFF;
-				} else if (MsRandF() < 0.5f) {
+				if (!(mLiveFlag & 0x04000000) && MsRandF() < 0.5f)
 					anm = asKind(0xB);
-				} else {
+				else
 					blend = NPC_STOP_MOTION_BLEND_OFF;
-				}
 			} else {
 				bool isMare = isNormalMareM() || isNormalMareW();
 				if (isMare || mActorType == 0x04000011) {
