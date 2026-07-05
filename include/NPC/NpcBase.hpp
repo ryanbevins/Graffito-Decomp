@@ -194,7 +194,7 @@ public:
 	void setMareActionFlag_();
 	void setMonteActionFlag_();
 	bool isTurnToMarioWhenApproach() const;
-	BOOL isTurnToMarioWhenTalk() const;
+	bool isTurnToMarioWhenTalk() const;
 	bool isNeedTurnToFirstState() const;
 	bool execTurnToFirstState();
 	bool execUTurn();

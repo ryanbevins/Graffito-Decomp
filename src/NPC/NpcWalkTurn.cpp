@@ -189,10 +189,10 @@ end:
 	return result;
 }
 
-BOOL TBaseNPC::isTurnToMarioWhenTalk() const
+bool TBaseNPC::isTurnToMarioWhenTalk() const
 {
 	s32 t        = mActorType;
-	BOOL allowed = TRUE;
+	bool allowed = true;
 
 	switch (t) {
 	case 0x4000007:
@@ -200,11 +200,11 @@ BOOL TBaseNPC::isTurnToMarioWhenTalk() const
 	case 0x400001A:
 	case 0x400001B:
 	case 0x400001D:
-		allowed = FALSE;
+		allowed = false;
 		break;
 	default:
 		if ((mActionFlag & 0xC01) != 0) {
-			allowed = FALSE;
+			allowed = false;
 		}
 		break;
 	}
