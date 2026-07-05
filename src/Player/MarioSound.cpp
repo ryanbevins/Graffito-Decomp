@@ -145,7 +145,7 @@ void TMario::animSound()
 			mSoundFlags |= 0x700;
 	}
 
-	bool hasState30000 = (state & 0x30000) ? true : false;
+	bool hasState30000 = (mState & 0x30000) ? true : false;
 	if (hasState30000) {
 		if (*(f32*)((u8*)this + 0xf0) - mPosition.y > 30.0f)
 			mSoundFlags |= 0x200;
@@ -174,7 +174,7 @@ void TMario::animSound()
 	if (holdingTurboNozzle)
 		mSoundFlags |= 0x15;
 
-	bool hasState8000 = (state & 0x8000) ? true : false;
+	bool hasState8000 = (mState & 0x8000) ? true : false;
 	if (!hasState8000)
 		mSoundFlags |= 0x1000;
 
