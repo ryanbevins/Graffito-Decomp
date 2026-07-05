@@ -45,6 +45,9 @@ template <> f32 CLBTwoDegreeGeneralInbetween<f32>(f32, f32, f32, f32);
 
 extern Vec CLBConstUpVec;
 
+static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
+static const char cDirtyTexName[]  = "H_ma_rak_dummy";
+
 CPolarSubCamera* gpCamera;
 
 const char* cStartCamName
