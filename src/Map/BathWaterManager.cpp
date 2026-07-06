@@ -571,11 +571,9 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
                                               const TBathtubData& data)
 {
 	f32 gravity = water->unk8C->gravity.get();
-	JGeometry::TVec3<f32> gravityDir
-	    = data.getGravityDir(water->unk8C->overGravity.get());
-	JGeometry::TVec3<f32> gravityForce(gravityDir.x * -gravity,
-	                                   gravityDir.y * -gravity,
-	                                   gravityDir.z * -gravity);
+	JGeometry::TVec3<f32> gravityForce;
+	gravityForce.scale(-gravity,
+	                   data.getGravityDir(water->unk8C->overGravity.get()));
 	JGeometry::TVec3<f32> downGravity(0.0f, -gravity, 0.0f);
 	f32 radius = water->unk8C->dropRadius.get();
 	int active = 0;
