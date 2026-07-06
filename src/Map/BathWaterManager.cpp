@@ -243,10 +243,14 @@ void clearEFB_alpha(s16 x, s16 y, s16 width, s16 height, u8 alpha)
 	Mtx matrix;
 	Mtx44 projection;
 
-	if (width <= 0)
-		width = SMSGetGameRenderWidth();
-	if (height <= 0)
-		height = SMSGetGameRenderHeight();
+	if (width <= 0) {
+		s16 renderWidth = SMSGetGameRenderWidth();
+		width           = renderWidth;
+	}
+	if (height <= 0) {
+		s16 renderHeight = SMSGetGameRenderHeight();
+		height           = renderHeight;
+	}
 
 	f32 left   = x;
 	f32 wd     = width;
