@@ -622,8 +622,12 @@ namespace StreamLib {
 		if (Head == nullptr) {
 			DVDReadPrio(&finfo, adpcm_buffer, 0x20, 0, 2);
 		} else {
-			for (u32 i = 0; i < 0x20; ++i)
-				((u8*)adpcm_buffer)[i] = ((u8*)Head)[i];
+			for (int i = 0; i < 2; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					((u8*)adpcm_buffer)[i * 16 + j]
+					    = ((u8*)Head)[i * 16 + j];
+				}
+			}
 		}
 
 		adpcm_loadpoint = 0x20;
@@ -709,7 +713,8 @@ namespace StreamLib {
 		}
 
 		s32 status = DVDGetDriveStatus();
-		if (status == 5) {
+		switch (status) {
+		case 5:
 			JASystem::DSPInterface::getDSPHandle(assign_ch[0]->unk0)
 			    ->setPauseFlag(1);
 			JASystem::DSPInterface::getDSPHandle(assign_ch[1]->unk0)
@@ -719,7 +724,8 @@ namespace StreamLib {
 			    ->flushChannel();
 			JASystem::DSPInterface::getDSPHandle(assign_ch[1]->unk0)
 			    ->flushChannel();
-		} else if (status == 0) {
+			break;
+		case 0:
 			status = DVDGetDriveStatus();
 			if (oldstat != status) {
 				JASystem::DSPInterface::getDSPHandle(assign_ch[0]->unk0)
@@ -732,6 +738,7 @@ namespace StreamLib {
 				    ->flushChannel();
 				outpause = 0;
 			}
+			break;
 		}
 
 		oldstat = DVDGetDriveStatus();
