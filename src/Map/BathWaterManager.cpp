@@ -17,7 +17,8 @@
 #include <Camera/Camera.hpp>
 #include <MarioUtil/MtxUtil.hpp>
 #include <MoveBG/MapObjCorona.hpp>
-#include <MSound/MSoundSE.hpp>
+#include <MSound/MSound.hpp>
+#include <Player/MarioAccess.hpp>
 #include <System/Resolution.hpp>
 #include <dolphin/os/OSCache.h>
 #include <math.h>
@@ -27,17 +28,7 @@
 #include <MSound/MSoundBGM.hpp>
 
 extern void OSReport(const char*, ...);
-extern JGeometry::TVec3<f32>* gpMarioPos;
-extern u32* gpMarioFlag;
-THitActor* SMS_GetMarioHitActor();
-void SMS_ThrowMario(const JGeometry::TVec3<f32>&, f32);
-f32 SMS_GetMarioGravity();
 class TScreenTexture;
-class MSound {
-public:
-	bool gateCheck(u32);
-};
-extern MSound* gpMSound;
 
 static inline void doSetEffectMtx(J3DTexMtxInfo* info, MtxPtr mtx)
 {
@@ -998,13 +989,13 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 
 			if (unk24->unk29A == 0) {
 				for (int i = 0; i < 2; ++i) {
-					if ((*gpMarioFlag & 0x400) == 0 && unk14[i]->checksMario.get()) {
+					if (!SMS_CheckMarioFlag(0x400) && unk14[i]->checksMario.get()) {
 						if (unk20[i]->tryHitMario(SMS_GetMarioHitActor()))
 							throwMario(unk14[i]->jump.get());
 					}
 				}
 
-				if ((*gpMarioFlag & 0x400) == 0) {
+				if (!SMS_CheckMarioFlag(0x400)) {
 					if (unk20[0]->tryHitMario2(SMS_GetMarioHitActor(),
 					                           unk24->getBathtubData()))
 						throwMario(unk14[0]->jump.get());
@@ -1026,7 +1017,7 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 			soundPos.set(soundWater->unk78);
 			f32 volume = soundWater->unk84;
 			if (volume > 0.0f)
-				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				SMSGetMSound()->startSoundActorWithInfo(
 				    0x819d, (Vec*)&soundPos, 0, volume, 0, 0, 0, 0, 4);
 		}
 	}
