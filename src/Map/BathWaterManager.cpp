@@ -367,10 +367,10 @@ JGeometry::TVec3<f32> TBathtubData::getGravityDir(f32 rate) const
 static inline void addDropToAverage(const TBathWater::TDrop& drop, int& count,
                                     JGeometry::TVec3<f32>& average)
 {
-	count += 1;
 	average.x += drop.unk0.x;
 	average.y += drop.unk0.y;
 	average.z += drop.unk0.z;
+	count += 1;
 }
 
 void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
