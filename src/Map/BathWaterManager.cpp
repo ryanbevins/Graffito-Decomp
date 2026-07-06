@@ -1854,8 +1854,8 @@ void TBathWaterMeshRenderer::clearHeightMap()
 	unk80050.mMtx[2][3] = 0.0f;
 	unk80050.mMtx[1][3] = 0.0f;
 	unk80050.mMtx[0][3] = 0.0f;
-	unk80050.mMtx[0][2] = 0.0f;
 	unk80050.mMtx[1][2] = 0.0f;
+	unk80050.mMtx[0][2] = 0.0f;
 	unk80050.mMtx[2][1] = 0.0f;
 	unk80050.mMtx[0][1] = 0.0f;
 	unk80050.mMtx[2][0] = 0.0f;
