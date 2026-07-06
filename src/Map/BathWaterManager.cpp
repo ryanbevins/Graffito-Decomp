@@ -1026,7 +1026,7 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (flags & 8)
-		unk30->prerender(graphics, unk24->getBathtubData(), unk20, unk14, 2);
+		unk30->render(graphics, unk24->getBathtubData(), unk20, unk14, 2);
 }
 
 void TBathWaterFlatRenderer::prerender(JDrama::TGraphics*,
