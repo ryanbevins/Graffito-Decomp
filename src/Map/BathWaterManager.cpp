@@ -1727,29 +1727,11 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 			JGeometry::TVec3<f32> pos = drop->unk0;
 			pos.y += param->modelScaleY.get() * dropRadius - modelScale;
 
-			JGeometry::SMatrix34C<f32> dropMtx;
-			dropMtx.set(
-			    unk80020.mMtx[0][0] * modelScale,
-			    unk80020.mMtx[0][1] * modelScale,
-			    unk80020.mMtx[0][2] * modelScale,
-			    unk80020.mMtx[0][3]
-			        + (unk80020.mMtx[0][0] * pos.x)
-			        + (unk80020.mMtx[0][1] * pos.y)
-			        + (unk80020.mMtx[0][2] * pos.z),
-			    unk80020.mMtx[1][0] * modelScale,
-			    unk80020.mMtx[1][1] * modelScale,
-			    unk80020.mMtx[1][2] * modelScale,
-			    unk80020.mMtx[1][3]
-			        + (unk80020.mMtx[1][0] * pos.x)
-			        + (unk80020.mMtx[1][1] * pos.y)
-			        + (unk80020.mMtx[1][2] * pos.z),
-			    unk80020.mMtx[2][0] * modelScale,
-			    unk80020.mMtx[2][1] * modelScale,
-			    unk80020.mMtx[2][2] * modelScale,
-			    unk80020.mMtx[2][3]
-			        + (unk80020.mMtx[2][0] * pos.x)
-			        + (unk80020.mMtx[2][1] * pos.y)
-			        + (unk80020.mMtx[2][2] * pos.z));
+			TPosition3f local;
+			local.set(modelScale, 0.0f, 0.0f, pos.x, 0.0f, modelScale,
+			          0.0f, pos.y, 0.0f, 0.0f, modelScale, pos.z);
+			TPosition3f dropMtx;
+			dropMtx.concat(unk80020, local);
 			GXLoadPosMtxImm(dropMtx.mMtx, GX_PNMTX0);
 
 			for (u16 shapeIndex = 0; shapeIndex < unk80144->getShapeNum();
