@@ -1159,7 +1159,7 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
 	GXClearVtxDesc();
 	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
 	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
-	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_U16, 0);
+	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_S16, 0);
 	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 	GXSetNumChans(0);
 	GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, 0,
@@ -1173,7 +1173,7 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
 	GXSetNumTevStages(1);
 	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
 	GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
-	                GX_CC_TEXC);
+	                GX_CC_C0);
 	GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
 	                GX_TRUE, GX_TEVPREV);
 	GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_TEXA, GX_CA_A0, GX_CA_KONST,
@@ -1182,7 +1182,7 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
 	                GX_TRUE, GX_TEVPREV);
 	GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
 	GXSetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_5_8);
-	GXSetTevColor(GX_TEVREG1, color);
+	GXSetTevColor(GX_TEVREG0, color);
 
 	s16 overlayWidth  = SMSGetGameRenderWidth();
 	s16 overlayHeight = SMSGetGameRenderHeight();
@@ -1205,13 +1205,13 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
 	GXSetAlphaUpdate(GX_FALSE);
 
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition2u16(0, 0);
+	GXPosition2s16(0, 0);
 	GXTexCoord2f32(0.0f, 0.0f);
-	GXPosition2u16(overlayWidth, 0);
+	GXPosition2s16(overlayWidth, 0);
 	GXTexCoord2f32(1.0f, 0.0f);
-	GXPosition2u16(overlayWidth, overlayHeight);
+	GXPosition2s16(overlayWidth, overlayHeight);
 	GXTexCoord2f32(1.0f, 1.0f);
-	GXPosition2u16(0, overlayHeight);
+	GXPosition2s16(0, overlayHeight);
 	GXTexCoord2f32(0.0f, 1.0f);
 	GXEnd();
 
