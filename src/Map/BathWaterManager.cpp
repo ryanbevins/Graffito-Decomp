@@ -611,46 +611,47 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
 	water->unk84 = volume;
 
 	if (water->unk8C->intersects.get()) {
+		f32 twoR  = 2.0f * radius;
+		f32 sep2  = 4.0f * (radius * radius);
 		for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
 			TBathWater::TDrop* other
 			    = drop + water->unk8C->intersects.get();
 			for (; other < end; other += water->unk8C->intersects.get()) {
-				JGeometry::TVec3<f32> diff(other->unk0.x - drop->unk0.x,
-				                           other->unk0.y - drop->unk0.y,
-				                           other->unk0.z - drop->unk0.z);
+				JGeometry::TVec3<f32> diff;
+				diff.sub(other->unk0, drop->unk0);
 				f32 distSq = diff.squared();
-				if (distSq > 4.0f * (radius * radius))
+				if (distSq > sep2)
 					continue;
 
-				f32 dist = JGeometry::TUtil<f32>::sqrt(distSq);
-				f32 inv  = 1.0f / dist;
-				JGeometry::TVec3<f32> normal(diff.x * inv, diff.y * inv,
-				                             diff.z * inv);
-				f32 overlap = 2.0f * radius - dist;
-				f32 half    = 0.5f * overlap;
-				f32 yMove   = half * normal.y;
+				f32 dist = diff.length();
+				JGeometry::TVec3<f32> normal;
+				normal.scale(1.0f / dist, diff);
 
-				JGeometry::TVec3<f32> push(normal.x * half,
-				                           (1.0f + normal.y) * yMove,
-				                           normal.z * half);
-				other->unk18.extend(push);
+				f32 half = (twoR - dist) / 2.0f;
 
-				push.x = -push.x;
-				push.y = (normal.y - 1.0f) * yMove;
-				push.z = -push.z;
-				drop->unk18.extend(push);
+				diff.x = normal.x * half;
+				diff.z = normal.z * half;
 
-				if (yMove < overlap)
-					yMove = overlap;
+				f32 mag = half * normal.y;
 
-				JGeometry::TVec3<f32> bounce(
-				    normal.x * yMove * water->unk8C->bounceXZ.get(),
-				    normal.y * yMove * water->unk8C->bounceY.get(),
-				    normal.z * yMove * water->unk8C->bounceXZ.get());
-				other->unk30.extend(bounce);
+				diff.set(normal.x * half, (normal.y + 1.0f) * mag,
+				         normal.z * half);
+				other->unk18.extend(diff);
 
-				bounce.negate();
-				drop->unk30.extend(bounce);
+				diff.x = -diff.x;
+				diff.z = -diff.z;
+				diff.y = (normal.y - 1.0f) * mag;
+				drop->unk18.extend(diff);
+
+				if (mag < twoR - dist)
+					mag = twoR - dist;
+
+				normal.x *= mag * water->unk8C->bounceXZ.get();
+				normal.y *= mag * water->unk8C->bounceY.get();
+				normal.z *= mag * water->unk8C->bounceXZ.get();
+				other->unk30.extend(normal);
+				normal.negate();
+				drop->unk30.extend(normal);
 			}
 		}
 	}
