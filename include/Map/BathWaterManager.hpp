@@ -99,6 +99,7 @@ public:
 	class TDrop {
 	public:
 		TDrop();
+		void reset(const JGeometry::TVec3<f32>&, f32);
 
 		void calcBathtub(const TBathtubData&, f32,
 		                  const JGeometry::TVec3<f32>&,
@@ -116,6 +117,7 @@ public:
 
 	TBathWater();
 	virtual ~TBathWater() { }
+	void initialize(TBathWaterParams*, const TBathtubData&);
 
 public:
 	/* 0x68 */ JMath::TRandomFast unk68;

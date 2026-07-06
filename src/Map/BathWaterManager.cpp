@@ -705,6 +705,19 @@ TBathWaterParams::TBathWaterParams(const char* path)
 
 TBathWater::TDrop::TDrop() { }
 
+inline void TBathWater::TDrop::reset(const JGeometry::TVec3<f32>& position,
+                                     f32 rand)
+{
+	unk48 = rand;
+	unk0.set(position);
+	unkC.zero();
+	unk18.i.zero();
+	unk18.f.zero();
+	unk30.i.zero();
+	unk30.f.zero();
+	unk4C = 0;
+}
+
 TBathWater::TBathWater()
     : THitActor("HitActor")
     , unk68(0)
@@ -712,6 +725,27 @@ TBathWater::TBathWater()
 	unk70 = 500;
 	unk88 = new TDrop[unk70];
 	unk8C = 0;
+}
+
+inline void TBathWater::initialize(TBathWaterParams* params,
+                                   const TBathtubData& data)
+{
+	unk8C = params;
+	unk74 = params->numDrops.get();
+
+	int i = 0;
+	for (TBathWater::TDrop *drop = unk88, *end = unk88 + unk70; drop < end;
+	     ++drop) {
+		drop->reset(data.getPos(i++, unk70, unk8C->dropRadius.get()),
+		            unk68.get_float01());
+	}
+
+	initHitActor(0x4000025b, 1, 0x80000000, unk8C->dropRadius.get(),
+	             unk8C->dropRadius.get() * 2.0f, 0.0f, 0.0f);
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+	onHitFlag(HIT_FLAG_UNK4);
+	unk78.set(0.0f, 0.0f, 0.0f);
+	unk84 = 0.0f;
 }
 
 TBathWaterPreprocessor::TBathWaterPreprocessor(TBathWaterManager* manager)
@@ -758,24 +792,8 @@ void TBathWaterManager::initializeIfYet_()
 
 	const TBathtubData& data = bathData(bathtub);
 	for (int i = 0; i < 2; ++i) {
-		TBathWater* water       = unk20[i];
-		TBathWaterParams* params = unk14[i];
-		water->unk8C            = params;
-		water->unk74            = params->numDrops.get();
-
-		for (int j = 0; j < water->unk70; ++j) {
-			initDrop(water->unk88[j],
-			         data.getPos(j, water->unk70, params->dropRadius.get()),
-			         water->unk68.get_float01());
-		}
-
-		water->initHitActor(0x4000025b, 1, 0x80000000,
-		                    params->dropRadius.get(),
-		                    params->dropRadius.get() * 2.0f, 0.0f, 0.0f);
-		water->unk64 |= 1;
-		water->unk64 |= 4;
-		water->unk78.zero();
-		water->unk84 = 0.0f;
+		TBathWater* water = unk20[i];
+		water->initialize(unk14[i], data);
 
 		for (int step = 0; step < 200; ++step)
 			simulateBathWater(*water, data);
