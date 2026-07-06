@@ -16,6 +16,7 @@
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <Camera/Camera.hpp>
 #include <MarioUtil/MtxUtil.hpp>
+#include <MarioUtil/ScreenUtil.hpp>
 #include <MoveBG/MapObjCorona.hpp>
 #include <MSound/MSound.hpp>
 #include <Player/MarioAccess.hpp>
@@ -28,16 +29,10 @@
 #include <MSound/MSoundBGM.hpp>
 
 extern void OSReport(const char*, ...);
-class TScreenTexture;
 
 static inline void doSetEffectMtx(J3DTexMtxInfo* info, MtxPtr mtx)
 {
 	info->setEffectMtx(mtx);
-}
-
-static inline JUTTexture* screenTexture(TScreenTexture* texture)
-{
-	return *(JUTTexture**)((u8*)texture + 0x10);
 }
 
 const char* TBathWaterManager::fileNames[] = {
@@ -839,24 +834,21 @@ TBathWaterManager::TBathWaterManager()
 
 void TBathWaterManager::initializeIfYet_()
 {
-	if (unk24 != 0)
-		return;
+	if (unk24 == 0) {
+		TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>(
+		    "\x83\x6F\x83\x58\x83\x5E\x83\x75");
+		if (bathtub != 0 && bathtub->unk298 != 0) {
+			const TBathtubData& data = bathData(bathtub);
+			for (int i = 0; i < 2; ++i) {
+				unk20[i]->initialize(unk14[i], data);
 
-	TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>(
-	    "\x83\x6F\x83\x58\x83\x5E\x83\x75");
-	if (bathtub == 0 || bathtub->unk298 == 0)
-		return;
+				for (int step = 0; step < 200; ++step)
+					TBathWater::TDrop::calcWaterModel(unk20[i], data);
+			}
 
-	const TBathtubData& data = bathData(bathtub);
-	for (int i = 0; i < 2; ++i) {
-		TBathWater* water = unk20[i];
-		water->initialize(unk14[i], data);
-
-		for (int step = 0; step < 200; ++step)
-			TBathWater::TDrop::calcWaterModel(water, data);
+			unk24 = bathtub;
+		}
 	}
-
-	unk24 = bathtub;
 }
 
 void TBathWaterManager::throwMario(f32 jump)
@@ -964,11 +956,10 @@ inline TBathWaterFlatRenderer::TBathWaterFlatRenderer(
 
 void TBathWaterManager::loadAfter()
 {
-	TScreenTexture* screen = (TScreenTexture*)JDrama::TNameRefGen::search<
-	    JDrama::TNameRef>(
+	TScreenTexture* screen = JDrama::TNameRefGen::search<TScreenTexture>(
 	    "\x83\x58\x83\x4E\x83\x8A\x81\x5B\x83\x93\x83\x65\x83\x4E\x83\x58\x83\x60\x83\x83");
 	unk28[0] = new TBathWaterFlatRenderer(unk18);
-	unk28[1] = new TBathWaterMeshRenderer(unk18, screenTexture(screen));
+	unk28[1] = new TBathWaterMeshRenderer(unk18, screen->getTexture());
 	unk30    = unk28[1];
 }
 
