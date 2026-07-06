@@ -1099,8 +1099,7 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
 		if (!params[i]->isVisible.get())
 			continue;
 
-		TBathWater* water = waters[i];
-		f32 scale         = params[i]->dropRadius.get() * params[i]->texScale.get();
+		f32 scale         = params[i]->texScale.get() * params[i]->dropRadius.get();
 		f32 x0            = xAxisX * scale;
 		f32 y0            = xAxisY * scale;
 		f32 z0            = xAxisZ * scale;
@@ -1108,9 +1107,9 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
 		f32 y1            = yAxisY * scale;
 		f32 z1            = yAxisZ * scale;
 
-		GXBegin(GX_QUADS, GX_VTXFMT0, (water->unk74 * 4) & 0xfffc);
-		for (TBathWater::TDrop* drop = water->unk88;
-		     drop < water->unk88 + water->unk74; ++drop) {
+		GXBegin(GX_QUADS, GX_VTXFMT0, (waters[i]->unk74 * 4) & 0xfffc);
+		for (TBathWater::TDrop* drop = waters[i]->unk88;
+		     drop < waters[i]->unk88 + waters[i]->unk74; ++drop) {
 			f32 x = drop->unk0.x;
 			f32 y = drop->unk0.y;
 			f32 z = drop->unk0.z;
