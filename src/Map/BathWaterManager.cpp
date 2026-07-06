@@ -577,51 +577,53 @@ inline bool TBathWater::tryHitMario2(THitActor* mario,
 	return true;
 }
 
-static inline void simulateBathWater(TBathWater& water, const TBathtubData& data)
+inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
+                                              const TBathtubData& data)
 {
-	TBathWaterParams* params = water.unk8C;
+	TBathWaterParams* params = water->unk8C;
 	f32 gravity             = params->gravity.get();
 	JGeometry::TVec3<f32> gravityDir
 	    = data.getGravityDir(params->overGravity.get());
 	JGeometry::TVec3<f32> gravityForce(gravityDir.x * -gravity,
 	                                   gravityDir.y * -gravity,
 	                                   gravityDir.z * -gravity);
-	JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
+	JGeometry::TVec3<f32> downGravity(0.0f, -gravity, 0.0f);
 	f32 radius = params->dropRadius.get();
 	int active = 0;
 	JGeometry::TVec3<f32> average(0.0f, 0.0f, 0.0f);
 
-	TBathWater::TDrop* end = water.unk88 + water.unk74;
+	TBathWater::TDrop* end = water->unk88 + water->unk74;
 	if (data.unk24.y > 0.0f) {
-		for (TBathWater::TDrop* drop = water.unk88; drop < end; ++drop) {
+		for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
 			drop->unk0 += drop->unkC;
 			clearDropForces(*drop);
-			drop->calcBathtub(data, radius, gravityForce, zero, active, average);
+			drop->calcBathtub(data, radius, gravityForce, downGravity, active,
+			                   average);
 		}
 	} else {
-		for (TBathWater::TDrop* drop = water.unk88; drop < end; ++drop) {
+		for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
 			drop->unk0 += drop->unkC;
 			clearDropForces(*drop);
-			drop->unk30.extend(zero);
+			drop->unk30.extend(downGravity);
 			addDropToAverage(*drop, active, average);
 		}
 	}
 
-	water.unk84 = 0.0f;
-	if (active * 30 > water.unk74) {
+	water->unk84 = 0.0f;
+	if (active * 30 > water->unk74) {
 		f32 inv = 1.0f / (f32)active;
 		average.scale(inv);
 		f32 volume = JGeometry::TUtil<f32>::sqrt(
-		    (3.0f * (f32)active) / (f32)water.unk74);
+		    (3.0f * (f32)active) / (f32)water->unk74);
 		if (volume > 1.0f)
 			volume = 1.0f;
-		water.unk84 = volume;
+		water->unk84 = volume;
 	}
-	water.unk78 = average;
+	water->unk78 = average;
 
 	u8 stride = params->intersects.get();
 	if (stride != 0) {
-		for (TBathWater::TDrop* drop = water.unk88; drop < end; ++drop) {
+		for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
 			TBathWater::TDrop* other = drop + stride;
 			for (; other < end; other += stride) {
 				JGeometry::TVec3<f32> diff(other->unk0.x - drop->unk0.x,
@@ -669,41 +671,38 @@ static inline void simulateBathWater(TBathWater& water, const TBathtubData& data
 		floorY = -((8.0f * data.unk3C) - data.unk0.y);
 
 	int respawnIndex = 0;
-	for (int i = 0; i < water.unk74; ++i) {
-		TBathWater::TDrop& drop = water.unk88[i];
-		if (drop.unk0.y < floorY) {
+	for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
+		if (drop->unk0.y < floorY) {
 			if (params->suppliesDrops.get() && data.unk65 == 0) {
-				initDrop(drop, data.getPos(respawnIndex, water.unk70, radius),
-				         water.unk68.get_float01());
+				drop->reset(data.getPos(respawnIndex, water->unk70, radius),
+				            water->unk68.get_float01());
 				respawnIndex += 1;
-			} else if (water.eraseDrop(&drop)) {
-				end = water.unk88 + water.unk74;
-				drop.doThing(params->damp.get());
+			} else if (water->eraseDrop(drop)) {
+				end -= 1;
+				drop->doThing(params->damp.get());
 			}
 		} else {
-			drop.doThing(params->damp.get());
+			drop->doThing(params->damp.get());
 		}
 	}
 
 	if (params->lifeTime.get() > 0) {
-		for (int i = 0; i < water.unk74; ++i) {
-			TBathWater::TDrop& drop = water.unk88[i];
-			drop.unk4C += 1;
-			if (drop.unk4C > params->lifeTime.get()) {
-				water.eraseDrop(&drop);
-				end = water.unk88 + water.unk74;
-			}
+		for (TBathWater::TDrop* drop = water->unk88; drop < end;
+		     --end, ++drop) {
+			drop->unk4C += 1;
+			if (drop->unk4C > params->lifeTime.get())
+				water->eraseDrop(drop);
 		}
 	}
 
-	if (water.unk74 < params->numDrops.get()) {
+	if (water->unk74 < params->numDrops.get()) {
 		if (params->suppliesDrops.get() && data.unk65 == 0) {
-			TBathWater::TDrop& drop = water.unk88[water.unk74++];
-			initDrop(drop, data.getPos(respawnIndex, water.unk70, radius),
-			         water.unk68.get_float01());
+			water->unk88[water->unk74++].reset(
+			    data.getPos(respawnIndex, water->unk70, radius),
+			    water->unk68.get_float01());
 		}
-	} else if (water.unk74 > params->numDrops.get()) {
-		water.unk74 = params->numDrops.get();
+	} else if (water->unk74 > params->numDrops.get()) {
+		water->unk74 = params->numDrops.get();
 	}
 }
 
@@ -859,7 +858,7 @@ void TBathWaterManager::initializeIfYet_()
 		water->initialize(unk14[i], data);
 
 		for (int step = 0; step < 200; ++step)
-			simulateBathWater(*water, data);
+			TBathWater::TDrop::calcWaterModel(water, data);
 	}
 
 	unk24 = bathtub;
@@ -959,7 +958,7 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 		if ((unk1C & 3) == 0) {
 			const TBathtubData& data = bathData(unk24);
 			for (int i = 0; i < 2; ++i)
-				simulateBathWater(*unk20[i], data);
+				TBathWater::TDrop::calcWaterModel(unk20[i], data);
 
 			if (rawU8(unk24, 0x29a) == 0) {
 				for (int i = 0; i < 2; ++i) {

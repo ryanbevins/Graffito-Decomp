@@ -106,6 +106,7 @@ public:
 		                  const JGeometry::TVec3<f32>&,
 		                  const JGeometry::TVec3<f32>&, int&,
 		                  JGeometry::TVec3<f32>&);
+		static void calcWaterModel(TBathWater*, const TBathtubData&);
 
 	public:
 		/* 0x00 */ JGeometry::TVec3<f32> unk0;
