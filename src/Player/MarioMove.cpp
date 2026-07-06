@@ -1,5 +1,7 @@
 #define MSOUND_EMIT_START_FORCE_JUMP_SOUND
+#define JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
 #include <Player/MarioMain.hpp>
+#undef JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
 #include <Player/YoshiInline.hpp>
 
 #include <Map/Map.hpp>
