@@ -864,9 +864,9 @@ void TBathWaterManager::throwMario(f32 jump)
 {
 	TBathtub* bathtub         = unk24;
 	const TBathtubData& data  = bathData(bathtub);
-	JGeometry::TVec3<f32> diff(gpMarioPos->x - data.unk0.x,
-	                           gpMarioPos->y - data.unk0.y,
-	                           gpMarioPos->z - data.unk0.z);
+	JGeometry::TVec3<f32> diff;
+	diff.sub(SMS_GetMarioPos(), data.unk0);
+
 	JGeometry::TVec3<f32> local(
 	    data.unk18.x * diff.x + data.unk18.y * diff.y
 	        + data.unk18.z * diff.z,
@@ -875,24 +875,19 @@ void TBathWaterManager::throwMario(f32 jump)
 	    data.unk30.x * diff.x + data.unk30.y * diff.y
 	        + data.unk30.z * diff.z);
 
-	local.y = 0.0f;
-	f32 dist = JGeometry::TUtil<f32>::sqrt(local.squared());
+	JGeometry::TVec3<f32> horiz = local;
+	horiz.y                     = 0.0f;
 
 	JGeometry::TVec3<f32> throwSpeed;
-	if (dist < 4500.0) {
-		if (local.squared() <= JGeometry::TUtil<f32>::epsilon()) {
-			local.zero();
-		} else {
-			local.scale(4150.0f * JGeometry::TUtil<f32>::inv_sqrt(
-			                         local.squared()));
-		}
+	if (horiz.length() < 4500.0) {
+		horiz.setLength(4150.0f);
 
-		f32 targetX = data.unk0.x + data.unk18.x * local.x
-		              + data.unk30.x * local.z;
-		f32 targetY = data.unk0.y + data.unk18.y * local.x
-		              + data.unk30.y * local.z + 120.0f;
-		f32 targetZ = data.unk0.z + data.unk18.z * local.x
-		              + data.unk30.z * local.z;
+		JGeometry::TVec3<f32> target(
+		    data.unk18.x * horiz.x + data.unk30.x * horiz.z,
+		    data.unk18.y * horiz.x + data.unk30.y * horiz.z,
+		    data.unk18.z * horiz.x + data.unk30.z * horiz.z);
+		target.add(data.unk0);
+		target.y += 120.0f;
 
 		f32 gravity = SMS_GetMarioGravity();
 		int frames  = 1;
@@ -900,7 +895,7 @@ void TBathWaterManager::throwMario(f32 jump)
 		f32 y       = gpMarioPos->y;
 		while (true) {
 			y += velY;
-			if (velY < 0.0f && y <= targetY)
+			if (velY < 0.0f && y <= target.y)
 				break;
 			velY -= gravity;
 			if (velY < -75.0f)
@@ -908,16 +903,16 @@ void TBathWaterManager::throwMario(f32 jump)
 			frames += 1;
 		}
 
-		throwSpeed.x = (targetX - gpMarioPos->x) / (f32)frames;
+		throwSpeed.x = (target.x - gpMarioPos->x) / (f32)frames;
 		throwSpeed.y = 100.0f;
-		throwSpeed.z = (targetZ - gpMarioPos->z) / (f32)frames;
+		throwSpeed.z = (target.z - gpMarioPos->z) / (f32)frames;
 	} else {
 		throwSpeed.x = 0.0f;
 		throwSpeed.y = jump;
 		throwSpeed.z = 0.0f;
 	}
 
-	SMS_ThrowMario(throwSpeed, JGeometry::TUtil<f32>::sqrt(throwSpeed.squared()));
+	SMS_ThrowMario(throwSpeed, throwSpeed.length());
 }
 
 static inline bool fakeCalcPos(const TBathtubData& data, f32 radius, f32 rand,
