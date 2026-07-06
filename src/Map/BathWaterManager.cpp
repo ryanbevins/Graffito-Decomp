@@ -494,6 +494,16 @@ static inline void initDrop(TBathWater::TDrop& drop,
 	drop.unk4C = 0;
 }
 
+inline void TBathWater::addDrop(const JGeometry::TVec3<f32>& position, f32 velY)
+{
+	if (unk74 < unk8C->numDrops.get()) {
+		unk88[unk74].reset(position, unk68.get_float01());
+		unk88[unk74].unkC.y = velY;
+
+		OSReport("BathWaterManager.cpp(%d): ...\n", 0x28f, unk74++, 0.0f);
+	}
+}
+
 inline void TBathWater::TDrop::doThing(f32 damp)
 {
 	unk0 += unk18.i;
@@ -552,8 +562,7 @@ inline bool TBathWater::tryHitMario2(THitActor* mario,
 	f32 marioY       = mario->mPosition.y;
 	f32 marioZ       = mario->mPosition.z;
 	f32 marioHeight  = mario->mDamageHeight;
-	JGeometry::TVec3<f32> center(data.unk0.x, data.unk0.y - data.unk44,
-	                             data.unk0.z);
+	JGeometry::TVec3<f32> center = data.getThing();
 	f32 radius = JGeometry::TUtil<f32>::sqrt(data.unk3C * data.unk3C
 	                                         - data.unk44 * data.unk44);
 
@@ -570,7 +579,7 @@ inline bool TBathWater::tryHitMario2(THitActor* mario,
 		return false;
 
 	setAttackRadius(radius);
-	mPosition.set(center);
+	mPosition.set(data.getThing());
 	mPosition.y -= waterDepth;
 	setAttackHeight(waterDepth);
 	mario->receiveMessage(this, HIT_MESSAGE_UNKA);
@@ -924,6 +933,34 @@ void TBathWaterManager::throwMario(f32 jump)
 	SMS_ThrowMario(throwSpeed, JGeometry::TUtil<f32>::sqrt(throwSpeed.squared()));
 }
 
+static inline bool fakeCalcPos(const TBathtubData& data, f32 radius, f32 rand,
+                               JGeometry::TVec3<f32>* out)
+{
+	JGeometry::TVec3<f32> axis(data.unk24.x, 0.0f, data.unk24.z);
+	if (axis.isZero())
+		return false;
+
+	JGeometry::TVec3<f32> dir;
+	dir.normalize(axis);
+
+	JGeometry::TVec3<f32> cross;
+	cross.cross(dir, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
+	cross.normalize();
+
+	f32 perturb = 0.18f * rand;
+	dir.x += cross.x * perturb;
+	dir.y += cross.y * perturb;
+	dir.z += cross.z * perturb;
+
+	dir.setLength(0.9f * (data.unk3C - radius));
+
+	JGeometry::TVec3<f32> center;
+	center.set(data.getThing());
+	out->set(dir.x + center.x, radius + dir.y + center.y,
+	         dir.z + center.z);
+	return true;
+}
+
 void TBathWaterManager::load(JSUMemoryInputStream& stream)
 {
 	JDrama::TViewObj::load(stream);
@@ -977,33 +1014,12 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 		}
 
 		if ((unk1C & 7) == 4 && rawU8(unk24, 0x1d4) != 0) {
-			TBathWater* overflow = unk20[1];
-			if (overflow->unk74 < overflow->unk8C->numDrops.get()) {
-				const TBathtubData& data = bathData(unk24);
-				JGeometry::TVec3<f32> dir(data.unk24.x, 0.0f, data.unk24.z);
-				if (!dir.isZero()) {
-					dir.normalize();
-					JGeometry::TVec3<f32> side;
-					side.cross(dir, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
-					side.normalize();
-					side.scale(0.18f
-					           * unk10.get_float(-1.0f, 1.0f));
-					dir += side;
-					dir.setLength(0.9f
-					              * (data.unk3C
-					                 - overflow->unk8C->dropRadius.get()));
-					JGeometry::TVec3<f32> pos(data.unk0.x + dir.x,
-					                           data.unk0.y - data.unk44
-					                               + overflow->unk8C->dropRadius.get()
-					                               + dir.y,
-					                           data.unk0.z + dir.z);
-					TBathWater::TDrop& drop = overflow->unk88[overflow->unk74];
-					initDrop(drop, pos, overflow->unk68.get_float01());
-					drop.unkC.y = 10.0f * (unk10.get_float01() - 1.0f);
-					OSReport("BathWaterManager.cpp(%d): ...\n", 0x28f,
-					         overflow->unk74, 0.0f);
-					overflow->unk74 += 1;
-				}
+			TBathWater* overflow     = unk20[1];
+			const TBathtubData& data = bathData(unk24);
+			JGeometry::TVec3<f32> pos;
+			if (fakeCalcPos(data, unk14[1]->dropRadius.get(),
+			                unk10.get_float(-1.0f, 1.0f), &pos)) {
+				overflow->addDrop(pos, 10.0f * (unk10.get_float01() - 1.0f));
 			}
 		}
 

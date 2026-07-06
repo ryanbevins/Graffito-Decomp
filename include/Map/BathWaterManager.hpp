@@ -16,6 +16,10 @@ class TBathtubData {
 public:
 	JGeometry::TVec3<f32> getGravityDir(f32) const;
 	JGeometry::TVec3<f32> getPos(int, int, f32) const;
+	JGeometry::TVec3<f32> getThing() const
+	{
+		return JGeometry::TVec3<f32>(unk0.x, unk0.y - unk44, unk0.z);
+	}
 
 public:
 	/* 0x00 */ JGeometry::TVec3<f32> unk0;
@@ -120,6 +124,7 @@ public:
 	TBathWater();
 	virtual ~TBathWater() { }
 	void initialize(TBathWaterParams*, const TBathtubData&);
+	void addDrop(const JGeometry::TVec3<f32>&, f32);
 	bool eraseDrop(TDrop*);
 	bool tryHitMario(THitActor*);
 	bool tryHitMario2(THitActor*, const TBathtubData&);
