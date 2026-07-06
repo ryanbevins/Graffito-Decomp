@@ -1173,9 +1173,8 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
 
 	s16 overlayWidth  = SMSGetGameRenderWidth();
 	s16 overlayHeight = SMSGetGameRenderHeight();
-	JGeometry::SMatrix34C<f32> matrix;
-	matrix.set(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-	           1.0f, 0.0f);
+	TPosition3f matrix;
+	matrix.identity();
 	Mtx44 projection;
 	C_MTXOrtho(projection, 0.0f, (f32)overlayHeight, 0.0f, (f32)overlayWidth,
 	           -1.0f, 1.0f);
