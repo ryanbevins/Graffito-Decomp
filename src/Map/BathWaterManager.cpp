@@ -807,7 +807,7 @@ inline void TBathWater::initialize(TBathWaterParams* params,
 }
 
 inline TBathWaterPreprocessor::TBathWaterPreprocessor(TBathWaterManager* manager)
-    : JDrama::TViewObj("<TViewObj>")
+    : JDrama::TViewObj()
     , unk10(manager)
 {
 }
