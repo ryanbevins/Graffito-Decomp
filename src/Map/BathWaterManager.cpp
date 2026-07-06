@@ -967,10 +967,9 @@ void TBathWaterManager::loadAfter()
 	TScreenTexture* screen = (TScreenTexture*)JDrama::TNameRefGen::search<
 	    JDrama::TNameRef>(
 	    "\x83\x58\x83\x4E\x83\x8A\x81\x5B\x83\x93\x83\x65\x83\x4E\x83\x58\x83\x60\x83\x83");
-	JUTTexture* texture = screenTexture(screen);
-	unk28[0]            = new TBathWaterFlatRenderer(unk18);
-	unk28[1]            = new TBathWaterMeshRenderer(unk18, texture);
-	unk30               = unk28[1];
+	unk28[0] = new TBathWaterFlatRenderer(unk18);
+	unk28[1] = new TBathWaterMeshRenderer(unk18, screenTexture(screen));
+	unk30    = unk28[1];
 }
 
 void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
