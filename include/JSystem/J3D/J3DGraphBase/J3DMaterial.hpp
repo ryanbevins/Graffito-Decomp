@@ -2,7 +2,7 @@
 #define J3D_MATERIAL_HPP
 
 #include <types.h>
-#include <JSystem/J3d/J3DGraphBase/Blocks/J3DTevBlocks.hpp>
+#include <JSystem/J3D/J3DGraphBase/Blocks/J3DTevBlocks.hpp>
 #include <JSystem/J3D/J3DGraphBase/Blocks/J3DTexGenBlocks.hpp>
 
 class J3DMaterialAnm;
