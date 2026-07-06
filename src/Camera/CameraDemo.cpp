@@ -1,11 +1,13 @@
 #include <Camera/Camera.hpp>
 #include <Camera/CameraBck.hpp>
-#include <Camera/CameraMapTool.hpp>
-#include <Camera/cameralib.hpp>
-#include <Camera/CameraMarioData.hpp>
 #include <Camera/CameraInbetween.hpp>
+#include <Camera/CameraMapTool.hpp>
+#include <Camera/CameraMarioData.hpp>
+#include <Camera/camerasave.hpp>
+#include <Camera/cameralib.hpp>
 #include <JSystem/JDrama/JDRActor.hpp>
 #include <JSystem/JDrama/JDRNameRef.hpp>
+#include <JSystem/JGeometry.hpp>
 #include <JSystem/JMath.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
@@ -20,358 +22,291 @@ extern const char* cCameraBckNameGate;
 
 template <> s16 CLBRoundf<s16>(f32);
 
-bool CPolarSubCamera::isNormalDeadDemo() const
+#define mCurrentTarget (*(CPolarSubCamera::TCameraTargetState*)&unk80)
+#define mInbetween unk6C
+#define mPosFreezeFrames unk78
+#define mDeadDemoCountdown (*(u16*)((u8*)this + 0x27C))
+#define mDeadDemoCountdownToFovZoom (*(u16*)((u8*)this + 0x27E))
+#define mDeadDemoFovZoomTimer (*(u16*)((u8*)this + 0x280))
+
+inline bool CPolarSubCamera::startReproduceDemoCamera_(
+    const char* name, const JGeometry::TVec3<f32>* offset)
 {
-	bool result = false;
-	u16 flags   = *(u16*)((u8*)this + 0x64);
-	if ((flags & 0x400) && !(flags & 0x800))
-		result = true;
-	return result;
+	bool started = false;
+	if (unk2B0->isFileExist(name)) {
+		unk2B0->startDemo(name, offset);
+		mCameraDemo->setLengthFrames(unk2B0->getTotalDemoFrames());
+		changeCamModeSpecifyFrame_(CAMERA_MODE_REPRODUCE_DEMO, 1);
+		mNear   = mSaveEx->mSLReproduceDemoNearClip.get();
+		started = true;
+	}
+	return started;
 }
 
-bool CPolarSubCamera::isHellDeadDemo() const
+inline void CPolarSubCamera::restartReproduceDemoCamera_() { }
+
+inline void CPolarSubCamera::endReproduceDemoCamera_()
 {
-	bool result = false;
-	u16 flags   = *(u16*)((u8*)this + 0x64);
-	if ((flags & 0x400) && (flags & 0x800))
-		result = true;
-	return result;
-}
-
-void CPolarSubCamera::execDeadDemoProc_()
-{
-	u16 timer = *(u16*)((u8*)this + 0x27C);
-	if (timer != 0) {
-		*(u16*)((u8*)this + 0x27C) = timer - 1;
-		if (*(u16*)((u8*)this + 0x27C) != 0)
-			return;
-		*(u16*)((u8*)this + 0x64) |= 0x400;
-		*(u32*)((u8*)this + 0x78) = 1;
-		if (!(*(u16*)((u8*)this + 0x64) & 0x800))
-			*(u16*)((u8*)this + 0x27E) = 1;
-		return;
-	}
-
-	if (!SMS_CheckMarioFlag(0x400))
-		return;
-
-	bool shouldReturn  = true;
-	TMarDirector* director = gpMarDirector;
-	bool firstMatches      = true;
-	u8 state               = director->unk124;
-	if (state != 1 && state != 2)
-		firstMatches = false;
-	if (!firstMatches) {
-		bool secondMatches = director->checkUnk124Thing2();
-		if (!secondMatches)
-			shouldReturn = false;
-	}
-	if (shouldReturn)
-		return;
-	*(u16*)((u8*)this + 0x27C) = 0x10;
-}
-
-void CPolarSubCamera::ctrlNormalDeadDemo_()
-{
-	{
-		const TCameraMarioData* cam = gpCameraMario;
-		unk8C.x                     = cam->mPosX;
-		unk8C.y                     = cam->mPosY;
-		unk8C.z                     = cam->mPosZ;
-	}
-	((TCameraInbetween*)*(void**)((u8*)this + 0x6C))
-	    ->execCameraInbetween(
-	        *(const JGeometry::TVec3<f32>*)((u8*)this + 0x10),
-	        unk8C, *gpMarioPos);
-
-	TCameraInbetween* inb
-	    = (TCameraInbetween*)*(void**)((u8*)this + 0x6C);
-	CLBChaseDecrease((f32*)((u8*)this + 0x3C), inb->mTargetAt.x, 0.03f, 0.0f);
-	CLBChaseDecrease((f32*)((u8*)this + 0x40), inb->mTargetAt.y, 0.03f, 0.0f);
-	CLBChaseDecrease((f32*)((u8*)this + 0x44), inb->mTargetAt.z, 0.03f, 0.0f);
-
-	bool flagSet = false;
-	if (gpMarioOriginal->mState & 0x1000)
-		flagSet = true;
-	if (flagSet)
-		return;
-
-	u16 t1 = *(u16*)((u8*)this + 0x27E);
-	if (t1 != 0) {
-		*(u16*)((u8*)this + 0x27E) = t1 - 1;
-		if (*(u16*)((u8*)this + 0x27E) != 0)
-			return;
-		*(u16*)((u8*)this + 0x280) = 0x157;
-		return;
-	}
-
-	u16 t2 = *(u16*)((u8*)this + 0x280);
-	if (t2 == 0)
-		return;
-
-	*(u16*)((u8*)this + 0x280) = t2 - 1;
-
-	Vec diff;
-	diff.x = *(f32*)((u8*)this + 0x3C) - *(f32*)((u8*)this + 0x10);
-	diff.y = *(f32*)((u8*)this + 0x40) - *(f32*)((u8*)this + 0x14);
-	diff.z = *(f32*)((u8*)this + 0x44) - *(f32*)((u8*)this + 0x18);
-	f32 mag2 = MsVECMag2(&diff);
-	if (mag2 > 0.001f) {
-		f32 v = 10500.0f * (1.0f / mag2);
-		if (v > 80.0f)
-			v = 80.0f;
-		else if (v < 5.0f)
-			v = 5.0f;
-		CLBChaseConstantSpecifyFrame<f32>(
-		    (f32*)((u8*)this + 0x48), v,
-		    (f32)*(u16*)((u8*)this + 0x280));
+	if (mMode == CAMERA_MODE_REPRODUCE_DEMO) {
+		unk2B0->endDemo();
+		mCameraDemo->setLengthFrames(0);
+		changeCamModeSpecifyFrame_(-1, 1);
+		unk120->onNeutralMarioKey();
 	}
 }
 
-int CPolarSubCamera::getRestDemoFrames() const
+inline void CPolarSubCamera::endSimpleDemoCamera_()
 {
-	return *(int*)((u8*)*(void**)((u8*)this + 0x2B4) + 0x14);
-}
-
-bool CPolarSubCamera::isSimpleDemoCamera() const
-{
-	bool result = false;
-	if (!isOnGoingDemoCamera()) {
-		void* save       = *(void**)((u8*)this + 0x2B4);
-		s32 currentFrame = *(s32*)((u8*)save + 0x14);
-		if (currentFrame > 0 || (*(u8*)((u8*)save + 0xC) & 1))
-			result = true;
-	}
-	return result;
-}
-
-void CPolarSubCamera::endDemoCamera()
-{
-	if (isOnGoingDemoCamera()) {
-		if (mMode == 0x49) {
-			((TCameraBck*)*(void**)((u8*)this + 0x2B0))->endDemo();
-			void* save                = *(void**)((u8*)this + 0x2B4);
-			*(int*)((u8*)save + 0x10) = 0;
-			*(int*)((u8*)save + 0x14) = 0;
-			changeCamModeSpecifyFrame_(-1, 1);
-			((TMarioGamePad*)*(void**)((u8*)this + 0x120))
-			    ->onNeutralMarioKey();
-		}
-	} else if (isSimpleDemoCamera()) {
-		if (isSimpleDemoCamera()) {
-			void* save                = *(void**)((u8*)this + 0x2B4);
-			*(int*)((u8*)save + 0x10) = 0;
-			*(int*)((u8*)save + 0x14) = 0;
-			void* save2               = *(void**)((u8*)this + 0x2B4);
-			*(u8*)((u8*)save2 + 0xC) &= ~1;
-			((TMarioGamePad*)*(void**)((u8*)this + 0x120))
-			    ->onNeutralMarioKey();
-		}
-	}
-	*(u32*)((u8*)*(void**)((u8*)this + 0x2B4) + 0x0) = 0;
-}
-
-void CPolarSubCamera::startDemoCamera(const char* name,
-                                       const JGeometry::TVec3<f32>* offset,
-                                       s32 mode, f32 strength, bool flag)
-{
-	void* save = *(void**)((u8*)this + 0x2B4);
-	*(const JGeometry::TVec3<f32>**)((u8*)save + 0x0) = offset;
-	*(f32*)((u8*)*(void**)((u8*)this + 0x2B4) + 0x4) = strength;
-
-	if (name == nullptr)
-		return;
-
-	bool didStart = false;
-	if (((TCameraBck*)*(void**)((u8*)this + 0x2B0))->isFileExist(name)) {
-		((TCameraBck*)*(void**)((u8*)this + 0x2B0))
-		    ->startDemo(name, offset);
-		s32 total
-		    = ((TCameraBck*)*(void**)((u8*)this + 0x2B0))->getTotalDemoFrames();
-		void* s2                = *(void**)((u8*)this + 0x2B4);
-		*(s32*)((u8*)s2 + 0x10) = total;
-		*(s32*)((u8*)s2 + 0x14) = total;
-		changeCamModeSpecifyFrame_(0x49, 1);
-		mNear = *(f32*)((u8*)*(void**)((u8*)this + 0x2D4) + 0x158);
-		didStart = true;
-	}
-
-	if (didStart)
-		return;
-
-	bool isDemo = isOnGoingDemoCamera();
-	if (isDemo)
-		return;
-
-	u16 keyCode          = JDrama::TNameRef::calcKeyCode(name);
-	TCameraMapTool* tool = (TCameraMapTool*)gpCamMapToolTable->searchF(
-	    keyCode, name);
-	if (tool == nullptr)
-		return;
-
-	if (!flag) {
-		void* s3                = *(void**)((u8*)this + 0x2B4);
-		*(s32*)((u8*)s3 + 0x10) = -1;
-		*(s32*)((u8*)s3 + 0x14) = -1;
-		void* s4                = *(void**)((u8*)this + 0x2B4);
-		*(u8*)((u8*)s4 + 0xC) |= 1;
-	} else if (mode == -1) {
-		s32 frames              = tool->unk2C;
-		void* s5                = *(void**)((u8*)this + 0x2B4);
-		*(s32*)((u8*)s5 + 0x10) = frames;
-		*(s32*)((u8*)s5 + 0x14) = frames;
-	} else {
-		void* s6                = *(void**)((u8*)this + 0x2B4);
-		*(s32*)((u8*)s6 + 0x10) = mode;
-		*(s32*)((u8*)s6 + 0x14) = mode;
-	}
-
-	changeCamModeSpecifyCamMapTool_(tool);
-}
-
-void CPolarSubCamera::startGateDemoCamera(const JDrama::TActor* actor)
-{
-	char buf[128];
-	snprintf(buf, 128, "%s\x91\x4F\x83\x4A\x83\x81\x83\x89",
-	         actor->getName());
-	u16 keyCode          = JDrama::TNameRef::calcKeyCode(buf);
-	TCameraMapTool* tool = (TCameraMapTool*)gpCamMapToolTable->searchF(
-	    keyCode, buf);
-	if (tool != nullptr) {
-		void* s1 = *(void**)((u8*)this + 0x2B4);
-		*(u8*)((u8*)s1 + 0xC) |= 1;
-		changeCamModeSpecifyCamMapToolAndFrame_(tool, 0x3C);
-		*(u16*)((u8*)this + 0x64) |= 0x200;
-		((TCameraBck*)*(void**)((u8*)this + 0x2B0))
-		    ->startDemo(cCameraBckNameGate, nullptr);
-		s32 total
-		    = ((TCameraBck*)*(void**)((u8*)this + 0x2B0))->getTotalDemoFrames();
-		void* s2                = *(void**)((u8*)this + 0x2B4);
-		*(s32*)((u8*)s2 + 0x10) = total;
-		*(s32*)((u8*)s2 + 0x14) = total;
-	}
-
-	snprintf(buf, 128, "%s\x83\x4A\x83\x81\x83\x89",
-	         actor->getName());
-	u16 keyCode2 = JDrama::TNameRef::calcKeyCode(buf);
-	TCameraMapTool* tool2
-	    = (TCameraMapTool*)gpCamMapToolTable->searchF(keyCode2, buf);
-	if (tool2 != nullptr) {
-		void* s3 = *(void**)((u8*)this + 0x2B4);
-		*(TCameraMapTool**)((u8*)s3 + 0x8) = tool2;
-	}
-}
-
-void CPolarSubCamera::updateGateDemoCamera_()
-{
-	f32 fov;
-	((TCameraBck*)*(void**)((u8*)this + 0x2B0))
-	    ->updateDemo(nullptr, nullptr, nullptr, &fov);
-
-	void* save               = *(void**)((u8*)this + 0x2B4);
-	TCameraInbetween* inb    = (TCameraInbetween*)*(void**)((u8*)this + 0x6C);
-	TCameraMapTool* tool     = *(TCameraMapTool**)((u8*)this + 0x70);
-	TCameraMapTool* saveTool = *(TCameraMapTool**)((u8*)save + 0x8);
-	s32 frameCount           = inb->mFrameCount;
-	if (tool != saveTool && frameCount > 0) {
-		CLBChaseConstantSpecifyFrame<f32>(
-		    &mFovy, fov, (f32)frameCount);
-	} else {
-		mFovy = fov;
-	}
-
-	C_MTXPerspective((Mtx44Ptr)((u8*)this + 0x16C), mFovy, mAspect, mNear, mFar);
-
-	void* save2          = *(void**)((u8*)this + 0x2B4);
-	void* endTool        = *(void**)((u8*)save2 + 0x8);
-	if (*(void**)((u8*)this + 0x70) != endTool) {
-		s32 framesLeft
-		    = *(s32*)((u8*)save2 + 0x10) - *(s32*)((u8*)save2 + 0x14);
-		if (framesLeft > 0xF0)
-			changeCamModeSpecifyCamMapToolAndFrame_(
-			    (TCameraMapTool*)endTool, 0x78);
+	if (isSimpleDemoCamera()) {
+		mCameraDemo->setLengthFrames(0);
+		mCameraDemo->unkC &= ~1U;
+		unk120->onNeutralMarioKey();
 	}
 }
 
 void CPolarSubCamera::updateDemoCamera_(bool flag)
 {
 	if (flag) {
-		bool isDemo = isOnGoingDemoCamera();
-		if (isDemo) {
-			JGeometry::TVec3<f32>* at
-			    = (JGeometry::TVec3<f32>*)((u8*)this + 0x124);
-			JGeometry::TVec3<f32>* eye
-			    = (JGeometry::TVec3<f32>*)((u8*)this + 0x148);
-			((TCameraBck*)*(void**)((u8*)this + 0x2B0))
-			    ->updateDemo(at, eye, &mUp, &mFovy);
-			void* save   = *(void**)((u8*)this + 0x2B4);
-			f32 strength = *(f32*)((u8*)save + 0x4);
-			if (0.0f != strength) {
-				s16 angle = CLBRoundf<s16>(182.04445f * strength);
-				JGeometry::TVec3<f32> off(0.0f, 0.0f, 0.0f);
-				void* save2 = *(void**)((u8*)this + 0x2B4);
-				if (*(void**)((u8*)save2 + 0x0) != nullptr) {
-					off = *(const JGeometry::TVec3<f32>*)(
-					    *(void**)((u8*)save2 + 0x0));
+		if (isBckDemoCamera()) {
+			unk2B0->updateDemo(&unk124, &unk148, &mUp, &mFovy);
+
+			if (mCameraDemo->unk4 != 0.0f) {
+				s16 angle = CLBDegToShortAngle(mCameraDemo->unk4);
+
+				JGeometry::TVec3<f32> origin(0.0f, 0.0f, 0.0f);
+				if (mCameraDemo->unk0 != nullptr)
+					origin = *mCameraDemo->unk0;
+
+				{
+					JGeometry::TVec3<f32> result = origin;
+					f32 dx                       = unk124.x - origin.x;
+					f32 dy                       = unk124.y - origin.y;
+					f32 dz                       = unk124.z - origin.z;
+					f32 sn                       = JMASSin(angle);
+					f32 cs                       = JMASCos(angle);
+					result.x += dx * cs + dz * sn;
+					result.y += dy;
+					result.z += -dx * sn + dz * cs;
+					unk124 = result;
 				}
 
-				u16 keyAngle = (u16)angle;
-				f32 atX      = at->x - off.x;
-				f32 atY      = at->y - off.y;
-				f32 atZ      = at->z - off.z;
-				f32 sin      = jmaSinTable[keyAngle >> jmaSinShift];
-				f32 cos      = jmaCosTable[keyAngle >> jmaSinShift];
-				JGeometry::TVec3<f32> rotated;
-				rotated.x = atX * cos + atZ * sin;
-				rotated.y = atY;
-				rotated.z = -atX * sin + atZ * cos;
-				JGeometry::TVec3<f32> rotatedAt = off + rotated;
-				*at = rotatedAt;
+				{
+					JGeometry::TVec3<f32> result = origin;
+					f32 dx                       = unk148.x - origin.x;
+					f32 dy                       = unk148.y - origin.y;
+					f32 dz                       = unk148.z - origin.z;
+					f32 sn                       = JMASSin(angle);
+					f32 cs                       = JMASCos(angle);
+					result.x += dx * cs + dz * sn;
+					result.y += dy;
+					result.z += -dx * sn + dz * cs;
+					unk148 = result;
+				}
 
-				f32 eyeX = eye->x - off.x;
-				f32 eyeY = eye->y - off.y;
-				f32 eyeZ = eye->z - off.z;
-				JGeometry::TVec3<f32> rotE;
-				rotE.x = eyeX * cos + eyeZ * sin;
-				rotE.y = eyeY;
-				rotE.z = -eyeX * sin + eyeZ * cos;
-				JGeometry::TVec3<f32> rotatedEye = off + rotE;
-				*eye = rotatedEye;
-
-				f32 upX  = mUp.x;
-				f32 upZ  = mUp.z;
-				f32 sin2 = jmaSinTable[keyAngle >> jmaSinShift];
-				f32 cos2 = jmaCosTable[keyAngle >> jmaSinShift];
-				mUp.x    = upX * cos2 + upZ * sin2;
-				mUp.z    = -upX * sin2 + upZ * cos2;
+				f32 ux = mUp.x;
+				f32 uz = mUp.z;
+				mUp.x  = ux * JMASCos(angle) + uz * JMASSin(angle);
+				mUp.z  = -ux * JMASSin(angle) + uz * JMASCos(angle);
 			}
+
 			calcFinalPosAndAt_();
-			C_MTXPerspective((Mtx44Ptr)((u8*)this + 0x16C),
-			                 mFovy, mAspect, mNear, mFar);
-			C_MTXLookAt((MtxPtr)((u8*)this + 0x1EC),
-			            (Vec*)at,
-			            (Vec*)&mUp,
-			            (Vec*)eye);
+			C_MTXPerspective(unk16C, mFovy, mAspect, mNear, mFar);
+			C_MTXLookAt(unk1EC, &unk124, &mUp, &unk148);
 		}
 	}
 
-	void* save     = *(void**)((u8*)this + 0x2B4);
-	s32* curFrame  = (s32*)((u8*)save + 0x14);
-	s32 remaining  = *curFrame;
-	if (remaining > 0) {
-		*curFrame   = remaining - 1;
-		void* save2 = *(void**)((u8*)this + 0x2B4);
-		if (*(s32*)((u8*)save2 + 0x14) == 0) {
-			((TMarioGamePad*)*(void**)((u8*)this + 0x120))
-			    ->onNeutralMarioKey();
-			void* save3                = *(void**)((u8*)this + 0x2B4);
-			*(s32*)((u8*)save3 + 0x10) = 0;
-			*(s32*)((u8*)save3 + 0x14) = 0;
-			bool isDemo2 = isOnGoingDemoCamera();
-			if (!isDemo2) {
-				void* save4 = *(void**)((u8*)this + 0x2B4);
-				*(u8*)((u8*)save4 + 0xC) |= 1;
-			}
+	if (mCameraDemo->mRemainingFrames > 0) {
+		mCameraDemo->mRemainingFrames -= 1;
+		if (mCameraDemo->mRemainingFrames == 0) {
+			unk120->onNeutralMarioKey();
+			mCameraDemo->setLengthFrames(0);
+			if (isBckDemoCamera())
+				return;
+			mCameraDemo->unkC |= 1;
 		}
 	}
 }
+
+void CPolarSubCamera::updateGateDemoCamera_()
+{
+	f32 fovy;
+	unk2B0->updateDemo(nullptr, nullptr, nullptr, &fovy);
+
+	int frames = mInbetween->getUnk4();
+	if (unk70 != mCameraDemo->unk8 && frames > 0)
+		CLBChaseConstantSpecifyFrame<f32>(&mFovy, fovy, (f32)frames);
+	else
+		mFovy = fovy;
+
+	C_MTXPerspective(unk16C, mFovy, mAspect, mNear, mFar);
+
+	if (unk70 != mCameraDemo->unk8)
+		if (mCameraDemo->mTotalFrames - mCameraDemo->mRemainingFrames > 240)
+			changeCamModeSpecifyCamMapToolAndFrame_(mCameraDemo->unk8, 120);
+}
+
+void CPolarSubCamera::startGateDemoCamera(const JDrama::TActor* actor)
+{
+	char buf[0x80];
+
+	snprintf(buf, 0x80, "%s\x91\x4F\x83\x4A\x83\x81\x83\x89",
+	         actor->getName());
+	TCameraMapTool* tool = (TCameraMapTool*)gpCamMapToolTable->searchF(
+	    JDrama::TNameRef::calcKeyCode(buf), buf);
+	if (tool) {
+		mCameraDemo->unkC |= 1;
+		changeCamModeSpecifyCamMapToolAndFrame_(tool, 0x3C);
+		unk64 |= CAMERA_FLAG_GATE_DEMO;
+		unk2B0->startDemo(cCameraBckNameGate, nullptr);
+		mCameraDemo->setLengthFrames(unk2B0->getTotalDemoFrames());
+	}
+
+	snprintf(buf, 0x80, "%s\x83\x4A\x83\x81\x83\x89", actor->getName());
+	TCameraMapTool* tool2 = (TCameraMapTool*)gpCamMapToolTable->searchF(
+	    JDrama::TNameRef::calcKeyCode(buf), buf);
+	if (tool2)
+		mCameraDemo->unk8 = tool2;
+}
+
+void CPolarSubCamera::startDemoCamera(const char* name,
+                                      const JGeometry::TVec3<f32>* offset,
+                                      s32 length_frames, f32 f, bool bool_arg)
+{
+	mCameraDemo->unk0 = offset;
+	mCameraDemo->unk4 = f;
+
+	if (name == nullptr)
+		return;
+
+	if (startReproduceDemoCamera_(name, offset))
+		return;
+
+	if (isBckDemoCamera())
+		return;
+
+	TCameraMapTool* tool = (TCameraMapTool*)gpCamMapToolTable->searchF(
+	    JDrama::TNameRef::calcKeyCode(name), name);
+	if (tool != nullptr) {
+		if (!bool_arg) {
+			mCameraDemo->setLengthFrames(-1);
+			mCameraDemo->unkC |= 1;
+		} else if (length_frames == -1) {
+			mCameraDemo->setLengthFrames(tool->getDemoLengthFrames());
+		} else {
+			mCameraDemo->setLengthFrames(length_frames);
+		}
+		changeCamModeSpecifyCamMapTool_(tool);
+	}
+}
+
+void CPolarSubCamera::endDemoCamera()
+{
+	if (isBckDemoCamera())
+		endReproduceDemoCamera_();
+	else if (isSimpleDemoCamera())
+		endSimpleDemoCamera_();
+
+	mCameraDemo->unk0 = nullptr;
+}
+
+bool CPolarSubCamera::isSimpleDemoCamera() const
+{
+	bool result = false;
+	if (isBckDemoCamera() == false)
+		if (mCameraDemo->mRemainingFrames > 0 || (mCameraDemo->unkC & 1U))
+			result = true;
+
+	return result;
+}
+
+inline int CPolarSubCamera::getTotalDemoFrames() const
+{
+	return mCameraDemo->mTotalFrames;
+}
+
+int CPolarSubCamera::getRestDemoFrames() const
+{
+	return mCameraDemo->mRemainingFrames;
+}
+
+void CPolarSubCamera::ctrlNormalDeadDemo_()
+{
+	mCurrentTarget.mTarget.set(gpCameraMario->mPosX, gpCameraMario->mPosY,
+	                           gpCameraMario->mPosZ);
+	mInbetween->execCameraInbetween(mPosition, mCurrentTarget.mTarget,
+	                                SMS_GetMarioPos());
+
+	CLBChaseDecrease(&mTarget.x, mInbetween->mTargetAt.x, 0.03f, 0.0f);
+	CLBChaseDecrease(&mTarget.y, mInbetween->mTargetAt.y, 0.03f, 0.0f);
+	CLBChaseDecrease(&mTarget.z, mInbetween->mTargetAt.z, 0.03f, 0.0f);
+
+	if (gpMarioOriginal->checkFlag(MARIO_FLAG_HELMET_FLW_CAMERA))
+		return;
+
+	if (mDeadDemoCountdownToFovZoom > 0) {
+		mDeadDemoCountdownToFovZoom -= 1;
+		if (mDeadDemoCountdownToFovZoom > 0)
+			return;
+		mDeadDemoFovZoomTimer = 343;
+		return;
+	}
+
+	if (mDeadDemoFovZoomTimer > 0) {
+		mDeadDemoFovZoomTimer -= 1;
+
+		Vec diff;
+		diff.x           = mTarget.x - mPosition.x;
+		diff.y           = mTarget.y - mPosition.y;
+		diff.z           = mTarget.z - mPosition.z;
+		f32 distToTarget = MsVECMag2(&diff);
+		if (distToTarget > 0.001f) {
+			f32 r = MsClamp(10500.0f * (1.0f / distToTarget), 5.0f, 80.0f);
+			CLBChaseConstantSpecifyFrame<f32>(&mFovy, r,
+			                                  (f32)mDeadDemoFovZoomTimer);
+		}
+	}
+}
+
+void CPolarSubCamera::execDeadDemoProc_()
+{
+	if (mDeadDemoCountdown > 0) {
+		mDeadDemoCountdown -= 1;
+		if (mDeadDemoCountdown > 0)
+			return;
+		unk64 |= CAMERA_FLAG_DEAD_DEMO;
+		mPosFreezeFrames = 1;
+		if (unk64 & CAMERA_FLAG_HELL_DEAD_DEMO)
+			return;
+		mDeadDemoCountdownToFovZoom = 1;
+		return;
+	}
+
+	if (SMS_CheckMarioFlag(MARIO_FLAG_GAME_OVER)
+	    && !gpMarDirector->checkUnk124Thing2())
+		mDeadDemoCountdown = 16;
+}
+
+bool CPolarSubCamera::isHellDeadDemo() const
+{
+	bool result = false;
+	if (unk64 & CAMERA_FLAG_DEAD_DEMO)
+		if (unk64 & CAMERA_FLAG_HELL_DEAD_DEMO)
+			result = true;
+	return result;
+}
+
+bool CPolarSubCamera::isNormalDeadDemo() const
+{
+	bool result = false;
+	if (unk64 & CAMERA_FLAG_DEAD_DEMO)
+		if (!(unk64 & CAMERA_FLAG_HELL_DEAD_DEMO))
+			result = true;
+	return result;
+}
+
+#undef mCurrentTarget
+#undef mInbetween
+#undef mPosFreezeFrames
+#undef mDeadDemoCountdown
+#undef mDeadDemoCountdownToFovZoom
+#undef mDeadDemoFovZoomTimer

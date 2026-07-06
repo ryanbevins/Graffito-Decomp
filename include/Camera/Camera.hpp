@@ -35,8 +35,11 @@ public:
 	};
 
 	enum {
-		CAMERA_FLAG_UNK1 = 0x1,
-		CAMERA_FLAG_UNK2 = 0x2,
+		CAMERA_FLAG_UNK1           = 0x1,
+		CAMERA_FLAG_UNK2           = 0x2,
+		CAMERA_FLAG_GATE_DEMO      = 0x200,
+		CAMERA_FLAG_DEAD_DEMO      = 0x400,
+		CAMERA_FLAG_HELL_DEAD_DEMO = 0x800,
 	};
 
 	enum EnumNoticeOnOffMode { };
@@ -60,9 +63,10 @@ public:
 	void warpPosAndAt(const Vec&, const Vec&);
 	void warpPosAndAt(f32, s16);
 	void addMoveCameraAndMario(const Vec&);
-	void startReproduceDemoCamera_(const char*, const JGeometry::TVec3<f32>*);
+	bool startReproduceDemoCamera_(const char*, const JGeometry::TVec3<f32>*);
 	void restartReproduceDemoCamera_();
 	void endReproduceDemoCamera_();
+	void endSimpleDemoCamera_();
 	void updateDemoCamera_(bool);
 	void updateGateDemoCamera_();
 	void startGateDemoCamera(const JDrama::TActor*);
@@ -77,7 +81,11 @@ public:
 	{
 		return (mMode == 0x49) ? true : false;
 	}
-	void getTotalDemoFrames() const;
+	bool isBckDemoCamera() const
+	{
+		return mMode == CAMERA_MODE_REPRODUCE_DEMO ? true : false;
+	}
+	int getTotalDemoFrames() const;
 	int getRestDemoFrames() const;
 	void ctrlNormalDeadDemo_();
 	void execDeadDemoProc_();
@@ -289,7 +297,36 @@ public:
 	/* 0x2A8 */ char unk2A8[0x2AC - 0x2A8];
 	/* 0x2AC */ void* unk2AC;
 	/* 0x2B0 */ TCameraBck* unk2B0;
-	/* 0x2B4 */ void* unk2B4;
+
+	struct TCameraDemo {
+		TCameraDemo()
+		    : unk0(0)
+		    , unk4(0.0f)
+		    , unk8(0)
+		    , unkC(0)
+		    , mTotalFrames(0)
+		    , mRemainingFrames(0)
+		{
+		}
+
+		void setLengthFrames(int frames)
+		{
+			mTotalFrames     = frames;
+			mRemainingFrames = frames;
+		}
+
+		/* 0x00 */ const JGeometry::TVec3<f32>* unk0;
+		/* 0x04 */ f32 unk4;
+		/* 0x08 */ TCameraMapTool* unk8;
+		/* 0x0C */ u8 unkC;
+		/* 0x10 */ int mTotalFrames;
+		/* 0x14 */ int mRemainingFrames;
+	};
+
+	/* 0x2B4 */ union {
+		void* unk2B4;
+		TCameraDemo* mCameraDemo;
+	};
 	/* 0x2B8 */ TCameraJetCoaster* unk2B8;
 	/* 0x2BC */ TMultiPlayerContainer* unk2BC;
 	/* 0x2C0 */ f32 unk2C0;
