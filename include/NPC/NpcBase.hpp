@@ -103,6 +103,8 @@ public:
 	void onUnk1D8(u32 flag) { unk1D8 |= flag; }
 	void offUnk1D8(u32 flag) { unk1D8 &= ~flag; }
 	bool checkUnk1D8(u32 flag) const { return (unk1D8 & flag) != 0; }
+	void offUnk1DA(u32 flag) { unk1DA &= ~flag; }
+	bool checkUnk1DA(u32 flag) const { return (unk1DA & flag) != 0; }
 	void offActionFlag(u32 flag) { mActionFlag &= ~flag; }
 	bool checkActionFlag(u32 flag) const { return (mActionFlag & flag) != 0; }
 	~TBaseNPC();

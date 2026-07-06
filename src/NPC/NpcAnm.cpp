@@ -700,8 +700,8 @@ inline void TBaseNPC::npcWetOut()
 bool TBaseNPC::npcWetting()
 {
 	bool ret = false;
-	if (unk1DA & 0x2) {
-		unk1DA &= ~0x2;
+	if (checkUnk1DA(0x2)) {
+		offUnk1DA(0x2);
 		npcHappyIn(0);
 		npcWetOut();
 		ret = true;
