@@ -1815,22 +1815,23 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 
 f32 TBathWaterMeshRenderer::getHeight(f32 x, f32 z) const
 {
-	if (unk800AC < 1)
+	s16 n = unk800AC;
+	if (n < 1)
 		return 0.0f;
 
-	s32 ix = (s32)((x - unk80050.mMtx[0][3]) / unk80080[0]);
-	if (ix < 0)
-		ix = 0;
-	else if (ix >= unk800AC)
-		ix = unk800AC - 1;
+	int i = (int)((x - unk80050.at(0, 3)) / unk80080[0]);
+	if (i < 0)
+		i = 0;
+	else if (i >= n)
+		i = n - 1;
 
-	s32 iz = (s32)((z - unk80050.mMtx[2][3]) / unk80080[2]);
-	if (iz < 0)
-		iz = 0;
-	else if (iz >= unk800AC)
-		iz = unk800AC - 1;
+	int j = (int)((z - unk80050.at(2, 3)) / unk80080[2]);
+	if (j < 0)
+		j = 0;
+	else if (j >= n)
+		j = n - 1;
 
-	return unk20[ix][iz].y + unk80050.mMtx[1][3];
+	return unk20[i][j].y + unk80050.at(1, 3);
 }
 
 void TBathWaterMeshRenderer::clearHeightMap()
