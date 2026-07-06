@@ -429,10 +429,7 @@ void TYoshiTongue::emit(const JGeometry::TVec3<f32>& headPos,
 
 	mInitialVelocity = headDir * mInitialSpeed;
 
-	JGeometry::TVec3<f32> velScaled = initialVel * 0.5f;
-	mInitialVelocity.x += velScaled.x;
-	mInitialVelocity.y += velScaled.y;
-	mInitialVelocity.z += velScaled.z;
+	mInitialVelocity += initialVel * 0.5f;
 
 	if (mInitialVelocity.y < -50.0f)
 		mInitialVelocity.y = -50.0f;
