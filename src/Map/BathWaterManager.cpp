@@ -351,7 +351,8 @@ JGeometry::TVec3<f32> TBathtubData::getPos(int index, int count,
 
 JGeometry::TVec3<f32> TBathtubData::getGravityDir(f32 rate) const
 {
-	if (unk65 == 0) {
+	(void)0;
+	if (!unk65) {
 		JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 		(void)&up;
 		JGeometry::TQuat4<f32> quat;
@@ -359,9 +360,9 @@ JGeometry::TVec3<f32> TBathtubData::getGravityDir(f32 rate) const
 		JGeometry::TVec3<f32> result;
 		quat.rotate(up, result);
 		return result;
+	} else {
+		return JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f);
 	}
-
-	return JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f);
 }
 
 static inline void addDropToAverage(const TBathWater::TDrop& drop, int& count,
