@@ -515,6 +515,68 @@ inline bool TBathWater::eraseDrop(TDrop* drop)
 	return true;
 }
 
+inline bool TBathWater::tryHitMario(THitActor* mario)
+{
+	TBathWaterParams* params = unk8C;
+	f32 radius              = params->dropRadius.get() * params->hitScale.get();
+	f32 maxDown             = mario->mDamageHeight + radius;
+	f32 maxUp               = mario->mDamageRadius + radius;
+	f32 maxUpSq             = maxUp * maxUp;
+	f32 marioX              = mario->mPosition.x;
+	f32 marioY              = mario->mPosition.y;
+	f32 marioZ              = mario->mPosition.z;
+
+	for (TBathWater::TDrop* drop = unk88; drop < unk88 + unk74; ++drop) {
+		f32 dy = drop->unk0.y - marioY;
+		if (!(dy > maxDown) && !(dy < -radius)) {
+			f32 dx = marioX - drop->unk0.x;
+			f32 dz = marioZ - drop->unk0.z;
+			if (dx * dx + dz * dz < maxUpSq) {
+				setAttackRadius(unk8C->dropRadius.get());
+				setAttackRadius(unk8C->dropRadius.get() * 2.0f);
+				mPosition.set(drop->unk0);
+				mPosition.y -= unk8C->dropRadius.get();
+				mario->receiveMessage(this, HIT_MESSAGE_UNKA);
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+inline bool TBathWater::tryHitMario2(THitActor* mario,
+                                     const TBathtubData& data)
+{
+	f32 marioX       = mario->mPosition.x;
+	f32 marioY       = mario->mPosition.y;
+	f32 marioZ       = mario->mPosition.z;
+	f32 marioHeight  = mario->mDamageHeight;
+	JGeometry::TVec3<f32> center(data.unk0.x, data.unk0.y - data.unk44,
+	                             data.unk0.z);
+	f32 radius = JGeometry::TUtil<f32>::sqrt(data.unk3C * data.unk3C
+	                                         - data.unk44 * data.unk44);
+
+	if (center.y < marioY)
+		return false;
+
+	f32 waterDepth = data.unk3C - data.unk44;
+	if (marioY + marioHeight < center.y - waterDepth)
+		return false;
+
+	f32 dx = marioX - center.x;
+	f32 dz = marioZ - center.z;
+	if (dx * dx + dz * dz >= radius * radius)
+		return false;
+
+	setAttackRadius(radius);
+	mPosition.set(center);
+	mPosition.y -= waterDepth;
+	setAttackHeight(waterDepth);
+	mario->receiveMessage(this, HIT_MESSAGE_UNKA);
+	return true;
+}
+
 static inline void simulateBathWater(TBathWater& water, const TBathtubData& data)
 {
 	TBathWaterParams* params = water.unk8C;
@@ -904,67 +966,13 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 					if ((*gpMarioFlag & 0x400) != 0 || !unk14[i]->checksMario.get())
 						continue;
 
-					THitActor* mario = SMS_GetMarioHitActor();
-					TBathWater* water = unk20[i];
-					TBathWaterParams* params = water->unk8C;
-					f32 radius = params->dropRadius.get() * params->hitScale.get();
-					f32 maxUp  = mario->mDamageRadius + radius;
-					f32 maxDown = mario->mDamageHeight + radius;
-					bool touched = false;
-					for (int j = 0; j < water->unk74; ++j) {
-						TBathWater::TDrop& drop = water->unk88[j];
-						f32 dy = drop.unk0.y - mario->mPosition.y;
-						if (dy > maxDown || dy < -radius)
-							continue;
-
-						f32 dx = mario->mPosition.x - drop.unk0.x;
-						f32 dz = mario->mPosition.z - drop.unk0.z;
-						if (dx * dx + dz * dz < maxUp * maxUp) {
-							water->mAttackRadius = params->dropRadius.get();
-							water->calcEntryRadius();
-							water->mAttackRadius = params->dropRadius.get() * 2.0f;
-							water->calcEntryRadius();
-							water->mPosition = drop.unk0;
-							water->mPosition.y -= params->dropRadius.get();
-							mario->receiveMessage(water, 0xa);
-							touched = true;
-							break;
-						}
-					}
-
-					if (touched)
+					if (unk20[i]->tryHitMario(SMS_GetMarioHitActor()))
 						throwMario(unk14[i]->jump.get());
 				}
 
 				if ((*gpMarioFlag & 0x400) == 0) {
-					THitActor* mario = SMS_GetMarioHitActor();
-					TBathWater* water = unk20[0];
-					JGeometry::TVec3<f32> center(
-					    data.unk0.x, data.unk0.y - data.unk44, data.unk0.z);
-					f32 radiusSq = data.unk3C * data.unk3C
-					               - data.unk44 * data.unk44;
-					f32 radius = JGeometry::TUtil<f32>::sqrt(radiusSq);
-					f32 waterDepth = data.unk3C - data.unk44;
-					bool inside = false;
-
-					if (center.y >= mario->mPosition.y
-					    && mario->mPosition.y + mario->mDamageHeight
-					        >= center.y - waterDepth) {
-						f32 dx = mario->mPosition.x - center.x;
-						f32 dz = mario->mPosition.z - center.z;
-						inside = (dx * dx + dz * dz) <= radius * radius;
-					}
-
-					if (inside) {
-						water->mAttackRadius = radius;
-						water->calcEntryRadius();
-						water->mPosition = center;
-						water->mPosition.y -= waterDepth;
-						water->mAttackHeight = waterDepth;
-						water->calcEntryRadius();
-						mario->receiveMessage(water, 0xa);
+					if (unk20[0]->tryHitMario2(SMS_GetMarioHitActor(), data))
 						throwMario(unk14[0]->jump.get());
-					}
 				}
 			}
 		}

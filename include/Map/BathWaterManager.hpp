@@ -120,6 +120,8 @@ public:
 	virtual ~TBathWater() { }
 	void initialize(TBathWaterParams*, const TBathtubData&);
 	bool eraseDrop(TDrop*);
+	bool tryHitMario(THitActor*);
+	bool tryHitMario2(THitActor*, const TBathtubData&);
 
 public:
 	/* 0x68 */ JMath::TRandomFast unk68;
