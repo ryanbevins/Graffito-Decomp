@@ -575,11 +575,11 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
 	gravityForce.scale(-gravity,
 	                   data.getGravityDir(water->unk8C->overGravity.get()));
 	JGeometry::TVec3<f32> downGravity(0.0f, -gravity, 0.0f);
+	TBathWater::TDrop* end = water->unk88 + water->unk74;
 	f32 radius = water->unk8C->dropRadius.get();
 	int active = 0;
 	JGeometry::TVec3<f32> average(0.0f, 0.0f, 0.0f);
 
-	TBathWater::TDrop* end = water->unk88 + water->unk74;
 	if (data.unk24.y > 0.0f) {
 		for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
 			drop->unk0 += drop->unkC;
