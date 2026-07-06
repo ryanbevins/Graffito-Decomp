@@ -620,45 +620,44 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
 				JGeometry::TVec3<f32> diff;
 				diff.sub(other->unk0, drop->unk0);
 				f32 distSq = diff.squared();
-				if (distSq > sep2)
-					continue;
+				if (!(distSq > sep2)) {
+					f32 dist = diff.length();
+					JGeometry::TVec3<f32> normal;
+					normal.scale(1.0f / dist, diff);
 
-				f32 dist = diff.length();
-				JGeometry::TVec3<f32> normal;
-				normal.scale(1.0f / dist, diff);
+					f32 half = (twoR - dist) / 2.0f;
 
-				f32 half = (twoR - dist) / 2.0f;
+					diff.x = normal.x * half;
+					diff.z = normal.z * half;
 
-				diff.x = normal.x * half;
-				diff.z = normal.z * half;
+					f32 mag = half * normal.y;
 
-				f32 mag = half * normal.y;
+					diff.set(normal.x * half, (normal.y + 1.0f) * mag,
+					         normal.z * half);
+					other->unk18.extend(diff);
 
-				diff.set(normal.x * half, (normal.y + 1.0f) * mag,
-				         normal.z * half);
-				other->unk18.extend(diff);
+					diff.x = -diff.x;
+					diff.z = -diff.z;
+					diff.y = (normal.y - 1.0f) * mag;
+					drop->unk18.extend(diff);
 
-				diff.x = -diff.x;
-				diff.z = -diff.z;
-				diff.y = (normal.y - 1.0f) * mag;
-				drop->unk18.extend(diff);
+					if (mag < twoR - dist)
+						mag = twoR - dist;
 
-				if (mag < twoR - dist)
-					mag = twoR - dist;
-
-				normal.x *= mag * water->unk8C->bounceXZ.get();
-				normal.y *= mag * water->unk8C->bounceY.get();
-				normal.z *= mag * water->unk8C->bounceXZ.get();
-				other->unk30.extend(normal);
-				normal.negate();
-				drop->unk30.extend(normal);
+					normal.x *= mag * water->unk8C->bounceXZ.get();
+					normal.y *= mag * water->unk8C->bounceY.get();
+					normal.z *= mag * water->unk8C->bounceXZ.get();
+					other->unk30.extend(normal);
+					normal.negate();
+					drop->unk30.extend(normal);
+				}
 			}
 		}
 	}
 
 	f32 floorY = data.unk0.y - data.unk3C;
 	if (data.unk65 != 0)
-		floorY = -((8.0f * data.unk3C) - data.unk0.y);
+		floorY = data.unk0.y - 8.0f * data.unk3C;
 
 	int respawnIndex = 0;
 	for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
