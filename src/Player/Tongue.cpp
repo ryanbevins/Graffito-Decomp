@@ -1,4 +1,5 @@
 #define JGEOMETRY_TONGUE_TVEC3_MINUS_ASSIGN_OUT_OF_LINE
+#define JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
 #include <Player/Tongue.hpp>
 #include <Player/Yoshi.hpp>
 #include <Player/MarioAccess.hpp>
@@ -20,6 +21,7 @@
 #include <dolphin/mtx.h>
 
 #undef JGEOMETRY_TONGUE_TVEC3_MINUS_ASSIGN_OUT_OF_LINE
+#undef JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
 
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
@@ -429,7 +431,8 @@ void TYoshiTongue::emit(const JGeometry::TVec3<f32>& headPos,
 
 	mInitialVelocity = headDir * mInitialSpeed;
 
-	mInitialVelocity += initialVel * 0.5f;
+	JGeometry::TVec3<f32> velScaled = initialVel * 0.5f;
+	mInitialVelocity += velScaled;
 
 	if (mInitialVelocity.y < -50.0f)
 		mInitialVelocity.y = -50.0f;

@@ -210,12 +210,20 @@ public:
 		return fst;
 	}
 
+#ifdef JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
+	friend const TVec3& operator*(TVec3 fst, f32 snd)
+	{
+		fst *= snd;
+		return fst;
+	}
+#else
 	// @fabricated
 	friend TVec3 operator*(TVec3 fst, f32 snd)
 	{
 		fst *= snd;
 		return fst;
 	}
+#endif
 
 	f32 dot(const TVec3& other) const
 	{
