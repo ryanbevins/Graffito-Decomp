@@ -87,11 +87,10 @@ void TPauseMenu2::load(JSUMemoryInputStream& stream)
 	unkDC->setFont((JUTFont*)gpSystemFont);
 	unkD8 = unk14->search('brek');
 
-	u32 shineStage  = (u8)SMS_getShineStage(gpMarDirector->mMap);
+	u32 shineStage  = SMS_getShineStage(gpMarDirector->mMap);
 	s32 ehasFlag   = TFlagManager::smInstance->getFlag(0x40003);
 	void* stagename = JKRFileLoader::getGlbResource("/common/2d/stagename.bmg");
-	const char* msg = (const char*)SMSGetMessageData(stagename, shineStage);
-	unkD4->setString(msg);
+	unkD4->setString((const char*)SMSGetMessageData(stagename, shineStage));
 
 	if (gpMarDirector->mMap == 0xF) {
 		return;
@@ -102,11 +101,9 @@ void TPauseMenu2::load(JSUMemoryInputStream& stream)
 	s16 idx = SMS_getShineID(shineStage, ehasFlag, false);
 
 	const char* scenStr;
-	if (scenarioname == nullptr || idx == -1) {
-		if (shineStage == 0) {
-			((J2DPane*)unkD4)->add(0, 0xF);
-			unk1C->add(0, 0x1E);
-		}
+	if (scenarioname == nullptr || idx == -1 || shineStage == 0) {
+		((J2DPane*)unkD4)->add(0, 0xF);
+		unk1C->add(0, 0x1E);
 		scenStr = "";
 	} else {
 		u32 nameIdx = SMS_getNormalStage(idx);
