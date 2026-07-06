@@ -169,6 +169,8 @@ public:
 	s16 getOffsetAngleX() const;
 	s16 getOffsetAngleY() const;
 	s16 getFinalAngleZ() const;
+	MtxPtr getUnk1EC() { return unk1EC; }
+	MtxPtr getUnk16C() { return unk16C; }
 	~CPolarSubCamera();
 	bool controlByCameraCode_(int*);
 	void getLButtonCameraModeByNozzle_();

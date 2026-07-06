@@ -1356,17 +1356,18 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
                                     TBathWater** waters,
                                     TBathWaterParams** params, int count)
 {
-	MtxPtr viewMtx   = (MtxPtr)((u8*)gpCamera + 0x1EC);
-	MtxPtr projMtx   = (MtxPtr)((u8*)gpCamera + 0x16C);
-	int renderWidth  = SMSGetGameRenderWidth();
-	int renderHeight = SMSGetGameRenderHeight();
+	CPolarSubCamera* camera = gpCamera;
+	MtxPtr viewMtx          = camera->getUnk1EC();
+	MtxPtr projMtx          = camera->getUnk16C();
+	s16 renderWidth         = SMSGetGameRenderWidth();
+	s16 renderHeight        = SMSGetGameRenderHeight();
 
 	clearEFB_alpha(0, 0, 0, 0, 0);
 
-	MtxPtr viewMtx2 = (MtxPtr)((u8*)gpCamera + 0x1EC);
-	int copyWidth   = SMSGetGameRenderWidth();
-	int copyHeight  = SMSGetGameRenderHeight();
-	GXSetProjection((MtxPtr)((u8*)gpCamera + 0x16C), GX_PERSPECTIVE);
+	MtxPtr viewMtx2 = gpCamera->unk1EC;
+	s16 copyWidth   = SMSGetGameRenderWidth();
+	s16 copyHeight  = SMSGetGameRenderHeight();
+	GXSetProjection(projMtx, GX_PERSPECTIVE);
 	GXClearVtxDesc();
 	GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
 	GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
