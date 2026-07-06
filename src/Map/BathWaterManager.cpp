@@ -1127,11 +1127,9 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
 	}
 
 	if (unk2C->showsCap.get() && data.unk65 == 0) {
-		f32 radius = JGeometry::TUtil<f32>::sqrt(data.unk3C * data.unk3C
-		                                         - data.unk44 * data.unk44);
-		JGeometry::TVec3<f32> center(data.unk0.x, data.unk0.y - data.unk44,
-		                              data.unk0.z);
-		drawCap(center, radius);
+		drawCap(data.getThing(),
+		        JGeometry::TUtil<f32>::sqrt(data.unk3C * data.unk3C
+		                                    - data.unk44 * data.unk44));
 	}
 
 	GXTexObj texObj;
