@@ -191,6 +191,7 @@ public:
 	/* 0x80020 */ TPosition3f unk80020;
 	/* 0x80050 */ TPosition3f unk80050;
 	/* 0x80080 */ JGeometry::TVec3<f32> unk80080;
+	/* 0x8008C */ char unk8008C[0x18];
 	/* 0x800A4 */ void* unk800A4;
 	/* 0x800A8 */ void* unk800A8;
 	/* 0x800AC */ s16 unk800AC;
