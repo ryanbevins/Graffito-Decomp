@@ -671,9 +671,8 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
 	for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
 		if (drop->unk0.y < floorY) {
 			if (params->suppliesDrops.get() && data.unk65 == 0) {
-				drop->reset(data.getPos(respawnIndex, water->unk70, radius),
+				drop->reset(data.getPos(respawnIndex++, water->unk70, radius),
 				            water->unk68.get_float01());
-				respawnIndex += 1;
 			} else if (water->eraseDrop(drop)) {
 				end -= 1;
 				drop->doThing(params->damp.get());
@@ -695,7 +694,7 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
 	if (water->unk74 < params->numDrops.get()) {
 		if (params->suppliesDrops.get() && data.unk65 == 0) {
 			water->unk88[water->unk74++].reset(
-			    data.getPos(respawnIndex, water->unk70, radius),
+			    data.getPos(respawnIndex++, water->unk70, radius),
 			    water->unk68.get_float01());
 		}
 	} else if (water->unk74 > params->numDrops.get()) {
