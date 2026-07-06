@@ -1463,7 +1463,7 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 	GXPixModeSync();
 	GXSetProjection(projMtx, GX_PERSPECTIVE);
 
-	GXColor amb = { 0xff, 0xff, 0xff, 0xff };
+	GXColor amb = { 0x00, 0x00, 0x00, 0xff };
 	GXColor mat = { unk80134->polygonR.get(), unk80134->polygonG.get(),
 	                unk80134->polygonB.get(), 0xff };
 	GXSetNumChans(1);
@@ -1504,7 +1504,7 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 	unk80050.mMtx[1][3] = data.unk0.y - data.unk44 + 3.0f * data.unk3C;
 	unk80050.mMtx[2][3] = data.unk0.z - 0.5f * unk80134->meshWidth.get();
 
-	PSMTXCopy(viewMtx, j3dSys.mViewMtx);
+	j3dSys.setViewMtx(viewMtx);
 	J3DTexGenBlock* texGenBlock
 	    = unk80148->getMaterialNodePointer(0)->getTexGenBlock();
 	J3DTexMtx* texMtx0 = texGenBlock->getTexMtx(0);
