@@ -1253,8 +1253,8 @@ inline TBathWaterMeshRenderer::TBathWaterMeshRenderer(TBathWaterGlobalParams* pa
 	unk80148->getMaterialNodePointer(0)->makeDisplayList();
 	unk8014C = new J3DModel(unk80148, 0, 1);
 
-	GXInitTexObj(&unk80114, clear_z_TX, 4, 4, GX_TF_Z24X8, GX_CLAMP, GX_CLAMP,
-	             GX_FALSE);
+	GXInitTexObj(&unk80114, clear_z_TX, 4, 4, GX_TF_Z24X8, GX_REPEAT,
+	             GX_REPEAT, GX_FALSE);
 	GXInitTexObjLOD(&unk80114, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, GX_FALSE,
 	                GX_FALSE, GX_ANISO_1);
 	clearHeightMap();
