@@ -618,11 +618,11 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
 	water->unk78 = average;
 	water->unk84 = volume;
 
-	u8 stride = params->intersects.get();
-	if (stride != 0) {
+	if (water->unk8C->intersects.get()) {
 		for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
-			TBathWater::TDrop* other = drop + stride;
-			for (; other < end; other += stride) {
+			TBathWater::TDrop* other
+			    = drop + water->unk8C->intersects.get();
+			for (; other < end; other += water->unk8C->intersects.get()) {
 				JGeometry::TVec3<f32> diff(other->unk0.x - drop->unk0.x,
 				                           other->unk0.y - drop->unk0.y,
 				                           other->unk0.z - drop->unk0.z);
