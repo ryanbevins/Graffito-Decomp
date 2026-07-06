@@ -494,23 +494,24 @@ static inline void initDrop(TBathWater::TDrop& drop,
 	drop.unk4C = 0;
 }
 
-static inline void applyDropForces(TBathWater::TDrop& drop, f32 damp)
+inline void TBathWater::TDrop::doThing(f32 damp)
 {
-	drop.unk0 += drop.unk18.i;
-	drop.unk0 += drop.unk18.f;
-	drop.unkC.scale(damp);
-	drop.unkC += drop.unk30.i;
-	drop.unkC += drop.unk30.f;
+	unk0 += unk18.i;
+	unk0 += unk18.f;
+	unkC.scale(damp);
+	unkC += unk30.i;
+	unkC += unk30.f;
 }
 
-static inline bool removeDrop(TBathWater& water, int index)
+inline bool TBathWater::eraseDrop(TDrop* drop)
 {
-	if (index >= water.unk74)
+	int index = drop - unk88;
+	if (index >= unk74)
 		return false;
 
-	water.unk74 -= 1;
-	if (index < water.unk74)
-		water.unk88[index] = water.unk88[water.unk74];
+	unk74 -= 1;
+	if (index < unk74)
+		*drop = unk88[unk74];
 	return true;
 }
 
@@ -613,12 +614,12 @@ static inline void simulateBathWater(TBathWater& water, const TBathtubData& data
 				initDrop(drop, data.getPos(respawnIndex, water.unk70, radius),
 				         water.unk68.get_float01());
 				respawnIndex += 1;
-			} else if (removeDrop(water, i)) {
+			} else if (water.eraseDrop(&drop)) {
 				end = water.unk88 + water.unk74;
-				applyDropForces(drop, params->damp.get());
+				drop.doThing(params->damp.get());
 			}
 		} else {
-			applyDropForces(drop, params->damp.get());
+			drop.doThing(params->damp.get());
 		}
 	}
 
@@ -627,7 +628,7 @@ static inline void simulateBathWater(TBathWater& water, const TBathtubData& data
 			TBathWater::TDrop& drop = water.unk88[i];
 			drop.unk4C += 1;
 			if (drop.unk4C > params->lifeTime.get()) {
-				removeDrop(water, i);
+				water.eraseDrop(&drop);
 				end = water.unk88 + water.unk74;
 			}
 		}
