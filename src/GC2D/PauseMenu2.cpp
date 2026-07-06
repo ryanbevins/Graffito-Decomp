@@ -500,9 +500,11 @@ void TPauseMenu2::setDrawStart()
 		unk98[i]->mVisible = false;
 	}
 
-	for (int i = 0; i < 5; i++) {
-		unk20[i]->mRotation = (f32)(u16)(s32)(180.0f + unk84[i]);
-	}
+	unk20[0]->mRotation = (f32)(u16)(s32)(180.0f + unk84[0]);
+	unk20[1]->mRotation = (f32)(u16)(s32)(180.0f + unk84[1]);
+	unk20[2]->mRotation = (f32)(u16)(s32)(180.0f + unk84[2]);
+	unk20[3]->mRotation = (f32)(u16)(s32)(180.0f + unk84[3]);
+	unk20[4]->mRotation = (f32)(u16)(s32)(180.0f + unk84[4]);
 
 	unk1C->mAlpha    = 0xff;
 	unk1C->mRotation = 0.0f;
@@ -550,9 +552,10 @@ void TPauseMenu2::drawAppearPane(J2DPicture* pic, f32 time, JUTRect& rect,
 
 	s32 t1 = (s32)(0.75f * (19.0f - time));
 	s32 t2 = (s32)(80.0f * (2.0f * (0.05f * time) * (1.0f - 0.05f * time)));
-	JUTRect r(rect.x1 + t1, rect.y1 - t2 - t1, rect.x2 - t1, rect.y2 - t2 - t1);
-
 	pic->mRotation = factor;
+	JUTRect r(rect.x1 + t1, rect.y1 - t2 + t1, rect.x2 - t1,
+	          rect.y2 - t2 - t1);
+
 	pic->mBounds   = r;
 
 	s32 alpha = (s32)(12.8f * time);
