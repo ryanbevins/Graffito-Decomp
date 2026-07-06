@@ -604,17 +604,19 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
 		}
 	}
 
-	water->unk84 = 0.0f;
+	f32 volume;
 	if (active * 30 > water->unk74) {
 		f32 inv = 1.0f / (f32)active;
 		average.scale(inv);
-		f32 volume = JGeometry::TUtil<f32>::sqrt(
+		volume = JGeometry::TUtil<f32>::sqrt(
 		    (3.0f * (f32)active) / (f32)water->unk74);
 		if (volume > 1.0f)
 			volume = 1.0f;
-		water->unk84 = volume;
+	} else {
+		volume = 0.0f;
 	}
 	water->unk78 = average;
+	water->unk84 = volume;
 
 	u8 stride = params->intersects.get();
 	if (stride != 0) {
