@@ -486,7 +486,7 @@ inline void TBathWater::addDrop(const JGeometry::TVec3<f32>& position, f32 velY)
 		unk88[unk74].reset(position, unk68.get_float01());
 		unk88[unk74].unkC.y = velY;
 
-		OSReport("BathWaterManager.cpp(%d): ...\n", 0x28f, unk74++, 0.0f);
+		OSReport("BathWaterManager.cpp(%d): ...\n", 0x28f, unk74++);
 	}
 }
 
@@ -938,12 +938,15 @@ static inline bool fakeCalcPos(const TBathtubData& data, f32 radius, f32 rand,
 	dir.y += cross.y * perturb;
 	dir.z += cross.z * perturb;
 
-	dir.setLength(0.9f * (data.unk3C - radius));
+	f32 h = 0.9f * (data.unk3C - radius);
+	dir.setLength(h);
 
+	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 	JGeometry::TVec3<f32> center;
 	center.set(data.getThing());
-	out->set(dir.x + center.x, radius + dir.y + center.y,
-	         dir.z + center.z);
+	out->set(up.x * radius + dir.x + center.x,
+	         up.y * radius + dir.y + center.y,
+	         up.z * radius + dir.z + center.z);
 	return true;
 }
 
