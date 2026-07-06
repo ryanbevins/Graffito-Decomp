@@ -1002,14 +1002,12 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 				}
 			}
 
-			if ((unk1C & 7) == 4 && unk24->getBathtubData().unk64 != 0) {
-				TBathWater* overflow     = unk20[1];
+			if ((unk1C & 7) == 4 && unk24->getBathtubData().unk64) {
 				const TBathtubData& data = unk24->getBathtubData();
-				JGeometry::TVec3<f32> pos;
+				JGeometry::TVec3<f32> vel;
 				if (fakeCalcPos(data, unk14[1]->dropRadius.get(),
-				                unk10.get_float(-1.0f, 1.0f), &pos)) {
-					overflow->addDrop(pos, unk10.get_float01());
-				}
+				                unk10.get_float(-1.0f, 1.0f), &vel))
+					unk20[1]->addDrop(vel, unk10.get_float01());
 			}
 
 			TBathWater* soundWater = unk20[0];
