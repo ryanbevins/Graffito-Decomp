@@ -1317,11 +1317,10 @@ void TBathWaterMeshRenderer::calcCoord()
 
 	for (s32 x = 0; x < unk800AE; ++x) {
 		for (s32 z = 0; z < unk800AE; ++z) {
-			unk60020[x * 0x80 + z].x = (f32)x * unk800B0;
-			unk60020[x * 0x80 + z].y = (f32)z * unk800B0;
+			unk60020[x][z].set((f32)x * unk800B0, (f32)z * unk800B0);
 		}
 	}
-	DCStoreRange(unk60020, 0x20000);
+	DCStoreRange(&unk60020, 0x20000);
 
 	JGeometry::TVec3<f32> (*grid)[0x80]
 	    = (JGeometry::TVec3<f32>(*)[0x80])unk20;
@@ -1627,7 +1626,7 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 	GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 	GXSetArray(GX_VA_POS, unk20, 0xC);
 	GXSetArray(GX_VA_NRM, unk30020, 0xC);
-	GXSetArray(GX_VA_TEX0, unk60020, 8);
+	GXSetArray(GX_VA_TEX0, &unk60020, 8);
 	GXCallDisplayList(unk80154, unk80158);
 
 	if (unk80134->showsMist.get())

@@ -186,7 +186,7 @@ public:
 	/* 0x00004 */ char unk4[0x1C];
 	/* 0x00020 */ JGeometry::TVec3<f32> unk20[0x80][0x80];
 	/* 0x30020 */ JGeometry::TVec3<f32> unk30020[0x80][0x80];
-	/* 0x60020 */ JGeometry::TVec2<f32> unk60020[0x4000];
+	/* 0x60020 */ JGeometry::TVec2<f32> unk60020[0x80][0x80];
 	/* 0x80020 */ TRotation3f unk80020;
 	/* 0x80050 */ JGeometry::SMatrix34C<f32> unk80050;
 	/* 0x80080 */ f32 unk80080[9];
