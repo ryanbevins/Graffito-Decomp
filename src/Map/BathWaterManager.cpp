@@ -1292,21 +1292,18 @@ void TBathWaterMeshRenderer::makeNormalMap()
 	f32 scale = -unk80134->meshWidth.get() / (f32)unk800AC;
 	if (unk80134->bendsNormal.get() == 0)
 		scale *= 2.0f;
-	f32 scaleSq = scale * scale;
 
-	for (s32 x = 0; x < unk800AC; ++x) {
-		for (s32 z = 0; z < unk800AC; ++z) {
-			s32 x0 = x > 0 ? x - 1 : 0;
-			s32 x1 = x < unk800AC - 1 ? x + 1 : x;
-			s32 z0 = z > 0 ? z - 1 : 0;
-			s32 z1 = z < unk800AC - 1 ? z + 1 : z;
+	for (s32 r = 0; r < unk800AC; ++r) {
+		for (s32 c = 0; c < unk800AC; ++c) {
+			f32 a  = unk20[r > 0 ? r - 1 : 0][c].y;
+			f32 b  = unk20[r < unk800AC - 1 ? r + 1 : r][c].y;
+			f32 a2 = unk20[r][c > 0 ? c - 1 : 0].y;
+			f32 b2 = unk20[r][c < unk800AC - 1 ? c + 1 : c].y;
 
-			JGeometry::TVec3<f32>& normal = unk30020[x * 0x80 + z];
-			normal.x = scale * (unk20[x1][z].y - unk20[x0][z].y);
-			normal.y = scaleSq;
-			normal.z = scale * (unk20[x][z1].y - unk20[x][z0].y);
-
-			normal.normalize();
+			unk30020[r][c].x = scale * (b - a);
+			unk30020[r][c].y = scale * scale;
+			unk30020[r][c].z = scale * (b2 - a2);
+			unk30020[r][c].normalize();
 		}
 	}
 }
