@@ -488,11 +488,11 @@ inline void TBathWater::addDrop(const JGeometry::TVec3<f32>& position, f32 velY)
 
 inline void TBathWater::TDrop::doThing(f32 damp)
 {
-	unk0 += unk18.i;
-	unk0 += unk18.f;
+	unk0.add(unk18.i);
+	unk0.add(unk18.f);
 	unkC.scale(damp);
-	unkC += unk30.i;
-	unkC += unk30.f;
+	unkC.add(unk30.i);
+	unkC.add(unk30.f);
 }
 
 inline bool TBathWater::eraseDrop(TDrop* drop)
