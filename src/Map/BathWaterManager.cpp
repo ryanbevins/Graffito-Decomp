@@ -469,12 +469,10 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
 	}
 }
 
-static inline const TBathtubData& bathData(u8* bathtub)
+static inline const TBathtubData& bathData(TBathtub* bathtub)
 {
-	return ((TBathtub*)bathtub)->getBathtubData();
+	return bathtub->getBathtubData();
 }
-
-static inline u8& rawU8(u8* base, u32 offset) { return *(u8*)(base + offset); }
 
 static inline void clearDropForces(TBathWater::TDrop& drop)
 {
@@ -832,7 +830,7 @@ void TBathWaterPreprocessor::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	TBathWaterManager* manager = unk10;
 	if (manager->unk24 && manager->unk30)
-		manager->unk30->prerender(graphics, *(TBathtubData*)(manager->unk24 + 0x170),
+		manager->unk30->prerender(graphics, manager->unk24->getBathtubData(),
 		                           manager->unk20, manager->unk14, 2);
 }
 
@@ -856,9 +854,9 @@ void TBathWaterManager::initializeIfYet_()
 	if (unk24 != 0)
 		return;
 
-	u8* bathtub = (u8*)JDrama::TNameRefGen::search<JDrama::TNameRef>(
+	TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>(
 	    "\x83\x6F\x83\x58\x83\x5E\x83\x75");
-	if (bathtub == 0 || rawU8(bathtub, 0x298) == 0)
+	if (bathtub == 0 || bathtub->unk298 == 0)
 		return;
 
 	const TBathtubData& data = bathData(bathtub);
@@ -875,7 +873,7 @@ void TBathWaterManager::initializeIfYet_()
 
 void TBathWaterManager::throwMario(f32 jump)
 {
-	u8* bathtub               = unk24;
+	TBathtub* bathtub         = unk24;
 	const TBathtubData& data  = bathData(bathtub);
 	JGeometry::TVec3<f32> diff(gpMarioPos->x - data.unk0.x,
 	                           gpMarioPos->y - data.unk0.y,
@@ -975,9 +973,9 @@ void TBathWaterManager::loadAfter()
 	    JDrama::TNameRef>(
 	    "\x83\x58\x83\x4E\x83\x8A\x81\x5B\x83\x93\x83\x65\x83\x4E\x83\x58\x83\x60\x83\x83");
 	JUTTexture* texture = screenTexture(screen);
-	unk28               = new TBathWaterFlatRenderer(unk18);
-	unk2C               = new TBathWaterMeshRenderer(unk18, texture);
-	unk30               = unk2C;
+	unk28[0]            = new TBathWaterFlatRenderer(unk18);
+	unk28[1]            = new TBathWaterMeshRenderer(unk18, texture);
+	unk30               = unk28[1];
 }
 
 void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
@@ -988,45 +986,49 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (flags & 1) {
-		TBathWaterRenderer** renderers = &unk28;
-		unk30                          = renderers[unk18->displaysMesh.get()];
+		unk30 = unk28[unk18->displaysMesh.get()];
 		unk1C += 1;
 
 		if ((unk1C & 3) == 0) {
-			const TBathtubData& data = bathData(unk24);
-			for (int i = 0; i < 2; ++i)
-				TBathWater::TDrop::calcWaterModel(unk20[i], data);
+			for (int i = 0; i < 2; ++i) {
+				TBathWater* water       = unk20[i];
+				const TBathtubData& data = unk24->getBathtubData();
+				TBathWater::TDrop::calcWaterModel(water, data);
+			}
 
-			if (rawU8(unk24, 0x29a) == 0) {
+			if (unk24->unk29A == 0) {
 				for (int i = 0; i < 2; ++i) {
-					if ((*gpMarioFlag & 0x400) != 0 || !unk14[i]->checksMario.get())
-						continue;
-
-					if (unk20[i]->tryHitMario(SMS_GetMarioHitActor()))
-						throwMario(unk14[i]->jump.get());
+					if ((*gpMarioFlag & 0x400) == 0 && unk14[i]->checksMario.get()) {
+						if (unk20[i]->tryHitMario(SMS_GetMarioHitActor()))
+							throwMario(unk14[i]->jump.get());
+					}
 				}
 
 				if ((*gpMarioFlag & 0x400) == 0) {
-					if (unk20[0]->tryHitMario2(SMS_GetMarioHitActor(), data))
+					if (unk20[0]->tryHitMario2(SMS_GetMarioHitActor(),
+					                           unk24->getBathtubData()))
 						throwMario(unk14[0]->jump.get());
 				}
 			}
-		}
 
-		if ((unk1C & 7) == 4 && rawU8(unk24, 0x1d4) != 0) {
-			TBathWater* overflow     = unk20[1];
-			const TBathtubData& data = bathData(unk24);
-			JGeometry::TVec3<f32> pos;
-			if (fakeCalcPos(data, unk14[1]->dropRadius.get(),
-			                unk10.get_float(-1.0f, 1.0f), &pos)) {
-				overflow->addDrop(pos, 10.0f * (unk10.get_float01() - 1.0f));
+			if ((unk1C & 7) == 4 && unk24->getBathtubData().unk64 != 0) {
+				TBathWater* overflow     = unk20[1];
+				const TBathtubData& data = unk24->getBathtubData();
+				JGeometry::TVec3<f32> pos;
+				if (fakeCalcPos(data, unk14[1]->dropRadius.get(),
+				                unk10.get_float(-1.0f, 1.0f), &pos)) {
+					overflow->addDrop(pos, unk10.get_float01());
+				}
 			}
-		}
 
-		JGeometry::TVec3<f32> soundPos = unk20[0]->unk78;
-		if (unk20[0]->unk84 > 0.0f && gpMSound->gateCheck(0x819d))
-			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-			    0x819d, (Vec*)&soundPos, 0, unk20[0]->unk84, 0, 0, 0, 0, 4);
+			TBathWater* soundWater = unk20[0];
+			JGeometry::TVec3<f32> soundPos;
+			soundPos.set(soundWater->unk78);
+			f32 volume = soundWater->unk84;
+			if (volume > 0.0f)
+				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+				    0x819d, (Vec*)&soundPos, 0, volume, 0, 0, 0, 0, 4);
+		}
 	}
 
 	if ((flags & 8) && unk30 != 0)

@@ -11,6 +11,7 @@
 class J3DModel;
 class J3DModelData;
 class JUTTexture;
+class TBathtub;
 
 class TBathtubData {
 public:
@@ -245,9 +246,8 @@ public:
 	/* 0x18 */ TBathWaterGlobalParams* unk18;
 	/* 0x1C */ u8 unk1C;
 	/* 0x20 */ TBathWater** unk20;
-	/* 0x24 */ u8* unk24;
-	/* 0x28 */ TBathWaterRenderer* unk28;
-	/* 0x2C */ TBathWaterRenderer* unk2C;
+	/* 0x24 */ TBathtub* unk24;
+	/* 0x28 */ TBathWaterRenderer* unk28[2];
 	/* 0x30 */ TBathWaterRenderer* unk30;
 	/* 0x34 */ TBathWaterPreprocessor unk34;
 };
