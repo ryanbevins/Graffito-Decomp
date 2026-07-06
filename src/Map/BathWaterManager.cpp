@@ -575,15 +575,14 @@ inline bool TBathWater::tryHitMario2(THitActor* mario,
 inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
                                               const TBathtubData& data)
 {
-	TBathWaterParams* params = water->unk8C;
-	f32 gravity             = params->gravity.get();
+	f32 gravity = water->unk8C->gravity.get();
 	JGeometry::TVec3<f32> gravityDir
-	    = data.getGravityDir(params->overGravity.get());
+	    = data.getGravityDir(water->unk8C->overGravity.get());
 	JGeometry::TVec3<f32> gravityForce(gravityDir.x * -gravity,
 	                                   gravityDir.y * -gravity,
 	                                   gravityDir.z * -gravity);
 	JGeometry::TVec3<f32> downGravity(0.0f, -gravity, 0.0f);
-	f32 radius = params->dropRadius.get();
+	f32 radius = water->unk8C->dropRadius.get();
 	int active = 0;
 	JGeometry::TVec3<f32> average(0.0f, 0.0f, 0.0f);
 
@@ -652,9 +651,9 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
 					yMove = overlap;
 
 				JGeometry::TVec3<f32> bounce(
-				    normal.x * yMove * params->bounceXZ.get(),
-				    normal.y * yMove * params->bounceY.get(),
-				    normal.z * yMove * params->bounceXZ.get());
+				    normal.x * yMove * water->unk8C->bounceXZ.get(),
+				    normal.y * yMove * water->unk8C->bounceY.get(),
+				    normal.z * yMove * water->unk8C->bounceXZ.get());
 				other->unk30.extend(bounce);
 
 				bounce.negate();
@@ -670,35 +669,35 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
 	int respawnIndex = 0;
 	for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
 		if (drop->unk0.y < floorY) {
-			if (params->suppliesDrops.get() && data.unk65 == 0) {
+			if (water->unk8C->suppliesDrops.get() && data.unk65 == 0) {
 				drop->reset(data.getPos(respawnIndex++, water->unk70, radius),
 				            water->unk68.get_float01());
 			} else if (water->eraseDrop(drop)) {
 				end -= 1;
-				drop->doThing(params->damp.get());
+				drop->doThing(water->unk8C->damp.get());
 			}
 		} else {
-			drop->doThing(params->damp.get());
+			drop->doThing(water->unk8C->damp.get());
 		}
 	}
 
-	if (params->lifeTime.get() > 0) {
+	if (water->unk8C->lifeTime.get() > 0) {
 		for (TBathWater::TDrop* drop = water->unk88; drop < end;
 		     --end, ++drop) {
 			drop->unk4C += 1;
-			if (drop->unk4C > params->lifeTime.get())
+			if (drop->unk4C > water->unk8C->lifeTime.get())
 				water->eraseDrop(drop);
 		}
 	}
 
-	if (water->unk74 < params->numDrops.get()) {
-		if (params->suppliesDrops.get() && data.unk65 == 0) {
+	if (water->unk74 < water->unk8C->numDrops.get()) {
+		if (water->unk8C->suppliesDrops.get() && data.unk65 == 0) {
 			water->unk88[water->unk74++].reset(
 			    data.getPos(respawnIndex++, water->unk70, radius),
 			    water->unk68.get_float01());
 		}
-	} else if (water->unk74 > params->numDrops.get()) {
-		water->unk74 = params->numDrops.get();
+	} else if (water->unk74 > water->unk8C->numDrops.get()) {
+		water->unk74 = water->unk8C->numDrops.get();
 	}
 }
 
