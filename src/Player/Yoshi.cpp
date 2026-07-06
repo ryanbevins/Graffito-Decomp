@@ -654,11 +654,7 @@ void TYoshi::thinkUpper()
 
 	((J3DFrameCtrl*)((u8*)this + 0x5C))->update();
 
-	void* upperAnm = *(void**)((u8*) * (void**)((u8*) * (void**)(
-	                                            (u8*)mActor + 0x4)
-	                                            + 0x4)
-	                           + 0x20);
-	upperAnm      = *(void**)((u8*)upperAnm + 0x48);
+	J3DJoint* upperAnm = mActor->unk4->getModelData()->getJointNodePointer(18);
 
 	u8 active;
 	if (mTongue->mState != TYoshiTongue::STATE_IDLE) {
@@ -690,30 +686,27 @@ void TYoshi::thinkUpper()
 	}
 
 	if (active) {
-		if (*(void**)((u8*)upperAnm + 0x58)
-		    != *(void**)((u8*)this + 0x54)) {
+		if (upperAnm->getMtxCalc() != *(J3DMtxCalc**)((u8*)this + 0x54)) {
 			*(f32*)((u8*)this + 0x6C) = *(s16*)((u8*)this + 0x62);
 			*(f32*)((u8*)this + 0x68) = 1.0f;
 			*(s16*)((u8*)this + 0x64)
 			    = *(s16*)(*(u32*)((u8*)this + 0x4C) + 0x2);
 			*(f32*)((u8*)this + 0x6C) = 0.0f;
-			*(void**)((u8*)upperAnm + 0x58) = *(void**)((u8*)this + 0x54);
+			upperAnm->setMtxCalc(*(J3DMtxCalc**)((u8*)this + 0x54));
 			mBckPlayer2->initAnmSound(mAnimFrameRates[3], 1, 0.0f);
 		}
 		*(f32*)(*(u32*)((u8*)this + 0x4C) + 0x4)
 		    = *(f32*)((u8*)this + 0x6C);
 	} else {
-		if (*(void**)((u8*)upperAnm + 0x58)
-		    == *(void**)((u8*)this + 0x54)) {
+		if (upperAnm->getMtxCalc() == *(J3DMtxCalc**)((u8*)this + 0x54)) {
 			*(f32*)((u8*)this + 0x6C) = *(s16*)((u8*)this + 0x62);
 			*(f32*)((u8*)this + 0x68) = 1.0f;
 			*(s16*)((u8*)this + 0x64)
 			    = *(s16*)(*(u32*)((u8*)this + 0x50) + 0x2);
 			*(f32*)((u8*)this + 0x6C) = 0.0f;
-			*(void**)((u8*)upperAnm + 0x58) = *(void**)((u8*)this + 0x58);
+			upperAnm->setMtxCalc(*(J3DMtxCalc**)((u8*)this + 0x58));
 			mBckPlayer2->initAnmSound(mAnimFrameRates[4], 1, 0.0f);
-		} else if (*(void**)((u8*)upperAnm + 0x58)
-		           == *(void**)((u8*)this + 0x58)) {
+		} else if (upperAnm->getMtxCalc() == *(J3DMtxCalc**)((u8*)this + 0x58)) {
 			int ended;
 			if (*(u8*)((u8*)this + 0x61) & 3) {
 				ended = 1;
@@ -721,7 +714,7 @@ void TYoshi::thinkUpper()
 				ended = 0;
 			}
 			if (ended)
-				*(void**)((u8*)upperAnm + 0x58) = nullptr;
+				upperAnm->setMtxCalc(nullptr);
 		}
 		*(f32*)(*(u32*)((u8*)this + 0x50) + 0x4)
 		    = *(f32*)((u8*)this + 0x6C);
