@@ -892,7 +892,7 @@ void TYoshi::thinkHoldOut()
 // movement - 0x8014DAF4
 void TYoshi::movement()
 {
-	if (!gpMarDirector->checkUnk124Thing2()
+	if (gpMarDirector->unk124 != 3 && gpMarDirector->unk124 != 4
 	    && !gpMarDirector->isTalkModeNow()) {
 		if (!mMario->checkStatusType(0x1000) && mCurJuice > 0) {
 			--mCurJuice;
