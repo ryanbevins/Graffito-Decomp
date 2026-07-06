@@ -175,6 +175,7 @@ public:
 	void makeNormalMap();
 	void calcCoord();
 	void clearHeightMap();
+	void tmpFake(const JGeometry::TVec3<f32>&, const JGeometry::TVec3<f32>&);
 
 	virtual void prerender(JDrama::TGraphics*, const TBathtubData&,
 	                       TBathWater**, TBathWaterParams**, int);
@@ -187,9 +188,9 @@ public:
 	/* 0x00020 */ JGeometry::TVec3<f32> unk20[0x80][0x80];
 	/* 0x30020 */ JGeometry::TVec3<f32> unk30020[0x80][0x80];
 	/* 0x60020 */ JGeometry::TVec2<f32> unk60020[0x80][0x80];
-	/* 0x80020 */ TRotation3f unk80020;
-	/* 0x80050 */ JGeometry::SMatrix34C<f32> unk80050;
-	/* 0x80080 */ f32 unk80080[9];
+	/* 0x80020 */ TPosition3f unk80020;
+	/* 0x80050 */ TPosition3f unk80050;
+	/* 0x80080 */ JGeometry::TVec3<f32> unk80080;
 	/* 0x800A4 */ void* unk800A4;
 	/* 0x800A8 */ void* unk800A8;
 	/* 0x800AC */ s16 unk800AC;

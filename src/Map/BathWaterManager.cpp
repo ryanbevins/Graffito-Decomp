@@ -1322,8 +1322,8 @@ void TBathWaterMeshRenderer::calcCoord()
 
 	for (s32 x = 0; x < unk800AE; ++x) {
 		for (s32 z = 0; z < unk800AE; ++z) {
-			unk20[x][z].x = unk80080[0] * (f32)x;
-			unk20[x][z].z = unk80080[2] * (f32)z;
+			unk20[x][z].x = unk80080.x * (f32)x;
+			unk20[x][z].z = unk80080.z * (f32)z;
 		}
 	}
 
@@ -1480,19 +1480,9 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 	GXSetTexCoordGen2(GX_TEXCOORD3, GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX0,
 	                  GX_FALSE, GX_PTIDENTITY);
 
-	f32 cell       = unk800B0 * unk80134->meshWidth.get();
-	unk80080[0]   = cell;
-	unk80080[1]   = -4.0f * data.unk3C;
-	unk80080[2]   = cell;
-	unk80050.mMtx[0][0] = 1.0f;
-	unk80050.mMtx[1][0] = 0.0f;
-	unk80050.mMtx[2][0] = 0.0f;
-	unk80050.mMtx[0][1] = 0.0f;
-	unk80050.mMtx[1][1] = 1.0f;
-	unk80050.mMtx[2][1] = 0.0f;
-	unk80050.mMtx[0][2] = 0.0f;
-	unk80050.mMtx[1][2] = 0.0f;
-	unk80050.mMtx[2][2] = 1.0f;
+	f32 cell = unk800B0 * unk80134->meshWidth.get();
+	unk80080.set(cell, -4.0f * data.unk3C, cell);
+	unk80050.identity33();
 	unk80050.mMtx[0][3] = data.unk0.x - 0.5f * unk80134->meshWidth.get();
 	unk80050.mMtx[1][3] = data.unk0.y - data.unk44 + 3.0f * data.unk3C;
 	unk80050.mMtx[2][3] = data.unk0.z - 0.5f * unk80134->meshWidth.get();
@@ -1608,7 +1598,7 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 	else
 		GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
 
-	makeHeightMap(unk80080[1]);
+	makeHeightMap(unk80080.y);
 	makeNormalMap();
 	calcCoord();
 	DCStoreRange(unk20, 0x30000);
@@ -1632,6 +1622,12 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 	GXSetProjection(graphics->mProjMtx.mMtx, GX_PERSPECTIVE);
 }
 
+inline void TBathWaterMeshRenderer::tmpFake(const JGeometry::TVec3<f32>& dir,
+                                            const JGeometry::TVec3<f32>& up)
+{
+	unk80020.setLookDir(dir, up);
+}
+
 void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
                                         const TBathtubData& data,
                                         TBathWater** waters,
@@ -1646,7 +1642,7 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 	JGeometry::TVec3<f32> eye(center.x, center.y + radius * 3.0f, center.z);
 	JGeometry::TVec3<f32> dir(0.0f, -radius * 4.0f, 0.0f);
 	JGeometry::TVec3<f32> up(0.0f, 0.0f, -1.0f);
-	unk80020.setLookDir(dir, up);
+	tmpFake(dir, up);
 	unk80020.mMtx[0][3]
 	    = -((eye.x * unk80020.mMtx[0][0])
 	        + (eye.y * unk80020.mMtx[0][1])
@@ -1815,13 +1811,13 @@ f32 TBathWaterMeshRenderer::getHeight(f32 x, f32 z) const
 	if (n < 1)
 		return 0.0f;
 
-	int i = (int)((x - unk80050.at(0, 3)) / unk80080[0]);
+	int i = (int)((x - unk80050.at(0, 3)) / unk80080.x);
 	if (i < 0)
 		i = 0;
 	else if (i >= n)
 		i = n - 1;
 
-	int j = (int)((z - unk80050.at(2, 3)) / unk80080[2]);
+	int j = (int)((z - unk80050.at(2, 3)) / unk80080.z);
 	if (j < 0)
 		j = 0;
 	else if (j >= n)
@@ -1836,21 +1832,8 @@ void TBathWaterMeshRenderer::clearHeightMap()
 		for (int z = 0; z < 0x80; ++z)
 			unk20[x][z].y = 0.0f;
 
-	unk80080[0]         = 1.0f;
-	unk80080[1]         = 1.0f;
-	unk80080[2]         = 1.0f;
-	unk80050.mMtx[2][3] = 0.0f;
-	unk80050.mMtx[1][3] = 0.0f;
-	unk80050.mMtx[0][3] = 0.0f;
-	unk80050.mMtx[1][2] = 0.0f;
-	unk80050.mMtx[0][2] = 0.0f;
-	unk80050.mMtx[2][1] = 0.0f;
-	unk80050.mMtx[0][1] = 0.0f;
-	unk80050.mMtx[2][0] = 0.0f;
-	unk80050.mMtx[1][0] = 0.0f;
-	unk80050.mMtx[2][2] = 1.0f;
-	unk80050.mMtx[1][1] = 1.0f;
-	unk80050.mMtx[0][0] = 1.0f;
+	unk80080.set(1.0f, 1.0f, 1.0f);
+	unk80050.identity();
 }
 
 f32 TBathWaterManager::getWaterHeight(f32 x, f32 z) const
