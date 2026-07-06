@@ -443,7 +443,7 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
 			unk18.extend(push);
 
 			JGeometry::TVec3<f32> bounce;
-			bounce.scale(1.5f * -wall.dot(unkC), wall);
+			bounce.scale(1.5f * -data.unk24.dot(unkC), data.unk24);
 			JGeometry::TVec3<f32> away;
 			away.set(delta);
 			away.setLength(0.01f * radius);
