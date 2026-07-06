@@ -449,12 +449,9 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
 		                             data.unk24.y * speed,
 		                             data.unk24.z * speed);
 
-		if (distSq > JGeometry::TUtil<f32>::epsilon()) {
-			f32 scale = 0.01f * radius * JGeometry::TUtil<f32>::inv_sqrt(distSq);
-			bounce.x += dx * scale;
-			bounce.y += dy * scale;
-			bounce.z += dz * scale;
-		}
+		JGeometry::TVec3<f32> away(dx, dy, dz);
+		away.setLength(0.01f * radius);
+		bounce.add(away);
 
 		unk30.extend(bounce);
 		unk30.extend(maxClamp);
