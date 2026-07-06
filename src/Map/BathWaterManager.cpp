@@ -1279,7 +1279,7 @@ void TBathWaterMeshRenderer::makeHeightMap(f32 scale)
 					u16 high   = *(u16*)texel;
 					u16 low    = *(u16*)(texel + 0x20);
 					s32 sample = low | ((high << 16) & 0x00ff0000);
-					unk20[(x + bx * 4) * 0x80 + (z + bz * 4)].y
+					unk20[x + bx * 4][z + bz * 4].y
 					    = scale * (5.9604645e-8f * (f32)sample);
 				}
 			}
@@ -1302,11 +1302,9 @@ void TBathWaterMeshRenderer::makeNormalMap()
 			s32 z1 = z < unk800AC - 1 ? z + 1 : z;
 
 			JGeometry::TVec3<f32>& normal = unk30020[x * 0x80 + z];
-			normal.x = scale
-			           * (unk20[x1 * 0x80 + z].y - unk20[x0 * 0x80 + z].y);
+			normal.x = scale * (unk20[x1][z].y - unk20[x0][z].y);
 			normal.y = scaleSq;
-			normal.z = scale
-			           * (unk20[x * 0x80 + z1].y - unk20[x * 0x80 + z0].y);
+			normal.z = scale * (unk20[x][z1].y - unk20[x][z0].y);
 
 			normal.normalize();
 		}
@@ -1835,18 +1833,14 @@ f32 TBathWaterMeshRenderer::getHeight(f32 x, f32 z) const
 	else if (iz >= unk800AC)
 		iz = unk800AC - 1;
 
-	JGeometry::TVec3<f32> (*grid)[0x80] = (JGeometry::TVec3<f32>(*)[0x80])unk20;
-	JGeometry::TVec3<f32>* cell        = &grid[ix][iz];
-	return cell->y + unk80050.mMtx[1][3];
+	return unk20[ix][iz].y + unk80050.mMtx[1][3];
 }
 
 void TBathWaterMeshRenderer::clearHeightMap()
 {
-	JGeometry::TVec3<f32> (*grid)[0x80]
-	    = (JGeometry::TVec3<f32>(*)[0x80])unk20;
 	for (int x = 0; x < 0x80; ++x)
 		for (int z = 0; z < 0x80; ++z)
-			grid[x][z].y = 0.0f;
+			unk20[x][z].y = 0.0f;
 
 	unk80080[0]         = 1.0f;
 	unk80080[1]         = 1.0f;
