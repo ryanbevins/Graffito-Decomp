@@ -16,6 +16,7 @@ public:
 	void startCameraInbetween(int);
 	void addMoveCameraAndMario(const Vec&);
 	void warpPosAndAt(const Vec&, const Vec&);
+	bool isThing() const { return mChaseFrame != 0.0f ? true : false; }
 
 	/* 0x00 */ s32 mFrameTotal;
 	/* 0x04 */ s32 mFrameCount;

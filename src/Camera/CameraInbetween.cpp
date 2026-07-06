@@ -1,41 +1,52 @@
 #include <Camera/CameraInbetween.hpp>
 #include <Camera/cameralib.hpp>
 
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define CALC_POLAR_DATA()                                                      \
+	do {                                                                       \
+		CLBCrossToPolar(mTargetAt, mTargetPos, &mDist, &mAngleX, &mAngleY);    \
+		CLBCrossToPolar(mPrevAt, mTargetAt, &mSubDist, &mSubAngleX,            \
+		                &mSubAngleY);                                          \
+	} while (0)
+
 template <> s16 CLBRoundf<s16>(f32);
 
-TCameraInbetween::TCameraInbetween()
+inline void CLBChaseConstantSpecifyFrame(s16* value, s16 target, f32 frames)
 {
-	mFrameTotal         = 1;
-	mFrameCount         = 0;
-	mTargetPos.x        = 0.0f;
-	mTargetPos.y        = 0.0f;
-	mTargetPos.z        = 0.0f;
-	mTargetAt.x         = 0.0f;
-	mTargetAt.y         = 0.0f;
-	mTargetAt.z         = 0.0f;
-	mPrevAt.x           = 0.0f;
-	mPrevAt.y           = 0.0f;
-	mPrevAt.z           = 0.0f;
-	mUseAngularVelocity = 0;
-	mAngularVelocity    = 0;
-	mChaseFrame         = 0.0f;
+	if (frames < 0.001f) {
+		*value = target;
+		return;
+	}
+
+	s16 delta = target - *value;
+	*value += CLBRoundf<s16>((1.0f / frames) * delta);
 }
 
-void TCameraInbetween::initCameraInbetween(
-    const JGeometry::TVec3<f32>& pos, const JGeometry::TVec3<f32>& at,
-    const JGeometry::TVec3<f32>& prev)
+TCameraInbetween::TCameraInbetween()
+    : mFrameTotal(1)
+    , mFrameCount(0)
+    , mTargetPos(0.0f, 0.0f, 0.0f)
+    , mTargetAt(0.0f, 0.0f, 0.0f)
+    , mPrevAt(0.0f, 0.0f, 0.0f)
+    , mUseAngularVelocity(0)
+    , mAngularVelocity(0)
+    , mChaseFrame(0.0f)
 {
-	mTargetPos.x = pos.x;
-	mTargetPos.y = pos.y;
-	mTargetPos.z = pos.z;
-	mTargetAt.x  = at.x;
-	mTargetAt.y  = at.y;
-	mTargetAt.z  = at.z;
-	mPrevAt.x    = prev.x;
-	mPrevAt.y    = prev.y;
-	mPrevAt.z    = prev.z;
-	CLBCrossToPolar(mTargetAt, mTargetPos, &mDist, &mAngleX, &mAngleY);
-	CLBCrossToPolar(mPrevAt, mTargetAt, &mSubDist, &mSubAngleX, &mSubAngleY);
+}
+
+void TCameraInbetween::warpPosAndAt(const Vec& pos, const Vec& at)
+{
+	mTargetPos.set(pos);
+	mTargetAt.set(at);
+	CALC_POLAR_DATA();
+}
+
+void TCameraInbetween::addMoveCameraAndMario(const Vec& offset)
+{
+	mTargetPos += offset;
+	mTargetAt += offset;
+	mPrevAt += offset;
+	CALC_POLAR_DATA();
 }
 
 void TCameraInbetween::startCameraInbetween(int frames)
@@ -43,110 +54,62 @@ void TCameraInbetween::startCameraInbetween(int frames)
 	mFrameCount         = frames;
 	mFrameTotal         = frames;
 	mUseAngularVelocity = 0;
-	CLBCrossToPolar(mTargetAt, mTargetPos, &mDist, &mAngleX, &mAngleY);
-	CLBCrossToPolar(mPrevAt, mTargetAt, &mSubDist, &mSubAngleX, &mSubAngleY);
+	CALC_POLAR_DATA();
 }
 
-void TCameraInbetween::addMoveCameraAndMario(const Vec& d)
+void TCameraInbetween::initCameraInbetween(
+    const JGeometry::TVec3<f32>& pos, const JGeometry::TVec3<f32>& at,
+    const JGeometry::TVec3<f32>& prev)
 {
-	mTargetPos.x += d.x;
-	mTargetPos.y += d.y;
-	mTargetPos.z += d.z;
-	mTargetAt.x += d.x;
-	mTargetAt.y += d.y;
-	mTargetAt.z += d.z;
-	mPrevAt.x += d.x;
-	mPrevAt.y += d.y;
-	mPrevAt.z += d.z;
-	CLBCrossToPolar(mTargetAt, mTargetPos, &mDist, &mAngleX, &mAngleY);
-	CLBCrossToPolar(mPrevAt, mTargetAt, &mSubDist, &mSubAngleX, &mSubAngleY);
-}
-
-void TCameraInbetween::warpPosAndAt(const Vec& pos, const Vec& at)
-{
-	mTargetPos.x = pos.x;
-	mTargetPos.y = pos.y;
-	mTargetPos.z = pos.z;
-	mTargetAt.x  = at.x;
-	mTargetAt.y  = at.y;
-	mTargetAt.z  = at.z;
-	CLBCrossToPolar(mTargetAt, mTargetPos, &mDist, &mAngleX, &mAngleY);
-	CLBCrossToPolar(mPrevAt, mTargetAt, &mSubDist, &mSubAngleX, &mSubAngleY);
+	mTargetPos.set(pos);
+	mTargetAt.set(at);
+	mPrevAt.set(prev);
+	CALC_POLAR_DATA();
 }
 
 void TCameraInbetween::execCameraInbetween(
     const JGeometry::TVec3<f32>& pos, const JGeometry::TVec3<f32>& at,
     const JGeometry::TVec3<f32>& prev)
 {
-	mTargetPos.x = pos.x;
-	mTargetPos.y = pos.y;
-	mTargetPos.z = pos.z;
-	mTargetAt.x  = at.x;
-	mTargetAt.y  = at.y;
-	mTargetAt.z  = at.z;
+	mTargetPos.set(pos);
+	mTargetAt.set(at);
+
 	if (mFrameCount > 0) {
-		f32 frames = (f32)mFrameCount;
-		if ((mChaseFrame != 0.0f) ? true : false) {
+		f32 frames = mFrameCount;
+
+		if (isThing())
 			CLBChaseConstantSpecifyFrame(&mChaseFrame, 0.0f, frames);
+
+		f32 dist;
+		s16 angleX;
+		s16 angleY;
+		CLBCrossToPolar(prev, at, &dist, &angleX, &angleY);
+
+		CLBChaseConstantSpecifyFrame(&mSubDist, dist, frames);
+		CLBChaseConstantSpecifyFrame(&mSubAngleX, angleX, frames);
+		CLBChaseConstantSpecifyFrame(&mSubAngleY, angleY, frames);
+
+		if (ABS(prev.x - at.x) > 0.1f || ABS(prev.z - at.z) > 0.1f) {
+			JGeometry::TVec3<f32> tmp;
+			CLBPolarToCross(prev, &tmp, mSubDist, mSubAngleX, mSubAngleY);
+			mTargetAt.x = tmp.x;
+			mTargetAt.z = tmp.z;
 		}
-		f32 localDist;
-		s16 localAngleX;
-		s16 localAngleY;
-		CLBCrossToPolar(prev, at, &localDist, &localAngleX, &localAngleY);
-		CLBChaseConstantSpecifyFrame(&mSubDist, localDist, frames);
-		if (frames < 0.001f) {
-			mSubAngleX = localAngleX;
-		} else {
-			mSubAngleX
-			    += CLBRoundf<s16>((f32)(s16)(localAngleX - mSubAngleX)
-			                      * (1.0f / frames));
-		}
-		if (frames < 0.001f) {
-			mSubAngleY = localAngleY;
-		} else {
-			mSubAngleY
-			    += CLBRoundf<s16>((f32)(s16)(localAngleY - mSubAngleY)
-			                      * (1.0f / frames));
-		}
-		f32 dx = prev.x - at.x;
-		if (!(dx >= 0.0f)) {
-			dx = -dx;
-		}
-		f32 dz = prev.z - at.z;
-		if (!(dz >= 0.0f)) {
-			dz = -dz;
-		}
-		if (dx > 0.1f || dz > 0.1f) {
-			Vec warp;
-			CLBPolarToCross(prev, &warp, mSubDist, mSubAngleX, mSubAngleY);
-			mTargetAt.x = warp.x;
-			mTargetAt.z = warp.z;
-		}
-		CLBCrossToPolar(mTargetAt, pos, &localDist, &localAngleX, &localAngleY);
-		CLBChaseConstantSpecifyFrame(&mDist, localDist, frames);
-		if (frames < 0.001f) {
-			mAngleX = localAngleX;
-		} else {
-			mAngleX += CLBRoundf<s16>((f32)(s16)(localAngleX - mAngleX)
-			                          * (1.0f / frames));
-		}
+
+		CLBCrossToPolar(mTargetAt, pos, &dist, &angleX, &angleY);
+		CLBChaseConstantSpecifyFrame(&mDist, dist, frames);
+		CLBChaseConstantSpecifyFrame(&mAngleX, angleX, frames);
 		if (mUseAngularVelocity == 0) {
-			if (frames < 0.001f) {
-				mAngleY = localAngleY;
-			} else {
-				mAngleY += CLBRoundf<s16>(
-				    (f32)(s16)(localAngleY - mAngleY) * (1.0f / frames));
-			}
+			CLBChaseConstantSpecifyFrame(&mAngleY, angleY, frames);
 		} else {
-			mAngleY = (s16)(mAngleY + mAngularVelocity);
+			mAngleY += mAngularVelocity;
 		}
+
 		CLBPolarToCross(mTargetAt, &mTargetPos, mDist, mAngleX, mAngleY);
 		mFrameCount -= 1;
-		if (mFrameCount == 0) {
+		if (mFrameCount == 0)
 			mUseAngularVelocity = 0;
-		}
 	}
-	mPrevAt.x = prev.x;
-	mPrevAt.y = prev.y;
-	mPrevAt.z = prev.z;
+
+	mPrevAt.set(prev);
 }
