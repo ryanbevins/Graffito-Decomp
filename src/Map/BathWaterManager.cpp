@@ -391,12 +391,11 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
 	f32 inner  = data.unk3C - radius;
 	f32 distSq = delta.squared();
 	f32 outerSq = outer * outer;
-	f32 innerSq = inner * inner;
 	f32 proj   = wall.dot(delta);
 
 	if (distSq <= outerSq) {
 		if (proj < 0.0f) {
-			if (distSq >= innerSq) {
+			if (distSq >= inner * inner) {
 				f32 dist = JGeometry::TUtil<f32>::sqrt(distSq);
 				f32 depth = dist - inner;
 				f32 inv  = -1.0f / dist;
@@ -437,7 +436,7 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
 		unk30.extend(minClamp);
 	} else {
 		if (proj > 0.0f && proj < radius + data.unk48
-		    && distSq > innerSq && distSq < outerSq) {
+		    && distSq > inner * inner && distSq < outerSq) {
 			JGeometry::TVec3<f32> push;
 			push.scale((radius + data.unk48) - proj, wall);
 			unk18.extend(push);
