@@ -60,32 +60,15 @@ void TMario::flowMove(const JGeometry::TVec3<f32>& flow)
 
 BOOL TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 {
-	JGeometry::TVec3<f32> localPos(pos);
-	localPos.sub(mPosition);
-	JGeometry::TVec3<f32> delta(localPos);
-
-	mPosition = *(JGeometry::TVec3<f32>*)&pos;
+	JGeometry::TVec3<f32> delta = pos - mPosition;
+	mPosition                    = pos;
 
 	// Adjust all position-relative fields by delta
-	unk160[0].x += delta.x;
-	unk160[0].y += delta.y;
-	unk160[0].z += delta.z;
-
-	mLastSafePos.x += delta.x;
-	mLastSafePos.y += delta.y;
-	mLastSafePos.z += delta.z;
-
-	mWireStartPos.x += delta.x;
-	mWireStartPos.y += delta.y;
-	mWireStartPos.z += delta.z;
-
-	mWireEndPos.x += delta.x;
-	mWireEndPos.y += delta.y;
-	mWireEndPos.z += delta.z;
-
-	mLastGroundPos.x += delta.x;
-	mLastGroundPos.y += delta.y;
-	mLastGroundPos.z += delta.z;
+	unk160[0] += delta;
+	mLastSafePos += delta;
+	mWireStartPos += delta;
+	mWireEndPos += delta;
+	mLastGroundPos += delta;
 
 	mLastGroundY += delta.y;
 
@@ -105,20 +88,7 @@ BOOL TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 	mJointMtx3[1][3] += delta.y;
 	mJointMtx3[2][3] += delta.z;
 
-	if (mRidingActor != NULL) {
-		Mtx localMtx;
-		if (mRidingActor->getRootJointMtx() == NULL) {
-			SMS_GetActorMtx(*mRidingActor, localMtx);
-		} else {
-			PSMTXCopy(*(mRidingActor->getRootJointMtx()), localMtx);
-		}
-		PSMTXInverse(localMtx, localMtx);
-
-		mRidePrevLocalPos = mRideLocalPos;
-
-		PSMTXMultVec(localMtx, (Vec*)&mPosition,
-		             (Vec*)&mRideLocalPos);
-	}
+	checkRideReCalc();
 
 	return true;
 }
