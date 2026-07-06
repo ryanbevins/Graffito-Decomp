@@ -192,7 +192,6 @@ void JAIBasic::checkPlayingStream()
 				releaseStreamParameterPointer(sound->getStreamParameter());
 				sound->clearMainSoundPPointer();
 				releaseControllerHandle(&unk0->unk21C, sound);
-				return;
 			}
 		}
 	}
