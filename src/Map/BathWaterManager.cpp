@@ -1620,25 +1620,34 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 	unk800AC = unk80134->meshTexWidth.get() & ~3;
 	unk800B0 = 1.0f / (f32)unk800AC;
 
-	f32 radius = data.unk3C;
-	JGeometry::TVec3<f32> center(data.unk0.x, data.unk0.y - data.unk44,
-	                              data.unk0.z);
-	JGeometry::TVec3<f32> eye(center.x, center.y + radius * 3.0f, center.z);
-	JGeometry::TVec3<f32> dir(0.0f, -radius * 4.0f, 0.0f);
+	f32 negR = -data.unk3C;
+	f32 R3   = 3.0f * data.unk3C;
+
+	JGeometry::TVec3<f32> v1;
+	v1.set(data.getThing());
+	if (data.unk3C * data.unk3C - data.unk44 * data.unk44 <= 0)
+		(void)(data.unk3C * data.unk3C - data.unk44 * data.unk44);
+
+	JGeometry::TVec3<f32> v2;
+	v2.set(data.getThing());
+
+	f32 ey = v2.y + R3;
+	JGeometry::TVec3<f32> v3;
+	v3.set(data.getThing());
+
+	JGeometry::TVec3<f32> dir(v3.x - v2.x, (v3.y + negR) - ey,
+	                          v3.z - v2.z);
 	JGeometry::TVec3<f32> up(0.0f, 0.0f, -1.0f);
 	tmpFake(dir, up);
-	unk80020.mMtx[0][3]
-	    = -((eye.x * unk80020.mMtx[0][0])
-	        + (eye.y * unk80020.mMtx[0][1])
-	        + (eye.z * unk80020.mMtx[0][2]));
-	unk80020.mMtx[1][3]
-	    = -((eye.x * unk80020.mMtx[1][0])
-	        + (eye.y * unk80020.mMtx[1][1])
-	        + (eye.z * unk80020.mMtx[1][2]));
-	unk80020.mMtx[2][3]
-	    = -((eye.x * unk80020.mMtx[2][0])
-	        + (eye.y * unk80020.mMtx[2][1])
-	        + (eye.z * unk80020.mMtx[2][2]));
+	unk80020.mMtx[0][3] = -unk80020.mMtx[0][0] * v2.x
+	                       - unk80020.mMtx[0][1] * ey
+	                       - unk80020.mMtx[0][2] * v2.z;
+	unk80020.mMtx[1][3] = -unk80020.mMtx[1][0] * v2.x
+	                       - unk80020.mMtx[1][1] * ey
+	                       - unk80020.mMtx[1][2] * v2.z;
+	unk80020.mMtx[2][3] = -unk80020.mMtx[2][0] * v2.x
+	                       - unk80020.mMtx[2][1] * ey
+	                       - unk80020.mMtx[2][2] * v2.z;
 
 	MtxPtr oldProjection = (MtxPtr)((u8*)gpCamera + 0x16C);
 	j3dSys.drawInit();
@@ -1647,30 +1656,15 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 	GXSetViewport(0.0f, 0.0f, (f32)renderWidth, (f32)renderHeight, 0.0f,
 	              1.0f);
 
-	JGeometry::SMatrix44C<f32> projection;
-	f32 meshWidth = unk80134->meshWidth.get();
-	f32 halfWidth = meshWidth * 0.5f;
-	f32 top       = halfWidth - (unk800B0 * meshWidth * (f32)renderHeight);
-	f32 right     = (unk800B0 * meshWidth * (f32)renderWidth) - halfWidth;
-	f32 depth     = (radius * 3.0f) - (-radius);
-	projection.mMtx[0][0] = 2.0f / (right + halfWidth);
-	projection.mMtx[0][1] = 0.0f;
-	projection.mMtx[0][2] = 0.0f;
-	projection.mMtx[0][3]
-	    = -0.5f * projection.mMtx[0][0] * (right - halfWidth);
-	projection.mMtx[1][0] = 0.0f;
-	projection.mMtx[1][1] = 2.0f / (halfWidth - top);
-	projection.mMtx[1][2] = 0.0f;
-	projection.mMtx[1][3]
-	    = -0.5f * projection.mMtx[1][1] * (halfWidth + top);
-	projection.mMtx[2][0] = 0.0f;
-	projection.mMtx[2][1] = 0.0f;
-	projection.mMtx[2][2] = -1.0f / depth;
-	projection.mMtx[2][3] = projection.mMtx[2][2] * depth;
-	projection.mMtx[3][0] = 0.0f;
-	projection.mMtx[3][1] = 0.0f;
-	projection.mMtx[3][2] = 0.0f;
-	projection.mMtx[3][3] = 1.0f;
+	TProjection3f projection;
+	f32 halfWidth = 0.5f * unk80134->meshWidth.get();
+	projection.orthographic(
+	    halfWidth,
+	    halfWidth
+	        - unk800B0 * (unk80134->meshWidth.get() * (f32)renderHeight),
+	    -halfWidth,
+	    unk800B0 * (unk80134->meshWidth.get() * (f32)renderWidth) - halfWidth,
+	    0.0f, R3 - negR);
 
 	GXSetProjection(projection.mMtx, GX_ORTHOGRAPHIC);
 	GXSetScissor(0, 0, unk800AC, unk800AC);
@@ -1756,9 +1750,9 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 
 		f32 radiusSq = data.unk3C * data.unk3C - data.unk44 * data.unk44;
 		f32 capRadius = JGeometry::TUtil<f32>::sqrt(radiusSq);
-		JGeometry::TVec3<f32> capCenter(center.x, center.y, center.z);
+		JGeometry::TVec3<f32> capCenter = data.getThing();
 		drawCap(capCenter, capRadius);
-		capCenter.y += 0.5f * -radius;
+		capCenter.y += 0.5f * negR;
 		drawCap(capCenter, capRadius + unk800B0 * unk80134->meshWidth.get());
 	}
 
