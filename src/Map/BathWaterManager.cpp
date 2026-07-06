@@ -384,35 +384,33 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
                                     int& count,
                                     JGeometry::TVec3<f32>& average)
 {
-	f32 dx       = unk0.x - data.unk0.x;
-	f32 dy       = unk0.y - data.unk0.y;
-	f32 dz       = unk0.z - data.unk0.z;
-	f32 distSq   = dx * dx + dy * dy + dz * dz;
-	f32 outer    = data.unk40 + radius;
-	f32 inner    = data.unk3C - radius;
-	f32 outerSq  = outer * outer;
-	f32 innerSq  = inner * inner;
-	f32 wallDist = data.unk24.x * dx + data.unk24.y * dy + data.unk24.z * dz;
+	JGeometry::TVec3<f32> wall(data.unk24.x, data.unk24.y, data.unk24.z);
+	JGeometry::TVec3<f32> delta;
+	delta.sub(unk0, data.unk0);
+	f32 outer  = data.unk40 + radius;
+	f32 inner  = data.unk3C - radius;
+	f32 distSq = delta.squared();
+	f32 proj   = wall.dot(delta);
 
-	if (distSq <= outerSq) {
-		if (wallDist < 0.0f) {
-			if (distSq >= innerSq) {
+	if (distSq <= outer * outer) {
+		if (proj < 0.0f) {
+			if (distSq >= inner * inner) {
 				f32 dist = JGeometry::TUtil<f32>::sqrt(distSq);
+				f32 depth = dist - inner;
 				f32 inv  = -1.0f / dist;
-				JGeometry::TVec3<f32> normal(dx * inv, dy * inv, dz * inv);
-				JGeometry::TVec3<f32> push(normal.x * (dist - inner),
-				                           normal.y * (dist - inner),
-				                           normal.z * (dist - inner));
+				JGeometry::TVec3<f32> normal;
+				normal.scale(inv, delta);
+				JGeometry::TVec3<f32> push;
+				push.scale(depth, normal);
 				unk18.extend(push);
 
-				f32 speed = -(normal.x * unkC.x + normal.y * unkC.y
-				              + normal.z * unkC.z);
+				f32 speed = -normal.dot(unkC);
 				if (speed < 0.0f)
 					speed = 0.0f;
 
-				JGeometry::TVec3<f32> bounce(data.unk58.x + normal.x * speed,
-				                             data.unk58.y + normal.y * speed,
-				                             data.unk58.z + normal.z * speed);
+				JGeometry::TVec3<f32> bounce;
+				bounce.scale(speed, normal);
+				bounce += data.unk58;
 				unk30.extend(bounce);
 			} else {
 				f32 floor = radius + (data.unk0.y - data.unk44);
@@ -421,43 +419,40 @@ void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
 					JGeometry::TVec3<f32> push(0.0f, pushY, 0.0f);
 					unk18.extend(push);
 
-					JGeometry::TVec3<f32> bounce(data.unk58.x,
-					                             data.unk58.y - unkC.y,
-					                             data.unk58.z);
+					JGeometry::TVec3<f32> bounce(0.0f, -1.0f * unkC.y, 0.0f);
+					bounce += data.unk58;
 					unk30.extend(bounce);
 				} else {
-					addDropToAverage(*this, count, average);
+					count++;
+					average.add(unk0);
 				}
 			}
 		} else {
-			addDropToAverage(*this, count, average);
+			count++;
+			average.add(unk0);
 		}
 
 		unk30.extend(minClamp);
-	} else if (wallDist > 0.0f && wallDist < radius + data.unk48
-	           && distSq > innerSq && distSq < outerSq) {
-		f32 depth = radius + data.unk48 - wallDist;
-		JGeometry::TVec3<f32> push(data.unk24.x * depth,
-		                           data.unk24.y * depth,
-		                           data.unk24.z * depth);
-		unk18.extend(push);
-
-		f32 speed = 1.5f
-		    * -(data.unk24.x * unkC.x + data.unk24.y * unkC.y
-		        + data.unk24.z * unkC.z);
-		JGeometry::TVec3<f32> bounce(data.unk24.x * speed,
-		                             data.unk24.y * speed,
-		                             data.unk24.z * speed);
-
-		JGeometry::TVec3<f32> away(dx, dy, dz);
-		away.setLength(0.01f * radius);
-		bounce.add(away);
-
-		unk30.extend(bounce);
-		unk30.extend(maxClamp);
 	} else {
-		unk30.extend(maxClamp);
-		addDropToAverage(*this, count, average);
+		if (proj > 0.0f && proj < radius + data.unk48
+		    && distSq > inner * inner && distSq < outer * outer) {
+			JGeometry::TVec3<f32> push;
+			push.scale((radius + data.unk48) - proj, wall);
+			unk18.extend(push);
+
+			JGeometry::TVec3<f32> bounce;
+			bounce.scale(1.5f * -wall.dot(unkC), wall);
+			JGeometry::TVec3<f32> away;
+			away.set(delta);
+			away.setLength(0.01f * radius);
+			bounce.add(away);
+			unk30.extend(bounce);
+			unk30.extend(maxClamp);
+		} else {
+			unk30.extend(maxClamp);
+			count++;
+			average.add(unk0);
+		}
 	}
 }
 
