@@ -782,7 +782,7 @@ inline void TBathWater::TDrop::reset(const JGeometry::TVec3<f32>& position,
 	unk4C = 0;
 }
 
-TBathWater::TBathWater()
+inline TBathWater::TBathWater()
     : THitActor("HitActor")
     , unk68(0)
 {
@@ -812,7 +812,7 @@ inline void TBathWater::initialize(TBathWaterParams* params,
 	unk84 = 0.0f;
 }
 
-TBathWaterPreprocessor::TBathWaterPreprocessor(TBathWaterManager* manager)
+inline TBathWaterPreprocessor::TBathWaterPreprocessor(TBathWaterManager* manager)
     : JDrama::TViewObj("<TViewObj>")
     , unk10(manager)
 {
@@ -962,6 +962,15 @@ void TBathWaterManager::load(JSUMemoryInputStream& stream)
 		unk14[i] = new TBathWaterParams(fileNames[i]);
 }
 
+inline TBathWaterFlatRenderer::TBathWaterFlatRenderer(
+    TBathWaterGlobalParams* params)
+    : unk2C(params)
+{
+	unk28 = new (0x20) u8[0x14a000];
+	unk24 = JKRGetResource("/scene/map/map/ball.bti");
+	init_tobj_resource(&unk4, unk24);
+}
+
 void TBathWaterManager::loadAfter()
 {
 	TScreenTexture* screen = (TScreenTexture*)JDrama::TNameRefGen::search<
@@ -1026,14 +1035,6 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (flags & 8)
 		unk30->prerender(graphics, unk24->getBathtubData(), unk20, unk14, 2);
-}
-
-TBathWaterFlatRenderer::TBathWaterFlatRenderer(TBathWaterGlobalParams* params)
-    : unk2C(params)
-{
-	unk28 = new (0x20) u8[0x14a000];
-	unk24 = JKRGetResource("/scene/map/map/ball.bti");
-	init_tobj_resource(&unk4, unk24);
 }
 
 void TBathWaterFlatRenderer::prerender(JDrama::TGraphics*,
