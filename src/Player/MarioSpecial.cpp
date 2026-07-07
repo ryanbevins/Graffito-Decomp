@@ -1,4 +1,5 @@
 #define JG_TUTIL_SQRT_OUT_OF_LINE
+#define JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
 #include <Player/MarioMain.hpp>
 #include <MSound/MSoundBGM.hpp>
 
@@ -17,6 +18,8 @@
 #include <Strategic/LiveActor.hpp>
 #include <System/MarDirector.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
+
+#undef JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
 
 inline BOOL TMario::wireWaitToSWaitL()
 {
