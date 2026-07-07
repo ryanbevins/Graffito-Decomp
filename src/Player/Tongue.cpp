@@ -1,5 +1,6 @@
 #define JGEOMETRY_TONGUE_TVEC3_MINUS_ASSIGN_OUT_OF_LINE
 #define JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
+#define JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
 #include <Player/Tongue.hpp>
 #include <Player/Yoshi.hpp>
 #include <Player/MarioAccess.hpp>
@@ -22,6 +23,7 @@
 
 #undef JGEOMETRY_TONGUE_TVEC3_MINUS_ASSIGN_OUT_OF_LINE
 #undef JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
+#undef JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
 
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
@@ -152,12 +154,7 @@ void TYoshiTongue::movement()
 		diff.sub(mHeadPos);
 		JGeometry::TVec3<f32> diffSave = diff;
 		if (mHeldObject != nullptr) {
-			f32 lsq = diff.squared();
-			f32 len;
-			if (lsq <= 0.0f)
-				len = lsq;
-			else
-				len = JGeometry::TUtil<f32>::inv_sqrt(lsq) * lsq;
+			f32 len = diff.length();
 
 			if (len < mMaxReach) {
 				JGeometry::TVec3<f32>* heldVelPtr
@@ -173,12 +170,7 @@ void TYoshiTongue::movement()
 			}
 		}
 		{
-			f32 lsq = diffSave.squared();
-			f32 len;
-			if (lsq <= 0.0f)
-				len = lsq;
-			else
-				len = JGeometry::TUtil<f32>::inv_sqrt(lsq) * lsq;
+			f32 len = diffSave.length();
 			if (len < mRetractedLength) {
 				if (mHeldObject != nullptr) {
 					mActorTypeInMouth = mHeldObject->mActorType;
@@ -265,12 +257,7 @@ void TYoshiTongue::movement()
 	case 7: {
 		JGeometry::TVec3<f32> diff;
 		diff.sub(mTipPos, mHeadPos);
-		f32 lsq = diff.squared();
-		f32 normInvScale;
-		if (lsq <= 0.0f)
-			normInvScale = lsq;
-		else
-			normInvScale = JGeometry::TUtil<f32>::inv_sqrt(lsq) * lsq;
+		f32 normInvScale = diff.length();
 
 		MtxPtr yoshiMtx = getTakingMtx();
 		f32 dx          = -yoshiMtx[0][0];
