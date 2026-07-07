@@ -119,8 +119,8 @@ public:
 	void execMotionBlend_();
 	void moveObject();
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
-	Vec getFocalPoint() const;
-	Vec getCursorPos() const;
+	JGeometry::TVec3<f32> getFocalPoint() const;
+	JGeometry::TVec3<f32> getCursorPos() const;
 	bool isInMadSearchRange() const;
 	bool isInBodyTurnSearchRange() const;
 	bool isNeedNeckStraight() const;

@@ -71,7 +71,7 @@ public:
 	virtual void kill();
 	virtual f32 getGravityY() const;
 	virtual BOOL hasMapCollision() const;
-	virtual Vec getFocalPoint() const;
+	virtual JGeometry::TVec3<f32> getFocalPoint() const;
 	virtual BOOL updateAnmSound();
 	virtual const char** getBasNameTable() const;
 

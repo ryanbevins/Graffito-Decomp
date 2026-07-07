@@ -78,7 +78,7 @@ void TBaseNPC::updateForbidCount_()
 		unk1E4 = unk1E4 - 1;
 }
 
-Vec TBaseNPC::getFocalPoint() const
+JGeometry::TVec3<f32> TBaseNPC::getFocalPoint() const
 {
 	return JGeometry::TVec3<f32>(
 	    mPosition.x,
@@ -89,7 +89,7 @@ Vec TBaseNPC::getFocalPoint() const
 	    mPosition.z);
 }
 
-Vec TBaseNPC::getCursorPos() const
+JGeometry::TVec3<f32> TBaseNPC::getCursorPos() const
 {
 	return JGeometry::TVec3<f32>(
 	    mPosition.x,
