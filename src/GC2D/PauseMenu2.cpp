@@ -527,9 +527,11 @@ void TPauseMenu2::drawAppearPane(J2DPicture* pic, f32 time, JUTRect& rect,
 		if (pic->isVisible()) {
 			pic->hide();
 		}
-	} else if (!(time >= 20.0f) && !pic->isVisible()) {
-		pic->show();
-		pic->setAlpha(0);
+	} else if (!(time >= 20.0f)) {
+		if (!pic->isVisible()) {
+			pic->show();
+			pic->setAlpha(0);
+		}
 
 		if (time == 2.0f) {
 			JUTRect local = pic->getGlobalBounds();
