@@ -279,20 +279,30 @@ void TPauseMenu2::perform(u32 param_1, JDrama::TGraphics* param_2)
 		}
 
 		if (param_1 & 8) {
-			if (unk10 == 0) {
+			switch (unk10) {
+			case 0: {
 				J2DOrthoGraph graph(param_2->mViewportRect);
 				graph.setup2D();
 				unk14->draw(0, 0, &graph);
 				GXSetScissor(param_2->mScissorRect.x1, param_2->mScissorRect.y1,
 				             param_2->mScissorRect.x2 - param_2->mScissorRect.x1,
 				             param_2->mScissorRect.y2 - param_2->mScissorRect.y1);
-			} else if (unk10 >= 0 && unk10 < 5) {
+				break;
+			}
+			case 1:
+			case 2:
+			case 3:
+			case 4: {
 				J2DOrthoGraph graph(param_2->mViewportRect);
 				graph.setup2D();
 				unk14->draw(0, 0, &graph);
 				GXSetScissor(param_2->mScissorRect.x1, param_2->mScissorRect.y1,
 				             param_2->mScissorRect.x2 - param_2->mScissorRect.x1,
 				             param_2->mScissorRect.y2 - param_2->mScissorRect.y1);
+				break;
+			}
+			default:
+				break;
 			}
 		}
 		return;
@@ -442,20 +452,30 @@ void TPauseMenu2::perform(u32 param_1, JDrama::TGraphics* param_2)
 	}
 
 	if (param_1 & 8) {
-		if (unk10 == 0) {
+		switch (unk10) {
+		case 0: {
 			J2DOrthoGraph graph(param_2->mViewportRect);
 			graph.setup2D();
 			unk14->draw(0, 0, &graph);
 			GXSetScissor(param_2->mScissorRect.x1, param_2->mScissorRect.y1,
 			             param_2->mScissorRect.x2 - param_2->mScissorRect.x1,
 			             param_2->mScissorRect.y2 - param_2->mScissorRect.y1);
-		} else if (unk10 >= 0 && unk10 < 5) {
+			break;
+		}
+		case 1:
+		case 2:
+		case 3:
+		case 4: {
 			J2DOrthoGraph graph(param_2->mViewportRect);
 			graph.setup2D();
 			unk14->draw(0, 0, &graph);
 			GXSetScissor(param_2->mScissorRect.x1, param_2->mScissorRect.y1,
 			             param_2->mScissorRect.x2 - param_2->mScissorRect.x1,
 			             param_2->mScissorRect.y2 - param_2->mScissorRect.y1);
+			break;
+		}
+		default:
+			break;
 		}
 	}
 }
