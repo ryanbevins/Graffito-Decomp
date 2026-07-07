@@ -310,7 +310,7 @@ void TMario::soundMovement()
 			}
 
 			if (aPressed == 0 && prevAPressed != 0) {
-				if (mSoundValues.unk1C > 120 && mVel.y < -74.0f)
+				if ((u32)mSoundValues.unk1C > 120 && mVel.y < -74.0f)
 					mSoundValues.unk20 = 8;
 				else
 					mSoundValues.unk20 = 4;
