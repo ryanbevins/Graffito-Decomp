@@ -413,35 +413,41 @@ namespace StreamLib {
 		static s16 L2;
 		static s16 R1;
 		static s16 R2;
+		u32 lsz;
+		u8* src;
+		s16* left;
+		s16* right;
+		u32 skipBytes = 0;
+		u32 blocks;
 
 		if (movieframe == 0 && playside == 0) {
-			L1 = 0;
-			L2 = 0;
-			R1 = 0;
 			R2 = 0;
+			R1 = 0;
+			L2 = 0;
+			L1 = 0;
 		}
 
-		u32 skipBytes = 0;
-		u8* src       = (u8*)adpcm_buffer;
-		s16* left     = (s16*)store_buffer[0];
-		s16* right    = (s16*)store_buffer[1];
+		src   = (u8*)adpcm_buffer;
+		left  = (s16*)store_buffer[0];
+		right = (s16*)store_buffer[1];
 
 		if (loop_start_flag != 0) {
+			skipBytes = ((header.unk14 >> 4) & 7) * 0x12;
 			loop_start_flag = false;
-			skipBytes       = ((header.unk14 >> 4) & 7) * 0x12;
 			loadsize        = 0x1680 - skipBytes;
-			src += skipBytes;
+			src             = (u8*)adpcm_buffer + skipBytes;
 		}
 
-		u32 frames = loadsize / 0x12;
-		for (u32 frame = 0; frame < frames; ++frame) {
+		lsz    = loadsize;
+		blocks = lsz / 0x12;
+		for (u32 block = 0; block < blocks; ++block) {
 			u8 predictor = *src++;
 			s16 coef1    = filter_table[(predictor & 0xF) * 2];
 			s16 coef2    = filter_table[(predictor & 0xF) * 2 + 1];
-			u8 shift     = predictor >> 4;
+			u32 shift    = predictor >> 4;
 
-			for (u32 i = 0; i < 8; ++i) {
-				u8 data = *src++;
+			for (u32 i = 0; i < 4; ++i) {
+				u8 data = src[0];
 				s16 sample
 				    = (s16)((table4[data >> 4] << shift)
 				            + ((coef1 * L1 + coef2 * L2) >> 11));
@@ -452,6 +458,20 @@ namespace StreamLib {
 				               + ((coef1 * L2 + coef2 * L1) >> 11));
 				*left++ = sample;
 				L1      = sample;
+
+				data = src[1];
+				sample
+				    = (s16)((table4[data >> 4] << shift)
+				            + ((coef1 * L1 + coef2 * L2) >> 11));
+				*left++ = sample;
+				L2      = sample;
+
+				sample = (s16)((table4[data & 0xF] << shift)
+				               + ((coef1 * L2 + coef2 * L1) >> 11));
+				*left++ = sample;
+				L1      = sample;
+
+				src += 2;
 			}
 
 			predictor = *src++;
@@ -459,8 +479,8 @@ namespace StreamLib {
 			coef2     = filter_table[(predictor & 0xF) * 2 + 1];
 			shift     = predictor >> 4;
 
-			for (u32 i = 0; i < 8; ++i) {
-				u8 data = *src++;
+			for (u32 i = 0; i < 4; ++i) {
+				u8 data = src[0];
 				s16 sample
 				    = (s16)((table4[data >> 4] << shift)
 				            + ((coef1 * R1 + coef2 * R2) >> 11));
@@ -471,40 +491,59 @@ namespace StreamLib {
 				               + ((coef1 * R2 + coef2 * R1) >> 11));
 				*right++ = sample;
 				R1       = sample;
+
+				data = src[1];
+				sample
+				    = (s16)((table4[data >> 4] << shift)
+				            + ((coef1 * R1 + coef2 * R2) >> 11));
+				*right++ = sample;
+				R2       = sample;
+
+				sample = (s16)((table4[data & 0xF] << shift)
+				               + ((coef1 * R2 + coef2 * R1) >> 11));
+				*right++ = sample;
+				R1       = sample;
+
+				src += 2;
 			}
 		}
 
-		loadup_samples += ((loadsize - skipBytes) / 0x12) * 0x10;
+		loadup_samples += (((lsz - skipBytes) / 0x12) & 0x7FFFFFF) << 4;
 
-		u32 samples = frames * 0x10;
-		for (u32 i = 0; i < samples; ++i) {
-			u32 sample = i + shift_sample;
-			if (sample == 0x1400) {
+		u32 pos;
+		u32 sampleIdx;
+		for (sampleIdx = 0; sampleIdx < (loadsize / 0x12) * 0x10;
+		     ++sampleIdx) {
+			pos = sampleIdx + shift_sample;
+			if (pos == 0x1400) {
 				DCStoreRange(loop_buffer[0][playside] + shift_sample,
-				             (0x1400 - shift_sample) * sizeof(s16));
+				             (0x1400 - shift_sample) * 2);
 				DCStoreRange(loop_buffer[1][playside] + shift_sample,
-				             (0x1400 - shift_sample) * sizeof(s16));
+				             (0x1400 - shift_sample) * 2);
 				playside = (playside + 1) % LOOP_BLOCKS;
 			}
 
-			if (sample >= 0x1400)
-				sample -= 0x1400;
+			if (pos >= 0x1400)
+				pos -= 0x1400;
 
-			loop_buffer[0][playside][sample] = ((s16*)store_buffer[0])[i];
-			loop_buffer[1][playside][sample] = ((s16*)store_buffer[1])[i];
+			loop_buffer[0][playside][pos] = ((s16*)store_buffer[0])[sampleIdx];
+			loop_buffer[1][playside][pos] = ((s16*)store_buffer[1])[sampleIdx];
 		}
 
+		u32 endPos = sampleIdx + shift_sample;
 		DCStoreRange(loop_buffer[0][playside], 0x2800);
 		DCStoreRange(loop_buffer[1][playside], 0x2800);
 
-		u32 sample = samples + shift_sample;
-		if (sample == 0x1400)
+		if (endPos == 0x1400)
 			playside = (playside + 1) % LOOP_BLOCKS;
 
-		if (sample >= 0x1400)
-			shift_sample = sample - 0x1400;
-		else
-			shift_sample = sample;
+		if (endPos >= 0x1400) {
+			shift_sample = endPos - 0x1400;
+		} else {
+			shift_sample = endPos;
+			if (endPos > 0x1400)
+				shift_sample -= 0x1400;
+		}
 	}
 
 	static void __Decode() { }
