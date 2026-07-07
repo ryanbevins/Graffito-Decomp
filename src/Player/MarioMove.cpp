@@ -2268,8 +2268,15 @@ void TMario::checkRideMovement()
 	}
 
 	if (rideActor != 0) {
-		if (mRidingActor != 0
-		    && mRidingActor == rideActor) {
+		if (mRidingActor == 0 || mRidingActor != rideActor) {
+			// newRide
+			mRidingActor = rideActor;
+
+			TLiveActor* ride = mRidingActor;
+			mRidePrevRotY = ride->mRotation.y;
+
+			checkRideReCalc();
+		} else {
 			// sameRide
 			TLiveActor* cur = mRidingActor;
 			Mtx stackMtx;
@@ -2293,30 +2300,6 @@ void TMario::checkRideMovement()
 
 			ride = mRidingActor;
 			mRidePrevRotY = ride->mRotation.y;
-		} else {
-			// newRide
-			mRidingActor = rideActor;
-
-			TLiveActor* ride = mRidingActor;
-			mRidePrevRotY = ride->mRotation.y;
-
-			ride = mRidingActor;
-			if (ride != 0) {
-				Mtx stackMtx;
-				if (ride->getRootJointMtx() == 0) {
-					SMS_GetActorMtx(*ride, stackMtx);
-				} else {
-					PSMTXCopy((MtxPtr)ride->getRootJointMtx(), stackMtx);
-				}
-
-				PSMTXInverse(stackMtx, stackMtx);
-
-				mRidePrevLocalPos = mRideLocalPos;
-
-				PSMTXMultVec(stackMtx,
-				             (Vec*)&mPosition,
-				             (Vec*)&mRideLocalPos);
-			}
 		}
 	} else {
 		mRidingActor = nullptr;
