@@ -780,7 +780,19 @@ bool TBaseNPC::npcWetting()
 				}
 			} else {
 				if (isSunflower() && (unk1D8 & 0x2)) {
-					if (sunflowerReviving()) {
+					bool acted = false;
+					if ((unk1D8 & 0x2) && unkD0->mCurrentAnmKind == 0x1A) {
+						if (mMActor->isCurAnmAlreadyEnd(0)) {
+							unk1D8 &= ~0x2;
+							if (mLiveFlag & 0x80000) {
+								requestTalkAnm_();
+							} else {
+								npcWaitIn();
+							}
+							acted = true;
+						}
+					}
+					if (acted) {
 						npcWetOut();
 						ret = true;
 					}
