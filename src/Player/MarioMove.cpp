@@ -570,6 +570,11 @@ void TMario::calcGroundMtx(const JGeometry::TVec3<f32>& inPos)
 	mGroundMtx[2][3] = pos.z;
 }
 
+inline void TMario::setPlayerJumpSpeed(f32 speed_mult, f32 force)
+{
+	mVel.y = mForwardVel * speed_mult + force;
+}
+
 u32 TMario::setStatusToJumping(u32 status, u32 arg)
 {
 	mLastGroundY = mPosition.y;
@@ -577,16 +582,19 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 	s16 health = unk360;
 	s32 halfMaxHealth = mDeParams.mFootPrintTimerMax.get() / 2;
 	if (health > halfMaxHealth) {
-		gpPollution->stamp(1, getMpositionX(), mPosition.y, mPosition.z,
-		                   mDirtyParams.mPolSizeJump.get());
+		f32 stampSize = mDirtyParams.mPolSizeJump.get();
+		f32 z         = mPosition.z;
+		f32 y         = mPosition.y;
+		f32 x         = getMpositionX();
+		gpPollution->stamp(1, x, y, z, stampSize);
 	}
 
 	switch (status) {
 	case 0x089C:
 	case 0x02000880: {
 		// Standard/running jump
-		mVel.y = mForwardVel * 0.25f + 42.0f;
-		mForwardVel = mForwardVel * 0.8f;
+		setPlayerJumpSpeed(0.25f, 42.0f);
+		mForwardVel *= 0.8f;
 
 		const TBGCheckData* ground = mGroundPlane;
 		u8 hasSlipFlag;
@@ -654,35 +662,31 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 	}
 	case 0x02000881: {
 		// Hip-drop jump
-		mVel.y
-		    = mForwardVel * mJumpParams.mSecJumpSpeedMult.get()
-		      + mJumpParams.mSecJumpForce.get();
-		mForwardVel = mForwardVel * mJumpParams.mSecJumpXZMult.get();
+		setPlayerJumpSpeed(mJumpParams.mSecJumpSpeedMult.get(),
+		                   mJumpParams.mSecJumpForce.get());
+		mForwardVel *= mJumpParams.mSecJumpXZMult.get();
 		startVoice(0x78B1);
 		break;
 	}
 	case 0x02000886: {
 		// Special jump (ground pound variant)
-		mVel.y = mForwardVel * 0.0f + 62.0f;
+		setPlayerJumpSpeed(0.0f, 62.0f);
 		mForwardVel = 24.0f;
 		startVoice(0x78B1);
 		break;
 	}
 	case 0x0882: {
 		// Somersault jump
-		mVel.y
-		    = mForwardVel * mJumpParams.mUltraJumpSpeedMult.get()
-		      + mJumpParams.mUltraJumpForce.get();
-		mForwardVel = mForwardVel * mJumpParams.mUltraJumpXZMult.get();
+		setPlayerJumpSpeed(mJumpParams.mUltraJumpSpeedMult.get(),
+		                   mJumpParams.mUltraJumpForce.get());
+		mForwardVel *= mJumpParams.mUltraJumpXZMult.get();
 		startVoice(0x78B6);
 		break;
 	}
 	case 0x0883: {
 		// Side somersault
 		mForwardVel = mJumpParams.mBackJumpForce.get();
-		mVel.y
-		    = mForwardVel * 0.0f
-		      + mJumpParams.mBackJumpForceY.get();
+		setPlayerJumpSpeed(0.0f, mJumpParams.mBackJumpForceY.get());
 		startVoice(0x78B6);
 		break;
 	}
@@ -700,16 +704,14 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 	case 0x0895:
 	case 0x0896: {
 		// Backflip
-		mVel.y
-		    = mForwardVel * 0.25f + mJumpParams.mRotateJumpForceY.get();
-		mForwardVel = mForwardVel * 0.8f;
+		setPlayerJumpSpeed(0.25f, mJumpParams.mRotateJumpForceY.get());
+		mForwardVel *= 0.8f;
 		startVoice(0x78B6);
 		break;
 	}
 	case 0x0887: {
 		// Spin jump
-		mVel.y
-		    = mForwardVel * 0.0f + mJumpParams.mTurnJumpForce.get();
+		setPlayerJumpSpeed(0.0f, mJumpParams.mTurnJumpForce.get());
 		mForwardVel = 8.0f;
 		mFaceAngle.y
 		    = mIntendedYaw;
@@ -750,13 +752,11 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		else
 			isBeach = 0;
 		if (isBeach) {
-			mVel.y
-			    = mForwardVel * mSurfingParamsWaterRed.mJumpXZRatio.get()
-			      + mSurfingParamsWaterRed.mJumpPow.get();
+			setPlayerJumpSpeed(mSurfingParamsWaterRed.mJumpXZRatio.get(),
+			                   mSurfingParamsWaterRed.mJumpPow.get());
 		} else {
-			mVel.y
-			    = mForwardVel * mSurfingParamsGroundRed.mJumpXZRatio.get()
-			      + mSurfingParamsGroundRed.mJumpPow.get();
+			setPlayerJumpSpeed(mSurfingParamsGroundRed.mJumpXZRatio.get(),
+			                   mSurfingParamsGroundRed.mJumpPow.get());
 		}
 		break;
 	}
@@ -788,7 +788,7 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 	case 0x02000885: {
 		// Jumping from certain state
 		startVoice(0x78AB);
-		mVel.y = mForwardVel * 0.25f + 42.0f;
+		setPlayerJumpSpeed(0.25f, 42.0f);
 		break;
 	}
 	case 0x088B: {
@@ -813,7 +813,7 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 			// Hover
 			startVoice(0x78AB);
 		}
-		mVel.y = mForwardVel * 0.0f + 10.0f;
+		setPlayerJumpSpeed(0.0f, 10.0f);
 		break;
 	}
 	case 0x02000890: {
@@ -823,31 +823,25 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		case 0xD2:
 			// Triple jump
 			startVoice(0x78B1);
-			mVel.y
-			    = mForwardVel * 0.25f
-			      + mDeParams.mTramplePowStep2.get();
+			setPlayerJumpSpeed(0.25f, mDeParams.mTramplePowStep2.get());
 			break;
 		case 0xD3:
 			// Double jump (D3)
 			startVoice(0x78B6);
-			mVel.y
-			    = mForwardVel * 0.25f
-			      + mDeParams.mTramplePowStep3.get();
+			setPlayerJumpSpeed(0.25f, mDeParams.mTramplePowStep3.get());
 			break;
 		default:
 			// Other
 			startVoice(0x78AB);
-			mVel.y
-			    = mForwardVel * 0.25f
-			      + mDeParams.mTramplePowStep1.get();
+			setPlayerJumpSpeed(0.25f, mDeParams.mTramplePowStep1.get());
 			break;
 		}
-		mForwardVel = mForwardVel * 0.8f;
+		mForwardVel *= 0.8f;
 		break;
 	}
 	case 0x0892: {
 		// Directional air
-		mVel.y = mForwardVel * 0.25f + 42.0f;
+		setPlayerJumpSpeed(0.25f, 42.0f);
 		mForwardVel = 0.0f;
 		u16 angle = mFaceAngle.y;
 		mSlideVelX = mForwardVel * jmaSinTable[angle >> jmaSinShift];
@@ -899,7 +893,7 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 	}
 	case 0x0894: {
 		// Slide jump
-		mVel.y = mForwardVel * 0.0f + 42.0f;
+		setPlayerJumpSpeed(0.0f, 42.0f);
 		mForwardVel = 0.0f;
 		u16 angle = mFaceAngle.y;
 		mSlideVelX = mForwardVel * jmaSinTable[angle >> jmaSinShift];
