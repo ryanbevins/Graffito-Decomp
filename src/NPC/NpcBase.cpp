@@ -378,7 +378,9 @@ void TBaseNPC::calcRootMatrix()
 			blending = false;
 		if (!blending)
 			setKeepAnm_();
-		((TNpcInbetween*)mUnk18C)->execMotionBlend(mMActor);
+		MActor* actor = mMActor;
+		TNpcInbetween* inbetween = (TNpcInbetween*)mUnk18C;
+		inbetween->execMotionBlend(actor);
 		bool forced;
 		if (((TNpcInbetween*)mUnk18C)->mForcedBlendRatio > 0.0f)
 			forced = true;
@@ -935,9 +937,9 @@ bool TBaseNPC::isMadNpc() const
 	return result;
 }
 
-BOOL TBaseNPC::isPartsAnmNpc() const
+bool TBaseNPC::isPartsAnmNpc() const
 {
-	BOOL result   = FALSE;
+	bool result   = false;
 	bool isGroupA = false;
 	u32 type      = mActorType;
 	switch (type) {
@@ -946,13 +948,13 @@ BOOL TBaseNPC::isPartsAnmNpc() const
 		isGroupA = true;
 	}
 	if (isGroupA) {
-		result = TRUE;
+		result = true;
 	} else {
 		switch (type) {
 		case 0x04000010:
 		case 0x04000015:
 		case 0x04000018:
-			result = TRUE;
+			result = true;
 		}
 	}
 	return result;

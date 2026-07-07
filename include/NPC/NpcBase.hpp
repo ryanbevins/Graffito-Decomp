@@ -124,7 +124,7 @@ public:
 	bool isInMadSearchRange() const;
 	bool isInBodyTurnSearchRange() const;
 	bool isNeedNeckStraight() const;
-	BOOL isPartsAnmNpc() const;
+	bool isPartsAnmNpc() const;
 	void isBehaveToHitNpc() const;
 	BOOL isBehaveToWaterNpc() const;
 	bool isMadNpc() const;
