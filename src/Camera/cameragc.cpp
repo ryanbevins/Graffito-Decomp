@@ -312,12 +312,15 @@ void CPolarSubCamera::perform(u32 flags, JDrama::TGraphics* gfx)
 				if (unk64 & 0x200) {
 					updateGateDemoCamera_();
 				} else if (unk64 & 0x1000) {
-					((TCameraBck*)unk2B0)
-					    ->updateDemo(
-					        (JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x10),
-					        (JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x1C),
-					        (JGeometry::TVec3<f32>*)((u8*)unk2B8 + 0x28),
-					        (f32*)((u8*)unk2B8 + 0x34));
+					u8* coaster = (u8*)unk2B8;
+					f32* frame  = (f32*)(coaster + 0x34);
+					JGeometry::TVec3<f32>* up
+					    = (JGeometry::TVec3<f32>*)(coaster + 0x28);
+					JGeometry::TVec3<f32>* at
+					    = (JGeometry::TVec3<f32>*)(coaster + 0x1C);
+					JGeometry::TVec3<f32>* pos
+					    = (JGeometry::TVec3<f32>*)(coaster + 0x10);
+					((TCameraBck*)unk2B0)->updateDemo(pos, at, up, frame);
 				}
 			}
 
