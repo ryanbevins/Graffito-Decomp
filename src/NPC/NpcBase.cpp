@@ -352,7 +352,9 @@ void TBaseNPC::execMotionBlend_()
 		blending = false;
 	if (!blending)
 		setKeepAnm_();
-	((TNpcInbetween*)mUnk18C)->execMotionBlend(mMActor);
+	MActor* actor = mMActor;
+	TNpcInbetween* inbetween = (TNpcInbetween*)mUnk18C;
+	inbetween->execMotionBlend(actor);
 	bool forced;
 	if (((TNpcInbetween*)mUnk18C)->mForcedBlendRatio > 0.0f)
 		forced = true;
