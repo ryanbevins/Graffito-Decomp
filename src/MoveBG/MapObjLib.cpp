@@ -581,23 +581,19 @@ void TMapObjBase::makeMtxRotByAxis(const JGeometry::TVec3<f32>& axis, f32 angle,
 void TMapObjBase::makeObjMtxRotByAxis(const JGeometry::TVec3<f32>& axis,
                                       f32 angle, MtxPtr mtx) const
 {
-	JGeometry::TRotation3<
-	    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >
-	    rot;
-	rot.identity();
-	rot.setRotate(axis, angle);
+	makeMtxRotByAxis(axis, angle, mtx);
 
-	mtx[0][0] = rot.at(0, 0) * mScaling.x;
-	mtx[0][1] = rot.at(0, 1) * mScaling.y;
-	mtx[0][2] = rot.at(0, 2) * mScaling.z;
+	mtx[0][0] *= mScaling.x;
+	mtx[0][1] *= mScaling.y;
+	mtx[0][2] *= mScaling.z;
 	mtx[0][3] = mPosition.x;
-	mtx[1][0] = rot.at(1, 0) * mScaling.x;
-	mtx[1][1] = rot.at(1, 1) * mScaling.y;
-	mtx[1][2] = rot.at(1, 2) * mScaling.z;
+	mtx[1][0] *= mScaling.x;
+	mtx[1][1] *= mScaling.y;
+	mtx[1][2] *= mScaling.z;
 	mtx[1][3] = mPosition.y - mYOffset;
-	mtx[2][0] = rot.at(2, 0) * mScaling.x;
-	mtx[2][1] = rot.at(2, 1) * mScaling.y;
-	mtx[2][2] = rot.at(2, 2) * mScaling.z;
+	mtx[2][0] *= mScaling.x;
+	mtx[2][1] *= mScaling.y;
+	mtx[2][2] *= mScaling.z;
 	mtx[2][3] = mPosition.z;
 }
 
