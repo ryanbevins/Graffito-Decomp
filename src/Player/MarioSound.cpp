@@ -175,7 +175,9 @@ void TMario::animSound()
 		mSoundFlags |= 0x15;
 
 	bool hasState8000 = (mState & 0x8000) ? true : false;
-	if (!hasState8000)
+	if (hasState8000)
+		mSoundFlags |= 0;
+	else
 		mSoundFlags |= 0x1000;
 
 	if (unk388 == 1)
