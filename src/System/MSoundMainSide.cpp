@@ -445,10 +445,9 @@ MSStage* MSStage::init(u8 map, u8)
 	switch (MSMainProc::MSStageInfo::fadeEvent) {
 	case 1: {
 		if (map != 8) {
-			u32 bgm       = 0x104;
-			f32 nearDist  = 6000.0f;
-			f32 farDist   = 1600.0f;
-			const Vec* pos = *(const Vec**)((u8*)gpMSound + 0xB8);
+			u32 bgm      = 0x104;
+			f32 nearDist = 6000.0f;
+			f32 farDist  = 1600.0f;
 
 			if (map == 7) {
 				nearDist = 3000.0f;
@@ -461,13 +460,12 @@ MSStage* MSStage::init(u8 map, u8)
 			}
 
 			smMSStage = new MSStageDistFade(
-			    pos, nearDist, farDist, bgm,
+			    *(const Vec**)((u8*)gpMSound + 0xB8), nearDist, farDist, bgm,
 			    MSMainProc::MSStageInfo::distFadeStageToKage);
 		} else {
-			const Vec* pos = *(const Vec**)((u8*)gpMSound + 0xB8);
-			smMSStage      = new MSStageDistFadeMonte(
-                pos, 6000.0f, 1600.0f, 0x5A,
-                MSMainProc::MSStageInfo::distFadeStageToKage);
+			smMSStage = new MSStageDistFadeMonte(
+			    *(const Vec**)((u8*)gpMSound + 0xB8), 6000.0f, 1600.0f,
+			    0x5A, MSMainProc::MSStageInfo::distFadeStageToKage);
 		}
 		break;
 	}
