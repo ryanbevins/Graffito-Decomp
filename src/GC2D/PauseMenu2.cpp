@@ -524,40 +524,34 @@ void TPauseMenu2::drawAppearPane(J2DPicture* pic, f32 time, JUTRect& rect,
                                  f32 factor)
 {
 	if (time < 0.0f) {
-		if (pic->mVisible) {
-			pic->mVisible = false;
+		if (pic->isVisible()) {
+			pic->hide();
 		}
-		return;
+	} else if (!(time >= 20.0f) && !pic->isVisible()) {
+		pic->show();
+		pic->setAlpha(0);
+
+		if (time == 2.0f) {
+			JUTRect local = pic->getGlobalBounds();
+			gpEmitterManager4D2->createEmitter(
+			    JGeometry::TVec3<f32>(
+			        local.x1 + 0.5f * local.getWidth(),
+			        local.y1 + 0.5f * local.getHeight(), 0.0f),
+			    0x1F9, nullptr, nullptr);
+		}
+
+		f32 t      = 0.05f * time;
+		s32 t1     = (s32)(2.0f * t * (1.0f - t) * 80.0f);
+		s32 t2     = (s32)(0.75f * (19.0f - time));
+		pic->mRotation = factor;
+		JUTRect paneBounds(rect.x1 + t2, rect.y1 - t1 + t2, rect.x2 - t2,
+		                   rect.y2 - t1 - t2);
+		pic->setBounds(paneBounds);
+
+		u16 alpha = (u16)(time * 12.8f);
+		if (alpha > 0xff) {
+			alpha = 0xff;
+		}
+		pic->setAlpha(alpha);
 	}
-
-	if (time >= 20.0f) {
-		return;
-	}
-
-	if (!pic->mVisible) {
-		pic->mVisible = true;
-		pic->mAlpha   = 0;
-	}
-
-	if (time == 2.0f) {
-		JUTRect local = ((J2DPane*)pic)->mGlobalBounds;
-		JGeometry::TVec3<f32> pos;
-		pos.set((f32)local.x1 + 0.5f * (f32)(local.x2 - local.x1),
-		        (f32)local.y1 + 0.5f * (f32)(local.y2 - local.y1), 0.0f);
-		gpEmitterManager4D2->createEmitter(pos, 0x1F9, nullptr, nullptr);
-	}
-
-	s32 t1 = (s32)(0.75f * (19.0f - time));
-	s32 t2 = (s32)(80.0f * (2.0f * (0.05f * time) * (1.0f - 0.05f * time)));
-	pic->mRotation = factor;
-	JUTRect r(rect.x1 + t1, rect.y1 - t2 + t1, rect.x2 - t1,
-	          rect.y2 - t2 - t1);
-
-	pic->mBounds   = r;
-
-	s32 alpha = (s32)(12.8f * time);
-	if ((u16)alpha > 0xff) {
-		alpha = 0xff;
-	}
-	pic->mAlpha = (u8)alpha;
 }
