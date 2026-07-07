@@ -381,6 +381,12 @@ namespace StreamLib {
 
 	void Hvqm_SetAudioDmaBuffers(u32 buffers) { }
 
+	inline void setPlayingFrame(s32 frame)
+	{
+		static s32 before = -1;
+		before            = frame;
+	}
+
 	static void __DecodePCM()
 	{
 		s16* p1;
@@ -705,7 +711,6 @@ namespace StreamLib {
 
 	s32 callBack(void* param)
 	{
-		static s32 before = -1;
 		static s32 oldstat;
 		static u32 old_dspside;
 
@@ -744,7 +749,7 @@ namespace StreamLib {
 		}
 
 		if (assign_ch[0] == nullptr || assign_ch[1] == nullptr) {
-			before    = -1;
+			setPlayingFrame(-1);
 			playflag  = 0;
 			playflag2 = 2;
 			JASystem::Dvd::unpauseDvdT();
@@ -794,7 +799,7 @@ namespace StreamLib {
 					                            (u32)&assign_ch[0]);
 					JASystem::TDSPChannel::free(assign_ch[1],
 					                            (u32)&assign_ch[1]);
-					before    = -1;
+					setPlayingFrame(-1);
 					playflag  = 0;
 					playflag2 = 2;
 					JASystem::Dvd::unpauseDvdT();
@@ -803,8 +808,8 @@ namespace StreamLib {
 				return 0;
 			}
 
-			before = ((playback_samples - buffer->unk74) * header.unkE)
-			         / header.unk8;
+			setPlayingFrame(((playback_samples - buffer->unk74) * header.unkE)
+			                / header.unk8);
 			++movieframe;
 
 			u32 dspside = (LOOP_SAMPLESIZE - (buffer->unk6C >> 16)) / 0x1400;
