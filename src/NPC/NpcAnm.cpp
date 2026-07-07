@@ -476,12 +476,12 @@ bool TBaseNPC::npcRecoverFromSinking()
 		if (fc->checkPass(32.0f)) {
 			mLiveFlag |= 0x08000000;
 			f32 grav = getGravityY();
-			f32 v    = 150.0f + (mSinkBaseY - mPosition.y);
 			f32 init = 0.0f;
+			f32 v    = mSinkBaseY - mPosition.y + 150.0f;
 			if (grav > 0.0f) {
-				v    = 8.0f * (v * (1.0f / grav)) + 1.0f;
-				v    = recoverSqrt(v);
-				init = (0.5f * grav) * (1.0f + v);
+				init = 0.5f * grav
+				       * (recoverSqrt(v * (1.0f / grav) * 8.0f + 1.0f)
+				           + 1.0f);
 			}
 			mVelocity.y = init;
 			if (mVelocity.y < 5.0f)
