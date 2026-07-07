@@ -11,17 +11,10 @@ namespace JDrama {
 template <class T, class U = TViewObj>
 class TViewObjPtrListT : public U, public JGadget::TList_pointer<T*> {
 public:
-	TViewObjPtrListT()
-	    : TViewObj("<TViewObjPtrListT>")
-	{
-	}
-
-	TViewObjPtrListT(const char* name)
+	TViewObjPtrListT(const char* name = "<TViewObjPtrListT>")
 	    : TViewObj(name)
 	{
 	}
-
-	virtual ~TViewObjPtrListT() { }
 
 	virtual void load(JSUMemoryInputStream& stream)
 	{
@@ -43,20 +36,23 @@ public:
 	virtual void loadAfter()
 	{
 		loadAfterSuper();
-		typename JGadget::TList_pointer<T*>::iterator it = this->begin();
-		for (; it != this->end(); ++it)
-			(*it)->loadAfter();
+
+		typedef typename JGadget::TList_pointer<T*>::iterator I;
+
+		for (I it = getChildren().begin(); it != getChildren().end(); ++it)
+			it->loadAfter();
 	}
 
 	virtual TNameRef* searchF(u16 key, const char* name)
 	{
-		TNameRef* res = TNameRef::searchF(key, name);
-		if (res != nullptr)
-			return res;
+		TNameRef* ref = TNameRef::searchF(key, name);
+		if (ref != nullptr)
+			return ref;
 
-		typename JGadget::TList_pointer<T*>::iterator it = this->begin();
-		for (; it != this->end(); ++it) {
-			TNameRef* r = (*it)->searchF(key, name);
+		typedef typename JGadget::TList_pointer<T*>::iterator I;
+
+		for (I it = getChildren().begin(); it != getChildren().end(); ++it) {
+			TNameRef* r = it->searchF(key, name);
 			if (r != nullptr)
 				return r;
 		}
@@ -69,7 +65,7 @@ public:
 
 	virtual void loadAfterSuper() { TNameRef::loadAfter(); }
 
-	// surprisingly, real. TODO: reconsider the rest of this class based on this
+	// surprisingly, real.
 #ifdef JDRAMA_VIEWOBJ_PTRLIST_GETCHILDREN_OUT_OF_LINE
 	JGadget::TList_pointer<T*>& getChildren();
 #else
@@ -83,9 +79,10 @@ public:
 template <class T, class U>
 void TViewObjPtrListT<T, U>::perform(u32 param_1, TGraphics* param_2)
 {
-	typename JGadget::TList_pointer<T*>::iterator it = this->begin();
-	for (; it != this->end(); ++it)
-		(*it)->testPerform(param_1, param_2);
+	typedef typename JGadget::TList_pointer<T*>::iterator I;
+
+	for (I it = getChildren().begin(); it != getChildren().end(); ++it)
+		it->testPerform(param_1, param_2);
 }
 
 template <class T, class U>
