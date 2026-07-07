@@ -1154,17 +1154,17 @@ public:
 	void pulling();
 	void setPullingAnm(const JGeometry::TVec3<f32>&, f32);
 	void getCurrentPullParams(f32*, f32*);
-	void wireSWaitToWaitR();
-	void wireSWaitToWaitL();
+	BOOL wireSWaitToWaitR();
+	BOOL wireSWaitToWaitL();
 	void wireRolling();
 	void getNozzleEmitVX(); // UNUSED
 	void wireHanging();
-	void wireReturn();
-	void wireSWaitToHang();
-	void wireWaitToHang();
+	BOOL wireReturn();
+	BOOL wireSWaitToHang();
+	BOOL wireWaitToHang();
 	void changeWireHanging();
-	void wireWaitToSWaitR();
-	void wireWaitToSWaitL();
+	BOOL wireWaitToSWaitR();
+	BOOL wireWaitToSWaitL();
 	void wireSWait();
 	void wireWait();
 	int wireMove(f32);

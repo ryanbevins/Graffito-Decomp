@@ -18,6 +18,94 @@
 #include <System/MarDirector.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 
+inline BOOL TMario::wireWaitToSWaitL()
+{
+	getOnWirePosAngle(&mPosition, &mModelFaceAngle);
+	mFaceAngle.y = mModelFaceAngle + 0x4000;
+	setAnimation(0xde, 1.0f);
+	if (isLast1AnimeFrame())
+		changePlayerStatus(0x351, 0, false);
+	return 0;
+}
+
+inline BOOL TMario::wireWaitToSWaitR()
+{
+	getOnWirePosAngle(&mPosition, &mModelFaceAngle);
+	mFaceAngle.y = mModelFaceAngle - 0x4000;
+	setAnimation(0xdf, 1.0f);
+	if (isLast1AnimeFrame()) {
+		changePlayerStatus(0x351, 0, false);
+		JGeometry::TVec3<f32> temp;
+		temp           = mWireStartPos;
+		mWireStartPos  = mWireEndPos;
+		mWireEndPos    = temp;
+		mWirePosRatio  = 1.0f - mWirePosRatio;
+	}
+	return 0;
+}
+
+inline BOOL TMario::wireWaitToHang()
+{
+	getOnWirePosAngle(&mPosition, &mModelFaceAngle);
+	mFaceAngle.y = mModelFaceAngle + 0x4000;
+	setAnimation(0xe1, 1.0f);
+	if (isLast1AnimeFrame()) {
+		BOOL canHang = FALSE;
+		if (mHeldObject == 0 && !onYoshi())
+			canHang = TRUE;
+		if (canHang)
+			return changePlayerStatus(0x10000357, 0, false);
+		return changePlayerStatus(0x88c, 0, false);
+	}
+	return 0;
+}
+
+inline BOOL TMario::wireSWaitToHang()
+{
+	getOnWirePosAngle(&mPosition, &mFaceAngle.y);
+	mModelFaceAngle = mFaceAngle.y;
+	setAnimation(0xe2, 1.0f);
+	if (isLast1AnimeFrame()) {
+		BOOL canHang = FALSE;
+		if (mHeldObject == 0 && !onYoshi())
+			canHang = TRUE;
+		if (canHang)
+			return changePlayerStatus(0x10000357, 0, false);
+		return changePlayerStatus(0x88c, 0, false);
+	}
+	return 0;
+}
+
+inline BOOL TMario::wireReturn()
+{
+	getOnWirePosAngle(&mPosition, &mFaceAngle.y);
+	mModelFaceAngle = mFaceAngle.y;
+	setAnimation(0xe4, 1.0f);
+	if (isLast1AnimeFrame())
+		changePlayerStatus(0x350, 0, false);
+	return 0;
+}
+
+inline BOOL TMario::wireSWaitToWaitL()
+{
+	getOnWirePosAngle(&mPosition, &mModelFaceAngle);
+	mFaceAngle.y = mModelFaceAngle - 0x4000;
+	setReverseAnimation(0xdf, 1.0f);
+	if (isAnimeLoopOrStop())
+		changePlayerStatus(0x350, 0, false);
+	return 0;
+}
+
+inline BOOL TMario::wireSWaitToWaitR()
+{
+	getOnWirePosAngle(&mPosition, &mModelFaceAngle);
+	mFaceAngle.y = mModelFaceAngle + 0x4000;
+	setReverseAnimation(0xde, 1.0f);
+	if (isAnimeLoopOrStop())
+		changePlayerStatus(0x350, 0, false);
+	return 0;
+}
+
 BOOL TMario::specMain()
 {
 	mWireBounceVelPrev = mWireBounceVel;
@@ -235,87 +323,15 @@ BOOL TMario::specMain()
 		wireSWait();
 		break;
 	case 0x352:
-		// wireWaitToHang R
-		getOnWirePosAngle(&mPosition, &mModelFaceAngle);
-		{
-			s16 angle = mModelFaceAngle;
-			mFaceAngle.y = angle + 0x4000;
-			setAnimation(0xde, 1.0f);
-		}
-		if (isLast1AnimeFrame()) {
-			changePlayerStatus(0x351, 0, false);
-		}
-		return 0;
+		return wireWaitToSWaitL();
 	case 0x353:
-		// wireWaitToHang L
-		getOnWirePosAngle(&mPosition, &mModelFaceAngle);
-		{
-			s16 angle = mModelFaceAngle;
-			mFaceAngle.y = angle - 0x4000;
-			setAnimation(0xdf, 1.0f);
-		}
-		if (isLast1AnimeFrame()) {
-			changePlayerStatus(0x351, 0, false);
-			// swap wire start/end
-			JGeometry::TVec3<f32> temp;
-			temp = mWireStartPos;
-			mWireStartPos = mWireEndPos;
-			mWireEndPos = temp;
-			mWirePosRatio = 1.0f - mWirePosRatio;
-		}
-		return 0;
+		return wireWaitToSWaitR();
 	case 0x10000554:
-		// wireSWaitToHang
-		getOnWirePosAngle(&mPosition, &mModelFaceAngle);
-		{
-			s16 angle = mModelFaceAngle;
-			mFaceAngle.y = angle + 0x4000;
-			setAnimation(0xe1, 1.0f);
-		}
-		if (isLast1AnimeFrame()) {
-			u8 canHang = 0;
-			if ((u32)mHeldObject == 0) {
-				if (!onYoshi())
-					canHang = 1;
-			}
-			if (canHang) {
-				changePlayerStatus(0x10000357, 0, false);
-				break;
-			}
-			changePlayerStatus(0x88c, 0, false);
-		}
-		return 0;
+		return wireWaitToHang();
 	case 0x10000555:
-		// wireSWaitToHang L variant
-		getOnWirePosAngle(&mPosition, &mFaceAngle.y);
-		{
-			mModelFaceAngle = mFaceAngle.y;
-			setAnimation(0xe2, 1.0f);
-		}
-		if (isLast1AnimeFrame()) {
-			u8 canHang = 0;
-			if ((u32)mHeldObject == 0) {
-				if (!onYoshi())
-					canHang = 1;
-			}
-			if (canHang) {
-				changePlayerStatus(0x10000357, 0, false);
-				break;
-			}
-			changePlayerStatus(0x88c, 0, false);
-		}
-		return 0;
+		return wireSWaitToHang();
 	case 0x10000556:
-		// wire swing enter
-		getOnWirePosAngle(&mPosition, &mFaceAngle.y);
-		{
-			mModelFaceAngle = mFaceAngle.y;
-			setAnimation(0xe4, 1.0f);
-		}
-		if (isLast1AnimeFrame()) {
-			changePlayerStatus(0x350, 0, false);
-		}
-		return 0;
+		return wireReturn();
 	case 0x10000357:
 		wireHanging();
 		break;
@@ -324,29 +340,9 @@ BOOL TMario::specMain()
 		wireRolling();
 		break;
 	case 0x35b:
-		// wire turn L
-		getOnWirePosAngle(&mPosition, &mModelFaceAngle);
-		{
-			s16 angle = mModelFaceAngle;
-			mFaceAngle.y = angle - 0x4000;
-			setReverseAnimation(0xdf, 1.0f);
-		}
-		if (isAnimeLoopOrStop()) {
-			changePlayerStatus(0x350, 0, false);
-		}
-		return 0;
+		return wireSWaitToWaitL();
 	case 0x35d:
-		// wire turn R
-		getOnWirePosAngle(&mPosition, &mModelFaceAngle);
-		{
-			s16 angle = mModelFaceAngle;
-			mFaceAngle.y = angle + 0x4000;
-			setReverseAnimation(0xde, 1.0f);
-		}
-		if (isAnimeLoopOrStop()) {
-			changePlayerStatus(0x350, 0, false);
-		}
-		return 0;
+		return wireSWaitToWaitR();
 	case 0x560:
 	case 0x40561:
 		pulling();
