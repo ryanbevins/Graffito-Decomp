@@ -523,7 +523,7 @@ check_sender_bit3:
 			}
 			{
 				f32 radius = sender->mDamageRadius;
-				keepDistance(sender->mPosition, 0.0f + radius, 0.0f);
+				keepDistance(sender->mPosition, 30.0f + radius, 0.0f);
 			}
 			return 1;
 
@@ -597,7 +597,7 @@ check_sender_bit3:
 			// Fall through to keepDistance
 			{
 				f32 radius = sender->mDamageRadius;
-				keepDistance(sender->mPosition, 0.0f + radius, 0.0f);
+				keepDistance(sender->mPosition, 30.0f + radius, 0.0f);
 			}
 			return 1;
 
