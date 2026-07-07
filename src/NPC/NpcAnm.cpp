@@ -470,7 +470,6 @@ void TBaseNPC::npcFallIn()
 
 bool TBaseNPC::npcRecoverFromSinking()
 {
-	bool changed = false;
 	if (!(mLiveFlag & 0x08000000)) {
 		J3DFrameCtrl* fc = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
 		if (fc->checkPass(32.0f)) {
@@ -488,6 +487,7 @@ bool TBaseNPC::npcRecoverFromSinking()
 				mVelocity.y = 5.0f;
 		}
 	}
+	bool changed = false;
 	if (mMActor->isCurAnmAlreadyEnd(0)) {
 		mLiveFlag &= ~0x80;
 		changed     = true;
