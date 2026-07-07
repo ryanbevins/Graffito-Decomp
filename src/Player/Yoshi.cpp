@@ -895,41 +895,12 @@ void TYoshi::movement()
 	thinkEat();
 
 	switch ((u8)mState) {
-	case 1:
-		--*(s16*)((u8*)this + 0x02);
-		if (*(s16*)((u8*)this + 0x02) <= 0) {
-			mState = (State)6;
-			changeAnimation(23);
-			*(s16*)((u8*)this + 0x02) = *(s16*)((u8*)this + 0x04);
-		}
-		break;
 	case 2:
 		if (mActor->curAnmEndsNext(0, nullptr)) {
 			mState = (State)6;
 			changeAnimation(23);
 			gpMSound->startMarioVoice(0x7919, 1, 1);
 		}
-		break;
-	case 3:
-		if (mActor->getFrameCtrl(0)->checkPass(60.0f)) {
-			gpMarioParticleManager->emitAndBindToPosPtr(
-			    0x3f, (JGeometry::TVec3<f32>*)((u8*)this + 0x74), 0, this);
-		}
-		if (mActor->curAnmEndsNext(0, nullptr)) {
-			mState = (State)5;
-			*(s16*)((u8*)this + 0x02) = 30;
-		}
-		break;
-	case 4:
-		gpMarioParticleManager->emitAndBindToPosPtr(
-		    0x3f, (JGeometry::TVec3<f32>*)((u8*)this + 0x74), 0, this);
-		mState = (State)5;
-		*(s16*)((u8*)this + 0x02) = 30;
-		break;
-	case 5:
-		mState = EGG;
-		if (mEgg != nullptr)
-			mEgg->startFruit();
 		break;
 	case 6: {
 		if (mActor->curAnmEndsNext(0, nullptr))
@@ -1015,6 +986,35 @@ void TYoshi::movement()
 			mType = 0;
 			*(s16*)((u8*)this + 0x02) = 30;
 		}
+		break;
+	case 1:
+		--*(s16*)((u8*)this + 0x02);
+		if (*(s16*)((u8*)this + 0x02) <= 0) {
+			mState = (State)6;
+			changeAnimation(23);
+			*(s16*)((u8*)this + 0x02) = *(s16*)((u8*)this + 0x04);
+		}
+		break;
+	case 3:
+		if (mActor->getFrameCtrl(0)->checkPass(60.0f)) {
+			gpMarioParticleManager->emitAndBindToPosPtr(
+			    0x3f, (JGeometry::TVec3<f32>*)((u8*)this + 0x74), 0, this);
+		}
+		if (mActor->curAnmEndsNext(0, nullptr)) {
+			mState = (State)5;
+			*(s16*)((u8*)this + 0x02) = 30;
+		}
+		break;
+	case 4:
+		gpMarioParticleManager->emitAndBindToPosPtr(
+		    0x3f, (JGeometry::TVec3<f32>*)((u8*)this + 0x74), 0, this);
+		mState = (State)5;
+		*(s16*)((u8*)this + 0x02) = 30;
+		break;
+	case 5:
+		mState = EGG;
+		if (mEgg != nullptr)
+			mEgg->startFruit();
 		break;
 	}
 
