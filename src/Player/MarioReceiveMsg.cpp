@@ -1098,8 +1098,8 @@ check_sender_bit3:
 		case 0x4000009C:
 		case 0x400000A5:
 			if (message == 0x0E) {
-				keepDistance(sender->mPosition, 30.0f + sender->mDamageRadius,
-				             0.0f);
+				f32 damageRadius = sender->mDamageRadius;
+				keepDistance(sender->mPosition, 30.0f + damageRadius, 0.0f);
 				return 1;
 			}
 			return 0;
