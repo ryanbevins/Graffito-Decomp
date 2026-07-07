@@ -390,11 +390,11 @@ check_sender_bit3:
 				s16 angleDiff
 				    = (s16)(matan(wireDiff.z, wireDiff.x) - mFaceAngle.y);
 
-				mWireBounceVel = -mVel.y * 0.1f;
+				mWireBounceVel = 0.2f * -mVel.y;
 				mWireSag       = 0.0f;
 
 				BOOL hangFromWire;
-				if (mAction == 0x893 || mAction == 0x8000088A) {
+				if (mAction == 0x893 || mAction == ACTION_DIVE_RECOVERY) {
 					hangFromWire = true;
 				} else if (mVel.y < 0.0f) {
 					hangFromWire = false;
