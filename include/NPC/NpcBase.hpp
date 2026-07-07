@@ -148,6 +148,11 @@ public:
 		return isSpecialMonteM() || isSpecialMonteW();
 	}
 	bool isMonte() const { return isNormalMonte() || isSpecialMonte(); }
+	bool isMare() const
+	{
+		return isNormalMareM() || isNormalMareW() || isSpecialMareM()
+		       || isSpecialMareW();
+	}
 	void loadAfter();
 	void load(JSUMemoryInputStream&);
 	TBaseNPC(u32, const char*);

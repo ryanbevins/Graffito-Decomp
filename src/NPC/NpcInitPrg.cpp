@@ -303,17 +303,15 @@ inline void TBaseNPC::initBaseActionFlag_()
 		{ -1, -1 },
 	};
 
-	if (isNormalMonteM() || isNormalMonteW() || isSpecialMonteM()
-	    || isSpecialMonteW()) {
+	if (isMonte()) {
 		setMonteActionFlag_();
-		if (mActionFlag & 0x400)
+		if (checkActionFlag(0x400))
 			unkD0->unk18 = sIndividualHoldArrowBck;
-	} else if (isNormalMareM() || isNormalMareW() || isSpecialMareM()
-	           || isSpecialMareW()) {
+	} else if (isMare()) {
 		setMareActionFlag_();
 	} else if (mActorType == 0x4000016 || mActorType == 0x4000017) {
 		setKinoActionFlag_();
-		if (mActionFlag & 0x100) {
+		if (checkActionFlag(0x100)) {
 			switch (mActorType) {
 			case 0x4000016:
 				unkD0->unk18 = sIndividualKinopioBck;
