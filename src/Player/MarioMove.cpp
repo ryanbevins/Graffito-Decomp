@@ -3585,51 +3585,35 @@ void TMario::thinkYoshiHeadCollision()
 	if (!riding)
 		return;
 
-	JGeometry::TVec3<f32> tempPos(mPosition);
-	int maxResults = 4;
-	int flags      = 0;
+	JGeometry::TVec3<f32> headPos = mPosition;
 
-	f32 headOffset = mYoshiParams.mHeadFront.get();
-	u32 angleIdx   = static_cast<u16>(mFaceAngle.y) >> jmaSinShift;
-	f32 sinVal = jmaSinTable[angleIdx];
-	tempPos.x += sinVal * headOffset;
-	f32 cosVal = jmaCosTable[angleIdx];
-	tempPos.z += cosVal * headOffset;
+	f32 front = mYoshiParams.mHeadFront.get();
+	headPos.x += front * JMASSin(mFaceAngle.y);
+	headPos.z += front * JMASCos(mFaceAngle.y);
 
-	TBGWallCheckRecord wallCheck;
-	wallCheck.mCenter.x = tempPos.x;
-	wallCheck.mCenter.y = 100.0f + tempPos.y;
-	f32 savedZ          = tempPos.z;
-	wallCheck.mCenter.z = savedZ;
-	wallCheck.mRadius     = mYoshiParams.mHeadRadius.get();
-	wallCheck.mMaxResults = maxResults;
-	wallCheck.mFlags      = flags;
+	TBGWallCheckRecord wallCheck(headPos.x, headPos.y + 100.0f, headPos.z,
+	                             mYoshiParams.mHeadRadius.get(), 4, 0);
 
-	if (gpMap->isTouchedWallsAndMoveXZ(&wallCheck) != true)
-		return;
+	if (gpMap->isTouchedWallsAndMoveXZ(&wallCheck) == true) {
+		f32 dx   = wallCheck.mCenter.x - headPos.x;
+		f32 dz   = wallCheck.mCenter.z - headPos.z;
+		f32 dist = sqrtf(dx * dx + dz * dz);
 
-	f32 dz    = wallCheck.mCenter.z - savedZ;
-	f32 dx    = wallCheck.mCenter.x - tempPos.x;
-	f32 distSq = dz * dz + dx * dx;
-	f32 dist = distSq;
-	if (distSq > 0.0f)
-		dist = sqrtf(distSq);
+		f32 pushDist = dist;
+		if (dist > 0.0f) {
+			dx *= 1.0f / dist;
+			dz *= 1.0f / dist;
 
-	f32 pushDist = dist;
-	if (dist <= 0.0f)
-		return;
+			if (50.0f < dist)
+				pushDist = 50.0f;
 
-	f32 invDist = 1.0f / dist;
-	f32 maxPush = 50.0f;
-	dx *= invDist;
-	dz *= invDist;
-	if (maxPush < dist)
-		pushDist = maxPush;
+			dx *= pushDist;
+			dz *= pushDist;
 
-	dx *= pushDist;
-	mPosition.x += dx;
-	dz *= pushDist;
-	mPosition.z += dz;
+			mPosition.x += dx;
+			mPosition.z += dz;
+		}
+	}
 }
 
 void TMario::checkWet()
