@@ -819,6 +819,8 @@ namespace StreamLib {
 			if (adpcmbuf_state == 2 || adpcmbuf_state == 4) {
 				if (adpcmbuf_state == 2) {
 					switch (header.unkA) {
+					case 3:
+						break;
 					case 2:
 						__DecodePCM();
 						break;
