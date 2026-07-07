@@ -309,14 +309,17 @@ void TPauseMenu2::perform(u32 param_1, JDrama::TGraphics* param_2)
 			if (btnVal & 0x21) {
 				switch (cur) {
 				case 0:
-				case 2:
-				case 3:
 					unk109 = 1;
 					SMSRumbleMgr->finishPause();
 					gpMSound->pauseOff(0);
 					gpMarDirector->mConsole->pauseOut();
 					unkEC = 0.0f;
 					unk10 = 4;
+					break;
+				case 2:
+				case 3:
+					unk109 = 1;
+					setDrawEnd();
 					break;
 				case 1:
 					if (gpMSound->gateCheck(0x4802)) {
