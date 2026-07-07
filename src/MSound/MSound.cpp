@@ -1141,13 +1141,19 @@ JAISound* MSound::startSoundActorSpecial(u32 id, const Vec* pos, f32 param3,
 		JAIActor actor(pos, pos, pos, param5);
 		JAISound* sound = MSoundSESystem::MSoundSE::startSoundActorInner(
 		    id, soundPtr, &actor, param7, param8);
-		if (sound != nullptr && id == 0x212F) {
-			f32 volume = 1.0f;
-			f32 pitch  = 1.0f;
-			if (JALSeModVolFunk::calc(id, param3, &volume))
-				sound->setVolume(volume, 0, 0);
-			if (JALSeModPitFGrp::calcGrp(id, param4, &pitch))
-				sound->setPitch(pitch, 0, 0);
+		if (sound != nullptr) {
+			switch (id) {
+			case 0x212F: {
+				f32 volume = 1.0f;
+				f32 pitch  = 1.0f;
+				if (JALSeModData<JALSeModVolFunk>::calc(id, param3, &volume))
+					sound->setVolume(volume, 0, 0);
+				if (JALSeModDataGrp<JALSeModPitFGrp>::calcGrp(id, param4,
+				                                              &pitch))
+					sound->setPitch(pitch, 0, 0);
+				break;
+			}
+			}
 		}
 	}
 }
