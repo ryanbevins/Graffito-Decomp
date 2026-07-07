@@ -276,34 +276,49 @@ void TMareEventDepressWall::rising()
 	if (mDirections[i]) {
 		if (current > 0.0f) {
 			current -= mRiseSpeed;
-			JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
 			TMapObjBase::setJointTransX(mJoints[i], current);
+			JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
 			mMoveCollisions[i].moveTrans(trans);
 			return;
+		}
+
+		JGeometry::TVec3<f32> trans(0.0f, 0.0f, 0.0f);
+		mMoveCollisions[i].remove();
+		mWarpCollisions[i].setUpTrans(trans);
+		TMapObjBase::setJointTransX(mJoints[i], 0.0f);
+		SMSRumbleMgr->stop(0x13);
+
+		++mCurrentIndex;
+		if (mCurrentIndex == mWallNum) {
+			mWaitTimer = mWaitTimeToWatch;
+			mState     = 4;
+		} else {
+			mWaitTimer = mWaitTimes[mCurrentIndex];
+			mState     = 2;
 		}
 	} else {
 		if (current < 0.0f) {
 			current += mRiseSpeed;
-			JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
 			TMapObjBase::setJointTransX(mJoints[i], current);
+			JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
 			mMoveCollisions[i].moveTrans(trans);
 			return;
 		}
-	}
 
-	JGeometry::TVec3<f32> trans(0.0f, 0.0f, 0.0f);
-	mMoveCollisions[i].remove();
-	mWarpCollisions[i].setUpTrans(trans);
-	TMapObjBase::setJointTransX(mJoints[i], 0.0f);
-	SMSRumbleMgr->stop(0x13);
+		JGeometry::TVec3<f32> trans(0.0f, 0.0f, 0.0f);
+		mMoveCollisions[i].remove();
+		mWarpCollisions[i].setUpTrans(trans);
+		TMapObjBase::setJointTransX(mJoints[i], 0.0f);
+		SMSRumbleMgr->stop(0x13);
 
-	++mCurrentIndex;
-	if (mCurrentIndex == mWallNum) {
-		mWaitTimer = mWaitTimeToWatch;
-		mState     = 4;
-	} else {
-		mWaitTimer = mWaitTimes[mCurrentIndex];
-		mState     = 2;
+		++mCurrentIndex;
+		if (mCurrentIndex == mWallNum) {
+			mWaitTimer = mWaitTimeToWatch;
+			mState     = 4;
+		} else {
+			mWaitTimer = mWaitTimes[mCurrentIndex];
+			mState     = 2;
+		}
 	}
 }
 
