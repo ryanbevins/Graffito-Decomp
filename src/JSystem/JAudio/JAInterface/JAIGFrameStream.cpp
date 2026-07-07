@@ -784,7 +784,7 @@ namespace StreamLib {
 		if (outpause != 0)
 			return 0;
 
-		bool decode = false;
+		BOOL decode = false;
 		if (movieframe != 0) {
 			JASystem::DSPInterface::DSPBuffer* buffer
 			    = JASystem::DSPInterface::getDSPHandle(assign_ch[0]->unk0);
