@@ -147,25 +147,9 @@ private:
 	void* unk14;
 };
 
-inline JDrama::TLookAtCamera::TLookAtCamera()
-    : TCamera(50.0f, 10000.0f, "<TLookAtCamera>")
-{
-}
-
 CPolarSubCamera::CPolarSubCamera(const char* name)
-    : JDrama::TLookAtCamera()
+    : JDrama::TLookAtCamera(CLBConstUpVec, name)
 {
-	mName    = name;
-	mKeyCode = JDrama::TNameRef::calcKeyCode(name);
-
-	mNear   = 10.0f;
-	mFar    = 300000.0f;
-	mUp     = CLBConstUpVec;
-	mTarget = CLBConstUpVec;
-	mFovy   = 0.0f;
-	mAspect = 0.0f;
-	mPosition = CLBConstUpVec;
-
 	mMode = -1;
 	unk54 = -1;
 	unk58 = -1;
