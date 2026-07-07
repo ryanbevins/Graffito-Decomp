@@ -317,11 +317,9 @@ BOOL TMario::specMain()
 		}
 		return 0;
 	case 0x350:
-		wireWait();
-		break;
+		return wireWait();
 	case 0x351:
-		wireSWait();
-		break;
+		return wireSWait();
 	case 0x352:
 		return wireWaitToSWaitL();
 	case 0x353:
@@ -1376,7 +1374,7 @@ void TMario::changeWireHanging()
 	}
 }
 
-void TMario::wireWait()
+BOOL TMario::wireWait()
 {
 	s16 angle;
 	// getOnWirePosAngle inlined
@@ -1430,7 +1428,7 @@ void TMario::wireWait()
 	if (onWire && mWireSag <= 0.0f) {
 		mHolder->receiveMessage(this, 8);
 		mHolder = 0;
-		changePlayerStatus(0x892, 0, false);
+		BOOL ret = changePlayerStatus(0x892, 0, false);
 		setPlayerVelocity(0.0f);
 		if (mWireBounceVel < 0.0f) {
 			f32 factor = mWireParams.mWireJumpMult.value;
@@ -1454,13 +1452,12 @@ void TMario::wireWait()
 		}
 
 		unk78 &= ~0x100;
-		return;
+		return ret;
 	}
 
 	if (mInput & 0x8000) {
 		mWireBounceVel = 5.0f;
-		changePlayerStatus(0x10000554, 0, false);
-		return;
+		return changePlayerStatus(0x10000554, 0, false);
 	}
 
 	s16 angleDiff;
@@ -1482,14 +1479,12 @@ void TMario::wireWait()
 
 		if (angleDiff < -0x2000) {
 			startVoice(0x78e0);
-			changePlayerStatus(0x352, 0, false);
-			return;
+			return changePlayerStatus(0x352, 0, false);
 		}
 
 		if (angleDiff > 0x2000) {
 			startVoice(0x78e0);
-			changePlayerStatus(0x353, 0, false);
-			return;
+			return changePlayerStatus(0x353, 0, false);
 		}
 	} else {
 		setAnimation(0xdd, 1.0f);
@@ -1497,9 +1492,10 @@ void TMario::wireWait()
 
 	mFaceAngle.y = angle;
 	mModelFaceAngle = mFaceAngle.y;
+	return 0;
 }
 
-void TMario::wireSWait()
+BOOL TMario::wireSWait()
 {
 	s16 angle;
 	// getOnWirePosAngle inlined
@@ -1553,39 +1549,37 @@ void TMario::wireSWait()
 	if (onWire && mWireSag < 0.0f) {
 		mHolder->receiveMessage(this, 8);
 		mHolder = 0;
-		changePlayerStatus(0x892, 0, false);
+		BOOL ret = changePlayerStatus(0x892, 0, false);
 		setPlayerVelocity(0.0f);
 		if (mWireBounceVel < 0.0f) {
 			mVel.y = -(5.0f * mWireBounceVel - mVel.y);
 		}
-		return;
+		return ret;
 	}
 
 	if (mInput & 0x8000) {
 		mWireBounceVel = 5.0f;
 		startVoice(0x78e0);
-		changePlayerStatus(0x10000554, 0, false);
-		return;
+		return changePlayerStatus(0x10000554, 0, false);
 	}
 
 	if (mInput & 0x1) {
 		s16 diff = (s16)angle - mIntendedYaw;
 		if (diff > -0x4000 && diff < 0x4000) {
-			changePlayerStatus(0x35c, 0, false);
-			return;
+			return changePlayerStatus(0x35c, 0, false);
 		}
 
 		JGeometry::TVec3<f32> temp = mWireStartPos;
 		mWireStartPos = mWireEndPos;
 		mWireEndPos = temp;
 		mWirePosRatio = 1.0f - mWirePosRatio;
-		changePlayerStatus(0x35b, 0, false);
-		return;
+		return changePlayerStatus(0x35b, 0, false);
 	}
 
 	setAnimation(0xe0, 1.0f);
 	mModelFaceAngle = angle;
 	mFaceAngle.y = mModelFaceAngle + 0x4000;
+	return 0;
 }
 
 int TMario::wireMove(f32 rate)

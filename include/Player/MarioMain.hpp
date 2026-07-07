@@ -1165,8 +1165,8 @@ public:
 	void changeWireHanging();
 	BOOL wireWaitToSWaitR();
 	BOOL wireWaitToSWaitL();
-	void wireSWait();
-	void wireWait();
+	BOOL wireSWait();
+	BOOL wireWait();
 	int wireMove(f32);
 	void getOnWirePosAngle(JGeometry::TVec3<f32>*, short*);
 	void taken();
