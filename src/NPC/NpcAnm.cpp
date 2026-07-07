@@ -609,7 +609,8 @@ void TBaseNPC::npcTalkOut()
 		mLiveFlag &= ~0x00080000;
 		changeNerveFromTalk_();
 		if (unk17C == 0 && mActorType == 0x04000006)
-			requestNpcAnm_(asKind(0x4), NPC_STOP_MOTION_BLEND_ON);
+			requestNpcAnm_((EnumNpcAnmKind)0x4,
+			               (EnumNpcStopMotionBlendOnOff)1);
 	}
 }
 
