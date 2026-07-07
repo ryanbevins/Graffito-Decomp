@@ -4526,178 +4526,57 @@ void TMario::playerControl(JDrama::TGraphics* gfx)
 
 void TMario::gunExec()
 {
-	u8 isOnYoshi = 0;
-	u8 isYoshiActive = 0;
+	if (!onYoshi())
+		gpModelWaterManager->unk5D5F = 0;
 
-	if (mYoshi != NULL) {
-		if (((TYoshi*)mYoshi)->onYoshi())
-			isOnYoshi = 1;
-	}
-	if (isOnYoshi)
-		isYoshiActive = 1;
+	if (!checkFlag(MARIO_FLAG_HAS_FLUDD) && !onYoshi())
+		return;
 
-	if (!isYoshiActive)
-		*(u8*)((u8*)gpModelWaterManager + 0x5D5F) = 0;
+	mWaterGun->updateUnk1C88(0);
+	mWaterGun->triggerPressureMovement(*(TMarioControllerWork*)unk108);
 
-	// Guard: need gun flag or be on Yoshi
-	u8 hasGunFlag;
-	if (mState & 0x8000)
-		hasGunFlag = 1;
-	else
-		hasGunFlag = 0;
-
-	if (!hasGunFlag) {
-		u8 onYoshi2 = 0;
-		if (mYoshi != NULL) {
-			if (((TYoshi*)mYoshi)->onYoshi())
-				onYoshi2 = 1;
-		}
-		if (!onYoshi2)
-			return;
-	}
-
-	// Main body
-	TWaterGun* waterGun = mWaterGun;
-	u8 hasTrigger = 0;
-	waterGun->mIsEmitWater = false;
-
-	// Interpolation math
-	TNozzleBase* nozzle0 = waterGun->mNozzleList[0];
-	TNozzleBase* curNozzle = waterGun->getCurrentNozzle();
-	s16 decRate = curNozzle->mEmitParams.mDecRate.get();
-	s32 amountMax = nozzle0->mEmitParams.mAmountMax.get();
-	waterGun->unk1C88 += 10.0f * ((f32)decRate / (f32)amountMax);
-
-	// Trigger pressure
-	waterGun->triggerPressureMovement(
-	    *(TMarioControllerWork*)unk108);
-
-	// Clear bit 0x80
 	mState &= ~0x80;
-
-	// Check trigger bits
-	if (mState & 0x30000)
-		hasTrigger = 1;
-
-	if (hasTrigger) {
-		// Suck section
-		u8 onYoshi3 = 0;
-		if (mYoshi != NULL) {
-			if (((TYoshi*)mYoshi)->onYoshi())
-				onYoshi3 = 1;
+	if (mState & (MARIO_FLAG_IN_SHALLOW_WATER | MARIO_FLAG_IN_WATER)) {
+		if (!onYoshi() && mWaterGun->suck() == true) {
+			mState |= 0x80;
+			if (checkFlag(MARIO_FLAG_IN_SHALLOW_WATER)
+			    && mGroundPlane->isPool())
+				gpPoolManager->subWaterLevel(mGroundPlane);
 		}
 
-		if (!onYoshi3) {
-			if (mWaterGun->suck() == 1) {
-				mState |= 0x80;
-
-				u8 hasWaterFlag;
-				if (mState & 0x10000)
-					hasWaterFlag = 1;
-				else
-					hasWaterFlag = 0;
-
-				if (hasWaterFlag) {
-					u16 bgType = mGroundPlane->mBGType;
-					u8 isPoolType;
-					if (bgType == 0x104 || bgType == 0x105
-					    || bgType == 0x4104)
-						isPoolType = 1;
-					else
-						isPoolType = 0;
-
-					if (isPoolType)
-						gpPoolManager->subWaterLevel(mGroundPlane);
-				}
-			}
-		}
-
-		// Water level check
-		curNozzle = waterGun->getCurrentNozzle();
-		if (waterGun->mCurrentWater
-		    == curNozzle->mEmitParams.mAmountMax.get()) {
-			if (mPumpState == 0) {
-				waterGun->emit();
-				waterGun->mCurrentWater
-				    = waterGun->getCurrentNozzle()
-				          ->mEmitParams.mAmountMax.get();
-			}
-		}
-	} else {
-		// No trigger
-		if (mPumpState == 0) {
+		if (mWaterGun->mCurrentWater == mWaterGun->getMaxWater()
+		    && mPumpState == 0) {
 			mWaterGun->emit();
+			mWaterGun->resetWaterToFull();
 		}
+	} else if (mPumpState == 0) {
+		mWaterGun->emit();
 	}
 
-	// Yoshi analog R check
-	u8 onYoshi4 = 0;
-	if (mYoshi != NULL) {
-		if (((TYoshi*)mYoshi)->onYoshi())
-			onYoshi4 = 1;
-	}
+	if (onYoshi() && ((TMarioControllerWork*)unk108)->mAnalogR > 0.0f)
+		mWaterGun->emit();
 
-	if (onYoshi4) {
-		if (((TMarioControllerWork*)unk108)->mAnalogR > 0.0f) {
-			mWaterGun->emit();
-		}
-	}
-
-	// mSubState bit 7 -> refill water
-	u8 hasBit0;
 	if (mSubState & 0x80)
-		hasBit0 = 1;
-	else
-		hasBit0 = 0;
+		mWaterGun->resetWaterToFull();
 
-	if (hasBit0) {
-		TWaterGun* wg = mWaterGun;
-		wg->mCurrentWater
-		    = wg->getCurrentNozzle()->mEmitParams.mAmountMax.get();
-	}
+	if (mAction != 0x883
+	    && mAction != 0x208B8
+	    && mGamePad->checkFrameMeaning(0x200000) && !onYoshi()
+	    && mAction != 0x800447)
+		mWaterGun->changeBackup();
 
-	// Action-based nozzle backup
-	if (mAction != 0x883) {
-		if (mAction != 0x208B8) {
-			if (mGamePad->mEnabledFrameMeaning & 0x200000) {
-				u8 onYoshi5 = 0;
-				if (mYoshi != NULL) {
-					if (((TYoshi*)mYoshi)->onYoshi())
-						onYoshi5 = 1;
-				}
+	if ((int)mWaterGun->mCurrentNozzle == TWaterGun::Spray
+	    && mWaterGun->mIsEmitWater != 0) {
+		JGeometry::TVec3<f32> dir;
+		dir.x = JMASSin(mFaceAngle.y);
+		dir.y = 0.0f;
+		dir.z = JMASCos(mFaceAngle.y);
 
-				if (!onYoshi5) {
-					if (mAction != 0x800447) {
-						mWaterGun->changeBackup();
-					}
-				}
-			}
+		for (int i = 0; i < mGraffitoParams.mFootEraseTimes.get(); ++i) {
+			f32 radius = mGraffitoParams.mFootEraseSize.get();
+			JGeometry::TVec3<f32> pos
+			    = mPosition + dir * mGraffitoParams.mFootEraseFront.get();
+			gpPollution->clean(pos.x, pos.y, pos.z, radius);
 		}
-	}
-
-	// Pollution cleaning (spray nozzle only, while emitting)
-	if (mWaterGun->mCurrentNozzle != 0)
-		return;
-
-	if (!mWaterGun->mIsEmitWater)
-		return;
-
-	s32 sinIdx = (s32)(u16)mFaceAngle.y >> jmaSinShift;
-	JGeometry::TVec3<f32> dir;
-	dir.x = jmaSinTable[sinIdx];
-	dir.y = 0.0f;
-	dir.z = jmaCosTable[sinIdx];
-
-	for (s32 i = 0; i < mGraffitoParams.mFootEraseTimes.get(); i++) {
-		f32 dist = mGraffitoParams.mFootEraseFront.get();
-		f32 radius = mGraffitoParams.mFootEraseSize.get();
-
-		JGeometry::TVec3<f32> tempDir(dir);
-		PSVECScale((Vec*)&tempDir, (Vec*)&tempDir, dist);
-
-		JGeometry::TVec3<f32> pos(mPosition);
-		PSVECAdd((Vec*)&pos, (Vec*)&tempDir, (Vec*)&pos);
-
-		gpPollution->clean(pos.x, pos.y, pos.z, radius);
 	}
 }
