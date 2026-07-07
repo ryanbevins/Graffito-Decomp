@@ -257,12 +257,8 @@ void CPolarSubCamera::getNozzleTopPos_(JGeometry::TVec3<f32>* out) const
 
 		JGeometry::TVec3<f32> up(m[0][1], m[1][1], m[2][1]);
 		up.normalize();
-		up.x *= 30.0f;
-		up.y *= 30.0f;
-		up.z *= 30.0f;
-		out->x += up.x;
-		out->y += up.y;
-		out->z += up.z;
+		up *= 30.0f;
+		*out += up;
 	}
 }
 
