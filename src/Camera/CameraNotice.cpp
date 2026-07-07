@@ -90,7 +90,10 @@ void* CPolarSubCamera::getNoticeActor_()
 			         - gpMarioPos->y;
 			diff.z = *(f32*)((u8*)this->unk2A4 + 0x18)
 			         - gpMarioPos->z;
-			f32 distSq  = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+			f32 sqX     = diff.x * diff.x;
+			f32 sqY     = diff.y * diff.y;
+			f32 sqZ     = diff.z * diff.z;
+			f32 distSq  = sqX + sqY + sqZ;
 			f32 nearLim = CLBSquared<f32>(
 			    *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x2C));
 			if (distSq < nearLim) {
@@ -128,7 +131,10 @@ void* CPolarSubCamera::getNoticeActor_()
 		diff.x = *(f32*)((u8*)a + 0x10) - gpMarioPos->x;
 		diff.y = *(f32*)((u8*)a + 0x14) - gpMarioPos->y;
 		diff.z = *(f32*)((u8*)a + 0x18) - gpMarioPos->z;
-		f32 distSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+		f32 sqX    = diff.x * diff.x;
+		f32 sqY    = diff.y * diff.y;
+		f32 sqZ    = diff.z * diff.z;
+		f32 distSq = sqX + sqY + sqZ;
 		if (distSq >= bestDistSq)
 			continue;
 
