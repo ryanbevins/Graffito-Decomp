@@ -350,16 +350,7 @@ void TMario::soundMovement()
 		if (holdingKind != 0) {
 			if (mHeldObject != nullptr) {
 				u32 actorType = mHeldObject->mActorType;
-				bool normalTakeObject
-				    = actorType == 0x40000046
-				      || (actorType >= 0x4000005a
-				          && actorType < 0x4000005e)
-				      || (actorType >= 0x40000064
-				          && actorType < 0x40000066);
-				bool npcTakeObject = actorType >= 0x40000390
-				                     && actorType < 0x40000397;
-
-				if (npcTakeObject) {
+				if (actorType >= 0x40000390 && actorType < 0x40000397) {
 					if (mSoundValues.unk04 & 0x40) {
 						if (holdingKind == 1)
 							MARIO_START_SOUND(0x194d, &mPosition);
@@ -367,7 +358,11 @@ void TMario::soundMovement()
 							MARIO_START_SOUND(0x194e, &mPosition);
 						mSoundValues.unk04 ^= 0x40;
 					}
-				} else if (normalTakeObject) {
+				} else if (actorType == 0x40000046
+				           || (actorType >= 0x4000005a
+				               && actorType < 0x4000005e)
+				           || (actorType >= 0x40000064
+				               && actorType < 0x40000066)) {
 					if (mSoundValues.unk04 & 0x40) {
 						if (holdingKind == 1)
 							MARIO_START_SOUND(0x1800, &mPosition);
