@@ -283,22 +283,24 @@ void TMario::soundMovement()
 			MARIO_START_SOUND(0x198d, &mYoshi->mTranslation);
 
 		if (mSoundValues.unk00 != ACTION_HIP_ATTACK) {
-			bool aPressed     = (mInput & 4) != 0;
-			bool prevAPressed = (mSoundValues.unk0C & 4) != 0;
+			BOOL aPressed     = !!(mInput & 4);
+			BOOL prevAPressed = !!(mSoundValues.unk0C & 4);
 
-			if (aPressed && !prevAPressed)
+			if (aPressed != 0 && prevAPressed == 0)
 				mSoundValues.unk1C = 0;
 
-			if (aPressed)
+			if (aPressed != 0)
 				mSoundValues.unk1C++;
 
-			if (mSoundValues.unk20 != 0) {
-				mSoundValues.unk20--;
-				if (mSoundValues.unk20 == 0) {
-					if (!aPressed)
+			u8 count = mSoundValues.unk20;
+			if (count != 0) {
+				mSoundValues.unk20 = count - 1;
+				u8 newCount        = mSoundValues.unk20;
+				if (newCount == 0) {
+					if (aPressed == 0)
 						MARIO_START_SOUND(0x195a, &mYoshi->mTranslation);
-				} else if (mSoundValues.unk20 == 4) {
-					if (!aPressed) {
+				} else if (newCount == 4) {
+					if (aPressed == 0) {
 						MARIO_START_SOUND(0x195a,
 						                  &mYoshi->mTranslation);
 						gpMSound->startMarioVoice(0x792a, 1, 1);
@@ -307,7 +309,7 @@ void TMario::soundMovement()
 				}
 			}
 
-			if (!aPressed && prevAPressed) {
+			if (aPressed == 0 && prevAPressed != 0) {
 				if (mSoundValues.unk1C > 120 && mVel.y < -74.0f)
 					mSoundValues.unk20 = 8;
 				else
