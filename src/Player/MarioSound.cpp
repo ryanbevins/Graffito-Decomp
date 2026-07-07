@@ -317,8 +317,8 @@ void TMario::soundMovement()
 			}
 		}
 	} else {
-		bool backFlip = action == ACTION_BACKFLIP
-		                || action == ACTION_BACKFLIP_LEFT;
+		BOOL backFlip = (action == ACTION_BACKFLIP)
+		                | (action == ACTION_BACKFLIP_LEFT);
 		if (backFlip) {
 			if (mSoundValues.unk04 & 0x10) {
 				MARIO_START_VOICE(0x78b9);
