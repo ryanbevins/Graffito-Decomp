@@ -1157,6 +1157,6 @@ void TMario::getGesso(THitActor* sender)
 		break;
 	}
 
-	mSurfGesso->setBck("surfgesso_wait01");
-	mSurfGesso->getFrameCtrl(0)->setRate(1.0f);
+	mSurfGesso->setBck("surfgeso_run1");
+	mSurfGesso->getFrameCtrl(0)->setRate(0.5f);
 }
