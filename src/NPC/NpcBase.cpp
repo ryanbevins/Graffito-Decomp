@@ -878,9 +878,10 @@ bool TBaseNPC::isInBodyTurnSearchRange() const
 	bool result = false;
 	if (__fabsf(gpMarioPos->y - mPosition.y)
 	    < mNpcSaveIndividual->mBodyTurnSearchHeight.value) {
-		if (isInSight(*gpMarioPos, mNpcSaveIndividual->mBodyTurnSearchDist.value,
-		              mNpcSaveIndividual->mBodyTurnSearchDegree.value,
-		              mNpcSaveIndividual->mBodyTurnSearchAware.value)) {
+		f32 aware  = mNpcSaveIndividual->mBodyTurnSearchAware.value;
+		f32 degree = mNpcSaveIndividual->mBodyTurnSearchDegree.value;
+		f32 dist   = mNpcSaveIndividual->mBodyTurnSearchDist.value;
+		if (isInSight(*gpMarioPos, dist, degree, aware)) {
 			result = true;
 		}
 	}
@@ -892,9 +893,10 @@ bool TBaseNPC::isInMadSearchRange() const
 	bool result = false;
 	if (__fabsf(gpMarioPos->y - mPosition.y)
 	    < mNpcSaveIndividual->mMadSearchHeight.value) {
-		if (isInSight(*gpMarioPos, mNpcSaveIndividual->mMadSearchDist.value,
-		              mNpcSaveIndividual->mMadSearchDegree.value,
-		              mNpcSaveIndividual->mMadSearchAware.value)) {
+		f32 aware  = mNpcSaveIndividual->mMadSearchAware.value;
+		f32 degree = mNpcSaveIndividual->mMadSearchDegree.value;
+		f32 dist   = mNpcSaveIndividual->mMadSearchDist.value;
+		if (isInSight(*gpMarioPos, dist, degree, aware)) {
 			result = true;
 		}
 	}
