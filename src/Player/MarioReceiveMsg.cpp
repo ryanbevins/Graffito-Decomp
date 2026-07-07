@@ -20,6 +20,26 @@
 // NOTE: -inline deferred, so reverse address order.
 // getGesso is after receiveMessage in the binary.
 
+static inline bool getNozzle(TMario* mario, THitActor* sender,
+                             TWaterGun::TNozzleType type)
+{
+	if (mario->onYoshi())
+		return false;
+
+	mario->mState |= 0x8000;
+	if (mario->checkFlag(MARIO_FLAG_HAS_FLUDD))
+		mario->mWaterGun->changeNozzle(type, true);
+
+	mario->unk144 = 3600;
+	mario->resetNozzle();
+	mario->unk148 = (u32)sender;
+	if (mario->checkFlag(MARIO_FLAG_HAS_FLUDD))
+		mario->mWaterGun->resetWaterToFull();
+
+	mario->emitGetEffect();
+	return true;
+}
+
 BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 {
 	if (checkFlag(MARIO_FLAG_GAME_OVER))
@@ -172,99 +192,21 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			return 0;
 
 		case 0x20000022: // Nozzle pickup - Rocket
-		{
-			if (onYoshi())
-				return 0;
-
-			mState |= 0x8000;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->changeNozzle(TWaterGun::Rocket, true);
-			}
-			unk144 = 3600;
-			resetNozzle();
-			unk148 = (u32)sender;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->resetWaterToFull();
-			}
-			emitGetEffect();
-			return 1;
-		}
+			return getNozzle(this, sender, TWaterGun::Rocket);
 
 		case 0x20000026: // Nozzle pickup - Hover
-		{
-			if (onYoshi())
-				return 0;
-
-			mState |= 0x8000;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->changeNozzle(TWaterGun::Hover, true);
-			}
-			unk144 = 3600;
-			resetNozzle();
-			unk148 = (u32)sender;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->resetWaterToFull();
-			}
-			emitGetEffect();
-			return 1;
-		}
+			return getNozzle(this, sender, TWaterGun::Hover);
 
 		case 0x2000002A: // Nozzle pickup - Turbo
-		{
-			if (onYoshi())
-				return 0;
-
-			mState |= 0x8000;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->changeNozzle(TWaterGun::Turbo, true);
-			}
-			unk144 = 3600;
-			resetNozzle();
-			unk148 = (u32)sender;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->resetWaterToFull();
-			}
-			emitGetEffect();
-			return 1;
-		}
+			return getNozzle(this, sender, TWaterGun::Turbo);
 
 		case 0x2000002B: // Underwater nozzle (changePlayerStatus + pickup)
-		{
 			changePlayerStatus(0x891, 0, false);
-			if (onYoshi())
-				return 0;
-
-			mState |= 0x8000;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->changeNozzle(TWaterGun::Underwater, true);
-			}
-			unk144 = 3600;
-			resetNozzle();
-			unk148 = (u32)sender;
-			if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-				mWaterGun->resetWaterToFull();
-			}
-			emitGetEffect();
-			return 1;
-		}
+			return getNozzle(this, sender, TWaterGun::Underwater);
 
 		case 0x2000001F: // Nozzle pickup - Spray
-		{
-			if (!onYoshi()) {
-				mState |= 0x8000;
-				if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-					mWaterGun->changeNozzle(TWaterGun::Spray, true);
-				}
-				unk144 = 3600;
-				resetNozzle();
-				unk148 = (u32)sender;
-				if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
-					mWaterGun->resetWaterToFull();
-				}
-				emitGetEffect();
-			}
+			getNozzle(this, sender, TWaterGun::Spray);
 			return 1;
-		}
 
 		case 0x2000003C: // Yoshi release flag
 		{
