@@ -894,13 +894,8 @@ check_sender_bit3:
 
 		case 0x08000024: // BathtubKiller hit
 		{
-			if (!isInvincible()) {
-				if (message != 0x0E)
-					return 0;
-				if (mAction == 0x800008A9) {
-					if (mActionState == 3)
-						return 0;
-				}
+			if (!isInvincible() && message == 0x0E
+			    && (mAction != 0x800008A9 || mActionState != 3)) {
 				damageExec(sender,
 				           mDmgParamsBGTentacle.mDamage.get(),
 				           mDmgParamsBGTentacle.mDownType.get(),
@@ -913,7 +908,6 @@ check_sender_bit3:
 				changePlayerStatus(0x000208B8, 0, false);
 				return 1;
 			}
-			return 0;
 		}
 
 		case 0x0800000B:
