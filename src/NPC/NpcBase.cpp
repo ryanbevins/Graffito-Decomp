@@ -53,10 +53,7 @@ BOOL TSpineEnemy::isReachedToGoal() const
 	else
 		point = (const Vec*)&unk104.unk4;
 
-	Vec diff;
-	diff.x = point->x;
-	diff.y = point->y;
-	diff.z = point->z;
+	Vec diff = *point;
 	diff.x -= mPosition.x;
 	diff.y -= mPosition.y;
 	diff.z -= mPosition.z;
