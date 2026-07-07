@@ -25,7 +25,7 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 
 JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
-s32 matan(f32, f32);
+s16 matan(f32, f32);
 
 namespace {
 f32 cAngleMax = JGeometry::TUtil<f32>::PI() / 8.0f;

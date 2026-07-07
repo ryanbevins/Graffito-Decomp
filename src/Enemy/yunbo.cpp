@@ -28,7 +28,7 @@
 #include <MSound/MSoundBGM.hpp>
 
 extern "C" {
-s32 matan(f32, f32);
+s16 matan(f32, f32);
 }
 
 static char* sambohead_bastable[] = {

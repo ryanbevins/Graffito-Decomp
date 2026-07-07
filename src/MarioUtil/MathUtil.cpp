@@ -135,7 +135,7 @@ static inline s32 GetAtanTable(f32 param_1, f32 param_2)
 	return atntable[idx];
 }
 
-s32 matan(f32 param_1, f32 param_2)
+s16 matan(f32 param_1, f32 param_2)
 {
 	if (param_2 >= 0.0f) {
 		if (param_1 >= 0.0f) {
