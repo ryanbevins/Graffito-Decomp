@@ -1,4 +1,6 @@
+#define JGEOMETRY_MARIORECEIVEMSG_TVEC3_SUB_OUT_OF_LINE
 #include <Player/MarioMain.hpp>
+#undef JGEOMETRY_MARIORECEIVEMSG_TVEC3_SUB_OUT_OF_LINE
 #include <Strategic/HitActor.hpp>
 #include <Strategic/LiveActor.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
