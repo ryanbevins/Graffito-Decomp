@@ -1766,38 +1766,38 @@ void TMario::checkGraffito()
 		// 3x3 grid check
 		isPolluted = 1;
 		JGeometry::TVec3<f32> pos(mPosition);
-		pos.x -= 38.0f;
-		pos.z -= 38.0f;
+		pos.x -= 32.0f;
+		pos.z -= 32.0f;
 
 		// Row 0: check 3 columns
 		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			isPolluted = 0;
-		pos.x += 38.0f;
+		pos.x += 32.0f;
 		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			isPolluted = 0;
-		pos.x += 38.0f;
-		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
-			isPolluted = 0;
-
-		// Row 1: z += 38
-		pos.z += 38.0f;
-		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
-			isPolluted = 0;
-		pos.x -= 38.0f;
-		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
-			isPolluted = 0;
-		pos.x -= 38.0f;
+		pos.x += 32.0f;
 		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			isPolluted = 0;
 
-		// Row 2: z += 38
-		pos.z += 38.0f;
+		// Row 1: z += 32
+		pos.z += 32.0f;
 		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			isPolluted = 0;
-		pos.x += 38.0f;
+		pos.x -= 32.0f;
 		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			isPolluted = 0;
-		pos.x += 38.0f;
+		pos.x -= 32.0f;
+		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
+			isPolluted = 0;
+
+		// Row 2: z += 32
+		pos.z += 32.0f;
+		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
+			isPolluted = 0;
+		pos.x += 32.0f;
+		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
+			isPolluted = 0;
+		pos.x += 32.0f;
 		if (gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			break;
 		isPolluted = 0;
@@ -1814,21 +1814,21 @@ void TMario::checkGraffito()
 		pos.y = mFloorPosition.y;
 		pos.z = mPosition.z;
 
-		pos.z -= 38.0f;
+		pos.z -= 32.0f;
 		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			isPolluted = 0;
-		pos.x += 38.0f;
-		pos.z += 38.0f;
+		pos.x += 32.0f;
+		pos.z += 32.0f;
 		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			isPolluted = 0;
-		pos.x -= 38.0f;
+		pos.x -= 32.0f;
 		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			isPolluted = 0;
-		pos.x -= 38.0f;
+		pos.x -= 32.0f;
 		if (!gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			isPolluted = 0;
-		pos.z += 38.0f;
-		pos.x += 38.0f;
+		pos.z += 32.0f;
+		pos.x += 32.0f;
 		if (gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			break;
 		isPolluted = 0;
@@ -1903,7 +1903,7 @@ void TMario::checkGraffito()
 
 	// Check floor proximity for effects
 	u8 isOnFloor;
-	if (mPosition.y <= mFloorPosition.y + 8.0f)
+	if (mPosition.y <= mFloorPosition.y + 4.0f)
 		isOnFloor = 1;
 	else
 		isOnFloor = 0;
