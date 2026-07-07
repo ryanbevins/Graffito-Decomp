@@ -363,7 +363,7 @@ check_sender_bit3:
 
 		case 0x40000098:
 		{
-			if (*(u32*)((u8*)this + 0x68) == 0) {
+			if (mHolder == nullptr) {
 				if (mAction == 0x892 && mVel.y > 0.0f)
 					return 0;
 
@@ -376,7 +376,7 @@ check_sender_bit3:
 				if (onYoshi())
 					return 0;
 
-				*(u32*)((u8*)this + 0x68) = (u32)sender;
+				mHolder = (TTakeActor*)sender;
 
 				TMapWireActor* wireActor = (TMapWireActor*)sender;
 				wireActor->getTipPoints(&mWireStartPos, &mWireEndPos);
@@ -385,9 +385,8 @@ check_sender_bit3:
 				wireMove(0.0f);
 				mState &= ~0x100;
 
-				JGeometry::TVec3<f32> wireDiff = mWireEndPos;
-				wireDiff.sub(mWireStartPos);
-				s16 angleDiff
+				JGeometry::TVec3<f32> wireDiff = mWireEndPos - mWireStartPos;
+				int angleDiff
 				    = (s16)(matan(wireDiff.z, wireDiff.x) - mFaceAngle.y);
 
 				mWireBounceVel = 0.2f * -mVel.y;
