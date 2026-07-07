@@ -1134,15 +1134,15 @@ void TMario::getGesso(THitActor* sender)
 
 	s16 angle = (s16)(65536.0f * sender->mRotation.y);
 	mFaceAngle.y = angle;
-	mModelFaceAngle = (s16)mFaceAngle.y;
+	mModelFaceAngle = mFaceAngle.y;
 
 	changePlayerStatus(0x810446, 0, false);
 
-	*(u16*)((u8*)this + 0x86) = *(u16*)((u8*)this + 0x94C);
+	mActionTimer = mDeParams.mSurfStartFreezeTime.get();
 	emitGetEffect();
 
 	// Set gesso type based on sender's actor type
-	u32 aType = sender->mActorType;
+	u32 aType = sender->getActorType();
 	switch (aType) {
 	case 0x400000C5:
 		mSurfGesso = gpMapObjManager->mRedGesso;
