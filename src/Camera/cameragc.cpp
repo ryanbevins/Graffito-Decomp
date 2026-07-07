@@ -203,10 +203,8 @@ CPolarSubCamera::CPolarSubCamera(const char* name)
 	unk2D0 = new TCamSaveNotice();
 	unk2D4 = new TCamSaveEx();
 
-	TCamSaveKindParam** saveTable
-	    = (TCamSaveKindParam**)((u8*)this + 0x2D8);
 	for (int i = 0; i < 0x49; ++i)
-		saveTable[i] = new TCamSaveKindParam(mCamKindNameSaveFile[i]);
+		unk2D8[i] = new TCamSaveKindParam(mCamKindNameSaveFile[i]);
 
 	if (SMS_isMultiPlayerMap())
 		createMultiPlayer(4);
