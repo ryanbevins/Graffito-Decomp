@@ -43,10 +43,8 @@ TMarioSoundValues::TMarioSoundValues()
 
 void TMario::startSoundActor(u32 soundID)
 {
-	MSound* sound = gpMSound;
-	if (sound->gateCheck(soundID))
-		MSoundSESystem::MSoundSE::startSoundActor(soundID, (const Vec*)&mPosition,
-		                                          0, nullptr, 0, 4);
+	gpMSound->startSoundActor(soundID, (const Vec*)&mPosition, 0, nullptr, 0,
+	                          4);
 }
 
 void TMario::stopVoice()
@@ -188,7 +186,7 @@ void TMario::animSound()
 	mSoundFlags += mHealth << 24;
 
 	if (!onYoshi()) {
-		f32 rate = mModel->unkC[0].getRate();
+		f32 rate = mModel->getFrameCtrl(0).getRate();
 		mAnmSound->animeLoop((Vec*)&mPosition, getCurrentFrame(0), rate,
 		                      mSoundFlags, 4);
 	}
