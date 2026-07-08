@@ -1826,6 +1826,7 @@ void TMario::checkGraffito()
 		if (gpPollution->isPolluted(pos.x, pos.y, pos.z))
 			break;
 		isPolluted = 0;
+		(void)&pos;
 		break;
 	}
 	case 4: {
