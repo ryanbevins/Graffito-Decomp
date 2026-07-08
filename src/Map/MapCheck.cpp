@@ -451,6 +451,23 @@ static bool bgIntersectLine(const TBGCheckData* data,
 	return true;
 }
 
+inline const TBGCheckData* intersectLineList(const TBGCheckList* head,
+                                             const JGeometry::TVec3<f32>& start,
+                                             const JGeometry::TVec3<f32>& end,
+                                             bool ignore_back_faces,
+                                             JGeometry::TVec3<f32>* hit_point)
+{
+	while (head) {
+		const TBGCheckData* data = head->unk8;
+		head                     = head->mNext;
+
+		if (bgIntersectLine(data, start, end, ignore_back_faces, hit_point))
+			return data;
+	}
+
+	return nullptr;
+}
+
 const TBGCheckData*
 TMapCollisionData::intersectLine(const JGeometry::TVec3<f32>& start,
                                  const JGeometry::TVec3<f32>& end,
@@ -512,32 +529,22 @@ TMapCollisionData::intersectLine(const JGeometry::TVec3<f32>& start,
 			}
 
 			const TBGCheckListRoot& root = getGridRoot14(x, z);
-			const TBGCheckList* node     = root.unk0[0].getNext();
-			while (node != nullptr) {
-				const TBGCheckData* data = node->unk8;
-				node                     = node->getNext();
-				if (bgIntersectLine(data, start, end, ignore_back_faces,
-				                    hit_point))
-					return data;
-			}
+			const TBGCheckData* hit = intersectLineList(root.unk0[0].getNext(),
+			                                           start, end,
+			                                           ignore_back_faces,
+			                                           hit_point);
+			if (hit)
+				return hit;
 
-			node = root.unk0[2].getNext();
-			while (node != nullptr) {
-				const TBGCheckData* data = node->unk8;
-				node                     = node->getNext();
-				if (bgIntersectLine(data, start, end, ignore_back_faces,
-				                    hit_point))
-					return data;
-			}
+			hit = intersectLineList(root.unk0[2].getNext(), start, end,
+			                        ignore_back_faces, hit_point);
+			if (hit)
+				return hit;
 
-			node = root.unk0[1].getNext();
-			while (node != nullptr) {
-				const TBGCheckData* data = node->unk8;
-				node                     = node->getNext();
-				if (bgIntersectLine(data, start, end, ignore_back_faces,
-				                    hit_point))
-					return data;
-			}
+			hit = intersectLineList(root.unk0[1].getNext(), start, end,
+			                        ignore_back_faces, hit_point);
+			if (hit)
+				return hit;
 		}
 	}
 
