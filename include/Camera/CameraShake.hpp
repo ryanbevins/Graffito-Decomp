@@ -38,18 +38,18 @@ extern TCameraShake* gpCameraShake;
 class TCameraShake {
 public:
 	struct TCamShakeAngle {
-		/* 0x00 */ f32 mPhase;
-		/* 0x04 */ f32 mDecrement;
-		/* 0x08 */ s16 mAngle;
+		/* 0x00 */ f32 mAmp;
+		/* 0x04 */ f32 mDec;
+		/* 0x08 */ s16 mVel;
 		/* 0x0A */ u16 mPad;
 	};
 
 	struct TCamShakeInfo {
 		/* 0x00 */ s32 mMode;
-		/* 0x04 */ u8  mPause;
-		/* 0x05 */ u8  mActiveSet;
+		/* 0x04 */ u8  mIsKeep;
+		/* 0x05 */ u8  mIsDecreasing;
 		/* 0x06 */ u16 mDuration;
-		/* 0x08 */ u16 mCurFrame;
+		/* 0x08 */ u16 mFrame;
 		/* 0x0A */ u16 mPad;
 		/* 0x0C */ TCamShakeAngle mAngleX;
 		/* 0x18 */ TCamShakeAngle mAngleY;
@@ -59,40 +59,40 @@ public:
 		void reset()
 		{
 			mMode             = 1;
-			mPause            = 0;
-			mActiveSet        = 0;
-			mCurFrame         = 0;
+			mIsKeep          = 0;
+			mIsDecreasing    = 0;
+			mFrame            = 0;
 			mDuration         = 0;
-			mAngleX.mDecrement = 0.0f;
-			mAngleX.mPhase    = 0.0f;
-			mAngleX.mAngle    = 0;
-			mAngleY.mDecrement = 0.0f;
-			mAngleY.mPhase    = 0.0f;
-			mAngleY.mAngle    = 0;
-			mAngleZ.mDecrement = 0.0f;
-			mAngleZ.mPhase    = 0.0f;
-			mAngleZ.mAngle    = 0;
+			mAngleX.mDec      = 0.0f;
+			mAngleX.mAmp      = 0.0f;
+			mAngleX.mVel      = 0;
+			mAngleY.mDec      = 0.0f;
+			mAngleY.mAmp      = 0.0f;
+			mAngleY.mVel      = 0;
+			mAngleZ.mDec      = 0.0f;
+			mAngleZ.mAmp      = 0.0f;
+			mAngleZ.mVel      = 0;
 		}
 	};
 
 	TCameraShake();
 	TCamShakeInfo* getUseShakeData_();
 
-	inline void setShakeAngleOne_(TCamShakeAngle* angle, f32 phase,
+	inline void setShakeAngleOne_(TCamShakeAngle* angle, f32 amp,
 	                              s16 initAngle, u16 duration, f32 strength)
 	{
-		f32 phaseSigned;
+		f32 ampSigned;
 		s16 angleSigned;
 		if (strength < 0.0f) {
-			phaseSigned = -phase;
+			ampSigned   = -amp;
 			angleSigned = -initAngle;
 		} else {
-			phaseSigned = phase;
+			ampSigned   = amp;
 			angleSigned = initAngle;
 		}
-		angle->mPhase     = phaseSigned;
-		angle->mDecrement = phaseSigned / (f32)duration;
-		angle->mAngle     = angleSigned;
+		angle->mAmp = ampSigned;
+		angle->mDec = ampSigned / (f32)duration;
+		angle->mVel = angleSigned;
 	}
 
 	inline void setShakeAngleAll_(TCamShakeInfo* info, const TCamSaveShake* save,
@@ -114,10 +114,10 @@ public:
 
 	static const char* mCamShakeNameSave[];
 
-	/* 0x000 */ s16 mYaw;
+	/* 0x000 */ s16 mRollAccum;
 	/* 0x002 */ u16 mPad;
-	/* 0x004 */ TCamShakeInfo mShakeInfos[32];
-	/* 0x604 */ TCamSaveShake* mShakeSaveData[41];
+	/* 0x004 */ TCamShakeInfo mShakeInfo[32];
+	/* 0x604 */ TCamSaveShake* mShakeData[41];
 };
 
 #endif

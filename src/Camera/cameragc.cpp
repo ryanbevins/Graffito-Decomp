@@ -348,7 +348,7 @@ void CPolarSubCamera::perform(u32 flags, JDrama::TGraphics* gfx)
 
 s16 CPolarSubCamera::getFinalAngleZ() const
 {
-	return unk254 + gpCameraShake->mYaw;
+	return unk254 + gpCameraShake->mRollAccum;
 }
 s16 CPolarSubCamera::getOffsetAngleY() const { return unk68->unk5A; }
 s16 CPolarSubCamera::getOffsetAngleX() const { return unk68->unk58; }
