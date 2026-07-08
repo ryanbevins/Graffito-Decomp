@@ -41,7 +41,6 @@ public:
 		/* 0x00 */ f32 mAmp;
 		/* 0x04 */ f32 mDec;
 		/* 0x08 */ s16 mVel;
-		/* 0x0A */ u16 mPad;
 	};
 
 	struct TCamShakeInfo {
@@ -50,7 +49,6 @@ public:
 		/* 0x05 */ u8  mIsDecreasing;
 		/* 0x06 */ u16 mDuration;
 		/* 0x08 */ u16 mFrame;
-		/* 0x0A */ u16 mPad;
 		/* 0x0C */ TCamShakeAngle mAngleX;
 		/* 0x18 */ TCamShakeAngle mAngleY;
 		/* 0x24 */ TCamShakeAngle mAngleZ;
@@ -115,7 +113,6 @@ public:
 	static const char* mCamShakeNameSave[];
 
 	/* 0x000 */ s16 mRollAccum;
-	/* 0x002 */ u16 mPad;
 	/* 0x004 */ TCamShakeInfo mShakeInfo[32];
 	/* 0x604 */ TCamSaveShake* mShakeData[41];
 };
