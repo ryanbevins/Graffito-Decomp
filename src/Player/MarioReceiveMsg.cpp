@@ -267,7 +267,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 
 			s16 angle = (s16)(65536.0f * *(f32*)((u8*)sender + 0x11C));
 			mFaceAngle.y = angle;
-			mModelFaceAngle = angle;
+			mModelFaceAngle = mFaceAngle.y;
 
 			setPlayerVelocity(0.0f);
 			mHealth = *(s16*)((u8*)this + 0x58C);
