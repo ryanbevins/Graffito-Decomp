@@ -76,7 +76,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 	if (message == 7) {
 		u32 aType = sender->mActorType;
 
-		bool playTakeSound = (aType & 0x80000000) ? true : false;
+		BOOL playTakeSound = (aType & 0x80000000) ? true : false;
 		if (!playTakeSound) {
 			playTakeSound = (aType & 0x04000000) ? true : false;
 			if (!playTakeSound) {
