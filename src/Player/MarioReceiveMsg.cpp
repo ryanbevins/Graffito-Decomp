@@ -1120,36 +1120,35 @@ check_sender_bit3:
 
 void TMario::getGesso(THitActor* sender)
 {
-	if (mAction == 0x10000)
-		return;
+	if (mAction != 0x10000) {
+		s16 angle = (s16)(65536.0f * sender->mRotation.y);
+		mFaceAngle.y = angle;
+		mModelFaceAngle = mFaceAngle.y;
 
-	s16 angle = (s16)(65536.0f * sender->mRotation.y);
-	mFaceAngle.y = angle;
-	mModelFaceAngle = mFaceAngle.y;
+		changePlayerStatus(0x810446, 0, false);
 
-	changePlayerStatus(0x810446, 0, false);
+		mActionTimer = mDeParams.mSurfStartFreezeTime.get();
+		emitGetEffect();
 
-	mActionTimer = mDeParams.mSurfStartFreezeTime.get();
-	emitGetEffect();
+		// Set gesso type based on sender's actor type
+		u32 aType = sender->getActorType();
+		switch (aType) {
+		case 0x400000C5:
+			mSurfGesso = gpMapObjManager->mRedGesso;
+			unk389 = 0;
+			break;
+		case 0x400000C6:
+			mSurfGesso = gpMapObjManager->mYellowGesso;
+			unk389 = 1;
+			break;
+		case 0x400000C7:
+		default:
+			unk389 = 2;
+			mSurfGesso = gpMapObjManager->mGreenGesso;
+			break;
+		}
 
-	// Set gesso type based on sender's actor type
-	u32 aType = sender->getActorType();
-	switch (aType) {
-	case 0x400000C5:
-		mSurfGesso = gpMapObjManager->mRedGesso;
-		unk389 = 0;
-		break;
-	case 0x400000C6:
-		mSurfGesso = gpMapObjManager->mYellowGesso;
-		unk389 = 1;
-		break;
-	case 0x400000C7:
-	default:
-		unk389 = 2;
-		mSurfGesso = gpMapObjManager->mGreenGesso;
-		break;
+		mSurfGesso->setBck("surfgeso_run1");
+		mSurfGesso->getFrameCtrl(0)->setRate(0.5f);
 	}
-
-	mSurfGesso->setBck("surfgeso_run1");
-	mSurfGesso->getFrameCtrl(0)->setRate(0.5f);
 }
