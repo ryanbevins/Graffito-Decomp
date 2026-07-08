@@ -565,7 +565,7 @@ void TBaseNPC::npcTalking()
 			unk1DA |= 0x1;
 	}
 	if (isPeachTired() && unkD0->mCurrentAnmKind == 0x1A
-	    && mMActor->isCurAnmAlreadyEnd(0) && (unk1D8 & 0x2)) {
+	    && mMActor->isCurAnmAlreadyEnd(0) && checkUnk1D8(0x2)) {
 		peachTiredOut_();
 	}
 }
