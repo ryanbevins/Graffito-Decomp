@@ -2892,7 +2892,7 @@ void TMario::thinkParams()
 void TMario::thinkWaterSurface()
 {
 	// Early out if on water (bit 16 of mAction)
-	s32 onWater;
+	u8 onWater;
 	if (mAction & 0x10000)
 		onWater = 1;
 	else
@@ -2929,7 +2929,7 @@ void TMario::thinkWaterSurface()
 
 	// Check if ground plane is a pool type
 	u32 bgType = mGroundPlane->getBGType();
-	s32 isPool;
+	u8 isPool;
 	if (bgType == BG_TYPE_POOL || bgType == BG_TYPE_INDOOR_POOL
 	    || bgType == BG_TYPE_SHADED_POOL)
 		isPool = 1;
@@ -2959,7 +2959,7 @@ void TMario::thinkWaterSurface()
 
 		// Check if ground at water level is a water surface type
 		u32 groundType = mWaterFloor->mBGType;
-		s32 isWaterSurface;
+		u8 isWaterSurface;
 		if (groundType == BG_TYPE_WATER
 		    || groundType == BG_TYPE_DAMAGING_WATER
 		    || (u16)(groundType - BG_TYPE_SEA_WATER) <= 3
@@ -2979,7 +2979,7 @@ void TMario::thinkWaterSurface()
 			const TBGCheckData* groundCheck2;
 			gpMap->checkGround(getMpositionX(), mPosition.y, mPosition.z,
 			                   &groundCheck2);
-			s32 isSpecialType;
+			u8 isSpecialType;
 			if (groundCheck2->mBGType == 0x810B)
 				isSpecialType = 1;
 			else
@@ -3025,9 +3025,9 @@ void TMario::thinkWaterSurface()
 			swimmingBubbleEffect();
 
 			// Determine if should enter water
-			s32 shouldEnter = 1;
+			u8 shouldEnter = 1;
 			u32 action7C = mAction;
-			s32 isBit18;
+			u8 isBit18;
 			if (action7C & 0x2000)
 				isBit18 = 1;
 			else
@@ -3038,7 +3038,7 @@ void TMario::thinkWaterSurface()
 				shouldEnter = 0;
 
 			// Swimming status range checks
-			s32 isSwimming;
+			u8 isSwimming;
 			if (statusLow >= 0x168 && statusLow <= 0x16C)
 				isSwimming = 1;
 			else
@@ -3053,7 +3053,7 @@ void TMario::thinkWaterSurface()
 				shouldEnter = 0;
 
 			// Check held object
-			s32 holdingObj;
+			u8 holdingObj;
 			if (mHolder != 0)
 				holdingObj = 1;
 			else
@@ -3067,7 +3067,7 @@ void TMario::thinkWaterSurface()
 			mVel.y = getMvelY() * mSwimParams.mStartVYMult.get();
 
 			// Check if falling from air
-			s32 isFalling;
+			u8 isFalling;
 			if (mAction & 0x20000)
 				isFalling = 1;
 			else
@@ -3078,7 +3078,7 @@ void TMario::thinkWaterSurface()
 				changePlayerStatus(0x24DA, 0, true);
 			} else {
 				// Check if running on ground
-				s32 isRunning;
+				u8 isRunning;
 				if (mState & 0x4000)
 					isRunning = 1;
 				else
@@ -3119,7 +3119,7 @@ void TMario::thinkWaterSurface()
 	// Check wet ground type
 	{
 		u32 gndBGType = mGroundPlane->mBGType;
-		s32 isWetGround;
+		u8 isWetGround;
 		if (gndBGType == 0x4 || gndBGType == 0x4004
 		    || gndBGType == 0x8004 || gndBGType == 0xC004)
 			isWetGround = 1;
@@ -3213,9 +3213,9 @@ void TMario::thinkWaterSurface()
 
 	// Drowning/air recovery logic
 	{
-		s32 shouldDrown = 0;
+		u8 shouldDrown = 0;
 
-		s32 isInWater2;
+		u8 isInWater2;
 		if (mState & 0x30000)
 			isInWater2 = 1;
 		else
@@ -3228,7 +3228,7 @@ void TMario::thinkWaterSurface()
 			}
 		}
 		if (!shouldDrown) {
-			s32 isDiving;
+			u8 isDiving;
 			if (mState & 0x1000)
 				isDiving = 1;
 			else
@@ -3239,7 +3239,7 @@ void TMario::thinkWaterSurface()
 
 		if (shouldDrown) {
 			f32 prevAir = getUnk12c();
-			s32 isHelm;
+			u8 isHelm;
 			isHelm = isWearingHelm();
 			if (isHelm) {
 				u32 actionVal = mAction;
