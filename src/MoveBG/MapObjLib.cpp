@@ -718,17 +718,33 @@ f32 TMapObjBase::getRotYFromAxisZ(const JGeometry::TVec3<f32>& param_1) const
 
 f32 TMapObjBase::getDistanceXZ(const JGeometry::TVec3<f32>& param_1) const
 {
-	f32 dx = param_1.x - mPosition.x;
-	f32 dz = param_1.z - mPosition.z;
-	return std::sqrtf(dx * dx + dz * dz);
+	f32 dx    = param_1.x - mPosition.x;
+	f32 dz    = param_1.z - mPosition.z;
+	f32 lenSq = dx * dx + dz * dz;
+	if (lenSq > 0.0f) {
+		f64 guess = __frsqrte((f64)lenSq);
+		volatile f32 y
+		    = (f32)((f64)lenSq
+		            * (0.5 * guess * -((f64)lenSq * (guess * guess) - 3.0)));
+		lenSq = y;
+	}
+	return lenSq;
 }
 
 f32 TMapObjBase::getDistance(const JGeometry::TVec3<f32>& param_1) const
 {
-	f32 dx = param_1.x - mPosition.x;
-	f32 dy = param_1.y - (mPosition.y - mYOffset);
-	f32 dz = param_1.z - mPosition.z;
-	return std::sqrtf(dx * dx + dy * dy + dz * dz);
+	f32 dx    = param_1.x - mPosition.x;
+	f32 dy    = param_1.y - (mPosition.y - mYOffset);
+	f32 dz    = param_1.z - mPosition.z;
+	f32 lenSq = dx * dx + dy * dy + dz * dz;
+	if (lenSq > 0.0f) {
+		f64 guess = __frsqrte((f64)lenSq);
+		volatile f32 y
+		    = (f32)((f64)lenSq
+		            * (0.5 * guess * -((f64)lenSq * (guess * guess) - 3.0)));
+		lenSq = y;
+	}
+	return lenSq;
 }
 
 int TMapObjBase::getWaterID(THitActor* hit_actor)
