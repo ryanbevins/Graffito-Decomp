@@ -536,14 +536,8 @@ void TBaseNPC::npcTalkIn()
 {
 	mLiveFlag |= 0x00080000;
 	if (mActorType != 0x0400001C && mActorType != 0x0400001D) {
-		bool sunDown = false;
-		if (isSunflower() && (unk1D8 & 0x2))
-			sunDown = true;
-		if (!sunDown) {
-			bool peach = false;
-			if (mActorType == 0x04000018 && (unk1D8 & 0x2))
-				peach = true;
-			if (peach) {
+		if (!isSunflowerReviving()) {
+			if (isPeachTired()) {
 				requestNpcAnm_((EnumNpcAnmKind)0x1A,
 				               (EnumNpcStopMotionBlendOnOff)1);
 			} else {
@@ -559,18 +553,8 @@ void TBaseNPC::npcTalkIn()
 
 void TBaseNPC::npcTalking()
 {
-	bool sunDown = false;
-	if (isSunflower() && (unk1D8 & 0x2))
-		sunDown = true;
-	if (sunDown) {
-		if ((unk1D8 & 0x2) && unkD0->mCurrentAnmKind == 0x1A
-		    && mMActor->isCurAnmAlreadyEnd(0)) {
-			unk1D8 &= ~0x2;
-			if (mLiveFlag & 0x00080000)
-				requestTalkAnm_();
-			else
-				npcWaitIn();
-		}
+	if (isSunflowerReviving()) {
+		sunflowerReviving();
 		return;
 	}
 	if (isTurnToMarioWhenTalk()) {
@@ -580,10 +564,7 @@ void TBaseNPC::npcTalking()
 		if (!unk124->getGraph()->isDummy())
 			unk1DA |= 0x1;
 	}
-	bool revive = false;
-	if (mActorType == 0x04000018 && (unk1D8 & 0x2))
-		revive = true;
-	if (revive && unkD0->mCurrentAnmKind == 0x1A
+	if (isPeachTired() && unkD0->mCurrentAnmKind == 0x1A
 	    && mMActor->isCurAnmAlreadyEnd(0) && (unk1D8 & 0x2)) {
 		peachTiredOut_();
 	}
@@ -1083,15 +1064,7 @@ bool TBaseNPC::sunflowerReviving()
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
 			unk1D8 &= ~0x2;
 			if (mLiveFlag & 0x80000) {
-				EnumNpcAnmKind kind;
-				if (mActionFlag & 0x400) {
-					kind = asKind(1);
-				} else if ((mActionFlag & 0x1) && !(mActionFlag & 0x4)) {
-					kind = asKind(0x13);
-				} else {
-					kind = asKind(6);
-				}
-				setNpcAnm_(kind, NPC_STOP_MOTION_BLEND_ON);
+				requestTalkAnm_();
 			} else {
 				npcWaitIn();
 			}

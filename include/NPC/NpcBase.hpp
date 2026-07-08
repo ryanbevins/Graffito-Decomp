@@ -107,6 +107,20 @@ public:
 	bool checkUnk1DA(u32 flag) const { return (unk1DA & flag) != 0; }
 	void offActionFlag(u32 flag) { mActionFlag &= ~flag; }
 	bool checkActionFlag(u32 flag) const { return (mActionFlag & flag) != 0; }
+	bool isSunflowerReviving() const
+	{
+		bool result = false;
+		if (isSunflower() && (unk1D8 & 0x2))
+			result = true;
+		return result;
+	}
+	bool isPeachTired() const
+	{
+		bool result = false;
+		if (mActorType == 0x04000018 && (unk1D8 & 0x2))
+			result = true;
+		return result;
+	}
 	~TBaseNPC();
 	const GXColor* getPtrInitPollutionColor() const;
 	void setBalloonMessage(u32, long);
