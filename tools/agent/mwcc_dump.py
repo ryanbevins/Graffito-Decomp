@@ -13,7 +13,7 @@ The debugger only has breakpoint offsets for GC/1.1 and GC/2.6. GC/1.1 is
 "good enough" for GC/1.0-1.2.5 (our game code) and GC/2.6 for GC/1.3.2-2.7
 (SDK) — the regalloc algorithm and stack-allocation order are shared across each
 range, so the dumps are representative even though the binary isn't byte-identical
-to 1.2.5. See docs/MWCC.md "Using mwcc-debugger".
+to 1.2.5. See the generated MWCC Tooling brain page for current usage notes.
 
 Usage:
     python tools/agent/mwcc_dump.py <source.cpp> <mangled_symbol> [--out DIR] [--full]
