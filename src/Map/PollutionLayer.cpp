@@ -334,7 +334,7 @@ void TPollutionLayer::initTexImage(const char* param_1)
 
 	for (int y = 0; y < unk5C.mHeight; ++y) {
 		for (int x = 0; x < unk5C.mWidth; ++x) {
-			int depth = unk5C.getDepth(x, y);
+			u8 depth = unk80[0x436 + x + unk5C.mWidth * (unk5C.mHeight - 1 - y)];
 			bool shouldClear = false;
 			if (cVar1
 			    && (x <= 0 || x >= unk5C.mWidth - 1 || y <= 0
