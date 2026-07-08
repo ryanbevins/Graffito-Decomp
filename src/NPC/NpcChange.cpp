@@ -45,25 +45,25 @@ BOOL TBaseNPC::isNerveMaybeDontMovement() const
 	return result;
 }
 
-BOOL TBaseNPC::isNerveMaybeDontCalcAnim0() const
+bool TBaseNPC::isNerveMaybeDontCalcAnim0() const
 {
-	BOOL result                       = FALSE;
+	bool result                       = false;
 	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
 	if (cur == &TNerveNPCWaitContinue::theNerve()
 	    || cur == &TNerveNPCWaitMarioApproach::theNerve()) {
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }
 
-BOOL TBaseNPC::isNerveMaybeDontCalcAnim1() const
+bool TBaseNPC::isNerveMaybeDontCalcAnim1() const
 {
-	BOOL result                       = FALSE;
+	bool result                       = false;
 	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
 	if (cur == &TNerveNPCGraphWait::theNerve()
 	    || cur == &TNerveNPCWaitContinue::theNerve()
 	    || cur == &TNerveNPCWaitMarioApproach::theNerve()) {
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }

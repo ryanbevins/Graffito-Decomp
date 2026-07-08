@@ -198,8 +198,8 @@ public:
 	BOOL isNerveCanGoToSink() const;
 	BOOL isNerveCanGoToWet() const;
 	BOOL isNerveCanGoToTalk() const;
-	BOOL isNerveMaybeDontCalcAnim1() const;
-	BOOL isNerveMaybeDontCalcAnim0() const;
+	bool isNerveMaybeDontCalcAnim1() const;
+	bool isNerveMaybeDontCalcAnim0() const;
 	BOOL isNerveMaybeDontMovement() const;
 	bool isNerveWalk() const;
 	void emitParticle_();
