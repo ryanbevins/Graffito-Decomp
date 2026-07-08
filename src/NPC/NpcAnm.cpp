@@ -365,7 +365,9 @@ void TBaseNPC::walkAnmRateChange_()
 	} else {
 		unk1CC      = 0;
 		int anmKind = unkD0->mCurrentAnmKind;
-		if (anmKind == 8 || anmKind == 0) {
+		switch (anmKind) {
+		case NPC_ANM_KIND_RUN:
+		case NPC_ANM_KIND_WALK: {
 			f32 individualRate
 			    = mNpcSaveIndividual->mSLMinWalkAnmRate.get()
 			    * SMSGetAnmFrameRate();
@@ -397,13 +399,16 @@ void TBaseNPC::walkAnmRateChange_()
 			CLBChaseDecrease(&unk1D0, newRate,
 			    mPtrSaveNormal->mMoveWalkAnmRateChase.get(), 0.0f);
 			mMActor->setFrameRate(unk1D0, 0);
-		} else {
+			break;
+		}
+		default:
 			unk1D0 = 0.0f;
 			if (mActionFlag & 0x8) {
 				requestNpcAnm_(NPC_ANM_KIND_RUN, NPC_STOP_MOTION_BLEND_ON);
 			} else {
 				requestNpcAnm_(NPC_ANM_KIND_WALK, NPC_STOP_MOTION_BLEND_ON);
 			}
+			break;
 		}
 	}
 }
