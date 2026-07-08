@@ -1,37 +1,99 @@
+#include <Camera/CameraMultiPlayer.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraKindParam.hpp>
 #include <Camera/cameralib.hpp>
-#include <JSystem/JGeometry/JGVec3.hpp>
-#include <MarioUtil/MathUtil.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
 
 template <> f32 CLBCalcRatio<f32>(f32, f32, f32);
 template <> s16 CLBLinearInbetween<s16>(s16, s16, f32);
 
-struct TMultiPlayerData {
-	TMultiPlayerData()
-	{
-		unk0 = 0;
-		unk4 = 0.0f;
-		unk8 = 0.0f;
-	}
-	/* 0x0 */ const JGeometry::TVec3<f32>* unk0;
-	/* 0x4 */ f32 unk4;
-	/* 0x8 */ f32 unk8;
-};
+inline
+TCameraMultiPlayer::TCameraMultiPlayer(u8 max_player_count)
+    : mMaxPlayers(max_player_count)
+    , mPlayerCount(0)
+    , mPlayers(nullptr)
+{
+	mPlayers = new TMultiPlayerData[max_player_count];
+}
 
-struct TMultiPlayerContainer {
-	/* 0x0 */ u8 mCapacity;
-	/* 0x1 */ u8 mCount;
-	/* 0x4 */ TMultiPlayerData* mData;
-};
+inline
+bool TCameraMultiPlayer::addPlayer(const JGeometry::TVec3<f32>* param_1,
+                                   f32 param_2, f32 param_3)
+{
+	if (mPlayerCount >= mMaxPlayers)
+		return false;
+
+	TMultiPlayerData* data = &mPlayers[mPlayerCount];
+	data->unk0             = param_1;
+	data->unk4             = param_2;
+	data->unk8             = param_3;
+	mPlayerCount += 1;
+
+	return true;
+}
+
+inline bool
+TCameraMultiPlayer::removePlayer(const JGeometry::TVec3<f32>* param_1)
+{
+	bool found = false;
+	int i;
+	TMultiPlayerData* it = mPlayers;
+	for (i = 0; i < mPlayerCount; ++i, ++it) {
+		if (found == true || (found == false && it->unk0 == param_1)) {
+			if (i != mPlayerCount - 1)
+				*it = *(it + 1);
+			found = true;
+		}
+	}
+
+	if (found != true)
+		return found;
+
+	mPlayerCount -= 1;
+	return found;
+}
+
+void CPolarSubCamera::createMultiPlayer(u8 param_1)
+{
+	if (!unk2BC)
+		unk2BC = new TCameraMultiPlayer(param_1);
+}
+
+bool CPolarSubCamera::addMultiPlayer(const JGeometry::TVec3<f32>* param_1,
+                                     f32 param_2, f32 param_3)
+{
+	TCameraMultiPlayer* c = unk2BC;
+	if (c == nullptr)
+		return false;
+
+	bool added;
+	if (c->mPlayerCount >= c->mMaxPlayers) {
+		added = false;
+	} else {
+		TMultiPlayerData* slot = &c->mPlayers[c->mPlayerCount];
+		slot->unk0             = param_1;
+		slot->unk4             = param_2;
+		slot->unk8             = param_3;
+		c->mPlayerCount += 1;
+		added = true;
+	}
+	return added;
+}
+
+bool CPolarSubCamera::removeMultiPlayer(const JGeometry::TVec3<f32>* param_1)
+{
+	if (!unk2BC)
+		return false;
+
+	return unk2BC->removePlayer(param_1);
+}
 
 void CPolarSubCamera::ctrlMultiPlayerCamera_()
 {
-	TMultiPlayerContainer* c = unk2BC;
-	int count = c->mCount;
+	TCameraMultiPlayer* c = unk2BC;
+	int count              = c->mPlayerCount;
 	if (count <= 0) {
-		// Fall back to current target / pos
 		*(f32*)((u8*)this + 0x8C) = *(f32*)((u8*)this + 0x148);
 		*(f32*)((u8*)this + 0x90) = *(f32*)((u8*)this + 0x14C);
 		*(f32*)((u8*)this + 0x94) = *(f32*)((u8*)this + 0x150);
@@ -40,7 +102,7 @@ void CPolarSubCamera::ctrlMultiPlayerCamera_()
 		*(f32*)((u8*)this + 0xA0) = *(f32*)((u8*)this + 0x12C);
 	} else {
 		JGeometry::TVec3<f32> sum(0.0f, 0.0f, 0.0f);
-		TMultiPlayerData* data = unk2BC->mData;
+		TMultiPlayerData* data = unk2BC->mPlayers;
 		for (int i = count; i > 0; i--, data++) {
 			const JGeometry::TVec3<f32>* p = data->unk0;
 			sum.x += p->x;
@@ -56,7 +118,7 @@ void CPolarSubCamera::ctrlMultiPlayerCamera_()
 		sum.y += unk68->unk24;
 
 		f32 maxDistSq = 0.0f;
-		data           = unk2BC->mData;
+		data           = unk2BC->mPlayers;
 		for (int i = 0; i < count; i++) {
 			const JGeometry::TVec3<f32>* a = data[i].unk0;
 			for (int j = i + 1; j < count; j++) {
@@ -82,7 +144,7 @@ void CPolarSubCamera::ctrlMultiPlayerCamera_()
 		} else {
 			dist = maxDistSq;
 		}
-		f32 r    = 300.0f + 1.5f * dist;
+		f32 r = 300.0f + 1.5f * dist;
 
 		f32 lo = unk68->unk08;
 		f32 hi = unk68->unk0C;
@@ -96,70 +158,13 @@ void CPolarSubCamera::ctrlMultiPlayerCamera_()
 		s16 angB   = unk68->unk1A;
 		s16 outAng = (s16)CLBLinearInbetween<s16>(angA, angB, ratio);
 
-		JGeometry::TVec3<f32>* target = (JGeometry::TVec3<f32>*)((u8*)this + 0x98);
-		*(f32*)((u8*)this + 0x8C)     = sum.x;
-		*(f32*)((u8*)this + 0x90)     = sum.y;
-		*(f32*)((u8*)this + 0x94)     = sum.z;
+		JGeometry::TVec3<f32>* target
+		    = (JGeometry::TVec3<f32>*)((u8*)this + 0x98);
+		*(f32*)((u8*)this + 0x8C) = sum.x;
+		*(f32*)((u8*)this + 0x90) = sum.y;
+		*(f32*)((u8*)this + 0x94) = sum.z;
 		CLBPolarToCross(sum, target, r, outAng, 0);
 	}
+
 	calcPosAndAt_();
-}
-
-bool CPolarSubCamera::removeMultiPlayer(const JGeometry::TVec3<f32>* p)
-{
-	TMultiPlayerContainer* c = unk2BC;
-	if (c == nullptr)
-		return false;
-
-	bool found = false;
-	TMultiPlayerData* data = c->mData;
-	for (int i = 0; i < c->mCount; i++, data++) {
-		if (found == true || (found == false && data->unk0 == p)) {
-			if (i != c->mCount - 1) {
-				*data = data[1];
-			}
-			found = true;
-		}
-	}
-	if (found == true) {
-		c->mCount -= 1;
-	}
-	return found;
-}
-
-bool CPolarSubCamera::addMultiPlayer(const JGeometry::TVec3<f32>* p, f32 a,
-                                     f32 b)
-{
-	TMultiPlayerContainer* c = unk2BC;
-	if (c == nullptr)
-		return false;
-
-	bool added;
-	if (c->mCount >= c->mCapacity) {
-		added = false;
-	} else {
-		TMultiPlayerData* slot = &c->mData[c->mCount];
-		slot->unk0             = p;
-		slot->unk4             = a;
-		slot->unk8             = b;
-		c->mCount += 1;
-		added = true;
-	}
-	return added;
-}
-
-void CPolarSubCamera::createMultiPlayer(u8 capacity)
-{
-	if (unk2BC != nullptr)
-		return;
-
-	TMultiPlayerContainer* c = new TMultiPlayerContainer();
-	if (c != nullptr) {
-		c->mCapacity = capacity;
-		c->mCount    = 0;
-		c->mData     = nullptr;
-		c->mData     = new TMultiPlayerData[capacity];
-	}
-
-	unk2BC = c;
 }

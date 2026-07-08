@@ -21,7 +21,7 @@ class TCamSaveKindParam;
 class TCamSaveEx;
 
 class TCameraJetCoaster;
-struct TMultiPlayerContainer;
+class TCameraMultiPlayer;
 
 class CPolarSubCamera : public JDrama::TLookAtCamera {
 public:
@@ -343,7 +343,7 @@ public:
 		TCameraDemo* mCameraDemo;
 	};
 	/* 0x2B8 */ TCameraJetCoaster* unk2B8;
-	/* 0x2BC */ TMultiPlayerContainer* unk2BC;
+	/* 0x2BC */ TCameraMultiPlayer* unk2BC;
 	/* 0x2C0 */ f32 unk2C0;
 	/* 0x2C4 */ f32 unk2C4;
 	/* 0x2C8 */ s16 unk2C8;
