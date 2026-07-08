@@ -15,6 +15,7 @@
 #include <Camera/CubeManagerBase.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JDrama/JDRViewObjPtrList.hpp>
 #include <JSystem/JGadget/std-list.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MSound/MSound.hpp>
@@ -41,10 +42,9 @@ static void initMonte()
 
 	TMapStaticObj* waterIndirect = new TMapStaticObj("水インダイレクト");
 	waterIndirect->init("SeaIndirect");
-	JGadget::TList_pointer_void* list
-	    = (JGadget::TList_pointer_void*)((u8*)indirectScene + 0x10);
-	void* waterIndirectObj = waterIndirect;
-	list->insert(list->end(), waterIndirectObj);
+	JDrama::TViewObjPtrListT<JDrama::TViewObj>* group
+	    = (JDrama::TViewObjPtrListT<JDrama::TViewObj>*)indirectScene;
+	group->getChildren().push_back(waterIndirect);
 
 	if (gpMarDirector->unk7D == 0 || gpMarDirector->unk7D == 2
 	    || gpMarDirector->unk7D == 5 || gpMarDirector->unk7D == 6) {
@@ -65,14 +65,13 @@ static void initMare()
 	JDrama::TNameRef* mapGroup
 	    = root->searchF(JDrama::TNameRef::calcKeyCode(mapGroupName),
 	                    mapGroupName);
-	JGadget::TList_pointer_void* list
-	    = (JGadget::TList_pointer_void*)((u8*)mapGroup + 0x10);
+	JDrama::TViewObjPtrListT<JDrama::TViewObj>* group
+	    = (JDrama::TViewObjPtrListT<JDrama::TViewObj>*)mapGroup;
 
 	if (gpMarDirector->unk7D == 5) {
 		TMapStaticObj* gate = new TMapStaticObj("マーレ５ＥＸゲート");
 		gate->init("Mare5ExGate");
-		void* gateObj = gate;
-		list->insert(list->end(), gateObj);
+		group->getChildren().push_back(gate);
 	}
 
 	if (gpMarDirector->unk7D == 0) {
@@ -91,20 +90,17 @@ static void initMare()
 	TMareEventDepressWall* first
 	    = new TMareEventDepressWall("イベント（マーレへこむ壁）");
 	first->init1stEvent();
-	void* firstObj = first;
-	list->insert(list->end(), firstObj);
+	group->getChildren().push_back(first);
 
 	TMareEventDepressWall* second
 	    = new TMareEventDepressWall("イベント（マーレへこむ壁）");
 	second->init2ndEvent();
-	void* secondObj = second;
-	list->insert(list->end(), secondObj);
+	group->getChildren().push_back(second);
 
 	TMareEventDepressWall* third
 	    = new TMareEventDepressWall("イベント（マーレへこむ壁）");
 	third->init3rdEvent();
-	void* thirdObj = third;
-	list->insert(list->end(), thirdObj);
+	group->getChildren().push_back(third);
 }
 
 static void initPinnaParco()
@@ -127,6 +123,8 @@ static void initStageCommon()
 	const char* indirectSceneName = "インダイレクトシーン";
 	JDrama::TNameRef* indirectScene = root->searchF(
 	    JDrama::TNameRef::calcKeyCode(indirectSceneName), indirectSceneName);
+	JDrama::TViewObjPtrListT<JDrama::TViewObj>* indirectGroup
+	    = (JDrama::TViewObjPtrListT<JDrama::TViewObj>*)indirectScene;
 
 	root = JDrama::TNameRefGen::getInstance()->getRootNameRef();
 	const char* mapGroupName = "マップグループ";
@@ -140,32 +138,24 @@ static void initStageCommon()
 
 		TMapStaticObj* indirectWave = new TMapStaticObj("インダイレクト波");
 		indirectWave->init("SeaIndirect");
-		JGadget::TList_pointer_void* list
-		    = (JGadget::TList_pointer_void*)((u8*)indirectScene + 0x10);
-		void* indirectWaveObj = indirectWave;
-		list->insert(list->end(), indirectWaveObj);
+		indirectGroup->getChildren().push_back(indirectWave);
 
 		TMapObjWaterFilter* waterFilter
 		    = new TMapObjWaterFilter("水中カメラフィルタ");
 		waterFilter->init();
-		void* waterFilterObj = waterFilter;
-		list->insert(list->end(), waterFilterObj);
+		indirectGroup->getChildren().push_back(waterFilter);
 
 		TMapObjSeaIndirect* waterIndirect
 		    = new TMapObjSeaIndirect("水中カメラインダイレクト");
 		waterIndirect->init();
-		void* waterIndirectObj = waterIndirect;
-		list->insert(list->end(), waterIndirectObj);
+		indirectGroup->getChildren().push_back(waterIndirect);
 	}
 
 	if (map == 2) {
 		TMapObjSeaIndirect* waterIndirect
 		    = new TMapObjSeaIndirect("水中カメラインダイレクト");
 		waterIndirect->init();
-		JGadget::TList_pointer_void* list
-		    = (JGadget::TList_pointer_void*)((u8*)indirectScene + 0x10);
-		void* waterIndirectObj = waterIndirect;
-		list->insert(list->end(), waterIndirectObj);
+		indirectGroup->getChildren().push_back(waterIndirect);
 	}
 }
 
