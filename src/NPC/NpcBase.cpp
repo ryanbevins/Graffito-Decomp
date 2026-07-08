@@ -651,16 +651,16 @@ void TBaseNPC::load(JSUMemoryInputStream& stream)
 
 BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if (mActorType != 0x0400001C) {
 		if (message == 4) {
 			if ((mLiveFlag & 0x100000) && mHolder == nullptr) {
 				behaveToBeTaken_(sender);
-				result = TRUE;
+				result = true;
 			}
 		} else if (message == 0) {
 			behaveToBeTrampled_();
-			result = TRUE;
+			result = true;
 		} else if (message == 0xF) {
 			bool shouldBehave = true;
 			switch (mActorType) {
@@ -674,7 +674,7 @@ BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 			}
 			if (shouldBehave)
 				behaveToHitObject_(sender, (EnumHitNpcObjectKind)0);
-			result = TRUE;
+			result = true;
 		} else {
 			bool kinoMatch = false;
 			if (message == 0x10) {
@@ -731,7 +731,7 @@ BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 					                      : (EnumHitNpcObjectKind)2;
 					behaveToHitObject_(sender, kind);
 				}
-				result = TRUE;
+				result = true;
 			}
 		}
 	}
