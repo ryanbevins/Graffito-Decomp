@@ -1120,9 +1120,8 @@ check_sender_bit3:
 
 void TMario::getGesso(THitActor* sender)
 {
-	if (mAction != 0x10000) {
-		s16 angle = (s16)(65536.0f * sender->mRotation.y);
-		mFaceAngle.y = angle;
+	if (mStatus != 0x10000) {
+		mFaceAngle.y = DEG2SHORTANGLE(sender->mRotation.y);
 		mModelFaceAngle = mFaceAngle.y;
 
 		changePlayerStatus(0x810446, 0, false);
@@ -1131,8 +1130,7 @@ void TMario::getGesso(THitActor* sender)
 		emitGetEffect();
 
 		// Set gesso type based on sender's actor type
-		u32 aType = sender->getActorType();
-		switch (aType) {
+		switch (sender->getActorType()) {
 		case 0x400000C5:
 			mSurfGesso = gpMapObjManager->mRedGesso;
 			unk389 = 0;
