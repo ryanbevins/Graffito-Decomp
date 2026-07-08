@@ -1072,21 +1072,19 @@ check_sender_bit3:
 
 		case 0x080000C0: // Water surface contact
 		{
-			if (mAction == 0x1336)
-				return 0;
-			if (message != 4)
-				return 0;
-
-			mHolder = (TTakeActor*)sender;
-			// Check state flag for grounded
-			if (!(mAction & 0x800)) {
-				setAnimation(77, 0.0f);
-				J3DFrameCtrl& ctrl = getMotionFrameCtrl();
-				s16 frameAngle = ctrl.getEnd();
-				getMotionFrameCtrl().setFrame((f32)frameAngle);
+			if (mAction != 0x1336 && message == 4) {
+				mHolder = (TTakeActor*)sender;
+				// Check state flag for grounded
+				if (!(mAction & 0x800)) {
+					setAnimation(77, 0.0f);
+					J3DFrameCtrl& ctrl = getMotionFrameCtrl();
+					s16 frameAngle = ctrl.getEnd();
+					getMotionFrameCtrl().setFrame((f32)frameAngle);
+				}
+				changePlayerDropping(0x1336, 0);
+				return 1;
 			}
-			changePlayerDropping(0x1336, 0);
-			return 1;
+			break;
 		}
 
 		case 0x4000009C:
