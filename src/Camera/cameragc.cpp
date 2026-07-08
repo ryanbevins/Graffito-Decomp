@@ -421,7 +421,7 @@ void CPolarSubCamera::ctrlGameCamera_()
 	marioData->mPosX            = marioPos.x;
 	marioData->mPosY            = marioPos.y;
 	marioData->mPosZ            = marioPos.z;
-	marioData->calcAndSetMarioData();
+	gpCameraMario->calcAndSetMarioData();
 
 	unkB4 = unk80;
 	unkC0 = unk8C;
