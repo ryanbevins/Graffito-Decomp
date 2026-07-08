@@ -668,13 +668,6 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		startVoice(0x78B1);
 		break;
 	}
-	case 0x02000886: {
-		// Special jump (ground pound variant)
-		setPlayerJumpSpeed(0.0f, 62.0f);
-		mForwardVel = 24.0f;
-		startVoice(0x78B1);
-		break;
-	}
 	case 0x0882: {
 		// Somersault jump
 		setPlayerJumpSpeed(mJumpParams.mUltraJumpSpeedMult.get(),
@@ -688,6 +681,13 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		mForwardVel = mJumpParams.mBackJumpForce.get();
 		setPlayerJumpSpeed(0.0f, mJumpParams.mBackJumpForceY.get());
 		startVoice(0x78B6);
+		break;
+	}
+	case 0x02000886: {
+		// Special jump (ground pound variant)
+		setPlayerJumpSpeed(0.0f, 62.0f);
+		mForwardVel = 24.0f;
+		startVoice(0x78B1);
 		break;
 	}
 	case 0x0884: {
