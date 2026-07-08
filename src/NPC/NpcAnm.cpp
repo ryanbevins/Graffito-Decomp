@@ -400,9 +400,9 @@ void TBaseNPC::walkAnmRateChange_()
 		} else {
 			unk1D0 = 0.0f;
 			if (mActionFlag & 0x8) {
-				requestNpcAnm_(asKind(8), NPC_STOP_MOTION_BLEND_ON);
+				requestNpcAnm_(NPC_ANM_KIND_RUN, NPC_STOP_MOTION_BLEND_ON);
 			} else {
-				requestNpcAnm_(asKind(0), NPC_STOP_MOTION_BLEND_ON);
+				requestNpcAnm_(NPC_ANM_KIND_WALK, NPC_STOP_MOTION_BLEND_ON);
 			}
 		}
 	}
