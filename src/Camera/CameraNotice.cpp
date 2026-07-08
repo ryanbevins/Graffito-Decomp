@@ -207,10 +207,9 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 	    *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0xA4));
 
 	if (sqXZ > farSq) {
-		Vec diff;
-		diff.x = marioPos.x - target.x;
-		diff.y = marioPos.y - target.y;
-		diff.z = marioPos.z - target.z;
+		JGeometry::TVec3<f32> diff(marioPos.x - target.x,
+		                           marioPos.y - target.y,
+		                           marioPos.z - target.z);
 		MsVECNormalize(&diff, &diff);
 
 		f32 dx  = diff.x * 500.0f + marioPos.x;
