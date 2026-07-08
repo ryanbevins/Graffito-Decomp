@@ -227,10 +227,14 @@ public:
 	}
 #endif
 
+#ifdef JGEOMETRY_CAMERASHAKE_TVEC3_DOT_SCALE_OUT_OF_LINE
+	f32 dot(const TVec3& other) const;
+#else
 	f32 dot(const TVec3& other) const
 	{
 		return x * other.x + y * other.y + z * other.z;
 	}
+#endif
 
 	// Incorrect!!!
 	void cross(const TVec3& a, const TVec3& b)
@@ -270,12 +274,16 @@ public:
 	}
 #endif
 
+#ifdef JGEOMETRY_CAMERASHAKE_TVEC3_DOT_SCALE_OUT_OF_LINE
+	void scale(f32 scale, const TVec3& b);
+#else
 	void scale(f32 scale, const TVec3& b)
 	{
 		x = b.x * scale;
 		y = b.y * scale;
 		z = b.z * scale;
 	}
+#endif
 
 #ifdef JGEOMETRY_MAPMIRROR_TVEC3_SCALEADD_OUT_OF_LINE
 	void scaleAdd(f32 scale, const TVec3& b, const TVec3& c);
