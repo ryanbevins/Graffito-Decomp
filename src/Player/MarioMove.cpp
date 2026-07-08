@@ -2798,7 +2798,8 @@ void TMario::thinkParams()
 				belowThreshold = 0;
 			}
 			if (!belowThreshold) {
-				u16 bgType = mWaterFloor->mBGType;
+				TBGCheckData* waterFloor = mWaterFloor;
+				u16 bgType = waterFloor->mBGType;
 				u8 isWaterGround;
 				if (bgType == 0x0B || bgType == 0x800B || bgType == 0x103
 				    || bgType == 0x101)
@@ -2822,7 +2823,7 @@ void TMario::thinkParams()
 							actionBit = 0;
 
 						if (!actionBit) {
-							s16 data = mWaterFloor->getData();
+							s16 data = waterFloor->getData();
 							TEParams* params;
 							switch (data) {
 							case 0: params = &mDmgMapParams0; break;
