@@ -70,17 +70,20 @@ void TDoor::touchPlayer(THitActor* player)
 	if (!player->isActorTypeOf(ACTOR_TYPE_PLAYER))
 		return;
 
-	u32 message = unk138 ? 0x12 : 0x11;
+	u32 message = 0x11;
+	if (unk138)
+		message = 0x12;
 	if (!player->receiveMessage(this, message))
 		return;
 
-	if (gpMarioOriginal->mAction == 0x1320) {
-		if (gpMarioOriginal->mHeldObject)
+	TMario* mario = (TMario*)player;
+	if (mario->mAction == 0x1320) {
+		if (mario->mHeldObject)
 			startAnim(4);
 		else
 			startAnim(2);
-	} else if (gpMarioOriginal->mAction == 0x1321) {
-		if (gpMarioOriginal->mHeldObject)
+	} else if (mario->mAction == 0x1321) {
+		if (mario->mHeldObject)
 			startAnim(3);
 		else
 			startAnim(1);
