@@ -183,7 +183,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			// Check blooper not-stuck and timer < 120
 			if (*(s8*)((u8*)sender + 0x13A) == 0
 			    && !(*(s32*)((u8*)sender + 0x13C) < 120 ? true : false)) {
-				mHealth = *(s16*)((u8*)this + 0x58C);
+				mHealth = mDeParams.mHpMax.get();
 				// Check FLUDD
 				if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 					mWaterGun->addWater(mWaterGun->getMaxWater());
@@ -214,7 +214,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 		case 0x2000003C: // Yoshi release flag
 		{
 			mCap->setModelActive(TMarioCap::E_CAP_MODEL_HAT);
-			mHealth = *(s16*)((u8*)this + 0x58C);
+			mHealth = mDeParams.mHpMax.get();
 			emitGetEffect();
 			return 1;
 		}
@@ -269,7 +269,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 			mModelFaceAngle = mFaceAngle.y;
 
 			setPlayerVelocity(0.0f);
-			mHealth = *(s16*)((u8*)this + 0x58C);
+			mHealth = mDeParams.mHpMax.get();
 			unk12C = unk130;
 			changePlayerStatus(0x1302, 0, true);
 			return 1;
