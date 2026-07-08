@@ -8,8 +8,6 @@
 #include <JSystem/JGeometry.hpp>
 #include <dolphin/mtx.h>
 
-extern const char* mCamShakeNameSave__12TCameraShake[];
-
 TCameraShake* gpCameraShake;
 
 static inline void unitVecTo(const Vec& from, const Vec& to,
@@ -25,8 +23,7 @@ TCameraShake::TCameraShake()
 	s32 offset = 0;
 	for (s32 i = 0; i < 41; i++, offset += 4) {
 		TCamSaveShake* save = new TCamSaveShake(
-		    *(const char**)((const u8*)mCamShakeNameSave__12TCameraShake
-		                    + offset));
+		    *(const char**)((const u8*)mCamShakeNameSave + offset));
 		mShakeSaveData[i] = save;
 	}
 	for (s32 i = 0; i < 32; i++) {

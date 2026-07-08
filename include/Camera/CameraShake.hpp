@@ -112,6 +112,8 @@ public:
 	void execShake(const JGeometry::TVec3<f32>&, JGeometry::TVec3<f32>*,
 	               JGeometry::TVec3<f32>*);
 
+	static const char* mCamShakeNameSave[];
+
 	/* 0x000 */ s16 mYaw;
 	/* 0x002 */ u16 mPad;
 	/* 0x004 */ TCamShakeInfo mShakeInfos[32];
