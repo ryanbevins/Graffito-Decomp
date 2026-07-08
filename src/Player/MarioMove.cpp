@@ -3586,10 +3586,10 @@ void TMario::thinkYoshiHeadCollision()
 	u16 angle = mFaceAngle.y;
 	headPos.x += front * JMASSin(angle);
 	headPos.z += front * JMASCos(angle);
-	f32 headZ = headPos.z;
 
 	TBGWallCheckRecord wallCheck(headPos.x, headPos.y + 100.0f, headPos.z,
 	                             mYoshiParams.mHeadRadius.get(), 4, 0);
+	f32 headZ = headPos.z;
 
 	if (gpMap->isTouchedWallsAndMoveXZ(&wallCheck) == true) {
 		f32 dx   = wallCheck.mCenter.x - headPos.x;
