@@ -9,6 +9,7 @@
 #include <MSound/MSoundSE.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapWireManager.hpp>
+#include <Player/MarioCap.hpp>
 #include <Player/Yoshi.hpp>
 #include <Player/Watergun.hpp>
 #include <System/MarDirector.hpp>
@@ -212,9 +213,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 
 		case 0x2000003C: // Yoshi release flag
 		{
-			TMarioCap* cap = mCap;
-			u16 flags = *(u16*)((u8*)cap + 4);
-			*(u16*)((u8*)cap + 4) = flags | 1;
+			mCap->setModelActive(TMarioCap::E_CAP_MODEL_HAT);
 			mHealth = *(s16*)((u8*)this + 0x58C);
 			emitGetEffect();
 			return 1;
