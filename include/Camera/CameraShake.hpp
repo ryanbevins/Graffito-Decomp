@@ -55,7 +55,7 @@ public:
 		/* 0x18 */ TCamShakeAngle mAngleY;
 		/* 0x24 */ TCamShakeAngle mAngleZ;
 
-		bool isActive() const { return mDuration ? true : false; }
+		bool isActive() const { return mDuration != 0 ? true : false; }
 		void reset()
 		{
 			mMode             = 1;
