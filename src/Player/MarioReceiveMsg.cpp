@@ -392,7 +392,7 @@ check_sender_bit3:
 				mWireBounceVel = 0.2f * -mVel.y;
 				mWireSag       = 0.0f;
 
-				BOOL hangFromWire;
+				bool hangFromWire;
 				if (mAction == 0x893 || mAction == ACTION_DIVE_RECOVERY) {
 					hangFromWire = true;
 				} else if (mVel.y < 0.0f) {
@@ -401,7 +401,7 @@ check_sender_bit3:
 					hangFromWire = true;
 				}
 
-				if (hangFromWire) {
+				if (hangFromWire == true) {
 					if (angleDiff > 0) {
 						JGeometry::TVec3<f32> temp = mWireStartPos;
 						mWireStartPos              = mWireEndPos;
