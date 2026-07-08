@@ -762,7 +762,8 @@ check_sender_bit3:
 			if (message == 3) {
 				if (!isInvincible()) {
 					mState |= 0x800;
-					if (!(mAction & 0x800))
+					bool actionFlag = (mAction & 0x800) ? true : false;
+					if (!actionFlag)
 						rumbleStart(21, 10);
 					return 1;
 				}
