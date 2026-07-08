@@ -4189,17 +4189,7 @@ void TMario::thinkHeight()
 	forwardPos.z = mPosition.z + unk15C * JMASCos(mFaceAngle.y);
 
 	if (checkWallPlane(&forwardPos, 80.0f, unk15C) == NULL) {
-		const TBGCheckData* groundPlane;
-		f32 sinV = JMASSin(mFaceAngle.y);
-		f32 cosV = JMASCos(mFaceAngle.y);
-		f32 dz = 100.0f * cosV;
-		f32 dx = 100.0f * sinV;
-		f32 groundHeight = gpMap->checkGround(
-		    getMpositionX() + dx,
-		    100.0f + mPosition.y,
-		    mPosition.z + dz,
-		    &groundPlane);
-		unk370 = mPosition.y - groundHeight;
+		unk370 = mPosition.y - checkPlayerAround(0, 100.0f);
 	} else {
 		unk370 = 0.0f;
 	}
