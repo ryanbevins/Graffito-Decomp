@@ -346,7 +346,9 @@ void CPolarSubCamera::perform(u32 flags, JDrama::TGraphics* gfx)
 		gfx->mProjMtx.mMtx[3][1] = unk16C[3][1];
 		gfx->mProjMtx.mMtx[3][2] = unk16C[3][2];
 		gfx->mProjMtx.mMtx[3][3] = unk16C[3][3];
-		PSMTXCopy(unk1EC, gfx->mViewMtx.mMtx);
+		MtxPtr viewMtx = gfx->mViewMtx.mMtx;
+		MtxPtr cameraMtx = unk1EC;
+		PSMTXCopy(cameraMtx, viewMtx);
 		gfx->mNearPlane = mNear;
 		gfx->mFarPlane  = mFar;
 		if (flags & 0x10)
