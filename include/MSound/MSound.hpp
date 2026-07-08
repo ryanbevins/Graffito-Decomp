@@ -94,16 +94,16 @@ public:
 	f32 getDistFromCamera(Vec*);
 	bool cameraLooksAtMario();
 
-	JAISound* startSoundSet(u32, const Vec*, u32, f32, u32, u32, u8);
-	JAISound* startSoundSetGrp(u32, const Vec*, u32, f32, u32, u32, u8);
-	JAISound* startSoundActorSpecial(u32, const Vec*, f32, f32, u32, JAISound**,
-	                                 u32, u8);
-	JAISound* startBeeSe(Vec*, u32);
+	void startSoundSet(u32, const Vec*, u32, f32, u32, u32, u8);
+	void startSoundSetGrp(u32, const Vec*, u32, f32, u32, u32, u8);
+	void startSoundActorSpecial(u32, const Vec*, f32, f32, u32, JAISound**, u32,
+	                            u8);
+	void startBeeSe(Vec*, u32);
 
 	u32 startMarioVoice(u32, s16, u8);
 	void stopMarioVoice(u32, u8);
 	u32 getMarioVoiceID(u8);
-	JAISound* checkMarioVoicePlaying(u8);
+	void* checkMarioVoicePlaying(u8);
 
 	void playTimer(u32);
 	void requestShineAppearFanfare();

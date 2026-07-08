@@ -495,17 +495,16 @@ void MSound::mainLoop()
 	((MSModBgm*)unk98)->loop();
 }
 
-JAISound* MSound::startSoundSet(u32 id, const Vec* pos, u32 param3, f32 volume,
-                                u32 param5, u32 param6, u8 param7)
+void MSound::startSoundSet(u32 id, const Vec* pos, u32 param3, f32 volume,
+                           u32 param5, u32 param6, u8 param7)
 {
 	if (gateCheck(id))
 		MSSetSound::startSoundSet(id, pos, param3, volume, param5, param6,
 		                           param7);
 }
 
-JAISound* MSound::startSoundSetGrp(u32 id, const Vec* pos, u32 param3,
-                                   f32 volume, u32 param5, u32 param6,
-                                   u8 param7)
+void MSound::startSoundSetGrp(u32 id, const Vec* pos, u32 param3, f32 volume,
+                              u32 param5, u32 param6, u8 param7)
 {
 	if (gateCheck(id))
 		MSSetSoundGrp::startSoundSetGrp(id, pos, param3, volume, param5,
@@ -1067,7 +1066,7 @@ void MSound::stopMarioVoice(u32 id, u8 param2)
 	}
 }
 
-JAISound* MSound::checkMarioVoicePlaying(u8 param)
+void* MSound::checkMarioVoicePlaying(u8 param)
 {
 	u8 index;
 	if (param & 2)
@@ -1100,7 +1099,7 @@ u32 MSound::getWallSound(u32 param1, f32 param2)
 		return 0x1948;
 }
 
-JAISound* MSound::startBeeSe(Vec* pos, u32 id)
+void MSound::startBeeSe(Vec* pos, u32 id)
 {
 	if (id > 3) {
 		JAISound* sound = nullptr;
@@ -1131,10 +1130,9 @@ JAISound* MSound::startBeeSe(Vec* pos, u32 id)
 	}
 }
 
-JAISound* MSound::startSoundActorSpecial(u32 id, const Vec* pos, f32 param3,
-                                         f32 param4, u32 param5,
-                                         JAISound** soundPtr, u32 param7,
-                                         u8 param8)
+void MSound::startSoundActorSpecial(u32 id, const Vec* pos, f32 param3,
+                                    f32 param4, u32 param5,
+                                    JAISound** soundPtr, u32 param7, u8 param8)
 {
 	if (gateCheck(id) && !JALSystem::gateCheckFunc(id, param3)
 	    && !JALSystem::gateCheckFunc(id, param4)) {
