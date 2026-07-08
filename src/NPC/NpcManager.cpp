@@ -475,15 +475,15 @@ void TMonteMManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
-	J3DModelData* d1 = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* t1 = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteMRealStrawTexName);
-	SMS_ChangeTextureAll(d1, cMonteMDummyStrawTexName, *t1);
-	J3DModelData* d2 = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* t2 = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	SMS_ChangeTextureAll(modelData, cMonteMDummyStrawTexName, *strawTex);
+	modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* pollutionTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cRealPollutionTexName);
-	if (t2)
-		SMS_ChangeTextureAll(d2, cDummyPollutionTexName, *t2);
+	if (pollutionTex)
+		SMS_ChangeTextureAll(modelData, cDummyPollutionTexName, *pollutionTex);
 }
 
 void TMonteMAManager::createModelData()
@@ -493,15 +493,15 @@ void TMonteMAManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
-	J3DModelData* d1 = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* t1 = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteMRealStrawTexName);
-	SMS_ChangeTextureAll(d1, cMonteMDummyStrawTexName, *t1);
-	J3DModelData* d2 = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* t2 = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	SMS_ChangeTextureAll(modelData, cMonteMDummyStrawTexName, *strawTex);
+	modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* pollutionTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cRealPollutionTexName);
-	if (t2)
-		SMS_ChangeTextureAll(d2, cDummyPollutionTexName, *t2);
+	if (pollutionTex)
+		SMS_ChangeTextureAll(modelData, cDummyPollutionTexName, *pollutionTex);
 }
 
 void TMonteMBManager::createModelData()
@@ -511,10 +511,10 @@ void TMonteMBManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
-	J3DModelData* data = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* tex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteMRealStrawTexName);
-	SMS_ChangeTextureAll(data, cMonteMDummyStrawTexName, *tex);
+	SMS_ChangeTextureAll(modelData, cMonteMDummyStrawTexName, *strawTex);
 }
 
 void TMonteMCManager::createModelData()
@@ -524,15 +524,15 @@ void TMonteMCManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
-	J3DModelData* d1 = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* t1 = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteMRealStrawTexName);
-	SMS_ChangeTextureAll(d1, cMonteMDummyStrawTexName, *t1);
-	J3DModelData* d2 = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* t2 = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	SMS_ChangeTextureAll(modelData, cMonteMDummyStrawTexName, *strawTex);
+	modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* pollutionTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cRealPollutionTexName);
-	if (t2)
-		SMS_ChangeTextureAll(d2, cDummyPollutionTexName, *t2);
+	if (pollutionTex)
+		SMS_ChangeTextureAll(modelData, cDummyPollutionTexName, *pollutionTex);
 }
 
 void TMonteMDManager::createModelData()
@@ -542,10 +542,10 @@ void TMonteMDManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
-	J3DModelData* data = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* tex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteMRealStrawTexName);
-	SMS_ChangeTextureAll(data, cMonteMDummyStrawTexName, *tex);
+	SMS_ChangeTextureAll(modelData, cMonteMDummyStrawTexName, *strawTex);
 }
 
 void TMonteMEManager::createModelData()
@@ -564,10 +564,10 @@ void TMonteMFManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArrayBase(entry, "/scene/monteM");
-	J3DModelData* data = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* tex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteMRealStrawTexName);
-	SMS_ChangeTextureAll(data, cMonteMDummyStrawTexName, *tex);
+	SMS_ChangeTextureAll(modelData, cMonteMDummyStrawTexName, *strawTex);
 }
 
 void TMonteMGManager::createModelData()
@@ -577,10 +577,10 @@ void TMonteMGManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArrayBase(entry, "/scene/monteMC");
-	J3DModelData* data = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* tex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteMRealStrawTexName);
-	SMS_ChangeTextureAll(data, cMonteMDummyStrawTexName, *tex);
+	SMS_ChangeTextureAll(modelData, cMonteMDummyStrawTexName, *strawTex);
 }
 
 void TMonteMHManager::createModelData()
@@ -590,10 +590,10 @@ void TMonteMHManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArrayBase(entry, "/scene/monteMA");
-	J3DModelData* data = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* tex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteMRealStrawTexName);
-	SMS_ChangeTextureAll(data, cMonteMDummyStrawTexName, *tex);
+	SMS_ChangeTextureAll(modelData, cMonteMDummyStrawTexName, *strawTex);
 }
 
 void TMonteWManager::createModelData()
@@ -603,15 +603,15 @@ void TMonteWManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
-	J3DModelData* d1 = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* t1 = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteWRealStrawTexName);
-	SMS_ChangeTextureAll(d1, cMonteWDummyStrawTexName, *t1);
-	J3DModelData* d2 = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* t2 = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	SMS_ChangeTextureAll(modelData, cMonteWDummyStrawTexName, *strawTex);
+	modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* pollutionTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cRealPollutionTexName);
-	if (t2)
-		SMS_ChangeTextureAll(d2, cDummyPollutionTexName, *t2);
+	if (pollutionTex)
+		SMS_ChangeTextureAll(modelData, cDummyPollutionTexName, *pollutionTex);
 }
 
 void TMonteWAManager::createModelData()
@@ -621,15 +621,15 @@ void TMonteWAManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
-	J3DModelData* d1 = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* t1 = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteWRealStrawTexName);
-	SMS_ChangeTextureAll(d1, cMonteWDummyStrawTexName, *t1);
-	J3DModelData* d2 = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* t2 = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	SMS_ChangeTextureAll(modelData, cMonteWDummyStrawTexName, *strawTex);
+	modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* pollutionTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cRealPollutionTexName);
-	if (t2)
-		SMS_ChangeTextureAll(d2, cDummyPollutionTexName, *t2);
+	if (pollutionTex)
+		SMS_ChangeTextureAll(modelData, cDummyPollutionTexName, *pollutionTex);
 }
 
 void TMonteWBManager::createModelData()
@@ -639,10 +639,10 @@ void TMonteWBManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
-	J3DModelData* data = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* tex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteWRealStrawTexName);
-	SMS_ChangeTextureAll(data, cMonteWDummyStrawTexName, *tex);
+	SMS_ChangeTextureAll(modelData, cMonteWDummyStrawTexName, *strawTex);
 }
 
 void TMonteWCManager::createModelData()
@@ -652,10 +652,10 @@ void TMonteWCManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArrayBase(entry, "/scene/monteW");
-	J3DModelData* data = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* tex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* strawTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cMonteWRealStrawTexName);
-	SMS_ChangeTextureAll(data, cMonteWDummyStrawTexName, *tex);
+	SMS_ChangeTextureAll(modelData, cMonteWDummyStrawTexName, *strawTex);
 }
 
 void TMareMBaseManager::createModelData()
@@ -665,11 +665,11 @@ void TMareMBaseManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArrayBase(entry, "/scene/mareM");
-	J3DModelData* data = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* tex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* pollutionTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cRealPollutionTexName);
-	if (tex)
-		SMS_ChangeTextureAll(data, cDummyPollutionTexName, *tex);
+	if (pollutionTex)
+		SMS_ChangeTextureAll(modelData, cDummyPollutionTexName, *pollutionTex);
 }
 
 void TMareWBaseManager::createModelData()
@@ -679,11 +679,11 @@ void TMareWBaseManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArrayBase(entry, "/scene/mareW");
-	J3DModelData* data = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* tex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* pollutionTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cRealPollutionTexName);
-	if (tex)
-		SMS_ChangeTextureAll(data, cDummyPollutionTexName, *tex);
+	if (pollutionTex)
+		SMS_ChangeTextureAll(modelData, cDummyPollutionTexName, *pollutionTex);
 }
 
 void TKinopioManager::createModelData()
@@ -693,11 +693,11 @@ void TKinopioManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
-	J3DModelData* data = getModelDataKeeper()->getNthData(0)->unk0;
-	const ResTIMG* tex = (const ResTIMG*)JKRFileLoader::getGlbResource(
+	J3DModelData* modelData = getModelDataKeeper()->getNthData(0)->getModelData();
+	ResTIMG* pollutionTex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    cRealPollutionTexName);
-	if (tex)
-		SMS_ChangeTextureAll(data, cDummyPollutionTexName, *tex);
+	if (pollutionTex)
+		SMS_ChangeTextureAll(modelData, cDummyPollutionTexName, *pollutionTex);
 }
 
 void TKinojiiManager::createModelData()
