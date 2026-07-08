@@ -45,6 +45,27 @@ void MSSTageSimpleEnvironment::proc()
 		MSoundSESystem::MSoundSE::startSoundSystemSE(mSoundID, 0, nullptr, 0);
 }
 
+inline void MSStageCubeSwitch::toStageBgm()
+{
+	if (!MSMainProc::MSStageInfo::bossLives)
+		return;
+
+	MSBgm::stopTrackBGM(1, 10);
+	MSBgm::setTrackVolume(0, 1.0f, 15, 0);
+}
+
+inline void MSStageCubeSwitch::toBossBgm()
+{
+	if (!MSMainProc::MSStageInfo::bossLives)
+		return;
+
+	MSBgm::setTrackVolume(0, 0.0f, 15, 0);
+	if (!MSMainProc::MSStageInfo::bossNotDamaged)
+		MSBgm::startBGM(MSMainProc::MSStageInfo::switchBgm2);
+	else
+		MSBgm::startBGM(MSMainProc::MSStageInfo::switchBgm);
+}
+
 void MSStageCubeSwitch::proc()
 {
 	Vec pos = *gpMarioPos;
@@ -65,10 +86,8 @@ void MSStageCubeSwitch::proc()
 				flag = true;
 			unk10 = flag;
 
-			if (unk10 == true && unk11 == false
-			    && MSMainProc::MSStageInfo::bossLives) {
-				MSBgm::stopTrackBGM(1, 10);
-				MSBgm::setTrackVolume(0, 1.0f, 15, 0);
+			if (unk10 == true && unk11 == false) {
+				toStageBgm();
 			}
 			unk11 = unk10;
 		}
@@ -85,13 +104,8 @@ void MSStageCubeSwitch::proc()
 				flag = true;
 			unk10 = flag;
 
-			if (unk10 == true && unk11 == false
-			    && MSMainProc::MSStageInfo::bossLives) {
-				MSBgm::setTrackVolume(0, 0.0f, 15, 0);
-				if (!MSMainProc::MSStageInfo::bossNotDamaged)
-					MSBgm::startBGM(MSMainProc::MSStageInfo::switchBgm2);
-				else
-					MSBgm::startBGM(MSMainProc::MSStageInfo::switchBgm);
+			if (unk10 == true && unk11 == false) {
+				toBossBgm();
 			}
 			unk11 = unk10;
 		}
@@ -767,14 +781,21 @@ void MSMainProc::setMSoundEnterStage(u8 map, u8 area)
 			MSStageInfo::switchBgm  = cMSBgmNone;
 			MSStageInfo::fadeEvent  = 2;
 			MSStageInfo::switchBgm2 = cMSBgmNone;
-			if (area == 7) {
+			switch (area) {
+			case 7:
 				MSStageInfo::cubeFadeUsePan = false;
 				MSStageInfo::cubeFadeRatio  = 0.28f;
+				break;
+			default:
+				MSStageInfo::cubeFadeUsePan = true;
+				MSStageInfo::cubeFadeRatio  = 0.15f;
+				break;
+			}
+
+			if (area == 7) {
 				MSStageInfo::stageBgmSilent = base + 0x2C;
 				MSStageInfo::stageBgmSilentStartStatus = 2;
 			} else {
-				MSStageInfo::cubeFadeUsePan = true;
-				MSStageInfo::cubeFadeRatio  = 0.15f;
 				MSStageInfo::stageBgmSilent = base + 0x18;
 				MSStageInfo::stageBgmSilentStartStatus = 0;
 			}
@@ -800,7 +821,15 @@ void MSMainProc::setMSoundEnterStage(u8 map, u8 area)
 	case 13:
 		MSStageInfo::msStg    = MSBgm::getSceneNo(base + 0x05);
 		MSStageInfo::stageBgm = base + 0x05;
-		if (area == 4 || area == 0) {
+		if (area == 4) {
+			MSStageInfo::fadeEvent = 1;
+			MSStageInfo::switchBgm = cMSBgmNone;
+			MSStageInfo::switchBgm2 = cMSBgmNone;
+			MSStageInfo::stageBgm = base + 0x16;
+			MSStageInfo::stageBgmSilent = base + 0x05;
+			MSStageInfo::stageBgmSilentStartStatus = 2;
+			MSStageInfo::distFadeStageToKage       = false;
+		} else if (area == 0) {
 			MSStageInfo::fadeEvent = 1;
 			MSStageInfo::switchBgm = cMSBgmNone;
 			MSStageInfo::switchBgm2 = cMSBgmNone;

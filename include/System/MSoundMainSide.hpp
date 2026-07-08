@@ -44,7 +44,7 @@ public:
 
 class MSStageCubeSwitch : public MSStageCubeFade {
 public:
-	MSStageCubeSwitch(bool flag)
+	MSStageCubeSwitch(u8 flag)
 	    : MSStageCubeFade()
 	    , unk10(flag)
 	{
@@ -54,8 +54,8 @@ public:
 	void toStageBgm();
 	virtual void proc();
 
-	/* 0x10 */ bool unk10;
-	/* 0x11 */ bool unk11;
+	/* 0x10 */ u8 unk10;
+	/* 0x11 */ u8 unk11;
 };
 
 class MSStageCubeFadeMonte : public MSStageCubeFade {
