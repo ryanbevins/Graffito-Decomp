@@ -2,6 +2,7 @@
 #define CAMERA_CAMERALIB_HPP
 
 #include <JSystem/JGeometry.hpp>
+#include <MarioUtil/MathUtil.hpp>
 
 extern f32 SMSGetAnmFrameRate(); // avoid including Application.hpp
 
@@ -26,6 +27,14 @@ BOOL CLBChaseAngleDecrease(s16*, s16, s16);
 bool CLBChaseDecrease(f32*, f32, f32, f32);
 BOOL CLBChaseSpecialDecrease(f32*, f32, f32, f32);
 void CLBCrossToPolar(const Vec&, const Vec&, f32*, s16*, s16*);
+inline void CLBCrossToPolar(const Vec& origin, const Vec& in, s16* outPitch,
+                            s16* outYaw)
+{
+	f32 dx    = in.x - origin.x;
+	f32 dz    = in.z - origin.z;
+	*outPitch = matan(MsSqrtf(dx * dx + dz * dz), in.y - origin.y);
+	*outYaw   = matan(dz, dx);
+}
 bool CLBIsPointInCube(const Vec&, const Vec&, const Vec&, const Vec&);
 void CLBPolarToCross(const Vec&, Vec*, f32, s16, s16);
 void CLBRevisionLookatByAngleX(s16, s16, const Vec&, Vec*);

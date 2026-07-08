@@ -4,7 +4,10 @@
 #include <JSystem/JDrama/JDRActor.hpp>
 #include <JSystem/JDrama/JDRCamera.hpp>
 #include <Camera/CameraMarioData.hpp>
+#include <Camera/CameraKindParam.hpp>
 #include <Camera/CameraMode.hpp>
+#include <Camera/cameralib.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
 #include <dolphin/mtx.h>
 
@@ -147,6 +150,18 @@ public:
 			result = true;
 		}
 		return result;
+	}
+
+	void fabricatedInline2()
+	{
+		CLBCrossToPolar(mTarget, mPosition, &unk256, &unk258);
+
+		unk25C.set(unk148.x - unk124.x, unk148.y - unk124.y,
+		           unk148.z - unk124.z);
+		unk25C.normalize();
+		unk270 = MsClamp(CLBCalcRatio(mCurrentParams->mXAngleMin,
+		                              mCurrentParams->mXAngleMax, unk256),
+		                 0.0f, 1.0f);
 	}
 
 	CPolarSubCamera(const char* = "<CPolarCamera>");
