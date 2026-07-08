@@ -76,6 +76,62 @@ struct TMtxEffectInitDataEntry {
 	/* 0xE */ u8 pad[2];
 };
 
+inline void TBaseNPC::initSinkNpc_()
+{
+	static int sCheckPollutedStartCounter = 0;
+	int max                              = CLBPalFrame<int>(30);
+	TPollutionStartHelper* helper       = new TPollutionStartHelper;
+	if (helper != nullptr) {
+		helper->mCounter = sCheckPollutedStartCounter;
+		helper->mMax     = max;
+	}
+	mPollutionStartHelper = helper;
+	sCheckPollutedStartCounter++;
+	if (sCheckPollutedStartCounter >= max)
+		sCheckPollutedStartCounter = 0;
+}
+
+inline void TBaseNPC::setMtxEffect_()
+{
+	static const char* sWaistJointName[] = { "koshi_null" };
+	static const TMtxEffectInitDataEntry sMtxEffectInitData[]
+	    = { { 0x04000001, sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
+		    { 0x04000002, sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
+		    { 0x04000003, sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
+		    { 0x04000004, sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
+		    { 0x04000005, sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
+		    { 0x04000007, sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
+		    { 0x04000008, sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
+		    { 0x04000009, sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
+		    { 0x0400000A, sWaistJointName, "Npc/MonteW", 0, 1, { 0, 0 } },
+		    { 0x0400000B, sWaistJointName, "Npc/MonteW", 0, 1, { 0, 0 } },
+		    { 0x0400000C, sWaistJointName, "Npc/MonteW", 0, 1, { 0, 0 } },
+		    { 0x0400000D, sWaistJointName, "Npc/MonteW", 0, 1, { 0, 0 } },
+		    { 0x04000018, sWaistJointName, "Npc/Peach", 0, 1, { 0, 0 } },
+		    { 0, nullptr, nullptr, 0, 0, { 0, 0 } } };
+
+	const TMtxEffectInitDataEntry* entry = sMtxEffectInitData;
+	while (entry->mActorType != 0) {
+		if (entry->mActorType == mActorType) {
+			mMultiMtxEffect             = new TMultiMtxEffect;
+			mMultiMtxEffect->mNumBones  = entry->mNumBones;
+			u16* boneIds                = new u16[entry->mNumBones];
+			u8* types                   = new u8[entry->mNumBones];
+			JUTNameTab* nameTab = getModel()->getModelData()->unkB0;
+			for (int i = 0; i < entry->mNumBones; i++) {
+				boneIds[i] = nameTab->getIndex(entry->mBoneNames[i]);
+				types[i]   = entry->mMtxType;
+			}
+			mMultiMtxEffect->mBoneIDs        = boneIds;
+			mMultiMtxEffect->mMtxEffectType  = types;
+			mMultiMtxEffect->setup(getModel(), entry->mParamName);
+			mMultiMtxEffect->flagOn();
+			break;
+		}
+		entry++;
+	}
+}
+
 void TBaseNPC::init(TLiveManager* manager)
 {
 	u32 idx            = mActorType - 0x4000001;
@@ -145,19 +201,8 @@ void TBaseNPC::init(TLiveManager* manager)
 	if (mMActor->unkC != nullptr)
 		mMActor->unkC->initNormalMotionBlend();
 
-	if (isPollutionNpc()) {
-		static int sCheckPollutedStartCounter = 0;
-		int max  = CLBPalFrame<int>(30);
-		TPollutionStartHelper* h = new TPollutionStartHelper;
-		if (h != nullptr) {
-			h->mCounter = sCheckPollutedStartCounter;
-			h->mMax     = max;
-		}
-		mPollutionStartHelper = h;
-		sCheckPollutedStartCounter++;
-		if (sCheckPollutedStartCounter >= max)
-			sCheckPollutedStartCounter = 0;
-	}
+	if (isPollutionNpc())
+		initSinkNpc_();
 
 	TUnk22CStruct* st22C = new TUnk22CStruct;
 	if (st22C != nullptr) {
@@ -175,46 +220,7 @@ void TBaseNPC::init(TLiveManager* manager)
 	}
 
 	initNpcObjCollision_(initData);
-
-	{
-		static const char* sWaistJointName = "koshi_null";
-		static const TMtxEffectInitDataEntry sMtxEffectInitData[]
-		    = { { 0x04000001, &sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
-			    { 0x04000002, &sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
-			    { 0x04000003, &sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
-			    { 0x04000004, &sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
-			    { 0x04000005, &sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
-			    { 0x04000007, &sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
-			    { 0x04000008, &sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
-			    { 0x04000009, &sWaistJointName, "Npc/MonteM", 0, 1, { 0, 0 } },
-			    { 0x0400000A, &sWaistJointName, "Npc/MonteW", 0, 1, { 0, 0 } },
-			    { 0x0400000B, &sWaistJointName, "Npc/MonteW", 0, 1, { 0, 0 } },
-			    { 0x0400000C, &sWaistJointName, "Npc/MonteW", 0, 1, { 0, 0 } },
-			    { 0x0400000D, &sWaistJointName, "Npc/MonteW", 0, 1, { 0, 0 } },
-			    { 0x04000018, &sWaistJointName, "Npc/Peach", 0, 1, { 0, 0 } },
-			    { 0, nullptr, nullptr, 0, 0, { 0, 0 } } };
-
-		const TMtxEffectInitDataEntry* entry = sMtxEffectInitData;
-		while (entry->mActorType != 0) {
-			if (entry->mActorType == mActorType) {
-				mMultiMtxEffect             = new TMultiMtxEffect;
-				mMultiMtxEffect->mNumBones  = entry->mNumBones;
-				u16* boneIds                = new u16[entry->mNumBones];
-				u8* types                   = new u8[entry->mNumBones];
-				JUTNameTab* nameTab = getModel()->getModelData()->unkB0;
-				for (int i = 0; i < entry->mNumBones; i++) {
-					boneIds[i] = nameTab->getIndex(entry->mBoneNames[i]);
-					types[i]   = entry->mMtxType;
-				}
-				mMultiMtxEffect->mBoneIDs        = boneIds;
-				mMultiMtxEffect->mMtxEffectType  = types;
-				mMultiMtxEffect->setup(getModel(), entry->mParamName);
-				mMultiMtxEffect->flagOn();
-				break;
-			}
-			entry++;
-		}
-	}
+	setMtxEffect_();
 
 	JUTNameTab* nameTab = getModel()->getModelData()->unkB0;
 	mNpcKind            = nameTab->getIndex(cNeckJointName);
