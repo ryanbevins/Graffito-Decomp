@@ -319,20 +319,23 @@ const GXColor* TBaseNPC::getPtrInitPollutionColor() const
 	if (isPol) {
 		result = (const GXColor*)&unk174;
 	} else if (mActorType != 0x04000006) {
-		bool isMonte = false;
-		if ((s32)mActorType < 0x0400000A && (s32)mActorType >= 0x04000006)
-			isMonte = true;
-		if (!isMonte && isSpecialMonteW())
-			isMonte = true;
+		bool inMonteRange = false;
+		if ((s32)mActorType < 0x0400000A
+		    && (s32)mActorType >= 0x04000006)
+			inMonteRange = true;
+		bool isMonte = true;
+		if (!inMonteRange && !isSpecialMonteW())
+			isMonte = false;
 		if (isMonte) {
 			result = (const GXColor*)&unk174;
 		} else {
-			bool isMare = false;
+			bool inMareRange = false;
 			if ((s32)mActorType < 0x04000013
 			    && (s32)mActorType >= 0x0400000F)
-				isMare = true;
-			if (!isMare && isSpecialMareW())
-				isMare = true;
+				inMareRange = true;
+			bool isMare = true;
+			if (!inMareRange && !isSpecialMareW())
+				isMare = false;
 			if (isMare)
 				result = (const GXColor*)&unk174;
 		}
