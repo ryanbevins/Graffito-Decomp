@@ -920,7 +920,7 @@ bool TBaseNPC::npcMadding()
 			f32 delta = MsWrap(abs(mRotation.y - MsGetRotFromZaxisY(copy3)), 0.0f,
 			                   360.0f);
 			if (delta < 0.001f)
-				requestNpcAnm_(asKind(0xA), NPC_STOP_MOTION_BLEND_OFF);
+				requestNpcAnm_(NPC_ANM_KIND_MAD, NPC_STOP_MOTION_BLEND_OFF);
 			if (!unk124->getGraph()->isDummy())
 				unk1DA |= 0x1;
 			break;
