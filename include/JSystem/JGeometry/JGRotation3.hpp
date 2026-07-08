@@ -42,7 +42,8 @@ public:
 #endif
 
 	void setRotate(const JGeometry::TVec3<f32>& param_1, f32 param_2)
-#ifdef JGEOMETRY_MAPOBJLIB_OWNER_HELPERS
+#if defined(JGEOMETRY_MAPOBJLIB_OWNER_HELPERS)                                  \
+    || defined(JGEOMETRY_CAMERASHAKE_ROTATION3_SETROTATE_OUT_OF_LINE)
 	    ;
 #else
 	{

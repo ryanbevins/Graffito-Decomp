@@ -1,4 +1,6 @@
+#define JGEOMETRY_CAMERASHAKE_ROTATION3_SETROTATE_OUT_OF_LINE
 #include <Camera/CameraShake.hpp>
+#undef JGEOMETRY_CAMERASHAKE_ROTATION3_SETROTATE_OUT_OF_LINE
 #include <Camera/cameralib.hpp>
 #include <JSystem/JMath.hpp>
 #include <JSystem/JGeometry.hpp>
