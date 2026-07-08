@@ -1011,8 +1011,8 @@ bool TMario::checkStatusType(long status) const
 bool CPolarSubCamera::isMomentDefinite_() const
 {
 	bool result = false;
-	if (!(unk64 & 0x100) && isNormalCameraCompletely() && unk250 > 0.0f
-	    && CLBLinearInbetween(unk68->unk10, unk68->unk14, unkA8) > 0.0f)
+	if (!(unk64 & 0x100) && isNormalCameraCompletely() && unk250 > 0.001f
+	    && CLBLinearInbetween(unk68->unk10, unk68->unk14, unkA8) > 0.001f)
 		result = true;
 	return result;
 }
