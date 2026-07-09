@@ -1471,6 +1471,17 @@ BOOL TMario::checkAllMotions()
 	return false;
 }
 
+inline void TMario::makeGraffitoDamage(const TMario::TEParams& params)
+{
+	mFloorHitActor.mPosition.x = mPosition.x + JMASSin(mFaceAngle.y);
+	mFloorHitActor.mPosition.z = mPosition.z + JMASCos(mFaceAngle.y);
+
+	damageExec(&mFloorHitActor, params.mDamage.get(), params.mDownType.get(),
+	           params.mWaterEmit.get(), params.mMinSpeed.get(),
+	           params.mMotor.get(), params.mDirty.get(),
+	           params.mInvincibleTime.get());
+}
+
 void TMario::checkGraffitoFire()
 {
 	u8 shouldSkip;
@@ -1532,21 +1543,7 @@ void TMario::checkGraffitoFire()
 	f32 savedForwardVel = mForwardVel;
 	f32 savedVelY = getMvelY();
 
-	u8* fireType     = (u8*)this + 0x3930;
-	u8* fireDamage   = (u8*)this + 0x3944;
-	s16* fireRadius  = (s16*)((u8*)this + 0x3980);
-
-	mFloorHitActor.mPosition.x = getMpositionX() + JMASSin(mFaceAngle.y);
-	mFloorHitActor.mPosition.z = mPosition.z + JMASCos(mFaceAngle.y);
-
-	damageExec((THitActor*)((u8*)this + 0x474),
-	           mDmgParamsGraffitoFire.mDamage.get(),
-	           mDmgParamsGraffitoFire.mDownType.get(),
-	           *fireType,
-	           mDmgParamsGraffitoFire.mMinSpeed.get(),
-	           *fireDamage,
-	           mDmgParamsGraffitoFire.mDirty.get(),
-	           *fireRadius);
+	makeGraffitoDamage(mDmgParamsGraffitoFire);
 
 	if (unk55C > 0.0f) {
 		mVel.y = -savedVelY;
