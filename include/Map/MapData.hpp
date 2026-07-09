@@ -13,7 +13,18 @@ enum BGCheckFlagBits {
 
 // fabricated
 enum BGTypeBits {
-	BG_TYPE_WET_GROUND = 0x4,
+	BG_TYPE_UNK1              = 0x1,
+	BG_TYPE_UNK2              = 0x2,
+	BG_TYPE_UNK3              = 0x3,
+	BG_TYPE_WET_GROUND        = 0x4,
+	BG_TYPE_NO_WALL_JUMP      = 0x5,
+	BG_TYPE_NO_LEDGE_GRAB     = 0x6,
+	BG_TYPE_BOUNCE_ON_LANDING = 0x7,
+	BG_TYPE_FIXED_JUMP_SPEED  = 0x8,
+	BG_TYPE_UNK9              = 0x9,
+	BG_TYPE_UNKA              = 0xA,
+	BG_TYPE_UNKB              = 0xB,
+	BG_TYPE_UNKC              = 0xC,
 
 	BG_TYPE_WATER                        = 0x100,
 	BG_TYPE_DAMAGING_WATER               = 0x101,
@@ -38,6 +49,8 @@ enum BGTypeBits {
 	BG_TYPE_MAP_CHANGE               = 0x202,
 	BG_TYPE_MAP_CHANGE_PHASE_THROUGH = 0x203,
 
+	BG_TYPE_UNK300 = 0x300,
+
 	BG_TYPE_SAND = 0x701,
 
 	BG_TYPE_DEATH_PLANE                              = 0x800,
@@ -57,6 +70,16 @@ enum BGTypeBits {
 	= BG_TYPE_SAND | BG_PROPERTY_FLAG_SHADOW
 	  | BG_PROPERTY_FLAG_CAMERA_WONT_CLIP, // 0xC701
 
+	BG_TYPE_SHADED_UNK1 = BG_TYPE_UNK1 | BG_PROPERTY_FLAG_SHADOW, // 0x4001
+	BG_TYPE_CAM_NOCLIP_UNK1
+	= BG_TYPE_UNK1 | BG_PROPERTY_FLAG_CAMERA_WONT_CLIP, // 0x8001
+	BG_TYPE_CAM_NOCLIP_UNK2
+	= BG_TYPE_UNK2 | BG_PROPERTY_FLAG_CAMERA_WONT_CLIP, // 0x8002
+	BG_TYPE_CAM_NOCLIP_UNK3
+	= BG_TYPE_UNK3 | BG_PROPERTY_FLAG_CAMERA_WONT_CLIP, // 0x8003
+	BG_TYPE_CAM_NOCLIP_UNKC
+	= BG_TYPE_UNKC | BG_PROPERTY_FLAG_CAMERA_WONT_CLIP, // 0x800C
+
 	BG_TYPE_CAM_NOCLIP_ONLY_MARIO_PHASES_THROUGH // 0x8400
 	= BG_TYPE_ONLY_MARIO_PHASES_THROUGH | BG_PROPERTY_FLAG_CAMERA_WONT_CLIP,
 	BG_TYPE_CAM_NOCLIP_WET_GROUND
@@ -65,6 +88,9 @@ enum BGTypeBits {
 	BG_TYPE_CAM_NOCLIP_SHADED_WET_GROUND
 	= BG_TYPE_WET_GROUND | BG_PROPERTY_FLAG_SHADOW
 	  | BG_PROPERTY_FLAG_CAMERA_WONT_CLIP, // 0xC004
+	BG_TYPE_CAM_NOCLIP_SHADED_UNK1
+	= BG_TYPE_UNK1 | BG_PROPERTY_FLAG_SHADOW
+	  | BG_PROPERTY_FLAG_CAMERA_WONT_CLIP, // 0xC001
 };
 
 /**
@@ -140,6 +166,52 @@ public:
 		if (mBGType == BG_TYPE_SAND || mBGType == BG_TYPE_SHADED_SAND
 		    || mBGType == BG_TYPE_CAM_NOCLIP_SAND
 		    || mBGType == BG_TYPE_CAM_NOCLIP_SHADED_SAND)
+			return true;
+		else
+			return false;
+	}
+
+	bool isUnk1() const
+	{
+		if (mBGType == BG_TYPE_UNK1 || mBGType == BG_TYPE_SHADED_UNK1
+		    || mBGType == BG_TYPE_CAM_NOCLIP_UNK1
+		    || mBGType == BG_TYPE_CAM_NOCLIP_SHADED_UNK1)
+			return true;
+		else
+			return false;
+	}
+
+	bool isUnk2() const
+	{
+		if (mBGType == BG_TYPE_UNK2 || mBGType == BG_TYPE_CAM_NOCLIP_UNK2)
+			return true;
+		else
+			return false;
+	}
+
+	bool isUnk3() const
+	{
+		if (mBGType == BG_TYPE_UNK3 || mBGType == BG_TYPE_CAM_NOCLIP_UNK3)
+			return true;
+		else
+			return false;
+	}
+
+	bool isSlider() const
+	{
+		if (mBGType == BG_TYPE_UNKC || mBGType == BG_TYPE_CAM_NOCLIP_UNKC
+		    || mBGType == 0xA00C)
+			return true;
+		else
+			return false;
+	}
+
+	bool isWetGround() const
+	{
+		if (mBGType == BG_TYPE_WET_GROUND
+		    || mBGType == BG_TYPE_SHADED_WET_GROUND
+		    || mBGType == BG_TYPE_CAM_NOCLIP_WET_GROUND
+		    || mBGType == BG_TYPE_CAM_NOCLIP_SHADED_WET_GROUND)
 			return true;
 		else
 			return false;
