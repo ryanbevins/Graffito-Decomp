@@ -535,7 +535,7 @@ void MSMainProc::startStageBGM(u8, u8)
 {
 	gpMSound->initSound();
 	gpMSound->unkA0 = 0;
-	gpMSound->unkC9 = 0;
+	gpMSound->unkC8[1] = 0;
 
 	if (MSStageInfo::stageBgm != cMSBgmNone) {
 		bool shouldStart = false;
@@ -587,7 +587,7 @@ void MSMainProc::endStageEntranceDemo(u8, u8)
 		MSBgm::setVolume(MSStageInfo::demoBgm, 0.0f, 20, 0);
 
 	gpMSound->demoModeOut(false);
-	gpMSound->unkCC = 0;
+	gpMSound->unkC8[4] = 0;
 }
 
 void MSMainProc::entranceDemoLoop(u32) { }
@@ -607,7 +607,7 @@ void MSMainProc::startStageEntranceDemo(u8, u8)
 
 	gpMSound->demoModeIn(MSStageInfo::volOffCategory, false);
 	gpMSound->unkA4 = 0;
-	gpMSound->unkC9 = 1;
+	gpMSound->unkC8[1] = 1;
 }
 
 void MSMainProc::setMSoundEnterStage(u8 map, u8 area)
@@ -970,7 +970,7 @@ void MSMainProc::setMSoundEnterStage(u8 map, u8 area)
 			sound->setVolume(0.0f, 0, 0);
 	}
 
-	gpMSound->unkC8 = 1;
+	gpMSound->unkC8[0] = 1;
 }
 
 void MSMainProc::fromTalkingCameraDemo(bool) { gpMSound->talkModeIn(false); }
@@ -992,8 +992,8 @@ void MSMainProc::toTalkingCameraDemo()
 	gpMSound->setCategoryVOLs(category, 1.0f);
 }
 
-void MSMainProc::fromInnerCameraDemo() { gpMSound->unkCA = 0; }
-void MSMainProc::toInnerCameraDemo() { gpMSound->unkCA = 1; }
+void MSMainProc::fromInnerCameraDemo() { gpMSound->unkC8[2] = 0; }
+void MSMainProc::toInnerCameraDemo() { gpMSound->unkC8[2] = 1; }
 
 u32 MSMainProc::getMonteVillageActorArea(const Vec& pos)
 {

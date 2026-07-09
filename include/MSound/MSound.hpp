@@ -14,6 +14,8 @@
 class JAIActor;
 class JAICamera;
 class JAIAnimeFrameSoundData;
+class MSBgmXFade;
+class MSModBgm;
 
 enum MS_SCENE_WAVE {
 	MS_WAVE_UNK0         = 0,
@@ -120,21 +122,16 @@ public:
 	/* 0x80 */ JAISound* unk80;
 	/* 0x84 */ u32 unk84;
 	/* 0x88 */ u8 unk88;
-	/* 0x8C */ u32* unk8C;
-	/* 0x90 */ u32 unk90;
+	/* 0x8C */ JAISound* unk8C[2];
 	/* 0x94 */ u16 unk94;
-	/* 0x98 */ void* unk98;
-	/* 0x9C */ void* unk9C;
+	/* 0x98 */ MSModBgm* unk98;
+	/* 0x9C */ MSBgmXFade* unk9C;
 	/* 0xA0 */ u32 unkA0;
 	/* 0xA4 */ u32 unkA4;
 	/* 0xA8 */ u8 unkA8;
 	/* 0xAC */ JAICamera unkAC[2];
 	/* 0xC4 */ JAISound* unkC4;
-	/* 0xC8 */ u8 unkC8;
-	/* 0xC9 */ u8 unkC9;
-	/* 0xCA */ u8 unkCA;
-	/* 0xCB */ u8 unkCB;
-	/* 0xCC */ u8 unkCC;
+	/* 0xC8 */ u8 unkC8[5];
 	/* 0xCD */ u8 unkCD;
 	/* 0xCE */ u8 unkCE;
 	/* 0xCF */ u8 unkCF;

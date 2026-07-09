@@ -303,7 +303,7 @@ void MSound::exitStage()
 
 	unkCD = 0xff;
 	unkCE = 0xff;
-	unkC8 = 0;
+	unkC8[0] = 0;
 }
 
 bool MSound::checkWaveOnAram(MS_SCENE_WAVE wave)
@@ -431,28 +431,28 @@ MSound::MSound(JKRHeap* param_1, JKRHeap* param_2, u32 param_3, u8* param_4,
 	MSoundSESystem::MSoundSE::construct();
 	MSBgm::init();
 	unk88  = 0;
-	unk98  = new u64; // TODO: wrong type & size
-	f32* p = new f32; // TODO: wrong type & size
+	unk98  = (MSModBgm*)new u64; // TODO: wrong type & size
+	f32* p = new f32;            // TODO: wrong type & size
 	if (p)
 		*p = 0.0f;
-	unk9C = p;
+	unk9C = (MSBgmXFade*)p;
 
 	unk7C = 0;
 	unk80 = 0;
 
-	unkC8 = 0;
-	unkC9 = 0;
-	unkCA = 0;
-	unkCB = 0;
-	unkCC = 0;
+	unkC8[0] = 0;
+	unkC8[1] = 0;
+	unkC8[2] = 0;
+	unkC8[3] = 0;
+	unkC8[4] = 0;
 
 	unkAC[0] = JAInullCamera;
 	unkAC[1] = JAInullCamera;
 
 	unk84 = 0;
 	unk94 = 0;
-	unk8C = 0;
-	unk90 = 0;
+	unk8C[0] = 0;
+	unk8C[1] = 0;
 	unkC4 = 0;
 
 	unkCF = 1;
@@ -476,7 +476,7 @@ void MSound::mainLoop()
 		unkD1 = 0;
 	}
 
-	if (unkC9 != 0) {
+	if (unkC8[1] != 0) {
 		MSMainProc::entranceDemoLoop(unkA4);
 		++unkA4;
 	}
@@ -492,7 +492,7 @@ void MSound::mainLoop()
 		it.getObject()->frameLoopDyna();
 
 	startFrameInterfaceWork();
-	((MSModBgm*)unk98)->loop();
+	unk98->loop();
 }
 
 void MSound::startSoundSet(u32 id, const Vec* pos, u32 param3, f32 volume,
@@ -877,7 +877,7 @@ u32 MSound::startMarioVoice(u32 id, s16 param2, u8 param3)
 	else
 		slot = 0;
 
-	JAISound** voices = (JAISound**)&unk8C;
+	JAISound** voices = unk8C;
 	u8 actorIndex     = slot;
 
 	if ((u8)param3 == 6) {
@@ -1041,7 +1041,7 @@ u32 MSound::getMarioVoiceID(u8 param)
 	else
 		index = 0;
 
-	JAISound* sound = ((JAISound**)&unk8C)[index];
+	JAISound* sound = unk8C[index];
 	if (sound != nullptr)
 		return sound->unk8;
 
@@ -1056,7 +1056,7 @@ void MSound::stopMarioVoice(u32 id, u8 param2)
 	else
 		index = 0;
 
-	if (JAISound* sound = ((JAISound**)&unk8C)[index]) {
+	if (JAISound* sound = unk8C[index]) {
 		if (id != -1) {
 			if (id == sound->unk8)
 				sound->stop(1);
@@ -1074,7 +1074,7 @@ void* MSound::checkMarioVoicePlaying(u8 param)
 	else
 		index = 0;
 
-	return ((JAISound**)&unk8C)[index];
+	return unk8C[index];
 }
 
 u32 MSound::getWallSound(u32 param1, f32 param2)
@@ -1160,9 +1160,9 @@ bool MSound::cameraLooksAtMario()
 {
 	for (u8 i = 0; i < 5; ++i) {
 		if (i == 0) {
-			if ((&unkC8)[i] == 0)
+			if (unkC8[i] == 0)
 				return false;
-		} else if ((&unkC8)[i] == 1) {
+		} else if (unkC8[i] == 1) {
 			return false;
 		}
 	}
