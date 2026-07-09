@@ -363,13 +363,13 @@ check_sender_bit3:
 		case 0x40000098:
 		{
 			if (mHolder == nullptr) {
-				if (mAction == 0x892 && mVel.y > 0.0f)
+				if (mStatus == 0x892 && mVel.y > 0.0f)
 					return 0;
 
-				if (mAction == 0x893 && mVel.y > 0.0f)
+				if (mStatus == 0x893 && mVel.y > 0.0f)
 					return 0;
 
-				if (mAction == 0x000208BA)
+				if (mStatus == 0x000208BA)
 					return 0;
 
 				if (onYoshi())
@@ -392,7 +392,7 @@ check_sender_bit3:
 				mWireSag       = 0.0f;
 
 				bool hangFromWire;
-				if (mAction == 0x893 || mAction == ACTION_DIVE_RECOVERY) {
+				if (mStatus == 0x893 || mStatus == ACTION_DIVE_RECOVERY) {
 					hangFromWire = true;
 				} else if (mVel.y < 0.0f) {
 					hangFromWire = false;
