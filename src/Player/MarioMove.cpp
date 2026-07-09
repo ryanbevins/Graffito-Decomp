@@ -4140,25 +4140,25 @@ BOOL TMario::isSlipStart()
 const TBGCheckData* TMario::checkWallPlane(Vec* pos, f32 height, f32 radius)
 {
 	TBGCheckData* result = 0;
+	f32 bestDist         = radius;
 	TBGWallCheckRecord record(pos->x, pos->y + height, pos->z, radius, 4, 0);
 
 	u8 touched = gpMap->isTouchedWallsAndMoveXZ(&record);
 	if (touched == 1) {
-		int numWalls = record.mResultWallsNum;
-		for (int i = 0; i < numWalls; i++) {
+		for (int i = 0; i < record.mResultWallsNum; i++) {
 			TBGCheckData* wall = record.mResultWalls[i];
-			if (wall->mActor == getRidingActor()) {
+			if (wall->mActor == mRidingActor) {
 				result = wall;
 				break;
 			}
-			f32 dist = wall->getNormal().y * pos->y
-			           + wall->getNormal().x * pos->x
-			           + wall->getNormal().z * pos->z + wall->getPlaneDistance();
+			const JGeometry::TVec3<f32>& normal = wall->getNormal();
+			f32 dist = normal.y * pos->y + normal.x * pos->x
+			           + normal.z * pos->z + wall->getPlaneDistance();
 			if (dist < 0.0f)
 				dist = -dist;
-			if (dist < radius) {
+			if (dist < bestDist) {
 				result = wall;
-				radius = dist;
+				bestDist = dist;
 			}
 		}
 	}
