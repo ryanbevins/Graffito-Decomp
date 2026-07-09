@@ -26,7 +26,7 @@ TCameraShake::TCameraShake()
 	for (s32 i = 0; i < 41; i++, offset += 4) {
 		TCamSaveShake* save = new TCamSaveShake(
 		    *(const char**)(nameTable + offset));
-		mShakeData[i] = save;
+		mShakeData[offset >> 2] = save;
 	}
 	for (s32 i = 0; i < 32; i++) {
 		TCamShakeInfo& info = mShakeInfo[i];
