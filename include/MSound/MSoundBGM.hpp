@@ -38,6 +38,12 @@ public:
 	static u32 getSceneNo(u32);
 	static JAISound* getHandle(u8);
 	static JAISound* getJASTrack(JAISound*, u8);
+	static void setAllTracksVolume(f32 volume, u32 fadeTime)
+	{
+		for (u8 i = 0; i < 3; ++i)
+			if ((7 >> i) & 1)
+				MSBgm::setTrackVolume(i, volume, fadeTime, 3);
+	}
 
 	// TODO: Found out where this inline is from.
 	static JAISound* someInline()

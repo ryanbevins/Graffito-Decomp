@@ -637,11 +637,7 @@ void MSound::demoModeIn(u16 param1, bool param2)
 	}
 
 	if (param2) {
-		u8 mask = 7;
-		for (u8 i = 0; i < 3; ++i) {
-			if ((mask >> i) & 1)
-				MSBgm::setTrackVolume(i, 0.0f, 15, 3);
-		}
+		MSBgm::setAllTracksVolume(0.0f, 15);
 	}
 }
 
