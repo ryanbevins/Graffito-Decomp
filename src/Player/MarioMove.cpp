@@ -3009,7 +3009,7 @@ void TMario::thinkWaterSurface()
 					r30 = 1;
 			}
 
-			if (r30) {
+			if ((u8)r30) {
 				mYoshi->disappear();
 				if (mWaterGun != NULL) {
 					mWaterGun->changeNozzle(TWaterGun::Hover, true);
