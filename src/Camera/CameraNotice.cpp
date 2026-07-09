@@ -302,14 +302,14 @@ void CPolarSubCamera::ctrlLButtonCamera_()
 		}
 	}
 
-	if (*(s32*)((u8*)this + 0x78) == 0) {
+	if (*(u32*)((u8*)this + 0x78) == 0) {
 		u16& flags = *(u16*)((u8*)this + 0x64);
 		if ((flags & 0x20) != 0) {
-			if (stickX == 0.0f) {
+			if (stickX != 0.0f) {
+				rotateY_ByStickX_(stickX);
+			} else {
 				void* notice = this->unk2A4;
 				calcNoticeTargetYrot_(*(const Vec*)((u8*)notice + 0x10));
-			} else {
-				rotateY_ByStickX_(stickX);
 			}
 		} else {
 			rotateY_ByStickX_(stickX);
