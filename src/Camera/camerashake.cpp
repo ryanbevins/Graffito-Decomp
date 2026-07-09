@@ -20,11 +20,12 @@ static inline void unitVecTo(const Vec& from, const Vec& to,
 
 TCameraShake::TCameraShake()
 {
+	const u8* nameTable = (const u8*)mCamShakeNameSave;
 	mRollAccum = 0;
 	s32 offset = 0;
 	for (s32 i = 0; i < 41; i++, offset += 4) {
 		TCamSaveShake* save = new TCamSaveShake(
-		    *(const char**)((const u8*)mCamShakeNameSave + offset));
+		    *(const char**)(nameTable + offset));
 		mShakeData[i] = save;
 	}
 	for (s32 i = 0; i < 32; i++) {
