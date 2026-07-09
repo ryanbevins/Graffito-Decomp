@@ -713,8 +713,8 @@ check_sender_bit3:
 		{
 			switch (message) {
 			case 4:
-				if (*(u32*)((u8*)this + 0x6C) != 0) return 0;
-				if (*(u32*)((u8*)this + 0x68) != 0) return 0;
+				if (mHeldObject != nullptr) return 0;
+				if (mHolder != nullptr) return 0;
 				mHolder = (TTakeActor*)sender;
 				changePlayerStatus(0x0C400201, 0, false);
 				return 1;
@@ -724,7 +724,7 @@ check_sender_bit3:
 				} else {
 					changePlayerStatus(0x0C400201, 0, false);
 				}
-				*(u32*)((u8*)this + 0x68) = 0;
+				mHolder = nullptr;
 				return 1;
 			case 0x0E:
 				if (!isInvincible()) {
@@ -786,8 +786,8 @@ check_sender_bit3:
 			switch (message) {
 			case 4: // Take
 				if (!isInvincible()) {
-					if (*(u32*)((u8*)this + 0x6C) != 0) return 0;
-					if (*(u32*)((u8*)this + 0x68) != 0) return 0;
+					if (mHeldObject != nullptr) return 0;
+					if (mHolder != nullptr) return 0;
 					mHolder = (TTakeActor*)sender;
 					changePlayerStatus(0x10020370, 0, false);
 					return 1;
@@ -812,7 +812,7 @@ check_sender_bit3:
 				} else {
 					changePlayerStatus(0x0C400201, 0, false);
 				}
-				*(u32*)((u8*)this + 0x68) = 0;
+				mHolder = nullptr;
 				return 1;
 			default:
 				return 0;
@@ -953,8 +953,7 @@ check_sender_bit3:
 					mPosition = sender->mPosition;
 					mFaceAngle.y = sAngle;
 					changePlayerStatus(0x1320, 0, false);
-					bool hasTakenActor
-					    = (*(u32*)((u8*)this + 0x6C)) ? true : false;
+					bool hasTakenActor = mHeldObject != nullptr ? true : false;
 					if (hasTakenActor) {
 						mPumpState = 2;
 						setAnimation(233, 0.0f);
@@ -971,8 +970,7 @@ check_sender_bit3:
 					s16 newAngle = sAngle + 0x8000;
 					mFaceAngle.y = newAngle;
 					changePlayerStatus(0x1321, 0, false);
-					bool hasTakenActor
-					    = (*(u32*)((u8*)this + 0x6C)) ? true : false;
+					bool hasTakenActor = mHeldObject != nullptr ? true : false;
 					if (hasTakenActor) {
 						mPumpState = 2;
 						setAnimation(233, 0.0f);
@@ -982,8 +980,7 @@ check_sender_bit3:
 					startVoice(0x78E5);
 					return 1;
 				}
-				bool hasTakenActor
-				    = (*(u32*)((u8*)this + 0x6C)) ? true : false;
+				bool hasTakenActor = mHeldObject != nullptr ? true : false;
 				if (hasTakenActor)
 					return 0;
 				mPosition = sender->mPosition;
@@ -1017,14 +1014,14 @@ check_sender_bit3:
 				break;
 
 			handle_player_take:
-				if (*(u32*)((u8*)this + 0x6C) != 0) break;
-				if (*(u32*)((u8*)this + 0x68) != 0) break;
+				if (mHeldObject != nullptr) break;
+				if (mHolder != nullptr) break;
 				mHolder = (TTakeActor*)sender;
 				changePlayerStatus(0x10020370, 0, false);
 				return 1;
 
 			handle_player_throw:
-				*(u32*)((u8*)this + 0x68) = 0;
+				mHolder = nullptr;
 				changePlayerStatus(0x02000880, 0, false);
 				setPlayerVelocity(40.0f);
 				mVel.y = 10.0f;
@@ -1060,7 +1057,7 @@ check_sender_bit3:
 		case 0x4000005A:
 			if (message == 8) {
 				changePlayerStatus(0x0C400201, 0, false);
-				*(u32*)((u8*)this + 0x6C) = 0;
+				mHeldObject = nullptr;
 			}
 			return 0;
 
