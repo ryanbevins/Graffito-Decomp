@@ -2212,13 +2212,13 @@ void TMario::checkRideMovement()
 	Vec pos;
 	pos = *(Vec*)&mPosition;
 
-	f32 sinAmt = 10.0f * JMASSin((u16)mFaceAngle.y);
+	f32 sinAmt = 50.0f * JMASSin((u16)mFaceAngle.y);
 	pos.x += 0.8f * sinAmt;
-	f32 cosAmt = 10.0f * JMASCos((u16)mFaceAngle.y);
+	f32 cosAmt = 50.0f * JMASCos((u16)mFaceAngle.y);
 	pos.z += 0.8f * cosAmt;
 
 	const TBGCheckData* wallPlane =
-	    checkWallPlane(&pos, 10.0f, unk15C);
+	    checkWallPlane(&pos, 50.0f, unk15C);
 
 	TLiveActor* groundActor =
 	    (TLiveActor*)mGroundPlane->mActor;
