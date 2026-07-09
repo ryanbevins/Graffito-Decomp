@@ -3659,13 +3659,13 @@ void TMario::checkWet()
 	if (unk362 & 7)
 		return;
 
+	const char* strPtr = "\0\0\0\0\0\0\0\0\0\0\0";
 	TWaterEmitInfo* emitInfo = getUnk158();
 	*(JGeometry::TVec3<f32>*)((u8*)emitInfo + 0x70) = mPosition;
 
 	TWaterEmitInfo* emitInfo2 = getUnk158();
 	*(f32*)((u8*)emitInfo2 + 0x74) += 5.0f;
 
-	const char* strPtr = dummyMactorStringValue1;
 	JGeometry::TVec3<f32> vel(*(JGeometry::TVec3<f32>*)strPtr);
 	vel.x = 0.3f * mVel.x;
 	vel.y = 0.3f * getMvelY();
