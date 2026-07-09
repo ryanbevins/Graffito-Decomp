@@ -2273,28 +2273,25 @@ void TMario::checkRideMovement()
 			checkRideReCalc();
 		} else {
 			// sameRide
-			TLiveActor* cur = mRidingActor;
 			Mtx stackMtx;
-			if (cur->getRootJointMtx() == 0) {
-				SMS_GetActorMtx(*cur, stackMtx);
+			if (mRidingActor->getRootJointMtx() == 0) {
+				SMS_GetActorMtx(*mRidingActor, stackMtx);
 			} else {
-				PSMTXCopy((MtxPtr)cur->getRootJointMtx(), stackMtx);
+				PSMTXCopy((MtxPtr)mRidingActor->getRootJointMtx(), stackMtx);
 			}
 
 			PSMTXMultVec(stackMtx,
 			             (Vec*)&mRideLocalPos,
 			             (Vec*)&mPosition);
 
-			TLiveActor* ride = mRidingActor;
 			f32 savedRot = mRidePrevRotY;
-			f32 currentRot = ride->mRotation.y;
+			f32 currentRot = mRidingActor->mRotation.y;
 			f32 delta = currentRot - savedRot;
 			s16 faceAngle = mFaceAngle.y;
 			mFaceAngle.y =
 			    faceAngle + (int)(32768.0f * delta / 180.0f);
 
-			ride = mRidingActor;
-			mRidePrevRotY = ride->mRotation.y;
+			mRidePrevRotY = mRidingActor->mRotation.y;
 		}
 	} else {
 		mRidingActor = nullptr;
