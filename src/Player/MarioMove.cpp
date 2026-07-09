@@ -3042,7 +3042,7 @@ void TMario::thinkWaterSurface()
 				shouldEnter = 0;
 
 			// Check held object
-			u8 holdingObj;
+			s32 holdingObj;
 			if (mHolder != 0)
 				holdingObj = 1;
 			else
