@@ -87,7 +87,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 		}
 
 		// Play sound 0x193D
-		if (playTakeSound && gpMSound->gateCheck(0x193D)) {
+		if ((bool)playTakeSound && gpMSound->gateCheck(0x193D)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x193D, (const Vec*)&mPosition, 0,
 			    (JAISound**)&mSound, 0, 4);
