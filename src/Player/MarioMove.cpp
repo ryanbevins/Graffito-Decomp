@@ -2128,7 +2128,7 @@ BOOL TMario::considerRotateJumpStart()
 	return false;
 }
 
-BOOL TMario::canSquat() const
+bool TMario::canSquat() const
 {
 	u8 hasFludd;
 	if (getState() & 0x8000)

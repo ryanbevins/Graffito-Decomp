@@ -1063,7 +1063,7 @@ public:
 	bool isWallInFront() const;
 	bool isInvincible() const;
 	bool isUnderWater() const;
-	BOOL canSquat() const;
+	bool canSquat() const;
 	f32 getJumpSlideControl() const;
 	f32 getJumpAccelControl() const;
 	int jumpProcess(int);
