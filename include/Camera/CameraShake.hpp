@@ -50,7 +50,7 @@ public:
 			mAngleZ.mVel      = 0;
 		}
 
-		/* 0x00 */ s32 mMode;
+		/* 0x00 */ int mMode;
 		/* 0x04 */ u8  mIsKeep;
 		/* 0x05 */ u8  mIsDecreasing;
 		/* 0x06 */ u16 mDuration;
