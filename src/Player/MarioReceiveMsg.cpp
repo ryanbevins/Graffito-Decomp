@@ -520,10 +520,8 @@ check_sender_bit3:
 					return 1;
 				}
 			}
-			{
-				f32 radius = sender->mDamageRadius;
-				keepDistance(sender->mPosition, 30.0f + radius, 0.0f);
-			}
+			keepDistance(sender->mPosition, 30.0f + sender->getDamageRadius(),
+			             0.0f);
 			return 1;
 
 		case 0x1000001F: // Boss (damageExec with sound + particles)
@@ -594,10 +592,8 @@ check_sender_bit3:
 				}
 			}
 			// Fall through to keepDistance
-			{
-				f32 radius = sender->mDamageRadius;
-				keepDistance(sender->mPosition, 30.0f + radius, 0.0f);
-			}
+			keepDistance(sender->mPosition, 30.0f + sender->getDamageRadius(),
+			             0.0f);
 			return 1;
 
 		case 0x10000053: // Special boss
@@ -1088,8 +1084,8 @@ check_sender_bit3:
 		case 0x4000009C:
 		case 0x400000A5:
 			if (message == 0x0E) {
-				f32 damageRadius = sender->mDamageRadius;
-				keepDistance(sender->mPosition, 30.0f + damageRadius, 0.0f);
+				keepDistance(sender->mPosition,
+				             30.0f + sender->getDamageRadius(), 0.0f);
 				return 1;
 			}
 			return 0;
