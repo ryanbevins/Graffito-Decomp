@@ -1342,15 +1342,7 @@ void CPolarSubCamera::loadAfter()
 	unk1AC[3][3] = unk16C[3][3];
 	PSMTXCopy(unk1EC, unk21C);
 
-	f32 dz = mPosition.z - mTarget.z;
-	f32 dx = mPosition.x - mTarget.x;
-	unk256 = matan(MsSqrtf(dx * dx + dz * dz), mPosition.y - mTarget.y);
-	unk258 = matan(dz, dx);
-	unk25C.set(unk148.x - unk124.x, unk148.y - unk124.y,
-	           unk148.z - unk124.z);
-	unk25C.setLength(unk25C, 1.0f);
-	unk270 = MsClamp<f32>(
-	    CLBCalcRatio<s16>(unk68->unk18, unk68->unk1A, unk256), 0.0f, 1.0f);
+	fabricatedInline2();
 
 	if ((unk64 & 0x1000) && gpMarDirector->unk7D == 1) {
 		gpMarDirector->fireStartDemoCamera(
