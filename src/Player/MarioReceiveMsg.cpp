@@ -1072,7 +1072,8 @@ check_sender_bit3:
 			if (mAction != 0x1336 && message == 4) {
 				mHolder = (TTakeActor*)sender;
 				// Check state flag for grounded
-				if (!(mAction & 0x800)) {
+				bool isJumping = (mAction & 0x800) ? true : false;
+				if (!isJumping) {
 					setAnimation(77, 0.0f);
 					J3DFrameCtrl& ctrl = getMotionFrameCtrl();
 					s16 frameAngle = ctrl.getEnd();
