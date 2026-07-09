@@ -630,8 +630,9 @@ void MSound::pauseOff(u8 param)
 
 void MSound::demoModeIn(u16 param1, bool param2)
 {
+	u16 mask = param1;
 	for (u8 i = 0; i < 16; ++i) {
-		if (((param1 >> i) & 1) && MSGMSound->unk0->unk88.unk2[i])
+		if (((mask >> i) & 1) && MSGMSound->unk0->unk88.unk2[i])
 			MSGMSound->setSeCategoryVolume(i, 0);
 	}
 
