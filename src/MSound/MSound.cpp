@@ -723,9 +723,9 @@ void MSound::talkModeOut()
 
 void MSound::setCategoryVOLs(u16 param1, f32 volume)
 {
-	s32 rawVolume = 127.0f * volume;
-	s32 categoryVolume;
-	if ((u8)rawVolume > 127)
+	u8 rawVolume = 127.0f * volume;
+	u8 categoryVolume;
+	if (rawVolume > 127)
 		categoryVolume = 127;
 	else
 		categoryVolume = rawVolume;
