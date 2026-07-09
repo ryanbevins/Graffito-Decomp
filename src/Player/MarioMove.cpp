@@ -3008,7 +3008,7 @@ void TMario::thinkWaterSurface()
 
 			// Check ripple height
 			f32 rippleCheck = 160.0f + mPosition.y;
-			if (rippleCheck <= getMfloorpositionZ())
+			if (rippleCheck > getMfloorpositionZ())
 				rippleEffect();
 
 			swimmingBubbleEffect();
@@ -3088,7 +3088,7 @@ void TMario::thinkWaterSurface()
 		} else {
 			// Shallow water - check frame-based effects
 			f32 shallowThreshold = posY2 + mWaterEffectParams.mRunningRippleDepth.get();
-			if (waterLvl >= shallowThreshold) {
+			if (waterLvl < shallowThreshold) {
 				// Check if in walking state 0x04000440
 				u32 actionVal = mAction;
 				if ((u32)(actionVal - 0x04000000) == 0x440) {
