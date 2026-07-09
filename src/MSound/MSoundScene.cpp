@@ -77,19 +77,7 @@ void MSSceneSE::frameLoop(u32 id, Vec* trans, u8 count)
 			sector = 2;
 		}
 
-		Vec* trans_i = mPosPtrs[i];
-		if (mPool[sector][0] == 0) {
-			mPool[sector][0] = trans_i;
-		} else {
-			f32 d_trans = MSGMSound->getDistFromCamera(trans_i);
-			f32 d_cur   = MSGMSound->getDistFromCamera(mPool[sector][0]);
-			if (d_cur >= d_trans) {
-				sortMaxTrans(mPool[sector][0], sector, 1);
-				mPool[sector][0] = trans_i;
-			} else {
-				sortMaxTrans(trans_i, sector, 1);
-			}
-		}
+		sortMaxTrans(mPosPtrs[i], sector, 0);
 	}
 
 	u8 sec = 0;
@@ -134,49 +122,14 @@ void MSSceneSE::sortMaxTrans(Vec* trans, u8 idx, u8 depth)
 		mPool[idx][depth] = trans;
 		return;
 	}
-	Vec* cur = mPool[idx][depth];
-	f32 d_trans = MSGMSound->getDistFromCamera(trans);
-	f32 d_cur   = MSGMSound->getDistFromCamera(cur);
-	if (d_cur >= d_trans) {
-		u8 nd = depth + 1;
-		if (nd < 3) {
-			if (mPool[idx][nd] == 0) {
-				mPool[idx][nd] = cur;
-			} else {
-				f32 d_cur2 = MSGMSound->getDistFromCamera(cur);
-				f32 d_next = MSGMSound->getDistFromCamera(mPool[idx][nd]);
-				if (d_next >= d_cur2) {
-					u8 nd2 = nd + 1;
-					if (nd2 < 3)
-						sortMaxTrans(mPool[idx][nd], idx, nd2);
-					mPool[idx][nd] = cur;
-				} else {
-					u8 nd2 = nd + 1;
-					if (nd2 < 3)
-						sortMaxTrans(cur, idx, nd2);
-				}
-			}
-		}
+
+	if (MSGMSound->getDistFromCamera(mPool[idx][depth])
+	    >= MSGMSound->getDistFromCamera(trans)) {
+		if (depth + 1 < 3)
+			sortMaxTrans(mPool[idx][depth], idx, depth + 1);
 		mPool[idx][depth] = trans;
 	} else {
-		u8 nd = depth + 1;
-		if (nd < 3) {
-			if (mPool[idx][nd] == 0) {
-				mPool[idx][nd] = trans;
-			} else {
-				f32 d_trans2 = MSGMSound->getDistFromCamera(trans);
-				f32 d_next   = MSGMSound->getDistFromCamera(mPool[idx][nd]);
-				if (d_next >= d_trans2) {
-					u8 nd2 = nd + 1;
-					if (nd2 < 3)
-						sortMaxTrans(mPool[idx][nd], idx, nd2);
-					mPool[idx][nd] = trans;
-				} else {
-					u8 nd2 = nd + 1;
-					if (nd2 < 3)
-						sortMaxTrans(trans, idx, nd2);
-				}
-			}
-		}
+		if (depth + 1 < 3)
+			sortMaxTrans(trans, idx, depth + 1);
 	}
 }
