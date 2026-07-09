@@ -1229,12 +1229,9 @@ inline TBathWaterMeshRenderer::TBathWaterMeshRenderer(TBathWaterGlobalParams* pa
 	init_tobj_resource(&unk800B4, JKRGetResource("/scene/map/map/ball.bti"));
 	init_tobj_resource(&unk800F4, JKRGetResource("/scene/map/map/mesh.bti"));
 
-	ResTIMG* source = (ResTIMG*)screen_texture->getTexInfo();
-	ResTIMG* target = unk80148->getTexture()->getResTIMG(1);
-	*target         = *source;
-	target->imageDataOffset
-	    = source->imageDataOffset + (u32)source - (u32)target;
-	target->paletteOffset = source->paletteOffset + (u32)source - (u32)target;
+	TScreenTexture* screen = JDrama::TNameRefGen::search<TScreenTexture>(
+	    "\x83\x58\x83\x4E\x83\x8A\x81\x5B\x83\x93\x83\x65\x83\x4E\x83\x58\x83\x60\x83\x83");
+	unk80148->getTexture()->setResTIMG(1, *screen->getTexture()->getTexInfo());
 
 	unk80148->getMaterialNodePointer(0)->makeDisplayList();
 	unk8014C = new J3DModel(unk80148, 0, 1);
