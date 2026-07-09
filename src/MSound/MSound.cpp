@@ -100,8 +100,6 @@ void MSSeCallBack::setWaterCameraFir(bool enabled)
 
 u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
 {
-	static bool ukuleleFlag;
-
 	switch (param) {
 	case 0: {
 		u16 result = JAIBasic::setParameterSeqSync(track, param);
@@ -221,10 +219,10 @@ u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
 		if (area == 8 && episode == 6)
 			return 0xFFFF;
 		return area;
-	case 0x78: {
-		ukuleleFlag = !ukuleleFlag;
+	case 0x78:
+		static bool ukuleleFlag = 0;
+		ukuleleFlag ^= true;
 		return ukuleleFlag;
-	}
 	case 0x79: {
 		return ukuleleFlag;
 	}
