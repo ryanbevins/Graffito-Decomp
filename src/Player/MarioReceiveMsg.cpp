@@ -48,10 +48,9 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 	if (checkFlag(MARIO_FLAG_GAME_OVER))
 		return 0;
 
-	u32 senderType = sender->mActorType;
-
 	// 0x50: Check sender has ACTOR_TYPE_UNK4000000 (bit 2)
-	bool hasEarlyItemType = (senderType & 0x20000000) ? true : false;
+	u32 senderType         = sender->mActorType;
+	bool hasEarlyItemType = sender->checkActorType(0x20000000);
 	if (hasEarlyItemType) {
 		// List of actor types that should NOT trigger the sound
 		bool skip = true;
