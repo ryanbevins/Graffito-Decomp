@@ -4,6 +4,7 @@
 #undef JGEOMETRY_CAMERASHAKE_TVEC3_DOT_SCALE_OUT_OF_LINE
 #undef JGEOMETRY_CAMERASHAKE_ROTATION3_SETROTATE_OUT_OF_LINE
 #include <Camera/cameralib.hpp>
+#include <Camera/camerasave.hpp>
 #include <JSystem/JMath.hpp>
 #include <JSystem/JGeometry.hpp>
 #include <dolphin/mtx.h>

@@ -2,21 +2,8 @@
 #define CAMERA_CAMERA_SHAKE_HPP
 
 #include <JSystem/JGeometry.hpp>
-#include <System/ParamInst.hpp>
-#include <System/Params.hpp>
 
-class TCamSaveShake : public TParams {
-public:
-	TCamSaveShake(const char*);
-
-	/* 0x08 */ TParamRT<s16> mShakeTime;
-	/* 0x1C */ TParamRT<f32> mShakeAmpX;
-	/* 0x30 */ TParamRT<s16> mShakeVelX;
-	/* 0x44 */ TParamRT<f32> mShakeAmpY;
-	/* 0x58 */ TParamRT<s16> mShakeVelY;
-	/* 0x6C */ TParamRT<f32> mShakeAmpZ;
-	/* 0x80 */ TParamRT<s16> mShakeVelZ;
-};
+class TCamSaveShake;
 
 enum EnumCamShakeMode {
 	CAM_SHAKE_MODE_UNK2  = 0x2,
@@ -75,35 +62,6 @@ public:
 
 	TCameraShake();
 	TCamShakeInfo* getUseShakeData_();
-
-	inline void setShakeAngleOne_(TCamShakeAngle* angle, f32 amp,
-	                              s16 initAngle, u16 duration, f32 strength)
-	{
-		f32 ampSigned;
-		s16 angleSigned;
-		if (strength < 0.0f) {
-			ampSigned   = -amp;
-			angleSigned = -initAngle;
-		} else {
-			ampSigned   = amp;
-			angleSigned = initAngle;
-		}
-		angle->mAmp = ampSigned;
-		angle->mDec = ampSigned / (f32)duration;
-		angle->mVel = angleSigned;
-	}
-
-	inline void setShakeAngleAll_(TCamShakeInfo* info, const TCamSaveShake* save,
-	                              u16 duration, f32 strength)
-	{
-		const u8* sd = (const u8*)save;
-		setShakeAngleOne_(&info->mAngleX, *(const f32*)(sd + 0x2C) * strength,
-		                  *(const s16*)(sd + 0x40), duration, strength);
-		setShakeAngleOne_(&info->mAngleY, *(const f32*)(sd + 0x54) * strength,
-		                  *(const s16*)(sd + 0x68), duration, strength);
-		setShakeAngleOne_(&info->mAngleZ, *(const f32*)(sd + 0x7C) * strength,
-		                  *(const s16*)(sd + 0x90), duration, strength);
-	}
 
 	void startShake(EnumCamShakeMode, f32);
 	void keepShake(EnumCamShakeMode, f32);
