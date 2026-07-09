@@ -18,7 +18,9 @@ class TCameraInbetween;
 class TCameraBck;
 class TMarioGamePad;
 class TCamSaveKindParam;
+class TCamSaveNotice;
 class TCamSaveEx;
+class TLiveActor;
 
 class TCameraJetCoaster;
 class TCameraMultiPlayer;
@@ -40,12 +42,17 @@ public:
 	enum {
 		CAMERA_FLAG_UNK1           = 0x1,
 		CAMERA_FLAG_UNK2           = 0x2,
+		CAMERA_FLAG_NOTICE_ACTIVE  = 0x20,
 		CAMERA_FLAG_GATE_DEMO      = 0x200,
 		CAMERA_FLAG_DEAD_DEMO      = 0x400,
 		CAMERA_FLAG_HELL_DEAD_DEMO = 0x800,
 	};
 
-	enum EnumNoticeOnOffMode { };
+	enum EnumNoticeOnOffMode {
+		NOTICE_MODE_UNK0 = 0,
+		NOTICE_MODE_UNK1 = 1,
+		NOTICE_MODE_UNK2 = 2,
+	};
 
 	void calcSecureViewTarget_(s16, f32*, f32*);
 	void execSecureView_(s16, Vec*);
@@ -307,9 +314,13 @@ public:
 	/* 0x290 */ f32 unk290;
 	/* 0x294 */ f32 unk294;
 	/* 0x298 */ f32 unk298;
-	/* 0x29C */ char unk29C[0x2A4 - 0x29C];
-	/* 0x2A4 */ void* unk2A4;
-	/* 0x2A8 */ char unk2A8[0x2AC - 0x2A8];
+	/* 0x29C */ s32 unk29C;
+	/* 0x2A0 */ TLiveActor** unk2A0;
+	/* 0x2A4 */ union {
+		void* unk2A4;
+		TLiveActor* mNoticeActor;
+	};
+	/* 0x2A8 */ TLiveActor* unk2A8;
 	/* 0x2AC */ void* unk2AC;
 	/* 0x2B0 */ TCameraBck* unk2B0;
 
@@ -350,7 +361,10 @@ public:
 	/* 0x2CA */ s16 unk2CA;
 	/* 0x2CC */ u8 unk2CC;
 	/* 0x2CD */ char unk2CD[0x2D0 - 0x2CD];
-	/* 0x2D0 */ void* unk2D0;
+	/* 0x2D0 */ union {
+		void* unk2D0;
+		TCamSaveNotice* mSaveNotice;
+	};
 	/* 0x2D4 */ union {
 		void* unk2D4;
 		TCamSaveEx* mSaveEx;
