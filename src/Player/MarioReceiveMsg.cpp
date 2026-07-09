@@ -458,10 +458,7 @@ check_sender_bit3:
 		case 0x10000037:
 			if (message == 0x0E) {
 				if (!isInvincible()) {
-					// Clear sticky flag on cap
-					TMarioCap* cap = mCap;
-					u16 flags = *(u16*)((u8*)cap + 4);
-					*(u16*)((u8*)cap + 4) = flags & ~1;
+					mCap->setModelInactive(TMarioCap::E_CAP_MODEL_HAT);
 					// damageExec with EnemyCommon params
 					damageExec(sender,
 					           mDmgParamsEnemyCommon.mDamage.get(),
