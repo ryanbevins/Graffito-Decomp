@@ -3892,7 +3892,7 @@ f32 TMario::getSlideStopCatch()
 	else
 		isType2 = 0;
 	if (isType2) {
-		if (plane->getNormal().y < 0.0f)
+		if (plane->getNormal().y < 0.866025f)
 			return mSlipParams45.mSlideStopCatch.get();
 	}
 
@@ -3902,7 +3902,7 @@ f32 TMario::getSlideStopCatch()
 	else
 		isType4 = 0;
 	if (isType4) {
-		if (plane->getNormal().y > 0.0f)
+		if (plane->getNormal().y > 0.99f)
 			return mSlipParamsWaterGround.mSlideStopCatch.get();
 		return mSlipParamsWaterSlope.mSlideStopCatch.get();
 	}
@@ -3962,7 +3962,7 @@ f32 TMario::getSlideStopNormal()
 	else
 		isType2 = 0;
 	if (isType2) {
-		if (plane->getNormal().y < 0.0f)
+		if (plane->getNormal().y < 0.866025f)
 			return mSlipParams45.mSlideStopNormal.get();
 	}
 
@@ -3972,7 +3972,7 @@ f32 TMario::getSlideStopNormal()
 	else
 		isType4 = 0;
 	if (isType4) {
-		if (plane->getNormal().y > 0.0f)
+		if (plane->getNormal().y > 0.99f)
 			return mSlipParamsWaterGround.mSlideStopNormal.get();
 	}
 
@@ -4043,7 +4043,7 @@ BOOL TMario::canSlipJump()
 	else
 		isType4 = 0;
 	if (isType4) {
-		if (plane->getNormal().y > 0.0f)
+		if (plane->getNormal().y > 0.99f)
 			return *((u8*)this + 0x2F48);
 		return *((u8*)this + 0x2E64);
 	}
@@ -4115,7 +4115,7 @@ BOOL TMario::isSlipStart()
 	else
 		isType2 = 0;
 	if (isType2) {
-		if (plane->getNormal().y < 0.0f)
+		if (plane->getNormal().y < 0.866025f)
 			return true;
 	}
 
