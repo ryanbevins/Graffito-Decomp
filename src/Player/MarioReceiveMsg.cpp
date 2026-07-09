@@ -545,6 +545,10 @@ check_sender_bit3:
 			}
 			break;
 
+		case 0x0800000F:
+		case 0x08000010:
+		case 0x08000011:
+		case 0x08000012:
 		case 0x10000004: // Common damage with keepDistance
 		case 0x10000006:
 		case 0x10000007:
