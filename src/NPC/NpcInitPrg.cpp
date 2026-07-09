@@ -18,9 +18,11 @@
 #include <NPC/NpcCoin.hpp>
 #include <NPC/NpcInitData.hpp>
 #include <NPC/NpcInitAnmData.hpp>
+#include <NPC/NpcInbetween.hpp>
 #include <NPC/NpcNerve.hpp>
 #include <NPC/NpcParts.hpp>
 #include <NPC/NpcSave.hpp>
+#include <NPC/NpcThrow.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
 #include <System/Application.hpp>
@@ -76,6 +78,15 @@ struct TMtxEffectInitDataEntry {
 	/* 0xE */ u8 pad[2];
 };
 
+inline void TBaseNPC::initNpcLight_()
+{
+	mMActor->setLightType(1);
+	if (checkLiveFlag(LIVE_FLAG_UNK10)) {
+		mGroundHeight = gpMap->checkGroundIgnoreWaterSurface(
+		    mPosition.x, mPosition.y + 10.0f, mPosition.z, &mGroundPlane);
+	}
+}
+
 inline void TBaseNPC::initSinkNpc_()
 {
 	static int sCheckPollutedStartCounter = 0;
@@ -111,25 +122,30 @@ inline void TBaseNPC::setMtxEffect_()
 		    { 0, nullptr, nullptr, 0, 0, { 0, 0 } } };
 
 	const TMtxEffectInitDataEntry* entry = sMtxEffectInitData;
-	while (entry->mActorType != 0) {
-		if (entry->mActorType == mActorType) {
-			mMultiMtxEffect             = new TMultiMtxEffect;
-			mMultiMtxEffect->mNumBones  = entry->mNumBones;
-			u16* boneIds                = new u16[entry->mNumBones];
-			u8* types                   = new u8[entry->mNumBones];
-			JUTNameTab* nameTab = getModel()->getModelData()->unkB0;
-			for (int i = 0; i < entry->mNumBones; i++) {
-				boneIds[i] = nameTab->getIndex(entry->mBoneNames[i]);
-				types[i]   = entry->mMtxType;
-			}
-			mMultiMtxEffect->mBoneIDs        = boneIds;
-			mMultiMtxEffect->mMtxEffectType  = types;
-			mMultiMtxEffect->setup(getModel(), entry->mParamName);
-			mMultiMtxEffect->flagOn();
+	for (;;) {
+		if (entry->mActorType == 0)
+			return;
+		if (entry->mActorType == mActorType)
 			break;
-		}
-		entry++;
+		entry += 1;
 	}
+
+	mMultiMtxEffect            = new TMultiMtxEffect;
+	mMultiMtxEffect->mNumBones = entry->mNumBones;
+
+	u16* boneIds = new u16[entry->mNumBones];
+	u8* types    = new u8[entry->mNumBones];
+
+	JUTNameTab* nameTab = getModel()->getModelData()->unkB0;
+	for (int i = 0; i < entry->mNumBones; ++i) {
+		boneIds[i] = nameTab->getIndex(entry->mBoneNames[i]);
+		types[i]   = entry->mMtxType;
+	}
+
+	mMultiMtxEffect->mBoneIDs       = boneIds;
+	mMultiMtxEffect->mMtxEffectType = types;
+	mMultiMtxEffect->setup(getModel(), entry->mParamName);
+	mMultiMtxEffect->flagOn();
 }
 
 void TBaseNPC::init(TLiveManager* manager)
@@ -174,21 +190,17 @@ void TBaseNPC::init(TLiveManager* manager)
 		initNpcObjCollision_(initData);
 		mSpine->initWith(&TNerveNPCWaitMarioApproach::theNerve());
 		mTurnSpeed = 0.0f;
-		mMActor->setLightType(0);
-		if (checkLiveFlag(LIVE_FLAG_UNK10)) {
-			mGroundHeight = gpMap->checkGroundIgnoreWaterSurface(
-			    mPosition.x, mPosition.y + 1.0f, mPosition.z, &mGroundPlane);
-		}
+		initNpcLight_();
 		return;
 	}
 
-	onLiveFlag(LIVE_FLAG_UNK100);
+	onLiveFlag(LIVE_FLAG_UNK1000000);
 	onLiveFlag(LIVE_FLAG_AIRBORNE);
 	onLiveFlag(LIVE_FLAG_UNK1000);
 
-	if (gpMarDirector->mMap == 8
-	    && strcmp(mName, cNotUseFastCubeViewObjName0) != 0
-	    && strcmp(mName, cNotUseFastCubeViewObjName1) != 0) {
+	if (gpMarDirector->mMap != 8
+	    || (strcmp(mName, cNotUseFastCubeViewObjName0) != 0
+	        && strcmp(mName, cNotUseFastCubeViewObjName1) != 0)) {
 		onLiveFlag(LIVE_FLAG_UNK2000);
 	}
 
@@ -255,33 +267,14 @@ void TBaseNPC::init(TLiveManager* manager)
 
 	initAnmSound();
 
-	TUnk18CStruct* unk18c = new TUnk18CStruct;
-	if (unk18c != nullptr) {
-		unk18c->unk4
-		    = CLBPalFrame<long>(mPtrSaveNormal->mMotionBlendFrame.value);
-		unk18c->unk0
-		    = CLBPalFrame<long>(mPtrSaveNormal->mPosInbetweenFrame.value);
-		unk18c->unk8  = 0;
-		unk18c->unkC  = 0.0f;
-		unk18c->unk10 = 0.0f;
-		unk18c->unk14 = 0.0f;
-		unk18c->unk18 = 0.0f;
-		unk18c->unk1C = 0.0f;
-		unk18c->unk20 = 0.0f;
-		unk18c->unk24 = 0;
-		unk18c->unk28 = 0.0f;
-	}
-	mUnk18C = unk18c;
+	mUnk18C = new TNpcInbetween(
+	    CLBPalFrame<long>(mPtrSaveNormal->mPosInbetweenFrame.value),
+	    CLBPalFrame<long>(mPtrSaveNormal->mMotionBlendFrame.value));
 
 	const TNpcInitAnmInfo* anmInfo = SMSGetNpcInitAnmData(idx);
 	initLodAnm(anmInfo->unk0, 0, mNpcSaveIndividual->mLodChangeDist.value);
 
-	mMActor->setLightType(1);
-
-	if (checkLiveFlag(LIVE_FLAG_UNK10)) {
-		mGroundHeight = gpMap->checkGroundIgnoreWaterSurface(
-		    mPosition.x, mPosition.y + 1.0f, mPosition.z, &mGroundPlane);
-	}
+	initNpcLight_();
 }
 
 inline void TBaseNPC::initBaseActionFlag_()
@@ -486,18 +479,8 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 	initBaseActionFlag_();
 	initIndividualAnm_();
 
-	if ((streamS32c & 1) != 0) {
-		struct TwoFloats {
-			f32 a;
-			f32 b;
-		};
-		TwoFloats* p = new TwoFloats;
-		if (p != nullptr) {
-			p->a = fStream2;
-			p->b = fStream3;
-		}
-		*((TwoFloats**)((u8*)this + 0x17C)) = p;
-	}
+	if ((streamS32c & 1) != 0)
+		unk17C = new TNpcThrow(fStream2, fStream3);
 
 	bool wantSmoke = false;
 	if (isNormalMonteM() && (mActionFlag & 0x4000) != 0)
