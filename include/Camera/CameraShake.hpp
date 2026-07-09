@@ -31,15 +31,6 @@ public:
 	};
 
 	struct TCamShakeInfo {
-		/* 0x00 */ s32 mMode;
-		/* 0x04 */ u8  mIsKeep;
-		/* 0x05 */ u8  mIsDecreasing;
-		/* 0x06 */ u16 mDuration;
-		/* 0x08 */ u16 mFrame;
-		/* 0x0C */ TCamShakeAngle mAngleX;
-		/* 0x18 */ TCamShakeAngle mAngleY;
-		/* 0x24 */ TCamShakeAngle mAngleZ;
-
 		bool isActive() const { return mDuration != 0 ? true : false; }
 		void reset()
 		{
@@ -58,6 +49,15 @@ public:
 			mAngleZ.mAmp      = 0.0f;
 			mAngleZ.mVel      = 0;
 		}
+
+		/* 0x00 */ s32 mMode;
+		/* 0x04 */ u8  mIsKeep;
+		/* 0x05 */ u8  mIsDecreasing;
+		/* 0x06 */ u16 mDuration;
+		/* 0x08 */ u16 mFrame;
+		/* 0x0C */ TCamShakeAngle mAngleX;
+		/* 0x18 */ TCamShakeAngle mAngleY;
+		/* 0x24 */ TCamShakeAngle mAngleZ;
 	};
 
 	TCameraShake();
