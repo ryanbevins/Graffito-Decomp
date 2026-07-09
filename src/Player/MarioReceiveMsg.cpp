@@ -335,7 +335,7 @@ check_sender_bit3:
 
 		case 0x40000258:
 			if (message == 4) {
-				*(u32*)((u8*)this + 0x68) = (u32)sender;
+				mHolder = (TTakeActor*)sender;
 				changePlayerStatus(0x133E, 0, false);
 				return 1;
 			}
@@ -1101,7 +1101,7 @@ check_sender_bit3:
 				break;
 
 			*(s16*)((u8*)this + 0x14E) = *(s16*)((u8*)this + 0x938);
-			rumbleStart(21, *(s16*)((u8*)this + 0x27F8));
+			rumbleStart(21, mMotorParams.mMotorTrample.get());
 			calcDamagePos(sender->mPosition);
 			kickFruitEffect();
 			return 1;
