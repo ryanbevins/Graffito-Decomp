@@ -46,17 +46,26 @@ void TSilhouette::loadAfter()
 	unk24     = 30.0f;
 	unk28     = 650.0f;
 	unk2C     = 1500.0f;
-	f32 fVar1 = unk24;
-	f32 fVar2 = unk28;
-	f32 fVar3 = unk2C;
-	f32 fVar4 = (fVar1 - fVar2) * 0.9f * 0.5f;
-	f32 fVar5 = (fVar1 * fVar1 - fVar2 * fVar2) * 0.9f * 0.5f;
-	f32 fVar6 = (fVar2 - fVar3) * 0.5f * 0.05f;
-	unk38     = (fVar6 * -0.4f - fVar4 * -0.45f)
-	        / (fVar5 * fVar6
-	           - (fVar2 * fVar2 - fVar3 * fVar3) * 0.5f * 0.05f * fVar4);
-	unk34 = -(fVar5 * unk38 - -0.4f) / fVar4;
-	unk30 = 0.9 - (unk38 * fVar1 * fVar1 + fVar1 * unk34);
+	f32 m[3][2];
+	f32 dist[3];
+	f32 atten[3] = { 0.9f, 0.5f, 0.05f };
+
+	dist[0] = unk24;
+	dist[1] = unk28;
+	dist[2] = unk2C;
+
+	for (int i = 0; i < 2; ++i) {
+		m[0][i]
+		    = atten[i + 1]
+		      * (atten[i] * (dist[i] * dist[i] - dist[i + 1] * dist[i + 1]));
+		m[1][i] = atten[i + 1] * (atten[i] * (dist[i] - dist[i + 1]));
+		m[2][i] = atten[i + 1] - atten[i];
+	}
+
+	unk38 = (m[2][0] * m[1][1] - m[2][1] * m[1][0])
+	        / (m[0][0] * m[1][1] - m[0][1] * m[1][0]);
+	unk34 = (m[2][0] - m[0][0] * unk38) / m[1][0];
+	unk30 = atten[0] - (dist[0] * dist[0] * unk38 + dist[0] * unk34);
 	unk3C = 8e-05f;
 
 	if (gpPollution->getJointModelNum() > 0) {
