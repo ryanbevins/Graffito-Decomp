@@ -3653,19 +3653,19 @@ void TMario::checkWet()
 
 	const char* strPtr = "\0\0\0\0\0\0\0\0\0\0\0";
 	TWaterEmitInfo* emitInfo = getUnk158();
-	*(JGeometry::TVec3<f32>*)((u8*)emitInfo + 0x70) = mPosition;
+	emitInfo->mPos.value = mPosition;
 
 	TWaterEmitInfo* emitInfo2 = getUnk158();
-	*(f32*)((u8*)emitInfo2 + 0x74) += 5.0f;
+	emitInfo2->mPos.value.y += 5.0f;
 
 	JGeometry::TVec3<f32> vel(*(JGeometry::TVec3<f32>*)strPtr);
 	vel.x = 0.3f * mVel.x;
 	vel.y = 0.3f * getMvelY();
 	vel.z = 0.3f * mVel.z;
 	TWaterEmitInfo* emitInfo3 = getUnk158();
-	*(JGeometry::TVec3<f32>*)((u8*)emitInfo3 + 0x8C) = vel;
+	emitInfo3->mV.value = vel;
 
-	gpModelWaterManager->emitRequest(*getUnk158());
+	gpModelWaterManager->emitRequest(*unk158);
 }
 
 void TMario::checkEnforceJump()
