@@ -4152,7 +4152,7 @@ const TBGCheckData* TMario::checkWallPlane(Vec* pos, f32 height, f32 radius)
 				break;
 			}
 			const JGeometry::TVec3<f32>& normal = wall->getNormal();
-			f32 dist = normal.y * pos->y + normal.x * pos->x
+			f32 dist = normal.x * pos->x + normal.y * pos->y
 			           + normal.z * pos->z + wall->getPlaneDistance();
 			if (dist < 0.0f)
 				dist = -dist;
