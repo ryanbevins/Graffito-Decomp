@@ -3003,15 +3003,14 @@ void TMario::thinkWaterSurface()
 		f32 deepThreshold = posY2 + mRunParams.mSwimDepth.get();
 		if (waterLvl > deepThreshold) {
 			// Deep water - check yoshi
-			TYoshi* yoshi = (TYoshi*)mYoshi;
 			r30 = 0;
-			if (yoshi != NULL) {
-				if (yoshi->onYoshi())
+			if (mYoshi != NULL) {
+				if (mYoshi->onYoshi())
 					r30 = 1;
 			}
 
 			if (r30) {
-				yoshi->disappear();
+				mYoshi->disappear();
 				if (mWaterGun != NULL) {
 					mWaterGun->changeNozzle(TWaterGun::Hover, true);
 					normalizeNozzle();
