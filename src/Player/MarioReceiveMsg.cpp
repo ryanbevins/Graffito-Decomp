@@ -1097,10 +1097,10 @@ check_sender_bit3:
 		case 0x40000064:
 		case 0x40000393:
 			// Damage touch with rumble.
-			if (*(s16*)((u8*)this + 0x150) > 0)
+			if (*(s16*)&unk150 > 0)
 				break;
 
-			*(s16*)((u8*)this + 0x14E) = *(s16*)((u8*)this + 0x938);
+			*(s16*)((u8*)this + 0x14E) = mDeParams.mKickFreezeTime.get();
 			rumbleStart(21, mMotorParams.mMotorTrample.get());
 			calcDamagePos(sender->mPosition);
 			kickFruitEffect();
