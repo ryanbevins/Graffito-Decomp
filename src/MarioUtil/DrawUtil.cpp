@@ -854,7 +854,10 @@ void TRotation3<TMatrix34<SMatrix34C<f32> > >::identity33()
 void SMS_CalcMatAnmAndMakeDL(J3DModel* param_1, u16 param_2)
 {
 	J3DMaterial* mat = param_1->getModelData()->getMaterialNodePointer(param_2);
-	mat->getMaterialAnm()->calc(mat);
+	param_1->getModelData()
+	    ->getMaterialNodePointer(param_2)
+	    ->getMaterialAnm()
+	    ->calc(mat);
 	j3dSys.setMatPacket(param_1->getMatPacket(param_2));
 	mat->makeDisplayList();
 }
