@@ -911,11 +911,12 @@ namespace StreamLib {
 				    ->setMixerVolume(0, 0, 0);
 			} else {
 				baseVolume  = 0x5a7e;
-				s16 volume = (s16)(23166.0f * outvolume);
+				s16 volume1 = (s16)(23166.0f * outvolume);
 				JASystem::DSPInterface::getDSPHandle(assign_ch[0]->unk0)
-				    ->setMixerVolume(1, volume, 0);
+				    ->setMixerVolume(1, volume1, 0);
+				s16 volume2 = (s16)(23166.0f * outvolume);
 				JASystem::DSPInterface::getDSPHandle(assign_ch[1]->unk0)
-				    ->setMixerVolume(0, volume, 0);
+				    ->setMixerVolume(0, volume2, 0);
 			}
 
 			JASystem::DSPInterface::getDSPHandle(assign_ch[0]->unk0)
