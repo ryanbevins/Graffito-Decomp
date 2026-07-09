@@ -3133,9 +3133,8 @@ void TMario::thinkWaterSurface()
 		else
 			r30 = 0;
 
-		s16 rotY = mModelFaceAngle;
-		J3DGetTranslateRotateMtx(0, rotY, 0, getMpositionX(), getMfloorpositionZ(), mPosition.z,
-		                         mJointMtx2);
+		J3DGetTranslateRotateMtx(0, mModelFaceAngle, 0, mPosition.x,
+		                         mFloorPosition.z, mPosition.z, mJointMtx2);
 
 		// Store water position
 		unk190 = getMpositionX();
