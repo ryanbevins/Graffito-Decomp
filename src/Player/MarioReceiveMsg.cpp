@@ -256,7 +256,7 @@ BOOL TMario::receiveMessage(THitActor* sender, u32 message)
 		{
 			if (message != 0x0E)
 				goto check_sender_bit3;
-			if (mAction == 0x1302)
+			if (mStatus == 0x1302)
 				goto check_sender_bit3;
 
 			unk384 = sender;
@@ -1061,7 +1061,7 @@ check_sender_bit3:
 
 		case 0x080000C0: // Water surface contact
 		{
-			if (mAction != 0x1336 && message == 4) {
+			if (mStatus != 0x1336 && message == 4) {
 				mHolder = (TTakeActor*)sender;
 				// Check state flag for grounded
 				bool isJumping = (mAction & 0x800) ? true : false;
