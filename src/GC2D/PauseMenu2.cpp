@@ -406,13 +406,13 @@ void TPauseMenu2::perform(u32 param_1, JDrama::TGraphics* param_2)
 			JUTRect rect(unkA4[unkE0]);
 
 			if (unkE8 == (f32)(s32)unk100) {
-				JUTRect rect2(unk98[unkE0]->mBounds);
-				f32 zoom = (f32)((s32)unk102 - rect2.x1)
-				           / (f32)(rect2.x2 - rect2.x1);
+				f32 width = unk98[unkE0]->getWidth();
+				f32 zoom  = width / unk102;
+				JUTRect rect2(unk98[unkE0]->getGlobalBounds());
 
 				JGeometry::TVec3<f32> pos;
-				pos.set((f32)rect.x1 + 0.5f * (f32)(rect.x2 - rect.x1),
-				        (f32)rect.y1 + 0.5f * (f32)(rect.y2 - rect.y1), 0.0f);
+				pos.set((f32)rect2.x1 + 0.5f * (f32)rect2.getWidth(),
+				        (f32)rect2.y1 + 0.5f * (f32)rect2.getHeight(), 0.0f);
 				gpEmitterManager4D2->createEmitter(pos, 0x1FA, nullptr, nullptr);
 				unk110 = gpEmitterManager4D2->unkC8[0][0];
 
