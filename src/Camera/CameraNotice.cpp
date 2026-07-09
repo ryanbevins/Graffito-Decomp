@@ -166,26 +166,26 @@ void* CPolarSubCamera::getNoticeActor_()
 
 void CPolarSubCamera::execNoticeOnOffProc_(EnumNoticeOnOffMode mode)
 {
-	switch ((int)mode) {
-	case 0:
-		this->unk2A4 = nullptr;
-		*(u16*)((u8*)this + 0x64) &= ~0x20;
+	switch (mode) {
+	case NOTICE_MODE_UNK0:
+		mNoticeActor = nullptr;
+		unk64 &= ~CAMERA_FLAG_NOTICE_ACTIVE;
 		break;
 
-	case 1: {
+	case NOTICE_MODE_UNK1: {
 		void* actor = getNoticeActor_();
-		if (actor != this->unk2A4 && actor == nullptr) {
-			this->unk2A4 = nullptr;
-			*(u16*)((u8*)this + 0x64) &= ~0x20;
+		if (actor != mNoticeActor && actor == nullptr) {
+			mNoticeActor = nullptr;
+			unk64 &= ~CAMERA_FLAG_NOTICE_ACTIVE;
 		}
 		break;
 	}
 
-	case 2: {
+	case NOTICE_MODE_UNK2: {
 		void* actor = getNoticeActor_();
-		if (actor != this->unk2A4 && actor != nullptr) {
-			this->unk2A4 = actor;
-			*(u16*)((u8*)this + 0x64) |= 0x20;
+		if (actor != mNoticeActor && actor != nullptr) {
+			mNoticeActor = (TLiveActor*)actor;
+			unk64 |= CAMERA_FLAG_NOTICE_ACTIVE;
 		}
 		break;
 	}
