@@ -2220,7 +2220,7 @@ void TMario::checkRideMovement()
 	const TBGCheckData* wallPlane =
 	    checkWallPlane(&pos, 50.0f, unk15C);
 
-	TLiveActor* groundActor =
+	const TLiveActor* groundActor =
 	    (TLiveActor*)mGroundPlane->mActor;
 
 	if (groundActor != 0) {
@@ -2236,7 +2236,7 @@ void TMario::checkRideMovement()
 			else
 				nearGround = 0;
 			if (nearGround)
-				rideActor = groundActor;
+				rideActor = (TLiveActor*)groundActor;
 		}
 	}
 
@@ -2244,7 +2244,7 @@ void TMario::checkRideMovement()
 		if (mAction == 0x8008A9) {
 			u16 subState = mActionState;
 			if (subState == 2 || subState == 3)
-				rideActor = groundActor;
+				rideActor = (TLiveActor*)groundActor;
 		}
 	}
 
