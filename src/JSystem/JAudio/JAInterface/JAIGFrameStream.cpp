@@ -419,12 +419,14 @@ namespace StreamLib {
 		static s16 L2;
 		static s16 R1;
 		static s16 R2;
+
 		u32 lsz;
-		u8* src;
-		s16* left;
-		s16* right;
-		u32 skipBytes = 0;
+		u8 hdr;
 		u32 blocks;
+		u32 skipBytes = 0;
+		s16* leftOut;
+		s16* rightOut;
+		u8* src;
 
 		if (movieframe == 0 && playside == 0) {
 			R2 = 0;
@@ -433,93 +435,86 @@ namespace StreamLib {
 			L1 = 0;
 		}
 
-		src   = (u8*)adpcm_buffer;
-		left  = (s16*)store_buffer[0];
-		right = (s16*)store_buffer[1];
+		leftOut  = (s16*)store_buffer[0];
+		rightOut = (s16*)store_buffer[1];
+		src      = (u8*)adpcm_buffer;
 
-		if (loop_start_flag != 0) {
-			skipBytes = ((header.unk14 >> 4) & 7) * 0x12;
+		if (loop_start_flag) {
+			skipBytes       = ((header.unk14 >> 4) & 7) * 18;
 			loop_start_flag = false;
 			loadsize        = 0x1680 - skipBytes;
 			src             = (u8*)adpcm_buffer + skipBytes;
 		}
 
 		lsz    = loadsize;
-		blocks = lsz / 0x12;
+		blocks = lsz / 18;
 		for (u32 block = 0; block < blocks; ++block) {
-			u8 predictor = *src++;
-			s16 coef1    = filter_table[(predictor & 0xF) * 2];
-			s16 coef2    = filter_table[(predictor & 0xF) * 2 + 1];
-			u32 shift    = predictor >> 4;
+			hdr        = *src++;
+			s16 cL1    = filter_table[(hdr & 0xF) * 2];
+			s16 cL2    = filter_table[(hdr & 0xF) * 2 + 1];
+			u32 shiftL = (hdr >> 4) & 0xF;
+			for (int i = 0; i < 4; ++i) {
+				u8 b1Hi = src[0] >> 4;
+				u8 b1Lo = src[0] & 0xF;
+				s32 l1;
+				s32 l2;
 
-			for (u32 i = 0; i < 4; ++i) {
-				u8 data = src[0];
-				s16 sample
-				    = (s16)((table4[data >> 4] << shift)
-				            + ((coef1 * L1 + coef2 * L2) >> 11));
-				*left++ = sample;
-				L2      = sample;
+				l2 = (table4[b1Hi] << shiftL) + ((cL1 * L1 + cL2 * L2) >> 11);
+				*leftOut++ = l2;
+				L2         = l2;
+				l1 = (table4[b1Lo] << shiftL) + ((cL1 * L2 + cL2 * L1) >> 11);
+				*leftOut++ = l1;
+				L1         = l1;
 
-				sample = (s16)((table4[data & 0xF] << shift)
-				               + ((coef1 * L2 + coef2 * L1) >> 11));
-				*left++ = sample;
-				L1      = sample;
+				u8 b2Hi = src[1] >> 4;
+				u8 b2Lo = src[1] & 0xf;
 
-				data = src[1];
-				sample
-				    = (s16)((table4[data >> 4] << shift)
-				            + ((coef1 * L1 + coef2 * L2) >> 11));
-				*left++ = sample;
-				L2      = sample;
-
-				sample = (s16)((table4[data & 0xF] << shift)
-				               + ((coef1 * L2 + coef2 * L1) >> 11));
-				*left++ = sample;
-				L1      = sample;
+				l2 = (table4[b2Hi] << shiftL) + ((cL1 * L1 + cL2 * L2) >> 11);
+				*leftOut++ = l2;
+				L2         = l2;
+				l1 = (table4[b2Lo] << shiftL) + ((cL1 * L2 + cL2 * L1) >> 11);
+				*leftOut++ = l1;
+				L1         = l1;
 
 				src += 2;
 			}
 
-			predictor = *src++;
-			coef1     = filter_table[(predictor & 0xF) * 2];
-			coef2     = filter_table[(predictor & 0xF) * 2 + 1];
-			shift     = predictor >> 4;
+			u8 hdrR    = *src++;
+			s16 cR1    = filter_table[(hdrR & 0xF) * 2];
+			s16 cR2    = filter_table[(hdrR & 0xF) * 2 + 1];
+			u32 shiftR = (hdrR >> 4) & 0xF;
+			for (int i = 0; i < 4; ++i) {
 
-			for (u32 i = 0; i < 4; ++i) {
-				u8 data = src[0];
-				s16 sample
-				    = (s16)((table4[data >> 4] << shift)
-				            + ((coef1 * R1 + coef2 * R2) >> 11));
-				*right++ = sample;
-				R2       = sample;
+				u8 b1Hi = src[0] >> 4;
+				u8 b1Lo = src[0] & 0xF;
 
-				sample = (s16)((table4[data & 0xF] << shift)
-				               + ((coef1 * R2 + coef2 * R1) >> 11));
-				*right++ = sample;
-				R1       = sample;
+				s32 l1;
+				s32 l2;
 
-				data = src[1];
-				sample
-				    = (s16)((table4[data >> 4] << shift)
-				            + ((coef1 * R1 + coef2 * R2) >> 11));
-				*right++ = sample;
-				R2       = sample;
+				l2 = (table4[b1Hi] << shiftR) + ((cR1 * R2 + cR2 * R1) >> 11);
+				*rightOut++ = l2;
+				R2          = l2;
+				l1 = (table4[b1Lo] << shiftR) + ((cR1 * R2 + cR2 * R1) >> 11);
+				*rightOut++ = l1;
+				R1          = l1;
 
-				sample = (s16)((table4[data & 0xF] << shift)
-				               + ((coef1 * R2 + coef2 * R1) >> 11));
-				*right++ = sample;
-				R1       = sample;
-
+				u8 b2Hi = src[1] >> 4;
+				u8 b2Lo = src[1] & 0xF;
+				l2 = (table4[b2Hi] << shiftR) + ((cR1 * R1 + cR2 * R2) >> 11);
+				*rightOut++ = l2;
+				R2          = l2;
+				l1 = (table4[b2Lo] << shiftR) + ((cR1 * R2 + cR2 * R1) >> 11);
+				*rightOut++ = l1;
+				R1          = l1;
 				src += 2;
 			}
 		}
 
-		loadup_samples += (((lsz - skipBytes) / 0x12) & 0x7FFFFFF) << 4;
+		loadup_samples += (((lsz - skipBytes) / 18) & 0x7FFFFFF) << 4;
 
 		u32 pos;
 		u32 sampleIdx;
-		for (sampleIdx = 0; sampleIdx < (loadsize / 0x12) * 0x10;
-		     ++sampleIdx) {
+		for (sampleIdx = 0; sampleIdx < (loadsize / 18) * 16; ++sampleIdx) {
 			pos = sampleIdx + shift_sample;
 			if (pos == 0x1400) {
 				DCStoreRange(loop_buffer[0][playside] + shift_sample,
@@ -528,7 +523,6 @@ namespace StreamLib {
 				             (0x1400 - shift_sample) * 2);
 				playside = (playside + 1) % LOOP_BLOCKS;
 			}
-
 			if (pos >= 0x1400)
 				pos -= 0x1400;
 
@@ -539,16 +533,16 @@ namespace StreamLib {
 		u32 endPos = sampleIdx + shift_sample;
 		DCStoreRange(loop_buffer[0][playside], 0x2800);
 		DCStoreRange(loop_buffer[1][playside], 0x2800);
-
-		if (endPos == 0x1400)
+		if (endPos == 0x1400) {
 			playside = (playside + 1) % LOOP_BLOCKS;
-
+		}
 		if (endPos >= 0x1400) {
 			shift_sample = endPos - 0x1400;
 		} else {
 			shift_sample = endPos;
-			if (endPos > 0x1400)
+			if (endPos > 0x1400) {
 				shift_sample -= 0x1400;
+			}
 		}
 	}
 
