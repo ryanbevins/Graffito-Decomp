@@ -820,23 +820,16 @@ bool TMapObjBase::marioIsOn() const
 
 bool TMapObjBase::marioHeadAttack() const
 {
-	if (gpMarioPos->y >= mPosition.y - mYOffset)
-		return false;
-	if (!SMS_IsMarioStatusTypeJumping())
-		return false;
-	if (*gpMarioSpeedY <= 0.0f)
-		return false;
-	return true;
+	if (gpMarioPos->y < mPosition.y - mYOffset
+	    && SMS_IsMarioStatusTypeJumping() && *gpMarioSpeedY > 0.0f)
+		return true;
+	return false;
 }
 
 bool TMapObjBase::marioHipAttack() const
 {
-	if (SMS_GetMarioGrPlane()->getActor() != this)
-		return false;
-	if (!SMS_IsMarioStatusHipDrop())
-		return false;
-	f32 ground = SMS_GetMarioGrLevel();
-	if (gpMarioPos->y + *gpMarioSpeedY < ground)
+	if (SMS_GetMarioGrPlane()->getActor() == this && SMS_IsMarioStatusHipDrop()
+	    && gpMarioPos->y + *gpMarioSpeedY < SMS_GetMarioGrLevel())
 		return true;
 	return false;
 }
