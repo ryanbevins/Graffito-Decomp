@@ -96,7 +96,8 @@ GXColor TLightCommon::getLightColor(int index) const
 
 	GXColor lightColor;
 	index += unk24;
-	GXGetLightColor(&mLightAry->mLights[index].unk24, &lightColor);
+	JDrama::TIdxLight* light = &mLightAry->mLights[index];
+	GXGetLightColor(&light->unk24, &lightColor);
 	GXColor color = lightColor;
 	color.a = (u8)(color.a * unk1C);
 	return color;
@@ -111,7 +112,8 @@ GXColor TLightCommon::getAmbColor(int index) const
 	}
 
 	index += unk20;
-	GXColor color = mAmbAry->mAmbColors[index].mColor;
+	JDrama::TAmbColor* amb = &mAmbAry->mAmbColors[index];
+	GXColor color = amb->mColor;
 	color.a       = (u8)(color.a * unk18);
 	return color;
 }
@@ -239,42 +241,16 @@ void TLightMario::setLight(const JDrama::TGraphics* graphics, int index)
 
 GXColor TLightMario::getLightColor(int index) const
 {
-	int lightIndex = index + unk24;
-	GXColor color;
-	if (unk28) {
-		if (lightIndex >= 4)
-			lightIndex = 0;
-		color = unk31[lightIndex];
-	} else {
-		GXColor lightColor;
-		lightIndex += unk24;
-		GXGetLightColor(&mLightAry->mLights[lightIndex].unk24, &lightColor);
-		lightColor.a = (u8)(lightColor.a * unk1C);
-		color        = lightColor;
-	}
-
-	GXColor result = color;
-	result.a       = (u8)(result.a * unk14);
-	return result;
+	GXColor color = TLightCommon::getLightColor(index + unk24);
+	color.a *= unk14;
+	return color;
 }
 
 GXColor TLightMario::getAmbColor(int index) const
 {
-	int ambIndex = index + unk24;
-	GXColor color;
-	if (unk28) {
-		if (ambIndex >= 2)
-			ambIndex = 0;
-		color = unk29[ambIndex];
-	} else {
-		ambIndex += unk20;
-		GXColor ambColor = mAmbAry->mAmbColors[ambIndex].mColor;
-		ambColor.a       = (u8)(ambColor.a * unk18);
-		color            = ambColor;
-	}
-
-	GXColor result = color;
-	result.a       = (u8)(result.a * unk14);
+	index += unk24;
+	GXColor result = TLightCommon::getAmbColor(index);
+	result.a *= unk14;
 	return result;
 }
 
