@@ -28,6 +28,65 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+TBathWaterParams::TBathWaterParams(const char* path)
+    : TParams(path)
+    , PARAM_INIT(suppliesDrops, 1)
+    , PARAM_INIT(bathtubGravity, 1)
+    , PARAM_INIT(intersects, 1)
+    , PARAM_INIT(isVisible, 1)
+    , PARAM_INIT(checksMario, 1)
+    , PARAM_INIT(numDrops, 120)
+    , PARAM_INIT(dropRadius, 300.0f)
+    , PARAM_INIT(texScale, 3.0f)
+    , PARAM_INIT(hitScale, 5.0f)
+    , PARAM_INIT(modelScale, 1.5f)
+    , PARAM_INIT(modelScale2, 1.0f)
+    , PARAM_INIT(modelScaleY, 1.0f)
+    , PARAM_INIT(gravity, 18.0f)
+    , PARAM_INIT(bounceY, 0.05f)
+    , PARAM_INIT(bounceXZ, 0.5f)
+    , PARAM_INIT(damp, 0.985f)
+    , PARAM_INIT(jump, 65.0f)
+    , PARAM_INIT(overGravity, 0.0f)
+    , PARAM_INIT(emitVel, 20.0f)
+    , PARAM_INIT(lifeTime, 0)
+{
+	TParams::load(mPrmPath);
+}
+
+TBathWaterGlobalParams::TBathWaterGlobalParams()
+    : TParams("/MapObj/bathwaterglobal.prm")
+    , PARAM_INIT(regR, 0)
+    , PARAM_INIT(regG, 0)
+    , PARAM_INIT(regB, 0)
+    , PARAM_INIT(regA, 0xff)
+    , PARAM_INIT(kRegR, 0x90)
+    , PARAM_INIT(kRegG, 0x18)
+    , PARAM_INIT(kRegB, 0)
+    , PARAM_INIT(kRegA, 0xff)
+    , PARAM_INIT(polygonR, 0xff)
+    , PARAM_INIT(polygonG, 0xff)
+    , PARAM_INIT(polygonB, 0x97)
+    , PARAM_INIT(indTexScale, 1.5f)
+    , PARAM_INIT(showsCap, 1)
+    , PARAM_INIT(bendsNormal, 0)
+    , PARAM_INIT(showsMist, 0)
+    , PARAM_INIT(clearsAlpha, 1)
+    , PARAM_INIT(alpha, 0xc8)
+    , PARAM_INIT(scrolls, 1)
+    , PARAM_INIT(displaysMesh, 0)
+    , PARAM_INIT(mode, 0)
+    , PARAM_INIT(mask, 1)
+    , PARAM_INIT(indirectScale, -3)
+    , PARAM_INIT(scrollSpan, 60)
+    , PARAM_INIT(meshTexWidth, 80)
+    , PARAM_INIT(envMapScale, 0.6f)
+    , PARAM_INIT(capHeight, 150.0f)
+    , PARAM_INIT(meshWidth, 7000.0f)
+{
+	TParams::load(mPrmPath);
+}
+
 extern void OSReport(const char*, ...);
 
 class TBathWater : public THitActor {
@@ -743,65 +802,6 @@ JGeometry::TVec3<f32> TBathtubData::getGravityDir(f32 rate) const
 static inline const TBathtubData& bathData(TBathtub* bathtub)
 {
 	return bathtub->getBathtubData();
-}
-
-TBathWaterParams::TBathWaterParams(const char* path)
-    : TParams(path)
-    , PARAM_INIT(suppliesDrops, 1)
-    , PARAM_INIT(bathtubGravity, 1)
-    , PARAM_INIT(intersects, 1)
-    , PARAM_INIT(isVisible, 1)
-    , PARAM_INIT(checksMario, 1)
-    , PARAM_INIT(numDrops, 120)
-    , PARAM_INIT(dropRadius, 300.0f)
-    , PARAM_INIT(texScale, 3.0f)
-    , PARAM_INIT(hitScale, 5.0f)
-    , PARAM_INIT(modelScale, 1.5f)
-    , PARAM_INIT(modelScale2, 1.0f)
-    , PARAM_INIT(modelScaleY, 1.0f)
-    , PARAM_INIT(gravity, 18.0f)
-    , PARAM_INIT(bounceY, 0.05f)
-    , PARAM_INIT(bounceXZ, 0.5f)
-    , PARAM_INIT(damp, 0.985f)
-    , PARAM_INIT(jump, 65.0f)
-    , PARAM_INIT(overGravity, 0.0f)
-    , PARAM_INIT(emitVel, 20.0f)
-    , PARAM_INIT(lifeTime, 0)
-{
-	TParams::load(mPrmPath);
-}
-
-TBathWaterGlobalParams::TBathWaterGlobalParams()
-    : TParams("/MapObj/bathwaterglobal.prm")
-    , PARAM_INIT(regR, 0)
-    , PARAM_INIT(regG, 0)
-    , PARAM_INIT(regB, 0)
-    , PARAM_INIT(regA, 0xff)
-    , PARAM_INIT(kRegR, 0x90)
-    , PARAM_INIT(kRegG, 0x18)
-    , PARAM_INIT(kRegB, 0)
-    , PARAM_INIT(kRegA, 0xff)
-    , PARAM_INIT(polygonR, 0xff)
-    , PARAM_INIT(polygonG, 0xff)
-    , PARAM_INIT(polygonB, 0x97)
-    , PARAM_INIT(indTexScale, 1.5f)
-    , PARAM_INIT(showsCap, 1)
-    , PARAM_INIT(bendsNormal, 0)
-    , PARAM_INIT(showsMist, 0)
-    , PARAM_INIT(clearsAlpha, 1)
-    , PARAM_INIT(alpha, 0xc8)
-    , PARAM_INIT(scrolls, 1)
-    , PARAM_INIT(displaysMesh, 0)
-    , PARAM_INIT(mode, 0)
-    , PARAM_INIT(mask, 1)
-    , PARAM_INIT(indirectScale, -3)
-    , PARAM_INIT(scrollSpan, 60)
-    , PARAM_INIT(meshTexWidth, 80)
-    , PARAM_INIT(envMapScale, 0.6f)
-    , PARAM_INIT(capHeight, 150.0f)
-    , PARAM_INIT(meshWidth, 7000.0f)
-{
-	TParams::load(mPrmPath);
 }
 
 inline TBathWaterPreprocessor::TBathWaterPreprocessor(TBathWaterManager* manager)
