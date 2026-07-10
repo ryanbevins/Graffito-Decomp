@@ -865,44 +865,37 @@ void MSound::playTimer(u32 time)
 
 u32 MSound::startMarioVoice(u32 id, s16 param2, u8 param3)
 {
-	if ((param3 & 1) == 1)
+	if (((param3 & 1) ? true : false) == 1)
 		return 0;
 
-	u8 slot;
-	if (param3 & 2)
-		slot = 1;
-	else
-		slot = 0;
+	bool slot        = param3 & 2 ? true : false;
+	u32 actorIndex   = param3 & 2 ? true : false;
+	bool shouldStart = true;
 
-	JAISound** voices = unk8C;
-	u8 actorIndex     = slot;
-
-	if ((u8)param3 == 6) {
+	if (param3 == 6) {
 		switch (id) {
 		case 0x78AB:
 		case 0x78B1:
 		case 0x78B6:
 		case 0x78B9:
-		case 0x78BF: {
+		case 0x78BF:
 			JAIActor actor(unkAC[actorIndex].unk0, unkAC[actorIndex].unk0,
 			               unkAC[actorIndex].unk0, 0);
 			MSoundSESystem::MSoundSE::startSoundActorInner(
-			    0x898C, &voices[slot], &actor, 1, 4);
+			    0x898C, unk8C + slot, &actor, 1, 4);
 			return 0x898C;
 		}
-		default:
-			return -1;
-		}
+
+		return -1;
 	}
 
-	if (voices[slot] != nullptr) {
-		bool shouldStart = true;
+	if (unk8C[slot] != nullptr) {
 		switch (id) {
-		case 0x7852:
-		case 0x7865:
-		case 0x78A8:
-		case 0x78C7:
 		case 0x78CF:
+		case 0x78A8:
+		case 0x7865:
+		case 0x7852:
+		case 0x78C7:
 		case 0x78D3:
 		case 0x78D9:
 		case 0x78E0:
@@ -911,52 +904,61 @@ u32 MSound::startMarioVoice(u32 id, s16 param2, u8 param3)
 		}
 
 		if (!shouldStart) {
-			if (voices[0] != nullptr)
-				return voices[0]->unk8;
+			if (unk8C[0])
+				return unk8C[0]->unk8;
 			return -1;
 		}
 	}
 
 	switch (id) {
 	case 0xFFFF0003:
-		if ((u8)param3 != 2 && JALCalc::getRandom_0_1() < 0.5f)
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.5f)
 			id = 0x7806;
-		if (id == 0xFFFF0003)
+		if (id + 0x10000 == 3)
 			id = 0x7817;
 		break;
+	case 0x7094:
+	case 0x7849:
+	case 0x7844:
+	case 0x784F:
+	case 0x786B:
+	case 0x789E:
+	case 0x78C1:
+	case 0x78A3:
+	case 0x78C4:
+		break;
 	case 0x7830:
-		if ((u8)param3 != 2 && JALCalc::getRandom_0_1() < 0.25f)
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.25f)
 			id = 0x7818;
 		break;
 	case 0x7833:
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.25f)
+			id = 0x781C;
+		break;
 	case 0x783B:
-		if ((u8)param3 != 2 && JALCalc::getRandom_0_1() < 0.25f)
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.25f)
 			id = 0x781C;
 		break;
 	case 0x7852:
-	case 0x7881:
-	case 0x78C7:
-		if (param2 <= 2) {
+		if (param2 <= 2)
 			id = 0x78EE;
-		} else if (id == 0x78C7) {
-			if ((u8)param3 != 2 && JALCalc::getRandom_0_1() < 0.5f)
-				id = 0x780E;
-			if ((u8)param3 != 2 && JALCalc::getRandom_0_1() < 0.5f)
-				id = 0x7813;
-		}
 		break;
 	case 0x785D:
-		if ((u8)param3 != 2 && JALCalc::getRandom_0_1() < 0.15f)
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.15f)
 			id = 0x781B;
 		break;
 	case 0x7865:
-		if (gateCheck(0x7865))
+		if (unkA8 & 2)
 			MSoundSESystem::MSRandPlay::startSeRandPlay(0x7865, 0);
-		if (voices[0] != nullptr)
-			return voices[0]->unk8;
+		if (unk8C[0] != nullptr)
+			return unk8C[0]->unk8;
 		return -1;
+		break;
+	case 0x7881:
+		if (param2 <= 2)
+			id = 0x78EE;
+		break;
 	case 0x7884:
-	case 0x7899:
 		if (param2 <= 2)
 			id = 0x78FB;
 		break;
@@ -964,69 +966,86 @@ u32 MSound::startMarioVoice(u32 id, s16 param2, u8 param3)
 		if (param2 <= 2)
 			id = 0x78FE;
 		break;
+	case 0x7899:
+		if (param2 <= 2)
+			id = 0x78FB;
+		break;
 	case 0x78AB:
 		if (param2 <= 2) {
 			id = 0x7901;
-		} else if ((u8)param3 != 2 && JALCalc::getRandom_0_1() < 0.3f) {
-			id = 0x7807;
+			break;
 		}
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.3f)
+			id = 0x7807;
 		break;
 	case 0x78B1:
 		if (param2 <= 2) {
 			id = 0x7901;
-		} else if ((u8)param3 != 2 && JALCalc::getRandom_0_1() < 0.7f) {
-			id = 0x7803;
+			break;
 		}
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.7f)
+			id = 0x7803;
 		break;
 	case 0x78B6:
 		if (param2 <= 2) {
 			id = 0x7901;
-		} else if ((u8)param3 != 2 && JALCalc::getRandom_0_1() < 0.5f) {
-			id = 0x7800;
+			break;
 		}
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.5f)
+			id = 0x7800;
 		break;
 	case 0x78B9:
 		if (param2 <= 2) {
 			id = 0x7901;
-		} else if ((u8)param3 != 2 && JALCalc::getRandom_0_1() < 0.5f) {
-			id = 0x780A;
+			break;
 		}
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.5f)
+			id = 0x780A;
 		break;
 	case 0x78BF:
 		if (param2 <= 2)
 			id = 0x7906;
 		break;
+	case 0x78C7:
+		if (param2 <= 2) {
+			id = 0x78EE;
+			break;
+		}
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.5f)
+			id = 0x780E;
+		if (param3 != 2 && JALCalc::getRandom_0_1() < 0.5f)
+			id = 0x7813;
+		break;
 	case 0x78E5:
 		if (param2 <= 2)
 			id = 0x790B;
 		break;
-	case 0xFFFFFFFE:
+	case -2:
 		if (param2 <= 2)
 			id = 0x790E;
 		else
 			id = 0x78E5;
 		break;
-	default:
-		break;
 	}
 
 	JAIActor actor(unkAC[actorIndex].unk0, unkAC[actorIndex].unk0,
 	               unkAC[actorIndex].unk0, 0);
-	MSoundSESystem::MSoundSE::startSoundActorInner(id, &voices[slot], &actor, 1,
+	MSoundSESystem::MSoundSE::startSoundActorInner(id, unk8C + slot, &actor, 1,
 	                                               4);
 
-	if (voices[slot] != nullptr) {
-		if ((u8)param3 == 2) {
-			voices[slot]->setPortData(0xB, 1);
-			voices[slot]->setPitch(1.2f, 0, 0);
-			voices[slot]->setVolume(0.9f, 0, 0);
+	if (unk8C[slot] != nullptr) {
+		if (param3 == 2) {
+			unk8C[slot]->setPortData(11, 1);
+			unk8C[slot]->setPitch(1.2f, 0, 0);
+			unk8C[slot]->setVolume(0.9f, 0, 0);
 		} else {
-			voices[slot]->setPortData(0xB, 0);
+			unk8C[slot]->setPortData(11, 0);
 		}
 	}
 
-	if (voices[slot] != nullptr)
-		return voices[slot]->unk8;
+	u8 finalSlot = param3 & 2 ? 1 : 0;
+	if (unk8C[finalSlot] != nullptr)
+		return unk8C[finalSlot]->unk8;
 	return -1;
 }
 
