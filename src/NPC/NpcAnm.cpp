@@ -333,7 +333,13 @@ void TBaseNPC::walkAnmRateChange_()
 {
 	f32 speedSq = mLinearVelocity.x * mLinearVelocity.x
 	            + mLinearVelocity.z * mLinearVelocity.z;
-	f32 speed   = recoverSqrt(speedSq);
+	f32 speed = speedSq;
+	if (speed > 0.0f) {
+		double root = __frsqrte(speed);
+		volatile f32 result
+		    = 0.5 * root * (3.0 - speed * (root * root)) * speed;
+		speed = result;
+	}
 	if (speed < 0.001f) {
 		int anmKind = unkD0->mCurrentAnmKind;
 		switch (anmKind) {
