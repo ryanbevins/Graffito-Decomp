@@ -825,20 +825,18 @@ bool TBaseNPC::npcWetting()
 
 void TBaseNPC::npcSinking()
 {
-	f32 sinkHeight = *(f32*)((u8*)mNpcSaveIndividual + 0x2FC);
-	f32 targetY    = mSinkBaseY - sinkHeight;
+	f32 targetY = mSinkBaseY - mNpcSaveIndividual->mSinkHeight.get();
 	if (mPosition.y != targetY) {
-		f32 sinkSpeed = *(f32*)((u8*)mNpcSaveIndividual + 0x2E8);
+		f32 sinkSpeed = mNpcSaveIndividual->mSinkSpeed.get();
 		if (isPollutionNpc()) {
-			CLBChaseConstantSpecifyFrame<f32>(
+			CLBChaseConstantSpecifyFrame(
 			    &unk178, 1.0f, (1.0f / sinkSpeed) * (mPosition.y - targetY));
 		}
-		if (!CLBChaseGeneralConstantSpecifySpeed<f32>(&mPosition.y, targetY,
-		                                              sinkSpeed)) {
-			mLiveFlag |= 0x00800000;
-			unk64     |= 0x1;
-			requestNpcAnm_((EnumNpcAnmKind)0x10,
-			               (EnumNpcStopMotionBlendOnOff)1);
+		if (!CLBChaseGeneralConstantSpecifySpeed(&mPosition.y, targetY,
+		                                         sinkSpeed)) {
+			onLiveFlag(LIVE_FLAG_SINK_BOTTOM);
+			onHitFlag(HIT_FLAG_NO_COLLISION);
+			requestNpcAnm_(NPC_ANM_KIND_UNK10, NPC_STOP_MOTION_BLEND_ON);
 		}
 	}
 }
