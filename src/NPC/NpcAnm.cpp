@@ -779,15 +779,15 @@ bool TBaseNPC::npcWetting()
 						if (mMActor->isCurAnmAlreadyEnd(0)) {
 							switch (unkD0->mCurrentAnmKind) {
 							case 5:
-								requestNpcAnm_(asKind(7),
+								requestNpcAnm_(NPC_ANM_KIND_UNK7,
 								               NPC_STOP_MOTION_BLEND_OFF);
 								break;
 							case 0xB:
-								requestNpcAnm_(asKind(0xA),
+								requestNpcAnm_(NPC_ANM_KIND_MAD,
 								               NPC_STOP_MOTION_BLEND_ON);
 								break;
 							case 0x14:
-								requestNpcAnm_(asKind(0x18),
+								requestNpcAnm_(NPC_ANM_KIND_UNK18,
 								               NPC_STOP_MOTION_BLEND_ON);
 								break;
 							case 7:
