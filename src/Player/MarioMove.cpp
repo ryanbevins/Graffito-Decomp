@@ -201,6 +201,7 @@ BOOL TMario::changePlayerTriJump()
 	}
 
 	int stickDirection;
+	BOOL rotResult = FALSE;
 	if (checkStickRotate(&stickDirection)) {
 		switch (stickDirection) {
 		case 2:
@@ -210,8 +211,11 @@ BOOL TMario::changePlayerTriJump()
 			changePlayerStatus(0x895, 0, false);
 			break;
 		}
-		return TRUE;
+		rotResult = TRUE;
 	}
+
+	if (rotResult)
+		return TRUE;
 
 	changePlayerStatus(0x02000880, 0, false);
 	return TRUE;
@@ -304,6 +308,7 @@ BOOL TMario::changePlayerJumping(u32 status, u32 arg)
 	}
 
 	int stickDirection;
+	BOOL rotResult = FALSE;
 	if (checkStickRotate(&stickDirection)) {
 		switch (stickDirection) {
 		case 2:
@@ -313,8 +318,11 @@ BOOL TMario::changePlayerJumping(u32 status, u32 arg)
 			changePlayerStatus(0x895, 0, false);
 			break;
 		}
-		return TRUE;
+		rotResult = TRUE;
 	}
+
+	if (rotResult)
+		return TRUE;
 
 	changePlayerStatus(status, arg, false);
 	return TRUE;
