@@ -521,7 +521,8 @@ void THideObjInfo::action(long param)
 
 	TMapObjBase::throwObjFromPointWithRot(obj, mPosition, mRotation, unk48,
 	                                      unk4C);
-	if (obj->mActorType == 0x2000000e)
+	bool isItem = (obj->mActorType == 0x2000000e) ? true : false;
+	if (isItem)
 		((TItem*)obj)->unk14C = param;
 }
 
