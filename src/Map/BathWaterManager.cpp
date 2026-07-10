@@ -34,8 +34,18 @@ class TBathWater : public THitActor {
 public:
 	class TDrop {
 	public:
-		TDrop();
-		void reset(const JGeometry::TVec3<f32>&, f32);
+		TDrop() { }
+		void reset(const JGeometry::TVec3<f32>& position, f32 rand)
+		{
+			unk48 = rand;
+			unk0.set(position);
+			unkC.zero();
+			unk18.i.zero();
+			unk18.f.zero();
+			unk30.i.zero();
+			unk30.f.zero();
+			unk4C = 0;
+		}
 		void doThing(f32);
 
 		void calcBathtub(const TBathtubData&, f32,
@@ -53,9 +63,35 @@ public:
 		/* 0x4C */ s32 unk4C;
 	};
 
-	TBathWater();
+	TBathWater()
+	    : THitActor("HitActor")
+	    , unk68(0)
+	{
+		unk70 = 500;
+		unk88 = new TDrop[unk70];
+		unk8C = 0;
+	}
 	virtual ~TBathWater() { }
-	void initialize(TBathWaterParams*, const TBathtubData&);
+	void initialize(TBathWaterParams* params, const TBathtubData& data)
+	{
+		unk8C = params;
+		unk74 = params->numDrops.get();
+
+		int i = 0;
+		for (TBathWater::TDrop *drop = unk88, *end = unk88 + unk70;
+		     drop < end; ++drop) {
+			drop->reset(data.getPos(i++, unk70, unk8C->dropRadius.get()),
+			            unk68.get_float01());
+		}
+
+		initHitActor(0x4000025b, 1, 0x80000000,
+		             unk8C->dropRadius.get(),
+		             unk8C->dropRadius.get() * 2.0f, 0.0f, 0.0f);
+		onHitFlag(HIT_FLAG_NO_COLLISION);
+		onHitFlag(HIT_FLAG_UNK4);
+		unk78.set(0.0f, 0.0f, 0.0f);
+		unk84 = 0.0f;
+	}
 	void addDrop(const JGeometry::TVec3<f32>&, f32);
 	bool eraseDrop(TDrop*);
 	bool tryHitMario(THitActor*);
@@ -794,51 +830,6 @@ TBathWaterGlobalParams::TBathWaterGlobalParams()
     , PARAM_INIT(meshWidth, 7000.0f)
 {
 	TParams::load(mPrmPath);
-}
-
-TBathWater::TDrop::TDrop() { }
-
-inline void TBathWater::TDrop::reset(const JGeometry::TVec3<f32>& position,
-                                     f32 rand)
-{
-	unk48 = rand;
-	unk0.set(position);
-	unkC.zero();
-	unk18.i.zero();
-	unk18.f.zero();
-	unk30.i.zero();
-	unk30.f.zero();
-	unk4C = 0;
-}
-
-inline TBathWater::TBathWater()
-    : THitActor("HitActor")
-    , unk68(0)
-{
-	unk70 = 500;
-	unk88 = new TDrop[unk70];
-	unk8C = 0;
-}
-
-inline void TBathWater::initialize(TBathWaterParams* params,
-                                   const TBathtubData& data)
-{
-	unk8C = params;
-	unk74 = params->numDrops.get();
-
-	int i = 0;
-	for (TBathWater::TDrop *drop = unk88, *end = unk88 + unk70; drop < end;
-	     ++drop) {
-		drop->reset(data.getPos(i++, unk70, unk8C->dropRadius.get()),
-		            unk68.get_float01());
-	}
-
-	initHitActor(0x4000025b, 1, 0x80000000, unk8C->dropRadius.get(),
-	             unk8C->dropRadius.get() * 2.0f, 0.0f, 0.0f);
-	onHitFlag(HIT_FLAG_NO_COLLISION);
-	onHitFlag(HIT_FLAG_UNK4);
-	unk78.set(0.0f, 0.0f, 0.0f);
-	unk84 = 0.0f;
 }
 
 inline TBathWaterPreprocessor::TBathWaterPreprocessor(TBathWaterManager* manager)
