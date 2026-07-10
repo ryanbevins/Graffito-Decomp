@@ -1249,14 +1249,11 @@ void TBathWaterMeshRenderer::makeHeightMap(f32 scale)
 
 	for (s16 bx = 0; bx < blockCount; ++bx) {
 		for (s16 bz = 0; bz < blockCount; ++bz) {
-			u8* block
-			    = (u8*)unk800A4 + ((bx + bz * blockCount) << 6);
+			u16* block = (u16*)unk800A4 + ((bx + bz * blockCount) << 5);
 			for (s16 x = 0; x < 4; ++x) {
 				for (s16 z = 0; z < 4; ++z) {
-					u8* texel  = block + x * 2 + z * 8;
-					u16 high   = *(u16*)texel;
-					u16 low    = *(u16*)(texel + 0x20);
-					s32 sample = low | ((high << 16) & 0x00ff0000);
+					s32 sample = (((block + x + z * 4)[0] << 16) & 0xff0000)
+					             | (block + x + z * 4)[0x10];
 					unk20[x + bx * 4][z + bz * 4].y
 					    = scale * (5.9604645e-8f * (f32)sample);
 				}
