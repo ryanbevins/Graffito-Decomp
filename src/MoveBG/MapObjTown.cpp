@@ -143,9 +143,8 @@ void TManhole::setGroundCollision()
 		    && mPosition.z - mBodyRadius < *(f32*)((u8*)SMS_GetYoshi() + 0x28)
 		    && mPosition.z + mBodyRadius
 		           > *(f32*)((u8*)SMS_GetYoshi() + 0x28)) {
-			TMapCollisionBase* coll = mMapCollisionManager->unk8;
-			if (coll)
-				coll->moveTrans(mPosition);
+			if (mMapCollisionManager->unk8)
+				mMapCollisionManager->unk8->moveTrans(mPosition);
 			return;
 		}
 	}
