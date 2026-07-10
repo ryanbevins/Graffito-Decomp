@@ -380,73 +380,67 @@ inline static bool LineInLineXZ(const JGeometry::TVec2<f32>& a1,
 	return result;
 }
 
-inline static f32 calcEdgeAngle(f32 ax, f32 ay, f32 az, f32 bx, f32 by, f32 bz)
+static f32 angle_between(const JGeometry::TVec3<f32>& a,
+                         const JGeometry::TVec3<f32>& b)
 {
-	f32 cross_x  = ay * bz - az * by;
-	f32 cross_y  = az * bx - ax * bz;
-	f32 cross_z  = ax * by - ay * bx;
-	f32 cross_sq = cross_x * cross_x + cross_y * cross_y + cross_z * cross_z;
-	f32 cross_len = JGeometry::TUtil<f32>::sqrt(cross_sq);
-	f32 dot       = ax * bx + ay * by + az * bz;
-	return fabsf(atan2f(cross_len, dot));
+	JGeometry::TVec3<f32> cross;
+	cross.cross(a, b);
+	f32 crossMag = cross.length();
+	f32 dot      = a.x * b.x + a.y * b.y + a.z * b.z;
+	f32 angle    = atan2f(crossMag, dot);
+	return fabsf(angle);
 }
 
 static bool bgIntersectLine(const TBGCheckData* data,
                             const JGeometry::TVec3<f32>& start,
                             const JGeometry::TVec3<f32>& end,
-                            bool ignore_back_faces,
-                            JGeometry::TVec3<f32>* hit_point)
+                            bool front_only,
+                            JGeometry::TVec3<f32>* hit_pos)
 {
-	if (data == nullptr)
+	if (!data)
 		return false;
 
 	if (data->isMarioThrough())
 		return false;
 
-	JGeometry::TVec3<f32> normal(data->mNormal);
-	JGeometry::TVec3<f32> dir(end);
-	dir.sub(start);
+	JGeometry::TVec3<f32> normal = data->getNormal();
+	JGeometry::TVec3<f32> dir    = end;
+	dir -= start;
 
-	f32 denom = normal.dot(dir);
-	if (ignore_back_faces && denom >= 0.0f)
+	f32 nDotDir = normal.dot(dir);
+	if (front_only && nDotDir >= 0.0f)
 		return false;
 
-	if (fabsf(denom) < 0.00001f)
+	if (fabsf(nDotDir) < 0.00001f)
 		return false;
 
-	f32 t = -(data->mPlaneDistance + normal.dot(start)) / denom;
-	if (t < 0.0f)
+	f32 planeDist = -(data->getPlaneDistance() + normal.dot(start)) / nDotDir;
+	if (planeDist < 0.0f)
 		return false;
-	if (1.0f < t)
-		return false;
-
-	JGeometry::TVec3<f32> scaled(dir);
-	scaled.scale(t);
-	JGeometry::TVec3<f32> hit = start + scaled;
-
-	f32 point1x = data->mPoint1.x - hit.x;
-	f32 point1y = data->mPoint1.y - hit.y;
-	f32 point1z = data->mPoint1.z - hit.z;
-	f32 point2x = data->mPoint2.x - hit.x;
-	f32 point2y = data->mPoint2.y - hit.y;
-	f32 point2z = data->mPoint2.z - hit.z;
-	f32 point3x = data->mPoint3.x - hit.x;
-	f32 point3y = data->mPoint3.y - hit.y;
-	f32 point3z = data->mPoint3.z - hit.z;
-
-	f32 angle_sum = 0.0f;
-	angle_sum += calcEdgeAngle(point1x, point1y, point1z, point2x, point2y,
-	                           point2z);
-	angle_sum += calcEdgeAngle(point2x, point2y, point2z, point3x, point3y,
-	                           point3z);
-	angle_sum += calcEdgeAngle(point3x, point3y, point3z, point1x, point1y,
-	                           point1z);
-
-	if (fabsf(6.2831855f - angle_sum) > 0.001f)
+	if (1.0f < planeDist)
 		return false;
 
-	if (hit_point != nullptr)
-		*hit_point = hit;
+	dir *= planeDist;
+
+	JGeometry::TVec3<f32> hit = start + dir;
+
+	JGeometry::TVec3<f32> a;
+	a.sub(data->getPoint1(), hit);
+	JGeometry::TVec3<f32> b;
+	b.sub(data->getPoint2(), hit);
+	JGeometry::TVec3<f32> c;
+	c.sub(data->getPoint3(), hit);
+
+	f32 angleSum = 0.0f;
+	angleSum += fabsf(angle_between(a, b));
+	angleSum += fabsf(angle_between(b, c));
+	angleSum += fabsf(angle_between(c, a));
+
+	if (fabsf(6.2831855f - angleSum) > 0.001f)
+		return false;
+
+	if (hit_pos)
+		*hit_pos = hit;
 
 	return true;
 }
