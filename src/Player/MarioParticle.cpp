@@ -205,7 +205,8 @@ void TMario::emitBlurHipDrop()
 
 void TMario::blurEffect()
 {
-	gpMarioParticleManager->emitAndBindToMtxPtr(0x10E, getCenterAnmMtx(), 1, this);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x10E, mModel->unk8->mNodeMatrices[1], 1, this);
 }
 
 void TMario::warpOutEffect(int type, f32 angle)
