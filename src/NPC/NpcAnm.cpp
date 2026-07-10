@@ -640,10 +640,7 @@ void TBaseNPC::npcHappyIn(unsigned char arg)
 
 void TBaseNPC::npcWetIn()
 {
-	bool sunDown = false;
-	if (isSunflower() && (unk1D8 & 0x2))
-		sunDown = true;
-	if (!sunDown) {
+	if (!isSunflowerReviving()) {
 		EnumNpcAnmKind anm = asKind(5);
 		EnumNpcStopMotionBlendOnOff blend = NPC_STOP_MOTION_BLEND_ON;
 		if (unk178 != 0.0f) {
