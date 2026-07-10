@@ -435,27 +435,7 @@ TLightWithDBSetManager::TLightWithDBSetManager(const char* name)
 	unk3C          = -0.012058f;
 	unk40          = 0.00003f;
 	unk44          = 90.0f;
-
-	f32 points[3] = { 0.9f, 0.5f, 0.05f };
-	f32 distance[3];
-	distance[0] = unk2C;
-	distance[1] = unk30;
-	distance[2] = unk34;
-	f32 firstA       = points[1] * (points[0]
-	                          * (distance[0] * distance[0]
-	                             - distance[1] * distance[1]));
-	f32 firstB       = points[1] * (points[0] * (distance[0] - distance[1]));
-	f32 firstC       = points[1] - points[0];
-	f32 secondA      = points[2] * (points[1]
-	                           * (distance[1] * distance[1]
-	                              - distance[2] * distance[2]));
-	f32 secondB      = points[2] * (points[1] * (distance[1] - distance[2]));
-	f32 secondC      = points[2] - points[1];
-	unk40 = (firstC * secondB - secondC * firstB)
-	        / (firstA * secondB - secondA * firstB);
-	unk3C = (firstC - firstA * unk40) / firstB;
-	unk38 = points[0] - (unk40 * distance[0] * distance[0]
-	                     + distance[0] * unk3C);
+	calcLightBorder();
 }
 
 void TLightWithDBSetManager::loadAfter()
@@ -544,4 +524,26 @@ void TLightWithDBSetManager::makeDrawBuffer()
 Vec* TLightWithDBSetManager::getLightPos() const
 {
 	return TLightCommon::mLightPos;
+}
+
+void TLightWithDBSetManager::calcLightBorder()
+{
+	f32 a[3] = { 0.9f, 0.5f, 0.05f };
+	f32 b[3];
+	b[0] = unk2C;
+	b[1] = unk30;
+	b[2] = unk34;
+
+	f32 P[2];
+	f32 Q[2];
+	f32 R[2];
+	for (int i = 0; i < 2; ++i) {
+		P[i] = a[i + 1] * (a[i] * (b[i] * b[i] - b[i + 1] * b[i + 1]));
+		Q[i] = a[i + 1] * (a[i] * (b[i] - b[i + 1]));
+		R[i] = a[i + 1] - a[i];
+	}
+
+	unk40 = (R[0] * Q[1] - R[1] * Q[0]) / (P[0] * Q[1] - P[1] * Q[0]);
+	unk3C = (R[0] - P[0] * unk40) / Q[0];
+	unk38 = a[0] - (unk40 * (b[0] * b[0]) + b[0] * unk3C);
 }
