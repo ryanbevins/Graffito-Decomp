@@ -1676,17 +1676,14 @@ void TMario::checkGraffitoElec()
 			shouldSkip = 1;
 		} else {
 			u8 areaId = *(u8*)((u8*)gpMarDirector + 0x124);
-			if (areaId == 3 || areaId == 4) {
-				shouldSkip = 1;
-			} else {
+			shouldSkip = 1;
+			if (areaId != 3 && areaId != 4) {
 				u8 inArea = 1;
 				if (areaId != 1) {
 					if (areaId != 2)
 						inArea = 0;
 				}
-				if (inArea) {
-					shouldSkip = 1;
-				} else {
+				if (!inArea) {
 					u8 actionBit;
 					if (mAction & 0x1000)
 						actionBit = 1;
