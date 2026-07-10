@@ -695,6 +695,32 @@ inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
 	}
 }
 
+TBathWaterParams::TBathWaterParams(const char* path)
+    : TParams(path)
+    , PARAM_INIT(suppliesDrops, 1)
+    , PARAM_INIT(bathtubGravity, 1)
+    , PARAM_INIT(intersects, 1)
+    , PARAM_INIT(isVisible, 1)
+    , PARAM_INIT(checksMario, 1)
+    , PARAM_INIT(numDrops, 120)
+    , PARAM_INIT(dropRadius, 300.0f)
+    , PARAM_INIT(texScale, 3.0f)
+    , PARAM_INIT(hitScale, 5.0f)
+    , PARAM_INIT(modelScale, 1.5f)
+    , PARAM_INIT(modelScale2, 1.0f)
+    , PARAM_INIT(modelScaleY, 1.0f)
+    , PARAM_INIT(gravity, 18.0f)
+    , PARAM_INIT(bounceY, 0.05f)
+    , PARAM_INIT(bounceXZ, 0.5f)
+    , PARAM_INIT(damp, 0.985f)
+    , PARAM_INIT(jump, 65.0f)
+    , PARAM_INIT(overGravity, 0.0f)
+    , PARAM_INIT(emitVel, 20.0f)
+    , PARAM_INIT(lifeTime, 0)
+{
+	TParams::load(mPrmPath);
+}
+
 TBathWaterGlobalParams::TBathWaterGlobalParams()
     : TParams("/MapObj/bathwaterglobal.prm")
     , PARAM_INIT(regR, 0)
@@ -724,32 +750,6 @@ TBathWaterGlobalParams::TBathWaterGlobalParams()
     , PARAM_INIT(envMapScale, 0.6f)
     , PARAM_INIT(capHeight, 150.0f)
     , PARAM_INIT(meshWidth, 7000.0f)
-{
-	TParams::load(mPrmPath);
-}
-
-TBathWaterParams::TBathWaterParams(const char* path)
-    : TParams(path)
-    , PARAM_INIT(suppliesDrops, 1)
-    , PARAM_INIT(bathtubGravity, 1)
-    , PARAM_INIT(intersects, 1)
-    , PARAM_INIT(isVisible, 1)
-    , PARAM_INIT(checksMario, 1)
-    , PARAM_INIT(numDrops, 120)
-    , PARAM_INIT(dropRadius, 300.0f)
-    , PARAM_INIT(texScale, 3.0f)
-    , PARAM_INIT(hitScale, 5.0f)
-    , PARAM_INIT(modelScale, 1.5f)
-    , PARAM_INIT(modelScale2, 1.0f)
-    , PARAM_INIT(modelScaleY, 1.0f)
-    , PARAM_INIT(gravity, 18.0f)
-    , PARAM_INIT(bounceY, 0.05f)
-    , PARAM_INIT(bounceXZ, 0.5f)
-    , PARAM_INIT(damp, 0.985f)
-    , PARAM_INIT(jump, 65.0f)
-    , PARAM_INIT(overGravity, 0.0f)
-    , PARAM_INIT(emitVel, 20.0f)
-    , PARAM_INIT(lifeTime, 0)
 {
 	TParams::load(mPrmPath);
 }
