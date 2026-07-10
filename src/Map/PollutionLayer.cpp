@@ -133,23 +133,14 @@ void TPollutionLayerWave::initJointModel(TJointModelManager* manager,
 		SMS_LoadParticle("/scene/map/pollution/ms_thunder_s.jpa", 0x6F);
 }
 
-void TPollutionLayerWallPlusZ::stamp(u16 stamp_type, f32 x, f32 y, f32 z,
-                                     f32 size)
+void TPollutionLayerWallPlusZ::stamp(u16 type, f32 x, f32 y, f32 z, f32 size)
 {
-	if (isInAreaSize(x, y, z, size)) {
-		u16 s;
-		u16 t;
-		s16 depth;
-		TPollutionPos* pollution_pos = &unk5C;
-		depth                      = pollution_pos->worldToDepth(z);
-		t                          = getTexPosT(y);
-		s                          = getTexPosS(x);
-		u16 range = pollution_pos->worldToTexSize(size);
-
-		TPollutionCounterLayer& counter = gpPollution->getCounterLayer();
-		counter.unk1C[stamp_type].pushTask((u8)mIndexInParent, range, s, t,
-		                                   depth);
-	}
+	if (!isInAreaSize(x, y, z, size))
+		return;
+	TPollutionPos* pos = &unk5C;
+	gpPollution->getCounterLayer().pushStampTask(
+	    type, mIndexInParent, pos->worldToTexSize(size), getTexPosS(x),
+	    getTexPosT(y), pos->worldToDepth(z));
 }
 
 void TPollutionLayerWallPlusZ::initLayerInfo(
@@ -161,23 +152,14 @@ void TPollutionLayerWallPlusZ::initLayerInfo(
 	unk48 = 20;
 }
 
-void TPollutionLayerWallPlusX::stamp(u16 stamp_type, f32 x, f32 y, f32 z,
-                                     f32 size)
+void TPollutionLayerWallPlusX::stamp(u16 type, f32 x, f32 y, f32 z, f32 size)
 {
-	if (isInAreaSize(x, y, z, size)) {
-		u16 s;
-		u16 t;
-		s16 depth;
-		TPollutionPos* pollution_pos = &unk5C;
-		depth                      = pollution_pos->worldToDepth(x);
-		t                          = getTexPosT(y);
-		s                          = getTexPosS(z);
-		u16 range = pollution_pos->worldToTexSize(size);
-
-		TPollutionCounterLayer& counter = gpPollution->getCounterLayer();
-		counter.unk1C[stamp_type].pushTask((u8)mIndexInParent, range, s, t,
-		                                   depth);
-	}
+	if (!isInAreaSize(x, y, z, size))
+		return;
+	TPollutionPos* pos = &unk5C;
+	gpPollution->getCounterLayer().pushStampTask(
+	    type, mIndexInParent, pos->worldToTexSize(size), getTexPosS(z),
+	    getTexPosT(y), pos->worldToDepth(x));
 }
 
 void TPollutionLayerWallPlusX::initLayerInfo(
@@ -278,24 +260,16 @@ void TPollutionLayer::cleaned(f32 x, f32 y, f32 z, f32 size)
 
 void TPollutionLayer::stamp(u16 stamp_type, f32 x, f32 y, f32 z, f32 size)
 {
-	if (isInAreaSize(x, y, z, size)) {
-		u16 s;
-		u16 t;
-		s16 depth;
-		depth     = unk5C.worldToDepth(y);
-		t         = getTexPosT(z);
-		s         = getTexPosS(x);
-		u16 range = unk5C.worldToTexSize(size);
+	if (!isInAreaSize(x, y, z, size))
+		return;
 
-		TPollutionCounterLayer& counter = gpPollution->getCounterLayer();
-		counter.unk1C[stamp_type].pushTask((u8)mIndexInParent, range, s, t,
-		                                   depth);
+	gpPollution->getCounterLayer().pushStampTask(
+	    stamp_type, mIndexInParent, getPos().worldToTexSize(size), getTexPosS(x),
+	    getTexPosT(z), unk5C.worldToDepth(y));
 
-		if (getPlaneType() != 6
-		    && gpPollution->unk70.stampIsCleanType(stamp_type)) {
-			cleaned(x, y, z, size);
-		}
-	}
+	if (getPlaneType() != 6
+	    && gpPollution->getCounterLayer().stampIsCleanType(stamp_type))
+		cleaned(x, y, z, size);
 }
 
 bool TPollutionLayer::isPolluted(f32 x, f32 y, f32 z) const

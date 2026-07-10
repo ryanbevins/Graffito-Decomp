@@ -155,6 +155,11 @@ public:
 	void onLayer(int);
 	void offLayer(int);
 	void init(int, u16, u16);
+	void pushStampTask(u16 stamp_type, u8 layer_idx, u16 size, u16 x, u16 z,
+	                   s16 y)
+	{
+		unk1C[stamp_type].pushTask(layer_idx, size, x, z, y);
+	}
 
 public:
 	/* 0x14 */ const TPollutionLayer** unk14;
