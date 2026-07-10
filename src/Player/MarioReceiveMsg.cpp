@@ -934,55 +934,57 @@ check_sender_bit3:
 
 		case 0x4000002C: // Wire actor grab
 		{
-			if (!(mInput & 0x8000))
-				return 0;
-			s16 attackAngle = getAttackAngle(sender);
-			s16 angleDiff = (s16)(attackAngle - mFaceAngle.y);
-			s16 sAngle = (s16)(65536.0f * sender->mRotation.y * 1.0f);
-			s16 adjAngle = (s16)(sAngle - mFaceAngle.y);
-			if (angleDiff > -8192 && angleDiff < 8192) {
-				if (adjAngle > -8192 && adjAngle < 8192) {
-					mPosition = sender->mPosition;
-					mFaceAngle.y = sAngle;
-					changePlayerStatus(0x1320, 0, false);
-					bool hasTakenActor = mHeldObject != nullptr ? true : false;
-					if (hasTakenActor) {
-						mPumpState = 2;
-						setAnimation(233, 0.0f);
-					} else {
-						setAnimation(95, 0.0f);
+			if (mInput & 0x8000) {
+				s16 attackAngle = getAttackAngle(sender);
+				s16 faceAngle = mFaceAngle.y;
+				s16 angleDiff = attackAngle - faceAngle;
+				if (angleDiff > -8192 && angleDiff < 8192) {
+					f32 angle = 65536.0f * sender->mRotation.y * 1.0f;
+					s16 sAngle = (s16)angle;
+					s16 adjAngle = sAngle - faceAngle;
+					if (adjAngle > -8192 && adjAngle < 8192) {
+						mPosition = sender->mPosition;
+						mFaceAngle.y = sAngle;
+						changePlayerStatus(0x1320, 0, false);
+						bool hasTakenActor = mHeldObject != nullptr ? true : false;
+						if (hasTakenActor) {
+							mPumpState = 2;
+							setAnimation(233, 0.0f);
+						} else {
+							setAnimation(95, 0.0f);
+						}
+						startVoice(0x78E5);
+						return 1;
 					}
-					startVoice(0x78E5);
-					return 1;
+					if (adjAngle < -24576 || adjAngle > 24576) {
+						if (message == 0x11) {
+							mPosition = sender->mPosition;
+							s16 newAngle = sAngle + 0x8000;
+							mFaceAngle.y = newAngle;
+							changePlayerStatus(0x1321, 0, false);
+							bool hasTakenActor = mHeldObject != nullptr ? true : false;
+							if (hasTakenActor) {
+								mPumpState = 2;
+								setAnimation(233, 0.0f);
+							} else {
+								setAnimation(96, 0.0f);
+							}
+							startVoice(0x78E5);
+							return 1;
+						}
+						bool hasTakenActor = mHeldObject != nullptr ? true : false;
+						if (hasTakenActor)
+							return 0;
+						mPosition = sender->mPosition;
+						s16 newAngle2 = sAngle + 0x8000;
+						mFaceAngle.y = newAngle2;
+						changePlayerStatus(0x1321, 0, false);
+						setAnimation(313, 0.0f);
+						return 0;
+					}
 				}
 			}
-			if (adjAngle < -24576 || adjAngle > 24576) {
-				if (message == 0x11) {
-					mPosition = sender->mPosition;
-					s16 newAngle = sAngle + 0x8000;
-					mFaceAngle.y = newAngle;
-					changePlayerStatus(0x1321, 0, false);
-					bool hasTakenActor = mHeldObject != nullptr ? true : false;
-					if (hasTakenActor) {
-						mPumpState = 2;
-						setAnimation(233, 0.0f);
-					} else {
-						setAnimation(96, 0.0f);
-					}
-					startVoice(0x78E5);
-					return 1;
-				}
-				bool hasTakenActor = mHeldObject != nullptr ? true : false;
-				if (hasTakenActor)
-					return 0;
-				mPosition = sender->mPosition;
-				s16 newAngle2 = sAngle + 0x8000;
-				mFaceAngle.y = newAngle2;
-				changePlayerStatus(0x1321, 0, false);
-				setAnimation(313, 0.0f);
-				return 0;
-			}
-			return 0;
+			break;
 		}
 
 		case 0x08000002:
