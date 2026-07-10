@@ -151,7 +151,11 @@ public:
 	virtual void load(JSUMemoryInputStream&);
 	virtual BOOL receiveMessage(THitActor*, unsigned long);
 	virtual void control();
-	void registerObjInfo(THideObjInfo*);
+	void registerObjInfo(THideObjInfo* info)
+	{
+		unk144[unk13C] = info;
+		unk13C += 1;
+	}
 	TMapObjSwitch(const char*);
 
 public:

@@ -508,8 +508,7 @@ void THideObjInfo::load(JSUMemoryInputStream& stream)
 	s32 objectID;
 	TMapObjBase::loadHideObjInfo(stream, &eventID, &unk48, &unk4C, &objectID);
 	unk44 = TMapObjBaseManager::getActorTypeByEventID(eventID);
-	gpMapObjSwitch->unk144[gpMapObjSwitch->unk13C] = this;
-	gpMapObjSwitch->unk13C++;
+	gpMapObjSwitch->registerObjInfo(this);
 }
 
 void THideObjInfo::action(long param)
