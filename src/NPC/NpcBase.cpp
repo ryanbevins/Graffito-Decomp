@@ -1086,3 +1086,5 @@ bool TBaseNPC::isNormalMonteM() const
 		result = true;
 	return result;
 }
+
+#pragma dont_inline off
