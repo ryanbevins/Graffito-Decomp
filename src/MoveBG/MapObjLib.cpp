@@ -780,9 +780,8 @@ bool TMapObjBase::waterHitPlane(THitActor*)
 	    = gpModelWaterManager->mParticleVelocitySOA[water_id];
 	if (vel.x == 0.0f && vel.z == 0.0f)
 		return false;
-	if (vel.x * pln->getNormal().x > 0.0f)
-		return false;
-	if (vel.z * pln->getNormal().z > 0.0f)
+	if (vel.x * pln->getNormal().x > 0.0f
+	    || vel.z * pln->getNormal().z > 0.0f)
 		return false;
 	return true;
 }
