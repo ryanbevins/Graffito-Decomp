@@ -448,38 +448,51 @@ void TMario::soundMovement()
 				mSoundValues.unk28 = 0;
 		}
 
-		bool downAction = false;
 		if (action & 0x20000) {
-			downAction = action == ACTION_DOWNING_7
-			             || action == ACTION_FIRE_DOWNING
-			             || action == ACTION_BOARD_JUMPING;
+			BOOL downAction = (u32)(action == ACTION_DOWNING_7)
+			                  | (u32)(action == ACTION_FIRE_DOWNING)
+			                  | (u32)(action == ACTION_BOARD_JUMPING);
 
 			if (mSoundValues.unk00 == ACTION_RUNNING
 			    && action == ACTION_DOWNING_3
 			    && (mSoundValues.unk04 & 8)) {
 				MARIO_START_VOICE(0x783b);
 			}
-		}
 
-		if (downAction) {
-			if (mSoundValues.unk04 & 8)
+			if (downAction != 0 && (mSoundValues.unk04 & 8))
 				MARIO_START_VOICE(0x783b);
 
-			if (mSoundValues.unk28 == 0) {
-				if (mSoundValues.unk04 & 8) {
-					MARIO_START_SOUND(0x1965, &mPosition);
-					mSoundValues.unk04 ^= 8;
+			switch (mSoundValues.unk28) {
+			case 0:
+				if (downAction != 0) {
+					if (mSoundValues.unk04 & 8) {
+						MARIO_START_SOUND(0x1965, &mPosition);
+						mSoundValues.unk04 ^= 8;
+					}
+				} else {
+					mSoundValues.unk04 |= 8;
 				}
-			} else if (mSoundValues.unk28 == 1) {
-				if (mSoundValues.unk04 & 8) {
-					MARIO_START_SOUND(0x1949, &mPosition);
-					mSoundValues.unk04 ^= 8;
+				break;
+			case 1:
+				if (downAction != 0) {
+					if (mSoundValues.unk04 & 8) {
+						MARIO_START_SOUND(0x1949, &mPosition);
+						mSoundValues.unk04 ^= 8;
+					}
+				} else {
+					mSoundValues.unk04 |= 8;
 				}
-			} else if (mSoundValues.unk28 == 2) {
-				if (mSoundValues.unk04 & 8) {
-					MARIO_START_SOUND(0x1948, &mPosition);
-					mSoundValues.unk04 ^= 8;
+				break;
+			case 2:
+				if (downAction != 0) {
+					if (mSoundValues.unk04 & 8) {
+						MARIO_START_SOUND(0x1948, &mPosition);
+						mSoundValues.unk04 ^= 8;
+					}
+				} else {
+					mSoundValues.unk04 |= 8;
 				}
+				break;
 			}
 		} else {
 			mSoundValues.unk04 |= 8;
