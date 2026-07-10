@@ -67,12 +67,15 @@ private:
 	u8 _pad[0x968];
 };
 
-class TCamSaveEx {
+class TCamSaveEx : public TParams {
 public:
 	TCamSaveEx();
 
-private:
-	u8 _pad[0x210];
+public:
+	u8 _pad08[0x1AC - 0x08];
+	TParamRT<s16> mSLLimitMinAngleX;
+	TParamRT<s16> mSLLimitMaxAngleX;
+	u8 _pad1D4[0x210 - 0x1D4];
 };
 
 class TCamSaveNotice {
@@ -507,44 +510,27 @@ void CPolarSubCamera::calcFinalPosAndAt_()
 	if (mMode != 0x49) {
 		gpCameraShake->execShake(unk124, &unk148, &mUp);
 		if (mMode != 0x2E) {
-			if (!isFixCameraSpecifyMode(mMode) || unk6C->mFrameCount > 0) {
+			if (!isFixCameraSpecifyMode(mMode) || isNowInbetween()) {
 				if (isHellDeadDemo()) {
-					const u8* save = (const u8*)unk2D4;
-					if (unk256 > *(const s16*)(save + 0x1D0)) {
+					if (unk256 > mSaveEx->mSLLimitMaxAngleX.get()) {
 						unk7C = 1;
 						unk64 |= 0x40;
 					}
 				} else {
-					const u8* save = (const u8*)unk2D4;
 					CLBRevisionLookatByAngleX(
-					    *(const s16*)(save + 0x1BC),
-					    *(const s16*)(save + 0x1D0), unk124, &unk148);
+					    mSaveEx->mSLLimitMinAngleX.get(),
+					    mSaveEx->mSLLimitMaxAngleX.get(), unk124, &unk148);
 				}
 			}
 		}
 	}
 
-	bool sameXY  = false;
-	bool sameAll = false;
-	if (unk124.x == unk148.x && unk124.y == unk148.y)
-		sameXY = true;
-	if (sameXY && unk124.z == unk148.z)
-		sameAll = true;
-
-	if (sameAll) {
-		unk124.x = unk130.x;
-		unk124.y = unk130.y;
-		unk124.z = unk130.z;
-		unk148.x = unk154.x;
-		unk148.y = unk154.y;
-		unk148.z = unk154.z;
+	if (unk124 == unk148) {
+		unk124.set(unk130);
+		unk148.set(unk154);
 	} else {
-		unk130.x = unk124.x;
-		unk130.y = unk124.y;
-		unk130.z = unk124.z;
-		unk154.x = unk148.x;
-		unk154.y = unk148.y;
-		unk154.z = unk148.z;
+		unk130.set(unk124);
+		unk154.set(unk148);
 	}
 }
 void CPolarSubCamera::calcPosAndAt_()
