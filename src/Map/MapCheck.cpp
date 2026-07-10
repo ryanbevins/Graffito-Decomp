@@ -505,9 +505,6 @@ TMapCollisionData::intersectLine(const JGeometry::TVec3<f32>& start,
 	s32 min_grid_z = (s32)((min_z + mGridExtentY) * (1.0f / 1024.0f));
 	s32 max_grid_z = (s32)((max_z + mGridExtentY) * (1.0f / 1024.0f));
 
-	JGeometry::TVec2<f32> line_a(startX, startZ);
-	JGeometry::TVec2<f32> line_b(endX, endZ);
-
 	for (s32 z = min_grid_z; z <= max_grid_z; ++z) {
 		for (s32 x = min_grid_x; x <= max_grid_x; ++x) {
 			if (x != min_grid_x || z != min_grid_z) {
@@ -520,6 +517,9 @@ TMapCollisionData::intersectLine(const JGeometry::TVec3<f32>& start,
 				JGeometry::TVec2<f32> p2(right, bottom);
 				JGeometry::TVec2<f32> p3(left, top);
 				JGeometry::TVec2<f32> p4(right, top);
+
+				JGeometry::TVec2<f32> line_a(startX, startZ);
+				JGeometry::TVec2<f32> line_b(endX, endZ);
 
 				if (!LineInLineXZ(line_a, line_b, p1, p2)
 				    && !LineInLineXZ(line_a, line_b, p1, p3)
