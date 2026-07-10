@@ -200,12 +200,13 @@ void TManhole::appeared()
 
 BOOL TManhole::animationFinished()
 {
-	J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(0);
+	J3DFrameCtrl* frameCtrl = getMActor()->getFrameCtrl(0);
 	if (frameCtrl->getRate() == 0.0f)
 		return TRUE;
 
-	if (frameCtrl->getFrame() < 79.0f
-	    && frameCtrl->getFrame() + frameCtrl->getRate() >= 79.0f) {
+	f32 next = getMActor()->getFrameCtrl(0)->getFrame()
+	           + getMActor()->getFrameCtrl(0)->getRate();
+	if (frameCtrl->getFrame() < 79.0f && next >= 79.0f) {
 		frameCtrl->setFrame(79.0f);
 		frameCtrl->setRate(0.0f);
 		calcRootMatrix();
@@ -214,8 +215,8 @@ BOOL TManhole::animationFinished()
 		return TRUE;
 	}
 
-	if (frameCtrl->getFrame() < frameCtrl->getEnd()
-	    && frameCtrl->getFrame() + frameCtrl->getRate() >= frameCtrl->getEnd()) {
+	f32 end = frameCtrl->getEnd();
+	if (frameCtrl->getFrame() < end && next >= end) {
 		frameCtrl->setFrame(0.0f);
 		frameCtrl->setRate(0.0f);
 		calcRootMatrix();
