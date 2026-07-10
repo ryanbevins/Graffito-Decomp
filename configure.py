@@ -1211,7 +1211,7 @@ config.libs = [
     {
         "lib": "Camera",
         "mw_version": "GC/1.2.5",
-        "cflags": [*cflags_game, "-inline deferred"],
+        "cflags": [*cflags_game, "-inline deferred", "-opt all,nostrength"],
         "progress_category": "game",
         "objects": [
             Object(Equivalent, "Camera/CameraBGCheck.cpp"),

@@ -8,6 +8,7 @@
 #include <JSystem/JMath.hpp>
 #include <JSystem/JGeometry.hpp>
 #include <dolphin/mtx.h>
+#include <macros.h>
 
 TCameraShake* gpCameraShake;
 
@@ -18,44 +19,37 @@ static inline void unitVecTo(const Vec& from, const Vec& to,
 	out->normalize();
 }
 
+#pragma strength off
+
 TCameraShake::TCameraShake()
 {
 	mRollAccum = 0;
-	s32 offset = 0;
-	const char** name = mCamShakeNameSave;
-	for (s32 i = 0; i < 41; i++, offset += 4, name++) {
-		TCamSaveShake* save = new TCamSaveShake(*name);
-		mShakeData[offset >> 2] = save;
-	}
-	for (s32 i = 0; i < 32; i++) {
-		TCamShakeInfo& info = mShakeInfo[i];
-		info.reset();
-	}
+	for (int i = 0; i < ARRAY_COUNT(mShakeData); ++i)
+		mShakeData[i] = new TCamSaveShake(mCamShakeNameSave[i]);
+
+	for (int i = 0; i < ARRAY_COUNT(mShakeInfo); ++i)
+		mShakeInfo[i].reset();
 }
 
 TCameraShake::TCamShakeInfo* TCameraShake::getUseShakeData_()
 {
-	TCamShakeInfo* info = mShakeInfo;
-	for (s32 i = 0; i < 32; i++, info++) {
-		if (!info->isActive()) {
-			return info;
-		}
-	}
+	int i;
+	for (i = 0; i < ARRAY_COUNT(mShakeInfo); ++i)
+		if (!mShakeInfo[i].isActive())
+			return &mShakeInfo[i];
 
-	TCamShakeInfo* fallback = mShakeInfo;
-	u16 best_delta = 0xFFFF;
-	info = mShakeInfo;
-	for (s32 i = 0; i < 32; i++, info++) {
-		if (info->mIsDecreasing) {
-			u16 remain = (u16)(info->mDuration - info->mFrame);
-			if (remain < best_delta) {
-				best_delta = remain;
-				fallback   = info;
+	TCamShakeInfo* best = mShakeInfo;
+	u16 minRemaining    = -1;
+	for (i = 0; i < ARRAY_COUNT(mShakeInfo); ++i) {
+		if (mShakeInfo[i].mIsDecreasing != 0) {
+			u16 remaining = mShakeInfo[i].mDuration - mShakeInfo[i].mFrame;
+			if (remaining < minRemaining) {
+				minRemaining = remaining;
+				best         = &mShakeInfo[i];
 			}
 		}
 	}
-
-	return fallback;
+	return best;
 }
 
 void TCameraShake::startShake(EnumCamShakeMode mode, f32 strength)
