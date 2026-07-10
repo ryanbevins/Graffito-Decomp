@@ -144,7 +144,7 @@ JGeometry::TVec3<f32> TBaseNPC::getEffectScale_() const
 	case 0x04000017:
 		return JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f);
 	}
-	return mEffectScaleBase;
+	return *(const JGeometry::TVec3<f32>*)&mEffectScaleBase;
 }
 
 void TBaseNPC::emitSinkEffect_()
@@ -166,7 +166,7 @@ void TBaseNPC::emitHappyEffect_()
 	if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
 		scale.set(1.0f, 1.0f, 1.0f);
 	} else {
-		scale = mEffectScaleBase;
+		scale = *(const JGeometry::TVec3<f32>*)&mEffectScaleBase;
 	}
 
 	JGeometry::TVec3<f32> scale2 = scale;
@@ -298,19 +298,24 @@ void TBaseNPC::emitParticle_()
 {
 	if (mPtrSmokeEffectMtx && (mActionFlag & 0x4000)) {
 		JGeometry::TVec3<f32> scale = getEffectScale_();
-		mSmokeEffectPos.set(mPtrSmokeEffectMtx[0][3], mPtrSmokeEffectMtx[1][3],
-		                    mPtrSmokeEffectMtx[2][3]);
+		((JGeometry::TVec3<f32>*)&mSmokeEffectPos)
+		    ->set(mPtrSmokeEffectMtx[0][3], mPtrSmokeEffectMtx[1][3],
+		          mPtrSmokeEffectMtx[2][3]);
 		SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x170,
-		                     &mSmokeEffectPos, this, scale);
+		                     (const JGeometry::TVec3<f32>*)&mSmokeEffectPos,
+		                     this, scale);
 
 		JGeometry::TVec3<f32> scaleFire = scale;
 		scaleFire *= mFireScaleMul;
-		SMS_EasyEmitParticle(PARTICLE_MS_MOE_FIRE_C, &mSmokeEffectPos, this,
-		                     scaleFire);
-		SMS_EasyEmitParticle(PARTICLE_MS_MOE_FIRE_A, &mSmokeEffectPos, this,
-		                     scaleFire);
-		SMS_EasyEmitParticle(PARTICLE_MS_MOE_FIRE_B, &mSmokeEffectPos, this,
-		                     scaleFire);
+		SMS_EasyEmitParticle(
+		    PARTICLE_MS_MOE_FIRE_C,
+		    (const JGeometry::TVec3<f32>*)&mSmokeEffectPos, this, scaleFire);
+		SMS_EasyEmitParticle(
+		    PARTICLE_MS_MOE_FIRE_A,
+		    (const JGeometry::TVec3<f32>*)&mSmokeEffectPos, this, scaleFire);
+		SMS_EasyEmitParticle(
+		    PARTICLE_MS_MOE_FIRE_B,
+		    (const JGeometry::TVec3<f32>*)&mSmokeEffectPos, this, scaleFire);
 	}
 
 	if (mPtrNoteEffectMtx
@@ -318,10 +323,12 @@ void TBaseNPC::emitParticle_()
 		JGeometry::TVec3<f32> scale = getEffectScale_();
 		scale *= 0.75f;
 
-		mNoteEffectPos.set(mPtrNoteEffectMtx[0][3], mPtrNoteEffectMtx[1][3],
-		                   mPtrNoteEffectMtx[2][3]);
-		SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x18B, &mNoteEffectPos,
-		                     this, scale);
+		((JGeometry::TVec3<f32>*)&mNoteEffectPos)
+		    ->set(mPtrNoteEffectMtx[0][3], mPtrNoteEffectMtx[1][3],
+		          mPtrNoteEffectMtx[2][3]);
+		SMS_EasyEmitParticle(
+		    (E_SMS_EFFECT_LOOP_NORMAL)0x18B,
+		    (const JGeometry::TVec3<f32>*)&mNoteEffectPos, this, scale);
 	}
 
 	if (mActorType == 0x04000007 || gpMarDirector->mMap == 4) {
@@ -341,11 +348,14 @@ void TBaseNPC::emitParticle_()
 		}
 
 		if (emit) {
-			mWaterEffectPos.set(mPosition.x, waveY, mPosition.z);
-			SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_INDIRECT)0x1F7,
-			                     &mWaterEffectPos, this, scale);
-			SMS_EasyEmitParticle((E_SMS_EFFECT_LOOP_NORMAL)0x171,
-			                     &mWaterEffectPos, this, scale);
+			((JGeometry::TVec3<f32>*)&mWaterEffectPos)
+			    ->set(mPosition.x, waveY, mPosition.z);
+			SMS_EasyEmitParticle(
+			    (E_SMS_EFFECT_LOOP_INDIRECT)0x1F7,
+			    (const JGeometry::TVec3<f32>*)&mWaterEffectPos, this, scale);
+			SMS_EasyEmitParticle(
+			    (E_SMS_EFFECT_LOOP_NORMAL)0x171,
+			    (const JGeometry::TVec3<f32>*)&mWaterEffectPos, this, scale);
 		}
 	}
 
