@@ -1,4 +1,6 @@
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <MoveBG/MapObjTown.hpp>
+#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
