@@ -1565,10 +1565,13 @@ void TBathWaterMeshRenderer::render(JDrama::TGraphics* graphics,
 	GXSetNumIndStages(1);
 	GXSetIndTexCoordScale(GX_INDTEXSTAGE0, GX_ITS_1, GX_ITS_1);
 	GXSetIndTexOrder(GX_INDTEXSTAGE0, GX_TEXCOORD2, GX_TEXMAP2);
-	f32 indMtx[2][3] = {
-		{ 0.6f, 0.0f, 0.0f },
-		{ 0.0f, 0.6f, 0.0f },
-	};
+	f32 indMtx[2][3];
+	indMtx[0][0] = 0.6f;
+	indMtx[0][1] = 0.0f;
+	indMtx[0][2] = 0.0f;
+	indMtx[1][0] = 0.0f;
+	indMtx[1][1] = 0.6f;
+	indMtx[1][2] = 0.0f;
 	GXSetIndTexMtx(GX_ITM_0, indMtx, (s8)unk80134->indirectScale.get());
 
 	if (unk80134->mode.get() == 2)
