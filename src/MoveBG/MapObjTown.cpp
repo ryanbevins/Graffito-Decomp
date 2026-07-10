@@ -544,20 +544,21 @@ void TMapObjSwitch::load(JSUMemoryInputStream& stream)
 {
 	TMapObjBase::load(stream);
 
-	s32 timer;
-	stream.read(&timer, 4);
-	if (timer <= 0)
+	stream.read(&unk140, 4);
+	if (unk140 <= 0)
 		unk140 = 0x4b0;
 	else
-		unk140 = timer * 10;
+		unk140 *= 10;
 
-	u32 color;
-	stream.read(&color, 4);
-	unk148 = color;
-	stream.read(&color, 4);
-	unk14A = color;
-	stream.read(&color, 4);
-	unk14C = color;
+	s32 r;
+	s32 g;
+	s32 b;
+	stream.read(&r, 4);
+	stream.read(&g, 4);
+	stream.read(&b, 4);
+	unk148 = (u8)r;
+	unk14A = (u8)g;
+	unk14C = (u8)b;
 
 	unk138 = 100;
 	unk144 = new THideObjInfo*[unk138];
