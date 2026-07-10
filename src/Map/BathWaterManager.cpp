@@ -1221,10 +1221,8 @@ inline TBathWaterMeshRenderer::TBathWaterMeshRenderer(TBathWaterGlobalParams* pa
 	    JKRGetResource("/scene/map/map/water.bmd"), 0x240000);
 	unk8013C
 	    = new JUTTexture((ResTIMG*)JKRGetResource("/scene/map/map/water_ball.bti"));
-	unk8013C->unk50 = 0;
 	unk80140
 	    = new JUTTexture((ResTIMG*)JKRGetResource("/scene/map/map/water_warp.bti"));
-	unk80140->unk50 = 0;
 
 	init_tobj_resource(&unk800B4, JKRGetResource("/scene/map/map/ball.bti"));
 	init_tobj_resource(&unk800F4, JKRGetResource("/scene/map/map/mesh.bti"));
