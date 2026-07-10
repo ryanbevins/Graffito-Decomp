@@ -469,11 +469,6 @@ static inline void doSetEffectMtx(J3DTexMtxInfo* info, MtxPtr mtx)
 	info->setEffectMtx(mtx);
 }
 
-const char* TBathWaterManager::fileNames[] = {
-	"MapObj/bathwater_wave.prm",
-	"MapObj/bathwater_overflow.prm",
-};
-
 #pragma dont_inline on
 static void init_tobj_resource(GXTexObj* obj, void* resource)
 {
@@ -835,6 +830,11 @@ TBathWaterManager::TBathWaterManager()
 	unk24 = 0;
 	unk30 = 0;
 }
+
+const char* TBathWaterManager::fileNames[] = {
+	"MapObj/bathwater_wave.prm",
+	"MapObj/bathwater_overflow.prm",
+};
 
 void TBathWaterManager::initializeIfYet_()
 {
