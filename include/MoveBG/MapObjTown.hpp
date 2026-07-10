@@ -131,10 +131,7 @@ public:
 	/* 0x138 */ s32 unk138;
 	/* 0x13C */ f32 unk13C;
 	/* 0x140 */ JGeometry::TVec3<f32> unk140;
-	/* 0x14C */ u8 unk14C;
-	/* 0x14D */ u8 unk14D;
-	/* 0x14E */ u8 unk14E;
-	/* 0x14F */ u8 unk14F;
+	/* 0x14C */ JUtility::TColor unk14C;
 };
 
 class THideObjInfo : public JDrama::TActor {

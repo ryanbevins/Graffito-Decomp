@@ -430,12 +430,10 @@ TMapObjWaterSpray::TMapObjWaterSpray(const char* name)
     : TMapObjBase(name)
     , unk138(0x154)
     , unk13C(0.0f)
-    , unk140(0.0f, 0.0f, 0.0f)
-    , unk14C(0xff)
-    , unk14D(0xff)
-    , unk14E(0xff)
-    , unk14F(0xff)
+    , unk14C(-1)
 {
+	unk14C.set(0, 0, 0, 0);
+	unk140.zero();
 }
 
 void TMapObjWaterSpray::load(JSUMemoryInputStream& stream)
@@ -450,29 +448,29 @@ void TMapObjWaterSpray::load(JSUMemoryInputStream& stream)
 		SMS_LoadParticle("/scene/mapObj/ms_shib_cub1.jpa", 0x155);
 	}
 
-	f32 value;
-	stream.read(&value, 4);
-	if (value > 100.0f)
+	stream >> unk13C;
+	if (unk13C > 100.0f)
 		unk13C = 0.5f;
 	else
-		unk13C = value / 100.0f;
+		unk13C = unk13C / 100.0f;
 
-	stream.read(&value, 4);
-	if (value == -1.0f)
-		value = 1.0f;
+	f32 scale;
+	stream >> scale;
+	if (scale == -1.0f)
+		scale = 1.0f;
 	else
-		value /= 100.0f;
-	unk140.set(value, value, value);
+		scale /= 100.0f;
+	unk140.set(scale, scale, scale);
 
 	u32 color;
-	stream.read(&color, 4);
-	unk14C = color;
-	stream.read(&color, 4);
-	unk14D = color;
-	stream.read(&color, 4);
-	unk14E = color;
-	stream.read(&color, 4);
-	unk14F = color;
+	stream >> color;
+	unk14C.r = color;
+	stream >> color;
+	unk14C.g = color;
+	stream >> color;
+	unk14C.b = color;
+	stream >> color;
+	unk14C.a = color;
 }
 
 void TMapObjWaterSpray::calc()
@@ -488,8 +486,8 @@ void TMapObjWaterSpray::calc()
 	emitter->unk174.set(mScaling);
 	emitter->mChildSpawnRate = unk13C;
 	emitter->unk174.set(unk140);
-	emitter->setParamColor(unk14C, unk14D, unk14E);
-	emitter->unk180.a = unk14F;
+	emitter->setParamColor(unk14C.r, unk14C.g, unk14C.b);
+	emitter->unk180.a = unk14C.a;
 }
 
 THideObjInfo::THideObjInfo(const char* name)
