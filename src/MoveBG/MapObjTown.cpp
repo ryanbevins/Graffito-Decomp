@@ -99,7 +99,6 @@ TManhole::TManhole(const char* name)
     , unk150(0)
     , unk151(1)
     , unk152(0)
-    , unk153(0)
     , unk154(nullptr)
     , unk158(nullptr)
 {
