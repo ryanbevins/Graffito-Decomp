@@ -50,7 +50,9 @@ static inline f32 recoverSqrt(f32 mag)
 {
 	if (mag > 0.0f) {
 		double root = __frsqrte(mag);
-		return 0.5 * root * (3.0 - mag * (root * root)) * mag;
+		volatile f32 result
+		    = 0.5 * root * (3.0 - mag * (root * root)) * mag;
+		return result;
 	}
 	return mag;
 }
