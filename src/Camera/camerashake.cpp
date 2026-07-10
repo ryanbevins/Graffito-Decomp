@@ -22,10 +22,9 @@ TCameraShake::TCameraShake()
 {
 	mRollAccum = 0;
 	s32 offset = 0;
-	const char** nameTable = mCamShakeNameSave;
-	for (s32 i = 0; i < 41; i++, offset += 4) {
-		TCamSaveShake* save = new TCamSaveShake(
-		    *(const char**)((u8*)nameTable + offset));
+	const char** name = mCamShakeNameSave;
+	for (s32 i = 0; i < 41; i++, offset += 4, name++) {
+		TCamSaveShake* save = new TCamSaveShake(*name);
 		mShakeData[offset >> 2] = save;
 	}
 	for (s32 i = 0; i < 32; i++) {
