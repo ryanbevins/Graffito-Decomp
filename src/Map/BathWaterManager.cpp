@@ -30,6 +30,48 @@
 
 extern void OSReport(const char*, ...);
 
+class TBathWater : public THitActor {
+public:
+	class TDrop {
+	public:
+		TDrop();
+		void reset(const JGeometry::TVec3<f32>&, f32);
+		void doThing(f32);
+
+		void calcBathtub(const TBathtubData&, f32,
+		                  const JGeometry::TVec3<f32>&,
+		                  const JGeometry::TVec3<f32>&, int&,
+		                  JGeometry::TVec3<f32>&);
+		static void calcWaterModel(TBathWater*, const TBathtubData&);
+
+	public:
+		/* 0x00 */ JGeometry::TVec3<f32> unk0;
+		/* 0x0C */ JGeometry::TVec3<f32> unkC;
+		/* 0x18 */ JGeometry::TBox3<f32> unk18;
+		/* 0x30 */ JGeometry::TBox3<f32> unk30;
+		/* 0x48 */ f32 unk48;
+		/* 0x4C */ s32 unk4C;
+	};
+
+	TBathWater();
+	virtual ~TBathWater() { }
+	void initialize(TBathWaterParams*, const TBathtubData&);
+	void addDrop(const JGeometry::TVec3<f32>&, f32);
+	bool eraseDrop(TDrop*);
+	bool tryHitMario(THitActor*);
+	bool tryHitMario2(THitActor*, const TBathtubData&);
+
+public:
+	/* 0x68 */ JMath::TRandomFast unk68;
+	/* 0x6C */ u32 unk6C;
+	/* 0x70 */ s32 unk70;
+	/* 0x74 */ s32 unk74;
+	/* 0x78 */ JGeometry::TVec3<f32> unk78;
+	/* 0x84 */ f32 unk84;
+	/* 0x88 */ TDrop* unk88;
+	/* 0x8C */ TBathWaterParams* unk8C;
+};
+
 static inline void doSetEffectMtx(J3DTexMtxInfo* info, MtxPtr mtx)
 {
 	info->setEffectMtx(mtx);
