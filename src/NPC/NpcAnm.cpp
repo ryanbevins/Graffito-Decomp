@@ -12,6 +12,7 @@
 #include <JSystem/JGeometry/JGVec3.hpp>
 #include <M3DUtil/LodAnm.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -24,6 +25,8 @@
 #include <Strategic/Spine.hpp>
 #include <System/MarDirector.hpp>
 #include <stdlib.h>
+
+const char* cNpcPartsNameRootJoint = "__ROOT_JOINT__";
 
 // Local view of the inbetween/blend control block stored at TBaseNPC.mUnk18C
 // (matches TUnk18CStruct in NpcInitPrg.cpp).
