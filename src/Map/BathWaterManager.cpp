@@ -46,13 +46,236 @@ public:
 			unk30.f.zero();
 			unk4C = 0;
 		}
-		void doThing(f32);
+		void doThing(f32 damp)
+		{
+			unk0.add(unk18.i);
+			unk0.add(unk18.f);
+			unkC.scale(damp);
+			unkC.add(unk30.i);
+			unkC.add(unk30.f);
+		}
 
-		void calcBathtub(const TBathtubData&, f32,
-		                  const JGeometry::TVec3<f32>&,
-		                  const JGeometry::TVec3<f32>&, int&,
-		                  JGeometry::TVec3<f32>&);
-		static void calcWaterModel(TBathWater*, const TBathtubData&);
+		void calcBathtub(const TBathtubData& data, f32 radius,
+		                 const JGeometry::TVec3<f32>& minClamp,
+		                 const JGeometry::TVec3<f32>& maxClamp, int& count,
+		                 JGeometry::TVec3<f32>& average)
+		{
+			JGeometry::TVec3<f32> wall(data.unk24.x, data.unk24.y,
+			                                data.unk24.z);
+			JGeometry::TVec3<f32> delta;
+			delta.sub(unk0, data.unk0);
+			f32 outer   = data.unk40 + radius;
+			f32 inner   = data.unk3C - radius;
+			f32 distSq  = delta.squared();
+			f32 outerSq = outer * outer;
+			f32 proj    = wall.dot(delta);
+
+			if (distSq <= outerSq) {
+				if (proj < 0.0f) {
+					if (distSq >= inner * inner) {
+						f32 dist  = JGeometry::TUtil<f32>::sqrt(distSq);
+						f32 depth = dist - inner;
+						f32 inv   = -1.0f / dist;
+						JGeometry::TVec3<f32> normal;
+						normal.scale(inv, delta);
+						JGeometry::TVec3<f32> push;
+						push.scale(depth, normal);
+						unk18.extend(push);
+
+						f32 speed = -normal.dot(unkC);
+						if (speed < 0.0f)
+							speed = 0.0f;
+
+						JGeometry::TVec3<f32> bounce;
+						bounce.scale(speed, normal);
+						bounce += data.unk58;
+						unk30.extend(bounce);
+					} else {
+						f32 floor = radius + (data.unk0.y - data.unk44);
+						if (unk0.y < floor) {
+							f32 pushY = floor - unk0.y;
+							JGeometry::TVec3<f32> push(0.0f, pushY, 0.0f);
+							unk18.extend(push);
+
+							JGeometry::TVec3<f32> bounce(0.0f,
+							                                  -1.0f * unkC.y,
+							                                  0.0f);
+							bounce += data.unk58;
+							unk30.extend(bounce);
+						} else {
+							count++;
+							average.add(unk0);
+						}
+					}
+				} else {
+					count++;
+					average.add(unk0);
+				}
+
+				unk30.extend(minClamp);
+			} else {
+				if (proj > 0.0f && proj < radius + data.unk48
+				    && distSq > inner * inner && distSq < outerSq) {
+					JGeometry::TVec3<f32> push;
+					push.scale((radius + data.unk48) - proj, wall);
+					unk18.extend(push);
+
+					JGeometry::TVec3<f32> bounce;
+					bounce.scale(1.5f * -data.unk24.dot(unkC), data.unk24);
+					JGeometry::TVec3<f32> away;
+					away.set(delta);
+					away.setLength(0.01f * radius);
+					bounce.add(away);
+					unk30.extend(bounce);
+					unk30.extend(maxClamp);
+				} else {
+					unk30.extend(maxClamp);
+					count++;
+					average.add(unk0);
+				}
+			}
+		}
+		static void calcWaterModel(TBathWater* water,
+		                           const TBathtubData& data)
+		{
+			f32 gravity = water->unk8C->gravity.get();
+			JGeometry::TVec3<f32> gravityForce;
+			gravityForce.scale(
+			    -gravity,
+			    data.getGravityDir(water->unk8C->overGravity.get()));
+			JGeometry::TVec3<f32> downGravity(0.0f, -gravity, 0.0f);
+			TBathWater::TDrop* end = water->unk88 + water->unk74;
+			f32 radius             = water->unk8C->dropRadius.get();
+			int active             = 0;
+			JGeometry::TVec3<f32> average(0.0f, 0.0f, 0.0f);
+
+			if (data.unk24.y > 0.0f) {
+				for (TBathWater::TDrop* drop = water->unk88; drop < end;
+				     ++drop) {
+					drop->unk0 += drop->unkC;
+					drop->unk18.i.zero();
+					drop->unk18.f.zero();
+					drop->unk30.i.zero();
+					drop->unk30.f.zero();
+					drop->calcBathtub(data, radius, gravityForce, downGravity,
+					                   active, average);
+				}
+			} else {
+				for (TBathWater::TDrop* drop = water->unk88; drop < end;
+				     ++drop) {
+					drop->unk0 += drop->unkC;
+					drop->unk18.i.zero();
+					drop->unk18.f.zero();
+					drop->unk30.i.zero();
+					drop->unk30.f.zero();
+					drop->unk30.extend(downGravity);
+					average.x += drop->unk0.x;
+					average.y += drop->unk0.y;
+					average.z += drop->unk0.z;
+					active += 1;
+				}
+			}
+
+			f32 volume;
+			if (active * 30 > water->unk74) {
+				f32 inv = 1.0f / (f32)active;
+				average.scale(inv);
+				volume = JGeometry::TUtil<f32>::sqrt(
+				    (3.0f * (f32)active) / (f32)water->unk74);
+				if (volume > 1.0f)
+					volume = 1.0f;
+			} else {
+				volume = 0.0f;
+			}
+			water->unk78 = average;
+			water->unk84 = volume;
+
+			if (water->unk8C->intersects.get()) {
+				f32 twoR = 2.0f * radius;
+				f32 sep2 = 4.0f * (radius * radius);
+				for (TBathWater::TDrop* drop = water->unk88; drop < end;
+				     ++drop) {
+					TBathWater::TDrop* other
+					    = drop + water->unk8C->intersects.get();
+					for (; other < end;
+					     other += water->unk8C->intersects.get()) {
+						JGeometry::TVec3<f32> diff;
+						diff.sub(other->unk0, drop->unk0);
+						f32 distSq = diff.squared();
+						if (!(distSq > sep2)) {
+							f32 dist = diff.length();
+							JGeometry::TVec3<f32> normal;
+							normal.scale(1.0f / dist, diff);
+
+							f32 half = (twoR - dist) / 2.0f;
+
+							diff.x = normal.x * half;
+							diff.z = normal.z * half;
+
+							f32 mag = half * normal.y;
+
+							diff.set(normal.x * half, (normal.y + 1.0f) * mag,
+							         normal.z * half);
+							other->unk18.extend(diff);
+
+							diff.x = -diff.x;
+							diff.z = -diff.z;
+							diff.y = (normal.y - 1.0f) * mag;
+							drop->unk18.extend(diff);
+
+							if (mag < twoR - dist)
+								mag = twoR - dist;
+
+							normal.x *= mag * water->unk8C->bounceXZ.get();
+							normal.y *= mag * water->unk8C->bounceY.get();
+							normal.z *= mag * water->unk8C->bounceXZ.get();
+							other->unk30.extend(normal);
+							normal.negate();
+							drop->unk30.extend(normal);
+						}
+					}
+				}
+			}
+
+			f32 floorY = data.unk0.y - data.unk3C;
+			if (data.unk65 != 0)
+				floorY = data.unk0.y - 8.0f * data.unk3C;
+
+			int respawnIndex = 0;
+			for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
+				if (drop->unk0.y < floorY) {
+					if (water->unk8C->suppliesDrops.get() && data.unk65 == 0) {
+						drop->reset(
+						    data.getPos(respawnIndex++, water->unk70, radius),
+						    water->unk68.get_float01());
+					} else if (water->eraseDrop(drop)) {
+						end -= 1;
+						drop->doThing(water->unk8C->damp.get());
+					}
+				} else {
+					drop->doThing(water->unk8C->damp.get());
+				}
+			}
+
+			if (water->unk8C->lifeTime.get() > 0) {
+				for (TBathWater::TDrop* drop = water->unk88; drop < end;
+				     --end, ++drop) {
+					drop->unk4C += 1;
+					if (drop->unk4C > water->unk8C->lifeTime.get())
+						water->eraseDrop(drop);
+				}
+			}
+
+			if (water->unk74 < water->unk8C->numDrops.get()) {
+				if (water->unk8C->suppliesDrops.get() && data.unk65 == 0) {
+					water->unk88[water->unk74++].reset(
+					    data.getPos(respawnIndex++, water->unk70, radius),
+					    water->unk68.get_float01());
+				}
+			} else if (water->unk74 > water->unk8C->numDrops.get()) {
+				water->unk74 = water->unk8C->numDrops.get();
+			}
+		}
 
 	public:
 		/* 0x00 */ JGeometry::TVec3<f32> unk0;
@@ -517,251 +740,9 @@ JGeometry::TVec3<f32> TBathtubData::getGravityDir(f32 rate) const
 	}
 }
 
-static inline void addDropToAverage(const TBathWater::TDrop& drop, int& count,
-                                    JGeometry::TVec3<f32>& average)
-{
-	average.x += drop.unk0.x;
-	average.y += drop.unk0.y;
-	average.z += drop.unk0.z;
-	count += 1;
-}
-
-void TBathWater::TDrop::calcBathtub(const TBathtubData& data, f32 radius,
-                                    const JGeometry::TVec3<f32>& minClamp,
-                                    const JGeometry::TVec3<f32>& maxClamp,
-                                    int& count,
-                                    JGeometry::TVec3<f32>& average)
-{
-	JGeometry::TVec3<f32> wall(data.unk24.x, data.unk24.y, data.unk24.z);
-	JGeometry::TVec3<f32> delta;
-	delta.sub(unk0, data.unk0);
-	f32 outer  = data.unk40 + radius;
-	f32 inner  = data.unk3C - radius;
-	f32 distSq = delta.squared();
-	f32 outerSq = outer * outer;
-	f32 proj   = wall.dot(delta);
-
-	if (distSq <= outerSq) {
-		if (proj < 0.0f) {
-			if (distSq >= inner * inner) {
-				f32 dist = JGeometry::TUtil<f32>::sqrt(distSq);
-				f32 depth = dist - inner;
-				f32 inv  = -1.0f / dist;
-				JGeometry::TVec3<f32> normal;
-				normal.scale(inv, delta);
-				JGeometry::TVec3<f32> push;
-				push.scale(depth, normal);
-				unk18.extend(push);
-
-				f32 speed = -normal.dot(unkC);
-				if (speed < 0.0f)
-					speed = 0.0f;
-
-				JGeometry::TVec3<f32> bounce;
-				bounce.scale(speed, normal);
-				bounce += data.unk58;
-				unk30.extend(bounce);
-			} else {
-				f32 floor = radius + (data.unk0.y - data.unk44);
-				if (unk0.y < floor) {
-					f32 pushY = floor - unk0.y;
-					JGeometry::TVec3<f32> push(0.0f, pushY, 0.0f);
-					unk18.extend(push);
-
-					JGeometry::TVec3<f32> bounce(0.0f, -1.0f * unkC.y, 0.0f);
-					bounce += data.unk58;
-					unk30.extend(bounce);
-				} else {
-					count++;
-					average.add(unk0);
-				}
-			}
-		} else {
-			count++;
-			average.add(unk0);
-		}
-
-		unk30.extend(minClamp);
-	} else {
-		if (proj > 0.0f && proj < radius + data.unk48
-		    && distSq > inner * inner && distSq < outerSq) {
-			JGeometry::TVec3<f32> push;
-			push.scale((radius + data.unk48) - proj, wall);
-			unk18.extend(push);
-
-			JGeometry::TVec3<f32> bounce;
-			bounce.scale(1.5f * -data.unk24.dot(unkC), data.unk24);
-			JGeometry::TVec3<f32> away;
-			away.set(delta);
-			away.setLength(0.01f * radius);
-			bounce.add(away);
-			unk30.extend(bounce);
-			unk30.extend(maxClamp);
-		} else {
-			unk30.extend(maxClamp);
-			count++;
-			average.add(unk0);
-		}
-	}
-}
-
 static inline const TBathtubData& bathData(TBathtub* bathtub)
 {
 	return bathtub->getBathtubData();
-}
-
-static inline void clearDropForces(TBathWater::TDrop& drop)
-{
-	drop.unk18.i.zero();
-	drop.unk18.f.zero();
-	drop.unk30.i.zero();
-	drop.unk30.f.zero();
-}
-
-static inline void initDrop(TBathWater::TDrop& drop,
-                            const JGeometry::TVec3<f32>& position, f32 rand)
-{
-	drop.unk48 = rand;
-	drop.unk0  = position;
-	drop.unkC.zero();
-	clearDropForces(drop);
-	drop.unk4C = 0;
-}
-
-inline void TBathWater::TDrop::doThing(f32 damp)
-{
-	unk0.add(unk18.i);
-	unk0.add(unk18.f);
-	unkC.scale(damp);
-	unkC.add(unk30.i);
-	unkC.add(unk30.f);
-}
-
-inline void TBathWater::TDrop::calcWaterModel(TBathWater* water,
-                                              const TBathtubData& data)
-{
-	f32 gravity = water->unk8C->gravity.get();
-	JGeometry::TVec3<f32> gravityForce;
-	gravityForce.scale(-gravity,
-	                   data.getGravityDir(water->unk8C->overGravity.get()));
-	JGeometry::TVec3<f32> downGravity(0.0f, -gravity, 0.0f);
-	TBathWater::TDrop* end = water->unk88 + water->unk74;
-	f32 radius = water->unk8C->dropRadius.get();
-	int active = 0;
-	JGeometry::TVec3<f32> average(0.0f, 0.0f, 0.0f);
-
-	if (data.unk24.y > 0.0f) {
-		for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
-			drop->unk0 += drop->unkC;
-			clearDropForces(*drop);
-			drop->calcBathtub(data, radius, gravityForce, downGravity, active,
-			                   average);
-		}
-	} else {
-		for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
-			drop->unk0 += drop->unkC;
-			clearDropForces(*drop);
-			drop->unk30.extend(downGravity);
-			addDropToAverage(*drop, active, average);
-		}
-	}
-
-	f32 volume;
-	if (active * 30 > water->unk74) {
-		f32 inv = 1.0f / (f32)active;
-		average.scale(inv);
-		volume = JGeometry::TUtil<f32>::sqrt(
-		    (3.0f * (f32)active) / (f32)water->unk74);
-		if (volume > 1.0f)
-			volume = 1.0f;
-	} else {
-		volume = 0.0f;
-	}
-	water->unk78 = average;
-	water->unk84 = volume;
-
-	if (water->unk8C->intersects.get()) {
-		f32 twoR  = 2.0f * radius;
-		f32 sep2  = 4.0f * (radius * radius);
-		for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
-			TBathWater::TDrop* other
-			    = drop + water->unk8C->intersects.get();
-			for (; other < end; other += water->unk8C->intersects.get()) {
-				JGeometry::TVec3<f32> diff;
-				diff.sub(other->unk0, drop->unk0);
-				f32 distSq = diff.squared();
-				if (!(distSq > sep2)) {
-					f32 dist = diff.length();
-					JGeometry::TVec3<f32> normal;
-					normal.scale(1.0f / dist, diff);
-
-					f32 half = (twoR - dist) / 2.0f;
-
-					diff.x = normal.x * half;
-					diff.z = normal.z * half;
-
-					f32 mag = half * normal.y;
-
-					diff.set(normal.x * half, (normal.y + 1.0f) * mag,
-					         normal.z * half);
-					other->unk18.extend(diff);
-
-					diff.x = -diff.x;
-					diff.z = -diff.z;
-					diff.y = (normal.y - 1.0f) * mag;
-					drop->unk18.extend(diff);
-
-					if (mag < twoR - dist)
-						mag = twoR - dist;
-
-					normal.x *= mag * water->unk8C->bounceXZ.get();
-					normal.y *= mag * water->unk8C->bounceY.get();
-					normal.z *= mag * water->unk8C->bounceXZ.get();
-					other->unk30.extend(normal);
-					normal.negate();
-					drop->unk30.extend(normal);
-				}
-			}
-		}
-	}
-
-	f32 floorY = data.unk0.y - data.unk3C;
-	if (data.unk65 != 0)
-		floorY = data.unk0.y - 8.0f * data.unk3C;
-
-	int respawnIndex = 0;
-	for (TBathWater::TDrop* drop = water->unk88; drop < end; ++drop) {
-		if (drop->unk0.y < floorY) {
-			if (water->unk8C->suppliesDrops.get() && data.unk65 == 0) {
-				drop->reset(data.getPos(respawnIndex++, water->unk70, radius),
-				            water->unk68.get_float01());
-			} else if (water->eraseDrop(drop)) {
-				end -= 1;
-				drop->doThing(water->unk8C->damp.get());
-			}
-		} else {
-			drop->doThing(water->unk8C->damp.get());
-		}
-	}
-
-	if (water->unk8C->lifeTime.get() > 0) {
-		for (TBathWater::TDrop* drop = water->unk88; drop < end;
-		     --end, ++drop) {
-			drop->unk4C += 1;
-			if (drop->unk4C > water->unk8C->lifeTime.get())
-				water->eraseDrop(drop);
-		}
-	}
-
-	if (water->unk74 < water->unk8C->numDrops.get()) {
-		if (water->unk8C->suppliesDrops.get() && data.unk65 == 0) {
-			water->unk88[water->unk74++].reset(
-			    data.getPos(respawnIndex++, water->unk70, radius),
-			    water->unk68.get_float01());
-		}
-	} else if (water->unk74 > water->unk8C->numDrops.get()) {
-		water->unk74 = water->unk8C->numDrops.get();
-	}
 }
 
 TBathWaterParams::TBathWaterParams(const char* path)
