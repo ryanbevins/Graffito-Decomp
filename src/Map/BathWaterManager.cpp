@@ -28,6 +28,19 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+// Infectious strings from the MActor headers used by the original TU. Their
+// pointer tables are not emitted in this object; only the literals survive.
+static const char SMS_NO_MEMORY_MESSAGE[] = "メモリが足りません\n";
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char MtxCalcTypeNameBasic[]
+    = "MActorMtxCalcType_Basic クラシックスケールＯＮ";
+static const char MtxCalcTypeNameSoftimage[]
+    = "MActorMtxCalcType_Softimage クラシックスケールＯＦＦ";
+static const char MtxCalcTypeNameMotionBlend[]
+    = "MActorMtxCalcType_MotionBlend モーションブレンド";
+static const char MtxCalcTypeNameUser[]
+    = "MActorMtxCalcType_User ユーザー定義";
+
 TBathWaterParams::TBathWaterParams(const char* path)
     : TParams(path)
     , PARAM_INIT(suppliesDrops, 1)
@@ -730,6 +743,98 @@ void clearEFB_alpha(s16 x, s16 y, s16 width, s16 height, u8 alpha)
 }
 } // namespace
 
+class TBathWaterMeshRenderer : public TBathWaterRenderer {
+public:
+	TBathWaterMeshRenderer(TBathWaterGlobalParams* params,
+	                       JUTTexture* screen_texture)
+	    : unk80134(params)
+	    , unk80138(screen_texture)
+	{
+		static u32 clear_z_TX[16] __attribute__((aligned(0x20))) = {
+			0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF,
+			0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF,
+			0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+			0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+		};
+
+		unk800AE = 0;
+		unk80150 = new (0x20) u8[0x55668];
+		unk80154 = new (0x20) u8[0x30023];
+		unk800A4 = new (0x20) u8[0x10000];
+		unk800A8 = new (0x20) u8[0x55668];
+
+		unk80144 = J3DModelLoaderDataBase::load(
+		    JKRGetResource("/scene/map/map/ball.bmd"), 0x240000);
+		unk80148 = J3DModelLoaderDataBase::load(
+		    JKRGetResource("/scene/map/map/water.bmd"), 0x240000);
+		unk8013C = new JUTTexture(
+		    (ResTIMG*)JKRGetResource("/scene/map/map/water_ball.bti"));
+		unk80140 = new JUTTexture(
+		    (ResTIMG*)JKRGetResource("/scene/map/map/water_warp.bti"));
+
+		init_tobj_resource(&unk800B4,
+		                   JKRGetResource("/scene/map/map/ball.bti"));
+		init_tobj_resource(&unk800F4,
+		                   JKRGetResource("/scene/map/map/mesh.bti"));
+
+		TScreenTexture* screen = JDrama::TNameRefGen::search<TScreenTexture>(
+		    "\x83\x58\x83\x4E\x83\x8A\x81\x5B\x83\x93\x83\x65\x83\x4E\x83\x58\x83\x60\x83\x83");
+		unk80148->getTexture()->setResTIMG(
+		    1, *screen->getTexture()->getTexInfo());
+
+		unk80148->getMaterialNodePointer(0)->makeDisplayList();
+		unk8014C = new J3DModel(unk80148, 0, 1);
+
+		GXInitTexObj(&unk80114, clear_z_TX, 4, 4, GX_TF_Z24X8, GX_REPEAT,
+		             GX_REPEAT, GX_FALSE);
+		GXInitTexObjLOD(&unk80114, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f,
+		                GX_FALSE, GX_FALSE, GX_ANISO_1);
+		clearHeightMap();
+	}
+
+	void makeHeightMap(f32);
+	void makeNormalMap();
+	void calcCoord();
+	void clearHeightMap();
+	void tmpFake(const JGeometry::TVec3<f32>&, const JGeometry::TVec3<f32>&);
+
+	virtual void prerender(JDrama::TGraphics*, const TBathtubData&,
+	                       TBathWater**, TBathWaterParams**, int);
+	virtual void render(JDrama::TGraphics*, const TBathtubData&, TBathWater**,
+	                    TBathWaterParams**, int);
+	virtual f32 getHeight(f32, f32) const;
+
+public:
+	/* 0x00004 */ char unk4[0x1C];
+	/* 0x00020 */ JGeometry::TVec3<f32> unk20[0x80][0x80];
+	/* 0x30020 */ JGeometry::TVec3<f32> unk30020[0x80][0x80];
+	/* 0x60020 */ JGeometry::TVec2<f32> unk60020[0x80][0x80];
+	/* 0x80020 */ TPosition3f unk80020;
+	/* 0x80050 */ TPosition3f unk80050;
+	/* 0x80080 */ JGeometry::TVec3<f32> unk80080;
+	/* 0x8008C */ char unk8008C[0x18];
+	/* 0x800A4 */ void* unk800A4;
+	/* 0x800A8 */ void* unk800A8;
+	/* 0x800AC */ s16 unk800AC;
+	/* 0x800AE */ s16 unk800AE;
+	/* 0x800B0 */ f32 unk800B0;
+	/* 0x800B4 */ GXTexObj unk800B4;
+	/* 0x800D4 */ GXTexObj unk800D4;
+	/* 0x800F4 */ GXTexObj unk800F4;
+	/* 0x80114 */ GXTexObj unk80114;
+	/* 0x80134 */ TBathWaterGlobalParams* unk80134;
+	/* 0x80138 */ JUTTexture* unk80138;
+	/* 0x8013C */ JUTTexture* unk8013C;
+	/* 0x80140 */ JUTTexture* unk80140;
+	/* 0x80144 */ J3DModelData* unk80144;
+	/* 0x80148 */ J3DModelData* unk80148;
+	/* 0x8014C */ J3DModel* unk8014C;
+	/* 0x80150 */ void* unk80150;
+	/* 0x80154 */ void* unk80154;
+	/* 0x80158 */ u32 unk80158;
+	/* 0x8015C */ char unk8015C[4];
+};
+
 static void drawCap(const JGeometry::TVec3<f32>& center, f32 radius)
 {
 	static f32 delta = 0.20943952f;
@@ -1200,50 +1305,6 @@ void TBathWaterFlatRenderer::render(JDrama::TGraphics* graphics,
 		draw_mist(0, 0, renderWidth, renderHeight, unk28);
 
 	GXSetProjection(graphics->mProjMtx.mMtx, GX_PERSPECTIVE);
-}
-
-inline TBathWaterMeshRenderer::TBathWaterMeshRenderer(TBathWaterGlobalParams* params,
-                                               JUTTexture* screen_texture)
-    : unk80134(params)
-    , unk80138(screen_texture)
-{
-	static u32 clear_z_TX[16] __attribute__((aligned(0x20))) = {
-		0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF,
-		0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-	};
-
-	unk800AE = 0;
-	unk80150 = new (0x20) u8[0x55668];
-	unk80154 = new (0x20) u8[0x30023];
-	unk800A4 = new (0x20) u8[0x10000];
-	unk800A8 = new (0x20) u8[0x55668];
-
-	unk80144 = J3DModelLoaderDataBase::load(
-	    JKRGetResource("/scene/map/map/ball.bmd"), 0x240000);
-	unk80148 = J3DModelLoaderDataBase::load(
-	    JKRGetResource("/scene/map/map/water.bmd"), 0x240000);
-	unk8013C
-	    = new JUTTexture((ResTIMG*)JKRGetResource("/scene/map/map/water_ball.bti"));
-	unk80140
-	    = new JUTTexture((ResTIMG*)JKRGetResource("/scene/map/map/water_warp.bti"));
-
-	init_tobj_resource(&unk800B4, JKRGetResource("/scene/map/map/ball.bti"));
-	init_tobj_resource(&unk800F4, JKRGetResource("/scene/map/map/mesh.bti"));
-
-	TScreenTexture* screen = JDrama::TNameRefGen::search<TScreenTexture>(
-	    "\x83\x58\x83\x4E\x83\x8A\x81\x5B\x83\x93\x83\x65\x83\x4E\x83\x58\x83\x60\x83\x83");
-	unk80148->getTexture()->setResTIMG(1, *screen->getTexture()->getTexInfo());
-
-	unk80148->getMaterialNodePointer(0)->makeDisplayList();
-	unk8014C = new J3DModel(unk80148, 0, 1);
-
-	GXInitTexObj(&unk80114, clear_z_TX, 4, 4, GX_TF_Z24X8, GX_REPEAT,
-	             GX_REPEAT, GX_FALSE);
-	GXInitTexObjLOD(&unk80114, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, GX_FALSE,
-	                GX_FALSE, GX_ANISO_1);
-	clearHeightMap();
 }
 
 void TBathWaterMeshRenderer::makeHeightMap(f32 scale)

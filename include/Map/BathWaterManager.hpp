@@ -128,51 +128,6 @@ public:
 	/* 0x2C */ TBathWaterGlobalParams* unk2C;
 };
 
-class TBathWaterMeshRenderer : public TBathWaterRenderer {
-public:
-	TBathWaterMeshRenderer(TBathWaterGlobalParams*, JUTTexture*);
-	void makeHeightMap(f32);
-	void makeNormalMap();
-	void calcCoord();
-	void clearHeightMap();
-	void tmpFake(const JGeometry::TVec3<f32>&, const JGeometry::TVec3<f32>&);
-
-	virtual void prerender(JDrama::TGraphics*, const TBathtubData&,
-	                       TBathWater**, TBathWaterParams**, int);
-	virtual void render(JDrama::TGraphics*, const TBathtubData&, TBathWater**,
-	                    TBathWaterParams**, int);
-	virtual f32 getHeight(f32, f32) const;
-
-public:
-	/* 0x00004 */ char unk4[0x1C];
-	/* 0x00020 */ JGeometry::TVec3<f32> unk20[0x80][0x80];
-	/* 0x30020 */ JGeometry::TVec3<f32> unk30020[0x80][0x80];
-	/* 0x60020 */ JGeometry::TVec2<f32> unk60020[0x80][0x80];
-	/* 0x80020 */ TPosition3f unk80020;
-	/* 0x80050 */ TPosition3f unk80050;
-	/* 0x80080 */ JGeometry::TVec3<f32> unk80080;
-	/* 0x8008C */ char unk8008C[0x18];
-	/* 0x800A4 */ void* unk800A4;
-	/* 0x800A8 */ void* unk800A8;
-	/* 0x800AC */ s16 unk800AC;
-	/* 0x800AE */ s16 unk800AE;
-	/* 0x800B0 */ f32 unk800B0;
-	/* 0x800B4 */ GXTexObj unk800B4;
-	/* 0x800D4 */ GXTexObj unk800D4;
-	/* 0x800F4 */ GXTexObj unk800F4;
-	/* 0x80114 */ GXTexObj unk80114;
-	/* 0x80134 */ TBathWaterGlobalParams* unk80134;
-	/* 0x80138 */ JUTTexture* unk80138;
-	/* 0x8013C */ JUTTexture* unk8013C;
-	/* 0x80140 */ JUTTexture* unk80140;
-	/* 0x80144 */ J3DModelData* unk80144;
-	/* 0x80148 */ J3DModelData* unk80148;
-	/* 0x8014C */ J3DModel* unk8014C;
-	/* 0x80150 */ void* unk80150;
-	/* 0x80154 */ void* unk80154;
-	/* 0x80158 */ u32 unk80158;
-};
-
 class TBathWaterManager;
 
 class TBathWaterPreprocessor : public JDrama::TViewObj {
