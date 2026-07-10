@@ -428,16 +428,12 @@ check_sender_bit3:
 	}
 
 	// Check sender type bit 3 (0x10000000 = ACTOR_TYPE_ENEMY)
-	u32 enemyType = sender->mActorType;
-	bool hasEnemyType = (enemyType & 0x10000000) ? true : false;
-	if (hasEnemyType) {
-		u32 eType = enemyType;
-
+	if (sender->checkActorType(0x10000000)) {
 		// Large binary search tree on enemy actor types
 		// This is an enormous switch statement with many cases
 		// Each case calls damageExec with different TEParams
 
-		switch (eType) {
+		switch (sender->getActorType()) {
 		case 0x10000003: // Enemy common
 			if (message == 0x0E) {
 				if (!isInvincible()) {
