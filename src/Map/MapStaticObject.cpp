@@ -404,27 +404,35 @@ void TMapObjSoundGroup::perform(u32 param_1, JDrama::TGraphics* param_2)
 		return;
 
 	if (param_1 & 1) {
-		JGeometry::TVec3<f32> points[0x100];
-		JGeometry::TVec3<f32> startPoint;
-		unk14->unk0->getPoint(&startPoint);
-		int pointCount = 0;
-		for (int i = 1; i < unk14->unk8; ++i) {
-			Vec endPoint;
-			unk14->unk0[i].getPoint(&endPoint);
+		JGeometry::TVec3<f32> local_c18[0x100];
+		JGeometry::TVec3<f32> local_c24;
+		unk14->unk0->getPoint(&local_c24);
 
-			JGeometry::TVec3<f32> cameraPos = gpCamera->unk124;
-			points[pointCount]
-			    = MsPerpendicFootToLineR(startPoint, endPoint, cameraPos);
-			startPoint = endPoint;
+		JGeometry::TVec3<f32> tmp;
+		JGeometry::TVec3<f32>& camPos = tmp;
 
-			if (unk14->unk0[i].getRailNode()->mConnectionNum == 1
-			    && i < unk14->unk8 - 1) {
+		int count = 0;
+		for (int i = 1; i < unk14->getNodeNum(); ++i) {
+			JGeometry::TVec3<f32> local_c30;
+			unk14->getGraphNode(i).getPoint(&local_c30);
+
+			camPos.set(gpCamera->unk124);
+
+			JGeometry::TVec3<f32> tmp
+			    = MsPerpendicFootToLineR(local_c24, local_c30, camPos);
+			local_c18[count].set(tmp);
+
+			local_c24 = local_c30;
+
+			if (unk14->getGraphNode(i).getRailNode()->mConnectionNum == 1
+			    && i < unk14->getNodeNum() - 1) {
 				++i;
-				unk14->unk0[i].getPoint(startPoint);
+				unk14->getGraphNode(i).getPoint(&local_c24);
 			}
-			++pointCount;
+
+			++count;
 		}
-		unk10->frameLoop(unk18, points, pointCount);
+		unk10->frameLoop(unk18, local_c18, count);
 	}
 }
 
