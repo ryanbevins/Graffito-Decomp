@@ -573,18 +573,18 @@ void TRope::constraintTail(const JGeometry::TVec3<f32>& tail)
 void TRope::moveHead(const JGeometry::TVec3<f32>& head)
 {
 	for (int i = 0; i < mNumPoints; ++i) {
-		TRopePoint& point = mPoints[i];
-		point.mVelocity.y += mAccelY;
-		point.mPosition += point.mVelocity;
+		mPoints[i].mPosition.y += mAccelY;
+		mPoints[i].mPosition += mPoints[i].mVelocity;
 	}
 
 	constraintHead(head);
 
 	for (int i = 0; i < mNumPoints; ++i) {
-		TRopePoint& point = mPoints[i];
-		JGeometry::TVec3<f32> velocity = point.mPosition - point.mPrevPos;
-		point.mVelocity = velocity * mVelocityScale;
-		point.mPrevPos  = point.mPosition;
+		f32 scale = mVelocityScale;
+		JGeometry::TVec3<f32> velocity
+		    = mPoints[i].mPosition - mPoints[i].mPrevPos;
+		mPoints[i].mVelocity = velocity * scale;
+		mPoints[i].mPrevPos  = mPoints[i].mPosition;
 	}
 }
 
