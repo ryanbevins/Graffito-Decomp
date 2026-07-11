@@ -940,7 +940,7 @@ check_sender_bit3:
 				s16 faceAngle = mFaceAngle.y;
 				s16 angleDiff = attackAngle - faceAngle;
 				if (angleDiff > -8192 && angleDiff < 8192) {
-					f32 angle = 65536.0f * sender->mRotation.y * 1.0f;
+					f32 angle = (sender->mRotation.y * (1.0f / 360.0f)) * 65536.0f;
 					s16 sAngle = (s16)angle;
 					s16 adjAngle = sAngle - faceAngle;
 					if (adjAngle > -8192 && adjAngle < 8192) {
