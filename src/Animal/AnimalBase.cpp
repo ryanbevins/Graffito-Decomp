@@ -32,27 +32,21 @@ static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 	return MsWrap<f32>(t, l, r);
 }
 
-JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>& angles)
+JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>& rot)
 {
-	f32 hz = 0.5f * (angles.z * (3.14159265f / 180.0f));
-	f32 sz = sinf(hz);
-	f32 cz = cosf(hz);
+	JGeometry::TQuat4<f32> qz;
+	qz.setEulerZ(0.017453294f * rot.z);
+	JGeometry::TQuat4<f32> qy;
+	qy.setEulerY(0.017453294f * rot.y);
+	(void)&qy;
+	JGeometry::TQuat4<f32> qx;
+	qx.setEulerX(0.017453294f * rot.x);
 
-	f32 hy = 0.5f * (angles.y * (3.14159265f / 180.0f));
-	f32 sy = sinf(hy);
-	f32 cy = cosf(hy);
-
-	JGeometry::TQuat4<f32> yQuat(0.0f, sy, 0.0f, cy);
-
-	f32 hx = 0.5f * (angles.x * (3.14159265f / 180.0f));
-	f32 sx = sinf(hx);
-	f32 cx = cosf(hx);
-
-	JGeometry::TQuat4<f32> xQuat(sx, 0.0f, 0.0f, cx);
-	JGeometry::TQuat4<f32> zQuat(0.0f, 0.0f, sz, cz);
-	xQuat.mul(xQuat, zQuat);
-	yQuat.mul(yQuat, xQuat);
-	return yQuat;
+	JGeometry::TQuat4<f32> result2;
+	result2.mul(qx, qz);
+	JGeometry::TQuat4<f32> result;
+	result.mul(qy, result2);
+	return result;
 }
 
 extern "C" {
