@@ -532,12 +532,7 @@ void THipDropHideObj::touchPlayer(THitActor* sender)
 TFruitBasketEvent::TFruitBasketEvent(const char* name)
     : TFruitBasket(name)
 {
-	unk150          = 0;
-	mFruitCounts[0] = 0;
-	mFruitCounts[1] = 0;
-	mFruitCounts[2] = 0;
-	mFruitCounts[3] = 0;
-	mFruitCounts[4] = 0;
+	reset();
 }
 
 void TFruitBasketEvent::reset()
