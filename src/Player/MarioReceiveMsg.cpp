@@ -1,4 +1,5 @@
 #define JGEOMETRY_MARIORECEIVEMSG_TVEC3_SUB_OUT_OF_LINE
+#define JSULIST_DTOR_DECL_ONLY
 #include <Player/MarioMain.hpp>
 #undef JGEOMETRY_MARIORECEIVEMSG_TVEC3_SUB_OUT_OF_LINE
 #include <Strategic/HitActor.hpp>
@@ -18,6 +19,7 @@
 #include <MoveBG/MapObjManager.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#undef JSULIST_DTOR_DECL_ONLY
 
 // NOTE: -inline deferred, so reverse address order.
 // getGesso is after receiveMessage in the binary.
