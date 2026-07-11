@@ -256,14 +256,9 @@ TBoidLeader::calcGoalForce(const JGeometry::TVec3<f32>& pos) const
 JGeometry::TVec3<f32> TBoidLeader::calcForces(const TBoid* boid) const
 {
 	JGeometry::TVec3<f32> result = boid->mForce;
-
-	JGeometry::TVec3<f32> average = boid->mAverageForward;
-	average.scale(mParam34);
-	result.add(average);
-	result.add(boid->mCenterDir);
-
-	JGeometry::TVec3<f32> goalForce = calcGoalForce(boid->mPosition);
-	result.add(goalForce);
+	result += boid->mAverageForward * mParam34;
+	result += boid->mCenterDir;
+	result += calcGoalForce(boid->mPosition);
 
 	f32 len2 = result.squared();
 	if (len2 == 0.0f) {
