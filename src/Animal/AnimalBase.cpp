@@ -316,10 +316,7 @@ void TAnimalBase::resetRandomCurPathNode()
 		point.y -= 250.0f * MsRandF();
 	}
 
-	TPathNode newNode(point);
-	unkF4    = newNode;
-	unk104   = newNode;
-	unk114.clear();
+	setGoalPath(point);
 }
 
 void TAnimalBase::init(TLiveManager* mgr)
