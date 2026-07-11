@@ -171,17 +171,19 @@ void THideObjPictureTwin::loadAfter()
 {
 	TWaterHitPictureHideObj::loadAfter();
 	if (strstr(mName, "ふたご落書きＡ")) {
-		char buf[0x40];
-		int len   = strlen("ふたご落書きＡ");
-		char c0   = mName[len];
-		char c1   = mName[len + 1];
-		char c2   = mName[len + 2];
-		char c3   = mName[len + 3];
+		size_t len = strlen("ふたご落書きＡ");
+		char suffix[4];
+		suffix[0] = mName[len];
+		suffix[1] = mName[len + 1];
+		suffix[2] = mName[len + 2];
+		suffix[3] = mName[len + 3];
+
+		char buf[0x4C];
 		snprintf(buf, 0x40, "ふたご落書きＢ００");
-		buf[len]     = c0;
-		buf[len + 1] = c1;
-		buf[len + 2] = c2;
-		buf[len + 3] = c3;
+		buf[len]     = suffix[0];
+		buf[len + 1] = suffix[1];
+		buf[len + 2] = suffix[2];
+		buf[len + 3] = suffix[3];
 		unk174 = (TMapObjBase*)JDrama::TNameRefGen::instance->mRootNameRef->search(buf);
 		((THideObjPictureTwin*)unk174)->unk174 = (TMapObjBase*)this;
 	}
