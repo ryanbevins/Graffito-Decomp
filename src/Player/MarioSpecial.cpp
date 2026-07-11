@@ -2104,52 +2104,38 @@ int TMario::doRoofMovingProcess()
 
 int TMario::hangingCheckRoof(JGeometry::TVec3<f32>* pos)
 {
-	const TBGCheckData* wall = checkWallPlane((Vec*)pos, 50.0f, 50.0f);
-	if (wall != 0) {
-		u8 isFence = (wall->mBGType == 0x10a) ? 1 : 0;
-		if (isFence) {
-			mFaceAngle.y = matan(wall->getNormal().z, wall->getNormal().x) + 0x8000;
-			mModelFaceAngle = mFaceAngle.y;
-			return 3;
-		}
+	TBGCheckData* wall = checkWallPlane(pos, 50.0f, 50.0f);
+	if (wall != nullptr && wall->isFence()) {
+		mFaceAngle.y = matan(wall->getNormal().z, wall->getNormal().x) + 0x8000;
+		mModelFaceAngle = mFaceAngle.y;
+		return 3;
 	}
 
-	const TBGCheckData* groundPlane;
-	const TBGCheckData* roofPlane;
-	f32 groundY = gpMap->checkGround(pos->x, pos->y, pos->z, &groundPlane);
-	f32 roofY = gpMap->checkRoof(pos->x, 80.0f + groundY, pos->z, &roofPlane);
+	const TBGCheckData* roof;
+	const TBGCheckData* ground;
 
-	if (groundPlane == 0) {
+	f32 groundY = gpMap->checkGround(pos->x, pos->y, pos->z, &ground);
+	f32 roofY = gpMap->checkRoof(pos->x, groundY + 80.0f, pos->z, &roof);
+
+	if (ground == nullptr)
 		return 1;
-	}
-
-	if (roofPlane == 0) {
+	if (roof == nullptr)
 		return 2;
-	}
-
-	u8 isFence2 = (roofPlane->mBGType == 0x10a) ? 1 : 0;
-	if (!isFence2) {
+	if (!roof->isFence())
 		return 2;
-	}
-
-	f32 gap = roofY - groundY;
-	if (gap <= 160.0f) {
+	if (roofY - groundY <= 160.0f)
 		return 1;
-	}
 
-	f32 headroom = roofY - (160.0f + pos->y);
-	if (headroom < -30.0f) {
+	f32 space = roofY - (160.0f + pos->y);
+	if (space < -30.0f)
 		return 1;
-	}
-
-	if (headroom > 30.0f) {
+	if (space > 30.0f)
 		return 2;
-	}
 
-	pos->y = mFloorPosition.x - 160.0f;
-	mGroundPlane = groundPlane;
+	pos->y           = mFloorPosition.x - 160.0f;
+	mGroundPlane     = ground;
 	mFloorPosition.y = groundY;
-	mRoofPlane = roofPlane;
+	mRoofPlane       = roof;
 	mFloorPosition.x = roofY;
 	return 0;
 }
