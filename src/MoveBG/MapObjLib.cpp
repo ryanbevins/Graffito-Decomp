@@ -14,6 +14,7 @@
 #include <System/MarDirector.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/ModelWaterManager.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <Map/Map.hpp>
@@ -1061,19 +1062,14 @@ u32 TMapObjTurn::touchWater(THitActor*)
 
 void TMapObjTurn::turn()
 {
-	f32 rot = unk154 + unk158;
-	while (rot >= 360.0f)
-		rot -= 360.0f;
-	while (rot < 0.0f)
-		rot += 360.0f;
-	unk154 = rot;
+	unk154 += unk158;
+	unk154 = MsWrap(unk154, 0.0f, 360.0f);
 
 	if (checkMapObjFlag(0x10000)) {
-		if ((s32)fabsf(unk154) % 180 == 0) {
+		if ((s32)fabsf(unk154) % 180 == 0)
 			unk158 = 0.0f;
-		} else if (fabsf(unk158) > fabsf(unk160)) {
+		else if (fabsf(unk158) > fabsf(unk160))
 			unk158 -= unk160;
-		}
 	} else {
 		unk158 -= unk160;
 		if (fabsf(unk158) < fabsf(unk160))
