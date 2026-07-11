@@ -233,7 +233,7 @@ u32 TIceBlock::getSDLModelFlag() const { return 0; }
 
 u32 TIceBlock::touchWater(THitActor* sender)
 {
-	getWaterSpeed(sender);
+	((TMapObjBase*)sender)->getWaterSpeed(sender);
 	int waterId = getWaterID(sender);
 	if (gpModelWaterManager->checkFlagBottom4Bits(waterId, 1)) {
 		gpMarioParticleManager->emit(0xE7, &sender->getPosition(), 0, nullptr);
