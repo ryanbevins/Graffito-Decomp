@@ -310,10 +310,8 @@ void TAnimalBase::resetRandomCurPathNode()
 	point.z += 1000.0f * (MsRandF() - 0.5f);
 
 	if (mActorType == 0x00800001) {
-		if (point.y <= 1000.0f)
-			point.y += 1000.0f * MsRandF();
-		else
-			point.y += 1000.0f * (MsRandF() - 0.5f);
+		point.y += 1000.0f
+		           * (point.y <= 1000.0f ? MsRandF() : (MsRandF() - 0.5f));
 	} else {
 		point.y -= 250.0f * MsRandF();
 	}
