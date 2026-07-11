@@ -296,6 +296,13 @@ void MSStageCubeFade::proc()
 	mPreviousCube = mCurrentCube;
 }
 
+static inline f32 vecDist(const Vec& a, const Vec& b)
+{
+	return std::sqrtf((a.x - b.x) * (a.x - b.x)
+	                  + (a.y - b.y) * (a.y - b.y)
+	                  + (a.z - b.z) * (a.z - b.z));
+}
+
 void MSStageDistFadeMonte::proc()
 {
 	JAISound* track1 = MSBgm::getHandle(1);
@@ -306,12 +313,8 @@ void MSStageDistFadeMonte::proc()
 
 	Vec marioPos = *gpMarioPos;
 	marioPos.y += 75.0f;
-
-	Vec pos  = *unk10;
-	f32 dx   = pos.x - marioPos.x;
-	f32 dy   = pos.y - marioPos.y;
-	f32 dz   = pos.z - marioPos.z;
-	f32 dist = std::sqrtf(dx * dx + dy * dy + dz * dz);
+	Vec marioPos2 = marioPos;
+	f32 dist      = vecDist(*unk10, marioPos2);
 
 	f32 fade = 0.0f;
 	if (dist < unkC) {
@@ -349,6 +352,7 @@ void MSStageDistFadeMonte::proc()
 			((MSBgmXFade*)gpMSound->unk9C)->xFadeBgm(fade);
 		}
 
+		Vec pos = *unk10;
 		Vec cameraPos;
 		PSMTXMultVec(gpMSound->unk8->unk8, &pos, &cameraPos);
 		f32 pan   = MSHandle::calcPan(cameraPos, dist, 10000.0f);
