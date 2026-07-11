@@ -37,6 +37,8 @@ public:
 	calcGoalForce(const JGeometry::TVec3<f32>&) const;
 	void perform(u32, JDrama::TGraphics*);
 	void calcBoids();
+	TBoid* getBoid(int i) { return &mBoidData[i]; }
+	int getBoidNum() const { return mNumActors; }
 
 	/* 0x10 */ int mNumActors;
 	/* 0x14 */ TBoid* mBoidData;

@@ -199,9 +199,9 @@ void TRealoid::clipBoids(JDrama::TGraphics* gfx)
 	SetViewFrustumClipCheckPerspective(gpCamera->getFovy(),
 	                                   gpCamera->getAspect(), gfx->mNearPlane,
 	                                   10000.0f);
-	for (int i = 0; i < mBoidLeader->mNumActors; i++) {
+	for (int i = 0; i < mBoidLeader->getBoidNum(); i++) {
 		JGeometry::TVec3<f32> pos;
-		pos = mBoidLeader->mBoidData[i].mPosition;
+		pos = mBoidLeader->getBoid(i)->mPosition;
 		if (ViewFrustumClipCheck(gfx, (Vec*)&pos, 100.0f))
 			mActors[i]->unk74 &= ~1;
 		else
