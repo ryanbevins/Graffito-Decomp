@@ -26,7 +26,6 @@ class TRealoidActor : public TTakeActor {
 public:
 	TRealoidActor(MActor*);
 
-	virtual ~TRealoidActor() { }
 	virtual MtxPtr getTakingMtx();
 	virtual void init() = 0;
 	virtual void perform(u32, JDrama::TGraphics*);

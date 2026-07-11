@@ -1,6 +1,5 @@
-#include <Animal/Realoid.hpp>
+#include <Animal/fishoid.hpp>
 #include <Animal/BoidLeader.hpp>
-#include <Enemy/EnemyManager.hpp>
 #include <Enemy/Enemy.hpp>
 #include <Enemy/Graph.hpp>
 #include <Enemy/Launcher.hpp>
@@ -18,34 +17,6 @@
 #include <Camera/Camera.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <dolphin/mtx.h>
-
-class TFish : public TRealoidActor {
-public:
-	TFish(MActor* actor)
-	    : TRealoidActor(actor)
-	{
-	}
-
-	virtual void init();
-};
-
-class TFishoid : public TRealoid {
-public:
-	TFishoid(int, const char*);
-	virtual TRealoidActor* createRealoidActor(MActor*);
-	virtual void load(JSUMemoryInputStream&);
-	virtual void init(class TLiveManager*);
-	virtual void perform(u32, JDrama::TGraphics*);
-
-	/* 0x158 */ int mModelType;
-	/* 0x15C */ TMapObjBase* mCoinObj;
-};
-
-class TFishoidManager : public TEnemyManager {
-public:
-	TFishoidManager(const char*);
-	virtual void createModelData();
-};
 
 namespace {
 const char* cFishoidMdlNames[] = {
