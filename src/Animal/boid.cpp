@@ -261,18 +261,13 @@ JGeometry::TVec3<f32> TBoidLeader::calcForces(const TBoid* boid) const
 	result += calcGoalForce(boid->mPosition);
 
 	f32 len2 = result.squared();
-	if (len2 == 0.0f) {
-		result.zero();
-		return result;
-	}
+	if (len2 == 0.0f)
+		return JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
 
 	f32 scale = ((5.0f * ((f32)rand() * (1.0f / 32768.0f))) + 95.0f) * 0.01f;
 	result.scale(scale);
 
-	if (result.squared() <= JGeometry::TUtil<f32>::epsilon())
-		result.zero();
-	else
-		result.normalize();
+	result.setLength(1.0f);
 
 	if (mRepelRange > 0.0f) {
 		JGeometry::TVec3<f32> away = boid->mPosition;
@@ -285,8 +280,7 @@ JGeometry::TVec3<f32> TBoidLeader::calcForces(const TBoid* boid) const
 
 		f32 repelLen2 = away.squared();
 		if (repelLen2 > 0.0f && repelLen2 < mRepelRange * mRepelRange) {
-			away.normalize();
-			away.scale(mRepelForce);
+			away.setLength(mRepelForce);
 			result = away;
 		}
 	}
