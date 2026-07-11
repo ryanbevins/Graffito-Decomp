@@ -65,7 +65,7 @@ void TSandBlock::control()
 	switch (mState) {
 	case STATE_NORMAL:
 		break;
-	case STATE_RESTORING: {
+	case STATE_RESTORING:
 		mScaling.x += mSandScaleUp;
 		mScaling.y += mSandScaleUp;
 		mScaling.z += mSandScaleUp;
@@ -74,7 +74,12 @@ void TSandBlock::control()
 			setState(STATE_NORMAL);
 		}
 		break;
-	}
+	case STATE_TOUCHED:
+		if (!isStateTimerEngaged()) {
+			setUpMapCollision(1);
+			setState(STATE_FALLING);
+		}
+		break;
 	case STATE_FALLING: {
 		mScaling.y -= mSandScaleDown;
 		gpMSound->startSoundActor(0x30aa, &mPosition, 0, nullptr, 0, 4);
@@ -89,16 +94,8 @@ void TSandBlock::control()
 			startStateTimer(mSandWaitTime);
 			setState(STATE_GONE);
 		}
-		break;
-	}
-	case STATE_TOUCHED: {
-		if (!isStateTimerEngaged()) {
-			setUpMapCollision(1);
-			setState(STATE_FALLING);
-		}
-		break;
-	}
-	case STATE_GONE: {
+	} break;
+	case STATE_GONE:
 		if (!isStateTimerEngaged()
 		    && getDistance(SMS_GetMarioPos()) > mScaling.x * 100.0f) {
 			TMapObjBase::awake();
@@ -109,7 +106,6 @@ void TSandBlock::control()
 			setState(STATE_RESTORING);
 		}
 		break;
-	}
 	}
 }
 
