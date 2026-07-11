@@ -269,9 +269,7 @@ void TRealoidActor::calcRootMatrix(TBoid* boid)
 	JGeometry::TVec3<f32> fwd = boid->mForward;
 
 	JGeometry::TVec3<f32> xaxis;
-	xaxis.x = up.y * fwd.z - up.z * fwd.y;
-	xaxis.y = up.z * fwd.x - up.x * fwd.z;
-	xaxis.z = up.x * fwd.y - up.y * fwd.x;
+	xaxis.cross(up, fwd);
 	PSVECNormalize((Vec*)&xaxis, (Vec*)&xaxis);
 
 	JGeometry::TVec3<f32> yaxis;
