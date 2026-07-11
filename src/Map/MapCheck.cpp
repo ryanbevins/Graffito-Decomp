@@ -468,75 +468,71 @@ TMapCollisionData::intersectLine(const JGeometry::TVec3<f32>& start,
                                  bool ignore_back_faces,
                                  JGeometry::TVec3<f32>* hit_point) const
 {
-	f32 startX = start.x;
-	f32 endX   = end.x;
-	f32 startZ = start.z;
-	f32 endZ   = end.z;
+	JGeometry::TVec2<s32> start2d(start.x, start.z);
+	JGeometry::TVec2<s32> end2d(end.x, end.z);
 
-	s32 start_x_int = (s32)startX;
-	s32 end_x_int   = (s32)endX;
-	s32 start_z_int = (s32)startZ;
-	s32 end_z_int   = (s32)endZ;
-
-	s32 min_x = start_x_int;
-	s32 max_x = end_x_int;
-	if (min_x > max_x) {
-		s32 tmp = min_x;
-		min_x   = max_x;
-		max_x   = tmp;
+	s32 min_x = start2d.x;
+	s32 max_x = end2d.x;
+	if (start2d.x > end2d.x) {
+		min_x = end2d.x;
+		max_x = start2d.x;
 	}
 
-	s32 min_z = start_z_int;
-	s32 max_z = end_z_int;
-	if (min_z > max_z) {
-		s32 tmp = min_z;
-		min_z   = max_z;
-		max_z   = tmp;
+	s32 min_z = start2d.y;
+	s32 max_z = end2d.y;
+	if (start2d.y > end2d.y) {
+		min_z = end2d.y;
+		max_z = start2d.y;
 	}
 
-	s32 min_grid_x = (s32)((min_x + mGridExtentX) * (1.0f / 1024.0f));
-	s32 max_grid_x = (s32)((max_x + mGridExtentX) * (1.0f / 1024.0f));
-	s32 min_grid_z = (s32)((min_z + mGridExtentY) * (1.0f / 1024.0f));
-	s32 max_grid_z = (s32)((max_z + mGridExtentY) * (1.0f / 1024.0f));
+	s32 min_grid_z = (s32)((min_z + mGridExtentY) * (1.0f / 1024));
+	s32 min_grid_x = (s32)((min_x + mGridExtentX) * (1.0f / 1024));
+	s32 max_grid_x = (s32)((max_x + mGridExtentX) * (1.0f / 1024));
+	s32 max_grid_z = (s32)((max_z + mGridExtentY) * (1.0f / 1024));
 
-	for (s32 z = min_grid_z; z <= max_grid_z; ++z) {
-		for (s32 x = min_grid_x; x <= max_grid_x; ++x) {
-			if (x != min_grid_x || z != min_grid_z) {
-				f32 left   = (s32)(x * 1024.0f - mGridExtentX);
-				f32 right  = (s32)((x + 1) * 1024.0f - mGridExtentX);
-				f32 bottom = (s32)(z * 1024.0f - mGridExtentY);
-				f32 top    = (s32)((z + 1) * 1024.0f - mGridExtentY);
+	for (s32 grid_z = min_grid_z; grid_z <= max_grid_z; ++grid_z) {
+		for (s32 grid_x = min_grid_x; grid_x <= max_grid_x; ++grid_x) {
+			if (grid_x == min_grid_x && grid_z == min_grid_z) {
+			} else {
+				f32 x0 = grid_x * 1024.0f;
+				f32 z0 = grid_z * 1024.0f;
+				f32 x1 = (grid_x + 1) * 1024.0f;
+				f32 z1 = (grid_z + 1) * 1024.0f;
 
-				JGeometry::TVec2<f32> p1(left, bottom);
-				JGeometry::TVec2<f32> p2(right, bottom);
-				JGeometry::TVec2<f32> p3(left, top);
-				JGeometry::TVec2<f32> p4(right, top);
+				JGeometry::TVec2<f32> p00((s32)(x0 - mGridExtentX),
+				                          (s32)(z0 - mGridExtentY));
+				JGeometry::TVec2<f32> p10((s32)(x1 - mGridExtentX),
+				                          (s32)(z0 - mGridExtentY));
+				JGeometry::TVec2<f32> p01((s32)(x0 - mGridExtentX),
+				                          (s32)(z1 - mGridExtentY));
+				JGeometry::TVec2<f32> p11((s32)(x1 - mGridExtentX),
+				                          (s32)(z1 - mGridExtentY));
 
-				JGeometry::TVec2<f32> line_a(startX, startZ);
-				JGeometry::TVec2<f32> line_b(endX, endZ);
+				JGeometry::TVec2<f32> line_a(start.x, start.z);
+				JGeometry::TVec2<f32> line_b(end.x, end.z);
 
-				if (!LineInLineXZ(line_a, line_b, p1, p2)
-				    && !LineInLineXZ(line_a, line_b, p1, p3)
-				    && !LineInLineXZ(line_a, line_b, p3, p4)
-				    && !LineInLineXZ(line_a, line_b, p2, p4))
+				if (!LineInLineXZ(line_a, line_b, p10, p00)
+				    && !LineInLineXZ(line_a, line_b, p01, p00)
+				    && !LineInLineXZ(line_a, line_b, p11, p01)
+				    && !LineInLineXZ(line_a, line_b, p10, p11))
 					continue;
 			}
 
-			const TBGCheckListRoot& root = getGridRoot14(x, z);
-			const TBGCheckData* hit = intersectLineList(root.unk0[0].getNext(),
-			                                           start, end,
-			                                           ignore_back_faces,
-			                                           hit_point);
+			const TBGCheckData* hit = intersectLineList(
+			    getGridRoot14(grid_x, grid_z).unk0[0].getNext(), start, end,
+			    ignore_back_faces, hit_point);
 			if (hit)
 				return hit;
 
-			hit = intersectLineList(root.unk0[2].getNext(), start, end,
-			                        ignore_back_faces, hit_point);
+			hit = intersectLineList(
+			    getGridRoot14(grid_x, grid_z).unk0[2].getNext(), start, end,
+			    ignore_back_faces, hit_point);
 			if (hit)
 				return hit;
 
-			hit = intersectLineList(root.unk0[1].getNext(), start, end,
-			                        ignore_back_faces, hit_point);
+			hit = intersectLineList(
+			    getGridRoot14(grid_x, grid_z).unk0[1].getNext(), start, end,
+			    ignore_back_faces, hit_point);
 			if (hit)
 				return hit;
 		}
