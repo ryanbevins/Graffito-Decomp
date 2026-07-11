@@ -164,98 +164,112 @@ int TMtxTimeLagCallBack(J3DNode* node, int timing)
 	return 1;
 }
 
-void TMtxSwingRZ::calcLocalXY(MtxPtr mtx, Vec* x_out, Vec* y_out)
+void TMtxSwingRZ::calcLocalXY(MtxPtr mtx, Vec* vecX, Vec* vecY)
 {
-	if (mFlags & 2) {
-		mFlags &= ~2;
-		unk14.zero();
-		unk08.set(mtx[0][3], mtx[1][3] - mParams.mL.value, mtx[2][3]);
+	if (checkFlag(2)) {
+		offFlag(2);
 
-		x_out->x = mtx[0][0];
-		x_out->y = mtx[1][0];
-		x_out->z = mtx[2][0];
-		y_out->x = mtx[0][1];
-		y_out->y = mtx[1][1];
-		y_out->z = mtx[2][1];
-		return;
+		Vec v = { 0.0f, 0.0f, 0.0f };
+		unk14 = v;
+
+		Vec vec;
+		vec.x = mtx[0][3];
+		vec.y = mtx[1][3] - mParams.mL.get();
+		vec.z = mtx[2][3];
+		unk08 = vec;
+
+		vecX->x = mtx[0][0];
+		vecX->y = mtx[1][0];
+		vecX->z = mtx[2][0];
+
+		vecY->x = mtx[0][1];
+		vecY->y = mtx[1][1];
+		vecY->z = mtx[2][1];
+	} else {
+		VECAdd(&unk14, (Vec*)&mParams.mAcc.get(), &unk14);
+		VECScale(&unk14, &unk14, mParams.mBrake.get());
+		VECAdd(&unk14, &unk08, &unk08);
+
+		Vec trans;
+		trans.x = mtx[0][3];
+		trans.y = mtx[1][3];
+		trans.z = mtx[2][3];
+
+		Vec diff;
+		diff.x = unk08.x - trans.x;
+		diff.y = unk08.y - trans.y;
+		diff.z = unk08.z - trans.z;
+		VECNormalize(&diff, &diff);
+		VECScale(&diff, &diff, mParams.mL.get());
+
+		Vec point;
+		point.x = trans.x + diff.x;
+		point.y = trans.y + diff.y;
+		point.z = trans.z + diff.z;
+
+		Vec corr;
+		VECSubtract(&point, &unk08, &corr);
+		VECAdd(&unk14, &corr, &unk14);
+		unk08 = point;
+
+		Vec zAxis;
+		zAxis.x = mtx[0][2];
+		zAxis.y = mtx[1][2];
+		zAxis.z = mtx[2][2];
+
+		vecX->x = unk08.x - trans.x;
+		vecX->y = unk08.y - trans.y;
+		vecX->z = unk08.z - trans.z;
+		VECNormalize(vecX, vecX);
+		VECCrossProduct(&zAxis, vecX, vecY);
+		VECNormalize(vecX, vecX);
+		VECNormalize(vecY, vecY);
+		VECCrossProduct(vecY, &zAxis, vecX);
 	}
-
-	PSVECAdd((Vec*)&unk14, (Vec*)&mParams.mAcc.value, (Vec*)&unk14);
-	PSVECScale((Vec*)&unk14, (Vec*)&unk14, mParams.mBrake.value);
-	PSVECAdd((Vec*)&unk14, (Vec*)&unk08, (Vec*)&unk08);
-
-	Vec target;
-	target.x = mtx[0][3];
-	target.y = mtx[1][3];
-	target.z = mtx[2][3];
-
-	Vec dir;
-	dir.x = unk08.x - target.x;
-	dir.y = unk08.y - target.y;
-	dir.z = unk08.z - target.z;
-	PSVECNormalize(&dir, &dir);
-	PSVECScale(&dir, &dir, mParams.mL.value);
-
-	Vec newPos;
-	newPos.x = target.x + dir.x;
-	newPos.y = target.y + dir.y;
-	newPos.z = target.z + dir.z;
-
-	Vec delta;
-	PSVECSubtract(&unk08, &newPos, &delta);
-	PSVECAdd((Vec*)&unk14, &delta, (Vec*)&unk14);
-	unk08.set(newPos);
-
-	Vec zAxis;
-	zAxis.x = mtx[0][2];
-	zAxis.y = mtx[1][2];
-	zAxis.z = mtx[2][2];
-
-	x_out->x = unk08.x - target.x;
-	x_out->y = unk08.y - target.y;
-	x_out->z = unk08.z - target.z;
-	PSVECNormalize(x_out, x_out);
-	PSVECCrossProduct(&zAxis, x_out, y_out);
-	PSVECNormalize(x_out, x_out);
-	PSVECNormalize(y_out, y_out);
-	PSVECCrossProduct(y_out, &zAxis, x_out);
 }
 
-int TMtxSwingRZCallBack(J3DNode* node, int timing)
+inline void TMtxSwingRZ::calc(MtxPtr mtx)
 {
-	if (timing == 0) {
-		TMtxSwingRZ* effect = (TMtxSwingRZ*)node->mCallBackUserData;
-		Vec xAxis;
-		Vec yAxis;
-		effect->calcLocalXY(J3DSys::mCurrentMtx, &xAxis, &yAxis);
-		if (effect->mFlags & 1) {
-			J3DSys::mCurrentMtx[0][0] = xAxis.x;
-			J3DSys::mCurrentMtx[1][0] = xAxis.y;
-			J3DSys::mCurrentMtx[2][0] = xAxis.z;
-			J3DSys::mCurrentMtx[0][1] = yAxis.x;
-			J3DSys::mCurrentMtx[1][1] = yAxis.y;
-			J3DSys::mCurrentMtx[2][1] = yAxis.z;
-		}
+	Vec vecX;
+	Vec vecY;
+	calcLocalXY(mtx, &vecX, &vecY);
+	if (mFlags & 1) {
+		mtx[0][0] = vecX.x;
+		mtx[1][0] = vecX.y;
+		mtx[2][0] = vecX.z;
+		mtx[0][1] = vecY.x;
+		mtx[1][1] = vecY.y;
+		mtx[2][1] = vecY.z;
 	}
+}
+
+int TMtxSwingRZCallBack(J3DNode* node, int param)
+{
+	if (param == 0)
+		((TMtxSwingRZ*)node->mCallBackUserData)->calc(J3DSys::mCurrentMtx);
 	return 1;
 }
 
-int TMtxSwingRZReverseXZCallBack(J3DNode* node, int timing)
+inline void TMtxSwingRZReverseXZ::calc(MtxPtr mtx)
 {
-	if (timing == 0) {
-		TMtxSwingRZ* effect = (TMtxSwingRZ*)node->mCallBackUserData;
-		Vec xAxis;
-		Vec yAxis;
-		effect->calcLocalXY(J3DSys::mCurrentMtx, &xAxis, &yAxis);
-		if (effect->mFlags & 1) {
-			J3DSys::mCurrentMtx[0][0] = -xAxis.x;
-			J3DSys::mCurrentMtx[1][0] = -xAxis.y;
-			J3DSys::mCurrentMtx[2][0] = -xAxis.z;
-			J3DSys::mCurrentMtx[0][1] = -yAxis.x;
-			J3DSys::mCurrentMtx[1][1] = -yAxis.y;
-			J3DSys::mCurrentMtx[2][1] = -yAxis.z;
-		}
+	Vec vecX;
+	Vec vecY;
+	calcLocalXY(mtx, &vecX, &vecY);
+	if (mFlags & 1) {
+		mtx[0][0] = -vecX.x;
+		mtx[1][0] = -vecX.y;
+		mtx[2][0] = -vecX.z;
+		mtx[0][1] = -vecY.x;
+		mtx[1][1] = -vecY.y;
+		mtx[2][1] = -vecY.z;
 	}
+}
+
+int TMtxSwingRZReverseXZCallBack(J3DNode* node, int param)
+{
+	if (param == 0)
+		((TMtxSwingRZReverseXZ*)node->mCallBackUserData)
+		    ->calc(J3DSys::mCurrentMtx);
 	return 1;
 }
 

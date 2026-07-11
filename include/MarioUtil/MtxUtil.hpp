@@ -27,6 +27,9 @@ public:
 	}
 
 	virtual TParams* getParams() { return nullptr; }
+	bool checkFlag(int flag) const { return mFlags & flag; }
+	void offFlag(int flag) { mFlags &= ~flag; }
+	void onFlag(int flag) { mFlags |= flag; }
 
 	u16 mFlags;
 };
