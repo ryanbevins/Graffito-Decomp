@@ -243,11 +243,6 @@ void THideObjPictureTwin::afterFinishedAnim()
 	mState = 3;
 }
 
-Vec* THideObjPictureTwin::getObjAppearPos() const
-{
-	return (Vec*)&unk174->mPosition;
-}
-
 //
 // TWaterHitPictureHideObj
 //
@@ -503,14 +498,8 @@ void TWaterHitPictureHideObj::afterFinishedAnim()
 	}
 	removeMapCollision();
 	unk64 |= 4;
-	Vec* pos = getObjAppearPos();
-	appearObjFromPoint(*(JGeometry::TVec3<f32>*)pos);
+	appearObjFromPoint(getObjAppearPos());
 	mState = 3;
-}
-
-Vec* TWaterHitPictureHideObj::getObjAppearPos() const
-{
-	return (Vec*)&mPosition;
 }
 
 //

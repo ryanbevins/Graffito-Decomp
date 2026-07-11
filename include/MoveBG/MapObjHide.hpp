@@ -126,7 +126,10 @@ public:
 	virtual void control();
 	virtual void touchActor(THitActor*);
 	virtual u32 touchWater(THitActor*);
-	virtual Vec* getObjAppearPos() const;
+	virtual const JGeometry::TVec3<f32>& getObjAppearPos() const
+	{
+		return mPosition;
+	}
 	virtual void afterFinishedAnim();
 	virtual void forward(f32);
 
@@ -151,7 +154,10 @@ public:
 	virtual void loadAfter();
 	virtual void afterFinishedAnim();
 	virtual void initMapObj();
-	virtual Vec* getObjAppearPos() const;
+	virtual const JGeometry::TVec3<f32>& getObjAppearPos() const
+	{
+		return unk174->mPosition;
+	}
 
 public:
 	/* 0x174 */ TMapObjBase* unk174;
