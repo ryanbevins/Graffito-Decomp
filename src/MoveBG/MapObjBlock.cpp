@@ -363,7 +363,7 @@ void TTelesaBlock::initMapObj() { TMapObjBase::initMapObj(); }
 
 void TTelesaBlock::perform(u32 param, JDrama::TGraphics* graphics)
 {
-	offLiveFlag(LIVE_FLAG_UNK200 | LIVE_FLAG_UNK400);
+	offLiveFlag(LIVE_FLAG_UNK200);
 	if (!gpMarDirector->isTalkModeNow()) {
 		TMapObjBase::perform(param, graphics);
 	} else {
