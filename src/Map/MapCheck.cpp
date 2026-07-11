@@ -380,8 +380,8 @@ inline static bool LineInLineXZ(const JGeometry::TVec2<f32>& a1,
 	return result;
 }
 
-static f32 angle_between(const JGeometry::TVec3<f32>& a,
-                         const JGeometry::TVec3<f32>& b)
+inline static f32 angle_between(const JGeometry::TVec3<f32>& a,
+                                const JGeometry::TVec3<f32>& b)
 {
 	JGeometry::TVec3<f32> cross;
 	cross.cross(a, b);
