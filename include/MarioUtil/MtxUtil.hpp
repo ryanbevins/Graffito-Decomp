@@ -67,10 +67,10 @@ public:
 	void calc(MtxPtr);
 	TDeParams* getSwingRZParams() { return (TDeParams*)getParams(); }
 
-	/* 0x08 */ JGeometry::TVec3<f32> unk08;
-	/* 0x14 */ JGeometry::TVec3<f32> unk14;
-	/* 0x20 */ JGeometry::TQuat4<f32> unk20;
-	/* 0x30 */ JGeometry::TQuat4<f32> unk30;
+	/* 0x08 */ Vec unk08;
+	/* 0x14 */ Vec unk14;
+	/* 0x20 */ Quaternion unk20;
+	/* 0x30 */ Quaternion unk30;
 	/* 0x40 */ TDeParams mParams;
 };
 

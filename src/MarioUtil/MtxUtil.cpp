@@ -46,114 +46,130 @@ void MtxToQuat(MtxPtr m, Quaternion* quat)
 
 void TMtxTimeLag::calc(MtxPtr mtx)
 {
-	if (mFlags & 2) {
-		mFlags &= ~2;
-		unk08.zero();
-		unk14.set(mtx[0][3], mtx[1][3], mtx[2][3]);
-		unk20.x = 0.0f;
-		unk20.y = 0.0f;
-		unk20.z = 0.0f;
-		unk20.w = 0.0f;
+	if (checkFlag(2)) {
+		offFlag(2);
+		Vec v = { 0.0f, 0.0f, 0.0f };
+		unk08 = v;
 
-		Quaternion quat;
-		MtxToQuat(mtx, &quat);
-		unk30 = *(JGeometry::TQuat4<f32>*)&quat;
-		return;
-	}
+		Vec v2;
+		v2.x  = mtx[0][3];
+		v2.y  = mtx[1][3];
+		v2.z  = mtx[2][3];
+		unk14 = v2;
 
-	TDeParams* params = getSwingRZParams();
-	unk08.x += params->mPosAccel.value * (mtx[0][3] - unk14.x);
-	unk08.y += params->mPosAccel.value * (mtx[1][3] - unk14.y);
-	unk08.z += params->mPosAccel.value * (mtx[2][3] - unk14.z);
+		Quaternion q = { 0.0f, 0.0f, 0.0f, 0.0f };
+		unk20        = q;
 
-	unk08.x *= params->mPosBrake.value;
-	unk08.y *= params->mPosBrake.value;
-	unk08.z *= params->mPosBrake.value;
+		MtxToQuat(mtx, &q);
+		unk30 = q;
+	} else {
+		Vec trans;
 
-	unk14.x += unk08.x;
-	unk14.y += unk08.y;
-	unk14.z += unk08.z;
+		trans.x = mtx[0][3];
+		trans.y = mtx[1][3];
+		trans.z = mtx[2][3];
 
-	f32 limit = params->mPosLimit.value;
-	if (unk14.x < mtx[0][3] - limit)
-		unk14.x = mtx[0][3] - limit;
-	if (unk14.x > mtx[0][3] + limit)
-		unk14.x = mtx[0][3] + limit;
-	if (unk14.y < mtx[1][3] - limit)
-		unk14.y = mtx[1][3] - limit;
-	if (unk14.y > mtx[1][3] + limit)
-		unk14.y = mtx[1][3] + limit;
-	if (unk14.z < mtx[2][3] - limit)
-		unk14.z = mtx[2][3] - limit;
-	if (unk14.z > mtx[2][3] + limit)
-		unk14.z = mtx[2][3] + limit;
+		f32 posAccel = mParams.mPosAccel.get();
+		f32 posBrake = mParams.mPosBrake.get();
 
-	f32 len0 = mtx[0][0] * mtx[0][0] + mtx[1][0] * mtx[1][0]
-	           + mtx[2][0] * mtx[2][0];
-	if (len0 > 0.0f)
-		len0 = JGeometry::TUtil<f32>::sqrt(len0);
-	f32 len1 = mtx[0][1] * mtx[0][1] + mtx[1][1] * mtx[1][1]
-	           + mtx[2][1] * mtx[2][1];
-	if (len1 > 0.0f)
-		len1 = JGeometry::TUtil<f32>::sqrt(len1);
-	f32 len2 = mtx[0][2] * mtx[0][2] + mtx[1][2] * mtx[1][2]
-	           + mtx[2][2] * mtx[2][2];
-	if (len2 > 0.0f)
-		len2 = JGeometry::TUtil<f32>::sqrt(len2);
+		unk08.x += posAccel * (trans.x - unk14.x);
+		unk08.y += posAccel * (trans.y - unk14.y);
+		unk08.z += posAccel * (trans.z - unk14.z);
 
-	Mtx normalized;
-	normalized[0][0] = mtx[0][0] / len0;
-	normalized[1][0] = mtx[1][0] / len0;
-	normalized[2][0] = mtx[2][0] / len0;
-	normalized[0][1] = mtx[0][1] / len1;
-	normalized[1][1] = mtx[1][1] / len1;
-	normalized[2][1] = mtx[2][1] / len1;
-	normalized[0][2] = mtx[0][2] / len2;
-	normalized[1][2] = mtx[1][2] / len2;
-	normalized[2][2] = mtx[2][2] / len2;
+		unk08.x *= posBrake;
+		unk08.y *= posBrake;
+		unk08.z *= posBrake;
 
-	Quaternion quat;
-	MtxToQuat(normalized, &quat);
-	if (unk30.x * quat.x + unk30.y * quat.y + unk30.z * quat.z
-	        + unk30.w * quat.w
-	    < 0.0f) {
-		quat.x = -quat.x;
-		quat.y = -quat.y;
-		quat.z = -quat.z;
-		quat.w = -quat.w;
-	}
+		unk14.x += unk08.x;
+		unk14.y += unk08.y;
+		unk14.z += unk08.z;
 
-	unk20.x += params->mQuatAccel.value * (quat.x - unk30.x);
-	unk20.y += params->mQuatAccel.value * (quat.y - unk30.y);
-	unk20.z += params->mQuatAccel.value * (quat.z - unk30.z);
-	unk20.w += params->mQuatAccel.value * (quat.w - unk30.w);
+		f32 posLimit = mParams.mPosLimit.get();
+		if (unk14.x < trans.x - posLimit)
+			unk14.x = trans.x - posLimit;
+		if (unk14.x > trans.x + posLimit)
+			unk14.x = trans.x + posLimit;
+		if (unk14.y < trans.y - posLimit)
+			unk14.y = trans.y - posLimit;
+		if (unk14.y > trans.y + posLimit)
+			unk14.y = trans.y + posLimit;
+		if (unk14.z < trans.z - posLimit)
+			unk14.z = trans.z - posLimit;
+		if (unk14.z > trans.z + posLimit)
+			unk14.z = trans.z + posLimit;
 
-	unk20.x *= params->mQuatBrake.value;
-	unk20.y *= params->mQuatBrake.value;
-	unk20.z *= params->mQuatBrake.value;
-	unk20.w *= params->mQuatBrake.value;
+		f32 len0 = MsSqrtf(mtx[0][0] * mtx[0][0] + mtx[1][0] * mtx[1][0]
+		                   + mtx[2][0] * mtx[2][0]);
+		f32 len1 = MsSqrtf(mtx[0][1] * mtx[0][1] + mtx[1][1] * mtx[1][1]
+		                   + mtx[2][1] * mtx[2][1]);
+		f32 len2 = MsSqrtf(mtx[0][2] * mtx[0][2] + mtx[1][2] * mtx[1][2]
+		                   + mtx[2][2] * mtx[2][2]);
 
-	unk30.x += unk20.x;
-	unk30.y += unk20.y;
-	unk30.z += unk20.z;
-	unk30.w += unk20.w;
+		Mtx rot;
+		f32 inv0  = 1.0f / len0;
+		f32 inv1  = 1.0f / len1;
+		f32 inv2  = 1.0f / len2;
+		rot[0][0] = mtx[0][0] * inv0;
+		rot[1][0] = mtx[1][0] * inv0;
+		rot[2][0] = mtx[2][0] * inv0;
+		rot[0][1] = mtx[0][1] * inv1;
+		rot[1][1] = mtx[1][1] * inv1;
+		rot[2][1] = mtx[2][1] * inv1;
+		rot[0][2] = mtx[0][2] * inv2;
+		rot[1][2] = mtx[1][2] * inv2;
+		rot[2][2] = mtx[2][2] * inv2;
 
-	if (mFlags & 1)
-		PSMTXQuat(mtx, (Quaternion*)&unk30);
+		Quaternion tmp;
+		MtxToQuat(rot, &tmp);
 
-	if (mFlags & 1) {
-		mtx[0][0] *= len0;
-		mtx[1][0] *= len0;
-		mtx[2][0] *= len0;
-		mtx[0][1] *= len1;
-		mtx[1][1] *= len1;
-		mtx[2][1] *= len1;
-		mtx[0][2] *= len2;
-		mtx[1][2] *= len2;
-		mtx[2][2] *= len2;
-		mtx[0][3] = unk14.x;
-		mtx[1][3] = unk14.y;
-		mtx[2][3] = unk14.z;
+		Quaternion newQuat;
+		newQuat.x = tmp.x;
+		newQuat.y = tmp.y;
+		newQuat.z = tmp.z;
+		newQuat.w = tmp.w;
+
+		f32 dot = unk30.x * newQuat.x + unk30.y * newQuat.y
+		          + unk30.z * newQuat.z + unk30.w * newQuat.w;
+		if (dot < 0.0f) {
+			newQuat.x = -newQuat.x;
+			newQuat.y = -newQuat.y;
+			newQuat.z = -newQuat.z;
+			newQuat.w = -newQuat.w;
+		}
+
+		f32 quatAccel = mParams.mQuatAccel.get();
+		unk20.x += quatAccel * (newQuat.x - unk30.x);
+		unk20.y += quatAccel * (newQuat.y - unk30.y);
+		unk20.z += quatAccel * (newQuat.z - unk30.z);
+		unk20.w += quatAccel * (newQuat.w - unk30.w);
+
+		f32 quatBrake = mParams.mQuatBrake.get();
+		unk20.x *= quatBrake;
+		unk20.y *= quatBrake;
+		unk20.z *= quatBrake;
+		unk20.w *= quatBrake;
+
+		unk30.x += unk20.x;
+		unk30.y += unk20.y;
+		unk30.z += unk20.z;
+		unk30.w += unk20.w;
+
+		if (mFlags & 1)
+			PSMTXQuat(mtx, &unk30);
+		if (mFlags & 1) {
+			mtx[0][0] *= len0;
+			mtx[1][0] *= len0;
+			mtx[2][0] *= len0;
+			mtx[0][1] *= len1;
+			mtx[1][1] *= len1;
+			mtx[2][1] *= len1;
+			mtx[0][2] *= len2;
+			mtx[1][2] *= len2;
+			mtx[2][2] *= len2;
+			mtx[0][3] = unk14.x;
+			mtx[1][3] = unk14.y;
+			mtx[2][3] = unk14.z;
+		}
 	}
 }
 
