@@ -580,27 +580,10 @@ void TFruitBasketEvent::countFruit(THitActor* sender)
 
 void TFruitBasket::loadAfter()
 {
-	TMapObjBase::loadAfter();
-	unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(unk134, mName);
-	if (unk138) {
-		bool isBlueCoin = (unk138->mActorType == 0x20000010) ? true : false;
-		if (isBlueCoin) {
-			if (TFlagManager::smInstance->getBlueCoinFlag(
-			        gpMarDirector->mMap, (u8)unk134))
-				unk14C = 0;
-		}
-		bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
-		if (isShine) {
-			int nlen = strlen(mName);
-			unk144   = (u32) new char[nlen + 0x13];
-			snprintf((char*)unk144, nlen + 0x13, "シャイン（%s）カメラ", mName);
-		}
-	}
+	TFruitHitHideObj::loadAfter();
 	if (mRotation.x != 0.0f) {
-		mAttackRadius = 400.0f;
-		calcEntryRadius();
-		mAttackHeight = 200.0f;
-		calcEntryRadius();
+		setAttackRadius(400.0f);
+		setAttackHeight(200.0f);
 	}
 }
 
