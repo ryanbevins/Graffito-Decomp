@@ -175,121 +175,70 @@ void TAnimalBase::calcRootMatrix() { }
 
 void TAnimalBase::execWalk(bool moving)
 {
-	TAnimalSaveIndividual* save
-	    = ((TAnimalManagerBase*)mManager)->mAnimalSave;
+	TAnimalSaveIndividual* save = ((TAnimalManagerBase*)mManager)->mAnimalSave;
 
 	if (moving) {
-		f32 accel  = save->mSLMarchAccel.value * SMSGetAnmFrameRate();
-		f32 chase  = accel * SMSGetAnmFrameRate();
-		f32 target = save->mSLMaxMarchSpeed.value * SMSGetAnmFrameRate();
-		CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, target, chase);
+		f32 speed = save->mSLMaxMarchSpeed.get() * SMSGetAnmFrameRate();
+		f32 accel = save->mSLMarchAccel.get() * SMSGetAnmFrameRate()
+		            * SMSGetAnmFrameRate();
+		CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, speed, accel);
 	} else {
-		f32 dec    = save->mSLMarchDecrease.value * SMSGetAnmFrameRate();
-		f32 chase  = dec * SMSGetAnmFrameRate();
-		CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, 0.0f, chase);
+		f32 decel = save->mSLMarchDecrease.get() * SMSGetAnmFrameRate()
+		            * SMSGetAnmFrameRate();
+		CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, 0.0f, decel);
 	}
 
 	if (mMarchSpeed < 0.001f) {
-		mTurnSpeed = save->mSLWaitTurnSpeed.value * SMSGetAnmFrameRate();
+		f32 waitSpeed = save->mSLWaitTurnSpeed.get();
+		mTurnSpeed    = waitSpeed * SMSGetAnmFrameRate();
 	} else {
-		mTurnSpeed = save->mSLWalkTurnSpeed.value * SMSGetAnmFrameRate();
+		f32 walkSpeed = save->mSLWalkTurnSpeed.get();
+		mTurnSpeed    = walkSpeed * SMSGetAnmFrameRate();
 	}
 
-	JGeometry::TVec3<f32> diff;
-	if (unkF4.unk0 != NULL) {
-		diff.x = unkF4.unk0->mPosition.x;
-		diff.y = unkF4.unk0->mPosition.y;
-		diff.z = unkF4.unk0->mPosition.z;
-	} else {
-		diff.x = unkF4.unk4.x;
-		diff.y = unkF4.unk4.y;
-		diff.z = unkF4.unk4.z;
-	}
-	diff.x -= mPosition.x;
-	diff.y -= mPosition.y;
-	diff.z -= mPosition.z;
+	f32 turnSpeed  = mTurnSpeed;
+	f32 marchSpeed = mMarchSpeed;
 
-	f32 distSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-	if (distSq <= 0.0f)
-		return;
+	JGeometry::TVec3<f32> diff = unkF4.getPoint();
+	diff -= mPosition;
 
-	f32 dist = JGeometry::TUtil<f32>::sqrt(distSq);
+	f32 dist = diff.length();
+
 	if (dist < 100.0f)
 		return;
 
-	f32 radius = calcMinimumTurnRadius(mMarchSpeed, mTurnSpeed);
-	f32 turnSpeed = mTurnSpeed;
-	if (dist <= 2.0f * radius) {
-		turnSpeed = calcTurnSpeedToReach(mMarchSpeed, 0.5f * dist);
-	}
+	if (dist <= 2.0f * calcMinimumTurnRadius(marchSpeed, turnSpeed))
+		turnSpeed = calcTurnSpeedToReach(marchSpeed, 0.5f * dist);
 
-	JGeometry::TVec3<f32> targetRot = MsGetRotFromZaxis(diff);
-	f32 wrappedTargetY = callMsWrap(targetRot.y, 0.0f, 360.0f);
-	f32 currY          = callMsWrap(mRotation.y, wrappedTargetY - 180.0f,
-	                                wrappedTargetY + 180.0f);
+	getRotationFlyToDir(&mRotation, diff, marchSpeed, turnSpeed);
 
-	f32 deltaY = wrappedTargetY - currY;
-	f32 clampedDelta;
-	if (deltaY < -turnSpeed)
-		clampedDelta = -turnSpeed;
-	else if (deltaY > turnSpeed)
-		clampedDelta = turnSpeed;
-	else
-		clampedDelta = deltaY;
-
-	mRotation.y += clampedDelta;
-	mRotation.y = callMsWrap(mRotation.y, 0.0f, 360.0f);
-
-	f32 tilt       = MsClamp<f32>(-clampedDelta * 30.0f, -45.0f, 45.0f);
-	f32 chaseSpeed = 0.1f * mMarchSpeed;
-	CLBChaseGeneralConstantSpecifySpeed<f32>(&mRotation.z, tilt, chaseSpeed);
-
-	f32 wrappedTargetX = callMsWrap(targetRot.x, -180.0f, 180.0f);
-	mRotation.x        = callMsWrap(mRotation.x, -180.0f, 180.0f);
-	CLBChaseGeneralConstantSpecifySpeed<f32>(&mRotation.x, wrappedTargetX,
-	                                          chaseSpeed);
-
-	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(mRotation);
-	JGeometry::TVec3<f32> velocity(0.0f, 0.0f, mMarchSpeed);
-	q.rotate(velocity, velocity);
-	mLinearVelocity = velocity;
+	JGeometry::TQuat4<f32> quat = SMS_Eular2Quat(mRotation);
+	JGeometry::TVec3<f32> tmp;
+	quat.rotate(JGeometry::TVec3<f32>(0.0f, 0.0f, marchSpeed), tmp);
+	mLinearVelocity = tmp;
 }
 
-void TAnimalBase::getRotationFlyToDir(JGeometry::TVec3<f32>* outRot,
-                                      const JGeometry::TVec3<f32>& dir,
-                                      f32 turnSpeed, f32 maxYawDelta)
+void TAnimalBase::getRotationFlyToDir(JGeometry::TVec3<f32>* current_rot,
+	                                  const JGeometry::TVec3<f32>& target_diff,
+	                                  f32 speedX, f32 speedY)
 {
-	JGeometry::TVec3<f32> targetRot = MsGetRotFromZaxis(dir);
-	JGeometry::TVec3<f32> wrapped   = targetRot;
+	JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(target_diff);
+	rot.y                     = MsWrap<f32>(rot.y, 0.0f, 360.0f);
 
-	wrapped.y = MsWrap<f32>(wrapped.y, 0.0f, 360.0f);
-	outRot->y
-	    = callMsWrap(outRot->y, wrapped.y - 180.0f, wrapped.y + 180.0f);
+	f32 clampedDelta = JGeometry::TUtil<f32>::clamp(
+	    MsAngleDiff(rot.y, current_rot->y), -speedY, speedY);
 
-	f32 delta = wrapped.y - outRot->y;
-	f32 clampedDelta;
-	if (delta < -maxYawDelta)
-		clampedDelta = -maxYawDelta;
-	else if (delta > maxYawDelta)
-		clampedDelta = maxYawDelta;
-	else
-		clampedDelta = delta;
+	current_rot->y += clampedDelta;
+	current_rot->y = MsWrap<f32>(current_rot->y, 0.0f, 360.0f);
 
-	outRot->y += clampedDelta;
-	outRot->y = MsWrap<f32>(outRot->y, 0.0f, 360.0f);
+	f32 targetRoll = MsClamp<f32>(30.0f * -clampedDelta, -45.0f, 45.0f);
+	CLBChaseGeneralConstantSpecifySpeed<f32>(&current_rot->z, targetRoll,
+	                                         0.1f * speedX);
 
-	f32 targetTilt = -clampedDelta * 30.0f;
-	if (targetTilt > 45.0f)
-		targetTilt = 45.0f;
-	else if (targetTilt < -45.0f)
-		targetTilt = -45.0f;
-
-	f32 chaseSpeed = 0.1f * turnSpeed;
-	CLBChaseGeneralConstantSpecifySpeed<f32>(&outRot->z, targetTilt, chaseSpeed);
-
-	wrapped.x = MsWrap<f32>(wrapped.x, -180.0f, 180.0f);
-	outRot->x = MsWrap<f32>(outRot->x, -180.0f, 180.0f);
-	CLBChaseGeneralConstantSpecifySpeed<f32>(&outRot->x, wrapped.x, chaseSpeed);
+	rot.x          = MsWrap<f32>(rot.x, -180.0f, 180.0f);
+	current_rot->x = MsWrap<f32>(current_rot->x, -180.0f, 180.0f);
+	CLBChaseGeneralConstantSpecifySpeed<f32>(&current_rot->x, rot.x,
+	                                         0.1f * speedX);
 }
 
 void TAnimalBase::resetRandomCurPathNode()
