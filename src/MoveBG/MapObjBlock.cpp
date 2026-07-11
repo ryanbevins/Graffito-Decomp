@@ -1,4 +1,5 @@
 #define JGEOMETRY_GEKKO_PS_COPY12_OUT_OF_LINE
+#define J3D_TEXMTXINFO_SETEFFECTMTX_DECL_ONLY
 #include <MoveBG/MapObjBlock.hpp>
 #include <MoveBG/MapObjHide.hpp>
 #include <MoveBG/MapObjGeneral.hpp>
