@@ -127,6 +127,8 @@ void TBreakHideObj::control()
 {
 	TMapObjBase::control();
 	switch (mState) {
+	case 1:
+		break;
 	case 2:
 		if (animIsFinished()) {
 			appearObj(0.0f);
