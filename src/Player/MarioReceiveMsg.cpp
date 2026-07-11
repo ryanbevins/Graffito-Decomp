@@ -1087,7 +1087,7 @@ check_sender_bit3:
 				             30.0f + sender->getDamageRadius(), 0.0f);
 				return 1;
 			}
-			return 0;
+			break;
 
 		case 0x40000064:
 		case 0x40000393:
