@@ -44,6 +44,13 @@ void TFishoidManager::createModelData()
 	createModelDataArray(entry);
 }
 
+TRealoidActor::TRealoidActor(MActor* actor)
+    : TTakeActor("boid")
+    , mMActor(actor)
+    , unk74(0)
+{
+}
+
 TFishoid::TFishoid(int count, const char* name)
     : TRealoid(name)
 {
@@ -207,13 +214,6 @@ void TRealoid::clipBoids(JDrama::TGraphics* gfx)
 		else
 			mActors[i]->unk74 |= 1;
 	}
-}
-
-TRealoidActor::TRealoidActor(MActor* actor)
-    : TTakeActor("boid")
-{
-	mMActor = actor;
-	unk74   = 0;
 }
 
 MtxPtr TRealoidActor::getTakingMtx()

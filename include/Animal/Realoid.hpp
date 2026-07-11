@@ -35,7 +35,7 @@ public:
 
 	/* 0x70 */ MActor* mMActor;
 	/* 0x74 */ u32 unk74;
-	/* 0x78 */ Mtx mTakingMtx;
+	/* 0x78 */ TPosition3f mTakingMtx;
 };
 
 #endif
