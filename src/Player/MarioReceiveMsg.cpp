@@ -706,11 +706,12 @@ check_sender_bit3:
 		{
 			switch (message) {
 			case 4:
-				if (mHeldObject != nullptr) return 0;
-				if (mHolder != nullptr) return 0;
-				mHolder = (TTakeActor*)sender;
-				changePlayerStatus(0x0C400201, 0, false);
-				return 1;
+				if (mHeldObject == nullptr && mHolder == nullptr) {
+					mHolder = (TTakeActor*)sender;
+					changePlayerStatus(0x0C400201, 0, false);
+					return 1;
+				}
+				break;
 			case 8:
 				if (checkFlag(0x1000)) {
 					changePlayerStatus(0x891, 0, true);
@@ -731,10 +732,11 @@ check_sender_bit3:
 					           mDmgParamsBGTentacle.mInvincibleTime.get());
 					return 1;
 				}
-				return 0;
+				break;
 			default:
-				return 0;
+				break;
 			}
+			break;
 		}
 
 		case 0x08000001: // Basic enemy contact/damage
