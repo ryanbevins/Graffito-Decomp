@@ -21,23 +21,25 @@ private:
 
 bool TWireBinder::init(const JGeometry::TVec3<f32>& param_1)
 {
+	return reset(param_1);
+}
+
+bool TWireBinder::reset(const JGeometry::TVec3<f32>& param_1)
+{
 	JGeometry::TVec3<f32> local24;
 	JGeometry::TVec3<f32> local30;
 
 	mWireNumber = gpMapWireManager->getWireNo(param_1);
-	if ((s32)mWireNumber == -1) {
+	if (mWireNumber == -1)
 		return false;
-	}
 
 	TMapWire* wire = TMapWireManager::getGlobalWire(mWireNumber);
 
 	local24 = wire->getStartPoint();
 	local30 = wire->getEndPoint();
-	local30.sub(local24);
+	local30 -= local24;
 
-	// TODO: Why does the compiler inline stuff here but not in the target?
-	// See also: TMapObjPlane::calcNrm, TBGAttackHit::perform, etc.
-	mDir.setLength(local30, 1.0f);
+	mDir.normalize(local30);
 	return true;
 }
 

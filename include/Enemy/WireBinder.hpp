@@ -8,6 +8,7 @@
 class TWireBinder : public TBinder {
 public:
 	bool init(const JGeometry::TVec3<f32>&);
+	bool reset(const JGeometry::TVec3<f32>&);
 	void bind(TLiveActor*);
 	const JGeometry::TVec3<f32>& getDirDirect() const { return mDir; }
 #ifdef WIREBINDER_GETDIR_OUT_OF_LINE
@@ -25,7 +26,7 @@ public:
 	~TWireBinder();
 
 private:
-	/* 0x04 */ u32 mWireNumber;
+	/* 0x04 */ s32 mWireNumber;
 	/* 0x08 */ JGeometry::TVec3<f32> mDir;
 };
 
