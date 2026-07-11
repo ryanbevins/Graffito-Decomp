@@ -220,34 +220,29 @@ void TBoidLeader::perform(u32 flags, JDrama::TGraphics*)
 JGeometry::TVec3<f32>
 TBoidLeader::calcGoalForce(const JGeometry::TVec3<f32>& pos) const
 {
-	JGeometry::TVec3<f32> result;
+	JGeometry::TVec3<f32> force;
 
 	if (mFlags & 4) {
-		result = mGraphGoal;
-		result.sub(pos);
-		result.normalize();
-		return result;
-	}
-
-	const JGeometry::TVec3<f32>* goal;
-	if (mGoalActor != nullptr)
-		goal = &mGoalActor->mPosition;
-	else
-		goal = &mGoalPos;
-
-	result = *goal;
-	result.add(mGoalOffset);
-	result.sub(pos);
-
-	f32 length = result.length();
-	if (length > 0.0f) {
-		result.scale(1.0f / length);
-		result.scale(mGoalForce);
+		force.set(mGraphGoal);
+		force -= pos;
+		force.normalize();
 	} else {
-		result.zero();
+		if (mGoalActor != nullptr)
+			force.set(mGoalActor->getPosition());
+		else
+			force.set(mGoalPos);
+		force += mGoalOffset;
+		force -= pos;
+		f32 length = force.length();
+		if (0.0f < length) {
+			force.scale(1.0f / length);
+			force *= mGoalForce;
+		} else {
+			force.zero();
+		}
 	}
 
-	return result;
+	return force;
 }
 
 JGeometry::TVec3<f32> TBoidLeader::calcForces(const TBoid* boid) const
