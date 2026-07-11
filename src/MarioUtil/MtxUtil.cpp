@@ -11,43 +11,37 @@
 #include <dolphin/mtx.h>
 #include <printf.h>
 
-void MtxToQuat(MtxPtr mtx, Quaternion* quat)
+void MtxToQuat(MtxPtr m, Quaternion* quat)
 {
-	f32 diag0 = mtx[0][0];
-	f32 diag1 = mtx[1][1];
-	f32 diag2 = mtx[2][2];
-	f32 trace = 1.0f + diag0 + diag1 + diag2;
-
-	if (trace >= 1.0f) {
-		f32 root = trace;
-		if (root > 0.0f)
-			root = JGeometry::TUtil<f32>::sqrt(root);
-
-		f32 doubleRoot = 2.0f * root;
-		f32 scale      = 1.0f / doubleRoot;
-		quat->w        = 0.25f * doubleRoot;
-		quat->x        = (mtx[2][1] - mtx[1][2]) * scale;
-		quat->y        = (mtx[0][2] - mtx[2][0]) * scale;
-		quat->z        = (mtx[1][0] - mtx[0][1]) * scale;
+	f32 q[4];
+	f32 s = m[0][0] + m[1][1] + m[2][2] + 1.0f;
+	if (s >= 1.0f) {
+		f32 root = 2.0f * MsSqrtf(s);
+		q[3]     = 0.25f * root;
+		q[0]     = (m[2][1] - m[1][2]) * (1.0f / root);
+		q[1]     = (m[0][2] - m[2][0]) * (1.0f / root);
+		q[2]     = (m[1][0] - m[0][1]) * (1.0f / root);
 	} else {
-		int i = diag0 > diag1 ? 0 : 1;
-		if (diag2 > mtx[i][i])
+		int i;
+		if (m[0][0] > m[1][1])
+			i = 0;
+		else
+			i = 1;
+		if (m[2][2] > m[i][i])
 			i = 2;
-
 		int j = (i + 1) % 3;
 		int k = (j + 1) % 3;
-		f32 root = 1.0f + mtx[i][i] - mtx[j][j] - mtx[k][k];
-		if (root > 0.0f)
-			root = JGeometry::TUtil<f32>::sqrt(root);
 
-		f32 doubleRoot = 2.0f * root;
-		f32 scale      = 1.0f / doubleRoot;
-		f32* q         = (f32*)quat;
-		q[i]           = 0.25f * doubleRoot;
-		q[j]           = (mtx[i][j] + mtx[j][i]) * scale;
-		q[k]           = (mtx[i][k] + mtx[k][i]) * scale;
-		quat->w        = (mtx[k][j] - mtx[j][k]) * scale;
+		f32 root = 2.0f * MsSqrtf(1.0f + (m[i][i] - m[j][j] - m[k][k]));
+		q[i]     = 0.25f * root;
+		q[j]     = (m[i][j] + m[j][i]) * (1.0f / root);
+		q[k]     = (m[i][k] + m[k][i]) * (1.0f / root);
+		q[3]     = (m[k][j] - m[j][k]) * (1.0f / root);
 	}
+	quat->x = q[0];
+	quat->y = q[1];
+	quat->z = q[2];
+	quat->w = q[3];
 }
 
 void TMtxTimeLag::calc(MtxPtr mtx)
