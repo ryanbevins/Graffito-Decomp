@@ -55,7 +55,8 @@ void TYoshiTongue::calcAnim(MtxPtr p)
 	mHeadDir.y = p[1][0];
 	mHeadDir.z = p[2][0];
 
-	if ((int)mState == 0) {
+	switch ((int)mState) {
+	case 0: {
 		J3DModelData* mdMain = mModel->getModelData();
 		for (u16 i = 0; i < mdMain->getShapeNum(); ++i) {
 			J3DShape* s = mdMain->getShapeNodePointer(i);
@@ -66,7 +67,9 @@ void TYoshiTongue::calcAnim(MtxPtr p)
 			J3DShape* s = mdTip->getShapeNodePointer(i);
 			s->unk8 |= 1;
 		}
-	} else {
+		break;
+	}
+	default: {
 		J3DModelData* mdMain = mModel->getModelData();
 		for (u16 i = 0; i < mdMain->getShapeNum(); ++i) {
 			J3DShape* s = mdMain->getShapeNodePointer(i);
@@ -82,35 +85,38 @@ void TYoshiTongue::calcAnim(MtxPtr p)
 		tipPos.y += 50.0f;
 		SMS_MakeJointsToArc(mModel, mHeadPos, mHeadDir, tipPos);
 
-	J3DModelData* md = mModel->getModelData();
-	u16 n            = md->getJointNum();
-	MtxPtr mtxBuf    = mModel->getAnmMtx(0);
-
-	Mtx* mtxPenult = (Mtx*)((u8*)mtxBuf + (n - 2) * sizeof(Mtx));
-	Mtx* mtxLast   = (Mtx*)((u8*)mtxBuf + (n - 1) * sizeof(Mtx));
+	u16 n = mModel->getModelData()->getJointNum();
+	MtxPtr mtxPenult = mModel->getAnmMtx(n - 2);
+	MtxPtr mtxLast   = mModel->getAnmMtx(n - 1);
 
 	JGeometry::TVec3<f32> dir;
-	dir.x = (*mtxLast)[0][3] - (*mtxPenult)[0][3];
+	dir.x = mtxLast[0][3] - mtxPenult[0][3];
 	dir.y = 0.0f;
-	dir.z = (*mtxLast)[2][3] - (*mtxPenult)[2][3];
+	dir.z = mtxLast[2][3] - mtxPenult[2][3];
 	MsVECNormalize((Vec*)&dir, (Vec*)&dir);
 
+	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+	JGeometry::TVec3<f32> side;
+	side.cross(up, dir);
+
 	Mtx tipMtx;
-	tipMtx[0][0] = 1.0f * dir.z - 0.0f * dir.y;
-	tipMtx[0][1] = 0.0f;
-	tipMtx[0][2] = dir.x;
-	tipMtx[0][3] = mTipPos.x;
-	tipMtx[1][0] = 0.0f * dir.x - 0.0f * dir.z;
-	tipMtx[1][1] = 1.0f;
-	tipMtx[1][2] = dir.y;
-	tipMtx[1][3] = mTipPos.y;
-	tipMtx[2][0] = 0.0f * dir.y - 1.0f * dir.x;
-	tipMtx[2][1] = 0.0f;
+	tipMtx[0][0] = side.x;
+	tipMtx[0][1] = side.y;
+	tipMtx[0][2] = side.z;
+	tipMtx[0][3] = tipPos.x;
+	tipMtx[1][0] = up.x;
+	tipMtx[1][1] = up.y;
+	tipMtx[1][2] = up.z;
+	tipMtx[1][3] = tipPos.y;
+	tipMtx[2][0] = dir.x;
+	tipMtx[2][1] = dir.y;
 	tipMtx[2][2] = dir.z;
-	tipMtx[2][3] = mTipPos.z;
+	tipMtx[2][3] = tipPos.z;
 	PSMTXCopy(tipMtx, mTipModel->unk20);
 
 		mTipModel->calc();
+		break;
+	}
 	}
 }
 
