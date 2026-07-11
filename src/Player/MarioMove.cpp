@@ -2004,25 +2004,11 @@ bool TMario::isInvincible() const
 
 BOOL TMario::isForceSlip()
 {
-	u16 code = *(u16*)mGroundPlane;
-	u8 isIce;
-	if (code == 0x01 || code == 0x4001 ||
-	    code == 0x8001 || code == 0xC001)
-		isIce = 1;
-	else
-		isIce = 0;
-
-	if (isIce)
+	if (mGroundPlane->isUnk1())
 		return true;
 
 	if (unk350 == 2) {
-		u8 hasBit;
-		if (mState & 0x40)
-			hasBit = 1;
-		else
-			hasBit = 0;
-
-		if (hasBit) {
+		if (checkFlag(0x40)) {
 			if (mGroundPlane->getNormal().y < mDirtyParams.mSlopeAngle.get())
 				return true;
 		}
@@ -4067,75 +4053,21 @@ BOOL TMario::canSlipJump()
 
 BOOL TMario::isSlipStart()
 {
-	const TBGCheckData* plane = mGroundPlane;
-	u16 bgType = plane->mBGType;
-
-	// Sand types always slip
-	u8 isSand;
-	if (bgType == 0x1 || bgType == 0x4001 || bgType == 0x8001 || bgType == 0xC001)
-		isSand = 1;
-	else
-		isSand = 0;
-
-	u8 shouldSlip;
-	if (isSand) {
-		shouldSlip = 1;
-	} else {
-		shouldSlip = 0;
-		if (unk350 == 2) {
-			u8 hasFlag;
-			if (mState & 0x40)
-				hasFlag = 1;
-			else
-				hasFlag = 0;
-			if (hasFlag) {
-				if (plane->getNormal().y < mDirtyParams.mSlopeAngle.get())
-					shouldSlip = 1;
-			}
-		}
-		if (!shouldSlip) {
-			if (plane->getNormal().y < mDeParams.mForceSlipAngle.get())
-				shouldSlip = 1;
-			else
-				shouldSlip = 0;
-		}
-	}
-
-	if (shouldSlip)
+	if (isForceSlip())
 		return true;
 
-	// Type 0xC (graffito?) types
-	u8 isTypeC;
-	if (bgType == 0xC || bgType == 0x800C || bgType == 0xA00C)
-		isTypeC = 1;
-	else
-		isTypeC = 0;
-	if (isTypeC)
+	if (mGroundPlane->isSlider())
 		return true;
 
-	// Type 2 (wet surface) with slope check
-	u8 isType2;
-	if (bgType == 0x2 || bgType == 0x8002)
-		isType2 = 1;
-	else
-		isType2 = 0;
-	if (isType2) {
-		if (plane->getNormal().y < 0.866025f)
-			return true;
-	}
+	if (mGroundPlane->isUnk2() && mGroundPlane->getNormal().y < 0.8660254f)
+		return true;
 
-	// Type 3 - explicitly NOT slippery
-	u8 isType3;
-	if (bgType == 0x3 || bgType == 0x8003)
-		isType3 = 1;
-	else
-		isType3 = 0;
-	if (isType3)
+	if (mGroundPlane->isUnk3())
 		return false;
 
-	// Default slope check
-	if (plane->getNormal().y < mDeParams.mSlipStart.get())
+	if (mGroundPlane->getNormal().y < mDeParams.mSlipStart.get())
 		return true;
+
 	return false;
 }
 
