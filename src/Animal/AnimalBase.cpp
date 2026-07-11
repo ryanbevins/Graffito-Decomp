@@ -379,9 +379,7 @@ void TAnimalBase::initNoLoad_(TAnimalBase* pNew)
 		pNew->mPosition.y = mPosition.y - 250.0f * MsRandF();
 	}
 
-	pNew->mScaling.x = mScaling.x;
-	pNew->mScaling.y = mScaling.y;
-	pNew->mScaling.z = mScaling.z;
+	pNew->mScaling = mScaling;
 	pNew->mRotation.x = 0.0f;
 
 	f32 newY = 150.0f * (MsRandF() - 0.5f) + mRotation.y;
