@@ -1060,41 +1060,31 @@ void CPolarSubCamera::rotateX_ByStickY_(f32 stick)
 	}
 }
 
+static inline f32 clampCameraRatio(f32 value, f32 min, f32 max)
+{
+	if (value > max)
+		value = max;
+	else if (value < min)
+		value = min;
+	return value;
+}
+
 void CPolarSubCamera::calcNowTargetFromPosAndAt_(const Vec& pos, const Vec& at)
 {
-	f32 dist;
+	f32 radius;
 	s16 angleX;
 	s16 angleY;
-	CLBCrossToPolar(at, pos, &dist, &angleX, &angleY);
+	CLBCrossToPolar(at, pos, &radius, &angleX, &angleY);
 	unkA8 = CLBCalcRatio<s16>(unk68->unk18, unk68->unk1A, angleX);
-	if (isLButtonCameraSpecifyMode(mMode)) {
-		f32 ratio = unkA8;
-		if (ratio > 1.0f)
-			ratio = 1.0f;
-		else if (ratio < 0.0f)
-			ratio = 0.0f;
-		unkA8 = ratio;
-	} else {
-		f32 min   = unk268;
-		f32 max   = unk26C;
-		f32 ratio = unkA8;
-		if (ratio > max)
-			ratio = max;
-		else if (ratio < min)
-			ratio = min;
-		unkA8 = ratio;
-	}
+	if (isLButtonCameraSpecifyMode(mMode))
+		unkA8 = clampCameraRatio(unkA8, 0.0f, 1.0f);
+	else
+		unkA8 = clampCameraRatio(unkA8, unk268, unk26C);
 	unkA4 = CLBLinearInbetween<s16>(unk68->unk18, unk68->unk1A, unkA8);
 	unkA6 = angleY;
-	unk80.x = pos.x;
-	unk80.y = pos.y;
-	unk80.z = pos.z;
-	unk98.x = pos.x;
-	unk98.y = pos.y;
-	unk98.z = pos.z;
-	unk8C.x = at.x;
-	unk8C.y = at.y;
-	unk8C.z = at.z;
+	unk80.set(pos);
+	unk98.set(pos);
+	unk8C.set(at);
 }
 
 f32 CPolarSubCamera::calcDistFromXRotRatio_() const
