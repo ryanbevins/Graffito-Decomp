@@ -2,6 +2,7 @@
 
 #include <NPC/NpcBase.hpp>
 #include <NPC/NpcCoin.hpp>
+#include <NPC/NpcInbetween.hpp>
 #include <NPC/NpcNerve.hpp>
 #include <NPC/NpcParts.hpp>
 #include <NPC/NpcSave.hpp>
@@ -350,14 +351,14 @@ void TBaseNPC::walkAnmRateChange_()
 			if (unk1CC >= frame || !chasing) {
 				unk1CC = 0;
 				unk1D0 = 0.0f;
-				TUnk18CStruct* ib = (TUnk18CStruct*)mUnk18C;
-				bool inBlend      = ib->unk24 > 0;
-				bool forcedBlend  = false;
-				if (!inBlend && ib->unk28 > 0.0f)
-					forcedBlend = true;
-				if (!(inBlend || forcedBlend))
+				TNpcInbetween* inbetween = (TNpcInbetween*)mUnk18C;
+				bool blend                 = true;
+				if (!inbetween->isMotionBlending()
+				    && !inbetween->isForcedBlendRatio())
+					blend = false;
+				if (!blend)
 					npcWaitIn();
-				else if (!(ib->unk24 > 0))
+				else if (!inbetween->isMotionBlending())
 					mMActor->setFrameRate(unk1D0, 0);
 			} else {
 				mMActor->setFrameRate(unk1D0, 0);
