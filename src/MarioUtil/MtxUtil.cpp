@@ -452,23 +452,20 @@ void SMS_GetLightPerspectiveForEffectMtx(MtxPtr mtx)
 
 TRopePoint::TRopePoint() { }
 
-TRope::TRope(u16 numPoints, const JGeometry::TVec3<f32>& pos,
-             f32 segmentLength, f32 collisionRadius, f32 velocityScale,
-             f32 accelY)
+TRope::TRope(u16 count, const JGeometry::TVec3<f32>& pos, f32 segmentLength,
+             f32 collisionRadius, f32 velocityScale, f32 accelY)
 {
-	mNumPoints       = numPoints;
-	mPoints          = new TRopePoint[numPoints];
+	mNumPoints       = count;
+	mPoints          = new TRopePoint[count];
 	mVelocityScale   = velocityScale;
 	mAccelY          = accelY;
 	mCollisionRadius = collisionRadius;
-
-	for (int i = 0; i < numPoints; ++i) {
-		TRopePoint& point = mPoints[i];
-		point.mPosition   = pos;
-		point.mPrevPos    = point.mPosition;
-		point.mVelocity.zero();
-		point.mSegmentLength = segmentLength;
-		point.mFlags         = 0;
+	for (int i = 0; i < count; ++i) {
+		mPoints[i].mPosition = pos;
+		mPoints[i].mPrevPos  = mPoints[i].mPosition;
+		mPoints[i].mVelocity.set(0.0f, 0.0f, 0.0f);
+		mPoints[i].mSegmentLength = segmentLength;
+		mPoints[i].mFlags         = 0;
 	}
 }
 
