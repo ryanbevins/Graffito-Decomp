@@ -83,6 +83,11 @@ public:
 		z = v.z;
 	}
 #endif
+	TVec3& operator/=(f32 other)
+	{
+		div(other);
+		return *this;
+	}
 
 	template <class TY> void set(TY x_, TY y_, TY z_)
 	{
@@ -226,6 +231,11 @@ public:
 		return fst;
 	}
 #endif
+	friend TVec3 operator/(TVec3 fst, f32 snd)
+	{
+		fst /= snd;
+		return fst;
+	}
 
 #ifdef JGEOMETRY_CAMERASHAKE_TVEC3_DOT_SCALE_OUT_OF_LINE
 	f32 dot(const TVec3& other) const;

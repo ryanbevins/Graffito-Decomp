@@ -75,115 +75,92 @@ TBoidLeader::TBoidLeader(int count, const char* name)
 
 void TBoidLeader::calcBoids()
 {
-	if (!(mFlags & 1))
-		return;
+	if (mFlags & 1) {
+		TBoid* end = mBoidData + mNumActors;
 
-	TBoid* end = mBoidData + mNumActors;
-	for (TBoid* boid = mBoidData; boid != end; ++boid) {
-		boid->mForce.zero();
-		boid->mAverageForward.zero();
-		boid->mCenterDir.zero();
-		boid->mNeighborCount = 0;
-	}
-
-	for (TBoid* boid = mBoidData; boid != end; ++boid) {
-		for (TBoid* other = boid + 1; other != end; ++other) {
-			JGeometry::TVec3<f32> diff = boid->mPosition;
-			diff.sub(other->mPosition);
-			f32 dist2 = diff.squared();
-			if (dist2 < 0.001f)
-				continue;
-
-			f32 radius = mParam24;
-			if (!(dist2 < radius * radius))
-				continue;
-
-			JGeometry::TVec3<f32> avoid = diff;
-			avoid.div(dist2);
-			avoid.scale(radius);
-			boid->mForce.add(avoid);
-
-			JGeometry::TVec3<f32> otherAvoid = diff;
-			otherAvoid.div(dist2);
-			otherAvoid.scale(radius);
-			other->mForce.sub(otherAvoid);
-
-			boid->mAverageForward.add(other->mForward);
-			other->mAverageForward.add(boid->mForward);
-			boid->mCenterDir.add(other->mPosition);
-			other->mCenterDir.add(boid->mPosition);
-			boid->mNeighborCount++;
-			other->mNeighborCount++;
+		for (TBoid* boid = mBoidData; boid != end; ++boid) {
+			boid->mForce.zero();
+			boid->mCenterDir.zero();
+			boid->mAverageForward.zero();
+			boid->mNeighborCount = 0;
 		}
 
-		if (boid->mNeighborCount <= 0)
-			continue;
+		for (TBoid* boid = mBoidData; boid != end; ++boid) {
+			for (TBoid* other = boid + 1; other != end; ++other) {
+				JGeometry::TVec3<f32> diff = boid->mPosition;
+				diff -= other->mPosition;
+				f32 dist2 = diff.squared();
+				if (dist2 < 0.001f)
+					continue;
 
-		f32 invCount = 1.0f / (f32)boid->mNeighborCount;
-		boid->mCenterDir.scale(invCount);
-		boid->mCenterDir.sub(boid->mPosition);
-		boid->mCenterDir.normalize();
+				f32 radius = mParam24;
+				if (dist2 < radius * radius) {
+					boid->mForce += diff / dist2 * radius;
+					other->mForce -= diff / dist2 * radius;
 
-		boid->mAverageForward.scale(invCount);
-		boid->mAverageForward.normalize();
-		boid->mAverageForward.sub(boid->mForward);
-		boid->mAverageForward.normalize();
-	}
-
-	for (TBoid* boid = mBoidData; boid != end; ++boid) {
-		JGeometry::TVec3<f32> force = calcForces(boid);
-
-		if (force.squared() > JGeometry::TUtil<f32>::epsilon()) {
-			if (force.y < -0.01f) {
-				boid->mPitch += mParam2C;
-				if (boid->mPitch > mParam30)
-					boid->mPitch = mParam30;
-			} else if (force.y > 0.01f) {
-				boid->mPitch -= mParam2C;
-				if (boid->mPitch < -mParam30)
-					boid->mPitch = -mParam30;
-			} else {
-				boid->mPitch *= 0.98f;
+					boid->mAverageForward += other->mForward;
+					other->mAverageForward += boid->mForward;
+					boid->mCenterDir += other->mPosition;
+					other->mCenterDir += boid->mPosition;
+					boid->mNeighborCount++;
+					other->mNeighborCount++;
+				}
 			}
 
-			f32 targetYaw;
-			if (force.z == 0.0f) {
-				if (force.x >= 0.0f)
-					targetYaw = 90.0f;
-				else
-					targetYaw = -90.0f;
-			} else if (force.z >= 0.0f) {
-				targetYaw = (f32)matan(force.z, force.x) * 0.005493164f;
-			} else {
-				targetYaw = 180.0f
-				            - (f32)matan(-force.z, force.x) * 0.005493164f;
+			if (boid->mNeighborCount > 0) {
+				f32 inv = 1.0f / boid->mNeighborCount;
+				boid->mCenterDir *= inv;
+				boid->mCenterDir -= boid->mPosition;
+				boid->mCenterDir.normalize();
+
+				boid->mAverageForward *= inv;
+				f32 mag = VECMag((Vec*)&boid->mAverageForward);
+				if (mag > 0.0f) {
+					boid->mAverageForward *= 1.0f / mag;
+					boid->mAverageForward -= boid->mForward;
+					boid->mAverageForward.normalize();
+				}
 			}
-
-			f32 wrapped = callMsWrap(boid->mYaw, targetYaw - 180.0f,
-			                         targetYaw + 180.0f);
-			f32 turn = targetYaw - wrapped;
-			if (turn < -0.01f)
-				turn = -mParam28;
-			else if (turn > 0.01f)
-				turn = mParam28;
-
-			boid->mYaw += turn;
-			while (boid->mYaw >= 360.0f)
-				boid->mYaw -= 360.0f;
-			while (boid->mYaw < 0.0f)
-				boid->mYaw += 360.0f;
 		}
 
-		Mtx rot;
-		MsMtxSetRotRPH(rot, boid->mPitch, boid->mYaw, boid->mRoll);
-		boid->mForward.set(rot[0][2], rot[1][2], rot[2][2]);
-		PSVECNormalize((Vec*)&boid->mForward, (Vec*)&boid->mForward);
+		for (TBoid* boid = mBoidData; boid != end; ++boid) {
+			JGeometry::TVec3<f32> force = calcForces(boid);
+			if (!force.isZero()) {
+				if (force.y < -0.01f) {
+					boid->mPitch += mParam2C;
+					if (boid->mPitch > mParam30)
+						boid->mPitch = mParam30;
+				} else if (force.y > 0.01f) {
+					boid->mPitch -= mParam2C;
+					if (boid->mPitch < -mParam30)
+						boid->mPitch = -mParam30;
+				} else {
+					boid->mPitch *= 0.98f;
+				}
 
-		f32 forceLen = JGeometry::TUtil<f32>::sqrt(force.dot(force));
-		JGeometry::TVec3<f32> velocity = boid->mForward;
-		velocity.scale(mParam20 + boid->mPhase);
-		velocity.scale(forceLen);
-		boid->mPosition.add(velocity);
+				f32 targetYaw = MsGetRotFromZaxisY(force);
+				f32 diff = MsAngleDiff(targetYaw, boid->mYaw);
+				if (diff < -0.01f)
+					diff = -mParam28;
+				else if (diff > 0.01f)
+					diff = mParam28;
+
+				f32 newYaw = boid->mYaw + diff;
+				while (newYaw >= 360.0f)
+					newYaw -= 360.0f;
+				while (newYaw < 0.0f)
+					newYaw += 360.0f;
+				boid->mYaw = newYaw;
+			}
+
+			Mtx rot;
+			MsMtxSetRotRPH(rot, boid->mPitch, boid->mYaw, boid->mRoll);
+			boid->mForward.set(rot[0][2], rot[1][2], rot[2][2]);
+			VECNormalize((Vec*)&boid->mForward, (Vec*)&boid->mForward);
+
+			boid->mPosition += boid->mForward
+			                   * (mParam20 + boid->mPhase) * force.length();
+		}
 	}
 }
 
