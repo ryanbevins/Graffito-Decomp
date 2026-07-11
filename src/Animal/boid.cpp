@@ -181,19 +181,16 @@ void TBoidLeader::calcBoids()
 void TBoidLeader::setGraph(TGraphWeb* graph,
                            const JGeometry::TVec3<f32>& pos)
 {
-	if (graph != nullptr) {
-		if (graph->isDummy() == 0) {
-			if (mGraphTracer == nullptr)
-				mGraphTracer = new TGraphTracer();
+	if (graph == nullptr || graph->isDummy())
+		return;
 
-			mGraphTracer->setGraph(graph);
-			mGraphTracer->setTo(
-			    graph->findNearestNodeIndex(pos, 0xffffffff));
-			mGraphGoal.set(mGraphTracer->unk0->indexToPoint(
-			    mGraphTracer->mCurrIdx));
-			mFlags |= 4;
-		}
-	}
+	if (mGraphTracer == nullptr)
+		mGraphTracer = new TGraphTracer();
+
+	mGraphTracer->setGraph(graph);
+	mGraphTracer->setTo(graph->findNearestNodeIndex(pos, -1));
+	mGraphGoal.set(mGraphTracer->getCurrentPos());
+	mFlags |= 4;
 }
 
 void TBoidLeader::perform(u32 flags, JDrama::TGraphics*)
