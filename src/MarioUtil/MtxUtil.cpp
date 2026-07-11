@@ -350,86 +350,51 @@ void TMultiMtxEffect::setUserArea()
 
 void SMS_MakeJointsToArc(J3DModel* model,
                          const JGeometry::TVec3<f32>& start,
-                         const JGeometry::TVec3<f32>& up,
+                         const JGeometry::TVec3<f32>& upDir,
                          const JGeometry::TVec3<f32>& end)
 {
 	model->calc();
 
-	JGeometry::TVec3<f32> dir;
-	dir = end;
-	dir.sub(start);
-	f32 length = PSVECMag((Vec*)&dir);
-	dir.scale(1.0f / length);
+	JGeometry::TVec3<f32> dir = end - start;
+	f32 mag                   = VECMag(dir);
+	dir.scale(1.0f / mag);
 
-	JGeometry::TVec3<f32> upDir;
-	upDir = up;
-	if (upDir.x * upDir.x + upDir.y * upDir.y + upDir.z * upDir.z
-	    <= 0.0000038146973f) {
-		upDir.zero();
-	} else {
-		f32 len = upDir.x * upDir.x + upDir.y * upDir.y + upDir.z * upDir.z;
-		upDir.scale(JGeometry::TUtil<f32>::inv_sqrt(len));
-	}
+	JGeometry::TVec3<f32> up = upDir;
+	up.normalize();
 
-	u16 count = model->getModelData()->getJointNum();
-	for (u16 i = 0; i < count; ++i) {
-		f32 t = (f32)i / (f32)(count - 1);
-		JGeometry::TVec3<f32> axisA;
-		axisA = dir * t;
-		JGeometry::TVec3<f32> axisB;
-		axisB = upDir * (1.0f - t);
-		JGeometry::TVec3<f32> axis;
-		axis = axisA;
-		axis.add(axisB);
-		if (axis.x * axis.x + axis.y * axis.y + axis.z * axis.z
-		    <= 0.0000038146973f) {
-			axis.zero();
-		} else {
-			f32 len = axis.x * axis.x + axis.y * axis.y + axis.z * axis.z;
-			axis.scale(JGeometry::TUtil<f32>::inv_sqrt(len));
-		}
+	int jointNum = model->getModelData()->getJointNum();
+	for (u16 i = 0; i < jointNum; ++i) {
+		f32 t = (f32)i / (f32)(jointNum - 1);
 
-		MtxPtr mtx = model->mNodeMatrices[i];
-		JGeometry::TVec3<f32> oldZ;
-		oldZ.x = mtx[0][2];
-		oldZ.y = mtx[1][2];
-		oldZ.z = mtx[2][2];
+		JGeometry::TVec3<f32> a = dir * t;
+		JGeometry::TVec3<f32> b = up * (1.0f - t);
+		JGeometry::TVec3<f32> c = b + a;
+		c.normalize();
 
-		JGeometry::TVec3<f32> yAxis;
-		yAxis.cross(oldZ, axis);
-		if (yAxis.x * yAxis.x + yAxis.y * yAxis.y + yAxis.z * yAxis.z
-		    <= 0.0000038146973f) {
-			yAxis.zero();
-		} else {
-			f32 len
-			    = yAxis.x * yAxis.x + yAxis.y * yAxis.y + yAxis.z * yAxis.z;
-			yAxis.scale(JGeometry::TUtil<f32>::inv_sqrt(len));
-		}
+		MtxPtr jm = model->getAnmMtx(i);
 
-		JGeometry::TVec3<f32> zAxis;
-		zAxis.cross(axis, yAxis);
-		if (zAxis.x * zAxis.x + zAxis.y * zAxis.y + zAxis.z * zAxis.z
-		    <= 0.0000038146973f) {
-			zAxis.zero();
-		} else {
-			f32 len
-			    = zAxis.x * zAxis.x + zAxis.y * zAxis.y + zAxis.z * zAxis.z;
-			zAxis.scale(JGeometry::TUtil<f32>::inv_sqrt(len));
-		}
+		f32 dist = (f32)i * (mag / (f32)(jointNum - 1));
 
-		f32 dist = (f32)i * (length / (f32)(count - 1));
-		mtx[0][0] = axis.x;
-		mtx[1][0] = axis.y;
-		mtx[2][0] = axis.z;
-		mtx[0][1] = yAxis.x;
-		mtx[1][1] = yAxis.y;
-		mtx[2][1] = yAxis.z;
-		mtx[0][2] = zAxis.x;
-		mtx[1][2] = zAxis.y;
-		mtx[2][2] = zAxis.z;
-		mtx[0][3] = start.x + axis.x * dist;
-		mtx[1][3] = start.y + axis.y * dist;
-		mtx[2][3] = start.z + axis.z * dist;
+		JGeometry::TVec3<f32> zAxis(jm[0][2], jm[1][2], jm[2][2]);
+		JGeometry::TVec3<f32> side;
+		side.cross(zAxis, c);
+		JGeometry::TVec3<f32> fwd;
+		fwd.cross(c, side);
+		side.normalize();
+		fwd.normalize();
+
+		jm[0][0] = c.x;
+		jm[1][0] = c.y;
+		jm[2][0] = c.z;
+		jm[0][1] = side.x;
+		jm[1][1] = side.y;
+		jm[2][1] = side.z;
+		jm[0][2] = fwd.x;
+		jm[1][2] = fwd.y;
+		jm[2][2] = fwd.z;
+		jm[0][3] = start.x + c.x * dist;
+		jm[1][3] = start.y + c.y * dist;
+		jm[2][3] = start.z + c.z * dist;
 	}
 }
 
