@@ -9,6 +9,15 @@ static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 	return MsWrap<f32>(t, l, r);
 }
 
+static inline const JGeometry::TVec3<f32>&
+getPathPoint(THitActor* actor, const JGeometry::TVec3<f32>& point)
+{
+	if (actor != nullptr)
+		return actor->getPosition();
+
+	return point;
+}
+
 #pragma dont_inline on
 void JGeometry::TVec3<f32>::div(f32 divisor)
 {
@@ -227,10 +236,7 @@ TBoidLeader::calcGoalForce(const JGeometry::TVec3<f32>& pos) const
 		force -= pos;
 		force.normalize();
 	} else {
-		if (mGoalActor != nullptr)
-			force.set(mGoalActor->getPosition());
-		else
-			force.set(mGoalPos);
+		force.set(getPathPoint(mGoalActor, mGoalPos));
 		force += mGoalOffset;
 		force -= pos;
 		f32 length = force.length();
