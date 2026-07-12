@@ -611,7 +611,7 @@ void TBaseNPC::npcTakenIn()
 	requestNpcAnm_((EnumNpcAnmKind)0x9,
 	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
-	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
+	mTurnSpeed  = mNpcSaveIndividual->mWaitTurnSpeed.get();
 	unk1CC      = 0;
 	unk1D0      = 0.0f;
 }
