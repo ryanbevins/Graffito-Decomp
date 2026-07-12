@@ -144,7 +144,7 @@ JGeometry::TVec3<f32> TBaseNPC::getEffectScale_() const
 	case 0x04000017:
 		return JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f);
 	}
-	return *(const JGeometry::TVec3<f32>*)&mEffectScaleBase;
+	return mEffectScaleBase;
 }
 
 void TBaseNPC::emitSinkEffect_()
@@ -166,7 +166,7 @@ void TBaseNPC::emitHappyEffect_()
 	if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
 		scale.set(1.0f, 1.0f, 1.0f);
 	} else {
-		scale = *(const JGeometry::TVec3<f32>*)&mEffectScaleBase;
+		scale = mEffectScaleBase;
 	}
 
 	JGeometry::TVec3<f32> scale2 = scale;

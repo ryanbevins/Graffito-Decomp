@@ -638,7 +638,7 @@ void TBaseNPC::load(JSUMemoryInputStream& stream)
 	TSpineEnemy::load(stream);
 	*(Vec*)&mResetPos        = *(Vec*)&mPosition;
 	*(Vec*)&unk1A0           = *(Vec*)&mRotation;
-	*(Vec*)&mEffectScaleBase = *(Vec*)&mScaling;
+	mEffectScaleBase = mScaling;
 	*(Vec*)mLoadRot          = getFocalPoint();
 	if (!((s32)mActorType < 0x0400001E && (s32)mActorType >= 0x0400001C))
 		setIndividualDifference_(stream);

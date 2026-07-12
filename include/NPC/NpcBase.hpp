@@ -277,7 +277,7 @@ public:
 	/* 0x1A0 */ char unk1A0[0x4];
 	/* 0x1A4 */ f32 mResetRotY;
 	/* 0x1A8 */ char unk1A8[0x4];
-	/* 0x1AC */ Vec mEffectScaleBase;
+	/* 0x1AC */ JGeometry::TVec3<f32> mEffectScaleBase;
 	/* 0x1B8 */ char mLoadRot[0xC];
 	/* 0x1C4 */ f32 mSinkBaseY;
 	/* 0x1C8 */ f32 unk1C8;
