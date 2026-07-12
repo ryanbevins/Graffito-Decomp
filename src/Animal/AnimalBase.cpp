@@ -107,13 +107,9 @@ void TAnimalBase::perform(u32 flags, JDrama::TGraphics* gfx)
 		if (!(mLiveFlag & 6)) {
 			calcRootMatrix();
 		}
-		if (sharedNum == 0) {
-			if (!(mLiveFlag & 6)) {
-				mMActor->calc();
-			}
-		} else if (mInstanceIndex < sharedNum) {
+		if ((sharedNum != 0 && mInstanceIndex < sharedNum)
+		    || (sharedNum == 0 && !(mLiveFlag & 6)))
 			mMActor->calc();
-		}
 		flags &= ~2;
 	}
 
