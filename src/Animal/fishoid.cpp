@@ -19,7 +19,7 @@
 #include <dolphin/mtx.h>
 
 namespace {
-const char* cFishoidMdlNames[] = {
+const char* const cFishoidMdlNames[] = {
 	"fishA.bmd",
 	"fishB.bmd",
 	"fishC.bmd",
