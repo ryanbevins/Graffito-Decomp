@@ -319,7 +319,26 @@ public:
 	};
 
 	/* 0x22C */ TNpcAnmFrameCounter* mAnmFrameCounter;
-	/* 0x230 */ s16* mNeckAngles;
+
+	class TNpcNeckAngles {
+	public:
+		TNpcNeckAngles()
+		    : mYaw(0)
+		    , mPitch(0)
+		{
+		}
+
+		void set(s16 yaw, s16 pitch)
+		{
+			mYaw   = yaw;
+			mPitch = pitch;
+		}
+
+		/* 0x0 */ s16 mYaw;
+		/* 0x2 */ s16 mPitch;
+	};
+
+	/* 0x230 */ TNpcNeckAngles* mNeckAngles;
 };
 
 #endif

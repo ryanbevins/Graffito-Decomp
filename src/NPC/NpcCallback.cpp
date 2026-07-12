@@ -29,8 +29,8 @@ BOOL NPCNeckCallBack(J3DNode* node, int phase)
 			Mtx*      mtxArr = j3dSys.getModel()->mNodeMatrices;
 			Mtx&      jntMtx = mtxArr[jnt->mJntNo];
 
-			s16 yaw   = gpCurrentNpc->mNeckAngles[0];
-			s16 pitch = gpCurrentNpc->mNeckAngles[1];
+			s16 yaw   = gpCurrentNpc->mNeckAngles->mYaw;
+			s16 pitch = gpCurrentNpc->mNeckAngles->mPitch;
 
 			s16  chasePitch = 0;
 			s16  chaseYaw   = 0;
@@ -104,8 +104,7 @@ BOOL NPCNeckCallBack(J3DNode* node, int phase)
 			s16 yawSpeed = CLBPalIntSpeed<s16>(gpCurrentNpc->mNpcSaveIndividual->mNeckAngleXSpeed.value);
 			CLBChaseGeneralConstantSpecifySpeed<s16>(&yaw, chaseYaw, yawSpeed);
 
-			gpCurrentNpc->mNeckAngles[0] = yaw;
-			gpCurrentNpc->mNeckAngles[1] = pitch;
+			gpCurrentNpc->mNeckAngles->set(yaw, pitch);
 
 			Mtx tmp;
 			MsMtxSetRotRPH(tmp, (f32)pitch * 0.005493164f, 0.0f,

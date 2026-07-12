@@ -227,16 +227,7 @@ void TBaseNPC::init(TLiveManager* manager)
 	JUTNameTab* nameTab = getModel()->getModelData()->unkB0;
 	mNpcKind            = nameTab->getIndex(cNeckJointName);
 	if (mNpcKind != -1) {
-		struct TNeckAngles {
-			s16 a;
-			s16 b;
-		};
-		TNeckAngles* angles = new TNeckAngles;
-		if (angles != nullptr) {
-			angles->a = 0;
-			angles->b = 0;
-		}
-		mNeckAngles = (s16*)angles;
+		mNeckAngles = new TNpcNeckAngles;
 		mMActor->setJointCallback(mNpcKind, NPCNeckCallBack);
 	}
 
