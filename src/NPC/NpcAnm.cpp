@@ -840,8 +840,7 @@ void TBaseNPC::npcSinking()
 
 void TBaseNPC::npcThrowIn()
 {
-	requestNpcAnm_((EnumNpcAnmKind)0xD,
-	               (EnumNpcStopMotionBlendOnOff)1);
+	requestNpcAnm_(NPC_ANM_KIND_THROW, NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
