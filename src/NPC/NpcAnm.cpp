@@ -858,7 +858,7 @@ bool TBaseNPC::npcThrowing()
 		unk64 |= 0x1;
 		unk1DC = CLBPalFrame<long>(0x1E);
 	} else if (spineCtr == startF) {
-		((TNpcThrow*)unk17C)->throwMario((THitActor*)this);
+		unk17C->throwMario(this);
 	} else if (mMActor->isCurAnmAlreadyEnd(0)) {
 		done = true;
 	}

@@ -16,6 +16,7 @@ class SDLModel;
 class TMultiMtxEffect;
 class TNpcCoin;
 class TNpcTrample;
+class TNpcThrow;
 
 enum EnumNpcStopMotionBlendOnOff {
 	NPC_STOP_MOTION_BLEND_OFF = 0,
@@ -246,7 +247,7 @@ public:
 	/* 0x170 */ u32 mActionFlag;
 	/* 0x174 */ GXColor unk174;
 	/* 0x178 */ f32 unk178;
-	/* 0x17C */ void* unk17C;
+	/* 0x17C */ TNpcThrow* unk17C;
 	/* 0x180 */ TNpcTrample* mNpcTrample;
 	/* 0x184 */ TNpcCoin* mNpcCoin;
 	/* 0x188 */ TNpcBalloon* mNpcBalloon;
