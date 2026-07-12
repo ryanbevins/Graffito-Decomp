@@ -335,7 +335,7 @@ void TAnimalBase::initNoLoad_(TAnimalBase* pNew)
 	pNew->mRotation.z = 0.0f;
 
 	pNew->unk3C            = unk3C;
-	pNew->unk124->unk0     = unk124->unk0;
+	pNew->unk124->setGraph(unk124->getGraph());
 	pNew->mGroundPlane     = TMap::getIllegalCheckData();
 	pNew->init(mManager);
 
