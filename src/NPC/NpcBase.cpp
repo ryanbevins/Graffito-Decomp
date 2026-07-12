@@ -671,7 +671,7 @@ BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 				shouldBehave = false;
 			}
 			if (shouldBehave)
-				behaveToHitObject_(sender, (EnumHitNpcObjectKind)0);
+				behaveToHitObject_(sender, HIT_NPC_OBJECT_KIND_WATER_SPRAY);
 			result = true;
 		} else if (message == 0x10
 		           || (message == 0xE && sender->mActorType == 0x4000005A)) {
@@ -719,9 +719,9 @@ BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 				}
 			}
 			if (shouldHit) {
-				EnumHitNpcObjectKind kind = (EnumHitNpcObjectKind)2;
+				EnumHitNpcObjectKind kind = HIT_NPC_OBJECT_KIND_UNK2;
 				if (message == 0x10)
-					kind = (EnumHitNpcObjectKind)1;
+					kind = HIT_NPC_OBJECT_KIND_UNK1;
 				behaveToHitObject_(sender, kind);
 			}
 			result = true;

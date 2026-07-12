@@ -24,7 +24,11 @@ enum EnumNpcStopMotionBlendOnOff {
 	NPC_STOP_MOTION_BLEND_OFF = 0,
 	NPC_STOP_MOTION_BLEND_ON  = 1,
 };
-enum EnumHitNpcObjectKind { };
+enum EnumHitNpcObjectKind {
+	HIT_NPC_OBJECT_KIND_WATER_SPRAY = 0,
+	HIT_NPC_OBJECT_KIND_UNK1        = 1,
+	HIT_NPC_OBJECT_KIND_UNK2        = 2,
+};
 
 // Pending animation request set by request*Anm_; consumed by perform/state code.
 struct TNpcKeepAnm {

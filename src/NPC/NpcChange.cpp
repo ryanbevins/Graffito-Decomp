@@ -292,7 +292,7 @@ void TBaseNPC::behaveToBeTrampled_()
 void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 {
 	if (mActionFlag & 0x4000) {
-		if ((s32)kind != 0)
+		if (kind != HIT_NPC_OBJECT_KIND_WATER_SPRAY)
 			return;
 		bool m12 = true;
 		if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
@@ -323,7 +323,7 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 		return;
 	}
 
-	if ((s32)kind == 0) {
+	if (kind == HIT_NPC_OBJECT_KIND_WATER_SPRAY) {
 		bool m12 = true;
 		if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
 			m12 = false;
@@ -390,7 +390,7 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 	if (sunBlock)
 		return;
 
-	if (unk178 != 0.0f && (s32)kind == 1)
+	if (unk178 != 0.0f && kind == HIT_NPC_OBJECT_KIND_UNK1)
 		return;
 
 	if (mActorType - 0x04000000 == 0x6) {
@@ -403,7 +403,7 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 	    && *(s32*)((u8*)mSpine + 0x20) < 0x4)
 		return;
 
-	if ((s32)kind == 1)
+	if (kind == HIT_NPC_OBJECT_KIND_UNK1)
 		mLiveFlag |= 0x04000000;
 
 	mSpine->pushNerve(&TNerveNPCWet::theNerve());
