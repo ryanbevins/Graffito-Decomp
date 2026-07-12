@@ -89,13 +89,7 @@ void TFishoid::load(JSUMemoryInputStream& stream)
 	mBoidLeader->mParam30 = 5.0f;
 	mBoidLeader->mParam34 = 0.5f;
 
-	THitActor* mario = (THitActor*)gpMarioAddress;
-	JGeometry::TVec3<f32> repelPos(0.0f, 0.0f, 0.0f);
-	if (mario != nullptr)
-		repelPos.set(mario->mPosition);
-
-	mBoidLeader->mRepelActor = mario;
-	mBoidLeader->mRepelPos   = repelPos;
+	mBoidLeader->mRepelTarget = (THitActor*)gpMarioAddress;
 	mBoidLeader->mRepelRange = 400.0f;
 	mBoidLeader->mRepelForce = 3.0f;
 	mBoidLeader->mFlags |= 2;
@@ -163,8 +157,7 @@ void TRealoid::loadDefault(JSUMemoryInputStream& stream, const char* model_name,
 	mBoidLeader = new TBoidLeader(
 	    num, "\x83\x52\x83\x93\x83\x67\x83\x8d\x81\x5b\x83\x89");
 
-	mBoidLeader->mGoalActor = nullptr;
-	mBoidLeader->mGoalPos   = mPosition;
+	mBoidLeader->mGoalTarget = mPosition;
 	mBoidLeader->setGraph(getTracer()->getGraph(), mPosition);
 
 	mActors = new TRealoidActor*[num];

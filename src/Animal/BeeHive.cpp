@@ -64,13 +64,7 @@ static void setBoidLeaderMarioGoal(TBoidLeader* leader, f32 offset_y)
 {
 	setBoidLeaderWaitParams(leader);
 
-	THitActor* mario = (THitActor*)gpMarioAddress;
-	JGeometry::TVec3<f32> marioPos(0.0f, 0.0f, 0.0f);
-	if (mario)
-		marioPos = mario->mPosition;
-
-	leader->mGoalActor = mario;
-	leader->mGoalPos   = marioPos;
+	leader->mGoalTarget = (THitActor*)gpMarioAddress;
 	leader->mGoalOffset.set(0.0f, offset_y, 0.0f);
 }
 
@@ -79,8 +73,7 @@ static void setBoidLeaderHomeGoal(TBeeHive* hive)
 	TBoidLeader* leader = hive->mBoidLeader;
 	setBoidLeaderWaitParams(leader);
 
-	leader->mGoalActor = nullptr;
-	leader->mGoalPos   = hive->mPosition;
+	leader->mGoalTarget = hive->mPosition;
 	leader->mGoalOffset.set(0.0f, 0.0f, 0.0f);
 }
 }
@@ -365,15 +358,10 @@ BOOL TBeeHive::doWait()
 
 	setBoidLeaderWaitParams(mBoidLeader);
 	if (diff.squared() <= params->mSearchRange.get() * params->mSearchRange.get()) {
-		mBoidLeader->mGoalActor = (THitActor*)gpMarioAddress;
-		if (gpMarioAddress)
-			mBoidLeader->mGoalPos = ((THitActor*)gpMarioAddress)->mPosition;
-		else
-			mBoidLeader->mGoalPos.set(0.0f, 0.0f, 0.0f);
+		mBoidLeader->mGoalTarget = (THitActor*)gpMarioAddress;
 		mBoidLeader->mGoalOffset.set(0.0f, 200.0f, 0.0f);
 	} else {
-		mBoidLeader->mGoalActor = nullptr;
-		mBoidLeader->mGoalPos   = mPosition;
+		mBoidLeader->mGoalTarget = mPosition;
 		mBoidLeader->mGoalOffset.set(0.0f, 0.0f, 0.0f);
 	}
 

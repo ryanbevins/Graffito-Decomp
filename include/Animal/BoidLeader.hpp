@@ -50,13 +50,11 @@ public:
 	/* 0x2C */ f32 mParam2C;
 	/* 0x30 */ f32 mParam30;
 	/* 0x34 */ f32 mParam34;
-	/* 0x38 */ THitActor* mGoalActor;
-	/* 0x3C */ JGeometry::TVec3<f32> mGoalPos;
+	/* 0x38 */ TPathNode mGoalTarget;
 	/* 0x48 */ f32 mGoalForce;
 	/* 0x4C */ JGeometry::TVec3<f32> mGoalOffset;
 	/* 0x58 */ u32 unk58;
-	/* 0x5C */ THitActor* mRepelActor;
-	/* 0x60 */ JGeometry::TVec3<f32> mRepelPos;
+	/* 0x5C */ TPathNode mRepelTarget;
 	/* 0x6C */ f32 mRepelRange;
 	/* 0x70 */ f32 mRepelForce;
 	/* 0x74 */ JGeometry::TVec3<f32> mGraphGoal;

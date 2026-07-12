@@ -105,13 +105,7 @@ void TButterfloid::load(JSUMemoryInputStream& stream)
 	mBoidLeader->mParam30 = 16.0f;
 	mBoidLeader->mParam34 = 0.7f;
 
-	THitActor* mario = (THitActor*)gpMarioAddress;
-	JGeometry::TVec3<f32> repelPos(0.0f, 0.0f, 0.0f);
-	if (mario != nullptr)
-		repelPos.set(mario->mPosition);
-
-	mBoidLeader->mRepelActor = mario;
-	mBoidLeader->mRepelPos   = repelPos;
+	mBoidLeader->mRepelTarget = (THitActor*)gpMarioAddress;
 	mBoidLeader->mRepelRange = 500.0f;
 	mBoidLeader->mRepelForce = 2.0f;
 	mBoidLeader->mFlags |= 2;

@@ -46,28 +46,20 @@ TBoidLeader::TBoidLeader(int count, const char* name)
     , mBoidData(new TBoid[count])
     , mGraphTracer(nullptr)
     , mFlags(0)
+    , mParam20(6.0f)
+    , mParam24(150.0f)
+    , mParam28(2.0f)
+    , mParam2C(2.0f)
+    , mParam30(10.0f)
+    , mParam34(0.01f)
+    , mGoalTarget(JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f))
+    , mGoalForce(1.0f)
+    , unk58(0)
+    , mRepelTarget(JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f))
+    , mRepelRange(0.0f)
+    , mRepelForce(1.0f)
+    , mGraphGoal(0.0f, 0.0f, 0.0f)
 {
-	mParam20 = 6.0f;
-	mParam24 = 150.0f;
-	mParam28 = 2.0f;
-	mParam2C = 2.0f;
-	mParam30 = 10.0f;
-	mParam34 = 0.01f;
-
-	JGeometry::TVec3<f32> zeroGoal;
-	zeroGoal.set(0.0f, 0.0f, 0.0f);
-	mGoalActor = nullptr;
-	mGoalPos   = zeroGoal;
-	mGoalForce = 1.0f;
-
-	unk58 = 0;
-	JGeometry::TVec3<f32> zeroRepel;
-	zeroRepel.set(0.0f, 0.0f, 0.0f);
-	mRepelActor = nullptr;
-	mRepelPos   = zeroRepel;
-	mRepelRange = 0.0f;
-	mRepelForce = 1.0f;
-	mGraphGoal.set(0.0f, 0.0f, 0.0f);
 	mGoalOffset.zero();
 
 	mFlags |= 1;
@@ -213,7 +205,7 @@ TBoidLeader::calcGoalForce(const JGeometry::TVec3<f32>& pos) const
 		force -= pos;
 		force.normalize();
 	} else {
-		force.set(getPathPoint(mGoalActor, mGoalPos));
+		force.set(mGoalTarget.getPoint());
 		force += mGoalOffset;
 		force -= pos;
 		f32 length = force.length();
@@ -246,12 +238,7 @@ JGeometry::TVec3<f32> TBoidLeader::calcForces(const TBoid* boid) const
 
 	if (mRepelRange > 0.0f) {
 		JGeometry::TVec3<f32> away = boid->mPosition;
-		const JGeometry::TVec3<f32>* repelPos;
-		if (mRepelActor != nullptr)
-			repelPos = &mRepelActor->mPosition;
-		else
-			repelPos = &mRepelPos;
-		away.sub(*repelPos);
+		away.sub(mRepelTarget.getPoint());
 
 		f32 repelLen2 = away.squared();
 		if (repelLen2 > 0.0f && repelLen2 < mRepelRange * mRepelRange) {
