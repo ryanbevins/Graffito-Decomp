@@ -2292,441 +2292,90 @@ void TMario::checkRideMovement()
 
 void TMario::checkCurrentPlane()
 {
-	u8 bit19;
-	if (getAction() & 0x1000) {
-		bit19 = 1;
-	} else {
-		bit19 = 0;
-	}
-	if (bit19)
+	if (checkStatusType(0x1000))
 		return;
 
-	// Check if on Yoshi
-	u8 r28 = 0;
-	if (getYoshi() != nullptr) {
-		if (((TYoshi*)getYoshi())->onYoshi()) {
-			r28 = 1;
-		}
-	}
-
-	if (r28) {
+	if (onYoshi())
 		unk15C = 80.0f;
-	} else {
+	else
 		unk15C = 50.0f;
-	}
 
-	// First wall check
-	TBGWallCheckRecord wallCheck;
-	r28 = 0;
-	wallCheck.mCenter.x    = getMpositionX();
-	wallCheck.mCenter.y    = 60.0f + getMpositionY();
-	wallCheck.mCenter.z    = getMpositionZ();
-	wallCheck.mRadius      = getUnk15c();
-	wallCheck.mMaxResults  = 2;
-	wallCheck.mFlags       = 0;
-	gpMap->isTouchedWallsAndMoveXZ(&wallCheck);
+	TBGWallCheckRecord record(mPosition.x, mPosition.y + 60.0f, mPosition.z,
+	                          unk15C, 2, 0);
 
-	// First skip check
-	{
-		u8 skip;
-		if (getUnk14c() > 0) {
-			skip = 1;
-		} else {
-			if (getState() & 0x8) {
-				r28 = 1;
-			}
-			if (r28) {
-				skip = 1;
-			} else {
-				u32 action = getAction();
-				if (action == 0x89C) {
-					skip = 1;
-				} else {
-					u8 dirState
-					    = *(u8*)((u8*)gpMarDirector + 0x124);
-					if (dirState == 3 || dirState == 4) {
-						skip = 1;
-					} else {
-						u8 isDemo;
-						if (dirState == 1
-						    || dirState == 2) {
-							isDemo = 1;
-						} else {
-							isDemo = 0;
-						}
-						if (isDemo) {
-							skip = 1;
-						} else {
-							s32 b19;
-							if (action & 0x1000) {
-								b19 = 1;
-							} else {
-								b19 = 0;
-							}
-							if (b19) {
-								skip = 1;
-							} else {
-								skip = 0;
-							}
-						}
-					}
-				}
-			}
-		}
-		if (!skip) {
-			// Loop over first wall results
-			for (int i = 0; i < wallCheck.mResultWallsNum; i++) {
-				TBGCheckData* wall = wallCheck.mResultWalls[i];
-				u16 wt = wall->mBGType;
-				u8 isDmgWall;
-				if (wt == 0xB || wt == 0x800B || wt == 0x103 || wt == 0x101) {
-					isDmgWall = 1;
-				} else {
-					isDmgWall = 0;
-				}
-				if (!isDmgWall)
-					continue;
+	gpMap->isTouchedWallsAndMoveXZ(&record);
+	if (!isInvincible()) {
+		for (int i = 0; i < record.mResultWallsNum; ++i)
+			if (record.mResultWalls[i]->isThing5())
+				damageExec(&mFloorHitActor, record.mResultWalls[i]->getData());
 
-				TEParams* dmg = getDmgMapCode(wall->mData);
-				mFloorHitActor.mPosition.x
-				    = getMpositionX() + JMASSin((u16)getMfaceangleY());
-				mFloorHitActor.mPosition.z
-				    = getMpositionZ() + JMASCos((u16)getMfaceangleY());
-				damageExec(&mFloorHitActor,
-				           dmg->mDamage.get(), dmg->mDownType.get(),
-				           dmg->mWaterEmit.get(), dmg->mMinSpeed.get(),
-				           dmg->mMotor.get(), dmg->mDirty.get(),
-				           dmg->mInvincibleTime.get());
-			}
+		if (record.mResultWallsNum == 2
+		    && record.mResultWalls[0]->getNormal().dot(
+		           record.mResultWalls[1]->getNormal())
+		           < -0.9f) {
 
-			// Two-wall crush check
-			if (wallCheck.mResultWallsNum == 2) {
-				TBGCheckData* wall0 = wallCheck.mResultWalls[0];
-				TBGCheckData* wall1 = wallCheck.mResultWalls[1];
-				f32 dot = wall0->mNormal.dot(wall1->mNormal);
-				if (dot < -0.9f) {
-					// Copy position
-					JGeometry::TVec3<f32> pos(mPosition);
+			JGeometry::TVec3<f32> normal1 = record.mResultWalls[0]->getNormal();
+			JGeometry::TVec3<f32> normal2 = record.mResultWalls[1]->getNormal();
 
-					// Compute plane distances
-					f32 dist0 = wall0->mNormal.dot(pos)
-					            + wall0->mPlaneDistance;
-					f32 dist1 = wall1->mNormal.dot(pos)
-					            + wall1->mPlaneDistance;
+			f32 planeDist1 = record.mResultWalls[0]->getPlaneDistance();
+			f32 planeDist2 = record.mResultWalls[1]->getPlaneDistance();
 
-					// Check actor type - either wall must be type 0x2BD
-					u8 doCrush = 0;
-					const TLiveActor* actor0 = wall0->getActor();
-					if (actor0 != nullptr) {
-						u32 actorType = actor0->getActorType();
-						if ((actorType - 0x40000000) == 0x2BD)
-							doCrush = 1;
-					}
+			f32 dist1 = normal1.dot(mPosition) + planeDist1;
+			f32 dist2 = normal2.dot(mPosition) + planeDist2;
 
-					if (!doCrush) {
-						const TLiveActor* actor1 = wall1->getActor();
-						if (actor1 != nullptr) {
-							u32 actorType1 = actor1->getActorType();
-							if ((actorType1 - 0x40000000) == 0x2BD)
-								doCrush = 1;
-						}
-					}
+			if ((record.mResultWalls[0]->getActor() != nullptr
+			     && record.mResultWalls[0]->getActor()->getActorType()
+			            == 0x400002BD)
+			    || (record.mResultWalls[1]->getActor() != nullptr
+			        && record.mResultWalls[1]->getActor()->getActorType()
+			               == 0x400002BD)) {
 
-					if (doCrush) {
-						if (dist0 < 10.0f || dist1 < 10.0f) {
-							floorDamageExec(mDeParams.mHpMax.get(), 3, 0,
-							                mMotorParams.mMotorReturn.get());
-						}
-					}
-				}
-			}
-		}
-	}
-	// Second wall check (lower, smaller radius)
-	u8 r26 = 1;
-	r28     = 0;
-	wallCheck.mCenter.x   = getMpositionX();
-	wallCheck.mCenter.y   = 4.0f + getMpositionY();
-	wallCheck.mCenter.z   = getMpositionZ();
-	wallCheck.mRadius     = 0.5f * getUnk15c();
-	wallCheck.mMaxResults = 1;
-	wallCheck.mFlags      = 0;
-	gpMap->isTouchedWallsAndMoveXZ(&wallCheck);
-
-	// Skip check for second walls (slightly different logic)
-	if (getUnk14c() > 0) {
-		r26 = 1;
-	} else {
-		if (!(getState() & 0x8)) {
-			r26 = r28;
-		}
-		if (!r26) {
-			u32 action2 = getAction();
-			if (action2 == 0x89C) {
-				r26 = 1;
-			} else {
-				s32 dirState2 = *(u8*)((u8*)gpMarDirector + 0x124);
-				if (dirState2 == 3 || dirState2 == 4) {
-					r26 = 1;
-				} else {
-					u8 isDemo2;
-					if (dirState2 == 1 || dirState2 == 2) {
-						isDemo2 = 1;
-					} else {
-						isDemo2 = 0;
-					}
-					if (isDemo2) {
-						r26 = 1;
-					} else {
-						u8 bit19_2;
-						if (action2 & 0x1000) {
-							bit19_2 = 1;
-						} else {
-							bit19_2 = 0;
-						}
-						if (bit19_2) {
-							r26 = 1;
-						} else {
-							r26 = 0;
-						}
-					}
+				if (dist1 < 10.0f || dist2 < 10.0f) {
+					int hp = mDeParams.mHpMax.get();
+					floorDamageExec(hp, 3, 0, mMotorParams.mMotorReturn.get());
 				}
 			}
 		}
 	}
 
-	if (!r26) {
-		for (int i = 0; i < wallCheck.mResultWallsNum; i++) {
-			TBGCheckData* wall = wallCheck.mResultWalls[i];
-			u16 wt2 = wall->mBGType;
-			u8 isDmg2;
-			if (wt2 == 0xB || wt2 == 0x800B || wt2 == 0x103
-			    || wt2 == 0x101) {
-				isDmg2 = 1;
-			} else {
-				isDmg2 = 0;
-			}
-			if (!isDmg2)
-				continue;
+	record.set(mPosition.x, mPosition.y + 30.0f, mPosition.z, unk15C * 0.5f, 1,
+	           0);
+	gpMap->isTouchedWallsAndMoveXZ(&record);
+	if (!isInvincible()) {
+		for (int i = 0; i < record.mResultWallsNum; ++i)
+			if (record.mResultWalls[i]->isThing5())
+				damageExec(&mFloorHitActor, record.mResultWalls[i]->getData());
+	}
 
-			TEParams* dmg = getDmgMapCode(wall->mData);
-			mFloorHitActor.mPosition.x = getMpositionX()
-			    + JMASSin((u16)getMfaceangleY());
-			mFloorHitActor.mPosition.z = getMpositionZ()
-			    + JMASCos((u16)getMfaceangleY());
-			damageExec(
-			    &mFloorHitActor,
-			    dmg->mDamage.get(), dmg->mDownType.get(),
-			    dmg->mWaterEmit.get(), dmg->mMinSpeed.get(),
-			    dmg->mMotor.get(), dmg->mDirty.get(),
-			    dmg->mInvincibleTime.get());
+	checkGroundPlane(mPosition.x, mPosition.y + 25.0f, mPosition.z,
+	                 &mFloorPosition.y, &mGroundPlane);
+
+	mFloorPosition.x = gpMap->checkRoof(mPosition.x, mPosition.y + 80.0f,
+	                                    mPosition.z, &mRoofPlane);
+	if (!isInvincible()) {
+		if ((isTouchGround4cm()) && mGroundPlane->isThing5()
+		    && !checkStatusType(0x10000)) {
+
+			damageExec(&mFloorHitActor, mGroundPlane->getData());
+		}
+
+		if (mPosition.y + 160.0f > mFloorPosition.x && mRoofPlane->isThing5()) {
+			damageExec(&mFloorHitActor, mRoofPlane->getData());
 		}
 	}
 
-	// Ground check
-	f32 f30 = getMpositionZ();
-	f32 f31 = getMpositionX();
-	mFloorPosition.y
-	    = gpMap->checkGround(f31, 25.0f + getMpositionY(), f30, &mGroundPlane);
+	if (mGroundPlane->isLegal()) {
+		mSlopeAngle
+		    = matan(mGroundPlane->getNormal().z, mGroundPlane->getNormal().x);
 
-	if (getGroundPlane()->isMarioThrough()) {
-		mFloorPosition.y = gpMap->checkGround(
-		    f31, getFloorPositionY() - 1.0f, f30, &mGroundPlane);
+		if (isSlipStart() || checkFlag(MARIO_FLAG_GROUND_POUND_SIT_UP))
+			mInput |= 0x8;
+
+		if (mPosition.y > mFloorPosition.y + 100.0f)
+			mInput |= 0x4;
+
+		mState &= ~MARIO_FLAG_GROUND_POUND_SIT_UP;
 	}
-
-	// Roof check
-	mFloorPosition.x
-	    = gpMap->checkRoof(getMpositionX(), 80.0f + mPosition.y, getMpositionZ(),
-	                       &mRoofPlane);
-
-	// Ground damage check (third skip check)
-	{
-		u8 skip3;
-		if (getUnk14c() > 0) {
-			skip3 = 1;
-		} else {
-			u8 mStatebit;
-			if (getState() & 0x8) {
-				mStatebit = 1;
-			} else {
-				mStatebit = 0;
-			}
-			if (mStatebit) {
-				skip3 = 1;
-			} else {
-				u32 action3 = getAction();
-				if (action3 == 0x89C) {
-					skip3 = 1;
-				} else {
-					u8 dirState3
-					    = *(u8*)((u8*)gpMarDirector + 0x124);
-					if (dirState3 == 3 || dirState3 == 4) {
-						skip3 = 1;
-					} else {
-						u8 isDemo3;
-						if (dirState3 == 1
-						    || dirState3 == 2) {
-							isDemo3 = 1;
-						} else {
-							isDemo3 = 0;
-						}
-						if (isDemo3) {
-							skip3 = 1;
-						} else {
-							u8 bit19_3;
-							if (action3 & 0x1000) {
-								bit19_3 = 1;
-							} else {
-								bit19_3 = 0;
-							}
-							if (bit19_3) {
-								skip3 = 1;
-							} else {
-								skip3 = 0;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if (!skip3) {
-			// Check ground damage
-			u8 nearGround;
-			if (getMpositionY() <= 4.0f + getFloorPositionY()) {
-				nearGround = 1;
-			} else {
-				nearGround = 0;
-			}
-			if (nearGround) {
-				TBGCheckData* ground = getGroundPlane();
-				u16 gt = ground->mBGType;
-				u8 isDmgG;
-				if (gt == 0xB || gt == 0x800B || gt == 0x103
-				    || gt == 0x101) {
-					isDmgG = 1;
-				} else {
-					isDmgG = 0;
-				}
-				if (isDmgG) {
-					u8 bit15;
-					if (getAction() & 0x10000) {
-						bit15 = 1;
-					} else {
-						bit15 = 0;
-					}
-					if (!bit15) {
-						TEParams* dmg
-						    = getDmgMapCode(ground->mData);
-						mFloorHitActor.mPosition.x
-						    = getMpositionX()
-						      + JMASSin((u16)getMfaceangleY());
-						mFloorHitActor.mPosition.z
-						    = getMpositionZ()
-						      + JMASCos((u16)getMfaceangleY());
-						damageExec(
-						    &mFloorHitActor,
-						    dmg->mDamage.get(),
-						    dmg->mDownType.get(),
-						    dmg->mWaterEmit.get(),
-						    dmg->mMinSpeed.get(),
-						    dmg->mMotor.get(),
-						    dmg->mDirty.get(),
-						    dmg->mInvincibleTime.get());
-					}
-				}
-			}
-
-			// Check roof damage
-			if (160.0f + getMpositionY() > getFloorPositionX()) {
-				TBGCheckData* roof = getRoofPlane();
-				u16 rt = roof->mBGType;
-				u8 isDmgR;
-				if (rt == 0xB || rt == 0x800B || rt == 0x103
-				    || rt == 0x101) {
-					isDmgR = 1;
-				} else {
-					isDmgR = 0;
-				}
-				if (isDmgR) {
-					TEParams* dmg = getDmgMapCode(roof->mData);
-					mFloorHitActor.mPosition.x
-					    = getMpositionX()
-					      + JMASSin(
-					          (u16)getMfaceangleY());
-					mFloorHitActor.mPosition.z
-					    = getMpositionZ()
-					      + JMASCos(
-					          (u16)getMfaceangleY());
-					damageExec(
-					    &mFloorHitActor,
-					    dmg->mDamage.get(),
-					    dmg->mDownType.get(),
-					    dmg->mWaterEmit.get(),
-					    dmg->mMinSpeed.get(),
-					    dmg->mMotor.get(), dmg->mDirty.get(),
-					    dmg->mInvincibleTime.get());
-				}
-			}
-		}
-	}
-
-	// Slope detection
-	{
-		TBGCheckData* ground = getGroundPlane();
-		s32 isLegal;
-		if (ground->mFlags & 0x10) {
-			isLegal = 1;
-		} else {
-			isLegal = 0;
-		}
-		// invert: isLegal means data IS illegal, so !isLegal means legal
-		if (isLegal != 1) {
-			// compute slope angle
-			mSlopeAngle = matan(
-			    ground->mNormal.z, ground->mNormal.x);
-
-			s32 slipResult;
-			if ((u8)isForceSlip()) {
-				slipResult = 1;
-			} else {
-				u16 bgType = ground->mBGType;
-				if (bgType == 0xC || bgType == 0x800C
-				    || bgType == 0xA00C) {
-					slipResult = 1;
-				} else if (bgType == 0x2 || bgType == 0x8002) {
-					if (ground->mNormal.y < 0.8660254f) {
-						slipResult = 1;
-					} else {
-						slipResult = 0;
-					}
-				} else if (bgType == 0x3 || bgType == 0x8003) {
-					slipResult = 0;
-				} else {
-					if (ground->mNormal.y
-					    < mDeParams.mSlipStart.get()) {
-						slipResult = 1;
-					} else {
-						slipResult = 0;
-					}
-				}
-			}
-
-			if (slipResult != 0
-			    || (getState() & 0x800)) {
-				mInput |= 0x8;
-			}
-
-			// High slope check
-			if (getMpositionY()
-			    > 100.0f + getFloorPositionY()) {
-				mInput |= 0x4;
-			}
-		}
-	}
-
-	// Clear bit 20 of mState
-	mState = mState & ~0x800;
 }
 #pragma dont_inline on
 TMario::TEParams* TMario::getDmgMapCode(int code) const

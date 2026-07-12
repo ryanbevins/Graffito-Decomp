@@ -1003,6 +1003,17 @@ public:
 	void getActorMtx(const THitActor&, f32 (*)[4]);
 	void checkCurrentPlane();
 	TEParams* getDmgMapCode(int code) const;
+	void damageExec(THitActor* hittingActor, int code)
+	{
+		TEParams* params = getDmgMapCode(code);
+
+		hittingActor->mPosition.x = mPosition.x + JMASSin(mFaceAngle.y);
+		hittingActor->mPosition.z = mPosition.z + JMASCos(mFaceAngle.y);
+		damageExec(hittingActor, params->mDamage.get(), params->mDownType.get(),
+		           params->mWaterEmit.get(), params->mMinSpeed.get(),
+		           params->mMotor.get(), params->mDirty.get(),
+		           params->mInvincibleTime.get());
+	}
 	BOOL checkGroundPlane(f32 x, f32 y, f32 z, f32* outHeight, const TBGCheckData** outPlane);
 	void makeHistory();
 	void checkStickSmash();
@@ -1346,7 +1357,7 @@ public:
 	// fabricated
 	bool isTouchGround4cm() const
 	{
-		return mFloorPosition.y + 4.0f <= mPosition.y ? true : false;
+		return mPosition.y <= mFloorPosition.y + 4.0f ? true : false;
 	}
 
 	// fabricated

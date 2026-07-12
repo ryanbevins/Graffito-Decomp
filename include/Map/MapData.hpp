@@ -217,6 +217,16 @@ public:
 			return false;
 	}
 
+	bool isThing5() const
+	{
+		if (mBGType == BG_TYPE_UNKB || mBGType == 0x800B
+		    || mBGType == BG_TYPE_DAMAGING_SEA_WATER
+		    || mBGType == BG_TYPE_DAMAGING_WATER)
+			return true;
+		else
+			return false;
+	}
+
 	bool isSea() const
 	{
 		if (mBGType == BG_TYPE_SEA_WATER
