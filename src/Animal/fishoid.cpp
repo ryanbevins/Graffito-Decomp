@@ -128,11 +128,12 @@ void TFishoid::perform(u32 flags, JDrama::TGraphics* gfx)
 		mActors[i]->perform(flags, gfx);
 
 	for (int i = 0; i < mBoidLeader->mNumActors; i++) {
+		TBoid* boid = mBoidLeader->getBoid(i);
 		JGeometry::TVec3<f32> pos;
-		pos = mBoidLeader->mBoidData[i].mPosition;
+		pos = boid->mPosition;
 		if (pos.y > 0.0f)
 			pos.y = 0.0f;
-		mBoidLeader->mBoidData[i].mPosition = pos;
+		boid->mPosition = pos;
 	}
 
 	if (mCoinObj != nullptr && (flags & 1))
