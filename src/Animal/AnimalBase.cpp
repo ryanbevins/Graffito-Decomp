@@ -315,10 +315,10 @@ void TAnimalBase::init(TLiveManager* mgr)
 #pragma dont_inline on
 void TAnimalBase::initNoLoad_(TAnimalBase* pNew)
 {
-	pNew->mPosition.x = mPosition.x + 1000.0f * (MsRandF() - 0.5f);
-	pNew->mPosition.z = mPosition.z + 1000.0f * (MsRandF() - 0.5f);
+	pNew->mPosition.x = 1000.0f * (MsRandF() - 0.5f) + mPosition.x;
+	pNew->mPosition.z = 1000.0f * (MsRandF() - 0.5f) + mPosition.z;
 	if (mActorType == 0x00800001) {
-		pNew->mPosition.y = mPosition.y + 1000.0f * MsRandF();
+		pNew->mPosition.y = 1000.0f * MsRandF() + mPosition.y;
 	} else {
 		pNew->mPosition.y = mPosition.y - 250.0f * MsRandF();
 	}
