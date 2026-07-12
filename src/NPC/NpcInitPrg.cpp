@@ -45,11 +45,6 @@ const char* cNeckJointName              = "kubi";
 void SMS_InitChangeNpcColor(const MActor*, const TColorChangeInfo*, s16,
                             const GXColor*);
 
-struct TPollutionStartHelper {
-	/* 0x0 */ int mCounter;
-	/* 0x4 */ int mMax;
-};
-
 struct TUnk18CStruct {
 	/* 0x00 */ s32 unk0;
 	/* 0x04 */ s32 unk4;
@@ -85,13 +80,8 @@ inline void TBaseNPC::initNpcLight_()
 inline void TBaseNPC::initSinkNpc_()
 {
 	static int sCheckPollutedStartCounter = 0;
-	int max                              = CLBPalFrame<int>(30);
-	TPollutionStartHelper* helper       = new TPollutionStartHelper;
-	if (helper != nullptr) {
-		helper->mCounter = sCheckPollutedStartCounter;
-		helper->mMax     = max;
-	}
-	mPollutionStartHelper = helper;
+	int max = CLBPalFrame<int>(30);
+	mSinkTimer = new TNpcSink(sCheckPollutedStartCounter, max);
 	sCheckPollutedStartCounter++;
 	if (sCheckPollutedStartCounter >= max)
 		sCheckPollutedStartCounter = 0;

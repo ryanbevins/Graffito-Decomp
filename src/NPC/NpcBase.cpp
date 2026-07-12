@@ -525,7 +525,7 @@ TBaseNPC::TBaseNPC(u32 actorType, const char* name)
 	mSDLModel             = nullptr;
 	mSDLMtx               = nullptr;
 	mTakenBy              = nullptr;
-	mPollutionStartHelper = nullptr;
+	mSinkTimer            = nullptr;
 	mMultiMtxEffect       = nullptr;
 	mNpcKind              = -1;
 	mNpcParts             = nullptr;

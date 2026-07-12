@@ -235,10 +235,33 @@ public:
 	static s16 mAngleYDiffWhenTaken;
 
 public:
+	class TNpcSink {
+	public:
+		TNpcSink(int counter, int max)
+		    : mCounter(counter)
+		    , mMax(max)
+		{
+		}
+
+		bool advance()
+		{
+			bool result = false;
+			mCounter += 1;
+			if (mCounter >= mMax) {
+				mCounter = mMax;
+				result   = true;
+			}
+			return result;
+		}
+
+		/* 0x0 */ int mCounter;
+		/* 0x4 */ int mMax;
+	};
+
 	/* 0x150 */ SDLModel* mSDLModel;
 	/* 0x154 */ MtxPtr mSDLMtx;
 	/* 0x158 */ THitActor* mTakenBy;
-	/* 0x15C */ void* mPollutionStartHelper;
+	/* 0x15C */ TNpcSink* mSinkTimer;
 	/* 0x160 */ TMultiMtxEffect* mMultiMtxEffect;
 	/* 0x164 */ s32 mNpcKind;
 	/* 0x168 */ TNpcParts* mNpcParts;

@@ -579,21 +579,14 @@ void TBaseNPC::changeNerveProc_()
 		return;
 	if (mActionFlag & 0x4600)
 		return;
-	if (mPollutionStartHelper == nullptr)
+	if (mSinkTimer == nullptr)
 		return;
 	if (latest == &TNerveNPCSetPosAfterSinkBottom::theNerve())
 		return;
 
-	s32* h           = (s32*)mPollutionStartHelper;
-	h[0]            += 1;
-	bool timed       = false;
-	if (h[0] >= h[1]) {
-		h[0]  = h[1];
-		timed = true;
-	}
-	if (!timed)
+	if (!mSinkTimer->advance())
 		return;
-	*(s32*)mPollutionStartHelper = 0;
+	mSinkTimer->mCounter = 0;
 
 	if (latest == &TNerveNPCSink::theNerve()) {
 		if (gpPollution->isPolluted(mPosition.x, mSinkBaseY, mPosition.z))
@@ -653,8 +646,8 @@ void TBaseNPC::setPosAndInitAfterSinkBottom()
 	mLiveFlag    |= 0x01000000;
 	mHolder       = nullptr;
 	mHeldObject   = nullptr;
-	if (mPollutionStartHelper)
-		*(s32*)mPollutionStartHelper = 0;
+	if (mSinkTimer)
+		mSinkTimer->mCounter = 0;
 
 	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
 
