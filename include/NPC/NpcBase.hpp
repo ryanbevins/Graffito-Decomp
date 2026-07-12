@@ -293,14 +293,14 @@ public:
 	/* 0x1E6 */ char unk1E6[0x2];
 	/* 0x1E8 */ MtxPtr mPtrHappyEffectMtx;
 	/* 0x1EC */ MtxPtr mPtrNoteEffectMtx;
-	/* 0x1F0 */ Vec mNoteEffectPos;
+	/* 0x1F0 */ JGeometry::TVec3<f32> mNoteEffectPos;
 	/* 0x1FC */ MtxPtr mPtrPollutionEffectMtx;
 	/* 0x200 */ MtxPtr mPtrPollutionLEffectMtx;
 	/* 0x204 */ MtxPtr mPtrPollutionREffectMtx;
 	/* 0x208 */ MtxPtr mPtrSmokeEffectMtx;
-	/* 0x20C */ Vec mSmokeEffectPos;
+	/* 0x20C */ JGeometry::TVec3<f32> mSmokeEffectPos;
 	/* 0x218 */ f32 mFireScaleMul;
-	/* 0x21C */ Vec mWaterEffectPos;
+	/* 0x21C */ JGeometry::TVec3<f32> mWaterEffectPos;
 	/* 0x228 */ TNpcSaveIndividual* mNpcSaveIndividual;
 	/* 0x22C */ TNpcAnmFrameCounter* mAnmFrameCounter;
 	/* 0x230 */ s16* mNeckAngles;
