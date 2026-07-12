@@ -62,12 +62,10 @@ TAnimalBase::TAnimalBase(u32 type, const char* name)
 void TAnimalBase::load(JSUMemoryInputStream& stream)
 {
 	TSpineEnemy::load(stream);
-	int count;
-	stream.read(&count, 4);
-	int n = count - 1;
-	for (int i = 0; i < n; i++) {
-		TAnimalBase* clone = new TAnimalBase(mActorType, mName);
-		initNoLoad_(clone);
+	s32 count = stream.readS32() - 1;
+	for (int i = 0; i < count; ++i) {
+		TAnimalBase* animal = new TAnimalBase(getActorType(), getName());
+		initNoLoad_(animal);
 	}
 }
 
