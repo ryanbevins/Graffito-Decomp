@@ -341,4 +341,6 @@ public:
 	/* 0x230 */ TNpcNeckAngles* mNeckAngles;
 };
 
+extern TBaseNPC* gpCurrentNpc;
+
 #endif

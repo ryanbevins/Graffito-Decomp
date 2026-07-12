@@ -9,8 +9,6 @@
 #include <Player/MarioAccess.hpp>
 #include <dolphin/mtx.h>
 
-extern TBaseNPC* gpCurrentNpc;
-
 void MsVECNormalize(Vec*, Vec*);
 
 BOOL NPCNeckCallBack(J3DNode* node, int phase)
