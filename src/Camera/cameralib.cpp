@@ -344,7 +344,7 @@ BOOL CLBChaseAngleDecrease(s16* out, s16 target, s16 invSpeed)
  * @param threshold a threshold for if we're close enough
  * @return whether dstValue is still outside the threshold of targetValue
  */
-bool CLBChaseDecrease(f32* dstValue, f32 targetValue, f32 ratio, f32 threshold)
+BOOL CLBChaseDecrease(f32* dstValue, f32 targetValue, f32 ratio, f32 threshold)
 {
 	if (ratio > 1.0f) {
 		ratio = 1.0f;

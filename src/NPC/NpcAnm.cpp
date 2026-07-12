@@ -343,7 +343,7 @@ void TBaseNPC::walkAnmRateChange_()
 		case 0: {
 			int frame
 			    = CLBPalFrame<long>(mPtrSaveNormal->mStopWalkAnmRateFrame.get());
-			bool chasing = CLBChaseDecrease(
+			BOOL chasing = CLBChaseDecrease(
 			    &unk1D0, 0.0f, mPtrSaveNormal->mStopWalkAnmRateChase.get(),
 			    0.001f);
 			if (unk1CC < frame)

@@ -24,7 +24,7 @@ void CLBCalcPointInCubeRatio(const Vec&, const Vec&, const Vec&, const Vec&,
 void CLBCalcRotateZXYTranslateMatrix(MtxPtr, const Vec&, const Vec&);
 void CLBCalcScaleTranslateMatrix(MtxPtr, const Vec&, const Vec&);
 BOOL CLBChaseAngleDecrease(s16*, s16, s16);
-bool CLBChaseDecrease(f32*, f32, f32, f32);
+BOOL CLBChaseDecrease(f32*, f32, f32, f32);
 BOOL CLBChaseSpecialDecrease(f32*, f32, f32, f32);
 void CLBCrossToPolar(const Vec&, const Vec&, f32*, s16*, s16*);
 inline void CLBCrossToPolar(const Vec& origin, const Vec& in, s16* outPitch,
