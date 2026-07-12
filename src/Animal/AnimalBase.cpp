@@ -133,6 +133,7 @@ void TAnimalBase::perform(u32 flags, JDrama::TGraphics* gfx)
 				J3DModel* sharedModel = sharedAnimal->getModel();
 				J3DModel* model       = getModel();
 				J3DModelData* data    = model->getModelData();
+				int count             = data->getDrawMtxNum();
 				Mtx* sharedMtx[2];
 
 				model->swapDrawMtx();
@@ -141,7 +142,6 @@ void TAnimalBase::perform(u32 flags, JDrama::TGraphics* gfx)
 				sharedMtx[0] = sharedModel->mNodeMatrices;
 				sharedMtx[1] = sharedModel->unk5C;
 
-				int count = data->getDrawMtxNum();
 				for (int i = 0; i < count; ++i) {
 					u8 flag = data->getDrawMtxFlag(i);
 					u16 index = data->getDrawMtxIndex(i);
