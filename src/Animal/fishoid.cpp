@@ -51,6 +51,13 @@ TRealoidActor::TRealoidActor(MActor* actor)
 {
 }
 
+TRealoid::TRealoid(const char* name)
+    : TSpineEnemy(name)
+{
+	mBoidLeader = nullptr;
+	onLiveFlag(0x38);
+}
+
 TFishoid::TFishoid(int count, const char* name)
     : TRealoid(name)
 {
@@ -141,13 +148,6 @@ void TFishoid::perform(u32 flags, JDrama::TGraphics* gfx)
 void TFish::init()
 {
 	unk64 |= 1;
-}
-
-TRealoid::TRealoid(const char* name)
-    : TSpineEnemy(name)
-{
-	mBoidLeader = nullptr;
-	onLiveFlag(0x38);
 }
 
 void TRealoid::loadDefault(JSUMemoryInputStream& stream, const char* model_name,
