@@ -103,7 +103,7 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 	if ((s32)mActorType < (s32)0x0400001E && (s32)mActorType >= (s32)0x0400001C)
 		return;
 
-	mAnmRequest->mKind = -1;
+	mKeepAnmCtrl->reset();
 	if ((int)kind == unkD0->mCurrentAnmKind)
 		return;
 
@@ -264,11 +264,9 @@ void TBaseNPC::requestNpcAnm_(EnumNpcAnmKind kind,
 		return;
 	if (isForbidAnm((TUnk18CStruct*)mUnk18C)) {
 		if ((int)kind == unkD0->mCurrentAnmKind) {
-			mAnmRequest->mKind = -1;
+			mKeepAnmCtrl->reset();
 		} else {
-			TNpcAnmRequest* req = mAnmRequest;
-			req->mKind          = (int)kind;
-			req->mBlend         = blend != NPC_STOP_MOTION_BLEND_OFF;
+			mKeepAnmCtrl->keep(kind, blend);
 		}
 	} else {
 		setNpcAnm_(kind, blend);
@@ -277,15 +275,12 @@ void TBaseNPC::requestNpcAnm_(EnumNpcAnmKind kind,
 
 void TBaseNPC::setKeepAnm_()
 {
-	TNpcAnmRequest* req = mAnmRequest;
-	EnumNpcAnmKind prevKind
-	    = (EnumNpcAnmKind)req->mKind;
-	EnumNpcStopMotionBlendOnOff prevBlend
-	    = (EnumNpcStopMotionBlendOnOff)req->mBlend;
-	req->mKind = -1;
+	EnumNpcAnmKind prevKind = mKeepAnmCtrl->getKind();
+	EnumNpcStopMotionBlendOnOff prevBlend = mKeepAnmCtrl->getBlend();
+	mKeepAnmCtrl->reset();
 	if ((int)prevKind != -1) {
 		if ((int)prevKind == unkD0->mCurrentAnmKind) {
-			mAnmRequest->mKind = -1;
+			mKeepAnmCtrl->reset();
 		} else {
 			setNpcAnm_(prevKind, prevBlend);
 		}

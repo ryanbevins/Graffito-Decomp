@@ -361,7 +361,7 @@ void TBaseNPC::execMotionBlend_()
 	else
 		forced = false;
 	if (forced)
-		mAnmRequest->mKind = -1;
+		mKeepAnmCtrl->reset();
 }
 
 void TBaseNPC::calcRootMatrix()
@@ -387,7 +387,7 @@ void TBaseNPC::calcRootMatrix()
 		else
 			forced = false;
 		if (forced)
-			mAnmRequest->mKind = -1;
+			mKeepAnmCtrl->reset();
 	}
 	if (mHolder != nullptr && mSDLModel != nullptr) {
 		MtxPtr takingMtx = mHolder->getTakingMtx();
@@ -541,7 +541,7 @@ TBaseNPC::TBaseNPC(u32 actorType, const char* name)
 	mNpcCoin              = nullptr;
 	mNpcBalloon           = nullptr;
 	mUnk18C               = nullptr;
-	mAnmRequest           = nullptr;
+	mKeepAnmCtrl          = nullptr;
 	mSinkBaseY            = 0.0f;
 	unk1C8                = 0.0f;
 	unk1CC                = 0;
@@ -579,12 +579,7 @@ TBaseNPC::TBaseNPC(u32 actorType, const char* name)
 	if (mActorType == 0x0400001C)
 		return;
 
-	TNpcAnmRequest* req = new TNpcAnmRequest;
-	if (req != nullptr) {
-		req->mKind  = -1;
-		req->mBlend = false;
-	}
-	mAnmRequest = req;
+	mKeepAnmCtrl = new TNpcKeepAnm;
 
 	bool isLock = false;
 	switch (actorType) {

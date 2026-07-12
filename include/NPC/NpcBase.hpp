@@ -26,9 +26,28 @@ enum EnumNpcStopMotionBlendOnOff {
 enum EnumHitNpcObjectKind { };
 
 // Pending animation request set by request*Anm_; consumed by perform/state code.
-struct TNpcAnmRequest {
-	/* 0x0 */ s32 mKind;
-	/* 0x4 */ u8 mBlend;
+struct TNpcKeepAnm {
+	TNpcKeepAnm()
+	    : mKind(NPC_ANM_KIND_INVALID)
+	    , mBlendOn(false)
+	{
+	}
+
+	void reset() { mKind = NPC_ANM_KIND_INVALID; }
+	void keep(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend)
+	{
+		mKind    = kind;
+		mBlendOn = blend != NPC_STOP_MOTION_BLEND_OFF;
+	}
+	EnumNpcAnmKind getKind() const { return mKind; }
+	EnumNpcStopMotionBlendOnOff getBlend() const
+	{
+		return (EnumNpcStopMotionBlendOnOff)mBlendOn;
+	}
+
+private:
+	/* 0x0 */ EnumNpcAnmKind mKind;
+	/* 0x4 */ bool mBlendOn;
 };
 
 // Frame counter used to track how long the current wait/idle animation has
@@ -253,7 +272,7 @@ public:
 	/* 0x184 */ TNpcCoin* mNpcCoin;
 	/* 0x188 */ TNpcBalloon* mNpcBalloon;
 	/* 0x18C */ TNpcInbetween* mUnk18C;
-	/* 0x190 */ TNpcAnmRequest* mAnmRequest;
+	/* 0x190 */ TNpcKeepAnm* mKeepAnmCtrl;
 	/* 0x194 */ Vec mResetPos;
 	/* 0x1A0 */ char unk1A0[0x4];
 	/* 0x1A4 */ f32 mResetRotY;
