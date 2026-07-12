@@ -252,49 +252,44 @@ void TRealoidActor::calcRootMatrix(TBoid* boid)
 	mPosition = boid->mPosition;
 
 	if (mHolder != nullptr) {
-		MtxPtr m = mHolder->getTakingMtx();
-		JGeometry::TVec3<f32> t;
-		t.set(m[0][3], m[1][3], m[2][3]);
-		boid->mPosition = t;
-		PSMTXCopy(mHolder->getTakingMtx(),
-		          mMActor->getModel()->getBaseTRMtx());
+		MtxPtr holderMtx = mHolder->getTakingMtx();
+		JGeometry::TVec3<f32> holderPos;
+		holderPos.x    = holderMtx[0][3];
+		holderPos.y    = holderMtx[1][3];
+		holderPos.z    = holderMtx[2][3];
+		boid->mPosition = holderPos;
+		mMActor->getModel()->setBaseTRMtx(mHolder->getTakingMtx());
 		return;
 	}
 
 	mPosition = boid->mPosition;
-	JGeometry::TVec3<f32> pos = boid->mPosition;
+	JGeometry::TVec3<f32> trans = boid->mPosition;
 
-	MtxPtr dst = mMActor->getModel()->getBaseTRMtx();
+	MtxPtr root = mMActor->getModel()->getBaseTRMtx();
 
 	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
-	JGeometry::TVec3<f32> fwd = boid->mForward;
+	JGeometry::TVec3<f32> dir = boid->mForward;
+	JGeometry::TVec3<f32> n;
 
-	JGeometry::TVec3<f32> xaxis;
-	xaxis.cross(up, fwd);
-	PSVECNormalize((Vec*)&xaxis, (Vec*)&xaxis);
+	n.cross(up, dir);
+	VECNormalize(&n, &n);
 
-	JGeometry::TVec3<f32> yaxis;
-	yaxis.x = fwd.y * xaxis.z - fwd.z * xaxis.y;
-	yaxis.y = fwd.z * xaxis.x - fwd.x * xaxis.z;
-	yaxis.z = fwd.x * xaxis.y - fwd.y * xaxis.x;
-	PSVECNormalize((Vec*)&yaxis, (Vec*)&yaxis);
+	up.cross(dir, n);
+	VECNormalize(&up, &up);
 
-	JGeometry::TVec3<f32> zaxis;
-	zaxis.x = xaxis.y * yaxis.z - xaxis.z * yaxis.y;
-	zaxis.y = xaxis.z * yaxis.x - xaxis.x * yaxis.z;
-	zaxis.z = xaxis.x * yaxis.y - xaxis.y * yaxis.x;
-	PSVECNormalize((Vec*)&zaxis, (Vec*)&zaxis);
+	dir.cross(n, up);
+	VECNormalize(&dir, &dir);
 
-	dst[0][0] = -zaxis.x;
-	dst[1][0] = -zaxis.y;
-	dst[2][0] = -zaxis.z;
-	dst[0][1] = yaxis.x;
-	dst[1][1] = yaxis.y;
-	dst[2][1] = yaxis.z;
-	dst[0][2] = xaxis.x;
-	dst[1][2] = xaxis.y;
-	dst[2][2] = xaxis.z;
-	dst[0][3] = pos.x;
-	dst[1][3] = pos.y;
-	dst[2][3] = pos.z;
+	root[0][0] = -dir.x;
+	root[1][0] = -dir.y;
+	root[2][0] = -dir.z;
+	root[0][1] = up.x;
+	root[1][1] = up.y;
+	root[2][1] = up.z;
+	root[0][2] = n.x;
+	root[1][2] = n.y;
+	root[2][2] = n.z;
+	root[0][3] = trans.x;
+	root[1][3] = trans.y;
+	root[2][3] = trans.z;
 }
