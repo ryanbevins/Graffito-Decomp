@@ -644,8 +644,9 @@ void TMario::strongTouchDownEffect()
 {
 	gpMarioParticleManager->emitWithRotate(
 	    0x10, &mPosition, 0, mFaceAngle.y, 0, 0, nullptr);
+	s16 angle = mFaceAngle.y;
 	gpMarioParticleManager->emitWithRotate(
-	    0x11, &mPosition, 0, mFaceAngle.y, 0, 0, nullptr);
+	    0x11, &mPosition, 0, angle, 0, 0, nullptr);
 }
 
 void TMario::emitGetCoinEffect(JGeometry::TVec3<f32>* pos)
