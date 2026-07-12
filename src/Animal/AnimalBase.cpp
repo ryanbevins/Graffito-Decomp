@@ -13,6 +13,7 @@
 #include <Enemy/Graph.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/ObjModel.hpp>
+#include <Strategic/Strategy.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
@@ -338,12 +339,8 @@ void TAnimalBase::initNoLoad_(TAnimalBase* pNew)
 	pNew->mGroundPlane     = TMap::getIllegalCheckData();
 	pNew->init(mManager);
 
-	JDrama::TViewObj* group = (JDrama::TViewObj*)
-	    JDrama::TNameRefGen::instance->mRootNameRef->searchF(
-	        JDrama::TNameRef::calcKeyCode("\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76"),
-	        "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76");
-	JGadget::TList<void*>* list
-	    = (JGadget::TList<void*>*)((char*)group + 0x10);
-	list->insert(list->end(), (void*)pNew);
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")
+	    ->getChildren()
+	    .push_back(pNew);
 }
 #pragma dont_inline off
