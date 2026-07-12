@@ -1963,43 +1963,21 @@ void TMario::checkGraffito()
 
 bool TMario::isInvincible() const
 {
-	if (getUnk14c() > 0)
+	if (unk14C > 0)
 		return true;
 
-	u8 hasFlag;
-	if (mState & 0x8)
-		hasFlag = 1;
-	else
-		hasFlag = 0;
-
-	if (hasFlag)
+	if (checkFlag(MARIO_FLAG_NPC_TALKING))
 		return true;
 
-	if (mAction == 0x89C)
+	if (mStatus == 0x89C)
 		return true;
 
-	u8 areaID = *(u8*)((u8*)gpMarDirector + 0x124);
-	if (areaID == 3 || areaID == 4) {
-	} else {
-		u8 isEvent = 1;
-		if (areaID != 1) {
-			if (areaID != 2)
-				isEvent = 0;
-		}
+	if (gpMarDirector->isDemoMode3() || gpMarDirector->isDemoMode4()
+	    || gpMarDirector->isTalkModeNow()
+	    || checkStatusType(0x1000))
+		return true;
 
-		if (!isEvent) {
-			u8 hasBit;
-			if (mAction & 0x1000)
-				hasBit = 1;
-			else
-				hasBit = 0;
-
-			if (!hasBit)
-				return false;
-		}
-	}
-
-	return true;
+	return false;
 }
 
 BOOL TMario::isForceSlip()

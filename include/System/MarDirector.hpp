@@ -126,6 +126,8 @@ public:
 			result = false;
 		return result;
 	}
+	bool isDemoMode3() const { return unk124 == 3; }
+	bool isDemoMode4() const { return unk124 == 4; }
 
 	bool checkUnk124Thing2() const
 	{

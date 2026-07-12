@@ -1339,7 +1339,12 @@ public:
 	void animSound();
 	void soundMovement();
 	void startVoiceYoshi(u32);
-	bool checkStatusType(long status) const;
+	bool checkStatusType(long status) const
+	{
+		if (mStatus & status)
+			return true;
+		return false;
+	}
 
 	// fabricated
 	f32 getIntendedMag() const { return mIntendedMag; }

@@ -975,15 +975,6 @@ void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 	*out = angle;
 }
 
-#pragma dont_inline on
-bool TMario::checkStatusType(long status) const
-{
-	if (mAction & status)
-		return TRUE;
-	return FALSE;
-}
-#pragma dont_inline off
-
 bool CPolarSubCamera::isMomentDefinite_() const
 {
 	bool result = false;
