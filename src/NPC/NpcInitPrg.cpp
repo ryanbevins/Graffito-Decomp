@@ -482,27 +482,25 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 	if ((streamS32c & 1) != 0)
 		unk17C = new TNpcThrow(fStream2, fStream3);
 
-	bool wantSmoke = false;
-	if (isNormalMonteM() && (mActionFlag & 0x4000) != 0)
-		wantSmoke = true;
+	bool wantSmoke = isNormalMonteM() && (mActionFlag & 0x4000) != 0
+	                   ? true
+	                   : false;
 
 	bool smokeAllowed = true;
 	if (sFlag == 0x7d0 || sFlag == 0xc8
 	    || (sFlag >= 0 && sFlag < 0x32)) {
-		bool isInRange      = (sFlag >= 0 && sFlag < 0x32);
-		bool blueCoinTaken  = false;
-		if (isInRange) {
-			if (TFlagManager::smInstance->getBlueCoinFlag(
-			        gpApplication.mCurrArea.getStage(), (u8)sFlag)) {
-				blueCoinTaken = true;
-			}
-		}
-		bool wantCoin = !blueCoinTaken;
-		if (wantSmoke && wantCoin) {
+		bool blueCoinTaken
+		    = sFlag >= 0 && sFlag < 0x32
+		          && TFlagManager::smInstance->getBlueCoinFlag(
+		              gpApplication.mCurrArea.getStage(), (u8)sFlag)
+		      ? true
+		      : false;
+
+		if (wantSmoke && blueCoinTaken) {
 			mActionFlag &= ~0x4088;
 			smokeAllowed = false;
 		} else {
-			if (wantCoin)
+			if (blueCoinTaken)
 				sFlag = 0x7d0;
 			mNpcCoin = new TNpcCoin((s32)sFlag);
 		}
