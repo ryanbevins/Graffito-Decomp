@@ -514,8 +514,7 @@ bool TBaseNPC::npcRecoverFromSinking()
 
 void TBaseNPC::npcRecoverAfterIn()
 {
-	requestNpcAnm_((EnumNpcAnmKind)0x3,
-	               (EnumNpcStopMotionBlendOnOff)1);
+	requestNpcAnm_(NPC_ANM_KIND_UNK3, NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
 	unk1CC      = 0;
