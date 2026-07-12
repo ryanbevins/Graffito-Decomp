@@ -370,22 +370,24 @@ inline void TBaseNPC::initIndividualAnm_()
 		}
 		break;
 	case 0x400000F: {
-		f32 r   = (f32)rand() * (1.0f / 32768.0f);
-		s32 sel = (s32)(3.0f * r);
-		if (sel == 1) {
-			unkD0->unk18 = sIndividualMareMA1Bck;
-			unkD0->unk1C = sIndividualMareMA1Btp;
-		} else if (sel == 0) {
+		switch ((int)(MsRandF() * 3.0f)) {
+		case 0:
 			unkD0->unk18 = sIndividualMareMA0Bck;
 			unkD0->unk1C = sIndividualMareMA0Btp;
+			break;
+		case 1:
+			unkD0->unk18 = sIndividualMareMA1Bck;
+			unkD0->unk1C = sIndividualMareMA1Btp;
+			break;
 		}
 		break;
 	}
 	case 0x4000014: {
-		f32 r   = (f32)rand() * (1.0f / 32768.0f);
-		s32 sel = (s32)(2.0f * r);
-		if (sel == 0)
+		switch ((int)(MsRandF() * 2.0f)) {
+		case 0:
 			unkD0->unk18 = sIndividualMareWA0Bck;
+			break;
+		}
 		break;
 	}
 	}
