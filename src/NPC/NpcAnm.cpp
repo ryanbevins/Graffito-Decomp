@@ -131,15 +131,15 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 		if (unk1D8 & 0x1) {
 			if ((int)kind == 0x5) {
 				mMActor->setBrkFromIndex(mActorType == 0x0400001A ? 1 : 1);
-				*(u8*)((u8*)fc + 4) = 0;
+				fc->setAttribute(J3DFrameCtrl::ATTR_ONCE);
 			} else {
 				mMActor->setBrkFromIndex(mActorType == 0x0400001A ? 0 : 0);
-				*(f32*)((u8*)fc + 0xC) = 0.0f;
+				fc->setRate(0.0f);
 			}
 		} else if (unk1D8 & 0x2) {
 			if ((int)kind == 0x1A) {
 				mMActor->setBrkFromIndex(mActorType == 0x0400001A ? 0 : 0);
-				*(u8*)((u8*)fc + 4) = 0;
+				fc->setAttribute(J3DFrameCtrl::ATTR_ONCE);
 			}
 		}
 	}
