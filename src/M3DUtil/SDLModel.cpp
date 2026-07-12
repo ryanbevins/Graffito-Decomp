@@ -283,16 +283,9 @@ void SDLModel::entry()
 
 void SDLModel::viewCalcSimple()
 {
-	Mtx* tmp = mDrawMtxBuf[0][mCurrentViewNo];
-	mDrawMtxBuf[0][mCurrentViewNo] = mDrawMtxBuf[1][mCurrentViewNo];
-	mDrawMtxBuf[1][mCurrentViewNo] = tmp;
-
-	MtxPtr viewMtx = (MtxPtr)((u8*)gpCamera + 0x1EC);
-	int i          = 0;
-	int offset     = 0;
-	for (; i < mModelData->getDrawMtxNum(); ++i, offset += sizeof(Mtx))
-		PSMTXConcat(viewMtx, (MtxPtr)((u8*)mNodeMatrices + offset),
-		            (MtxPtr)((u8*)getDrawMtxPtr() + offset));
-
+	swapDrawMtx();
+	MtxPtr viewMtx = gpCamera->getUnk1EC();
+	for (int i = 0; i < mModelData->getDrawMtxNum(); ++i)
+		MTXConcat(viewMtx, mNodeMatrices[i], getDrawMtx(i));
 	DCStoreRange(getDrawMtxPtr(), mModelData->getDrawMtxNum() * sizeof(Mtx));
 }
