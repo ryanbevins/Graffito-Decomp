@@ -307,15 +307,15 @@ void TBaseNPC::randomizeBckAndBtpFrame_()
 	s16 bckV          = 0;
 	J3DFrameCtrl* bck = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
 	if (bck) {
-		endFrame  = *(s16*)((u8*)bck + 0x8);
+		endFrame  = bck->getEnd();
 		randStart = endFrame;
 		f32 r     = (f32)rand() * (1.0f / 32768.0f);
 		bckV      = (s16)((f32)endFrame * r);
-		*(f32*)((u8*)bck + 0x10) = (f32)bckV;
+		bck->setFrame((f32)bckV);
 	}
 	J3DFrameCtrl* btp = mMActor->getFrameCtrl(MActor::ANM_TYPE_BTP);
 	if (btp) {
-		s16 ef = *(s16*)((u8*)btp + 0x8);
+		s16 ef = btp->getEnd();
 		s16 v;
 		if (ef == randStart) {
 			v = bckV;
@@ -323,7 +323,7 @@ void TBaseNPC::randomizeBckAndBtpFrame_()
 			f32 r = (f32)rand() * (1.0f / 32768.0f);
 			v     = (s16)((f32)ef * r);
 		}
-		*(f32*)((u8*)btp + 0x10) = (f32)v;
+		btp->setFrame((f32)v);
 	}
 }
 
