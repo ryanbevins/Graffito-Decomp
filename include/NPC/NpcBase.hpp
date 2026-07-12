@@ -17,6 +17,7 @@ class TMultiMtxEffect;
 class TNpcCoin;
 class TNpcTrample;
 class TNpcThrow;
+class TNpcInbetween;
 
 enum EnumNpcStopMotionBlendOnOff {
 	NPC_STOP_MOTION_BLEND_OFF = 0,
@@ -251,7 +252,7 @@ public:
 	/* 0x180 */ TNpcTrample* mNpcTrample;
 	/* 0x184 */ TNpcCoin* mNpcCoin;
 	/* 0x188 */ TNpcBalloon* mNpcBalloon;
-	/* 0x18C */ void* mUnk18C;
+	/* 0x18C */ TNpcInbetween* mUnk18C;
 	/* 0x190 */ TNpcAnmRequest* mAnmRequest;
 	/* 0x194 */ Vec mResetPos;
 	/* 0x1A0 */ char unk1A0[0x4];

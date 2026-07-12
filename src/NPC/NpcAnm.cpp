@@ -351,14 +351,13 @@ void TBaseNPC::walkAnmRateChange_()
 			if (unk1CC >= frame || !chasing) {
 				unk1CC = 0;
 				unk1D0 = 0.0f;
-				TNpcInbetween* inbetween = (TNpcInbetween*)mUnk18C;
-				bool blend                 = true;
-				if (!inbetween->isMotionBlending()
-				    && !inbetween->isForcedBlendRatio())
+				bool blend = true;
+				if (!mUnk18C->isMotionBlending()
+				    && !mUnk18C->isForcedBlendRatio())
 					blend = false;
 				if (!blend)
 					npcWaitIn();
-				else if (!inbetween->isMotionBlending())
+				else if (!mUnk18C->isMotionBlending())
 					mMActor->setFrameRate(unk1D0, 0);
 			} else {
 				mMActor->setFrameRate(unk1D0, 0);
