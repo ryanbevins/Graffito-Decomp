@@ -77,8 +77,9 @@ void TFishoid::load(JSUMemoryInputStream& stream)
 	u32 eventId;
 	stream.read(&eventId, 4);
 	mCoinObj = TMapObjBaseManager::newAndRegisterObjByEventID(eventId, "");
-	if (mCoinObj != nullptr && mCoinObj->mActorType == 0x2000000e) {
-		mCoinObj = gpItemManager->newAndRegisterCoinReal();
+	if (mCoinObj != nullptr) {
+		if (mCoinObj->isActorType(0x2000000e))
+			mCoinObj = gpItemManager->newAndRegisterCoinReal();
 	}
 
 	mBoidLeader->mParam20 = 4.0f;
