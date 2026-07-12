@@ -50,11 +50,6 @@ struct TPollutionStartHelper {
 	/* 0x4 */ int mMax;
 };
 
-struct TUnk22CStruct {
-	/* 0x0 */ int unk0;
-	/* 0x4 */ int unk4;
-};
-
 struct TUnk18CStruct {
 	/* 0x00 */ s32 unk0;
 	/* 0x04 */ s32 unk4;
@@ -216,12 +211,7 @@ void TBaseNPC::init(TLiveManager* manager)
 	if (isPollutionNpc())
 		initSinkNpc_();
 
-	TUnk22CStruct* st22C = new TUnk22CStruct;
-	if (st22C != nullptr) {
-		st22C->unk0 = 0;
-		st22C->unk4 = 1;
-	}
-	*(TUnk22CStruct**)((u8*)this + 0x22C) = st22C;
+	mAnmFrameCounter = new TNpcAnmFrameCounter;
 
 	if (unk124->getGraph()->isDummy()) {
 		mSpine->initWith(&TNerveNPCWaitMarioApproach::theNerve());

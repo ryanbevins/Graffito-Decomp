@@ -14,27 +14,6 @@
 
 template <class T> T CLBSquared(T);
 
-static inline void setRandomFrameCounter(TNpcAnmFrameCounter* counter,
-                                         s16 minFrame, s16 maxFrame)
-{
-	counter->mCurFrame = 0;
-	s32 frame = minFrame
-	            + (s32)((f32)(maxFrame - minFrame)
-	                    * ((f32)rand() * (1.0f / 32768.0f)));
-	counter->mMaxFrame = frame + 1;
-}
-
-static inline bool updateFrameCounter(TNpcAnmFrameCounter* counter)
-{
-	bool finished = false;
-	counter->mCurFrame++;
-	if (counter->mCurFrame >= counter->mMaxFrame) {
-		counter->mCurFrame = counter->mMaxFrame;
-		finished           = true;
-	}
-	return finished;
-}
-
 static inline bool isDownNpcBlocked(TBaseNPC* npc)
 {
 	bool blocked = false;
@@ -60,11 +39,9 @@ DEFINE_NERVE(TNerveNPCGraphWander, TLiveActor)
 {
 	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
 	if (spine->getTime() == 0) {
-		setRandomFrameCounter(npc->mAnmFrameCounter,
-		                      TBaseNPC::mPtrSaveNormal
-		                          ->mSLGraphWanderMinFrame.get(),
-		                      TBaseNPC::mPtrSaveNormal
-		                          ->mSLGraphWanderMaxFrame.get());
+		npc->mAnmFrameCounter->resetRandom(
+		    TBaseNPC::mPtrSaveNormal->mSLGraphWanderMinFrame.get(),
+		    TBaseNPC::mPtrSaveNormal->mSLGraphWanderMaxFrame.get());
 	}
 
 	npc->execWalk(true);
@@ -99,7 +76,7 @@ DEFINE_NERVE(TNerveNPCGraphWander, TLiveActor)
 		}
 	}
 
-	bool counterDone = updateFrameCounter(npc->mAnmFrameCounter);
+	bool counterDone = npc->mAnmFrameCounter->advance();
 
 	if (oneWay) {
 		if (!(distSq < CLBSquared<f32>(50.0f)))
@@ -147,15 +124,13 @@ DEFINE_NERVE(TNerveNPCGraphWait, TLiveActor)
 {
 	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
 	if (spine->getTime() == 0) {
-		setRandomFrameCounter(npc->mAnmFrameCounter,
-		                      TBaseNPC::mPtrSaveNormal
-		                          ->mSLGraphWaitMinFrame.get(),
-		                      TBaseNPC::mPtrSaveNormal
-		                          ->mSLGraphWaitMaxFrame.get());
+		npc->mAnmFrameCounter->resetRandom(
+		    TBaseNPC::mPtrSaveNormal->mSLGraphWaitMinFrame.get(),
+		    TBaseNPC::mPtrSaveNormal->mSLGraphWaitMaxFrame.get());
 	}
 
 	if (npc->mMarchSpeed < 0.001f) {
-		if (updateFrameCounter(npc->mAnmFrameCounter)) {
+		if (npc->mAnmFrameCounter->advance()) {
 			spine->pushAfterCurrent(&TNerveNPCGraphWander::theNerve());
 			return TRUE;
 		}

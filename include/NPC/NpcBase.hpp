@@ -7,6 +7,7 @@
 #include <MarioUtil/RandomUtil.hpp>
 #include <NPC/NpcAnmKind.hpp>
 #include <NPC/NpcInitData.hpp>
+#include <NPC/NpcSave.hpp>
 #include <dolphin/mtx.h>
 
 class TNpcParts;
@@ -48,32 +49,6 @@ struct TNpcKeepAnm {
 private:
 	/* 0x0 */ EnumNpcAnmKind mKind;
 	/* 0x4 */ bool mBlendOn;
-};
-
-// Frame counter used to track how long the current wait/idle animation has
-// run; advances each tick until it hits its max.
-struct TNpcAnmFrameCounter {
-	bool doThing2()
-	{
-		bool result = false;
-		mCurFrame += 1;
-		if (mCurFrame >= mMaxFrame) {
-			mCurFrame = mMaxFrame;
-			result    = true;
-		}
-		return result;
-	}
-
-	void doThing3(int l, int r)
-	{
-		if (mCurFrame == 0) {
-			mCurFrame = 0;
-			mMaxFrame = MsRandI(l, r);
-		}
-	}
-
-	/* 0x0 */ s32 mCurFrame;
-	/* 0x4 */ s32 mMaxFrame;
 };
 
 class TNpcBalloon;
@@ -302,6 +277,47 @@ public:
 	/* 0x218 */ f32 mFireScaleMul;
 	/* 0x21C */ JGeometry::TVec3<f32> mWaterEffectPos;
 	/* 0x228 */ TNpcSaveIndividual* mNpcSaveIndividual;
+
+	class TNpcAnmFrameCounter {
+	public:
+		TNpcAnmFrameCounter()
+		    : mCurFrame(0)
+		    , mMaxFrame(1)
+		{
+		}
+
+		void resetRandom(s16 minFrame, s16 maxFrame)
+		{
+			mCurFrame = 0;
+			s32 frame = minFrame
+			            + (s32)((f32)(maxFrame - minFrame)
+			                    * ((f32)rand() * (1.0f / 32768.0f)));
+			mMaxFrame = frame + 1;
+		}
+
+		bool advance()
+		{
+			bool result = false;
+			mCurFrame += 1;
+			if (mCurFrame >= mMaxFrame) {
+				mCurFrame = mMaxFrame;
+				result    = true;
+			}
+			return result;
+		}
+
+		void resetRandomIfZero(int minFrame, int maxFrame)
+		{
+			if (mCurFrame == 0) {
+				mCurFrame = 0;
+				mMaxFrame = MsRandI(minFrame, maxFrame);
+			}
+		}
+
+		/* 0x0 */ s32 mCurFrame;
+		/* 0x4 */ s32 mMaxFrame;
+	};
+
 	/* 0x22C */ TNpcAnmFrameCounter* mAnmFrameCounter;
 	/* 0x230 */ s16* mNeckAngles;
 };

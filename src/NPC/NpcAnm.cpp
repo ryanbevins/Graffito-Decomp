@@ -711,8 +711,8 @@ bool TBaseNPC::npcWetting()
 			case 0xB:
 			case 0x14:
 				if (mMActor->isCurAnmAlreadyEnd(0)) {
-					mAnmFrameCounter->doThing3(240, 480);
-					if (mAnmFrameCounter->doThing2()) {
+					mAnmFrameCounter->resetRandomIfZero(240, 480);
+					if (mAnmFrameCounter->advance()) {
 						EnumNpcAnmKind kind = asKind(7);
 						if (MsRandF() < 0.5f)
 							kind = asKind(0x1B);
@@ -935,7 +935,7 @@ void TBaseNPC::npcMareStandIn()
 	switch (k) {
 	case 5:
 	case 0xE: {
-		mAnmFrameCounter->doThing3(240, 360);
+		mAnmFrameCounter->resetRandomIfZero(240, 360);
 		break;
 	}
 	default:
@@ -957,7 +957,7 @@ bool TBaseNPC::npcMareStanding()
 	case 5:
 	case 0xE:
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			if (mAnmFrameCounter->doThing2()) {
+			if (mAnmFrameCounter->advance()) {
 				requestNpcAnm_((EnumNpcAnmKind)0x7,
 				               (EnumNpcStopMotionBlendOnOff)0);
 			}
