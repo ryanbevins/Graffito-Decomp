@@ -433,7 +433,7 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 				s16 idx = indices[slot];
 				if (initData->unk34[slot][entryIdx] != nullptr) {
 					SMS_InitChangeNpcColor(
-					    mMActorKeeper->mActors[entryIdx],
+					    mMActorKeeper->getMActor(entryIdx),
 					    initData->unk34[slot][entryIdx], idx, polColor);
 				}
 			}
