@@ -120,8 +120,8 @@ void TFishoid::perform(u32 flags, JDrama::TGraphics* gfx)
 
 	if (flags & 2) {
 		clipBoids(gfx);
-		for (int i = 0; i < mBoidLeader->mNumActors; i++)
-			mActors[i]->calcRootMatrix(&mBoidLeader->mBoidData[i]);
+		for (int i = 0; i < mBoidLeader->getBoidNum(); i++)
+			mActors[i]->calcRootMatrix(mBoidLeader->getBoid(i));
 	}
 
 	for (int i = 0; i < mBoidLeader->mNumActors; i++)
