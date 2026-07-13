@@ -19,7 +19,7 @@ public:
 	/* 0x13C */ f32 unk13C;
 	/* 0x140 */ f32 unk140;
 	/* 0x144 */ u32 unk144;
-	/* 0x148 */ u32 unk148;
+	/* 0x148 */ long unk148;
 	/* 0x14C */ u8 unk14C;
 };
 

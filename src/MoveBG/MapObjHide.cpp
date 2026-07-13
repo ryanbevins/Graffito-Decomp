@@ -639,11 +639,7 @@ void TFruitHitHideObj::touchFruit(THitActor* sender)
 
 void TWaterHitHideObj::load(JSUMemoryInputStream& stream)
 {
-	TMapObjBase::load(stream);
-	long manholeFlag;
-	loadHideObjInfo(stream, &manholeFlag, &unk13C, &unk140, (long*)&unk148);
-	unk134 = manholeFlag;
-	SMS_LoadParticle("/scene/mapObj/ms_watcoin_hit.jpa", 0x57);
+	THideObjBase::load(stream);
 }
 
 u32 TWaterHitHideObj::touchWater(THitActor* sender)
@@ -685,9 +681,9 @@ THideObjBase::THideObjBase(const char* name)
 void THideObjBase::load(JSUMemoryInputStream& stream)
 {
 	TMapObjBase::load(stream);
-	long manholeFlag;
-	loadHideObjInfo(stream, &manholeFlag, &unk13C, &unk140, (long*)&unk148);
-	unk134 = manholeFlag;
+	long eventId;
+	TMapObjBase::loadHideObjInfo(stream, &eventId, &unk13C, &unk140, &unk148);
+	setUnk134(eventId);
 	SMS_LoadParticle("/scene/mapObj/ms_watcoin_hit.jpa", 0x57);
 }
 
