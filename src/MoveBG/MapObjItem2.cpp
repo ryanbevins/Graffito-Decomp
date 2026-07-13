@@ -305,86 +305,95 @@ void TJumpBase::control()
 {
 	int prevState = mState;
 	if (!isAirborne())
-		mLiveFlag |= 0x10;
+		onLiveFlag(LIVE_FLAG_UNK10);
+
 	switch (mState) {
 	case 0:
 		if (mTimer == 0) {
-			mMActor->setBck("jumpbase_shrink");
-			J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
-			if (fc) {
-				fc->setFrame((f32)fc->getEnd());
-				fc->setRate(0.0f);
+			getMActor()->setBck("jumpbase_shrink");
+			J3DFrameCtrl* ctrl = getMActor()->getFrameCtrl(0);
+			if (ctrl) {
+				ctrl->setFrame((f32)ctrl->getEnd());
+				ctrl->setRate(0.0f);
 			}
 			mScaledBodyRadius = 50.0f;
 		}
 		break;
-	case 1:
+
+	case 3:
 		if (mTimer == 0) {
-			if (mMapCollisionManager && mMapCollisionManager->unk8)
-				mMapCollisionManager->unk8->setUp();
-			mMActor->setBck("jumpbase_shrink");
-			J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
-			if (fc) {
-				fc->setFrame(0.0f);
-				fc->setRate(SMSGetAnmFrameRate());
+			offHitFlag(HIT_FLAG_NO_COLLISION);
+			if (mMapCollisionManager)
+				mMapCollisionManager->getUnk8()->setUp();
+
+			getMActor()->setBck("jumpbase_set");
+			J3DFrameCtrl* ctrl = getMActor()->getFrameCtrl(0);
+			if (ctrl) {
+				ctrl->setFrame((f32)ctrl->getEnd());
+				ctrl->setRate(0.0f);
 			}
 		}
-		if (mMActor->curAnmEndsNext(0, nullptr)) {
+		break;
+
+	case 2:
+		if (mTimer == 0) {
+			getMActor()->setBck("jumpbase_set");
+			J3DFrameCtrl* ctrl = getMActor()->getFrameCtrl(0);
+			if (ctrl) {
+				ctrl->setFrame(0.0f);
+				ctrl->setRate(SMSGetAnmFrameRate());
+			}
+			offLiveFlag(LIVE_FLAG_UNK10);
+			mScaledBodyRadius = 100.0f;
+		}
+		if (getMActor()->curAnmEndsNext(0, nullptr)) {
+			mTimer = 0;
+			mState = 3;
+		}
+		break;
+
+	case 1:
+		if (mTimer == 0) {
+			if (mMapCollisionManager && mMapCollisionManager->getUnk8())
+				mMapCollisionManager->getUnk8()->remove();
+
+			getMActor()->setBck("jumpbase_shrink");
+			J3DFrameCtrl* ctrl = getMActor()->getFrameCtrl(0);
+			if (ctrl) {
+				ctrl->setFrame(0.0f);
+				ctrl->setRate(SMSGetAnmFrameRate());
+			}
+		}
+		if (getMActor()->curAnmEndsNext(0, nullptr)) {
 			mTimer = 0;
 			mState = 0;
 		}
 		break;
-	case 2:
-		if (mTimer == 0) {
-			mMActor->setBck("jumpbase_set");
-			J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
-			if (fc) {
-				fc->setFrame(0.0f);
-				fc->setRate(SMSGetAnmFrameRate());
-			}
-			mLiveFlag &= ~0x10;
-			mScaledBodyRadius = 100.0f;
-		}
-		if (mMActor->curAnmEndsNext(0, nullptr)) {
-			mTimer = 0;
-			mState = 3;
-		}
-		break;
-	case 3:
-		if (mTimer == 0) {
-			unk64 &= ~1;
-			if (mMapCollisionManager)
-				mMapCollisionManager->unk8->remove();
-			mMActor->setBck("jumpbase_set");
-			J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
-			if (fc) {
-				fc->setFrame((f32)fc->getEnd());
-				fc->setRate(0.0f);
-			}
-		}
-		break;
+
 	case 4:
 		if (mTimer == 0) {
-			mMActor->setBck("jumpbase_jump");
-			J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
-			if (fc) {
-				fc->setFrame(0.0f);
-				fc->setRate(SMSGetAnmFrameRate());
+			getMActor()->setBck("jumpbase_jump");
+			J3DFrameCtrl* ctrl = getMActor()->getFrameCtrl(0);
+			if (ctrl) {
+				ctrl->setFrame(0.0f);
+				ctrl->setRate(SMSGetAnmFrameRate());
 			}
 		}
-		if (mMActor->curAnmEndsNext(0, nullptr)) {
+		if (getMActor()->curAnmEndsNext(0, nullptr)) {
 			mTimer = 0;
 			mState = 3;
 		}
 		break;
+
 	case 5:
 		if (mTimer == 0) {
-			mLiveFlag |= 0x80;
-			JGeometry::TVec3<f32> velocity(JMASSin(*gpMarioAngleY), 0.0f,
-			                                JMASCos(*gpMarioAngleY));
-			mVelocity = velocity;
-			mPosition.add(mVelocity);
-			mLiveFlag &= ~0x10;
+			onLiveFlag(LIVE_FLAG_AIRBORNE);
+			int angle = *gpMarioAngleY;
+			mVelocity
+			    = JGeometry::TVec3<f32>(JMASSin(angle), 0.0f, JMASCos(angle));
+			JGeometry::TVec3<f32> velocity = mVelocity;
+			mPosition += velocity;
+			offLiveFlag(LIVE_FLAG_UNK10);
 		}
 		if (!isAirborne()) {
 			mTimer = 0;
@@ -392,30 +401,26 @@ void TJumpBase::control()
 		}
 		break;
 	}
+
 	if (mState == prevState) {
-		mTimer += 1;
+		mTimer++;
 		if (mTimer == 0)
 			mTimer = 1;
 	}
+
 	TMapObjBase::control();
+
 	if (mGroundPlane) {
-		bool killGround = (mGroundPlane->mFlags & 0x10) ? true : false;
-		bool deadType   = false;
-		if (!killGround) {
-			u16 t = mGroundPlane->mBGType;
-			if (t == 0x100 || t == 0x101
-			    || (u16)(t - 0x102) <= 3 || t == 0x4104)
-				deadType = true;
-		}
-		if (killGround || deadType) {
+		if (mGroundPlane->isIllegalData() || mGroundPlane->isWaterSurface()) {
 			makeObjDead();
 			makeObjDefault();
 			makeObjAppeared();
 		}
 	}
+
 	if (mHolder) {
-		mGroundPlane  = *gpMarioGroundPlane;
-		mGroundHeight = gpMarioPos->y;
+		mGroundPlane  = SMS_GetMarioGroundPlane();
+		mGroundHeight = SMS_GetMarioPos().y;
 	}
 }
 
