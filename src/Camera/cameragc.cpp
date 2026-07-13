@@ -896,12 +896,12 @@ void CPolarSubCamera::calcPosAndAt_()
 	}
 
 	if (unk7C == 0) {
-		CLBChaseDecrease(&mTarget.x, unk6C->mTargetAt.x, unk68->unkA4,
-		                 0.0f);
-		CLBChaseDecrease(&mTarget.y, unk6C->mTargetAt.y, unk68->unkA8,
-		                 0.0f);
-		CLBChaseDecrease(&mTarget.z, unk6C->mTargetAt.z, unk68->unkA4,
-		                 0.0f);
+		f32 atChaseXZ = unk68->unkA4;
+		f32 atChaseY  = unk68->unkA8;
+		const Vec& at = unk6C->mTargetAt;
+		CLBChaseDecrease(&mTarget.x, at.x, atChaseXZ, 0.0f);
+		CLBChaseDecrease(&mTarget.y, at.y, atChaseY, 0.0f);
+		CLBChaseDecrease(&mTarget.z, at.z, atChaseXZ, 0.0f);
 	}
 }
 void CPolarSubCamera::calcSlopeAngleX_(s16* out)
