@@ -67,13 +67,6 @@ void TMareWallRock::movement()
 			gpPollution->offLayer(mLayerIndex);
 		}
 		break;
-	case 1:
-		if (!TMapObjBase::isDemo()) {
-			--mTimer;
-			if (mTimer <= 0)
-				appear();
-		}
-		break;
 	case 2: {
 		J3DJoint* joint              = mJointObj->getJoint();
 		J3DTransformInfo& transform = joint->getTransformInfo();
@@ -89,17 +82,18 @@ void TMareWallRock::movement()
 			SMSRumbleMgr->start(0x13, -1, (f32*)nullptr);
 			gpCameraShake->keepShake(CAM_SHAKE_MODE_UNK5, 0.5f);
 		}
-		((TMapObjBase*)this)->calcMap();
-		if (transform.mTranslate.z < 0.0f) {
+		mJointObj->getJoint()->setTransformInfo(transform);
+		gpMap->getModelManager()->getJointModel(0)->getModel()->calc();
+		f32 z = transform.mTranslate.z;
+		if (z < 0.0f) {
 			mTimer                = mWaitTimeToDepress;
 			mCollisions[1]->setUp();
 			mState = 1;
 			SMSRumbleMgr->stop(0x13);
-		} else {
-			JGeometry::TVec3<f32> trans(0.0f, 0.0f,
-			                            transform.mTranslate.z);
-			mCollisions[0]->moveTrans(trans);
+			return;
 		}
+		JGeometry::TVec3<f32> trans(0.0f, 0.0f, z);
+		mCollisions[0]->moveTrans(trans);
 		break;
 	}
 	case 3:
@@ -117,17 +111,18 @@ void TMareWallRock::movement()
 			if (TMapObjBase::marioIsOn(this))
 				mPosition.z += mDepressSpeed;
 		}
-		((TMapObjBase*)this)->calcMap();
-		if (transform.mTranslate.z > mSinkDepth) {
+		mJointObj->getJoint()->setTransformInfo(transform);
+		gpMap->getModelManager()->getJointModel(0)->getModel()->calc();
+		f32 z = transform.mTranslate.z;
+		if (z > mSinkDepth) {
 			mCollisions[0]->remove();
 			mJointObj->sleep();
 			mTimer = mWaitTimeToAppear;
 			mState = 3;
-		} else {
-			JGeometry::TVec3<f32> trans(0.0f, 0.0f,
-			                            transform.mTranslate.z);
-			mCollisions[0]->moveTrans(trans);
+			return;
 		}
+		JGeometry::TVec3<f32> trans(0.0f, 0.0f, z);
+		mCollisions[0]->moveTrans(trans);
 		break;
 	}
 	}
