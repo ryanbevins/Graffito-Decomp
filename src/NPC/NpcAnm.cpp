@@ -128,7 +128,7 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 
 	if (isSunflower()) {
 		J3DFrameCtrl* fc = mMActor->getFrameCtrl(MActor::ANM_TYPE_BRK);
-		if (unk1D8 & 0x1) {
+		if (checkUnk1D8(UNK1D8_FLAG_UNK1)) {
 			if ((int)kind == 0x5) {
 				mMActor->setBrkFromIndex(mActorType == 0x0400001A ? 1 : 1);
 				fc->setAttribute(J3DFrameCtrl::ATTR_ONCE);
@@ -136,7 +136,7 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 				mMActor->setBrkFromIndex(mActorType == 0x0400001A ? 0 : 0);
 				fc->setRate(0.0f);
 			}
-		} else if (unk1D8 & 0x2) {
+		} else if (checkUnk1D8(UNK1D8_FLAG_UNK2)) {
 			if ((int)kind == 0x1A) {
 				mMActor->setBrkFromIndex(mActorType == 0x0400001A ? 0 : 0);
 				fc->setAttribute(J3DFrameCtrl::ATTR_ONCE);
@@ -290,9 +290,10 @@ void TBaseNPC::setKeepAnm_()
 void TBaseNPC::requestTalkAnm_()
 {
 	int kind;
-	if (mActionFlag & 0x400) {
+	if (checkActionFlag(NPC_ACTION_UNK400)) {
 		kind = 1;
-	} else if ((mActionFlag & 0x1) && !(mActionFlag & 0x4)) {
+	} else if (checkActionFlag(NPC_ACTION_UNK1)
+	           && !checkActionFlag(NPC_ACTION_DANCE)) {
 		kind = 0x13;
 	} else {
 		kind = 6;
@@ -378,7 +379,7 @@ void TBaseNPC::walkAnmRateChange_()
 				baseRate = mNpcSaveIndividual->mSLMaxRunAnmRate.get()
 				         * SMSGetAnmFrameRate();
 				maxRate  = mNpcSaveIndividual->mSLMaxRunSpeed.get();
-				if (mActionFlag & 0x4000) {
+				if (mActionFlag & NPC_ACTION_BURNING) {
 					f32 mul  = mPtrSaveNormal->mSLSmokeRunMagnif.get();
 					baseRate = baseRate * mul;
 					maxRate  = maxRate * mul;
@@ -404,7 +405,7 @@ void TBaseNPC::walkAnmRateChange_()
 		}
 		default:
 			unk1D0 = 0.0f;
-			if (mActionFlag & 0x8) {
+			if (checkActionFlag(NPC_ACTION_RUN)) {
 				requestNpcAnm_(NPC_ANM_KIND_RUN, NPC_STOP_MOTION_BLEND_ON);
 			} else {
 				requestNpcAnm_(NPC_ANM_KIND_WALK, NPC_STOP_MOTION_BLEND_ON);
@@ -577,7 +578,7 @@ void TBaseNPC::npcTalkOut()
 		unk1E2 = 0x78;
 
 		bool peach = false;
-		if (mActorType == 0x04000018 && (unk1D8 & 0x2))
+		if (mActorType == 0x04000018 && checkUnk1D8(UNK1D8_FLAG_UNK2))
 			peach = true;
 		if (peach)
 			peachTiredOut_();
@@ -611,7 +612,7 @@ void TBaseNPC::npcTakenIn()
 
 void TBaseNPC::npcDanceIn()
 {
-	mActionFlag |= 0x4;
+	onActionFlag(NPC_ACTION_DANCE);
 	requestNpcAnm_((EnumNpcAnmKind)0x16,
 	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
@@ -623,7 +624,7 @@ void TBaseNPC::npcDanceIn()
 void TBaseNPC::npcHappyIn(unsigned char arg)
 {
 	unk1D9        = arg;
-	mActionFlag  |= 0x200;
+	onActionFlag(NPC_ACTION_HAPPY);
 	requestNpcAnm_((EnumNpcAnmKind)0x11,
 	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
@@ -639,7 +640,7 @@ void TBaseNPC::npcWetIn()
 		EnumNpcStopMotionBlendOnOff blend = NPC_STOP_MOTION_BLEND_ON;
 		if (unk178 != 0.0f) {
 			anm = asKind(0x19);
-		} else if (mActionFlag & 0x1) {
+		} else if (checkActionFlag(NPC_ACTION_UNK1)) {
 			anm = asKind(0x14);
 			bool isMonte = isNormalMonteM() || isNormalMonteW();
 			if (isMonte)
@@ -860,7 +861,7 @@ bool TBaseNPC::npcThrowing()
 void TBaseNPC::npcMadIn()
 {
 	mLiveFlag |= 0x02000000;
-	if (mActorType == 0x04000007 || (mActionFlag & 0x1)) {
+	if (mActorType == 0x04000007 || checkActionFlag(NPC_ACTION_UNK1)) {
 		requestNpcAnm_((EnumNpcAnmKind)0xA,
 		               (EnumNpcStopMotionBlendOnOff)1);
 	} else {
@@ -889,7 +890,7 @@ bool TBaseNPC::npcMadding()
 			if (delta < 0.001f)
 				requestNpcAnm_(NPC_ANM_KIND_MAD, NPC_STOP_MOTION_BLEND_OFF);
 			if (!unk124->getGraph()->isDummy())
-				unk1DA |= 0x1;
+				onUnk1DA(UNK1DA_FLAG_UNK1);
 			break;
 
 		case 0xA:
@@ -978,7 +979,7 @@ void TBaseNPC::peachParasolIn_()
 	static const s32 sIndividualPeachBck[]
 	    = { 0x15, 0x10, 0x16, 0x12, -1, -1 };
 	static const s32 sIndividualPeachBtp[] = { 0x4, 0x2, -1, -1 };
-	unk1D8 |= 0x1;
+	onUnk1D8(UNK1D8_FLAG_UNK1);
 	unkD0->unk18 = (const TAnmBckMapping*)sIndividualPeachBck;
 	unkD0->unk1C = (const TAnmBtpMapping*)sIndividualPeachBtp;
 }
@@ -1020,8 +1021,8 @@ void TBaseNPC::sunflowerDownIn_()
 	    = { 0x2, 0x0, 0x3, 0x4, -1, -1 };
 	static const s32 sIndividualSunflowerBtp[]
 	    = { 0x3, 0x0, 0x2, 0x0, -1, -1 };
-	unk1D8 |= 0x1;
-	unk1D8 &= ~0x2;
+	onUnk1D8(UNK1D8_FLAG_UNK1);
+	offUnk1D8(UNK1D8_FLAG_UNK2);
 	unkD0->unk18 = (const TAnmBckMapping*)sIndividualSunflowerBck;
 	unkD0->unk1C = (const TAnmBtpMapping*)sIndividualSunflowerBtp;
 }
@@ -1041,9 +1042,10 @@ void TBaseNPC::sunflowerReviveIn()
 bool TBaseNPC::sunflowerReviving()
 {
 	bool acted = false;
-	if ((unk1D8 & 0x2) && unkD0->mCurrentAnmKind == 0x1A) {
+	if (checkUnk1D8(UNK1D8_FLAG_UNK2)
+	    && unkD0->mCurrentAnmKind == 0x1A) {
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
-			unk1D8 &= ~0x2;
+			offUnk1D8(UNK1D8_FLAG_UNK2);
 			if (mLiveFlag & 0x80000) {
 				requestTalkAnm_();
 			} else {

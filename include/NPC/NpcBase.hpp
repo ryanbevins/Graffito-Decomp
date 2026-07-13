@@ -103,8 +103,10 @@ public:
 	void onUnk1D8(u32 flag) { unk1D8 |= flag; }
 	void offUnk1D8(u32 flag) { unk1D8 &= ~flag; }
 	bool checkUnk1D8(u32 flag) const { return (unk1D8 & flag) != 0; }
+	void onUnk1DA(u32 flag) { unk1DA |= flag; }
 	void offUnk1DA(u32 flag) { unk1DA &= ~flag; }
 	bool checkUnk1DA(u32 flag) const { return (unk1DA & flag) != 0; }
+	void onActionFlag(u32 flag) { mActionFlag |= flag; }
 	void offActionFlag(u32 flag) { mActionFlag &= ~flag; }
 	bool checkActionFlag(u32 flag) const { return (mActionFlag & flag) != 0; }
 	bool isSunflowerReviving() const
@@ -266,6 +268,23 @@ public:
 	/* 0x164 */ s32 mNpcKind;
 	/* 0x168 */ TNpcParts* mNpcParts;
 	/* 0x16C */ s32 _16C;
+	enum {
+		NPC_ACTION_UNK1    = 0x1,
+		NPC_ACTION_UNK2    = 0x2,
+		NPC_ACTION_DANCE   = 0x4,
+		NPC_ACTION_RUN     = 0x8,
+		NPC_ACTION_UNK10   = 0x10,
+		NPC_ACTION_UNK20   = 0x20,
+		NPC_ACTION_UNK40   = 0x40,
+		NPC_ACTION_UNK80   = 0x80,
+		NPC_ACTION_UNK100  = 0x100,
+		NPC_ACTION_HAPPY   = 0x200,
+		NPC_ACTION_UNK400  = 0x400,
+		NPC_ACTION_UNK800  = 0x800,
+		NPC_ACTION_UNK1000 = 0x1000,
+		NPC_ACTION_UNK2000 = 0x2000,
+		NPC_ACTION_BURNING = 0x4000,
+	};
 	/* 0x170 */ u32 mActionFlag;
 	/* 0x174 */ GXColor unk174;
 	/* 0x178 */ f32 unk178;
@@ -284,8 +303,17 @@ public:
 	/* 0x1CC */ s32 unk1CC;
 	/* 0x1D0 */ f32 unk1D0;
 	/* 0x1D4 */ const JDrama::TActor* mDummyConnectActor;
+	enum {
+		UNK1D8_FLAG_UNK1 = 0x1,
+		UNK1D8_FLAG_UNK2 = 0x2,
+		UNK1D8_FLAG_UNK4 = 0x4,
+	};
 	/* 0x1D8 */ u8 unk1D8;
 	/* 0x1D9 */ u8 unk1D9;
+	enum {
+		UNK1DA_FLAG_UNK1 = 0x1,
+		UNK1DA_FLAG_UNK2 = 0x2,
+	};
 	/* 0x1DA */ u8 unk1DA;
 	/* 0x1DB */ u8 unk1DB;
 	/* 0x1DC */ s32 unk1DC;
