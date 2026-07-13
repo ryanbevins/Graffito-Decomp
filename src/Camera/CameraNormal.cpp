@@ -161,53 +161,61 @@ void CPolarSubCamera::ctrlNormalOrTowerCamera_()
 						                      sf);
 					}
 				} else {
-					s16 angleY = *gpMarioAngleY;
-					s16 r31    = angleY - 0x8000;
-					s16 cur258 = *(s16*)((u8*)this + 0x258);
+					s16 sVar9 = *gpMarioAngleY - 0x8000;
 					f32 f29;
-					if (mMode == 0x2B || mMode == 0x12) {
-						s16 diff    = r31 - cur258;
-						s16 absDiff = (diff < 0) ? -diff : diff;
-						f29         = (f32)absDiff * (1.0f / 32768.0f);
-					} else {
-						f29 = 0.5f * (1.0f - JMASCos((r31 - cur258) * 2));
+					f32 f30;
+
+					switch (mMode) {
+					case CAMERA_MODE_DIVING:
+					case CAMERA_MODE_HOVERING: {
+						s16 diff = sVar9 - unk258;
+						f30 = (f32)(diff >= 0 ? diff : -diff)
+						      * (2.0f / 65536.0f);
+						break;
+					}
+					default:
+						f30 = (1.0f
+						       - JMASCos((*gpMarioAngleY - 0x8000 - unk258) * 2))
+						      * 0.5f;
 					}
 
-					f32 f30 = 1.0f;
+					f29 = 1.0f;
 					if (*(s16*)((u8*)this + 0x2CA) != -1) {
-						f30 = CLBLinearInbetween<f32>(
+						f29 = CLBLinearInbetween<f32>(
 						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x84),
 						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x88),
 						    unkA8);
 					} else if ((*gpMarioFlag & 0x1) ? true : false) {
-						f30 = CLBLinearInbetween<f32>(
+						f29 = CLBLinearInbetween<f32>(
 						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x7C),
 						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x80),
 						    unkA8);
 					}
 
-					if ((u8)(s32)pad->mCompSPos[2] != 0) {
-						f30 *= CLBLinearInbetween<f32>(
+					int uVar1 = pad->mCompSPos[2];
+					if (uVar1 & 0xff) {
+						f29 *= CLBLinearInbetween<f32>(
 						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x8C),
 						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x90),
 						    unkA8);
 					}
 
-					f32 fMult;
-					if (mMode == 0x2B || mMode == 0x12) {
-						fMult = 100.0f;
-					} else {
-						fMult = gpCameraMario->mDistXZ;
+					f32 fVar4;
+					switch (mMode) {
+					case CAMERA_MODE_DIVING:
+					case CAMERA_MODE_HOVERING:
+						fVar4 = 100.0f;
+						break;
+					default:
+						fVar4 = gpCameraMario->mDistXZ;
+						break;
 					}
 
-					f32 speed
-					    = *(f32*)((u8*)this + 0x288)
-					      * (fMult * (f30 * (unk250 * f29)));
+					f32 speed = unk250 * f30 * f29 * fVar4 * unk288;
 					if (speed > 32766.998f)
 						speed = 32766.998f;
-					s16 delta = CLBRoundf<s16>(speed);
-					CLBChaseGeneralConstantSpecifySpeed<s16>(&unkA6, r31,
-					                                         delta);
+					CLBChaseGeneralConstantSpecifySpeed<s16>(
+					    &unkA6, sVar9, CLBRoundf<s16>(speed));
 				}
 			}
 		}
