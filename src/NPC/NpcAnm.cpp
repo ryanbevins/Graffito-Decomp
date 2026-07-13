@@ -1001,11 +1001,10 @@ void TBaseNPC::peachParasolOut_()
 
 void TBaseNPC::peachTiredIn_()
 {
-	if (checkUnk1D8(0x2))
+	if (checkUnk1D8(UNK1D8_FLAG_UNK2))
 		return;
-	onUnk1D8(0x2);
-	requestNpcAnm_((EnumNpcAnmKind)0x10,
-	               (EnumNpcStopMotionBlendOnOff)1);
+	onUnk1D8(UNK1D8_FLAG_UNK2);
+	requestNpcAnm_(NPC_ANM_KIND_UNK10, NPC_STOP_MOTION_BLEND_ON);
 }
 
 inline void TBaseNPC::peachTiredOut_()
@@ -1054,10 +1053,10 @@ bool TBaseNPC::sunflowerReviving()
 {
 	bool acted = false;
 	if (checkUnk1D8(UNK1D8_FLAG_UNK2)
-	    && unkD0->mCurrentAnmKind == 0x1A) {
+	    && unkD0->getCurrentAnmKind() == NPC_ANM_KIND_UNK1A) {
 		if (mMActor->isCurAnmAlreadyEnd(0)) {
 			offUnk1D8(UNK1D8_FLAG_UNK2);
-			if (mLiveFlag & 0x80000) {
+			if (checkLiveFlag(LIVE_FLAG_UNK80000)) {
 				requestTalkAnm_();
 			} else {
 				npcWaitIn();
