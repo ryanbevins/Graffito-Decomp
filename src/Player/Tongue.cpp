@@ -378,6 +378,7 @@ THitActor* TYoshiTongue::findTarget(bool flagB1, bool flagB2)
 	return bestHit;
 }
 
+#pragma dont_inline on
 BOOL TYoshiTongue::canGo()
 {
 	JGeometry::TVec3<f32> diff = mTipPos - mHeadPos;
@@ -405,6 +406,7 @@ BOOL TYoshiTongue::canGo()
 	}
 	return TRUE;
 }
+#pragma dont_inline off
 
 void TYoshiTongue::emit(const JGeometry::TVec3<f32>& headPos,
                         const JGeometry::TVec3<f32>& headDir,
