@@ -992,11 +992,11 @@ void TBaseNPC::peachParasolIn_()
 
 void TBaseNPC::peachParasolOut_()
 {
-	if (!checkUnk1D8(0x1))
+	if (!checkUnk1D8(UNK1D8_FLAG_UNK1))
 		return;
-	offUnk1D8(0x1);
-	unkD0->unk18 = 0;
-	unkD0->unk1C = 0;
+	offUnk1D8(UNK1D8_FLAG_UNK1);
+	unkD0->unk18 = nullptr;
+	unkD0->unk1C = nullptr;
 }
 
 void TBaseNPC::peachTiredIn_()
@@ -1041,13 +1041,12 @@ void TBaseNPC::sunflowerDownIn_()
 
 void TBaseNPC::sunflowerReviveIn()
 {
-	if (checkUnk1D8(0x1)) {
-		offUnk1D8(0x1);
-		onUnk1D8(0x2);
-		unkD0->unk18 = 0;
-		unkD0->unk1C = 0;
-		requestNpcAnm_((EnumNpcAnmKind)0x1A,
-		               (EnumNpcStopMotionBlendOnOff)1);
+	if (checkUnk1D8(UNK1D8_FLAG_UNK1)) {
+		offUnk1D8(UNK1D8_FLAG_UNK1);
+		onUnk1D8(UNK1D8_FLAG_UNK2);
+		unkD0->unk18 = nullptr;
+		unkD0->unk1C = nullptr;
+		requestNpcAnm_(NPC_ANM_KIND_UNK1A, NPC_STOP_MOTION_BLEND_ON);
 	}
 }
 
