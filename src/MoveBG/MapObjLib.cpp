@@ -66,35 +66,28 @@ void JGeometry::TRotation3<
 template <>
 void JGeometry::TRotation3<
     JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >::setRotate(
-    const JGeometry::TVec3<f32>& axis, f32 angle)
+    const JGeometry::TVec3<f32>& param_1, f32 param_2)
 {
-	TVec3<f32> normalized;
-	normalized.normalize(axis);
-	f32 s = sin(angle);
-	f32 c = cos(angle);
-	f32 t = 1.0f - c;
+	TVec3<f32> f27f28f29;
+	f27f28f29.normalize(param_1);
+	f32 f30 = sin(param_2);
+	f32 f1  = cos(param_2);
+	f32 f11 = 1.0f - f1;
 
-	f32 xx = normalized.x * normalized.x;
-	f32 yy = normalized.y * normalized.y;
-	f32 zz = normalized.z * normalized.z;
-	f32 sx = s * normalized.x;
-	f32 sy = s * normalized.y;
-	f32 sz = s * normalized.z;
-	f32 xy = normalized.y * (t * normalized.x);
-	f32 yz = normalized.z * (t * normalized.y);
-	f32 xz = normalized.z * (t * normalized.x);
+	TVec3<f32> f2f3f0;
+	f2f3f0.mul(f27f28f29, f27f28f29);
 
-	this->ref(0, 0) = t * xx + c;
-	this->ref(0, 1) = xy - sz;
-	this->ref(0, 2) = xz + sy;
+	this->ref(0, 0) = f11 * f2f3f0.x + f1;
+	this->ref(0, 1) = f11 * f27f28f29.x * f27f28f29.y - f30 * f27f28f29.z;
+	this->ref(0, 2) = f11 * f27f28f29.x * f27f28f29.z + f30 * f27f28f29.y;
 
-	this->ref(1, 0) = xy + sz;
-	this->ref(1, 1) = t * yy + c;
-	this->ref(1, 2) = yz - sx;
+	this->ref(1, 0) = f11 * f27f28f29.x * f27f28f29.y + f30 * f27f28f29.z;
+	this->ref(1, 1) = f11 * f2f3f0.y + f1;
+	this->ref(1, 2) = f11 * f27f28f29.y * f27f28f29.z - f30 * f27f28f29.x;
 
-	this->ref(2, 0) = xz - sy;
-	this->ref(2, 1) = yz + sx;
-	this->ref(2, 2) = t * zz + c;
+	this->ref(2, 0) = f11 * f27f28f29.x * f27f28f29.z - f30 * f27f28f29.y;
+	this->ref(2, 1) = f11 * f27f28f29.y * f27f28f29.z + f30 * f27f28f29.x;
+	this->ref(2, 2) = f11 * f2f3f0.z + f1;
 }
 
 bool TMapObjBase::isHideObj(THitActor* param_1)
