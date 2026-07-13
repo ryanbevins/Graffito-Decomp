@@ -46,11 +46,15 @@ void SDLModelData::entrySameMat(J3DMaterial* param_1, SDLDrawBufToken* param_2)
 
 void SDLModelData::entryNode(J3DNode* param_1, SDLDrawBufToken* param_2)
 {
-	for (J3DMaterial* mat = ((J3DJoint*)param_1)->getMesh(); mat != nullptr;
-	     mat = mat->getNext()) {
-		if (mat->getShape()->checkFlag(1))
-			continue;
-		entrySameMat(mat, param_2);
+	J3DJoint* joint       = (J3DJoint*)param_1;
+	J3DMaterial* material = joint->getMesh();
+	while (material != nullptr) {
+		if (material->getShape()->checkFlag(1)) {
+			material = material->getNext();
+		} else {
+			entrySameMat(material, param_2);
+			material = material->getNext();
+		}
 	}
 }
 
