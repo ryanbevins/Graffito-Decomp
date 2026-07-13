@@ -486,9 +486,9 @@ void TYoshiTongue::init(TYoshi* yoshi)
 	mRetractedLength = 80.0f;
 	mMaxReach        = 500.0f + mRetractedLength;
 	mElasticity      = 0.8f;
-	mHeadPos.x = mHeadPos.y = mHeadPos.z = 0.0f;
-	mTipPos.x = mTipPos.y = mTipPos.z = 0.0f;
-	mInitialVelocity.x = mInitialVelocity.y = mInitialVelocity.z = 0.0f;
+	mHeadPos.set(0.0f, 0.0f, 0.0f);
+	mTipPos.set(0.0f, 0.0f, 0.0f);
+	mInitialVelocity.set(0.0f, 0.0f, 0.0f);
 	mActorTypeInMouth                                            = 0;
 	unkD4                                                        = 0;
 
