@@ -976,12 +976,18 @@ bool TBaseNPC::npcMareStanding()
 
 void TBaseNPC::peachParasolIn_()
 {
-	static const s32 sIndividualPeachBck[]
-	    = { 0x15, 0x10, 0x16, 0x12, -1, -1 };
-	static const s32 sIndividualPeachBtp[] = { 0x4, 0x2, -1, -1 };
+	static const TAnmBckMapping sIndividualPeachBck[] = {
+		{ 0x15, 0x10 },
+		{ 0x16, 0x12 },
+		{ -1, -1 },
+	};
+	static const TAnmBtpMapping sIndividualPeachBtp[] = {
+		{ 0x4, 0x2 },
+		{ -1, -1 },
+	};
 	onUnk1D8(UNK1D8_FLAG_UNK1);
-	unkD0->unk18 = (const TAnmBckMapping*)sIndividualPeachBck;
-	unkD0->unk1C = (const TAnmBtpMapping*)sIndividualPeachBtp;
+	unkD0->unk18 = sIndividualPeachBck;
+	unkD0->unk1C = sIndividualPeachBtp;
 }
 
 void TBaseNPC::peachParasolOut_()
@@ -1017,14 +1023,20 @@ inline void TBaseNPC::peachTiredOut_()
 
 void TBaseNPC::sunflowerDownIn_()
 {
-	static const s32 sIndividualSunflowerBck[]
-	    = { 0x2, 0x0, 0x3, 0x4, -1, -1 };
-	static const s32 sIndividualSunflowerBtp[]
-	    = { 0x3, 0x0, 0x2, 0x0, -1, -1 };
+	static const TAnmBckMapping sIndividualSunflowerBck[] = {
+		{ 0x2, 0x0 },
+		{ 0x3, 0x4 },
+		{ -1, -1 },
+	};
+	static const TAnmBtpMapping sIndividualSunflowerBtp[] = {
+		{ 0x3, 0x0 },
+		{ 0x2, 0x0 },
+		{ -1, -1 },
+	};
 	onUnk1D8(UNK1D8_FLAG_UNK1);
 	offUnk1D8(UNK1D8_FLAG_UNK2);
-	unkD0->unk18 = (const TAnmBckMapping*)sIndividualSunflowerBck;
-	unkD0->unk1C = (const TAnmBtpMapping*)sIndividualSunflowerBtp;
+	unkD0->unk18 = sIndividualSunflowerBck;
+	unkD0->unk1C = sIndividualSunflowerBtp;
 }
 
 void TBaseNPC::sunflowerReviveIn()
