@@ -754,16 +754,10 @@ void TMario::kickFruitEffect()
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(0x39, &mPosition, 0, nullptr);
 	if (emitter) {
-		emitter->unk154.x = 1.2f;
-		emitter->unk154.y = 1.2f;
-		emitter->unk154.z = 1.2f;
-		emitter->unk174.x = 1.2f;
-		emitter->unk174.y = 1.2f;
-		emitter->unk174.z = 1.2f;
+		JGeometry::TVec3<f32> scale(1.2f, 1.2f, 1.2f);
+		emitter->setScale(scale);
 		JGeometry::TVec3<f32> pos = mPosition;
 		pos.y += 30.0f;
-		emitter->unk160.x = pos.x;
-		emitter->unk160.y = pos.y;
-		emitter->unk160.z = pos.z;
+		emitter->unk160.set(pos);
 	}
 }
