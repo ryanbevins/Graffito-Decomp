@@ -780,14 +780,13 @@ check_sender_bit3:
 		{
 			switch (message) {
 			case 4: // Take
-				if (!isInvincible()) {
-					if (mHeldObject != nullptr) return 0;
-					if (mHolder != nullptr) return 0;
+				if (!isInvincible() && mHeldObject == nullptr
+				    && mHolder == nullptr) {
 					mHolder = (TTakeActor*)sender;
 					changePlayerStatus(0x10020370, 0, false);
 					return 1;
 				}
-				return 0;
+				break;
 			case 0x0E: // Touch
 				if (!isInvincible()) {
 					damageExec(sender,
@@ -800,7 +799,7 @@ check_sender_bit3:
 					           mDmgParamsBGTentacle.mInvincibleTime.get());
 					return 1;
 				}
-				return 0;
+				break;
 			case 8: // Release
 				if (checkFlag(0x1000)) {
 					changePlayerStatus(0x891, 0, true);
@@ -810,8 +809,9 @@ check_sender_bit3:
 				mHolder = nullptr;
 				return 1;
 			default:
-				return 0;
+				break;
 			}
+			break;
 		}
 
 		case 0x08000029: // Hit from enemy
