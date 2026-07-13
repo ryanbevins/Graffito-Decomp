@@ -157,17 +157,27 @@ J3DModelData* TMapStaticObj::getModelData() const
 
 void TMapStaticObj::getModel() const { }
 
-void TMapStaticObj::calcUnique(JPABaseEmitter*) { }
+void TMapStaticObj::calcUnique(JPABaseEmitter* emitter)
+{
+	switch (mActorType) {
+	case 0x40000024:
+		if (emitter) {
+			JGeometry::TVec3<f32> scale(mEffectCoronaScale, mEffectCoronaScale,
+			                            mEffectCoronaScale);
+			emitter->setScale(scale);
+		}
+		break;
+	default:
+		break;
+	}
+}
 
 void TMapStaticObj::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (param_1 & 2) {
 		u32 sfx = unk78;
-		if (sfx != 0xffffffff) {
-			if (gpMSound->gateCheck(sfx))
-				MSoundSESystem::MSoundSE::startSoundActor(sfx, mPosition, 0,
-				                                          nullptr, 0, 4);
-		}
+		if (sfx != 0xffffffff)
+			SMSGetMSound()->startSoundActor(sfx, &mPosition, 0, nullptr, 0, 4);
 
 		JPABaseEmitter* emitter = nullptr;
 		if (unk68->unk3C == 1)
@@ -177,11 +187,7 @@ void TMapStaticObj::perform(u32 param_1, JDrama::TGraphics* param_2)
 			emitter = gpMarioParticleManager->emit(unk68->unk38, &mPosition,
 			                                       unk68->unk3C, this);
 
-		if (mActorType == 0x40000024 && emitter) {
-			f32 scale = mEffectCoronaScale;
-			emitter->unk154.set(scale, scale, scale);
-			emitter->unk174.set(scale, scale, scale);
-		}
+		calcUnique(emitter);
 	}
 
 	if ((param_1 & 4) && (unk68->unk40 & 1)) {
