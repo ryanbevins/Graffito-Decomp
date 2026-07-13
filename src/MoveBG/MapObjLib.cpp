@@ -753,37 +753,42 @@ int TMapObjBase::getWaterID(THitActor* hit_actor)
 	return *(s32*)&((TWaterHitActor*)hit_actor)->unk68;
 }
 
-const TBGCheckData* TMapObjBase::getWaterPlane(THitActor*)
+const TBGCheckData* TMapObjBase::getWaterPlane(THitActor* actor)
 {
-	return gpModelWaterManager
-	    ->unk2914[*(s32*)&((TWaterHitActor*)this)->unk68];
+	return gpModelWaterManager->unk2914[getWaterID(actor)];
 }
 
-JGeometry::TVec3<f32>* TMapObjBase::getWaterSpeed(THitActor*)
+JGeometry::TVec3<f32>* TMapObjBase::getWaterSpeed(THitActor* actor)
 {
-	return &gpModelWaterManager
-	            ->mParticleVelocitySOA[*(s32*)&((TWaterHitActor*)this)->unk68];
+	return &gpModelWaterManager->mParticleVelocitySOA[getWaterID(actor)];
 }
 
-JGeometry::TVec3<f32>* TMapObjBase::getWaterPos(THitActor*)
+JGeometry::TVec3<f32>* TMapObjBase::getWaterPos(THitActor* actor)
 {
-	return &gpModelWaterManager
-	            ->mParticlePositionSOA[*(s32*)&((TWaterHitActor*)this)->unk68];
+	return &gpModelWaterManager->mParticlePositionSOA[getWaterID(actor)];
 }
 
-bool TMapObjBase::waterHitPlane(THitActor*)
+bool TMapObjBase::waterHitPlane(THitActor* actor)
 {
-	int water_id            = *(s32*)&((TWaterHitActor*)this)->unk68;
-	const TBGCheckData* pln = gpModelWaterManager->unk2914[water_id];
-	if (!pln)
+	int idx                   = getWaterID(actor);
+	const TBGCheckData* plane = gpModelWaterManager->unk2914[idx];
+	if (plane == nullptr)
 		return false;
-	JGeometry::TVec3<f32>& vel
-	    = gpModelWaterManager->mParticleVelocitySOA[water_id];
-	if (vel.x == 0.0f && vel.z == 0.0f)
-		return false;
-	if (vel.x * pln->getNormal().x > 0.0f
-	    || vel.z * pln->getNormal().z > 0.0f)
-		return false;
+	{
+		const JGeometry::TVec3<f32>& v
+		    = gpModelWaterManager->mParticleVelocitySOA[idx];
+		if (v.x == 0.0f && v.z == 0.0f)
+			return false;
+	}
+
+	{
+		const JGeometry::TVec3<f32>& v
+		    = gpModelWaterManager->mParticleVelocitySOA[idx];
+		if (v.x * plane->mNormal.x > 0.0f
+		    || v.z * plane->mNormal.z > 0.0f)
+			return false;
+	}
+
 	return true;
 }
 

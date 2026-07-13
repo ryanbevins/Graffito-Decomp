@@ -242,10 +242,10 @@ public:
 	void actorIsOn(TLiveActor*) const;
 	void sendMsgToAll(u32);
 	void sendMsg(u32, u32);
-	bool waterHitPlane(THitActor*);
-	JGeometry::TVec3<f32>* getWaterPos(THitActor*);
-	JGeometry::TVec3<f32>* getWaterSpeed(THitActor*);
-	const TBGCheckData* getWaterPlane(THitActor*);
+	static bool waterHitPlane(THitActor*);
+	static JGeometry::TVec3<f32>* getWaterPos(THitActor*);
+	static JGeometry::TVec3<f32>* getWaterSpeed(THitActor*);
+	static const TBGCheckData* getWaterPlane(THitActor*);
 	static int getWaterID(THitActor*);
 	f32 getDistance(const JGeometry::TVec3<f32>&) const;
 	f32 getDistanceXZ(const JGeometry::TVec3<f32>&) const;
