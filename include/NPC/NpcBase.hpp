@@ -58,6 +58,20 @@ private:
 class TNpcBalloon;
 class TBaseNPC : public TSpineEnemy {
 public:
+	TBaseNPC(u32, const char* name = "?");
+
+	virtual void load(JSUMemoryInputStream&);
+	virtual void loadAfter();
+	virtual void perform(u32, JDrama::TGraphics*);
+	virtual BOOL receiveMessage(THitActor* sender, u32 message);
+	virtual void init(TLiveManager*);
+	virtual void calcRootMatrix();
+	virtual void bind();
+	virtual void moveObject();
+	virtual void kill();
+	virtual JGeometry::TVec3<f32> getFocalPoint() const;
+	virtual const char** getBasNameTable() const;
+
 	void monteMESetAnmWhenNear();
 	void monteMESetAnmWhenFar();
 	bool sunflowerReviving();
@@ -127,15 +141,10 @@ public:
 	const GXColor* getPtrInitPollutionColor() const;
 	void setBalloonMessage(u32, long);
 	void setDummyConnectActor(const JDrama::TActor*);
-	void perform(u32, JDrama::TGraphics*);
 	f32  getAnmOffDist_();
 	void updateForbidCount_();
 	void movementOnlyTalk_(const JDrama::TGraphics*);
-	void calcRootMatrix();
 	void execMotionBlend_();
-	void moveObject();
-	virtual BOOL receiveMessage(THitActor* sender, u32 message);
-	JGeometry::TVec3<f32> getFocalPoint() const;
 	JGeometry::TVec3<f32> getCursorPos() const;
 	bool isInMadSearchRange() const;
 	bool isInBodyTurnSearchRange() const;
@@ -169,18 +178,12 @@ public:
 		return isNormalMareM() || isNormalMareW() || isSpecialMareM()
 		       || isSpecialMareW();
 	}
-	void loadAfter();
-	void load(JSUMemoryInputStream&);
-	TBaseNPC(u32, const char*);
 	void setIndividualDifference_(JSUMemoryInputStream&);
-	void init(TLiveManager*);
 	void initBaseActionFlag_();
 	void initIndividualAnm_();
 	void initSinkNpc_();
 	void setMtxEffect_();
 	void initNpcLight_();
-	const char** getBasNameTable() const;
-	void kill();
 	void setPosAndInitAfterSinkBottom();
 	void changeNerveProc_();
 	bool isNowCanTaken() const;
@@ -228,7 +231,6 @@ public:
 	bool execUTurn();
 	void execWalk(bool);
 	void isCanWalk() const;
-	void bind();
 	void setVariableDamageRadius_();
 	void execNpcObjCollision_();
 	void initNpcObjCollision_(const TNpcInitInfo*);
