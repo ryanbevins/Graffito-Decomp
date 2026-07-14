@@ -440,7 +440,7 @@ void TBaseNPC::npcWaitIn()
 	EnumNpcAnmKind kind = asKind(1);
 	u32 flag = mActionFlag;
 	if (!(flag & 0x400)) {
-		if (unk178 != 0.0f) {
+		if (!isClean()) {
 			kind = asKind(0xF);
 		} else if (flag & 0x200) {
 			kind = asKind(0x11);
@@ -638,7 +638,7 @@ void TBaseNPC::npcWetIn()
 	if (!isSunflowerReviving()) {
 		EnumNpcAnmKind anm = asKind(5);
 		EnumNpcStopMotionBlendOnOff blend = NPC_STOP_MOTION_BLEND_ON;
-		if (unk178 != 0.0f) {
+		if (!isClean()) {
 			anm = asKind(0x19);
 		} else if (checkActionFlag(NPC_ACTION_UNK1)) {
 			anm = asKind(0x14);
@@ -695,7 +695,7 @@ bool TBaseNPC::npcWetting()
 		npcWetOut();
 		ret = true;
 	} else if (unkD0->mCurrentAnmKind == 0x19) {
-		if (unk178 == 0.0f) {
+		if (isClean()) {
 			npcHappyIn(0);
 			npcWetOut();
 			ret = true;

@@ -194,6 +194,7 @@ public:
 			result = true;
 		return result;
 	}
+	bool isClean() const { return unk178 == 0.0f; }
 
 	void sunflowerDownIn_();
 	void peachTiredOut_();
