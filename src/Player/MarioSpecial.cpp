@@ -412,8 +412,7 @@ BOOL TMario::specMain()
 		return 0;
 	case 0x30000569:
 	case 0x38000368:
-		fenceMove();
-		break;
+		return fenceMove();
 	case 0x10100342:
 		break;
 	default:
