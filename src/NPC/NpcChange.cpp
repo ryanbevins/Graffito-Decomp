@@ -33,14 +33,14 @@ bool TBaseNPC::isNerveWalk() const
 	return result;
 }
 
-BOOL TBaseNPC::isNerveMaybeDontMovement() const
+bool TBaseNPC::isNerveMaybeDontMovement() const
 {
-	BOOL result                       = FALSE;
+	bool result                       = false;
 	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
 	if (cur == &TNerveNPCWaitContinue::theNerve()
 	    || cur == &TNerveNPCWaitMarioApproach::theNerve()
 	    || cur == &TNerveNPCSink::theNerve()) {
-		result = TRUE;
+		result = true;
 	}
 	return result;
 }
@@ -68,9 +68,9 @@ bool TBaseNPC::isNerveMaybeDontCalcAnim1() const
 	return result;
 }
 
-BOOL TBaseNPC::isNerveCanGoToTalk() const
+bool TBaseNPC::isNerveCanGoToTalk() const
 {
-	BOOL result                       = FALSE;
+	bool result                       = false;
 	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
 	if (cur == &TNerveNPCGraphWander::theNerve()
 	    || cur == &TNerveNPCUTurn::theNerve()
@@ -84,7 +84,7 @@ BOOL TBaseNPC::isNerveCanGoToTalk() const
 		    || (mSpine->peekTopNerveOrNull() != &TNerveNPCWet::theNerve()
 		        && mSpine->peekTopNerveOrNull()
 		               != &TNerveNPCTalk::theNerve())) {
-			result = TRUE;
+			result = true;
 		}
 	}
 	return result;

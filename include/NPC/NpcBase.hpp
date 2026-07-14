@@ -72,6 +72,22 @@ public:
 	virtual JGeometry::TVec3<f32> getFocalPoint() const;
 	virtual const char** getBasNameTable() const;
 
+	bool isCanWalk() const;
+	bool isNeedTurnToFirstState() const;
+	bool isTurnToMarioWhenTalk() const;
+	bool isTurnToMarioWhenApproach() const;
+	bool isNerveWalk() const;
+	bool isNerveMaybeDontMovement() const;
+	bool isNerveMaybeDontCalcAnim0() const;
+	bool isNerveMaybeDontCalcAnim1() const;
+	bool isNerveCanGoToTalk() const;
+	bool isNerveCanGoToWet() const;
+	bool isNerveCanGoToSink() const;
+	bool isNerveCanGoToTaken() const;
+	bool isNerveCanGoToThrow() const;
+	bool isNerveCanGoToMad() const;
+	bool isNerveCanGoToBlown() const;
+
 	void monteMESetAnmWhenNear();
 	void monteMESetAnmWhenFar();
 	bool sunflowerReviving();
@@ -196,17 +212,6 @@ public:
 	void changeNerveToMad_();
 	void changeNerveToWet_();
 	void changeNerveFromTalk_();
-	BOOL isNerveCanGoToBlown() const;
-	bool isNerveCanGoToMad() const;
-	BOOL isNerveCanGoToThrow() const;
-	BOOL isNerveCanGoToTaken() const;
-	BOOL isNerveCanGoToSink() const;
-	BOOL isNerveCanGoToWet() const;
-	BOOL isNerveCanGoToTalk() const;
-	bool isNerveMaybeDontCalcAnim1() const;
-	bool isNerveMaybeDontCalcAnim0() const;
-	BOOL isNerveMaybeDontMovement() const;
-	bool isNerveWalk() const;
 	void emitParticle_();
 	bool isPolWaitCEffectEmitTime_() const;
 	bool isPolWaitLEffectEmitTime_() const;
@@ -224,13 +229,9 @@ public:
 	void setKinoActionFlag_();
 	void setMareActionFlag_();
 	void setMonteActionFlag_();
-	bool isTurnToMarioWhenApproach() const;
-	bool isTurnToMarioWhenTalk() const;
-	bool isNeedTurnToFirstState() const;
 	bool execTurnToFirstState();
 	bool execUTurn();
 	void execWalk(bool);
-	void isCanWalk() const;
 	void setVariableDamageRadius_();
 	void execNpcObjCollision_();
 	void initNpcObjCollision_(const TNpcInitInfo*);
