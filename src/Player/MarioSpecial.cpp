@@ -132,6 +132,26 @@ inline BOOL TMario::barHang()
 	return 0;
 }
 
+inline BOOL TMario::kickRoof()
+{
+	setAnimation(0x101, 1.0f);
+
+	f32 entryR1 = mAttackParamsKickRoof.mRadius.value;
+	mAttackRadius = entryR1;
+	calcEntryRadius();
+	f32 entryR2 = mAttackParamsKickRoof.mHeight.value;
+	mAttackHeight = entryR2;
+	calcEntryRadius();
+
+	kickRoofEffect();
+	if (isLast1AnimeFrame()) {
+		mInput &= ~0x2;
+		return changePlayerStatus(0x00200349, 0, false);
+	}
+
+	return 0;
+}
+
 inline BOOL TMario::kickRoofRollUp()
 {
 	setAnimation(0x102, 1.0f);
@@ -202,23 +222,7 @@ BOOL TMario::specMain()
 	case 0x00200346:
 		return kickRoofRollDown();
 	case 0x00200347:
-		// fence kick
-		setAnimation(0x101, 1.0f);
-		{
-			f32 entryR1 = mAttackParamsKickRoof.mRadius.value;
-			mAttackRadius = entryR1;
-			calcEntryRadius();
-			f32 entryR2 = mAttackParamsKickRoof.mHeight.value;
-			mAttackHeight = entryR2;
-			calcEntryRadius();
-		}
-		kickRoofEffect();
-		if (isLast1AnimeFrame()) {
-			mInput &= ~0x2;
-			changePlayerStatus(0x00200349, 0, false);
-			break;
-		}
-		return 0;
+		return kickRoof();
 	case 0x08200348:
 		// roof check
 		{

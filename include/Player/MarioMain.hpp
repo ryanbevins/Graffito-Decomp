@@ -1190,7 +1190,7 @@ public:
 	void startHangLanding(u32);
 	BOOL kickRoofRollDown();
 	BOOL kickRoofRollUp();
-	void kickRoof();
+	BOOL kickRoof();
 	BOOL moveRoof();
 	void waitRoof();
 	void hangRoof();
