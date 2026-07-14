@@ -126,6 +126,16 @@ public:
 	bool isInMadSearchRange() const;
 	bool isNowCanTaken() const;
 
+	void execWalk(bool);
+	bool execUTurn();
+	bool execTurnToFirstState();
+	void setPosAndInitAfterSinkBottom();
+
+	JGeometry::TVec3<f32> getCursorPos() const;
+	void setDummyConnectActor(const JDrama::TActor*);
+	void setBalloonMessage(u32, long);
+	const GXColor* getPtrInitPollutionColor() const;
+
 	void monteMESetAnmWhenNear();
 	void monteMESetAnmWhenFar();
 	bool sunflowerReviving();
@@ -192,21 +202,16 @@ public:
 		return result;
 	}
 	~TBaseNPC();
-	const GXColor* getPtrInitPollutionColor() const;
-	void setBalloonMessage(u32, long);
-	void setDummyConnectActor(const JDrama::TActor*);
 	f32  getAnmOffDist_();
 	void updateForbidCount_();
 	void movementOnlyTalk_(const JDrama::TGraphics*);
 	void execMotionBlend_();
-	JGeometry::TVec3<f32> getCursorPos() const;
 	void setIndividualDifference_(JSUMemoryInputStream&);
 	void initBaseActionFlag_();
 	void initIndividualAnm_();
 	void initSinkNpc_();
 	void setMtxEffect_();
 	void initNpcLight_();
-	void setPosAndInitAfterSinkBottom();
 	void changeNerveProc_();
 	bool isStateGoToMad_() const;
 	void behaveToSandBomb_(const TLiveActor*);
@@ -234,9 +239,6 @@ public:
 	void setKinoActionFlag_();
 	void setMareActionFlag_();
 	void setMonteActionFlag_();
-	bool execTurnToFirstState();
-	bool execUTurn();
-	void execWalk(bool);
 	void setVariableDamageRadius_();
 	void execNpcObjCollision_();
 	void initNpcObjCollision_(const TNpcInitInfo*);
