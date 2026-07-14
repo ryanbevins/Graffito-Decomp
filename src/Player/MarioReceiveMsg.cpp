@@ -1040,7 +1040,7 @@ check_sender_bit3:
 		}
 
 		case 0x08000005: // NPC greeting
-			return 0;
+			break;
 
 		case 0x4000002D:
 		case 0x4000002E:
