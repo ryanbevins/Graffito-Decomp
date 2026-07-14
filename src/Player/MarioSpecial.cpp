@@ -109,6 +109,29 @@ inline BOOL TMario::wireSWaitToWaitR()
 	return 0;
 }
 
+inline BOOL TMario::barHang()
+{
+	if (mActionTimer == 0) {
+		rumbleStart(0x15, mMotorParams.mMotorWall.value);
+		mActionTimer++;
+	}
+
+	if (mHolder == 0)
+		return changePlayerStatus(0x208b6, 0, false);
+
+	mVel.y = 0.0f;
+
+	if (barProcess() == 0) {
+		setAnimation(6, 1.0f);
+		if (isLast1AnimeFrame())
+			changePlayerStatus(0x18100340, 0, false);
+	}
+
+	mFaceAngle.x = 0;
+	mModelFaceAngle = mFaceAngle.y;
+	return 0;
+}
+
 BOOL TMario::specMain()
 {
 	mWireBounceVelPrev = mWireBounceVel;
@@ -141,26 +164,7 @@ BOOL TMario::specMain()
 		barWait();
 		break;
 	case 0x10100341:
-		// barClimb entry variant - rumble + bar process
-		if (mActionTimer == 0) {
-			rumbleStart(0x15, mMotorParams.mMotorWall.value);
-			mActionTimer++;
-		}
-		if ((u32)mHeldObject == 0) {
-			changePlayerStatus(0x208b6, 0, false);
-			break;
-		}
-		mForwardVel = 0.0f;
-		barProcess();
-		{
-			setAnimation(6, 1.0f);
-			if (isLast1AnimeFrame()) {
-				changePlayerStatus(0x18100340, 0, false);
-			}
-		}
-		mFaceAngle.x = 0;
-		mModelFaceAngle = mFaceAngle.y;
-		break;
+		return barHang();
 	case 0x10100344:
 		barClimb();
 		break;
