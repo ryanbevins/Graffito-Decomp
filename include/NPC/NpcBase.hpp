@@ -171,18 +171,6 @@ public:
 	static TNpcSaveNormal* mPtrSaveNormal;
 	static s16 mAngleYDiffWhenTaken;
 
-	void sunflowerDownIn_();
-	void peachTiredOut_();
-	void peachTiredIn_();
-	void peachParasolOut_();
-	void peachParasolIn_();
-	EnumNpcAnmKind getNpcWaitAnmBase_();
-	void walkAnmRateChange_();
-	void randomizeBckAndBtpFrame_();
-	void requestTalkAnm_();
-	void setKeepAnm_();
-	void requestNpcAnm_(EnumNpcAnmKind, EnumNpcStopMotionBlendOnOff);
-	void setNpcAnm_(EnumNpcAnmKind, EnumNpcStopMotionBlendOnOff);
 	void onUnk1D8(u32 flag) { unk1D8 |= flag; }
 	void offUnk1D8(u32 flag) { unk1D8 &= ~flag; }
 	bool checkUnk1D8(u32 flag) const { return (unk1D8 & flag) != 0; }
@@ -206,6 +194,19 @@ public:
 			result = true;
 		return result;
 	}
+
+	void sunflowerDownIn_();
+	void peachTiredOut_();
+	void peachTiredIn_();
+	void peachParasolOut_();
+	void peachParasolIn_();
+	EnumNpcAnmKind getNpcWaitAnmBase_();
+	void walkAnmRateChange_();
+	void randomizeBckAndBtpFrame_();
+	void requestTalkAnm_();
+	void setKeepAnm_();
+	void requestNpcAnm_(EnumNpcAnmKind, EnumNpcStopMotionBlendOnOff);
+	void setNpcAnm_(EnumNpcAnmKind, EnumNpcStopMotionBlendOnOff);
 	~TBaseNPC();
 	f32  getAnmOffDist_();
 	void updateForbidCount_();
