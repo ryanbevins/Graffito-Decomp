@@ -168,6 +168,9 @@ public:
 	void monteMESetAnmWhenFar();
 	void monteMESetAnmWhenNear();
 
+	static TNpcSaveNormal* mPtrSaveNormal;
+	static s16 mAngleYDiffWhenTaken;
+
 	void sunflowerDownIn_();
 	void peachTiredOut_();
 	void peachTiredIn_();
@@ -244,9 +247,6 @@ public:
 	void setVariableDamageRadius_();
 	void execNpcObjCollision_();
 	void initNpcObjCollision_(const TNpcInitInfo*);
-
-	static TNpcSaveNormal* mPtrSaveNormal;
-	static s16 mAngleYDiffWhenTaken;
 
 public:
 	class TNpcSink {
