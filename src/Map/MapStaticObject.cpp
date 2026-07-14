@@ -328,8 +328,12 @@ void TMapStaticObj::init(const char* name)
 
 	if (unk68->unk34 != nullptr) {
 		switch (unk68->unk3C) {
+		case 0:
+			break;
 		case 1:
 			SMS_LoadParticle(unk68->unk34, unk68->unk38);
+			break;
+		case 2:
 			break;
 		case 3:
 			SMS_LoadParticle(unk68->unk34, unk68->unk38);
