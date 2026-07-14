@@ -310,13 +310,10 @@ void TMapStaticObj::initModel(const char* name)
 void TMapStaticObj::init(const char* name)
 {
 	unk6C = name;
-	const ActorDataTableEntry* entry;
-	for (int i = 0;; ++i) {
-		entry = &actor_data_table[i];
-		if (!strcmp(name, actor_data_table[i].unk0))
-			break;
-	}
-	unk68 = entry;
+	int i = 0;
+	while (strcmp(name, actor_data_table[i].unk0) != 0)
+		++i;
+	unk68 = &actor_data_table[i];
 
 	initHitActor(unk68->unk4, 5, unk68->unk8, unk68->unkC, unk68->unk10,
 	             unk68->unk14, unk68->unk18);
