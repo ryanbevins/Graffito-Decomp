@@ -65,14 +65,8 @@ void TMario::sinkInSandEffect()
 {
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(0x53, &mPosition, 0, nullptr);
-	if (emitter) {
-		emitter->unk154.x = 0.0f;
-		emitter->unk154.y = 0.0f;
-		emitter->unk154.z = 0.0f;
-		emitter->unk174.x = 0.0f;
-		emitter->unk174.y = 0.0f;
-		emitter->unk174.z = 0.0f;
-	}
+	if (emitter)
+		emitter->setScale(JGeometry::TVec3<f32>(0.5f, 0.5f, 0.5f));
 }
 
 void TMario::toroccoEffect()
