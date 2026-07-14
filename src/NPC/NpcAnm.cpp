@@ -148,10 +148,8 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 		switch (mActorType) {
 		case 0x04000018: {
 			bool flag = checkUnk1D8(0x1);
-			MActor* parts;
 			int bck;
-			parts = mNpcParts->getPartsMActor(0, 0);
-			if (parts) {
+			if (MActor* const parts = mNpcParts->getPartsMActor(0, 0)) {
 				switch (kind) {
 				case NPC_ANM_KIND_UNK5:
 					if (flag)
@@ -169,8 +167,7 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 				if (!parts->checkCurBckFromIndex(bck))
 					parts->setBckFromIndex(bck);
 			}
-			parts = mNpcParts->getPartsMActor(3, 0);
-			if (parts) {
+			if (MActor* const parts = mNpcParts->getPartsMActor(3, 0)) {
 				switch (kind) {
 				case NPC_ANM_KIND_TAKEN:
 					bck = 7;
@@ -194,8 +191,7 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 				if (!parts->checkCurBckFromIndex(bck))
 					parts->setBckFromIndex(bck);
 			}
-			parts = mNpcParts->getPartsMActor(4, 0);
-			if (parts) {
+			if (MActor* const parts = mNpcParts->getPartsMActor(4, 0)) {
 				switch (kind) {
 				case NPC_ANM_KIND_UNK5:
 					bck = -1;
@@ -219,8 +215,7 @@ void TBaseNPC::setNpcAnm_(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend
 				bck = 3;
 				break;
 			}
-			MActor* parts = mNpcParts->getPartsMActor(9, 0);
-			if (parts) {
+			if (MActor* const parts = mNpcParts->getPartsMActor(9, 0)) {
 				if (!parts->checkCurBckFromIndex(bck))
 					parts->setBckFromIndex(bck);
 			}
