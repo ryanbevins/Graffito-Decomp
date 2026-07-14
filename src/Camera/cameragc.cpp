@@ -75,7 +75,9 @@ public:
 	u8 _pad08[0x1AC - 0x08];
 	TParamRT<s16> mSLLimitMinAngleX;
 	TParamRT<s16> mSLLimitMaxAngleX;
-	u8 _pad1D4[0x210 - 0x1D4];
+	TParamRT<s16> mSLSlopeMaxAngleX;
+	TParamRT<s16> mSLSlopeSpeedAngleX;
+	TParamRT<f32> mSLSlopeForwardDistXZ;
 };
 
 class TCamSaveNotice {
@@ -928,10 +930,9 @@ void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 			toMario.set(gpMarioPos->x - mPosition.x, 0.0f,
 			            gpMarioPos->z - mPosition.z);
 			if (!toMario.isZero()) {
-				const u8* save     = (const u8*)unk2D4;
 				f32 marioGroundY   = SMS_GetMarioGrLevel();
-				f32 forwardDist    = *(const f32*)(save + 0x20C);
-				s16 maxSlopeAngle  = *(const s16*)(save + 0x1E4);
+				s16 maxSlopeAngle  = mSaveEx->mSLSlopeMaxAngleX.get();
+				f32 forwardDist    = mSaveEx->mSLSlopeForwardDistXZ.get();
 				JGeometry::TVec3<f32> forwardOffset;
 				MsVECNormalize(&toMario, &forwardOffset);
 				forwardOffset *= forwardDist;
@@ -961,18 +962,12 @@ void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 		}
 	}
 
-	const u8* save = (const u8*)unk2D4;
+	s16 speed = mSaveEx->mSLSlopeSpeedAngleX.get();
 	CLBChaseGeneralConstantSpecifySpeed<s16>(
-	    &unk28C, slopeAngle, *(const s16*)(save + 0x1F8));
+	    &unk28C, slopeAngle, speed);
 	*out -= unk28C;
-	s16 angle = *out;
-	s16 max   = *(const s16*)(save + 0x1D0);
-	s16 min   = *(const s16*)(save + 0x1BC);
-	if (angle > max)
-		angle = max;
-	else if (angle < min)
-		angle = min;
-	*out = angle;
+	*out = MsClamp(*out, mSaveEx->mSLLimitMinAngleX.get(),
+	               mSaveEx->mSLLimitMaxAngleX.get());
 }
 
 bool CPolarSubCamera::isMomentDefinite_() const
