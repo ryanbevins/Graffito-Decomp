@@ -312,7 +312,6 @@ void TAnimalBase::init(TLiveManager* mgr)
 	}
 }
 
-#pragma dont_inline on
 void TAnimalBase::initNoLoad_(TAnimalBase* pNew)
 {
 	pNew->mPosition.x = 1000.0f * (MsRandF() - 0.5f) + mPosition.x;
@@ -343,4 +342,3 @@ void TAnimalBase::initNoLoad_(TAnimalBase* pNew)
 	    ->getChildren()
 	    .push_back(pNew);
 }
-#pragma dont_inline off
