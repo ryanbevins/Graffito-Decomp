@@ -196,6 +196,14 @@ public:
 	}
 	bool isClean() const { return unk178 == 0.0f; }
 
+private:
+	void setIndividualDifference_(JSUMemoryInputStream&);
+	void initIndividualAnm_();
+	void initBaseActionFlag_();
+	void initNpcLight_();
+	void setMtxEffect_();
+	void initSinkNpc_();
+
 	void sunflowerDownIn_();
 	void peachTiredOut_();
 	void peachTiredIn_();
@@ -213,12 +221,6 @@ public:
 	void updateForbidCount_();
 	void movementOnlyTalk_(const JDrama::TGraphics*);
 	void execMotionBlend_();
-	void setIndividualDifference_(JSUMemoryInputStream&);
-	void initBaseActionFlag_();
-	void initIndividualAnm_();
-	void initSinkNpc_();
-	void setMtxEffect_();
-	void initNpcLight_();
 	void changeNerveProc_();
 	bool isStateGoToMad_() const;
 	void behaveToSandBomb_(const TLiveActor*);
