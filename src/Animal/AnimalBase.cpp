@@ -301,7 +301,7 @@ void TAnimalBase::init(TLiveManager* mgr)
 		if (n == 0) {
 			frac = MsRandF();
 		} else {
-			frac = (f32)(mInstanceIndex % n) / (f32)n;
+			frac = (1.0f / n) * (mInstanceIndex % n);
 		}
 		fc->setFrame(frac * (f32)fc->getEnd());
 	}
