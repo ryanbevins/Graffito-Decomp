@@ -315,14 +315,14 @@ void TYoshi::initInLoadAfter()
 	mTongue->initInLoadAfter();
 
 	TMirrorActor* mirror = new TMirrorActor("ヨッシーin鏡");
-	mirror->init(mActor->unk4, 4);
+	mirror->init(mActor->getModel(), 4);
 
 	for (int i = 0; i < 2; ++i) {
 		TMirrorActor* footMirror = new TMirrorActor("ヨッシー手in鏡");
 		footMirror->init((&mHandL)[i], 4);
 	}
 
-	mActor->unk4->getModelData()->getJointNodePointer(21)->setCallBack(
+	mActor->getModel()->getModelData()->getJointNodePointer(21)->setCallBack(
 	    YoshiHeadCtrl);
 }
 
