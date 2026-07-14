@@ -966,8 +966,14 @@ void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 	CLBChaseGeneralConstantSpecifySpeed<s16>(
 	    &unk28C, slopeAngle, speed);
 	*out -= unk28C;
-	*out = MsClamp(*out, mSaveEx->mSLLimitMinAngleX.get(),
-	               mSaveEx->mSLLimitMaxAngleX.get());
+	s16 angle = *out;
+	s16 min   = mSaveEx->mSLLimitMinAngleX.get();
+	s16 max   = mSaveEx->mSLLimitMaxAngleX.get();
+	if (angle > max)
+		angle = max;
+	else if (angle < min)
+		angle = min;
+	*out = angle;
 }
 
 bool CPolarSubCamera::isMomentDefinite_() const
