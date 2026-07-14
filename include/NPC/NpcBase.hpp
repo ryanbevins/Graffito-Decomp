@@ -211,6 +211,10 @@ private:
 	void behaveToBeTrampled_();
 	void behaveToHitObject_(THitActor*, EnumHitNpcObjectKind);
 	void behaveToSandBomb_(const TLiveActor*);
+	bool isStateGoToMad_() const;
+	void changeNerveProc_();
+	void execMotionBlend_();
+	void movementOnlyTalk_(const JDrama::TGraphics*);
 
 	void sunflowerDownIn_();
 	void peachTiredOut_();
@@ -227,10 +231,6 @@ private:
 	~TBaseNPC();
 	f32  getAnmOffDist_();
 	void updateForbidCount_();
-	void movementOnlyTalk_(const JDrama::TGraphics*);
-	void execMotionBlend_();
-	void changeNerveProc_();
-	bool isStateGoToMad_() const;
 	void emitParticle_();
 	bool isPolWaitCEffectEmitTime_() const;
 	bool isPolWaitLEffectEmitTime_() const;
