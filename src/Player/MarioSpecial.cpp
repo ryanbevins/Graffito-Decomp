@@ -452,8 +452,7 @@ BOOL TMario::fencePunch()
 		mFaceAngle.y = angle + 0x8000;
 		mModelFaceAngle = mFaceAngle.y;
 		setPlayerVelocity(0.0f);
-		changePlayerStatus(0x88c, 0, false);
-		return;
+		return changePlayerStatus(0x88c, 0, false);
 	}
 
 	setAnimation(0x100, 1.0f);
@@ -506,7 +505,7 @@ BOOL TMario::fencePunch()
 	return FALSE;
 }
 
-void TMario::fenceMove()
+BOOL TMario::fenceMove()
 {
 	JGeometry::TVec3<f32> nextPos(mPosition);
 	nextPos.x += 0.5f * (50.0f * JMASSin(mFaceAngle.y));
@@ -592,8 +591,7 @@ void TMario::fenceMove()
 	case 1: {
 		s16 angle2 = mFaceAngle.y;
 		mFaceAngle.y = angle2 + 0x8000;
-		changePlayerStatus(0x88c, 0, false);
-		return;
+		return changePlayerStatus(0x88c, 0, false);
 	}
 	case 3: {
 		mPosition.x += 50.0f * JMASSin(mFaceAngle.y);
@@ -601,8 +599,7 @@ void TMario::fenceMove()
 		mPosition.z += 50.0f * JMASCos(mFaceAngle.y);
 		setAnimation(0, 1.0f);
 		mInput &= ~0x4;
-		changePlayerDropping(0x3000054c, 0);
-		return;
+		return changePlayerDropping(0x3000054c, 0);
 	}
 	}
 
@@ -621,18 +618,16 @@ void TMario::fenceMove()
 			    0x193a, (Vec*)&mPosition, 0, (JAISound**)0, 0, 4);
 		}
 		rumbleStart(0x15, mMotorParams.mMotorWall.value);
-		startJumpWall();
-		return;
+		return startJumpWall();
 	}
 
 	if (mInput & 0x8000) {
 		mInput &= ~0x8000;
-		changePlayerStatus(0x3000036a, 0, false);
-		return;
+		return changePlayerStatus(0x3000036a, 0, false);
 	}
 
 	if (mIntendedMag <= 0.0f)
-		return;
+		return 0;
 
 	f32 f31, f30;
 	if (mRidingActor == NULL) {
@@ -720,6 +715,7 @@ void TMario::fenceMove()
 			setAnimation(253, 0.0f);
 		}
 	}
+	return 0;
 }
 
 void TMario::pulling()

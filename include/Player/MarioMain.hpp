@@ -1158,7 +1158,7 @@ public:
 	BOOL considerRotateStart();
 	BOOL specMain();
 	BOOL fencePunch();
-	void fenceMove();
+	BOOL fenceMove();
 	void fenceJumpCatch();
 	void fenceCatch();
 	void fenceFootCheck();
