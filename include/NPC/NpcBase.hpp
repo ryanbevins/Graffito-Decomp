@@ -315,12 +315,10 @@ public:
 		UNK1DA_FLAG_UNK2 = 0x2,
 	};
 	/* 0x1DA */ u8 unk1DA;
-	/* 0x1DB */ u8 unk1DB;
 	/* 0x1DC */ s32 unk1DC;
 	/* 0x1E0 */ u16 unk1E0;
 	/* 0x1E2 */ u16 unk1E2;
 	/* 0x1E4 */ u16 unk1E4;
-	/* 0x1E6 */ char unk1E6[0x2];
 	/* 0x1E8 */ MtxPtr mPtrHappyEffectMtx;
 	/* 0x1EC */ MtxPtr mPtrNoteEffectMtx;
 	/* 0x1F0 */ JGeometry::TVec3<f32> mNoteEffectPos;
