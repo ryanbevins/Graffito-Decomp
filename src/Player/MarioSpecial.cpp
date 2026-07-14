@@ -132,6 +132,26 @@ inline BOOL TMario::barHang()
 	return 0;
 }
 
+inline BOOL TMario::kickRoofRollUp()
+{
+	setAnimation(0x102, 1.0f);
+	kickRoofEffect();
+
+	u16 timer = mActionTimer;
+	mActionTimer = timer + 1;
+	if (timer == 8)
+		startVoice(0x7890);
+
+	if (isLast1AnimeFrame()) {
+		mPosition.y = mPosition.y + 10.0f;
+		mFloorPosition.y = mPosition.y;
+		mInput &= ~0x4;
+		return changePlayerStatus(0x0C400201, 0, false);
+	}
+
+	return 0;
+}
+
 BOOL TMario::specMain()
 {
 	mWireBounceVelPrev = mWireBounceVel;
@@ -169,24 +189,7 @@ BOOL TMario::specMain()
 		barClimb();
 		break;
 	case 0x00200345:
-		// kick roof
-		setAnimation(0x102, 1.0f);
-		kickRoofEffect();
-		{
-			u16 timer = mActionTimer;
-			mActionTimer = timer + 1;
-			if (timer == 8) {
-				startVoice(0x7890);
-			}
-		}
-		if (isLast1AnimeFrame()) {
-			mPosition.y = mPosition.y + 10.0f;
-			mFloorPosition.y = mPosition.y;
-			mInput &= ~0x4;
-			changePlayerStatus(0x0C400201, 0, false);
-			break;
-		}
-		return 0;
+		return kickRoofRollUp();
 	case 0x00200346:
 		// fence slide anim
 		setAnimation(0x103, 1.0f);

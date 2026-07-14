@@ -1189,7 +1189,7 @@ public:
 	void hangingCommon(int, int);
 	void startHangLanding(u32);
 	void kickRoofRollDown();
-	void kickRoofRollUp();
+	BOOL kickRoofRollUp();
 	void kickRoof();
 	BOOL moveRoof();
 	void waitRoof();
