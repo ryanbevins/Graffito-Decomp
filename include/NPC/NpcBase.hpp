@@ -88,6 +88,44 @@ public:
 	bool isNerveCanGoToMad() const;
 	bool isNerveCanGoToBlown() const;
 
+	bool isNormalMonteM() const;
+	bool isNormalMonteW() const;
+	bool isNormalMonte() const { return isNormalMonteM() || isNormalMonteW(); }
+	bool isSpecialMonteM() const;
+	bool isSpecialMonteW() const;
+	bool isSpecialMonte() const
+	{
+		return isSpecialMonteM() || isSpecialMonteW();
+	}
+	bool isMonte() const { return isNormalMonte() || isSpecialMonte(); }
+	bool isMonteM() const { return isNormalMonteM() || isSpecialMonteM(); }
+	bool isMonteW() const { return isNormalMonteW() || isSpecialMonteW(); }
+
+	bool isNormalMareM() const;
+	bool isNormalMareW() const;
+	bool isNormalMare() const { return isNormalMareM() || isNormalMareW(); }
+	bool isSpecialMareM() const;
+	bool isSpecialMareW() const;
+	bool isSpecialMare() const { return isSpecialMareM() || isSpecialMareW(); }
+	bool isMare() const { return isNormalMare() || isSpecialMare(); }
+	bool isMareM() const { return isNormalMareM() || isSpecialMareM(); }
+	bool isMareW() const { return isNormalMareW() || isSpecialMareW(); }
+
+	bool isJellyFishMare() const;
+	bool isSunflower() const;
+	bool isChild() const;
+	bool isSmallNpc() const;
+	bool isPollutionNpc() const;
+	bool isBeTrampledNpc() const;
+	bool isMadNpc() const;
+	BOOL isBehaveToWaterNpc() const;
+	bool isBehaveToHitNpc() const;
+	bool isPartsAnmNpc() const;
+	bool isNeedNeckStraight() const;
+	bool isInBodyTurnSearchRange() const;
+	bool isInMadSearchRange() const;
+	bool isNowCanTaken() const;
+
 	void monteMESetAnmWhenNear();
 	void monteMESetAnmWhenFar();
 	bool sunflowerReviving();
@@ -162,38 +200,6 @@ public:
 	void movementOnlyTalk_(const JDrama::TGraphics*);
 	void execMotionBlend_();
 	JGeometry::TVec3<f32> getCursorPos() const;
-	bool isInMadSearchRange() const;
-	bool isInBodyTurnSearchRange() const;
-	bool isNeedNeckStraight() const;
-	bool isPartsAnmNpc() const;
-	void isBehaveToHitNpc() const;
-	BOOL isBehaveToWaterNpc() const;
-	bool isMadNpc() const;
-	bool isBeTrampledNpc() const;
-	bool isPollutionNpc() const;
-	bool isSmallNpc() const;
-	bool isChild() const;
-	bool isSunflower() const;
-	bool isJellyFishMare() const;
-	bool isSpecialMareW() const;
-	bool isSpecialMareM() const;
-	bool isNormalMareW() const;
-	bool isNormalMareM() const;
-	bool isSpecialMonteW() const;
-	bool isSpecialMonteM() const;
-	bool isNormalMonteW() const;
-	bool isNormalMonteM() const;
-	bool isNormalMonte() const { return isNormalMonteM() || isNormalMonteW(); }
-	bool isSpecialMonte() const
-	{
-		return isSpecialMonteM() || isSpecialMonteW();
-	}
-	bool isMonte() const { return isNormalMonte() || isSpecialMonte(); }
-	bool isMare() const
-	{
-		return isNormalMareM() || isNormalMareW() || isSpecialMareM()
-		       || isSpecialMareW();
-	}
 	void setIndividualDifference_(JSUMemoryInputStream&);
 	void initBaseActionFlag_();
 	void initIndividualAnm_();
@@ -202,7 +208,6 @@ public:
 	void initNpcLight_();
 	void setPosAndInitAfterSinkBottom();
 	void changeNerveProc_();
-	bool isNowCanTaken() const;
 	bool isStateGoToMad_() const;
 	void behaveToSandBomb_(const TLiveActor*);
 	void behaveToHitObject_(THitActor*, EnumHitNpcObjectKind);
