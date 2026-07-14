@@ -203,6 +203,14 @@ private:
 	void initNpcLight_();
 	void setMtxEffect_();
 	void initSinkNpc_();
+	void changeNerveFromTalk_();
+	void changeNerveToWet_();
+	void changeNerveToMad_();
+	void releaseTaken_();
+	void behaveToBeTaken_(THitActor*);
+	void behaveToBeTrampled_();
+	void behaveToHitObject_(THitActor*, EnumHitNpcObjectKind);
+	void behaveToSandBomb_(const TLiveActor*);
 
 	void sunflowerDownIn_();
 	void peachTiredOut_();
@@ -223,14 +231,6 @@ private:
 	void execMotionBlend_();
 	void changeNerveProc_();
 	bool isStateGoToMad_() const;
-	void behaveToSandBomb_(const TLiveActor*);
-	void behaveToHitObject_(THitActor*, EnumHitNpcObjectKind);
-	void behaveToBeTrampled_();
-	void behaveToBeTaken_(THitActor*);
-	void releaseTaken_();
-	void changeNerveToMad_();
-	void changeNerveToWet_();
-	void changeNerveFromTalk_();
 	void emitParticle_();
 	bool isPolWaitCEffectEmitTime_() const;
 	bool isPolWaitLEffectEmitTime_() const;
