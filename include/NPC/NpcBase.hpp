@@ -136,38 +136,43 @@ public:
 	void setBalloonMessage(u32, long);
 	const GXColor* getPtrInitPollutionColor() const;
 
-	void monteMESetAnmWhenNear();
-	void monteMESetAnmWhenFar();
-	bool sunflowerReviving();
+	void isNowMotionBlend() const;
+	void offStopMotionBlend();
+	void onStopMotionBlend();
+	void npcWaitIn();
+	void npcFallIn();
+	bool npcRecoverFromSinking();
+	void npcRecoverAfterIn();
+
+	void npcStepIn();
+	void npcTalkIn();
+	void npcTalking();
+	void npcTalkOut();
+	void npcTakenIn();
+	void npcDanceIn();
+	void npcHappyIn(u8);
+	void npcWetIn();
+	bool npcWetting();
+	void npcWetOut();
+	void npcSinking();
+	void npcThrowIn();
+	bool npcThrowing();
+	void npcMadIn();
+	bool npcMadding();
+	void npcBlownIn();
+	bool npcBlowning();
+	void npcMareStandIn();
+	bool npcMareStanding();
 	void sunflowerReviveIn();
+	bool sunflowerReviving();
+	void monteMESetAnmWhenFar();
+	void monteMESetAnmWhenNear();
+
 	void sunflowerDownIn_();
 	void peachTiredOut_();
 	void peachTiredIn_();
 	void peachParasolOut_();
 	void peachParasolIn_();
-	bool npcMareStanding();
-	void npcMareStandIn();
-	bool npcBlowning();
-	void npcBlownIn();
-	bool npcMadding();
-	void npcMadIn();
-	bool npcThrowing();
-	void npcThrowIn();
-	void npcSinking();
-	void npcWetOut();
-	bool npcWetting();
-	void npcWetIn();
-	void npcHappyIn(unsigned char);
-	void npcDanceIn();
-	void npcTakenIn();
-	void npcTalkOut();
-	void npcTalking();
-	void npcTalkIn();
-	void npcStepIn();
-	void npcRecoverAfterIn();
-	bool npcRecoverFromSinking();
-	void npcFallIn();
-	void npcWaitIn();
 	EnumNpcAnmKind getNpcWaitAnmBase_();
 	void walkAnmRateChange_();
 	void randomizeBckAndBtpFrame_();
@@ -175,9 +180,6 @@ public:
 	void setKeepAnm_();
 	void requestNpcAnm_(EnumNpcAnmKind, EnumNpcStopMotionBlendOnOff);
 	void setNpcAnm_(EnumNpcAnmKind, EnumNpcStopMotionBlendOnOff);
-	void onStopMotionBlend();
-	void offStopMotionBlend();
-	void isNowMotionBlend() const;
 	void onUnk1D8(u32 flag) { unk1D8 |= flag; }
 	void offUnk1D8(u32 flag) { unk1D8 &= ~flag; }
 	bool checkUnk1D8(u32 flag) const { return (unk1D8 & flag) != 0; }
