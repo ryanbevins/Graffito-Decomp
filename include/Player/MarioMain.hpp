@@ -1188,7 +1188,7 @@ public:
 	void findNearestWall(const TBGWallCheckRecord&);
 	void hangingCommon(int, int);
 	void startHangLanding(u32);
-	void kickRoofRollDown();
+	BOOL kickRoofRollDown();
 	BOOL kickRoofRollUp();
 	void kickRoof();
 	BOOL moveRoof();

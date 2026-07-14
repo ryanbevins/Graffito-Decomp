@@ -152,6 +152,15 @@ inline BOOL TMario::kickRoofRollUp()
 	return 0;
 }
 
+inline BOOL TMario::kickRoofRollDown()
+{
+	setAnimation(0x103, 1.0f);
+	if (isLast1AnimeFrame())
+		return changePlayerStatus(0x00200349, 0, false);
+
+	return 0;
+}
+
 BOOL TMario::specMain()
 {
 	mWireBounceVelPrev = mWireBounceVel;
@@ -191,13 +200,7 @@ BOOL TMario::specMain()
 	case 0x00200345:
 		return kickRoofRollUp();
 	case 0x00200346:
-		// fence slide anim
-		setAnimation(0x103, 1.0f);
-		if (isLast1AnimeFrame()) {
-			changePlayerStatus(0x00200349, 0, false);
-			break;
-		}
-		return 0;
+		return kickRoofRollDown();
 	case 0x00200347:
 		// fence kick
 		setAnimation(0x101, 1.0f);
