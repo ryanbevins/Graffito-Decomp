@@ -932,7 +932,7 @@ check_sender_bit3:
 					return 1;
 				}
 			}
-			return 0;
+			break;
 		}
 
 		case 0x4000002C: // Wire actor grab
