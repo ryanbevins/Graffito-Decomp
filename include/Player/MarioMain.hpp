@@ -975,7 +975,7 @@ public:
 	void doSpinJumping();
 	void doSlipJumping();
 	void checkJumpingThrowStart();
-	void startJumpWall();
+	BOOL startJumpWall();
 	void thinkAloha();
 	void thinkCube();
 	void thinkFreeze();

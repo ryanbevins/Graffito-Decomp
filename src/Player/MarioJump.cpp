@@ -21,20 +21,19 @@
 
 // NOTE: -inline deferred means functions must be in REVERSE address order.
 
-void TMario::startJumpWall()
+BOOL TMario::startJumpWall()
 {
 	if (mWallPlane != nullptr) {
-		int wallAngle = matan(mWallPlane->getNormal().z, mWallPlane->getNormal().x);
-		s16 newAngle = wallAngle + 0x8000;
-		emitParticle(24, newAngle);
-		emitParticle(25, newAngle);
+		const JGeometry::TVec3<f32>& normal = mWallPlane->getNormal();
+		s16 angle = matan(normal.z, normal.x) + 0x8000;
+		emitParticle(24, angle);
+		emitParticle(25, angle);
 	}
-	mVel.y = -8.0f;
-	mFaceAngle.y = mFaceAngle.y + 0x8000;
-	f32 height = -1.0f + mPosition.y;
-	if (mVel.y + height >= mFloorPosition.x)
-		mVel.y = 176.0f;
-	changePlayerStatus(0x02000886, 0, false);
+	mVel.y = 52.0f;
+	mFaceAngle.y += 0x8000;
+	if (mVel.y + (160.0f + mPosition.y) >= mFloorPosition.x)
+		mVel.y = 1.0f;
+	return changePlayerStatus(0x02000886, 0, false);
 }
 
 void TMario::doJumping()
