@@ -1535,9 +1535,7 @@ public:
 	/* 0x15C */ f32 unk15C;
 	/* 0x160 */ JGeometry::TVec3<f32>
 	    unk160[4]; // Bone position, probably larger array
-	/* 0x190 */ f32 unk190;
-	/* 0x194 */ f32 unk194;
-	/* 0x198 */ f32 unk198;
+	/* 0x190 */ JGeometry::TVec3<f32> mWaterRipplePos;
 	/* 0x19C */ JGeometry::TVec3<f32> unk19C; // damage pos
 	/* 0x1A8 */ JGeometry::TVec3<f32> unk1A8;
 	/* 0x1B4 */ JGeometry::TVec3<f32> mSleepPos;

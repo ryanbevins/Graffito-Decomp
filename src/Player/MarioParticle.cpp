@@ -398,10 +398,9 @@ void TMario::wallSlipEffect()
 
 void TMario::runningRippleEffect()
 {
-	JGeometry::TVec3<f32>* ripplePos = (JGeometry::TVec3<f32>*)&unk190;
 	if (mForwardVel > 30.0f)
-		gpMarioParticleManager->emit(0x34, ripplePos, 0, nullptr);
-	SMS_EmitRippleTiny(ripplePos);
+		gpMarioParticleManager->emit(0x34, &mWaterRipplePos, 0, nullptr);
+	SMS_EmitRippleTiny(&mWaterRipplePos);
 }
 
 void TMario::swimmingBubbleEffect()

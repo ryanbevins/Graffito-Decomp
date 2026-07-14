@@ -2764,9 +2764,9 @@ void TMario::thinkWaterSurface()
 		                         mFloorPosition.z, mPosition.z, mJointMtx2);
 
 		// Store water position
-		unk190 = getMpositionX();
-		unk194 = getMfloorpositionZ();
-		unk198 = mPosition.z;
+		mWaterRipplePos.x = getMpositionX();
+		mWaterRipplePos.y = getMfloorpositionZ();
+		mWaterRipplePos.z = mPosition.z;
 
 		// Copy joint matrix
 		u32 modelPtr = (u32)mModel;

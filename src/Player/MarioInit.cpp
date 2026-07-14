@@ -875,9 +875,9 @@ TMario::TMario()
 	unk160[3].x    = 0.0f;
 	unk160[3].y    = 0.0f;
 	unk160[3].z    = 0.0f;
-	unk190         = 0.0f;
-	unk194         = 0.0f;
-	unk198         = 0.0f;
+	mWaterRipplePos.x = 0.0f;
+	mWaterRipplePos.y = 0.0f;
+	mWaterRipplePos.z = 0.0f;
 	unk19C.x       = 0.0f;
 	unk19C.y       = 0.0f;
 	unk19C.z       = 0.0f;
