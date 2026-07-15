@@ -1026,31 +1026,35 @@ u32 TMapObjTurn::touchWater(THitActor*)
 	if (fabsf(unk158) < unk164) {
 		unk158 += unk15C;
 	} else if (unk168) {
-		TMapObjBase* obj = unk138;
-		if (obj->isActorType(0x2000000E))
+		TMapObjBase* obj;
+		if (unk138->isActorType(0x2000000E))
 			obj = gpItemManager->makeObjAppear(0x2000000E);
+		else
+			obj = unk138;
 
-		if (obj != nullptr) {
-			f32 speed = unk13C;
-			f32 ySpeed = unk140;
+		if (obj) {
+			f32 speed;
+			f32 ySpeed;
+			ySpeed = unk140;
+			speed  = unk13C;
 			obj->appear();
-			obj->mPosition.x = mPosition.x;
-			obj->mPosition.y = mPosition.y + 200.0f;
-			obj->mPosition.z = mPosition.z;
+			obj->mPosition.set(mPosition.x, mPosition.y + 200.0f,
+			                   mPosition.z);
 
-			if (mMActor != nullptr) {
+			if (mMActor) {
 				MtxPtr mtx = getModel()->getAnmMtx(0);
-				obj->mVelocity.x = mtx[0][2] * speed;
-				obj->mVelocity.y = mtx[1][2] * speed + ySpeed;
-				obj->mVelocity.z = mtx[2][2] * speed;
+				obj->mVelocity.set(mtx[0][2] * speed,
+				                   mtx[1][2] * speed + ySpeed,
+				                   mtx[2][2] * speed);
+				obj->offLiveFlag(LIVE_FLAG_UNK10);
 			} else {
 				Mtx mtx;
 				MsMtxSetRotRPH(mtx, mRotation.x, mRotation.y, mRotation.z);
-				obj->mVelocity.x = mtx[0][2] * speed;
-				obj->mVelocity.y = mtx[1][2] * speed + ySpeed;
-				obj->mVelocity.z = mtx[2][2] * speed;
+				obj->mVelocity.set(mtx[0][2] * speed,
+				                   mtx[1][2] * speed + ySpeed,
+				                   mtx[2][2] * speed);
+				obj->offLiveFlag(LIVE_FLAG_UNK10);
 			}
-			obj->offLiveFlag(LIVE_FLAG_UNK10);
 			unk168 = 0;
 		}
 	}
