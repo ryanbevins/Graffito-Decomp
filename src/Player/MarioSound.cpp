@@ -566,7 +566,10 @@ void TMario::soundMovement()
 			mSoundValues.unk04 |= 0x200;
 		}
 
-		if (action == ACTION_SURFING) {
+		switch (action) {
+		case ACTION_BOARD_JUMPING:
+			break;
+		case ACTION_SURFING:
 			mSoundValues.unk04 |= 0x100;
 			if (mSoundValues.unk00 == ACTION_BOARD_JUMP && !dryGround) {
 				MARIO_START_SOUND(0x828, &mPosition);
@@ -576,10 +579,13 @@ void TMario::soundMovement()
 					MARIO_START_SOUND_INFO(soundID, &mPosition,
 					                       mForwardVel);
 			}
-		} else if (action == ACTION_BOARD_JUMP && !dryGround
-		           && (mSoundValues.unk04 & 0x100)) {
-			MARIO_START_SOUND(0x828, &mPosition);
-			mSoundValues.unk04 ^= 0x100;
+			break;
+		case ACTION_BOARD_JUMP:
+			if (!dryGround && (mSoundValues.unk04 & 0x100)) {
+				MARIO_START_SOUND(0x828, &mPosition);
+				mSoundValues.unk04 ^= 0x100;
+			}
+			break;
 		}
 
 		if (mState & 2) {
