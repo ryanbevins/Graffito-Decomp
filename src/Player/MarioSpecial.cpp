@@ -1609,16 +1609,16 @@ int TMario::wireMove(f32 rate)
 	f32 lenSq = dir.length();
 
 	f32 step = rate / lenSq;
+	f32 margin = 100.0f / lenSq;
 	f32 ratio = mWirePosRatio;
 	s32 ok = 1;
-	f32 upperLimit = 1.0f - 100.0f / lenSq;
-	if (ratio + step > upperLimit) {
-		mWirePosRatio = upperLimit;
+	if (ratio + step > 1.0f - margin) {
+		mWirePosRatio = 1.0f - margin;
 		ok = 0;
 	}
 	f32 newRatio = mWirePosRatio;
-	if (newRatio + step < 100.0f / lenSq) {
-		mWirePosRatio = 100.0f / lenSq;
+	if (newRatio + step < margin) {
+		mWirePosRatio = margin;
 		ok = 0;
 	}
 	if (ok == 1) {
