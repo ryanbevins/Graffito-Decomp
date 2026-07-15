@@ -943,10 +943,10 @@ void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 				JGeometry::TVec3<f32> checkPos2 = checkPos;
 
 				const TBGCheckData* checkData;
-				f32 checkY = gpMarioPos->y + 10.0f
-				             + forwardDist
+				f32 checkY = forwardDist
 				                 * (JMASSin(maxSlopeAngle)
-				                    * (1.0f / JMASCos(maxSlopeAngle)));
+				                    * (1.0f / JMASCos(maxSlopeAngle)))
+				             + 10.0f + gpMarioPos->y;
 				f32 groundY = gpMap->checkGroundIgnoreWaterSurface(
 				    checkPos2.x, checkY, checkPos2.z, &checkData);
 				f32 rise = groundY - marioGroundY;
