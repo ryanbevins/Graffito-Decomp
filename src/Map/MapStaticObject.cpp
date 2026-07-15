@@ -10,6 +10,7 @@
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
 #include <Strategic/MirrorActor.hpp>
+#include <Strategic/Strategy.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
 #include <System/EmitterViewObj.hpp>
@@ -342,16 +343,10 @@ void TMapStaticObj::init(const char* name)
 	}
 
 	if (unk68->unk1C != nullptr) {
-		const char* groupName = unk68->unk1C;
-		JDrama::TNameRef* root
-		    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-		JDrama::TNameRef* group
-		    = root->searchF(JDrama::TNameRef::calcKeyCode(groupName),
-		                    groupName);
-		JGadget::TList_pointer_void* list
-		    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
-		void* self = this;
-		list->insert(list->end(), self);
+		TIdxGroupObj* group
+		    = JDrama::TNameRefGen::getInstance()->search<TIdxGroupObj>(
+		        unk68->unk1C);
+		group->getChildren().push_back(this);
 	}
 
 	if (unk68->unk40 & 1) {
