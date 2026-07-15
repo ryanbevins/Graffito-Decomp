@@ -53,9 +53,9 @@ inline bool inViewCone(const JGeometry::TVec2<f32>& screen, f32 tan)
 
 void CPolarSubCamera::setNoticeInfo()
 {
-	*(void***)((u8*)this + 0x2A0) = new void*[16];
-	this->unk2A4  = nullptr;
-	*(s32*)((u8*)this + 0x29C)    = 0;
+	unk2A0       = new TLiveActor*[16];
+	mNoticeActor = nullptr;
+	unk29C       = 0;
 
 	for (int nameOffset = 0;
 	     *(const char**)((u8*)sNoticeActorManagerName + nameOffset) != nullptr;
@@ -67,15 +67,14 @@ void CPolarSubCamera::setNoticeInfo()
 			continue;
 		int n = mgr->mObjNum;
 		for (int j = 0; j < n; j++) {
-			(*(void***)((u8*)this + 0x2A0))[*(s32*)((u8*)this + 0x29C)]
-			    = (void*)mgr->getObj(j);
-			(*(s32*)((u8*)this + 0x29C))++;
+			unk2A0[unk29C] = mgr->getObj(j);
+			unk29C++;
 		}
 	}
 
-	*(JDrama::TNameRef**)((u8*)this + 0x2A8)
-	    = JDrama::TNameRefGen::getInstance()->getRootNameRef()->search(
-	        bossGesoViewObjName);
+	unk2A8 = (TLiveActor*)JDrama::TNameRefGen::getInstance()
+	              ->getRootNameRef()
+	              ->search(bossGesoViewObjName);
 }
 
 void* CPolarSubCamera::getNoticeActor_()
