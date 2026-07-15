@@ -1,3 +1,4 @@
+#define JGEOMETRY_ITEM_TVEC3_CTOR_SET_VEC
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <Camera/Camera.hpp>

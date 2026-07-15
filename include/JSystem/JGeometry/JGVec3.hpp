@@ -46,7 +46,11 @@ template <> class TVec3<f32> : public Vec {
 public:
 	TVec3() { }
 
+#ifdef JGEOMETRY_ITEM_TVEC3_CTOR_SET_VEC
+	TVec3(const Vec& b) { set(b); }
+#else
 	TVec3(const Vec& b) { set(b.x, b.y, b.z); }
+#endif
 
 	template <class T> TVec3(T x_, T y_, T z_) { set(x_, y_, z_); }
 
