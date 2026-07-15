@@ -610,11 +610,7 @@ void TFruitBasket::countFruit(THitActor* sender)
 
 void TFruitHitHideObj::load(JSUMemoryInputStream& stream)
 {
-	TMapObjBase::load(stream);
-	long manholeFlag;
-	loadHideObjInfo(stream, &manholeFlag, &unk13C, &unk140, (long*)&unk148);
-	unk134 = manholeFlag;
-	SMS_LoadParticle("/scene/mapObj/ms_watcoin_hit.jpa", 0x57);
+	THideObjBase::load(stream);
 }
 
 void TFruitHitHideObj::touchActor(THitActor* sender)
