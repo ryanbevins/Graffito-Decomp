@@ -124,22 +124,7 @@ void TMario::animSound()
 			mSoundFlags |= 0x500;
 		}
 	} else {
-		bool wetGround = (state & 0x10) ? true : false;
-		if (!wetGround) {
-			u16 bgType = mGroundPlane->mBGType;
-			bool wetBGType;
-			if (bgType == BG_TYPE_WET_GROUND
-			    || bgType == BG_TYPE_SHADED_WET_GROUND
-			    || bgType == BG_TYPE_CAM_NOCLIP_WET_GROUND
-			    || bgType == BG_TYPE_CAM_NOCLIP_SHADED_WET_GROUND) {
-				wetBGType = true;
-			} else {
-				wetBGType = false;
-			}
-			if (wetBGType)
-				wetGround = true;
-		}
-		if (wetGround)
+		if ((state & 0x10) || mGroundPlane->isWetGround())
 			mSoundFlags |= 0x700;
 	}
 
