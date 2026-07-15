@@ -1601,10 +1601,7 @@ BOOL TMario::wireSWait()
 int TMario::wireMove(f32 rate)
 {
 	JGeometry::TVec3<f32> startPos = mWireStartPos;
-	JGeometry::TVec3<f32> diff = mWireEndPos;
-	diff.sub(startPos);
-
-	JGeometry::TVec3<f32> dir = diff;
+	JGeometry::TVec3<f32> dir = mWireEndPos - startPos;
 
 	f32 lenSq = dir.length();
 
