@@ -409,7 +409,7 @@ void TMario::throwMario(const JGeometry::TVec3<f32>& throwVec, f32 speed)
 	JGeometry::TVec3<f32> dir(throwVec);
 
 	if (dir.squared() <= JGeometry::TUtil<f32>::epsilon())
-		dir.y = 0.0f;
+		dir.y = 1.0f;
 
 	dir.normalize();
 
@@ -417,9 +417,7 @@ void TMario::throwMario(const JGeometry::TVec3<f32>& throwVec, f32 speed)
 	mFaceAngle.y = matan(dirZ, dir.x) + 0x8000;
 	mModelFaceAngle = mFaceAngle.y;
 
-	f32 hMag = std::sqrtf(dir.x * dir.x + dirZ * dirZ);
-
-	mForwardVel = speed * -hMag;
+	mForwardVel = speed * -std::sqrtf(dir.x * dir.x + dirZ * dirZ);
 	mVel.y = dir.y * speed;
 }
 
