@@ -1606,7 +1606,8 @@ int TMario::wireMove(f32 rate)
 
 	f32 lenSq = dir.squared();
 	if (lenSq > 0.0f) {
-		lenSq = JGeometry::TUtil<f32>::sqrt(lenSq);
+		f32 root = __frsqrte(lenSq);
+		lenSq = 0.5f * root * (3.0f - lenSq * (root * root)) * lenSq;
 	}
 
 	f32 step = rate / lenSq;
