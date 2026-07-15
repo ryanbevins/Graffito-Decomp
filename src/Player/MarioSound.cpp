@@ -112,19 +112,16 @@ void TMario::animSound()
 
 	bool hasState40 = (state & 0x40) ? true : false;
 	if (hasState40) {
-		if (unk350 == 0) {
-			f32 limit = (f32)*(s16*)((u8*)this + 0x2428)
-			            * *(f32*)((u8*)this + 0x24dc);
-			if (unk368 >= limit) {
-				mSoundFlags |= 0x600;
-			} else {
-				mSoundFlags |= 0x500;
-			}
+		if (unk350 == 0
+		    && unk368 >= (f32)*(s16*)((u8*)this + 0x2428)
+		                        * *(f32*)((u8*)this + 0x24dc)) {
+			mSoundFlags |= 0x600;
 		} else {
 			mSoundFlags |= 0x500;
 		}
 	} else {
-		if ((state & 0x10) || mGroundPlane->isWetGround())
+		bool recentlyLeftWater = (state & 0x10) ? true : false;
+		if (recentlyLeftWater || mGroundPlane->isWetGround())
 			mSoundFlags |= 0x700;
 	}
 
