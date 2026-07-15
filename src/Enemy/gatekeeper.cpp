@@ -794,8 +794,7 @@ BOOL TBiancoGateKeeper::isDamageFogSituation() const
 
 	if (mMActor->checkCurBckFromIndex(0x12)) {
 		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
-		f32 frame          = ctrl->getFrame();
-		if (!(50.0f < frame && frame < 160.0f))
+		if (!(50.0f < ctrl->getFrame() && ctrl->getFrame() < 160.0f))
 			return false;
 	}
 
