@@ -1,5 +1,6 @@
 #define JG_TUTIL_SQRT_OUT_OF_LINE
 #define JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
+#define JGEOMETRY_MARIOSPECIAL_TVEC3_LENGTH_INLINE
 #include <Player/MarioMain.hpp>
 #include <MSound/MSoundBGM.hpp>
 
@@ -20,6 +21,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 
 #undef JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
+#undef JGEOMETRY_MARIOSPECIAL_TVEC3_LENGTH_INLINE
 
 inline BOOL TMario::wireWaitToSWaitL()
 {
@@ -1604,11 +1606,7 @@ int TMario::wireMove(f32 rate)
 
 	JGeometry::TVec3<f32> dir = diff;
 
-	f32 lenSq = dir.squared();
-	if (lenSq > 0.0f) {
-		f32 root = __frsqrte(lenSq);
-		lenSq = 0.5f * root * (3.0f - lenSq * (root * root)) * lenSq;
-	}
+	f32 lenSq = dir.length();
 
 	f32 step = rate / lenSq;
 	f32 ratio = mWirePosRatio;

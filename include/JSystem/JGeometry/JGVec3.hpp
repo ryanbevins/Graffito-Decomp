@@ -322,7 +322,19 @@ public:
 
 	f32 squared() const { return dot(*this); }
 
+#ifdef JGEOMETRY_MARIOSPECIAL_TVEC3_LENGTH_INLINE
+	f32 length() const
+	{
+		f32 mag = squared();
+		if (mag <= 0.0f)
+			return mag;
+
+		f32 root = __frsqrte(mag);
+		return 0.5f * root * (3.0f - mag * (root * root)) * mag;
+	}
+#else
 	f32 length() const { return TUtil<f32>::sqrt(squared()); }
+#endif
 
 	// @fabricated
 	f32 length2() const { return length(); }
