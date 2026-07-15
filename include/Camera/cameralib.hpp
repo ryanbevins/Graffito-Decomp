@@ -5,6 +5,7 @@
 #include <MarioUtil/MathUtil.hpp>
 
 extern f32 SMSGetAnmFrameRate(); // avoid including Application.hpp
+extern JGeometry::TVec3<f32> CLBConstUpVec;
 
 void CLBCalc2DFPos(JGeometry::TVec2<f32>*, const f32 (*)[4],
                    const f32 (*)[4], const Vec&, u32*, bool);

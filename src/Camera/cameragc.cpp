@@ -43,8 +43,6 @@ template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
 template <> f32 CLBEaseInInbetween<f32>(f32, f32, f32);
 template <> f32 CLBTwoDegreeGeneralInbetween<f32>(f32, f32, f32, f32);
 
-extern Vec CLBConstUpVec;
-
 static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
 static const char cDirtyTexName[]  = "H_ma_rak_dummy";
 
