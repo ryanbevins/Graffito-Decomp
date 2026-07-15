@@ -10,33 +10,33 @@ bool CPolarSubCamera::controlByCameraCode_(int* outCode)
 {
 	bool result = true;
 	*outCode    = -1;
-
 	if (SMS_IsMarioOpeningDoor()) {
 		if (mMode == 0x42 && gpCameraMario->mStatusTimer == 0x78) {
 			changeCamModeSpecifyFrame_(0x14, 1);
-			warpPosAndAt(unkA8, (s16)(*gpMarioAngleY + 0x9C4));
+			warpPosAndAt(unkA8, *gpMarioAngleY + 0x9C4);
 		}
 		unk120->onNeutralMarioKey();
 		result = false;
 	} else {
-		s32 cubeCount  = gpCubeCamera->unk10;
-		Vec pos = *gpMarioPos;
+		int cubeCount = gpCubeCamera->unk10;
+
+		JGeometry::TVec3<f32> pos = SMS_GetMarioPos();
 		pos.y += 75.0f;
 
-		for (s32 i = 0; i < cubeCount; i++) {
+		for (int i = 0; i < cubeCount; ++i) {
 			if (gpCubeCamera->isInCube(pos, i)) {
-				TCameraMapTool* mapTool
-				    = (TCameraMapTool*)((TCubeCameraInfo*)
-				                            gpCubeCamera->unk14->begin()[i])
-				          ->unk38;
-				if (mapTool != nullptr) {
-					if (mMode != mapTool->unk24 || unk70 != mapTool) {
+				TCubeCameraInfo* info
+				    = (TCubeCameraInfo*)&(*gpCubeCamera->unk14)[i];
+
+				TCameraMapTool* mapTool = info->getCameraMapTool();
+				if (mapTool) {
+					if (mMode != mapTool->unk24 || mapTool != unk70)
 						changeCamModeSpecifyCamMapTool_(mapTool);
-					}
 					*outCode = mapTool->unk24;
 				} else {
 					*outCode = gpCubeCamera->getDataNo(i);
 				}
+
 				return true;
 			}
 		}
