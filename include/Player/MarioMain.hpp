@@ -1069,7 +1069,7 @@ public:
 	void windMove(const JGeometry::TVec3<f32>&);
 	void flowMove(const JGeometry::TVec3<f32>&);
 	void warpRequest(const JGeometry::TVec3<f32>&, f32);
-	BOOL isForceSlip();
+	bool isForceSlip();
 	void getRidingMtx(f32 (*)[4]);
 	bool isWallInFront() const;
 	bool isInvincible() const;

@@ -1978,7 +1978,7 @@ bool TMario::isInvincible() const
 	return false;
 }
 
-BOOL TMario::isForceSlip()
+bool TMario::isForceSlip()
 {
 	if (mGroundPlane->isUnk1())
 		return true;
