@@ -181,6 +181,36 @@ inline BOOL TMario::kickRoofRollDown()
 	return 0;
 }
 
+inline BOOL TMario::hangRoof()
+{
+	f32 roofHeight = gpMap->checkRoof(mPosition.x, mPosition.y + 30.0f,
+	                                   mPosition.z, &mRoofPlane);
+	mFloorPosition.y = roofHeight;
+	mActionTimer++;
+
+	if ((mInput & 1) && mActionTimer > 0x78)
+		return changePlayerStatus(0x00200349, 0, false);
+
+	if (roofCommonEvents())
+		return 1;
+
+	mModelFaceAngle = mFaceAngle.y;
+	setAnimation(0x35, 1.0f);
+	f32 zero = 0.0f;
+	mForwardVel = zero;
+	mSlideVelX = zero;
+	mSlideVelZ = zero;
+	f32 roofY = mFloorPosition.y;
+	mPosition.y = roofY - 10.0f;
+	mVel.z = zero;
+	mForwardVel = zero;
+	mVel.x = zero;
+	if (isLast1AnimeFrame())
+		changePlayerStatus(0x00200349, 0, false);
+
+	return 0;
+}
+
 BOOL TMario::specMain()
 {
 	mWireBounceVelPrev = mWireBounceVel;
@@ -224,35 +254,7 @@ BOOL TMario::specMain()
 	case 0x00200347:
 		return kickRoof();
 	case 0x08200348:
-		// roof check
-		{
-			f32 roofHeight = gpMap->checkRoof(mPosition.x, mPosition.y + 30.0f, mPosition.z, &mRoofPlane);
-			mFloorPosition.y = roofHeight;
-			mActionTimer++;
-			if ((mInput & 1) && mActionTimer > 0x78) {
-				changePlayerStatus(0x00200349, 0, false);
-				break;
-			}
-		}
-		if (roofCommonEvents())
-			return 1;
-		{
-			mModelFaceAngle = mFaceAngle.y;
-			setAnimation(0x35, 1.0f);
-			f32 zero = 0.0f;
-			mForwardVel = zero;
-			mSlideVelX = zero;
-			mSlideVelZ = zero;
-			f32 roofY = mFloorPosition.y;
-			mPosition.y = roofY - 10.0f;
-			mVel.z = zero;
-			mForwardVel = zero;
-			mVel.x = zero;
-			if (isLast1AnimeFrame()) {
-				changePlayerStatus(0x00200349, 0, false);
-			}
-		}
-		return 0;
+		return hangRoof();
 	case 0x00200349:
 		// roof common
 		if (roofCommonEvents())

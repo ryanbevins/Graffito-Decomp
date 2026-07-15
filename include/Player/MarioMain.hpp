@@ -1193,7 +1193,7 @@ public:
 	BOOL kickRoof();
 	BOOL moveRoof();
 	void waitRoof();
-	void hangRoof();
+	BOOL hangRoof();
 	BOOL roofCommonEvents();
 	void doRoofWaitingProcess();
 	int doRoofMovingProcess();
