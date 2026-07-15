@@ -19,6 +19,13 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 
 	void getZBufValue();
+	bool isInBounds(f32 bounds)
+	{
+		return -bounds <= mFPos[0].x && mFPos[0].x <= bounds
+		               && -bounds <= mFPos[0].y && mFPos[0].y <= bounds
+		           ? true
+		           : false;
+	}
 	void calcDispRatioAndScreenPos_();
 	void calcOtherFPosFromCenterAndRadius_(JGeometry::TVec2<f32>* out,
 	                                       const JGeometry::TVec2<f32>& center,

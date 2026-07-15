@@ -59,19 +59,12 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 	if (gpCameraMario->isMarioIndoor()) {
 		visible = 0;
 	} else {
-		TSunModel* sun = gpSunModel;
-		f32 limit     = unk40;
-		visible       = -limit <= sun->mFPos[0].x && sun->mFPos[0].x <= limit
-		          && -limit <= sun->mFPos[0].y && sun->mFPos[0].y <= limit;
+		visible = gpSunModel->isInBounds(unk40);
 	}
 
 	if (flags & 1) {
 		TSunModel* sun = gpSunModel;
-		f32 limit      = unk44;
-		bool active    = -limit <= sun->mFPos[0].x
-		           && sun->mFPos[0].x <= limit
-		           && -limit <= sun->mFPos[0].y
-		           && sun->mFPos[0].y <= limit;
+		bool active    = sun->isInBounds(unk44);
 
 		if (!active) {
 			unk28 = 0.0f;
