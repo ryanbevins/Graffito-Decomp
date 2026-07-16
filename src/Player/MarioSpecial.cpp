@@ -1685,11 +1685,10 @@ BOOL TMario::hanging()
 		return changePlayerStatus(0x3000054F, 0, false);
 	}
 
-	TBGCheckData* foundWall = nullptr;
-
 	TBGWallCheckRecord record(mPosition.x, mPosition.y - 10.0f, mPosition.z,
 	                          30.0f, 4, 0);
 	gpMap->isTouchedWallsAndMoveXZ(&record);
+	TBGCheckData* foundWall = nullptr;
 
 	for (int i = 0; i < record.mResultWallsNum; i++) {
 		TBGCheckData* w = record.mResultWalls[i];
