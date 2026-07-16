@@ -745,14 +745,6 @@ check_sender_bit3:
 					return 1;
 				}
 			}
-			if (message == 3) {
-				if (!isInvincible()) {
-					mState |= 0x800;
-					if (!(mAction & 0x800))
-						rumbleStart(21, 10);
-					return 1;
-				}
-			}
 			break;
 		}
 
