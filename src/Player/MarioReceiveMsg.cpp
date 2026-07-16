@@ -994,47 +994,33 @@ check_sender_bit3:
 		case 0x80000001: // Player contact
 		{
 			if (!isInvincible()) {
-				s32 playerMessage = message;
-				if (playerMessage >= 8)
-					goto handle_player_msg;
-				if (playerMessage == 5)
+				switch (message) {
+				case 4:
+					if (mHeldObject == nullptr && mHolder == nullptr) {
+						mHolder = (TTakeActor*)sender;
+						changePlayerStatus(0x10020370, 0, false);
+						return 1;
+					}
 					break;
-				if (playerMessage >= 6)
-					goto handle_player_throw;
-				if (playerMessage >= 4)
-					goto handle_player_take;
-				break;
-
-			handle_player_msg:
-				if (playerMessage == 0x0E)
-					goto handle_player_damage;
-				break;
-
-			handle_player_take:
-				if (mHeldObject != nullptr) break;
-				if (mHolder != nullptr) break;
-				mHolder = (TTakeActor*)sender;
-				changePlayerStatus(0x10020370, 0, false);
-				return 1;
-
-			handle_player_throw:
-				mHolder = nullptr;
-				changePlayerStatus(0x02000880, 0, false);
-				setPlayerVelocity(40.0f);
-				mVel.y = 10.0f;
-				unk78 &= ~0x100;
-				return 1;
-
-			handle_player_damage:
-				damageExec(sender,
-				           mDmgParamsEnemyMario.mDamage.get(),
-				           mDmgParamsEnemyMario.mDownType.get(),
-				           mDmgParamsEnemyMario.mWaterEmit.get(),
-				           mDmgParamsEnemyMario.mMinSpeed.get(),
-				           mDmgParamsEnemyMario.mMotor.get(),
-				           mDmgParamsEnemyMario.mDirty.get(),
-				           mDmgParamsEnemyMario.mInvincibleTime.get());
-				return 1;
+				case 6:
+				case 7:
+					mHolder = nullptr;
+					changePlayerStatus(0x02000880, 0, false);
+					setPlayerVelocity(40.0f);
+					mVel.y = 10.0f;
+					unk78 &= ~0x100;
+					return 1;
+				case 0x0E:
+					damageExec(sender,
+					           mDmgParamsEnemyMario.mDamage.get(),
+					           mDmgParamsEnemyMario.mDownType.get(),
+					           mDmgParamsEnemyMario.mWaterEmit.get(),
+					           mDmgParamsEnemyMario.mMinSpeed.get(),
+					           mDmgParamsEnemyMario.mMotor.get(),
+					           mDmgParamsEnemyMario.mDirty.get(),
+					           mDmgParamsEnemyMario.mInvincibleTime.get());
+					return 1;
+				}
 			}
 			break;
 		}
