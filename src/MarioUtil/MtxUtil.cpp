@@ -400,11 +400,8 @@ void SMS_MakeJointsToArc(J3DModel* model,
 
 void SMS_GetLightPerspectiveForEffectMtx(MtxPtr mtx)
 {
-	f32 far    = gpCamera->mFar;
-	f32 near   = gpCamera->mNear;
-	f32 aspect = gpCamera->mAspect;
-	f32 fovy   = gpCamera->mFovy;
-	C_MTXPerspective((Mtx44Ptr)mtx, fovy, aspect, near, far);
+	C_MTXPerspective(mtx, gpCamera->getFovy(), gpCamera->getAspect(),
+	                 gpCamera->getNear(), gpCamera->getFar());
 	mtx[2][0] = 0.0f;
 	mtx[2][1] = 0.0f;
 	mtx[2][2] = -1.0f;
