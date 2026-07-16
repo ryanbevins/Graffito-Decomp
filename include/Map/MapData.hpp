@@ -181,6 +181,21 @@ public:
 			return false;
 	}
 
+	bool isNoLedgeGrab() const
+	{
+		if (mBGType == BG_TYPE_NO_LEDGE_GRAB
+		    || mBGType
+		           == (BG_TYPE_NO_LEDGE_GRAB | BG_PROPERTY_FLAG_SHADOW)
+		    || mBGType
+		           == (BG_TYPE_NO_LEDGE_GRAB | BG_PROPERTY_FLAG_CAMERA_WONT_CLIP)
+		    || mBGType
+		           == (BG_TYPE_NO_LEDGE_GRAB | BG_PROPERTY_FLAG_SHADOW
+		               | BG_PROPERTY_FLAG_CAMERA_WONT_CLIP))
+			return true;
+		else
+			return false;
+	}
+
 	bool isUnk2() const
 	{
 		if (mBGType == BG_TYPE_UNK2 || mBGType == BG_TYPE_CAM_NOCLIP_UNK2)

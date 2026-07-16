@@ -287,8 +287,7 @@ BOOL TMario::specMain()
 		moveRoof();
 		break;
 	case 0x3800034b:
-		hanging();
-		break;
+		return hanging();
 	case 0x3000054c:
 		// hang landing wait
 		if (mInput & 0x4) {
@@ -1661,313 +1660,180 @@ void TMario::getOnWirePosAngle(JGeometry::TVec3<f32>* outPos, short* outAngle)
 	*outAngle = matan(dir.z, dir.x);
 }
 
-void TMario::hanging()
+BOOL TMario::hanging()
 {
-	s32 movedToWall = 0;
-	const TBGCheckData* plane;
+	BOOL pulledUp = FALSE;
+	s16 yawDiff   = mIntendedYaw - mFaceAngle.y;
+	BOOL onCeil   = mFloorPosition.x - mFloorPosition.y >= 160.0f;
 
-	f32 heightDiff = mFloorPosition.x - mFloorPosition.y;
-	s32 timer = mActionTimer;
-	s32 faceY = mFaceAngle.y;
-	s32 intYaw = mIntendedYaw;
-	s32 stickAngleDiff = intYaw - faceY;
-	u8 highEnough = (heightDiff >= 160.0f);
-
-	if (timer == 0) {
+	if (mActionTimer == 0)
 		unkF6 = 0;
+
+	if (mActionTimer < mHangingParams.mLimitTime.get())
+		mActionTimer += 1;
+
+	if ((mInput & 0x8004) || mGroundPlane->isUnk1()
+	    || mGroundPlane->isNoLedgeGrab()) {
+		mInput &= ~0x4;
+		mInput &= ~0x8000;
+
+		return startHangLanding(0x8A7);
 	}
 
-	s16* hangTimerParam = (s16*)((u8*)this + 0x12EC);
-	if (mActionTimer < *hangTimerParam) {
-		mActionTimer = mActionTimer + 1;
+	if ((mInput & 0x2) && onCeil) {
+		startVoice(MSD_SE_MV15_EXERT_INST_01);
+		return changePlayerStatus(0x3000054F, 0, false);
 	}
 
-	u32 input = mInput;
-	s32 shouldDrop = 0;
+	TBGCheckData* foundWall = nullptr;
 
-	if (input & 0x8004) {
-		shouldDrop = 1;
-	} else {
-		s32 groundType = mGroundPlane->mBGType;
-		u8 isType1;
-		if (groundType == 0x0001 || groundType == 0x4001 || groundType == 0x8001 || groundType == 0xC001) {
-			isType1 = 1;
-		} else {
-			isType1 = 0;
+	TBGWallCheckRecord record(mPosition.x, mPosition.y - 10.0f, mPosition.z,
+	                          30.0f, 4, 0);
+	gpMap->isTouchedWallsAndMoveXZ(&record);
+
+	for (int i = 0; i < record.mResultWallsNum; i++) {
+		TBGCheckData* w = record.mResultWalls[i];
+		s16 ang = matan(w->mNormal.z, w->mNormal.x) - (mFaceAngle.y + 0x8000);
+		if (ang > -0x2000 && ang < 0x2000) {
+			JGeometry::TVec3<f32> pos = mPosition;
+			f32 d = w->mNormal.x * pos.x + w->mNormal.y * pos.y
+			        + w->mNormal.z * pos.z + w->mPlaneDistance;
+			if (d < 50.0f)
+				foundWall = record.mResultWalls[i];
 		}
-		if (isType1) {
-			shouldDrop = 1;
-		} else {
-			u8 isType6;
-			if (groundType == 0x0006 || groundType == 0x4006 || groundType == 0x8006 || groundType == 0xC006) {
-				isType6 = 1;
-			} else {
-				isType6 = 0;
+	}
+
+	if (foundWall == nullptr)
+		changePlayerStatus(MARIO_STATUS_LANDING, 0, false);
+
+	if (foundWall != nullptr && foundWall->isFence()) {
+		mPosition.x -= 40.0f * JMASSin(mFaceAngle.y);
+		mPosition.y -= 160.0f;
+		mPosition.z -= 40.0f * JMASCos(mFaceAngle.y);
+		return changePlayerStatus(0x3000036B, 0, false);
+	}
+
+	TBGWallCheckRecord record2(mPosition.x, 10.0f + mPosition.y, mPosition.z,
+	                           50.0f, 1, 0);
+	gpMap->isTouchedWallsAndMoveXZ(&record2);
+	mPosition = record2.mCenter;
+
+	if (mActionTimer >= 0x28 && (mInput & 0x1)) {
+		if (yawDiff >= -0x400 && yawDiff <= 0x400 && onCeil) {
+			setAnimation(0, 1.0f);
+			return changePlayerStatus(0x3000054C, 0, false);
+		}
+
+		if (yawDiff <= -0x71c7 || yawDiff >= 0x71c7)
+			return startHangLanding(0x208B6);
+
+		if (mActionTimer < mHangingParams.mRapidTime.get()
+		    && record.mResultWallsNum > 0) {
+			f32 moveSp = mHangingParams.mMoveSp.get();
+			JGeometry::TVec3<f32> newPos;
+			if (yawDiff > 0x400 && yawDiff < 0x71c7) {
+				newPos.x = mPosition.x
+				           - moveSp * (mIntendedMag * foundWall->mNormal.z);
+				newPos.y = mPosition.y;
+				newPos.z = mPosition.z
+				           + moveSp * (mIntendedMag * foundWall->mNormal.x);
 			}
-			if (isType6) {
-				shouldDrop = 1;
+			if (yawDiff > -0x71c7 && yawDiff < -0x400) {
+				newPos.x = mPosition.x
+				           + moveSp * (mIntendedMag * foundWall->mNormal.z);
+				newPos.y = mPosition.y;
+				newPos.z = mPosition.z
+				           - moveSp * (mIntendedMag * foundWall->mNormal.x);
 			}
-		}
-	}
 
-	if (shouldDrop) {
-		mInput = input & ~0x4;
-		mInput = mInput & ~0x8000;
-		mVel.y = 0.0f;
-		mForwardVel = 0.0f;
-		mPosition.x -= 60.0f * JMASSin(mFaceAngle.y);
-		mPosition.z -= 60.0f * JMASCos(mFaceAngle.y);
-		f32 groundY = gpMap->checkGround(mPosition.x, mPosition.y, mPosition.z, &plane);
-		f32 limit = mPosition.y - 100.0f;
-		if (groundY < limit) {
-			mPosition.y = limit;
-		} else {
-			mPosition.y = groundY;
-		}
-		changePlayerStatus(0x8A7, 0, false);
-		return;
-	}
+			TBGCheckData* foundWall2 = nullptr;
+			TBGWallCheckRecord record3(newPos.x, newPos.y, newPos.z, 50.0f, 1,
+			                           0);
+			gpMap->isTouchedWallsAndMoveXZ(&record3);
+			newPos = record3.mCenter;
 
-	if ((input & 0x2) && highEnough) {
-		startVoice(0x788F);
-		changePlayerStatus(0x3000054F, 0, false);
-		return;
-	}
+			const TBGCheckData* groundDummy;
+			f32 groundY = gpMap->checkGround(newPos.x, 50.0f + newPos.y,
+			                                 newPos.z, &groundDummy);
+			if (mPosition.y - 100.0f < groundY
+			    && groundY < 50.0f + mPosition.y) {
+				TBGWallCheckRecord record4(
+				    newPos.x - 30.0f * JMASSin(mFaceAngle.y), groundY - 20.0f,
+				    newPos.z - 30.0f * JMASCos(mFaceAngle.y), 30.0f, 4, 0);
+				gpMap->isTouchedWallsAndMoveXZ(&record4);
 
-	TBGWallCheckRecord wallCheck1;
-	wallCheck1.mCenter.x = mPosition.x;
-	wallCheck1.mCenter.y = mPosition.y - 10.0f;
-	wallCheck1.mCenter.z = mPosition.z;
-	wallCheck1.mRadius = 30.0f;
-	wallCheck1.mMaxResults = 4;
-	wallCheck1.mFlags = 0;
-	gpMap->isTouchedWallsAndMoveXZ(&wallCheck1);
-
-	const TBGCheckData* bestWall = (const TBGCheckData*)0;
-	f32 bestDist = 50.0f;
-	s32 loopIdx = 0;
-	s32 arrayOff = 0;
-	for (; loopIdx < wallCheck1.mResultWallsNum; loopIdx++, arrayOff += 4) {
-		TBGCheckData* wall = wallCheck1.mResultWalls[loopIdx];
-		s32 wallAngle = matan(wall->mNormal.z, wall->mNormal.x);
-		s32 diff = wallAngle - (mFaceAngle.y + 0x8000);
-		if (diff > -0x2000 && diff < 0x2000) {
-			JGeometry::TVec3<f32> pos;
-			pos.x = mPosition.x;
-			pos.y = mPosition.y;
-			pos.z = mPosition.z;
-			f32 planeDist = wall->mNormal.y * pos.y + wall->mNormal.x * pos.x + wall->mNormal.z * pos.z + wall->mPlaneDistance;
-			if (planeDist < bestDist) {
-				bestWall = wall;
-			}
-		}
-	}
-
-	if (bestWall == (const TBGCheckData*)0) {
-		changePlayerStatus(0x88C, 0, false);
-	}
-
-	if (bestWall != (const TBGCheckData*)0) {
-		u8 isFence;
-		if (bestWall->mBGType == 0x10A) {
-			isFence = 1;
-		} else {
-			isFence = 0;
-		}
-		if (isFence) {
-			mPosition.x = mPosition.x - 40.0f * JMASSin(mFaceAngle.y);
-			mPosition.y = mPosition.y - 160.0f;
-			mPosition.z = mPosition.z - 40.0f * JMASCos(mFaceAngle.y);
-			changePlayerStatus(0x3000036B, 0, false);
-			return;
-		}
-	}
-
-	TBGWallCheckRecord wallCheck2;
-	wallCheck2.mCenter.x = mPosition.x;
-	wallCheck2.mCenter.y = 10.0f + mPosition.y;
-	wallCheck2.mCenter.z = mPosition.z;
-	wallCheck2.mRadius = 50.0f;
-	wallCheck2.mMaxResults = 1;
-	wallCheck2.mFlags = 0;
-	gpMap->isTouchedWallsAndMoveXZ(&wallCheck2);
-
-	mPosition.x = wallCheck2.mCenter.x;
-	mPosition.y = wallCheck2.mCenter.y;
-	mPosition.z = wallCheck2.mCenter.z;
-
-	if (mActionTimer >= 40 && (mInput & 0x1)) {
-		s32 stickDiffExt = (s16)stickAngleDiff;
-		if (stickDiffExt >= -1024 && stickDiffExt <= 1024) {
-			if (highEnough) {
-				setAnimation(0, 1.0f);
-				changePlayerStatus(0x3000054C, 0, false);
-				return;
-			}
-		}
-
-		s32 stickDiffExt2 = (s16)stickAngleDiff;
-		if (stickDiffExt2 > -29127 && stickDiffExt2 < 29127) {
-			if (mActionTimer < mHangingParams.mRapidTime.value && wallCheck1.mResultWallsNum > 0) {
-				JGeometry::TVec3<f32> targetPos;
-				targetPos.x = mPosition.x;
-				targetPos.y = mPosition.y;
-				targetPos.z = mPosition.z;
-
-				f32 moveSpeed = mHangingParams.mMoveSp.value;
-				if (stickDiffExt2 > 1024 && stickDiffExt2 < 29127) {
-					f32 mag = mIntendedMag;
-					targetPos.x = mPosition.x - moveSpeed * (mag * bestWall->mNormal.z);
-					targetPos.y = mPosition.y;
-					targetPos.z = mPosition.z + moveSpeed * (mag * bestWall->mNormal.x);
-				}
-				if ((s16)stickAngleDiff > -29127 && (s16)stickAngleDiff < -1024) {
-					f32 mag = mIntendedMag;
-					targetPos.x = mPosition.x + moveSpeed * (mag * bestWall->mNormal.z);
-					targetPos.y = mPosition.y;
-					targetPos.z = mPosition.z - moveSpeed * (mag * bestWall->mNormal.x);
-				}
-
-				const TBGCheckData* bestWall3 = (const TBGCheckData*)0;
-				TBGWallCheckRecord wallCheck3;
-				wallCheck3.mCenter.x = targetPos.x;
-				wallCheck3.mCenter.y = targetPos.y + 10.0f;
-				wallCheck3.mCenter.z = targetPos.z;
-				wallCheck3.mRadius = 50.0f;
-				wallCheck3.mMaxResults = 1;
-				wallCheck3.mFlags = 0;
-				gpMap->isTouchedWallsAndMoveXZ(&wallCheck3);
-
-				targetPos.x = wallCheck3.mCenter.x;
-				targetPos.y = wallCheck3.mCenter.y;
-				targetPos.z = wallCheck3.mCenter.z;
-
-				f32 targetGroundY = gpMap->checkGround(targetPos.x, 50.0f + targetPos.y, targetPos.z, &plane);
-				f32 f31Save = targetPos.z;
-
-				f32 limit1 = mPosition.y - 100.0f;
-				if (limit1 < targetGroundY && targetGroundY < 50.0f + mPosition.y) {
-					TBGWallCheckRecord wallCheck4;
-					wallCheck4.mCenter.x = targetPos.x - 30.0f * JMASSin(mFaceAngle.y);
-					wallCheck4.mCenter.y = targetGroundY - 20.0f;
-					wallCheck4.mCenter.z = f31Save - 30.0f * JMASCos(mFaceAngle.y);
-					wallCheck4.mRadius = 30.0f;
-					wallCheck4.mMaxResults = 4;
-					wallCheck4.mFlags = 0;
-					gpMap->isTouchedWallsAndMoveXZ(&wallCheck4);
-
-					bestDist = 50.0f;
-					s32 loopIdx2 = 0;
-					for (; loopIdx2 < wallCheck4.mResultWallsNum; loopIdx2++) {
-						TBGCheckData* wall = wallCheck4.mResultWalls[loopIdx2];
-						s32 wallAngle = matan(wall->mNormal.z, wall->mNormal.x);
-						s32 diff = wallAngle - (mFaceAngle.y + 0x8000);
-						if (diff > -0x2000 && diff < 0x2000) {
-							JGeometry::TVec3<f32> pos;
-							pos.x = mPosition.x;
-							pos.y = mPosition.y;
-							pos.z = mPosition.z;
-							f32 planeDist = wall->mNormal.y * pos.y + wall->mNormal.x * pos.x + wall->mNormal.z * pos.z + wall->mPlaneDistance;
-							if (planeDist < bestDist) {
-								bestWall3 = wall;
-							}
-						}
-					}
-
-					if (bestWall3 != (const TBGCheckData*)0) {
-						f32 dot = bestWall->mNormal.y * bestWall3->mNormal.y
-						        + bestWall->mNormal.x * bestWall3->mNormal.x
-						        + bestWall->mNormal.z * bestWall3->mNormal.z;
-
-						if (mDeParams.mHangWallMovableAngle.value < dot) {
-							s32 newAngle = matan(bestWall3->mNormal.z, bestWall3->mNormal.x);
-							mFaceAngle.y = (u16)(newAngle + 0x8000);
-
-							mPosition.x = wallCheck4.mCenter.x - 40.0f * bestWall3->mNormal.x;
-							mPosition.z = wallCheck4.mCenter.z - 40.0f * bestWall3->mNormal.z;
-
-							f32 groundY = gpMap->checkGround(mPosition.x, 160.0f + mPosition.y, mPosition.z, &plane);
-							mPosition.y = groundY;
-							movedToWall = 1;
-						}
+				for (int j = 0; j < record4.mResultWallsNum; j++) {
+					TBGCheckData* w = record4.mResultWalls[j];
+					s16 ang         = matan(w->mNormal.z, w->mNormal.x)
+					          - (mFaceAngle.y + 0x8000);
+					if (ang > -0x2000 && ang < 0x2000) {
+						JGeometry::TVec3<f32> pos = mPosition;
+						f32 d = w->mNormal.x * pos.x + w->mNormal.y * pos.y
+						        + w->mNormal.z * pos.z + w->mPlaneDistance;
+						if (d < 50.0f)
+							foundWall2 = record4.mResultWalls[j];
 					}
 				}
+
+				if (foundWall2 != nullptr
+				    && mDeParams.mHangWallMovableAngle.get()
+				           < foundWall->getNormal().x
+				                     * foundWall2->getNormal().x
+				                 + foundWall->getNormal().y
+				                       * foundWall2->getNormal().y
+				                 + foundWall->getNormal().z
+				                       * foundWall2->getNormal().z) {
+
+					mFaceAngle.y = matan(foundWall2->getNormal().z,
+					                     foundWall2->getNormal().x)
+					               + 0x8000;
+					mPosition.x
+					    = record4.mCenter.x - 40.0f * foundWall2->getNormal().x;
+					mPosition.z
+					    = record4.mCenter.z - 40.0f * foundWall2->getNormal().z;
+					const TBGCheckData* dummy2;
+					mPosition.y
+					    = gpMap->checkGround(mPosition.x, 160.0f + mPosition.y,
+					                         mPosition.z, &dummy2);
+					pulledUp = TRUE;
+				}
 			}
-		} else {
-			mVel.y = 0.0f;
-			mForwardVel = 0.0f;
-			mPosition.x -= 60.0f * JMASSin(mFaceAngle.y);
-			mPosition.z -= 60.0f * JMASCos(mFaceAngle.y);
-			f32 groundY = gpMap->checkGround(mPosition.x, mPosition.y, mPosition.z, &plane);
-			f32 limit = mPosition.y - 100.0f;
-			if (groundY < limit) {
-				mPosition.y = limit;
-			} else {
-				mPosition.y = groundY;
-			}
-			changePlayerStatus(0x208B6, 0, false);
-			return;
 		}
 	}
 
-	if (mActionTimer >= *hangTimerParam) {
-		mVel.y = 0.0f;
-		mForwardVel = 0.0f;
-		mPosition.x -= 60.0f * JMASSin(mFaceAngle.y);
-		mPosition.z -= 60.0f * JMASCos(mFaceAngle.y);
-		f32 groundY = gpMap->checkGround(mPosition.x, mPosition.y, mPosition.z, &plane);
-		f32 limit = mPosition.y - 100.0f;
-		if (groundY < limit) {
-			mPosition.y = limit;
-		} else {
-			mPosition.y = groundY;
-		}
-		changePlayerStatus(0x208B6, 0, false);
-		return;
-	}
+	if (mActionTimer >= mHangingParams.mLimitTime.get())
+		return startHangLanding(0x208B6);
 
-	f32 heightAboveGround = mPosition.y - checkPlayerAround(-0x8000, 30.0f);
-
-	if (highEnough && heightAboveGround < 100.0f) {
-		startVoice(0x788F);
-		changePlayerStatus(0x3000054F, 0, false);
-		return;
+	f32 below = mPosition.y - checkPlayerAround(-0x8000, 30.0f);
+	if (onCeil && below < 100.0f) {
+		startVoice(MSD_SE_MV15_EXERT_INST_01);
+		return changePlayerStatus(0x3000054F, 0, false);
 	}
 
 	setPlayerVelocity(0.0f);
-	f32 zero = 0.0f;
-	mVel.y = zero;
-	mPosition.y = mFloorPosition.y;
+	mVel.y          = 0.0f;
+	mPosition.y     = mFloorPosition.y;
 	mModelFaceAngle = mFaceAngle.y;
 
-	if (movedToWall == 1) {
-		f32 dz = mPosition.z - mLastSafePos.z;
+	if (pulledUp == TRUE) {
 		f32 dx = mPosition.x - mLastSafePos.x;
-		f32 distSq = dz * dz + dx * dx;
-		f32 dist;
-		if (distSq <= zero) {
-			dist = distSq;
-		} else {
-			f32 guess = __frsqrte(distSq);
-			dist = distSq * (0.5f * guess * (3.0f - distSq * guess * guess));
-		}
-		f32 animSpeed = dist * mHangingParams.mAnmRate.value;
-		if ((s16)stickAngleDiff < 0) {
-			setAnimation(0xD7, animSpeed);
-		} else {
-			setAnimation(0xD8, animSpeed);
-		}
+		f32 dz = mPosition.z - mLastSafePos.z;
+		f32 anmRate
+		    = MsSqrtf(dx * dx + dz * dz) * mHangingParams.mAnmRate.get();
+		if (yawDiff < 0)
+			setAnimation(0xD7, anmRate);
+		else
+			setAnimation(0xD8, anmRate);
+	} else if (mActionTimer < mHangingParams.mRapidTime.get()) {
+		setAnimation(0x33, 1.0f);
 	} else {
-		if (mActionTimer < mHangingParams.mRapidTime.value) {
-			setAnimation(0x33, 1.0f);
-		} else {
-			setAnimation(0x33, mHangingParams.mAnmRapid.value);
-		}
+		setAnimation(0x33, mHangingParams.mAnmRapid.get());
 	}
+	return 0;
 }
 
 
-void TMario::startHangLanding(u32 status)
+BOOL TMario::startHangLanding(u32 status)
 {
 	const TBGCheckData* plane;
 	mVel.y = 0.0f;
@@ -1981,7 +1847,7 @@ void TMario::startHangLanding(u32 status)
 	} else {
 		mPosition.y = groundY;
 	}
-	changePlayerStatus(status, 0, false);
+	return changePlayerStatus(status, 0, false);
 }
 
 BOOL TMario::moveRoof()

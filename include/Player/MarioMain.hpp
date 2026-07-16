@@ -1184,10 +1184,10 @@ public:
 	void hangJumping();
 	void descend();
 	void ascend();
-	void hanging();
+	BOOL hanging();
 	void findNearestWall(const TBGWallCheckRecord&);
 	void hangingCommon(int, int);
-	void startHangLanding(u32);
+	BOOL startHangLanding(u32);
 	BOOL kickRoofRollDown();
 	BOOL kickRoofRollUp();
 	BOOL kickRoof();
