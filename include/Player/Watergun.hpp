@@ -114,6 +114,7 @@ public:
 	void triggerPressureMovement(const TMarioControllerWork&);
 
 	J3DModel* getModel() { return mFluddModel->unk4; }
+	const JGeometry::TVec3<f32>& getEmitPos0() const { return mEmitPos[0]; }
 
 	// Fabricated
 	// Probably inlined from Yoshi

@@ -1,5 +1,6 @@
 #include <Player/MarioMain.hpp>
 #include <Player/MarioEffect.hpp>
+#include <Player/Watergun.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
@@ -364,14 +365,11 @@ void TMario::rocketEffectStart()
 
 	if (mWaterGun) {
 		gpMarioParticleManager->emitAndBindToPosPtr(
-		    0x1, (JGeometry::TVec3<f32>*)((u8*)mWaterGun + 0x1C90), 0,
-		    this);
+		    0x1, &mWaterGun->getEmitPos0(), 0, this);
 		gpMarioParticleManager->emitAndBindToPosPtr(
-		    0x2, (JGeometry::TVec3<f32>*)((u8*)mWaterGun + 0x1C90), 0,
-		    this);
+		    0x2, &mWaterGun->getEmitPos0(), 0, this);
 		gpMarioParticleManager->emitAndBindToPosPtr(
-		    0x3, (JGeometry::TVec3<f32>*)((u8*)mWaterGun + 0x1C90), 0,
-		    this);
+		    0x3, &mWaterGun->getEmitPos0(), 0, this);
 	}
 }
 
