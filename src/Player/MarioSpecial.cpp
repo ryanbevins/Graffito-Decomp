@@ -1818,8 +1818,17 @@ BOOL TMario::hanging()
 	if (pulledUp == TRUE) {
 		f32 dx = mPosition.x - mLastSafePos.x;
 		f32 dz = mPosition.z - mLastSafePos.z;
-		f32 anmRate
-		    = MsSqrtf(dx * dx + dz * dz) * mHangingParams.mAnmRate.get();
+		f32 mag = dx * dx + dz * dz;
+		f32 dist;
+		if (mag > 0.0f) {
+			f64 root = __frsqrte(mag);
+			volatile f32 result
+			    = 0.5 * root * (3.0 - mag * (root * root)) * mag;
+			dist = result;
+		} else {
+			dist = mag;
+		}
+		f32 anmRate = dist * mHangingParams.mAnmRate.get();
 		if (yawDiff < 0)
 			setAnimation(0xD7, anmRate);
 		else
