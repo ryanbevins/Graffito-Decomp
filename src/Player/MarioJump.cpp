@@ -463,7 +463,7 @@ checkHandled:
 
 BOOL TMario::catchStop()
 {
-	if (mActionState == 0) { mVel.y = 0.0f; mActionState = 1; }
+	if (mActionState == 0) { mVel.y = 30.0f; mActionState = 1; }
 	doJumping();
 	int r = jumpProcess(0);
 	switch (r) {
