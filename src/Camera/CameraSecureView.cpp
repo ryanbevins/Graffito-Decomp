@@ -18,7 +18,7 @@ void CPolarSubCamera::calcSecureViewTarget_(s16 angle, f32* outX, f32* outZ)
 
 	f32 first = CLBLinearInbetween<f32>(mCurrentParams->mSecureViewDistXMin,
 	                                    mCurrentParams->mSecureViewDistXMax,
-	                                    unkA8);
+	                                    mCurrentTarget.unk28);
 	f32 cos_d = JMASCos(diff);
 
 	f32 second;
@@ -27,7 +27,7 @@ void CPolarSubCamera::calcSecureViewTarget_(s16 angle, f32* outX, f32* outZ)
 	} else {
 		second = CLBLinearInbetween<f32>(mCurrentParams->mSecureViewDistZMin,
 		                                 mCurrentParams->mSecureViewDistZMax,
-		                                 unkA8);
+		                                 mCurrentTarget.unk28);
 	}
 
 	f32 mag = -ABS(first * JMASSin(diff) + second * cos_d);

@@ -1051,7 +1051,7 @@ static s32 SandCastleCallBack(u32, u32 param_2)
 		JGeometry::TVec3<f32>* at
 		    = (JGeometry::TVec3<f32>*)((u8*)gpCamera + 0x148);
 		s16 angle = matan(cameraPos->z - at->z, cameraPos->x - at->x);
-		gpCamera->warpPosAndAt(gpCamera->unkA8, angle);
+		gpCamera->warpPosAndAt(gpCamera->mCurrentTarget.unk28, angle);
 	}
 
 	return 1;

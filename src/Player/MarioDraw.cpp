@@ -680,8 +680,9 @@ int MarioWaistCtrl(J3DNode* param_1, int param_2)
 		s16* unk      = &mario->unkFC; // This feels wrong
 		if (mario == gpMarioOriginal
 		    && gpCamera->isLButtonCameraSpecifyMode(gpCamera->mMode) == 1
-		    && gpMarioForCallBack->canBendBody() != 0 && gpCamera->unkA4 > 0) {
-			*unk = gpCamera->unkA4;
+		    && gpMarioForCallBack->canBendBody() != 0
+		    && gpCamera->mCurrentTarget.mPitch > 0) {
+			*unk = gpCamera->mCurrentTarget.mPitch;
 			Mtx transform;
 			MsMtxSetRotRPH(transform, SHORTANGLE2DEG(-mario->unk100), 0.0f,
 			               SHORTANGLE2DEG(*unk));

@@ -214,9 +214,9 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 
 		f32 dx  = diff.x * 500.0f + marioPos.x;
 		f32 dz  = diff.z * 500.0f + marioPos.z;
-		s16 ang = matan(dz - unk8C.z, dx - unk8C.x);
+		s16 ang = matan(dz - mCurrentTarget.mTarget.z, dx - mCurrentTarget.mTarget.x);
 
-		s16 diffAng = unkA6 - ang;
+		s16 diffAng = mCurrentTarget.mYaw - ang;
 		s16 absAng;
 		if ((s16)diffAng < 0)
 			absAng = -(s16)diffAng;
@@ -233,7 +233,7 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 
 		f32 inb = CLBLinearInbetween<f32>(
 		    1.0f, *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0xB8),
-		    unkA8);
+		    mCurrentTarget.unk28);
 
 		f32 deg
 		    = (f32) * (s16*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x7C);
@@ -243,7 +243,8 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 			speed = 32766.998f;
 
 		s16 deltaSpeed = CLBRoundf<s16>(speed);
-		CLBChaseGeneralConstantSpecifySpeed<s16>(&unkA6, ang, deltaSpeed);
+		CLBChaseGeneralConstantSpecifySpeed<s16>(&mCurrentTarget.mYaw, ang,
+		                                               deltaSpeed);
 	}
 }
 
@@ -276,28 +277,28 @@ void CPolarSubCamera::ctrlLButtonCamera_()
 	if (unk7C == 0) {
 		if (!SMS_CheckMarioFlag(0x8000)) {
 			TCameraMarioData* mario = gpCameraMario;
-			unk8C.x                 = mario->mPosX;
-			unk8C.y                 = mario->mPosY;
-			unk8C.z                 = mario->mPosZ;
+			mCurrentTarget.mTarget.x                 = mario->mPosX;
+			mCurrentTarget.mTarget.y                 = mario->mPosY;
+			mCurrentTarget.mTarget.z                 = mario->mPosZ;
 		} else if (SMS_GetMarioWaterGun() == nullptr) {
 			TCameraMarioData* mario = gpCameraMario;
-			unk8C.x                 = mario->mPosX;
-			unk8C.y                 = mario->mPosY;
-			unk8C.z                 = mario->mPosZ;
+			mCurrentTarget.mTarget.x                 = mario->mPosX;
+			mCurrentTarget.mTarget.y                 = mario->mPosY;
+			mCurrentTarget.mTarget.z                 = mario->mPosZ;
 		} else {
 			MtxPtr m = ((TWaterGun*)SMS_GetMarioWaterGun())->getNozzleMtx();
-			unk8C.x  = m[0][3];
-			unk8C.y  = m[1][3];
-			unk8C.z  = m[2][3];
+			mCurrentTarget.mTarget.x  = m[0][3];
+			mCurrentTarget.mTarget.y  = m[1][3];
+			mCurrentTarget.mTarget.z  = m[2][3];
 
 			JGeometry::TVec3<f32> up(m[0][1], m[1][1], m[2][1]);
 			up.normalize();
 			up.x *= 30.0f;
 			up.y *= 30.0f;
 			up.z *= 30.0f;
-			unk8C.x += up.x;
-			unk8C.y += up.y;
-			unk8C.z += up.z;
+			mCurrentTarget.mTarget.x += up.x;
+			mCurrentTarget.mTarget.y += up.y;
+			mCurrentTarget.mTarget.z += up.z;
 		}
 	}
 

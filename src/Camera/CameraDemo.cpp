@@ -22,7 +22,6 @@ extern const char* cCameraBckNameGate;
 
 template <> s16 CLBRoundf<s16>(f32);
 
-#define mCurrentTarget (*(CPolarSubCamera::TCameraTargetState*)&unk80)
 #define mInbetween unk6C
 #define mPosFreezeFrames unk78
 #define mDeadDemoCountdown (*(u16*)((u8*)this + 0x27C))
@@ -304,7 +303,6 @@ bool CPolarSubCamera::isNormalDeadDemo() const
 	return result;
 }
 
-#undef mCurrentTarget
 #undef mInbetween
 #undef mPosFreezeFrames
 #undef mDeadDemoCountdown

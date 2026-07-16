@@ -24,8 +24,6 @@
 
 #define mPosFreezeFrames unk78
 #define mTargetFreezeFrames unk7C
-#define mCurrentTarget (*(CPolarSubCamera::TCameraTargetState*)&unk80)
-
 inline void CPolarSubCamera::drawJetCoasterBalloonMessage_()
 {
 	u32 flagCount = TFlagManager::smInstance->getFlag(0x60001U);
@@ -258,6 +256,5 @@ TCameraJetCoaster::TCameraJetCoaster()
 
 void TCameraJetCoaster::calcNowOffsetAngle(f32, f32) { }
 
-#undef mCurrentTarget
 #undef mTargetFreezeFrames
 #undef mPosFreezeFrames

@@ -6,9 +6,6 @@
 #include <JSystem/JGeometry.hpp>
 #include <MarioUtil/MathUtil.hpp>
 
-#define mCurrentTarget (*(CPolarSubCamera::TCameraTargetState*)&unk80)
-#define mPreviousTarget (*(CPolarSubCamera::TCameraTargetState*)&unkB4)
-
 static inline void copyCameraState(CPolarSubCamera* camera)
 {
 	*(Vec*)((u8*)camera + 0xB4) = *(Vec*)((u8*)camera + 0x80);
@@ -59,7 +56,7 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 			v = 1.0f;
 		else if (dist < 0.0f)
 			v = 0.0f;
-		unkA8 = v;
+		mCurrentTarget.unk28 = v;
 	} else {
 		f32 hi = unk26C;
 		f32 lo = unk268;
@@ -68,15 +65,16 @@ void CPolarSubCamera::warpPosAndAt(f32 dist, s16 angY)
 			v = hi;
 		else if (dist < lo)
 			v = lo;
-		unkA8 = v;
+		mCurrentTarget.unk28 = v;
 	}
 
-	unkA4 = (s16)calcAngleXFromXRotRatio_();
-	unkA6 = angY;
+	mCurrentTarget.mPitch = (s16)calcAngleXFromXRotRatio_();
+	mCurrentTarget.mYaw = angY;
 	f32 polarDist = calcDistFromXRotRatio_();
 
 	JGeometry::TVec3<f32> pos;
-	CLBPolarToCross(lookat, &pos, polarDist, unkA4, unkA6);
+	CLBPolarToCross(lookat, &pos, polarDist, mCurrentTarget.mPitch,
+	                mCurrentTarget.mYaw);
 
 	warpPosAndAt(pos, lookat);
 }
@@ -100,6 +98,3 @@ void CPolarSubCamera::addMoveCameraAndMario(const Vec& v)
 	mPreviousTarget.mTarget += v;
 	mPreviousTarget.unk18 += v;
 }
-
-#undef mPreviousTarget
-#undef mCurrentTarget

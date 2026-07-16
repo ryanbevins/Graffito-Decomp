@@ -5,9 +5,6 @@
 #include <Camera/CameraMarioData.hpp>
 #include <Player/MarioAccess.hpp>
 
-#define mCurrentTarget (*(CPolarSubCamera::TCameraTargetState*)&unk80)
-#define mPreviousTarget (*(CPolarSubCamera::TCameraTargetState*)&unkB4)
-
 void CPolarSubCamera::killHeightPanWhenChangeCamMode_()
 {
 	bool bVar2 = false;
@@ -99,6 +96,3 @@ void CPolarSubCamera::killHeightPan_()
 
 	mHeightPanOffset = 0.0f;
 }
-
-#undef mPreviousTarget
-#undef mCurrentTarget

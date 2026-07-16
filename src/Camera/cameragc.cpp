@@ -403,7 +403,7 @@ void CPolarSubCamera::ctrlGameCamera_()
 	if (isNormalDeadDemo()) {
 		marioHeight = 35.0f;
 	} else {
-		marioHeight = unk68->unk24 + unkA8 * unk68->unk28;
+		marioHeight = unk68->unk24 + mCurrentTarget.unk28 * unk68->unk28;
 		if (SMS_GetMarioStatus() == 0x200345)
 			marioHeight += 260.0f;
 		if (mMode == 9)
@@ -416,14 +416,14 @@ void CPolarSubCamera::ctrlGameCamera_()
 	marioData->mPosZ            = marioPos.z;
 	gpCameraMario->calcAndSetMarioData();
 
-	unkB4 = unk80;
-	unkC0 = unk8C;
-	unkCC = unk98;
-	unkD8   = unkA4;
-	unkDA   = unkA6;
-	unkDC   = unkA8;
-	unkE0   = unkAC;
-	unkE4   = unkB0;
+	mPreviousTarget.mPosition = mCurrentTarget.mPosition;
+	mPreviousTarget.mTarget = mCurrentTarget.mTarget;
+	mPreviousTarget.unk18 = mCurrentTarget.unk18;
+	mPreviousTarget.mPitch   = mCurrentTarget.mPitch;
+	mPreviousTarget.mYaw   = mCurrentTarget.mYaw;
+	mPreviousTarget.unk28   = mCurrentTarget.unk28;
+	mPreviousTarget.unk2C   = mCurrentTarget.unk2C;
+	mPreviousTarget.unk30   = mCurrentTarget.unk30;
 
 	if (gpMarDirector->mState == 4 && !(unk64 & 0x400)) {
 		if (isTalkCameraSpecifyMode(mMode)) {
@@ -556,10 +556,10 @@ void CPolarSubCamera::calcPosAndAt_()
 		}
 	}
 
-	s16 nozzleMaxAngle
-	    = CLBLinearInbetween<s16>(unk68->unk54, unk68->unk56, unkA8);
+	s16 nozzleMaxAngle = CLBLinearInbetween<s16>(
+	    unk68->unk54, unk68->unk56, mCurrentTarget.unk28);
 	f32 nozzleMaxDist
-	    = CLBLinearInbetween(unk68->unk4C, unk68->unk50, unkA8);
+	    = CLBLinearInbetween(unk68->unk4C, unk68->unk50, mCurrentTarget.unk28);
 	s16 nozzleAngle = 0;
 	f32 nozzleDist  = 0.0f;
 
@@ -660,19 +660,19 @@ void CPolarSubCamera::calcPosAndAt_()
 
 	if (!skipSolve) {
 		if (unk7C == 0 && isDefiniteCameraSpecifyMode(mMode))
-			unk8C = getUsualLookat();
+			mCurrentTarget.mTarget = getUsualLookat();
 
 		Vec targetAt;
 		if (isFixCameraSpecifyMode(mMode)
 		    || isDefiniteCameraSpecifyMode(mMode)) {
-			targetAt.x = unk8C.x;
-			targetAt.y = unk8C.y;
-			targetAt.z = unk8C.z;
+			targetAt.x = mCurrentTarget.mTarget.x;
+			targetAt.y = mCurrentTarget.mTarget.y;
+			targetAt.z = mCurrentTarget.mTarget.z;
 			unk28C     = 0;
 		} else {
-			unkA4 = calcAngleXFromXRotRatio_();
-			s16 angleX = unkA4 + unk68->unk58 + offsetState->unk0;
-			s16 angleY = unkA6 + unk68->unk5A;
+			mCurrentTarget.mPitch = calcAngleXFromXRotRatio_();
+			s16 angleX = mCurrentTarget.mPitch + unk68->unk58 + offsetState->unk0;
+			s16 angleY = mCurrentTarget.mYaw + unk68->unk5A;
 
 			if (gpCameraMario->mDistXZ >= moveThreshold) {
 				s16 marioBackAngle = *gpMarioAngleY - 0x8000;
@@ -702,18 +702,18 @@ void CPolarSubCamera::calcPosAndAt_()
 			}
 
 			s16 sideAngle = angleY - 0x4000;
-			targetAt.x = unk8C.x - unk68->unk5C * JMASSin(sideAngle);
-			targetAt.y = unk8C.y;
-			targetAt.z = unk8C.z - unk68->unk5C * JMASCos(sideAngle);
+			targetAt.x = mCurrentTarget.mTarget.x - unk68->unk5C * JMASSin(sideAngle);
+			targetAt.y = mCurrentTarget.mTarget.y;
+			targetAt.z = mCurrentTarget.mTarget.z - unk68->unk5C * JMASCos(sideAngle);
 
 			if (mMode != 2) {
 				execSecureView_(angleY, &targetAt);
 				if (!isRailCameraSpecifyMode(mMode)) {
 					Vec anchor = targetAt;
 					f32 baseDist = CLBLinearInbetween(
-					    unk68->unk08, unk68->unk0C, unkA8);
+					    unk68->unk08, unk68->unk0C, mCurrentTarget.unk28);
 					s16 baseAngleX = CLBLinearInbetween<s16>(
-					    unk68->unk18, unk68->unk1A, unkA8);
+					    unk68->unk18, unk68->unk1A, mCurrentTarget.unk28);
 					f32 baseCos = JMASCos(baseAngleX);
 					Vec plannedPos;
 					CLBPolarToCross(anchor, &plannedPos,
@@ -721,8 +721,8 @@ void CPolarSubCamera::calcPosAndAt_()
 					                angleX, angleY);
 
 					if (isNormalCameraCompletely()) {
-						Vec prevPos = unkB4;
-						prevPos.y   = unkCC.y;
+						Vec prevPos = mPreviousTarget.mPosition;
+						prevPos.y   = mPreviousTarget.unk18.y;
 						f32 prevDist;
 						s16 prevAngleX;
 						s16 prevAngleY;
@@ -733,10 +733,10 @@ void CPolarSubCamera::calcPosAndAt_()
 						f32 prevHoriz    = baseCos * prevDist;
 						if (prevHoriz > plannedHoriz) {
 							unk64 |= 0x100;
-							unk98 = plannedPos;
+							mCurrentTarget.unk18 = plannedPos;
 						} else {
 							f32 lead = CLBLinearInbetween(
-							    unk68->unk10, unk68->unk14, unkA8);
+							    unk68->unk10, unk68->unk14, mCurrentTarget.unk28);
 							f32 minHoriz = baseCos * (baseDist - lead);
 							f32 saveMin  = *(const f32*)(save + 0x68);
 							if (minHoriz < saveMin)
@@ -763,21 +763,21 @@ void CPolarSubCamera::calcPosAndAt_()
 							    && isNormalCameraCompletely()
 							    && unk250 > 0.001f) {
 								f32 lead = CLBLinearInbetween(
-								    unk68->unk10, unk68->unk14, unkA8);
+								    unk68->unk10, unk68->unk14, mCurrentTarget.unk28);
 								if (lead > 0.001f)
 									usePrev = true;
 							}
 
 							if (usePrev) {
-								unk98 = prevPos;
+								mCurrentTarget.unk18 = prevPos;
 							} else {
-								CLBPolarToCross(anchor, &unk98, prevDist,
+								CLBPolarToCross(anchor, &mCurrentTarget.unk18, prevDist,
 								                prevAngleX, angleY);
 							}
-							unk98.y = plannedPos.y;
+							mCurrentTarget.unk18.y = plannedPos.y;
 						}
 					} else {
-						unk98 = plannedPos;
+						mCurrentTarget.unk18 = plannedPos;
 					}
 
 					f32 sinY = JMASSin(angleY);
@@ -791,8 +791,8 @@ void CPolarSubCamera::calcPosAndAt_()
 						keepClear = false;
 
 					if (keepClear) {
-						f32 dz = gpMarioPos->z - unk98.z;
-						f32 dx = gpMarioPos->x - unk98.x;
+						f32 dz = gpMarioPos->z - mCurrentTarget.unk18.z;
+						f32 dx = gpMarioPos->x - mCurrentTarget.unk18.x;
 						f32 xz = MsSqrtf(dx * dx + dz * dz);
 						f32 limit = baseDist * baseCos;
 						f32 saveLimit = *(const f32*)(save + 0x68);
@@ -800,14 +800,14 @@ void CPolarSubCamera::calcPosAndAt_()
 							limit = saveLimit;
 						if (xz < limit) {
 							f32 push = limit - xz;
-							unk98.x += push * sinY;
-							unk98.z += push * cosY;
+							mCurrentTarget.unk18.x += push * sinY;
+							mCurrentTarget.unk18.z += push * cosY;
 						}
 					}
 
 					if (mMode != 8 && mMode != 0xD) {
-						unk98.x -= offsetState->unk4 * sinY;
-						unk98.z -= offsetState->unk4 * cosY;
+						mCurrentTarget.unk18.x -= offsetState->unk4 * sinY;
+						mCurrentTarget.unk18.z -= offsetState->unk4 * cosY;
 					}
 
 					if (unk6C->mChaseFrame != 0.0f && hasControlInput) {
@@ -815,7 +815,7 @@ void CPolarSubCamera::calcPosAndAt_()
 						CLBPolarToCross(
 						    unk6C->mTargetAt, &warpPos,
 						    CLBLinearInbetween(unk68->unk08, unk68->unk0C,
-						                       unkA8)
+						                       mCurrentTarget.unk28)
 						        + unk6C->mChaseFrame,
 						    angleX, angleY);
 						unk6C->warpPosAndAt(warpPos, unk6C->mTargetAt);
@@ -823,19 +823,19 @@ void CPolarSubCamera::calcPosAndAt_()
 				}
 			}
 
-			unk80.x = unk98.x;
-			unk80.z = unk98.z;
+			mCurrentTarget.mPosition.x = mCurrentTarget.unk18.x;
+			mCurrentTarget.mPosition.z = mCurrentTarget.unk18.z;
 			execHeightPan_();
-			targetAt.y = unk8C.y;
+			targetAt.y = mCurrentTarget.mTarget.y;
 
-			Vec checkedPos = unk80;
+			Vec checkedPos = mCurrentTarget.mPosition;
 			if (isNeedWallCheck_() && execWallCheck_(&checkedPos)) {
-				f32 dz = unk80.z - unk8C.z;
-				f32 dx = unk80.x - unk8C.x;
-				unkA4 = matan(MsSqrtf(dx * dx + dz * dz),
-				              unk80.y - unk8C.y);
-				unkA6 = matan(dz, dx);
-				unkA8 = unkDC;
+				f32 dz = mCurrentTarget.mPosition.z - mCurrentTarget.mTarget.z;
+				f32 dx = mCurrentTarget.mPosition.x - mCurrentTarget.mTarget.x;
+				mCurrentTarget.mPitch = matan(MsSqrtf(dx * dx + dz * dz),
+				              mCurrentTarget.mPosition.y - mCurrentTarget.mTarget.y);
+				mCurrentTarget.mYaw = matan(dz, dx);
+				mCurrentTarget.unk28 = mPreviousTarget.unk28;
 			}
 
 			if (isNeedRoofCheck_())
@@ -844,7 +844,7 @@ void CPolarSubCamera::calcPosAndAt_()
 				execGroundCheck_(checkedPos);
 		}
 
-		unk6C->execCameraInbetween(unk80, targetAt, *gpMarioPos);
+		unk6C->execCameraInbetween(mCurrentTarget.mPosition, targetAt, *gpMarioPos);
 	}
 
 	if (unk78 == 0) {
@@ -978,7 +978,9 @@ bool CPolarSubCamera::isMomentDefinite_() const
 {
 	bool result = false;
 	if (!(unk64 & 0x100) && isNormalCameraCompletely() && unk250 > 0.001f
-	    && CLBLinearInbetween(unk68->unk10, unk68->unk14, unkA8) > 0.001f)
+	    && CLBLinearInbetween(unk68->unk10, unk68->unk14,
+	                          mCurrentTarget.unk28)
+	           > 0.001f)
 		result = true;
 	return result;
 }
@@ -1013,7 +1015,9 @@ void CPolarSubCamera::onMoveApproach_()
 		dist = result;
 	}
 	unk6C->mChaseFrame
-	    = dist - CLBLinearInbetween(unk68->unk08, unk68->unk0C, unkA8);
+	    = dist
+	      - CLBLinearInbetween(unk68->unk08, unk68->unk0C,
+	                           mCurrentTarget.unk28);
 }
 
 void CPolarSubCamera::offMoveApproach_() { unk6C->mChaseFrame = 0.0f; }
@@ -1021,31 +1025,32 @@ void CPolarSubCamera::offMoveApproach_() { unk6C->mChaseFrame = 0.0f; }
 void CPolarSubCamera::rotateY_ByStickX_(f32 stick)
 {
 	if (!SMS_IsMarioOpeningDoor()) {
-		s16 speed = CLBLinearInbetween<s16>(unk68->unk20, unk68->unk22, unkA8);
-		unkA6 += (s16)(stick * speed);
+		s16 speed = CLBLinearInbetween<s16>(
+		    unk68->unk20, unk68->unk22, mCurrentTarget.unk28);
+		mCurrentTarget.mYaw += (s16)(stick * speed);
 	}
 }
 
 void CPolarSubCamera::rotateX_ByStickY_(f32 stick)
 {
 	if (!SMS_IsMarioOpeningDoor()) {
-		unkA8 -= stick * unk68->unk1C;
+		mCurrentTarget.unk28 -= stick * unk68->unk1C;
 		if (isLButtonCameraSpecifyMode(mMode)) {
-			f32 ratio = unkA8;
+			f32 ratio = mCurrentTarget.unk28;
 			if (ratio > 1.0f)
 				ratio = 1.0f;
 			else if (ratio < 0.0f)
 				ratio = 0.0f;
-			unkA8 = ratio;
+			mCurrentTarget.unk28 = ratio;
 		} else {
 			f32 min   = unk268;
 			f32 max   = unk26C;
-			f32 ratio = unkA8;
+			f32 ratio = mCurrentTarget.unk28;
 			if (ratio > max)
 				ratio = max;
 			else if (ratio < min)
 				ratio = min;
-			unkA8 = ratio;
+			mCurrentTarget.unk28 = ratio;
 		}
 	}
 }
@@ -1065,26 +1070,28 @@ void CPolarSubCamera::calcNowTargetFromPosAndAt_(const Vec& pos, const Vec& at)
 	s16 angleX;
 	s16 angleY;
 	CLBCrossToPolar(at, pos, &radius, &angleX, &angleY);
-	unkA8 = CLBCalcRatio<s16>(unk68->unk18, unk68->unk1A, angleX);
+	mCurrentTarget.unk28 = CLBCalcRatio<s16>(unk68->unk18, unk68->unk1A, angleX);
 	if (isLButtonCameraSpecifyMode(mMode))
-		unkA8 = clampCameraRatio(unkA8, 0.0f, 1.0f);
+		mCurrentTarget.unk28 = clampCameraRatio(mCurrentTarget.unk28, 0.0f, 1.0f);
 	else
-		unkA8 = clampCameraRatio(unkA8, unk268, unk26C);
-	unkA4 = CLBLinearInbetween<s16>(unk68->unk18, unk68->unk1A, unkA8);
-	unkA6 = angleY;
-	unk80.set(pos);
-	unk98.set(pos);
-	unk8C.set(at);
+		mCurrentTarget.unk28 = clampCameraRatio(mCurrentTarget.unk28, unk268, unk26C);
+	mCurrentTarget.mPitch = CLBLinearInbetween<s16>(
+	    unk68->unk18, unk68->unk1A, mCurrentTarget.unk28);
+	mCurrentTarget.mYaw = angleY;
+	mCurrentTarget.mPosition.set(pos);
+	mCurrentTarget.unk18.set(pos);
+	mCurrentTarget.mTarget.set(at);
 }
 
 f32 CPolarSubCamera::calcDistFromXRotRatio_() const
 {
-	return CLBLinearInbetween(unk68->unk08, unk68->unk0C, unkA8);
+	return CLBLinearInbetween(unk68->unk08, unk68->unk0C, mCurrentTarget.unk28);
 }
 
 s16 CPolarSubCamera::calcAngleXFromXRotRatio_() const
 {
-	return CLBLinearInbetween<s16>(unk68->unk18, unk68->unk1A, unkA8);
+	return CLBLinearInbetween<s16>(unk68->unk18, unk68->unk1A,
+	                                      mCurrentTarget.unk28);
 }
 
 JGeometry::TVec3<f32> CPolarSubCamera::getUsualLookat() const
@@ -1164,8 +1171,8 @@ void CPolarSubCamera::loadAfter()
 			ratio = unk26C;
 		else if (ratio < unk268)
 			ratio = unk268;
-		unkA8 = ratio;
-		unkA6 = CLBRoundf<s16>(182.04445f * startAfterTool->unk18.y)
+		mCurrentTarget.unk28 = ratio;
+		mCurrentTarget.mYaw = CLBRoundf<s16>(182.04445f * startAfterTool->unk18.y)
 		        - 0x8000;
 	} else {
 		const u8* save = (const u8*)unk2D4;
@@ -1174,22 +1181,23 @@ void CPolarSubCamera::loadAfter()
 			ratio = unk26C;
 		else if (ratio < unk268)
 			ratio = unk268;
-		unkA8 = ratio;
-		unkA6 = *gpMarioAngleY - 0x8000;
+		mCurrentTarget.unk28 = ratio;
+		mCurrentTarget.mYaw = *gpMarioAngleY - 0x8000;
 	}
 
 	if ((unk64 & 0x1000) && unk2B8 != nullptr && (*(u8*)((u8*)unk2B8 + 0xC) & 1))
 		setUpToLButtonCamera_(0x2E);
 
-	unk270 = unkA8;
-	unkA4  = CLBLinearInbetween<s16>(unk68->unk18, unk68->unk1A, unkA8);
+	unk270 = mCurrentTarget.unk28;
+	mCurrentTarget.mPitch = CLBLinearInbetween<s16>(
+	    unk68->unk18, unk68->unk1A, mCurrentTarget.unk28);
 
 	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
 	f32 marioHeight;
 	if (isNormalDeadDemo()) {
 		marioHeight = 35.0f;
 	} else {
-		marioHeight = unk68->unk24 + unkA8 * unk68->unk28;
+		marioHeight = unk68->unk24 + mCurrentTarget.unk28 * unk68->unk28;
 		if (SMS_GetMarioStatus() == 0x200345)
 			marioHeight += 260.0f;
 		if (mMode == 9)
@@ -1207,53 +1215,55 @@ void CPolarSubCamera::loadAfter()
 		mTarget.x = marioData->mPosX;
 		mTarget.y = marioData->mPosY;
 		mTarget.z = marioData->mPosZ;
-		f32 dist  = CLBLinearInbetween(unk68->unk08, unk68->unk0C, unkA8);
-		CLBPolarToCross(mTarget, &mPosition, dist, unkA4, unkA6);
+		f32 dist = CLBLinearInbetween(unk68->unk08, unk68->unk0C,
+		                                mCurrentTarget.unk28);
+		CLBPolarToCross(mTarget, &mPosition, dist, mCurrentTarget.mPitch,
+		                mCurrentTarget.mYaw);
 	}
 
-	calcSecureViewTarget_(unkA6, &unk294, &unk298);
+	calcSecureViewTarget_(mCurrentTarget.mYaw, &unk294, &unk298);
 	mPosition.x += unk294;
 	mPosition.z += unk298;
 	mTarget.x += unk294;
 	mTarget.z += unk298;
 
-	unk80.x = mPosition.x;
-	unk80.y = mPosition.y;
-	unk80.z = mPosition.z;
-	unk98.x = mPosition.x;
-	unk98.y = mPosition.y;
-	unk98.z = mPosition.z;
-	unk8C.x = mTarget.x;
-	unk8C.y = mTarget.y;
-	unk8C.z = mTarget.z;
+	mCurrentTarget.mPosition.x = mPosition.x;
+	mCurrentTarget.mPosition.y = mPosition.y;
+	mCurrentTarget.mPosition.z = mPosition.z;
+	mCurrentTarget.unk18.x = mPosition.x;
+	mCurrentTarget.unk18.y = mPosition.y;
+	mCurrentTarget.unk18.z = mPosition.z;
+	mCurrentTarget.mTarget.x = mTarget.x;
+	mCurrentTarget.mTarget.y = mTarget.y;
+	mCurrentTarget.mTarget.z = mTarget.z;
 	if (SMS_isOptionMap()) {
-		unk80.x = mPosition.x;
-		unk80.y = mPosition.y;
-		unk80.z = mPosition.z;
-		unk8C.x = mTarget.x;
-		unk8C.y = mTarget.y;
-		unk8C.z = mTarget.z;
-		gpCameraOption = new TCameraOption(mPosition, &unk8C);
+		mCurrentTarget.mPosition.x = mPosition.x;
+		mCurrentTarget.mPosition.y = mPosition.y;
+		mCurrentTarget.mPosition.z = mPosition.z;
+		mCurrentTarget.mTarget.x = mTarget.x;
+		mCurrentTarget.mTarget.y = mTarget.y;
+		mCurrentTarget.mTarget.z = mTarget.z;
+		gpCameraOption = new TCameraOption(mPosition, &mCurrentTarget.mTarget);
 	}
 
-	unk256 = unkA4;
-	unk258 = unkA6;
-	unkB4  = unk80;
-	unkC0  = unk8C;
-	unkCC  = unk98;
-	unkD8  = unkA4;
-	unkDA  = unkA6;
-	unkDC  = unkA8;
-	unkE0  = unkAC;
-	unkE4  = unkB0;
-	unkE8  = unkB4;
-	unkF4  = unkC0;
-	unk100 = unkCC;
-	unk10C = unkD8;
-	unk10E = unkDA;
-	unk110 = unkDC;
-	unk114 = unkE0;
-	unk118 = unkE4;
+	unk256 = mCurrentTarget.mPitch;
+	unk258 = mCurrentTarget.mYaw;
+	mPreviousTarget.mPosition  = mCurrentTarget.mPosition;
+	mPreviousTarget.mTarget  = mCurrentTarget.mTarget;
+	mPreviousTarget.unk18  = mCurrentTarget.unk18;
+	mPreviousTarget.mPitch  = mCurrentTarget.mPitch;
+	mPreviousTarget.mYaw  = mCurrentTarget.mYaw;
+	mPreviousTarget.unk28  = mCurrentTarget.unk28;
+	mPreviousTarget.unk2C  = mCurrentTarget.unk2C;
+	mPreviousTarget.unk30  = mCurrentTarget.unk30;
+	unkE8  = mPreviousTarget.mPosition;
+	unkF4  = mPreviousTarget.mTarget;
+	unk100 = mPreviousTarget.unk18;
+	unk10C = mPreviousTarget.mPitch;
+	unk10E = mPreviousTarget.mYaw;
+	unk110 = mPreviousTarget.unk28;
+	unk114 = mPreviousTarget.unk2C;
+	unk118 = mPreviousTarget.unk30;
 
 	unk124.x = mPosition.x;
 	unk124.y = mPosition.y;

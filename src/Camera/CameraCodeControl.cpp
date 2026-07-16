@@ -13,7 +13,7 @@ bool CPolarSubCamera::controlByCameraCode_(int* outCode)
 	if (SMS_IsMarioOpeningDoor()) {
 		if (mMode == 0x42 && gpCameraMario->mStatusTimer == 0x78) {
 			changeCamModeSpecifyFrame_(0x14, 1);
-			warpPosAndAt(unkA8, *gpMarioAngleY + 0x9C4);
+			warpPosAndAt(mCurrentTarget.unk28, *gpMarioAngleY + 0x9C4);
 		}
 		unk120->onNeutralMarioKey();
 		result = false;
