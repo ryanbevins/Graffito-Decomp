@@ -744,8 +744,8 @@ void THideObjBase::appearObjFromPoint(const JGeometry::TVec3<f32>& pt)
 			}
 			if (TMapObjBase::isFruit(obj))
 				((TResetFruit*)obj)->makeObjLiving();
-			emitEffect();
 		}
+		emitEffect();
 		unk14C = 0;
 	}
 }
