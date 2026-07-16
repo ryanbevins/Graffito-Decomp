@@ -702,118 +702,6 @@ check_sender_bit3:
 		u32 aType = sender->mActorType;
 
 		switch (aType) {
-		case 0x08000013: // NPC interaction (talk)
-		{
-			switch (message) {
-			case 4:
-				if (mHeldObject == nullptr && mHolder == nullptr) {
-					mHolder = (TTakeActor*)sender;
-					changePlayerStatus(0x0C400201, 0, false);
-					return 1;
-				}
-				break;
-			case 8:
-				if (checkFlag(0x1000)) {
-					changePlayerStatus(0x891, 0, true);
-				} else {
-					changePlayerStatus(0x0C400201, 0, false);
-				}
-				mHolder = nullptr;
-				return 1;
-			case 0x0E:
-				if (!isInvincible()) {
-					damageExec(sender,
-					           mDmgParamsBGTentacle.mDamage.get(),
-					           mDmgParamsBGTentacle.mDownType.get(),
-					           mDmgParamsBGTentacle.mWaterEmit.get(),
-					           mDmgParamsBGTentacle.mMinSpeed.get(),
-					           mDmgParamsBGTentacle.mMotor.get(),
-					           mDmgParamsBGTentacle.mDirty.get(),
-					           mDmgParamsBGTentacle.mInvincibleTime.get());
-					return 1;
-				}
-				break;
-			default:
-				break;
-			}
-			break;
-		}
-
-		case 0x08000001: // Basic enemy contact/damage
-		{
-			if (message == 0x0E) {
-				if (!isInvincible()) {
-					damageExec(sender,
-					           mDmgParamsHinokuri.mDamage.get(),
-					           mDmgParamsHinokuri.mDownType.get(),
-					           mDmgParamsHinokuri.mWaterEmit.get(),
-					           mDmgParamsHinokuri.mMinSpeed.get(),
-					           mDmgParamsHinokuri.mMotor.get(),
-					           mDmgParamsHinokuri.mDirty.get(),
-					           mDmgParamsHinokuri.mInvincibleTime.get());
-					return 1;
-				}
-			}
-			if (message == 3) {
-				if (!isInvincible()) {
-					mState |= 0x800;
-					bool actionFlag = (mAction & 0x800) ? true : false;
-					if (!actionFlag)
-						rumbleStart(21, 10);
-					return 1;
-				}
-			}
-			break;
-		}
-
-		case 0x08000003:
-		case 0x08000004:
-		case 0x08000006:
-		case 0x08000007:
-		case 0x08000008:
-		case 0x0800001F:
-		case 0x08000022:
-		case 0x08000023:
-		case 0x08000027: // General enemy interaction
-		case 0x1000000F:
-		case 0x10000035:
-		{
-			switch (message) {
-			case 4: // Take
-				if (!isInvincible() && mHeldObject == nullptr
-				    && mHolder == nullptr) {
-					mHolder = (TTakeActor*)sender;
-					changePlayerStatus(0x10020370, 0, false);
-					return 1;
-				}
-				break;
-			case 0x0E: // Touch
-				if (!isInvincible()) {
-					damageExec(sender,
-					           mDmgParamsBGTentacle.mDamage.get(),
-					           mDmgParamsBGTentacle.mDownType.get(),
-					           mDmgParamsBGTentacle.mWaterEmit.get(),
-					           mDmgParamsBGTentacle.mMinSpeed.get(),
-					           mDmgParamsBGTentacle.mMotor.get(),
-					           mDmgParamsBGTentacle.mDirty.get(),
-					           mDmgParamsBGTentacle.mInvincibleTime.get());
-					return 1;
-				}
-				break;
-			case 8: // Release
-				if (checkFlag(0x1000)) {
-					changePlayerStatus(0x891, 0, true);
-				} else {
-					changePlayerStatus(0x0C400201, 0, false);
-				}
-				mHolder = nullptr;
-				return 1;
-			default:
-				break;
-			}
-			break;
-		}
-
 		case 0x08000029: // Hit from enemy
 		{
 			if (message == 0x0A) {
@@ -868,41 +756,68 @@ check_sender_bit3:
 			break;
 		}
 
-		case 0x08000014:
-		case 0x08000015: // Hanachan boss parts
+		case 0x08000001: // Basic enemy contact/damage
 		{
 			if (message == 0x0E) {
 				if (!isInvincible()) {
 					damageExec(sender,
-					           mDmgParamsHanachanBoss.mDamage.get(),
-					           mDmgParamsHanachanBoss.mDownType.get(),
-					           mDmgParamsHanachanBoss.mWaterEmit.get(),
-					           mDmgParamsHanachanBoss.mMinSpeed.get(),
-					           mDmgParamsHanachanBoss.mMotor.get(),
-					           mDmgParamsHanachanBoss.mDirty.get(),
-					           mDmgParamsHanachanBoss.mInvincibleTime.get());
+					           mDmgParamsHinokuri.mDamage.get(),
+					           mDmgParamsHinokuri.mDownType.get(),
+					           mDmgParamsHinokuri.mWaterEmit.get(),
+					           mDmgParamsHinokuri.mMinSpeed.get(),
+					           mDmgParamsHinokuri.mMotor.get(),
+					           mDmgParamsHinokuri.mDirty.get(),
+					           mDmgParamsHinokuri.mInvincibleTime.get());
 					return 1;
 				}
 			}
-			return 0;
+			if (message == 3) {
+				if (!isInvincible()) {
+					mState |= 0x800;
+					bool actionFlag = (mAction & 0x800) ? true : false;
+					if (!actionFlag)
+						rumbleStart(21, 10);
+					return 1;
+				}
+			}
+			break;
 		}
 
-		case 0x08000024: // BathtubKiller hit
+		case 0x08000013: // NPC interaction (talk)
 		{
-			if (!isInvincible() && message == 0x0E
-			    && (mAction != 0x800008A9 || mActionState != 3)) {
-				damageExec(sender,
-				           mDmgParamsBGTentacle.mDamage.get(),
-				           mDmgParamsBGTentacle.mDownType.get(),
-				           mDmgParamsBGTentacle.mWaterEmit.get(),
-				           mDmgParamsBGTentacle.mMinSpeed.get(),
-				           mDmgParamsBGTentacle.mMotor.get(),
-				           mDmgParamsBGTentacle.mDirty.get(),
-				           mDmgParamsBGTentacle.mInvincibleTime.get());
-
-				changePlayerStatus(0x000208B8, 0, false);
+			switch (message) {
+			case 4:
+				if (mHeldObject == nullptr && mHolder == nullptr) {
+					mHolder = (TTakeActor*)sender;
+					changePlayerStatus(0x0C400201, 0, false);
+					return 1;
+				}
+				break;
+			case 8:
+				if (checkFlag(0x1000)) {
+					changePlayerStatus(0x891, 0, true);
+				} else {
+					changePlayerStatus(0x0C400201, 0, false);
+				}
+				mHolder = nullptr;
 				return 1;
+			case 0x0E:
+				if (!isInvincible()) {
+					damageExec(sender,
+					           mDmgParamsBGTentacle.mDamage.get(),
+					           mDmgParamsBGTentacle.mDownType.get(),
+					           mDmgParamsBGTentacle.mWaterEmit.get(),
+					           mDmgParamsBGTentacle.mMinSpeed.get(),
+					           mDmgParamsBGTentacle.mMotor.get(),
+					           mDmgParamsBGTentacle.mDirty.get(),
+					           mDmgParamsBGTentacle.mInvincibleTime.get());
+					return 1;
+				}
+				break;
+			default:
+				break;
 			}
+			break;
 		}
 
 		case 0x0800000B:
@@ -933,6 +848,91 @@ check_sender_bit3:
 				}
 			}
 			break;
+		}
+
+		case 0x08000003:
+		case 0x08000004:
+		case 0x08000006:
+		case 0x08000007:
+		case 0x08000008:
+		case 0x0800001F:
+		case 0x08000022:
+		case 0x08000023:
+		case 0x08000027: // General enemy interaction
+		case 0x1000000F:
+		case 0x10000035:
+		{
+			switch (message) {
+			case 4: // Take
+				if (!isInvincible() && mHeldObject == nullptr
+				    && mHolder == nullptr) {
+					mHolder = (TTakeActor*)sender;
+					changePlayerStatus(0x10020370, 0, false);
+					return 1;
+				}
+				break;
+			case 0x0E: // Touch
+				if (!isInvincible()) {
+					damageExec(sender,
+					           mDmgParamsBGTentacle.mDamage.get(),
+					           mDmgParamsBGTentacle.mDownType.get(),
+					           mDmgParamsBGTentacle.mWaterEmit.get(),
+					           mDmgParamsBGTentacle.mMinSpeed.get(),
+					           mDmgParamsBGTentacle.mMotor.get(),
+					           mDmgParamsBGTentacle.mDirty.get(),
+					           mDmgParamsBGTentacle.mInvincibleTime.get());
+					return 1;
+				}
+				break;
+			case 8: // Release
+				if (checkFlag(0x1000)) {
+					changePlayerStatus(0x891, 0, true);
+				} else {
+					changePlayerStatus(0x0C400201, 0, false);
+				}
+				mHolder = nullptr;
+				return 1;
+			default:
+				break;
+			}
+			break;
+		}
+
+		case 0x08000024: // BathtubKiller hit
+		{
+			if (!isInvincible() && message == 0x0E
+			    && (mAction != 0x800008A9 || mActionState != 3)) {
+				damageExec(sender,
+				           mDmgParamsBGTentacle.mDamage.get(),
+				           mDmgParamsBGTentacle.mDownType.get(),
+				           mDmgParamsBGTentacle.mWaterEmit.get(),
+				           mDmgParamsBGTentacle.mMinSpeed.get(),
+				           mDmgParamsBGTentacle.mMotor.get(),
+				           mDmgParamsBGTentacle.mDirty.get(),
+				           mDmgParamsBGTentacle.mInvincibleTime.get());
+
+				changePlayerStatus(0x000208B8, 0, false);
+				return 1;
+			}
+		}
+
+		case 0x08000014:
+		case 0x08000015: // Hanachan boss parts
+		{
+			if (message == 0x0E) {
+				if (!isInvincible()) {
+					damageExec(sender,
+					           mDmgParamsHanachanBoss.mDamage.get(),
+					           mDmgParamsHanachanBoss.mDownType.get(),
+					           mDmgParamsHanachanBoss.mWaterEmit.get(),
+					           mDmgParamsHanachanBoss.mMinSpeed.get(),
+					           mDmgParamsHanachanBoss.mMotor.get(),
+					           mDmgParamsHanachanBoss.mDirty.get(),
+					           mDmgParamsHanachanBoss.mInvincibleTime.get());
+					return 1;
+				}
+			}
+			return 0;
 		}
 
 		case 0x4000002C: // Wire actor grab
