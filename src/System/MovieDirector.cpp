@@ -160,10 +160,10 @@ int TMovieDirector::rsetup()
 	THPVideoInfo videoInfo;
 	THPPlayerGetVideoInfo(&videoInfo);
 
-	thpRender->setParams(
-	    JUTPoint(((u16)SMSGetGameRenderWidth() - videoInfo.xSize) / 2,
-	             ((u16)SMSGetGameRenderHeight() - videoInfo.ySize) / 2),
-	    JUTPoint(videoInfo.xSize, videoInfo.ySize));
+	JUTPoint position(((u16)SMSGetGameRenderWidth() - videoInfo.xSize) / 2,
+	                  ((u16)SMSGetGameRenderHeight() - videoInfo.ySize) / 2);
+	JUTPoint size(videoInfo.xSize, videoInfo.ySize);
+	thpRender->setParams(position, size);
 
 	DVDChangeDir("/");
 
