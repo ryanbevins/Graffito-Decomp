@@ -913,20 +913,9 @@ void TBossMantaManager::TMantaMessageState::update()
 TBossMantaAdditionalCollisionSet::TBossMantaAdditionalCollisionSet()
     : mOwner(nullptr)
 {
-	for (int i = 0; i < 3; ++i) {
-		TBossMantaAdditionalCollision* collision
+	for (int i = 0; i < 3; ++i)
+		mCollisions[i]
 		    = new TBossMantaAdditionalCollision("マンタ追加コリジョン");
-		if (collision) {
-			collision->initHitActor(0x08000004, 1, 0x80000000, 0.0f,
-			                        0.0f, 0.0f, 0.0f);
-			collision->offHitFlag(HIT_FLAG_NO_COLLISION);
-
-			JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ")
-			    ->getChildren()
-			    .push_back(collision);
-		}
-		mCollisions[i] = collision;
-	}
 }
 #pragma dont_inline on
 void TBossMantaAdditionalCollisionSet::adapt(TBossManta* manta)
@@ -998,6 +987,17 @@ BOOL TBossMantaAdditionalCollision::receiveMessage(THitActor* sender,
 		return false;
 
 	return mOwner->receiveMessage(sender, message);
+}
+TBossMantaAdditionalCollision::TBossMantaAdditionalCollision(const char* name)
+    : THitActor(name)
+    , mOwner(nullptr)
+{
+	initHitActor(0x08000004, 1, 0x80000000, 0.0f, 0.0f, 0.0f, 0.0f);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ")
+	    ->getChildren()
+	    .push_back(this);
 }
 void TBossMantaAdditionalCollision::perform(u32 flags,
                                             JDrama::TGraphics* graphics)

@@ -33,13 +33,8 @@ public:
 
 class TBossMantaAdditionalCollision : public THitActor {
 public:
-	TBossMantaAdditionalCollision(const char* name)
-	    : THitActor(name)
-	    , mOwner(nullptr)
-	{
-	}
+	TBossMantaAdditionalCollision(const char* name);
 
-	virtual ~TBossMantaAdditionalCollision() { }
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor*, u32);
 
