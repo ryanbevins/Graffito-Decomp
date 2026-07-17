@@ -58,7 +58,7 @@ struct TGraphics {
 	/* 0xF4 */ JUtility::TColor mClearColor;
 	/* 0xF8 */ u32 mClearZ;
 	/* 0xFC */ TFlagT<u16> unkFC;
-	/* 0xFE */ TFlagT<u16> unkFE;
+	/* 0xFE */ u16 unkFE;
 };
 
 } // namespace JDrama
