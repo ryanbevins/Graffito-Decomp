@@ -1197,19 +1197,19 @@ void TBossMantaManager::drawMantaShadow(JDrama::TGraphics* graphics)
 }
 void TBossMantaManager::updateMantaEscape()
 {
-	TBossManta::sEscapeFromMario = false;
+	TBossManta::sEscapeFromMario = 0;
 
-	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
-	marioPos.y                     = 0.0f;
+	JGeometry::TVec3<f32> marioPos2 = SMS_GetMarioPos();
+	JGeometry::TVec3<f32> marioPos(marioPos2.x, 0.0f, marioPos2.z);
 
 	for (int i = 0; i < 7; ++i) {
 		if (mPalmPositions[i].distance(marioPos) < 350.0f)
-			TBossManta::sEscapeFromMario = true;
+			TBossManta::sEscapeFromMario = 1;
 	}
 
 	for (int i = 0; i < 2; ++i) {
 		if (mEscapePositions[i].distance(marioPos) < 820.0f)
-			TBossManta::sEscapeFromMario = true;
+			TBossManta::sEscapeFromMario = 1;
 	}
 }
 void TBossMantaManager::perform(u32 flags, JDrama::TGraphics* graphics)
