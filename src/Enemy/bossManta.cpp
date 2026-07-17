@@ -996,8 +996,7 @@ TBossMantaAdditionalCollision::TBossMantaAdditionalCollision(const char* name)
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ")
-	    ->getChildren()
-	    .push_back(this);
+	    ->insert(this);
 }
 void TBossMantaAdditionalCollision::perform(u32 flags,
                                             JDrama::TGraphics* graphics)
