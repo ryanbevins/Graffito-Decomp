@@ -239,14 +239,6 @@ u32 TMovieDirector::decideNextMode(s32* param_1)
 
 int TMovieDirector::direct()
 {
-	static u32 sMovieProbeCount;
-	if ((sMovieProbeCount++ % 60) == 0) {
-		OSReport((char*)"CODEX_MOVIE_LOOP movie=%u state=%d setup=%u fader=%u thp=%d card=%p\n",
-		         gpApplication.getMovie(), unk1C, unk30.get(),
-		         gpApplication.mFader ? gpApplication.mFader->mFadeStatus : 0xff,
-		         THPPlayerGetState(), unk24);
-	}
-
 	if (!unk30.check(0x1)) {
 		if (!OSIsThreadTerminated(&gSetupThread))
 			return 0;
@@ -372,11 +364,6 @@ int TMovieDirector::direct()
 	}
 
 	if (nextState != unk1C) {
-		OSReport((char*)"CODEX_MOVIE_STATE movie=%u old=%d new=%d desired=%d fader=%u thp=%d card=%p\n",
-		         gpApplication.getMovie(), unk1C, nextState,
-		         desiredAppState,
-		         gpApplication.mFader ? gpApplication.mFader->mFadeStatus : 0xff,
-		         THPPlayerGetState(), unk24);
 		switch (nextState) {
 		case STATE_SAVE_TO_TITLE:
 			THPPlayerStop();
