@@ -3,6 +3,7 @@
 
 #include <JSystem/JDrama/JDRViewObj.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
+#include <JSystem/JUtility/JUTPoint.hpp>
 #include <dolphin/gx/GXTransform.h>
 
 #include <MarioUtil/DrawUtil.hpp>
@@ -16,12 +17,12 @@ public:
 
 	s32 getFrameNumber() const { return frameNumber; }
 
-	void setParams(u32 a, u32 b, u32 c, u32 d)
+	void setParams(JUTPoint position, JUTPoint size)
 	{
-		x     = a;
-		y     = b;
-		polyW = c;
-		polyH = d;
+		x     = position.x;
+		y     = position.y;
+		polyW = size.x;
+		polyH = size.y;
 	}
 
 public:
