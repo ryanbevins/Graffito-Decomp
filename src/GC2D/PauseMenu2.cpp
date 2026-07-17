@@ -157,9 +157,7 @@ void TPauseMenu2::appearWindow()
 		}
 
 		s32 alpha = (s32)(unkF4 * unkEC * 1.5f);
-		if (alpha > unkF0) {
-			alpha = unkF0;
-		}
+		alpha = alpha > unkF0 ? unkF0 : alpha;
 		unk18->mAlpha = (u8)alpha;
 	}
 
