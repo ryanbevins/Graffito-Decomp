@@ -906,10 +906,10 @@ void TYoshi::movement()
 		if (mActor->curAnmEndsNext(0, nullptr))
 			mActor->setBckFromIndex(23);
 
-		f32 angle = *(s16*)((u8*)this + 0x70) * (360.0f / 65536.0f);
+		f32 angle = mEggRotSpeed * (360.0f / 65536.0f);
 		SMS_RideMoveByGroundActor(*(TRidingInfo**)((u8*)this + 0x94),
 		                          &mTranslation, &angle);
-		*(s16*)((u8*)this + 0x70) = angle * (65536.0f / 360.0f);
+		mEggRotSpeed = angle * (65536.0f / 360.0f);
 
 		const TBGCheckData* ground;
 		JGeometry::TVec3<f32> trans = mTranslation;
@@ -959,16 +959,16 @@ void TYoshi::movement()
 		break;
 	}
 	case 7: {
-		s16 curAngle = *(s16*)((u8*)this + 0x70);
+		s16 curAngle = mEggRotSpeed;
 		s16 target   = mMario->mFaceAngle.y;
-		*(s16*)((u8*)this + 0x70)
+		mEggRotSpeed
 		    = curAngle + (s16)(*(f32*)((u8*)this + 0xe4)
 		                       * (s16)(target - curAngle));
 		break;
 	}
 	case 8:
 		mTranslation              = mMario->mPosition;
-		*(s16*)((u8*)this + 0x70) = mMario->mFaceAngle.y;
+		mEggRotSpeed             = mMario->mFaceAngle.y;
 
 		if (mMario->mGamePad->mEnabledFrameMeaning & 0x100) {
 			emitTongue();
