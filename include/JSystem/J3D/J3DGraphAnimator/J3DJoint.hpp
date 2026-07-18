@@ -123,6 +123,9 @@ class J3DMtxCalcMaya : public J3DMtxCalcBasic {
 public:
 	virtual ~J3DMtxCalcMaya() { }
 
+#ifdef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+	virtual void init(const Vec& vec, const Mtx& mtx);
+#else
 	virtual void init(const Vec& vec, const Mtx& mtx)
 	{
 		J3DSys::mParentS          = (Vec) { 1.0f, 1.0f, 1.0f };
@@ -140,6 +143,7 @@ public:
 		J3DSys::mCurrentMtx[2][2] = mtx[2][2] * vec.z;
 		J3DSys::mCurrentMtx[2][3] = mtx[2][3];
 	}
+#endif
 	virtual void calcTransform(u16, const J3DTransformInfo&);
 };
 

@@ -1,3 +1,4 @@
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #include <MarioUtil/MtxUtil.hpp>
 
 #include <Camera/Camera.hpp>
