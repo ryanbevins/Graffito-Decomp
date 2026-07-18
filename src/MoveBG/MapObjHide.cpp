@@ -420,6 +420,8 @@ void TWaterHitPictureHideObj::control()
 	case 2:
 		forward(unk158);
 		break;
+	case 3:
+		break;
 	}
 }
 
