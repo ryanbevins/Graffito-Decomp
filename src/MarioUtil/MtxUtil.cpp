@@ -463,33 +463,18 @@ void TRope::collision()
 void TRope::constraintHead(const JGeometry::TVec3<f32>& head)
 {
 	mPoints[0].mPosition = head;
-
 	for (int i = 0; i < (int)mNumPoints - 1; ++i) {
+		TRopePoint& next = mPoints[i + 1];
 		TRopePoint& point = mPoints[i];
-		TRopePoint& next  = mPoints[i + 1];
-
-		Vec dir = next.mPosition;
-		dir.x -= point.mPosition.x;
-		dir.y -= point.mPosition.y;
-		dir.z -= point.mPosition.z;
-		if (dir.x * dir.x + dir.y * dir.y + dir.z * dir.z
-		    <= 0.0000038146973f) {
-			dir.x = 0.0f;
-			dir.y = 1.0f;
-			dir.z = 0.0f;
-		}
-
-		PSVECNormalize(&dir, &dir);
-		f32 length = point.mSegmentLength;
-		dir.x *= length;
-		dir.y *= length;
-		dir.z *= length;
+		JGeometry::TVec3<f32> dir = next.mPosition;
+		dir -= point.mPosition;
+		if (dir.isZero())
+			dir.set(0.0f, 1.0f, 0.0f);
+		VECNormalize(&dir, &dir);
+		dir.scale(point.mSegmentLength);
 		next.mPosition = point.mPosition;
-		next.mPosition.x += dir.x;
-		next.mPosition.y += dir.y;
-		next.mPosition.z += dir.z;
+		next.mPosition.add(dir);
 	}
-
 	collision();
 }
 
