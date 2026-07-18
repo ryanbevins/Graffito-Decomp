@@ -45,7 +45,7 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 {
 	unk60                        = base_npc;
 	const TNpcInitInfo* initData = SMSGetNpcInitData(
-	    base_npc->getActorType() - 0x04000001);
+	    unk60->getActorType() - 0x04000001);
 
 	memset(unk0, 0, sizeof(unk0));
 
