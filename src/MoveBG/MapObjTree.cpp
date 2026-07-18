@@ -166,9 +166,9 @@ int TMapObjTree::controlLeaf(int i)
 	if (leaf.mAngleVel == 0.0f) {
 		if (*gpMarioSpeedY > 0.0f)
 			return 1;
-		Mtx tmp;
-		JGeometry::gekko_ps_copy12(tmp, leaf.mMtx);
-		leaf.mCollision->moveMtx(tmp);
+		TMtx34f mtx;
+		mtx.set(leaf.mMtx);
+		leaf.mCollision->moveMtx(mtx);
 		return 1;
 	}
 
@@ -176,36 +176,21 @@ int TMapObjTree::controlLeaf(int i)
 	leaf.mAngleVel -= leaf.mAngle * mSpring;
 	leaf.mAngleVel *= mDamping;
 
-	Mtx rot;
-	rot[2][3] = 0.0f;
-	rot[1][3] = 0.0f;
-	rot[0][3] = 0.0f;
-	rot[1][2] = 0.0f;
-	rot[0][2] = 0.0f;
-	rot[2][1] = 0.0f;
-	rot[0][1] = 0.0f;
-	rot[2][0] = 0.0f;
-	rot[1][0] = 0.0f;
-	rot[2][2] = 1.0f;
-	Vec axis;
-	axis.x = 1.0f;
-	axis.y = 0.0f;
-	rot[1][1] = 1.0f;
-	rot[0][0] = 1.0f;
-	axis.z = 0.0f;
-	PSMTXRotAxisRad(rot, &axis, leaf.mAngle);
+	TMtx34f rotation;
+	rotation.identity();
+	TMtx34f mtx;
+	JGeometry::TVec3<f32> axis(1.0f, 0.0f, 0.0f);
+	MTXRotAxisRad(rotation, axis, leaf.mAngle);
 
-	Mtx tmp;
-	JGeometry::gekko_ps_copy12(tmp, leaf.mMtx);
-	PSMTXConcat(rot, tmp, tmp);
-
-	int leafIdx = mLeafCount - i;
-	PSMTXCopy(tmp, getModel()->mNodeMatrices[leafIdx]);
+	mtx.set(leaf.mMtx);
+	MTXConcat(mtx, rotation, mtx);
+	getModel()->setAnmMtx(mLeafCount - i, mtx);
 
 	if (*gpMarioSpeedY <= 0.0f)
-		leaf.mCollision->moveMtx(tmp);
+		leaf.mCollision->moveMtx(mtx);
 
-	if (fabsf(leaf.mAngle) < mMarioIsOnRotImpulse)
+	if (fabsf(leaf.mAngle) < mMarioIsOnRotImpulse
+	    && fabsf(leaf.mAngle) < mMarioIsOnRotImpulse)
 		return 1;
 	return 0;
 }
