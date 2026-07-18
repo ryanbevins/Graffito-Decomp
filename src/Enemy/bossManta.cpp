@@ -45,6 +45,23 @@ bool TBossManta::sEscapeFromMario;
 
 static JAISound* sDefeatSE;
 
+namespace {
+
+inline void AttackMario(THitActor* attacker)
+{
+	JGeometry::TVec3<f32> dir;
+	dir.set(SMS_GetMarioPos());
+	dir -= attacker->mPosition;
+	dir.normalize();
+	dir *= 2.0f;
+	dir.y += 1.0f;
+	SMS_SendMessageToMario(attacker, HIT_MESSAGE_ATTACK);
+	SMS_SendMessageToMario(attacker, HIT_MESSAGE_UNK7);
+	SMS_ThrowMario(dir, 60.0f);
+}
+
+} // namespace
+
 static const char* onetimeFilenames[] = {
 	"/scene/manta/jpa/ms_man_dead.jpa",
 	"/scene/manta/jpa/ms_man_div1.jpa",
@@ -494,15 +511,7 @@ void TBossManta::moveObject()
 		if (!other->isActorType(ACTOR_TYPE_PLAYER | 1))
 			continue;
 
-		JGeometry::TVec3<f32> dir = *gpMarioPos;
-		dir.sub(mPosition);
-		dir.normalize();
-
-		dir.scale(2.0f);
-		dir.y += 1.0f;
-		SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
-		SMS_SendMessageToMario(this, HIT_MESSAGE_UNK7);
-		SMS_ThrowMario(dir, 60.0f);
+		AttackMario(this);
 	}
 }
 
@@ -1011,15 +1020,7 @@ void TBossMantaAdditionalCollision::perform(u32 flags,
 		if (!other->isActorType(ACTOR_TYPE_PLAYER | 1))
 			continue;
 
-		JGeometry::TVec3<f32> dir = *gpMarioPos;
-		dir.sub(mPosition);
-		dir.normalize();
-
-		dir.scale(2.0f);
-		dir.y += 1.0f;
-		SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
-		SMS_SendMessageToMario(this, HIT_MESSAGE_UNK7);
-		SMS_ThrowMario(dir, 60.0f);
+		AttackMario(this);
 	}
 }
 TBossMantaManager::TBossMantaManager(const char* name)
