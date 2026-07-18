@@ -180,7 +180,7 @@ int TMapObjTree::controlLeaf(int i)
 	rotation.identity();
 	TMtx34f mtx;
 	JGeometry::TVec3<f32> axis(1.0f, 0.0f, 0.0f);
-	MTXRotAxisRad(rotation, axis, leaf.mAngle);
+	PSMTXRotAxisRad(rotation, axis, leaf.mAngle);
 
 	mtx.set(leaf.mMtx);
 	MTXConcat(mtx, rotation, mtx);
