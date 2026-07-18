@@ -334,7 +334,7 @@ void TMultiMtxEffect::setup(J3DModel* model, const char* prmLocation)
 		}
 		}
 	}
-	for (u16 i = 0; i < mNumBones; ++i) {
+	for (int i = 0; i < mNumBones; ++i) {
 		mMtxEffectTbl[i]->mFlags |= 2;
 	}
 }
