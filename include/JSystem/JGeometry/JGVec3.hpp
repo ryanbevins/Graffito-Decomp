@@ -56,12 +56,14 @@ public:
 
 	explicit TVec3(f32 value) { setAll(value); }
 
+#ifndef JGEOMETRY_TVEC3_IMPLICIT_COPY_CTOR
 	TVec3(const TVec3& other)
 	{
 		// NOTE: yes, this has to use lwz/stw and not lfs/stf.
 		// Checked via MarioCollision.cpp where this is not inlined
 		*(Vec*)this = *(Vec*)&other;
 	}
+#endif
 
 	TVec3& operator=(const TVec3& other)
 	{
