@@ -66,8 +66,7 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 			if (subIdx >= unk60->mManager->unk28)
 				break;
 
-			const char* jointName
-			    = subIdx == 0 ? modelData->unk0 : modelData->unk4;
+			const char* jointName = modelData->unk0[subIdx];
 			const char* partsName = modelData->unk8[subIdx];
 			if (partsName == nullptr)
 				continue;

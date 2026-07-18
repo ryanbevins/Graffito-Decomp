@@ -24,8 +24,7 @@ struct TNpcModelDataEntry {
 
 // fabricated
 struct TNpcModelData {
-	/* 0x0 */ const char* unk0;
-	/* 0x4 */ const char* unk4;
+	/* 0x0 */ const char* unk0[2];
 	/* 0x8 */ const char* unk8[2];
 	/* 0x10 */ TNpcModelDataEntry unk10[3];
 	/* 0x28 */ s16 unk28;
