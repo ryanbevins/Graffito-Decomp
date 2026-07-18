@@ -6,6 +6,7 @@
 #include <Player/MarioAccess.hpp>
 #include <MarioUtil/ModelUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorAnm.hpp>
 #include <M3DUtil/MActorData.hpp>
@@ -45,6 +46,25 @@ static const char* MtxCalcTypeName_User
     = "MActorMtxCalcType_User ユーザー定義";
 
 static void* gpCurObject;
+
+template <typename T> class TMsRange {
+public:
+	TMsRange(T min, T max)
+	    : mMin(min)
+	    , mMax(max)
+	{
+	}
+
+	T rand() const
+	{
+		T range = mMax - mMin;
+		return mMin + (T)((f32)range * MsRandF());
+	}
+
+private:
+	T mMin;
+	T mMax;
+};
 
 static int partsRollCallback(J3DNode* node, int param)
 {
@@ -1191,23 +1211,17 @@ void TItemSlotDrum::calcRootMatrix()
 }
 u32 TItemSlotDrum::touchWater(THitActor* sender)
 {
-	if (unk194 == 0 && unk1A2 != 0) {
-		s32 lo = 100;
-		s32 hi = 150;
-		s32 range = hi - lo;
-		unk1A4 = lo
-		    + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)range);
-		for (s32 i = 0; i < unk148; ++i) {
-			*((u8*)this + 0x19F + i) = 1;
-			*((u8*)this + 0x19C + i) = 0;
-			f32 lo2 = 0.5f;
-			f32 hi2 = 0.8f;
-			f32 spread = hi2 - lo2;
-			unk138[i] = unk158
-			    * (lo2 + spread * ((f32)rand() * (1.0f / 32768.0f)));
-		}
-		unk1A2 = 0;
+	if (unk194 || !unk1A2)
+		return 1;
+
+	unk1A4 = TMsRange<s32>(100, 150).rand();
+	for (s32 i = 0; i < unk148; ++i) {
+		*((u8*)this + 0x19F + i) = 1;
+		*((u8*)this + 0x19C + i) = 0;
+		unk138[i] = unk158 * TMsRange<f32>(0.5f, 0.8f).rand();
 	}
+	unk1A2 = 0;
+
 	return 1;
 }
 void TItemSlotDrum::generateItem()
