@@ -15,7 +15,7 @@ public:
 	/* 0x00 */ f32 mAngle;
 	/* 0x04 */ f32 mAngleVel;
 	/* 0x08 */ TMapCollisionMove* mCollision;
-	/* 0x0C */ Mtx mMtx;
+	/* 0x0C */ TMtx34f mMtx;
 };
 
 class TMapObjTree : public TMapObjGeneral {

@@ -36,13 +36,11 @@ f32 TMapObjTreeScale::mScaleMin           = 0.1f;
 //
 
 TMapObjLeaf::TMapObjLeaf()
+    : mAngle(0.0f)
+    , mAngleVel(0.0f)
+    , mCollision(nullptr)
 {
-	mAngle    = 0.0f;
-	mAngleVel = 0.0f;
-	mCollision = nullptr;
-	mMtx[1][0] = mMtx[2][0] = mMtx[0][1] = mMtx[2][1] = mMtx[0][2] = mMtx[1][2]
-	    = mMtx[0][3] = mMtx[1][3] = mMtx[2][3] = 0.0f;
-	mMtx[0][0] = mMtx[1][1] = mMtx[2][2] = 1.0f;
+	mMtx.identity();
 	mCollision = new TMapCollisionMove();
 }
 
