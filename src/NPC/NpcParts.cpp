@@ -50,15 +50,14 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 	memset(unk0, 0, sizeof(unk0));
 
 	for (int level = 0; level < 12; level++) {
-		const TNpcModelData* modelData = initData->unk4[level];
-		if (modelData == nullptr)
+		if (initData->unk4[level] == nullptr)
 			continue;
 		if ((mask & (1 << level)) == 0)
 			continue;
 
 		const GXColor* pollutionColor = nullptr;
-		s16 unifyIdx                  = ((s16*)color_info)[modelData->unk28];
-		if (modelData->unk2A) {
+		s16 unifyIdx = ((s16*)color_info)[initData->unk4[level]->unk28];
+		if (initData->unk4[level]->unk2A) {
 			pollutionColor = unk60->getPtrInitPollutionColor();
 		}
 
@@ -66,8 +65,8 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 			if (subIdx >= unk60->mManager->unk28)
 				break;
 
-			const char* jointName = modelData->unk0[subIdx];
-			const char* partsName = modelData->unk8[subIdx];
+			const char* jointName = initData->unk4[level]->unk0[subIdx];
+			const char* partsName = initData->unk4[level]->unk8[subIdx];
 			if (partsName == nullptr)
 				continue;
 
@@ -90,7 +89,7 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 			    unk60, index, sdlData, 3, "<TSharedParts>");
 			unk0[subIdx][level] = parts;
 
-			if (modelData->unk2B) {
+			if (initData->unk4[level]->unk2B) {
 				SMS_UnifyMaterial(parts->unk18->getModel());
 			}
 
@@ -152,7 +151,7 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 
 			for (int ci = 0; ci < 3; ci++) {
 				const TColorChangeInfo* colorInfo
-				    = modelData->unk10[ci].unk0;
+				    = initData->unk4[level]->unk10[ci].unk0;
 				if (colorInfo != nullptr) {
 					SMS_InitChangeNpcColor(parts->unk18,
 					    colorInfo, unifyIdx, pollutionColor);
