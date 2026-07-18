@@ -85,12 +85,12 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 			    ((TNPCManager*)unk60->mManager)
 			        ->getPartsSDLModelData(partsName);
 
-			TSharedParts* parts = new TSharedParts(
+			unk0[subIdx][level] = new TSharedParts(
 			    unk60, index, sdlData, 3, "<TSharedParts>");
-			unk0[subIdx][level] = parts;
 
 			if (initData->unk4[level]->unk2B) {
-				SMS_UnifyMaterial(parts->unk18->getModel());
+				SMS_UnifyMaterial(
+				    unk0[subIdx][level]->unk18->getModel());
 			}
 
 			u32 actorType = unk60->getActorType();
@@ -98,7 +98,7 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 			case 0x04000018: // Peach
 				if (subIdx == 0
 				    && (level == 3 || level == 4)) {
-					J3DModelData* mdataPart = parts->unk18
+					J3DModelData* mdataPart = unk0[subIdx][level]->unk18
 					    ->getModel()->getModelData();
 					J3DModelData* mdataBase = unk60->getModel()
 					    ->getModelData();
@@ -109,7 +109,7 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 					    cPeachPartsTextureName,
 					    mdataBase->getTexture()
 					        ->mResources[peachHostIdx]);
-					parts->unk18->initDL();
+					unk0[subIdx][level]->unk18->initDL();
 				}
 				if (subIdx == 0
 				    && (level == 0
@@ -119,8 +119,9 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 						bckIdx = TBaseNPC::mPtrSaveNormal
 						    ->mMotionBlendFrame.get();
 					}
-					if (parts->unk18->getAnmBck() != nullptr) {
-						parts->unk18->getAnmBck()
+					if (unk0[subIdx][level]->unk18->getAnmBck()
+					    != nullptr) {
+						unk0[subIdx][level]->unk18->getAnmBck()
 						    ->initSimpleMotionBlend(bckIdx);
 					}
 				}
@@ -128,8 +129,9 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 			case 0x04000010: // Sunflower
 				if (subIdx == 0 && level == 9) {
 					int bckIdx = 0x14;
-					if (parts->unk18->getAnmBck() != nullptr) {
-						parts->unk18->getAnmBck()
+					if (unk0[subIdx][level]->unk18->getAnmBck()
+					    != nullptr) {
+						unk0[subIdx][level]->unk18->getAnmBck()
 						    ->initSimpleMotionBlend(bckIdx);
 					}
 				}
@@ -141,8 +143,9 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 						bckIdx = TBaseNPC::mPtrSaveNormal
 						    ->mMotionBlendFrame.get();
 					}
-					if (parts->unk18->getAnmBck() != nullptr) {
-						parts->unk18->getAnmBck()
+					if (unk0[subIdx][level]->unk18->getAnmBck()
+					    != nullptr) {
+						unk0[subIdx][level]->unk18->getAnmBck()
 						    ->initSimpleMotionBlend(bckIdx);
 					}
 				}
@@ -153,15 +156,16 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 				const TColorChangeInfo* colorInfo
 				    = initData->unk4[level]->unk10[ci].unk0;
 				if (colorInfo != nullptr) {
-					SMS_InitChangeNpcColor(parts->unk18,
+					SMS_InitChangeNpcColor(unk0[subIdx][level]->unk18,
 					    colorInfo, unifyIdx, pollutionColor);
 				}
 			}
 
 			if (pollutionColor != nullptr) {
-				J3DModelData* mdata = parts->unk18->getModel()
+				J3DModelData* mdata = unk0[subIdx][level]->unk18->getModel()
 				    ->getModelData();
-				J3DModel* model = parts->unk18->getModel();
+				J3DModel* model
+				    = unk0[subIdx][level]->unk18->getModel();
 				u16 numMaterials = mdata->getMaterialNum();
 				for (u16 ki = 0; ki < numMaterials; ki++) {
 					J3DMaterial* mat
@@ -175,7 +179,7 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 					}
 				}
 			}
-			parts->unk18->setLightType(1);
+			unk0[subIdx][level]->unk18->setLightType(1);
 		}
 	}
 }
