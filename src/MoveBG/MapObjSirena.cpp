@@ -1334,36 +1334,35 @@ void TItemSlotDrum::generateItem()
 }
 int TItemSlotDrum::getForcastResult(int idx)
 {
-	f32 ang = unk13C[idx];
-	f32 cur = unk138[idx];
-	s32 angInt;
-	while (true) {
-		while (fabsf(cur) > unk160) {
-			ang += cur;
-			if (cur > 0.0f)
-				cur -= unk15C;
+	f32 angle = unk13C[idx];
+	f32 speed = unk138[idx];
+	for (;;) {
+		if (fabsf(speed) > unk160) {
+			angle += speed;
+			if (speed > 0.0f)
+				speed -= unk15C;
 			else
-				cur += unk15C;
-			if (ang >= 360.0f)
-				ang -= 360.0f;
-			if (ang < 0.0f)
-				ang += 360.0f;
+				speed += unk15C;
+			if (angle >= 360.0f)
+				angle -= 360.0f;
+			if (angle <= 0.0f)
+				angle += 360.0f;
+		} else {
+			angle += speed;
+			if (angle >= 360.0f)
+				angle -= 360.0f;
+			if (angle <= 0.0f)
+				angle += 360.0f;
+			if ((int)fabsf(angle) % unk168 == 0)
+				break;
 		}
-		ang += cur;
-		if (ang >= 360.0f)
-			ang -= 360.0f;
-		if (ang < 0.0f)
-			ang += 360.0f;
-		angInt = (s32)fabsf(ang);
-		if ((angInt % unk168) == 0)
-			break;
 	}
-	f32 floorStep = (f32)((s32)(ang / (f32)unk168) * unk168);
-	if (floorStep < 89.0f)
+	f32 resultAngle = (f32)(unk168 * (int)(angle / (f32)unk168));
+	if (resultAngle < 89.0f)
 		return 0;
-	if (floorStep < 179.0f)
+	if (resultAngle < 179.0f)
 		return 1;
-	if (floorStep < 269.0f)
+	if (resultAngle < 269.0f)
 		return 2;
 	return 3;
 }
