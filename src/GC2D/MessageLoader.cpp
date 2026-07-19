@@ -14,10 +14,12 @@ TMessageLoader::TMessageLoader(const char* param_1)
 {
 	u8* res = (u8*)JKRGetResource(param_1);
 	if (res) {
-		u32 a;
-		u32 b;
-		readHeader(&a, &b, res);
-		unk4 = parseBlock(a, b, res + 0x20);
+		struct HeaderInfo {
+			u32 size;
+			u32 count;
+		} header;
+		readHeader(&header.size, &header.count, res);
+		unk4 = parseBlock(header.size, header.count, res + 0x20);
 		// NOTE: assert but in an if?
 		if (unk4)
 			(void)unk4;
