@@ -566,10 +566,11 @@ void TShine::control()
 		f32 lightY        = nodeMatrices[2][1][3];
 		f32 lightZ        = nodeMatrices[2][2][3];
 		TLightWithDBSetManager* light = gpLightManager;
-		light->unk18.r                = 0xFF;
-		light->unk18.g                = 0xFF;
-		light->unk18.b                = 0xFF;
-		light->unk18.a                = 0xFF;
+		GXColor color                 = { 0xFF, 0xFF, 0xFF, 0xFF };
+		light->unk18.r                = color.r;
+		light->unk18.g                = color.g;
+		light->unk18.b                = color.b;
+		light->unk18.a                = color.a;
 		light->unk54                  = 1;
 		light->unk1C.x                = lightX;
 		light->unk1C.y                = lightY;
