@@ -267,11 +267,13 @@ MActor* TNpcParts::getPartsMActor(int joint, int layer)
 
 void TNpcParts::partsFrameUpdate()
 {
+	int i                = 0;
 	TSharedParts** parts = &unk0[unk60->unkD0->unk8][0];
-	for (int i = 0; i < 12; i++) {
-		if (parts[i] != nullptr) {
-			parts[i]->unk18->frameUpdate();
+	for (; i < 12; i++) {
+		if (*parts != nullptr) {
+			(*parts)->unk18->frameUpdate();
 		}
+		parts++;
 	}
 }
 
