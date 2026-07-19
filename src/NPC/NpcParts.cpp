@@ -282,8 +282,8 @@ void TNpcParts::partsPerform(u32 flag, JDrama::TGraphics* graphics)
 	u32 doTexMtx         = flag & 2;
 	TSharedParts** parts = &unk0[unk60->unkD0->unk8][0];
 
-	for (int i = 0; i < 12; i++) {
-		if (parts[i] == nullptr)
+	for (int i = 0; i < 12; i++, parts++) {
+		if (*parts == nullptr)
 			continue;
 
 		if (unk60->getActorType() == 0x04000018) {
@@ -320,7 +320,7 @@ void TNpcParts::partsPerform(u32 flag, JDrama::TGraphics* graphics)
 		if (doTexMtx) {
 			if (unk60->isJellyFishMare() && i == 11) {
 				Mtx effectMtx;
-				MActor* mactor = parts[i]->unk18;
+				MActor* mactor = (*parts)->unk18;
 				SMS_GetLightPerspectiveForEffectMtx(effectMtx);
 				J3DModelData* mdata = mactor->getModel()
 				    ->getModelData();
@@ -337,6 +337,6 @@ void TNpcParts::partsPerform(u32 flag, JDrama::TGraphics* graphics)
 			}
 		}
 
-		parts[i]->perform(flag, graphics);
+		(*parts)->perform(flag, graphics);
 	}
 }
