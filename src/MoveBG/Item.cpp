@@ -1150,10 +1150,11 @@ void TEggYoshi::load(JSUMemoryInputStream& stream)
 	unk148 = SMS_MakeMActorWithAnmData(
 	    "/scene/mapObj/eggYoshi_fukidashi.bmd",
 	    mManager->getMActorAnmData(), 3, 0x10210000);
-	PSMTXCopy(getModel()->mNodeMatrices[0], unk148->getModel()->getBaseTRMtx());
+	MtxPtr modelMtx = getModel()->mNodeMatrices[0];
+	PSMTXCopy(modelMtx, unk148->getModel()->getBaseTRMtx());
 	unk148->setBck("eggyoshi_fukidashi_wait");
 	unk148->setBtp("eggyoshi_fukidashi");
-	unk148->getFrameCtrl(3)->setFrame(0.0f);
+	unk148->getFrameCtrl(3)->setRate(0.0f);
 	decideRandomLoveFruit();
 
 	if (!isState(0xE))
