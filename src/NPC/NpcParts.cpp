@@ -326,7 +326,7 @@ void TNpcParts::partsPerform(u32 flag, JDrama::TGraphics* graphics)
 				    ->getModelData();
 				int starglowIdx
 				    = mdata->getMaterialName()->getIndex("_starglow1");
-				u16 numTexMtx = mdata->getMaterialNum();
+				int numTexMtx = mdata->getMaterialNum();
 				for (u16 j = 0; j < numTexMtx; j++) {
 					if ((int)j == starglowIdx)
 						continue;
