@@ -88,8 +88,7 @@ void TMapObjTree::initMapObj()
 		leaf.mCollision->setAllData(i);
 		leaf.mCollision->remove();
 		int leafIdx = mLeafCount - i;
-		JGeometry::gekko_ps_copy12(
-		    leaf.mMtx, getModel()->mNodeMatrices[leafIdx]);
+		leaf.mMtx.set(getModel()->getAnmMtx(leafIdx));
 		PSMTXCopy(leaf.mMtx, leaf.mCollision->unk20);
 		leaf.mCollision->setUp();
 	}
