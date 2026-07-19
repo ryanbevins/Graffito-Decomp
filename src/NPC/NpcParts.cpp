@@ -96,8 +96,8 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 			u32 actorType = unk60->getActorType();
 			switch (actorType) {
 			case 0x04000018: // Peach
-				if (subIdx == 0
-				    && (level == 3 || level == 4)) {
+				if (subIdx != 0
+				    || (level != 3 && level != 4)) {
 					J3DModelData* mdataPart = unk0[subIdx][level]->unk18
 					    ->getModel()->getModelData();
 					J3DModelData* mdataBase = unk60->getModel()
