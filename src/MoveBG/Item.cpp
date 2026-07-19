@@ -1427,10 +1427,10 @@ TNozzleBox::TNozzleBox(const char* name)
     , unk154(0.0f)
     , unk158(0)
     , unk15C(TRUE)
-    , unk15E(0xFF)
-    , unk160(0xFF)
-    , unk162(0xFF)
-    , unk164(100)
     , unk166(FALSE)
 {
+	unk15E = 0xFF;
+	unk160 = 0xFF;
+	unk162 = 0xFF;
+	unk164 = 100;
 }
