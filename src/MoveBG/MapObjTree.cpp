@@ -164,11 +164,11 @@ int TMapObjTree::controlLeaf(int i)
 {
 	TMapObjLeaf& leaf = mLeaves[i];
 	if (leaf.mAngleVel == 0.0f) {
-		if (*gpMarioSpeedY > 0.0f)
-			return 1;
-		TMtx34f mtx;
-		mtx.set(leaf.mMtx);
-		leaf.mCollision->moveMtx(mtx);
+		if (*gpMarioSpeedY <= 0.0f) {
+			TMtx34f mtx;
+			mtx.set(leaf.mMtx);
+			leaf.mCollision->moveMtx(mtx);
+		}
 		return 1;
 	}
 
