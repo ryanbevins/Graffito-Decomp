@@ -79,7 +79,8 @@ void TMapObjTree::initMapObj()
 	for (int i = 0; i < mLeafCount; i++) {
 		TMapObjLeaf& leaf = mLeaves[i];
 		leaf.mCollision = new TMapCollisionMove();
-		if (mActorType == 0x40000038) {
+		bool isPalm = (mActorType == 0x40000038) ? true : false;
+		if (isPalm) {
 			snprintf(buf, 0x100, "/mapObj/palmLeaf%02d", i + 1);
 		} else {
 			snprintf(buf, 0x100, "/mapObj/%sLeaf%02d", unkF4, i + 1);
@@ -89,8 +90,9 @@ void TMapObjTree::initMapObj()
 		leaf.mCollision->remove();
 		int leafIdx = mLeafCount - i;
 		leaf.mMtx.set(getModel()->getAnmMtx(leafIdx));
-		PSMTXCopy(leaf.mMtx, leaf.mCollision->unk20);
-		leaf.mCollision->setUp();
+		TMapCollisionMove* collision = leaf.mCollision;
+		PSMTXCopy(leaf.mMtx, collision->unk20);
+		collision->setUp();
 	}
 	if (mMapCollisionManager != nullptr)
 		mMapCollisionManager->unk10 = nullptr;
