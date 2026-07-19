@@ -701,14 +701,14 @@ BOOL TShine::receiveMessage(THitActor*, u32)
 
 	if (SMS_IsMarioOnYoshi()) {
 		if (unk1B4)
-			mMActor->setBck("shine_empty_demo_shine_get_yo");
+			getMActor()->setBck("shine_empty_demo_shine_get_yo");
 		else
-			mMActor->setBck("shine_demo_shine_get_yo");
+			getMActor()->setBck("shine_demo_shine_get_yo");
 	} else {
 		if (unk1B4)
-			mMActor->setBck("shine_empty_demo_shine_get");
+			getMActor()->setBck("shine_empty_demo_shine_get");
 		else
-			mMActor->setBck("shine_demo_shine_get");
+			getMActor()->setBck("shine_demo_shine_get");
 	}
 
 	unk1A8 = 0.5f;
