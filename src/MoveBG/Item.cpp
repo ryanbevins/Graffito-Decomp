@@ -689,9 +689,10 @@ void TShine::perform(u32 flags, JDrama::TGraphics* graphics)
 BOOL TShine::receiveMessage(THitActor*, u32)
 {
 	offMapObjFlag(0x8000000);
-	mPosition.x = gpMarioPos->x;
-	mPosition.y = gpMarioPos->y;
-	mPosition.z = gpMarioPos->z;
+	JGeometry::TVec3<f32>* marioPos = gpMarioPos;
+	mPosition.x = marioPos->x;
+	mPosition.y = marioPos->y;
+	mPosition.z = marioPos->z;
 	mRotation.y = ((f32)*gpMarioAngleY * 180.0f) / 32768.0f;
 
 	MsMtxSetXYZRPH(getModel()->getBaseTRMtx(), mPosition.x,
