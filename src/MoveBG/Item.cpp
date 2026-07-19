@@ -1370,7 +1370,10 @@ void TNozzleBox::load(JSUMemoryInputStream& stream)
 
 	char valid[32];
 	stream.readString(valid, sizeof(valid));
-	unk15C = strcmp(valid, "valid") == 0 ? TRUE : FALSE;
+	if (strcmp(valid, "valid") == 0)
+		unk15C = TRUE;
+	else
+		unk15C = FALSE;
 
 	if (strcmp(unk158, "normal_nozzle_item") == 0) {
 		unk148 = 4;
