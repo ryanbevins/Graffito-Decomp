@@ -582,7 +582,7 @@ void TShine::control()
 	case 0xB:
 		if (isLifeTimerActive())
 			return;
-		unkF8 &= 0xF800FEFF;
+		unkF8 &= 0xF7FFFEFF;
 		mLifeTimer = unk170;
 		mState     = 0xC;
 		break;
