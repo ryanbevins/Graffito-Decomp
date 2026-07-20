@@ -1,3 +1,5 @@
+#define JGEOMETRY_DRAWUTIL_OWNER_HELPERS
+#define JGEOMETRY_TVEC3_IMPLICIT_COPY_CTOR
 #include <System/TalkCursor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
@@ -37,7 +39,7 @@ void TTalkCursor::perform(u32 flags, JDrama::TGraphics* gfx)
 void TTalkCursor::associateNPC(TBaseNPC* npc)
 {
 	if (npc) {
-		Vec pos = npc->getCursorPos();
+		JGeometry::TVec3<f32> pos = npc->getCursorPos();
 		TPosition3f mtx;
 		mtx.translation(pos.x, pos.y, pos.z);
 		PSMTXCopy(mtx, unk10->getModel()->unk20);
