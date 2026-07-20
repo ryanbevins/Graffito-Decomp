@@ -112,8 +112,8 @@ void TDebuTelesaManager::load(JSUMemoryInputStream& stream)
 	params->mSLAttackHeight.set(0x14A);
 	params->mSLDamageRadius.set(0xDC);
 	params->mSLDamageHeight.set(0x12C);
-	params->unk2CC = 1.0f;
-	params->unk2D0 = 1.0f;
+	params->mBodyScaleRange.mMin = 1.0f;
+	params->mBodyScaleRange.mMax = 1.0f;
 
 	TSmallEnemyManager::load(stream);
 	unk5C = 0;

@@ -27,4 +27,35 @@ inline int MsRandI(int l, int r)
 	return 1 + l + rnd;
 }
 
+// A random-in-range helper. Only ever used fully inlined, so the only trace
+// left in the binary is the unused destructors for its instantiated types.
+template <typename T> class TMsRange {
+public:
+	TMsRange(T min, T max)
+	    : mMin(min)
+	    , mMax(max)
+	{
+	}
+
+	void set(T min, T max)
+	{
+		mMin = min;
+		mMax = max;
+	}
+
+	T rand() const
+	{
+		T range = mMax - mMin;
+		return mMin + (T)(range * MsRandF());
+	}
+
+	// This is real and required. Making the type non-trivial prevents MWCC
+	// from scalar-replacing it across opaque calls, matching target reloads.
+	~TMsRange() { }
+
+public:
+	/* 0x0 */ T mMin;
+	/* 0x4 */ T mMax;
+};
+
 #endif

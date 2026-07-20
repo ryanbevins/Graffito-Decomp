@@ -58,16 +58,6 @@ u8 TSmallEnemyManager::mTestJuiceType    = 0;
 bool TSmallEnemy::mIsPolluter    = true;
 bool TSmallEnemy::mIsAmpPolluter = true;
 
-// Picks a uniform random value in [lo, hi]. Written with the intermediate
-// product split out so the compiler emits fmuls + fadds (matching the
-// original) instead of contracting to a fused fmadds like MsRandF(l, r) does.
-static inline f32 smallEnemyRandRange(f32 lo, f32 hi)
-{
-	f32 range = hi - lo;
-	f32 r     = range * MsRandF();
-	return lo + r;
-}
-
 TSmallEnemyParams::TSmallEnemyParams(const char* name)
     : TSpineEnemyParams(name)
     , PARAM_INIT(mSLJumpForce, 10.0f)
@@ -97,17 +87,15 @@ TSmallEnemyParams::TSmallEnemyParams(const char* name)
     , PARAM_INIT(mSLStampRange, 5)
     , PARAM_INIT(mSLPolluteInterval, 60)
     , PARAM_INIT(mSLGenerateOnlyDead, 0)
-    , unk2C4(0.0f)
-    , unk2C8(1.0f)
-    , unk2CC(0.0f)
-    , unk2D0(1.0f)
+    , mTurnSpeedRange(0.0f, 1.0f)
+    , mBodyScaleRange(0.0f, 1.0f)
 {
 	TParams::load(mPrmPath);
 
-	unk2C4 = mSLTurnSpeedLow.get();
-	unk2C8 = mSLTurnSpeedHigh.get();
-	unk2CC = mSLBodyScaleLow.get();
-	unk2D0 = mSLBodyScaleHigh.get();
+	mTurnSpeedRange.mMin = mSLTurnSpeedLow.get();
+	mTurnSpeedRange.mMax = mSLTurnSpeedHigh.get();
+	mBodyScaleRange.mMin = mSLBodyScaleLow.get();
+	mBodyScaleRange.mMax = mSLBodyScaleHigh.get();
 }
 
 TSmallEnemyManager::TSmallEnemyManager(const char* name)
@@ -189,10 +177,10 @@ void TSmallEnemy::init(TLiveManager* param_1)
 	unk158 = 1.0f;
 
 	TSmallEnemyParams* params1 = getSaveParam2();
-	mTurnSpeed                 = smallEnemyRandRange(params1->unk2C4, params1->unk2C8);
+	mTurnSpeed                 = params1->mTurnSpeedRange.rand();
 
 	TSmallEnemyParams* params2 = getSaveParam2();
-	mBodyScale                 = smallEnemyRandRange(params2->unk2CC, params2->unk2D0);
+	mBodyScale                 = params2->mBodyScaleRange.rand();
 
 	unk154            = mBodyScale;
 	mBodyRadius       = getSaveParam2()->mSLBodyRadius.get();
@@ -267,10 +255,10 @@ void TSmallEnemy::reset()
 	TSpineEnemy::reset();
 
 	TSmallEnemyParams* params1 = getSaveParam2();
-	mTurnSpeed                 = smallEnemyRandRange(params1->unk2C4, params1->unk2C8);
+	mTurnSpeed                 = params1->mTurnSpeedRange.rand();
 
 	TSmallEnemyParams* params2 = getSaveParam2();
-	mBodyScale                 = smallEnemyRandRange(params2->unk2CC, params2->unk2D0);
+	mBodyScale                 = params2->mBodyScaleRange.rand();
 
 	unk190 = unk154 = mBodyScale;
 

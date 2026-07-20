@@ -382,8 +382,8 @@ void TRollEnemy::reset()
 	gpCurRollEnemy = this;
 	TWalkerEnemy::reset();
 
-	FakeRandInterval randAngle(0.0f, 360.0f);
-	unk194 = randAngle.get();
+	TMsRange<f32> randAngle(0.0f, 360.0f);
+	unk194 = randAngle.rand();
 	unk158 = 1.0f;
 
 	JGeometry::TVec3<f32> point;

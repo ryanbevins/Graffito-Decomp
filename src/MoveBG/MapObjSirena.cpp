@@ -47,24 +47,6 @@ static const char* MtxCalcTypeName_User
 
 static void* gpCurObject;
 
-template <typename T> class TMsRange {
-public:
-	TMsRange(T min, T max)
-	    : mMin(min)
-	    , mMax(max)
-	{
-	}
-
-	T rand() const
-	{
-		T range = mMax - mMin;
-		return mMin + (T)((f32)range * MsRandF());
-	}
-
-private:
-	T mMin;
-	T mMax;
-};
 
 static int partsRollCallback(J3DNode* node, int param)
 {
