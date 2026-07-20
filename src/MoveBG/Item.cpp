@@ -560,7 +560,7 @@ void TShine::control()
 
 		if (gpMSound->gateCheck(0x81C1))
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x81C1, mPosition, 0, nullptr, 0, 4);
+			    0x81C1, &mPosition, 0, nullptr, 0, 4);
 
 		Mtx* nodeMatrices = mMActor->getModel()->mNodeMatrices;
 		f32 lightX        = nodeMatrices[2][0][3];
@@ -589,7 +589,7 @@ void TShine::control()
 	case 0xC:
 		if (gpMSound->gateCheck(0x81C1))
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x81C1, mPosition, 0, nullptr, 0, 4);
+			    0x81C1, &mPosition, 0, nullptr, 0, 4);
 
 		mPosition.y += mUpSpeed;
 		if (isLifeTimerActive())
@@ -607,7 +607,7 @@ void TShine::control()
 	case 0xE:
 		if (gpMSound->gateCheck(0x81C1))
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x81C1, mPosition, 0, nullptr, 0, 4);
+			    0x81C1, &mPosition, 0, nullptr, 0, 4);
 
 		mPosition.y -= mUpSpeed;
 		if (isLifeTimerActive())
@@ -620,13 +620,13 @@ void TShine::control()
 	case 0xD:
 		if (gpMSound->gateCheck(0x81C1))
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x81C1, mPosition, 0, nullptr, 0, 4);
+			    0x81C1, &mPosition, 0, nullptr, 0, 4);
 		movingCircle();
 		break;
 	case 0xF:
 		if (gpMSound->gateCheck(0x81C1))
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x81C1, mPosition, 0, nullptr, 0, 4);
+			    0x81C1, &mPosition, 0, nullptr, 0, 4);
 
 		if (mPosition.y > mInitialPosition.y) {
 			mPosition.y += unk188;
@@ -658,7 +658,7 @@ void TShine::control()
 
 		if (gpMSound->gateCheck(0x81C1))
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x81C1, mPosition, 0, nullptr, 0, 4);
+			    0x81C1, &mPosition, 0, nullptr, 0, 4);
 		break;
 	case 0x12: {
 		CPolarSubCamera* camera = gpCamera;
