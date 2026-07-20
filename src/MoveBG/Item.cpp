@@ -824,10 +824,11 @@ void TShine::appearWithDemo(const char* camera_name)
 	JDrama::TNameRef* camera
 	    = JDrama::TNameRefGen::search<JDrama::TNameRef>(camera_name);
 	unk18C = *(u32*)((u8*)camera + 0x2C);
+	JDrama::TFlagT<u16> flag(0);
 
 	gpMarDirector->fireStartDemoCamera(
 	    camera_name, &mPosition, -1, 0.0f, true, appearWithTimeCallback,
-	    (u32)this, nullptr, JDrama::TFlagT<u16>(0));
+	    (u32)this, nullptr, flag);
 }
 
 void TShine::kill()
