@@ -675,7 +675,7 @@ void TShine::control()
 		unk18C = *(u32*)((u8*)cameraRef + 0x2C);
 		gpMarDirector->fireStartDemoCamera(
 		    "シャイン（いききなり出現）カメラ", &mPosition, -1, 0.0f, true,
-		    appearWithTimeCallback, 0, this, JDrama::TFlagT<u16>(0));
+		    appearWithTimeCallback, (u32)this, nullptr, JDrama::TFlagT<u16>(0));
 		mState = 0x11;
 		break;
 	}
@@ -826,8 +826,8 @@ void TShine::appearWithDemo(const char* camera_name)
 	unk18C = *(u32*)((u8*)camera + 0x2C);
 
 	gpMarDirector->fireStartDemoCamera(
-	    camera_name, &mPosition, -1, 0.0f, true, appearWithTimeCallback, 0, this,
-	    JDrama::TFlagT<u16>(0));
+	    camera_name, &mPosition, -1, 0.0f, true, appearWithTimeCallback,
+	    (u32)this, nullptr, JDrama::TFlagT<u16>(0));
 }
 
 void TShine::kill()
