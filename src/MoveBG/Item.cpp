@@ -899,9 +899,10 @@ void TShine::loadBeforeInit(JSUMemoryInputStream& stream)
 
 	int in_stage;
 	stream.read(&in_stage, sizeof(in_stage));
-	if (in_stage + 1 >= 2)
-		in_stage = -1;
-	unk190 = in_stage + 1;
+	shine_id = in_stage;
+	if (shine_id + 1 >= 2)
+		shine_id = -1;
+	unk190 = shine_id + 1;
 }
 
 TShine::TShine(const char* name)
