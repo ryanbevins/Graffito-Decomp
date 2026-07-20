@@ -661,7 +661,9 @@ void TShine::control()
 		break;
 	case 0x12: {
 		CPolarSubCamera* camera = gpCamera;
-		if (camera->isSimpleDemoCamera() || camera->isOnGoingDemoCamera())
+		bool demoCamera =
+		    camera->isSimpleDemoCamera() || camera->isOnGoingDemoCamera();
+		if (demoCamera)
 			return;
 		if (isLifeTimerActive())
 			return;
