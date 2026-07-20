@@ -913,12 +913,6 @@ TShine::TShine(const char* name)
     , unk164(0.0f)
     , unk168(0)
     , unk16C(2.0f)
-    , unk170(0)
-    , unk174(0)
-    , unk178(0)
-    , unk17C(0.0f)
-    , unk180(0.0f)
-    , unk184(0.0f)
     , unk188(0.0f)
     , unk18C(0)
     , unk190(0)
@@ -926,11 +920,14 @@ TShine::TShine(const char* name)
     , unk198(0)
     , unk19C(0)
     , unk1A0(0)
-    , unk1A8(0.0f)
-    , unk1AC(0.0f)
-    , unk1B0(0.0f)
-    , unk1B4(0)
 {
+	unk1B4 = 0;
+	unk184 = 0.0f;
+	unk180 = 0.0f;
+	unk17C = 0.0f;
+	unk1B0 = 0.0f;
+	unk1AC = 0.0f;
+	unk1A8 = 0.0f;
 }
 
 inline void TEggYoshi::startBalloonAnim()
