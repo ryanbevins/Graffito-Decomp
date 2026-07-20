@@ -844,13 +844,15 @@ void TShine::makeMActors()
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
 	mMActorKeeper->mModelLoaderFlags = 0x10220000;
 
+	MActor* actor;
 	if (TFlagManager::smInstance->getShineFlag((u8)unk134)
 	    && strcmp(mName, "シャイン（マニ屋用）") != 0) {
-		mMActor = initMActor("shine_empty.bmd", nullptr, getSDLModelFlag());
-		unk1B4  = TRUE;
+		actor = initMActor("shine_empty.bmd", nullptr, getSDLModelFlag());
+		unk1B4 = TRUE;
 	} else {
-		mMActor = initMActor("shine.bmd", nullptr, getSDLModelFlag());
+		actor = initMActor("shine.bmd", nullptr, getSDLModelFlag());
 	}
+	mMActor = actor;
 }
 
 void TShine::initMapObj()
