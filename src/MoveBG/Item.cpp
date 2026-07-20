@@ -547,9 +547,10 @@ void TShine::control()
 		TMapObjGeneral::control();
 
 	if (isState(0x10)) {
-		mPosition.x = gpMarioPos->x;
-		mPosition.y = gpMarioPos->y;
-		mPosition.z = gpMarioPos->z;
+		JGeometry::TVec3<f32>* marioPos = gpMarioPos;
+		mPosition.x = marioPos->x;
+		mPosition.y = marioPos->y;
+		mPosition.z = marioPos->z;
 		return;
 	}
 
