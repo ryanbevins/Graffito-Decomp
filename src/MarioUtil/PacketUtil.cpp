@@ -144,9 +144,7 @@ static void FifoSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz,
 	fog3 |= 0xF1000000;
 	FIFO_WRITE_BP_REG(fog3);
 
-	fogColor = color.b;
-	fogColor |= color.g << 8;
-	fogColor |= color.r << 16;
+	fogColor = color.b | (color.g << 8) | (color.r << 16);
 	fogColor |= 0xF2000000;
 	FIFO_WRITE_BP_REG(fogColor);
 }
