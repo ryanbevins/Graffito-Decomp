@@ -2,26 +2,13 @@
 #include <System/MarDirector.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JSupport/JSURandomInputStream.hpp>
-#include <dolphin/os.h>
 
 void TPerformList::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
-	int idx = 0;
 	for (JGadget::TSingleLinkList<TPerformLink, 0>::iterator it
 	     = getChildren().begin();
-	     it != getChildren().end(); ++it, ++idx) {
-		u32 maskedFlags = param_1 & it->unk8;
-		if (param_1 == 0xffffffff) {
-			JDrama::TViewObj* obj = it->unk4;
-			OSReport((char*)"CODEX_PLIST before list=%s idx=%d obj=%p name=%s in=%08x filter=%08x masked=%08x\n",
-			         getName(), idx, obj, obj ? obj->getName() : "<null>",
-			         param_1, it->unk8, maskedFlags);
-		}
-		it->unk4->testPerform(maskedFlags, param_2);
-		if (param_1 == 0xffffffff) {
-			OSReport((char*)"CODEX_PLIST after list=%s idx=%d\n", getName(),
-			         idx);
-		}
+	     it != getChildren().end(); ++it) {
+		it->unk4->testPerform(param_1 & it->unk8, param_2);
 	}
 }
 
