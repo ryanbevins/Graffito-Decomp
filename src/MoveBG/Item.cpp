@@ -746,7 +746,7 @@ void TShine::appearWithTime(int total_time, int up_time, int circle_time,
 	TMapObjGeneral::appear();
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 	mLifeTimer = unk150;
-	offMapObjFlag(0x80000);
+	offMapObjFlag(0x40000);
 	TFlagManager::smInstance->setBool(true, 0x50000);
 
 	if (up_time >= 0)
@@ -798,7 +798,7 @@ void TShine::appearSimple(int circle_time)
 	TMapObjGeneral::appear();
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 	mLifeTimer = unk150;
-	offMapObjFlag(0x80000);
+	offMapObjFlag(0x40000);
 	TFlagManager::smInstance->setBool(true, 0x50000);
 
 	unk174   = 60;
