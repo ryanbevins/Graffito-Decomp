@@ -122,7 +122,7 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 	}
 	if (dist != 0.0f) {
 		vol = MSHandle::calcVolume(dist, 2000.0f, 600.0f,
-		                           (v2 >> 12) & 0x7, 8);
+		                           (data[mDataCounter].unk18 >> 12) & 0x7, 8);
 	}
 	(*sound)->setSeInterVolume(0, vol, 0, 0);
 }
