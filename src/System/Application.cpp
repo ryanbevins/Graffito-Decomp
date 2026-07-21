@@ -71,11 +71,11 @@ static void* bufStageArcBin;
 static void* spGameHeapBlock;
 
 // DEBUG: Set to 0 to restore retail post-logo flow for matching checks.
-#define SMS_FORCE_DEBUG_STAGE_SELECT_ON_BOOT 1
+#define SMS_FORCE_DEBUG_STAGE_SELECT_ON_BOOT 0
 // DEBUG: Set to 0 to disable D-pad Up returning from gameplay to stage select.
-#define SMS_DEBUG_STAGE_SELECT_RETURN_WITH_DPAD_UP 1
+#define SMS_DEBUG_STAGE_SELECT_RETURN_WITH_DPAD_UP 0
 // DEBUG: Temporary probe: boot directly to Delfino Plaza 1 and force its movie.
-#define SMS_DEBUG_AUTO_DOLPIC1_MOVIE_PROBE 1
+#define SMS_DEBUG_AUTO_DOLPIC1_MOVIE_PROBE 0
 
 TARAMBlock gArBkConsole;
 TARAMBlock gArBkGuide;
@@ -669,18 +669,6 @@ int TApplication::gameLoop()
 				{
 					nextState = mDirector->direct();
 				}
-			}
-
-			static u32 sAppLoopProbeCount;
-			if ((sAppLoopProbeCount++ % 60) == 0) {
-				OSReport((char*)"CODEX_APP_LOOP app=%u ret=%u curr=%u:%u:%u next=%u:%u:%u fader=%u rate=%f wipe=%d wipeRate=%f director=%p\n",
-				         mAppState, nextState, mCurrArea.getStage(),
-				         mCurrArea.getScenario(), mCurrArea.unk2,
-				         mNextArea.getStage(), mNextArea.getScenario(),
-				         mNextArea.unk2, mFader ? mFader->mFadeStatus : 0xff,
-				         mFader ? mFader->mRate : -1.0f,
-				         mFader ? mFader->unk30 : -1,
-				         mFader ? mFader->unk34 : -1.0f, mDirector);
 			}
 
 			JDrama::TGraphics graphics;
