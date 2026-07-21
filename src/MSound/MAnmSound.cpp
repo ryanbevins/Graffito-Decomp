@@ -87,7 +87,9 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 			}
 		}
 		if (v & 0x00FF0000) {
-			if (npc_get_uint8(((v >> 16) & 0xff) + 1) != 0)
+			if (npc_get_uint8(
+			        ((data[mDataCounter].unk18 >> 16) & 0xff) + 1)
+			    != 0)
 				return;
 		}
 	}
