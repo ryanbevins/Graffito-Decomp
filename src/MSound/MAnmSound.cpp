@@ -81,7 +81,7 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 	if (v & 0xFFFF0000) {
 		if (v & 0xFF000000) {
 			u32 mod = (v >> 24) + 1;
-			if (mLoopCount != 0) {
+			if ((u32)mLoopCount != 0) {
 				if ((mLoopCount + unk98 % mod) % mod != 0)
 					return;
 			}
