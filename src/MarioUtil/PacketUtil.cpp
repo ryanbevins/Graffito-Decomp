@@ -21,11 +21,7 @@
 
 static inline void FifoSetChanMatColor(GXChannelID chan, GXColor color)
 {
-	u32 reg = 0;
-	PACKET_SET_REG_FIELD(reg, 8, 0, color.a);
-	PACKET_SET_REG_FIELD(reg, 8, 8, color.b);
-	PACKET_SET_REG_FIELD(reg, 8, 16, color.g);
-	PACKET_SET_REG_FIELD(reg, 8, 24, color.r);
+	u32 reg = (color.r << 24) | (color.g << 16) | (color.b << 8) | color.a;
 
 	GXWGFifo.u8  = GX_LOAD_XF_REG;
 	GXWGFifo.u16 = 0;
@@ -48,17 +44,10 @@ static inline void FifoSetTevColorS10(GXTevRegID id, GXColorS10 color)
 
 static inline void FifoSetTevKColor(GXTevKColorID id, GXColor color)
 {
-	u32 regRA = 0;
-	PACKET_SET_REG_FIELD(regRA, 8, 0, color.r);
-	PACKET_SET_REG_FIELD(regRA, 8, 12, color.a);
-	PACKET_SET_REG_FIELD(regRA, 4, 20, 8);
-	PACKET_SET_REG_FIELD(regRA, 8, 24, 0xE0 + id * 2);
-
-	u32 regBG = 0;
-	PACKET_SET_REG_FIELD(regBG, 8, 0, color.b);
-	PACKET_SET_REG_FIELD(regBG, 8, 12, color.g);
-	PACKET_SET_REG_FIELD(regBG, 4, 20, 8);
-	PACKET_SET_REG_FIELD(regBG, 8, 24, 0xE1 + id * 2);
+	u32 regRA = color.r | (color.a << 12) | (8 << 20)
+	            | ((0xE0 + id * 2) << 24);
+	u32 regBG = color.b | (color.g << 12) | (8 << 20)
+	            | ((0xE1 + id * 2) << 24);
 
 	FIFO_WRITE_BP_REG(regRA);
 	FIFO_WRITE_BP_REG(regBG);
