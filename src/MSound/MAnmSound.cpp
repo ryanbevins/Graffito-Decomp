@@ -1,9 +1,13 @@
+#define MSL_STDSQRTF_OUT_OF_LINE
+
 #include <MSound/MAnmSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSHandle.hpp>
 #include <JSystem/JAudio/JAInterface/JAIConst.hpp>
 #include <math.h>
+
+#undef MSL_STDSQRTF_OUT_OF_LINE
 
 static inline u8 npc_get_uint8(u8 limit)
 {
