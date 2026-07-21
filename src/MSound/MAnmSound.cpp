@@ -72,8 +72,8 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 	if (!MSGMSound->gateCheck(ul))
 		return;
 
-	u8* data = mData;
-	u32 v    = *(u32*)(data + mDataCounter * 0x20 + 0x18);
+	JAIAnimeFrameSoundData* data = (JAIAnimeFrameSoundData*)mData;
+	u32 v                       = data[mDataCounter].unk18;
 	if (v & 0xFFFF0000) {
 		if ((v & 0xFF000000) && mLoopCount != 0) {
 			u32 mod = (v >> 24) + 1;
@@ -93,7 +93,7 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 	if (*sound == nullptr)
 		return;
 
-	u32 v2 = *(u32*)(data + mDataCounter * 0x20 + 0x18);
+	u32 v2 = data[mDataCounter].unk18;
 	if (v2 & 0x8000)
 		return;
 
