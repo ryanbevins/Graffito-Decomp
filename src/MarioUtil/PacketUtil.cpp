@@ -35,15 +35,10 @@ static inline void FifoSetChanMatColor(GXChannelID chan, GXColor color)
 
 static inline void FifoSetTevColorS10(GXTevRegID id, GXColorS10 color)
 {
-	u32 regRA = 0;
-	PACKET_SET_REG_FIELD(regRA, 11, 0, color.r & 0x7FF);
-	PACKET_SET_REG_FIELD(regRA, 11, 12, color.a & 0x7FF);
-	PACKET_SET_REG_FIELD(regRA, 8, 24, 0xE0 + id * 2);
-
-	u32 regBG = 0;
-	PACKET_SET_REG_FIELD(regBG, 11, 0, color.b & 0x7FF);
-	PACKET_SET_REG_FIELD(regBG, 11, 12, color.g & 0x7FF);
-	PACKET_SET_REG_FIELD(regBG, 8, 24, 0xE1 + id * 2);
+	u32 regRA = (color.r & 0x7FF) | ((color.a & 0x7FF) << 12)
+	            | ((0xE0 + id * 2) << 24);
+	u32 regBG = (color.b & 0x7FF) | ((color.g & 0x7FF) << 12)
+	            | ((0xE1 + id * 2) << 24);
 
 	FIFO_WRITE_BP_REG(regRA);
 	FIFO_WRITE_BP_REG(regBG);
