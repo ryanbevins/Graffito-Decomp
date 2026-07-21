@@ -53,6 +53,7 @@ static inline void FifoSetTevKColor(GXTevKColorID id, GXColor color)
 	FIFO_WRITE_BP_REG(regBG);
 }
 
+#pragma dont_inline on
 static void FifoSetFogRangeAdj(u8 enable, u16 center, GXFogAdjTable* table)
 {
 	if (enable) {
@@ -66,6 +67,7 @@ static void FifoSetFogRangeAdj(u8 enable, u16 center, GXFogAdjTable* table)
 	u32 rangeCenter = 0xE8000000 | (center + 342) | (enable << 10);
 	FIFO_WRITE_BP_REG(rangeCenter);
 }
+#pragma dont_inline off
 
 static void FifoSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz,
                        f32 farz, GXColor color)
@@ -133,7 +135,7 @@ static void FifoSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz,
 	FIFO_WRITE_BP_REG(fogColor);
 }
 
-static void ShapePacketCallBackFunc(J3DCallBackPacket* packet, int timing)
+static int ShapePacketCallBackFunc(J3DCallBackPacket* packet, int timing)
 {
 	static const GXColor sFogOffColor = { 0, 0, 0, 0 };
 
@@ -226,6 +228,8 @@ static void ShapePacketCallBackFunc(J3DCallBackPacket* packet, int timing)
 			break;
 		}
 	}
+
+	return 1;
 }
 
 static inline J3DShapePacket* InitPacket_Sub(J3DModel* model, u16 mat_idx)

@@ -72,7 +72,7 @@ public:
 
 class J3DCallBackPacket : public J3DPacket {
 public:
-	typedef void (*CallbackT)(J3DCallBackPacket*, int);
+	typedef int (*CallbackT)(J3DCallBackPacket*, int);
 
 	J3DCallBackPacket() { unk10 = nullptr; }
 
