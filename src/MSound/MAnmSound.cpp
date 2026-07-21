@@ -79,10 +79,12 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 	JAIAnimeFrameSoundData* data = (JAIAnimeFrameSoundData*)mData;
 	u32 v                       = data[mDataCounter].unk18;
 	if (v & 0xFFFF0000) {
-		if ((v & 0xFF000000) && mLoopCount != 0) {
+		if (v & 0xFF000000) {
 			u32 mod = (v >> 24) + 1;
-			if ((mLoopCount + unk98 % mod) % mod != 0)
-				return;
+			if (mLoopCount != 0) {
+				if ((mLoopCount + unk98 % mod) % mod != 0)
+					return;
+			}
 		}
 		if (v & 0x00FF0000) {
 			if (npc_get_uint8(((v >> 16) & 0xff) + 1) != 0)
