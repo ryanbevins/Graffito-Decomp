@@ -44,20 +44,17 @@ void MAnmSound::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 	switch (cat) {
 	case 0:
 		if ((actor->unkC & 0x1000) == 0x1000)
-			break;
-		MSoundSESystem::MSoundSE::startSoundActorInner(ul, sound, actor, 0,
-		                                               uc);
+			return;
 		break;
 	case 7: {
 		s16 voiceIdx = (actor->unkC >> 24) & 0xf;
 		MSGMSound->startMarioVoice(ul, voiceIdx, actor->unkC >> 28);
-		break;
+		return;
 	}
-	default:
-		MSoundSESystem::MSoundSE::startSoundActorInner(ul, sound, actor, 0,
-		                                               uc);
-		break;
+	default: break;
 	}
+
+	MSoundSESystem::MSoundSE::startSoundActorInner(ul, sound, actor, 0, uc);
 }
 
 void MAnmSound::setSpeedModifySound(JAISound* sound,
