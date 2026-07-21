@@ -676,6 +676,7 @@ int TApplication::gameLoop()
 			}
 
 			JDrama::TGraphics graphics;
+			graphics.unk0 = 0;
 
 			JDrama::TVideo* video = mDisplay->unk60;
 			GXSetViewport(0.0f, 0.0f, video->mNextRenderMode.fbWidth,
