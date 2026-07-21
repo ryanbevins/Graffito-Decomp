@@ -269,7 +269,7 @@ void TMapObjFlag::updateVertex()
 			f32 rowRatio = (f32)row / (f32)mNumRows;
 			f32 phase    = mPhase + (f32)(-row) * mFlagHeight + colTerm;
 
-			while (phase >= 360.0f)
+			while (phase >= 180.0f)
 				phase -= 360.0f;
 			while (phase < -180.0f)
 				phase += 360.0f;
