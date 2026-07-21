@@ -268,7 +268,7 @@ void TRollEnemy::setBehavior()
 
 bool TRollEnemy::isReachedToGoalXZ()
 {
-	JGeometry::TVec3<f32> diff = unk104.getPoint();
+	JGeometry::TVec3<f32> diff = getUnk104().getPoint();
 	diff.sub(mPosition);
 	if (!unk1A8)
 		diff.y = 0.0f;
