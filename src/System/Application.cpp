@@ -610,8 +610,12 @@ int TApplication::gameLoop()
 	while (nextState <= APP_STATE_DEFAULT) {
 		mDisplay->startRendering();
 
-		// TODO: TimeRec BS
-		TTimeRec::startTimerTwice(mDisplay->unk60->mLastRetraceTime, 0);
+		TTimeRec* timeRec = TTimeRec::_instance;
+		u32 retraceTime  = mDisplay->unk60->mLastRetraceTime;
+		if (timeRec != nullptr) {
+			timeRec->unk4[timeRec->unk814][0].append(retraceTime, 0);
+			timeRec->crTimeAry()[1].append(retraceTime, 0);
+		}
 		TTimeRec::snapGxTimeStatic(0);
 
 		TMarioGamePad::read();
@@ -690,7 +694,11 @@ int TApplication::gameLoop()
 				gpMSound->mainLoop();
 		}
 
-		TTimeRec::endTimer();
+		timeRec = TTimeRec::_instance;
+		if (timeRec != nullptr) {
+			u32 tick = OSGetTick();
+			timeRec->unk4[timeRec->unk814][0].append(tick, 0);
+		}
 
 		THPPlayerDrawDone();
 		mDisplay->endRendering();
