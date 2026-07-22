@@ -17,7 +17,7 @@ namespace BankMgr {
 	u16 getPhysicalNumber(u16 virtualNumber);
 	void setVir2PhyTable(u32 tableAddr, int size);
 	bool assignWaveBank(int bankIndex, int waveBankIndex);
-	f32 clamp01(f32 value);
+	void clamp01(f32* value);
 	TChannel* noteOn(TChannelMgr* channelMgr, int bankIndex, int programIndex,
 	                 u8 note, u8 velocity, u32 params);
 	void gateOn(TChannel* channel, u8 note, u8 velocity, u32 params);

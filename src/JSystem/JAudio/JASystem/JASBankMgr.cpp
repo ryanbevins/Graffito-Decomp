@@ -82,13 +82,14 @@ namespace BankMgr {
 		return true;
 	}
 
-	f32 clamp01(f32 value)
+	void clamp01(f32* value)
 	{
-		if (value < 0.0f)
-			value = 0.0f;
-		else if (value > 1.0f)
-			value = 1.0f;
-		return value;
+		f32 clamped = *value;
+		if (clamped < 0.0f)
+			clamped = 0.0f;
+		else if (clamped > 1.0f)
+			clamped = 1.0f;
+		*value = clamped;
 	}
 
 	static TChannel* noteOnOsc(TChannelMgr* param_1, int param_2, u8 param_3,
@@ -171,8 +172,8 @@ namespace BankMgr {
 		chan->unk74.mSound = instParam.unk24;
 		chan->unk80.mSound = instParam.unk28;
 
-		chan->unk68.mSound = clamp01(chan->unk68.mSound);
-		chan->unk74.mSound = clamp01(chan->unk74.mSound);
+		clamp01(&chan->unk68.mSound);
+		clamp01(&chan->unk74.mSound);
 
 		chan->unk68.mEffect = instParam.unk2C;
 		chan->unk74.mEffect = instParam.unk30;
