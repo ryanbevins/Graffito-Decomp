@@ -34,9 +34,10 @@ void TSpider::bind(TLiveActor* param_1)
 	}
 
 	const TBGCheckData* local_60;
+	f32 nextPositionZ = local_50.z;
 	f32 fVar3 = gpMap->checkGround(
 	    local_50.x, local_50.y + ((TSpineEnemy*)param_1)->getHeadHeight(),
-	    local_50.z, &local_60);
+	    nextPositionZ, &local_60);
 	fVar3 += 1.0f;
 
 	if (param_1->mPosition.y - local_50.y > 0.0f) {
@@ -44,7 +45,7 @@ void TSpider::bind(TLiveActor* param_1)
 		f32 dVar7 = gpMap->checkGround(
 		    local_50.x,
 		    param_1->mPosition.y + ((TSpineEnemy*)param_1)->getHeadHeight(),
-		    local_50.z, &local_64);
+		    nextPositionZ, &local_64);
 		dVar7 += 1.0f;
 		if (dVar7 > fVar3) {
 			local_60 = local_64;
