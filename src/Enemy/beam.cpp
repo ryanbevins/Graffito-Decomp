@@ -10,7 +10,8 @@ TBeamManager* gpBeamManager;
 static inline void coneInPlane(const JGeometry::TVec3<f32>& origin, f32 angle,
                                const JGeometry::TVec3<f32>& axis,
                                const JGeometry::TVec3<f32>& offsetDir,
-                               const TBGCheckData* plane,
+                               f32 planeDistance, f32 normalX, f32 normalY,
+                               f32 normalZ,
                                JGeometry::TVec3<f32>* outPos)
 {
 	// Scale perpendicular component by cone opening
@@ -21,8 +22,9 @@ static inline void coneInPlane(const JGeometry::TVec3<f32>& origin, f32 angle,
 	dir += axis;
 
 	// Solve for intersection distance with the plane
-	const JGeometry::TVec3<f32>& normal = plane->getNormal();
-	f32 t = -(plane->getPlaneDistance() + normal.dot(origin)) / normal.dot(dir);
+	f32 t = -(planeDistance + normalX * origin.x + normalY * origin.y
+	          + normalZ * origin.z)
+	      / (normalX * dir.x + normalY * dir.y + normalZ * dir.z);
 
 	// Compute intersection point
 	*outPos = dir;
@@ -114,6 +116,10 @@ void TConeBeam::calcVertices(int count)
 			mVtx[i] = local_11c;
 		}
 	} else {
+		f32 planeDistance = mBGCheckData->getPlaneDistance();
+		f32 normalX       = mBGCheckData->getNormal().x;
+		f32 normalY       = mBGCheckData->getNormal().y;
+		f32 normalZ       = mBGCheckData->getNormal().z;
 		f32 local_128Len = PSVECMag(&local_128);
 		f32 angle        = matan(local_128Len, mScale)
 		            * (360.0f / 65536.0f); // this is SHORT2DEGANGLE constant
@@ -131,8 +137,8 @@ void TConeBeam::calcVertices(int count)
 			local_ec += local_134 * sinA;
 
 			JGeometry::TVec3<f32> local_f8;
-			coneInPlane(unk00, angle, local_128, local_ec, mBGCheckData,
-			            &local_f8);
+			coneInPlane(unk00, angle, local_128, local_ec, planeDistance,
+			            normalX, normalY, normalZ, &local_f8);
 			mVtx[i] = local_f8;
 		}
 	}
