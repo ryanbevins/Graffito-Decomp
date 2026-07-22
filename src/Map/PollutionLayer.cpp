@@ -285,10 +285,9 @@ bool TPollutionLayer::isPolluted(f32 x, f32 y, f32 z) const
 	if (!unk5C.isSame(s, t, y))
 		return false;
 
-	bool result = false;
 	if (unk54[unk5C.index(s, t)] > unk50)
-		result = true;
-	return result;
+		return true;
+	return false;
 }
 
 void TPollutionLayer::perform(u32 flags, JDrama::TGraphics* graphics)
