@@ -53,18 +53,20 @@ void TMapObjWaterFilter::perform(u32 param_1, JDrama::TGraphics* param_2)
 	if (gpMarDirector->unk124 != 0)
 		return;
 
-	bool bVar1 = true;
-	if (!gpCamera->isSimpleDemoCamera()
-	    && !(gpCamera->mMode == 0x49 ? true : false)) {
+	CPolarSubCamera* camera = gpCamera;
+	bool bVar1             = true;
+	if (!camera->isSimpleDemoCamera()
+	    && !(camera->mMode == 0x49 ? true : false)) {
 		bVar1 = false;
 	}
 
 	if (bVar1 ? true : false)
 		return;
 
-	if (gpCamera->unk124.y > 0.0f
-	    && gpCamera->unk124.y >= gpMapObjWave->getHeight(
-	           gpCamera->unk124.x, gpCamera->unk124.y, gpCamera->unk124.z))
+	JGeometry::TVec3<f32>& cameraPos = gpCamera->unk124;
+	if (cameraPos.y > 0.0f
+	    && cameraPos.y >= gpMapObjWave->getHeight(
+	           cameraPos.x, cameraPos.y, cameraPos.z))
 		return;
 
 	if (param_1 & 2) {
