@@ -1,4 +1,6 @@
-#define JDRAMA_NO_INLINE_BASE_CTORS
+#define JDRAMA_NAMEREF_CTOR_DECL_ONLY
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
+#define JDRAMA_VIEWOBJ_DTOR_DECL_ONLY
 #include <System/MarNameRefGen.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapDraw.hpp>
