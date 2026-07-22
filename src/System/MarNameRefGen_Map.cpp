@@ -1,3 +1,4 @@
+#define JDRAMA_NO_INLINE_BASE_CTORS
 #include <System/MarNameRefGen.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapDraw.hpp>
