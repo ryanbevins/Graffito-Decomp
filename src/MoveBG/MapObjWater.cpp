@@ -48,7 +48,9 @@ void TMapObjWaterFilter::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	// TODO: mother of all intern codes...
 
-	if (!unk44 || gpMarDirector->unk124 != 0)
+	if (!unk44)
+		return;
+	if (gpMarDirector->unk124 != 0)
 		return;
 
 	bool bVar1 = true;
