@@ -825,20 +825,22 @@ void JAIBasic::releaseControllerHandle(JAILinkBuffer* buffer, JAISound* sound)
 JAIStreamParameter* JAIBasic::getStreamParameter()
 {
 	JAIStreamParameter* var1;
-	JAIStreamParameter** var2;
+	JAIStreamParameter** start;
+	JAIStreamParameter** end;
 
-	var2 = &unk0->unk1D8;
-	if (unk0->unk1D4->unk3DC != nullptr) {
-		var1         = unk0->unk1D4;
-		unk0->unk1D4 = var1->unk3DC;
-		if (*var2 != nullptr) {
-			var1->unk3DC    = *var2;
-			(*var2)->unk3D8 = var1;
+	end   = &unk0->unk1D4;
+	start = &unk0->unk1D8;
+	if ((*end)->unk3DC != nullptr) {
+		var1 = *end;
+		*end = var1->unk3DC;
+		if (*start != nullptr) {
+			var1->unk3DC     = *start;
+			(*start)->unk3D8 = var1;
 		} else {
 			var1->unk3DC = nullptr;
 		}
 		var1->unk3D8 = nullptr;
-		*var2        = var1;
+		*start       = var1;
 		return var1;
 	}
 	return nullptr;
@@ -866,18 +868,19 @@ void JAIBasic::releaseStreamParameterPointer(JAIStreamParameter* param)
 
 JAISeqParameter* JAIBasic::getSeqParametermeterPointer()
 {
-	JAISeqParameter** var2 = &unk0->unk1C0;
-	if (unk0->unk1BC->unk1858) {
-		JAISeqParameter* var1 = unk0->unk1BC;
-		unk0->unk1BC          = var1->unk1858;
-		if (*var2) {
-			var1->unk1858    = *var2;
-			(*var2)->unk1854 = var1;
+	JAISeqParameter** end   = &unk0->unk1BC;
+	JAISeqParameter** start = &unk0->unk1C0;
+	if ((*end)->unk1858) {
+		JAISeqParameter* var1 = *end;
+		*end                  = var1->unk1858;
+		if (*start) {
+			var1->unk1858     = *start;
+			(*start)->unk1854 = var1;
 		} else {
 			var1->unk1858 = nullptr;
 		}
 		var1->unk1854 = nullptr;
-		*var2         = var1;
+		*start        = var1;
 		return var1;
 	}
 	return nullptr;
