@@ -17,6 +17,8 @@ TSpider::~TSpider() { }
 void TSpider::bind(TLiveActor* param_1)
 {
 	JGeometry::TVec3<f32> local_114 = param_1->mLinearVelocity;
+	f32 linearVelocityY = local_114.y;
+	f32 linearVelocityZ = local_114.z;
 	JGeometry::TVec3<f32> local_50  = param_1->mPosition;
 	local_50 += local_114;
 
@@ -103,7 +105,8 @@ void TSpider::bind(TLiveActor* param_1)
 			unk10 = 0.0f;
 	} else {
 		JGeometry::TVec3<f32> normal = local_90.mResultWalls[0]->getNormal();
-		if (normal.dot(local_114) < 0.0f) {
+		if (normal.x * local_114.x + normal.y * linearVelocityY
+		        + normal.z * linearVelocityZ < 0.0f) {
 			unaff_f29 = ((TSpineEnemy*)param_1)->mMarchSpeed;
 			param_1->offLiveFlag(LIVE_FLAG_AIRBORNE);
 			param_1->offLiveFlag(LIVE_FLAG_UNK8000);
