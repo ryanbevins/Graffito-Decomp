@@ -82,7 +82,8 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 				}
 			}
 
-			f32 base = unk48 * (1.0f - (1.0f / 17.0f) * (f32)count);
+			f32 occludedRatio = (1.0f / 17.0f) * (f32)count;
+			f32 base          = unk48 * (1.0f - occludedRatio);
 			unk28    = CLBEaseOutInbetween(base, 255.0f, sun->mUnk194);
 		}
 
