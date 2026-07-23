@@ -112,16 +112,15 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 		JGeometry::TVec3<f32> nearPos[9];
 		S16Vec nearRot[9];
 
-		CPolarSubCamera* cam = gpCamera;
-		f32 nearClip        = cam->mNear;
-		f32 aspect          = cam->mAspect;
-		f32 fovy            = cam->mFovy;
-		s16 zAngle          = cam->getFinalAngleZ();
+		f32 nearClip = gpCamera->mNear;
+		f32 aspect   = gpCamera->mAspect;
+		f32 fovy     = gpCamera->mFovy;
+		s16 zAngle   = gpCamera->getFinalAngleZ();
 
 		JGeometry::TVec3<f32> camPos;
-		camPos.set(*(Vec*)((u8*)cam + 0x148));
+		camPos.set(*(Vec*)((u8*)gpCamera + 0x148));
 		JGeometry::TVec3<f32> camAt;
-		camAt.set(*(Vec*)&cam->unk124);
+		camAt.set(*(Vec*)&gpCamera->unk124);
 
 		s16 halfFov = CLBRoundf<s16>(182.04445f * (0.5f * fovy));
 		f32 tanHalf = JMASSin(halfFov) * (1.0f / JMASCos(halfFov));
@@ -136,12 +135,13 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 		f32 sx = -sun->mFPos[0].x * unk3C;
 		f32 sy = -sun->mFPos[0].y * unk3C;
 		JGeometry::TVec3<f32> flarePos;
-		flarePos.x = center.x + (nearPos[5].x - center.x) * sx
-		           + (nearPos[1].x - center.x) * sy;
-		flarePos.y = center.y + (nearPos[5].y - center.y) * sx
-		           + (nearPos[1].y - center.y) * sy;
-		flarePos.z = center.z + (nearPos[5].z - center.z) * sx
-		           + (nearPos[1].z - center.z) * sy;
+		flarePos.sub(nearPos[5], center);
+		flarePos.scale(sx);
+		JGeometry::TVec3<f32> vertical;
+		vertical.sub(nearPos[1], center);
+		vertical.scale(sy);
+		flarePos.add(center);
+		flarePos.add(vertical);
 
 		JGeometry::TVec3<f32> copiedSunPos;
 		copiedSunPos.set(sunPos);
