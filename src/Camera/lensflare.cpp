@@ -67,12 +67,12 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 	}
 
 	if (flags & 1) {
-		TSunModel* sun = gpSunModel;
-		bool active    = sun->isInBounds(unk44);
+		bool active = gpSunModel->isInBounds(unk44);
 
 		if (!active) {
 			unk28 = 0.0f;
 		} else {
+			TSunModel* sun = gpSunModel;
 			JGeometry::TVec2<s16>* coords = sun->mZBufCoords;
 			u8* zBufVisible               = sun->mZBufVisible;
 			int count = 0;
@@ -88,12 +88,12 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 
 		f32 rate;
 		if (unk24 < unk28) {
-			if (sun->mUnk194 == 0.0f)
+			if (gpSunModel->mUnk194 == 0.0f)
 				rate = unk30;
 			else
 				rate = unk2C;
 		} else {
-			if (sun->mUnk194 == 0.0f)
+			if (gpSunModel->mUnk194 == 0.0f)
 				rate = unk38;
 			else
 				rate = unk34;
