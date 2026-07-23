@@ -138,8 +138,11 @@ int Dvd::loadToDramDvdTMain(void* param)
 	return 0;
 }
 
-int Dvd::loadToDramDvdT(u32 param1, char* path, void* buffer, u32 size,
-                        u32 param5, u32* param6, DvdCallback callback)
+namespace Dvd {
+
+static inline int loadToDramDvdTImpl(u32 param1, char* path, void* buffer,
+                                     u32 size, u32 param5, u32* param6,
+                                     DvdCallback callback)
 {
 	TDvdCall callData;
 	void* cs;
@@ -165,6 +168,15 @@ int Dvd::loadToDramDvdT(u32 param1, char* path, void* buffer, u32 size,
 	}
 
 	return 0;
+}
+
+} // namespace Dvd
+
+int Dvd::loadToDramDvdT(u32 param1, char* path, void* buffer, u32 size,
+                        u32 param5, u32* param6, DvdCallback callback)
+{
+	return loadToDramDvdTImpl(param1, path, buffer, size, param5, param6,
+	                          callback);
 }
 
 int Dvd::loadToAramDvdTMain(void* param)
@@ -284,9 +296,8 @@ u32 Dvd::checkFileExtend(char* path)
 
 u32 Dvd::loadFileDvdT(char* path, void* buffer)
 {
-	// TODO: how do we make this inline? It becomes OK when it inlines...
 	volatile u32 done = 0;
-	loadToDramDvdT(0, path, buffer, 0, 0, (u32*)&done, nullptr);
+	loadToDramDvdTImpl(0, path, buffer, 0, 0, (u32*)&done, nullptr);
 
 	while (!done)
 		;
