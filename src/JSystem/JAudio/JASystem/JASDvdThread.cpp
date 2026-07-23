@@ -145,8 +145,8 @@ static inline int loadToDramDvdTImpl(u32 param1, char* path, void* buffer,
                                      DvdCallback callback)
 {
 	TDvdCall callData;
-	void* cs;
 	TDvdCall* call = &callData;
+	void* cs;
 
 	call->unk0 = param1;
 	strcpy(call->unk4, path);
