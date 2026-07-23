@@ -50,8 +50,11 @@ void TRevivalPolluter::registerPolluteTex()
 {
 	// TODO: inlines make me cry
 	TPollutionLayer* layer = gpPollution->getLayer(unk0);
+	ResTIMG* texture = unk4;
+	u32 stampId = unk18;
 	unk8 = gpPollution->getCounterLayer().registerRevivalTexStamp(
-	    unk0, 0, 0, layer->unk5C.mWidth, layer->unk5C.mHeight, unk18, unk4);
+	    unk0, 0, 0, layer->unk5C.mWidth, layer->unk5C.mHeight, stampId,
+	    texture);
 }
 
 void TRevivalPolluter::loadInfo(JSUMemoryInputStream& stream)
