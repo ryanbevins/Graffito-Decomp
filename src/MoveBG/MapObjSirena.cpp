@@ -1193,8 +1193,9 @@ void TItemSlotDrum::calcRootMatrix()
 }
 u32 TItemSlotDrum::touchWater(THitActor* sender)
 {
+	u32 result = 1;
 	if (unk194 || !unk1A2)
-		return 1;
+		return result;
 
 	unk1A4 = TMsRange<s32>(100, 150).rand();
 	for (s32 i = 0; i < unk148; ++i) {
@@ -1204,7 +1205,7 @@ u32 TItemSlotDrum::touchWater(THitActor* sender)
 	}
 	unk1A2 = 0;
 
-	return 1;
+	return result;
 }
 void TItemSlotDrum::generateItem()
 {
