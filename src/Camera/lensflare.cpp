@@ -1,3 +1,5 @@
+#define JGEOMETRY_EVENTWATCHER_TVEC3_SET_VEC_OUT_OF_LINE
+#define JMATH_SELECTSHINE2_TRIG_OUT_OF_LINE
 #include <Camera/LensFlare.hpp>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMarioData.hpp>
@@ -12,6 +14,8 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <stdio.h>
+#undef JGEOMETRY_EVENTWATCHER_TVEC3_SET_VEC_OUT_OF_LINE
+#undef JMATH_SELECTSHINE2_TRIG_OUT_OF_LINE
 
 template <> f32 CLBTwoDegreeGeneralInbetween<f32>(f32, f32, f32, f32);
 template <> s16 CLBRoundf<s16>(f32);
@@ -117,7 +121,7 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 		JGeometry::TVec3<f32> camPos;
 		camPos.set(*(Vec*)((u8*)cam + 0x148));
 		JGeometry::TVec3<f32> camAt;
-		camAt.set(cam->unk124);
+		camAt.set(*(Vec*)&cam->unk124);
 
 		s16 halfFov = CLBRoundf<s16>(182.04445f * (0.5f * fovy));
 		f32 tanHalf = JMASSin(halfFov) * (1.0f / JMASCos(halfFov));
@@ -139,10 +143,12 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 		flarePos.z = center.z + (nearPos[5].z - center.z) * sx
 		           + (nearPos[1].z - center.z) * sy;
 
+		JGeometry::TVec3<f32> copiedSunPos;
+		copiedSunPos.set(sunPos);
 		JGeometry::TVec3<f32> dir;
-		dir.x = flarePos.x - sunPos.x;
-		dir.y = flarePos.y - sunPos.y;
-		dir.z = flarePos.z - sunPos.z;
+		dir.x = flarePos.x - copiedSunPos.x;
+		dir.y = flarePos.y - copiedSunPos.y;
+		dir.z = flarePos.z - copiedSunPos.z;
 
 		JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(dir);
 		s16 rotX = CLBRoundf<s16>(182.04445f * rot.x);
