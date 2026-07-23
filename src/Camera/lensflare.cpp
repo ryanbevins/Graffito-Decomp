@@ -69,10 +69,11 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 		if (!active) {
 			unk28 = 0.0f;
 		} else {
+			JGeometry::TVec2<s16>* coords = sun->mZBufCoords;
+			u8* zBufVisible               = sun->mZBufVisible;
 			int count = 0;
-			for (int i = 0; i < 17; ++i) {
-				if (sun->mZBufCoords[i].x != -1 && sun->mZBufCoords[i].y != -1
-				    && !sun->mZBufVisible[i]) {
+			for (int i = 0; i < 17; ++i, ++coords, ++zBufVisible) {
+				if (coords->x != -1 && coords->y != -1 && !*zBufVisible) {
 					++count;
 				}
 			}
