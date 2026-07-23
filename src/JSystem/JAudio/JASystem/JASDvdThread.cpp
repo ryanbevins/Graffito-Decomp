@@ -485,15 +485,7 @@ static void Dvd::updateBuffer()
 	if (nextBuffers == 0)
 		return;
 
-	u8* nextBufTop = nextBufferTop;
-
-	buffers    = nextBuffers;
-	buffersize = nextBufferSize;
-
-	for (u32 i = 0; i < nextBuffers; ++i) {
-		audioDvdBuffer[i] = nextBufTop;
-		nextBufTop += nextBufferSize;
-	}
+	writeBufferSize(nextBufferTop, nextBuffers, nextBufferSize);
 
 	nextBuffers   = 0;
 	nextBufferTop = 0;
