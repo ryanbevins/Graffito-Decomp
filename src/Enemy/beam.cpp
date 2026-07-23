@@ -108,8 +108,8 @@ void TConeBeam::calcVertices(int count)
 			JGeometry::TVec3<f32> local_11c;
 			local_11c.zero();
 
-			local_11c += local_140 * s;
-			local_11c += local_134 * c;
+			local_11c += local_140 * c;
+			local_11c += local_134 * s;
 
 			local_11c += unk0C;
 
