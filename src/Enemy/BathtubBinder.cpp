@@ -10,12 +10,12 @@
 #include <PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/math.h>
 #include <Strategic/LiveActor.hpp>
 
-static inline JGeometry::TVec3<f32> getBathtubCenter(TBathtub* bathtub)
+static inline JGeometry::TVec3<f32> getBathtubCenter(u8* bathtubData)
 {
-	u8* tub = (u8*)bathtub;
 	return JGeometry::TVec3<f32>(
-	    *(f32*)(tub + 0x170), *(f32*)(tub + 0x174) - *(f32*)(tub + 0x1B4),
-	    *(f32*)(tub + 0x178));
+	    *(f32*)(bathtubData + 0x00),
+	    *(f32*)(bathtubData + 0x04) - *(f32*)(bathtubData + 0x44),
+	    *(f32*)(bathtubData + 0x08));
 }
 
 TBathtubBinder::TBathtubBinder()
@@ -68,12 +68,11 @@ void TBathtubBinder::float_(TLiveActor* actor)
 	f32 localR = mUnk10;
 
 	if (mBathtub != nullptr) {
-		u8* tub = (u8*)mBathtub;
-		JGeometry::TVec3<f32> tmp  = getBathtubCenter(mBathtub);
-		JGeometry::TVec3<f32> base = tmp;
+		u8* tub = (u8*)mBathtub + 0x170;
+		JGeometry::TVec3<f32> base = getBathtubCenter(tub);
 
-		f32 cap   = *(f32*)(tub + 0x1AC);
-		f32 lim   = *(f32*)(tub + 0x1B4);
+		f32 cap   = *(f32*)(tub + 0x3C);
+		f32 lim   = *(f32*)(tub + 0x44);
 		f32 capSq = cap * cap;
 		f32 limSq = lim * lim;
 		f32 R     = JGeometry::TUtil<f32>::sqrt(capSq - limSq);
@@ -83,11 +82,11 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		f32 distSq = dz * dz + dx * dx;
 		if (distSq > clipR * clipR) {
 			f32 inv;
-			if (distSq > 0.0f) {
+			if (distSq <= 0.0f) {
+				inv = distSq;
+			} else {
 				f32 root = __frsqrte(distSq);
 				inv = 0.5f * root * (3.0f - distSq * (root * root));
-			} else {
-				inv = distSq;
 			}
 			f32 scale = clipR * inv;
 			worldX = base.x + scale * dx;
@@ -103,12 +102,11 @@ void TBathtubBinder::float_(TLiveActor* actor)
 	f32 localR2 = mUnk18;
 
 	if (mBathtub != nullptr) {
-		u8* tub = (u8*)mBathtub;
-		JGeometry::TVec3<f32> tmp  = getBathtubCenter(mBathtub);
-		JGeometry::TVec3<f32> base = tmp;
+		u8* tub = (u8*)mBathtub + 0x170;
+		JGeometry::TVec3<f32> base = getBathtubCenter(tub);
 
-		f32 cap   = *(f32*)(tub + 0x1AC);
-		f32 lim   = *(f32*)(tub + 0x1B4);
+		f32 cap   = *(f32*)(tub + 0x3C);
+		f32 lim   = *(f32*)(tub + 0x44);
 		f32 capSq = cap * cap;
 		f32 limSq = lim * lim;
 		f32 R     = JGeometry::TUtil<f32>::sqrt(capSq - limSq);
@@ -118,11 +116,11 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		f32 distSq = dz * dz + dx * dx;
 		if (distSq > clipR * clipR) {
 			f32 inv;
-			if (distSq > 0.0f) {
+			if (distSq <= 0.0f) {
+				inv = distSq;
+			} else {
 				f32 root = __frsqrte(distSq);
 				inv = 0.5f * root * (3.0f - distSq * (root * root));
-			} else {
-				inv = distSq;
 			}
 			f32 scale = clipR * inv;
 			worldX2 = base.x + scale * dx;
@@ -147,11 +145,11 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		return;
 
 	f32 hLen;
-	if (hSq > 0.0f) {
+	if (hSq <= 0.0f) {
+		hLen = hSq;
+	} else {
 		f32 root = __frsqrte(hSq);
 		hLen = hSq * (0.5f * root * (3.0f - hSq * (root * root)));
-	} else {
-		hLen = hSq;
 	}
 
 	s16 ang = matan(ddy, hLen);
@@ -172,12 +170,11 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		return;
 
 	{
-		u8* tub = (u8*)mBathtub;
-		JGeometry::TVec3<f32> tmp  = getBathtubCenter(mBathtub);
-		JGeometry::TVec3<f32> base = tmp;
+		u8* tub = (u8*)mBathtub + 0x170;
+		JGeometry::TVec3<f32> base = getBathtubCenter(tub);
 
-		f32 cap   = *(f32*)(tub + 0x1AC);
-		f32 lim   = *(f32*)(tub + 0x1B4);
+		f32 cap   = *(f32*)(tub + 0x3C);
+		f32 lim   = *(f32*)(tub + 0x44);
 		f32 capSq = cap * cap;
 		f32 limSq = lim * lim;
 		f32 R     = JGeometry::TUtil<f32>::sqrt(capSq - limSq);
@@ -187,11 +184,11 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		f32 distSq = dz * dz + dx * dx;
 		if (distSq > clipR * clipR) {
 			f32 inv;
-			if (distSq > 0.0f) {
+			if (distSq <= 0.0f) {
+				inv = distSq;
+			} else {
 				f32 root = __frsqrte(distSq);
 				inv = 0.5f * root * (3.0f - distSq * (root * root));
-			} else {
-				inv = distSq;
 			}
 			f32 scale = clipR * inv;
 			actor->mPosition.x = base.x + scale * dx;
