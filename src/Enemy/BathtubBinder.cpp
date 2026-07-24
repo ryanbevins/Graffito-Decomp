@@ -94,8 +94,8 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		}
 	}
 
-	f32 wH1   = mBathWaterMgr->getWaterHeight(worldX, worldZ);
-	f32 sampleY = mUnk20 + wH1;
+	f32 wH1 = mBathWaterMgr->getWaterHeight(worldX, worldZ);
+	JGeometry::TVec3<f32> front(worldX, mUnk20 + wH1, worldZ);
 
 	f32 worldX2 = sinY * -mUnk14 + actor->mPosition.x;
 	f32 worldZ2 = cosY * -mUnk14 + actor->mPosition.z;
@@ -128,22 +128,20 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		}
 	}
 
-	f32 wH2     = mBathWaterMgr->getWaterHeight(worldX2, worldZ2);
-	f32 sample2Y = mUnk20 + wH2;
-	f32 ddx     = worldX - worldX2;
-	f32 ddz     = worldZ - worldZ2;
-	f32 ddy     = sampleY - sample2Y;
-	f32 newY    = mUnk1C * ddy + sample2Y;
-	f32 dxSq    = ddx * ddx;
-	f32 dzSq    = ddz * ddz;
-	f32 stepY   = 0.2f * (newY - actor->mPosition.y) + actor->mPosition.y;
-	actor->mPosition.y = stepY;
+	f32 wH2 = mBathWaterMgr->getWaterHeight(worldX2, worldZ2);
+	JGeometry::TVec3<f32> rear(worldX2, mUnk20 + wH2, worldZ2);
+	JGeometry::TVec3<f32> delta;
+	delta.sub(front, rear);
 
-	f32 hSq = dzSq + dxSq;
-	f32 totalSq = dzSq + (ddy * ddy + dxSq);
-	if (totalSq <= 0.0000038146973f)
+	actor->mPosition.y
+	    = 0.2f
+	          * (mUnk1C * delta.y + rear.y - actor->mPosition.y)
+	      + actor->mPosition.y;
+
+	if (delta.squared() <= 0.0000038146973f)
 		return;
 
+	f32 hSq = delta.x * delta.x + delta.z * delta.z;
 	f32 hLen;
 	if (hSq <= 0.0f) {
 		hLen = hSq;
@@ -152,7 +150,7 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		hLen = hSq * (0.5f * root * (3.0f - hSq * (root * root)));
 	}
 
-	s16 ang = matan(ddy, hLen);
+	s16 ang = matan(delta.y, hLen);
 	f32 deg = ang * 0.005493164f;
 
 	f32 clamped = deg;
