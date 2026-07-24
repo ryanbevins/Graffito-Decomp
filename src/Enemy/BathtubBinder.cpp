@@ -2,6 +2,7 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #define JG_TUTIL_SQRT_OUT_OF_LINE
 #include <JSystem/JGeometry/JGUtil.hpp>
+#define JGEOMETRY_MARIOSPECIAL_TVEC3_LENGTH_INLINE
 #include <JSystem/JGeometry/JGVec3.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -141,14 +142,8 @@ void TBathtubBinder::float_(TLiveActor* actor)
 	if (delta.squared() <= 0.0000038146973f)
 		return;
 
-	f32 hSq = delta.x * delta.x + delta.z * delta.z;
-	f32 hLen;
-	if (hSq <= 0.0f) {
-		hLen = hSq;
-	} else {
-		f32 root = __frsqrte(hSq);
-		hLen = hSq * (0.5f * root * (3.0f - hSq * (root * root)));
-	}
+	JGeometry::TVec3<f32> horizontal(delta.x, 0.0f, delta.z);
+	f32 hLen = horizontal.length();
 
 	s16 ang = matan(delta.y, hLen);
 	f32 deg = ang * 0.005493164f;
