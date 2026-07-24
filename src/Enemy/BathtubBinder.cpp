@@ -78,8 +78,11 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		f32 limSq = lim * lim;
 		f32 R     = JGeometry::TUtil<f32>::sqrt(capSq - limSq);
 		f32 clipR = R - localR;
-		f32 dx = worldX - base.x;
-		f32 dz = worldZ - base.z;
+		JGeometry::TVec3<f32> point(worldX, 0.0f, worldZ);
+		JGeometry::TVec3<f32> radial;
+		radial.sub(point, base);
+		f32 dx = radial.x;
+		f32 dz = radial.z;
 		f32 distSq = dz * dz + dx * dx;
 		if (distSq > clipR * clipR) {
 			f32 inv;
@@ -112,8 +115,11 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		f32 limSq = lim * lim;
 		f32 R     = JGeometry::TUtil<f32>::sqrt(capSq - limSq);
 		f32 clipR = R - localR2;
-		f32 dx = worldX2 - base.x;
-		f32 dz = worldZ2 - base.z;
+		JGeometry::TVec3<f32> point(worldX2, 0.0f, worldZ2);
+		JGeometry::TVec3<f32> radial;
+		radial.sub(point, base);
+		f32 dx = radial.x;
+		f32 dz = radial.z;
 		f32 distSq = dz * dz + dx * dx;
 		if (distSq > clipR * clipR) {
 			f32 inv;
@@ -172,8 +178,12 @@ void TBathtubBinder::float_(TLiveActor* actor)
 		f32 limSq = lim * lim;
 		f32 R     = JGeometry::TUtil<f32>::sqrt(capSq - limSq);
 		f32 clipR = R - worldX3;
-		f32 dx = actor->mPosition.x - base.x;
-		f32 dz = actor->mPosition.z - base.z;
+		JGeometry::TVec3<f32> point(actor->mPosition.x, 0.0f,
+		                           actor->mPosition.z);
+		JGeometry::TVec3<f32> radial;
+		radial.sub(point, base);
+		f32 dx = radial.x;
+		f32 dz = radial.z;
 		f32 distSq = dz * dz + dx * dx;
 		if (distSq > clipR * clipR) {
 			f32 inv;
