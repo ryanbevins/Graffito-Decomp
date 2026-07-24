@@ -537,6 +537,7 @@ bool TBombHei::isHitValid(u32 message)
 		mLiveFlag |= 0x1;
 		unk64 |= 0x1;
 		genEventCoin();
+		return false;
 	}
 	return false;
 }
