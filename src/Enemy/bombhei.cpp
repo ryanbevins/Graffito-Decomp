@@ -578,4 +578,4 @@ void TBombHei::setMActorAndKeeper()
 
 void TBombHei::setAfterDeadEffect() { }
 
-bool TBombHei::doKeepDistance() { return unk19C != 0; }
+bool TBombHei::doKeepDistance() { return unk19C; }
