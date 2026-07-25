@@ -7,6 +7,7 @@
 __pycache__
 .mypy_cache
 .cache/
+.pytest_cache/
 
 # Original files
 orig/*/*
@@ -36,3 +37,21 @@ compile_commands.json
 /*.txt
 *.exe
 tools/mwcc_compiler
+*.log
+*.orig
+*.rej
+.DS_Store
+
+# Generated investigation artifacts
+/*.asm
+/*_diff.json
+/_GMSJ01.map
+/_genmap.py
+/codex_*.md
+
+# Local agent and automation state
+/.agent_verdicts/
+/.claude/
+/.codex_scratch/
+/.superpowers/
+/docs/superpowers/

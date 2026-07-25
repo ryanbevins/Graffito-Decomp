@@ -150,14 +150,14 @@ Treat its output as scaffolding for understanding control flow and rough data fl
 Tested example:
 
 ```bash
-python D:/Develop/m2c/m2c.py -t ppc -f __dt__22TNerveFireWanwanEscapeFv --globals=none build/GMSJ01/asm/Enemy/fireWanwan.s
+python path/to/m2c/m2c.py -t ppc -f __dt__22TNerveFireWanwanEscapeFv --globals=none build/GMSJ01/asm/Enemy/fireWanwan.s
 ```
 
 That command decompiles the function named by the `.fn` symbol in the asm file and prints a raw draft to stdout.
 For larger functions, the same pattern works with the mangled symbol name, for example:
 
 ```bash
-python D:/Develop/m2c/m2c.py -t ppc -f "execute__22TNerveFireWanwanEscapeCFP24TSpineBase<10TLiveActor>" --globals=none build/GMSJ01/asm/Enemy/fireWanwan.s
+python path/to/m2c/m2c.py -t ppc -f "execute__22TNerveFireWanwanEscapeCFP24TSpineBase<10TLiveActor>" --globals=none build/GMSJ01/asm/Enemy/fireWanwan.s
 ```
 
 Practical workflow:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # usage: python3 tools/agent/audit_candidates.py [--min-pct 85] [--open-only] [--check-missing]
 # Lists NonMatching objects ranked by fuzzy match percent, with any recorded
-# audit verdict from /opt/graffito/state/audit marked beside each row.
+# audit verdict from the configured state root marked beside each row.
 import argparse
 import json
 import os

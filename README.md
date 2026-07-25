@@ -1,116 +1,121 @@
-Graffito
-========
+# Graffito
 
-A private, byte-identical decompilation of Super Mario Sunshine (`GMSJ01`, JPN Rev 0), descended from [doldecomp/sms](https://github.com/doldecomp/sms) and developed as a standalone project.
+[![Build](https://github.com/ryanbevins/graffito/actions/workflows/build.yml/badge.svg)](https://github.com/ryanbevins/graffito/actions/workflows/build.yml)
+[![Lint](https://github.com/ryanbevins/graffito/actions/workflows/lint.yml/badge.svg)](https://github.com/ryanbevins/graffito/actions/workflows/lint.yml)
 
-The goal is the same as any matching decomp: produce C/C++ source that compiles to the exact original object code under the original Metrowerks CodeWarrior compiler. The name comes from `graffito` (Italian, sing. of *graffiti*) — what Mario spends the game cleaning, and what this project spends its time scrubbing off.
+Graffito is a work-in-progress, byte-matching decompilation of *Super Mario
+Sunshine*. Its primary target is `GMSJ01` (Japanese Revision 0), using the
+original Metrowerks CodeWarrior compiler for PowerPC/Gekko.
 
-This repository does **not** contain any game assets or assembly whatsoever. An existing copy of the game is required.
+The project descends from [doldecomp/sms](https://github.com/doldecomp/sms) and
+continues as a standalone research effort. The goal is readable C and C++ that
+reproduces the original object code exactly wherever possible, with
+instruction-level evidence for any code classified as functionally equivalent.
 
-Supported versions:
+## Project status
 
-- `GMSJ01`: Rev 0 (JPN)
-- ~~`GMSP01`: Rev 0 (PAL)~~ partially broken — fixes welcome
+- `GMSJ01`: active and supported.
+- `GMSP01`: configuration retained, but currently incomplete and not a
+  supported build target.
+- The repository is under active development. APIs, names, layouts, and source
+  organization may change as better evidence is recovered.
 
-Dependencies
-============
+The current source tree does **not** contain game assets, retail binaries, or
+generated assembly. You must provide your own legally obtained copy of the
+game.
 
-Windows
--------
+## Requirements
 
-Native tooling is **highly recommended**. WSL and msys2 are **not** required, and under WSL [objdiff](#diffing) cannot get filesystem notifications for automatic rebuilds.
+- Python 3
+- [Ninja](https://ninja-build.org/)
+- A legally obtained supported game disc image
 
-- Install [Python](https://www.python.org/downloads/) and add it to `%PATH%`.
-  - Also available from the [Windows Store](https://apps.microsoft.com/store/detail/python-311/9NRWMJP3717K).
-- Download [ninja](https://github.com/ninja-build/ninja/releases) and add it to `%PATH%`.
-  - Quick install via pip: `pip install ninja`
+On x86-64 Linux, the build downloads and uses
+[wibo](https://github.com/decompals/wibo). Other Linux architectures require
+Wine. macOS users can use
+[wine-crossover](https://github.com/Gcenx/homebrew-wine). Native Windows tools
+are recommended; WSL is not required and prevents objdiff from receiving
+automatic filesystem notifications.
 
-macOS
------
+## Building
 
-- Install [ninja](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages):
+1. Clone the repository:
 
-  ```sh
-  brew install ninja
-  ```
+   ```sh
+   git clone https://github.com/ryanbevins/graffito.git
+   cd graffito
+   ```
 
-- Install [wine-crossover](https://github.com/Gcenx/homebrew-wine):
+2. Copy your game disc image into `orig/GMSJ01/`.
 
-  ```sh
-  brew install --cask --no-quarantine gcenx/wine/wine-crossover
-  ```
+   Supported input formats include ISO/GCM, RVZ, WIA, WBFS, CISO, NFS, GCZ,
+   and TGC. After the initial extraction succeeds, the disc image can be
+   removed from the project directory.
 
-After OS upgrades, if macOS complains about `Wine Crossover.app` being unverified, unquarantine it:
+3. Configure and build:
+
+   ```sh
+   python configure.py
+   ninja
+   ```
+
+Use `python configure.py --help` for version and toolchain overrides. To build
+the current functionally equivalent source set rather than only byte-matching
+objects, configure with `--non-matching` before running Ninja.
+
+## Diffing
+
+After the first successful build, `objdiff.json` is generated at the repository
+root. Install [objdiff](https://github.com/encounter/objdiff), select this
+repository as the project directory, and choose an object from the sidebar.
+Source, header, configuration, split, and symbol changes rebuild automatically.
+
+![objdiff screenshot](assets/objdiff.png)
+
+The command-line helper provides the same data in a form suitable for scripts:
 
 ```sh
-sudo xattr -rd com.apple.quarantine '/Applications/Wine Crossover.app'
+python tools/decomp-diff.py -u mario/Enemy/bombhei
+python tools/decomp-diff.py -u mario/Enemy/bombhei -d "TBombHei::perform"
 ```
 
-Linux
------
+See [tools/README.md](tools/README.md) for the other repository utilities.
 
-- Install [ninja](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages).
-- For non-x86(_64) platforms: install wine from your package manager.
-  - For x86(_64), [wibo](https://github.com/decompals/wibo) (a minimal 32-bit Windows binary wrapper) is downloaded automatically.
+## Repository layout
 
-Building
-========
+- `src/`: decompiled C and C++ implementation
+- `include/`: declarations, inline functions, and reconstructed types
+- `config/`: decomp-toolkit splits, symbols, hashes, and version configuration
+- `tools/`: build, diff, audit, and investigation helpers
+- `docs/`: reverse-engineering notes and the strict equivalence audit record
+- `orig/`: local game inputs; ignored by Git
+- `build/`: generated build outputs; ignored by Git
 
-- Clone the repository:
+## Contributing
 
-  ```sh
-  git clone https://github.com/ryanbevins/graffito.git
-  ```
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and
+[AGENTS.md](AGENTS.md) before changing source. The project rejects fake
+matching, behavior-changing codegen tricks, and unsupported equivalence claims.
 
-- Copy your game's disc image to `orig/GMSJ01` (or the appropriate version folder).
-  - Supported formats: ISO (GCM), RVZ, WIA, WBFS, CISO, NFS, GCZ, TGC
-  - After the initial build the disc image can be deleted to save space.
+## Lineage
 
-- Configure:
-
-  ```sh
-  python configure.py
-  ```
-
-  Use `--version` to build a non-`GMSJ01` revision.
-
-- Build:
-
-  ```sh
-  ninja
-  ```
-
-Diffing
-=======
-
-After the first successful build an `objdiff.json` will exist at the project root.
-
-Grab the latest release of [encounter/objdiff](https://github.com/encounter/objdiff), point its **Project directory** at this repo, and the configuration loads automatically. Select an object from the sidebar to start diffing — source/header changes, `configure.py`, `splits.txt`, and `symbols.txt` all trigger automatic rebuilds.
-
-![](assets/objdiff.png)
-
-Workflow tools
-==============
-
-Project-specific helpers live under `tools/claude/`:
-
-| Tool | Purpose |
-|------|---------|
-| `check_match.py <path>` | Per-function match percentages for a TU |
-| `compare_asm.py <path> [symbol]` | Diff original vs compiled assembly |
-| `find_easy_targets.py` | Surface small non-matching files |
-| `get_symbols.py <path>` | List symbols for a source file |
-
-See [`CLAUDE.md`](./CLAUDE.md) for the full matching playbook — MWCC quirks, common near-match patterns, the TParams framework, and the list of known-unsolvable patterns to skip.
-
-Lineage
-=======
-
-Graffito branched off from [doldecomp/sms](https://github.com/doldecomp/sms) and is no longer part of its fork network. Upstream commits can still be cherry-picked via the `upstream` remote:
+Graffito was originally based on
+[doldecomp/sms](https://github.com/doldecomp/sms). Upstream changes can be
+reviewed by adding that repository as a remote:
 
 ```sh
 git remote add upstream https://github.com/doldecomp/sms.git
 git fetch upstream
 ```
 
-Thanks to the doldecomp community for the foundations.
+Thank you to the doldecomp community and every contributor whose work made this
+project possible.
+
+## License and legal notice
+
+Project-authored code and documentation are provided under the
+[CC0 1.0 Universal dedication](LICENSE).
+
+*Super Mario Sunshine*, Nintendo, GameCube, and related names and assets are
+property of their respective owners. This is an unofficial research project
+and is not affiliated with or endorsed by Nintendo.
