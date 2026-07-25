@@ -443,7 +443,7 @@ void TBombHei::behaveToTaken(THitActor* sender)
 {
 	if (mSpine->getCurrentNerve() == &TNerveBombHeiPickUp::theNerve())
 		return;
-	if (sender->mActorType == 0x80000001)
+	if (sender->isActorType(0x80000001))
 		unk1A4 = 1;
 	mSpine->pushNerve(&TNerveBombHeiPickUp::theNerve());
 }
