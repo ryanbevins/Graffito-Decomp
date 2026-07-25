@@ -480,7 +480,8 @@ void TBombHei::setDeadAnm()
 	volatile f32 mn = 0.0f;
 	volatile f32 mx = 360.0f;
 	f32 range       = mx - mn;
-	mRotation.y     = mn + range * MsRandF();
+	f32 rot         = range * MsRandF();
+	mRotation.y     = mn + rot;
 	unk19C      = 0;
 	setBckAnm(0);
 
