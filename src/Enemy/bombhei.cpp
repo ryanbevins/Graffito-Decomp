@@ -238,7 +238,7 @@ DEFINE_NERVE(TNerveBombHeiGenerate, TLiveActor)
 	if (self->mHolder != nullptr)
 		self->getMActor()->setFrameRate(0.0f, 0);
 
-	if (!(self->mLiveFlag & 0x80) && self->mHolder == nullptr) {
+	if (!self->checkLiveFlag2(0x80) && self->mHolder == nullptr) {
 		if (self->isBckAnm(2)) {
 			self->setBckAnm(3);
 		} else if (self->checkCurAnmEnd(0)) {
