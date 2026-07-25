@@ -239,7 +239,7 @@ DEFINE_NERVE(TNerveBombHeiGenerate, TLiveActor)
 		self->getMActor()->setFrameRate(0.0f, 0);
 
 	if (!(self->mLiveFlag & 0x80) && self->mHolder == nullptr) {
-		if (self->mCurrentBckAnm == 2) {
+		if (self->isBckAnm(2)) {
 			self->setBckAnm(3);
 		} else if (self->checkCurAnmEnd(0)) {
 			self->mSpine->pushNerve(&TNerveBombHeiAttack::theNerve());
