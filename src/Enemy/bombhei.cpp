@@ -407,7 +407,7 @@ void TBombHei::moveObject()
 
 void TBombHei::walkBehavior(int param_1, f32 param_2)
 {
-	if (gpMSound->gateCheck(0x2068))
+	if (SMSGetMSound()->gateCheck(0x2068))
 		MSoundSESystem::MSoundSE::startSoundActor(0x2068, &mPosition, 0, nullptr,
 		                                          0, 4);
 	TWalkerEnemy::walkBehavior(param_1, param_2);
