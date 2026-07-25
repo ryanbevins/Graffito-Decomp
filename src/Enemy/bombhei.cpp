@@ -242,7 +242,7 @@ DEFINE_NERVE(TNerveBombHeiGenerate, TLiveActor)
 		if (self->isBckAnm(2)) {
 			self->setBckAnm(3);
 		} else if (self->checkCurAnmEnd(0)) {
-			self->mSpine->pushNerve(&TNerveBombHeiAttack::theNerve());
+			spine->pushAfterCurrent(&TNerveBombHeiAttack::theNerve());
 			return true;
 		}
 	} else {
