@@ -463,7 +463,7 @@ void TBombHei::calcRootMatrix()
 		unk64 |= 0x1;
 	}
 
-	if (mCurrentBckAnm == 0) {
+	if (isBckAnm(0)) {
 		if (getMActor()->getFrameCtrl(0)->checkPass(2.0f)) {
 			if (TEffectExplosion* effect
 			    = (TEffectExplosion*)gpConductor->makeOneEnemyAppear(
