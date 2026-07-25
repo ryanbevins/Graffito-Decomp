@@ -1,6 +1,6 @@
 # Graffito
 
-[![Build](https://github.com/ryanbevins/graffito/actions/workflows/build.yml/badge.svg)](https://github.com/ryanbevins/graffito/actions/workflows/build.yml)
+[![Repository check](https://github.com/ryanbevins/graffito/actions/workflows/build.yml/badge.svg)](https://github.com/ryanbevins/graffito/actions/workflows/build.yml)
 [![Lint](https://github.com/ryanbevins/graffito/actions/workflows/lint.yml/badge.svg)](https://github.com/ryanbevins/graffito/actions/workflows/lint.yml)
 
 Graffito is a work-in-progress, byte-matching decompilation of *Super Mario
