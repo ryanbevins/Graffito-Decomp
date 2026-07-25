@@ -246,7 +246,7 @@ DEFINE_NERVE(TNerveBombHeiGenerate, TLiveActor)
 			return true;
 		}
 	} else {
-		if (self->mCurrentBckAnm != 2) {
+		if (!self->isBckAnm(2)) {
 			self->mMActor = self->mMActorKeeper->getMActor("nejibomb_model1.bmd");
 			self->setBckAnm(2);
 			self->getMActor()->setBtpFromIndex(1);
