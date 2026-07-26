@@ -500,14 +500,9 @@ void TAmiNoko::attackToMario()
 		if (!marioPlane) {
 			break;
 		}
-		{
-			const JGeometry::TVec3<f32>* marioNormal = &marioPlane->mNormal;
-			f32 dot = marioNormal->y * unk194->mNormal.y;
-			dot += marioNormal->x * unk194->mNormal.x;
-			dot += marioNormal->z * unk194->mNormal.z;
-			if (dot < 0.0f) {
-				doAttack = 0;
-			}
+		f32 dot = marioPlane->getNormal().dot(unk194->getNormal());
+		if (dot < 0.0f) {
+			doAttack = 0;
 		}
 		break;
 	} }
