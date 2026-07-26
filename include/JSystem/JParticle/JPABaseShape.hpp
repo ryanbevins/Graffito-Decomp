@@ -68,7 +68,7 @@ public:
 	f32 getTilingY() { return mTilingY; }
 
 	GXBool textureIsEmpty() { return unk81; }
-	BOOL isEnableTextureAnm() { return unk80; }
+	GXBool isEnableTextureAnm() { return unk80; }
 
 	u8 getTextureIndex() { return mTextureIndex; }
 	u8 getTextureIndex(u8 idx) { return mTextureIndices[idx]; }
