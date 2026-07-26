@@ -3,6 +3,8 @@
 // reference it but none emit it, so it must be defined here.
 #define JGEOMETRY_EVENTWATCHER_TVEC3_SET_VEC_OUT_OF_LINE
 #define JGEOMETRY_TVEC3_ADD_OUT_OF_LINE
+#define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 
 // TUtil<f32>::sqrt is called out-of-line in this TU (owner lives elsewhere).
 #define JG_TUTIL_SQRT_OUT_OF_LINE
@@ -56,6 +58,8 @@ public:
 // rogue includes needed for matching sinit & bss
 #include <M3DUtil/InfectiousStrings.hpp>
 
+#undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #undef JGEOMETRY_EVENTWATCHER_TVEC3_SET_VEC_OUT_OF_LINE
 #undef JGEOMETRY_TVEC3_ADD_OUT_OF_LINE
 
