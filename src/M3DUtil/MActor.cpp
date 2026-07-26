@@ -112,7 +112,7 @@ void MActor::setModel(J3DModel* param_1, u32 param_2)
 		J3DMaterial* mat = unk4->getModelData()->getMaterialNodePointer(i);
 		unk30[i]         = 0x32;
 		unk2C[i]         = 0x32;
-		for (u16 j = 0; j < mat->getTexGenBlock()->getTexGenNum(); ++j) {
+		for (u8 j = 0; j < mat->getTexGenBlock()->getTexGenNum(); ++j) {
 			if (mat->getTexGenBlock()->getTexMtx(j)
 			    && mat->getTexGenBlock()->getTexMtx(j)->getInfo()) {
 				unk30[i] = i;
