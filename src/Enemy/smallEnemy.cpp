@@ -177,11 +177,8 @@ void TSmallEnemy::init(TLiveManager* param_1)
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 	unk158 = 1.0f;
 
-	TSmallEnemyParams* params1 = getSaveParam2();
-	mTurnSpeed                 = params1->mTurnSpeedRange.rand();
-
-	TSmallEnemyParams* params2 = getSaveParam2();
-	mBodyScale                 = params2->mBodyScaleRange.rand();
+	mTurnSpeed = getSaveParam2()->mTurnSpeedRange.rand();
+	mBodyScale = getSaveParam2()->mBodyScaleRange.rand();
 
 	unk154            = mBodyScale;
 	mBodyRadius       = getSaveParam2()->mSLBodyRadius.get();
