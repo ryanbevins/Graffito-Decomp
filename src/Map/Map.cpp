@@ -4,7 +4,9 @@
 #include <Map/MapWarp.hpp>
 #include <Map/MapXlu.hpp>
 #include <Map/MapCollisionEntry.hpp>
-#include <Map/MapCollisionEntryInline.hpp>
+#define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
+#include <Map/MapCollisionEntry.hpp>
+#undef MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 #include <Map/MapEventMare.hpp>
 #include <Map/MapStaticObject.hpp>
 #include <MoveBG/MapObjBase.hpp>

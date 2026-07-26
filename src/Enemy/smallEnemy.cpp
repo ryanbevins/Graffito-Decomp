@@ -39,7 +39,9 @@ static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
 // NOTE: has to be here for proper rodata order
 #include <Map/MapCollisionEntry.hpp>
-#include <Map/MapCollisionEntryInline.hpp>
+#define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
+#include <Map/MapCollisionEntry.hpp>
+#undef MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 
 static const char* MtxCalcTypeName[] = {
 	"MActorMtxCalcType_Basic クラシックスケールＯＮ",

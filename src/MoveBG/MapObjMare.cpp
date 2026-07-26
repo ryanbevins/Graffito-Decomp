@@ -15,7 +15,9 @@
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
-#include <Map/MapCollisionEntryInline.hpp>
+#define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
+#include <Map/MapCollisionEntry.hpp>
+#undef MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>

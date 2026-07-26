@@ -7,7 +7,9 @@
 #include <Camera/CubeMapTool.hpp>
 #include <JSystem/JMath.hpp>
 #include <Map/MapCollisionEntry.hpp>
-#include <Map/MapCollisionEntryInline.hpp>
+#define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
+#include <Map/MapCollisionEntry.hpp>
+#undef MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ModelUtil.hpp>
 #include <MoveBG/MapObjManager.hpp>

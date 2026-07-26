@@ -2,7 +2,11 @@
 #define JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
 #include <Player/MarioMain.hpp>
 #undef JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
-#include <Player/YoshiInline.hpp>
+#define PLAYER_YOSHI_DEFINE_ON_YOSHI
+#pragma dont_inline on
+#include <Player/Yoshi.hpp>
+#pragma dont_inline off
+#undef PLAYER_YOSHI_DEFINE_ON_YOSHI
 
 #include <Map/Map.hpp>
 #include <JSystem/JMath.hpp>

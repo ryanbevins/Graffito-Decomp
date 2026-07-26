@@ -122,3 +122,11 @@ public:
 };
 
 #endif
+
+#if defined(PLAYER_YOSHI_DEFINE_ON_YOSHI) \
+    && !defined(PLAYER_YOSHI_ON_YOSHI_DEFINED)
+#define PLAYER_YOSHI_ON_YOSHI_DEFINED
+
+BOOL TYoshi::onYoshi() { return (u8)mState == MOUNTED ? 1 : 0; }
+
+#endif

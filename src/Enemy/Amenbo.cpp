@@ -8,7 +8,9 @@
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <Map/MapCollisionEntry.hpp>
-#include <Map/MapCollisionEntryInline.hpp>
+#define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
+#include <Map/MapCollisionEntry.hpp>
+#undef MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 #include <Map/MapMirror.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>

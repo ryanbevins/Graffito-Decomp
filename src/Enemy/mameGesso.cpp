@@ -14,7 +14,9 @@
 
 // has to be here for rodata ordering
 #include <Map/MapCollisionEntry.hpp>
-#include <Map/MapCollisionEntryInline.hpp>
+#define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
+#include <Map/MapCollisionEntry.hpp>
+#undef MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 
 f32 TMameGesso::mBaseHoseiTransY = -20.0f;
 

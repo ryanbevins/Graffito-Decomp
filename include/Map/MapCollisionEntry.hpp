@@ -154,3 +154,21 @@ public:
 };
 
 #endif
+
+#if defined(MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS)                       \
+    && !defined(MAP_COLLISION_ENTRY_SET_UP_TRANS_DEFINED)
+#define MAP_COLLISION_ENTRY_SET_UP_TRANS_DEFINED
+
+inline void
+TMapCollisionBase::setUpTrans(const JGeometry::TVec3<f32>& param_1)
+{
+	JGeometry::TVec3<f32> vec3;
+	JGeometry::TVec3<f32> vec2;
+	vec3.set((Vec) { 0.0f, 0.0f, 0.0f });
+	vec2.set((Vec) { 1.0f, 1.0f, 1.0f });
+	MsMtxSetTRS(unk20, param_1.x, param_1.y, param_1.z, vec2.x, vec2.y, vec2.z,
+	            vec3.x, vec3.y, vec3.z);
+	setUp();
+}
+
+#endif

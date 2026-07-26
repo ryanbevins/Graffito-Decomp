@@ -4,7 +4,9 @@
 #include <Camera/CubeManagerBase.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
-#include <Map/MapCollisionEntryInline.hpp>
+#define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
+#include <Map/MapCollisionEntry.hpp>
+#undef MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapData.hpp>
