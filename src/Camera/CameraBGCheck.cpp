@@ -122,9 +122,9 @@ bool CPolarSubCamera::execRoofCheck_(Vec p)
 		void* opt = getKindOpt(this);
 		f32 shift = *(f32*)((u8*)opt + 0xF4);
 		f32 newY  = roofY - shift;
-		if (*(f32*)((u8*)this + 0x84) > newY) {
-			*(f32*)((u8*)this + 0x84) = newY;
-			didSnap                   = true;
+		if (mCurrentTarget.mPosition.y > newY) {
+			mCurrentTarget.mPosition.y = newY;
+			didSnap                     = true;
 		}
 	}
 	return didSnap;
