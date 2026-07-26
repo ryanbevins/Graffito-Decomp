@@ -8,7 +8,8 @@
 #include <Camera/cameralib.hpp>
 #include <Strategic/Spine.hpp>
 
-f32 calcDist(const JGeometry::TVec3<f32>& a, const JGeometry::TVec3<f32>& b)
+inline f32 calcDist(const JGeometry::TVec3<f32>& a,
+                    const JGeometry::TVec3<f32>& b)
 {
 	JGeometry::TVec3<f32> diff = a;
 	diff.sub(b);
