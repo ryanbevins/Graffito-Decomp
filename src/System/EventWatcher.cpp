@@ -1175,12 +1175,15 @@ static void evAppear8RedCoinsAndTimer(TSpcTypedInterp<TEventWatcher>* interp,
 		TCoinRed* coin = (TCoinRed*)gpItemManager->makeObjAppeared(0x2000000f);
 		coin->killByTimer(time - coin->unk150);
 
-		coin->unk158 = coin->mPosition.x;
-		coin->unk15C = 70.0f + coin->mPosition.y;
-		coin->unk160 = coin->mPosition.z;
+		f32 y = 70.0f + coin->mPosition.y;
+		f32 z = coin->mPosition.z;
+		f32 x = coin->mPosition.x;
+		coin->unk158 = x;
+		coin->unk15C = y;
+		coin->unk160 = z;
 
-		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x58, coin->getModel()->mNodeMatrices[0], 0, coin);
+		MtxPtr nodeMtx = coin->getModel()->mNodeMatrices[0];
+		gpMarioParticleManager->emitAndBindToMtxPtr(0x58, nodeMtx, 0, coin);
 		const JGeometry::TVec3<f32>* emitPos
 		    = (const JGeometry::TVec3<f32>*)&coin->unk158;
 		gpMarioParticleManager->emit(0xE5, emitPos, 0, nullptr);
