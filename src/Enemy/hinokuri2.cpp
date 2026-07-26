@@ -405,6 +405,7 @@ static int Hino2HeadCallback(J3DNode* param_1, int param_2)
 			f32 c = JMACos(gpCurHinokuri->unk198);
 
 			Mtx local_74;
+			MtxPtr rotMtx = local_74;
 			local_74[0][0] = c;
 			local_74[0][1] = 0.0;
 			local_74[0][2] = s;
@@ -420,12 +421,13 @@ static int Hino2HeadCallback(J3DNode* param_1, int param_2)
 			local_74[2][2] = c;
 			local_74[2][3] = 0.0;
 
-			MTXConcat(mA, local_74, mA);
+			MTXConcat(mA, rotMtx, mA);
 			MTXConcat(mA, local_44, mA);
-			MTXConcat(J3DSys::mCurrentMtx, local_74, J3DSys::mCurrentMtx);
+			MTXConcat(J3DSys::mCurrentMtx, rotMtx, J3DSys::mCurrentMtx);
 			MTXConcat(J3DSys::mCurrentMtx, local_44, J3DSys::mCurrentMtx);
 		} else {
 			Mtx local_a4;
+			MtxPtr rotMtx = local_a4;
 			f32 s          = JMASin(gpCurHinokuri->unk198);
 			f32 c          = JMACos(gpCurHinokuri->unk198);
 			local_a4[0][0] = c;
@@ -443,8 +445,8 @@ static int Hino2HeadCallback(J3DNode* param_1, int param_2)
 			local_a4[2][2] = c;
 			local_a4[2][3] = 0.0;
 
-			MTXConcat(mA, local_a4, mA);
-			MTXConcat(J3DSys::mCurrentMtx, local_a4, J3DSys::mCurrentMtx);
+			MTXConcat(mA, rotMtx, mA);
+			MTXConcat(J3DSys::mCurrentMtx, rotMtx, J3DSys::mCurrentMtx);
 		}
 	}
 
