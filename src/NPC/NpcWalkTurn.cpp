@@ -100,7 +100,8 @@ bool TBaseNPC::execUTurn()
 	diff.x -= mPosition.x;
 	diff.y -= mPosition.y;
 	diff.z -= mPosition.z;
-	f32 targetYaw = MsGetRotFromZaxis(diff).y;
+	const JGeometry::TVec3<f32>& rotation = MsGetRotFromZaxis(diff);
+	f32 targetYaw                         = rotation.y;
 
 	if (mRotation.y == targetYaw)
 		return TRUE;
