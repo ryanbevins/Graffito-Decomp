@@ -34,7 +34,7 @@ void TBaseNPC::execWalk(bool param_1)
 				f32 targetYaw              = MsGetRotFromZaxisY(tmp2);
 
 				f32 raw   = mRotation.y - targetYaw;
-				f32 delta = raw < 0.0f ? -raw : raw;
+				f32 delta = __fabsf(raw);
 				while (delta >= 360.0f)
 					delta -= 360.0f;
 				while (delta < 0.0f)
