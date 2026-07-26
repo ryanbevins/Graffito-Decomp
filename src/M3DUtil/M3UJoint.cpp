@@ -24,9 +24,10 @@ void M3UMtxCalcBlendAux(u16 param_1, J3DTransformInfo* param_2,
 	J3DSys::mCurrentS.y *= fVar3;
 	J3DSys::mCurrentS.z *= fVar2;
 
+	Vec currentScale = J3DSys::mCurrentS;
 	bool bVar5;
-	if (J3DSys::mCurrentS.x == 1.0f && J3DSys::mCurrentS.y == 1.0f
-	    && J3DSys::mCurrentS.z == 1.0f)
+	if (currentScale.x == 1.0f && currentScale.y == 1.0f
+	    && currentScale.z == 1.0f)
 		bVar5 = true;
 	else
 		bVar5 = false;
