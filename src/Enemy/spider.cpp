@@ -106,7 +106,7 @@ void TSpider::bind(TLiveActor* param_1)
 		if (unk10 < 0.0f)
 			unk10 = 0.0f;
 	} else {
-		JGeometry::TVec3<f32> normal = local_90.mResultWalls[0]->getNormal();
+		JGeometry::TVec3<f32> normal = local_90.mResultWalls[0]->mNormal;
 		if (normal.x * local_114.x + normal.y * linearVelocityY
 		        + normal.z * linearVelocityZ < 0.0f) {
 			unaff_f29 = enemy->mMarchSpeed;
