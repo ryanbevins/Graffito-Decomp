@@ -2011,7 +2011,7 @@ BOOL TMario::slipBackCommon(int statusOnStop, int slipStatus, int slipArg)
 
 	f32 slideStop = getSlideStopNormal();
 	if (doSliding(slideStop)) {
-		changePlayerStatus(statusOnStop, 0, false);
+		return changePlayerStatus(statusOnStop, 0, false);
 	} else {
 		slippingBasic(statusOnStop, slipStatus, slipArg);
 	}
