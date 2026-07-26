@@ -673,7 +673,8 @@ void JAIData::initInfoDataWork(JAISoundTable* soundTable, char* path)
 
 	if (!soundTable->unk78) {
 		soundTable->unk78 = (u8*)unk1F4->allocHeap(size);
-		JASystem::Dvd::loadFile(path, soundTable->unk78);
+		void* buffer = soundTable->unk78;
+		JASystem::Dvd::loadFile(path, buffer);
 		soundTable->unk28 = size;
 	}
 	soundTable->unk0 = soundTable->unk78[3];
