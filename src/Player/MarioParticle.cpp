@@ -574,22 +574,31 @@ void TMario::surfingEffect()
 		emitter->unk174.setAll(scale);
 	}
 
-	emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x121, mJointMtx1, 1, this);
+	{
+		MtxPtr jointMtx = mJointMtx1;
+		emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x121, jointMtx, 1, this);
+	}
 	if (emitter) {
 		emitter->unk154.setAll(scale);
 		emitter->unk174.setAll(scale);
 	}
 
-	emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x123, mJointMtx1, 1, this);
+	{
+		MtxPtr jointMtx = mJointMtx1;
+		emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x123, jointMtx, 1, this);
+	}
 	if (emitter) {
 		emitter->unk154.setAll(scale);
 		emitter->unk174.setAll(scale);
 	}
 
-	emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x122, mJointMtx1, 1, this);
+	{
+		MtxPtr jointMtx = mJointMtx1;
+		emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x122, jointMtx, 1, this);
+	}
 	if (emitter) {
 		emitter->unk154.setAll(scale);
 		emitter->unk174.setAll(scale);
