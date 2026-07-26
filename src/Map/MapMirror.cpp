@@ -28,8 +28,11 @@ void TMirrorCamera::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (param_1 & 0x14) {
 		MtxPtr projMtx = param_2->mProjMtx.mMtx;
-		C_MTXPerspective(projMtx, unk80 * gpCamera->mFovy, gpCamera->mAspect,
-		                 gpCamera->mNear, gpCamera->mFar);
+		f32 fovy = gpCamera->mFovy;
+		f32 far = gpCamera->mFar;
+		f32 near = gpCamera->mNear;
+		C_MTXPerspective(projMtx, unk80 * fovy, gpCamera->mAspect,
+		                 near, far);
 		MTXCopy(unk30, param_2->mViewMtx);
 		param_2->mNearPlane = gpCamera->mNear;
 		param_2->mFarPlane  = gpCamera->mFar;
