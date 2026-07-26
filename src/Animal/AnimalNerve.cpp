@@ -41,7 +41,7 @@ DEFINE_NERVE(TNerveAnimalGraphWander, TLiveActor)
 			int lo     = CLBPalFrame<int>(150);
 			int* timer = actor->mFrameTimer;
 			timer[0]   = 0;
-			timer[1]   = lo + (int)((f32)(hi - lo) * (MsRandF())) + 1;
+			timer[1]   = MsRandI(lo, hi);
 		}
 
 		int* timer = actor->mFrameTimer;
@@ -62,8 +62,7 @@ DEFINE_NERVE(TNerveAnimalGraphWander, TLiveActor)
 				int lo     = CLBPalFrame<int>(150);
 				int* timer = actor->mFrameTimer;
 				timer[0]   = 0;
-				timer[1]
-				    = lo + (int)((f32)(hi - lo) * (MsRandF())) + 1;
+				timer[1]   = MsRandI(lo, hi);
 			}
 			break;
 		}
@@ -97,7 +96,7 @@ DEFINE_NERVE(TNerveAnimalGraphWander, TLiveActor)
 				int lo     = CLBPalFrame<int>(60);
 				int* timer = actor->mFrameTimer;
 				timer[0]   = 0;
-				timer[1]   = lo + (int)((f32)(hi - lo) * (MsRandF())) + 1;
+				timer[1]   = MsRandI(lo, hi);
 			} else {
 				if (!mActor->checkCurBckFromIndex(0))
 					mActor->setBckFromIndex(0);
@@ -106,7 +105,7 @@ DEFINE_NERVE(TNerveAnimalGraphWander, TLiveActor)
 				int lo     = CLBPalFrame<int>(150);
 				int* timer = actor->mFrameTimer;
 				timer[0]   = 0;
-				timer[1]   = lo + (int)((f32)(hi - lo) * (MsRandF())) + 1;
+				timer[1]   = MsRandI(lo, hi);
 			}
 		}
 	}
