@@ -832,7 +832,7 @@ void TPakkun::behaveToWater(THitActor* actor)
 	    && mSpine->getCurrentNerve() != &TNerveStayPakkunHide::theNerve()) {
 		mSpine->pushNerve(&TNervePakkunFreeze::theNerve());
 		if (mSeed->isUnk150Zero())
-			mSeed->rebirth();
+			mSeed->kill();
 	}
 }
 
