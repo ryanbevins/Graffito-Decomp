@@ -1,6 +1,5 @@
 #include <Map/MapStaticObject.hpp>
 #include <Map/MapCollisionManager.hpp>
-#include <Map/MapCollisionEntry.hpp>
 #include <Map/MapModel.hpp>
 #include <Map/MapMirror.hpp>
 #include <Map/Map.hpp>
@@ -37,12 +36,7 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
-
-static void dummy(Vec& v)
-{
-	v = (Vec) { 0.0f, 0.0f, 0.0f };
-	v = (Vec) { 1.0f, 1.0f, 1.0f };
-}
+#include <Map/MapCollisionEntry.hpp>
 
 static inline void setEffectMtxOnTex1(J3DMaterial* mat, MtxPtr mtx)
 {
