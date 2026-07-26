@@ -32,6 +32,17 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+// Infectious dummies for the Vec zero/one literals owned by this TU.
+inline static void dummyVecZero(Vec* v)
+{
+	*v = (Vec) { 0.0f, 0.0f, 0.0f };
+}
+
+inline static void dummyVecOne(Vec* v)
+{
+	*v = (Vec) { 1.0f, 1.0f, 1.0f };
+}
+
 f32 TBossManta::sFrameRate[TBossManta::GENERATION_COUNT]
     = { 0.3f, 0.5f, 1.2f, 2.0f, 5.0f, 5.3f };
 f32 TBossManta::sScale[TBossManta::GENERATION_COUNT]
