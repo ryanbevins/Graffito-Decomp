@@ -1209,7 +1209,7 @@ static void evWarpFrontToMario(TSpcTypedInterp<TEventWatcher>* interp,
 
 	f32 oldX = front.x;
 	front.x = front.z * JMASSin(angle) + oldX * JMASCos(angle);
-	front.z = front.z * JMASCos(angle) - oldX * JMASSin(angle);
+	front.z = front.z * JMASCos(angle) + -oldX * JMASSin(angle);
 
 	JGeometry::TVec3<f32> offset;
 	offset.set(front);
