@@ -55,12 +55,15 @@ DEFINE_NERVE(TNerveBombHeiExplosion, TLiveActor)
 		if (self->mHolder == (TTakeActor*)gpMarioAddress)
 			self->sendAttackMsgToMario();
 
-		self->unk164 = 0;
+		bool isWater = false;
+		self->unk164 = isWater;
 
-		if (self->mGroundPlane->mBGType == 0x100
-		    || (self->mGroundPlane->mBGType >= 0x101
-		        && self->mGroundPlane->mBGType <= 0x105)
-		    || self->mGroundPlane->mBGType == 0x4104) {
+		u16 type = self->mGroundPlane->mBGType;
+		if (type == 0x100 || (u16)(type - 0x101) <= 4
+		    || type == 0x4104)
+			isWater = true;
+
+		if (isWater) {
 			if (TEffectBombColumWater* water
 			    = (TEffectBombColumWater*)gpConductor->makeOneEnemyAppear(
 			        self->mPosition, "エフェクト爆発水柱マネージャー", 1)) {
