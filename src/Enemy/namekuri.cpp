@@ -1,3 +1,5 @@
+#define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #include <Enemy/NameKuri.hpp>
 #include <Enemy/Walker.hpp>
 #include <Enemy/Graph.hpp>
@@ -36,6 +38,8 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
+#undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 
 f32 TNameKuriManager::mExplosionSpeed    = 1.2f;
 int TNameKuriManager::mStopMinScaleFrame = 8;
