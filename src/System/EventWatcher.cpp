@@ -1166,8 +1166,9 @@ static void evAppear8RedCoinsAndTimer(TSpcTypedInterp<TEventWatcher>* interp,
 {
 	interp->verifyArgNum(0, &arg_num);
 
+	const char* switchName = "赤コイン用スイッチ";
 	TRedCoinSwitch* sw
-	    = JDrama::TNameRefGen::search<TRedCoinSwitch>("赤コイン用スイッチ");
+	    = JDrama::TNameRefGen::search<TRedCoinSwitch>(switchName);
 	int time = sw->unk138;
 
 	for (int i = 0; i < 8; ++i) {
