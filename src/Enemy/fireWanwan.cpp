@@ -468,7 +468,7 @@ void TFireWanwanTailHit::behaveTaken(THitActor* param_1)
 
 	mCurTailLength  = unkA4->getLength();
 	mPrevTailLength = mCurTailLength;
-	moveRequest(mPosition);
+	moveRequest(param_1->mPosition);
 }
 
 void TFireWanwanTailHit::behaveApart()
