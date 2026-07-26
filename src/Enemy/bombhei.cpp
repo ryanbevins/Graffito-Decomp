@@ -42,6 +42,165 @@ const char* bombhei_bastable[] = {
 
 // ============= nerves =============
 
+DEFINE_NERVE(TNerveBombHeiGenerate, TLiveActor)
+{
+	TBombHei* self = (TBombHei*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->mMActor = self->mMActorKeeper->getMActor("nejibomb_model1.bmd");
+		self->setBckAnm(2);
+		self->getMActor()->setBtpFromIndex(1);
+		self->getMActor()->setFrameRate(0.0f, 3);
+	}
+
+	if (self->mHolder != nullptr)
+		self->getMActor()->setFrameRate(0.0f, 0);
+
+	if (!self->checkLiveFlag2(0x80) && self->mHolder == nullptr) {
+		if (self->isBckAnm(2)) {
+			self->setBckAnm(3);
+		} else if (self->checkCurAnmEnd(0)) {
+			spine->pushAfterCurrent(&TNerveBombHeiAttack::theNerve());
+			return true;
+		}
+	} else {
+		if (!self->isBckAnm(2)) {
+			self->mMActor = self->mMActorKeeper->getMActor("nejibomb_model1.bmd");
+			self->setBckAnm(2);
+			self->getMActor()->setBtpFromIndex(1);
+			self->getMActor()->setFrameRate(0.0f, 3);
+		}
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBombHeiAttack, TLiveActor)
+{
+	TBombHei* self = (TBombHei*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->setWalkAnm();
+		self->unk164 = 0;
+		self->setGoalPathMario();
+	}
+
+	self->walkBehavior(2, 1.0f);
+	return false;
+}
+
+DEFINE_NERVE(TNerveBombHeiWalkExplosion, TLiveActor)
+{
+	TBombHei* self = (TBombHei*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->setBckAnm(5);
+		self->getMActor()->setBtpFromIndex(0);
+	} else {
+		if (self->checkCurAnmEnd(0)) {
+			self->mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
+			return true;
+		}
+	}
+
+	int frame = (int)self->getMActor()->getFrameCtrl(3)->getFrame();
+	if (frame % 40 == 0) {
+		if (gpMSound->gateCheck(0x2859))
+			MSoundSESystem::MSoundSE::startSoundActor(0x2859, &self->mPosition, 0,
+			                                          nullptr, 0, 4);
+	}
+
+	self->walkBehavior(2, 0.6f);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x17f, self->getMActor()->getModel()->getAnmMtx(1), 1, self);
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBombHeiWaitExplosion, TLiveActor)
+{
+	TBombHei* self = (TBombHei*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->setBckAnm(6);
+		self->unk164 = 1;
+	}
+
+	if (self->unk164 != 0) {
+		if (self->getMActor()->getFrameCtrl(0)->checkPass(60.0f))
+			self->getMActor()->setFrameRate(0.0f, 0);
+
+		if (self->getMActor()->getFrameCtrl(0)->checkPass(10.0f)) {
+			self->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 3);
+			if (self->getCurAnmFrameNo(3) >= 1.0f)
+				self->getMActor()->setFrameRate(0.0f, 3);
+		}
+		return false;
+	}
+
+	self->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
+	if (!self->getMActor()->checkCurAnmFromIndex(0, 3))
+		self->getMActor()->setBtpFromIndex(0);
+
+	if (self->checkCurAnmEnd(0)) {
+		if (spine->getTime() > 0x96) {
+			self->mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
+			return true;
+		}
+	}
+
+	int frame = (int)self->getMActor()->getFrameCtrl(3)->getFrame();
+	if (frame % 40 == 0) {
+		if (gpMSound->gateCheck(0x2859))
+			MSoundSESystem::MSoundSE::startSoundActor(0x2859, &self->mPosition, 0,
+			                                          nullptr, 0, 4);
+	}
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0x17f, self->getMActor()->getModel()->getAnmMtx(1), 1, self);
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBombHeiPickUp, TLiveActor)
+{
+	TBombHei* self = (TBombHei*)spine->getBody();
+	if (spine->getTime() == 0 && self->unk164 == 0)
+		return true;
+	return false;
+}
+
+DEFINE_NERVE(TNerveBombHeiThrown, TLiveActor)
+{
+	TBombHei* self = (TBombHei*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		TBombHeiSaveLoadParams* p = self->getBombParam();
+		s16 angle                 = *gpMarioAngleY;
+		f32 power                 = *gpMarioThrowPower;
+		f32 rateXZ                = p->mSLThrownRateXZ.get();
+
+		JGeometry::TVec3<f32> vel;
+		vel.x = rateXZ * (power * JMASin(angle));
+		vel.y = p->mSLThrownVY.get();
+		vel.z = rateXZ * (power * JMACos(angle));
+		self->mVelocity = vel;
+
+		self->mPosition.y += 2.0f;
+		self->mLiveFlag |= 0x80;
+	}
+
+	if (spine->getTime() == 0x78)
+		self->unk64 &= ~0x1;
+
+	if (!(self->mLiveFlag & 0x80)) {
+		self->genEventCoin();
+		self->mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
+		return true;
+	}
+
+	return false;
+}
+
 DEFINE_NERVE(TNerveBombHeiExplosion, TLiveActor)
 {
 	TBombHei* self = (TBombHei*)spine->getBody();
@@ -100,165 +259,6 @@ DEFINE_NERVE(TNerveBombHeiExplosion, TLiveActor)
 	}
 
 	self->expandCollision();
-	return false;
-}
-
-DEFINE_NERVE(TNerveBombHeiThrown, TLiveActor)
-{
-	TBombHei* self = (TBombHei*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		TBombHeiSaveLoadParams* p = self->getBombParam();
-		s16 angle                 = *gpMarioAngleY;
-		f32 power                 = *gpMarioThrowPower;
-		f32 rateXZ                = p->mSLThrownRateXZ.get();
-
-		JGeometry::TVec3<f32> vel;
-		vel.x = rateXZ * (power * JMASin(angle));
-		vel.y = p->mSLThrownVY.get();
-		vel.z = rateXZ * (power * JMACos(angle));
-		self->mVelocity = vel;
-
-		self->mPosition.y += 2.0f;
-		self->mLiveFlag |= 0x80;
-	}
-
-	if (spine->getTime() == 0x78)
-		self->unk64 &= ~0x1;
-
-	if (!(self->mLiveFlag & 0x80)) {
-		self->genEventCoin();
-		self->mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
-		return true;
-	}
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBombHeiPickUp, TLiveActor)
-{
-	TBombHei* self = (TBombHei*)spine->getBody();
-	if (spine->getTime() == 0 && self->unk164 == 0)
-		return true;
-	return false;
-}
-
-DEFINE_NERVE(TNerveBombHeiWaitExplosion, TLiveActor)
-{
-	TBombHei* self = (TBombHei*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->setBckAnm(6);
-		self->unk164 = 1;
-	}
-
-	if (self->unk164 != 0) {
-		if (self->getMActor()->getFrameCtrl(0)->checkPass(60.0f))
-			self->getMActor()->setFrameRate(0.0f, 0);
-
-		if (self->getMActor()->getFrameCtrl(0)->checkPass(10.0f)) {
-			self->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 3);
-			if (self->getCurAnmFrameNo(3) >= 1.0f)
-				self->getMActor()->setFrameRate(0.0f, 3);
-		}
-		return false;
-	}
-
-	self->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
-	if (!self->getMActor()->checkCurAnmFromIndex(0, 3))
-		self->getMActor()->setBtpFromIndex(0);
-
-	if (self->checkCurAnmEnd(0)) {
-		if (spine->getTime() > 0x96) {
-			self->mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
-			return true;
-		}
-	}
-
-	int frame = (int)self->getMActor()->getFrameCtrl(3)->getFrame();
-	if (frame % 40 == 0) {
-		if (gpMSound->gateCheck(0x2859))
-			MSoundSESystem::MSoundSE::startSoundActor(0x2859, &self->mPosition, 0,
-			                                          nullptr, 0, 4);
-	}
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x17f, self->getMActor()->getModel()->getAnmMtx(1), 1, self);
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBombHeiWalkExplosion, TLiveActor)
-{
-	TBombHei* self = (TBombHei*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->setBckAnm(5);
-		self->getMActor()->setBtpFromIndex(0);
-	} else {
-		if (self->checkCurAnmEnd(0)) {
-			self->mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
-			return true;
-		}
-	}
-
-	int frame = (int)self->getMActor()->getFrameCtrl(3)->getFrame();
-	if (frame % 40 == 0) {
-		if (gpMSound->gateCheck(0x2859))
-			MSoundSESystem::MSoundSE::startSoundActor(0x2859, &self->mPosition, 0,
-			                                          nullptr, 0, 4);
-	}
-
-	self->walkBehavior(2, 0.6f);
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x17f, self->getMActor()->getModel()->getAnmMtx(1), 1, self);
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBombHeiAttack, TLiveActor)
-{
-	TBombHei* self = (TBombHei*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->setWalkAnm();
-		self->unk164 = 0;
-		self->setGoalPathMario();
-	}
-
-	self->walkBehavior(2, 1.0f);
-	return false;
-}
-
-DEFINE_NERVE(TNerveBombHeiGenerate, TLiveActor)
-{
-	TBombHei* self = (TBombHei*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->mMActor = self->mMActorKeeper->getMActor("nejibomb_model1.bmd");
-		self->setBckAnm(2);
-		self->getMActor()->setBtpFromIndex(1);
-		self->getMActor()->setFrameRate(0.0f, 3);
-	}
-
-	if (self->mHolder != nullptr)
-		self->getMActor()->setFrameRate(0.0f, 0);
-
-	if (!self->checkLiveFlag2(0x80) && self->mHolder == nullptr) {
-		if (self->isBckAnm(2)) {
-			self->setBckAnm(3);
-		} else if (self->checkCurAnmEnd(0)) {
-			spine->pushAfterCurrent(&TNerveBombHeiAttack::theNerve());
-			return true;
-		}
-	} else {
-		if (!self->isBckAnm(2)) {
-			self->mMActor = self->mMActorKeeper->getMActor("nejibomb_model1.bmd");
-			self->setBckAnm(2);
-			self->getMActor()->setBtpFromIndex(1);
-			self->getMActor()->setFrameRate(0.0f, 3);
-		}
-	}
-
 	return false;
 }
 
