@@ -2676,9 +2676,7 @@ void TGCConsole2::drawWaterBack()
 
 void TGCConsole2::startDisappearMario()
 {
-	if (!unk3A8->getPane()->isVisible())
-		return;
-	if (unk34[7])
+	if (!unk3A8->getPane()->isVisible() || unk34[7])
 		return;
 
 	unk3A8->updatePaneOffset(50, 0, getOffsetForAboveScreen(unk3A8));
