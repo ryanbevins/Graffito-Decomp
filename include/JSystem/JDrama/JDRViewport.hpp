@@ -8,7 +8,7 @@ namespace JDrama {
 
 class TViewport : public TViewObj {
 public:
-	TViewport(const TRect& = TRect(0, 0, 640, 480),
+	TViewport(const TRect& = TRect(0, 0, 640, 528),
 	          const char* = "<Viewport>");
 
 	virtual ~TViewport() { }
