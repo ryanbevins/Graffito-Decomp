@@ -108,15 +108,13 @@ bool TMapObjBase::isDemo()
 		b1 = false;
 
 	if (!b1) {
-		// TODO: should be OR, but need fancy inlines for that...
 		bool b2 = true;
 		if (gpMarDirector->unk124 != 3 && gpMarDirector->unk124 != 4)
 			b2 = false;
-		if (b2) {
-			return true;
-		}
+		if (!b2)
+			return false;
 	}
-	return false;
+	return true;
 }
 
 void TMapObjBase::loadHideObjInfo(JSUMemoryInputStream& stream, s32* param_2,
