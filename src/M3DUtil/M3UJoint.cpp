@@ -7,24 +7,25 @@ void M3UMtxCalcBlendAux(u16 param_1, J3DTransformInfo* param_2,
                         J3DTransformInfo* param_3, float param_4, bool param_5)
 {
 	Vec local_8c;
+	Vec* currentS = &J3DSys::mCurrentS;
 	float fVar1 = 1.0f - param_4;
 	if (param_5) {
 		local_8c.z = 1.0f;
 		local_8c.y = 1.0f;
 		local_8c.x = 1.0f;
 	} else {
-		local_8c = J3DSys::mCurrentS;
+		local_8c = *currentS;
 	}
 
 	float fVar4 = param_2->mScale.x * fVar1 + param_3->mScale.x * param_4;
 	float fVar3 = param_2->mScale.y * fVar1 + param_3->mScale.y * param_4;
 	float fVar2 = param_2->mScale.z * fVar1 + param_3->mScale.z * param_4;
 
-	J3DSys::mCurrentS.x *= fVar4;
-	J3DSys::mCurrentS.y *= fVar3;
-	J3DSys::mCurrentS.z *= fVar2;
+	currentS->x *= fVar4;
+	currentS->y *= fVar3;
+	currentS->z *= fVar2;
 
-	Vec currentScale = J3DSys::mCurrentS;
+	Vec currentScale = *currentS;
 	bool bVar5;
 	if (currentScale.x == 1.0f && currentScale.y == 1.0f
 	    && currentScale.z == 1.0f)
@@ -74,17 +75,17 @@ void M3UMtxCalcBlendAux(u16 param_1, J3DTransformInfo* param_2,
 			PSMTXCopy(J3DSys::mCurrentMtx,
 			          j3dSys.mModel->mNodeMatrices[param_1]);
 		} else {
-			local_7c[0][0] = J3DSys::mCurrentMtx[0][0] * J3DSys::mCurrentS.x;
-			local_7c[0][1] = J3DSys::mCurrentMtx[0][1] * J3DSys::mCurrentS.y;
-			local_7c[0][2] = J3DSys::mCurrentMtx[0][2] * J3DSys::mCurrentS.z;
+			local_7c[0][0] = J3DSys::mCurrentMtx[0][0] * currentS->x;
+			local_7c[0][1] = J3DSys::mCurrentMtx[0][1] * currentS->y;
+			local_7c[0][2] = J3DSys::mCurrentMtx[0][2] * currentS->z;
 			local_7c[0][3] = J3DSys::mCurrentMtx[0][3];
-			local_7c[1][0] = J3DSys::mCurrentMtx[1][0] * J3DSys::mCurrentS.x;
-			local_7c[1][1] = J3DSys::mCurrentMtx[1][1] * J3DSys::mCurrentS.y;
-			local_7c[1][2] = J3DSys::mCurrentMtx[1][2] * J3DSys::mCurrentS.z;
+			local_7c[1][0] = J3DSys::mCurrentMtx[1][0] * currentS->x;
+			local_7c[1][1] = J3DSys::mCurrentMtx[1][1] * currentS->y;
+			local_7c[1][2] = J3DSys::mCurrentMtx[1][2] * currentS->z;
 			local_7c[1][3] = J3DSys::mCurrentMtx[1][3];
-			local_7c[2][0] = J3DSys::mCurrentMtx[2][0] * J3DSys::mCurrentS.x;
-			local_7c[2][1] = J3DSys::mCurrentMtx[2][1] * J3DSys::mCurrentS.y;
-			local_7c[2][2] = J3DSys::mCurrentMtx[2][2] * J3DSys::mCurrentS.z;
+			local_7c[2][0] = J3DSys::mCurrentMtx[2][0] * currentS->x;
+			local_7c[2][1] = J3DSys::mCurrentMtx[2][1] * currentS->y;
+			local_7c[2][2] = J3DSys::mCurrentMtx[2][2] * currentS->z;
 			local_7c[2][3] = J3DSys::mCurrentMtx[2][3];
 			PSMTXCopy(local_7c, j3dSys.mModel->mNodeMatrices[param_1]);
 		}
