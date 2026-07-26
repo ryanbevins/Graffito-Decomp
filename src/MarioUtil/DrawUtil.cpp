@@ -128,7 +128,7 @@ void TSilhouette::perform(u32 param_1, JDrama::TGraphics* param_2)
 	}
 	if ((param_1 & 0x80) != 0) {
 		GXColor color = unk12;
-		color.a       = gpSunMgr->getUnk1CAlpha();
+		color.a       = gpSunMgr->unk18.a;
 		GXSetChanMatColor(GX_COLOR0A0, color);
 		setting(param_2->getUnkB4());
 	}
