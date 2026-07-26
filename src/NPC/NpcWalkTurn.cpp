@@ -49,7 +49,11 @@ void TBaseNPC::execWalk(bool param_1)
 					f32 accel   = mNpcSaveIndividual->mMarchAccel.get();
 					int kind    = lod->getCurrentAnmKind();
 
-					if (kind == 8) {
+					switch (kind) {
+					case 0:
+						target = mNpcSaveIndividual->mMaxMarchSpeed.get();
+						break;
+					case 8:
 						target = mNpcSaveIndividual->mSLMaxRunSpeed.get();
 						accel  = mNpcSaveIndividual->mSLRunAccel.get();
 						if (mActionFlag & 0x4000) {
@@ -58,8 +62,7 @@ void TBaseNPC::execWalk(bool param_1)
 							target *= scale;
 							accel *= scale;
 						}
-					} else if (kind == 0) {
-						target = mNpcSaveIndividual->mMaxMarchSpeed.get();
+						break;
 					}
 					CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, target,
 					                                          accel);
