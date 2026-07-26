@@ -402,10 +402,11 @@ void TChuuHana::checkStretchType()
 
 	if (mSpine->getCurrentNerve()
 	    == &TNerveChuuHanaKeepBalance::theNerve()) {
+		s32 instanceIndex = mInstanceIndex;
 		f32 reverseHeight = getChuuHanaParams()->mSLReverseHeightS.get();
-		if (mInstanceIndex > 0)
+		if (instanceIndex > 0)
 			reverseHeight = getChuuHanaParams()->mSLReverseHeightM.get();
-		if (mInstanceIndex > 2)
+		if (instanceIndex > 2)
 			reverseHeight = getChuuHanaParams()->mSLReverseHeightL.get();
 
 		if (height > reverseHeight) {
@@ -417,10 +418,11 @@ void TChuuHana::checkStretchType()
 		}
 	}
 
+	s32 instanceIndex = mInstanceIndex;
 	f32 stretchHeight = getChuuHanaParams()->mSLStretchHeightS.get();
-	if (mInstanceIndex > 0)
+	if (instanceIndex > 0)
 		stretchHeight = getChuuHanaParams()->mSLStretchHeightM.get();
-	if (mInstanceIndex > 2)
+	if (instanceIndex > 2)
 		stretchHeight = getChuuHanaParams()->mSLStretchHeightL.get();
 
 	if (height > stretchHeight) {
@@ -432,9 +434,9 @@ void TChuuHana::checkStretchType()
 	}
 
 	stretchHeight = getChuuHanaParams()->mSLMediumStretchHeightS.get();
-	if (mInstanceIndex > 0)
+	if (instanceIndex > 0)
 		stretchHeight = getChuuHanaParams()->mSLMediumStretchHeightM.get();
-	if (mInstanceIndex > 2)
+	if (instanceIndex > 2)
 		stretchHeight = getChuuHanaParams()->mSLMediumStretchHeightL.get();
 
 	if (height > stretchHeight) {
@@ -446,9 +448,9 @@ void TChuuHana::checkStretchType()
 	}
 
 	stretchHeight = getChuuHanaParams()->mSLSmallStretchHeightS.get();
-	if (mInstanceIndex > 0)
+	if (instanceIndex > 0)
 		stretchHeight = getChuuHanaParams()->mSLSmallStretchHeightM.get();
-	if (mInstanceIndex > 2)
+	if (instanceIndex > 2)
 		stretchHeight = getChuuHanaParams()->mSLSmallStretchHeightL.get();
 
 	if (height > stretchHeight) {
