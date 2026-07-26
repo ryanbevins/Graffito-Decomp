@@ -672,7 +672,8 @@ void TPopo::behaveToFindMario()
 
 	if (SMS_CheckMarioFlag(0x8000) && manager->unk60) {
 		TWaterGun* gun = (TWaterGun*)SMS_GetMarioWaterGun();
-		if (gun->mCurrentNozzle == 0 && !gpMarioOriginal->onYoshi()) {
+		s32 currentNozzle = gun->mCurrentNozzle;
+		if (currentNozzle == 0 && !gpMarioOriginal->onYoshi()) {
 			setGoalPathMario();
 			mSpine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
 			mSpine->pushAfterCurrent(&TNervePopoAttack::theNerve());
