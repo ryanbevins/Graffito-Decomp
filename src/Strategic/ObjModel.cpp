@@ -156,7 +156,9 @@ MActor* TMActorKeeper::createMActor(const char* model_data_name, u32 flags)
 		index = keeper->getIndex(model_data_name);
 	}
 
-	return createMActorFromNthData(index, flags);
+	mActorModelDataIndices[mActorNum] = index;
+	SDLModelData* data                = keeper->getNthData(index);
+	return createAndRegister(data, flags);
 }
 
 MActor* TMActorKeeper::createMActorFromAllBmd(u32 flags)
