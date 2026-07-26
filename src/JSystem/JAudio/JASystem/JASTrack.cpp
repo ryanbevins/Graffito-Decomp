@@ -1260,8 +1260,10 @@ u32 TTrack::exchangeRegisterValue(u8 reg)
 {
 	if (reg < 0x40)
 		return readReg32(reg);
-	else
-		return mNoteMgr.getUnk20(reg - 0x40);
+	else {
+		u8 index = reg - 0x40;
+		return mTrackPort.mValue[index];
+	}
 }
 
 u16 TTrack::readRegDirect(u8 reg)
