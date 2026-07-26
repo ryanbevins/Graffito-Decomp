@@ -93,8 +93,7 @@ TLensGlow::TLensGlow(bool sunset, const char* name)
 	unk74 = 500.0f;
 	unk78 = 500.0f;
 	unk7C = 0.0f;
-	unk64 = unk6C;
-	unk60 = unk6C;
+	unk60 = unk64 = unk6C;
 }
 
 void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
