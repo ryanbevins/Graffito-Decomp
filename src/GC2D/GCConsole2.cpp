@@ -2549,10 +2549,7 @@ void TGCConsole2::startDisappearStar()
 
 void TGCConsole2::startAppearStar()
 {
-	if (unk34[0])
-		return;
-
-	if (unk140->isInterpolatorAtZero())
+	if (unk34[0] || unk140->isInterpolatorAtZero())
 		return;
 
 	unk59 = 1;
