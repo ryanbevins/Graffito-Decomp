@@ -123,7 +123,8 @@ bool TMario::isTakeSituation(THitActor* object)
 		return false;
 	}
 
-	f32 dist = (object->mPosition - mPosition).length();
+	f32 dist
+	    = JGeometry::TVec3<f32>(object->mPosition - mPosition).length();
 	if (dist > mAttackRadius + object->getDamageRadius()) {
 		return false;
 	}
