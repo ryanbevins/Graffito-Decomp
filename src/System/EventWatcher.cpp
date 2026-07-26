@@ -1169,10 +1169,11 @@ static void evAppear8RedCoinsAndTimer(TSpcTypedInterp<TEventWatcher>* interp,
 	const char* switchName = "赤コイン用スイッチ";
 	TRedCoinSwitch* sw
 	    = JDrama::TNameRefGen::search<TRedCoinSwitch>(switchName);
+	TCoinRed* coin;
 	int time = sw->unk138;
 
 	for (int i = 0; i < 8; ++i) {
-		TCoinRed* coin = (TCoinRed*)gpItemManager->makeObjAppeared(0x2000000f);
+		coin = (TCoinRed*)gpItemManager->makeObjAppeared(0x2000000f);
 		coin->killByTimer(time - coin->unk150);
 
 		f32 y = 70.0f + coin->mPosition.y;
