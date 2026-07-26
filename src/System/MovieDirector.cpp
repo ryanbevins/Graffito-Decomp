@@ -280,13 +280,13 @@ int TMovieDirector::direct()
 
 	if (unk1C == STATE_SAVE_TO_TITLE || unk1C == STATE_SAVE_AND_CONTINUE) {
 		JDrama::TGraphics graphics;
-		graphics.unk2 = 1;
+		graphics.unk0 = 1;
 		unk10->testPerform(1, &graphics);
-		graphics.unk2 = 0;
+		graphics.unk0 = 0;
 		unk10->testPerform(1, &graphics);
-		graphics.unk2 = 0;
+		graphics.unk0 = 0;
 		unk10->testPerform(1, &graphics);
-		graphics.unk2 = 0;
+		graphics.unk0 = 0;
 		unk10->testPerform(3, &graphics);
 		unk14->testPerform(8, &graphics);
 	} else {
