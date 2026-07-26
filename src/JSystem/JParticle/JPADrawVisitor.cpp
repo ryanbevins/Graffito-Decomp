@@ -560,10 +560,11 @@ void rotTypeZ(f32 sin, f32 cos, Mtx& out)
 
 void rotTypeXYZ(f32 sin, f32 cos, Mtx& out)
 {
-	f32 d = (1.0f - cos) * 0.333333f;
-	f32 c = d + (0.57735f * sin);
-	f32 b = d - (0.57735f * sin);
-	f32 a = d + cos;
+	f32 a, b, c;
+	a = (1.0f - cos) * 0.333333f;
+	c = a + (0.57735f * sin);
+	b = a - (0.57735f * sin);
+	a = a + cos;
 
 	out[0][0] = a;
 	out[0][1] = b;
