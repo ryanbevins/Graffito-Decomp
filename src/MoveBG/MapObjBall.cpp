@@ -1190,11 +1190,9 @@ void TMapObjBall::touchActor(THitActor* actor)
 	}
 	if (isHideObj(actor))
 		return;
-	if (actor->isActorType(0x08000083))
-		return;
-	if (actor->isActorType(0x400000CA))
-		return;
-	if (actor->isActorType(0x400000CC))
+	if (actor->isActorType(0x08000083)
+	    || actor->isActorType(0x400000CA)
+	    || actor->isActorType(0x400000CC))
 		return;
 
 	if (actor->isActorType(0x80000001) && !isActorType(0x400000D0)
