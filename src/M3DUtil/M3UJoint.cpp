@@ -8,7 +8,11 @@ void M3UMtxCalcBlendAux(u16 param_1, J3DTransformInfo* param_2,
 {
 	Vec local_8c;
 	Vec* currentS = &J3DSys::mCurrentS;
-	float fVar1 = 1.0f - param_4;
+	float fVar4;
+	float fVar3;
+	float fVar2;
+	float fVar1;
+	fVar1 = 1.0f - param_4;
 	if (param_5) {
 		local_8c.z = 1.0f;
 		local_8c.y = 1.0f;
@@ -17,9 +21,9 @@ void M3UMtxCalcBlendAux(u16 param_1, J3DTransformInfo* param_2,
 		local_8c = *currentS;
 	}
 
-	float fVar4 = param_2->mScale.x * fVar1 + param_3->mScale.x * param_4;
-	float fVar3 = param_2->mScale.y * fVar1 + param_3->mScale.y * param_4;
-	float fVar2 = param_2->mScale.z * fVar1 + param_3->mScale.z * param_4;
+	fVar4 = param_2->mScale.x * fVar1 + param_3->mScale.x * param_4;
+	fVar3 = param_2->mScale.y * fVar1 + param_3->mScale.y * param_4;
+	fVar2 = param_2->mScale.z * fVar1 + param_3->mScale.z * param_4;
 
 	currentS->x *= fVar4;
 	currentS->y *= fVar3;
