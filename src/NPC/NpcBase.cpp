@@ -392,7 +392,7 @@ void TBaseNPC::calcRootMatrix()
 	if (mHolder != nullptr && mSDLModel != nullptr) {
 		MtxPtr takingMtx = mHolder->getTakingMtx();
 		PSMTXCopy(takingMtx, mSDLModel->unk20);
-		mSDLModel->entry();
+		mSDLModel->calc();
 		MtxPtr sdlMtx = mSDLMtx;
 		PSMTXCopy(sdlMtx, getModel()->unk20);
 	} else {
