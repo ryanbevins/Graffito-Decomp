@@ -110,15 +110,20 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 
 bool TBossHanachan::isAllBckAlreadyEnd(EnumBossHanachanAnmKind anmKind) const
 {
-	bool result = true;
-	bool found  = false;
+	bool found;
+	bool partDone;
+	bool result;
+	int i;
+
+	result = true;
+	found  = false;
 	if (mHead->mCurAnm == anmKind && mHead->isCurBckAlreadyEnd_())
 		found = true;
 	if (!found) {
 		result = false;
 	} else {
-		for (int i = 0; i < 8; i++) {
-			bool partDone = false;
+		for (i = 0; i < 8; i++) {
+			partDone = false;
 			if (mBody[i]->mCurAnm == anmKind && mBody[i]->isCurBckAlreadyEnd_())
 				partDone = true;
 			if (!partDone) {
