@@ -20,11 +20,9 @@ public:
 	{
 		unk0 = actor;
 		unk4.set(0.0f, 0.0f, 0.0f);
-		if (actor) {
-			unk4.x = actor->mPosition.x;
-			unk4.y = actor->mPosition.y;
-			unk4.z = actor->mPosition.z;
-		}
+		if (actor)
+			unk4.set(actor->mPosition.x, actor->mPosition.y,
+			         actor->mPosition.z);
 	}
 
 	// fabricated
