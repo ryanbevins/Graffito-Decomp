@@ -1462,20 +1462,11 @@ void TMario::initModel()
 	frameCtrl[2].setRate(SMSGetAnmFrameRate());
 
 	M3UMarioMtxCalcSetInfo* setInfo = new M3UMarioMtxCalcSetInfo[2];
-	setInfo[0].mJointIdx            = 0;
-	setInfo[0].unk2                 = 2;
-	setInfo[0].mMtxCalcIdx          = 0;
-	setInfo[0].mAnmTransformIdx[0]  = 0x14;
-	setInfo[0].mAnmTransformIdx[1]  = 0x41;
-	setInfo[0].mFrameCtrlIdx        = 0;
-	setInfo[0].mPad                 = 0;
-	setInfo[1].mJointIdx            = mBoneIDs[0];
-	setInfo[1].unk2                 = 2;
-	setInfo[1].mMtxCalcIdx          = 1;
-	setInfo[1].mAnmTransformIdx[0]  = 0;
-	setInfo[1].mAnmTransformIdx[1]  = 0;
-	setInfo[1].mFrameCtrlIdx        = 1;
-	setInfo[1].mPad                 = 0;
+	M3UMarioMtxCalcSetInfo info0 = { 0, 2, 0, { 0x14, 0x41 }, 0, 0 };
+	M3UMarioMtxCalcSetInfo info1 = { 0, 2, 1, { 0, 0 }, 1, 0 };
+	setInfo[0]                   = info0;
+	info1.mJointIdx              = mBoneIDs[0];
+	setInfo[1]                   = info1;
 	modelMario->unk10               = 2;
 	modelMario->unk24               = setInfo;
 
