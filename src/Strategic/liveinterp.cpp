@@ -1,3 +1,5 @@
+#define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #include <Strategic/LiveActor.hpp>
 #include <Strategic/spcinterp.hpp>
 #include <Strategic/Spine.hpp>
@@ -9,6 +11,8 @@
 #include <Enemy/BossWanwan.hpp>
 #include <Enemy/BossEel.hpp>
 #include <Enemy/BossHanachan.hpp>
+#undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #include <Enemy/TypicalEnemy.hpp>
 #include <Animal/AnimalNerve.hpp>
 #include <NPC/NpcNerve.hpp>

@@ -76,6 +76,9 @@ public:
 	{
 	}
 #endif
+#ifdef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+	virtual void init(const Vec& vec, const Mtx& mtx);
+#else
 	virtual void init(const Vec& vec, const Mtx& mtx)
 	{
 		J3DSys::mCurrentS         = vec;
@@ -93,6 +96,7 @@ public:
 		J3DSys::mCurrentMtx[2][2] = mtx[2][2] * vec.z;
 		J3DSys::mCurrentMtx[2][3] = mtx[2][3];
 	}
+#endif
 	virtual void recursiveUpdate(J3DNode*);
 	virtual void recursiveCalc(J3DNode*);
 	virtual void recursiveEntry(J3DNode*);
