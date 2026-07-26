@@ -2420,9 +2420,9 @@ bool TDoroHamuKuri::isCollidMove(THitActor* param_1)
 						mHeldObject = pTVar1;
 
 						int uVar11 = other->unk124->getCurrentIndex();
+						int uVar10 = -1;
 						TMsRange<s32> countRange(2, 3);
 						int count  = countRange.rand();
-						int uVar10 = -1;
 						for (int i = 0; i < count; ++i) {
 							int next = other->unk124->unk0->getRandomNextIndex(
 							    uVar11, uVar10, 0xffffffff);
