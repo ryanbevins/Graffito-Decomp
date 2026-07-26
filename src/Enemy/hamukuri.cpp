@@ -2295,6 +2295,7 @@ void TFireHamuKuri::sendAttackMsgToMario()
 		SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
 }
 
+#pragma dont_inline on
 void TFireHamuKuri::changeTevColor()
 {
 	if (recoverFire()) {
@@ -2313,6 +2314,7 @@ void TFireHamuKuri::changeTevColor()
 		           + mFireHamOtherColorStart.b;
 	}
 }
+#pragma dont_inline off
 
 TDoroHamuKuri::TDoroHamuKuri(const char* name)
     : THamuKuri(name)
