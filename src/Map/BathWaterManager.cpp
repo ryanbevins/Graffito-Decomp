@@ -941,6 +941,32 @@ const char* TBathWaterManager::fileNames[] = {
 	"MapObj/bathwater_overflow.prm",
 };
 
+void TBathWaterManager::load(JSUMemoryInputStream& stream)
+{
+	JDrama::TViewObj::load(stream);
+	unk18 = new TBathWaterGlobalParams;
+	for (int i = 0; i < 2; ++i)
+		unk14[i] = new TBathWaterParams(fileNames[i]);
+}
+
+inline TBathWaterFlatRenderer::TBathWaterFlatRenderer(
+    TBathWaterGlobalParams* params)
+    : unk2C(params)
+{
+	unk28 = new (0x20) u8[0x14a000];
+	unk24 = JKRGetResource("/scene/map/map/ball.bti");
+	init_tobj_resource(&unk4, unk24);
+}
+
+void TBathWaterManager::loadAfter()
+{
+	TScreenTexture* screen = JDrama::TNameRefGen::search<TScreenTexture>(
+	    "\x83\x58\x83\x4E\x83\x8A\x81\x5B\x83\x93\x83\x65\x83\x4E\x83\x58\x83\x60\x83\x83");
+	unk28[0] = new TBathWaterFlatRenderer(unk18);
+	unk28[1] = new TBathWaterMeshRenderer(unk18, screen->getTexture());
+	unk30    = unk28[1];
+}
+
 void TBathWaterManager::initializeIfYet_()
 {
 	if (unk24 == 0) {
@@ -1044,32 +1070,6 @@ static inline bool fakeCalcPos(const TBathtubData& data, f32 radius, f32 rand,
 	         up.y * radius + dir.y + center.y,
 	         up.z * radius + dir.z + center.z);
 	return true;
-}
-
-void TBathWaterManager::load(JSUMemoryInputStream& stream)
-{
-	JDrama::TViewObj::load(stream);
-	unk18 = new TBathWaterGlobalParams;
-	for (int i = 0; i < 2; ++i)
-		unk14[i] = new TBathWaterParams(fileNames[i]);
-}
-
-inline TBathWaterFlatRenderer::TBathWaterFlatRenderer(
-    TBathWaterGlobalParams* params)
-    : unk2C(params)
-{
-	unk28 = new (0x20) u8[0x14a000];
-	unk24 = JKRGetResource("/scene/map/map/ball.bti");
-	init_tobj_resource(&unk4, unk24);
-}
-
-void TBathWaterManager::loadAfter()
-{
-	TScreenTexture* screen = JDrama::TNameRefGen::search<TScreenTexture>(
-	    "\x83\x58\x83\x4E\x83\x8A\x81\x5B\x83\x93\x83\x65\x83\x4E\x83\x58\x83\x60\x83\x83");
-	unk28[0] = new TBathWaterFlatRenderer(unk18);
-	unk28[1] = new TBathWaterMeshRenderer(unk18, screen->getTexture());
-	unk30    = unk28[1];
 }
 
 void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
