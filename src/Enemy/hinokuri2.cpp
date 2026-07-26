@@ -1215,7 +1215,7 @@ DEFINE_NERVE(TNerveHino2PrePol, TLiveActor)
 			int uVar5 = self->mWaitTimer;
 			uVar5 += 1;
 
-			int wait = self->getSaveParam()->mSLPrePolWait.get();
+			int wait = self->getSaveParam()->mSLPrePolWait.value;
 			if (wait > uVar5) {
 				f32 prob = self->getSaveParam()->mSLStampProb.get();
 				if (rand() * (1.0f / (RAND_MAX + 1)) < prob) {
