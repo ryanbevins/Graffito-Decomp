@@ -86,9 +86,14 @@ DEFINE_NERVE(TNerveAnimalGraphWander, TLiveActor)
 			actor->resetRandomCurPathNode();
 
 			const TPathNode& fwdNode = actor->unkF4;
-			const JGeometry::TVec3<f32>& fwdPos = fwdNode.getPoint();
+			THitActor* fwdActor = fwdNode.unk0;
+			const JGeometry::TVec3<f32>* fwdPos;
+			if (fwdActor != nullptr)
+				fwdPos = &fwdActor->getPosition();
+			else
+				fwdPos = &fwdNode.unk4;
 
-			if (actor->mPosition.y <= fwdPos.y) {
+			if (actor->mPosition.y <= fwdPos->y) {
 				if (!mActor->checkCurBckFromIndex(1))
 					mActor->setBckFromIndex(1);
 
