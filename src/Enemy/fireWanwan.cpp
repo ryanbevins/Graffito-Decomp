@@ -691,7 +691,7 @@ BOOL TFireWanwanTailHit::moveRequest(const JGeometry::TVec3<f32>& param_1)
 	gpMap->isTouchedOneWallAndMoveXZ(&next.x, next.y, &next.z, 70.0f);
 	unkA4->unk0.back().mPos = next;
 	mPosition               = next;
-	unk74.translation(next);
+	unk74.translation(mPosition);
 	return true;
 }
 
