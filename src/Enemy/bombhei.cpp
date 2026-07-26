@@ -55,8 +55,8 @@ DEFINE_NERVE(TNerveBombHeiExplosion, TLiveActor)
 		if (self->mHolder == (TTakeActor*)gpMarioAddress)
 			self->sendAttackMsgToMario();
 
-		bool isWater = false;
-		self->unk164 = isWater;
+		bool isWater;
+		self->unk164 = isWater = false;
 
 		u16 type = self->mGroundPlane->mBGType;
 		if (type == 0x100 || (u16)(type - 0x101) <= 4
