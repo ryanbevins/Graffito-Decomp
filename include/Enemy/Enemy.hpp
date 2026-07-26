@@ -99,14 +99,7 @@ public:
 	// fabricated
 	void setGoalPathMario()
 	{
-		TPathNode node;
-		node.unk0 = (THitActor*)gpMarioAddress;
-
-		if (gpMarioAddress) {
-			node.unk4.set(*(f32*)(gpMarioAddress + 0x10),
-			              *(f32*)(gpMarioAddress + 0x14),
-			              *(f32*)(gpMarioAddress + 0x18));
-		}
+		TPathNode node((THitActor*)gpMarioAddress);
 
 		unkF4  = node;
 		unk104 = node;
