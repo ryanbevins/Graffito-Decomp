@@ -80,7 +80,10 @@ void TBaseNPC::execWalk(bool param_1)
 				JGeometry::TVec3<f32> point = unkF4.getPoint();
 				JGeometry::TVec3<f32> diff;
 				diff.set(point.x - mPosition.x, 0.0f, point.z - mPosition.z);
-				if (diff.squared() >= CLBSquared<f32>(10.0f)) {
+				bool shouldWalk = true;
+				if (diff.squared() < CLBSquared<f32>(10.0f))
+					shouldWalk = false;
+				if (shouldWalk) {
 					walkToCurPathNode(mMarchSpeed, mTurnSpeed, 0.0f);
 				}
 			}
