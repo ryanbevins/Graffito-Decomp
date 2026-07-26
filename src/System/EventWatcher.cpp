@@ -1180,10 +1180,10 @@ static void evAppear8RedCoinsAndTimer(TSpcTypedInterp<TEventWatcher>* interp,
 
 		gpMarioParticleManager->emitAndBindToMtxPtr(
 		    0x58, coin->getModel()->mNodeMatrices[0], 0, coin);
-		gpMarioParticleManager->emit(
-		    0xE5, (const JGeometry::TVec3<f32>*)&coin->unk158, 0, nullptr);
-		gpMarioParticleManager->emit(
-		    0xE6, (const JGeometry::TVec3<f32>*)&coin->unk158, 0, nullptr);
+		const JGeometry::TVec3<f32>* emitPos
+		    = (const JGeometry::TVec3<f32>*)&coin->unk158;
+		gpMarioParticleManager->emit(0xE5, emitPos, 0, nullptr);
+		gpMarioParticleManager->emit(0xE6, emitPos, 0, nullptr);
 	}
 
 	gpMarDirector->getConsole()->startAppearTimer(
