@@ -1078,7 +1078,8 @@ static void evChangeSunglass(TSpcTypedInterp<TEventWatcher>* interp,
 {
 	interp->verifyArgNum(1, &arg_num);
 	int value = interp->pop().getDataInt();
-	TSunGlass* glass = JDrama::TNameRefGen::search<TSunGlass>("TSunGlass");
+	TSunGlass* glass
+	    = JDrama::TNameRefGen::search<TSunGlass>("サングラスフェーダ");
 	if (value == 0) {
 		glass->startFade(2, true);
 		gpMarioOriginal->wearGlass();
