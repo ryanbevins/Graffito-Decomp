@@ -29,3 +29,14 @@ python tools/agent/audit_candidates.py --min-pct 85 --check-missing
 
 Audit annotations are optional. Pass `--state-root PATH` or set
 `GRAFFITO_STATE` when they live outside the repository.
+
+`find_structural_near_match.py` checks the highest-ranked near-matching
+functions with the noise classifier and lists only candidates that still have
+structural rows:
+
+```sh
+python tools/agent/find_structural_near_match.py --min-pct 95 --prefix mario/MoveBG
+```
+
+Use it only for target selection; read the complete function diff before
+editing.
