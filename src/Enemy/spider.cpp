@@ -19,8 +19,8 @@ void TSpider::bind(TLiveActor* param_1)
 	TSpineEnemy* enemy = (TSpineEnemy*)param_1;
 	JGeometry::TVec3<f32> local_114 = param_1->mLinearVelocity;
 	f32 linearVelocityY = local_114.y;
-	f32 linearVelocityZ = local_114.z;
 	JGeometry::TVec3<f32> local_50  = param_1->mPosition;
+	f32 linearVelocityZ = local_114.z;
 	local_50 += local_114;
 
 	if (param_1->isAirborne()) {
