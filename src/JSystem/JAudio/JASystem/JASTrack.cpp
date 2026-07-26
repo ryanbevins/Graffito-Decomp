@@ -1219,9 +1219,12 @@ int TTrack::loadTbl(u32 param_1, u32 param_2, u32 param_3)
 	case 5:
 		res = mSeqCtrl.get16(param_1 + 2 * param_2);
 		break;
-	case 6:
-		res = mSeqCtrl.get24(param_1 + 3 * param_2);
+	case 6: {
+		u32 offset = 2 * param_2;
+		offset = param_2 + offset;
+		res = mSeqCtrl.get24(param_1 + offset);
 		break;
+	}
 	case 7:
 		res = mSeqCtrl.get32(param_1 + 4 * param_2);
 		break;
