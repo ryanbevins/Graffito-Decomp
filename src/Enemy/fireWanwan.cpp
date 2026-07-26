@@ -21,6 +21,7 @@
 #include <Map/Map.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <Map/PollutionManager.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <MoveBG/ItemManager.hpp>

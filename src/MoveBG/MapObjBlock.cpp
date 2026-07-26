@@ -7,6 +7,7 @@
 #include <Map/Map.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <Strategic/HitActor.hpp>
 #include <Strategic/LiveActor.hpp>
 #include <Player/MarioAccess.hpp>

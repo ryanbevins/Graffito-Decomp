@@ -4,6 +4,7 @@
 #include <Camera/CubeManagerBase.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapData.hpp>

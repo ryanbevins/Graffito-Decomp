@@ -37,6 +37,7 @@
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 
 static inline void setEffectMtxOnTex1(J3DMaterial* mat, MtxPtr mtx)
 {

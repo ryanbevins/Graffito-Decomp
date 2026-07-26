@@ -7,6 +7,7 @@
 #include <Camera/CubeMapTool.hpp>
 #include <JSystem/JMath.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ModelUtil.hpp>
 #include <MoveBG/MapObjManager.hpp>

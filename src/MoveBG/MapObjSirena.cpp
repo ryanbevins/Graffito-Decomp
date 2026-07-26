@@ -1,6 +1,7 @@
 #include <MoveBG/MapObjSirena.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Strategic/Strategy.hpp>
 #include <Player/MarioAccess.hpp>

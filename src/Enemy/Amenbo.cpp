@@ -8,6 +8,7 @@
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <Map/MapMirror.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>

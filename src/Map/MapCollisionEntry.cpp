@@ -3,6 +3,7 @@ static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
 #include <Strategic/LiveActor.hpp>

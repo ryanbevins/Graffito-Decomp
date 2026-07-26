@@ -20,6 +20,7 @@
 #include <MSound/MSSetSound.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <Map/MapData.hpp>
 #include <MarioUtil/MapUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>

@@ -3,6 +3,7 @@
 #include <Map/MapData.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <Strategic/HitActor.hpp>
 #include <Player/MarioAccess.hpp>
 #include <System/MarDirector.hpp>

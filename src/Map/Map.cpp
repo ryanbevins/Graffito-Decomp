@@ -4,6 +4,7 @@
 #include <Map/MapWarp.hpp>
 #include <Map/MapXlu.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <Map/MapEventMare.hpp>
 #include <Map/MapStaticObject.hpp>
 #include <MoveBG/MapObjBase.hpp>

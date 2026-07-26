@@ -17,6 +17,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
 #include <Map/MapCollisionEntry.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <Map/MapData.hpp>
 #include <Player/MarioAccess.hpp>
 #include <Player/ModelWaterManager.hpp>
