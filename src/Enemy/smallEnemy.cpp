@@ -314,11 +314,11 @@ void TSmallEnemy::reset()
 
 void TSmallEnemy::forceKill()
 {
-	if ((mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
-	     || (!mGroundPlane->isDeathPlane() && !mGroundPlane->isPool()
-	         && !mGroundPlane->isWaterSurface())
-	     || isAirborne() || checkLiveFlag(LIVE_FLAG_UNK10))
-	    && !gpMap->isInArea(mPosition.x, mPosition.z)) {
+	if (!(mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
+	      || (!mGroundPlane->isDeathPlane() && !mGroundPlane->isPool()
+	          && !mGroundPlane->isWaterSurface())
+	      || isAirborne() || checkLiveFlag(LIVE_FLAG_UNK10))
+	    || !gpMap->isInArea(mPosition.x, mPosition.z)) {
 
 		if (mSpine->getCurrentNerve() != &TNerveSmallEnemyDie::theNerve()) {
 			mSpine->reset();
