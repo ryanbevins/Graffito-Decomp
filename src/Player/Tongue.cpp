@@ -1,3 +1,5 @@
+#define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #define JGEOMETRY_TONGUE_TVEC3_MINUS_ASSIGN_OUT_OF_LINE
 #define JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
 #define JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
@@ -21,6 +23,8 @@
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <dolphin/mtx.h>
 
+#undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #undef JGEOMETRY_TONGUE_TVEC3_MINUS_ASSIGN_OUT_OF_LINE
 #undef JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
 #undef JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
@@ -434,19 +438,6 @@ void TYoshiTongue::emit(const JGeometry::TVec3<f32>& headPos,
 		mInitialVelocity.y = 50.0f;
 }
 
-void TYoshiTongue::initInLoadAfter()
-{
-	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")
-	    ->getChildren()
-	    .push_back(this);
-
-	TMirrorActor* parentMirror = new TMirrorActor("ヨッシー舌in鏡");
-	parentMirror->init(mModel, 4);
-
-	TMirrorActor* tipMirror = new TMirrorActor("ヨッシー舌先in鏡");
-	tipMirror->init(mTipModel, 4);
-}
-
 void TYoshiTongue::init(TYoshi* yoshi)
 {
 	void* data = JKRFileLoader::getGlbResource("/mario/bmd/yoshi_tongue.bmd");
@@ -496,4 +487,17 @@ void TYoshiTongue::init(TYoshi* yoshi)
 
 	initHitActor(0x08000083, 5, 0x70000000, 1000.0f, 500.0f, 50.0f, 500.0f);
 	unk64 &= ~1U;
+}
+
+void TYoshiTongue::initInLoadAfter()
+{
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")
+	    ->getChildren()
+	    .push_back(this);
+
+	TMirrorActor* parentMirror = new TMirrorActor("ヨッシー舌in鏡");
+	parentMirror->init(mModel, 4);
+
+	TMirrorActor* tipMirror = new TMirrorActor("ヨッシー舌先in鏡");
+	tipMirror->init(mTipModel, 4);
 }
