@@ -1,3 +1,5 @@
+#define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #define JGEOMETRY_MAPOBJLIB_OWNER_HELPERS
 
 #include <MoveBG/MapObjBase.hpp>
@@ -29,6 +31,8 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <stdlib.h>
 #include <ctype.h>
+#undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
