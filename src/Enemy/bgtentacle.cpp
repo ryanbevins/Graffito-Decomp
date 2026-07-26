@@ -1183,7 +1183,7 @@ void TBGTentacle::calcAtkParticleAndSE()
 			if (!mOwner->unk1AC) {
 				mOwner->unk1AC = 0xF0;
 
-				const JGeometry::TVec3<f32>& p = mTakeHit->getPosition();
+				const JGeometry::TVec3<f32>& p = mOwner->getPosition();
 				if (gpMSound->gateCheck(0x2902))
 					MSoundSESystem::MSoundSE::startSoundActor(0x2902, p, 0,
 					                                          nullptr, 0, 4);
