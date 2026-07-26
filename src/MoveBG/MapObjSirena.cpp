@@ -1,3 +1,5 @@
+#define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #include <MoveBG/MapObjSirena.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
@@ -21,6 +23,8 @@
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
+#undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #include <JSystem/JMath.hpp>
 #include <Enemy/Telesa.hpp>
 #include <MarioUtil/PacketUtil.hpp>
