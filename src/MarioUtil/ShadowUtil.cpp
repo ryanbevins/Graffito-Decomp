@@ -419,15 +419,11 @@ void TMBindShadowManager::request(const TCircleShadowRequest& request,
 
 	if (distSq > 20000000.0f * distScale)
 		return;
-	if (request.unkC < 0.01f)
-		return;
-	if (request.unk10 < 0.01f)
+	if (request.unkC < 0.01f || request.unk10 < 0.01f)
 		return;
 	if (!gpMap->isInArea(request.unk0.x, request.unk0.z))
 		return;
-	if (isnan(request.unk0.x))
-		return;
-	if (isnan(request.unk0.z))
+	if (isnan(request.unk0.x) || isnan(request.unk0.z))
 		return;
 	int requestCount = unk14;
 	if (requestCount >= 0x200)
