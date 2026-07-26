@@ -161,6 +161,7 @@ public:
 		unk180.g = g;
 		unk180.b = b;
 	}
+	u8 getAlpha() const { return unk180.a; }
 
 	void setEnviColor(u8 r, u8 g, u8 b)
 	{

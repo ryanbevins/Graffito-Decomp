@@ -1072,8 +1072,8 @@ void JPADraw::zDrawParticle()
 	GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	GXSetZCompLoc(GX_FALSE);
 
-	GXSetAlphaCompare(GX_GEQUAL, mDrawCtx.mBaseEmitter->unk180.a, GX_AOP_OR,
-	                  GX_GEQUAL, mDrawCtx.mBaseEmitter->unk180.a);
+	GXSetAlphaCompare(GX_GEQUAL, mDrawCtx.mBaseEmitter->getAlpha(), GX_AOP_OR,
+	                  GX_GEQUAL, mDrawCtx.mBaseEmitter->getAlpha());
 	GXSetAlphaUpdate(GX_FALSE);
 	GXSetColorUpdate(GX_FALSE);
 	GXSetCullMode(GX_CULL_NONE);
@@ -1126,8 +1126,8 @@ void JPADraw::zDrawChild()
 
 	GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	GXSetZCompLoc(GX_FALSE);
-	GXSetAlphaCompare(GX_GEQUAL, mDrawCtx.mBaseEmitter->unk180.a, GX_AOP_OR,
-	                  GX_GEQUAL, mDrawCtx.mBaseEmitter->unk180.a);
+	GXSetAlphaCompare(GX_GEQUAL, mDrawCtx.mBaseEmitter->getAlpha(), GX_AOP_OR,
+	                  GX_GEQUAL, mDrawCtx.mBaseEmitter->getAlpha());
 	GXSetAlphaUpdate(GX_FALSE);
 	GXSetColorUpdate(GX_FALSE);
 	GXSetCullMode(GX_CULL_NONE);
