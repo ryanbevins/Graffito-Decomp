@@ -787,7 +787,7 @@ void TMario::fallProcess()
 	else
 		inAir = 0;
 
-	u8 shouldBrake;
+	BOOL shouldBrake;
 	if (!inAir) {
 		shouldBrake = 0;
 	} else if (action & 0x00021000) {
