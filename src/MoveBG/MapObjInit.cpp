@@ -10872,6 +10872,7 @@ void TMapObjBase::initUnique()
 	case 0x400000A8:
 	case 0x40000096:
 	case 0x4000009A:
+	case 0x4000009B:
 	case 0x4000009E:
 	case 0x4000009F:
 	case 0x400000A1:
