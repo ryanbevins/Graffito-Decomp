@@ -1984,7 +1984,7 @@ BOOL TMario::slipForeCommon(int statusOnStop, int jumpStatus, int slipStatus, in
 
 	f32 slideStop = getSlideStopNormal();
 	if (doSliding(slideStop)) {
-		changePlayerStatus(statusOnStop, 0, false);
+		return changePlayerStatus(statusOnStop, 0, false);
 	} else {
 		slippingBasic(statusOnStop, slipStatus, slipArg);
 	}
