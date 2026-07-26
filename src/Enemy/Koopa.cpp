@@ -177,39 +177,6 @@ inline TKoopaParams::TKoopaParams(const char* path)
 	TParams::load(mPrmPath);
 }
 
-TKoopaManager::TKoopaManager(const char* name)
-    : TEnemyManager(name)
-{
-}
-
-TSpineEnemy* TKoopaManager::createEnemyInstance() { return nullptr; }
-
-void TKoopaManager::createModelData()
-{
-	static TModelDataLoadEntry entry[] = {
-		{ "koopa_model.bmd", 0x14240000, 0 },
-		{ nullptr, 0, 0 },
-	};
-	createModelDataArray(entry);
-}
-
-void TKoopaManager::load(JSUMemoryInputStream& stream)
-{
-	TEnemyManager::load(stream);
-	unk38 = new TKoopaParams("/enemy/koopa.prm");
-}
-
-void TKoopaManager::loadAfter()
-{
-	JDrama::TNameRef::loadAfter();
-	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_a.jpa", 0x1c0);
-	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_b.jpa", 0x1c1);
-	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_c.jpa", 0x1c2);
-	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_d.jpa", 0x1c3);
-	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_hipdrop.jpa", 0xf5);
-	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_e.jpa", 0x1f3);
-}
-
 TKoopaParts::TKoopaParts(const char* name, u32 actorType, TKoopa* owner,
                          f32 radius)
     : THitActor(name)
@@ -389,7 +356,7 @@ void TKoopa::loadAfter()
 	JDrama::TNameRef::loadAfter();
 
 	for (int i = 0; i < 10; ++i) {
-		mFlameHitActors[i] = new TKoopaFlame("クッパの吐く火", 0x08000029,
+		mFlameHitActors[i] = new TKoopaFlame("クッパの吐く炎", 0x08000029,
 		                                     this, 100.0f);
 	}
 	for (int i = 0; i < 2; ++i)
@@ -1367,4 +1334,37 @@ DEFINE_NERVE(TNerveKoopaFall, TLiveActor)
 	TKoopa* self = (TKoopa*)spine->getBody();
 	self->changeAnm(2, 0, self->getSaveParam2()->fallSpeed.get());
 	return FALSE;
+}
+
+TKoopaManager::TKoopaManager(const char* name)
+    : TEnemyManager(name)
+{
+}
+
+TSpineEnemy* TKoopaManager::createEnemyInstance() { return nullptr; }
+
+void TKoopaManager::createModelData()
+{
+	static const TModelDataLoadEntry entry[] = {
+		{ "koopa_model.bmd", 0x14240000, 0 },
+		{ nullptr, 0, 0 },
+	};
+	createModelDataArray(entry);
+}
+
+void TKoopaManager::load(JSUMemoryInputStream& stream)
+{
+	TEnemyManager::load(stream);
+	unk38 = new TKoopaParams("/enemy/koopa.prm");
+}
+
+void TKoopaManager::loadAfter()
+{
+	JDrama::TNameRef::loadAfter();
+	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_a.jpa", 0x1c0);
+	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_b.jpa", 0x1c1);
+	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_c.jpa", 0x1c2);
+	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_d.jpa", 0x1c3);
+	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_hipdrop.jpa", 0xf5);
+	SMS_LoadParticle("/scene/koopa/jpa/ms_kp_fire_e.jpa", 0x1f3);
 }
