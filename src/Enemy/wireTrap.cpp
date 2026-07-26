@@ -229,21 +229,6 @@ DEFINE_NERVE(TNerveWireTrapReturnMove, TLiveActor)
 	return FALSE;
 }
 
-void TWireTrapManager::createModelData()
-{
-	static const TModelDataLoadEntry entry[] = {
-		{ "wire_trap.bmd", 0x10210000, 0 },
-		{ nullptr, 0, 0 },
-	};
-	createModelDataArray(entry);
-}
-
-void TWireTrapManager::load(JSUMemoryInputStream& stream)
-{
-	unk38 = new TWireTrapParams("/enemy/wiretrap.prm");
-	TEnemyManager::load(stream);
-}
-
 TWireTrapManager::TWireTrapManager(const char* name)
     : TEnemyManager(name)
 {
@@ -558,4 +543,19 @@ TWireTrapParams::TWireTrapParams(const char* path)
     , PARAM_INIT(mGoTimerMax, 90)
 {
 	TParams::load(mPrmPath);
+}
+
+void TWireTrapManager::load(JSUMemoryInputStream& stream)
+{
+	unk38 = new TWireTrapParams("/enemy/wiretrap.prm");
+	TEnemyManager::load(stream);
+}
+
+void TWireTrapManager::createModelData()
+{
+	static const TModelDataLoadEntry entry[] = {
+		{ "wire_trap.bmd", 0x10210000, 0 },
+		{ nullptr, 0, 0 },
+	};
+	createModelDataArray(entry);
 }
