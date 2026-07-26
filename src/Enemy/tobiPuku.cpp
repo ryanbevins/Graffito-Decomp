@@ -616,7 +616,7 @@ void TMoePuku::hitWater()
 	MtxPtr mtx = mMActor->unk4->mNodeMatrices[1];
 	copyMtxTrans(unk1A0, mtx);
 	JPABaseEmitter* emitter
-	    = gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &unk1A0, 0,
+	    = gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &mPosition, 0,
 	                                                  nullptr);
 	if (emitter) {
 		emitter->unk154.set(2.0f, 2.0f, 2.0f);
