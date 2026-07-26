@@ -569,11 +569,11 @@ void TFruitLauncher::loadAfter()
 
 	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
 	unk138 = (TFruitSwitch*)root->searchF(
-	    JDrama::TNameRef::calcKeyCode("テレサスイッチ0"), "テレサスイッチ0");
+	    JDrama::TNameRef::calcKeyCode("タンクスイッチＡ"), "タンクスイッチＡ");
 	unk138->unk138 = (TMapObjBase*)this;
 	root = JDrama::TNameRefGen::instance->mRootNameRef;
 	unk13C = (TFruitSwitch*)root->searchF(
-	    JDrama::TNameRef::calcKeyCode("テレサスイッチ1"), "テレサスイッチ1");
+	    JDrama::TNameRef::calcKeyCode("タンクスイッチＢ"), "タンクスイッチＢ");
 	unk13C->unk138 = (TMapObjBase*)this;
 	unk140         = 1;
 	unk138->startBck("riccoswitch");
