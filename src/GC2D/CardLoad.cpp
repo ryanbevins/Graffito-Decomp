@@ -1,3 +1,5 @@
+#define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #define JSUINPUTSTREAM_CTOR_OUT_OF_LINE
 #include <GC2D/CardLoad.hpp>
 #undef JSUINPUTSTREAM_CTOR_OUT_OF_LINE
@@ -24,6 +26,8 @@
 #include <MoveBG/MapObjOption.hpp>
 #include <Player/MarioMain.hpp>
 #include <Camera/CameraOption.hpp>
+#undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
