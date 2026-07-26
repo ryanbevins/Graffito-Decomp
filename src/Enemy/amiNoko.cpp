@@ -195,7 +195,7 @@ DEFINE_NERVE(TNerveAmiNokoTurn, TLiveActor)
 
 	PSVECNormalize((Vec*)&toGoal, (Vec*)&toGoal);
 
-	f32 dot = toGoal.y * self->unk1A8.y + toGoal.x * self->unk1A8.x
+	f32 dot = toGoal.x * self->unk1A8.x + toGoal.y * self->unk1A8.y
 	          + toGoal.z * self->unk1A8.z;
 
 	if (dot > -0.5f) {
