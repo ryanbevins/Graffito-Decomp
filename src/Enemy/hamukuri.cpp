@@ -2625,7 +2625,8 @@ DEFINE_NERVE(TNerveDangoHamuKuriWait, TLiveActor)
 
 	if (spine->getTime() < 2) {
 		self->setWaitAnm();
-		self->getMActor()->getFrameCtrl(0)->setFrame(MsRandF(0.0f, 30.0f));
+		TMsRange<f32> frameRange(0.0f, 30.0f);
+		self->getMActor()->getFrameCtrl(0)->setFrame(frameRange.rand());
 	}
 
 	return false;
