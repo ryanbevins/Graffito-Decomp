@@ -57,8 +57,10 @@ DEFINE_NERVE(TNerveBombHeiExplosion, TLiveActor)
 
 		self->unk164 = 0;
 
-		u16 type = self->mGroundPlane->mBGType;
-		if (type == 0x100 || (type >= 0x101 && type <= 0x105) || type == 0x4104) {
+		if (self->mGroundPlane->mBGType == 0x100
+		    || (self->mGroundPlane->mBGType >= 0x101
+		        && self->mGroundPlane->mBGType <= 0x105)
+		    || self->mGroundPlane->mBGType == 0x4104) {
 			if (TEffectBombColumWater* water
 			    = (TEffectBombColumWater*)gpConductor->makeOneEnemyAppear(
 			        self->mPosition, "エフェクト爆発水柱マネージャー", 1)) {
@@ -67,7 +69,10 @@ DEFINE_NERVE(TNerveBombHeiExplosion, TLiveActor)
 			}
 		}
 
-		if (type == 0x701 || type == 0x4701 || type == 0x8701 || type == 0xc701) {
+		if (self->mGroundPlane->mBGType == 0x701
+		    || self->mGroundPlane->mBGType == 0x4701
+		    || self->mGroundPlane->mBGType == 0x8701
+		    || self->mGroundPlane->mBGType == 0xc701) {
 			if (TEffectColumSand* sand
 			    = (TEffectColumSand*)gpConductor->makeOneEnemyAppear(
 			        self->mPosition, "エフェクト砂柱マネージャー", 1)) {
