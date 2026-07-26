@@ -173,7 +173,7 @@ void TBellWatermill::loadAfter()
 	unk194 = (TBiancoBell*)findMapObj("BiaBell 0");
 	unk198 = (TBiancoBell*)findMapObj("BiaBell 1");
 	unk19C = (TBiancoBell*)findMapObj("BiaBell 2");
-	unk190 = 1;
+	unk1A0 = 1;
 }
 
 static inline void ringBiancoBell(TBiancoBell* bell)
