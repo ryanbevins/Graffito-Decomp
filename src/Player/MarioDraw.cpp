@@ -806,17 +806,17 @@ int MarioFootDirRCtrl(J3DNode* param_1, int param_2)
 			if (!checkData->checkFlag(BG_CHECK_FLAG_ILLEGAL)) {
 
 				// A lot of stuff is not matching with these copies
-				Vec currentMtxDir;
+				Vec currentMtxDir = { 0.0f, 0.0f, 0.0f };
 				currentMtxDir.x = J3DSys::mCurrentMtx[0][0];
 				currentMtxDir.y = J3DSys::mCurrentMtx[1][0];
 				currentMtxDir.z = J3DSys::mCurrentMtx[2][0];
 
-				Vec normalDir;
+				Vec normalDir = { 0.0f, 0.0f, 0.0f };
 				normalDir.x = -checkData->getNormal().x;
 				normalDir.y = -checkData->getNormal().y;
 				normalDir.z = -checkData->getNormal().z;
 
-				Vec currentNormalCross1;
+				Vec currentNormalCross1 = { 0.0f, 0.0f, 0.0f };
 				Vec currentNormalCross2;
 				PSVECCrossProduct(&currentMtxDir, &normalDir,
 				                  &currentNormalCross1);
@@ -934,17 +934,17 @@ int MarioFootDirLCtrl(J3DNode* param_1, int param_2)
 			if (!checkData->checkFlag(BG_CHECK_FLAG_ILLEGAL)) {
 
 				// A lot of stuff is not matching with these copies
-				Vec currentMtxDir;
+				Vec currentMtxDir = { 0.0f, 0.0f, 0.0f };
 				currentMtxDir.x = J3DSys::mCurrentMtx[0][0];
 				currentMtxDir.y = J3DSys::mCurrentMtx[1][0];
 				currentMtxDir.z = J3DSys::mCurrentMtx[2][0];
 
-				Vec normalDir;
+				Vec normalDir = { 0.0f, 0.0f, 0.0f };
 				normalDir.x = -checkData->getNormal().x;
 				normalDir.y = -checkData->getNormal().y;
 				normalDir.z = -checkData->getNormal().z;
 
-				Vec currentNormalCross1;
+				Vec currentNormalCross1 = { 0.0f, 0.0f, 0.0f };
 				Vec currentNormalCross2;
 				PSVECCrossProduct(&currentMtxDir, &normalDir,
 				                  &currentNormalCross1);
