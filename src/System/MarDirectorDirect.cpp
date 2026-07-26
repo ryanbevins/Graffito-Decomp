@@ -490,8 +490,9 @@ void TMarDirector::currentStateFinalize(u8 next_state)
 		unk18[0]->mFlags &= ~0x1;
 		gpCamera->endDemoCamera();
 		mConsole->unk94->startOpenWipe();
-		MSMainProc::endStageEntranceDemo(gpApplication.mCurrArea.unk0,
-		                                 gpApplication.mCurrArea.unk1);
+		MSMainProc::endStageEntranceDemo(
+		    gpApplication.mCurrArea.getStage(),
+		    gpApplication.mCurrArea.getScenario());
 		break;
 
 	case STATE_UNK4:
