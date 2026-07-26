@@ -639,10 +639,7 @@ void JAIData::initData()
 	if (unk1F4->unk6C) {
 		u32* fxConfig = unk1F4->unk6C;
 		unk188        = *fxConfig;
-		unk18C[0]     = fxConfig[1];
-		unk18C[1]     = fxConfig[2];
-		unk18C[2]     = fxConfig[3];
-		unk18C[3]     = fxConfig[4];
+		unk18C = *(FabricatedFXBufferSize*)&fxConfig[1];
 
 		unk1AC = (JASystem::DSPInterface::FxlineConfig_**)unk1F4->allocHeap(
 		    unk188 * sizeof(JASystem::DSPInterface::FxlineConfig_*));
@@ -651,9 +648,10 @@ void JAIData::initData()
 			    (u8*)unk1F4->unk6C + fxConfig[i + 5]);
 		}
 		for (int i = 0; i < 4; ++i) {
-			if (!unk18C[i])
+			if (!unk18C.values[i])
 				continue;
-			unk19C[i] = (s16*)unk1F4->allocHeap(unk18C[i] * 0xA0);
+			unk19C[i]
+			    = (s16*)unk1F4->allocHeap(unk18C.values[i] * 0xA0);
 			JASystem::DSPInterface::getFXHandle(i)->setFXLine(unk19C[i],
 			                                                  &unk1AC[0][i]);
 		}

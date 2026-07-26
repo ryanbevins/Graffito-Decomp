@@ -138,7 +138,10 @@ public:
 	/* 0x184 */ JAIStreamUpdateParameter* unk184;
 	// TODO: some kind of a struct?
 	/* 0x188 */ u8 unk188;
-	/* 0x18C */ u32 unk18C[4];
+	struct FabricatedFXBufferSize {
+		u32 values[4];
+	};
+	/* 0x18C */ FabricatedFXBufferSize unk18C;
 	/* 0x19C */ s16* unk19C[4];
 	/* 0x1AC */ JASystem::DSPInterface::FxlineConfig_** unk1AC;
 	/* 0x1B0 */ u8 unk1B0;
