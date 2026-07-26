@@ -931,7 +931,7 @@ void TOptionControl::toggleCurType()
 void TOptionControl::checkInput()
 {
 	f32 fVar1 = gpMarDirector->unk18[0]->getMainStickInDir(0.0f, 1.0f);
-	if (fVar1 >= 0.75f)
+	if (0.75f <= fVar1)
 		setType(SELECT_TYPE_RUMBLE_OPTION, false);
 	else if (fVar1 <= -0.75f)
 		setType(SELECT_TYPE_SOUND_OPTION, false);
