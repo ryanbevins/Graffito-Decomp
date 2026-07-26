@@ -1494,7 +1494,7 @@ BOOL TMario::surfing()
 		const JGeometry::TVec3<f32>* normal = &wall->mNormal;
 		f32 nz = normal->z;
 		f32 nx = normal->x;
-		s32 faceDiff = matan(nz, nx) - mFaceAngle.y;
+		s16 faceDiff = matan(nz, nx) - mFaceAngle.y;
 
 		const TBGCheckData* ground = mGroundPlane;
 		u16 groundType = ground->mBGType;
