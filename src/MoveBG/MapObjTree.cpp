@@ -102,6 +102,7 @@ void TMapObjTree::initEach()
 {
 	switch (mActorType) {
 	case 0x40000034:
+	case 0x40000038:
 		unk148               = 20.0f;
 		unk14C               = 95.0f;
 		mLeafCount           = 12;
