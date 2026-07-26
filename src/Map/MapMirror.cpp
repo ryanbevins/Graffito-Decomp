@@ -43,7 +43,8 @@ void TMirrorCamera::drawSetting(MtxPtr param_1)
 {
 	GXLoadTexObj(&unk60, GX_TEXMAP0);
 	Mtx afStack_38;
-	C_MTXLightPerspective(afStack_38, unk80 * gpCamera->mFovy,
+	f32 fovy = gpCamera->mFovy;
+	C_MTXLightPerspective(afStack_38, unk80 * fovy,
 	                      gpCamera->mAspect, 1.0f, -1.0f, 1.0f, 1.0f);
 
 	Mtx afStack_68;
