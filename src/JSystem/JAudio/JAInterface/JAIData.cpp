@@ -646,9 +646,9 @@ void JAIData::initData()
 
 		unk1AC = (JASystem::DSPInterface::FxlineConfig_**)unk1F4->allocHeap(
 		    unk188 * sizeof(JASystem::DSPInterface::FxlineConfig_*));
-		for (int i = 0; i < unk188; ++i) {
+		for (u8 i = 0; i < unk188; ++i) {
 			unk1AC[i] = (JASystem::DSPInterface::FxlineConfig_*)(
-			    (u8*)fxConfig + fxConfig[i + 5]);
+			    (u8*)unk1F4->unk6C + fxConfig[i + 5]);
 		}
 		for (int i = 0; i < 4; ++i) {
 			if (!unk18C[i])
