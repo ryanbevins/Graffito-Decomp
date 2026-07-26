@@ -15,6 +15,7 @@
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
+#include <Map/MapCollisionEntryInline.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
