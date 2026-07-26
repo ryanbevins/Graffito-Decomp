@@ -468,7 +468,7 @@ BOOL TNerveAnimalBirdWaitOnGround::execute(TSpineBase<TLiveActor>* spine) const
 
 	if (bird->checkCurAnmEnd(0)) {
 		TAnimalBirdParams* p = (TAnimalBirdParams*)bird->getSaveParam();
-		s32 diff             = spine->getTime() - p->mActionTimer.value;
+		s32 diff = bird->mSpine->getTime() - p->mActionTimer.value;
 		bool doAction;
 		if (diff < 0) {
 			doAction = false;
