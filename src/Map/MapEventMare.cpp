@@ -425,7 +425,7 @@ void TMareEventDepressWall::depressing()
 		}
 		SMSRumbleMgr->stop(0x13);
 		mCurrentIndex = 0;
-		mWaitTimer    = mWaitTimes[0];
+		mWaitTimer    = mWaitTimes[mCurrentIndex];
 		mState        = 2;
 	}
 }
