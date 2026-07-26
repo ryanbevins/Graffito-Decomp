@@ -253,8 +253,8 @@ void TBossHanachan::setHeadAndBodyAnm(EnumBossHanachanAnmKind kind,
 		if (part->setAnm_(kind, blend)) {
 			J3DFrameCtrl* fc = part->mMActor->getFrameCtrl(0);
 			int t = (mChangeParams->mSLNormalBckFrameDiff.value * i) % fc->getEnd();
-			fc->setFrame((f32)(u32)t);
-			f32 ft            = (f32)(u32)t;
+			fc->setFrame((f32)t);
+			f32 ft            = (f32)t;
 			J3DFrameCtrl* fc3 = part->mMActor->getFrameCtrl(3);
 			if (fc3 != 0)
 				fc3->setFrame(ft);
