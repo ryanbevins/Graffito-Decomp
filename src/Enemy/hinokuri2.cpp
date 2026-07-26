@@ -900,7 +900,7 @@ BOOL THinokuri2::receiveMessage(THitActor* sender, u32 message)
 
 template <class T> static inline T symmetric_clamp(T v, T r)
 {
-	return v > 0 ? (v > r ? v : r) : (v > -r ? -r : v);
+	return v > 0 ? (v > r ? r : v) : (v > -r ? v : -r);
 }
 
 void THinokuri2::moveObject()
@@ -939,7 +939,7 @@ void THinokuri2::moveObject()
 	f32 headHitR = getSaveParam()->mSLHeadHitR.value;
 	mHead->setDamageRadius(unk194 * (headHitR * mBodyScale));
 	f32 headHitH = getSaveParam()->mSLHeadHitH.value;
-	mHead->setDamageHeight(unk194 * (mBodyScale * headHitH));
+	mHead->setDamageHeight(unk194 * (headHitH * mBodyScale));
 
 	if (mLevel == 0) {
 		f32 bodyHitR0 = getSaveParam()->mSLBodyHitR0.value;
