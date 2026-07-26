@@ -2419,23 +2419,19 @@ bool TDoroHamuKuri::isCollidMove(THitActor* param_1)
 						onHaveCap();
 						mHeldObject = pTVar1;
 
-						// TODO: this is an inline
-						int uVar11 = unk124->getCurrentIndex();
-
-						int count  = MsRandF(2, 3);
+						int uVar11 = other->unk124->getCurrentIndex();
+						TMsRange<s32> countRange(2, 3);
+						int count  = countRange.rand();
 						int uVar10 = -1;
 						for (int i = 0; i < count; ++i) {
-							int next = unk124->unk0->getRandomNextIndex(
+							int next = other->unk124->unk0->getRandomNextIndex(
 							    uVar11, uVar10, 0xffffffff);
 							uVar10 = uVar11;
 							uVar11 = next;
 						}
 
-						if (uVar11 < 0)
-							uVar11 = 0;
-
 						JGeometry::TVec3<f32> VStack_60;
-						unk124->getGraph()->getGraphNode(uVar11).getPoint(
+						other->unk124->getGraph()->getGraphNode(uVar11).getPoint(
 						    &VStack_60);
 
 						JGeometry::TVec3<f32> local_6c = calcVelocityToJumpToY(
