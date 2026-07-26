@@ -72,10 +72,7 @@ DEFINE_NERVE(TNerveBombHeiExplosion, TLiveActor)
 			}
 		}
 
-		if (self->mGroundPlane->mBGType == 0x701
-		    || self->mGroundPlane->mBGType == 0x4701
-		    || self->mGroundPlane->mBGType == 0x8701
-		    || self->mGroundPlane->mBGType == 0xc701) {
+		if (self->mGroundPlane->isSand()) {
 			if (TEffectColumSand* sand
 			    = (TEffectColumSand*)gpConductor->makeOneEnemyAppear(
 			        self->mPosition, "エフェクト砂柱マネージャー", 1)) {
