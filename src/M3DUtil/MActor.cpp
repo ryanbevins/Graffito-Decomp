@@ -411,7 +411,7 @@ BOOL MActor::checkCurAnm(const char* param_1, int param_2)
 	return false;
 }
 
-bool MActor::checkCurAnmFromIndex(int param_1, int param_2)
+BOOL MActor::checkCurAnmFromIndex(int param_1, int param_2)
 {
 	if (!unk28[param_2])
 		return false;
