@@ -78,12 +78,12 @@ BOOL NPCNeckCallBack(J3DNode* node, int phase)
 				chasePitch = v;
 			}
 
-			s16 pitchSpeed = CLBPalIntSpeed<s16>(gpCurrentNpc->mNpcSaveIndividual->mNeckAngleYSpeed.value);
+			s16 pitchSpeed = CLBPalIntSpeed<s16>(gpCurrentNpc->mNpcSaveIndividual->mNeckAngleYSpeed.get());
 			CLBChaseGeneralConstantSpecifySpeed<s16>(&pitch, chasePitch, pitchSpeed);
 
 			if (wantTrack) {
 				s16 v    = CLBRoundf<s16>(diff.x * 182.04445f);
-				s16 maxY = gpCurrentNpc->mNpcSaveIndividual->mNeckMaxAngleX.value;
+				s16 maxY = gpCurrentNpc->mNpcSaveIndividual->mNeckMaxAngleX.get();
 				s16 minY = gpCurrentNpc->mNpcSaveIndividual->mNeckMinAngleX.value;
 				if (v > maxY) {
 					v = maxY;
@@ -92,12 +92,12 @@ BOOL NPCNeckCallBack(J3DNode* node, int phase)
 				}
 				s16 absP = (pitch < 0) ? -pitch : pitch;
 				f32 ratio
-				    = CLBCalcRatio<int>(gpCurrentNpc->mNpcSaveIndividual->mNeckMaxAngleY.value, 0, absP);
+				    = CLBCalcRatio<int>(gpCurrentNpc->mNpcSaveIndividual->mNeckMaxAngleY.get(), 0, absP);
 				s16 half = (s16)((f32)v * 0.5f);
 				chaseYaw = CLBEaseOutInbetween<s16>(half, v, ratio);
 			}
 
-			s16 yawSpeed = CLBPalIntSpeed<s16>(gpCurrentNpc->mNpcSaveIndividual->mNeckAngleXSpeed.value);
+			s16 yawSpeed = CLBPalIntSpeed<s16>(gpCurrentNpc->mNpcSaveIndividual->mNeckAngleXSpeed.get());
 			CLBChaseGeneralConstantSpecifySpeed<s16>(&yaw, chaseYaw, yawSpeed);
 
 			gpCurrentNpc->mNeckAngles->set(yaw, pitch);
