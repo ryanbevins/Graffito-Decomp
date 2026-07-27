@@ -691,7 +691,7 @@ void TTelesa::initAttacker(THitActor* param_1)
 
 	mVelocity.set(0.0f, 8.0f, 0.0f);
 
-	mRotation   = param_1->mRotation;
+	mRotation   = param_1->getRotation();
 	mRotation.x = 0.0f;
 
 	setFlyParam(1.0f);
