@@ -97,7 +97,9 @@ void TMarDirector::setup2()
 	gpMSound->setCameraInfo(&gpCamera->unk124, gpCamera->unk13C,
 	                        gpCamera->unk1EC, 0);
 
-	unk258 = MSStage::init(mMap, unk7D);
+	u8 stageScenario = unk7D;
+	u8 stageArea     = mMap;
+	unk258           = MSStage::init(stageArea, stageScenario);
 
 	JDrama::TGraphics graphics;
 	graphics.unkFE = 0;

@@ -1,7 +1,7 @@
 #define MSOUND_EMIT_START_FORCE_JUMP_SOUND
-#define JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
+#define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Player/MarioMain.hpp>
-#undef JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
+#undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #define PLAYER_YOSHI_DEFINE_ON_YOSHI
 #pragma dont_inline on
 #include <Player/Yoshi.hpp>
@@ -33,6 +33,63 @@
 #include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <MoveBG/Pool.hpp>
 #include <Map/PollutionManager.hpp>
+
+static inline bool isMarioInvincibleInline(const TMario* mario)
+{
+	if (mario->getUnk14c() > 0)
+		return true;
+
+	u8 hasFlag;
+	if (mario->getState() & 0x8)
+		hasFlag = 1;
+	else
+		hasFlag = 0;
+
+	if (hasFlag)
+		return true;
+
+	if (mario->getAction() == 0x89C)
+		return true;
+
+	if (gpMarDirector->isDemoMode3() || gpMarDirector->isDemoMode4()
+	    || gpMarDirector->isTalkModeNow()
+	    || mario->checkActionFlag(0x1000))
+		return true;
+
+	return false;
+}
+
+static inline BOOL isMarioForceSlipInline(const TMario* mario, u16 code)
+{
+	u8 isIce;
+	if (code == 0x01 || code == 0x4001 || code == 0x8001 || code == 0xC001)
+		isIce = 1;
+	else
+		isIce = 0;
+
+	if (isIce)
+		return true;
+
+	if (mario->unk350 == 2) {
+		u8 hasBit;
+		if (mario->mState & 0x40)
+			hasBit = 1;
+		else
+			hasBit = 0;
+
+		if (hasBit) {
+			if (mario->mGroundPlane->getNormal().y
+			    < mario->mDirtyParams.mSlopeAngle.get())
+				return true;
+		}
+	}
+
+	if (mario->mGroundPlane->getNormal().y
+	    < mario->mDeParams.mForceSlipAngle.get())
+		return true;
+
+	return false;
+}
 
 void TMario::addVelocity(f32 vel)
 {
@@ -66,41 +123,40 @@ void TMario::flowMove(const JGeometry::TVec3<f32>& flow)
 
 BOOL TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 {
-	JGeometry::TVec3<f32> delta = pos - mPosition;
-	mPosition                    = pos;
+	JGeometry::TVec3<f32> delta;
+	JGeometry::TVec3<f32> localPos(pos);
+	localPos.sub(mPosition);
+	delta = localPos;
+	mPosition = *(JGeometry::TVec3<f32>*)&pos;
 
 	f32 dx = delta.x;
 	f32 dy = delta.y;
 	f32 dz = delta.z;
 
-	unk160[0].x += dx;
-	unk160[0].y += dy;
-	unk160[0].z += dz;
-	mLastSafePos.x += dx;
-	mLastSafePos.y += dy;
-	mLastSafePos.z += dz;
-	mWireStartPos.x += dx;
-	mWireStartPos.y += dy;
-	mWireStartPos.z += dz;
-	mWireEndPos.x += dx;
-	mWireEndPos.y += dy;
-	mWireEndPos.z += dz;
-	mLastGroundPos.x += dx;
-	mLastGroundPos.y += dy;
-	mLastGroundPos.z += dz;
-	mLastGroundY += dy;
-	mJointMtx0[0][3] += dx;
-	mJointMtx0[1][3] += dy;
-	mJointMtx0[2][3] += dz;
-	mJointMtx1[0][3] += dx;
-	mJointMtx1[1][3] += dy;
-	mJointMtx1[2][3] += dz;
-	mJointMtx2[0][3] += dx;
-	mJointMtx2[1][3] += dy;
-	mJointMtx2[2][3] += dz;
-	mJointMtx3[0][3] += dx;
-	mJointMtx3[1][3] += dy;
-	mJointMtx3[2][3] += dz;
+	// Adjust all position-relative fields by delta
+	unk160[0] += delta;
+	mLastSafePos += delta;
+	mWireStartPos += delta;
+	mWireEndPos += delta;
+	mLastGroundPos += delta;
+
+	mLastGroundY += delta.y;
+
+	mJointMtx0[0][3] += delta.x;
+	mJointMtx0[1][3] += delta.y;
+	mJointMtx0[2][3] += delta.z;
+
+	mJointMtx1[0][3] += delta.x;
+	mJointMtx1[1][3] += delta.y;
+	mJointMtx1[2][3] += delta.z;
+
+	mJointMtx2[0][3] += delta.x;
+	mJointMtx2[1][3] += delta.y;
+	mJointMtx2[2][3] += delta.z;
+
+	mJointMtx3[0][3] += delta.x;
+	mJointMtx3[1][3] += delta.y;
+	mJointMtx3[2][3] += delta.z;
 
 	checkRideReCalc();
 
@@ -109,9 +165,7 @@ BOOL TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 
 void TMario::warpRequest(const JGeometry::TVec3<f32>& pos, f32 angle)
 {
-	JGeometry::TVec3<f32> dir(pos);
-	dir.sub(mPosition);
-	JGeometry::TVec3<f32> delta(dir);
+	JGeometry::TVec3<f32> delta = pos - mPosition;
 
 	moveRequest(pos);
 
@@ -410,18 +464,22 @@ BOOL TMario::changePlayerStatus(u32 status, u32 arg, bool force)
 
 void TMario::throwMario(const JGeometry::TVec3<f32>& throwVec, f32 speed)
 {
-	JGeometry::TVec3<f32> dir(throwVec);
+	f32 dirZ;
+	f32 hMag;
+	JGeometry::TVec3<f32> dir = throwVec;
 
 	if (dir.squared() <= JGeometry::TUtil<f32>::epsilon())
 		dir.y = 1.0f;
 
 	dir.normalize();
 
-	f32 dirZ = dir.z;
+	dirZ = dir.z;
 	mFaceAngle.y = matan(dirZ, dir.x) + 0x8000;
 	mModelFaceAngle = mFaceAngle.y;
 
-	mForwardVel = speed * -std::sqrtf(dir.x * dir.x + dirZ * dirZ);
+	hMag = std::sqrtf(dir.x * dir.x + dirZ * dirZ);
+
+	mForwardVel = speed * -hMag;
 	mVel.y = dir.y * speed;
 }
 
@@ -1503,41 +1561,8 @@ inline void TMario::makeGraffitoDamage(const TMario::TEParams& params)
 
 void TMario::checkGraffitoFire()
 {
-	u8 shouldSkip;
-	if (getUnk14c() > 0) {
-		shouldSkip = 1;
-	} else {
-		u8 flagCheck;
-		if (mState & 0x8)
-			flagCheck = 1;
-		else
-			flagCheck = 0;
-		if (flagCheck) {
-			shouldSkip = 1;
-		} else if (mAction == 0x89C) {
-			shouldSkip = 1;
-		} else {
-			u8 areaId = *(u8*)((u8*)gpMarDirector + 0x124);
-			shouldSkip = 1;
-			if (areaId != 3 && areaId != 4) {
-				u8 inArea = 1;
-				if (areaId != 1) {
-					if (areaId != 2)
-						inArea = 0;
-				}
-				if (!inArea) {
-					u8 actionBit;
-					if (mAction & 0x1000)
-						actionBit = 1;
-					else
-						actionBit = 0;
-					if (!actionBit)
-						shouldSkip = 0;
-				}
-			}
-		}
-	}
-	if (shouldSkip) return;
+	if (isMarioInvincibleInline(this))
+		return;
 
 	u8 waterFlag;
 	if (mState & 0x400)
@@ -1555,7 +1580,7 @@ void TMario::checkGraffitoFire()
 	}
 
 	f32 savedForwardVel = mForwardVel;
-	f32 savedVelY = getMvelY();
+	f32 savedVelY       = mVel.y;
 
 	makeGraffitoDamage(mDmgParamsGraffitoFire);
 
@@ -1578,7 +1603,7 @@ void TMario::checkGraffitoFire()
 void TMario::checkGraffitoSlip()
 {
 	u8 onSlipSurface;
-	if (mPosition.y <= 4.0f + mFloorPosition.y)
+	if (getMpositionY() <= 4.0f + getFloorPositionY())
 		onSlipSurface = 1;
 	else
 		onSlipSurface = 0;
@@ -1586,7 +1611,7 @@ void TMario::checkGraffitoSlip()
 	if (onSlipSurface) {
 		unk360 = mDeParams.mFootPrintTimerMax.get();
 
-		u32 action = mAction;
+		u32 action = getAction();
 		if (action == 0x84045D || action == 0x4045E) {
 			unk138 = mDirtyParams.mBrakeStartValSlip.get();
 			unk13C = mDirtyParams.mDirtyTimeSlip.get();
@@ -1598,7 +1623,7 @@ void TMario::checkGraffitoSlip()
 			unk13C = mDirtyParams.mDirtyTimeRun.get();
 		}
 
-		const TBGCheckData* ground = mGroundPlane;
+		const TBGCheckData* ground = getGroundPlane();
 		if (ground->getNormal().y <= mDirtyParams.mSlopeAngle.get()) {
 			unk138 = mDirtyParams.mBrakeStartValSlip.get();
 			unk13C = mDirtyParams.mDirtyTimeSlip.get();
@@ -1672,43 +1697,8 @@ void TMario::checkGraffitoElec()
 		return;
 	}
 
-	u8 shouldSkip;
-	if (getUnk14c() > 0) {
-		shouldSkip = 1;
-	} else {
-		u8 flagCheck;
-		if (mState & 0x8)
-			flagCheck = 1;
-		else
-			flagCheck = 0;
-		if (flagCheck) {
-			shouldSkip = 1;
-		} else if (mAction == 0x89C) {
-			shouldSkip = 1;
-		} else {
-			u8 areaId = *(u8*)((u8*)gpMarDirector + 0x124);
-			shouldSkip = 1;
-			if (areaId != 3 && areaId != 4) {
-				u8 inArea = 1;
-				if (areaId != 1) {
-					if (areaId != 2)
-						inArea = 0;
-				}
-				if (!inArea) {
-					u8 actionBit;
-					if (mAction & 0x1000)
-						actionBit = 1;
-					else
-						actionBit = 0;
-					if (actionBit)
-						shouldSkip = 1;
-					else
-						shouldSkip = 0;
-				}
-			}
-		}
-	}
-	if (shouldSkip) return;
+	if (isMarioInvincibleInline(this))
+		return;
 
 	u32 motionBits = mAction & 0x1C0;
 	if (motionBits != 0) {
@@ -1893,6 +1883,10 @@ void TMario::checkGraffito()
 			mPosition.z = mLastSafePos.z;
 		}
 		break;
+	case 0:
+	case 5:
+	case 6:
+	case 8:
 	default:
 		break;
 	}
@@ -1975,8 +1969,7 @@ bool TMario::isInvincible() const
 		return true;
 
 	if (gpMarDirector->isDemoMode3() || gpMarDirector->isDemoMode4()
-	    || gpMarDirector->isTalkModeNow()
-	    || checkStatusType(0x1000))
+	    || gpMarDirector->isTalkModeNow() || checkActionFlag(0x1000))
 		return true;
 
 	return false;
@@ -3250,9 +3243,9 @@ void TMario::checkWet()
 
 	const TBGCheckData* check;
 	f32 posX = getMpositionX();
-	f32 posZ = mPosition.z;
+	f32 posZ = getMpositionZ();
 	f32 groundY;
-	checkGroundPlane(posX, 320.0f + mPosition.y, posZ, &groundY, &check);
+	checkGroundPlane(posX, 320.0f + getMpositionY(), posZ, &groundY, &check);
 
 	u16 bgType = check->mBGType;
 	u8 isWater;
@@ -3269,7 +3262,7 @@ void TMario::checkWet()
 		return;
 
 	u8 actionCheck;
-	if (mAction & 0x200)
+	if (getAction() & 0x200)
 		actionCheck = 1;
 	else
 		actionCheck = 0;
@@ -3279,19 +3272,10 @@ void TMario::checkWet()
 	if (unk362 & 7)
 		return;
 
-	const char* strPtr = "\0\0\0\0\0\0\0\0\0\0\0";
-	TWaterEmitInfo* emitInfo = getUnk158();
-	emitInfo->mPos.value = mPosition;
-
-	TWaterEmitInfo* emitInfo2 = getUnk158();
-	emitInfo2->mPos.value.y += 5.0f;
-
-	JGeometry::TVec3<f32> vel(*(JGeometry::TVec3<f32>*)strPtr);
-	vel.x = 0.3f * mVel.x;
-	vel.y = 0.3f * getMvelY();
-	vel.z = 0.3f * mVel.z;
-	TWaterEmitInfo* emitInfo3 = getUnk158();
-	emitInfo3->mV.value = vel;
+	getUnk158()->mPos.value = mPosition;
+	getUnk158()->mPos.value.y += 5.0f;
+	(Vec&)getUnk158()->mV.value
+	    = (Vec) { mVel.x * 0.3f, getMvelY() * 0.3f, mVel.z * 0.3f };
 
 	gpModelWaterManager->emitRequest(*unk158);
 }
@@ -3347,51 +3331,7 @@ void TMario::checkEnforceJump()
 
 void TMario::checkReturn()
 {
-	u8 shouldReturn;
-
-	if (getUnk14c() > 0) {
-		shouldReturn = 1;
-	} else {
-		u8 hasFlag;
-		if (mState & 0x8)
-			hasFlag = 1;
-		else
-			hasFlag = 0;
-
-		if (hasFlag) {
-			shouldReturn = 1;
-		} else if (mAction == 0x89C) {
-			shouldReturn = 1;
-		} else {
-			u8 areaID = *(u8*)((u8*)gpMarDirector + 0x124);
-			if (areaID == 3 || areaID == 4) {
-				shouldReturn = 1;
-			} else {
-				u8 isEvent = 1;
-				if (areaID != 1) {
-					if (areaID != 2)
-						isEvent = 0;
-				}
-
-				if (isEvent) {
-					shouldReturn = 1;
-				} else {
-					u8 hasBit;
-					if (mAction & 0x1000)
-						hasBit = 1;
-					else
-						hasBit = 0;
-
-					if (hasBit)
-						shouldReturn = 1;
-					else
-						shouldReturn = 0;
-				}
-			}
-		}
-	}
-
-	if (shouldReturn)
+	if (isMarioInvincibleInline(this))
 		return;
 
 	u8 groundFlag;
@@ -3465,37 +3405,7 @@ f32 TMario::getSlideStopCatch()
 	const TBGCheckData* plane = mGroundPlane;
 	u16 bgType = plane->mBGType;
 
-	u8 isSand;
-	if (bgType == 0x1 || bgType == 0x4001 || bgType == 0x8001 || bgType == 0xC001)
-		isSand = 1;
-	else
-		isSand = 0;
-
-	u8 shouldSlip;
-	if (isSand) {
-		shouldSlip = 1;
-	} else {
-		shouldSlip = 0;
-		if (unk350 == 2) {
-			u8 hasFlag;
-			if (mState & 0x40)
-				hasFlag = 1;
-			else
-				hasFlag = 0;
-			if (hasFlag) {
-				if (plane->getNormal().y < mDirtyParams.mSlopeAngle.get())
-					shouldSlip = 1;
-			}
-		}
-		if (!shouldSlip) {
-			if (plane->getNormal().y < mDeParams.mForceSlipAngle.get())
-				shouldSlip = 1;
-			else
-				shouldSlip = 0;
-		}
-	}
-
-	if (shouldSlip)
+	if ((u8)isMarioForceSlipInline(this, bgType))
 		return mSlipParamsAll.mSlideStopCatch.get();
 
 	u8 isTypeC;
@@ -3512,7 +3422,7 @@ f32 TMario::getSlideStopCatch()
 	else
 		isType2 = 0;
 	if (isType2) {
-		if (plane->getNormal().y < 0.866025f)
+		if (plane->getNormal().y < 0.8660254f)
 			return mSlipParams45.mSlideStopCatch.get();
 	}
 
@@ -3535,37 +3445,7 @@ f32 TMario::getSlideStopNormal()
 	const TBGCheckData* plane = mGroundPlane;
 	u16 bgType = plane->mBGType;
 
-	u8 isSand;
-	if (bgType == 0x1 || bgType == 0x4001 || bgType == 0x8001 || bgType == 0xC001)
-		isSand = 1;
-	else
-		isSand = 0;
-
-	u8 shouldSlip;
-	if (isSand) {
-		shouldSlip = 1;
-	} else {
-		shouldSlip = 0;
-		if (unk350 == 2) {
-			u8 hasFlag;
-			if (mState & 0x40)
-				hasFlag = 1;
-			else
-				hasFlag = 0;
-			if (hasFlag) {
-				if (plane->getNormal().y < mDirtyParams.mSlopeAngle.get())
-					shouldSlip = 1;
-			}
-		}
-		if (!shouldSlip) {
-			if (plane->getNormal().y < mDeParams.mForceSlipAngle.get())
-				shouldSlip = 1;
-			else
-				shouldSlip = 0;
-		}
-	}
-
-	if (shouldSlip)
+	if ((u8)isMarioForceSlipInline(this, bgType))
 		return mSlipParamsAll.mSlideStopNormal.get();
 
 	u8 isTypeC;
@@ -3582,7 +3462,7 @@ f32 TMario::getSlideStopNormal()
 	else
 		isType2 = 0;
 	if (isType2) {
-		if (plane->getNormal().y < 0.866025f)
+		if (plane->getNormal().y < 0.8660254f)
 			return mSlipParams45.mSlideStopNormal.get();
 	}
 
@@ -3604,38 +3484,7 @@ BOOL TMario::canSlipJump()
 	const TBGCheckData* plane = mGroundPlane;
 	u16 bgType = plane->mBGType;
 
-	// Sand types
-	u8 isSand;
-	if (bgType == 0x1 || bgType == 0x4001 || bgType == 0x8001 || bgType == 0xC001)
-		isSand = 1;
-	else
-		isSand = 0;
-
-	u8 shouldSlip;
-	if (isSand) {
-		shouldSlip = 1;
-	} else {
-		shouldSlip = 0;
-		if (unk350 == 2) {
-			u8 hasFlag;
-			if (mState & 0x40)
-				hasFlag = 1;
-			else
-				hasFlag = 0;
-			if (hasFlag) {
-				if (plane->getNormal().y < mDirtyParams.mSlopeAngle.get())
-					shouldSlip = 1;
-			}
-		}
-		if (!shouldSlip) {
-			if (plane->getNormal().y < mDeParams.mForceSlipAngle.get())
-				shouldSlip = 1;
-			else
-				shouldSlip = 0;
-		}
-	}
-
-	if (shouldSlip)
+	if ((u8)isMarioForceSlipInline(this, bgType))
 		return *((u8*)this + 0x2BB8);
 
 	// Type 0xC
@@ -3682,14 +3531,25 @@ BOOL TMario::canSlipJump()
 
 BOOL TMario::isSlipStart()
 {
-	if (isForceSlip())
+	const TBGCheckData* plane = mGroundPlane;
+	u16 bgType = plane->mBGType;
+
+	if ((u8)isMarioForceSlipInline(this, bgType))
 		return true;
 
 	if (mGroundPlane->isSlider())
 		return true;
 
-	if (mGroundPlane->isUnk2() && mGroundPlane->getNormal().y < 0.8660254f)
-		return true;
+	// Type 2 (wet surface) with slope check
+	u8 isType2;
+	if (bgType == 0x2 || bgType == 0x8002)
+		isType2 = 1;
+	else
+		isType2 = 0;
+	if (isType2) {
+		if (plane->getNormal().y < 0.8660254f)
+			return true;
+	}
 
 	if (mGroundPlane->isUnk3())
 		return false;
@@ -3703,7 +3563,7 @@ BOOL TMario::isSlipStart()
 const TBGCheckData* TMario::checkWallPlane(Vec* pos, f32 height, f32 radius)
 {
 	TBGCheckData* result = 0;
-	f32 bestDist         = radius;
+	f32 bestDist = radius;
 	TBGWallCheckRecord record(pos->x, pos->y + height, pos->z, radius, 4, 0);
 
 	u8 touched = gpMap->isTouchedWallsAndMoveXZ(&record);
@@ -3733,6 +3593,7 @@ const TBGCheckData* TMario::checkWallPlane(Vec* pos, f32 height, f32 radius)
 
 void TMario::thinkHeight()
 {
+	f32 heightAboveGround;
 	u8 isAirborne;
 	if (mAction & 0x800)
 		isAirborne = 1;
@@ -3740,7 +3601,7 @@ void TMario::thinkHeight()
 		isAirborne = 0;
 
 	if (isAirborne) {
-		f32 heightAboveGround = mPosition.y - mFloorPosition.y;
+		heightAboveGround = mPosition.y - mFloorPosition.y;
 		if (unk36C < heightAboveGround)
 			unk36C = heightAboveGround;
 	} else {
@@ -3761,46 +3622,8 @@ void TMario::thinkHeight()
 
 void TMario::checkSink()
 {
-	u8 shouldSkip;
-	if (getUnk14c() > 0) {
-		shouldSkip = 1;
-	} else {
-		u8 flagCheck;
-		if (mState & 0x8)
-			flagCheck = 1;
-		else
-			flagCheck = 0;
-		if (flagCheck) {
-			shouldSkip = 1;
-		} else if (mAction == 0x89C) {
-			shouldSkip = 1;
-		} else {
-			u8 areaId = *(u8*)((u8*)gpMarDirector + 0x124);
-			if (areaId == 3 || areaId == 4) {
-				shouldSkip = 1;
-			} else {
-				u8 inArea = 1;
-				if (areaId != 1) {
-					if (areaId != 2)
-						inArea = 0;
-				}
-				if (inArea) {
-					shouldSkip = 1;
-				} else {
-					u8 actionBit;
-					if (mAction & 0x1000)
-						actionBit = 1;
-					else
-						actionBit = 0;
-					if (actionBit)
-						shouldSkip = 1;
-					else
-						shouldSkip = 0;
-				}
-			}
-		}
-	}
-	if (shouldSkip) return;
+	if (isMarioInvincibleInline(this))
+		return;
 
 	u8 groundBit;
 	if (mGroundPlane->mFlags & 0x10)
@@ -3814,10 +3637,7 @@ void TMario::checkSink()
 		return;
 	}
 
-	s32 sinkState = unk350;
-	u8 sinkHandled = 0;
-
-	if (sinkState == 0) {
+	if (unk350 == 0) {
 		u8 bit6;
 		if (mState & 0x40)
 			bit6 = 1;
@@ -3855,11 +3675,11 @@ void TMario::checkSink()
 			    mGroundPlane->getNormal(),
 			    true);
 			startVoice(0x7865);
-			sinkHandled = 1;
+			return;
 		}
 	}
 
-	if (!sinkHandled && sinkState == 5) {
+	if (unk350 == 5) {
 		u8 bit6;
 		if (mState & 0x40)
 			bit6 = 1;
@@ -3868,23 +3688,19 @@ void TMario::checkSink()
 		if (bit6) {
 			unk374 -= mJumpParams.mGravity.get();
 			unk378 += unk374;
-			mVel.x = 0.0f;
-			mVel.y = 0.0f;
-			mVel.z = 0.0f;
+			mVel.set(0.0f, 0.0f, 0.0f);
 			mForwardVel = 0.0f;
 			mSlideVelX = 0.0f;
 			mSlideVelZ = 0.0f;
 			loserExec();
 			changePlayerStatus(0x10001123, 0, false);
-			sinkHandled = 1;
+			return;
 		}
 	}
 
-	if (!sinkHandled) {
-		unk374 = 0.0f;
-		unk378 = 0.0f;
-		unk368 = 0.0f;
-	}
+	unk374 = 0.0f;
+	unk378 = 0.0f;
+	unk368 = 0.0f;
 }
 
 void TMario::getRidingMtx(MtxPtr outMtx)

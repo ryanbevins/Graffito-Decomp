@@ -8,7 +8,8 @@ void TPerformList::perform(u32 param_1, JDrama::TGraphics* param_2)
 	for (JGadget::TSingleLinkList<TPerformLink, 0>::iterator it
 	     = getChildren().begin();
 	     it != getChildren().end(); ++it) {
-		it->unk4->testPerform(param_1 & it->unk8, param_2);
+		u32 maskedFlags = param_1 & it->unk8;
+		it->unk4->testPerform(maskedFlags, param_2);
 	}
 }
 

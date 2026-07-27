@@ -51,31 +51,15 @@ int TMarDirector::direct()
 	int vsyncRate = 600 / (int)SMSGetVSyncTimesPerSec();
 
 	if (unk260 == 0) {
-		OSReport((char*)"CODEX_MARDIRECT_SETUP wait curr=%u:%u threadDone=%d\n",
-		         gpApplication.mCurrArea.getStage(),
-		         gpApplication.mCurrArea.getScenario(),
-		         OSIsThreadTerminated(&gSetupThread));
 		if (!OSIsThreadTerminated(&gSetupThread))
 			return 0;
 
 		u32 local_40;
-		OSReport((char*)"CODEX_MARDIRECT_SETUP join-begin curr=%u:%u\n",
-		         gpApplication.mCurrArea.getStage(),
-		         gpApplication.mCurrArea.getScenario());
 		OSJoinThread(&gSetupThread, &local_40);
-		OSReport((char*)"CODEX_MARDIRECT_SETUP join-end curr=%u:%u err=%u\n",
-		         gpApplication.mCurrArea.getStage(),
-		         gpApplication.mCurrArea.getScenario(), local_40);
 		if (local_40)
 			return 4;
 
-		OSReport((char*)"CODEX_MARDIRECT_SETUP objects-begin curr=%u:%u\n",
-		         gpApplication.mCurrArea.getStage(),
-		         gpApplication.mCurrArea.getScenario());
 		setupObjects();
-		OSReport((char*)"CODEX_MARDIRECT_SETUP objects-end curr=%u:%u\n",
-		         gpApplication.mCurrArea.getStage(),
-		         gpApplication.mCurrArea.getScenario());
 		unk260 = 1;
 	}
 

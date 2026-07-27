@@ -141,7 +141,8 @@ public:
 #if defined(JGEOMETRY_DRAWUTIL_OWNER_HELPERS)                                  \
     || defined(JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE)                  \
     || defined(JGEOMETRY_MARIORECEIVEMSG_TVEC3_SUB_OUT_OF_LINE)                \
-    || defined(JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE)
+    || defined(JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE)                      \
+    || defined(JGEOMETRY_TVEC3_SUB_OUT_OF_LINE)
 	void sub(const TVec3& translate);
 #else
 	void sub(const TVec3& translate)

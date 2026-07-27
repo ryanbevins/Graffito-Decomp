@@ -81,10 +81,10 @@ def fuzzy_match(pattern: str, name: str) -> bool:
 def resolve_target_symbol(
     symbols: List[Dict[str, Any]], target_symbol: Optional[int]
 ) -> Optional[Dict[str, Any]]:
-    """Resolve objdiff's 1-based target_symbol id into a symbol entry."""
+    """Resolve objdiff's zero-based target_symbol id into a symbol entry."""
     if target_symbol is None:
         return None
-    index = target_symbol - 1
+    index = target_symbol
     if 0 <= index < len(symbols):
         return symbols[index]
     return None
