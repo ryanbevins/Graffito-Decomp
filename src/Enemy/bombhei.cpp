@@ -482,11 +482,8 @@ void TBombHei::calcRootMatrix()
 void TBombHei::setDeadAnm()
 {
 	mMActor         = mMActorKeeper->getMActor("downnejibomb_model1.bmd");
-	volatile f32 mn = 0.0f;
-	volatile f32 mx = 360.0f;
-	f32 range       = mx - mn;
-	f32 rot         = range * MsRandF();
-	mRotation.y     = mn + rot;
+	TMsRange<f32> rot(0.0f, 360.0f);
+	mRotation.y = rot.rand();
 	unk19C      = 0;
 	setBckAnm(0);
 
