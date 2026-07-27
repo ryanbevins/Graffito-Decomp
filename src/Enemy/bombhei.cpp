@@ -144,7 +144,7 @@ DEFINE_NERVE(TNerveBombHeiWaitExplosion, TLiveActor)
 
 	if (self->checkCurAnmEnd(0)) {
 		if (spine->getTime() > 0x96) {
-			self->mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
+			spine->pushAfterCurrent(&TNerveBombHeiExplosion::theNerve());
 			return true;
 		}
 	}
