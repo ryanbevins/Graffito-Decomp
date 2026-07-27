@@ -342,25 +342,19 @@ bool TBombHei::isDamageToCannon()
 
 void TBombHei::forceKill()
 {
-	if (mGroundPlane->mFlags & 0x10)
-		return;
-
-	u16 type = mGroundPlane->mBGType;
-	if (!(type == 0x800 || (type >= 0x100 && type <= 0x105) || type == 0x4104))
-		return;
-
-	if (mLiveFlag & 0x80)
-		return;
-	if (mLiveFlag & 0x10)
+	if (mGroundPlane->isIllegalData()
+	    || (!mGroundPlane->isDeathPlane() && !mGroundPlane->isPool()
+	        && !mGroundPlane->isWaterSurface())
+	    || isAirborne() || checkLiveFlag(LIVE_FLAG_UNK10))
 		return;
 
 	if (mSpine->getCurrentNerve() != &TNerveBombHeiExplosion::theNerve()) {
 		mSpine->reset();
 		mSpine->setNext(&TNerveBombHeiExplosion::theNerve());
 		mSpine->pushAfterCurrent(mSpine->getDefault());
+		mLiveFlag |= LIVE_FLAG_UNK20000;
+		mHitPoints = 1;
 	}
-	mLiveFlag |= 0x20000;
-	mHitPoints = 1;
 }
 
 bool TBombHei::isCollidMove(THitActor* other)
