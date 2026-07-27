@@ -98,7 +98,7 @@ DEFINE_NERVE(TNerveBombHeiWalkExplosion, TLiveActor)
 		self->getMActor()->setBtpFromIndex(0);
 	} else {
 		if (self->checkCurAnmEnd(0)) {
-			self->mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
+			spine->pushAfterCurrent(&TNerveBombHeiExplosion::theNerve());
 			return true;
 		}
 	}
