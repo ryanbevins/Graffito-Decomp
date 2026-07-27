@@ -135,28 +135,27 @@ DEFINE_NERVE(TNerveBombHeiWaitExplosion, TLiveActor)
 			if (self->getCurAnmFrameNo(3) >= 1.0f)
 				self->getMActor()->setFrameRate(0.0f, 3);
 		}
-		return false;
-	}
+	} else {
+		self->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
+		if (!self->getMActor()->checkCurAnmFromIndex(0, 3))
+			self->getMActor()->setBtpFromIndex(0);
 
-	self->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
-	if (!self->getMActor()->checkCurAnmFromIndex(0, 3))
-		self->getMActor()->setBtpFromIndex(0);
-
-	if (self->checkCurAnmEnd(0)) {
-		if (spine->getTime() > 0x96) {
-			spine->pushAfterCurrent(&TNerveBombHeiExplosion::theNerve());
-			return true;
+		if (self->checkCurAnmEnd(0)) {
+			if (spine->getTime() > 0x96) {
+				spine->pushAfterCurrent(&TNerveBombHeiExplosion::theNerve());
+				return true;
+			}
 		}
-	}
 
-	int frame = (int)self->getMActor()->getFrameCtrl(3)->getFrame();
-	if (frame % 40 == 0) {
-		if (gpMSound->gateCheck(0x2859))
-			MSoundSESystem::MSoundSE::startSoundActor(0x2859, &self->mPosition, 0,
-			                                          nullptr, 0, 4);
+		int frame = (int)self->getMActor()->getFrameCtrl(3)->getFrame();
+		if (frame % 40 == 0) {
+			if (gpMSound->gateCheck(0x2859))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x2859, &self->mPosition, 0, nullptr, 0, 4);
+		}
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x17f, self->getMActor()->getModel()->getAnmMtx(1), 1, self);
 	}
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x17f, self->getMActor()->getModel()->getAnmMtx(1), 1, self);
 
 	return false;
 }
