@@ -10,15 +10,7 @@ static u32 dummy1210[4] = { 0, 2, 1, 3 };
 
 void MSBgmXFade::xFadeBgmForce(f32 timing)
 {
-	u8 idx;
-	for (idx = 0; idx < 0x11; ++idx) {
-		if (timing >= scTiming[idx] && timing < scTiming[idx + 1]) {
-			break;
-		}
-	}
-	if (idx == 0x11) {
-		idx = 0xff;
-	}
+	u8 idx = getTimingForce(timing);
 	if (idx != 0xff) {
 		MSBgm::setTrackVolume(0, scExp[0x11 - idx], 0, 0);
 		MSBgm::setTrackVolume(1, scExp[idx], 0, 0);
@@ -28,20 +20,7 @@ void MSBgmXFade::xFadeBgmForce(f32 timing)
 
 void MSBgmXFade::xFadeBgm(f32 timing)
 {
-	f32 last = mLastTiming;
-	u8 idx;
-	for (idx = 0; idx < 0x12; ++idx) {
-		f32 threshold = scTiming[idx];
-		if (timing > threshold && last <= threshold) {
-			break;
-		}
-		if (timing < threshold && last >= threshold) {
-			break;
-		}
-	}
-	if (idx == 0x12) {
-		idx = 0xff;
-	}
+	u8 idx = getTiming(timing);
 	bool inRange = idx >= 1 && idx <= 0x10;
 	if (inRange) {
 		MSBgm::setTrackVolume(0, scExp[0x11 - idx], 2, 0);
