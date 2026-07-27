@@ -61,9 +61,7 @@ BOOL NPCNeckCallBack(J3DNode* node, int phase)
 
 					JGeometry::TVec3<f32> ax(jntMtx[0][1], jntMtx[1][1], jntMtx[2][1]);
 					MsVECNormalize((Vec*)&dir, (Vec*)&dir);
-					JGeometry::TVec3<f32> rotAx  = MsGetRotFromZaxis(ax);
-					JGeometry::TVec3<f32> rotDir = MsGetRotFromZaxis(dir);
-					diff = rotDir - rotAx;
+					diff = MsGetRotFromZaxis(dir) - MsGetRotFromZaxis(ax);
 				} else {
 					diff.z = 0.0f;
 					diff.y = 0.0f;
