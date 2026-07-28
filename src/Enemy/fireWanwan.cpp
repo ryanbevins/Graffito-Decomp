@@ -1489,7 +1489,7 @@ bool TFireWanwan::isWalking() const
 bool TFireWanwan::isWandering() const
 {
 	TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
-	return nerve == &TNerveFireWanwanRecover::theNerve()
+	return nerve == &TNerveFireWanwanRecoverGraph::theNerve()
 	       || nerve == &TNerveFireWanwanTurn::theNerve() || isWalking();
 }
 
