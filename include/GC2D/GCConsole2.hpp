@@ -228,7 +228,7 @@ public:
 	/* 0x40C */ TBoundPane* unk40C;
 	/* 0x410 */ TBoundPane* unk410;
 	/* 0x414 */ TBlendPane* unk414[4];
-	/* 0x424 */ char unk424[0x2];
+	/* 0x424 */ u8 unk424[0x2];
 	/* 0x426 */ u8 unk426;
 	/* 0x428 */ TExPane* unk428;
 	/* 0x42C */ TBoundPane* unk42C;
