@@ -1102,10 +1102,13 @@ void THangingBridgeBoard::setGroundCollision()
 
 void THangingBridgeBoard::calcDefaultMtx()
 {
-	makeRootMtxRotX(unk164);
+	Mtx rotX;
+	makeRootMtxRotX(rotX);
 	Mtx rotY;
 	makeRootMtxRotY(rotY);
-	MTXConcat(rotY, unk164, unk164);
+	PSMTXConcat(rotY, rotX, rotY);
+	TSMtx34f& defaultMtx = *(TSMtx34f*)(void*)unk164;
+	defaultMtx.set((const f32(*)[4])rotY);
 	mVelocity.y = 0.0f;
 	mPosition.y = mInitialPosition.y;
 }
