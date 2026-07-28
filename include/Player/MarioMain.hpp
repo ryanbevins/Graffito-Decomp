@@ -1611,7 +1611,7 @@ public:
 	/* 0x3E4 */ TWaterGun* mWaterGun;
 
 	/* 0x3E8 */ u32 unk3E8;
-	/* 0x3EC */ u32 unk3EC;
+	/* 0x3EC */ f32 unk3EC;
 
 	/* 0x3F0 */ TYoshi* mYoshi;
 	/* 0x3F4 */ MActor* mSurfGesso;
