@@ -265,11 +265,11 @@ void TResetFruit::appearing()
 {
 	Mtx scaleMtx;
 	PSMTXScale(scaleMtx, mScaleUpSpeed, mScaleUpSpeed, mScaleUpSpeed);
-	Mtx* nm = getModel()->mNodeMatrices;
-	concatOnlyRotFromLeft(scaleMtx, nm[0], nm[0]);
+	MtxPtr modelMtx = getModel()->getAnmMtx(0);
+	concatOnlyRotFromLeft(scaleMtx, modelMtx, modelMtx);
 	mScaling.y        = mScaling.y * mScaleUpSpeed;
 	mScaledBodyRadius = mBodyRadius * mScaling.y;
-	(*nm)[1][3]       = mBodyRadius * mScaling.y + mPosition.y;
+	modelMtx[1][3]    = mBodyRadius * mScaling.y + mPosition.y;
 	if (mScaling.y >= mInitialScaling.y) {
 		mScaling.x = mInitialScaling.x;
 		mScaling.y = mInitialScaling.y;
