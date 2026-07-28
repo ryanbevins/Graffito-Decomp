@@ -1264,9 +1264,10 @@ void TSamboHead::behaveToWater(THitActor*)
 	JGeometry::TVec3<f32> velocity(mPosition.x - gpMarioPos->x, 0.0f,
 	                               mPosition.z - gpMarioPos->z);
 	MsVECNormalize(&velocity, &velocity);
-	velocity.x *= mParams->mSLHitJumpSpXZ.get();
-	velocity.y *= mParams->mSLHitJumpSpXZ.get();
-	velocity.z *= mParams->mSLHitJumpSpXZ.get();
+	f32 hitJumpSpXZ = mParams->mSLHitJumpSpXZ.get();
+	velocity.x *= hitJumpSpXZ;
+	velocity.y *= hitJumpSpXZ;
+	velocity.z *= hitJumpSpXZ;
 	velocity.y = mParams->mSLHitJumpSpY.get();
 
 	if (mSpine->getCurrentNerve() != &TNerveSamboHeadHitWater::theNerve()) {
