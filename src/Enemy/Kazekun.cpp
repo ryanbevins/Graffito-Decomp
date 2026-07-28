@@ -141,6 +141,7 @@ DEFINE_NERVE(TNerveKazekunAppear, TLiveActor)
 
 DEFINE_NERVE(TNerveKazekunTurn, TLiveActor)
 {
+	bool lost;
 	TKazekun* self = (TKazekun*)spine->getBody();
 
 	if (spine->getTime() == 0) {
@@ -151,8 +152,8 @@ DEFINE_NERVE(TNerveKazekunTurn, TLiveActor)
 
 	self->flyAroundMario();
 
-	f32 dy    = gpMarioPos->y - self->mHomePos.y;
-	bool lost = true;
+	f32 dy = gpMarioPos->y - self->mHomePos.y;
+	lost   = true;
 	if (!(dy < -self->getKazekunParam()->mLostOffsetYDown.get())) {
 		if (!(self->getKazekunParam()->mLostOffsetYUp.get() < dy))
 			lost = false;
