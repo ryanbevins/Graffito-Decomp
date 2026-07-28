@@ -481,8 +481,10 @@ void TMapObjWaterSpray::calc()
 	if (emitter == nullptr)
 		return;
 
-	emitter->setRotation((s16)mRotation.x, (s16)mRotation.y,
-	                     (s16)mRotation.z);
+	s16 rotationX = (s16)mRotation.x;
+	s16 rotationY = (s16)mRotation.y;
+	s16 rotationZ = (s16)mRotation.z;
+	emitter->setRotation(rotationX, rotationY, rotationZ);
 	emitter->unk154.set(mScaling);
 	emitter->unk174.set(mScaling);
 	emitter->mChildSpawnRate = unk13C;
