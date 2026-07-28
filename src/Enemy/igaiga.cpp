@@ -934,6 +934,7 @@ void TGorogoro::forceKill()
 	    && (mGroundPlane->isPool() || mGroundPlane->isWaterSurface())
 	    && !checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
 		if (mSpine->getCurrentNerve() != &TNerveGorogoroDie::theNerve()) {
+			mSpine->reset();
 			mSpine->setNext(&TNerveGorogoroDie::theNerve());
 			mSpine->pushAfterCurrent(mSpine->getDefault());
 			onLiveFlag(LIVE_FLAG_UNK20000);
