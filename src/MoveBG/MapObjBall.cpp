@@ -377,7 +377,7 @@ void TResetFruit::checkGroundCollision(JGeometry::TVec3<f32>* pos)
 
 void TResetFruit::touchGround(JGeometry::TVec3<f32>* pos)
 {
-	if (mGroundPlane->mBGType == 0x800) {
+	if (mGroundPlane->isDeathPlane()) {
 		mState = 0xB;
 		makeObjDefault();
 		makeObjDead();
