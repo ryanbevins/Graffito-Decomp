@@ -421,9 +421,13 @@ MtxPtr TTabePuku::getTakingMtx()
 
 BOOL TTabePuku::receiveMessage(THitActor* sender, u32 message)
 {
-	if ((s32)message < 2 && (s32)message >= 0)
+	switch ((s32)message) {
+	case 0:
+	case 1:
 		return FALSE;
-	return TSmallEnemy::receiveMessage(sender, message);
+	default:
+		return TSmallEnemy::receiveMessage(sender, message);
+	}
 }
 
 void TTabePuku::calcRootMatrix()
