@@ -423,9 +423,8 @@ void TBeeHive::controlCollision()
 	int count             = mWaitTimer;
 
 	actor->checkHitActors();
-	mBreakTimer += 1;
 	actor->onHitFlag(2);
-	if (count <= mBreakTimer)
+	if (count <= ++mBreakTimer)
 		mBreakTimer = 0;
 
 	index = mBreakTimer;
