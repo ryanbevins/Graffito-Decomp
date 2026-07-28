@@ -450,8 +450,8 @@ void JAIBasic::finishSceneSet(u32 param)
 void JAIBasic::loadSceneWave(s32 param1, s32 param2)
 {
 	if (unk54 && unk54[param1].unk8 == 2) {
-		s32 wave = unk60[param1];
-		if (wave != param2) {
+		s32 wave;
+		if (param2 != (wave = unk60[param1])) {
 			if (wave != -1)
 				JASystem::WaveBankMgr::eraseWave(param1, wave);
 			loadGroupWave(param1, param2);
