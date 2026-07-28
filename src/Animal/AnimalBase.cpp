@@ -242,7 +242,13 @@ void TAnimalBase::resetRandomCurPathNode()
 	if (cur.unk0 != NULL)
 		return;
 
-	JGeometry::TVec3<f32> point = cur.getPoint();
+	THitActor* curActor = cur.unk0;
+	const JGeometry::TVec3<f32>* curPos;
+	if (curActor != NULL)
+		curPos = &curActor->getPosition();
+	else
+		curPos = &cur.unk4;
+	JGeometry::TVec3<f32> point = *curPos;
 
 	point.x += 1000.0f * (MsRandF() - 0.5f);
 	point.z += 1000.0f * (MsRandF() - 0.5f);
