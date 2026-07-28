@@ -837,11 +837,7 @@ DEFINE_NERVE(TNerveFlyEnemyChaseFly, TLiveActor)
 
 	self->flyBehavior();
 
-	f32 sc = 1.1f * self->mScaling.x;
-	if (sc > self->mBodyScale)
-		sc = self->mBodyScale;
-	else if (sc < 0.0f)
-		sc = 0.0f;
+	f32 sc = MsClamp(1.1f * self->mScaling.x, 0.0f, self->mBodyScale);
 	self->mScaling.z = sc;
 	self->mScaling.y = sc;
 	self->mScaling.x = sc;
