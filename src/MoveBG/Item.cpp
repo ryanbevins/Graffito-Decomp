@@ -671,11 +671,11 @@ void TShine::control()
 			return;
 
 		JDrama::TNameRef* cameraRef = JDrama::TNameRefGen::search<JDrama::TNameRef>(
-		    "シャイン（いききなり出現）カメラ");
+		    "シャイン（いきなり出現）カメラ");
 		unk18C = *(u32*)((u8*)cameraRef + 0x2C);
 		TMarDirector* director = gpMarDirector;
 		director->fireStartDemoCamera(
-		    "シャイン（いききなり出現）カメラ", &mPosition, -1, 0.0f, true,
+		    "シャイン（いきなり出現）カメラ", &mPosition, -1, 0.0f, true,
 		    appearWithTimeCallback, (u32)this, nullptr, JDrama::TFlagT<u16>(0));
 		mState = 0x11;
 		break;
