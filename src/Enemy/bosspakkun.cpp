@@ -1454,9 +1454,8 @@ void TBossPakkun::setGroundCollision()
 	TMtx34f mtx;
 	mtx.set(model->mNodeMatrices[2]);
 
-	TMapCollisionBase* entry = mMapCollisionManager->unk8;
-	if (entry != nullptr) {
-		entry->moveMtx(mtx);
+	if (mMapCollisionManager->unk8 != nullptr) {
+		mMapCollisionManager->unk8->moveMtx(mtx);
 	}
 }
 
