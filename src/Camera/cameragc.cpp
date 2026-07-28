@@ -1166,13 +1166,14 @@ void CPolarSubCamera::loadAfter()
 	    = (TCameraMapTool*)gpCamMapToolTable->searchF(
 	        JDrama::TNameRef::calcKeyCode(startAfterName), startAfterName);
 	if (startAfterTool != nullptr) {
-		f32 ratio = startAfterTool->unkC.y;
+		f32 ratio = startAfterTool->mPosition.y;
 		if (ratio > unk26C)
 			ratio = unk26C;
 		else if (ratio < unk268)
 			ratio = unk268;
 		mCurrentTarget.unk28 = ratio;
-		mCurrentTarget.mYaw = CLBRoundf<s16>(182.04445f * startAfterTool->unk18.y)
+		mCurrentTarget.mYaw
+		    = CLBRoundf<s16>(182.04445f * startAfterTool->mPitchYaw.y)
 		        - 0x8000;
 	} else {
 		const u8* save = (const u8*)unk2D4;
