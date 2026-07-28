@@ -677,7 +677,8 @@ bool TKiller::isFindMario(float param_1)
 	TSmallEnemyParams* prms = (TSmallEnemyParams*)getSaveParam();
 
 	if (fabs(gpMarioPos->y - mPosition.y) < prms->mSLSearchHeight.get()) {
-		JGeometry::TVec3<f32> marioPos = *gpMarioPos;
+		JGeometry::TVec3<f32> marioPos(gpMarioPos->x, gpMarioPos->y,
+		                              gpMarioPos->z);
 
 		f32 searchLength = prms->mSLSearchLength.get();
 		f32 searchAngle  = prms->mSLSearchAngle.get();
