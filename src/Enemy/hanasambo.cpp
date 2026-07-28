@@ -1449,12 +1449,13 @@ void THanaSambo::createPollen()
 	MtxPtr jointMtx = mMActor->getModel()->mNodeMatrices[mPollenJntIndex];
 	JGeometry::TVec3<f32> pos;
 	pos.x = jointMtx[0][3];
+	MtxPtr pollenMtx = jointMtx;
 	pos.y = jointMtx[1][3];
 	pos.z = jointMtx[2][3];
 
 	Mtx mtx;
 	MsMtxSetRotRPH(mtx, 0.0f, 0.0f, -90.0f);
-	PSMTXConcat(jointMtx, mtx, mtx);
+	PSMTXConcat(pollenMtx, mtx, mtx);
 
 	JPABaseEmitter* emitter;
 	if (mSpine->getCurrentNerve() == &TNerveHanaSamboWait::theNerve()) {
