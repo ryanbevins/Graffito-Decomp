@@ -81,10 +81,10 @@ def fuzzy_match(pattern: str, name: str) -> bool:
 def resolve_target_symbol(
     symbols: List[Dict[str, Any]], target_symbol: Optional[int]
 ) -> Optional[Dict[str, Any]]:
-    """Resolve objdiff's zero-based target_symbol id into a symbol entry."""
+    """Resolve objdiff's one-based target_symbol id into a symbol entry."""
     if target_symbol is None:
         return None
-    index = target_symbol
+    index = target_symbol - 1
     if 0 <= index < len(symbols):
         return symbols[index]
     return None
@@ -216,8 +216,9 @@ def render_instruction(
                 # Resolve relocation target from instruction.relocation
                 reloc_info = inst.get("relocation", {})
                 ts = reloc_info.get("target_symbol")
-                if ts is not None and ts < len(all_syms):
-                    target_sym = all_syms[ts]
+                index = ts - 1 if ts is not None else -1
+                if 0 <= index < len(all_syms):
+                    target_sym = all_syms[index]
                     val = target_sym.get("demangled_name", target_sym.get("name", "?"))
                 else:
                     # Fallback: extract from formatted text
