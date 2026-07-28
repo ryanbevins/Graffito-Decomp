@@ -117,7 +117,7 @@ void TCogwheelScale::control()
 
 	if (unk140 > 0.0f) {
 		unk140 -= mWaterLeakSpeed;
-		f32 volume = fabsf(unk140);
+		f32 volume = __fabsf(unk140);
 
 		if (gpMSound->gateCheck(0x3061))
 			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
