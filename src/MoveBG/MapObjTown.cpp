@@ -123,8 +123,10 @@ void TManhole::makeManholeUnuseful(const TMapObjBase* obj)
 		return;
 
 	unk154 = obj;
-	MTXCopy(getModel()->mNodeMatrices[0], unk158->unk20);
-	unk158->setUp();
+	J3DModel* model         = getModel();
+	TMapCollisionWarp* warp = unk158;
+	MTXCopy(model->mNodeMatrices[0], warp->unk20);
+	warp->setUp();
 }
 
 void TManhole::setGroundCollision()
