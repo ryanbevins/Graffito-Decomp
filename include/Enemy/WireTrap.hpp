@@ -44,7 +44,7 @@ public:
 	TWireBinder* getWireBinder() const { return getWireBinderDirect(); }
 #endif
 	const JGeometry::TVec3<f32>& getWireDir() const;
-	const TNerveBase<TLiveActor>* getNerveFromMode(int);
+	static const TNerveBase<TLiveActor>* getNerveFromMode(int);
 	void checkHitActors();
 
 	// fabricated
