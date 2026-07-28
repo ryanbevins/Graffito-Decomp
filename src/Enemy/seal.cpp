@@ -166,6 +166,7 @@ BOOL TSeal::receiveMessage(THitActor* sender, u32 msg)
 				mSpine->pushNerve(&TNerveSealDie::theNerve());
 			}
 			mDamageCount += 1;
+			return true;
 		}
 		return true;
 	}
