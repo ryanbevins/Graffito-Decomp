@@ -173,7 +173,7 @@ void TManhole::appeared()
 		unk150 = 0;
 	}
 
-	if (!animationFinished())
+	if (!(u8)animationFinished())
 		return;
 
 	if (unk152 == 1 && mColCount == 0) {
@@ -232,7 +232,7 @@ void TManhole::touchPlayer(THitActor*)
 {
 	mState = 1;
 
-	if (!animationFinished()) {
+	if (!(u8)animationFinished()) {
 		mPosition.y = mInitialPosition.y;
 		return;
 	}
