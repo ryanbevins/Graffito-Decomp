@@ -234,7 +234,8 @@ namespace Driver {
 			if (mgr->unk4 != 0) {
 				if (mgr->cutList(channel) != -1) {
 					--mgr->unk4;
-					if (u32 thing = channel->unkC8) {
+					if (channel->unkC8 != 0) {
+						u32 thing = channel->unkC8;
 						channel->unkC8 = 0;
 						mgr->checkLimitStop(channel, thing);
 					}
@@ -242,7 +243,8 @@ namespace Driver {
 				}
 			} else {
 				if (mgr->cutList(channel) != -1) {
-					if (u32 thing = channel->unkC8) {
+					if (channel->unkC8 != 0) {
+						u32 thing = channel->unkC8;
 						channel->unkC8 = 0;
 						mgr->checkLimitStop(channel, thing);
 					}
