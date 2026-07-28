@@ -596,13 +596,14 @@ void TMapObjBase::makeObjMtxRotByAxis(const JGeometry::TVec3<f32>& axis,
 void TMapObjBase::calcReflectingVelocity(const TBGCheckData* wall, f32 param_2,
                                          JGeometry::TVec3<f32>* velocity) const
 {
-	const JGeometry::TVec3<f32>& normal = wall->getNormal();
+	f32 fVar2 = velocity->dot(wall->getNormal());
 
-	f32 fVar2 = velocity->dot(normal);
-
-	velocity->x -= (param_2 + 1.0f) * fVar2 * normal.x;
-	velocity->y -= (param_2 + 1.0f) * fVar2 * normal.y;
-	velocity->z -= (param_2 + 1.0f) * fVar2 * normal.z;
+	velocity->x
+	    -= (fVar2 * wall->getNormal().x) * (param_2 + 1.0f);
+	velocity->y
+	    -= (fVar2 * wall->getNormal().y) * (param_2 + 1.0f);
+	velocity->z
+	    -= (fVar2 * wall->getNormal().z) * (param_2 + 1.0f);
 }
 
 void TMapObjBase::getVerticalVecToTargetXZ(
