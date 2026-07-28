@@ -1102,7 +1102,9 @@ void JPADrawExecLine::exec(const JPADrawContext* dc, JPABaseParticle* particle)
 	GXBegin(GX_LINES, GX_VTXFMT0, 2);
 	GXPosition3f32(f31_f30_f39.x, f31_f30_f39.y, f31_f30_f39.z);
 	GXTexCoord2f32(0.0f, 0.0f);
-	GXPosition3f32(local_40.x, local_40.y, local_40.z);
+	GXWGFifo.f32 = local_40.x;
+	GXWGFifo.f32 = local_40.y;
+	GXWGFifo.f32 = local_40.z;
 	GXTexCoord2f32(0.0f, 1.0f);
 	GXEnd();
 }
