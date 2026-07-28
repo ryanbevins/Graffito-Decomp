@@ -180,23 +180,30 @@ void TMammaMirrorMapOperator::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (!(flags & 2))
 		return;
 
-	if (gpMirrorModelManager->unk18 != -1 ? true : false) {
-		const JGeometry::TVec3<f32>& camPos = gpMirrorModelManager->unk24->unk98;
+	TMirrorModelManager* mirrorManager = gpMirrorModelManager;
+	const int& mirrorIndex = mirrorManager->unk18;
+	if (mirrorIndex != -1 ? true : false) {
+		const JGeometry::TVec3<f32>& camPos = mirrorManager->unk24->unk98;
 
-		const JGeometry::TVec3<f32>& mirrorPos
-		    = unkB8[gpMirrorModelManager->unk18];
+		const JGeometry::TVec3<f32>& mirrorPos = unkB8[mirrorIndex];
 		f32 dx = camPos.x - mirrorPos.x;
 		f32 dy = camPos.y - mirrorPos.y;
 		f32 dz = camPos.z - mirrorPos.z;
+		f32 dxSq = dx * dx;
+		f32 dySq = dy * dy;
+		f32 dzSq = dz * dz;
 		f32 inMirrorDist
-		    = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+		    = JGeometry::TUtil<f32>::sqrt(dxSq + dySq + dzSq);
 
 		for (int i = 0; i < 8; ++i) {
 			f32 dx = camPos.x - unk30[i].x;
 			f32 dy = camPos.y - unk30[i].y;
 			f32 dz = camPos.z - unk30[i].z;
+			f32 dxSq = dx * dx;
+			f32 dySq = dy * dy;
+			f32 dzSq = dz * dz;
 			f32 dist
-			    = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+			    = JGeometry::TUtil<f32>::sqrt(dxSq + dySq + dzSq);
 
 			if (dist > unk90[i] || dist > inMirrorDist) {
 				if (unkB0[i]) {
