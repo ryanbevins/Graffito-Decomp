@@ -196,12 +196,8 @@ void JKRHeap::copyMemory(void* dst, void* src, u32 size)
 
 	u32* dst_32 = (u32*)dst;
 	u32* src_32 = (u32*)src;
-	while (count > 0) {
-		*dst_32 = *src_32;
-		dst_32++;
-		src_32++;
-		count--;
-	}
+	while (count-- > 0)
+		*dst_32++ = *src_32++;
 }
 
 void JKRDefaultMemoryErrorRoutine(void* heap, u32 size, int alignment)
