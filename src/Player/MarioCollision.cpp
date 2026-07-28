@@ -298,10 +298,15 @@ void TMario::damageExec(THitActor* hittingActor, int damage, int damageAnimType,
                         f32 pollutionAmount, s16 invincibilityFrames)
 {
 	// volatile u32 padding[10];
-	u32 animationTypes[16] = {
-		0x20464, 0x20462,   0x20460, 0xC400201, 0x208b0, 0x208b0,
-		0x208b3, 0xC400201, 0x20465, 0x20463,   0x20461, 0xC400201,
-		0x208B1, 0x208B1,   0x208B2, 0xC400201,
+	u32 animationTypes[2][2][4] = {
+		{
+		    { 0x20464, 0x20462, 0x20460, 0xC400201 },
+		    { 0x208b0, 0x208b0, 0x208b3, 0xC400201 },
+		},
+		{
+		    { 0x20465, 0x20463, 0x20461, 0xC400201 },
+		    { 0x208B1, 0x208B1, 0x208B2, 0xC400201 },
+		},
 	};
 
 	if (isInvincible())
@@ -364,8 +369,8 @@ void TMario::damageExec(THitActor* hittingActor, int damage, int damageAnimType,
 
 		if (canPlayAnimation) {
 			// I don't think this is correct, but was the closest i could get
-			u32 animationIdx = animationTypes[damageAnimType + animOffset1 * 4
-			                                  + animOffset2 * 8];
+			u32 animationIdx
+			    = animationTypes[animOffset2][animOffset1][damageAnimType];
 			// Possibly inlined check for held by specific thing
 			// M art in shine gates?
 			if (mHolder == nullptr || mHolder->isActorType(0x40000098)) {
