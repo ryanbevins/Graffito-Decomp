@@ -1368,7 +1368,8 @@ TChorobei::TChorobei(TCannon* cannon, int jointIndex, const char* name)
 	if (unk74 != nullptr)
 		return;
 
-	unk74 = new MAnmSound(gpMSound);
+	MAnmSound* anmSound = new MAnmSound(SMSGetMSound());
+	unk74 = anmSound;
 	unk74->initAnmSound(nullptr, 1, 0.0f);
 }
 
