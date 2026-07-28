@@ -172,7 +172,7 @@ void TManhole::appeared()
 		unk154 = nullptr;
 	}
 
-	if (unk150 != 0 && *gpMarioSpeedY <= 0.0f) {
+	if (unk150 != 0 && gpMarioOriginal->mVel.y <= 0.0f) {
 		mMapCollisionManager->unk8->setAllBGType(0x107);
 		unk150 = 0;
 	}
