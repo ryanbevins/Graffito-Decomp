@@ -670,7 +670,7 @@ void TLeafBoat::touchWall(JGeometry::TVec3<f32>* pos,
 			f32 dist = pos->x * normal.x + pos->y * normal.y
 			           + pos->z * normal.z + wall->getPlaneDistance();
 			f32 push = mBodyRadius - dist;
-			pos->x += push * normal.x;
+			pos->x += push * wall->getNormal().x;
 			pos->z += push * normal.z;
 
 			JGeometry::TVec3<f32> reflected = mVelocity;
