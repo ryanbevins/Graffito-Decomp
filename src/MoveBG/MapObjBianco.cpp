@@ -906,11 +906,8 @@ void TBiancoWatermillVertical::control()
 void TBiancoWatermillVertical::setGroundCollision()
 {
 	if (unk144 != 0 || mColCount != 0) {
-		J3DModel* model              = getModel();
-		TMapCollisionManager* colman = mMapCollisionManager;
-		MtxPtr mtx                   = model->getAnmMtx(0);
-		TMapCollisionBase* base      = colman->getUnk8();
-		if (base)
+		MtxPtr mtx = getModel()->getAnmMtx(0);
+		if (TMapCollisionBase* base = mMapCollisionManager->unk8)
 			base->moveMtx(mtx);
 		unk144 = 0;
 	}
