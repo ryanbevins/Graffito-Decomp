@@ -755,7 +755,7 @@ int TSeqParser::cmdNoteOff(TTrack* track, u8 flag)
 	u8 note = flag & 0xF;
 
 	s32 release = 0;
-	if (flag & 0x8) {
+	if (note & 0x8) {
 		note -= 0x8;
 		release = track->mSeqCtrl.readByte();
 		if (release > 100)
