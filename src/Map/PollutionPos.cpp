@@ -31,8 +31,10 @@ int TPollutionPos::getEdgeDegree(int x, int y) const
 f32 TPollutionPos::getDepthWorld(int x, int y) const
 {
 	if (getDepth(x, y) < 0xff) {
-		f32 d = getDepth(x, y) * mVerticalScale;
-		return d + mVerticalOffset;
+		f32 verticalScale  = mVerticalScale;
+		f32 verticalOffset = mVerticalOffset;
+		f32 d = getDepth(x, y) * verticalScale;
+		return d + verticalOffset;
 	} else {
 		return -9999.0f;
 	}
