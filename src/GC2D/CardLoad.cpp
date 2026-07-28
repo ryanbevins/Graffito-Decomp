@@ -796,7 +796,7 @@ bool TCardLoad::titleDraw()
 			switch (unk248[i]) {
 			case 4:
 				if (unk22E[i] < unk258) {
-					TExPane* pane = unk1D4[i];
+					TExPane*& pane = unk1D4[i];
 					pane->getPane()->show();
 					JUTRect bounds = pane->getPane()->getBounds();
 					pane->setPaneAlpha(40, 180, 0);
