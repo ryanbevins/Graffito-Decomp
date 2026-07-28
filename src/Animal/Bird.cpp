@@ -225,8 +225,7 @@ BOOL TNerveAnimalBirdChangeToCoin::execute(TSpineBase<TLiveActor>* spine) const
 		else
 			isShine = false;
 		if (isShine) {
-			((void (*)(TMapObjBase*, const Vec*))(*(u32**)bird->unk150)[35])(
-			    bird->unk150, (const Vec*)&bird->mPosition);
+			bird->unk150->JSGSetTranslation(bird->mPosition);
 			TMapObjBase* item = bird->unk150;
 			((TShine*)item)->appearWithDemo("鳥シャインカメラ");
 		} else {
@@ -242,10 +241,8 @@ BOOL TNerveAnimalBirdChangeToCoin::execute(TSpineBase<TLiveActor>* spine) const
 			}
 
 			if (spawned != NULL) {
-				((void (*)(TMapObjBase*))(*(u32**)spawned)[63])(
-				    spawned);
-				((void (*)(TMapObjBase*, const Vec*))(*(u32**)spawned)[35])(
-				    spawned, (const Vec*)&bird->mPosition);
+				spawned->appear();
+				spawned->JSGSetTranslation(bird->mPosition);
 
 				((TLiveActor*)spawned)->mVelocity.x = 0.0f;
 				((TLiveActor*)spawned)->mVelocity.y = -10.0f;
