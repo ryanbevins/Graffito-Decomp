@@ -294,7 +294,7 @@ void TTrack::oscSetupFull(u8 param_1, u32 param_2, u32 param_3)
 	if (param_3 == 0)
 		unk30C[var1].unkC = Player::sRelTable;
 
-	unk30C[var1].unkC = (s16*)(mSeqCtrl.mRawFilePtr + param_2);
+	unk30C[var1].unkC = (s16*)(mSeqCtrl.mRawFilePtr + param_3);
 }
 
 void TTrack::oscSetupSimpleEnv(u8 param_1, u32 param_2)
