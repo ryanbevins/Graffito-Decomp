@@ -1212,10 +1212,10 @@ void TGateKeeperBase::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (flags & 1) {
 		f32 blend;
-		if (mMActor->unkC)
-			blend = mMActor->unkC->getMotionBlendRatio();
-		else
+		if (!mMActor->unkC)
 			blend = 0.0f;
+		else
+			blend = mMActor->unkC->getMotionBlendRatio();
 
 		blend -= unk158;
 		if (blend < 0.0f)
