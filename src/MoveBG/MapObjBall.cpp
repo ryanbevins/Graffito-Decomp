@@ -249,8 +249,9 @@ void TResetFruit::waitingToAppear()
 	makeObjAppeared();
 	Mtx scaleMtx;
 	PSMTXScale(scaleMtx, 0.2f, 0.2f, 0.2f);
+	MtxPtr modelMtx = getModel()->mNodeMatrices[0];
 	concatOnlyRotFromLeft(scaleMtx, getModel()->mNodeMatrices[0],
-	                      getModel()->mNodeMatrices[0]);
+	                      modelMtx);
 	mScaling.y = 0.2f;
 	unk64 |= 0x1;
 	mState = 2;
