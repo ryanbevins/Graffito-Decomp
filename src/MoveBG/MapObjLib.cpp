@@ -874,9 +874,8 @@ JPABaseEmitter* TMapObjBase::emitAndSRT(s32 param_1, u8 param_2,
 	return emitter;
 }
 
-JPABaseEmitter*
-TMapObjBase::emitAndRotateScale(s32 param_1, u8 param_2,
-                                const JGeometry::TVec3<f32>* param_3) const
+void TMapObjBase::emitAndRotateScale(
+    s32 param_1, u8 param_2, const JGeometry::TVec3<f32>* param_3) const
 {
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(param_1, param_3, param_2, this);
@@ -899,7 +898,6 @@ TMapObjBase::emitAndRotateScale(s32 param_1, u8 param_2,
 		emitter->unk174.z = mScaling.z;
 	}
 
-	return emitter;
 }
 
 JPABaseEmitter*
