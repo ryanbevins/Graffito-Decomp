@@ -174,7 +174,7 @@ f32 MSHandle::calcVolume(f32 param1, f32 param2, f32 param3, u8 param4,
 		range = 2.0f * range;
 		break;
 	case 4:
-		range *= 3.0f;
+		range = 3.0f * range;
 		range *= 0.25f;
 		break;
 	case 5:
