@@ -309,11 +309,8 @@ void TMapObjTreeScale::control()
 
 	setObjHitData(0);
 
-	bool inMapEvent = false;
-	if (gpMarDirector->mMap == 2)
-		inMapEvent = gpMarDirector->checkUnk124Thing2();
-
-	if (!inMapEvent) {
+	if (gpMarDirector->mMap != 2
+	    || !gpMarDirector->checkUnk124Thing2()) {
 		if (mEventSink == NULL || mEventSink->isBuried(1)) {
 			SMSRumbleMgr->start(0x13, (Vec*)&mPosition);
 			gpCameraShake->keepShake(CAM_SHAKE_MODE_UNK5, 1.0f);
