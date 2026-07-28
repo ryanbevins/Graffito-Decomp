@@ -1182,7 +1182,14 @@ DEFINE_NERVE(TNerveHino2Turn, TLiveActor)
 {
 	THinokuri2* self = (THinokuri2*)spine->getBody();
 
-	JGeometry::TVec3<f32> posDiff = self->unkF4.getPoint();
+	TPathNode& node = self->unkF4;
+	THitActor* pathActor = node.unk0;
+	const JGeometry::TVec3<f32>* point;
+	if (pathActor)
+		point = &pathActor->mPosition;
+	else
+		point = &node.unk4;
+	JGeometry::TVec3<f32> posDiff = *point;
 
 	posDiff -= self->mPosition;
 
