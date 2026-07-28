@@ -310,11 +310,8 @@ void TMapObjTreeScale::control()
 	setObjHitData(0);
 
 	bool inMapEvent = false;
-	if (gpMarDirector->mMap == 2) {
-		u8 game = gpMarDirector->unk124;
-		if (game == 3 || game == 4)
-			inMapEvent = true;
-	}
+	if (gpMarDirector->mMap == 2)
+		inMapEvent = gpMarDirector->checkUnk124Thing2();
 
 	if (!inMapEvent) {
 		if (mEventSink == NULL || mEventSink->isBuried(1)) {
