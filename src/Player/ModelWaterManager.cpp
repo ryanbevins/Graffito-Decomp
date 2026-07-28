@@ -387,8 +387,11 @@ bool TModelWaterManager::askDoWaterHitCheck()
 void TModelWaterManager::wind(const JGeometry::TVec3<f32>& param_1)
 {
 	for (int i = 0; i < mParticleCount; ++i)
-		if ((mParticleFlagSOA[i] & 0xf) == 1)
-			mParticleVelocitySOA[i] += param_1;
+		if ((mParticleFlagSOA[i] & 0xf) == 1) {
+			mParticleVelocitySOA[i].x += param_1.x;
+			mParticleVelocitySOA[i].y += param_1.y;
+			mParticleVelocitySOA[i].z += param_1.z;
+		}
 }
 
 void TModelWaterManager::garbageCollect()
