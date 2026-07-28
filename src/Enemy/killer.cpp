@@ -732,8 +732,11 @@ void TKiller::setColorType()
 
 bool TKiller::isRollFly()
 {
-	return mSpine->getCurrentNerve() == &TNerveFlyEnemyChaseFly::theNerve()
-	    && (mCurrentBckAnm == 1 ? true : false);
+	if (mSpine->getCurrentNerve() != &TNerveFlyEnemyChaseFly::theNerve())
+		return false;
+	if (!(mCurrentBckAnm == 1 ? true : false))
+		return false;
+	return true;
 }
 
 // ---------------------------------------------------------------------------
