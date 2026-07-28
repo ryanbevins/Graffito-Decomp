@@ -345,9 +345,9 @@ void TPopo::flyBehavior()
 		copyMtxTrans(pos, mouthMtx);
 	}
 
-	TWaterEmitInfo* info = ((TPopoManager*)mManager)->mWaterEmitInfo;
-	info->mPos.value     = pos;
-	gpModelWaterManager->emitRequest(*info);
+	TPopoManager* manager = (TPopoManager*)mManager;
+	manager->mWaterEmitInfo->mPos.value = pos;
+	gpModelWaterManager->emitRequest(*manager->mWaterEmitInfo);
 	startPopoSound(0x20ce, mPosition);
 }
 
