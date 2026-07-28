@@ -1423,7 +1423,7 @@ rotateDone:
 	}
 
 	s32 stopped = 0;
-	f32 newVel = FConverge(mForwardVel, 0.0f, 4.0f, 4.0f);
+	f32 newVel = FConverge(mForwardVel, 0.0f, 1.0f, 1.0f);
 	mForwardVel = newVel;
 	if (0.0f == newVel)
 		stopped = 1;
