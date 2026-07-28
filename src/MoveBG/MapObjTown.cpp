@@ -153,11 +153,11 @@ void TManhole::setGroundCollision()
 
 void TManhole::calc()
 {
-	f32 sum = mMActor->getFrameCtrl(0)->getRate()
-	          + mMActor->getFrameCtrl(0)->getFrame();
+	f32 sum = mMActor->getFrameCtrl(0)->getFrame()
+	          + mMActor->getFrameCtrl(0)->getRate();
 
-	if ((mMActor->getFrameCtrl(0)->getFrame() <= 45.0f && sum > 45.0f)
-	    || (mMActor->getFrameCtrl(0)->getFrame() <= 125.0f && sum > 125.0f))
+	if ((mMActor->getFrameCtrl(0)->getFrame() <= 45.0f && 45.0f < sum)
+	    || (mMActor->getFrameCtrl(0)->getFrame() <= 125.0f && 125.0f < sum))
 		START_MAP_OBJ_SOUND(0x383c, mPosition);
 }
 
