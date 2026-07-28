@@ -962,19 +962,8 @@ void TMuddyBoat::calc()
 
 	MsMtxSetXYZRPH(getModel()->getAnmMtx(0), x, y, z, 0.0f, r, 0.0f);
 
-	Mtx scaleMtx;
-	scaleMtx[0][0] = 1.0f;
-	scaleMtx[0][1] = 0.0f;
-	scaleMtx[0][2] = 0.0f;
-	scaleMtx[0][3] = 0.0f;
-	scaleMtx[1][0] = 0.0f;
-	scaleMtx[1][1] = 1.0f;
-	scaleMtx[1][2] = 0.0f;
-	scaleMtx[1][3] = 0.0f;
-	scaleMtx[2][0] = 0.0f;
-	scaleMtx[2][1] = 0.0f;
-	scaleMtx[2][2] = 1.0f;
-	scaleMtx[2][3] = 0.0f;
+	TPosition3f scaleMtx;
+	scaleMtx.identity();
 	PSMTXScale(scaleMtx, mInitialScaling.x, mInitialScaling.y,
 	           mInitialScaling.z);
 	PSMTXConcat(getModel()->getAnmMtx(0), scaleMtx, getModel()->getAnmMtx(0));
