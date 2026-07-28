@@ -289,7 +289,7 @@ void TCogwheel::control()
 	unk150->mPosition.y = mPosition.y - unk13C + unk150->mYOffset;
 	unk164->mPosition.y = mPosition.y - (unk14C - unk13C);
 
-	f32 volume = fabsf(unk138);
+	f32 volume = __fabsf(unk138);
 	if (volume > mMinSpeed && gpMSound->gateCheck(0x3060))
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 		    0x3060, (const Vec*)&mPosition, nullptr, volume, 0, 0, nullptr,
