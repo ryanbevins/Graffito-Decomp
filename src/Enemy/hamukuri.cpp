@@ -1828,8 +1828,8 @@ void TDangoHamuKuri::calcRootMatrix()
 			if (unk230) {
 				unk210 += 40.0f;
 				if (unk210 > 360.0f) {
-					// TODO: should be a rand interval
-					unk210 = -MsRandF(10.0f, 20.0f);
+					TMsRange<f32> angleRange(10.0f, 20.0f);
+					unk210 = -angleRange.rand();
 					unk230 = 0;
 				}
 			}
