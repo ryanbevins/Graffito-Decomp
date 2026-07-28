@@ -109,7 +109,7 @@ public:
 		if (!inst)
 			return;
 		OSTick tick = OSGetTick();
-		inst->crTimeAry()[0].append(tick, param_1);
+		inst->crTimeAry()[0].append(tick, col);
 	}
 
 	static void startTimerTwice(u32 tick, u32 param_1)
