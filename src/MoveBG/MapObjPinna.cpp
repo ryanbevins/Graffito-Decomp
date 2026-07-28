@@ -746,11 +746,12 @@ inline static void swingViking(THorizontalViking* viking)
 
 inline static void applyVikingPosition(THorizontalViking* viking, BOOL rotate)
 {
-	f32 angle = (viking->unk148 / 180.0f) * 3.14f;
-	viking->mPosition.x
-	    = viking->mInitialPosition.x + viking->unk138 * sinf(angle);
+	viking->mPosition.x = viking->mInitialPosition.x
+	                     + viking->unk138
+	                           * sinf((viking->unk148 / 180.0f) * 3.14f);
 	f32 y = viking->mInitialPosition.y
-	        + viking->unk138 * (1.0f - cosf(angle));
+	        + viking->unk138
+	              * (1.0f - cosf((viking->unk148 / 180.0f) * 3.14f));
 	viking->mPosition.y = viking->mYOffset + y;
 	if (rotate) {
 		viking->mRotation.z = viking->unk148;
