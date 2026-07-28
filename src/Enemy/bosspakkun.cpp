@@ -2278,8 +2278,15 @@ void TBPPolDrop::move()
 
 		mVelocity.y -= 0.1f;
 
-		if (unk84 >= 60
-		    || (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 4)) {
+		bool shouldProcess = true;
+		if (unk84 < 60) {
+			if (gpMarDirector->mMap == 2 && gpMarDirector->unk7D == 4)
+				shouldProcess = true;
+			else
+				shouldProcess = false;
+		}
+
+		if (shouldProcess) {
 			const TBGCheckData* ground = nullptr;
 			f32 y = gpMap->checkGround(nextPos.x, mPosition.y, nextPos.z,
 			                           &ground)
