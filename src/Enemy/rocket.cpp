@@ -139,8 +139,7 @@ DEFINE_NERVE(TNerveRocketPossessedNozzle, TLiveActor)
 
 	u8 marioJumpFrames = (u8)(int)*(f32*)(gamepad + 0xb4);
 	if (marioJumpFrames > 0x14) {
-		u8 hp = self->mHitPoints;
-		if (hp > 1)
+		if (self->getHitPoints() > 1)
 			self->mHitPoints -= 1;
 	}
 
