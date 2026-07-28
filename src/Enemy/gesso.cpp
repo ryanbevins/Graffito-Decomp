@@ -1060,8 +1060,9 @@ DEFINE_NERVE(TNerveGessoFreeze, TLiveActor)
 
 				if (tmp == 0)
 					self->setBckAnm(8);
+				else
+					self->getMActor()->getFrameCtrl(0)->setFrame(0.0f);
 			}
-			self->getMActor()->getFrameCtrl(0)->setFrame(0.0f);
 		} else if (self->isBckAnm(8)) {
 			return true;
 		}
