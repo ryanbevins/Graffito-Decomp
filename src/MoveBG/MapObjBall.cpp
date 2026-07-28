@@ -1310,13 +1310,13 @@ void TMapObjBall::rebound(JGeometry::TVec3<f32>* pos)
 	mLiveFlag |= 0x80;
 	if (isActorType(0x400000D0)) {
 		if (mScaling.y >= 5.0f) {
-			f32 vol = fabsf(mGroundPlane->mNormal.y);
+			f32 vol = __fabsf(mGroundPlane->mNormal.y);
 			if (gpMSound->gateCheck(0x3889)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 				    0x3889, (Vec*)&mPosition, nullptr, vol, 0, 0, nullptr, 0, 4);
 			}
 		} else {
-			f32 vol = fabsf(mGroundPlane->mNormal.y);
+			f32 vol = __fabsf(mGroundPlane->mNormal.y);
 			if (gpMSound->gateCheck(0x388C)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 				    0x388C, (Vec*)&mPosition, nullptr, vol, 0, 0, nullptr, 0, 4);
