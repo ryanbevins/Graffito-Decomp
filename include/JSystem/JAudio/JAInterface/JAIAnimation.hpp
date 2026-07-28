@@ -16,7 +16,10 @@ struct JAIAnimeFrameSoundData {
 	/* 0x15 */ s8 unk15;
 	/* 0x16 */ u8 unk16;
 	/* 0x17 */ u8 unk17;
-	/* 0x18 */ u32 unk18;
+	union {
+		/* 0x18 */ s8 unk18;
+		/* 0x18 */ u32 unk18Flags;
+	};
 	/* 0x1C */ u8 unk1C[4];
 };
 

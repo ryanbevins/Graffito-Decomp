@@ -77,7 +77,7 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 		return;
 
 	JAIAnimeFrameSoundData* data = (JAIAnimeFrameSoundData*)mData;
-	u32 v                       = data[mDataCounter].unk18;
+	u32 v                       = data[mDataCounter].unk18Flags;
 	if (v & 0xFFFF0000) {
 		if (v & 0xFF000000) {
 			u32 mod = (v >> 24) + 1;
@@ -88,7 +88,7 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 		}
 		if (v & 0x00FF0000) {
 			if (npc_get_uint8(
-			        ((data[mDataCounter].unk18 >> 16) & 0xff) + 1)
+			        ((data[mDataCounter].unk18Flags >> 16) & 0xff) + 1)
 			    != 0)
 				return;
 		}
@@ -101,7 +101,7 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 	if (*sound == nullptr)
 		return;
 
-	u32 v2 = data[mDataCounter].unk18;
+	u32 v2 = data[mDataCounter].unk18Flags;
 	if (v2 & 0x8000)
 		return;
 
@@ -122,7 +122,8 @@ void MAnmSoundNPC::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 	}
 	if (dist != 0.0f) {
 		vol = MSHandle::calcVolume(dist, 2000.0f, 600.0f,
-		                           (data[mDataCounter].unk18 >> 12) & 0x7, 8);
+		                           (data[mDataCounter].unk18Flags >> 12) & 0x7,
+		                           8);
 	}
 	(*sound)->setSeInterVolume(0, vol, 0, 0);
 }
