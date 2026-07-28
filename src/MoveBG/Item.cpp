@@ -961,7 +961,7 @@ void TEggYoshi::decideRandomLoveFruit()
 	} else if (gpMarDirector->getCurrentMap() == 3) {
 		unk14C = 0x40000393;
 	} else if (gpMarDirector->getCurrentMap() == 1
-	           && strcmp(mName, "ヨッシーの卵（ieマリオ用）") == 0) {
+	           && strcmp(mName, "ヨッシーの卵（影マリオ用）") == 0) {
 		unk14C = 0x40000394;
 	} else {
 		switch ((int)(rand() * 0.000030517578f * 4.0f)) {
