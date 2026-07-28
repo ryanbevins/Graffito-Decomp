@@ -573,10 +573,11 @@ void TBossEel::forceShedTears(bool use_back_eye)
 	else
 		eyeIndex = unk1D0 ? 1 : 0;
 
-	TBossEelEye* eye = getBossEelEye(this, eyeIndex);
-	MtxPtr mtx       = eye->getConnectedMtx();
+	TBossEelEye** eyeSlot = &unk15C[eyeIndex];
+	MtxPtr mtx             = (*eyeSlot)->getConnectedMtx();
+	TBossEelEye* eye       = *eyeSlot;
 	START_BOSS_EEL_EYE_CLOSE(eye);
-	eye->unk6C = 0;
+	(*eyeSlot)->unk6C = 0;
 	shedTears(mtx);
 }
 
