@@ -687,8 +687,8 @@ static void evStopTimer(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evMonteManReachFlag(TSpcTypedInterp<TEventWatcher>* interp,
                                 u32 arg_num)
 {
+	int result = 0;
 	interp->verifyArgNum(0, &arg_num);
-	int result     = 0;
 	TEMario* mario = JDrama::TNameRefGen::search<TEMario>("モンテマン");
 	if ((u8)mario->isGoal())
 		result = 1;
