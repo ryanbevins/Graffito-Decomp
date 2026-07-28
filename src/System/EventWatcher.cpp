@@ -251,8 +251,8 @@ static void evIsNearActors(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 		        .mData[interp->mProcessStack.mSize - (arg_num - 0)]);
 		if (base) {
 			f32 radius = interp->mProcessStack
-			                 .mData[interp->mProcessStack.mSize
-			                        - (arg_num - 1)]
+			                 .mData[(interp->mProcessStack.mSize - 1)
+			                        - (arg_num - 2)]
 			                 .getDataFloat();
 			count = 1;
 			for (u32 i = 2; i < arg_num; ++i) {
