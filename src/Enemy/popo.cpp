@@ -89,67 +89,64 @@ static inline void copyMtxTrans(JGeometry::TVec3<f32>& dst, MtxPtr mtx)
 	dst.z = mtx[2][3];
 }
 
-DEFINE_NERVE(TNervePopoThrown, TLiveActor)
+DEFINE_NERVE(TNervePopoPossessedNozzle, TLiveActor)
 {
 	TPopo* self = popo(spine);
-	if (spine->getTime() > 30 && !self->isAirborne()) {
-		spine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
-		return TRUE;
-	}
+	TPopoManager* manager = (TPopoManager*)self->mManager;
 
-	return FALSE;
-}
-
-DEFINE_NERVE(TNervePopoWait, TLiveActor)
-{
-	TPopo* self = popo(spine);
 	if (spine->getTime() == 0) {
-		self->onLiveFlag(LIVE_FLAG_UNK10);
-		self->setBckAnm(6);
-		self->setGoalPathMario();
-	}
-
-	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
-	return FALSE;
-}
-
-DEFINE_NERVE(TNervePopoExplosion, TLiveActor)
-{
-	TPopo* self = popo(spine);
-	if (spine->getTime() == 0) {
-		JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
-		self->mVelocity = zero;
-		self->mMActor->setFrameRate(0.0f, 0);
-
-		if (self->unk1B4) {
-			((TPopoManager*)self->mManager)->unk60 = 1;
-			self->unk1B4                         = 0;
+		if (!manager->unk60) {
+			spine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
+			return TRUE;
 		}
 
-		self->onHitFlag(HIT_FLAG_NO_COLLISION);
-		self->onLiveFlag(LIVE_FLAG_UNK8);
-
-		MtxPtr centerMtx
-		    = self->mMActor->getModel()->getAnmMtx(TPopo::mCenterJntIndex);
-		copyMtxTrans(self->mCallbackPos, centerMtx);
-		gpMarioParticleManager->emit(0xa1, &self->mCallbackPos, 0, nullptr);
-		gpMarioParticleManager->emit(0xa2, &self->mCallbackPos, 0, nullptr);
+		manager->unk60 = 0;
+		self->possessedIn();
 	}
 
-	if (spine->getTime() > self->mPopoParams->mSLExplosionEmitTime.get()) {
-		self->onLiveFlag(LIVE_FLAG_DEAD);
-		self->onLiveFlag(LIVE_FLAG_UNK8);
-		self->offLiveFlag(LIVE_FLAG_HIDDEN);
-		self->offLiveFlag(LIVE_FLAG_UNK10000);
-		self->mHolder = nullptr;
-		self->stopAnmSound();
-		spine->reset();
-		spine->setNext(&TNerveSmallEnemyDie::theNerve());
-		spine->pushAfterCurrent(spine->getDefault());
+	if (self->checkCurAnmEnd(0)) {
+		if (self->unsetUnk165()) {
+			self->setBckAnm(3);
+			self->mMActor->setFrameRate(SMSGetAnmFrameRate(), 3);
+		} else {
+			self->setBckAnm(4);
+			self->mMActor->getFrameCtrl(3)->setFrame(0.0f);
+			self->mMActor->setFrameRate(0.0f, 3);
+		}
+	}
+
+	if (self->checkTrigger()) {
+		spine->pushAfterCurrent(&TNervePopoFly::theNerve());
 		return TRUE;
 	}
 
-	self->explosion();
+	return FALSE;
+}
+
+DEFINE_NERVE(TNervePopoAttack, TLiveActor)
+{
+	TPopo* self = popo(spine);
+	if (spine->getTime() == 0)
+		self->setGoalPathMario();
+
+	if (!self->isAirborne()) {
+		if (!((TPopoManager*)self->mManager)->unk60)
+			return TRUE;
+		bool onYoshi;
+		if (gpMarioOriginal->mState & 2)
+			onYoshi = true;
+		else
+			onYoshi = false;
+		if (onYoshi)
+			return TRUE;
+		if (fabsf(gpMarioPos->y - self->mPosition.y)
+		    > self->getSaveParam2()->getSLGiveUpHeight())
+			return TRUE;
+		if (self->isResignationAttack())
+			return TRUE;
+	}
+
+	self->walkBehavior(0, 1.0f);
 	return FALSE;
 }
 
@@ -210,61 +207,64 @@ DEFINE_NERVE(TNervePopoFly, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNervePopoAttack, TLiveActor)
+DEFINE_NERVE(TNervePopoExplosion, TLiveActor)
 {
 	TPopo* self = popo(spine);
-	if (spine->getTime() == 0)
-		self->setGoalPathMario();
+	if (spine->getTime() == 0) {
+		JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
+		self->mVelocity = zero;
+		self->mMActor->setFrameRate(0.0f, 0);
 
-	if (!self->isAirborne()) {
-		if (!((TPopoManager*)self->mManager)->unk60)
-			return TRUE;
-		bool onYoshi;
-		if (gpMarioOriginal->mState & 2)
-			onYoshi = true;
-		else
-			onYoshi = false;
-		if (onYoshi)
-			return TRUE;
-		if (fabsf(gpMarioPos->y - self->mPosition.y)
-		    > self->getSaveParam2()->getSLGiveUpHeight())
-			return TRUE;
-		if (self->isResignationAttack())
-			return TRUE;
+		if (self->unk1B4) {
+			((TPopoManager*)self->mManager)->unk60 = 1;
+			self->unk1B4                         = 0;
+		}
+
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->onLiveFlag(LIVE_FLAG_UNK8);
+
+		MtxPtr centerMtx
+		    = self->mMActor->getModel()->getAnmMtx(TPopo::mCenterJntIndex);
+		copyMtxTrans(self->mCallbackPos, centerMtx);
+		gpMarioParticleManager->emit(0xa1, &self->mCallbackPos, 0, nullptr);
+		gpMarioParticleManager->emit(0xa2, &self->mCallbackPos, 0, nullptr);
 	}
 
-	self->walkBehavior(0, 1.0f);
+	if (spine->getTime() > self->mPopoParams->mSLExplosionEmitTime.get()) {
+		self->onLiveFlag(LIVE_FLAG_DEAD);
+		self->onLiveFlag(LIVE_FLAG_UNK8);
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->offLiveFlag(LIVE_FLAG_UNK10000);
+		self->mHolder = nullptr;
+		self->stopAnmSound();
+		spine->reset();
+		spine->setNext(&TNerveSmallEnemyDie::theNerve());
+		spine->pushAfterCurrent(spine->getDefault());
+		return TRUE;
+	}
+
+	self->explosion();
 	return FALSE;
 }
 
-DEFINE_NERVE(TNervePopoPossessedNozzle, TLiveActor)
+DEFINE_NERVE(TNervePopoWait, TLiveActor)
 {
 	TPopo* self = popo(spine);
-	TPopoManager* manager = (TPopoManager*)self->mManager;
-
 	if (spine->getTime() == 0) {
-		if (!manager->unk60) {
-			spine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
-			return TRUE;
-		}
-
-		manager->unk60 = 0;
-		self->possessedIn();
+		self->onLiveFlag(LIVE_FLAG_UNK10);
+		self->setBckAnm(6);
+		self->setGoalPathMario();
 	}
 
-	if (self->checkCurAnmEnd(0)) {
-		if (self->unsetUnk165()) {
-			self->setBckAnm(3);
-			self->mMActor->setFrameRate(SMSGetAnmFrameRate(), 3);
-		} else {
-			self->setBckAnm(4);
-			self->mMActor->getFrameCtrl(3)->setFrame(0.0f);
-			self->mMActor->setFrameRate(0.0f, 3);
-		}
-	}
+	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
+	return FALSE;
+}
 
-	if (self->checkTrigger()) {
-		spine->pushAfterCurrent(&TNervePopoFly::theNerve());
+DEFINE_NERVE(TNervePopoThrown, TLiveActor)
+{
+	TPopo* self = popo(spine);
+	if (spine->getTime() > 30 && !self->isAirborne()) {
+		spine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
 		return TRUE;
 	}
 
