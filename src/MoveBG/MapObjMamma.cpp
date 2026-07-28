@@ -81,13 +81,6 @@ static void zeroVec(JGeometry::TVec3<f32>& v)
 	v.x = 0.0f;
 }
 
-static void oneVec(JGeometry::TVec3<f32>& v)
-{
-	v.x = 1.0f;
-	v.y = 1.0f;
-	v.z = 1.0f;
-}
-
 static inline TMapObjBase* findMapObj(const char* name)
 {
 	JDrama::TNameRefGen* gen = JDrama::TNameRefGen::instance;
@@ -123,26 +116,19 @@ static inline void addLeanMirrorImpulse(TLeanMirror* mirror, THitActor* actor,
 }
 
 static s32 startCameraShakeSE(u32, u32);
-
-void TSandLeaf::control()
-{
-	TMapObjBase::control();
-	mGroundHeight = gpMap->checkGround(mPosition.x, mPosition.y + 50.0f,
-	                                   mPosition.z, &mGroundPlane);
-	mPosition.y = mGroundHeight;
-}
+static s32 SandCastleCallBack(u32, u32);
 
 u32 TSandLeaf::touchWater(THitActor*)
 {
 	unk138->grow();
 	return 1;
 }
-TSandBase::TSandBase(const char* name)
-    : TMapObjBase(name)
-    , unk138(0.0f)
-    , unk13C(0.0f)
-    , unk144(0)
+void TSandLeaf::control()
 {
+	TMapObjBase::control();
+	mGroundHeight = gpMap->checkGround(mPosition.x, mPosition.y + 50.0f,
+	                                   mPosition.z, &mGroundPlane);
+	mPosition.y = mGroundHeight;
 }
 
 BOOL TSandBase::withering()
@@ -164,19 +150,50 @@ BOOL TSandBase::withering()
 	return result;
 }
 
-void TSandLeafBase::initMapObj()
+TSandBase::TSandBase(const char* name)
+    : TMapObjBase(name)
+    , unk138(0.0f)
+    , unk13C(0.0f)
+    , unk144(0)
 {
-	unk138 = 0.03f;
-	unk13C = 0.0001f;
-	unk140 = 0;
-	mScaling.y = mScaleMin;
-	TMapObjBase::initMapObj();
-	unk144 = TMapObjBaseManager::newAndRegisterObj("SandLeaf", mPosition,
-	                                              mRotation,
-	                                              JGeometry::TVec3<f32>(
-	                                                  1.0f, 1.0f, 1.0f));
-	((TSandLeaf*)unk144)->unk138 = this;
-	unk144->appear();
+}
+
+BOOL TSandLeafBase::grow()
+{
+	if (mState != 1 && mState != 4)
+		return;
+
+	if (mScaling.y < 1.0f) {
+		mScaling.y += unk138;
+		if (mScaling.y > 1.0f)
+			mScaling.y = 1.0f;
+	}
+
+	if (mState == 1) {
+		mMapCollisionManager->changeCollision(1);
+		TMapCollisionManager* mgr = mMapCollisionManager;
+		Mtx mtx;
+		MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
+		            mRotation.y, mRotation.z, mScaling.x, mScaling.y,
+		            mScaling.z);
+		TMapCollisionBase* col = mgr->unk8;
+		PSMTXCopy(mtx, col->unk20);
+		col->setUp();
+		unk144->startControlAnim(2);
+		mState = 4;
+	}
+
+	f32 rate = SMSGetAnmFrameRate();
+	TMapObjBase* leaf = unk144;
+	getMActorInline(leaf)->getFrameCtrl(0)->setFrame(
+	    rate + getMActorInline(leaf)->getFrameCtrl(0)->getFrame());
+	SMSRumbleMgr->start(0x15, 5, (Vec*)&mPosition);
+	const Vec* soundPos = (Vec*)&unk144->mPosition;
+	if (gpMSound->gateCheck(0x2099)) {
+		MSoundSESystem::MSoundSE::startSoundActor(0x2099, soundPos, 0, nullptr,
+		                                          0, 4);
+	}
+	mLifeTimer = mWitherTime;
 }
 
 void TSandLeafBase::control()
@@ -228,47 +245,27 @@ void TSandLeafBase::control()
 	}
 }
 
-BOOL TSandLeafBase::grow()
+void TSandLeafBase::initMapObj()
 {
-	if (mState != 1 && mState != 4)
-		return;
-
-	if (mScaling.y < 1.0f) {
-		mScaling.y += unk138;
-		if (mScaling.y > 1.0f)
-			mScaling.y = 1.0f;
-	}
-
-	if (mState == 1) {
-		mMapCollisionManager->changeCollision(1);
-		TMapCollisionManager* mgr = mMapCollisionManager;
-		Mtx mtx;
-		MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
-		            mRotation.y, mRotation.z, mScaling.x, mScaling.y,
-		            mScaling.z);
-		TMapCollisionBase* col = mgr->unk8;
-		PSMTXCopy(mtx, col->unk20);
-		col->setUp();
-		unk144->startControlAnim(2);
-		mState = 4;
-	}
-
-	f32 rate = SMSGetAnmFrameRate();
-	TMapObjBase* leaf = unk144;
-	getMActorInline(leaf)->getFrameCtrl(0)->setFrame(
-	    rate + getMActorInline(leaf)->getFrameCtrl(0)->getFrame());
-	SMSRumbleMgr->start(0x15, 5, (Vec*)&mPosition);
-	const Vec* soundPos = (Vec*)&unk144->mPosition;
-	if (gpMSound->gateCheck(0x2099)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x2099, soundPos, 0, nullptr,
-		                                          0, 4);
-	}
-	mLifeTimer = mWitherTime;
+	unk138 = 0.03f;
+	unk13C = 0.0001f;
+	unk140 = 0;
+	mScaling.y = mScaleMin;
+	TMapObjBase::initMapObj();
+	unk144 = TMapObjBaseManager::newAndRegisterObj("SandLeaf", mPosition,
+	                                              mRotation,
+	                                              JGeometry::TVec3<f32>(
+	                                                  1.0f, 1.0f, 1.0f));
+	((TSandLeaf*)unk144)->unk138 = this;
+	unk144->appear();
 }
 
-void TSandBomb::initMapObj() { TMapObjBase::initMapObj(); }
-
-u32 TSandBomb::getSDLModelFlag() const { return 0; }
+void TSandBomb::makeObjAppeared()
+{
+	TMapObjBase::makeObjAppeared();
+	startControlAnim(1);
+	startControlAnim(2);
+}
 
 u32 TSandBomb::touchWater(THitActor*)
 {
@@ -295,63 +292,116 @@ u32 TSandBomb::touchWater(THitActor*)
 	return 1;
 }
 
-void TSandBomb::makeObjAppeared()
+u32 TSandBomb::getSDLModelFlag() const { return 0; }
+
+void TSandBomb::initMapObj() { TMapObjBase::initMapObj(); }
+
+void TSandBombBase::withered()
 {
-	TMapObjBase::makeObjAppeared();
+	mLifeTimer = unk140;
+	mState     = 3;
+	unk144->sleep();
+}
+
+void TSandBombBase::expanded()
+{
+	TMapObjBase* trigger = unk144;
+	f32 speed           = unk150;
+	f32 frame           = getMActorInline(trigger)->getFrameCtrl(0)->getFrame();
+	getMActorInline(trigger)->getFrameCtrl(0)->setFrame(
+	    frame + speed);
+
+	const JGeometry::TVec3<f32>* pos = &unk144->mPosition;
+	if (gpMSound->gateCheck(0x20C6)) {
+		MSoundSESystem::MSoundSE::startSoundActor(0x20C6, pos, 0, nullptr, 0,
+		                                          4);
+	}
+
+	if (unk144->animIsFinished())
+		mState = 2;
+}
+
+void TSandBombBase::exploding()
+{
+	f32 explodeFrameSpeed = mExplodeFrameSpeed;
+	f32 frame0 = getMActorInline(this)->getFrameCtrl(0)->getFrame();
+	getMActorInline(this)->getFrameCtrl(0)->setFrame(
+	    frame0 + explodeFrameSpeed);
+	explodeFrameSpeed = mExplodeFrameSpeed;
+	TMapObjBase* trigger = unk144;
+	frame0 = getMActorInline(trigger)->getFrameCtrl(0)->getFrame();
+	getMActorInline(trigger)->getFrameCtrl(0)->setFrame(
+	    frame0 + explodeFrameSpeed);
+
+	f32 dist = getDistanceXZ(*gpMarioPos);
+
+	bool isType;
+	if ((mActorType - 0x40000000) == 0xCE)
+		isType = true;
+	else
+		isType = false;
+
+	bool skipThrow;
+	if (isType)
+		skipThrow = true;
+	else
+		skipThrow = false;
+
+	if (!skipThrow) {
+		if (getMActorInline(this)->getFrameCtrl(0)->getFrame() < 80.0f) {
+			f32 grLevel = SMS_GetMarioGrLevel();
+			if (grLevel > gpMarioPos->y - 30.0f) {
+				if (dist < unk154) {
+					SMS_SendMessageToMario(this, 7);
+					JGeometry::TVec3<f32> vec(0.0f, 1.0f, 0.0f);
+					SMS_ThrowMario(vec, mMarioJumpRate * (unk154 - dist));
+				}
+			}
+		}
+	}
+
+	if (animIsFinished()) {
+		unk144->startControlAnim(6);
+		mState = 8;
+	}
+}
+
+void TSandBombBase::explode()
+{
 	startControlAnim(1);
-	startControlAnim(2);
-}
+	mScaling.y = 1.0f;
 
-TSandBombBase::TSandBombBase(const char* name)
-    : TSandBase(name)
-    , unk148(0)
-    , unk14C(1.0f)
-    , unk150(0.0f)
-    , unk154(0.0f)
-{
-}
+	mMapCollisionManager->changeCollision(1);
+	mMapCollisionManager->unk8->setUp();
+	if (mMapCollisionManager->unk8)
+		mMapCollisionManager->unk8->moveSRT(mPosition, mRotation, mScaling);
 
-void TSandBombBase::initMapObj()
-{
-	unk138 = 0.006f;
-	unk13C = 0.005f;
-	unk140 = 0;
-	unk148 = 60;
-	unk154 = 1000.0f;
-	mScaling.y = mScaleMin;
-	TMapObjBase::initMapObj();
-	unk150 = 0.5f;
+	JPABaseEmitter* emitter
+	    = gpMarioParticleManager->emit(0x55, &mPosition, 0, nullptr);
+	JGeometry::TVec3<f32> scale(unk14C, unk14C, unk14C);
+	emitter->setScale(scale);
 
-	if (strcmp(unkF4, "SandBombBasePyramid") == 0) {
-		unk14C = 1.3f;
-		unk154 = 1200.0f;
-	} else if (strcmp(unkF4, "SandBombBaseShit") == 0) {
-		unk14C = 1.3f;
-		unk154 = 1500.0f;
-	} else if (strcmp(unkF4, "SandBombBaseStar") == 0) {
-		unk14C = 1.2f;
-	} else if (strcmp(unkF4, "SandBombBaseTurtle") == 0) {
-		unk14C = 1.2f;
+	if (!gpMarDirector->checkUnk124Thing2())
+		gpCameraShake->startShake((EnumCamShakeMode)0xD, 1.0f);
+
+	if (gpMSound->gateCheck(0x28A4)) {
+		MSoundSESystem::MSoundSE::startSoundActor(0x28A4, &mPosition, 0,
+		                                          nullptr, 0, 4);
 	}
 
-	if (!gParticleFlagLoaded[0x55]) {
-		gpResourceManager->load("/scene/mapObj/SandBomb.jpa", 0x55);
-		gParticleFlagLoaded[0x55] = true;
-	}
+	SMSRumbleMgr->start(0x15, mExlodingRumbleTime, (Vec*)&mPosition);
+	mState = 7;
 }
 
-void TSandBombBase::loadAfter()
+void TSandBombBase::waitBeforeExplode()
 {
-	unk144 = findTriggerActor();
-	((TSandLeaf*)unk144)->unk138 = this;
-	unk144->appear();
+	mState = 6;
+	mLifeTimer = unk148;
 }
 
-TMapObjBase* TSandBombBase::findTriggerActor()
+BOOL TSandBombBase::grow()
 {
-	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-	return TMapObjBaseManager::newAndRegisterObj("SandBomb", mPosition,
-	                                            mRotation, scale);
+	mState = 5;
 }
 
 void TSandBombBase::control()
@@ -427,96 +477,90 @@ void TSandBombBase::control()
 		((TSandBomb*)trigger)->unk140 = 0;
 }
 
-BOOL TSandBombBase::grow()
+TMapObjBase* TSandBombBase::findTriggerActor()
 {
-	mState = 5;
+	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
+	return TMapObjBaseManager::newAndRegisterObj("SandBomb", mPosition,
+	                                            mRotation, scale);
 }
 
-void TSandBombBase::waitBeforeExplode()
+void TSandBombBase::loadAfter()
 {
-	mState = 6;
-	mLifeTimer = unk148;
+	unk144 = findTriggerActor();
+	((TSandLeaf*)unk144)->unk138 = this;
+	unk144->appear();
 }
 
-void TSandBombBase::explode()
+void TSandBombBase::initMapObj()
 {
-	startControlAnim(1);
-	mScaling.y = 1.0f;
+	unk138 = 0.006f;
+	unk13C = 0.005f;
+	unk140 = 0;
+	unk148 = 60;
+	unk154 = 1000.0f;
+	mScaling.y = mScaleMin;
+	TMapObjBase::initMapObj();
+	unk150 = 0.5f;
 
-	mMapCollisionManager->changeCollision(1);
-	mMapCollisionManager->unk8->setUp();
-	if (mMapCollisionManager->unk8)
-		mMapCollisionManager->unk8->moveSRT(mPosition, mRotation, mScaling);
-
-	JPABaseEmitter* emitter
-	    = gpMarioParticleManager->emit(0x55, &mPosition, 0, nullptr);
-	JGeometry::TVec3<f32> scale(unk14C, unk14C, unk14C);
-	emitter->setScale(scale);
-
-	if (!gpMarDirector->checkUnk124Thing2())
-		gpCameraShake->startShake((EnumCamShakeMode)0xD, 1.0f);
-
-	if (gpMSound->gateCheck(0x28A4)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x28A4, &mPosition, 0,
-		                                          nullptr, 0, 4);
+	if (strcmp(unkF4, "SandBombBasePyramid") == 0) {
+		unk14C = 1.3f;
+		unk154 = 1200.0f;
+	} else if (strcmp(unkF4, "SandBombBaseShit") == 0) {
+		unk14C = 1.3f;
+		unk154 = 1500.0f;
+	} else if (strcmp(unkF4, "SandBombBaseStar") == 0) {
+		unk14C = 1.2f;
+	} else if (strcmp(unkF4, "SandBombBaseTurtle") == 0) {
+		unk14C = 1.2f;
 	}
 
-	SMSRumbleMgr->start(0x15, mExlodingRumbleTime, (Vec*)&mPosition);
-	mState = 7;
+	if (!gParticleFlagLoaded[0x55]) {
+		gpResourceManager->load("/scene/mapObj/SandBomb.jpa", 0x55);
+		gParticleFlagLoaded[0x55] = true;
+	}
 }
 
-void TSandBombBase::exploding()
+TSandBombBase::TSandBombBase(const char* name)
+    : TSandBase(name)
+    , unk148(0)
+    , unk14C(1.0f)
+    , unk150(0.0f)
+    , unk154(0.0f)
 {
-	f32 explodeFrameSpeed = mExplodeFrameSpeed;
+}
+
+BOOL TSandCastle::withering()
+{
+	f32 speed = unk13C;
 	f32 frame0 = getMActorInline(this)->getFrameCtrl(0)->getFrame();
-	getMActorInline(this)->getFrameCtrl(0)->setFrame(
-	    frame0 + explodeFrameSpeed);
-	explodeFrameSpeed = mExplodeFrameSpeed;
-	TMapObjBase* trigger = unk144;
-	frame0 = getMActorInline(trigger)->getFrameCtrl(0)->getFrame();
-	getMActorInline(trigger)->getFrameCtrl(0)->setFrame(
-	    frame0 + explodeFrameSpeed);
+	getMActorInline(this)->getFrameCtrl(0)->setFrame(frame0 + speed);
+	speed = unk13C;
+	f32 frame5 = getMActorInline(this)->getFrameCtrl(5)->getFrame();
+	getMActorInline(this)->getFrameCtrl(5)->setFrame(frame5 + speed);
 
-	f32 dist = getDistanceXZ(*gpMarioPos);
+	f32 current = getMActorInline(this)->getFrameCtrl(0)->getFrame();
+	f32 end     = (f32)getMActorInline(this)->getFrameCtrl(0)->getEnd();
+	mScaling.y  = mCollisionRate * ((end - current) / end);
 
-	bool isType;
-	if ((mActorType - 0x40000000) == 0xCE)
-		isType = true;
-	else
-		isType = false;
-
-	bool skipThrow;
-	if (isType)
-		skipThrow = true;
-	else
-		skipThrow = false;
-
-	if (!skipThrow) {
-		if (getMActorInline(this)->getFrameCtrl(0)->getFrame() < 80.0f) {
-			f32 grLevel = SMS_GetMarioGrLevel();
-			if (grLevel > gpMarioPos->y - 30.0f) {
-				if (dist < unk154) {
-					SMS_SendMessageToMario(this, 7);
-					JGeometry::TVec3<f32> vec(0.0f, 1.0f, 0.0f);
-					SMS_ThrowMario(vec, mMarioJumpRate * (unk154 - dist));
-				}
-			}
-		}
+	if (current > 240.0f && !unk158->checkLiveFlag(1)) {
+		unk158->kill();
+		gpTargetArrow->unk14 = 0;
 	}
 
 	if (animIsFinished()) {
-		unk144->startControlAnim(6);
-		mState = 8;
+		sleep();
+		return true;
 	}
+
+	return false;
 }
 
-void TSandBombBase::expanded()
+void TSandCastle::expanded()
 {
 	TMapObjBase* trigger = unk144;
 	f32 speed           = unk150;
-	f32 frame           = getMActorInline(trigger)->getFrameCtrl(0)->getFrame();
-	getMActorInline(trigger)->getFrameCtrl(0)->setFrame(
-	    frame + speed);
+	f32 frame           = trigger->getMActor()->getFrameCtrl(0)->getFrame();
+	trigger->getMActor()->getFrameCtrl(0)->setFrame(frame + speed);
 
 	const JGeometry::TVec3<f32>* pos = &unk144->mPosition;
 	if (gpMSound->gateCheck(0x20C6)) {
@@ -526,80 +570,12 @@ void TSandBombBase::expanded()
 
 	if (unk144->animIsFinished())
 		mState = 2;
-}
 
-void TSandBombBase::withered()
-{
-	mLifeTimer = unk140;
-	mState     = 3;
-	unk144->sleep();
-}
-
-TSandCastle::TSandCastle(const char* name)
-    : TSandBombBase(name)
-    , unk158(0)
-    , unk15C(0)
-{
-}
-
-void TSandCastle::initMapObj()
-{
-	TSandBombBase::initMapObj();
-	unk13C = 0.2f;
-	unk148 = 120;
-	sleep();
-}
-
-void TSandCastle::loadAfter()
-{
-	unk144 = findTriggerActor();
-	((TSandLeaf*)unk144)->unk138 = this;
-	unk144->appear();
-
-	unk158 = findMapObj("ステージ切替（砂の城）");
-	unk158->makeObjDead();
-}
-
-TMapObjBase* TSandCastle::findTriggerActor()
-{
-	return findMapObj("砂の城爆発の芽");
-}
-
-void TSandCastle::calcRootMatrix()
-{
-	bool inState2 = mState == 2 ? true : false;
-	if (!inState2)
-		TMapObjBase::calcRootMatrix();
-}
-
-static s32 SandCastleCallBack(u32, u32 param_2)
-{
-	if (param_2 == 1) {
-		gpTargetArrow->unk14 = 1;
-		JGeometry::TVec3<f32> pos(8400.0f, 300.0f, 8150.0f);
-		gpTargetArrow->setPos(pos);
-
-		JGeometry::TVec3<f32>* cameraPos
-		    = (JGeometry::TVec3<f32>*)((u8*)gpCamera + 0x124);
-		JGeometry::TVec3<f32>* at
-		    = (JGeometry::TVec3<f32>*)((u8*)gpCamera + 0x148);
-		s16 angle = matan(cameraPos->z - at->z, cameraPos->x - at->x);
-		gpCamera->warpPosAndAt(gpCamera->mCurrentTarget.unk28, angle);
+	if (unk144->animIsFinished()) {
+		mState = 2;
+		startControlAnim(2);
+		startControlAnim(3);
 	}
-
-	return 1;
-}
-
-void TSandCastle::waitBeforeExplode()
-{
-	mState = 6;
-	mLifeTimer = unk148;
-
-	JDrama::TFlagT<u16> flag(0);
-	gpMarDirector->fireStartDemoCamera("mamma1_sandcastle", nullptr, -1,
-	                                   0.0f, true, SandCastleCallBack, 0,
-	                                   nullptr, flag);
-	unk15C = 1;
 }
 
 void TSandCastle::explode()
@@ -634,186 +610,231 @@ void TSandCastle::explode()
 	startControlAnim(3);
 }
 
-void TSandCastle::expanded()
+void TSandCastle::waitBeforeExplode()
 {
-	TMapObjBase* trigger = unk144;
-	f32 speed           = unk150;
-	f32 frame           = trigger->getMActor()->getFrameCtrl(0)->getFrame();
-	trigger->getMActor()->getFrameCtrl(0)->setFrame(frame + speed);
+	mState = 6;
+	mLifeTimer = unk148;
 
-	const JGeometry::TVec3<f32>* pos = &unk144->mPosition;
-	if (gpMSound->gateCheck(0x20C6)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x20C6, pos, 0, nullptr, 0,
-		                                          4);
+	JDrama::TFlagT<u16> flag(0);
+	gpMarDirector->fireStartDemoCamera("mamma1_sandcastle", nullptr, -1,
+	                                   0.0f, true, SandCastleCallBack, 0,
+	                                   nullptr, flag);
+	unk15C = 1;
+}
+
+static s32 SandCastleCallBack(u32, u32 param_2)
+{
+	if (param_2 == 1) {
+		gpTargetArrow->unk14 = 1;
+		JGeometry::TVec3<f32> pos(8400.0f, 300.0f, 8150.0f);
+		gpTargetArrow->setPos(pos);
+
+		JGeometry::TVec3<f32>* cameraPos
+		    = (JGeometry::TVec3<f32>*)((u8*)gpCamera + 0x124);
+		JGeometry::TVec3<f32>* at
+		    = (JGeometry::TVec3<f32>*)((u8*)gpCamera + 0x148);
+		s16 angle = matan(cameraPos->z - at->z, cameraPos->x - at->x);
+		gpCamera->warpPosAndAt(gpCamera->mCurrentTarget.unk28, angle);
 	}
 
-	if (unk144->animIsFinished())
-		mState = 2;
+	return 1;
+}
 
-	if (unk144->animIsFinished()) {
-		mState = 2;
-		startControlAnim(2);
-		startControlAnim(3);
+void TSandCastle::calcRootMatrix()
+{
+	bool inState2 = mState == 2 ? true : false;
+	if (!inState2)
+		TMapObjBase::calcRootMatrix();
+}
+
+TMapObjBase* TSandCastle::findTriggerActor()
+{
+	return findMapObj("砂の城爆発の芽");
+}
+
+void TSandCastle::loadAfter()
+{
+	unk144 = findTriggerActor();
+	((TSandLeaf*)unk144)->unk138 = this;
+	unk144->appear();
+
+	unk158 = findMapObj("ステージ切替（砂の城）");
+	unk158->makeObjDead();
+}
+
+void TSandCastle::initMapObj()
+{
+	TSandBombBase::initMapObj();
+	unk13C = 0.2f;
+	unk148 = 120;
+	sleep();
+}
+
+TSandCastle::TSandCastle(const char* name)
+    : TSandBombBase(name)
+    , unk158(0)
+    , unk15C(0)
+{
+}
+
+void TLeanMirror::draw() const
+{
+	MtxPtr mtx = getModel()->getAnmMtx(0);
+	JGeometry::TVec3<f32> dir(mtx[0][1], mtx[1][1], mtx[2][1]);
+	JGeometry::TVec3<f32> start = dir;
+	start.scale(350.0f * 0.001f * mBodyRadius);
+	start.add(mPosition);
+
+	JGeometry::TVec3<f32> end = dir;
+	end.scale(10000.0f);
+	end.add(mPosition);
+
+	gpBeamManager->requestCone(start, end, 1.7f * mBodyRadius, true, true,
+	                           false);
+}
+
+BOOL TLeanMirror::receiveMessage(THitActor* sender, u32 message)
+{
+	if (message == 0) {
+		sendMsg(0x10000016, message);
+		addLeanMirrorImpulse(this, sender, unk164.x);
+		return TRUE;
+	}
+
+	if (message == 1) {
+		sendMsg(0x10000016, message);
+		addLeanMirrorImpulse(this, sender, unk164.y);
+		return TRUE;
+	}
+
+	if (message == 3) {
+		addLeanMirrorImpulse(this, sender, unk170);
+		return TRUE;
+	}
+
+	if (message == 8) {
+		unk19C -= 1;
+		if (unk19C == 0)
+			release();
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+void TLeanMirror::touchPlayer(THitActor* actor)
+{
+	bool canTouch = mState == 1 ? true : false;
+	if (!canTouch)
+		return;
+	if (!marioIsOn())
+		return;
+
+	addLeanMirrorImpulse(this, actor, unk158.z);
+	if (!unk1AC) {
+		MSBgm::startBGM(0x80010011);
+		MSBgm::setTrackVolume(0, 0.0f, 10, 0);
+		unk1AC = 1;
 	}
 }
 
-BOOL TSandCastle::withering()
+void TLeanMirror::touchEnemy(THitActor* actor)
 {
-	f32 speed = unk13C;
-	f32 frame0 = getMActorInline(this)->getFrameCtrl(0)->getFrame();
-	getMActorInline(this)->getFrameCtrl(0)->setFrame(frame0 + speed);
-	speed = unk13C;
-	f32 frame5 = getMActorInline(this)->getFrameCtrl(5)->getFrame();
-	getMActorInline(this)->getFrameCtrl(5)->setFrame(frame5 + speed);
-
-	f32 current = getMActorInline(this)->getFrameCtrl(0)->getFrame();
-	f32 end     = (f32)getMActorInline(this)->getFrameCtrl(0)->getEnd();
-	mScaling.y  = mCollisionRate * ((end - current) / end);
-
-	if (current > 240.0f && !unk158->checkLiveFlag(1)) {
-		unk158->kill();
-		gpTargetArrow->unk14 = 0;
-	}
-
-	if (animIsFinished()) {
-		sleep();
-		return true;
-	}
-
-	return false;
+	bool isBossPart = actor->mActorType == 0x10000016 ? true : false;
+	if (isBossPart && *((u8*)actor + 0x1B0))
+		addLeanMirrorImpulse(this, actor, unk164.z);
 }
 
-TLeanMirror::TLeanMirror(const char* name)
-    : TMapObjBase(name)
-    , unk138(0.0f)
-    , unk13C(0.0f)
+void TLeanMirror::release()
 {
-	unk158.x = 0.0f;
-	unk158.y = 0.0f;
-	unk158.z = 0.0f;
-	unk164.x = 0.0f;
-	unk164.y = 0.0f;
-	unk164.z = 0.0f;
-	unk170 = 0.0f;
-	unk17C = 0;
-	unk198 = 0.0f;
-	unk19C = 0;
-	unk1AC = 0;
-	unk1AE = 0;
-	zeroVec(unk140);
-	zeroVec(unk14C);
-	zeroVec(unk180);
-	zeroVec(unk18C);
-	zeroVec(unk1A0);
-}
+	MtxPtr mtx = getModel()->getAnmMtx(0);
+	JGeometry::TVec3<f32> up(mtx[0][1], mtx[1][1], mtx[2][1]);
 
-u32 TLeanMirror::getSDLModelFlag() const { return 0; }
+	unk18C.x = unk180.y * up.z - unk180.z * up.y;
+	unk18C.y = unk180.z * up.x - unk180.x * up.z;
+	unk18C.z = unk180.x * up.y - unk180.y * up.x;
 
-void TLeanMirror::load(JSUMemoryInputStream& stream)
-{
-	TMapObjBase::load(stream);
+	JGeometry::TVec3<f32> axis(up.y * unk180.z - up.z * unk180.y,
+	                           up.z * unk180.x - up.x * unk180.z,
+	                           up.x * unk180.y - up.y * unk180.x);
+	f32 crossLen = JGeometry::TUtil<f32>::sqrt(axis.squared());
+	f32 dot      = up.dot(unk180);
+	unk198       = fabsf(atan2f(crossLen, dot)) / (f32)mGoTargetTime;
 
-	f32 radius;
-	stream.read(&radius, 4);
-	unk138 = radius * 100.0f * 0.5f;
-	unk13C = unk138;
+	mLifeTimer = mGoTargetTime;
+	mState     = 2;
+	unkF8 &= ~2;
+	SMS_MarioMoveRequest(unk1A0);
 
-	if (gpMarDirector->unk7D == 1) {
-		char buf[64];
-		stream.readString(buf, 64);
-		stream.read(&unk1A0.x, 4);
-		stream.read(&unk1A0.y, 4);
-		stream.read(&unk1A0.z, 4);
-	}
-
-	TMirrorModelObj* mirrorModel = new TMirrorModelObj;
-	char modelName[64];
-	snprintf(modelName, 64, "/scene/mapObj/%sTop.bmd", unkF4);
-	mirrorModel->init(modelName);
-	mirrorModel->unk28 = getModel();
-
-	if (gpMarDirector->unk7D != 1)
-		mState = 4;
-}
-
-void TLeanMirror::initMapObj()
-{
-	TMapObjBase::initMapObj();
-	unk158.x = 0.03f;
-	unk158.y = 0.999f;
-	unk158.z = 0.0001f;
-	unk164.y = 1.0f;
-	unk164.z = 0.0002f;
-	unk170   = 0.0001f;
-	unk174   = 0.865f;
-	unk178   = 0.5f;
-
+	JDrama::TFlagT<u16> flag(0);
 	if (strcmp(unkF4, "mirrorS") == 0) {
-		unk164.x = 0.002f;
-		unk164.y = 1.0f;
-		unk174   = 0.87f;
-		unk19C   = 1;
+		gpMarDirector->fireStartDemoCamera(
+		    "ぐらぐら鏡Ｓカメラ", &unk17C->mPosition,
+		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
+		    flag);
 	} else if (strcmp(unkF4, "mirrorM") == 0) {
-		unk164.x = 0.004f;
-		unk19C   = 2;
-	} else {
-		unk164.x = 0.006f;
-		unk19C   = 3;
+		gpMarDirector->fireStartDemoCamera(
+		    "ぐらぐら鏡Ｍカメラ", &unk17C->mPosition,
+		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
+		    flag);
+	} else if (strcmp(unkF4, "mirrorL") == 0) {
+		gpMarDirector->fireStartDemoCamera(
+		    "ぐらぐら鏡Ｌカメラ", &unk17C->mPosition,
+		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
+		    flag);
 	}
+
+	MSBgm::stopTrackBGM(1, 10);
 }
 
-void TLeanMirror::loadAfter()
+static s32 startCameraShakeSE(u32 pos, u32 time)
 {
-	TMapObjBase::loadAfter();
-	unk17C = (TShiningStone*)findLiveActor("ShiningStone");
-
-	unk180 = unk17C->mPosition - mPosition;
-
-	f32 lenSq = unk180.squared();
-	if (lenSq <= JGeometry::TUtil<f32>::epsilon()) {
-		unk180.zero();
-	} else {
-		f32 rate = JGeometry::TUtil<f32>::one()
-		           * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
-		unk180.scale(rate);
+	if (time == 0 && gpMSound->gateCheck(0x3008)) {
+		MSoundSESystem::MSoundSE::startSoundActor(0x3008, (const Vec*)pos, 0,
+		                                          nullptr, 0, 4);
 	}
+
+	return 0;
 }
 
-void TLeanMirror::control()
+void TLeanMirror::controlGoTarget()
 {
-	TMapObjBase::control();
-	switch (mState) {
-	case 1:
-		controlShake();
-		f32 volume1 = __fabsf(vecLength(unk14C));
-		if (gpMSound->gateCheck(0x3048)) {
-			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-			    0x3048, &mPosition, nullptr, volume1, 0, 0, nullptr, 0, 4);
-		}
-		break;
-	case 2:
-		controlGoTarget();
-		f32 volume2 = __fabsf(vecLength(unk14C));
-		if (gpMSound->gateCheck(0x304A)) {
-			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-			    0x304A, &mPosition, nullptr, volume2, 0, 0, nullptr, 0, 4);
-		}
-		break;
-	case 3:
-		if (!(mLifeTimer > 0 ? true : false)) {
-			TShiningStone* stone = unk17C;
-			if (stone->unk74 < 3)
-				MSBgm::setTrackVolume(0, 1.0f, 10, 0);
+	MtxPtr mtx = getModel()->getAnmMtx(0);
+	Mtx rotMtx;
+	rotMtx[1][0] = rotMtx[2][0] = rotMtx[0][1] = rotMtx[2][1]
+	    = rotMtx[0][2] = rotMtx[1][2] = rotMtx[0][3] = rotMtx[1][3]
+	    = rotMtx[2][3] = 0.0f;
+	rotMtx[0][0] = rotMtx[1][1] = rotMtx[2][2] = 1.0f;
+	makeMtxRotByAxis(unk18C, unk198, rotMtx);
+	concatOnlyRotFromLeft(rotMtx, mtx, mtx);
 
-			if (stone->unk7C > 0.0f)
-				stone->unk78->mChildSpawnRate = stone->unk7C;
+	if (mLifeTimer > 0 ? true : false)
+		return;
 
-			mState = 4;
+	unk17C->putOnLight(this);
+	if (unk17C->unk73) {
+		TSleepBossHanachan* boss
+		    = (TSleepBossHanachan*)findLiveActor("居眠りボスハナチャン");
+		if (boss) {
+			boss->startFall(unk17C->mPosition.x, unk17C->mPosition.y + 1100.0f,
+			                unk17C->mPosition.z);
 		}
-		break;
-	default:
-		break;
+
+		TMarDirector* director = gpMarDirector;
+		JDrama::TFlagT<u16> flag(0);
+		director->fireStartDemoCamera(
+		    "demohanatyan_cam01", nullptr, -1, 0.0f, true,
+		    startCameraShakeSE, (u32)&mPosition, nullptr, flag);
+	} else {
+		TMarDirector* director = gpMarDirector;
+		JDrama::TFlagT<u16> flag(0);
+		director->fireStartDemoCamera("太陽石点灯カメラ",
+		                              &unk17C->mPosition, mDemoLightTime, 0.0f,
+		                              true, nullptr, 0, nullptr, flag);
 	}
+
+	mLifeTimer = mDemoLightTime;
+	mState     = 3;
 }
 
 void TLeanMirror::controlShake()
@@ -865,229 +886,137 @@ void TLeanMirror::controlShake()
 	}
 }
 
-void TLeanMirror::controlGoTarget()
+void TLeanMirror::control()
 {
-	MtxPtr mtx = getModel()->getAnmMtx(0);
-	Mtx rotMtx;
-	rotMtx[1][0] = rotMtx[2][0] = rotMtx[0][1] = rotMtx[2][1]
-	    = rotMtx[0][2] = rotMtx[1][2] = rotMtx[0][3] = rotMtx[1][3]
-	    = rotMtx[2][3] = 0.0f;
-	rotMtx[0][0] = rotMtx[1][1] = rotMtx[2][2] = 1.0f;
-	makeMtxRotByAxis(unk18C, unk198, rotMtx);
-	concatOnlyRotFromLeft(rotMtx, mtx, mtx);
-
-	if (mLifeTimer > 0 ? true : false)
-		return;
-
-	unk17C->putOnLight(this);
-	if (unk17C->unk73) {
-		TSleepBossHanachan* boss
-		    = (TSleepBossHanachan*)findLiveActor("居眠りボスハナチャン");
-		if (boss) {
-			boss->startFall(unk17C->mPosition.x, unk17C->mPosition.y + 1100.0f,
-			                unk17C->mPosition.z);
+	TMapObjBase::control();
+	switch (mState) {
+	case 1:
+		controlShake();
+		f32 volume1 = __fabsf(vecLength(unk14C));
+		if (gpMSound->gateCheck(0x3048)) {
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x3048, &mPosition, nullptr, volume1, 0, 0, nullptr, 0, 4);
 		}
+		break;
+	case 2:
+		controlGoTarget();
+		f32 volume2 = __fabsf(vecLength(unk14C));
+		if (gpMSound->gateCheck(0x304A)) {
+			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
+			    0x304A, &mPosition, nullptr, volume2, 0, 0, nullptr, 0, 4);
+		}
+		break;
+	case 3:
+		if (!(mLifeTimer > 0 ? true : false)) {
+			TShiningStone* stone = unk17C;
+			if (stone->unk74 < 3)
+				MSBgm::setTrackVolume(0, 1.0f, 10, 0);
 
-		TMarDirector* director = gpMarDirector;
-		JDrama::TFlagT<u16> flag(0);
-		director->fireStartDemoCamera(
-		    "demohanatyan_cam01", nullptr, -1, 0.0f, true,
-		    startCameraShakeSE, (u32)&mPosition, nullptr, flag);
+			if (stone->unk7C > 0.0f)
+				stone->unk78->mChildSpawnRate = stone->unk7C;
+
+			mState = 4;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void TLeanMirror::loadAfter()
+{
+	TMapObjBase::loadAfter();
+	unk17C = (TShiningStone*)findLiveActor("ShiningStone");
+
+	unk180 = unk17C->mPosition - mPosition;
+
+	f32 lenSq = unk180.squared();
+	if (lenSq <= JGeometry::TUtil<f32>::epsilon()) {
+		unk180.zero();
 	} else {
-		TMarDirector* director = gpMarDirector;
-		JDrama::TFlagT<u16> flag(0);
-		director->fireStartDemoCamera("太陽石点灯カメラ",
-		                              &unk17C->mPosition, mDemoLightTime, 0.0f,
-		                              true, nullptr, 0, nullptr, flag);
+		f32 rate = JGeometry::TUtil<f32>::one()
+		           * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
+		unk180.scale(rate);
 	}
-
-	mLifeTimer = mDemoLightTime;
-	mState     = 3;
 }
 
-static s32 startCameraShakeSE(u32 pos, u32 time)
+void TLeanMirror::initMapObj()
 {
-	if (time == 0 && gpMSound->gateCheck(0x3008)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x3008, (const Vec*)pos, 0,
-		                                          nullptr, 0, 4);
-	}
+	TMapObjBase::initMapObj();
+	unk158.x = 0.03f;
+	unk158.y = 0.999f;
+	unk158.z = 0.0001f;
+	unk164.y = 1.0f;
+	unk164.z = 0.0002f;
+	unk170   = 0.0001f;
+	unk174   = 0.865f;
+	unk178   = 0.5f;
 
-	return 0;
-}
-
-void TLeanMirror::release()
-{
-	MtxPtr mtx = getModel()->getAnmMtx(0);
-	JGeometry::TVec3<f32> up(mtx[0][1], mtx[1][1], mtx[2][1]);
-
-	unk18C.x = unk180.y * up.z - unk180.z * up.y;
-	unk18C.y = unk180.z * up.x - unk180.x * up.z;
-	unk18C.z = unk180.x * up.y - unk180.y * up.x;
-
-	JGeometry::TVec3<f32> axis(up.y * unk180.z - up.z * unk180.y,
-	                           up.z * unk180.x - up.x * unk180.z,
-	                           up.x * unk180.y - up.y * unk180.x);
-	f32 crossLen = JGeometry::TUtil<f32>::sqrt(axis.squared());
-	f32 dot      = up.dot(unk180);
-	unk198       = fabsf(atan2f(crossLen, dot)) / (f32)mGoTargetTime;
-
-	mLifeTimer = mGoTargetTime;
-	mState     = 2;
-	unkF8 &= ~2;
-	SMS_MarioMoveRequest(unk1A0);
-
-	JDrama::TFlagT<u16> flag(0);
 	if (strcmp(unkF4, "mirrorS") == 0) {
-		gpMarDirector->fireStartDemoCamera(
-		    "ぐらぐら鏡Ｓカメラ", &unk17C->mPosition,
-		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
-		    flag);
+		unk164.x = 0.002f;
+		unk164.y = 1.0f;
+		unk174   = 0.87f;
+		unk19C   = 1;
 	} else if (strcmp(unkF4, "mirrorM") == 0) {
-		gpMarDirector->fireStartDemoCamera(
-		    "ぐらぐら鏡Ｍカメラ", &unk17C->mPosition,
-		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
-		    flag);
-	} else if (strcmp(unkF4, "mirrorL") == 0) {
-		gpMarDirector->fireStartDemoCamera(
-		    "ぐらぐら鏡Ｌカメラ", &unk17C->mPosition,
-		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
-		    flag);
-	}
-
-	MSBgm::stopTrackBGM(1, 10);
-}
-
-void TLeanMirror::touchEnemy(THitActor* actor)
-{
-	bool isBossPart = actor->mActorType == 0x10000016 ? true : false;
-	if (isBossPart && *((u8*)actor + 0x1B0))
-		addLeanMirrorImpulse(this, actor, unk164.z);
-}
-
-void TLeanMirror::touchPlayer(THitActor* actor)
-{
-	bool canTouch = mState == 1 ? true : false;
-	if (!canTouch)
-		return;
-	if (!marioIsOn())
-		return;
-
-	addLeanMirrorImpulse(this, actor, unk158.z);
-	if (!unk1AC) {
-		MSBgm::startBGM(0x80010011);
-		MSBgm::setTrackVolume(0, 0.0f, 10, 0);
-		unk1AC = 1;
+		unk164.x = 0.004f;
+		unk19C   = 2;
+	} else {
+		unk164.x = 0.006f;
+		unk19C   = 3;
 	}
 }
 
-BOOL TLeanMirror::receiveMessage(THitActor* sender, u32 message)
+void TLeanMirror::load(JSUMemoryInputStream& stream)
 {
-	if (message == 0) {
-		sendMsg(0x10000016, message);
-		addLeanMirrorImpulse(this, sender, unk164.x);
-		return TRUE;
+	TMapObjBase::load(stream);
+
+	f32 radius;
+	stream.read(&radius, 4);
+	unk138 = radius * 100.0f * 0.5f;
+	unk13C = unk138;
+
+	if (gpMarDirector->unk7D == 1) {
+		char buf[64];
+		stream.readString(buf, 64);
+		stream.read(&unk1A0.x, 4);
+		stream.read(&unk1A0.y, 4);
+		stream.read(&unk1A0.z, 4);
 	}
 
-	if (message == 1) {
-		sendMsg(0x10000016, message);
-		addLeanMirrorImpulse(this, sender, unk164.y);
-		return TRUE;
-	}
+	TMirrorModelObj* mirrorModel = new TMirrorModelObj;
+	char modelName[64];
+	snprintf(modelName, 64, "/scene/mapObj/%sTop.bmd", unkF4);
+	mirrorModel->init(modelName);
+	mirrorModel->unk28 = getModel();
 
-	if (message == 3) {
-		addLeanMirrorImpulse(this, sender, unk170);
-		return TRUE;
-	}
-
-	if (message == 8) {
-		unk19C -= 1;
-		if (unk19C == 0)
-			release();
-		return TRUE;
-	}
-
-	return FALSE;
+	if (gpMarDirector->unk7D != 1)
+		mState = 4;
 }
 
-void TLeanMirror::draw() const
+u32 TLeanMirror::getSDLModelFlag() const { return 0; }
+
+TLeanMirror::TLeanMirror(const char* name)
+    : TMapObjBase(name)
+    , unk138(0.0f)
+    , unk13C(0.0f)
 {
-	MtxPtr mtx = getModel()->getAnmMtx(0);
-	JGeometry::TVec3<f32> dir(mtx[0][1], mtx[1][1], mtx[2][1]);
-	JGeometry::TVec3<f32> start = dir;
-	start.scale(350.0f * 0.001f * mBodyRadius);
-	start.add(mPosition);
-
-	JGeometry::TVec3<f32> end = dir;
-	end.scale(10000.0f);
-	end.add(mPosition);
-
-	gpBeamManager->requestCone(start, end, 1.7f * mBodyRadius, true, true,
-	                           false);
-}
-
-TShiningStone::TShiningStone(const char* name)
-    : THitActor(name)
-    , unk74(0)
-    , unk78(0)
-    , unk7C(0.0f)
-{
-	unk70 = 0;
-	unk71 = 0;
-	unk72 = 0;
-	unk73 = 0;
-}
-
-void TShiningStone::load(JSUMemoryInputStream& stream)
-{
-	JDrama::TActor::load(stream);
-
-	const char* modelNames[] = {
-		"/scene/mapObj/ShiningStoneGreen.bmd",
-		"/scene/mapObj/ShiningStoneBlue.bmd",
-		"/scene/mapObj/ShiningStoneRed.bmd",
-		"/scene/mapObj/ShiningStoneWhite.bmd",
-	};
-
-	Mtx mtx;
-	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
-	               mRotation.y, mRotation.z);
-
-	unk68 = new MActor*[4];
-	for (int i = 0; i < 4; ++i) {
-		unk68[i] = SMS_MakeMActorWithAnmData(
-		    modelNames[i], gpMapObjManager->getMActorAnmData(), 3, 0x10020000);
-		PSMTXCopy(mtx, unk68[i]->getModel()->getBaseTRMtx());
-
-		TMirrorActor* mirrorActor = new TMirrorActor("太陽石in鏡");
-		mirrorActor->init(unk68[i]->getModel(), 0x1A);
-	}
-
-	unk6C = SMS_MakeMActorWithAnmData("/scene/mapObj/ShiningStone.bmd",
-	                                  gpMapObjManager->getMActorAnmData(), 3,
-	                                  0x10020000);
-	unk6C->setBpk("shiningstone");
-	unk6C->setBtk("shiningstone");
-	PSMTXCopy(mtx, unk6C->getModel()->getBaseTRMtx());
-
-	SMS_LoadParticle("/scene/mapObj/ShiningStone1.jpa", 0x143);
-	SMS_LoadParticle("/scene/mapObj/ShiningStone2.jpa", 0x144);
-	SMS_LoadParticle("/scene/mapObj/ShiningStone3.jpa", 0x145);
-	SMS_LoadParticle("/scene/mapObj/ShiningStoneF.jpa", 0x56);
-}
-
-void TShiningStone::perform(u32 flags, JDrama::TGraphics* graphics)
-{
-	for (int i = 0; i < 4; ++i) {
-		unk68[i]->perform(flags, graphics);
-		if (unk74 > 0)
-			gpMarioParticleManager->emit(0x143, &mPosition, 1, this);
-		if (unk74 > 1)
-			gpMarioParticleManager->emit(0x144, &mPosition, 1, this);
-		if (unk74 > 2)
-			gpMarioParticleManager->emit(0x145, &mPosition, 1, this);
-	}
-
-	unk6C->perform(flags, graphics);
+	unk158.x = 0.0f;
+	unk158.y = 0.0f;
+	unk158.z = 0.0f;
+	unk164.x = 0.0f;
+	unk164.y = 0.0f;
+	unk164.z = 0.0f;
+	unk170 = 0.0f;
+	unk17C = 0;
+	unk198 = 0.0f;
+	unk19C = 0;
+	unk1AC = 0;
+	unk1AE = 0;
+	zeroVec(unk140);
+	zeroVec(unk14C);
+	zeroVec(unk180);
+	zeroVec(unk18C);
+	zeroVec(unk1A0);
 }
 
 void TShiningStone::putOnLight(TLiveActor* actor)
@@ -1147,53 +1076,80 @@ void TShiningStone::putOnLight(TLiveActor* actor)
 	}
 }
 
-TMammaBlockRotate::TMammaBlockRotate(const char* name)
-    : TMapObjBase(name)
-    , unk13C(0)
-    , unk140(0)
-    , unk144(0)
-    , unk148(0)
+void TShiningStone::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	for (int i = 0; i < 4; ++i) {
+		unk68[i]->perform(flags, graphics);
+		if (unk74 > 0)
+			gpMarioParticleManager->emit(0x143, &mPosition, 1, this);
+		if (unk74 > 1)
+			gpMarioParticleManager->emit(0x144, &mPosition, 1, this);
+		if (unk74 > 2)
+			gpMarioParticleManager->emit(0x145, &mPosition, 1, this);
+	}
+
+	unk6C->perform(flags, graphics);
 }
 
-void TMammaBlockRotate::load(JSUMemoryInputStream& stream)
+void TShiningStone::load(JSUMemoryInputStream& stream)
 {
-	unk144 = new TMapCollisionMove;
-	unk144->init("/scene/mapObj/MammaBlockDown.col", 0, this);
-	unk148 = new TMapCollisionMove;
-	unk148->init("/scene/mapObj/MammaBlockUp.col", 0, this);
-	TMapObjBase::load(stream);
+	JDrama::TActor::load(stream);
+
+	const char* modelNames[] = {
+		"/scene/mapObj/ShiningStoneGreen.bmd",
+		"/scene/mapObj/ShiningStoneBlue.bmd",
+		"/scene/mapObj/ShiningStoneRed.bmd",
+		"/scene/mapObj/ShiningStoneWhite.bmd",
+	};
+
+	Mtx mtx;
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
+	               mRotation.y, mRotation.z);
+
+	unk68 = new MActor*[4];
+	for (int i = 0; i < 4; ++i) {
+		unk68[i] = SMS_MakeMActorWithAnmData(
+		    modelNames[i], gpMapObjManager->getMActorAnmData(), 3, 0x10020000);
+		PSMTXCopy(mtx, unk68[i]->getModel()->getBaseTRMtx());
+
+		TMirrorActor* mirrorActor = new TMirrorActor("太陽石in鏡");
+		mirrorActor->init(unk68[i]->getModel(), 0x1A);
+	}
+
+	unk6C = SMS_MakeMActorWithAnmData("/scene/mapObj/ShiningStone.bmd",
+	                                  gpMapObjManager->getMActorAnmData(), 3,
+	                                  0x10020000);
+	unk6C->setBpk("shiningstone");
+	unk6C->setBtk("shiningstone");
+	PSMTXCopy(mtx, unk6C->getModel()->getBaseTRMtx());
+
+	SMS_LoadParticle("/scene/mapObj/ShiningStone1.jpa", 0x143);
+	SMS_LoadParticle("/scene/mapObj/ShiningStone2.jpa", 0x144);
+	SMS_LoadParticle("/scene/mapObj/ShiningStone3.jpa", 0x145);
+	SMS_LoadParticle("/scene/mapObj/ShiningStoneF.jpa", 0x56);
 }
 
-void TMammaBlockRotate::initMapObj()
+TShiningStone::TShiningStone(const char* name)
+    : THitActor(name)
+    , unk74(0)
+    , unk78(0)
+    , unk7C(0.0f)
 {
-	TMapObjBase::initMapObj();
+	unk70 = 0;
+	unk71 = 0;
+	unk72 = 0;
+	unk73 = 0;
+}
 
-	unk138 = gpMap->getModelManager()->getJointModel(0);
-	unk13C = unk138->getChild(0)->getChild(0)->getChild(0)->getChild(1);
-
-	JGeometry::TVec3<f32> vec;
-
-	J3DJoint* joint13C = unk13C->getJoint();
-	f32 height13C      = joint13C->getMax().y - joint13C->getMin().y;
-	moveJoint(joint13C, 0.0f, height13C, 0.0f);
-
-	vec.set(0.0f, height13C, 0.0f);
-	unk144->setUp();
-	unk144->moveTrans(vec);
-
-	unk140 = unk138->getChild(0)->getChild(0)->getChild(0)->getChild(2);
-
-	J3DJoint* joint140 = unk140->getJoint();
-	f32 height140      = joint140->getMax().y - joint140->getMin().y;
-	moveJoint(joint140, 0.0f, joint140->getMax().y - joint140->getMin().y,
-	          0.0f);
-
-	unk148->setUp();
-	vec.set(0.0f, height140, 0.0f);
-	unk148->moveTrans(vec);
-
-	unk138->getModel()->calc();
+u32 TMammaBlockRotate::touchWater(THitActor*)
+{
+	bool inState1 = mState == 1 ? true : false;
+	if (inState1) {
+		mRotation.y += mRotSpeed;
+		if (mRotation.y > mRotEnd)
+			mState = 2;
+	}
+	return 1;
 }
 
 void TMammaBlockRotate::control()
@@ -1253,27 +1209,53 @@ void TMammaBlockRotate::control()
 	}
 }
 
-u32 TMammaBlockRotate::touchWater(THitActor*)
-{
-	bool inState1 = mState == 1 ? true : false;
-	if (inState1) {
-		mRotation.y += mRotSpeed;
-		if (mRotation.y > mRotEnd)
-			mState = 2;
-	}
-	return 1;
-}
-
-void TMammaYacht::initMapObj()
+void TMammaBlockRotate::initMapObj()
 {
 	TMapObjBase::initMapObj();
-	unk138 = new TMapObjFlag("旗");
-	unk138->mPosition.set(mPosition.x + 2.0f,
-	                      mPosition.y + 1315.0f - 190.0f,
-	                      mPosition.z - 15.0f);
-	unk138->mRotation.set(0.0f, 180.0f, 0.0f);
-	unk138->mScaling.set(1.0f, 2.5f, 3.8f);
-	unk138->init("MammaYacht00");
+
+	unk138 = gpMap->getModelManager()->getJointModel(0);
+	unk13C = unk138->getChild(0)->getChild(0)->getChild(0)->getChild(1);
+
+	JGeometry::TVec3<f32> vec;
+
+	J3DJoint* joint13C = unk13C->getJoint();
+	f32 height13C      = joint13C->getMax().y - joint13C->getMin().y;
+	moveJoint(joint13C, 0.0f, height13C, 0.0f);
+
+	vec.set(0.0f, height13C, 0.0f);
+	unk144->setUp();
+	unk144->moveTrans(vec);
+
+	unk140 = unk138->getChild(0)->getChild(0)->getChild(0)->getChild(2);
+
+	J3DJoint* joint140 = unk140->getJoint();
+	f32 height140      = joint140->getMax().y - joint140->getMin().y;
+	moveJoint(joint140, 0.0f, joint140->getMax().y - joint140->getMin().y,
+	          0.0f);
+
+	unk148->setUp();
+	vec.set(0.0f, height140, 0.0f);
+	unk148->moveTrans(vec);
+
+	unk138->getModel()->calc();
+}
+
+void TMammaBlockRotate::load(JSUMemoryInputStream& stream)
+{
+	unk144 = new TMapCollisionMove;
+	unk144->init("/scene/mapObj/MammaBlockDown.col", 0, this);
+	unk148 = new TMapCollisionMove;
+	unk148->init("/scene/mapObj/MammaBlockUp.col", 0, this);
+	TMapObjBase::load(stream);
+}
+
+TMammaBlockRotate::TMammaBlockRotate(const char* name)
+    : TMapObjBase(name)
+    , unk13C(0)
+    , unk140(0)
+    , unk144(0)
+    , unk148(0)
+{
 }
 
 void TMammaYacht::control()
@@ -1293,44 +1275,16 @@ void TMammaYacht::control()
 	}
 }
 
-TSandBird::TSandBird(const char* name)
-    : TJointCoin(name)
+void TMammaYacht::initMapObj()
 {
-	unk150 = 0;
-	unk151 = 0;
-}
-
-void TSandBird::initMapObj()
-{
-	TJointCoin::initMapObj();
-	if (!gParticleFlagLoaded[0x159]) {
-		gpResourceManager->load("/scene/map/map/ms_sunadori_a.jpa", 0x159);
-		gParticleFlagLoaded[0x159] = true;
-	}
-	if (!gParticleFlagLoaded[0x15A]) {
-		gpResourceManager->load("/scene/map/map/ms_sunadori_b.jpa", 0x15A);
-		gParticleFlagLoaded[0x15A] = true;
-	}
-}
-
-bool TSandBird::nameIsObj(const char* name)
-{
-	if (strstr(name, "none") == 0)
-		return true;
-	else
-		return false;
-}
-
-TMapObjBase* TSandBird::makeObjFromJointName(const char* name, u16 joint_id)
-{
-	TMapObjBase* obj = TJointCoin::makeObjFromJointName(name, joint_id);
-	if (obj)
-		return obj;
-
-	if (!strstr(name, "none"))
-		return makeObj("SandBirdBlock", joint_id);
-
-	return 0;
+	TMapObjBase::initMapObj();
+	unk138 = new TMapObjFlag("旗");
+	unk138->mPosition.set(mPosition.x + 2.0f,
+	                      mPosition.y + 1315.0f - 190.0f,
+	                      mPosition.z - 15.0f);
+	unk138->mRotation.set(0.0f, 180.0f, 0.0f);
+	unk138->mScaling.set(1.0f, 2.5f, 3.8f);
+	unk138->init("MammaYacht00");
 }
 
 void TSandBird::control()
@@ -1395,55 +1349,44 @@ void TSandBird::control()
 	}
 }
 
-TGoalWatermelon::TGoalWatermelon(const char* name)
-    : TMapObjBase(name)
-    , unk138(0)
-    , unk13C(0)
+TMapObjBase* TSandBird::makeObjFromJointName(const char* name, u16 joint_id)
 {
-	unk140.z = 0.0f;
-	unk140.y = 0.0f;
-	unk140.x = 0.0f;
+	TMapObjBase* obj = TJointCoin::makeObjFromJointName(name, joint_id);
+	if (obj)
+		return obj;
+
+	if (!strstr(name, "none"))
+		return makeObj("SandBirdBlock", joint_id);
+
+	return 0;
 }
 
-void TGoalWatermelon::load(JSUMemoryInputStream& stream)
+bool TSandBird::nameIsObj(const char* name)
 {
-	TMapObjBase::load(stream);
-	char buf[32];
-	stream.readString(buf, 32);
-	stream.read(&unk140.x, 4);
-	stream.read(&unk140.y, 4);
-	stream.read(&unk140.z, 4);
+	if (strstr(name, "none") == 0)
+		return true;
+	else
+		return false;
 }
 
-void TGoalWatermelon::loadAfter()
+void TSandBird::initMapObj()
 {
-	TMapObjBase::loadAfter();
-	unk64 |= 4;
-	unk138 = findMapObj("シャイン（お化けスイカ用）");
-	unk138->mPosition.set(unk140);
-	unk138->appear();
-}
-
-void TGoalWatermelon::control()
-{
-	TMapObjBase::control();
-	switch (mState) {
-	case 0:
-	case 1:
-		break;
-	case 2:
-		if (unk13C->animIsFinished()) {
-			gpItemManager->makeShineAppearWithDemoOffset(
-			    "シャイン（お化けスイカ用）", "スイカシャインカメラ", 0.0f, 0.0f,
-			    0.0f);
-			mState = 3;
-		}
-		break;
-	case 3:
-		break;
-	default:
-		break;
+	TJointCoin::initMapObj();
+	if (!gParticleFlagLoaded[0x159]) {
+		gpResourceManager->load("/scene/map/map/ms_sunadori_a.jpa", 0x159);
+		gParticleFlagLoaded[0x159] = true;
 	}
+	if (!gParticleFlagLoaded[0x15A]) {
+		gpResourceManager->load("/scene/map/map/ms_sunadori_b.jpa", 0x15A);
+		gParticleFlagLoaded[0x15A] = true;
+	}
+}
+
+TSandBird::TSandBird(const char* name)
+    : TJointCoin(name)
+{
+	unk150 = 0;
+	unk151 = 0;
 }
 
 void TGoalWatermelon::touchActor(THitActor* actor)
@@ -1475,53 +1418,55 @@ void TGoalWatermelon::touchActor(THitActor* actor)
 	mState = 2;
 }
 
-TMammaMirrorMapOperator::TMammaMirrorMapOperator(const char* name)
-    : JDrama::TViewObj(name)
+void TGoalWatermelon::control()
 {
-	for (int i = 0; i < 8; ++i) {
-		unk10[i] = 0;
-		zeroVec(unk30[i]);
-		unk90[i] = 0.0f;
-		unkB0[i] = 0;
+	TMapObjBase::control();
+	switch (mState) {
+	case 0:
+	case 1:
+		break;
+	case 2:
+		if (unk13C->animIsFinished()) {
+			gpItemManager->makeShineAppearWithDemoOffset(
+			    "シャイン（お化けスイカ用）", "スイカシャインカメラ", 0.0f, 0.0f,
+			    0.0f);
+			mState = 3;
+		}
+		break;
+	case 3:
+		break;
+	default:
+		break;
 	}
-
-	for (int i = 0; i < 3; ++i)
-		zeroVec(unkB8[i]);
 }
 
-void TMammaMirrorMapOperator::loadAfter()
+void TGoalWatermelon::loadAfter()
 {
-	unkB8[0].set(findMapObj("mirrorS")->mPosition);
-	unkB8[1].set(findMapObj("mirrorM")->mPosition);
-	unkB8[2].set(findMapObj("mirrorL")->mPosition);
+	TMapObjBase::loadAfter();
+	unk64 |= 4;
+	unk138 = findMapObj("シャイン（お化けスイカ用）");
+	unk138->mPosition.set(unk140);
+	unk138->appear();
+}
 
-	J3DJoint* joint = ((TMapStaticObj*)findMapObj("鏡内地形"))
-	                      ->getModelData()
-	                      ->getJointNodePointer(2);
+void TGoalWatermelon::load(JSUMemoryInputStream& stream)
+{
+	TMapObjBase::load(stream);
+	char buf[32];
+	stream.readString(buf, 32);
+	stream.read(&unk140.x, 4);
+	stream.read(&unk140.y, 4);
+	stream.read(&unk140.z, 4);
+}
 
-	for (int i = 0; i < 8; ++i) {
-		unk10[i] = (TMapObjBase*)joint;
-
-		const Vec& min = joint->getMin();
-		const Vec& max = joint->getMax();
-
-		unk30[i].x = 0.5f * (max.x + min.x);
-		unk30[i].y = 0.5f * (max.y + min.y);
-		unk30[i].z = 0.5f * (max.z + min.z);
-
-		f32 radX = 0.5f * (max.x - min.x);
-		f32 radZ = 0.5f * (max.z - min.z);
-		if (radX > radZ)
-			unk90[i] = radX;
-		else
-			unk90[i] = radZ;
-
-		unk90[i] += 2000.0f;
-		if (unk90[i] > 3000.0f)
-			unk90[i] = 3000.0f;
-
-		joint = (J3DJoint*)joint->getYounger();
-	}
+TGoalWatermelon::TGoalWatermelon(const char* name)
+    : TMapObjBase(name)
+    , unk138(0)
+    , unk13C(0)
+{
+	unk140.z = 0.0f;
+	unk140.y = 0.0f;
+	unk140.x = 0.0f;
 }
 
 void TMammaMirrorMapOperator::perform(u32 flags, JDrama::TGraphics* graphics)
@@ -1574,6 +1519,55 @@ void TMammaMirrorMapOperator::perform(u32 flags, JDrama::TGraphics* graphics)
 			}
 		}
 	}
+}
+
+void TMammaMirrorMapOperator::loadAfter()
+{
+	unkB8[0].set(findMapObj("mirrorS")->mPosition);
+	unkB8[1].set(findMapObj("mirrorM")->mPosition);
+	unkB8[2].set(findMapObj("mirrorL")->mPosition);
+
+	J3DJoint* joint = ((TMapStaticObj*)findMapObj("鏡内地形"))
+	                      ->getModelData()
+	                      ->getJointNodePointer(2);
+
+	for (int i = 0; i < 8; ++i) {
+		unk10[i] = (TMapObjBase*)joint;
+
+		const Vec& min = joint->getMin();
+		const Vec& max = joint->getMax();
+
+		unk30[i].x = 0.5f * (max.x + min.x);
+		unk30[i].y = 0.5f * (max.y + min.y);
+		unk30[i].z = 0.5f * (max.z + min.z);
+
+		f32 radX = 0.5f * (max.x - min.x);
+		f32 radZ = 0.5f * (max.z - min.z);
+		if (radX > radZ)
+			unk90[i] = radX;
+		else
+			unk90[i] = radZ;
+
+		unk90[i] += 2000.0f;
+		if (unk90[i] > 3000.0f)
+			unk90[i] = 3000.0f;
+
+		joint = (J3DJoint*)joint->getYounger();
+	}
+}
+
+TMammaMirrorMapOperator::TMammaMirrorMapOperator(const char* name)
+    : JDrama::TViewObj(name)
+{
+	for (int i = 0; i < 8; ++i) {
+		unk10[i] = 0;
+		zeroVec(unk30[i]);
+		unk90[i] = 0.0f;
+		unkB0[i] = 0;
+	}
+
+	for (int i = 0; i < 3; ++i)
+		zeroVec(unkB8[i]);
 }
 
 u32 TSandEgg::getSDLModelFlag() const { return 0; }
