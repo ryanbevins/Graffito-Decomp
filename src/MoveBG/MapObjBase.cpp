@@ -178,12 +178,12 @@ void TMapObjBase::startSound(u16 param_1)
 	if (!mMapObjData->mSound) {
 		u32 uVar3 = TMapObjGeneral::mDefaultSound.unk0[unk100];
 		if (uVar3 != 0xffffffff && gpMSound->gateCheck(uVar3))
-			MSoundSESystem::MSoundSE::startSoundActor(uVar3, mPosition, 0,
+			MSoundSESystem::MSoundSE::startSoundActor(uVar3, &mPosition, 0,
 			                                          nullptr, 0, 4);
 	} else {
 		u32 uVar3 = mMapObjData->mSound->unk4->unk0[unk100];
 		if (uVar3 != 0xffffffff && gpMSound->gateCheck(uVar3))
-			MSoundSESystem::MSoundSE::startSoundActor(uVar3, mPosition, 0,
+			MSoundSESystem::MSoundSE::startSoundActor(uVar3, &mPosition, 0,
 			                                          nullptr, 0, 4);
 	}
 }
