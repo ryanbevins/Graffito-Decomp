@@ -64,10 +64,9 @@ static void initMare()
 {
 	JDrama::TNameRef* root
 	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-	const char* mapGroupName = "マップグループ";
 	JDrama::TNameRef* mapGroup
-	    = root->searchF(JDrama::TNameRef::calcKeyCode(mapGroupName),
-	                    mapGroupName);
+	    = root->searchF(JDrama::TNameRef::calcKeyCode("マップグループ"),
+	                    "マップグループ");
 	JDrama::TViewObjPtrListT<JDrama::TViewObj>* group
 	    = (JDrama::TViewObjPtrListT<JDrama::TViewObj>*)mapGroup;
 
