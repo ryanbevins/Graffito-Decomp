@@ -722,7 +722,7 @@ void JKRExpHeap::recycleFreeBlock(JKRExpHeap::CMemBlock* block)
 	block->mUsageHeader             = 0;
 	// int offset = block->mFlags & 0x7f;
 
-	if ((u32)(block->mFlags & 0x7f) != 0) {
+	if (u8(block->mFlags & 0x7f) != 0) {
 		newBlock = (CMemBlock*)((u8*)block - (block->mFlags & 0x7f));
 		size += (block->mFlags & 0x7f);
 		blockEnd                  = (u8*)newBlock + size;
