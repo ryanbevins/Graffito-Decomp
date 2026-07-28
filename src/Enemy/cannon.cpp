@@ -1362,7 +1362,7 @@ TChorobei::TChorobei(TCannon* cannon, int jointIndex, const char* name)
     , unk78(nullptr)
     , unk7C(300.0f)
 {
-	unk6C = new TSharedParts(cannon, jointIndex,
+	unk6C = new TSharedParts(unk68, jointIndex,
 	                         "/scene/cannon/tyorobe_model1.bmd", 0x10020000,
 	                         3, "<TSharedParts>");
 	if (unk74 != nullptr)
