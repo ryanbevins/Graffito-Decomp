@@ -39,9 +39,9 @@ static void initMonte()
 {
 	JDrama::TNameRef* root
 	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-	const char* indirectSceneName = "インダイレクトシーン";
-	JDrama::TNameRef* indirectScene = root->searchF(
-	    JDrama::TNameRef::calcKeyCode(indirectSceneName), indirectSceneName);
+	JDrama::TNameRef* indirectScene
+	    = root->searchF(JDrama::TNameRef::calcKeyCode("インダイレクトシーン"),
+	                    "インダイレクトシーン");
 
 	TMapStaticObj* waterIndirect = new TMapStaticObj("水インダイレクト");
 	waterIndirect->init("SeaIndirect");
