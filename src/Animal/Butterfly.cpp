@@ -151,9 +151,9 @@ BOOL TButterfly::receiveMessage(THitActor* sender, u32 msg)
 		}
 		break;
 	case 0xb: {
+		TButterfloid* floid = mFloid;
 		unk74 |= 4;
 		onHitFlag(1);
-		TButterfloid* floid = mFloid;
 		if (++floid->mDeadCount == floid->mBoidLeader->mNumActors) {
 			TMapObjBase* coin = floid->mCoinObj;
 			if (coin != nullptr) {
