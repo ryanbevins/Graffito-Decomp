@@ -1860,12 +1860,9 @@ void TDangoHamuKuri::reset()
 	THamuKuri::reset();
 	mPrev = nullptr;
 	mNext = nullptr;
-	mBoss           = nullptr;
-	volatile f32 mn = 0.0f;
-	volatile f32 mx = 1.0f;
-	f32 range       = mx - mn;
-	f32 randomOffset = range * MsRandF();
-	unk20C           = mn + randomOffset;
+	mBoss = nullptr;
+	TMsRange<f32> randomRange(0.0f, 1.0f);
+	unk20C = randomRange.rand();
 	mMActor->calc();
 }
 
