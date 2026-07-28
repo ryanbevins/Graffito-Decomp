@@ -816,8 +816,8 @@ void TGorogoro::calcRootMatrix()
 			emitter->setScale(mScaling);
 	}
 
-	f32 y = groundOffsetY * unk158 + mPosition.y;
-	MsMtxSetXYZRPH(getModel()->getBaseTRMtx(), mPosition.x, y, mPosition.z,
+	MsMtxSetXYZRPH(getModel()->getBaseTRMtx(), mPosition.x,
+	               groundOffsetY * unk158 + mPosition.y, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
 	getModel()->setBaseScale(mScaling);
 }
