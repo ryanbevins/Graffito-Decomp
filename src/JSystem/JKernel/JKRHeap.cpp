@@ -184,8 +184,8 @@ void JKRHeap::dispose(void* begin, void* end)
 void JKRHeap::dispose()
 {
 	JSUListIterator<JKRDisposer> iterator;
-	while (iterator = mDisposerList.getFirst(),
-	       iterator != mDisposerList.getEnd()) {
+	while ((iterator = mDisposerList.getFirst())
+	       != mDisposerList.getEnd()) {
 		iterator->~JKRDisposer();
 	}
 }
