@@ -212,7 +212,7 @@ bool CPolarSubCamera::isNeedGroundCheck_()
 	    || (isLButtonCameraSpecifyMode(mMode) && !isNowInbetween() ? true
 	                                                               : false)
 	    || isRailCameraSpecifyMode(mMode) || mMode == 2
-	    || *(u16*)((u8*)this + 0x278) != 0) {
+	    || unk278 != 0) {
 		result = false;
 	} else if (mMode != 0x2A) {
 		if (isNormalCameraSpecifyMode(mMode)
@@ -226,8 +226,8 @@ bool CPolarSubCamera::isNeedGroundCheck_()
 				mx = sY;
 			if (dy > 1.25f * mx) {
 				result = false;
-				if (*(u16*)((u8*)this + 0x278) < 0x78)
-					*(u16*)((u8*)this + 0x278) = 0x78;
+				if (unk278 < 0x78)
+					unk278 = 0x78;
 			}
 		}
 	}
