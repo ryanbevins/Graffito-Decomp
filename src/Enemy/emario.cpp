@@ -135,14 +135,14 @@ void TEMario::startRunAway()
 	mEnemyMario->startRunAway();
 }
 
-BOOL TEMario::isDownWaitingToTalk() const
+bool TEMario::isDownWaitingToTalk() const
 {
 	if (*(u16*)((u8*)mEnemyMario + 0x4292) == 0xf)
 		return TRUE;
 	return FALSE;
 }
 
-BOOL TEMario::isReachedToGate() const
+bool TEMario::isReachedToGate() const
 {
 	if (*(u16*)((u8*)mEnemyMario + 0x4292) == 0x18)
 		return TRUE;

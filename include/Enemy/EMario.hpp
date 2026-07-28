@@ -29,8 +29,8 @@ public:
 	void startGateDrawing();
 	void startMonteReplay(u32);
 	void startRunAway();
-	BOOL isDownWaitingToTalk() const;
-	BOOL isReachedToGate() const;
+	bool isDownWaitingToTalk() const;
+	bool isReachedToGate() const;
 	BOOL isGoal();
 
 public:

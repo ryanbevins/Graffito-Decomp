@@ -22,8 +22,8 @@
 class TEMario : public TLiveActor {
 public:
 	BOOL isGoal();
-	BOOL isDownWaitingToTalk() const;
-	BOOL isReachedToGate() const;
+	bool isDownWaitingToTalk() const;
+	bool isReachedToGate() const;
 	void startMonteReplay(u32);
 	void forceDisappear();
 	void startGateDrawing();
