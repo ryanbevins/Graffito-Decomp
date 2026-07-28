@@ -75,7 +75,7 @@ DEFINE_NERVE(TNerveGorogoroDie, TLiveActor)
 		self->onHitFlag(0x1);
 
 		if (self->mGroundPlane->isWaterSurface()
-		    && !self->checkLiveFlag(LIVE_FLAG_AIRBORNE))
+		    && !self->isAirborne())
 			self->generateEffectColumWater();
 
 		if (self->checkLiveFlag(LIVE_FLAG_UNK10000)) {
