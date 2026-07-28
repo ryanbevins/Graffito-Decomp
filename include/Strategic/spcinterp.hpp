@@ -659,14 +659,15 @@ public:
 		typedef void (*TypedNativeCall)(TSpcTypedInterp<T>*, u32);
 		TSpcSymbol* sym = mBinary->getSymbol(sym_index);
 
-		if (sym && sym->mNativeCall) {
+		if (sym) {
 			TypedNativeCall call = (TypedNativeCall)sym->mNativeCall;
-
-			mCurrentlyExecutingBuiltinName = mBinary->getSymbolName(sym);
-			call(this, arg_count);
-		} else {
-			TSpcInterp::dispatchBuiltin(sym_index, arg_count);
+			if (call) {
+				mCurrentlyExecutingBuiltinName = mBinary->getSymbolName(sym);
+				call(this, arg_count);
+				return;
+			}
 		}
+		TSpcInterp::dispatchBuiltin(sym_index, arg_count);
 	}
 
 	virtual ~TSpcTypedInterp() { }
