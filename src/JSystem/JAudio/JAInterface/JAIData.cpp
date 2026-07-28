@@ -456,7 +456,7 @@ void JAIData::getInfoPointer(u32 param_1, void** param_2)
 		table = &unk88;
 		switch (param_1 & 0xC0000000) {
 		case 0x00000000:
-			thing = param_1 >> 12 & 0xff;
+			thing = (u8)(param_1 >> 12);
 			JAIGlobalParameter::getParamSeCategoryMax();
 			break;
 		case 0x80000000:
@@ -469,7 +469,7 @@ void JAIData::getInfoPointer(u32 param_1, void** param_2)
 	} else {
 		switch (param_1 & 0xC0000000) {
 		case 0x00000000:
-			thing = param_1 >> 12 & 0xff;
+			thing = (u8)(param_1 >> 12);
 			table = &unk88;
 			JAIGlobalParameter::getParamSeCategoryMax();
 			break;
