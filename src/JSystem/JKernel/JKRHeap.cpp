@@ -109,8 +109,8 @@ void JKRHeap::freeAll()
 {
 	JUT_WARNING_F(417, !mInitFlag, "freeAll in heap %x", this);
 	JSUListIterator<JKRDisposer> iterator;
-	while (iterator = mDisposerList.getFirst(),
-	       iterator != mDisposerList.getEnd()) {
+	while ((iterator = mDisposerList.getFirst())
+	       != mDisposerList.getEnd()) {
 		iterator.getObject()->~JKRDisposer();
 	}
 }
