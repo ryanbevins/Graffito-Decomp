@@ -267,7 +267,7 @@ void TTrack::oscSetupFull(u8 param_1, u32 param_2, u32 param_3)
 {
 	u32 var1  = (param_1 & 0x10) >> 4;
 	int var2  = param_1 & 0x0f;
-	bool var3 = (param_1 & 0x80) >> 7 ? true : false;
+	bool var3 = param_1 & 0x80 ? true : false;
 	bool var4 = param_1 & 0x40 ? true : false;
 	bool var5 = param_1 & 0x20 ? true : false;
 
