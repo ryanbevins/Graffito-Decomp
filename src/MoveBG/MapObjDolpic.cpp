@@ -419,7 +419,7 @@ void TBellDolpic::control()
 		unk15C ^= 1;
 	}
 
-	unk150 = unk150 * 0.9995f;
+	unk150 *= 0.9995f;
 }
 
 // TDptMonteFence
