@@ -932,18 +932,11 @@ bool TBaseNPC::isMadNpc() const
 
 bool TBaseNPC::isPartsAnmNpc() const
 {
-	bool result   = false;
-	bool isGroupA = false;
-	u32 type      = mActorType;
-	switch (type) {
-	case 0x0400000F:
-	case 0x04000014:
-		isGroupA = true;
-	}
-	if (isGroupA) {
+	bool result = false;
+	if (isJellyFishMare()) {
 		result = true;
 	} else {
-		switch (type) {
+		switch (mActorType) {
 		case 0x04000010:
 		case 0x04000015:
 		case 0x04000018:
@@ -1001,6 +994,7 @@ bool TBaseNPC::isSunflower() const
 	return result;
 }
 
+#pragma dont_inline off
 bool TBaseNPC::isJellyFishMare() const
 {
 	bool result = false;
@@ -1011,6 +1005,7 @@ bool TBaseNPC::isJellyFishMare() const
 	}
 	return result;
 }
+#pragma dont_inline on
 
 bool TBaseNPC::isSpecialMareW() const
 {
