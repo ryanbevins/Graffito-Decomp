@@ -1832,23 +1832,23 @@ void TDangoHamuKuri::calcRootMatrix()
 					unk210 = -MsRandF(10.0f, 20.0f);
 					unk230 = 0;
 				}
-				TDangoHamuKuri* holder = (TDangoHamuKuri*)mHolder;
-				if (holder->unk230)
-					unk210 = -holder->unk210;
-				takingMtx[0][3] += unk21C;
-				takingMtx[1][3] += unk220;
-				takingMtx[2][3] += unk224;
-
-				getModel()->setBaseScale(mScaling);
-				Mtx afStack_68;
-				MsMtxSetRotRPH(afStack_68, 0.0f, unk210, unk214);
-				MTXConcat(takingMtx, afStack_68, takingMtx);
-				getModel()->setBaseTRMtx(takingMtx);
-
-				mPosition.set(takingMtx[0][3], takingMtx[1][3],
-				              takingMtx[2][3]);
-				return;
 			}
+			TDangoHamuKuri* holder = (TDangoHamuKuri*)mHolder;
+			if (holder->unk230)
+				unk210 = -holder->unk210;
+			takingMtx[0][3] += unk21C;
+			takingMtx[1][3] += unk220;
+			takingMtx[2][3] += unk224;
+
+			getModel()->setBaseScale(mScaling);
+			Mtx afStack_68;
+			MsMtxSetRotRPH(afStack_68, 0.0f, unk210, unk214);
+			MTXConcat(takingMtx, afStack_68, takingMtx);
+			getModel()->setBaseTRMtx(takingMtx);
+
+			mPosition.set(takingMtx[0][3], takingMtx[1][3],
+			              takingMtx[2][3]);
+			return;
 		}
 	}
 
