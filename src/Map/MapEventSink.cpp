@@ -387,7 +387,7 @@ void TMapEventSinkBianco::loadAfter()
 	TMapStaticObj* ref
 	    = (TMapStaticObj*)JDrama::TNameRefGen::getInstance()
 	          ->getRootNameRef()
-	          ->search("鏡内地形シャイン（坂上げ用）");
+	          ->search("鏡内地形");
 
 	unk64 = ref->getModelData()->getJointNodePointer(2);
 	TMapObjBase::moveJoint(unk64, 0.0f, -1700.0f, 0.0f);
