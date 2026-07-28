@@ -276,7 +276,14 @@ BOOL TNerveAnimalBirdGraphWander::execute(TSpineBase<TLiveActor>* spine) const
 	if (spine->getTime() == 0 || bird->isReachedToGoal()) {
 		bird->goToRandomNextGraphNode();
 
-		JGeometry::TVec3<f32> pt = bird->unk104.getPoint();
+		const TPathNode& goalNode = bird->unk104;
+		THitActor* goalActor = goalNode.unk0;
+		const JGeometry::TVec3<f32>* goalPos;
+		if (goalActor != nullptr)
+			goalPos = &goalActor->getPosition();
+		else
+			goalPos = &goalNode.unk4;
+		JGeometry::TVec3<f32> pt = *goalPos;
 		pt.x += 200.0f * (MsRandF() - 0.5f);
 		pt.y += 200.0f * (MsRandF() - 0.5f);
 		pt.z += 200.0f * (MsRandF() - 0.5f);
