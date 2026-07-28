@@ -642,8 +642,6 @@ void TRedCoinSwitch::control()
 	TMapObjBase::control();
 
 	switch (mState) {
-	case 1:
-		return;
 	case 2:
 		if (mMActor->curAnmEndsNext(0, nullptr)) {
 			mLifeTimer = 120;
