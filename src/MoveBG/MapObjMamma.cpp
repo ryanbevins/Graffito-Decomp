@@ -183,10 +183,20 @@ void TMammaMirrorMapOperator::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (gpMirrorModelManager->unk18 != -1 ? true : false) {
 		const JGeometry::TVec3<f32>& camPos = gpMirrorModelManager->unk24->unk98;
 
-		f32 inMirrorDist = camPos.distance(unkB8[gpMirrorModelManager->unk18]);
+		const JGeometry::TVec3<f32>& mirrorPos
+		    = unkB8[gpMirrorModelManager->unk18];
+		f32 dx = camPos.x - mirrorPos.x;
+		f32 dy = camPos.y - mirrorPos.y;
+		f32 dz = camPos.z - mirrorPos.z;
+		f32 inMirrorDist
+		    = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
 
 		for (int i = 0; i < 8; ++i) {
-			f32 dist = camPos.distance(unk30[i]);
+			f32 dx = camPos.x - unk30[i].x;
+			f32 dy = camPos.y - unk30[i].y;
+			f32 dz = camPos.z - unk30[i].z;
+			f32 dist
+			    = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
 
 			if (dist > unk90[i] || dist > inMirrorDist) {
 				if (unkB0[i]) {
