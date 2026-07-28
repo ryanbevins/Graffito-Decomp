@@ -290,9 +290,8 @@ void TMapObjBase::startAnim(u16 param_1)
 
 void TMapObjBase::makeObjDefault()
 {
-	mPosition.x = mInitialPosition.x;
-	mPosition.y = mInitialPosition.y + mYOffset;
-	mPosition.z = mInitialPosition.z;
+	mPosition.set(mInitialPosition.x, mInitialPosition.y + mYOffset,
+	              mInitialPosition.z);
 
 	mRotation = mInitialRotation;
 	mScaling  = mInitialScaling;
