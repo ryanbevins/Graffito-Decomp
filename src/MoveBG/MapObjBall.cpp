@@ -785,9 +785,9 @@ void TMapObjBall::control()
 	} else {
 		JGeometry::TVec3<f32> v = mVelocity;
 		f32 sq                  = v.x * v.x + v.y * v.y + v.z * v.z;
-		if (sq > 0.0000038146973f || mGroundPlane->mActor != nullptr) {
-			calcCurrentMtx();
-		}
+		if (sq <= 0.0000038146973f && mGroundPlane->mActor == nullptr)
+			return;
+		calcCurrentMtx();
 	}
 }
 
