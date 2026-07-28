@@ -49,7 +49,7 @@ public:
 	/* 0xF8 */ s16 unkF8;
 	/* 0xFC */ s32 unkFC;
 	/* 0x100 */ s16 unk100;
-	/* 0x102 */ s16 unk102;
+	/* 0x102 */ u16 unk102;
 	/* 0x104 */ int unk104;
 	/* 0x108 */ u8 unk108;
 	/* 0x109 */ u8 unk109;
