@@ -912,18 +912,19 @@ void JAIBasic::releaseSeqParameterPointer(JAISeqParameter* param)
 JAISeParameter* JAIBasic::getSeParametermeterPointer()
 {
 	JAISeParameter* var1;
-	JAISeParameter** var2 = &unk0->unk1CC;
-	if (unk0->unk1C8) {
-		var1         = unk0->unk1C8;
-		unk0->unk1C8 = var1->unk440;
-		if (*var2 != nullptr) {
-			var1->unk440    = *var2;
-			(*var2)->unk43C = var1;
+	JAISeParameter** end   = &unk0->unk1C8;
+	JAISeParameter** start = &unk0->unk1CC;
+	if (*end) {
+		var1 = *end;
+		*end = var1->unk440;
+		if (*start != nullptr) {
+			var1->unk440     = *start;
+			(*start)->unk43C = var1;
 		} else {
 			var1->unk440 = nullptr;
 		}
 		var1->unk43C = nullptr;
-		*var2        = var1;
+		*start       = var1;
 		unk0->initSePara(var1);
 	} else {
 		var1 = nullptr;
