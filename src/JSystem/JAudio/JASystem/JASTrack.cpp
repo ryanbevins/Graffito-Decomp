@@ -274,8 +274,11 @@ void TTrack::oscSetupFull(u8 param_1, u32 param_2, u32 param_3)
 	if (var3) {
 		unk30C[var1]      = Player::sEnvelopeDef;
 		unk30C[var1].unk0 = var2;
-		if (var2 == 1)
+		switch (var2) {
+		case 1:
 			unk30C[var1].unk14 = 1.0f;
+			break;
+		}
 	}
 
 	if (var4) {
