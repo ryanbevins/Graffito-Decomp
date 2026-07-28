@@ -428,8 +428,8 @@ void CPolarSubCamera::execFrontRotate_()
 	if (SMS_GetMarioStatus() == 0x8008A9)
 		return;
 
-	*(u16*)((u8*)this + 0x64) &= ~0x10;
-	*(u16*)((u8*)this + 0x64) |= 0x4;
+	unk64 &= ~0x10;
+	unk64 |= 0x4;
 
 	*(s16*)((u8*)this + 0x274) = *gpMarioAngleY + (s16)0x8000;
 
@@ -437,11 +437,11 @@ void CPolarSubCamera::execFrontRotate_()
 	if (m & 0x4000) {
 		s16 v = *(s16*)((u8*)*(void**)((u8*)this + 0x2D4) + 0x11C);
 		*(s16*)((u8*)this + 0x276) = v;
-		*(u16*)((u8*)this + 0x64) |= 0x8;
+		unk64 |= 0x8;
 	} else if (m & 0x8000) {
 		s16 v = *(s16*)((u8*)*(void**)((u8*)this + 0x2D4) + 0x130);
 		*(s16*)((u8*)this + 0x276) = v;
-		*(u16*)((u8*)this + 0x64) &= ~0x8;
+		unk64 &= ~0x8;
 		gpMSound->startSoundSystemSE(0x4826, 0, nullptr, 0);
 	}
 }
