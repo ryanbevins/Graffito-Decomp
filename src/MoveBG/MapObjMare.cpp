@@ -712,6 +712,8 @@ void TMapObjPuncher::control()
 	TMapObjBase::control();
 
 	switch (mState) {
+	case 1:
+		break;
 	case 2: {
 		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
 		soundBas(0x385F, 101.0f, ctrl->getRate());
