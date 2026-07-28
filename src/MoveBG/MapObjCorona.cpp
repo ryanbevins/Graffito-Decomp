@@ -106,7 +106,7 @@ static inline bool canUseKiller(const TBathtub* bathtub)
 		return false;
 
 	TKoopa* koopa = getKoopa();
-	if (!koopa->allowsLaunch())
+	if (!(u8)koopa->allowsLaunch())
 		return false;
 
 	return bathtub->unk248 <= 0;
