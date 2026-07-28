@@ -319,8 +319,6 @@ void TToggleControl::toggle()
 	mScreen->search(*mCurItem)->show();
 }
 
-s32 TToggleControl::getNumber() const { return mCurItem - mItems.begin(); }
-
 void TToggleControl::setNumber(int num)
 {
 	mScreen->search(*mCurItem)->hide();

@@ -131,7 +131,11 @@ public:
 
 	void setupToggle(const u32* tags, int num_tags);
 	void toggle();
-	s32 getNumber() const;
+	s32 getNumber() const
+	{
+		const s32 number = mCurItem - mItems.begin();
+		return number;
+	}
 	void setNumber(int num);
 
 public:
