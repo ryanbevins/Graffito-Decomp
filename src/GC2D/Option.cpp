@@ -558,7 +558,8 @@ void TOptionSoundUnit::initSteleoAnm()
 	TPatternAnmControl** ary = mStereoAnimations;
 
 	ary[0] = new TPatternAnmControl(mScreen);
-	ary[0]->set(cSteMonteAnm, ARRAY_COUNT(cSteMonteAnm));
+	TPatternAnmControl* control = ary[0];
+	control->set(cSteMonteAnm, ARRAY_COUNT(cSteMonteAnm));
 	ary[0]->setupAnm();
 
 	ary[1] = new TPatternAnmControl(mScreen);
