@@ -448,8 +448,8 @@ u8* JAIData::getAutoHeapPointer(u32 param) { return nullptr; }
 
 void JAIData::getInfoPointer(u32 param_1, void** param_2)
 {
-	u32 thing;
 	JAISoundTable* table;
+	u32 thing;
 
 	*param_2 = &JAIConst::nullInfoData2;
 	if (unk1B0 == 0) {
