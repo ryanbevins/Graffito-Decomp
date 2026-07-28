@@ -643,19 +643,20 @@ void TPinnaShell::control()
 
 BOOL TPinnaShell::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message != HIT_MESSAGE_SPRAYED_BY_WATER)
-		return false;
+	BOOL result = false;
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		gpMarioParticleManager->emit(
+		    PARTICLE_MS_ENM_WATHIT, &sender->mPosition, 0, nullptr);
+		gpMSound->startSoundSet(0x6802, (Vec*)&mPosition, 0, 0.0f, 0, 0, 4);
 
-	gpMarioParticleManager->emit(PARTICLE_MS_ENM_WATHIT, &sender->mPosition, 0,
-	                             nullptr);
-	gpMSound->startSoundSet(0x6802, (Vec*)&mPosition, 0, 0.0f, 0, 0, 4);
+		if (unk68 == 0)
+			unk6C -= TShellCup::mWaterOpenAccel;
 
-	if (unk68 == 0)
-		unk6C -= TShellCup::mWaterOpenAccel;
-
-	if (unk6C < -TShellCup::mOpenRotMax)
-		unk68 = 1;
-	return true;
+		if (unk6C < -TShellCup::mOpenRotMax)
+			unk68 = 1;
+		result = true;
+	}
+	return result;
 }
 
 TViking::TViking(const char* name)
