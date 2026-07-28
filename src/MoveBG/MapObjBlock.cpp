@@ -188,7 +188,8 @@ void JGeometry::gekko_ps_copy12(register void* dst, register void* src)
 
 void TLeanBlock::calcDefaultMtx()
 {
-	JGeometry::gekko_ps_copy12(unk164, getModel()->mNodeMatrices);
+	Mtx* matrices = getModel()->mNodeMatrices;
+	JGeometry::gekko_ps_copy12(unk164, matrices);
 }
 
 void TLeanBlock::initMapObj()
