@@ -14,6 +14,7 @@
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorData.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 #include <Map/MapCollisionEntry.hpp>
