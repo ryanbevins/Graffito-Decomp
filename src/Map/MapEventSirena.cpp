@@ -28,9 +28,10 @@ bool TMapEventSirenaSink::watch()
 	if (unk64) {
 		gpPollution->getLayer(0)->onUnk32(0x2);
 		unk28 = 0;
-		gpMarDirector->fireStartDemoCamera("ホテル上げカメラ", &mShinePos, -1,
-		                                   0.0f, true, nullptr, 0, nullptr,
-		                                   JDrama::TFlagT<u16>(0));
+		TMarDirector* director = gpMarDirector;
+		director->fireStartDemoCamera("ホテル上げカメラ", &mShinePos, -1,
+		                              0.0f, true, nullptr, 0, nullptr,
+		                              JDrama::TFlagT<u16>(0));
 		gpItemManager->makeShineAppearWithDemo("シャイン（ホテル上げ用）",
 		                                       "ホテル上げシャインカメラ",
 		                                       mShinePos.x, mShinePos.y,
