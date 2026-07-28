@@ -222,15 +222,18 @@ f32 MSHandle::calcPan(const Vec& vec, f32 param1, f32 param2)
 f32 MSHandle::calcDolby(const Vec& vec, f32 param)
 {
 	f32 angle = (param <= 0.0f) ? 0.0f : MSACos(-vec.z / param);
+	const f32 dol0    = cDol_0Rad;
+	const f32 dolHalf = cDol_HalfRad;
+	const f32 dolFull = cDol_FullRad;
 
 	f32 d;
-	if (angle < cDol_0Rad) {
+	if (angle < dol0) {
 		d = 0.0f;
-	} else if (angle < cDol_HalfRad) {
-		d = 0.5f / (cDol_HalfRad - cDol_0Rad) * (angle - cDol_0Rad);
-	} else if (angle < cDol_FullRad) {
+	} else if (angle < dolHalf) {
+		d = 0.5f / (dolHalf - dol0) * (angle - dol0);
+	} else if (angle < dolFull) {
 		d = 0.5f
-		    + 0.5f / (cDol_FullRad - cDol_HalfRad) * (angle - cDol_HalfRad);
+		    + 0.5f / (dolFull - dolHalf) * (angle - dolHalf);
 	} else {
 		d = 1.0f;
 	}
@@ -239,10 +242,8 @@ f32 MSHandle::calcDolby(const Vec& vec, f32 param)
 		d = 0.5f + param * ((d - 0.5f) / cPan_HiSence_Dist);
 	}
 
-	if (d > 1.0f)
-		d = 1.0f;
-	if (d < 0.0f)
-		d = 0.0f;
+	d = d > 1.0f ? 1.0f : d;
+	d = d < 0.0f ? 0.0f : d;
 	return d;
 }
 
