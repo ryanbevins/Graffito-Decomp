@@ -142,7 +142,8 @@ u32 Vload::loadFile(u32 param1, u8* param2, u32 param3, u32 param4)
 
 	VLArcEntry* hndl = getRealHandle(param1);
 
-	thing = hndl->unk18 + param3;
+	thing = hndl->unk18;
+	thing += param3;
 
 	strcpy(buffer, vlDirName[hi]);
 	strcat(buffer, "/");
@@ -167,7 +168,8 @@ u32 Vload::loadFileAsync(u32 param1, u8* param2, u32 param3, u32 param4,
 
 	VLArcEntry* hndl = getRealHandle(param1);
 
-	thing = hndl->unk18 + param3;
+	thing = hndl->unk18;
+	thing += param3;
 
 	strcpy(buffer, vlDirName[hi]);
 	strcat(buffer, "/");
