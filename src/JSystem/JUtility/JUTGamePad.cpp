@@ -468,7 +468,7 @@ JUTGamePad* JUTGamePad::getGamePad(int port)
 {
 	JSUListIterator<JUTGamePad> pad(mPadList.getFirst());
 
-	for (; pad != mPadList.getEnd(); pad++) {
+	for (; pad != mPadList.getEnd(); ++pad) {
 		if (port == pad->mPortNum) {
 			return pad.getObject();
 		}
