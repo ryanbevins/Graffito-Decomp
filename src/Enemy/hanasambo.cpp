@@ -1227,7 +1227,13 @@ f32 TSamboHead::getGravityY() const
 void TSamboHead::attackToMario()
 {
 	sendAttackMsgToMario();
-	if (checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
+	BOOL airborne;
+	if (checkLiveFlag(LIVE_FLAG_AIRBORNE))
+		airborne = TRUE;
+	else
+		airborne = FALSE;
+
+	if (airborne) {
 		JGeometry::TVec3<f32> velocity(mPosition.x - gpMarioPos->x, 10.0f,
 		                               mPosition.z - gpMarioPos->z);
 		MsVECNormalize(&velocity, &velocity);
