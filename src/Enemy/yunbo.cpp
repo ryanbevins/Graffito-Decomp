@@ -323,7 +323,8 @@ void TYumbo::moveObject()
 void TYumbo::perform(u32 action, JDrama::TGraphics* graphics)
 {
 	TSmallEnemy::perform(action, graphics);
-	for (TYumboSeed** seed = mSeeds; seed != mSeeds + 16; ++seed)
+	TYumboSeed** end = mSeeds + 16;
+	for (TYumboSeed** seed = mSeeds; seed != end; ++seed)
 		(*seed)->perform(action, graphics);
 }
 
