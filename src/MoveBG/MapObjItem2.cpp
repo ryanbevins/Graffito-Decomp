@@ -293,8 +293,8 @@ Mtx* TJumpBase::getRootJointMtx() const
 void TJumpBase::calcRootMatrix()
 {
 	if (mHolder) {
-		TTakeActor* holder = mHolder;
 		J3DModel* model    = getModel();
+		TTakeActor* holder = mHolder;
 		MtxPtr holderMtx   = holder->getTakingMtx();
 		PSMTXCopy(holderMtx, model->unk20);
 		model->unk14 = (Vec&)mScaling;
