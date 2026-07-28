@@ -158,34 +158,36 @@ BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
 		kill();
 		return 1;
 	}
-	if (!isState(1) && !isState(6) && !isState(0xB))
-		return 0;
-	if (!isState(2) && !isState(3) && !isState(0xC) && !isState(0xA)) {
-		TMapObjBall::touchActor(sender);
-		if (!(unkF8 & 0x04000000) && isState(1) && !(mLiveFlag & 0x10)) {
-			if (!isLifeTimerActive()) {
-				unkF8 |= 0x40000;
-				mLifeTimer = getLivingTime();
+	if (isState(1) || isState(6) || isState(0xB)) {
+		if (!isState(2) && !isState(3) && !isState(0xC) && !isState(0xA)) {
+			TMapObjBall::touchActor(sender);
+			if (!(unkF8 & 0x04000000) && isState(1)
+			    && !(mLiveFlag & 0x10)) {
+				if (!isLifeTimerActive()) {
+					unkF8 |= 0x40000;
+					mLifeTimer = getLivingTime();
+				}
+				mLiveFlag &= ~0x10;
+				mState = 0xB;
 			}
-			mLiveFlag &= ~0x10;
+		}
+		BOOL result = 0;
+		if (TMapObjGeneral::receiveMessage(sender, message)) {
+			result = 1;
+		} else if (message == 4 && (unkF8 & 0x100000)) {
+			hold((TTakeActor*)sender);
+			result = 1;
+		} else if (sender->isActorType(0x80000001)
+		           && !isActorType(0x400000D0) && message != 4) {
+			kicked();
+			result = 1;
+		}
+		if (message == 6 && isState(1)) {
 			mState = 0xB;
 		}
+		return result;
 	}
-	BOOL result = 0;
-	if (TMapObjGeneral::receiveMessage(sender, message)) {
-		result = 1;
-	} else if (message == 4 && (unkF8 & 0x100000)) {
-		hold((TTakeActor*)sender);
-		result = 1;
-	} else if (sender->isActorType(0x80000001) && !isActorType(0x400000D0)
-	           && message != 4) {
-		kicked();
-		result = 1;
-	}
-	if (message == 6 && isState(1)) {
-		mState = 0xB;
-	}
-	return result;
+	return 0;
 }
 
 void TResetFruit::touchActor(THitActor* actor)
