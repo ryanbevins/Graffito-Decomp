@@ -820,7 +820,8 @@ void TPakkun::setMActorAndKeeper()
 void TPakkun::behaveToWater(THitActor* actor)
 {
 	mSprayedByWaterCooldown = 0;
-	if (actor->mPosition.y <= mGroundHeight + TPakkunManager::mIgnoreHitWaterY)
+	if (!(actor->mPosition.y
+	      > mGroundHeight + TPakkunManager::mIgnoreHitWaterY))
 		return;
 
 	unk165 = true;
