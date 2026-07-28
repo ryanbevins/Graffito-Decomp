@@ -12,7 +12,7 @@ using namespace JDrama;
 void TLight::load(JSUMemoryInputStream& stream)
 {
 	TPlacement::load(stream);
-	JUtility::TColor color = stream.readU32();
+	const JUtility::TColor& color = JUtility::TColor(stream.readU32());
 	GXInitLightColor(&unk24, color);
 }
 
