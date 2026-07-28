@@ -827,6 +827,7 @@ void TGorogoro::kill()
 	unk194 = 0.0f;
 	if (mSpine->getCurrentNerve() != &TNerveSmallEnemyDie::theNerve()
 	    && mSpine->getCurrentNerve() != &TNerveGorogoroDie::theNerve()) {
+		mSpine->reset();
 		mSpine->setNext(&TNerveGorogoroDie::theNerve());
 		mSpine->pushAfterCurrent(mSpine->getDefault());
 		onLiveFlag(LIVE_FLAG_UNK8);
