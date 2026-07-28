@@ -165,7 +165,9 @@ void TManhole::calc()
 
 void TManhole::appeared()
 {
-	if (unk154 != nullptr && unk154->checkLiveFlag(LIVE_FLAG_DEAD)) {
+	if (unk154 != nullptr) {
+		if (!unk154->checkLiveFlag(LIVE_FLAG_DEAD))
+			return;
 		unk158->remove();
 		unk154 = nullptr;
 	}
