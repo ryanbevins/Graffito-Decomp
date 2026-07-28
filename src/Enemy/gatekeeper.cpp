@@ -815,10 +815,12 @@ BOOL TBiancoGateKeeper::isDamageFogSituation() const
 BOOL TBiancoGateKeeper::isHeadHitActive() const
 {
 	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
+	MActor* actor      = mMActor;
 
-	if (mMActor->checkCurBckFromIndex(0x12)) {
+	if (actor->checkCurBckFromIndex(0x12)) {
+		f32 minFrame = 50.0f;
 		f32 frame = ctrl->getFrame();
-		if (50.0f < frame && frame < 160.0f)
+		if (minFrame < frame && frame < 160.0f)
 			return true;
 		return false;
 	}
