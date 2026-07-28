@@ -424,6 +424,7 @@ void TMario::swimmingBubbleEffect()
 		bubbleFromBody();
 }
 
+#pragma dont_inline on
 void TMario::bubbleFromBody()
 {
 	if (!isMario())
@@ -449,6 +450,7 @@ void TMario::bubbleFromBody()
 		emitter->mChildSpawnRate = childRate;
 	}
 }
+#pragma dont_inline off
 
 void TMario::bubbleFromMouth(int index)
 {
