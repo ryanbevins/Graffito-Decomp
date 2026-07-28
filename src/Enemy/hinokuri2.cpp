@@ -1146,9 +1146,16 @@ DEFINE_NERVE(TNerveHino2JumpIn, TLiveActor)
 		self->changeBck(0x9);
 
 	if (self->getMActor()->curAnmEndsNext()) {
-		const JGeometry::TVec3<f32>& p = self->unk104.getPoint();
-		f32 f                          = self->unk124->unkC;
-		self->mVelocity = self->calcVelocityToJumpToY(p, f, self->getGravityY());
+		TPathNode& node = self->unk104;
+		THitActor* pathActor = node.unk0;
+		const JGeometry::TVec3<f32>* point;
+		if (pathActor)
+			point = &pathActor->mPosition;
+		else
+			point = &node.unk4;
+		f32 f = self->unk124->unkC;
+		self->mVelocity
+		    = self->calcVelocityToJumpToY(*point, f, self->getGravityY());
 		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
 		spine->pushAfterCurrent(&TNerveHino2Fly::theNerve());
 		return true;
