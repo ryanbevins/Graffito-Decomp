@@ -215,7 +215,9 @@ JGeometry::TVec3<f32> TDirectionCalc::calcDirectionVector()
 
 void TDirectionCalc::makeDirection(JGeometry::TVec3<f32> direction)
 {
-	mDirection = atan2f(direction.z, direction.x);
+	f32 z = direction.z;
+	f32 x = direction.x;
+	mDirection = atan2f(x, z);
 }
 
 f32 TDirectionCalc::calcTurnDirection(f32 direction, f32 maxTurn)
