@@ -45,12 +45,13 @@ void TBasicWaveBank::incWaveTable(const TWaveGroup* group)
 		u32 waveID          = group->unk34[i].unk34;
 		TWaveInfo** table   = unk4;
 		TWaveInfo* waveInfo = &group->unk34[i];
+		TWaveInfo** slot    = &table[waveID];
 		waveInfo->mNext     = nullptr;
-		waveInfo->mPrev     = table[waveID];
-		if (table[waveID])
-			table[waveID]->mNext = waveInfo;
+		waveInfo->mPrev     = *slot;
+		if (*slot)
+			(*slot)->mNext = waveInfo;
 
-		table[waveID] = waveInfo;
+		*slot = waveInfo;
 	}
 }
 
