@@ -449,7 +449,7 @@ void CPolarSubCamera::execFrontRotate_()
 void CPolarSubCamera::changeCamModeSpecifyCamMapToolAndFrame_(
     const TCameraMapTool* tool, int frame)
 {
-	int newMode = tool->unk24;
+	int newMode = tool->mCameraMode;
 	if (mMode == newMode && unk70 == tool) {
 		return;
 	}
@@ -460,7 +460,7 @@ void CPolarSubCamera::changeCamModeSpecifyCamMapToolAndFrame_(
 
 void CPolarSubCamera::changeCamModeSpecifyCamMapTool_(const TCameraMapTool* tool)
 {
-	int newMode = tool->unk24;
+	int newMode = tool->mCameraMode;
 	if (mMode == newMode && unk70 == tool) {
 		return;
 	}

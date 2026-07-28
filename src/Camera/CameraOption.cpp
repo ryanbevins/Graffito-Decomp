@@ -82,7 +82,7 @@ TCameraOption::TCameraOption(JGeometry::TVec3<f32> center,
 	if (mapTool != nullptr) {
 		JGeometry::TVec3<f32> tmp;
 		mapTool->calcPosAndAt(&tmp, &unk24);
-		f32 angle = mapTool->unk18.y;
+		f32 angle = mapTool->mPitchYaw.y;
 		s16 ang  = CLBRoundf<s16>(182.04445f * angle);
 		s16 pi  = CLBRoundf<s16>(10922.667f);
 		CLBPolarToCross(tmp, &unk30, 1000.0f, pi, ang);

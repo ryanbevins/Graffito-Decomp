@@ -30,9 +30,9 @@ bool CPolarSubCamera::controlByCameraCode_(int* outCode)
 
 				TCameraMapTool* mapTool = info->getCameraMapTool();
 				if (mapTool) {
-					if (mMode != mapTool->unk24 || mapTool != unk70)
+					if (mMode != mapTool->mCameraMode || mapTool != unk70)
 						changeCamModeSpecifyCamMapTool_(mapTool);
-					*outCode = mapTool->unk24;
+					*outCode = mapTool->mCameraMode;
 				} else {
 					*outCode = gpCubeCamera->getDataNo(i);
 				}
