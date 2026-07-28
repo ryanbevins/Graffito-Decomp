@@ -173,18 +173,17 @@ BOOL TLimitKoopaHand::receiveMessage(THitActor* sender, u32 message) { return TR
 void TLimitKoopaFlame::attack_(THitActor* actor)
 {
 	if (actor->receiveMessage(this, 0xA)) {
-		f32 fireSpeed
-		    = ((TEnemyManager*)mOwner->getManager())->getSaveParam()
-		          ? ((TLimitKoopaParams*)((TEnemyManager*)mOwner->getManager())
-		                 ->getSaveParam())
-		                ->mFireSpeed.get()
-		          : 0.0f;
+		TLimitKoopa* owner = (TLimitKoopa*)mOwner;
+		TLimitKoopaParams* params
+		    = (TLimitKoopaParams*)((TEnemyManager*)owner->getManager())
+		          ->getSaveParam();
+		f32 fireSpeed = params->mFireSpeed.get();
 
-		MActor* mactor = mOwner->getMActor();
+		MActor* mactor = owner->getMActor();
 		if (!mactor->checkCurBckFromIndex(3))
 			mactor->setBckFromIndex(3);
 
-		mOwner->getMActor()->getFrameCtrl(0)->setRate(fireSpeed);
+		owner->getMActor()->getFrameCtrl(0)->setRate(fireSpeed);
 	}
 }
 
