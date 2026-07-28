@@ -22,7 +22,8 @@ public:
 			((J2DPicture*)unk0)->changeTexture(tex0->mTexInfo, 0);
 		} else {
 			((J2DPicture*)unk0)->changeTexture(tex0->mTexInfo, 0);
-			((J2DPicture*)unk0)->changeTexture(tex1->mTexInfo, 1);
+			const ResTIMG* texInfo = tex1->mTexInfo;
+			((J2DPicture*)unk0)->changeTexture(texInfo, 1);
 		}
 		mActive  = true;
 		mStep    = 1.0f / (f32)time;
