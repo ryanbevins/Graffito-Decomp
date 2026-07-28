@@ -163,7 +163,7 @@ MActor* TMActorKeeper::createMActor(const char* model_data_name, u32 flags)
 
 MActor* TMActorKeeper::createMActorFromAllBmd(u32 flags)
 {
-	int num = mModelDataKeeper->getModelDataNum();
+	int num = getModelDataKeeper()->getModelDataNum();
 	for (int i = 0; i < num; ++i)
 		createMActorFromNthData(i, flags);
 }
