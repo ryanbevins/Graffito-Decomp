@@ -1229,10 +1229,10 @@ void TGateKeeperBase::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (unk160 && unk150) {
 		if (flags & 2) {
-			J3DModel* model     = getModel();
-			J3DModel* partModel = unk150->getModel();
-			partModel->setBaseScale(unk164);
-			PSMTXCopy(model->getBaseTRMtx(), partModel->getBaseTRMtx());
+			J3DModel* model = getModel();
+			unk150->getModel()->setBaseScale(unk164);
+			PSMTXCopy(model->getBaseTRMtx(),
+			          unk150->getModel()->getBaseTRMtx());
 			unk150->calcAnm();
 		}
 
