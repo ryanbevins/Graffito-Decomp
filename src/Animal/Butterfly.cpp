@@ -138,16 +138,18 @@ BOOL TButterfly::receiveMessage(THitActor* sender, u32 msg)
 {
 	switch (msg) {
 	case 4:
-		if (mHolder != nullptr)
-			return 0;
-		mHolder = (TTakeActor*)sender;
-		gpMarioParticleManager->emit(0xe7, &mPosition, 0, 0);
-		return 1;
+		if (mHolder == nullptr) {
+			mHolder = (TTakeActor*)sender;
+			gpMarioParticleManager->emit(0xe7, &mPosition, 0, 0);
+			return 1;
+		}
+		break;
 	case 8:
-		if (mHolder == nullptr)
-			return 0;
-		mHolder = nullptr;
-		return 1;
+		if (mHolder != nullptr) {
+			mHolder = nullptr;
+			return 1;
+		}
+		break;
 	case 0xb: {
 		unk74 |= 4;
 		onHitFlag(1);
@@ -168,8 +170,9 @@ BOOL TButterfly::receiveMessage(THitActor* sender, u32 msg)
 		return 1;
 	}
 	default:
-		return 0;
+		break;
 	}
+	return 0;
 }
 
 void TButterfly::init()
