@@ -1061,7 +1061,15 @@ static void evStartSE(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evStartEventSE(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
-	int se = interp->pop().getDataInt();
+	int se;
+	switch (interp->pop().getDataInt()) {
+	case 0:
+		se = 0x4842;
+		break;
+	case 1:
+		se = 0x484f;
+		break;
+	}
 	SMSGetMSound()->startSoundSystemSE(se, 0, nullptr, 0);
 	interp->push(TSpcSlice());
 }
