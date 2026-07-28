@@ -144,7 +144,7 @@ void TBossHanachan::goToInitialRecoverGraphNode()
 
 	int index = unk124->getGraph()->findNearestVisibleIndex(
 	    mPosition, mRotation.y, mParams->mSLRecoverSearchDist.value,
-	    mParams->mSLRecoverSearchDegree.value, 0xffffffff);
+	    mParams->mSLRecoverSearchDegree.get(), 0xffffffff);
 	if (index < 0) {
 		goToShortestNextGraphNode();
 	} else {
