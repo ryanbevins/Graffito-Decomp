@@ -736,7 +736,7 @@ DEFINE_NERVE(TNerveNameKuriJumpAttack, TLiveActor)
 {
 	TNameKuri* self = (TNameKuri*)spine->getBody();
 
-	if (spine->getTime() < 2) {
+	if (spine->getTime() <= 1) {
 		self->setGoalPathMario();
 
 		self->unk1B0 = self->mScaling.y;
