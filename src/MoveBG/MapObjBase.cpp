@@ -165,7 +165,7 @@ void TMapObjBase::soundBas(u32 param_1, f32 param_2, f32 param_3)
 	f32 currFrame = mMActor->getFrameCtrl(0)->getFrame();
 	if (currFrame <= param_2 && param_2 < currFrame + param_3) {
 		if (gpMSound->gateCheck(param_1))
-			MSoundSESystem::MSoundSE::startSoundActor(param_1, getPosition(), 0,
+			MSoundSESystem::MSoundSE::startSoundActor(param_1, &mPosition, 0,
 			                                          nullptr, 0, 4);
 	}
 }
