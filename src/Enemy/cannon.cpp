@@ -381,13 +381,10 @@ DEFINE_NERVE(TNerveCannonForceBombShoot, TLiveActor)
 
 		if (self->unk1A8->unk6C->getMActor()->getFrameCtrl(0)->getFrame() > 26.0f
 		    && self->unk1A4 != nullptr) {
-			f32 scaleDelta = 0.2f * self->unk220;
-			f32 scale      = self->unk1A4->mScaling.x;
-			scale += scaleDelta;
-			if (scale > self->unk220)
-				scale = self->unk220;
-			if (scale < 0.0f)
-				scale = 0.0f;
+			f32 max        = self->unk220;
+			f32 scaleDelta = 0.2f * max;
+			f32 scale = MsClamp<f32>(self->unk1A4->mScaling.x + scaleDelta,
+			                        0.0f, max);
 			self->unk1A4->mScaling.x = scale;
 			self->unk1A4->mScaling.set(self->mScaling.x, self->mScaling.x,
 			                           self->mScaling.x);
