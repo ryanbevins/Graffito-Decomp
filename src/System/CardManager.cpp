@@ -108,7 +108,7 @@ s32 TCardManager::decideUseSector(TCardManager::TCriteria* criteria)
 	if (criteria[1].getState() == TCriteria::STATE_CHECKSUM_BAD)
 		return 0;
 
-	s32 idx;
+	bool idx;
 	if (criteria[0].getWriteCount() >= criteria[1].getWriteCount())
 		idx = 0;
 	else
