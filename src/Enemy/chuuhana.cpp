@@ -314,13 +314,13 @@ f32 TChuuHana::getGravityY() const
 	           == &TNerveChuuHanaKeepBalance::theNerve()
 	    || mSpine->getCurrentNerve()
 	           == &TNerveChuuHanaForceJumped::theNerve())
-		return getChuuHanaParams()->mSLWalkGravity.get();
-	if (mSpine->getCurrentNerve() == &TNerveChuuHanaStick::theNerve())
-		return getChuuHanaParams()->mSLWaterHitGravity.get();
-	if (mSpine->getCurrentNerve() == &TNerveChuuHanaFall2::theNerve()
-	    || mSpine->getCurrentNerve()
-	           == &TNerveChuuHanaJumpPrepare::theNerve())
-		return getChuuHanaParams()->mSLJumpGravity.get();
+		gravity = getChuuHanaParams()->mSLWalkGravity.get();
+	else if (mSpine->getCurrentNerve() == &TNerveChuuHanaStick::theNerve())
+		gravity = getChuuHanaParams()->mSLWaterHitGravity.get();
+	else if (mSpine->getCurrentNerve() == &TNerveChuuHanaFall2::theNerve()
+	         || mSpine->getCurrentNerve()
+	                == &TNerveChuuHanaJumpPrepare::theNerve())
+		gravity = getChuuHanaParams()->mSLJumpGravity.get();
 	return gravity;
 }
 
