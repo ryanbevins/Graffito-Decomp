@@ -568,10 +568,15 @@ void TBossEel::forceShedTears(bool use_back_eye)
 	unk1D0 = !unk1D0;
 
 	int eyeIndex;
-	if (use_back_eye)
-		eyeIndex = unk1D0 ? 3 : 2;
-	else
-		eyeIndex = unk1D0 ? 1 : 0;
+	if (!use_back_eye) {
+		eyeIndex = 0;
+		if (unk1D0)
+			eyeIndex = 1;
+	} else {
+		eyeIndex = 2;
+		if (unk1D0)
+			eyeIndex = 3;
+	}
 
 	TBossEelEye** eyeSlot = &unk15C[eyeIndex];
 	MtxPtr mtx             = (*eyeSlot)->getConnectedMtx();
