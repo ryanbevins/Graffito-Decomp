@@ -583,7 +583,7 @@ void TCasinoPanelGate::initMapObj()
 		unk13C[i] = 0.0f;
 	}
 	TMapObjBase::initMapObj();
-	for (u16 j = 1; (s32)j <= unk148; ++j) {
+	for (u16 j = 1; j <= unk148; ++j) {
 		mMActor->setJointCallback(j, partsRollCallback);
 	}
 }
