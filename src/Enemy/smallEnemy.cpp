@@ -899,7 +899,8 @@ void TSmallEnemy::expandCollision()
 bool TSmallEnemy::isEaten()
 {
 	MtxPtr mtx;
-	if (mHolder && mHolder->getHeldObject() == this && (mtx = getTakingMtx())) {
+	if (mHolder && mHolder->getHeldObject() == this
+	    && (mtx = mHolder->getTakingMtx())) {
 		getModel()->setBaseTRMtx(mtx);
 		mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 
