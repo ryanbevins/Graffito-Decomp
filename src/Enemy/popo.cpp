@@ -693,7 +693,7 @@ f32 TPopo::getGravityY() const
 	    || mSpine->getCurrentNerve() == &TNerveWalkerAttack::theNerve())
 		return mPopoParams->mSLMoveGravity.get();
 
-	if (mSpine->getCurrentNerve() == &TNervePopoPossessedNozzle::theNerve())
+	if (mSpine->getCurrentNerve() == &TNervePopoAttack::theNerve())
 		gravity = mPopoParams->mSLAttackGravity.get();
 	else if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
 		gravity = mPopoParams->mSLFlyGravity.get();
