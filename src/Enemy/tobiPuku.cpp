@@ -668,22 +668,16 @@ const char** TTobiPuku::getBasNameTable() const { return pukupuku_bastable; }
 
 void TTobiPuku::scalingChangeActor()
 {
-	f32 xzScale = mJuiceBlock->unk140.x + 0.02f;
-	if (xzScale > TSmallEnemyManager::mBlockXZScale)
-		xzScale = TSmallEnemyManager::mBlockXZScale;
-	else if (xzScale < 0.0f)
-		xzScale = 0.0f;
+	f32 xzScale = MsClamp(mJuiceBlock->unk140.x + 0.02f, 0.0f,
+	                     TSmallEnemyManager::mBlockXZScale);
 
 	mJuiceBlock->unk140.z  = xzScale;
 	mJuiceBlock->unk140.x  = xzScale;
 	mJuiceBlock->mScaling.z = xzScale;
 	mJuiceBlock->mScaling.x = xzScale;
 
-	f32 yScale = mJuiceBlock->unk140.y + 0.01f;
-	if (yScale > TSmallEnemyManager::mBlockYScale)
-		yScale = TSmallEnemyManager::mBlockYScale;
-	else if (yScale < 0.0f)
-		yScale = 0.0f;
+	f32 yScale = MsClamp(mJuiceBlock->unk140.y + 0.01f, 0.0f,
+	                    TSmallEnemyManager::mBlockYScale);
 
 	mJuiceBlock->unk140.y   = yScale;
 	mJuiceBlock->mScaling.y = yScale;
