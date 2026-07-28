@@ -86,6 +86,7 @@ DEFINE_NERVE(TNerveStayPakkunAppear, TLiveActor)
 	if (spine->getTime() == 0) {
 		self->offLiveFlag(LIVE_FLAG_HIDDEN);
 		self->setBckAnm(7);
+		self->offHitFlag(HIT_FLAG_NO_COLLISION);
 		self->unk1B1 = true;
 		self->mSeed->rebirth();
 	}
