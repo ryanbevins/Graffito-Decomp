@@ -1003,7 +1003,7 @@ static void evSetTransScale(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evSetEventID(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(2, &arg_num);
-	int p1          = interp->pop().getDataInt();
+	u16 p1          = interp->pop().getDataInt();
 	TSpcSlice slice = interp->pop();
 	// TODO: type unconfirmed
 	TMapObjBase* event = get_name_ref<TMapObjBase>(slice);
