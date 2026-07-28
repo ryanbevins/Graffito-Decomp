@@ -298,11 +298,7 @@ DEFINE_NERVE(TNerveNPCTalk, TLiveActor)
 {
 	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
 
-	bool canTalk = true;
-	TMarDirector* director = gpMarDirector;
-	bool inMode12 = director->isTalkModeNow();
-	if (!inMode12 && director->unk124 != 4)
-		canTalk = false;
+	bool canTalk = gpMarDirector->isThing();
 
 	if (canTalk) {
 		if (spine->getTime() == 0)
