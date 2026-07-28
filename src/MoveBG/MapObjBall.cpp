@@ -1704,7 +1704,8 @@ void TBigWatermelon::startEvent()
 		                                   0.0f, true, nullptr, 0, nullptr,
 		                                   flagT);
 		gpItemManager->makeShineAppearWithDemoOffset(
-		    "ジャジャン（おばけスイカ）", "スイカシャインカメラ", 0.0f, 0.0f, 0.0f);
+		    "シャイン（お化けスイカ用）", "スイカシャインカメラ", 0.0f,
+		    0.0f, 0.0f);
 		mLifeTimer = 0x17C;
 		mState = 0xD;
 	} else {
