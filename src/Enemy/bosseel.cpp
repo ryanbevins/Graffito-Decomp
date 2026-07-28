@@ -1734,8 +1734,8 @@ BOOL TBEelTears::receiveMessage(THitActor*, u32 message)
 	if (message == 0xf) {
 		unk164 = 60;
 
-		if (mSpine->getCurrentNerve() != &TNerveBEelTearsMoveUp::theNerve()
-		    && mSpine->getCurrentNerve() != &TNerveOilBallStay::theNerve())
+		if (mSpine->getCurrentNerve() == &TNerveBEelTearsMoveUp::theNerve()
+		    || mSpine->getCurrentNerve() == &TNerveOilBallStay::theNerve())
 			mSpine->pushNerve(&TNerveBEelTearsWaterHit::theNerve());
 
 		if (mSpine->getCurrentNerve() == &TNerveBEelTearsWaterHit::theNerve()) {
