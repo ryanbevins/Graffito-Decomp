@@ -655,7 +655,7 @@ void JAIBasic::startSoundBasic(u32 id, JAISound** sound, JAIActor* actor,
 {
 	switch (id & 0xC0000000) {
 	case 0x80000000:
-		if (unk1C.flag4)
+		if (unk1C.flag4 == 1)
 			return;
 		if (unk38 && (unk38->unk8 & 0x3FF) == (id & 0x3FF))
 			return;
@@ -675,7 +675,7 @@ void JAIBasic::startSoundBasic(u32 id, JAISound** sound, JAIActor* actor,
 	case 0xC0000000:
 		if (unk1C.flag6)
 			return;
-		if (unk1C.flag5)
+		if (unk1C.flag5 == 1)
 			return;
 		unk0->unk204.storeBuffer(sound, actor, id, param, flag, data);
 		break;
