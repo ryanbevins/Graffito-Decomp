@@ -38,8 +38,9 @@ void TAnimalManagerBase::clipEnemies(JDrama::TGraphics* graphics)
 	// TODO: stack frame inflation from inline expansion
 	volatile u8 _pad[8];
 
+	f32 near = mViewClipNear;
 	SetViewFrustumClipCheckPerspective(gpCamera->mFovy, gpCamera->getAspect(),
-	                                   mViewClipNear, *mViewClipFarPtr);
+	                                   near, *mViewClipFarPtr);
 
 	s32 count = mObjNum;
 	for (int i = 0; i < count; ++i) {
