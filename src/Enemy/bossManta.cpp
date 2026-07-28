@@ -370,7 +370,7 @@ BOOL TNerveMantaAppearDemo::execute(TSpineBase<TLiveActor>* spine) const
 		TBossMantaParams* params = (TBossMantaParams*)self->getSaveParam();
 		self->mPosition.z      = params->mSLAppearDemoInitialZ.get();
 		self->mDirection.set(0.0f, 0.0f, -1.0f);
-		self->mAttractor.set(0.0f, 0.0f, -1.0f);
+		self->mAttractor.set(0.0f, 0.0f, -10000.0f);
 		if (self->mMActor->unkC)
 			self->mMActor->unkC->initNormalMotionBlend();
 		self->mMActor->setBckFromIndex(3);
