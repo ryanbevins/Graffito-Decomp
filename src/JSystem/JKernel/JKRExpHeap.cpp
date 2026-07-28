@@ -91,7 +91,7 @@ JKRExpHeap* JKRExpHeap::create(void* ptr, u32 size, JKRHeap* parent,
 void JKRExpHeap::destroy()
 {
 	if (!mIsRoot) {
-		JKRHeap* parent = mChildTree.getParent()->getObject();
+		JKRHeap* parent = getParent();
 		if (parent) {
 			this->~JKRExpHeap();
 			JKRFreeToHeap(parent, this);
