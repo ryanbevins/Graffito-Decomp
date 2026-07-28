@@ -271,11 +271,7 @@ int TFruitsBoat::setBckTrack(const char* name)
 	int byteOff = 0;
 	while (i < table->unk0) {
 		if (strcmp(name, *(char**)((u8*)table->unk8 + byteOff)) == 0) {
-			if (i < table->unk0)
-				mBckAnm = (J3DAnmBase*)(*(
-				    u32*)((u8*)table->unkC + byteOff));
-			else
-				mBckAnm = nullptr;
+			mBckAnm = table->getAnmPtr(i);
 
 			mBckFrameCtrl = new J3DFrameCtrl(0);
 			mBckFrameCtrl->init(((s16*)mBckAnm)[1]);
