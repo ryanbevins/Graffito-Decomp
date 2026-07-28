@@ -457,9 +457,10 @@ void TMario::bubbleFromMouth(int index)
 	if (!isMario())
 		return;
 
+	const JGeometry::TVec3<f32>* pos = &unk160[1];
 	const void* owner = (const void*)((u8*)this + index * 0x4290);
 	JPABaseEmitter* emitter = gpMarioParticleManager->emitParticleCallBack(
-	    0x10C, &unk160[1], 1, &bubbleCallBack, owner);
+	    0x10C, pos, 1, &bubbleCallBack, owner);
 	if (emitter)
 		emitter->setGlobalRTMatrix(mJointMtx0);
 }
