@@ -1846,7 +1846,7 @@ DEFINE_NERVE(TNerveBWJumpAway, TLiveActor)
 	}
 
 	if (self->unk188 != 0) {
-		spine->pushAfterCurrent(&TNerveBWStun::theNerve());
+		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
 		return true;
 	}
 
@@ -1855,7 +1855,7 @@ DEFINE_NERVE(TNerveBWJumpAway, TLiveActor)
 		self->unk124->mPrevIdx = -1;
 		self->unk124->mCurrIdx = -1;
 		self->goToShortestNextGraphNode();
-		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		spine->pushAfterCurrent(&TNerveBWGraphWander::theNerve());
 		return true;
 	}
 
