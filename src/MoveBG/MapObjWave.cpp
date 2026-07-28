@@ -85,7 +85,7 @@ void TMapObjWave::load(JSUMemoryInputStream& stream)
 
 	mWaveSize        = 5200.0f;
 	mGridSize        = 200.0f;
-	mHalfWaveSize    = mWaveSize * 0.5f;
+	mHalfWaveSize    = mWaveSize / 2.0f;
 	mInvHalfWaveSize = 1.0f / mHalfWaveSize;
 	mGridCount       = (int)(mWaveSize / mGridSize);
 
