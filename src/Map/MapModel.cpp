@@ -30,17 +30,17 @@ void TMapModel::perform(u32 param_1, JDrama::TGraphics* param_2)
 		if ((*gpMarioFlag & 2 ? true : false)
 		    && SMS_GetMarioPos().y < SMS_GetMarioGrLevel() + 200.0f) {
 			mUnderpass->awake();
+			Mtx view;
+			Mtx proj;
+			Mtx viewProj;
+			Vec up;
 			Vec pos;
 			gpCamera->JSGGetViewPosition(&pos);
-			Vec up;
 			gpCamera->JSGGetViewUpVector(&up);
-			Mtx proj;
 			C_MTXLightOrtho(proj, unk38 * 1000.0f, unk38 * -1000.0f,
 			                unk38 * -1000.0f, unk38 * 1000.0f, 0.5f, 0.5f, 0.5f,
 			                0.5f);
-			Mtx view;
 			C_MTXLookAt(view, &pos, &up, gpMarioPos);
-			Mtx viewProj;
 			MTXConcat(proj, view, viewProj);
 			fake(mUnderpassMaterial, viewProj);
 		} else {
