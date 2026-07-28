@@ -20,7 +20,9 @@ static inline f32 fastSqrt(f32 x)
 {
 	if (x > 0.0f) {
 		double guess = __frsqrte((double)x);
-		return 0.5 * guess * (3.0 - x * (guess * guess)) * x;
+		volatile f32 result
+		    = 0.5 * guess * (3.0 - x * (guess * guess)) * x;
+		return result;
 	} else {
 		return x;
 	}
