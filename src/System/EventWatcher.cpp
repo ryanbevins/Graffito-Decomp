@@ -933,8 +933,9 @@ static void evStartMareBottleDemo(TSpcTypedInterp<TEventWatcher>* interp,
 	interp->verifyArgNum(0, &arg_num);
 	TLiveActor* obj = JDrama::TNameRefGen::search<TLiveActor>("ＥＸビン");
 	obj->getMActor()->setBck("exbottle_bottle_in");
-	gpMarioOriginal->mPosition = obj->mPosition;
-	gpMarioOriginal->changePlayerStatus(0x1310, 0, true);
+	TMario* mario = gpMarioOriginal;
+	mario->mPosition = obj->mPosition;
+	mario->changePlayerStatus(0x1310, 0, true);
 	interp->push();
 }
 
