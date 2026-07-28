@@ -800,8 +800,8 @@ BOOL THinokuri2::receiveMessageLv1(THitActor* param_1, u32 param_2)
 
 		++unk18C;
 
-		if (mSpine->getCurrentNerve() != &TNerveHino2Freeze::theNerve())
-			mSpine->setNext(&TNerveHino2Freeze::theNerve());
+		if (mSpine->getCurrentNerve() != &TNerveHino2Damage::theNerve())
+			mSpine->setNext(&TNerveHino2Damage::theNerve());
 
 		return true;
 	}
