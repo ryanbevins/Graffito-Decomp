@@ -1821,7 +1821,7 @@ void TDangoHamuKuri::setRunAnm()
 
 void TDangoHamuKuri::calcRootMatrix()
 {
-	getModel()->setBaseScale(mPosition);
+	getModel()->setBaseScale(mScaling);
 	if (mHolder && mHolder->mHeldObject == this) {
 		MtxPtr takingMtx = getTakingMtx();
 		if (takingMtx) {
