@@ -331,7 +331,9 @@ void TKoopa::reset()
 {
 	TSpineEnemy::reset();
 
-	f32 waitSpeed = getSaveParam2()->waitSpeed.get();
+	TKoopaParams* params
+	    = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
+	f32 waitSpeed = params->waitSpeed.get();
 	if (!mMActor->checkCurBckFromIndex(12)) {
 		mMActor->setBckFromIndex(12);
 		const char** bas = getBasNameTable();
