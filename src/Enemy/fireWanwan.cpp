@@ -1524,7 +1524,7 @@ bool TFireWanwan::isRecovering() const
 // Probably wrong?
 bool TFireWanwan::isCameraShake() const
 {
-	return isFreeze() || isDefeat() || unk194->isTaken() || isRecovering()
+	return isFreeze() || isDefeat() || isTailTaken() || isRecovering()
 	       || mSpine->getLatestNerve() == &TNerveFireWanwanEscape::theNerve();
 }
 
