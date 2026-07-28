@@ -323,10 +323,10 @@ void TResetFruit::breaking()
 {
 	Mtx scaleMtx;
 	PSMTXScale(scaleMtx, 1.0f, mBreakingScaleSpeed, 1.0f);
-	Mtx* nm = getModel()->mNodeMatrices;
-	concatOnlyRotFromLeft(scaleMtx, nm[0], nm[0]);
-	mScaling.y  = mScaling.y * mBreakingScaleSpeed;
-	(*nm)[1][3] = mBodyRadius * mScaling.y + mPosition.y;
+	MtxPtr modelMtx = getModel()->getAnmMtx(0);
+	concatOnlyRotFromLeft(scaleMtx, modelMtx, modelMtx);
+	mScaling.y     = mScaling.y * mBreakingScaleSpeed;
+	modelMtx[1][3] = mBodyRadius * mScaling.y + mPosition.y;
 	if (mScaling.y < 0.2f) {
 		mPosition.y += mBodyRadius * 3.0f;
 		mScaling.x  = mInitialScaling.x;
