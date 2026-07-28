@@ -745,13 +745,11 @@ bool TElecNokonoko::isResignationAttack()
 {
 	f32 range = mSaveParams->mSLCarapaceShootRange.get();
 
-	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
-		return false;
-	}
-
-	if (calcDist(unk104.getPoint(), mPosition) < range) {
-		mSpine->pushAfterCurrent(&TNerveElecNokonokoShoot::theNerve());
-		return true;
+	if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		if (calcDist(unk104.getPoint(), mPosition) < range) {
+			mSpine->pushAfterCurrent(&TNerveElecNokonokoShoot::theNerve());
+			return true;
+		}
 	}
 
 	return false;
