@@ -517,7 +517,8 @@ void TBossHanachanPartsBase::entryCircleShadow_()
 	req.unk0.set(mCenterJointMtx[0][3], mCenterJointMtx[1][3],
 	             mCenterJointMtx[2][3]);
 	req.unkC = req.unk10 = mScaledBodyRadius;
-	gpBindShadowManager->forceRequest(req, mActorType);
+	u32 actorType = mActorType;
+	gpBindShadowManager->forceRequest(req, actorType);
 }
 
 void TBossHanachanPartsBase::moveMapCollision_()
