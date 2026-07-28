@@ -4,6 +4,7 @@
 #include <MoveBG/MapObjWave.hpp>
 #include <Camera/CubeManagerBase.hpp>
 #include <Player/ModelWaterManager.hpp>
+#include <Player/Watergun.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
@@ -49,38 +50,14 @@ public:
 	                          JGeometry::TVec3<f32>*) const;
 };
 
-class TWaterGun {
-public:
-	MtxPtr getEmitMtx(int);
-};
-
 extern TMapWireManager* gpMapWireManager;
 
 extern JGeometry::TVec3<f32>* gpMarioPos;
 extern f32* gpMarioSpeedY;
 
-TWaterGun* SMS_GetMarioWaterGun();
 void SMS_MarioMoveRequest(const JGeometry::TVec3<f32>&);
 bool SMS_SendMessageToMario(THitActor*, u32);
 void SMS_ThrowMario(const JGeometry::TVec3<f32>&, f32);
-
-class JAISound;
-class MSound {
-public:
-	bool gateCheck(u32);
-	JAISound* startSoundSet(u32, const Vec*, u32, f32, u32, u32, u8);
-};
-
-extern MSound* gpMSound;
-
-namespace MSoundSESystem {
-class MSoundSE {
-public:
-	static void startSoundActor(u32, const Vec*, u32, JAISound**, u32, u8);
-	static void startSoundActorWithInfo(u32, const Vec*, Vec*, f32, u32, u32,
-	                                    JAISound**, u32, u8);
-};
-} // namespace MSoundSESystem
 
 static JGeometry::TVec3<f32> fall_upper_pos(2827.0f, 8604.0f, 7202.0f);
 
@@ -746,11 +723,11 @@ void TMapObjPuncher::load(JSUMemoryInputStream& stream)
 }
 void TMuddyBoat::moveByWater()
 {
-	TWaterGun* waterGun = SMS_GetMarioWaterGun();
-	if (((u8*)waterGun)[0x1C86] == 0)
+	TWaterGun* waterGun = (TWaterGun*)SMS_GetMarioWaterGun();
+	if ((s32)waterGun->mIsEmitWater == 0)
 		return;
 
-	MtxPtr emitMtx = SMS_GetMarioWaterGun()->getEmitMtx(0);
+	MtxPtr emitMtx = ((TWaterGun*)SMS_GetMarioWaterGun())->getEmitMtx(0);
 	JGeometry::TVec3<f32> dir(-emitMtx[0][0], 0.0f, -emitMtx[2][0]);
 	MsVECNormalize((Vec*)&dir, (Vec*)&dir);
 
