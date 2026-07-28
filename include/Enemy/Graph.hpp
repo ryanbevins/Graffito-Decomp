@@ -191,10 +191,11 @@ public:
 	u32 popCurr() // very wrong
 	{
 		int result = mPrevIdx;
+		int& previous = mPrevIdx;
 		int curr   = mCurrIdx;
-		if (mPrevIdx == -1)
+		if (result == -1)
 			result = curr;
-		mPrevIdx = curr;
+		previous = curr;
 		return result;
 	}
 
