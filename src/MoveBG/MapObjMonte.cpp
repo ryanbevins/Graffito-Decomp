@@ -559,14 +559,14 @@ void TSwingBoard::control()
 			unk188->stop(1);
 
 		if (unk144 > 0.0f) {
-			f32 volume = fabsf(unk13C);
+			f32 volume = __fabsf(unk13C);
 			if (gpMSound->gateCheck(0x3867)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 				    0x3867, (const Vec*)&mPosition, nullptr, volume, 0, 0,
 				    &unk188, 0, 4);
 			}
 		} else {
-			f32 volume = fabsf(unk13C);
+			f32 volume = __fabsf(unk13C);
 			if (gpMSound->gateCheck(0x3868)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 				    0x3868, (const Vec*)&mPosition, nullptr, volume, 0, 0,
