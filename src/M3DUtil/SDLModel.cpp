@@ -23,18 +23,18 @@ void SDLModelData::entrySameMat(J3DMaterial* param_1, SDLDrawBufToken* param_2)
 	j3dSys.mModel   = model;
 	j3dSys.mTexture = unk0->getTexture();
 
-	J3DMatPacket* matPacket = model->mMatPackets + param_1->getIndex();
+	J3DMatPacket* matPacket = model->getMatPacket(param_1->getIndex());
 	matPacket->drawClear();
 
 	J3DShapePacket* shapePacket
-	    = model->mShapePackets + param_1->getShape()->getIndex();
+	    = model->getShapePacket(param_1->getShape()->getIndex());
 	shapePacket->drawClear();
 	matPacket->setShapePacket(shapePacket);
 
 	for (SDLModel* it = model->unkA4; it != nullptr; it = it->unkA4) {
 		if (it->unkA8 & 1) {
 			J3DShapePacket* addPacket
-			    = it->mShapePackets + param_1->getShape()->getIndex();
+			    = it->getShapePacket(param_1->getShape()->getIndex());
 			addPacket->drawClear();
 			matPacket->addShapePacket(addPacket);
 		}
