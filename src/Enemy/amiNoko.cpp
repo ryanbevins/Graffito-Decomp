@@ -198,7 +198,7 @@ DEFINE_NERVE(TNerveAmiNokoTurn, TLiveActor)
 	f32 dot = toGoal.x * self->unk1A8.x + toGoal.y * self->unk1A8.y
 	          + toGoal.z * self->unk1A8.z;
 
-	if (dot > -0.5f) {
+	if (dot > 0.8f) {
 		if (self->checkCurAnmEnd(0)) {
 			if (self->isBckAnm(9) || self->isBckAnm(12)) {
 				if (self->unk210) {
