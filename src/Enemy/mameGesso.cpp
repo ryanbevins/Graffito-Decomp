@@ -296,7 +296,8 @@ void TMameGesso::calcObjCollision()
 {
 	mHeadHeight = 50.0f;
 
-	f32 scale = (mAttackRadius * mBodyScale) * unk194->mSLCollisionScale.get();
+	f32 collisionScale = unk194->mSLCollisionScale.get();
+	f32 scale          = (mAttackRadius * mBodyScale) * collisionScale;
 
 	MtxPtr mtx = mMActor->getModel()->getAnmMtx(1);
 	JGeometry::TVec3<f32> pos;
