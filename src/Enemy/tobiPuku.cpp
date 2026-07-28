@@ -809,7 +809,7 @@ void TTobiPuku::generateEffectColumWater()
 
 bool TTobiPuku::isReachedToGoalXZ()
 {
-	JGeometry::TVec3<f32> toGoal = unk104.getPoint();
+	JGeometry::TVec3<f32> toGoal = getUnk104().getPoint();
 	toGoal.x -= mPosition.x;
 	toGoal.y -= mPosition.y;
 	toGoal.z -= mPosition.z;
