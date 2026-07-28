@@ -193,7 +193,14 @@ TMapObjManager::TMapObjManager(const char* name)
 	unkB8.a = 0xff;
 }
 
-void TMapObjBaseManager::canAppear(const TMapObjBase*, u32) const { }
+inline bool TMapObjBaseManager::canAppear(const TMapObjBase* obj, u32 type) const
+{
+	if (obj->isActorType(type) && !obj->checkMapObjFlag(0x80000)
+	    && obj->checkLiveFlag(LIVE_FLAG_DEAD)
+	    && (!obj->isActorType(0x2000000e) || obj->getMActor() != nullptr))
+		return true;
+	return false;
+}
 
 TMapObjBase* TMapObjBaseManager::makeObjAppear(f32 x, f32 y, f32 z, u32 param_4,
                                                bool param_5)
@@ -211,15 +218,7 @@ TMapObjBase* TMapObjBaseManager::makeObjAppear(f32 x, f32 y, f32 z, u32 param_4,
 
 	for (int i = 0; i < getObjNum(); ++i) {
 		TMapObjBase* obj = (TMapObjBase*)getObj(i);
-		bool bVar1;
-		if (obj->isActorType(param_4) && !obj->checkMapObjFlag(0x80000)
-		    && obj->checkLiveFlag(LIVE_FLAG_DEAD)
-		    && (!obj->isActorType(0x2000000e) || obj->getMActor() != nullptr))
-			bVar1 = true;
-		else
-			bVar1 = false;
-
-		if (bVar1) {
+		if (canAppear(obj, param_4)) {
 			obj->mPosition.set(x, y2, z);
 			obj->appear();
 			return obj;
@@ -233,15 +232,7 @@ TMapObjBase* TMapObjBaseManager::makeObjAppear(u32 param_1)
 {
 	for (int i = 0; i < getObjNum(); ++i) {
 		TMapObjBase* obj = (TMapObjBase*)getObj(i);
-		bool bVar1;
-		if (obj->isActorType(param_1) && !obj->checkMapObjFlag(0x80000)
-		    && obj->checkLiveFlag(LIVE_FLAG_DEAD)
-		    && (!obj->isActorType(0x2000000e) || obj->getMActor() != nullptr))
-			bVar1 = true;
-		else
-			bVar1 = false;
-
-		if (bVar1) {
+		if (canAppear(obj, param_1)) {
 			obj->appear();
 			return obj;
 		}
@@ -254,15 +245,7 @@ TMapObjBase* TMapObjBaseManager::makeObjAppeared(u32 param_1)
 {
 	for (int i = 0; i < getObjNum(); ++i) {
 		TMapObjBase* obj = (TMapObjBase*)getObj(i);
-		bool bVar1;
-		if (obj->isActorType(param_1) && !obj->checkMapObjFlag(0x80000)
-		    && obj->checkLiveFlag(LIVE_FLAG_DEAD)
-		    && (!obj->isActorType(0x2000000e) || obj->getMActor() != nullptr))
-			bVar1 = true;
-		else
-			bVar1 = false;
-
-		if (bVar1) {
+		if (canAppear(obj, param_1)) {
 			obj->makeObjAppeared();
 			return obj;
 		}
