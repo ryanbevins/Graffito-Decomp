@@ -1477,14 +1477,15 @@ void TBossPakkun::changeBck(int index)
 	    || mMActor->curAnmEndsNext(MActor::ANM_TYPE_BCK, nullptr)) {
 		int curBck = mMActor->getCurAnmIdx(MActor::ANM_TYPE_BCK);
 
+		TBossPakkunMtxCalc* mtxCalc = mMtxCalc;
 		MActorAnmDataEach<J3DAnmTransformKey>* data
-		    = mMtxCalc->mOwner->mMActorKeeper->getMActorAnmData()->getUnk2C();
+		    = mtxCalc->mOwner->mMActorKeeper->getMActorAnmData()->getUnk2C();
 		J3DAnmTransform* nextAnm = data->getAnmPtr(index);
 
-		if (mMtxCalc->unk54 != nextAnm) {
-			mMtxCalc->unk58 = mMtxCalc->unk54;
-			mMtxCalc->unk54 = nextAnm;
-			mMtxCalc->unk50 = 1.0f;
+		if (mtxCalc->unk54 != nextAnm) {
+			mtxCalc->unk58 = mtxCalc->unk54;
+			mtxCalc->unk54 = nextAnm;
+			mtxCalc->unk50 = 1.0f;
 		}
 
 		MActorAnmBck* bck = mMActor->unkC;
