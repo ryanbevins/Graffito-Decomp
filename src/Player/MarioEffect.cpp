@@ -99,22 +99,21 @@ void TMarioEffect::setJumpIntoWaterEffect()
 	mtx[1][1] = scale;
 	mtx[2][2] = scale;
 
-	MActor** actor = &unk74[idx];
-	(*actor)->setBck("04_tobikomi");
-	(*actor)->setBpk("04_tobikomi");
-	(*actor)->setBtk("04_tobikomi");
-	(*actor)->setBrk("04_tobikomi");
-	(*actor)->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
-	(*actor)->getFrameCtrl(2)->setRate(SMSGetAnmFrameRate());
-	(*actor)->getFrameCtrl(4)->setRate(SMSGetAnmFrameRate());
-	(*actor)->getFrameCtrl(5)->setRate(SMSGetAnmFrameRate());
-	PSMTXCopy(mtx, (*actor)->getModel()->unk20);
+	unk74[idx]->setBck("04_tobikomi");
+	unk74[idx]->setBpk("04_tobikomi");
+	unk74[idx]->setBtk("04_tobikomi");
+	unk74[idx]->setBrk("04_tobikomi");
+	unk74[idx]->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
+	unk74[idx]->getFrameCtrl(2)->setRate(SMSGetAnmFrameRate());
+	unk74[idx]->getFrameCtrl(4)->setRate(SMSGetAnmFrameRate());
+	unk74[idx]->getFrameCtrl(5)->setRate(SMSGetAnmFrameRate());
+	PSMTXCopy(mtx, unk74[idx]->getModel()->unk20);
 
-	(*actor)->getModel()->mShapePackets[0].show();
-	(*actor)->getModel()->mShapePackets[1].show();
-	(*actor)->getModel()->mShapePackets[2].show();
-	(*actor)->getModel()->mShapePackets[3].show();
-	(*actor)->getModel()->mShapePackets[4].show();
+	unk74[idx]->getModel()->mShapePackets[0].show();
+	unk74[idx]->getModel()->mShapePackets[1].show();
+	unk74[idx]->getModel()->mShapePackets[2].show();
+	unk74[idx]->getModel()->mShapePackets[3].show();
+	unk74[idx]->getModel()->mShapePackets[4].show();
 	unk6C[idx] = 1;
 }
 
