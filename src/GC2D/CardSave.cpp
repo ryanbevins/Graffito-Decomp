@@ -144,7 +144,9 @@ void TCardSave::initData(TMarioGamePad* param_1)
 			snprintf(acStack_48, 0x28, "/game_6/timg/coin_number_%d.bti", i);
 		}
 
-		unk1C[i] = new JUTTexture((ResTIMG*)JKRGetResource(acStack_48));
+		JUTTexture* texture
+		    = new JUTTexture((ResTIMG*)JKRGetResource(acStack_48));
+		unk1C[i] = texture;
 	}
 	unk48 = new TExPane(unk14, 0x775f30);
 	unk4C = unk48->getPane()->getBounds();
