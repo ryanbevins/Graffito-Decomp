@@ -842,8 +842,7 @@ void TTobiPuku::walkBehavior(int walk_state, float speed)
 	s32 time       = mSpine->getTime();
 	s32 phase      = (s32)(2.0f * (f32)time * 182.04445f);
 	f32 oldY       = mPosition.y;
-	u16 idx        = (u16)phase >> jmaSinShift;
-	mPosition.y    = unk1E0 + 10.0f * jmaSinTable[idx];
+	mPosition.y    = unk1E0 + 10.0f * JMASSin(phase);
 	Vec travel     = mLinearVelocity;
 	travel.y       = oldY - mPosition.y;
 	mRotation.x    = MsGetRotFromZaxis((JGeometry::TVec3<f32>&)travel).x;
