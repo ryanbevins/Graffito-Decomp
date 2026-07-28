@@ -647,7 +647,7 @@ BOOL TPinnaShell::receiveMessage(THitActor* sender, u32 message)
 		return false;
 
 	gpMarioParticleManager->emit(PARTICLE_MS_ENM_WATHIT, &sender->mPosition, 0,
-	                             this);
+	                             nullptr);
 	gpMSound->startSoundSet(0x6802, (Vec*)&mPosition, 0, 0.0f, 0, 0, 4);
 
 	if (unk68 == 0)
