@@ -327,7 +327,7 @@ void TResetFruit::breaking()
 	mScaling.y  = mScaling.y * mBreakingScaleSpeed;
 	(*nm)[1][3] = mBodyRadius * mScaling.y + mPosition.y;
 	if (mScaling.y < 0.2f) {
-		mPosition.y = mBodyRadius * 0.5f + mPosition.y;
+		mPosition.y += mBodyRadius * 3.0f;
 		mScaling.x  = mInitialScaling.x;
 		mScaling.y  = mInitialScaling.y;
 		mScaling.z  = mInitialScaling.z;
