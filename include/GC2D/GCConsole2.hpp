@@ -166,8 +166,8 @@ public:
 	/* 0x178 */ TBoundPane* unk178;
 	/* 0x17C */ J2DPane* unk17C[18];
 	/* 0x1C4 */ TBoundPane* unk1C4;
-	/* 0x1C8 */ u16 unk1C8;
-	/* 0x1CA */ u16 unk1CA;
+	/* 0x1C8 */ s16 unk1C8;
+	/* 0x1CA */ s16 unk1CA;
 	/* 0x1CC */ u8 unk1CC[4];
 	/* 0x1D0 */ JUTRect unk1D0[9];
 	/* 0x260 */ TBoundPane* unk260;
