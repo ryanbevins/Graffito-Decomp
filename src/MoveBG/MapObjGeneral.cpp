@@ -458,7 +458,7 @@ void TMapObjGeneral::touchGround(JGeometry::TVec3<f32>* param_1)
 		mVelocity.y *= -mMapObjData->mPhysical->unk4->unk4;
 		if (isCoin(this)) {
 			// TODO: this is an inline 100%
-			f32 a = std::fabsf(JGeometry::TVec3<f32>(mVelocity).y);
+			f32 a = __fabsf(JGeometry::TVec3<f32>(mVelocity).y);
 			if (gpMSound->gateCheck(0x4842)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 				    0x4842, mPosition, nullptr, a, 0, 0, nullptr, 0, 4);
