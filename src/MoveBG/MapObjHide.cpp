@@ -184,7 +184,9 @@ void THideObjPictureTwin::loadAfter()
 		buf[len + 1] = suffix[1];
 		buf[len + 2] = suffix[2];
 		buf[len + 3] = suffix[3];
-		unk174 = (TMapObjBase*)JDrama::TNameRefGen::instance->mRootNameRef->search(buf);
+		unk174 = (TMapObjBase*)JDrama::TNameRefGen::getInstance()
+		             ->getRootNameRef()
+		             ->search(buf);
 		((THideObjPictureTwin*)unk174)->unk174 = (TMapObjBase*)this;
 	}
 }
