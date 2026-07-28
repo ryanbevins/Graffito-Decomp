@@ -710,12 +710,9 @@ BOOL TBee::receiveMessage(THitActor* sender, u32 message)
 	case 4:
 		if (!mHolder) {
 			mHolder = (TTakeActor*)sender;
-			{
-				JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-				SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
-				    (E_SMS_EFFECT_ONETIME_NORMAL)0xe7, &mPosition, nullptr,
-				    scale);
-			}
+			SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
+			    (E_SMS_EFFECT_ONETIME_NORMAL)0xe7, &mPosition, nullptr,
+			    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 			return TRUE;
 		}
 		break;
