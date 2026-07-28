@@ -1823,7 +1823,7 @@ void TDangoHamuKuri::calcRootMatrix()
 {
 	getModel()->setBaseScale(mScaling);
 	if (mHolder && mHolder->mHeldObject == this) {
-		MtxPtr takingMtx = getTakingMtx();
+		MtxPtr takingMtx = mHolder->getTakingMtx();
 		if (takingMtx) {
 			if (unk230) {
 				unk210 += 40.0f;
