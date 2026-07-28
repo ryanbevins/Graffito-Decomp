@@ -127,9 +127,9 @@ DEFINE_NERVE(TNerveWireTrapOnewayMoveEnd, TLiveActor)
 	}
 
 	if (done) {
-		f32 sign = 0.0f > self->mWireDir ? -1.0f : 1.0f;
+		f32 base = 0.0f < self->mWireDir ? 0.0f : 1.0f;
 		self->getWireBinderDirect()->getPoint(&self->mPosition,
-		                                      sign * 0.01f + self->mWireDir);
+		                                      self->mWireDir * 0.01f + base);
 		return TRUE;
 	}
 	return FALSE;
