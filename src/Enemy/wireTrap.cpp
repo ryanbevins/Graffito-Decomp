@@ -405,12 +405,12 @@ void TWireTrap::kill()
 	mSpine->reset();
 	mSpine->setNext(&TNerveWaitForever<TLiveActor>::theNerve());
 
-	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 	SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
-	    (E_SMS_EFFECT_ONETIME_NORMAL)0xe4, &mPosition, nullptr, scale);
-	JGeometry::TVec3<f32> scale2(1.0f, 1.0f, 1.0f);
+	    (E_SMS_EFFECT_ONETIME_NORMAL)0xe4, &mPosition, nullptr,
+	    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 	SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
-	    (E_SMS_EFFECT_ONETIME_NORMAL)0xe6, &mPosition, nullptr, scale2);
+	    (E_SMS_EFFECT_ONETIME_NORMAL)0xe6, &mPosition, nullptr,
+	    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 }
 
 BOOL TWireTrap::receiveMessage(THitActor* sender, u32 message)
