@@ -113,10 +113,10 @@ static inline void addLeanMirrorImpulse(TLeanMirror* mirror, THitActor* actor,
                                         f32 rate)
 {
 	MtxPtr mtx = mirror->getModel()->getAnmMtx(0);
-	f32 divX   = fabsf(mirror->unk138 * mtx[0][0]);
-	f32 divZ   = fabsf(mirror->unk138 * mtx[2][2]);
-	f32 localX = (actor->mPosition.x - mirror->mPosition.x) / divX;
-	f32 localZ = (actor->mPosition.z - mirror->mPosition.z) / divZ;
+	f32 localX = (actor->mPosition.x - mirror->mPosition.x)
+	             / fabsf(mirror->unk138 * mtx[0][0]);
+	f32 localZ = (actor->mPosition.z - mirror->mPosition.z)
+	             / fabsf(mirror->unk138 * mtx[2][2]);
 
 	mirror->unk14C.x += rate * (localX - mtx[0][1]);
 	mirror->unk14C.z += rate * (localZ - mtx[2][1]);
