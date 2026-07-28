@@ -422,8 +422,8 @@ void MSStageDistFade::proc()
 		((MSBgmXFade*)gpMSound->unk9C)->xFadeBgm(fade);
 	}
 
-	u32 duration = unk14;
 	u32 elapsed  = unk4;
+	u32 duration = unk14;
 	Vec pos      = *unk10;
 	Vec cameraPos;
 	PSMTXMultVec(gpMSound->unk8->unk8, &pos, &cameraPos);
