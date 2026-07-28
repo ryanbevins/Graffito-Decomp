@@ -888,7 +888,7 @@ void TMuddyBoat::control()
 	switch (mState) {
 	case 1:
 		unk140 *= unk144;
-		f32 speed = fabsf(unk140);
+		f32 speed = __fabsf(unk140);
 		if (gpMSound->gateCheck(0x3080)) {
 			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 			    0x3080, (const Vec*)&mPosition, nullptr, speed, 0, 0,
