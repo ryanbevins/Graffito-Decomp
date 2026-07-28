@@ -1473,11 +1473,9 @@ void TBossPakkun::kill()
 
 void TBossPakkun::changeBck(int index)
 {
-	MActor* actor = mMActor;
-
-	if (!actor->checkCurBckFromIndex(index)
-	    || actor->curAnmEndsNext(MActor::ANM_TYPE_BCK, nullptr)) {
-		int curBck = actor->getCurAnmIdx(MActor::ANM_TYPE_BCK);
+	if (!mMActor->checkCurBckFromIndex(index)
+	    || mMActor->curAnmEndsNext(MActor::ANM_TYPE_BCK, nullptr)) {
+		int curBck = mMActor->getCurAnmIdx(MActor::ANM_TYPE_BCK);
 
 		MActorAnmDataEach<J3DAnmTransformKey>* data
 		    = mMtxCalc->mOwner->mMActorKeeper->getMActorAnmData()->getUnk2C();
@@ -1489,7 +1487,7 @@ void TBossPakkun::changeBck(int index)
 			mMtxCalc->unk50 = 1.0f;
 		}
 
-		MActorAnmBck* bck = actor->unkC;
+		MActorAnmBck* bck = mMActor->unkC;
 		bck->unk0         = index;
 		if (index >= 0) {
 			bck->unk24 = bck->getData()->getAnmPtr(index);
@@ -1526,7 +1524,7 @@ void TBossPakkun::changeBck(int index)
 		}
 
 		if (blendFrames < 1.0f) {
-			J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::ANM_TYPE_BCK);
+			J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
 			if (ctrl)
 				blendFrames = 0.2f * ctrl->getEnd();
 		}
