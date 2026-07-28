@@ -1039,14 +1039,14 @@ TShiningStone::TShiningStone(const char* name)
 
 void TShiningStone::load(JSUMemoryInputStream& stream)
 {
-	static const char* modelNames[] = {
+	JDrama::TActor::load(stream);
+
+	const char* modelNames[] = {
 		"/scene/mapObj/ShiningStoneGreen.bmd",
 		"/scene/mapObj/ShiningStoneBlue.bmd",
 		"/scene/mapObj/ShiningStoneRed.bmd",
 		"/scene/mapObj/ShiningStoneWhite.bmd",
 	};
-
-	JDrama::TActor::load(stream);
 
 	Mtx mtx;
 	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
