@@ -26,7 +26,7 @@ JDrama::TRect SMSGetRederRect_Game()
 	                     (u16)SMSGetGameRenderHeight());
 }
 
-void SMSSetupGCLogoRenderMode(GXRenderModeObj* rmo)
+inline void SMSSetupGCLogoRenderMode(GXRenderModeObj* rmo)
 {
 	rmo->viTVmode        = (VITVMode)VI_TVMODE(VIGetTvFormat(), VI_INTERLACE);
 	rmo->fbWidth         = SMSGetGCLogoRenderWidth();
