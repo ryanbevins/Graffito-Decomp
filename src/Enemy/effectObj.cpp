@@ -224,7 +224,8 @@ void TEffectObjManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (param_1 & 0x9) {
 		JGadget::TList<TEffectObjBase*>::iterator it = unk14.begin();
-		for (; it != unk14.end(); ++it)
+		JGadget::TList<TEffectObjBase*>::iterator end = unk14.end();
+		for (; it != end; ++it)
 			(*it)->perform(param_1, param_2);
 
 		for (int i = 0; i < COOL_EFFECT_OBJ_NUM; ++i)
