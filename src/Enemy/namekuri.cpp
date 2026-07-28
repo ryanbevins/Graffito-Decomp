@@ -285,20 +285,21 @@ BOOL NameKuriScaleCallback(J3DNode* param_1, int param_2)
 
 		Mtx local_3c;
 
+		local_3c[0][3] = 0.0;
+		local_3c[1][3] = 0.0;
+		local_3c[2][3] = 0.0;
+
 		local_3c[0][0] = 0.4;
 		local_3c[0][1] = 0.0;
 		local_3c[0][2] = 0.0;
-		local_3c[0][3] = 0.0;
 
 		local_3c[1][0] = 0.0;
 		local_3c[1][1] = 4.0;
 		local_3c[1][2] = 0.0;
-		local_3c[1][3] = 0.0;
 
 		local_3c[2][0] = 0.0;
 		local_3c[2][1] = 0.0;
 		local_3c[2][2] = 0.4;
-		local_3c[2][3] = 0.0;
 
 		MTXConcat(mA, local_3c, mA);
 		MTXConcat(J3DSys::mCurrentMtx, local_3c, J3DSys::mCurrentMtx);
