@@ -686,15 +686,16 @@ void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 		calcRootMatrix();
 		collideToMario();
 
-		Mtx jointMtx;
-		PSMTXCopy(mMActor->getModel()->mNodeMatrices[unk1A0[2]], jointMtx);
+		TMtx34f jointMtx;
+		jointMtx.set(mMActor->getModel()->mNodeMatrices[unk1A0[2]]);
 		unk190[2]->moveMtx(jointMtx);
 
 		if (mUseMapCollision) {
+			TMtx34f mapJointMtx;
 			for (int i = 0; i < 2; ++i) {
-				PSMTXCopy(mMActor->getModel()->mNodeMatrices[unk1A0[i]],
-				          jointMtx);
-				unk190[i]->moveMtx(jointMtx);
+				mapJointMtx.set(
+				    mMActor->getModel()->mNodeMatrices[unk1A0[i]]);
+				unk190[i]->moveMtx(mapJointMtx);
 			}
 		}
 
