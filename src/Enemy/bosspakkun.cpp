@@ -1565,9 +1565,7 @@ void TBossPakkun::launchPolDrop()
 	f32 front = params->mSLPollBallFront.value;
 	s16 marioAngle = (s16)(marioRotY * (65536.0f / 360.0f));
 
-	JGeometry::TVec3<f32> targetOffset = polarXZ(marioAngle, front);
-
-	JGeometry::TVec3<f32> targetPos = targetOffset;
+	JGeometry::TVec3<f32> targetPos = polarXZ(marioAngle, front);
 	targetPos.x += gpMarioPos->x;
 	targetPos.y += gpMarioPos->y;
 	targetPos.z += gpMarioPos->z;
