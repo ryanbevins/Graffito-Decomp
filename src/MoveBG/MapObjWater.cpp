@@ -70,6 +70,7 @@ void TMapObjWaterFilter::perform(u32 param_1, JDrama::TGraphics* param_2)
 		return;
 
 	if (param_1 & 2) {
+		MtxPtr viewMtx = param_2->mViewMtx.mMtx;
 		J3DTransformInfo info;
 		info.mScale.x     = 1.0f;
 		info.mScale.y     = 1.0f;
@@ -85,7 +86,7 @@ void TMapObjWaterFilter::perform(u32 param_1, JDrama::TGraphics* param_2)
 		Mtx afStack_a8;
 		PSMTXScale(afStack_a8, mScaling.x, mScaling.y, mScaling.z);
 		Mtx afStack_48;
-		MTXInverse(param_2->mViewMtx, afStack_48);
+		MTXInverse(viewMtx, afStack_48);
 		MTXConcat(afStack_48, afStack_78, afStack_48);
 		MTXConcat(afStack_48, afStack_a8, afStack_48);
 		unk44->getModel()->setBaseTRMtx(afStack_48);
