@@ -155,7 +155,7 @@ public:
 	/* 0x180 */ s32 unk180;
 	/* 0x184 */ s32 unk184;
 	/* 0x188 */ s32 unk188;
-	/* 0x18C */ u8 unk18C;
+	/* 0x18C */ s8 unk18C;
 	/* 0x18D */ u8 unk18D;
 	/* 0x18E */ u8 unk18E[2];
 	/* 0x190 */ s32 unk190;
@@ -164,7 +164,7 @@ public:
 	/* 0x196 */ u8 unk196[2];
 	/* 0x198 */ s32 unk198;
 	/* 0x19C */ s32 unk19C;
-	/* 0x1A0 */ u8 unk1A0;
+	/* 0x1A0 */ s8 unk1A0;
 	/* 0x1A1 */ u8 unk1A1[3];
 	/* 0x1A4 */ JGeometry::TVec3<f32> unk1A4;
 	/* 0x1B0 */ s32 unk1B0;
