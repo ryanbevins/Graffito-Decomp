@@ -192,7 +192,10 @@ void JUTConsole::print(const char* param_0)
 			continue;
 		}
 		*r28       = 0;
-		field_0x38 = nextIndex(field_0x38);
+		int nextLine = field_0x38 + 1;
+		if (nextLine >= mMaxLines)
+			nextLine = 0;
+		field_0x38 = nextLine;
 		field_0x3c = 0;
 		setLineAttr(field_0x38, 0xff);
 		r28          = getLinePtr(field_0x38);
