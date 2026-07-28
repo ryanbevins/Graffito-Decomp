@@ -127,9 +127,9 @@ TGCLogoDir::~TGCLogoDir() { mGamePad->offFlag(0x1); }
 
 int TGCLogoDir::direct()
 {
+	int desiredAppState = TApplication::APP_STATE_DEFAULT;
 	JDrama::TDirector::direct();
 
-	int desiredAppState = TApplication::APP_STATE_DEFAULT;
 	int nextState       = mOverallState;
 	switch (mOverallState) {
 	case 0:
