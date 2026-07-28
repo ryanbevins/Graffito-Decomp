@@ -93,7 +93,7 @@ DEFINE_NERVE(TNerveStayPakkunAppear, TLiveActor)
 
 	f32 frame = self->getCurAnmFrameNo(0);
 	if (frame > 0.0f && frame < 25.0f
-	    && !self->checkLiveFlag(LIVE_FLAG_UNK400)
+	    && !self->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)
 	    && gpPollution->isPolluted(self->mPosition.x, self->mPosition.y,
 	                               self->mPosition.z)) {
 		JPABaseEmitter* emitter = gpMarioParticleManager->emit(
