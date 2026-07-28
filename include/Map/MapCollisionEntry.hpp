@@ -69,7 +69,7 @@ public:
 	}
 	void onFlag(u16 flag) { unk5C |= flag; }
 	void offFlag(u16 flag) { unk5C &= ~flag; }
-	u32 getUnk8() const { return unk8; }
+	s32 getUnk8() const { return unk8; }
 	u32 getUnkC() const { return unkC; }
 
 	JGeometry::TVec3<f32> calcOffset(JGeometry::TVec3<f32> new_trans) const
@@ -80,7 +80,7 @@ public:
 
 public:
 	/* 0x4 */ TBGCheckData* unk4;
-	/* 0x8 */ u32 unk8;
+	/* 0x8 */ s32 unk8;
 	/* 0xC */ u32 unkC;
 	/* 0x10 */ u32 unk10;
 	/* 0x14 */ Vec* unk14;
