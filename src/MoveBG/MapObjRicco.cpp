@@ -400,8 +400,7 @@ BOOL TFruitSwitch::receiveMessage(THitActor* sender, u32 message)
 	if (message == 1) {
 		startBck("riccoswitch");
 		unk64 |= 1;
-		TMapCollisionBase* coll = mMapCollisionManager->unk8;
-		if (coll) {
+		if (TMapCollisionBase* coll = mMapCollisionManager->unk8) {
 			coll->remove();
 		}
 		((TFruitLauncher*)unk138)->fireObj();
