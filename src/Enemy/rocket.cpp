@@ -167,10 +167,11 @@ DEFINE_NERVE(TNerveRocketPossessedNozzle, TLiveActor)
 		firePressed = false;
 	}
 
-	if (firePressed)
+	if (firePressed) {
 		spine->pushAfterCurrent(&TNerveRocketFly::theNerve());
-
-	return firePressed ? TRUE : FALSE;
+		return TRUE;
+	}
+	return FALSE;
 }
 
 const char** TRocket::getBasNameTable() const { return rocket_bastable; }
