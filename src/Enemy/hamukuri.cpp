@@ -1864,7 +1864,8 @@ void TDangoHamuKuri::reset()
 	volatile f32 mn = 0.0f;
 	volatile f32 mx = 1.0f;
 	f32 range       = mx - mn;
-	unk20C          = mn + range * MsRandF();
+	f32 randomOffset = range * MsRandF();
+	unk20C           = mn + randomOffset;
 	mMActor->calc();
 }
 
