@@ -469,7 +469,6 @@ void TLampSeesaw::pushDown(f32) { }
 TLeafBoatRotten::TLeafBoatRotten(const char* name)
     : TLeafBoat(name)
     , unk170(0)
-    , unk174(0.0f)
     , unk178(255)
     , unk17A(255)
     , unk17C(255)
