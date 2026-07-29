@@ -276,8 +276,8 @@ void TMapObjBase::startAnim(u16 param_1)
 	if (anim->unk4 != 0) {
 		unkF8 &= ~0x100;
 		mMActor->setAnimation(anim->unk4, anim->unk8);
-		if (unkF8 & 0x200)
-			unkF8 &= ~0x100;
+		if (checkMapObjFlag(0x200))
+			offMapObjFlag(0x100);
 		if (anim->unk10) {
 			setAnmSound(anim->unk10);
 		}
