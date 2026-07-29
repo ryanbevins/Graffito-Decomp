@@ -850,8 +850,7 @@ f32 TKoopa::getFlameDirDegree() const
 	bool reverse           = unk154;
 	f32 range = ((TKoopaParams*)manager->unk38)->flameNeckRange.get();
 	f32 degree = rate * range;
-	if (reverse)
-		degree = -degree;
+	degree = reverse ? -degree : degree;
 
 	return mRotation.y + degree;
 }
