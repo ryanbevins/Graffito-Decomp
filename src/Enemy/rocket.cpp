@@ -213,9 +213,10 @@ void TRocket::setDeadAnm()
 
 	mLiveFlag |= 0x20000;
 
-	MtxPtr mtx = (MtxPtr)((u8*)mMActor->getModel() + 0x20);
-	gpMarioParticleManager->emitAndBindToMtxPtr(0xc1, mtx, 0, nullptr);
-	gpMarioParticleManager->emitAndBindToMtxPtr(0xc2, mtx, 0, nullptr);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0xc1, (MtxPtr)((u8*)mMActor->getModel() + 0x20), 0, nullptr);
+	gpMarioParticleManager->emitAndBindToMtxPtr(
+	    0xc2, (MtxPtr)((u8*)mMActor->getModel() + 0x20), 0, nullptr);
 }
 
 void TRocket::bind()
