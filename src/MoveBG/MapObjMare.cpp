@@ -338,6 +338,13 @@ void TCogwheel::initMapObj()
 		unk14C = 3800.0f;
 		unk160 = 1000.0f;
 		unk174 = 1800.0f;
+
+		unk164->unk138 = 0.0f;
+		unk164->unk13C = 0.0f;
+		unk164->unk144 = 14.0f;
+		unk150->unk138 = 10.0f;
+		unk150->unk13C = 0.0f;
+		unk150->unk144 = 0.0f;
 	} else {
 		unk140 = 0.008f;
 		unk144 = 0.98f;
@@ -345,14 +352,14 @@ void TCogwheel::initMapObj()
 		unk14C = 3950.0f;
 		unk160 = 1000.0f;
 		unk174 = 1900.0f;
-	}
 
-	unk164->unk138 = 0.0f;
-	unk164->unk13C = 0.0f;
-	unk164->unk144 = 14.0f;
-	unk150->unk138 = 10.0f;
-	unk150->unk13C = 0.0f;
-	unk150->unk144 = 0.0f;
+		unk164->unk138 = 0.0f;
+		unk164->unk13C = 0.0f;
+		unk164->unk144 = 14.0f;
+		unk150->unk138 = 10.0f;
+		unk150->unk13C = 0.0f;
+		unk150->unk144 = 0.0f;
+	}
 
 	unk13C = unk14C * 0.5f;
 }
