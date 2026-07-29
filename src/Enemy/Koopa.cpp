@@ -182,7 +182,9 @@ TKoopaParts::TKoopaParts(const char* name, u32 actorType, TKoopa* owner,
     : THitActor(name)
     , mOwner(owner)
 {
-	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	group->getChildren().push_back(this);
 
 	initHitActor(actorType, 5, 0x88000000, radius, radius, radius, radius);
 	onHitFlag(0x2);
