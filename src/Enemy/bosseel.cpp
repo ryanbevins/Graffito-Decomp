@@ -1683,9 +1683,7 @@ TBossEelTooth::TBossEelTooth(u8 tooth_id, TBossEel* boss,
 	             params->mSLToothDamageHeight.value);
 
 	TIdxGroupObj* group = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
-	JGadget::TList_pointer_void* list
-	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
-	list->insert(list->end(), this);
+	group->getChildren().push_back(this);
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
