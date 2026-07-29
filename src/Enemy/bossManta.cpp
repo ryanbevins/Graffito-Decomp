@@ -431,11 +431,11 @@ BOOL TBossManta::getIntoGraphVec(JGeometry::TVec3<f32>* out)
 	TGraphWeb* graph = unk124->getGraph();
 
 	for (int i = 0; i < 12; ++i) {
-		JGeometry::TVec3<f32> current = graph->indexToPoint(i);
-		f32 dx                       = current.x - mPosition.x;
-		f32 dz                       = current.z - mPosition.z;
-		JGeometry::TVec3<f32> next    = graph->indexToPoint(i + 1);
-		JGeometry::TVec3<f32> current2 = graph->indexToPoint(i);
+		const JGeometry::TVec3<f32>& current = graph->indexToPoint(i);
+		f32 dx                              = current.x - mPosition.x;
+		f32 dz                              = current.z - mPosition.z;
+		const JGeometry::TVec3<f32>& next = graph->indexToPoint(i + 1);
+		const JGeometry::TVec3<f32>& current2 = graph->indexToPoint(i);
 		f32 edgeZ = current2.z - next.z;
 		f32 edgeX = current2.x - next.x;
 		if (dz * edgeX - dx * edgeZ < 0.0f) {
@@ -447,13 +447,13 @@ BOOL TBossManta::getIntoGraphVec(JGeometry::TVec3<f32>* out)
 		}
 	}
 
-	JGeometry::TVec3<f32> current = graph->indexToPoint(12);
-	f32 dx                       = current.x - mPosition.x;
-	f32 dz                       = current.z - mPosition.z;
-	JGeometry::TVec3<f32> next    = graph->indexToPoint(0);
-	JGeometry::TVec3<f32> current2 = graph->indexToPoint(12);
-	f32 edgeZ                    = current2.z - next.z;
-	f32 edgeX                    = current2.x - next.x;
+	const JGeometry::TVec3<f32>& current = graph->indexToPoint(12);
+	f32 dx                              = current.x - mPosition.x;
+	f32 dz                              = current.z - mPosition.z;
+	const JGeometry::TVec3<f32>& next = graph->indexToPoint(0);
+	const JGeometry::TVec3<f32>& current2 = graph->indexToPoint(12);
+	f32 edgeZ                           = current2.z - next.z;
+	f32 edgeX                           = current2.x - next.x;
 	if (dz * edgeX - dx * edgeZ < 0.0f) {
 		JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 		JGeometry::TVec3<f32> edge(edgeX, 0.0f, edgeZ);
