@@ -255,11 +255,11 @@ void TSmallEnemy::reset()
 	TSpineEnemy::reset();
 	unk158 = 1.0f;
 
-	TSmallEnemyParams* params1 = getSaveParam2();
-	mTurnSpeed                 = params1->mTurnSpeedRange.rand();
+	TMsRange<f32>& turnRange = getSaveParam2()->mTurnSpeedRange;
+	mTurnSpeed                = turnRange.rand();
 
-	TSmallEnemyParams* params2 = getSaveParam2();
-	mBodyScale                 = params2->mBodyScaleRange.rand();
+	TMsRange<f32>& bodyRange = getSaveParam2()->mBodyScaleRange;
+	mBodyScale                = bodyRange.rand();
 
 	unk190 = unk154 = mBodyScale;
 
