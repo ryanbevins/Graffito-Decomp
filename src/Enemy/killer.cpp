@@ -164,7 +164,6 @@ TKillerParams::TKillerParams(const char* path)
 // TFlyEnemy
 // ---------------------------------------------------------------------------
 
-#pragma dont_inline on
 TFlyEnemy::TFlyEnemy(const char* name)
     : TWalkerEnemy(name)
 {
@@ -174,7 +173,6 @@ TFlyEnemy::TFlyEnemy(const char* name)
 	mIsChaseMode  = 1;
 	mColorVariant = 0;
 }
-#pragma dont_inline off
 
 void TFlyEnemy::init(TLiveManager* manager)
 {
