@@ -189,8 +189,10 @@ void TLimitKoopaFlame::attack_(THitActor* actor)
 
 BOOL TLimitKoopaFlame::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == 0xF)
+	switch ((s32)message) {
+	case 0xF:
 		return FALSE;
+	}
 
 	return TRUE;
 }
