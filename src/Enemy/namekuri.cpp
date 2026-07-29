@@ -620,7 +620,8 @@ void TNameKuri::reset()
 	volatile f32 mn = 0.0f;
 	volatile f32 mx = 360.0f;
 	f32 range       = mx - mn;
-	unk1B4          = mn + range * MsRandF();
+	f32 randomOffset = range * MsRandF();
+	unk1B4           = mn + randomOffset;
 	unk194 = 0;
 	unk198 = 0;
 	setVelocity(JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f));
