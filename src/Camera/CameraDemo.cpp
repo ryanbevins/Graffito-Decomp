@@ -235,9 +235,10 @@ void CPolarSubCamera::ctrlNormalDeadDemo_()
 	mInbetween->execCameraInbetween(mPosition, mCurrentTarget.mTarget,
 	                                SMS_GetMarioPos());
 
-	CLBChaseDecrease(&mTarget.x, mInbetween->mTargetAt.x, 0.03f, 0.0f);
-	CLBChaseDecrease(&mTarget.y, mInbetween->mTargetAt.y, 0.03f, 0.0f);
-	CLBChaseDecrease(&mTarget.z, mInbetween->mTargetAt.z, 0.03f, 0.0f);
+	Vec* targetAt = &mInbetween->mTargetAt;
+	CLBChaseDecrease(&mTarget.x, targetAt->x, 0.03f, 0.0f);
+	CLBChaseDecrease(&mTarget.y, targetAt->y, 0.03f, 0.0f);
+	CLBChaseDecrease(&mTarget.z, targetAt->z, 0.03f, 0.0f);
 
 	if (gpMarioOriginal->checkFlag(MARIO_FLAG_HELMET_FLW_CAMERA))
 		return;
