@@ -586,7 +586,7 @@ void TKoopaJr::calcRootMatrix()
 	if (unk15C->getUnk29A()) {
 		MtxPtr mtx       = unk15C->getKoopaJrMtxInDemo();
 		J3DModel* model2 = getModel();
-		PSMTXCopy(mtx, model2->getBaseTRMtx());
+		PSMTXCopy(mtx, model2->unk20);
 	} else {
 		unk164->getJointTransByIndex(TKoopaJr_jointIndexTable[0], &mPosition);
 		MsMtxSetXYZRPH(model->getBaseTRMtx(), mPosition.x, mPosition.y,
