@@ -234,15 +234,15 @@ void TFenceWaterH::control()
 		phase += 360.0f;
 	mRotation.z = phase;
 
-	Mtx yRot;
-	Mtx zRot;
-	setRotRPH(yRot, 0.0f, mRotation.y, 0.0f);
-	setRotRPH(zRot, 0.0f, 0.0f, mRotation.z);
-	PSMTXConcat(yRot, zRot, yRot);
-	yRot[0][3] = mPosition.x;
-	yRot[1][3] = mPosition.y;
-	yRot[2][3] = mPosition.z;
-	PSMTXCopy(yRot, getModel()->mNodeMatrices[0]);
+	TPosition3f yRot;
+	yRot.identity();
+	yRot.setEular(0.0f, mRotation.y * 0.017453294f, 0.0f);
+	TPosition3f zRot;
+	zRot.identity();
+	zRot.setEular(0.0f, 0.0f, mRotation.z * 0.017453294f);
+	PSMTXConcat(yRot.mMtx, zRot.mMtx, yRot.mMtx);
+	yRot.setTrans(mPosition);
+	PSMTXCopy(yRot.mMtx, getModel()->mNodeMatrices[0]);
 
 	unk144->mPosition.x = mPosition.x;
 	unk144->mPosition.y = mPosition.y - 150.0f;
