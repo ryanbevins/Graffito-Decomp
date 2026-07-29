@@ -1053,13 +1053,14 @@ void TBiancoGateKeeper::init(TLiveManager* manager)
 	for (int i = 0; i < 2; ++i)
 		unk15C->setNthData(i, btkData->getAnmPtr(i));
 
-	unk28C = new TBGKObstacle(obstacleName);
-	unk28C->mPosition = mPosition;
-	unk28C->mPosition.y -= 1000.0f;
-	unk28C->initHitActor(0x10000022, 1, 0x80000000, 800.0f, 800.0f,
-	                      800.0f, 800.0f);
-	unk28C->offHitFlag(HIT_FLAG_NO_COLLISION);
-	JDrama::TNameRefGen::search<TIdxGroupObj>(enemyGroupName)->add(unk28C);
+	TBGKObstacle* obstacle = new TBGKObstacle(obstacleName);
+	obstacle->mPosition = mPosition;
+	obstacle->mPosition.y -= 1000.0f;
+	obstacle->initHitActor(0x10000022, 1, 0x80000000, 800.0f, 800.0f,
+	                       800.0f, 800.0f);
+	obstacle->offHitFlag(HIT_FLAG_NO_COLLISION);
+	JDrama::TNameRefGen::search<TIdxGroupObj>(enemyGroupName)->add(obstacle);
+	unk28C = obstacle;
 
 	ResTIMG* tex = (ResTIMG*)JKRFileLoader::getGlbResource(
 	    "/scene/map/pollution/H_ma_rak.bti");
