@@ -2202,7 +2202,7 @@ bool TGCConsole2::startAppearLife(int param_1)
 
 	unk34[4] = 1;
 	unk84    = 0;
-	unk1C4->getPane()->resize(unk1C8, unk1CA);
+	unk1C4->getPane()->add(unk1C8, unk1CA);
 	return true;
 }
 
