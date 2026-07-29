@@ -311,8 +311,8 @@ static void evFireStartDemoCamera(TSpcTypedInterp<TEventWatcher>* interp,
 static void evIsDemoMode(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(0, &arg_num);
-	BOOL pushVal = FALSE;
 	bool isDemo  = true;
+	BOOL pushVal = FALSE;
 	if (gpMarDirector->unk124 != 3 && gpMarDirector->unk124 != 4)
 		isDemo = false;
 	if (isDemo)
