@@ -185,11 +185,12 @@ f32 MSHandle::calcPan(const Vec& vec, f32 param1, f32 param2)
 	f32 x = cPan_CAdjust + 2.0f * maxAmp * angle / 3.14159265f - maxAmp
 	    - cPan_CAdjust;
 
+	const f32 shift = cPan_CShift;
 	f32 amp;
 	if (x < 0.0f) {
-		amp = -maxAmp * powf(-x / maxAmp, cPan_CShift);
+		amp = -maxAmp * powf(-x / maxAmp, shift);
 	} else {
-		amp = maxAmp * powf(x / maxAmp, cPan_CShift);
+		amp = maxAmp * powf(x / maxAmp, shift);
 	}
 
 	if (param1 < cPan_HiSence_Dist) {
