@@ -1,3 +1,4 @@
+#define JG_TUTIL_SQRT_OUT_OF_LINE
 #include <MoveBG/MapObjMonte.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <Map/Map.hpp>
