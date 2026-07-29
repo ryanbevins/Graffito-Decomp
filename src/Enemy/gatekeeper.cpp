@@ -1030,7 +1030,9 @@ void TBiancoGateKeeper::init(TLiveManager* manager)
 
 	initHitActor(0x10000022, 5, 0x81000000, 400.0f, 150.0f, 400.0f,
 	             150.0f);
-	JDrama::TNameRefGen::search<TIdxGroupObj>(enemyGroupName)->add(this);
+	TIdxGroupObj* enemyGroup
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>(enemyGroupName);
+	enemyGroup->getChildren().push_back(this);
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	mSpine->initWith(&TNerveBGKSleep::theNerve());
