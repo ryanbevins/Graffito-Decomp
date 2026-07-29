@@ -1807,9 +1807,9 @@ BOOL TEnemyMario::tryTake()
 	for (int i = 0; i < owner->mColCount; ++i) {
 		THitActor* actor = owner->mCollisions[i];
 		u32 type         = actor->mActorType;
-		if (type == 0x40000018 || type == 0x2000002A
+		if (type == 0x04000018 || type == 0x2000002A
 		    || type == 0x20000022 || type == 0x20000009) {
-			if (type == 0x40000018) {
+			if (type == 0x04000018) {
 				*(u32*)((u8*)actor + 0xF0) |= 0x100000;
 				emFlags(this) |= 0x20;
 			}
