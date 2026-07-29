@@ -1749,10 +1749,12 @@ void TCardSave::execMovement_()
 		} else if (bm.unk18 == 0) {
 			unk310 = PROGRESS_UNK16;
 			saveBookmark(unk2EA);
-		} else if (bm.unk8 != TFlagManager::getInstance()->getLastSaveTime()) {
-			unk310 = PROGRESS_UNK2C;
-		} else {
+		} else if (bm.unk18 == 0
+		           || bm.unk8
+		                  == TFlagManager::getInstance()->getLastSaveTime()) {
 			unk310 = PROGRESS_UNK16;
+		} else {
+			unk310 = PROGRESS_UNK2C;
 		}
 		break;
 	}
