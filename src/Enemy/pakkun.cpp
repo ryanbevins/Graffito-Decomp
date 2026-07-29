@@ -472,7 +472,7 @@ bool TStayPakkun::isHitValid(u32 flag)
 	if (mSpine->getCurrentNerve() == &TNerveStayPakkunHide::theNerve())
 		return false;
 
-	mSpine->pushNerve(&TNerveStayPakkunHide::theNerve());
+	mSpine->setNext(&TNerveStayPakkunHide::theNerve());
 	unk1BC = true;
 	gpPollution->clean(mPosition.x, mGroundHeight, mPosition.z,
 	                   32.0f * getSaveParam2()->mSLPolluteRange.get());
