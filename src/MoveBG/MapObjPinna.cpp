@@ -108,13 +108,16 @@ void TPinnaCoaster::control()
 {
 	TMapObjBase::control();
 
-	if (unk138 != nullptr) {
-		unk138->frameUpdate();
-		unk138->calc();
-		if (getModel() != nullptr)
-			MTXCopy(getModel()->getBaseTRMtx(),
-			        unk138->getModel()->getBaseTRMtx());
-	}
+	unk138->frameUpdate();
+	unk138->calc();
+	MtxPtr railMtx = unk138->getModel()->mNodeMatrices[0];
+	MTXCopy(railMtx, getModel()->getBaseTRMtx());
+
+	mMActor->frameUpdate();
+	mMActor->calc();
+	mPosition.x = getModel()->mNodeMatrices[0][0][3];
+	mPosition.y = getModel()->mNodeMatrices[0][1][3];
+	mPosition.z = getModel()->mNodeMatrices[0][2][3];
 
 	JGeometry::TVec3<f32> delta = mPosition;
 	delta.sub(unk140);
