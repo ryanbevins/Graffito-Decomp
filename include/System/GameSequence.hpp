@@ -6,7 +6,15 @@
 
 class TGameSequence {
 public:
-	TGameSequence() { set(0, 0, 0); }
+	TGameSequence()
+	{
+#ifdef JDRAMA_TFLAG_COPY_CTOR_DECL_ONLY
+		JDrama::TFlagT<u16> flag(0);
+		set(0, 0, flag);
+#else
+		set(0, 0, 0);
+#endif
+	}
 
 	TGameSequence& operator=(const TGameSequence& other)
 	{

@@ -24,7 +24,14 @@ public:
 		return *this;
 	}
 
-	void set(T v) { mValue = v; }
+	void set(T v)
+#ifdef JDRAMA_TFLAG_SET_DECL_ONLY
+	    ;
+#else
+	{
+		mValue = v;
+	}
+#endif
 	T get() const { return mValue; }
 
 	void setBit(T bit, bool on)
@@ -48,6 +55,12 @@ public:
 #pragma dont_inline on
 template <class T> TFlagT<T>::TFlagT(T v) { set(v); }
 #pragma dont_inline off
+#elif defined(JDRAMA_TFLAG_SET_DECL_ONLY)
+template <class T>
+inline TFlagT<T>::TFlagT(T v)
+    : mValue(v)
+{
+}
 #else
 template <class T> inline TFlagT<T>::TFlagT(T v) { set(v); }
 #endif
