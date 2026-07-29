@@ -1599,7 +1599,7 @@ DEFINE_NERVE(TNerveBWJump, TLiveActor)
 	}
 
 	if (self->isReachedToGoal()) {
-		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		spine->pushAfterCurrent(&TNerveBWGraphWander::theNerve());
 		return true;
 	}
 
