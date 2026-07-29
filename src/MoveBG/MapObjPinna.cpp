@@ -1,3 +1,4 @@
+#define JG_TUTIL_SQRT_OUT_OF_LINE
 #include <MoveBG/MapObjPinna.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EffectObj.hpp>
