@@ -481,10 +481,13 @@ void TFruitsBoat::requestShadow()
 		req.unk1C = 3;
 		req.unk14 = (s16)(s32)mRotation.y;
 
-		if (mLiveFlag & 0x400)
-			gpBindShadowManager->forceRequest(req, mActorType);
-		else
-			gpBindShadowManager->request(req, mActorType);
+		if (mLiveFlag & 0x400) {
+			u32 actorType = mActorType;
+			gpBindShadowManager->forceRequest(req, actorType);
+		} else {
+			u32 actorType = mActorType;
+			gpBindShadowManager->request(req, actorType);
+		}
 	}
 
 	if (mLiveFlag & 0x204)
