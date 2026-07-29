@@ -1447,15 +1447,15 @@ void TBossPakkun::setGroundCollision()
 	if (mSpine->getLatestNerve() == &dieNerve)
 		return;
 
-	if (mMapCollisionManager == nullptr)
+	if (getMapCollisionManager() == nullptr)
 		return;
 
 	J3DModel* model = getModel();
 	TMtx34f mtx;
 	mtx.set(model->mNodeMatrices[2]);
 
-	if (mMapCollisionManager->unk8 != nullptr) {
-		mMapCollisionManager->unk8->moveMtx(mtx);
+	if (getMapCollisionManager()->unk8 != nullptr) {
+		getMapCollisionManager()->unk8->moveMtx(mtx);
 	}
 }
 
