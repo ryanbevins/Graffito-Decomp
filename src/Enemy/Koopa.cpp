@@ -855,7 +855,6 @@ f32 TKoopa::getFlameDirDegree() const
 	return mRotation.y + degree;
 }
 
-#pragma dont_inline on
 void TKoopa::changeAnm(int bck, int btp, f32 rate)
 {
 	if (!mMActor->checkCurBckFromIndex(bck)) {
@@ -873,7 +872,6 @@ void TKoopa::changeAnm(int bck, int btp, f32 rate)
 	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
 	ctrl->setRate(rate * SMSGetAnmFrameRate() * 0.5f);
 }
-#pragma dont_inline off
 
 void TKoopa::setUpHitActors()
 {
