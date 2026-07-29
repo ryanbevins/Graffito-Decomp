@@ -979,18 +979,12 @@ void TBossTelesa::generateSlotItem()
 			dir.y = 2.0f;
 
 			Vec velocity;
-			f32 minSpeed = 0.5f;
-			f32 maxSpeed = 1.0f;
+			TMsRange<f32> enemySpeedRange(0.5f, 1.0f);
 			f32 speed    = params->mSL1stBubbleSp.get();
-			f32 range    = maxSpeed - minSpeed;
-			velocity.x = dir.x * speed
-			    * (minSpeed + range * (rand() * 0.000030517578f));
+			velocity.x = dir.x * speed * enemySpeedRange.rand();
 			velocity.y = dir.y
-			    * (2.0f
-			       + minSpeed
-			       + range * (rand() * 0.000030517578f));
-			velocity.z = dir.z * speed
-			    * (minSpeed + range * (rand() * 0.000030517578f));
+			    * (2.0f + enemySpeedRange.rand());
+			velocity.z = dir.z * speed * enemySpeedRange.rand();
 
 			enemy->mPosition.x = rootMtx[0][3];
 			enemy->mPosition.y = rootMtx[1][3] - 250.0f;
