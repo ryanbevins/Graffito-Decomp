@@ -885,15 +885,17 @@ void TBossWanwan::shakeCamera(int mode)
 		return;
 
 	f32 marioDist = JGeometry::TUtil<f32>::sqrt(mDistToMarioSquared);
-	TBWParams* params = (TBWParams*)getSaveParam();
-	f32 lengthMax     = params->mSLShakeLengthMax.get();
-	f32 lengthMaxHP0  = params->mSLShakeLengthMaxHP0.get();
+	f32 lengthMax
+	    = ((TBWParams*)getSaveParam())->mSLShakeLengthMax.get();
+	f32 lengthMaxHP0
+	    = ((TBWParams*)getSaveParam())->mSLShakeLengthMaxHP0.get();
 	f32 ratio;
 
 	if (mMActor->checkCurBckFromIndex(0)) {
 		ratio = 1.0f;
 	} else {
-		ratio = (f32)mHitPoints / (f32)params->mSLBWHitPointMax.get();
+		ratio = (f32)mHitPoints
+		        / (f32)((TBWParams*)getSaveParam())->mSLBWHitPointMax.get();
 	}
 
 	f32 length = lengthMax * ratio + lengthMaxHP0 * (1.0f - ratio);
