@@ -845,7 +845,9 @@ f32 TKoopa::getFlameDirRate() const
 
 f32 TKoopa::getFlameDirDegree() const
 {
-	f32 degree = getFlameDirRate() * getSaveParam2()->flameNeckRange.get();
+	f32 rate   = getFlameDirRate();
+	f32 range  = getSaveParam2()->flameNeckRange.get();
+	f32 degree = rate * range;
 	if (unk154)
 		degree = -degree;
 
