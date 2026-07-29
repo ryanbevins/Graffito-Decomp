@@ -797,8 +797,8 @@ void TCannon::bombShoot()
 	MsVECNormalize(&velocity, &velocity);
 
 	Mtx rot;
-	f32 angle = -30.0f
-	            + (30.0f - -30.0f) * ((f32)rand() * (1.0f / 32768.0f));
+	TMsRange<f32> angleRange(-30.0f, 30.0f);
+	f32 angle = angleRange.rand();
 	MsMtxSetRotRPH(rot, 0.0f, mRotation.y + angle, 0.0f);
 
 	f32 speed = unk28C->mSLThrowXZSpeed.get();
