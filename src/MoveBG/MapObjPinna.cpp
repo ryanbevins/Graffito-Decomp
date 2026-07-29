@@ -94,7 +94,7 @@ void TPinnaCoaster::initMapObj()
 	TMapObjBase::initMapObj();
 
 	unk138 = SMS_MakeMActorWithAnmData(
-	    "/scene/mapObj/CoasterRail.bmd", gpMapObjManager->getUnk40(), 3,
+	    "/scene/mapObj/CoasterRail.bmd", mManager->getMActorAnmData(), 3,
 	    0x10210000);
 	unk138->setBck("coasterrail");
 	unk138->setFrameRate(SMSGetAnmFrameRate() * 0.25f, 0);
