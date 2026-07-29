@@ -343,8 +343,7 @@ void TKiller::reset()
 	mCurGravityY   = mFlyParams->mSLNormalFlyGravityY.get();
 	mIsChaseMode   = 0;
 
-	volatile f32 mn = 0.0f;
-	volatile f32 mx = 1.0f;
+	TMsRange<f32> colorRollRange(0.0f, 1.0f);
 
 	mColor3.b     = 0;
 	mColor3.g     = 0;
@@ -354,8 +353,7 @@ void TKiller::reset()
 	mColor2.r     = 0;
 	mColorVariant = 0;
 
-	f32 range       = mx - mn;
-	if (mn + range * MsRandF() < 0.05f) {
+	if (colorRollRange.rand() < 0.05f) {
 		mColorVariant = 1;
 		mColor2.r     = 200;
 		mColor2.g     = 185;
