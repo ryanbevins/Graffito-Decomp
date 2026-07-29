@@ -73,23 +73,21 @@ bool CPolarSubCamera::isTalkCameraInbetween() const
 			found = true;
 		}
 
-		if (found) {
-			result = true;
-		} else {
+		if (!found) {
 			int prevMode = *(int*)((u8*)this + 0x54);
-			bool prevFound = false;
+			found = false;
 			switch (prevMode) {
 			case 0x0A:
 			case 0x0C:
 			case 0x2D:
 			case 0x3F:
 			case 0x40:
-				prevFound = true;
+				found = true;
 			}
 
-			if (prevFound)
-				result = true;
 		}
+		if (found)
+			result = true;
 	}
 	return result;
 }
