@@ -1085,11 +1085,9 @@ void TItemSlotDrum::moveObject()
 		++unk1A4;
 		if (unk1A4 > 160) {
 			unk1A4 = 0;
-			s32 lo = 0;
-			s32 hi = 2;
-			s32 r = lo
-			    + (s32)((f32)rand() * (1.0f / 32768.0f) * (f32)(hi - lo));
-			*((u8*)this + 0x19C + lo + r) = 1;
+			TMsRange<s32> indexRange(0, 2);
+			s32 r = indexRange.rand();
+			*((u8*)this + 0x19C + r) = 1;
 
 			f32 lo2 = 0.0f;
 			f32 hi2 = 100.0f;
