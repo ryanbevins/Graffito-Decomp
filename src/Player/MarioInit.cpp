@@ -609,10 +609,7 @@ void TMario::initValues()
 	mWaterGun->setAmountToRate((f32)*(u32*)&unk280[0x18] / 100.0f);
 
 	// Allocate and init TYoshi
-	TYoshi* yoshi = (TYoshi*)operator new(0x124);
-	if (yoshi) {
-		J3DFrameCtrl* frameCtrl = new ((void*)((u8*)yoshi + 0x5C)) J3DFrameCtrl(0);
-	}
+	TYoshi* yoshi = new TYoshi;
 	mYoshi = yoshi;
 	mYoshi->init(this);
 

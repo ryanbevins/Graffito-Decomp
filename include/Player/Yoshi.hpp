@@ -63,7 +63,8 @@ public:
 	u16 mJointCenter;                   // 0x0042
 	J3DModel* mHandL;                   // 0x0044
 	J3DModel* mHandR;                   // 0x0048
-	u32 _04[0x24 / 4];                  // 0x004C
+	u32 _04[0x10 / 4];                  // 0x004C
+	J3DFrameCtrl mFrameCtrl;            // 0x005C
 	s16 mEggRotSpeed;                   // 0x0070
 	u16 _72;                            // 0x0072
 	u32 _04b[0x10 / 4];                 // 0x0074
@@ -118,7 +119,6 @@ public:
 	MAnmSound* mBckPlayer;              // 0x0118
 	void** mAnimFrameRates;             // 0x011C
 	MAnmSound* mBckPlayer2;             // 0x0120
-	u32 _124;
 };
 
 #endif
