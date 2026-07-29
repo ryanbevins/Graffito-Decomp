@@ -269,8 +269,10 @@ void TCogwheel::control()
 
 	unk13C += unk138;
 
-	f32 potWeight = unk164->unk138 + unk164->unk140 + unk164->unk148;
-	f32 plateWeight = unk150->unk138 + unk150->unk140 + unk150->unk148;
+	TCogwheelScale* pot   = unk164;
+	TCogwheelScale* plate = unk150;
+	f32 potWeight   = pot->unk138 + pot->unk140 + pot->unk148;
+	f32 plateWeight = plate->unk138 + plate->unk140 + plate->unk148;
 	unk138 += unk140 * (plateWeight - potWeight);
 	unk138 *= unk144;
 
