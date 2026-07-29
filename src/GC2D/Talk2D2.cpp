@@ -913,8 +913,8 @@ bool TTalk2D2::eraseBoardWindow()
 		void* data             = loader->unk4;
 		JMSMesgEntry* entry
 		    = (JMSMesgEntry*)loader->getMessageEntry((u16)unk264);
-		setupBoardTextBox(data, entry);
-		unk27C = cColorTable[0];
+		setupTextBox(data, entry);
+		*(u32*)&unk27C = 0xffffffff;
 		unk2DE = 0;
 		unk2DC = 0;
 		alpha  = 0;
