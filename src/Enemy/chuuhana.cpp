@@ -233,8 +233,8 @@ void TChuuHana::reset()
 	unk1A4 = mCheckOnPanelTime;
 
 	TGraphWeb* graph = unk124->unk0;
-	int index
-	    = (int)(rand() * (1.0f / (RAND_MAX + 1)) * graph->getNodeNum());
+	TMsRange<s32> nodeRange(0, graph->getNodeNum());
+	int index = nodeRange.rand();
 	JGeometry::TVec3<f32> point;
 	graph->getGraphNode(index).getPoint((Vec*)&point);
 
