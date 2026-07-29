@@ -139,8 +139,8 @@ void TChuuHanaManager::initSetEnemies()
 		else
 			enemy->unk21C = &unk62;
 
-		int index = (int)(rand() * (1.0f / (RAND_MAX + 1))
-		                  * graph->getNodeNum());
+		TMsRange<s32> nodeRange(0, graph->getNodeNum());
+		int index = nodeRange.rand();
 		JGeometry::TVec3<f32> pos;
 		graph->getGraphNode(index).getPoint((Vec*)&pos);
 		enemy->mPosition = pos;
