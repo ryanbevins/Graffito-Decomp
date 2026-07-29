@@ -262,10 +262,11 @@ void TCogwheel::calc()
 	yRot[0][3] = 0.0f;
 	yRot[1][3] = 0.0f;
 	yRot[2][3] = 0.0f;
-	PSMTXConcat(yRot, zRot, getModel()->mNodeMatrices[0]);
-	getModel()->mNodeMatrices[0][0][3] = mPosition.x;
-	getModel()->mNodeMatrices[0][1][3] = mPosition.y;
-	getModel()->mNodeMatrices[0][2][3] = mPosition.z;
+	MtxPtr rootMtx = getModel()->mNodeMatrices[0];
+	PSMTXConcat(yRot, zRot, rootMtx);
+	rootMtx[0][3] = mPosition.x;
+	rootMtx[1][3] = mPosition.y;
+	rootMtx[2][3] = mPosition.z;
 }
 void TCogwheel::control()
 {
