@@ -246,6 +246,7 @@ const JGeometry::TVec3<f32>& TWireTrap::getWireDir() const
 }
 #pragma dont_inline off
 
+#pragma dont_inline on
 const TNerveBase<TLiveActor>* TWireTrap::getNerveFromMode(int mode)
 {
 	switch (mode) {
@@ -259,6 +260,7 @@ const TNerveBase<TLiveActor>* TWireTrap::getNerveFromMode(int mode)
 		return nullptr;
 	}
 }
+#pragma dont_inline off
 
 void TWireTrap::checkHitActors()
 {
