@@ -166,10 +166,12 @@ void TManhole::calc()
 void TManhole::appeared()
 {
 	if (unk154 != nullptr) {
-		if (!unk154->checkLiveFlag(LIVE_FLAG_DEAD))
+		if (unk154->checkLiveFlag(LIVE_FLAG_DEAD)) {
+			unk158->remove();
+			unk154 = nullptr;
+		} else {
 			return;
-		unk158->remove();
-		unk154 = nullptr;
+		}
 	}
 
 	if (unk150 != 0 && gpMarioOriginal->mVel.y <= 0.0f) {
