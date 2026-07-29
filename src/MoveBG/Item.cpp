@@ -563,11 +563,11 @@ void TShine::control()
 			    0x81C1, &mPosition, 0, nullptr, 0, 4);
 
 		Mtx* nodeMatrices = mMActor->getModel()->mNodeMatrices;
+		GXColor color     = { 0xFF, 0xFF, 0xFF, 0xFF };
 		f32 lightX        = nodeMatrices[2][0][3];
 		f32 lightY        = nodeMatrices[2][1][3];
 		f32 lightZ        = nodeMatrices[2][2][3];
 		TLightWithDBSetManager* light = gpLightManager;
-		GXColor color                 = { 0xFF, 0xFF, 0xFF, 0xFF };
 		light->unk18.r                = color.r;
 		light->unk18.g                = color.g;
 		light->unk18.b                = color.b;
