@@ -238,7 +238,7 @@ TBWLeash::TBWLeash(TBossWanwan* owner, int node_count, const char* name)
 	TIdxGroupObj* enemyGroup
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
 	for (int i = 0; i < node_count; ++i) {
-		enemyGroup->add(mNodes[i]);
+		enemyGroup->getChildren().push_back(mNodes[i]);
 		if (i < node_count - 2)
 			mNodes[i]->offHitFlag(HIT_FLAG_NO_COLLISION);
 		else
