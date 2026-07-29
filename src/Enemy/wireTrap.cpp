@@ -419,9 +419,9 @@ BOOL TWireTrap::receiveMessage(THitActor* sender, u32 message)
 {
 	switch (message) {
 	case 0xF: {
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
-		    PARTICLE_MS_ENM_WATHIT, &mPosition, nullptr, scale);
+		    PARTICLE_MS_ENM_WATHIT, &mPosition, nullptr,
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		gpMSound->startSoundSet(0x6802, (Vec*)&mPosition, 0, 0.0f, 0, 0, 4);
 		mShakeTimer = 0x1e;
 
