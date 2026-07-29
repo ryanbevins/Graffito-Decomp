@@ -1802,8 +1802,7 @@ void TBEelTearsManager::splitTears(JGeometry::TVec3<f32>& position)
 	position.y += 600.0f;
 
 	int splitNum = ((TBEelTearsSaveLoadParams*)unk38)->mSLTearsSplitNum.get();
-	f32 minPos   = -250.0f;
-	f32 maxPos   = 250.0f;
+	TMsRange<f32> positionRange(-250.0f, 250.0f);
 
 	for (int i = 0; i < 30; ++i) {
 		TBEelTearsDrop* drop = mDrops[i];
@@ -1811,36 +1810,23 @@ void TBEelTearsManager::splitTears(JGeometry::TVec3<f32>& position)
 			continue;
 
 		JGeometry::TVec3<f32> dropPos = position;
-		f32 offset = rand() * 0.000030517578f;
-		offset *= maxPos - minPos;
-		offset += minPos;
+		f32 offset = positionRange.rand();
 		dropPos.x += offset;
-		offset = rand() * 0.000030517578f;
-		offset *= maxPos - minPos;
-		offset += minPos;
+		offset = positionRange.rand();
 		dropPos.y += offset;
-		offset = rand() * 0.000030517578f;
-		offset *= maxPos - minPos;
-		offset += minPos;
+		offset = positionRange.rand();
 		dropPos.z += offset;
 
 		--splitNum;
 		drop->offHitFlag(HIT_FLAG_NO_COLLISION);
 		drop->unk6C = TRUE;
 
-		f32 minSpeed = 4.0f;
-		f32 maxSpeed = 6.0f;
-		f32 speed = rand() * 0.000030517578f;
-		speed *= maxSpeed - minSpeed;
-		speed += minSpeed;
-		drop->unk70 = speed;
+		TMsRange<f32> speedRange(4.0f, 6.0f);
+		drop->unk70 = speedRange.rand();
 		drop->mPosition = dropPos;
 
-		f32 minScale = 1.0f;
-		f32 maxScale = 1.5f;
-		f32 scale    = rand() * 0.000030517578f;
-		scale *= maxScale - minScale;
-		scale += minScale;
+		TMsRange<f32> initialScaleRange(1.0f, 1.5f);
+		f32 scale = initialScaleRange.rand();
 
 		TBEelTearsSaveLoadParams* params = drop->unk74->unk15C;
 		scale = params->mTearsDropScaleRange.rand();
