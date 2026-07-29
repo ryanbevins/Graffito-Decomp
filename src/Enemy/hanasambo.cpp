@@ -1335,7 +1335,9 @@ void THanaSambo::init(TLiveManager* manager)
 	initMarioGoal(this);
 
 	mHead = new THanaSamboHead("ハナサンボ頭あたり");
-	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(mHead);
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	group->getChildren().push_back(mHead);
 	mHead->initHitActor(0x1000001B, 2, 0x80000000,
 	                    mParams->mSLHeadAttackRadius.get() * mBodyScale,
 	                    mParams->mSLHeadAttackHeight.get() * mBodyScale,
