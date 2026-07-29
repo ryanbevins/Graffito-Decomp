@@ -625,9 +625,10 @@ void TNameKuri::reset()
 	unk194 = 0;
 	unk198 = 0;
 	setVelocity(JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f));
-	mScaling.x = mBodyScale;
-	mScaling.y = mBodyScale;
-	mScaling.z = mBodyScale;
+	f32 bodyScale = mBodyScale;
+	mScaling.x    = bodyScale;
+	mScaling.y    = bodyScale;
+	mScaling.z    = bodyScale;
 
 	unk1BC.a = 0;
 	unk1BC.b = 0;
