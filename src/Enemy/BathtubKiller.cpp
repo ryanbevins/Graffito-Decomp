@@ -366,8 +366,7 @@ inline void TBathtubKiller::breakBathtubKiller()
 	unk1BC.y = 0.0f;
 	unk1BC.z = 0.0f;
 
-	JGeometry::TVec3<f32> vel = makeZeroVelocity();
-	setVelocity(vel);
+	setVelocity(makeZeroVelocity());
 
 	onLiveFlag(LIVE_FLAG_UNK8);
 	unk1E0 = unk1D8;
