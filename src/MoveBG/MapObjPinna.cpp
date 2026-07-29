@@ -597,7 +597,7 @@ void TPinnaShell::control()
 
 			if (unk80 != nullptr
 			    && !(((TMapObjBase*)unk80)->mLiveFlag & LIVE_FLAG_DEAD)) {
-				if (unk80->mActorType == 0x20000010)
+				if (unk80->isActorType(0x20000010))
 					startShellSystemSound(0x483f);
 				else
 					startShellSystemSound(0x4813);
