@@ -380,6 +380,12 @@ void TBossTelesa::init(TLiveManager* manager)
 		}
 	}
 
+	if (mInstanceIndex == 0) {
+		for (u8 i = 0;
+		     i < mMActor->getModel()->getModelData()->getJointNum(); ++i) {
+		}
+	}
+
 	unk16C = new TBossTelesaBody("ボステレサ体コリジョン");
 	TIdxGroupObj* enemyGroup
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
