@@ -2437,10 +2437,7 @@ DEFINE_NERVE(TNerveBossTelesaHideWait, TLiveActor)
 		    : 1;
 		u8 alpha = TBossTelesa::mNormalAlpha
 		    + (maxHp - boss->mHitPoints) * 30;
-		if (alpha > 0xFE)
-			alpha = 0xFE;
-		if (alpha < 0)
-			alpha = 0;
+		alpha = MsClamp<u8>(alpha, 0, 0xFE);
 		boss->unk34C.a = alpha;
 
 		boss->unk184->mScaling.set(0.0f, 0.0f, 0.0f);
