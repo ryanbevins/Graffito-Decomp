@@ -648,8 +648,9 @@ bool TIgaiga::isReachedToGoalXZ()
 	diff.sub(mPosition);
 	if (!unk1A8)
 		diff.y = 0.0f;
+	diff.y = 0.0f;
 
-	if (MsVECMag2((Vec*)&diff) < mReachNodeDist * mReachNodeDist)
+	if (MsVECMag2((Vec*)&diff) < mReachNodeDist)
 		return true;
 	return false;
 }
