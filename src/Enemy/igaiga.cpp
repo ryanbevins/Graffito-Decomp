@@ -524,10 +524,8 @@ void TIgaiga::reset()
 	offLiveFlag(LIVE_FLAG_UNK10);
 	unk1B4 = 0;
 
-	volatile int min = 50;
-	volatile int max = 100;
-	int range = max - min;
-	unk1B8 = (min + (int)(range * MsRandF())) * 120;
+	TMsRange<s32> timerRange(50, 100);
+	unk1B8 = timerRange.rand() * 120;
 	unk1BC  = true;
 
 	mPosition.y += 20.0f;
