@@ -855,14 +855,14 @@ void JPADraw::setChildClipBoard()
 
 	GXLoadPosMtxImm(cb.unk68, 0);
 
-	f32 fVar3 = mDrawCtx.mBaseEmitter->unk174.x;
-	f32 fVar4 = mDrawCtx.mBaseEmitter->unk174.y;
+	JGeometry::TVec3<f32> scale;
+	mDrawCtx.mBaseEmitter->getGlobalParticleScale(scale);
 	if (!mDrawCtx.mSweepShape->isInheritedScale()) {
-		cb.unk4 = fVar3 * (25.0f * mDrawCtx.mSweepShape->getScaleX());
-		cb.unk8 = fVar4 * (25.0f * mDrawCtx.mSweepShape->getScaleY());
+		cb.unk4 = scale.x * (25.0f * mDrawCtx.mSweepShape->getScaleX());
+		cb.unk8 = scale.y * (25.0f * mDrawCtx.mSweepShape->getScaleY());
 	} else {
-		cb.unk4 = fVar3 * (25.0f * mDrawCtx.mBaseShape->getBaseSizeX());
-		cb.unk8 = fVar4 * (25.0f * mDrawCtx.mBaseShape->getBaseSizeY());
+		cb.unk4 = scale.x * (25.0f * mDrawCtx.mBaseShape->getBaseSizeX());
+		cb.unk8 = scale.y * (25.0f * mDrawCtx.mBaseShape->getBaseSizeY());
 	}
 
 	if (mDrawCtx.mSweepShape->getType() == 0) {
