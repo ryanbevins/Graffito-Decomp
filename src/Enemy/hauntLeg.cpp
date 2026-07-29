@@ -347,7 +347,8 @@ void THauntLegManager::initSetEnemies()
 		THauntLeg* enemy = (THauntLeg*)unk18[i];
 
 		Vec pt;
-		int nodeIdx = (int)(MsRandF() * (f32)graph->getNodeNum());
+		TMsRange<s32> nodeRange(0, graph->getNodeNum());
+		int nodeIdx = nodeRange.rand();
 		graph->getGraphNode(nodeIdx).getPoint(&pt);
 
 		*(Vec*)&enemy->mPosition = pt;
