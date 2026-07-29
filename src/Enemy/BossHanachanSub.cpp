@@ -126,6 +126,7 @@ TSphereLink::TSphereLink(u16 count, const JGeometry::TVec3<f32>& pos,
 	f32 dz    = cosV * radius;
 
 	for (int i = 0; i < mCount; i++) {
+		TSpherePoint& sp = mPoints[i];
 		JGeometry::TVec3<f32> p;
 		if (i == 0) {
 			p = pos;
@@ -134,7 +135,6 @@ TSphereLink::TSphereLink(u16 count, const JGeometry::TVec3<f32>& pos,
 			p.x -= dx;
 			p.z -= dz;
 		}
-		TSpherePoint& sp = mPoints[i];
 		sp.mPos          = p;
 		sp.mPrev         = sp.mPos;
 		sp.mVel.x        = 0.0f;
