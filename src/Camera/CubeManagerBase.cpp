@@ -103,8 +103,8 @@ bool TCubeManagerArea::isInAreaCube(const Vec& pos) const
 	if (unk1C == cubeNo) {
 		result = true;
 	} else if (gpMarDirector->mMap == 7 && unk1C != -1 && cubeNo != -1) {
-		const char* currentName = (*unk14)[cubeNo].getName();
 		const char* lastName    = (*unk14)[unk1C].getName();
+		const char* currentName = (*unk14)[cubeNo].getName();
 
 		if (strcmp(lastName, "\x82" "\x52" "\x8A" "\x4B") == 0) {
 			if (strcmp(currentName, "\x82" "\x51" "\x8A" "\x4B") == 0
