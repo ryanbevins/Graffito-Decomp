@@ -139,6 +139,9 @@ public:
 			return true;
 		return false;
 	}
+#ifdef TBGCHECKDATA_ISWATERSURFACE_OUT_OF_LINE
+	bool isWaterSurface() const;
+#else
 	bool isWaterSurface() const // matching
 	{
 		if (mBGType == BG_TYPE_WATER || mBGType == BG_TYPE_DAMAGING_WATER
@@ -148,6 +151,7 @@ public:
 			return true;
 		return false;
 	}
+#endif
 
 	// fabricated
 	bool checkFlag(u32 flag) const { return mFlags & flag ? true : false; }

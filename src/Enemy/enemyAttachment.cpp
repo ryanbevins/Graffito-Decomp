@@ -1,3 +1,4 @@
+#define TBGCHECKDATA_ISWATERSURFACE_OUT_OF_LINE
 #include <Enemy/EnemyAttachment.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Strategic/ObjModel.hpp>
@@ -10,6 +11,7 @@
 #include <Camera/Camera.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
+#undef TBGCHECKDATA_ISWATERSURFACE_OUT_OF_LINE
 #include <Map/MapCollisionData.hpp>
 #include <Map/PollutionManager.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
