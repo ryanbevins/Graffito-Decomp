@@ -264,7 +264,9 @@ void TFenceWater::initMapObj()
 
 	unk144->mPosition.set(mPosition.x, mPosition.y - 150.0f, mPosition.z);
 
-	JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ")->add(unk144);
+	JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ")
+	    ->getChildren()
+	    .push_back(unk144);
 }
 
 void TFenceWater::initMapCollisionData() { TMapObjBase::initMapCollisionData(); }
