@@ -348,12 +348,12 @@ DEFINE_NERVE(TNerveSamboHeadAttack, TLiveActor)
 	if (self->mPosition.y > self->mGroundHeight + 30.0f) {
 		f32 maxRoll = self->mParams->mSLJumpAngY.get();
 		JGeometry::TVec3<f32> velocity = self->mVelocity;
-		JGeometry::TVec3<f32> rot      = MsGetRotFromZaxis(velocity);
-		if (rot.x > maxRoll)
-			rot.x = maxRoll;
-		else if (rot.x < -maxRoll)
-			rot.x = -maxRoll;
-		self->mRollAngle = rot.x;
+		f32 roll = MsGetRotFromZaxis(velocity).x;
+		if (roll > maxRoll)
+			roll = maxRoll;
+		else if (roll < -maxRoll)
+			roll = -maxRoll;
+		self->mRollAngle = roll;
 	} else {
 		self->mRollAngle *= 0.8f;
 	}
