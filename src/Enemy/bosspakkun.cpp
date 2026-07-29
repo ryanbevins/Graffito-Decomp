@@ -173,9 +173,11 @@ DEFINE_NERVE(TNerveBPFall, TLiveActor)
 			    || rand() * 0.000030517578f < tornadoProp) {
 				spine->pushAfterCurrent(&TNerveBPTakeOff::theNerve());
 				spine->pushAfterCurrent(&TNerveBPVomit::theNerve());
-			} else {
+			} else if (boss->mTornado->unk98 == 0) {
 				spine->pushAfterCurrent(&TNerveBPWait::theNerve());
 				spine->pushAfterCurrent(&TNerveBPTornado::theNerve());
+			} else {
+				spine->pushAfterCurrent(&TNerveBPWait::theNerve());
 			}
 		} else {
 			spine->pushAfterCurrent(&TNerveBPWait::theNerve());
