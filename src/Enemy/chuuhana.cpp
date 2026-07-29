@@ -336,11 +336,8 @@ void TChuuHana::setGoal()
 	dir.z = 1.0f;
 
 	Mtx mtx;
-	volatile f32 min = -30.0f;
-	volatile f32 max = 30.0f;
-	f32 range       = max - min;
-	f32 randYaw     = range * (rand() * (1.0f / (RAND_MAX + 1)));
-	randYaw += min;
+	TMsRange<f32> yawRange(-30.0f, 30.0f);
+	f32 randYaw = yawRange.rand();
 	MsMtxSetRotRPH(mtx, mRotation.x, mRotation.y + randYaw, mRotation.z);
 	PSMTXMultVec(mtx, &dir, &dir);
 
