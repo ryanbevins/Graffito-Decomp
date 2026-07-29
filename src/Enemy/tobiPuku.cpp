@@ -1040,8 +1040,7 @@ void TTobiPukuLaunchPad::forceLaunch(TTobiPuku* puku)
 	puku->mLaunchPad      = this;
 
 	JGeometry::TVec3<f32> currentVelocity = mVelocity;
-	JGeometry::TVec3<f32> rotation        = MsGetRotFromZaxis(currentVelocity);
-	puku->unk1B4                          = rotation.x;
+	puku->unk1B4 = MsGetRotFromZaxis(currentVelocity).x;
 }
 
 void TTobiPukuLaunchPad::launch()
