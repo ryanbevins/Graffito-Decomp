@@ -1415,12 +1415,13 @@ void TRoulette::initMapObj()
 	group->getChildren().insert(group->getChildren().end(),
 	                            (THitActor*)unk150);
 	if (gpApplication.mCurrArea.getStage() == 14) {
-		sw->initHitActor(0x4000019A, 2, 0x80000000, 40.0f, 80.0f, 40.0f, 80.0f);
+		unk150->initHitActor(0x4000019A, 2, 0x80000000, 40.0f, 80.0f, 40.0f,
+		                    80.0f);
 	} else {
-		sw->initHitActor(0x4000019A, 2, 0x80000000, 500.0f, 100.0f, 500.0f,
-		                 100.0f);
+		unk150->initHitActor(0x4000019A, 2, 0x80000000, 500.0f, 100.0f,
+		                    500.0f, 100.0f);
 	}
-	sw->unk64 &= ~1;
+	unk150->unk64 &= ~1;
 }
 
 void TCloset::initMapObj()
