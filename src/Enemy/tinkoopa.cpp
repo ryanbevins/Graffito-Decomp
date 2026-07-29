@@ -1335,7 +1335,9 @@ void TTinKoopaPartsBase::initTinKoopaPartsBase()
 	             0.0f);
 	unk64 |= 1;
 
-	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	group->getChildren().push_back(this);
 
 	unkF4 = new TMapCollisionMove();
 	unkF4->init(partsCollisionFileTable[unkFC], 0, this);
