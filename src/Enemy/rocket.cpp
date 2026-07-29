@@ -442,7 +442,8 @@ void TRocketManager::initSetEnemies()
 		TRocket* rocket = (TRocket*)unk18[i];
 		if ((rocket->mLiveFlag & LIVE_FLAG_DEAD) && !web->isDummy()) {
 			int nodeCount = web->unk8;
-			int idx = (int)(rand() * 0.000030517578f * (f32)nodeCount);
+			TMsRange<s32> nodeRange(0, nodeCount);
+			int idx = nodeRange.rand();
 
 			Vec p;
 			web->unk0[idx].getPoint(&p);
