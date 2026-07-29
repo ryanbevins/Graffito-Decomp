@@ -134,29 +134,39 @@ BOOL TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 	f32 dz = delta.z;
 
 	// Adjust all position-relative fields by delta
-	unk160[0] += delta;
-	mLastSafePos += delta;
-	mWireStartPos += delta;
-	mWireEndPos += delta;
-	mLastGroundPos += delta;
+	unk160[0].x += dx;
+	unk160[0].y += dy;
+	unk160[0].z += dz;
+	mLastSafePos.x += dx;
+	mLastSafePos.y += dy;
+	mLastSafePos.z += dz;
+	mWireStartPos.x += dx;
+	mWireStartPos.y += dy;
+	mWireStartPos.z += dz;
+	mWireEndPos.x += dx;
+	mWireEndPos.y += dy;
+	mWireEndPos.z += dz;
+	mLastGroundPos.x += dx;
+	mLastGroundPos.y += dy;
+	mLastGroundPos.z += dz;
 
-	mLastGroundY += delta.y;
+	mLastGroundY += dy;
 
-	mJointMtx0[0][3] += delta.x;
-	mJointMtx0[1][3] += delta.y;
-	mJointMtx0[2][3] += delta.z;
+	mJointMtx0[0][3] += dx;
+	mJointMtx0[1][3] += dy;
+	mJointMtx0[2][3] += dz;
 
-	mJointMtx1[0][3] += delta.x;
-	mJointMtx1[1][3] += delta.y;
-	mJointMtx1[2][3] += delta.z;
+	mJointMtx1[0][3] += dx;
+	mJointMtx1[1][3] += dy;
+	mJointMtx1[2][3] += dz;
 
-	mJointMtx2[0][3] += delta.x;
-	mJointMtx2[1][3] += delta.y;
-	mJointMtx2[2][3] += delta.z;
+	mJointMtx2[0][3] += dx;
+	mJointMtx2[1][3] += dy;
+	mJointMtx2[2][3] += dz;
 
-	mJointMtx3[0][3] += delta.x;
-	mJointMtx3[1][3] += delta.y;
-	mJointMtx3[2][3] += delta.z;
+	mJointMtx3[0][3] += dx;
+	mJointMtx3[1][3] += dy;
+	mJointMtx3[2][3] += dz;
 
 	checkRideReCalc();
 
