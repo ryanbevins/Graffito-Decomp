@@ -611,10 +611,9 @@ void TCannon::setKillerGoalPoint()
 {
 	JGeometry::TVec3<f32> target;
 	if (unk239) {
+		TMsRange<f32> angleRange(0.0f, 360000.0f);
+		f32 angle = angleRange.rand();
 		target = *gpMarioPos;
-		f32 angle = 0.0f
-		            + (360000.0f - 0.0f)
-		                * ((f32)rand() * (1.0f / 32768.0f));
 		u16 angleShort = (u16)(s32)angle;
 		u32 index      = angleShort >> jmaSinShift;
 		target.x += 500.0f * jmaCosTable[index];
