@@ -472,7 +472,7 @@ bool TStayPakkun::isHitValid(u32 flag)
 		mSpine->setNext(&TNerveStayPakkunHide::theNerve());
 		unk1BC = true;
 		gpPollution->clean(mPosition.x, mGroundHeight, mPosition.z,
-		                   32.0f * getSaveParam2()->mSLPolluteRange.get());
+		                   32.0f * getSaveParam2()->mSLPolluteRange.value);
 		if (mSeed->isUnk150Zero())
 			mSeed->kill();
 		setBckAnm(0);
