@@ -550,8 +550,7 @@ DEFINE_NERVE(TNerveCannonSearch, TLiveActor)
 	if (gpApplication.mCurrArea.unk0 == 5 && gpMarDirector->mState == 1) {
 		JGeometry::TVec3<f32> diff = *gpMarioPos;
 		diff.sub(self->mPosition);
-		JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(diff);
-		self->mRotation.y         = rot.y;
+		self->mRotation.y = MsGetRotFromZaxis(diff).y;
 	} else {
 		self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
 	}
