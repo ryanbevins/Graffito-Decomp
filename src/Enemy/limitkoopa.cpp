@@ -705,13 +705,13 @@ DEFINE_NERVE(TNerveLimitKoopaHipDropStart, TLiveActor)
 		self->unk154 = 30;
 	}
 
-	if (self->unk154 > 0)
-		return FALSE;
-
-	self->startHipDrop();
-	self->unk168 = 0;
-	spine->pushAfterCurrent(&TNerveLimitKoopaHipDropJump::theNerve());
-	return TRUE;
+	if (self->unk154 <= 0) {
+		self->startHipDrop();
+		self->unk168 = 0;
+		spine->pushAfterCurrent(&TNerveLimitKoopaHipDropJump::theNerve());
+		return TRUE;
+	}
+	return FALSE;
 }
 
 DEFINE_NERVE(TNerveLimitKoopaHipDropJump, TLiveActor)
