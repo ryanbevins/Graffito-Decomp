@@ -470,20 +470,26 @@ void TRailBlock::control()
 		unk168.y += unk154;
 		unk168.z += unk158;
 
-		while (mRotation.x >= 360.0f)
-			mRotation.x -= 360.0f;
-		while (mRotation.x < 0.0f)
-			mRotation.x += 360.0f;
+		f32 angleX = mRotation.x;
+		while (angleX >= 360.0f)
+			angleX -= 360.0f;
+		while (angleX < 0.0f)
+			angleX += 360.0f;
+		mRotation.x = angleX;
 
-		while (mRotation.y >= 360.0f)
-			mRotation.y -= 360.0f;
-		while (mRotation.y < 0.0f)
-			mRotation.y += 360.0f;
+		f32 angleY = mRotation.y;
+		while (angleY >= 360.0f)
+			angleY -= 360.0f;
+		while (angleY < 0.0f)
+			angleY += 360.0f;
+		mRotation.y = angleY;
 
-		while (mRotation.z >= 360.0f)
-			mRotation.z -= 360.0f;
-		while (mRotation.z < 0.0f)
-			mRotation.z += 360.0f;
+		f32 angleZ = mRotation.z;
+		while (angleZ >= 360.0f)
+			angleZ -= 360.0f;
+		while (angleZ < 0.0f)
+			angleZ += 360.0f;
+		mRotation.z = angleZ;
 	}
 }
 
