@@ -1273,7 +1273,10 @@ void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 2)) {
 		updateSquareToMario();
 		getModel()->getModelData()->mJointNodePointer[0]->setMtxCalc(mMtxCalc);
-		if (unk16C == 1) {
+	}
+
+	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 2)) {
+		if ((s8)unk16C == 1) {
 			JGeometry::TVec3<f32> arrowPos = mNavel->mPosition;
 			arrowPos.y += 100.0f;
 			gpTargetArrow->unk14 = 1;
