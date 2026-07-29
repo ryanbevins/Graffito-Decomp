@@ -858,7 +858,7 @@ DEFINE_NERVE(TNerveFlyEnemyNormalFly, TLiveActor)
 		self->updateSquareToMario();
 		f32 chaseDist = self->mFlyParams->mSLChaseDist.get();
 		if (self->mDistToMarioSquared < chaseDist * chaseDist) {
-			spine->pushNerve(&TNerveFlyEnemyChaseFly::theNerve());
+			spine->pushAfterCurrent(&TNerveFlyEnemyChaseFly::theNerve());
 			return TRUE;
 		}
 	} else if (self->mColorVariant == 0 && self->isFindMario(1.0f)
@@ -866,7 +866,7 @@ DEFINE_NERVE(TNerveFlyEnemyNormalFly, TLiveActor)
 		self->updateSquareToMario();
 		f32 chaseDist = self->mFlyParams->mSLChaseDist.get();
 		if (self->mDistToMarioSquared < chaseDist * chaseDist) {
-			spine->pushNerve(&TNerveFlyEnemyChaseFly::theNerve());
+			spine->pushAfterCurrent(&TNerveFlyEnemyChaseFly::theNerve());
 			return TRUE;
 		}
 	}
