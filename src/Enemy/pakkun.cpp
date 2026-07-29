@@ -68,11 +68,6 @@ f32 TPakkunManager::mIgnoreHitWaterY        = 50.0f;
 static void setMarioGoalPath(TPakkun* pakkun)
 {
 	TPathNode node((THitActor*)gpMarioAddress);
-	if (gpMarioAddress) {
-		node.unk4.set(*(f32*)(gpMarioAddress + 0x10),
-		              *(f32*)(gpMarioAddress + 0x14),
-		              *(f32*)(gpMarioAddress + 0x18));
-	}
 
 	pakkun->unkF4  = node;
 	pakkun->unk104 = node;
