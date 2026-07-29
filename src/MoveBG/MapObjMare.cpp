@@ -199,7 +199,7 @@ void TCogwheel::draw() const
 	f32 plateZMinus = unk154.z - mRopeWidthZ;
 	f32 plateZPlus = unk154.z + mRopeWidthZ;
 
-	GXBegin(GX_QUADS, GX_VTXFMT0, 8);
+	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 8);
 	GXPosition3f32(plateXMinus, plateTopY, plateZMinus);
 	GXTexCoord2f32(0.0f, plateTopTex);
 	GXPosition3f32(plateXMinus, unk154.y, plateZMinus);
