@@ -1026,7 +1026,7 @@ void TGorogoro::bound()
 bool TGorogoro::isRolling()
 {
 	return mSpine->getCurrentNerve() == &TNerveGorogoroRollOnGraph::theNerve()
-	    || mCurrentBckAnm == 1;
+	    || isBckAnm(1);
 }
 
 void TGorogoro::rollSE()
