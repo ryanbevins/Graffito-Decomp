@@ -155,8 +155,8 @@ BOOL TButterfly::receiveMessage(THitActor* sender, u32 msg)
 		unk74 |= 4;
 		onHitFlag(1);
 		if (++floid->mDeadCount == floid->mBoidLeader->mNumActors) {
-			TMapObjBase* coin = floid->mCoinObj;
-			if (coin != nullptr) {
+			TMapObjBase* coin;
+			if ((coin = floid->mCoinObj) != nullptr) {
 				if (coin->isActorType(0x2000000e))
 					coin = gpItemManager->makeObjAppear(0x2000000e);
 				if (coin != nullptr) {
