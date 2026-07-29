@@ -2023,6 +2023,8 @@ DEFINE_NERVE(TNerveBossTelesaFallDemo, TLiveActor)
 			boss->offHitFlag(HIT_FLAG_NO_COLLISION);
 			boss->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
 			boss->unk170->offHitFlag(HIT_FLAG_NO_COLLISION);
+			spine->reset();
+			spine->setNext(&TNerveBossTelesaHideWait::theNerve());
 			spine->pushAfterCurrent(&TNerveBossTelesaHideWait::theNerve());
 			return TRUE;
 		}
