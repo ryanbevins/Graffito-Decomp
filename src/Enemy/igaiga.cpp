@@ -712,8 +712,9 @@ bool TIgaiga::isRolling()
 
 void TIgaiga::rollSE()
 {
-	gpMSound->startSoundActorSpecial(0x212f, &mPosition, mScaling.x,
-	                                 mMarchSpeed, 0, nullptr, 0, 4);
+	MSound* sound = gpMSound;
+	sound->startSoundActorSpecial(0x212f, &mPosition, mScaling.x, mMarchSpeed, 0,
+	                              nullptr, 0, 4);
 }
 
 void TIgaiga::boundSE()
