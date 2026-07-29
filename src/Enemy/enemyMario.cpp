@@ -1430,10 +1430,13 @@ void TEnemyMario::emDownAnimation()
 	changePlayerStatus(0x133E, 0, true);
 	setAnimation(0x13E, 1.0f);
 
-	bool fixedMode = false;
+	bool fixedMode = true;
 	u8 mode        = gpMarDirector->unk124;
-	if (mode == 3 || mode == 4 || mode == 1 || mode == 2)
+	if (mode != 3 && mode != 4) {
 		fixedMode = true;
+		if (mode != 1 && mode != 2)
+			fixedMode = false;
+	}
 
 	if (fixedMode) {
 		emDownPos(this)      = mPosition;
