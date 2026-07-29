@@ -291,10 +291,11 @@ void TTelesa::perform(u32 param_1, JDrama::TGraphics* param_2)
 				gpMap->checkGround(mPosition.x, mPosition.y, mPosition.z,
 				                   &pTStack_5c);
 				Mtx afStack_58;
-				MsMtxSetXYZRPH(afStack_58, mPosition.x, mPosition.y,
+				MtxPtr transform = afStack_58;
+				MsMtxSetXYZRPH(transform, mPosition.x, mPosition.y,
 				               mPosition.z, mRotation.x, mRotation.y,
 				               mRotation.z);
-				mImitatedBmd->getMActor()->getModel()->setBaseTRMtx(afStack_58);
+				mImitatedBmd->getMActor()->getModel()->setBaseTRMtx(transform);
 				J3DModel* model = mImitatedBmd->getMActor()->getModel();
 				model->unk14    = JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f);
 			}
