@@ -1136,7 +1136,21 @@ void TSamboHead::genEventCoin()
 			Mtx rot;
 			JGeometry::TVec3<f32> offset(0.0f, 0.0f, 100.0f);
 			f32 angle = mRotation.y - 60.0f + 60.0f * i;
-			MsMtxSetRotRPH(rot, 0.0f, angle, 0.0f);
+			s16 angleY = (s16)(angle * 182.04445f);
+			f32 sinY = JMASSin(angleY);
+			f32 cosY = JMASCos(angleY);
+			rot[0][0] = cosY;
+			rot[0][1] = 0.0f;
+			rot[0][2] = sinY;
+			rot[0][3] = 0.0f;
+			rot[1][0] = 0.0f;
+			rot[1][1] = 1.0f;
+			rot[1][2] = 0.0f;
+			rot[1][3] = 0.0f;
+			rot[2][0] = -sinY;
+			rot[2][1] = 0.0f;
+			rot[2][2] = cosY;
+			rot[2][3] = 0.0f;
 			PSMTXMultVec(rot, &offset, &offset);
 
 			TMapObjBase* coin;
