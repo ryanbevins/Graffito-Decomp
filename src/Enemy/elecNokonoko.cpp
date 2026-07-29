@@ -1028,7 +1028,7 @@ void TElecCarapace::shoot()
 	target.y += mPosition.y;
 	target.z += mPosition.z;
 
-	unk174 = (unk174 == 0);
+	unk174 = !unk174;
 	unk188 = 0.0f;
 	unk150 = 2;
 	unk176 = 0;
