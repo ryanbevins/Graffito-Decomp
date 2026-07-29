@@ -258,7 +258,7 @@ void TMapObjBase::startAnim(u16 param_1)
 			const TMapObjAnimData* prev
 			    = &mMapObjData->mAnim->unk4[unkFE];
 			if (prev->unk4) {
-				u8 track = prev->unk8;
+				int track = prev->unk8;
 				mMActor->getFrameCtrl(track)->setRate(0.0f);
 				mMActor->getFrameCtrl(track)->setFrame(0.0f);
 				*((u32*)mMActor->getUnk28(track)) = 0xffffffff;
