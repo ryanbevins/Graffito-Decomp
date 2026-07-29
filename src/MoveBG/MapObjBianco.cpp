@@ -1,4 +1,6 @@
+#define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <MoveBG/MapObjBianco.hpp>
+#undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <Camera/CubeManagerBase.hpp>
@@ -642,8 +644,9 @@ void TLeafBoat::bind()
 	if (gpMap->isTouchedWallsAndMoveXZ(&record))
 		touchWall(&next, &record);
 
-	mLinearVelocity = next;
-	mLinearVelocity.sub(mPosition);
+	JGeometry::TVec3<f32> displacement = next;
+	displacement.sub(mPosition);
+	mLinearVelocity = displacement;
 
 	f32 boatY = mPosition.y - mYOffset;
 	if (gpMarioPos->y <= boatY && gpMarioPos->y > boatY - 100.0f) {
