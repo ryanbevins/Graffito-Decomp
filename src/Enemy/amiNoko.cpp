@@ -88,9 +88,7 @@ DEFINE_NERVE(TNerveAmiNokoDie, TLiveActor)
 		normDir.y  *= speed;
 		normDir.z  *= speed;
 		self->mPosition.y += 10.0f;
-		self->mVelocity.x = normDir.x;
-		self->mVelocity.y = normDir.y;
-		self->mVelocity.z = normDir.z;
+		self->mVelocity = normDir;
 		self->mLiveFlag |= LIVE_FLAG_AIRBORNE;
 		self->setBckAnm(0);
 	}
