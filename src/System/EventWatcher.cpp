@@ -735,8 +735,9 @@ static void evAppearShineFromNPC(TSpcTypedInterp<TEventWatcher>* interp,
 {
 	interp->verifyArgNum(3, &arg_num);
 	const char* src       = interp->pop().getDataString();
+	TSpcSlice npcSlice    = interp->pop();
 	const char* shineName = interp->pop().getDataString();
-	TLiveActor* npc       = get_name_ref<TLiveActor>(interp->pop());
+	TLiveActor* npc       = get_name_ref<TLiveActor>(npcSlice);
 
 	if (strcmp(src, "") != 0) {
 		gpItemManager->makeShineAppearWithDemo(shineName, src,
