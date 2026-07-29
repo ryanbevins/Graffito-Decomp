@@ -2291,7 +2291,7 @@ void TBPPolDrop::move()
 		}
 
 		if (shouldProcess) {
-			const TBGCheckData* ground = nullptr;
+			const TBGCheckData* ground;
 			f32 y = gpMap->checkGround(nextPos.x, mPosition.y, nextPos.z,
 			                           &ground)
 			        + 1.0f;
