@@ -239,7 +239,9 @@ void TMapEventSinkInPollution::loadAfter()
 	for (int i = 0; i < mBuildingNum; ++i) {
 		TPollutionObj* obj
 		    = gpPollution->getLayer(unk60[i].unk0)->getObj(unk60[i].unk2);
-		gpPollution->getCounterObj().registerPollutionObj(obj, &obj->unk30);
+		TPollutionObj* registerObj = obj;
+		gpPollution->getCounterObj().registerPollutionObj(registerObj,
+		                                                  &obj->unk30);
 	}
 }
 
