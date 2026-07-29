@@ -406,22 +406,19 @@ TRocket::TRocket(const char* name)
 void TRocketManager::perform(u32 param, JDrama::TGraphics* graphics)
 {
 	if (param & 1) {
-		int i = 0;
-		while (true) {
-			int limit;
-			if (!unk38) {
-				limit = mObjNum;
-			} else {
-				int aen
-				    = ((TSpineEnemyParams*)unk38)->mSLActiveEnemyNum.value;
-				limit = aen <= mObjNum ? aen : mObjNum;
-			}
-			if (i >= limit)
-				break;
+		for (int i = 0;
+		     i < (unk38 == nullptr
+		                 ? mObjNum
+		                 : (((TSpineEnemyParams*)unk38)
+		                                ->mSLActiveEnemyNum.value
+		                            > mObjNum
+		                        ? mObjNum
+		                        : ((TSpineEnemyParams*)unk38)
+		                              ->mSLActiveEnemyNum.value));
+		     i++) {
 			TRocket* a = (TRocket*)unk18[i];
 			if (a->mLiveFlag & LIVE_FLAG_DEAD)
 				a->reset();
-			++i;
 		}
 	}
 	TEnemyManager::perform(param, graphics);
