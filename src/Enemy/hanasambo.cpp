@@ -1173,9 +1173,8 @@ void TSamboHead::genEventCoin()
 				coin->mPosition.y = mPosition.y;
 				MsVECNormalize(&offset, &offset);
 				TMsRange<f32> ySpeedRange(8.0f, 16.0f);
-				coin->mVelocity.x = offset.x * 4.0f;
-				coin->mVelocity.y = ySpeedRange.rand();
-				coin->mVelocity.z = offset.z * 4.0f;
+				coin->mVelocity.set(offset.x * 4.0f, ySpeedRange.rand(),
+				                    offset.z * 4.0f);
 				coin->offLiveFlag(LIVE_FLAG_UNK10);
 			}
 		}
