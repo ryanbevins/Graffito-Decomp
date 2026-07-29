@@ -562,7 +562,7 @@ void TBossHanachanPartsBody::initFootHitActor_(TIdxGroupObj* group)
 		                   params->mSLFootAttackHeight.value,
 		                   params->mSLFootDamageRadius.value,
 		                   params->mSLFootDamageHeight.value);
-		group->add((THitActor*&)mFeet[i]);
+		group->getChildren().push_back(mFeet[i]);
 		mFeet[i]->unk64 &= ~1;
 		MtxPtr m = (MtxPtr)((u8*)a->getModel()->mNodeMatrices + idx * 0x30);
 		mFeet[i]->mPosition.x = m[0][3];
