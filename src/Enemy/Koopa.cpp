@@ -826,10 +826,11 @@ f32 TKoopa::getFlameDirRate() const
 		if (time <= focusStart) {
 			rate = -overStart;
 		} else if (time <= focusEnd) {
-			rate = (overStart * (time - focusStart)) / (focusEnd - focusStart)
+			rate = ((overStart + 0.005493164f) * (time - focusStart))
+			           / (focusEnd - focusStart)
 			       - overStart;
 		} else {
-			rate = 0.0f;
+			rate = 0.005493164f;
 		}
 
 		if (idx == 3)
