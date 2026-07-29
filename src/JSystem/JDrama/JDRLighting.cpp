@@ -106,12 +106,13 @@ void TLightAry::perform(u32 param_1, TGraphics* param_2)
 	if (!(param_1 & 0x20))
 		return;
 
+	TIdxLight* light;
 	MtxPtr viewMtx = param_2->mViewMtx.mMtx;
 	for (int i = 0; i < mLightCount; ++i) {
-		TIdxLight& light = mLights[i];
+		light = &mLights[i];
 		Vec pos;
-		MTXMultVec(viewMtx, &light.mPosition, &pos);
-		GXInitLightPos(&light.unk24, pos.x, pos.y, pos.z);
+		MTXMultVec(viewMtx, &light->mPosition, &pos);
+		GXInitLightPos(&light->unk24, pos.x, pos.y, pos.z);
 	}
 
 	DCFlushRange(mLights, mLightCount * sizeof(TIdxLight));
