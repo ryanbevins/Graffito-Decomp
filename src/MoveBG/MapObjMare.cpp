@@ -1,5 +1,7 @@
 #define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
+#define LIVEACTOR_GETMACTOR_OUT_OF_LINE
 #include <MoveBG/MapObjMare.hpp>
+#undef LIVEACTOR_GETMACTOR_OUT_OF_LINE
 #undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
@@ -437,17 +439,23 @@ void TMapObjElasticCode::initMapObj()
 }
 inline static void updateGrowTreeHeight(TMapObjGrowTree* tree)
 {
-	if (tree->mMActor->getFrameCtrl(0)->getFrame() > mGrowEndFrame) {
-		tree->mDamageHeight = tree->unk138;
-	} else if (tree->mMActor->getFrameCtrl(0)->getFrame() > mGrowStartFrame) {
-		f32 rate = (tree->mMActor->getFrameCtrl(0)->getFrame() - mGrowStartFrame)
-		           / (mGrowEndFrame - mGrowStartFrame);
-		tree->mDamageHeight
-		    = tree->unk148 + (tree->unk138 - tree->unk148) * rate;
+	if (tree->mMActor->getFrameCtrl(0)->getFrame() > mGrowStartFrame) {
+		if (tree->mMActor->getFrameCtrl(0)->getFrame() > mGrowEndFrame) {
+			tree->mDamageHeight = tree->unk138;
+			tree->calcEntryRadius();
+		} else {
+			f32 rate
+			    = (tree->getMActor()->getFrameCtrl(0)->getFrame()
+			       - mGrowStartFrame)
+			      / (mGrowEndFrame - mGrowStartFrame);
+			tree->mDamageHeight
+			    = tree->unk148 + (tree->unk138 - tree->unk148) * rate;
+			tree->calcEntryRadius();
+		}
 	} else {
 		tree->mDamageHeight = tree->unk148;
+		tree->calcEntryRadius();
 	}
-	tree->calcEntryRadius();
 }
 u32 TMapObjGrowTree::touchWater(THitActor* water)
 {
