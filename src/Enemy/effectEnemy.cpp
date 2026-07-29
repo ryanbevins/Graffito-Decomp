@@ -77,6 +77,7 @@ void TEffectEnemy::kill()
 
 void TEffectEnemy::forceKill()
 {
+	bool killFromGround = false;
 	if (!mGroundPlane->isIllegalData()) {
 		u16 t;
 		bool flg;
@@ -111,14 +112,12 @@ void TEffectEnemy::forceKill()
 			u32 lf      = mLiveFlag;
 			int airborn = (lf & LIVE_FLAG_AIRBORNE) ? 1 : 0;
 			if (airborn == 0) {
-				if (!(lf & LIVE_FLAG_UNK10)) {
-					kill();
-					return;
-				}
+				if (!(lf & LIVE_FLAG_UNK10))
+					killFromGround = true;
 			}
 		}
 	}
-	if (!gpMap->isInArea(mPosition.x, mPosition.z)) {
+	if (killFromGround || !gpMap->isInArea(mPosition.x, mPosition.z)) {
 		kill();
 	}
 }
