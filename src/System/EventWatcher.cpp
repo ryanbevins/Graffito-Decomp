@@ -523,12 +523,14 @@ static void evSetGraffitoMultiplied(TSpcTypedInterp<TEventWatcher>* interp,
 {
 	interp->verifyArgNum(1, &arg_num);
 	int value = interp->pop().getDataInt();
+	TPollutionManager* pollution = gpPollution;
+	int i                        = 0;
 	if (value != 0) {
-		for (int i = 0; i < gpPollution->getJointModelNum(); ++i)
-			((TPollutionLayer*)gpPollution->getJointModel(i))->unk32 |= 1;
+		for (; i < pollution->getJointModelNum(); ++i)
+			((TPollutionLayer*)pollution->getJointModel(i))->unk32 |= 1;
 	} else {
-		for (int i = 0; i < gpPollution->getJointModelNum(); ++i)
-			((TPollutionLayer*)gpPollution->getJointModel(i))->unk32 &= ~1;
+		for (; i < pollution->getJointModelNum(); ++i)
+			((TPollutionLayer*)pollution->getJointModel(i))->unk32 &= ~1;
 	}
 	interp->push();
 }
