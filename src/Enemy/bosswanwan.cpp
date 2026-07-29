@@ -966,9 +966,7 @@ BOOL TBossWanwan::receiveMessage(THitActor* sender, u32 message)
 void TBossWanwan::calcRootMatrix()
 {
 	J3DModel* model = getModel();
-	model->unk14.x  = mScaling.x;
-	model->unk14.y  = mScaling.y;
-	model->unk14.z  = mScaling.z;
+	model->unk14 = mScaling;
 
 	MsMtxSetXYZRPH(getModel()->getBaseTRMtx(), mPosition.x,
 	               mPosition.y + 500.0f, mPosition.z, mRotation.x,
