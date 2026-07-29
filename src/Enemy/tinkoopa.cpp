@@ -879,62 +879,72 @@ void TTinKoopaLaunchOrder::checkOrder()
 
 void TTinKoopa::makeLaunchSchedule()
 {
-	TTinKoopaLaunchOrder** order = unk1F4->unk8;
+	int index = 0;
+	TTinKoopaLaunchOrder* order = unk1F4->unk8[index++];
+	order->unk4 = 0;
+	order->unk8 = 0x258;
+	order->unkC = -1;
+	order->unkD = 0;
 
-	order[0]->unk4 = 0;
-	order[0]->unk8 = 0x258;
-	order[0]->unkC = -1;
-	order[0]->unkD = 0;
+	order = unk1F4->unk8[index++];
+	order->unk4 = 0;
+	order->unk8 = 0x4ce;
+	order->unkC = -1;
+	order->unkD = 1;
 
-	order[1]->unk4 = 0;
-	order[1]->unk8 = 0x4ce;
-	order[1]->unkC = -1;
-	order[1]->unkD = 1;
+	order = unk1F4->unk8[index++];
+	order->unk4 = 0;
+	order->unk8 = 0x992;
+	order->unkC = -1;
+	order->unkD = 1;
 
-	order[2]->unk4 = 0;
-	order[2]->unk8 = 0x992;
-	order[2]->unkC = -1;
-	order[2]->unkD = 1;
+	order = unk1F4->unk8[index++];
+	order->unk4 = 1;
+	order->unk8 = 0xf0;
+	order->unkC = -1;
+	order->unkD = 0;
 
-	order[3]->unk4 = 1;
-	order[3]->unk8 = 0xf0;
-	order[3]->unkC = -1;
-	order[3]->unkD = 0;
+	order = unk1F4->unk8[index++];
+	order->unk4 = 1;
+	order->unk8 = 0x118;
+	order->unkC = -1;
+	order->unkD = 1;
 
-	order[4]->unk4 = 1;
-	order[4]->unk8 = 0x118;
-	order[4]->unkC = -1;
-	order[4]->unkD = 1;
+	order = unk1F4->unk8[index++];
+	order->unk4 = 1;
+	order->unk8 = 0x276;
+	order->unkC = -1;
+	order->unkD = 0;
 
-	order[5]->unk4 = 1;
-	order[5]->unk8 = 0x276;
-	order[5]->unkC = -1;
-	order[5]->unkD = 0;
+	order = unk1F4->unk8[index++];
+	order->unk4 = 1;
+	order->unk8 = 0x384;
+	order->unkC = -1;
+	order->unkD = 0;
 
-	order[6]->unk4 = 1;
-	order[6]->unk8 = 0x384;
-	order[6]->unkC = -1;
-	order[6]->unkD = 0;
+	order = unk1F4->unk8[index++];
+	order->unk4 = 1;
+	order->unk8 = 0x4b0;
+	order->unkC = -1;
+	order->unkD = 1;
 
-	order[7]->unk4 = 1;
-	order[7]->unk8 = 0x4b0;
-	order[7]->unkC = -1;
-	order[7]->unkD = 1;
+	order = unk1F4->unk8[index++];
+	order->unk4 = 2;
+	order->unk8 = 0x235;
+	order->unkC = -1;
+	order->unkD = 0;
 
-	order[8]->unk4 = 2;
-	order[8]->unk8 = 0x235;
-	order[8]->unkC = -1;
-	order[8]->unkD = 0;
+	order = unk1F4->unk8[index++];
+	order->unk4 = 2;
+	order->unk8 = 0x2bc;
+	order->unkC = -1;
+	order->unkD = 0;
 
-	order[9]->unk4 = 2;
-	order[9]->unk8 = 0x2bc;
-	order[9]->unkC = -1;
-	order[9]->unkD = 0;
-
-	order[10]->unk4 = 2;
-	order[10]->unk8 = 0x8ac;
-	order[10]->unkC = -1;
-	order[10]->unkD = 1;
+	order = unk1F4->unk8[index++];
+	order->unk4 = 2;
+	order->unk8 = 0x8ac;
+	order->unkC = -1;
+	order->unkD = 1;
 }
 
 inline TTinKoopaFlame::TTinKoopaFlame(const char* name)
