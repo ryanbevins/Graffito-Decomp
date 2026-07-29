@@ -3027,9 +3027,8 @@ bool TGCConsole2::processDownCoin(int param_1)
 		isFinished = false;
 
 	JUTRect bounds(unkCC->getPane()->mGlobalBounds);
-	unk124->unk160.x = bounds.x1 + bounds.getWidth() * 0.5f;
-	unk124->unk160.y = bounds.y1 + bounds.getHeight() * 0.5f;
-	unk124->unk160.z = 0.0f;
+	unk124->unk160.set(bounds.x1 + bounds.getWidth() * 0.5f,
+	                  bounds.y1 + bounds.getHeight() * 0.5f, 0.0f);
 
 	return isFinished;
 }
