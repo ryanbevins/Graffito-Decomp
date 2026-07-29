@@ -631,5 +631,7 @@ void TTPHitActor::init()
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 	onHitFlag(HIT_FLAG_UNK4);
 
-	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	group->getChildren().push_back(this);
 }
