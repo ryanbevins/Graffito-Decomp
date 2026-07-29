@@ -316,22 +316,20 @@ void TMapObjBillboard::touchActor(THitActor* actor)
 
 u32 TMapObjBillboard::touchWater(THitActor* actor)
 {
-	if (!animIsFinished()) {
-		J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(0);
-		if (frameCtrl->getFrame() < 33.0f)
-			return 1;
-	}
+	if (animIsFinished()
+	    || mMActor->getFrameCtrl(0)->getFrame() >= 33.0f) {
+		f32 angle
+		    = mRotation.y + getRotYFromAxisX(actor->mPosition) * 57.295776f;
+		angle = callMsWrap(angle, 0.0f, 360.0f);
+		if (angle < 0.0f || angle > 180.0f)
+			startAnim(2);
+		else
+			startAnim(1);
 
-	f32 angle = mRotation.y + getRotYFromAxisX(actor->mPosition) * 57.295776f;
-	angle     = callMsWrap(angle, 0.0f, 360.0f);
-	if (angle < 0.0f || angle > 180.0f)
-		startAnim(2);
-	else
-		startAnim(1);
-
-	if (gpMSound->gateCheck(0x384f)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x384f, (Vec*)&mPosition, 0,
-		                                          &unk150, 0, 4);
+		if (gpMSound->gateCheck(0x384f)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x384f, (Vec*)&mPosition, 0, &unk150, 0, 4);
+		}
 	}
 
 	if (unk138 != nullptr && unk14C != 0) {
