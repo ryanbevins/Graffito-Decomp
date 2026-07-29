@@ -1225,15 +1225,15 @@ void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 2)) {
 		if (mMActor->checkCurBckFromIndex(0x18)) {
-			MtxPtr mtx = getModel()->getAnmMtx(0x2B);
+			MtxPtr mtx = mMActor->getModel()->getAnmMtx(0x2B);
 			unk194.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 
-			mtx = getModel()->getAnmMtx(0x2C);
+			mtx = mMActor->getModel()->getAnmMtx(0x2C);
 			unk1A0.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 		}
 
 		if (mMActor->checkCurBckFromIndex(0x17)) {
-			MtxPtr mtx = getModel()->getAnmMtx(0x14);
+			MtxPtr mtx = mMActor->getModel()->getAnmMtx(0x14);
 			unk1AC.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 
 			JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToPosPtr(
