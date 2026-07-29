@@ -1106,11 +1106,11 @@ TElecCarapace::TElecCarapace(const char* name)
     , unk174(1)
     , unk175(0)
     , unk176(0)
-    , unk180(0)
-    , unk184(0)
 {
 	unk178 = 0.0f;
 	unk17C = 0.0f;
+	unk180 = 0;
+	unk184 = 0;
 	unk188 = 0.0f;
 	unk198 = 0.0f;
 }
