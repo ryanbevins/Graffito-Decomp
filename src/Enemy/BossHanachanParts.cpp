@@ -665,14 +665,14 @@ TBossHanachanPartsHead::TBossHanachanPartsHead(TBossHanachan* owner,
                                                const char* name)
     : TBossHanachanPartsBase(owner, 0x08000014, 1, name)
 {
-	MActor* a       = getMActor();
-	JUTNameTab* tab = a->getModel()->mModelData->unkB0;
+	J3DModel* model = getModel();
+	JUTNameTab* tab = model->mModelData->unkB0;
 	u16 idxL        = tab->getIndex(cNoseHallJointName_L);
 	mLeftNoseHallJointMtx
-	    = (MtxPtr)((u8*)a->getModel()->mNodeMatrices + idxL * 0x30);
+	    = (MtxPtr)((u8*)model->mNodeMatrices + idxL * 0x30);
 	u16 idxR = tab->getIndex(cNoseHallJointName_R);
 	mRightNoseHallJointMtx
-	    = (MtxPtr)((u8*)a->getModel()->mNodeMatrices + idxR * 0x30);
+	    = (MtxPtr)((u8*)model->mNodeMatrices + idxR * 0x30);
 }
 
 TBossHanachanPartsBody::TBossHanachanPartsBody(TBossHanachan* owner,
