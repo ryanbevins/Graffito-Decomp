@@ -692,10 +692,7 @@ void JAIBasic::stopSoundHandle(JAISound* sound, u32 param)
 
 	switch (sound->unk8 & 0xC0000000) {
 	case 0x80000000:
-		if (sound->unk1 >= 4 && param != 0) {
-			unk0->unk180[sound->unk0].unk8 |= 2;
-			unk0->unk180[sound->unk0].unk48->unk10 = param;
-		} else {
+		if (sound->unk1 < 4 || param == 0) {
 			if (sound->unk1 >= 3) {
 				JAISystemInterface::stopSeq(sound->getSeqParameter()->unk0);
 			} else if (sound->unk1 >= 1) {
@@ -704,6 +701,9 @@ void JAIBasic::stopSoundHandle(JAISound* sound, u32 param)
 			}
 			sound->clearMainSoundPPointer();
 			stopSeq(sound);
+		} else {
+			unk0->unk180[sound->unk0].unk8 |= 2;
+			unk0->unk180[sound->unk0].unk48->unk10 = param;
 		}
 		break;
 	case 0x00000000:
