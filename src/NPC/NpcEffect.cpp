@@ -30,10 +30,10 @@ static BOOL IsCheckPassFrame(J3DFrameCtrl* fc, const f32* table)
 
 void TBaseNPC::setHappyEffectMtxPtr_(const JUTNameTab* nameTab)
 {
+	bool isMonte           = true;
 	const char* sKoshiNull = "koshi_null";
 	const char* sKoshi     = "koshi";
 	const char* sJntBody   = "jnt_body";
-	bool isMonte           = true;
 	if (!isNormalMonteM() && !isNormalMonteW())
 		isMonte = false;
 	const char* jntName;
