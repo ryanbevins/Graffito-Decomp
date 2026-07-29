@@ -36,7 +36,6 @@ public:
 	bool cleanedAll() const;
 	void draw();
 	void setDataAddress(TPollutionManager::TPollutionInfo*);
-	void initPollutionInfo();
 	TPollutionManager(const char*);
 
 	// fabricated

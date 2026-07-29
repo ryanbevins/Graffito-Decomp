@@ -140,6 +140,7 @@ TJointModel* TPollutionManager::newJointModel(int param_1) const
 	}
 }
 
+#pragma dont_inline on
 void TPollutionManager::setDataAddress(TPollutionManager::TPollutionInfo* info)
 {
 	// pointer patching ewwww
@@ -148,43 +149,39 @@ void TPollutionManager::setDataAddress(TPollutionManager::TPollutionInfo* info)
 	for (int i = 0; i < getJointModelNum(); ++i)
 		unk6C[i].unk28 += (u32)info;
 }
-
-void TPollutionManager::initPollutionInfo()
-{
-	TPollutionInfo* info
-	    = (TPollutionInfo*)JKRFileLoader::getGlbResource("/scene/map/ymap.ymp");
-
-	if (!info)
-		return;
-
-	mJointModelNum = info->unk0;
-	setDataAddress(info);
-
-	if (gpMarDirector->mMap == 0x9 && gpMarDirector->unk7D != 0x7) {
-		static const char* mare_name_table[] = {
-			"pollution00", "pollution01", "pollution02", "pollution03",
-			"pollution04", "pollution05", "pollution06", "pollutionA",
-			"pollutionB",  nullptr,
-		};
-		initJointModel("scene/map/pollution", mare_name_table);
-	} else {
-		static const char* name_table[] = {
-			"pollution00", "pollution01", "pollution02", "pollution03",
-			"pollution04", "pollution05", "pollution06", "pollution07",
-			"pollution08", "pollution09", "pollution10", "pollution11",
-			"pollution12", "pollution13", "pollution14", "pollution15",
-			"pollution16", "pollution17", "pollution18", "pollution19",
-			nullptr,
-		};
-		initJointModel("scene/map/pollution", name_table);
-	}
-}
+#pragma dont_inline off
 
 void TPollutionManager::load(JSUMemoryInputStream& stream)
 {
 	TJointModelManager::load(stream);
 
-	initPollutionInfo();
+	TPollutionInfo* info
+	    = (TPollutionInfo*)JKRFileLoader::getGlbResource("/scene/map/ymap.ymp");
+
+	if (info) {
+		mJointModelNum = info->unk0;
+		setDataAddress(info);
+
+		if (gpMarDirector->mMap == 0x9 && gpMarDirector->unk7D != 0x7) {
+			static const char* mare_name_table[] = {
+				"pollution00", "pollution01", "pollution02",
+				"pollution03", "pollution04", "pollution05",
+				"pollution06", "pollutionA", "pollutionB", nullptr,
+			};
+			initJointModel("scene/map/pollution", mare_name_table);
+		} else {
+			static const char* name_table[] = {
+				"pollution00", "pollution01", "pollution02",
+				"pollution03", "pollution04", "pollution05",
+				"pollution06", "pollution07", "pollution08",
+				"pollution09", "pollution10", "pollution11",
+				"pollution12", "pollution13", "pollution14",
+				"pollution15", "pollution16", "pollution17",
+				"pollution18", "pollution19", nullptr,
+			};
+			initJointModel("scene/map/pollution", name_table);
+		}
+	}
 
 	if (mJointModelNum != 0) {
 		unk204 = (ResTIMG*)JKRGetResource("/common/map/pollute.bti");
