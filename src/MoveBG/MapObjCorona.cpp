@@ -622,9 +622,11 @@ void TBathtub::tumble(f32 angle, f32 power)
 
 	s16 shortAngle = angle * (65536.0f / 360.0f);
 	f32 scaled     = power * 0.1f;
-	unk1E8.x += scaled * JMASCos(shortAngle);
+	f32 cosine     = JMASCos(shortAngle);
+	f32 sine       = -JMASSin(shortAngle);
+	unk1E8.x += scaled * cosine;
 	unk1E8.y += 0.5f;
-	unk1E8.z += scaled * -JMASSin(shortAngle);
+	unk1E8.z += scaled * sine;
 }
 
 MtxPtr TBathtub::getTakingMtx() { return getJointMtx(this, unk260); }
