@@ -247,7 +247,7 @@ DEFINE_NERVE(TNerveBeeHiveWait, TLiveActor)
 				actor->onHitFlag(HIT_FLAG_NO_COLLISION);
 			}
 		}
-		spine->pushAfterCurrent(&TNerveBeeHiveWait::theNerve());
+		spine->pushAfterCurrent(this);
 		return TRUE;
 	}
 
