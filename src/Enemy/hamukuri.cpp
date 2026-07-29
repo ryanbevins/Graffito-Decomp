@@ -956,7 +956,8 @@ void THamuKuri::makeCapFly(TMapObjBase* param_1)
 			// TODO: this is an inline
 			int uVar11 = unk124->getCurrentIndex();
 
-			int count  = MsRandF(2, 3);
+			TMsRange<s32> countRange(2, 3);
+			int count = countRange.rand();
 			int uVar10 = -1;
 			for (int i = 0; i < count; ++i) {
 				int next = unk124->unk0->getRandomNextIndex(uVar11, uVar10,
