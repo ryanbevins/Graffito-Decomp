@@ -258,7 +258,8 @@ void TFenceWater::initMapObj()
 	unk144 = new TMapObjMessenger(
 	    "\x92\x6E\x8C\x60\x83\x49\x83\x75\x83\x57\x83\x46\x83\x81\x83\x62\x83\x5A\x83\x93\x83\x57\x83\x83\x81\x5B");
 	unk144->unk68 = (u32)this;
-	unk144->initHitActor(mActorType, 1, 0, 0.0f, 0.0f, 100.0f, 300.0f);
+	u32 actorType = mActorType;
+	unk144->initHitActor(actorType, 1, 0, 0.0f, 0.0f, 100.0f, 300.0f);
 	unk144->unk64 &= ~1;
 
 	unk144->mPosition.set(mPosition.x, mPosition.y - 150.0f, mPosition.z);
