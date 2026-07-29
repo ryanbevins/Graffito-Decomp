@@ -427,8 +427,7 @@ void TBossTelesa::init(TLiveManager* manager)
 
 void TBossTelesa::calcRootMatrix()
 {
-	J3DModel* model = mMActor->getModel();
-	model->setBaseScale(mScaling);
+	mMActor->getModel()->setBaseScale(mScaling);
 
 	f32 offsetY = unk364;
 	if (offsetY > 0.0f)
@@ -447,7 +446,7 @@ void TBossTelesa::calcRootMatrix()
 	Mtx rotateMtx;
 	MsMtxSetRotRPH(rotateMtx, mRotation.x, mRotation.y, mRotation.z);
 	PSMTXConcat(translateMtx, rotateMtx, translateMtx);
-	PSMTXCopy(translateMtx, model->getBaseTRMtx());
+	PSMTXCopy(translateMtx, mMActor->getModel()->getBaseTRMtx());
 
 	TTelesaSlot* slot = (TTelesaSlot*)unk184;
 	if (slot) {
@@ -459,11 +458,11 @@ void TBossTelesa::calcRootMatrix()
 		    || mMActor->checkCurBckFromIndex(0)
 		    || mMActor->checkCurBckFromIndex(2)
 		    || mMActor->checkCurBckFromIndex(5)) {
-			slotMtx = model->mNodeMatrices[1];
+			slotMtx = mMActor->getModel()->mNodeMatrices[1];
 			if (!mMActor->checkCurBckFromIndex(0))
 				slotOffsetY = -2400.0f;
 		} else {
-			slotMtx = model->mNodeMatrices[0];
+			slotMtx = mMActor->getModel()->mNodeMatrices[0];
 		}
 
 		slot->mPosition.x = slotMtx[0][3];
@@ -471,10 +470,14 @@ void TBossTelesa::calcRootMatrix()
 		slot->mPosition.z = slotMtx[2][3];
 	}
 
-	for (u16 i = 0; i < model->getModelData()->getMaterialNum(); ++i) {
+	for (u16 i = 0;
+	     i < mMActor->getModel()->getModelData()->getMaterialNum(); ++i) {
 		Mtx lightMtx;
 		SMS_GetLightPerspectiveForEffectMtx(lightMtx);
-		model->getModelData()->getMaterialNodePointer(i)->getTexMtx(1)
+		mMActor->getModel()
+		    ->getModelData()
+		    ->getMaterialNodePointer(i)
+		    ->getTexMtx(1)
 		    ->setEffectMtx(lightMtx);
 	}
 
@@ -482,7 +485,7 @@ void TBossTelesa::calcRootMatrix()
 	gpMarioParticleManager->emit(0x1A5, &unk374, 1, this);
 	gpMarioParticleManager->emit(0x1A6, &unk374, 1, this);
 
-	MtxPtr baseMtx = model->mNodeMatrices[1];
+	MtxPtr baseMtx = mMActor->getModel()->mNodeMatrices[1];
 	unk374.set(baseMtx[0][3], baseMtx[1][3], baseMtx[2][3]);
 	gpMarioParticleManager->emitAndBindToPosPtr(0x1A7, &unk374, 1, this);
 
@@ -490,17 +493,17 @@ void TBossTelesa::calcRootMatrix()
 	    && !mMActor->checkCurBckFromIndex(12)
 	    && !mMActor->checkCurBckFromIndex(13)) {
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x19E, model->mNodeMatrices[5], 1, this);
+		    0x19E, mMActor->getModel()->mNodeMatrices[5], 1, this);
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x19F, model->mNodeMatrices[5], 1, this);
+		    0x19F, mMActor->getModel()->mNodeMatrices[5], 1, this);
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1A0, model->mNodeMatrices[10], 1, this);
+		    0x1A0, mMActor->getModel()->mNodeMatrices[10], 1, this);
 	}
 
 	if (mMActor->checkCurBckFromIndex(1)
 	    && mMActor->getFrameCtrl(0)->getFrame() < 20.0f) {
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0xE0, model->mNodeMatrices[5], 0, nullptr);
+		    0xE0, mMActor->getModel()->mNodeMatrices[5], 0, nullptr);
 	}
 
 	if (mMActor->checkCurBckFromIndex(12)) {
@@ -510,15 +513,15 @@ void TBossTelesa::calcRootMatrix()
 		}
 
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1A1, model->mNodeMatrices[1], 1, this);
+		    0x1A1, mMActor->getModel()->mNodeMatrices[1], 1, this);
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1A2, model->mNodeMatrices[9], 1, this);
+		    0x1A2, mMActor->getModel()->mNodeMatrices[9], 1, this);
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1A3, model->mNodeMatrices[9], 1, this);
+		    0x1A3, mMActor->getModel()->mNodeMatrices[9], 1, this);
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1A4, model->mNodeMatrices[9], 1, this);
+		    0x1A4, mMActor->getModel()->mNodeMatrices[9], 1, this);
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1F0, model->mNodeMatrices[9], 3, this);
+		    0x1F0, mMActor->getModel()->mNodeMatrices[9], 3, this);
 	}
 
 	if (mMActor->checkCurBckFromIndex(14)
