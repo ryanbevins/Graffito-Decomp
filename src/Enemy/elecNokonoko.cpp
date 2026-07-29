@@ -1047,7 +1047,8 @@ void TElecCarapace::shoot()
 	toGoal.sub(mPosition);
 	unk178 = speed * JGeometry::TUtil<f32>::sqrt(toGoal.dot(toGoal));
 
-	unk17C = MsRandF(20.0f, 30.0f);
+	TMsRange<f32> lifeRange(20.0f, 30.0f);
+	unk17C = lifeRange.rand();
 }
 void TElecCarapace::reflect(THitActor* other)
 {
