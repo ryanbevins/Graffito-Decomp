@@ -2011,27 +2011,11 @@ void TBubble::split()
 		bubble->unk1CC = 0.0f;
 		bubble->unk1D0 = 1;
 
-		volatile f32 min = -2.0f;
-		volatile f32 max = 2.0f;
+		TMsRange<f32> velocityRange(-2.0f, 2.0f);
 		JGeometry::TVec3<f32> velocity;
-
-		f32 range = max - min;
-		f32 factor = rand() * 0.000030517578f;
-		factor *= range;
-		factor += min;
-		velocity.x = factor;
-
-		range  = max - min;
-		factor = rand() * 0.000030517578f;
-		factor *= range;
-		factor += min;
-		velocity.y = factor;
-
-		range  = max - min;
-		factor = rand() * 0.000030517578f;
-		factor *= range;
-		factor += min;
-		velocity.z = factor;
+		velocity.x = velocityRange.rand();
+		velocity.y = velocityRange.rand();
+		velocity.z = velocityRange.rand();
 
 		bubble->mVelocity = velocity;
 	}
