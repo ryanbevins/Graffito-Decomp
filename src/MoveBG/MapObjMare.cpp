@@ -454,7 +454,7 @@ u32 TMapObjGrowTree::touchWater(THitActor* water)
 	if (water->mPosition.y > mPosition.y + unk148)
 		return 0;
 
-	if (mState == 1) {
+	if (isState(1)) {
 		startAnim(1);
 		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
 		ctrl->setRate(0.0f);
