@@ -141,7 +141,8 @@ DEFINE_NERVE(TNerveLimitKoopaJrRun, TLiveActor)
 		diff.y = 0.0f;
 		tdc.makeDirection(diff);
 
-		f32 absDir = self->mDirection1.absDirection(tdc.mDirection);
+		f32 targetDirection = tdc.mDirection;
+		f32 absDir = self->mDirection1.absDirection(targetDirection);
 		bool turned;
 		if (absDir <= 0.62831855f)
 			turned = false;
