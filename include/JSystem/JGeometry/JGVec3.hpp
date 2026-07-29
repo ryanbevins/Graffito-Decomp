@@ -120,6 +120,7 @@ public:
 
 #if defined(JGEOMETRY_DRAWUTIL_OWNER_HELPERS)                                  \
     || defined(JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE)                  \
+    || defined(JGEOMETRY_MARIOSPECIAL_TVEC3_ADD_SCALE_OUT_OF_LINE)             \
     || defined(JGEOMETRY_TVEC3_ADD_OUT_OF_LINE)
 	void add(const TVec3& operand);
 #else
@@ -280,7 +281,8 @@ public:
 		z = -z;
 	}
 
-#ifdef JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE
+#if defined(JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE)                     \
+    || defined(JGEOMETRY_MARIOSPECIAL_TVEC3_ADD_SCALE_OUT_OF_LINE)
 	void scale(f32 scale);
 #else
 	void scale(f32 scale)
