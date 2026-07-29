@@ -428,7 +428,7 @@ public:
 	const char* fetchString()
 	{
 		return (const char*)mBinary->getData(
-		    mBinary->getDataOffset(fetchU32()));
+		    mBinary->getDataOffset(fetchU32_5()));
 	}
 
 	void push(const TSpcSlice& slice) { mProcessStack.push(slice); }
