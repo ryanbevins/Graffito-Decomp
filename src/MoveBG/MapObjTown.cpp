@@ -303,7 +303,7 @@ void TMapObjBillboard::touchActor(THitActor* actor)
 	f32 angle = getRotYFromAxisX(actor->mPosition) * 57.295776f;
 	angle     = mRotation.y + angle;
 	angle     = callMsWrap(angle, 0.0f, 360.0f);
-	if (angle < 0.0f || angle > 180.0f)
+	if (angle < 0.0f || 180.0f < angle)
 		startAnim(2);
 	else
 		startAnim(1);
