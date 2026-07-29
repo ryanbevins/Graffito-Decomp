@@ -46,6 +46,14 @@ int TNameKuriManager::mStopMinScaleFrame = 8;
 
 static TNameKuri* gpCurNameKuri;
 
+inline void TNameKuri::setGoalPathMario()
+{
+	TPathNode node(SMS_GetMarioHitActor());
+	unkF4  = node;
+	unk104 = node;
+	unk114.clear();
+}
+
 static inline void setEffectMtxOnTex2(J3DMaterial* mat, MtxPtr mtx)
 {
 	mat->getTexGenBlock()->getTexMtx(2)->setEffectMtx(mtx);

@@ -101,6 +101,7 @@ public:
 	bool isAttackJump() const;
 	bool isHitWaterJump() const;
 	bool canJumpAttack() const;
+	void setGoalPathMario();
 
 public:
 	/* 0x194 */ int unk194;
