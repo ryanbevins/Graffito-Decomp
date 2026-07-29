@@ -261,6 +261,7 @@ void TApplication::initialize()
 	OSResumeThread(&gSetupThread);
 }
 
+#pragma dont_inline on
 void* TApplication::setupThreadFuncLogo()
 {
 	while (!gpMSound->checkWaveOnAram(MS_WAVE_UNK0))
@@ -284,6 +285,7 @@ void* TApplication::setupThreadFuncLogo()
 
 	return nullptr;
 }
+#pragma dont_inline off
 
 static void* SetupThreadFuncLogo(void* param)
 {
