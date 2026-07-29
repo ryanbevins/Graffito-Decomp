@@ -791,7 +791,9 @@ void JKRExpHeap::joinTwoBlocks(CMemBlock* block)
 		block->mAllocatedSpace = next->mAllocatedSpace + sizeof(CMemBlock)
 		                         + (next->mFlags & 0x7f)
 		                         + block->mAllocatedSpace;
-		setFreeBlock(block, block->mPrev, next->mNext);
+		CMemBlock* prev  = block->mPrev;
+		CMemBlock* after = next->mNext;
+		setFreeBlock(block, prev, after);
 	}
 }
 
