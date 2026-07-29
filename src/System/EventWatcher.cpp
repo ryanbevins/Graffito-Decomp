@@ -773,8 +773,8 @@ static void evAppearShineFromNPCWithoutDemo(TSpcTypedInterp<TEventWatcher>* inte
 	interp->verifyArgNum(2, &arg_num);
 	TSpcSlice fromSlice = interp->pop();
 	const char* dstName = interp->pop().getDataString();
-	TShine* shine       = JDrama::TNameRefGen::search<TShine>(dstName);
-	TLiveActor* from    = get_name_ref<TLiveActor>(fromSlice);
+	TLiveActor* from = get_name_ref<TLiveActor>(fromSlice);
+	TShine* shine    = JDrama::TNameRefGen::search<TShine>(dstName);
 	shine->mPosition.set(from->mPosition);
 	shine->makeObjAppeared();
 	interp->push();
