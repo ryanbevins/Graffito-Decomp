@@ -1316,12 +1316,10 @@ void TItemSlotDrum::generateItem()
 		item->mPosition.y += offset.y;
 		item->mPosition.z += offset.z;
 		MsVECNormalize(&offset, &offset);
-		f32 lo2 = 5.0f;
-		f32 hi2 = 10.0f;
+		TMsRange<f32> ySpeedRange(5.0f, 10.0f);
 		f32 vz = offset.z * 12.0f;
-		f32 spread = hi2 - lo2;
 		item->mVelocity.x = offset.x * 12.0f;
-		item->mVelocity.y = lo2 + spread * ((f32)rand() * (1.0f / 32768.0f));
+		item->mVelocity.y = ySpeedRange.rand();
 		item->mVelocity.z = vz;
 		item->mLiveFlag &= ~0x10;
 	}
