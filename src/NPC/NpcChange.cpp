@@ -461,8 +461,8 @@ bool TBaseNPC::isNowCanTaken() const
 	if ((flag & 0x100000) && mActorType - 0x04000000 != 0x1C
 	    && mHolder == nullptr && mHeldObject == nullptr
 	    && !(flag & 0x840007) && !(unk64 & 0x1)) {
-		const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
 		bool match = false;
+		const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
 		if (cur == &TNerveNPCGraphWander::theNerve()
 		    || cur == &TNerveNPCUTurn::theNerve()
 		    || cur == &TNerveNPCGraphWait::theNerve()
