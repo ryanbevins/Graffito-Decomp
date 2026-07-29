@@ -240,6 +240,8 @@ void TAmiKing::initMapObj()
 	mMActor->setBck("amiking_sleep1");
 	setAnmSound("/scene/mapObj/amiking_sleep1.bas");
 	offLiveFlag(LIVE_FLAG_UNK10);
+	for (u8 i = 0; i < mMActor->getModel()->getModelData()->getJointNum(); ++i) {
+	}
 }
 
 void TAmiKing::loadAfter()
