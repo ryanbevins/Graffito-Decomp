@@ -1397,6 +1397,8 @@ BOOL TMario::walkEnd()
 		}
 	}
 
+	f32 fwdVel;
+	f32 anmMult;
 	int stickDir;
 	BOOL rotated;
 	if (checkStickRotate(&stickDir) == 1 && mWaterGun != nullptr) {
@@ -1447,8 +1449,8 @@ rotateDone:
 		break;
 	}
 
-	f32 fwdVel = mForwardVel;
-	f32 anmMult = 0.25f;
+	fwdVel = mForwardVel;
+	anmMult = 0.25f;
 	f32 anmSpeed = fwdVel * anmMult;
 	if (anmSpeed < 0.1f)
 		anmSpeed = 0.1f;
