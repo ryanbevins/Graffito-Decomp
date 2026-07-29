@@ -45,6 +45,7 @@ void TSmJ3DScn::perform(u32 param_1, TGraphics* param_2)
 void TSmJ3DScn::loadSuper(JSUMemoryInputStream& stream)
 {
 	TViewObjPtrListT::loadSuper(stream);
-	mLightMap = new TLightMap;
-	mLightMap->load(stream);
+	TLightMap* lightMap = new TLightMap;
+	mLightMap            = lightMap;
+	lightMap->load(stream);
 }
