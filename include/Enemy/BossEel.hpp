@@ -3,6 +3,7 @@
 
 #include <Enemy/Enemy.hpp>
 #include <Enemy/EnemyManager.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <Strategic/SharedParts.hpp>
 #include <Strategic/Nerve.hpp>
 #include <dolphin/gx/GXStruct.h>
@@ -319,8 +320,7 @@ public:
 	/* 0x1D4 */ TParamRT<f32> mSLBodyScaleHigh;
 	/* 0x1E8 */ TParamRT<f32> mSLTearsDropScaleLow;
 	/* 0x1FC */ TParamRT<f32> mSLTearsDropScaleHigh;
-	/* 0x210 */ f32 mBodyScaleLow;
-	/* 0x214 */ f32 mBodyScaleHigh;
+	/* 0x210 */ TMsRange<f32> mBodyScaleRange;
 	/* 0x218 */ f32 mTearsDropScaleLow;
 	/* 0x21C */ f32 mTearsDropScaleHigh;
 };

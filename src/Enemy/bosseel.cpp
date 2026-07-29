@@ -1911,14 +1911,12 @@ TBEelTearsSaveLoadParams::TBEelTearsSaveLoadParams(const char* path)
     , PARAM_INIT(mSLBodyScaleHigh, 1.0f)
     , PARAM_INIT(mSLTearsDropScaleLow, 1.0f)
     , PARAM_INIT(mSLTearsDropScaleHigh, 1.0f)
-    , mBodyScaleLow(0.0f)
-    , mBodyScaleHigh(1.0f)
+    , mBodyScaleRange(0.0f, 1.0f)
     , mTearsDropScaleLow(0.0f)
     , mTearsDropScaleHigh(1.0f)
 {
 	TParams::load(mPrmPath);
-	mBodyScaleLow       = mSLBodyScaleLow.get();
-	mBodyScaleHigh      = mSLBodyScaleHigh.get();
+	mBodyScaleRange.set(mSLBodyScaleLow.get(), mSLBodyScaleHigh.get());
 	mTearsDropScaleLow  = mSLTearsDropScaleLow.get();
 	mTearsDropScaleHigh = mSLTearsDropScaleHigh.get();
 }
@@ -2032,10 +2030,7 @@ void TBEelTears::init(TLiveManager* manager)
 
 	onLiveFlag(LIVE_FLAG_DEAD);
 
-	f32 scaleMin = unk15C->mBodyScaleLow;
-	f32 scaleMax = unk15C->mBodyScaleHigh;
-	mBodyScale   = scaleMin
-	             + (scaleMax - scaleMin) * (rand() * 0.000030517578f);
+	mBodyScale = unk15C->mBodyScaleRange.rand();
 
 	TIdxGroupObj* group = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
 	MtxPtr mtx          = mMActor->getModel()->mNodeMatrices[0];
