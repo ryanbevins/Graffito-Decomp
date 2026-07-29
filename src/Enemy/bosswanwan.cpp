@@ -1685,7 +1685,7 @@ DEFINE_NERVE(TNerveBWWakeup, TLiveActor)
 	}
 
 	if (self->mMActor->curAnmEndsNext(0, nullptr)) {
-		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		spine->pushAfterCurrent(&TNerveBWGraphWander::theNerve());
 		return true;
 	}
 
