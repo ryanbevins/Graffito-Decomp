@@ -1424,6 +1424,7 @@ void THanaSambo::kill()
 		unk18C = 3;
 
 	mSpine->setNext(&TNerveHanaSamboDie::theNerve());
+	mSpine->pushAfterCurrent(&TNerveHanaSamboDie::theNerve());
 	mHead->onHitFlag(HIT_FLAG_NO_COLLISION);
 	onLiveFlag(LIVE_FLAG_UNK40);
 }
