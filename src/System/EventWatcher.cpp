@@ -787,8 +787,8 @@ static void evAppearShineFromKageMario(TSpcTypedInterp<TEventWatcher>* interp,
 	int shineNum     = interp->pop().getDataInt();
 	const char* src  = interp->pop().getDataString();
 	const char* dst  = interp->pop().getDataString();
-	TLiveActor* from = JDrama::TNameRefGen::search<TLiveActor>(dst);
-	TShine* shine    = JDrama::TNameRefGen::search<TShine>(src);
+	TLiveActor* from = JDrama::TNameRefGen::search<TLiveActor>(src);
+	TShine* shine    = JDrama::TNameRefGen::search<TShine>(dst);
 	shine->mPosition = from->mPosition;
 	shine->appearSimple(shineNum);
 	interp->push();
