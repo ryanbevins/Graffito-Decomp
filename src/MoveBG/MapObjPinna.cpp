@@ -340,8 +340,8 @@ TMerrygoround::TMerrygoround(const char* name)
 	}
 	for (int i = 0; i < 9; ++i) {
 		unk144[i] = nullptr;
-		unk168[i] = nullptr;
 		unk18C[i] = 0;
+		unk168[i] = nullptr;
 	}
 }
 
