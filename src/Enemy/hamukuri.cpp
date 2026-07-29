@@ -928,55 +928,58 @@ void THamuKuri::makeCapFly(TMapObjBase* param_1)
 	local_3c.x += -mVelocity.x * 20.0f;
 	local_3c.z += -mVelocity.z * 20.0f;
 
-	// TODO: control flow all over the place, definitely inlines needed
-
-	TSmallEnemy* holder = getManager()->getHolder(mInstanceIndex);
-	if (holder == nullptr && mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
-	    && mGroundPlane->isPool() && mGroundPlane->isWaterSurface()) {
-		mPosition = SMS_GetMarioPos();
-		mVelocity.set(0.0f, 10.0f, 0.0f);
-		offLiveFlag(LIVE_FLAG_UNK10);
-	} else {
-		mPosition = local_3c;
-		mPosition.y += 100.0f;
-		param_1->mPosition.y = mPosition.y;
-
-		if (param_1->receiveMessage(this, HIT_MESSAGE_TAKE)) {
-			onLiveFlag(LIVE_FLAG_DEAD);
-		} else {
-			reset();
-			onHaveCap();
-			mHeldObject = param_1;
-			onLiveFlag(LIVE_FLAG_HIDDEN);
-			offLiveFlag(LIVE_FLAG_DEAD);
-			offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
-			onHitFlag(HIT_FLAG_NO_COLLISION);
-			getManager()->unk70 = this;
-
-			// TODO: this is an inline
-			int uVar11 = unk124->getCurrentIndex();
-
-			TMsRange<s32> countRange(2, 3);
-			int count = countRange.rand();
-			int uVar10 = -1;
-			for (int i = 0; i < count; ++i) {
-				int next = unk124->unk0->getRandomNextIndex(uVar11, uVar10,
-				                                            0xffffffff);
-				uVar10   = uVar11;
-				uVar11   = next;
-			}
-
-			if (uVar11 < 0)
-				uVar11 = 0;
-
-			JGeometry::TVec3<f32> VStack_60;
-			unk124->getGraph()->getGraphNode(uVar11).getPoint(&VStack_60);
-
-			JGeometry::TVec3<f32> local_6c
-			    = calcVelocityToJumpToY(VStack_60, mCapSpeed, getGravityY());
-			onLiveFlag(LIVE_FLAG_AIRBORNE);
-			mVelocity = local_6c;
+	THamuKuri* capHolder
+	    = (THamuKuri*)getManager()->getHolder(mInstanceIndex);
+	if (capHolder == nullptr) {
+		if (mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
+		    || mGroundPlane->isPool() || mGroundPlane->isWaterSurface()) {
+			param_1->mPosition = SMS_GetMarioPos();
+			param_1->mVelocity.set(0.0f, 10.0f, 0.0f);
+			param_1->offLiveFlag(LIVE_FLAG_UNK10);
+			return;
 		}
+		capHolder = this;
+	}
+
+	capHolder->mPosition = local_3c;
+	capHolder->mPosition.y += 100.0f;
+	param_1->mPosition.y = capHolder->mPosition.y;
+
+	if (param_1->receiveMessage(capHolder, HIT_MESSAGE_TAKE)) {
+		capHolder->reset();
+		capHolder->onHaveCap();
+		capHolder->mHeldObject = param_1;
+		capHolder->onLiveFlag(LIVE_FLAG_HIDDEN);
+		capHolder->offLiveFlag(LIVE_FLAG_DEAD);
+		capHolder->offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+		capHolder->onHitFlag(HIT_FLAG_NO_COLLISION);
+		getManager()->unk70 = capHolder;
+
+		// TODO: this is an inline
+		int uVar11 = unk124->getCurrentIndex();
+
+		TMsRange<s32> countRange(2, 3);
+		int count = countRange.rand();
+		int uVar10 = -1;
+		for (int i = 0; i < count; ++i) {
+			int next = unk124->unk0->getRandomNextIndex(uVar11, uVar10,
+			                                            0xffffffff);
+			uVar10   = uVar11;
+			uVar11   = next;
+		}
+
+		if (uVar11 < 0)
+			uVar11 = 0;
+
+		JGeometry::TVec3<f32> VStack_60;
+		unk124->getGraph()->getGraphNode(uVar11).getPoint(&VStack_60);
+
+		JGeometry::TVec3<f32> local_6c = calcVelocityToJumpToY(
+		    VStack_60, mCapSpeed, capHolder->getGravityY());
+		capHolder->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		capHolder->mVelocity = local_6c;
+	} else {
+		capHolder->onLiveFlag(LIVE_FLAG_DEAD);
 	}
 }
 
