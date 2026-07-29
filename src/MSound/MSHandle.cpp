@@ -201,10 +201,8 @@ f32 MSHandle::calcPan(const Vec& vec, f32 param1, f32 param2)
 	}
 
 	f32 result = amp + maxAmp;
-	if (result > 1.0f)
-		result = 1.0f;
-	if (result < 0.0f)
-		result = 0.0f;
+	result = result > 1.0f ? 1.0f : result;
+	result = result < 0.0f ? 0.0f : result;
 	return result;
 }
 
