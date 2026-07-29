@@ -964,7 +964,7 @@ u8 TEnemyMario::thinkTrample()
 	if (emEnemyModel(this) != nullptr)
 		return false;
 
-	switch ((s16)emDoing(this)) {
+	switch ((s32)(u16)emDoing(this)) {
 	case 0xF:
 		emTrampleTimer(this)--;
 		if (emTrampleTimer(this) > 0) {
