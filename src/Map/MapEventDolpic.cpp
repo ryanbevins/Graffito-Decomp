@@ -56,11 +56,12 @@ bool TDolpicEventBiancoGate::control()
 	unk20->mPosition.y += unk24;
 	gpCameraShake->keepShake((EnumCamShakeMode)5, 1.0f);
 	SMSRumbleMgr->start(0, (f32*)nullptr);
-	gpPollution->clean(unk20->mPosition.x, unk20->mPosition.y,
-	                   unk20->mPosition.z, 10000.0f);
-	if (unk20->mPosition.y >= ((TMapObjBase*)unk20)->mInitialPosition.y) {
-		unk20->mPosition.y = ((TMapObjBase*)unk20)->mInitialPosition.y;
-		((TMapObjBase*)unk20)->setUpMapCollision(0);
+	JGeometry::TVec3<f32>* position = &unk20->mPosition;
+	gpPollution->clean(position->x, position->y, position->z, 10000.0f);
+	TMapObjBase* gate = (TMapObjBase*)unk20;
+	if (gate->mPosition.y >= gate->mInitialPosition.y) {
+		gate->mPosition.y = gate->mInitialPosition.y;
+		gate->setUpMapCollision(0);
 		unk18 = 0;
 		return true;
 	} else {
