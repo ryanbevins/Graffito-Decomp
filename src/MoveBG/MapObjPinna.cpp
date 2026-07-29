@@ -292,10 +292,9 @@ void TBalloonKoopaJr::kill()
 {
 	TMapObjGeneral::kill();
 
-	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-	emitAndScale(0x5a, 0, &unk148, scale);
-	emitAndScale(0x5b, 0, &unk148, scale);
-	emitAndScale(0x5c, 0, &unk148, scale);
+	emitAndScale(0x5a, 0, &unk148);
+	emitAndScale(0x5b, 0, &unk148);
+	emitAndScale(0x5c, 0, &unk148);
 	TFlagManager::smInstance->incFlag(0x60001, 1);
 	START_PINNA_SOUND(0x28b8, mPosition);
 }
