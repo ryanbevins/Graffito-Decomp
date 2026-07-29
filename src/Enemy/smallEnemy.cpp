@@ -432,11 +432,8 @@ void TSmallEnemy::setAfterDeadEffect()
 
 void TSmallEnemy::generateItem()
 {
-	volatile f32 mn = 0.0f;
-	volatile f32 mx = 100.0f;
-	f32 range       = mx - mn;
-	f32 randomOffset = range * MsRandF();
-	f32 randomValue  = mn + randomOffset;
+	TMsRange<f32> itemRollRange(0.0f, 100.0f);
+	f32 randomValue = itemRollRange.rand();
 	f32 eggRate     = getSaveParam2()->mSLGenEggRate.get();
 	f32 itemRate    = getSaveParam2()->mSLGenItemRate.get();
 	if (randomValue < eggRate + itemRate
