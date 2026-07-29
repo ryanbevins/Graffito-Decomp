@@ -907,15 +907,11 @@ void TBossTelesa::generateSlotItem()
 			dir.y = 10.0f;
 
 			Vec velocity;
-			f32 minSpeed = 0.8f;
-			f32 maxSpeed = 3.5f;
+			TMsRange<f32> itemSpeedRange(0.8f, 3.5f);
 			f32 speed    = params->mSL1stBubbleSp.get();
-			f32 range    = maxSpeed - minSpeed;
-			velocity.x = dir.x * speed
-			    * (minSpeed + range * (rand() * 0.000030517578f));
+			velocity.x = dir.x * speed * itemSpeedRange.rand();
 			velocity.y = dir.y;
-			velocity.z = dir.z * speed
-			    * (minSpeed + range * (rand() * 0.000030517578f));
+			velocity.z = dir.z * speed * itemSpeedRange.rand();
 
 			TMapObjBase* item = gpItemManager->makeObjAppeared(0x2000000E);
 			item->mPosition.x = rootMtx[0][3];
