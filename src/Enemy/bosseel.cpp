@@ -246,9 +246,8 @@ DEFINE_NERVE(TNerveBEelTearsSplit, TLiveActor)
 		tears->mMActor->setBckFromIndex(3);
 
 		MActor* actor = tears->mMActor;
-		actor->setFrameRate(
-		    tears->unk15C->mSLHitAnmFrameRate.get() * SMSGetAnmFrameRate(),
-		    0);
+		f32 hitAnmFrameRate = tears->unk15C->mSLHitAnmFrameRate.get();
+		actor->setFrameRate(hitAnmFrameRate * SMSGetAnmFrameRate(), 0);
 	}
 
 	if (tears->checkCurAnmEnd(0)) {
