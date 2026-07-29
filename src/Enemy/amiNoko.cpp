@@ -528,7 +528,8 @@ bool TAmiNoko::isHitValid(u32 msg)
 
 		matan(unk19C.z, unk19C.x);
 
-		f32 dot = 0.0f * unk19C.y + dx * unk19C.x + dz * unk19C.z;
+		JGeometry::TVec3<f32> horizontal(dx, 0.0f, dz);
+		f32 dot = horizontal.dot(unk19C);
 		if (dot > 0.0f || msg == 1) {
 			mSpine->pushNerve(&TNerveAmiNokoDie::theNerve());
 		}
