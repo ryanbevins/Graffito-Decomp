@@ -265,8 +265,7 @@ DEFINE_NERVE(TNervePakkunStay, TLiveActor)
 	if (self->mSeed->isUnk150Zero() && self->checkCurAnmEnd(0)) {
 		if (spine->getTime() >= self->mPakkunParams->mSLReadyTime.get()
 		    || spine->getTime() >= waitTime || self->unk1B1) {
-			JGeometry::TVec3<f32> goal = self->unk104.getPoint();
-			JGeometry::TVec3<f32> toGoal(goal);
+			JGeometry::TVec3<f32> toGoal(self->unk104.getPoint());
 			toGoal.sub(self->mPosition);
 			f32 goalDist = JGeometry::TUtil<f32>::sqrt(toGoal.squared());
 
