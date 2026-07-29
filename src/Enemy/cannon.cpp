@@ -1159,7 +1159,9 @@ void TCannon::init(TLiveManager* manager)
 		    unk28C->mSLChorobeiAttackHeight.get(),
 		    unk28C->mSLChorobeiDamageRadius.get(),
 		    unk28C->mSLChorobeiDamageHeight.get());
-		JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(unk1A8);
+		TIdxGroupObj* group
+		    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+		group->getChildren().push_back(unk1A8);
 
 		static const char* sCannonDomPartsJointTable[] = {
 			"nullC",
