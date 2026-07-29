@@ -626,7 +626,8 @@ void TIgaiga::setMeltAnm()
 
 	setBckAnm(5);
 
-	if (MsRandF(0.0f, 1.0f) < 0.2f) {
+	TMsRange<f32> itemRollRange(0.0f, 1.0f);
+	if (itemRollRange.rand() < 0.2f) {
 		gpItemManager->makeObjAppear(mPosition.x, mPosition.y + 20.0f,
 		                             mPosition.z, 0x20000002, true);
 	}
