@@ -735,10 +735,12 @@ void TSamboFlower::moveObject()
 
 					mMActor->setBck("flower_hit");
 					J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+					MActor* actor      = mMActor;
 					s16 end            = ctrl->getEnd();
-					ctrl               = mMActor->getFrameCtrl(0);
+					ctrl               = actor->getFrameCtrl(0);
 					ctrl->setFrame(end);
-					mMActor->setFrameRate(-SMSGetAnmFrameRate(), 0);
+					MActor* actorForRate = mMActor;
+					actorForRate->setFrameRate(-SMSGetAnmFrameRate(), 0);
 				} else {
 					J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
 					if (ctrl->getFrame() < 1.0f) {
