@@ -695,16 +695,18 @@ void TConsoleStr::startCloseWipe(bool param_1)
 		unk2A0[0]->hide();
 		unk2A0[1]->hide();
 
-		JUTRect b0 = unk290[0]->getPane()->getBounds();
-		unk290[0]->setPaneSize(0x2D, b0.getWidth(), 224, b0.getWidth(), 0);
+		JUTRect bounds = unk290[0]->getPane()->getBounds();
+		unk290[0]->setPaneSize(0x2D, bounds.getWidth(), 224,
+		                       bounds.getWidth(), 0);
 		unk290[0]->setPaneAlpha(45, 255, 0);
 
-		JUTRect b1 = unk290[1]->getPane()->getBounds();
-		unk290[1]->setPaneOffset(0x2D, 0, 224 - b1.y1, 0,
+		bounds = unk290[1]->getPane()->getBounds();
+		unk290[1]->setPaneOffset(0x2D, 0, 224 - bounds.y1, 0,
 		                         465 - unk290[1]->getInitialBounds().y1);
 		unk290[1]->setPaneSize(
-		    0x2D, b1.getWidth(),
-		    224 + (465 - unk290[1]->getInitialBounds().y1), b1.getWidth(), 0);
+		    0x2D, bounds.getWidth(),
+		    224 + (465 - unk290[1]->getInitialBounds().y1),
+		    bounds.getWidth(), 0);
 		unk290[1]->setPaneAlpha(45, 255, 0);
 
 		unk2BC = 8;
@@ -715,15 +717,15 @@ void TConsoleStr::startCloseWipe(bool param_1)
 	} else {
 		unk2BC = 2;
 
-		JUTRect b0 = unk290[0]->getPane()->getBounds();
-		unk290[0]->setPaneSize(0x2D, b0.getWidth(), 224, b0.getWidth(),
-		                       b0.getHeight());
+		JUTRect bounds = unk290[0]->getPane()->getBounds();
+		unk290[0]->setPaneSize(0x2D, bounds.getWidth(), 224,
+		                       bounds.getWidth(), bounds.getHeight());
 		unk290[0]->setPaneAlpha(45, 255, unk290[0]->getPane()->getAlpha());
 
-		JUTRect b1 = unk290[1]->getPane()->getBounds();
-		unk290[1]->setPaneOffset(0x2D, 0, 224 - b1.y1, 0, 0);
-		unk290[1]->setPaneSize(0x2D, b1.getWidth(), 0x1D0 - 224, b1.getWidth(),
-		                       b1.getHeight());
+		bounds = unk290[1]->getPane()->getBounds();
+		unk290[1]->setPaneOffset(0x2D, 0, 224 - bounds.y1, 0, 0);
+		unk290[1]->setPaneSize(0x2D, bounds.getWidth(), 0x1D0 - 224,
+		                       bounds.getWidth(), bounds.getHeight());
 		unk290[1]->setPaneAlpha(45, 255, unk290[1]->getPane()->getAlpha());
 	}
 }
