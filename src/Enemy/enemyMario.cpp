@@ -1,3 +1,4 @@
+#define JG_TUTIL_SQRT_OUT_OF_LINE
 #include <Enemy/EnemyMario.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EMario.hpp>
