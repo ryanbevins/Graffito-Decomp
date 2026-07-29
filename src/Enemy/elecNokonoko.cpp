@@ -559,10 +559,8 @@ void TElecNokonoko::init(TLiveManager* manager)
 	carapaceMActor->initDL();
 	carapaceMActor->unk4->lock();
 
-	volatile int low  = 0;
-	volatile int high = 300;
-	int range         = high - low;
-	mReadyTimer       = low + (int)(MsRandF() * range);
+	TMsRange<s32> readyTimerRange(0, 300);
+	mReadyTimer = readyTimerRange.rand();
 
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
