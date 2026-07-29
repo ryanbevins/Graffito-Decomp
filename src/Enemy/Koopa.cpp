@@ -845,10 +845,12 @@ f32 TKoopa::getFlameDirRate() const
 
 f32 TKoopa::getFlameDirDegree() const
 {
-	f32 rate   = getFlameDirRate();
-	f32 range  = getSaveParam2()->flameNeckRange.get();
+	f32 rate              = getFlameDirRate();
+	TEnemyManager* manager = (TEnemyManager*)mManager;
+	bool reverse           = unk154;
+	f32 range = ((TKoopaParams*)manager->unk38)->flameNeckRange.get();
 	f32 degree = rate * range;
-	if (unk154)
+	if (reverse)
 		degree = -degree;
 
 	return mRotation.y + degree;
