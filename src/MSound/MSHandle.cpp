@@ -64,19 +64,7 @@ static s32 computeCategoryIdx(u32 unk8)
 {
 	s32 idx = (unk8 >> 12) & 0xF;
 	u32 top = unk8 >> 30;
-	switch (top) {
-	case 0:
-		break;
-	default:
-		if (top == 2)
-			idx = 0x10;
-		else if (top == 3)
-			idx = 0x11;
-		else
-			idx = -1;
-		break;
-	}
-	return idx;
+	return top == 0 ? idx : top == 2 ? 0x10 : top == 3 ? 0x11 : -1;
 }
 
 f32 MSHandle::setDistanceVolumeCommon(f32 volume, u8 param)
