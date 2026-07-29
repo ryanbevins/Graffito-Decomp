@@ -908,7 +908,7 @@ static int PopoNonScaleCallback(J3DNode* node, int timing)
 	if (!popo)
 		return 1;
 
-	bool shouldScale = false;
+	bool shouldScale;
 	if (popo->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
 		shouldScale = true;
 	else if (popo->mSpine->getCurrentNerve()
@@ -916,6 +916,8 @@ static int PopoNonScaleCallback(J3DNode* node, int timing)
 		shouldScale = true;
 	else if (popo->unk1B4)
 		shouldScale = true;
+	else
+		shouldScale = false;
 
 	if (!shouldScale)
 		return 1;
