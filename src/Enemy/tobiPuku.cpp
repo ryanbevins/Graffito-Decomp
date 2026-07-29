@@ -134,8 +134,9 @@ BOOL TNerveTobiPukuReturnLaunch::execute(TSpineBase<TLiveActor>* spine) const
 	TTobiPuku* self = tobiPuku(spine);
 
 	if (spine->getTime() == 0) {
-		self->unkF4  = TPathNode(self->mLaunchPad->mPosition);
-		self->unk104 = TPathNode(self->mLaunchPad->mPosition);
+		TPathNode launchNode(self->mLaunchPad->mPosition);
+		self->unkF4  = launchNode;
+		self->unk104 = launchNode;
 		self->unk114.clear();
 		self->setSwimAnm();
 		self->unk1E0 = self->mPosition.y;
