@@ -2723,16 +2723,16 @@ void TGCConsole2::processMoveNozzle()
 		return;
 
 	switch (unk14) {
-	case 0:
-		unk274->setPanePosition(50, JUTPoint(0, 0), JUTPoint(0, -20),
-		                         JUTPoint(0, 0));
-		break;
 	case 1:
 		if (unk30C == 0) {
 			unk14 = 2;
 			return;
 		}
 		unk274->setPanePosition(30, JUTPoint(0, 0), JUTPoint(0, -30),
+		                         JUTPoint(0, 0));
+		break;
+	case 0:
+		unk274->setPanePosition(50, JUTPoint(0, 0), JUTPoint(0, -20),
 		                         JUTPoint(0, 0));
 		break;
 	case 2:
