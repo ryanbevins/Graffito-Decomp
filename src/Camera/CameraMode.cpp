@@ -15,14 +15,20 @@ bool CPolarSubCamera::isLButtonCameraInbetween() const
 	bool result = false;
 	if (isNowInbetween()) {
 		bool found = false;
-		if (mMode == 7)
+		switch (mMode) {
+		case 7:
 			found = true;
+			break;
+		}
 
 		if (!found) {
 			int prevMode = *(int*)((u8*)this + 0x54);
 			found = false;
-			if (prevMode == 7)
+			switch (prevMode) {
+			case 7:
 				found = true;
+				break;
+			}
 
 		}
 		if (found)
