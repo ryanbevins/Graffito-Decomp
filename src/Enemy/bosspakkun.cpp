@@ -1785,13 +1785,12 @@ void TBossPakkunMtxCalc::calcBellyScale(u16 joint_no)
 	if (joint_no != 4 && joint_no != 0x24)
 		return;
 
-	TBossPakkun* owner = mOwner;
 	f32 ratio;
-	if ((s8)owner->unk17C != 0) {
-		ratio = (f32)owner->unk1B8 / 50.0f;
+	if ((s8)mOwner->unk17C != 0) {
+		ratio = (f32)mOwner->unk1B8 / 50.0f;
 	} else {
-		s32 limit = owner->getBossPakkunSaveParam()->mSLWaterMarkLimit.value;
-		s32 count = owner->unk178;
+		s32 limit = mOwner->getBossPakkunSaveParam()->mSLWaterMarkLimit.value;
+		s32 count = mOwner->unk178;
 		if (count > limit)
 			count = limit;
 
@@ -1801,7 +1800,7 @@ void TBossPakkunMtxCalc::calcBellyScale(u16 joint_no)
 	f32 blend = JMAHermiteInterpolation(ratio, 0.0f, 0.0f, 10.0f, 1.0f,
 	                                    1.0f, 0.0f);
 
-	J3DModel* model = owner->getModel();
+	J3DModel* model = mOwner->getModel();
 	MtxPtr jointMtx = model->mNodeMatrices[joint_no];
 	Mtx scaleMtx;
 
