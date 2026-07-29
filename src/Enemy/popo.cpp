@@ -375,9 +375,8 @@ bool TPopo::isFindMario(float length)
 			f32 searchLength = params->getSLSearchLength() * length;
 			f32 searchAngle  = params->getSLSearchAngle() * length;
 			f32 searchAware  = params->getSLSearchAware() * length;
-			return isInSight(marioPos, searchLength, searchAngle, searchAware) ?
-			           true :
-			           false;
+			if (isInSight(marioPos, searchLength, searchAngle, searchAware))
+				return true;
 		}
 	}
 
