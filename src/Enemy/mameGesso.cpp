@@ -181,8 +181,8 @@ void TMameGesso::reset()
 {
 	TWalkerEnemy::reset();
 
-	volatile int min = 0;
 	volatile int max = unk194->mSLGenerateInterval.get();
+	volatile int min = 0;
 	int range        = max - min;
 	unk1CC          = min + (int)(range * MsRandF());
 	unk1D0    = 0;
