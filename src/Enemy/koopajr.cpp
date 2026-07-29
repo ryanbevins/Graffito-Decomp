@@ -377,9 +377,11 @@ TSpineEnemy* TKoopaJrManager::createEnemyInstance() { return nullptr; }
 
 void TKoopaJrManager::loadAfter()
 {
-	const char* filename = "/scene/koopajr/jpa/ms_koopajr_killer.jpa";
+	static const char* onetimeFilenames[] = {
+		"/scene/koopajr/jpa/ms_koopajr_killer.jpa",
+	};
 	if (!gParticleFlagLoaded[0xef]) {
-		gpResourceManager->load(filename, 0xef);
+		gpResourceManager->load(onetimeFilenames[0], 0xef);
 		gParticleFlagLoaded[0xef] = true;
 	}
 }
