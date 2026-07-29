@@ -473,16 +473,10 @@ void TYumboSeed::perform(u32 action, JDrama::TGraphics* graphics)
 		mtx[1][3] = mPosition.y;
 		mtx[2][3] = mPosition.z;
 
-		J3DModel* mdl = mMActor->getModel();
-		// stomp model scale in-place via integer copy
-		*(u32*)((u8*)mdl + 0x14) = *(u32*)&mScaling.x;
-		*(u32*)((u8*)mdl + 0x18) = *(u32*)&mScaling.y;
-		*(u32*)((u8*)mdl + 0x1c) = *(u32*)&mScaling.z;
-
-		PSMTXCopy(mtx, (MtxPtr)((u8*)mdl + 0x20));
-
-		typedef void (*ModelCalcFn)(J3DModel*);
-		((ModelCalcFn)((u32*)(*(u32**)mdl))[4])(mdl);
+		J3DModel* model = mMActor->getModel();
+		model->unk14 = mScaling;
+		PSMTXCopy(mtx, mMActor->getModel()->getBaseTRMtx());
+		mMActor->getModel()->calc();
 	}
 
 	if (action & 1) {
