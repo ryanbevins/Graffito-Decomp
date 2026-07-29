@@ -637,7 +637,6 @@ void TPinnaShell::control()
 
 BOOL TPinnaShell::receiveMessage(THitActor* sender, u32 message)
 {
-	BOOL result = false;
 	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
 		gpMarioParticleManager->emit(
 		    PARTICLE_MS_ENM_WATHIT, &sender->mPosition, 0, nullptr);
@@ -648,9 +647,10 @@ BOOL TPinnaShell::receiveMessage(THitActor* sender, u32 message)
 
 		if (unk6C < -TShellCup::mOpenRotMax)
 			unk68 = 1;
-		result = true;
+		return TRUE;
+	} else {
+		return FALSE;
 	}
-	return result;
 }
 
 TViking::TViking(const char* name)
