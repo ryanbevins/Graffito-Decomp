@@ -723,11 +723,12 @@ DEFINE_NERVE(TNerveNameKuriLand, TLiveActor)
 {
 	TNameKuri* self = (TNameKuri*)spine->getBody();
 
-	if (self->isBckAnm(4) && self->checkCurAnmEnd(0))
-		return true;
-
-	if (!self->isAirborne())
+	if (self->isBckAnm(4)) {
+		if (self->checkCurAnmEnd(0))
+			return true;
+	} else if (!self->isAirborne()) {
 		self->setBckAnm(4);
+	}
 
 	return false;
 }
