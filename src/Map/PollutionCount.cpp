@@ -344,7 +344,7 @@ void TPollutionCounterLayer::drawJointObjStamp(int param_1) const
 		GXSetChanCtrl(GX_COLOR1A1, 0, GX_SRC_REG, GX_SRC_REG, 0, GX_DF_NONE,
 		              GX_AF_NONE);
 
-		if (unkD8[i].unk0 == 0) {
+		if (info.unk0 == 0) {
 			GXSetChanMatColor(GX_COLOR0A0, (GXColor) { 0, 0, 0, 0xff });
 		} else {
 			GXSetChanMatColor(GX_COLOR0A0,
@@ -368,8 +368,8 @@ void TPollutionCounterLayer::drawJointObjStamp(int param_1) const
 		GXLoadPosMtxImm(local_6c, 0);
 
 		j3dSys.setVtxPos(pTVar2->getModelData()->getVtxPosArray());
-		for (int j = 0; j < unkD8[i].unk4->getShapeNum(); ++j) {
-			drawShape(unkD8[i].unk4->getShape(j));
+		for (int j = 0; j < info.unk4->getShapeNum(); ++j) {
+			drawShape(info.unk4->getShape(j));
 		}
 	}
 }
