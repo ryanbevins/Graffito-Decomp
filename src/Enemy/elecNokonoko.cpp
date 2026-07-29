@@ -798,8 +798,7 @@ void TElecCarapace::perform(u32 flags, JDrama::TGraphics* graphics)
 			request.unk1D  = 0;
 		}
 
-		request.unk10 = unk16C->mScaledBodyRadius;
-		request.unkC  = request.unk10;
+		request.unkC = request.unk10 = unk16C->mScaledBodyRadius;
 		request.unk14 = mRotation.y;
 		gpBindShadowManager->request(request, getActorType());
 	}
