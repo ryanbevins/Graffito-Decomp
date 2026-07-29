@@ -222,7 +222,8 @@ void TDolpicEventRiccoMammaGate::load(JSUMemoryInputStream& stream)
 	unk24 = TMapObjBase::newAndInitBuildingCollisionMove(level + 1, nullptr);
 	unk28 = TMapObjBase::newAndInitBuildingCollisionWarp(level + 1, nullptr);
 
-	if (TFlagManager::smInstance->getBool(unk2C)) {
+	u32 flagId = unk2C;
+	if (TFlagManager::smInstance->getBool(flagId)) {
 		unk20 = getBuilding(level + 1)->getJoint();
 		TMapObjBase::setJointScaleY(unk20, 0.008f);
 		TMapObjBase::setJointTransY(unk20, 295.0f);
