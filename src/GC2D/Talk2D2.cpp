@@ -956,7 +956,7 @@ bool TTalk2D2::eraseNormalWindow()
 		else
 			unk340 = 0x40;
 
-		unk27C = cColorTable[0];
+		*(u32*)&unk27C = 0xffffffff;
 		unk2DE = 0;
 		unk2DC = 0;
 		alpha  = 0xff;
