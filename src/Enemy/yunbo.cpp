@@ -496,8 +496,10 @@ void TYumboSeed::perform(u32 action, JDrama::TGraphics* graphics)
 		mVelocity.y *= fric;
 		mVelocity.z *= fric;
 
-		for (int i = 0; i < mColCount; ++i) {
-			if (mCollisions[i]->mActorType == 0x80000001) {
+		THitActor** collision = mCollisions;
+		THitActor** collisionEnd = collision + mColCount;
+		for (; collision != collisionEnd; ++collision) {
+			if ((*collision)->mActorType == 0x80000001) {
 				SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
 				mState |= 1;
 			}
