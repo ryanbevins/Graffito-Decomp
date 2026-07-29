@@ -1151,11 +1151,8 @@ void TItemSlotDrum::moveObject()
 		for (s32 j = 0; j < unk148; ++j) {
 			if (*((u8*)this + 0x19F + j) == 0)
 				continue;
-			f32 lo = 0.0f;
-			f32 hi = 1.0f;
-			f32 spread = hi - lo;
-			f32 picked = lo
-			    + spread * ((f32)rand() * (1.0f / 32768.0f));
+			TMsRange<f32> retryRange(0.0f, 1.0f);
+			f32 picked = retryRange.rand();
 			if (picked < 0.9f) {
 				*((u8*)this + 0x19C + j) = 1;
 				continue;
