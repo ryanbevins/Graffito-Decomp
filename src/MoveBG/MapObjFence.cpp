@@ -156,8 +156,7 @@ void TRailFence::goOnRail()
 	if (!graph)
 		return;
 
-	JGeometry::TVec3<f32> nodePos = graph->indexToPoint(tracer->mCurrIdx);
-	JGeometry::TVec3<f32> diff   = nodePos;
+	JGeometry::TVec3<f32> diff = graph->indexToPoint(tracer->mCurrIdx);
 	diff.x -= mPosition.x;
 	diff.y -= mPosition.y;
 	diff.z -= mPosition.z;
