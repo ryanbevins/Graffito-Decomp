@@ -162,8 +162,8 @@ DEFINE_NERVE(TNerveYumboDancing, TLiveActor)
 
 	if (fabsf(gpMarioPos->y - self->mPosition.y)
 	    < self->getSaveParam2()->mSLSearchHeight.get()) {
-		JGeometry::TVec3<f32> mp = *gpMarioPos;
-		mp.y = self->mPosition.y;
+		JGeometry::TVec3<f32> mp(gpMarioPos->x, self->mPosition.y,
+		                        gpMarioPos->z);
 		f32 sl = self->getSaveParam2()->mSLSearchLength.get();
 		f32 sa = self->getSaveParam2()->mSLSearchAngle.get();
 		f32 sw = self->getSaveParam2()->mSLSearchAware.get();
