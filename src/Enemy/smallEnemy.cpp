@@ -253,6 +253,7 @@ void TSmallEnemy::attackToMario()
 void TSmallEnemy::reset()
 {
 	TSpineEnemy::reset();
+	unk158 = 1.0f;
 
 	TSmallEnemyParams* params1 = getSaveParam2();
 	mTurnSpeed                 = params1->mTurnSpeedRange.rand();
