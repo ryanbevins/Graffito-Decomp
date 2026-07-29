@@ -612,7 +612,9 @@ void TPollutionCounterLayer::countTexDegree(int param_1)
 	drawBlack(img->width, img->height);
 	loadPollutionLayer((u8*)img + img->imageDataOffset, img->width, img->height,
 	                   GX_TEXMAP0);
-	initGXforPollutionLayer(layer->unk30, layer->unk32, layer->unk85,
+	u16 pollutionFlags = layer->unk32;
+	int pollutionType  = layer->unk30;
+	initGXforPollutionLayer(pollutionType, pollutionFlags, layer->unk85,
 	                        layer->unk84);
 
 	GXClearPixMetric();
