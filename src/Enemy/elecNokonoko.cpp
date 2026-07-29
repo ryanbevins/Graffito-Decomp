@@ -782,8 +782,7 @@ void TElecCarapace::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (flags & 0x200) {
-		bool dead = isUnk150Zero() ? true : false;
-		if (dead)
+		if (isUnk150Zero())
 			return;
 		if (unk16C->checkLiveFlag(LIVE_FLAG_DEAD))
 			return;
