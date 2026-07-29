@@ -702,8 +702,7 @@ void TChuuHana::behaveToWater(THitActor* actor)
 	unk165 = true;
 	unk224 = 0;
 
-	const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
-	if (nerve == &TNerveChuuHanaRoll::theNerve()) {
+	if (mSpine->getCurrentNerve() == &TNerveChuuHanaRoll::theNerve()) {
 		JGeometry::TVec3<f32> dir;
 		dir.x = mPosition.x - gpMarioPos->x;
 		dir.y = 0.0f;
@@ -720,11 +719,12 @@ void TChuuHana::behaveToWater(THitActor* actor)
 		return;
 	}
 
-	if (nerve == &TNerveChuuHanaWalkOnPanel::theNerve()
-	    || nerve == &TNerveChuuHanaAttack::theNerve()
-	    || nerve == &TNerveChuuHanaWait::theNerve()
+	if (mSpine->getCurrentNerve() == &TNerveChuuHanaWalkOnPanel::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveChuuHanaAttack::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveChuuHanaWait::theNerve()
 	    || (mNewSw != 0
-	        && nerve == &TNerveChuuHanaStick::theNerve())) {
+	        && mSpine->getCurrentNerve()
+	            == &TNerveChuuHanaStick::theNerve())) {
 		unk165 = true;
 		if (mAttackVersion != 0)
 			*unk21C = 1;
@@ -746,7 +746,8 @@ void TChuuHana::behaveToWater(THitActor* actor)
 		mVelocity = dir;
 		onLiveFlag(LIVE_FLAG_AIRBORNE);
 
-		if (nerve != &TNerveChuuHanaStick::theNerve())
+		if (mSpine->getCurrentNerve()
+		    != &TNerveChuuHanaStick::theNerve())
 			mSpine->pushNerve(&TNerveChuuHanaStick::theNerve());
 
 		mSprayedByWaterCooldown = 0;
@@ -754,7 +755,8 @@ void TChuuHana::behaveToWater(THitActor* actor)
 	}
 
 	if (mNewSw == 0
-	    && nerve == &TNerveChuuHanaKeepBalance::theNerve()) {
+	    && mSpine->getCurrentNerve()
+	        == &TNerveChuuHanaKeepBalance::theNerve()) {
 		JGeometry::TVec3<f32> dir;
 		dir.x = mPosition.x - gpMarioPos->x;
 		dir.y = 10.0f;
