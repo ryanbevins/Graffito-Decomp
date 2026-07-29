@@ -1704,15 +1704,10 @@ void TTelesaSlot::calcRootMatrix()
 #pragma dont_inline on
 void TTelesaSlot::randomReset()
 {
-	volatile int min = 0;
-	volatile int max = 8;
+	TMsRange<s32> indexRange(0, 8);
 
 	for (int i = 0; i < 3; ++i) {
-		int range = max - min;
-		unk13C[i] = (f32)(unk168
-		                   * (min
-		                      + (int)(range
-		                              * (rand() * 0.000030517578f))));
+		unk13C[i] = (f32)(unk168 * indexRange.rand());
 		*(&unk198 + i) = 0;
 	}
 }
