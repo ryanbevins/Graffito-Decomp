@@ -131,7 +131,7 @@ TTalk2D2::TTalk2D2(const char* name)
 	unk270 = 1;
 	unk274 = 0;
 	unk278 = 0;
-	unk27C = cColorTable[0];
+	*(u32*)&unk27C = 0xffffffff;
 	unk280 = 0;
 	unk2DC = 0;
 	unk330 = 0;
