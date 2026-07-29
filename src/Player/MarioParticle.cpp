@@ -74,7 +74,7 @@ void TMario::toroccoEffect()
 {
 	JGeometry::TVec3<f32> dist(mPosition);
 	dist.sub(mToroccoPos);
-	f32 len = dist.length();
+	f32 len = JGeometry::TVec3<f32>(dist).length();
 
 	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
 	    0x11F, mTorocco->getModel()->getAnmMtx(0), 1, this);
