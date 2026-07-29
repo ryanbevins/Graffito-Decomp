@@ -383,7 +383,7 @@ void TBossTelesa::init(TLiveManager* manager)
 	unk16C = new TBossTelesaBody("ボステレサ体コリジョン");
 	TIdxGroupObj* enemyGroup
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
-	enemyGroup->add(unk16C);
+	enemyGroup->getChildren().push_back(unk16C);
 	unk16C->initHitActor(0x08000013, 5, 0xD1000000, 350.0f, 550.0f,
 	                     300.0f, 500.0f);
 	((TBossTelesaBody*)unk16C)->unk68 = this;
@@ -392,7 +392,7 @@ void TBossTelesa::init(TLiveManager* manager)
 	unk170 = new TBossTelesaTongue("ボステレサ舌コリジョン");
 	enemyGroup
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
-	enemyGroup->add(unk170);
+	enemyGroup->getChildren().push_back(unk170);
 	unk170->initHitActor(0x08000013, 5, 0xC0000000, 180.0f, 350.0f,
 	                     180.0f, 350.0f);
 	((TBossTelesaTongue*)unk170)->unk68 = this;
@@ -401,7 +401,7 @@ void TBossTelesa::init(TLiveManager* manager)
 	unk174 = new TBossTelesaKillSmallEnemy("ボステレサ雑魚敵死コリジョン");
 	enemyGroup
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
-	enemyGroup->add(unk174);
+	enemyGroup->getChildren().push_back(unk174);
 	unk174->initHitActor(0x1000000C, 5, 0x10000000, 400.0f, 300.0f,
 	                     400.0f, 300.0f);
 	unk174->offHitFlag(HIT_FLAG_NO_COLLISION);
