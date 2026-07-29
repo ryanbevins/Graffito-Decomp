@@ -283,7 +283,8 @@ public:
 	}
 
 #if defined(JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE)                     \
-    || defined(JGEOMETRY_MARIOSPECIAL_TVEC3_ADD_SCALE_OUT_OF_LINE)
+    || defined(JGEOMETRY_MARIOSPECIAL_TVEC3_ADD_SCALE_OUT_OF_LINE)             \
+    || defined(JGEOMETRY_TVEC3_SCALE_OUT_OF_LINE)
 	void scale(f32 scale);
 #else
 	void scale(f32 scale)

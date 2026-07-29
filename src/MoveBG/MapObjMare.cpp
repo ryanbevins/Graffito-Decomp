@@ -1,7 +1,9 @@
 #define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
+#define JGEOMETRY_TVEC3_SCALE_OUT_OF_LINE
 #define LIVEACTOR_GETMACTOR_OUT_OF_LINE
 #include <MoveBG/MapObjMare.hpp>
 #undef LIVEACTOR_GETMACTOR_OUT_OF_LINE
+#undef JGEOMETRY_TVEC3_SCALE_OUT_OF_LINE
 #undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
