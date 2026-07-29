@@ -97,10 +97,10 @@ void TPinnaCoaster::initMapObj()
 	    "/scene/mapObj/CoasterRail.bmd", mManager->getMActorAnmData(), 3,
 	    0x10210000);
 	unk138->setBck("coasterrail");
-	unk138->setFrameRate(SMSGetAnmFrameRate() * 0.25f, 0);
 
 	MsMtxSetXYZRPH(unk138->getModel()->getBaseTRMtx(), mPosition.x, mPosition.y,
 	               mPosition.z, mRotation.x, mRotation.y, mRotation.z);
+	unk138->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate() * 0.25f);
 	unk140 = mPosition;
 }
 
