@@ -154,11 +154,13 @@ void TPoiHana::init(TLiveManager* param_1)
 	    ->getChildren()
 	    .push_back(unk1BC);
 
-	unk1BC->initHitActor(0, 2, 0x80000000,
-	                     unk19C->mSLAttackRadius.get() * mBodyScale,
-	                     unk19C->mSLAttackHeight.get() * mBodyScale,
-	                     unk19C->mSLDamageRadius.get() * mBodyScale,
-	                     unk19C->mSLDamageHeight.get() * mBodyScale);
+	f32 attackRadius = unk19C->mSLAttackRadius.get();
+	f32 attackHeight = unk19C->mSLAttackHeight.get();
+	f32 damageRadius = unk19C->mSLDamageRadius.get();
+	f32 damageHeight = unk19C->mSLDamageHeight.get();
+	unk1BC->initHitActor(0, 2, 0x80000000, attackRadius * mBodyScale,
+	                     attackHeight * mBodyScale, damageRadius * mBodyScale,
+	                     damageHeight * mBodyScale);
 
 	unk1BC->unk68 = this;
 
