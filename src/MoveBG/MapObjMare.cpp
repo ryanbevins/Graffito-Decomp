@@ -1,4 +1,6 @@
+#define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <MoveBG/MapObjMare.hpp>
+#undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <MoveBG/MapObjWave.hpp>
