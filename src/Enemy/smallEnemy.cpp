@@ -433,12 +433,13 @@ void TSmallEnemy::setAfterDeadEffect()
 
 void TSmallEnemy::generateItem()
 {
-	TSmallEnemyParams* params = getSaveParam2();
-	volatile f32 mn           = 0.0f;
-	volatile f32 mx           = 100.0f;
-	f32 range                 = mx - mn;
-	if (mn + range * MsRandF() < params->mSLGenEggRate.get()
-	                                 + params->mSLGenItemRate.get()
+	volatile f32 mn = 0.0f;
+	volatile f32 mx = 100.0f;
+	f32 range       = mx - mn;
+	f32 randomValue = mn + range * MsRandF();
+	f32 eggRate     = getSaveParam2()->mSLGenEggRate.get();
+	f32 itemRate    = getSaveParam2()->mSLGenItemRate.get();
+	if (randomValue < eggRate + itemRate
 
 	    && !mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL))
 		gpMapObjManager->makeObjAppear(mPosition.x, mGroundHeight, mPosition.z,
