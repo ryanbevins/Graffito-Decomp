@@ -1209,17 +1209,20 @@ void TSamboHead::setDeadAnm() { setBckAnm(3); }
 
 void TSamboHead::setAfterDeadEffect()
 {
-	if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
-	        isBckAnm(1) ? 0xE5 : 0xE4, &mPosition, 0, nullptr)) {
-		JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
-		emitter->setScale(scale);
+	JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
+	if (isBckAnm(1)) {
+		if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+		        0xE5, &mPosition, 0, nullptr))
+			emitter->setScale(scale);
+	} else {
+		if (JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+		        0xE4, &mPosition, 0, nullptr))
+			emitter->setScale(scale);
 	}
 
 	if (JPABaseEmitter* emitter
-	    = gpMarioParticleManager->emit(0xE6, &mPosition, 0, nullptr)) {
-		JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
+	    = gpMarioParticleManager->emit(0xE6, &mPosition, 0, nullptr))
 		emitter->setScale(scale);
-	}
 
 	if (gpMSound->gateCheck(0x295F))
 		MSoundSESystem::MSoundSE::startSoundActor(0x295F, &mPosition, 0,
