@@ -828,28 +828,22 @@ void TBossTelesa::generateSlotItem()
 				actor = (TMapObjBase*)unk2A8[i];
 
 			Vec velocity;
-			f32 minSpeed = 6.0f;
-			f32 maxSpeed = 10.0f;
-			f32 range    = maxSpeed - minSpeed;
+			TMsRange<f32> fruitSpeedRange(6.0f, 10.0f);
 
 			if (i == 0 || i == 4) {
 				actor->makeObjAppeared();
 				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
 
-				velocity.x = normalizedDir.x
-				    * (minSpeed + range * (rand() * 0.000030517578f));
+				velocity.x
+				    = normalizedDir.x * fruitSpeedRange.rand();
 				velocity.y = -2.0f;
-				velocity.z = normalizedDir.z
-				    * (minSpeed + range * (rand() * 0.000030517578f));
+				velocity.z
+				    = normalizedDir.z * fruitSpeedRange.rand();
 				if (i == 0) {
 					velocity.x = normalizedDir.x
-					    * (minSpeed
-					       + range * (rand() * 0.000030517578f))
-					    * 2.0f;
+					    * fruitSpeedRange.rand() * 2.0f;
 					velocity.z = normalizedDir.z
-					    * (minSpeed
-					       + range * (rand() * 0.000030517578f))
-					    * 2.0f;
+					    * fruitSpeedRange.rand() * 2.0f;
 				}
 
 				actor->mVelocity = velocity;
@@ -859,11 +853,11 @@ void TBossTelesa::generateSlotItem()
 				actor->makeObjAppeared();
 				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
 
-				velocity.x = normalizedDir.x
-				    * (minSpeed + range * (rand() * 0.000030517578f));
+				velocity.x
+				    = normalizedDir.x * fruitSpeedRange.rand();
 				velocity.y = -2.0f;
-				velocity.z = normalizedDir.z
-				    * (minSpeed + range * (rand() * 0.000030517578f));
+				velocity.z
+				    = normalizedDir.z * fruitSpeedRange.rand();
 
 				actor->mVelocity = velocity;
 				actor->offLiveFlag(LIVE_FLAG_UNK10);
