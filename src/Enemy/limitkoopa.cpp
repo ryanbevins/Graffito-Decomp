@@ -457,8 +457,10 @@ void TLimitKoopa::startHipDrop()
 	vel = calcVelocityToJumpToY(target, vel.y,
 	                            getSaveParam2()->mHipDropGravityY.get());
 
-	if (vel.length() > 200.0f)
-		vel.setLength(200.0f);
+	if (vel.length() > 200.0f) {
+		vel.normalize();
+		vel.scale(200.0f);
+	}
 
 	mVelocity.set(vel);
 }
