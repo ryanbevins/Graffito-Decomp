@@ -257,7 +257,7 @@ public:
 	void getNormalVecFromOffset(f32, f32, f32, JGeometry::TVec3<f32>*);
 	void getNormalVecFromTargetXZ(f32, f32, JGeometry::TVec3<f32>*) const;
 	void getNormalVecFromOffsetXZ(f32, f32, JGeometry::TVec3<f32>*);
-	void rotateVecByAxisY(JGeometry::TVec3<f32>*, f32);
+	static void rotateVecByAxisY(JGeometry::TVec3<f32>*, f32);
 	void getVerticalVecFromOffsetXZ(f32, f32, JGeometry::TVec3<f32>*);
 	void getVerticalVecToTargetXZ(f32, f32, JGeometry::TVec3<f32>*) const;
 	void calcReflectingVelocity(const TBGCheckData* wall, f32,
