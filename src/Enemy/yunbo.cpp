@@ -505,8 +505,7 @@ void TYumboSeed::perform(u32 action, JDrama::TGraphics* graphics)
 			}
 		}
 
-		mLife--;
-		if (mLife == 0) {
+		if (--mLife == 0) {
 			mState |= 1;
 			unk64  |= HIT_FLAG_NO_COLLISION;
 		}
