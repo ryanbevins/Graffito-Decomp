@@ -129,7 +129,7 @@ void TPinnaCoaster::control()
 		    0x305a, (Vec*)&mPosition, nullptr, speed, 0, 0, nullptr, 0, 4);
 	}
 	switchSnd ^= 1;
-	unk140 = mPosition;
+	unk140.set(mPosition);
 }
 
 void TAmiKing::touchPlayer(THitActor*)
