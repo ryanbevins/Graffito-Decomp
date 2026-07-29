@@ -1368,8 +1368,8 @@ void TBossPakkun::init(TLiveManager* manager)
 		                     200.0f, 100.0f);
 		mNavel->offHitFlag(HIT_FLAG_NO_COLLISION);
 
-		group->add(mHeadHit);
-		group->add(mNavel);
+		group->getChildren().push_back(mHeadHit);
+		group->getChildren().push_back(mNavel);
 
 		mMapCollisionManager
 		    = new TMapCollisionManager(1, "/scene/bosspakkun", this);
@@ -1420,7 +1420,7 @@ void TBossPakkun::init(TLiveManager* manager)
 		mVomit->unk18 = white;
 
 		mTornado = new TBPTornado(this, "<TBPTornado>");
-		group->add(mTornado);
+		group->getChildren().push_back(mTornado);
 
 		unk18C = new TWaterEmitInfo("/enemy/bosspakuwater.prm");
 	}
