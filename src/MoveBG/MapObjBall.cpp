@@ -1547,9 +1547,7 @@ void TBigWatermelon::rebound(JGeometry::TVec3<f32>* pos)
 {
 	if (isState(0xC)) {
 		kill();
-		pos->x = mPosition.x;
-		pos->y = mPosition.y;
-		pos->z = mPosition.z;
+		*pos = mPosition;
 		return;
 	}
 	calcReflectingVelocity(mGroundPlane,
