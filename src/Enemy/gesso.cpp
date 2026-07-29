@@ -806,10 +806,11 @@ void TGesso::turnIn()
 bool TGesso::turning()
 {
 	f32 turnAngle = mTurnAngle;
-	if (turnAngle + 7.2f <= 180.0f) {
+	f32 turnStep  = 7.2f;
+	if (turnAngle + turnStep <= 180.0f) {
 		mBodyTrackingAngle = 90.0f;
-		mRotation.y += 7.2f;
-		mTurnAngle += 7.2f;
+		mRotation.y += turnStep;
+		mTurnAngle += turnStep;
 		return false;
 	}
 
