@@ -1089,11 +1089,8 @@ void TItemSlotDrum::moveObject()
 			s32 r = indexRange.rand();
 			*((u8*)this + 0x19C + r) = 1;
 
-			f32 lo2 = 0.0f;
-			f32 hi2 = 100.0f;
-			f32 spread = hi2 - lo2;
-			f32 picked
-			    = lo2 + (f32)rand() * (1.0f / 32768.0f) * spread;
+			TMsRange<f32> resultRange(0.0f, 100.0f);
+			f32 picked = resultRange.rand();
 			if (picked < unk1A8 && unk1A8 > 10.0f) {
 				unk198 = 0;
 			} else if (picked < 30.0f) {
