@@ -412,6 +412,8 @@ TSpineEnemy* TKoopaJrSubmarineManager::createEnemyInstance()
 void TKoopaJrSubmarineManager::loadAfter()
 {
 	JDrama::TNameRef::loadAfter();
+	if (!unk38)
+		return;
 }
 
 void TKoopaJrSubmarineManager::load(JSUMemoryInputStream& stream)
