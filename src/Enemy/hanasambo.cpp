@@ -15,6 +15,7 @@
 #include <M3DUtil/SDLModel.hpp>
 #include <Map/Map.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
@@ -891,12 +892,11 @@ void TSamboFlowerManager::dropLeaf(JGeometry::TVec3<f32>& position,
 		TSamboFlowerSaveLoadParams* params
 		    = (TSamboFlowerSaveLoadParams*)getSaveParam();
 		f32 minXZ = params->mSLLeafVelocityXZ.get();
-		f32 maxXZ = minXZ * 1.2f;
 		f32 minY  = params->mSLLeafVelocityY.get();
-		f32 maxY  = minY * 1.2f;
-		f32 randXZ
-		    = minXZ + (maxXZ - minXZ) * (rand() * (1.0f / 32768.0f));
-		f32 randY = minY + (maxY - minY) * (rand() * (1.0f / 32768.0f));
+		TMsRange<f32> yRange(minY, minY * 1.2f);
+		TMsRange<f32> xzRange(minXZ, minXZ * 1.2f);
+		f32 randXZ = xzRange.rand();
+		f32 randY  = yRange.rand();
 
 		JGeometry::TVec3<f32> velocity(0.0f, randY, randXZ);
 		Mtx rot;
