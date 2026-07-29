@@ -481,10 +481,12 @@ u32 TMapObjGrowTree::touchWater(THitActor* water)
 
 		if (mHeldObject) {
 			JGeometry::TVec3<f32> pos = mHeldObject->mPosition;
-			f32 move = 0.0f;
+			f32 move = unk13C;
 			if (mGrowStartFrame < mMActor->getFrameCtrl(0)->getFrame()
 			    && mMActor->getFrameCtrl(0)->getFrame() < mGrowEndFrame)
-				move = unk13C * unk138 / (mGrowEndFrame - mGrowStartFrame);
+				move *= unk138 / (mGrowEndFrame - mGrowStartFrame);
+			else
+				move = 0.0f;
 			pos.y += move;
 			mHeldObject->moveRequest(pos);
 		}
