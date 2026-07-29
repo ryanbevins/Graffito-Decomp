@@ -224,8 +224,7 @@ DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 	}
 
 	TPosition3f mtx;
-	JGeometry::TVec3<f32> up = makeVec3(0.0f, 1.0f, 0.0f);
-	SMS_CalcToDirMatrix(mtx, self->mVelocity, up);
+	SMS_CalcToDirMatrix(mtx, self->mVelocity, makeVec3(0.0f, 1.0f, 0.0f));
 
 	JGeometry::TQuat4<f32> aim;
 	mtx.getQuat(aim);
