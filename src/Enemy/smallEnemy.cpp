@@ -402,11 +402,9 @@ void TSmallEnemy::genEventCoin()
 			if (coin) {
 				coin->mPosition.y = mPosition.y;
 				MsVECNormalize(&local_d0, &local_d0);
-				volatile f32 min = 16.0f;
-				volatile f32 max = 8.0f;
-				f32 range       = max - min;
+				TMsRange<f32> coinYSpeedRange(16.0f, 8.0f);
 				coin->mVelocity.set(local_d0.x * 4,
-				                    min + range * MsRandF(), local_d0.z * 4);
+				                    coinYSpeedRange.rand(), local_d0.z * 4);
 				coin->offLiveFlag(LIVE_FLAG_UNK10);
 			}
 		}
