@@ -215,9 +215,10 @@ public:
 	}
 	bool isEnableDeleteEmitter() const
 	{
+		bool result = false;
 		if (checkStatus(STATUS_ENABLE_DELETE) && getParticleNumber() == 0)
-			return true;
-		return false;
+			result = true;
+		return result;
 	}
 
 	bool checkFlag(u32 flag) const { return mEmitFlags & flag ? true : false; }
