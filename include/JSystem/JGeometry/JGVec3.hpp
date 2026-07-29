@@ -245,7 +245,8 @@ public:
 		return fst;
 	}
 
-#ifdef JGEOMETRY_CAMERASHAKE_TVEC3_DOT_SCALE_OUT_OF_LINE
+#if defined(JGEOMETRY_CAMERASHAKE_TVEC3_DOT_SCALE_OUT_OF_LINE)                 \
+    || defined(JGEOMETRY_MAPOBJPLANE_TVEC3_DOT_SCALE_OUT_OF_LINE)
 	f32 dot(const TVec3& other) const;
 #else
 	f32 dot(const TVec3& other) const
@@ -293,7 +294,8 @@ public:
 	}
 #endif
 
-#ifdef JGEOMETRY_CAMERASHAKE_TVEC3_DOT_SCALE_OUT_OF_LINE
+#if defined(JGEOMETRY_CAMERASHAKE_TVEC3_DOT_SCALE_OUT_OF_LINE)                 \
+    || defined(JGEOMETRY_MAPOBJPLANE_TVEC3_DOT_SCALE_OUT_OF_LINE)
 	void scale(f32 scale, const TVec3& b);
 #else
 	void scale(f32 scale, const TVec3& b)

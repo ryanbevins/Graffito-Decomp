@@ -1,4 +1,6 @@
+#define JGEOMETRY_MAPOBJPLANE_TVEC3_DOT_SCALE_OUT_OF_LINE
 #include <MoveBG/MapObjPlane.hpp>
+#undef JGEOMETRY_MAPOBJPLANE_TVEC3_DOT_SCALE_OUT_OF_LINE
 #include <Map/MapCollisionPlane.hpp>
 #include <Map/MapData.hpp>
 #include <MarioUtil/MathUtil.hpp>
