@@ -182,9 +182,10 @@ void TBoidLeader::perform(u32 flags, JDrama::TGraphics*)
 		node.sub(mGraphGoal);
 
 		if (node.squared() < 10000.0f) {
-			int next = mGraphTracer->unk0->getRandomNextIndex(
-			    mGraphTracer->mCurrIdx, mGraphTracer->mPrevIdx, 0xffffffff);
-			mGraphTracer->moveTo(next);
+			TGraphTracer* tracer = mGraphTracer;
+			int next = tracer->unk0->getRandomNextIndex(
+			    tracer->mCurrIdx, tracer->mPrevIdx, 0xffffffff);
+			tracer->moveTo(next);
 		} else {
 			PSVECNormalize((Vec*)&node, (Vec*)&node);
 			node.scale(0.9f * mParam20);
