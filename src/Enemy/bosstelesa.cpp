@@ -2224,6 +2224,7 @@ DEFINE_NERVE(TNerveBossTelesaPrepareSlot, TLiveActor)
 				}
 			}
 
+			spine->setNext(&TNerveBossTelesaHide::theNerve());
 			spine->pushAfterCurrent(&TNerveBossTelesaHide::theNerve());
 			return TRUE;
 		}
