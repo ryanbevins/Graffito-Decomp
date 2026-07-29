@@ -1,4 +1,6 @@
+#define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/ChuuHana.hpp>
+#undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
@@ -490,7 +492,9 @@ void TChuuHana::bind()
 
 	gpMap->isTouchedOneWallAndMoveXZ(
 	    &next.x, next.y + mHeadHeight, &next.z, mBodyRadius);
-	mLinearVelocity.sub(next, mPosition);
+	JGeometry::TVec3<f32> linearVelocity = next;
+	linearVelocity.sub(mPosition);
+	mLinearVelocity = linearVelocity;
 }
 
 void TChuuHana::moveObject()
