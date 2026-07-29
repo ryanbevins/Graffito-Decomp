@@ -1811,11 +1811,11 @@ DEFINE_NERVE(TNerveBGTug, TLiveActor)
 	}
 
 	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x138, self->getModel()->getAnmMtx(47), 0, nullptr);
+	    0x138, self->getModel()->getAnmMtx(47), 1, self);
 	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x139, self->getModel()->getAnmMtx(7), 0, nullptr);
+	    0x139, self->getModel()->getAnmMtx(7), 1, self);
 	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x139, self->getModel()->getAnmMtx(4), 0, nullptr);
+	    0x139, self->getModel()->getAnmMtx(4), 1, self);
 
 	if (self->mBeak->mHolder != nullptr) {
 		JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
