@@ -242,11 +242,12 @@ BOOL TBathtubPeach::receiveMessage(THitActor* sender, u32 message)
 void TBathtubPeach::calcRootMatrix()
 {
 	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
+	Mtx* dst;
 	JDrama::TNameRef* bathtubRef = root->searchF(
         JDrama::TNameRef::calcKeyCode("バスタブ"), "バスタブ");
 	TBathtub* bathtub = (TBathtub*)bathtubRef;
 	if (bathtubRef && bathtub->getUnk29A()) {
-		Mtx* dst = (Mtx*)((u8*)getModel() + 0x20);
+		dst = (Mtx*)((u8*)getModel() + 0x20);
 		PSMTXCopy(bathtub->getPeachMtxInDemo(), *dst);
 	} else {
 		TLiveActor::calcRootMatrix();
