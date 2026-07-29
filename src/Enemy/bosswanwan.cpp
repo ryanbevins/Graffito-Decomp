@@ -383,19 +383,21 @@ BOOL TBWPicket::receiveMessage(THitActor* sender, u32 message)
 
 BOOL TBWPicket::moveRequest(const JGeometry::TVec3<f32>& position)
 {
-	TNerveBase<TLiveActor>* nerve = mOwner->mSpine->getLatestNerve();
-	if (nerve == &TNerveBWJumpToBath::theNerve()
-	    || nerve == &TNerveBWDie::theNerve())
+	if (mOwner->mSpine->getLatestNerve()
+	        == &TNerveBWJumpToBath::theNerve()
+	    || mOwner->mSpine->getLatestNerve() == &TNerveBWDie::theNerve())
 		return false;
 
 	if (mOwner->mHitPoints != 0)
 		return false;
 
-	TRope* rope = mOwner->mLeash->mRope;
-	JGeometry::TVec3<f32> tailBefore = rope->mPoints[0].mPosition;
-	rope->constraintTail(position);
-	mOwner->unk15C = rope->mPoints[0].mPosition;
-	mOwner->unk15C.sub(tailBefore);
+	TBWLeash* leash = mOwner->mLeash;
+	JGeometry::TVec3<f32> tailBefore
+	    = leash->mRope->mPoints[0].mPosition;
+	leash->mRope->constraintTail(position);
+	tailBefore.sub(leash->mRope->mPoints[0].mPosition);
+	tailBefore.negate();
+	leash->mOwner->unk15C = tailBefore;
 	return true;
 }
 
