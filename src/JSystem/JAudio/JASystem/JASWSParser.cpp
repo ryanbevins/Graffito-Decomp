@@ -131,10 +131,10 @@ TWaveBank* WSParser::createSimpleWaveBank(void* data)
 		info.unk22 = waveRaw->unk22;
 		info.unk28 = waveRaw->unk28;
 
-		bank->setWaveInfo((u16)JSUConvertOffsetToPtr<TCtrlWave>(
-		                      header, ctrlRaw->mCtrlWaveOffsets[waveIndex])
-		                      ->unk0,
-		                  info);
+		TCtrlWave* ctrlWaveRaw = JSUConvertOffsetToPtr<TCtrlWave>(
+		    header, ctrlRaw->mCtrlWaveOffsets[waveIndex]);
+		u32 size = (u16)ctrlWaveRaw->unk0;
+		bank->setWaveInfo(size, info);
 	}
 	bank->setWaveArcFileName(archiveRaw->mFileName);
 	sUsedHeapSize += priorFreeSize - heap->getFreeSize();
