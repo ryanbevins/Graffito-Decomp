@@ -1,4 +1,6 @@
+#define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <MoveBG/MapObjGeneral.hpp>
+#undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <Player/MarioAccess.hpp>
