@@ -101,7 +101,9 @@ void TPinnaCoaster::initMapObj()
 	MsMtxSetXYZRPH(unk138->getModel()->getBaseTRMtx(), mPosition.x, mPosition.y,
 	               mPosition.z, mRotation.x, mRotation.y, mRotation.z);
 	unk138->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate() * 0.25f);
-	unk140 = mPosition;
+	unk140.x = mPosition.x;
+	unk140.y = mPosition.y;
+	unk140.z = mPosition.z;
 }
 
 void TPinnaCoaster::control()
