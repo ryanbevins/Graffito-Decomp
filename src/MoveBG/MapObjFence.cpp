@@ -186,9 +186,8 @@ void TRailFence::goOnRail()
 		MSoundSESystem::MSoundSE::startSoundActor(
 		    0x3065, (const Vec*)&mPosition, 0, nullptr, 0, 4);
 	PSVECNormalize((Vec*)&diff, (Vec*)&diff);
-	mLinearVelocity.x += diff.x * unk140;
-	mLinearVelocity.y += diff.y * unk140;
-	mLinearVelocity.z += diff.z * unk140;
+	diff *= unk140;
+	mLinearVelocity += diff;
 }
 
 BOOL TRailFence::receiveMessage(THitActor* sender, u32 message)
