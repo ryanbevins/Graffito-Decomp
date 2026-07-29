@@ -1687,7 +1687,9 @@ void TEnemyMario::startDisappear(u16 doing)
 	bool keepBossFlag = false;
 	u8 map            = gpMarDirector->getCurrentMap();
 	u8 stage          = gpMarDirector->getCurrentStage();
-	if ((map == 1 && stage == 1) || (map == 1 && stage == 9))
+	if (map == 1 && stage == 1)
+		keepBossFlag = true;
+	else if (map == 1 && stage == 9)
 		keepBossFlag = true;
 
 	if (!keepBossFlag)
