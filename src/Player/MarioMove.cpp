@@ -2351,7 +2351,27 @@ void TMario::checkCurrentPlane()
 		mSlopeAngle
 		    = matan(mGroundPlane->getNormal().z, mGroundPlane->getNormal().x);
 
-		if (isSlipStart() || checkFlag(MARIO_FLAG_GROUND_POUND_SIT_UP))
+		BOOL slipStart;
+		if (isForceSlip()) {
+			slipStart = TRUE;
+		} else {
+			const TBGCheckData* plane = mGroundPlane;
+			u16 bgType               = plane->mBGType;
+			if (plane->isSlider()) {
+				slipStart = TRUE;
+			} else if ((bgType == 0x2 || bgType == 0x8002)
+			           && plane->getNormal().y < 0.8660254f) {
+				slipStart = TRUE;
+			} else if (plane->isUnk3()) {
+				slipStart = FALSE;
+			} else if (plane->getNormal().y < mDeParams.mSlipStart.get()) {
+				slipStart = TRUE;
+			} else {
+				slipStart = FALSE;
+			}
+		}
+
+		if (slipStart || checkFlag(MARIO_FLAG_GROUND_POUND_SIT_UP))
 			mInput |= 0x8;
 
 		if (mPosition.y > mFloorPosition.y + 100.0f)
