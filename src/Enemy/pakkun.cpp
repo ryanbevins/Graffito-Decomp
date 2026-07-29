@@ -886,7 +886,7 @@ void TPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 		updateAnmSound();
 		mMActor->calcAnm();
 	}
-	if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+	if (!checkLiveFlag(LIVE_FLAG_HIDDEN)) {
 		if (flags & 4)
 			mMActor->viewCalc();
 		if (flags & 0x200)
