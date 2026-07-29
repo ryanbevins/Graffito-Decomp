@@ -1505,15 +1505,14 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 		if (unk84 > 0) {
 			--unk84;
 		} else {
-			MActor* actor = unk68->getMActor();
-			if (actor->checkCurBckFromIndex(0x16)
-			    && actor->curAnmEndsNext(0, nullptr))
-				actor->setFrameRate(0.0f, 0);
+			if (unk68->getMActor()->checkCurBckFromIndex(0x16)
+			    && unk68->getMActor()->curAnmEndsNext(0, nullptr))
+				unk68->getMActor()->setFrameRate(0.0f, 0);
 
 			if (unk70 == 1) {
 				if (unk74 == 1) {
-					if (actor->checkCurBckFromIndex(0x16)) {
-						actor->setBckFromIndex(0x14);
+					if (unk68->getMActor()->checkCurBckFromIndex(0x16)) {
+						unk68->getMActor()->setBckFromIndex(0x14);
 
 						JGeometry::TVec3<f32> pos;
 						pos.x = unk88[0][3];
@@ -1535,12 +1534,13 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 							tears->unk16C->unk81 = TRUE;
 						}
 
-						actor->setFrameRate(SMSGetAnmFrameRate(), 0);
+						unk68->getMActor()->setFrameRate(
+						    SMSGetAnmFrameRate(), 0);
 					}
 
-					if (actor->checkCurBckFromIndex(0x14)
-					    && actor->curAnmEndsNext(0, nullptr))
-						actor->setBckFromIndex(0x15);
+					if (unk68->getMActor()->checkCurBckFromIndex(0x14)
+					    && unk68->getMActor()->curAnmEndsNext(0, nullptr))
+						unk68->getMActor()->setBckFromIndex(0x15);
 
 					unk7C += unk6C->unk1E8->mSLToothUpSpeed.value;
 					if (unk7C > unk6C->unk1E8->mSLToothLiveHeight.value
