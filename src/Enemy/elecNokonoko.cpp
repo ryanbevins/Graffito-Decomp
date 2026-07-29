@@ -1040,7 +1040,8 @@ void TElecCarapace::shoot()
 	mSpine->initWith(&TNerveElecCarapaceMove::theNerve());
 	setGoalPath(TPathNode(target));
 
-	f32 speed = MsRandF(3.0f, 5.0f);
+	TMsRange<f32> speedRange(3.0f, 5.0f);
+	f32 speed = speedRange.rand();
 
 	JGeometry::TVec3<f32> toGoal = unk104.getPoint();
 	toGoal.sub(mPosition);
