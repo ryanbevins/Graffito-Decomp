@@ -437,13 +437,10 @@ void TMapObjElasticCode::initMapObj()
 }
 inline static void updateGrowTreeHeight(TMapObjGrowTree* tree)
 {
-	J3DFrameCtrl* ctrl = tree->mMActor->getFrameCtrl(0);
-	f32 frame          = ctrl->getFrame();
-
-	if (frame > mGrowEndFrame) {
+	if (tree->mMActor->getFrameCtrl(0)->getFrame() > mGrowEndFrame) {
 		tree->mDamageHeight = tree->unk138;
-	} else if (frame > mGrowStartFrame) {
-		f32 rate = (frame - mGrowStartFrame)
+	} else if (tree->mMActor->getFrameCtrl(0)->getFrame() > mGrowStartFrame) {
+		f32 rate = (tree->mMActor->getFrameCtrl(0)->getFrame() - mGrowStartFrame)
 		           / (mGrowEndFrame - mGrowStartFrame);
 		tree->mDamageHeight
 		    = tree->unk148 + (tree->unk138 - tree->unk148) * rate;
@@ -464,27 +461,28 @@ u32 TMapObjGrowTree::touchWater(THitActor* water)
 		mState = 2;
 	}
 
-	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
-	if (ctrl->getFrame() < ctrl->getEnd()) {
+	if (mMActor->getFrameCtrl(0)->getFrame()
+	    < mMActor->getFrameCtrl(0)->getEnd()) {
 		soundBas(0x289A, 3.0f, unk13C);
 		soundBas(0x289B, 67.0f, unk13C);
 		soundBas(0x289C, 103.0f, unk13C);
 		soundBas(0x289D, 137.0f, unk13C);
-		ctrl->setFrame(ctrl->getFrame() + unk13C);
+		mMActor->getFrameCtrl(0)->setFrame(
+		    mMActor->getFrameCtrl(0)->getFrame() + unk13C);
 		updateGrowTreeHeight(this);
 
 		if (mHeldObject) {
 			JGeometry::TVec3<f32> pos = mHeldObject->mPosition;
 			f32 move = 0.0f;
-			if (mGrowStartFrame < ctrl->getFrame()
-			    && ctrl->getFrame() < mGrowEndFrame)
+			if (mGrowStartFrame < mMActor->getFrameCtrl(0)->getFrame()
+			    && mMActor->getFrameCtrl(0)->getFrame() < mGrowEndFrame)
 				move = unk13C * unk138 / (mGrowEndFrame - mGrowStartFrame);
 			pos.y += move;
 			mHeldObject->moveRequest(pos);
 		}
 	}
 
-	if (ctrl->getFrame() > mGrowEndFrame) {
+	if (mMActor->getFrameCtrl(0)->getFrame() > mGrowEndFrame) {
 		setUpMapCollision(0);
 		mLifeTimer = unk144;
 	}
