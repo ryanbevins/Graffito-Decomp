@@ -1001,9 +1001,6 @@ void TBossTelesa::generateSlotItem()
 
 void TBossTelesa::rouletteStart()
 {
-	TRoulette** roulettes = (TRoulette**)&unk178;
-	TTelesaSlot* slot     = (TTelesaSlot*)unk184;
-
 	TMsRange<f32> speedRange(0.05f, 0.1f);
 	TMsRange<f32> directionRange(-1.0f, 1.0f);
 	f32 dir = directionRange.rand();
@@ -1021,14 +1018,15 @@ void TBossTelesa::rouletteStart()
 			direction = -direction;
 
 		f32 speed = speedRange.rand();
-		roulettes[i]->unk144 = direction * (speed + hpSpeed);
+		((TRoulette**)&unk178)[i]->unk144
+		    = direction * (speed + hpSpeed);
 
 		speed = speedRange.rand();
-		slot->unk1E4[i] = direction * (speed + hpSpeed);
+		unk184->unk1E4[i] = direction * (speed + hpSpeed);
 	}
 
 	for (int i = 0; i < 3; ++i)
-		roulettes[i]->setRollSp(slot->unk1E4[i]);
+		((TRoulette**)&unk178)[i]->setRollSp(unk184->unk1E4[i]);
 
 	SMSRumbleMgr->start(0x14, 0xf, (f32*)nullptr);
 	gpCameraShake->startShake((EnumCamShakeMode)0x23, 1.0f);
