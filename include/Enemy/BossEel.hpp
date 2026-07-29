@@ -321,8 +321,7 @@ public:
 	/* 0x1E8 */ TParamRT<f32> mSLTearsDropScaleLow;
 	/* 0x1FC */ TParamRT<f32> mSLTearsDropScaleHigh;
 	/* 0x210 */ TMsRange<f32> mBodyScaleRange;
-	/* 0x218 */ f32 mTearsDropScaleLow;
-	/* 0x21C */ f32 mTearsDropScaleHigh;
+	/* 0x218 */ TMsRange<f32> mTearsDropScaleRange;
 };
 
 class TBEelTears : public TSpineEnemy {

@@ -1843,9 +1843,7 @@ void TBEelTearsManager::splitTears(JGeometry::TVec3<f32>& position)
 		scale += minScale;
 
 		TBEelTearsSaveLoadParams* params = drop->unk74->unk15C;
-		scale = rand() * 0.000030517578f;
-		scale *= params->mTearsDropScaleHigh - params->mTearsDropScaleLow;
-		scale += params->mTearsDropScaleLow;
+		scale = params->mTearsDropScaleRange.rand();
 		drop->mScaling.x = scale;
 		drop->mScaling.y = scale;
 		drop->mScaling.z = scale;
@@ -1912,13 +1910,12 @@ TBEelTearsSaveLoadParams::TBEelTearsSaveLoadParams(const char* path)
     , PARAM_INIT(mSLTearsDropScaleLow, 1.0f)
     , PARAM_INIT(mSLTearsDropScaleHigh, 1.0f)
     , mBodyScaleRange(0.0f, 1.0f)
-    , mTearsDropScaleLow(0.0f)
-    , mTearsDropScaleHigh(1.0f)
+    , mTearsDropScaleRange(0.0f, 1.0f)
 {
 	TParams::load(mPrmPath);
 	mBodyScaleRange.set(mSLBodyScaleLow.get(), mSLBodyScaleHigh.get());
-	mTearsDropScaleLow  = mSLTearsDropScaleLow.get();
-	mTearsDropScaleHigh = mSLTearsDropScaleHigh.get();
+	mTearsDropScaleRange.set(mSLTearsDropScaleLow.get(),
+	                         mSLTearsDropScaleHigh.get());
 }
 
 void TOilBall::load(JSUMemoryInputStream& stream)
