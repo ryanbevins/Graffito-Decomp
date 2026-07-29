@@ -860,7 +860,7 @@ void TPakkun::onShootLiner(JGeometry::TVec3<f32>& dir)
 
 void TPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	if (checkLiveFlag(LIVE_FLAG_UNK10000))
+	if (checkLiveFlag(LIVE_FLAG_UNK200))
 		return;
 
 	mSeed->perform(flags, graphics);
