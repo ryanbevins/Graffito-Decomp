@@ -1,9 +1,5 @@
 #define TIMEREC_CRTIMEARY_OUT_OF_LINE
-#define JDRAMA_TFLAG_COPY_CTOR_DECL_ONLY
-#define JDRAMA_TFLAG_SET_DECL_ONLY
 #include <System/Application.hpp>
-#undef JDRAMA_TFLAG_SET_DECL_ONLY
-#undef JDRAMA_TFLAG_COPY_CTOR_DECL_ONLY
 #include <stdio.h>
 #include <stdlib.h>
 #include <types.h>
