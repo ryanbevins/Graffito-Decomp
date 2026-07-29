@@ -875,7 +875,7 @@ void TPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 		moveObject();
 	}
 
-	if (checkLiveFlag(LIVE_FLAG_HIDDEN)) {
+	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
 		if (flags & 2)
 			mMActor->frameUpdate();
 		return;
