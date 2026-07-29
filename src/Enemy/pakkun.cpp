@@ -467,18 +467,16 @@ bool TStayPakkun::isHitValid(u32 flag)
 		return true;
 	}
 
-	if (mSpine->getCurrentNerve() == &TNerveStayPakkunAppear::theNerve())
-		return false;
-	if (mSpine->getCurrentNerve() == &TNerveStayPakkunHide::theNerve())
-		return false;
-
-	mSpine->setNext(&TNerveStayPakkunHide::theNerve());
-	unk1BC = true;
-	gpPollution->clean(mPosition.x, mGroundHeight, mPosition.z,
-	                   32.0f * getSaveParam2()->mSLPolluteRange.get());
-	if (mSeed->isUnk150Zero())
-		mSeed->kill();
-	setBckAnm(0);
+	if (mSpine->getCurrentNerve() != &TNerveStayPakkunAppear::theNerve()
+	    && mSpine->getCurrentNerve() != &TNerveStayPakkunHide::theNerve()) {
+		mSpine->setNext(&TNerveStayPakkunHide::theNerve());
+		unk1BC = true;
+		gpPollution->clean(mPosition.x, mGroundHeight, mPosition.z,
+		                   32.0f * getSaveParam2()->mSLPolluteRange.get());
+		if (mSeed->isUnk150Zero())
+			mSeed->kill();
+		setBckAnm(0);
+	}
 	return false;
 }
 
