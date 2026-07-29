@@ -158,7 +158,8 @@ void TLeanBlock::calcLeanMtx(MtxPtr out)
 	JGeometry::TVec3<f32> axis(unk14C.x, 0.0f, unk14C.z);
 	rotateVecByAxisY(&axis, 1.5707963f);
 
-	f32 length   = MsSqrtf(unk14C.x * unk14C.x + unk14C.z * unk14C.z);
+	f32 length = JGeometry::TUtil<f32>::sqrt(unk14C.x * unk14C.x
+	                                         + unk14C.z * unk14C.z);
 	f32 rotation = length * unk148;
 	makeObjMtxRotByAxis(axis, rotation, out);
 	concatOnlyRotFromRight(out, unk164, out);
