@@ -661,22 +661,17 @@ void TCannon::killerShoot()
 		killer->mPosition.z = localMtx.mMtx[2][3];
 
 		JGeometry::TVec3<f32> target = *gpMarioPos;
-		target.x += -300.0f
-		            + (300.0f - -300.0f)
-		                * ((f32)rand() * (1.0f / 32768.0f));
+		TMsRange<f32> targetRange(-300.0f, 300.0f);
+		target.x += targetRange.rand();
 
 		switch (unk214) {
 		case 0: {
-			f32 offset = -300.0f
-			             + (300.0f - -300.0f)
-			                 * ((f32)rand() * (1.0f / 32768.0f));
+			f32 offset = targetRange.rand();
 			target.z -= 2.0f * __fabsf(offset);
 			break;
 		}
 		case 2: {
-			f32 offset = -300.0f
-			             + (300.0f - -300.0f)
-			                 * ((f32)rand() * (1.0f / 32768.0f));
+			f32 offset = targetRange.rand();
 			target.z += 2.0f * __fabsf(offset);
 			break;
 		}
