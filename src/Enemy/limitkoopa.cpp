@@ -397,10 +397,10 @@ void TLimitKoopa::setUpHitActors()
 
 			f32 dist = 0.8f * (2.0f + (f32)(2 * i)) * flameRadius * ratio;
 
-			THitActor* hit  = mFlameHitActors[i];
-			hit->mPosition.x = neckMtx[0][3] + dist * neckMtx[0][0];
+			THitActor* hit = mFlameHitActors[i];
+			JGeometry::TVec3<f32> flameOffset(dist, 0.0f, 0.0f);
+			((TPosition3f*)neckMtx)->mult(flameOffset, hit->mPosition);
 			hit->mPosition.y = mPosition.y;
-			hit->mPosition.z = neckMtx[2][3] + dist * neckMtx[2][0];
 
 			hit->offHitFlag(0x2);
 			hit->offHitFlag(0x4);
