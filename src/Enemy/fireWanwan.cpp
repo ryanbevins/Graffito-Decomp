@@ -587,7 +587,9 @@ void TFireWanwanTailHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 		local_48.y = 0.0f;
 		mPosition += local_48;
 
-		moveRequest(mPosition);
+		JGeometry::TVec3<f32> requestedPos = mPosition;
+		requestedPos.y = mHolder->mPosition.y;
+		mHolder->moveRequest(requestedPos);
 
 		unk74.setTrans(mPosition);
 
