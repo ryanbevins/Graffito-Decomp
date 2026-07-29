@@ -616,10 +616,11 @@ void TRedCoinSwitch::load(JSUMemoryInputStream& stream)
 
 	s32 timer;
 	stream.read(&timer, 4);
-	if (timer <= 0)
+	unk138 = timer;
+	if (unk138 <= 0)
 		unk138 = 0x4b0;
 	else
-		unk138 = timer * 10;
+		unk138 *= 10;
 
 	u8 shine = SMS_getShineIDofExStage(gpMarDirector->mMap);
 	if (shine != 0xff && !TFlagManager::smInstance->getShineFlag(shine))
