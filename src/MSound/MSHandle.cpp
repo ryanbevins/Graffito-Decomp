@@ -97,12 +97,12 @@ void MSHandle::setSeDistanceVolume(u8 param)
 		return;
 	}
 	f32 vol;
-	if (sw & 0x2) {
-		vol = 1.0f;
-	} else {
+	if (!(sw & 0x2)) {
 		u8 curve = (u8)((getSwBit() >> 16) & 0x7);
 		s32 idx  = computeCategoryIdx(unk8);
 		vol      = setDistanceVolumeCommon(smSeCategory[idx].unk4, curve);
+	} else {
+		vol = 1.0f;
 	}
 	setSeInterVolume(4, vol, param, 0);
 }
