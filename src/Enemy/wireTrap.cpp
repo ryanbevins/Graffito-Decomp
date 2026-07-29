@@ -334,10 +334,12 @@ void TWireTrap::moveObject()
 			mShakeWidth = 0.0f;
 	}
 
-	mAttackRadius = 20.0f * mScaling.x;
-	mAttackHeight = 30.0f * mScaling.y;
-	mDamageRadius = 40.0f * mScaling.x;
-	mDamageHeight = 40.0f * mScaling.y;
+	f32 scaleX = mScaling.x;
+	f32 scaleY = mScaling.y;
+	mAttackRadius = 20.0f * scaleX;
+	mAttackHeight = 30.0f * scaleY;
+	mDamageRadius = 40.0f * scaleX;
+	mDamageHeight = 40.0f * scaleY;
 
 	calcEntryRadius();
 	checkHitActors();
