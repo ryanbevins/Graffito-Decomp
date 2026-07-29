@@ -1952,12 +1952,8 @@ void TBubble::appendEnemy()
 {
 	unk198 = nullptr;
 
-	volatile f32 min = 0.0f;
-	volatile f32 max = 100.0f;
-	f32 range = max - min;
-	f32 randValue = rand() * 0.000030517578f;
-	randValue *= range;
-	randValue += min;
+	TMsRange<f32> enemyKindRange(0.0f, 100.0f);
+	f32 randValue = enemyKindRange.rand();
 
 	TSmallEnemy* enemy;
 	if (randValue < 50.0f) {
