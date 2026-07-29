@@ -189,8 +189,9 @@ void TMapWireManager::perform(u32 flags, JDrama::TGraphics*)
 			unk18[i]->move();
 		}
 
+		TMapWireActorManager* manager;
 		for (int i = 0; i < unk1C; ++i) {
-			TMapWireActorManager* manager = unk24[i];
+			manager = unk24[i];
 			manager->unk4.onHitFlag(1);
 			if (manager->unk7C != nullptr) {
 				MtxPtr mtx = gpMarioOriginal->getTakenMtx();
