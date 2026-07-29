@@ -1246,7 +1246,6 @@ void THamuKuri::forceRoll(JGeometry::TVec3<f32> param_1, bool param_2)
 	mSpine->pushNerve(&TNerveHamuKuriBoundFreeze::theNerve());
 }
 
-#pragma dont_inline on
 THaneHamuKuri::THaneHamuKuri(const char* name)
     : THamuKuri(name)
     , unk20C(0.0f)
@@ -1257,7 +1256,6 @@ THaneHamuKuri::THaneHamuKuri(const char* name)
     , unk234(0.0f)
 {
 }
-#pragma dont_inline off
 
 void THaneHamuKuri::init(TLiveManager* manager)
 {
