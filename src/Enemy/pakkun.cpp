@@ -317,7 +317,8 @@ DEFINE_NERVE(TNervePakkunStay, TLiveActor)
 				spine->pushAfterCurrent(&TNervePakkunHide::theNerve());
 				spine->pushAfterCurrent(&TNervePakkunShoot::theNerve());
 
-				int angle = (int)MsRandF(0.0f, 36000.0f);
+				TMsRange<f32> angleRange(0.0f, 36000.0f);
+				int angle = (int)angleRange.rand();
 				JGeometry::TVec3<f32> target = self->unk104.getPoint();
 
 				JGeometry::TVec3<f32> targetDiff(target);
