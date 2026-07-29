@@ -458,9 +458,8 @@ BOOL TNerveTobiPukuAttack::execute(TSpineBase<TLiveActor>* spine) const
 
 	if (self->getCurAnmFrameNo(0) >= 6.0f) {
 		self->unk194 = 0;
-		JGeometry::TVec3<f32> velocity = self->mVelocity;
-		velocity.x                      = 0.0f;
-		velocity.z                      = 0.0f;
+		JGeometry::TVec3<f32> oldVelocity = self->mVelocity;
+		JGeometry::TVec3<f32> velocity(0.0f, oldVelocity.y, 0.0f);
 		self->mVelocity = velocity;
 		self->mPosition.y += 2.0f;
 		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
