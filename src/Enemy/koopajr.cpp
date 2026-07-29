@@ -657,6 +657,7 @@ void TKoopaJr::checkNerveKillerHit()
 	}
 }
 
+#pragma dont_inline on
 TKoopaJrSubmarine::TKoopaJrSubmarine(const char* name)
     : TSpineEnemy(name)
     , unk164(0.0f)
@@ -667,6 +668,7 @@ TKoopaJrSubmarine::TKoopaJrSubmarine(const char* name)
 	mLiveFlag &= ~0x10;
 	mLiveFlag &= ~0x100;
 }
+#pragma dont_inline off
 
 const char** TKoopaJrSubmarine::getBasNameTable() const
 {
