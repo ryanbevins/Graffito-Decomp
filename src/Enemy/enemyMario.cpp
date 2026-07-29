@@ -1435,17 +1435,21 @@ void TEnemyMario::emDownAnimation()
 	if (mode == 3 || mode == 4 || mode == 1 || mode == 2)
 		fixedMode = true;
 
-	if (!fixedMode)
+	if (fixedMode) {
+		emDownPos(this)      = mPosition;
+		emDisappearPos(this) = emDownPos(this);
+	} else {
 		emTimer(this)++;
 
-	emDownPos(this)      = mPosition;
-	emDisappearPos(this) = emDownPos(this);
+		emDownPos(this)      = mPosition;
+		emDisappearPos(this) = emDownPos(this);
 
-	if (!fixedMode && gpMarDirector->getCurrentMap() != 1
-	    && emTimer(this) > (u32)emSettingS16(this, 0xCC)) {
-		emWaterCount(this) = emSettingS16(this, 0x40);
-		emTimer(this)      = 0;
-		emDoing(this)      = 0x10;
+		if (gpMarDirector->getCurrentMap() != 1
+		    && emTimer(this) > (u32)emSettingS16(this, 0xCC)) {
+			emWaterCount(this) = emSettingS16(this, 0x40);
+			emTimer(this)      = 0;
+			emDoing(this)      = 0x10;
+		}
 	}
 }
 
