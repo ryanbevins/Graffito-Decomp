@@ -513,7 +513,8 @@ void TRoulette::switchStop()
 	if (unk150->unk6C != 0) {
 		JGeometry::TVec3<f32>* mario = gpMarioPos;
 		f32 ground = SMS_GetMarioGrLevel();
-		if (mario->y < ground + 20.0f && unk13C != 0.0f) {
+		ground += 20.0f;
+		if (mario->y < ground && unk13C != 0.0f) {
 			unk150->unk6C = 0;
 			unk13C = 0.0f;
 			unk148.r = 0;
