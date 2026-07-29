@@ -18,7 +18,7 @@
 static BOOL IsCheckPassFrame(J3DFrameCtrl* fc, const f32* table)
 {
 	BOOL result = FALSE;
-	for (s32 off = 0; table[off >> 2] >= 0.0f; off += sizeof(f32)) {
+	for (u32 off = 0; table[off >> 2] >= 0.0f; off += sizeof(f32)) {
 		if (fc->checkPass(table[off >> 2])) {
 			result = TRUE;
 			break;
