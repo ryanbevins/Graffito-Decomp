@@ -219,8 +219,12 @@ void TKoopaBody::attack_(THitActor* actor)
 
 BOOL TKoopaBody::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == HIT_MESSAGE_ATTACK && sender->mActorType == 0x08000024)
-		mOwner->stagger(false);
+	switch ((s32)message) {
+	case HIT_MESSAGE_ATTACK:
+		if (sender->mActorType == 0x08000024)
+			mOwner->stagger(false);
+		break;
+	}
 	return TRUE;
 }
 
