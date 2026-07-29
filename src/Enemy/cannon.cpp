@@ -1281,9 +1281,8 @@ TCannonDom::TCannonDom(TLiveActor* owner, int jointIndex, SDLModelData* data,
     , unk2C(0.0f)
     , unk30(0.0f)
 {
-	f32 min = 0.0f;
-	f32 max = 360.0f;
-	unk30  = min + (max - min) * ((f32)rand() * (1.0f / 32768.0f));
+	TMsRange<f32> angleRange(0.0f, 360.0f);
+	unk30 = angleRange.rand();
 
 	if (unk1C != nullptr)
 		return;
