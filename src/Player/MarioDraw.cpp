@@ -2325,7 +2325,9 @@ void TMario::boxDrawPrepare(MtxPtr mtx)
 	f32 wpsave[5];
 	GXGetViewportv(wpsave);
 
-	GXProject(mPosition.x, mPosition.y + 80.0f, mPosition.z, mtx, psave, wpsave,
+	JGeometry::TVec3<f32> drawPos = mPosition;
+	drawPos.y += 80.0f;
+	GXProject(drawPos.x, drawPos.y, drawPos.z, mtx, psave, wpsave,
 	          &mMarioScreenPos.x, &mMarioScreenPos.y, &mMarioScreenPos.z);
 
 	GXClearVtxDesc();
@@ -2335,6 +2337,9 @@ void TMario::boxDrawPrepare(MtxPtr mtx)
 
 	Mtx stackMtx;
 	MTXScale(stackMtx, 200.0f, 200.0f, 200.0f);
+	stackMtx[0][3] = drawPos.x;
+	stackMtx[1][3] = drawPos.y;
+	stackMtx[2][3] = drawPos.z;
 
 	MTXConcat(mtx, stackMtx, stackMtx);
 
