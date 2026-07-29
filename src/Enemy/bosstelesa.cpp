@@ -2793,13 +2793,9 @@ DEFINE_NERVE(TNerveBubbleLive, TLiveActor)
 			bubble->setBckAnm(8);
 		}
 
-		f32 min = 0.0f;
-		f32 max = 20.0f;
-		f32 range = max - min;
-		f32 randValue = rand() * 0.000030517578f;
-		randValue *= range;
-		randValue += min;
-		bubble->mMActor->getFrameCtrl(0)->setFrame(randValue);
+		J3DFrameCtrl* frameCtrl = bubble->mMActor->getFrameCtrl(0);
+		TMsRange<f32> frameRange(0.0f, 20.0f);
+		frameCtrl->setFrame(frameRange.rand());
 		bubble->onLiveFlag(LIVE_FLAG_UNK8);
 	} else if (bubble->checkCurAnmEnd(0)) {
 		bubble->offHitFlag(HIT_FLAG_NO_COLLISION);
