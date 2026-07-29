@@ -820,16 +820,18 @@ void TCannon::bombShoot()
 
 void TCannon::bombSet()
 {
+	TMsRange<f32> rateRange(0.0f, 1.0f);
 	unk21C = false;
 	unk1A4 = nullptr;
 
 	TSmallEnemy* spawned = nullptr;
-	f32 rate = (f32)rand() * (1.0f / 32768.0f);
+	f32 rate = rateRange.rand();
 	if (rate < unk28C->mSLBombHeiGenerateRate.get()) {
 		spawned = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
 		    mPosition, "ボム兵マネージャー", 1);
 	} else {
-		int choice = (s32)(100.0f * ((f32)rand() * (1.0f / 32768.0f)));
+		TMsRange<s32> choiceRange(0, 100);
+		int choice = choiceRange.rand();
 		if (choice % 2 == 1) {
 			spawned = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
 			    mPosition, "ポポマネージャ", 1);
