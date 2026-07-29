@@ -1304,7 +1304,7 @@ void TFireWanwan::emitEffects()
 	if (isFreeze() && mSpine->getTime() < mFreezeWait)
 		SMS_EasyEmitParticle(PARTICLE_MS_POI_KIZETSU, &unk1F0, this, mScaling);
 
-	if (isFlying() || unk194->isTaken()) {
+	if (isFlying() || unk194->mHolder != nullptr) {
 		MtxPtr pos;
 		if (isFlying()) {
 			pos = getModel()->getBaseTRMtx();
