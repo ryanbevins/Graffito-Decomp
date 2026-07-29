@@ -704,15 +704,12 @@ DEFINE_NERVE(TNervePoihanaTrapped, TLiveActor)
 			self->mPosition.y += 150.0f;
 			self->onLiveFlag(LIVE_FLAG_AIRBORNE);
 			if (self->unk1A8) {
-				// TODO: rand interval class
-				volatile f32 trapJumpMaxSpY
-				    = self->unk19C->mSLTrapJumpMaxSpY.get();
-				volatile f32 trapJumpMaxSpXZ
-				    = self->unk19C->mSLTrapJumpMaxSpXZ.get();
-				volatile f32 trapJumpMinSpY
-				    = self->unk19C->mSLTrapJumpMinSpY.get();
-				volatile f32 trapJumpMinSpXZ
-				    = self->unk19C->mSLTrapJumpMinSpXZ.get();
+				TMsRange<f32> yRange(
+				    self->unk19C->mSLTrapJumpMinSpY.get(),
+				    self->unk19C->mSLTrapJumpMaxSpY.get());
+				TMsRange<f32> xzRange(
+				    self->unk19C->mSLTrapJumpMinSpXZ.get(),
+				    self->unk19C->mSLTrapJumpMaxSpXZ.get());
 
 				JGeometry::TVec3<f32> local_48;
 				const TLiveActor* groundActor
@@ -725,10 +722,9 @@ DEFINE_NERVE(TNervePoihanaTrapped, TLiveActor)
 					local_48.x = 1.0f;
 
 				VECNormalize(&local_48, &local_48);
-				// TODO: rand interval class
-				local_48.x *= MsRandF(trapJumpMinSpXZ, trapJumpMaxSpXZ);
-				local_48.y = MsRandF(trapJumpMinSpY, trapJumpMaxSpY);
-				local_48.z *= MsRandF(trapJumpMinSpXZ, trapJumpMaxSpXZ);
+				local_48.x *= xzRange.rand();
+				local_48.y = yRange.rand();
+				local_48.z *= xzRange.rand();
 
 				self->mVelocity             = local_48;
 				self->mCurrentFlungVelocity = local_48;
