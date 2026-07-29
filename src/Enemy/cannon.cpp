@@ -692,8 +692,8 @@ void TCannon::killerShoot()
 
 		f32 velocityRate = mVelocityRate;
 		killer->mIsChaseMode = 0;
-		int roll             = (s32)(100.0f
-		                 * ((f32)rand() * (1.0f / 32768.0f)));
+		TMsRange<s32> rollRange(0, 100);
+		int roll = rollRange.rand();
 		if (roll % 5 == 0) {
 			killer->mIsChaseMode = 1;
 		} else {
