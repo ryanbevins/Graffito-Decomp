@@ -19,7 +19,7 @@ public:
 	/* 0x139 */ u8 unk139;
 	/* 0x13A */ u8 unk13A;
 	/* 0x13B */ u8 unk13B;
-	/* 0x13C */ int mTimer;
+	/* 0x13C */ u32 mTimer;
 };
 
 class TMushroom1up : public TMapObjBase {
