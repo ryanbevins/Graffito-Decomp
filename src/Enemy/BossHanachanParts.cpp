@@ -605,7 +605,7 @@ void TBossHanachanPartsBase::initMapCollisionAndHitActor_(TIdxGroupObj* group)
 	mWaterHit = new TWaterHitActor("ボスハナチャンのパーツ");
 	mWaterHit->initHitActor(mActorType, 1, 0x80000000, attRad, attHei, damRad,
 	                        damHei);
-	group->add((THitActor*&)mWaterHit);
+	group->getChildren().push_back(mWaterHit);
 	mWaterHit->unk64 &= ~1;
 	mWaterHit->mPosition.x = mCenterJointMtx[0][3];
 	mWaterHit->mPosition.y = mCenterJointMtx[1][3] - offY;
