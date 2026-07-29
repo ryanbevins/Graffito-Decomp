@@ -1928,7 +1928,7 @@ DEFINE_NERVE(TNerveBWFall, TLiveActor)
 		self->unk124->mPrevIdx = -1;
 		self->unk124->mCurrIdx = -1;
 		self->goToShortestNextGraphNode();
-		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		spine->pushAfterCurrent(&TNerveBWGraphWander::theNerve());
 		return true;
 	}
 
