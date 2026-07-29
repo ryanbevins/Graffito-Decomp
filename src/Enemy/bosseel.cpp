@@ -606,7 +606,8 @@ void TBossEel::shedTears(MtxPtr mtx)
 	velocity.z = 100.0f;
 
 	Mtx rot;
-	MsMtxSetRotRPH(rot, 0.0f, rand() * 0.000030517578f * 360.0f, 0.0f);
+	TMsRange<f32> rotationRange(0.0f, 360.0f);
+	MsMtxSetRotRPH(rot, 0.0f, rotationRange.rand(), 0.0f);
 	PSMTXMultVec(rot, &velocity, &velocity);
 
 	tears->mPosition.x += velocity.x;
