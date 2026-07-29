@@ -1324,7 +1324,13 @@ void TSandBird::control()
 	else
 		camActive = gpCamera->mMode == 0x49 ? true : false;
 
-	if (!camActive && !unk150) {
+	bool skipBalloon;
+	if (camActive)
+		skipBalloon = true;
+	else
+		skipBalloon = false;
+
+	if (!skipBalloon && !unk150) {
 		const TBGCheckData* plane = *gpMarioGroundPlane;
 		const TLiveActor* actor   = plane->getActor();
 		if (actor) {
