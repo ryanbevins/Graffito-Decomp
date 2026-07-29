@@ -605,8 +605,7 @@ void TPopo::walkBehavior(int graph_direction, float multiplier)
 		f32 jumpSpeed     = mPopoParams->mSLMoveJumpSp.get();
 		f32 targetDist    = mPopoParams->mSLMoveDist.get();
 		f32 randomScale   = 1.0f;
-		f32 randomMin     = -20.0f;
-		f32 randomMax     = 20.0f;
+		TMsRange<f32> randomOffset(-20.0f, 20.0f);
 		if (mSpine->getCurrentNerve() == &TNervePopoAttack::theNerve()) {
 			setBckAnm(0);
 			jumpSpeed   = mPopoParams->mSLAttackJumpSp.get();
@@ -614,17 +613,10 @@ void TPopo::walkBehavior(int graph_direction, float multiplier)
 			randomScale = 10.0f;
 		}
 
-		f32 randomRange = randomMax - randomMin;
 		target.x        = mPosition.x + dir.x * targetDist
-		           + randomScale
-		               * (randomMin
-		                  + randomRange
-		                      * (rand() * (1.0f / (RAND_MAX + 1))));
+		           + randomScale * randomOffset.rand();
 		target.z = mPosition.z + dir.z * targetDist
-		           + randomScale
-		               * (randomMin
-		                  + randomRange
-		                      * (rand() * (1.0f / (RAND_MAX + 1))));
+		           + randomScale * randomOffset.rand();
 		target.y = mPosition.y;
 
 		f32 jumpRate = 1.0f;
