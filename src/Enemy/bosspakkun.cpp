@@ -2187,7 +2187,9 @@ TBPPolDrop::TBPPolDrop(TBossPakkun* owner, const char* name)
 	mVelocity.x = 0.0f;
 	initHitActor(0x800000F, 1, -0x80000000, 0.0f, 0.0f, 100.0f, 200.0f);
 	offHitFlag(HIT_FLAG_NO_COLLISION);
-	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	group->getChildren().push_back(this);
 }
 
 void TBPPolDrop::perform(u32 flags, JDrama::TGraphics* graphics)
