@@ -247,7 +247,7 @@ TMBindShadowBody::TMBindShadowBody(THitActor* actor, J3DModel* model, f32 scale)
 		++entry;
 	}
 
-	gpBindShadowManager->unk4C.insert(gpBindShadowManager->unk4C.end(), this);
+	gpBindShadowManager->unk4C.push_back(this);
 }
 
 void TMBindShadowBody::entryDrawShadow()
