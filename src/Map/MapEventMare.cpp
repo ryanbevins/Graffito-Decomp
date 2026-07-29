@@ -256,16 +256,18 @@ void TMareEventDepressWall::rising()
 	JPABaseEmitter* emitter = gpMarioParticleManager->emit(
 	    0x15b, &mPositions[i], 1, &mPositions[i]);
 	if (emitter != nullptr) {
-		emitter->unk154.x = mEffectDirs[i].x;
-		emitter->unk154.y = mEffectDirs[i].y;
-		emitter->unk154.z = mEffectDirs[i].z;
-		emitter->unk174.x = mEffectDirs[i].x;
-		emitter->unk174.y = mEffectDirs[i].y;
-		emitter->unk174.z = mEffectDirs[i].z;
+		JGeometry::TVec3<f32>* effectDir = &mEffectDirs[i];
+		emitter->unk154.x                = effectDir->x;
+		emitter->unk154.y                = effectDir->y;
+		emitter->unk154.z                = effectDir->z;
+		emitter->unk174.x                = effectDir->x;
+		emitter->unk174.y                = effectDir->y;
+		emitter->unk174.z                = effectDir->z;
 		emitter->mChildSpawnRate = mParticleScales[i];
-		emitter->unk174.x        = mParticleChildRates[i];
-		emitter->unk174.y        = mParticleChildRates[i];
-		emitter->unk174.z        = mParticleChildRates[i];
+		f32 childRate            = mParticleChildRates[i];
+		emitter->unk174.x        = childRate;
+		emitter->unk174.y        = childRate;
+		emitter->unk174.z        = childRate;
 	}
 
 	if (mDirections[i]) {
