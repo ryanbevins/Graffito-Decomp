@@ -1914,13 +1914,8 @@ void TBubble::reset()
 	TWalkerEnemy::reset();
 	onLiveFlag(LIVE_FLAG_UNK8);
 
-	volatile f32 min = 50.0f;
-	volatile f32 max = 150.0f;
-	f32 range = max - min;
-	f32 factor = rand() * 0.000030517578f;
-	factor *= range;
-	factor += min;
-	unk1CC = factor;
+	TMsRange<f32> scaleRange(50.0f, 150.0f);
+	unk1CC = scaleRange.rand();
 	unk1D0 = 0;
 	unk1D1 = 1;
 	unk1D2 = 0;
