@@ -1160,7 +1160,7 @@ void TSamboHead::genEventCoin()
 					coin = gpItemManager->makeObjAppear(0x2000000E);
 
 				if (coin) {
-					coin->makeObjAppeared();
+					coin->appear();
 					coin->mPosition = mPosition;
 				}
 			} else {
