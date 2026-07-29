@@ -88,7 +88,7 @@ DEFINE_NERVE(TNerveStayPakkunAppear, TLiveActor)
 		self->setBckAnm(7);
 		self->offHitFlag(HIT_FLAG_NO_COLLISION);
 		self->unk1B1 = true;
-		self->mSeed->rebirth();
+		self->mSeed->kill();
 	}
 
 	f32 frame = self->getCurAnmFrameNo(0);
