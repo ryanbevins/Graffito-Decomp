@@ -90,6 +90,8 @@ void TRandomFruit::initMapObj()
 	case 1: snprintf(mFruitName, 32, "FruitDurian"); break;
 	case 2: snprintf(mFruitName, 32, "FruitPapaya"); break;
 	case 3: snprintf(mFruitName, 32, "FruitPine"); break;
+	case 4:
+	case 5:
 	default: snprintf(mFruitName, 32, "FruitPine"); break;
 	}
 	unkF4 = mFruitName;
