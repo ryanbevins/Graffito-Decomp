@@ -265,8 +265,9 @@ void TLimitKoopa::reset()
 	TSpineEnemy::reset();
 
 	f32 waitSpeed = getSaveParam2()->mWaitSpeed.get();
-	if (!mMActor->checkCurBckFromIndex(0xc))
-		mMActor->setBckFromIndex(0xc);
+	MActor* actor = mMActor;
+	if (!actor->checkCurBckFromIndex(0xc))
+		actor->setBckFromIndex(0xc);
 	mMActor->getFrameCtrl(0)->setRate(waitSpeed);
 
 	mSpine->reset();
