@@ -565,7 +565,7 @@ void TMapObjGeneral::calcRootMatrix()
 		if (mMapObjData->mHold) {
 			TMapObjHoldData* hold = mMapObjData->mHold;
 
-			MtxPtr src = getTakingMtx();
+			MtxPtr src = mHolder->getTakingMtx();
 			MTXCopy(src, hold->unkC->getBaseTRMtx());
 			hold->unkC->calc();
 
@@ -573,7 +573,7 @@ void TMapObjGeneral::calcRootMatrix()
 			MTXCopy(src2, model->getBaseTRMtx());
 			mPosition.set(src2[0][3], src2[1][3], src2[2][3]);
 		} else {
-			MtxPtr src = getTakingMtx();
+			MtxPtr src = mHolder->getTakingMtx();
 			MTXCopy(src, checkMapObjFlag(0x100) ? model->getAnmMtx(0)
 			                                    : model->getBaseTRMtx());
 			mPosition.set(src[0][3], src[1][3], src[2][3]);
