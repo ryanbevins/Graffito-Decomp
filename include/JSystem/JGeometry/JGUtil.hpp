@@ -69,7 +69,14 @@ template <> struct TUtil<f32> {
 
 	static f32 mod(f32 value, f32 modulus);
 
-	static f32 inv_sqrt(f32 mag);
+	static f32 inv_sqrt(f32 mag)
+	{
+		if (mag <= 0.0f)
+			return mag;
+
+		f32 root = __frsqrte(mag);
+		return 0.5f * root * (3.0f - mag * (root * root));
+	}
 };
 
 } // namespace JGeometry
