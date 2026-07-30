@@ -447,16 +447,15 @@ void JPAFieldManager::calcFieldParams()
 void JPAFieldManager::affectField(JPAParticle* particle)
 {
 	JGeometry::TVec3<f32>& particlePos = particle->mGlobalPosition;
-	JSUListIterator<JPABaseField> it;
-	JPABaseField* field;
-
-	for (it = unk0.getFirst(); it != unk0.getEnd(); ++it) {
-		field = it.getObject();
+	JSULink<JPABaseField>* link = unk0.getFirst();
+	while (link) {
+		JPABaseField* field = link->getObject();
 		if (!field->checkStatus(JPABaseField::STATUS_LIMIT_DISTANCE)) {
 			field->affect(particle);
 		} else if (!field->checkMaxDistance(particlePos, field->getUnk18())) {
 			field->affect(particle);
 		}
+		link = link->getNext();
 	}
 }
 
