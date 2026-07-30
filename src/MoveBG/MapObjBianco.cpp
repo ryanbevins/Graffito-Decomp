@@ -1013,11 +1013,10 @@ void TBigWindmill::load(JSUMemoryInputStream& stream)
 	TMapObjBase::load(stream);
 
 	for (int i = 0; i < 4; ++i) {
-		JGeometry::TVec3<f32> pos(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> rot(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		unk138[i] = TMapObjBaseManager::newAndRegisterObj("bigWindmillBlock",
-		                                                   pos, rot, scale);
+			JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+			JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+			JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		unk138[i]->appear();
 		unk138[i]->getModel()->calc();
 	}
