@@ -25,6 +25,7 @@
 #include <Player/MarioMain.hpp>
 #include <Player/MarioAccess.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <System/MarioGamePad.hpp>
