@@ -60,8 +60,7 @@ public:
 
 	/* 0x158 */ JGeometry::TQuat4<f32> mInitialQuat;
 	/* 0x168 */ JGeometry::TQuat4<f32> mCurrentQuat;
-	/* 0x178 */ JGeometry::TVec3<f32> mCenterDir;
-	/* 0x184 */ f32 mCenterRadius;
+	/* 0x178 */ JGeometry::TQuat4<f32> mCenterQuat;
 	/* 0x188 */ JGeometry::TVec3<f32> mAngularVelocity;
 	/* 0x194 */ JGeometry::TVec3<f32> mInitialPosition;
 	/* 0x1A0 */ JGeometry::TVec3<f32> mBeeSoundPos;

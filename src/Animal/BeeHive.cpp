@@ -370,8 +370,7 @@ BOOL TBeeHive::doWait()
 
 void TBeeHive::calcRootMatrix()
 {
-	JGeometry::TQuat4<f32> base(mCenterDir.x, mCenterDir.y, mCenterDir.z,
-	                            mCenterRadius);
+	JGeometry::TQuat4<f32> base = mCenterQuat;
 	JGeometry::TQuat4<f32> quat;
 	quat.mul(base, mCurrentQuat);
 
@@ -624,50 +623,9 @@ void TBeeHive::reset()
 {
 	mPosition = mInitialPosition;
 
-	Mtx mtx;
+	TRotation3f mtx;
 	MsMtxSetRotRPH(mtx, mRotation.x, 0.0f, mRotation.z);
-
-	f32 xx    = mtx[0][0];
-	f32 yy    = mtx[1][1];
-	f32 zz    = mtx[2][2];
-	f32 trace = xx + yy + zz;
-	if (trace >= 0.0f) {
-		f32 scale    = JGeometry::TUtil<f32>::sqrt(trace + 1.0f);
-		mCenterRadius = 0.5f * scale;
-		f32 inv      = 0.5f / scale;
-		mCenterDir.x = (mtx[2][1] - mtx[1][2]) * inv;
-		mCenterDir.y = (mtx[0][2] - mtx[2][0]) * inv;
-		mCenterDir.z = (mtx[1][0] - mtx[0][1]) * inv;
-	} else {
-		f32 maxDiag = xx;
-		if (maxDiag < yy)
-			maxDiag = yy;
-		if (maxDiag < zz)
-			maxDiag = zz;
-
-		if (maxDiag == xx) {
-			f32 scale = JGeometry::TUtil<f32>::sqrt(xx - (yy + zz) + 1.0f);
-			mCenterDir.x = 0.5f * scale;
-			f32 inv      = 0.5f / scale;
-			mCenterDir.y = (mtx[0][1] + mtx[1][0]) * inv;
-			mCenterDir.z = (mtx[2][0] + mtx[0][2]) * inv;
-			mCenterRadius = (mtx[2][1] - mtx[1][2]) * inv;
-		} else if (maxDiag == yy) {
-			f32 scale = JGeometry::TUtil<f32>::sqrt(yy - (zz + xx) + 1.0f);
-			mCenterDir.y = 0.5f * scale;
-			f32 inv      = 0.5f / scale;
-			mCenterDir.z = (mtx[1][2] + mtx[2][1]) * inv;
-			mCenterDir.x = (mtx[0][1] + mtx[1][0]) * inv;
-			mCenterRadius = (mtx[0][2] - mtx[2][0]) * inv;
-		} else {
-			f32 scale = JGeometry::TUtil<f32>::sqrt(zz - (xx + yy) + 1.0f);
-			mCenterDir.z = 0.5f * scale;
-			f32 inv      = 0.5f / scale;
-			mCenterDir.x = (mtx[2][0] + mtx[0][2]) * inv;
-			mCenterDir.y = (mtx[1][2] + mtx[2][1]) * inv;
-			mCenterRadius = (mtx[1][0] - mtx[0][1]) * inv;
-		}
-	}
+	mtx.getQuat(mCenterQuat);
 
 	f32 half = mRotation.y * 0.5f;
 	f32 sinHalf = sinf(half);
