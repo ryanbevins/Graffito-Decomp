@@ -371,11 +371,12 @@ BOOL TBeeHive::doWait()
 void TBeeHive::calcRootMatrix()
 {
 	JGeometry::TQuat4<f32> base = mCenterQuat;
-	JGeometry::TQuat4<f32> quat;
-	quat.mul(base, mCurrentQuat);
 
 	f32 angle = 0.5f * mAngularVelocity.x;
 	JGeometry::TQuat4<f32> roll(sinf(angle), 0.0f, 0.0f, cosf(angle));
+
+	JGeometry::TQuat4<f32> quat;
+	quat.mul(base, mCurrentQuat);
 	quat.mul(quat, roll);
 
 	TRotation3f mtx;
