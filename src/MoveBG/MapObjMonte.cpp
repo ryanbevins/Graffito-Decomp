@@ -1095,9 +1095,8 @@ void THangingBridgeBoard::setGroundCollision()
 	           > ((TYoshi*)SMS_GetYoshi())->mTranslation.z) {
 		J3DModel* model            = getModel();
 		MtxPtr mtx                 = model->mNodeMatrices[0];
-		TMapCollisionBase* colBase = mMapCollisionManager->unk8;
-		if (colBase != 0) {
-			colBase->moveMtx(mtx);
+		if (mMapCollisionManager->unk8 != 0) {
+			mMapCollisionManager->unk8->moveMtx(mtx);
 			return;
 		}
 	}
