@@ -562,7 +562,7 @@ void TKiller::behaveToWater(THitActor* sender)
 	if (mSpine->getCurrentNerve() != &TNerveKillerExplosion::theNerve()) {
 		mSpine->pushNerve(&TNerveKillerExplosion::theNerve());
 		onHitFlag(0x1);
-		mVelocity.set(0.0f, 0.0f, 0.0f);
+		mVelocity = JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
 	}
 }
 
