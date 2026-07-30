@@ -1503,8 +1503,10 @@ void TBossPakkun::changeBck(int index)
 		}
 
 		if (index == 0x15) {
-			mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK)
-			    ->setRate(getBossPakkunSaveParam()->mSLVomitAnmRate.value);
+			TBossPakkunParams* params = getBossPakkunSaveParam();
+			MActor* actor             = mMActor;
+			f32 rate                  = params->mSLVomitAnmRate.value;
+			actor->getFrameCtrl(MActor::ANM_TYPE_BCK)->setRate(rate);
 		}
 
 		f32 blendFrames = 60.0f;
