@@ -1429,8 +1429,8 @@ int TTelesaSlot::getForcastResult(int idx)
 	f32 ang = unk13C[idx];
 	f32 cur = unk138[idx];
 
-	do {
-		while (fabsf(cur) > unk160) {
+	for (;;) {
+		if (fabsf(cur) > unk160) {
 			ang += cur;
 			if (cur > 0.0f)
 				cur -= unk15C;
@@ -1439,17 +1439,18 @@ int TTelesaSlot::getForcastResult(int idx)
 
 			if (ang >= 360.0f)
 				ang -= 360.0f;
-			if (ang < 0.0f)
+			if (ang <= 0.0f)
 				ang += 360.0f;
+		} else {
+			ang += cur;
+			if (ang >= 360.0f)
+				ang -= 360.0f;
+			if (ang <= 0.0f)
+				ang += 360.0f;
+			if ((int)fabsf(ang) % unk168 == 0)
+				break;
 		}
-
-		ang += cur;
-		if (ang >= 360.0f)
-			ang -= 360.0f;
-		if (ang < 0.0f)
-			ang += 360.0f;
-
-	} while ((int)fabsf(ang) % unk168 != 0);
+	}
 
 	return getResultFromAng(unk168 * (int)(ang / (f32)unk168));
 }
