@@ -602,7 +602,7 @@ void JAIBasic::releaseSeRegist(JAISound* sound)
 		JAISound** slot = getSeRegistSlot(unk0, category, i);
 		if (*slot == sound) {
 			*slot = nullptr;
-			break;
+			i     = count;
 		}
 	}
 
