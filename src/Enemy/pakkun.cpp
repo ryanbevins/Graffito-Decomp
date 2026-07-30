@@ -677,11 +677,7 @@ f32 TPakkunSeed::getNowGravity()
 
 void TPakkunSeed::behaveToHitGround()
 {
-	if (fabsf(mVelocity.y) < 1.0f
-	    || mGroundPlane->getBGType() == 0x100
-	    || mGroundPlane->getBGType() == 0x101
-	    || (mGroundPlane->getBGType() - 0x102U) <= 3
-	    || mGroundPlane->getBGType() == 0x4104) {
+	if (fabsf(mVelocity.y) < 1.0f || mGroundPlane->isWaterSurface()) {
 		unk168 = 1;
 		offLiveFlag(LIVE_FLAG_UNK100);
 		mVelocity.set(0.0f, -0.3f, 0.0f);
