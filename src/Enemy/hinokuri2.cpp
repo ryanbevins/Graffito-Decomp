@@ -1097,7 +1097,8 @@ DEFINE_NERVE(TNerveHino2GraphWander, TLiveActor)
 		self->changeBck(0x18);
 
 	if (self->getCurrentBck() == 0x18) {
-		self->walkToCurPathNode(self->mMarchSpeed, self->mTurnSpeed, 0.0f);
+		f32 turnSpeed = self->mTurnSpeed;
+		self->walkToCurPathNode(self->mMarchSpeed, turnSpeed, 0.0f);
 	}
 
 	int frame = self->getMActor()->getFrameCtrl(0)->getFrame();
