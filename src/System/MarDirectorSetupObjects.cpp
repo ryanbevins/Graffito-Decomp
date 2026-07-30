@@ -228,13 +228,13 @@ bool TMarDirector::setupObjects()
 	JDrama::TNameRef* root
 	    = JDrama::TNameRefGen::search<JDrama::TNameRef>("Root View Obj");
 
-	JDrama::TNameRefPtrListT<JDrama::TViewObj>* gameObjs;
+	JDrama::TViewObjPtrListT<JDrama::TViewObj>* gameObjs;
 	if (root) {
-		gameObjs = (JDrama::TNameRefPtrListT<JDrama::TViewObj>*)root->search(
+		gameObjs = (JDrama::TViewObjPtrListT<JDrama::TViewObj>*)root->search(
 		    "ゲームオブジェクト");
 	} else {
 		gameObjs = JDrama::TNameRefGen::search<
-		    JDrama::TNameRefPtrListT<JDrama::TViewObj> >("ゲームオブジェクト");
+		    JDrama::TViewObjPtrListT<JDrama::TViewObj> >("ゲームオブジェクト");
 	}
 
 	gameObjs->insert(gpMarioParticleManager);
