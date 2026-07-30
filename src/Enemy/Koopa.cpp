@@ -1333,8 +1333,10 @@ DEFINE_NERVE(TNerveKoopaProvoke, TLiveActor)
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
 	self->changeAnm(6, 0, 2.0f);
-	if (self->mMActor->curAnmEndsNext(0, nullptr))
+	if (self->mMActor->curAnmEndsNext(0, nullptr)) {
 		spine->setNext(&TNerveKoopaWait::theNerve());
+		return FALSE;
+	}
 	return FALSE;
 }
 
