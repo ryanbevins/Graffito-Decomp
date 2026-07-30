@@ -977,7 +977,7 @@ void TSamboFlowerCoinUnit::checkGenCoin()
 		PSMTXMultVec(rot, (Vec*)&offset, (Vec*)&offset);
 
 		TMapObjBase* coin = flower->unk168;
-		if (coin->getActorType() == 0x2000000E)
+		if (coin->isActorType(0x2000000E))
 			coin = gpItemManager->makeObjAppear(0x2000000E);
 
 		if (!coin)
