@@ -1110,10 +1110,8 @@ static void evChangeSunglass(TSpcTypedInterp<TEventWatcher>* interp,
 static void evSetCollision(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(2, &arg_num);
-	int value       = interp->pop().getDataInt();
-	TSpcSlice actor = interp->pop();
-
-	THitActor* hitActor = get_name_ref<THitActor>(actor);
+	int value = interp->pop().getDataInt();
+	THitActor* hitActor = get_name_ref<THitActor>(interp->pop());
 
 	if (!value)
 		hitActor->onHitFlag(HIT_FLAG_NO_COLLISION);
