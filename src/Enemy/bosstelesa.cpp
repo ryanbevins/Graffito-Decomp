@@ -2533,7 +2533,12 @@ DEFINE_NERVE(TNerveBossTelesaSpit, TLiveActor)
 			boss->genAttacker();
 	}
 
-	return boss->checkCurAnmEnd(0);
+	bool isAnmEnd;
+	if (boss->checkCurAnmEnd(0))
+		isAnmEnd = true;
+	else
+		isAnmEnd = false;
+	return isAnmEnd;
 }
 
 DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
