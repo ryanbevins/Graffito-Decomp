@@ -8,6 +8,12 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <MarioUtil/ModelUtil.hpp>
 
+static const char* cCameraBckNameShineGetInside
+    = "/common/camera/camera_demo_shine_get_inside";
+static const char* cCameraBckNameShineGetOutside
+    = "/common/camera/camera_demo_shine_get_outside";
+static const char* cCameraBckNameGate = "/common/camera/camera_demo_gate_in";
+
 const char* cPositionJointName   = "cam_position";
 const char* cLookatJointName     = "cam_interest";
 const char* cCameraBckVolumeName = "/scene/map/camera";
