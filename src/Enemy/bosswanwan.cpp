@@ -886,7 +886,15 @@ void TBossWanwan::shakeCamera(int mode)
 	if (!SMS_IsMarioTouchGround4cm())
 		return;
 
-	f32 marioDist = JGeometry::TUtil<f32>::sqrt(mDistToMarioSquared);
+	f32 marioDist = mDistToMarioSquared;
+	if (marioDist > 0.0f) {
+		f64 guess = __frsqrte((f64)marioDist);
+		volatile f32 rounded
+		    = (f32)((f64)marioDist
+		            * (0.5 * guess
+		               * -((f64)marioDist * (guess * guess) - 3.0)));
+		marioDist = rounded;
+	}
 	f32 lengthMax
 	    = ((TBWParams*)getSaveParam())->mSLShakeLengthMax.value;
 	f32 lengthMaxHP0
