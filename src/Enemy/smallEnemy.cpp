@@ -240,7 +240,8 @@ void TSmallEnemy::attackToMario()
 	volatile JGeometry::TVec3<f32> local_14(0, 0, 0);
 
 	JGeometry::TVec3<f32> local_20;
-	local_20.sub(mPosition, *gpMarioPos);
+	local_20.set(mPosition.x - gpMarioPos->x, mPosition.y - gpMarioPos->y,
+	             mPosition.z - gpMarioPos->z);
 	MsVECNormalize(&local_20, &local_20);
 	mVelocity.x = local_20.x;
 	mVelocity.z = local_20.z;
