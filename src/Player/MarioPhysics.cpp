@@ -168,13 +168,8 @@ void TMario::checkDescent()
 	u8 zero = 0;
 
 	f32 posY = mPosition.y;
-	TBGWallCheckRecord wallRecord;
-	wallRecord.mCenter.x = mPosition.x;
-	wallRecord.mCenter.y = posY - 10.0f;
-	wallRecord.mCenter.z = mPosition.z;
-	wallRecord.mRadius = descentSp;
-	wallRecord.mMaxResults = isOnIllegal;
-	wallRecord.mFlags = zero;
+	TBGWallCheckRecord wallRecord(mPosition.x, posY - 10.0f, mPosition.z,
+	                              descentSp, isOnIllegal, zero);
 
 	if (!gpMap->isTouchedWallsAndMoveXZ(&wallRecord))
 		return;
