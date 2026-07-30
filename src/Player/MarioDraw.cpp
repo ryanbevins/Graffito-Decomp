@@ -1641,12 +1641,10 @@ void TMario::finalDrawInitialize()
 	SMS_MakeDLAndLock(mModel->unk8);
 
 	// Something feels weird around here
-	int packetId = 0;
 	for (int i = 0; i < mBodyModelData->getMaterialNum(); ++i) {
 		if (i == unk3D4 || i == unk3D6) {
-			mModel->unk8->mMatPackets[packetId].offFlag(0x1);
+			mModel->unk8->mMatPackets[i].offFlag(0x1);
 		}
-		packetId++;
 	}
 
 	for (int i = 0; i < mBodyModelData->getMaterialNum(); ++i) {
