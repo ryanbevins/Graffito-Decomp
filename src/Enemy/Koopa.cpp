@@ -813,7 +813,8 @@ f32 TKoopa::getFlameDirRate() const
 	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
 	f32 frame          = ctrl->getFrame();
 	f32 end            = mMActor->getFrameCtrl(0)->getEnd();
-	TKoopaParams* prm  = getSaveParam2();
+	TEnemyManager* manager = (TEnemyManager*)mManager;
+	TKoopaParams* prm      = (TKoopaParams*)manager->unk38;
 	f32 overStart      = prm->flameOverStart.get();
 	s32 focusStart     = prm->flameFocusStartStep.get();
 	s32 focusEnd       = prm->flameFocusEndStep.get();
