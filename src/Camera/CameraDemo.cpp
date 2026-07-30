@@ -269,22 +269,35 @@ void CPolarSubCamera::ctrlNormalDeadDemo_()
 
 void CPolarSubCamera::execDeadDemoProc_()
 {
-	if (mDeadDemoCountdown > 0) {
-		mDeadDemoCountdown -= 1;
-		if (mDeadDemoCountdown > 0)
+	u16 timer = mDeadDemoCountdown;
+	if (timer != 0) {
+		mDeadDemoCountdown = timer - 1;
+		if (mDeadDemoCountdown != 0)
 			return;
 		unk64 |= CAMERA_FLAG_DEAD_DEMO;
 		mPosFreezeFrames = 1;
-		if (unk64 & CAMERA_FLAG_HELL_DEAD_DEMO)
-			return;
-		mDeadDemoCountdownToFovZoom = 1;
+		if (!(unk64 & CAMERA_FLAG_HELL_DEAD_DEMO))
+			mDeadDemoCountdownToFovZoom = 1;
 		return;
 	}
 
-	if (SMS_CheckMarioFlag(MARIO_FLAG_GAME_OVER)
-	    && !gpMarDirector->isTalkModeNow()
-	    && !gpMarDirector->checkUnk124Thing2())
-		mDeadDemoCountdown = 16;
+	if (!SMS_CheckMarioFlag(MARIO_FLAG_GAME_OVER))
+		return;
+
+	bool shouldReturn      = true;
+	TMarDirector* director = gpMarDirector;
+	bool firstMatches      = true;
+	u8 state               = director->unk124;
+	if (state != 1 && state != 2)
+		firstMatches = false;
+	if (!firstMatches) {
+		bool secondMatches = director->checkUnk124Thing2();
+		if (!secondMatches)
+			shouldReturn = false;
+	}
+	if (shouldReturn)
+		return;
+	mDeadDemoCountdown = 16;
 }
 
 bool CPolarSubCamera::isHellDeadDemo() const
