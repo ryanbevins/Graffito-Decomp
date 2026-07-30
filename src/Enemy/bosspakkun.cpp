@@ -1184,7 +1184,7 @@ void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 		mNavel->perform(flags, graphics);
 
 	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 1)) {
-		mMtxCalc->unk50 -= unk154;
+		mMtxCalc->unk50 = -unk154 + mMtxCalc->unk50;
 		if (mMtxCalc->unk50 < 0.0f)
 			mMtxCalc->unk50 = 0.0f;
 		else if (mMtxCalc->unk50 > 1.0f)
