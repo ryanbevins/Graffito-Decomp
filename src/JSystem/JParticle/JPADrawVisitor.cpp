@@ -324,15 +324,15 @@ void JPADrawExecBillBoard::exec(const JPADrawContext* dc,
 	f32 scaleY = particle->getDrawParamPPtr()->unk14;
 
 	f32 x1 = scaleX * (dc->pcb->unk4 - dc->pcb->unkC);
-	f32 x0 = scaleX * (dc->pcb->unk4 + dc->pcb->unkC);
-	f32 y0 = scaleY * (dc->pcb->unk8 + dc->pcb->unk10);
 	f32 y1 = scaleY * (dc->pcb->unk8 - dc->pcb->unk10);
+	scaleX *= dc->pcb->unk4 + dc->pcb->unkC;
+	scaleY *= dc->pcb->unk8 + dc->pcb->unk10;
 
 	JGeometry::TVec2<f32> offs[4];
-	offs[0].set(-x0, y0);
-	offs[1].set(x1, y0);
+	offs[0].set(-scaleX, scaleY);
+	offs[1].set(x1, scaleY);
 	offs[2].set(x1, -y1);
-	offs[3].set(-x0, -y1);
+	offs[3].set(-scaleX, -y1);
 
 	JGeometry::TVec3<f32> pt;
 	particle->getGlobalPosition(pt);
