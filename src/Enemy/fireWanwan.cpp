@@ -1517,7 +1517,7 @@ bool TFireWanwan::isFreeze() const
 
 bool TFireWanwan::isReadyToFly() const
 {
-	bool taken;
+	BOOL taken;
 	if (unk194->getHolder() != nullptr)
 		taken = true;
 	else
