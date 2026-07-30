@@ -752,7 +752,8 @@ inline static void applyVikingPosition(THorizontalViking* viking, BOOL rotate)
 	viking->mPosition.x = viking->mInitialPosition.x
 	                     + viking->unk138
 	                           * sinf((viking->unk148 / 180.0f) * 3.14f);
-	f32 y = viking->mInitialPosition.y
+	f32 initialY = viking->mInitialPosition.y;
+	f32 y = initialY
 	        + viking->unk138
 	              * (1.0f - cosf((viking->unk148 / 180.0f) * 3.14f));
 	viking->mPosition.y = viking->mYOffset + y;
