@@ -313,7 +313,7 @@ void TFluff::appear()
 	f32 posY;
 	f32 posZ;
 	posZ = randSigned() * mgr->unk138.y;
-	posY = randUnit() * mgr->mPosition.y;
+	posY = randUnit() * unk168->mPosition.y;
 	f32 posX = randSigned() * mgr->unk138.x;
 	mPosition.x = posX;
 	mPosition.y = posY;
