@@ -384,7 +384,7 @@ public:
 		             unk8C->dropRadius.get() * 2.0f, 0.0f, 0.0f);
 		onHitFlag(HIT_FLAG_NO_COLLISION);
 		onHitFlag(HIT_FLAG_UNK4);
-		unk78.set(0.0f, 0.0f, 0.0f);
+		unk78.zero();
 		unk84 = 0.0f;
 	}
 	void addDrop(const JGeometry::TVec3<f32>& position, f32 velY)
