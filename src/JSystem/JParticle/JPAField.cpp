@@ -389,16 +389,17 @@ JPADragField::~JPADragField() { }
 void JPADragField::affect(JPAParticle* particle)
 {
 	if (!particle->checkStatus(JPABaseParticle::FLAG_UNK4)) {
-		if ((int)mFadeOutStart == 0) {
+		if ((int)particle->mAge == 0) {
 			f32 rnd = unk14 * (FieldRand.get_ufloat_1() - 0.5f) + unk10;
 			if (rnd > 1.0f)
 				rnd = 1.0f;
-			unk7C.y = rnd;
+			particle->mDragForce = rnd;
 		}
 		f32 scale = calcFieldFadeScale(particle->mLifeProgress);
-		unk7C.z *= -(scale * (1.0f - particle->getDragForce()) - 1.0f);
+		particle->mCurrentDragForce
+		    *= -(scale * (1.0f - particle->getDragForce()) - 1.0f);
 	} else {
-		unk7C.z *= particle->getDragForce();
+		particle->mCurrentDragForce *= particle->getDragForce();
 	}
 }
 
