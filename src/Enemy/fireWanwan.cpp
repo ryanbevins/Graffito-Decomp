@@ -639,7 +639,8 @@ void TFireWanwanTailHit::clipNodes(JDrama::TGraphics*) { }
 
 void TFireWanwanTailHit::movementBody(const JGeometry::TVec3<f32>& param_1)
 {
-	if (mOwner->isHungTailNerve() && !mOwner->unk194->isTaken()
+	if (mOwner->isHungTailNerve()
+	    && !(mOwner->unk194->getHolder() != nullptr ? TRUE : FALSE)
 	    && !mOwner->isReadyToFly()) {
 		unkA4->mBoundRate
 		    = mOwner->getSaveParam2()->mRubberBoundRateHitting.get();
