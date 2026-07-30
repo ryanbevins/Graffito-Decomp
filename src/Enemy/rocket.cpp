@@ -406,16 +406,7 @@ TRocket::TRocket(const char* name)
 void TRocketManager::perform(u32 param, JDrama::TGraphics* graphics)
 {
 	if (param & 1) {
-		for (int i = 0;
-		     i < (unk38 == nullptr
-		                 ? mObjNum
-		                 : (((TSpineEnemyParams*)unk38)
-		                                ->mSLActiveEnemyNum.value
-		                            > mObjNum
-		                        ? mObjNum
-		                        : ((TSpineEnemyParams*)unk38)
-		                              ->mSLActiveEnemyNum.value));
-		     i++) {
+		for (int i = 0; i < getActiveObjNum(); i++) {
 			TRocket* a = (TRocket*)unk18[i];
 			if (a->mLiveFlag & LIVE_FLAG_DEAD)
 				a->reset();
