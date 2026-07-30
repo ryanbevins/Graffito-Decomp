@@ -1406,7 +1406,8 @@ void TFireWanwan::checkHitActors()
 
 void TFireWanwan::checkHungTail()
 {
-	if (!canTakenByMario() || unk194->isTaken()) {
+	if (!canTakenByMario()
+	    || (unk194->getHolder() != nullptr ? TRUE : FALSE)) {
 		mSpine->reset();
 		mSpine->setNext(&TNerveFireWanwanHungTail::theNerve());
 	}
