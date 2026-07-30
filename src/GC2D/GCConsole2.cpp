@@ -3443,7 +3443,7 @@ bool TGCConsole2::processAppearBalloon()
 {
 	bool isFinished = false;
 
-	u16 alpha = unk3B0->mAlpha;
+	u16 alpha = unk3B0->getAlpha();
 	if (alpha < 0xFF) {
 		alpha += 0x30;
 		if (alpha > 0xFF)
