@@ -1605,13 +1605,12 @@ void TBossPakkun::gotHipDropDamage()
 	unk16C = 0;
 
 	if (mHitPoints == 0) {
-		const TNerveBase<TLiveActor>* preDie = &TNerveBPPreDie::theNerve();
-		if (mSpine->getLatestNerve() == preDie)
+		if (mSpine->getLatestNerve() == &TNerveBPPreDie::theNerve())
 			return;
 		if (mSpine->getLatestNerve() == &TNerveBPDie::theNerve())
 			return;
 
-		mSpine->setNext(preDie);
+		mSpine->setNext(&TNerveBPPreDie::theNerve());
 		if (gpMSound->gateCheck(0x284E))
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x284E, &mPosition, 0, nullptr, 0, 4);
