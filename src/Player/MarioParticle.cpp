@@ -689,7 +689,10 @@ void TMario::emitSweat(short rotY)
 		return;
 
 	MtxPtr mtx = mModel->getModel()->getAnmMtx(mBoneIDs[10]);
-	JGeometry::TVec3<f32> pos(mtx[0][3], mtx[1][3], mtx[2][3]);
+	JGeometry::TVec3<f32> pos;
+	pos.x = mtx[0][3];
+	pos.y = mtx[1][3];
+	pos.z = mtx[2][3];
 	gpMarioParticleManager->emitWithRotate(0xD, &pos, 0, rotY, 0, 0, nullptr);
 }
 #pragma dont_inline off
