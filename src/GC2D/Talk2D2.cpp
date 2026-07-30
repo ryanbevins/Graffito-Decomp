@@ -906,9 +906,9 @@ void TTalk2D2::setupBoardTextBox(const void* data, JMSMesgEntry* entry)
 bool TTalk2D2::eraseBoardWindow()
 {
 	bool result = false;
-	int alpha   = unk18->mAlpha - 4;
+	s16 alpha   = unk18->mAlpha - 4;
 
-	if ((s16)alpha < 0) {
+	if (alpha < 0) {
 		TMessageLoader* loader = unk260;
 		void* data             = loader->unk4;
 		JMSMesgEntry* entry
