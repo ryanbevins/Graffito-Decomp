@@ -308,7 +308,7 @@ DEFINE_NERVE(TNerveSamboHeadAttack, TLiveActor)
 			self->unk19C = 0;
 			self->updateSquareToMario();
 
-			JGeometry::TVec3<f32> target = self->unk104.getPoint();
+			JGeometry::TVec3<f32> target = self->getUnk104().getPoint();
 			target.x = gpMarioPos->x - self->mPosition.x;
 			target.y = 0.0f;
 			target.z = gpMarioPos->z - self->mPosition.z;
