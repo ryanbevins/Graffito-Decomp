@@ -2747,7 +2747,7 @@ void TGCConsole2::setTimer(s32 param_1)
 {
 	// Codegen note: scheduling/register allocation differs from target.
 
-	u32 timerValue = param_1;
+	u32 timerValue;
 
 	if (param_1 == -1) {
 		s64 uVar3 = gpMarDirector->unkC8;
@@ -2764,6 +2764,8 @@ void TGCConsole2::setTimer(s32 param_1)
 				timerValue = unk514 - timerValue;
 			}
 		}
+	} else {
+		timerValue = param_1;
 	}
 
 	// Cap at 5999.99 seconds (99:59.99)
