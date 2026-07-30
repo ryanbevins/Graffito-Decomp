@@ -969,9 +969,11 @@ void TBathWaterManager::loadAfter()
 
 void TBathWaterManager::initializeIfYet_()
 {
+	static const char bathtubName[] = "\x83\x6F\x83\x58\x83\x5E\x83\x75";
+
 	if (unk24 == 0) {
-		TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>(
-		    "\x83\x6F\x83\x58\x83\x5E\x83\x75");
+		TBathtub* bathtub
+		    = JDrama::TNameRefGen::search<TBathtub>(bathtubName);
 		if (bathtub != 0 && bathtub->unk298 != 0) {
 			const TBathtubData& data = bathData(bathtub);
 			for (int i = 0; i < 2; ++i) {
