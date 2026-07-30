@@ -194,10 +194,11 @@ void TSeal::init(TLiveManager* manager)
 	mMapCollisionManager = new TMapCollisionManager(1, "/scene/seal", this);
 	mMapCollisionManager->init("gene_orange_col1.col", 2, nullptr);
 
+	TMapCollisionManager* collisionManager = mMapCollisionManager;
 	Mtx mtx;
 	MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
 	            mRotation.y, mRotation.z, mScaling.x, mScaling.y, mScaling.z);
-	TMapCollisionBase* col = mMapCollisionManager->getUnk8();
+	TMapCollisionBase* col = collisionManager->getUnk8();
 	PSMTXCopy(mtx, col->unk20);
 	col->setUp();
 
