@@ -1184,11 +1184,12 @@ void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 		mNavel->perform(flags, graphics);
 
 	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 1)) {
-		mMtxCalc->unk50 = -unk154 + mMtxCalc->unk50;
-		if (mMtxCalc->unk50 < 0.0f)
-			mMtxCalc->unk50 = 0.0f;
-		else if (mMtxCalc->unk50 > 1.0f)
-			mMtxCalc->unk50 = 1.0f;
+		TBossPakkunMtxCalc* mtxCalc = mMtxCalc;
+		mtxCalc->unk50 = -unk154 + mtxCalc->unk50;
+		if (mtxCalc->unk50 < 0.0f)
+			mtxCalc->unk50 = 0.0f;
+		else if (mtxCalc->unk50 > 1.0f)
+			mtxCalc->unk50 = 1.0f;
 
 		if ((s8)unk17C != 0) {
 			if (unk178 <= 0) {
@@ -1264,7 +1265,7 @@ void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (((TBossPakkunManager*)mManager)->mIsLight == 0
-	    && mSpine->getLatestNerve() == &TNerveBPDie::theNerve()) {
+	    && &TNerveBPDie::theNerve() == mSpine->getLatestNerve()) {
 		MActor* oldActor = mMActor;
 		mMActor          = unk180;
 		TSpineEnemy::perform(flags, graphics);
@@ -1289,8 +1290,8 @@ void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 0x200)) {
-		if (mSpine->getLatestNerve() == &TNerveBPPreDie::theNerve()
-		    || mSpine->getLatestNerve() == &TNerveBPStompReact::theNerve()) {
+		if (&TNerveBPPreDie::theNerve() == mSpine->getLatestNerve()
+		    || &TNerveBPStompReact::theNerve() == mSpine->getLatestNerve()) {
 			mMActor->offMakeDL();
 			SMS_AddDamageFogEffect(
 			    mMActor->getModel()->getModelData(), mPosition, graphics);
