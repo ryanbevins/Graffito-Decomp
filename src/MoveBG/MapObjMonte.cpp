@@ -353,9 +353,13 @@ void TFluff::control()
 		break;
 	case 1:
 		mGroundHeight = gpMap->checkGround(mPosition, &mGroundPlane);
-		if (mVelocity.y < 0.0f
-		    && (mGroundHeight > mPosition.y - unk13C || mPosition.y < -1000.0f))
-			kill();
+		{
+			JGeometry::TVec3<f32> velocity = mVelocity;
+			if (velocity.y < 0.0f
+			    && (mGroundHeight > mPosition.y - unk13C
+			        || mPosition.y < -1000.0f))
+				kill();
+		}
 		if (gpMap->isTouchedOneWall(mPosition.x, mPosition.y, mPosition.z,
 		                            100.0f))
 			kill();
