@@ -949,7 +949,7 @@ BOOL TBossWanwan::receiveMessage(THitActor* sender, u32 message)
 		return TRUE;
 	}
 
-	if (actorType == 0x4000005A) {
+	if (sender->isActorType(0x4000005A)) {
 		sender->receiveMessage(this, HIT_MESSAGE_HIP_DROP);
 		mHitPoints = 0;
 		++unk190;
