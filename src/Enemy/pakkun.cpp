@@ -568,9 +568,10 @@ void TPakkunSeed::forceKill()
 	if (mGroundPlane->isPool() || mGroundPlane->checkFlag(0x10)
 	    || !gpMap->isInArea(mPosition.x, mPosition.z)) {
 		kill();
-		if (!mHost->mHasSubSeeds && mHost->mSeed->checkLiveFlag(LIVE_FLAG_DEAD)) {
-			mHost->mSeed->kill();
-			mHost->mSeed->onLiveFlag(0x20000);
+		if (!mHost->mHasSubSeeds
+		    && ((TPakkun*)unk160)->checkLiveFlag(LIVE_FLAG_HIDDEN)) {
+			((TPakkun*)unk160)->kill();
+			((TPakkun*)unk160)->onLiveFlag(0x20000);
 		}
 	}
 }
