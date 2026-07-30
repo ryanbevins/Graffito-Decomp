@@ -1207,10 +1207,11 @@ void TFireWanwan::updateCollisionFromParam()
 	if (isDefeat())
 		return;
 
-	setHitParams(getSaveParam2()->mSLAttackRadius.get(),
-	             getSaveParam2()->mSLAttackHeight.get(),
-	             getSaveParam2()->mSLDamageRadius.get(),
-	             getSaveParam2()->mSLDamageHeight.get());
+	f32 attackRadius = getSaveParam2()->mSLAttackRadius.get();
+	f32 attackHeight = getSaveParam2()->mSLAttackHeight.get();
+	f32 damageRadius = getSaveParam2()->mSLDamageRadius.get();
+	f32 damageHeight = getSaveParam2()->mSLDamageHeight.get();
+	setHitParams(attackRadius, attackHeight, damageRadius, damageHeight);
 }
 
 // Tiny size mismatch
