@@ -565,10 +565,7 @@ void TStayPakkun::load(JSUMemoryInputStream& stream)
 
 void TPakkunSeed::forceKill()
 {
-	if (mGroundPlane->getBGType() == 0x104
-	    || mGroundPlane->getBGType() == 0x105
-	    || mGroundPlane->getBGType() == 0x4104
-	    || mGroundPlane->checkFlag(0x10)
+	if (mGroundPlane->isPool() || mGroundPlane->checkFlag(0x10)
 	    || !gpMap->isInArea(mPosition.x, mPosition.z)) {
 		kill();
 		if (!mHost->mHasSubSeeds && mHost->mSeed->checkLiveFlag(LIVE_FLAG_DEAD)) {
