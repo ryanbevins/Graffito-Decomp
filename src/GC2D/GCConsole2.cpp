@@ -2747,7 +2747,7 @@ void TGCConsole2::setTimer(s32 param_1)
 {
 	// Codegen note: scheduling/register allocation differs from target.
 
-	u32 timerValue;
+	u32 timerValue = param_1;
 
 	if (param_1 == -1) {
 		s64 uVar3 = gpMarDirector->unkC8;
@@ -2764,8 +2764,6 @@ void TGCConsole2::setTimer(s32 param_1)
 				timerValue = unk514 - timerValue;
 			}
 		}
-	} else {
-		timerValue = param_1;
 	}
 
 	// Cap at 5999.99 seconds (99:59.99)
@@ -2835,8 +2833,7 @@ int TGCConsole2::getFinishedTime() { return unk4FC; }
 
 bool TGCConsole2::processAppearLife(int param_1)
 {
-	if (gpMarioOriginal->mHealth == 0
-	    || (s16)gpMarioOriginal->getUnk12c() == 0)
+	if (gpMarioOriginal->mHealth == 0 || (s16)gpMarioOriginal->unk12C == 0)
 		return true;
 
 	bool isFinished = true;
@@ -3444,7 +3441,7 @@ bool TGCConsole2::processAppearBalloon()
 {
 	bool isFinished = false;
 
-	u16 alpha = unk3B0->getAlpha();
+	u16 alpha = unk3B0->mAlpha;
 	if (alpha < 0xFF) {
 		alpha += 0x30;
 		if (alpha > 0xFF)
