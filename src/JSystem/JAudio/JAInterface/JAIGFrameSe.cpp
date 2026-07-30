@@ -575,10 +575,11 @@ void JAIBasic::releaseSeRegist(JAISound* sound)
 {
 	if (sound->unk1 != 1) {
 		u32 seq = unk38->getSeqParameter()->unk0;
-		u8 id   = sound->unk0;
 		JAISystemInterface::writePortApp(
-		    seq, 0x20000000 + (id >> 4) + ((id & 0xf) << 4), 0);
-		unk38->setTrackInterruptSwitch(id, 1);
+		    seq,
+		    0x20000000 + (sound->unk0 >> 4) + ((sound->unk0 & 0xf) << 4),
+		    0);
+		unk38->setTrackInterruptSwitch(sound->unk0, 1);
 	}
 
 	if (unk30 != 0 && (sound->getSwBit() & 8)) {
