@@ -331,7 +331,7 @@ void THino2Mask::perform(u32 param_1, JDrama::TGraphics* param_2)
 				return;
 			}
 
-			f32 gravity = unk0->getSaveParam()->mSLGravityY.get();
+			f32 gravity = unk0->getSaveParam()->mSLGravityY.value;
 
 			unk40.x -= gravity;
 			unk34.x -= gravity;
