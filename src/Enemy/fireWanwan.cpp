@@ -1515,7 +1515,11 @@ bool TFireWanwan::isFreeze() const
 
 bool TFireWanwan::isReadyToFly() const
 {
-	bool taken = unk194->isTaken();
+	bool taken;
+	if (unk194->getHolder() != nullptr)
+		taken = true;
+	else
+		taken = false;
 	return !taken
 	       && unk194->unkA4->getLength()
 	              <= getSaveParam2()->mTailLengthToFly.get();
