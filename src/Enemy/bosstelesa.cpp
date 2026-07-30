@@ -2506,7 +2506,12 @@ DEFINE_NERVE(TNerveBossTelesaHide, TLiveActor)
 			boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
 
 		const char** basTable = boss->getBasNameTable();
-		boss->setAnmSound(basTable ? basTable[4] : nullptr);
+		const char* basName;
+		if (!basTable)
+			basName = nullptr;
+		else
+			basName = basTable[4];
+		boss->setAnmSound(basName);
 		boss->mMActor->setBtpFromIndex(2);
 	}
 
