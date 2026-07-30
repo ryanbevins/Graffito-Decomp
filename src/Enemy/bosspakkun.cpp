@@ -1220,7 +1220,7 @@ void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 		}
 
 		if ((s8)unk16C == 1 && checkMarioRiding()
-		    && mSpine->getLatestNerve() != &TNerveBPJumpReact::theNerve()) {
+		    && &TNerveBPJumpReact::theNerve() != mSpine->getLatestNerve()) {
 			mSpine->pushNerve(&TNerveBPJumpReact::theNerve());
 		}
 	}
@@ -1289,13 +1289,13 @@ void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (((TBossPakkunManager*)mManager)->mIsLight == 0 && (flags & 0x200)) {
-		J3DModelData* modelData = mMActor->getModel()->getModelData();
 		if (mSpine->getLatestNerve() == &TNerveBPPreDie::theNerve()
 		    || mSpine->getLatestNerve() == &TNerveBPStompReact::theNerve()) {
 			mMActor->offMakeDL();
-			SMS_AddDamageFogEffect(modelData, mPosition, graphics);
+			SMS_AddDamageFogEffect(
+			    mMActor->getModel()->getModelData(), mPosition, graphics);
 		} else {
-			SMS_ResetDamageFogEffect(modelData);
+			SMS_ResetDamageFogEffect(mMActor->getModel()->getModelData());
 		}
 	}
 
