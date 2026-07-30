@@ -345,27 +345,25 @@ void THino2Mask::perform(u32 param_1, JDrama::TGraphics* param_2)
 		if (param_1 & 2) {
 			Mtx afStack_58;
 			Mtx afStack_88;
-			{
-				MTXIdentity(afStack_58);
-				afStack_58[0][3] = unk28.x;
-				afStack_58[1][3] = unk28.y;
-				afStack_58[2][3] = unk28.z;
-				MsMtxSetRotRPH(afStack_88, 0.0f, 360.0f - unk8, 0.0f);
-				MTXConcat(getUnk4C(), afStack_58, afStack_58);
-				MTXConcat(afStack_58, afStack_88, afStack_58);
-				unk14->getModel()->setBaseTRMtx(afStack_58);
-			}
+			MTXIdentity(afStack_58);
+			afStack_58[0][3] = unk28.x;
+			afStack_58[1][3] = unk28.y;
+			afStack_58[2][3] = unk28.z;
+			MsMtxSetRotRPH(afStack_88, 0.0f, 360.0f - unk8, 0.0f);
+			MtxPtr baseMtx = getUnk4C();
+			MTXConcat(baseMtx, afStack_58, afStack_58);
+			MTXConcat(afStack_58, afStack_88, afStack_58);
+			MtxPtr transformMtx = afStack_58;
+			unk14->getModel()->setBaseTRMtx(transformMtx);
 
-			{
-				PSMTXIdentity(afStack_58);
-				afStack_58[0][3] = unk1C.x;
-				afStack_58[1][3] = unk1C.y;
-				afStack_58[2][3] = unk1C.z;
-				MsMtxSetRotRPH(afStack_88, 0.0f, unk8, 0.0f);
-				MTXConcat(getUnk4C(), afStack_58, afStack_58);
-				MTXConcat(afStack_58, afStack_88, afStack_58);
-				unk18->getModel()->setBaseTRMtx(afStack_58);
-			}
+			PSMTXIdentity(transformMtx);
+			transformMtx[0][3] = unk1C.x;
+			transformMtx[1][3] = unk1C.y;
+			transformMtx[2][3] = unk1C.z;
+			MsMtxSetRotRPH(afStack_88, 0.0f, unk8, 0.0f);
+			MTXConcat(baseMtx, transformMtx, transformMtx);
+			MTXConcat(transformMtx, afStack_88, transformMtx);
+			unk18->getModel()->setBaseTRMtx(transformMtx);
 		}
 
 		if ((param_1 & 0x200) && unk8 > 60 && unk8 % 6 >= 3)
