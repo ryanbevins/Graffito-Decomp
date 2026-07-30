@@ -2084,7 +2084,12 @@ DEFINE_NERVE(TNerveBossTelesaFreeze, TLiveActor)
 			blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 		const char** basTable = boss->getBasNameTable();
-		boss->setAnmSound(basTable ? basTable[16] : nullptr);
+		const char* basName;
+		if (!basTable)
+			basName = nullptr;
+		else
+			basName = basTable[16];
+		boss->setAnmSound(basName);
 
 		if (gpMSound->gateCheck(0x28E7)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
