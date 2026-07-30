@@ -2256,8 +2256,10 @@ DEFINE_NERVE(TNerveBossTelesaSpitSlotItem, TLiveActor)
 			oldAnmActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 
 		boss->mMActor->setBckFromIndex(14);
-		if (boss->mMActor->unkC)
-			boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+		MActor* blendActor = boss->mMActor;
+		f32 blendRatio = boss->unk168;
+		if (blendActor->unkC)
+			blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 		const char** basTable = boss->getBasNameTable();
 		boss->setAnmSound(basTable ? basTable[14] : nullptr);
