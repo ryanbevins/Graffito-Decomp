@@ -104,9 +104,9 @@ void TTailRubber::reset(const JGeometry::TVec3<f32>& param_1,
 	JGeometry::TVec3<f32> diff;
 	diff.sub(param_2, param_1);
 
-	for (int i = 1; i < unk0.size() - 1; ++i) {
+	for (int i = 1; i < unk0.mSize - 1; ++i) {
 		JGeometry::TVec3<f32> pos;
-		pos.scaleAdd(f32(i) / f32(unk0.size()), param_1, diff);
+		pos.scaleAdd(f32(i) / f32(unk0.mSize), param_1, diff);
 
 		Node& node = unk0[i];
 		node.mPos.set(pos);
