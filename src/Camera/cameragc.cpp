@@ -47,6 +47,12 @@ template <> f32 CLBTwoDegreeGeneralInbetween<f32>(f32, f32, f32, f32);
 static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
 static const char cDirtyTexName[]  = "H_ma_rak_dummy";
 
+static const char* cCameraBckNameShineGetInside
+    = "/common/camera/camera_demo_shine_get_inside";
+static const char* cCameraBckNameShineGetOutside
+    = "/common/camera/camera_demo_shine_get_outside";
+static const char* cCameraBckNameGate = "/common/camera/camera_demo_gate_in";
+
 CPolarSubCamera* gpCamera;
 
 const char* cStartCamName
