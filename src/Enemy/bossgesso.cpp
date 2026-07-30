@@ -1199,8 +1199,7 @@ void TBossGesso::doAttackShoot()
 }
 #pragma dont_inline off
 
-// TODO: inline seems sus here, probably needed cuz inSight is wrong
-void TBossGesso::doAttackGuard()
+inline void TBossGesso::doAttackGuard()
 {
 	if (mBeak->getHolder() != nullptr) {
 		changeAttackMode(ASTATE_SKIP_ROPE);
