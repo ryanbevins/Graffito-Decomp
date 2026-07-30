@@ -2279,7 +2279,12 @@ DEFINE_NERVE(TNerveBossTelesaSpitSlotItem, TLiveActor)
 			blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 		const char** basTable = boss->getBasNameTable();
-		boss->setAnmSound(basTable ? basTable[14] : nullptr);
+		const char* basName;
+		if (!basTable)
+			basName = nullptr;
+		else
+			basName = basTable[14];
+		boss->setAnmSound(basName);
 	} else if (boss->checkCurAnmEnd(0) && spine->getTime() > 600) {
 		spine->pushAfterCurrent(&TNerveBossTelesaPrepareSlot::theNerve());
 		boss->unk368 = 0;
