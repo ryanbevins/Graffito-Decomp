@@ -1579,14 +1579,14 @@ void TTelesaSlot::moveObject()
 
 			if (unk13C[i] >= 360.0f)
 				unk13C[i] -= 360.0f;
-			if (unk13C[i] < 0.0f)
+			if (unk13C[i] <= 0.0f)
 				unk13C[i] += 360.0f;
 		} else {
 			unk13C[i] += speed;
 
 			if (unk13C[i] >= 360.0f)
 				unk13C[i] -= 360.0f;
-			if (unk13C[i] < 0.0f)
+			if (unk13C[i] <= 0.0f)
 				unk13C[i] += 360.0f;
 
 			if (*isRolling)
