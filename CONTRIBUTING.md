@@ -1,6 +1,6 @@
-# Contributing to Graffito
+# Contributing to Graffito Decomp
 
-Graffito is a matching decompilation project. A useful contribution must be
+Graffito Decomp is a matching decompilation project. A useful contribution must be
 grounded in the target binary and preserve runtime behavior; source that merely
 looks plausible is not enough.
 

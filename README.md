@@ -1,9 +1,9 @@
-# Graffito
+# Graffito Decomp
 
-[![Repository check](https://github.com/ryanbevins/graffito/actions/workflows/build.yml/badge.svg)](https://github.com/ryanbevins/graffito/actions/workflows/build.yml)
-[![Lint](https://github.com/ryanbevins/graffito/actions/workflows/lint.yml/badge.svg)](https://github.com/ryanbevins/graffito/actions/workflows/lint.yml)
+[![Repository check](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/build.yml/badge.svg)](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/build.yml)
+[![Lint](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/lint.yml/badge.svg)](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/lint.yml)
 
-Graffito is a work-in-progress, byte-matching decompilation of *Super Mario
+Graffito Decomp is a work-in-progress, byte-matching decompilation of *Super Mario
 Sunshine*. Its primary target is `GMSJ01` (Japanese Revision 0), using the
 original Metrowerks CodeWarrior compiler for PowerPC/Gekko.
 
@@ -42,8 +42,8 @@ automatic filesystem notifications.
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/ryanbevins/graffito.git
-   cd graffito
+   git clone https://github.com/ryanbevins/Graffito-Decomp.git
+   cd Graffito-Decomp
    ```
 
 2. Copy your game disc image into `orig/GMSJ01/`.
@@ -99,7 +99,7 @@ matching, behavior-changing codegen tricks, and unsupported equivalence claims.
 
 ## Lineage
 
-Graffito was originally based on
+Graffito Decomp was originally based on
 [doldecomp/sms](https://github.com/doldecomp/sms). Upstream changes can be
 reviewed by adding that repository as a remote:
 
