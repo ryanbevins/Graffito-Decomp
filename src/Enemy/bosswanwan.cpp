@@ -346,36 +346,37 @@ void TBWLeash::perform(u32 flags, JDrama::TGraphics* graphics)
 
 BOOL TBWPicket::receiveMessage(THitActor* sender, u32 message)
 {
-	if (sender->getActorType() != 0x80000001)
-		return FALSE;
-
-	if (message == HIT_MESSAGE_HIP_DROP) {
-		mOwner->unk17C = 1;
-		mOwner->unk184 = 0;
-		if (gpMSound->gateCheck(0x28C0))
-			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x28C0, &mPosition, 0, nullptr, 0, 4);
-		return TRUE;
-	}
-
-	if (message == HIT_MESSAGE_TAKE) {
-		if (mOwner->unk17C != 0) {
-			JPABaseEmitter* emitter = gpMarioParticleManager->emit(
-			    0xAE, &mOwner->mPicket->mPosition, 0, nullptr);
-			if (emitter != nullptr) {
-				JGeometry::TVec3<f32> scale(0.3f, 0.5f, 0.3f);
-				emitter->setScale(scale);
-			}
+	if (sender->getActorType() == 0x80000001) {
+		if (message == HIT_MESSAGE_HIP_DROP) {
+			TBossWanwan* owner = mOwner;
+			owner->unk17C      = 1;
+			owner->unk184      = 0;
+			if (gpMSound->gateCheck(0x28C0))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x28C0, &mPosition, 0, nullptr, 0, 4);
+			return TRUE;
 		}
-		mOwner->unk194 = 0;
-		mOwner->unk17C = 0;
-		mHolder        = (TTakeActor*)sender;
-		return TRUE;
-	}
 
-	if (message == HIT_MESSAGE_UNK7 || message == HIT_MESSAGE_UNK8) {
-		mHolder = nullptr;
-		return TRUE;
+		if (message == HIT_MESSAGE_TAKE) {
+			TBossWanwan* owner = mOwner;
+			if (owner->unk17C != 0) {
+				JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+				    0xAE, &owner->mPicket->mPosition, 0, nullptr);
+				if (emitter != nullptr) {
+					JGeometry::TVec3<f32> scale(0.3f, 0.5f, 0.3f);
+					emitter->setScale(scale);
+				}
+			}
+			owner->unk194 = 0;
+			owner->unk17C = 0;
+			mHolder       = (TTakeActor*)sender;
+			return TRUE;
+		}
+
+		if (message == HIT_MESSAGE_UNK7 || message == HIT_MESSAGE_UNK8) {
+			mHolder = nullptr;
+			return TRUE;
+		}
 	}
 
 	return FALSE;
