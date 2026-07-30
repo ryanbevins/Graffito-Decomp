@@ -1219,7 +1219,7 @@ void TBossPakkun::perform(u32 flags, JDrama::TGraphics* graphics)
 			}
 		}
 
-		if (unk16C == 1 && checkMarioRiding()
+		if ((s8)unk16C == 1 && checkMarioRiding()
 		    && mSpine->getLatestNerve() != &TNerveBPJumpReact::theNerve()) {
 			mSpine->pushNerve(&TNerveBPJumpReact::theNerve());
 		}
