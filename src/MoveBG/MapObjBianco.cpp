@@ -1042,18 +1042,16 @@ void TBigWindmill::control()
 
 	f32 angle = mRotation.z + sAngleAdd;
 	for (int i = 0; i < 4; ++i) {
-		TMapObjBase* block = unk138[i];
-		J3DModel* model   = block->getModel();
-		MtxPtr mtx        = model->mNodeMatrices[0];
-		f32 rad           = angle * 0.017453294f;
+		TMapObjBase** block = &unk138[i];
+		J3DModel* model    = (*block)->getModel();
+		MtxPtr mtx         = model->mNodeMatrices[0];
+		f32 rad            = angle * 0.017453294f;
 
 		mtx[0][3] = mPosition.x + sRadius * cosf(rad);
 		mtx[1][3] = mPosition.y + sRadius * sinf(rad) - mYOffset;
 		mtx[2][3] = mPosition.z - sSubZ;
 
-		block->mPosition.x = mtx[0][3];
-		block->mPosition.y = mtx[1][3];
-		block->mPosition.z = mtx[2][3];
+		(*block)->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 
 		angle += 90.0f;
 		if (angle > 360.0f)
