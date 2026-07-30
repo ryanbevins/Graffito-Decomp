@@ -1171,7 +1171,7 @@ s8 TCardLoad::waitForChoiceBM(TEProgress param_1, TEProgress param_2,
 				unk510->hide();
 			} else {
 				unk520->hide();
-				u16 score = unk40[unkB0].unk1C;
+				u16 score = getBookmarkInfo().unk1C;
 				if (score > 999)
 					score = 999;
 				if (score < 100) {
@@ -1394,7 +1394,7 @@ s8 TCardLoad::waitForAnyKeyBM(TEProgress param_1)
 			} else {
 				unk500->show();
 				unk520->hide();
-				u16 score = unk40[unkB0].unk1C;
+				u16 score = getBookmarkInfo().unk1C;
 				if (score > 999)
 					score = 999;
 				if (score < 100) {

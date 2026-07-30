@@ -46,6 +46,7 @@ public:
 	s8 selectFunction();
 	void setSelected(u8);
 	void changeScene();
+	TCardBookmarkInfo& getBookmarkInfo() { return unk40[unkB0]; }
 
 	static u32 cMessageID[];
 
