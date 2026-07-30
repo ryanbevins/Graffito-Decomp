@@ -380,7 +380,7 @@ bool TMarDirector::setupObjects()
 	    ->mSortType
 	    = J3DDrawBuffer::SORT_MAT_ANM;
 	gpLightManager->addChildGroupObj(drawBufferGroup);
-	unk40->push_back(drawBufferGroup, 8);
+	unk40->push_back(drawInit, 8);
 	initECTGft(unk38, unk3C, perfEventGroup, normalScene);
 	initECTMir(mPerformListGX, perfEventGroup);
 
