@@ -406,13 +406,13 @@ bool TMarDirector::setupObjects()
 	{
 		JKRDvdFile auStack_1d8;
 		auStack_1d8.open("/data/PerformLists.bin");
-		JKRDvdRipper::loadToMainRAM(
+		u32 performListsSize = auStack_1d8.getFileSize();
+		void* performListsData = JKRDvdRipper::loadToMainRAM(
 		    &auStack_1d8, nullptr, EXPAND_SWITCH_DEFAULT, 0, nullptr,
 		    JKRDvdRipper::ALLOC_DIRECTION_FORWARD, 0, nullptr);
 
 		{
-			JSUMemoryInputStream stream(auStack_1d8.getFileInfo(),
-			                            auStack_1d8.getFileSize());
+			JSUMemoryInputStream stream(performListsData, performListsSize);
 			JSUMemoryInputStream leftoversStream(nullptr, nullptr);
 			JDrama::TViewObj* performLists
 			    = (JDrama::TViewObj*)JDrama::TNameRef::genObject(
