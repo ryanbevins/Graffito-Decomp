@@ -258,7 +258,8 @@ void TTrembleModelEffect::tremble(f32 power, f32 spring, f32 damping,
 {
 	unk8 |= 1;
 
-	if ((unk8 & 2) == 0) {
+	switch (unk8 & 2) {
+	case 0: {
 		unk26 = (s16)(spring * (f32)unkC);
 		unk24 = (s16)(damping * (f32)unkC);
 
@@ -289,7 +290,9 @@ void TTrembleModelEffect::tremble(f32 power, f32 spring, f32 damping,
 			unk18[0][i] = original[i];
 			unk18[1][i] = original[i];
 		}
-	} else {
+		break;
+	}
+	case 2: {
 		unk3C = spring;
 		unk38 = damping;
 
@@ -311,6 +314,8 @@ void TTrembleModelEffect::tremble(f32 power, f32 spring, f32 damping,
 			unk2C[0][i] = original[i];
 			unk2C[1][i] = original[i];
 		}
+		break;
+	}
 	}
 
 	unk10 = frames;
