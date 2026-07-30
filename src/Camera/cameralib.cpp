@@ -322,7 +322,8 @@ BOOL CLBChaseAngleDecrease(s16* out, s16 target, s16 invSpeed)
 	if (invSpeed == 0) {
 		*out = target;
 	} else {
-		s16 difference = *out - target;
+		s16 difference = *out;
+		difference -= target;
 		s16 newValue   = difference - difference / invSpeed + target;
 		if (newValue == *out) {
 			// No further calls will update the angle
