@@ -1985,6 +1985,7 @@ bool TMario::isInvincible() const
 	return false;
 }
 
+#pragma dont_inline on
 bool TMario::isForceSlip()
 {
 	if (mGroundPlane->isUnk1())
@@ -2002,6 +2003,7 @@ bool TMario::isForceSlip()
 
 	return false;
 }
+#pragma dont_inline reset
 
 bool TMario::isUnderWater() const
 {
