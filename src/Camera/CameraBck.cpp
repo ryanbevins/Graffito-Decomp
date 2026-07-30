@@ -5,6 +5,7 @@
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorData.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <MarioUtil/ModelUtil.hpp>
 
 const char* cPositionJointName   = "cam_position";
