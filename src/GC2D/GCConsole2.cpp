@@ -3442,8 +3442,9 @@ bool TGCConsole2::processAppearBalloon()
 	bool isFinished = false;
 	J2DPane* pane   = unk3B0;
 
-	if (pane->mAlpha < 0xFF) {
-		int alpha = pane->mAlpha + 0x30;
+	u16 alpha = pane->mAlpha;
+	if (alpha < 0xFF) {
+		alpha += 0x30;
 		if (alpha > 0xFF)
 			alpha = 0xFF;
 		pane->mAlpha = alpha;
