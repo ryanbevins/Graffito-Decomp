@@ -430,13 +430,14 @@ void TMario::bubbleFromBody()
 	if (!isMario())
 		return;
 
+	f32 maxSpeed = mParticleParams.mBodyBubbleSpMax.value;
+	f32 speed    = mForwardVel;
+	f32 minSpeed = mParticleParams.mBodyBubbleSpMin.value;
 	f32 rate = 0.0f;
-	if (mForwardVel > mParticleParams.mBodyBubbleSpMax.value) {
+	if (speed > maxSpeed) {
 		rate = 1.0f;
-	} else if (mForwardVel > mParticleParams.mBodyBubbleSpMin.value) {
-		rate = (mForwardVel - mParticleParams.mBodyBubbleSpMin.value)
-		    / (mParticleParams.mBodyBubbleSpMax.value
-		       - mParticleParams.mBodyBubbleSpMin.value);
+	} else if (speed > minSpeed) {
+		rate = (speed - minSpeed) / (maxSpeed - minSpeed);
 	}
 
 	f32 childRate = mParticleParams.mBodyBubbleEmitMin.value
