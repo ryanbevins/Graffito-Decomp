@@ -314,15 +314,13 @@ int TMario::waitProcess()
 		mPosition.y = floorY;
 	}
 
+	u8 isIllegal = 0;
 	mFaceAngle.x = 0;
 	mModelFaceAngle = mFaceAngle.y;
 
 	const TBGCheckData* ground = mGroundPlane;
-	u8 isIllegal;
 	if (ground->mFlags & 0x10)
 		isIllegal = 1;
-	else
-		isIllegal = 0;
 	if (isIllegal)
 		return 2;
 
