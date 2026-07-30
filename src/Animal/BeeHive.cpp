@@ -373,7 +373,9 @@ void TBeeHive::calcRootMatrix()
 	JGeometry::TQuat4<f32> base = mCenterQuat;
 
 	f32 angle = 0.5f * mAngularVelocity.x;
-	JGeometry::TQuat4<f32> roll(sinf(angle), 0.0f, 0.0f, cosf(angle));
+	f32 sinAngle = sinf(angle);
+	f32 cosAngle = cosf(angle);
+	JGeometry::TQuat4<f32> roll(sinAngle, 0.0f, 0.0f, cosAngle);
 
 	JGeometry::TQuat4<f32> quat;
 	quat.mul(base, mCurrentQuat);
