@@ -2246,11 +2246,14 @@ DEFINE_NERVE(TNerveBossTelesaSpitSlotItem, TLiveActor)
 		boss->unk160 = 14;
 		boss->unk168 = 1.0f;
 
-		J3DAnmTransform* oldAnm = nullptr;
-		if (boss->mMActor->unkC)
-			oldAnm = boss->mMActor->unkC->unk24;
-		if (boss->mMActor->unkC)
-			boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+		MActor* oldAnmActor = boss->mMActor;
+		J3DAnmTransform* oldAnm;
+		if (!oldAnmActor->unkC)
+			oldAnm = nullptr;
+		else
+			oldAnm = oldAnmActor->unkC->unk24;
+		if (oldAnmActor->unkC)
+			oldAnmActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 
 		boss->mMActor->setBckFromIndex(14);
 		if (boss->mMActor->unkC)
