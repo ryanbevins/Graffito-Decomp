@@ -208,7 +208,7 @@ public:
 	/* 0x3B4 */ J2DTextBox* unk3B4;
 	/* 0x3B8 */ J2DTextBox* unk3B8;
 	/* 0x3BC */ JUTRect unk3BC;
-	/* 0x3CC */ u16 unk3CC;
+	/* 0x3CC */ s16 unk3CC;
 	/* 0x3D0 */ TMessageLoader* unk3D0;
 	/* 0x3D4 */ JSUInputStream* unk3D4;
 	/* 0x3D8 */ JSUOutputStream* unk3D8;
