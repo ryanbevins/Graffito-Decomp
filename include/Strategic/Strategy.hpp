@@ -6,6 +6,12 @@
 
 class TIdxGroupObj : public JDrama::TViewObjPtrListT<THitActor> {
 public:
+	TIdxGroupObj(const char* name = "<IdxGroupObj>")
+	    : JDrama::TViewObjPtrListT<THitActor>(name)
+	    , unk20(0)
+	{
+	}
+
 	virtual void loadSuper(JSUMemoryInputStream&);
 
 	// fabricated
