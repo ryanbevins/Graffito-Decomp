@@ -413,6 +413,10 @@ TSpineEnemy* TKoopaJrSubmarineManager::createEnemyInstance()
 	return new TKoopaJrSubmarine("クッパジュニアサブマリン");
 }
 
+#define ASSERT_MSG(msg, line) (void)((msg), (line))
+#define ASSERT_TEST(expr)                                                      \
+	(void)((expr) ? true : (ASSERT_MSG(__FILE__, __LINE__), false));
+
 void TKoopaJrSubmarineManager::loadAfter()
 {
 	JDrama::TNameRef::loadAfter();
@@ -422,8 +426,10 @@ void TKoopaJrSubmarineManager::loadAfter()
 
 void TKoopaJrSubmarineManager::load(JSUMemoryInputStream& stream)
 {
+	ASSERT_TEST(unk38);
 	TEnemyManager::load(stream);
 	unk38 = new TKoopaJrSubmarineParams("/enemy/koopajrsubmarine.prm");
+	ASSERT_TEST(unk38);
 }
 
 void TKoopaJrSubmarineManager::createModelData()
