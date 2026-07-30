@@ -397,16 +397,16 @@ void JPADrawExecYBillBoard::exec(const JPADrawContext* dc,
 	f32 scaleX = particle->getDrawParamPPtr()->unk10;
 	f32 scaleY = particle->getDrawParamPPtr()->unk14;
 
+	f32 x0 = scaleX * (dc->pcb->unk4 + dc->pcb->unkC);
+	f32 y0 = scaleY * (dc->pcb->unk8 + dc->pcb->unk10);
 	f32 x1 = scaleX * (dc->pcb->unk4 - dc->pcb->unkC);
 	f32 y1 = scaleY * (dc->pcb->unk8 - dc->pcb->unk10);
-	scaleX *= dc->pcb->unk4 + dc->pcb->unkC;
-	scaleY *= dc->pcb->unk8 + dc->pcb->unk10;
 
 	JGeometry::TVec3<f32> offs[4];
-	offs[0].set(-scaleX, +scaleY, 0.0f);
-	offs[1].set(+x1, +scaleY, 0.0f);
+	offs[0].set(-x0, +y0, 0.0f);
+	offs[1].set(+x1, +y0, 0.0f);
 	offs[2].set(+x1, -y1, 0.0f);
-	offs[3].set(-scaleX, -y1, 0.0f);
+	offs[3].set(-x0, -y1, 0.0f);
 
 	MTXMultVecArray(dc->pcb->unk38, offs, offs, ARRAY_COUNT(offs));
 
