@@ -243,8 +243,8 @@ void TMario::perform(u32 flags, JDrama::TGraphics* gfx)
 	if ((flags & 0x80000000) && (mSubState & 2)) {
 		j3dSys.mFlags |= 2;
 
-		GXColor white = { 0xff, 0xff, 0xff, 0xff };
-		GXSetChanMatColor(GX_COLOR0A0, white);
+		GXSetChanMatColor(
+		    GX_COLOR0A0, (GXColor) { 0xff, 0xff, 0xff, 0xff });
 		GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
 		              GX_COLOR0A0);
 		GXSetZCompLoc(GX_TRUE);
