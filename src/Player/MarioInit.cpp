@@ -651,11 +651,8 @@ void TMario::initValues()
 	    mDeParams.mDamageRadius.get(),
 	    mDeParams.mDamageHeight.get());
 
-	// Allocate TMBindShadowBody (0x1C = 28 bytes)
-	TMBindShadowBody* shadow = (TMBindShadowBody*)operator new(0x1C);
-	if (shadow) {
-		new (shadow) TMBindShadowBody(this, mModel->unk8, 1.0f);
-	}
+	TMBindShadowBody* shadow
+	    = new TMBindShadowBody(this, mModel->unk8, 1.0f);
 	unk390 = (u32)shadow;
 
 	// Set default identification/magic values for various fields
