@@ -1635,19 +1635,27 @@ void TTelesaSlot::moveObject()
 			if (allStopped) {
 				TBossTelesa* owner = getSlotOwner(this);
 				TTelesaSlot* slot = (TTelesaSlot*)owner->unk184;
-				int result        = slot->getSlotResult();
 
-				if (result == 2 || result == 0) {
+				if (slot->getSlotResult() == 2
+				    || slot->getSlotResult() == 0) {
 					owner->unk374.x = 0.0f;
 					owner->unk374.y = 0.0f;
 					owner->unk374.z = 0.0f;
 					gpMarioParticleManager->emit(0xE1, &owner->unk374,
 					                             0, nullptr);
 
-					u32 sound = result == 2 ? 0x293F : 0x2940;
-					if (gpMSound->gateCheck(sound)) {
-						MSoundSESystem::MSoundSE::startSoundActor(
-						    sound, &owner->mPosition, 0, nullptr, 0, 4);
+					if (slot->getSlotResult() == 2) {
+						if (gpMSound->gateCheck(0x293F)) {
+							MSoundSESystem::MSoundSE::startSoundActor(
+							    0x293F, &owner->mPosition, 0, nullptr,
+							    0, 4);
+						}
+					} else {
+						if (gpMSound->gateCheck(0x2940)) {
+							MSoundSESystem::MSoundSE::startSoundActor(
+							    0x2940, &owner->mPosition, 0, nullptr,
+							    0, 4);
+						}
 					}
 				} else {
 					if (gpMSound->gateCheck(0x294D)) {
