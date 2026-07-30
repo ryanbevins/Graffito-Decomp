@@ -541,14 +541,11 @@ DEFINE_NERVE(TNerveHanaSamboAttack, TLiveActor)
 				    0x291B, &self->mPosition, 0, nullptr, 0, 4);
 			self->setBckAnm(1);
 		} else if (self->isBckAnm(1)) {
-			if (spine->getTime() > self->mParams->mSLAttackingTime.get()) {
-				if (!self->unsetUnk165())
-					self->setBckAnm(2);
-				else
-					self->setBckAnm(1);
-			} else {
+			if (spine->getTime() > self->mParams->mSLAttackingTime.get()
+			    && !self->unsetUnk165())
+				self->setBckAnm(2);
+			else
 				self->setBckAnm(1);
-			}
 		} else {
 			spine->pushAfterCurrent(&TNerveHanaSamboWait::theNerve());
 			return TRUE;
