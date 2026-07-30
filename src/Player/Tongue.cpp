@@ -390,9 +390,9 @@ BOOL TYoshiTongue::canGo()
 	if (dot < 0.0f)
 		return FALSE;
 
-	if (gpMap->isTouchedOneWallAndMoveXZ(&mTipPos.x,
-	                                     mTipPos.y + 10.0f,
-	                                     &mTipPos.z, 50.0f))
+	BOOL touchedWall = gpMap->isTouchedOneWallAndMoveXZ(
+	    &mTipPos.x, mTipPos.y + 10.0f, &mTipPos.z, 50.0f);
+	if (touchedWall > 0)
 		return FALSE;
 
 	const TBGCheckData* gp;
