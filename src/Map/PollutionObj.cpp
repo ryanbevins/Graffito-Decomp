@@ -36,10 +36,10 @@ u8 TPollutionObj::getDepthFromMap(int x, int y)
 	f32 scale = unk34->unk5C.mVerticalScale;
 	f32 scaledX = x * scale;
 	f32 scaledZ = y * scale;
-	f32 worldX  = unk34->unk38;
-	f32 worldZ  = unk34->unk40;
-	worldX += scaledX;
-	worldZ += scaledZ;
+	f32 baseX = unk34->unk38;
+	f32 baseZ = unk34->unk40;
+	f32 worldX = baseX + scaledX;
+	f32 worldZ = baseZ + scaledZ;
 
 	f32 minX = worldX - 5.0f;
 	f32 maxX = worldX + scale + 5.0f;
