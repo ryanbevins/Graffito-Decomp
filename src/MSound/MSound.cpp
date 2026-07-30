@@ -550,19 +550,20 @@ void MSound::pauseOn(bool param)
 		}
 	}
 
-	for (u8 i = 0; i < 16; ++i) {
+	u8 i;
+	for (i = 0; i < 16; ++i) {
 		if (i != 4 && MSGMSound->unk0->unk88.unk2[i])
 			MSGMSound->setSeCategoryVolume(i, 0);
 	}
 
 	u8 mask = 7;
 	if (param) {
-		for (u8 i = 0; i < 3; ++i) {
+		for (i = 0; i < 3; ++i) {
 			if ((mask >> i) & 1)
 				MSBgm::setTrackVolume(i, 0.0f, 60, 3);
 		}
 	} else {
-		for (u8 i = 0; i < 3; ++i) {
+		for (i = 0; i < 3; ++i) {
 			if ((mask >> i) & 1)
 				MSBgm::setTrackVolume(i, 0.0f, 0, 3);
 		}
