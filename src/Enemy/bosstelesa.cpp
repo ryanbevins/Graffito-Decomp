@@ -2506,9 +2506,11 @@ DEFINE_NERVE(TNerveBossTelesaSpit, TLiveActor)
 		boss->unk160 = 14;
 		boss->unk168 = 1.0f;
 
-		J3DAnmTransform* oldAnm = nullptr;
+		J3DAnmTransform* oldAnm;
 		if (boss->mMActor->unkC)
 			oldAnm = boss->mMActor->unkC->unk24;
+		else
+			oldAnm = nullptr;
 		if (boss->mMActor->unkC)
 			boss->mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 
