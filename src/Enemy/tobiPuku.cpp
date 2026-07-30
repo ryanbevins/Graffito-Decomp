@@ -739,10 +739,9 @@ void TTobiPuku::kill()
 void TTobiPuku::hitWater()
 {
 	Vec velocity = mVelocity;
-	Vec dir;
-	dir.x = mPosition.x - gpMarioPos->x;
-	dir.y = mPosition.y - gpMarioPos->y;
-	dir.z = mPosition.z - gpMarioPos->z;
+	JGeometry::TVec3<f32> dir;
+	dir.set(mPosition.x - gpMarioPos->x, mPosition.y - gpMarioPos->y,
+	        mPosition.z - gpMarioPos->z);
 
 	if (dir.x == 0.0f && dir.y == 0.0f && dir.z == 0.0f)
 		dir.x += 1.0f;
