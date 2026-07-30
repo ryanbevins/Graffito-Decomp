@@ -612,20 +612,21 @@ void TSwingBoard::draw() const
 {
 	initDraw();
 
-	MtxPtr mtx = getModel()->getBaseTRMtx();
+	MtxPtr mtx = getModel()->mNodeMatrices[0];
+	const f32* initialZ = &mInitialPosition.z;
 	JGeometry::TVec3<f32> upper;
 	JGeometry::TVec3<f32> lower;
 
 	lower.x = mInitialPosition.x + mBoardWidth * mtx[0][0];
-	lower.y = mInitialPosition.y + unk138;
-	lower.z = mInitialPosition.z + mBoardWidth * mtx[2][0];
+	lower.y = unk138 + mInitialPosition.y;
+	lower.z = *initialZ + mBoardWidth * mtx[2][0];
 	upper.x = mPosition.x + mBoardWidth * mtx[0][0];
 	upper.y = mPosition.y + 60.0f;
 	upper.z = mPosition.z + mBoardWidth * mtx[2][0];
 	drawOneRope(upper, lower);
 
 	lower.x = mInitialPosition.x - mBoardWidth * mtx[0][0];
-	lower.z = mInitialPosition.z - mBoardWidth * mtx[2][0];
+	lower.z = *initialZ - mBoardWidth * mtx[2][0];
 	upper.x = mPosition.x - mBoardWidth * mtx[0][0];
 	upper.z = mPosition.z - mBoardWidth * mtx[2][0];
 	drawOneRope(upper, lower);
