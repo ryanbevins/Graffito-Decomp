@@ -518,7 +518,7 @@ void TStayPakkun::genRandomItem()
 		                             0x20000002, true);
 	} else {
 		unk18C = 3;
-		setDeadAnm();
+		genEventCoin();
 	}
 
 	JPABaseEmitter* emitter
