@@ -3,6 +3,8 @@
 [![Repository check](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/build.yml/badge.svg)](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/build.yml)
 [![Lint](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/lint.yml/badge.svg)](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/lint.yml)
 
+![Graffito Decomp matching progress](assets/progress.svg)
+
 Graffito Decomp is a work-in-progress, byte-matching decompilation of *Super Mario
 Sunshine*. Its primary target is `GMSJ01` (Japanese Revision 0), using the
 original Metrowerks CodeWarrior compiler for PowerPC/Gekko.
