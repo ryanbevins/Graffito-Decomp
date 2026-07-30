@@ -19,8 +19,9 @@ class TButterfloid;
 
 class TButterfly : public TRealoidActor {
 public:
-	TButterfly(MActor* actor)
+	TButterfly(MActor* actor, TButterfloid* floid)
 	    : TRealoidActor(actor)
+	    , mFloid(floid)
 	{
 	}
 
@@ -74,9 +75,7 @@ void TButterfloidManager::createModelData()
 
 TRealoidActor* TButterfloid::createRealoidActor(MActor* actor)
 {
-	TButterfly* butterfly = new TButterfly(actor);
-	butterfly->mFloid     = this;
-	return butterfly;
+	return new TButterfly(actor, this);
 }
 
 void TButterfloid::load(JSUMemoryInputStream& stream)
