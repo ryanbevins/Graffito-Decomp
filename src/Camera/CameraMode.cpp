@@ -1,5 +1,8 @@
 #include <Camera/Camera.hpp>
 
+static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
+
 #pragma dont_inline on
 
 bool CPolarSubCamera::isLButtonCameraSpecifyMode(int mode) const
