@@ -656,10 +656,8 @@ void TYoshi::thinkUpper()
 
 	J3DJoint* upperAnm = mActor->unk4->getModelData()->getJointNodePointer(18);
 
-	u8 active;
-	if (mTongue->mState != TYoshiTongue::STATE_IDLE) {
-		active = 1;
-	} else {
+	u8 active = 1;
+	if (mTongue->mState == TYoshiTongue::STATE_IDLE) {
 		active              = 0;
 		TWaterGun* waterGun = mMario->mWaterGun;
 		if (*(s32*)((u8*)waterGun + 0x1C80) != 0) {
