@@ -133,11 +133,12 @@ bool CPolarSubCamera::execRoofCheck_(Vec p)
 bool CPolarSubCamera::execWallCheck_(Vec* p)
 {
 	bool didSnap = false;
-	f32 radius   = *(f32*)((u8*)getKindOpt(this) + 0x7C);
+	f32 radius   = *(f32*)((u8*)unk2D4 + 0x7C);
 	if (radius > 0.0f) {
-		TBGWallCheckRecord record(*(f32*)((u8*)this + 0x80),
-		                          10.0f + *(f32*)((u8*)this + 0xB8),
-		                          *(f32*)((u8*)this + 0x88), radius, 4, 0);
+		TBGWallCheckRecord record(
+		    mCurrentTarget.mPosition.x,
+		    10.0f + mPreviousTarget.mPosition.y,
+		    mCurrentTarget.mPosition.z, radius, 4, 0);
 
 		if (gpMap->isTouchedWallsAndMoveXZ(&record)) {
 			int count = record.mResultWallsNum;
@@ -146,8 +147,7 @@ bool CPolarSubCamera::execWallCheck_(Vec* p)
 				if (!isValidCamClip(wall))
 					continue;
 
-				JGeometry::TVec3<f32> cam
-				    = *(JGeometry::TVec3<f32>*)((u8*)this + 0x80);
+				JGeometry::TVec3<f32> cam = mCurrentTarget.mPosition;
 				JGeometry::TVec3<f32> trg = cam;
 
 				f32 nx    = wall->mNormal.x;
@@ -159,14 +159,14 @@ bool CPolarSubCamera::execWallCheck_(Vec* p)
 				if (!(absD < radius))
 					continue;
 
-				void* opt   = getKindOpt(this);
+				void* opt   = unk2D4;
 				f32 push    = radius - sdist;
 				f32 camRate = *(f32*)((u8*)opt + 0x90);
 				f32 camPush = push * camRate;
 				trg.x += camPush * nx;
 				trg.z += camPush * nz;
-				*(f32*)((u8*)this + 0x80) = trg.x;
-				*(f32*)((u8*)this + 0x88) = trg.z;
+				mCurrentTarget.mPosition.x = trg.x;
+				mCurrentTarget.mPosition.z = trg.z;
 
 				cam.x += push * nx;
 				cam.z += push * nz;
