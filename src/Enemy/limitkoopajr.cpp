@@ -267,11 +267,12 @@ void TLimitKoopaJr::calcRootMatrix()
 	    &tmp)
 	    ->setQuat(q);
 
-	tmp[0][3] = mPosition.x;
-	tmp[1][3] = mPosition.y;
-	tmp[2][3] = mPosition.z;
+	MtxPtr transformMtx = tmp;
+	transformMtx[0][3]  = mPosition.x;
+	transformMtx[1][3]  = mPosition.y;
+	transformMtx[2][3]  = mPosition.z;
 
-	PSMTXCopy(tmp, (MtxPtr)((u8*)getModel() + 0x20));
+	PSMTXCopy(transformMtx, (MtxPtr)((u8*)getModel() + 0x20));
 
 	getModel()->setBaseScale(mScaling);
 }
