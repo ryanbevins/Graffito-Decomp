@@ -145,14 +145,16 @@ DEFINE_NERVE(TNerveBGKAwakeDamage, TLiveActor)
 	if (spine->getTime() == 0)
 		gatekeeper->changeBck(3);
 
-	BOOL animEnd = true;
 	J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(0);
-	if (ctrl) {
-		if (!ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
-		    && !ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
-		    && 0.1f + ctrl->getFrame() < ctrl->getEnd())
-			animEnd = false;
-	}
+	BOOL animEnd;
+	if (ctrl == nullptr)
+		animEnd = true;
+	else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+	         || ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+	         || 0.1f + ctrl->getFrame() >= ctrl->getEnd())
+		animEnd = true;
+	else
+		animEnd = false;
 
 	if (animEnd) {
 		if (gpMarDirector->mMap == 0)
