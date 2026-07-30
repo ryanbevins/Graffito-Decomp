@@ -815,7 +815,7 @@ void TBossWanwan::init(TLiveManager* manager)
 	                      params->mSLPicketRadius.get(),
 	                      params->mSLPicketHeight.get());
 	TIdxGroupObj* shadowGroup
-	    = JDrama::TNameRefGen::search<TIdxGroupObj>("影グループ");
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
 	shadowGroup->add(mPicket);
 	mPicket->offHitFlag(HIT_FLAG_NO_COLLISION);
 	mPicket->mMActor
