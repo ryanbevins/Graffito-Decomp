@@ -313,9 +313,9 @@ f32 JAISound::setPositionDopplarCommon(u32 param_1)
 	                         / ((param_1 >> 8) * (param_1 >> 8))));
 
 	if (result < 0.1f)
-		return 0.1f;
-	if (result > 2.0f)
-		return 2.0f;
+		result = 0.1f;
+	else if (result > 2.0f)
+		result = 2.0f;
 	return result;
 }
 
