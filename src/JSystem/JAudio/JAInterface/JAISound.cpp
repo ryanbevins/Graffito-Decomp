@@ -761,7 +761,8 @@ void JAISound::setSePositionDopplar()
 void JAISound::setSeDistanceFxmix(u8 param_1)
 {
 	u16 fx = JAIGlobalParameter::seDefaultFx;
-	if (!checkSwBit(0x4) && JAIGlobalParameter::audioCameraMax == 1) {
+	if (!(interPointer->getSoundSwBit(unk3C) & 0x4)
+	    && JAIGlobalParameter::audioCameraMax == 1) {
 		// TODO: likely an inline
 		if (unk1C->unk18 < JAIGlobalParameter::distanceMax) {
 			fx = JAIGlobalParameter::seDistanceFxParameter
