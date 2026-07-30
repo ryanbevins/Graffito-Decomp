@@ -37,7 +37,7 @@ public:
 	void setMessage(J2DTextBox*, s32, int);
 	s8 waitForChoice(TEProgress, TEProgress, int);
 	s8 waitForChoiceBM(TEProgress, TEProgress, int);
-	s8 waitForAnyKey(TEProgress);
+	s32 waitForAnyKey(TEProgress);
 	s8 waitForAnyKeyBM(TEProgress);
 	s8 waitForStart(TEProgress);
 	s8 drawMessage(TEProgress);

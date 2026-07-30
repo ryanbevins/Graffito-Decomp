@@ -1291,7 +1291,7 @@ s8 TCardLoad::waitForChoiceBM(TEProgress param_1, TEProgress param_2,
 	return result;
 }
 
-s8 TCardLoad::waitForAnyKey(TEProgress progress)
+s32 TCardLoad::waitForAnyKey(TEProgress progress)
 {
 	int result = -1;
 
@@ -2204,7 +2204,7 @@ void TCardLoad::changeScene()
 
 	case PROGRESS_UNKA:
 	case PROGRESS_UNKB:
-		if (waitForAnyKey(PROGRESS_UNK2) != -1)
+		if ((s8)waitForAnyKey(PROGRESS_UNK2) != -1)
 			gpCardManager->getBookmarkInfos(unk40);
 		break;
 
@@ -2255,7 +2255,7 @@ void TCardLoad::changeScene()
 
 	case PROGRESS_UNK11:
 	case PROGRESS_UNK12:
-		if (waitForAnyKey(PROGRESS_UNK2) != -1)
+		if ((s8)waitForAnyKey(PROGRESS_UNK2) != -1)
 			gpCardManager->getBookmarkInfos(unk40);
 		break;
 
@@ -2392,7 +2392,7 @@ void TCardLoad::changeScene()
 
 	case PROGRESS_UNK20:
 	case PROGRESS_UNK21:
-		if (waitForAnyKey(PROGRESS_UNK2) != -1)
+		if ((s8)waitForAnyKey(PROGRESS_UNK2) != -1)
 			gpCardManager->getBookmarkInfos(unk40);
 		break;
 
