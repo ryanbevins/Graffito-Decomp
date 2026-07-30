@@ -66,6 +66,12 @@ int TMarDirector::direct()
 	u32 desiredAppState = TApplication::APP_STATE_DEFAULT;
 
 	JDrama::TGraphics local_140;
+	local_140.mFrameBuffer = unkC0->getCurrentFrameBuffer();
+	local_140.mRenderMode  = unkC0->getRenderMode();
+	local_140.unkFC.set(unkC0->unk64);
+	local_140.mFBClamp    = unkC0->getFBClamp();
+	local_140.mClearColor = unkC0->getClearColor();
+	local_140.mClearZ     = unkC0->getClearZ();
 
 	u8 bVar2 = gpMSound->unkA8;
 	unk54 += vsyncRate;
