@@ -795,7 +795,7 @@ bool TCardLoad::titleDraw()
 		for (int i = 0; i < 13; ++i) {
 			switch (unk248[i]) {
 			case 4:
-				if (unk22E[i] < unk258) {
+				if (unk258 > unk22E[i]) {
 					TExPane*& pane = unk1D4[i];
 					pane->getPane()->show();
 					JUTRect bounds = pane->getPane()->getBounds();
