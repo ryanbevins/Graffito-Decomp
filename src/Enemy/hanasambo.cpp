@@ -1428,8 +1428,11 @@ void THanaSambo::kill()
 	if (isBckAnm(7))
 		unk18C = 3;
 
-	mSpine->setNext(&TNerveHanaSamboDie::theNerve());
-	mSpine->pushAfterCurrent(&TNerveHanaSamboDie::theNerve());
+	if (mSpine->getCurrentNerve() != &TNerveHanaSamboDie::theNerve()) {
+		mSpine->reset();
+		mSpine->setNext(&TNerveHanaSamboDie::theNerve());
+		mSpine->pushAfterCurrent(&TNerveHanaSamboDie::theNerve());
+	}
 	mHead->onHitFlag(HIT_FLAG_NO_COLLISION);
 	onLiveFlag(LIVE_FLAG_UNK40);
 }
