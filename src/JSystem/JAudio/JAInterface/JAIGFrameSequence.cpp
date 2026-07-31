@@ -499,13 +499,14 @@ void JAIBasic::checkPlayingSeqTrack(unsigned long trackID)
 
 	if (r30 & 0x1000) {
 		for (u8 j = 0; j < JAIGlobalParameter::seqTrackMax; ++j) {
+			u16* portValues = seqParam->unk1354[j];
 			if (seqParam->unk178C & (1 << j)) {
 				seqParam->unk178C ^= 1 << j;
 				for (u8 k = 0; k < 16; ++k) {
 					if (seqParam->unk1790[j] & (1 << k)) {
 						JAISystemInterface::writePortApp(
 						    seqParam->unk0, (*sound)->getTrackPortRoute(j, k),
-						    seqParam->unk1354[j][k]);
+						    portValues[k]);
 						seqParam->unk1790[j] ^= 1 << k;
 					}
 				}
