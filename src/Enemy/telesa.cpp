@@ -773,7 +773,7 @@ void TTelesa::setAttackPoint()
 
 void TTelesa::setFirstAttackPoint()
 {
-	TRotation3f SStack_78; // TODO: uuuuuh...
+	TPosition3f SStack_78; // TODO: uuuuuh...
 
 	if (unk184)
 		mRotation.y = 180.0f - mInstanceIndex * 720.0f;
