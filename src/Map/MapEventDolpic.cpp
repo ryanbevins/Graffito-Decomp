@@ -162,16 +162,16 @@ bool TDolpicEventRiccoMammaGate::watch()
 			gpMarDirector->fireStartDemoCamera("マニ屋上げデモカメラ", &mPos, -1,
 			                                   0.0f, false, nullptr, 0, nullptr,
 			                                   flag);
-			gpMarioParticleManager->emit(0x66, &mPos, 0, nullptr);
-			gpMarioParticleManager->emit(0x1E2, &mPos, 2, nullptr);
+			gpMarioParticleManager->emit(0x66, &mPos, 0, this);
+			gpMarioParticleManager->emit(0x1E2, &mPos, 2, this);
 			gpPollution->getLayer(0)->unk32 |= 2;
 		} else {
 			JDrama::TFlagT<u16> flag(0);
 			gpMarDirector->fireStartDemoCamera("灯台上げデモカメラ", &mPos, -1,
 			                                   0.0f, false, nullptr, 0, nullptr,
 			                                   flag);
-			gpMarioParticleManager->emit(0x67, &mPos, 0, nullptr);
-			gpMarioParticleManager->emit(0x1E3, &mPos, 2, nullptr);
+			gpMarioParticleManager->emit(0x67, &mPos, 0, this);
+			gpMarioParticleManager->emit(0x1E3, &mPos, 2, this);
 			gpPollution->getLayer(1)->unk32 |= 2;
 		}
 
