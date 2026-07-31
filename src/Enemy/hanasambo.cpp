@@ -983,7 +983,7 @@ void TSamboFlowerCoinUnit::checkGenCoin()
 		if (!coin)
 			continue;
 
-		coin->makeObjAppeared();
+		coin->appear();
 		JGeometry::TVec3<f32> coinPos = mCenter;
 		coinPos.add(offset);
 		coin->mPosition = coinPos;
