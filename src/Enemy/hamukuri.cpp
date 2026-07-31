@@ -2261,15 +2261,7 @@ bool TFireHamuKuri::isHitValid(u32 param_1)
 	if (unk210)
 		return false;
 
-	if (isBckAnm(3)) {
-		getManager()->requestSerialKill(this);
-		return true;
-	}
-
-	if (checkLiveFlag(LIVE_FLAG_HIDDEN))
-		return false;
-
-	return true;
+	return THamuKuri::isHitValid(param_1);
 }
 
 // TODO: this is the wrong inline, size doesn't match at all!
