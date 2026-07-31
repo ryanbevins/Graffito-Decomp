@@ -21,8 +21,8 @@ void TEggGenManager::load(JSUMemoryInputStream& stream)
 
 void TEggGenManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
-		{ "gene_egg_model1.bmd", 0, 0 },
+	static const TModelDataLoadEntry entry[] = {
+		{ "gene_egg_model1.bmd", 0x10210000, 0 },
 		{ nullptr, 0, 0 },
 	};
 
