@@ -513,7 +513,7 @@ void TRoulette::switchStop()
 	if (unk150->unk6C != 0) {
 		JGeometry::TVec3<f32>* mario = gpMarioPos;
 		f32 ground = SMS_GetMarioGrLevel();
-		ground += 20.0f;
+		ground = 20.0f + ground;
 		if (mario->y < ground && unk13C != 0.0f) {
 			unk150->unk6C = 0;
 			unk13C = 0.0f;
@@ -524,16 +524,16 @@ void TRoulette::switchStop()
 				MSoundSESystem::MSoundSE::startSoundActor(0x2924, mPosition, 0,
 				                                          nullptr, 0, 4);
 		}
-	}
-	if (unk150->unk6C != 0 && unk141 != 0) {
-		unk150->unk6C = 0;
-		unk148.r = 0;
-		unk148.g = 0;
-		unk148.b = 0;
-		if (gpMSound->gateCheck(0x2924))
-			MSoundSESystem::MSoundSE::startSoundActor(0x2924, mPosition, 0,
-			                                          nullptr, 0, 4);
-		unk140 = 1;
+		if (unk150->unk6C != 0 && unk141 != 0) {
+			unk150->unk6C = 0;
+			unk148.r = 0;
+			unk148.g = 0;
+			unk148.b = 0;
+			if (gpMSound->gateCheck(0x2924))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x2924, mPosition, 0, nullptr, 0, 4);
+			unk140 = 1;
+		}
 	}
 }
 
