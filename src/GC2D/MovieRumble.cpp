@@ -9,6 +9,7 @@
 // TODO: removeme
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
+static const char movieRumblePath[]        = "/subtitle/rnbl/%s";
 
 TMovieRumble::TMovieRumble(const TTHPRender* param_1)
     : unk10(param_1)
@@ -85,7 +86,7 @@ inline void TMovieRumble::readCurInfo()
 
 inline void TMovieRumble::makeBcrName(char* acStack_90, int, const char* param_1)
 {
-	sprintf(acStack_90, "/subtitle/rnbl/%s", param_1);
+	sprintf(acStack_90, movieRumblePath, param_1);
 	char* it = strrchr(acStack_90, '.');
 	strcpy(it, ".bcr");
 }
