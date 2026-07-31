@@ -1623,8 +1623,8 @@ void TFireWanwan::bind()
 
 	mVelocity *= getSaveParam2()->mAirFric.get();
 
-	JGeometry::TVec3<f32> vel     = mVelocity;
 	JGeometry::TVec3<f32> velStep = mLinearVelocity;
+	JGeometry::TVec3<f32> vel     = mVelocity;
 	velStep += vel;
 
 	int stepCount = int(velStep.length() / 25.0f) + 1;
