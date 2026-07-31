@@ -323,8 +323,8 @@ void TBiancoBell::initMapObj()
 void TBiancoBell::touchPlayer(THitActor*)
 {
 	if (mMActor->getFrameCtrl(0)->getFrame() == 0.0f
-	    || mMActor->getFrameCtrl(0)->getFrame()
-	            + mMActor->getFrameCtrl(0)->getRate()
+	    || mMActor->getFrameCtrl(0)->getRate()
+	            + mMActor->getFrameCtrl(0)->getFrame()
 	        >= (f32)mMActor->getFrameCtrl(0)->getEnd() - 1.0f) {
 		startAnim(4);
 		mMActor->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
