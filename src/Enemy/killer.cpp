@@ -133,7 +133,7 @@ void TKillerManager::load(JSUMemoryInputStream& stream)
 
 TSpineEnemy* TKillerManager::createEnemyInstance()
 {
-	return new TKiller("\x83\x4C\x83\x89\x81\x5B");
+	return new TKiller;
 }
 
 // ---------------------------------------------------------------------------
