@@ -1922,8 +1922,9 @@ DEFINE_NERVE(TNerveBWFall, TLiveActor)
 {
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
 	if (spine->getTime() == 0) {
+		const JGeometry::TVec3<f32>& picketPos = self->mPicket->mPosition;
 		JGeometry::TVec3<f32> velocity = self->calcVelocityToJumpToY(
-		    self->mPicket->mPosition, 500.0f, self->getGravityY());
+		    picketPos, 500.0f, self->getGravityY());
 
 		TPathNode node(self->mPicket->mPosition);
 		self->setGoalPath(node);
