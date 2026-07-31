@@ -943,7 +943,9 @@ void TSamboFlowerCoinUnit::checkGenCoin()
 
 	bool ready = true;
 	for (int i = 0; i < mFlowerCount; ++i) {
-		if (!mFlowers[i]->getMActor()->checkCurAnm("flower_fwait", 0))
+		bool isWaiting
+		    = mFlowers[i]->getMActor()->checkCurAnm("flower_fwait", 0);
+		if (!isWaiting)
 			ready = false;
 	}
 
