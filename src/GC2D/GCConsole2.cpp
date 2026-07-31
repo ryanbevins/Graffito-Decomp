@@ -3369,7 +3369,8 @@ bool TGCConsole2::processAppearRed(int param_1)
 
 bool TGCConsole2::processAppearTimer(int param_1)
 {
-	bool isFinished = unk44C->update();
+	bool isFinished = true;
+	isFinished &= unk44C->update();
 
 	if (param_1 == 24) {
 		unk454->getPane()->show();
