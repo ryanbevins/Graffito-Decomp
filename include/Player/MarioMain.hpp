@@ -814,8 +814,6 @@ public:
 
 public:
 	TMario();
-
-	virtual ~TMario() { }
 	virtual void load(JSUMemoryInputStream&);
 	virtual void loadAfter();
 	virtual void perform(u32, JDrama::TGraphics*);
