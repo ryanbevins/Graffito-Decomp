@@ -623,8 +623,11 @@ void TRedCoinSwitch::load(JSUMemoryInputStream& stream)
 		unk138 *= 10;
 
 	u8 shine = SMS_getShineIDofExStage(gpMarDirector->mMap);
-	if (shine != 0xff && !TFlagManager::smInstance->getShineFlag(shine))
-		makeObjDead();
+	if (shine != 0xff) {
+		TFlagManager* flagManager = TFlagManager::smInstance;
+		if (!flagManager->getShineFlag(shine))
+			makeObjDead();
+	}
 }
 
 void TRedCoinSwitch::loadAfter()
