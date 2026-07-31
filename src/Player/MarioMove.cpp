@@ -3826,7 +3826,7 @@ void TMario::playerControl(JDrama::TGraphics* gfx)
 			isSandGround = 1;
 		else
 			isSandGround = 0;
-		if (isSandGround) {
+		if (isSandGround == 1) {
 			mState |= 0x40000;
 			emitSandEffect();
 		} else {
