@@ -173,7 +173,7 @@ BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
 				mState = 0xB;
 			}
 		}
-		BOOL result = 0;
+		BOOL result;
 		if (TMapObjGeneral::receiveMessage(sender, message)) {
 			result = 1;
 		} else if (message == 4 && (unkF8 & 0x100000)) {
@@ -183,6 +183,8 @@ BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
 		           && !isActorType(0x400000D0) && message != 4) {
 			kicked();
 			result = 1;
+		} else {
+			result = 0;
 		}
 		if (message == 6 && isState(1)) {
 			mState = 0xB;
