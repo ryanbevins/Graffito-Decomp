@@ -478,7 +478,6 @@ void TLightWithDBSetManager::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 }
 
-#pragma dont_inline on
 namespace JGadget {
 template <>
 TList_pointer<JDrama::TViewObj*>::iterator::iterator(
@@ -494,7 +493,6 @@ TList_pointer<JDrama::TViewObj*>::end()
 	return iterator(Base::end());
 }
 } // namespace JGadget
-#pragma dont_inline off
 
 void TLightWithDBSetManager::addChildGroupObj(
     JDrama::TViewObjPtrListT<JDrama::TViewObj, JDrama::TViewObj>* group)
