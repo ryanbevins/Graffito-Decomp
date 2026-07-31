@@ -1135,8 +1135,14 @@ void TFireWanwan::calcRootMatrix()
 		return;
 	{
 		MtxPtr mtx = getModel()->getBaseTRMtx();
-		JGeometry::TVec3<f32> v1(mtx[0][1], mtx[1][1], mtx[2][1]);
-		JGeometry::TVec3<f32> v2(mtx[0][2], mtx[1][2], mtx[2][2]);
+		JGeometry::TVec3<f32> v1;
+		v1.x = mtx[0][1];
+		v1.y = mtx[1][1];
+		v1.z = mtx[2][1];
+		JGeometry::TVec3<f32> v2;
+		v2.x = mtx[0][2];
+		v2.y = mtx[1][2];
+		v2.z = mtx[2][2];
 		v1.normalize();
 		v2.normalize();
 		v1 *= 0.0f;
