@@ -30,8 +30,7 @@ void TSplashManager::load(JSUMemoryInputStream& stream)
 	f32 rate = SMSGetAnmFrameRate();
 	mGravity = -0.5f * SMSGetAnmFrameRate() * rate;
 
-	GXColor color = { 0xA8, 0xCB, 0xE3, 0xFF };
-	mColor        = color;
+	mColor = (GXColor){ 0xA8, 0xCB, 0xE3, 0xFF };
 
 	mActiveList.initiate();
 	mFreeList.initiate();
