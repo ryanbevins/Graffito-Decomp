@@ -1539,7 +1539,7 @@ void TBossPakkun::changeBck(int index)
 				blendFrames = 0.2f * ctrl->getEnd();
 		}
 
-		if (blendFrames == 1.0f)
+		if (blendFrames == 0.0f)
 			unk154 = 1.0f;
 		else
 			unk154 = 1.0f / blendFrames;
