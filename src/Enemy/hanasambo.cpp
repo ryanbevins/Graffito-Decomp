@@ -959,49 +959,50 @@ void TSamboFlowerCoinUnit::checkGenCoin()
 		mFlowers[i]->unk160 = false;
 	}
 
-	if (coinFlowerCount <= 0) {
-		mCoin = nullptr;
-		return;
+	if (coinFlowerCount > 0) {
+		int spawned = 0;
+		for (int i = 0; i < mFlowerCount; ++i) {
+			TSamboFlower* flower = mFlowers[i];
+			if (!flower->unk168)
+				continue;
+
+			TSamboFlowerSaveLoadParams* params
+			    = flower->getSamboFlowerParams();
+			f32 ratio = spawned / (f32)coinFlowerCount;
+			JGeometry::TVec3<f32> offset(0.0f, 0.0f,
+			                             params->mSLCoinCircleR.get());
+			Mtx rot;
+			MsMtxSetRotRPH(rot, 0.0f, 360.0f * ratio, 0.0f);
+			PSMTXMultVec(rot, (Vec*)&offset, (Vec*)&offset);
+
+			TMapObjBase* coin = flower->unk168;
+			if (coin->isActorType(0x2000000E))
+				coin = gpItemManager->makeObjAppear(0x2000000E);
+
+			if (!coin)
+				continue;
+
+			coin->appear();
+			JGeometry::TVec3<f32> coinPos = mCenter;
+			coinPos.add(offset);
+			coin->mPosition = coinPos;
+
+			JGeometry::TVec3<f32> dir = offset;
+			MsVECNormalize((Vec*)&dir, (Vec*)&dir);
+			coin->mVelocity.x
+			    = dir.x * params->mSLCoinVelocityXZ.get();
+			coin->mVelocity.y
+			    = params->mSLCoinVelocityY.get() + 8.0f * ratio;
+			coin->mVelocity.z
+			    = dir.z * params->mSLCoinVelocityXZ.get();
+			coin->offLiveFlag(LIVE_FLAG_UNK10);
+			++spawned;
+		}
+
+		if (gpMSound->gateCheck(0x4813))
+			MSoundSESystem::MSoundSE::startSoundSystemSE(
+			    0x4813, spawned, nullptr, 0);
 	}
-
-	int spawned = 0;
-	for (int i = 0; i < mFlowerCount; ++i) {
-		TSamboFlower* flower = mFlowers[i];
-		if (!flower->unk168)
-			continue;
-
-		TSamboFlowerSaveLoadParams* params = flower->getSamboFlowerParams();
-		f32 ratio = spawned / (f32)coinFlowerCount;
-		JGeometry::TVec3<f32> offset(0.0f, 0.0f,
-		                             params->mSLCoinCircleR.get());
-		Mtx rot;
-		MsMtxSetRotRPH(rot, 0.0f, 360.0f * ratio, 0.0f);
-		PSMTXMultVec(rot, (Vec*)&offset, (Vec*)&offset);
-
-		TMapObjBase* coin = flower->unk168;
-		if (coin->isActorType(0x2000000E))
-			coin = gpItemManager->makeObjAppear(0x2000000E);
-
-		if (!coin)
-			continue;
-
-		coin->appear();
-		JGeometry::TVec3<f32> coinPos = mCenter;
-		coinPos.add(offset);
-		coin->mPosition = coinPos;
-
-		JGeometry::TVec3<f32> dir = offset;
-		MsVECNormalize((Vec*)&dir, (Vec*)&dir);
-		coin->mVelocity.x = dir.x * params->mSLCoinVelocityXZ.get();
-		coin->mVelocity.y = params->mSLCoinVelocityY.get() + 8.0f * ratio;
-		coin->mVelocity.z = dir.z * params->mSLCoinVelocityXZ.get();
-		coin->offLiveFlag(LIVE_FLAG_UNK10);
-		++spawned;
-	}
-
-	if (gpMSound->gateCheck(0x4813))
-		MSoundSESystem::MSoundSE::startSoundSystemSE(0x4813, spawned,
-		                                             nullptr, 0);
 
 	mCoin = nullptr;
 }
