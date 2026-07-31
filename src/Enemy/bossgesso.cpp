@@ -188,8 +188,12 @@ BOOL TBGBeakHit::receiveMessage(THitActor* sender, u32 message)
 
 			mHolder = actor;
 
-			if (mOwner->unk190.color.a != 0)
-				mOwner->showMessage(0xE0028);
+			if (mOwner->unk190.color.a != 0) {
+				if ((mOwner->unk198 & 8) == 0)
+					gpMarDirector->getConsole()->startAppearBalloon(0xE0028,
+					                                               true);
+				mOwner->unk198 |= 8;
+			}
 
 			return true;
 		}
