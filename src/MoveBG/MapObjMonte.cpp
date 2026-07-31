@@ -347,7 +347,7 @@ void TFluff::control()
 		mScaling.z += mScaleUpSpeed;
 		if (mScaling.x > 1.0f) {
 			oneVec(mScaling);
-			startAnim(0);
+			setObjHitData(0);
 			mState = 1;
 		}
 		break;
