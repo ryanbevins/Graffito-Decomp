@@ -46,7 +46,10 @@ inline f32 distToMario(const JGeometry::TVec3<f32>& v)
 {
 	JGeometry::TVec3<f32> r;
 	r.sub(v, *gpMarioPos);
-	return r.length();
+	f32 x2 = r.x * r.x;
+	f32 y2 = r.y * r.y;
+	f32 z2 = r.z * r.z;
+	return JGeometry::TUtil<f32>::sqrt(x2 + y2 + z2);
 }
 
 void TMapObjGeneral::waitingToAppear()
