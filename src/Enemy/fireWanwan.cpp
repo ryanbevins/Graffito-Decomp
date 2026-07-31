@@ -1154,10 +1154,12 @@ void TFireWanwan::moveObject()
 	if (checkLiveFlag(LIVE_FLAG_DEAD))
 		return;
 
-	if (mNoCollideTimer > 0)
+	int noCollideTimer = mNoCollideTimer;
+	if (noCollideTimer > 0)
 		mNoCollideTimer -= 1;
 
-	if (mStopSearchTimer > 0)
+	int stopSearchTimer = mStopSearchTimer;
+	if (stopSearchTimer > 0)
 		mStopSearchTimer -= 1;
 
 	updateSquareToMario();
