@@ -769,7 +769,19 @@ void TBossGesso::stopIfRoll()
 	mSpine->reset();
 	mSpine->setNext(&TNerveBGWait::theNerve());
 
-	changeAllTentacleState(0);
+	for (int i = 0; i < TENTACLE_NUM; ++i) {
+		TBGTentacle* tentacle = mTentacles[i];
+		if (tentacle->mState != 5) {
+			BOOL isThing;
+			if (tentacle->mState == 6
+			    || (u32)(tentacle->mState - 3) <= 1)
+				isThing = TRUE;
+			else
+				isThing = FALSE;
+			if (!isThing)
+				tentacle->changeStateAndFixNodes(0);
+		}
+	}
 }
 
 void TBossGesso::changeAttackMode(int new_mode)
