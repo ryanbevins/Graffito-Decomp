@@ -50,9 +50,12 @@ inline void TMovieRumble::movement()
 
 inline void TMovieRumble::checkRumbleOn()
 {
-	if (unk24 != -1 && unk1C <= unk10->getFrameNumber()) {
-		SMSRumbleMgr->start(unk24, -1, (f32*)nullptr);
-		unk28 = true;
+	if (unk24 != -1) {
+		const s32 frameNumber = unk10->getFrameNumber();
+		if (unk1C <= frameNumber) {
+			SMSRumbleMgr->start(unk24, -1, (f32*)nullptr);
+			unk28 = true;
+		}
 	}
 }
 
