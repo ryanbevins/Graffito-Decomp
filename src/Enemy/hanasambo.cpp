@@ -876,7 +876,7 @@ void TSamboFlowerManager::loadAfter()
 void TSamboFlowerManager::dropLeaf(JGeometry::TVec3<f32>& position,
                                    JGeometry::TVec3<f32>& scale)
 {
-	static const f32 angles[] = { 0.0f, 120.0f, 240.0f };
+	const f32 angles[] = { 0.0f, 120.0f, 240.0f };
 	int dropped               = 0;
 
 	for (int i = 0; i < 18 && dropped < 3; ++i) {
