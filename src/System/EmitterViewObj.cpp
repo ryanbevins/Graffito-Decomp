@@ -574,10 +574,10 @@ void TMarioParticleManager::emitTry(s32 param_1,
 
 			if (param_2->mEmitter != nullptr) {
 				param_2->mEmitter->unk120 = (void*)param_2->unk4;
-				if (param_2->checkFlag(0x10))
-					param_2->mEmitter->unk110 = &emitterCallBackBindToSRTMtxPtr;
-				else
+				if (param_2->checkFlag(INFO_FLAG_BIND_TO_RT_MTX))
 					param_2->mEmitter->unk110 = &emitterCallBackBindToMtxPtr;
+				else
+					param_2->mEmitter->unk110 = &emitterCallBackBindToSRTMtxPtr;
 			}
 		} else {
 			param_2->mEmitter = unk3B8->createSimpleEmitterID(
