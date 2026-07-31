@@ -325,7 +325,7 @@ void TLiveActor::requestShadow()
 
 		local_2c.unk0 = mPosition;
 
-		if (!(mLiveFlag & 0x80 ? 0 : 1)) {
+		if (!checkLiveFlag2(0x80)) {
 			local_2c.unk0.y = mGroundHeight;
 			local_2c.unk1D  = 0;
 		}
