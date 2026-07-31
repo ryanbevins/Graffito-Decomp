@@ -875,9 +875,9 @@ bool JKRExpHeap::dump_sort()
 			}
 			int offset       = block->getAlignment();
 			void* content    = block->getContent();
-			const char* type = block->_isTempMemBlock() ? " temp" : "alloc";
-			JUTReportConsole_f("%s %08x: %08x  %3d %3d  (%08x %08x)\n", type,
-			                   content, block->mAllocatedSpace, block->mGroupID,
+			JUTReportConsole_f("%s %08x: %08x  %3d %3d  (%08x %08x)\n",
+			                   block->_isTempMemBlock() ? " temp" : "alloc", content,
+			                   block->mAllocatedSpace, block->mGroupID,
 			                   offset, block->mPrev, block->mNext);
 			usedBytes += sizeof(CMemBlock) + block->mAllocatedSpace
 			             + block->getAlignment();
