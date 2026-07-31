@@ -673,8 +673,8 @@ void TPollutionCounterLayer::calcViewMtx()
 {
 	JGeometry::SMatrix34C<f32> afStack_68;
 	afStack_68.set(j3dSys.mViewMtx);
-	J3DDrawBuffer* buf1 = j3dSys.mDrawBuffer[1];
 	J3DDrawBuffer* buf0 = j3dSys.mDrawBuffer[0];
+	J3DDrawBuffer* buf1 = j3dSys.mDrawBuffer[1];
 	for (int i = 0; i < unk8; ++i) {
 		TPollutionLayer* iVar3
 		    = (TPollutionLayer*)gpPollution->getJointModel(i);
