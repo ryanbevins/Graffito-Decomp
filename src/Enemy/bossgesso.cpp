@@ -777,19 +777,41 @@ void TBossGesso::changeAttackMode(int new_mode)
 	mAttackMode              = new_mode;
 	mTimeInCurrentAttackMode = 0;
 	switch (mAttackMode) {
+	case ASTATE_SINGLE:
+	case ASTATE_DOUBLE:
+	case ASTATE_SKIP_ROPE:
+		break;
+
 	case ASTATE_GUARD: {
 		static int idx[2] = { 1, 3 };
 		for (int i = 0; i < 2; ++i) {
 			TBGTentacle* tentacle = mTentacles[idx[i]];
-			if (tentacle->mState != 4 && tentacle->mState != 6
-			    && tentacle->mState != 3)
+			BOOL isThing;
+			if (tentacle->mState == 4 || tentacle->mState == 6
+			    || tentacle->mState == 3)
+				isThing = TRUE;
+			else
+				isThing = FALSE;
+			if (!isThing)
 				tentacle->changeStateAndFixNodes(10);
 		}
 		break;
 	}
 
 	case ASTATE_UNISON:
-		changeAllTentacleState(0);
+		for (int i = 0; i < TENTACLE_NUM; ++i) {
+			TBGTentacle* tentacle = mTentacles[i];
+			if (tentacle->mState != 5) {
+				BOOL isThing;
+				if (tentacle->mState == 6
+				    || (u32)(tentacle->mState - 3) <= 1)
+					isThing = TRUE;
+				else
+					isThing = FALSE;
+				if (!isThing)
+					tentacle->changeStateAndFixNodes(0);
+			}
+		}
 		break;
 
 	case ASTATE_ROLL:
