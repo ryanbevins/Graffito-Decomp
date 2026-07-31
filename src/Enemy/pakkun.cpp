@@ -484,7 +484,7 @@ void TStayPakkun::setBehavior()
 	unk1B2.a               = (mHitPoints * 255) / maxHp;
 	mRootScale = 1.0f
 	             + (TPakkunManager::mRootExplosionScaleRate
-	                * (255.0f - unk1B2.a) / 255.0f);
+	                * (255 - unk1B2.a) / 255.0f);
 
 	if (mHitPoints < 2) {
 		if (gpMSound->gateCheck(0x287f))
