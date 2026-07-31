@@ -679,7 +679,7 @@ void TPakkunSeed::behaveToHitGround()
 {
 	if (fabsf(mVelocity.y) < 1.0f || mGroundPlane->isWaterSurface()) {
 		unk168 = 1;
-		offLiveFlag(LIVE_FLAG_UNK100);
+		offLiveFlag(LIVE_FLAG_AIRBORNE);
 		mVelocity.set(0.0f, -0.3f, 0.0f);
 		rebirth();
 		return;
