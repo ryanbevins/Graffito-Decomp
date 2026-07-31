@@ -486,12 +486,14 @@ TList_pointer<JDrama::TViewObj*>::iterator::iterator(
 {
 }
 
+#pragma dont_inline on
 template <>
 TList_pointer<JDrama::TViewObj*>::iterator
 TList_pointer<JDrama::TViewObj*>::end()
 {
 	return iterator(Base::end());
 }
+#pragma dont_inline off
 } // namespace JGadget
 
 void TLightWithDBSetManager::addChildGroupObj(
