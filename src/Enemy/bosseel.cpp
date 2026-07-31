@@ -587,10 +587,7 @@ void TBossEel::forceShedTears(bool use_back_eye)
 
 void TBossEel::shedTears(MtxPtr mtx)
 {
-	JGeometry::TVec3<f32> position;
-	position.x = mtx[0][3];
-	position.y = mtx[1][3];
-	position.z = mtx[2][3];
+	JGeometry::TVec3<f32> position(mtx[0][3], mtx[1][3], mtx[2][3]);
 
 	TBEelTears* tears = (TBEelTears*)gpConductor->makeOneEnemyAppear(
 	    position, cBossEelTearsManagerName, 0);
