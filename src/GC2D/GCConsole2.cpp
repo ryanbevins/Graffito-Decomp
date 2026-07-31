@@ -2702,7 +2702,7 @@ void TGCConsole2::startAppearMario(bool param_1)
 			lives = 99;
 
 		((J2DPicture*)unk39C[0]->getPane())
-		    ->changeTexture(unkE0[lives / 10]->getTexInfo(), 0);
+		    ->changeTexture(unkE0[(int)(lives * 0.1f)]->getTexInfo(), 0);
 		((J2DPicture*)unk39C[1]->getPane())
 		    ->changeTexture(unkE0[lives % 10]->getTexInfo(), 0);
 	}
