@@ -522,7 +522,17 @@ TOptionSoundUnit::TOptionSoundUnit(J2DScreen* screen)
 	mSelectionBubble->stopAnm();
 
 	// These 3 are for the animation of a pianta (monte) vibing to the speakers
-	initMonoAnm();
+	TPatternAnmControl** ary = mMonoAnimations;
+
+	ary[0] = new TPatternAnmControl(mScreen);
+	ary[0]->set(cMonoMonteAnm, ARRAY_COUNT(cMonoMonteAnm));
+	ary[0]->setupAnm();
+
+	ary[1] = new TPatternAnmControl(mScreen);
+	ary[1]->set(cMonoSpeakerAnm, ARRAY_COUNT(cMonoSpeakerAnm));
+	ary[1]->setupAnm();
+
+	mMonteIcons[0].set(mMonoAnimations, ARRAY_COUNT(mMonoAnimations));
 	initSteleoAnm();
 	initSurroundAnm();
 
@@ -536,21 +546,6 @@ TOptionSoundUnit::TOptionSoundUnit(J2DScreen* screen)
 	mMusic = nullptr;
 	setState(STATE_INACTIVE);
 	adjustView();
-}
-
-void TOptionSoundUnit::initMonoAnm()
-{
-	TPatternAnmControl** ary = mMonoAnimations;
-
-	ary[0] = new TPatternAnmControl(mScreen);
-	ary[0]->set(cMonoMonteAnm, ARRAY_COUNT(cMonoMonteAnm));
-	ary[0]->setupAnm();
-
-	ary[1] = new TPatternAnmControl(mScreen);
-	ary[1]->set(cMonoSpeakerAnm, ARRAY_COUNT(cMonoSpeakerAnm));
-	ary[1]->setupAnm();
-
-	mMonteIcons[0].set(mMonoAnimations, ARRAY_COUNT(mMonoAnimations));
 }
 
 void TOptionSoundUnit::initSteleoAnm()

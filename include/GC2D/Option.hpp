@@ -207,7 +207,6 @@ public:
 
 	TOptionSoundUnit(J2DScreen* screen);
 
-	void initMonoAnm();
 	void initSteleoAnm();
 	void initSurroundAnm();
 	void update();
