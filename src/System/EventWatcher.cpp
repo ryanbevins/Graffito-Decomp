@@ -1056,8 +1056,8 @@ static void evStopBGM(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evStartSE(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
-	int se = interp->pop().getDataInt();
-	SMSGetMSound()->startSoundSystemSE(se, 0, nullptr, 0);
+	SMSGetMSound()->startSoundSystemSE((u32)interp->pop().getDataInt(), 0,
+	                                   nullptr, 0);
 	interp->push(TSpcSlice());
 }
 
