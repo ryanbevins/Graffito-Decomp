@@ -993,8 +993,7 @@ static void evSetTransScale(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 	f32 sy = interp->pop().getDataFloat();
 	f32 sx = interp->pop().getDataFloat();
 
-	TSpcSlice objName = interp->pop();
-	TMapObjBase* obj  = get_name_ref<TMapObjBase>(objName);
+	TMapObjBase* obj = get_name_ref<TMapObjBase>(interp->pop());
 
 	obj->makeObjAppeared();
 	obj->changeObjSRT(JGeometry::TVec3<f32>(sx, sy, sz),
