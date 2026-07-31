@@ -958,7 +958,7 @@ s8 TCardSave::drawMessageBM(TEProgress param_1)
 	return result;
 }
 
-s8 TCardSave::waitForAnyKey(TEProgress param_1)
+s32 TCardSave::waitForAnyKey(TEProgress param_1)
 {
 	s32 result = -1;
 
@@ -1662,7 +1662,7 @@ void TCardSave::execMovement_()
 
 	case PROGRESS_UNKA:
 		if (gpCardManager->getLastStatus() == CARD_RESULT_READY) {
-			s32 r = waitForAnyKey(PROGRESS_UNK2);
+			s32 r = (s8)waitForAnyKey(PROGRESS_UNK2);
 			gpCardManager->probe();
 			if (r != -1)
 				gpCardManager->getBookmarkInfos(&unk278[0]);
@@ -1677,7 +1677,7 @@ void TCardSave::execMovement_()
 		break;
 
 	case PROGRESS_UNKB:
-		if (waitForAnyKey(PROGRESS_UNK2) != -1)
+		if ((s8)waitForAnyKey(PROGRESS_UNK2) != -1)
 			gpCardManager->getBookmarkInfos(&unk278[0]);
 		break;
 
@@ -1727,12 +1727,12 @@ void TCardSave::execMovement_()
 	}
 
 	case PROGRESS_UNK11:
-		if (waitForAnyKey(PROGRESS_UNK2) != -1)
+		if ((s8)waitForAnyKey(PROGRESS_UNK2) != -1)
 			gpCardManager->getBookmarkInfos(&unk278[0]);
 		break;
 
 	case PROGRESS_UNK12:
-		if (waitForAnyKey(PROGRESS_UNK2) != -1)
+		if ((s8)waitForAnyKey(PROGRESS_UNK2) != -1)
 			gpCardManager->getBookmarkInfos(&unk278[0]);
 		break;
 

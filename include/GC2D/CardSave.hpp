@@ -34,7 +34,7 @@ public:
 	void endDrawMessage();
 	s8 drawMessage(TEProgress);
 	s8 drawMessageBM(TEProgress);
-	s8 waitForAnyKey(TEProgress);
+	s32 waitForAnyKey(TEProgress);
 	s8 waitForSelectOver();
 	s8 waitForSelect2(TEProgress, TEProgress);
 	s8 waitForSelect3(TEProgress, TEProgress, TEProgress);
