@@ -3470,12 +3470,11 @@ bool TGCConsole2::processAppearBalloon()
 bool TGCConsole2::processDisappearBalloon()
 {
 	bool isFinished = false;
-	J2DPane* pane   = unk3B0;
 
-	JUTRect bounds(pane->mBounds);
+	JUTRect bounds(unk3B0->mBounds);
 	int height = bounds.getHeight();
 
-	JUTRect contents(getWindowContentsRect(pane));
+	JUTRect contents(getWindowContentsRect(unk3B0));
 	int contentHeight = contents.getHeight();
 
 	if (contentHeight > 0) {
@@ -3483,18 +3482,18 @@ bool TGCConsole2::processDisappearBalloon()
 		if (contentHeight - unk3CC < 0)
 			nextHeight += unk3CC - contentHeight;
 
-		pane->resize(unk3BC.getWidth(), nextHeight);
+		unk3B0->resize(unk3BC.getWidth(), nextHeight);
 
 		JUTRect nextBounds(unk3BC.x1, unk3BC.y2 - nextHeight, unk3BC.x2,
 		                    unk3BC.y2);
-		pane->mBounds = nextBounds;
+		unk3B0->mBounds = nextBounds;
 	} else {
-		int alpha = pane->mAlpha - 0x30;
+		s16 alpha = unk3B0->mAlpha - 0x30;
 		if (alpha < 0) {
 			alpha      = 0;
 			isFinished = true;
 		}
-		pane->mAlpha = alpha;
+		unk3B0->mAlpha = alpha;
 	}
 
 	return isFinished;
