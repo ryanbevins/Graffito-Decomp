@@ -706,8 +706,7 @@ static void evGetTime(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evKillShine(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
-	TSpcSlice shineSlice = interp->pop();
-	TShine* shine        = get_name_ref<TShine>(shineSlice);
+	TShine* shine = get_name_ref<TShine>(interp->pop());
 	shine->kill();
 	interp->push();
 }
