@@ -212,11 +212,15 @@ public:
 	TMerryPole()
 	    : TMapObjBase("メリーゴーランド用ポール")
 	{
-		unk138.identity();
+		unk138.mMtx[1][0] = unk138.mMtx[2][0] = unk138.mMtx[0][1]
+		    = unk138.mMtx[2][1] = unk138.mMtx[0][2] = unk138.mMtx[1][2]
+		    = unk138.mMtx[0][3] = unk138.mMtx[1][3] = unk138.mMtx[2][3] = 0.0f;
+
+		unk138.mMtx[0][0] = unk138.mMtx[1][1] = unk138.mMtx[2][2] = 1.0f;
 	}
 
 public:
-	/* 0x138 */ TMtx34f unk138;
+	/* 0x138 */ TPosition3f unk138;
 };
 
 #endif
