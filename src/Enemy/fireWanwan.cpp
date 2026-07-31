@@ -1636,11 +1636,12 @@ void TFireWanwan::bind()
 	for (int i = 0; i < stepCount; ++i) {
 		JGeometry::TVec3<f32> boundStep;
 		JGeometry::TVec3<f32> stepNormal;
-		iVar12 += bindBody(&boundStep, &stepNormal, velStep);
+		int collisionNum = bindBody(&boundStep, &stepNormal, velStep);
 
 		bVar2 &= checkLiveFlag2(LIVE_FLAG_AIRBORNE);
 
 		mPosition += boundStep;
+		iVar12 += collisionNum;
 		totalNormal += stepNormal;
 	}
 
