@@ -3077,7 +3077,8 @@ bool TGCConsole2::processAppearTank(int param_1)
 
 bool TGCConsole2::processAppearCoin(int param_1)
 {
-	bool isFinished = unk108->update();
+	bool isFinished = true;
+	isFinished &= unk108->update();
 
 	if (param_1 == 14) {
 		unkCC->getPane()->show();
@@ -3324,7 +3325,8 @@ bool TGCConsole2::processAppearJet(int param_1)
 
 bool TGCConsole2::processAppearRed(int param_1)
 {
-	bool isFinished = unk428->update();
+	bool isFinished = true;
+	isFinished &= unk428->update();
 
 	if (param_1 == 14) {
 		unk430->getPane()->show();
