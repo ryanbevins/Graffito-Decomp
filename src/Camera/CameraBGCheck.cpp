@@ -168,8 +168,8 @@ bool CPolarSubCamera::execWallCheck_(Vec* p)
 				mCurrentTarget.mPosition.x = trg.x;
 				mCurrentTarget.mPosition.z = trg.z;
 
-				cam.x += push * nx;
-				cam.z += push * nz;
+				cam.x += push * wall->mNormal.x;
+				cam.z += push * wall->mNormal.z;
 				p->x    = cam.x;
 				p->z    = cam.z;
 				didSnap = true;
