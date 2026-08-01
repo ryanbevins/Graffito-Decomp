@@ -86,8 +86,10 @@ void TMapWire::drawLower() const
 
 void TMapWire::drawUpper() const
 {
-	f32 xOffset = mDrawAxes.x * mDrawWidth;
-	f32 zOffset = mDrawAxes.y * mDrawWidth;
+	f32 xOffset = mDrawAxes.x;
+	f32 zOffset = mDrawAxes.y;
+	xOffset *= mDrawWidth;
+	zOffset *= mDrawWidth;
 
 	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, (mNumActiveMapWirePoints + 2) * 2);
 
