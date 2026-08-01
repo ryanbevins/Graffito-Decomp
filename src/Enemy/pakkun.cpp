@@ -1165,7 +1165,7 @@ static int PakkunSeedCallback(J3DNode* node, int flag)
 		rotPtr[2][1] = zero;
 		rotPtr[2][2] = 1.0f;
 		rotPtr[2][3] = zero;
-		PSMTXConcat(rotPtr, src, src);
+		PSMTXConcat(src, rotPtr, src);
 		PSMTXConcat(j3dSys.mCurrentMtx, rotPtr, j3dSys.mCurrentMtx);
 	}
 	return 1;
