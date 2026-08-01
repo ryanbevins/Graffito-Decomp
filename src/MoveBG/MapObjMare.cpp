@@ -515,7 +515,7 @@ void TMapObjGrowTree::control()
 {
 	TMapObjBase::control();
 
-	if (mState != 2 || mHolder || mLifeTimer > 0)
+	if (mState != 2 || mColCount != 0 || mLifeTimer > 0)
 		return;
 
 	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
