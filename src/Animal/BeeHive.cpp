@@ -76,6 +76,13 @@ static void setBoidLeaderHomeGoal(TBeeHive* hive)
 	leader->mGoalTarget = hive->mPosition;
 	leader->mGoalOffset.set(0.0f, 0.0f, 0.0f);
 }
+
+static inline void setBeeHiveRotate(JGeometry::TQuat4<f32>& quat,
+	                                const JGeometry::TVec3<f32>& from,
+	                                const JGeometry::TVec3<f32>& to, f32 sign)
+{
+	quat.setRotate(from, to, sign);
+}
 }
 
 DEFINE_NERVE(TNerveBeeHiveReset, TLiveActor)
@@ -516,7 +523,7 @@ BOOL TBeeHive::receiveMessage(THitActor* sender, u32 message)
 			}
 
 			JGeometry::TVec3<f32> up(0.0f, 0.0f, 1.0f);
-			mInitialQuat.setRotate(up, dir, sign);
+			setBeeHiveRotate(mInitialQuat, up, dir, sign);
 			mAngularVelocity.y
 			    += sign * getBeeParams()->mShakePower.get();
 		}
