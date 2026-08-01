@@ -70,9 +70,9 @@ void MSRandPlay::construct(u32 param_1, s32 param_2, s32 param_3, f32 param_4,
 
 s32 MSRandPlay::registerTrans(u32 param, const Vec* vec)
 {
-	for (JSULink<MSRandPlay>* link = smList.getFirst(); link != nullptr;
-	     link = link->getNext()) {
-		MSRandPlay* play = link->getObject();
+	JSUListIterator<MSRandPlay> it;
+	for (it = smList.getFirst(); it != smList.getEnd(); ++it) {
+		MSRandPlay* play = it.getObject();
 		if (param == play->unk1C) {
 			MSRandPlayVec* playVec = &play->unk10[play->unk16];
 			playVec->unk0          = vec;
