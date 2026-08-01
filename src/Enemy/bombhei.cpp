@@ -1,4 +1,6 @@
+#define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/Bombhei.hpp>
+#undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EffectObj.hpp>
 #include <Enemy/Walker.hpp>
@@ -505,10 +507,11 @@ void TBombHei::genEventCoin()
 
 		JGeometry::TVec3<f32> dir = *gpMarioPos;
 		dir.sub(mPosition);
-		MsVECNormalize(&dir, &dir);
+		JGeometry::TVec3<f32> normalized = dir;
+		MsVECNormalize(&normalized, &normalized);
 
-		coin->mVelocity.x = 20.0f * dir.x;
-		coin->mVelocity.z = 20.0f * dir.z;
+		coin->mVelocity.set(20.0f * normalized.x, 20.0f,
+		                    20.0f * normalized.z);
 		coin->mLiveFlag &= ~0x10;
 	}
 }
