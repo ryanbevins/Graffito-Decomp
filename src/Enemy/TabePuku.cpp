@@ -448,12 +448,12 @@ void TTabePuku::calcRootMatrix()
 	mtx[2][3] = mPosition.z;
 
 	getModel()->setBaseScale(mScaling);
-	PSMTXCopy(mtx, getModel()->getBaseTRMtx());
+	MtxPtr transformMtx = mtx;
+	PSMTXCopy(transformMtx, getModel()->getBaseTRMtx());
 
-	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 	JPABaseEmitter* emitter = SMS_EasyEmitParticle(
 	    (E_SMS_EFFECT_LOOP_NORMAL)0x178, getModel()->getAnmMtx(mMouthJointIndex),
-	    this, scale);
+	    this, JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 	if (emitter) {
 		f32 lifeScale = -mPosition.y / 100.0f;
 		if (lifeScale <= 0.0f)
