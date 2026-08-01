@@ -234,12 +234,12 @@ void TRealoidActor::checkHitActors()
 
 	THitActor** p   = mCollisions;
 	THitActor** end = mCollisions + mColCount;
-	s32 targetType  = 0x80000000;
-	targetType += 1;
 	for (; p != end; p++) {
-		if ((s32)(*p)->mActorType != targetType)
-			continue;
-		SMS_SendMessageToMario(this, 0xe);
+		switch ((s32)(*p)->mActorType) {
+		case (s32)0x80000001:
+			SMS_SendMessageToMario(this, 0xe);
+			break;
+		}
 	}
 }
 
