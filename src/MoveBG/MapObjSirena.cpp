@@ -1066,14 +1066,13 @@ void TSlotDrum::initNeonMatColor()
 {
 	const char* names[] = { "_NEON_C", "_NEON_B", "_NEON_A" };
 	for (int i = 0; i < 3; ++i) {
-		GXColorS10* col = &unk170[i];
-		col->r = 0x78;
-		col->g = 0xE6;
-		col->b = 0xFF;
-		col->a = 0xFF;
+		unk170[i].r = 0x78;
+		unk170[i].g = 0xE6;
+		unk170[i].b = 0xFF;
+		unk170[i].a = 0xFF;
 		u16 idx = getModel()->mModelData->mMaterialName->getIndex(names[i]);
 		SMS_InitPacket_OneTevColor(mMActor->getModel(), idx,
-		                           (GXTevRegID)1, col);
+		                           (GXTevRegID)1, &unk170[i]);
 	}
 }
 
