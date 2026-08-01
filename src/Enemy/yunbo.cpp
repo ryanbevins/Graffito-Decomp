@@ -308,9 +308,8 @@ void TYumbo::moveObject()
 		gpMarioParticleManager->emitAndBindToMtxPtr(0x18b, mtx, 1, this);
 	}
 
-	const TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
-	if (latest == &TNerveYumboFreeze::theNerve()
-	    || latest == &TNerveSmallEnemyDie::theNerve())
+	if (mSpine->getLatestNerve() == &TNerveYumboFreeze::theNerve()
+	    || mSpine->getLatestNerve() == &TNerveSmallEnemyDie::theNerve())
 		onHitFlag(HIT_FLAG_UNK2);
 	else
 		offHitFlag(HIT_FLAG_UNK2);
