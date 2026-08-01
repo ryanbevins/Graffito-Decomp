@@ -905,9 +905,12 @@ void TFerrisWheel::control()
 		TMapObjBase* gondola = unk13C[i];
 		MtxPtr mtx = getModel()->getAnmMtx(i + 1);
 		PSMTXCopy(mtx, gondola->getModel()->mNodeMatrices[0]);
-		gondola->mPosition.x = mtx[0][3];
-		gondola->mPosition.y = mtx[1][3] + gondola->mYOffset;
-		gondola->mPosition.z = mtx[2][3];
+		f32 x = mtx[0][3];
+		f32 y = mtx[1][3] + gondola->mYOffset;
+		f32 z = mtx[2][3];
+		gondola->mPosition.x = x;
+		gondola->mPosition.y = y;
+		gondola->mPosition.z = z;
 	}
 }
 
