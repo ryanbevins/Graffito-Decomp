@@ -897,8 +897,8 @@ void TFerrisWheel::control()
 		}
 	}
 
-	f32 speed = unk140;
 	f32 frame = mMActor->getFrameCtrl(0)->getFrame();
+	f32 speed = unk140;
 	mMActor->getFrameCtrl(0)->setFrame(speed + frame);
 
 	for (int i = 0; i < unk138; ++i) {
