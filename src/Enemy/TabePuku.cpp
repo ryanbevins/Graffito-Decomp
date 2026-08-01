@@ -1,4 +1,6 @@
+#define JGEOMETRY_ROTATION3_SETQUAT_OUT_OF_LINE
 #include <Enemy/TabePuku.hpp>
+#undef JGEOMETRY_ROTATION3_SETQUAT_OUT_OF_LINE
 #include <Enemy/Graph.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>

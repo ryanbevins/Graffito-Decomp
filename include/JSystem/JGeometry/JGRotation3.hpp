@@ -145,7 +145,7 @@ public:
 		this->ref(2, 2) = fVar432.z;
 	}
 	void setQuat(const JGeometry::TQuat4<f32>& qt)
-#ifdef JGEOMETRY_LIMITKOOPAJR_ROTATION3_SETQUAT_OUT_OF_LINE
+#ifdef JGEOMETRY_ROTATION3_SETQUAT_OUT_OF_LINE
 	    ;
 #else
 	{

@@ -1,6 +1,6 @@
-#define JGEOMETRY_LIMITKOOPAJR_ROTATION3_SETQUAT_OUT_OF_LINE
+#define JGEOMETRY_ROTATION3_SETQUAT_OUT_OF_LINE
 #include <Enemy/LimitKoopaJr.hpp>
-#undef JGEOMETRY_LIMITKOOPAJR_ROTATION3_SETQUAT_OUT_OF_LINE
+#undef JGEOMETRY_ROTATION3_SETQUAT_OUT_OF_LINE
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
 #include <Player/MarioAccess.hpp>
