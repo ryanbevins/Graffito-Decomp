@@ -608,8 +608,7 @@ static void evIsMapEventFinishedAll(TSpcTypedInterp<TEventWatcher>* interp,
                                     u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
-	TSpcSlice eventSlice = interp->pop();
-	TMapEvent* event     = get_name_ref<TMapEvent>(eventSlice);
+	TMapEvent* event = get_name_ref<TMapEvent>(interp->pop());
 	interp->push(event->isFinishedAll());
 }
 
