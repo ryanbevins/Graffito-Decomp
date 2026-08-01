@@ -968,7 +968,8 @@ void THinokuri2::moveObject()
 
 	unk198 = MsWrap(unk198, -180.0f, 180.0f);
 
-	f32 prop = getSaveParam()->mSLBankLimit.get();
+	THino2Params* params = getSaveParam();
+	f32 prop = params->mSLBankLimit.get();
 	unk198   = MsClamp(unk198, -prop, prop);
 
 	// looks like symmetric_clamp but it isn't???
