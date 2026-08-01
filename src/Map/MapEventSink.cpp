@@ -346,9 +346,10 @@ void TMapEventSinkBianco::startControl()
 		v.x                      = 7170.0f;
 		v.y                      = 3675.0f;
 		v.z                      = -185.0f;
-		gpMarDirector->fireStartDemoCamera("bianco0_event0", nullptr, -1, 0.0f,
-		                                   true, nullptr, 0, nullptr,
-		                                   JDrama::TFlagT<u16>(0));
+		TMarDirector* director = gpMarDirector;
+		director->fireStartDemoCamera("bianco0_event0", nullptr, -1, 0.0f, true,
+		                              nullptr, 0, nullptr,
+		                              JDrama::TFlagT<u16>(0));
 	}
 }
 
