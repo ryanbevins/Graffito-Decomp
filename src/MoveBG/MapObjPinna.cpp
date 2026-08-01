@@ -456,25 +456,25 @@ void TShellCup::initMapObj()
 	TMapObjBase::initMapObj();
 
 	for (int i = 0; i < 6; ++i) {
-		TPinnaShell& shell = unk138[i];
-		shell.unk68        = 0;
-		shell.unk6C        = 0.0f;
-		shell.unk70        = 8.0f;
-		shell.unk74        = getModel()->getAnmMtx(i + 1);
-		shell.unk78        = getModel()->mModelData->getJointNodePointer(i + 1);
-		shell.unk7C        = (s32)((f32)rand() * (1.0f / 32768.0f) * 1200.0f);
-		shell.unk8C        = this;
+		unk138[i].unk68 = 0;
+		unk138[i].unk6C = 0.0f;
+		unk138[i].unk70 = 8.0f;
+		unk138[i].unk74 = getModel()->getAnmMtx(i + 1);
+		unk138[i].unk78 = getModel()->mModelData->getJointNodePointer(i + 1);
+		unk138[i].unk7C
+		    = (s32)((f32)rand() * (1.0f / 32768.0f) * 1200.0f);
+		unk138[i].unk8C = this;
 
-		TMapObjBase::joinToGroup("オブジェクトグループ", &shell);
+		TMapObjBase::joinToGroup("オブジェクトグループ", &unk138[i]);
 
-		shell.unk84 = new TMapCollisionMove;
-		shell.unk84->init("/mapObj/ShellCup", 0, this);
-		shell.unk84->setUp();
+		unk138[i].unk84 = new TMapCollisionMove;
+		unk138[i].unk84->init("/mapObj/ShellCup", 0, this);
+		unk138[i].unk84->setUp();
 
-		shell.unk88 = new TDamageObj("ダメージオブジェ");
-		shell.unk88->mScaling.set(2.0f, 1.2f, 2.0f);
-		shell.unk88->init(0x10000036);
-		shell.unk88->onHitFlag(HIT_FLAG_NO_COLLISION);
+		unk138[i].unk88 = new TDamageObj("ダメージオブジェ");
+		unk138[i].unk88->mScaling.set(2.0f, 1.2f, 2.0f);
+		unk138[i].unk88->init(0x10000036);
+		unk138[i].unk88->onHitFlag(HIT_FLAG_NO_COLLISION);
 	}
 
 	TMapCollisionStatic* collision = new TMapCollisionStatic;
