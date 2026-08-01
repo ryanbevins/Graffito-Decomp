@@ -879,7 +879,7 @@ void TFerrisWheel::control()
 {
 	TMapObjBase::control();
 
-	if (mState == 2 && mLifeTimer <= 0) {
+	if (isState(2) && !isLifeTimerActive()) {
 		f32 target = SMSGetAnmFrameRate() * 0.25f;
 		if (unk140 > target) {
 			unk140 -= 0.015f;
