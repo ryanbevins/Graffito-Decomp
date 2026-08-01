@@ -352,20 +352,6 @@ void TBathtubGrip::perform(u32 flags, JDrama::TGraphics* graphics)
 BOOL TBathtubGrip::receiveMessage(THitActor* sender, u32 message)
 {
 	switch (message) {
-	case HIT_MESSAGE_TRAMPLE:
-		if (unk244->unk29A == 0
-		    && unk244->unk250 <= unk244->unk16C->trampleRelease.get()) {
-			unk244->unk250 = unk244->unk16C->trampleRelease.get();
-			unk244->unk258 = unk244->unk16C->trampleRecover.get();
-			unk244->unk25C = unk244->unk16C->trampleRecover.get();
-			unk244->unk254 = unk244->unk16C->hipdropRelease.get();
-		}
-		return true;
-
-	case HIT_MESSAGE_HIP_DROP:
-		unk244->hipdrop(sender->mPosition);
-		return true;
-
 	case HIT_MESSAGE_UNK3: {
 		if (unk248 != 0 || unk249 == 0)
 			return false;
@@ -428,6 +414,20 @@ BOOL TBathtubGrip::receiveMessage(THitActor* sender, u32 message)
 		startAnim(deadCount);
 		return true;
 	}
+
+	case HIT_MESSAGE_HIP_DROP:
+		unk244->hipdrop(sender->mPosition);
+		return true;
+
+	case HIT_MESSAGE_TRAMPLE:
+		if (unk244->unk29A == 0
+		    && unk244->unk250 <= unk244->unk16C->trampleRelease.get()) {
+			unk244->unk250 = unk244->unk16C->trampleRelease.get();
+			unk244->unk258 = unk244->unk16C->trampleRecover.get();
+			unk244->unk25C = unk244->unk16C->trampleRecover.get();
+			unk244->unk254 = unk244->unk16C->hipdropRelease.get();
+		}
+		return true;
 
 	default:
 		return false;
