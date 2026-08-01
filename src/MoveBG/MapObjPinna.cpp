@@ -479,7 +479,7 @@ void TShellCup::initMapObj()
 
 	TMapCollisionStatic* collision = new TMapCollisionStatic;
 	collision->init("/mapObj/ShellCup_rink", 2, this);
-	PSMTXCopy(getModel()->getBaseTRMtx(), collision->unk20);
+	PSMTXCopy(getModel()->getAnmMtx(0), collision->unk20);
 	collision->setUp();
 }
 
