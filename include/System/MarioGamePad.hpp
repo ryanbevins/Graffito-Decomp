@@ -145,7 +145,7 @@ public:
 	// fabricated
 	bool isSomethingPushed() const { return mResetFlag.check(1 << mPortNum); }
 
-	static u32 read();
+	static void read();
 	void onNeutralMarioKey();
 	void reset();
 	void updateMeaning();

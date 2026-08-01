@@ -162,11 +162,11 @@ finalize:
 
 void TMarioGamePad::onNeutralMarioKey() { _E4 = 0x3c; }
 
-u32 TMarioGamePad::read()
+void TMarioGamePad::read()
 {
 	JUTGamePad::read();
 
-	// TODO: I could not make the register check work properly here.
+	// TODO: resetPort occupies r1+8 instead of the target's r1+0xc.
 	s32 resetPort = 0;
 	if (checkReset(&resetPort)) {
 		handleReset(resetPort);
