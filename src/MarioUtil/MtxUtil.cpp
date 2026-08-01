@@ -13,12 +13,23 @@
 #include <dolphin/mtx.h>
 #include <printf.h>
 
+static inline f32 sqrtPositive(f32 mag)
+{
+	if (mag > 0.0f) {
+		f64 root = __frsqrte(mag);
+		volatile f32 result
+		    = 0.5 * root * (3.0 - mag * (root * root)) * mag;
+		return result;
+	}
+	return mag;
+}
+
 void MtxToQuat(MtxPtr m, Quaternion* quat)
 {
 	f32 q[4];
 	f32 s = m[0][0] + m[1][1] + m[2][2] + 1.0f;
 	if (s >= 1.0f) {
-		f32 root = 2.0f * MsSqrtf(s);
+		f32 root = 2.0f * sqrtPositive(s);
 		q[3]     = 0.25f * root;
 		q[0]     = (m[2][1] - m[1][2]) * (1.0f / root);
 		q[1]     = (m[0][2] - m[2][0]) * (1.0f / root);
@@ -34,7 +45,8 @@ void MtxToQuat(MtxPtr m, Quaternion* quat)
 		int j = (i + 1) % 3;
 		int k = (j + 1) % 3;
 
-		f32 root = 2.0f * MsSqrtf(1.0f + (m[i][i] - m[j][j] - m[k][k]));
+		f32 root
+		    = 2.0f * sqrtPositive(1.0f + (m[i][i] - m[j][j] - m[k][k]));
 		q[i]     = 0.25f * root;
 		q[j]     = (m[i][j] + m[j][i]) * (1.0f / root);
 		q[k]     = (m[i][k] + m[k][i]) * (1.0f / root);
