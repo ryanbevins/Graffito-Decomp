@@ -33,13 +33,11 @@ public:
 };
 
 #ifdef JDRAMA_NO_INLINE_VIEWOBJ_CTOR
-#pragma dont_inline on
 TViewObj::TViewObj(const char* name)
     : TNameRef(name)
     , unkC(0)
 {
 }
-#pragma dont_inline off
 #endif
 
 }; // namespace JDrama

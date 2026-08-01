@@ -34,7 +34,6 @@ struct TColor : public GXColor {
 };
 
 #ifdef JUTILITY_NO_INLINE_COLOR_SET
-#pragma dont_inline on
 void TColor::set(u8 cR, u8 cG, u8 cB, u8 cA)
 {
 	r = cR;
@@ -42,7 +41,6 @@ void TColor::set(u8 cR, u8 cG, u8 cB, u8 cA)
 	b = cB;
 	a = cA;
 }
-#pragma dont_inline off
 #endif
 
 } // namespace JUtility
