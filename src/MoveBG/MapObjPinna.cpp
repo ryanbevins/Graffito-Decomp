@@ -857,7 +857,7 @@ void TFerrisWheel::initMapObj()
 
 	unk138 = getModel()->mModelData->getJointNum() - 1;
 	unk13C = new TMapObjBase*[unk138];
-	for (int i = 0; i < unk138; ++i) {
+	for (u16 i = 0; i < unk138; ++i) {
 		unk13C[i] = TMapObjBaseManager::newAndRegisterObj(
 		    "FerrisGondola", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
 		    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
