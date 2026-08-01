@@ -356,13 +356,15 @@ BOOL TBathtubGrip::receiveMessage(THitActor* sender, u32 message)
 		if (unk248 != 0 || unk249 == 0)
 			return false;
 
-		unk138 = *gpMarioPos;
+		unk138.x = gpMarioPos->x;
+		unk138.y = gpMarioPos->y;
+		unk138.z = gpMarioPos->z;
 		if (gpMSound->gateCheck(0x3821)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x3821, (Vec*)&unk138, 0, nullptr, 0, 4);
 		}
 
-		u16 deadCount = unk244->getNumGripsDead();
+		s32 deadCount = (u16)unk244->getNumGripsDead();
 		if (deadCount == 4) {
 			unk244->startDemo();
 			return true;
@@ -403,7 +405,7 @@ BOOL TBathtubGrip::receiveMessage(THitActor* sender, u32 message)
 		unk25C->setBrk("stand_effect");
 		J3DFrameCtrl* ctrl = unk25C->getFrameCtrl(0);
 		if (ctrl != nullptr)
-			ctrl->setRate(6.0f * SMSGetAnmFrameRate());
+			ctrl->setRate(12.0f * SMSGetAnmFrameRate() * 0.5f);
 
 		unk248 = 1;
 		unk249 = 0;
@@ -419,15 +421,17 @@ BOOL TBathtubGrip::receiveMessage(THitActor* sender, u32 message)
 		unk244->hipdrop(sender->mPosition);
 		return true;
 
-	case HIT_MESSAGE_TRAMPLE:
-		if (unk244->unk29A == 0
-		    && unk244->unk250 <= unk244->unk16C->trampleRelease.get()) {
-			unk244->unk250 = unk244->unk16C->trampleRelease.get();
-			unk244->unk258 = unk244->unk16C->trampleRecover.get();
-			unk244->unk25C = unk244->unk16C->trampleRecover.get();
-			unk244->unk254 = unk244->unk16C->hipdropRelease.get();
+	case HIT_MESSAGE_TRAMPLE: {
+		TBathtub* bathtub = unk244;
+		if (bathtub->unk29A == 0
+		    && bathtub->unk250 <= bathtub->unk16C->trampleRelease.get()) {
+			bathtub->unk250 = bathtub->unk16C->trampleRelease.get();
+			bathtub->unk258 = bathtub->unk16C->trampleRecover.get();
+			bathtub->unk25C = bathtub->unk16C->trampleRecover.get();
+			bathtub->unk254 = bathtub->unk16C->hipdropRelease.get();
 		}
 		return true;
+	}
 
 	default:
 		return false;
