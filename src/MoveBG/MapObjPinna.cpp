@@ -494,24 +494,18 @@ void TShellCup::loadAfter()
 	unk49C = gpItemManager->newAndRegisterCoinReal();
 	unk4A0 = gpItemManager->newAndRegisterCoinReal();
 
-	if (unk498 != nullptr) {
-		unk498->setUnk134(2);
-		if (!TFlagManager::smInstance->getBlueCoinFlag(
-		        gpMarDirector->getCurrentMap(), unk498->getUnk134())) {
-			unk498->appear();
-			unk138[0].unk80 = unk498;
-		}
+	unk498->setUnk134(2);
+	if (!TFlagManager::smInstance->getBlueCoinFlag(
+	        gpMarDirector->getCurrentMap(), unk498->getUnk134())) {
+		unk498->makeObjAppeared();
+		unk138[0].unk80 = unk498;
 	}
-	if (unk49C != nullptr) {
-		unk49C->appear();
-		unk49C->onMapObjFlag(0x10000000);
-		unk138[2].unk80 = unk49C;
-	}
-	if (unk4A0 != nullptr) {
-		unk4A0->appear();
-		unk4A0->onMapObjFlag(0x10000000);
-		unk138[4].unk80 = unk4A0;
-	}
+	unk49C->makeObjAppeared();
+	unk49C->onMapObjFlag(0x10000000);
+	unk4A0->makeObjAppeared();
+	unk4A0->onMapObjFlag(0x10000000);
+	unk138[2].unk80 = unk49C;
+	unk138[4].unk80 = unk4A0;
 }
 
 void TShellCup::perform(u32 flags, JDrama::TGraphics* graphics)
