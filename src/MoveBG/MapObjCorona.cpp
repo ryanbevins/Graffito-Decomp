@@ -628,9 +628,8 @@ void TBathtub::tumble(f32 angle, f32 power)
 	f32 scaled     = power * 0.1f;
 	f32 cosine     = JMASCos(shortAngle);
 	f32 sine       = -JMASSin(shortAngle);
-	unk1E8.x += scaled * cosine;
-	unk1E8.y += 0.5f;
-	unk1E8.z += scaled * sine;
+	JGeometry::TVec3<f32> impulse(scaled * cosine, 0.5f, scaled * sine);
+	unk1E8.add(impulse);
 }
 
 MtxPtr TBathtub::getTakingMtx() { return getJointMtx(this, unk260); }
