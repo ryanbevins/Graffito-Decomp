@@ -184,7 +184,7 @@ void TPollutionLayer::stampModel(J3DModel* model)
 	f32 x = *(f32*)((u8*)model + 0x2C);
 	f32 z = *(f32*)((u8*)model + 0x4C);
 
-	if (x < unk38 || z < unk40 || !(x < unk3C) || !(z < unk44))
+	if (x < unk38 || z < unk40 || x >= unk3C || z >= unk44)
 		return;
 
 	gpPollution->unk70.pushModelStampTask((u8)mIndexInParent, model);
