@@ -1608,9 +1608,10 @@ void TBossPakkun::gotHipDropDamage()
 	unk16C = 0;
 
 	if (mHitPoints == 0) {
-		if (mSpine->getLatestNerve() == &TNerveBPPreDie::theNerve())
+		const TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
+		if (latest == &TNerveBPPreDie::theNerve())
 			return;
-		if (mSpine->getLatestNerve() == &TNerveBPDie::theNerve())
+		if (latest == &TNerveBPDie::theNerve())
 			return;
 
 		mSpine->setNext(&TNerveBPPreDie::theNerve());
