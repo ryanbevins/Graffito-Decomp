@@ -417,10 +417,13 @@ void TBeeHive::controlSound()
 	}
 
 	if (count != 0) {
-		f32 inv        = 1.0f / count;
-		mBeeSoundPos.x = x * inv;
-		mBeeSoundPos.y = y * inv;
-		mBeeSoundPos.z = z * inv;
+		f32 inv = 1.0f / count;
+		x *= inv;
+		y *= inv;
+		z *= inv;
+		mBeeSoundPos.x = x;
+		mBeeSoundPos.y = y;
+		mBeeSoundPos.z = z;
 		gpMSound->startBeeSe((Vec*)&mBeeSoundPos, count);
 	}
 }
