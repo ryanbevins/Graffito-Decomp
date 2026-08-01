@@ -366,15 +366,15 @@ void TCardLoad::setupScoreScreen()
 			if (SMS_isGetShine(local_90[i], j, false))
 				++shineCount;
 
-		shineCount &= 0xff;
-		iVar8 += shineCount;
+		u8 displayedShineCount = shineCount;
+		iVar8 += displayedShineCount;
 
 		for (int j = 0; j < 8; ++j) {
 			J2DPane* pane = unk584[i].unk10[j];
 			if (!pane)
 				continue;
 
-			if (j < shineCount)
+			if (j < displayedShineCount)
 				pane->show();
 			else
 				pane->hide();
