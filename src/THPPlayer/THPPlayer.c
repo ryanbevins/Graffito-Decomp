@@ -355,10 +355,10 @@ BOOL THPPlayerPrepare(s32 frame, u8 flag, s32 audioTrack)
 				return FALSE;
 
 			if (ActivePlayer.header.numFrames > frame) {
+				s32 dataOffset = ActivePlayer.header.offsetDataOffsets
+				                 + (frame - 1) * 4;
 				if (DVDReadPrio(&ActivePlayer.fileInfo, WorkBuffer, 0x20,
-				                ActivePlayer.header.offsetDataOffsets
-				                    + (frame - 1) * 4,
-				                2)
+				                dataOffset, 2)
 				    < 0)
 					return FALSE;
 
