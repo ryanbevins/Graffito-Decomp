@@ -1,3 +1,4 @@
+#define JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #include "MoveBG/Item.hpp"
@@ -34,6 +35,7 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 #undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#undef JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
 
 f32 THamuKuri::mCapGravityY         = 0.15f;
 f32 THamuKuri::mCapSpeed            = 12.0f;
