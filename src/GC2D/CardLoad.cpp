@@ -142,8 +142,10 @@ void TCardLoad::load(JSUMemoryInputStream& stream)
 		int key;
 		if (i < 9)
 			key = 's_01' + i;
-		else
-			key = 's_00' + ((i + 1) / 10) * 0x100 + (i + 1) % 10;
+		else {
+			key = 's_00' + ((i + 1) / 10) * 0x100;
+			key += (i + 1) % 10;
+		}
 
 		unkF8[i] = new TExPane(unk34, key);
 		unkF8[i]->getPane()->setAlpha(0);
@@ -154,8 +156,10 @@ void TCardLoad::load(JSUMemoryInputStream& stream)
 		int key;
 		if (i < 9)
 			key = 'p_01' + i;
-		else
-			key = 'p_00' + ((i + 1) / 10) * 0x100 + (i + 1) % 10;
+		else {
+			key = 'p_00' + ((i + 1) / 10) * 0x100;
+			key += (i + 1) % 10;
+		}
 
 		unk1D4[i] = new TExPane(unk34, key);
 
