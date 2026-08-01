@@ -550,6 +550,7 @@ void TBathtub::loadAfter()
 	SMS_LoadParticle("/scene/map/map/ms_kp_break_b.jpa", 0xF7);
 }
 
+#pragma dont_inline on
 void TBathtub::hipdrop(const JGeometry::TVec3<f32>& pos)
 {
 	if (unk29A != 0)
@@ -571,6 +572,7 @@ void TBathtub::hipdrop(const JGeometry::TVec3<f32>& pos)
 
 	getKoopa()->stagger(false);
 }
+#pragma dont_inline off
 
 void TBathtub::quake(const JGeometry::TVec3<f32>& pos)
 {
@@ -643,6 +645,12 @@ MtxPtr TBathtub::getKoopaJrMtxInDemo() { return getJointMtx(this, unk274); }
 BOOL TBathtub::receiveMessage(THitActor* sender, u32 message)
 {
 	switch (message) {
+	case HIT_MESSAGE_HIP_DROP:
+		hipdrop(*gpMarioPos);
+		return true;
+	case HIT_MESSAGE_UNK3:
+		hipdrop(*gpMarioPos);
+		return true;
 	case HIT_MESSAGE_TRAMPLE:
 		if (unk29A == 0 && unk250 <= getParamS32(unk16C, 0x2C)) {
 			unk250 = getParamS32(unk16C, 0x2C);
@@ -650,10 +658,6 @@ BOOL TBathtub::receiveMessage(THitActor* sender, u32 message)
 			unk25C = getParamS32(unk16C, 0x40);
 			unk254 = getParamS32(unk16C, 0x7C);
 		}
-		return true;
-	case HIT_MESSAGE_HIP_DROP:
-	case HIT_MESSAGE_UNK3:
-		hipdrop(*gpMarioPos);
 		return true;
 	default:
 		return false;
