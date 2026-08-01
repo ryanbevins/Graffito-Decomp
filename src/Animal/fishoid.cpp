@@ -159,7 +159,8 @@ void TRealoid::loadDefault(JSUMemoryInputStream& stream, const char* model_name,
 	    num, "\x83\x52\x83\x93\x83\x67\x83\x8d\x81\x5b\x83\x89");
 
 	TBoidLeader* leader = mBoidLeader;
-	leader->mGoalTarget = mPosition;
+	TPathNode goalTarget(mPosition);
+	leader->mGoalTarget = goalTarget;
 	mBoidLeader->setGraph(getTracer()->getGraph(), mPosition);
 
 	mActors = new TRealoidActor*[num];
