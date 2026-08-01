@@ -160,7 +160,7 @@ void TGessoManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 void TGessoManager::initSetEnemies()
 {
-	unk60 = new TGessoPolluteModelManager;
+	unk60 = new TGessoPolluteModelManager("ゲッソーモデル汚染");
 	unk60->init((TLiveActor*)unk18[0]);
 }
 
