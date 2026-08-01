@@ -44,8 +44,10 @@ void TSunMgr::load(JSUMemoryInputStream& stream)
 	stream.read(&a, 4);
 	stream.read(&unk20, 4);
 
-	*(u32*)&unk18 = (r << 8) | g;
-	*(u32*)&unk1C = (b << 8) | a;
+	u32 color1    = (r << 8) | g;
+	u32 color2    = (b << 8) | a;
+	*(u32*)&unk18 = color1;
+	*(u32*)&unk1C = color2;
 
 	if (JDrama::TNameRefGen::search<JDrama::TNameRef>("太陽モデル")) {
 		unk14 = 1;
