@@ -1608,10 +1608,9 @@ void TBossPakkun::gotHipDropDamage()
 	unk16C = 0;
 
 	if (mHitPoints == 0) {
-		const TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
-		if (latest == &TNerveBPPreDie::theNerve())
+		if (&TNerveBPPreDie::theNerve() == mSpine->getLatestNerve())
 			return;
-		if (latest == &TNerveBPDie::theNerve())
+		if (&TNerveBPDie::theNerve() == mSpine->getLatestNerve())
 			return;
 
 		mSpine->setNext(&TNerveBPPreDie::theNerve());
@@ -1632,13 +1631,13 @@ void TBossPakkun::gotHipDropDamage()
 	if (gpMarDirector->unk7D == 4) {
 		mSpine->reset();
 		mSpine->setNext(&TNerveBPTakeOff::theNerve());
-		mSpine->pushAfterCurrent(&TNerveBPGetUp::theNerve());
-		mSpine->pushAfterCurrent(&TNerveBPStompReact::theNerve());
+		mSpine->pushNerve(&TNerveBPGetUp::theNerve());
+		mSpine->pushNerve(&TNerveBPStompReact::theNerve());
 	} else {
 		mSpine->reset();
 		mSpine->setNext(&TNerveBPWait::theNerve());
-		mSpine->pushAfterCurrent(&TNerveBPGetUp::theNerve());
-		mSpine->pushAfterCurrent(&TNerveBPStompReact::theNerve());
+		mSpine->pushNerve(&TNerveBPGetUp::theNerve());
+		mSpine->pushNerve(&TNerveBPStompReact::theNerve());
 	}
 }
 
