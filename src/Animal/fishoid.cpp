@@ -164,9 +164,10 @@ void TRealoid::loadDefault(JSUMemoryInputStream& stream, const char* model_name,
 
 	mActors = new TRealoidActor*[num];
 
+	TMActorKeeper* keeper = mMActorKeeper;
 	JGeometry::TVec3<f32> pos = mPosition;
 	for (int i = 0; i < num; i++) {
-		MActor* mactor = mMActorKeeper->createMActor(model_name, 3);
+		MActor* mactor = keeper->createMActor(model_name, 3);
 		mBoidLeader->mBoidData[i].mPosition = pos;
 		mActors[i]                          = createRealoidActor(mactor);
 		pos.y += 10.0f;
