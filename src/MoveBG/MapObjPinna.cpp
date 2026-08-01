@@ -866,7 +866,7 @@ void TFerrisWheel::initMapObj()
 	unk13C = new TMapObjBase*[unk138];
 	for (int i = 0; i < unk138; ++i) {
 		unk13C[i] = makePinnaObj("FerrisGondola");
-		unk13C[i]->initMapObj();
+		unk13C[i]->appear();
 	}
 
 	if (gpMarDirector->getCurrentStage() == 2)
