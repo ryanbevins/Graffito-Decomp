@@ -230,10 +230,9 @@ public:
 	                             const JGeometry::TVec3<f32>*) const;
 	void emitAndRotateScale(long, unsigned char,
 	                        const JGeometry::TVec3<f32>*) const;
-	JPABaseEmitter* emitAndSRT(long, unsigned char,
-	                           const JGeometry::TVec3<f32>*,
-	                           const JGeometry::TVec3<f32>&,
-	                           const JGeometry::TVec3<f32>&);
+	void emitAndSRT(long, unsigned char, const JGeometry::TVec3<f32>*,
+	                const JGeometry::TVec3<f32>&,
+	                const JGeometry::TVec3<f32>&);
 	void emitColumnWater();
 	bool marioHipAttack() const;
 	bool marioHeadAttack() const;
