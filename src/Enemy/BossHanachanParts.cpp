@@ -57,8 +57,8 @@ static inline bool BHPartsIsCurBckDone(MActor* a)
 	if (fc == nullptr)
 		return result;
 	bool skip = result;
-	if (fc->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE) ? result : false) {
-	} else if (fc->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE) ? true : false) {
+	if (fc->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)) {
+	} else if (fc->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)) {
 	} else {
 		skip = false;
 	}
