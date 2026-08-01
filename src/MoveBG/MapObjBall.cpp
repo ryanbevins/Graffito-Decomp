@@ -1718,10 +1718,9 @@ void TBigWatermelon::startEvent()
 			TMapObjBase* obj = gpItemManager->makeObjAppear(
 			    gpMarioPos->x, gpMarioPos->y, gpMarioPos->z, 0x2000000E, true);
 			if (obj != nullptr) {
-				obj->mVelocity.x
-				    = (MsRandF() - 0.5f) * 20.0f;
-				obj->mVelocity.y = MsRandF() * 20.0f + 20.0f;
-				obj->mVelocity.z = (MsRandF() - 0.5f) * 20.0f;
+				obj->mVelocity.set((MsRandF() - 0.5f) * 20.0f,
+				                   MsRandF() * 20.0f + 20.0f,
+				                   (MsRandF() - 0.5f) * 20.0f);
 				obj->mLiveFlag &= ~0x10;
 				*(u32*)((char*)obj + 0x14C) = 0x3C0;
 			}
