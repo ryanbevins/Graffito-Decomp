@@ -233,8 +233,8 @@ void TRealoidActor::checkHitActors()
 	if (unk74 & 6)
 		return;
 
-	THitActor** p   = mCollisions;
 	THitActor** end = mCollisions + mColCount;
+	THitActor** p   = mCollisions;
 	for (; p != end; p++) {
 		switch ((s32)(*p)->mActorType) {
 		case (s32)0x80000001:
