@@ -485,17 +485,17 @@ void TTabePuku::bind()
 	hitActor->mDamageHeight = damageHeight;
 	hitActor->calcEntryRadius();
 
-	hitActor->updateTerrainCollsion();
-	hitActor->bind();
+	mHitActor->updateTerrainCollsion();
+	mHitActor->bind();
 
-	mLinearVelocity = hitActor->mMove;
-	mTouchedWall    = hitActor->mTouchedWall;
-	if (hitActor->mIsAirborne)
+	mLinearVelocity = mHitActor->mMove;
+	mTouchedWall    = mHitActor->mTouchedWall;
+	if (mHitActor->mIsAirborne)
 		onLiveFlag(LIVE_FLAG_AIRBORNE);
 	else
 		offLiveFlag(LIVE_FLAG_AIRBORNE);
-	mGroundPlane  = hitActor->mGroundPlane;
-	mGroundHeight = hitActor->mGroundHeight;
+	mGroundPlane  = mHitActor->mGroundPlane;
+	mGroundHeight = mHitActor->mGroundHeight;
 }
 
 void TTabePuku::control()
