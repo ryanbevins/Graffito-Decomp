@@ -226,6 +226,7 @@ void TFruitsBoatManager::createModelData()
 		createModelDataArray(entry);
 		break;
 	}
+	case 3:
 	default: {
 		static const TModelDataLoadEntry entry[] = {
 			{ "ShipDolpic4.bmd", 0x10210000, 0 },
