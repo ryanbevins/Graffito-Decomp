@@ -825,9 +825,9 @@ JKRMemArchive* TApplication::mountStageArchive()
 			void* archBlob
 			    = SMSLoadArchive(scenarioArcName, nullptr, 0, nullptr);
 
-			if (archBlob) {
+			if (void* mountData = archBlob) {
 				JKRMemArchive* arch = new JKRMemArchive;
-				arch->mountFixed(archBlob, MBF_0);
+				arch->mountFixed(mountData, MBF_0);
 				result = arch;
 			}
 
