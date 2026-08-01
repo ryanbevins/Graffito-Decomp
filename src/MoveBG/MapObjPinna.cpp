@@ -472,7 +472,6 @@ void TShellCup::initMapObj()
 		shell.unk84->setUp();
 
 		shell.unk88 = new TDamageObj("ダメージオブジェ");
-		shell.unk88->mPosition = mPosition;
 		shell.unk88->mScaling.set(2.0f, 1.2f, 2.0f);
 		shell.unk88->init(0x10000036);
 		shell.unk88->onHitFlag(HIT_FLAG_NO_COLLISION);
@@ -480,7 +479,7 @@ void TShellCup::initMapObj()
 
 	TMapCollisionStatic* collision = new TMapCollisionStatic;
 	collision->init("/mapObj/ShellCup_rink", 2, this);
-	collision->setMtx(getModel()->getBaseTRMtx());
+	PSMTXCopy(getModel()->getBaseTRMtx(), collision->unk20);
 	collision->setUp();
 }
 
