@@ -32,6 +32,17 @@ TMapObjSwitch* gpMapObjSwitch;
 
 u8 SMS_getShineIDofExStage(u8);
 
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
+static const char MtxCalcTypeNameBasic[]
+    = "MActorMtxCalcType_Basic クラシックスケールＯＮ";
+static const char MtxCalcTypeNameSoftimage[]
+    = "MActorMtxCalcType_Softimage クラシックスケールＯＦＦ";
+static const char MtxCalcTypeNameMotionBlend[]
+    = "MActorMtxCalcType_MotionBlend モーションブレンド";
+static const char MtxCalcTypeNameUser[]
+    = "MActorMtxCalcType_User ユーザー定義";
+
 f32 TManhole::mDownHeight            = 12.0f;
 f32 TManhole::mDownSpeed             = 1.5f;
 f32 TManhole::mVibrationSpeed        = 0.05f;
