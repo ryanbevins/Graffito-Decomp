@@ -351,7 +351,7 @@ void TCardLoad::setupScoreScreen()
 		unk750->show();
 	}
 
-	int iVar8      = 0;
+	u16 iVar8      = 0;
 	int local_90[] = { 2, 3, 4, 5, 6, 7, 8 };
 
 	for (int i = 0; i < 7; ++i) {
@@ -424,7 +424,7 @@ void TCardLoad::setupScoreScreen()
 		asdf += 1;
 	if (TFlagManager::getInstance()->getBool(0x10058))
 		asdf += 1;
-	u16 kek = iVar8 + asdf;
+	iVar8 += asdf;
 	if (asdf > 9)
 		asdf = 9;
 	const ResTIMG* pRVar4 = unkC8[asdf % 10]->getTexInfo();
@@ -437,7 +437,7 @@ void TCardLoad::setupScoreScreen()
 	unk2C->search('st_7')->setAlpha(255);
 	if (SMS_isGetShine(1, 0, true)) {
 		unk2C->search('sh7a')->show();
-		kek += 1;
+		iVar8 += 1;
 	} else {
 		unk2C->search('sh7a')->hide();
 	}
@@ -464,7 +464,7 @@ void TCardLoad::setupScoreScreen()
 		    ->changeTexture(unkC8[thing]->getTexInfo(), 0);
 	}
 
-	int asdf2 = TFlagManager::getInstance()->getFlag(0x40000) - kek;
+	int asdf2 = TFlagManager::getInstance()->getFlag(0x40000) - iVar8;
 	if (asdf2 > 100)
 		asdf2 = 99;
 	if (asdf2 < 0)
