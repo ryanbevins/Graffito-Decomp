@@ -599,8 +599,7 @@ static void evStartOpenModelGate(TSpcTypedInterp<TEventWatcher>* interp,
                                  u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
-	TSpcSlice gateSlice = interp->pop();
-	TModelGate* gate    = get_name_ref<TModelGate>(gateSlice);
+	TModelGate* gate = get_name_ref<TModelGate>(interp->pop());
 	gate->startOpen();
 	interp->push();
 }
