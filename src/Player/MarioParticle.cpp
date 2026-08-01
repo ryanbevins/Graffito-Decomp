@@ -323,7 +323,10 @@ void TWarpInCallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* particle
 	f32 x           = particle->unk14.x;
 	f32 y           = particle->unk14.y;
 	f32 z           = particle->unk14.z;
-	f32 randomScale = 1.0f + (s32)(((u32)particle >> 2) & 0x3F) * 0.0625f;
+	s32 randomBits  = ((u32)particle >> 2) & 0x3F;
+	f32 randomScale = randomBits;
+	randomScale *= 0.0625f;
+	randomScale += 1.0f;
 	f32 marioScale  = mario->unk468;
 
 	JGeometry::TVec3<f32> dir
