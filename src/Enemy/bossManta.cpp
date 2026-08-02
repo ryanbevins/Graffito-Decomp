@@ -831,7 +831,8 @@ void TBossMantaManager::TMantaBattleState::update()
 	switch (mState) {
 	case 0:
 		if (TFlagManager::smInstance->getBool(0x50007)) {
-			gpMarDirector->fireStartDemoCamera(
+			TMarDirector* director = gpMarDirector;
+			director->fireStartDemoCamera(
 			    "sirena_manta", nullptr, -1, 0.0f, true, nullptr, 0,
 			    nullptr, JDrama::TFlagT<u16>(0));
 			TBossManta* manta = (TBossManta*)mManager->getObj(0);
