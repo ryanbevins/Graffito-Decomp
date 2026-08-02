@@ -215,7 +215,8 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 			if (gpApplication.mCurrArea.unk0 == 5) {
 				self->unk2A0 = self->mPosition;
 				self->unk2A0.y = 0.0f;
-				gpMarDirector->fireStartDemoCamera(
+				TMarDirector* director = gpMarDirector;
+				director->fireStartDemoCamera(
 				    "tyorocam_pinna", &self->unk2A0, -1, self->mRotation.y,
 				    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
 			} else {
