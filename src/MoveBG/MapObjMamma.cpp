@@ -1318,11 +1318,12 @@ void TSandBird::control()
 		}
 	}
 
+	CPolarSubCamera* camera = gpCamera;
 	bool camActive;
-	if (gpCamera->isSimpleDemoCamera())
+	if (camera->isSimpleDemoCamera())
 		camActive = true;
 	else
-		camActive = gpCamera->mMode == 0x49 ? true : false;
+		camActive = camera->mMode == 0x49 ? true : false;
 
 	bool skipBalloon;
 	if (camActive)
