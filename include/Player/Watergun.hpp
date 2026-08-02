@@ -202,7 +202,7 @@ public:
 	// Fabricated
 	void updateUnk1C88(s32 emittedWater)
 	{
-		mIsEmitWater = emittedWater != 0;
+		mIsEmitWater = emittedWater;
 
 		TNozzleBase* nozzle = getCurrentNozzle();
 		u32 current         = (u32)unk1C88;
@@ -248,7 +248,7 @@ public:
 	/* 0x1C80 */ s32 mCurrentWater;
 	/* 0x1C84 */ u8 mCurrentNozzle;
 	/* 0x1C85 */ u8 mSecondNozzle;
-	/* 0x1C86 */ bool mIsEmitWater;
+	/* 0x1C86 */ u8 mIsEmitWater;
 	/* 0x1C87 */ u8 unk1C87;
 	/* 0x1C88 */ f32 unk1C88;
 	/* 0x1C8C */ u8 mCurrentPressure;
