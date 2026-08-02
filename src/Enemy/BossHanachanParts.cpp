@@ -51,20 +51,20 @@ template s16 CLBPalFrame<s16>(s16);
 static inline bool BHPartsIsCurBckDone(MActor* a)
 {
 	bool result = true;
-	if (a == nullptr)
-		return result;
-	J3DFrameCtrl* fc = a->getFrameCtrl(0);
-	if (fc == nullptr)
-		return result;
-	bool skip = result;
-	if (fc->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)) {
-	} else if (fc->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)) {
-	} else {
-		skip = false;
-	}
-	if (!skip) {
-		if (!(fc->getFrame() + 0.1f >= (f32)fc->getEnd()))
-			result = false;
+	if (a != nullptr) {
+		J3DFrameCtrl* fc = a->getFrameCtrl(0);
+		if (fc != nullptr) {
+			bool skip = true;
+			if (fc->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)) {
+			} else if (fc->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)) {
+			} else {
+				skip = false;
+			}
+			if (!skip) {
+				if (!(fc->getFrame() + 0.1f >= (f32)fc->getEnd()))
+					result = false;
+			}
+		}
 	}
 	return result;
 }
