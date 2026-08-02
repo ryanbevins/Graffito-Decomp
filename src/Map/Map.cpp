@@ -132,9 +132,10 @@ static void initStageCommon()
 	const char* mapGroupName = "マップグループ";
 	root->searchF(JDrama::TNameRef::calcKeyCode(mapGroupName), mapGroupName);
 
-	u8 map = gpMarDirector->mMap;
-	if (map == 4 || map == 3 || map == 13 || map == 9 || map == 5 || map == 6
-	    || map == 20 || map <= 1) {
+	if (gpMarDirector->mMap == 4 || gpMarDirector->mMap == 3
+	    || gpMarDirector->mMap == 13 || gpMarDirector->mMap == 9
+	    || gpMarDirector->mMap == 5 || gpMarDirector->mMap == 6
+	    || gpMarDirector->mMap == 20 || gpMarDirector->mMap <= 1) {
 		TMapStaticObj* waveFar = new TMapStaticObj("波（遠景）");
 		waveFar->init("sea");
 
@@ -153,7 +154,7 @@ static void initStageCommon()
 		indirectGroup->getChildren().push_back(waterIndirect);
 	}
 
-	if (map == 2) {
+	if (gpMarDirector->mMap == 2) {
 		TMapObjSeaIndirect* waterIndirect
 		    = new TMapObjSeaIndirect("水中カメラインダイレクト");
 		waterIndirect->init();
