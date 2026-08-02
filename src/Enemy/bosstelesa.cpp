@@ -707,9 +707,10 @@ void TBossTelesa::reset()
 	setHitParams(params->mSLAttackRadius.get(), params->mSLAttackHeight.get(),
 	             params->mSLDamageRadius.get(), params->mSLDamageHeight.get());
 
-	gpMarDirector->fireStartDemoCamera("btelesa_roll_camera", nullptr, -1,
-	                                    0.0f, true, nullptr, 0, nullptr,
-	                                    JDrama::TFlagT<u16>(0));
+	TMarDirector* director = gpMarDirector;
+	director->fireStartDemoCamera("btelesa_roll_camera", nullptr, -1, 0.0f,
+	                              true, nullptr, 0, nullptr,
+	                              JDrama::TFlagT<u16>(0));
 }
 
 void TBossTelesa::forceHide()
