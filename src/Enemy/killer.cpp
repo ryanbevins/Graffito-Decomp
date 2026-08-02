@@ -209,9 +209,8 @@ void TFlyEnemy::bind()
 void TFlyEnemy::calcChaseParam()
 {
 	JGeometry::TVec3<f32> diff;
-	diff.x = gpMarioPos->x - mPosition.x;
-	diff.y = gpMarioPos->y - mPosition.y;
-	diff.z = gpMarioPos->z - mPosition.z;
+	diff.set(gpMarioPos->x - mPosition.x, gpMarioPos->y - mPosition.y,
+	         gpMarioPos->z - mPosition.z);
 	diff.x *= 1.1f;
 	diff.z *= 1.1f;
 
