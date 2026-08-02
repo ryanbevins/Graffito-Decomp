@@ -496,11 +496,12 @@ void TBombHei::genEventCoin()
 	if (!unk1A4)
 		return;
 
-	bool canGenerate = false;
+	bool canGenerate;
 	if (mgr->unk60 < 0x14) {
 		mgr->unk60++;
 		canGenerate = true;
-	}
+	} else
+		canGenerate = false;
 	if (!canGenerate)
 		return;
 
