@@ -233,7 +233,8 @@ void TAmiKing::moveObject()
 			offLiveFlag(LIVE_FLAG_UNK10);
 			mMActor->setBck("amiking_flying1_start");
 			setAnmSound(nullptr);
-			gpMarDirector->fireStartDemoCamera(
+			TMarDirector* director = gpMarDirector;
+			director->fireStartDemoCamera(
 			    "観覧ボス撃沈カメラ", &mPosition, -1, 0.0f, true, nullptr, 0,
 			    nullptr, JDrama::TFlagT<u16>(0));
 		}
