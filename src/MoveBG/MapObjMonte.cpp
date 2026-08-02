@@ -146,9 +146,12 @@ void TFluffManager::load(JSUMemoryInputStream& stream)
 	f32 windZ = mtx[2][3]
 	            + (mtx[2][0] * unk148.x + mtx[2][1] * unk148.y
 	               + mtx[2][2] * unk148.z);
-	unk148.x = windX * windScale;
-	unk148.y = windY * windScale;
-	unk148.z = windZ * windScale;
+	unk148.x = windX;
+	unk148.y = windY;
+	unk148.z = windZ;
+	unk148.x *= windScale;
+	unk148.y *= windScale;
+	unk148.z *= windScale;
 }
 
 void TFluffManager::loadAfter()
