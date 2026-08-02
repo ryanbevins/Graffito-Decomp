@@ -2018,9 +2018,7 @@ void TBEelTears::init(TLiveManager* manager)
 	unk16C = new TBossEelTearsRecoverCollision(mtx, cTearsRecoverCollisionName);
 	unk16C->initCollision();
 
-	JGadget::TList_pointer_void* list
-	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
-	list->insert(list->end(), unk16C);
+	group->getChildren().push_back(unk16C);
 	unk16C->onHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
