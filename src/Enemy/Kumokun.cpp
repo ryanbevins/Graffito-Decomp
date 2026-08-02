@@ -496,7 +496,7 @@ void TKumokun::bindOnFlying()
 
 void TKumokun::moveObject()
 {
-	if (unk1D0 > 0)
+	if (getWaterHitCooldown() > 0)
 		unk1D0 -= 1;
 
 	updateAnimation();

@@ -54,6 +54,7 @@ public:
 	void initCollision();
 	void calcShadowPos();
 	void behaveHitWater();
+	int getWaterHitCooldown() const { return unk1D0; }
 	bool behaveHitPunch();
 	bool behaveHitTrample();
 	bool behaveHitHipdrop();
