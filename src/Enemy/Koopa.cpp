@@ -1352,7 +1352,9 @@ TSpineEnemyParams* TEnemyManager::getSaveParam() const { return unk38; }
 DEFINE_NERVE(TNerveKoopaFall, TLiveActor)
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	self->changeAnm(2, 0, self->getSaveParam2()->fallSpeed.get());
+	TKoopaParams* params
+	    = (TKoopaParams*)((TEnemyManager*)self->mManager)->unk38;
+	self->changeAnm(2, 0, params->fallSpeed.get());
 	return FALSE;
 }
 
