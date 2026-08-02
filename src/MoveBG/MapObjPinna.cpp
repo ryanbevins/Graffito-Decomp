@@ -287,8 +287,9 @@ void TBalloonKoopaJr::load(JSUMemoryInputStream& stream)
 	SMS_LoadParticle("/scene/mapObj/balloonKoopaJrA.jpa", 0x5b);
 	SMS_LoadParticle("/scene/mapObj/balloonKoopaJrB.jpa", 0x5c);
 
-	u16 idx = getModel()->mModelData->getJointName()->getIndex("center");
-	setVecFromMtx(unk148, getModel()->getAnmMtx(idx));
+	u32 idx = getModel()->mModelData->getJointName()->getIndex("center");
+	MtxPtr centerMtx = getModel()->getAnmMtx(idx);
+	unk148.set(centerMtx[0][3], centerMtx[1][3], centerMtx[2][3]);
 }
 
 void TBalloonKoopaJr::kill()
