@@ -898,7 +898,10 @@ void TKoopa::setUpHitActors()
 			TKoopaFlame* flame = mFlameHitActors[i];
 			if (!(flame->unk8C < flame->unk88)) {
 				available = i;
-			} else if (flame->unk8C < 2.0f * prm->flameRadius.get()) {
+			} else if (flame->unk8C
+			           < 2.0f
+			                 * ((TKoopaParams*)((TEnemyManager*)mManager)->unk38)
+			                       ->flameRadius.get()) {
 				waiting = TRUE;
 			}
 		}
