@@ -12,6 +12,7 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JGadget/std-list.hpp>
 #include <Strategic/LiveActor.hpp>
+#include <Strategic/Strategy.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/FlagManager.hpp>
 #include <System/Particles.hpp>
@@ -398,18 +399,9 @@ void TModelGate::loadAfter()
 	mScaling.x = 1.0f;
 	mScaling.y = 1.0f;
 	mScaling.z = 1.0f;
-	{
-		JDrama::TNameRef* root
-		    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-		const char* groupName
-		    = "\x83\x7D\x83\x62\x83\x76\x83\x4F\x83\x8B\x81\x5B\x83\x76";
-		JDrama::TNameRef* group = root->searchF(
-		    JDrama::TNameRef::calcKeyCode(groupName), groupName);
-		JGadget::TList_pointer_void* list
-		    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
-		void* self = this;
-		list->insert(list->end(), self);
-	}
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("マップグループ");
+	group->getChildren().push_back(this);
 	{
 		Mtx tmp;
 		SMS_GetActorMtx(*this, tmp);
