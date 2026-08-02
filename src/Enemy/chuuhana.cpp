@@ -566,8 +566,10 @@ bool TChuuHana::isCollidMove(THitActor* actor)
 	if (actor->isActorType(0x10000016)) {
 		TChuuHana* other = (TChuuHana*)actor;
 
-		if (other->mSpine->getCurrentNerve()
-		    == &TNerveChuuHanaRoll::theNerve()) {
+		if ((other->mSpine->getCurrentNerve()
+		     == &TNerveChuuHanaRoll::theNerve())
+		    ? true
+		    : false) {
 			if (mSpine->getCurrentNerve()
 			    == &TNerveChuuHanaWalkOnPanel::theNerve())
 				mSpine->pushNerve(&TNerveChuuHanaRoll::theNerve());
