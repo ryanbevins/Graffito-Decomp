@@ -616,7 +616,8 @@ void TSandCastle::waitBeforeExplode()
 	mLifeTimer = unk148;
 
 	JDrama::TFlagT<u16> flag(0);
-	gpMarDirector->fireStartDemoCamera("mamma1_sandcastle", nullptr, -1,
+	TMarDirector* director = gpMarDirector;
+	director->fireStartDemoCamera("mamma1_sandcastle", nullptr, -1,
 	                                   0.0f, true, SandCastleCallBack, 0,
 	                                   nullptr, flag);
 	unk15C = 1;
