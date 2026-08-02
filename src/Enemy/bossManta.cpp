@@ -574,7 +574,8 @@ void TBossManta::initNthGeneration(int generation)
 	    = { 10.0f, 5.0f, 1.0f, 0.42f, 0.42f, 0.42f };
 
 	mGeneration = generation;
-	mScaling.set(sScale[mGeneration], yScale[mGeneration], sScale[mGeneration]);
+	mScaling.x = mScaling.z = sScale[mGeneration];
+	mScaling.y              = yScale[mGeneration];
 	mWaterHitCount = 0;
 	unk150         = 0.0f;
 	unk154         = 49;
