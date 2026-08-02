@@ -219,7 +219,8 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 				    "tyorocam_pinna", &self->unk2A0, -1, self->mRotation.y,
 				    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
 			} else {
-				gpMarDirector->fireStartDemoCamera(
+				TMarDirector* director = gpMarDirector;
+				director->fireStartDemoCamera(
 				    "tyorocam_mare", nullptr, -1, 0.0f, true, nullptr, 0,
 				    nullptr, JDrama::TFlagT<u16>(0));
 			}
