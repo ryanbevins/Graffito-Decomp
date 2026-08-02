@@ -1058,8 +1058,9 @@ void TBathtub::startDemo()
 
 	*(u16*)((u8*)gpMarioOriginal + 0x96) = 0x7FFF;
 
+	TMarDirector* director = gpMarDirector;
 	JDrama::TFlagT<u16> flags(0);
-	gpMarDirector->fireStartDemoCamera(
+	director->fireStartDemoCamera(
 	    "koopa_last2", &mPosition, -1, mRotation.y, false, nullptr, 0,
 	    nullptr, flags);
 	gpMarDirector->fireStreamingMovie(14);
