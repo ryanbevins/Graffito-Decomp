@@ -156,10 +156,10 @@ void TAmiKing::calcRootMatrix()
 	                                            (MtxPtr)getModel()->mNodeMatrices,
 	                                            1, this);
 
-	MtxPtr mtx = getModel()->getAnmMtx(6);
-	setVecFromMtx(unk13C, mtx);
-
 	if (unk138 == 0) {
+		MtxPtr mtx = getModel()->getAnmMtx(6);
+		setVecFromMtx(unk13C, mtx);
+
 		Mtx rot;
 		Vec offset = { 0.0f, 0.0f, 200.0f };
 		MsMtxSetRotRPH(rot, 0.0f, mRotation.y, 0.0f);
