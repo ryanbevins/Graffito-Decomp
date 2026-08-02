@@ -450,10 +450,9 @@ void TLimitKoopa::startHipDrop()
 	JGeometry::TVec3<f32> marioVec = *gpMarioPos;
 	marioVec.y                     = mGroundHeight;
 
-	JGeometry::TVec3<f32> diff = marioVec;
-	diff.sub(mPosition);
-	JGeometry::TVec3<f32> target = mPosition;
-	target.add(diff);
+	JGeometry::TVec3<f32> target = marioVec;
+	target.sub(mPosition);
+	target.add(mPosition);
 
 	vel = calcVelocityToJumpToY(target, vel.y,
 	                            getSaveParam2()->mHipDropGravityY.get());
