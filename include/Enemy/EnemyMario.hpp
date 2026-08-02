@@ -44,6 +44,7 @@ public:
 	u16& doingRef() { return *(u16*)(unk4290 + 2); }
 	u16 doing() const { return *(const u16*)(unk4290 + 2); }
 	u16 goalFlag() const { return *(const u16*)(unk4290 + 0); }
+	f32 distToMario() const { return *(const f32*)(unk4290 + 0xc); }
 	TEMario*& ownerRef() { return *(TEMario**)(unk4290 + 0x10); }
 	TEMario* owner() const { return *(TEMario* const*)(unk4290 + 0x10); }
 	f32 waterRange() const { return *(const f32*)(unk4290 + 0x20); }

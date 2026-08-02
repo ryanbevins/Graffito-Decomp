@@ -1787,12 +1787,12 @@ void TEnemyMario::emWaiting()
 	if (diff < -0x1555 || diff > 0x1555)
 		setEMStick(this, emTargetYaw(this), 0.2f);
 
-	if (emDistToMario(this) < 800.0f) {
+	if (distToMario() < 800.0f) {
 		emTimer(this) = 0;
 		emDoing(this) = 1;
 	}
 
-	if (emDistToMario(this) > 1500.0f || rand() < 0x88) {
+	if (distToMario() > 1500.0f || rand() < 0x88) {
 		resetOwnerGraph(this);
 		emTimer(this) = 0;
 		emDoing(this) = 6;
