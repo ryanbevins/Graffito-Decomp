@@ -408,13 +408,14 @@ void TNpcEvent::reviveOneSunflower()
 	char buf[0x40];
 	snprintf(buf, 0x40, "%s%d", sViewObjName, idx);
 	JDrama::TActor* actor = JDrama::TNameRefGen::search<JDrama::TActor>(buf);
+	TMarDirector* director = gpMarDirector;
 	mDownSunflowerNum -= 1;
 
 	JGeometry::TVec3<f32>* pos
 	    = (JGeometry::TVec3<f32>*)((u8*)actor + 0x1B8);
-	gpMarDirector->fireStartDemoCamera(sCameraNames[idx], pos, -1, 0.0f,
-	                                   true, &ReviveSunflowerCallBack, 0,
-	                                   actor, JDrama::TFlagT<u16>(0));
+	director->fireStartDemoCamera(sCameraNames[idx], pos, -1, 0.0f, true,
+	                              &ReviveSunflowerCallBack, 0, actor,
+	                              JDrama::TFlagT<u16>(0));
 
 	if (mDownSunflowerNum == 0) {
 		gpItemManager->makeShineAppearWithDemo(
