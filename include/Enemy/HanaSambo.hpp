@@ -235,7 +235,6 @@ class THanaSamboHead : public THitActor {
 public:
 	THanaSamboHead(const char* name)
 	    : THitActor(name)
-	    , mOwner(nullptr)
 	{
 	}
 
