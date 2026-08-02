@@ -227,9 +227,11 @@ void THideObjPictureTwin::afterFinishedAnim()
 		}
 		if (gpMSound->gateCheck(0x4843))
 			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4843, 0, 0, 0);
-		gpMarDirector->fireStartDemoCamera(unk178, (JGeometry::TVec3<f32>*)&obj->mPosition,
-		                                   -1, 0.0f, true, 0, 0, 0,
-		                                   JDrama::TFlagT<u16>(0));
+		TMarDirector* director = gpMarDirector;
+		director->fireStartDemoCamera(unk178,
+		                              (JGeometry::TVec3<f32>*)&obj->mPosition, -1,
+		                              0.0f, true, 0, 0, 0,
+		                              JDrama::TFlagT<u16>(0));
 	}
 	mState = 3;
 }
