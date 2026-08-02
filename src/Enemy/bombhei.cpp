@@ -492,13 +492,17 @@ void TBombHei::setWalkAnm() { setBckAnm(4); }
 
 void TBombHei::genEventCoin()
 {
+	TBombHeiManager* mgr = (TBombHeiManager*)mManager;
 	if (!unk1A4)
 		return;
 
-	TBombHeiManager* mgr = (TBombHeiManager*)mManager;
-	if (mgr->unk60 >= 0x14)
+	bool canGenerate = false;
+	if (mgr->unk60 < 0x14) {
+		mgr->unk60++;
+		canGenerate = true;
+	}
+	if (!canGenerate)
 		return;
-	mgr->unk60++;
 
 	if (TMapObjBase* obj = gpItemManager->makeObjAppear(
 	        mPosition.x, mPosition.y, mPosition.z, 0x2000000e, true)) {

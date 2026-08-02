@@ -37,7 +37,7 @@ public:
 	virtual TSmallEnemy* createEnemyInstance();
 
 public:
-	/* 0x60 */ u32 unk60;
+	/* 0x60 */ s32 unk60;
 };
 
 // ============= instance =============
