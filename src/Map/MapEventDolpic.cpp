@@ -159,7 +159,8 @@ bool TDolpicEventRiccoMammaGate::watch()
 
 		if (unk2C == 0x50001) {
 			JDrama::TFlagT<u16> flag(0);
-			gpMarDirector->fireStartDemoCamera("マニ屋上げデモカメラ", &mPos, -1,
+			TMarDirector* director = gpMarDirector;
+			director->fireStartDemoCamera("マニ屋上げデモカメラ", &mPos, -1,
 			                                   0.0f, false, nullptr, 0, nullptr,
 			                                   flag);
 			gpMarioParticleManager->emit(0x66, &mPos, 0, this);
