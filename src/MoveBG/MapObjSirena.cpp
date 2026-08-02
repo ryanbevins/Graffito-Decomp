@@ -603,7 +603,7 @@ void TDonchou::calcRootMatrix()
 	mtxPtr[1][3] += unk140;
 
 	if (unk144 != nullptr && *((u8*)unk144 + 0x194)
-	    && unk148 != nullptr && *((u8*)unk148 + 0x194)) {
+	    && *((u8*)unk148 + 0x194)) {
 		unk13C = 1;
 	}
 	if (unk13C != 0) {
