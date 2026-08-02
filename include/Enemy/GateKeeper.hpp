@@ -84,10 +84,10 @@ public:
 
 class TGKHitObj : public THitActor {
 public:
-	TGKHitObj(const char* name)
+	TGKHitObj(TGateKeeperBase* owner, const char* name)
 	    : THitActor(name)
-	    , unk68(0)
-	    , unk6C(0)
+	    , unk68(owner)
+	    , unk6C(10)
 	    , unk70(0)
 	{
 	}

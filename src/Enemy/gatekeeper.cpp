@@ -1071,10 +1071,7 @@ void TBiancoGateKeeper::init(TLiveManager* manager)
 	initAnmSound();
 	(void)getBasNameTable();
 
-	unk174        = new TGKHitObj(headHitName);
-	unk174->unk68 = this;
-	unk174->unk6C = 10;
-	unk174->unk70 = 0;
+	unk174 = new TGKHitObj(this, headHitName);
 	unk174->initHitActor(0x10000022, 1, 0x80000000, 0.0f, 0.0f, 150.0f,
 	                      200.0f);
 	unk174->offHitFlag(HIT_FLAG_NO_COLLISION);
