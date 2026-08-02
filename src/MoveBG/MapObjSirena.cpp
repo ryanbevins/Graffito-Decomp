@@ -618,11 +618,11 @@ void TDonchou::calcRootMatrix()
 					MSoundSESystem::MSoundSE::startSoundActor(0x4857, mPosition,
 					                                          0, nullptr, 0, 4);
 				mMActor->setBck("donchou");
+				TMarDirector* director = gpMarDirector;
 				JDrama::TFlagT<u16> flag;
 				flag = 0;
-				gpMarDirector->fireStartDemoCamera("どん帳カメラ", &mPosition,
-				                                   -1, 0.0f, true, nullptr, 0,
-				                                   nullptr, flag);
+				director->fireStartDemoCamera("どん帳カメラ", &mPosition, -1,
+				                              0.0f, true, nullptr, 0, nullptr, flag);
 				J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
 				*((f32*)fc + 3) *= 0.5f;
 			}
