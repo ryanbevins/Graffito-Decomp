@@ -20,6 +20,7 @@
 #include <Player/Watergun.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/Spine.hpp>
+#include <Strategic/Strategy.hpp>
 #include <System/Particles.hpp>
 #include <dolphin/mtx.h>
 #include <math.h>
@@ -861,15 +862,9 @@ void TPopo::init(TLiveManager* manager)
 
 	unk188     = 0.0f;
 	mCollision = new TPopoCollision("ポポコリジョン");
-	JDrama::TNameRef* root
-	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-	const char* groupName = "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76";
-	JDrama::TNameRef* group
-	    = root->searchF(JDrama::TNameRef::calcKeyCode(groupName), groupName);
-	JGadget::TList_pointer_void* list
-	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
-	void* collision = mCollision;
-	list->insert(list->end(), collision);
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	group->getChildren().push_back(mCollision);
 	mCollision->initHitActor(0x1000000d, 2, -0x68000000, 80.0f, 80.0f,
 	                         80.0f, 80.0f);
 	mCollision->onHitFlag(HIT_FLAG_NO_COLLISION);
