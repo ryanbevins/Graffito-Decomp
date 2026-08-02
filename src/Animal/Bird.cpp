@@ -961,10 +961,9 @@ void TAnimalBird::load(JSUMemoryInputStream& stream)
 
 	const GXColorS10* color
 	    = &cColorTable[*(int*)((char*)this + 0x180)];
-	J3DModel* model = getModel();
 	u16 matIdx
-	    = (u16)model->getModelData()->getMaterialName()->getIndex(cMatName);
-	SMS_InitPacket_OneTevColor(model, matIdx, GX_TEVREG1, color);
+	    = (u16)getModel()->getModelData()->getMaterialName()->getIndex(cMatName);
+	SMS_InitPacket_OneTevColor(getModel(), matIdx, GX_TEVREG1, color);
 }
 
 void TAnimalBird::init(TLiveManager* mgr)
