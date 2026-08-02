@@ -659,9 +659,8 @@ void TKoopaJr::checkNerveKillerLaunchNormal()
 
 void TKoopaJr::checkNerveKillerHit()
 {
-	TEnemyManager* manager = unk16C;
-	for (int i = 0; i < manager->getActiveObjNum(); ++i) {
-		TBathtubKiller* killer = (TBathtubKiller*)manager->getObj(i);
+	for (int i = 0; i < unk16C->getActiveObjNum(); ++i) {
+		TBathtubKiller* killer = (TBathtubKiller*)unk16C->getObj(i);
 		if (killer->unk21C == 1) {
 			mSpine->pushNerve(&TNerveKoopaJrYahoo::theNerve());
 			return;
