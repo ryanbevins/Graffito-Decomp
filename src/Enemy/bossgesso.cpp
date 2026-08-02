@@ -1909,14 +1909,17 @@ DEFINE_NERVE(TNerveBGDie, TLiveActor)
 			gpMarDirector->fireStartDemoCamera("bgeso_fall_camera3", nullptr,
 			                                   -1, 0.0f, true, nullptr, 0,
 			                                   nullptr, JDrama::TFlagT<u16>(0));
-		} else if (gpMarDirector->unk7D == 4) {
-			gpMarDirector->fireStartDemoCamera("bgeso_fall_camera2", nullptr,
-			                                   -1, 0.0f, true, nullptr, 0,
-			                                   nullptr, JDrama::TFlagT<u16>(0));
 		} else {
-			gpMarDirector->fireStartDemoCamera("bgeso_fall_camera", nullptr, -1,
-			                                   0.0f, true, nullptr, 0, nullptr,
-			                                   JDrama::TFlagT<u16>(0));
+			int isStage4 = gpMarDirector->unk7D == 4 ? 1 : 0;
+			if (!isStage4) {
+				gpMarDirector->fireStartDemoCamera(
+				    "bgeso_fall_camera2", nullptr, -1, 0.0f, true, nullptr, 0,
+				    nullptr, JDrama::TFlagT<u16>(0));
+			} else {
+				gpMarDirector->fireStartDemoCamera(
+				    "bgeso_fall_camera", nullptr, -1, 0.0f, true, nullptr, 0,
+				    nullptr, JDrama::TFlagT<u16>(0));
+			}
 		}
 
 		if (gpMarDirector->mMap == 3 || gpMarDirector->mMap == 59) {
