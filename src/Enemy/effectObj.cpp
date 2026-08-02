@@ -1,4 +1,6 @@
+#define JGEOMETRY_TVEC3_SCALE_OUT_OF_LINE
 #include <Enemy/EffectObj.hpp>
+#undef JGEOMETRY_TVEC3_SCALE_OUT_OF_LINE
 #include <Enemy/Conductor.hpp>
 #include <System/Particles.hpp>
 #include <System/EmitterViewObj.hpp>
