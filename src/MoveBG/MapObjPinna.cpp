@@ -214,7 +214,8 @@ void TAmiKing::moveObject()
 
 			TFerrisWheel* wheel
 			    = JDrama::TNameRefGen::search<TFerrisWheel>("FerrisWheel");
-			gpMarDirector->fireStartDemoCamera(
+			TMarDirector* director = gpMarDirector;
+			director->fireStartDemoCamera(
 			    "観覧車正常化カメラ", &wheel->mPosition, -1, 0.0f, true,
 			    TFerrisWheel::becomeCalmlyCallback, 0, wheel,
 			    JDrama::TFlagT<u16>(0));
