@@ -1326,7 +1326,9 @@ DEFINE_NERVE(TNerveKoopaGetShowered, TLiveActor)
 DEFINE_NERVE(TNerveKoopaStagger, TLiveActor)
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	self->changeAnm(9, 0, self->getSaveParam2()->staggerSpeed.get());
+	TKoopaParams* params
+	    = (TKoopaParams*)((TEnemyManager*)self->mManager)->unk38;
+	self->changeAnm(9, 0, params->staggerSpeed.get());
 	return self->mMActor->curAnmEndsNext(0, nullptr) ? TRUE : FALSE;
 }
 
