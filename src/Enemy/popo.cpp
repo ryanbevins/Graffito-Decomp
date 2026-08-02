@@ -576,10 +576,9 @@ void TPopo::attackToMario()
 
 	JGeometry::TVec3<f32> away;
 	JGeometry::TVec3<f32> push;
-	push.zero();
-	away.x = mPosition.x - gpMarioPos->x;
-	away.y = mPosition.y - gpMarioPos->y;
-	away.z = mPosition.z - gpMarioPos->z;
+	push.set(0.0f, 0.0f, 0.0f);
+	away.set(mPosition.x - gpMarioPos->x, mPosition.y - gpMarioPos->y,
+	         mPosition.z - gpMarioPos->z);
 	MsVECNormalize(&away, &away);
 
 	mVelocity.x = away.x;
