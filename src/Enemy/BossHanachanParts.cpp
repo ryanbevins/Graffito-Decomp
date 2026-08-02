@@ -456,12 +456,16 @@ const TLiveActor* TBossHanachanPartsBase::getSandActor_() const
 
 void TBossHanachanPartsBase::copyFrameFromOldAnmToNewAnm_()
 {
-	J3DAnmBase* old = nullptr;
-	if (getMActor()->unkC != nullptr)
+	J3DAnmBase* old;
+	if (getMActor()->unkC == nullptr)
+		old = nullptr;
+	else
 		old = (J3DAnmBase*)getMActor()->unkC->unk24;
 
 	J3DFrameCtrl* newFc = getMActor()->getFrameCtrl(0);
-	if (old == nullptr || newFc == nullptr)
+	if (old == nullptr)
+		return;
+	if (newFc == nullptr)
 		return;
 
 	f32 frame;
