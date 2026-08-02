@@ -71,15 +71,7 @@ static inline bool BHPartsIsCurBckDone(MActor* a)
 
 BOOL TBossHanachanPartsHead::receiveMessage(THitActor* sender, u32 message)
 {
-	bool inOk   = true;
-	bool inTalk = inOk;
-	if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
-		inTalk = false;
-	if (!inTalk) {
-		if (gpMarDirector->unk124 != 4)
-			inOk = false;
-	}
-	if (inOk)
+	if (gpMarDirector->isThing())
 		return FALSE;
 
 	BOOL ret                          = FALSE;
@@ -119,15 +111,7 @@ BOOL TBossHanachanPartsHead::receiveMessage(THitActor* sender, u32 message)
 
 BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 {
-	bool inOk   = true;
-	bool inTalk = inOk;
-	if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
-		inTalk = false;
-	if (!inTalk) {
-		if (gpMarDirector->unk124 != 4)
-			inOk = false;
-	}
-	if (inOk)
+	if (gpMarDirector->isThing())
 		return FALSE;
 
 	BOOL ret                          = FALSE;
