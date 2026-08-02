@@ -17,7 +17,7 @@
     <text x="820" y="22" class="primary" font-size="20" font-weight="600" text-anchor="end">94.87%</text>
 
     <rect y="35" width="820" height="12" rx="6" class="track"/>
-    <rect y="35" width="777.90" height="12" rx="6" fill="#1f883d"/>
+    <rect y="35" width="777.92" height="12" rx="6" fill="#1f883d"/>
 
     <text x="0" y="75" class="primary" font-size="14" font-weight="600">Exact code</text>
     <text x="82" y="75" class="secondary" font-size="14">41.37%</text>
