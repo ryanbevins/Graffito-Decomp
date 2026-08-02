@@ -883,7 +883,7 @@ void TBossEel::init(TLiveManager* manager)
 	mMActorKeeper = new TMActorKeeper(manager);
 	mMActor       = mMActorKeeper->createMActorFromAllBmd(0);
 	unk1E8       = &((TBossEelManager*)manager)->mSaveParams;
-	unk150       = mPosition;
+	unk150.set(mPosition.x, mPosition.y, mPosition.z);
 
 	onLiveFlag(LIVE_FLAG_UNK8 | LIVE_FLAG_UNK10);
 
