@@ -577,19 +577,14 @@ void TBossHanachanPartsBody::initFootHitActor_(TIdxGroupObj* group)
 
 void TBossHanachanPartsBase::initMapCollisionAndHitActor_(TIdxGroupObj* group)
 {
-	const char* filename = nullptr;
-	f32 attRad = 0.0f, attHei = 0.0f, damRad = 0.0f, damHei = 0.0f,
-	    offY = 0.0f;
-
 	TBossHanachanCommonSaveParams* params = mOwner->mParams;
-	if (mActorType == 0x08000015) {
-		filename = cBodyMapCollisionFileName;
-		attRad   = params->mSLBodyAttackRadius.value;
-		attHei   = params->mSLBodyAttackHeight.value;
-		damRad   = params->mSLBodyDamageRadius.value;
-		damHei   = params->mSLBodyDamageHeight.value;
-		offY     = params->mSLBodyHitOffsetY.value;
-	} else if (mActorType == 0x08000014) {
+	const char* filename = cBodyMapCollisionFileName;
+	f32 attRad = params->mSLBodyAttackRadius.value;
+	f32 attHei = params->mSLBodyAttackHeight.value;
+	f32 damRad = params->mSLBodyDamageRadius.value;
+	f32 damHei = params->mSLBodyDamageHeight.value;
+	f32 offY   = params->mSLBodyHitOffsetY.value;
+	if (mActorType == 0x08000014) {
 		filename = cHeadMapCollisionFileName;
 		attRad   = params->mSLHeadAttackRadius.value;
 		attHei   = params->mSLHeadAttackHeight.value;
