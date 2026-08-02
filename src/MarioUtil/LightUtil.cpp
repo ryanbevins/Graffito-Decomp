@@ -87,7 +87,7 @@ void TLightCommon::loadAfter()
 	}
 
 	unk29[0] = mAmbAry->mAmbColors[unk20].mColor.get();
-	unk29[1] = mAmbAry->mAmbColors[unk20 + 1].mColor;
+	unk29[1] = mAmbAry->mAmbColors[unk20 + 1].mColor.get();
 }
 
 GXColor TLightCommon::getLightColor(int index) const
