@@ -128,7 +128,10 @@ static int SamboHeadRollCallback(J3DNode* node, int timing)
 
 static inline void initMarioGoal(TSpineEnemy* sambo)
 {
-	sambo->setGoalPathMario();
+	TPathNode node((THitActor*)gpMarioAddress);
+	sambo->unkF4  = node;
+	sambo->unk104 = node;
+	sambo->unk114.clear();
 }
 
 DEFINE_NERVE(TNerveSamboHeadHitWall, TLiveActor)
