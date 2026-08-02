@@ -118,7 +118,7 @@ void TPinnaCoaster::control()
 	mMActor->frameUpdate();
 	mMActor->calc();
 	MtxPtr coasterMtx = getModel()->mNodeMatrices[0];
-	setVecFromMtx(mPosition, coasterMtx);
+	mPosition.set(coasterMtx[0][3], coasterMtx[1][3], coasterMtx[2][3]);
 
 	JGeometry::TVec3<f32> delta = mPosition;
 	delta.sub(unk140);
