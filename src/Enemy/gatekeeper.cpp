@@ -99,7 +99,8 @@ DEFINE_NERVE(TNerveBGKAppear, TLiveActor)
 		if (gatekeeper->unk28A == 0) {
 			snprintf((char*)gatekeeper->unk188, 0x100, "%s出現カメラ",
 			         gatekeeper->getName());
-			gpMarDirector->fireStartDemoCamera(
+			TMarDirector* director = gpMarDirector;
+			director->fireStartDemoCamera(
 			    (char*)gatekeeper->unk188, &gatekeeper->mPosition, -1, 0.0f,
 			    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
 			MSBgm::setTrackVolume(0, 0.0f, 10, 0);
