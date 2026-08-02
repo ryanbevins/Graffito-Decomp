@@ -1777,7 +1777,8 @@ DEFINE_NERVE(TNerveBWDie, TLiveActor)
 
 	if (spine->getTime() == 0) {
 		JDrama::TFlagT<u16> flag(0);
-		gpMarDirector->fireStartDemoCamera(
+		TMarDirector* director = gpMarDirector;
+		director->fireStartDemoCamera(
 		    "bwanwan_down_camera", nullptr, -1, 30.0f, true, nullptr, 0,
 		    nullptr, flag);
 		self->unk16C = 0;
