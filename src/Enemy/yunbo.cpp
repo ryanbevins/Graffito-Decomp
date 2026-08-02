@@ -11,6 +11,7 @@
 #include <Player/MarioAccess.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/ObjModel.hpp>
+#include <Strategic/Strategy.hpp>
 #include <System/Application.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
@@ -512,15 +513,7 @@ void TYumboSeed::init()
 {
 	initHitActor(0x1000002A, 1, 0x80000000, 30.0f, 30.0f, 0.0f, 0.0f);
 
-	// Insert ourselves into the parent name-ref node's child list.
-	// The asm looks up that NameRef by SJIS name (matching @4066), then
-	// inserts (void*)this into its JGadget list field at +0x10.
-	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
-	const char* kName      = "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76";
-	JDrama::TNameRef* parent
-	    = root->searchF(JDrama::TNameRef::calcKeyCode(kName), kName);
-	JGadget::TList_pointer_void* list
-	    = (JGadget::TList_pointer_void*)((u8*)parent + 0x10);
-	void* self = this;
-	list->insert(list->end(), self);
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	group->getChildren().push_back(this);
 }
