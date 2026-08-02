@@ -1077,7 +1077,7 @@ static int PakkunRootCallback2(J3DNode* node, int flag)
 		scale[2][0] = zero;
 		scale[2][1] = zero;
 		scale[2][2] = inv;
-		PSMTXConcat(scale, src, src);
+		PSMTXConcat(src, scale, src);
 		PSMTXConcat(j3dSys.mCurrentMtx, scale, j3dSys.mCurrentMtx);
 	}
 	return 1;
