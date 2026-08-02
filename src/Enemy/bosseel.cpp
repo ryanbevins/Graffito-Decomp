@@ -2014,8 +2014,8 @@ void TBEelTears::init(TLiveManager* manager)
 	mBodyScale = unk15C->mBodyScaleRange.rand();
 
 	TIdxGroupObj* group = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
-	MtxPtr mtx          = mMActor->getModel()->mNodeMatrices[0];
-	unk16C = new TBossEelTearsRecoverCollision(mtx, cTearsRecoverCollisionName);
+	unk16C = new TBossEelTearsRecoverCollision(
+	    mMActor->getModel()->mNodeMatrices[0], cTearsRecoverCollisionName);
 	unk16C->initCollision();
 
 	group->getChildren().push_back(unk16C);
