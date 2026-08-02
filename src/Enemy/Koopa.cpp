@@ -528,7 +528,8 @@ void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 	mBodyHitActor->perform(flags, graphics);
 
 	if (flags & 1) {
-		TKoopaParams* prm  = getSaveParam2();
+		TKoopaParams* prm
+		    = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
 		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
 		f32 frame          = ctrl->getFrame();
 		BOOL shouldTumble  = FALSE;
