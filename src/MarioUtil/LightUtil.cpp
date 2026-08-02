@@ -84,7 +84,7 @@ void TLightCommon::loadAfter()
 		unk44[i] = mLightAry->mLights[unk24 + i].mPosition;
 	}
 
-	unk29[0] = mAmbAry->mAmbColors[unk20].mColor;
+	unk29[0] = mAmbAry->mAmbColors[unk20].mColor.get();
 	unk29[1] = mAmbAry->mAmbColors[unk20 + 1].mColor;
 }
 
