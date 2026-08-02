@@ -168,7 +168,8 @@ bool TDolpicEventRiccoMammaGate::watch()
 			gpPollution->getLayer(0)->unk32 |= 2;
 		} else {
 			JDrama::TFlagT<u16> flag(0);
-			gpMarDirector->fireStartDemoCamera("灯台上げデモカメラ", &mPos, -1,
+			TMarDirector* director = gpMarDirector;
+			director->fireStartDemoCamera("灯台上げデモカメラ", &mPos, -1,
 			                                   0.0f, false, nullptr, 0, nullptr,
 			                                   flag);
 			gpMarioParticleManager->emit(0x67, &mPos, 0, this);
