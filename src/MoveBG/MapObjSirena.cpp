@@ -624,7 +624,7 @@ void TDonchou::calcRootMatrix()
 				director->fireStartDemoCamera("どん帳カメラ", &mPosition, -1,
 				                              0.0f, true, nullptr, 0, nullptr, flag);
 				J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
-				*((f32*)fc + 3) = 0.5f * *((f32*)fc + 3);
+				fc->setRate(0.5f * fc->getRate());
 			}
 		}
 	}
