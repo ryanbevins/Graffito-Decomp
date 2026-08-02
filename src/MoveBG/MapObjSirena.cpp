@@ -1403,8 +1403,7 @@ void TRoulette::initMapObj()
 	unk150 = sw;
 	TIdxGroupObj* group
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ");
-	group->getChildren().insert(group->getChildren().end(),
-	                            (THitActor*)unk150);
+	group->getChildren().push_back((THitActor*)unk150);
 	if (gpApplication.mCurrArea.getStage() == 14) {
 		unk150->initHitActor(0x4000019A, 2, 0x80000000, 40.0f, 80.0f, 40.0f,
 		                    80.0f);
