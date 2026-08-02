@@ -3,6 +3,7 @@
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/HitActor.hpp>
+#include <Strategic/Strategy.hpp>
 #include <System/Particles.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -542,17 +543,14 @@ void TLimitKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 }
 
-void TLimitKoopa::registerToGroup(THitActor* part)
+inline void TLimitKoopa::registerToGroup(THitActor* part)
 {
 	JDrama::TNameRef* root
 	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
 	const char* kName = "\x93\x47\x83\x4F\x83\x8B\x81\x5B\x83\x76";
-	JDrama::TNameRef* group
-	    = root->searchF(JDrama::TNameRef::calcKeyCode(kName), kName);
-	JGadget::TList_pointer_void* list
-	    = (JGadget::TList_pointer_void*)((u8*)group + 0x10);
-	void* self = part;
-	list->insert(list->end(), self);
+	TIdxGroupObj* group = (TIdxGroupObj*)root->searchF(
+	    JDrama::TNameRef::calcKeyCode(kName), kName);
+	group->getChildren().push_back(part);
 }
 
 // ---------------------------------------------------------------------------
