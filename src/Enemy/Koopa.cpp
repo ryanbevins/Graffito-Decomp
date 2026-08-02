@@ -881,7 +881,8 @@ void TKoopa::changeAnm(int bck, int btp, f32 rate)
 
 void TKoopa::setUpHitActors()
 {
-	TKoopaParams* prm = getSaveParam2();
+	TKoopaParams* prm
+	    = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
 	BOOL canEmitFlame = FALSE;
 	if (mMActor->getCurAnmIdx(0) == 4) {
 		canEmitFlame = TRUE;
