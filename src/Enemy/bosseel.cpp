@@ -2610,7 +2610,8 @@ DEFINE_NERVE(TNerveBossEelDie, TLiveActor)
 
 		if (SMS_SendMessageToMario(eel, HIT_MESSAGE_TAKE)) {
 			eel->mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
-			gpMarDirector->fireStartDemoCamera(
+			TMarDirector* director = gpMarDirector;
+			director->fireStartDemoCamera(
 			    cBossEelEndCameraName, &eel->mPosition, -1, 0.0f, false,
 			    nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
 		}
