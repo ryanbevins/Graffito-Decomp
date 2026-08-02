@@ -1,3 +1,4 @@
+#define TSPINEBASE_GETLATESTNERVE_OUT_OF_LINE
 #include <Enemy/BossHanachan.hpp>
 #include <Enemy/BossHanachanPartsBase.hpp>
 #include <Enemy/BossHanachanSaveParams.hpp>
