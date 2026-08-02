@@ -141,22 +141,25 @@ void TMapWireActorManager::doActorToWire()
 	}
 }
 
+inline void TMapWireActor::init(TMapWireActorManager* manager)
+{
+	unk74 = manager;
+	initHitActor(0x40000098, 1, -0x80000000, mCommonAttackRadius,
+	             mCommonAttackHeight, 0.0f, 0.0f);
+
+	JDrama::TNameRefGen* gen   = JDrama::TNameRefGen::getInstance();
+	JDrama::TNameRef*    root  = gen->getRootNameRef();
+	TIdxGroupObj*        group = (TIdxGroupObj*)root->search("アイテムグループ");
+	JGadget::TList_pointer<THitActor*>& children = group->getChildren();
+	children.insert(children.end(), this);
+}
+
 inline TMapWireActorManager::TMapWireActorManager(TTakeActor* param_1)
     : unk0(param_1)
     , unk4("アクター補助")
     , unk7C(0)
 {
-	unk4.unk74 = this;
-	unk4.initHitActor(0x40000098, 1, -0x80000000,
-	                  TMapWireActor::mCommonAttackRadius,
-	                  TMapWireActor::mCommonAttackHeight, 0.0f, 0.0f);
-
-	// TODO: inlines are messed up =(
-	JDrama::TNameRefGen* gen   = JDrama::TNameRefGen::getInstance();
-	JDrama::TNameRef*    root  = gen->getRootNameRef();
-	TIdxGroupObj*        group = (TIdxGroupObj*)root->search("アイテムグループ");
-	JGadget::TList_pointer<THitActor*>& children = group->getChildren();
-	children.insert(children.end(), &unk4);
+	unk4.init(this);
 }
 
 JUtility::TColor TMapWireManager::mUpperSurface;
