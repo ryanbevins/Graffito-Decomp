@@ -603,7 +603,8 @@ void TFruitsBoat::moveObject()
 				mLiveFlag |= 0x20000;
 				mLiveFlag &= ~0x10000;
 
-				if (gp->mBGType == 7 || gp->mBGType == 0x8007) {
+				if ((gp->mBGType == 7 || gp->mBGType == 0x8007) ? true
+				                                                   : false) {
 					const char* bck = nullptr;
 					switch (((TFruitsBoatManager*)mManager)->mBoatId) {
 					case 0:
