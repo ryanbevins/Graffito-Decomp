@@ -496,7 +496,7 @@ void TRoulette::perform(u32 flags, JDrama::TGraphics* gfx)
 void TRouletteSw::perform(u32 flags, JDrama::TGraphics* gfx)
 {
 	THitActor::perform(flags, gfx);
-	((TRoulette*)unk68)->switchStop();
+	unk68->switchStop();
 }
 
 BOOL TRouletteSw::receiveMessage(THitActor* sender, u32 message)
@@ -1398,8 +1398,7 @@ void TRoulette::initMapObj()
 			                           (GXTevRegID)1, &unk148);
 		}
 	}
-	TRouletteSw* sw = new TRouletteSw("ルーレットスイッチ");
-	sw->unk68 = this;
+	TRouletteSw* sw = new TRouletteSw(this, "ルーレットスイッチ");
 	unk150 = sw;
 	TIdxGroupObj* group
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ");

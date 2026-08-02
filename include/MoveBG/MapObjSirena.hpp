@@ -258,11 +258,13 @@ public:
 	/* 0x1E4 */ f32 unk1E4[3];
 };
 
+class TRoulette;
+
 class TRouletteSw : public THitActor {
 public:
-	TRouletteSw(const char* name)
+	TRouletteSw(TRoulette* roulette, const char* name)
 	    : THitActor(name)
-	    , unk68(nullptr)
+	    , unk68(roulette)
 	    , unk6C(0)
 	{
 	}
@@ -271,7 +273,7 @@ public:
 	virtual BOOL receiveMessage(THitActor* sender, u32 message);
 
 public:
-	/* 0x68 */ void* unk68;
+	/* 0x68 */ TRoulette* unk68;
 	/* 0x6C */ u8 unk6C;
 };
 
