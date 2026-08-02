@@ -928,9 +928,7 @@ void TTobiPuku::hitWall()
 
 	if (gpMap->isTouchedWallsAndMoveXZ(&record)) {
 		const TBGCheckData* wall = record.mResultWalls[0];
-		f32 dot = mVelocity.x * wall->mNormal.x
-		          + mVelocity.y * wall->mNormal.y
-		          + mVelocity.z * wall->mNormal.z;
+		f32 dot = mVelocity.dot(wall->mNormal);
 		f32 bounce = -(2.0f * dot);
 		mVelocity.x += bounce * wall->mNormal.x;
 		mVelocity.y *= 0.5f;
