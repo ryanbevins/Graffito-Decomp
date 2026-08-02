@@ -2525,7 +2525,8 @@ DEFINE_NERVE(TNerveBossEelEat, TLiveActor)
 
 				if (!eel->unk21C) {
 					gpMarDirector->mConsole->startAppearBalloon(0xE0015, true);
-					gpMarDirector->fireStartDemoCamera(
+					TMarDirector* director = gpMarDirector;
+					director->fireStartDemoCamera(
 					    "meoto_mogu_camera", &eel->mPosition, -1, 0.0f,
 					    false, hoseiDiveCameraCallback, (u32)eel, nullptr,
 					    JDrama::TFlagT<u16>(0));
