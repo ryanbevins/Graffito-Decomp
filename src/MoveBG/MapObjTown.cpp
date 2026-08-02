@@ -351,11 +351,9 @@ u32 TMapObjBillboard::touchWater(THitActor* actor)
 		rot.y -= 90.0f;
 		pos.y += mYOffset;
 
-		TMapObjBase* obj = nullptr;
-		if (unk138->mActorType == 0x2000000e)
+		TMapObjBase* obj = unk138;
+		if ((unk138->mActorType == 0x2000000e) ? true : false)
 			obj = gpItemManager->makeObjAppear(0x2000000e);
-		else
-			obj = unk138;
 
 		if (obj != nullptr) {
 			TMapObjBase::throwObjFromPointWithRot(obj, pos, rot, unk13C,
