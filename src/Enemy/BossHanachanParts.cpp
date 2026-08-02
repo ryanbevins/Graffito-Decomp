@@ -606,9 +606,9 @@ void TBossHanachanPartsBase::initMapCollisionAndHitActor_(TIdxGroupObj* group)
 	                        damHei);
 	group->getChildren().push_back(mWaterHit);
 	mWaterHit->unk64 &= ~1;
-	mWaterHit->mPosition.x = mCenterJointMtx[0][3];
-	mWaterHit->mPosition.y = mCenterJointMtx[1][3] - offY;
-	mWaterHit->mPosition.z = mCenterJointMtx[2][3];
+	mWaterHit->mPosition.set(mCenterJointMtx[0][3],
+	                         mCenterJointMtx[1][3] - offY,
+	                         mCenterJointMtx[2][3]);
 }
 
 TBossHanachanPartsBase::TBossHanachanPartsBase(TBossHanachan* owner,
