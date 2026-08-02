@@ -519,7 +519,8 @@ void TFruitLauncher::fireObj()
 		obj->mVelocity.y = speedY;
 		obj->mVelocity.z = speedZ;
 		obj->mLiveFlag &= ~0x10;
-		gpMarDirector->fireStartDemoCamera(
+		TMarDirector* director = gpMarDirector;
+		director->fireStartDemoCamera(
 		    "フルーツスイッチメラメラ",
 		    (JGeometry::TVec3<f32>*)&obj->mPosition, -1, 0.0f, true,
 		    (s32 (*)(u32, u32))NULL, 0, (JDrama::TActor*)NULL,
