@@ -91,15 +91,7 @@ BOOL TWaterHitActor::receiveMessage(THitActor* sender, u32 message)
 {
 	BOOL ret = FALSE;
 	if (message == 0xF) {
-		bool inOk   = true;
-		bool inTalk = inOk;
-		if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
-			inTalk = false;
-		if (!inTalk) {
-			if (gpMarDirector->unk124 != 4)
-				inOk = false;
-		}
-		if (inOk)
+		if (gpMarDirector->isThing())
 			*(u16*)&unk68 = 0;
 		else
 			onWaterHitCounter();
