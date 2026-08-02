@@ -70,10 +70,12 @@ TLightCommon::TLightCommon(const char* name)
 
 void TLightCommon::loadAfter()
 {
-	JDrama::TNameRef* root
-	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-	mAmbAry = (JDrama::TAmbAry*)root->search("Ambient Group");
-	mLightAry = (JDrama::TLightAry*)root->search("Light Group");
+	mAmbAry = (JDrama::TAmbAry*)JDrama::TNameRefGen::getInstance()
+	              ->getRootNameRef()
+	              ->search("Ambient Group");
+	mLightAry = (JDrama::TLightAry*)JDrama::TNameRefGen::getInstance()
+	                ->getRootNameRef()
+	                ->search("Light Group");
 	mLightPos = (Vec*)&mLightAry->mLights[0].mPosition;
 
 	unk10 = 50.0f;
