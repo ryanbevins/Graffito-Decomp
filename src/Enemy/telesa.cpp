@@ -784,8 +784,8 @@ void TTelesa::setFirstAttackPoint()
 	f32 s = JMASin(mRotation.y);
 	f32 c = JMACos(mRotation.y);
 
-	pos.x += c * 1000.0f;
-	pos.z += s * 1000.0f;
+	pos.x += s * 1000.0f;
+	pos.z += c * 1000.0f;
 
 	setGoalPath(TPathNode(pos));
 }
