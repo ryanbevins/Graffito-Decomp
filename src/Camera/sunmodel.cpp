@@ -12,6 +12,7 @@
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DAnmLoader.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
+#include <JSystem/JDrama/JDRViewObjPtrList.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JGadget/std-list.hpp>
 #include <JSystem/JGeometry.hpp>
@@ -166,16 +167,11 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 	*(Vec*)((u8*)mMapStaticObj + 0x30) = *(const Vec*)&mRotation;
 	*(Vec*)((u8*)mMapStaticObj + 0x24) = *(const Vec*)&mScaling;
 
-	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
 	const char* sceneName  = "\x8B\xBE\x83\x56\x81\x5B\x83\x93"; // JIS string
-	JDrama::TNameRef* sceneRef
-	    = root->searchF(JDrama::TNameRef::calcKeyCode(sceneName), sceneName);
-
-	JGadget::TList_pointer_void* list
-	    = (JGadget::TList_pointer_void*)((u8*)sceneRef + 0x10);
-	void* obj = mMapStaticObj;
-	JGadget::TList_pointer_void::iterator iter = list->end();
-	list->insert(iter, obj);
+	JDrama::TViewObjPtrListT<JDrama::TViewObj>* scene
+	    = JDrama::TNameRefGen::search<
+	        JDrama::TViewObjPtrListT<JDrama::TViewObj> >(sceneName);
+	scene->getChildren().push_back(mMapStaticObj);
 }
 
 void TSunModel::calcOtherFPosFromCenterAndRadius_(
