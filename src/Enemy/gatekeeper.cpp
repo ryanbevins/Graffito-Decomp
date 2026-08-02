@@ -288,7 +288,8 @@ DEFINE_NERVE(TNerveBGKDie, TLiveActor)
 		      && gatekeeper->unk296 == 0)) {
 			snprintf((char*)gatekeeper->unk188, 0x100, "%s撃退カメラ",
 			         gatekeeper->getName());
-			gpMarDirector->fireStartDemoCamera(
+			TMarDirector* director = gpMarDirector;
+			director->fireStartDemoCamera(
 			    (char*)gatekeeper->unk188, &gatekeeper->mPosition, -1, 0.0f,
 			    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
 			MSBgm::stopTrackBGM(1, 10);
