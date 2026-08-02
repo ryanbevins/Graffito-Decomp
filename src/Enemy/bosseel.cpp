@@ -910,8 +910,6 @@ void TBossEel::init(TLiveManager* manager)
 
 	TIdxGroupObj* enemyGroup
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>(cBossEelEnemyGroupName);
-	JGadget::TList_pointer_void* enemyList
-	    = (JGadget::TList_pointer_void*)((u8*)enemyGroup + 0x10);
 	JUTNameTab* jointName = model->getModelData()->getJointName();
 
 	unk1A8 = new THitActor(cBossEelHeadName);
@@ -921,7 +919,7 @@ void TBossEel::init(TLiveManager* manager)
 	                   unk1E8->mSLHeadAttackHeight.value,
 	                   unk1E8->mSLHeadDamageRadius.value,
 	                   unk1E8->mSLHeadDamageHeight.value);
-	enemyList->insert(enemyList->end(), unk1A8);
+	enemyGroup->getChildren().push_back((THitActor*)unk1A8);
 	((THitActor*)unk1A8)->offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	unk1B0
@@ -929,13 +927,13 @@ void TBossEel::init(TLiveManager* manager)
 	                                cBossEelBodyCollisionName);
 	((TBossEelBodyCollision*)unk1B0)->initCollision();
 	((TBossEelBodyCollision*)unk1B0)->unk7C = this;
-	enemyList->insert(enemyList->end(), unk1B0);
+	enemyGroup->getChildren().push_back((THitActor*)unk1B0);
 	((THitActor*)unk1B0)->offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	unk210 = new TBossEelBarrierCollision(model->mNodeMatrices[7],
 	                                      cBossEelBarrierCollisionName);
 	((TBossEelBarrierCollision*)unk210)->initCollision();
-	enemyList->insert(enemyList->end(), unk210);
+	enemyGroup->getChildren().push_back((THitActor*)unk210);
 	((THitActor*)unk210)->offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	SDLModelData* eyeModelData = new SDLModelData(J3DModelLoaderDataBase::load(
@@ -992,7 +990,7 @@ void TBossEel::init(TLiveManager* manager)
 	unk214 = new TBossEelAwaCollision(model->mNodeMatrices[unk1A0[2]],
 	                                  cBossEelAwaCollisionName);
 	((TBossEelAwaCollision*)unk214)->initCollision();
-	enemyList->insert(enemyList->end(), unk214);
+	enemyGroup->getChildren().push_back((THitActor*)unk214);
 	((THitActor*)unk214)->onHitFlag(HIT_FLAG_NO_COLLISION);
 
 	unk18C = new TBossEelVortex(this, cBossEelVortexName);
@@ -1001,7 +999,7 @@ void TBossEel::init(TLiveManager* manager)
 	                      unk1E8->mSLVortexAttackHeight.value,
 	                      unk1E8->mSLVortexDamageRadius.value,
 	                      unk1E8->mSLVortexDamageHeight.value);
-	enemyList->insert(enemyList->end(), unk18C);
+	enemyGroup->getChildren().push_back((THitActor*)unk18C);
 	unk18C->offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	unk1AC = new TCubeManagerBase(cBossEelCollisionCubeName, (u8)2);
