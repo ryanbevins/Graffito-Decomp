@@ -1072,7 +1072,9 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 BOOL TNerveKoopaTumble::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	self->changeAnm(8, 0, self->getSaveParam2()->tumbleSpeed.get());
+	TKoopaParams* params
+	    = (TKoopaParams*)((TEnemyManager*)self->mManager)->unk38;
+	self->changeAnm(8, 0, params->tumbleSpeed.get());
 	self->mMActor->getFrameCtrl(0);
 	if (spine->getTime() == 190) {
 		gpCameraShake->startShake((EnumCamShakeMode)0x27, 1.0f);
