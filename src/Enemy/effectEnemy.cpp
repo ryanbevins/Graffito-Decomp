@@ -77,47 +77,11 @@ void TEffectEnemy::kill()
 
 void TEffectEnemy::forceKill()
 {
-	bool killFromGround = false;
-	if (!mGroundPlane->isIllegalData()) {
-		u16 t;
-		bool flg;
-		t = mGroundPlane->mBGType;
-		if (t == BG_TYPE_DEATH_PLANE)
-			flg = true;
-		else
-			flg = false;
-		if (!flg) {
-			if (t == 0x104)
-				flg = true;
-			else if (t == 0x105)
-				flg = true;
-			else if (t == 0x4104)
-				flg = true;
-			else
-				flg = false;
-			if (!flg) {
-				if (t == 0x100)
-					flg = true;
-				else if (t == 0x101)
-					flg = true;
-				else if ((u16)(t - 0x102) <= 3)
-					flg = true;
-				else if (t == 0x4104)
-					flg = true;
-				else
-					flg = false;
-			}
-		}
-		if (flg) {
-			u32 lf      = mLiveFlag;
-			int airborn = (lf & LIVE_FLAG_AIRBORNE) ? 1 : 0;
-			if (airborn == 0) {
-				if (!(lf & LIVE_FLAG_UNK10))
-					killFromGround = true;
-			}
-		}
-	}
-	if (killFromGround || !gpMap->isInArea(mPosition.x, mPosition.z)) {
+	if (!(mGroundPlane->isIllegalData()
+	      || (!mGroundPlane->isDeathPlane() && !mGroundPlane->isPool()
+	          && !mGroundPlane->isWaterSurface())
+	      || isAirborne() || checkLiveFlag(LIVE_FLAG_UNK10))
+	    || !gpMap->isInArea(mPosition.x, mPosition.z)) {
 		kill();
 	}
 }
