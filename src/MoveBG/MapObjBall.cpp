@@ -1,3 +1,4 @@
+#define JG_TUTIL_SQRT_OUT_OF_LINE
 #include <MoveBG/MapObjBall.hpp>
 #include <MoveBG/MapObjBase.hpp>
 #include <Strategic/HitActor.hpp>
