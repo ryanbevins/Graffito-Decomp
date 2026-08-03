@@ -1,5 +1,6 @@
 #define JGEOMETRY_CAMERAGC_OWNER_HELPERS
 #define MSCLAMP_OUT_OF_LINE
+#define MS_SQRTF_OUT_OF_LINE
 
 // cameragc.cpp -- main CPolarSubCamera implementation. Large TU (~12KB).
 // Stub for portability; key functions need full decomp:

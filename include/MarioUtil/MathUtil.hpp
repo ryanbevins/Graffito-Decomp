@@ -142,6 +142,20 @@ MsPerpendicFootToLineR(const JGeometry::TVec3<f32>& param_1,
 	return thing;
 }
 
+#ifdef MS_SQRTF_OUT_OF_LINE
 f32 MsSqrtf(f32);
+#else
+inline f32 MsSqrtf(f32 mag)
+{
+	if (mag > 0.0f) {
+		f64 root = __frsqrte(mag);
+		volatile f32 result
+		    = 0.5 * root * (3.0 - mag * (root * root)) * mag;
+		return result;
+	}
+
+	return mag;
+}
+#endif
 
 #endif

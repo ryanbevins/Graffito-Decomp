@@ -1,4 +1,5 @@
 #include <types.h>
+#define MS_SQRTF_OUT_OF_LINE
 #include <Camera/cameralib.hpp>
 #include <JSystem/JMath.hpp>
 #include <MarioUtil/MathUtil.hpp>
