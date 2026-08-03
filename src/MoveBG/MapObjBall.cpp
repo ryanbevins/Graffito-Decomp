@@ -223,7 +223,7 @@ void TResetFruit::touchActor(THitActor* actor)
 void TResetFruit::hold(TTakeActor* taker)
 {
 	JGeometry::TVec3<f32> v = mVelocity;
-	if (v.length() <= 10.0f) {
+	if (!(v.length() > 10.0f)) {
 		TMapObjGeneral::hold(taker);
 		mVelocity.z = 0.0f;
 		mVelocity.y = 0.0f;
@@ -752,7 +752,7 @@ u32 TMapObjBall::touchWater(THitActor* actor)
 void TMapObjBall::hold(TTakeActor* taker)
 {
 	JGeometry::TVec3<f32> v = mVelocity;
-	if (v.length() <= 10.0f) {
+	if (!(v.length() > 10.0f)) {
 		TMapObjGeneral::hold(taker);
 		mVelocity.z = 0.0f;
 		mVelocity.y = 0.0f;
