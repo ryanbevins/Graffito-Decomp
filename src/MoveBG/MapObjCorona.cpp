@@ -608,16 +608,10 @@ void TBathtub::quake(const JGeometry::TVec3<f32>& pos)
 s32 TBathtub::getNumGripsDead() const
 {
 	s32 count = 0;
-	if (isGripDead(unk168[0]))
-		++count;
-	if (isGripDead(unk168[1]))
-		++count;
-	if (isGripDead(unk168[2]))
-		++count;
-	if (isGripDead(unk168[3]))
-		++count;
-	if (isGripDead(unk168[4]))
-		++count;
+	for (s32 i = 0; i < 5; ++i) {
+		if (isGripDead(unk168[i]))
+			++count;
+	}
 	return count;
 }
 
