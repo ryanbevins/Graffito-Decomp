@@ -139,9 +139,8 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 			ret = TRUE;
 			break;
 		case 1: {
-			bool same = (unk114 == mOwner->unk174);
-			if (mCurAnm <= 0x11) {
-				switch (mCurAnm) {
+			bool same = (unk114 == mOwner->unk174) ? true : false;
+			switch (mCurAnm) {
 				case 0:
 				case 2:
 				case 5:
@@ -161,7 +160,6 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 					break;
 				default:
 					break;
-				}
 			}
 		} break;
 		default:
