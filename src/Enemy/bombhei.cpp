@@ -548,7 +548,8 @@ bool TBombHei::isHitValid(u32 message)
 
 void TBombHei::changeOut()
 {
-	if (gpMSound->gateCheck(0x293d))
+	MSound* sound = gpMSound;
+	if (sound->gateCheck(0x293d))
 		MSoundSESystem::MSoundSE::startSoundActor(0x293d, &mPosition, 0, nullptr,
 		                                          0, 4);
 
@@ -559,7 +560,8 @@ void TBombHei::changeOut()
 	mPosition = ((TLiveActor*)mJuiceBlock)->mPosition;
 	gpMarioParticleManager->emitAndBindToPosPtr(0xcd, &mPosition, 0, nullptr);
 
-	mMActor->setFrameRate(SMSGetAnmFrameRate(), 0);
+	MActor* actor = mMActor;
+	actor->setFrameRate(SMSGetAnmFrameRate(), 0);
 	mJuiceBlock->kill();
 	mJuiceBlock = nullptr;
 }
