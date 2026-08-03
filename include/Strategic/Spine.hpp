@@ -150,6 +150,7 @@ public:
 
 	// fabricated
 	Nerve getCurrentNerve() const { return mCurrent; }
+	int getNerveStackSize() const { return mVertebrae.size(); }
 
 	// fabricated
 	Nerve getDefault() const { return unk18; }

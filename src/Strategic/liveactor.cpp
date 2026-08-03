@@ -253,20 +253,15 @@ void TLiveActor::control()
 	if (unk == nullptr || unk->unk4 == 0) {
 		if (mSpine)
 			mSpine->update();
-		return;
-	}
-
-	if (!mSpine) {
-		unk->control();
-		return;
-	}
-
-	if (mSpine->isActive()) {
+	} else if (!mSpine) {
+		if (unk != nullptr && unk->unk4 != 0)
+			unk->control();
+	} else if (mSpine->getCurrentNerve() != nullptr
+	           || mSpine->getNerveStackSize() > 0) {
 		mSpine->update();
-		return;
+	} else {
+		unk->control();
 	}
-
-	unk->control();
 }
 
 void TLiveActor::calcRootMatrix()
