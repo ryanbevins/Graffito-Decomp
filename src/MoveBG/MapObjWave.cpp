@@ -346,16 +346,25 @@ f32 TMapObjWave::getHeight(f32 x, f32 y, f32 z) const
 	const TBGCheckData* ground;
 	f32 height = gpMap->checkGroundExactY(x, y + 50.0f, z, &ground);
 	u16 code   = ground->mBGType;
-	if (!isWaterBg(code))
-		return y;
-	if (code != 0x102 && code != 0x103)
-		return height;
-	if (mTexInfo == nullptr)
-		return 0.0f;
-
-	f32 wave1 = unk3C * sinf(unk24 * (0.15915507f * x) + unk64);
-	f32 wave2 = unk40 * sinf(unk28 * (0.15915507f * z) + unk68);
-	return wave1 + wave2;
+	f32 result = height;
+	bool water = isWaterBg(code);
+	if (water) {
+		bool wave = code == 0x102 || code == 0x103;
+		if (wave) {
+			if (mTexInfo == nullptr) {
+				result = 0.0f;
+			} else {
+				f32 wave1
+				    = unk3C * sinf(unk24 * (0.15915507f * x) + unk64);
+				f32 wave2
+				    = unk40 * sinf(unk28 * (0.15915507f * z) + unk68);
+				result = wave1 + wave2;
+			}
+		}
+	} else {
+		result = y;
+	}
+	return result;
 }
 
 f32 TMapObjWave::getWaveHeight(f32 x, f32 z) const
