@@ -284,73 +284,58 @@ void TRocket::calcRootMatrix()
 		J3DModel* model = getModel();
 		model->setBaseScale(mScaling);
 
-		Mtx tmp;
+		TPosition3f tmp;
 		if (mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve()) {
-			JGeometry::TRotation3<
-			    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >
-			    r;
-			r.identity33();
-			f32* tm = (f32*)tmp;
-			for (int i = 0; i < 12; ++i)
-				tm[i] = ((f32*)&r)[i];
-			tmp[0][3] = mPosition.x;
-			tmp[1][3] = mPosition.y;
-			tmp[2][3] = mPosition.z;
+			tmp.translation(mPosition);
 		} else {
 			TWaterGun* wg = (TWaterGun*)SMS_GetMarioWaterGun();
 			MtxPtr emit   = wg->getEmitMtx(0);
 			PSMTXCopy(emit, tmp);
 
-			f32 len0 = tmp[0][0] * tmp[0][0] + tmp[1][0] * tmp[1][0]
-			           + tmp[2][0] * tmp[2][0];
+			f32 len0 = tmp.at(0, 0) * tmp.at(0, 0)
+			           + tmp.at(1, 0) * tmp.at(1, 0)
+			           + tmp.at(2, 0) * tmp.at(2, 0);
 			if (len0 > 0.0f)
 				len0 = JGeometry::TUtil<f32>::sqrt(len0);
 
-			f32 len1 = tmp[0][1] * tmp[0][1] + tmp[1][1] * tmp[1][1]
-			           + tmp[2][1] * tmp[2][1];
+			f32 len1 = tmp.at(0, 1) * tmp.at(0, 1)
+			           + tmp.at(1, 1) * tmp.at(1, 1)
+			           + tmp.at(2, 1) * tmp.at(2, 1);
 			if (len1 > 0.0f)
 				len1 = JGeometry::TUtil<f32>::sqrt(len1);
 
-			f32 len2 = tmp[0][2] * tmp[0][2] + tmp[1][2] * tmp[1][2]
-			           + tmp[2][2] * tmp[2][2];
+			f32 len2 = tmp.at(0, 2) * tmp.at(0, 2)
+			           + tmp.at(1, 2) * tmp.at(1, 2)
+			           + tmp.at(2, 2) * tmp.at(2, 2);
 			if (len2 > 0.0f)
 				len2 = JGeometry::TUtil<f32>::sqrt(len2);
 
 			// Target guards the normalized columns in this cross order.
 			if (len2 != 0.0f) {
-				tmp[0][0] /= len0;
-				tmp[1][0] /= len0;
-				tmp[2][0] /= len0;
+				tmp.ref(0, 0) /= len0;
+				tmp.ref(1, 0) /= len0;
+				tmp.ref(2, 0) /= len0;
 			}
 
 			if (len0 != 0.0f) {
-				tmp[0][1] /= len1;
-				tmp[1][1] /= len1;
-				tmp[2][1] /= len1;
+				tmp.ref(0, 1) /= len1;
+				tmp.ref(1, 1) /= len1;
+				tmp.ref(2, 1) /= len1;
 			}
 
 			if (len1 != 0.0f) {
-				tmp[0][2] /= len2;
-				tmp[1][2] /= len2;
-				tmp[2][2] /= len2;
+				tmp.ref(0, 2) /= len2;
+				tmp.ref(1, 2) /= len2;
+				tmp.ref(2, 2) /= len2;
 			}
 
-			Mtx rotOff;
-			JGeometry::TRotation3<
-			    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >
-			    r;
-			r.identity33();
-			f32* tr = (f32*)rotOff;
-			for (int i = 0; i < 12; ++i)
-				tr[i] = ((f32*)&r)[i];
-			rotOff[0][3] = mNozzleOffsetZ;
-			rotOff[1][3] = 0.0f;
-			rotOff[2][3] = 0.0f;
+			TPosition3f rotOff;
+			rotOff.translation(mNozzleOffsetZ, 0.0f, 0.0f);
 			PSMTXConcat(tmp, rotOff, tmp);
 
-			mPosition.x = tmp[0][3];
-			mPosition.y = tmp[1][3] - mColOffsetY;
-			mPosition.z = tmp[2][3];
+			mPosition.x = tmp.at(0, 3);
+			mPosition.y = tmp.at(1, 3) - mColOffsetY;
+			mPosition.z = tmp.at(2, 3);
 		}
 
 		Mtx rot;
