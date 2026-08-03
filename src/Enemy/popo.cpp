@@ -895,45 +895,44 @@ TPopo::TPopo(const char* name)
 
 static int PopoNonScaleCallback(J3DNode* node, int timing)
 {
-	if (timing != 0)
-		return 1;
+	if (timing == 0) {
+		TPopo* popo = gpCurPopo;
+		if (!popo)
+			return 1;
 
-	TPopo* popo = gpCurPopo;
-	if (!popo)
-		return 1;
+		bool shouldScale;
+		if (popo->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
+			shouldScale = true;
+		else if (popo->mSpine->getCurrentNerve()
+		         == &TNervePopoExplosion::theNerve())
+			shouldScale = true;
+		else if (popo->unk1B4)
+			shouldScale = true;
+		else
+			shouldScale = false;
 
-	bool shouldScale;
-	if (popo->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
-		shouldScale = true;
-	else if (popo->mSpine->getCurrentNerve()
-	         == &TNervePopoExplosion::theNerve())
-		shouldScale = true;
-	else if (popo->unk1B4)
-		shouldScale = true;
-	else
-		shouldScale = false;
+		if (!shouldScale)
+			return 1;
 
-	if (!shouldScale)
-		return 1;
-
-	J3DJoint* joint = (J3DJoint*)node;
-	MtxPtr mtx       = popo->getModel()->mNodeMatrices[joint->getJntNo()];
-	f32 scale        = 0.9f * popo->mBodyScale;
-	Mtx scaleMtx;
-	scaleMtx[0][0] = scale;
-	scaleMtx[0][1] = 0.0f;
-	scaleMtx[0][2] = 0.0f;
-	scaleMtx[0][3] = 0.0f;
-	scaleMtx[1][0] = 0.0f;
-	scaleMtx[1][1] = scale;
-	scaleMtx[1][2] = 0.0f;
-	scaleMtx[1][3] = 0.0f;
-	scaleMtx[2][0] = 0.0f;
-	scaleMtx[2][1] = 0.0f;
-	scaleMtx[2][2] = scale;
-	scaleMtx[2][3] = 0.0f;
-	PSMTXConcat(mtx, scaleMtx, mtx);
-	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
+		J3DJoint* joint = (J3DJoint*)node;
+		MtxPtr mtx       = popo->getModel()->mNodeMatrices[joint->getJntNo()];
+		f32 scale        = 0.9f * popo->mBodyScale;
+		Mtx scaleMtx;
+		scaleMtx[0][0] = scale;
+		scaleMtx[0][1] = 0.0f;
+		scaleMtx[0][2] = 0.0f;
+		scaleMtx[0][3] = 0.0f;
+		scaleMtx[1][0] = 0.0f;
+		scaleMtx[1][1] = scale;
+		scaleMtx[1][2] = 0.0f;
+		scaleMtx[1][3] = 0.0f;
+		scaleMtx[2][0] = 0.0f;
+		scaleMtx[2][1] = 0.0f;
+		scaleMtx[2][2] = scale;
+		scaleMtx[2][3] = 0.0f;
+		PSMTXConcat(mtx, scaleMtx, mtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
+	}
 	return 1;
 }
 
