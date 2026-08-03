@@ -792,7 +792,7 @@ void TBiancoMiniWindmill::calc()
 	rot[2][3]       = jointMtx[2][3];
 	PSMTXCopy(rot, getModel()->mNodeMatrices[1]);
 
-	f32 volume = fabsf(unk154);
+	f32 volume = __fabsf(unk154);
 	if (gpMSound->gateCheck(0x3045)) {
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 		    0x3045, (const Vec*)&mPosition, nullptr, volume, 0, 0, &unk160,
