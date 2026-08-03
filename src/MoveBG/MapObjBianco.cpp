@@ -660,7 +660,8 @@ void TLeafBoat::bind()
 void TLeafBoat::touchWall(JGeometry::TVec3<f32>* pos,
                           TBGWallCheckRecord* record)
 {
-	for (int i = 0; i < record->mResultWallsNum; ++i) {
+	int count = record->mResultWallsNum;
+	for (int i = 0; i < count; ++i) {
 		const TBGCheckData* wall = record->mResultWalls[i];
 		JGeometry::TVec3<f32> velocity = mVelocity;
 		const JGeometry::TVec3<f32>& normal = wall->getNormal();
@@ -668,9 +669,8 @@ void TLeafBoat::touchWall(JGeometry::TVec3<f32>* pos,
 		if (dot < 0.0f) {
 			f32 dist = pos->x * normal.x + pos->y * normal.y
 			           + pos->z * normal.z + wall->getPlaneDistance();
-			f32 push = mBodyRadius - dist;
-			pos->x += push * wall->getNormal().x;
-			pos->z += push * normal.z;
+			pos->x += (mBodyRadius - dist) * wall->getNormal().x;
+			pos->z += (mBodyRadius - dist) * normal.z;
 
 			JGeometry::TVec3<f32> reflected = mVelocity;
 			calcReflectingVelocity(wall, 1.0f, &reflected);
