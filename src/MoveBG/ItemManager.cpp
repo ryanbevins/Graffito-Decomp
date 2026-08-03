@@ -62,7 +62,8 @@ TShine* TItemManager::makeShineAppearWithDemo(const char* param_1,
 {
 	TShine* shine = JDrama::TNameRefGen::search<TShine>(param_1);
 	shine->mPosition.set(param_3, param_4, param_5);
-	shine->appearWithDemo(param_2);
+	const char* demoName = param_2;
+	shine->appearWithDemo(demoName);
 	return shine;
 }
 
@@ -75,7 +76,8 @@ TShine* TItemManager::makeShineAppearWithDemoOffset(const char* param_1,
 	shine->mPosition.x += param_3;
 	shine->mPosition.y += param_4;
 	shine->mPosition.z += param_5;
-	shine->appearWithDemo(param_2);
+	const char* demoName = param_2;
+	shine->appearWithDemo(demoName);
 	return shine;
 }
 
