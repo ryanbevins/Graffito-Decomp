@@ -35,7 +35,7 @@ TNpcCoin::TNpcCoin(int eventID)
 	unk14.z = 0.0f;
 
 	unk0 = TMapObjBaseManager::newAndRegisterObjByEventID((u32)eventID, nullptr);
-	(*(void (**)(TMapObjBase*))(*(u8**)unk0 + 0xE4))(unk0);
+	unk0->kill();
 }
 
 void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
