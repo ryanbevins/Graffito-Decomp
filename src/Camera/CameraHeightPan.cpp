@@ -5,6 +5,8 @@
 #include <Camera/CameraMarioData.hpp>
 #include <Player/MarioAccess.hpp>
 
+template <> BOOL CLBChaseGeneralConstantSpecifySpeed<f32>(f32*, f32, f32);
+
 void CPolarSubCamera::killHeightPanWhenChangeCamMode_()
 {
 	bool bVar2 = false;
