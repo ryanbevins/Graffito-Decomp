@@ -217,7 +217,7 @@ public:
 	/* 0x3E4 */ int unk3E4;
 	/* 0x3E8 */ u16 unk3E8;
 	/* 0x3EC */ f32 unk3EC;
-	/* 0x3F0 */ u16 unk3F0;
+	/* 0x3F0 */ s16 unk3F0;
 	/* 0x3F4 */ u32 unk3F4;
 	/* 0x3F8 */ u8 unk3F8;
 	/* 0x3F9 */ char unk3F9[0x3];
