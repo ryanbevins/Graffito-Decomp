@@ -930,15 +930,7 @@ void TLeanMirror::loadAfter()
 	unk17C = (TShiningStone*)findLiveActor("ShiningStone");
 
 	unk180 = unk17C->mPosition - mPosition;
-
-	f32 lenSq = unk180.squared();
-	if (lenSq <= JGeometry::TUtil<f32>::epsilon()) {
-		unk180.zero();
-	} else {
-		f32 rate = JGeometry::TUtil<f32>::one()
-		           * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
-		unk180.scale(rate);
-	}
+	unk180.normalize();
 }
 
 void TLeanMirror::initMapObj()
