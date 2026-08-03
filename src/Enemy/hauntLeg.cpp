@@ -1,4 +1,6 @@
+#define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/HauntLeg.hpp>
+#undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
 #include <Enemy/Spider.hpp>
