@@ -115,9 +115,9 @@ BOOL TBossHanachanPartsBody::receiveMessage(THitActor* sender, u32 message)
 	if (gpMarDirector->isThing())
 		return FALSE;
 
-	BOOL ret                          = FALSE;
-	const TNerveBase<TLiveActor>* cur = mOwner->mSpine->getLatestNerve();
+	bool ret                          = false;
 	bool isTumble                     = false;
+	const TNerveBase<TLiveActor>* cur = mOwner->mSpine->getLatestNerve();
 	if (cur == &TNerveBossHanachanTumble::theNerve()
 	    || cur == &TNerveBossHanachanDown::theNerve()) {
 		if (mActorType == 0x08000015) {
