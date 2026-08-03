@@ -88,12 +88,9 @@ void TMapObjBase::setObjHitData(u16 param_1)
 	const TMapObjHitDataTable* table = &mMapObjData->mHit->unkC[param_1];
 
 	if (table->unk0 >= 0.0f) {
-		f32 fVar2     = mScaling.x > mScaling.z ? mScaling.x : mScaling.z;
-		mAttackRadius = table->unk0 * fVar2;
-		mAttackHeight = table->unk4 * mScaling.y;
-		mDamageRadius = table->unk8 * fVar2;
-		mDamageHeight = table->unkC * mScaling.y;
-		calcEntryRadius();
+		f32 fVar2 = mScaling.x > mScaling.z ? mScaling.x : mScaling.z;
+		setHitParams(table->unk0 * fVar2, table->unk4 * mScaling.y,
+		             table->unk8 * fVar2, table->unkC * mScaling.y);
 	}
 }
 
