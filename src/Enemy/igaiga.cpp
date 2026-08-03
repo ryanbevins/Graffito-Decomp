@@ -564,9 +564,7 @@ void TIgaiga::setDeadAnm()
 		unk1C0 = mPosition;
 	} else {
 		MtxPtr mtx = getMActor()->getModel()->getAnmMtx(0);
-		unk1C0.x   = mtx[0][3];
-		unk1C0.y   = mtx[1][3];
-		unk1C0.z   = mtx[2][3];
+		unk1C0.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 	}
 
 	gpMarioParticleManager->emit(0xcb, &unk1C0, 0, nullptr);
@@ -576,18 +574,14 @@ void TIgaiga::setDeadAnm()
 	else
 		setBckAnm(1);
 
+	TIgaigaManager* manager = (TIgaigaManager*)mManager;
 	JGeometry::TVec3<f32> scale = mScaling;
 	scale *= unk1CC * unk1E4;
 	mPosition.y = mGroundHeight;
-	if (scale.x > 1.5f)
-		scale.x = 1.5f;
-	else if (scale.x < 0.8f)
-		scale.x = 0.8f;
-	scale.z = scale.x;
-	scale.y = scale.x;
+	scale.x = MsClamp(scale.x, 0.8f, 1.5f);
+	scale.y = scale.z = scale.x;
 
-	((TIgaigaManager*)mManager)
-	    ->mPolluteModelManager->generatePolluteModel(mPosition, scale);
+	manager->mPolluteModelManager->generatePolluteModel(mPosition, scale);
 }
 
 void TIgaiga::setMeltAnm()
