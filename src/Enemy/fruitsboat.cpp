@@ -50,13 +50,8 @@ DEFINE_NERVE(TNerveFruitsBoatBckTrace, TLiveActor)
 	J3DTransformInfo info1;
 	J3DTransformInfo info0;
 
-	{
-		typedef void (*GetT)(J3DAnmBase*, u16, J3DTransformInfo*);
-		((GetT)((u32*)(*(u32**)((u8*)self->mBckAnm + 0xc)))[3])(
-		    self->mBckAnm, 0, &info0);
-		((GetT)((u32*)(*(u32**)((u8*)self->mBckAnm + 0xc)))[3])(
-		    self->mBckAnm, 1, &info1);
-	}
+	self->mBckAnm->getTransform(0, &info0);
+	self->mBckAnm->getTransform(1, &info1);
 
 	self->mPosition.x = info0.mTranslate.x + info1.mTranslate.x;
 	self->mPosition.y = info0.mTranslate.y + info1.mTranslate.y;

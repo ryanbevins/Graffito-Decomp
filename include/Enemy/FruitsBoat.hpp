@@ -5,7 +5,7 @@
 #include <Enemy/EnemyManager.hpp>
 #include <Strategic/Nerve.hpp>
 
-class J3DAnmBase;
+class J3DAnmTransformKey;
 class J3DFrameCtrl;
 
 class TFruitsBoatParams : public TSpineEnemyParams {
@@ -54,7 +54,7 @@ public:
 	/* 0x150 */ u16 mAttrFlag;
 	/* 0x154 */ f32 unk154;
 	/* 0x158 */ f32 unk158;
-	/* 0x15C */ J3DAnmBase* mBckAnm;
+	/* 0x15C */ J3DAnmTransformKey* mBckAnm;
 	/* 0x160 */ J3DFrameCtrl* mBckFrameCtrl;
 	/* 0x164 */ f32 mWaveNormalX;
 	/* 0x168 */ f32 mWaveNormalY;
