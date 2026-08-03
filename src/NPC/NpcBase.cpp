@@ -738,7 +738,9 @@ bool TBaseNPC::isNeedNeckStraight() const
 	int   cur14  = *(int*)((u8*)unkD0 + 0x14);
 	if (holder != nullptr && holder == (void*)gpMarioAddress) {
 		result = true;
-	} else if (unk178 == 0.0f) {
+	} else if (unk178 != 0.0f) {
+		result = true;
+	} else {
 		if (mActorType == 0x04000012) {
 			result = true;
 		} else if (mActorType == 0x04000019 && cur14 == 0x5) {
