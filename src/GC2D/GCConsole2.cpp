@@ -2476,16 +2476,16 @@ bool TGCConsole2::startAppearBalloon(u32 messageID, bool param_2)
 		return false;
 
 	if (unk10 != 0) {
-		if (unk3F4 != 0xffffffff)
-			return false;
-
-		unk3F4 = messageID;
-		if (unk3F4 != 0xffffffff || unk3E4 == 0) {
-			unk3B8->hide();
-			unk34[20] = 0;
-			unk10     = 4;
+		if (unk3F4 == 0xffffffff) {
+			unk3F4 = messageID;
+			if (unk3F4 != 0xffffffff || unk3E4 == 0) {
+				unk3B8->hide();
+				unk34[20] = 0;
+				unk10     = 4;
+			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	if (gpMarDirector->mState == TMarDirector::STATE_UNK5 || !unk34[18])
