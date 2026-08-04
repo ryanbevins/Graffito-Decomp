@@ -263,9 +263,9 @@ void TBWLeash::perform(u32 flags, JDrama::TGraphics* graphics)
 			JGeometry::TVec3<f32> headBefore = mRope->mPoints[0].mPosition;
 			mRope->constraintTail(mOwner->mPicket->mPosition);
 
-			JGeometry::TVec3<f32> pull = mRope->mPoints[0].mPosition;
-			pull.sub(headBefore);
-			mOwner->unk15C = pull;
+			headBefore.sub(mRope->mPoints[0].mPosition);
+			headBefore.negate();
+			mOwner->unk15C = headBefore;
 
 			JGeometry::TVec3<f32> toHead = mRope->mPoints[0].mPosition;
 			JGeometry::TVec3<f32> ownerPos = mOwner->mPosition;
