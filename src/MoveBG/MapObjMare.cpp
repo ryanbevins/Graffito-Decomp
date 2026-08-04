@@ -454,12 +454,12 @@ inline static void updateGrowTreeHeight(TMapObjGrowTree* tree)
 			tree->mDamageHeight = tree->unk138;
 			tree->calcEntryRadius();
 		} else {
-			f32 rate
-			    = (tree->getMActor()->getFrameCtrl(0)->getFrame()
-			       - mGrowStartFrame)
-			      / (mGrowEndFrame - mGrowStartFrame);
-			tree->mDamageHeight
-			    = tree->unk148 + (tree->unk138 - tree->unk148) * rate;
+			f32 frame = tree->getMActor()->getFrameCtrl(0)->getFrame();
+			f32 frameDelta = frame - mGrowStartFrame;
+			f32 frameRange = mGrowEndFrame - mGrowStartFrame;
+			f32 heightDelta = tree->unk138 - tree->unk148;
+			f32 height = heightDelta * frameDelta / frameRange;
+			tree->mDamageHeight = tree->unk148 + height;
 			tree->calcEntryRadius();
 		}
 	} else {
@@ -528,8 +528,10 @@ void TMapObjGrowTree::control()
 	if (mMActor->getFrameCtrl(0)->getFrame() < mGrowEndFrame)
 		removeMapCollision();
 
-	mMActor->getFrameCtrl(0)->setFrame(
-	    mMActor->getFrameCtrl(0)->getFrame() - unk140);
+	f32 shrink = -unk140;
+	f32 oldFrame = mMActor->getFrameCtrl(0)->getFrame();
+	MActor* actor = mMActor;
+	actor->getFrameCtrl(0)->setFrame(shrink + oldFrame);
 	if (mMActor->getFrameCtrl(0)->getFrame() < 0.0f) {
 		startAnim(0);
 		mState = 1;
@@ -546,10 +548,13 @@ void TMapObjGrowTree::control()
 
 	if (mHeldObject) {
 		JGeometry::TVec3<f32> pos = mHeldObject->mPosition;
-		f32 move = 0.0f;
+		f32 shrink = unk140;
+		f32 move;
 		if (mGrowStartFrame < mMActor->getFrameCtrl(0)->getFrame()
 		    && mMActor->getFrameCtrl(0)->getFrame() < mGrowEndFrame)
-			move = unk140 * unk138 / (mGrowEndFrame - mGrowStartFrame);
+			move = shrink * unk138 / (mGrowEndFrame - mGrowStartFrame);
+		else
+			move = 0.0f;
 		pos.y -= move;
 		mHeldObject->moveRequest(pos);
 	}
