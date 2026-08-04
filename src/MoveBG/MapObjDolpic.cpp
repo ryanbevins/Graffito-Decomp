@@ -86,16 +86,16 @@ void TMonumentShine::hitByWater(THitActor* actor)
 	(void)_pad;
 
 	waterDir = actor->mPosition;
-	f32 px   = mPosition.x;
-	f32 py   = mPosition.y;
-	f32 pz   = mPosition.z;
+	f32 px = mPosition.x;
 	waterDir.x -= px;
+	f32 py = mPosition.y;
 	waterDir.y -= py;
+	f32 pz = mPosition.z;
 	waterDir.z -= pz;
 	waterDir.y = 0.0f;
 
-	f32 lenSq = waterDir.x * waterDir.x + waterDir.z * waterDir.z
-	            + waterDir.y * waterDir.y;
+	f32 lenSq = waterDir.x * waterDir.x + waterDir.y * waterDir.y
+	            + waterDir.z * waterDir.z;
 	if (lenSq <= 0.0000038146973f)
 		return;
 	marioDir = *gpMarioPos;
