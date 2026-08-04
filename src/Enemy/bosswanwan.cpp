@@ -1,5 +1,3 @@
-#define TMACTORKEEPER_GETMACTORANMDATA_OUT_OF_LINE
-#define MACTORANMDATAEACH_GETANMPTR_OUT_OF_LINE
 #include <Enemy/BossWanwan.hpp>
 #include <Camera/CameraShake.hpp>
 #include <Camera/cameralib.hpp>
@@ -32,8 +30,6 @@
 #include <Strategic/Strategy.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
-#undef MACTORANMDATAEACH_GETANMPTR_OUT_OF_LINE
-#undef TMACTORKEEPER_GETMACTORANMDATA_OUT_OF_LINE
 
 static const char* bwanwan_bastable[] = {
 	"/scene/bwanwan/bas/bwanwan_bark.bas",
