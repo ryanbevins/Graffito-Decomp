@@ -1321,8 +1321,8 @@ bool TTalk2D2::openNormalWindow()
 			J2DTextBox* textBox      = *textBoxSlot;
 
 			if (textBox->mVisible) {
-				int alpha = textBox->mAlpha + unk340;
-				int alphaSum = alpha;
+				int alphaSum = textBox->mAlpha + unk340;
+				s16 alpha    = alphaSum;
 				if (alpha > 0xff)
 					alpha = 0xff;
 
