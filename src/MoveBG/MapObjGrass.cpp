@@ -37,9 +37,9 @@ void TMapObjGrassGroup::drawNear() const
 		f32* swingOffsets = gpMapObjGrassManager->unk20;
 		JGeometry::TVec3<f32>& pos = unk6C[i];
 		f32 x                      = pos.x;
-		f32 z                      = pos.z;
-		f32 topX                   = x + swingOffsets[iVar7];
 		f32 leftX                  = x - drawVec.x;
+		f32 topX                   = x + swingOffsets[iVar7];
+		f32 z                      = pos.z;
 		f32 rightX                 = x + drawVec.x;
 		f32 bottomZ                = z - drawVec.z;
 		f32 topZ                   = z + drawVec.z;
