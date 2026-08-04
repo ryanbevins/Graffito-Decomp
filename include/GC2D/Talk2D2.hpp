@@ -56,6 +56,7 @@ public:
 	static GXColor cColorTable[6];
 
 	int getTalkMode() const { return unk248; }
+	s8 getSelectedValue() const { return unk214; }
 
 public:
 	/* 0x10 */ J2DSetScreen* unk10;

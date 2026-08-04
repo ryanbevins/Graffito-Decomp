@@ -322,7 +322,7 @@ static void evGetTalkSelectedValue(TSpcTypedInterp<TEventWatcher>* interp,
                                    u32 arg_num)
 {
 	interp->verifyArgNum(0, &arg_num);
-	interp->push((s32)*(s8*)((u8*)gpTalk2D + 0x214));
+	interp->push((int)gpTalk2D->getSelectedValue());
 }
 
 static void evSetValue2TalkVariable(TSpcTypedInterp<TEventWatcher>* interp,
