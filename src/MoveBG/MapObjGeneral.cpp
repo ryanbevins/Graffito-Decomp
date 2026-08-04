@@ -44,11 +44,13 @@ bool TMapObjGeneral::isPollutedGround(const JGeometry::TVec3<f32>& v) const
 
 inline f32 distToMario(const JGeometry::TVec3<f32>& v)
 {
-	JGeometry::TVec3<f32> r;
-	r.sub(v, *gpMarioPos);
-	f32 x2 = r.x * r.x;
-	f32 y2 = r.y * r.y;
-	f32 z2 = r.z * r.z;
+	const JGeometry::TVec3<f32>& mario = *gpMarioPos;
+	f32 dx = v.x - mario.x;
+	f32 dy = v.y - mario.y;
+	f32 dz = v.z - mario.z;
+	f32 x2 = dx * dx;
+	f32 y2 = dy * dy;
+	f32 z2 = dz * dz;
 	return JGeometry::TUtil<f32>::sqrt(x2 + y2 + z2);
 }
 
