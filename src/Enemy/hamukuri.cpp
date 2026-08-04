@@ -1132,17 +1132,17 @@ MtxPtr THamuKuri::getTakingMtx()
 
 	// TODO: identity33 but order is transposed?!
 	MtxPtr result = unk1B0;
-	result[0][0] = 1.0f;
-	result[0][1] = 0.0f;
-	result[0][2] = 0.0f;
+	unk1B0[0][0] = 1.0f;
+	unk1B0[0][1] = 0.0f;
+	unk1B0[0][2] = 0.0f;
 
-	result[1][0] = 0.0f;
-	result[1][1] = 1.0f;
-	result[1][2] = 0.0f;
+	unk1B0[1][0] = 0.0f;
+	unk1B0[1][1] = 1.0f;
+	unk1B0[1][2] = 0.0f;
 
-	result[2][0] = 0.0f;
-	result[2][1] = 0.0f;
-	result[2][2] = 1.0f;
+	unk1B0[2][0] = 0.0f;
+	unk1B0[2][1] = 0.0f;
+	unk1B0[2][2] = 1.0f;
 
 	MTXConcat(mat, result, result);
 
