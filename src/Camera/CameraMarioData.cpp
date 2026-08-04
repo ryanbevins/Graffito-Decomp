@@ -91,14 +91,7 @@ bool TCameraMarioData::isMarioIndoor() const
 {
 	bool result = false;
 	if (SMS_GetMarioGrPlane() != nullptr) {
-		u16 type = SMS_GetMarioGrPlane()->mBGType;
-		bool match;
-		if (type == 0x106 || type == 0x105 || (u16)(type - 0x108) <= 1) {
-			match = true;
-		} else {
-			match = false;
-		}
-		result = match;
+		result = SMS_GetMarioGrPlane()->isIndoors();
 	}
 	return result;
 }
