@@ -632,10 +632,7 @@ void TTurboNozzleDoor::touchPlayer(THitActor* player)
 	scale.y = 1.3f;
 	scale.z = 1.3f;
 
-	f32 yOff = 100.0f;
-	unk138.x = mPosition.x;
-	unk138.y = yOff + mPosition.y;
-	unk138.z = mPosition.z;
+	unk138.set(mPosition.x, mPosition.y + 100.0f, mPosition.z);
 
 	emitAndScale(24, 0, &unk138, scale);
 	emitAndScale(25, 0, &unk138, scale);
