@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="820" height="108" viewBox="0 0 820 108" role="img" aria-labelledby="title desc">
   <title id="title">Graffito Decomp matching progress</title>
-  <desc id="desc">94.91% fuzzy match, 1,487,480 of 3,590,088 exact code bytes, and 9,653 of 12,881 matched functions.</desc>
+  <desc id="desc">94.91% fuzzy match, 1,487,864 of 3,590,088 exact code bytes, and 9,655 of 12,881 matched functions.</desc>
   <style>
     .primary { fill: #1f2328; }
     .secondary { fill: #656d76; }
@@ -17,16 +17,16 @@
     <text x="820" y="22" class="primary" font-size="20" font-weight="600" text-anchor="end">94.91%</text>
 
     <rect y="35" width="820" height="12" rx="6" class="track"/>
-    <rect y="35" width="778.26" height="12" rx="6" fill="#1f883d"/>
+    <rect y="35" width="778.29" height="12" rx="6" fill="#1f883d"/>
 
     <text x="0" y="75" class="primary" font-size="14" font-weight="600">Exact code</text>
-    <text x="82" y="75" class="secondary" font-size="14">41.43%</text>
-    <text x="0" y="99" class="secondary" font-size="13">1,487,480 / 3,590,088 bytes</text>
+    <text x="82" y="75" class="secondary" font-size="14">41.44%</text>
+    <text x="0" y="99" class="secondary" font-size="13">1,487,864 / 3,590,088 bytes</text>
 
     <line x1="403" y1="65" x2="403" y2="101" stroke="#d0d7de"/>
 
     <text x="430" y="75" class="primary" font-size="14" font-weight="600">Functions</text>
-    <text x="504" y="75" class="secondary" font-size="14">74.94%</text>
-    <text x="430" y="99" class="secondary" font-size="13">9,653 / 12,881</text>
+    <text x="504" y="75" class="secondary" font-size="14">74.96%</text>
+    <text x="430" y="99" class="secondary" font-size="13">9,655 / 12,881</text>
   </g>
 </svg>
