@@ -245,7 +245,8 @@ void TMapObjGeneral::appearing()
 		if (mScaling.x < mInitialScaling.x)
 			return;
 
-		mScaling.set(mInitialScaling);
+		const JGeometry::TVec3<f32>& initialScaling = getInitialScaling();
+		mScaling.set(initialScaling);
 	}
 
 uuuh:
