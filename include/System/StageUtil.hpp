@@ -91,7 +91,7 @@ static s16 SMS_getShineID(u32 stage, u32 scenario, bool is_etc_shine)
 	if (puVar1 == nullptr)
 		return -1;
 
-	return puVar1[scenario];
+	return puVar1[(u8)scenario];
 }
 
 // size matches
