@@ -331,8 +331,9 @@ const JGeometry::TVec3<f32>& TWireBinder::getDir() const
 void TWireTrap::moveObject()
 {
 	if (mShakeTimer > 0) {
-		mShakeTimer -= 1;
-		if (mShakeTimer <= 0)
+		s32& shakeTimer = mShakeTimer;
+		shakeTimer -= 1;
+		if (shakeTimer <= 0)
 			mShakeWidth = 0.0f;
 	}
 
