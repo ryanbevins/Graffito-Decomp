@@ -73,12 +73,16 @@ public:
 		sortByFileNameRaw(unkC);
 	}
 
+#ifdef MACTORANMDATAEACH_GETANMPTR_OUT_OF_LINE
+	T* getAnmPtr(int idx) const;
+#else
 	T* getAnmPtr(int idx) const
 	{
 		if (idx < unk0)
 			return static_cast<T*>(unkC[idx]);
 		return nullptr;
 	}
+#endif
 };
 
 struct MActorSubAnmInfo {

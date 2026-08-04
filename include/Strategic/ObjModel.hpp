@@ -53,7 +53,11 @@ public:
 	MActor* createMActorFromDefaultBmd(const char* folder, u32 flags);
 	MActor* getMActor(const char* name) const;
 	MActor* createAndRegister(SDLModelData* model_data, u32 model_flags);
+#ifdef TMACTORKEEPER_GETMACTORANMDATA_OUT_OF_LINE
+	MActorAnmData* getMActorAnmData() const;
+#else
 	MActorAnmData* getMActorAnmData() const { return mActorAnmData; }
+#endif
 
 	const TModelDataKeeper* getModelDataKeeper() const
 	{
