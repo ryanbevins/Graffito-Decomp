@@ -515,24 +515,29 @@ void TMapObjGrowTree::control()
 {
 	TMapObjBase::control();
 
-	if (mState != 2 || mColCount != 0 || mLifeTimer > 0)
+	if (!isState(2))
+		return;
+	if (mColCount != 0)
+		return;
+	if (isLifeTimerActive())
 		return;
 
-	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
-	if (ctrl->getFrame() <= 0.0f)
+	if (!(mMActor->getFrameCtrl(0)->getFrame() > 0.0f))
 		return;
 
-	if (ctrl->getFrame() < mGrowEndFrame)
+	if (mMActor->getFrameCtrl(0)->getFrame() < mGrowEndFrame)
 		removeMapCollision();
 
-	ctrl->setFrame(ctrl->getFrame() - unk140);
-	if (ctrl->getFrame() < 0.0f) {
+	mMActor->getFrameCtrl(0)->setFrame(
+	    mMActor->getFrameCtrl(0)->getFrame() - unk140);
+	if (mMActor->getFrameCtrl(0)->getFrame() < 0.0f) {
 		startAnim(0);
 		mState = 1;
 		return;
 	}
 
-	if (67.0f <= ctrl->getFrame() && ctrl->getFrame() <= 240.0f
+	f32 frame = mMActor->getFrameCtrl(0)->getFrame();
+	if (67.0f <= frame && frame <= 240.0f
 	    && gpMSound->gateCheck(0x20C6))
 		MSoundSESystem::MSoundSE::startSoundActor(
 		    0x20C6, (const Vec*)&mPosition, 0, nullptr, 0, 4);
@@ -542,8 +547,8 @@ void TMapObjGrowTree::control()
 	if (mHeldObject) {
 		JGeometry::TVec3<f32> pos = mHeldObject->mPosition;
 		f32 move = 0.0f;
-		if (mGrowStartFrame < ctrl->getFrame()
-		    && ctrl->getFrame() < mGrowEndFrame)
+		if (mGrowStartFrame < mMActor->getFrameCtrl(0)->getFrame()
+		    && mMActor->getFrameCtrl(0)->getFrame() < mGrowEndFrame)
 			move = unk140 * unk138 / (mGrowEndFrame - mGrowStartFrame);
 		pos.y -= move;
 		mHeldObject->moveRequest(pos);
