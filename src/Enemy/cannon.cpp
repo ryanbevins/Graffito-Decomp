@@ -1282,7 +1282,8 @@ TCannonDom::TCannonDom(TLiveActor* owner, int jointIndex, SDLModelData* data,
 	if (unk1C != nullptr)
 		return;
 
-	unk1C = new MAnmSound(gpMSound);
+	MAnmSound* anmSound = new MAnmSound(SMSGetMSound());
+	unk1C = anmSound;
 	unk1C->initAnmSound(nullptr, 1, 0.0f);
 }
 
