@@ -740,8 +740,9 @@ u32 TMapObjBall::touchWater(THitActor* actor)
 	JGeometry::TVec3<f32> v;
 	v.set(velocity);
 	JGeometry::TVec3<f32>* speed = ((TMapObjBase*)actor)->getWaterSpeed(actor);
+	f32 speedX                    = speed->x;
 	f32 factor                   = unk17C;
-	v.x                          = speed->x * factor + v.x;
+	v.x                          = speedX * factor + v.x;
 	v.y                          = speed->y * factor + v.y;
 	v.z                          = speed->z * factor + v.z;
 	mVelocity                    = v;
