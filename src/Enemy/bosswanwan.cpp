@@ -260,8 +260,9 @@ void TBWLeash::perform(u32 flags, JDrama::TGraphics* graphics)
 
 		mOwner->unk188 = 0;
 		if (mOwner->unk17C != 0) {
+			const JGeometry::TVec3<f32>& picketPos = mOwner->mPicket->mPosition;
 			JGeometry::TVec3<f32> headBefore = mRope->mPoints[0].mPosition;
-			mRope->constraintTail(mOwner->mPicket->mPosition);
+			mRope->constraintTail(picketPos);
 
 			headBefore.sub(mRope->mPoints[0].mPosition);
 			headBefore.negate();
