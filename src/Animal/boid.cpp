@@ -183,8 +183,10 @@ void TBoidLeader::perform(u32 flags, JDrama::TGraphics*)
 
 		if (node.squared() < 10000.0f) {
 			TGraphTracer* tracer = mGraphTracer;
-			int next = tracer->unk0->getRandomNextIndex(
-			    tracer->mCurrIdx, tracer->mPrevIdx, 0xffffffff);
+			int prevIdx          = tracer->mPrevIdx;
+			int currIdx          = tracer->mCurrIdx;
+			TGraphWeb* graph     = tracer->unk0;
+			int next = graph->getRandomNextIndex(currIdx, prevIdx, 0xffffffff);
 			tracer->moveTo(next);
 		} else {
 			PSVECNormalize((Vec*)&node, (Vec*)&node);
