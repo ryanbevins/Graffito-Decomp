@@ -479,22 +479,28 @@ u32 TMapObjGrowTree::touchWater(THitActor* water)
 		mState = 2;
 	}
 
-	if (mMActor->getFrameCtrl(0)->getFrame()
-	    < mMActor->getFrameCtrl(0)->getEnd()) {
+	s16 endFrame = mMActor->getFrameCtrl(0)->getEnd();
+	MActor* endActor = mMActor;
+	if (endActor->getFrameCtrl(0)->getFrame() < endFrame) {
 		soundBas(0x289A, 3.0f, unk13C);
 		soundBas(0x289B, 67.0f, unk13C);
 		soundBas(0x289C, 103.0f, unk13C);
 		soundBas(0x289D, 137.0f, unk13C);
-		mMActor->getFrameCtrl(0)->setFrame(
-		    mMActor->getFrameCtrl(0)->getFrame() + unk13C);
+		MActor* oldActor = mMActor;
+		f32 grow = unk13C;
+		f32 oldFrame = oldActor->getFrameCtrl(0)->getFrame();
+		MActor* frameActor = mMActor;
+		frameActor->getFrameCtrl(0)->setFrame(grow + oldFrame);
 		updateGrowTreeHeight(this);
 
 		if (mHeldObject) {
 			JGeometry::TVec3<f32> pos = mHeldObject->mPosition;
+			MActor* moveActor = mMActor;
 			f32 move = unk13C;
-			if (mGrowStartFrame < mMActor->getFrameCtrl(0)->getFrame()
+			if (mGrowStartFrame < moveActor->getFrameCtrl(0)->getFrame()
 			    && mMActor->getFrameCtrl(0)->getFrame() < mGrowEndFrame)
-				move *= unk138 / (mGrowEndFrame - mGrowStartFrame);
+				move = move * unk138
+				       / (mGrowEndFrame - mGrowStartFrame);
 			else
 				move = 0.0f;
 			pos.y += move;
