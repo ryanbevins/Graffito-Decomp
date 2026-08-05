@@ -1,4 +1,5 @@
 #define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
+#define JGEOMETRY_DRAWUTIL_OWNER_HELPERS
 #include <Enemy/HauntLeg.hpp>
 #undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/Conductor.hpp>
@@ -97,15 +98,18 @@ DEFINE_NERVE(TNerveHauntLegHaunt, TLiveActor)
 MtxPtr THauntLeg::getTakingMtx()
 {
 	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
-		Mtx local;
-		f32 px = mPosition.x;
-		f32 py = mPosition.y;
-		f32 pz = mPosition.z;
-		PSMTXIdentity(local);
-		local[0][3] = px;
-		local[1][3] = py;
-		local[2][3] = pz;
-		PSMTXCopy(local, mMActor->getModel()->getBaseTRMtx());
+		TRotation3f local;
+		f32 px;
+		f32 py;
+		f32 pz;
+		pz = mPosition.z;
+		py = mPosition.y;
+		px = mPosition.x;
+		local.identity33();
+		local.mMtx[0][3] = px;
+		local.mMtx[1][3] = py;
+		local.mMtx[2][3] = pz;
+		PSMTXCopy(local.mMtx, mMActor->getModel()->getBaseTRMtx());
 		return mMActor->getModel()->getBaseTRMtx();
 	}
 	return (MtxPtr)((u8*)mMActor->getModel()->getAnmMtx(0) + 0x60);
