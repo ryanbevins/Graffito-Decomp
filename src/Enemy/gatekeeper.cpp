@@ -302,22 +302,25 @@ DEFINE_NERVE(TNerveBGKDie, TLiveActor)
 				bpkCtrl->setRate(SMSGetAnmFrameRate());
 			}
 
-			J3DModel* model      = gatekeeper->getModel();
+			MtxPtr mtx = (MtxPtr)((u8*)gatekeeper->getModel()->mNodeMatrices
+			                         + 0x120);
 			JPABaseEmitter* emit = gpMarioParticleManager->emitAndBindToMtxPtr(
-			    0xA7, (MtxPtr)((u8*)model->mNodeMatrices + 0x120), 0,
-			    nullptr);
+			    0xA7, mtx, 0, nullptr);
 			if (emit)
 				SMSSetEmitterPolColor(emit, 6);
 
-			gpMarioParticleManager->emitAndBindToMtxPtr(
-			    0xA8, (MtxPtr)gatekeeper->getModel()->mNodeMatrices, 0,
-			    nullptr);
+			MtxPtr mtx2
+			    = (MtxPtr)gatekeeper->getModel()->mNodeMatrices;
+			gpMarioParticleManager->emitAndBindToMtxPtr(0xA8, mtx2, 0,
+			                                               nullptr);
 		}
 	}
 
 	if (spine->getTime() == 0x154) {
+		MtxPtr mtx
+		    = (MtxPtr)gatekeeper->getModel()->mNodeMatrices;
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1DF, (MtxPtr)gatekeeper->getModel()->mNodeMatrices, 2, nullptr);
+		    0x1DF, mtx, 2, nullptr);
 
 		if (gpMSound->gateCheck(0x38B0))
 			MSoundSESystem::MSoundSE::startSoundActor(
