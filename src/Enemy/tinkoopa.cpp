@@ -445,12 +445,17 @@ void TTinKoopa::launchKiller(int direction)
 	}
 }
 
+#define ASSERT_MSG(msg, line) (void)((msg), (line))
+#define ASSERT_TEST(expr)                                                      \
+	(void)((expr) ? true : (ASSERT_MSG(__FILE__, __LINE__), false));
+
 void TTinKoopa::resetTinKoopa()
 {
 	if (!unk1F0) {
 		unk1F0 = JDrama::TNameRefGen::search<TEnemyManager>(
 		    "コースターキラーマネージャー");
 	}
+	ASSERT_TEST(unk1F0->unk38);
 
 	unk164 = gpMarioOriginal->mKoopaRail;
 	unk150 = 0;
