@@ -570,7 +570,8 @@ BOOL TMario::thrownDowning()
 			mVel.y = -mVel.y * 2.0f;
 			setPlayerVelocity(1024.0f * mForwardVel);
 			mActionState = mActionState + 1;
-		} else changePlayerStatus(0x0C000223, 0, false);
+		} else
+			return changePlayerStatus(0x0C000223, 0, false);
 		break;
 	case 2:
 		playerRefrection(0);
