@@ -1,4 +1,5 @@
 #define MSL_STDFMODF_OUT_OF_LINE
+#define JGEOMETRY_ROTATION3_IDENTITY33_OUT_OF_LINE
 
 #include <Enemy/Koopa.hpp>
 #include <Enemy/BathtubBinder.hpp>
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 
 #undef MSL_STDFMODF_OUT_OF_LINE
+#undef JGEOMETRY_ROTATION3_IDENTITY33_OUT_OF_LINE
 
 // The out-of-line std::fmodf(float, float) is owned by MoveBG/MapObjCorona;
 // reference it here so std::fmodf calls resolve to fmodf__3stdFff (single
@@ -729,17 +731,17 @@ void TKoopaJrSubmarine::calcRootMatrix()
 		finalQ.z = q.z * waveCos - q.y * waveSin;
 		finalQ.w = q.w * waveCos - q.x * waveSin;
 
-		Mtx mtx;
-		((JGeometry::TRotation3<
-		     JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >*)&mtx)
-		    ->setQuat(finalQ);
+		TPosition3f mtx;
+		mtx.identity33();
+		mtx.setQuat(finalQ);
 
 		f32 center = getSaveParam2()->centerZ.get();
-		mtx[0][3] = mPosition.x + mtx[0][2] * center;
-		mtx[1][3] = mPosition.y + mtx[1][2] * center;
-		mtx[2][3] = mPosition.z + mtx[2][2] * center - center;
+		mtx.mMtx[0][3] = mPosition.x + mtx.mMtx[0][2] * center;
+		mtx.mMtx[1][3] = mPosition.y + mtx.mMtx[1][2] * center;
+		mtx.mMtx[2][3]
+		    = mPosition.z + mtx.mMtx[2][2] * center - center;
 
-		PSMTXCopy(mtx, model->getBaseTRMtx());
+		PSMTXCopy(mtx.mMtx, model->getBaseTRMtx());
 	}
 
 	model->setBaseScale(mScaling);
