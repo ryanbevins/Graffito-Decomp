@@ -239,8 +239,9 @@ DEFINE_NERVE(TNerveBGKDive, TLiveActor)
 
 	if (spine->getTime() == 0xF0) {
 		J3DModel* model = gatekeeper->getModel();
+		MtxPtr mtx      = (MtxPtr)model->mNodeMatrices;
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1DF, (MtxPtr)model->mNodeMatrices, 2, nullptr);
+		    0x1DF, mtx, 2, nullptr);
 
 		if (SMS_IsMarioTouchGround4cm()) {
 			gatekeeper->unk29C = gatekeeper->getRumblePow();
