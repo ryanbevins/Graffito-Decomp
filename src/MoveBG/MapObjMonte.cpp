@@ -206,18 +206,17 @@ void TFluffManager::control()
 		if (unk15C == 0
 		    && unk158->mPosition.y - 100.0f < mPosition.y - unk138.z) {
 			for (int i = 3; i < unk164; ++i) {
-				TFluff* fluff = unk168[i];
-				if (fluff->unk16C != 0 || fluff->mHeldObject != 0)
+				if (unk168[i]->unk16C != 0 || unk168[i]->mHeldObject != 0)
 					continue;
 
-				f32 dx   = fluff->mPosition.x - gpMarioPos->x;
-				f32 dy   = fluff->mPosition.y - gpMarioPos->y;
-				f32 dz   = fluff->mPosition.z - gpMarioPos->z;
+				f32 dx   = unk168[i]->mPosition.x - gpMarioPos->x;
+				f32 dy   = unk168[i]->mPosition.y - gpMarioPos->y;
+				f32 dz   = unk168[i]->mPosition.z - gpMarioPos->z;
 				f32 dist = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy
 				                                       + dz * dz);
 				if (dist > 3000.0f) {
-					unk15C = fluff;
-					fluff->kill();
+					unk15C = unk168[i];
+					unk168[i]->kill();
 					break;
 				}
 			}
