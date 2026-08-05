@@ -1088,7 +1088,9 @@ void TBossGesso::doAttackSingle()
 
 		if (mTimeInCurrentAttackMode > getSaveParam()->mSLUnisonInter.get()) {
 			if (dist2 < shootRadius2) {
-				f32 dVar9  = MsGetRotFromZaxisY(delta);
+				JGeometry::TVec3<f32> shootDelta = SMS_GetMarioPos();
+				shootDelta -= mPosition;
+				f32 dVar9  = MsGetRotFromZaxisY(shootDelta);
 				f32 dVar10 = MsWrap(mRotation.y, dVar9 - 180.0f,
 				                    dVar9 + 180.0f);
 				if (fabsf(dVar9 - dVar10) < 30.0f)
