@@ -1030,8 +1030,7 @@ void TBossGesso::doAttackSingle()
 		return;
 	}
 
-	if (mTentacles[0]->mState == 3 || mTentacles[1]->mState == 3
-	    || mTentacles[2]->mState == 3 || mTentacles[3]->mState == 3)
+	if (tentacleHeld())
 		return;
 
 	JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
