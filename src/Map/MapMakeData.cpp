@@ -56,9 +56,18 @@ void TMapCollisionBase::setCheckData(const f32* param_1, const s16* param_2,
 	const f32* p2raw = param_1 + param_2[1] * 3;
 	const f32* p3raw = param_1 + param_2[2] * 3;
 
-	JGeometry::TVec3<f32> p1(p1raw[0], p1raw[1], p1raw[2]);
-	JGeometry::TVec3<f32> p2(p2raw[0], p2raw[1], p2raw[2]);
-	JGeometry::TVec3<f32> p3(p3raw[0], p3raw[1], p3raw[2]);
+	JGeometry::TVec3<f32> p1;
+	p1.x = p1raw[0];
+	p1.y = p1raw[1];
+	p1.z = p1raw[2];
+	JGeometry::TVec3<f32> p2;
+	p2.x = p2raw[0];
+	p2.y = p2raw[1];
+	p2.z = p2raw[2];
+	JGeometry::TVec3<f32> p3;
+	p3.x = p3raw[0];
+	p3.y = p3raw[1];
+	p3.z = p3raw[2];
 
 	param_3->setVertex(p1, p2, p3);
 
