@@ -345,11 +345,10 @@ f32 TMapObjWave::getHeight(f32 x, f32 y, f32 z) const
 {
 	const TBGCheckData* ground;
 	f32 height = gpMap->checkGroundExactY(x, y + 50.0f, z, &ground);
-	u16 code   = ground->mBGType;
 	f32 result = height;
-	bool water = isWaterBg(code);
+	bool water = ground->isWaterSurface();
 	if (water) {
-		bool wave = code == 0x102 || code == 0x103;
+		bool wave = ground->isSea();
 		if (wave) {
 			if (mTexInfo == nullptr) {
 				result = 0.0f;
