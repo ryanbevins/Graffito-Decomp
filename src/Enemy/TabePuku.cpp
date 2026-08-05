@@ -490,7 +490,8 @@ void TTabePuku::bind()
 
 	mLinearVelocity = mHitActor->mMove;
 	mTouchedWall    = mHitActor->mTouchedWall;
-	if (mHitActor->mIsAirborne)
+	s32 isAirborne = mHitActor->mIsAirborne;
+	if (isAirborne != 0)
 		onLiveFlag(LIVE_FLAG_AIRBORNE);
 	else
 		offLiveFlag(LIVE_FLAG_AIRBORNE);
