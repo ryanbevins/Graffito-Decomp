@@ -1,3 +1,4 @@
+#define JGEOMETRY_ROTATION3_IDENTITY33_OUT_OF_LINE
 #include <Animal/BeeHive.hpp>
 #include <Animal/BoidLeader.hpp>
 #include <Camera/cameralib.hpp>
@@ -24,6 +25,8 @@
 #include <Strategic/Strategy.hpp>
 #include <System/Particles.hpp>
 #include <math.h>
+
+#undef JGEOMETRY_ROTATION3_IDENTITY33_OUT_OF_LINE
 
 namespace {
 f32 cAngleLimit = 1.1780972f;
