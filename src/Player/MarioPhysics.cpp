@@ -838,7 +838,7 @@ int TMario::jumpProcess(int param)
 		result = groundResult;
 	}
 
-	if (!(mVel.y >= 0.0f)) {
+	if (mVel.y >= 0.0f) {
 		*(f32*)((u8*)this + 0x104) = mPosition.y;
 	}
 
