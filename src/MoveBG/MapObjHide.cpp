@@ -275,13 +275,14 @@ void TWaterHitPictureHideObj::load(JSUMemoryInputStream& stream)
 	unk154 = 1.8f;
 	unk158 = 1.0f;
 	unk15C = 0.4f;
-	if ((*getModel()->mNodeMatrices)[1][2] > 0.7f) {
+	f32 nodeZ = (*getModel()->mNodeMatrices)[1][2];
+	if (nodeZ > 0.7f) {
 		mYOffset      = 0.0f;
 		mDamageHeight = 40.0f;
 		calcEntryRadius();
 		mPosition.y = mInitialPosition.y + mYOffset;
 		unk154      = 2.8f;
-	} else if ((*getModel()->mNodeMatrices)[1][2] < -0.7f) {
+	} else if (nodeZ < -0.7f) {
 		mYOffset      = -10.0f * mScaling.y;
 		mDamageHeight = 30.0f;
 		calcEntryRadius();
