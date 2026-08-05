@@ -331,14 +331,14 @@ void TChuuHana::setGoal()
 	goal.x = mPosition.x;
 	goal.y = mPosition.y;
 	goal.z = mPosition.z;
-	Vec dir;
-	dir.x = 0.0f;
-	dir.y = 0.0f;
-	dir.z = 1.0f;
 
 	Mtx mtx;
 	TMsRange<f32> yawRange(-30.0f, 30.0f);
 	f32 randYaw = yawRange.rand();
+	Vec dir;
+	dir.x = 0.0f;
+	dir.y = 0.0f;
+	dir.z = 1.0f;
 	MsMtxSetRotRPH(mtx, mRotation.x, mRotation.y + randYaw, mRotation.z);
 	PSMTXMultVec(mtx, &dir, &dir);
 
