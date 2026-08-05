@@ -504,7 +504,8 @@ void TBeeHive::perform(u32 flags, JDrama::TGraphics* graphics)
 
 BOOL TBeeHive::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+	switch (message) {
+	case HIT_MESSAGE_SPRAYED_BY_WATER: {
 		JGeometry::TVec3<f32> diff = mPosition;
 		diff -= *gpMarioPos;
 
@@ -546,8 +547,9 @@ BOOL TBeeHive::receiveMessage(THitActor* sender, u32 message)
 		return TRUE;
 	}
 
-	if (message == HIT_MESSAGE_TRAMPLE || message == HIT_MESSAGE_HIP_DROP
-	    || message == HIT_MESSAGE_PUNCH) {
+	case HIT_MESSAGE_TRAMPLE:
+	case HIT_MESSAGE_HIP_DROP:
+	case HIT_MESSAGE_PUNCH: {
 		const TNerveBase<TLiveActor>* current = mSpine->getLatestNerve();
 		if (current == &TNerveBeeHiveWait::theNerve()) {
 			mSpine->reset();
@@ -556,7 +558,8 @@ BOOL TBeeHive::receiveMessage(THitActor* sender, u32 message)
 		return TRUE;
 	}
 
-	return FALSE;
+	default: return FALSE;
+	}
 }
 
 TRealoidActor* TBeeHive::createRealoidActor(MActor* actor)
