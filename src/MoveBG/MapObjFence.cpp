@@ -250,7 +250,8 @@ void TFenceWaterH::control()
 
 void TFenceWater::initMapObj()
 {
-	if (strstr(unkF4, "bamboo"))
+	const char* objectName = unkF4;
+	if (strstr(objectName, "bamboo"))
 		unk138 = 1;
 	TMapObjBase::initMapObj();
 
