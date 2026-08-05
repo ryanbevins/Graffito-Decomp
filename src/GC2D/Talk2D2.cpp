@@ -1361,10 +1361,8 @@ bool TTalk2D2::openBoardWindow()
 	switch (unk29[0]) {
 	case 0:
 		if (unk14->update()) {
-			JUTPoint initial(0, 0);
-			JUTPoint current(0, 0x50);
-			JUTPoint target(0, 0x50);
-			unk14->setPanePosition(0x19, target, current, initial);
+			unk14->setPanePosition(0x19, JUTPoint(0, 0x50),
+			                       JUTPoint(0, 0x50), JUTPoint(0, 0));
 			++unk29[0];
 		}
 		break;
