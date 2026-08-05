@@ -234,11 +234,10 @@ void TChuuHana::reset()
 	unk224 = 0;
 	unk1A4 = mCheckOnPanelTime;
 
-	TGraphWeb* graph = unk124->unk0;
-	TMsRange<s32> nodeRange(0, graph->getNodeNum());
+	TMsRange<s32> nodeRange(0, unk124->unk0->getNodeNum());
 	int index = nodeRange.rand();
 	JGeometry::TVec3<f32> point;
-	graph->getGraphNode(index).getPoint((Vec*)&point);
+	unk124->unk0->getGraphNode(index).getPoint((Vec*)&point);
 
 	TPathNode node(point);
 	unkF4  = node;
