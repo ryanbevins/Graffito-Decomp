@@ -456,7 +456,8 @@ void TTabePuku::calcRootMatrix()
 
 	getModel()->setBaseScale(mScaling);
 	MtxPtr transformMtx = mtx;
-	PSMTXCopy(transformMtx, getModel()->getBaseTRMtx());
+	MtxPtr baseMtx      = getModel()->getBaseTRMtx();
+	PSMTXCopy(transformMtx, baseMtx);
 
 	JPABaseEmitter* emitter = SMS_EasyEmitParticle(
 	    (E_SMS_EFFECT_LOOP_NORMAL)0x178, getModel()->getAnmMtx(mMouthJointIndex),
