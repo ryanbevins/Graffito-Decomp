@@ -543,7 +543,7 @@ void TTabePuku::init(TLiveManager* manager)
 	initHitActor(0x10000035, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f);
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 
-	mHitActor = new TTPHitActor(this, "タベプク補助当たり");
+	mHitActor = new TTPHitActor(this, "タベプク用当たり");
 	mHitActor->init();
 	mHitActor->mPosition = mPosition;
 
