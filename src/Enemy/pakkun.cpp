@@ -512,8 +512,10 @@ void TStayPakkun::genRandomItem()
 	gpModelWaterManager->emitRequest(*info);
 
 	TWaterGun* waterGun = (TWaterGun*)SMS_GetMarioWaterGun();
-	if ((waterGun->mCurrentWater << 2)
-	    < waterGun->getCurrentNozzle()->mEmitParams.mAmountMax.get()) {
+	s32 maxAmount
+	    = waterGun->getCurrentNozzle()->mEmitParams.mAmountMax.get();
+	waterGun = (TWaterGun*)SMS_GetMarioWaterGun();
+	if ((waterGun->mCurrentWater << 2) < maxAmount) {
 		gpItemManager->makeObjAppear(mPosition.x, mPosition.y, mPosition.z,
 		                             0x20000002, true);
 	} else {
