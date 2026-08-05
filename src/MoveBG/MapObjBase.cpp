@@ -483,11 +483,11 @@ void TMapObjBase::setGroundCollision()
 			unk102 = 4;
 	}
 	if (unkF8 & 0x8) {
-		J3DModel* model = getModel();
+		MtxPtr anmMtx = getModel()->getAnmMtx(0);
 		TMapCollisionBase* col2 = mMapCollisionManager->unk8;
 		if (!col2)
 			return;
-		col2->moveMtx(model->getAnmMtx(0));
+		col2->moveMtx(anmMtx);
 		return;
 	}
 	JGeometry::TVec3<f32> pos;
