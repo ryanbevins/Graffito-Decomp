@@ -142,17 +142,17 @@ DEFINE_NERVE(TNerveStayPakkunHide, TLiveActor)
 	f32 frame = self->getCurAnmFrameNo(0);
 	if (frame > 47.0f && frame < 80.0f
 	    && !self->checkLiveFlag(LIVE_FLAG_HIDDEN | LIVE_FLAG_CLIPPED_OUT)) {
-		if (gpPollution->isPolluted(self->mPosition.x, self->mPosition.y,
-		                            self->mPosition.z)) {
-			JPABaseEmitter* emitter = gpMarioParticleManager->emit(
-			    0x12d, &self->mPosition, 1, self);
-			if (emitter)
-				SMSSetEmitterPolColor(emitter, 6);
-		} else {
+		if (!gpPollution->isPolluted(self->mPosition.x, self->mPosition.y,
+		                             self->mPosition.z)) {
 			gpMarioParticleManager->emit(0x13e, &self->mPosition, 1,
 			                             self);
 			gpMarioParticleManager->emit(0x13f, &self->mPosition, 1,
 			                             self);
+		} else {
+			JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+			    0x12d, &self->mPosition, 1, self);
+			if (emitter)
+				SMSSetEmitterPolColor(emitter, 6);
 		}
 	}
 
