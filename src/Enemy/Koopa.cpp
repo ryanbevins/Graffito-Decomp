@@ -812,8 +812,9 @@ BOOL TKoopa::isFlaming() const
 f32 TKoopa::getFlameDirRate() const
 {
 	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+	MActor* endActor   = mMActor;
 	f32 frame          = ctrl->getFrame();
-	f32 end            = mMActor->getFrameCtrl(0)->getEnd();
+	f32 end            = endActor->getFrameCtrl(0)->getEnd();
 	TEnemyManager* manager = (TEnemyManager*)mManager;
 	TKoopaParams* prm      = (TKoopaParams*)manager->unk38;
 	f32 overStart      = prm->flameOverStart.get();
