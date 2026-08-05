@@ -902,8 +902,9 @@ void TBossWanwan::shakeCamera(int mode)
 	f32 lengthMaxHP0
 	    = ((TBWParams*)getSaveParam())->mSLShakeLengthMaxHP0.value;
 	f32 ratio;
+	MActor* actor = mMActor;
 
-	if (mMActor->checkCurBckFromIndex(0)) {
+	if (actor->checkCurBckFromIndex(0)) {
 		ratio = 1.0f;
 	} else {
 		ratio = (f32)mHitPoints
