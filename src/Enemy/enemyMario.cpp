@@ -1386,7 +1386,6 @@ void TEnemyMario::emRunAwayToNearestNode()
 
 void TEnemyMario::findRunAwayNearestNode()
 {
-	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
 	f32 nearestDist  = 100000.0f;
 	f32 secondDist   = 100000.0f;
 	int nearestIdx   = 0;
@@ -1394,9 +1393,9 @@ void TEnemyMario::findRunAwayNearestNode()
 	Vec nearestPoint;
 	Vec secondPoint;
 
-	for (int i = 0; i < graph->getNodeNum(); ++i) {
+	for (int i = 0; i < emOwner(this)->unk124->getGraph()->getNodeNum(); ++i) {
 		Vec point;
-		graph->getGraphNode(i).getPoint(&point);
+		emOwner(this)->unk124->getGraph()->getGraphNode(i).getPoint(&point);
 		f32 dist = distanceFromPos(mPosition, point);
 
 		if (dist < nearestDist) {
