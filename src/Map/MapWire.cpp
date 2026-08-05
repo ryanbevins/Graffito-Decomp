@@ -143,13 +143,15 @@ void TMapWire::getPointPosAtReleased(f32 pos, JGeometry::TVec3<f32>* out) const
 
 	// TODO: fix this inlining issue
 	f32 power = fake_getPointPowerAtReleased(this, pos);
+	out->x = linePoint.x;
 	// TODO: Regswaps for these calculations?
 	f32 yAdjusted
 	    = linePoint.y
 	      + (1.0f - mBounceRemainingPower) * (defaultPoint.y - linePoint.y)
 	      + power * mHangOrBouncePoint.y;
 
-	out->set(linePoint.x, yAdjusted, linePoint.z);
+	out->y = yAdjusted;
+	out->z = linePoint.z;
 }
 
 void TMapWire::updatePointAtReleased(int index)
