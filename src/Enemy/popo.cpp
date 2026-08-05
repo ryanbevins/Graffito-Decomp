@@ -1,3 +1,4 @@
+#define JGEOMETRY_ROTATION3_IDENTITY33_OUT_OF_LINE
 #include <Enemy/Popo.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
@@ -24,6 +25,8 @@
 #include <System/Particles.hpp>
 #include <dolphin/mtx.h>
 #include <math.h>
+
+#undef JGEOMETRY_ROTATION3_IDENTITY33_OUT_OF_LINE
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>

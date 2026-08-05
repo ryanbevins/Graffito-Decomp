@@ -22,7 +22,8 @@ public:
 		setRotate(axis, angle);
 	}
 
-#ifdef JGEOMETRY_DRAWUTIL_OWNER_HELPERS
+#if defined(JGEOMETRY_DRAWUTIL_OWNER_HELPERS)                                  \
+    || defined(JGEOMETRY_ROTATION3_IDENTITY33_OUT_OF_LINE)
 	void identity33();
 #else
 	void identity33()
