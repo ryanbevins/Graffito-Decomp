@@ -435,8 +435,8 @@ void TMario::bubbleFromBody()
 
 	f32 maxSpeed = mParticleParams.mBodyBubbleSpMax.value;
 	f32 speed    = mForwardVel;
+	f32 rate     = 0.0f;
 	f32 minSpeed = mParticleParams.mBodyBubbleSpMin.value;
-	f32 rate = 0.0f;
 	if (speed > maxSpeed) {
 		rate = 1.0f;
 	} else if (speed > minSpeed) {
