@@ -47,6 +47,13 @@ static inline bool isTabePukuAttackNerve(const TNerveBase<TLiveActor>* nerve)
 	       || nerve == &TNerveTabePukuDrag::theNerve();
 }
 
+static inline bool isTabePukuHoldingNerve(const TNerveBase<TLiveActor>* nerve)
+{
+	return nerve == &TNerveTabePukuBite::theNerve()
+	       || nerve == &TNerveTabePukuDive::theNerve()
+	       || nerve == &TNerveTabePukuDrag::theNerve();
+}
+
 static inline bool isTabePukuGraphNerve(const TNerveBase<TLiveActor>* nerve)
 {
 	return nerve == &TNerveTabePukuGraphWander::theNerve()
@@ -370,7 +377,7 @@ void TTabePuku::behaveToWater(THitActor*) { }
 void TTabePuku::attackToMario()
 {
 	const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
-	if (isTabePukuAttackNerve(nerve) || isTabePukuGraphNerve(nerve))
+	if (isTabePukuHoldingNerve(nerve) || isTabePukuGraphNerve(nerve))
 		return;
 
 	if (SMS_SendMessageToMario(this, HIT_MESSAGE_TAKE)) {
