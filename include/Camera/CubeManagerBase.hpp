@@ -77,7 +77,11 @@ public:
 	bool isInOtherCube(const Vec& pos) const
 	{
 		s32 cubeNo = getInCubeNo(pos);
-		return unk1C != -1 && cubeNo != -1 && unk1C != cubeNo;
+		if (unk1C == -1 || cubeNo == -1)
+			return false;
+		if (unk1C == cubeNo)
+			return false;
+		return true;
 	}
 };
 
