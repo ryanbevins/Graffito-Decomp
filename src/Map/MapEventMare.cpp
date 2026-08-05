@@ -245,44 +245,45 @@ TMareEventWallRock::TMareEventWallRock(const char* name)
 
 void TMareEventDepressWall::rising()
 {
-	int i       = mCurrentIndex;
-	f32 current = TMapObjBase::getJointTransX(mJoints[i]);
+	f32 current
+	    = TMapObjBase::getJointTransX(mJoints[mCurrentIndex]);
+	JGeometry::TVec3<f32>* pos = &mPositions[mCurrentIndex];
 
 	if (gpMSound->gateCheck(0x3008)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x3008, &mPositions[i], 0,
+		MSoundSESystem::MSoundSE::startSoundActor(0x3008, pos, 0,
 		                                          nullptr, 0, 4);
 	}
 
 	JPABaseEmitter* emitter = gpMarioParticleManager->emit(
-	    0x15b, &mPositions[i], 1, &mPositions[i]);
+	    0x15b, &mPositions[mCurrentIndex], 1, &mPositions[mCurrentIndex]);
 	if (emitter != nullptr) {
-		JGeometry::TVec3<f32>* effectDir = &mEffectDirs[i];
+		JGeometry::TVec3<f32>* effectDir = &mEffectDirs[mCurrentIndex];
 		emitter->unk154.x                = effectDir->x;
 		emitter->unk154.y                = effectDir->y;
 		emitter->unk154.z                = effectDir->z;
 		emitter->unk174.x                = effectDir->x;
 		emitter->unk174.y                = effectDir->y;
 		emitter->unk174.z                = effectDir->z;
-		emitter->mChildSpawnRate = mParticleScales[i];
-		f32 childRate            = mParticleChildRates[i];
+		emitter->mChildSpawnRate = mParticleScales[mCurrentIndex];
+		f32 childRate            = mParticleChildRates[mCurrentIndex];
 		emitter->unk174.x        = childRate;
 		emitter->unk174.y        = childRate;
 		emitter->unk174.z        = childRate;
 	}
 
-	if (mDirections[i]) {
+	if (mDirections[mCurrentIndex]) {
 		if (current > 0.0f) {
 			current -= mRiseSpeed;
-			TMapObjBase::setJointTransX(mJoints[i], current);
+			TMapObjBase::setJointTransX(mJoints[mCurrentIndex], current);
 			JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
-			mMoveCollisions[i].moveTrans(trans);
+			mMoveCollisions[mCurrentIndex].moveTrans(trans);
 			return;
 		}
 
 		JGeometry::TVec3<f32> trans(0.0f, 0.0f, 0.0f);
-		mMoveCollisions[i].remove();
-		mWarpCollisions[i].setUpTrans(trans);
-		TMapObjBase::setJointTransX(mJoints[i], 0.0f);
+		mMoveCollisions[mCurrentIndex].remove();
+		mWarpCollisions[mCurrentIndex].setUpTrans(trans);
+		TMapObjBase::setJointTransX(mJoints[mCurrentIndex], 0.0f);
 		SMSRumbleMgr->stop(0x13);
 
 		++mCurrentIndex;
@@ -296,16 +297,16 @@ void TMareEventDepressWall::rising()
 	} else {
 		if (current < 0.0f) {
 			current += mRiseSpeed;
-			TMapObjBase::setJointTransX(mJoints[i], current);
+			TMapObjBase::setJointTransX(mJoints[mCurrentIndex], current);
 			JGeometry::TVec3<f32> trans(current, 0.0f, 0.0f);
-			mMoveCollisions[i].moveTrans(trans);
+			mMoveCollisions[mCurrentIndex].moveTrans(trans);
 			return;
 		}
 
 		JGeometry::TVec3<f32> trans(0.0f, 0.0f, 0.0f);
-		mMoveCollisions[i].remove();
-		mWarpCollisions[i].setUpTrans(trans);
-		TMapObjBase::setJointTransX(mJoints[i], 0.0f);
+		mMoveCollisions[mCurrentIndex].remove();
+		mWarpCollisions[mCurrentIndex].setUpTrans(trans);
+		TMapObjBase::setJointTransX(mJoints[mCurrentIndex], 0.0f);
 		SMSRumbleMgr->stop(0x13);
 
 		++mCurrentIndex;
