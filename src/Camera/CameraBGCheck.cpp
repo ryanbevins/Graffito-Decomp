@@ -218,12 +218,12 @@ bool CPolarSubCamera::isNeedGroundCheck_()
 		if (isNormalCameraSpecifyMode(mMode)
 		    || isTowerCameraSpecifyMode(mMode)) {
 			TCameraKindParam* pad = getActiveKindParam(this);
-			f32 sX                = pad->unk08 * JMASSin(pad->unk18);
 			f32 sY                = pad->unk0C * JMASSin(pad->unk1A);
+			f32 sX                = pad->unk08 * JMASSin(pad->unk18);
 			f32 dy                = mPosition.y - mTarget.y;
-			f32 mx                = sX;
-			if (sX <= sY)
-				mx = sY;
+			f32 mx                = sY;
+			if (sX > sY)
+				mx = sX;
 			if (dy > 1.25f * mx) {
 				result = false;
 				if (unk278 < 0x78)
