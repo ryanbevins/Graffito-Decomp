@@ -1115,10 +1115,13 @@ void TTinKoopaFlame::perform(u32 flags, JDrama::TGraphics* graphics)
 		if (unk68->unk17C <= 0 && unk68->unk150 != 4) {
 			s32 frame = unk68->unk150 == 0 ? 0xabe : 0xd48;
 			bool passed;
-			if (unk68->unk164) {
-				passed = unk68->unk164->getFrameCtrl(0)->checkPass((f32)frame);
-			} else {
+			if (!unk68->unk164) {
 				passed = false;
+			} else {
+				if (unk68->unk164->getFrameCtrl(0)->checkPass((f32)frame))
+					passed = true;
+				else
+					passed = false;
 			}
 			if (passed)
 				SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
