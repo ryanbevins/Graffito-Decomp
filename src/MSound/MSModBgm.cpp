@@ -57,6 +57,9 @@ void MSModBgm::changeTempo(u8 kind, u8 bgmId)
 			tempo  = 1.2f;
 			frames = 0x14;
 			break;
+		case 3:
+			tempo = 1.0f;
+			break;
 		}
 		handle->setTempoProportion(tempo, frames);
 	}
