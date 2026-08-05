@@ -1599,7 +1599,7 @@ DEFINE_NERVE(TNerveBWJump, TLiveActor)
 {
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
 	if (spine->getTime() == 0) {
-		const JGeometry::TVec3<f32>& target = self->unk104.getPoint();
+		const JGeometry::TVec3<f32>& target = self->getUnk104().getPoint();
 		f32 speed = self->unk124->unkC;
 		self->mVelocity
 		    = self->calcVelocityToJumpToY(target, speed, self->getGravityY());
