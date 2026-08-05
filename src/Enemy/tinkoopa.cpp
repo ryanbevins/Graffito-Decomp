@@ -1162,8 +1162,9 @@ void TTinKoopaFlame::emitFlameEffects()
 			unk6C = 1.0f;
 	}
 
-	f32 xzScale = unk6C * baseScale;
-	f32 yScale  = xzScale;
+	f32 yScale;
+	f32 xzScale;
+	yScale = xzScale = unk6C * baseScale;
 	if (unk68->unk17C > 0)
 		yScale *= 3.0f;
 
