@@ -303,12 +303,6 @@ void TTabePukuManager::createModelData()
 	createModelDataArray(entry);
 }
 
-void TTabePukuManager::load(JSUMemoryInputStream& stream)
-{
-	unk38 = new TTabePukuSaveLoadParams("/enemy/tabepuku.prm");
-	TSmallEnemyManager::load(stream);
-}
-
 TTabePukuManager::TTabePukuManager(const char* name)
     : TSmallEnemyManager(name)
 {
@@ -541,26 +535,6 @@ void TTabePuku::perform(u32 flags, JDrama::TGraphics* graphics)
 
 void TTabePuku::reset() { mScaledBodyRadius = 130.0f; }
 
-void TTabePuku::init(TLiveManager* manager)
-{
-	mManager = manager;
-	mManager->manageActor(this);
-	setMActorAndKeeper();
-	mSpine->initWith(&TNerveTabePukuGraphWander::theNerve());
-
-	initHitActor(0x10000035, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f);
-	onHitFlag(HIT_FLAG_NO_COLLISION);
-
-	mHitActor = new TTPHitActor(this, "タベプク用当たり");
-	mHitActor->init();
-	mHitActor->mPosition = mPosition;
-
-	mQuat = SMS_Eular2Quat(mRotation);
-	mMouthJointIndex
-	    = (u16)getModel()->getModelData()->getJointName()->getIndex("jnt_mouth_up");
-	initAnmSound();
-}
-
 void TTPHitActor::bind()
 {
 	JGeometry::TVec3<f32> next(mPosition);
@@ -645,4 +619,30 @@ void TTPHitActor::init()
 	TIdxGroupObj* group
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
 	group->getChildren().push_back(this);
+}
+
+void TTabePuku::init(TLiveManager* manager)
+{
+	mManager = manager;
+	mManager->manageActor(this);
+	setMActorAndKeeper();
+	mSpine->initWith(&TNerveTabePukuGraphWander::theNerve());
+
+	initHitActor(0x10000035, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f);
+	onHitFlag(HIT_FLAG_NO_COLLISION);
+
+	mHitActor = new TTPHitActor(this, "タベプク用当たり");
+	mHitActor->init();
+	mHitActor->mPosition = mPosition;
+
+	mQuat = SMS_Eular2Quat(mRotation);
+	mMouthJointIndex
+	    = (u16)getModel()->getModelData()->getJointName()->getIndex("jnt_mouth_up");
+	initAnmSound();
+}
+
+void TTabePukuManager::load(JSUMemoryInputStream& stream)
+{
+	unk38 = new TTabePukuSaveLoadParams("/enemy/tabepuku.prm");
+	TSmallEnemyManager::load(stream);
 }
