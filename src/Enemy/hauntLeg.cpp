@@ -86,10 +86,13 @@ DEFINE_NERVE(TNerveHauntLegHaunt, TLiveActor)
 	}
 
 	if (self->isAirborne()) {
-		f32 cap   = self->unk199 ? 180.0f : 360.0f;
-		f32 angle = self->unk1AC + 2.0f;
-		angle     = MsClamp(angle, 0.0f, cap);
-		self->unk1AC = angle;
+		if (self->unk199) {
+			self->unk1AC
+			    = MsClamp(self->unk1AC + 2.0f, 0.0f, 180.0f);
+		} else {
+			self->unk1AC
+			    = MsClamp(self->unk1AC + 2.0f, 0.0f, 360.0f);
+		}
 	}
 
 	return FALSE;
