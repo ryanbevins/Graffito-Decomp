@@ -715,8 +715,8 @@ void TTobiPuku::forceKill()
 		return;
 	if (mSpine->getCurrentNerve() == &TNerveTobiPukuFly::theNerve())
 		return;
-	if (!checkLiveFlag(LIVE_FLAG_UNK10))
-		isJumpBck();
+	if (!checkLiveFlag(LIVE_FLAG_UNK10) && isJumpBck())
+		return;
 }
 
 void TTobiPuku::kill()
