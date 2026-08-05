@@ -2456,6 +2456,7 @@ void TGCConsole2::pauseOut()
 	unk5A = 0;
 }
 
+#pragma dont_inline on
 bool TGCConsole2::startDisappearBalloon(u32 param_1, bool param_2)
 {
 	if (!param_2 && unk3F4 == 0xffffffff && (param_1 != unk3E0 || unk3E4 != 0))
@@ -2466,6 +2467,7 @@ bool TGCConsole2::startDisappearBalloon(u32 param_1, bool param_2)
 	unk10     = 4;
 	return true;
 }
+#pragma dont_inline off
 
 bool TGCConsole2::startAppearBalloon(u32 messageID, bool param_2)
 {
