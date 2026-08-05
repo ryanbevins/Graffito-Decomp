@@ -18,21 +18,22 @@ void TSky::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
 	if (param_1 & 2) {
 		Mtx local_4c;
-		MTXInverse(gpCamera->unk1EC, local_4c);
+		MtxPtr cameraMtx = gpCamera->unk1EC;
+		MTXInverse(cameraMtx, local_4c);
 
 		Mtx afStack_7c;
 		MTXIdentity(afStack_7c);
 
 		// TODO: match this awfulness
-		afStack_7c[0][3] = -(local_4c[0][2] * gpCamera->unk1EC[2][3]
-		                     - (-local_4c[0][0] * gpCamera->unk1EC[0][3]
-		                        - local_4c[0][1] * gpCamera->unk1EC[1][3]));
-		afStack_7c[1][3] = -(local_4c[1][2] * gpCamera->unk1EC[2][3]
-		                     - (-local_4c[1][0] * gpCamera->unk1EC[0][3]
-		                        - local_4c[1][1] * gpCamera->unk1EC[1][3]));
-		afStack_7c[2][3] = -(local_4c[2][2] * gpCamera->unk1EC[2][3]
-		                     - (-local_4c[2][0] * gpCamera->unk1EC[0][3]
-		                        - local_4c[2][1] * gpCamera->unk1EC[1][3]));
+		afStack_7c[0][3] = -(local_4c[0][2] * cameraMtx[2][3]
+		                     - (-local_4c[0][0] * cameraMtx[0][3]
+		                        - local_4c[0][1] * cameraMtx[1][3]));
+		afStack_7c[1][3] = -(local_4c[1][2] * cameraMtx[2][3]
+		                     - (-local_4c[1][0] * cameraMtx[0][3]
+		                        - local_4c[1][1] * cameraMtx[1][3]));
+		afStack_7c[2][3] = -(local_4c[2][2] * cameraMtx[2][3]
+		                     - (-local_4c[2][0] * cameraMtx[0][3]
+		                        - local_4c[2][1] * cameraMtx[1][3]));
 
 		if (gpMarDirector->mMap == 15) {
 			Mtx local_ac;
