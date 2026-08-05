@@ -1046,8 +1046,11 @@ void TBossWanwan::control()
 
 	if (unk17C != 0
 	    || (mPicket->isTaken()
-	        && unk15C.x * unk15C.x + unk15C.y * unk15C.y + unk15C.z * unk15C.z
-	               >= ((TBWParams*)getSaveParam())->mSLPullLimit.get())) {
+	        && (unk15C.x * unk15C.x + unk15C.y * unk15C.y
+	                    + unk15C.z * unk15C.z
+	                >= ((TBWParams*)getSaveParam())->mSLPullLimit.get()
+	            ? TRUE
+	            : FALSE))) {
 		mLinearVelocity.x += unk15C.x;
 		mLinearVelocity.y += unk15C.y;
 		mLinearVelocity.z += unk15C.z;
