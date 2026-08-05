@@ -29,14 +29,16 @@ static inline bool checkLinePolygonCollision(f32 x1, f32 z1, f32 x2, f32 z2,
 	const JGeometry::TVec3<f32>& p2 = poly->mPoint2;
 	const JGeometry::TVec3<f32>& p1 = poly->mPoint1;
 
-	if (checkLinesCollision(x1, z1, x2, z2, p1.x, p1.z, p2.x, p2.z)
-	    || checkLinesCollision(x1, z1, x2, z2, p2.x, p2.z, poly->mPoint3.x,
-	                           poly->mPoint3.z)
-	    || checkLinesCollision(x1, z1, x2, z2, poly->mPoint3.x,
-	                           poly->mPoint3.z, p1.x, p1.z))
-		return true;
+	if (!checkLinesCollision(x1, z1, x2, z2, p1.x, p1.z, p2.x, p2.z)) {
+		const JGeometry::TVec3<f32>& p3 = poly->mPoint3;
+		if (!checkLinesCollision(x1, z1, x2, z2, p2.x, p2.z, p3.x,
+		                         p3.z)
+		    && !checkLinesCollision(x1, z1, x2, z2, p3.x, p3.z, p1.x,
+		                            p1.z))
+			return false;
+	}
 
-	return false;
+	return true;
 }
 
 static inline bool pointIsInPolygon(f32 px, f32 pz, TBGCheckData* poly)
