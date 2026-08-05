@@ -4,6 +4,7 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/LodAnm.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MarioUtil/EffectUtil.hpp>
@@ -13,6 +14,8 @@
 #include <System/EmitterViewObj.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
+
+static const char* dummyRootJoint = "__ROOT_JOINT__";
 
 // File-local helper used by isPolWaitC/L/REffectEmitTime_.
 static BOOL IsCheckPassFrame(J3DFrameCtrl* fc, const f32* table)
