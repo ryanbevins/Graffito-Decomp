@@ -117,7 +117,7 @@ DEFINE_NERVE(TNerveStayPakkunHide, TLiveActor)
 	TStayPakkun* self = (TStayPakkun*)spine->getBody();
 	if (spine->getTime() == 0) {
 		self->onHitFlag(HIT_FLAG_NO_COLLISION);
-		if (self->mCurrentBckAnm != 0)
+		if (!self->isBckAnm(0))
 			self->setBckAnm(3);
 		self->mSeed->kill();
 	} else if (self->unk1BC
