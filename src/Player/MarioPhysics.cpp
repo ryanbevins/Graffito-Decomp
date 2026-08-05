@@ -819,7 +819,9 @@ int TMario::jumpProcess(int param)
 
 	f32 velX = mVel.x;
 	f32 velZ = mVel.z;
-	f32 speed = sqrtf(velX * velX + velZ * velZ);
+	f32 speedX = velX * velX;
+	f32 speedZ = velZ * velZ;
+	f32 speed  = sqrtf(speedX + speedZ);
 
 	f32 maxSpeed = mJumpParams.mJumpingMax.value;
 	if (speed > maxSpeed) {
