@@ -909,6 +909,7 @@ bool TTalk2D2::eraseBoardWindow()
 	s16 alpha   = unk18->mAlpha - 4;
 
 	if (alpha < 0) {
+		alpha                  = 0;
 		TMessageLoader* loader = unk260;
 		void* data             = loader->unk4;
 		JMSMesgEntry* entry
@@ -917,7 +918,6 @@ bool TTalk2D2::eraseBoardWindow()
 		*(u32*)&unk27C = 0xffffffff;
 		unk2DE = 0;
 		unk2DC = 0;
-		alpha  = 0;
 		result = true;
 	}
 
