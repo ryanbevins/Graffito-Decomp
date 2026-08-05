@@ -803,8 +803,8 @@ void TMuddyBoat::kill()
 	unk140 = 0.0f;
 	unk14C = 0.0f;
 
-	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-	SMS_EasyEmitParticle(PARTICLE_MS_M_AMIATTACK, &unk170, nullptr, scale);
+	SMS_EasyEmitParticle(PARTICLE_MS_M_AMIATTACK, &unk170, nullptr,
+	                     JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 
 	if (gpMSound->gateCheck(0x387C))
 		MSoundSESystem::MSoundSE::startSoundActor(
