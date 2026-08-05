@@ -132,8 +132,9 @@ DEFINE_NERVE(TNerveStayPakkunHide, TLiveActor)
 		    && gpPollution->isPolluted(self->mPosition.x, self->mPosition.y,
 		                               self->mPosition.z)
 		    && self->isFindMario(0.9f)) {
-			TSpineEnemyParams* params = self->getSaveParam();
-			self->mHitPoints          = params ? params->mSLHitPointMax.get() : 1;
+			self->mHitPoints = self->getSaveParam()
+			                     ? self->getSaveParam()->mSLHitPointMax.get()
+			                     : 1;
 			spine->pushAfterCurrent(&TNerveStayPakkunAppear::theNerve());
 			return TRUE;
 		}
