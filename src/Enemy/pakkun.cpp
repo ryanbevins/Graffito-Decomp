@@ -504,11 +504,12 @@ void TStayPakkun::calcRootMatrix()
 
 void TStayPakkun::genRandomItem()
 {
+	TPakkunManager* manager = (TPakkunManager*)mManager;
+
 	unk1A4 = mPosition;
 	unk1A4.y += 100.0f;
 
-	TWaterEmitInfo* info
-	    = ((TPakkunManager*)mManager)->mWaterEmitInfo;
+	TWaterEmitInfo* info = manager->mWaterEmitInfo;
 	info->mPos.value = unk1A4;
 	gpModelWaterManager->emitRequest(*info);
 
