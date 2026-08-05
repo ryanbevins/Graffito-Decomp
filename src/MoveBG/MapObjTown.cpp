@@ -331,8 +331,8 @@ u32 TMapObjBillboard::touchWater(THitActor* actor)
 {
 	if (animIsFinished()
 	    || mMActor->getFrameCtrl(0)->getFrame() >= 33.0f) {
-		f32 angle
-		    = mRotation.y + getRotYFromAxisX(actor->mPosition) * 57.295776f;
+		f32 angle = getRotYFromAxisX(actor->mPosition) * 57.295776f;
+		angle = mRotation.y + angle;
 		angle = callMsWrap(angle, 0.0f, 360.0f);
 		if (angle < 0.0f || angle > 180.0f)
 			startAnim(2);
