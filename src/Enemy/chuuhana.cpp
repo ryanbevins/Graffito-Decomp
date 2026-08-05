@@ -543,11 +543,7 @@ void TChuuHana::moveObject()
 		onLiveFlag(LIVE_FLAG_AIRBORNE);
 	}
 
-	unk194 -= 0.1f;
-	if (unk194 > 1.0f)
-		unk194 = 1.0f;
-	else if (unk194 < 0.0f)
-		unk194 = 0.0f;
+	unk194 = MsClamp(unk194 - 0.1f, 0.0f, 1.0f);
 
 	if (mMActor->unkC != nullptr)
 		mMActor->unkC->setMotionBlendRatio(unk194);
