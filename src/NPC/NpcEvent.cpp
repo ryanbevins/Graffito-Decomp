@@ -414,7 +414,7 @@ void TNpcEvent::reviveOneSunflower()
 	JGeometry::TVec3<f32>* pos
 	    = (JGeometry::TVec3<f32>*)((u8*)actor + 0x1B8);
 	director->fireStartDemoCamera(sCameraNames[idx], pos, -1, 0.0f, true,
-	                              &ReviveSunflowerCallBack, 0, actor,
+	                              &ReviveSunflowerCallBack, (u32)actor, nullptr,
 	                              JDrama::TFlagT<u16>(0));
 
 	if (mDownSunflowerNum == 0) {
