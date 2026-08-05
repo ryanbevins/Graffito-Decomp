@@ -568,7 +568,7 @@ void TBombHei::changeOut()
 
 void TBombHei::behaveToWater(THitActor*)
 {
-	if (mCurrentBckAnm == 4 || mCurrentBckAnm == 3) {
+	if (isBckAnm(4) || isBckAnm(3)) {
 		if (mHitPoints == 0)
 			mSpine->pushNerve(&TNerveBombHeiWaitExplosion::theNerve());
 		mSprayedByWaterCooldown = 0x14;
