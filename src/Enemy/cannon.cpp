@@ -1,3 +1,4 @@
+#define JGEOMETRY_DRAWUTIL_OWNER_HELPERS
 #include <Enemy/Cannon.hpp>
 #include <Enemy/Bombhei.hpp>
 #include <Enemy/Conductor.hpp>
@@ -868,10 +869,16 @@ MtxPtr TCannon::getTakingMtx()
 
 	MtxPtr takingMtx = unk1A8->unk6C->getMActor()->getModel()->getAnmMtx(
 	    mChorobeiHandJntIdx);
+	f32 x;
+	f32 y;
+	f32 z;
+	z = unk1A8->mPosition.z;
+	x = unk1A8->mPosition.x;
+	y = takingMtx[1][3];
 	unk1E4.identity33();
-	unk1E4.mMtx[0][3] = unk1A8->mPosition.x;
-	unk1E4.mMtx[1][3] = takingMtx[1][3];
-	unk1E4.mMtx[2][3] = unk1A8->mPosition.z;
+	unk1E4.mMtx[0][3] = x;
+	unk1E4.mMtx[1][3] = y;
+	unk1E4.mMtx[2][3] = z;
 	return unk1E4.mMtx;
 }
 
