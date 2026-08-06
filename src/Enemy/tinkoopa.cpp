@@ -316,7 +316,7 @@ TTinKoopaManager::TTinKoopaManager(const char* name)
 
 void TTinKoopaManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "tinkoopa_body.bmd", 0x14240000, 0 },
 		{ nullptr, 0, 0 },
 	};
