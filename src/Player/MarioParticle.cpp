@@ -488,11 +488,8 @@ void TMario::inOutWaterEffect(f32)
 	JGeometry::TVec3<f32> pos = mPosition;
 	pos.y                     = *(f32*)((u8*)this + 0xF0);
 
-	bool isShallow = checkFlag(MARIO_FLAG_IN_SHALLOW_WATER);
-	if (!isShallow)
-		isShallow = (mPrevState & MARIO_FLAG_IN_SHALLOW_WATER) ? true : false;
-
-	if (isShallow) {
+	if (checkFlag(MARIO_FLAG_IN_SHALLOW_WATER)
+	    || ((mPrevState & MARIO_FLAG_IN_SHALLOW_WATER) ? true : false)) {
 		((TMarioEffect*)mMarioEffect)->setJumpIntoWaterEffectSmall();
 		gpMarioParticleManager->emit(0x31, &pos, 0, nullptr);
 		return;
