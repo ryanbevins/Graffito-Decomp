@@ -384,7 +384,9 @@ TSelectShine::TSelectShine(J3DModelData* modelData, J3DAnmColor* anmColor,
 			emitterMgr->createEmitter(spawn, 3, nullptr, nullptr);
 		}
 		unk58 = emitterMgr->unkC8[0][0];
+	}
 
+	if (unk4A != 2) {
 		if (unk4A == 0) {
 			unk54->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
 			unk50->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
