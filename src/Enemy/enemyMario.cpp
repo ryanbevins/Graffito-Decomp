@@ -48,8 +48,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-static const char* cDirtyFileName = "/scene/map/pollution/H_ma_rak.bti";
-static const char* cDirtyTexName  = "H_ma_rak_dummy";
+static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
+static const char cDirtyTexName[]  = "H_ma_rak_dummy";
 
 static unkTMarioAnimeFilesStruct marioAnimeFiles[199] = {
 	{ 0x00000001, "hgup" },
