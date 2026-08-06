@@ -310,7 +310,7 @@ void TPauseMenu2::perform(u32 param_1, JDrama::TGraphics* param_2)
 			appearWindow();
 			break;
 		case 1: {
-			u8 cur     = unkE0;
+			s32 cur    = unkE0;
 			u32 btnVal = unk10C->mEnabledFrameMeaning;
 			if (btnVal & 0x21) {
 				switch (cur) {
@@ -348,50 +348,50 @@ void TPauseMenu2::perform(u32 param_1, JDrama::TGraphics* param_2)
 				unkEC = 0.0f;
 				unk10 = 4;
 			} else if (btnVal & 0x4) {
-				u8 next;
 				if (unk104 > 2) {
-					if (cur >= unk104 - 1) {
-						next = 0;
+					if (cur < unk104 - 1) {
+						unkE0 = cur + 1;
 					} else {
-						next = cur + 1;
+						unkE0 = 0;
 					}
 				} else {
-					next = unk104 - 1;
+					unkE0 = unk104 - 1;
 				}
-				unkE0 = next;
-				if (next != cur) {
+				if (unkE0 != cur) {
 					if (gpMSound->gateCheck(0x480F)) {
 						MSoundSESystem::MSoundSE::startSoundSystemSE(0x480F, 0,
 						                                              nullptr, 0);
 					}
-					unk98[cur]->mWhite   = unkE4;
-					unk98[next]->mWhite  = -1;
-					unk98[next]->mBounds = unkA4[next];
+					JUTRect& bounds = unkA4[cur];
+					unk98[unkE0]->mWhite = unkE4;
+					unk98[cur]->mWhite  = -1;
+					unk98[cur]->mBounds = bounds;
 					unkE8                = 0.0f;
 					if (unk110 != nullptr) {
 						gpEmitterManager4D2->forceDeleteEmitter(unk110);
 					}
 				}
 			} else if (btnVal & 0x2) {
-				u8 next;
 				if (unk104 > 2) {
-					if (cur == 0) {
+					s32 next;
+					if ((u32)cur == 0) {
 						next = unk104 - 1;
 					} else {
 						next = cur - 1;
 					}
+					unkE0 = next;
 				} else {
-					next = 0;
+					unkE0 = 0;
 				}
-				unkE0 = next;
-				if (next != cur) {
+				if (unkE0 != cur) {
 					if (gpMSound->gateCheck(0x480F)) {
 						MSoundSESystem::MSoundSE::startSoundSystemSE(0x480F, 0,
 						                                              nullptr, 0);
 					}
-					unk98[cur]->mWhite   = unkE4;
-					unk98[next]->mWhite  = -1;
-					unk98[next]->mBounds = unkA4[next];
+					JUTRect& bounds = unkA4[cur];
+					unk98[unkE0]->mWhite = unkE4;
+					unk98[cur]->mWhite  = -1;
+					unk98[cur]->mBounds = bounds;
 					unkE8                = 0.0f;
 					if (unk110 != nullptr) {
 						gpEmitterManager4D2->forceDeleteEmitter(unk110);
@@ -422,7 +422,7 @@ void TPauseMenu2::perform(u32 param_1, JDrama::TGraphics* param_2)
 				rect.reform(-(s32)unkE8, -dy, (s32)unkE8, dy);
 				unk98[unkE0]->mBounds = rect;
 
-				unk98[unkE0]->mWhite = unkE4 + ((u8)(s32)(0.1f * unkE8) << 24);
+				unk98[unkE0]->mWhite = unkE4 + ((u8)(s32)(10.0f * unkE8) << 24);
 			} else if (unkE8 < 35.0f) {
 				f32 t = unkE8 - 18.0f;
 				s32 dy = (s32)(0.5f * t);
@@ -430,7 +430,7 @@ void TPauseMenu2::perform(u32 param_1, JDrama::TGraphics* param_2)
 				unk98[unkE0]->mBounds = rect;
 
 				unk98[unkE0]->mWhite
-				    = unkE4 + ((u8)(s32)(0.1f * (35.0f - unkE8)) << 24);
+				    = unkE4 + ((u8)(s32)(10.0f * (35.0f - unkE8)) << 24);
 			} else {
 				unkE8 = -0.5f;
 				unkFC = -unkFC;
