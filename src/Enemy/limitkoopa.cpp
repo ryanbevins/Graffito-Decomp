@@ -37,7 +37,7 @@ TSpineEnemy* TLimitKoopaManager::createEnemyInstance() { return nullptr; }
 
 void TLimitKoopaManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "koopa_model.bmd", 0x14240000, 0 },
 		{ nullptr, 0, 0 },
 	};
