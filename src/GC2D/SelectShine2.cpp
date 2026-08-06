@@ -369,9 +369,7 @@ TSelectShine::TSelectShine(J3DModelData* modelData, J3DAnmColor* anmColor,
 
 	unk4A = type;
 	if (unk4A != 2) {
-		JGeometry::TVec3<f32> tmp;
-		tmp = mPos;
-		tmp.add(unk18);
+		JGeometry::TVec3<f32> tmp = mPos + unk18;
 
 		JGeometry::TVec3<f32> spawn;
 		spawn = tmp;
