@@ -2033,8 +2033,8 @@ s8 TCardLoad::selectFunction()
 				unk2CC[i]->hide();
 				unk2D8[i]->hide();
 				unk2FC[i]->hide();
-				unk2A4[i]->setCenteredSize(30, 0, 0, rect.getWidth(),
-				                           rect.getHeight());
+				unk2A4[i]->setCenteredSize(30, 0, 0, unk2B0.getWidth(),
+				                           unk2B0.getHeight());
 			}
 		}
 	} break;
