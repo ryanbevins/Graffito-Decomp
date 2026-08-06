@@ -1179,7 +1179,7 @@ void TBGKMtxCalc::calc(u16 joint_no)
 
 void TBiancoGateKeeperManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "gene_pakkun_model1.bmd", 0x11210000, 0 },
 		{ "stamp_keeper_model1.bmd", 0x10210000, 0 },
 		{ nullptr, 0, 0 },
