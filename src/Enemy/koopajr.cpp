@@ -50,7 +50,7 @@ static const char* TKoopaJr_jointNameTable[] = {
 };
 
 static s32 TKoopaJr_jointIndexTable[5];
-static const char* koopajrsubmarine_bastable = nullptr;
+static const char* koopajrsubmarine_bastable[] = { nullptr };
 
 DEFINE_NERVE(TNerveKoopaJrWait, TLiveActor)
 {
@@ -685,7 +685,7 @@ TKoopaJrSubmarine::TKoopaJrSubmarine(const char* name)
 
 const char** TKoopaJrSubmarine::getBasNameTable() const
 {
-	return &koopajrsubmarine_bastable;
+	return koopajrsubmarine_bastable;
 }
 
 BOOL TKoopaJrSubmarine::receiveMessage(THitActor* sender, u32 message)
