@@ -134,9 +134,9 @@ BOOL TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 	f32 dz = delta.z;
 
 	// Adjust all position-relative fields by delta
-	unk160[0].x += dx;
-	unk160[0].y += dy;
-	unk160[0].z += dz;
+	unk160.x += dx;
+	unk160.y += dy;
+	unk160.z += dz;
 	mLastSafePos.x += dx;
 	mLastSafePos.y += dy;
 	mLastSafePos.z += dz;
@@ -2016,7 +2016,7 @@ bool TMario::isUnderWater() const
 	if (inWater) {
 		f32 floorZ = getMfloorpositionZ();
 		f32 param = mSwimParams.mCanBreathDepth.get();
-		f32 val = unk160[1].y;
+		f32 val = unk16C.y;
 		if (val < floorZ - param)
 			return true;
 	}
@@ -2436,7 +2436,7 @@ void TMario::thinkParams()
 
 			u8 belowThreshold;
 			if (nonZero
-			    && unk160[1].y < getMfloorpositionZ() - mSwimParams.mCanBreathDepth.get()) {
+			    && unk16C.y < getMfloorpositionZ() - mSwimParams.mCanBreathDepth.get()) {
 				belowThreshold = 1;
 			} else {
 				belowThreshold = 0;
@@ -2865,7 +2865,7 @@ void TMario::thinkWaterSurface()
 
 		if (isInWater2) {
 			f32 airThreshold = getMfloorpositionZ() - mSwimParams.mCanBreathDepth.get();
-			if (unk160[1].y < airThreshold) {
+			if (unk16C.y < airThreshold) {
 				shouldDrown = 1;
 			}
 		}

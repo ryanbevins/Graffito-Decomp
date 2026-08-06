@@ -1531,8 +1531,10 @@ public:
 	/* 0x154 */ TWaterEmitInfo* unk154;
 	/* 0x158 */ TWaterEmitInfo* unk158;
 	/* 0x15C */ f32 unk15C;
-	/* 0x160 */ JGeometry::TVec3<f32>
-	    unk160[4]; // Bone position, probably larger array
+	/* 0x160 */ JGeometry::TVec3<f32> unk160; // root position
+	/* 0x16C */ JGeometry::TVec3<f32> unk16C; // head position
+	/* 0x178 */ JGeometry::TVec3<f32> unk178; // center position
+	/* 0x184 */ JGeometry::TVec3<f32> unk184; // taking position
 	/* 0x190 */ JGeometry::TVec3<f32> mWaterRipplePos;
 	/* 0x19C */ JGeometry::TVec3<f32> unk19C; // damage pos
 	/* 0x1A8 */ JGeometry::TVec3<f32> unk1A8;

@@ -1874,7 +1874,7 @@ BOOL TMario::moveRoof()
 			if (actor != 0) {
 				actor->receiveMessage(this, 3);
 				if (actor->mActorType == 0x4000006a) {
-					emitParticle(0x39, &unk160[1]);
+					emitParticle(0x39, &unk16C);
 					rumbleStart(0x15, mMotorParams.mMotorWall.value);
 					result = changePlayerStatus(0x00200345, 0, false);
 				} else {
@@ -1938,7 +1938,7 @@ BOOL TMario::roofCommonEvents()
 		if (actor != 0) {
 			actor->receiveMessage(this, 3);
 			if (actor->mActorType == 0x4000006a) {
-				emitParticle(0x39, &unk160[1]);
+				emitParticle(0x39, &unk16C);
 				rumbleStart(0x15, mMotorParams.mMotorWall.value);
 				return changePlayerStatus(0x00200345, 0, false);
 			}

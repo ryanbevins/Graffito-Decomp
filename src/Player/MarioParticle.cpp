@@ -246,7 +246,7 @@ void TMario::warpOutEffect(int type, f32 angle)
 
 void TMario::warpInLight()
 {
-	gpMarioParticleManager->emitAndBindToPosPtr(0x51, &unk160[2], 0, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x51, &unk178, 0, this);
 }
 
 void TMario::warpInEffect()
@@ -344,20 +344,20 @@ void TWarpInCallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* particle
 
 void TMario::elecEndEffect()
 {
-	gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &unk160[2], 0, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &unk178, 0, this);
 }
 
 void TMario::elecEffect()
 {
-	gpMarioParticleManager->emitAndBindToPosPtr(0x116, &unk160[2], 1, this);
-	gpMarioParticleManager->emitAndBindToPosPtr(0x118, &unk160[2], 1, this);
-	gpMarioParticleManager->emitAndBindToPosPtr(0x117, &unk160[2], 1, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x116, &unk178, 1, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x118, &unk178, 1, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x117, &unk178, 1, this);
 }
 
 void TMario::emitRotateShootEffect()
 {
-	gpMarioParticleManager->emitAndBindToPosPtr(0x114, &unk160[2], 1, this);
-	gpMarioParticleManager->emitAndBindToPosPtr(0x115, &unk160[2], 1, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x114, &unk178, 1, this);
+	gpMarioParticleManager->emitAndBindToPosPtr(0x115, &unk178, 1, this);
 }
 
 void TMario::rocketEffectStart()
@@ -411,18 +411,18 @@ void TMario::swimmingBubbleEffect()
 	if (checkFlag(0x400))
 		return;
 
-	if (unk160[1].y + mParticleParams.mBubbleDepth.value
+	if (unk16C.y + mParticleParams.mBubbleDepth.value
 	    < *(f32*)((u8*)this + 0xF0)) {
 		if (isMario()) {
 			JPABaseEmitter* emitter
 			    = gpMarioParticleManager->emitParticleCallBack(
-			        0x10C, &unk160[1], 1, &bubbleCallBack, this);
+			        0x10C, &unk16C, 1, &bubbleCallBack, this);
 			if (emitter)
 				emitter->setGlobalRTMatrix(mJointMtx0);
 		}
 	}
 
-	if (unk160[2].y + mParticleParams.mBubbleDepth.value
+	if (unk178.y + mParticleParams.mBubbleDepth.value
 	    < *(f32*)((u8*)this + 0xF0))
 		bubbleFromBody();
 }
@@ -448,7 +448,7 @@ void TMario::bubbleFromBody()
 	        * (mParticleParams.mBodyBubbleEmitMax.value
 	           - mParticleParams.mBodyBubbleEmitMin.value);
 	JPABaseEmitter* emitter = gpMarioParticleManager->emitParticleCallBack(
-	    0x111, &unk160[2], 1, &bubbleCallBack, this);
+	    0x111, &unk178, 1, &bubbleCallBack, this);
 	if (emitter) {
 		emitter->setGlobalRTMatrix(getCenterAnmMtx());
 		emitter->mChildSpawnRate = childRate;
@@ -461,7 +461,7 @@ void TMario::bubbleFromMouth(int index)
 	if (!isMario())
 		return;
 
-	const JGeometry::TVec3<f32>* pos = &unk160[1];
+	const JGeometry::TVec3<f32>* pos = &unk16C;
 	const void* owner = (const void*)((u8*)this + index * 0x4290);
 	JPABaseEmitter* emitter = gpMarioParticleManager->emitParticleCallBack(
 	    0x10C, pos, 1, &bubbleCallBack, owner);
@@ -630,11 +630,11 @@ void TMario::frontSlipEffect()
 			return;
 
 		if (checkFlag(0x40000)) {
-			calcGroundMtx(unk160[2]);
+			calcGroundMtx(unk178);
 			gpMarioParticleManager->emitAndBindToMtxPtr(
 			    0x110, mGroundMtx, 1, this);
 			gpMarioParticleManager->emitAndBindToPosPtr(
-			    0x10F, &unk160[2], 1, this);
+			    0x10F, &unk178, 1, this);
 		} else {
 			gpMarioParticleManager->emitAndBindToMtxPtr(
 			    0x103, mModel->getModel()->getAnmMtx(0), 1, this);
@@ -659,13 +659,13 @@ void TMario::emitGetCoinEffect(JGeometry::TVec3<f32>* pos)
 
 void TMario::emitGetWaterEffect()
 {
-	JGeometry::TVec3<f32>* p = &unk160[0];
+	JGeometry::TVec3<f32>* p = &unk160;
 	gpMarioParticleManager->emitAndBindToPosPtr(0xF, p, 0, nullptr);
 }
 
 void TMario::emitGetEffect()
 {
-	gpMarioParticleManager->emitAndBindToPosPtr(0xE, &unk160[0], 0, nullptr);
+	gpMarioParticleManager->emitAndBindToPosPtr(0xE, &unk160, 0, nullptr);
 	startSoundActor(0x1989);
 }
 
