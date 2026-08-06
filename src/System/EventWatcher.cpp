@@ -293,8 +293,9 @@ static void evGetTalkNPCName(TSpcTypedInterp<TEventWatcher>* interp,
 	TBaseNPC* npc = gpMarDirector->getTalkingNPC();
 
 	if (!npc) {
+		const char* name = "";
 		TSpcSlice slice;
-		slice.setDataString("");
+		slice.setDataString(name);
 		interp->push(slice);
 	} else {
 		const char* name = npc->getName();
