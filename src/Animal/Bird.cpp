@@ -57,7 +57,7 @@ const GXColorS10 cColorTable[4] = {
 	{ (s16)0xFF, 0, 0, 0 },
 };
 
-const char* cMatName = "_mat_body1";
+const char* const cMatName = "_mat_body1";
 }
 
 // ---- Nerves ----
