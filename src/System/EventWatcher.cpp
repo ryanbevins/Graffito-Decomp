@@ -297,8 +297,9 @@ static void evGetTalkNPCName(TSpcTypedInterp<TEventWatcher>* interp,
 		slice.setDataString("");
 		interp->push(slice);
 	} else {
+		const char* name = npc->getName();
 		TSpcSlice slice;
-		slice.setDataString(npc->getName());
+		slice.setDataString(name);
 		interp->push(slice);
 	}
 }
