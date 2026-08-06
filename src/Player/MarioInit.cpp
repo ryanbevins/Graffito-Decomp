@@ -788,9 +788,11 @@ TMario::TMario()
     , mDmgMapParams5("/Mario/DmgMapCode5.prm")
     , mDmgMapParams6("/Mario/DmgMapCode6.prm")
     , mDmgMapParams7("/Mario/DmgMapCode7.prm")
-    , mDmgMapParams8("/Mario/DmgMapCode8.prm")
-    , mDmgMapParams9("/Mario/DmgMapCode9.prm")
-    , mOptionParams("/Mario/Option.prm")
+	, mDmgMapParams8("/Mario/DmgMapCode8.prm")
+	, mDmgMapParams9("/Mario/DmgMapCode9.prm")
+	, mOptionParams("/Mario/Option.prm")
+	, mYoshi(nullptr)
+	, mGamePad(nullptr)
 {
 	mSubState      = 0x412;
 	mSubStateTimer = 0;
