@@ -849,7 +849,8 @@ void TMuddyBoat::bind()
 
 	const TBGCheckData* ground;
 	f32 groundHeight = gpMap->checkGroundIgnoreWaterSurface(next, &ground);
-	if (groundHeight > (mPosition.y - mYOffset) - 100.0f
+	f32 groundY      = mPosition.y - mYOffset;
+	if (groundHeight > groundY - 100.0f
 	    || ground->checkFlag(BG_CHECK_FLAG_ILLEGAL)) {
 		next = mPosition;
 		kill();
@@ -858,8 +859,9 @@ void TMuddyBoat::bind()
 	}
 
 	JGeometry::TVec3<f32> pos;
-	pos.set(next.x + mtx[0][2] * unk160, mPosition.y - mYOffset,
-	        next.z + mtx[2][2] * unk160);
+	pos.x = next.x + mtx[0][2] * unk160;
+	pos.y = groundY;
+	pos.z = next.z + mtx[2][2] * unk160;
 	TBGWallCheckRecord front(pos, unk158, 4, TBGWallCheckRecord::DONT_MOVE_XZ);
 	if (gpMap->isTouchedWallsAndMoveXZ(&front)) {
 		TBGCheckData* wall = front.mResultWalls[0];
@@ -876,8 +878,9 @@ void TMuddyBoat::bind()
 		return;
 	}
 
-	pos.set(next.x - mtx[0][2] * unk164, mPosition.y - mYOffset,
-	        next.z - mtx[2][2] * unk164);
+	pos.x = next.x - mtx[0][2] * unk164;
+	pos.y = mPosition.y - mYOffset;
+	pos.z = next.z - mtx[2][2] * unk164;
 	TBGWallCheckRecord rear(pos, unk15C, 4, TBGWallCheckRecord::DONT_MOVE_XZ);
 	if (gpMap->isTouchedWallsAndMoveXZ(&rear)) {
 		TBGCheckData* wall = rear.mResultWalls[0];
