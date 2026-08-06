@@ -18,8 +18,8 @@
 
 bool SMS_isMultiPlayerMap();
 
-static const char* cDirtyFileName = "/scene/map/pollution/H_ma_rak.bti";
-static const char* cDirtyTexName  = "H_ma_rak_dummy";
+static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
+static const char cDirtyTexName[]  = "H_ma_rak_dummy";
 
 TEMarioManager::TEMarioManager(const char* name)
     : TEnemyManager(name)
