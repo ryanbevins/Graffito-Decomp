@@ -11,7 +11,7 @@
 
 void TMewManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "kamome_high.bmd", 0x10210000, 1 },
 		{ nullptr, 0, 0 },
 	};
