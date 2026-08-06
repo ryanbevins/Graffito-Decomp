@@ -430,11 +430,7 @@ BOOL TMario::changePlayerStatus(u32 status, u32 arg, bool force)
 
 	switch (status & 0x1C0) {
 	case 0x40: {
-		f32 speed;
-		if (mIntendedMag <= 8.0f)
-			speed = mIntendedMag;
-		else
-			speed = 8.0f;
+		f32 speed = mIntendedMag <= 8.0f ? mIntendedMag : 8.0f;
 
 		switch (status) {
 		case 0x04000440: {
