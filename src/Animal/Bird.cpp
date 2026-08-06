@@ -35,6 +35,18 @@ static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 	return MsWrap<f32>(t, l, r);
 }
 
+static const char* bird_bastable[] = {
+	nullptr,
+	"/scene/bird/bas/bird_fly.bas",
+	"/scene/bird/bas/bird_open.bas",
+	nullptr,
+	nullptr,
+	"/scene/bird/bas/bird_start.bas",
+	"/scene/bird/bas/bird_stop.bas",
+	nullptr,
+	nullptr,
+};
+
 namespace {
 const int cRandomAnims[5] = { 7, 4, 0, 2, 8 };
 
@@ -693,14 +705,7 @@ BOOL TAnimalBird::isFindMario() const
 
 const char** TAnimalBird::getBasNameTable() const
 {
-	static const char* bastable[] = {
-		"/scene/bird/bas/bird_fly.bas",
-		"/scene/bird/bas/bird_open.bas",
-		"/scene/bird/bas/bird_start.bas",
-		"/scene/bird/bas/bird_stop.bas",
-		nullptr,
-	};
-	return bastable;
+	return bird_bastable;
 }
 
 void TAnimalBird::bind()
