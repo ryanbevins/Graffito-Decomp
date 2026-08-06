@@ -398,40 +398,37 @@ BOOL HauntLegCallback(J3DNode* node, int when)
 {
 	if (when == 0) {
 		THauntLeg* self = gpCurHauntLeg;
-		if (self != nullptr) {
-			bool match = (self->mSpine->getCurrentNerve()
-			              == &TNerveHauntLegHaunt::theNerve())
-			    ? true
-			    : false;
-			if (match) {
-				f32 angle      = self->unk1AC * 182.04445f;
-				s16 angleFixed = (s16)(s32)angle;
-				f32 s          = JMASSin(angleFixed);
-				f32 c          = JMASCos(angleFixed);
+		if (self == nullptr
+		    || !((self->mSpine->getCurrentNerve()
+		          == &TNerveHauntLegHaunt::theNerve())
+		             ? true
+		             : false))
+			return TRUE;
 
-				MtxPtr base
-				    = self->getMActor()->getModel()->getAnmMtx(
-				        ((J3DJoint*)node)->getJntNo());
+		f32 angle      = self->unk1AC * 182.04445f;
+		s16 angleFixed = (s16)(s32)angle;
+		f32 s          = JMASSin(angleFixed);
+		f32 c          = JMASCos(angleFixed);
 
-				Mtx tilt;
-				tilt[0][0] = c;
-				tilt[0][1] = -s;
-				tilt[0][2] = 0.0f;
-				tilt[0][3] = 0.0f;
-				tilt[1][0] = s;
-				tilt[1][1] = c;
-				tilt[1][2] = 0.0f;
-				tilt[1][3] = 0.0f;
-				tilt[2][0] = 0.0f;
-				tilt[2][1] = 0.0f;
-				tilt[2][2] = 1.0f;
-				tilt[2][3] = 0.0f;
+		MtxPtr base = self->getMActor()->getModel()->getAnmMtx(
+		    ((J3DJoint*)node)->getJntNo());
 
-				PSMTXConcat(base, tilt, base);
-				PSMTXConcat(J3DSys::mCurrentMtx, tilt,
-				            J3DSys::mCurrentMtx);
-			}
-		}
+		Mtx tilt;
+		tilt[0][0] = c;
+		tilt[0][1] = -s;
+		tilt[0][2] = 0.0f;
+		tilt[0][3] = 0.0f;
+		tilt[1][0] = s;
+		tilt[1][1] = c;
+		tilt[1][2] = 0.0f;
+		tilt[1][3] = 0.0f;
+		tilt[2][0] = 0.0f;
+		tilt[2][1] = 0.0f;
+		tilt[2][2] = 1.0f;
+		tilt[2][3] = 0.0f;
+
+		PSMTXConcat(base, tilt, base);
+		PSMTXConcat(J3DSys::mCurrentMtx, tilt, J3DSys::mCurrentMtx);
 	}
 	return TRUE;
 }
