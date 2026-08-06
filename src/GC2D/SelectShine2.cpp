@@ -371,19 +371,16 @@ TSelectShine::TSelectShine(J3DModelData* modelData, J3DAnmColor* anmColor,
 	if (unk4A != 2) {
 		JGeometry::TVec3<f32> tmp = mPos + unk18;
 
-		JGeometry::TVec3<f32> spawn;
-		spawn = tmp;
-
 		if (unk4A == 0) {
-			emitterMgr->createEmitter(spawn, 0, nullptr, nullptr);
-			unk50 = emitterMgr->unkC8[0][0];
-			emitterMgr->createEmitter(spawn, 1, nullptr, nullptr);
-			unk54 = emitterMgr->unkC8[0][0];
-			emitterMgr->createEmitter(spawn, 2, nullptr, nullptr);
+			mEmitterMgr->createEmitter(tmp, 0, nullptr, nullptr);
+			unk50 = mEmitterMgr->unkC8[0][0];
+			mEmitterMgr->createEmitter(tmp, 1, nullptr, nullptr);
+			unk54 = mEmitterMgr->unkC8[0][0];
+			mEmitterMgr->createEmitter(tmp, 2, nullptr, nullptr);
 		} else {
-			emitterMgr->createEmitter(spawn, 3, nullptr, nullptr);
+			mEmitterMgr->createEmitter(tmp, 3, nullptr, nullptr);
 		}
-		unk58 = emitterMgr->unkC8[0][0];
+		unk58 = mEmitterMgr->unkC8[0][0];
 	}
 
 	if (unk4A != 2) {
