@@ -121,7 +121,7 @@ void TDebuTelesaManager::load(JSUMemoryInputStream& stream)
 
 void TDebuTelesaManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "debuTelesa.bmd", 0x10210000, 0 },
 		{ nullptr, 0, 0 },
 	};
