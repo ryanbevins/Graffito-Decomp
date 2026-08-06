@@ -45,6 +45,9 @@
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMapTool.hpp>
 
+static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
+static const char cDirtyTexName[]  = "H_ma_rak_dummy";
+
 JDrama::TNameRef* TMarNameRefGen::getNameRef(const char* name) const
 {
 	if (strcmp(name, "BindShadow") == 0)
