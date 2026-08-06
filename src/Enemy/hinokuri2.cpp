@@ -381,23 +381,22 @@ static int Hino2HeadCallback(J3DNode* param_1, int param_2)
 		    ((J3DJoint*)param_1)->getJntNo());
 
 		if (gpCurHinokuri->mLevel == 1) {
-			f32 scale = gpCurHinokuri->unk194;
-
 			Mtx local_44;
-			local_44[0][0] = scale;
+			local_44[0][3] = 0.0;
+			local_44[1][3] = 0.0;
+			local_44[2][3] = 0.0;
+
+			local_44[0][0] = gpCurHinokuri->unk194;
 			local_44[0][1] = 0.0;
 			local_44[0][2] = 0.0;
-			local_44[0][3] = 0.0;
 
 			local_44[1][0] = 0.0;
-			local_44[1][1] = scale;
+			local_44[1][1] = gpCurHinokuri->unk194;
 			local_44[1][2] = 0.0;
-			local_44[1][3] = 0.0;
 
 			local_44[2][0] = 0.0;
 			local_44[2][1] = 0.0;
-			local_44[2][2] = scale;
-			local_44[2][3] = 0.0;
+			local_44[2][2] = gpCurHinokuri->unk194;
 
 			f32 s = JMASin(gpCurHinokuri->unk198);
 			f32 c = JMACos(gpCurHinokuri->unk198);
