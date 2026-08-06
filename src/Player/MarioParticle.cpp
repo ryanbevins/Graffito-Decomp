@@ -745,10 +745,18 @@ void TMario::initParticle()
 	for (int i = 0; i < 3; ++i) {
 		const char* fileName = cParticleFileNames[i];
 		if (JKRFileLoader::getGlbResource(fileName) != nullptr) {
-			u16 id = cParticleIDs[i];
-			if (!gParticleFlagLoaded[id]) {
-				gpResourceManager->load(fileName, id);
-				gParticleFlagLoaded[id] = true;
+			if (i < 1) {
+				u16 id = cParticleIDs[i];
+				if (!gParticleFlagLoaded[id]) {
+					gpResourceManager->load(fileName, id);
+					gParticleFlagLoaded[id] = true;
+				}
+			} else {
+				u16 id = cParticleIDs[i];
+				if (!gParticleFlagLoaded[id]) {
+					gpResourceManager->load(fileName, id);
+					gParticleFlagLoaded[id] = true;
+				}
 			}
 		}
 	}
