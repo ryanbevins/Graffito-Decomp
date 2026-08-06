@@ -282,7 +282,7 @@ TBeeHiveParams::TBeeHiveParams(const char* prm)
 
 void TBeeHiveManager::createModelData()
 {
-	static TModelDataLoadEntry entry[] = {
+	static const TModelDataLoadEntry entry[] = {
 		{ "bee_body.bmd", 0x10210000, 0 },
 		{ "bee_nest.bmd", 0x10210000, 0 },
 		{ "bee_nest_break.bmd", 0x10210000, 0 },
