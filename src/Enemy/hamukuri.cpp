@@ -933,14 +933,15 @@ void THamuKuri::makeCapFly(TMapObjBase* param_1)
 	THamuKuri* capHolder
 	    = (THamuKuri*)getManager()->getHolder(mInstanceIndex);
 	if (capHolder == nullptr) {
-		if (mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
-		    || mGroundPlane->isPool() || mGroundPlane->isWaterSurface()) {
+		if (!mGroundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
+		    && !mGroundPlane->isPool() && !mGroundPlane->isWaterSurface()) {
+			capHolder = this;
+		} else {
 			param_1->mPosition = SMS_GetMarioPos();
 			param_1->mVelocity.set(0.0f, 10.0f, 0.0f);
 			param_1->offLiveFlag(LIVE_FLAG_UNK10);
 			return;
 		}
-		capHolder = this;
 	}
 
 	capHolder->mPosition = local_3c;
