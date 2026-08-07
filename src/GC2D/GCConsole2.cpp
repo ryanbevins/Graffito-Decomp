@@ -3037,7 +3037,8 @@ bool TGCConsole2::processDownCoin(int param_1)
 
 bool TGCConsole2::processAppearTank(int param_1)
 {
-	bool isFinished = unk2F8->update();
+	bool isFinished = true;
+	isFinished &= unk2F8->update();
 
 	if (param_1 == 6) {
 		unk270->getPane()->show();
@@ -3055,23 +3056,58 @@ bool TGCConsole2::processAppearTank(int param_1)
 		                         cUpMidPoint);
 	}
 
-	if (!updateUpPane(unk26C))
-		isFinished = false;
-
-	if (param_1 < 6 || !updateUpPane(unk270))
-		isFinished = false;
-
-	if (param_1 < 14 || !updateUpPane(unk29C))
-		isFinished = false;
-
-	if (param_1 < 26) {
-		isFinished = false;
-	} else {
-		if (updateUpPane(unk274)) {
-			unk288->show();
-		} else {
+	if (unk26C->update()) {
+		bool atOrigin = false;
+		if (unk26C->unk14.x1 == 0 && unk26C->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk26C->setPanePosition(30, cUpMidPoint, cUpMidPoint,
+			                         cUpBotPoint);
 			isFinished = false;
 		}
+	} else {
+		isFinished = false;
+	}
+
+	if (param_1 >= 6 && unk270->update()) {
+		bool atOrigin = false;
+		if (unk270->unk14.x1 == 0 && unk270->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk270->setPanePosition(30, cUpMidPoint, cUpMidPoint,
+			                         cUpBotPoint);
+			isFinished = false;
+		}
+	} else {
+		isFinished = false;
+	}
+
+	if (param_1 >= 14 && unk29C->update()) {
+		bool atOrigin = false;
+		if (unk29C->unk14.x1 == 0 && unk29C->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk29C->setPanePosition(30, cUpMidPoint, cUpMidPoint,
+			                         cUpBotPoint);
+			isFinished = false;
+		}
+	} else {
+		isFinished = false;
+	}
+
+	if (param_1 >= 26 && unk274->update()) {
+		bool atOrigin = false;
+		if (unk274->unk14.x1 == 0 && unk274->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk274->setPanePosition(30, cUpMidPoint, cUpMidPoint,
+			                         cUpBotPoint);
+			isFinished = false;
+		} else {
+			unk288->show();
+		}
+	} else {
+		isFinished = false;
 	}
 
 	return isFinished;
