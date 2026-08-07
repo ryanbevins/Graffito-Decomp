@@ -22,7 +22,7 @@
 #include <System/Particles.hpp>
 
 static const f32 sSnortStepFrames[3]   = { 21.0f, 36.0f, 55.0f };
-static f32 sEmitSandFrameFoot[2]       = { 14.0f, 34.0f };
+static const f32 sEmitSandFrameFoot[2] = { 14.0f, 34.0f };
 
 void TBossHanachan::emitCamShake_()
 {
