@@ -1442,7 +1442,7 @@ void THanaSambo::kill()
 
 void THanaSambo::setDeadAnm()
 {
-	mMActor = mMActorKeeper->getMActor("samboD.bmd");
+	mMActor = getActorKeeper()->getMActor("samboD.bmd");
 	if (mUseYDownAnim)
 		setBckAnm(10);
 	else
