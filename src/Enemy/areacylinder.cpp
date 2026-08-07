@@ -53,9 +53,10 @@ void TAreaCylinder::load(JSUMemoryInputStream& stream)
 
 	const char* groupName = stream.readString();
 	TConductor* conductor = gpConductor;
-	TAreaCylinderManager* mgr
+	TAreaCylinderManager* found
 	    = (TAreaCylinderManager*)conductor->searchF(
 	        JDrama::TNameRef::calcKeyCode(groupName), groupName);
+	TAreaCylinderManager* mgr = found;
 	if (mgr == nullptr) {
 		mgr = new TAreaCylinderManager(groupName);
 		gpConductor->registerAreaCylinderManager(mgr);
