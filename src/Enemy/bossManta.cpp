@@ -1285,8 +1285,8 @@ void TBossMantaManager::setupEfbAlpha(JDrama::TGraphics* graphics)
 	              GX_COLOR0A0);
 	GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
 
-	GXColor white = { 0xff, 0xff, 0xff, 0xff };
-	GXSetChanMatColor(GX_COLOR0A0, white);
+	GXSetChanMatColor(GX_COLOR0A0,
+	                  (GXColor) { 0xff, 0xff, 0xff, 0xff });
 	GXSetAlphaUpdate(GX_TRUE);
 	GXSetDstAlpha(GX_FALSE, 0);
 	GXSetZMode(GX_TRUE, GX_GEQUAL, GX_FALSE);
