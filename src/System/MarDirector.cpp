@@ -81,5 +81,6 @@ u32 TMarDirector::setup(JDrama::TDisplay* param_1, TMarioGamePad** param_2,
 
 void TMarDirector::registerEventWatcher(TEventWatcher* param_1)
 {
-	unk80->insert(param_1);
+	JDrama::TViewObj* watcher = param_1;
+	unk80->insert(watcher);
 }
