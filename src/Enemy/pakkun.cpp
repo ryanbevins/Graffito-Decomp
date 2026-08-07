@@ -509,9 +509,8 @@ void TStayPakkun::genRandomItem()
 	unk1A4 = mPosition;
 	unk1A4.y += 100.0f;
 
-	TWaterEmitInfo* info = manager->mWaterEmitInfo;
-	info->mPos.value = unk1A4;
-	gpModelWaterManager->emitRequest(*info);
+	manager->mWaterEmitInfo->mPos.value = unk1A4;
+	gpModelWaterManager->emitRequest(*manager->mWaterEmitInfo);
 
 	TWaterGun* waterGun = (TWaterGun*)SMS_GetMarioWaterGun();
 	s32 maxAmount
