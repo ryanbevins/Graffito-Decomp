@@ -116,9 +116,9 @@ static inline void syncPaneBounds(TBoundPane* pane)
 	pane->unk4 = pane->getPane()->mBounds;
 }
 
-static inline void moveBoundPaneTo(TBoundPane* pane, int x, int y)
+static inline void addBoundPaneOffset(TBoundPane* pane, int x, int y)
 {
-	pane->getPane()->move(x, y);
+	pane->getPane()->add(x, y);
 	syncPaneBounds(pane);
 }
 
@@ -1688,10 +1688,10 @@ void TGCConsole2::loadAfter()
 	int waterX = waterBounds.x1;
 	int waterY = waterBounds.y1;
 
-	unk2A0[0]->move(waterX, waterY);
-	moveBoundPaneTo(unk270, waterX, waterY);
-	moveBoundPaneTo(unk26C, waterX, waterY);
-	unk328->move(waterX, waterY);
+	unk2A0[0]->add(waterX, waterY);
+	addBoundPaneOffset(unk270, waterX, waterY);
+	addBoundPaneOffset(unk26C, waterX, waterY);
+	unk328->add(waterX, waterY);
 
 	for (int i = 0; i < 3; ++i) {
 		unk2BC[i] = unk2A0[i]->mBounds;
@@ -1702,7 +1702,7 @@ void TGCConsole2::loadAfter()
 	detachPaneFromParent(unk2A0[0]);
 	detachBoundPaneFromParent(unk270);
 	for (int i = 0; i < 4; ++i) {
-		moveBoundPaneTo(unk278[i], waterX, waterY);
+		addBoundPaneOffset(unk278[i], waterX, waterY);
 		detachBoundPaneFromParent(unk278[i]);
 	}
 	detachBoundPaneFromParent(unk26C);
