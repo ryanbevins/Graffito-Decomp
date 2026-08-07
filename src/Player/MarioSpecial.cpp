@@ -248,7 +248,7 @@ BOOL TMario::specMain()
 		break;
 	case 0x10100341:
 		return barHang();
-	case 0x10100344:
+	case 0x10100343:
 		barClimb();
 		break;
 	case 0x00200345:

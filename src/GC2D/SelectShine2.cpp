@@ -1,4 +1,5 @@
 #define JGEOMETRY_SELECTSHINE2_OWNER_HELPERS
+#define JGEOMETRY_TVEC3_ADD_OUT_OF_LINE
 #define JMATH_SELECTSHINE2_TRIG_OUT_OF_LINE
 #include <GC2D/SelectShine2.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 
 #undef JGEOMETRY_SELECTSHINE2_OWNER_HELPERS
+#undef JGEOMETRY_TVEC3_ADD_OUT_OF_LINE
 #undef JMATH_SELECTSHINE2_TRIG_OUT_OF_LINE
 
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
@@ -99,15 +101,15 @@ void TSelectShineManager::initData(u8* shineTypes, u8 count, u8 startIdx,
 		f32 cosA  = jmaCosTable[tblIdx];
 		f32 sinA  = jmaSinTable[tblIdx];
 		JGeometry::TVec3<f32> pos
-		    = makeShinePos(9000.0f * sinA + cCenter.x,
-		                   1500.0f * cosA + cCenter.y, cCenter.z);
+		    = makeShinePos(1500.0f * sinA + cCenter.x,
+		                   cCenter.y, 9000.0f * cosA + cCenter.z);
 
 		JGeometry::TVec2<f32> diff;
 		diff.x = pos.x;
-		diff.y = pos.y;
+		diff.y = pos.z;
 		JGeometry::TVec2<f32> ref;
-		ref.x = 1300.0f;
-		ref.y = cCenter.y;
+		ref.x = 300.0f;
+		ref.y = 1300.0f;
 		diff.x -= ref.x;
 		diff.y -= ref.y;
 
@@ -258,46 +260,48 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 					unkA5 = 0;
 				}
 			}
-		}
 
-		for (int i = 0; i < mShineCount; ++i) {
-			s16 angle = (s16)(57.295776f * (f32)(s16)(unk9C + i * 40));
-			f32 cosA  = JMASCos(angle);
-			f32 sinA  = JMASSin(angle);
-			JGeometry::TVec3<f32> tmp
-			    = makeShinePos(9000.0f * sinA + cCenter.x,
-			                   1500.0f * cosA + cCenter.y, cCenter.z);
+			for (int i = 0; i < mShineCount; ++i) {
+				s16 angle
+				    = (s16)(57.295776f * (f32)(s16)(unk9C + i * 40));
+				f32 cosA = JMASCos(angle);
+				f32 sinA = JMASSin(angle);
+				JGeometry::TVec3<f32> tmp
+				    = makeShinePos(1500.0f * sinA + cCenter.x,
+				                   cCenter.y, 9000.0f * cosA + cCenter.z);
 
-			TSelectShine* shine = mShines[i];
+				TSelectShine* shine = mShines[i];
+				shine->mPos         = tmp;
 
-			JGeometry::TVec3<f32> sum;
-			sum = tmp;
-			sum.add(shine->unk18);
+				JGeometry::TVec3<f32> sum;
+				sum = shine->mPos;
+				sum.add(shine->unk18);
 
-			JGeometry::TVec2<f32> diff;
-			diff.x = sum.x;
-			diff.y = sum.y;
-			JGeometry::TVec2<f32> ref;
-			ref.x = 1300.0f;
-			ref.y = cCenter.y;
-			diff.sub(ref);
+				JGeometry::TVec2<f32> diff;
+				diff.x = sum.x;
+				diff.y = sum.z;
+				JGeometry::TVec2<f32> ref;
+				ref.x = 300.0f;
+				ref.y = 1300.0f;
+				diff.sub(ref);
 
-			f32 a   = diff.x;
-			f32 b   = diff.y;
-			s16 yaw = (s16)(57.295776f
-			                * fabsf(atan2f(a * 1.0f - b * 0.0f,
-			                               a * 0.0f + b * 1.0f)));
-			if (sum.x > cCenter.x) {
-				yaw = -yaw;
+				f32 a   = diff.x;
+				f32 b   = diff.y;
+				s16 yaw = (s16)(57.295776f
+				                * fabsf(atan2f(a * 1.0f - b * 0.0f,
+				                               a * 0.0f + b * 1.0f)));
+				if (sum.x > cCenter.x) {
+					yaw = -yaw;
+				}
+
+				MtxPtr modelMtx = shine->mModel->unk20;
+				Mtx rotMtx;
+				PSMTXRotRad(rotMtx, 'y',
+				            0.017453292f
+				                * (f32)((s16)(yaw - shine->unk3A)));
+				PSMTXConcat(modelMtx, rotMtx, modelMtx);
+				shine->unk3A = yaw;
 			}
-
-			MtxPtr modelMtx = shine->mModel->unk20;
-			Mtx rotMtx;
-			PSMTXRotRad(rotMtx, 'y',
-			            0.017453292f
-			                * (f32)((s16)(yaw - shine->unk3A)));
-			PSMTXConcat(modelMtx, rotMtx, modelMtx);
-			shine->unk3A = yaw;
 		}
 	}
 
@@ -306,7 +310,7 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 			TSelectShine* shine = mShines[i];
 			shine->mAnmColor->mFrame = (f32)shine->unk3C;
 			J3DModel* model         = shine->mModel;
-			model->entry();
+			model->update();
 			model->viewCalc();
 		}
 	}

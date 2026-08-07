@@ -3062,7 +3062,7 @@ bool TGCConsole2::processAppearTank(int param_1)
 			atOrigin = true;
 		if (!atOrigin) {
 			unk26C->setPanePosition(30, cUpMidPoint, cUpMidPoint,
-			                         cUpBotPoint);
+			                          cUpBotPoint);
 			isFinished = false;
 		}
 	} else {
@@ -3075,7 +3075,7 @@ bool TGCConsole2::processAppearTank(int param_1)
 			atOrigin = true;
 		if (!atOrigin) {
 			unk270->setPanePosition(30, cUpMidPoint, cUpMidPoint,
-			                         cUpBotPoint);
+			                          cUpBotPoint);
 			isFinished = false;
 		}
 	} else {
@@ -3088,7 +3088,7 @@ bool TGCConsole2::processAppearTank(int param_1)
 			atOrigin = true;
 		if (!atOrigin) {
 			unk29C->setPanePosition(30, cUpMidPoint, cUpMidPoint,
-			                         cUpBotPoint);
+			                          cUpBotPoint);
 			isFinished = false;
 		}
 	} else {
@@ -3101,7 +3101,7 @@ bool TGCConsole2::processAppearTank(int param_1)
 			atOrigin = true;
 		if (!atOrigin) {
 			unk274->setPanePosition(30, cUpMidPoint, cUpMidPoint,
-			                         cUpBotPoint);
+			                          cUpBotPoint);
 			isFinished = false;
 		} else {
 			unk288->show();
@@ -3843,8 +3843,8 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 		    && gpMarDirector->unk124 == 0 && unk55C < 0xffffffff)
 			++unk55C;
 
-		if (!unk34[18]
-		    && gpMarioOriginal->checkFlag(MARIO_FLAG_HAS_FLUDD) && !unk34[17]
+		if (!unk34[18] && gpMarioOriginal->checkFlag(MARIO_FLAG_HAS_FLUDD)
+		    && !unk34[17]
 		    && !unk34[28])
 			startAppearTank();
 

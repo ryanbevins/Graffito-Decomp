@@ -231,10 +231,8 @@ void TSunModel::calcDispRatioAndScreenPos_()
 	}
 	mUnk194 = 0.05882353f * (f32)(u8)mVisibleCount;
 
-	CLBCalc2DFPos(&mFPos[0],
-	              (MtxPtr)((u8*)gpCamera + 0x1EC),
-	              (MtxPtr)((u8*)gpCamera + 0x16C),
-	              mPos198, 0, false);
+	CLBCalc2DFPos(&mFPos[0], gpCamera->getUnk16C(),
+	              gpCamera->getUnk1EC(), mPos198, 0, false);
 
 	f32 inner = mUnk1A4 * mScaling.y;
 	calcOtherFPosFromCenterAndRadius_(&mFPos[1], mFPos[0], inner);
