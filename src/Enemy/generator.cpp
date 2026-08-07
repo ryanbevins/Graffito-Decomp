@@ -120,7 +120,7 @@ void TOneShotGenerator::loadAfter()
 	initHitActor(0x02000001, 1, -0x80000000, 80.0f, 120.0f, 80.0f, 120.0f);
 
 	offHitFlag(HIT_FLAG_NO_COLLISION);
-	JDrama::TNameRefGen::search<TIdxGroupObj>("グループ")
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")
 	    ->getChildren()
 	    .push_back(this);
 
