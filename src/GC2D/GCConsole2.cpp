@@ -3843,7 +3843,8 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 		    && gpMarDirector->unk124 == 0 && unk55C < 0xffffffff)
 			++unk55C;
 
-		if (!unk34[18] && SMS_CheckMarioFlag(0x10000) && !unk34[17]
+		if (!unk34[18]
+		    && gpMarioOriginal->checkFlag(MARIO_FLAG_HAS_FLUDD) && !unk34[17]
 		    && !unk34[28])
 			startAppearTank();
 
