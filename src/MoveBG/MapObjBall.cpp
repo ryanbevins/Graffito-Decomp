@@ -953,7 +953,7 @@ BOOL TMapObjBall::receiveMessage(THitActor* sender, u32 message)
 void TMapObjBall::kicked()
 {
 	JGeometry::TVec3<f32> v = mVelocity;
-	JGeometry::TVec3<f32> w(v.x, v.y, v.z);
+	JGeometry::TVec3<f32> w = v;
 	if (w.y > 0.0f) {
 		// fall through to common tail
 	} else {
