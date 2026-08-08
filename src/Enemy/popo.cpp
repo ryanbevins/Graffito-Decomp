@@ -111,7 +111,8 @@ DEFINE_NERVE(TNervePopoPossessedNozzle, TLiveActor)
 	if (self->checkCurAnmEnd(0)) {
 		if (self->unsetUnk165()) {
 			self->setBckAnm(3);
-			self->mMActor->setFrameRate(SMSGetAnmFrameRate(), 3);
+			MActor* actor = self->mMActor;
+			actor->setFrameRate(SMSGetAnmFrameRate(), 3);
 		} else {
 			self->setBckAnm(4);
 			self->mMActor->getFrameCtrl(3)->setFrame(0.0f);
