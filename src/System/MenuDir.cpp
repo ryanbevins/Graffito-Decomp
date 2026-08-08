@@ -1,4 +1,6 @@
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <System/MenuDir.hpp>
+#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <stdio.h>
 #include <JSystem/JKernel/JKRMemArchive.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
