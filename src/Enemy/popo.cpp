@@ -96,9 +96,9 @@ static inline void copyMtxTrans(JGeometry::TVec3<f32>& dst, MtxPtr mtx)
 DEFINE_NERVE(TNervePopoPossessedNozzle, TLiveActor)
 {
 	TPopo* self = popo(spine);
-	TPopoManager* manager = (TPopoManager*)self->mManager;
 
 	if (spine->getTime() == 0) {
+		TPopoManager* manager = (TPopoManager*)self->getManager();
 		if (!manager->unk60) {
 			spine->pushAfterCurrent(&TNerveWalkerGraphWander::theNerve());
 			return TRUE;
