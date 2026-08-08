@@ -468,12 +468,13 @@ void TCardLoad::setupScoreScreen()
 		    ->changeTexture(unkC8[thing]->getTexInfo(), 0);
 	}
 
+	const ResTIMG* pRVar42;
 	int asdf2 = TFlagManager::getInstance()->getFlag(0x40000) - iVar8;
 	if (asdf2 > 100)
 		asdf2 = 99;
 	if (asdf2 < 0)
 		asdf2 = 0;
-	const ResTIMG* pRVar42 = unkC8[asdf2 / 10]->getTexInfo();
+	pRVar42 = unkC8[asdf2 / 10]->getTexInfo();
 	((J2DPicture*)unk2C->search('\0n_d'))->changeTexture(pRVar42, 0);
 	const ResTIMG* pRVar43 = unkC8[asdf2 % 10]->getTexInfo();
 	((J2DPicture*)unk2C->search('\0n_e'))->changeTexture(pRVar43, 0);
