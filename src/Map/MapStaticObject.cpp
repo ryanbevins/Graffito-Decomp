@@ -265,10 +265,10 @@ void TMapStaticObj::initUnique()
 
 void TMapStaticObj::initMapCollision(const char* name)
 {
-	if ((unk68->unk40 & 2) == 0)
-		unk74 = new TMapCollisionManager(1, "/map/map", nullptr);
-	else
+	if (unk68->unk40 & 2)
 		unk74 = new TMapCollisionManager(1, "/mapObj", nullptr);
+	else
+		unk74 = new TMapCollisionManager(1, "/map/map", nullptr);
 	unk74->init(name, 0, nullptr);
 	TMapCollisionManager* manager = unk74;
 	Mtx mtx;
