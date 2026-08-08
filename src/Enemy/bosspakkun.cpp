@@ -1450,8 +1450,7 @@ void TBossPakkun::init(TLiveManager* manager)
 void TBossPakkun::setGroundCollision()
 {
 	const TNerveBPDie& dieNerve = TNerveBPDie::theNerve();
-	TNerveBase<TLiveActor>* latestNerve = mSpine->getLatestNerve();
-	if (latestNerve == &dieNerve)
+	if (mSpine->getLatestNerve() == &dieNerve)
 		return;
 
 	if (getMapCollisionManager() == nullptr)
