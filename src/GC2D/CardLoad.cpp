@@ -463,9 +463,8 @@ void TCardLoad::setupScoreScreen()
 		thing -= thing / 100 * 100;
 		((J2DPicture*)unk2C->search('n_7b'))
 		    ->changeTexture(unkC8[thing / 10]->getTexInfo(), 0);
-		thing %= 10;
 		((J2DPicture*)unk2C->search('n_7c'))
-		    ->changeTexture(unkC8[thing]->getTexInfo(), 0);
+		    ->changeTexture(unkC8[thing % 10]->getTexInfo(), 0);
 	}
 
 	const ResTIMG* pRVar42;
