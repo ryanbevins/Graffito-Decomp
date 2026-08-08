@@ -476,7 +476,7 @@ void TBombHei::calcRootMatrix()
 
 void TBombHei::setDeadAnm()
 {
-	mMActor         = mMActorKeeper->getMActor("downnejibomb_model1.bmd");
+	mMActor         = getActorKeeper()->getMActor("downnejibomb_model1.bmd");
 	TMsRange<f32> rot(0.0f, 360.0f);
 	mRotation.y = rot.rand();
 	unk19C      = 0;
