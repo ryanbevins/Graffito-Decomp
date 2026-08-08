@@ -270,11 +270,13 @@ void TMapStaticObj::initMapCollision(const char* name)
 	else
 		unk74 = new TMapCollisionManager(1, "/mapObj", nullptr);
 	unk74->init(name, 0, nullptr);
+	TMapCollisionManager* manager = unk74;
 	Mtx mtx;
 	MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
 	            mRotation.y, mRotation.z, mScaling.x, mScaling.y, mScaling.z);
-	unk74->unk8->setMtx(mtx);
-	unk74->unk8->setUp();
+	TMapCollisionBase* collision = manager->unk8;
+	collision->setMtx(mtx);
+	collision->setUp();
 }
 
 #pragma dont_inline on
