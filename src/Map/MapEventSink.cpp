@@ -118,7 +118,8 @@ void TMapEventSink::startControl()
 	unk18 = 2;
 	unk2C = getBuilding(unk28);
 	unk2C->alive();
-	unk30 = getBuilding(unk28)->getJoint();
+	TMapEventSink* sink = this;
+	unk30               = sink->getBuilding(sink->unk28)->getJoint();
 	J3DTransformInfo& info = unk30->getTransformInfo();
 	unk34                = info.mTranslate.y;
 
