@@ -284,7 +284,7 @@ void TPopo::thrownByChorobei()
 
 void TPopo::possessedIn()
 {
-	mMActor = mMActorKeeper->getMActor("popoL.bmd");
+	mMActor = getActorKeeper()->getMActor("popoL.bmd");
 	setBckAnm(3);
 	mMActor->setBtpFromIndex(0);
 	mMActor->setFrameRate(0.0f, 3);
