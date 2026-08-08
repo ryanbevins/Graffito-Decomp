@@ -2052,7 +2052,19 @@ DEFINE_NERVE(TNerveBGPolDrop, TLiveActor)
 
 	if (spine->getTime() == 0) {
 		self->changeBck(1);
-		self->changeAllTentacleState(0);
+		for (int i = 0; i < 4; ++i) {
+			TBGTentacle* tentacle = self->mTentacles[i];
+			if (tentacle->mState != 5) {
+				BOOL isThing;
+				if (tentacle->mState == 6
+				    || (u32)(tentacle->mState - 3) <= 1)
+					isThing = TRUE;
+				else
+					isThing = FALSE;
+				if (!isThing)
+					tentacle->changeStateAndFixNodes(0);
+			}
+		}
 		self->getMActor()->setBtpFromIndex(2);
 
 		J3DFrameCtrl* ctrl3 = self->getMActor()->getFrameCtrl(3);
