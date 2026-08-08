@@ -702,12 +702,12 @@ DEFINE_NERVE(TNervePoihanaTrapped, TLiveActor)
 			self->mPosition.y += 150.0f;
 			self->onLiveFlag(LIVE_FLAG_AIRBORNE);
 			if (self->unk1A8) {
-				TMsRange<f32> yRange(
-				    self->unk19C->mSLTrapJumpMinSpY.get(),
-				    self->unk19C->mSLTrapJumpMaxSpY.get());
-				TMsRange<f32> xzRange(
-				    self->unk19C->mSLTrapJumpMinSpXZ.get(),
-				    self->unk19C->mSLTrapJumpMaxSpXZ.get());
+				f32 maxY  = self->unk19C->mSLTrapJumpMaxSpY.get();
+				f32 maxXZ = self->unk19C->mSLTrapJumpMaxSpXZ.get();
+				f32 minY  = self->unk19C->mSLTrapJumpMinSpY.get();
+				f32 minXZ = self->unk19C->mSLTrapJumpMinSpXZ.get();
+				TMsRange<f32> xzRange(minXZ, maxXZ);
+				TMsRange<f32> yRange(minY, maxY);
 
 				JGeometry::TVec3<f32> local_48;
 				const TLiveActor* groundActor
