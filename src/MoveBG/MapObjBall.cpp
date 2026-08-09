@@ -1658,9 +1658,8 @@ void TBigWatermelon::control()
 	}
 	switch (mState) {
 	case 1: {
-		if (mLiveFlag & 0x10) {
-			mLiveFlag &= ~0x10;
-		}
+		if (checkLiveFlag(LIVE_FLAG_UNK10))
+			offLiveFlag(LIVE_FLAG_UNK10);
 		f32 thresh           = mGroundHeight + 200.0f;
 		TLiveActor* gpActor  = (TLiveActor*)mGroundPlane->mActor;
 		if (mPosition.y >= thresh)
