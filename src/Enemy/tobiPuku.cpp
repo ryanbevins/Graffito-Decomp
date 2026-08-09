@@ -300,11 +300,12 @@ BOOL TNerveTobiPukuLand::execute(TSpineBase<TLiveActor>* spine) const
 		velocity.z = self->mLaunchVelocity.z;
 		velocity.y = self->unk1E4 * (600.0f - distY) / 600.0f;
 
-		self->mRotation.x += self->unk1E8;
-		if (self->mRotation.x > 180.0f)
-			self->mRotation.x = 180.0f;
-		else if (self->mRotation.x < 0.0f)
-			self->mRotation.x = 0.0f;
+		f32 rotation = self->mRotation.x + self->unk1E8;
+		if (rotation > 180.0f)
+			rotation = 180.0f;
+		else if (rotation < 0.0f)
+			rotation = 0.0f;
+		self->mRotation.x = rotation;
 
 		f32 absDistY = fabsf(distY);
 		f32 rot      = self->mRotation.x * 182.04445f;
