@@ -123,13 +123,17 @@ DEFINE_NERVE(TNerveTabePukuDive, TLiveActor)
 	                                   0.0f);
 	self->swimTo(towardGround);
 
-	bool keepDiving = false;
+	bool keepDiving;
 	if (self->mPosition.y - self->mDiveStartY
 	    < -self->getSaveParam2()->mApartHeight.get()) {
 		keepDiving = true;
-	}
-	if (self->mPosition.y - self->mGroundHeight < 200.0f || !self->isAirborne())
+	} else if (self->mPosition.y - self->mGroundHeight < 200.0f) {
 		keepDiving = true;
+	} else if (!self->isAirborne()) {
+		keepDiving = true;
+	} else {
+		keepDiving = false;
+	}
 
 	if (keepDiving) {
 		spine->pushAfterCurrent(&TNerveTabePukuDrag::theNerve());
