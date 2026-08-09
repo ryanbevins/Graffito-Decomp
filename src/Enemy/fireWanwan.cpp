@@ -2136,8 +2136,9 @@ DEFINE_NERVE(TNerveFireWanwanFly, TLiveActor)
 		self->getMActor()->setBtkFromIndex(0);
 		self->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 4);
 
-		JGeometry::TVec3<f32> vel
+		JGeometry::TVec3<f32> polar
 		    = fromPolar(self->mRotation.y, self->unk194->mThrowPow);
+		JGeometry::TVec3<f32> vel = polar;
 		self->mVelocity = vel;
 
 		SMS_EasyEmitParticle(PARTICLE_MS_FUMI_C, self->getTailMtx(), self,
