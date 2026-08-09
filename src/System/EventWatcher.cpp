@@ -524,7 +524,7 @@ static void evSetGraffitoMultiplied(TSpcTypedInterp<TEventWatcher>* interp,
                                     u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
-	int value = interp->pop().getDataInt();
+	int value = TSpcSlice(interp->pop()).getDataInt();
 	TPollutionManager* pollution = gpPollution;
 	int i                        = 0;
 	if (value != 0) {
