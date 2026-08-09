@@ -588,12 +588,12 @@ void JUTGamePadRecord::streamDataToPadStatus(PADStatus* status, u8* data)
 		data += 2;
 	}
 	if (mStateFlags & 2) {
-		status->stickX = *data++;
-		status->stickY = *data++;
+		status->stickX = *(s8*)data++;
+		status->stickY = *(s8*)data++;
 	}
 	if (mStateFlags & 4) {
-		status->substickX = *data++;
-		status->substickY = *data++;
+		status->substickX = *(s8*)data++;
+		status->substickY = *(s8*)data++;
 	}
 	if (mStateFlags & 8) {
 		status->triggerLeft  = *data++;
