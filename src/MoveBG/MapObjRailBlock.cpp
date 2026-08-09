@@ -274,7 +274,7 @@ void TNormalLift::readRailFlag()
 {
 	TRailMapObj::readRailFlag();
 
-	TGraphWeb* graph = unk138->unk0;
+	TGraphWeb* graph = unk138->getGraph();
 
 	if (!graph)
 		return;
