@@ -693,7 +693,12 @@ void THideObjBase::load(JSUMemoryInputStream& stream)
 void THideObjBase::loadAfter()
 {
 	TMapObjBase::loadAfter();
-	unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(unk134, mName);
+	{
+		const char* actorName = mName;
+		u32 eventID = unk134;
+		unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(eventID,
+		                                                      actorName);
+	}
 	if (unk138) {
 		bool isBlueCoin = (unk138->mActorType == 0x20000010) ? true : false;
 		if (isBlueCoin) {
