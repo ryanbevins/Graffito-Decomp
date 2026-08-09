@@ -203,9 +203,7 @@ void TPollutionLayer::cleaned(f32 x, f32 y, f32 z, f32 size)
 
 		static JGeometry::TVec3<f32> pos[10];
 		static int now_pos_no = 0;
-		pos[now_pos_no].x    = x;
-		pos[now_pos_no].y    = y;
-		pos[now_pos_no].z    = z;
+		pos[now_pos_no].set(x, y, z);
 
 		static int x_offset_table[10]
 		    = { -1, 0, 2, 4, 1, -1, -2, 0, 3, -3 };
