@@ -578,10 +578,11 @@ void TFruitLauncher::loadAfter()
 	    JDrama::TNameRef::calcKeyCode("タンクスイッチＢ"), "タンクスイッチＢ");
 	unk13C->unk138 = (TMapObjBase*)this;
 	unk140         = 1;
-	unk138->startBck("riccoswitch");
-	unk138->unk64 |= 1;
+	TFruitSwitch* fruitSwitch = unk138;
+	fruitSwitch->startBck("riccoswitch");
+	fruitSwitch->unk64 |= 1;
 	{
-		TMapCollisionBase* coll = unk138->mMapCollisionManager->unk8;
+		TMapCollisionBase* coll = fruitSwitch->mMapCollisionManager->unk8;
 		if (coll) {
 			coll->remove();
 		}
