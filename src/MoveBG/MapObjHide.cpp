@@ -195,8 +195,8 @@ void THideObjPictureTwin::afterFinishedAnim()
 {
 	removeMapCollision();
 	unk64 |= 1;
-	TMapObjBase* obj = unk138;
-	if (obj && unk14C) {
+	TMapObjBase* obj;
+	if ((obj = unk138) && unk14C) {
 		if (TMapObjBase::isCoin(obj)) {
 			bool isPlainCoin = (obj->mActorType == 0x2000000e) ? true : false;
 			if (isPlainCoin) {
