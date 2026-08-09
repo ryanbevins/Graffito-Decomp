@@ -169,7 +169,7 @@ BOOL TNerveTobiPukuReturnLaunch::execute(TSpineBase<TLiveActor>* spine) const
 
 BOOL TNerveTobiPukuPrepareFly::execute(TSpineBase<TLiveActor>* spine) const
 {
-	TTobiPuku* self = tobiPuku(spine);
+	TTobiPuku* self = (TTobiPuku*)spine->getBody();
 	if (spine->getTime() == 0) {
 		f32 rot = self->unk1B4;
 		while (rot >= 360.0f)
