@@ -473,7 +473,8 @@ void TTrembleModelEffect::movement()
 
 void TTrembleModelEffect::reset()
 {
-	if ((unk8 & 2) == 0) {
+	switch (unk8 & 2) {
+	case 0: {
 		JGeometry::TVec3<s16>* original
 		    = (JGeometry::TVec3<s16>*)unk4;
 
@@ -483,7 +484,9 @@ void TTrembleModelEffect::reset()
 			unk18[0][i] = original[i];
 			unk18[1][i] = original[i];
 		}
-	} else {
+		break;
+	}
+	case 2: {
 		JGeometry::TVec3<f32>* original
 		    = (JGeometry::TVec3<f32>*)unk4;
 
@@ -493,6 +496,8 @@ void TTrembleModelEffect::reset()
 			unk2C[0][i] = original[i];
 			unk2C[1][i] = original[i];
 		}
+		break;
+	}
 	}
 
 	unk8 &= ~1;
