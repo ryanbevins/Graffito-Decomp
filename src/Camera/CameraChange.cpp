@@ -74,7 +74,10 @@ void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 	}
 
 	if (SMS_GetMarioStatus() == 0x800447) {
-		changeCamModeSpecifyFrame_(0x2E, getCameraInbetweenFrame_(0x2E));
+		s16 frame = (s16)getCameraInbetweenFrame_(0x2E);
+		*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+		unk70 = nullptr;
+		changeCamModeSub_(0x2E, frame, false);
 		return;
 	}
 
