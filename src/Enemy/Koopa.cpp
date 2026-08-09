@@ -885,13 +885,12 @@ void TKoopa::setUpHitActors()
 	bool canEmitFlame;
 	if (mMActor->getCurAnmIdx(0) == 4) {
 		canEmitFlame = true;
-	} else if (mMActor->getCurAnmIdx(0) == 5) {
-		if (mMActor->getFrameCtrl(0)->getFrame() >= 85.0f)
-			canEmitFlame = true;
-		else
-			canEmitFlame = false;
-	} else
+	} else if (mMActor->getCurAnmIdx(0) == 5
+	           && mMActor->getFrameCtrl(0)->getFrame() >= 85.0f) {
+		canEmitFlame = true;
+	} else {
 		canEmitFlame = false;
+	}
 
 	if (canEmitFlame) {
 		int available = -1;
