@@ -1986,10 +1986,7 @@ void TGCConsole2::startCameraDemo()
 
 void TGCConsole2::endCameraDemo()
 {
-	if (unk34[5])
-		return;
-
-	if (!unk34[28])
+	if (unk34[5] || !unk34[28])
 		return;
 
 	if (unkB6 < 3) {
