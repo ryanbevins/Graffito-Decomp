@@ -192,9 +192,8 @@ DEFINE_NERVE(TNervePopoFly, TLiveActor)
 			           - (360.0f / 65536.0f) * matan(-velocity.z, velocity.x);
 		}
 
-		self->mRotation.x = 0.0f;
-		self->mRotation.y = callMsWrap(rotation, 0.0f, 360.0f);
-		self->mRotation.z = 0.0f;
+		self->mRotation.set(0.0f, callMsWrap(rotation, 0.0f, 360.0f),
+		                    0.0f);
 
 		if (TPopo::mExplosionSw)
 			self->offHitFlag(HIT_FLAG_NO_COLLISION);
