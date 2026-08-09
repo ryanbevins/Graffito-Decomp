@@ -851,24 +851,24 @@ void TMapObjBase::emitAndSRT(s32 param_1, u8 param_2,
                              const JGeometry::TVec3<f32>& param_5)
 {
 	JPABaseEmitter* emitter
-	    = gpMarioParticleManager->emit(param_1, param_3, param_2, this);
+	    = gpMarioParticleManager->emit(param_1, param_3, param_2, param_3);
 
 	if (emitter) {
-		s16 x = param_3->x;
-		s16 y = param_3->y;
-		s16 z = param_3->z;
+		s16 x = param_4.x;
+		s16 y = param_4.y;
+		s16 z = param_4.z;
 		emitter->unk16C.x = x;
 		emitter->unk16C.y = y;
 		emitter->unk16C.z = z;
 		JPAGetXYZRotateMtx(emitter->unk16C.x, emitter->unk16C.y,
 		                   emitter->unk16C.z, emitter->unk124);
 
-		emitter->unk154.x = param_4.x;
-		emitter->unk154.y = param_4.y;
-		emitter->unk154.z = param_4.z;
-		emitter->unk174.x = param_4.x;
-		emitter->unk174.y = param_4.y;
-		emitter->unk174.z = param_4.z;
+		emitter->unk154.x = param_5.x;
+		emitter->unk154.y = param_5.y;
+		emitter->unk154.z = param_5.z;
+		emitter->unk174.x = param_5.x;
+		emitter->unk174.y = param_5.y;
+		emitter->unk174.z = param_5.z;
 	}
 
 }
