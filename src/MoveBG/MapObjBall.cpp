@@ -423,16 +423,15 @@ void TResetFruit::makeObjWaitingToAppear()
 u32 TResetFruit::touchWater(THitActor* actor)
 {
 	if (!isState(6) && !isState(2)) {
-		JGeometry::TVec3<f32> vel    = mVelocity;
+		JGeometry::TVec3<f32> vel = mVelocity;
+		JGeometry::TVec3<f32> result(vel.x, vel.y, vel.z);
 		JGeometry::TVec3<f32>* speed
 		    = ((TMapObjBase*)actor)->getWaterSpeed(actor);
-		f32 factor                   = unk17C;
-		vel.x                        = speed->x * factor + vel.x;
-		vel.y                        = speed->y * factor + vel.y;
-		vel.z                        = speed->z * factor + vel.z;
-		mVelocity.x                  = vel.x;
-		mVelocity.y                  = vel.y;
-		mVelocity.z                  = vel.z;
+		f32 factor = unk17C;
+		result.x   = speed->x * factor + result.x;
+		result.y   = speed->y * factor + result.y;
+		result.z   = speed->z * factor + result.z;
+		mVelocity = result;
 		mLiveFlag &= ~0x10;
 	}
 	if (!isLifeTimerActive()) {
