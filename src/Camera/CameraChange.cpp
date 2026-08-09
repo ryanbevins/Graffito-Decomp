@@ -81,7 +81,10 @@ void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 		return;
 	}
 
-	if (isFixCameraSpecifyMode(mode) || isDefiniteCameraSpecifyMode(mode))
+	bool modeLocked = true;
+	if (!isFixCameraSpecifyMode(mode) && !isDefiniteCameraSpecifyMode(mode))
+		modeLocked = false;
+	if (modeLocked)
 		return;
 
 	if (unk64 & 0x20)
