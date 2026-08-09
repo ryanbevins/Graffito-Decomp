@@ -104,8 +104,8 @@ TDebuTelesaManager::TDebuTelesaManager(const char* name)
 
 void TDebuTelesaManager::load(JSUMemoryInputStream& stream)
 {
-	TSmallEnemyParams* params = new TSmallEnemyParams("/enemy/debuTelesa.prm");
-	params->load(params->mPrmPath);
+	TDebuTelesaParams* params
+	    = new TDebuTelesaParams("/enemy/debuTelesa.prm");
 	unk38 = params;
 
 	params->mSLAttackRadius.set(0xF0);

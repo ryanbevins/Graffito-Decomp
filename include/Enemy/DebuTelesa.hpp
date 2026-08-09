@@ -28,6 +28,15 @@ public:
 	/* 0x1A0 */ JGeometry::TVec3<f32> mTipPos;
 };
 
+class TDebuTelesaParams : public TSmallEnemyParams {
+public:
+	TDebuTelesaParams(const char* path)
+	    : TSmallEnemyParams(path)
+	{
+		TParams::load(mPrmPath);
+	}
+};
+
 class TDebuTelesaManager : public TSmallEnemyManager {
 public:
 	TDebuTelesaManager(const char* name);
