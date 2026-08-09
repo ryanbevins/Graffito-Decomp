@@ -101,7 +101,7 @@ public:
 	virtual s32 getTotalFreeSize()          = 0;
 	virtual u32 getHeapType()               = 0;
 	virtual bool check()                    = 0;
-	virtual bool dump_sort() { return true; }
+	virtual bool dump_sort();
 	virtual bool dump() = 0;
 	virtual s32 changeGroupID(u8 newGroupId);
 	virtual u8 getCurrentGroupId();

@@ -19,10 +19,7 @@ public:
 	virtual u32 getHeapType() { return 'SLID'; }             // _30
 	virtual s32 getTotalFreeSize() { return getFreeSize(); } // _2C
 	virtual bool check();                                    // _34
-	virtual bool dump_sort() { return true; }                // _38
 	virtual bool dump();                                     // _3C
-	virtual s32 changeGroupID(u8 groupId) { return 0; }      // _40
-	virtual u8 getCurrentGroupId() { return 0; }             // _44 (weak)
 	virtual void state_register(TState*, u32) const;         // _48
 	virtual bool state_compare(const TState& fst,
 	                           const TState& snd) const; // _4C

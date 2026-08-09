@@ -115,6 +115,8 @@ void JKRHeap::freeAll()
 	}
 }
 
+inline bool JKRHeap::dump_sort() { return true; }
+
 s32 JKRHeap::changeGroupID(u8 newGroupID) { return 0; }
 
 u8 JKRHeap::getCurrentGroupId() { return 0; }
