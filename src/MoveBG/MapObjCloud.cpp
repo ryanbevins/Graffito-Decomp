@@ -137,7 +137,7 @@ void TRideCloud::control()
 			// TODO: common subexpression elimination did a mess here and it is
 			// painful to figure out....
 
-			TGraphWeb* graph = unk138->unk0;
+			TGraphWeb* graph = unk138->getGraph();
 			if (!graph || graph->isDummy())
 				return;
 
