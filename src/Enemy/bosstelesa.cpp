@@ -1401,7 +1401,8 @@ void TBossTelesa::checkHitObject(THitActor* actor)
 		}
 	}
 
-	((TMapObjBase*)actor)->makeObjDead();
+	TMapObjBase* mapObj = (TMapObjBase*)actor;
+	mapObj->makeObjDead();
 }
 
 int TTelesaSlot::getResultFromAng(f32 ang)
