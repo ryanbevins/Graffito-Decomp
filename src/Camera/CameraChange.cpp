@@ -66,7 +66,10 @@ template <> f32 MsClamp<f32>(f32 t, f32 l, f32 r)
 void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 {
 	if (SMS_isMultiPlayerMap()) {
-		changeCamModeSpecifyFrame_(2, getCameraInbetweenFrame_(2));
+		s16 frame = (s16)getCameraInbetweenFrame_(2);
+		*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+		unk70 = nullptr;
+		changeCamModeSub_(2, frame, false);
 		return;
 	}
 
