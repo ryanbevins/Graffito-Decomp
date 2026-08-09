@@ -425,20 +425,20 @@ void TLimitKoopa::setUpHitActors()
 
 	MtxPtr headMtx = getMActor()->getModel()->getAnmMtx(mHeadJointIndex);
 	f32 headRadius = getSaveParam2()->mHeadRadius.get();
+	THitActor* head = mHeadHitActor;
 
-	mHeadHitActor->mPosition.x = headMtx[0][3];
-	mHeadHitActor->mPosition.y = headMtx[1][3] - 200.0f;
-	mHeadHitActor->mPosition.z = headMtx[2][3];
+	head->mPosition.set<f32>(headMtx[0][3], headMtx[1][3] - 200.0f,
+	                         headMtx[2][3]);
 
-	mHeadHitActor->offHitFlag(0x2);
-	mHeadHitActor->offHitFlag(0x4);
-	mHeadHitActor->offHitFlag(0x1);
+	head->offHitFlag(0x2);
+	head->offHitFlag(0x4);
+	head->offHitFlag(0x1);
 
-	mHeadHitActor->mAttackRadius = headRadius;
-	mHeadHitActor->mAttackHeight = 2.0f * headRadius;
-	mHeadHitActor->mDamageRadius = headRadius;
-	mHeadHitActor->mDamageHeight = 2.0f * headRadius;
-	mHeadHitActor->calcEntryRadius();
+	head->mAttackRadius = headRadius;
+	head->mAttackHeight = 2.0f * headRadius;
+	head->mDamageRadius = headRadius;
+	head->mDamageHeight = 2.0f * headRadius;
+	head->calcEntryRadius();
 }
 
 #pragma dont_inline on
