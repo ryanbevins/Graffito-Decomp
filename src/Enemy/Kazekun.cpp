@@ -315,9 +315,8 @@ void TKazekun::init(TLiveManager* manager)
 	mHeadHeight       = 40.0f;
 	mBodyRadius       = 50.0f;
 	mScaledBodyRadius = 50.0f;
-	initHitActor(0x10000029, 1, 0x80000000, mBodyScale * mBodyRadius,
-	             mBodyScale * mHeadHeight, mBodyScale * mBodyRadius,
-	             mBodyScale * mHeadHeight);
+	initHitActor(0x10000029, 1, 0x80000000, getBodyRadius(), getHeadHeight(),
+	             getBodyRadius(), getHeadHeight());
 	unk64 |= 0x1;
 
 	if (!gParticleFlagLoaded[0xcf]) {
