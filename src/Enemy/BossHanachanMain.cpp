@@ -937,8 +937,8 @@ static void CalcRevisionPosByRotateZ(const JGeometry::TVec3<f32>& rot,
 			mag = -mag;
 
 		s16 angle = CLBRoundf<s16>((65536.0f / 360.0f) * rot.y);
-		f32 sinV = jmaSinTable[(u16)angle >> jmaSinShift];
 		f32 cosV = jmaCosTable[(u16)angle >> jmaSinShift];
+		f32 sinV = jmaSinTable[(u16)angle >> jmaSinShift];
 		f32 zero = 0.0f;
 		pos->x += mag * cosV + zero * sinV;
 		pos->z += -mag * sinV + zero * cosV;
