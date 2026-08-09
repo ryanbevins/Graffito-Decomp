@@ -1824,8 +1824,7 @@ void TBEelTearsManager::splitTears(JGeometry::TVec3<f32>& position)
 		TMsRange<f32> initialScaleRange(1.0f, 1.5f);
 		f32 scale = initialScaleRange.rand();
 
-		TBEelTearsSaveLoadParams* params = drop->unk74->unk15C;
-		scale = params->mTearsDropScaleRange.rand();
+		scale = drop->unk74->unk15C->mTearsDropScaleRange.rand();
 		drop->mScaling.x = scale;
 		drop->mScaling.y = scale;
 		drop->mScaling.z = scale;
