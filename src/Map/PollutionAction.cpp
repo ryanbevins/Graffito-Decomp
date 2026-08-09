@@ -164,6 +164,8 @@ void TPollutionLayer::action()
 		}
 		break;
 	}
+	case 0:
+	case 2:
 	case 5:
 	case 6:
 	case 7:
