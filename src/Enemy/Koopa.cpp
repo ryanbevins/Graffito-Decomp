@@ -944,8 +944,9 @@ void TKoopa::setUpHitActors()
 		}
 	} else {
 		for (int i = 0; i < 10; ++i) {
-			mFlameHitActors[i]->unk88 = 0.0f;
-			mFlameHitActors[i]->unk8C = 1.0f;
+			TKoopaFlame* flame = mFlameHitActors[i];
+			flame->unk88 = 0.0f;
+			flame->unk8C = 1.0f;
 		}
 	}
 
