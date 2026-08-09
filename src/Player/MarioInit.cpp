@@ -874,8 +874,8 @@ TMario::TMario()
 	*(JGeometry::TVec3<f32>*)((u8*)this + 0x28C) = mRotation;
 	mLastSafePos   = mPosition;
 	mLastGroundPos = mPosition;
-	unk2B4         = 0;
-	unk2B8         = 0;
+	unk2B4         = *(u32*)((u8*)this + 0x94);
+	unk2B8         = (u16)mFaceAngle.z;
 	unk2BA         = 0;
 	mLastGroundY   = 0.0f;
 	mRidingActor   = 0;
