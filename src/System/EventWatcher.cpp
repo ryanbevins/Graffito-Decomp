@@ -489,8 +489,8 @@ static void evSetEventEnd(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evSetNextStage(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(2, &arg_num);
-	int scenario = interp->pop().getDataInt();
-	int stage    = interp->pop().getDataInt();
+	int scenario = TSpcSlice(interp->pop()).getDataInt();
+	int stage    = TSpcSlice(interp->pop()).getDataInt();
 
 	gpMarDirector->setNextStage((scenario & 0xff) + ((stage + 1) << 8),
 	                            nullptr);
