@@ -391,8 +391,8 @@ void TLimitKoopa::setUpHitActors()
 			ratio = (fc->getFrame() - 125.0f) / ((f32)fc->getEnd() - 125.0f);
 		}
 
-		TLimitKoopaParams* prm = getSaveParam2();
 		for (int i = 0; i < 10; i++) {
+			TLimitKoopaParams* prm = getSaveParam2();
 			f32 flameRadius = prm->mFlameRadius.get();
 			f32 flameHeight = prm->mFlameHeight.get();
 
@@ -415,7 +415,9 @@ void TLimitKoopa::setUpHitActors()
 			hit->offHitFlag(0x4);
 			hit->offHitFlag(0x1);
 
-			f32 height = flameHeight > 0.0f ? flameHeight : 2.0f * flameRadius;
+			f32 height = flameHeight;
+			if (height <= 0.0f)
+				height = 2.0f * flameRadius;
 			hit->mAttackRadius = flameRadius;
 			hit->mAttackHeight = height;
 			hit->mDamageRadius = flameRadius;
