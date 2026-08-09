@@ -2193,10 +2193,8 @@ void TMario::checkRideMovement()
 	const TBGCheckData* wallPlane =
 	    checkWallPlane(&pos, 50.0f, unk15C);
 
-	const TLiveActor* groundActor =
-	    (TLiveActor*)mGroundPlane->mActor;
-
-	if (groundActor != 0) {
+	const TLiveActor* groundActor;
+	if ((groundActor = (TLiveActor*)mGroundPlane->mActor) != 0) {
 		u8 actionBit;
 		if (mAction & 0x800)
 			actionBit = 1;
