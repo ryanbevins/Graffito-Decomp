@@ -663,6 +663,8 @@ void TCannon::killerShoot()
 		killer->mPosition.z = localMtx.mMtx[2][3];
 
 		JGeometry::TVec3<f32> target = *gpMarioPos;
+		f32 marioSpeedX = *gpMarioSpeedX;
+		f32 marioSpeedZ = *gpMarioSpeedZ;
 		TMsRange<f32> targetRange(-300.0f, 300.0f);
 		target.x += targetRange.rand();
 
@@ -694,16 +696,16 @@ void TCannon::killerShoot()
 		if (roll % 5 == 0) {
 			killer->mIsChaseMode = 1;
 		} else {
-			if (*gpMarioSpeedX > 2.0f)
+			if (marioSpeedX > 2.0f)
 				velocityRate = 0.55f;
-			if (*gpMarioSpeedX < -2.0f)
+			if (marioSpeedX < -2.0f)
 				velocityRate = 0.68f;
 		}
 
 		JGeometry::TVec3<f32> predicted;
-		predicted.x = target.x + mSearchRate * (*gpMarioSpeedX * flightTime);
+		predicted.x = target.x + mSearchRate * (marioSpeedX * flightTime);
 		predicted.y = target.y;
-		predicted.z = target.z + mSearchRate * (*gpMarioSpeedZ * flightTime);
+		predicted.z = target.z + mSearchRate * (marioSpeedZ * flightTime);
 		velocity = killer->calcVelocityToJumpToY(predicted, 5.0f,
 		                                         killer->getGravityY());
 		velocity.scale(velocityRate);
