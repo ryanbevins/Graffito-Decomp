@@ -2161,10 +2161,11 @@ void TBEelTearsDrop::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (flags & 2) {
 		Mtx mtx;
-		MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z,
+		MtxPtr matrix = mtx;
+		MsMtxSetXYZRPH(matrix, mPosition.x, mPosition.y, mPosition.z,
 		               mRotation.x, mRotation.y, mRotation.z);
 
-		PSMTXCopy(mtx, unk68->getMActor()->getModel()->getBaseTRMtx());
+		PSMTXCopy(matrix, unk68->getMActor()->getModel()->getBaseTRMtx());
 
 		f32 scale = unk74->unk15C->mSLTearsDropScaleLow.get();
 		mScaling.x = scale;
