@@ -727,9 +727,7 @@ void TTobiPuku::forceKill()
 
 void TTobiPuku::kill()
 {
-	if (checkLiveFlag(LIVE_FLAG_DEAD))
-		return;
-	if (mGroundPlane->checkFlag(0x10))
+	if (checkLiveFlag(LIVE_FLAG_DEAD) || mGroundPlane->checkFlag(0x10))
 		return;
 
 	mHitPoints = 1;
