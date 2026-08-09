@@ -554,10 +554,10 @@ void TBaseNPC::changeNerveProc_()
 			}
 		}
 		if (doTransition) {
-			mLiveFlag |= 0x20000;
-			if (mLiveFlag & 0x40000) {
+			onLiveFlag(LIVE_FLAG_UNK20000);
+			if (checkLiveFlag(LIVE_FLAG_UNK40000)) {
 				earlyExit = true;
-				mLiveFlag &= ~0x40000;
+				offLiveFlag(LIVE_FLAG_UNK40000);
 				const TNerveBase<TLiveActor>* c
 				    = mSpine->getCurrentNerve();
 				if (c == &TNerveNPCWet::theNerve()
@@ -567,7 +567,7 @@ void TBaseNPC::changeNerveProc_()
 				} else {
 					mSpine->pushNerve(&TNerveNPCTalk::theNerve());
 				}
-				mLiveFlag &= ~0x02000000;
+				offLiveFlag(LIVE_FLAG_UNK2000000);
 			}
 		} else {
 			mLiveFlag &= ~0x60000;
