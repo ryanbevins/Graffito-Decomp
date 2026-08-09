@@ -946,8 +946,9 @@ void TOptionControl::writeValue()
 bool TOptionControl::isChangedSetting() const
 {
 	bool result = true;
+	TOptionRumbleUnit* rumbleOption = mRumbleOption;
 
-	if (mInitialRumbleValue == mRumbleOption->getValue()
+	if (mInitialRumbleValue == rumbleOption->getValue()
 	    && mInitialSoundValue == mSoundOption->getValue())
 		result = false;
 
