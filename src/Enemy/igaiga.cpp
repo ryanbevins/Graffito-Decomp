@@ -1,4 +1,6 @@
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Enemy/Igaiga.hpp>
+#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
 #include <Enemy/Launcher.hpp>
