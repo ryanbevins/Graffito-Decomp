@@ -406,28 +406,23 @@ void TMerrygoround::control()
 	for (int i = 0; i < 2; ++i) {
 		MtxPtr mtx = getModel()->getAnmMtx(unk140[i]);
 		unk138[i]->setModelMtx(mtx);
-		unk138[i]->mPosition.x = mtx[0][3];
-		unk138[i]->mPosition.y = mtx[1][3];
-		unk138[i]->mPosition.z = mtx[2][3];
+		unk138[i]->mPosition.set<f32>(mtx[0][3], mtx[1][3], mtx[2][3]);
 	}
 
 	for (int i = 0; i < 9; ++i) {
 		MtxPtr mtx = getModel()->getAnmMtx(unk18C[i]);
 		((TMerryPole*)unk144[i])->unk138.set(mtx);
-		unk144[i]->mPosition.x = mtx[0][3];
-		unk144[i]->mPosition.y = mtx[1][3] - 600.0f;
-		unk144[i]->mPosition.z = mtx[2][3];
+		unk144[i]->mPosition.set<f32>(mtx[0][3], mtx[1][3] - 600.0f,
+		                                  mtx[2][3]);
 	}
 
 	if (SMS_IsMarioOnYoshi())
-		unk1A0->offLiveFlag(LIVE_FLAG_DEAD);
+		unk1A0->offHitFlag(HIT_FLAG_NO_COLLISION);
 	else
-		unk1A0->onLiveFlag(LIVE_FLAG_DEAD);
+		unk1A0->onHitFlag(HIT_FLAG_NO_COLLISION);
 
 	MtxPtr mtx = getModel()->getAnmMtx(unk1A4);
-	unk1A0->mPosition.x = mtx[0][3];
-	unk1A0->mPosition.y = mtx[1][3] - 600.0f;
-	unk1A0->mPosition.z = mtx[2][3];
+	unk1A0->mPosition.set<f32>(mtx[0][3], mtx[1][3] - 600.0f, mtx[2][3]);
 }
 
 TPinnaShell::TPinnaShell()
