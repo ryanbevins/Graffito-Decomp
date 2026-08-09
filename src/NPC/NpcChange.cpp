@@ -128,8 +128,8 @@ void TBaseNPC::changeNerveFromTalk_()
 	mSpine->setNext(nullptr);
 
 	if (unk17C != nullptr) {
-		if (mLiveFlag & 0x20000000) {
-			mLiveFlag &= ~0x20000000;
+		if (checkLiveFlag(LIVE_FLAG_UNK20000000)) {
+			offLiveFlag(LIVE_FLAG_UNK20000000);
 		} else {
 			mSpine->setNext(&TNerveNPCThrow::theNerve());
 		}
