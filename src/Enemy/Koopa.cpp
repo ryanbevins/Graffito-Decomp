@@ -919,6 +919,9 @@ void TKoopa::setUpHitActors()
 			TKoopaParams* prm
 			    = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
 			TKoopaFlame* flame = mFlameHitActors[available];
+			f32 flameHeight     = prm->flameHeight.get();
+			f32 flameRadius     = prm->flameRadius.get();
+			f32 flameVelocity   = prm->flameVelocity.get();
 			flame->mPosition.x = positionX;
 			flame->mPosition.y = positionY;
 			flame->mPosition.z = positionZ;
@@ -928,11 +931,11 @@ void TKoopa::setUpHitActors()
 			flame->unk6C       = positionX;
 			flame->unk70       = positionY;
 			flame->unk74       = positionZ;
-			flame->unk84       = prm->flameVelocity.get();
+			flame->unk84       = flameVelocity;
 			flame->unk88       = 4000.0f;
 			flame->unk8C       = 0.0f;
-			flame->unk90       = prm->flameRadius.get();
-			flame->unk94       = prm->flameHeight.get();
+			flame->unk90       = flameRadius;
+			flame->unk94       = flameHeight;
 		}
 	} else {
 		for (int i = 0; i < 10; ++i) {
