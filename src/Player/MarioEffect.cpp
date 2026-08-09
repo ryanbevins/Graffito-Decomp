@@ -52,9 +52,10 @@ void TMarioEffect::init(TMario* mario)
 
 	void* boostRes = JKRFileLoader::getGlbResource(
 	    "/mario/01_waterboost/01_waterboost.bmd");
-	J3DModel* boostModel = new J3DModel(
-	    J3DModelLoaderDataBase::load(boostRes, 0x10040000), 0, 1);
-	unk80->setModel(boostModel, 0);
+	unk80->setModel(new J3DModel(
+	                    J3DModelLoaderDataBase::load(boostRes, 0x10040000), 0,
+	                    1),
+	                0);
 	unk80->setBck("01_waterboost_in");
 	unk80->setBtk("01_waterboost");
 	unk80->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
