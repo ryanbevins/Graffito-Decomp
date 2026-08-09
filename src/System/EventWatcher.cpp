@@ -382,7 +382,7 @@ static void evIsOnLiveActorFlag(TSpcTypedInterp<TEventWatcher>* interp,
                                 u32 arg_num)
 {
 	interp->verifyArgNum(2, &arg_num);
-	int flag = interp->pop().getDataInt();
+	int flag = TSpcSlice(interp->pop()).getDataInt();
 
 	TLiveActor* liveActor = get_name_ref<TLiveActor>(interp->pop());
 
