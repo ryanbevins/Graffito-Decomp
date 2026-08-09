@@ -366,9 +366,11 @@ void TPollutionLayer::initJointModel(TJointModelManager* param_1,
                                      MActorAnmData* param_3)
 {
 	TJointModel::initJointModel(param_1, param_2, param_3);
+	u32 index = mIndexInParent;
+	TPollutionLayer* layer = this;
 	const TPollutionLayerInfo* info
-	    = &((TPollutionManager*)mManager)->unk6C[mIndexInParent];
-	initLayerInfo(info);
+	    = &((TPollutionManager*)layer->mManager)->unk6C[index];
+	layer->initLayerInfo(info);
 	unk5C.init(this, info->unk8, info->unkC, info->unk28, info->unk20,
 	           info->unk22);
 	unk88 = info->unk24;
