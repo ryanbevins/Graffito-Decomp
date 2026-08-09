@@ -41,17 +41,17 @@ void TSky::perform(u32 param_1, JDrama::TGraphics* param_2)
 			f32 fVar3 = cosf(unk48 * 0.017453294f);
 
 			local_ac[0][0] = fVar3;
-			local_ac[2][0] = -fVar2;
 			local_ac[0][1] = 0.0f;
+			local_ac[0][2] = fVar2;
 			local_ac[0][3] = 0.0f;
 			local_ac[1][0] = 0.0f;
 			local_ac[1][1] = 1.0f;
 			local_ac[1][2] = 0.0f;
 			local_ac[1][3] = 0.0f;
+			local_ac[2][0] = -fVar2;
 			local_ac[2][1] = 0.0f;
-			local_ac[2][3] = 0.0f;
-			local_ac[0][2] = fVar2;
 			local_ac[2][2] = fVar3;
+			local_ac[2][3] = 0.0f;
 			MTXConcat(local_ac, afStack_7c, afStack_7c);
 			unk48 += unk4C;
 			unk48 = MsWrap<f32>(unk48, 0.0f, 360.0f);
