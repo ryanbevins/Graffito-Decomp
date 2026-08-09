@@ -1122,8 +1122,8 @@ void TPopoManager::initSetEnemies()
 {
 	TPopo* popo = (TPopo*)unk18[0];
 	TGraphWeb* graph = popo->getTracer()->getGraph();
-	if (graph)
-		graph->isDummy();
+	if (graph && graph->isDummy())
+		return;
 }
 
 TSmallEnemy* TPopoManager::createEnemyInstance()
