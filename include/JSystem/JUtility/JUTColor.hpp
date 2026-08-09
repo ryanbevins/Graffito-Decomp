@@ -16,7 +16,8 @@ struct TColor : public GXColor {
 	operator u32() const { return toUInt32(); }
 	u32 toUInt32() const { return *(u32*)&r; }
 
-#ifdef JUTILITY_NO_INLINE_COLOR_SET
+#if defined(JUTILITY_NO_INLINE_COLOR_SET)                                    \
+	|| defined(JUTILITY_COLOR_SET_DECL_ONLY)
 	void set(u8 cR, u8 cG, u8 cB, u8 cA);
 #else
 	void set(u8 cR, u8 cG, u8 cB, u8 cA)

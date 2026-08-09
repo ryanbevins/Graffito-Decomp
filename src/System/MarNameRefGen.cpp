@@ -1,3 +1,4 @@
+#define JUTILITY_COLOR_SET_DECL_ONLY
 #include <System/MarNameRefGen.hpp>
 
 #include <JSystem/JDrama/JDRSmJ3DScn.hpp>
@@ -44,6 +45,7 @@
 #include <Camera/CubeManagerBase.hpp>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMapTool.hpp>
+#undef JUTILITY_COLOR_SET_DECL_ONLY
 
 static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
 static const char cDirtyTexName[]  = "H_ma_rak_dummy";
