@@ -954,7 +954,7 @@ void TKoopa::setUpHitActors()
 	head->calcEntryRadius();
 
 	THitActor* body = mBodyHitActor;
-	body->mPosition.set<f32>(mPosition.x, mPosition.y, mPosition.z);
+	body->mPosition.set(mPosition);
 	body->offHitFlag(0x2);
 	body->offHitFlag(0x4);
 	body->offHitFlag(0x1);
