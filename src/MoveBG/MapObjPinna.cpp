@@ -113,7 +113,7 @@ void TPinnaCoaster::control()
 	unk138->frameUpdate();
 	unk138->calc();
 	MtxPtr railMtx = unk138->getModel()->mNodeMatrices[0];
-	MTXCopy(railMtx, getModel()->getBaseTRMtx());
+	getModel()->setBaseTRMtx(railMtx);
 
 	mMActor->frameUpdate();
 	mMActor->calc();
