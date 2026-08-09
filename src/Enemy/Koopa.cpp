@@ -909,19 +909,22 @@ void TKoopa::setUpHitActors()
 
 		if (!waiting && available >= 0) {
 			MtxPtr mtx = mMActor->getModel()->getAnmMtx(mNeckJointIndex);
-			JGeometry::TVec3<f32> position(
-			    mtx[0][3], mtx[1][3] - 500.0f, mtx[2][3]);
+			f32 positionX = mtx[0][3];
+			f32 positionY = mtx[1][3] - 500.0f;
+			f32 positionZ = mtx[2][3];
 			JGeometry::TVec3<f32> direction(mtx[0][0], 0.0f, mtx[2][0]);
 			direction.normalize();
 
 			TKoopaFlame* flame = mFlameHitActors[available];
-			flame->mPosition   = position;
+			flame->mPosition.x = positionX;
+			flame->mPosition.y = positionY;
+			flame->mPosition.z = positionZ;
 			flame->unk78       = direction.x;
 			flame->unk7C       = direction.y;
 			flame->unk80       = direction.z;
-			flame->unk6C       = position.x;
-			flame->unk70       = position.y;
-			flame->unk74       = position.z;
+			flame->unk6C       = positionX;
+			flame->unk70       = positionY;
+			flame->unk74       = positionZ;
 			flame->unk84       = prm->flameVelocity.get();
 			flame->unk88       = 4000.0f;
 			flame->unk8C       = 0.0f;
