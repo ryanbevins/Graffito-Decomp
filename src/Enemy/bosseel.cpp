@@ -1801,8 +1801,7 @@ void TBEelTearsManager::splitTears(JGeometry::TVec3<f32>& position)
 	TMsRange<f32> positionRange(-250.0f, 250.0f);
 
 	for (int i = 0; i < 30; ++i) {
-		TBEelTearsDrop* drop = mDrops[i];
-		if (drop->unk6C)
+		if (mDrops[i]->unk6C)
 			continue;
 
 		JGeometry::TVec3<f32> dropPos = position;
@@ -1813,6 +1812,7 @@ void TBEelTearsManager::splitTears(JGeometry::TVec3<f32>& position)
 		offset = positionRange.rand();
 		dropPos.z += offset;
 
+		TBEelTearsDrop* drop = mDrops[i];
 		--splitNum;
 		drop->offHitFlag(HIT_FLAG_NO_COLLISION);
 		drop->unk6C = TRUE;
