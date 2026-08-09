@@ -102,22 +102,22 @@ static int SamboHeadRollCallback(J3DNode* node, int timing)
 	           + jointMtx[1][2] * jointMtx[1][2]
 	           + jointMtx[2][2] * jointMtx[2][2];
 
-	JGeometry::TVec3<f32> axis(0.0f, 0.0f, 0.0f);
-	if (xLen != 0.0f) {
-		axis.x = (cross.x * jointMtx[0][0] + cross.y * jointMtx[1][0]
-		          + cross.z * jointMtx[2][0])
-		         / xLen;
-	}
-	if (yLen != 0.0f) {
-		axis.y = (cross.x * jointMtx[0][1] + cross.y * jointMtx[1][1]
-		          + cross.z * jointMtx[2][1])
-		         / yLen;
-	}
-	if (zLen != 0.0f) {
-		axis.z = (cross.x * jointMtx[0][2] + cross.y * jointMtx[1][2]
-		          + cross.z * jointMtx[2][2])
-		         / zLen;
-	}
+	JGeometry::TVec3<f32> axis(
+	    xLen != 0.0f
+	        ? (cross.x * jointMtx[0][0] + cross.y * jointMtx[1][0]
+	           + cross.z * jointMtx[2][0])
+	              / xLen
+	        : 0.0f,
+	    yLen != 0.0f
+	        ? (cross.x * jointMtx[0][1] + cross.y * jointMtx[1][1]
+	           + cross.z * jointMtx[2][1])
+	              / yLen
+	        : 0.0f,
+	    zLen != 0.0f
+	        ? (cross.x * jointMtx[0][2] + cross.y * jointMtx[1][2]
+	           + cross.z * jointMtx[2][2])
+	              / zLen
+	        : 0.0f);
 
 	Mtx roll;
 	PSMTXRotAxisRad(roll, &axis, 0.017453292f * head->mRollAngle);
