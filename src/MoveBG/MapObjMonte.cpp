@@ -1104,8 +1104,8 @@ void THangingBridgeBoard::setGroundCollision()
 		MtxPtr mtx                 = model->mNodeMatrices[0];
 		if (mMapCollisionManager->unk8 != 0) {
 			mMapCollisionManager->unk8->moveMtx(mtx);
-			return;
 		}
+		return;
 	}
 
 	TMapObjBase::setGroundCollision();
