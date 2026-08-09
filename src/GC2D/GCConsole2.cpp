@@ -3529,8 +3529,8 @@ bool TGCConsole2::processDisappearBalloon()
 		                    unk3BC.y2);
 		unk3B0->mBounds = nextBounds;
 	} else {
-		s16 alpha = unk3B0->mAlpha - 0x30;
-		if (alpha < 0) {
+		u16 alpha = unk3B0->mAlpha - 0x30;
+		if ((s16)alpha < 0) {
 			alpha      = 0;
 			isFinished = true;
 		}
