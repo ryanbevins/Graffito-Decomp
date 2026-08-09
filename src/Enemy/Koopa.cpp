@@ -884,17 +884,17 @@ void TKoopa::setUpHitActors()
 {
 	TKoopaParams* prm
 	    = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
-	BOOL canEmitFlame = FALSE;
+	bool canEmitFlame = false;
 	if (mMActor->getCurAnmIdx(0) == 4) {
-		canEmitFlame = TRUE;
+		canEmitFlame = true;
 	} else if (mMActor->getCurAnmIdx(0) == 5) {
 		if (mMActor->getFrameCtrl(0)->getFrame() >= 85.0f)
-			canEmitFlame = TRUE;
+			canEmitFlame = true;
 	}
 
 	if (canEmitFlame) {
 		int available = -1;
-		BOOL waiting  = FALSE;
+		bool waiting  = false;
 		for (int i = 0; i < 10; ++i) {
 			TKoopaFlame* flame = mFlameHitActors[i];
 			if (!(flame->unk8C < flame->unk88)) {
@@ -903,7 +903,7 @@ void TKoopa::setUpHitActors()
 			           < 2.0f
 			                 * ((TKoopaParams*)((TEnemyManager*)mManager)->unk38)
 			                       ->flameRadius.get()) {
-				waiting = TRUE;
+				waiting = true;
 			}
 		}
 
