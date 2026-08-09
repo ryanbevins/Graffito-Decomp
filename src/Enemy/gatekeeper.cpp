@@ -886,8 +886,10 @@ void TBiancoGateKeeper::launchNamekuri()
 		JGeometry::TVec3<f32> scaling(1.0f, 1.0f, 1.0f);
 
 		f32 angle = 36.0f * i;
-		JGeometry::TVec3<f32> velocity(4.0f * JMASin(angle), 12.0f,
-		                                4.0f * JMACos(angle));
+		JGeometry::TVec3<f32> velocity;
+		velocity.x = 4.0f * JMASin(angle);
+		velocity.y = 12.0f;
+		velocity.z = 4.0f * JMACos(angle);
 
 		nameKuri->reset();
 		nameKuri->mPosition = position;
