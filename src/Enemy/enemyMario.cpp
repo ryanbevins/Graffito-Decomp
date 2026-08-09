@@ -1821,11 +1821,13 @@ BOOL TEnemyMario::tryTake()
 	return FALSE;
 }
 
+#pragma dont_inline on
 void TEnemyMario::changeEMDoing(u16 doing)
 {
 	emTimer(this) = 0;
 	emDoing(this) = doing;
 }
+#pragma dont_inline off
 
 void TEnemyMario::startMonteReplay(u32 node_id)
 {
