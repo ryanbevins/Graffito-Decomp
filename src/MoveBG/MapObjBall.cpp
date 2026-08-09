@@ -1603,7 +1603,11 @@ void TBigWatermelon::touchActor(THitActor* actor)
 		f32 dx   = mPosition.x - actor->mPosition.x;
 		f32 dy   = mPosition.y - actor->mPosition.y;
 		f32 dz   = mPosition.z - actor->mPosition.z;
-		f32 sq   = dx * dx + dy * dy + dz * dz;
+		f32 dx2  = dx * dx;
+		f32 dy2  = dy * dy;
+		f32 dz2  = dz * dz;
+		f32 sq   = dx2 + dy2;
+		sq       = dz2 + sq;
 		f32 dist = sq;
 		if (sq > 0.0f)
 			dist = sq * JGeometry::TUtil<f32>::inv_sqrt(sq);
