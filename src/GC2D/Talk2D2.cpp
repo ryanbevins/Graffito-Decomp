@@ -930,6 +930,7 @@ bool TTalk2D2::eraseNormalWindow()
 	int alpha   = unk90->mAlpha - 0x10;
 
 	if ((s16)alpha < 0) {
+		alpha  = 0xff;
 		unk234 = 1.0f;
 		unk238 = 2.0f;
 		unk23C = 3.0f;
@@ -959,7 +960,6 @@ bool TTalk2D2::eraseNormalWindow()
 		*(u32*)&unk27C = 0xffffffff;
 		unk2DE = 0;
 		unk2DC = 0;
-		alpha  = 0xff;
 		result = true;
 	}
 
