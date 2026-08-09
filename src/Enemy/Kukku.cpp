@@ -501,10 +501,10 @@ void TKukku::behaveToWater(THitActor* sender)
 		return;
 
 	bool recovering;
-	if (mSpine->getLatestNerve() == &TNerveKukkuRecoverGraph::theNerve())
-		recovering = true;
-	else
+	if (mSpine->getLatestNerve() != &TNerveKukkuRecoverGraph::theNerve())
 		recovering = false;
+	else
+		recovering = true;
 	if (recovering)
 		return;
 
