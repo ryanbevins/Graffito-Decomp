@@ -230,7 +230,8 @@ DEFINE_NERVE(TNervePopoExplosion, TLiveActor)
 
 		MtxPtr centerMtx
 		    = self->mMActor->getModel()->getAnmMtx(TPopo::mCenterJntIndex);
-		copyMtxTrans(self->mCallbackPos, centerMtx);
+		self->mCallbackPos.set(centerMtx[0][3], centerMtx[1][3],
+		                       centerMtx[2][3]);
 		gpMarioParticleManager->emit(0xa1, &self->mCallbackPos, 0, nullptr);
 		gpMarioParticleManager->emit(0xa2, &self->mCallbackPos, 0, nullptr);
 	}
