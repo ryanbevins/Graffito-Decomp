@@ -1096,14 +1096,15 @@ void TShiningStone::load(JSUMemoryInputStream& stream)
 	};
 
 	Mtx mtx;
-	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
+	MtxPtr mtxPtr = mtx;
+	MsMtxSetXYZRPH(mtxPtr, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
 	               mRotation.y, mRotation.z);
 
 	unk68 = new MActor*[4];
 	for (int i = 0; i < 4; ++i) {
 		unk68[i] = SMS_MakeMActorWithAnmData(
 		    modelNames[i], gpMapObjManager->getMActorAnmData(), 3, 0x10020000);
-		PSMTXCopy(mtx, unk68[i]->getModel()->getBaseTRMtx());
+		PSMTXCopy(mtxPtr, unk68[i]->getModel()->getBaseTRMtx());
 
 		TMirrorActor* mirrorActor = new TMirrorActor("太陽石in鏡");
 		mirrorActor->init(unk68[i]->getModel(), 0x1A);
@@ -1114,7 +1115,7 @@ void TShiningStone::load(JSUMemoryInputStream& stream)
 	                                  0x10020000);
 	unk6C->setBpk("shiningstone");
 	unk6C->setBtk("shiningstone");
-	PSMTXCopy(mtx, unk6C->getModel()->getBaseTRMtx());
+	PSMTXCopy(mtxPtr, unk6C->getModel()->getBaseTRMtx());
 
 	SMS_LoadParticle("/scene/mapObj/ShiningStone1.jpa", 0x143);
 	SMS_LoadParticle("/scene/mapObj/ShiningStone2.jpa", 0x144);
