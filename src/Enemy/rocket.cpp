@@ -78,8 +78,7 @@ DEFINE_NERVE(TNerveRocketFly, TLiveActor)
 		((TRocketManager*)self->mManager)->mActiveFlag = 1;
 		self->mUnk1A0                                  = 0;
 
-		f32 angle         = MsGetRotFromZaxisY(v);
-		f32 wrapped       = callMsWrap(angle, 0.0f, 360.0f);
+		f32 wrapped = callMsWrap(MsGetRotFromZaxisY(v), 0.0f, 360.0f);
 		self->mRotation.x = 0.0f;
 		self->mRotation.y = wrapped;
 		self->mRotation.z = 0.0f;
