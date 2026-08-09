@@ -830,7 +830,7 @@ f32 TKoopa::getFlameDirRate() const
 	case 3:
 	case 4: {
 		f32 rate;
-		if (time <= focusStart) {
+		if (mSpine->getTime() <= focusStart) {
 			rate = -overStart;
 		} else if (time <= focusEnd) {
 			rate = ((overStart + 0.005493164f) * (time - focusStart))
