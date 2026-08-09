@@ -1895,9 +1895,10 @@ TBEelTearsSaveLoadParams::TBEelTearsSaveLoadParams(const char* path)
     , mTearsDropScaleRange(0.0f, 1.0f)
 {
 	TParams::load(mPrmPath);
-	mBodyScaleRange.set(mSLBodyScaleLow.get(), mSLBodyScaleHigh.get());
-	mTearsDropScaleRange.set(mSLTearsDropScaleLow.get(),
-	                         mSLTearsDropScaleHigh.get());
+	mBodyScaleRange.mMin = mSLBodyScaleLow.get();
+	mBodyScaleRange.mMax = mSLBodyScaleHigh.get();
+	mTearsDropScaleRange.mMin = mSLTearsDropScaleLow.get();
+	mTearsDropScaleRange.mMax = mSLTearsDropScaleHigh.get();
 }
 
 void TOilBall::load(JSUMemoryInputStream& stream)
