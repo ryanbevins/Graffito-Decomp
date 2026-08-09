@@ -919,7 +919,7 @@ int MarioFootDirLCtrl(J3DNode* param_1, int param_2)
 			           && gpMarioForCallBack->mAction != 0xC000203)
 			             ? TRUE
 			             : FALSE;
-			if (check2) {
+			if (!check2) {
 				check = TRUE;
 			}
 		}
