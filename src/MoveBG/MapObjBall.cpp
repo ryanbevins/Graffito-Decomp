@@ -488,14 +488,14 @@ void TResetFruit::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if (gpMarDirector->mMap == 7) {
 		if (isState(6)) {
-			if (mLiveFlag & 0x200) {
-				mLiveFlag &= ~0x200;
+			if (checkLiveFlag(LIVE_FLAG_UNK200)) {
+				offLiveFlag(LIVE_FLAG_UNK200);
 			}
 		} else {
 			JGeometry::TVec3<f32> velocity = mVelocity;
 			if (!velocity.isZero()) {
-				if (mLiveFlag & 0x200) {
-					mLiveFlag &= ~0x200;
+				if (checkLiveFlag(LIVE_FLAG_UNK200)) {
+					offLiveFlag(LIVE_FLAG_UNK200);
 				}
 			} else if (!gpCubeArea->isInAreaCube(mPosition)
 			           && isState(0xB)
