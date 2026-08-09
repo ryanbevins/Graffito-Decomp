@@ -954,8 +954,7 @@ void TMuddyBoat::control()
 		}
 		break;
 	case 3:
-		bool timerActive = mLifeTimer > 0;
-		if (!timerActive) {
+		if (!isLifeTimerActive()) {
 			awake();
 			makeObjDead();
 			makeObjDefault();
