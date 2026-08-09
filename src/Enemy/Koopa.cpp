@@ -949,15 +949,16 @@ void TKoopa::setUpHitActors()
 	MtxPtr headMtx = mMActor->getModel()->getAnmMtx(mHeadJointIndex);
 	THitActor* head = mHeadHitActor;
 	f32 headRadius  = prm->headRadius.get();
+	f32 headHeight  = headRadius * 2.0f;
 	head->mPosition.set<f32>(headMtx[0][3], headMtx[1][3] - 200.0f,
 	                         headMtx[2][3]);
 	head->offHitFlag(0x2);
 	head->offHitFlag(0x4);
 	head->offHitFlag(0x1);
 	head->mAttackRadius = headRadius;
-	head->mAttackHeight = headRadius * 2.0f;
+	head->mAttackHeight = headHeight;
 	head->mDamageRadius = headRadius;
-	head->mDamageHeight = headRadius * 2.0f;
+	head->mDamageHeight = headHeight;
 	head->calcEntryRadius();
 
 	THitActor* body = mBodyHitActor;
