@@ -1340,9 +1340,6 @@ void TMapObjBall::rebound(JGeometry::TVec3<f32>* pos)
 			    nullptr, 0, 4);
 		}
 	}
-	if (isState(0xB)) {
-		mState = 0xC;
-	}
 }
 
 void TMapObjBall::touchWall(JGeometry::TVec3<f32>* pos,
