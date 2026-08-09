@@ -947,10 +947,12 @@ void TKoopa::setUpHitActors()
 	TKoopaParams* prm = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
 	MtxPtr headMtx = mMActor->getModel()->getAnmMtx(mHeadJointIndex);
 	THitActor* head = mHeadHitActor;
+	f32 headY       = headMtx[1][3] - 200.0f;
+	f32 headX       = headMtx[0][3];
+	f32 headZ       = headMtx[2][3];
 	f32 headRadius  = prm->headRadius.get();
 	f32 headHeight  = headRadius * 2.0f;
-	head->mPosition.set<f32>(headMtx[0][3], headMtx[1][3] - 200.0f,
-	                         headMtx[2][3]);
+	head->mPosition.set<f32>(headX, headY, headZ);
 	head->offHitFlag(0x2);
 	head->offHitFlag(0x4);
 	head->offHitFlag(0x1);
