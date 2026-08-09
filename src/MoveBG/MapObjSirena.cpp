@@ -1442,7 +1442,7 @@ void TCloset::initMapObj()
 	getModel();
 
 	Mtx mtx;
-	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + 2.0f * unk140, mPosition.z,
+	MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y + 2.0f * unk14C, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
 	unk168 = new TMapCollisionWarp;
 	unk168->init("/mapObj/Closet", 0, this);
