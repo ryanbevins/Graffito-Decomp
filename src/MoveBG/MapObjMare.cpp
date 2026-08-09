@@ -704,7 +704,8 @@ void TMapObjPuncher::touchPlayer(THitActor*)
 	JGeometry::TVec3<f32> request = *gpMarioPos;
 	JGeometry::TVec3<f32> offset = dir;
 	offset.scale(100.0f);
-	request.add(offset);
+	JGeometry::TVec3<f32> scaledOffset = offset;
+	request.add(scaledOffset);
 	SMS_MarioMoveRequest(request);
 	SMS_SendMessageToMario(this, 7);
 	SMS_ThrowMario(dir, unk138);
