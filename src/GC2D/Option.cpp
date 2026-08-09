@@ -525,7 +525,8 @@ TOptionSoundUnit::TOptionSoundUnit(J2DScreen* screen)
 	TPatternAnmControl** ary = mMonoAnimations;
 
 	ary[0] = new TPatternAnmControl(mScreen);
-	ary[0]->set(cMonoMonteAnm, ARRAY_COUNT(cMonoMonteAnm));
+	TPatternAnmControl* control = ary[0];
+	control->set(cMonoMonteAnm, ARRAY_COUNT(cMonoMonteAnm));
 	ary[0]->setupAnm();
 
 	ary[1] = new TPatternAnmControl(mScreen);
