@@ -605,8 +605,10 @@ BOOL TMapObjSwitch::receiveMessage(THitActor*, u32 message)
 void TMapObjSwitch::control()
 {
 	TMapObjBase::control();
-	if (isLifeTimerActive())
-		gpMSound->playTimer(mLifeTimer);
+	if (isLifeTimerActive()) {
+		u32 timer = mLifeTimer;
+		gpMSound->playTimer(timer);
+	}
 }
 
 TRedCoinSwitch::TRedCoinSwitch(const char* name)
