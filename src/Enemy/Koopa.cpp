@@ -950,29 +950,29 @@ void TKoopa::setUpHitActors()
 	}
 
 	MtxPtr headMtx = mMActor->getModel()->getAnmMtx(mHeadJointIndex);
-	mHeadHitActor->mPosition.x = headMtx[0][3];
-	mHeadHitActor->mPosition.y = headMtx[1][3] - 200.0f;
-	mHeadHitActor->mPosition.z = headMtx[2][3];
-	mHeadHitActor->offHitFlag(0x2);
-	mHeadHitActor->offHitFlag(0x4);
-	mHeadHitActor->offHitFlag(0x1);
-	mHeadHitActor->mAttackRadius = prm->headRadius.get();
-	mHeadHitActor->mAttackHeight = prm->headRadius.get() * 2.0f;
-	mHeadHitActor->mDamageRadius = prm->headRadius.get();
-	mHeadHitActor->mDamageHeight = prm->headRadius.get() * 2.0f;
-	mHeadHitActor->calcEntryRadius();
+	THitActor* head = mHeadHitActor;
+	f32 headRadius  = prm->headRadius.get();
+	head->mPosition.set<f32>(headMtx[0][3], headMtx[1][3] - 200.0f,
+	                         headMtx[2][3]);
+	head->offHitFlag(0x2);
+	head->offHitFlag(0x4);
+	head->offHitFlag(0x1);
+	head->mAttackRadius = headRadius;
+	head->mAttackHeight = headRadius * 2.0f;
+	head->mDamageRadius = headRadius;
+	head->mDamageHeight = headRadius * 2.0f;
+	head->calcEntryRadius();
 
-	mBodyHitActor->mPosition.x = mPosition.x;
-	mBodyHitActor->mPosition.y = mPosition.y;
-	mBodyHitActor->mPosition.z = mPosition.z;
-	mBodyHitActor->offHitFlag(0x2);
-	mBodyHitActor->offHitFlag(0x4);
-	mBodyHitActor->offHitFlag(0x1);
-	mBodyHitActor->mAttackRadius = 800.0f;
-	mBodyHitActor->mAttackHeight = 2000.0f;
-	mBodyHitActor->mDamageRadius = 800.0f;
-	mBodyHitActor->mDamageHeight = 2000.0f;
-	mBodyHitActor->calcEntryRadius();
+	THitActor* body = mBodyHitActor;
+	body->mPosition.set<f32>(mPosition.x, mPosition.y, mPosition.z);
+	body->offHitFlag(0x2);
+	body->offHitFlag(0x4);
+	body->offHitFlag(0x1);
+	body->mAttackRadius = 800.0f;
+	body->mAttackHeight = 2000.0f;
+	body->mDamageRadius = 800.0f;
+	body->mDamageHeight = 2000.0f;
+	body->calcEntryRadius();
 }
 
 inline const TNerveKoopaWait& TNerveKoopaWait::theNerve()
