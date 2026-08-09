@@ -647,7 +647,8 @@ void TBeeHive::reset()
 	MsMtxSetRotRPH(mtx, mRotation.x, 0.0f, mRotation.z);
 	mtx.getQuat(mCenterQuat);
 
-	f32 half = mRotation.y * 0.5f;
+	f32 half = mRotation.y;
+	half *= 0.5f;
 	f32 sinHalf = sinf(half);
 	f32 cosHalf = cosf(half);
 	mCurrentQuat.set(0.0f, sinHalf, 0.0f, cosHalf);
