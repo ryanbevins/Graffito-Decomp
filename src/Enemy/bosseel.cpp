@@ -1088,12 +1088,13 @@ static inline void resetBossEelEyeMotionBlend(TBossEelEye* eye)
 	eye->unk5C = 0;
 	eye->unk64 = 1.0f;
 
+	MActor* actor            = eye->unk18;
 	J3DAnmTransform* oldAnm = nullptr;
-	if (eye->unk18->unkC)
-		oldAnm = eye->unk18->unkC->unk24;
+	if (actor->unkC)
+		oldAnm = actor->unkC->unk24;
 
-	if (eye->unk18->unkC)
-		eye->unk18->unkC->setOldMotionBlendAnmPtr(oldAnm);
+	if (actor->unkC)
+		actor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 
 	eye->unk18->setBckFromIndex(0);
 
