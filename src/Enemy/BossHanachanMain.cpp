@@ -1103,10 +1103,8 @@ BOOL TBossHanachanManager::hasMapCollision() const { return TRUE; }
 
 void TBossHanachanManager::clipEnemies(JDrama::TGraphics* graphics)
 {
-	TBossHanachanCommonSaveParams* params = mCommonParams;
-	f32 radius                            = params->mSLViewClipRadius.value;
-	f32 far                               = params->mSLViewClipFar.value;
-	clipActorsAux(graphics, far, radius);
+	clipActorsAux(graphics, mCommonParams->mSLViewClipFar.get(),
+	              mCommonParams->mSLViewClipRadius.get());
 }
 
 void TBossHanachanManager::loadAfter()
