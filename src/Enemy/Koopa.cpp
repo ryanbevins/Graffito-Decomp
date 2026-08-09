@@ -882,8 +882,6 @@ void TKoopa::changeAnm(int bck, int btp, f32 rate)
 
 void TKoopa::setUpHitActors()
 {
-	TKoopaParams* prm
-	    = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
 	bool canEmitFlame = false;
 	if (mMActor->getCurAnmIdx(0) == 4) {
 		canEmitFlame = true;
@@ -915,6 +913,8 @@ void TKoopa::setUpHitActors()
 			JGeometry::TVec3<f32> direction(mtx[0][0], 0.0f, mtx[2][0]);
 			direction.normalize();
 
+			TKoopaParams* prm
+			    = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
 			TKoopaFlame* flame = mFlameHitActors[available];
 			flame->mPosition.x = positionX;
 			flame->mPosition.y = positionY;
@@ -939,6 +939,7 @@ void TKoopa::setUpHitActors()
 		}
 	}
 
+	TKoopaParams* prm = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
 	MtxPtr headMtx = mMActor->getModel()->getAnmMtx(mHeadJointIndex);
 	THitActor* head = mHeadHitActor;
 	f32 headRadius  = prm->headRadius.get();
