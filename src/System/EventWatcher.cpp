@@ -347,7 +347,7 @@ static void evSetFlagNPCCanTaken(TSpcTypedInterp<TEventWatcher>* interp,
                                  u32 arg_num)
 {
 	interp->verifyArgNum(2, &arg_num);
-	int value        = interp->pop().getDataInt();
+	int value        = TSpcSlice(interp->pop()).getDataInt();
 	const char* name = interp->pop().getDataString();
 	TLiveActor* npc  = JDrama::TNameRefGen::search<TLiveActor>(name);
 	if (npc) {
