@@ -618,7 +618,7 @@ static void evRaiseBuilding(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
 
-	int id = interp->pop().getDataInt();
+	int id = TSpcSlice(interp->pop()).getDataInt();
 
 	TMapEventSinkShadowMario* event
 	    = JDrama::TNameRefGen::search<TMapEventSinkShadowMario>(
