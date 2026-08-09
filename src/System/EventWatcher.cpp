@@ -417,7 +417,7 @@ static void evSetDead4LiveActor(TSpcTypedInterp<TEventWatcher>* interp,
                                 u32 arg_num)
 {
 	interp->verifyArgNum(2, &arg_num);
-	int value             = interp->pop().getDataInt();
+	int value             = TSpcSlice(interp->pop()).getDataInt();
 	const char* actorName = interp->pop().getDataString();
 
 	TLiveActor* liveActor = JDrama::TNameRefGen::search<TLiveActor>(actorName);
