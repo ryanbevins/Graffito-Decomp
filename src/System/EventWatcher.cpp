@@ -437,7 +437,7 @@ static void evSetDead4LiveActor(TSpcTypedInterp<TEventWatcher>* interp,
 static void evSetTimeLimit(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
-	int time = interp->pop().getDataInt();
+	int time = TSpcSlice(interp->pop()).getDataInt();
 	OSResetStopwatch(&gpMarDirector->unkE8);
 	gpMarDirector->unk120 = time;
 	interp->push();
