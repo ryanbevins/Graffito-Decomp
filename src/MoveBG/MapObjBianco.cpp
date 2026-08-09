@@ -698,13 +698,11 @@ void TLeafBoat::touchActor(THitActor* actor)
 	velocity = mVelocity;
 	f32 dot  = dir.dot(velocity);
 	if (actor->checkActorType(ACTOR_TYPE_ENEMY)) {
-		f32 push = 1.0f + unk138;
-		mVelocity.x -= push * (dir.x * dot);
-		mVelocity.z -= push * (dir.z * dot);
+		mVelocity.x -= (1.0f + unk138) * (dir.x * dot);
+		mVelocity.z -= (1.0f + unk138) * (dir.z * dot);
 	} else {
-		f32 push = 1.0f + unk13C;
-		mVelocity.x -= push * (dir.x * dot);
-		mVelocity.z -= push * (dir.z * dot);
+		mVelocity.x -= (1.0f + unk13C) * (dir.x * dot);
+		mVelocity.z -= (1.0f + unk13C) * (dir.z * dot);
 	}
 }
 
