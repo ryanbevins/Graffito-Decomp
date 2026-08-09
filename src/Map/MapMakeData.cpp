@@ -75,6 +75,21 @@ void TMapCollisionBase::setCheckData(const f32* param_1, const s16* param_2,
 		gpMapCollisionData->addCheckDataToGrid(param_3, getUnk8());
 }
 
+static inline void setVertexFromIndices(const f32* vertices,
+                                        const s16* indices,
+                                        TBGCheckData* check_data)
+{
+	const f32* p1raw = vertices + indices[0] * 3;
+	const f32* p2raw = vertices + indices[1] * 3;
+	const f32* p3raw = vertices + indices[2] * 3;
+
+	JGeometry::TVec3<f32> p1(p1raw[0], p1raw[1], p1raw[2]);
+	JGeometry::TVec3<f32> p2(p2raw[0], p2raw[1], p2raw[2]);
+	JGeometry::TVec3<f32> p3(p3raw[0], p3raw[1], p3raw[2]);
+
+	check_data->setVertex(p1, p2, p3);
+}
+
 void TBGCheckData::updateTrans(const JGeometry::TVec3<f32>& translate_by)
 {
 	mPoint1.add(translate_by);
@@ -145,10 +160,12 @@ void TMapCollisionBase::initAllCheckData(s16 param_1, const f32* param_2,
 			checkData->mBGType = bgType;
 			checkData->mActor  = actor;
 
-			if (param_3 & 2)
-				setCheckData(param_2, unk8it, checkData, 3);
-			else
-				setCheckData(param_2, unk8it, checkData, 0);
+			if (param_3 & 2) {
+				setVertexFromIndices(param_2, unk8it, checkData);
+			} else {
+				setVertexFromIndices(param_2, unk8it, checkData);
+				gpMapCollisionData->addCheckDataToGrid(checkData, getUnk8());
+			}
 
 			if (uVar3)
 				checkData->mData = unk14ptr[j];
