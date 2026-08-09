@@ -909,33 +909,19 @@ void TKoopa::setUpHitActors()
 
 		if (!waiting && available >= 0) {
 			MtxPtr mtx = mMActor->getModel()->getAnmMtx(mNeckJointIndex);
-			f32 axisX  = mtx[0][0];
-			f32 axisZ  = mtx[2][0];
-			f32 dirX;
-			f32 dirY;
-			f32 dirZ;
-			f32 mag = axisX * axisX + axisZ * axisZ;
-			if (mag <= 0.0000038146973f) {
-				dirY = 0.0f;
-				dirX = dirY;
-				dirZ = dirY;
-			} else {
-				f32 inv = 1.0f * JGeometry::TUtil<f32>::inv_sqrt(mag);
-				dirX    = axisX * inv;
-				dirY    = 0.0f * inv;
-				dirZ    = axisZ * inv;
-			}
+			JGeometry::TVec3<f32> position(
+			    mtx[0][3], mtx[1][3] - 500.0f, mtx[2][3]);
+			JGeometry::TVec3<f32> direction(mtx[0][0], 0.0f, mtx[2][0]);
+			direction.normalize();
 
 			TKoopaFlame* flame = mFlameHitActors[available];
-			flame->mPosition.x = mtx[0][3];
-			flame->mPosition.y = mtx[1][3] - 500.0f;
-			flame->mPosition.z = mtx[2][3];
-			flame->unk78       = dirX;
-			flame->unk7C       = dirY;
-			flame->unk80       = dirZ;
-			flame->unk6C       = flame->mPosition.x;
-			flame->unk70       = flame->mPosition.y;
-			flame->unk74       = flame->mPosition.z;
+			flame->mPosition   = position;
+			flame->unk78       = direction.x;
+			flame->unk7C       = direction.y;
+			flame->unk80       = direction.z;
+			flame->unk6C       = position.x;
+			flame->unk70       = position.y;
+			flame->unk74       = position.z;
 			flame->unk84       = prm->flameVelocity.get();
 			flame->unk88       = 4000.0f;
 			flame->unk8C       = 0.0f;
