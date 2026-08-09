@@ -320,9 +320,10 @@ BOOL TNerveMantaSpawn::execute(TSpineBase<TLiveActor>* spine) const
 		                                            &self->mCenterPos, 0,
 		                                            self);
 		u32 sounds[] = { 0x8994, 0x8995, 0x8996, 0x8997 };
-		if (gpMSound->gateCheck(sounds[idx]))
+		u32 sound    = sounds[self->mGeneration];
+		if (gpMSound->gateCheck(sound))
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    sounds[idx], &self->mPosition, 0, nullptr, 0, 4);
+			    sound, &self->mPosition, 0, nullptr, 0, 4);
 
 		((TBossMantaManager*)self->mManager)
 		    ->spawn(self->mGeneration + 1, self->mPosition);
