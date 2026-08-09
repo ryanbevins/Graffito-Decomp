@@ -501,19 +501,19 @@ void TCardLoad::perform(u32 param_1, JDrama::TGraphics* param_2)
 		switch (unk14) {
 		case 0: {
 			changeScene();
-			int alpha = unk25C->getAlpha();
+			int alpha = unk25C->mAlpha;
 			if (unk275 && alpha < 255) {
 				alpha += 8;
 				if (alpha > 255)
 					alpha = 255;
-				unk25C->setAlpha(alpha);
+				unk25C->mAlpha = alpha;
 			}
 
 			if (!unk275 && alpha > 0) {
 				alpha -= 8;
 				if (alpha < 0)
 					alpha = 0;
-				unk25C->setAlpha(alpha);
+				unk25C->mAlpha = alpha;
 			}
 
 			if (alpha != 0) {
