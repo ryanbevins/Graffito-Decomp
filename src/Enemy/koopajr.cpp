@@ -211,7 +211,8 @@ f32 TDirectionCalc::absDirection(f32 direction)
 JGeometry::TVec3<f32> TDirectionCalc::calcDirectionVector()
 {
 	f32 z = cosf(mDirection);
-	f32 x = sinf(mDirection);
+	f32 angle = mDirection;
+	f32 x = sinf(angle);
 	return JGeometry::TVec3<f32>(x, 0.0f, z);
 }
 
