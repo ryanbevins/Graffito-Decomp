@@ -186,7 +186,8 @@ f32 TDirectionCalc::r2d(f32 radians)
 
 f32 TDirectionCalc::d2r(f32 degrees)
 {
-	return degrees * 3.1415927f / 180.0f;
+	degrees *= 3.1415927f;
+	return degrees / 180.0f;
 }
 
 f32 TDirectionCalc::absDirection(f32 direction)
