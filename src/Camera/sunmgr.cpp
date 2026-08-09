@@ -60,9 +60,9 @@ void TSunMgr::load(JSUMemoryInputStream& stream)
 	    && TFlagManager::smInstance->getBool(0x50004)) {
 		unk15 |= 0x1;
 		const char* warpName = cSunWarpPointName;
-		u16 warpKey = JDrama::TNameRef::calcKeyCode(warpName);
 		TStagePositionInfo* p = static_cast<TStagePositionInfo*>(
-		    gpPositionHolder->searchF(warpKey, warpName));
+		    gpPositionHolder->searchF(
+		        JDrama::TNameRef::calcKeyCode(warpName), warpName));
 		unk24 = p->unkC;
 	}
 }
