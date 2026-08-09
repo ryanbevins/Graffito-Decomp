@@ -50,10 +50,12 @@ static const char* sPositionNameTable[] = {
 	"塔カメラＤ中心", "塔カメラＥ中心",
 };
 
+#pragma dont_inline on
 template <> s16 CLBEaseInInbetween<s16>(s16 a, s16 b, f32 ratio)
 {
 	return CLBTwoDegreeGeneralInbetween<s16>(a, b, ratio, (f32)(b - a));
 }
+#pragma dont_inline off
 
 void CPolarSubCamera::calcTowerCenterPos_(Vec* out)
 {
