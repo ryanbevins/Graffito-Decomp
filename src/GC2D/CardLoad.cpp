@@ -544,6 +544,7 @@ void TCardLoad::perform(u32 param_1, JDrama::TGraphics* param_2)
 		} break;
 
 		case 4: {
+			bool done = true;
 			int rc = gpCardManager->getLastStatus();
 			if (rc != CARD_RESULT_BUSY) {
 				if (rc == CARD_RESULT_READY) {
@@ -566,7 +567,6 @@ void TCardLoad::perform(u32 param_1, JDrama::TGraphics* param_2)
 				J2DPane* root1 = unk2C->search('ROOT');
 				J2DPane* root2 = unk28->search('ROOT');
 
-				bool done  = true;
 				int alpha1 = root1->getAlpha() + 4;
 				if (alpha1 > 255)
 					alpha1 = 255;
