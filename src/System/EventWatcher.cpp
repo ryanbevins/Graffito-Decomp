@@ -673,7 +673,7 @@ static void evStartMonteman(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
 	TEMario* mario = JDrama::TNameRefGen::search<TEMario>("モンテマン");
-	u32 value      = interp->pop().getDataInt();
+	u32 value      = TSpcSlice(interp->pop()).getDataInt();
 	if (mario)
 		mario->startMonteReplay(value);
 	interp->push();
