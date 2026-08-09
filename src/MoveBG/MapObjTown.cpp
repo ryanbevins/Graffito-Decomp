@@ -278,8 +278,7 @@ void TManhole::touchPlayer(THitActor*)
 		return;
 	}
 
-	if (gpMarioOriginal->mPosition.y
-	    <= 4.0f + gpMarioOriginal->mFloorPosition.y) {
+	if (gpMarioOriginal->isTouchGround4cm()) {
 		if (unk151 != 0) {
 			setUpMapCollision(1);
 			unk151 = 0;
