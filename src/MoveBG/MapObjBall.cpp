@@ -1123,10 +1123,8 @@ void TMapObjBall::boundByActor(THitActor* actor)
 			} else {
 				mVelocity.y = mVelocity.y + unk154;
 			}
-			mVelocity.x = mVelocity.x - diff.x * unk14C
-			              + unk148 * (*gpMarioSpeedX);
-			mVelocity.z = mVelocity.z - diff.z * unk14C
-			              + unk148 * (*gpMarioSpeedZ);
+			mVelocity.x += unk148 * (*gpMarioSpeedX) - diff.x * unk14C;
+			mVelocity.z += unk148 * (*gpMarioSpeedZ) - diff.z * unk14C;
 			actor->receiveMessage(this, 0xE);
 		}
 	} else {
