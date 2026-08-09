@@ -442,10 +442,10 @@ void JPADrawExecRotYBillBoard::exec(const JPADrawContext* dc,
 	f32 y1 = -params->unk14 * (dc->pcb->unk8 - dc->pcb->unk10);
 
 	JGeometry::TVec3<f32> offs[4];
-	offs[0].set((x0 * cos - y0 * sin), (x0 * sin + y0 * cos), 0.0f);
-	offs[1].set((x1 * cos - y0 * sin), (x1 * sin + y0 * cos), 0.0f);
-	offs[2].set((x1 * cos - y1 * sin), (x1 * sin + y1 * cos), 0.0f);
-	offs[3].set((x0 * cos - y1 * sin), (x0 * sin + y1 * cos), 0.0f);
+	offs[0].set((x0 * cos - y0 * sin), (y0 * cos + x0 * sin), 0.0f);
+	offs[1].set((x1 * cos - y0 * sin), (y0 * cos + x1 * sin), 0.0f);
+	offs[2].set((x1 * cos - y1 * sin), (y1 * cos + x1 * sin), 0.0f);
+	offs[3].set((x0 * cos - y1 * sin), (y1 * cos + x0 * sin), 0.0f);
 
 	MTXMultVecArray(dc->pcb->unk38, offs, offs, ARRAY_COUNT(offs));
 
