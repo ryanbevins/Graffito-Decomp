@@ -1,6 +1,4 @@
-#define ENEMYMANAGER_GETSAVEPARAM_OUT_OF_LINE
 #include <Enemy/LimitKoopa.hpp>
-#undef ENEMYMANAGER_GETSAVEPARAM_OUT_OF_LINE
 #include <Enemy/EnemyManager.hpp>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/Spine.hpp>
