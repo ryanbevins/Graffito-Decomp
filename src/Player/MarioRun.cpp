@@ -1779,17 +1779,16 @@ BOOL TMario::turnEnd()
 				result = changePlayerStatus(0x80000588, 0, false);
 				goto throwDone;
 			} else {
-				s32 statusBase = 0x80000000;
 				switch (heldType) {
 				case 0x80000001:
-					result = changePlayerStatus(statusBase + 0x588, 0, false);
+					result = changePlayerStatus(0x80000588, 0, false);
 					goto throwDone;
 				default:
 					if (mForwardVel > 16.0f) {
-						result = changePlayerStatus(statusBase + 0x588, 0, false);
+						result = changePlayerStatus(0x80000588, 0, false);
 						goto throwDone;
 					} else if (canPut()) {
-						result = changePlayerStatus(statusBase + 0x387, 0, false);
+						result = changePlayerStatus(0x80000387, 0, false);
 						goto throwDone;
 					} else {
 						goto throwFalse;
