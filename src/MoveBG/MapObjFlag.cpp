@@ -192,8 +192,8 @@ TMapObjFlag::TMapObjFlag(const char* name)
 	mFlagHeight   = 125.0f;
 	mFlagWidth    = 130.0f;
 	mSegmentSize  = 20.0f;
-	mPhase        = 360.0f * ((f32)rand() * 0.000030517578f);
 	mStepSize     = 1;
+	mPhase        = 360.0f * ((f32)rand() * 0.000030517578f);
 
 	mLocalMtx[0][3] = mLocalMtx[1][3] = mLocalMtx[2][3] = 0.0f;
 	mLocalMtx[0][2] = mLocalMtx[1][2] = 0.0f;
