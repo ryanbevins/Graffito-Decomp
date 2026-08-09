@@ -1,4 +1,6 @@
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Enemy/Gesso.hpp>
+#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Enemy/Conductor.hpp>
 #include <Camera/Camera.hpp>
 #include <Player/MarioAccess.hpp>
