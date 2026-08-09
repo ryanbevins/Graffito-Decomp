@@ -491,9 +491,7 @@ void TMapObjBase::setGroundCollision()
 		return;
 	}
 	JGeometry::TVec3<f32> pos;
-	pos.x = mPosition.x;
-	pos.y = mPosition.y - mYOffset;
-	pos.z = mPosition.z;
+	pos.set<f32>(mPosition.x, mPosition.y - mYOffset, mPosition.z);
 	if (unkF8 & 0x4) {
 		TMapCollisionBase* col2 = mMapCollisionManager->unk8;
 		col2->unk5C &= ~0x8000;
