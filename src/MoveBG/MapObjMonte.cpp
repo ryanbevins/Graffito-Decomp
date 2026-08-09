@@ -555,8 +555,8 @@ void TSwingBoard::control()
 		}
 	}
 
-	f32 oldSpeed = unk144;
 	unk13C += unk144;
+	f32 oldSpeed = unk144;
 	unk144 -= unk13C * mReturnAccelRate;
 	if (fabsf(unk144) > unk148)
 		unk144 *= mSpeedDownRate;
