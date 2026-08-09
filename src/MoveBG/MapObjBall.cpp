@@ -1615,10 +1615,10 @@ void TBigWatermelon::touchActor(THitActor* actor)
 	if (actor->isActorType(0x10000015)
 	    && ((TPoiHana*)actor)->isMoving()) {
 		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
-		if (fabsf(mVelocity.y) >= thresh)
-			return;
-		mVelocity.y = mVelocity.y + 30.0f;
-		mState      = 0xB;
+		if (fabsf(mVelocity.y) < thresh) {
+			mVelocity.y = mVelocity.y + 30.0f;
+			mState      = 0xB;
+		}
 		return;
 	}
 	if (unk194 != 0)
