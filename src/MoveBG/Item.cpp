@@ -768,7 +768,7 @@ void TShine::appearWithTime(int total_time, int up_time, int circle_time,
 	if (unk15C == 0.0f)
 		unk15C = 1000.0f;
 	if (yDiff > 0.0f)
-		unk15C += yDiff;
+		unk15C += __fabsf(yDiff);
 	unk160 = unk15C * mCircleRateY;
 
 	if (gpMSound->gateCheck(0x4821))
