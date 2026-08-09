@@ -1683,6 +1683,8 @@ void TBigWatermelon::control()
 	} break;
 	case 2:
 		break;
+	case 0xA:
+		break;
 	case 0xD: {
 		if (mLifeTimer <= 0) {
 			JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
