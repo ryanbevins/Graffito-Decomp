@@ -554,9 +554,10 @@ void TMapObjGrowTree::control()
 
 	if (mHeldObject) {
 		JGeometry::TVec3<f32> pos = mHeldObject->mPosition;
+		MActor* moveActor = mMActor;
 		f32 shrink = unk140;
 		f32 move;
-		if (mGrowStartFrame < mMActor->getFrameCtrl(0)->getFrame()
+		if (mGrowStartFrame < moveActor->getFrameCtrl(0)->getFrame()
 		    && mMActor->getFrameCtrl(0)->getFrame() < mGrowEndFrame)
 			move = shrink * unk138 / (mGrowEndFrame - mGrowStartFrame);
 		else
