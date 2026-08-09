@@ -85,6 +85,7 @@ static inline bool isBodyBindJoint(u32 actor_type, int joint_no)
 	}
 }
 
+#pragma dont_inline on
 TMBindShadowParts::TMBindShadowParts(J3DModel* model, u8 joint_no,
                                      TMBindShadowBody* body, f32 scale)
     : unk0(0.01f)
@@ -96,15 +97,15 @@ TMBindShadowParts::TMBindShadowParts(J3DModel* model, u8 joint_no,
     , unk15(0)
     , unk16(0)
 {
-	J3DModelData* data = model->getModelData();
-	unk8               = data->getJointName()->getName(joint_no);
-	unkC               = model->getAnmMtx(joint_no);
+	unk8 = model->getModelData()->getJointName()->getName(joint_no);
+	unkC = model->getAnmMtx(joint_no);
 
-	J3DJoint* joint      = data->getJointNodePointer(joint_no);
+	J3DJoint* joint      = model->getModelData()->getJointNodePointer(joint_no);
 	J3DJoint* childJoint = (J3DJoint*)joint->getChild();
 	unk10               = model->getAnmMtx(childJoint->getJntNo());
 	unk0                = scale;
 }
+#pragma dont_inline off
 
 void TMBindShadowParts::calc(f32 ground_y)
 {
