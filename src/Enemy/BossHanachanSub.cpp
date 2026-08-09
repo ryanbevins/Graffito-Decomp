@@ -78,8 +78,8 @@ void BHSCalcRevisionDistXZByRotateZ(f32 angleDeg, f32 a, f32 b, f32* outX,
 {
 	f32 c    = b * a;
 	s16 ang  = CLBRoundf<s16>(angleDeg * (65536.0f / 360.0f));
-	f32 sinV = jmaSinTable[(u16)ang >> jmaSinShift];
 	f32 cosV = jmaCosTable[(u16)ang >> jmaSinShift];
+	f32 sinV = jmaSinTable[(u16)ang >> jmaSinShift];
 	f32 zero = 0.0f;
 	*outX    = c * cosV + zero * sinV;
 	*outZ    = -c * sinV + zero * cosV;
