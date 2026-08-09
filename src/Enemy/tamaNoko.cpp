@@ -851,16 +851,13 @@ DEFINE_NERVE(TNerveTamaNokoThrown, TLiveActor)
 
 	if (spine->getTime() == 0) {
 		TTamaNokoSaveLoadParams* params = self->getSaveParams2();
-
-		int angle = *gpMarioAngleY;
-		f32 fVar2 = *gpMarioThrowPower;
-		f32 s     = JMASSin(angle);
-		f32 c     = JMASCos(angle);
-		f32 fVar3 = params->mSLThrownRateXZ.get();
-		f32 fVar4 = params->mSLThrownVY.get();
-
-		self->setVelocity(
-		    JGeometry::TVec3<f32>(fVar3 * fVar2 * c, fVar4, fVar3 * fVar2 * s));
+		f32 throwSin = *gpMarioThrowPower * JMASSin(*gpMarioAngleY);
+		f32 throwCos = *gpMarioThrowPower * JMASCos(*gpMarioAngleY);
+		f32 thrownRate = params->mSLThrownRateXZ.get();
+		JGeometry::TVec3<f32> velocity(thrownRate * throwSin,
+		                                params->mSLThrownVY.get(),
+		                                thrownRate * throwCos);
+		self->setVelocity(velocity);
 
 		self->mPosition.y += 2.0f;
 
