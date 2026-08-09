@@ -186,11 +186,12 @@ BOOL TNerveTobiPukuPrepareFly::execute(TSpineBase<TLiveActor>* spine) const
 	self->mPosition.z += (self->mLaunchPad->mPosition.z - self->mPosition.z)
 	                     * (1.0f / 60.0f);
 
-	self->unk1EC -= 3.0f;
-	if (self->unk1EC > 180.0f)
-		self->unk1EC = 180.0f;
-	else if (self->unk1EC < 0.0f)
-		self->unk1EC = 0.0f;
+	f32 roll = self->unk1EC - 3.0f;
+	if (roll > 180.0f)
+		roll = 180.0f;
+	else if (roll < 0.0f)
+		roll = 0.0f;
+	self->unk1EC = roll;
 
 	self->mRotation.x += self->unk1F0;
 
