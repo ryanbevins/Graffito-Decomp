@@ -39,19 +39,23 @@ static const char* tabepuku_bastable[] = {
 	"/scene/tabepuku/bas/pukupuku_swim.bas",
 };
 
-static inline bool isTabePukuAttackNerve(const TNerveBase<TLiveActor>* nerve)
-{
-	return nerve == &TNerveTabePukuAttack::theNerve()
-	       || nerve == &TNerveTabePukuBite::theNerve()
-	       || nerve == &TNerveTabePukuDive::theNerve()
-	       || nerve == &TNerveTabePukuDrag::theNerve();
-}
-
 static inline bool isTabePukuHoldingNerve(const TNerveBase<TLiveActor>* nerve)
 {
 	return nerve == &TNerveTabePukuBite::theNerve()
 	       || nerve == &TNerveTabePukuDive::theNerve()
 	       || nerve == &TNerveTabePukuDrag::theNerve();
+}
+
+static inline bool isTabePukuHoldingNerve(TTabePuku* self)
+{
+	return isTabePukuHoldingNerve(self->mSpine->getLatestNerve());
+}
+
+static inline bool isTabePukuAttackNerve(TTabePuku* self)
+{
+	return self->mSpine->getLatestNerve()
+	           == &TNerveTabePukuAttack::theNerve()
+	       || isTabePukuHoldingNerve(self);
 }
 
 static inline bool isTabePukuGraphNerve(const TNerveBase<TLiveActor>* nerve)
@@ -358,9 +362,7 @@ void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 
 bool TTabePuku::doKeepDistance()
 {
-	if (isTabePukuAttackNerve(mSpine->getLatestNerve()))
-		return false;
-	return true;
+	return !isTabePukuAttackNerve(this);
 }
 
 bool TTabePuku::isFindMario(float range)
