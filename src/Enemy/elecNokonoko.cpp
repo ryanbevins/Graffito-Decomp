@@ -230,13 +230,8 @@ DEFINE_NERVE(TNerveElecNokonokoFreeze, TLiveActor)
 			if (self->unk165) {
 				self->unk165 = false;
 			}
-			if (!wasReady) {
-				bool noCarapace = self->unk1A4 == 0 ? true : false;
-				if (noCarapace) {
-					self->setBckAnm(5);
-				} else {
-					self->setBckAnm(6);
-				}
+			if (!wasReady && (self->unk1A4 == 0 ? true : false)) {
+				self->setBckAnm(5);
 			} else {
 				self->setBckAnm(6);
 			}
