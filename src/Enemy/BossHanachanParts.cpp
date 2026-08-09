@@ -552,9 +552,7 @@ void TBossHanachanPartsBody::initFootHitActor_(TIdxGroupObj* group)
 		group->getChildren().push_back(mFeet[i]);
 		mFeet[i]->unk64 &= ~1;
 		MtxPtr m = (MtxPtr)((u8*)a->getModel()->mNodeMatrices + idx * 0x30);
-		mFeet[i]->mPosition.x = m[0][3];
-		mFeet[i]->mPosition.y = m[1][3];
-		mFeet[i]->mPosition.z = m[2][3];
+		mFeet[i]->mPosition.set<f32>(m[0][3], m[1][3], m[2][3]);
 	}
 }
 
