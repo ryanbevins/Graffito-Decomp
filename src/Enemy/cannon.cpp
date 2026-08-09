@@ -452,7 +452,7 @@ DEFINE_NERVE(TNerveCannonShoot, TLiveActor)
 				scale += scaleDelta;
 				if (scale > self->unk220)
 					scale = self->unk220;
-				if (scale < 0.0f)
+				else if (scale < 0.0f)
 					scale = 0.0f;
 				self->unk1A4->mScaling.x = scale;
 				self->unk1A4->mScaling.set(self->mScaling.x, self->mScaling.x,
