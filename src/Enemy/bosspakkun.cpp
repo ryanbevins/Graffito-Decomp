@@ -1641,6 +1641,7 @@ void TBossPakkun::gotHipDropDamage()
 	}
 }
 
+#pragma dont_inline on
 void TBossPakkun::showMessage(u32 message)
 {
 	u32 bit = message - 0xE0000 == 1 ? 0 : 1 << (message - 0xE0000);
@@ -1649,6 +1650,7 @@ void TBossPakkun::showMessage(u32 message)
 		gpMarDirector->getConsole()->startAppearBalloon(message, true);
 	unk1C0 |= bit;
 }
+#pragma dont_inline off
 
 void TBossPakkun::rumblePad(int param_1, const JGeometry::TVec3<f32>& pos)
 {
