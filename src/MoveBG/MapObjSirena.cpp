@@ -1434,7 +1434,7 @@ void TCloset::initMapObj()
 		unk13C[i] = 180.0f;
 	}
 	TMapObjBase::initMapObj();
-	for (u16 j = 1; (s32)j <= unk148; ++j) {
+	for (int j = 1; j <= unk148; ++j) {
 		mMActor->setJointCallback(j, partsRollCallback);
 	}
 	unk140 = 0.25f * mDamageRadius;
