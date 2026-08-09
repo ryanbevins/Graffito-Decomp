@@ -957,17 +957,20 @@ void TMapObjBall::kicked()
 	if (w.y > 0.0f) {
 		// fall through to common tail
 	} else {
-		if (v.y == 0.0f) {
+		JGeometry::TVec3<f32> equalityVelocity = v;
+		if (equalityVelocity.y == 0.0f) {
 			mVelocity.y = unk178;
 		} else {
-			mVelocity.y = unk174 * (*gpMarioSpeedY) - unk160 * v.y;
+			JGeometry::TVec3<f32> bounceVelocity = v;
+			mVelocity.y
+			    = unk174 * (*gpMarioSpeedY) - unk160 * bounceVelocity.y;
 		}
 		mVelocity.x = unk170 * (*gpMarioSpeedX) + mVelocity.x;
 		mVelocity.z = unk170 * (*gpMarioSpeedZ) + mVelocity.z;
 		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
 		if (fabsf(mVelocity.x) < thresh && fabsf(mVelocity.z) < thresh) {
-			mVelocity.x = (MsRandF() - 0.5f) * 2.0f;
-			mVelocity.z = (MsRandF() - 0.5f) * 2.0f;
+			mVelocity.x = 0.02f * MsRandF() - 0.2f;
+			mVelocity.z = 0.02f * MsRandF() - 0.2f;
 		}
 		unk194 = 10;
 		mLiveFlag &= ~0x10;
