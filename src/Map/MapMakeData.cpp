@@ -105,7 +105,7 @@ void TBGCheckData::updateTrans(const JGeometry::TVec3<f32>& translate_by)
 
 void TMapCollisionBase::updateTrans(const JGeometry::TVec3<f32>& param_1)
 {
-	JGeometry::TVec3<f32> copy = calcOffset(param_1);
+	JGeometry::TVec3<f32> copy = param_1 - unk50;
 
 	TBGCheckData* unk4it = unk4;
 	for (int i = 0; i < unkC; ++i) {
