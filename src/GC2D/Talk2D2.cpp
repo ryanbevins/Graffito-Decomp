@@ -932,14 +932,17 @@ bool TTalk2D2::eraseNormalWindow()
 	if ((s16)alpha < 0) {
 		alpha  = 0xff;
 		unk234 = 1.0f;
-		unk238 = 2.0f;
-		unk23C = 3.0f;
-
-		for (int i = 0; i < 3; ++i) {
-			unk3C[i]->mVisible = false;
-			unk6C[i]->mVisible = false;
-			(&unk224)[i]       = 0;
-		}
+		unk3C[0]->mVisible = false;
+		unk224            = 0;
+		unk6C[0]->mVisible = false;
+		unk238             = 2.0f;
+		unk3C[1]->mVisible = false;
+		unk225            = 0;
+		unk6C[1]->mVisible = false;
+		unk23C             = 3.0f;
+		unk3C[2]->mVisible = false;
+		unk226            = 0;
+		unk6C[2]->mVisible = false;
 
 		for (int i = 0; i < 90; ++i)
 			if (unk9C[i])
