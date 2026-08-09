@@ -335,18 +335,20 @@ void TTinKoopaManager::loadAfter()
 	for (int i = 0; i < 7; ++i) {
 		u16 id = 0xee + i;
 		const char* filename = onetimeFilenames[i];
-		if (!gParticleFlagLoaded[id]) {
+		bool* particleFlag = &gParticleFlagLoaded[id];
+		if (!*particleFlag) {
 			gpResourceManager->load(filename, id);
-			gParticleFlagLoaded[id] = true;
+			*particleFlag = true;
 		}
 	}
 
 	for (int i = 0; i < 17; ++i) {
 		u16 id = 0x1ac + i;
 		const char* filename = loopFilenames[i];
-		if (!gParticleFlagLoaded[id]) {
+		bool* particleFlag = &gParticleFlagLoaded[id];
+		if (!*particleFlag) {
 			gpResourceManager->load(filename, id);
-			gParticleFlagLoaded[id] = true;
+			*particleFlag = true;
 		}
 	}
 
