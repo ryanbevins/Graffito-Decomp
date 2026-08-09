@@ -364,8 +364,8 @@ void TMapObjBase::makeObjAppeared()
 		}
 	}
 	mGroundHeight = gpMap->checkGround(mPosition, &mGroundPlane);
-	if (mLiveFlag & 0x10)
-		mLiveFlag |= 0x80;
+	if (checkLiveFlag(LIVE_FLAG_UNK10))
+		onLiveFlag(LIVE_FLAG_AIRBORNE);
 	if (mMapObjData->mMove != nullptr) {
 		J3DFrameCtrl* fc = mMapObjData->mMove->unk8;
 		fc->setFrame((f32)fc->getStart());
