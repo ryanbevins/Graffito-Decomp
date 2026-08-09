@@ -127,8 +127,8 @@ TBGBeakHit::TBGBeakHit(TBossGesso* owner, const char* name)
 	    .push_back(this);
 
 	initHitActor(0x8000008, 1, -0x80000000, 0.0f, 0.0f,
-	             mOwner->getSaveParam()->mSLBeakDamageRadius.get(),
-	             mOwner->getSaveParam()->mSLBeakDamageHeight.get());
+	             mOwner->getSaveParam2()->mSLBeakDamageRadius.get(),
+	             mOwner->getSaveParam2()->mSLBeakDamageHeight.get());
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 	unkA4.zero();
 }
@@ -145,7 +145,7 @@ static inline JGeometry::TVec3<f32> fromPolar(f32 theta, f32 radius)
 
 BOOL TBGBeakHit::moveRequest(const JGeometry::TVec3<f32>& where_to)
 {
-	TBossGessoParams* params = mOwner->getSaveParam();
+	TBossGessoParams* params = mOwner->getSaveParam2();
 
 	unkA4 = fromPolar(gpMarioOriginal->getIntendedYaw(),
 	                  gpMarioOriginal->getIntendedMag()
@@ -204,7 +204,7 @@ BOOL TBGBeakHit::receiveMessage(THitActor* sender, u32 message)
 			JGeometry::TVec3<f32> delta = mPosition;
 			TBossGesso* gesso           = mOwner;
 			delta -= gesso->mPosition;
-			f32 length = gesso->getSaveParam()->mSLBeakLengthDamage.get();
+			f32 length = gesso->getSaveParam2()->mSLBeakLengthDamage.get();
 
 			if (delta.length() >= length)
 				mOwner->gotBeakDamage();
@@ -270,12 +270,12 @@ void TBGBeakHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 			ownerToUs -= mOwner->mPosition;
 			f32 beakPullDist = ownerToUs.length();
 
-			f32 lenPollute = mOwner->getSaveParam()->mSLBeakLengthPollute.get();
+			f32 lenPollute = mOwner->getSaveParam2()->mSLBeakLengthPollute.get();
 			if (mOwner->unk190.color.a != 0 && beakPullDist >= lenPollute) {
 				mHolder->receiveMessage(this, HIT_MESSAGE_UNK8);
 			}
 
-			f32 lenLimit = mOwner->getSaveParam()->mSLBeakLengthLimit.get();
+			f32 lenLimit = mOwner->getSaveParam2()->mSLBeakLengthLimit.get();
 			if (beakPullDist >= lenLimit) {
 				mHolder->receiveMessage(this, HIT_MESSAGE_UNK8);
 				mOwner->gotBeakDamage();
@@ -294,8 +294,8 @@ TBGEyeHit::TBGEyeHit(TBossGesso* owner, int joint_index, const char* name)
 	    .push_back(this);
 
 	initHitActor(0x8000009, 1, 0x1000000, 0.0f, 0.0f,
-	             mOwner->getSaveParam()->mSLEyeDamageRadius.get(),
-	             mOwner->getSaveParam()->mSLEyeDamageHeight.get());
+	             mOwner->getSaveParam2()->mSLEyeDamageRadius.get(),
+	             mOwner->getSaveParam2()->mSLEyeDamageHeight.get());
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
@@ -465,7 +465,7 @@ void TBGBinder::bind(TLiveActor* param_1)
 				    = (TEffectColumWater*)gpConductor->makeOneEnemyAppear(
 				        gesso->mPosition, "エフェクト水柱マネージャー", 1);
 				if (enemy) {
-					f32 scale = gesso->getSaveParam()->mSLColumnScale.get();
+					f32 scale = gesso->getSaveParam2()->mSLColumnScale.get();
 					JGeometry::TVec3<f32> local_5c;
 					local_5c.x = scale;
 					local_5c.y = scale;
@@ -626,7 +626,7 @@ void TBossGesso::init(TLiveManager* param_1)
 
 	reset();
 
-	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
+	mHitPoints = getSaveParam2() ? getSaveParam2()->mSLHitPointMax.get() : 1;
 
 	offLiveFlag(LIVE_FLAG_UNK100);
 	getMActor()->offMakeDL();
@@ -1005,12 +1005,12 @@ void TBossGesso::doAttackSingle()
 		static const int idxarray[] = { 1, 3 };
 		TBGTentacle* tentacle       = mTentacles[idxarray[i]];
 
-		if (inSightAngle(getSaveParam()->mSLSightAngle.get())
+		if (inSightAngle(getSaveParam2()->mSLSightAngle.get())
 		    && tentacle->mState == 0) {
 			JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
 			delta -= tentacle->getFirstNode()->getPosition();
 
-			f32 singleAttackLen = getSaveParam()->mSLSingleAttackLen.get();
+			f32 singleAttackLen = getSaveParam2()->mSLSingleAttackLen.get();
 			if (delta.squared() < singleAttackLen * singleAttackLen) {
 				tentacle->changeStateAndFixNodes(1);
 				break;
@@ -1020,7 +1020,7 @@ void TBossGesso::doAttackSingle()
 
 	if (mTentacles[3]->isThing2() && mTentacles[1]->isThing2()
 	    && !(mTentacles[2]->isThing2() && mTentacles[0]->isThing2())) {
-		if (mTimeInCurrentAttackMode <= getSaveParam()->mSLUnisonInter.get())
+		if (mTimeInCurrentAttackMode <= getSaveParam2()->mSLUnisonInter.get())
 			return;
 
 		if (gpMarDirector->unk7D != 4)
@@ -1035,10 +1035,10 @@ void TBossGesso::doAttackSingle()
 
 	JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
 
-	f32 unisonAttackLen2 = getSaveParam()->mSLUnisonAttackLen.get();
+	f32 unisonAttackLen2 = getSaveParam2()->mSLUnisonAttackLen.get();
 	unisonAttackLen2 *= unisonAttackLen2;
 
-	f32 forceUnisonLen2 = getSaveParam()->mSLForceUnisonLen.get();
+	f32 forceUnisonLen2 = getSaveParam2()->mSLForceUnisonLen.get();
 	forceUnisonLen2 *= forceUnisonLen2;
 
 	delta -= mPosition;
@@ -1067,7 +1067,7 @@ void TBossGesso::doAttackSingle()
 
 	if (dist2 < unisonAttackLen2) {
 		if (gpMarioOriginal->isTouchGround4cm()) {
-			if (mTimeInCurrentAttackMode > getSaveParam()->mSLUnisonInter.get()) {
+			if (mTimeInCurrentAttackMode > getSaveParam2()->mSLUnisonInter.get()) {
 				if (gpMarDirector->unk7D == 4)
 					changeAttackMode(ASTATE_ROLL);
 				else
@@ -1082,10 +1082,10 @@ void TBossGesso::doAttackSingle()
 		return;
 
 	if (mCork->unkC != 0 && unk195 < 3) {
-		f32 shootRadius2 = getSaveParam()->mSLShootRadius.get();
+		f32 shootRadius2 = getSaveParam2()->mSLShootRadius.get();
 		shootRadius2 *= shootRadius2;
 
-		if (mTimeInCurrentAttackMode > getSaveParam()->mSLUnisonInter.get()) {
+		if (mTimeInCurrentAttackMode > getSaveParam2()->mSLUnisonInter.get()) {
 			if (dist2 < shootRadius2) {
 				JGeometry::TVec3<f32> shootDelta = SMS_GetMarioPos();
 				shootDelta -= mPosition;
@@ -1100,9 +1100,9 @@ void TBossGesso::doAttackSingle()
 	}
 
 	if (gpMarDirector->unk7D == 4) {
-		if (inSightAngle(getSaveParam()->mSLSightAngle.get())) {
+		if (inSightAngle(getSaveParam2()->mSLSightAngle.get())) {
 			if (mTimeInCurrentAttackMode
-			    > getSaveParam()->mSLUnisonInter.get()) {
+			    > getSaveParam2()->mSLUnisonInter.get()) {
 				changeAttackMode(ASTATE_ROLL);
 				unk195 = 0;
 			}
@@ -1121,10 +1121,10 @@ void TBossGesso::doAttackDouble()
 	JGeometry::TVec3<f32> delta = mPosition;
 	delta -= SMS_GetMarioPos();
 
-	f32 doubleAttackLen2 = getSaveParam()->mSLDoubleAttackLen.value;
+	f32 doubleAttackLen2 = getSaveParam2()->mSLDoubleAttackLen.value;
 	doubleAttackLen2 *= doubleAttackLen2;
 
-	if (inSightAngle(getSaveParam()->mSLSightAngle.get())
+	if (inSightAngle(getSaveParam2()->mSLSightAngle.get())
 	    && delta.squared() < doubleAttackLen2) {
 
 		for (int i = 0; i < 2; ++i) {
@@ -1155,7 +1155,7 @@ void TBossGesso::doAttackSkipRope()
 		return;
 	}
 
-	if (inSightAngle(getSaveParam()->mSLSightAngle.get())) {
+	if (inSightAngle(getSaveParam2()->mSLSightAngle.get())) {
 		for (int i = 0; i < 2; ++i) {
 			static const int idxarray[] = { 0, 2 };
 			TBGTentacle* tentacle       = mTentacles[idxarray[i]];
@@ -1177,10 +1177,10 @@ void TBossGesso::doAttackUnison()
 	JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
 	delta -= mPosition;
 
-	f32 unisonAttackLen2 = getSaveParam()->mSLUnisonAttackLen.value;
+	f32 unisonAttackLen2 = getSaveParam2()->mSLUnisonAttackLen.value;
 	unisonAttackLen2 *= unisonAttackLen2;
 
-	if (inSightAngle(getSaveParam()->mSLSightAngle.get())
+	if (inSightAngle(getSaveParam2()->mSLSightAngle.get())
 	    && gpMarioOriginal->isTouchGround4cm()
 	    && delta.squared() < unisonAttackLen2) {
 
@@ -1224,11 +1224,11 @@ void TBossGesso::doAttackShoot()
 		return;
 	}
 
-	if (inSightAngle(getSaveParam()->mSLSightAngle.get())) {
+	if (inSightAngle(getSaveParam2()->mSLSightAngle.get())) {
 		JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
 		delta -= mPosition;
 
-		f32 singleAttackLen = getSaveParam()->mSLSingleAttackLen.get();
+		f32 singleAttackLen = getSaveParam2()->mSLSingleAttackLen.get();
 		if (delta.squared() < singleAttackLen * singleAttackLen) {
 			changeAttackMode(ASTATE_SINGLE);
 		}
@@ -1244,11 +1244,11 @@ inline void TBossGesso::doAttackGuard()
 	}
 
 	// TODO: inSight inline is definitely wrong...
-	if (inSightAngle(getSaveParam()->mSLSightAngle.get())) {
+	if (inSightAngle(getSaveParam2()->mSLSightAngle.get())) {
 		JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
 		delta -= mPosition;
 
-		f32 guardLen = getSaveParam()->mSLGuardLen.get();
+		f32 guardLen = getSaveParam2()->mSLGuardLen.get();
 		if (!(guardLen * guardLen < delta.squared())) {
 			if (!mTentacles[3]->isThing2())
 				return;
@@ -1858,7 +1858,7 @@ DEFINE_NERVE(TNerveBGTug, TLiveActor)
 	if (self->mBeak->mHolder != nullptr) {
 		JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
 		delta -= self->mPosition;
-		f32 lim = self->getSaveParam()->mSLBeakLengthDamage.get();
+		f32 lim = self->getSaveParam2()->mSLBeakLengthDamage.get();
 
 		if (delta.length() >= lim) {
 			self->getMActor()->setBtpFromIndex(1);
@@ -2081,9 +2081,9 @@ DEFINE_NERVE(TNerveBGPolDrop, TLiveActor)
 		JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
 		delta -= self->mPosition;
 
-		f32 shootRadius2 = self->getSaveParam()->mSLShootRadius.value;
+		f32 shootRadius2 = self->getSaveParam2()->mSLShootRadius.value;
 		shootRadius2 *= shootRadius2;
-		f32 singleAttackLen2 = self->getSaveParam()->mSLSingleAttackLen.get();
+		f32 singleAttackLen2 = self->getSaveParam2()->mSLSingleAttackLen.get();
 		singleAttackLen2 *= singleAttackLen2;
 
 		if (self->unk195 < 3) {

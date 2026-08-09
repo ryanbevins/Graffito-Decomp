@@ -185,7 +185,7 @@ public:
 	void performInContainer(u32, JDrama::TGraphics*) { }
 
 	// fabricated
-	TBossGessoParams* getSaveParam() const
+	TBossGessoParams* getSaveParam2() const
 	{
 		return (TBossGessoParams*)getSaveParam();
 	}
@@ -205,13 +205,13 @@ public:
 	f32 getAttackSpeed() const
 	{
 		if (mAttackMode == 2)
-			return getSaveParam()->mSLUnisonAttackSpeed.get();
+			return getSaveParam2()->mSLUnisonAttackSpeed.get();
 
 		if (mAttackMode == 1)
-			return getSaveParam()->mSLDoubleAttackSpeed.get();
+			return getSaveParam2()->mSLDoubleAttackSpeed.get();
 
 		if (mAttackMode == 4)
-			return getSaveParam()->mSLSkipRopeAttackSpeed.get();
+			return getSaveParam2()->mSLSkipRopeAttackSpeed.get();
 
 		return 1.0f;
 	}
