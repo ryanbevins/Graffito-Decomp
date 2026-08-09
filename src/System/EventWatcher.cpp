@@ -366,8 +366,7 @@ static void evPushNerve4LiveActor(TSpcTypedInterp<TEventWatcher>* interp,
                                   u32 arg_num)
 {
 	interp->verifyArgNum(2, &arg_num);
-	TSpcSlice nerveSlice                = interp->pop();
-	int nerveId                         = nerveSlice.getDataInt();
+	int nerveId = TSpcSlice(interp->pop()).getDataInt();
 	const TNerveBase<TLiveActor>* nerve = NerveGetByIndex(nerveId);
 	const char* actorName               = interp->pop().getDataString();
 
