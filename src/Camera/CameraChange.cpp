@@ -322,7 +322,10 @@ void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 		}
 	}
 
-	changeCamModeSpecifyFrame_(newMode, getCameraInbetweenFrame_(newMode));
+	s16 frame = (s16)getCameraInbetweenFrame_(newMode);
+	*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+	unk70 = nullptr;
+	changeCamModeSub_(newMode, frame, false);
 }
 
 bool CPolarSubCamera::isChangeToParallelCameraCByMoveBG_() const
