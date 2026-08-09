@@ -49,7 +49,6 @@ public:
 
 	virtual void load(JSUMemoryInputStream& stream);
 	virtual void loadAfter();
-	virtual void perform(u32, JDrama::TGraphics*) { }
 	virtual BOOL receiveMessage(THitActor* sender, u32 msg);
 	virtual void init(TLiveManager*);
 	virtual void calcRootMatrix();
