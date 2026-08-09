@@ -308,8 +308,8 @@ static void evGetTalkNPCName(TSpcTypedInterp<TEventWatcher>* interp,
 static void evSetTalkMsgID(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(2, &arg_num);
-	int p1 = interp->pop().getDataInt();
-	int p2 = interp->pop().getDataInt();
+	int p1 = TSpcSlice(interp->pop()).getDataInt();
+	int p2 = TSpcSlice(interp->pop()).getDataInt();
 	gpTalk2D->setMessageID(p2, p1);
 	interp->push();
 }
