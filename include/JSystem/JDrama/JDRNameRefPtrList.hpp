@@ -49,8 +49,10 @@ public:
 		if (res != nullptr)
 			return res;
 
-		typename JGadget::TList_pointer<T*>::iterator it = this->begin();
-		for (; it != this->end(); ++it) {
+		typedef JGadget::TList_pointer<T*> List;
+		List& children = *this;
+		typename List::iterator it = children.begin();
+		for (; it != children.end(); ++it) {
 			TNameRef* r = (*it)->searchF(key, name);
 			if (r != nullptr)
 				return r;
