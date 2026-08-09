@@ -894,10 +894,10 @@ void TBiancoWatermillVertical::control()
 	}
 
 	const Vec* bridgePosition = (const Vec*)&unk140->mPosition;
-	f32 bridgeVolume = fabsf(bridgeRot);
+	volume = fabsf(bridgeRot);
 	if (gpMSound->gateCheck(0x3042)) {
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-		    0x3042, bridgePosition, nullptr, bridgeVolume, 0, 0, &unk14C,
+		    0x3042, bridgePosition, nullptr, volume, 0, 0, &unk14C,
 		    0, 4);
 	}
 }
