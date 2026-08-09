@@ -978,6 +978,7 @@ bool TTalk2D2::closeNormalWindow()
 	int alpha   = unk90->mAlpha - 0x10;
 
 	if ((s16)alpha < 0) {
+		alpha  = 0;
 		unk234 = 1.0f;
 		unk3C[0]->mVisible = false;
 		unk224            = 0;
