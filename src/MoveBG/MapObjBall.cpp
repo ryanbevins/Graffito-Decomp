@@ -488,33 +488,33 @@ void TResetFruit::touchWaterSurface()
 void TResetFruit::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if (gpMarDirector->mMap == 7) {
-		bool resetCheck = false;
-		if (!isState(6)) {
-			JGeometry::TVec3<f32> v = mVelocity;
-			f32 sq = v.x * v.x + v.y * v.y + v.z * v.z;
-			if (sq <= 0.0000038146973f) {
-				resetCheck = true;
+		if (isState(6)) {
+			if (mLiveFlag & 0x200) {
+				mLiveFlag &= ~0x200;
 			}
-		}
-		if (resetCheck && !gpCubeArea->isInAreaCube(mPosition)
-		    && isState(0xB)
-		    && (mPosition.x != mInitialPosition.x
-		        || mPosition.z != mInitialPosition.z)) {
-			mState = 0xB;
-			makeObjDefault();
-			makeObjDead();
-			calcRootMatrix();
-			getModel()->calc();
-			mLifeTimer = mFruitWaitTimeToAppear;
-			unkF8 &= ~0x40000;
-			mState = 0xA;
-			if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
+		} else {
+			JGeometry::TVec3<f32> velocity = mVelocity;
+			if (!velocity.isZero()) {
+				if (mLiveFlag & 0x200) {
+					mLiveFlag &= ~0x200;
+				}
+			} else if (!gpCubeArea->isInAreaCube(mPosition)
+			           && isState(0xB)
+			           && (mPosition.x != mInitialPosition.x
+			               || mPosition.z != mInitialPosition.z)) {
+				mState = 0xB;
+				makeObjDefault();
 				makeObjDead();
+				calcRootMatrix();
+				getModel()->calc();
+				mLifeTimer = mFruitWaitTimeToAppear;
+				unkF8 &= ~0x40000;
+				mState = 0xA;
+				if (gpMarDirector->mMap == 3 && unk1A4 != 0) {
+					makeObjDead();
+				}
+				return;
 			}
-			return;
-		}
-		if (!resetCheck && (mLiveFlag & 0x200)) {
-			mLiveFlag &= ~0x200;
 		}
 	}
 	TMapObjGeneral::perform(flags, graphics);
