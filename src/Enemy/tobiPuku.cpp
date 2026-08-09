@@ -87,8 +87,13 @@ static inline void copyMtxTrans(JGeometry::TVec3<f32>& dst, MtxPtr mtx)
 
 static inline void emitPichiEffect(TTobiPuku* self)
 {
-	MtxPtr mtx = self->mMActor->unk4->mNodeMatrices[1];
-	copyMtxTrans(self->unk1A0, mtx);
+	Mtx* matrices = self->mMActor->unk4->mNodeMatrices;
+	f32 z         = matrices[1][2][3];
+	f32 y         = matrices[1][1][3];
+	f32 x         = matrices[1][0][3];
+	self->unk1A0.x = x;
+	self->unk1A0.y = y;
+	self->unk1A0.z = z;
 	gpMarioParticleManager->emitAndBindToPosPtr(0x177, &self->unk1A0, 1,
 	                                            self);
 }
