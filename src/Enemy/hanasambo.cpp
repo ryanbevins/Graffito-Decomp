@@ -974,7 +974,21 @@ void TSamboFlowerCoinUnit::checkGenCoin()
 			JGeometry::TVec3<f32> offset(0.0f, 0.0f,
 			                             params->mSLCoinCircleR.get());
 			Mtx rot;
-			MsMtxSetRotRPH(rot, 0.0f, 360.0f * ratio, 0.0f);
+			s16 angle = DEG2SHORTANGLE(360.0f * ratio);
+			f32 sinY  = JMASSin(angle);
+			f32 cosY  = JMASCos(angle);
+			rot[0][0] = cosY;
+			rot[0][1] = 0.0f;
+			rot[0][2] = sinY;
+			rot[0][3] = 0.0f;
+			rot[1][0] = 0.0f;
+			rot[1][1] = 1.0f;
+			rot[1][2] = 0.0f;
+			rot[1][3] = 0.0f;
+			rot[2][0] = -sinY;
+			rot[2][1] = 0.0f;
+			rot[2][2] = cosY;
+			rot[2][3] = 0.0f;
 			PSMTXMultVec(rot, (Vec*)&offset, (Vec*)&offset);
 
 			TMapObjBase* coin = flower->unk168;
