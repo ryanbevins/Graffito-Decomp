@@ -1115,7 +1115,7 @@ void TShiningStone::load(JSUMemoryInputStream& stream)
 	                                  0x10020000);
 	unk6C->setBpk("shiningstone");
 	unk6C->setBtk("shiningstone");
-	PSMTXCopy(mtxPtr, unk6C->getModel()->getBaseTRMtx());
+	PSMTXCopy(mtx, unk6C->getModel()->getBaseTRMtx());
 
 	SMS_LoadParticle("/scene/mapObj/ShiningStone1.jpa", 0x143);
 	SMS_LoadParticle("/scene/mapObj/ShiningStone2.jpa", 0x144);
