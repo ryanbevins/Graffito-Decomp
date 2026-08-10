@@ -620,14 +620,17 @@ void TCannon::setKillerGoalPoint()
 		u32 index      = angleShort >> jmaSinShift;
 		target.x += 500.0f * jmaCosTable[index];
 		target.z += 500.0f * jmaSinTable[index];
-	} else {
-		target = unk248;
-	}
 
-	TPathNode node(target);
-	unkF4  = node;
-	unk104 = node;
-	unk114.clear();
+		TPathNode node(target);
+		unkF4  = node;
+		unk104 = node;
+		unk114.clear();
+	} else {
+		TPathNode node(unk248);
+		unkF4  = node;
+		unk104 = node;
+		unk114.clear();
+	}
 
 	TCannonDom* dom = unk1AC[unk214];
 	dom->getMActor()->setBckFromIndex(1);
