@@ -1915,9 +1915,10 @@ DEFINE_NERVE(TNerveBWShake, TLiveActor)
 
 		self->unk194 = 0;
 		self->unk17C = 0;
+		const JGeometry::TVec3<f32>* soundPos = &self->mPicket->mPosition;
 		if (gpMSound->gateCheck(0x2967))
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x2967, &self->mPicket->mPosition, 0, nullptr, 0, 4);
+			    0x2967, soundPos, 0, nullptr, 0, 4);
 		return true;
 	}
 
