@@ -1436,7 +1436,7 @@ void TBigWatermelon::touchGround(JGeometry::TVec3<f32>* pos)
 void TBigWatermelon::touchWall(JGeometry::TVec3<f32>* pos,
                                TBGWallCheckRecord* record)
 {
-	TMapObjGeneral::touchWall(pos, record);
+	TMapObjBall::touchWall(pos, record);
 }
 
 void TBigWatermelon::loadAfter()
