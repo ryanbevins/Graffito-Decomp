@@ -1197,9 +1197,11 @@ bool THamuKuri::isCollidMove(THitActor* param_1)
 		THamuKuri* hamu = (THamuKuri*)param_1;
 		if (hamu->mSpine->getCurrentNerve()
 		        != &TNerveHamuKuriBoundFreeze::theNerve()
-		    && hamu->mSpine->getCurrentNerve()
+		    && mSpine->getCurrentNerve()
+		           != &TNerveSmallEnemyDie::theNerve()
+		    && mSpine->getCurrentNerve()
 		           != &TNerveHamuKuriBoundFreeze::theNerve()
-		    && hamu->mSpine->getCurrentNerve()
+		    && mSpine->getCurrentNerve()
 		           != &TNerveHamuKuriWallDie::theNerve()) {
 			if (!isHitWallInBound()) {
 				unk1A3 = 1;
