@@ -381,22 +381,11 @@ static int Hino2HeadCallback(J3DNode* param_1, int param_2)
 		    ((J3DJoint*)param_1)->getJntNo());
 
 		if (gpCurHinokuri->mLevel == 1) {
-			Mtx local_44;
-			local_44[0][3] = 0.0;
-			local_44[1][3] = 0.0;
-			local_44[2][3] = 0.0;
-
-			local_44[0][0] = gpCurHinokuri->unk194;
-			local_44[0][1] = 0.0;
-			local_44[0][2] = 0.0;
-
-			local_44[1][0] = 0.0;
-			local_44[1][1] = gpCurHinokuri->unk194;
-			local_44[1][2] = 0.0;
-
-			local_44[2][0] = 0.0;
-			local_44[2][1] = 0.0;
-			local_44[2][2] = gpCurHinokuri->unk194;
+			TPosition3f scaleMtx;
+			scaleMtx.setTrans(0.0f, 0.0f, 0.0f);
+			scaleMtx.setScale(gpCurHinokuri->unk194,
+			                  gpCurHinokuri->unk194,
+			                  gpCurHinokuri->unk194);
 
 			f32 s = JMASin(gpCurHinokuri->unk198);
 			f32 c = JMACos(gpCurHinokuri->unk198);
@@ -419,9 +408,9 @@ static int Hino2HeadCallback(J3DNode* param_1, int param_2)
 			local_74[2][3] = 0.0;
 
 			MTXConcat(mA, rotMtx, mA);
-			MTXConcat(mA, local_44, mA);
+			MTXConcat(mA, scaleMtx, mA);
 			MTXConcat(J3DSys::mCurrentMtx, rotMtx, J3DSys::mCurrentMtx);
-			MTXConcat(J3DSys::mCurrentMtx, local_44, J3DSys::mCurrentMtx);
+			MTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
 		} else {
 			Mtx local_a4;
 			MtxPtr rotMtx = local_a4;
