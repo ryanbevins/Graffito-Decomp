@@ -69,14 +69,14 @@ void TMapObjGrassGroup::drawFar() const
 	for (int i = 0; i < unk68; ++i) {
 		s16* swingOffsets = gpMapObjGrassManager->unk24;
 		JGeometry::TVec3<s16>& pos = unk70[i];
-		int x                      = pos.x;
-		int y                      = pos.y;
-		int z                      = pos.z;
-		int topX                   = x + swingOffsets[iVar7];
-		int leftX                  = x - drawVecS16.x;
-		int rightX                 = x + drawVecS16.x;
-		int bottomZ                = z - drawVecS16.z;
-		int topZ                   = z + drawVecS16.z;
+		s16 x                      = pos.x;
+		s16 z                      = pos.z;
+		s16 topX                   = x + swingOffsets[iVar7];
+		s16 leftX                  = x - drawVecS16.x;
+		s16 rightX                 = x + drawVecS16.x;
+		s16 y                      = pos.y;
+		s16 bottomZ                = z - drawVecS16.z;
+		s16 topZ                   = z + drawVecS16.z;
 		GXPosition3s16(leftX, y, bottomZ);
 		GXColor1x8(1);
 		GXPosition3s16(topX, unk74[i], z);
