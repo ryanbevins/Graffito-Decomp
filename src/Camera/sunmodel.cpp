@@ -1,4 +1,6 @@
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Camera/SunModel.hpp>
+#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMarioData.hpp>
 #include <Camera/cameralib.hpp>
