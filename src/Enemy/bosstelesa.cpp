@@ -1081,7 +1081,8 @@ void TBossTelesa::genAttacker()
 		bubble->mPosition.y += 10.0f;
 		bubble->onLiveFlag(LIVE_FLAG_AIRBORNE);
 
-		f32 itemRoll = rand() * 0.000030517578f;
+		TMsRange<f32> genRateRange(0.0f, 1.0f);
+		f32 itemRoll = genRateRange.rand();
 		if (itemRoll < mItemGenRate) {
 			bubble->unk198 = nullptr;
 			TMapObjBase* item = gpItemManager->makeObjAppear(
@@ -1096,7 +1097,7 @@ void TBossTelesa::genAttacker()
 				bubble->unk198      = item;
 			}
 		} else {
-			f32 enemyRoll = rand() * 0.000030517578f;
+			f32 enemyRoll = genRateRange.rand();
 			if (enemyRoll < mEnemyGenRate)
 				bubble->appendEnemy();
 		}
