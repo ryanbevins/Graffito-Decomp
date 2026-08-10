@@ -2075,9 +2075,12 @@ void TBEelTears::calcRootMatrix()
 			TPosition3f mtx;
 
 			mtx.translation(x, y, z);
+			f32 followRate = 0.1f;
 
-			mtx.ref(0, 3) += 0.1f * (unk168[0][3] - mtx.ref(0, 3));
-			mtx.ref(2, 3) += 0.1f * (unk168[2][3] - mtx.ref(2, 3));
+			mtx.ref(0, 3)
+			    += followRate * (unk168[0][3] - mtx.ref(0, 3));
+			mtx.ref(2, 3)
+			    += followRate * (unk168[2][3] - mtx.ref(2, 3));
 
 			f32 scale = unk15C->mSLBodyScaleLow.get();
 			mScaling.x = scale;
