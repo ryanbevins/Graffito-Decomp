@@ -286,6 +286,7 @@ u8* JKRAram::aramToMainRam(JKRAramBlock* block, u8* buf, u32 p3, u32 p4,
                            JKRExpandSwitch expandSwitch, u32 p6, JKRHeap* heap,
                            int id, u32* pSize)
 {
+	u32 size = p3;
 	if (pSize) {
 		*pSize = 0;
 	}
@@ -296,11 +297,11 @@ u8* JKRAram::aramToMainRam(JKRAramBlock* block, u8* buf, u32 p3, u32 p4,
 	if (p4 >= block->mSize) {
 		return nullptr;
 	}
-	p3 = p3 == 0 ? block->mSize : p3;
-	if (p4 + p3 > block->mSize) {
-		p3 = block->mSize - p4;
+	size = size == 0 ? block->mSize : size;
+	if (p4 + size > block->mSize) {
+		size = block->mSize - p4;
 	}
-	return aramToMainRam(p4 + block->mAddress, buf, p3, expandSwitch, p6, heap,
+	return aramToMainRam(p4 + block->mAddress, buf, size, expandSwitch, p6, heap,
 	                     id, pSize);
 }
 
