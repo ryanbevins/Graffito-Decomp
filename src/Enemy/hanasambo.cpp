@@ -1004,14 +1004,13 @@ void TSamboFlowerCoinUnit::checkGenCoin()
 			coinPos.add(offset);
 			coin->mPosition = coinPos;
 
-			JGeometry::TVec3<f32> dir = offset;
-			MsVECNormalize((Vec*)&dir, (Vec*)&dir);
+			MsVECNormalize((Vec*)&offset, (Vec*)&offset);
 			coin->mVelocity.x
-			    = dir.x * params->mSLCoinVelocityXZ.get();
+			    = offset.x * params->mSLCoinVelocityXZ.get();
 			coin->mVelocity.y
 			    = params->mSLCoinVelocityY.get() + 8.0f * ratio;
 			coin->mVelocity.z
-			    = dir.z * params->mSLCoinVelocityXZ.get();
+			    = offset.z * params->mSLCoinVelocityXZ.get();
 			coin->offLiveFlag(LIVE_FLAG_UNK10);
 			++spawned;
 		}
