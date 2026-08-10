@@ -567,13 +567,17 @@ void TBossHanachanPartsBase::initMapCollisionAndHitActor_(TIdxGroupObj* group)
 	f32 damRad = params->mSLBodyDamageRadius.value;
 	f32 damHei = params->mSLBodyDamageHeight.value;
 	f32 offY   = params->mSLBodyHitOffsetY.value;
-	if (mActorType == 0x08000014) {
+	switch (mActorType) {
+	case 0x08000014:
 		filename = cHeadMapCollisionFileName;
 		attRad   = params->mSLHeadAttackRadius.value;
 		attHei   = params->mSLHeadAttackHeight.value;
 		damRad   = params->mSLHeadDamageRadius.value;
 		damHei   = params->mSLHeadDamageHeight.value;
 		offY     = params->mSLHeadHitOffsetY.value;
+		break;
+	case 0x08000015:
+		break;
 	}
 
 	MActor* a       = getMActor();
