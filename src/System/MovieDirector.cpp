@@ -1,6 +1,4 @@
-#define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <System/MovieDirector.hpp>
-#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <THPPlayer/THPPlayer.h>
 #include <JSystem/JKernel/JKRMemArchive.hpp>
 #include <JSystem/JDrama/JDRDStage.hpp>
