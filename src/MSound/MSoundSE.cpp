@@ -161,13 +161,17 @@ void MSRandPlay::randPlay(u32 param)
 
 	switch (playVec->unk4) {
 	case 2:
-		if (unk1C == 0x3813) {
+		switch ((s32)unk1C) {
+		case 0x3813:
 			MSGMSound->startSoundSetGrp(unk1C, playVec->unk0, 0, 0.0f, 0,
 			                            0, 4);
-		} else {
+			break;
+		default: {
 			JAIActor actor(playVec->unk0, playVec->unk0, playVec->unk0, 0);
 			MSoundSE::startSoundActorInner(unk1C, &playVec->unk20, &actor, 0,
 			                               4);
+			break;
+		}
 		}
 		playVec->unk4 = 3;
 		playVec->unkC = 0;
