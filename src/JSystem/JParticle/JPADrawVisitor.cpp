@@ -983,17 +983,17 @@ void JPADrawExecRotation::exec(const JPADrawContext* dc,
 	f32 cos = JMASCos(params->unk34);
 
 	f32 x0 = -params->unk10 * (dc->pcb->unk4 + dc->pcb->unkC);
-	f32 x1 = params->unk10 * (dc->pcb->unk4 - dc->pcb->unkC);
 	f32 y0 = params->unk14 * (dc->pcb->unk8 + dc->pcb->unk10);
+	f32 x1 = params->unk10 * (dc->pcb->unk4 - dc->pcb->unkC);
 	f32 y1 = -params->unk14 * (dc->pcb->unk8 - dc->pcb->unk10);
 
+	Mtx mtx;
 	JGeometry::TVec3<f32> offs[4];
 	offs[0].set(x0, y0, 0.0f);
 	offs[1].set(x1, y0, 0.0f);
 	offs[2].set(x1, y1, 0.0f);
 	offs[3].set(x0, y1, 0.0f);
 
-	Mtx mtx;
 	dc->pcb->mRotTypeFunc(sin, cos, mtx);
 	MTXMultVecArray(mtx, offs, offs, ARRAY_COUNT(offs));
 
