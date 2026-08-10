@@ -67,7 +67,6 @@ static const char* gorogoro_bastable[] = {
 };
 
 static const char* anmlist[] = { "bosspaku_head_move", nullptr };
-static const char* graphlist[] = { "gorogoro0", "gorogoro1" };
 
 DEFINE_NERVE(TNerveGorogoroDie, TLiveActor)
 {
@@ -1304,6 +1303,7 @@ TSpineEnemy* TGorogoroManager::createEnemyInstance()
 
 void TGorogoroManager::initSetEnemies()
 {
+	static const char* graphlist[] = { "gorogoro0", "gorogoro1" };
 	mPolluteModelManager = new TGorogoroPolluteModelManager("ゴロゴロモデル汚染");
 	mPolluteModelManager->init(getObj(0));
 
