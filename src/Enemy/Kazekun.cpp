@@ -371,6 +371,7 @@ void TKazekun::calcRootMatrix()
 	}
 
 	Mtx m;
+	MtxPtr mPtr = m;
 	f32 x  = mQuat.x;
 	f32 y  = mQuat.y;
 	f32 z  = mQuat.z;
@@ -388,19 +389,19 @@ void TKazekun::calcRootMatrix()
 	f32 wy = w2 * y;
 	f32 yz = y2 * z;
 	f32 wx = w2 * x;
-	m[0][0] = 1.0f - yy - zz;
-	m[0][1] = xy - wz;
-	m[0][2] = xz + wy;
-	m[1][0] = xy + wz;
-	m[1][1] = 1.0f - xx - zz;
-	m[1][2] = yz - wx;
-	m[2][0] = xz - wy;
-	m[2][1] = yz + wx;
-	m[2][2] = 1.0f - xx - yy;
-	m[0][3] = mPosition.x;
-	m[1][3] = mPosition.y;
-	m[2][3] = mPosition.z;
-	PSMTXCopy(m, getModel()->getBaseTRMtx());
+	mPtr[0][0] = 1.0f - yy - zz;
+	mPtr[0][1] = xy - wz;
+	mPtr[0][2] = xz + wy;
+	mPtr[1][0] = xy + wz;
+	mPtr[1][1] = 1.0f - xx - zz;
+	mPtr[1][2] = yz - wx;
+	mPtr[2][0] = xz - wy;
+	mPtr[2][1] = yz + wx;
+	mPtr[2][2] = 1.0f - xx - yy;
+	mPtr[0][3] = mPosition.x;
+	mPtr[1][3] = mPosition.y;
+	mPtr[2][3] = mPosition.z;
+	PSMTXCopy(mPtr, getModel()->getBaseTRMtx());
 
 	bool active = (mSpine->getLatestNerve() == &TNerveKazekunTurn::theNerve())
 	              || (mSpine->getLatestNerve() == &TNerveKazekunPreAttack::theNerve())
