@@ -619,7 +619,8 @@ DEFINE_NERVE(TNerveHanaSamboAppear, TLiveActor)
 		return TRUE;
 	}
 
-	self->walkToCurPathNode(0.0f, 3.0f * self->mTurnSpeed, 0.0f);
+	f32 turnSpeed = self->mTurnSpeed;
+	self->walkToCurPathNode(0.0f, turnSpeed * 3.0f, 0.0f);
 	return FALSE;
 }
 
