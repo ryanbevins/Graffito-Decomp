@@ -708,15 +708,18 @@ BOOL TMario::rocketing()
 			f32 stickMag  = mIntendedMag;
 			if ((angleDiff > -0x1555 && angleDiff < 0x1555)
 			    || angleDiff < -0x6AAA || angleDiff > 0x6AAA) {
-				s16 gunAngle;
-				if (angleDiff >= -0x4000 && angleDiff <= 0x4000)
-					gunAngle
+				s16 reaction;
+				if (angleDiff >= -0x4000 && angleDiff <= 0x4000) {
+					s16 gunAngle
 					    = *(s16*)((u8*)mWaterGun->getCurrentNozzle() + 0x324);
-				else
-					gunAngle
+					reaction = (s16)(0.03125f * -stickMag * (f32)gunAngle
+					                 * JMASCos(angleDiff));
+				} else {
+					s16 gunAngle
 					    = *(s16*)((u8*)mWaterGun->getCurrentNozzle() + 0x338);
-				s16 reaction = (s16)(0.03125f * -stickMag * (f32)gunAngle
-				                     * JMASCos(angleDiff));
+					reaction = (s16)(0.03125f * -stickMag * (f32)gunAngle
+					                 * JMASCos(angleDiff));
+				}
 				mWaterGun->unk1CC2 = reaction;
 				mWaterGun->unk1CC4 = reaction;
 				mForwardVel += stickMag * JMASCos(angleDiff)
