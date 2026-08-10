@@ -73,27 +73,6 @@ inline void AttackMario(THitActor* attacker)
 
 } // namespace
 
-static const char* onetimeFilenames[] = {
-	"/scene/manta/jpa/ms_man_dead.jpa",
-	"/scene/manta/jpa/ms_man_div1.jpa",
-	"/scene/manta/jpa/ms_man_div2.jpa",
-	"/scene/manta/jpa/ms_man_div3.jpa",
-	"/scene/manta/jpa/ms_man_div4.jpa",
-};
-
-static const char* loopFilenames[] = {
-	"/scene/manta/jpa/ms_man_hit1_a.jpa",
-	"/scene/manta/jpa/ms_man_hit1_b.jpa",
-	"/scene/manta/jpa/ms_man_hit2_a.jpa",
-	"/scene/manta/jpa/ms_man_hit2_b.jpa",
-	"/scene/manta/jpa/ms_man_hit3_a1.jpa",
-	"/scene/manta/jpa/ms_man_hit3_a2.jpa",
-	"/scene/manta/jpa/ms_man_hit3_b.jpa",
-	"/scene/manta/jpa/ms_man_hit4_a1.jpa",
-	"/scene/manta/jpa/ms_man_hit4_a2.jpa",
-	"/scene/manta/jpa/ms_man_hit4_b.jpa",
-};
-
 inline const TNerveMantaAppearDemo& TNerveMantaAppearDemo::theNerve()
 {
 	static TNerveMantaAppearDemo instance;
@@ -1058,6 +1037,25 @@ void TBossMantaManager::load(JSUMemoryInputStream& stream)
 
 void TBossMantaManager::loadAfter()
 {
+	static const char* onetimeFilenames[] = {
+		"/scene/manta/jpa/ms_man_dead.jpa",
+		"/scene/manta/jpa/ms_man_div1.jpa",
+		"/scene/manta/jpa/ms_man_div2.jpa",
+		"/scene/manta/jpa/ms_man_div3.jpa",
+		"/scene/manta/jpa/ms_man_div4.jpa",
+	};
+	static const char* loopFilenames[] = {
+		"/scene/manta/jpa/ms_man_hit1_a.jpa",
+		"/scene/manta/jpa/ms_man_hit1_b.jpa",
+		"/scene/manta/jpa/ms_man_hit2_a.jpa",
+		"/scene/manta/jpa/ms_man_hit2_b.jpa",
+		"/scene/manta/jpa/ms_man_hit3_a1.jpa",
+		"/scene/manta/jpa/ms_man_hit3_a2.jpa",
+		"/scene/manta/jpa/ms_man_hit3_b.jpa",
+		"/scene/manta/jpa/ms_man_hit4_a1.jpa",
+		"/scene/manta/jpa/ms_man_hit4_a2.jpa",
+		"/scene/manta/jpa/ms_man_hit4_b.jpa",
+	};
 	for (int i = 0; i < 5; ++i)
 		SMS_LoadParticle(onetimeFilenames[i], i + 0xF8);
 
