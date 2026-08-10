@@ -348,13 +348,16 @@ void TYumbo::behaveToWater(THitActor* sender)
 
 void TYumbo::shotSeeds()
 {
-	TYumboSeed* seed = nullptr;
-	for (int i = 0; i < 16; ++i) {
-		if (!(mSeeds[i]->mState & 1)) {
-			seed = mSeeds[i];
+	TYumboSeed* seed;
+	TYumboSeed** end = mSeeds + 16;
+	TYumboSeed** it  = mSeeds;
+	for (; it != end; ++it) {
+		seed = *it;
+		if (seed->mState & 1)
 			break;
-		}
 	}
+	if (it == end)
+		seed = nullptr;
 	if (!seed)
 		return;
 
