@@ -1879,6 +1879,7 @@ DEFINE_NERVE(TNerveBWJumpAway, TLiveActor)
 DEFINE_NERVE(TNerveBWShake, TLiveActor)
 {
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
+	MActor* actor      = self->mMActor;
 	if (spine->getTime() == 0) {
 		TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
 		J3DAnmTransform* shakeAnm
@@ -1891,13 +1892,13 @@ DEFINE_NERVE(TNerveBWShake, TLiveActor)
 			mtxCalc->unk50 = 1.0f;
 		}
 
-		self->mMActor->getAnmBck()->setFrameCtrl(2);
-		J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
+		actor->getAnmBck()->setFrameCtrl(2);
+		J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(0);
 		self->unk178 = (360.0f / 65536.0f) / (f32)frameCtrl->getEnd();
 		self->setAnmSound(bwanwan_bastable[2]);
 	}
 
-	if (self->mMActor->curAnmEndsNext(0, nullptr)) {
+	if (actor->curAnmEndsNext(0, nullptr)) {
 		if (self->unk17C != 0) {
 			JPABaseEmitter* emitter = gpMarioParticleManager->emit(
 			    0xAE, &self->mPicket->mPosition, 0, nullptr);
