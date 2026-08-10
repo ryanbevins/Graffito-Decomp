@@ -936,16 +936,18 @@ void JPADrawExecDirBillBoard::exec(const JPADrawContext* dc,
 
 	MTXMultVecSR(dc->pcb->unk34, &local_9C, &local_9C);
 
-	f32 x0 = -(params->unk10 * (dc->pcb->unk4 - dc->pcb->unkC));
-	f32 y0 = +(params->unk14 * (dc->pcb->unk8 - dc->pcb->unk10));
-	f32 x1 = +(params->unk10 * (dc->pcb->unk4 + dc->pcb->unkC));
-	f32 y1 = -(params->unk14 * (dc->pcb->unk8 + dc->pcb->unk10));
+	f32 scaleX = params->unk10;
+	f32 scaleY = params->unk14;
+	f32 x1     = scaleX * (dc->pcb->unk4 - dc->pcb->unkC);
+	f32 y1     = scaleY * (dc->pcb->unk8 - dc->pcb->unk10);
+	scaleX *= dc->pcb->unk4 + dc->pcb->unkC;
+	scaleY *= dc->pcb->unk8 + dc->pcb->unk10;
 
 	JGeometry::TVec2<f32> offs[4];
-	offs[0].set(x0, y0);
-	offs[1].set(x1, y0);
-	offs[2].set(x1, y1);
-	offs[3].set(x0, y1);
+	offs[0].set(-scaleX, scaleY);
+	offs[1].set(x1, scaleY);
+	offs[2].set(x1, -y1);
+	offs[3].set(-scaleX, -y1);
 
 	f32 x = local_9C.x;
 	f32 y = local_9C.y;
