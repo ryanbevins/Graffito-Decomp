@@ -1028,9 +1028,10 @@ void TBathtub::startDemo()
 	grip->unk258 = 100;
 	grip->unk260 = 0;
 
+	f32 animSpeed = unk16C->animSpeed1.get();
 	grip = unk168[2];
 	grip->unk258 = 2;
-	grip->unk250 = unk16C->animSpeed1.get();
+	grip->unk250 = animSpeed;
 	grip->unk254 = 1;
 	grip->unk25C->setBck("stand_effect");
 	grip->unk25C->setBtk("stand_effect");
