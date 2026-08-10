@@ -98,11 +98,11 @@ DEFINE_NERVE(TNerveBeeHiveReset, TLiveActor)
 		hive->mScaling.set(0.0f, 0.0f, 0.0f);
 	}
 
-	BOOL grown = FALSE;
+	bool grown = false;
 	hive->mScaling.x += 0.01f;
-	if (hive->mScaling.x >= 1.0f) {
+	if (1.0f <= hive->mScaling.x) {
 		hive->mScaling.set(1.0f, 1.0f, 1.0f);
-		grown = TRUE;
+		grown = true;
 	} else {
 		hive->mScaling.y += 0.01f;
 		hive->mScaling.z += 0.01f;
