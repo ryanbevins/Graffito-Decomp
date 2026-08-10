@@ -1096,6 +1096,7 @@ static int PakkunRootCallback(J3DNode* node, int flag)
 		u8 maxHp = pakkun->getSaveParam()
 		               ? pakkun->getSaveParam()->mSLHitPointMax.get()
 		               : 1;
+		pakkun = gpCurPakkun;
 		if (pakkun->mHitPoints == maxHp)
 			return 1;
 
