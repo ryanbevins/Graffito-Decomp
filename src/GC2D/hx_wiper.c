@@ -1246,8 +1246,8 @@ static void Hxs_Logo_MagDraw(f32 scale, f32 texW, f32 texH) {
 	drawH  = texH / 1.924138f;
 	halfW  = (f32)(hx.imgW >> 1);
 	halfH  = (f32)(hx.imgH >> 1);
-	hw     = drawW * scale * 0.5f;
-	hh     = drawH * scale * 0.5f;
+	hw     = drawW * scale / 2.0f;
+	hh     = drawH * scale / 2.0f;
 	left   = halfW - hw;
 	top    = halfH - hh;
 	s0     = left / (left - (halfW + hw));
