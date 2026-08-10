@@ -864,16 +864,16 @@ void TBossMantaManager::TMantaBattleState::update()
 		break;
 	}
 	case 2: {
-		bool living = false;
+		bool done = true;
 		for (int i = 0; i < mManager->getActiveObjNum(); ++i) {
 			TBossManta* manta = (TBossManta*)mManager->getObj(i);
 			if (manta->mGeneration == 5
 			    && !(manta->mLiveFlag & LIVE_FLAG_DEAD)) {
-				living = true;
+				done = false;
 				break;
 			}
 		}
-		if (!living) {
+		if (done) {
 			MSBgm::stopTrackBGMs(7, 10);
 			sDefeatSE = nullptr;
 			if (gpMSound->gateCheck(0x898F))
