@@ -16,6 +16,7 @@ class TLodAnm;
 class J3DModel;
 class TBinder;
 class TMapCollisionManager;
+struct TLiveActorUnk90;
 
 enum TLiveFlagBits {
 	LIVE_FLAG_DEAD        = 0x1,
@@ -146,7 +147,7 @@ public:
 	/* 0x84 */ const char* mAnmSoundPath;
 	/* 0x88 */ TBinder* mBinder;
 	/* 0x8C */ TSpineBase<TLiveActor>* mSpine;
-	/* 0x90 */ void* unk90;
+	/* 0x90 */ TLiveActorUnk90* unk90;
 	// TODO: Analyze mLinearVelocity vs mVelocity some more
 	// and decide on better names
 	/* 0x94 */ JGeometry::TVec3<f32> mLinearVelocity;
