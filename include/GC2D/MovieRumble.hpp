@@ -20,8 +20,10 @@ public:
 
 	bool isValid() const
 	{
+		Koga::ToolData* toolData = getToolData();
+		int group = unk18;
 		bool result = false;
-		if (unk14 && unk18 >= 0)
+		if (toolData && group >= 0)
 			result = true;
 		return result;
 	}
