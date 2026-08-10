@@ -1724,8 +1724,9 @@ void TTelesaSlot::initMapObj()
 	unk1DC = new TMapCollisionMove();
 	unk1DC->init(2, 0, 0, nullptr);
 
-	TMsRange<s32> indexRange(0, 8);
-	for (int i = 0; i < 3; ++i) {
+	int i = 0;
+	TMsRange<s32> indexRange(i, 8);
+	for (; i < 3; ++i) {
 		unk13C[i] = (f32)(unk168 * indexRange.rand());
 		*(&unk198 + i) = 0;
 	}
