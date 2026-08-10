@@ -35,10 +35,10 @@ extern "C" int rand();
 
 BOOL NPCNeckCallBack(J3DNode*, int);
 
-const char* cManiyaParentViewObjName    = "マニヤ親゙゙ニ゙ヶ";
-const char* cManiyaChildViewObjName     = "マニヤ子゙゙ニ゙ヶ";
-const char* cNotUseFastCubeViewObjName0 = "ピンゲ26";
-const char* cNotUseFastCubeViewObjName1 = "ピンゲ27";
+const char* cManiyaParentViewObjName    = "マニ屋親タヌキ";
+const char* cManiyaChildViewObjName     = "マニ屋子タヌキ";
+const char* cNotUseFastCubeViewObjName0 = "モンテ26";
+const char* cNotUseFastCubeViewObjName1 = "モンテ27";
 const char* cEyeMaterialName            = "_eye_mat";
 const char* cNeckJointName              = "kubi";
 
