@@ -1021,9 +1021,7 @@ void TBossWanwan::slideToCurPathNode(f32 march_speed, f32 turn_speed)
 		if (turn > turn_speed)
 			turn = turn_speed;
 	} else {
-		f32 turnMin = -turn_speed;
-		if (turn <= turnMin)
-			turn = turnMin;
+		turn = turn > -turn_speed ? turn : -turn_speed;
 	}
 
 	f32 newYaw = mRotation.y + turn;
