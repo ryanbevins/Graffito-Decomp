@@ -1,4 +1,6 @@
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <MoveBG/MapObjWater.hpp>
+#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <MoveBG/MapObjManager.hpp>
 #include <MoveBG/MapObjWave.hpp>
 #include <M3DUtil/MActorUtil.hpp>
