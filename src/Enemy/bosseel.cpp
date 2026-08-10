@@ -1042,8 +1042,7 @@ void TBossEelHeartCoin::generate(JGeometry::TVec3<f32>& position)
 		mCoins[i]->onMapObjFlag(0x10000000);
 
 		MtxPtr mtx = unk18->getModel()->mNodeMatrices[0];
-		TCoin* coin = mCoins[i];
-		coin->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+		mCoins[i]->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 	}
 }
 
