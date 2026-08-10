@@ -852,7 +852,7 @@ void TSamboFlowerManager::loadAfter()
 		TSamboFlowerCoinUnit* unit = mCoinUnits[unitIndex];
 		unit->mCoin                = coin;
 		unit->mCenter              = coin->mPosition;
-		coin->makeObjDead();
+		coin->kill();
 	}
 
 	for (int i = 0; i < getObjNum(); ++i) {
