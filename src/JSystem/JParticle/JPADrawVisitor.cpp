@@ -942,6 +942,7 @@ void JPADrawExecDirBillBoard::exec(const JPADrawContext* dc,
 	f32 y1     = scaleY * (dc->pcb->unk8 - dc->pcb->unk10);
 	scaleX *= dc->pcb->unk4 + dc->pcb->unkC;
 	scaleY *= dc->pcb->unk8 + dc->pcb->unk10;
+	f32 x = local_9C.x;
 
 	JGeometry::TVec2<f32> offs[4];
 	offs[0].set(-scaleX, scaleY);
@@ -949,7 +950,6 @@ void JPADrawExecDirBillBoard::exec(const JPADrawContext* dc,
 	offs[2].set(x1, -y1);
 	offs[3].set(-scaleX, -y1);
 
-	f32 x = local_9C.x;
 	f32 y = local_9C.y;
 
 	offs[0].set(x * offs[0].x - y * offs[0].y, x * offs[0].y + y * offs[0].x);
