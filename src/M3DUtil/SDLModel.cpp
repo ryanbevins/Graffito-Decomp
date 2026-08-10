@@ -86,11 +86,11 @@ void SDLModelData::entrySDLModels()
 		J3DNode* root          = unk0->getRootNode();
 		recursiveEntry(root, token);
 
-		for (SDLModel* model = token->unk8; model != nullptr;
+		for (SDLModel* model = (*it)->unk8; model != nullptr;
 		     model = model->unkA4)
 			model->unkA8 &= ~1;
 
-		token->unk8 = nullptr;
+		(*it)->unk8 = nullptr;
 	}
 }
 
