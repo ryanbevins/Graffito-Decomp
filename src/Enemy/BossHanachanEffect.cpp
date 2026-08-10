@@ -12,6 +12,7 @@
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSoundSE.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RandomUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <math.h>
@@ -34,15 +35,7 @@ void TBossHanachan::emitCamShake_()
 	bool touching                       = SMS_IsMarioTouchGround4cm();
 
 	if (nerve == &TNerveBossHanachanGraphWander::theNerve()) {
-		f32 dist = mDistToMarioSquared;
-		if (dist > 0.0f) {
-			const double half  = 0.5;
-			const double three = 3.0;
-			double root        = __frsqrte(dist);
-			volatile f32 tmp;
-			tmp = half * root * (three - dist * (root * root)) * dist;
-			dist = tmp;
-		}
+		f32 dist = MsSqrtf(mDistToMarioSquared);
 
 		f32 ratio;
 		if (dist <= mParams->mSLCamShakeMaxDist.value) {
