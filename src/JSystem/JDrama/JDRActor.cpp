@@ -20,8 +20,7 @@ void JDrama::TActor::load(JSUMemoryInputStream& stream)
 
 	unk3C = TNameRefGen::search<TCharacter>(str);
 
-	unk40 = new TLightMap;
-	unk40->load(stream);
+	(unk40 = new TLightMap)->load(stream);
 }
 
 void JDrama::TActor::perform(u32 param_1, TGraphics* param_2)
