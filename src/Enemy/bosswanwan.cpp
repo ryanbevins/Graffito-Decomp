@@ -907,8 +907,9 @@ void TBossWanwan::shakeCamera(int mode)
 	if (actor->checkCurBckFromIndex(0)) {
 		ratio = 1.0f;
 	} else {
+		TBWParams* params = (TBWParams*)getSaveParam();
 		ratio = (f32)mHitPoints
-		        / (f32)((TBWParams*)getSaveParam())->mSLBWHitPointMax.get();
+		        / (f32)params->mSLBWHitPointMax.get();
 	}
 
 	f32 length = lengthMax * ratio + lengthMaxHP0 * (1.0f - ratio);
