@@ -75,10 +75,11 @@ static int SamboHeadRollCallback(J3DNode* node, int timing)
 	if (!head)
 		return 1;
 
-	const TNerveBase<TLiveActor>* nerve = head->mSpine->getCurrentNerve();
-	if (nerve != &TNerveSamboHeadAttack::theNerve()
-	    && nerve != &TNerveSamboHeadHitWater::theNerve()
-	    && nerve != &TNerveSamboHeadRecoverWater::theNerve())
+	if (head->mSpine->getCurrentNerve() != &TNerveSamboHeadAttack::theNerve()
+	    && head->mSpine->getCurrentNerve()
+	           != &TNerveSamboHeadHitWater::theNerve()
+	    && head->mSpine->getCurrentNerve()
+	           != &TNerveSamboHeadRecoverWater::theNerve())
 		return 1;
 
 	J3DJoint* joint = (J3DJoint*)node;
