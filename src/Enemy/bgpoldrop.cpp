@@ -1,4 +1,6 @@
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Enemy/BossGessoPolDrop.hpp>
+#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Map/MapData.hpp>
 #include <Map/Map.hpp>
 #include <Map/PollutionManager.hpp>
