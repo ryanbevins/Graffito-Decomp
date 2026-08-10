@@ -698,10 +698,10 @@ void TIgaiga::bound()
 
 bool TIgaiga::isRolling()
 {
-	const TNerveBase<TLiveActor>* current = mSpine->getCurrentNerve();
-	if (current == &TNerveIgaigaRollOnGraph::theNerve()
-	    || current == &TNerveIgaigaShootFromCannon::theNerve()
-	    || current == &TNerveIgaigaWaterHit::theNerve())
+	if (mSpine->getCurrentNerve()
+	        == &TNerveIgaigaShootFromCannon::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveIgaigaWaterHit::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveIgaigaRollOnGraph::theNerve())
 		return true;
 	return false;
 }
