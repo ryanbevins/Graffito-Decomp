@@ -430,7 +430,7 @@ void TFruitsBoat::setGroundCollision()
 
 	if (mColCount == 0) {
 		f32 dist = diff.length();
-		if (dist >= 1000.0f) {
+		if (!(dist < 1000.0f)) {
 			void* y = SMS_GetYoshi();
 			int hasYoshi;
 			if (!*(u8*)y)
@@ -439,13 +439,17 @@ void TFruitsBoat::setGroundCollision()
 				hasYoshi = 1;
 
 			if (hasYoshi) {
-				if (mPosition.x - 1000.0f >= *(f32*)((u8*)SMS_GetYoshi() + 0x20))
+				if (!(mPosition.x - 1000.0f
+				      < *(f32*)((u8*)SMS_GetYoshi() + 0x20)))
 					return;
-				if (mPosition.x + 1000.0f <= *(f32*)((u8*)SMS_GetYoshi() + 0x20))
+				if (!(mPosition.x + 1000.0f
+				      > *(f32*)((u8*)SMS_GetYoshi() + 0x20)))
 					return;
-				if (mPosition.z - 1000.0f >= *(f32*)((u8*)SMS_GetYoshi() + 0x28))
+				if (!(mPosition.z - 1000.0f
+				      < *(f32*)((u8*)SMS_GetYoshi() + 0x28)))
 					return;
-				if (mPosition.z + 1000.0f <= *(f32*)((u8*)SMS_GetYoshi() + 0x28))
+				if (!(mPosition.z + 1000.0f
+				      > *(f32*)((u8*)SMS_GetYoshi() + 0x28)))
 					return;
 			}
 		}
