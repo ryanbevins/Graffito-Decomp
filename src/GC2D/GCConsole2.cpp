@@ -2856,8 +2856,7 @@ bool TGCConsole2::processInsertLife(int param_1)
 {
 	bool isFinished = true;
 
-	if (!unk1C4->update())
-		isFinished = false;
+	isFinished &= unk1C4->update();
 
 	if (param_1 == 14) {
 		unk178->getPane()->show();
