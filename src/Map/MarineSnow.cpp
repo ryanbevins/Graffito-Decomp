@@ -1,4 +1,6 @@
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Map/MarineSnow.hpp>
+#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Camera/Camera.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/Particles.hpp>
