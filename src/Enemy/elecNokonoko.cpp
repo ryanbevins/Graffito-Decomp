@@ -1075,7 +1075,7 @@ void TElecCarapace::reflect(THitActor* other)
 			xDir = -1.0f;
 	}
 
-	f32 dot = dir.y * yDir + dir.x * xDir + dir.z * zDir;
+	f32 dot = dir.x * xDir + dir.y * yDir + dir.z * zDir;
 	f32 force = -7.0f * dot;
 	mVelocity.x = dir.x * force;
 	mVelocity.y = 2.0f;
