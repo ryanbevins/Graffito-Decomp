@@ -1262,7 +1262,8 @@ void TEnemyMario::emWaitingToInviteMario()
 #pragma dont_inline on
 void TEnemyMario::decideDoingAfterCarry()
 {
-	if (emFlags(this) & 0x20) {
+	bool hadCarryFlag = (emFlags(this) & 0x20) ? true : false;
+	if (hadCarryFlag) {
 		emFlags(this) &= ~0x20;
 		pushNearestFlaggedNodeInput(this);
 		emTimer(this) = 0;
