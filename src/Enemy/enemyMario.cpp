@@ -930,13 +930,13 @@ void TEnemyMario::checkReturn()
 	if (!mGroundPlane->checkFlag(0x10))
 		return;
 
-	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
-	int node         = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+	int node = emOwner(this)->unk124->getGraph()->findNearestNodeIndex(
+	    mPosition, 0xffffffff);
 	BOOL searching   = TRUE;
 
 	do {
 		Vec point;
-		graph->getGraphNode(node).getPoint(&point);
+		getOwnerGraphPoint(this, node, &point);
 
 		f32 dx = point.x - gpMarioPos->x;
 		f32 dy = point.y - gpMarioPos->y;
@@ -949,7 +949,7 @@ void TEnemyMario::checkReturn()
 			searching = FALSE;
 		}
 
-		node = (node + 1) % graph->getNodeNum();
+		node = (node + 1) % emOwner(this)->unk124->getGraph()->getNodeNum();
 	} while (searching);
 }
 
