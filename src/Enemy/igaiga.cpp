@@ -911,8 +911,9 @@ void TGorogoro::setMeltAnm()
 {
 	setBckAnm(1);
 	unk130 = 0;
+	MtxPtr meltMtx = unk1B4.mMtx;
 	onLiveFlag(0x1000);
-	PSMTXCopy(getModel()->getBaseTRMtx(), unk1B4.mMtx);
+	PSMTXCopy(mMActor->getModel()->getBaseTRMtx(), meltMtx);
 	unk1B4.ref(1, 3) = mGroundHeight;
 
 	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
