@@ -247,18 +247,18 @@ public:
 		}                                                                       \
 	};
 
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuSwimWander);
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuReturnLaunch);
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuPrepareFly);
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuBound);
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuLand);
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuDie);
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuPitiPiti);
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuFall);
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuHitWater);
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuAttack);
-DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuFly);
 DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuGenerate);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuFly);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuAttack);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuHitWater);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuFall);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuPitiPiti);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuDie);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuLand);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuBound);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuPrepareFly);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuReturnLaunch);
+DECLARE_TOBIPUKU_NERVE(TNerveTobiPukuSwimWander);
 
 #undef DECLARE_TOBIPUKU_NERVE
 
