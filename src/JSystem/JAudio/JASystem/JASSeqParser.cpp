@@ -769,13 +769,15 @@ int TSeqParser::cmdNoteOn(TTrack* track, u8 note)
 {
 	u8 r31 = note + track->unk3C0;
 
-	// TODO: very fake, but IDK how to make mwcc push it off
-	// to the stack =/
-	volatile u8 r25_or_0x1C = track->mSeqCtrl.readByte();
-	if (r25_or_0x1C & 0x80) {
+	u8 command = track->mSeqCtrl.readByte();
+	if (command & 0x80) {
 		r31 = track->exchangeRegisterValue(r31);
 		r31 += track->unk3C0;
 	}
+
+	// TODO: very fake, but IDK how to make mwcc push it off
+	// to the stack =/
+	volatile u8 r25_or_0x1C = command;
 
 	u8 r30;
 	if ((r25_or_0x1C >> 5) & 0x2) {
