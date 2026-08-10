@@ -139,7 +139,7 @@ DEFINE_NERVE(TNerveIgaigaShootFromCannon, TLiveActor)
 		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
 	} else {
 		if (self->checkCurAnmEnd(0)) {
-			if (!self->checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
+			if (!self->isAirborne()) {
 				self->bound();
 				spine->pushAfterCurrent(
 				    &TNerveIgaigaRollOnGraph::theNerve());
