@@ -195,7 +195,7 @@ DEFINE_NERVE(TNerveBombHeiThrown, TLiveActor)
 
 	if (!(self->mLiveFlag & 0x80)) {
 		self->genEventCoin();
-		self->mSpine->pushNerve(&TNerveBombHeiExplosion::theNerve());
+		spine->pushAfterCurrent(&TNerveBombHeiExplosion::theNerve());
 		return true;
 	}
 
