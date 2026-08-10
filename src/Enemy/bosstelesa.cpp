@@ -1254,36 +1254,36 @@ void TBossTelesa::damageRecover()
 	f32 zero = 0.0f;
 
 	for (int i = 0; i < 20; ++i) {
-		TLiveActor* actor = unk2A8[i];
-		if (!(actor->mLiveFlag & LIVE_FLAG_DEAD)) {
-			if (actor->mHolder == nullptr)
-				SMS_SendMessageToMario(actor, HIT_MESSAGE_UNK8);
+		TLiveActor** actor = &unk2A8[i];
+		if (!((*actor)->mLiveFlag & LIVE_FLAG_DEAD)) {
+			if ((*actor)->mHolder == nullptr)
+				SMS_SendMessageToMario(*actor, HIT_MESSAGE_UNK8);
 
-			((TMapObjBase*)actor)->makeObjDead();
-			gpMarioParticleManager->emit(0xCD, &actor->mPosition, 0,
+			((TMapObjBase*)*actor)->makeObjDead();
+			gpMarioParticleManager->emit(0xCD, &(*actor)->mPosition, 0,
 			                             nullptr);
-			actor->mPosition.set(zero, zero, zero);
+			(*actor)->mPosition.set(zero, zero, zero);
 		}
 	}
 
 	for (int i = 0; i < 10; ++i) {
-		TLiveActor* actor = unk2F8[i];
-		if (!(actor->mLiveFlag & LIVE_FLAG_DEAD)) {
-			if (actor->mHolder == nullptr)
-				SMS_SendMessageToMario(actor, HIT_MESSAGE_UNK8);
+		TLiveActor** actor = &unk2F8[i];
+		if (!((*actor)->mLiveFlag & LIVE_FLAG_DEAD)) {
+			if ((*actor)->mHolder == nullptr)
+				SMS_SendMessageToMario(*actor, HIT_MESSAGE_UNK8);
 
-			((TMapObjBase*)actor)->makeObjDead();
-			gpMarioParticleManager->emit(0xCD, &actor->mPosition, 0,
+			((TMapObjBase*)*actor)->makeObjDead();
+			gpMarioParticleManager->emit(0xCD, &(*actor)->mPosition, 0,
 			                             nullptr);
-			actor->mPosition.set(zero, zero, zero);
+			(*actor)->mPosition.set(zero, zero, zero);
 		}
 
-		actor = unk320[i];
-		if (!(actor->mLiveFlag & LIVE_FLAG_DEAD)) {
-			((TMapObjBase*)actor)->makeObjDead();
-			gpMarioParticleManager->emit(0xCD, &actor->mPosition, 0,
+		actor = &unk320[i];
+		if (!((*actor)->mLiveFlag & LIVE_FLAG_DEAD)) {
+			((TMapObjBase*)*actor)->makeObjDead();
+			gpMarioParticleManager->emit(0xCD, &(*actor)->mPosition, 0,
 			                             nullptr);
-			actor->mPosition.set(zero, zero, zero);
+			(*actor)->mPosition.set(zero, zero, zero);
 		}
 	}
 
