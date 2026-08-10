@@ -194,6 +194,7 @@ void TRocket::setDeadAnm()
 {
 	TRocketManager* manager = (TRocketManager*)mManager;
 	JGeometry::TVec3<f32> p = mPosition;
+	JGeometry::TVec3<f32>(manager->mWaterEmitInfo->mDir.get());
 	manager->mWaterEmitInfo->mPos.value = p;
 	gpModelWaterManager->emitRequest(*manager->mWaterEmitInfo);
 
