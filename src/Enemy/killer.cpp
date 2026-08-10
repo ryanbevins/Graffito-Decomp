@@ -554,8 +554,8 @@ void TKiller::genEventCoin()
 
 void TKiller::behaveToWater(THitActor* sender)
 {
-	if (mSpine->getCurrentNerve() == &TNerveFlyEnemyNormalFly::theNerve()
-	    || mSpine->getCurrentNerve() == &TNerveFlyEnemyChaseFly::theNerve())
+	if (mSpine->getCurrentNerve() == &TNerveFlyEnemyChaseFly::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveFlyEnemyNormalFly::theNerve())
 		genEventCoin();
 
 	if (mSpine->getCurrentNerve() != &TNerveKillerExplosion::theNerve()) {
