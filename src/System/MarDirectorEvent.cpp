@@ -173,31 +173,29 @@ void TMarDirector::setNextStage(u16 param_1, JDrama::TActor* param_2)
 	if (unk4C & 0x2)
 		return;
 
-	JDrama::TFlagT<u16> flag(0);
-	u8 area;
-	u8 episode;
+	TGameSequence next;
 
 	if (param_1 >= 0x100) {
-		area    = (param_1 >> 8) - 1;
-		episode = param_1;
+		next.unk0 = (param_1 >> 8) - 1;
+		next.unk1 = param_1;
 	} else {
-		area    = param_1;
-		episode = 0xff;
+		next.unk0 = param_1;
+		next.unk1 = 0xff;
 	}
 
-	gpApplication.mNextArea.set(area, episode, flag);
+	gpApplication.mNextArea = next;
 
 	if (param_2) {
 		unk4C |= 0x4;
 		unk250 = param_2;
 	} else if (gpApplication.mCurrArea.unk0 == 1
-	           && (area == 5 || area == 6 || area == 8)) {
+	           && (next.unk0 == 5 || next.unk0 == 6 || next.unk0 == 8)) {
 		unk4C |= 0x8;
 	} else {
 		unk4C |= 0x2;
 	}
 
-	if (area == 0x37) {
+	if (next.unk0 == 0x37) {
 		unk4C |= 0x100;
 		gpApplication.mMovie = 6;
 	}
