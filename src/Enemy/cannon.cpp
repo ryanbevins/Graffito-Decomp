@@ -804,10 +804,11 @@ void TCannon::bombShoot()
 	velocity.x *= speed;
 	velocity.z *= speed;
 
-	unk1A4->mVelocity = velocity;
 	if (unk21C) {
+		unk1A4->mVelocity = velocity;
 		unk1A4->offLiveFlag(LIVE_FLAG_UNK10);
 	} else {
+		unk1A4->mVelocity = velocity;
 		unk1A4->onLiveFlag(LIVE_FLAG_AIRBORNE);
 		unk1A4->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
 	}
