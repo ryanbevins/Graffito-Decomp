@@ -1046,11 +1046,10 @@ void TBossTelesa::genAttacker()
 		return;
 	}
 
-	TBossTelesaSaveLoadParams* params = (TBossTelesaSaveLoadParams*)unk15C;
-	s32 count                         = params->mSLNumGenBubble.get();
-	MtxPtr rootMtx                    = mMActor->unk4->mNodeMatrices[5];
-	f32 angleStep                     = 180.0f / count;
-	f32 angleOffset                   = angleStep * count * 0.5f;
+	s32 count = ((TBossTelesaSaveLoadParams*)unk15C)->mSLNumGenBubble.get();
+	MtxPtr rootMtx  = mMActor->unk4->mNodeMatrices[5];
+	f32 angleStep   = 180.0f / count;
+	f32 angleOffset = angleStep * count * 0.5f;
 
 	for (int i = 0; i < count; ++i) {
 		TBubble* bubble = (TBubble*)gpConductor->makeOneEnemyAppear(
@@ -1070,7 +1069,8 @@ void TBossTelesa::genAttacker()
 		MsVECNormalize(&velocity, &velocity);
 
 		velocity.y = 2.0f;
-		f32 speed  = params->mSL1stBubbleSp.get();
+		f32 speed
+		    = ((TBossTelesaSaveLoadParams*)unk15C)->mSL1stBubbleSp.get();
 		velocity.x *= speed;
 		velocity.z *= speed;
 
