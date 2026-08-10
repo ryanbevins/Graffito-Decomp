@@ -133,13 +133,12 @@ void MSRandPlay::randPlay(u32 param)
 	case 0: {
 		f32 limit = unk24 * 0.5f;
 		s32 delay = (s32)JALCalc::getRandom(limit, unk28, unk2C);
-		if (delay > unk20)
-			playVec->unk8 = delay;
-		else
-			playVec->unk8 = unk20;
+		playVec->unk8 = delay > unk20 ? delay : unk20;
 
-		if (playVec->unk8 >= unk24)
-			playVec->unk8 = unk24;
+		s32 cappedDelay = playVec->unk8;
+		if (cappedDelay >= unk24)
+			cappedDelay = unk24;
+		playVec->unk8 = cappedDelay;
 
 		if (playVec->unk8 == 0) {
 			playVec->unk4 = 2;
