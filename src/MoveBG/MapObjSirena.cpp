@@ -665,9 +665,10 @@ void TCloset::moveObject()
 				changed = true;
 			}
 			if (changed) {
+				f32 speed = fabsf(unk138[i]);
 				if (gpMSound->gateCheck(0x389C))
 					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-					    0x389C, &mPosition, nullptr, fabsf(unk138[i]),
+					    0x389C, &mPosition, nullptr, speed,
 					    0, 0, nullptr, 0, 4);
 			}
 			continue;
@@ -683,9 +684,10 @@ void TCloset::moveObject()
 			changed = true;
 		}
 		if (changed) {
+			f32 speed = fabsf(unk138[i]);
 			if (gpMSound->gateCheck(0x389C))
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x389C, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
+				    0x389C, &mPosition, nullptr, speed, 0, 0,
 				    nullptr, 0, 4);
 		}
 		s32 angInt = (s32)fabsf(unk13C[i]);
