@@ -44,7 +44,7 @@ void TEggGenerator::init(TLiveManager* param_1)
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
 	mMActor       = mMActorKeeper->createMActor("gene_egg_model1.bmd", 0);
 
-	initHitActor(0x02000001, 1, 0x80000000, 150.0f, 150.0f, 150.0f, 150.0f);
+	initHitActor(0x02000001, 1, 0x80000000, 10.0f, 10.0f, 10.0f, 10.0f);
 
 	mMActor->setBckFromIndex(0);
 
