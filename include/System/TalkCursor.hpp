@@ -9,7 +9,10 @@ class MActor;
 
 class TTalkCursor : public JDrama::TViewObj {
 public:
-	TTalkCursor() { }
+	TTalkCursor()
+	    : unk10(nullptr)
+	{
+	}
 
 	virtual void loadAfter();
 	virtual void perform(u32, JDrama::TGraphics*);
