@@ -171,14 +171,7 @@ void THauntLeg::calcRootMatrix()
 	if (isEaten())
 		return;
 
-	{
-		MtxPtr m = getModel()->getBaseTRMtx();
-		// Copy mScaling into model base TR matrix slot at 0x14
-		// (compiler emits stw of three words, overwriting m[1][1..3])
-		m[1][1] = mScaling.x; // 0x14
-		m[1][2] = mScaling.y; // 0x18
-		m[1][3] = mScaling.z; // 0x1C
-	}
+	getModel()->setBaseScale(mScaling);
 
 	MtxPtr anmMtx = (MtxPtr)((u8*)getModel() + 0x20);
 
