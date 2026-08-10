@@ -981,8 +981,8 @@ ok:
 	distSq = dx * dx + distSq;
 	if (distSq > 0.0f) {
 		f64 root = __frsqrte(distSq);
-		f64 refined = 0.5f * root * (3.0f - distSq * (root * root));
-		volatile f32 result = distSq * refined;
+		volatile f32 result
+		    = 0.5f * root * (3.0f - distSq * (root * root)) * distSq;
 		distSq = result;
 	}
 
