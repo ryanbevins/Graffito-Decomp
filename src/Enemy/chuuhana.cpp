@@ -1048,8 +1048,12 @@ DEFINE_NERVE(TNerveChuuHanaRoll, TLiveActor)
 
 	JGeometry::TVec3<f32> velocity = self->mVelocity;
 	JGeometry::TVec3<f32> target   = velocity;
-	self->unk204.x += 0.2f * (target.x - self->unk204.x);
-	self->unk204.z += 0.2f * (target.z - self->unk204.z);
+	f32 deltaX = target.x - self->unk204.x;
+	deltaX *= 0.2f;
+	self->unk204.x += deltaX;
+	f32 deltaZ = target.z - self->unk204.z;
+	deltaZ *= 0.2f;
+	self->unk204.z += deltaZ;
 
 	f32 speed = JGeometry::TUtil<f32>::sqrt(
 	    self->unk204.x * self->unk204.x + self->unk204.z * self->unk204.z);
