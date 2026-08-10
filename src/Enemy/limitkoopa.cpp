@@ -148,20 +148,23 @@ void TLimitKoopaHead::attack_(THitActor* actor) { actor->receiveMessage(this, 0x
 
 BOOL TLimitKoopaHead::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message == 0xF) {
-		if (mOwner->mSpine->getCurrentNerve()
+	switch ((s32)message) {
+	case 0xF: {
+		TLimitKoopa* owner = (TLimitKoopa*)mOwner;
+		if (owner->mSpine->getCurrentNerve()
 		    == &TNerveLimitKoopaTumble::theNerve())
 			return TRUE;
 
-		if (mOwner->mSpine->getCurrentNerve()
+		if (owner->mSpine->getCurrentNerve()
 		    == &TNerveLimitKoopaGetDown::theNerve())
 			return TRUE;
 
-		if (mOwner->mSpine->getCurrentNerve()
+		if (owner->mSpine->getCurrentNerve()
 		    == &TNerveLimitKoopaStagger::theNerve())
-			mOwner->mSpine->setNext(&TNerveLimitKoopaGetShowered::theNerve());
+			owner->mSpine->setNext(&TNerveLimitKoopaGetShowered::theNerve());
 
-		mOwner->mSpine->pushNerve(&TNerveLimitKoopaGetShowered::theNerve());
+		owner->mSpine->pushNerve(&TNerveLimitKoopaGetShowered::theNerve());
+	}
 	}
 
 	return TRUE;
