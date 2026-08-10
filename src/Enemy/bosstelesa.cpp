@@ -1211,18 +1211,18 @@ BOOL TBossTelesa::slotFall()
 
 BOOL TBossTelesa::rouletteFall()
 {
-	TRoulette* roulette0 = (TRoulette*)unk178;
-	TRoulette* roulette1 = (TRoulette*)unk17C;
-
-	if (roulette0->mPosition.y > roulette1->mPosition.y) {
-		roulette0->mPosition.y -= 1.0f;
-		roulette0->mMActor->setBck("rulet00");
+	if (((TRoulette*)unk178)->mPosition.y
+	    > ((TRoulette*)unk17C)->mPosition.y) {
+		((TRoulette*)unk178)->mPosition.y -= 1.0f;
+		((TRoulette*)unk178)->mMActor->setBck("rulet00");
 	} else {
-		roulette0->mPosition.y = roulette1->mPosition.y;
+		((TRoulette*)unk178)->mPosition.y
+		    = ((TRoulette*)unk17C)->mPosition.y;
 		return TRUE;
 	}
 
-	if (roulette0->mPosition.y > roulette1->mPosition.y + 3.0f) {
+	if (((TRoulette*)unk178)->mPosition.y
+	    > ((TRoulette*)unk17C)->mPosition.y + 3.0f) {
 		if (SMS_SendMessageToMario(this, HIT_MESSAGE_TAKE))
 			mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
 	} else {
