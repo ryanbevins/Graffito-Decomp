@@ -1103,9 +1103,8 @@ static bool conectCubeDiffer(TAlphaShadowBlendQuad* a,
 	if (a == nullptr || b == nullptr)
 		return false;
 
-	if (a->unk18 != b->unk18 || a->unk18 == 0 || b->unk18 == 0)
-		return false;
-	if ((a->unk18 & 0x40000000) || (b->unk18 & 0x40000000))
+	if (a->unk18 != b->unk18 || a->unk18 == 0 || b->unk18 == 0
+	    || (a->unk18 & 0x40000000) || (b->unk18 & 0x40000000))
 		return false;
 
 	if (__fabsf(a->unk0.y - b->unk0.y) > 50.0f)
