@@ -424,10 +424,16 @@ void TBaseNPC::behaveToSandBomb_(const TLiveActor* bomb)
 		    || nerve == &TNerveNPCWaitContinue::theNerve()
 		    || nerve == &TNerveNPCWaitMarioApproach::theNerve()
 		    || nerve == &TNerveNPCTurnToMario::theNerve()
-		    || nerve == &TNerveNPCWet::theNerve()
-		    || nerve == &TNerveNPCMareStand::theNerve()) {
+			    || nerve == &TNerveNPCWet::theNerve()
+			    || nerve == &TNerveNPCMareStand::theNerve()) {
 			u8 mode = gpMarDirector->unk124;
-			if (mode != 1 && mode != 2 && mode != 4)
+			bool canBlow = true;
+			bool isBusy = canBlow;
+			if (mode != 1 && mode != 2)
+				isBusy = false;
+			if (!isBusy && gpMarDirector->unk124 != 4)
+				canBlow = false;
+			if (!canBlow)
 				ok = true;
 		}
 		if (ok) {
