@@ -1083,7 +1083,8 @@ BOOL TNerveKoopaTumble::execute(TSpineBase<TLiveActor>* spine) const
 	self->mMActor->getFrameCtrl(0);
 	if (spine->getTime() == 190) {
 		gpCameraShake->startShake((EnumCamShakeMode)0x27, 1.0f);
-		TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+		static TBathtub* bathtub
+		    = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
 		gpMarioParticleManager->emitAndBindToMtx(
 		    0xF5, *bathtub->getRootJointMtx(), 0, this);
 		if (SMS_IsMarioTouchGround4cm())
