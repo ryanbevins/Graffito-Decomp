@@ -188,8 +188,9 @@ DEFINE_NERVE(TNervePopoFly, TLiveActor)
 		} else if (velocity.z >= 0.0f) {
 			rotation = (360.0f / 65536.0f) * matan(velocity.z, velocity.x);
 		} else {
-			rotation = 180.0f
-			           - (360.0f / 65536.0f) * matan(-velocity.z, velocity.x);
+			f32 angle = (360.0f / 65536.0f)
+			            * matan(-velocity.z, velocity.x);
+			rotation = 180.0f - angle;
 		}
 
 		self->mRotation.set(0.0f, callMsWrap(rotation, 0.0f, 360.0f),
