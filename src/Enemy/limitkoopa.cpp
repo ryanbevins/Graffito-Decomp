@@ -153,11 +153,11 @@ BOOL TLimitKoopaHead::receiveMessage(THitActor* sender, u32 message)
 		TLimitKoopa* owner = (TLimitKoopa*)mOwner;
 		if (owner->mSpine->getCurrentNerve()
 		    == &TNerveLimitKoopaTumble::theNerve())
-			return TRUE;
+			break;
 
 		if (owner->mSpine->getCurrentNerve()
 		    == &TNerveLimitKoopaGetDown::theNerve())
-			return TRUE;
+			break;
 
 		if (owner->mSpine->getCurrentNerve()
 		    == &TNerveLimitKoopaStagger::theNerve())
