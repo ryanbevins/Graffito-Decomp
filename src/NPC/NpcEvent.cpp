@@ -120,7 +120,7 @@ static void ev__ForceStartTalk(TSpcTypedInterp<TEventWatcher>* interp,
 			block = false;
 	}
 	if (!block && SMS_IsMarioTouchGround4cm()
-	    && !(gpMarioOriginal->mAction & 0x800)) {
+	    && !((gpMarioOriginal->mAction & 0x800) ? true : false)) {
 		TBaseNPC* npc = (TBaseNPC*)interp->pop().getDataInt();
 		gpMarDirector->unkA0  = npc;
 		gpMarDirector->unk126 = 1;
