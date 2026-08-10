@@ -193,7 +193,7 @@ DEFINE_NERVE(TNerveBombHeiThrown, TLiveActor)
 	if (spine->getTime() == 0x78)
 		self->unk64 &= ~0x1;
 
-	if (!(self->mLiveFlag & 0x80)) {
+	if (!self->checkLiveFlag2(0x80)) {
 		self->genEventCoin();
 		spine->pushAfterCurrent(&TNerveBombHeiExplosion::theNerve());
 		return true;
