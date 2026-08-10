@@ -113,39 +113,6 @@ static const u32 partsHitActorTypeTable[] = {
 	0x0800001D, 0x0800001C, 0x0800001E,
 };
 
-static const char* onetimeFilenames[] = {
-	"/scene/tinkoopa/jpa/ms_mkp_hibana_d1he.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_killer.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_smoke1.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_parge_b14.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_parge_b23.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_flame_yuge.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_kemu_parts.jpa",
-};
-
-static const char* loopFilenames[] = {
-	"/scene/tinkoopa/jpa/ms_mkp_hibana_w1br.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_hibana_w3ar.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_hibana_w4ar.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_biri_w1st.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_biri_w1ar.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_biri_w1fe.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_biri_w1he.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_biri_d1br_a.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_biri_d1br_b.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_kemu_b1ar.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_kemu_w2br_a.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_kemu_w2br_b.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_kemu_b1he.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_kemu_b1fe_l.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_kemu_b1fe_r.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_fire_a.jpa",
-	"/scene/tinkoopa/jpa/ms_mkp_fire_b.jpa",
-};
-
-static const char* loopIndirectFilenames
-    = "/scene/tinkoopa/jpa/ms_mkp_fire_c.jpa";
-
 inline const TNerveTinKoopaWait& TNerveTinKoopaWait::theNerve()
 {
 	static TNerveTinKoopaWait instance;
@@ -332,6 +299,37 @@ void TTinKoopaManager::load(JSUMemoryInputStream& stream)
 
 void TTinKoopaManager::loadAfter()
 {
+	static const char* onetimeFilenames[] = {
+		"/scene/tinkoopa/jpa/ms_mkp_hibana_d1he.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_killer.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_smoke1.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_parge_b14.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_parge_b23.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_flame_yuge.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_kemu_parts.jpa",
+	};
+	static const char* loopFilenames[] = {
+		"/scene/tinkoopa/jpa/ms_mkp_hibana_w1br.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_hibana_w3ar.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_hibana_w4ar.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_biri_w1st.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_biri_w1ar.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_biri_w1fe.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_biri_w1he.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_biri_d1br_a.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_biri_d1br_b.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_kemu_b1ar.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_kemu_w2br_a.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_kemu_w2br_b.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_kemu_b1he.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_kemu_b1fe_l.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_kemu_b1fe_r.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_fire_a.jpa",
+		"/scene/tinkoopa/jpa/ms_mkp_fire_b.jpa",
+	};
+	static const char* loopIndirectFilenames[] = {
+		"/scene/tinkoopa/jpa/ms_mkp_fire_c.jpa",
+	};
 	for (int i = 0; i < 7; ++i) {
 		u16 id = 0xee + i;
 		const char* filename = onetimeFilenames[i];
@@ -352,7 +350,7 @@ void TTinKoopaManager::loadAfter()
 		}
 	}
 
-	const char* filename = loopIndirectFilenames;
+	const char* filename = loopIndirectFilenames[0];
 	if (!gParticleFlagLoaded[0x1f2]) {
 		gpResourceManager->load(filename, 0x1f2);
 		gParticleFlagLoaded[0x1f2] = true;
