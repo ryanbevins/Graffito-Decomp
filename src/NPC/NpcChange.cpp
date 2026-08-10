@@ -149,11 +149,10 @@ void TBaseNPC::changeNerveToMad_()
 
 void TBaseNPC::releaseTaken_()
 {
-	s16 angle          = CLBRoundf<s16>(mTakenBy->mRotation.y * 182.04445f);
 	f32 dist           = mPtrSaveNormal->mThrowSpeedXZ.get();
-	mVelocity.x        = JMASSin(angle) * dist;
-	mVelocity.y        = mPtrSaveNormal->mThrowSpeedY.get();
-	mVelocity.z        = JMASCos(angle) * dist;
+	s16 angle          = CLBRoundf<s16>(mTakenBy->mRotation.y * 182.04445f);
+	mVelocity.set(JMASSin(angle) * dist, mPtrSaveNormal->mThrowSpeedY.get(),
+	              JMASCos(angle) * dist);
 	mLiveFlag         |= 0x10000000;
 	unk1DC             = CLBPalFrame<long>(15);
 	mTakenBy           = nullptr;
