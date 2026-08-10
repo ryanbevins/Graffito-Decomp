@@ -37,8 +37,6 @@ extern const char* cLegJointName_R3;
 extern const char* cNoseHallJointName_L;
 extern const char* cNoseHallJointName_R;
 
-static const char* sFootJointName[2] = { "foot_L", "foot_R" };
-
 const char* cMapCollisionJointName    = "center";
 const char* cBodyMapCollisionFileName = "/scene/bosshanachan/hanabody_col.col";
 const char* cHeadMapCollisionFileName = "/scene/bosshanachan/hanahead_col.col";
@@ -537,6 +535,7 @@ void TBossHanachanPartsBase::changeTumbleAnmRate_()
 
 void TBossHanachanPartsBody::initFootHitActor_(TIdxGroupObj* group)
 {
+	static const char* sFootJointName[2] = { "foot_L", "foot_R" };
 	TBossHanachanCommonSaveParams* params = mOwner->mParams;
 	MActor* a       = getMActor();
 	JUTNameTab* tab = a->getModel()->mModelData->unkB0;
