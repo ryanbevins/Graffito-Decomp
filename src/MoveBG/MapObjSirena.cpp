@@ -62,28 +62,30 @@ static int partsRollCallback(J3DNode* node, int param)
 	if (gpCurObject == nullptr)
 		return 1;
 	u16 jointIdx = ((J3DJoint*)node)->mJntNo;
-	TSirenaRollMapObj* obj = (TSirenaRollMapObj*)gpCurObject;
-	MtxPtr localMtx = obj->getModel()->mNodeMatrices[jointIdx];
+	MtxPtr localMtx
+	    = ((TSirenaRollMapObj*)gpCurObject)->getModel()->mNodeMatrices[jointIdx];
 	jointIdx -= 1;
 
 	Mtx scaleMtx;
-	scaleMtx[0][0] = obj->mScaling.x;
+	scaleMtx[0][0] = ((TSirenaRollMapObj*)gpCurObject)->mScaling.x;
 	scaleMtx[0][1] = 0.0f;
 	scaleMtx[0][2] = 0.0f;
 	scaleMtx[0][3] = 0.0f;
 	scaleMtx[1][0] = 0.0f;
-	scaleMtx[1][1] = obj->mScaling.y;
+	scaleMtx[1][1] = ((TSirenaRollMapObj*)gpCurObject)->mScaling.y;
 	scaleMtx[1][2] = 0.0f;
 	scaleMtx[1][3] = 0.0f;
 	scaleMtx[2][0] = 0.0f;
 	scaleMtx[2][1] = 0.0f;
-	scaleMtx[2][2] = obj->mScaling.z;
+	scaleMtx[2][2] = ((TSirenaRollMapObj*)gpCurObject)->mScaling.z;
 	scaleMtx[2][3] = 0.0f;
 
 	Mtx rotMtx;
-	f32 angZ = obj->getRollAngZ(jointIdx);
-	f32 angY = obj->getRollAngY(jointIdx);
-	MsMtxSetRotRPH(rotMtx, obj->getRollAngX(jointIdx), angY, angZ);
+	f32 angZ = ((TSirenaRollMapObj*)gpCurObject)->getRollAngZ(jointIdx);
+	f32 angY = ((TSirenaRollMapObj*)gpCurObject)->getRollAngY(jointIdx);
+	MsMtxSetRotRPH(rotMtx,
+	               ((TSirenaRollMapObj*)gpCurObject)->getRollAngX(jointIdx),
+	               angY, angZ);
 
 	PSMTXConcat(localMtx, rotMtx, localMtx);
 	PSMTXConcat(localMtx, scaleMtx, localMtx);
