@@ -1,3 +1,4 @@
+#define JG_TUTIL_SQRT_OUT_OF_LINE
 #include <Player/MarioMain.hpp>
 #include <MSound/MSoundBGM.hpp>
 
