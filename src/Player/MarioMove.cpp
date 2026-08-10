@@ -3902,7 +3902,11 @@ void TMario::playerControl(JDrama::TGraphics* gfx)
 
 void TMario::gunExec()
 {
-	if (!onYoshi())
+	u8 isOnYoshi = 0;
+	if (onYoshi())
+		isOnYoshi = 1;
+
+	if (!isOnYoshi)
 		gpModelWaterManager->unk5D5F = 0;
 
 	if (!checkFlag(MARIO_FLAG_HAS_FLUDD) && !onYoshi())
