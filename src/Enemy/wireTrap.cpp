@@ -477,11 +477,11 @@ void TWireTrap::load(JSUMemoryInputStream& stream)
 	mColorType = colorType;
 
 	if (mode == -1) {
-		u16 idx = getModel()->getModelData()->getMaterialName()->getIndex(
+		int idx = getModel()->getModelData()->getMaterialName()->getIndex(
 		    cMatName);
 		SMS_InitPacket_OneTevColor(getModel(), idx, GX_TEVREG2, &cRedColor);
 	} else {
-		u16 idx = getModel()->getModelData()->getMaterialName()->getIndex(
+		int idx = getModel()->getModelData()->getMaterialName()->getIndex(
 		    cMatName);
 		SMS_InitPacket_OneTevColor(getModel(), idx, GX_TEVREG2, &cBlueColor);
 	}
