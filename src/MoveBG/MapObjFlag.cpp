@@ -232,8 +232,8 @@ void TMapObjFlag::init(const char* name)
 	MsMtxSetXYZRPH(mLocalMtx, mPosition.x, mPosition.y, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
 
-	f32 stepHeight = mScaledHeight / (f32)(mNumRows - 1);
-	f32 stepWidth  = mScaledWidth / (f32)(mNumCols - 1);
+	f32 stepHeight = mScaledHeight / (f32)mNumRows;
+	f32 stepWidth  = mScaledWidth / (f32)mNumCols;
 
 	JKRHeap::sCurrentHeap->getTotalFreeSize();
 	mVertexGrid = (Vec**)new u8[mNumCols * sizeof(Vec*)];
