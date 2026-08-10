@@ -138,7 +138,7 @@ BOOL TNerveTinKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 		int bck = waitBckTable[self->unk150];
 		self->mMActor->setBckFromIndex(bck);
 		const char** bas = self->getBasNameTable();
-		self->setAnmSound(bas ? bas[bck] : nullptr);
+		self->setAnmSound(!bas ? nullptr : bas[bck]);
 
 		TTinKoopaParams* params = (TTinKoopaParams*)self->getSaveParam();
 		self->unk180 = params->mSLDefeatWaitTime.get();
