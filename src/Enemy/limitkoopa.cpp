@@ -735,9 +735,12 @@ DEFINE_NERVE(TNerveLimitKoopaHipDropJump, TLiveActor)
 	self->mFallVelocity.y = -g;
 	self->mFallVelocity.z = 0.0f;
 
-	if (self->unk168 == 0)
-		return FALSE;
-
-	spine->pushAfterCurrent(&TNerveLimitKoopaWait::theNerve());
-	return TRUE;
+	BOOL result;
+	if (self->unk168 != 0) {
+		spine->pushAfterCurrent(&TNerveLimitKoopaWait::theNerve());
+		result = TRUE;
+	} else {
+		result = FALSE;
+	}
+	return result;
 }
