@@ -1,4 +1,6 @@
+#define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Map/Sky.hpp>
+#undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Map/Map.hpp>
 #include <Map/MapModel.hpp>
 #include <MoveBG/MapObjManager.hpp>
