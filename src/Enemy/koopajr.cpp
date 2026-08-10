@@ -277,8 +277,11 @@ f32 TDirectionCalc::sub(f32 direction)
 #pragma dont_inline on
 f32 TDirectionCalc::calcNearerDirection(f32 direction)
 {
-	mDirection = std::fmodf(6.2831855f + (mDirection - 0.0f), 6.2831855f)
-	             + 0.0f;
+	mDirection = JGeometry::TUtil<f32>::zero()
+	             + std::fmodf(
+	                 6.2831855f
+	                     + (mDirection - JGeometry::TUtil<f32>::zero()),
+	                 6.2831855f);
 
 	if (direction >= mDirection) {
 		f32 diff = direction - mDirection;

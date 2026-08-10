@@ -25,6 +25,7 @@ template <class T> T TUtil<T>::mod(T value, T modulus)
 }
 
 template <> struct TUtil<f32> {
+	static f32 zero() { return 0.0f; }
 #ifdef JGEOMETRY_CAMERAGC_OWNER_HELPERS
 	static f32 one();
 #else
