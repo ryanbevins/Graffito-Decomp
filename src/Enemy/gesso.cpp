@@ -230,9 +230,10 @@ static int GessoBodyCallback(J3DNode* param_1, int param_2)
 		local_74[2][2] = c;
 		local_74[2][3] = 0.0f;
 
-		MTXConcat(anmMtx, local_74, anmMtx);
+		MtxPtr rotationMtx = local_74;
+		MTXConcat(anmMtx, rotationMtx, anmMtx);
 		MTXConcat(anmMtx, local_44, anmMtx);
-		MTXConcat(J3DSys::mCurrentMtx, local_74, J3DSys::mCurrentMtx);
+		MTXConcat(J3DSys::mCurrentMtx, rotationMtx, J3DSys::mCurrentMtx);
 		MTXConcat(J3DSys::mCurrentMtx, local_44, J3DSys::mCurrentMtx);
 	}
 	return true;
