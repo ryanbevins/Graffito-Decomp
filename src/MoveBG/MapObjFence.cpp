@@ -1,3 +1,4 @@
+#define JGEOMETRY_GEKKO_PS_COPY12_OUT_OF_LINE
 #include <MoveBG/MapObjFence.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <MoveBG/MapObjMessenger.hpp>
