@@ -162,7 +162,8 @@ void TLightCommon::setLight(const JDrama::TGraphics* graphics, int index)
 		GXLoadLightObjImm(&light, GX_LIGHT1);
 	}
 
-	PSMTXMultVec(viewMtx, getLightPosition(lightIndex), &pos);
+	MtxPtr specularViewMtx = (MtxPtr)graphics->mViewMtx.mMtx;
+	PSMTXMultVec(specularViewMtx, getLightPosition(lightIndex), &pos);
 	PSVECNormalize(&pos, &pos);
 	GXInitSpecularDir(&light, -pos.x, -pos.y, -pos.z);
 	GXInitLightColor(&light, getLightColor(lightIndex));
