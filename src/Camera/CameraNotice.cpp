@@ -280,25 +280,8 @@ void CPolarSubCamera::ctrlLButtonCamera_()
 			mCurrentTarget.mTarget.x                 = mario->mPosX;
 			mCurrentTarget.mTarget.y                 = mario->mPosY;
 			mCurrentTarget.mTarget.z                 = mario->mPosZ;
-		} else if (SMS_GetMarioWaterGun() == nullptr) {
-			TCameraMarioData* mario = gpCameraMario;
-			mCurrentTarget.mTarget.x                 = mario->mPosX;
-			mCurrentTarget.mTarget.y                 = mario->mPosY;
-			mCurrentTarget.mTarget.z                 = mario->mPosZ;
 		} else {
-			MtxPtr m = ((TWaterGun*)SMS_GetMarioWaterGun())->getNozzleMtx();
-			mCurrentTarget.mTarget.x  = m[0][3];
-			mCurrentTarget.mTarget.y  = m[1][3];
-			mCurrentTarget.mTarget.z  = m[2][3];
-
-			JGeometry::TVec3<f32> up(m[0][1], m[1][1], m[2][1]);
-			up.normalize();
-			up.x *= 30.0f;
-			up.y *= 30.0f;
-			up.z *= 30.0f;
-			mCurrentTarget.mTarget.x += up.x;
-			mCurrentTarget.mTarget.y += up.y;
-			mCurrentTarget.mTarget.z += up.z;
+			getNozzleTopPos_(&mCurrentTarget.mTarget);
 		}
 	}
 
