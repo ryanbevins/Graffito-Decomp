@@ -1050,7 +1050,7 @@ void TBossTelesa::genAttacker()
 	s32 count                         = params->mSLNumGenBubble.get();
 	MtxPtr rootMtx                    = mMActor->unk4->mNodeMatrices[5];
 	f32 angleStep                     = 180.0f / count;
-	f32 angleOffset                   = count * 0.5f;
+	f32 angleOffset                   = angleStep * count * 0.5f;
 
 	for (int i = 0; i < count; ++i) {
 		TBubble* bubble = (TBubble*)gpConductor->makeOneEnemyAppear(
