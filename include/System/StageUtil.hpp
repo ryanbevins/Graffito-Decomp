@@ -38,6 +38,13 @@ static const u8 scShineTableMonte[]
     = { 0x3C, 0x41, 0x3E, 0x3D, 0x40, 0x3F, 0x42, 0x43 };
 static const u8 scShineTableMonteEtc[] = { 0x6A, 0x44, 0x45 };
 
+static const u8* scShineConvTable[] = {
+	scShineTableAirport, nullptr,
+	scShineTableBianco,  scShineTableRicco,
+	scShineTableMamma,   scShineTablePinna,
+	scShineTableSirena,  scShineTableMonte,
+	scShineTableMare,    nullptr,
+};
 static const u8* scEtcShineConvTable[] = {
 	nullptr,
 	scShineTableDolpicEtc,
@@ -49,13 +56,6 @@ static const u8* scEtcShineConvTable[] = {
 	scShineTableMonteEtc,
 	scShineTableMareEtc,
 	nullptr,
-};
-static const u8* scShineConvTable[] = {
-	scShineTableAirport, nullptr,
-	scShineTableBianco,  scShineTableRicco,
-	scShineTableMamma,   scShineTablePinna,
-	scShineTableSirena,  scShineTableMonte,
-	scShineTableMare,    nullptr,
 };
 
 // Yes, these were defined in a header and marked as static instead of inline
