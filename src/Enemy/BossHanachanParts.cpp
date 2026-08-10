@@ -539,18 +539,21 @@ void TBossHanachanPartsBody::initFootHitActor_(TIdxGroupObj* group)
 	TBossHanachanCommonSaveParams* params = mOwner->mParams;
 	MActor* a       = getMActor();
 	JUTNameTab* tab = a->getModel()->mModelData->unkB0;
+	u32 jointIndices[2];
 	for (int i = 0; i < 2; ++i) {
-		u16 idx         = tab->getIndex(sFootJointName[i]);
+		jointIndices[i] = tab->getIndex(sFootJointName[i]);
 		TFootHitActor* foot = new TFootHitActor("ボスハナチャンの足");
 		mFeet[i]            = foot;
-		foot->initHitActor(0x80000001, idx, 0,
+		foot->initHitActor(0x80000001, jointIndices[i], 0,
 		                   params->mSLFootAttackRadius.value,
 		                   params->mSLFootAttackHeight.value,
 		                   params->mSLFootDamageRadius.value,
 		                   params->mSLFootDamageHeight.value);
 		group->getChildren().push_back(mFeet[i]);
 		mFeet[i]->unk64 &= ~1;
-		MtxPtr m = (MtxPtr)((u8*)a->getModel()->mNodeMatrices + idx * 0x30);
+		MtxPtr m = (MtxPtr)((u8*)a->getModel()->mNodeMatrices
+		                     + (u16)jointIndices[i] * 0x30);
+		mFeet[i]->unk6C = m;
 		mFeet[i]->mPosition.set<f32>(m[0][3], m[1][3], m[2][3]);
 	}
 }
