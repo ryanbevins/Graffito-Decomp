@@ -134,59 +134,361 @@ static inline void initMarioGoal(TSpineEnemy* sambo)
 	sambo->unk114.clear();
 }
 
-DEFINE_NERVE(TNerveSamboHeadHitWall, TLiveActor)
+DEFINE_NERVE(TNerveHanaSamboAppear, TLiveActor)
 {
-	TSamboHead* self = (TSamboHead*)spine->getBody();
+	THanaSambo* self = (THanaSambo*)spine->getBody();
 	if (spine->getTime() == 0) {
-		self->setBckAnm(1);
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->offHitFlag(HIT_FLAG_NO_COLLISION);
+		self->setBckAnm(6);
+		gpMarioParticleManager->emit(0xB6, &self->mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(0xB7, &self->mPosition, 0, nullptr);
 
-		if (JPABaseEmitter* emitter = gpMarioParticleManager->emitWithRotate(
-		        0xE2, &self->mPosition, 0,
-		        self->mRotation.y * 182.04445f, 0, 0, nullptr)) {
-			JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
-			emitter->setScale(scale);
+		TSamboFlower* flower = self->mFlower;
+		flower->onHitFlag(HIT_FLAG_NO_COLLISION);
+		flower->mMActor->setBck("flower_fwait");
+		flower->onLiveFlag(LIVE_FLAG_DEAD);
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		spine->pushAfterCurrent(&TNerveHanaSamboWait::theNerve());
+		self->setWaitAnm();
+
+		if (gpMarioPos->y < self->mPosition.y + 100.0f) {
+			self->updateSquareToMario();
+			f32 attackDist = self->mParams->mSLAttackDist.get();
+			if (self->mDistToMarioSquared < attackDist * attackDist)
+				spine->pushAfterCurrent(&TNerveHanaSamboAttack::theNerve());
 		}
-		if (JPABaseEmitter* emitter = gpMarioParticleManager->emitWithRotate(
-		        0xE3, &self->mPosition, 0,
-		        self->mRotation.y * 182.04445f, 0, 0, nullptr)) {
-			JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
-			emitter->setScale(scale);
-			SMSSetEmitterPolColor(emitter, 6);
+
+		return TRUE;
+	}
+
+	f32 turnSpeed = self->mTurnSpeed;
+	self->walkToCurPathNode(0.0f, turnSpeed * 3.0f, 0.0f);
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveHanaSamboWait, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setWaitAnm();
+
+	if (!self->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
+		if (self->mMActor->getFrameCtrl(0)->checkPass(0.001f))
+			self->createPollen();
+	}
+
+	if (spine->getTime() > self->mParams->mSLAttackInterval.get()
+	    && gpMarioPos->y < self->mPosition.y + 12.0f) {
+		self->updateSquareToMario();
+		f32 attackDist = self->mParams->mSLAttackDist.get();
+		if (self->mDistToMarioSquared < attackDist * attackDist) {
+			spine->pushAfterCurrent(&TNerveHanaSamboAttack::theNerve());
+			return TRUE;
 		}
 	}
 
-	s32 wait = ((TSmallEnemyManager*)self->mManager)->unk5C;
-	if (self->checkCurAnmEnd(0)
-	    && spine->getTime()
-	           > wait + self->mMActor->getFrameCtrl(0)->getEnd()) {
-		self->onLiveFlag(LIVE_FLAG_DEAD);
-		self->onLiveFlag(LIVE_FLAG_UNK8);
-		self->onLiveFlag(LIVE_FLAG_UNK20000);
-		self->offLiveFlag(LIVE_FLAG_UNK10000);
-		self->mHolder = nullptr;
-		self->stopAnmSound();
+	self->updateSquareToMario();
+	f32 hideDist = self->mParams->mSLHideDist.get();
+	if (self->mDistToMarioSquared > hideDist * hideDist) {
+		spine->pushAfterCurrent(&TNerveHanaSamboHide::theNerve());
+		return TRUE;
+	}
 
-		spine->reset();
-		spine->setNext(&TNerveSmallEnemyDie::theNerve());
-		spine->pushAfterCurrent(&TNerveSmallEnemyDie::theNerve());
-		self->genRandomItem();
+	self->walkToCurPathNode(16.0f, self->mTurnSpeed, 16.0f);
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveHanaSamboAttack, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setBckAnm(3);
+		self->mUseYDownAnim = true;
+	} else if (self->checkCurAnmEnd(0)) {
+		if (self->isBckAnm(3)) {
+			self->createPollen();
+			if (gpMSound->gateCheck(0x291B))
+				MSoundSESystem::MSoundSE::startSoundActor(
+				    0x291B, &self->mPosition, 0, nullptr, 0, 4);
+			self->setBckAnm(1);
+		} else if (self->isBckAnm(1)) {
+			if (spine->getTime() > self->mParams->mSLAttackingTime.get()
+			    && !self->unsetUnk165())
+				self->setBckAnm(2);
+			else
+				self->setBckAnm(1);
+		} else {
+			spine->pushAfterCurrent(&TNerveHanaSamboWait::theNerve());
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveHanaSamboHide, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setBckAnm(4);
+		gpMarioParticleManager->emit(0xB8, &self->mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(0xB9, &self->mPosition, 0, nullptr);
+	}
+
+	if (spine->getTime() == 75) {
+		if (!self->mFlower) {
+			self->mFlower = (TSamboFlower*)gpConductor->makeOneEnemyAppear(
+			    self->mPosition, "サンボフラワーマネージャー", 1);
+			self->mFlower->reset();
+		}
+
+		self->mFlower->onLiveFlag(LIVE_FLAG_UNK10);
+		self->mFlower->offLiveFlag(LIVE_FLAG_DEAD);
+		self->mFlower->mPosition = self->mPosition;
+		self->mFlower->mPosition.y = self->mGroundHeight;
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		if (!self->mFlower) {
+			self->mFlower = (TSamboFlower*)gpConductor->makeOneEnemyAppear(
+			    self->mPosition, "サンボフラワーマネージャー", 1);
+			self->mFlower->reset();
+		}
+
+		self->mFlower->onLiveFlag(LIVE_FLAG_UNK10);
+		self->mFlower->offLiveFlag(LIVE_FLAG_DEAD);
+		self->mFlower->mPosition = self->mPosition;
+		self->mFlower->mPosition.y = self->mGroundHeight;
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->setBckAnm(6);
+		self->mMActor->setFrameRate(0.0f, 0);
+		self->onLiveFlag(LIVE_FLAG_HIDDEN);
+	}
+
+	self->updateSquareToMario();
+	f32 appearDist = self->mParams->mSLAppearDist.get();
+	if (self->mDistToMarioSquared < appearDist * appearDist) {
+		spine->pushAfterCurrent(&TNerveHanaSamboAppear::theNerve());
 		return TRUE;
 	}
 
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveSamboHeadRecoverWater, TLiveActor)
+DEFINE_NERVE(TNerveHanaSamboDie, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->setDeadAnm();
+	} else if (self->checkCurAnmEnd(0) || spine->getTime() > 300) {
+		static int jIndexTable[] = { 1, 3, 4, 5 };
+
+		for (int i = 0; i < 4; ++i) {
+			MtxPtr mtx
+			    = self->mMActor->getModel()->mNodeMatrices[jIndexTable[i]];
+			self->mPollenPositions[i].set(mtx[0][3], mtx[1][3], mtx[2][3]);
+
+			JPABaseEmitter* emitter = gpMarioParticleManager->emit(
+			    0xE4, &self->mPollenPositions[i], 0, nullptr);
+			if (emitter)
+				emitter->setScale(self->mScaling);
+
+			emitter = gpMarioParticleManager->emit(
+			    0xE6, &self->mPollenPositions[i], 0, nullptr);
+			if (emitter)
+				emitter->setScale(self->mScaling);
+		}
+
+		self->onLiveFlag(LIVE_FLAG_DEAD);
+		self->onLiveFlag(LIVE_FLAG_UNK8);
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->offLiveFlag(LIVE_FLAG_UNK10000);
+		self->mHolder = nullptr;
+		self->stopAnmSound();
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+
+		spine->reset();
+		spine->setNext(&TNerveSmallEnemyDie::theNerve());
+		spine->pushAfterCurrent(spine->getDefault());
+		self->genRandomItem();
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveHanaSamboFreeze, TLiveActor)
+{
+	THanaSambo* self = (THanaSambo*)spine->getBody();
+	if (spine->getTime() == 0)
+		self->setBckAnm(5);
+
+	if (self->checkCurAnmEnd(0)) {
+		if (self->isBckAnm(5)) {
+			if (self->unsetUnk165())
+				self->setBckAnm(8);
+		} else {
+			if (self->unsetUnk165())
+				self->setBckAnm(8);
+			else
+				return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveSamboHeadAppear, TLiveActor)
 {
 	TSamboHead* self = (TSamboHead*)spine->getBody();
-	if (spine->getTime() == 0)
+	if (spine->getTime() == 0) {
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->offHitFlag(HIT_FLAG_NO_COLLISION);
+
+		TSamboFlower* flower = (TSamboFlower*)self->unk198;
+		if (flower->unk150) {
+			flower->unk150 = true;
+			flower->unk154 = 0;
+			gpMarioParticleManager->emit(0xB2, &flower->mPosition, 0,
+			                             nullptr);
+			flower->mMActor->setBck("flower_hit");
+			if (flower->unk160 && flower->unk164) {
+				--*flower->unk164;
+				u32 soundID = *flower->unk164 + 0x89B9;
+				if (gpMSound->gateCheck(soundID))
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    soundID, &flower->mPosition, 0, nullptr, 0, 4);
+			}
+			self->setBckAnm(10);
+		} else {
+			self->setBckAnm(10);
+		}
+
+		gpMarioParticleManager->emit(0xB6, &self->mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(0xB7, &self->mPosition, 0, nullptr);
+
+		flower = (TSamboFlower*)self->unk198;
+		flower->onHitFlag(HIT_FLAG_NO_COLLISION);
+		flower->mMActor->setBck("flower_fwait");
+		flower->onLiveFlag(LIVE_FLAG_DEAD);
+	}
+
+	if (spine->getTime() == 20) {
+		TSamboFlower* flower = (TSamboFlower*)self->unk198;
+		((TSamboFlowerManager*)flower->mManager)
+		    ->dropLeaf(self->mPosition, self->mScaling);
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		self->setBckAnm(12);
+		spine->pushAfterCurrent(&TNerveSamboHeadAttack::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveSamboHeadAttack, TLiveActor)
+{
+	TSamboHead* self = (TSamboHead*)spine->getBody();
+	if (!self->isAirborne()) {
+		if (self->unk19C > self->mParams->mSLJumpPrepareTime.get()
+		    && self->checkCurAnmEnd(0)) {
+			self->unk19C = 0;
+			self->updateSquareToMario();
+
+			JGeometry::TVec3<f32> target = self->getUnk104().getPoint();
+			target.set(gpMarioPos->x - self->mPosition.x, 0.0f,
+			           gpMarioPos->z - self->mPosition.z);
+			if (target.x == 0.0f && target.y == 0.0f
+			    && target.z == 0.0f)
+				target.x += 1.0f;
+
+			MsVECNormalize(&target, &target);
+			f32 moveDist = self->mParams->mSLMoveDist.get();
+			target.x     = self->mPosition.x + target.x * moveDist;
+			target.z     = self->mPosition.z + target.z * moveDist;
+			target.y     = self->mPosition.y;
+
+			f32 jumpSp = self->mParams->mSLJumpSp.get();
+			self->mVelocity = self->calcVelocityToJumpToY(
+			    target, jumpSp, self->getGravityY());
+			self->mPosition.y += 2.0f;
+			self->onLiveFlag(LIVE_FLAG_AIRBORNE);
+			self->setBckAnm(8);
+		} else {
+			++self->unk19C;
+		}
+
+		if (self->checkCurAnmEnd(0) && self->isBckAnm(7))
+			self->setBckAnm(12);
+
+		MActor* actor = self->mMActor;
+		actor->setFrameRate(SMSGetAnmFrameRate(), 0);
+	} else {
+		JGeometry::TVec3<f32> velocity = self->mVelocity;
+		if (velocity.y < 0.0f && self->isBckAnm(8)) {
+			self->setBckAnm(7);
+			self->mMActor->setFrameRate(0.0f, 0);
+		}
+	}
+
+	if (self->mPosition.y > self->mGroundHeight + 30.0f) {
+		f32 maxRoll = self->mParams->mSLJumpAngY.get();
+		JGeometry::TVec3<f32> velocity = self->mVelocity;
+		f32 roll = MsGetRotFromZaxis(velocity).x;
+		if (roll > maxRoll)
+			roll = maxRoll;
+		else if (roll < -maxRoll)
+			roll = -maxRoll;
+		self->mRollAngle = roll;
+	} else {
+		self->mRollAngle *= 0.8f;
+	}
+
+	f32 turnSpeed = self->mTurnSpeed;
+	if (self->isAirborne())
+		turnSpeed = 5.0f;
+	self->walkToCurPathNode(0.0f, turnSpeed, 0.0f);
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveSamboHeadHide, TLiveActor)
+{
+	TSamboHead* self = (TSamboHead*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setBckAnm(4);
+		self->onHitFlag(HIT_FLAG_NO_COLLISION);
+		gpMarioParticleManager->emit(0xB8, &self->mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(0xB9, &self->mPosition, 0, nullptr);
+	} else if (self->checkCurAnmEnd(0)) {
+		self->onLiveFlag(LIVE_FLAG_HIDDEN);
 		self->setBckAnm(12);
 
-	self->mRollAngle *= 0.99f;
+		if (!self->unk198) {
+			self->unk198 = gpConductor->makeOneEnemyAppear(
+			    self->mPosition, "サンボフラワーマネージャー", 1);
+			((TSpineEnemy*)self->unk198)->reset();
+		}
 
-	if (self->checkCurAnmEnd(0) && self->mRollAngle < 1.0f)
-		return TRUE;
+		self->unk198->offHitFlag(HIT_FLAG_NO_COLLISION);
+		self->unk198->onLiveFlag(LIVE_FLAG_UNK10);
+		self->unk198->offLiveFlag(LIVE_FLAG_DEAD);
+		self->unk198->mPosition.y = self->mGroundHeight;
+		self->unk198->mPosition   = self->mPosition;
+	} else if (self->isFindMario(1.0f)) {
+		self->updateSquareToMario();
+		f32 appearDist = self->mParams->mSLAppearDist.get();
+		if (self->mDistToMarioSquared < appearDist * appearDist) {
+			spine->pushAfterCurrent(&TNerveSamboHeadAppear::theNerve());
+			return TRUE;
+		}
+	}
 
+	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
 	return FALSE;
 }
 
@@ -266,361 +568,59 @@ DEFINE_NERVE(TNerveSamboHeadHitWater, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveSamboHeadHide, TLiveActor)
+DEFINE_NERVE(TNerveSamboHeadRecoverWater, TLiveActor)
 {
 	TSamboHead* self = (TSamboHead*)spine->getBody();
-	if (spine->getTime() == 0) {
-		self->setBckAnm(4);
-		self->onHitFlag(HIT_FLAG_NO_COLLISION);
-		gpMarioParticleManager->emit(0xB8, &self->mPosition, 0, nullptr);
-		gpMarioParticleManager->emit(0xB9, &self->mPosition, 0, nullptr);
-	} else if (self->checkCurAnmEnd(0)) {
-		self->onLiveFlag(LIVE_FLAG_HIDDEN);
-		self->setBckAnm(12);
-
-		if (!self->unk198) {
-			self->unk198 = gpConductor->makeOneEnemyAppear(
-			    self->mPosition, "サンボフラワーマネージャー", 1);
-			((TSpineEnemy*)self->unk198)->reset();
-		}
-
-		self->unk198->offHitFlag(HIT_FLAG_NO_COLLISION);
-		self->unk198->onLiveFlag(LIVE_FLAG_UNK10);
-		self->unk198->offLiveFlag(LIVE_FLAG_DEAD);
-		self->unk198->mPosition.y = self->mGroundHeight;
-		self->unk198->mPosition   = self->mPosition;
-	} else if (self->isFindMario(1.0f)) {
-		self->updateSquareToMario();
-		f32 appearDist = self->mParams->mSLAppearDist.get();
-		if (self->mDistToMarioSquared < appearDist * appearDist) {
-			spine->pushAfterCurrent(&TNerveSamboHeadAppear::theNerve());
-			return TRUE;
-		}
-	}
-
-	self->walkToCurPathNode(0.0f, self->mTurnSpeed, 0.0f);
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveSamboHeadAttack, TLiveActor)
-{
-	TSamboHead* self = (TSamboHead*)spine->getBody();
-	if (!self->isAirborne()) {
-		if (self->unk19C > self->mParams->mSLJumpPrepareTime.get()
-		    && self->checkCurAnmEnd(0)) {
-			self->unk19C = 0;
-			self->updateSquareToMario();
-
-			JGeometry::TVec3<f32> target = self->getUnk104().getPoint();
-			target.set(gpMarioPos->x - self->mPosition.x, 0.0f,
-			           gpMarioPos->z - self->mPosition.z);
-			if (target.x == 0.0f && target.y == 0.0f
-			    && target.z == 0.0f)
-				target.x += 1.0f;
-
-			MsVECNormalize(&target, &target);
-			f32 moveDist = self->mParams->mSLMoveDist.get();
-			target.x     = self->mPosition.x + target.x * moveDist;
-			target.z     = self->mPosition.z + target.z * moveDist;
-			target.y     = self->mPosition.y;
-
-			f32 jumpSp = self->mParams->mSLJumpSp.get();
-			self->mVelocity = self->calcVelocityToJumpToY(
-			    target, jumpSp, self->getGravityY());
-			self->mPosition.y += 2.0f;
-			self->onLiveFlag(LIVE_FLAG_AIRBORNE);
-			self->setBckAnm(8);
-		} else {
-			++self->unk19C;
-		}
-
-		if (self->checkCurAnmEnd(0) && self->isBckAnm(7))
-			self->setBckAnm(12);
-
-		MActor* actor = self->mMActor;
-		actor->setFrameRate(SMSGetAnmFrameRate(), 0);
-	} else {
-		JGeometry::TVec3<f32> velocity = self->mVelocity;
-		if (velocity.y < 0.0f && self->isBckAnm(8)) {
-			self->setBckAnm(7);
-			self->mMActor->setFrameRate(0.0f, 0);
-		}
-	}
-
-	if (self->mPosition.y > self->mGroundHeight + 30.0f) {
-		f32 maxRoll = self->mParams->mSLJumpAngY.get();
-		JGeometry::TVec3<f32> velocity = self->mVelocity;
-		f32 roll = MsGetRotFromZaxis(velocity).x;
-		if (roll > maxRoll)
-			roll = maxRoll;
-		else if (roll < -maxRoll)
-			roll = -maxRoll;
-		self->mRollAngle = roll;
-	} else {
-		self->mRollAngle *= 0.8f;
-	}
-
-	f32 turnSpeed = self->mTurnSpeed;
-	if (self->isAirborne())
-		turnSpeed = 5.0f;
-	self->walkToCurPathNode(0.0f, turnSpeed, 0.0f);
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveSamboHeadAppear, TLiveActor)
-{
-	TSamboHead* self = (TSamboHead*)spine->getBody();
-	if (spine->getTime() == 0) {
-		self->offLiveFlag(LIVE_FLAG_HIDDEN);
-		self->offHitFlag(HIT_FLAG_NO_COLLISION);
-
-		TSamboFlower* flower = (TSamboFlower*)self->unk198;
-		if (flower->unk150) {
-			flower->unk150 = true;
-			flower->unk154 = 0;
-			gpMarioParticleManager->emit(0xB2, &flower->mPosition, 0,
-			                             nullptr);
-			flower->mMActor->setBck("flower_hit");
-			if (flower->unk160 && flower->unk164) {
-				--*flower->unk164;
-				u32 soundID = *flower->unk164 + 0x89B9;
-				if (gpMSound->gateCheck(soundID))
-					MSoundSESystem::MSoundSE::startSoundActor(
-					    soundID, &flower->mPosition, 0, nullptr, 0, 4);
-			}
-			self->setBckAnm(10);
-		} else {
-			self->setBckAnm(10);
-		}
-
-		gpMarioParticleManager->emit(0xB6, &self->mPosition, 0, nullptr);
-		gpMarioParticleManager->emit(0xB7, &self->mPosition, 0, nullptr);
-
-		flower = (TSamboFlower*)self->unk198;
-		flower->onHitFlag(HIT_FLAG_NO_COLLISION);
-		flower->mMActor->setBck("flower_fwait");
-		flower->onLiveFlag(LIVE_FLAG_DEAD);
-	}
-
-	if (spine->getTime() == 20) {
-		TSamboFlower* flower = (TSamboFlower*)self->unk198;
-		((TSamboFlowerManager*)flower->mManager)
-		    ->dropLeaf(self->mPosition, self->mScaling);
-	}
-
-	if (self->checkCurAnmEnd(0)) {
-		self->setBckAnm(12);
-		spine->pushAfterCurrent(&TNerveSamboHeadAttack::theNerve());
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveHanaSamboFreeze, TLiveActor)
-{
-	THanaSambo* self = (THanaSambo*)spine->getBody();
 	if (spine->getTime() == 0)
-		self->setBckAnm(5);
+		self->setBckAnm(12);
 
-	if (self->checkCurAnmEnd(0)) {
-		if (self->isBckAnm(5)) {
-			if (self->unsetUnk165())
-				self->setBckAnm(8);
-		} else {
-			if (self->unsetUnk165())
-				self->setBckAnm(8);
-			else
-				return TRUE;
-		}
-	}
+	self->mRollAngle *= 0.99f;
+
+	if (self->checkCurAnmEnd(0) && self->mRollAngle < 1.0f)
+		return TRUE;
 
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveHanaSamboDie, TLiveActor)
+DEFINE_NERVE(TNerveSamboHeadHitWall, TLiveActor)
 {
-	THanaSambo* self = (THanaSambo*)spine->getBody();
+	TSamboHead* self = (TSamboHead*)spine->getBody();
 	if (spine->getTime() == 0) {
-		self->onHitFlag(HIT_FLAG_NO_COLLISION);
-		self->setDeadAnm();
-	} else if (self->checkCurAnmEnd(0) || spine->getTime() > 300) {
-		static int jIndexTable[] = { 1, 3, 4, 5 };
+		self->setBckAnm(1);
 
-		for (int i = 0; i < 4; ++i) {
-			MtxPtr mtx
-			    = self->mMActor->getModel()->mNodeMatrices[jIndexTable[i]];
-			self->mPollenPositions[i].set(mtx[0][3], mtx[1][3], mtx[2][3]);
-
-			JPABaseEmitter* emitter = gpMarioParticleManager->emit(
-			    0xE4, &self->mPollenPositions[i], 0, nullptr);
-			if (emitter)
-				emitter->setScale(self->mScaling);
-
-			emitter = gpMarioParticleManager->emit(
-			    0xE6, &self->mPollenPositions[i], 0, nullptr);
-			if (emitter)
-				emitter->setScale(self->mScaling);
+		if (JPABaseEmitter* emitter = gpMarioParticleManager->emitWithRotate(
+		        0xE2, &self->mPosition, 0,
+		        self->mRotation.y * 182.04445f, 0, 0, nullptr)) {
+			JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
+			emitter->setScale(scale);
 		}
+		if (JPABaseEmitter* emitter = gpMarioParticleManager->emitWithRotate(
+		        0xE3, &self->mPosition, 0,
+		        self->mRotation.y * 182.04445f, 0, 0, nullptr)) {
+			JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
+			emitter->setScale(scale);
+			SMSSetEmitterPolColor(emitter, 6);
+		}
+	}
 
+	s32 wait = ((TSmallEnemyManager*)self->mManager)->unk5C;
+	if (self->checkCurAnmEnd(0)
+	    && spine->getTime()
+	           > wait + self->mMActor->getFrameCtrl(0)->getEnd()) {
 		self->onLiveFlag(LIVE_FLAG_DEAD);
 		self->onLiveFlag(LIVE_FLAG_UNK8);
-		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->onLiveFlag(LIVE_FLAG_UNK20000);
 		self->offLiveFlag(LIVE_FLAG_UNK10000);
 		self->mHolder = nullptr;
 		self->stopAnmSound();
-		self->onHitFlag(HIT_FLAG_NO_COLLISION);
 
 		spine->reset();
 		spine->setNext(&TNerveSmallEnemyDie::theNerve());
-		spine->pushAfterCurrent(spine->getDefault());
+		spine->pushAfterCurrent(&TNerveSmallEnemyDie::theNerve());
 		self->genRandomItem();
-	}
-
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveHanaSamboHide, TLiveActor)
-{
-	THanaSambo* self = (THanaSambo*)spine->getBody();
-	if (spine->getTime() == 0) {
-		self->setBckAnm(4);
-		gpMarioParticleManager->emit(0xB8, &self->mPosition, 0, nullptr);
-		gpMarioParticleManager->emit(0xB9, &self->mPosition, 0, nullptr);
-	}
-
-	if (spine->getTime() == 75) {
-		if (!self->mFlower) {
-			self->mFlower = (TSamboFlower*)gpConductor->makeOneEnemyAppear(
-			    self->mPosition, "サンボフラワーマネージャー", 1);
-			self->mFlower->reset();
-		}
-
-		self->mFlower->onLiveFlag(LIVE_FLAG_UNK10);
-		self->mFlower->offLiveFlag(LIVE_FLAG_DEAD);
-		self->mFlower->mPosition = self->mPosition;
-		self->mFlower->mPosition.y = self->mGroundHeight;
-	}
-
-	if (self->checkCurAnmEnd(0)) {
-		if (!self->mFlower) {
-			self->mFlower = (TSamboFlower*)gpConductor->makeOneEnemyAppear(
-			    self->mPosition, "サンボフラワーマネージャー", 1);
-			self->mFlower->reset();
-		}
-
-		self->mFlower->onLiveFlag(LIVE_FLAG_UNK10);
-		self->mFlower->offLiveFlag(LIVE_FLAG_DEAD);
-		self->mFlower->mPosition = self->mPosition;
-		self->mFlower->mPosition.y = self->mGroundHeight;
-		self->onHitFlag(HIT_FLAG_NO_COLLISION);
-		self->setBckAnm(6);
-		self->mMActor->setFrameRate(0.0f, 0);
-		self->onLiveFlag(LIVE_FLAG_HIDDEN);
-	}
-
-	self->updateSquareToMario();
-	f32 appearDist = self->mParams->mSLAppearDist.get();
-	if (self->mDistToMarioSquared < appearDist * appearDist) {
-		spine->pushAfterCurrent(&TNerveHanaSamboAppear::theNerve());
 		return TRUE;
 	}
 
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveHanaSamboAttack, TLiveActor)
-{
-	THanaSambo* self = (THanaSambo*)spine->getBody();
-	if (spine->getTime() == 0) {
-		self->setBckAnm(3);
-		self->mUseYDownAnim = true;
-	} else if (self->checkCurAnmEnd(0)) {
-		if (self->isBckAnm(3)) {
-			self->createPollen();
-			if (gpMSound->gateCheck(0x291B))
-				MSoundSESystem::MSoundSE::startSoundActor(
-				    0x291B, &self->mPosition, 0, nullptr, 0, 4);
-			self->setBckAnm(1);
-		} else if (self->isBckAnm(1)) {
-			if (spine->getTime() > self->mParams->mSLAttackingTime.get()
-			    && !self->unsetUnk165())
-				self->setBckAnm(2);
-			else
-				self->setBckAnm(1);
-		} else {
-			spine->pushAfterCurrent(&TNerveHanaSamboWait::theNerve());
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveHanaSamboWait, TLiveActor)
-{
-	THanaSambo* self = (THanaSambo*)spine->getBody();
-	if (spine->getTime() == 0)
-		self->setWaitAnm();
-
-	if (!self->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
-		if (self->mMActor->getFrameCtrl(0)->checkPass(0.001f))
-			self->createPollen();
-	}
-
-	if (spine->getTime() > self->mParams->mSLAttackInterval.get()
-	    && gpMarioPos->y < self->mPosition.y + 12.0f) {
-		self->updateSquareToMario();
-		f32 attackDist = self->mParams->mSLAttackDist.get();
-		if (self->mDistToMarioSquared < attackDist * attackDist) {
-			spine->pushAfterCurrent(&TNerveHanaSamboAttack::theNerve());
-			return TRUE;
-		}
-	}
-
-	self->updateSquareToMario();
-	f32 hideDist = self->mParams->mSLHideDist.get();
-	if (self->mDistToMarioSquared > hideDist * hideDist) {
-		spine->pushAfterCurrent(&TNerveHanaSamboHide::theNerve());
-		return TRUE;
-	}
-
-	self->walkToCurPathNode(16.0f, self->mTurnSpeed, 16.0f);
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveHanaSamboAppear, TLiveActor)
-{
-	THanaSambo* self = (THanaSambo*)spine->getBody();
-	if (spine->getTime() == 0) {
-		self->offLiveFlag(LIVE_FLAG_HIDDEN);
-		self->offHitFlag(HIT_FLAG_NO_COLLISION);
-		self->setBckAnm(6);
-		gpMarioParticleManager->emit(0xB6, &self->mPosition, 0, nullptr);
-		gpMarioParticleManager->emit(0xB7, &self->mPosition, 0, nullptr);
-
-		TSamboFlower* flower = self->mFlower;
-		flower->onHitFlag(HIT_FLAG_NO_COLLISION);
-		flower->mMActor->setBck("flower_fwait");
-		flower->onLiveFlag(LIVE_FLAG_DEAD);
-	}
-
-	if (self->checkCurAnmEnd(0)) {
-		spine->pushAfterCurrent(&TNerveHanaSamboWait::theNerve());
-		self->setWaitAnm();
-
-		if (gpMarioPos->y < self->mPosition.y + 100.0f) {
-			self->updateSquareToMario();
-			f32 attackDist = self->mParams->mSLAttackDist.get();
-			if (self->mDistToMarioSquared < attackDist * attackDist)
-				spine->pushAfterCurrent(&TNerveHanaSamboAttack::theNerve());
-		}
-
-		return TRUE;
-	}
-
-	f32 turnSpeed = self->mTurnSpeed;
-	self->walkToCurPathNode(0.0f, turnSpeed * 3.0f, 0.0f);
 	return FALSE;
 }
 
