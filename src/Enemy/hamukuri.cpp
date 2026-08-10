@@ -32,10 +32,20 @@
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
-#include <M3DUtil/InfectiousStrings.hpp>
 #undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #undef JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
+
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
+static const char MtxCalcTypeName0[]
+    = "MActorMtxCalcType_Basic クラシックスケールＯＮ";
+static const char MtxCalcTypeName1[]
+    = "MActorMtxCalcType_Softimage クラシックスケールＯＦＦ";
+static const char MtxCalcTypeName2[]
+    = "MActorMtxCalcType_MotionBlend モーションブレンド";
+static const char MtxCalcTypeName3[]
+    = "MActorMtxCalcType_User ユーザー定義";
 
 f32 THamuKuri::mCapGravityY         = 0.15f;
 f32 THamuKuri::mCapSpeed            = 12.0f;
@@ -198,13 +208,8 @@ void THamuKuriManager::loadAfter()
 	}
 }
 
-static const char* anmlist[] = {
-	"hamukuri_walk",
-	"hamukuri_run",
-	// TODO: this shouldn't be here but rodata ordering looks like it should?!
-	// "default.bmd",
-	"hanekuri_wait",
-};
+static const char hamukuri_walk[] = "hamukuri_walk";
+static const char hamukuri_run[]  = "hamukuri_run";
 
 void THamuKuriManager::createModelData()
 {
@@ -366,6 +371,8 @@ TSpineEnemy* THaneHamuKuriManager::createEnemyInstance()
 {
 	return new THaneHamuKuri;
 }
+
+static const char hanekuri_wait[] = "hanekuri_wait";
 
 void THaneHamuKuriManager::createModelData()
 {
