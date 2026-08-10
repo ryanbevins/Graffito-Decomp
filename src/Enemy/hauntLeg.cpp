@@ -398,12 +398,12 @@ BOOL HauntLegCallback(J3DNode* node, int when)
 		             : false))
 			return TRUE;
 
-		f32 angle      = self->unk1AC * 182.04445f;
+		f32 angle      = gpCurHauntLeg->unk1AC * 182.04445f;
 		s16 angleFixed = (s16)(s32)angle;
 		f32 s          = JMASSin(angleFixed);
 		f32 c          = JMASCos(angleFixed);
 
-		MtxPtr base = self->getMActor()->getModel()->getAnmMtx(
+		MtxPtr base = gpCurHauntLeg->getMActor()->getModel()->getAnmMtx(
 		    ((J3DJoint*)node)->getJntNo());
 
 		Mtx tilt;
