@@ -580,16 +580,17 @@ void TBossHanachanPartsBase::initMapCollisionAndHitActor_(TIdxGroupObj* group)
 		break;
 	}
 
-	MActor* a       = getMActor();
-	JUTNameTab* tab = a->getModel()->mModelData->unkB0;
+	JUTNameTab* tab = getMActor()->getModel()->mModelData->unkB0;
 	u16 idx         = tab->getIndex(cMapCollisionJointName);
-	mCenterJointMtx = (MtxPtr)((u8*)a->getModel()->mNodeMatrices + idx * 0x30);
+	mCenterJointMtx
+	    = (MtxPtr)((u8*)getMActor()->getModel()->mNodeMatrices + idx * 0x30);
 
 	mMapCollision = new TMapCollisionMove();
 	mMapCollision->init(filename, 0x8000, this);
 
 	mWaterHit = new TWaterHitActor("ボスハナチャンのパーツ");
-	mWaterHit->initHitActor(mActorType, 1, 0x80000000, attRad, attHei, damRad,
+	u32 actorType = mActorType;
+	mWaterHit->initHitActor(actorType, 1, 0x80000000, attRad, attHei, damRad,
 	                        damHei);
 	group->getChildren().push_back(mWaterHit);
 	mWaterHit->unk64 &= ~1;
