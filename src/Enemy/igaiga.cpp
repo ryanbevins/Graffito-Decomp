@@ -66,7 +66,6 @@ static const char* gorogoro_bastable[] = {
 	nullptr,
 };
 
-static const char* anmlist[] = { "bosspaku_head_move", nullptr };
 
 DEFINE_NERVE(TNerveGorogoroDie, TLiveActor)
 {
@@ -1193,6 +1192,7 @@ TGorogoroManager::TGorogoroManager(const char* name)
 
 void TGorogoroManager::load(JSUMemoryInputStream& stream)
 {
+	static const char* anmlist[] = { "bosspaku_head_move", nullptr };
 	TSmallEnemyManager::load(stream);
 	unk38 = new TRollEnemySaveLoadParams("/enemy/gorogoro.prm");
 	createSharedMActorSet(anmlist);
