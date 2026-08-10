@@ -56,9 +56,9 @@ JASystem::TTrack* JAISystemInterface::trackToSeqp(JAISound* param_1, u8 param_2)
 void JAISystemInterface::setSeqPortargsF32(JAISeqUpdateData* param_1,
                                            u32 param_2, u8 param_3, f32 param_4)
 {
-	JAISeqUpdateData::FabricatedUnk4CStruct* s = &param_1->unk4C[param_2];
-
-	((f32*)&s->unk4)[param_3] = param_4;
+	u32* slot = (u32*)&param_1->unk4C[param_2];
+	slot += param_3;
+	((f32*)slot)[1] = param_4;
 }
 
 void JAISystemInterface::setSeqPortargsPS16(JAISeqUpdateData*, u32, u8, s16*) {
@@ -67,9 +67,9 @@ void JAISystemInterface::setSeqPortargsPS16(JAISeqUpdateData*, u32, u8, s16*) {
 void JAISystemInterface::setSeqPortargsU32(JAISeqUpdateData* param_1,
                                            u32 param_2, u8 param_3, u32 param_4)
 {
-	JAISeqUpdateData::FabricatedUnk4CStruct* s = &param_1->unk4C[param_2];
-
-	((u32*)&s->unk4)[param_3] = param_4;
+	u32* slot = (u32*)&param_1->unk4C[param_2];
+	slot += param_3;
+	slot[1] = param_4;
 }
 
 JAISeqParameter* JAISystemInterface::rootInit(JAISeqUpdateData* param_1)
