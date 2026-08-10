@@ -88,10 +88,10 @@ JGeometry::TVec3<f32> TBaseNPC::getFocalPoint() const
 
 JGeometry::TVec3<f32> TBaseNPC::getCursorPos() const
 {
+	f32 bodyY = mEffectScaleBase.y * mNpcSaveIndividual->mSLBodyHeight.value
+	            + mPosition.y;
 	return JGeometry::TVec3<f32>(
-	    mPosition.x,
-	    mEffectScaleBase.y * mNpcSaveIndividual->mSLBodyHeight.value
-	        + mPosition.y + mNpcSaveIndividual->mSLCursorHeight.value,
+	    mPosition.x, bodyY + mNpcSaveIndividual->mSLCursorHeight.value,
 	    mPosition.z);
 }
 
