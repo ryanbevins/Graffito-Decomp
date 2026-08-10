@@ -748,11 +748,11 @@ bool TBaseNPC::isNeedNeckStraight() const
 		} else {
 			bool helper    = true;
 			bool mareMatch = true;
-			if (mActorType != 0x0400000E && !isNormalMareM())
+			if (mActorType != 0x0400000E && !isNormalMareW())
 				helper = false;
 			if (!helper) {
 				helper = true;
-				if (!isNormalMareW() && !isSpecialMareM())
+				if (!isSpecialMareM() && !isSpecialMareW())
 					helper = false;
 				if (!helper)
 					mareMatch = false;
@@ -850,11 +850,11 @@ bool TBaseNPC::isSmallNpc() const
 	if (!partA) {
 		bool helper    = true;
 		bool mareMatch = true;
-		if (mActorType != 0x0400000E && !isNormalMareM())
+		if (mActorType != 0x0400000E && !isNormalMareW())
 			helper = false;
 		if (!helper) {
 			helper = true;
-			if (!isNormalMareW() && !isSpecialMareM())
+			if (!isSpecialMareM() && !isSpecialMareW())
 				helper = false;
 			if (!helper)
 				mareMatch = false;
