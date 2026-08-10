@@ -32,6 +32,13 @@ const char* Kazekun_bastable[] = {
 	"/scene/Kazekun/bas/kazekun_wait.bas",
 };
 
+static const char kazekunModelBmd[]  = "kazekun.bmd";
+static const char kazekunHitBck[]    = "kazekun_hit";
+static const char kazekunVanishBck[] = "kazekun_vanish";
+static const char kazekunAttackBck[] = "kazekun_attack";
+static const char kazekunWaitBck[]   = "kazekun_wait";
+static const char kazekunAppearBck[] = "kazekun_appear";
+
 static inline JGeometry::TVec3<f32> makeVec3(f32 x, f32 y, f32 z)
 {
 	return JGeometry::TVec3<f32>(x, y, z);
@@ -49,7 +56,7 @@ DEFINE_NERVE(TNerveKazekunHitWater, TLiveActor)
 	TKazekun* self = (TKazekun*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		self->mMActor->setBck("kazekun_hit");
+		self->mMActor->setBck(kazekunHitBck);
 		self->setCurAnmSound();
 		if (gpMSound->gateCheck(0x291d)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
@@ -89,7 +96,7 @@ DEFINE_NERVE(TNerveKazekunDisappear, TLiveActor)
 	TKazekun* self = (TKazekun*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		self->mMActor->setBck("kazekun_vanish");
+		self->mMActor->setBck(kazekunVanishBck);
 		self->setCurAnmSound();
 		gpMarioParticleManager->emit(0xcf, &self->mPosition, 0, nullptr);
 		JGeometry::TVec3<f32> v(0.0f, 0.0f, 0.0f);
@@ -128,7 +135,7 @@ DEFINE_NERVE(TNerveKazekunAppear, TLiveActor)
 	if (spine->getTime() == 0) {
 		self->mLiveFlag &= ~0xa;
 		gpMarioParticleManager->emit(0xcf, &self->mPosition, 0, nullptr);
-		self->mMActor->setBck("kazekun_appear");
+		self->mMActor->setBck(kazekunAppearBck);
 		self->setCurAnmSound();
 	}
 
@@ -145,7 +152,7 @@ DEFINE_NERVE(TNerveKazekunTurn, TLiveActor)
 	TKazekun* self = (TKazekun*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		self->mMActor->setBck("kazekun_wait");
+		self->mMActor->setBck(kazekunWaitBck);
 		self->setCurAnmSound();
 		self->unk64 &= ~0x1;
 	}
@@ -212,7 +219,7 @@ DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 	TKazekun* self = (TKazekun*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		self->mMActor->setBck("kazekun_attack");
+		self->mMActor->setBck(kazekunAttackBck);
 		self->setCurAnmSound();
 
 		JGeometry::TVec3<f32> dir(self->unk104.getPoint());
@@ -308,7 +315,7 @@ void TKazekun::init(TLiveManager* manager)
 	mManager->manageActor(this);
 
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
-	mMActor = mMActorKeeper->createMActor("kazekun.bmd", 0);
+	mMActor = mMActorKeeper->createMActor(kazekunModelBmd, 0);
 
 	mSpine->initWith(&TNerveKazekunSearch::theNerve());
 
@@ -574,7 +581,7 @@ TKazekunManager::TKazekunManager(const char* name)
 void TKazekunManager::createModelData()
 {
 	static const TModelDataLoadEntry entry[] = {
-		{ "kazekun.bmd", 0x10210000, 0 },
+		{ kazekunModelBmd, 0x10210000, 0 },
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
