@@ -168,6 +168,29 @@ BOOL TAnimalBase::receiveMessage(THitActor* sender, u32 msg)
 
 void TAnimalBase::calcRootMatrix() { }
 
+void TAnimalBase::getRotationFlyToDir(JGeometry::TVec3<f32>* current_rot,
+	                                  const JGeometry::TVec3<f32>& target_diff,
+	                                  f32 speedX, f32 speedY)
+{
+	JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(target_diff);
+	rot.y                     = MsWrap<f32>(rot.y, 0.0f, 360.0f);
+
+	f32 clampedDelta = JGeometry::TUtil<f32>::clamp(
+	    MsAngleDiff(rot.y, current_rot->y), -speedY, speedY);
+
+	current_rot->y += clampedDelta;
+	current_rot->y = MsWrap<f32>(current_rot->y, 0.0f, 360.0f);
+
+	f32 targetRoll = MsClamp<f32>(30.0f * -clampedDelta, -45.0f, 45.0f);
+	CLBChaseGeneralConstantSpecifySpeed<f32>(&current_rot->z, targetRoll,
+	                                         0.1f * speedX);
+
+	rot.x          = MsWrap<f32>(rot.x, -180.0f, 180.0f);
+	current_rot->x = MsWrap<f32>(current_rot->x, -180.0f, 180.0f);
+	CLBChaseGeneralConstantSpecifySpeed<f32>(&current_rot->x, rot.x,
+	                                         0.1f * speedX);
+}
+
 void TAnimalBase::execWalk(bool moving)
 {
 	TAnimalSaveIndividual* save = ((TAnimalManagerBase*)mManager)->mAnimalSave;
@@ -211,29 +234,6 @@ void TAnimalBase::execWalk(bool moving)
 	JGeometry::TVec3<f32> tmp;
 	quat.rotate(JGeometry::TVec3<f32>(0.0f, 0.0f, marchSpeed), tmp);
 	mLinearVelocity = tmp;
-}
-
-void TAnimalBase::getRotationFlyToDir(JGeometry::TVec3<f32>* current_rot,
-	                                  const JGeometry::TVec3<f32>& target_diff,
-	                                  f32 speedX, f32 speedY)
-{
-	JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(target_diff);
-	rot.y                     = MsWrap<f32>(rot.y, 0.0f, 360.0f);
-
-	f32 clampedDelta = JGeometry::TUtil<f32>::clamp(
-	    MsAngleDiff(rot.y, current_rot->y), -speedY, speedY);
-
-	current_rot->y += clampedDelta;
-	current_rot->y = MsWrap<f32>(current_rot->y, 0.0f, 360.0f);
-
-	f32 targetRoll = MsClamp<f32>(30.0f * -clampedDelta, -45.0f, 45.0f);
-	CLBChaseGeneralConstantSpecifySpeed<f32>(&current_rot->z, targetRoll,
-	                                         0.1f * speedX);
-
-	rot.x          = MsWrap<f32>(rot.x, -180.0f, 180.0f);
-	current_rot->x = MsWrap<f32>(current_rot->x, -180.0f, 180.0f);
-	CLBChaseGeneralConstantSpecifySpeed<f32>(&current_rot->x, rot.x,
-	                                         0.1f * speedX);
 }
 
 void TAnimalBase::resetRandomCurPathNode()
