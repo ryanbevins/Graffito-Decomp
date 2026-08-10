@@ -874,7 +874,7 @@ void TElecCarapace::loadInit(TSpineEnemy* host, const char* name)
 		unk174 = 0;
 	}
 
-	host->mHeadHeight = 80.0f;
+	mHeadHeight = 80.0f;
 }
 void TElecCarapace::appear()
 {
