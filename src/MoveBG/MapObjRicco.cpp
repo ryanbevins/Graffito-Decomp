@@ -107,6 +107,11 @@ void TCraneUpDown::control()
 {
 	TMapObjBase::control();
 	switch (mState) {
+	case 1:
+		if (!(mLifeTimer > 0 ? true : false)) {
+			mState = 0;
+		}
+		break;
 	case 0:
 		mRotation.x += mRotSpeed;
 		if (mRotation.x > unk140) {
@@ -114,9 +119,9 @@ void TCraneUpDown::control()
 			mState     = 3;
 		}
 		break;
-	case 1:
+	case 3:
 		if (!(mLifeTimer > 0 ? true : false)) {
-			mState = 0;
+			mState = 2;
 		}
 		break;
 	case 2:
@@ -124,11 +129,6 @@ void TCraneUpDown::control()
 		if (mRotation.x < unk144) {
 			mLifeTimer = mWaitTime;
 			mState     = 1;
-		}
-		break;
-	case 3:
-		if (!(mLifeTimer > 0 ? true : false)) {
-			mState = 2;
 		}
 		break;
 	}
