@@ -282,8 +282,6 @@ void TMario::warpInEffect()
 			joint = mBoneIDs[9];
 			break;
 		case 9:
-			joint = unk3C4;
-			break;
 		default:
 			joint = unk3C4;
 			break;
