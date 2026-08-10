@@ -615,6 +615,7 @@ void TBeeHive::load(JSUMemoryInputStream& stream)
 #pragma dont_inline on
 void TBeeHive::receiveMessageFromChild(TBee* bee)
 {
+	const Vec* childPos = (Vec*)&bee->mPosition;
 	if (bee->unk74 & 4)
 		return;
 
@@ -628,7 +629,7 @@ void TBeeHive::receiveMessageFromChild(TBee* bee)
 
 	if (obj) {
 		obj->appear();
-		*(Vec*)&obj->mPosition = *(Vec*)&bee->mPosition;
+		*(Vec*)&obj->mPosition = *childPos;
 		obj->mVelocity.x       = 0.0f;
 		obj->mVelocity.y       = 15.0f;
 		obj->mVelocity.z       = 0.0f;
