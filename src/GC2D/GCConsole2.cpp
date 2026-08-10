@@ -1574,8 +1574,8 @@ void TGCConsole2::load(JSUMemoryInputStream& stream)
 		if (i != 0) {
 			unk2AC[i] = (J2DPicture*)unkB0->search('w_m1' + i);
 
-			unk2AC[i]->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
-			unk2AC[i]->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
+			unk2A0[i]->setBlendKonstColor(0.0f, 0.0f, 0.0f, 0.0f);
+			unk2A0[i]->setBlendKonstAlpha(1.0f, 0.0f, 0.0f, 0.0f);
 
 			unk2AC[i]->hide();
 		}
