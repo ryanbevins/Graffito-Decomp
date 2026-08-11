@@ -229,7 +229,8 @@ BOOL TNerveTobiPukuBound::execute(TSpineBase<TLiveActor>* spine) const
 		}
 	}
 
-	if (self->mVelocity.y > 0.0f)
+	JGeometry::TVec3<f32> velocity = self->getVelocity();
+	if (velocity.y > 0.0f)
 		self->unk1B0 = self->mPosition.y;
 
 	if (!self->isAirborne()) {
