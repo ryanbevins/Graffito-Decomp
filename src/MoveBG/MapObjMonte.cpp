@@ -389,7 +389,7 @@ void TFluff::control()
 		}
 		break;
 	case 4:
-		if (mLifeTimer > 0)
+		if (isLifeTimerActive())
 			break;
 		appear();
 		mRotation.x      = 0.0f;
