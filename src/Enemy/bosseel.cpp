@@ -328,6 +328,7 @@ DEFINE_NERVE(TNerveBEelTearsWaterHit, TLiveActor)
 		tears->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
 		((u8*)tears->unk16C)[0x80] = TRUE;
 		tears->unk16C->mPosition = tears->mPosition;
+		tears->unk16C->mPosition = tears->mPosition;
 
 		((TBEelTearsManager*)tears->mManager)->splitTears(tears->mPosition);
 
