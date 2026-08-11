@@ -456,7 +456,7 @@ void TLiveActor::initAnmSound()
 	if (checkActorType(0x4000000))
 		mAnmSound = new MAnmSoundNPC(gpMSound);
 	else
-		mAnmSound = new MAnmSound(gpMSound);
+		mAnmSound = new MAnmSound(SMSGetMSound());
 
 	mAnmSound->initAnmSound(nullptr, 1, 0.0f);
 }
