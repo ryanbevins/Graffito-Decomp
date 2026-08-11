@@ -238,9 +238,11 @@ void TFlyEnemy::calcChaseParam()
 		if (mFlyState != 2 || diff.y > 150.0f) {
 			mFlyState = 0;
 			MsVECNormalize(&diff, &diff);
-			vel.x        = diff.x * mFlyParams->mSLNormalFlySpeed.get();
-			vel.z        = diff.z * mFlyParams->mSLNormalFlySpeed.get();
-			mCurGravityY = mFlyParams->mSLForceGravityY.get();
+			TFlyEnemyParams* params = mFlyParams;
+			f32 speed               = params->mSLNormalFlySpeed.get();
+			vel.x                   = diff.x * speed;
+			vel.z                   = diff.z * speed;
+			mCurGravityY            = params->mSLForceGravityY.get();
 		} else {
 			mPosition.y -= 3.0f;
 		}
