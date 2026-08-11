@@ -551,8 +551,7 @@ void TResetFruit::control()
 		unk64 &= ~0x1;
 		for (int i = 0; i < mColCount; i++) {
 			THitActor* col = mCollisions[i];
-			u16 st         = mState;
-			if (st == 2 || st == 3 || st == 0xC || st == 0xA)
+			if (isState(2) || isState(3) || isState(0xC) || isState(0xA))
 				continue;
 			TMapObjBall::touchActor(col);
 			if (unkF8 & 0x04000000)
