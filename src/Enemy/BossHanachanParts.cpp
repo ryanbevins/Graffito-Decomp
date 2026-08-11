@@ -470,8 +470,8 @@ void TBossHanachanPartsBase::setDamageFog_(JDrama::TGraphics* graphics)
 	if (mActorType == 0x08000014)
 		isBody = false;
 
-	J3DModelData* modelData = getMActor()->getModel()->mModelData;
-	u16 matCount            = modelData->mMaterialNum;
+	J3DModelData* modelData;
+	u16 matCount = (modelData = getMActor()->getModel()->mModelData)->mMaterialNum;
 	JGeometry::TVec3<f32> pos(mCenterJointMtx[0][3], mCenterJointMtx[1][3],
 	                          mCenterJointMtx[2][3]);
 
