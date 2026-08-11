@@ -461,10 +461,10 @@ void TChuuHana::checkStretchType()
 
 void TChuuHana::bind()
 {
-	const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
-	if (nerve != &TNerveChuuHanaRoll::theNerve()
-	    && nerve != &TNerveChuuHanaFall2::theNerve()
-	    && nerve != &TNerveChuuHanaJumpPrepare::theNerve()) {
+	if (mSpine->getCurrentNerve() != &TNerveChuuHanaRoll::theNerve()
+	    && mSpine->getCurrentNerve() != &TNerveChuuHanaFall2::theNerve()
+	    && mSpine->getCurrentNerve()
+	           != &TNerveChuuHanaJumpPrepare::theNerve()) {
 		TLiveActor::bind();
 		return;
 	}
