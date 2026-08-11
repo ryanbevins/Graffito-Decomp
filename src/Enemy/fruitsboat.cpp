@@ -263,10 +263,9 @@ int TFruitsBoat::setBckTrack(const char* name)
 	MActorAnmDataEach<J3DAnmTransformKey>* table
 	    = mManager->getMActorAnmData()->getUnk2C();
 
-	int i       = 0;
-	int byteOff = 0;
+	int i = 0;
 	while (i < table->unk0) {
-		if (strcmp(name, *(char**)((u8*)table->unk8 + byteOff)) == 0) {
+		if (strcmp(name, table->unk8[i]) == 0) {
 			mBckAnm = table->getAnmPtr(i);
 
 			mBckFrameCtrl = new J3DFrameCtrl(0);
@@ -278,7 +277,6 @@ int TFruitsBoat::setBckTrack(const char* name)
 			return 0;
 		}
 		i += 1;
-		byteOff += 4;
 	}
 	return -1;
 }
