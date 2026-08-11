@@ -579,7 +579,7 @@ void TBathtubKiller::moveChasing()
 			forward.y = 0.0f;
 	}
 	if (mPosition.y < minY)
-		forward.y = (0.0f < forward.y) ? forward.y : 0.0f;
+		forward.y = (forward.y <= 0.0f) ? 0.0f : forward.y;
 	mVelocity.scale(unk1A0, forward);
 }
 
