@@ -779,6 +779,7 @@ void TMapObjBall::makeObjAppeared()
 	unkE8 = 0;
 }
 
+#pragma dont_inline on
 void TMapObjBall::control()
 {
 	TMapObjGeneral::control();
@@ -798,6 +799,7 @@ void TMapObjBall::control()
 		calcCurrentMtx();
 	}
 }
+#pragma dont_inline off
 
 void TMapObjBall::initMapObj()
 {
