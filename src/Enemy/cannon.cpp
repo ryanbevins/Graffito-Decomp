@@ -1091,7 +1091,7 @@ void TCannon::moveObject()
 	mPosition.y += velocity.y;
 	mVelocity.y -= getGravityY();
 	if (mPosition.y < unk23C.y) {
-		mVelocity.zero();
+		mVelocity = JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
 		mPosition.y = unk23C.y;
 	}
 
