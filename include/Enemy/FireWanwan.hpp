@@ -223,6 +223,7 @@ public:
 	void updateCollisionFromParam();
 	void updateCameraShake();
 	void updateRumble();
+	int getPolluteTimer() const { return mPolluteTimer; }
 	void updatePollute();
 	void updateHitPoint();
 	void emitEffects();

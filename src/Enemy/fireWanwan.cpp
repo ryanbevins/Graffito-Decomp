@@ -1265,7 +1265,7 @@ void TFireWanwan::updatePollute()
 	if (!unk194->mIsOnFire)
 		return;
 
-	if (mPolluteTimer != 0) {
+	if (getPolluteTimer() != 0) {
 		mPolluteTimer -= 1;
 		return;
 	}
