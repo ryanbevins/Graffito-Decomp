@@ -986,7 +986,7 @@ void TEnemyMario::hitWater(THitActor* sender)
 	if (*(emSettings(this) + 0xA4) != 0)
 		return;
 
-	switch (emDoing(this)) {
+	switch (doing()) {
 	case 0xB:
 	case 0xC:
 	case 0xD:
@@ -1004,7 +1004,7 @@ void TEnemyMario::hitWater(THitActor* sender)
 		                         4);
 		emWaterTimer(this) = emWaterTimerReset(this);
 
-		if (emDoing(this) == 0xC) {
+		if (doing() == 0xC) {
 			sleepingEffectKill();
 
 			TGraphWeb* graph = emOwner(this)->unk124->getGraph();
@@ -1016,7 +1016,7 @@ void TEnemyMario::hitWater(THitActor* sender)
 			}
 
 			emTimer(this) = 0;
-			emDoing(this) = 0xD;
+			doingRef() = 0xD;
 		}
 
 		return;
@@ -1028,7 +1028,7 @@ void TEnemyMario::hitWater(THitActor* sender)
 			dropObject();
 		}
 		emTimer(this) = 0;
-		emDoing(this) = 0xE;
+		doingRef() = 0xE;
 	}
 }
 
