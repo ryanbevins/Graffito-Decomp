@@ -679,7 +679,7 @@ bool TBathtubKiller::isCollidMove(THitActor* sender)
 	           == &TNerveBathtubKillerBreak::theNerve())
 		return false;
 
-	if (sender->mActorType == 0x8000029) {
+	if (sender->isActorType(0x8000029)) {
 		if (mSpine->getCurrentNerve()
 		        != &TNerveBathtubKillerExplosion::theNerve()
 		    && mSpine->getCurrentNerve()
@@ -688,8 +688,8 @@ bool TBathtubKiller::isCollidMove(THitActor* sender)
 		return true;
 	}
 
-	if (sender->mActorType == 0x8000021 || sender->mActorType == 0x800002a
-	    || sender->mActorType == 0x800002c) {
+	if (sender->isActorType(0x8000021) || sender->isActorType(0x800002a)
+	    || sender->isActorType(0x800002c)) {
 		if (mSpine->getCurrentNerve()
 		        != &TNerveBathtubKillerExplosion::theNerve()
 		    && mSpine->getCurrentNerve()
@@ -699,7 +699,7 @@ bool TBathtubKiller::isCollidMove(THitActor* sender)
 		return true;
 	}
 
-	if (sender->mActorType == 0x8000024) {
+	if (sender->isActorType(0x8000024)) {
 		if (unk214 <= 0) {
 			if (mSpine->getCurrentNerve()
 			        != &TNerveBathtubKillerExplosion::theNerve()
