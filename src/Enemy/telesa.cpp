@@ -288,11 +288,11 @@ void TTelesa::perform(u32 param_1, JDrama::TGraphics* param_2)
 		if (mImitatedBmd) {
 			if (param_1 & 2) {
 				const TBGCheckData* pTStack_5c;
-				gpMap->checkGround(mPosition.x, mPosition.y, mPosition.z,
-				                   &pTStack_5c);
+				f32 groundY = gpMap->checkGround(
+				    mPosition.x, mPosition.y, mPosition.z, &pTStack_5c);
 				Mtx afStack_58;
 				MtxPtr transform = afStack_58;
-				MsMtxSetXYZRPH(transform, mPosition.x, mPosition.y,
+				MsMtxSetXYZRPH(transform, mPosition.x, groundY,
 				               mPosition.z, mRotation.x, mRotation.y,
 				               mRotation.z);
 				mImitatedBmd->getMActor()->getModel()->setBaseTRMtx(transform);
