@@ -223,7 +223,7 @@ void TFlyEnemy::calcChaseParam()
 		setGoalPath(TPathNode(target));
 	}
 
-	if (diff.y > 100.0f || fabs(diff.y) < 100.0f) {
+	if (diff.y > 100.0f || fabsf(diff.y) < 100.0f) {
 		if (mIsChaseMode) {
 			if (mFlyState != 2 && mSprayedByWaterCooldown == 0) {
 				mCurGravityY = mFlyParams->mSLChaseFlyGravityY.get();
