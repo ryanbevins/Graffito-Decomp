@@ -571,42 +571,6 @@ void TResetFruit::control()
 			calcCurrentMtx();
 		}
 	} break;
-	case 2:
-	case 3: {
-		TMapObjGeneral::control();
-		if (unk194 != 0) {
-			unk194 = unk194 - 1;
-		}
-		if (isState(6)) {
-			Mtx tmp;
-			PSMTXCopy(mHolder->getTakingMtx(), tmp);
-			tmp[1][3] = tmp[1][3] + unk190;
-			PSMTXCopy(tmp, getModel()->mNodeMatrices[0]);
-		} else {
-			JGeometry::TVec3<f32> v = mVelocity;
-			f32 sq = v.x * v.x + v.y * v.y + v.z * v.z;
-			if (sq > 0.0000038146973f
-			    || mGroundPlane->mActor != nullptr) {
-				calcCurrentMtx();
-			}
-		}
-	} break;
-	case 6: {
-		TMapObjBall::control();
-		if (unkF8 & 0x04000000)
-			break;
-		if (isLifeTimerActive())
-			break;
-		if (mHolder != nullptr) {
-			mHolder->receiveMessage(this, 8);
-			mHolder->mHeldObject = nullptr;
-			mHolder              = nullptr;
-		}
-		mVelocity.x = 0.0f;
-		mVelocity.y = 0.0f;
-		mVelocity.z = 0.0f;
-		mState      = 0xC;
-	} break;
 	case 0xB: {
 		unk64 &= ~0x1;
 		if (gpMarDirector->mMap == 4) {
@@ -648,6 +612,42 @@ void TResetFruit::control()
 		mVelocity.y = 0.0f;
 		mVelocity.z = 0.0f;
 		mState      = 0xC;
+	} break;
+	case 6: {
+		TMapObjBall::control();
+		if (unkF8 & 0x04000000)
+			break;
+		if (isLifeTimerActive())
+			break;
+		if (mHolder != nullptr) {
+			mHolder->receiveMessage(this, 8);
+			mHolder->mHeldObject = nullptr;
+			mHolder              = nullptr;
+		}
+		mVelocity.x = 0.0f;
+		mVelocity.y = 0.0f;
+		mVelocity.z = 0.0f;
+		mState      = 0xC;
+	} break;
+	case 2:
+	case 3: {
+		TMapObjGeneral::control();
+		if (unk194 != 0) {
+			unk194 = unk194 - 1;
+		}
+		if (isState(6)) {
+			Mtx tmp;
+			PSMTXCopy(mHolder->getTakingMtx(), tmp);
+			tmp[1][3] = tmp[1][3] + unk190;
+			PSMTXCopy(tmp, getModel()->mNodeMatrices[0]);
+		} else {
+			JGeometry::TVec3<f32> v = mVelocity;
+			f32 sq = v.x * v.x + v.y * v.y + v.z * v.z;
+			if (sq > 0.0000038146973f
+			    || mGroundPlane->mActor != nullptr) {
+				calcCurrentMtx();
+			}
+		}
 	} break;
 	case 0xC: {
 		mPosition.y = mBodyRadius * 0.5f + mPosition.y;
