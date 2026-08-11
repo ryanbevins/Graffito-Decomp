@@ -1151,8 +1151,9 @@ const char** TSamboHead::getBasNameTable() const { return sambohead_bastable; }
 void TSamboHead::genEventCoin()
 {
 	if (isBckAnm(1)) {
+		Mtx rot;
+		MtxPtr rotPtr = rot;
 		for (int i = 0; i < 3; ++i) {
-			Mtx rot;
 			f32 angle = mRotation.y - 60.0f + 60.0f * i;
 			s16 angleY = (s16)(angle * 182.04445f);
 			f32 sinY = JMASSin(angleY);
@@ -1170,7 +1171,7 @@ void TSamboHead::genEventCoin()
 			rot[2][2] = cosY;
 			rot[2][3] = 0.0f;
 			JGeometry::TVec3<f32> offset(0.0f, 0.0f, 100.0f);
-			PSMTXMultVec(rot, &offset, &offset);
+			PSMTXMultVec(rotPtr, &offset, &offset);
 
 			TMapObjBase* coin;
 			if (i == 1 && mCoin) {
