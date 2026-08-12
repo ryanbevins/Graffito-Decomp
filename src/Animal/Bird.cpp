@@ -316,7 +316,7 @@ BOOL TNerveAnimalBirdGraphWander::execute(TSpineBase<TLiveActor>* spine) const
 
 	bird->checkCurAnmEnd(0);
 	if (((TAnimalBirdParams*)bird->getSaveParam())->mReturnTimer.value
-	    < (s32)spine->getTime()) {
+	    < (s32)bird->mSpine->getTime()) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdComeback::theNerve());
 		return TRUE;
 	}
