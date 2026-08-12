@@ -100,7 +100,7 @@ void TTamaNokoFlower::perform(u32 param_1, JDrama::TGraphics* param_2)
 						local_b8[2][3] = 0.0f;
 						local_b8[2][2] = c;
 
-						MTXMultVec(local_b8, &local_88, &unk20);
+						MTXMultVec(local_b8, &local_88, &local_88);
 
 						JGeometry::TVec3<f32> local_c4 = unk10->getPosition();
 						if (TMapObjBase* mapObj = gpItemManager->makeObjAppear(
