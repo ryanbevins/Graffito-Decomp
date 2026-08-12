@@ -108,14 +108,11 @@ static void ev__ForceStartTalk(TSpcTypedInterp<TEventWatcher>* interp,
 {
 	interp->verifyArgNum(1, &arg_num);
 	bool block   = true;
-	bool talking = block;
+	TMarDirector* director = gpMarDirector;
+	bool talking = director->isTalkModeNow();
 	BOOL result  = FALSE;
-	if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
-		talking = false;
 	if (!talking) {
-		bool inDemo = true;
-		if (gpMarDirector->unk124 != 3 && gpMarDirector->unk124 != 4)
-			inDemo = false;
+		bool inDemo = director->checkUnk124Thing2();
 		if (!inDemo)
 			block = false;
 	}
