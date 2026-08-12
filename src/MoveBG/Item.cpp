@@ -846,7 +846,7 @@ void TShine::makeMActors()
 
 	MActor* actor;
 	if (TFlagManager::smInstance->getShineFlag((u8)unk134)
-	    && strcmp(mName, "シャイン（マニ屋用）") != 0) {
+	    && strcmp("シャイン（マニ屋用）", getName()) != 0) {
 		actor = initMActor("shine_empty.bmd", nullptr, getSDLModelFlag());
 		unk1B4 = TRUE;
 	} else {
