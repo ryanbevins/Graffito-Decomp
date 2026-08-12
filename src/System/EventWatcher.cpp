@@ -254,8 +254,9 @@ static void evIsNearActors(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 			                 .mData[(interp->mProcessStack.mSize - 1)
 			                        - (arg_num - 2)]
 			                 .getDataFloat();
+			u32 i = 2;
 			count = 1;
-			for (u32 i = 2; i < arg_num; ++i) {
+			for (; i < arg_num; ++i) {
 				TLiveActor* other = get_name_ref<TLiveActor>(
 				    interp->mProcessStack
 				        .mData[interp->mProcessStack.mSize
