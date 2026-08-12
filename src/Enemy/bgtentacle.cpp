@@ -1021,7 +1021,7 @@ void TBGTentacle::moveConstraint()
 
 	case 9: {
 		JGeometry::TVec3<f32> local_58 = mNodes[0].getPosition();
-		mNodes[0].setPosition(local_58);
+		mNodes[0].setUnk18(local_58);
 		for (int i = 1; i < mNodeNum; ++i) {
 			local_58.x -= getNodeLen() * 1.3f;
 			local_58.y -= getNodeLen() * 1.5f;
