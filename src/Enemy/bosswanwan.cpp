@@ -1017,14 +1017,17 @@ void TBossWanwan::slideToCurPathNode(f32 march_speed, f32 turn_speed)
 	f32 wrappedYaw
 	    = callMsWrap(mRotation.y, targetYaw - 180.0f, targetYaw + 180.0f);
 	f32 turn = targetYaw - wrappedYaw;
+	f32 turnDelta;
 	if (turn > 0.0f) {
 		if (turn > turn_speed)
 			turn = turn_speed;
+		turnDelta = turn;
 	} else {
 		turn = turn > -turn_speed ? turn : -turn_speed;
+		turnDelta = turn;
 	}
 
-	f32 newYaw = mRotation.y + turn;
+	f32 newYaw = mRotation.y + turnDelta;
 	while (newYaw >= 360.0f)
 		newYaw -= 360.0f;
 	while (newYaw < 0.0f)
