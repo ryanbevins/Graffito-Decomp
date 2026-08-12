@@ -265,9 +265,11 @@ void THamuKuriManager::setSearchHamuKuri()
 			f32 canSearchDist = params->mSLCanSearchDist.get();
 
 			TMapObjBase* pTVar18 = nullptr;
-			f32 fVar1            = canSearchDist * canSearchDist;
+			f32 fVar1            = canSearchDist;
+			fVar1 *= canSearchDist;
+			s32 searchObjCount = unk68;
 
-			for (int i = 0; i < unk68; ++i) {
+			for (int i = 0; i < searchObjCount; ++i) {
 				TMapObjBase* uVar16 = unk64[i];
 				if (uVar16->checkLiveFlag(LIVE_FLAG_DEAD
 				                          | LIVE_FLAG_CLIPPED_OUT))
