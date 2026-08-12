@@ -683,8 +683,9 @@ void TAnimalBird::doFlyToCurPathNode()
 	f32 fallRatio
 	    = (f32)unk178
 	    / (f32)((TAnimalBirdParams*)getSaveParam())->mWaterproofTimerMax.value;
-	forward.y -= ((TAnimalBirdParams*)getSaveParam())->mWaterPowerY.value
-	           * fallRatio;
+	f32 fall = ((TAnimalBirdParams*)getSaveParam())->mWaterPowerY.value
+	         * fallRatio;
+	forward.y -= fall;
 	mLinearVelocity = forward;
 }
 
