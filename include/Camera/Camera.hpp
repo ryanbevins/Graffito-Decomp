@@ -289,7 +289,9 @@ public:
 	/* 0x274 */ char unk274[0x278 - 0x274];
 	/* 0x278 */ u16 unk278;
 	/* 0x27A */ u16 unk27A;
-	/* 0x27C */ char unk27C[0x282 - 0x27C];
+	/* 0x27C */ u16 mDeadDemoCountdown;
+	/* 0x27E */ u16 mDeadDemoCountdownToFovZoom;
+	/* 0x280 */ u16 mDeadDemoFovZoomTimer;
 	/* 0x282 */ u16 unk282;
 	/* 0x284 */ s32 unk284;
 	/* 0x288 */ f32 unk288;

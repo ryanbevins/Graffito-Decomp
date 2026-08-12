@@ -24,9 +24,6 @@ template <> s16 CLBRoundf<s16>(f32);
 
 #define mInbetween unk6C
 #define mPosFreezeFrames unk78
-#define mDeadDemoCountdown (*(u16*)((u8*)this + 0x27C))
-#define mDeadDemoCountdownToFovZoom (*(u16*)((u8*)this + 0x27E))
-#define mDeadDemoFovZoomTimer (*(u16*)((u8*)this + 0x280))
 
 inline bool CPolarSubCamera::startReproduceDemoCamera_(
     const char* name, const JGeometry::TVec3<f32>* offset)
@@ -320,6 +317,3 @@ bool CPolarSubCamera::isNormalDeadDemo() const
 
 #undef mInbetween
 #undef mPosFreezeFrames
-#undef mDeadDemoCountdown
-#undef mDeadDemoCountdownToFovZoom
-#undef mDeadDemoFovZoomTimer
