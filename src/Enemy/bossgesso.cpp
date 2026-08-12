@@ -1026,7 +1026,7 @@ void TBossGesso::doAttackSingle()
 		if (mTimeInCurrentAttackMode <= getSaveParam2()->mSLUnisonInter.get())
 			return;
 
-		if (gpMarDirector->unk7D != 4)
+		if (!(gpMarDirector->unk7D == 4 ? 1 : 0))
 			return;
 
 		changeAttackMode(ASTATE_ROLL);
@@ -1071,7 +1071,7 @@ void TBossGesso::doAttackSingle()
 	if (dist2 < unisonAttackLen2) {
 		if (gpMarioOriginal->isTouchGround4cm()) {
 			if (mTimeInCurrentAttackMode > getSaveParam2()->mSLUnisonInter.get()) {
-				if (gpMarDirector->unk7D == 4)
+				if (gpMarDirector->unk7D == 4 ? 1 : 0)
 					changeAttackMode(ASTATE_ROLL);
 				else
 					changeAttackMode(ASTATE_UNISON);
@@ -1102,7 +1102,7 @@ void TBossGesso::doAttackSingle()
 		}
 	}
 
-	if (gpMarDirector->unk7D == 4) {
+	if (gpMarDirector->unk7D == 4 ? 1 : 0) {
 		if (inSightAngle(getSaveParam2()->mSLSightAngle.get())) {
 			if (mTimeInCurrentAttackMode
 			    > getSaveParam2()->mSLUnisonInter.get()) {
