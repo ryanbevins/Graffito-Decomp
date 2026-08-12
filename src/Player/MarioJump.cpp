@@ -703,7 +703,7 @@ BOOL TMario::rocketing()
 	}
 
 	if (mInput & 1) {
-		if (mWaterGun->mCurrentNozzle == TWaterGun::Hover) {
+		if ((int)mWaterGun->mCurrentNozzle == TWaterGun::Hover) {
 			s16 angleDiff = mIntendedYaw - mFaceAngle.y;
 			f32 stickMag  = mIntendedMag;
 			if ((angleDiff > -0x1555 && angleDiff < 0x1555)
@@ -754,7 +754,7 @@ BOOL TMario::rocketing()
 	u16 fa = mFaceAngle.y;
 	mSlideVelX = mForwardVel * JMASSin(fa); mSlideVelZ = mForwardVel * JMASCos(fa);
 	mVel.x = mSlideVelX; mVel.z = mSlideVelZ;
-	if (mWaterGun->mCurrentNozzle == TWaterGun::Hover) {
+	if ((int)mWaterGun->mCurrentNozzle == TWaterGun::Hover) {
 		mVel.y = (mRocketTargetY - mPosition.y) * mHoverParams.mAccelRate.value;
 		mForwardVel *= mHoverParams.mBrake.value;
 	}
