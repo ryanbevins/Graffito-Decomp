@@ -612,7 +612,7 @@ void TFireWanwanTailHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 void TFireWanwanTailHit::performNodes(u32 param_1, JDrama::TGraphics* param_2)
 {
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 4; ++i) {
 		JGeometry::TVec3<f32> local_68 = unkA4->getNode(i)->mPos;
 		JGeometry::TVec3<f32> local_74;
 		if (i == 4) {
