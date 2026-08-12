@@ -967,8 +967,6 @@ bool TTalk2D2::eraseNormalWindow()
 	}
 
 	unk90->mAlpha = alpha;
-	if (unk204->mVisible)
-		unk204->mAlpha = (u8)alpha;
 
 	return result;
 }
