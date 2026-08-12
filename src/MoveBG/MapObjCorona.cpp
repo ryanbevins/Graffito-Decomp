@@ -680,45 +680,46 @@ void TBathtub::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (flags & 1) {
+		TMarDirector* director = gpMarDirector;
 		s32 deadCount = getNumGripsDead();
-		s32 frame     = gpMarDirector->unk58;
+		s32 frame     = director->unk58;
 		switch (deadCount) {
 		case 0:
 			if (frame >= 7200) {
 				if ((unk2A0 & 0x2) == 0)
-					gpMarDirector->mConsole->startAppearBalloon(0xE001F,
+					director->mConsole->startAppearBalloon(0xE001F,
 					                                             true);
 				unk2A0 |= 0x2;
 			} else if (frame >= 3600) {
 				if ((unk2A0 & 0x1) == 0)
-					gpMarDirector->mConsole->startAppearBalloon(0xE001E,
+					director->mConsole->startAppearBalloon(0xE001E,
 					                                             true);
 				unk2A0 |= 0x1;
 			}
 			break;
 		case 1:
 			if ((unk2A0 & 0x4) == 0)
-				gpMarDirector->mConsole->startAppearBalloon(0xE0020, true);
+				director->mConsole->startAppearBalloon(0xE0020, true);
 			unk2A0 |= 0x4;
 			break;
 		case 2:
 			if ((unk2A0 & 0x8) == 0)
-				gpMarDirector->mConsole->startAppearBalloon(0xE0021, true);
+				director->mConsole->startAppearBalloon(0xE0021, true);
 			unk2A0 |= 0x8;
 			break;
 		case 3:
 			if ((unk2A0 & 0x10) == 0)
-				gpMarDirector->mConsole->startAppearBalloon(0xE0022, true);
+				director->mConsole->startAppearBalloon(0xE0022, true);
 			unk2A0 |= 0x10;
 			break;
 		case 4:
 			if ((unk2A0 & 0x40000) == 0)
-				gpMarDirector->mConsole->startAppearBalloon(0xE0030, true);
+				director->mConsole->startAppearBalloon(0xE0030, true);
 			unk2A0 |= 0x40000;
 			break;
 		case 5:
 			if ((unk2A0 & 0x20) == 0)
-				gpMarDirector->mConsole->startAppearBalloon(0xE0023, true);
+				director->mConsole->startAppearBalloon(0xE0023, true);
 			unk2A0 |= 0x20;
 			break;
 		}
