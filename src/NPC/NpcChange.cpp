@@ -295,10 +295,10 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 	if (mActionFlag & 0x4000) {
 		if (kind != HIT_NPC_OBJECT_KIND_WATER_SPRAY)
 			return;
-		bool m12 = true;
+		bool ok  = true;
+		bool m12 = ok;
 		if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
 			m12 = false;
-		bool ok = true;
 		if (!m12) {
 			bool m34 = true;
 			if (gpMarDirector->unk124 != 3
@@ -325,10 +325,10 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 	}
 
 	if (kind == HIT_NPC_OBJECT_KIND_WATER_SPRAY) {
-		bool m12 = true;
+		bool dirOk = true;
+		bool m12   = dirOk;
 		if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
 			m12 = false;
-		bool dirOk = true;
 		if (!m12) {
 			bool m34 = true;
 			if (gpMarDirector->unk124 != 3
