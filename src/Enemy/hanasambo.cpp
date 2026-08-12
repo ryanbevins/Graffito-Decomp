@@ -1049,9 +1049,9 @@ void TSamboLeaf::perform(u32 flags, JDrama::TGraphics*)
 		MsMtxSetXYZRPH(baseMtxPtr, mPosition.x, mPosition.y, mPosition.z,
 		               0.0f, mRotation.y, 0.0f);
 
-		f32 rotX = MsGetRotFromZaxis(mVelocity).x;
-		f32 sin  = JMASin(-rotX);
-		f32 cos  = JMACos(-rotX);
+		s16 rollAngle = DEG2SHORTANGLE(-MsGetRotFromZaxis(mVelocity).x);
+		f32 sin      = JMASSin(rollAngle);
+		f32 cos      = JMASCos(rollAngle);
 
 		Mtx rollMtx;
 		rollMtx[0][0] = cos;
