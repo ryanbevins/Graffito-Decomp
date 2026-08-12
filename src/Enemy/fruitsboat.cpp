@@ -357,6 +357,7 @@ void TFruitsBoat::init(TLiveManager* manager)
 		setAttackRadius(1000.0f);
 		setAttackHeight(300.0f);
 		break;
+	case 3:
 	default:
 		mMapCollisionManager
 		    = new TMapCollisionManager(1, "/scene/fruitsboatd", this);
