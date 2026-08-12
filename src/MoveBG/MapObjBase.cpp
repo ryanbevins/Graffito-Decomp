@@ -23,7 +23,9 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+#pragma dont_inline on
 void TMapCollisionBase::setMtx(MtxPtr mtx) { PSMTXCopy(mtx, unk20); }
+#pragma dont_inline off
 
 void TMapObjBase::changeObjMtx(MtxPtr mtx)
 {
@@ -389,9 +391,10 @@ void TMapObjBase::makeObjAppeared()
 			col->setUp();
 		} else {
 			Mtx mtx;
+			TMapCollisionManager* colman = mMapCollisionManager;
 			MsMtxSetTRS(mtx, px, py, pz, mRotation.x, mRotation.y,
 			            mRotation.z, mScaling.x, mScaling.y, mScaling.z);
-			TMapCollisionBase* col = mMapCollisionManager->unk8;
+			TMapCollisionBase* col = colman->unk8;
 			col->setMtx(mtx);
 			col->setUp();
 		}
