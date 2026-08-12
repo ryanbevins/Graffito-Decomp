@@ -408,7 +408,7 @@ void TAmiNoko::init(TLiveManager* manager)
 		enemyGroup->add(hit);
 
 		hit->initHitActor(0x10000021, 1, 0x80000000,
-		                  50.0f, 100.0f, 50.0f, 100.0f);
+		                  120.0f, 240.0f, 120.0f, 240.0f);
 		hit->offHitFlag(HIT_FLAG_NO_COLLISION);
 	}
 
