@@ -286,9 +286,10 @@ void TRiccoWatermill::control()
 		if (unk13C->mPosition.y > mSubmarineMaxTransY) {
 			unk13C->mPosition.y = mSubmarineMaxTransY;
 			if (!(mLifeTimer > 0 ? true : false)) {
+				Vec* soundPos = (Vec*)&unk13C->mPosition;
 				if (gpMSound->gateCheck(0x3832)) {
 					MSoundSESystem::MSoundSE::startSoundActor(
-					    0x3832, (Vec*)&unk13C->mPosition, 0, 0, 0, 4);
+					    0x3832, soundPos, 0, 0, 0, 4);
 				}
 				if (!unk144) {
 					JGeometry::TVec3<f32> target(
@@ -311,9 +312,10 @@ void TRiccoWatermill::control()
 			unk13C->mPosition.y = mSubmarineSurfaceTransY;
 			unk13C->setUpMapCollision(0);
 			unk138 = 0.0f;
+			Vec* soundPos = (Vec*)&unk13C->mPosition;
 			if (gpMSound->gateCheck(0x3832)) {
 				MSoundSESystem::MSoundSE::startSoundActor(
-				    0x3832, (Vec*)&unk13C->mPosition, 0, 0, 0, 4);
+				    0x3832, soundPos, 0, 0, 0, 4);
 			}
 			mLifeTimer = mWaitTime;
 			mState     = 5;
@@ -326,9 +328,10 @@ void TRiccoWatermill::control()
 			unk138 = 0.0f;
 			unk13C->unkF8 |= 0x100;
 			unkF8 |= 0x100;
+			Vec* soundPos = (Vec*)&unk13C->mPosition;
 			if (gpMSound->gateCheck(0x3833)) {
 				MSoundSESystem::MSoundSE::startSoundActor(
-				    0x3833, (Vec*)&unk13C->mPosition, 0, 0, 0, 4);
+				    0x3833, soundPos, 0, 0, 0, 4);
 			}
 			mState = 1;
 		}
