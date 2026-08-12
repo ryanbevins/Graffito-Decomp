@@ -129,12 +129,11 @@ BOOL TMario::moveRequest(const JGeometry::TVec3<f32>& pos)
 	delta = localPos;
 	mPosition = *(JGeometry::TVec3<f32>*)&pos;
 
-	f32 dy = delta.y;
-	f32 dz = delta.z;
-
 	// Adjust all position-relative fields by delta
 	unk160.x += delta.x;
+	f32 dy = delta.y;
 	unk160.y += dy;
+	f32 dz = delta.z;
 	unk160.z += dz;
 	mLastSafePos.x += delta.x;
 	mLastSafePos.y += dy;
