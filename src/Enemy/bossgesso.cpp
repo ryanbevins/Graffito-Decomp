@@ -1722,7 +1722,19 @@ DEFINE_NERVE(TNerveBGBeakDamage, TLiveActor)
 	if (spine->getTime() == 0) {
 		self->changeBck(7);
 		self->getMActor()->setBtkFromIndex(0);
-		self->changeAllTentacleState(8);
+		for (int i = 0; i < 4; ++i) {
+			TBGTentacle* tentacle = self->mTentacles[i];
+			if (tentacle->mState != 5) {
+				BOOL isThing;
+				if (tentacle->mState == 6
+				    || (u32)(tentacle->mState - 3) <= 1)
+					isThing = TRUE;
+				else
+					isThing = FALSE;
+				if (!isThing)
+					tentacle->changeStateAndFixNodes(8);
+			}
+		}
 
 		J3DFrameCtrl* ctrl4 = self->getMActor()->getFrameCtrl(4);
 		ctrl4->setRate(1.0f);
