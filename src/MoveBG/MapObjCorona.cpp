@@ -733,10 +733,7 @@ void TBathtub::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (flags & 0x200) {
 		MtxPtr mtx = unk29C->getModel()->getBaseTRMtx();
-		JGeometry::TVec3<f32> lightPos;
-		lightPos.x = mtx[0][3];
-		lightPos.y = mtx[1][3];
-		lightPos.z = mtx[2][3];
+		JGeometry::TVec3<f32> lightPos(mtx[0][3], mtx[1][3], mtx[2][3]);
 		unk29C->setLightData(mGroundPlane, lightPos);
 		unk29C->entry();
 	}
