@@ -1216,38 +1216,38 @@ BOOL TBossTelesa::rouletteFall()
 	    > ((TRoulette*)unk17C)->mPosition.y) {
 		((TRoulette*)unk178)->mPosition.y -= 1.0f;
 		((TRoulette*)unk178)->mMActor->setBck("rulet00");
+
+		if (((TRoulette*)unk178)->mPosition.y
+		    > ((TRoulette*)unk17C)->mPosition.y + 3.0f) {
+			if (SMS_SendMessageToMario(this, HIT_MESSAGE_TAKE))
+				mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
+		} else {
+			if (SMS_SendMessageToMario(this, HIT_MESSAGE_UNK8)) {
+				if (gpMSound->gateCheck(0x2926)) {
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x2926, &mPosition, 0, nullptr, 0, 4);
+				}
+				mHeldObject = nullptr;
+			}
+		}
+
+		if (gpMSound->gateCheck(0x28DC)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x28DC, &mPosition, 0, nullptr, 0, 4);
+		}
+
+		if (gpMSound->gateCheck(0x2125)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x2125, &mPosition, 0, nullptr, 0, 4);
+		}
+
+		gpMarioOriginal->mGamePad->onNeutralMarioKey();
+		return FALSE;
 	} else {
 		((TRoulette*)unk178)->mPosition.y
 		    = ((TRoulette*)unk17C)->mPosition.y;
 		return TRUE;
 	}
-
-	if (((TRoulette*)unk178)->mPosition.y
-	    > ((TRoulette*)unk17C)->mPosition.y + 3.0f) {
-		if (SMS_SendMessageToMario(this, HIT_MESSAGE_TAKE))
-			mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
-	} else {
-		if (SMS_SendMessageToMario(this, HIT_MESSAGE_UNK8)) {
-			if (gpMSound->gateCheck(0x2926)) {
-				MSoundSESystem::MSoundSE::startSoundActor(
-				    0x2926, &mPosition, 0, nullptr, 0, 4);
-			}
-			mHeldObject = nullptr;
-		}
-	}
-
-	if (gpMSound->gateCheck(0x28DC)) {
-		MSoundSESystem::MSoundSE::startSoundActor(
-		    0x28DC, &mPosition, 0, nullptr, 0, 4);
-	}
-
-	if (gpMSound->gateCheck(0x2125)) {
-		MSoundSESystem::MSoundSE::startSoundActor(
-		    0x2125, &mPosition, 0, nullptr, 0, 4);
-	}
-
-	gpMarioOriginal->mGamePad->onNeutralMarioKey();
-	return FALSE;
 }
 
 void TBossTelesa::damageRecover()
