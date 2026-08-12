@@ -1329,7 +1329,12 @@ void TBossTelesa::setSpicy(TLiveActor* actor)
 		mMActor->unkC->setMotionBlendRatio(unk168);
 
 	const char** basTable = getBasNameTable();
-	setAnmSound(basTable ? basTable[1] : nullptr);
+	const char* basName;
+	if (!basTable)
+		basName = nullptr;
+	else
+		basName = basTable[1];
+	setAnmSound(basName);
 
 	if (unk35B) {
 		unk35B = 0;
