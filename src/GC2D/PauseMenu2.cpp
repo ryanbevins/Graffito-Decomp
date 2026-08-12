@@ -106,7 +106,7 @@ void TPauseMenu2::load(JSUMemoryInputStream& stream)
 		unk1C->add(0, 0x1E);
 		scenStr = "";
 	} else {
-		u32 nameIdx = SMS_getNormalStage(idx);
+		u16 nameIdx = SMS_getNormalStage(idx);
 		scenStr     = (const char*)SMSGetMessageData(scenarioname, nameIdx);
 	}
 
