@@ -1,3 +1,5 @@
+#define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #include <Enemy/BossGesso.hpp>
 #include <Enemy/BossGessoTentacle.hpp>
 #include <Enemy/BossGessoPolDrop.hpp>
@@ -33,6 +35,8 @@
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <stdlib.h>
+#undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
