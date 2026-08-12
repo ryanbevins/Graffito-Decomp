@@ -608,7 +608,7 @@ void TBGTentacle::throwMario(THitActor* param_1, THitActor* param_2)
 	mOwner->stopIfRoll();
 }
 
-BOOL TBGTentacle::isAttacking() const
+bool TBGTentacle::isAttacking() const
 {
 	if (mTakeHit->checkHitFlag(HIT_FLAG_UNK2))
 		return false;

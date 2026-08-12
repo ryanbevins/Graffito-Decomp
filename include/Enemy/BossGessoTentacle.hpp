@@ -129,7 +129,7 @@ public:
 
 	void incDamage();
 	void throwMario(THitActor*, THitActor*);
-	BOOL isAttacking() const;
+	bool isAttacking() const;
 	bool canTake() const;
 	f32 getNodeLen() const;
 	void continuousRumble();
