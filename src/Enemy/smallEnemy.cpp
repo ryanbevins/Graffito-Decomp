@@ -702,9 +702,7 @@ bool TSmallEnemy::changeMove()
 				break;
 			}
 
-			case 0:
 			case 1:
-			case 4:
 				return 0;
 			}
 
