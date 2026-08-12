@@ -243,7 +243,7 @@ static void evGetFruitNum(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 	int fruitType = interp->pop().getDataInt();
 	TFruitBasketEvent* basket
 	    = (TFruitBasketEvent*)interp->pop().getDataInt();
-	int idx;
+	int idx = 0;
 	switch (fruitType) {
 	case 0:
 		idx = 0;
@@ -258,7 +258,6 @@ static void evGetFruitNum(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 		idx = 1;
 		break;
 	default:
-		idx = 0;
 		break;
 	}
 	interp->push(TSpcSlice(basket->getFruitNum(idx)));
