@@ -243,7 +243,8 @@ void TFenceWaterH::control()
 	zRot.setEular(0.0f, 0.0f, mRotation.z * 0.017453294f);
 	PSMTXConcat(yRot.mMtx, zRot.mMtx, yRot.mMtx);
 	yRot.setTrans(mPosition.x, mPosition.y, mPosition.z);
-	PSMTXCopy(yRot.mMtx, getModel()->mNodeMatrices[0]);
+	MtxPtr rootMtx = yRot.mMtx;
+	PSMTXCopy(rootMtx, getModel()->mNodeMatrices[0]);
 
 	unk144->mPosition.x = mPosition.x;
 	unk144->mPosition.y = mPosition.y - 150.0f;
