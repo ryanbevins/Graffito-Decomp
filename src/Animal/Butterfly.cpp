@@ -109,11 +109,15 @@ void TButterfloid::load(JSUMemoryInputStream& stream)
 	mBoidLeader->mRepelForce = 2.0f;
 	mBoidLeader->mFlags |= 2;
 
-	for (int i = 0; i < mBoidLeader->mNumActors; i++)
-		mActors[i]->mMActor->setBck("butterfly_fly");
+	for (int i = 0; i < mBoidLeader->mNumActors; i++) {
+		TButterfly* butterfly = (TButterfly*)mActors[i];
+		butterfly->mMActor->setBck("butterfly_fly");
+	}
 
-	for (int i = 0; i < mBoidLeader->mNumActors; i++)
-		mActors[i]->init();
+	for (int i = 0; i < mBoidLeader->mNumActors; i++) {
+		TButterfly* butterfly = (TButterfly*)mActors[i];
+		butterfly->init();
+	}
 }
 
 void TButterfloid::init(TLiveManager* manager)
