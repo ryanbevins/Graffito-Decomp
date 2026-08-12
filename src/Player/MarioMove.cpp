@@ -3220,8 +3220,8 @@ void TMario::thinkYoshiHeadCollision()
 
 	f32 front = mYoshiParams.mHeadFront.get();
 	u16 angle = mFaceAngle.y;
-	headPos.x += front * JMASSin(angle);
-	headPos.z += front * JMASCos(angle);
+	headPos.x += JMASSin(angle) * front;
+	headPos.z += JMASCos(angle) * front;
 
 	TBGWallCheckRecord wallCheck(headPos.x, headPos.y + 100.0f, headPos.z,
 	                             mYoshiParams.mHeadRadius.get(), 4, 0);
