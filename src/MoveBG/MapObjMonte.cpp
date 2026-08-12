@@ -5,6 +5,7 @@
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <M3DUtil/MActor.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <MarioUtil/MathUtil.hpp>
