@@ -283,8 +283,8 @@ void THamuKuriManager::setSearchHamuKuri()
 				f32 len_sq = tmp.squared();
 
 				if (len_sq < fVar1) {
-					pTVar18 = uVar16;
 					fVar1   = len_sq;
+					pTVar18 = uVar16;
 				}
 			}
 
