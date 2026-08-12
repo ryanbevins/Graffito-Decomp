@@ -355,14 +355,14 @@ void TMapObjBase::makeObjAppeared()
 		if (snd != 0xffffffff) {
 			if (gpMSound->gateCheck(snd))
 				MSoundSESystem::MSoundSE::startSoundActor(
-				    snd, mPosition, 0, nullptr, 0, 4);
+				    snd, &mPosition, 0, nullptr, 0, 4);
 		}
 	} else {
 		u32 snd = mMapObjData->mSound->unk4->unk0[unk100];
 		if (snd != 0xffffffff) {
 			if (gpMSound->gateCheck(snd))
 				MSoundSESystem::MSoundSE::startSoundActor(
-				    snd, mPosition, 0, nullptr, 0, 4);
+				    snd, &mPosition, 0, nullptr, 0, 4);
 		}
 	}
 	mGroundHeight = gpMap->checkGround(mPosition, &mGroundPlane);
