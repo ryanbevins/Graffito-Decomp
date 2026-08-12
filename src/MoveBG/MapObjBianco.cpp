@@ -1023,7 +1023,8 @@ void TBigWindmill::load(JSUMemoryInputStream& stream)
 void TBigWindmill::control()
 {
 	TMapObjBase::control();
-	f32 rotZ = mRotation.z - sSpeed;
+	mRotation.z -= sSpeed;
+	f32 rotZ = mRotation.z;
 	while (rotZ >= 360.0f)
 		rotZ -= 360.0f;
 	while (rotZ < 0.0f)
