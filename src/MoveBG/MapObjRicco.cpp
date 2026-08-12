@@ -44,7 +44,8 @@ f32 TFruitLauncher::mObjSpeedXZ = 1.0f;
 f32 TFruitLauncher::mObjSpeedY = 20.0f;
 s32 TFruitLauncher::mFruitLiveTime = 4800;
 
-Vec submarineCranePos_forSound;
+JGeometry::TVec3<f32> submarineCranePos_forSound(1956.0f, 1000.0f, 6425.0f);
+JGeometry::TVec3<f32> submarineSetWtPos_forSound(1956.0f, -100.0f, 6425.0f);
 
 void TCraneRotY::calc()
 {
@@ -261,13 +262,13 @@ void TRiccoWatermill::control()
 			f32 absRate = __fabsf(rate);
 			if (gpMSound->gateCheck(0x3030)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x3030, &submarineCranePos_forSound, (Vec*)NULL,
+				    0x3030, (Vec*)&submarineCranePos_forSound, (Vec*)NULL,
 				    absRate, 0, 0, (JAISound**)&unk150, 0, 4);
 			}
 			absRate = __fabsf(rate);
 			if (gpMSound->gateCheck(0x3023)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x3023, &submarineCranePos_forSound, (Vec*)NULL,
+				    0x3023, (Vec*)&submarineCranePos_forSound, (Vec*)NULL,
 				    absRate, 0, 0, (JAISound**)&unk154, 0, 4);
 			}
 		}
