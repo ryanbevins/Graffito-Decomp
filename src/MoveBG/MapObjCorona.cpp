@@ -302,7 +302,7 @@ TBathtubGrip::TBathtubGrip(TBathtub* bathtub, f32 angle, MActorAnmData* data,
 		unk200[i] = names->getIndex(jointName);
 		unk164[i] = new TMapCollisionMove;
 		unk1BC[i] = new TBathtubGripPartsHard(
-		    this, i, "バタブの足場の一部（壊れない）");
+		    this, i, "バスタブの足場の一部（壊れない）");
 		unk164[i]->init(collisionPath, 0, unk1BC[i]);
 
 		if (i < 5) {
@@ -312,7 +312,7 @@ TBathtubGrip::TBathtubGrip(TBathtub* bathtub, f32 angle, MActorAnmData* data,
 
 			unk150[i] = new TMapCollisionMove;
 			unk1A8[i] = new TBathtubGripPartsFragile(
-			    this, i, "バタブの足場の一部（弱点）");
+			    this, i, "バスタブの足場の一部（弱点）");
 			unk150[i]->init(collisionPath, 0, unk1A8[i]);
 		}
 	}
