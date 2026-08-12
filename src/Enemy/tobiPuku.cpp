@@ -936,7 +936,8 @@ void TTobiPuku::hitWall()
 		const TBGCheckData* wall = record.mResultWalls[0];
 		f32 dot = mVelocity.dot(wall->mNormal);
 		f32 bounce = -(2.0f * dot);
-		mVelocity.x += bounce * wall->mNormal.x;
+		const TBGCheckData* wallX = record.mResultWalls[0];
+		mVelocity.x += bounce * wallX->mNormal.x;
 		mVelocity.y *= 0.5f;
 		const TBGCheckData* wallZ = record.mResultWalls[0];
 		mVelocity.z += bounce * wallZ->mNormal.z;
