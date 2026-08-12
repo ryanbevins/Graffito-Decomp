@@ -644,7 +644,7 @@ int TSmallEnemy::getChangeBlockTime()
 
 bool TSmallEnemy::changeMove()
 {
-	if (TSmallEnemyManager::mBlockWaitTime * 0.2f <= mSpine->getTime()) {
+	if (mSpine->getTime() <= TSmallEnemyManager::mBlockWaitTime * 0.2f) {
 		f32 time = TSmallEnemyManager::mBlockWaitTime * 0.2f;
 
 		mJuiceBlock->mPosition.y += unk188 * 2.0f
