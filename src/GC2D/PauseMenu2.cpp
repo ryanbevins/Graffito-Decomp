@@ -102,9 +102,9 @@ void TPauseMenu2::load(JSUMemoryInputStream& stream)
 
 	const char* scenStr;
 	if (scenarioname == nullptr || idx == -1 || shineStage == 0) {
+		scenStr = "";
 		((J2DPane*)unkD4)->add(0, 0xF);
 		unk1C->add(0, 0x1E);
-		scenStr = "";
 	} else {
 		u16 nameIdx = SMS_getNormalStage(idx);
 		scenStr     = (const char*)SMSGetMessageData(scenarioname, nameIdx);
