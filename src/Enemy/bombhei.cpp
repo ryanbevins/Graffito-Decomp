@@ -344,18 +344,18 @@ bool TBombHei::isDamageToCannon()
 
 void TBombHei::forceKill()
 {
-	if (mGroundPlane->isIllegalData()
-	    || (!mGroundPlane->isDeathPlane() && !mGroundPlane->isPool()
-	        && !mGroundPlane->isWaterSurface())
-	    || isAirborne() || checkLiveFlag(LIVE_FLAG_UNK10))
-		return;
-
-	if (mSpine->getCurrentNerve() != &TNerveBombHeiExplosion::theNerve()) {
-		mSpine->reset();
-		mSpine->setNext(&TNerveBombHeiExplosion::theNerve());
-		mSpine->pushAfterCurrent(mSpine->getDefault());
-		mLiveFlag |= LIVE_FLAG_UNK20000;
-		mHitPoints = 1;
+	if (!(mGroundPlane->isIllegalData()
+	      || (!mGroundPlane->isDeathPlane() && !mGroundPlane->isPool()
+	          && !mGroundPlane->isWaterSurface())
+	      || isAirborne() || checkLiveFlag(LIVE_FLAG_UNK10))) {
+		if (mSpine->getCurrentNerve()
+		    != &TNerveBombHeiExplosion::theNerve()) {
+			mSpine->reset();
+			mSpine->setNext(&TNerveBombHeiExplosion::theNerve());
+			mSpine->pushAfterCurrent(mSpine->getDefault());
+			mLiveFlag |= LIVE_FLAG_UNK20000;
+			mHitPoints = 1;
+		}
 	}
 }
 
