@@ -905,7 +905,6 @@ bool TBaseNPC::isInMadSearchRange() const
 bool TBaseNPC::isMadNpc() const
 {
 	bool result  = false;
-	bool helper  = true;
 	bool partA   = false;
 	switch (mActorType) {
 	case 0x04000001:
@@ -915,10 +914,7 @@ bool TBaseNPC::isMadNpc() const
 	case 0x04000005:
 		partA = true;
 	}
-	if (!partA) {
-		if (!isNormalMonteW())
-			helper = false;
-	}
+	bool helper = partA || isNormalMonteW();
 	if (helper) {
 		result = true;
 	} else {
