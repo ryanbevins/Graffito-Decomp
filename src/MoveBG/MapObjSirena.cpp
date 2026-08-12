@@ -1355,12 +1355,12 @@ int TItemSlotDrum::getForcastResult(int idx)
 				break;
 		}
 	}
-	f32 resultAngle = (f32)(unk168 * (int)(angle / (f32)unk168));
-	if (resultAngle < 89.0f)
+	angle = (f32)(unk168 * (int)(angle / (f32)unk168));
+	if (angle < 89.0f)
 		return 0;
-	if (resultAngle < 179.0f)
+	if (angle < 179.0f)
 		return 1;
-	if (resultAngle < 269.0f)
+	if (angle < 269.0f)
 		return 2;
 	return 3;
 }
