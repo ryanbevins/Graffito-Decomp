@@ -974,21 +974,9 @@ void TKoopa::setUpHitActors()
 	body->calcEntryRadius();
 }
 
-inline const TNerveKoopaWait& TNerveKoopaWait::theNerve()
+inline const TNerveKoopaTurnR& TNerveKoopaTurnR::theNerve()
 {
-	static TNerveKoopaWait instance;
-	return instance;
-}
-
-inline const TNerveKoopaTumble& TNerveKoopaTumble::theNerve()
-{
-	static TNerveKoopaTumble instance;
-	return instance;
-}
-
-inline const TNerveKoopaFlame& TNerveKoopaFlame::theNerve()
-{
-	static TNerveKoopaFlame instance;
+	static TNerveKoopaTurnR instance;
 	return instance;
 }
 
@@ -998,9 +986,51 @@ inline const TNerveKoopaTurnL& TNerveKoopaTurnL::theNerve()
 	return instance;
 }
 
-inline const TNerveKoopaTurnR& TNerveKoopaTurnR::theNerve()
+inline const TNerveKoopaTumble& TNerveKoopaTumble::theNerve()
 {
-	static TNerveKoopaTurnR instance;
+	static TNerveKoopaTumble instance;
+	return instance;
+}
+
+const TNerveKoopaProvoke& TNerveKoopaProvoke::theNerve()
+{
+	static TNerveKoopaProvoke instance;
+	return instance;
+}
+
+inline const TNerveKoopaWait& TNerveKoopaWait::theNerve()
+{
+	static TNerveKoopaWait instance;
+	return instance;
+}
+
+inline const TNerveKoopaFlame& TNerveKoopaFlame::theNerve()
+{
+	static TNerveKoopaFlame instance;
+	return instance;
+}
+
+const TNerveKoopaGetDown& TNerveKoopaGetDown::theNerve()
+{
+	static TNerveKoopaGetDown instance;
+	return instance;
+}
+
+const TNerveKoopaStagger& TNerveKoopaStagger::theNerve()
+{
+	static TNerveKoopaStagger instance;
+	return instance;
+}
+
+const TNerveKoopaFall& TNerveKoopaFall::theNerve()
+{
+	static TNerveKoopaFall instance;
+	return instance;
+}
+
+const TNerveKoopaGetShowered& TNerveKoopaGetShowered::theNerve()
+{
+	static TNerveKoopaGetShowered instance;
 	return instance;
 }
 
@@ -1286,7 +1316,7 @@ BOOL TNerveKoopaTurnR::execute(TSpineBase<TLiveActor>* spine) const
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveKoopaGetDown, TLiveActor)
+BOOL TNerveKoopaGetDown::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
 	TKoopaParams* prm = self->getSaveParam2();
@@ -1324,7 +1354,7 @@ DEFINE_NERVE(TNerveKoopaGetDown, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveKoopaGetShowered, TLiveActor)
+BOOL TNerveKoopaGetShowered::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
 	TKoopaParams* params
@@ -1333,7 +1363,7 @@ DEFINE_NERVE(TNerveKoopaGetShowered, TLiveActor)
 	return self->mMActor->curAnmEndsNext(0, nullptr) ? TRUE : FALSE;
 }
 
-DEFINE_NERVE(TNerveKoopaStagger, TLiveActor)
+BOOL TNerveKoopaStagger::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
 	TKoopaParams* params
@@ -1342,7 +1372,7 @@ DEFINE_NERVE(TNerveKoopaStagger, TLiveActor)
 	return self->mMActor->curAnmEndsNext(0, nullptr) ? TRUE : FALSE;
 }
 
-DEFINE_NERVE(TNerveKoopaProvoke, TLiveActor)
+BOOL TNerveKoopaProvoke::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
 	self->changeAnm(6, 0, 2.0f);
@@ -1357,7 +1387,7 @@ DEFINE_NERVE(TNerveKoopaProvoke, TLiveActor)
 TSpineEnemyParams* TEnemyManager::getSaveParam() const { return unk38; }
 #pragma dont_inline off
 
-DEFINE_NERVE(TNerveKoopaFall, TLiveActor)
+BOOL TNerveKoopaFall::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
 	TKoopaParams* params
