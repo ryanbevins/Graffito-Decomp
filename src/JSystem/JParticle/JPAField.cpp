@@ -349,8 +349,9 @@ void JPAConvectionField::affect(JPAParticle* particle)
 	unk7C.cross(thing3, thing4);
 	unk7C.setLength(unk10);
 	if (unk34 != 0.0f) {
-		thing4.setLength(thing4, unk34);
-		unk7C.add(thing4);
+		JGeometry::TVec3<f32> radial;
+		radial.setLength(thing4, unk34);
+		unk7C.add(radial);
 	}
 	calcFieldVelocity(particle);
 }
