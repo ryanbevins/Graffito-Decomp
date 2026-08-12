@@ -1478,10 +1478,9 @@ void TMammaMirrorMapOperator::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (mirrorIndex != -1 ? true : false) {
 		const JGeometry::TVec3<f32>& camPos = mirrorManager->unk24->unk98;
 
-		const JGeometry::TVec3<f32>& mirrorPos = unkB8[mirrorIndex];
-		f32 dx = camPos.x - mirrorPos.x;
-		f32 dy = camPos.y - mirrorPos.y;
-		f32 dz = camPos.z - mirrorPos.z;
+		f32 dx = camPos.x - unkB8[mirrorIndex].x;
+		f32 dy = camPos.y - unkB8[mirrorIndex].y;
+		f32 dz = camPos.z - unkB8[mirrorIndex].z;
 		f32 dxSq = dx * dx;
 		f32 dySq = dy * dy;
 		f32 dzSq = dz * dz;
