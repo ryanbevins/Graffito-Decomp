@@ -968,11 +968,10 @@ DEFINE_NERVE(TNerveChuuHanaKeepBalance, TLiveActor)
 			spine->pushAfterCurrent(spine->getDefault());
 
 			self->unk1A4 = TChuuHana::mCheckOnPanelTime;
-			TGraphWeb* graph = self->unk124->unk0;
-			TMsRange<s32> nodeRange(0, graph->getNodeNum());
+			TMsRange<s32> nodeRange(0, self->unk124->unk0->getNodeNum());
 			int index = nodeRange.rand();
 			JGeometry::TVec3<f32> point;
-			graph->getGraphNode(index).getPoint((Vec*)&point);
+			self->unk124->unk0->getGraphNode(index).getPoint((Vec*)&point);
 
 			TPathNode node(point);
 			self->unkF4  = node;
