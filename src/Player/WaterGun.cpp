@@ -443,7 +443,7 @@ void TNozzleBase::animation(int param_1)
 			updateAnimation = false;
 		} else if (!updateAnimation) {
 			updateAnimation = true;
-			u32 nozzleKind  = fludd->getCurrentNozzle()->getNozzleKind();
+			int nozzleKind  = fludd->getCurrentNozzle()->getNozzleKind();
 			if (nozzleKind == 1) {
 				TNozzleTrigger* trigger
 				    = (TNozzleTrigger*)fludd->getCurrentNozzle();
