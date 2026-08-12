@@ -253,7 +253,7 @@ BOOL TMario::changePlayerTriJump()
 			if (sqSum > 0.0f) {
 				double guess = __frsqrte((double)sqSum);
 				guess = .5 * guess * (3.0 - guess * guess * sqSum);
-				f32 sqrtResult;
+				volatile f32 sqrtResult;
 				sqrtResult = (f32)(sqSum * guess);
 				sqSum = sqrtResult;
 			}
