@@ -575,7 +575,7 @@ void TBathtubKiller::moveChasing()
 	mQuat.getZDir(forward);
 	forward.normalize();
 	if (mPosition.y > maxY) {
-		if (0.0f < forward.y)
+		if (!(0.0f >= forward.y))
 			forward.y = 0.0f;
 	}
 	if (mPosition.y < minY)
