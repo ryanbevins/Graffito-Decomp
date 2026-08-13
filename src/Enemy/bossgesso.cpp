@@ -691,6 +691,7 @@ void TBossGesso::definiteRumble() { }
 
 void TBossGesso::continuousRumble() { }
 
+#pragma dont_inline on
 f32 TBossGesso::lenFromToeToMario()
 {
 	f32 min = 100000.0f;
@@ -709,6 +710,8 @@ f32 TBossGesso::lenFromToeToMario()
 
 	return min;
 }
+#pragma dont_inline off
+
 #pragma dont_inline on
 void TBossGesso::showMessage(u32 param_1)
 {
