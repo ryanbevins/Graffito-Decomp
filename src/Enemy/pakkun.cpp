@@ -74,6 +74,10 @@ static void setMarioGoalPath(TPakkun* pakkun)
 	pakkun->unk114.clear();
 }
 
+#define ASSERT_MSG(msg, line) (void)((msg), (line))
+#define ASSERT_TEST(expr)                                                      \
+	(void)((expr) ? true : (ASSERT_MSG(__FILE__, __LINE__), false));
+
 DEFINE_NERVE(TNerveStayPakkunAppear, TLiveActor)
 {
 	TLiveActor* actor = spine->getBody();
@@ -240,7 +244,7 @@ DEFINE_NERVE(TNervePakkunAppear, TLiveActor)
 		self->offHitFlag(HIT_FLAG_NO_COLLISION);
 	}
 
-	self->getMActor()->getFrameCtrl(0)->checkPass(100.0f);
+	ASSERT_TEST(self->getMActor()->getFrameCtrl(0)->checkPass(100.0f));
 	if (self->checkCurAnmEnd(0)) {
 		spine->pushAfterCurrent(&TNervePakkunStay::theNerve());
 		return TRUE;
