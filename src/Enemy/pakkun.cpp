@@ -941,7 +941,7 @@ void TPakkun::init(TLiveManager* manager)
 		                            &unk1B2);
 	}
 
-	getMActor()->setJointCallback(1, PakkunRootCallback);
+	getMActor()->setJointCallback(1, PakkunSeedCallback);
 	getMActor()->setJointCallback(2, PakkunRootCallback2);
 }
 
