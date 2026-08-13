@@ -1268,9 +1268,12 @@ static void evIsWaterMelonIsReached(TSpcTypedInterp<TEventWatcher>* interp,
 	interp->verifyArgNum(1, &arg_num);
 	THitActor* actor = (THitActor*)interp->pop().getDataInt();
 	int result       = 0;
-	f32 dx           = -4660.0f - actor->mPosition.x;
-	f32 dz           = 12000.0f - actor->mPosition.z;
-	f32 distSq        = 0.0f;
+	f32 distSq;
+	f32 dz;
+	f32 dx;
+	dx     = -4660.0f - actor->mPosition.x;
+	dz     = 12000.0f - actor->mPosition.z;
+	distSq = 0.0f;
 	distSq += dx * dx;
 	distSq += dz * dz;
 	if (distSq <= 90000.0f)
