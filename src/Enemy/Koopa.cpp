@@ -299,13 +299,11 @@ void TKoopaFlame::control()
 		unk8C += unk84;
 
 		f32 time   = unk8C;
-		f32 height = unk94;
 		f32 x      = unk6C + unk78 * time;
 		f32 radius = unk90;
 		f32 y      = unk70 + unk7C * time;
 		f32 z      = unk74 + unk80 * time;
-		if (height <= 0.0f)
-			height = 2.0f * radius;
+		f32 height = unk94 <= 0.0f ? 2.0f * radius : unk94;
 
 		mPosition.x = x;
 		mPosition.y = y;
