@@ -233,9 +233,11 @@ f32 TDirectionCalc::calcTurnDirection(f32 direction, f32 maxTurn)
 	                 6.2831855f
 	                     + (mDirection - JGeometry::TUtil<f32>::zero()),
 	                 6.2831855f);
-	mDirection = JGeometry::TUtil<f32>::mod(6.2831855f + (mDirection - 0.0f),
-	                                        6.2831855f)
-	             + 0.0f;
+	mDirection = JGeometry::TUtil<f32>::zero()
+	             + JGeometry::TUtil<f32>::mod(
+	                 6.2831855f
+	                     + (mDirection - JGeometry::TUtil<f32>::zero()),
+	                 6.2831855f);
 
 	if (direction >= mDirection) {
 		f32 diff = direction - mDirection;
