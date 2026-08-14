@@ -249,17 +249,18 @@ f32 TDirectionCalc::calcTurnDirection(f32 direction, f32 maxTurn)
 			direction += 6.2831855f;
 	}
 
+	f32 turn = maxTurn;
 	if (direction > mDirection) {
 		f32 diff = direction - mDirection;
-		if (diff < maxTurn)
-			maxTurn = diff;
-		return mDirection + maxTurn;
+		if (diff < turn)
+			turn = diff;
+		return mDirection + turn;
 	}
 
 	f32 diff = mDirection - direction;
-	if (diff < maxTurn)
-		maxTurn = diff;
-	return mDirection - maxTurn;
+	if (diff < turn)
+		turn = diff;
+	return mDirection - turn;
 }
 
 f32 TDirectionCalc::sub(f32 direction)
