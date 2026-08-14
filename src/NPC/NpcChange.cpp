@@ -427,12 +427,7 @@ void TBaseNPC::behaveToSandBomb_(const TLiveActor* bomb)
 			    || nerve == &TNerveNPCWet::theNerve()
 			    || nerve == &TNerveNPCMareStand::theNerve()) {
 			TMarDirector* director = gpMarDirector;
-			bool canBlow = true;
-			bool isBusy = canBlow;
-			if (director->unk124 != 1 && director->unk124 != 2)
-				isBusy = false;
-			if (!isBusy && director->unk124 != 4)
-				canBlow = false;
+			bool canBlow = director->isThing();
 			if (!canBlow)
 				ok = true;
 		}
