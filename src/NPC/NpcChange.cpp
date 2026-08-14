@@ -114,13 +114,15 @@ void TBaseNPC::changeNerveFromTalk_()
 	const TNerveBase<TLiveActor>* top = mSpine->peekTopNerveOrNull();
 
 	if (cur == &TNerveNPCWet::theNerve()) {
-		TNerveBase<TLiveActor>* popped = mSpine->popNerve();
+		TSpineBase<TLiveActor>* spine = mSpine;
+		TNerveBase<TLiveActor>* popped = spine->popNerve();
 		if (popped != nullptr)
-			mSpine->becomeNerveAfterPop(popped);
+			spine->becomeNerveAfterPop(popped);
 	} else if (cur == nullptr && top == &TNerveNPCTalk::theNerve()) {
-		TNerveBase<TLiveActor>* popped = mSpine->popNerve();
+		TSpineBase<TLiveActor>* spine = mSpine;
+		TNerveBase<TLiveActor>* popped = spine->popNerve();
 		if (popped != nullptr)
-			mSpine->becomeNerveAfterPop(popped);
+			spine->becomeNerveAfterPop(popped);
 	} else {
 		TNerveNPCTalk::theNerve();
 	}
