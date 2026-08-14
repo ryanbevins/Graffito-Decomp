@@ -228,8 +228,11 @@ void TDirectionCalc::makeDirection(JGeometry::TVec3<f32> direction)
 
 f32 TDirectionCalc::calcTurnDirection(f32 direction, f32 maxTurn)
 {
-	mDirection = std::fmodf(6.2831855f + (mDirection - 0.0f), 6.2831855f)
-	             + 0.0f;
+	mDirection = JGeometry::TUtil<f32>::zero()
+	             + std::fmodf(
+	                 6.2831855f
+	                     + (mDirection - JGeometry::TUtil<f32>::zero()),
+	                 6.2831855f);
 	mDirection = JGeometry::TUtil<f32>::mod(6.2831855f + (mDirection - 0.0f),
 	                                        6.2831855f)
 	             + 0.0f;
