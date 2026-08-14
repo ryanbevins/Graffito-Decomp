@@ -2,6 +2,9 @@
 #include <string.h>
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
+#define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
+#include <Map/MapCollisionEntry.hpp>
+#undef MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 #include <Map/MapStaticObject.hpp>
 #include <Map/MapWireManager.hpp>
 #include <MoveBG/Item.hpp>
