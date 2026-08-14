@@ -1049,7 +1049,7 @@ void TSlotDrum::initMapObj()
 	unk15C = 0.1f;
 	unk160 = 0.5f;
 	unk164 = 0;
-	unk168 = 0;
+	unk168 = 90;
 	unk138 = (f32*)operator new[](unk148 * sizeof(f32));
 	unk13C = (f32*)operator new[](unk148 * sizeof(f32));
 	for (s32 i = 0; i < unk148; ++i) {
