@@ -933,9 +933,7 @@ void TEnemyMario::checkReturn()
 		f32 dz = point.z - gpMarioPos->z;
 		if (JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz)
 		    > 1000.0f) {
-			mPosition.x = point.x;
-			mPosition.y = point.y;
-			mPosition.z = point.z;
+			*(Vec*)&mPosition = point;
 			searching = FALSE;
 		}
 
