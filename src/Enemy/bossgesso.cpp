@@ -426,8 +426,8 @@ void TBGBinder::bind(TLiveActor* param_1)
 {
 	TBossGesso* gesso = (TBossGesso*)param_1;
 
-	JGeometry::TVec3<f32> local_3c = gesso->mPosition;
-	local_3c += gesso->mLinearVelocity;
+	JGeometry::TVec3<f32> local_3c = gesso->mLinearVelocity;
+	local_3c += gesso->mPosition;
 
 	if (gesso->isAirborne()) {
 		JGeometry::TVec3<f32> local_48 = gesso->mVelocity;
