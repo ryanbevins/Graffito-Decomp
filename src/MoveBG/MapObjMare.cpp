@@ -648,7 +648,7 @@ void TWireBell::draw() const
 	f32 texTop  = unk148 * (wireY - topY);
 	f32 texBase = 0.0f;
 
-	GXBegin(GX_QUADS, GX_VTXFMT0, 8);
+	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 8);
 	GXPosition3f32(minX, wireY, minZ);
 	GXTexCoord2f32(0.0f, texTop);
 	GXPosition3f32(minX, topY, minZ);
