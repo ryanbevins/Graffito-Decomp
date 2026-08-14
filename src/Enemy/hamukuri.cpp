@@ -1,10 +1,8 @@
 #define JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
-#define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #include "MoveBG/Item.hpp"
 #include <Enemy/HamuKuri.hpp>
-#undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/Graph.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Strategic/Spine.hpp>
