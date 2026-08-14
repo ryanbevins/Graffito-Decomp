@@ -46,43 +46,43 @@ void TLimitKoopaManager::createModelData()
 
 inline TLimitKoopaParams::TLimitKoopaParams(const char* path)
     : TSpineEnemyParams(path)
-    , PARAM_INIT(mRotationSpeed, 1.0f)
-    , PARAM_INIT(mBodyScale, 1.0f)
-    , PARAM_INIT(mHipDropInitialSpeedY, 1.0f)
-    , PARAM_INIT(mHipDropGravityY, 1.0f)
-    , PARAM_INIT(mTurnSpeed, 1.6f)
-    , PARAM_INIT(mTurnAnim, 3.7f)
-    , PARAM_INIT(mWaitStep, 600.0f)
-    , PARAM_INIT(mAttackRadius, 800.0f)
-    , PARAM_INIT(mAttackHeight, 1000.0f)
-    , PARAM_INIT(mFocusRange, 2.0f)
-    , PARAM_INIT(mWaitRange, 12.0f)
-    , PARAM_INIT(mFireSpeed, 4.0f)
-    , PARAM_INIT(mTumbleSpeed, 2.0f)
-    , PARAM_INIT(mWaitSpeed, 2.0f)
-    , PARAM_INIT(mStaggerSpeed, 2.0f)
-    , PARAM_INIT(mDownSpeed, 1.8f)
-    , PARAM_INIT(mTumbleWeight, 4.2f)
-    , PARAM_INIT(mFlameScale, 1.0f)
-    , PARAM_INIT(mFlameCount, 300)
-    , PARAM_INIT(mFlameFocusStartStep, 100)
-    , PARAM_INIT(mFlameFocusEndStep, 300)
-    , PARAM_INIT(mFlameRadius, 200.0f)
-    , PARAM_INIT(mFlameHeight, 600.0f)
-    , PARAM_INIT(mHeadRadius, 400.0f)
-    , PARAM_INIT(mWaterhitSpeed, 2.0f)
-    , PARAM_INIT(mFlameOverStart, 0.9f)
-    , PARAM_INIT(mFlameNeckRange, 16.0f)
-    , PARAM_INIT(mFlameNeckDownRate, 0.3f)
-    , PARAM_INIT(mMarioEstimationFire, 20.0f)
-    , PARAM_INIT(mMarioEstimationWait, 10.0f)
+    , PARAM_INIT(rotationSpeed, 1.0f)
+    , PARAM_INIT(bodyScale, 1.0f)
+    , PARAM_INIT(hipDropInitialSpeedY, 1.0f)
+    , PARAM_INIT(hipDropGravityY, 1.0f)
+    , PARAM_INIT(turnSpeed, 1.6f)
+    , PARAM_INIT(turnAnim, 3.7f)
+    , PARAM_INIT(waitStep, 600.0f)
+    , PARAM_INIT(attackRadius, 800.0f)
+    , PARAM_INIT(attackHeight, 1000.0f)
+    , PARAM_INIT(focusRange, 2.0f)
+    , PARAM_INIT(waitRange, 12.0f)
+    , PARAM_INIT(fireSpeed, 4.0f)
+    , PARAM_INIT(tumbleSpeed, 2.0f)
+    , PARAM_INIT(waitSpeed, 2.0f)
+    , PARAM_INIT(staggerSpeed, 2.0f)
+    , PARAM_INIT(downSpeed, 1.8f)
+    , PARAM_INIT(tumbleWeight, 4.2f)
+    , PARAM_INIT(flameScale, 1.0f)
+    , PARAM_INIT(flameCount, 300)
+    , PARAM_INIT(flameFocusStartStep, 100)
+    , PARAM_INIT(flameFocusEndStep, 300)
+    , PARAM_INIT(flameRadius, 200.0f)
+    , PARAM_INIT(flameHeight, 600.0f)
+    , PARAM_INIT(headRadius, 400.0f)
+    , PARAM_INIT(waterhitSpeed, 2.0f)
+    , PARAM_INIT(flameOverStart, 0.9f)
+    , PARAM_INIT(flameNeckRange, 16.0f)
+    , PARAM_INIT(flameNeckDownRate, 0.3f)
+    , PARAM_INIT(marioEstimationFire, 20.0f)
+    , PARAM_INIT(marioEstimationWait, 10.0f)
 {
 	TParams::load(mPrmPath);
 
-	mRotationSpeed.set(0.25f);
-	mBodyScale.set(0.7f);
-	mHipDropInitialSpeedY.set(40.0f);
-	mHipDropGravityY.set(0.4f);
+	rotationSpeed.set(0.25f);
+	bodyScale.set(0.7f);
+	hipDropInitialSpeedY.set(40.0f);
+	hipDropGravityY.set(0.4f);
 }
 
 void TLimitKoopaManager::load(JSUMemoryInputStream& stream)
@@ -181,7 +181,7 @@ void TLimitKoopaFlame::attack_(THitActor* actor)
 		TLimitKoopaParams* params
 		    = (TLimitKoopaParams*)((TEnemyManager*)owner->getManager())
 		          ->getSaveParam();
-		f32 fireSpeed = params->mFireSpeed.get();
+		f32 fireSpeed = params->fireSpeed.get();
 
 		MActor* mactor = owner->getMActor();
 		if (!mactor->checkCurBckFromIndex(3))
@@ -218,7 +218,7 @@ void TLimitKoopa::load(JSUMemoryInputStream& stream) { TSpineEnemy::load(stream)
 
 f32 TLimitKoopa::getGravityY() const
 {
-	return getSaveParam2()->mHipDropGravityY.get();
+	return getSaveParam2()->hipDropGravityY.get();
 }
 
 BOOL TLimitKoopa::receiveMessage(THitActor* sender, u32 message)
@@ -228,7 +228,7 @@ BOOL TLimitKoopa::receiveMessage(THitActor* sender, u32 message)
 
 void TLimitKoopa::calcRootMatrix()
 {
-	f32 scale = getSaveParam2()->mBodyScale.get();
+	f32 scale = getSaveParam2()->bodyScale.get();
 	mScaling.x = scale;
 	mScaling.y = scale;
 	mScaling.z = scale;
@@ -270,7 +270,7 @@ void TLimitKoopa::reset()
 {
 	TSpineEnemy::reset();
 
-	f32 waitSpeed = getSaveParam2()->mWaitSpeed.get();
+	f32 waitSpeed = getSaveParam2()->waitSpeed.get();
 	MActor* actor = mMActor;
 	if (!actor->checkCurBckFromIndex(0xc))
 		actor->setBckFromIndex(0xc);
@@ -396,8 +396,8 @@ void TLimitKoopa::setUpHitActors()
 
 		for (int i = 0; i < 10; i++) {
 			TLimitKoopaParams* prm = getSaveParam2();
-			f32 flameRadius = prm->mFlameRadius.get();
-			f32 flameHeight = prm->mFlameHeight.get();
+			f32 flameRadius = prm->flameRadius.get();
+			f32 flameHeight = prm->flameHeight.get();
 
 			f32 dist = 0.8f * (2.0f + (f32)(2 * i)) * flameRadius * ratio;
 
@@ -437,7 +437,7 @@ void TLimitKoopa::setUpHitActors()
 	}
 
 	MtxPtr headMtx = getMActor()->getModel()->getAnmMtx(mHeadJointIndex);
-	f32 headRadius = getSaveParam2()->mHeadRadius.get();
+	f32 headRadius = getSaveParam2()->headRadius.get();
 	THitActor* head = mHeadHitActor;
 
 	head->mPosition.set<f32>(headMtx[0][3], headMtx[1][3] - 200.0f,
@@ -458,7 +458,7 @@ void TLimitKoopa::setUpHitActors()
 void TLimitKoopa::startHipDrop()
 {
 	JGeometry::TVec3<f32> vel(0.0f, 1.0f, 0.0f);
-	vel.scale(getSaveParam2()->mHipDropInitialSpeedY.get());
+	vel.scale(getSaveParam2()->hipDropInitialSpeedY.get());
 
 	JGeometry::TVec3<f32> marioVec = *gpMarioPos;
 	marioVec.y                     = mGroundHeight;
@@ -468,7 +468,7 @@ void TLimitKoopa::startHipDrop()
 	target.add(mPosition);
 
 	vel = calcVelocityToJumpToY(target, vel.y,
-	                            getSaveParam2()->mHipDropGravityY.get());
+	                            getSaveParam2()->hipDropGravityY.get());
 
 	if (vel.length() > 200.0f) {
 		vel.normalize();
@@ -512,7 +512,7 @@ void TLimitKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 		}
 
 		if (emitting) {
-			f32 scale = getSaveParam2()->mFlameScale.get();
+			f32 scale = getSaveParam2()->flameScale.get();
 			JGeometry::TVec3<f32> scaleVec(scale, scale, scale);
 			JPABaseEmitter* e;
 
@@ -591,7 +591,7 @@ DEFINE_NERVE(TNerveLimitKoopaWait, TLiveActor)
 		tdc.makeDirection(diff);
 
 		f32 turn = TDirectionCalc::d2r(
-		    self->getSaveParam2()->mRotationSpeed.get());
+		    self->getSaveParam2()->rotationSpeed.get());
 		self->mDirection.mDirection
 		    = self->mDirection.calcTurnDirection(tdc.mDirection, turn);
 	}
@@ -625,7 +625,7 @@ DEFINE_NERVE(TNerveLimitKoopaStagger, TLiveActor)
 {
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
-	f32 rate  = self->getSaveParam2()->mStaggerSpeed.get();
+	f32 rate  = self->getSaveParam2()->staggerSpeed.get();
 	MActor* m = self->mMActor;
 	if (!m->checkCurBckFromIndex(9))
 		m->setBckFromIndex(9);
@@ -640,7 +640,7 @@ DEFINE_NERVE(TNerveLimitKoopaGetShowered, TLiveActor)
 {
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
-	f32 rate  = self->getSaveParam2()->mWaterhitSpeed.get();
+	f32 rate  = self->getSaveParam2()->waterhitSpeed.get();
 	MActor* m = self->mMActor;
 	if (!m->checkCurBckFromIndex(14))
 		m->setBckFromIndex(14);
@@ -658,7 +658,7 @@ DEFINE_NERVE(TNerveLimitKoopaGetDown, TLiveActor)
 	switch (self->mMActor->getCurAnmIdx(0)) {
 	case 0:
 		if (self->mMActor->curAnmEndsNext(0, nullptr)) {
-			f32 rate  = self->getSaveParam2()->mDownSpeed.get();
+			f32 rate  = self->getSaveParam2()->downSpeed.get();
 			MActor* m = self->mMActor;
 			if (!m->checkCurBckFromIndex(1))
 				m->setBckFromIndex(1);
@@ -667,7 +667,7 @@ DEFINE_NERVE(TNerveLimitKoopaGetDown, TLiveActor)
 		break;
 	case 1:
 		if (self->mMActor->curAnmEndsNext(0, nullptr)) {
-			f32 rate  = self->getSaveParam2()->mDownSpeed.get();
+			f32 rate  = self->getSaveParam2()->downSpeed.get();
 			MActor* m = self->mMActor;
 			if (!m->checkCurBckFromIndex(7))
 				m->setBckFromIndex(7);
@@ -679,7 +679,7 @@ DEFINE_NERVE(TNerveLimitKoopaGetDown, TLiveActor)
 			return TRUE;
 		break;
 	default: {
-		f32 rate  = self->getSaveParam2()->mDownSpeed.get();
+		f32 rate  = self->getSaveParam2()->downSpeed.get();
 		MActor* m = self->mMActor;
 		if (!m->checkCurBckFromIndex(0))
 			m->setBckFromIndex(0);
@@ -694,7 +694,7 @@ DEFINE_NERVE(TNerveLimitKoopaTumble, TLiveActor)
 {
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
-	f32 speed = self->getSaveParam2()->mTumbleSpeed.get();
+	f32 speed = self->getSaveParam2()->tumbleSpeed.get();
 	MActor* m = self->mMActor;
 	if (!m->checkCurBckFromIndex(8))
 		m->setBckFromIndex(8);
