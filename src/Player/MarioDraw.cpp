@@ -1,4 +1,8 @@
+#define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #include <Player/MarioMain.hpp>
+#undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #include <MSound/MSoundBGM.hpp>
 #include <Player/MarioAnimeData.hpp>
 #include <Player/MarioCap.hpp>
@@ -23,6 +27,9 @@
 #include <NPC/NpcBase.hpp>
 
 TMario* gpMarioForCallBack;
+
+static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
 // NOTE: hack for matching setLength
 static void dummy(JGeometry::TVec3<f32>& v) { v.setLength(v, 1.0f); }
