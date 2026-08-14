@@ -192,9 +192,11 @@ f32 TDirectionCalc::d2r(f32 degrees)
 
 f32 TDirectionCalc::absDirection(f32 direction)
 {
-	mDirection = JGeometry::TUtil<f32>::mod(6.2831855f + (mDirection - 0.0f),
-	                                        6.2831855f)
-	             + 0.0f;
+	mDirection = JGeometry::TUtil<f32>::zero()
+	             + JGeometry::TUtil<f32>::mod(
+	                 6.2831855f
+	                     + (mDirection - JGeometry::TUtil<f32>::zero()),
+	                 6.2831855f);
 
 	if (direction >= mDirection) {
 		f32 diff = direction - mDirection;
