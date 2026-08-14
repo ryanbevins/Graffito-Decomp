@@ -517,10 +517,10 @@ void TDemoCannon::initMapObj()
 	unk138              = parts;
 
 	res = JKRFileLoader::getGlbResource("/scene/mapObj/demoCannon_mario.bmd");
-	SDLModelData* sdlData2
+	sdlData
 	    = new SDLModelData(J3DModelLoaderDataBase::load(res, 0x10010000));
 
-	parts  = new TSharedParts(this, 0, sdlData2, 3, "<TSharedParts>");
+	parts  = new TSharedParts(this, 0, sdlData, 3, "<TSharedParts>");
 	unk13C = parts;
 }
 
