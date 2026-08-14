@@ -1055,7 +1055,7 @@ void TSlotDrum::initMapObj()
 	for (s32 i = 0; i < unk148; ++i) {
 		unk138[i] = 0.0f;
 		unk13C[i] = (f32)(i + 1) * 90.0f;
-		*(u8*)((u8*)this + 0x188 + i) = 0;
+		unk188[i] = 0.0f;
 	}
 	TMapObjBase::initMapObj();
 	for (u8 k = 0; k < getModel()->getModelData()->getJointNum(); ++k) {

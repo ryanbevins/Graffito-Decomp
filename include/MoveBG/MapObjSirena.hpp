@@ -202,8 +202,7 @@ public:
 	/* 0x16E */ u8 unk16E;
 	/* 0x16F */ u8 unk16F;
 	/* 0x170 */ GXColorS10 unk170[3];
-	/* 0x188 */ u8 unk188[4];
-	/* 0x18C */ u8 unk18C[8];
+	/* 0x188 */ f32 unk188[3];
 	/* 0x194 */ u8 unk194;
 };
 
