@@ -13,7 +13,6 @@
 #include <JSystem/JSupport/JSUMemoryInputStream.hpp>
 #include <JSystem/JMath.hpp>
 #include <M3DUtil/M3UJoint.hpp>
-#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorUtil.hpp>
 #include <Map/MapData.hpp>
@@ -50,6 +49,12 @@
 
 static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
 static const char cDirtyTexName[]  = "H_ma_rak_dummy";
+
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
+#include <M3DUtil/InfectiousStrings.hpp>
 
 static unkTMarioAnimeFilesStruct marioAnimeFiles[199] = {
 	{ 0x00000001, "hgup" },
@@ -251,21 +256,6 @@ static unkTMarioAnimeFilesStruct marioAnimeFiles[199] = {
 	{ 0x00000001, "demo_shine_get_yo" },
 	{ 0x00000001, "yo_slide_pose" },
 	{ 0x00000001, "yo_slide_end" },
-};
-
-static char* marioAnimeTexPatternFilenames[24] = {
-	"/mario/btp/ma_wink_tx.btp",        "/mario/btp/ma_bdwn_tx.btp",
-	"/mario/btp/ma_bkdwn_tx.btp",       "/mario/btp/ma_sdwnf_tx.btp",
-	"/mario/btp/ma_jfdwn_tx.btp",       "/mario/btp/ma_sdown_tx.btp",
-	"/mario/btp/ma_sldwn_tx.btp",       "/mario/btp/ma_dgrun_tx.btp",
-	"/mario/btp/ma_hot_wait_tx.btp",    "/mario/btp/ma_firejmp_tx.btp",
-	"/mario/btp/ma_fjpend_tx.btp",      "/mario/btp/ma_shock_tx.btp",
-	"/mario/btp/ma_gate_out_tx.btp",    "/mario/btp/ma_die_tx.btp",
-	"/mario/btp/ma_d_wait_tx.btp",      "/mario/btp/ma_swim_p_damage_tx.btp",
-	"/mario/btp/ma_swim_p_down_tx.btp", "/mario/btp/ma_yawn_tx.btp",
-	"/mario/btp/ma_sit_tx.btp",         "/mario/btp/ma_sit_wait_tx.btp",
-	"/mario/btp/ma_sit_end_tx.btp",     "/mario/btp/ma_sleep_tx.btp",
-	"/mario/btp/ma_sleep_wait_tx.btp",  "/mario/btp/ma_sleep_end_tx.btp"
 };
 
 namespace {

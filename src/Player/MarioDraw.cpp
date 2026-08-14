@@ -585,7 +585,7 @@ TMarioAnimeData gMarioAnimeData[336]
 	    { 0x00C5, 0x00C8, 0x00, 0x00, 0x06, 0x13 },
 	    { 0x00C6, 0x00C8, 0x00, 0x00, 0x06, 0x12 } };
 
-static char* marioAnimeTexPatternFilenames[24] = {
+char* marioAnimeTexPatternFilenames[24] = {
 	"/mario/btp/ma_wink_tx.btp",        "/mario/btp/ma_bdwn_tx.btp",
 	"/mario/btp/ma_bkdwn_tx.btp",       "/mario/btp/ma_sdwnf_tx.btp",
 	"/mario/btp/ma_jfdwn_tx.btp",       "/mario/btp/ma_sdown_tx.btp",

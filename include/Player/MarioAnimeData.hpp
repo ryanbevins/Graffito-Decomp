@@ -17,6 +17,7 @@ public:
 };
 
 extern TMarioAnimeData gMarioAnimeData[336];
+extern char* marioAnimeTexPatternFilenames[24];
 
 struct unkTMarioAnimeFilesStruct {
 public:
