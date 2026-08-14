@@ -161,7 +161,10 @@ void TAmiKing::calcRootMatrix()
 		setVecFromMtx(unk13C, mtx);
 
 		Mtx rot;
-		Vec offset = { 0.0f, 0.0f, 200.0f };
+		Vec offset;
+		offset.x = 0.0f;
+		offset.y = 0.0f;
+		offset.z = 200.0f;
 		MsMtxSetRotRPH(rot, 0.0f, mRotation.y, 0.0f);
 		MTXMultVec(rot, &offset, &offset);
 		unk13C.x += offset.x;
