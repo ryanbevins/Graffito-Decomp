@@ -41,9 +41,8 @@ static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 #pragma dont_inline on
 static void MsMtxSetRotY(MtxPtr m, f32 deg)
 {
-	s16 a = (s16)(deg * 182.04445f);
-	f32 s = JMASSin(a);
-	f32 c = JMASCos(a);
+	f32 s = JMASSin((s16)(deg * 182.04445f));
+	f32 c = JMASCos((s16)(deg * 182.04445f));
 	m[0][0] = c;
 	m[0][1] = 0.0f;
 	m[0][2] = s;
