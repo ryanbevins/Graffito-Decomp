@@ -191,7 +191,7 @@ void TMario::stateMachineUpper()
 			mPumpState = 5;
 
 		if ((mAction - 0x04000000) == 0x440) {
-			if (mForwardVel > 0.0f)
+			if (mForwardVel > 20.0f)
 				emitSweatSometimes();
 		}
 		break;
