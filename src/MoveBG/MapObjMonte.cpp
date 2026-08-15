@@ -150,9 +150,7 @@ void TFluffManager::load(JSUMemoryInputStream& stream)
 	unk148.x = windX;
 	unk148.y = windY;
 	unk148.z = windZ;
-	unk148.x *= windScale;
-	unk148.y *= windScale;
-	unk148.z *= windScale;
+	unk148.scale(windScale);
 }
 
 void TFluffManager::loadAfter()
