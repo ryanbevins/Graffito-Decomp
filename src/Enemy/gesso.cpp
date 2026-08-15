@@ -946,10 +946,11 @@ void TGessoPolluteObj::rebirth()
 	if (unk158 == 10) {
 		mVelocity.y = -15.0f;
 		f32 pollRange = TGesso::mPollRange * 32.0f;
+		f32 radius    = pollRange * 0.5f;
 		f32 z         = mPosition.z;
 		f32 y         = mPosition.y;
 		f32 x         = mPosition.x;
-		gpPollution->stamp(1, x, y, z, pollRange * 0.5f);
+		gpPollution->stamp(1, x, y, z, radius);
 
 		((TGesso*)unk160)
 		    ->getManager()
