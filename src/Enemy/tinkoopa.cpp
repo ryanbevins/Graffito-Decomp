@@ -55,7 +55,30 @@ static const char* TTinKoopa_jointNameTable[] = {
 
 static u32 TTinKoopa_jointIndexTable[15];
 
+static const char* partsCollisionFileTable[] = {
+	"/scene/tinkoopa/head_col.col",
+	"/scene/tinkoopa/breast_col.col",
+	"/scene/tinkoopa/stomach_col.col",
+	"/scene/tinkoopa/rarm_col.col",
+	"/scene/tinkoopa/larm_col.col",
+	"/scene/tinkoopa/leg_col.col",
+};
+
+static const char* partsBreakModelTable[] = {
+	nullptr,
+	"tinkoopa_breast.bmd",
+	"tinkoopa_stomach.bmd",
+	"tinkoopa_rarm.bmd",
+	"tinkoopa_larm.bmd",
+	nullptr,
+};
+
 static int partsBreakBckTable[] = { 0, 4, 11, 9, 10, 0 };
+
+static u32 partsHitActorTypeTable[] = {
+	0x08000019, 0x0800001A, 0x0800001B,
+	0x0800001D, 0x0800001C, 0x0800001E,
+};
 
 static int waitBckTable[] = { 12, 13, 14, 15, 16 };
 
@@ -88,29 +111,6 @@ static const char* leftArmTrackJointNameTable[] = {
 	"larm_2",
 	"larm_3",
 	"larm_4",
-};
-
-static const char* partsCollisionFileTable[] = {
-	"/scene/tinkoopa/head_col.col",
-	"/scene/tinkoopa/breast_col.col",
-	"/scene/tinkoopa/stomach_col.col",
-	"/scene/tinkoopa/rarm_col.col",
-	"/scene/tinkoopa/larm_col.col",
-	"/scene/tinkoopa/leg_col.col",
-};
-
-static const char* partsBreakModelTable[] = {
-	nullptr,
-	"tinkoopa_breast.bmd",
-	"tinkoopa_stomach.bmd",
-	"tinkoopa_rarm.bmd",
-	"tinkoopa_larm.bmd",
-	nullptr,
-};
-
-static const u32 partsHitActorTypeTable[] = {
-	0x08000019, 0x0800001A, 0x0800001B,
-	0x0800001D, 0x0800001C, 0x0800001E,
 };
 
 inline const TNerveTinKoopaWait& TNerveTinKoopaWait::theNerve()
