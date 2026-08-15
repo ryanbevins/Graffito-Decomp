@@ -837,10 +837,10 @@ void TPakkun::onShootLiner(JGeometry::TVec3<f32>& dir)
 	JGeometry::TVec3<f32> pos = mPosition;
 	pos.x += dir.x * 200.0f;
 	pos.z += dir.z * 200.0f;
-	unkF4  = TPathNode(nullptr);
-	unk104 = TPathNode(nullptr);
-	unkF4.unk4 = pos;
-	unk104.unk4 = pos;
+	TPathNode node(nullptr);
+	node.unk4 = pos;
+	unkF4     = node;
+	unk104    = node;
 	unk114.clear();
 	mShootType = 0;
 	if (dir.x == 0.0f && dir.y == 0.0f && dir.z == 0.0f)
