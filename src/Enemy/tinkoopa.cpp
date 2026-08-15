@@ -57,15 +57,15 @@ static u32 TTinKoopa_jointIndexTable[15];
 
 static int partsBreakBckTable[] = { 0, 4, 11, 9, 10, 0 };
 
-static const int waitBckTable[] = { 12, 13, 14, 15, 16 };
+static int waitBckTable[] = { 12, 13, 14, 15, 16 };
 
-static const int breakBckTable[] = { 0, 1, 2, 3, 16 };
+static int breakBckTable[] = { 0, 1, 2, 3, 16 };
 
-static const int damageBckTable[] = { 5, 6, 7, 8, 16 };
+static int damageBckTable[] = { 5, 6, 7, 8, 16 };
 
-static const int breakStartFrameTable[] = { 100, 134, 134, 100, 0 };
+static int breakStartFrameTable[] = { 100, 134, 134, 100, 0 };
 
-static const int breakPartIndexTable[] = { 2, 3, 4, 1, 2 };
+static int breakPartIndexTable[] = { 2, 3, 4, 1, 2 };
 
 static const char* breastTrackJointNameTable[] = {
 	"breast_1", "breast_2", "breast_3", "breast_4", "breast_5", "breast_6",
