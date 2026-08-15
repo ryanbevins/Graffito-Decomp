@@ -129,7 +129,7 @@ void TMarDirector::initECDisp(
 	if (specularSheen || lensFlare || lensGlow) {
 		f32 w = (u16)SMSGetGameRenderWidth() / 2;
 		f32 h = (u16)SMSGetGameRenderHeight() / 2;
-		ortho = new JDrama::TOrthoProj(-w, h, w, -h);
+		ortho = new JDrama::TOrthoProj(10.0f, 300000.0f, -w, h, w, -h);
 	}
 
 	JDrama::TOrthoProj* ortho2
