@@ -32,7 +32,7 @@ f32 getParamByExp(f32 x, f32 xStart, f32 xEnd, f32 y, f32 yStart, f32 yEnd,
 		f32 newX = expf(linearTransform(x, xStart, xEnd, y, 0.0f, true));
 		result   = linearTransform(newX, expf(y), 1.0f, yStart, yEnd, true);
 	} else {
-		result = linearTransform(x, xStart, xEnd, yStart, yEnd, false);
+		return linearTransform(x, xStart, xEnd, yStart, yEnd, false);
 	}
 
 	if (result > yEnd) {
