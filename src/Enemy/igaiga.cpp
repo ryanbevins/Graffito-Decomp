@@ -335,7 +335,9 @@ void TRollEnemy::flagJump()
 	    ->getGraphNode(unk124->mCurrIdx)
 	    .getPoint((Vec*)&target);
 	mPosition.y += 30.0f;
-	mVelocity = calcVelocityToJumpToY(target, unk124->unkC, getGravityY());
+	f32 jumpTime = unk124->unkC;
+	f32 gravity  = getGravityY();
+	mVelocity    = calcVelocityToJumpToY(target, jumpTime, gravity);
 	unk1A8    = true;
 	onLiveFlag(LIVE_FLAG_AIRBORNE);
 }
@@ -1005,7 +1007,9 @@ void TGorogoro::flagJump()
 	    ->getGraphNode(unk124->mCurrIdx)
 	    .getPoint((Vec*)&target);
 	mPosition.y += 30.0f;
-	mVelocity = calcVelocityToJumpToY(target, unk124->unkC, getGravityY());
+	f32 jumpTime = unk124->unkC;
+	f32 gravity  = getGravityY();
+	mVelocity    = calcVelocityToJumpToY(target, jumpTime, gravity);
 	unk1A8    = true;
 	onLiveFlag(LIVE_FLAG_AIRBORNE);
 }
