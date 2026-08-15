@@ -362,7 +362,7 @@ void TBombHei::forceKill()
 bool TBombHei::isCollidMove(THitActor* other)
 {
 	if (mSerialBomb) {
-		if (other->mActorType == 0x1000001e) {
+		if (other->isActorType(0x1000001e)) {
 			if (((TBombHei*)other)->mSpine->getCurrentNerve()
 			        == &TNerveBombHeiExplosion::theNerve()
 			    && mSpine->getCurrentNerve()
@@ -372,7 +372,7 @@ bool TBombHei::isCollidMove(THitActor* other)
 		}
 	}
 
-	if (other->mActorType == 0x80000013) {
+	if (other->isActorType(0x80000013)) {
 		if (mSpine->getCurrentNerve() == &TNerveBombHeiExplosion::theNerve())
 			other->receiveMessage((THitActor*)this, 0);
 
