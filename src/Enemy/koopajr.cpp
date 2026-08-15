@@ -670,7 +670,7 @@ void TKoopaJr::checkNerveKillerLaunchNormal()
 		submarine->unk178[submarine->unk184 - 1] = 1;
 
 	mSpine->pushNerve(&TNerveKoopaJrLaunch::theNerve());
-	submarine->mSpine->pushNerve(
+	unk164->mSpine->pushNerve(
 	    &TNerveKoopaJrSubmarineCannonOpenClose::theNerve());
 }
 
