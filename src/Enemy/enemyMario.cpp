@@ -1823,15 +1823,15 @@ void TEnemyMario::changeEMDoing(u16 doing)
 
 void TEnemyMario::startMonteReplay(u32 node_id)
 {
-	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
-	int node         = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+	int node = emOwner(this)->unk124->getGraph()->findNearestNodeIndex(
+	    mPosition, 0xffffffff);
 
 	Vec current;
-	graph->getGraphNode(node).getPoint(&current);
+	emOwner(this)->unk124->getGraph()->getGraphNode(node).getPoint(&current);
 	mPosition = current;
 
 	Vec next;
-	graph->getGraphNode(node + 1).getPoint(&next);
+	emOwner(this)->unk124->getGraph()->getGraphNode(node + 1).getPoint(&next);
 	mFaceAngle.y = matan(next.z - current.z, next.x - current.x);
 
 	f32 zero    = 0.0f;
