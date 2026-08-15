@@ -1329,21 +1329,14 @@ void TTinKoopaPartsBase::startBreaking()
 	baseMtx[2][3]   = mPosition.z;
 	model->setBaseTRMtx(baseMtx);
 
-	switch (unkFC) {
-	case 1:
+	if (unkFC == 1) {
 		emitPartsTrackEffects(breastTrackJointNameTable, 6);
-		break;
-	case 2:
+	} else if (unkFC == 2) {
 		emitPartsTrackEffects(bellyTrackJointNameTable, 6);
-		break;
-	case 3:
+	} else if (unkFC == 3) {
 		emitPartsTrackEffects(rightArmTrackJointNameTable, 4);
-		break;
-	case 4:
+	} else if (unkFC == 4) {
 		emitPartsTrackEffects(leftArmTrackJointNameTable, 4);
-		break;
-	default:
-		break;
 	}
 }
 
