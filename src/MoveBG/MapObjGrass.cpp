@@ -205,7 +205,7 @@ void TMapObjGrassManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 			fVar1 += sGrassAddTime;
 		}
 		unk18 += mSwingSpeed;
-		if (unk18 > M_PI * 2)
+		if (unk18 > 6.28318f)
 			unk18 = 0.0f;
 
 		for (int i = 0; i < unk10; ++i) {
