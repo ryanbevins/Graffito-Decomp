@@ -55,7 +55,7 @@ static const char* TTinKoopa_jointNameTable[] = {
 
 static u32 TTinKoopa_jointIndexTable[15];
 
-static const int partsBreakBckTable[] = { 0, 4, 11, 9, 10, 0 };
+static int partsBreakBckTable[] = { 0, 4, 11, 9, 10, 0 };
 
 static const int waitBckTable[] = { 12, 13, 14, 15, 16 };
 
