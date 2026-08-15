@@ -137,7 +137,7 @@ void TSilhouette::perform(u32 param_1, JDrama::TGraphics* param_2)
 		C_MTXLightFrustum(afStack_80, -1.0f, 1.0f, -1.0f, 1.0f, 10.0f, 0.5f,
 		                  0.5f, 0.5f, 0.5f);
 		Mtx afStack_b0;
-		PSMTXRotRad(afStack_b0, 0x58, 1.570796f);
+	PSMTXRotRad(afStack_b0, 0x58, 1.5707964f);
 		Mtx afStack_50;
 		PSMTXConcat(afStack_80, afStack_b0, afStack_50);
 		Mtx afStack_e0;
