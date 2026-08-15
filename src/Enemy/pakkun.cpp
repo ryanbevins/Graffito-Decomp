@@ -1017,9 +1017,11 @@ void TPakkunManager::clipEnemies(JDrama::TGraphics* graphics)
 				if (!seed->isUnk150Zero()) {
 					if (ViewFrustumClipCheck(
 					        graphics, (Vec*)&seed->mPosition, radius))
-						seed->offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+						pakkun->mSubSeeds[j]->offLiveFlag(
+						    LIVE_FLAG_CLIPPED_OUT);
 					else
-						seed->onLiveFlag(LIVE_FLAG_CLIPPED_OUT);
+						pakkun->mSubSeeds[j]->onLiveFlag(
+						    LIVE_FLAG_CLIPPED_OUT);
 				}
 			}
 		}
