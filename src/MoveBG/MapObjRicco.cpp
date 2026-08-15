@@ -196,12 +196,12 @@ void TCraneUpDown::initMapObj()
 	    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 	unk138->appear();
 	if (strcmp(mName, "craneUpDown 0") == 0) {
-		unk144 = 30.0f;
-		unk140 = -30.0f;
+		unk144 = -25.0f;
+		unk140 = 45.0f;
 		unk13C = 0x3036;
 	} else {
-		unk144 = 30.0f;
-		unk140 = -60.0f;
+		unk144 = -25.0f;
+		unk140 = 30.0f;
 		unk13C = 0x3037;
 	}
 	mRotation.x = unk144 + (unk140 - unk144) * MsRandF();
