@@ -975,12 +975,12 @@ void TPakkunManager::clipEnemies(JDrama::TGraphics* graphics)
 {
 	f32 farClip;
 	f32 radius;
-	if (unk38) {
-		farClip = unk38->mSLFarClip.get();
-		radius  = unk38->mSLClipRadius.get();
-	} else {
+	if (!unk38) {
 		farClip = gpConductor->getCondParams().getEnemyFarClip();
 		radius  = 300.0f;
+	} else {
+		farClip = unk38->mSLFarClip.get();
+		radius  = unk38->mSLClipRadius.get();
 	}
 
 	SetViewFrustumClipCheckPerspective(gpCamera->getFovy(),
