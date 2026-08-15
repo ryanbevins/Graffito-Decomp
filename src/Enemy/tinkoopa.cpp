@@ -1329,6 +1329,9 @@ void TTinKoopaPartsBase::startBreaking()
 	baseMtx[2][3]   = mPosition.z;
 	model->setBaseTRMtx(baseMtx);
 
+	if (!unk104)
+		return;
+
 	if (unkFC == 1) {
 		emitPartsTrackEffects(breastTrackJointNameTable, 6);
 	} else if (unkFC == 2) {
