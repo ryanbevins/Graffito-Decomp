@@ -145,7 +145,7 @@ DEFINE_NERVE(TNerveRocketPossessedNozzle, TLiveActor)
 	bool firePressed;
 	u8* gamepad2 = *(u8**)*(u8**)((u8*)gpMarDirector + 0x18);
 	if (*(u32*)(gamepad2 + 0xd4) & 0x400) {
-		self->unk190 = 0.0f;
+		self->unk190 = 2.0f;
 		self->expandCollision();
 		if (gpMSound->gateCheck(3)) {
 			MSoundSESystem::MSoundSE::startSoundActor(3, &self->mPosition, 0,
