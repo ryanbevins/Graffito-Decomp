@@ -1029,10 +1029,9 @@ u32 TSlotDrum::touchWater(THitActor* sender)
 			dir = 1;
 		}
 		unk164 = 1;
-		f32 sign = (f32)(s16)unk164;
-		unk138[dir] += unk154 * sign;
+		unk138[dir] += unk154 * (f32)(s16)unk164;
 		if (fabsf(unk138[dir]) > unk158) {
-			unk138[dir] = unk158 * sign;
+			unk138[dir] = unk158 * (f32)(s16)unk164;
 		}
 		return 1;
 	}
