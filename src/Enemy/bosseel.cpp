@@ -2489,8 +2489,8 @@ DEFINE_NERVE(TNerveBossEelQuickBack, TLiveActor)
 		TBossEel* eel = (TBossEel*)spine->getBody();
 		TBossEelTooth** teeth = (TBossEelTooth**)((u8*)eel + 0x16C);
 
-		for (int i = 0; i < 8; ++i) {
-			TBossEelTooth* tooth = teeth[i];
+		for (int i = 0; i < 8; ++i, ++teeth) {
+			TBossEelTooth* tooth = *teeth;
 			if (tooth && tooth->unk70 > 1) {
 				tooth->unk70 = tooth->unk6C->unk1E8->mSLToothMaxHitPoint.value;
 				tooth->unkB8.a = 0xff;
