@@ -152,12 +152,12 @@ void TAmiKing::calcRootMatrix()
 {
 	TMapObjBase::calcRootMatrix();
 
-	gpMarioParticleManager->emitAndBindToMtxPtr(0x184,
-	                                            (MtxPtr)getModel()->mNodeMatrices,
-	                                            1, this);
+	Mtx* matrices = getModel()->mNodeMatrices;
+	gpMarioParticleManager->emitAndBindToMtxPtr(0x184, (MtxPtr)matrices, 1,
+	                                            this);
 
 	if (unk138 == 0) {
-		MtxPtr mtx = getModel()->getAnmMtx(6);
+		MtxPtr mtx = mMActor->getModel()->mNodeMatrices[6];
 		setVecFromMtx(unk13C, mtx);
 
 		Mtx rot;
