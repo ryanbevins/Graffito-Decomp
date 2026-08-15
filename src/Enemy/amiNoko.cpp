@@ -760,7 +760,7 @@ void TAmiNoko::calcRootMatrix()
 	f32 fwdDot = unk1A8.x * dir.x + unk1A8.y * dir.y + unk1A8.z * dir.z;
 	if (fwdDot < -0.1f) {
 		Mtx rotMtx;
-		PSMTXRotAxisRad(rotMtx, (Vec*)&normal, 3.14159265f);
+		PSMTXRotAxisRad(rotMtx, (Vec*)&normal, 1.5707964f);
 		PSMTXMultVec(rotMtx, &dir, &dir);
 	}
 
