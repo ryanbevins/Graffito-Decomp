@@ -82,7 +82,9 @@ bool TCameraBck::updateDemo(JGeometry::TVec3<f32>* pos,
 	J3DFrameCtrl* ctrl = mActor->getFrameCtrl(0);
 	if (ctrl != nullptr) {
 		u8 stateByte = *((u8*)ctrl + 5);
-		if ((stateByte & 1) == 0)
+		if ((stateByte & 1) != 0)
+			result = TRUE;
+		else
 			result = FALSE;
 	}
 	return result ? true : false;
