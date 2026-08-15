@@ -709,13 +709,13 @@ void TBossManta::calcRootMatrix()
 	side.cross(up, mDirection);
 
 	root[0][0] = side.x;
-	root[0][1] = up.x;
-	root[0][2] = mDirection.x;
 	root[1][0] = side.y;
-	root[1][1] = up.y;
-	root[1][2] = mDirection.y;
 	root[2][0] = side.z;
+	root[0][1] = up.x;
+	root[1][1] = up.y;
 	root[2][1] = up.z;
+	root[0][2] = mDirection.x;
+	root[1][2] = mDirection.y;
 	root[2][2] = mDirection.z;
 
 	MtxPtr center = getModel()->getAnmMtx(sCenterJointIndex);
