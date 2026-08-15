@@ -61,30 +61,30 @@ BOOL TMario::canSleep()
 	const TBGCheckData* bgData;
 
 	f32 groundY = gpMap->checkGround(
-		mPosition.x - sleepCheckDist, 10.0f + mPosition.y, mPosition.z, &bgData);
+		mPosition.x - sleepCheckDist, 30.0f + mPosition.y, mPosition.z, &bgData);
 	f32 floorY = mFloorPosition.y;
 	if (groundY < floorY - sleepCheckTol || floorY + sleepCheckTol < groundY)
 		return 0;
 
 	groundY = gpMap->checkGround(
-		mPosition.x + sleepCheckDist, 10.0f + mPosition.y, mPosition.z, &bgData);
+		mPosition.x + sleepCheckDist, 30.0f + mPosition.y, mPosition.z, &bgData);
 	floorY = mFloorPosition.y;
 	if (groundY < floorY - sleepCheckTol || floorY + sleepCheckTol < groundY)
 		return 0;
 
 	groundY = gpMap->checkGround(
-		mPosition.x, 10.0f + mPosition.y, mPosition.z - sleepCheckDist, &bgData);
+		mPosition.x, 30.0f + mPosition.y, mPosition.z - sleepCheckDist, &bgData);
 	floorY = mFloorPosition.y;
 	if (groundY < floorY - sleepCheckTol || floorY + sleepCheckTol < groundY)
 		return 0;
 
 	groundY = gpMap->checkGround(
-		mPosition.x, 10.0f + mPosition.y, mPosition.z + sleepCheckDist, &bgData);
+		mPosition.x, 30.0f + mPosition.y, mPosition.z + sleepCheckDist, &bgData);
 	floorY = mFloorPosition.y;
 	if (groundY < floorY - sleepCheckTol || floorY + sleepCheckTol < groundY)
 		return 0;
 
-	if (gpMap->isTouchedOneWall(mPosition.x, 10.0f + mPosition.y, mPosition.z, 80.0f))
+	if (gpMap->isTouchedOneWall(mPosition.x, 30.0f + mPosition.y, mPosition.z, 80.0f))
 		return 0;
 
 	return 1;
