@@ -197,7 +197,8 @@ void TMarDirector::initECDisp(
 	param_1->push_back(group2D2, 0x8);
 
 	JDrama::TOrthoProj* ortho4
-	    = new JDrama::TOrthoProj(0.0f, 16.0f, 600.0f, 464.0f);
+	    = new JDrama::TOrthoProj(-500.0f, 500.0f, 0.0f, 16.0f, 600.0f,
+	                            464.0f);
 	param_1->push_back(ortho4, 0x10);
 
 	JDrama::TViewObj* group2D
