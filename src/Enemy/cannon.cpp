@@ -1310,10 +1310,10 @@ BOOL TChorobei::checkHit()
 {
 	for (int i = 0; i < mColCount; ++i) {
 		THitActor* actor = mCollisions[i];
-		if (actor->mActorType == 0x80000001)
+		if (actor->isActorType(0x80000001))
 			SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
 
-		if (actor->mActorType == 0x1000001e) {
+		if (actor->isActorType(0x1000001e)) {
 			TBombHei* bomb = (TBombHei*)actor;
 			if (unk68->mSpine->getCurrentNerve()
 			        != &TNerveCannonDamage::theNerve()
@@ -1323,7 +1323,7 @@ BOOL TChorobei::checkHit()
 			}
 		}
 
-		if (actor->mActorType == 0x1000001f) {
+		if (actor->isActorType(0x1000001f)) {
 			TKiller* killer = (TKiller*)actor;
 			if (killer->isRollFly()) {
 				unk68->mSpine->pushNerve(&TNerveCannonDamage::theNerve());
