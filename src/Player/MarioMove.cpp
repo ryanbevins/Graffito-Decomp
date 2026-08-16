@@ -3162,19 +3162,28 @@ void TMario::thinkSituation()
 	// Area type check for indoor flag
 	{
 		u8 areaID = *(u8*)((u8*)gpMarDirector + 0x124);
-		u8 isIndoor;
-		if (areaID == 1 || areaID == 2)
-			isIndoor = 1;
-		else
-			isIndoor = 0;
+		u8 shouldSet;
+		if (areaID == 3 || areaID == 4) {
+			shouldSet = 1;
+		} else {
+			u8 isIndoor;
+			if (areaID == 1 || areaID == 2)
+				isIndoor = 1;
+			else
+				isIndoor = 0;
+			if (isIndoor) {
+				shouldSet = 1;
+			} else {
+				u8 hasWaterBit;
+				if (mAction & 0x1000)
+					hasWaterBit = 1;
+				else
+					hasWaterBit = 0;
+				shouldSet = hasWaterBit;
+			}
+		}
 
-		u8 hasWaterBit;
-		if (mAction & 0x1000)
-			hasWaterBit = 1;
-		else
-			hasWaterBit = 0;
-
-		if (areaID == 3 || areaID == 4 || isIndoor || hasWaterBit) {
+		if (shouldSet) {
 			mState |= 0x8;
 		} else {
 			mState &= ~0x8;
