@@ -693,16 +693,16 @@ BOOL TKoopa::effectsTumble() const
 
 void TKoopa::getDown()
 {
-	if (mSpine->getCurrentNerve() == &TNerveKoopaFall::theNerve())
+	if (&TNerveKoopaFall::theNerve() == mSpine->getCurrentNerve())
 		return;
-	if (mSpine->getCurrentNerve() == &TNerveKoopaProvoke::theNerve())
+	if (&TNerveKoopaProvoke::theNerve() == mSpine->getCurrentNerve())
 		return;
-	if (mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve())
+	if (&TNerveKoopaTumble::theNerve() == mSpine->getCurrentNerve())
 		return;
 
-	if (mSpine->getCurrentNerve() == &TNerveKoopaStagger::theNerve())
+	if (&TNerveKoopaStagger::theNerve() == mSpine->getCurrentNerve())
 		mSpine->setNext(&TNerveKoopaGetDown::theNerve());
-	if (mSpine->getCurrentNerve() == &TNerveKoopaGetShowered::theNerve())
+	if (&TNerveKoopaGetShowered::theNerve() == mSpine->getCurrentNerve())
 		mSpine->setNext(&TNerveKoopaGetDown::theNerve());
 
 	mSpine->pushNerve(&TNerveKoopaGetDown::theNerve());
