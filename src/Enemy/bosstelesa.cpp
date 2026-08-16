@@ -1074,9 +1074,13 @@ void TBossTelesa::genAttacker()
 		velocity.x *= speed;
 		velocity.z *= speed;
 
-		bubble->mPosition.x = rootMtx[0][3];
-		bubble->mPosition.y = rootMtx[1][3] - 50.0f;
-		bubble->mPosition.z = rootMtx[2][3];
+		f32 posY = rootMtx[1][3];
+		f32 posZ = rootMtx[2][3];
+		f32 posX = rootMtx[0][3];
+		posY -= 50.0f;
+		bubble->mPosition.x = posX;
+		bubble->mPosition.y = posY;
+		bubble->mPosition.z = posZ;
 		*(Vec*)&bubble->mVelocity = velocity;
 		bubble->mPosition.y += 10.0f;
 		bubble->onLiveFlag(LIVE_FLAG_AIRBORNE);
