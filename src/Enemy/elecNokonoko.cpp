@@ -121,9 +121,9 @@ DEFINE_NERVE(TNerveElecCarapaceWait, TLiveActor)
 DEFINE_NERVE(TNerveElecCarapaceMove, TLiveActor)
 {
 	TElecCarapace* self = (TElecCarapace*)spine->getBody();
-	TElecNokonoko* host = (TElecNokonoko*)self->unk16C;
 
-	TElecNokonokoSaveLoadParams* params = host->mSaveParams;
+	TElecNokonokoSaveLoadParams* params
+	    = ((TElecNokonoko*)self->unk16C)->mSaveParams;
 	f32 spinSpeed                       = params->mSLCarapaceSpinSpeed.get();
 	f32 speed                           = params->mSLCarapaceSpeed.get();
 	f32 turnSpeed                       = params->mSLCarapaceTurnSpeed.get();
@@ -140,7 +140,9 @@ DEFINE_NERVE(TNerveElecCarapaceMove, TLiveActor)
 		self->unk188 -= 360.0f;
 
 	if (self->unk184) {
-		f32 collectRange = 64.0f * host->mSaveParams->mSLCarapaceSpeed.get();
+		f32 collectRange = 64.0f
+		                   * ((TElecNokonoko*)self->unk16C)
+		                         ->mSaveParams->mSLCarapaceSpeed.get();
 
 		JGeometry::TVec3<f32> diff = self->unk104.getPoint();
 		diff.sub(self->mPosition);
@@ -148,15 +150,17 @@ DEFINE_NERVE(TNerveElecCarapaceMove, TLiveActor)
 		    diff.z * diff.z + (diff.x * diff.x + diff.y * diff.y));
 
 		if (dist < collectRange) {
-			if (host->mSpine->getCurrentNerve()
-			        != &TNerveElecNokonokoCollect::theNerve()
-			    && host->mSpine->getCurrentNerve()
+			bool isCollect
+			    = ((TElecNokonoko*)self->unk16C)->mSpine->getCurrentNerve()
+			      == &TNerveElecNokonokoCollect::theNerve();
+			if (!isCollect
+			    && ((TElecNokonoko*)self->unk16C)->mSpine->getCurrentNerve()
 			           != &TNerveSmallEnemyDie::theNerve()
-			    && host->mSpine->getCurrentNerve()
+			    && ((TElecNokonoko*)self->unk16C)->mSpine->getCurrentNerve()
 			           != &TNerveElecNokonokoFreeze::theNerve()
-			    && host->mSpine->getCurrentNerve()
+			    && ((TElecNokonoko*)self->unk16C)->mSpine->getCurrentNerve()
 			           != &TNerveElecNokonokoCollect::theNerve()) {
-				host->mSpine->setNext(
+				((TElecNokonoko*)self->unk16C)->mSpine->setNext(
 				    &TNerveElecNokonokoCollect::theNerve());
 			}
 
