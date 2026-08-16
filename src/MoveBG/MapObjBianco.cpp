@@ -1047,7 +1047,8 @@ void TBigWindmill::control()
 		f32 rad            = angle * 0.017453294f;
 
 		mtx[0][3] = mPosition.x + sRadius * cosf(rad);
-		mtx[1][3] = mPosition.y + sRadius * sinf(rad) - mYOffset;
+		f32 yOffset = mYOffset;
+		mtx[1][3] = mPosition.y + sRadius * sinf(rad) - yOffset;
 		mtx[2][3] = mPosition.z - sSubZ;
 
 		(*block)->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
