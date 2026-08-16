@@ -161,6 +161,7 @@ DEFINE_NERVE(TNerveYumboDancing, TLiveActor)
 	delta.z -= self->mPosition.z;
 	self->mRotation.y = MsGetRotFromZaxisY(delta);
 
+	bool inSight;
 	if (fabsf(gpMarioPos->y - self->mPosition.y)
 	    < self->getSaveParam2()->mSLSearchHeight.get()) {
 		JGeometry::TVec3<f32> mp(gpMarioPos->x, self->mPosition.y,
@@ -168,10 +169,14 @@ DEFINE_NERVE(TNerveYumboDancing, TLiveActor)
 		f32 sl = self->getSaveParam2()->mSLSearchLength.get();
 		f32 sa = self->getSaveParam2()->mSLSearchAngle.get();
 		f32 sw = self->getSaveParam2()->mSLSearchAware.get();
-		if (self->isInSight(mp, sl, sa, sw)) {
-			spine->pushAfterCurrent(&TNerveYumboHiding::theNerve());
-			return TRUE;
-		}
+		inSight = self->isInSight(mp, sl, sa, sw) ? true : false;
+	} else {
+		inSight = false;
+	}
+
+	if (inSight) {
+		spine->pushAfterCurrent(&TNerveYumboHiding::theNerve());
+		return TRUE;
 	}
 	return FALSE;
 }
