@@ -710,7 +710,7 @@ void TKoopa::getDown()
 
 BOOL TKoopa::allowsLaunch() const
 {
-	if (mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve())
+	if (&TNerveKoopaTumble::theNerve() == mSpine->getCurrentNerve())
 		return FALSE;
 	return TRUE;
 }
