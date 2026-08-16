@@ -1319,8 +1319,7 @@ void TBossTelesa::setSpicy(TLiveActor* actor)
 	unk168 = 1.0f;
 
 	MActor* oldAnmActor = mMActor;
-	if (oldAnmActor->unkC)
-		oldAnm = oldAnmActor->unkC->unk24;
+	oldAnm = !oldAnmActor->unkC ? nullptr : oldAnmActor->unkC->unk24;
 	if (oldAnmActor->unkC)
 		oldAnmActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 
