@@ -223,6 +223,8 @@ public:
 	void updateCollisionFromParam();
 	void updateCameraShake();
 	void updateRumble();
+	int getNoCollideTimer() const { return mNoCollideTimer; }
+	int getStopSearchTimer() const { return mStopSearchTimer; }
 	int getPolluteTimer() const { return mPolluteTimer; }
 	void updatePollute();
 	void updateHitPoint();

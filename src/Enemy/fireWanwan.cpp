@@ -1160,11 +1160,11 @@ void TFireWanwan::moveObject()
 	if (checkLiveFlag(LIVE_FLAG_DEAD))
 		return;
 
-	int noCollideTimer = mNoCollideTimer;
+	int noCollideTimer = getNoCollideTimer();
 	if (noCollideTimer > 0)
 		mNoCollideTimer -= 1;
 
-	int stopSearchTimer = mStopSearchTimer;
+	int stopSearchTimer = getStopSearchTimer();
 	if (stopSearchTimer > 0)
 		mStopSearchTimer -= 1;
 
