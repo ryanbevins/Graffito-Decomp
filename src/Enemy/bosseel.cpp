@@ -645,9 +645,21 @@ void TBossEel::updateTearsCnt()
 	if (unk1C4 > interval) {
 		unk1C4           = 0;
 		int eyeIndex     = dummy1210[unk1C0];
+		J3DAnmTransform* oldAnm;
 		MtxPtr mtx       = unk15C[eyeIndex]->getConnectedMtx();
 		TBossEelEye* eye = unk15C[eyeIndex];
-		START_BOSS_EEL_EYE_CLOSE(eye);
+		eye->unk60       = eye->unk18->getCurAnmIdx(0);
+		eye->unk5C       = 1;
+		eye->unk64       = 1.0f;
+		MActor* actor    = eye->unk18;
+		if (actor->unkC)
+			oldAnm = actor->unkC->unk24;
+		if (actor->unkC)
+			actor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+		eye->unk18->setBckFromIndex(1);
+		f32 blendRatio = eye->unk64;
+		if (eye->unk18->unkC)
+			eye->unk18->unkC->setMotionBlendRatio(blendRatio);
 		unk15C[eyeIndex]->unk6C = 0;
 		shedTears(mtx);
 
