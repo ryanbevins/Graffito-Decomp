@@ -167,7 +167,8 @@ void TBaseNPC::emitHappyEffect_()
 {
 	JGeometry::TVec3<f32> scale;
 	if ((s32)mActorType < 0x04000018 && (s32)mActorType >= 0x04000016) {
-		scale.set(1.0f, 1.0f, 1.0f);
+		f32 one = 1.0f;
+		scale.set(one, one, one);
 	} else {
 		scale = mEffectScaleBase;
 	}
