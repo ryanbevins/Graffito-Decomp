@@ -78,9 +78,10 @@ void TJointCoin::control()
 
 TMapObjBase* TJointCoin::makeObj(const char* name, u16 i)
 {
+	const char* coinName = "coin";
 	TMapObjBase* pTVar2;
 
-	if (strcmp(name, "coin") == 0) {
+	if (strcmp(name, coinName) == 0) {
 		pTVar2 = gpItemManager->newAndRegisterCoinReal();
 	} else {
 		pTVar2 = TMapObjBaseManager::newAndRegisterObj(name);
