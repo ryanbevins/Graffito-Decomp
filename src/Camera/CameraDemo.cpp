@@ -227,8 +227,10 @@ int CPolarSubCamera::getRestDemoFrames() const
 
 void CPolarSubCamera::ctrlNormalDeadDemo_()
 {
-	mCurrentTarget.mTarget.set(gpCameraMario->mPosX, gpCameraMario->mPosY,
-	                           gpCameraMario->mPosZ);
+	TCameraMarioData* mario  = gpCameraMario;
+	mCurrentTarget.mTarget.x = mario->mPosX;
+	mCurrentTarget.mTarget.y = mario->mPosY;
+	mCurrentTarget.mTarget.z = mario->mPosZ;
 	mInbetween->execCameraInbetween(mPosition, mCurrentTarget.mTarget,
 	                                SMS_GetMarioPos());
 
