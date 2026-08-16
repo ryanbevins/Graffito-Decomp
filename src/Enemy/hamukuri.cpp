@@ -958,7 +958,6 @@ void THamuKuri::makeCapFly(TMapObjBase* param_1)
 	param_1->mPosition.y = capHolder->mPosition.y;
 
 	if (param_1->receiveMessage(capHolder, HIT_MESSAGE_TAKE)) {
-		int uVar10 = -1;
 		capHolder->reset();
 		capHolder->onHaveCap();
 		capHolder->mHeldObject = param_1;
@@ -969,6 +968,7 @@ void THamuKuri::makeCapFly(TMapObjBase* param_1)
 		getManager()->unk70 = capHolder;
 
 		// TODO: this is an inline
+		int uVar10 = -1;
 		int uVar11 = unk124->getCurrentIndex();
 
 		TMsRange<s32> countRange(2, 3);
