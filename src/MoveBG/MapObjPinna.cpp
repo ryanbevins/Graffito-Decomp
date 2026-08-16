@@ -69,9 +69,7 @@ void MsMtxSetRotX(MtxPtr mtx, f32 angle)
 
 static inline void setVecFromMtx(JGeometry::TVec3<f32>& dst, MtxPtr mtx)
 {
-	dst.x = mtx[0][3];
-	dst.y = mtx[1][3];
-	dst.z = mtx[2][3];
+	dst.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 }
 
 static inline TMapObjBase* makePinnaObj(const char* name)
