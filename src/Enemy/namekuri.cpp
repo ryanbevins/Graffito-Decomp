@@ -498,9 +498,7 @@ void TNameKuri::moveObject()
 		++unk194;
 		int aliveTime = unk1A4->mSLAliveTime.get();
 		if (unk194 + 100 > aliveTime && mScaling.x < mBodyScale * 2.0f) {
-			f32 scale = mScaling.z;
-			scale *= 1.01f;
-			mScaling.x = mScaling.y = mScaling.z = scale;
+			mScaling.x = mScaling.y = mScaling.z *= 1.01f;
 		}
 
 		if (unk194 > aliveTime)
