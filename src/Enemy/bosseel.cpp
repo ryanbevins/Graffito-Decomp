@@ -1800,9 +1800,9 @@ TSpineEnemy* TBEelTearsManager::createEnemyInstance()
 
 void TBEelTearsManager::splitTears(JGeometry::TVec3<f32>& position)
 {
+	int splitNum = ((TBEelTearsSaveLoadParams*)unk38)->mSLTearsSplitNum.get();
 	position.y += 600.0f;
 
-	int splitNum = ((TBEelTearsSaveLoadParams*)unk38)->mSLTearsSplitNum.get();
 	TMsRange<f32> positionRange(-250.0f, 250.0f);
 
 	for (int i = 0; i < 30; ++i) {
