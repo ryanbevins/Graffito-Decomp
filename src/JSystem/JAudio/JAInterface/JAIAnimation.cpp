@@ -244,9 +244,9 @@ void JAIAnimeSound::playActorAnimSound(JAIBasic* basic, JAIActor* actor,
 				slot.mData      = soundData;
 				slot.mIsPlaying = true;
 				(*slotSound)->setVolume(soundData->unk14 / 127.0f, 0, 5);
-				f32 pitchMod = soundData->unk15;
-				f32 pitch = soundData->unkC
-				            + pitchMod * (param - 1.0f) * 0.03125f;
+				f32 pitch = soundData->unk15;
+				pitch = soundData->unkC
+				        + pitch * (param - 1.0f) * 0.03125f;
 				(*slotSound)->setPitch(pitch, 0, 5);
 				(*slotSound)->setPan(soundData->unk17 / 127.0f, 0, 5);
 			}
