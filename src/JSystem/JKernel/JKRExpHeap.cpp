@@ -870,7 +870,8 @@ bool JKRExpHeap::dump_sort()
 			}
 			if (!block->isValid()) {
 				JUTReportConsole_f("xxxxx %08x: --------  --- ---  (-------- "
-				                   "--------)\nabort\n");
+				                   "--------)\nabort\n",
+				                   var1);
 				break;
 			}
 			int offset       = block->getAlignment();
