@@ -3,6 +3,7 @@
 #include <Strategic/question.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/Binder.hpp>
+#include <Strategic/spcinterp.hpp>
 #include <System/MarDirector.hpp>
 #include <MarioUtil/MtxUtil.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -23,23 +24,6 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
-struct TLiveActorUnk90VTable {
-	void* unk0;
-	void* unk4;
-	void* unk8;
-	void* unkC;
-	void (*unk10)(void*);
-};
-
-struct TLiveActorUnk90 {
-	void* unk0;
-	s32 unk4;
-	u8 unk8[0x54];
-	TLiveActorUnk90VTable* unk5C;
-
-	void control() { unk5C->unk10(this); }
-};
-
 f32 TLiveActor::mVelocityMinY = -40.0f;
 
 TLiveActor::TLiveActor(const char* name)
@@ -53,7 +37,7 @@ TLiveActor::TLiveActor(const char* name)
 	mAnmSoundPath  = nullptr;
 	mBinder        = nullptr;
 	mSpine         = nullptr;
-	unk90          = nullptr;
+	mSpcInterp     = nullptr;
 
 	mLinearVelocity.set(0.0f, 0.0f, 0.0f);
 	mAngularVelocity.set(0.0f, 0.0f, 0.0f);
@@ -246,17 +230,17 @@ void TLiveActor::bind()
 
 void TLiveActor::control()
 {
-	if (unk90 == nullptr || unk90->unk4 == 0) {
+	if (mSpcInterp == nullptr || mSpcInterp->mStepsToDo == 0) {
 		if (mSpine)
 			mSpine->update();
 	} else if (!mSpine) {
-		if (unk90 != nullptr && unk90->unk4 != 0)
-			unk90->control();
+		if (mSpcInterp != nullptr && mSpcInterp->mStepsToDo != 0)
+			mSpcInterp->update();
 	} else if (mSpine->getCurrentNerve() != nullptr
 	           || mSpine->getNerveStackSize() > 0) {
 		mSpine->update();
 	} else {
-		unk90->control();
+		mSpcInterp->update();
 	}
 }
 
