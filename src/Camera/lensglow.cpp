@@ -113,9 +113,8 @@ void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
 	}
 
 	if (param & 1) {
-		TSunModel* sun = gpSunModel;
-		u8 visCount    = sun->mVisibleCount;
-		f32 sunRatio   = sun->mUnk194;
+		u8 visCount  = gpSunModel->mVisibleCount;
+		f32 sunRatio = gpSunModel->mUnk194;
 
 		if (visCount <= unk5D) {
 			unk4C = 0.0f;
@@ -152,15 +151,17 @@ void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
 			f32 sumX = 0.0f;
 			f32 sumY = 0.0f;
 			for (int i = 0; i < 17; i++) {
-				if (sun->mZBufVisible[i]) {
-					sumX += sun->mFPos[i].x;
-					sumY += sun->mFPos[i].y;
+				if (gpSunModel->mZBufVisible[i]) {
+					sumX += gpSunModel->mFPos[i].x;
+					sumY += gpSunModel->mFPos[i].y;
 				}
 			}
 			f32 inv = 1.0f / (f32)visCount;
 			f32 tt  = 2.0f * sunRatio;
-			f32 rx  = CLBLinearInbetween(sumX * inv, sun->mFPos[0].x, tt);
-			f32 ry  = CLBLinearInbetween(sumY * inv, sun->mFPos[0].y, tt);
+			f32 rx
+			    = CLBLinearInbetween(sumX * inv, gpSunModel->mFPos[0].x, tt);
+			f32 ry
+			    = CLBLinearInbetween(sumY * inv, gpSunModel->mFPos[0].y, tt);
 			u32 width  = SMSGetGameRenderWidth();
 			u32 height = SMSGetGameRenderHeight();
 			f32 x      = rx * (f32)((u16)width >> 1);
