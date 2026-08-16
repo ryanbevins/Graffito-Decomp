@@ -1054,20 +1054,21 @@ void TSamboLeaf::perform(u32 flags, JDrama::TGraphics*)
 		f32 cos      = JMASCos(rollAngle);
 
 		Mtx rollMtx;
-		rollMtx[0][0] = cos;
-		rollMtx[0][1] = -sin;
-		rollMtx[0][2] = 0.0f;
-		rollMtx[0][3] = 0.0f;
-		rollMtx[1][0] = sin;
-		rollMtx[1][1] = cos;
-		rollMtx[1][2] = 0.0f;
-		rollMtx[1][3] = 0.0f;
-		rollMtx[2][0] = 0.0f;
-		rollMtx[2][1] = 0.0f;
-		rollMtx[2][2] = 1.0f;
-		rollMtx[2][3] = 0.0f;
+		MtxPtr rollMtxPtr = rollMtx;
+		rollMtxPtr[0][0] = cos;
+		rollMtxPtr[0][1] = -sin;
+		rollMtxPtr[0][2] = 0.0f;
+		rollMtxPtr[0][3] = 0.0f;
+		rollMtxPtr[1][0] = sin;
+		rollMtxPtr[1][1] = cos;
+		rollMtxPtr[1][2] = 0.0f;
+		rollMtxPtr[1][3] = 0.0f;
+		rollMtxPtr[2][0] = 0.0f;
+		rollMtxPtr[2][1] = 0.0f;
+		rollMtxPtr[2][2] = 1.0f;
+		rollMtxPtr[2][3] = 0.0f;
 
-		PSMTXConcat(baseMtxPtr, rollMtx, baseMtxPtr);
+		PSMTXConcat(baseMtxPtr, rollMtxPtr, baseMtxPtr);
 		PSMTXCopy(baseMtxPtr, mModel->getBaseTRMtx());
 		mModel->setBaseScale(mScale);
 		mModel->calc();
