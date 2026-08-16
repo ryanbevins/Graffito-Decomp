@@ -450,11 +450,9 @@ DEFINE_NERVE(TNerveBGKWait, TLiveActor)
 		BOOL diveReady;
 		if (ctrl == nullptr)
 			diveReady = true;
-		else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE))
-			diveReady = true;
-		else if (ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE))
-			diveReady = true;
-		else if (0.1f + ctrl->getFrame() >= ctrl->getEnd())
+		else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+		         || ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+		         || 0.1f + ctrl->getFrame() >= ctrl->getEnd())
 			diveReady = true;
 		else
 			diveReady = false;
@@ -467,11 +465,9 @@ DEFINE_NERVE(TNerveBGKWait, TLiveActor)
 	BOOL animEnd;
 	if (ctrl == nullptr)
 		animEnd = true;
-	else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE))
-		animEnd = true;
-	else if (ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE))
-		animEnd = true;
-	else if (0.1f + ctrl->getFrame() >= ctrl->getEnd())
+	else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+	         || ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+	         || 0.1f + ctrl->getFrame() >= ctrl->getEnd())
 		animEnd = true;
 	else
 		animEnd = false;
