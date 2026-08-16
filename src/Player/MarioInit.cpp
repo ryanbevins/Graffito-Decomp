@@ -631,7 +631,7 @@ void TMario::initValues()
 	unk46C = 0.0f;
 
 	// Allocate and init MAnmSound
-	MAnmSound* anmSound = new MAnmSound(gpMSound);
+	MAnmSound* anmSound = new MAnmSound(SMSGetMSound());
 	mAnmSound = anmSound;
 	mAnmSound->initAnmSound(nullptr, 1, 0.0f);
 
