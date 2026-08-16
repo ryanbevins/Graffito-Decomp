@@ -637,19 +637,18 @@ void TBossEel::updateTearsCnt()
 		interval *= 2;
 
 	if (unk1C4 == interval - 100) {
-		int eyeIndex     = dummy1210[unk1C0];
-		TBossEelEye* eye = getBossEelEye(this, eyeIndex);
-		START_BOSS_EEL_EYE_CLOSE(eye);
-		START_BOSS_EEL_EYE_CLOSE(eye->unk68);
+		int eyeIndex = dummy1210[unk1C0];
+		START_BOSS_EEL_EYE_CLOSE(unk15C[eyeIndex]);
+		START_BOSS_EEL_EYE_CLOSE(unk15C[eyeIndex]->unk68);
 	}
 
 	if (unk1C4 > interval) {
 		unk1C4           = 0;
 		int eyeIndex     = dummy1210[unk1C0];
-		TBossEelEye* eye = getBossEelEye(this, eyeIndex);
-		MtxPtr mtx       = eye->getConnectedMtx();
+		MtxPtr mtx       = unk15C[eyeIndex]->getConnectedMtx();
+		TBossEelEye* eye = unk15C[eyeIndex];
 		START_BOSS_EEL_EYE_CLOSE(eye);
-		eye->unk6C = 0;
+		unk15C[eyeIndex]->unk6C = 0;
 		shedTears(mtx);
 
 		++unk1C0;
