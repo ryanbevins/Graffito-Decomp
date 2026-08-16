@@ -830,7 +830,6 @@ TMario::TMario()
 	mRoofPlane     = 0;
 	mGroundPlane   = TMap::getIllegalCheckData();
 	mWaterFloor    = 0;
-	unk144         = 0xFFFFFFFF;
 	mFloorPosition.x = 0.0f;
 	mFloorPosition.y = 0.0f;
 	mFloorPosition.z = 0.0f;
@@ -852,6 +851,7 @@ TMario::TMario()
 	unk128_s16     = 0;
 	unk130         = (f32)(mHealth + 1) - 0.00001f;
 	unk12C         = unk130;
+	unk144         = 0xFFFFFFFF;
 	unk148         = 0;
 	unk14C         = 0;
 	unk14E         = 0;
