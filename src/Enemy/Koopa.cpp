@@ -656,23 +656,23 @@ void TKoopa::stagger(bool ignoreFlame)
 
 BOOL TKoopa::getShowered()
 {
-	if (mSpine->getCurrentNerve() == &TNerveKoopaFall::theNerve())
+	if (&TNerveKoopaFall::theNerve() == mSpine->getCurrentNerve())
 		return FALSE;
-	if (mSpine->getCurrentNerve() == &TNerveKoopaProvoke::theNerve())
+	if (&TNerveKoopaProvoke::theNerve() == mSpine->getCurrentNerve())
 		return FALSE;
-	if (mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve())
+	if (&TNerveKoopaTumble::theNerve() == mSpine->getCurrentNerve())
 		return FALSE;
-	if (mSpine->getCurrentNerve() == &TNerveKoopaGetDown::theNerve())
+	if (&TNerveKoopaGetDown::theNerve() == mSpine->getCurrentNerve())
 		return FALSE;
-	if (mSpine->getCurrentNerve() == &TNerveKoopaGetShowered::theNerve())
+	if (&TNerveKoopaGetShowered::theNerve() == mSpine->getCurrentNerve())
 		return TRUE;
 
-	if (mSpine->getCurrentNerve() == &TNerveKoopaStagger::theNerve()) {
+	if (&TNerveKoopaStagger::theNerve() == mSpine->getCurrentNerve()) {
 		mSpine->setNext(&TNerveKoopaGetShowered::theNerve());
 		return TRUE;
 	}
 
-	if (mSpine->getCurrentNerve() == &TNerveKoopaFlame::theNerve()) {
+	if (&TNerveKoopaFlame::theNerve() == mSpine->getCurrentNerve()) {
 		mSpine->setNext(&TNerveKoopaWait::theNerve());
 		return FALSE;
 	}
