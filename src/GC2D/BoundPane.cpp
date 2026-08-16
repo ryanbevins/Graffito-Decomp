@@ -44,12 +44,13 @@ bool TBoundPane::update()
 			unk24 = false;
 		}
 
-		f32 fVar4 = unk38.x * ((1.0f - unk28) * (1.0f - unk28))
-		            + unk40.x * (2.0f * (1.0f - unk28) * unk28)
-		            + unk48.x * (unk28 * unk28);
-		f32 fVar1 = unk38.y * ((1.0f - unk28) * (1.0f - unk28))
-		            + unk40.y * (2.0f * (1.0f - unk28) * unk28)
-		            + unk48.y * (unk28 * unk28);
+		f32 t = unk28;
+		f32 fVar4 = unk38.x * ((1.0f - t) * (1.0f - t))
+		            + unk40.x * (2.0f * (1.0f - t) * t)
+		            + unk48.x * (t * t);
+		f32 fVar1 = unk38.y * ((1.0f - t) * (1.0f - t))
+		            + unk40.y * (2.0f * (1.0f - t) * t)
+		            + unk48.y * (t * t);
 
 		fVar4 += fVar4 > 0.0f ? 0.5f : -0.5f;
 		s32 x = fVar4;
@@ -69,12 +70,13 @@ bool TBoundPane::update()
 			unk25 = false;
 		}
 
-		f32 fVar4 = unk50.x * ((1.0f - unk30) * (1.0f - unk30))
-		            + unk58.x * (2.0f * (1.0f - unk30) * unk30)
-		            + unk60.x * (unk30 * unk30);
-		f32 fVar1 = unk50.y * ((1.0f - unk30) * (1.0f - unk30))
-		            + unk58.y * (2.0f * (1.0f - unk30) * unk30)
-		            + unk60.y * (unk30 * unk30);
+		f32 t = unk30;
+		f32 fVar4 = unk50.x * ((1.0f - t) * (1.0f - t))
+		            + unk58.x * (2.0f * (1.0f - t) * t)
+		            + unk60.x * (t * t);
+		f32 fVar1 = unk50.y * ((1.0f - t) * (1.0f - t))
+		            + unk58.y * (2.0f * (1.0f - t) * t)
+		            + unk60.y * (t * t);
 
 		fVar4 += fVar4 > 0.0f ? 0.5f : -0.5f;
 		s32 x = fVar4;
