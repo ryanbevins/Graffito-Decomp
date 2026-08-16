@@ -212,16 +212,18 @@ void JAIAnimeSound::playActorAnimSound(JAIBasic* basic, JAIActor* actor,
 	JAIAnimeFrameSoundData* soundData
 	    = (JAIAnimeFrameSoundData*)(mData + 8 + mDataCounter * 0x20);
 
-	u8 slotIndex;
-	for (slotIndex = 0; slotIndex < 8; ++slotIndex) {
+	u8 slotIndex = 0;
+	while (slotIndex < 8) {
 		Slot& slot = mSlots[slotIndex];
 		if (!slot.mIsPlaying)
 			break;
 
 		JAIAnimeFrameSoundData* slotData
 		    = (JAIAnimeFrameSoundData*)slot.mData;
-		if (soundData->mSoundID != slotData->mSoundID)
+		if (soundData->mSoundID != slotData->mSoundID) {
+			++slotIndex;
 			continue;
+		}
 
 		if ((soundData->mSoundID & 0xC00) == 0) {
 			mDataCounter += mDataCounterInc;
