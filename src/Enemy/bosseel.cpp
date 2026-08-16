@@ -540,8 +540,9 @@ void TBossEel::collideToMario()
 				oldActor->unkC->setOldMotionBlendAnmPtr(closeOldAnm);         \
 		}                                                                      \
 		closeEye->unk18->setBckFromIndex(1);                                  \
+		f32 closeRatio = closeEye->unk64;                                     \
 		if (closeEye->unk18->unkC)                                             \
-			closeEye->unk18->unkC->setMotionBlendRatio(closeEye->unk64);       \
+			closeEye->unk18->unkC->setMotionBlendRatio(closeRatio);            \
 	} while (0)
 
 #define START_BOSS_EEL_BCK(eel, bck_index)                                    \
