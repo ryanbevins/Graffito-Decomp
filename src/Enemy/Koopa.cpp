@@ -637,18 +637,18 @@ f32 TKoopa::getTargetDir(const JGeometry::TVec3<f32>& pos) const
 
 void TKoopa::stagger(bool ignoreFlame)
 {
-	if (mSpine->getCurrentNerve() == &TNerveKoopaFall::theNerve())
+	if (&TNerveKoopaFall::theNerve() == mSpine->getCurrentNerve())
 		return;
-	if (mSpine->getCurrentNerve() == &TNerveKoopaProvoke::theNerve())
+	if (&TNerveKoopaProvoke::theNerve() == mSpine->getCurrentNerve())
 		return;
 	if (!ignoreFlame
 	    && mSpine->getCurrentNerve() == &TNerveKoopaFlame::theNerve())
 		return;
-	if (mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve())
+	if (&TNerveKoopaTumble::theNerve() == mSpine->getCurrentNerve())
 		return;
-	if (mSpine->getCurrentNerve() == &TNerveKoopaGetDown::theNerve())
+	if (&TNerveKoopaGetDown::theNerve() == mSpine->getCurrentNerve())
 		return;
-	if (mSpine->getCurrentNerve() == &TNerveKoopaGetShowered::theNerve())
+	if (&TNerveKoopaGetShowered::theNerve() == mSpine->getCurrentNerve())
 		return;
 
 	mSpine->pushNerve(&TNerveKoopaStagger::theNerve());
