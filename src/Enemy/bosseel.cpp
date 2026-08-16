@@ -533,8 +533,10 @@ void TBossEel::collideToMario()
 		closeEye->unk64               = 1.0f;                                  \
 		{                                                                      \
 			MActor* oldActor                = closeEye->unk18;                 \
-			J3DAnmTransform* closeOldAnm = nullptr;                          \
-			if (oldActor->unkC)                                                \
+			J3DAnmTransform* closeOldAnm;                                    \
+			if (!oldActor->unkC)                                               \
+				closeOldAnm = nullptr;                                         \
+			else                                                               \
 				closeOldAnm = oldActor->unkC->unk24;                          \
 			if (oldActor->unkC)                                                \
 				oldActor->unkC->setOldMotionBlendAnmPtr(closeOldAnm);         \
