@@ -958,6 +958,7 @@ void THamuKuri::makeCapFly(TMapObjBase* param_1)
 	param_1->mPosition.y = capHolder->mPosition.y;
 
 	if (param_1->receiveMessage(capHolder, HIT_MESSAGE_TAKE)) {
+		int uVar10 = -1;
 		capHolder->reset();
 		capHolder->onHaveCap();
 		capHolder->mHeldObject = param_1;
@@ -972,7 +973,6 @@ void THamuKuri::makeCapFly(TMapObjBase* param_1)
 
 		TMsRange<s32> countRange(2, 3);
 		int count = countRange.rand();
-		int uVar10 = -1;
 		for (int i = 0; i < count; ++i) {
 			int next = unk124->unk0->getRandomNextIndex(uVar11, uVar10,
 			                                            0xffffffff);
