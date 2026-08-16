@@ -1334,7 +1334,9 @@ void TBossMantaManager::spawn(int generation,
 		rot.setEularY(angle);
 		rot.mult(dir, dir);
 		manta->mDirection = dir;
-		manta->mPosition = position;
+		manta->mPosition.x = position.x;
+		manta->mPosition.y = position.y;
+		manta->mPosition.z = position.z;
 		manta->initNthGeneration(generation);
 	}
 }
