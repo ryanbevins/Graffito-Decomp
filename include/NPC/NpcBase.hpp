@@ -39,10 +39,10 @@ struct TNpcKeepAnm {
 	}
 
 	void reset() { mKind = NPC_ANM_KIND_INVALID; }
-	void keep(EnumNpcAnmKind kind, EnumNpcStopMotionBlendOnOff blend)
+	void keep(EnumNpcAnmKind kind, bool blend)
 	{
 		mKind    = kind;
-		mBlendOn = blend != NPC_STOP_MOTION_BLEND_OFF;
+		mBlendOn = blend;
 	}
 	EnumNpcAnmKind getKind() const { return mKind; }
 	EnumNpcStopMotionBlendOnOff getBlend() const
