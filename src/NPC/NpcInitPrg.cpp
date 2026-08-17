@@ -480,7 +480,7 @@ void TBaseNPC::setIndividualDifference_(JSUMemoryInputStream& stream)
 	}
 
 	if (wantSmoke && smokeAllowed) {
-		bool sNeg = ((streamS32a >> 11) & 1) != 0;
+		bool sNeg = (streamS32a & 0x800) != 0;
 		setSmokeEffectMtxPtr_(sNeg);
 	}
 
