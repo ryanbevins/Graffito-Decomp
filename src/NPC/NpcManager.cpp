@@ -217,8 +217,9 @@ void TNPCManager::clipEnemies(JDrama::TGraphics* gfx)
 	                                   farClipFromUnk58);
 
 	int n = mObjNum;
+	TLiveActor* actor;
 	for (int i = 0; i < n; i++) {
-		TLiveActor* actor = (TLiveActor*)unk18[i];
+		actor = (TLiveActor*)unk18[i];
 		Vec pos = *(Vec*)&actor->mPosition;
 		pos.y += 75.0f;
 
