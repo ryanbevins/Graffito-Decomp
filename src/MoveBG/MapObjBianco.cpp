@@ -1032,7 +1032,7 @@ void TBigWindmill::control()
 	mRotation.z = rotZ;
 	setRootMtxRotZ();
 
-	f32 volume = fabsf(sSpeed);
+	f32 volume = __fabsf(sSpeed);
 	if (gpMSound->gateCheck(0x3047)) {
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 		    0x3047, (const Vec*)&mPosition, nullptr, volume, 0, 0, &unk148, 0,
