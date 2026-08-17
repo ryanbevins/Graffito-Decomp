@@ -108,7 +108,7 @@ void TNpcCoin::updateCoin()
 		return;
 
 	if (unk0 != nullptr) {
-		(*(void (**)(TMapObjBase*))(*(u8**)unk0 + 0xFC))(unk0);
+		unk0->appear();
 
 		TMapObjBase* obj                           = unk0;
 		*(JGeometry::TVec3<f32>*)((u8*)obj + 0x10) = unk8;
