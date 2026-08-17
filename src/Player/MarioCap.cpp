@@ -94,7 +94,7 @@ TMarioCap::TMarioCap(TMario* mario)
 	unk34 = 4.0f;
 
 	for (int idx = 0; idx < 2; idx++) {
-		for (int matIdx = 0;
+		for (u16 matIdx = 0;
 		     matIdx < unk10[idx]->getModelData()->getMaterialNum(); matIdx++) {
 			SMS_InitPacket_OneTevKColorAndFog(unk10[idx], matIdx, GX_KCOLOR0,
 			                                  nullptr);
