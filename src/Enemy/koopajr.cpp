@@ -1207,8 +1207,8 @@ void TKoopaJrSubmarine::resetKoopaJrSubmarine()
 	unk198 = 0.0f;
 	unk19C = 0.0f;
 
-	unk174->init(100.0f, 3.1415927f, 100.0f, 3.1415927f,
-	             getSaveParam2()->bottomHeight.get());
+	f32 bottomHeight = getSaveParam2()->bottomHeight.get();
+	unk174->init(100.0f, 3.1415927f, 100.0f, 3.1415927f, bottomHeight);
 }
 
 void TKoopaJrSubmarine::reset()
