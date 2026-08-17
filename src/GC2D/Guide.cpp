@@ -28,10 +28,11 @@
 #include <string.h>
 
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
 static u8 setup_wait;
 
-static const u32 scNormalStageTable[] = {
+static u32 scNormalStageTable[] = {
 	0x0, 0x1, 0x2, 0x3, 0x4, 0xD, 0x6, 0x8, 0x9, 0xA,
 };
 
