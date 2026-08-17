@@ -214,7 +214,7 @@ void TBellWatermill::control()
 	while (unk154 < 0.0f)
 		unk154 += 360.0f;
 
-	f32 volume = fabsf(unk158);
+	f32 volume = __fabsf(unk158);
 	if (gpMSound->gateCheck(0x3044)) {
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 		    0x3044, (const Vec*)&mPosition, nullptr, volume, 0, 0, &unk1A4,
