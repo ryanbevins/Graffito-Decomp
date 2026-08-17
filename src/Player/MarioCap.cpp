@@ -86,11 +86,12 @@ TMarioCap::TMarioCap(TMario* mario)
 	unk24->setup(unk10[1], "Mario/MarioCap");
 
 	unk4 = E_CAP_MODEL_HAT;
-	unkC = unk10[0];
+	int modelIdx = 0;
+	unkC = unk10[modelIdx];
 
 	// TMultiMtxEffect stuff
 	unk30 = new TTrembleModelEffect();
-	unk30->init(unk10[0]);
+	unk30->init(unk10[modelIdx]);
 	unk34 = 4.0f;
 
 	for (int idx = 0; idx < 2; idx++) {
