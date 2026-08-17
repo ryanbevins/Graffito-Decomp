@@ -312,12 +312,10 @@ void TBossHanachanPartsBase::considerSetAnm_(
 		if (mActorType != 0x08000015)
 			return;
 
-		bool fastAnm = false;
-		if (mPalFrame->unk24 > 0)
-			fastAnm = true;
-		if (!fastAnm) {
-			if (mPalFrame->unk28 > 0.0f)
-				fastAnm = true;
+		bool fastAnm = true;
+		if (!(mPalFrame->unk24 > 0 ? true : false)) {
+			if (!(mPalFrame->unk28 > 0.0f ? true : false))
+				fastAnm = false;
 		}
 		if (fastAnm)
 			return;
