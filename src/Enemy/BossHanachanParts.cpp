@@ -287,18 +287,12 @@ void TBossHanachanPartsBase::considerSetAnm_(
 				hipDropping = true;
 			}
 		}
-		bool inGetUp = false;
 		switch (mCurAnm) {
 		case 5:
 		case 6:
 		case 0xD:
 		case 0x10:
 		case 0x11:
-			inGetUp = true;
-			break;
-		}
-
-		if (inGetUp) {
 			if (!BHPartsIsCurBckDone(getMActor()))
 				return;
 			if (mActorType == 0x08000015 && hipDropping) {
@@ -307,6 +301,8 @@ void TBossHanachanPartsBase::considerSetAnm_(
 				setAnm_((EnumBossHanachanAnmKind)3, (EnumBossHanachanStopMotionBlendOnOff)0);
 			}
 			return;
+		default:
+			break;
 		}
 
 		if (mActorType != 0x08000015)
