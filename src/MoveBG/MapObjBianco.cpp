@@ -965,7 +965,7 @@ void TBiancoWatermill::initMapObj()
 void TBiancoWatermill::control()
 {
 	mRotation.z -= unk138;
-	f32 volume = fabsf(unk138);
+	f32 volume = __fabsf(unk138);
 	if (gpMSound->gateCheck(0x3043)) {
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 		    0x3043, (const Vec*)&mPosition, nullptr, volume, 0, 0, &unk13C,
