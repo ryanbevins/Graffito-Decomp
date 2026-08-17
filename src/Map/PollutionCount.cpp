@@ -171,8 +171,8 @@ void TPollutionCounterObj::countObjDegree() const
 		J3DJoint* pJVar5 = unk14[i]->getJoint();
 
 		const Vec& minVec = pJVar5->getMin();
-		f32 fVar1         = minVec.z;
 		f32 fVar2         = minVec.x;
+		f32 fVar1         = minVec.z;
 
 		TPosition3f local_AC;
 		TPosition3f local_7C;
@@ -185,7 +185,7 @@ void TPollutionCounterObj::countObjDegree() const
 		MTXConcat(local_7C.mMtx, local_AC.mMtx, local_7C.mMtx);
 		setEular(local_AC, DEG2SHORTANGLE(-90.0f), 0, 0);
 		MTXConcat(local_7C.mMtx, local_AC.mMtx, local_7C.mMtx);
-		local_7C.setTrans(-fVar1 / 32, -fVar2 / 32, 0);
+		local_7C.setTrans(-fVar2 / 32, -fVar1 / 32, 0);
 		GXLoadPosMtxImm(local_7C.mMtx, 0);
 		draw(i);
 		setCallback(i);
