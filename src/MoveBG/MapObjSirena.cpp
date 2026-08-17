@@ -665,7 +665,7 @@ void TCloset::moveObject()
 				changed = true;
 			}
 			if (changed) {
-				f32 speed = fabsf(unk138[i]);
+				f32 speed = __fabsf(unk138[i]);
 				if (gpMSound->gateCheck(0x389C))
 					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 					    0x389C, &mPosition, nullptr, speed,
@@ -684,7 +684,7 @@ void TCloset::moveObject()
 			changed = true;
 		}
 		if (changed) {
-			f32 speed = fabsf(unk138[i]);
+			f32 speed = __fabsf(unk138[i]);
 			if (gpMSound->gateCheck(0x389C))
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 				    0x389C, &mPosition, nullptr, speed, 0, 0,
