@@ -87,8 +87,9 @@ void TPauseMenu2::load(JSUMemoryInputStream& stream)
 	unkDC->setFont((JUTFont*)gpSystemFont);
 	unkD8 = unk14->search('brek');
 
-	u32 shineStage  = SMS_getShineStage(gpMarDirector->mMap);
-	s32 ehasFlag   = TFlagManager::smInstance->getFlag(0x40003);
+	u32 shineStage = SMS_getShineStage(gpMarDirector->mMap);
+	TFlagManager* flagManager = TFlagManager::smInstance;
+	s32 ehasFlag = flagManager->getFlag(0x40003);
 	void* stagename = JKRFileLoader::getGlbResource("/common/2d/stagename.bmg");
 	unkD4->setString((const char*)SMSGetMessageData(stagename, shineStage));
 
