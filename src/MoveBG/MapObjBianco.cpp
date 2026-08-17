@@ -884,7 +884,7 @@ void TBiancoWatermillVertical::control()
 		bridgeObjRot += 360.0f;
 	unk140->mRotation.y = bridgeObjRot;
 
-	f32 volume = fabsf(unk138);
+	f32 volume = __fabsf(unk138);
 	if (gpMSound->gateCheck(0x3040)) {
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 		    0x3040, (const Vec*)&mPosition, nullptr, volume, 0, 0, &unk148,
@@ -892,7 +892,7 @@ void TBiancoWatermillVertical::control()
 	}
 
 	const Vec* bridgePosition = (const Vec*)&unk140->mPosition;
-	volume = fabsf(bridgeRot);
+	volume = __fabsf(bridgeRot);
 	if (gpMSound->gateCheck(0x3042)) {
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 		    0x3042, bridgePosition, nullptr, volume, 0, 0, &unk14C,
