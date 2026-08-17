@@ -206,8 +206,12 @@ int TTrack::noteOn(u8 param_1, s32 param_2, s32 param_3, s32 param_4)
 	mNoteMgr.unk20[index] = chan->unkC6;
 
 	// TODO: some tricky inlines happening here
-	chan->setPanPower(mRegisterParam.mPanPower[0], mRegisterParam.mPanPower[1],
-	                  mRegisterParam.mPanPower[2], mRegisterParam.mPanPower[3]);
+	u16 rearRightPower  = mRegisterParam.mPanPower[3];
+	u16 rearLeftPower   = mRegisterParam.mPanPower[2];
+	u16 frontRightPower = mRegisterParam.mPanPower[1];
+	u16 frontLeftPower  = mRegisterParam.mPanPower[0];
+	chan->setPanPower(frontLeftPower, frontRightPower, rearLeftPower,
+	                  rearRightPower);
 
 	for (u8 i = 0; i < 2; ++i) {
 		u32 someThing = unk3A0[i];
