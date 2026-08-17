@@ -54,9 +54,9 @@ TMarioCap::TMarioCap(TMario* mario)
 	unk10[2]->getModelData()->unkB0->getIndex("null_airtube");
 	MtxPtr mtx = mMario->mModel->unk8->getAnmMtx(mMario->mBoneIDs[11]);
 
-	unk10[0]->setAnmMtx(0, mtx);
+	PSMTXCopy(mtx, unk10[0]->getBaseTRMtx());
 	unk10[0]->calc();
-	unk10[1]->setAnmMtx(0, mtx);
+	PSMTXCopy(mtx, unk10[1]->getBaseTRMtx());
 	unk10[1]->calc();
 	mMario->mModel->unk8->setAnmMtx(mMario->mBoneIDs[10],
 	                                unk10[2]->getBaseTRMtx());
