@@ -135,8 +135,9 @@ void TDebuTelesaManager::clipEnemies(JDrama::TGraphics* graphics)
 	    ((TSmallEnemyParams*)unk38)->mSLFarClip.get());
 
 	s32 num = mObjNum;
+	TLiveActor* actor;
 	for (s32 i = 0; i < num; ++i) {
-		TLiveActor* actor = (TLiveActor*)unk18[i];
+		actor             = (TLiveActor*)unk18[i];
 		Vec pos           = actor->mPosition;
 
 		if (actor->checkLiveFlag(LIVE_FLAG_UNK2000)) {
