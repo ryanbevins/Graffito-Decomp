@@ -79,15 +79,16 @@ void TLightCommon::loadAfter()
 	mLightPos = (Vec*)&mLightAry->mLights[0].mPosition;
 
 	unk10 = 50.0f;
+	GXColor color;
 	for (int i = 0; i < 4; ++i) {
-		GXColor color;
 		JDrama::TIdxLight* light = &mLightAry->mLights[unk24 + i];
 		GXGetLightColor(&light->unk24, &color);
 		unk31[i] = color;
 		unk44[i] = mLightAry->mLights[unk24 + i].mPosition;
 	}
 
-	unk29[0] = mAmbAry->mAmbColors[unk20].mColor.get();
+	color = mAmbAry->mAmbColors[unk20].mColor.get();
+	unk29[0] = color;
 	unk29[1] = mAmbAry->mAmbColors[unk20 + 1].mColor.get();
 }
 
