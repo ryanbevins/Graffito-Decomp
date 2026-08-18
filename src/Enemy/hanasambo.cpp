@@ -1369,6 +1369,15 @@ void THanaSambo::init(TLiveManager* manager)
 
 	mBindShadow = new TMBindShadowBody(this, getModel(), 1.5f);
 	initMarioGoal(this);
+	if (mInstanceIndex == 0) {
+		for (u8 i = 0;
+		     i < getActorKeeper()->getMActor("samboD.bmd")
+		             ->getModel()
+		             ->getModelData()
+		             ->getMaterialNum();
+		     ++i) {
+		}
+	}
 
 	mHead = new THanaSamboHead("ハナサンボ頭あたり");
 	TIdxGroupObj* group
