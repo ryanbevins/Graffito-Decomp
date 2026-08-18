@@ -1365,17 +1365,19 @@ void TMapObjBall::touchWall(JGeometry::TVec3<f32>* pos,
 		mVelocity.x = bd * wall->mNormal.x + mVelocity.x;
 		mVelocity.z = bd * wall->mNormal.z + mVelocity.z;
 		if (isActorType(0x400000D0)) {
-			JGeometry::TVec3<f32> v2 = mVelocity;
-			f32 mag2                 = JGeometry::TUtil<f32>::sqrt(
-                v2.x * v2.x + v2.y * v2.y + v2.z * v2.z);
-			f32 absMag = fabsf(mag2);
 			if (mScaling.y >= 5.0f) {
+				JGeometry::TVec3<f32> v2 = mVelocity;
+				f32 absMag = __fabsf(JGeometry::TUtil<f32>::sqrt(
+				    v2.x * v2.x + v2.y * v2.y + v2.z * v2.z));
 				if (gpMSound->gateCheck(0x308A)) {
 					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 					    0x308A, (Vec*)&mPosition, nullptr, absMag, 0, 0,
 					    nullptr, 0, 4);
 				}
 			} else {
+				JGeometry::TVec3<f32> v2 = mVelocity;
+				f32 absMag = __fabsf(JGeometry::TUtil<f32>::sqrt(
+				    v2.x * v2.x + v2.y * v2.y + v2.z * v2.z));
 				if (gpMSound->gateCheck(0x308B)) {
 					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 					    0x308B, (Vec*)&mPosition, nullptr, absMag, 0, 0,
