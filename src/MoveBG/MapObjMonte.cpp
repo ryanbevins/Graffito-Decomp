@@ -396,9 +396,10 @@ void TFluff::control()
 		mRotation.z      = 0.0f;
 		mInitialRotation = mRotation;
 		unk16C           = 0;
-		if (unk168->unk15C == 0) {
-			unk168->unk15C = this;
-			unk168->unk15C->makeObjDead();
+		TFluffManager* manager = unk168;
+		if (manager->unk15C == 0) {
+			manager->unk15C = this;
+			manager->unk15C->makeObjDead();
 		}
 		break;
 	}
