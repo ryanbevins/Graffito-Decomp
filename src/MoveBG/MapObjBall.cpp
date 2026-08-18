@@ -1288,9 +1288,8 @@ void TMapObjBall::touchGround(JGeometry::TVec3<f32>* pos)
 		mVelocity.x = unk180 * mGroundPlane->mNormal.x + mVelocity.x;
 		mVelocity.z = unk180 * mGroundPlane->mNormal.z + mVelocity.z;
 	}
-	f32 fric    = mMapObjData->mPhysical->unk4->unk10;
-	mVelocity.x = mVelocity.x * fric;
-	mVelocity.z = mVelocity.z * fric;
+	mVelocity.x = mVelocity.x * mMapObjData->mPhysical->unk4->unk10;
+	mVelocity.z = mVelocity.z * mMapObjData->mPhysical->unk4->unk10;
 	if (isActorType(0x400000D0)) {
 		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
 		if (fabsf(mVelocity.x) > thresh || fabsf(mVelocity.z) > thresh) {
