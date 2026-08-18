@@ -1680,7 +1680,19 @@ DEFINE_NERVE(TNerveBGEyeDamage, TLiveActor)
 
 		if (self->mBeak->mHolder == nullptr && self->mAttackMode != 2) {
 			self->changeAttackMode(TBossGesso::ASTATE_UNISON);
-			self->changeAllTentacleState(1);
+			for (int i = 0; i < 4; ++i) {
+				TBGTentacle* tentacle = self->mTentacles[i];
+				if (tentacle->mState != 5) {
+					BOOL isThing;
+					if (tentacle->mState == 6
+					    || (u32)(tentacle->mState - 3) <= 1)
+						isThing = TRUE;
+					else
+						isThing = FALSE;
+					if (!isThing)
+						tentacle->changeStateAndFixNodes(1);
+				}
+			}
 		}
 
 		self->getMActor()->setBtpFromIndex(1);
