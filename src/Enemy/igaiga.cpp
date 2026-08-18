@@ -485,9 +485,10 @@ void TIgaiga::moveObject()
 		scaleFactor = 1.0f;
 
 	mScaledBodyRadius = 8.0f * (mBodyScale * mBodyRadius) * scaleFactor;
-	mScaling.z = mBodyScale;
-	mScaling.y = mBodyScale;
-	mScaling.x = mBodyScale;
+	f32 scaling = mBodyScale;
+	mScaling.z  = scaling;
+	mScaling.y  = scaling;
+	mScaling.x  = scaling;
 	mAttackRadius = attackRadius * ratio;
 	mAttackHeight = attackHeight * ratio;
 	mDamageRadius = damageRadius * ratio;
