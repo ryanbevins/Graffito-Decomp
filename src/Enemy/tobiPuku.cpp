@@ -500,7 +500,8 @@ BOOL TNerveTobiPukuFly::execute(TSpineBase<TLiveActor>* spine) const
 
 	JGeometry::TVec3<f32> velocity = self->mVelocity;
 	self->unk1E4                   = velocity.y;
-	self->mRotation.x              = MsGetRotFromZaxis(velocity).x;
+	JGeometry::TVec3<f32> rotationVelocity = self->mVelocity;
+	self->mRotation.x = MsGetRotFromZaxis(rotationVelocity).x;
 	return FALSE;
 }
 
