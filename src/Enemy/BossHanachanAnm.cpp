@@ -180,16 +180,10 @@ void TBossHanachan::setAnmTimerWhenDead()
 
 void TBossHanachan::setAnmTimerWhenDamage()
 {
-	u8 frameDiff          = mChangeParams->mSLDamageFrameDiff.value;
-	mBody[0]->mAnmCounter = frameDiff * absDist(unk174, 0);
-	mBody[1]->mAnmCounter = frameDiff * absDist(unk174, 1);
-	mBody[2]->mAnmCounter = frameDiff * absDist(unk174, 2);
-	mBody[3]->mAnmCounter = frameDiff * absDist(unk174, 3);
-	mBody[4]->mAnmCounter = frameDiff * absDist(unk174, 4);
-	mBody[5]->mAnmCounter = frameDiff * absDist(unk174, 5);
-	mBody[6]->mAnmCounter = frameDiff * absDist(unk174, 6);
-	mBody[7]->mAnmCounter = frameDiff * absDist(unk174, 7);
-	mHead->mAnmCounter    = frameDiff * absDist(unk174, -1);
+	u8 frameDiff = mChangeParams->mSLDamageFrameDiff.value;
+	for (int i = 0; i < 8; ++i)
+		mBody[i]->mAnmCounter = frameDiff * absDist(unk174, i);
+	mHead->mAnmCounter = frameDiff * absDist(unk174, -1);
 }
 
 void TBossHanachan::setAnmTimerWhenSnort()
