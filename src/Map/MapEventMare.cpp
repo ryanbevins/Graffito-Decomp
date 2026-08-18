@@ -187,8 +187,8 @@ void TMareWallRock::loadAfter()
 	mLayerIndex = mIndex;
 
 	J3DJoint* joint = mJointObj->getJoint();
-	const JGeometry::TVec3<f32>& min = joint->mMin;
-	const JGeometry::TVec3<f32>& max = joint->mMax;
+	const Vec& min = joint->mMin;
+	const Vec& max = joint->mMax;
 	mPosition.x             = (min.x + max.x) * 0.5f;
 	mPosition.y             = (min.y + max.y) * 0.5f;
 	mPosition.z             = (min.z + max.z) * 0.5f;
