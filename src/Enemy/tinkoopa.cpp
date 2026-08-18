@@ -577,8 +577,9 @@ void TTinKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 			}
 		}
 
-		for (int i = 0; i < unk1F4->unk0; ++i)
-			unk1F4->unk8[i]->checkOrder();
+		TTinKoopaLaunchOrderTable* orders = unk1F4;
+		for (int i = 0; i < orders->unk0; ++i)
+			orders->unk8[i]->checkOrder();
 
 		checkTinKoopaKillerApproachingMessage();
 
