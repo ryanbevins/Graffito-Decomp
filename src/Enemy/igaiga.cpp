@@ -497,10 +497,9 @@ void TIgaiga::moveObject()
 	mMarchSpeed = ((TRollEnemySaveLoadParams*)unk1A4)->mSLMarchSpeedLow.get();
 	mTurnSpeed  = ((TRollEnemySaveLoadParams*)unk1A4)->getSLTurnSpeedLow();
 
-	TGraphNode& node = getTracer()->getCurrent();
-	if (node.checkFlag(0x40)) {
+	if (getTracer()->getCurrent().checkFlag(0x40)) {
 		JGeometry::TVec3<f32> point;
-		node.getPoint((Vec*)&point);
+		getTracer()->getCurrent().getPoint((Vec*)&point);
 		if (mPosition.y < 50.0f + point.y) {
 			kill();
 			unk1BC = true;
