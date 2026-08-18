@@ -362,7 +362,7 @@ TSelectShine::TSelectShine(J3DModelData* modelData, J3DAnmColor* anmColor,
 	unk28       = unk28Init;
 	unk38       = 3;
 
-	MtxPtr modelMtx = mModel->unk20;
+	MtxPtr modelMtx = mModel->getBaseTRMtx();
 	modelMtx[0][3]  = mPos.x;
 	modelMtx[1][3]  = mPos.y;
 	modelMtx[2][3]  = mPos.z;
