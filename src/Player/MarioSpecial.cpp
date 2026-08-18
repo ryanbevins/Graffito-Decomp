@@ -1871,15 +1871,12 @@ BOOL TMario::moveRoof()
 			result = changePlayerStatus(0x88c, 0, false);
 		} else if (input & 0x2) {
 			TLiveActor* actor = (TLiveActor*)mRoofPlane->mActor;
-			if (actor != 0) {
+			if (actor != 0)
 				actor->receiveMessage(this, 3);
-				if (actor->mActorType == 0x4000006a) {
-					emitParticle(0x39, &unk16C);
-					rumbleStart(0x15, mMotorParams.mMotorWall.value);
-					result = changePlayerStatus(0x00200345, 0, false);
-				} else {
-					result = changePlayerStatus(0x00200347, 0, false);
-				}
+			if (actor != 0 && actor->mActorType == 0x4000006a) {
+				emitParticle(0x39, &unk16C);
+				rumbleStart(0x15, mMotorParams.mMotorWall.value);
+				result = changePlayerStatus(0x00200345, 0, false);
 			} else {
 				result = changePlayerStatus(0x00200347, 0, false);
 			}
