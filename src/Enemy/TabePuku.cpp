@@ -377,7 +377,8 @@ void TTabePuku::behaveToWater(THitActor*) { }
 void TTabePuku::attackToMario()
 {
 	const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
-	if (isTabePukuHoldingNerve(nerve) || isTabePukuGraphNerve(nerve))
+	if (isTabePukuHoldingNerve(nerve)
+	    || isTabePukuGraphNerve(mSpine->getLatestNerve()))
 		return;
 
 	if (SMS_SendMessageToMario(this, HIT_MESSAGE_TAKE)) {
