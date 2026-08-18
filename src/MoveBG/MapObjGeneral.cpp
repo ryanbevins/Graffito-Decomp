@@ -105,15 +105,17 @@ void TMapObjGeneral::put()
 	makeObjAppeared();
 	mLifeTimer       = saved;
 
-	f32 r        = mDamageRadius;
-	mPosition.x  = JMASSin(*gpMarioAngleY)
+	f32 r = mDamageRadius;
+	const f32& marioX = gpMarioPos->x;
+	mPosition.x = JMASSin(*gpMarioAngleY)
 	                   * (SMS_GetMarioDamageRadius() + r + 10.0f)
-	               + gpMarioPos->x;
-	mPosition.y  = gpMarioPos->y;
-	r            = mDamageRadius;
-	mPosition.z  = JMASCos(*gpMarioAngleY)
+	               + marioX;
+	mPosition.y = gpMarioPos->y;
+	r           = mDamageRadius;
+	const f32& marioZ = gpMarioPos->z;
+	mPosition.z = JMASCos(*gpMarioAngleY)
 	                   * (SMS_GetMarioDamageRadius() + r + 10.0f)
-	               + gpMarioPos->z;
+	               + marioZ;
 
 	offLiveFlag(LIVE_FLAG_UNK10);
 	mGroundHeight = gpMap->checkGround(mPosition, &mGroundPlane);
