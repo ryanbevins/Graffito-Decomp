@@ -274,13 +274,13 @@ int TMario::checkGroundAtWalking(Vec* pos)
 		else
 			isThrough = 0;
 		if (!isThrough) {
-			int wallAngle = matan(wallPlane->mNormal.z, wallPlane->mNormal.x);
-			s16 diff = wallAngle - mFaceAngle.y;
+			int diff = matan(wallPlane->mNormal.z, wallPlane->mNormal.x)
+			         - mFaceAngle.y;
 
-			if (diff >= 0x2AAA && diff <= 0x5555)
+			if ((s16)diff >= 0x2AAA && (s16)diff <= 0x5555)
 				return 1;
 
-			if (diff <= -0x2AAA && diff >= -0x5555)
+			if ((s16)diff <= -0x2AAA && (s16)diff >= -0x5555)
 				return 1;
 
 			return 3;
