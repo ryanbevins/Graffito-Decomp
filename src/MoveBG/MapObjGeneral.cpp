@@ -112,10 +112,10 @@ void TMapObjGeneral::put()
 	               + marioX;
 	mPosition.y = gpMarioPos->y;
 	r           = mDamageRadius;
-	const f32& marioZ = gpMarioPos->z;
+	const JGeometry::TVec3<f32>& marioPos = *gpMarioPos;
 	mPosition.z = JMASCos(*gpMarioAngleY)
 	                   * (SMS_GetMarioDamageRadius() + r + 10.0f)
-	               + marioZ;
+	               + marioPos.z;
 
 	offLiveFlag(LIVE_FLAG_UNK10);
 	mGroundHeight = gpMap->checkGround(mPosition, &mGroundPlane);
