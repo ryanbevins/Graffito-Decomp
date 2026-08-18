@@ -681,7 +681,10 @@ TSandCastle::TSandCastle(const char* name)
 void TLeanMirror::draw() const
 {
 	MtxPtr mtx = getModel()->getAnmMtx(0);
-	JGeometry::TVec3<f32> dir(mtx[0][1], mtx[1][1], mtx[2][1]);
+	JGeometry::TVec3<f32> dir;
+	dir.x = mtx[0][1];
+	dir.y = mtx[1][1];
+	dir.z = mtx[2][1];
 	JGeometry::TVec3<f32> start = dir;
 	start.scale(350.0f * 0.001f * mBodyRadius);
 	start.add(mPosition);
