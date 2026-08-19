@@ -39,6 +39,13 @@ static const char* tabepuku_bastable[] = {
 	"/scene/tabepuku/bas/pukupuku_swim.bas",
 };
 
+static inline bool
+isTabePukuDiveOrDragNerve(const TNerveBase<TLiveActor>* nerve)
+{
+	return nerve == &TNerveTabePukuDive::theNerve()
+	       || nerve == &TNerveTabePukuDrag::theNerve();
+}
+
 static inline bool isTabePukuHoldingNerve(const TNerveBase<TLiveActor>* nerve)
 {
 	return nerve == &TNerveTabePukuBite::theNerve()
@@ -526,8 +533,7 @@ void TTabePuku::control()
 
 	const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
 	if (nerve == &TNerveTabePukuBite::theNerve()
-	    || nerve == &TNerveTabePukuDive::theNerve()
-	    || nerve == &TNerveTabePukuDrag::theNerve()) {
+	    || isTabePukuDiveOrDragNerve(nerve)) {
 		if (gpMSound->gateCheck(0x2123))
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x2123, &mPosition, 0, nullptr, 0, 4);
