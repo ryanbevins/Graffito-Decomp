@@ -1096,8 +1096,7 @@ void TKoopaJrSubmarine::bind()
 	nextPosition.add(mLinearVelocity);
 	nextPosition.add(mVelocity);
 
-	JGeometry::TVec3<f32> delta = nextPosition - mPosition;
-	mLinearVelocity = delta;
+	mLinearVelocity = nextPosition - mPosition;
 	unk174->bind(this);
 }
 
