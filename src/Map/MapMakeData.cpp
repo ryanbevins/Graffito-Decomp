@@ -92,12 +92,20 @@ static inline void setVertexFromIndices(const f32* vertices,
 
 void TBGCheckData::updateTrans(const JGeometry::TVec3<f32>& translate_by)
 {
-	mPoint1.add(translate_by);
-	mPoint2.add(translate_by);
-	mPoint3.add(translate_by);
+	const f32 transY = translate_by.y;
+	const f32 transZ = translate_by.z;
+	mPoint1.x += translate_by.x;
+	mPoint1.y += transY;
+	mPoint1.z += transZ;
+	mPoint2.x += translate_by.x;
+	mPoint2.y += transY;
+	mPoint2.z += transZ;
+	mPoint3.x += translate_by.x;
+	mPoint3.y += transY;
+	mPoint3.z += transZ;
 
-	mMinY += translate_by.y;
-	mMaxY += translate_by.y;
+	mMinY += transY;
+	mMaxY += transY;
 
 	mPlaneDistance = -(mNormal.x * mPoint1.x + mNormal.y * mPoint1.y
 	                   + mNormal.z * mPoint1.z);
