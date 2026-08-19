@@ -750,9 +750,12 @@ bool TBathtubKiller::isAboided()
 	f32 vertDist = __fabsf(toMario.y - selfPos.y);
 	toMario.y = 0.0f;
 	selfPos.y = 0.0f;
-	JGeometry::TVec3<f32> diff;
-	diff.sub(toMario, selfPos);
-	f32 horizDist = diff.length();
+	f32 diffX = toMario.x - selfPos.x;
+	f32 diffY = toMario.y - selfPos.y;
+	f32 diffZ = toMario.z - selfPos.z;
+	f32 horizDist
+	    = JGeometry::TUtil<f32>::sqrt(diffX * diffX + diffY * diffY
+	                                  + diffZ * diffZ);
 
 	if (vertDist > getSaveParam2()->mSLAboidDistanceY.value
 	    && horizDist <= getSaveParam2()->mSLAboidDistance.value)
@@ -767,7 +770,7 @@ bool TBathtubKiller::isAboided()
 		return true;
 	}
 
-	JGeometry::TVec3<f32> dir(diff);
+	JGeometry::TVec3<f32> dir(diffX, diffY, diffZ);
 	dir.normalize();
 	TDirectionCalc dc1(dir);
 
