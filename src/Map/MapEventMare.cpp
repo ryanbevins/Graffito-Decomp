@@ -13,6 +13,7 @@
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/PollutionManager.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/Particles.hpp>
@@ -539,7 +540,7 @@ void TMareEventDepressWall::initCommon()
 
 		f32 volume = mEffectDirs[index].x * mEffectDirs[index].y
 		             * mEffectDirs[index].z;
-		f32 root = JGeometry::TUtil<f32>::sqrt(volume);
+		f32 root = MsSqrtf(volume);
 
 		mParticleScales[index]     = root * 0.1f;
 		mParticleChildRates[index] = volume * 0.002f + 1.5f;
