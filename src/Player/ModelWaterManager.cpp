@@ -882,70 +882,26 @@ void TModelWaterManager::calcVMMtxGround(MtxPtr param_1, f32 param_2,
 	f32 transZ     = normalZ * 2.0f + param_3.z;
 	f32 negScaledZ = -scaledZ;
 
-	{
-		f32 m00 = param_1[0][0];
-		f32 m01 = param_1[0][1];
-		f32 m02 = param_1[0][2];
-		f32 m03 = param_1[0][3];
-		f32 out1 = m01 * scaledY;
-		f32 out0 = m01 * negScaledX;
-		f32 out3 = m01 * transY;
-		out1 = m00 * scaledX + out1;
-		out0 = m00 * scaledY + out0;
-		out3 = m00 * transX + out3;
-		f32 out2 = m02 * scaledY;
-		param_5[0][0] = out0;
-		out1 = m02 * scaledZ + out1;
-		out3 = m02 * transZ + out3;
-		out2 = m01 * negScaledZ + out2;
-		param_5[0][1] = out1;
-		out3 = m03 + out3;
-		param_5[0][2] = out2;
-		param_5[0][3] = out3;
-	}
-
-	{
-		f32 m10 = param_1[1][0];
-		f32 m11 = param_1[1][1];
-		f32 m12 = param_1[1][2];
-		f32 m13 = param_1[1][3];
-		f32 out1 = m11 * scaledY;
-		f32 out0 = m11 * negScaledX;
-		f32 out3 = m11 * transY;
-		out1 = m10 * scaledX + out1;
-		out0 = m10 * scaledY + out0;
-		out3 = m10 * transX + out3;
-		f32 out2 = m12 * scaledY;
-		param_5[1][0] = out0;
-		out1 = m12 * scaledZ + out1;
-		out3 = m12 * transZ + out3;
-		out2 = m11 * negScaledZ + out2;
-		param_5[1][1] = out1;
-		out3 = m13 + out3;
-		param_5[1][2] = out2;
-		param_5[1][3] = out3;
-	}
-
-	{
-		f32 m20 = param_1[2][0];
-		f32 m21 = param_1[2][1];
-		f32 m22 = param_1[2][2];
-		f32 m23 = param_1[2][3];
-		f32 out1 = m21 * scaledY;
-		f32 out0 = m21 * negScaledX;
-		f32 out3 = m21 * transY;
-		out1 = m20 * scaledX + out1;
-		out0 = m20 * scaledY + out0;
-		out3 = m20 * transX + out3;
-		f32 out2 = m22 * scaledY;
-		param_5[2][0] = out0;
-		out1 = m22 * scaledZ + out1;
-		out3 = m22 * transZ + out3;
-		out2 = m21 * negScaledZ + out2;
-		param_5[2][1] = out1;
-		out3 = m23 + out3;
-		param_5[2][2] = out2;
-		param_5[2][3] = out3;
+	for (int i = 0; i < 3; ++i) {
+		f32 m0   = param_1[i][0];
+		f32 m1   = param_1[i][1];
+		f32 m2   = param_1[i][2];
+		f32 m3   = param_1[i][3];
+		f32 out1 = m1 * scaledY;
+		f32 out0 = m1 * negScaledX;
+		f32 out3 = m1 * transY;
+		out1     = m0 * scaledX + out1;
+		out0     = m0 * scaledY + out0;
+		out3     = m0 * transX + out3;
+		f32 out2 = m2 * scaledY;
+		param_5[i][0] = out0;
+		out1          = m2 * scaledZ + out1;
+		out3          = m2 * transZ + out3;
+		out2          = m1 * negScaledZ + out2;
+		param_5[i][1] = out1;
+		out3          = m3 + out3;
+		param_5[i][2] = out2;
+		param_5[i][3] = out3;
 	}
 }
 
