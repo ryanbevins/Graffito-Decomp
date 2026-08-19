@@ -599,10 +599,8 @@ void TPopo::walkBehavior(int graph_direction, float multiplier)
 {
 	if (!isAirborne()) {
 		JGeometry::TVec3<f32> target = unk104.getPoint();
-		JGeometry::TVec3<f32> dir;
-		dir.x = target.x - mPosition.x;
-		dir.y = 0.0f;
-		dir.z = target.z - mPosition.z;
+		JGeometry::TVec3<f32> dir(unk104.getPoint().x - mPosition.x, 0.0f,
+		                              unk104.getPoint().z - mPosition.z);
 		if (dir.x == 0.0f && dir.y == 0.0f && dir.z == 0.0f)
 			dir.x += 1.0f;
 		MsVECNormalize(&dir, &dir);
