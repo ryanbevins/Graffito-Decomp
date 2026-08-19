@@ -130,9 +130,10 @@ void TModelGate::screenBlur(JDrama::TGraphics* graphics)
 	f32 blurFactor = unkE4 * (1.0f - gpCamera->unk270);
 	f32 blurTarget = unkEC;
 	JGeometry::TVec3<f32> tmp(rotated.x, rotated.y, rotated.z);
+	s32 blurByte = (s32)blurFactor;
 	TAfterEffect* effect = gpAfterEffect;
 	effect->unk15        = 2;
-	effect->unk1C        = (u8)(s32)blurFactor;
+	effect->unk1C        = (u8)blurByte;
 	effect->unk50        = blurTarget;
 	effect->unk5C        = tmp;
 }
