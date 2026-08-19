@@ -701,9 +701,8 @@ void TChuuHana::behaveToWater(THitActor* actor)
 
 	if (mSpine->getCurrentNerve() == &TNerveChuuHanaRoll::theNerve()) {
 		JGeometry::TVec3<f32> dir;
-		dir.x = mPosition.x - gpMarioPos->x;
-		dir.y = 0.0f;
-		dir.z = mPosition.z - gpMarioPos->z;
+		dir.set(mPosition.x - gpMarioPos->x, 0.0f,
+		        mPosition.z - gpMarioPos->z);
 		MsVECNormalize((Vec*)&dir, (Vec*)&dir);
 		dir.scale(getChuuHanaParams()->mSLGetWaterPow.get());
 
@@ -727,9 +726,8 @@ void TChuuHana::behaveToWater(THitActor* actor)
 			*unk21C = 1;
 
 		JGeometry::TVec3<f32> dir;
-		dir.x = mPosition.x - gpMarioPos->x;
-		dir.y = 0.0f;
-		dir.z = mPosition.z - gpMarioPos->z;
+		dir.set(mPosition.x - gpMarioPos->x, 0.0f,
+		        mPosition.z - gpMarioPos->z);
 		MsVECNormalize((Vec*)&dir, (Vec*)&dir);
 		dir.scale(getChuuHanaParams()->mSLGetWaterPow2.get());
 
@@ -755,9 +753,8 @@ void TChuuHana::behaveToWater(THitActor* actor)
 	    && mSpine->getCurrentNerve()
 	        == &TNerveChuuHanaKeepBalance::theNerve()) {
 		JGeometry::TVec3<f32> dir;
-		dir.x = mPosition.x - gpMarioPos->x;
-		dir.y = 10.0f;
-		dir.z = mPosition.z - gpMarioPos->z;
+		dir.set(mPosition.x - gpMarioPos->x, 10.0f,
+		        mPosition.z - gpMarioPos->z);
 		MsVECNormalize((Vec*)&dir, (Vec*)&dir);
 		dir.scale(2.0f * getChuuHanaParams()->mSLGetWaterPow.get());
 
