@@ -89,10 +89,6 @@ public:
 	TSamboLeaf(const char* name, SDLModel* model, TSamboFlowerManager* manager)
 	    : JDrama::TViewObj(name)
 	    , mModel(model)
-	    , mPosition(0.0f, 0.0f, 0.0f)
-	    , mRotation(0.0f, 0.0f, 0.0f)
-	    , mScale(1.0f, 1.0f, 1.0f)
-	    , mVelocity(0.0f, 0.0f, 0.0f)
 	    , mActive(false)
 	    , mManager(manager)
 	{
