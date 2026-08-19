@@ -516,7 +516,7 @@ void TMareEventDepressWall::initCommon()
 	mEffectDirs         = new JGeometry::TVec3<f32>[mWallNum];
 	mParticleScales     = new f32[mWallNum];
 	mParticleChildRates = new f32[mWallNum];
-	int skip            = 0x43 - (mStartBuildingIndex + (mWallNum - 1));
+	int skip            = 0x43 - ((mWallNum - 1) + mStartBuildingIndex);
 	J3DJoint* joint     = (J3DJoint*)gpMap->getModelManager()
 	                      ->getJointModel(0)
 	                      ->getModelData()
