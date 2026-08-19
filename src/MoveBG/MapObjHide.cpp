@@ -349,12 +349,12 @@ void TWaterHitPictureHideObj::loadAfter()
 			break;
 		case 0x400001a1:
 			unk164 = 0.0f;
-			unk168 = 255.0f;
+			unk168 = 200.0f;
 			unk150 = 1;
 			break;
 		case 0x400001a2:
 			unk164 = 0.0f;
-			unk168 = 200.0f;
+			unk168 = 255.0f;
 			unk154 = 0.4f;
 			unk150 = 0;
 			break;
