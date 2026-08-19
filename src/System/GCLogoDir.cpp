@@ -169,10 +169,7 @@ bool TGCLogoDir::direct_nlogo()
 	switch (mState) {
 	case 0:
 		if (gpApplication.mFader->isFullyFadedIn()) {
-			if (mProgSelect->unkC.mValue == 0)
-				nextState = 3;
-			else
-				nextState = 1;
+			nextState = mProgSelect->unkC.mValue == 0 ? 3 : 1;
 
 			SMSGetMSound()->startSoundSystemSE(0x7914, 0, nullptr, 0);
 			mLogoShowTimer = 0;
