@@ -95,8 +95,7 @@ void TEnemyAttachment::bind()
 		behaveToHitWall(local_48.mResultWalls[0]);
 
 	mPosition                      = local_1C;
-	JGeometry::TVec3<f32> local_68 = local_1C - mPosition;
-	mLinearVelocity = local_68;
+	mLinearVelocity = local_1C - mPosition;
 
 	setBehavior();
 	forceKill();
