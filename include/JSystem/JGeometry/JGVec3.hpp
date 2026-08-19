@@ -333,7 +333,9 @@ public:
 #ifdef JGEOMETRY_MARIOSPECIAL_TVEC3_LENGTH_INLINE
 	f32 length() const
 	{
-		f32 mag = squared();
+		f32 ySq = y * y;
+		f32 xySq = x * x + ySq;
+		f32 mag = z * z + xySq;
 		if (mag <= 0.0f)
 			return mag;
 
