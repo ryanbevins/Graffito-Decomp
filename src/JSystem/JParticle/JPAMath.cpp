@@ -96,11 +96,12 @@ void JPAGetYRotateMtx(s16 y, MtxPtr dst)
 void JPAVecToRotaMtx(MtxPtr dst, JGeometry::TVec3<f32> a,
                      JGeometry::TVec3<f32> b)
 {
-	f32 p = a.y * b.z - a.z * b.y;
-	f32 q = a.z * b.x - a.x * b.z;
-	f32 r = a.x * b.y - a.y * b.x;
+	JGeometry::TVec3<f32> cross;
+	cross.x = a.y * b.z - a.z * b.y;
+	cross.y = a.z * b.x - a.x * b.z;
+	cross.z = a.x * b.y - a.y * b.x;
 
-	f32 crossLen = r * r + p * p + q * q;
+	f32 crossLen = cross.z * cross.z + cross.x * cross.x + cross.y * cross.y;
 	f32 dot      = a.x * b.x + a.y * b.y + a.z * b.z;
 	if (crossLen > 0.0f) {
 		f32 estimate = (f32)__frsqrte(crossLen);
@@ -111,30 +112,30 @@ void JPAVecToRotaMtx(MtxPtr dst, JGeometry::TVec3<f32> a,
 
 	if (crossLen > 3.8146973e-06f) {
 		f32 inv = __fres(crossLen);
-		p *= inv;
-		q *= inv;
-		r *= inv;
+		cross.x *= inv;
+		cross.y *= inv;
+		cross.z *= inv;
 	} else {
-		p = 0.0f;
-		q = 0.0f;
-		r = 0.0f;
+		cross.x = 0.0f;
+		cross.y = 0.0f;
+		cross.z = 0.0f;
 	}
 
 	f32 oneMinusDot = 1.0f - dot;
 
-	dst[0][0] = dot * (1.0f - p * p) + p * p;
-	dst[0][1] = p * q * oneMinusDot + r * crossLen;
-	dst[0][2] = r * p * oneMinusDot - q * crossLen;
+	dst[0][0] = dot * (1.0f - cross.x * cross.x) + cross.x * cross.x;
+	dst[0][1] = cross.x * cross.y * oneMinusDot + cross.z * crossLen;
+	dst[0][2] = cross.z * cross.x * oneMinusDot - cross.y * crossLen;
 	dst[0][3] = 0.0f;
 
-	dst[1][0] = p * q * oneMinusDot - r * crossLen;
-	dst[1][1] = dot * (1.0f - q * q) + q * q;
-	dst[1][2] = q * r * oneMinusDot + p * crossLen;
+	dst[1][0] = cross.x * cross.y * oneMinusDot - cross.z * crossLen;
+	dst[1][1] = dot * (1.0f - cross.y * cross.y) + cross.y * cross.y;
+	dst[1][2] = cross.y * cross.z * oneMinusDot + cross.x * crossLen;
 	dst[1][3] = 0.0f;
 
-	dst[2][0] = r * p * oneMinusDot + q * crossLen;
-	dst[2][1] = q * r * oneMinusDot - p * crossLen;
-	dst[2][2] = dot * (1.0f - r * r) + r * r;
+	dst[2][0] = cross.z * cross.x * oneMinusDot + cross.y * crossLen;
+	dst[2][1] = cross.y * cross.z * oneMinusDot - cross.x * crossLen;
+	dst[2][2] = dot * (1.0f - cross.z * cross.z) + cross.z * cross.z;
 	dst[2][3] = 0.0f;
 }
 
