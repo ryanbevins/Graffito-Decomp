@@ -158,7 +158,8 @@ void TBossHanachan::considerSetAnm(EnumBossHanachanNerveAnm nerveAnm)
 
 static inline int absDist(int a, int b)
 {
-	int d = a - b;
+	int d = a;
+	d -= b;
 	if (d < 0)
 		d = -d;
 	return d;
