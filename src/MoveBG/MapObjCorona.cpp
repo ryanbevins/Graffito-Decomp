@@ -33,12 +33,14 @@
 // MSL_STDFMODF_OUT_OF_LINE; reconstruct the real MSL float implementation so
 // it links and behaves identically to the target.
 namespace std {
+#pragma dont_inline on
 float fmodf(float x, float y)
 {
 	if (fabsf(y) > fabsf(x))
 		return x;
 	return x - y * (f32)(s64)(x / y);
 }
+#pragma dont_inline off
 } // namespace std
 
 // rogue includes for matching __sinit (15 JALList<T> templates)
