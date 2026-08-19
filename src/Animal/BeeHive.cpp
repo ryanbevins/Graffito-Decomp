@@ -513,21 +513,19 @@ BOOL TBeeHive::receiveMessage(THitActor* sender, u32 message)
 		if (current != &TNerveBeeHiveFall::theNerve()) {
 			JGeometry::TVec3<f32> dir = diff;
 			dir.y = 0.0f;
-			if (dir.squared() <= 0.0000038146973f) {
-				dir.set(0.0f, 0.0f, 0.0f);
-			} else {
-				dir.normalize();
-			}
+			dir.normalize();
 
-			f32 sign;
-			if (fabsf(mAngularVelocity.y) < 0.0001f) {
-				sign = 1.0f;
-			} else if (mAngularVelocity.y > 0.0f) {
-				sign = 1.0f;
-			} else if (mAngularVelocity.y < 0.0f) {
-				sign = -1.0f;
-			} else {
-				sign = 0.0f;
+			f32 sign = 1.0f;
+			if (fabsf(mAngularVelocity.y) >= 0.0001f) {
+				s32 spinSign;
+				if (mAngularVelocity.y > 0.0f) {
+					spinSign = 1;
+				} else if (mAngularVelocity.y < 0.0f) {
+					spinSign = -1;
+				} else {
+					spinSign = 0;
+				}
+				sign = spinSign;
 			}
 
 			JGeometry::TVec3<f32> up(0.0f, 0.0f, 1.0f);
