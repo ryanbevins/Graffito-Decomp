@@ -261,8 +261,7 @@ void TLimitKoopa::bind()
 		mVelocity.z = 0.0f;
 	}
 
-	JGeometry::TVec3<f32> delta = nextPos;
-	delta.sub(mPosition);
+	JGeometry::TVec3<f32> delta = nextPos - mPosition;
 	mLinearVelocity = delta;
 }
 
