@@ -1447,10 +1447,10 @@ void TBossGesso::perform(u32 param_1, JDrama::TGraphics* param_2)
 			if (container == nullptr) {
 				changeAttackMode(ASTATE_SINGLE);
 			} else if (mTentacles[0]->mState != 4) {
-				mTentacles[0]->getFirstNode()->setPosition(
-				    JGeometry::TVec3<f32>(11603.0f, 2114.3f, 2411.4f));
-				mTentacles[0]->getFirstNode()[1].setPosition(
-				    JGeometry::TVec3<f32>(11510.0f, 2114.3f, 2411.4f));
+				JGeometry::TVec3<f32> position(11603.0f, 2114.3f, 2411.4f);
+				mTentacles[0]->getFirstNode()->setPosition(position);
+				position.x = 11510.0f;
+				mTentacles[0]->getFirstNode()[1].setPosition(position);
 			}
 		}
 		mTentacles[0]->testPerform(param_1, param_2);
