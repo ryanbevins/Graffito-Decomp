@@ -1712,7 +1712,7 @@ DEFINE_NERVE(TNerveBWJumpToBath, TLiveActor)
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
 	if (spine->getTime() == 0) {
 		JGeometry::TVec3<f32> velocity = self->calcVelocityToJumpToY(
-		    BW_BATH_POS, 360.0f / 65536.0f, self->getGravityY());
+		    BW_BATH_POS, 10.0f, self->getGravityY());
 		TPathNode bathNode(BW_BATH_POS);
 		self->unkF4  = bathNode;
 		self->unk104 = bathNode;
@@ -1723,7 +1723,7 @@ DEFINE_NERVE(TNerveBWJumpToBath, TLiveActor)
 	}
 
 	if (spine->getTime() > 0x78 && (s8)self->unk195 == 0
-	    && self->mPosition.y < BW_BATH_POS.y + (360.0f / 65536.0f)) {
+	    && self->mPosition.y < BW_BATH_POS.y + 10.0f) {
 		TEffectColumWater* water
 		    = (TEffectColumWater*)gpConductor->makeOneEnemyAppear(
 		        self->mPosition, "エフェクト水柱マネージャー", 1);
