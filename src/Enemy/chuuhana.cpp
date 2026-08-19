@@ -572,13 +572,14 @@ bool TChuuHana::isCollidMove(THitActor* actor)
 		           && mSpine->getCurrentNerve()
 		               != &TNerveChuuHanaAttack::theNerve()
 		           && other->mInstanceIndex > mInstanceIndex) {
-			int roll = (int)(rand() * (1.0f / (RAND_MAX + 1)) * 100.0f);
+			TMsRange<s32> rollRange(0, 100);
+			int roll = rollRange.rand();
 			if (roll % 4 == 0) {
 				unk1A4 = mCheckOnPanelTime;
 
 				TGraphWeb* graph = unk124->unk0;
-				int index = (int)(rand() * (1.0f / (RAND_MAX + 1))
-				                  * graph->getNodeNum());
+				TMsRange<s32> nodeRange(0, graph->getNodeNum());
+				int index = nodeRange.rand();
 				JGeometry::TVec3<f32> point;
 				graph->getGraphNode(index).getPoint((Vec*)&point);
 
