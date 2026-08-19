@@ -422,12 +422,18 @@ void TRailBlock::control()
 		unk168.y = 0.0f;
 		unk168.z = 0.0f;
 
-		JGeometry::TVec3<f32> xAxis(unk174[0][0], unk174[1][0],
-		                            unk174[2][0]);
-		JGeometry::TVec3<f32> yAxis(unk174[0][1], unk174[1][1],
-		                            unk174[2][1]);
-		JGeometry::TVec3<f32> zAxis(unk174[0][2], unk174[1][2],
-		                            unk174[2][2]);
+		JGeometry::TVec3<f32> xAxis;
+		xAxis.x = unk174[0][0];
+		xAxis.y = unk174[1][0];
+		xAxis.z = unk174[2][0];
+		JGeometry::TVec3<f32> yAxis;
+		yAxis.x = unk174[0][1];
+		yAxis.y = unk174[1][1];
+		yAxis.z = unk174[2][1];
+		JGeometry::TVec3<f32> zAxis;
+		zAxis.x = unk174[0][2];
+		zAxis.y = unk174[1][2];
+		zAxis.z = unk174[2][2];
 		PSVECNormalize(&xAxis, &xAxis);
 		PSVECNormalize(&yAxis, &yAxis);
 		PSVECNormalize(&zAxis, &zAxis);
