@@ -241,7 +241,9 @@ void TLimitKoopa::calcRootMatrix()
 void TLimitKoopa::bind()
 {
 	JGeometry::TVec3<f32> nextPos;
-	getNextFramePosition(nextPos);
+	nextPos = mPosition;
+	nextPos.add(mLinearVelocity);
+	nextPos.add(mVelocity);
 
 	mVelocity.x += mFallVelocity.x;
 	mVelocity.y += mFallVelocity.y;
