@@ -24,6 +24,9 @@ public:
 
 	virtual ~TSpcStack() { delete[] mData; }
 
+#ifdef TSPCSTACK_PUSH_DECL_ONLY
+	void push(const T& v);
+#else
 	void push(const T& v)
 	{
 		if (mSize >= mCapacity) {
@@ -34,6 +37,7 @@ public:
 		mData[mSize] = v;
 		++mSize;
 	}
+#endif
 
 	// fabricated
 	T pop()
