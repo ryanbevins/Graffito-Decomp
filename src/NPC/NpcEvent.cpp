@@ -1,7 +1,6 @@
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #define TSPINEBASE_GETLATESTNERVE_OUT_OF_LINE
-#define TSPCSTACK_PUSH_DECL_ONLY
 #include <NPC/NpcEvent.hpp>
 #include <stdio.h>
 #include <MSound/MSoundBGM.hpp>
@@ -22,7 +21,6 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
-#undef TSPCSTACK_PUSH_DECL_ONLY
 
 static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
