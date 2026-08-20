@@ -31,7 +31,7 @@ public:
 	void startDisappear(u16);
 	void emWalkAround();
 	void emJumping();
-	void emWaiting();
+	virtual void emWaiting();
 	BOOL tryTake();
 	void changeEMDoing(u16);
 	void startMonteReplay(u32);
