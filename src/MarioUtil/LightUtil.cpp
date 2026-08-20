@@ -536,7 +536,7 @@ Vec* TLightWithDBSetManager::getLightPos() const
 	return TLightCommon::mLightPos;
 }
 
-void TLightWithDBSetManager::calcLightBorder()
+inline void TLightWithDBSetManager::calcLightBorder()
 {
 	f32 a[3] = { 0.9f, 0.5f, 0.05f };
 	f32 b[3];
