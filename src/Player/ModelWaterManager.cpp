@@ -1027,7 +1027,7 @@ void TModelWaterManager::drawTouching()
 	}
 }
 
-void TModelWaterManager::drawTouchingMask()
+inline void TModelWaterManager::drawTouchingMask()
 {
 	SMS_SettingDrawShape(unk5D50, 0);
 	for (int iVar2 = 0; iVar2 < mParticleCount; iVar2 = iVar2 + 1) {
