@@ -309,8 +309,9 @@ void TMapObjGeneral::touchPlayer(THitActor* player)
 
 void TMapObjGeneral::recover()
 {
+	const TMapObjHitDataTable& hitData = mMapObjData->mHit->unkC[2];
 	gpPollution->clean(mPosition.x, mSavedY, mPosition.z,
-	                   (u16)(mMapObjData->mHit->unkC[2].unk0 / 6.0f));
+	                   (u16)(hitData.unk0 / 6.0f));
 
 	setUpMapCollision(1);
 	startAnim(6);
