@@ -409,7 +409,7 @@ inline void TOptionRumbleUnit::checkRumble()
 	}
 }
 
-void TOptionRumbleUnit::toggle()
+inline void TOptionRumbleUnit::toggle()
 {
 	mShouldRumble = true;
 	mSelectionText->toggle();
