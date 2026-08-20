@@ -263,7 +263,7 @@ void TMapStaticObj::initUnique()
 	}
 }
 
-void TMapStaticObj::initMapCollision(const char* name)
+inline void TMapStaticObj::initMapCollision(const char* name)
 {
 	if (unk68->unk40 & 2)
 		unk74 = new TMapCollisionManager(1, "/mapObj", nullptr);
