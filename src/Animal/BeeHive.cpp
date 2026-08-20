@@ -72,7 +72,7 @@ static inline void setBoidLeaderMarioGoal(TBoidLeader* leader, f32 offset_y)
 	leader->mGoalOffset.set(0.0f, offset_y, 0.0f);
 }
 
-static void setBoidLeaderHomeGoal(TBeeHive* hive)
+static inline void setBoidLeaderHomeGoal(TBeeHive* hive)
 {
 	TBoidLeader* leader = hive->mBoidLeader;
 	setBoidLeaderWaitParams(leader);
