@@ -12,7 +12,7 @@ TFlagManager* TFlagManager::start(JKRHeap* heap)
 	return smInstance;
 }
 
-void TFlagManager::end() { }
+inline void TFlagManager::end() { }
 
 TFlagManager::TFlagManager()
 {
