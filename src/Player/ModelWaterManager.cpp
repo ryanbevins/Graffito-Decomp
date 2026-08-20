@@ -1432,8 +1432,6 @@ void TModelWaterManager::drawMirror(MtxPtr param_1)
 	GXSetDstAlpha(GX_FALSE, 0);
 }
 
-void init_sphere_glist() { }
-
 extern "C" void ReInitializeGX();
 
 static u32 tmp_data[] __attribute__((aligned(32))) = {
