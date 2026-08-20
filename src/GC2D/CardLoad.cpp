@@ -337,8 +337,6 @@ void TCardLoad::load(JSUMemoryInputStream& stream)
 	unk750 = (J2DPicture*)unk2C->search('\0n_c');
 }
 
-void TCardLoad::setupTitleScreen() { }
-
 void TCardLoad::setupScoreScreen()
 {
 	int iVar2 = TFlagManager::getInstance()->getFlag(0x40000);
