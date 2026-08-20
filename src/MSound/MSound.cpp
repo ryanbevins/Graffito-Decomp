@@ -24,6 +24,8 @@
 MSound* MSGMSound  = 0;
 JAIBasic* MSGBasic = 0;
 
+template <class T> static inline T min(T a, T b) { return a < b ? a : b; }
+
 u16 MSSeCallBack::smTrackCategory[32]
     = { 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
 	    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
@@ -646,10 +648,8 @@ void MSound::demoModeOut(bool param)
 {
 	for (u8 i = 0; i < 16; ++i) {
 		if (MSGMSound->unk0->unk88.unk2[i] && JAIBasic::basic != nullptr) {
-			s32 rawVolume = 127.0f * MSHandle::smSeCategory[i].unk8;
-			s32 categoryVolume
-			    = (u8)rawVolume < 127 ? rawVolume : 127;
-			JAIBasic::basic->setSeCategoryVolume(i, categoryVolume);
+			JAIBasic::basic->setSeCategoryVolume(
+			    i, min<u8>(MSHandle::smSeCategory[i].unk8 * 127.0f, 127));
 		}
 	}
 
