@@ -50,7 +50,7 @@ namespace DSPInterface {
 		DCFlushRange(FX_BUF, sizeof(FXBuffer) * 4);
 	}
 	inline void flushChannelAll() { }
-	void cacheChannelAll() { }
+	inline void cacheChannelAll() { }
 	void invalChannelAll()
 	{
 		DCInvalidateRange(CH_BUF, sizeof(DSPBuffer) * 64);
