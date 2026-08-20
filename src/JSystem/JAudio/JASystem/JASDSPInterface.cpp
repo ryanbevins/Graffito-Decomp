@@ -44,7 +44,7 @@ namespace DSPInterface {
 		for (int i = 0; i < size; i++)
 			*dst++ = *src++;
 	}
-	void flushBuffer()
+	inline void flushBuffer()
 	{
 		DCFlushRange(CH_BUF, sizeof(DSPBuffer) * 64);
 		DCFlushRange(FX_BUF, sizeof(FXBuffer) * 4);
