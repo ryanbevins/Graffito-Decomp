@@ -659,9 +659,11 @@ void JAIBasic::startSoundBasic(u32 id, JAISound** sound, JAIActor* actor,
 			return;
 		if (unk38 && (unk38->unk8 & 0x3FF) == (id & 0x3FF))
 			return;
-		if (sound == nullptr)
+		if (sound == nullptr) {
+			u8 trackNumber = getSeqTrackNumber(data);
 			sound = (JAISound**)((u8*)unk0->unk1E0
-			                     + (getSeqTrackNumber(data) & 0xff) * 4);
+			                     + (trackNumber & 0xff) * 4);
+		}
 		unk0->unk1FC.storeBuffer(sound, actor, id, param, flag, data);
 		break;
 	case 0x00000000:
