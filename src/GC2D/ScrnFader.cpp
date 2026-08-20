@@ -322,7 +322,7 @@ void TSMSFader::startWipe(u32 param_1, f32 param_2, f32 param_3)
 	mWipeRequest.unk8 = param_3;
 }
 
-void TSMSFader::startFadein(int param_1)
+inline void TSMSFader::startFadein(int param_1)
 {
 	switch (mFadeStatus) {
 	case FADE_STATUS_FULLY_FADED_OUT:
