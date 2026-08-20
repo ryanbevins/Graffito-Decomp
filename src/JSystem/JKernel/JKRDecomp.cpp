@@ -77,7 +77,7 @@ void JKRDecomp::sendCommand(JKRDecompCommand* command)
 	OSSendMessage(&sMessageQueue, command, OS_MESSAGE_BLOCK);
 }
 
-JKRDecompCommand*
+inline JKRDecompCommand*
 JKRDecomp::orderAsync(u8* srcBuffer, u8* dstBuffer, u32 srcLength,
                       u32 dstLength, JKRDecompCommand::AsyncCallback callback)
 {
