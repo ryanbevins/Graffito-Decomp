@@ -35,7 +35,7 @@ void THelpActor::loadAfter()
 	    ->entryHelpActor(this);
 }
 
-int THelpActor::getHelpID()
+inline int THelpActor::getHelpID()
 {
 	if (unk70 != nullptr && check())
 		return -1;
