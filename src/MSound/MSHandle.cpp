@@ -201,10 +201,10 @@ f32 MSHandle::calcPan(const Vec& vec, f32 param1, f32 param2)
 		          * (param1 - cPan_HiSence_Dist);
 	}
 
-	f32 result = amp + maxAmp;
-	result = result > 1.0f ? 1.0f : result;
-	result = result < 0.0f ? 0.0f : result;
-	return result;
+	amp += maxAmp;
+	amp = amp > 1.0f ? 1.0f : amp;
+	amp = amp < 0.0f ? 0.0f : amp;
+	return amp;
 }
 
 f32 MSHandle::calcDolby(const Vec& vec, f32 param)
