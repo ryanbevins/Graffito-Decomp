@@ -874,7 +874,10 @@ DEFINE_NERVE(TNerveBPDie, TLiveActor)
 	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
 	MActor* actor      = boss->mMActor;
 
-	((MSModBgm*)gpMSound->unk98)->modBgm(0, 1);
+	if (spine->getTime() == 0)
+		((MSModBgm*)gpMSound->unk98)->modBgm(0, 1);
+	else
+		((MSModBgm*)gpMSound->unk98)->modBgm(0, 1);
 
 	if (actor->checkCurBckFromIndex(0x07) && spine->getTime() == 0x2A8)
 		boss->onLiveFlag(LIVE_FLAG_UNK8);
