@@ -10,7 +10,7 @@ f32 RumbleMgr::mPowerThreshold   = 0.5f;
 RumbleMgr* SMSRumbleMgr = nullptr;
 
 // Size needed: 0x10, current: 0x10
-void RumbleBase::init()
+inline void RumbleBase::init()
 {
 	mPower       = 0.0f;
 	mAccumulator = 0.0f;
