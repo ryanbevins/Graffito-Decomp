@@ -1,5 +1,7 @@
 #define JUTRECT_CTOR_OUT_OF_LINE
+#define J3D_FRAMECTRL_NO_INLINE_DTOR
 #include <GC2D/Option.hpp>
+#undef J3D_FRAMECTRL_NO_INLINE_DTOR
 #undef JUTRECT_CTOR_OUT_OF_LINE
 #include <macros.h>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
