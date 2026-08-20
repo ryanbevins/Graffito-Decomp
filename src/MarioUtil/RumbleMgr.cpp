@@ -20,7 +20,7 @@ inline void RumbleBase::init()
 inline void RumbleBase::stop() { PADControlMotor(mChan, PAD_MOTOR_STOP_HARD); }
 
 // Size needed: 0xAC, current: 0xA0
-void RumbleBase::update(f32 power, bool stopHard)
+inline void RumbleBase::update(f32 power, bool stopHard)
 {
 	// This function is the likely cause for stack mismatch in
 	// RumbleMgr::update() as it's the only one whose size mismatches.
