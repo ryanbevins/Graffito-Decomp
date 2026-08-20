@@ -41,7 +41,7 @@ BOOL __DVDPushWaitingQueue(s32 prio, DVDCommandBlock* block)
 	return TRUE;
 }
 
-static DVDCommandBlock* PopWaitingQueuePrio(s32 prio)
+static inline DVDCommandBlock* PopWaitingQueuePrio(s32 prio)
 {
 	DVDCommandBlock* tmp;
 	BOOL enabled;
