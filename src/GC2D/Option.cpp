@@ -196,7 +196,7 @@ TPaneScalingControl::TPaneScalingControl(J2DPane* pane)
 	mInitialBounds = pane->getBounds();
 }
 
-void TPaneScalingControl::setupAnm(f32 amplitude, f32 speed)
+inline void TPaneScalingControl::setupAnm(f32 amplitude, f32 speed)
 {
 	mAmplitude = amplitude;
 	mFrameCtrl.init(0x78);
