@@ -665,7 +665,7 @@ void TOptionSoundUnit::deactivate(bool force)
 		setState(TOptionSoundUnit::STATE_DEACTIVATING);
 }
 
-void TOptionSoundUnit::activate() { setState(TOptionSoundUnit::STATE_ACTIVE); }
+inline void TOptionSoundUnit::activate() { setState(TOptionSoundUnit::STATE_ACTIVE); }
 
 inline void TOptionSoundUnit::setValue(int value)
 {
