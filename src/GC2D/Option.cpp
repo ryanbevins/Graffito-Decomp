@@ -159,7 +159,7 @@ TBalloonControl::TBalloonControl(int size)
 	unk0 = new UnknownBalloonControlStruct[size];
 }
 
-void TBalloonControl::add(TExPane* pane)
+inline void TBalloonControl::add(TExPane* pane)
 {
 	if (unk4 > unk8) {
 		unk0[unk8].unk0 = pane;
