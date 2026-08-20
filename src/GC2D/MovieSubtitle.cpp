@@ -128,7 +128,7 @@ void TMovieSubTitle::setCurMessage()
 	snprintf(unk1C->getStringPtr(), 256, "%s", msg);
 }
 
-void TMovieSubTitle::makeBmgName(char* buffer, int, const char* param_3)
+inline void TMovieSubTitle::makeBmgName(char* buffer, int, const char* param_3)
 {
 	sprintf(buffer, "/subtitle/%s", param_3);
 	char* it = strrchr(buffer, '.');
