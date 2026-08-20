@@ -655,7 +655,7 @@ void TOptionSoundUnit::adjust()
 
 inline void TOptionSoundUnit::show() { }
 
-void TOptionSoundUnit::hide() { }
+inline void TOptionSoundUnit::hide() { }
 
 void TOptionSoundUnit::deactivate(bool force)
 {
