@@ -267,7 +267,7 @@ void RumbleControllerMgr::stop(int channelDataIdx)
 #pragma dont_inline reset
 
 // Size needed: 0x11C, current: 0x11C
-bool RumbleControllerMgr::channelMgrIsAllFree()
+inline bool RumbleControllerMgr::channelMgrIsAllFree()
 {
 	bool allFree = true;
 	for (int i = 0; i < RUMBLE_CHANNELS_PER_CONTROLLER; i++) {
