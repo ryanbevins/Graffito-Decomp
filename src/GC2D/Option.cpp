@@ -441,7 +441,7 @@ void TOptionRumbleUnit::adjustView()
 
 inline void TOptionRumbleUnit::show() { }
 
-void TOptionRumbleUnit::hide() { }
+inline void TOptionRumbleUnit::hide() { }
 
 void TOptionRumbleUnit::deactivate(bool force)
 {
