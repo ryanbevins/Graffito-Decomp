@@ -607,7 +607,7 @@ inline void RumbleMgr::changePause()
 }
 
 // Size needed: 0x24, current: 0x24
-void RumbleMgr::changeMode()
+inline void RumbleMgr::changeMode()
 {
 	if (mStopHard) {
 		mStopHard = false;
