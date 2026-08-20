@@ -37,7 +37,7 @@ namespace DSPInterface {
 	u16 JAS_DSP_PREFIX = 0xF355;
 
 	DSPBuffer* getDSPHandle(u8 i) { return &CH_BUF[i]; }
-	DSPBuffer* getDSPHandleNc(u8) { return 0; }
+	inline DSPBuffer* getDSPHandleNc(u8) { return 0; }
 
 	inline void setFilterTable(s16* dst, s16* src, u32 size)
 	{
