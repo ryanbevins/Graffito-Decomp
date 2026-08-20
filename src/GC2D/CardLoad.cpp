@@ -92,8 +92,6 @@ TCardLoad::TCardLoad(const char* name)
 	gpCardLoad = this;
 }
 
-void TCardLoad::changePattern(J2DPicture*, s16, u32) { }
-
 void TCardLoad::load(JSUMemoryInputStream& stream)
 {
 	JDrama::TViewObj::load(stream);
