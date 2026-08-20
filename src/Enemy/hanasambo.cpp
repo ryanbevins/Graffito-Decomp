@@ -1372,11 +1372,17 @@ void THanaSambo::init(TLiveManager* manager)
 	TIdxGroupObj* group
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
 	group->getChildren().push_back(mHead);
+	f32 attackRadius
+	    = mParams->mSLHeadAttackRadius.get() * mBodyScale;
+	f32 attackHeight
+	    = mParams->mSLHeadAttackHeight.get() * mBodyScale;
+	f32 damageRadius
+	    = mParams->mSLHeadDamageRadius.get() * mBodyScale;
+	f32 damageHeight
+	    = mParams->mSLHeadDamageHeight.get() * mBodyScale;
 	mHead->initHitActor(0x1000001B, 2, 0x80000000,
-	                    mParams->mSLHeadAttackRadius.get() * mBodyScale,
-	                    mParams->mSLHeadAttackHeight.get() * mBodyScale,
-	                    mParams->mSLHeadDamageRadius.get() * mBodyScale,
-	                    mParams->mSLHeadDamageHeight.get() * mBodyScale);
+	                    attackRadius, attackHeight, damageRadius,
+	                    damageHeight);
 	mHead->mOwner = this;
 }
 
