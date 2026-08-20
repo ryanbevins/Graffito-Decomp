@@ -520,7 +520,7 @@ void RumbleMgr::stop(int channelDataIdx)
 }
 
 // Size needed: 0x178, current: 0x50
-void RumbleMgr::stop(int controllerIdx, int channelDataIdx)
+inline void RumbleMgr::stop(int controllerIdx, int channelDataIdx)
 {
 	if (!mPaused && mActive && mControllerMgrTbl[controllerIdx] != nullptr) {
 		mControllerMgrTbl[controllerIdx]->stop(channelDataIdx);
