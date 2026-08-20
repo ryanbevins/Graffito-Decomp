@@ -24,7 +24,7 @@ inline void J3DTevColorAnm::calc(GXColorS10* color) const
 	mAnmTevReg->getTevColorReg(mAnmIndex, color);
 }
 
-void J3DTevKColorAnm::calc(GXColor* color) const
+inline void J3DTevKColorAnm::calc(GXColor* color) const
 {
 	mAnmTevReg->getTevKonstReg(mAnmIndex, color);
 }
