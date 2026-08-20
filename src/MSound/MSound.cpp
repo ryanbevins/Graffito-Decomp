@@ -590,10 +590,9 @@ void MSound::pauseOff(u8 param)
 		for (u8 i = 0; i < 16; ++i) {
 			if (i != 4 && MSGMSound->unk0->unk88.unk2[i]
 			    && JAIBasic::basic != nullptr) {
-				s32 rawVolume = 127.0f * MSHandle::smSeCategory[i].unk8;
-				s32 categoryVolume
-				    = (u8)rawVolume < 127 ? rawVolume : 127;
-				JAIBasic::basic->setSeCategoryVolume(i, categoryVolume);
+				JAIBasic::basic->setSeCategoryVolume(
+				    i,
+				    min<u8>(MSHandle::smSeCategory[i].unk8 * 127.0f, 127));
 			}
 		}
 
