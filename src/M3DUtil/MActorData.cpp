@@ -3,7 +3,7 @@
 #include <JSystem/JKernel/JKRFileFinder.hpp>
 #include <JSystem/JKernel/JKRHeap.hpp>
 
-static int to_upper_hack(int c)
+static inline int to_upper_hack(int c)
 {
 	if (c >= 'a' && c <= 'z')
 		return c + ('A' - 'a');
