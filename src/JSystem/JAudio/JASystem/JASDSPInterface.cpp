@@ -39,7 +39,7 @@ namespace DSPInterface {
 	DSPBuffer* getDSPHandle(u8 i) { return &CH_BUF[i]; }
 	DSPBuffer* getDSPHandleNc(u8) { return 0; }
 
-	void setFilterTable(s16* dst, s16* src, u32 size)
+	inline void setFilterTable(s16* dst, s16* src, u32 size)
 	{
 		for (int i = 0; i < size; i++)
 			*dst++ = *src++;
