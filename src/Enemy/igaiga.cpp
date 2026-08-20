@@ -478,11 +478,7 @@ void TIgaiga::moveObject()
 
 	f32 ratio = mBodyScale / unk154;
 
-	f32 scaleFactor = unk1CC * unk1E4;
-	if (scaleFactor > 1.2f)
-		scaleFactor = 1.2f;
-	else if (scaleFactor < 1.0f)
-		scaleFactor = 1.0f;
+	f32 scaleFactor = MsClamp(unk1CC * unk1E4, 1.0f, 1.2f);
 
 	mScaledBodyRadius = 8.0f * (mBodyScale * mBodyRadius) * scaleFactor;
 	f32 scaling = mBodyScale;
