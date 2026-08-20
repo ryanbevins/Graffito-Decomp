@@ -443,7 +443,7 @@ inline void TOptionRumbleUnit::show() { }
 
 inline void TOptionRumbleUnit::hide() { }
 
-void TOptionRumbleUnit::deactivate(bool force)
+inline void TOptionRumbleUnit::deactivate(bool force)
 {
 	SMSRumbleMgr->stop();
 	if (force)
