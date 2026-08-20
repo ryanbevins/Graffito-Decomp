@@ -98,7 +98,7 @@ void TMovieSubTitle::checkSubTitleOn()
 	}
 }
 
-void TMovieSubTitle::show()
+inline void TMovieSubTitle::show()
 {
 	unk28 = true;
 	unk14->show();
