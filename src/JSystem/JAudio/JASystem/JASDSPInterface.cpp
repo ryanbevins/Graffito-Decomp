@@ -212,7 +212,7 @@ namespace DSPInterface {
 
 		unk4 = param_1;
 	}
-	void DSPBuffer::setPitchIndirect(f32 param_1, f32 param_2) { }
+	inline void DSPBuffer::setPitchIndirect(f32 param_1, f32 param_2) { }
 
 	void DSPBuffer::setMixerInitDelayMax(u8 param_1) { unkE = param_1; }
 	void DSPBuffer::setMixerInitVolume(u8 param_1, s16 param_2, u8 param_3)
