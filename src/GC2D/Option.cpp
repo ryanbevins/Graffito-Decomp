@@ -146,7 +146,7 @@ void TArrowControl::updateScale()
 	mPhase = JGeometry::TUtil<int>::mod(mPhase + 101, 100);
 }
 
-int TArrowControl::calcMoveX(int phase) const
+inline int TArrowControl::calcMoveX(int phase) const
 {
 	int iVar3 = phase < 50 ? phase : 100 - phase;
 	f32 fVar1 = iVar3 / 50.0f;
