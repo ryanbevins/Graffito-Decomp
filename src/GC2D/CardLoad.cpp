@@ -38,7 +38,7 @@ TCardLoad* gpCardLoad;
 // TODO: where should this go?
 extern JPAEmitterManager* gpEmitterManager4D2;
 
-static void clearBookmark(u32 bm)
+static inline void clearBookmark(u32 bm)
 {
 	JSUMemoryOutputStream stream;
 	gpCardManager->getWriteStream(&stream);
