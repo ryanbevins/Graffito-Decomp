@@ -180,7 +180,7 @@ inline void TBalloonControl::setupAnm()
 
 inline void TBalloonControl::startAnm() { mFrameCtrl.setRate(1.0f); }
 
-void TBalloonControl::stopAnm()
+inline void TBalloonControl::stopAnm()
 {
 	mFrameCtrl.setRate(0.0f);
 	mFrameCtrl.reset();
