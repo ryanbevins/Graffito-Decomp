@@ -89,7 +89,7 @@ inline void TMovieSubTitle::checkSubTitleOff()
 	}
 }
 
-void TMovieSubTitle::checkSubTitleOn()
+inline void TMovieSubTitle::checkSubTitleOn()
 {
 	int frame = unk10->getFrameNumber();
 	if (getCurEntry()) {
