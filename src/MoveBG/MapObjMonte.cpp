@@ -132,24 +132,11 @@ void TFluffManager::load(JSUMemoryInputStream& stream)
 	unk138.y = 5000.0f;
 	unk154   = 0.998f;
 
-	Mtx mtx;
+	TPosition3f mtx;
 	MsMtxSetXYZRPH(mtx, 0.0f, 0.0f, 0.0f, mRotation.x, mRotation.y,
 	               mRotation.z);
-	unk148.x = 0.0f;
-	unk148.y = 0.0f;
-	unk148.z = 1.0f;
-	f32 windX = mtx[0][3]
-	            + (mtx[0][0] * unk148.x + mtx[0][1] * unk148.y
-	               + mtx[0][2] * unk148.z);
-	f32 windY = mtx[1][3]
-	            + (mtx[1][0] * unk148.x + mtx[1][1] * unk148.y
-	               + mtx[1][2] * unk148.z);
-	f32 windZ = mtx[2][3]
-	            + (mtx[2][0] * unk148.x + mtx[2][1] * unk148.y
-	               + mtx[2][2] * unk148.z);
-	unk148.x = windX;
-	unk148.y = windY;
-	unk148.z = windZ;
+	unk148.set(0.0f, 0.0f, 1.0f);
+	mtx.mult(unk148, unk148);
 	unk148.scale(windScale);
 }
 
