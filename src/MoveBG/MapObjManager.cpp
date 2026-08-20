@@ -81,7 +81,7 @@ void TMapObjManager::initDrawBuffer()
 	    "DrawBuf AfterIndirect Xlu");
 }
 
-J3DMaterialTable* TMapObjManager::loadMatTable(const char* name)
+inline J3DMaterialTable* TMapObjManager::loadMatTable(const char* name)
 {
 	void* res = JKRGetResource(name);
 	if (res)
