@@ -130,7 +130,7 @@ static void initDrawObjGX()
 
 static void initCountObjDegree(f32, f32) { }
 
-static void drawShape(J3DShape* shape)
+static inline void drawShape(J3DShape* shape)
 {
 	GXCallDisplayList(shape->getDrawList(), 0xC0);
 	shape->loadVtxArray();
