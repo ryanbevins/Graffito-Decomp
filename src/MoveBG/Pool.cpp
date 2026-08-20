@@ -45,7 +45,7 @@ void TPool::draw() const
 	GXEnd();
 }
 
-bool TPool::subWaterLevel()
+inline bool TPool::subWaterLevel()
 {
 	unk13C -= unk144;
 	if (unk13C < 5.0f) {
