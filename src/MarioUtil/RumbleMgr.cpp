@@ -187,7 +187,7 @@ f32 RumbleChannelMgr::update()
 }
 
 // Size needed: 0x58, current: 0x58
-RumbleControllerMgr::RumbleControllerMgr()
+inline RumbleControllerMgr::RumbleControllerMgr()
 {
 	mPower         = 0.0f;
 	mChannelMgrTbl = new RumbleChannelMgr[RUMBLE_CHANNELS_PER_CONTROLLER];
