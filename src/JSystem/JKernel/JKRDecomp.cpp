@@ -87,7 +87,7 @@ JKRDecomp::orderAsync(u8* srcBuffer, u8* dstBuffer, u32 srcLength,
 	return command;
 }
 
-bool JKRDecomp::sync(JKRDecompCommand* command, int isNonBlocking)
+inline bool JKRDecomp::sync(JKRDecompCommand* command, int isNonBlocking)
 {
 	OSMessage message;
 	bool result;
