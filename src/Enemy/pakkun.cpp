@@ -65,7 +65,7 @@ f32 TPakkunManager::mRootExplosionScaleRate = 2.0f;
 f32 TPakkunManager::mTestFlyAngX            = 30.0f;
 f32 TPakkunManager::mIgnoreHitWaterY        = 50.0f;
 
-static void setMarioGoalPath(TPakkun* pakkun)
+static inline void setMarioGoalPath(TPakkun* pakkun)
 {
 	TPathNode node((THitActor*)gpMarioAddress);
 
