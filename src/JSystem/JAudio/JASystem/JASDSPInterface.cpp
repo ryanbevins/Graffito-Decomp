@@ -63,7 +63,7 @@ namespace DSPInterface {
 		for (u32 i = 0; i < 4; i++)
 			Calc::bzero(FX_BUF + i, sizeof(FXBuffer));
 	}
-	void setupBuffer()
+	inline void setupBuffer()
 	{
 		DsetupTable(64, (u32)CH_BUF, (u32)&DSPRES_FILTER, (u32)&DSPADPCM_FILTER,
 		            (u32)FX_BUF);
