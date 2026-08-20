@@ -464,8 +464,6 @@ MSound::MSound(JKRHeap* param_1, JKRHeap* param_2, u32 param_3, u8* param_4,
 	unkA4 = 0;
 }
 
-void MSound::requestShineAppearFanfare() { }
-
 void MSound::mainLoop()
 {
 	if (unkCF == 0 && unkA8 == 0)
