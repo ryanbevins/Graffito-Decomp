@@ -868,10 +868,12 @@ void TTalk2D2::setupBoardTextBox(const void* data, JMSMesgEntry* entry)
 		input.read(&c, 1);
 
 		switch (c) {
-		case '\n':
-			output.write(&c, 1);
+		case '\n': {
+			u8 newline = '\n';
+			output.write(&newline, 1);
 			++lineCount;
 			break;
+		}
 		case 0:
 			unk26A    = 1;
 			lineCount = 6;
@@ -880,11 +882,15 @@ void TTalk2D2::setupBoardTextBox(const void* data, JMSMesgEntry* entry)
 			break;
 		default:
 			input.skip(-1);
-			input.read(&c, 1);
-			output.write(&c, 1);
-			if (c >= 0x80) {
-				input.read(&c, 1);
-				output.write(&c, 1);
+			u8 readByte;
+			input.read(&readByte, 1);
+			u8 writeByte = readByte;
+			output.write(&writeByte, 1);
+			if (readByte >= 0x80) {
+				u8 continuation;
+				input.read(&continuation, 1);
+				u8 continuationOutput = continuation;
+				output.write(&continuationOutput, 1);
 			}
 			break;
 		}
