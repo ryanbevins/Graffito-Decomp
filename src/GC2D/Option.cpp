@@ -204,7 +204,7 @@ void TPaneScalingControl::setupAnm(f32 amplitude, f32 speed)
 	mFrameCtrl.setRate(speed);
 }
 
-void TPaneScalingControl::startAnm() { mFrameCtrl.setRate(1.0f); }
+inline void TPaneScalingControl::startAnm() { mFrameCtrl.setRate(1.0f); }
 
 void TPaneScalingControl::stopAnm()
 {
