@@ -55,7 +55,7 @@ namespace DSPInterface {
 	{
 		DCInvalidateRange(CH_BUF, sizeof(DSPBuffer) * 64);
 	}
-	void clearBuffer()
+	inline void clearBuffer()
 	{
 		for (u32 i = 0; i < 64; i++)
 			Calc::bzero(CH_BUF + i, sizeof(DSPBuffer));
