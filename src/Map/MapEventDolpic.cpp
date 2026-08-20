@@ -58,10 +58,10 @@ bool TDolpicEventBiancoGate::control()
 	SMSRumbleMgr->start(0, (f32*)nullptr);
 	JGeometry::TVec3<f32>* position = &unk20->mPosition;
 	gpPollution->clean(position->x, position->y, position->z, 10000.0f);
-	TMapObjBase* gate = (TMapObjBase*)unk20;
-	if (gate->mPosition.y >= gate->mInitialPosition.y) {
-		gate->mPosition.y = gate->mInitialPosition.y;
-		gate->setUpMapCollision(0);
+	TMapObjBase& gate = *(TMapObjBase*)unk20;
+	if (gate.mInitialPosition.y <= gate.mPosition.y) {
+		gate.mPosition.y = gate.mInitialPosition.y;
+		((TMapObjBase*)unk20)->setUpMapCollision(0);
 		unk18 = 0;
 		return true;
 	} else {
