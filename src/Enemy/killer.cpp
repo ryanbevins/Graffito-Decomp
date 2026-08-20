@@ -55,52 +55,54 @@ static const char* killer_bastable[] = {
 
 static int KillerBodyCallback(J3DNode* node, int when)
 {
-	if (when != 0)
-		return 1;
-	if (gpCurKiller == nullptr || !TKiller::mRollSw
-	    || !gpCurKiller->isRollFly())
-		return 1;
+	if (when == 0) {
+		if (gpCurKiller == nullptr || !TKiller::mRollSw
+		    || !gpCurKiller->isRollFly())
+			return 1;
 
-	u16 idx         = ((J3DJoint*)node)->getJntNo();
-	MtxPtr jointMtx = gpCurKiller->getModel()->getAnmMtx(idx);
+		u16 idx         = ((J3DJoint*)node)->getJntNo();
+		MtxPtr jointMtx = gpCurKiller->getModel()->getAnmMtx(idx);
 
-	f32 scale = gpCurKiller->getBodyScale();
+		f32 scale = gpCurKiller->getBodyScale();
 
-	Mtx scaleMtx;
-	scaleMtx[0][3] = 0.0f;
-	scaleMtx[1][3] = 0.0f;
-	scaleMtx[2][3] = 0.0f;
-	scaleMtx[0][0] = scale;
-	scaleMtx[0][1] = 0.0f;
-	scaleMtx[0][2] = 0.0f;
-	scaleMtx[1][0] = 0.0f;
-	scaleMtx[1][1] = scale;
-	scaleMtx[1][2] = 0.0f;
-	scaleMtx[2][0] = 0.0f;
-	scaleMtx[2][1] = 0.0f;
-	scaleMtx[2][2] = scale;
+		Mtx scaleMtx;
+		scaleMtx[0][3] = 0.0f;
+		scaleMtx[1][3] = 0.0f;
+		scaleMtx[2][3] = 0.0f;
+		scaleMtx[0][0] = scale;
+		scaleMtx[0][1] = 0.0f;
+		scaleMtx[0][2] = 0.0f;
+		scaleMtx[1][0] = 0.0f;
+		scaleMtx[1][1] = scale;
+		scaleMtx[1][2] = 0.0f;
+		scaleMtx[2][0] = 0.0f;
+		scaleMtx[2][1] = 0.0f;
+		scaleMtx[2][2] = scale;
 
-	f32 s = JMASin(gpCurKiller->mRollAnim);
-	f32 c = JMACos(gpCurKiller->mRollAnim);
+		f32 s = JMASin(gpCurKiller->mRollAnim);
+		f32 c = JMACos(gpCurKiller->mRollAnim);
 
-	Mtx rollMtx;
-	rollMtx[0][0] = c;
-	rollMtx[0][1] = -s;
-	rollMtx[0][2] = 0.0f;
-	rollMtx[0][3] = 0.0f;
-	rollMtx[1][0] = s;
-	rollMtx[1][1] = c;
-	rollMtx[1][2] = 0.0f;
-	rollMtx[1][3] = 0.0f;
-	rollMtx[2][0] = 0.0f;
-	rollMtx[2][1] = 0.0f;
-	rollMtx[2][2] = 1.0f;
-	rollMtx[2][3] = 0.0f;
+		Mtx rollMtx;
+		rollMtx[0][0] = c;
+		rollMtx[0][1] = -s;
+		rollMtx[0][2] = 0.0f;
+		rollMtx[0][3] = 0.0f;
+		rollMtx[1][0] = s;
+		rollMtx[1][1] = c;
+		rollMtx[1][2] = 0.0f;
+		rollMtx[1][3] = 0.0f;
+		rollMtx[2][0] = 0.0f;
+		rollMtx[2][1] = 0.0f;
+		rollMtx[2][2] = 1.0f;
+		rollMtx[2][3] = 0.0f;
 
-	PSMTXConcat(jointMtx, rollMtx, jointMtx);
-	PSMTXConcat(jointMtx, scaleMtx, jointMtx);
-	PSMTXConcat(J3DSys::mCurrentMtx, rollMtx, J3DSys::mCurrentMtx);
-	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
+		PSMTXConcat(jointMtx, rollMtx, jointMtx);
+		PSMTXConcat(jointMtx, scaleMtx, jointMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, rollMtx,
+		            J3DSys::mCurrentMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx,
+		            J3DSys::mCurrentMtx);
+	}
 	return 1;
 }
 
