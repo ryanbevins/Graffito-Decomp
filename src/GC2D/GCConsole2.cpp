@@ -1349,6 +1349,12 @@ static const u32 scDolpicNewsDolpic9[] = { 0x000E000A, 0x000E000B,
 	                                       0xFFFFFFFF };
 static const u32 scDolpicNewsDolpic10[] = { 0x000E000C, 0x000E000D,
 	                                        0xFFFFFFFF };
+static const char* MtxCalcTypeName[] = {
+	"MActorMtxCalcType_Basic クラシックスケールＯＮ",
+	"MActorMtxCalcType_Softimage クラシックスケールＯＦＦ",
+	"MActorMtxCalcType_MotionBlend モーションブレンド",
+	"MActorMtxCalcType_User ユーザー定義",
+};
 
 JUTPoint TGCConsole2::cDownTopPoint(0, -100);
 JUTPoint TGCConsole2::cDownMidPoint(0, 30);
