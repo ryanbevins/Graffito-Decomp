@@ -135,7 +135,7 @@ void TMovieSubTitle::makeBmgName(char* buffer, int, const char* param_3)
 	strcpy(it, ".bmg");
 }
 
-void TMovieSubTitle::draw(JDrama::TGraphics* param_1)
+inline void TMovieSubTitle::draw(JDrama::TGraphics* param_1)
 {
 	J2DOrthoGraph graph(param_1->getViewport());
 	graph.setup2D();
