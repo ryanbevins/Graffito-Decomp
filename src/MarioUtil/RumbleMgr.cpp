@@ -93,7 +93,7 @@ inline void RumbleChannelMgr::reset()
 }
 
 // Size needed: 0x0C, current: 0x0C
-void RumbleChannelMgr::repeat() { mElapsedTime = 0.0f; }
+inline void RumbleChannelMgr::repeat() { mElapsedTime = 0.0f; }
 
 // Size needed: 0x2C, current: 0x2C
 inline void RumbleChannelMgr::start(int channelDataIdx, int repeatCount,
