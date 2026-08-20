@@ -439,7 +439,7 @@ void TOptionRumbleUnit::adjustView()
 	}
 }
 
-void TOptionRumbleUnit::show() { }
+inline void TOptionRumbleUnit::show() { }
 
 void TOptionRumbleUnit::hide() { }
 
