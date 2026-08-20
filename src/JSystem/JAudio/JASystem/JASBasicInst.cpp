@@ -152,7 +152,7 @@ TBasicInst::TKeymap* TBasicInst::getKeyRegion(int index)
 	return &unk20[index];
 }
 
-const TBasicInst::TKeymap* TBasicInst::getKeyRegion(int index) const
+inline const TBasicInst::TKeymap* TBasicInst::getKeyRegion(int index) const
 {
 	if (index >= unk1C)
 		return nullptr;
