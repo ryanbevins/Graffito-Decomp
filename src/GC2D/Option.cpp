@@ -137,7 +137,7 @@ void TArrowControl::updateAlpha()
 }
 
 // incorrect
-void TArrowControl::updateScale()
+inline void TArrowControl::updateScale()
 {
 	int move = calcMoveX(mPhase);
 	mPane->setBounds(
