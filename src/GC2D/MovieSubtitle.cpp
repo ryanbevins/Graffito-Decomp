@@ -15,7 +15,7 @@ namespace {
 
 const int cLongHeightMovieIdList[] = { 9, 20 };
 
-bool is_longheight_movie(u32 param_1)
+inline bool is_longheight_movie(u32 param_1)
 {
 	const int* i = cLongHeightMovieIdList;
 	const int* e = cLongHeightMovieIdList + ARRAY_COUNT(cLongHeightMovieIdList);
