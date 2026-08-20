@@ -1644,18 +1644,20 @@ void TMario::initMirrorModel()
 void TMario::finalDrawInitialize()
 {
 	// volatile u32 padding[10];
-	changeHand(0);
-	SMS_MakeDLAndLock(mModel->unk8);
+	TMario* mario = this;
+	mario->changeHand(0);
+	SMS_MakeDLAndLock(mario->mModel->unk8);
 
 	// Something feels weird around here
-	for (int i = 0; i < mBodyModelData->getMaterialNum(); ++i) {
-		if (i == unk3D4 || i == unk3D6) {
-			mModel->unk8->mMatPackets[i].offFlag(0x1);
+	for (int i = 0; i < mario->mBodyModelData->getMaterialNum(); ++i) {
+		if (i == mario->unk3D4 || i == mario->unk3D6) {
+			mario->mModel->unk8->mMatPackets[i].offFlag(0x1);
 		}
 	}
 
-	for (int i = 0; i < mBodyModelData->getMaterialNum(); ++i) {
-		SMS_InitPacket_OneTevKColorAndFog(mModel->unk8, i, GX_KCOLOR0, nullptr);
+	for (int i = 0; i < mario->mBodyModelData->getMaterialNum(); ++i) {
+		SMS_InitPacket_OneTevKColorAndFog(mario->mModel->unk8, i, GX_KCOLOR0,
+		                                      nullptr);
 	}
 }
 
