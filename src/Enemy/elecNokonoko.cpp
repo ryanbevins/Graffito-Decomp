@@ -37,40 +37,42 @@
 DEFINE_NERVE(TNerveElecCarapaceReturn, TLiveActor)
 {
 	TElecCarapace* self = (TElecCarapace*)spine->getBody();
-	TElecNokonoko* host = (TElecNokonoko*)self->unk16C;
 
 	if (spine->getTime() == 0) {
-		JGeometry::TVec3<f32> d = host->getPosition();
+		JGeometry::TVec3<f32> d
+		    = ((TElecNokonoko*)self->unk16C)->getPosition();
 		self->unk18C            = (d.x - self->mPosition.x) * 0.015625f;
 		self->unk190            = (d.y - self->mPosition.y) * 0.015625f;
 		self->unk194            = (d.z - self->mPosition.z) * 0.015625f;
 
-		if (host->mCurrentBckAnm == 8)
-			host->setBckAnm(0);
+		if (((TElecNokonoko*)self->unk16C)->mCurrentBckAnm == 8)
+			((TElecNokonoko*)self->unk16C)->setBckAnm(0);
 	}
 
 	if (spine->getTime() < 20) {
-		if (host->mCurrentBckAnm == 8)
-			host->setBckAnm(0);
+		if (((TElecNokonoko*)self->unk16C)->mCurrentBckAnm == 8)
+			((TElecNokonoko*)self->unk16C)->setBckAnm(0);
 	}
 
 	bool nearHost = false;
-	if (host->mSpine->getCurrentNerve()
+	if (((TElecNokonoko*)self->unk16C)->mSpine->getCurrentNerve()
 	    == &TNerveElecNokonokoFreeze::theNerve()) {
-		JGeometry::TVec3<f32> v
-		    = host->getPosition() - host->mCarapace->getPosition();
+		JGeometry::TVec3<f32> v = ((TElecNokonoko*)self->unk16C)->getPosition()
+		                              - ((TElecNokonoko*)self->unk16C)
+		                                    ->mCarapace->getPosition();
 		if (PSVECMag((Vec*)&v) < 200.0f)
 			nearHost = true;
 	}
 
 	if (nearHost) {
-		host->onLiveFlag(0x10000);
-		host->kill();
+		((TElecNokonoko*)self->unk16C)->onLiveFlag(0x10000);
+		((TElecNokonoko*)self->unk16C)->kill();
 		gpMarioParticleManager->emitAndBindToPosPtr(
 		    0xCD, (const JGeometry::TVec3<f32>*)&self->mPosition, 0, nullptr);
 	}
 
-	self->unk188 += host->mSaveParams->mSLCarapaceSpinSpeed.get();
+	self->unk188 += ((TElecNokonoko*)self->unk16C)
+	                    ->mSaveParams->mSLCarapaceSpinSpeed.get();
 	if (self->unk188 > 360.0f)
 		self->unk188 -= 360.0f;
 
@@ -78,7 +80,7 @@ DEFINE_NERVE(TNerveElecCarapaceReturn, TLiveActor)
 	self->mPosition.y += self->unk190;
 	self->mPosition.z += self->unk194;
 
-	JGeometry::TVec3<f32> hp = host->mPosition;
+	JGeometry::TVec3<f32> hp = ((TElecNokonoko*)self->unk16C)->mPosition;
 
 	if (self->unk18C > 0.0f) {
 		if (self->mPosition.x > hp.x)
