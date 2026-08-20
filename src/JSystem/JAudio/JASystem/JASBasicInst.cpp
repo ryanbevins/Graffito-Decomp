@@ -143,7 +143,7 @@ void TBasicInst::setOsc(int index, TOscillator::Osc_* osc)
 	unk14[index] = osc;
 }
 
-TOscillator::Osc_* TBasicInst::getOsc(int index) { return unk14[index]; }
+inline TOscillator::Osc_* TBasicInst::getOsc(int index) { return unk14[index]; }
 
 TBasicInst::TKeymap* TBasicInst::getKeyRegion(int index)
 {
