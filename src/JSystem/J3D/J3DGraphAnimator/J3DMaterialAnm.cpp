@@ -9,7 +9,7 @@ inline void J3DMatColorAnm::calc(GXColor* color) const
 	mAnmColor->getColor(mAnmIndex, color);
 }
 
-void J3DTexMtxAnm::calc(J3DTextureSRTInfo* srt_info) const
+inline void J3DTexMtxAnm::calc(J3DTextureSRTInfo* srt_info) const
 {
 	mAnmTransform->getTransform(mAnmIndex, srt_info);
 }
