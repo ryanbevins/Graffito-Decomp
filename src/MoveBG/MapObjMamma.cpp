@@ -1302,10 +1302,14 @@ void TSandBird::control()
 		bool isTarget;
 		if ((type - 0x20000000) == 0xE)
 			isTarget = true;
-		else if ((type - 0x40000000) == 0x23)
-			isTarget = true;
 		else
 			isTarget = false;
+		if (!isTarget) {
+			if ((type - 0x40000000) == 0x23)
+				isTarget = true;
+			else
+				isTarget = false;
+		}
 
 		if (isTarget) {
 			gpMarioParticleManager->emitAndBindToPosPtr(0x159, &block->mPosition,
