@@ -179,7 +179,7 @@ void TRailFence::goOnRail()
 		tracer->moveTo(graph->getShortestNextIndex(tracer->mCurrIdx,
 		                                           tracer->mPrevIdx,
 		                                           0xffffffff));
-		diff = graph->indexToPoint(tracer->mCurrIdx);
+		diff.set(graph->indexToPoint(tracer->mCurrIdx));
 	}
 
 	if (gpMSound->gateCheck(0x3065))
