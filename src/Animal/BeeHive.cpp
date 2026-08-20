@@ -31,7 +31,7 @@
 namespace {
 f32 cAngleLimit = 1.1780972f;
 
-static void playBeeHiveSound(const JGeometry::TVec3<f32>& pos, f32 volume)
+static inline void playBeeHiveSound(const JGeometry::TVec3<f32>& pos, f32 volume)
 {
 	if (gpMSound->gateCheck(0x28f7))
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
