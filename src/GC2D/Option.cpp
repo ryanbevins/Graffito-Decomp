@@ -452,7 +452,7 @@ void TOptionRumbleUnit::deactivate(bool force)
 		setState(TOptionRumbleUnit::STATE_DEACTIVATING);
 }
 
-void TOptionRumbleUnit::activate()
+inline void TOptionRumbleUnit::activate()
 {
 	setState(TOptionRumbleUnit::STATE_ACTIVE);
 }
