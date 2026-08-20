@@ -1326,36 +1326,36 @@ void TGorogoroManager::initSetEnemies()
 
 int RollEnemyBodyCallback(J3DNode* node, int timing)
 {
-	if (timing != 0)
-		return 1;
+	if (timing == 0) {
+		if (!gpCurRollEnemy || !gpCurRollEnemy->isRolling())
+			return 1;
 
-	if (!gpCurRollEnemy || !gpCurRollEnemy->isRolling())
-		return 1;
+		u16 jointNo = ((J3DJoint*)node)->getJntNo();
+		MtxPtr jointMtx
+		    = gpCurRollEnemy->getModel()->getAnmMtx(jointNo);
 
-	u16 jointNo = ((J3DJoint*)node)->getJntNo();
-	MtxPtr jointMtx
-	    = gpCurRollEnemy->getModel()->getAnmMtx(jointNo);
+		Mtx rollMtx;
+		s16 angle = gpCurRollEnemy->unk194 * (65536.0f / 360.0f);
+		f32 s     = JMASSin(angle);
+		f32 c     = JMASCos(angle);
 
-	Mtx rollMtx;
-	s16 angle = gpCurRollEnemy->unk194 * (65536.0f / 360.0f);
-	f32 s     = JMASSin(angle);
-	f32 c     = JMASCos(angle);
+		rollMtx[0][0] = 1.0f;
+		rollMtx[0][1] = 0.0f;
+		rollMtx[0][2] = 0.0f;
+		rollMtx[0][3] = 0.0f;
+		rollMtx[1][0] = 0.0f;
+		rollMtx[1][1] = c;
+		rollMtx[1][2] = -s;
+		rollMtx[1][3] = 0.0f;
+		rollMtx[2][0] = 0.0f;
+		rollMtx[2][1] = s;
+		rollMtx[2][2] = c;
+		rollMtx[2][3] = 0.0f;
 
-	rollMtx[0][0] = 1.0f;
-	rollMtx[0][1] = 0.0f;
-	rollMtx[0][2] = 0.0f;
-	rollMtx[0][3] = 0.0f;
-	rollMtx[1][0] = 0.0f;
-	rollMtx[1][1] = c;
-	rollMtx[1][2] = -s;
-	rollMtx[1][3] = 0.0f;
-	rollMtx[2][0] = 0.0f;
-	rollMtx[2][1] = s;
-	rollMtx[2][2] = c;
-	rollMtx[2][3] = 0.0f;
-
-	jointMtx[1][3] += TRollEnemy::mTransYOffset;
-	PSMTXConcat(jointMtx, rollMtx, jointMtx);
-	PSMTXConcat(J3DSys::mCurrentMtx, rollMtx, J3DSys::mCurrentMtx);
+		jointMtx[1][3] += TRollEnemy::mTransYOffset;
+		PSMTXConcat(jointMtx, rollMtx, jointMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, rollMtx,
+		            J3DSys::mCurrentMtx);
+	}
 	return 1;
 }
