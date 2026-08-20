@@ -46,7 +46,7 @@ void RumbleBase::update(f32 power, bool stopHard)
 }
 
 // Size needed: 0x10, current: 0x10
-void RumbleChannelDataMgr::init() { mChannelDataTbl = channelDataTbl; }
+inline void RumbleChannelDataMgr::init() { mChannelDataTbl = channelDataTbl; }
 
 // Size needed: 0x14, current: 0x14
 inline RumbleChannelDataTbl* RumbleChannelDataMgr::getChannelDataTbl(int index)
