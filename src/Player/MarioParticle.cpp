@@ -288,14 +288,14 @@ void TMario::warpInEffect()
 		}
 
 		MtxPtr mtx = mModel->getModel()->getAnmMtx(joint);
-		int id     = warpInEffectIDs[i];
 		int doEmit = 1;
-		if (id == 0x23 && !checkFlag(MARIO_FLAG_HAS_FLUDD))
+		if ((int)warpInEffectIDs[i] == 0x23
+		    && !checkFlag(MARIO_FLAG_HAS_FLUDD))
 			doEmit = 0;
 
 		if (doEmit == 1) {
 			JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtx(
-			    id, mtx, 0, this);
+			    (int)warpInEffectIDs[i], mtx, 0, this);
 			if (emitter) {
 				emitter->unk114 = &warpInCallBack;
 				emitter->unk120 = &mWarpInDir;
