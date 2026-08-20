@@ -25,7 +25,7 @@ TBasicInst::~TBasicInst()
 	delete[] unk14;
 }
 
-TBasicInst::TKeymap* TBasicInst::searchKeymap(int key) const
+inline TBasicInst::TKeymap* TBasicInst::searchKeymap(int key) const
 {
 	for (int i = 0; i < unk1C; i++) {
 		if (key <= unk20[i].unk0) {
