@@ -70,7 +70,7 @@ void TMovieSubTitle::perform(u32 param_1, JDrama::TGraphics* param_2)
 		draw(param_2);
 }
 
-void TMovieSubTitle::movement()
+inline void TMovieSubTitle::movement()
 {
 	if (unk28)
 		checkSubTitleOff();
