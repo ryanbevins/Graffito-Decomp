@@ -32,10 +32,6 @@ static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
 namespace {
 
-void tag_to_string(char*, u32) { }
-
-void print_pane_tree(J2DPane*, int) { }
-
 const TPatternAnmControl::TAnmChunk cRumbleAnm[] = {
 	{ 'cnt0', 0.03 }, { 'cnt1', 0.03 }, { 'cnt2', 0.03 }, { 'cnt1', 0.03 },
 	{ 'cnt2', 0.03 }, { 'cnt1', 0.03 }, { 'cnt2', 0.03 }, { 'cnt1', 0.03 },
