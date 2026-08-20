@@ -48,7 +48,7 @@ static void setBoidLeaderWaitParams(TBoidLeader* leader)
 	leader->mParam34 = 0.001f;
 }
 
-static BOOL isMarioWaterIn()
+static inline BOOL isMarioWaterIn()
 {
 	u32 flag = *gpMarioFlag;
 
