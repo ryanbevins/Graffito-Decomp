@@ -293,7 +293,7 @@ void TPatternAnmControl::hide()
 		mScreen->search(it->mTag)->hide();
 }
 
-TToggleControl::TToggleControl(J2DScreen* screen)
+inline TToggleControl::TToggleControl(J2DScreen* screen)
     : mScreen(screen)
 {
 }
