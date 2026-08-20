@@ -203,7 +203,7 @@ namespace DSPInterface {
 		unk58 = 1;
 	}
 	inline void DSPBuffer::updateAMVolume(u16) { }
-	void DSPBuffer::updateAMPan(u8, u8) { }
+	inline void DSPBuffer::updateAMPan(u8, u8) { }
 	void DSPBuffer::updateAMFX(u8) { }
 	void DSPBuffer::setPitch(u16 param_1)
 	{
