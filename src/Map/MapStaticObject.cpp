@@ -155,7 +155,7 @@ J3DModelData* TMapStaticObj::getModelData() const
 
 void TMapStaticObj::getModel() const { }
 
-void TMapStaticObj::calcUnique(JPABaseEmitter* emitter)
+inline void TMapStaticObj::calcUnique(JPABaseEmitter* emitter)
 {
 	switch (mActorType) {
 	case 0x40000024:
