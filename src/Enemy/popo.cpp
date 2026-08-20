@@ -1009,72 +1009,72 @@ static int PopoPossessedCallback(J3DNode* node, int timing)
 
 static int PopoRollCallback(J3DNode* node, int timing)
 {
-	if (timing != 0)
-		return 1;
+	if (timing == 0) {
 
-	TPopo* popo = gpCurPopo;
-	if (!popo)
-		return 1;
+		TPopo* popo = gpCurPopo;
+		if (!popo)
+			return 1;
 
-	J3DJoint* joint = (J3DJoint*)node;
-	MtxPtr jointMtx = popo->getModel()->mNodeMatrices[joint->getJntNo()];
+		J3DJoint* joint = (J3DJoint*)node;
+		MtxPtr jointMtx = popo->getModel()->mNodeMatrices[joint->getJntNo()];
 
-	Mtx scaleMtx;
-	scaleMtx[0][0] = popo->mBodyScale;
-	scaleMtx[0][1] = 0.0f;
-	scaleMtx[0][2] = 0.0f;
-	scaleMtx[0][3] = 0.0f;
-	scaleMtx[1][0] = 0.0f;
-	scaleMtx[1][1] = popo->mBodyScale;
-	scaleMtx[1][2] = 0.0f;
-	scaleMtx[1][3] = 0.0f;
-	scaleMtx[2][0] = 0.0f;
-	scaleMtx[2][1] = 0.0f;
-	scaleMtx[2][2] = popo->mBodyScale;
-	scaleMtx[2][3] = 0.0f;
+		Mtx scaleMtx;
+		scaleMtx[0][0] = popo->mBodyScale;
+		scaleMtx[0][1] = 0.0f;
+		scaleMtx[0][2] = 0.0f;
+		scaleMtx[0][3] = 0.0f;
+		scaleMtx[1][0] = 0.0f;
+		scaleMtx[1][1] = popo->mBodyScale;
+		scaleMtx[1][2] = 0.0f;
+		scaleMtx[1][3] = 0.0f;
+		scaleMtx[2][0] = 0.0f;
+		scaleMtx[2][1] = 0.0f;
+		scaleMtx[2][2] = popo->mBodyScale;
+		scaleMtx[2][3] = 0.0f;
 
-	Mtx roll;
-	if (popo->mSpine->getCurrentNerve() != &TNervePopoFly::theNerve()) {
-		s32 phase = (s32)(popo->unk1B8 * 182.04445f);
-		u16 idx   = (u16)phase >> jmaSinShift;
-		f32 sin   = jmaSinTable[idx];
-		f32 cos   = jmaCosTable[idx];
+		Mtx roll;
+		if (popo->mSpine->getCurrentNerve() != &TNervePopoFly::theNerve()) {
+			s32 phase = (s32)(popo->unk1B8 * 182.04445f);
+			u16 idx   = (u16)phase >> jmaSinShift;
+			f32 sin   = jmaSinTable[idx];
+			f32 cos   = jmaCosTable[idx];
 
-		roll[0][0] = 1.0f;
-		roll[0][1] = 0.0f;
-		roll[0][2] = 0.0f;
-		roll[0][3] = 0.0f;
-		roll[1][0] = 0.0f;
-		roll[1][1] = cos;
-		roll[1][2] = -sin;
-		roll[1][3] = 0.0f;
-		roll[2][0] = 0.0f;
-		roll[2][1] = sin;
-		roll[2][2] = cos;
-		roll[2][3] = 0.0f;
-	} else {
-		u16 idx = (u16)0x8000 >> jmaSinShift;
-		f32 sin = jmaSinTable[idx];
-		f32 cos = jmaCosTable[idx];
+			roll[0][0] = 1.0f;
+			roll[0][1] = 0.0f;
+			roll[0][2] = 0.0f;
+			roll[0][3] = 0.0f;
+			roll[1][0] = 0.0f;
+			roll[1][1] = cos;
+			roll[1][2] = -sin;
+			roll[1][3] = 0.0f;
+			roll[2][0] = 0.0f;
+			roll[2][1] = sin;
+			roll[2][2] = cos;
+			roll[2][3] = 0.0f;
+		} else {
+			u16 idx = (u16)0x8000 >> jmaSinShift;
+			f32 sin = jmaSinTable[idx];
+			f32 cos = jmaCosTable[idx];
 
-		roll[0][0] = cos;
-		roll[0][1] = 0.0f;
-		roll[0][2] = sin;
-		roll[0][3] = 0.0f;
-		roll[1][0] = 0.0f;
-		roll[1][1] = 1.0f;
-		roll[1][2] = 0.0f;
-		roll[1][3] = 0.0f;
-		roll[2][0] = -sin;
-		roll[2][1] = 0.0f;
-		roll[2][2] = cos;
-		roll[2][3] = 0.0f;
+			roll[0][0] = cos;
+			roll[0][1] = 0.0f;
+			roll[0][2] = sin;
+			roll[0][3] = 0.0f;
+			roll[1][0] = 0.0f;
+			roll[1][1] = 1.0f;
+			roll[1][2] = 0.0f;
+			roll[1][3] = 0.0f;
+			roll[2][0] = -sin;
+			roll[2][1] = 0.0f;
+			roll[2][2] = cos;
+			roll[2][3] = 0.0f;
+		}
+
+		PSMTXConcat(jointMtx, roll, jointMtx);
+		PSMTXConcat(jointMtx, scaleMtx, jointMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, roll, J3DSys::mCurrentMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
 	}
-
-	PSMTXConcat(jointMtx, roll, jointMtx);
-	PSMTXConcat(jointMtx, scaleMtx, jointMtx);
-	PSMTXConcat(J3DSys::mCurrentMtx, roll, J3DSys::mCurrentMtx);
-	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
 	return 1;
 }
 
