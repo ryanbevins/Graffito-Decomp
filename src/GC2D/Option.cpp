@@ -236,8 +236,8 @@ inline TPatternAnmControl::TPatternAnmControl(J2DScreen* screen)
 {
 }
 
-void TPatternAnmControl::set(const TPatternAnmControl::TAnmChunk* chunks,
-                             int num_chunks)
+inline void TPatternAnmControl::set(
+    const TPatternAnmControl::TAnmChunk* chunks, int num_chunks)
 {
 	mChunks.set(chunks, num_chunks);
 	hide();
