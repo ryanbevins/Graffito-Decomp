@@ -450,7 +450,7 @@ static const SoundInfoEntry sound_info[] = {
 	{ nullptr, 0 },
 };
 
-static u32 getSoundID(const char* name)
+static inline u32 getSoundID(const char* name)
 {
 	for (int i = 0; sound_info[i].unk0 != nullptr; ++i)
 		if (strcmp(sound_info[i].unk0, name) == 0)
