@@ -462,7 +462,7 @@ void TBossManta::init(TLiveManager* manager)
 	initHitActor(0x08000004, 1, 0x80000000, 0.0f, 0.0f, 0.0f, 0.0f);
 	mDirection.set(0.0f, 0.0f, 1.0f);
 	calcRootMatrix();
-	reset();
+	hasMapCollision();
 
 	JDrama::TNameRefGen::search<TIdxGroupObj>("オブジェクトグループ")
 	    ->getChildren()
