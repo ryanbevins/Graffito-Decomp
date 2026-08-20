@@ -49,7 +49,7 @@ namespace DSPInterface {
 		DCFlushRange(CH_BUF, sizeof(DSPBuffer) * 64);
 		DCFlushRange(FX_BUF, sizeof(FXBuffer) * 4);
 	}
-	void flushChannelAll() { }
+	inline void flushChannelAll() { }
 	void cacheChannelAll() { }
 	void invalChannelAll()
 	{
