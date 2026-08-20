@@ -168,7 +168,7 @@ void TBalloonControl::add(TExPane* pane)
 	}
 }
 
-void TBalloonControl::setupAnm()
+inline void TBalloonControl::setupAnm()
 {
 	mFrameCtrl.init((unk8 + 1) * 120.0f);
 	mFrameCtrl.setAttribute(J3DFrameCtrl::ATTR_LOOP);
