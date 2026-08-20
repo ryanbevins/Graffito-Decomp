@@ -123,7 +123,7 @@ void TBasicInst::setEffect(int index, TInstEffect* effect)
 	unkC[index] = effect;
 }
 
-TInstEffect* TBasicInst::getEffect(int index) { return unkC[index]; }
+inline TInstEffect* TBasicInst::getEffect(int index) { return unkC[index]; }
 
 void TBasicInst::setOscCount(u32 count)
 {
