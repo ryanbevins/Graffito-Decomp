@@ -781,7 +781,7 @@ void TGesso::rollCheck()
 	}
 }
 
-void TGesso::rollEnd()
+inline void TGesso::rollEnd()
 {
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 	mState         = STATE_BEAM_CHILLING;
