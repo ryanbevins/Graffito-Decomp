@@ -129,7 +129,7 @@ void TArrowControl::update()
 	}
 }
 
-void TArrowControl::updateAlpha()
+inline void TArrowControl::updateAlpha()
 {
 	int iVar3 = unk14 != 0 ? 1 : -1;
 	mPane->setAlpha(
