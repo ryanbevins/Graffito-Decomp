@@ -493,9 +493,13 @@ void TBossManta::moveObject()
 	TLiveActor::moveObject();
 
 	u8 stampGeneration[] = { 1, 1, 1, 1, 1, 1 };
-	if (stampGeneration[mGeneration])
-		gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z,
-		                    getPolluteRadius());
+	if (stampGeneration[mGeneration]) {
+		f32 radius = getPolluteRadius();
+		f32 x      = mPosition.x;
+		f32 y      = mPosition.y;
+		f32 z      = mPosition.z;
+		gpPollution->stamp(1, x, y, z, radius);
+	}
 
 	for (int i = 0; i < mColCount; ++i) {
 		THitActor* other = mCollisions[i];
