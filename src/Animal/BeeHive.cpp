@@ -38,7 +38,7 @@ static inline void playBeeHiveSound(const JGeometry::TVec3<f32>& pos, f32 volume
 		    0x28f7, (const Vec*)&pos, nullptr, volume, 0, 0, nullptr, 0, 4);
 }
 
-static void setBoidLeaderWaitParams(TBoidLeader* leader)
+static inline void setBoidLeaderWaitParams(TBoidLeader* leader)
 {
 	leader->mParam20 = 25.0f;
 	leader->mParam24 = 80.0f;
