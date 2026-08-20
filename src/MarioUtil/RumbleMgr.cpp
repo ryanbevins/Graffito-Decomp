@@ -193,7 +193,7 @@ RumbleControllerMgr::RumbleControllerMgr()
 }
 
 // Size needed: 0x1C4, current: 0x19C
-void RumbleControllerMgr::init()
+inline void RumbleControllerMgr::init()
 {
 	mPower = 0.0f;
 
