@@ -1758,13 +1758,13 @@ void TEnemyMario::emJumping()
 			return;
 
 		setEMStick(this, mFaceAngle.y, 1.0f);
-		emControllerFlags(this) |= 0x100;
+		*(u32*)((u8*)unk108 + 4) |= 0x100;
 
 		if (-1.0f < mVel.y && mVel.y < 1.0f && rand() < 0xFFF)
-			emControllerFlags(this) |= 0x200;
+			*(u32*)((u8*)unk108 + 4) |= 0x200;
 	} else if (mAction == ACTION_HANGING) {
 		if (mActionTimer >= 10)
-			emControllerFlags(this) |= 0x100;
+			*(u32*)((u8*)unk108 + 4) |= 0x100;
 	} else if (mAction & 0x600) {
 		f32 z = mPosition.z;
 		f32 y = mPosition.y;
