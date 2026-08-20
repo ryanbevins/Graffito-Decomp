@@ -22,7 +22,7 @@ void TMapCollisionBase::setVertexData(u32 param_1,
 	gpMapCollisionData->addCheckDataToGrid(&unk4[param_1], getUnk8());
 }
 
-static void* loadCollisionData(const char* param_1)
+static inline void* loadCollisionData(const char* param_1)
 {
 	char buffer[256];
 
