@@ -190,7 +190,7 @@ inline void TBalloonControl::stopAnm()
 
 inline void TBalloonControl::update() { }
 
-TPaneScalingControl::TPaneScalingControl(J2DPane* pane)
+inline TPaneScalingControl::TPaneScalingControl(J2DPane* pane)
     : mPane(pane)
 {
 	mInitialBounds = pane->getBounds();
