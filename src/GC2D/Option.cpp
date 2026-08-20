@@ -188,7 +188,7 @@ inline void TBalloonControl::stopAnm()
 		unk0[i].unk0->getPane()->setAlpha(0);
 }
 
-void TBalloonControl::update() { }
+inline void TBalloonControl::update() { }
 
 TPaneScalingControl::TPaneScalingControl(J2DPane* pane)
     : mPane(pane)
