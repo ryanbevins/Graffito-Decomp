@@ -114,7 +114,6 @@ static const char* bossEelTears_bastable[] = {
 	nullptr,
 };
 
-static const char cDummyTextureName[] = "M_dummy";
 static const char cTearsRecoverCollisionName[] = "回復コリジョン";
 static const char cBossEelTearsManagerName[] = "めおとウナギ涙マネージャー";
 static const char cBossEelEndCameraName[] = "meoto_end_camera";
@@ -2016,12 +2015,12 @@ void TBEelTears::init(TLiveManager* manager)
 	actor->getModel()->setSkinDeform(skinDeform,
 	                                 J3D_DEFORM_ATTACH_FLAG_UNK_1);
 	actor->resetDL();
-	SMS_ChangeTextureAll(actor->getModel()->getModelData(), cDummyTextureName,
+	SMS_ChangeTextureAll(actor->getModel()->getModelData(), "M_dummy",
 	                     *texInfo);
 	actor->setLightType(3);
 
 	actor = mMActorKeeper->getMActor("tears_waterhit.bmd");
-	SMS_ChangeTextureAll(actor->getModel()->getModelData(), cDummyTextureName,
+	SMS_ChangeTextureAll(actor->getModel()->getModelData(), "M_dummy",
 	                     *texInfo);
 	actor->setLightType(3);
 
@@ -2222,7 +2221,7 @@ TBEelTearsDrop::TBEelTearsDrop(TBEelTears* tears, int index,
 	new J3DSkinDeform;
 
 	MActor* actor = unk68->getMActor();
-	SMS_ChangeTextureAll(actor->getModel()->getModelData(), cDummyTextureName,
+	SMS_ChangeTextureAll(actor->getModel()->getModelData(), "M_dummy",
 	                     *texture->getTexture()->getTexInfo());
 	actor->setBckFromIndex(0);
 	actor->setLightType(3);
