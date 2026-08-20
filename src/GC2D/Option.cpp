@@ -178,7 +178,7 @@ void TBalloonControl::setupAnm()
 	mFrameCtrl.setRate(1.0f);
 }
 
-void TBalloonControl::startAnm() { mFrameCtrl.setRate(1.0f); }
+inline void TBalloonControl::startAnm() { mFrameCtrl.setRate(1.0f); }
 
 void TBalloonControl::stopAnm()
 {
