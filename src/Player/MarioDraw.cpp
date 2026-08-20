@@ -1113,7 +1113,7 @@ inline void flagOnAllShapes(J3DModelData* modelData, u32 flag)
 }
 
 // Fabricated - Probably somewhere else
-void flagOffAllShapes(J3DModelData* modelData, u32 flag)
+inline void flagOffAllShapes(J3DModelData* modelData, u32 flag)
 {
 	for (u16 i = 0; i < modelData->getShapeNum(); ++i) {
 		modelData->getShapeNodePointer(i)->offFlag(flag);
