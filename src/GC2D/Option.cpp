@@ -457,7 +457,7 @@ void TOptionRumbleUnit::activate()
 	setState(TOptionRumbleUnit::STATE_ACTIVE);
 }
 
-void TOptionRumbleUnit::setValue(TOptionRumbleUnit::RumbleType type)
+inline void TOptionRumbleUnit::setValue(TOptionRumbleUnit::RumbleType type)
 {
 	mSelectionText->setNumber(type);
 	adjust();
