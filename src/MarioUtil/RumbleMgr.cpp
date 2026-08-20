@@ -49,7 +49,7 @@ void RumbleBase::update(f32 power, bool stopHard)
 void RumbleChannelDataMgr::init() { mChannelDataTbl = channelDataTbl; }
 
 // Size needed: 0x14, current: 0x14
-RumbleChannelDataTbl* RumbleChannelDataMgr::getChannelDataTbl(int index)
+inline RumbleChannelDataTbl* RumbleChannelDataMgr::getChannelDataTbl(int index)
 {
 	// This feels wrong, but I only see direct loads from channelDataTbl.
 	// Also, it only matches size when doing this.
