@@ -107,7 +107,8 @@ inline void RumbleChannelMgr::start(int channelDataIdx, int repeatCount,
 }
 
 // Size needed: 0x2C, current: 0x2C
-void RumbleChannelMgr::start(int channelDataIdx, int repeatCount, Vec* worldPos)
+inline void RumbleChannelMgr::start(int channelDataIdx, int repeatCount,
+                                    Vec* worldPos)
 {
 	mElapsedTime    = 0.0f;
 	mChannelDataTbl = mChannelDataMgr->getChannelDataTbl(channelDataIdx);
