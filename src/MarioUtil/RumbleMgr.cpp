@@ -244,7 +244,7 @@ void RumbleControllerMgr::start(int channelDataIdx, int repeatCount,
 #pragma dont_inline reset
 
 // Size needed: 0x10C, current: 0x10C
-void RumbleControllerMgr::stop()
+inline void RumbleControllerMgr::stop()
 {
 	for (int i = 0; i < RUMBLE_CHANNELS_PER_CONTROLLER; i++) {
 		if (mChannelMgrTbl[i].mChannelDataTbl != nullptr) {
