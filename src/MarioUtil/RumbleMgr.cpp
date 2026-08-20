@@ -597,7 +597,7 @@ void RumbleMgr::finishPause()
 }
 
 // Size needed: 0x94, current: 0x94
-void RumbleMgr::changePause()
+inline void RumbleMgr::changePause()
 {
 	if (mPaused) {
 		finishPause();
