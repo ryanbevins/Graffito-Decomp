@@ -19,7 +19,7 @@ void J3DTexNoAnm::calc(u16* tex_no) const
 	mAnmTexPattern->getTexNo(mAnmIndex, tex_no);
 }
 
-void J3DTevColorAnm::calc(GXColorS10* color) const
+inline void J3DTevColorAnm::calc(GXColorS10* color) const
 {
 	mAnmTevReg->getTevColorReg(mAnmIndex, color);
 }
