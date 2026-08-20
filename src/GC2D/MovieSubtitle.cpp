@@ -111,7 +111,7 @@ inline void TMovieSubTitle::hide()
 	unk14->hide();
 }
 
-const TMessageLoader::EntryInfo* TMovieSubTitle::getCurEntry() const
+inline const TMessageLoader::EntryInfo* TMovieSubTitle::getCurEntry() const
 {
 	if (unk20->getMessageNum() <= unk24)
 		return nullptr;
