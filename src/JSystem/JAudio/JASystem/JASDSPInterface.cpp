@@ -240,7 +240,7 @@ namespace DSPInterface {
 	}
 	void DSPBuffer::setPauseFlag(u8 flag) { unkC = flag; }
 	void DSPBuffer::flushChannel() { DCFlushRangeNoSync(this, sizeof(*this)); }
-	void DSPBuffer::cacheChannel() { }
+	inline void DSPBuffer::cacheChannel() { }
 
 	void DSPBuffer::setIIRFilterParam(s16* param)
 	{
