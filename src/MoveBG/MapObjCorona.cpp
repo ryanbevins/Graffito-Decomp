@@ -966,21 +966,11 @@ void TBathtub::setupCollisions_()
 	for (s32 i = 0; i < 2; ++i) {
 		s32 index = (base + i) % 30;
 		f32 rot = (((f32)(index + 1) * 6.2831855f) / 30.0f) - 3.1415927f;
-		f32 sinRot = sinf(rot);
-		f32 cosRot = cosf(rot);
-		MtxPtr baseMtx = getModel()->getBaseTRMtx();
-		JGeometry::SMatrix34C<f32> mtx;
-
-		mtx.set(
-		    baseMtx[0][0] * cosRot - baseMtx[0][2] * sinRot, baseMtx[0][1],
-		    baseMtx[0][0] * sinRot + baseMtx[0][2] * cosRot,
-		    baseMtx[0][3] + baseMtx[0][1],
-		    baseMtx[1][0] * cosRot - baseMtx[1][2] * sinRot, baseMtx[1][1],
-		    baseMtx[1][0] * sinRot + baseMtx[1][2] * cosRot,
-		    baseMtx[1][3] + baseMtx[1][1],
-		    baseMtx[2][0] * cosRot - baseMtx[2][2] * sinRot, baseMtx[2][1],
-		    baseMtx[2][0] * sinRot + baseMtx[2][2] * cosRot,
-		    baseMtx[2][3] + baseMtx[2][1]);
+		TPosition3f transform;
+		transform.setEularY(rot);
+		transform.setTrans(0.0f, 1.0f, 0.0f);
+		TPosition3f mtx;
+		mtx.concat(*(const TSMtx34f*)getModel()->getBaseTRMtx(), transform);
 
 		unk164[index]->moveMtx(mtx);
 		unk164[index]->setUp();
