@@ -204,7 +204,7 @@ namespace DSPInterface {
 	}
 	inline void DSPBuffer::updateAMVolume(u16) { }
 	inline void DSPBuffer::updateAMPan(u8, u8) { }
-	void DSPBuffer::updateAMFX(u8) { }
+	inline void DSPBuffer::updateAMFX(u8) { }
 	void DSPBuffer::setPitch(u16 param_1)
 	{
 		if (param_1 >= 0x7fff)
