@@ -24,7 +24,7 @@ TBGCheckListWarp::TBGCheckListWarp()
 {
 }
 
-void TMapCollisionData::initGrid(TBGCheckListRoot* roots)
+inline void TMapCollisionData::initGrid(TBGCheckListRoot* roots)
 {
 	int x = unk10;
 	while (x--) {
