@@ -78,7 +78,7 @@ void TMovieSubTitle::movement()
 		checkSubTitleOn();
 }
 
-void TMovieSubTitle::checkSubTitleOff()
+inline void TMovieSubTitle::checkSubTitleOff()
 {
 	int frame = unk10->getFrameNumber();
 	if (getCurEntry()) {
