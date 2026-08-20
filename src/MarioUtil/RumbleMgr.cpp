@@ -411,7 +411,7 @@ void RumbleMgr::start(int channelDataIdx, Vec* worldPos)
 }
 
 // Size needed: 0x74, current: 0x74
-void RumbleMgr::start(int channelDataIdx, MtxPtr mtx)
+inline void RumbleMgr::start(int channelDataIdx, MtxPtr mtx)
 {
 	int controllerIdx = 0;
 
