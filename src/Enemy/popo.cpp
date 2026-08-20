@@ -941,66 +941,68 @@ static int PopoNonScaleCallback(J3DNode* node, int timing)
 
 static int PopoPossessedCallback(J3DNode* node, int timing)
 {
-	if (timing != 0)
-		return 1;
+	if (timing == 0) {
+		TPopo* popo = gpCurPopo;
+		if (!popo)
+			return 1;
 
-	TPopo* popo = gpCurPopo;
-	if (!popo)
-		return 1;
+		bool shouldScale = false;
+		if (popo->mSpine->getCurrentNerve()
+		    == &TNervePopoFly::theNerve())
+			shouldScale = true;
+		else if (popo->mSpine->getCurrentNerve()
+		         == &TNervePopoExplosion::theNerve())
+			shouldScale = true;
+		else if (popo->unk1B4)
+			shouldScale = true;
 
-	bool shouldScale = false;
-	if (popo->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
-		shouldScale = true;
-	else if (popo->mSpine->getCurrentNerve()
-	         == &TNervePopoExplosion::theNerve())
-		shouldScale = true;
-	else if (popo->unk1B4)
-		shouldScale = true;
+		if (!shouldScale)
+			return 1;
 
-	if (!shouldScale)
-		return 1;
+		f32 scale = popo->unk198;
+		if (scale < 1.1f)
+			return 1;
 
-	f32 scale = popo->unk198;
-	if (scale < 1.1f)
-		return 1;
+		J3DJoint* joint = (J3DJoint*)node;
+		MtxPtr mtx = popo->getModel()->mNodeMatrices[joint->getJntNo()];
+		Mtx scaleMtx;
+		scaleMtx[0][0] = scale;
+		scaleMtx[0][1] = 0.0f;
+		scaleMtx[0][2] = 0.0f;
+		scaleMtx[0][3] = 0.0f;
+		scaleMtx[1][0] = 0.0f;
+		scaleMtx[1][1] = scale;
+		scaleMtx[1][2] = 0.0f;
+		scaleMtx[1][3] = 0.0f;
+		scaleMtx[2][0] = 0.0f;
+		scaleMtx[2][1] = 0.0f;
+		scaleMtx[2][2] = scale;
+		scaleMtx[2][3] = 0.0f;
+		PSMTXConcat(mtx, scaleMtx, mtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx,
+		            J3DSys::mCurrentMtx);
 
-	J3DJoint* joint = (J3DJoint*)node;
-	MtxPtr mtx       = popo->getModel()->mNodeMatrices[joint->getJntNo()];
-	Mtx scaleMtx;
-	scaleMtx[0][0] = scale;
-	scaleMtx[0][1] = 0.0f;
-	scaleMtx[0][2] = 0.0f;
-	scaleMtx[0][3] = 0.0f;
-	scaleMtx[1][0] = 0.0f;
-	scaleMtx[1][1] = scale;
-	scaleMtx[1][2] = 0.0f;
-	scaleMtx[1][3] = 0.0f;
-	scaleMtx[2][0] = 0.0f;
-	scaleMtx[2][1] = 0.0f;
-	scaleMtx[2][2] = scale;
-	scaleMtx[2][3] = 0.0f;
-	PSMTXConcat(mtx, scaleMtx, mtx);
-	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
+		if (popo->unk1BC[0]) {
+			PSMTXCopy(mtx, popo->unk1D0);
+			Mtx rot;
+			MsMtxSetRotRPH(rot, 0.0f, 270.0f, 0.0f);
+			PSMTXConcat(popo->unk1D0, rot, popo->unk1D0);
 
-	if (popo->unk1BC[0]) {
-		PSMTXCopy(mtx, popo->unk1D0);
-		Mtx rot;
-		MsMtxSetRotRPH(rot, 0.0f, 270.0f, 0.0f);
-		PSMTXConcat(popo->unk1D0, rot, popo->unk1D0);
+			JGeometry::TVec3<f32> axis;
+			axis.set(mtx[0][0], mtx[1][0], mtx[2][0]);
+			popo->unk230.y = axis.length();
+			axis.set(mtx[0][1], mtx[1][1], mtx[2][1]);
+			popo->unk230.z = axis.length();
+			axis.set(mtx[0][2], mtx[1][2], mtx[2][2]);
+			popo->unk230.x = axis.length();
 
-		JGeometry::TVec3<f32> axis;
-		axis.set(mtx[0][0], mtx[1][0], mtx[2][0]);
-		popo->unk230.y = axis.length();
-		axis.set(mtx[0][1], mtx[1][1], mtx[2][1]);
-		popo->unk230.z = axis.length();
-		axis.set(mtx[0][2], mtx[1][2], mtx[2][2]);
-		popo->unk230.x = axis.length();
-
-		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x13C, popo->unk1D0, 1, popo);
-		if (emitter) {
-			emitter->unk154.set(popo->unk230);
-			emitter->unk174.set(popo->unk230);
+			JPABaseEmitter* emitter
+			    = gpMarioParticleManager->emitAndBindToMtxPtr(
+			        0x13C, popo->unk1D0, 1, popo);
+			if (emitter) {
+				emitter->unk154.set(popo->unk230);
+				emitter->unk174.set(popo->unk230);
+			}
 		}
 	}
 
