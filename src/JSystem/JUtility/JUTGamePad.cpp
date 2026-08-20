@@ -425,7 +425,7 @@ void JUTGamePad::CRumble::stopMotorHard(int port)
 	}
 }
 
-static u8 getNumBit(u8* pattern, u32 index)
+static inline u8 getNumBit(u8* pattern, u32 index)
 {
 	return pattern[index >> 3] & (0x80 >> (index & 7));
 }
