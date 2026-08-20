@@ -4,7 +4,7 @@
 #include <JSystem/J3D/J3DGraphBase/Blocks/J3DColorBlocks.hpp>
 #include <macros.h>
 
-void J3DMatColorAnm::calc(GXColor* color) const
+inline void J3DMatColorAnm::calc(GXColor* color) const
 {
 	mAnmColor->getColor(mAnmIndex, color);
 }
