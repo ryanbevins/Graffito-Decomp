@@ -673,7 +673,7 @@ inline void TOptionSoundUnit::setValue(int value)
 	adjust();
 }
 
-int TOptionSoundUnit::getValue() const
+inline int TOptionSoundUnit::getValue() const
 {
 	return typeToFlag((SoundType)mSelectionText->getNumber());
 }
