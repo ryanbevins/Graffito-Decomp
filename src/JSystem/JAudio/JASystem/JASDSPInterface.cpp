@@ -116,7 +116,7 @@ namespace DSPInterface {
 		OSRestoreInterrupts(enable);
 		return true;
 	}
-	void FXBuffer::changeFXLineParam(u8, u32) { }
+	inline void FXBuffer::changeFXLineParam(u8, u32) { }
 
 	void DSPBuffer::allocInit()
 	{
