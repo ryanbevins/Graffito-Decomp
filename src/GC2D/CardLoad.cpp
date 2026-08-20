@@ -979,7 +979,7 @@ TEProgress TCardLoad::changeMode(s32 param_1)
 	return result;
 }
 
-void TCardLoad::setMessage(J2DTextBox* text_box, s32 param_2, int param_3)
+inline void TCardLoad::setMessage(J2DTextBox* text_box, s32 param_2, int param_3)
 {
 	strncpy(text_box->getStringPtr(), SMSGetMessageData(unkA0, param_3),
 	        param_2);
