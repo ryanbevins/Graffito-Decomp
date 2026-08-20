@@ -826,7 +826,7 @@ void TOptionControl::loadSetting()
 }
 #pragma dont_inline off
 
-void TOptionControl::movementCommon() { }
+inline void TOptionControl::movementCommon() { }
 
 void TOptionControl::draw(J2DOrthoGraph* graph) { mScreen->draw(0, 0, graph); }
 
