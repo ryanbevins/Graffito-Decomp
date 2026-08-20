@@ -599,7 +599,7 @@ void TKumokun::updateAnimation()
 
 void TKumokun::updateCollision() { }
 
-void TKumokun::clearAnmStack() { unk1D8.clear(); }
+inline void TKumokun::clearAnmStack() { unk1D8.clear(); }
 
 void TKumokun::pushNextAnm(const char* name, bool start)
 {
