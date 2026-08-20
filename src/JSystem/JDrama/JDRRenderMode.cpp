@@ -20,7 +20,7 @@ bool JDrama::IsEqualRenderModeVIParams(const GXRenderModeObj& param_1,
 	       && param_1.xFBmode == param_2.xFBmode;
 }
 
-bool JDrama::IsRenderModeAA2Times(const GXRenderModeObj& rmo)
+inline bool JDrama::IsRenderModeAA2Times(const GXRenderModeObj& rmo)
 {
 	bool bVar1;
 	bool bVar2;
