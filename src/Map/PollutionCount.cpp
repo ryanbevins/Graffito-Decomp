@@ -314,8 +314,8 @@ static void initGXforPollutionLayer(int param_1, u16 param_2, u8 param_3,
 
 void TPollutionCounterLayer::drawPollutionLayer(int param_1) const { }
 
-static void makeWorldToPollutionMtx(f32 param_1, f32 param_2, f32 param_3,
-                                    TPosition3f* mtx)
+static inline void makeWorldToPollutionMtx(f32 param_1, f32 param_2,
+                                           f32 param_3, TPosition3f* mtx)
 {
 	for (int j = 0; j < 4; ++j)
 		for (int i = 0; i < 3; ++i)
