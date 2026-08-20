@@ -750,20 +750,9 @@ void TBiancoMiniWindmill::control()
 
 void TBiancoMiniWindmill::calc()
 {
-	Mtx rotMtx;
+	TPosition3f rotMtx;
 	MtxPtr rot = rotMtx;
-	rot[2][3]  = 0.0f;
-	rot[1][3]  = 0.0f;
-	rot[0][2]  = 0.0f;
-	rot[1][2]  = 0.0f;
-	rot[0][3]  = 0.0f;
-	rot[2][1]  = 0.0f;
-	rot[0][1]  = 0.0f;
-	rot[2][0]  = 0.0f;
-	rot[1][0]  = 0.0f;
-	rot[2][2]  = 1.0f;
-	rot[1][1]  = 1.0f;
-	rot[0][0]  = 1.0f;
+	rotMtx.identity();
 
 	s16 angle    = DEG2SHORTANGLE(unk150);
 	f32 sinAngle = JMASSin(angle);
