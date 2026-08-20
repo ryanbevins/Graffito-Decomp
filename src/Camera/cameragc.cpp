@@ -478,6 +478,7 @@ void CPolarSubCamera::ctrlGameCamera_()
 	if (isNormalDeadDemo()) {
 		ctrlNormalDeadDemo_();
 	} else {
+		bool calcPos;
 		int mode = mMode;
 		switch (mode) {
 		case 2:
@@ -487,7 +488,7 @@ void CPolarSubCamera::ctrlGameCamera_()
 			ctrlJetCoasterCamera_();
 			break;
 		default: {
-			bool calcPos = true;
+			calcPos = true;
 			if (!isFixCameraSpecifyMode(mode)
 			    && !isDefiniteCameraSpecifyMode(mode))
 				calcPos = false;
