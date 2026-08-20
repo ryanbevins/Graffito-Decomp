@@ -45,7 +45,7 @@ static void clearBookmark(u32 bm)
 	gpCardManager->writeBlock(bm);
 }
 
-static void loadBookmark()
+static inline void loadBookmark()
 {
 	JSUMemoryInputStream stream;
 	gpCardManager->getReadStream(&stream);
