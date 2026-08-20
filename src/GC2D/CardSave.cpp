@@ -311,7 +311,7 @@ void TCardSave::perform(u32 param_1, JDrama::TGraphics* param_2)
 		execIssueGX_(param_2);
 }
 
-void TCardSave::makeBuffer(J2DTextBox* param_1, int size)
+inline void TCardSave::makeBuffer(J2DTextBox* param_1, int size)
 {
 	SMSMakeTextBuffer(param_1, size);
 	param_1->setFont((JUTFont*)gpSystemFont);
