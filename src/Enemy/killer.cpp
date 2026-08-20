@@ -57,9 +57,8 @@ static int KillerBodyCallback(J3DNode* node, int when)
 {
 	if (when != 0)
 		return 1;
-	if (gpCurKiller == nullptr || !TKiller::mRollSw)
-		return 1;
-	if (!gpCurKiller->isRollFly())
+	if (gpCurKiller == nullptr || !TKiller::mRollSw
+	    || !gpCurKiller->isRollFly())
 		return 1;
 
 	u16 idx         = ((J3DJoint*)node)->getJntNo();
