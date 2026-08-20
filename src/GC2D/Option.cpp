@@ -231,7 +231,7 @@ inline void TPaneScalingControl::update()
 	mFrameCtrl.update();
 }
 
-TPatternAnmControl::TPatternAnmControl(J2DScreen* screen)
+inline TPatternAnmControl::TPatternAnmControl(J2DScreen* screen)
     : mScreen(screen)
 {
 }
