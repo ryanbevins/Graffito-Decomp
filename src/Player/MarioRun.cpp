@@ -661,8 +661,17 @@ void TMario::slopeProcess()
 	f32 nx                              = normal->x;
 	f32 nxSq                            = nx * nx;
 	f32 nz                              = normal->z;
-	f32 slopeMag                        = nxSq + nz * nz;
-	f32 sqrtMag = sqrtf(slopeMag);
+	register f32 sqrtMag = nxSq + nz * nz;
+	if (sqrtMag > 0.0f) {
+		const f64 half  = 0.5;
+		const f64 three = 3.0;
+		f64 guess       = __frsqrte((f64)sqrtMag);
+		guess = half * guess * (three - guess * guess * sqrtMag);
+		guess = half * guess * (three - guess * guess * sqrtMag);
+		guess = half * guess * (three - guess * guess * sqrtMag);
+		volatile f32 result = (f32)(sqrtMag * guess);
+		sqrtMag             = result;
+	}
 
 	s16 faceY = mFaceAngle.y;
 	s16 slopeAngle = mSlopeAngle;
