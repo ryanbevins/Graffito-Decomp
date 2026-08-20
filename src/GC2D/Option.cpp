@@ -212,7 +212,7 @@ inline void TPaneScalingControl::stopAnm()
 	mFrameCtrl.reset();
 }
 
-void TPaneScalingControl::update()
+inline void TPaneScalingControl::update()
 {
 	int iVar10 = mInitialBounds.getWidth();
 	int iVar5  = mInitialBounds.getHeight();
