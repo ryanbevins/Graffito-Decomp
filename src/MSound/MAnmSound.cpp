@@ -51,7 +51,7 @@ void MAnmSound::startAnimSound(void* ptr, u32 ul, JAISound** sound,
 			return;
 		break;
 	case 7: {
-		s16 voiceIdx = (actor->unkC >> 24) & 0xf;
+		s32 voiceIdx = (actor->unkC >> 24) & 0xf;
 		MSGMSound->startMarioVoice(ul, voiceIdx, actor->unkC >> 28);
 		return;
 	}
