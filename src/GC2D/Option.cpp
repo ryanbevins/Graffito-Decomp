@@ -387,7 +387,7 @@ void TOptionRumbleUnit::update()
 }
 #pragma dont_inline off
 
-void TOptionRumbleUnit::checkRumble()
+inline void TOptionRumbleUnit::checkRumble()
 {
 	if (mShouldRumble) {
 		if (mGamepadIcon[mSelectionText->getNumber()]->checkCompletedOnce()) {
