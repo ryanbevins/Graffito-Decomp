@@ -17,7 +17,7 @@ inline void RumbleBase::init()
 }
 
 // Size needed: 0x28, current: 0x28
-void RumbleBase::stop() { PADControlMotor(mChan, PAD_MOTOR_STOP_HARD); }
+inline void RumbleBase::stop() { PADControlMotor(mChan, PAD_MOTOR_STOP_HARD); }
 
 // Size needed: 0xAC, current: 0xA0
 void RumbleBase::update(f32 power, bool stopHard)
