@@ -1477,10 +1477,6 @@ void saveBookmark(u32 idx)
 	gpCardManager->writeBlock(idx);
 }
 
-void TCardSave::selectBookmarks(TEProgress, TEProgress, TEProgress, TEProgress)
-{
-}
-
 void TCardSave::execMovement_()
 {
 
