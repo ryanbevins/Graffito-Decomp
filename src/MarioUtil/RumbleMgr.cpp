@@ -81,7 +81,7 @@ void RumbleChannelMgr::init(RumbleChannelDataMgr* dataMgr)
 }
 
 // Size needed: 0x2C, current: 0x2C
-void RumbleChannelMgr::reset()
+inline void RumbleChannelMgr::reset()
 {
 	mElapsedTime    = 0.0f;
 	mPower          = 0.0f;
