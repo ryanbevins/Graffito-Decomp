@@ -638,7 +638,7 @@ inline void TOptionSoundUnit::foreachPatternAnm(ArrayWrapper<TPatternAnmControl*
 		((*it)->*ptmf)();
 }
 
-void TOptionSoundUnit::toggle()
+inline void TOptionSoundUnit::toggle()
 {
 	mSelectionText->toggle();
 	adjust();
