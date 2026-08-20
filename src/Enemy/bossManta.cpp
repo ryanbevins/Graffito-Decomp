@@ -496,8 +496,8 @@ void TBossManta::moveObject()
 	if (stampGeneration[mGeneration]) {
 		f32 radius = getPolluteRadius();
 		f32 x      = mPosition.x;
-		f32 y      = mPosition.y;
 		f32 z      = mPosition.z;
+		f32 y      = mPosition.y;
 		gpPollution->stamp(1, x, y, z, radius);
 	}
 
