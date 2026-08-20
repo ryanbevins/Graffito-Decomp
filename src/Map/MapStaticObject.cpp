@@ -153,8 +153,6 @@ J3DModelData* TMapStaticObj::getModelData() const
 	return unk70->getModel()->getModelData();
 }
 
-void TMapStaticObj::getModel() const { }
-
 inline void TMapStaticObj::calcUnique(JPABaseEmitter* emitter)
 {
 	switch (mActorType) {
