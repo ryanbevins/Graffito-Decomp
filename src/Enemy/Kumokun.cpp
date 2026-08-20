@@ -725,8 +725,8 @@ void TKumokun::decideTargetOnFindingMario(const JGeometry::TVec3<f32>& param_1)
 	unk1D4 = true;
 }
 
-static bool is_antiparallel(const JGeometry::TVec3<f32>& v1,
-                            const JGeometry::TVec3<f32>& v2)
+static inline bool is_antiparallel(const JGeometry::TVec3<f32>& v1,
+                                   const JGeometry::TVec3<f32>& v2)
 {
 	f32 fVar8 = v1.dot(v2) - -1.0f;
 	f32 eps   = JGeometry::TUtil<f32>::epsilon();
