@@ -282,6 +282,8 @@ void TRiccoWatermill::control()
 		}
 	}
 	switch (mState) {
+	case 1:
+		break;
 	case 2:
 		if (unk13C->mPosition.y > mSubmarineMaxTransY) {
 			unk13C->mPosition.y = mSubmarineMaxTransY;
@@ -335,6 +337,8 @@ void TRiccoWatermill::control()
 			}
 			mState = 1;
 		}
+		break;
+	case 5:
 		break;
 	}
 }
