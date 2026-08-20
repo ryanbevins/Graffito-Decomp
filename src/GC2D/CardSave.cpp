@@ -317,7 +317,7 @@ inline void TCardSave::makeBuffer(J2DTextBox* param_1, int size)
 	param_1->setFont((JUTFont*)gpSystemFont);
 }
 
-void TCardSave::setMessage(J2DTextBox* text_box, s32 param_2, u32 param_3)
+inline void TCardSave::setMessage(J2DTextBox* text_box, s32 param_2, u32 param_3)
 {
 	strncpy(text_box->getStringPtr(), SMSGetMessageData(unk2E4, param_3),
 	        param_2);
