@@ -667,7 +667,7 @@ void TOptionSoundUnit::deactivate(bool force)
 
 void TOptionSoundUnit::activate() { setState(TOptionSoundUnit::STATE_ACTIVE); }
 
-void TOptionSoundUnit::setValue(int value)
+inline void TOptionSoundUnit::setValue(int value)
 {
 	mSelectionText->setNumber(flagToType(value));
 	adjust();
