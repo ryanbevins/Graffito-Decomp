@@ -57,7 +57,7 @@ void* JKRDecomp::run()
 	}
 }
 
-JKRDecompCommand*
+inline JKRDecompCommand*
 JKRDecomp::prepareCommand(u8* srcBuffer, u8* dstBuffer, u32 srcLength,
                           u32 dstLength,
                           JKRDecompCommand::AsyncCallback callback)
