@@ -99,7 +99,7 @@ public:
 	virtual void calc();
 	virtual void control();
 	virtual void bind();
-	virtual void touchWall(JGeometry::TVec3<f32>*, TBGWallCheckRecord*);
+	void touchWall(JGeometry::TVec3<f32>*, TBGWallCheckRecord*);
 	virtual void touchActor(THitActor*);
 
 public:
@@ -193,7 +193,7 @@ public:
 	virtual void initMapObj();
 	virtual void control();
 	virtual u32 touchWater(THitActor*);
-	virtual void turnByEnemy(THitActor*, const TBGCheckData*);
+	void turnByEnemy(THitActor*, const TBGCheckData*);
 
 public:
 	/* 0x138 */ f32 unk138;
