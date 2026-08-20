@@ -1214,7 +1214,9 @@ bool THamuKuri::isCollidMove(THitActor* param_1)
 	}
 
 	// TODO: need more checks & HitActor inlines
-	if ((param_1->getActorType() & 0xFFFF0000) == 0x40000000) {
+	u32 actorType = param_1->getActorType();
+	if ((actorType & 0xFFFF0000) == 0x40000000
+	    && actorType >= 0x40000390 && actorType <= 0x40000394) {
 		TLiveActor* enemy         = (TLiveActor*)param_1;
 		JGeometry::TVec3<f32> vel = enemy->mVelocity;
 		if (abs(vel.x) > 2.0f && abs(vel.y) > 2.0f && abs(vel.z) > 2.0f) {
