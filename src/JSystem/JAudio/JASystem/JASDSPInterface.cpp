@@ -82,7 +82,7 @@ namespace DSPInterface {
 	}
 
 	FXBuffer* getFXHandle(u8 i) { return &FX_BUF[i]; }
-	FXBuffer* getFXHandleNc(u8) { return 0; }
+	inline FXBuffer* getFXHandleNc(u8) { return 0; }
 
 	BOOL FXBuffer::setFXLine(s16* buffer, FxlineConfig_* config)
 	{
