@@ -25,6 +25,7 @@ MSound* MSGMSound  = 0;
 JAIBasic* MSGBasic = 0;
 
 template <class T> static inline T min(T a, T b) { return a < b ? a : b; }
+template <class T> static inline T max(T a, T b) { return a < b ? b : a; }
 
 u16 MSSeCallBack::smTrackCategory[32]
     = { 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
@@ -414,8 +415,7 @@ MSound::MSound(JKRHeap* param_1, JKRHeap* param_2, u32 param_3, u8* param_4,
 	f32 fVar1 = 0.0f;
 	for (u8 i = 0; i < 16; ++i) {
 		if (unk0->unk88.unk2[i] != 0) {
-			if (fVar1 < MSHandle::smSeCategory[i].unk4)
-				fVar1 = MSHandle::smSeCategory[i].unk4;
+			fVar1 = max<f32>(fVar1, MSHandle::smSeCategory[i].unk4);
 			setSeCategoryVolume(
 			    i, min<u8>(MSHandle::smSeCategory[i].unk8 * 127.0f, 127));
 		}
