@@ -653,7 +653,7 @@ void TOptionSoundUnit::adjust()
 	JAIGlobalParameter::setParamSoundOutputMode(setting.mOutputMode);
 }
 
-void TOptionSoundUnit::show() { }
+inline void TOptionSoundUnit::show() { }
 
 void TOptionSoundUnit::hide() { }
 
