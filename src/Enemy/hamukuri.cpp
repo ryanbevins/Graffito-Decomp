@@ -1197,8 +1197,10 @@ bool THamuKuri::isCollidMove(THitActor* param_1)
 	    || param_1->isActorType(0x10000013)
 	    || param_1->isActorType(0x10000011)) {
 		THamuKuri* hamu = (THamuKuri*)param_1;
-		if (hamu->mSpine->getCurrentNerve()
-		        != &TNerveHamuKuriBoundFreeze::theNerve()
+		if ((hamu->mSpine->getCurrentNerve()
+		         == &TNerveHamuKuriBoundFreeze::theNerve()
+		     ? true
+		     : false)
 		    && mSpine->getCurrentNerve()
 		           != &TNerveSmallEnemyDie::theNerve()
 		    && mSpine->getCurrentNerve()
