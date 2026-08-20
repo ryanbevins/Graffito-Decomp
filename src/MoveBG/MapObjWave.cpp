@@ -180,7 +180,7 @@ void TMapObjWave::updateTime()
 }
 #pragma dont_inline off
 
-static bool isWaterBg(u16 code)
+static inline bool isWaterBg(u16 code)
 {
 	if (code == 0x100)
 		return true;
