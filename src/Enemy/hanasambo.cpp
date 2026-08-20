@@ -515,26 +515,15 @@ DEFINE_NERVE(TNerveSamboHeadHitWater, TLiveActor)
 	f32 maxRoll = self->mParams->mSLJumpAngY.get();
 	if (self->isBckAnm(6)) {
 		if (spine->getTime() < 100) {
-			f32 roll = self->mRollAngle - 3.0f;
-			if (roll > maxRoll)
-				roll = maxRoll;
-			else if (roll < -maxRoll)
-				roll = -maxRoll;
+			f32 roll
+			    = MsClamp(self->mRollAngle - 3.0f, -maxRoll, maxRoll);
 			self->mRollAngle = roll;
 		} else {
-			f32 roll = self->mRollAngle + 3.0f;
-			if (roll > 0.0f)
-				roll = 0.0f;
-			else if (roll < -maxRoll)
-				roll = -maxRoll;
+			f32 roll = MsClamp(self->mRollAngle + 3.0f, -maxRoll, 0.0f);
 			self->mRollAngle = roll;
 		}
 	} else {
-		f32 roll = self->mRollAngle + 3.0f;
-		if (roll > maxRoll)
-			roll = maxRoll;
-		else if (roll < -maxRoll)
-			roll = -maxRoll;
+		f32 roll = MsClamp(self->mRollAngle + 3.0f, -maxRoll, maxRoll);
 		self->mRollAngle = roll;
 	}
 
