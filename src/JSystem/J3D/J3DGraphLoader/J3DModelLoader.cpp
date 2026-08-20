@@ -197,7 +197,7 @@ void J3DModelLoader::readInformation(const J3DModelInfoBlock* i_block,
 	    i_block, i_block->mpHierarchy);
 }
 
-static GXCompType getFmtType(GXVtxAttrFmtList* i_fmtList, GXAttr i_attr)
+static inline GXCompType getFmtType(GXVtxAttrFmtList* i_fmtList, GXAttr i_attr)
 {
 	for (; i_fmtList->attr != GX_VA_NULL; i_fmtList++) {
 		if (i_fmtList->attr == i_attr) {
