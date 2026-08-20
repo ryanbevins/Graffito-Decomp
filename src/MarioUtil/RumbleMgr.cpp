@@ -472,8 +472,8 @@ inline void RumbleMgr::start(int controllerIdx, int channelDataIdx,
 }
 
 // Size needed: 0x94, current: 0x58
-void RumbleMgr::start(int controllerIdx, int channelDataIdx, int repeatCount,
-                      Vec* worldPos)
+inline void RumbleMgr::start(int controllerIdx, int channelDataIdx,
+                             int repeatCount, Vec* worldPos)
 {
 	if (!mPaused && mActive && mControllerMgrTbl[controllerIdx] != nullptr) {
 		mControllerMgrTbl[controllerIdx]->start(channelDataIdx, repeatCount,
