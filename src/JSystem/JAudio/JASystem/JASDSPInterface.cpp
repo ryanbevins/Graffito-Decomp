@@ -147,7 +147,7 @@ namespace DSPInterface {
 
 		unk0 = 1;
 	}
-	void DSPBuffer::playStop() { }
+	inline void DSPBuffer::playStop() { }
 	void DSPBuffer::setWaveInfo(Driver::Wave_* param_1, u32 param_2)
 	{
 		static u8 COMP_BLOCKSAMPLES[8] = {
