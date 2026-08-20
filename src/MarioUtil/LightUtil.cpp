@@ -168,7 +168,8 @@ void TLightCommon::setLight(const JDrama::TGraphics* graphics, int index)
 	PSVECNormalize(&pos, &pos);
 	GXInitSpecularDir(&light, -pos.x, -pos.y, -pos.z);
 	GXInitLightColor(&light, getLightColor(lightIndex));
-	f32 spec = unk10 * 0.5f;
+	f32 spec = unk10;
+	spec *= 0.5f;
 	GXInitLightAttn(&light, 0.0f, 0.0f, 1.0f, spec, 0.0f, 1.0f - spec);
 	GXLoadLightObjImm(&light, GX_LIGHT2);
 
@@ -240,7 +241,8 @@ void TLightMario::setLight(const JDrama::TGraphics* graphics, int index)
 	PSVECNormalize(&pos, &pos);
 	GXInitSpecularDir(&light, -pos.x, -pos.y, -pos.z);
 	GXInitLightColor(&light, getLightColor(lightIndex));
-	f32 spec = unk10 * 0.5f;
+	f32 spec = unk10;
+	spec *= 0.5f;
 	GXInitLightAttn(&light, 0.0f, 0.0f, 1.0f, spec, 0.0f, 1.0f - spec);
 	GXLoadLightObjImm(&light, GX_LIGHT2);
 
