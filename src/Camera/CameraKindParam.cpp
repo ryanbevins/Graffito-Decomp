@@ -64,7 +64,7 @@ void TCameraKindParam::copySaveParam(const TCamSaveKindParam& src)
 	unkA8       = *(const f32*)(s + 0x3B0);
 }
 
-static void inbetweenS16(s16* dst, s16 target, f32 t)
+static inline void inbetweenS16(s16* dst, s16 target, f32 t)
 {
 	if (t < 0.001f)
 		*dst = target;
