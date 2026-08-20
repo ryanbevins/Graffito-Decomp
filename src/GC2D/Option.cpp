@@ -152,7 +152,7 @@ int TArrowControl::calcMoveX(int phase) const
 	return fVar1 * 8.0f * fVar1 + fVar2 * -8.0f * fVar2 + fVar1 * fVar2;
 }
 
-TBalloonControl::TBalloonControl(int size)
+inline TBalloonControl::TBalloonControl(int size)
     : unk4(size)
     , unk8(0)
 {
