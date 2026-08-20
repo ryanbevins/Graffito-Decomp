@@ -1481,8 +1481,6 @@ void TCardSave::selectBookmarks(TEProgress, TEProgress, TEProgress, TEProgress)
 {
 }
 
-void TCardSave::changePattern(J2DPicture*, s16, u32) { }
-
 void TCardSave::execMovement_()
 {
 
