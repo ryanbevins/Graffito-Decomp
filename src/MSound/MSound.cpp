@@ -416,10 +416,8 @@ MSound::MSound(JKRHeap* param_1, JKRHeap* param_2, u32 param_3, u8* param_4,
 		if (unk0->unk88.unk2[i] != 0) {
 			if (fVar1 < MSHandle::smSeCategory[i].unk4)
 				fVar1 = MSHandle::smSeCategory[i].unk4;
-			u8 uVar2 = (u8)(MSHandle::smSeCategory[i].unk8 * 127.0f);
-			if ((u8)(MSHandle::smSeCategory[i].unk8 * 127.0f) > 0x7E)
-				uVar2 = 0x7F;
-			setSeCategoryVolume(i, uVar2);
+			setSeCategoryVolume(
+			    i, min<u8>(MSHandle::smSeCategory[i].unk8 * 127.0f, 127));
 		}
 	}
 
