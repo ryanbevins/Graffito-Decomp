@@ -450,7 +450,7 @@ void TBossManta::init(TLiveManager* manager)
 	mManager = manager;
 	manager->manageActor(this);
 
-	mMActorKeeper = new TMActorKeeper(manager, 1);
+	mMActorKeeper = new TMActorKeeper(mManager, 1);
 	mMActor       = mMActorKeeper->createMActor("manta.bmd", 0);
 
 	unk124->unk0 = gpConductor->getGraphByName("main");
