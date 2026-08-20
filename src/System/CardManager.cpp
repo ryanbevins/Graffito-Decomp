@@ -42,7 +42,7 @@ void TCardSector::clearData()
 	memset(&mHeader, 0, sizeof(mHeader) + sizeof(mOptionBlock));
 }
 
-void TCardSector::setCheckSum(u32 write_count)
+inline void TCardSector::setCheckSum(u32 write_count)
 {
 	mWriteCount = write_count;
 	u16* ptr    = (u16*)this;
