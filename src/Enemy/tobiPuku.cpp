@@ -1169,41 +1169,42 @@ TTobiPukuLaunchPadManager::TTobiPukuLaunchPadManager(const char* name)
 
 int TobiPukuRollCallback(J3DNode* node, int timing)
 {
-	if (timing != 0)
-		return 1;
+	if (timing == 0) {
+		TTobiPuku* puku = gpCurTobiPuku;
+		if (!puku)
+			return 1;
 
-	TTobiPuku* puku = gpCurTobiPuku;
-	if (!puku)
-		return 1;
+		const TNerveBase<TLiveActor>* nerve
+		    = puku->mSpine->getCurrentNerve();
+		if (nerve != &TNerveTobiPukuLand::theNerve()
+		    && nerve != &TNerveTobiPukuPrepareFly::theNerve()
+		    && nerve != &TNerveTobiPukuReturnLaunch::theNerve())
+			return 1;
 
-	const TNerveBase<TLiveActor>* nerve = puku->mSpine->getCurrentNerve();
-	if (nerve != &TNerveTobiPukuLand::theNerve()
-	    && nerve != &TNerveTobiPukuPrepareFly::theNerve()
-	    && nerve != &TNerveTobiPukuReturnLaunch::theNerve())
-		return 1;
+		s32 phase = (s32)(puku->unk1EC * 182.04445f);
+		u16 idx   = (u16)phase >> jmaSinShift;
+		f32 sin   = jmaSinTable[idx];
+		f32 cos   = jmaCosTable[idx];
+		Mtx roll;
+		roll[0][0] = cos;
+		roll[0][1] = -sin;
+		roll[0][2] = 0.0f;
+		roll[0][3] = 0.0f;
+		roll[1][0] = sin;
+		roll[1][1] = cos;
+		roll[1][2] = 0.0f;
+		roll[1][3] = 0.0f;
+		roll[2][0] = 0.0f;
+		roll[2][1] = 0.0f;
+		roll[2][2] = 1.0f;
+		roll[2][3] = 0.0f;
 
-	s32 phase = (s32)(puku->unk1EC * 182.04445f);
-	u16 idx   = (u16)phase >> jmaSinShift;
-	f32 sin   = jmaSinTable[idx];
-	f32 cos   = jmaCosTable[idx];
-	Mtx roll;
-	roll[0][0] = cos;
-	roll[0][1] = -sin;
-	roll[0][2] = 0.0f;
-	roll[0][3] = 0.0f;
-	roll[1][0] = sin;
-	roll[1][1] = cos;
-	roll[1][2] = 0.0f;
-	roll[1][3] = 0.0f;
-	roll[2][0] = 0.0f;
-	roll[2][1] = 0.0f;
-	roll[2][2] = 1.0f;
-	roll[2][3] = 0.0f;
-
-	J3DJoint* joint = (J3DJoint*)node;
-	MtxPtr jointMtx = puku->mMActor->unk4->mNodeMatrices[joint->getJntNo()];
-	PSMTXConcat(jointMtx, roll, roll);
-	PSMTXConcat(J3DSys::mCurrentMtx, roll, J3DSys::mCurrentMtx);
+		J3DJoint* joint = (J3DJoint*)node;
+		MtxPtr jointMtx
+		    = puku->mMActor->unk4->mNodeMatrices[joint->getJntNo()];
+		PSMTXConcat(jointMtx, roll, roll);
+		PSMTXConcat(J3DSys::mCurrentMtx, roll, J3DSys::mCurrentMtx);
+	}
 	return 1;
 }
 
