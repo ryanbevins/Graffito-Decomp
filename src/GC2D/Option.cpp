@@ -631,7 +631,7 @@ void TOptionSoundUnit::updatePatternAnm()
 		adjustSound();
 }
 
-void TOptionSoundUnit::foreachPatternAnm(ArrayWrapper<TPatternAnmControl*>& ary,
+inline void TOptionSoundUnit::foreachPatternAnm(ArrayWrapper<TPatternAnmControl*>& ary,
                                          void (TPatternAnmControl::*ptmf)())
 {
 	for (TPatternAnmControl** it = ary.mData; it != ary.mData + ary.mSize; ++it)
