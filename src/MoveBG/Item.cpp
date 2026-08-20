@@ -992,7 +992,9 @@ void TEggYoshi::touchFruit(THitActor* fruit)
 
 		f32 dx    = fruit->mPosition.x - mPosition.x;
 		f32 dz    = fruit->mPosition.z - mPosition.z;
-		mRotation.y = matan(dz, dx) * 0.005493164f;
+		const f32 angleScale = 0.005493164f;
+		s16 angle            = matan(dz, dx);
+		mRotation.y          = angle * angleScale;
 
 		mState = 0xB;
 		unk150 = (TMapObjGeneral*)fruit;
