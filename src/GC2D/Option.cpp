@@ -121,7 +121,7 @@ const TOptionSoundUnit::FabricatedFlagInfo TOptionSoundUnit::cFlagInfos[] = {
 	{ TOptionSoundUnit::SOUND_TYPE_SURROUND, 2 },
 };
 
-void TArrowControl::update()
+inline void TArrowControl::update()
 {
 	updateAlpha();
 	if (mPane->getAlpha() != 0) {
