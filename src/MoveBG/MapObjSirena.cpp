@@ -57,32 +57,32 @@ static void* gpCurObject;
 
 static int partsRollCallback(J3DNode* node, int param)
 {
-	if (param != 0)
-		return 1;
-	if (gpCurObject == nullptr)
-		return 1;
-	u16 jointIdx = ((J3DJoint*)node)->mJntNo;
-	MtxPtr localMtx
-	    = ((TSirenaRollMapObj*)gpCurObject)->getModel()->mNodeMatrices[jointIdx];
-	jointIdx -= 1;
+	if (param == 0) {
+		if (gpCurObject == nullptr)
+			return 1;
+		u16 jointIdx = ((J3DJoint*)node)->mJntNo;
+		MtxPtr localMtx
+		    = ((TSirenaRollMapObj*)gpCurObject)->getModel()->mNodeMatrices[jointIdx];
+		jointIdx -= 1;
 
-	TPosition3f scaleMtx;
-	scaleMtx.setTrans(0.0f, 0.0f, 0.0f);
-	scaleMtx.setScale(((TSirenaRollMapObj*)gpCurObject)->mScaling.x,
-	                  ((TSirenaRollMapObj*)gpCurObject)->mScaling.y,
-	                  ((TSirenaRollMapObj*)gpCurObject)->mScaling.z);
+		TPosition3f scaleMtx;
+		scaleMtx.setTrans(0.0f, 0.0f, 0.0f);
+		scaleMtx.setScale(((TSirenaRollMapObj*)gpCurObject)->mScaling.x,
+		                  ((TSirenaRollMapObj*)gpCurObject)->mScaling.y,
+		                  ((TSirenaRollMapObj*)gpCurObject)->mScaling.z);
 
-	Mtx rotMtx;
-	f32 angZ = ((TSirenaRollMapObj*)gpCurObject)->getRollAngZ(jointIdx);
-	f32 angY = ((TSirenaRollMapObj*)gpCurObject)->getRollAngY(jointIdx);
-	MsMtxSetRotRPH(rotMtx,
-	               ((TSirenaRollMapObj*)gpCurObject)->getRollAngX(jointIdx),
-	               angY, angZ);
+		Mtx rotMtx;
+		f32 angZ = ((TSirenaRollMapObj*)gpCurObject)->getRollAngZ(jointIdx);
+		f32 angY = ((TSirenaRollMapObj*)gpCurObject)->getRollAngY(jointIdx);
+		MsMtxSetRotRPH(rotMtx,
+		               ((TSirenaRollMapObj*)gpCurObject)->getRollAngX(jointIdx),
+		               angY, angZ);
 
-	PSMTXConcat(localMtx, rotMtx, localMtx);
-	PSMTXConcat(localMtx, scaleMtx, localMtx);
-	PSMTXConcat(J3DSys::mCurrentMtx, rotMtx, J3DSys::mCurrentMtx);
-	PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
+		PSMTXConcat(localMtx, rotMtx, localMtx);
+		PSMTXConcat(localMtx, scaleMtx, localMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, rotMtx, J3DSys::mCurrentMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
+	}
 
 	return 1;
 }
