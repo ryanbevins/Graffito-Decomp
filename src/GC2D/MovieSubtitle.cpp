@@ -105,7 +105,7 @@ void TMovieSubTitle::show()
 	setCurMessage();
 }
 
-void TMovieSubTitle::hide()
+inline void TMovieSubTitle::hide()
 {
 	unk28 = false;
 	unk14->hide();
