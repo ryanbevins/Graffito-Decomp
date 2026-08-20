@@ -64,7 +64,7 @@ static inline BOOL isMarioWaterIn()
 	return FALSE;
 }
 
-static void setBoidLeaderMarioGoal(TBoidLeader* leader, f32 offset_y)
+static inline void setBoidLeaderMarioGoal(TBoidLeader* leader, f32 offset_y)
 {
 	setBoidLeaderWaitParams(leader);
 
