@@ -936,7 +936,7 @@ bool TCardLoad::titleDraw()
 	return unk18 > 4;
 }
 
-void TCardLoad::makeBuffer(J2DTextBox* text_box, int size)
+inline void TCardLoad::makeBuffer(J2DTextBox* text_box, int size)
 {
 	SMSMakeTextBuffer(text_box, size);
 	text_box->setFont((JUTFont*)gpSystemFont);
