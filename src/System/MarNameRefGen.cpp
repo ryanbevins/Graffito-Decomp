@@ -1,3 +1,5 @@
+#define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
+#define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #define JUTILITY_COLOR_SET_DECL_ONLY
 #include <System/MarNameRefGen.hpp>
 
@@ -46,6 +48,8 @@
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMapTool.hpp>
 #undef JUTILITY_COLOR_SET_DECL_ONLY
+#undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 
 static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
@@ -60,6 +64,10 @@ static const char MtxCalcTypeName3[]
 
 static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
 static const char cDirtyTexName[]  = "H_ma_rak_dummy";
+
+#define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
+#include <Map/MapCollisionEntry.hpp>
+#undef MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 
 JDrama::TNameRef* TMarNameRefGen::getNameRef(const char* name) const
 {
