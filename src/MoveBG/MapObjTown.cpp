@@ -600,7 +600,7 @@ BOOL TMapObjSwitch::receiveMessage(THitActor*, u32 message)
 		for (int i = 0; i < unk13C; ++i)
 			unk144[i]->action(unk140);
 
-		gpMarDirector->fireStartDemoCamera("マップオブジェクトスイッチ",
+		gpMarDirector->fireStartDemoCamera("オブジェスイッチ用カメラ",
 		                                   &mPosition, -1, 0.0f, true, nullptr,
 		                                   0, nullptr, JDrama::TFlagT<u16>(0));
 		mLifeTimer = unk140;
