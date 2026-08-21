@@ -815,10 +815,10 @@ f32 TKoopa::getFlameDirRate() const
 	f32 end            = endActor->getFrameCtrl(0)->getEnd();
 	TEnemyManager* manager = (TEnemyManager*)mManager;
 	TKoopaParams* prm      = (TKoopaParams*)manager->unk38;
+	s32 time           = mSpine->getTime();
 	f32 overStart      = prm->flameOverStart.get();
 	s32 focusStart     = prm->flameFocusStartStep.get();
 	s32 focusEnd       = prm->flameFocusEndStep.get();
-	s32 time           = mSpine->getTime();
 	int idx            = mMActor->getCurAnmIdx(0);
 
 	switch (idx) {
