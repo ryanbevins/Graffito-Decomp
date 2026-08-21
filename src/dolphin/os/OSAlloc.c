@@ -32,7 +32,7 @@ static void* ArenaEnd;
 
 // functions
 static inline struct Cell* DLAddFront(struct Cell* list, struct Cell* cell);
-static struct Cell* DLLookup(struct Cell* list, struct Cell* cell);
+static inline struct Cell* DLLookup(struct Cell* list, struct Cell* cell);
 static struct Cell* DLExtract(struct Cell* list, struct Cell* cell);
 static struct Cell* DLInsert(struct Cell* list, struct Cell* cell);
 
@@ -46,7 +46,7 @@ static inline struct Cell* DLAddFront(struct Cell* list, struct Cell* cell)
 	return cell;
 }
 
-static struct Cell* DLLookup(struct Cell* list, struct Cell* cell)
+static inline struct Cell* DLLookup(struct Cell* list, struct Cell* cell)
 {
 	for (; list; list = list->next) {
 		if (list == cell) {
