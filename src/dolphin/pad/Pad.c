@@ -55,7 +55,7 @@ void PADControlMotor(s32 chan, u32 command);
 void PADSetSpec(u32 spec);
 static void SPEC0_MakeStatus(s32 chan, PADStatus* status, u32 data[2]);
 static void SPEC1_MakeStatus(s32 chan, PADStatus* status, u32 data[2]);
-static s8 ClampS8(s8 var, s8 org);
+static inline s8 ClampS8(s8 var, s8 org);
 static u8 ClampU8(u8 var, u8 org);
 BOOL PADSync(void);
 void PADSetAnalogMode(u32 mode);
@@ -576,7 +576,7 @@ static void SPEC1_MakeStatus(s32 chan, PADStatus* status, u32 data[2])
 	status->substickY -= 128;
 }
 
-static s8 ClampS8(s8 var, s8 org)
+static inline s8 ClampS8(s8 var, s8 org)
 {
 	if (0 < org) {
 		s8 min = (s8)(-128 + org);
