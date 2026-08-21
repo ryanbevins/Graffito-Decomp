@@ -24,7 +24,7 @@ public:
 	BOOL receiveMessage(THitActor*, unsigned long);
 	void load(JSUMemoryInputStream&);
 	TJumpMushroom()
-	    : TMapObjBase("ジャンプキノコ")
+	    : TMapObjBase("ジャンプきのこ")
 	{
 	}
 };
