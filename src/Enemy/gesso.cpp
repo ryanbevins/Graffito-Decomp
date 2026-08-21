@@ -824,7 +824,7 @@ inline bool TGesso::turning()
 		return false;
 }
 
-void TGesso::turnOut()
+inline void TGesso::turnOut()
 {
 	mTurnAngle = 0.0f;
 	unk1C4     = !unk1C4;
