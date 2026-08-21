@@ -262,7 +262,7 @@ namespace BankMgr {
 		channel->unk54 = channel->unk4C * (channel->unk54 * channel->unk54);
 	}
 
-	u32 getUsedHeapSize() { return 0; }
+	inline u32 getUsedHeapSize() { return 0; }
 
 } // namespace BankMgr
 } // namespace JASystem
