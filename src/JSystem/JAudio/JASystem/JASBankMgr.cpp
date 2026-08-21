@@ -31,7 +31,7 @@ namespace BankMgr {
 		sTableSize = bankCount;
 	}
 
-	bool registBank(int bankIndex, TBank* bank)
+	inline bool registBank(int bankIndex, TBank* bank)
 	{
 		sBankArray[bankIndex] = bank;
 		return true;
