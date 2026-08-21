@@ -37,6 +37,9 @@ static const char* MtxCalcTypeName[4]
 	    "MActorMtxCalcType_User "
         "\x83\x86\x81\x5B\x83\x55\x81\x5B\x92\xE8\x8B\x60" };
 
+static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
+static const char cDirtyTexName[]  = "H_ma_rak_dummy";
+
 static inline BOOL checkRotateStartInput(TMario* mario, int* stickDir)
 {
 	BOOL result = mario->checkStickRotate(stickDir);
