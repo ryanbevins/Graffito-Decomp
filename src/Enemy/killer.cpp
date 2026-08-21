@@ -119,8 +119,8 @@ TKillerManager::TKillerManager(const char* name)
 void TKillerManager::createModelData()
 {
 	static TModelDataLoadEntry entry[] = {
-		{ "killer_model1.bmd", 0x14240000, 0 },
-		{ "downkiller_model1.bmd", 0x14240000, 0 },
+		{ "killer_model1.bmd", 0x10220000, 0 },
+		{ "downkiller_model1.bmd", 0x10220000, 0 },
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
