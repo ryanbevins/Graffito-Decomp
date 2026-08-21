@@ -1092,7 +1092,7 @@ void TItemSlotDrum::moveObject()
 				unk198 = 0;
 			} else if (picked < 30.0f) {
 				unk198 = 2;
-			} else if (picked < 70.0f) {
+			} else if (picked < 60.0f) {
 				unk198 = 3;
 			} else {
 				unk198 = 1;
