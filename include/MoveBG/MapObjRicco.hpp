@@ -127,7 +127,7 @@ public:
 class TFruitLauncher : public TMapObjBase {
 public:
 	TFruitLauncher()
-	    : TMapObjBase("フルーツ発射")
+	    : TMapObjBase("フルーツ発射口")
 	    , unk140(0)
 	{
 	}
