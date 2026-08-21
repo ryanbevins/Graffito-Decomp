@@ -1,3 +1,5 @@
+#include <M3DUtil/InfectiousStrings.hpp>
+
 #define JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Enemy/Igaiga.hpp>
 #undef JDRAMA_TFLAG_CTOR_DECL_ONLY
