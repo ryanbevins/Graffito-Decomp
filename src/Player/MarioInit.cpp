@@ -65,7 +65,7 @@ TMario::TEParams::TEParams(const char* prm)
     , PARAM_INIT(mDownType, 0)
     , PARAM_INIT(mWaterEmit, 0)
     , PARAM_INIT(mMotor, 0)
-    , PARAM_INIT(mMinSpeed, 0.0f)
+    , PARAM_INIT(mMinSpeed, 16.0f)
     , PARAM_INIT(mDirty, 0.0f)
     , PARAM_INIT(mInvincibleTime, 0)
 {
