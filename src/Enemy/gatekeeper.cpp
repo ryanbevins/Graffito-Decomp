@@ -956,7 +956,7 @@ void TBiancoGateKeeper::changeBck(int index)
 
 		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(MActor::ANM_TYPE_BCK);
 		if (ctrl) {
-			f32 blendFrames = 0.2f * ctrl->getEnd();
+			f32 blendFrames = 0.25f * ctrl->getEnd();
 			if (blendFrames < 1.0f)
 				unk158 = 1.0f;
 			else
