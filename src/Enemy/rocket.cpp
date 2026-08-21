@@ -395,7 +395,7 @@ void TRocketManager::perform(u32 param, JDrama::TGraphics* graphics)
 void TRocketManager::createModelData()
 {
 	static TModelDataLoadEntry entry[] = {
-		{ "rocket.bmd", 0x10210000, 0 },
+		{ "rocket.bmd", 0x10040000, 0 },
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
