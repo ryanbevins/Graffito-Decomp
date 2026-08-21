@@ -47,6 +47,17 @@
 #include <Camera/CameraMapTool.hpp>
 #undef JUTILITY_COLOR_SET_DECL_ONLY
 
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
+static const char MtxCalcTypeName0[]
+    = "MActorMtxCalcType_Basic クラシックスケールＯＮ";
+static const char MtxCalcTypeName1[]
+    = "MActorMtxCalcType_Softimage クラシックスケールＯＦＦ";
+static const char MtxCalcTypeName2[]
+    = "MActorMtxCalcType_MotionBlend モーションブレンド";
+static const char MtxCalcTypeName3[]
+    = "MActorMtxCalcType_User ユーザー定義";
+
 static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
 static const char cDirtyTexName[]  = "H_ma_rak_dummy";
 
