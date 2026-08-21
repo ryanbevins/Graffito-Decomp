@@ -1112,7 +1112,7 @@ void TBathWaterManager::perform(u32 flags, JDrama::TGraphics* graphics)
 				JGeometry::TVec3<f32> vel;
 				if (fakeCalcPos(data, unk14[1]->dropRadius.get(),
 				                unk10.get_float(-1.0f, 1.0f), &vel))
-					unk20[1]->addDrop(vel, unk10.get_float01());
+					unk20[1]->addDrop(vel, unk10.get_float01() * 10.0f);
 			}
 
 			TBathWater* soundWater = unk20[0];
