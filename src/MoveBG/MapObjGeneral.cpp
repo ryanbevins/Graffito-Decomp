@@ -623,7 +623,8 @@ BOOL TMapObjGeneral::receiveMessage(THitActor* sender, u32 message)
 
 	// TODO: concerning. Is unkAC actually a Vec?
 	if (message == HIT_MESSAGE_TAKE && checkMapObjFlag(0x100000)
-	    && JGeometry::TVec3<f32>(mVelocity).squared() <= 3.814697e-06f
+	    && JGeometry::TVec3<f32>(mVelocity).squared()
+	           <= JGeometry::TUtil<f32>::epsilon()
 	    && (isState(2) || isState(1) || isState(4) || isState(5))) {
 		hold((TTakeActor*)sender);
 		return true;
