@@ -14,7 +14,7 @@ class TMapObjMonteRoot : public TMapObjBase {
 public:
 	void initMapObj();
 	TMapObjMonteRoot()
-	    : TMapObjBase("モンテマンルート")
+	    : TMapObjBase("根っこ")
 	{
 	}
 };
