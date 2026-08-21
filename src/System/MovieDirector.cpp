@@ -119,7 +119,7 @@ int TMovieDirector::rsetup()
 		if ((s32)gpApplication.getMovie() < 16) {
 			(void)gpApplication.getMovie();
 		} else {
-			unk24 = new TCardSave("<TCardSave>", true);
+			unk24 = new TCardSave("card save", true);
 			unk24->initData(unk20);
 			group2d->getChildren().push_back(unk24);
 		}
