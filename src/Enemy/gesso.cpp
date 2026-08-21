@@ -799,7 +799,7 @@ void TGesso::fallEnd()
 	mIsRightSideUp = true;
 }
 
-void TGesso::turnIn()
+inline void TGesso::turnIn()
 {
 	setBckAnm(2);
 	mTurnAngle = 0.0f;
