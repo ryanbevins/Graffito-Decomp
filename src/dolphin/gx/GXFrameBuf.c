@@ -193,7 +193,7 @@ void GXSetCopyClamp(GXFBClamp clamp)
 	SET_REG_FIELD(0x485, gx->cpTex, 1, 1, clmpB);
 }
 
-static inline u32 __GXGetNumXfbLines(u32 height, u32 scale)
+static u32 __GXGetNumXfbLines(u32 height, u32 scale)
 {
 	u32 numLines;
 	u32 actualHeight;

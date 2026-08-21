@@ -11,3 +11,13 @@ splits: config/GMSJ01/splits.txt
 mw_comment_version: 8 # GC Linker 1.2.5
 symbols_known: true # Very fast analysis
 fill_gaps: false # Alignments known
+
+# These are raw retail table/bitmap words that happen to resemble RAM pointers.
+# Without this list, DTK converts them into relocations in the reconstructed
+# target objects, which makes zero-valued source placeholders look more exact
+# than the original data.
+block_relocations:
+  - source: .data:0x803A8A08 # JUTDirectPrint::sFontData[54]
+  - source: .data:0x803A8B28 # JUTDirectPrint::sFontData2[62]
+  - source: .data:0x803AB520 # JASDriverTables::DSPRES_FILTER[184]
+  - source: .data:0x803ABDC0 # JASPlayer::sTreTable[8..9]
