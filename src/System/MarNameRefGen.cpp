@@ -249,7 +249,7 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef(const char* name) const
 		return new TMapEventSinkShadowMario;
 
 	if (strcmp(name, "MapEventSirenaSink") == 0)
-		return new TMapEventSirenaSink;
+		return new TMapEventSirenaSink("ホテル沈む");
 
 	if (strcmp(name, "MapEventSinkBianco") == 0)
 		return new TMapEventSinkBianco;
@@ -258,16 +258,16 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef(const char* name) const
 		return new TDolpicEventBiancoGate;
 
 	if (strcmp(name, "DolpicEventRiccoGate") == 0)
-		return new TDolpicEventRiccoMammaGate;
+		return new TDolpicEventRiccoMammaGate("イベント（リコ、マンマゲート）");
 
 	if (strcmp(name, "DolpicEventMammaGate") == 0)
-		return new TDolpicEventRiccoMammaGate;
+		return new TDolpicEventRiccoMammaGate("イベント（リコ、マンマゲート）");
 
 	if (strcmp(name, "MareEventBumpyWall") == 0)
-		return new TMareEventBumpyWall("MareEventBumpyWall");
+		return new TMareEventBumpyWall("凸凹壁");
 
 	if (strcmp(name, "MareEventWallRock") == 0)
-		return new TMareEventWallRock("MareEventWallRock");
+		return new TMareEventWallRock("イベント（マーレ壁の岩）");
 
 	if (strcmp(name, "StageEnemyInfoHeader") == 0)
 		return new TStageEnemyInfoTable;
