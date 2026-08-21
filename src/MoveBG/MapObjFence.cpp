@@ -24,6 +24,9 @@
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
+static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
+static const char cDirtyTexName[]  = "H_ma_rak_dummy";
+
 f32 TRailFence::mFallHeight = 50000.0f;
 int TRailFence::mWaitTime   = 240;
 
