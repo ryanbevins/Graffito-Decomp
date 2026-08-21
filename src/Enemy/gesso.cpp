@@ -806,7 +806,7 @@ void TGesso::turnIn()
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
-bool TGesso::turning()
+inline bool TGesso::turning()
 {
 	f32 turnAngle = mTurnAngle;
 	f32 turnStep  = 7.2f;
