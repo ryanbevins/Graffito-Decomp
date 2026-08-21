@@ -1933,7 +1933,7 @@ DEFINE_NERVE(TNerveBWFall, TLiveActor)
 	if (spine->getTime() == 0) {
 		const JGeometry::TVec3<f32>& picketPos = self->mPicket->mPosition;
 		JGeometry::TVec3<f32> velocity = self->calcVelocityToJumpToY(
-		    picketPos, 500.0f, self->getGravityY());
+		    picketPos, 5.0f, self->getGravityY());
 
 		TPathNode node(self->mPicket->mPosition);
 		self->setGoalPath(node);
