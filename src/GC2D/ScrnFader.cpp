@@ -412,7 +412,7 @@ void TSMSFader::setFadeStatus(TSMSFader::EFadeStatus param_1)
 	}
 }
 
-void TSMSFader::getGameOverBtiResource()
+inline void TSMSFader::getGameOverBtiResource()
 {
 	Hx_RemoveResource();
 	Hx_ProvideResource(JKRGetResource("/common/2d/wipe_gameover.bti"), 0);
