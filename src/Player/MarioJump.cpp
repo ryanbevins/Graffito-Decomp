@@ -521,18 +521,18 @@ BOOL TMario::fireDowning()
 	if (mActionTimer == 1) startVoice(0x7849);
 	u16 t2 = mActionTimer; mActionTimer = t2 + 1;
 	if (!(mInput & 1))
-		mForwardVel = FConverge(mForwardVel, 0.03125f, 500.0f, 500.0f);
+		mForwardVel = FConverge(mForwardVel, 0.0f, 0.35f, 0.35f);
 	if (mInput & 1) {
 		s16 ad = mIntendedYaw - mFaceAngle.y; u16 au = (u16)ad;
-		f32 ac = 160.0f * mIntendedMag * mJumpParams.mFireDownControl.get();
+		f32 ac = 0.03125f * mIntendedMag * mJumpParams.mFireDownControl.get();
 		mForwardVel += ac * JMASCos(au);
-		mFaceAngle.y = (s16)(0.2f * (ac * JMASSin(au)) + (f32)mFaceAngle.y);
+		mFaceAngle.y = (s16)(1024.0f * (ac * JMASSin(au)) + (f32)mFaceAngle.y);
 		if (mForwardVel < 0.0f) {
 			mFaceAngle.y += 0x8000;
-			mForwardVel *= 0.9848077f;
+			mForwardVel *= -1.0f;
 		}
-		if (mForwardVel > 30.0f)
-			mForwardVel -= 52.0f;
+		if (mForwardVel > 32.0f)
+			mForwardVel -= 2.0f;
 	}
 	f32 vx = mForwardVel * JMASSin(mFaceAngle.y); mSlideVelX = vx; mVel.x = vx;
 	f32 vz = mForwardVel * JMASCos(mFaceAngle.y); mSlideVelZ = vz; mVel.z = vz;
@@ -540,8 +540,8 @@ BOOL TMario::fireDowning()
 	switch (jr) {
 	case 1:
 		if (mActionState < 2 && mVel.y < 0.0f) {
-			mVel.y = -mVel.y * 2.0f;
-			setPlayerVelocity(1024.0f * mForwardVel);
+			mVel.y = -mVel.y * 0.4f;
+			setPlayerVelocity(0.5f * mForwardVel);
 			mActionState = mActionState + 1;
 		} else { startVoice(0x7852); changePlayerStatus(0x08000239, 0, false); }
 		break;
