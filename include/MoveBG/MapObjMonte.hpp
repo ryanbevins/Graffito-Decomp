@@ -127,7 +127,7 @@ public:
 	void touchActor(THitActor*);
 	void initMapObj();
 	TGoalFlag()
-	    : TMapObjBase("ゴールフラッグ")
+	    : TMapObjBase("ゴールフラグ")
 	{
 	}
 };
