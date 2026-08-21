@@ -47,7 +47,7 @@ namespace BankMgr {
 		return registBank(bankIndex, bank);
 	}
 
-	TBank* getBank(int bankIndex)
+	inline TBank* getBank(int bankIndex)
 	{
 		if (bankIndex >= sTableSize)
 			return nullptr;
