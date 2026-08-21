@@ -31,12 +31,12 @@ static void* ArenaStart;
 static void* ArenaEnd;
 
 // functions
-static struct Cell* DLAddFront(struct Cell* list, struct Cell* cell);
+static inline struct Cell* DLAddFront(struct Cell* list, struct Cell* cell);
 static struct Cell* DLLookup(struct Cell* list, struct Cell* cell);
 static struct Cell* DLExtract(struct Cell* list, struct Cell* cell);
 static struct Cell* DLInsert(struct Cell* list, struct Cell* cell);
 
-static struct Cell* DLAddFront(struct Cell* list, struct Cell* cell)
+static inline struct Cell* DLAddFront(struct Cell* list, struct Cell* cell)
 {
 	cell->next = list;
 	cell->prev = 0;
