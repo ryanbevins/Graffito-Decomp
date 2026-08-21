@@ -25,7 +25,7 @@ TBasicInst::~TBasicInst()
 	delete[] unk14;
 }
 
-inline TBasicInst::TKeymap* TBasicInst::searchKeymap(int key) const
+TBasicInst::TKeymap* TBasicInst::searchKeymap(int key) const
 {
 	for (int i = 0; i < unk1C; i++) {
 		if (key <= unk20[i].unk0) {
@@ -123,7 +123,7 @@ void TBasicInst::setEffect(int index, TInstEffect* effect)
 	unkC[index] = effect;
 }
 
-inline TInstEffect* TBasicInst::getEffect(int index) { return unkC[index]; }
+TInstEffect* TBasicInst::getEffect(int index) { return unkC[index]; }
 
 void TBasicInst::setOscCount(u32 count)
 {
@@ -143,7 +143,7 @@ void TBasicInst::setOsc(int index, TOscillator::Osc_* osc)
 	unk14[index] = osc;
 }
 
-inline TOscillator::Osc_* TBasicInst::getOsc(int index) { return unk14[index]; }
+TOscillator::Osc_* TBasicInst::getOsc(int index) { return unk14[index]; }
 
 TBasicInst::TKeymap* TBasicInst::getKeyRegion(int index)
 {
@@ -152,7 +152,7 @@ TBasicInst::TKeymap* TBasicInst::getKeyRegion(int index)
 	return &unk20[index];
 }
 
-inline const TBasicInst::TKeymap* TBasicInst::getKeyRegion(int index) const
+const TBasicInst::TKeymap* TBasicInst::getKeyRegion(int index) const
 {
 	if (index >= unk1C)
 		return nullptr;

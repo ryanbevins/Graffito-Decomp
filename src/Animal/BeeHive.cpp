@@ -31,14 +31,14 @@
 namespace {
 f32 cAngleLimit = 1.1780972f;
 
-static inline void playBeeHiveSound(const JGeometry::TVec3<f32>& pos, f32 volume)
+static void playBeeHiveSound(const JGeometry::TVec3<f32>& pos, f32 volume)
 {
 	if (gpMSound->gateCheck(0x28f7))
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 		    0x28f7, (const Vec*)&pos, nullptr, volume, 0, 0, nullptr, 0, 4);
 }
 
-static inline void setBoidLeaderWaitParams(TBoidLeader* leader)
+static void setBoidLeaderWaitParams(TBoidLeader* leader)
 {
 	leader->mParam20 = 25.0f;
 	leader->mParam24 = 80.0f;
@@ -48,7 +48,7 @@ static inline void setBoidLeaderWaitParams(TBoidLeader* leader)
 	leader->mParam34 = 0.001f;
 }
 
-static inline BOOL isMarioWaterIn()
+static BOOL isMarioWaterIn()
 {
 	u32 flag = *gpMarioFlag;
 
@@ -64,7 +64,7 @@ static inline BOOL isMarioWaterIn()
 	return FALSE;
 }
 
-static inline void setBoidLeaderMarioGoal(TBoidLeader* leader, f32 offset_y)
+static void setBoidLeaderMarioGoal(TBoidLeader* leader, f32 offset_y)
 {
 	setBoidLeaderWaitParams(leader);
 
@@ -72,7 +72,7 @@ static inline void setBoidLeaderMarioGoal(TBoidLeader* leader, f32 offset_y)
 	leader->mGoalOffset.set(0.0f, offset_y, 0.0f);
 }
 
-static inline void setBoidLeaderHomeGoal(TBeeHive* hive)
+static void setBoidLeaderHomeGoal(TBeeHive* hive)
 {
 	TBoidLeader* leader = hive->mBoidLeader;
 	setBoidLeaderWaitParams(leader);

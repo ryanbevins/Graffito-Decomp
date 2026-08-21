@@ -153,7 +153,9 @@ J3DModelData* TMapStaticObj::getModelData() const
 	return unk70->getModel()->getModelData();
 }
 
-inline void TMapStaticObj::calcUnique(JPABaseEmitter* emitter)
+J3DModel* TMapStaticObj::getModel() const { return unk70->getModel(); }
+
+void TMapStaticObj::calcUnique(JPABaseEmitter* emitter)
 {
 	switch (mActorType) {
 	case 0x40000024:
@@ -261,7 +263,7 @@ void TMapStaticObj::initUnique()
 	}
 }
 
-inline void TMapStaticObj::initMapCollision(const char* name)
+void TMapStaticObj::initMapCollision(const char* name)
 {
 	if (unk68->unk40 & 2)
 		unk74 = new TMapCollisionManager(1, "/mapObj", nullptr);
@@ -448,7 +450,7 @@ static const SoundInfoEntry sound_info[] = {
 	{ nullptr, 0 },
 };
 
-static inline u32 getSoundID(const char* name)
+static u32 getSoundID(const char* name)
 {
 	for (int i = 0; sound_info[i].unk0 != nullptr; ++i)
 		if (strcmp(sound_info[i].unk0, name) == 0)

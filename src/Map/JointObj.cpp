@@ -93,7 +93,7 @@ void TJointObj::kill()
 }
 
 // TODO: size is wrong, name sort of makes sense?
-static inline void getShapeInOneJoint(J3DJoint* joint, J3DShape** shapes)
+static void getShapeInOneJoint(J3DJoint* joint, J3DShape** shapes)
 {
 	u32 i          = 0;
 	J3DMaterial* m = joint->getMesh();

@@ -1105,7 +1105,7 @@ BOOL TMario::isAnimeLoopOrStop()
 }
 
 // Fabricated - Probably somewhere else
-inline void flagOnAllShapes(J3DModelData* modelData, u32 flag)
+void flagOnAllShapes(J3DModelData* modelData, u32 flag)
 {
 	for (u16 i = 0; i < modelData->getShapeNum(); ++i) {
 		modelData->getShapeNodePointer(i)->unk8 |= flag;
@@ -1113,7 +1113,7 @@ inline void flagOnAllShapes(J3DModelData* modelData, u32 flag)
 }
 
 // Fabricated - Probably somewhere else
-inline void flagOffAllShapes(J3DModelData* modelData, u32 flag)
+void flagOffAllShapes(J3DModelData* modelData, u32 flag)
 {
 	for (u16 i = 0; i < modelData->getShapeNum(); ++i) {
 		modelData->getShapeNodePointer(i)->offFlag(flag);

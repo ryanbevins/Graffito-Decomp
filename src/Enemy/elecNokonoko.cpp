@@ -732,8 +732,8 @@ void TElecNokonoko::behaveToFindMario()
 	setGoalPathMario();
 }
 
-static inline f32 calcDist(const JGeometry::TVec3<f32>& a,
-                           const JGeometry::TVec3<f32>& b)
+static f32 calcDist(const JGeometry::TVec3<f32>& a,
+                    const JGeometry::TVec3<f32>& b)
 {
 	JGeometry::TVec3<f32> diff = a;
 	diff.sub(b);

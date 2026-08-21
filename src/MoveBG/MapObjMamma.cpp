@@ -74,7 +74,7 @@ f32 TMammaBlockRotate::mMapGoSpeed     = 1.0f;
 f32 TMammaBlockRotate::mMapBackSpeed   = 0.1f;
 u32 TMammaBlockRotate::mWaitTime       = 600;
 
-static inline void zeroVec(JGeometry::TVec3<f32>& v)
+static void zeroVec(JGeometry::TVec3<f32>& v)
 {
 	v.z = 0.0f;
 	v.y = 0.0f;

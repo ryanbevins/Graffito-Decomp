@@ -27,7 +27,7 @@
 #include <M3DUtil/InfectiousStrings.hpp>
 
 // fabricated helper for boolean materialization matching
-static inline u8 isActorTypeOf(THitActor* actor, u32 base)
+static u8 isActorTypeOf(THitActor* actor, u32 base)
 {
 	u8 result;
 	if ((actor->mActorType - base) == 1) {

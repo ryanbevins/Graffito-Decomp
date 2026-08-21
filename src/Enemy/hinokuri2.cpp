@@ -590,7 +590,7 @@ void THinokuri2::resetPolInterval()
 
 // TODO: are validate & invalidate reversed?
 
-inline void THinokuri2::invalidateCollisionAll()
+void THinokuri2::invalidateCollisionAll()
 {
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 	mHead->onHitFlag(HIT_FLAG_NO_COLLISION);

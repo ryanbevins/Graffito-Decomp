@@ -4,6 +4,7 @@
 #include <Strategic/HitActor.hpp>
 
 class JPABaseEmitter;
+class J3DModel;
 class J3DModelData;
 class TGraphWeb;
 class MSSceneSE;
@@ -23,7 +24,7 @@ public:
 	void initUnique();
 	void perform(u32, JDrama::TGraphics*);
 	void calcUnique(JPABaseEmitter*);
-	void getModel() const;
+	J3DModel* getModel() const;
 	J3DModelData* getModelData() const;
 
 	struct ActorDataTableEntry {

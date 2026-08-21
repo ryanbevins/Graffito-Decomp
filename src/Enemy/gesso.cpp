@@ -781,7 +781,7 @@ void TGesso::rollCheck()
 	}
 }
 
-inline void TGesso::rollEnd()
+void TGesso::rollEnd()
 {
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 	mState         = STATE_BEAM_CHILLING;
@@ -799,14 +799,14 @@ void TGesso::fallEnd()
 	mIsRightSideUp = true;
 }
 
-inline void TGesso::turnIn()
+void TGesso::turnIn()
 {
 	setBckAnm(2);
 	mTurnAngle = 0.0f;
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
-inline bool TGesso::turning()
+bool TGesso::turning()
 {
 	f32 turnAngle = mTurnAngle;
 	f32 turnStep  = 7.2f;
@@ -824,7 +824,7 @@ inline bool TGesso::turning()
 		return false;
 }
 
-inline void TGesso::turnOut()
+void TGesso::turnOut()
 {
 	mTurnAngle = 0.0f;
 	unk1C4     = !unk1C4;

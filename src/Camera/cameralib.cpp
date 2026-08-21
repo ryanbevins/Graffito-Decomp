@@ -30,8 +30,8 @@ static inline f32 fastSqrt(f32 x)
 }
 
 // TODO: These are very fake
-static inline void normalizeInner1(JGeometry::TVec3<f32>& vec) { vec.normalize(); }
-static inline void normalizeInner2(JGeometry::TVec3<f32>& vec)
+static void normalizeInner1(JGeometry::TVec3<f32>& vec) { vec.normalize(); }
+static void normalizeInner2(JGeometry::TVec3<f32>& vec)
 {
 	normalizeInner1(vec);
 }

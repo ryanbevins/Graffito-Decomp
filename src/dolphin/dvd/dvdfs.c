@@ -45,7 +45,7 @@ void __DVDFSInit()
 #define filePosition(i) (FstStart[i].parentOrPosition)
 #define fileLength(i)   (FstStart[i].nextEntryOrLength)
 
-static inline BOOL isSame(const char* path, const char* string)
+static BOOL isSame(const char* path, const char* string)
 {
 	while (*string != '\0') {
 		if (tolower(*path++) != tolower(*string++)) {

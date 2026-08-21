@@ -57,7 +57,7 @@ void* JKRDecomp::run()
 	}
 }
 
-inline JKRDecompCommand*
+JKRDecompCommand*
 JKRDecomp::prepareCommand(u8* srcBuffer, u8* dstBuffer, u32 srcLength,
                           u32 dstLength,
                           JKRDecompCommand::AsyncCallback callback)
@@ -77,7 +77,7 @@ void JKRDecomp::sendCommand(JKRDecompCommand* command)
 	OSSendMessage(&sMessageQueue, command, OS_MESSAGE_BLOCK);
 }
 
-inline JKRDecompCommand*
+JKRDecompCommand*
 JKRDecomp::orderAsync(u8* srcBuffer, u8* dstBuffer, u32 srcLength,
                       u32 dstLength, JKRDecompCommand::AsyncCallback callback)
 {
@@ -87,7 +87,7 @@ JKRDecomp::orderAsync(u8* srcBuffer, u8* dstBuffer, u32 srcLength,
 	return command;
 }
 
-inline bool JKRDecomp::sync(JKRDecompCommand* command, int isNonBlocking)
+bool JKRDecomp::sync(JKRDecompCommand* command, int isNonBlocking)
 {
 	OSMessage message;
 	bool result;

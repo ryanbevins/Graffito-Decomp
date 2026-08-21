@@ -4,12 +4,12 @@
 #include <JSystem/J3D/J3DGraphBase/Blocks/J3DColorBlocks.hpp>
 #include <macros.h>
 
-inline void J3DMatColorAnm::calc(GXColor* color) const
+void J3DMatColorAnm::calc(GXColor* color) const
 {
 	mAnmColor->getColor(mAnmIndex, color);
 }
 
-inline void J3DTexMtxAnm::calc(J3DTextureSRTInfo* srt_info) const
+void J3DTexMtxAnm::calc(J3DTextureSRTInfo* srt_info) const
 {
 	mAnmTransform->getTransform(mAnmIndex, srt_info);
 }
@@ -19,12 +19,12 @@ void J3DTexNoAnm::calc(u16* tex_no) const
 	mAnmTexPattern->getTexNo(mAnmIndex, tex_no);
 }
 
-inline void J3DTevColorAnm::calc(GXColorS10* color) const
+void J3DTevColorAnm::calc(GXColorS10* color) const
 {
 	mAnmTevReg->getTevColorReg(mAnmIndex, color);
 }
 
-inline void J3DTevKColorAnm::calc(GXColor* color) const
+void J3DTevKColorAnm::calc(GXColor* color) const
 {
 	mAnmTevReg->getTevKonstReg(mAnmIndex, color);
 }

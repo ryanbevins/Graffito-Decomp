@@ -31,7 +31,7 @@ namespace BankMgr {
 		sTableSize = bankCount;
 	}
 
-	inline bool registBank(int bankIndex, TBank* bank)
+	bool registBank(int bankIndex, TBank* bank)
 	{
 		sBankArray[bankIndex] = bank;
 		return true;
@@ -47,7 +47,7 @@ namespace BankMgr {
 		return registBank(bankIndex, bank);
 	}
 
-	inline TBank* getBank(int bankIndex)
+	TBank* getBank(int bankIndex)
 	{
 		if (bankIndex >= sTableSize)
 			return nullptr;
@@ -262,7 +262,7 @@ namespace BankMgr {
 		channel->unk54 = channel->unk4C * (channel->unk54 * channel->unk54);
 	}
 
-	inline u32 getUsedHeapSize() { return 0; }
+	u32 getUsedHeapSize() { return 0; }
 
 } // namespace BankMgr
 } // namespace JASystem

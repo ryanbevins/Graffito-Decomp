@@ -37,25 +37,25 @@ namespace DSPInterface {
 	u16 JAS_DSP_PREFIX = 0xF355;
 
 	DSPBuffer* getDSPHandle(u8 i) { return &CH_BUF[i]; }
-	inline DSPBuffer* getDSPHandleNc(u8) { return 0; }
+	DSPBuffer* getDSPHandleNc(u8) { return 0; }
 
-	inline void setFilterTable(s16* dst, s16* src, u32 size)
+	void setFilterTable(s16* dst, s16* src, u32 size)
 	{
 		for (int i = 0; i < size; i++)
 			*dst++ = *src++;
 	}
-	inline void flushBuffer()
+	void flushBuffer()
 	{
 		DCFlushRange(CH_BUF, sizeof(DSPBuffer) * 64);
 		DCFlushRange(FX_BUF, sizeof(FXBuffer) * 4);
 	}
-	inline void flushChannelAll() { }
-	inline void cacheChannelAll() { }
+	void flushChannelAll() { }
+	void cacheChannelAll() { }
 	void invalChannelAll()
 	{
 		DCInvalidateRange(CH_BUF, sizeof(DSPBuffer) * 64);
 	}
-	inline void clearBuffer()
+	void clearBuffer()
 	{
 		for (u32 i = 0; i < 64; i++)
 			Calc::bzero(CH_BUF + i, sizeof(DSPBuffer));
@@ -63,7 +63,7 @@ namespace DSPInterface {
 		for (u32 i = 0; i < 4; i++)
 			Calc::bzero(FX_BUF + i, sizeof(FXBuffer));
 	}
-	inline void setupBuffer()
+	void setupBuffer()
 	{
 		DsetupTable(64, (u32)CH_BUF, (u32)&DSPRES_FILTER, (u32)&DSPADPCM_FILTER,
 		            (u32)FX_BUF);
@@ -82,7 +82,7 @@ namespace DSPInterface {
 	}
 
 	FXBuffer* getFXHandle(u8 i) { return &FX_BUF[i]; }
-	inline FXBuffer* getFXHandleNc(u8) { return 0; }
+	FXBuffer* getFXHandleNc(u8) { return 0; }
 
 	BOOL FXBuffer::setFXLine(s16* buffer, FxlineConfig_* config)
 	{
@@ -116,7 +116,7 @@ namespace DSPInterface {
 		OSRestoreInterrupts(enable);
 		return true;
 	}
-	inline void FXBuffer::changeFXLineParam(u8, u32) { }
+	void FXBuffer::changeFXLineParam(u8, u32) { }
 
 	void DSPBuffer::allocInit()
 	{
@@ -147,7 +147,7 @@ namespace DSPInterface {
 
 		unk0 = 1;
 	}
-	inline void DSPBuffer::playStop() { }
+	void DSPBuffer::playStop() { }
 	void DSPBuffer::setWaveInfo(Driver::Wave_* param_1, u32 param_2)
 	{
 		static u8 COMP_BLOCKSAMPLES[8] = {
@@ -202,9 +202,9 @@ namespace DSPInterface {
 		unk56 = param_1;
 		unk58 = 1;
 	}
-	inline void DSPBuffer::updateAMVolume(u16) { }
-	inline void DSPBuffer::updateAMPan(u8, u8) { }
-	inline void DSPBuffer::updateAMFX(u8) { }
+	void DSPBuffer::updateAMVolume(u16) { }
+	void DSPBuffer::updateAMPan(u8, u8) { }
+	void DSPBuffer::updateAMFX(u8) { }
 	void DSPBuffer::setPitch(u16 param_1)
 	{
 		if (param_1 >= 0x7fff)
@@ -212,7 +212,7 @@ namespace DSPInterface {
 
 		unk4 = param_1;
 	}
-	inline void DSPBuffer::setPitchIndirect(f32 param_1, f32 param_2) { }
+	void DSPBuffer::setPitchIndirect(f32 param_1, f32 param_2) { }
 
 	void DSPBuffer::setMixerInitDelayMax(u8 param_1) { unkE = param_1; }
 	void DSPBuffer::setMixerInitVolume(u8 param_1, s16 param_2, u8 param_3)
@@ -240,7 +240,7 @@ namespace DSPInterface {
 	}
 	void DSPBuffer::setPauseFlag(u8 flag) { unkC = flag; }
 	void DSPBuffer::flushChannel() { DCFlushRangeNoSync(this, sizeof(*this)); }
-	inline void DSPBuffer::cacheChannel() { }
+	void DSPBuffer::cacheChannel() { }
 
 	void DSPBuffer::setIIRFilterParam(s16* param)
 	{

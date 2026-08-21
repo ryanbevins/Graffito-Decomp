@@ -322,7 +322,7 @@ void TSMSFader::startWipe(u32 param_1, f32 param_2, f32 param_3)
 	mWipeRequest.unk8 = param_3;
 }
 
-inline void TSMSFader::startFadein(int param_1)
+void TSMSFader::startFadein(int param_1)
 {
 	switch (mFadeStatus) {
 	case FADE_STATUS_FULLY_FADED_OUT:
@@ -345,7 +345,7 @@ void TSMSFader::startFadeinT(f32 param_1)
 	mWipeRequest.unk8 = 0.0f;
 }
 
-inline void TSMSFader::startFadeout(int param_1)
+void TSMSFader::startFadeout(int param_1)
 {
 	switch (mFadeStatus) {
 	case FADE_STATUS_FULLY_FADED_IN:
@@ -412,7 +412,7 @@ void TSMSFader::setFadeStatus(TSMSFader::EFadeStatus param_1)
 	}
 }
 
-inline void TSMSFader::getGameOverBtiResource()
+void TSMSFader::getGameOverBtiResource()
 {
 	Hx_RemoveResource();
 	Hx_ProvideResource(JKRGetResource("/common/2d/wipe_gameover.bti"), 0);

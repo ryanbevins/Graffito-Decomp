@@ -53,7 +53,7 @@ long long __OSGetSystemTime()
 	return result;
 }
 
-static inline int IsLeapYear(int year)
+static int IsLeapYear(int year)
 {
 	return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }

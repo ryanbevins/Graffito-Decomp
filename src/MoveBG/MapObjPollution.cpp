@@ -58,7 +58,7 @@ void TRevivalPolluter::registerPolluteTex()
 	    unk0, 0, 0, width, height, stampId, texture);
 }
 
-inline void TRevivalPolluter::loadInfo(JSUMemoryInputStream& stream)
+void TRevivalPolluter::loadInfo(JSUMemoryInputStream& stream)
 {
 	u32 value;
 	stream.read(&value, 4);

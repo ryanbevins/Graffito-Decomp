@@ -56,7 +56,7 @@ TDrawSyncManager* TDrawSyncManager::start(u32 param_1, u32 param_2, s32 param_3)
 	return smInstance;
 }
 
-inline void TDrawSyncManager::end() { }
+void TDrawSyncManager::end() { }
 
 void TDrawSyncManager::drawSyncCallback(u16 param_1)
 {

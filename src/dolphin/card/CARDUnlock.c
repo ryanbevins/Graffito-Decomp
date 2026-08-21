@@ -38,8 +38,8 @@ static u8 CardData[352] ATTRIBUTE_ALIGN(32) = {
 };
 
 // functions
-static inline u32 exnor_1st(u32 data, u32 rshift);
-static inline u32 exnor(u32 data, u32 lshift);
+static u32 exnor_1st(u32 data, u32 rshift);
+static u32 exnor(u32 data, u32 lshift);
 static u32 bitrev(u32 data);
 static s32 ReadArrayUnlock(s32 chan, u32 data, void* rbuf, s32 rlen, s32 mode);
 static u32 GetInitVal(void);
@@ -47,7 +47,7 @@ static s32 DummyLen(void);
 static void InitCallback(void* _task);
 static void DoneCallback(void* _task);
 
-static inline u32 exnor_1st(u32 data, u32 rshift)
+static u32 exnor_1st(u32 data, u32 rshift)
 {
 	u32 wk;
 	u32 work;
@@ -61,7 +61,7 @@ static inline u32 exnor_1st(u32 data, u32 rshift)
 	return work;
 }
 
-static inline u32 exnor(u32 data, u32 lshift)
+static u32 exnor(u32 data, u32 lshift)
 {
 	u32 wk;
 	u32 work;

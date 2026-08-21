@@ -32,7 +32,7 @@ namespace Kernel {
 		}
 	}
 
-	inline int checkCallback(s32 (*callback)(void*), void* data)
+	int checkCallback(s32 (*callback)(void*), void* data)
 	{
 		if (callbackInit == false)
 			return -1;

@@ -11186,7 +11186,7 @@ void TMapObjBase::initMapObj()
 	makeObjDead();
 }
 
-inline void TMapObjGeneral::initPhysicalData()
+void TMapObjGeneral::initPhysicalData()
 {
 	if (getMapObjData()->mPhysical)
 		mGravity = getMapObjData()->mPhysical->unk4->unk0;

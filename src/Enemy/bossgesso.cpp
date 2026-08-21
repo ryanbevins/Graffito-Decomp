@@ -76,7 +76,7 @@ const char* bgeso_bastable[] = {
 
 static void getAttackModeStr(int) { }
 
-static inline BOOL isNozzleWater(THitActor* param_1)
+static BOOL isNozzleWater(THitActor* param_1)
 {
 	if (!param_1->isActorType(0x1000001))
 		return FALSE;

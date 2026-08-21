@@ -599,7 +599,7 @@ void TKumokun::updateAnimation()
 
 void TKumokun::updateCollision() { }
 
-inline void TKumokun::clearAnmStack() { unk1D8.clear(); }
+void TKumokun::clearAnmStack() { unk1D8.clear(); }
 
 void TKumokun::pushNextAnm(const char* name, bool start)
 {
@@ -725,8 +725,8 @@ void TKumokun::decideTargetOnFindingMario(const JGeometry::TVec3<f32>& param_1)
 	unk1D4 = true;
 }
 
-static inline bool is_antiparallel(const JGeometry::TVec3<f32>& v1,
-                                   const JGeometry::TVec3<f32>& v2)
+static bool is_antiparallel(const JGeometry::TVec3<f32>& v1,
+                            const JGeometry::TVec3<f32>& v2)
 {
 	f32 fVar8 = v1.dot(v2) - -1.0f;
 	f32 eps   = JGeometry::TUtil<f32>::epsilon();

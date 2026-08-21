@@ -38,14 +38,14 @@ TCardLoad* gpCardLoad;
 // TODO: where should this go?
 extern JPAEmitterManager* gpEmitterManager4D2;
 
-static inline void clearBookmark(u32 bm)
+static void clearBookmark(u32 bm)
 {
 	JSUMemoryOutputStream stream;
 	gpCardManager->getWriteStream(&stream);
 	gpCardManager->writeBlock(bm);
 }
 
-static inline void loadBookmark()
+static void loadBookmark()
 {
 	JSUMemoryInputStream stream;
 	gpCardManager->getReadStream(&stream);
@@ -91,6 +91,8 @@ TCardLoad::TCardLoad(const char* name)
 {
 	gpCardLoad = this;
 }
+
+void TCardLoad::changePattern(J2DPicture*, s16, u32) { }
 
 void TCardLoad::load(JSUMemoryInputStream& stream)
 {
@@ -336,6 +338,8 @@ void TCardLoad::load(JSUMemoryInputStream& stream)
 	unk74C = (J2DPicture*)unk2C->search('\0n_b');
 	unk750 = (J2DPicture*)unk2C->search('\0n_c');
 }
+
+void TCardLoad::setupTitleScreen() { }
 
 void TCardLoad::setupScoreScreen()
 {
@@ -932,7 +936,7 @@ bool TCardLoad::titleDraw()
 	return unk18 > 4;
 }
 
-inline void TCardLoad::makeBuffer(J2DTextBox* text_box, int size)
+void TCardLoad::makeBuffer(J2DTextBox* text_box, int size)
 {
 	SMSMakeTextBuffer(text_box, size);
 	text_box->setFont((JUTFont*)gpSystemFont);
@@ -975,7 +979,7 @@ TEProgress TCardLoad::changeMode(s32 param_1)
 	return result;
 }
 
-inline void TCardLoad::setMessage(J2DTextBox* text_box, s32 param_2, int param_3)
+void TCardLoad::setMessage(J2DTextBox* text_box, s32 param_2, int param_3)
 {
 	strncpy(text_box->getStringPtr(), SMSGetMessageData(unkA0, param_3),
 	        param_2);

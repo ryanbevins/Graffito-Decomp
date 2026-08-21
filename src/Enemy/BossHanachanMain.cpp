@@ -47,7 +47,7 @@ const char* cHitPoint2_RailName  = "bosshanachan1";
 const char* cSandTextureName     = "suna";
 const char* cDummyTextureName    = "M_dummy";
 
-static inline f32 getRotFromXZ(f32 x, f32 z)
+static f32 getRotFromXZ(f32 x, f32 z)
 {
 	if (z == 0.0f) {
 		if (x >= 0.0f)

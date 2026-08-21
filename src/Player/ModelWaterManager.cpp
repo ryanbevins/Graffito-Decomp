@@ -1027,7 +1027,7 @@ void TModelWaterManager::drawTouching()
 	}
 }
 
-inline void TModelWaterManager::drawTouchingMask()
+void TModelWaterManager::drawTouchingMask()
 {
 	SMS_SettingDrawShape(unk5D50, 0);
 	for (int iVar2 = 0; iVar2 < mParticleCount; iVar2 = iVar2 + 1) {
@@ -1431,6 +1431,8 @@ void TModelWaterManager::drawMirror(MtxPtr param_1)
 	GXSetAlphaUpdate(GX_FALSE);
 	GXSetDstAlpha(GX_FALSE, 0);
 }
+
+void init_sphere_glist() { }
 
 extern "C" void ReInitializeGX();
 

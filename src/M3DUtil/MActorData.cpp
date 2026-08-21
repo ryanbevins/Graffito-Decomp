@@ -3,7 +3,7 @@
 #include <JSystem/JKernel/JKRFileFinder.hpp>
 #include <JSystem/JKernel/JKRHeap.hpp>
 
-static inline int to_upper_hack(int c)
+static int to_upper_hack(int c)
 {
 	if (c >= 'a' && c <= 'z')
 		return c + ('A' - 'a');
@@ -11,7 +11,7 @@ static inline int to_upper_hack(int c)
 	return c;
 }
 
-static inline int strcmp_ignore_case(const char* fst, const char* snd)
+static int strcmp_ignore_case(const char* fst, const char* snd)
 {
 	while (*fst != '\0' && *snd != '\0') {
 		if (to_upper_hack(*fst) > to_upper_hack(*snd))

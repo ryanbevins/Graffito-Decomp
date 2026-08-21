@@ -15,7 +15,7 @@ namespace {
 
 const int cLongHeightMovieIdList[] = { 9, 20 };
 
-inline bool is_longheight_movie(u32 param_1)
+bool is_longheight_movie(u32 param_1)
 {
 	const int* i = cLongHeightMovieIdList;
 	const int* e = cLongHeightMovieIdList + ARRAY_COUNT(cLongHeightMovieIdList);
@@ -70,7 +70,7 @@ void TMovieSubTitle::perform(u32 param_1, JDrama::TGraphics* param_2)
 		draw(param_2);
 }
 
-inline void TMovieSubTitle::movement()
+void TMovieSubTitle::movement()
 {
 	if (unk28)
 		checkSubTitleOff();
@@ -78,7 +78,7 @@ inline void TMovieSubTitle::movement()
 		checkSubTitleOn();
 }
 
-inline void TMovieSubTitle::checkSubTitleOff()
+void TMovieSubTitle::checkSubTitleOff()
 {
 	int frame = unk10->getFrameNumber();
 	if (getCurEntry()) {
@@ -89,7 +89,7 @@ inline void TMovieSubTitle::checkSubTitleOff()
 	}
 }
 
-inline void TMovieSubTitle::checkSubTitleOn()
+void TMovieSubTitle::checkSubTitleOn()
 {
 	int frame = unk10->getFrameNumber();
 	if (getCurEntry()) {
@@ -98,20 +98,20 @@ inline void TMovieSubTitle::checkSubTitleOn()
 	}
 }
 
-inline void TMovieSubTitle::show()
+void TMovieSubTitle::show()
 {
 	unk28 = true;
 	unk14->show();
 	setCurMessage();
 }
 
-inline void TMovieSubTitle::hide()
+void TMovieSubTitle::hide()
 {
 	unk28 = false;
 	unk14->hide();
 }
 
-inline const TMessageLoader::EntryInfo* TMovieSubTitle::getCurEntry() const
+const TMessageLoader::EntryInfo* TMovieSubTitle::getCurEntry() const
 {
 	if (unk20->getMessageNum() <= unk24)
 		return nullptr;
@@ -128,14 +128,14 @@ void TMovieSubTitle::setCurMessage()
 	snprintf(unk1C->getStringPtr(), 256, "%s", msg);
 }
 
-inline void TMovieSubTitle::makeBmgName(char* buffer, int, const char* param_3)
+void TMovieSubTitle::makeBmgName(char* buffer, int, const char* param_3)
 {
 	sprintf(buffer, "/subtitle/%s", param_3);
 	char* it = strrchr(buffer, '.');
 	strcpy(it, ".bmg");
 }
 
-inline void TMovieSubTitle::draw(JDrama::TGraphics* param_1)
+void TMovieSubTitle::draw(JDrama::TGraphics* param_1)
 {
 	J2DOrthoGraph graph(param_1->getViewport());
 	graph.setup2D();

@@ -14,14 +14,14 @@ struct OSAlarmQueue {
 static struct OSAlarmQueue AlarmQueue;
 
 // functions
-static inline void SetTimer(struct OSAlarm* alarm);
+static void SetTimer(struct OSAlarm* alarm);
 static void InsertAlarm(OSAlarm* alarm, OSTime fire, OSAlarmHandler handler);
 static void DecrementerExceptionCallback(register __OSException exception,
                                          register OSContext* context);
 static void DecrementerExceptionHandler(__OSException exception,
                                         OSContext* context);
 
-static inline void SetTimer(struct OSAlarm* alarm)
+static void SetTimer(struct OSAlarm* alarm)
 {
 	OSTime delta = alarm->fire - __OSGetSystemTime();
 

@@ -311,13 +311,13 @@ void TCardSave::perform(u32 param_1, JDrama::TGraphics* param_2)
 		execIssueGX_(param_2);
 }
 
-inline void TCardSave::makeBuffer(J2DTextBox* param_1, int size)
+void TCardSave::makeBuffer(J2DTextBox* param_1, int size)
 {
 	SMSMakeTextBuffer(param_1, size);
 	param_1->setFont((JUTFont*)gpSystemFont);
 }
 
-inline void TCardSave::setMessage(J2DTextBox* text_box, s32 param_2, u32 param_3)
+void TCardSave::setMessage(J2DTextBox* text_box, s32 param_2, u32 param_3)
 {
 	strncpy(text_box->getStringPtr(), SMSGetMessageData(unk2E4, param_3),
 	        param_2);
@@ -1476,6 +1476,12 @@ void saveBookmark(u32 idx)
 	TFlagManager::getInstance()->save(stream);
 	gpCardManager->writeBlock(idx);
 }
+
+void TCardSave::selectBookmarks(TEProgress, TEProgress, TEProgress, TEProgress)
+{
+}
+
+void TCardSave::changePattern(J2DPicture*, s16, u32) { }
 
 void TCardSave::execMovement_()
 {

@@ -492,7 +492,7 @@ void TAmenbo::deactivateJumpBase()
 	offLiveFlag(LIVE_FLAG_UNK10);
 }
 
-inline bool TAmenbo::isActivateJumpBase() const { return unk1E4->isSetUp(); }
+bool TAmenbo::isActivateJumpBase() const { return unk1E4->isSetUp(); }
 
 TAmenboParams::TAmenboParams(const char* path)
     : TSmallEnemyParams(path)

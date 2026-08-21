@@ -1,7 +1,5 @@
 #define JUTRECT_CTOR_OUT_OF_LINE
-#define J3D_FRAMECTRL_NO_INLINE_DTOR
 #include <GC2D/Option.hpp>
-#undef J3D_FRAMECTRL_NO_INLINE_DTOR
 #undef JUTRECT_CTOR_OUT_OF_LINE
 #include <macros.h>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -33,6 +31,10 @@ static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
 namespace {
+
+void tag_to_string(char*, u32) { }
+
+void print_pane_tree(J2DPane*, int) { }
 
 const TPatternAnmControl::TAnmChunk cRumbleAnm[] = {
 	{ 'cnt0', 0.03 }, { 'cnt1', 0.03 }, { 'cnt2', 0.03 }, { 'cnt1', 0.03 },
@@ -121,7 +123,7 @@ const TOptionSoundUnit::FabricatedFlagInfo TOptionSoundUnit::cFlagInfos[] = {
 	{ TOptionSoundUnit::SOUND_TYPE_SURROUND, 2 },
 };
 
-inline void TArrowControl::update()
+void TArrowControl::update()
 {
 	updateAlpha();
 	if (mPane->getAlpha() != 0) {
@@ -129,7 +131,7 @@ inline void TArrowControl::update()
 	}
 }
 
-inline void TArrowControl::updateAlpha()
+void TArrowControl::updateAlpha()
 {
 	int iVar3 = unk14 != 0 ? 1 : -1;
 	mPane->setAlpha(
@@ -137,7 +139,7 @@ inline void TArrowControl::updateAlpha()
 }
 
 // incorrect
-inline void TArrowControl::updateScale()
+void TArrowControl::updateScale()
 {
 	int move = calcMoveX(mPhase);
 	mPane->setBounds(
@@ -146,7 +148,7 @@ inline void TArrowControl::updateScale()
 	mPhase = JGeometry::TUtil<int>::mod(mPhase + 101, 100);
 }
 
-inline int TArrowControl::calcMoveX(int phase) const
+int TArrowControl::calcMoveX(int phase) const
 {
 	int iVar3 = phase < 50 ? phase : 100 - phase;
 	f32 fVar1 = iVar3 / 50.0f;
@@ -154,14 +156,14 @@ inline int TArrowControl::calcMoveX(int phase) const
 	return fVar1 * 8.0f * fVar1 + fVar2 * -8.0f * fVar2 + fVar1 * fVar2;
 }
 
-inline TBalloonControl::TBalloonControl(int size)
+TBalloonControl::TBalloonControl(int size)
     : unk4(size)
     , unk8(0)
 {
 	unk0 = new UnknownBalloonControlStruct[size];
 }
 
-inline void TBalloonControl::add(TExPane* pane)
+void TBalloonControl::add(TExPane* pane)
 {
 	if (unk4 > unk8) {
 		unk0[unk8].unk0 = pane;
@@ -170,7 +172,7 @@ inline void TBalloonControl::add(TExPane* pane)
 	}
 }
 
-inline void TBalloonControl::setupAnm()
+void TBalloonControl::setupAnm()
 {
 	mFrameCtrl.init((unk8 + 1) * 120.0f);
 	mFrameCtrl.setAttribute(J3DFrameCtrl::ATTR_LOOP);
@@ -180,9 +182,9 @@ inline void TBalloonControl::setupAnm()
 	mFrameCtrl.setRate(1.0f);
 }
 
-inline void TBalloonControl::startAnm() { mFrameCtrl.setRate(1.0f); }
+void TBalloonControl::startAnm() { mFrameCtrl.setRate(1.0f); }
 
-inline void TBalloonControl::stopAnm()
+void TBalloonControl::stopAnm()
 {
 	mFrameCtrl.setRate(0.0f);
 	mFrameCtrl.reset();
@@ -190,15 +192,15 @@ inline void TBalloonControl::stopAnm()
 		unk0[i].unk0->getPane()->setAlpha(0);
 }
 
-inline void TBalloonControl::update() { }
+void TBalloonControl::update() { }
 
-inline TPaneScalingControl::TPaneScalingControl(J2DPane* pane)
+TPaneScalingControl::TPaneScalingControl(J2DPane* pane)
     : mPane(pane)
 {
 	mInitialBounds = pane->getBounds();
 }
 
-inline void TPaneScalingControl::setupAnm(f32 amplitude, f32 speed)
+void TPaneScalingControl::setupAnm(f32 amplitude, f32 speed)
 {
 	mAmplitude = amplitude;
 	mFrameCtrl.init(0x78);
@@ -206,15 +208,15 @@ inline void TPaneScalingControl::setupAnm(f32 amplitude, f32 speed)
 	mFrameCtrl.setRate(speed);
 }
 
-inline void TPaneScalingControl::startAnm() { mFrameCtrl.setRate(1.0f); }
+void TPaneScalingControl::startAnm() { mFrameCtrl.setRate(1.0f); }
 
-inline void TPaneScalingControl::stopAnm()
+void TPaneScalingControl::stopAnm()
 {
 	mFrameCtrl.setRate(0.0f);
 	mFrameCtrl.reset();
 }
 
-inline void TPaneScalingControl::update()
+void TPaneScalingControl::update()
 {
 	int iVar10 = mInitialBounds.getWidth();
 	int iVar5  = mInitialBounds.getHeight();
@@ -233,13 +235,13 @@ inline void TPaneScalingControl::update()
 	mFrameCtrl.update();
 }
 
-inline TPatternAnmControl::TPatternAnmControl(J2DScreen* screen)
+TPatternAnmControl::TPatternAnmControl(J2DScreen* screen)
     : mScreen(screen)
 {
 }
 
-inline void TPatternAnmControl::set(
-    const TPatternAnmControl::TAnmChunk* chunks, int num_chunks)
+void TPatternAnmControl::set(const TPatternAnmControl::TAnmChunk* chunks,
+                             int num_chunks)
 {
 	mChunks.set(chunks, num_chunks);
 	hide();
@@ -295,12 +297,12 @@ void TPatternAnmControl::hide()
 		mScreen->search(it->mTag)->hide();
 }
 
-inline TToggleControl::TToggleControl(J2DScreen* screen)
+TToggleControl::TToggleControl(J2DScreen* screen)
     : mScreen(screen)
 {
 }
 
-inline void TToggleControl::setupToggle(const u32* tags, int num_tags)
+void TToggleControl::setupToggle(const u32* tags, int num_tags)
 {
 	mItems.set(tags, num_tags);
 	for (const u32* it = mItems.begin(); it != mItems.end(); ++it)
@@ -317,7 +319,7 @@ void TToggleControl::toggle()
 	mScreen->search(*mCurItem)->show();
 }
 
-inline void TToggleControl::setNumber(int num)
+void TToggleControl::setNumber(int num)
 {
 	mScreen->search(*mCurItem)->hide();
 	mCurItem = mItems.begin() + num;
@@ -387,7 +389,7 @@ void TOptionRumbleUnit::update()
 }
 #pragma dont_inline off
 
-inline void TOptionRumbleUnit::checkRumble()
+void TOptionRumbleUnit::checkRumble()
 {
 	if (mShouldRumble) {
 		if (mGamepadIcon[mSelectionText->getNumber()]->checkCompletedOnce()) {
@@ -409,7 +411,7 @@ inline void TOptionRumbleUnit::checkRumble()
 	}
 }
 
-inline void TOptionRumbleUnit::toggle()
+void TOptionRumbleUnit::toggle()
 {
 	mShouldRumble = true;
 	mSelectionText->toggle();
@@ -439,11 +441,11 @@ void TOptionRumbleUnit::adjustView()
 	}
 }
 
-inline void TOptionRumbleUnit::show() { }
+void TOptionRumbleUnit::show() { }
 
-inline void TOptionRumbleUnit::hide() { }
+void TOptionRumbleUnit::hide() { }
 
-inline void TOptionRumbleUnit::deactivate(bool force)
+void TOptionRumbleUnit::deactivate(bool force)
 {
 	SMSRumbleMgr->stop();
 	if (force)
@@ -452,12 +454,12 @@ inline void TOptionRumbleUnit::deactivate(bool force)
 		setState(TOptionRumbleUnit::STATE_DEACTIVATING);
 }
 
-inline void TOptionRumbleUnit::activate()
+void TOptionRumbleUnit::activate()
 {
 	setState(TOptionRumbleUnit::STATE_ACTIVE);
 }
 
-inline void TOptionRumbleUnit::setValue(TOptionRumbleUnit::RumbleType type)
+void TOptionRumbleUnit::setValue(TOptionRumbleUnit::RumbleType type)
 {
 	mSelectionText->setNumber(type);
 	adjust();
@@ -631,14 +633,14 @@ void TOptionSoundUnit::updatePatternAnm()
 		adjustSound();
 }
 
-inline void TOptionSoundUnit::foreachPatternAnm(ArrayWrapper<TPatternAnmControl*>& ary,
+void TOptionSoundUnit::foreachPatternAnm(ArrayWrapper<TPatternAnmControl*>& ary,
                                          void (TPatternAnmControl::*ptmf)())
 {
 	for (TPatternAnmControl** it = ary.mData; it != ary.mData + ary.mSize; ++it)
 		((*it)->*ptmf)();
 }
 
-inline void TOptionSoundUnit::toggle()
+void TOptionSoundUnit::toggle()
 {
 	mSelectionText->toggle();
 	adjust();
@@ -653,11 +655,11 @@ void TOptionSoundUnit::adjust()
 	JAIGlobalParameter::setParamSoundOutputMode(setting.mOutputMode);
 }
 
-inline void TOptionSoundUnit::show() { }
+void TOptionSoundUnit::show() { }
 
-inline void TOptionSoundUnit::hide() { }
+void TOptionSoundUnit::hide() { }
 
-inline void TOptionSoundUnit::deactivate(bool force)
+void TOptionSoundUnit::deactivate(bool force)
 {
 	if (force)
 		setState(TOptionSoundUnit::STATE_INACTIVE);
@@ -665,15 +667,15 @@ inline void TOptionSoundUnit::deactivate(bool force)
 		setState(TOptionSoundUnit::STATE_DEACTIVATING);
 }
 
-inline void TOptionSoundUnit::activate() { setState(TOptionSoundUnit::STATE_ACTIVE); }
+void TOptionSoundUnit::activate() { setState(TOptionSoundUnit::STATE_ACTIVE); }
 
-inline void TOptionSoundUnit::setValue(int value)
+void TOptionSoundUnit::setValue(int value)
 {
 	mSelectionText->setNumber(flagToType(value));
 	adjust();
 }
 
-inline int TOptionSoundUnit::getValue() const
+int TOptionSoundUnit::getValue() const
 {
 	return typeToFlag((SoundType)mSelectionText->getNumber());
 }
@@ -826,7 +828,7 @@ void TOptionControl::loadSetting()
 }
 #pragma dont_inline off
 
-inline void TOptionControl::movementCommon() { }
+void TOptionControl::movementCommon() { }
 
 void TOptionControl::draw(J2DOrthoGraph* graph) { mScreen->draw(0, 0, graph); }
 

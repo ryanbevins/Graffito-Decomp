@@ -60,7 +60,7 @@ f32 MSHandle::cDol_0Rad             = 1.0316f;
 f32 MSHandle::cDol_HalfRad          = 1.5707999f;
 f32 MSHandle::cDol_FullRad          = 2.1099999f;
 
-static inline s32 computeCategoryIdx(u32 unk8)
+static s32 computeCategoryIdx(u32 unk8)
 {
 	s32 idx = (unk8 >> 12) & 0xF;
 	u32 top = unk8 >> 30;
