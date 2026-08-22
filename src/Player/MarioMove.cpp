@@ -211,7 +211,7 @@ BOOL TMario::changePlayerTriJump()
 				isSand = 1;
 			else
 				isSand = 0;
-			if (isSand && ground->mNormal.y < 0.866025f) {
+			if (isSand && ground->mNormal.y < 0.8660254f) {
 				jumpAmount = mSlipParams45.mMissJump.get();
 			} else {
 				u8 isWet;
@@ -318,7 +318,7 @@ BOOL TMario::changePlayerJumping(u32 status, u32 arg)
 				isSand = 1;
 			else
 				isSand = 0;
-			if (isSand && ground->mNormal.y < 0.866025f) {
+			if (isSand && ground->mNormal.y < 0.8660254f) {
 				jumpAmount = mSlipParams45.mMissJump.get();
 			} else {
 				u8 isWet;
