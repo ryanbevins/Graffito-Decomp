@@ -479,7 +479,7 @@ void TTrembleModelEffect::reset()
 		    = (JGeometry::TVec3<s16>*)unk4;
 
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
-			unk20[i].zero();
+			unk20[i].set(0, 0, 0);
 			unk14[i] = original[i];
 			unk18[0][i] = original[i];
 			unk18[1][i] = original[i];
@@ -491,7 +491,7 @@ void TTrembleModelEffect::reset()
 		    = (JGeometry::TVec3<f32>*)unk4;
 
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
-			unk34[i].zero();
+			unk34[i].set(0.0f, 0.0f, 0.0f);
 			unk28[i] = original[i];
 			unk2C[0][i] = original[i];
 			unk2C[1][i] = original[i];
