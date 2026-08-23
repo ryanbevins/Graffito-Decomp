@@ -3754,30 +3754,89 @@ bool TGCConsole2::processAppearTimer(int param_1)
 		                            cUpMidPoint);
 	}
 
-	if (!updateUpPane(unk450))
+	if (unk450->update()) {
+		bool atOrigin = false;
+		if (unk450->unk14.x1 == 0 && unk450->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk450->setPanePosition(30, cUpMidPoint, cUpMidPoint, cUpBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
-	if (!updateUpPane(unk454))
+	}
+	if (unk454->update()) {
+		bool atOrigin = false;
+		if (unk454->unk14.x1 == 0 && unk454->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk454->setPanePosition(30, cUpMidPoint, cUpMidPoint, cUpBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
+	}
 
 	if (unk500[0]->isVisible()) {
 		for (int i = 0; i < 6; ++i) {
-			if (!updateUpPane(unk458[i]))
+			if (unk458[i]->update()) {
+				bool atOrigin = false;
+				if (unk458[i]->unk14.x1 == 0 && unk458[i]->unk14.y1 == 0)
+					atOrigin = true;
+				if (!atOrigin) {
+					unk458[i]->setPanePosition(
+					    30, cUpMidPoint, cUpMidPoint, cUpBotPoint);
+					isFinished = false;
+				}
+			} else {
 				isFinished = false;
+			}
 		}
 	} else {
 		for (int i = 6; i < 10; ++i) {
-			if (!updateUpPane(unk458[i]))
+			if (unk458[i]->update()) {
+				bool atOrigin = false;
+				if (unk458[i]->unk14.x1 == 0 && unk458[i]->unk14.y1 == 0)
+					atOrigin = true;
+				if (!atOrigin) {
+					unk458[i]->setPanePosition(
+					    30, cUpMidPoint, cUpMidPoint, cUpBotPoint);
+					isFinished = false;
+				}
+			} else {
 				isFinished = false;
+			}
 		}
 	}
 
 	if (unk500[0]->isVisible()) {
 		for (int i = 0; i < 2; ++i) {
-			if (!updateUpPane(unk480[i]))
+			if (unk480[i]->update()) {
+				bool atOrigin = false;
+				if (unk480[i]->unk14.x1 == 0 && unk480[i]->unk14.y1 == 0)
+					atOrigin = true;
+				if (!atOrigin) {
+					unk480[i]->setPanePosition(
+					    30, cUpMidPoint, cUpMidPoint, cUpBotPoint);
+					isFinished = false;
+				}
+			} else {
 				isFinished = false;
+			}
 		}
-	} else if (!updateUpPane(unk480[2])) {
-		isFinished = false;
+	} else {
+		if (unk480[2]->update()) {
+			bool atOrigin = false;
+			if (unk480[2]->unk14.x1 == 0 && unk480[2]->unk14.y1 == 0)
+				atOrigin = true;
+			if (!atOrigin) {
+				unk480[2]->setPanePosition(
+				    30, cUpMidPoint, cUpMidPoint, cUpBotPoint);
+				isFinished = false;
+			}
+		} else {
+			isFinished = false;
+		}
 	}
 
 	return isFinished;
