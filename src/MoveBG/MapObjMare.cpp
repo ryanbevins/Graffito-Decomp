@@ -833,6 +833,34 @@ void TMuddyBoat::kill()
 #pragma dont_inline on
 f32 TMapObjBase::getObjCollisionHeightOffset() const { return mYOffset; }
 #pragma dont_inline off
+void TMuddyBoat::touchWall(JGeometry::TVec3<f32>* next,
+                           const TBGWallCheckRecord& record)
+{
+	TBGCheckData* wall = record.mResultWalls[0];
+	f32 z = record.mCenter.z
+	        - wall->getNormal().z * (50.0f + record.mRadius);
+	f32 y = mPosition.y - getObjCollisionHeightOffset();
+	unk170.x = record.mCenter.x
+	           - wall->getNormal().x * (50.0f + record.mRadius);
+	unk170.y = y + 100.0f;
+	unk170.z = z;
+	*next    = mPosition;
+	kill();
+	mLinearVelocity.zero();
+}
+
+BOOL TMuddyBoat::bindToWall(const JGeometry::TVec3<f32>& pos, f32 radius,
+                            JGeometry::TVec3<f32>* next)
+{
+	TBGWallCheckRecord record(pos, radius, 4,
+	                          TBGWallCheckRecord::DONT_MOVE_XZ);
+	if (!gpMap->isTouchedWallsAndMoveXZ(&record))
+		return FALSE;
+
+	touchWall(next, record);
+	return TRUE;
+}
+
 void TMuddyBoat::bind()
 {
 	if (checkLiveFlag(LIVE_FLAG_UNK10))
@@ -874,58 +902,18 @@ void TMuddyBoat::bind()
 	pos.x = next.x + mtx[0][2] * unk160;
 	pos.y = groundY;
 	pos.z = next.z + mtx[2][2] * unk160;
-	TBGWallCheckRecord front(pos, unk158, 4, TBGWallCheckRecord::DONT_MOVE_XZ);
-	if (gpMap->isTouchedWallsAndMoveXZ(&front)) {
-		TBGCheckData* wall = front.mResultWalls[0];
-		f32 z = front.mCenter.z
-		        - wall->getNormal().z * (50.0f + front.mRadius);
-		f32 y = mPosition.y - getObjCollisionHeightOffset();
-		unk170.x = front.mCenter.x
-		           - wall->getNormal().x * (50.0f + front.mRadius);
-		unk170.y = y + 100.0f;
-		unk170.z = z;
-		next     = mPosition;
-		kill();
-		mLinearVelocity.zero();
+	if (bindToWall(pos, unk158, &next))
 		return;
-	}
 
 	pos.x = next.x - mtx[0][2] * unk164;
 	pos.y = mPosition.y - mYOffset;
 	pos.z = next.z - mtx[2][2] * unk164;
-	TBGWallCheckRecord rear(pos, unk15C, 4, TBGWallCheckRecord::DONT_MOVE_XZ);
-	if (gpMap->isTouchedWallsAndMoveXZ(&rear)) {
-		TBGCheckData* wall = rear.mResultWalls[0];
-		f32 z = rear.mCenter.z
-		        - wall->getNormal().z * (50.0f + rear.mRadius);
-		f32 y = mPosition.y - getObjCollisionHeightOffset();
-		unk170.x
-		    = rear.mCenter.x - wall->getNormal().x * (50.0f + rear.mRadius);
-		unk170.y = y + 100.0f;
-		unk170.z = z;
-		next     = mPosition;
-		kill();
-		mLinearVelocity.zero();
+	if (bindToWall(pos, unk15C, &next))
 		return;
-	}
 
 	pos.set(next.x, mPosition.y - mYOffset, next.z);
-	TBGWallCheckRecord center(pos, unk154, 4,
-	                          TBGWallCheckRecord::DONT_MOVE_XZ);
-	if (gpMap->isTouchedWallsAndMoveXZ(&center)) {
-		TBGCheckData* wall = center.mResultWalls[0];
-		f32 z = center.mCenter.z
-		        - wall->getNormal().z * (50.0f + center.mRadius);
-		f32 y = mPosition.y - getObjCollisionHeightOffset();
-		unk170.x = center.mCenter.x
-		           - wall->getNormal().x * (50.0f + center.mRadius);
-		unk170.y = y + 100.0f;
-		unk170.z = z;
-		next     = mPosition;
-		kill();
-		mLinearVelocity.zero();
+	if (bindToWall(pos, unk154, &next))
 		return;
-	}
 
 	JGeometry::TVec3<f32> displacement = next;
 	displacement.sub(mPosition);

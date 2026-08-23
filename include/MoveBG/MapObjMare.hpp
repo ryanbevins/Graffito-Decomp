@@ -150,6 +150,9 @@ public:
 	virtual void calc();
 
 	void moveByWater();
+	void touchWall(JGeometry::TVec3<f32>*, const TBGWallCheckRecord&);
+	BOOL bindToWall(const JGeometry::TVec3<f32>&, f32,
+	                JGeometry::TVec3<f32>*);
 
 public:
 	/* 0x138 */ f32 unk138;
