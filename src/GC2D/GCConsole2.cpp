@@ -2927,14 +2927,35 @@ bool TGCConsole2::processInsertLife(int param_1)
 		                         cDownMidPoint);
 	}
 
-	if (!updateDownPane(unk174))
+	if (unk174->update()) {
+		if (unk174->unk14.x1 != 0 || unk174->unk14.y1 != 0) {
+			unk174->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
+	}
 
-	if (!updateDownPane(unk178))
+	if (unk178->update()) {
+		if (unk178->unk14.x1 != 0 || unk178->unk14.y1 != 0) {
+			unk178->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
+	}
 
-	if (!updateDownPane(unk260))
+	if (unk260->update()) {
+		if (unk260->unk14.x1 != 0 || unk260->unk14.y1 != 0) {
+			unk260->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
+	}
 
 	return isFinished;
 }
