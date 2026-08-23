@@ -2169,9 +2169,9 @@ void TGCConsole2::startInsertLife(int param_1)
 	TBoundPane* lifePane = unk1C4;
 	int offset           = -(lifePane->unk4.y2 + 1);
 	lifePane->getPane()->show();
-	lifePane->setPanePosition(unk98, JUTPoint(0, 0),
-	                          JUTPoint(0, offset >> 1),
-	                          JUTPoint(0, offset));
+	unk1C4->setPanePosition(unk98, JUTPoint(0, 0),
+	                        JUTPoint(0, offset >> 1),
+	                        JUTPoint(0, offset));
 
 	unk174->setPanePosition(50, cDownTopPoint, cDownMidPoint,
 	                         cDownMidPoint);
