@@ -721,78 +721,98 @@ f32 TKoopa::getNeckFocus() const
 	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
 	f32 end            = ctrl->getEnd();
 	f32 frame          = ctrl->getFrame();
+	f32 focus          = 1.0f;
 
 	switch (idx) {
 	case 0:
 		if (frame <= 40.0f)
-			return 1.0f - frame / 40.0f;
-		return 0.0f;
+			focus = 1.0f - frame / 40.0f;
+		else
+			focus = 0.0f;
+		break;
 
 	case 1:
 	case 2:
 	case 4:
-		return 0.0f;
+		focus = 0.0f;
+		break;
 
 	case 3:
-		return frame / end;
+		focus = frame / end;
+		break;
 
 	case 5:
 		if (frame <= 103.0f)
-			return 1.0f - frame / 103.0f;
-		return 0.0f;
+			focus = 1.0f - frame / 103.0f;
+		else
+			focus = 0.0f;
+		break;
 
 	case 6:
 		if (frame >= 164.0f)
-			return (frame - 164.0f) / (end - 164.0f);
-		return 0.0f;
+			focus = (frame - 164.0f) / (end - 164.0f);
+		else
+			focus = 0.0f;
+		break;
 
 	case 7:
-		if (frame <= 125.0f)
-			return 0.0f;
-		return (frame - 125.0f) / (end - 125.0f);
+		if (frame > 125.0f)
+			focus = (frame - 125.0f) / (end - 125.0f);
+		else
+			focus = 0.0f;
+		break;
 
 	case 8:
 		if (frame <= 30.0f)
-			return 1.0f - frame / 30.0f;
-		if (frame <= 170.0f)
-			return 0.0f;
-		return (frame - 170.0f) / (end - 170.0f);
+			focus = 1.0f - frame / 30.0f;
+		else if (frame <= 170.0f)
+			focus = 0.0f;
+		else
+			focus = (frame - 170.0f) / (end - 170.0f);
+		break;
 
 	case 9:
 		if (frame <= 30.0f)
-			return 1.0f - frame / 30.0f;
-		if (frame <= 65.0f)
-			return 0.0f;
-		return (frame - 65.0f) / (end - 65.0f);
+			focus = 1.0f - frame / 30.0f;
+		else if (frame <= 65.0f)
+			focus = 0.0f;
+		else
+			focus = (frame - 65.0f) / (end - 65.0f);
+		break;
 
 	case 12:
-		if (frame <= 200.0f)
-			return 1.0f;
-		if (frame <= 255.0f)
-			return 1.0f - (frame - 200.0f) / 55.0f;
-		if (frame <= 330.0f)
-			return 0.0f;
-		if (frame <= 390.0f)
-			return (frame - 330.0f) / 60.0f;
-		if (frame <= 440.0f)
-			return 1.0f;
-		if (frame <= 480.0f)
-			return 1.0f - (frame - 440.0f) / 40.0f;
-		if (frame <= 555.0f)
-			return 0.0f;
-		if (frame <= 615.0f)
-			return (frame - 555.0f) / 60.0f;
-		return 1.0f;
+		if (frame <= 200.0f) {
+			focus = 1.0f;
+		} else if (frame <= 255.0f) {
+			focus = 1.0f - (frame - 200.0f) / 55.0f;
+		} else if (frame <= 330.0f) {
+			focus = 0.0f;
+		} else if (frame <= 390.0f) {
+			focus = (frame - 330.0f) / 60.0f;
+		} else if (frame <= 440.0f) {
+			focus = 1.0f;
+		} else if (frame <= 480.0f) {
+			focus = 1.0f - (frame - 440.0f) / 40.0f;
+		} else if (frame <= 555.0f) {
+			focus = 0.0f;
+		} else if (frame <= 615.0f) {
+			focus = (frame - 555.0f) / 60.0f;
+		} else {
+			focus = 1.0f;
+		}
+		break;
 
 	case 14:
 		if (frame <= 20.0f)
-			return 1.0f - frame / 20.0f;
-		if (frame <= 40.0f)
-			return 0.0f;
-		return (frame - 40.0f) / (end - 40.0f);
+			focus = 1.0f - frame / 20.0f;
+		else if (frame <= 40.0f)
+			focus = 0.0f;
+		else
+			focus = (frame - 40.0f) / (end - 40.0f);
+		break;
 	}
 
-	return 1.0f;
+	return focus;
 }
 
 BOOL TKoopa::isFlaming() const
