@@ -399,9 +399,13 @@ bool TKumokun::checkOnMovingRoof(JGeometry::TVec3<f32>* param_1,
 
 	JGeometry::TVec3<f32> local_C0 = getPlaneNormal();
 	local_C0 *= -mHeadHeight / 2.0f;
+	f32 planeOffsetY = local_C0.y;
+	f32 planeOffsetZ = local_C0.z;
 
 	JGeometry::TVec3<f32> local_b4 = param_3;
-	local_b4 += local_C0;
+	local_b4.x += local_C0.x;
+	local_b4.y += planeOffsetY;
+	local_b4.z += planeOffsetZ;
 
 	JGeometry::TVec3<f32> local_A8 = local_b4;
 	local_A8 += param_4;
@@ -434,7 +438,9 @@ bool TKumokun::checkOnMovingRoof(JGeometry::TVec3<f32>* param_1,
 		local_A8.z = local_8C.z;
 	}
 
-	local_A8 -= local_C0;
+	local_A8.x -= local_C0.x;
+	local_A8.y -= planeOffsetY;
+	local_A8.z -= planeOffsetZ;
 
 	param_1->set(local_A8);
 	param_1->sub(param_3);
