@@ -1325,8 +1325,10 @@ void TBossTelesa::setSpicy(TLiveActor* actor)
 
 	MActor* oldAnmActor = mMActor;
 	oldAnm = !oldAnmActor->unkC ? nullptr : oldAnmActor->unkC->unk24;
-	if (oldAnmActor->unkC)
-		oldAnmActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+	if (oldAnmActor->unkC) {
+		J3DAnmTransform* oldAnmArg = oldAnm;
+		oldAnmActor->unkC->setOldMotionBlendAnmPtr(oldAnmArg);
+	}
 
 	mMActor->setBckFromIndex(1);
 	MActor* blendActor = mMActor;
