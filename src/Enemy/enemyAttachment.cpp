@@ -83,13 +83,13 @@ void TEnemyAttachment::bind()
 		mGroundHeight += 1.0f;
 	}
 
-	if (local_1C.y + mVelocity.y <= mGroundHeight)
+	f32 nextY = local_1C.y;
+	if (nextY + mVelocity.y <= mGroundHeight)
 		behaveToHitGround();
 	else
 		onLiveFlag(LIVE_FLAG_AIRBORNE);
 
-	JGeometry::TVec3<f32> p = local_1C;
-	p.y += mHeadHeight;
+	JGeometry::TVec3<f32> p(local_1C.x, nextY + mHeadHeight, local_1C.z);
 	TBGWallCheckRecord local_48(p, mBodyRadius * 2.0f, 1, 0);
 	if (gpMap->isTouchedWallsAndMoveXZ(&local_48))
 		behaveToHitWall(local_48.mResultWalls[0]);
