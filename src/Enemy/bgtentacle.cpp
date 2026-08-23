@@ -1244,6 +1244,8 @@ void TBGTentacle::calcAttackGuideAnm()
 		return;
 
 	JGeometry::TVec3<f32> local_30 = getFirstNode()->getPosition();
+	f32 firstY = local_30.y;
+	f32 firstZ = local_30.z;
 	JGeometry::TVec3<f32> local_3c = unk84;
 	local_3c -= local_30;
 	JGeometry::TVec3<f32> local_b4 = MsGetRotFromZaxis(local_3c);
@@ -1261,7 +1263,7 @@ void TBGTentacle::calcAttackGuideAnm()
 		scale = 2.0f;
 
 	Mtx afStack_78;
-	MsMtxSetTRS(afStack_78, local_30.x, local_30.y, local_30.z, local_b4.x,
+	MsMtxSetTRS(afStack_78, local_30.x, firstY, firstZ, local_b4.x,
 	            local_b4.y, local_b4.z, 1.0f, 1.0f, scale);
 
 	Mtx local_a8;
