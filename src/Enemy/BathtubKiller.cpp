@@ -715,10 +715,12 @@ bool TBathtubKiller::isCollidMove(THitActor* sender)
 
 void TBathtubKiller::behaveToWater(THitActor*)
 {
-	if (mSpine->getCurrentNerve()
-	        != &TNerveBathtubKillerExplosion::theNerve()
-	    && mSpine->getCurrentNerve()
-	           != &TNerveBathtubKillerBreak::theNerve())
+	bool isBroken
+	    = mSpine->getCurrentNerve()
+	          == &TNerveBathtubKillerExplosion::theNerve()
+	      || mSpine->getCurrentNerve()
+	             == &TNerveBathtubKillerBreak::theNerve();
+	if (!isBroken)
 		mSpine->pushNerve(&TNerveBathtubKillerBreak::theNerve());
 }
 
