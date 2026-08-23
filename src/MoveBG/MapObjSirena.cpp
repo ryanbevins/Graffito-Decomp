@@ -865,48 +865,46 @@ u32 TCasinoPanelGate::touchWater(THitActor* sender)
 		return 0;
 	unk164 = 1;
 	f32 hY = unk144;
-	f32 hX = unk140;
-	f32 dx = sender->mPosition.x - mPosition.x;
 	int dir;
 	if (sender->mPosition.y > mPosition.y + 3.0f * hY) {
-		if (dx < -hX)
+		if (sender->mPosition.x < mPosition.x - unk140)
 			dir = 0xC;
-		else if (dx < 0.0f)
+		else if (sender->mPosition.x < mPosition.x)
 			dir = 0xD;
-		else if (dx > hX)
+		else if (sender->mPosition.x > mPosition.x + unk140)
 			dir = 0xF;
 		else
 			dir = 0xE;
 		if (sender->mPosition.y < mPosition.y + 3.5f * hY)
 			unk164 = -1;
 	} else if (sender->mPosition.y > mPosition.y + 2.0f * hY) {
-		if (dx < -hX)
+		if (sender->mPosition.x < mPosition.x - unk140)
 			dir = 8;
-		else if (dx < 0.0f)
+		else if (sender->mPosition.x < mPosition.x)
 			dir = 9;
-		else if (dx > hX)
+		else if (sender->mPosition.x > mPosition.x + unk140)
 			dir = 0xB;
 		else
 			dir = 0xA;
 		if (sender->mPosition.y < mPosition.y + 2.5f * hY)
 			unk164 = -1;
 	} else if (sender->mPosition.y > mPosition.y + hY) {
-		if (dx < -hX)
+		if (sender->mPosition.x < mPosition.x - unk140)
 			dir = 4;
-		else if (dx < 0.0f)
+		else if (sender->mPosition.x < mPosition.x)
 			dir = 5;
-		else if (dx > hX)
+		else if (sender->mPosition.x > mPosition.x + unk140)
 			dir = 7;
 		else
 			dir = 6;
 		if (sender->mPosition.y < mPosition.y + 1.5f * hY)
 			unk164 = -1;
 	} else {
-		if (dx < -hX)
+		if (sender->mPosition.x < mPosition.x - unk140)
 			dir = 0;
-		else if (dx < 0.0f)
+		else if (sender->mPosition.x < mPosition.x)
 			dir = 1;
-		else if (dx > hX)
+		else if (sender->mPosition.x > mPosition.x + unk140)
 			dir = 3;
 		else
 			dir = 2;
