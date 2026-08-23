@@ -466,9 +466,9 @@ void TBossTelesa::calcRootMatrix()
 			slotMtx = mMActor->getModel()->mNodeMatrices[0];
 		}
 
-		slot->mPosition.x = slotMtx[0][3];
-		slot->mPosition.y = unk364 + slotMtx[1][3] + slotOffsetY;
-		slot->mPosition.z = slotMtx[2][3];
+		unk184->mPosition.x = slotMtx[0][3];
+		unk184->mPosition.y = unk364 + slotMtx[1][3] + slotOffsetY;
+		unk184->mPosition.z = slotMtx[2][3];
 	}
 
 	for (u16 i = 0;
