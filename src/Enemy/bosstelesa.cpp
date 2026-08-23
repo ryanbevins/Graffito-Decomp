@@ -2529,8 +2529,10 @@ DEFINE_NERVE(TNerveBossTelesaHide, TLiveActor)
 			oldAnmActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 
 		boss->mMActor->setBckFromIndex(4);
-		if (boss->mMActor->unkC)
-			boss->mMActor->unkC->setMotionBlendRatio(boss->unk168);
+		MActor* blendActor = boss->mMActor;
+		f32 blendRatio = boss->unk168;
+		if (blendActor->unkC)
+			blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 		const char** basTable = boss->getBasNameTable();
 		const char* basName;
