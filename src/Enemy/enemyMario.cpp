@@ -518,9 +518,9 @@ inline void resetOwnerGraph(TEnemyMario* mario)
 
 inline void pushNearestFlaggedNodeInput(TEnemyMario* mario)
 {
-	TGraphWeb* graph = emOwner(mario)->unk124->getGraph();
-	int node         = graph->findNearestNodeIndex(mario->mPosition, 0xffffffff);
-	if (graph->getGraphNode(node).checkFlag(2)) {
+	int node = emOwner(mario)->unk124->getGraph()->findNearestNodeIndex(
+	    mario->mPosition, 0xffffffff);
+	if (emOwner(mario)->unk124->getGraph()->getGraphNode(node).checkFlag(2)) {
 		mario->mFaceAngle.y = emTargetYaw(mario);
 		emControllerFlags2(mario) |= 0x100;
 		emControllerFlags(mario) |= 0x100;
