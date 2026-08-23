@@ -2369,7 +2369,12 @@ DEFINE_NERVE(TNerveBossTelesaSlotStart, TLiveActor)
 			blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 		const char** basTable = boss->getBasNameTable();
-		boss->setAnmSound(basTable ? basTable[11] : nullptr);
+		const char* basName;
+		if (!basTable)
+			basName = nullptr;
+		else
+			basName = basTable[11];
+		boss->setAnmSound(basName);
 	}
 
 	if (boss->mMActor->checkCurBckFromIndex(11)) {
@@ -2400,7 +2405,12 @@ DEFINE_NERVE(TNerveBossTelesaSlotStart, TLiveActor)
 				blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 			const char** basTable = boss->getBasNameTable();
-			boss->setAnmSound(basTable ? basTable[15] : nullptr);
+			const char* basName;
+			if (!basTable)
+				basName = nullptr;
+			else
+				basName = basTable[15];
+			boss->setAnmSound(basName);
 			boss->mMActor->setBtpFromIndex(2);
 			boss->unk184->forceStopSlot(1);
 		}
