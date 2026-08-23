@@ -3526,9 +3526,7 @@ void TGCConsole2::checkChangeTelopArray()
 {
 	const u32* oldArray = unk570;
 
-	if (gpMarDirector->mMap != 1) {
-		unk570 = nullptr;
-	} else {
+	if (gpMarDirector->mMap == 1) {
 		switch (gpMarDirector->unk7D) {
 		case 0:
 			unk570 = scDolpicNewsDolpic0;
@@ -3608,6 +3606,8 @@ void TGCConsole2::checkChangeTelopArray()
 			unk570 = nullptr;
 			break;
 		}
+	} else {
+		unk570 = nullptr;
 	}
 
 	if (oldArray != unk570)
