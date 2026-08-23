@@ -2907,11 +2907,11 @@ DEFINE_NERVE(TNerveBubbleLive, TLiveActor)
 	if (spine->getTime() == 0) {
 		bubble->offHitFlag(HIT_FLAG_NO_COLLISION);
 
-		if (bubble->unk1D0) {
+		if (!bubble->unk1D0) {
+			bubble->setBckAnm(8);
+		} else {
 			bubble->setBckAnm(10);
 			bubble->setGoalPathMario();
-		} else {
-			bubble->setBckAnm(8);
 		}
 
 		J3DFrameCtrl* frameCtrl = bubble->mMActor->getFrameCtrl(0);
