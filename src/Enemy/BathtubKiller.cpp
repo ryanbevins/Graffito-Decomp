@@ -838,7 +838,7 @@ DEFINE_NERVE(TNerveBathtubKillerWander, TLiveActor)
 	}
 
 	if (!wantStraight) {
-		spine->pushNerve(&TNerveBathtubKillerStraight::theNerve());
+		spine->pushAfterCurrent(&TNerveBathtubKillerStraight::theNerve());
 		return TRUE;
 	}
 
@@ -852,7 +852,7 @@ DEFINE_NERVE(TNerveBathtubKillerWander, TLiveActor)
 	}
 
 	if (wantChase) {
-		spine->pushNerve(&TNerveBathtubKillerChase::theNerve());
+		spine->pushAfterCurrent(&TNerveBathtubKillerChase::theNerve());
 		return TRUE;
 	}
 
