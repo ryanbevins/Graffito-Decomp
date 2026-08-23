@@ -2606,8 +2606,10 @@ DEFINE_NERVE(TNerveBossTelesaHideWait, TLiveActor)
 
 DEFINE_NERVE(TNerveBossTelesaHide, TLiveActor)
 {
-	TBossTelesa* boss = getBoss(spine);
-	if (!boss->mMActor->checkCurBckFromIndex(4)) {
+	TLiveActor* body   = spine->getBody();
+	MActor* actor      = body->mMActor;
+	TBossTelesa* boss = (TBossTelesa*)body;
+	if (!actor->checkCurBckFromIndex(4)) {
 		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
 		boss->unk160 = 4;
 		boss->unk168 = 1.0f;
