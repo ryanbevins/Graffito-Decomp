@@ -695,10 +695,12 @@ bool TBathtubKiller::isCollidMove(THitActor* sender)
 		return false;
 
 	if (sender->isActorType(0x8000029)) {
-		if (mSpine->getCurrentNerve()
-		        != &TNerveBathtubKillerExplosion::theNerve()
-		    && mSpine->getCurrentNerve()
-		           != &TNerveBathtubKillerBreak::theNerve())
+		bool isBroken
+		    = mSpine->getCurrentNerve()
+		          == &TNerveBathtubKillerExplosion::theNerve()
+		      || mSpine->getCurrentNerve()
+		             == &TNerveBathtubKillerBreak::theNerve();
+		if (!isBroken)
 			mSpine->pushNerve(&TNerveBathtubKillerExplosion::theNerve());
 		return true;
 	}
