@@ -2862,7 +2862,8 @@ DEFINE_NERVE(TNerveBubbleLive, TLiveActor)
 
 		if (spine->getTime() == 80) {
 			bubble->unk1D1 = 0;
-			bubble->mVelocity.set(0.0f, 0.0f, 0.0f);
+			bubble->mVelocity
+			    = JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
 		}
 	}
 
