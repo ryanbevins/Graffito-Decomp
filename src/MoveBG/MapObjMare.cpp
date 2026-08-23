@@ -320,11 +320,10 @@ void TCogwheel::initMapObj()
 
 	JGeometry::TVec3<f32> pos(mPosition.x + cosine, mPosition.y,
 	                          mPosition.z - sine);
-	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 
 	TCogwheelScale* plate
 	    = (TCogwheelScale*)TMapObjBaseManager::newAndRegisterObj(
-	    "cogwheel_plate", pos, mRotation, scale);
+	    "cogwheel_plate", pos, mRotation);
 	unk150         = plate;
 	unk150->unk154 = 1;
 	unk150->unk158 = this;
@@ -334,7 +333,7 @@ void TCogwheel::initMapObj()
 	pos.set(mPosition.x - cosine, mPosition.y, mPosition.z + sine);
 	TCogwheelScale* pot
 	    = (TCogwheelScale*)TMapObjBaseManager::newAndRegisterObj(
-	    "cogwheel_pot", pos, mRotation, scale);
+	    "cogwheel_pot", pos, mRotation);
 	unk164         = pot;
 	unk164->unk154 = 0;
 	unk164->unk158 = this;
