@@ -2929,7 +2929,10 @@ bool TGCConsole2::processInsertLife(int param_1)
 	}
 
 	if (unk174->update()) {
-		if (unk174->unk14.x1 != 0 || unk174->unk14.y1 != 0) {
+		bool atOrigin = false;
+		if (unk174->unk14.x1 == 0 && unk174->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
 			unk174->setPanePosition(30, cDownMidPoint, cDownMidPoint,
 			                         cDownBotPoint);
 			isFinished = false;
@@ -2939,7 +2942,10 @@ bool TGCConsole2::processInsertLife(int param_1)
 	}
 
 	if (unk178->update()) {
-		if (unk178->unk14.x1 != 0 || unk178->unk14.y1 != 0) {
+		bool atOrigin = false;
+		if (unk178->unk14.x1 == 0 && unk178->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
 			unk178->setPanePosition(30, cDownMidPoint, cDownMidPoint,
 			                         cDownBotPoint);
 			isFinished = false;
@@ -2949,7 +2955,10 @@ bool TGCConsole2::processInsertLife(int param_1)
 	}
 
 	if (unk260->update()) {
-		if (unk260->unk14.x1 != 0 || unk260->unk14.y1 != 0) {
+		bool atOrigin = false;
+		if (unk260->unk14.x1 == 0 && unk260->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
 			unk260->setPanePosition(30, cDownMidPoint, cDownMidPoint,
 			                         cDownBotPoint);
 			isFinished = false;
