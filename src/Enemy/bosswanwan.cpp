@@ -1646,7 +1646,7 @@ DEFINE_NERVE(TNerveBWStun, TLiveActor)
 			if (PSVECMag((Vec*)&nodeDelta) < 1.1f) {
 				if (prevIndex == graph->unk10) {
 					spine->pushAfterCurrent(
-					    &TNerveBWGraphWander::theNerve());
+					    &TNerveBWJumpToBath::theNerve());
 					return true;
 				}
 
