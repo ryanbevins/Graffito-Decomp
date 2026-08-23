@@ -226,12 +226,12 @@ void TCogwheel::draw() const
 
 	f32 potY = unk164->mPosition.y - unk164->mYOffset;
 	f32 potTopY = potY + 1200.0f;
-	f32 potTopTex = mTexPosRate * (potTopY - potY);
-	f32 potBottomTex = mTexPosRate * (bottomY - potY);
 	f32 potXMinus = unk168.x - mRopeWidthX;
 	f32 potXPlus = unk168.x + mRopeWidthX;
 	f32 potZMinus = unk168.z - mRopeWidthZ;
 	f32 potZPlus = unk168.z + mRopeWidthZ;
+	f32 potTopTex = mTexPosRate * (potTopY - potY);
+	f32 potBottomTex = mTexPosRate * (bottomY - potY);
 
 	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 8);
 	GXPosition3f32(potXMinus, potTopY, potZMinus);
