@@ -646,17 +646,21 @@ void TBathtubKiller::calcRootMatrix()
 BOOL TBathtubKiller::receiveMessage(THitActor* sender, u32 msg)
 {
 	if (msg == 3 || msg <= 1) {
-		if (mSpine->getCurrentNerve()
-		        != &TNerveBathtubKillerExplosion::theNerve()
-		    && mSpine->getCurrentNerve()
-		           != &TNerveBathtubKillerBreak::theNerve())
+		bool isBroken
+		    = mSpine->getCurrentNerve()
+		          == &TNerveBathtubKillerExplosion::theNerve()
+		      || mSpine->getCurrentNerve()
+		             == &TNerveBathtubKillerBreak::theNerve();
+		if (!isBroken)
 			mSpine->pushNerve(&TNerveBathtubKillerBreak::theNerve());
 		return TRUE;
 	} else if (msg == 0xa) {
-		if (mSpine->getCurrentNerve()
-		        != &TNerveBathtubKillerExplosion::theNerve()
-		    && mSpine->getCurrentNerve()
-		           != &TNerveBathtubKillerBreak::theNerve())
+		bool isBroken
+		    = mSpine->getCurrentNerve()
+		          == &TNerveBathtubKillerExplosion::theNerve()
+		      || mSpine->getCurrentNerve()
+		             == &TNerveBathtubKillerBreak::theNerve();
+		if (!isBroken)
 			mSpine->pushNerve(&TNerveBathtubKillerExplosion::theNerve());
 		return TRUE;
 	} else if (msg == 0xd) {
