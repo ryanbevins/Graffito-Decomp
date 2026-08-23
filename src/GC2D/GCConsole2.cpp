@@ -1717,12 +1717,17 @@ void TGCConsole2::loadAfter()
 	unk2EC[1] = JUtility::TColor(0x64DCFF00);
 	unk2EC[2] = JUtility::TColor(0x00B4F000);
 
-	int health = gpMarioOriginal->mHealth;
+	s16 health = gpMarioOriginal->mHealth;
 	if (health < 0)
 		health = 0;
 
 	unk1C4->getPane()->hide();
-	setupLifeSegments(this, 0, 9, health, 0xFFFFFFFF, 0);
+	for (int i = 0; i < 9; ++i) {
+		if (health + 1 > i)
+			unk17C[i * 2]->show();
+		else
+			unk17C[i * 2]->hide();
+	}
 	unk1CC[0] = health;
 	unk1C     = health;
 
