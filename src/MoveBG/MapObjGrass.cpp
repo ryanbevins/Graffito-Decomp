@@ -74,14 +74,13 @@ void TMapObjGrassGroup::drawFar() const
 		s16 topX                   = x + swingOffsets[iVar7];
 		s16 leftX                  = x - drawVecS16.x;
 		s16 rightX                 = x + drawVecS16.x;
-		s16 y                      = pos.y;
 		s16 bottomZ                = z - drawVecS16.z;
 		s16 topZ                   = z + drawVecS16.z;
-		GXPosition3s16(leftX, y, bottomZ);
+		GXPosition3s16(leftX, pos.y, bottomZ);
 		GXColor1x8(1);
 		GXPosition3s16(topX, unk74[i], z);
 		GXColor1x8(0);
-		GXPosition3s16(rightX, y, topZ);
+		GXPosition3s16(rightX, pos.y, topZ);
 		GXColor1x8(1);
 
 		++iVar7;
