@@ -583,6 +583,17 @@ void TBathtubKiller::moveChasing()
 	mVelocity.scale(unk1A0, forward);
 }
 
+void TBathtubKiller::moveStraight()
+{
+	JGeometry::TVec3<f32> dir;
+	mQuat.getZDir(dir);
+	dir.y = 0.0f;
+	dir.normalize();
+	dir.scale(unk1A0);
+	mVelocity.set(dir);
+	makeQuat(mVelocity, unk198, 0.1f);
+}
+
 void TBathtubKiller::makeQuat(JGeometry::TVec3<f32> axis, f32 moveAmountY,
                               f32 moveAmountX)
 {
@@ -915,13 +926,7 @@ DEFINE_NERVE(TNerveBathtubKillerChaseStraight, TLiveActor)
 		return TRUE;
 	}
 
-	JGeometry::TVec3<f32> dir;
-	self->mQuat.getZDir(dir);
-	dir.y = 0.0f;
-	dir.normalize();
-	dir.scale(self->unk1A0);
-	self->mVelocity.set(dir);
-	self->makeQuat(self->mVelocity, self->unk198, 0.1f);
+	self->moveStraight();
 	return FALSE;
 }
 
@@ -934,13 +939,7 @@ DEFINE_NERVE(TNerveBathtubKillerStraight, TLiveActor)
 	if (self->unk218 <= 0)
 		self->unk64 &= ~1;
 
-	JGeometry::TVec3<f32> dir;
-	self->mQuat.getZDir(dir);
-	dir.y = 0.0f;
-	dir.normalize();
-	dir.scale(self->unk1A0);
-	self->mVelocity.set(dir);
-	self->makeQuat(self->mVelocity, self->unk198, 0.1f);
+	self->moveStraight();
 	return FALSE;
 }
 
