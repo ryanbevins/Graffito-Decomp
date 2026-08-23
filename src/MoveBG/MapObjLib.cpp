@@ -617,12 +617,12 @@ void TMapObjBase::getVerticalVecToTargetXZ(
 	    rot;
 	rot.setEular(0.0f, M_PI / 2.0f, 0.0f);
 
-	f32 x = out->x;
-	f32 y = out->y;
-	f32 z = out->z;
-	out->set(x * rot.at(0, 0) + y * rot.at(0, 1) + z * rot.at(0, 2),
-	         x * rot.at(1, 0) + y * rot.at(1, 1) + z * rot.at(1, 2),
-	         x * rot.at(2, 0) + y * rot.at(2, 1) + z * rot.at(2, 2));
+	out->set(out->x * rot.at(0, 0) + out->y * rot.at(0, 1)
+	             + out->z * rot.at(0, 2),
+	         out->x * rot.at(1, 0) + out->y * rot.at(1, 1)
+	             + out->z * rot.at(1, 2),
+	         out->x * rot.at(2, 0) + out->y * rot.at(2, 1)
+	             + out->z * rot.at(2, 2));
 }
 
 void TMapObjBase::getVerticalVecFromOffsetXZ(
