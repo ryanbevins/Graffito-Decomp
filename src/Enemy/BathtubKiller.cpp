@@ -948,7 +948,7 @@ DEFINE_NERVE(TNerveBathtubKillerChaseStraight, TLiveActor)
 	}
 
 	if (!wantStraight) {
-		spine->pushNerve(&TNerveBathtubKillerStraight::theNerve());
+		spine->pushAfterCurrent(&TNerveBathtubKillerStraight::theNerve());
 		return TRUE;
 	}
 
@@ -956,7 +956,7 @@ DEFINE_NERVE(TNerveBathtubKillerChaseStraight, TLiveActor)
 		self->unk64 &= ~1;
 
 	if (self->unk210 <= 0) {
-		spine->pushNerve(&TNerveBathtubKillerChase::theNerve());
+		spine->pushAfterCurrent(&TNerveBathtubKillerChase::theNerve());
 		return TRUE;
 	}
 
