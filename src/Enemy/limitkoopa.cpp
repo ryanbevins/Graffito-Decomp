@@ -589,11 +589,12 @@ DEFINE_NERVE(TNerveLimitKoopaWait, TLiveActor)
 		diff.z = gpMarioPos->z - self->mPosition.z;
 		diff.y = 0.0f;
 		tdc.makeDirection(diff);
+		f32 targetDirection = tdc.mDirection;
 
 		f32 turn = TDirectionCalc::d2r(
 		    self->getSaveParam2()->rotationSpeed.get());
 		self->mDirection.mDirection
-		    = self->mDirection.calcTurnDirection(tdc.mDirection, turn);
+		    = self->mDirection.calcTurnDirection(targetDirection, turn);
 	}
 
 	f32 absDir;
