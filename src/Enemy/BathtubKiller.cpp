@@ -676,9 +676,9 @@ BOOL TBathtubKiller::receiveMessage(THitActor* sender, u32 msg)
 void TBathtubKiller::attackToMario()
 {
 	const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
-	if (nerve != &TNerveBathtubKillerExplosion::theNerve()
-	    && nerve != &TNerveBathtubKillerBreak::theNerve()
-	    && gpMarioPos->y < mPosition.y) {
+	bool isBroken = nerve == &TNerveBathtubKillerExplosion::theNerve()
+	                || nerve == &TNerveBathtubKillerBreak::theNerve();
+	if (!isBroken && gpMarioPos->y < mPosition.y) {
 		mSpine->pushNerve(&TNerveBathtubKillerExplosion::theNerve());
 		SMS_SendMessageToMario(this, 0xe);
 		SMS_ThrowMario(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f), 60.0f);
