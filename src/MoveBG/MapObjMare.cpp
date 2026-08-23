@@ -641,11 +641,11 @@ void TWireBell::draw() const
 	initDraw();
 
 	f32 topY    = mPosition.y;
-	f32 wireY   = unk14C.y;
 	f32 maxX    = unk14C.x + unk140;
 	f32 minX    = unk14C.x - unk140;
 	f32 maxZ    = unk14C.z + unk144;
 	f32 minZ    = unk14C.z - unk144;
+	f32 wireY   = unk14C.y;
 	f32 texTop  = unk148 * (wireY - topY);
 	f32 texBase = unk148 * (topY - mPosition.y);
 
