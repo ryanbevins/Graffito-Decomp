@@ -3085,22 +3085,66 @@ bool TGCConsole2::processDownCoin(int param_1)
 			                           cCoinMidPoint, cCoinMidPoint);
 	}
 
-	if (!updateCoinPane(unkC8))
-		isFinished = false;
-
-	if (param_1 < 14 || !updateCoinPane(unkCC))
-		isFinished = false;
-
-	if (param_1 < 24 || !updateCoinPane(unkD0))
-		isFinished = false;
-
-	for (int i = 0; i < 3; ++i) {
-		if (param_1 < i * 6 + 28 || !updateDownCoinBlendPane(unkD4[i]))
+	if (unkC8->update()) {
+		bool atOrigin = false;
+		if (unkC8->unk14.x1 == 0 && unkC8->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unkC8->setPanePosition(30, cCoinMidPoint, cCoinMidPoint,
+			                       cCoinBotPoint);
 			isFinished = false;
+		}
+	} else {
+		isFinished = false;
 	}
 
-	if (!unk108->update())
+	if (param_1 >= 14 && unkCC->update()) {
+		bool atOrigin = false;
+		if (unkCC->unk14.x1 == 0 && unkCC->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unkCC->setPanePosition(30, cCoinMidPoint, cCoinMidPoint,
+			                       cCoinBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
+	}
+
+	if (param_1 >= 24 && unkD0->update()) {
+		bool atOrigin = false;
+		if (unkD0->unk14.x1 == 0 && unkD0->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unkD0->setPanePosition(30, cCoinMidPoint, cCoinMidPoint,
+			                       cCoinBotPoint);
+			isFinished = false;
+		}
+	} else {
+		isFinished = false;
+	}
+
+	for (int i = 0; i < 3; ++i) {
+		if (param_1 < i * 6 + 28) {
+			isFinished = false;
+		} else {
+			unkD4[i]->update();
+			if (unkD4[i]->unk24) {
+				isFinished = false;
+			} else {
+				bool atOrigin = false;
+				if (unkD4[i]->unk14.x1 == 0 && unkD4[i]->unk14.y1 == 0)
+					atOrigin = true;
+				if (!atOrigin) {
+					unkD4[i]->setPanePosition(
+					    30, cCoinMidPoint, cCoinMidPoint, cCoinBotPoint);
+					isFinished = false;
+				}
+			}
+		}
+	}
+
+	isFinished &= unk108->update();
 
 	JUTRect bounds(unkCC->getPane()->mGlobalBounds);
 	unk124->unk160.set(bounds.x1 + bounds.getWidth() * 0.5f,
