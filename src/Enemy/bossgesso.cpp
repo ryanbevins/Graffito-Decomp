@@ -1989,10 +1989,8 @@ DEFINE_NERVE(TNerveBGDie, TLiveActor)
 		self->changeBck(6);
 		self->changeAllTentacleState(8);
 
-		JGeometry::TVec3<f32> local_24;
-		local_24.x = self->mPosition.x;
-		local_24.y = -5000.0f;
-		local_24.z = self->mPosition.z + 7000.0f;
+		JGeometry::TVec3<f32> local_24(
+		    self->mPosition.x, -5000.0f, self->mPosition.z + 7000.0f);
 
 		self->unkF4.unk0 = nullptr;
 		self->unkF4.unk4 = local_24;
