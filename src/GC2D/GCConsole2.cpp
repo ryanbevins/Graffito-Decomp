@@ -4005,7 +4005,7 @@ void TGCConsole2::drawJuice(J2DOrthoGraph& graph, u32 color)
 	loadPictureTexture((J2DPicture*)unk32C, GX_TEXMAP0);
 	loadPictureTexture((J2DPicture*)unk328, GX_TEXMAP1);
 
-	int selected = 0x17;
+	u8 selected = 0x17;
 	for (u8 i = 0x16; i != 0; --i) {
 		int threshold = (int)(64.0f * (1.0f - unk2B8));
 		if (unk334[i]->mBounds.y1 >= threshold) {
