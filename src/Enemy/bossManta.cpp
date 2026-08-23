@@ -261,13 +261,12 @@ BOOL TNerveMantaHitWater::execute(TSpineBase<TLiveActor>* spine) const
 		{ 0x1C7, -1, 0x1C8 },
 	};
 	for (int i = 0; i < 3; ++i) {
-		int effect = effects[self->mGeneration][i];
-		if (effect <= 0)
+		if (effects[self->mGeneration][i] <= 0)
 			continue;
 
 		for (int j = 0; j < emitCount; ++j) {
 			gpMarioParticleManager->emitAndBindToPosPtr(
-			    effect, &self->mCenterPos, 1,
+			    effects[self->mGeneration][i], &self->mCenterPos, 1,
 			    (const void*)((u8*)self + j * sizeof(TBossManta)));
 			if (i == 2)
 				break;
