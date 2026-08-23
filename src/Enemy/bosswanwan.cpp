@@ -414,9 +414,10 @@ void TBWPicket::perform(u32 flags, JDrama::TGraphics* graphics)
 		ensureTakeSituation();
 		if (mHolder != nullptr) {
 			JGeometry::TVec3<f32> direction;
-			direction.x = mHolder->mPosition.x;
-			direction.y = mHolder->mPosition.y;
-			direction.z = mHolder->mPosition.z;
+			const JGeometry::TVec3<f32>& holderPos = mHolder->mPosition;
+			direction.x = holderPos.x;
+			direction.y = holderPos.y;
+			direction.z = holderPos.z;
 			direction.sub(rope->mPoints[0].mPosition);
 
 			JGeometry::TVec3<f32> up;
