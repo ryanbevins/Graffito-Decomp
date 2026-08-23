@@ -534,11 +534,9 @@ BOOL TBeeHive::receiveMessage(THitActor* sender, u32 message)
 			    += sign * getBeeParams()->mShakePower.get();
 		}
 
-		TRotation3f mtx;
-		mtx.identity33();
-		mtx.mMtx[0][3] = sender->mPosition.x;
-		mtx.mMtx[1][3] = sender->mPosition.y;
-		mtx.mMtx[2][3] = sender->mPosition.z;
+		TPosition3f mtx;
+		mtx.translation(sender->mPosition.x, sender->mPosition.y,
+		                sender->mPosition.z);
 		gpMarioParticleManager->emitAndBindToMtx(0xe7, mtx, 0, nullptr);
 		gpMSound->startSoundSet(0x6802, &sender->mPosition, 0, 0.0f, 0, 0,
 		                         4);
