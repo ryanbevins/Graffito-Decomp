@@ -554,7 +554,7 @@ void TBathtubKiller::makeInitialVelocity(JGeometry::TVec3<f32> vel)
 	JGeometry::TVec3<f32> forward;
 	mQuat.getZDir(forward);
 	JGeometry::TQuat4<f32> rot;
-	rot.setRotate(forward, vel);
+	rot.setRotate(forward, vel, 1.0f);
 	mQuat.mul(rot);
 }
 
