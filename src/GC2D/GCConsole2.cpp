@@ -3142,14 +3142,12 @@ bool TGCConsole2::processAppearStar(int param_1)
 	}
 
 	JUTRect bounds(unk12C->getPane()->mGlobalBounds);
-	unk144->unk160.x = bounds.x1 + bounds.getWidth() * 0.5f;
-	unk144->unk160.y = bounds.y1 + bounds.getHeight() * 0.5f;
-	unk144->unk160.z = 0.0f;
+	unk144->unk160.set(bounds.x1 + bounds.getWidth() * 0.5f,
+	                   bounds.y1 + bounds.getHeight() * 0.5f, 0.0f);
 
 	JUTRect bounds2(unk14C->getPane()->mGlobalBounds);
-	unk164->unk160.x = bounds2.x1 + bounds2.getWidth() * 0.5f;
-	unk164->unk160.y = bounds2.y1 + bounds2.getHeight() * 0.5f;
-	unk164->unk160.z = 0.0f;
+	unk164->unk160.set(bounds2.x1 + bounds2.getWidth() * 0.5f,
+	                   bounds2.y1 + bounds2.getHeight() * 0.5f, 0.0f);
 
 	return isFinished;
 }
