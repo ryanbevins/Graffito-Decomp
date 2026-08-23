@@ -450,72 +450,72 @@ void TFruitLauncher::fireObj()
 		f32 r1 = MsRandF() * 100.0f;
 		obj = r1 < 20.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000390, false)
 		      : r1 < 40.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000391, false)
 		      : r1 < 60.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000392, false)
 		      : r1 < 80.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000393, false)
 		          : gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000394, false);
 	}
 	if (obj == NULL) {
 		f32 r2 = MsRandF() * 100.0f;
 		obj = r2 < 20.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000390, false)
 		      : r2 < 40.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000391, false)
 		      : r2 < 60.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000392, false)
 		      : r2 < 80.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000393, false)
 		          : gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000394, false);
 	}
 	if (obj == NULL) {
 		f32 r3 = MsRandF() * 100.0f;
 		obj = r3 < 20.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000390, false)
 		      : r3 < 40.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000391, false)
 		      : r3 < 60.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000392, false)
 		      : r3 < 80.0f
 		          ? gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000393, false)
 		          : gpItemManager->makeObjAppear(
-		                sw->mPosition.x, sw->mPosition.y, sw->mPosition.z,
+		                mPosition.x, mPosition.y, mPosition.z,
 		                0x40000394, false);
 	}
 	if (obj != NULL) {
-		obj->mPosition.x = sw->mPosition.x;
-		obj->mPosition.y = sw->mPosition.y;
-		obj->mPosition.z = sw->mPosition.z;
+		obj->mPosition.x = mPosition.x;
+		obj->mPosition.y = mPosition.y;
+		obj->mPosition.z = mPosition.z;
 		f32 speedZ       = mObjSpeedXZ * (MsRandF() - 0.5f);
 		f32 speedY       = -mObjSpeedY;
 		f32 speedX       = mObjSpeedXZ * (MsRandF() - 0.5f);
