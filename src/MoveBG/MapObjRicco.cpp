@@ -519,10 +519,9 @@ void TFruitLauncher::fireObj()
 		obj->mPosition.x = sw->mPosition.x;
 		obj->mPosition.y = sw->mPosition.y;
 		obj->mPosition.z = sw->mPosition.z;
+		f32 speedZ       = mObjSpeedXZ * (MsRandF() - 0.5f);
 		f32 speedY       = -mObjSpeedY;
-		f32 speedXZ      = mObjSpeedXZ;
-		f32 speedZ       = speedXZ * (MsRandF() - 0.5f);
-		f32 speedX       = speedXZ * (MsRandF() - 0.5f);
+		f32 speedX       = mObjSpeedXZ * (MsRandF() - 0.5f);
 		obj->mVelocity.x = speedX;
 		obj->mVelocity.y = speedY;
 		obj->mVelocity.z = speedZ;
