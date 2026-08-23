@@ -1752,7 +1752,7 @@ DEFINE_NERVE(TNerveBWJumpToBath, TLiveActor)
 	bathDelta.sub(self->mPosition);
 	if (bathDelta.squared() < 38.0f && self->mPosition.y <= BW_BATH_POS.y) {
 		self->mPosition = BW_BATH_POS;
-		spine->pushAfterCurrent(&TNerveBWRoll::theNerve());
+		spine->pushAfterCurrent(&TNerveBWDie::theNerve());
 		return true;
 	}
 
