@@ -3537,12 +3537,17 @@ void TGCConsole2::checkChangeTelopArray()
 			else
 				unk570 = nullptr;
 			break;
+		case 6:
+			unk570 = scDolpicNewsDolpic6;
+			break;
+		case 7:
+			unk570 = scDolpicNewsDolpic7;
+			break;
+		case 9:
+			unk570 = scDolpicNewsDolpic9;
+			break;
 		case 2:
 			unk570 = scDolpicNewsDolpic10;
-			break;
-		case 3:
-		case 4:
-			unk570 = nullptr;
 			break;
 		case 5:
 			if (TFlagManager::smInstance->getBool(0x50001)) {
@@ -3556,12 +3561,6 @@ void TGCConsole2::checkChangeTelopArray()
 				else
 					unk570 = scDolpicNewsDolpic5_4;
 			}
-			break;
-		case 6:
-			unk570 = scDolpicNewsDolpic6;
-			break;
-		case 7:
-			unk570 = scDolpicNewsDolpic7;
 			break;
 		case 8: {
 			int eventState = TFlagManager::smInstance->getFlag(0x60003);
@@ -3599,9 +3598,8 @@ void TGCConsole2::checkChangeTelopArray()
 			}
 			break;
 		}
-		case 9:
-			unk570 = scDolpicNewsDolpic9;
-			break;
+		case 3:
+		case 4:
 		default:
 			unk570 = nullptr;
 			break;
