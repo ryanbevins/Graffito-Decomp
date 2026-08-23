@@ -1871,9 +1871,7 @@ void TBubble::calcRootMatrix()
 
 		MtxPtr mtx = mMActor->getModel()->getBaseTRMtx();
 		MsMtxSetXYZRPH(mtx, mPosition.x, mPosition.y, mPosition.z,
-		               (s16)(mRotation.x * 182.04445f),
-		               (s16)(mRotation.y * 182.04445f),
-		               (s16)(mRotation.z * 182.04445f));
+		               mRotation.x, mRotation.y, mRotation.z);
 		mMActor->getModel()->setBaseScale(mScaling);
 	}
 }
