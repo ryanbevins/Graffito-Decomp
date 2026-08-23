@@ -199,10 +199,10 @@ void TCogwheel::draw() const
 	f32 plateY = unk150->mPosition.y - unk150->mYOffset;
 	f32 bottomY = unk154.y;
 	f32 plateTopY = plateY + 600.0f;
-	f32 plateXMinus = unk154.x - mRopeWidthX;
 	f32 plateXPlus = unk154.x + mRopeWidthX;
-	f32 plateZMinus = unk154.z - mRopeWidthZ;
+	f32 plateXMinus = unk154.x - mRopeWidthX;
 	f32 plateZPlus = unk154.z + mRopeWidthZ;
+	f32 plateZMinus = unk154.z - mRopeWidthZ;
 	f32 plateTopTex = mTexPosRate * (plateTopY - plateY);
 	f32 plateBottomTex = mTexPosRate * (bottomY - plateY);
 
