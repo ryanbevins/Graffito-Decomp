@@ -2109,29 +2109,52 @@ void TGCConsole2::startDisappearCoin()
 void TGCConsole2::startInsertLife(int param_1)
 {
 	if (param_1 == 0) {
-		setupLifeSegments(this, 2, 8, gpMarioOriginal->mHealth, 0xFFFFFFFF,
-		                  0);
+		for (int i = 1; i < 9; ++i) {
+			((J2DPicture*)unk17C[i * 2])->mWhite = 0xFFFFFFFF;
+			((J2DPicture*)unk17C[i * 2])->mBlack = 0;
+			if (gpMarioOriginal->mHealth + 1 > i)
+				unk17C[i * 2]->show();
+			else
+				unk17C[i * 2]->hide();
+		}
 
-		setPictureColor(unk178->getPane(), 0xFFFFFFFF, 0);
-		setPictureColor(unk174->getPane(), 0xFF4C00C8, 0xFF4C0000);
+		((J2DPicture*)unk178->getPane())->mWhite = 0xFFFFFFFF;
+		((J2DPicture*)unk178->getPane())->mBlack = 0;
+		((J2DPicture*)unk174->getPane())->mWhite = 0xFF4C00C8;
+		((J2DPicture*)unk174->getPane())->mBlack = 0xFF4C0000;
 		if (unk1CC[0] >= 4) {
-			setPictureColor(unk178->getPane(), 0xFFFFFFFF, 0);
-			setPictureColor(unk17C[0], 0xFFFFFFFF, 0);
+			((J2DPicture*)unk178->getPane())->mWhite = 0xFFFFFFFF;
+			((J2DPicture*)unk178->getPane())->mBlack = 0;
+			((J2DPicture*)unk17C[0])->mWhite = 0xFFFFFFFF;
+			((J2DPicture*)unk17C[0])->mBlack = 0;
 		} else {
-			setPictureColor(unk178->getPane(), 0x7F7F7FFF, 0);
-			setPictureColor(unk17C[0], 0x7F7F7FFF, 0);
+			((J2DPicture*)unk178->getPane())->mWhite = 0x7F7F7FFF;
+			((J2DPicture*)unk178->getPane())->mBlack = 0;
+			((J2DPicture*)unk17C[0])->mWhite = 0x7F7F7FFF;
+			((J2DPicture*)unk17C[0])->mBlack = 0;
 		}
 	} else if (param_1 == 1) {
-		setupLifeSegments(this, 2, 8, (s16)gpMarioOriginal->unk12C,
-		                  0x00FFFFFF, 0x003CFF00);
+		for (int i = 1; i < 9; ++i) {
+			((J2DPicture*)unk17C[i * 2])->mWhite = 0x00FFFFFF;
+			((J2DPicture*)unk17C[i * 2])->mBlack = 0x003CFF00;
+			if ((s16)gpMarioOriginal->unk12C + 1 > i)
+				unk17C[i * 2]->show();
+			else
+				unk17C[i * 2]->hide();
+		}
 
-		setPictureColor(unk174->getPane(), 0x0000FF78, 0x0000FF00);
+		((J2DPicture*)unk174->getPane())->mWhite = 0x0000FF78;
+		((J2DPicture*)unk174->getPane())->mBlack = 0x0000FF00;
 		if (unk1CC[0] >= 4) {
-			setPictureColor(unk178->getPane(), 0x00FFFFFF, 0x003CFF00);
-			setPictureColor(unk17C[0], 0x00FFFFFF, 0x003CFF00);
+			((J2DPicture*)unk178->getPane())->mWhite = 0x00FFFFFF;
+			((J2DPicture*)unk178->getPane())->mBlack = 0x003CFF00;
+			((J2DPicture*)unk17C[0])->mWhite = 0x00FFFFFF;
+			((J2DPicture*)unk17C[0])->mBlack = 0x003CFF00;
 		} else {
-			setPictureColor(unk178->getPane(), 0x0010FFFF, 0x003CFF00);
-			setPictureColor(unk17C[0], 0x0010FFFF, 0x003CFF00);
+			((J2DPicture*)unk178->getPane())->mWhite = 0x0010FFFF;
+			((J2DPicture*)unk178->getPane())->mBlack = 0x003CFF00;
+			((J2DPicture*)unk17C[0])->mWhite = 0x0010FFFF;
+			((J2DPicture*)unk17C[0])->mBlack = 0x003CFF00;
 		}
 	}
 
