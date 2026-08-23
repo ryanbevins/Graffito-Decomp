@@ -1436,10 +1436,8 @@ void THaneHamuKuri::walkBehavior(int param_1, f32 param_2)
 			unk234 += 1.0f;
 	}
 
-	JGeometry::TVec3<f32>& prevPos = (JGeometry::TVec3<f32>&)unk220;
-
 	JGeometry::TVec3<f32> diff = mPosition;
-	diff.sub(prevPos);
+	diff.sub((JGeometry::TVec3<f32>&)unk220);
 
 	JGeometry::TVec3<f32> dir = diff;
 	MsVECNormalize(&dir, &dir);
@@ -1454,7 +1452,7 @@ void THaneHamuKuri::walkBehavior(int param_1, f32 param_2)
 			TWalkerEnemy::walkBehavior(param_1, param_2);
 	}
 
-	prevPos     = mPosition;
+	(JGeometry::TVec3<f32>&)unk220 = mPosition;
 	unk218      = mRotation.y;
 
 	if (unk21C != 0.0f) {
