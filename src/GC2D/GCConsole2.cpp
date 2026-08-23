@@ -3013,12 +3013,12 @@ bool TGCConsole2::processAppearStar(int param_1)
 	TFlagManager::smInstance->getFlag(0x40001);
 
 	int blueCoins = 0;
-	for (int flag = 0x10046; flag < 0x10056; ++flag) {
-		if (TFlagManager::smInstance->getFlag(flag) != 0)
+	for (int flag = 0x46; flag < 0x56; ++flag) {
+		if (TFlagManager::smInstance->getFlag(flag + 0x10000) != 0)
 			++blueCoins;
 	}
-	for (int flag = 0x1006c; flag <= 0x10073; ++flag) {
-		if (TFlagManager::smInstance->getFlag(flag) != 0)
+	for (int flag = 0x6c; flag <= 0x73; ++flag) {
+		if (TFlagManager::smInstance->getFlag(flag + 0x10000) != 0)
 			++blueCoins;
 	}
 
