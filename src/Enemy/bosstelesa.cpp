@@ -2923,8 +2923,9 @@ DEFINE_NERVE(TNerveBubbleLive, TLiveActor)
 		bubble->setBckAnm(10);
 	}
 
+	f32 addPosBase = bubble->unk194->mSLAddPosBase.get();
 	if (!bubble->unk1D0) {
-		if (bubble->unk1CC < bubble->unk194->mSLAddPosBase.get())
+		if (bubble->unk1CC < addPosBase)
 			bubble->unk1CC += 1.0f;
 	} else {
 		if (spine->getTime() > 40 && bubble->unk1D1) {
