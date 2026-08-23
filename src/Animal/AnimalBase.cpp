@@ -298,7 +298,8 @@ void TAnimalBase::init(TLiveManager* mgr)
 
 	TAnimalSaveIndividual* save
 	    = ((TAnimalManagerBase*)mManager)->mAnimalSave;
-	mTurnSpeed = save->mSLWalkTurnSpeed.value * SMSGetAnmFrameRate();
+	f32 walkTurnSpeed = save->mSLWalkTurnSpeed.value;
+	mTurnSpeed = walkTurnSpeed * SMSGetAnmFrameRate();
 
 	J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
 	if (fc) {
