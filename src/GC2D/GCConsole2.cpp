@@ -4005,11 +4005,10 @@ void TGCConsole2::drawJuice(J2DOrthoGraph& graph, u32 color)
 	loadPictureTexture((J2DPicture*)unk32C, GX_TEXMAP0);
 	loadPictureTexture((J2DPicture*)unk328, GX_TEXMAP1);
 
-	J2DPane** juicePanes = (J2DPane**)unk334;
-	int selected         = 0x17;
+	int selected = 0x17;
 	for (int i = 0x16; (u8)i != 0; --i) {
 		int threshold = (int)(64.0f * (1.0f - unk2B8));
-		if (juicePanes[i]->mBounds.y1 >= threshold) {
+		if (unk334[i]->mBounds.y1 >= threshold) {
 			selected = i + 1;
 			break;
 		}
@@ -4017,10 +4016,10 @@ void TGCConsole2::drawJuice(J2DOrthoGraph& graph, u32 color)
 
 	f32 translateY = 1.0f;
 	if ((u8)selected < 0x17)
-		translateY = 1.0f - (f32)juicePanes[selected]->mBounds.y1
+		translateY = 1.0f - (f32)unk334[selected]->mBounds.y1
 		                        * 0.015625f;
 
-	if (juicePanes[1]->mBounds.y1 < (int)(64.0f * (1.0f - unk2B8)))
+	if (unk334[1]->mBounds.y1 < (int)(64.0f * (1.0f - unk2B8)))
 		translateY = 0.0f;
 
 	PSMTXTrans(mtx, 0.0f, translateY, 0.0f);
@@ -4041,10 +4040,10 @@ void TGCConsole2::drawJuice(J2DOrthoGraph& graph, u32 color)
 	graph.setup2D();
 
 	if (unk330 != selected - 1)
-		juicePanes[unk330]->hide();
+		unk334[unk330]->hide();
 
 	if ((u8)selected < 0x17) {
-		J2DPane* pane = juicePanes[selected - 1];
+		J2DPane* pane = unk334[selected - 1];
 		((J2DPicture*)pane)->mWhite.set(color);
 		pane->show();
 		unk330 = selected - 1;
