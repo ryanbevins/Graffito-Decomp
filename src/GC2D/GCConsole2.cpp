@@ -3183,7 +3183,9 @@ bool TGCConsole2::processDownCoin(int param_1)
 		isFinished = false;
 	}
 
-	if (param_1 >= 14 && unkCC->update()) {
+	if (param_1 < 14) {
+		isFinished = false;
+	} else if (unkCC->update()) {
 		bool atOrigin = false;
 		if (unkCC->unk14.x1 == 0 && unkCC->unk14.y1 == 0)
 			atOrigin = true;
@@ -3196,7 +3198,9 @@ bool TGCConsole2::processDownCoin(int param_1)
 		isFinished = false;
 	}
 
-	if (param_1 >= 24 && unkD0->update()) {
+	if (param_1 < 24) {
+		isFinished = false;
+	} else if (unkD0->update()) {
 		bool atOrigin = false;
 		if (unkD0->unk14.x1 == 0 && unkD0->unk14.y1 == 0)
 			atOrigin = true;
