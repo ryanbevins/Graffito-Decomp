@@ -2472,7 +2472,12 @@ DEFINE_NERVE(TNerveBossTelesaAppear, TLiveActor)
 				blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 			const char** basTable = boss->getBasNameTable();
-			boss->setAnmSound(basTable ? basTable[0] : nullptr);
+			const char* basName;
+			if (!basTable)
+				basName = nullptr;
+			else
+				basName = basTable[0];
+			boss->setAnmSound(basName);
 
 			if (!boss->unk384) {
 				boss->unk384 = 1;
@@ -2507,7 +2512,12 @@ DEFINE_NERVE(TNerveBossTelesaAppear, TLiveActor)
 			blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 		const char** basTable = boss->getBasNameTable();
-		boss->setAnmSound(basTable ? basTable[15] : nullptr);
+		const char* basName;
+		if (!basTable)
+			basName = nullptr;
+		else
+			basName = basTable[15];
+		boss->setAnmSound(basName);
 		boss->mMActor->setBtpFromIndex(2);
 	}
 
@@ -2547,7 +2557,12 @@ DEFINE_NERVE(TNerveBossTelesaAppear, TLiveActor)
 				blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 			const char** basTable = boss->getBasNameTable();
-			boss->setAnmSound(basTable ? basTable[14] : nullptr);
+			const char* basName;
+			if (!basTable)
+				basName = nullptr;
+			else
+				basName = basTable[14];
+			boss->setAnmSound(basName);
 		}
 	}
 
