@@ -309,7 +309,7 @@ void TCogwheel::initMapObj()
 {
 	TMapObjBase::initMapObj();
 
-	f32 angle = mRotation.x * 0.017453294f;
+	f32 angle = mRotation.y * 0.017453294f;
 	f32 radius = sRadius;
 	f32 cosine = cosf(angle);
 	f32 sine   = sinf(angle);
