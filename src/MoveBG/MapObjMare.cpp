@@ -849,16 +849,17 @@ void TMuddyBoat::touchWall(JGeometry::TVec3<f32>* next,
 	mLinearVelocity.zero();
 }
 
-BOOL TMuddyBoat::bindToWall(const JGeometry::TVec3<f32>& pos, f32 radius,
+bool TMuddyBoat::bindToWall(const JGeometry::TVec3<f32>& pos, f32 radius,
                             JGeometry::TVec3<f32>* next)
 {
 	TBGWallCheckRecord record(pos, radius, 4,
 	                          TBGWallCheckRecord::DONT_MOVE_XZ);
-	if (!gpMap->isTouchedWallsAndMoveXZ(&record))
-		return FALSE;
-
-	touchWall(next, record);
-	return TRUE;
+	if (gpMap->isTouchedWallsAndMoveXZ(&record)) {
+		touchWall(next, record);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 void TMuddyBoat::bind()
