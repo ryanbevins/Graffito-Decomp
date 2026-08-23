@@ -822,8 +822,16 @@ DEFINE_NERVE(TNerveBathtubKillerWander, TLiveActor)
 		sp.y = 0.0f;
 		JGeometry::TVec3<f32> bp(self->unk1CC->mPosition);
 		bp.y = 0.0f;
-		f32 dM = mp.distance(bp);
-		f32 dS = sp.distance(bp);
+		f32 mdx = mp.x - bp.x;
+		f32 mdy = mp.y - bp.y;
+		f32 mdz = mp.z - bp.z;
+		f32 dM = JGeometry::TUtil<f32>::sqrt(
+		    mdx * mdx + mdy * mdy + mdz * mdz);
+		f32 sdx = sp.x - bp.x;
+		f32 sdy = sp.y - bp.y;
+		f32 sdz = sp.z - bp.z;
+		f32 dS = JGeometry::TUtil<f32>::sqrt(
+		    sdx * sdx + sdy * sdy + sdz * sdz);
 		wantStraight = dS <= 100.0f + dM;
 	} else {
 		wantStraight = true;
