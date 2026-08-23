@@ -456,17 +456,20 @@ void TRailBlock::control()
 		unk15C.x            = railNode->mPitch;
 		unk15C.y            = railNode->mYaw;
 		unk15C.z            = railNode->mRoll;
-		unk150 = (unk15C.x
-		          - callMsWrap(unk168.x, unk15C.x - 180.0f,
-		                       unk15C.x + 180.0f))
+		f32 targetAngle = unk15C.x;
+		unk150 = (targetAngle
+		          - callMsWrap(unk168.x, targetAngle - 180.0f,
+		                       targetAngle + 180.0f))
 		         / rotateStep;
-		unk154 = (unk15C.y
-		          - callMsWrap(unk168.y, unk15C.y - 180.0f,
-		                       unk15C.y + 180.0f))
+		targetAngle = unk15C.y;
+		unk154 = (targetAngle
+		          - callMsWrap(unk168.y, targetAngle - 180.0f,
+		                       targetAngle + 180.0f))
 		         / rotateStep;
-		unk158 = (unk15C.z
-		          - callMsWrap(unk168.z, unk15C.z - 180.0f,
-		                       unk15C.z + 180.0f))
+		targetAngle = unk15C.z;
+		unk158 = (targetAngle
+		          - callMsWrap(unk168.z, targetAngle - 180.0f,
+		                       targetAngle + 180.0f))
 		         / rotateStep;
 	} else {
 		mRotation.x += unk150;
