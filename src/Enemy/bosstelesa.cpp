@@ -430,6 +430,9 @@ void TBossTelesa::calcRootMatrix()
 	mMActor->getModel()->setBaseScale(mScaling);
 
 	f32 offsetY = unk364;
+	f32 positionZ = mPosition.z;
+	f32 transYOffset
+	    = ((TBossTelesaSaveLoadParams*)unk15C)->mSLTransYOffset.get();
 	if (offsetY > 0.0f)
 		offsetY = 0.0f;
 	else if (offsetY < mBaseHoseiPosY)
@@ -438,10 +441,8 @@ void TBossTelesa::calcRootMatrix()
 	TPosition3f translateMtx;
 	translateMtx.translation(
 	    mPosition.x,
-	    mPosition.y
-	        + ((TBossTelesaSaveLoadParams*)unk15C)->mSLTransYOffset.get()
-	        + offsetY,
-	    mPosition.z);
+	    mPosition.y + transYOffset + offsetY,
+	    positionZ);
 
 	Mtx rotateMtx;
 	MsMtxSetRotRPH(rotateMtx, mRotation.x, mRotation.y, mRotation.z);
