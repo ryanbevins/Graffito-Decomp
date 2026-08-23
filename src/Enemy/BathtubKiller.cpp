@@ -889,7 +889,10 @@ DEFINE_NERVE(TNerveBathtubKillerChase, TLiveActor)
 		f32 sdz = sp.z - bp.z;
 		f32 dS = JGeometry::TUtil<f32>::sqrt(
 		    sdx * sdx + sdy * sdy + sdz * sdz);
-		wantStraight = dS <= 100.0f + dM;
+		if (dS > 100.0f + dM)
+			wantStraight = false;
+		else
+			wantStraight = true;
 	} else {
 		wantStraight = true;
 	}
