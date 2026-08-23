@@ -3033,26 +3033,106 @@ bool TGCConsole2::processAppearStar(int param_1)
 		}
 	}
 
-	if (!updateDownPane(unk128))
+	if (unk128->update()) {
+		bool atOrigin = false;
+		if (unk128->unk14.x1 == 0 && unk128->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk128->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
-	if (!updateDownPane(unk148))
+	}
+	if (unk148->update()) {
+		bool atOrigin = false;
+		if (unk148->unk14.x1 == 0 && unk148->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk148->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
-	if (!updateDownPane(unk12C))
+	}
+	if (unk12C->update()) {
+		bool atOrigin = false;
+		if (unk12C->unk14.x1 == 0 && unk12C->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk12C->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
-	if (!updateDownPane(unk14C))
+	}
+	if (unk14C->update()) {
+		bool atOrigin = false;
+		if (unk14C->unk14.x1 == 0 && unk14C->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk14C->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
-	if (!updateDownPane(unk130))
+	}
+	if (unk130->update()) {
+		bool atOrigin = false;
+		if (unk130->unk14.x1 == 0 && unk130->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk130->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
-	if (!updateDownPane(unk150))
+	}
+	if (unk150->update()) {
+		bool atOrigin = false;
+		if (unk150->unk14.x1 == 0 && unk150->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk150->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
+	}
 
 	for (int i = 0; i < 3; ++i) {
-		if (!updateDownBlendPane(unk134[i]))
+		if (unk134[i]->update()) {
+			bool atOrigin = false;
+			if (unk134[i]->unk14.x1 == 0 && unk134[i]->unk14.y1 == 0)
+				atOrigin = true;
+			if (!atOrigin) {
+				unk134[i]->setPanePosition(
+				    30, cDownMidPoint, cDownMidPoint, cDownBotPoint);
+				isFinished = false;
+			}
+		} else {
 			isFinished = false;
+		}
 	}
 	for (int i = 0; i < 3; ++i) {
-		if (!updateDownPane(unk154[i]))
+		if (unk154[i]->update()) {
+			bool atOrigin = false;
+			if (unk154[i]->unk14.x1 == 0 && unk154[i]->unk14.y1 == 0)
+				atOrigin = true;
+			if (!atOrigin) {
+				unk154[i]->setPanePosition(
+				    30, cDownMidPoint, cDownMidPoint, cDownBotPoint);
+				isFinished = false;
+			}
+		} else {
 			isFinished = false;
+		}
 	}
 
 	JUTRect bounds(unk12C->getPane()->mGlobalBounds);
