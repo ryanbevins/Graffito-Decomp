@@ -543,12 +543,11 @@ void TFruitLauncher::fireObj()
 void TFruitLauncher::loadAfter()
 {
 	TMapObjBase::loadAfter();
-	((TResetFruit*)TMapObjBaseManager::newAndRegisterObj(
-	     "FruitCoconut", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
-	     JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
-	     JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f)))
-	    ->unk1A4
-	    = 1;
+	TResetFruit* fruit = (TResetFruit*)TMapObjBaseManager::newAndRegisterObj(
+	    "FruitCoconut", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+	    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+	    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
+	fruit->unk1A4 = 1;
 	((TResetFruit*)TMapObjBaseManager::newAndRegisterObj(
 	     "FruitDurian", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
 	     JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
