@@ -310,27 +310,36 @@ void TCogwheel::initMapObj()
 	TMapObjBase::initMapObj();
 
 	f32 angle = mRotation.x * 0.017453294f;
-	f32 cx    = sRadius * cosf(angle);
-	f32 sz    = sRadius * sinf(angle);
+	f32 radius = sRadius;
+	f32 cosine = cosf(angle);
+	f32 sine   = sinf(angle);
+	f32 sineRadius   = sRadius * sine;
+	f32 cosineRadius = sRadius * cosine;
+	cosine           = radius * cosine - sineRadius;
+	sine             = radius * sine + cosineRadius;
 
-	JGeometry::TVec3<f32> pos(mPosition.x + cx, mPosition.y,
-	                          mPosition.z - sz);
+	JGeometry::TVec3<f32> pos(mPosition.x + cosine, mPosition.y,
+	                          mPosition.z - sine);
 	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 
-	unk150 = (TCogwheelScale*)TMapObjBaseManager::newAndRegisterObj(
+	TCogwheelScale* plate
+	    = (TCogwheelScale*)TMapObjBaseManager::newAndRegisterObj(
 	    "cogwheel_plate", pos, mRotation, scale);
+	unk150         = plate;
 	unk150->unk154 = 1;
 	unk150->unk158 = this;
-	unk150->appear();
-	unk154 = pos;
+	plate->appear();
+	unk154.set(pos);
 
-	pos.set(mPosition.x - cx, mPosition.y, mPosition.z + sz);
-	unk164 = (TCogwheelScale*)TMapObjBaseManager::newAndRegisterObj(
+	pos.set(mPosition.x - cosine, mPosition.y, mPosition.z + sine);
+	TCogwheelScale* pot
+	    = (TCogwheelScale*)TMapObjBaseManager::newAndRegisterObj(
 	    "cogwheel_pot", pos, mRotation, scale);
+	unk164         = pot;
 	unk164->unk154 = 0;
 	unk164->unk158 = this;
-	unk164->appear();
-	unk168 = pos;
+	pot->appear();
+	unk168.set(pos);
 
 	if (strcmp(getName(), "\x93\x56\x94\x89\x8F\xE3") == 0) {
 		unk140 = 0.003f;
