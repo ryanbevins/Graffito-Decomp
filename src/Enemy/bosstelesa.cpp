@@ -1016,11 +1016,16 @@ void TBossTelesa::rouletteStart()
 	    = (maxHitPoints - mHitPoints) * TBossTelesa::mRouletteUpRate;
 
 	for (int i = 0; i < 3; ++i) {
-		f32 direction = 1.0f;
-		if (dir > 0.0f)
+		f32 direction;
+		if (dir > 0.0f) {
 			direction = -1.0f;
-		if (i == 0 || i == 2)
-			direction = -direction;
+			if (i == 0 || i == 2)
+				direction = 1.0f;
+		} else {
+			direction = 1.0f;
+			if (i == 0 || i == 2)
+				direction = -1.0f;
+		}
 
 		f32 speed = speedRange.rand();
 		((TRoulette**)&unk178)[i]->unk144
