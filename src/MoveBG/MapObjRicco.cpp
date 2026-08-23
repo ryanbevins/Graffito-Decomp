@@ -433,7 +433,10 @@ void TFruitLauncher::fireObj()
 		MSoundSESystem::MSoundSE::startSoundActor(
 		    0x387D, (Vec*)&mPosition, 0, 0, 0, 4);
 	}
-	unk140              = unk140 == 0 ? 1 : 0;
+	if (unk140 == 0)
+		unk140 = 1;
+	else
+		unk140 = 0;
 	TFruitSwitch* sw    = (&unk138)[unk140];
 	sw->getMActor()->getFrameCtrl(0)->setFrame(0.0f);
 	sw->unk64 &= ~1;
