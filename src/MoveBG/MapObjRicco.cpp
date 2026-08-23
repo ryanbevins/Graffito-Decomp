@@ -447,23 +447,23 @@ void TFruitLauncher::fireObj()
 		f32 r1 = MsRandF() * 100.0f;
 		if (r1 < 20.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000390,
+			                                   sw->mPosition.z, 0x40000390,
 			                                   false);
 		} else if (r1 < 40.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000391,
+			                                   sw->mPosition.z, 0x40000391,
 			                                   false);
 		} else if (r1 < 60.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000392,
+			                                   sw->mPosition.z, 0x40000392,
 			                                   false);
 		} else if (r1 < 80.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000393,
+			                                   sw->mPosition.z, 0x40000393,
 			                                   false);
 		} else {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000394,
+			                                   sw->mPosition.z, 0x40000394,
 			                                   false);
 		}
 	}
@@ -471,23 +471,23 @@ void TFruitLauncher::fireObj()
 		f32 r2 = MsRandF() * 100.0f;
 		if (r2 < 20.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000390,
+			                                   sw->mPosition.z, 0x40000390,
 			                                   false);
 		} else if (r2 < 40.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000391,
+			                                   sw->mPosition.z, 0x40000391,
 			                                   false);
 		} else if (r2 < 60.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000392,
+			                                   sw->mPosition.z, 0x40000392,
 			                                   false);
 		} else if (r2 < 80.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000393,
+			                                   sw->mPosition.z, 0x40000393,
 			                                   false);
 		} else {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000394,
+			                                   sw->mPosition.z, 0x40000394,
 			                                   false);
 		}
 	}
@@ -495,23 +495,23 @@ void TFruitLauncher::fireObj()
 		f32 r3 = MsRandF() * 100.0f;
 		if (r3 < 20.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000390,
+			                                   sw->mPosition.z, 0x40000390,
 			                                   false);
 		} else if (r3 < 40.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000391,
+			                                   sw->mPosition.z, 0x40000391,
 			                                   false);
 		} else if (r3 < 60.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000392,
+			                                   sw->mPosition.z, 0x40000392,
 			                                   false);
 		} else if (r3 < 80.0f) {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000393,
+			                                   sw->mPosition.z, 0x40000393,
 			                                   false);
 		} else {
 			obj = gpItemManager->makeObjAppear(sw->mPosition.x, sw->mPosition.y,
-			                                   sw->mPosition.z, 0x4000394,
+			                                   sw->mPosition.z, 0x40000394,
 			                                   false);
 		}
 	}
