@@ -1329,8 +1329,10 @@ void TBossTelesa::setSpicy(TLiveActor* actor)
 		oldAnmActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 
 	mMActor->setBckFromIndex(1);
-	if (mMActor->unkC)
-		mMActor->unkC->setMotionBlendRatio(unk168);
+	MActor* blendActor = mMActor;
+	f32 blendRatio = unk168;
+	if (blendActor->unkC)
+		blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 	const char** basTable = getBasNameTable();
 	const char* basName;
