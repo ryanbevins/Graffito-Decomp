@@ -499,7 +499,7 @@ void TSwingBoard::load(JSUMemoryInputStream& stream)
 	unk148 = 0.05f * ((1.0f + randUnit()) * 0.5f);
 	unk13C = 20.0f * (randUnit() - 0.5f);
 	if (unk13C > 0.0f)
-		unk144 = -unk148 * randUnit();
+		unk144 = unk148 * -randUnit();
 	else
 		unk144 = unk148 * randUnit();
 
