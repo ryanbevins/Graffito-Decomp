@@ -1348,8 +1348,8 @@ void THaneHamuKuri::walkBehavior(int param_1, f32 param_2)
 			}
 		}
 
-		f32 flyBaseAmplitude = unk22C->mSLFlyBaseAmplitude.get();
 		f32 flyBaseFrequency = unk22C->mSLFlyBaseFrequency.get();
+		f32 flyBaseAmplitude = unk22C->mSLFlyBaseAmplitude.get();
 
 		if (mSpine->getCurrentNerve() == &TNerveWalkerGraphWander::theNerve()
 		    || mSpine->getCurrentNerve() == &TNerveWalkerAttack::theNerve()
