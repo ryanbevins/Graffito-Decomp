@@ -3218,9 +3218,7 @@ bool TGCConsole2::processDownCoin(int param_1)
 			isFinished = false;
 		} else {
 			unkD4[i]->update();
-			if (unkD4[i]->unk24) {
-				isFinished = false;
-			} else {
+			if (!unkD4[i]->unk24) {
 				bool atOrigin = false;
 				if (unkD4[i]->unk14.x1 == 0 && unkD4[i]->unk14.y1 == 0)
 					atOrigin = true;
@@ -3229,6 +3227,8 @@ bool TGCConsole2::processDownCoin(int param_1)
 					    30, cCoinMidPoint, cCoinMidPoint, cCoinBotPoint);
 					isFinished = false;
 				}
+			} else {
+				isFinished = false;
 			}
 		}
 	}
