@@ -286,7 +286,7 @@ void TRocket::calcRootMatrix()
 
 		TPosition3f tmp;
 		if (mSpine->getCurrentNerve() == &TNerveRocketFly::theNerve()) {
-			tmp.translation(mPosition);
+			tmp.translation(mPosition.x, mPosition.y, mPosition.z);
 		} else {
 			TWaterGun* wg = (TWaterGun*)SMS_GetMarioWaterGun();
 			MtxPtr emit   = wg->getEmitMtx(0);
