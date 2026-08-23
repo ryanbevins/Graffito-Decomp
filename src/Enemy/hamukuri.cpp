@@ -1322,9 +1322,6 @@ void THaneHamuKuri::walkBehavior(int param_1, f32 param_2)
 			mVelocity = vel;
 		}
 	} else {
-		f32 flyBaseAmplitude = unk22C->mSLFlyBaseAmplitude.get();
-		f32 flyBaseFrequency = unk22C->mSLFlyBaseFrequency.get();
-
 		if (unk21C == 0.0f) {
 			if (unk214 == 0.0f) {
 				if (abs(unk230 - mGroundHeight) > 5.0f) {
@@ -1350,6 +1347,9 @@ void THaneHamuKuri::walkBehavior(int param_1, f32 param_2)
 				}
 			}
 		}
+
+		f32 flyBaseAmplitude = unk22C->mSLFlyBaseAmplitude.get();
+		f32 flyBaseFrequency = unk22C->mSLFlyBaseFrequency.get();
 
 		if (mSpine->getCurrentNerve() == &TNerveWalkerGraphWander::theNerve()
 		    || mSpine->getCurrentNerve() == &TNerveWalkerAttack::theNerve()
