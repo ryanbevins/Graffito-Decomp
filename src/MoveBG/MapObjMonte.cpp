@@ -378,9 +378,7 @@ void TFluff::control()
 		if (isLifeTimerActive())
 			break;
 		appear();
-		mRotation.x      = 0.0f;
-		mRotation.y      = randUnit() * 360.0f;
-		mRotation.z      = 0.0f;
+		mRotation.set(0.0f, randUnit() * 360.0f, 0.0f);
 		mInitialRotation = mRotation;
 		unk16C           = 0;
 		TFluffManager* manager = unk168;
