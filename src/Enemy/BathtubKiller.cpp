@@ -688,10 +688,10 @@ void TBathtubKiller::attackToMario()
 
 bool TBathtubKiller::isCollidMove(THitActor* sender)
 {
-	if (mSpine->getCurrentNerve()
-	        == &TNerveBathtubKillerExplosion::theNerve()
-	    || mSpine->getCurrentNerve()
-	           == &TNerveBathtubKillerBreak::theNerve())
+	const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
+	bool isBroken = nerve == &TNerveBathtubKillerExplosion::theNerve()
+	                || nerve == &TNerveBathtubKillerBreak::theNerve();
+	if (isBroken)
 		return false;
 
 	if (sender->isActorType(0x8000029)) {
