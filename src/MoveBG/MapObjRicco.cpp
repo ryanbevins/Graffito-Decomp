@@ -586,12 +586,8 @@ void TFruitLauncher::loadAfter()
 	TFruitSwitch* fruitSwitch = unk138;
 	fruitSwitch->startBck("riccoswitch");
 	fruitSwitch->unk64 |= 1;
-	{
-		TMapCollisionBase* coll = fruitSwitch->mMapCollisionManager->unk8;
-		if (coll) {
-			coll->remove();
-		}
-	}
+	if (fruitSwitch->mMapCollisionManager->unk8)
+		fruitSwitch->mMapCollisionManager->unk8->remove();
 }
 
 #include <MSound/MSoundBGM.hpp>
