@@ -2434,7 +2434,7 @@ DEFINE_NERVE(TNerveBossTelesaAppear, TLiveActor)
 	}
 
 	if (boss->mMActor->checkCurBckFromIndex(0)
-	    && boss->mMActor->getFrameCtrl(0)->checkPass(78.0f)) {
+	    && boss->mMActor->getFrameCtrl(0)->checkPass(40.0f)) {
 		gpCameraShake->startShake((EnumCamShakeMode)0x22, 1.0f);
 		if (gpMSound->gateCheck(0x292A)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
