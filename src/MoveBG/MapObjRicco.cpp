@@ -441,9 +441,10 @@ void TFruitLauncher::fireObj()
 	sw->getMActor()->getFrameCtrl(0)->setFrame(0.0f);
 	sw->unk64 &= ~1;
 	sw->getModel()->calc();
-	PSMTXCopy(sw->getModel()->mNodeMatrices[0],
-	          sw->mMapCollisionManager->unk8->unk20);
-	sw->mMapCollisionManager->unk8->setUp();
+	MtxPtr matrix = sw->getModel()->mNodeMatrices[0];
+	TMapCollisionBase* collision = sw->mMapCollisionManager->unk8;
+	PSMTXCopy(matrix, collision->unk20);
+	collision->setUp();
 
 	TMapObjBase* obj = (TMapObjBase*)NULL;
 	{
