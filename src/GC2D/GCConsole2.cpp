@@ -4014,10 +4014,13 @@ void TGCConsole2::drawJuice(J2DOrthoGraph& graph, u32 color)
 		}
 	}
 
-	f32 translateY = 1.0f;
-	if ((u8)selected < 0x17)
+	f32 translateY;
+	if (selected < 0x17) {
 		translateY = 1.0f - (f32)unk334[selected]->mBounds.y1
 		                        * 0.015625f;
+	} else {
+		translateY = 1.0f;
+	}
 
 	if (unk334[1]->mBounds.y1 < (int)(64.0f * (1.0f - unk2B8)))
 		translateY = 0.0f;
