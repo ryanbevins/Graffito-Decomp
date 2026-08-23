@@ -523,13 +523,7 @@ void TBathtubKiller::perform(u32 param1, JDrama::TGraphics* graphics)
 					    0x1bd, (MtxPtr)unk220.mMtx, 1, this);
 				}
 
-				f32 dist = JGeometry::TUtil<f32>::sqrt(
-				    (mPosition.x - gpMarioPos->x)
-				        * (mPosition.x - gpMarioPos->x)
-				    + (mPosition.y - gpMarioPos->y)
-				          * (mPosition.y - gpMarioPos->y)
-				    + (mPosition.z - gpMarioPos->z)
-				          * (mPosition.z - gpMarioPos->z));
+				f32 dist = mPosition.distance(*gpMarioPos);
 				if (gpMSound->gateCheck(0x20a9))
 					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 					    0x20a9, (Vec*)&mPosition, nullptr, dist, 0, 0,
