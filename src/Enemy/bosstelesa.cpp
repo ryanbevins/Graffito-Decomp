@@ -2724,7 +2724,12 @@ DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
 					blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 				const char** basTable = boss->getBasNameTable();
-				boss->setAnmSound(basTable ? basTable[2] : nullptr);
+				const char* basName;
+				if (!basTable)
+					basName = nullptr;
+				else
+					basName = basTable[2];
+				boss->setAnmSound(basName);
 				gpCameraShake->startShake((EnumCamShakeMode)0x1F, 1.0f);
 			} else {
 				boss->unk164 = boss->mMActor->getCurAnmIdx(0);
@@ -2747,7 +2752,12 @@ DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
 					blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 				const char** basTable = boss->getBasNameTable();
-				boss->setAnmSound(basTable ? basTable[5] : nullptr);
+				const char* basName;
+				if (!basTable)
+					basName = nullptr;
+				else
+					basName = basTable[5];
+				boss->setAnmSound(basName);
 				boss->mMActor->setBrkFromIndex(0);
 				gpCameraShake->startShake((EnumCamShakeMode)0x20, 1.0f);
 			}
@@ -2774,7 +2784,12 @@ DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
 				blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 			const char** basTable = boss->getBasNameTable();
-			boss->setAnmSound(basTable ? basTable[3] : nullptr);
+			const char* basName;
+			if (!basTable)
+				basName = nullptr;
+			else
+				basName = basTable[3];
+			boss->setAnmSound(basName);
 			boss->mMActor->setBrkFromIndex(1);
 			boss->unk184->mScaling.set(0.0f, 0.0f, 0.0f);
 
@@ -2861,7 +2876,12 @@ DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
 				blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 			const char** basTable = boss->getBasNameTable();
-			boss->setAnmSound(basTable ? basTable[7] : nullptr);
+			const char* basName;
+			if (!basTable)
+				basName = nullptr;
+			else
+				basName = basTable[7];
+			boss->setAnmSound(basName);
 		} else if (boss->mMActor->checkCurBckFromIndex(7)) {
 			boss->unk164 = boss->mMActor->getCurAnmIdx(0);
 			boss->unk160 = 6;
@@ -2883,7 +2903,12 @@ DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
 				blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 			const char** basTable = boss->getBasNameTable();
-			boss->setAnmSound(basTable ? basTable[6] : nullptr);
+			const char* basName;
+			if (!basTable)
+				basName = nullptr;
+			else
+				basName = basTable[6];
+			boss->setAnmSound(basName);
 		} else {
 			SMS_ResetDamageFogEffect(
 			    boss->mMActor->getModel()->getModelData());
@@ -2913,7 +2938,12 @@ DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
 					blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 				const char** basTable = boss->getBasNameTable();
-				boss->setAnmSound(basTable ? basTable[15] : nullptr);
+				const char* basName;
+				if (!basTable)
+					basName = nullptr;
+				else
+					basName = basTable[15];
+				boss->setAnmSound(basName);
 				boss->mMActor->setBtpFromIndex(2);
 				spine->pushAfterCurrent(
 				    &TNerveBossTelesaPrepareSlot::theNerve());
