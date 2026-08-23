@@ -3347,18 +3347,70 @@ bool TGCConsole2::processAppearMario(int param_1)
 		}
 	}
 
-	if (!updateDownPane(unk38C))
+	if (unk38C->update()) {
+		bool atOrigin = false;
+		if (unk38C->unk14.x1 == 0 && unk38C->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk38C->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
-	if (!updateDownPane(unk394))
+	}
+	if (unk394->update()) {
+		bool atOrigin = false;
+		if (unk394->unk14.x1 == 0 && unk394->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk394->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
-	if (!updateDownPane(unk390))
+	}
+	if (unk390->update()) {
+		bool atOrigin = false;
+		if (unk390->unk14.x1 == 0 && unk390->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk390->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
-	if (!updateDownPane(unk398))
+	}
+	if (unk398->update()) {
+		bool atOrigin = false;
+		if (unk398->unk14.x1 == 0 && unk398->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk398->setPanePosition(30, cDownMidPoint, cDownMidPoint,
+			                         cDownBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
+	}
 
 	for (int i = 0; i < 3; ++i) {
-		if (i != 2 && !updateDownPane(unk39C[i]))
-			isFinished = false;
+		if (i != 2) {
+			if (unk39C[i]->update()) {
+				bool atOrigin = false;
+				if (unk39C[i]->unk14.x1 == 0 && unk39C[i]->unk14.y1 == 0)
+					atOrigin = true;
+				if (!atOrigin) {
+					unk39C[i]->setPanePosition(
+					    30, cDownMidPoint, cDownMidPoint, cDownBotPoint);
+					isFinished = false;
+				}
+			} else {
+				isFinished = false;
+			}
+		}
 	}
 
 	return isFinished;
