@@ -3394,7 +3394,7 @@ bool TGCConsole2::processAppearJet(int param_1)
 	int startDigit  = 0;
 	int endDigit    = 4;
 
-	if (unk2C < 10)
+	if ((int)unk2C < 10)
 		startDigit = 1;
 
 	if ((u8)unk424[0] < 10) {
@@ -3402,8 +3402,7 @@ bool TGCConsole2::processAppearJet(int param_1)
 		endDigit   = 3;
 	}
 
-	if (!unk3FC->update())
-		isFinished = false;
+	isFinished &= unk3FC->update();
 
 	if (param_1 == 7) {
 		unk404->getPane()->show();
@@ -3423,18 +3422,58 @@ bool TGCConsole2::processAppearJet(int param_1)
 		unk410->setPanePosition(50, cUpTopPoint, cUpMidPoint, cUpMidPoint);
 	}
 
-	if (!updateUpPane(unk400))
-		isFinished = false;
-	if (!updateUpPane(unk404))
-		isFinished = false;
-
-	for (int i = 0; i < 4; ++i) {
-		if (!updateUpBlendPane(unk414[i]))
+	if (unk400->update()) {
+		bool atOrigin = false;
+		if (unk400->unk14.x1 == 0 && unk400->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk400->setPanePosition(30, cUpMidPoint, cUpMidPoint,
+			                         cUpBotPoint);
 			isFinished = false;
+		}
+	} else {
+		isFinished = false;
+	}
+	if (unk404->update()) {
+		bool atOrigin = false;
+		if (unk404->unk14.x1 == 0 && unk404->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk404->setPanePosition(30, cUpMidPoint, cUpMidPoint,
+			                         cUpBotPoint);
+			isFinished = false;
+		}
+	} else {
+		isFinished = false;
 	}
 
-	if (!updateUpPane(unk410))
+	for (int i = 0; i < 4; ++i) {
+		if (unk414[i]->update()) {
+			bool atOrigin = false;
+			if (unk414[i]->unk14.x1 == 0 && unk414[i]->unk14.y1 == 0)
+				atOrigin = true;
+			if (!atOrigin) {
+				unk414[i]->setPanePosition(30, cUpMidPoint, cUpMidPoint,
+				                            cUpBotPoint);
+				isFinished = false;
+			}
+		} else {
+			isFinished = false;
+		}
+	}
+
+	if (unk410->update()) {
+		bool atOrigin = false;
+		if (unk410->unk14.x1 == 0 && unk410->unk14.y1 == 0)
+			atOrigin = true;
+		if (!atOrigin) {
+			unk410->setPanePosition(30, cUpMidPoint, cUpMidPoint,
+			                         cUpBotPoint);
+			isFinished = false;
+		}
+	} else {
 		isFinished = false;
+	}
 
 	return isFinished;
 }
