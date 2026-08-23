@@ -116,8 +116,8 @@ TBathtubKillerParams::TBathtubKillerParams(const char* prm)
 
 TBathtubKiller::TBathtubKiller(const char* name)
     : TSmallEnemy(name)
+    , unk1CC(nullptr)
 {
-	unk1CC = (TBathtub*)nullptr;
 }
 
 void TBathtubKiller::init(TLiveManager* manager)
@@ -518,7 +518,7 @@ void TBathtubKiller::perform(u32 param1, JDrama::TGraphics* graphics)
 				unk1D4++;
 				if (unk1D4 >= getSaveParam2()->mSLSmokeInterval.value) {
 					unk1D4 = 0;
-					((TPosition3f*)&unk220)->setQT(mQuat, mPosition);
+					unk220.setQT(mQuat, mPosition);
 					gpMarioParticleManager->emitAndBindToMtxPtr(
 					    0x1bd, (MtxPtr)unk220.mMtx, 1, this);
 				}
