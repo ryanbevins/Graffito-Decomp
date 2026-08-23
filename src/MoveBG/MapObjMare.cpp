@@ -233,7 +233,7 @@ void TCogwheel::draw() const
 	f32 potZMinus = unk168.z - mRopeWidthZ;
 	f32 potZPlus = unk168.z + mRopeWidthZ;
 
-	GXBegin(GX_QUADS, GX_VTXFMT0, 8);
+	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 8);
 	GXPosition3f32(potXMinus, potTopY, potZMinus);
 	GXTexCoord2f32(0.0f, potTopTex);
 	GXPosition3f32(potXMinus, bottomY, potZMinus);
