@@ -895,15 +895,17 @@ DEFINE_NERVE(TNerveBathtubKillerChase, TLiveActor)
 	}
 
 	if (!wantStraight) {
-		spine->pushNerve(&TNerveBathtubKillerStraight::theNerve());
+		spine->pushAfterCurrent(&TNerveBathtubKillerStraight::theNerve());
 		return TRUE;
 	}
 
 	if (self->isAboided()) {
 		if (self->unk194 == 1)
-			spine->pushNerve(&TNerveBathtubKillerChaseStraight::theNerve());
+			spine->pushAfterCurrent(
+			    &TNerveBathtubKillerChaseStraight::theNerve());
 		else
-			spine->pushNerve(&TNerveBathtubKillerStraight::theNerve());
+			spine->pushAfterCurrent(
+			    &TNerveBathtubKillerStraight::theNerve());
 		return TRUE;
 	}
 
