@@ -2974,11 +2974,8 @@ bool TGCConsole2::processAppearStar(int param_1)
 {
 	bool isFinished = true;
 
-	if (!unk140->update())
-		isFinished = false;
-
-	if (!unk160->update())
-		isFinished = false;
+	isFinished &= unk140->update();
+	isFinished &= unk160->update();
 
 	if (param_1 == 14) {
 		unk12C->getPane()->show();
