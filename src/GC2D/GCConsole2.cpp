@@ -3022,14 +3022,14 @@ bool TGCConsole2::processAppearStar(int param_1)
 			++blueCoins;
 	}
 
-	int blueCoinValue = unk168 - blueCoins * 10;
-	if (blueCoinValue < 0)
-		blueCoinValue = 0;
+	blueCoins = unk168 - blueCoins * 10;
+	if (blueCoins < 0)
+		blueCoins = 0;
 
 	for (int i = 0; i < 3; ++i) {
 		if (param_1 == i * 6 + 28) {
 			if (i == 2) {
-				if (blueCoinValue >= 100)
+				if (blueCoins >= 100)
 					unk154[i]->getPane()->show();
 			} else {
 				unk154[i]->getPane()->show();
