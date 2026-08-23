@@ -197,9 +197,10 @@ void TCogwheel::draw() const
 	initDraw();
 
 	f32 plateY = unk150->mPosition.y - unk150->mYOffset;
+	f32 bottomY = unk154.y;
 	f32 plateTopY = plateY + 600.0f;
 	f32 plateTopTex = mTexPosRate * (plateTopY - plateY);
-	f32 plateBottomTex = mTexPosRate * (unk154.y - plateY);
+	f32 plateBottomTex = mTexPosRate * (bottomY - plateY);
 	f32 plateXMinus = unk154.x - mRopeWidthX;
 	f32 plateXPlus = unk154.x + mRopeWidthX;
 	f32 plateZMinus = unk154.z - mRopeWidthZ;
@@ -208,25 +209,25 @@ void TCogwheel::draw() const
 	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 8);
 	GXPosition3f32(plateXMinus, plateTopY, plateZMinus);
 	GXTexCoord2f32(0.0f, plateTopTex);
-	GXPosition3f32(plateXMinus, unk154.y, plateZMinus);
+	GXPosition3f32(plateXMinus, bottomY, plateZMinus);
 	GXTexCoord2f32(0.0f, plateBottomTex);
 	GXPosition3f32(plateXPlus, plateTopY, plateZPlus);
 	GXTexCoord2f32(1.0f, plateTopTex);
-	GXPosition3f32(plateXPlus, unk154.y, plateZPlus);
+	GXPosition3f32(plateXPlus, bottomY, plateZPlus);
 	GXTexCoord2f32(1.0f, plateBottomTex);
 	GXPosition3f32(plateXPlus, plateTopY, plateZMinus);
 	GXTexCoord2f32(2.0f, plateTopTex);
-	GXPosition3f32(plateXPlus, unk154.y, plateZMinus);
+	GXPosition3f32(plateXPlus, bottomY, plateZMinus);
 	GXTexCoord2f32(2.0f, plateBottomTex);
 	GXPosition3f32(plateXMinus, plateTopY, plateZPlus);
 	GXTexCoord2f32(3.0f, plateTopTex);
-	GXPosition3f32(plateXMinus, unk154.y, plateZPlus);
+	GXPosition3f32(plateXMinus, bottomY, plateZPlus);
 	GXTexCoord2f32(3.0f, plateBottomTex);
 
 	f32 potY = unk164->mPosition.y - unk164->mYOffset;
 	f32 potTopY = potY + 1200.0f;
 	f32 potTopTex = mTexPosRate * (potTopY - potY);
-	f32 potBottomTex = mTexPosRate * (unk154.y - potY);
+	f32 potBottomTex = mTexPosRate * (bottomY - potY);
 	f32 potXMinus = unk168.x - mRopeWidthX;
 	f32 potXPlus = unk168.x + mRopeWidthX;
 	f32 potZMinus = unk168.z - mRopeWidthZ;
@@ -235,19 +236,19 @@ void TCogwheel::draw() const
 	GXBegin(GX_QUADS, GX_VTXFMT0, 8);
 	GXPosition3f32(potXMinus, potTopY, potZMinus);
 	GXTexCoord2f32(0.0f, potTopTex);
-	GXPosition3f32(potXMinus, unk154.y, potZMinus);
+	GXPosition3f32(potXMinus, bottomY, potZMinus);
 	GXTexCoord2f32(0.0f, potBottomTex);
 	GXPosition3f32(potXPlus, potTopY, potZPlus);
 	GXTexCoord2f32(1.0f, potTopTex);
-	GXPosition3f32(potXPlus, unk154.y, potZPlus);
+	GXPosition3f32(potXPlus, bottomY, potZPlus);
 	GXTexCoord2f32(1.0f, potBottomTex);
 	GXPosition3f32(potXPlus, potTopY, potZMinus);
 	GXTexCoord2f32(0.0f, potTopTex);
-	GXPosition3f32(potXPlus, unk154.y, potZMinus);
+	GXPosition3f32(potXPlus, bottomY, potZMinus);
 	GXTexCoord2f32(0.0f, potBottomTex);
 	GXPosition3f32(potXMinus, potTopY, potZPlus);
 	GXTexCoord2f32(1.0f, potTopTex);
-	GXPosition3f32(potXMinus, unk154.y, potZPlus);
+	GXPosition3f32(potXMinus, bottomY, potZPlus);
 	GXTexCoord2f32(1.0f, potBottomTex);
 }
 void TCogwheel::calc()
