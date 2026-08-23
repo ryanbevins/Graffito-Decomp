@@ -264,12 +264,13 @@ void TFlyEnemy::fly()
 
 	pos.add(vel);
 	pos.y += mCurGravityY;
+	f32 posY = pos.y;
 
-	mGroundHeight = gpMap->checkGround(pos.x, pos.y + mHeadHeight, pos.z,
+	mGroundHeight = gpMap->checkGround(pos.x, posY + mHeadHeight, pos.z,
 	                                   &mGroundPlane);
 	mGroundHeight += 1.0f;
 
-	if (pos.y <= mGroundHeight) {
+	if (posY <= mGroundHeight) {
 		if (mFlyTimer > mInvalidTime) {
 			offLiveFlag(0x80);
 			mVelocity.set(0.0f, 0.0f, 0.0f);
