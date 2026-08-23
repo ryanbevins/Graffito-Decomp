@@ -886,10 +886,11 @@ void THangingBridge::initDraw() const
 
 void THangingBridge::drawRopeBetweenBoards(f32 y, int pointNum) const
 {
-	JGeometry::TVec2<f32> tex(unk30.x * mRopeWidthBetweenBoards,
-	                          unk30.y * mRopeWidthBetweenBoards);
 	f32 offX       = unk30.x * unk3C.x;
 	f32 offZ       = unk30.y * unk3C.x;
+	JGeometry::TVec2<f32> tex;
+	tex.set(unk30);
+	tex.scale(mRopeWidthBetweenBoards);
 	u16 vertexNum  = (u16)((unk10 + 2) * pointNum * 2);
 	JGeometry::TVec3<f32> prev;
 	JGeometry::TVec3<f32> next;
