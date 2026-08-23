@@ -328,7 +328,7 @@ void TCogwheel::initMapObj()
 	unk150->unk154 = 1;
 	unk150->unk158 = this;
 	plate->appear();
-	unk154.set(pos);
+	unk154.set(pos.x, mPosition.y, pos.z);
 
 	pos.set(mPosition.x - cosine, mPosition.y, mPosition.z + sine);
 	TCogwheelScale* pot
@@ -338,7 +338,7 @@ void TCogwheel::initMapObj()
 	unk164->unk154 = 0;
 	unk164->unk158 = this;
 	pot->appear();
-	unk168.set(pos);
+	unk168.set(pos.x, mPosition.y, pos.z);
 
 	if (strcmp(getName(), "\x93\x56\x94\x89\x8F\xE3") == 0) {
 		unk140 = 0.003f;
