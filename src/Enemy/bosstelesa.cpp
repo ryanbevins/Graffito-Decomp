@@ -2146,7 +2146,12 @@ DEFINE_NERVE(TNerveBossTelesaPrepareSlot, TLiveActor)
 			blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 		const char** basTable = boss->getBasNameTable();
-		boss->setAnmSound(basTable ? basTable[15] : nullptr);
+		const char* basName;
+		if (!basTable)
+			basName = nullptr;
+		else
+			basName = basTable[15];
+		boss->setAnmSound(basName);
 		boss->mMActor->setBtpFromIndex(2);
 	}
 
@@ -2174,7 +2179,12 @@ DEFINE_NERVE(TNerveBossTelesaPrepareSlot, TLiveActor)
 					blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 				const char** basTable = boss->getBasNameTable();
-				boss->setAnmSound(basTable ? basTable[12] : nullptr);
+				const char* basName;
+				if (!basTable)
+					basName = nullptr;
+				else
+					basName = basTable[12];
+				boss->setAnmSound(basName);
 				boss->mMActor->setBtpFromIndex(1);
 			} else if (boss->mMActor->checkCurBckFromIndex(12)) {
 				TBossTelesaSaveLoadParams* params
@@ -2200,7 +2210,12 @@ DEFINE_NERVE(TNerveBossTelesaPrepareSlot, TLiveActor)
 						blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 					const char** basTable = boss->getBasNameTable();
-					boss->setAnmSound(basTable ? basTable[13] : nullptr);
+					const char* basName;
+					if (!basTable)
+						basName = nullptr;
+					else
+						basName = basTable[13];
+					boss->setAnmSound(basName);
 				}
 			} else {
 				boss->unk36C = 0;
@@ -2236,7 +2251,12 @@ DEFINE_NERVE(TNerveBossTelesaPrepareSlot, TLiveActor)
 					blendActor->unkC->setMotionBlendRatio(blendRatio);
 
 				const char** basTable = boss->getBasNameTable();
-				boss->setAnmSound(basTable ? basTable[15] : nullptr);
+				const char* basName;
+				if (!basTable)
+					basName = nullptr;
+				else
+					basName = basTable[15];
+				boss->setAnmSound(basName);
 				boss->mMActor->setBtpFromIndex(2);
 			}
 		}
