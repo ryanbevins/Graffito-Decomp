@@ -631,21 +631,19 @@ void TPakkunSeed::rebirth()
 		return;
 	}
 
-	u16 bgType = mGroundPlane->getBGType();
-	if (bgType == 0x100 || (u16)(bgType - 0x101) <= 4
-	    || bgType == 0x4104) {
-		TEffectColumWater* enemy
-		    = (TEffectColumWater*)gpConductor->makeOneEnemyAppear(
-		        mPosition, "エフェクト水柱マネージャー", 0);
-		if (enemy)
-			enemy->generate(mPosition, mVelocity);
-	} else {
+	if (!mGroundPlane->isWaterSurface()) {
 		TPakkun* host = mHost;
 		if (gpMSound->gateCheck(0x287e))
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x287e, &mPosition, 0, nullptr, 0, 4);
 		gpMarioParticleManager->emit(0x13e, &mPosition, 1, host->mSeed);
 		gpMarioParticleManager->emit(0x13f, &mPosition, 1, host->mSeed);
+	} else {
+		TEffectColumWater* enemy
+		    = (TEffectColumWater*)gpConductor->makeOneEnemyAppear(
+		        mPosition, "エフェクト水柱マネージャー", 0);
+		if (enemy)
+			enemy->generate(mPosition, mVelocity);
 	}
 }
 
