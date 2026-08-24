@@ -370,7 +370,7 @@ void TCogwheel::initMapObj()
 		unk150->unk144 = 0.0f;
 	}
 
-	unk13C = unk14C * 0.5f;
+	unk13C = unk14C / 2.0f;
 }
 TCogwheel::TCogwheel(const char* name)
     : TMapObjBase(name)
