@@ -104,7 +104,7 @@ public:
 	                          const JGeometry::TVec3<f32>&);
 
 public:
-	/* 0x1B4 */ JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > unk1B4;
+	/* 0x1B4 */ TPosition3f unk1B4;
 	/* 0x1E4 */ bool unk1E4;
 	/* 0x1E8 */ s32 unk1E8;
 	/* 0x1EC */ bool unk1EC;
