@@ -746,15 +746,19 @@ void TKoopaJrSubmarine::calcRootMatrix()
 		finalQ.z = q.z * waveCos - q.y * waveSin;
 		finalQ.w = q.w * waveCos - q.x * waveSin;
 
-		TPosition3f mtx;
-		mtx.identity33();
-		mtx.setQuat(finalQ);
-
 		f32 center = getSaveParam2()->centerZ.get();
-		mtx.mMtx[0][3] = mPosition.x + mtx.mMtx[0][2] * center;
-		mtx.mMtx[1][3] = mPosition.y + mtx.mMtx[1][2] * center;
-		mtx.mMtx[2][3]
-		    = mPosition.z + mtx.mMtx[2][2] * center - center;
+		JGeometry::TVec3<f32> centerOffset(0.0f, 0.0f, center);
+		TPosition3f centerMtx;
+		centerMtx.translation(centerOffset);
+
+		JGeometry::TVec3<f32> origin = centerOffset;
+		origin.negate();
+		origin.add(mPosition);
+
+		TPosition3f mtx;
+		mtx.setQuat(finalQ);
+		mtx.setTrans(origin);
+		mtx.concat(centerMtx);
 
 		PSMTXCopy(mtx.mMtx, model->getBaseTRMtx());
 	}
