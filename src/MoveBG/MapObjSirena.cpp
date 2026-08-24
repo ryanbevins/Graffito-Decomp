@@ -725,36 +725,37 @@ u32 TCloset::touchWater(THitActor* sender)
 {
 	if (unk16C != 0)
 		return 0;
-	if (fabsf(mPosition.x - sender->mPosition.x) >= 50.0f)
-		return 0;
-	f32 hZ = 1.1f * unk140;
-	f32 senderZ = sender->mPosition.z;
-	f32 myZ = mPosition.z;
-	int dir;
-	if (senderZ < myZ - hZ) {
-		dir = 0;
-		if (mRotation.y < 0.0f)
-			dir = 3;
-	} else if (senderZ < myZ) {
-		dir = 1;
-		if (mRotation.y < 0.0f)
-			dir = 2;
-	} else if (senderZ < myZ + hZ) {
-		dir = 2;
-		if (mRotation.y < 0.0f)
-			dir = 1;
-	} else {
-		dir = 3;
-		if (mRotation.y < 0.0f)
+	if (fabsf(mPosition.x - sender->mPosition.x) < 50.0f) {
+		f32 hZ = 1.1f * unk140;
+		f32 senderZ = sender->mPosition.z;
+		f32 myZ = mPosition.z;
+		int dir;
+		if (senderZ < myZ - hZ) {
 			dir = 0;
+			if (mRotation.y < 0.0f)
+				dir = 3;
+		} else if (senderZ < myZ) {
+			dir = 1;
+			if (mRotation.y < 0.0f)
+				dir = 2;
+		} else if (senderZ < myZ + hZ) {
+			dir = 2;
+			if (mRotation.y < 0.0f)
+				dir = 1;
+		} else {
+			dir = 3;
+			if (mRotation.y < 0.0f)
+				dir = 0;
+		}
+		unk164 = 1;
+		f32 sign = (f32)(s16)unk164;
+		unk138[dir] += unk154 * sign;
+		if (fabsf(unk138[dir]) > unk158) {
+			unk138[dir] = unk158 * sign;
+		}
+		return 1;
 	}
-	unk164 = 1;
-	f32 sign = (f32)(s16)unk164;
-	unk138[dir] += unk154 * sign;
-	if (fabsf(unk138[dir]) > unk158) {
-		unk138[dir] = unk158 * sign;
-	}
-	return 1;
+	return 0;
 }
 
 void TCasinoPanelGate::moveObject()
