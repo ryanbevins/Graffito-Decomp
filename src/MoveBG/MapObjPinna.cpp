@@ -227,8 +227,9 @@ void TAmiKing::moveObject()
 
 	const TLiveActor* actor = mGroundPlane->getActor();
 	if (actor != nullptr && actor->getActorType() == 0x4000006a) {
-		const TMapObjBase* obj = static_cast<const TMapObjBase*>(actor);
-		if (obj->mState >= 3 && obj->mState <= 6) {
+		TMapObjBase* obj = (TMapObjBase*)actor;
+		if (obj->isState(3) || obj->isState(5) || obj->isState(4)
+		    || obj->isState(6)) {
 			unk138 = 1;
 			mVelocity.set(5.0f, 10.0f, -10.0f);
 			offLiveFlag(LIVE_FLAG_UNK10);
