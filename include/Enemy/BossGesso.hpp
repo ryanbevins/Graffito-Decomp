@@ -67,7 +67,7 @@ public:
 
 private:
 	/* 0x70 */ TBossGesso* mOwner;
-	/* 0x74 */ TMtx34f unk74;
+	/* 0x74 */ TPosition3f unk74;
 	/* 0xA4 */ JGeometry::TVec3<f32> unkA4;
 };
 
