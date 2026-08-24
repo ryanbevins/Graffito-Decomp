@@ -63,12 +63,11 @@ static int KillerBodyCallback(J3DNode* node, int when)
 		u16 idx         = ((J3DJoint*)node)->getJntNo();
 		MtxPtr jointMtx = gpCurKiller->getModel()->getAnmMtx(idx);
 
-		f32 scale = gpCurKiller->getBodyScale();
-
 		Mtx scaleMtx;
 		scaleMtx[0][3] = 0.0f;
 		scaleMtx[1][3] = 0.0f;
 		scaleMtx[2][3] = 0.0f;
+		f32 scale      = gpCurKiller->getBodyScale();
 		scaleMtx[0][0] = scale;
 		scaleMtx[0][1] = 0.0f;
 		scaleMtx[0][2] = 0.0f;
