@@ -459,6 +459,13 @@ JGeometry::TVec3<f32> TKukku::calcMomentum(f32 speed)
 }
 #pragma dont_inline off
 
+bool TKukku::isFalling() const
+{
+	const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
+	return nerve == &TNerveKukkuFall::theNerve()
+	    || nerve == &TNerveKukkuPostFall::theNerve();
+}
+
 void TKukku::updateRotation()
 {
 	JGeometry::TVec3<f32> toTarget = getUnkF4().getPoint();
@@ -481,15 +488,8 @@ void TKukku::updateRotation()
 
 	TAnimalBase::getRotationFlyToDir(&mRotation, toTarget, speed, turn);
 
-	const TNerveBase<TLiveActor>* n1 = mSpine->getLatestNerve();
-	bool b1 = (n1 == &TNerveKukkuFall::theNerve()
-	           || n1 == &TNerveKukkuPostFall::theNerve());
-	mRotation.x *= b1 ? 0.0f : 1.0f;
-
-	const TNerveBase<TLiveActor>* n2 = mSpine->getLatestNerve();
-	bool b2 = (n2 == &TNerveKukkuFall::theNerve()
-	           || n2 == &TNerveKukkuPostFall::theNerve());
-	mRotation.z *= b2 ? 0.0f : 1.0f;
+	mRotation.x *= isFalling() ? 0.0f : 1.0f;
+	mRotation.z *= isFalling() ? 0.0f : 1.0f;
 }
 
 void TKukku::behaveToWater(THitActor* sender)

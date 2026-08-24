@@ -64,6 +64,7 @@ public:
 	virtual void calcRootMatrix();
 	virtual void behaveToWater(THitActor*);
 
+	bool isFalling() const;
 	void updateRotation();
 	JGeometry::TVec3<f32> calcMomentum(f32);
 	void dropCoins();
