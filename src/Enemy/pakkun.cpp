@@ -640,11 +640,12 @@ void TPakkunSeed::rebirth()
 		if (enemy)
 			enemy->generate(mPosition, mVelocity);
 	} else {
+		TPakkun* host = mHost;
 		if (gpMSound->gateCheck(0x287e))
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x287e, &mPosition, 0, nullptr, 0, 4);
-		gpMarioParticleManager->emit(0x13e, &mPosition, 1, mHost->mSeed);
-		gpMarioParticleManager->emit(0x13f, &mPosition, 1, mHost->mSeed);
+		gpMarioParticleManager->emit(0x13e, &mPosition, 1, host->mSeed);
+		gpMarioParticleManager->emit(0x13f, &mPosition, 1, host->mSeed);
 	}
 }
 
