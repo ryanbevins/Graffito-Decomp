@@ -1081,7 +1081,8 @@ u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2)
 			if (track != param_1->unk2C0)
 				continue;
 
-			u32 route = basic->routeToTrack(param_1->unk308);
+			u32 route = param_1->unk308;
+			route     = basic->routeToTrack(route);
 			JAISoundInfo* info
 			    = basic->getSoundInfoFromID(basic->unk0->unk180[i].unk48->unk8);
 
