@@ -27,10 +27,10 @@
 
 extern const char* cNpcPartsNameRootJoint;
 
-const char* cPeachPartsTextureName              = "H_peach_main_dummy";
-const char* cPeachHostTextureName               = "H_peach_main_s3tc";
 static const char* cNpcPartsNameRootJointStringInfectious
     = "__ROOT_JOINT__";
+const char* cPeachPartsTextureName              = "H_peach_main_dummy";
+const char* cPeachHostTextureName               = "H_peach_main_s3tc";
 
 void SMS_InitChangeNpcColor(const MActor*, const TColorChangeInfo*, s16,
                             const GXColor*);
