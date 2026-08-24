@@ -1831,7 +1831,7 @@ void TEnemyMario::startMonteReplay(u32 node_id)
 
 	Vec current;
 	emOwner(this)->unk124->getGraph()->getGraphNode(node).getPoint(&current);
-	mPosition = current;
+	*(Vec*)&mPosition = current;
 
 	Vec next;
 	emOwner(this)->unk124->getGraph()->getGraphNode(node + 1).getPoint(&next);
