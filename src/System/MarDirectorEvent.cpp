@@ -68,8 +68,12 @@ void TMarDirector::movement_game()
 		return;
 
 	bool bVar1 = true;
-	if (!gpCamera->isSimpleDemoCamera() && gpCamera->mMode != 0x49) {
-		bVar1 = false;
+	if (!gpCamera->isSimpleDemoCamera()) {
+		bool bVar2 = true;
+		if (gpCamera->mMode != 0x49)
+			bVar2 = false;
+		if (!bVar2)
+			bVar1 = false;
 	}
 
 	if (!bVar1) {
