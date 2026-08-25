@@ -1337,6 +1337,7 @@ int RollEnemyBodyCallback(J3DNode* node, int timing)
 		    = gpCurRollEnemy->getModel()->getAnmMtx(jointNo);
 
 		Mtx rollMtx;
+		MtxPtr rollMtxPtr = rollMtx;
 		s16 angle = gpCurRollEnemy->unk194 * (65536.0f / 360.0f);
 		f32 s     = JMASSin(angle);
 		f32 c     = JMASCos(angle);
@@ -1355,8 +1356,8 @@ int RollEnemyBodyCallback(J3DNode* node, int timing)
 		rollMtx[2][3] = 0.0f;
 
 		jointMtx[1][3] += TRollEnemy::mTransYOffset;
-		PSMTXConcat(jointMtx, rollMtx, jointMtx);
-		PSMTXConcat(J3DSys::mCurrentMtx, rollMtx,
+		PSMTXConcat(jointMtx, rollMtxPtr, jointMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, rollMtxPtr,
 		            J3DSys::mCurrentMtx);
 	}
 	return 1;
