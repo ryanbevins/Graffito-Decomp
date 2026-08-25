@@ -1216,7 +1216,8 @@ void TTinKoopaFlame::emitFlameEffects()
 
 void TTinKoopaPartsBase::perform(u32 flags, JDrama::TGraphics* graphics)
 {
-	TLiveActor::perform(flags, graphics);
+	JDrama::TGraphics* performGraphics = graphics;
+	TLiveActor::perform(flags, performGraphics);
 
 	if (flags & 1) {
 		u32 jointIndex = TTinKoopa_jointIndexTable[unkFC];
@@ -1232,7 +1233,7 @@ void TTinKoopaPartsBase::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (unkF8 && unk104)
-		unk104->perform(flags, graphics);
+		unk104->perform(flags, performGraphics);
 }
 
 void TTinKoopaPartsBase::emitPartsDisappearEffects(const char** jointNames,
