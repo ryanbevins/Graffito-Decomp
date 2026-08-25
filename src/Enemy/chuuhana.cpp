@@ -786,81 +786,84 @@ static int ChuuHanaBodyCallback(J3DNode* node, int timing)
 {
 	if (timing == 0) {
 		TChuuHana* owner = gpCurChuuHana;
-		if (owner != nullptr
-		    && owner->mSpine->getCurrentNerve()
-		        == &TNerveChuuHanaRoll::theNerve()) {
+		if (owner == nullptr)
+			return 1;
+		bool isRoll = owner->mSpine->getCurrentNerve()
+		              == &TNerveChuuHanaRoll::theNerve();
+		if (!isRoll)
+			return 1;
 
-			u16 jointIndex = ((J3DJoint*)node)->getJntNo();
-			MtxPtr jointMtx = owner->getModel()->mNodeMatrices[jointIndex];
+		u16 jointIndex = ((J3DJoint*)node)->getJntNo();
+		MtxPtr jointMtx
+		    = gpCurChuuHana->getModel()->mNodeMatrices[jointIndex];
 
-			Mtx identity;
-			identity[0][0] = 1.0f;
-			identity[0][1] = 0.0f;
-			identity[0][2] = 0.0f;
-			identity[0][3] = 0.0f;
-			identity[1][0] = 0.0f;
-			identity[1][1] = 1.0f;
-			identity[1][2] = 0.0f;
-			identity[1][3] = 0.0f;
-			identity[2][0] = 0.0f;
-			identity[2][1] = 0.0f;
-			identity[2][2] = 1.0f;
-			identity[2][3] = 0.0f;
+		Mtx identity;
+		identity[0][0] = 1.0f;
+		identity[0][1] = 0.0f;
+		identity[0][2] = 0.0f;
+		identity[0][3] = 0.0f;
+		identity[1][0] = 0.0f;
+		identity[1][1] = 1.0f;
+		identity[1][2] = 0.0f;
+		identity[1][3] = 0.0f;
+		identity[2][0] = 0.0f;
+		identity[2][1] = 0.0f;
+		identity[2][2] = 1.0f;
+		identity[2][3] = 0.0f;
 
-			Vec dir;
-			dir.x = owner->unk204.x;
-			dir.y = 0.0f;
-			dir.z = owner->unk204.z;
-			if (dir.x == 0.0f && dir.z == 0.0f)
-				dir.x = 0.001f;
+		Vec dir;
+		dir.x = owner->unk204.x;
+		dir.y = 0.0f;
+		dir.z = owner->unk204.z;
+		if (dir.x == 0.0f && dir.z == 0.0f)
+			dir.x = 0.001f;
 
-			Vec up;
-			up.x = 0.0f;
-			up.y = 1.0f;
-			up.z = 0.0f;
-			Vec axis;
-			PSVECCrossProduct(&up, &dir, &axis);
+		Vec up;
+		up.x = 0.0f;
+		up.y = 1.0f;
+		up.z = 0.0f;
+		Vec axis;
+		PSVECCrossProduct(&up, &dir, &axis);
 
-			f32 len2 = jointMtx[0][2] * jointMtx[0][2]
-			           + jointMtx[1][2] * jointMtx[1][2]
-			           + jointMtx[2][2] * jointMtx[2][2];
-			f32 z = 0.0f;
-			if (len2 != 0.0f)
-				z = (axis.x * jointMtx[0][2] + axis.y * jointMtx[1][2]
-				     + axis.z * jointMtx[2][2])
-				    / len2;
+		f32 len2 = jointMtx[0][2] * jointMtx[0][2]
+		           + jointMtx[1][2] * jointMtx[1][2]
+		           + jointMtx[2][2] * jointMtx[2][2];
+		f32 z = 0.0f;
+		if (len2 != 0.0f)
+			z = (axis.x * jointMtx[0][2] + axis.y * jointMtx[1][2]
+			     + axis.z * jointMtx[2][2])
+			    / len2;
 
-			len2 = jointMtx[0][1] * jointMtx[0][1]
-			       + jointMtx[1][1] * jointMtx[1][1]
-			       + jointMtx[2][1] * jointMtx[2][1];
-			f32 y = 0.0f;
-			if (len2 != 0.0f)
-				y = (axis.x * jointMtx[0][1] + axis.y * jointMtx[1][1]
-				     + axis.z * jointMtx[2][1])
-				    / len2;
+		len2 = jointMtx[0][1] * jointMtx[0][1]
+		       + jointMtx[1][1] * jointMtx[1][1]
+		       + jointMtx[2][1] * jointMtx[2][1];
+		f32 y = 0.0f;
+		if (len2 != 0.0f)
+			y = (axis.x * jointMtx[0][1] + axis.y * jointMtx[1][1]
+			     + axis.z * jointMtx[2][1])
+			    / len2;
 
-			len2 = jointMtx[0][0] * jointMtx[0][0]
-			       + jointMtx[1][0] * jointMtx[1][0]
-			       + jointMtx[2][0] * jointMtx[2][0];
-			f32 x = 0.0f;
-			if (len2 != 0.0f)
-				x = (axis.x * jointMtx[0][0] + axis.y * jointMtx[1][0]
-				     + axis.z * jointMtx[2][0])
-				    / len2;
+		len2 = jointMtx[0][0] * jointMtx[0][0]
+		       + jointMtx[1][0] * jointMtx[1][0]
+		       + jointMtx[2][0] * jointMtx[2][0];
+		f32 x = 0.0f;
+		if (len2 != 0.0f)
+			x = (axis.x * jointMtx[0][0] + axis.y * jointMtx[1][0]
+			     + axis.z * jointMtx[2][0])
+			    / len2;
 
-			Vec localAxis;
-			localAxis.x = x;
-			localAxis.y = y;
-			localAxis.z = z;
-			Mtx rot;
-			PSMTXRotAxisRad(rot, &localAxis,
-			                0.017453292f * owner->unk210);
-			PSMTXConcat(jointMtx, rot, jointMtx);
-			PSMTXConcat(jointMtx, identity, jointMtx);
-			PSMTXConcat(J3DSys::mCurrentMtx, rot, J3DSys::mCurrentMtx);
-			PSMTXConcat(J3DSys::mCurrentMtx, identity,
-			            J3DSys::mCurrentMtx);
-		}
+		Vec localAxis;
+		localAxis.x = x;
+		localAxis.y = y;
+		localAxis.z = z;
+		Mtx rot;
+		PSMTXRotAxisRad(rot, &localAxis,
+		                0.017453292f * owner->unk210);
+		PSMTXConcat(jointMtx, rot, jointMtx);
+		PSMTXConcat(jointMtx, identity, jointMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, rot, J3DSys::mCurrentMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, identity,
+		            J3DSys::mCurrentMtx);
 	}
 
 	return 1;
