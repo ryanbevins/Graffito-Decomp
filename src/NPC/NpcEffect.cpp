@@ -248,7 +248,7 @@ inline void TBaseNPC::emitWashEffect_()
 	}
 }
 
-bool TBaseNPC::isPolWaitCEffectEmitTime_() const
+inline bool TBaseNPC::isPolWaitCEffectEmitTime_() const
 {
 	static const f32 sCheckFrameMonte[7]
 	    = { 28.0f, 52.0f, 76.0f, 128.0f, 152.0f, 176.0f, -1.0f };
