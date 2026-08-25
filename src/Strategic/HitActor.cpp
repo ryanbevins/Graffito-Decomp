@@ -1,7 +1,7 @@
 #include <Strategic/HitActor.hpp>
 #include <math.h>
 
-f32 THitActor::calcEntryRadius()
+void THitActor::calcEntryRadius()
 {
 	float rad;
 	if (mAttackRadius > mDamageRadius)
@@ -26,7 +26,6 @@ f32 THitActor::calcEntryRadius()
 		mEntryRadius = 0.0f;
 	}
 
-	return height2;
 }
 
 void THitActor::perform(u32 param_1, JDrama::TGraphics* param_2)
@@ -34,9 +33,9 @@ void THitActor::perform(u32 param_1, JDrama::TGraphics* param_2)
 	JDrama::TActor::perform(param_1, param_2);
 }
 
-float THitActor::initHitActor(u32 param_1, u16 param_2, int param_3,
-                              float attack_radius, float attack_height,
-                              float damage_radius, float damage_height)
+void THitActor::initHitActor(u32 param_1, u16 param_2, int param_3,
+                             float attack_radius, float attack_height,
+                             float damage_radius, float damage_height)
 {
 	mActorType   = param_1;
 	mColCapacity = param_2;
@@ -52,7 +51,7 @@ float THitActor::initHitActor(u32 param_1, u16 param_2, int param_3,
 	mDamageRadius = damage_radius;
 	mDamageHeight = damage_height;
 
-	return calcEntryRadius();
+	calcEntryRadius();
 }
 
 THitActor::THitActor(const char* name)

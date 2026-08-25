@@ -53,9 +53,9 @@ public:
 		return false;
 	}
 
-	float initHitActor(u32, u16, int, f32 attack_radius, f32 attack_height,
-	                   f32 damage_radius, f32 damage_height);
-	float calcEntryRadius();
+	void initHitActor(u32, u16, int, f32 attack_radius, f32 attack_height,
+	                  f32 damage_radius, f32 damage_height);
+	void calcEntryRadius();
 
 	// fabricated
 	u32 getActorType() const { return mActorType; }
