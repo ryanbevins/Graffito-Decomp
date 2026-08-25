@@ -498,34 +498,38 @@ void TLeafBoatRotten::control()
 		mState     = 2;
 	}
 
-	if (isState(2)) {
+	switch (mState) {
+	case 2: {
 		f32 ratio = (f32)mLifeTimer / (f32)unk170;
-		unk178 = (u8)((255.0f - (f32)TLeafBoatRotten::mRottenColor[0]) * ratio
+		unk178 = (u8)((f32)(255 - TLeafBoatRotten::mRottenColor[0]) * ratio
 		              + (f32)TLeafBoatRotten::mRottenColor[0]);
-		unk17A = (u8)((255.0f - (f32)TLeafBoatRotten::mRottenColor[1]) * ratio
+		unk17A = (u8)((f32)(255 - TLeafBoatRotten::mRottenColor[1]) * ratio
 		              + (f32)TLeafBoatRotten::mRottenColor[1]);
-		unk17C = (u8)((255.0f - (f32)TLeafBoatRotten::mRottenColor[2]) * ratio
+		unk17C = (u8)((f32)(255 - TLeafBoatRotten::mRottenColor[2]) * ratio
 		              + (f32)TLeafBoatRotten::mRottenColor[2]);
-		if (mLifeTimer <= 0) {
+		if (!isLifeTimerActive()) {
 			unk174 = 255.0f;
 			mState = 3;
 		}
-	} else if (isState(3)) {
+		break;
+	}
+	case 3:
 		unk174 -= mAlphaDownSpeed;
-		unk17E = (s16)unk174;
+		unk17E = (u8)unk174;
 		if (unk174 < mCollisionRemoveAlpha
-		    && !mMapCollisionManager->unk8->checkFlag(1))
+		    && mMapCollisionManager->unk8->isSetUp())
 			removeMapCollision();
 		if (unk174 <= 0.0f) {
 			mScaling.set(1.0f, 1.0f, 1.0f);
-			makeObjDead();
 			makeObjDefault();
+			makeObjAppeared();
 			unk178 = 255;
 			unk17A = 255;
 			unk17C = 255;
 			unk17E = 255;
 			mState = 1;
 		}
+		break;
 	}
 }
 
