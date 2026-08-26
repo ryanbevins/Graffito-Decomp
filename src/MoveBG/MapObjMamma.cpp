@@ -754,9 +754,9 @@ void TLeanMirror::release()
 	MtxPtr mtx = getModel()->getAnmMtx(0);
 	JGeometry::TVec3<f32> up(mtx[0][1], mtx[1][1], mtx[2][1]);
 
-	unk18C.x = unk180.y * up.z - unk180.z * up.y;
-	unk18C.y = unk180.z * up.x - unk180.x * up.z;
-	unk18C.z = unk180.x * up.y - unk180.y * up.x;
+	unk18C.x = up.y * unk180.z - up.z * unk180.y;
+	unk18C.y = up.z * unk180.x - up.x * unk180.z;
+	unk18C.z = up.x * unk180.y - up.y * unk180.x;
 
 	JGeometry::TVec3<f32> axis(up.y * unk180.z - up.z * unk180.y,
 	                           up.z * unk180.x - up.x * unk180.z,
