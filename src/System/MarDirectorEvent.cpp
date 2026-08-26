@@ -192,8 +192,9 @@ void TMarDirector::setNextStage(u16 param_1, JDrama::TActor* param_2)
 	if (param_2) {
 		unk4C |= 0x4;
 		unk250 = param_2;
-	} else if (gpApplication.mCurrArea.unk0 == 1
-	           && (next.unk0 == 5 || next.unk0 == 6 || next.unk0 == 8)) {
+	} else if ((gpApplication.mCurrArea.unk0 == 1 && next.unk0 == 5)
+	           || (gpApplication.mCurrArea.unk0 == 1 && next.unk0 == 6)
+	           || (gpApplication.mCurrArea.unk0 == 1 && next.unk0 == 8)) {
 		unk4C |= 0x8;
 	} else {
 		unk4C |= 0x2;
