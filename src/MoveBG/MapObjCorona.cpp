@@ -158,8 +158,8 @@ static inline f32 getLocalAngle(const TBathtub* bathtub,
 	JGeometry::TVec3<f32> origin(rootMtx[0][3], rootMtx[1][3], rootMtx[2][3]);
 	JGeometry::TVec3<f32> diff;
 	diff.sub(pos, origin);
-	f32 localX = xAxis.dot(diff);
 	f32 localZ = zAxis.dot(diff);
+	f32 localX = xAxis.dot(diff);
 	return matan(localZ, localX) * 0.005493164f;
 }
 
