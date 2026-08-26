@@ -143,11 +143,10 @@ static inline void mulQuat(const JGeometry::TVec3<f32>& av, f32 aw,
 
 static inline f32 wrapAngleDiff(f32 stored, f32 angle)
 {
-	f32 diff = std::fmodf(360.0f + (stored - angle + 180.0f), 360.0f);
-	diff     = -180.0f + diff;
-	if (diff < 0.0f)
-		diff = -diff;
-	return diff;
+	const f32 minAngle = -180.0f;
+	f32 diff = std::fmodf(360.0f + (stored - angle - minAngle), 360.0f);
+	diff     = minAngle + diff;
+	return fabsf(diff);
 }
 
 static inline f32 getLocalAngle(const TBathtub* bathtub,
@@ -157,8 +156,8 @@ static inline f32 getLocalAngle(const TBathtub* bathtub,
 	JGeometry::TVec3<f32> xAxis(rootMtx[0][0], rootMtx[1][0], rootMtx[2][0]);
 	JGeometry::TVec3<f32> zAxis(rootMtx[0][2], rootMtx[1][2], rootMtx[2][2]);
 	JGeometry::TVec3<f32> origin(rootMtx[0][3], rootMtx[1][3], rootMtx[2][3]);
-	JGeometry::TVec3<f32> diff(pos.x - origin.x, pos.y - origin.y,
-	                           pos.z - origin.z);
+	JGeometry::TVec3<f32> diff;
+	diff.sub(pos, origin);
 	f32 localX = xAxis.dot(diff);
 	f32 localZ = zAxis.dot(diff);
 	return matan(localZ, localX) * 0.005493164f;
