@@ -1111,8 +1111,8 @@ bool TBathtub::allowsTumble() const
 
 void TBathtub::calcRootMatrix()
 {
-	MtxPtr mtx = getModel()->getBaseTRMtx();
 	if (unk29A != 0) {
+		MtxPtr mtx = getModel()->getBaseTRMtx();
 		MsMtxSetRotRPH(mtx, 0.0f, mRotation.y, 0.0f);
 		mtx[0][3] = mPosition.x;
 		mtx[1][3] = mPosition.y;
@@ -1120,6 +1120,7 @@ void TBathtub::calcRootMatrix()
 		return;
 	}
 
+	MtxPtr mtx = getModel()->getBaseTRMtx();
 	f32 x = unk1D8.x;
 	f32 y = unk1D8.y;
 	f32 z = unk1D8.z;
