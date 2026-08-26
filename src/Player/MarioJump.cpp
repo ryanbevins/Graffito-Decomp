@@ -303,7 +303,22 @@ BOOL TMario::landing()
 		u16 t = mActionTimer; mActionTimer = t + 1;
 		if (t > 240) { mActionTimer = 240; startSoundActor(0x786B); mActionArg = 3; }
 	}
-	if (checkBackTrig())
+	BOOL backTrig;
+	if (mInput & 0x8000) {
+		TMarioGamePad* pad = mGamePad;
+		if (pad->mEnabledFrameMeaning & 0x2000) {
+			backTrig = changePlayerStatus(0x008008A9, 0, false);
+		} else if (!onYoshi()) {
+			f32 jumpCatchSpeed = mJumpParams.mJumpJumpCatchSp.value;
+			setPlayerVelocity(jumpCatchSpeed);
+			backTrig = changePlayerStatus(0x0080088A, 0, false);
+		} else {
+			backTrig = FALSE;
+		}
+	} else {
+		backTrig = FALSE;
+	}
+	if (backTrig)
 		return TRUE;
 	if (rocketCheck()) return TRUE;
 	s32 anm;
