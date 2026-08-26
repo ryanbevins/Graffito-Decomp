@@ -375,7 +375,8 @@ void TLampSeesawMain::loadAfter()
 	name[len + 2] = c2;
 	name[len + 3] = c3;
 
-	unk138 = JDrama::TNameRefGen::search<TLampSeesaw>(name);
+	TLampSeesaw* seesaw = JDrama::TNameRefGen::search<TLampSeesaw>(name);
+	unk138 = seesaw;
 	unk138->unk138 = this;
 }
 
