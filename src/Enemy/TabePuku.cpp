@@ -532,8 +532,7 @@ void TTabePuku::control()
 	}
 
 	const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
-	if (nerve == &TNerveTabePukuBite::theNerve()
-	    || isTabePukuDiveOrDragNerve(nerve)) {
+	if (isTabePukuHoldingNerve(nerve)) {
 		if (gpMSound->gateCheck(0x2123))
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x2123, &mPosition, 0, nullptr, 0, 4);
