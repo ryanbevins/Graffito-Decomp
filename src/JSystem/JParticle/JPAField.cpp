@@ -377,9 +377,9 @@ void JPARandomField::affect(JPAParticle* particle)
 	}
 
 	if (bVar3) {
-		unk7C.set(FieldRand.get_ufloat_1() - 0.5f,
-		          FieldRand.get_ufloat_1() - 0.5f,
-		          FieldRand.get_ufloat_1() - 0.5f);
+		unk7C = JGeometry::TVec3<f32>(FieldRand.get_ufloat_1() - 0.5f,
+		                                FieldRand.get_ufloat_1() - 0.5f,
+		                                FieldRand.get_ufloat_1() - 0.5f);
 		unk7C.scale(unk10);
 		calcFieldVelocity(particle);
 	}
