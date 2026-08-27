@@ -127,8 +127,9 @@ void J3DMtxCalcBasic::calcTransform(u16 param_0, const J3DTransformInfo& info)
 		mtx[2][2] *= info.mScale.z;
 	}
 	MTXConcat(J3DSys::mCurrentMtx, mtx, J3DSys::mCurrentMtx);
+	MtxPtr currentMtx = J3DSys::mCurrentMtx;
 	J3DModel* model = j3dSys.getModel();
-	MTXCopy(J3DSys::mCurrentMtx, model->getAnmMtx(param_0));
+	MTXCopy(currentMtx, model->getAnmMtx(param_0));
 }
 
 void J3DMtxCalcBasic::calc(u16 param_0)
