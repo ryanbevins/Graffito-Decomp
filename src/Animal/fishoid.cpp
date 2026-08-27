@@ -98,7 +98,8 @@ void TFishoid::load(JSUMemoryInputStream& stream)
 		mActors[i]->mMActor->setBck("fish_swim");
 
 	if (mCoinObj != nullptr) {
-		TRealoidActor* last = mActors[mBoidLeader->mNumActors - 1];
+		const int lastIndex = mBoidLeader->mNumActors - 1;
+		TRealoidActor* last = mActors[lastIndex];
 		last->unk74 |= 2;
 		mCoinObj->makeObjAppeared();
 		mCoinObj->mPosition = last->mPosition;
