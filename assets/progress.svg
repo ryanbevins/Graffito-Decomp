@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="820" height="108" viewBox="0 0 820 108" role="img" aria-labelledby="title desc">
   <title id="title">Graffito Decomp matching progress</title>
-  <desc id="desc">95.62% fuzzy match, 1,510,808 of 3,590,088 exact code bytes, and 9,717 of 12,881 matched functions.</desc>
+  <desc id="desc">95.63% fuzzy match, 1,510,808 of 3,590,088 exact code bytes, and 9,717 of 12,881 matched functions.</desc>
   <style>
     .primary { fill: #1f2328; }
     .secondary { fill: #656d76; }
@@ -14,10 +14,10 @@
 
   <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif">
     <text x="0" y="22" class="primary" font-size="16" font-weight="600">Fuzzy match</text>
-    <text x="820" y="22" class="primary" font-size="20" font-weight="600" text-anchor="end">95.62%</text>
+    <text x="820" y="22" class="primary" font-size="20" font-weight="600" text-anchor="end">95.63%</text>
 
     <rect y="35" width="820" height="12" rx="6" class="track"/>
-    <rect y="35" width="784.11" height="12" rx="6" fill="#1f883d"/>
+    <rect y="35" width="784.13" height="12" rx="6" fill="#1f883d"/>
 
     <text x="0" y="75" class="primary" font-size="14" font-weight="600">Exact code</text>
     <text x="82" y="75" class="secondary" font-size="14">42.08%</text>
