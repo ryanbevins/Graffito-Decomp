@@ -416,9 +416,11 @@ void TRevolvingFenceInner::setGroundCollision()
 		        < *(f32*)((u8*)SMS_GetYoshi() + 0x28)
 		    && mPosition.z + mBodyRadius
 		        > *(f32*)((u8*)SMS_GetYoshi() + 0x28)) {
+			J3DModel* model = getModel();
+			Mtx* sourceMatrices = model->mNodeMatrices;
 			Mtx mtx;
 			MtxPtr mtxPtr = mtx;
-			JGeometry::gekko_ps_copy12(mtxPtr, getModel()->mNodeMatrices);
+			JGeometry::gekko_ps_copy12(mtxPtr, sourceMatrices[0]);
 			TMapCollisionBase* coll = mMapCollisionManager->getUnk8();
 			if (coll)
 				coll->moveMtx(mtxPtr);
