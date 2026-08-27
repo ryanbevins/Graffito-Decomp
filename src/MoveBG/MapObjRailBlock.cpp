@@ -549,6 +549,7 @@ void TRollBlock::calcRootMatrix()
 
 	Mtx rot;
 	rot[0][0] = cosV;
+	MtxPtr concatRot = rot;
 	rot[0][1] = -sinV;
 	rot[0][2] = 0.0f;
 	rot[0][3] = 0.0f;
@@ -560,7 +561,7 @@ void TRollBlock::calcRootMatrix()
 	rot[2][1] = 0.0f;
 	rot[2][2] = 1.0f;
 	rot[2][3] = 0.0f;
-	MTXConcat(mtx, rot, mtx);
+	MTXConcat(mtx, concatRot, mtx);
 }
 
 void TRollBlock::control()
