@@ -130,12 +130,11 @@ DEFINE_NERVE(TNerveAmiNokoDie, TLiveActor)
 			hitWall = true;
 		}
 		if (!hitWall) {
-			u8 isAirborne = self->checkLiveFlag(LIVE_FLAG_AIRBORNE);
-			if (!isAirborne) {
-				// not airborne, fall through to kill
-			} else {
+			bool isAirborne
+			    = self->checkLiveFlag(LIVE_FLAG_AIRBORNE) ? true : false;
+			if (isAirborne) {
 				f32 len = toMario.length();
-				if (!(len > 10000.0f)) {
+				if (len <= 10000.0f) {
 					return false;
 				}
 			}
