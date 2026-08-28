@@ -19,19 +19,18 @@ f32 TMapCheckGroundPlane::checkPlaneGround(f32 x, f32 y, f32 z,
 		return -32767.0f;
 	}
 
-	int tileX = worldToGrid(x);
-	int tileZ = worldToGrid(z);
+	JGeometry::TVec2<s32> tile(worldToGrid(x), worldToGrid(z));
 
-	f32 inTileX = x - gridToWorld(tileX);
-	f32 inTileZ = z - gridToWorld(tileZ);
+	f32 inTileX = x - gridToWorld(tile.x);
+	f32 inTileZ = z - gridToWorld(tile.y);
 
 	// Grid consists of tiles, each tile is 2 triangles that make a square.
 	// Pick the one that the point is in.
 	TBGCheckData* res;
 	if (mScale - inTileX > inTileZ)
-		res = getCheckData(tileX, tileZ, 0);
+		res = getCheckData(tile.x, tile.y, 0);
 	else
-		res = getCheckData(tileX, tileZ, 1);
+		res = getCheckData(tile.x, tile.y, 1);
 
 	// solve plane equation for unknown Y
 	f32 tmp = x * res->getNormal().x + z * res->getNormal().z
