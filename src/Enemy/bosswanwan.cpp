@@ -1629,12 +1629,14 @@ DEFINE_NERVE(TNerveBWStun, TLiveActor)
 {
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
 	if (self->mPicket->isTaken()) {
-		BOOL pulled = false;
+		BOOL pulled;
 		if (self->unk15C.x * self->unk15C.x
 		        + self->unk15C.y * self->unk15C.y
 		        + self->unk15C.z * self->unk15C.z
 		    >= ((TBWParams*)self->getSaveParam())->mSLPullLimit.get())
 			pulled = true;
+		else
+			pulled = false;
 
 		if (pulled) {
 			TGraphTracer* tracer = self->unk124;
