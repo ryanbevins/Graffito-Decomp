@@ -399,13 +399,13 @@ public:
 	bool eraseDrop(TDrop* drop)
 	{
 		int index = drop - unk88;
-		if (index >= unk74)
-			return false;
-
-		unk74 -= 1;
-		if (index < unk74)
-			*drop = unk88[unk74];
-		return true;
+		if (index < unk74) {
+			unk74 -= 1;
+			if (index < unk74)
+				*drop = unk88[unk74];
+			return true;
+		}
+		return false;
 	}
 	bool tryHitMario(THitActor* mario)
 	{
