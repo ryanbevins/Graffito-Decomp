@@ -1291,15 +1291,9 @@ void TMario::checkController(JDrama::TGraphics* gfx)
 
 	// Watergun turbo nozzle handling
 	if (mWaterGun != nullptr) {
-		if (mWaterGun->mCurrentNozzle == TWaterGun::Turbo) {
-			u8 hasPump;
-			if (mPumpState == 0) {
-				hasPump = 1;
-			} else {
-				hasPump = 0;
-			}
-			if (hasPump && mGamePad->mCompSPos[3] > 0.0f
-			    && (f32)(s32)mWaterGun->mCurrentWater > 0.0f) {
+		if (mWaterGun->mCurrentNozzle == TWaterGun::Turbo
+		    && checkPumpState(0) && mGamePad->mCompSPos[3] > 0.0f
+		    && (f32)(s32)mWaterGun->mCurrentWater > 0.0f) {
 				// Turbo nozzle active
 				if (0.0f == mIntendedMag)
 					mIntendedYaw = mFaceAngle.y;
@@ -1356,18 +1350,6 @@ void TMario::checkController(JDrama::TGraphics* gfx)
 
 				mIntendedMag = mDashSpeed;
 				mWaterGun->rotateProp(mDashSpeed);
-			} else {
-				if (mDashSpeed > 0.1f) {
-					if (0.0f == mIntendedMag)
-						mIntendedYaw = mFaceAngle.y;
-					mDashSpeed *= mDeParams.mDashBrake.get();
-					mIntendedMag = mDashSpeed;
-				} else {
-					mDashSpeed = 0.0f;
-				}
-				mDashTimer = 0;
-				mState &= ~0x4000;
-			}
 		} else {
 			if (mDashSpeed > 0.1f) {
 				if (0.0f == mIntendedMag)
