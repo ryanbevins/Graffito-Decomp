@@ -197,8 +197,9 @@ static inline void setupConsoleGaugeTevStage1()
 
 static inline void loadPictureTexture(J2DPicture* picture, GXTexMapID map)
 {
-	if (picture->mTextureNum > 0)
-		picture->mTextures[0]->load(map);
+	if (picture->mTextureNum <= 0)
+		return;
+	picture->mTextures[0]->load(map);
 }
 
 static inline void drawGaugeQuad(const JUTRect& rect, int top, int bottom)
