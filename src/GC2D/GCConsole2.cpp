@@ -4101,17 +4101,20 @@ void TGCConsole2::drawWater(J2DOrthoGraph& graph)
 
 	graph.setup2D();
 
-	JUTRect baseBounds(unk2A0[0]->mBounds);
+	JUTRect bounds(unk2A0[0]->mBounds);
 	f32 hidden = 0.5f - 64.0f * (1.0f - unk2B8);
 	int y = unk29C->getPane()->mGlobalBounds.y1 + (int)hidden + 1;
 	if (y < 0)
 		y = 0;
 
-	drawPictureWithTextureSize(unk2A0[0], baseBounds.x1, y);
-	drawBoundPictureWithTextureSize(unk270);
+	drawPictureWithTextureSize(unk2A0[0], bounds.x1, y);
 
-	J2DPicture* picture = (J2DPicture*)unk274->getPane();
-	JUTRect bounds(picture->mBounds);
+	J2DPicture* picture = (J2DPicture*)unk270->getPane();
+	bounds = picture->mBounds;
+	drawPictureWithTextureSize(picture, bounds.x1, bounds.y1);
+
+	picture = (J2DPicture*)unk274->getPane();
+	bounds = picture->mBounds;
 	drawPictureWithTextureSize(picture, bounds.x1, bounds.y1);
 
 	JUTRect maskOffset(unk288->mBounds);
