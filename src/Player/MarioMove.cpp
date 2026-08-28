@@ -3919,7 +3919,12 @@ void TMario::gunExec()
 	if (!checkFlag(MARIO_FLAG_HAS_FLUDD) && !onYoshi())
 		return;
 
-	mWaterGun->updateUnk1C88(0);
+	mWaterGun->mIsEmitWater = false;
+	TNozzleBase* nozzle = mWaterGun->getCurrentNozzle();
+	s32 maxWater = mWaterGun->mNozzleList[0]->mEmitParams.mAmountMax.get();
+	mWaterGun->unk1C88 += 10.0f
+	                         * ((f32)nozzle->mEmitParams.mDecRate.get()
+	                            / (f32)maxWater);
 	mWaterGun->triggerPressureMovement(*(TMarioControllerWork*)unk108);
 
 	mState &= ~0x80;
