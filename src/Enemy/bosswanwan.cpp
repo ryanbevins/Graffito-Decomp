@@ -1751,10 +1751,11 @@ DEFINE_NERVE(TNerveBWJumpToBath, TLiveActor)
 			    0x2917, &self->mPosition, 0, nullptr, 0, 4);
 	}
 
-	JGeometry::TVec3<f32> bathDelta = BW_BATH_POS;
+	JGeometry::TVec3<f32> bathPos = BW_BATH_POS;
+	JGeometry::TVec3<f32> bathDelta = bathPos;
 	bathDelta.sub(self->mPosition);
 	if (bathDelta.squared() < 38.0f && self->mPosition.y <= BW_BATH_POS.y) {
-		self->mPosition = BW_BATH_POS;
+		self->mPosition = bathPos;
 		spine->pushAfterCurrent(&TNerveBWDie::theNerve());
 		return true;
 	}
