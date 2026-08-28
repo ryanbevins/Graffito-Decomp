@@ -756,20 +756,6 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		startVoice(0x78B6);
 		break;
 	}
-	case 0x0883: {
-		// Side somersault
-		mForwardVel = mJumpParams.mBackJumpForce.get();
-		setPlayerJumpSpeed(0.0f, mJumpParams.mBackJumpForceY.get());
-		startVoice(0x78B6);
-		break;
-	}
-	case 0x02000886: {
-		// Special jump (ground pound variant)
-		setPlayerJumpSpeed(0.0f, 62.0f);
-		mForwardVel = 24.0f;
-		startVoice(0x78B1);
-		break;
-	}
 	case 0x0884: {
 		// Ground pound bounce
 		if (mGroundPlane != NULL) {
@@ -787,29 +773,6 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		setPlayerJumpSpeed(0.25f, mJumpParams.mRotateJumpForceY.get());
 		mForwardVel *= 0.8f;
 		startVoice(0x78B6);
-		break;
-	}
-	case 0x0887: {
-		// Spin jump
-		setPlayerJumpSpeed(0.0f, mJumpParams.mTurnJumpForce.get());
-		mForwardVel = 8.0f;
-		mFaceAngle.y
-		    = mIntendedYaw;
-		startVoice(0x78B6);
-		break;
-	}
-	case 0x0888: {
-		// Wall kick
-		startVoice(0x78B1);
-		mForwardVel = mJumpParams.mBroadJumpForce.get();
-		mVel.y = mJumpParams.mBroadJumpForceY.get();
-		break;
-	}
-	case 0x02000889: {
-		// Long jump
-		startVoice(0x78B1);
-		mForwardVel = mJumpParams.mRotBroadJumpForce.get();
-		mVel.y = mJumpParams.mRotBroadJumpForceY.get();
 		break;
 	}
 	case 0x0208B4: {
@@ -840,6 +803,35 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		}
 		break;
 	}
+	case 0x0883: {
+		// Side somersault
+		mForwardVel = mJumpParams.mBackJumpForce.get();
+		setPlayerJumpSpeed(0.0f, mJumpParams.mBackJumpForceY.get());
+		startVoice(0x78B6);
+		break;
+	}
+	case 0x02000886: {
+		// Special jump (ground pound variant)
+		setPlayerJumpSpeed(0.0f, 62.0f);
+		mForwardVel = 24.0f;
+		startVoice(0x78B1);
+		break;
+	}
+	case 0x0887: {
+		// Spin jump
+		setPlayerJumpSpeed(0.0f, mJumpParams.mTurnJumpForce.get());
+		mForwardVel = 8.0f;
+		mFaceAngle.y
+		    = mIntendedYaw;
+		startVoice(0x78B6);
+		break;
+	}
+	case 0x02000885: {
+		// Jumping from certain state
+		startVoice(0x78AB);
+		setPlayerJumpSpeed(0.25f, 42.0f);
+		break;
+	}
 	case 0x000208B7: {
 		// Wall slide jump
 		if (mActionArg == 2)
@@ -865,10 +857,18 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		mVel.z = mSlideVelZ;
 		break;
 	}
-	case 0x02000885: {
-		// Jumping from certain state
-		startVoice(0x78AB);
-		setPlayerJumpSpeed(0.25f, 42.0f);
+	case 0x0888: {
+		// Wall kick
+		startVoice(0x78B1);
+		mForwardVel = mJumpParams.mBroadJumpForce.get();
+		mVel.y = mJumpParams.mBroadJumpForceY.get();
+		break;
+	}
+	case 0x02000889: {
+		// Long jump
+		startVoice(0x78B1);
+		mForwardVel = mJumpParams.mRotBroadJumpForce.get();
+		mVel.y = mJumpParams.mRotBroadJumpForceY.get();
 		break;
 	}
 	case 0x088B: {
