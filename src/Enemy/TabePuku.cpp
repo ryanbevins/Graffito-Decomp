@@ -384,14 +384,13 @@ void TTabePuku::behaveToWater(THitActor*) { }
 void TTabePuku::attackToMario()
 {
 	const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
-	if (isTabePukuHoldingNerve(nerve)
-	    || isTabePukuGraphNerve(mSpine->getLatestNerve()))
-		return;
-
-	if (SMS_SendMessageToMario(this, HIT_MESSAGE_TAKE)) {
-		mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
-		mSpine->reset();
-		mSpine->setNext(&TNerveTabePukuBite::theNerve());
+	if (!isTabePukuHoldingNerve(nerve)
+	    && !isTabePukuGraphNerve(mSpine->getLatestNerve())) {
+		if (SMS_SendMessageToMario(this, HIT_MESSAGE_TAKE)) {
+			mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
+			mSpine->reset();
+			mSpine->setNext(&TNerveTabePukuBite::theNerve());
+		}
 	}
 }
 
