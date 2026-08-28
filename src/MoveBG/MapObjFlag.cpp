@@ -271,7 +271,9 @@ void TMapObjFlag::updateVertex()
 			while (phase < -180.0f)
 				phase += 360.0f;
 
-			f32 sinVal              = JMASSin((s16)(phase * 182.04445f));
+			f32 scaledPhase         = phase * 182.04445f;
+			s16 angle               = (s16)scaledPhase;
+			f32 sinVal              = JMASSin(angle);
 			mVertexGrid[col][row].x = mSegmentSize * rowRatio * sinVal;
 		}
 	}
