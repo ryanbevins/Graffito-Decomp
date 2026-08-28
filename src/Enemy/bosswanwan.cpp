@@ -1639,9 +1639,8 @@ DEFINE_NERVE(TNerveBWStun, TLiveActor)
 			pulled = false;
 
 		if (pulled) {
-			TGraphTracer* tracer = self->unk124;
-			TGraphWeb* graph     = tracer->getGraph();
-			int prevIndex        = tracer->mPrevIdx;
+			TGraphWeb* graph = self->unk124->getGraph();
+			int prevIndex    = self->unk124->mPrevIdx;
 			JGeometry::TVec3<f32> nodeDelta;
 			graph->getGraphNode(prevIndex).getPoint(&nodeDelta);
 			nodeDelta.sub(self->mPosition);
@@ -1655,11 +1654,13 @@ DEFINE_NERVE(TNerveBWStun, TLiveActor)
 
 				JGeometry::TVec3<f32> marioDelta = *gpMarioPos;
 				marioDelta.sub(self->mPosition);
-				int nextIndex = graph->getAimToDirNextIndex(
-				    prevIndex, tracer->mCurrIdx, marioDelta, self->mPosition,
-				    -1);
-				tracer->mPrevIdx = nextIndex;
-				tracer->mCurrIdx = prevIndex;
+				TGraphTracer* nextTracer = self->unk124;
+				int oldPrevIndex         = nextTracer->mPrevIdx;
+				int nextIndex = nextTracer->getGraph()->getAimToDirNextIndex(
+				    oldPrevIndex, nextTracer->mCurrIdx, marioDelta,
+				    self->mPosition, -1);
+				self->unk124->mPrevIdx = nextIndex;
+				self->unk124->mCurrIdx = oldPrevIndex;
 				self->setGoalPathFromGraph();
 				self->unk128 = 0;
 				self->unk12C = 0.0f;
