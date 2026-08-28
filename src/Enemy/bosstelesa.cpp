@@ -19,6 +19,7 @@
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
 #include <MarioUtil/ScreenUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
@@ -1628,17 +1629,13 @@ void TTelesaSlot::moveObject()
 			for (int j = 0; j < unk148; ++j) {
 				u8* otherRolling = &unk198 + j;
 				if (*otherRolling) {
-					f32 min = 0.0f;
-					f32 max = 1.0f;
+					TMsRange<f32> collectRange(0.0f, 1.0f);
 					TBossTelesa* owner = getSlotOwner(this);
 					TBossTelesaSaveLoadParams* params
 					    = (TBossTelesaSaveLoadParams*)owner->unk15C;
 					f32 rate = params->mSLSlotHitCollectRate.get();
 
-					if (min
-					        + (max - min)
-					            * (rand() * 0.000030517578f)
-					    <= rate) {
+					if (collectRange.rand() <= rate) {
 						*(&unk1A8 + j) = 1;
 					} else {
 						*otherRolling = 0;
