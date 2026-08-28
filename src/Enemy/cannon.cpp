@@ -1316,10 +1316,11 @@ BOOL TChorobei::checkHit()
 
 		if (actor->isActorType(0x1000001e)) {
 			TBombHei* bomb = (TBombHei*)actor;
-			if (unk68->mSpine->getCurrentNerve()
+			TCannon* cannon = unk68;
+			if (cannon->mSpine->getCurrentNerve()
 			        != &TNerveCannonDamage::theNerve()
 			    && bomb->isDamageToCannon()) {
-				unk68->mSpine->pushNerve(&TNerveCannonDamage::theNerve());
+				cannon->mSpine->pushNerve(&TNerveCannonDamage::theNerve());
 				bomb->kill();
 			}
 		}
