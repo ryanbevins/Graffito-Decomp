@@ -2548,16 +2548,15 @@ bool TGCConsole2::startAppearBalloon(u32 messageID, bool param_2)
 	if (gpMarDirector->mState == TMarDirector::STATE_UNK5 || !unk34[18])
 		return false;
 
-	unk3F0        = entry->unk4;
-	J2DPane* pane = unk3B0;
-	pane->mAlpha  = 0;
-	pane->show();
+	unk3F0         = entry->unk4;
+	unk3B0->mAlpha = 0;
+	unk3B0->show();
 
-	JUTRect contents(getWindowContentsRect(pane));
+	JUTRect contents(getWindowContentsRect(unk3B0));
 	JUTRect contentBounds(contents);
 	int contentHeight = contentBounds.getHeight();
-	pane->resize(unk3BC.getWidth(), unk3BC.getHeight() - contentHeight);
-	pane->add(0, contentHeight);
+	unk3B0->resize(unk3BC.getWidth(), unk3BC.getHeight() - contentHeight);
+	unk3B0->add(0, contentHeight);
 
 	((JSUMemoryOutputStream*)unk3D8)
 	    ->setBuffer(unk3B4->getStringPtr(), 0x400);
