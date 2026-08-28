@@ -1800,10 +1800,11 @@ DEFINE_NERVE(TNerveBWDie, TLiveActor)
 		JGeometry::TVec3<f32> scaling = self->mScaling;
 		scaling.scale(1.1f);
 		Mtx mtx;
+		TMapCollisionManager* collisionManager = self->mMapCollisionManager;
 		MsMtxSetTRS(mtx, position.x, position.y, position.z,
 		            self->mRotation.x, self->mRotation.y, self->mRotation.z,
 		            scaling.x, scaling.y, scaling.z);
-		TMapCollisionBase* collision = self->mMapCollisionManager->unk8;
+		TMapCollisionBase* collision = collisionManager->unk8;
 		collision->setMtx(mtx);
 		collision->setUp();
 
