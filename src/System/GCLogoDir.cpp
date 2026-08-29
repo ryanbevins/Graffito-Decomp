@@ -200,18 +200,17 @@ bool TGCLogoDir::direct_nlogo()
 			if (mProgSelect->unkC.mValue != 0 && VIGetTvFormat() == 0
 			    && VIGetDTVStatus() == 1) {
 				if (OSGetProgressiveMode() == 1) {
-					mProgSelect->unkC = 0;
+					mProgSelect->unkC = bVar1;
 					bVar1             = true;
 				} else if (mGamePad->getButton() & JUTGamePad::B) {
 					unk44 += 1;
 					if (unk44 / SMSGetVSyncTimesPerSec() > 1.0f) {
-						mProgSelect->unkC = 0;
+						mProgSelect->unkC = bVar1;
 						bVar1             = true;
 					}
-				} else {
-					unk44 = 0;
 				}
 			}
+			unk44 = bVar1;
 
 			if (bVar1) {
 				mLogoShowTimer = 0;
