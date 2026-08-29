@@ -60,8 +60,8 @@ void TSpider::bind(TLiveActor* param_1)
 		if (unk4 <= 0) {
 			param_1->kill();
 		} else {
-			fVar3      = param_1->mPosition.y;
-			local_50.y = fVar3;
+			local_50.y = param_1->mPosition.y;
+			fVar3      = local_50.y;
 			unk4 -= 1;
 		}
 	} else {
