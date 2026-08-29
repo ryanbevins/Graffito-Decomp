@@ -14,6 +14,12 @@ continues as a standalone research effort. The goal is readable C and C++ that
 reproduces the original object code exactly wherever possible, with
 instruction-level evidence for any code classified as functionally equivalent.
 
+## Community
+
+<a href="https://discord.gg/m8zQ3qfHyR">
+  <img src="assets/discord-community.svg" alt="Join the Graffito Workshop on Discord" width="100%">
+</a>
+
 ## Project status
 
 - `GMSJ01`: active and supported.
