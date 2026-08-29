@@ -1361,7 +1361,8 @@ BOOL TNerveKoopaGetDown::execute(TSpineBase<TLiveActor>* spine) const
 
 	default: {
 		self->changeAnm(0, 0, prm->downSpeed.get());
-		TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+		static TBathtub* bathtub
+		    = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
 		gpMarioParticleManager->emitAndBindToMtx(
 		    0xF5, *bathtub->getRootJointMtx(), 0, this);
 		break;
