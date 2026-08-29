@@ -81,26 +81,27 @@ void TTamaNokoFlower::perform(u32 param_1, JDrama::TGraphics* param_2)
 					for (int i = 0; i < 5; ++i) {
 						JGeometry::TVec3<f32> local_88(0.0f, 0.0f, 350.0f);
 						Mtx local_b8;
+						MtxPtr local_b8Ptr = local_b8;
 
 						f32 s = JMASin((i + 1) * 72.0f);
 						f32 c = JMACos((i + 1) * 72.0f);
 
-						local_b8[0][0] = c;
-						local_b8[0][1] = 0.0f;
-						local_b8[0][2] = s;
-						local_b8[0][3] = 0.0f;
+						local_b8Ptr[0][0] = c;
+						local_b8Ptr[0][1] = 0.0f;
+						local_b8Ptr[0][2] = s;
+						local_b8Ptr[0][3] = 0.0f;
 
-						local_b8[1][0] = 0.0f;
-						local_b8[1][1] = 1.0f;
-						local_b8[1][2] = 0.0f;
-						local_b8[1][3] = 0.0f;
+						local_b8Ptr[1][0] = 0.0f;
+						local_b8Ptr[1][1] = 1.0f;
+						local_b8Ptr[1][2] = 0.0f;
+						local_b8Ptr[1][3] = 0.0f;
 
-						local_b8[2][0] = -s;
-						local_b8[2][1] = 0.0f;
-						local_b8[2][3] = 0.0f;
-						local_b8[2][2] = c;
+						local_b8Ptr[2][0] = -s;
+						local_b8Ptr[2][1] = 0.0f;
+						local_b8Ptr[2][3] = 0.0f;
+						local_b8Ptr[2][2] = c;
 
-						MTXMultVec(local_b8, &local_88, &local_88);
+						MTXMultVec(local_b8Ptr, &local_88, &local_88);
 
 						JGeometry::TVec3<f32> local_c4 = unk10->getPosition();
 						if (TMapObjBase* mapObj = gpItemManager->makeObjAppear(
