@@ -153,9 +153,11 @@ void* CPolarSubCamera::getNoticeActor_()
 		f32 farClip
 		    = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x68);
 		if (MsIsInSight(*gpMarioPos, deg,
-		                *(const JGeometry::TVec3<f32>*)((u8*)a + 0x10),
+		                *(const JGeometry::TVec3<f32>*)((u8*)(*(void***)((u8*)this
+		                                                        + 0x2A0))[i]
+		                                                 + 0x10),
 		                distSq, farClip, -1.0f)) {
-			picked     = a;
+			picked     = (*(void***)((u8*)this + 0x2A0))[i];
 			bestDistSq = distSq;
 		}
 	}
