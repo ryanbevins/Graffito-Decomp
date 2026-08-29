@@ -1676,7 +1676,7 @@ DEFINE_NERVE(TNerveBGEyeDamage, TLiveActor)
 	TBossGesso* self = (TBossGesso*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		self->changeBck(2);
+		self->changeBck(5);
 
 		if (self->mBeak->mHolder == nullptr && self->mAttackMode != 2) {
 			self->changeAttackMode(TBossGesso::ASTATE_UNISON);
