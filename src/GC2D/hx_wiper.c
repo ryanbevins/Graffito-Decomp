@@ -792,15 +792,13 @@ static void Hxs_FrBufferMorf2B(f32 x) {
 		y = 0.0f;
 		while (y < (f32)hx.imgH) {
 			f32 y1;
-			f32 srcXF;
 
 			Hx_GetFrBuffer(fbuf2, srcX, (u32)y, 0xA0, 0x10);
 			GXInvalidateTexAll();
 			GXLoadTexObj(&tobj, GX_TEXMAP0);
 			GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 			y1 = y + stripH;
-			srcXF = (f32)(int)srcX;
-			GXPosition3f32(srcXF, y, zero);
+			GXPosition3f32((f32)(int)srcX, y, zero);
 			GXColor1u32(0);
 			GXTexCoord2f32(zero, zero);
 			GXPosition3f32(right, y, zero);
@@ -809,7 +807,7 @@ static void Hxs_FrBufferMorf2B(f32 x) {
 			GXPosition3f32(right, y1, zero);
 			GXColor1u32(0);
 			GXTexCoord2f32(one, one);
-			GXPosition3f32(srcXF, y1, zero);
+			GXPosition3f32((f32)(int)srcX, y1, zero);
 			GXColor1u32(0);
 			GXTexCoord2f32(zero, one);
 			GXDrawDone();
