@@ -67,10 +67,11 @@ void TMarDirector::movement_game()
 	if (gpCamera->isLButtonCameraSpecifyMode(gpCamera->mMode))
 		return;
 
+	CPolarSubCamera* camera = gpCamera;
 	bool bVar1 = true;
-	if (!gpCamera->isSimpleDemoCamera()) {
+	if (!camera->isSimpleDemoCamera()) {
 		bool bVar2 = true;
-		if (gpCamera->mMode != 0x49)
+		if (camera->mMode != 0x49)
 			bVar2 = false;
 		if (!bVar2)
 			bVar1 = false;
