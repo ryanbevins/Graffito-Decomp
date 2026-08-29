@@ -13,9 +13,7 @@ void TBaseNPC::execWalk(bool param_1)
 {
 	if (unk1E2 == 0) {
 		TMarDirector* dir = gpMarDirector;
-		bool blocked = true;
-		if (!dir->isTalkModeNow() && dir->unk124 != 4)
-			blocked = false;
+		bool blocked = dir->isThing();
 		if (blocked || unk178 != 0.0f || (mActionFlag & 0x200) != 0) {
 			mMarchSpeed = 0.0f;
 			mTurnSpeed  = 0.0f;
