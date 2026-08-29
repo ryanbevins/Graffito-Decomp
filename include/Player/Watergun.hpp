@@ -105,7 +105,7 @@ public:
 	void init();
 	void initInLoadAfter();
 	bool isEmitting();
-	bool isPressureOn();
+	s32 isPressureOn();
 	void movement();
 	void rotateProp(f32);
 	void setAmountToRate(f32);
