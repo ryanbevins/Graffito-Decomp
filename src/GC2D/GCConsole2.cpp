@@ -3145,8 +3145,9 @@ bool TGCConsole2::processAppearStar(int param_1)
 	unk144->unk160.set(bounds.x1 + bounds.getWidth() * 0.5f,
 	                   bounds.y1 + bounds.getHeight() * 0.5f, 0.0f);
 
-	JPABaseEmitter* emitter = unk164;
+	JPABaseEmitter* emitter;
 	bounds = unk14C->getPane()->mGlobalBounds;
+	emitter = unk164;
 	emitter->unk160.set(bounds.x1 + bounds.getWidth() * 0.5f,
 	                    bounds.y1 + bounds.getHeight() * 0.5f, 0.0f);
 
