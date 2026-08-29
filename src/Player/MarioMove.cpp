@@ -3907,7 +3907,9 @@ void TMario::gunExec()
 	mWaterGun->triggerPressureMovement(*(TMarioControllerWork*)unk108);
 
 	mState &= ~0x80;
-	if (mState & (MARIO_FLAG_IN_SHALLOW_WATER | MARIO_FLAG_IN_WATER)) {
+	if (mState & (MARIO_FLAG_IN_SHALLOW_WATER | MARIO_FLAG_IN_WATER))
+		isOnYoshi = 1;
+	if (isOnYoshi) {
 		if (!onYoshi() && mWaterGun->suck() == true) {
 			mState |= 0x80;
 			if (checkFlag(MARIO_FLAG_IN_SHALLOW_WATER)
