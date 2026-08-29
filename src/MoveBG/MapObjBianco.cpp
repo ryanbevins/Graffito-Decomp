@@ -320,12 +320,22 @@ void TBiancoBell::initMapObj()
 	}
 }
 
+static inline bool isBiancoBellAnimationEnding(TBiancoBell* bell)
+{
+	J3DFrameCtrl* rateCtrl = bell->mMActor->getFrameCtrl(0);
+	MActor* frameActor = bell->mMActor;
+	f32 rate = rateCtrl->getRate();
+	J3DFrameCtrl* frameCtrl = frameActor->getFrameCtrl(0);
+	MActor* endActor = bell->mMActor;
+	f32 frame = frameCtrl->getFrame();
+	return rate + frame
+	       >= (f32)endActor->getFrameCtrl(0)->getEnd() - 1.0f;
+}
+
 void TBiancoBell::touchPlayer(THitActor*)
 {
 	if (mMActor->getFrameCtrl(0)->getFrame() == 0.0f
-	    || mMActor->getFrameCtrl(0)->getRate()
-	            + mMActor->getFrameCtrl(0)->getFrame()
-	        >= (f32)mMActor->getFrameCtrl(0)->getEnd() - 1.0f) {
+	    || isBiancoBellAnimationEnding(this)) {
 		startAnim(4);
 		mMActor->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
 		if (gpMSound->gateCheck(0x89B8)) {
@@ -338,9 +348,7 @@ void TBiancoBell::touchPlayer(THitActor*)
 u32 TBiancoBell::touchWater(THitActor* water)
 {
 	if (mMActor->getFrameCtrl(0)->getFrame() == 0.0f
-	    || mMActor->getFrameCtrl(0)->getRate()
-	            + mMActor->getFrameCtrl(0)->getFrame()
-	        >= (f32)mMActor->getFrameCtrl(0)->getEnd() - 1.0f) {
+	    || isBiancoBellAnimationEnding(this)) {
 		startAnim(4);
 		mMActor->getFrameCtrl(0)->setRate(SMSGetAnmFrameRate());
 		if (gpMSound->gateCheck(0x89B8)) {
