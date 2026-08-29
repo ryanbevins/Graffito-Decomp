@@ -814,7 +814,7 @@ f32 TKoopa::getNeckFocus() const
 	return focus;
 }
 
-BOOL TKoopa::isFlaming() const
+bool TKoopa::isFlaming() const
 {
 	int idx = mMActor->getCurAnmIdx(0);
 	switch (idx) {

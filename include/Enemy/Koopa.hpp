@@ -178,7 +178,7 @@ public:
 	virtual const char** getBasNameTable() const;
 	virtual void reset();
 
-	BOOL isFlaming() const;
+	bool isFlaming() const;
 	f32 getFlameDirDegree() const;
 	BOOL allowsLaunch() const;
 	BOOL effectsTumble() const;
