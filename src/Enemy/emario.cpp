@@ -246,8 +246,9 @@ void TEMario::init(TLiveManager* manager)
 			mMActorKeeper = new TMActorKeeper((TLiveManager*)NULL,
 			                                  (u16)1);
 			mMActorKeeper->mModelLoaderFlags = 0x11300000;
+			const char* folder = chara->mFolder;
 			mMActor = mMActorKeeper->createMActorFromDefaultBmd(
-			    chara->mFolder, 0);
+			    folder, 0);
 			for (int i = 0;
 			     i < mMActor->getModel()->getModelData()->mMaterialNum;
 			     i++) {
