@@ -348,7 +348,9 @@ BOOL TNerveTobiPukuDie::execute(TSpineBase<TLiveActor>* spine) const
 	if (spine->getTime() == 0) {
 		if (self->isAirborne()) {
 			self->onHitFlag(HIT_FLAG_NO_COLLISION);
-			JGeometry::TVec3<f32> velocity(0.0f, self->mVelocity.y, 0.0f);
+			JGeometry::TVec3<f32> velocity(0.0f, 0.0f, 0.0f);
+			JGeometry::TVec3<f32> currentVelocity = self->getVelocity();
+			velocity.y = currentVelocity.y;
 			self->mVelocity = velocity;
 			self->setDownAirAnm();
 		} else if (self->unk1AD) {
