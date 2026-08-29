@@ -435,17 +435,15 @@ BOOL TNerveTobiPukuHitWater::execute(TSpineBase<TLiveActor>* spine) const
 	}
 
 	if (!self->isAirborne()) {
-		Vec dir;
-		dir.x = self->mPosition.x - gpMarioPos->x;
-		dir.y = 0.0f;
-		dir.z = self->mPosition.z - gpMarioPos->z;
+		JGeometry::TVec3<f32> dir(self->mPosition.x - gpMarioPos->x, 0.0f,
+		                             self->mPosition.z - gpMarioPos->z);
 		if (dir.x == 0.0f && dir.y == 0.0f && dir.z == 0.0f)
 			dir.x += 1.0f;
 		MsVECNormalize(&dir, &dir);
 		dir.y = 5.0f;
 		dir.x *= 5.0f;
 		dir.z *= 5.0f;
-		self->mVelocity = JGeometry::TVec3<f32>(dir);
+		self->mVelocity = dir;
 		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
 		self->mPosition.y += 5.0f;
 	}
