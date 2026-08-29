@@ -22,14 +22,19 @@ static inline void coneInPlane(const JGeometry::TVec3<f32>& origin, f32 angle,
 	dir += axis;
 
 	// Solve for intersection distance with the plane
-	f32 t = -(planeDistance + normalX * origin.x + normalY * origin.y
-	          + normalZ * origin.z)
+	const f32 originY = origin.y;
+	const f32 originX = origin.x;
+	const f32 originZ = origin.z;
+	f32 t = -(planeDistance + normalX * originX + normalY * originY
+	          + normalZ * originZ)
 	      / (normalX * dir.x + normalY * dir.y + normalZ * dir.z);
 
 	// Compute intersection point
 	*outPos = dir;
 	outPos->scale(t);
-	*outPos += origin;
+	outPos->x += originX;
+	outPos->y += originY;
+	outPos->z += originZ;
 }
 
 TConeBeam::TConeBeam()
