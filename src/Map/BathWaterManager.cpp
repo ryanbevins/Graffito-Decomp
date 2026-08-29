@@ -1010,11 +1010,9 @@ void TBathWaterManager::throwMario(f32 jump)
 	if (horiz.length() < 4500.0) {
 		horiz.setLength(4150.0f);
 
-		JGeometry::TVec3<f32> target(
-		    data.unk18.x * horiz.x + data.unk30.x * horiz.z,
-		    data.unk18.y * horiz.x + data.unk30.y * horiz.z,
-		    data.unk18.z * horiz.x + data.unk30.z * horiz.z);
-		target.add(data.unk0);
+		JGeometry::TVec3<f32> target;
+		target.scaleAdd(horiz.x, data.unk0, data.unk18);
+		target.scaleAdd(horiz.z, target, data.unk30);
 		target.y += 120.0f;
 
 		f32 gravity = SMS_GetMarioGravity();
