@@ -133,8 +133,9 @@ void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)
 		                   size);
 
 		const JGeometry::TVec3<f32>& center = nearPos[4];
-		f32 sx = -sun->mFPos[0].x * unk3C;
-		f32 sy = -sun->mFPos[0].y * unk3C;
+		const JGeometry::TVec2<f32>& sunFPos = gpSunModel->mFPos[0];
+		f32 sx = -sunFPos.x * unk3C;
+		f32 sy = -sunFPos.y * unk3C;
 		JGeometry::TVec3<f32> flarePos;
 		flarePos.sub(nearPos[5], center);
 		flarePos.scale(sx);
