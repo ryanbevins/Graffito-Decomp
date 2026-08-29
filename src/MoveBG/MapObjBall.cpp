@@ -361,7 +361,7 @@ void TResetFruit::checkGroundCollision(JGeometry::TVec3<f32>* pos)
 	if (stage == 4) {
 		mGroundHeight = gpMap->checkGround(pos->x, pos->y + 200.0f, pos->z,
 		                                   &mGroundPlane);
-		mGroundHeight = mGroundHeight + 1.0f;
+		mGroundHeight += 1.0f;
 		if (pos->y <= mGroundHeight) {
 			touchGround(pos);
 		} else {
@@ -375,7 +375,7 @@ void TResetFruit::checkGroundCollision(JGeometry::TVec3<f32>* pos)
 			mGroundHeight = gpMap->checkGroundExactY(
 			    pos->x, mGroundHeight - 200.0f, pos->z, &mGroundPlane);
 		}
-		mGroundHeight = mGroundHeight + 1.0f;
+		mGroundHeight += 1.0f;
 		if (pos->y <= mGroundHeight) {
 			touchGround(pos);
 		} else {
