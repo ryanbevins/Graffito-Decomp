@@ -182,8 +182,7 @@ void TLensGlow::perform(u32 param, JDrama::TGraphics* gfx)
 		if (visible) {
 			Mtx mtx;
 			Vec scale;
-			scale.x = unk60;
-			scale.y = unk60;
+			scale.x = scale.y = unk60;
 			scale.z = 1.0f;
 			CLBCalcScaleTranslateMatrix(mtx, scale, (Vec&)unk74);
 			PSMTXCopy(mtx, unk14->unk20);
