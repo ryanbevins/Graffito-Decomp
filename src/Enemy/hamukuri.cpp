@@ -1921,7 +1921,7 @@ BOOL TDangoHamuKuri::receiveMessage(THitActor* param_1, u32 param_2)
 	}
 
 	if (param_2 == HIT_MESSAGE_SPRAYED_BY_WATER) {
-		gpMarioParticleManager->emit(0xE7, &mPosition, 0, nullptr);
+		gpMarioParticleManager->emit(0xE7, &param_1->mPosition, 0, nullptr);
 		gpMSound->startSoundSet(0x6802, &mPosition, 0.0f, 0.0f, 0, 0, 4);
 		if (mSprayedByWaterCooldown == 0) {
 			mSprayedByWaterCooldown = 1;
