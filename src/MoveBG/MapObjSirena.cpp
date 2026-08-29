@@ -63,7 +63,6 @@ static int partsRollCallback(J3DNode* node, int param)
 		u16 jointIdx = ((J3DJoint*)node)->mJntNo;
 		MtxPtr localMtx
 		    = ((TSirenaRollMapObj*)gpCurObject)->getModel()->mNodeMatrices[jointIdx];
-		jointIdx -= 1;
 
 		TPosition3f scaleMtx;
 		scaleMtx.setTrans(0.0f, 0.0f, 0.0f);
@@ -72,10 +71,12 @@ static int partsRollCallback(J3DNode* node, int param)
 		                  ((TSirenaRollMapObj*)gpCurObject)->mScaling.z);
 
 		Mtx rotMtx;
-		f32 angZ = ((TSirenaRollMapObj*)gpCurObject)->getRollAngZ(jointIdx);
-		f32 angY = ((TSirenaRollMapObj*)gpCurObject)->getRollAngY(jointIdx);
+		f32 angZ
+		    = ((TSirenaRollMapObj*)gpCurObject)->getRollAngZ(jointIdx - 1);
+		f32 angY
+		    = ((TSirenaRollMapObj*)gpCurObject)->getRollAngY(jointIdx - 1);
 		MsMtxSetRotRPH(rotMtx,
-		               ((TSirenaRollMapObj*)gpCurObject)->getRollAngX(jointIdx),
+		               ((TSirenaRollMapObj*)gpCurObject)->getRollAngX(jointIdx - 1),
 		               angY, angZ);
 
 		PSMTXConcat(localMtx, rotMtx, localMtx);
