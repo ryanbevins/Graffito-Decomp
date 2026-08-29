@@ -112,8 +112,8 @@ void TBWLeashNode::calcMatrix()
 {
 	TRope* rope       = mLeash->mRope;
 	TRopePoint* point = &rope->mPoints[mIndex];
-	JGeometry::TVec3<f32> position = point->mPosition;
 	MtxPtr mtx = mMActor->getModel()->getBaseTRMtx();
+	JGeometry::TVec3<f32> position = point->mPosition;
 
 	JGeometry::TVec3<f32> direction;
 	if (mIndex < rope->mNumPoints - 1) {
