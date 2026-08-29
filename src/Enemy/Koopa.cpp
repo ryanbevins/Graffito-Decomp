@@ -220,6 +220,8 @@ void TKoopaBody::attack_(THitActor* actor)
 BOOL TKoopaBody::receiveMessage(THitActor* sender, u32 message)
 {
 	switch ((s32)message) {
+	case HIT_MESSAGE_SPRAYED_BY_WATER:
+		break;
 	case HIT_MESSAGE_ATTACK:
 		if (sender->mActorType == 0x08000024)
 			mOwner->stagger(false);
