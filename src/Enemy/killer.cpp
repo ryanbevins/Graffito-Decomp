@@ -82,6 +82,7 @@ static int KillerBodyCallback(J3DNode* node, int when)
 		f32 c = JMACos(gpCurKiller->mRollAnim);
 
 		Mtx rollMtx;
+		MtxPtr rollMtxPtr = rollMtx;
 		rollMtx[0][0] = c;
 		rollMtx[0][1] = -s;
 		rollMtx[0][2] = 0.0f;
@@ -95,9 +96,9 @@ static int KillerBodyCallback(J3DNode* node, int when)
 		rollMtx[2][2] = 1.0f;
 		rollMtx[2][3] = 0.0f;
 
-		PSMTXConcat(jointMtx, rollMtx, jointMtx);
+		PSMTXConcat(jointMtx, rollMtxPtr, jointMtx);
 		PSMTXConcat(jointMtx, scaleMtx, jointMtx);
-		PSMTXConcat(J3DSys::mCurrentMtx, rollMtx,
+		PSMTXConcat(J3DSys::mCurrentMtx, rollMtxPtr,
 		            J3DSys::mCurrentMtx);
 		PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx,
 		            J3DSys::mCurrentMtx);
