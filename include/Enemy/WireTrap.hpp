@@ -38,6 +38,7 @@ public:
 	virtual void kill();
 
 	TWireBinder* getWireBinderDirect() const { return (TWireBinder*)mBinder; }
+	s32 getBiriTimer() const { return mBiriTimer; }
 #ifdef WIRETRAP_GETWIREBINDER_OUT_OF_LINE
 	TWireBinder* getWireBinder() const;
 #else

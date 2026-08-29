@@ -202,7 +202,7 @@ DEFINE_NERVE(TNerveWireTrapReturnMove, TLiveActor)
 {
 	TWireTrap* self = (TWireTrap*)spine->getBody();
 
-	if (self->mBiriTimer > 0)
+	if (self->getBiriTimer() > 0)
 		self->mBiriTimer -= 1;
 
 	bool transit;
