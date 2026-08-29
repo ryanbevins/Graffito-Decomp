@@ -195,7 +195,7 @@ void TMareWallRock::loadAfter()
 	mPosition.z             = (min.z + max.z) * 0.5f;
 	mSinkDepth              = 100.0f + (max.z - min.z);
 
-	TMapObjBase::moveJoint(joint, 0.0f, 0.0f, mSinkDepth);
+	TMapObjBase::moveJoint(mJointObj->getJoint(), 0.0f, 0.0f, mSinkDepth);
 	mJointObj->sleep();
 
 	initHitActor(0x4000022c, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f);
