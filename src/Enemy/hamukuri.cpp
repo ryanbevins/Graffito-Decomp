@@ -522,8 +522,9 @@ TSpineEnemy* TFireHamuKuriManager::createEnemyInstance()
 
 void TFireHamuKuriManager::initSetEnemies()
 {
+	TFireHamuKuri* hamu;
 	for (int i = 0; i < mObjNum; ++i) {
-		TFireHamuKuri* hamu = (TFireHamuKuri*)unk18[i];
+		hamu                 = (TFireHamuKuri*)unk18[i];
 		hamu->unk21C        = mFireHamNoseColorStart;
 		hamu->unk224        = mFireHamOtherColorStart;
 
