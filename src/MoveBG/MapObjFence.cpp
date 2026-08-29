@@ -421,8 +421,7 @@ void TRevolvingFenceInner::setGroundCollision()
 			Mtx mtx;
 			MtxPtr mtxPtr = mtx;
 			JGeometry::gekko_ps_copy12(mtxPtr, sourceMatrices[0]);
-			TMapCollisionBase* coll = mMapCollisionManager->getUnk8();
-			if (coll)
+			if (TMapCollisionBase* coll = mMapCollisionManager->getUnk8())
 				coll->moveMtx(mtxPtr);
 		}
 	}
