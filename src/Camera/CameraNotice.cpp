@@ -135,30 +135,30 @@ void* CPolarSubCamera::getNoticeActor_()
 		f32 sqY    = diff.y * diff.y;
 		f32 sqZ    = diff.z * diff.z;
 		f32 distSq = sqX + sqY + sqZ;
-		if (distSq >= bestDistSq)
-			continue;
+		if (distSq < bestDistSq) {
+			f32 tan = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x40);
+			JGeometry::TVec2<f32> screen;
+			CLBCalc2DFPos(&screen,
+			              (MtxPtr)((u8*)this + 0x1EC),
+			              (MtxPtr)((u8*)this + 0x16C),
+			              *(const Vec*)((u8*)a + 0x10),
+			              nullptr, false);
+			if (!inViewCone(screen, tan))
+				continue;
 
-		f32 tan = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x40);
-		JGeometry::TVec2<f32> screen;
-		CLBCalc2DFPos(&screen,
-		              (MtxPtr)((u8*)this + 0x1EC),
-		              (MtxPtr)((u8*)this + 0x16C),
-		              *(const Vec*)((u8*)a + 0x10),
-		              nullptr, false);
-		if (!inViewCone(screen, tan))
-			continue;
-
-		s16 marioAng = *gpMarioAngleY;
-		f32 deg      = (f32)marioAng * (360.0f / 65536.0f);
-		f32 farClip
-		    = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x68);
-		if (MsIsInSight(*gpMarioPos, deg,
-		                *(const JGeometry::TVec3<f32>*)((u8*)(*(void***)((u8*)this
-		                                                        + 0x2A0))[i]
-		                                                 + 0x10),
-		                distSq, farClip, -1.0f)) {
-			picked     = (*(void***)((u8*)this + 0x2A0))[i];
-			bestDistSq = distSq;
+			s16 marioAng = *gpMarioAngleY;
+			f32 deg      = (f32)marioAng * (360.0f / 65536.0f);
+			f32 farClip
+			    = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x68);
+			if (MsIsInSight(
+			        *gpMarioPos, deg,
+			        *(const JGeometry::TVec3<f32>*)((u8*)(*(void***)((u8*)this
+			                                                + 0x2A0))[i]
+			                                         + 0x10),
+			        distSq, farClip, -1.0f)) {
+				picked     = (*(void***)((u8*)this + 0x2A0))[i];
+				bestDistSq = distSq;
+			}
 		}
 	}
 
