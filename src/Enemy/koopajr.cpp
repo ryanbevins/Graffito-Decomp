@@ -871,7 +871,26 @@ void TKoopaJrSubmarine::makeRelativeAngle()
 	}
 
 	f32 turn = getSaveParam2()->mSLRoundAngleVelocity.get() * 0.017453294f;
-	unk164.mDirection = unk164.calcTurnDirection(current, turn);
+	unk164.mDirection
+	    = JGeometry::TUtil<f32>::zero()
+	      + JGeometry::TUtil<f32>::mod(
+	          6.2831855f
+	              + (unk164.mDirection - JGeometry::TUtil<f32>::zero()),
+	          6.2831855f);
+	f32 nearer = unk164.calcNearerDirection(current);
+	f32 direction = unk164.mDirection;
+	if (nearer > direction) {
+		f32 diff = nearer - direction;
+		if (diff < turn)
+			turn = diff;
+		direction += turn;
+	} else {
+		f32 diff = direction - nearer;
+		if (diff < turn)
+			turn = diff;
+		direction -= turn;
+	}
+	unk164.mDirection = direction;
 }
 
 bool TKoopaJrSubmarine::appearShineKiller(int)
