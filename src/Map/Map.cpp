@@ -122,15 +122,15 @@ static void initStageCommon()
 {
 	JDrama::TNameRef* root
 	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-	const char* indirectSceneName = "インダイレクトシーン";
 	JDrama::TNameRef* indirectScene = root->searchF(
-	    JDrama::TNameRef::calcKeyCode(indirectSceneName), indirectSceneName);
+	    JDrama::TNameRef::calcKeyCode("インダイレクトシーン"),
+	    "インダイレクトシーン");
 	JDrama::TViewObjPtrListT<JDrama::TViewObj>* indirectGroup
 	    = (JDrama::TViewObjPtrListT<JDrama::TViewObj>*)indirectScene;
 
 	root = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-	const char* mapGroupName = "マップグループ";
-	root->searchF(JDrama::TNameRef::calcKeyCode(mapGroupName), mapGroupName);
+	root->searchF(JDrama::TNameRef::calcKeyCode("マップグループ"),
+	              "マップグループ");
 
 	if (gpMarDirector->mMap == 4 || gpMarDirector->mMap == 3
 	    || gpMarDirector->mMap == 13 || gpMarDirector->mMap == 9
