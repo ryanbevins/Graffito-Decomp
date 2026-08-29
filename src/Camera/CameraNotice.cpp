@@ -114,8 +114,7 @@ void* CPolarSubCamera::getNoticeActor_()
 	void* picked   = nullptr;
 	f32 bestDistSq = CLBSquared<f32>(
 	    *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x18));
-	int count = *(int*)((u8*)this + 0x29C);
-	for (int i = 0; i < count; i++) {
+	for (int i = 0; i < unk29C; i++) {
 		void* a = (*(void***)((u8*)this + 0x2A0))[i];
 		u32 status = *(u32*)((u8*)a + 0xF0);
 		if ((status & 1) != 0)
