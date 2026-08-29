@@ -163,9 +163,10 @@ DEFINE_NERVE(TNervePopoFly, TLiveActor)
 
 		TWaterGun* gun = (TWaterGun*)SMS_GetMarioWaterGun();
 		MtxPtr emit    = gun->getEmitMtx(0);
-		f32 speed      = self->mPopoParams->mSLReleaseSpeed.get()
+		TPopoSaveLoadParams* params = self->mPopoParams;
+		f32 speed      = params->mSLReleaseSpeed.get()
 		            * (self->unk198
-		               / self->mPopoParams->mSLWaterScaleMax.get());
+		               / params->mSLWaterScaleMax.get());
 
 		JGeometry::TVec3<f32> velocity;
 		velocity.x      = speed * emit[0][0];
