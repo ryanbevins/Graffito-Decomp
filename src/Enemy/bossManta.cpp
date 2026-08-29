@@ -447,7 +447,7 @@ BOOL TBossManta::getIntoGraphVec(JGeometry::TVec3<f32>* out)
 void TBossManta::init(TLiveManager* manager)
 {
 	mManager = manager;
-	manager->manageActor(this);
+	mManager->manageActor(this);
 
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
 	mMActor       = mMActorKeeper->createMActor("manta.bmd", 0);
