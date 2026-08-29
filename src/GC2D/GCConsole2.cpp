@@ -3430,7 +3430,9 @@ bool TGCConsole2::processAppearMario(int param_1)
 	}
 
 	for (int i = 0; i < 3; ++i) {
-		if (i != 2 && param_1 == i * 6 + 24) {
+		if (i == 2)
+			break;
+		if (param_1 == i * 6 + 24) {
 			unk39C[i]->getPane()->show();
 			unk39C[i]->setPanePosition(50, cDownTopPoint, cDownMidPoint,
 			                            cDownMidPoint);
@@ -3487,19 +3489,19 @@ bool TGCConsole2::processAppearMario(int param_1)
 	}
 
 	for (int i = 0; i < 3; ++i) {
-		if (i != 2) {
-			if (unk39C[i]->update()) {
-				bool atOrigin = false;
-				if (unk39C[i]->unk14.x1 == 0 && unk39C[i]->unk14.y1 == 0)
-					atOrigin = true;
-				if (!atOrigin) {
-					unk39C[i]->setPanePosition(
-					    30, cDownMidPoint, cDownMidPoint, cDownBotPoint);
-					isFinished = false;
-				}
-			} else {
+		if (i == 2)
+			break;
+		if (unk39C[i]->update()) {
+			bool atOrigin = false;
+			if (unk39C[i]->unk14.x1 == 0 && unk39C[i]->unk14.y1 == 0)
+				atOrigin = true;
+			if (!atOrigin) {
+				unk39C[i]->setPanePosition(
+				    30, cDownMidPoint, cDownMidPoint, cDownBotPoint);
 				isFinished = false;
 			}
+		} else {
+			isFinished = false;
 		}
 	}
 
