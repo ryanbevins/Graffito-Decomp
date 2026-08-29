@@ -2207,9 +2207,9 @@ TBEelTearsDrop::TBEelTearsDrop(TBEelTears* tears, int index,
     , unk68(nullptr)
     , unk74(tears)
 {
-	unk68 = new TSharedParts(tears, index, model_data, 0, "<TSharedParts>");
+	unk68 = new TSharedParts(unk74, index, model_data, 0, "<TSharedParts>");
 
-	TBEelTearsSaveLoadParams* params = tears->unk15C;
+	TBEelTearsSaveLoadParams* params = unk74->unk15C;
 	initHitActor(0x2000002c, 3, 0x80000000,
 	             params->mSLTearsDropAttackRadius.get(),
 	             params->mSLTearsDropAttackHeight.get(),
