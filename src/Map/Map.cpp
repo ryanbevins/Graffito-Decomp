@@ -136,12 +136,12 @@ static void initStageCommon()
 	    || gpMarDirector->mMap == 13 || gpMarDirector->mMap == 9
 	    || gpMarDirector->mMap == 5 || gpMarDirector->mMap == 6
 	    || gpMarDirector->mMap == 20 || gpMarDirector->mMap <= 1) {
-		TMapStaticObj* waveFar = new TMapStaticObj("波（遠景）");
-		waveFar->init("sea");
+		TMapStaticObj* wave = new TMapStaticObj("波（遠景）");
+		wave->init("sea");
 
-		TMapStaticObj* indirectWave = new TMapStaticObj("インダイレクト波");
-		indirectWave->init("SeaIndirect");
-		indirectGroup->getChildren().push_back(indirectWave);
+		wave = new TMapStaticObj("インダイレクト波");
+		wave->init("SeaIndirect");
+		indirectGroup->getChildren().push_back(wave);
 
 		TMapObjWaterFilter* waterFilter
 		    = new TMapObjWaterFilter("水中カメラフィルタ");
