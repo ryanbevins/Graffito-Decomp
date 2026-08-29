@@ -232,7 +232,7 @@ public:
 	void randomReset();
 	void moveStart();
 	void forceStopSlot(int);
-	BOOL isRollDrum();
+	bool isRollDrum();
 	int getSlotResult();
 	int getForcastResult(int);
 	int getResultFromAng(f32);

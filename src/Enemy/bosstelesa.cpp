@@ -1490,7 +1490,7 @@ int TTelesaSlot::getSlotResult()
 }
 #pragma dont_inline off
 
-BOOL TTelesaSlot::isRollDrum()
+bool TTelesaSlot::isRollDrum()
 {
 	if (unk198)
 		return TRUE;
