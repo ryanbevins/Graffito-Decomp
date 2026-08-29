@@ -858,7 +858,9 @@ void TKoopaJrSubmarine::makeRelativeAngle()
 	marioDiff.sub(*gpMarioPos, unk1A0->unk15C->mPosition);
 	marioDiff.y = 0.0f;
 
-	f32 marioAngle  = atan2f(marioDiff.z, marioDiff.x);
+	TDirectionCalc marioDirection;
+	marioDirection.makeDirection(marioDiff);
+	f32 marioAngle  = marioDirection.mDirection;
 	f32 nearerMario = unk164.calcNearerDirection(marioAngle);
 	f32 current     = unk164.mDirection;
 	f32 marioAbs    = __fabsf(current - nearerMario);
