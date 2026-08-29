@@ -49,10 +49,8 @@ public:
 		if (res != nullptr)
 			return res;
 
-		typedef JGadget::TList_pointer<T*> List;
-		List& children = *this;
-		typename List::iterator it = children.begin();
-		for (; it != children.end(); ++it) {
+		typedef typename JGadget::TList_pointer<T*>::iterator I;
+		for (I it = getChildren().begin(); it != getChildren().end(); ++it) {
 			TNameRef* r = (*it)->searchF(key, name);
 			if (r != nullptr)
 				return r;
@@ -62,6 +60,7 @@ public:
 	}
 
 	void insert(T* obj) { this->push_back(obj); }
+	JGadget::TList_pointer<T*>& getChildren() { return *this; }
 };
 
 } // namespace JDrama
