@@ -11,6 +11,13 @@ class J3DNode;
 class SDLModel;
 
 struct SDLDrawBufToken {
+	SDLDrawBufToken()
+	{
+		unk0[0] = nullptr;
+		unk0[1] = nullptr;
+		unk8    = nullptr;
+	}
+
 	/* 0x0 */ J3DDrawBuffer* unk0[2];
 	/* 0x8 */ SDLModel* unk8;
 };
