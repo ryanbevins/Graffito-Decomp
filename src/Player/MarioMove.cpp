@@ -3801,20 +3801,17 @@ void TMario::playerControl(JDrama::TGraphics* gfx)
 	else
 		hasSandFlags = 0;
 
+	u8 isSandGround = 0;
 	if (!hasSandFlags) {
 		u16 bgType = mGroundPlane->mBGType;
-		u8 isSandGround;
 		if (bgType == 0x0701 || bgType == 0x4701 || bgType == 0x8701
 		    || bgType == 0xC701)
 			isSandGround = 1;
-		else
-			isSandGround = 0;
-		if (isSandGround == 1) {
-			mState |= 0x40000;
-			emitSandEffect();
-		} else {
-			mState &= ~0x40000;
-		}
+	}
+
+	if (isSandGround == 1) {
+		mState |= 0x40000;
+		emitSandEffect();
 	} else {
 		mState &= ~0x40000;
 	}
