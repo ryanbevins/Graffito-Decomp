@@ -68,16 +68,15 @@ void TMarDirector::movement_game()
 		return;
 
 	CPolarSubCamera* camera = gpCamera;
-	bool bVar1 = true;
+	bool demoCamera = true;
 	if (!camera->isSimpleDemoCamera()) {
-		bool bVar2 = true;
-		if (camera->mMode != 0x49)
-			bVar2 = false;
-		if (!bVar2)
-			bVar1 = false;
+		bool modeDemo = camera->mMode == 0x49 ? demoCamera : false;
+		if (!modeDemo)
+			demoCamera = false;
 	}
+	bool isDemoCamera = demoCamera ? true : false;
 
-	if (!bVar1) {
+	if (!isDemoCamera) {
 		TBaseNPC* takeNpc = nullptr;
 		JGadget::TVector_pointer<TBaseNPC>::iterator it;
 		for (it = unk88.begin(); it != unk88.end(); ++it) {
