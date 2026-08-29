@@ -1950,10 +1950,14 @@ void TOilBall::moveObject()
 {
 	TBEelTearsSaveLoadParams* params = unk15C;
 	f32 scale                       = mScaling.x;
-	mAttackRadius  = params->mSLTearsAttackRadius.get() * scale;
-	mAttackHeight  = params->mSLTearsAttackHeight.get() * scale;
-	mDamageRadius  = params->mSLTearsDamageRadius.get() * scale;
-	mDamageHeight  = params->mSLTearsDamageHeight.get() * scale;
+	s32 attackRadius = params->mSLTearsAttackRadius.get();
+	s32 attackHeight = params->mSLTearsAttackHeight.get();
+	s32 damageRadius = params->mSLTearsDamageRadius.get();
+	s32 damageHeight = params->mSLTearsDamageHeight.get();
+	mAttackRadius    = attackRadius * scale;
+	mAttackHeight    = attackHeight * scale;
+	mDamageRadius    = damageRadius * scale;
+	mDamageHeight    = damageHeight * scale;
 	calcEntryRadius();
 
 	for (int i = 0; i < mColCount; ++i) {
