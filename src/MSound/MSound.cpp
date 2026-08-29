@@ -1112,8 +1112,10 @@ u32 MSound::getWallSound(u32 param1, f32 param2)
 void MSound::startBeeSe(Vec* pos, u32 id)
 {
 	if (id > 3) {
-		JAISound* sound = nullptr;
-		if (gateCheck(0x2106)) {
+		JAISound* sound;
+		if (!gateCheck(0x2106)) {
+			sound = nullptr;
+		} else {
 			sound = MSoundSESystem::MSoundSE::startSoundActor(
 			    0x2106, pos, 0, nullptr, 0, 4);
 		}
