@@ -2082,10 +2082,9 @@ void TBPTornado::perform(u32 flags, JDrama::TGraphics* graphics)
 			    mOwner->getBossPakkunSaveParam()->mSLTornadoSpeed.value);
 			unk7C += toTarget;
 
-			JGeometry::TVec3<f32> nextPos;
-			nextPos.x = unk7C.x + radius * JMACos(angle);
-			nextPos.y = unk7C.y;
-			nextPos.z = unk7C.z + radius * JMASin(angle);
+			JGeometry::TVec3<f32> nextPos(
+			    unk7C.x + radius * JMACos(angle), unk7C.y,
+			    unk7C.z + radius * JMASin(angle));
 
 			const TBGCheckData* ground = nullptr;
 			f32 groundY = gpMap->checkGround(nextPos.x, nextPos.y + 200.0f,
