@@ -102,7 +102,7 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 					    ->getModel()->getModelData();
 					J3DModelData* mdataBase = unk60->getModel()
 					    ->getModelData();
-					int peachHostIdx
+					u16 peachHostIdx
 					    = mdataBase->getTextureName()->getIndex(
 					        cPeachHostTextureName);
 					SMS_ChangeTextureAll(mdataPart,
