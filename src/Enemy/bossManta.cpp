@@ -244,10 +244,10 @@ BOOL TNerveMantaHitWater::execute(TSpineBase<TLiveActor>* spine) const
 			self->mMActor->unkC->setMotionBlendRatio(0.0f);
 
 		u32 sounds[] = { 0x8990, 0x8991, 0x8992, 0x8993, 0x899A, 0x899A };
-		if (gpMSound->gateCheck(sounds[self->mGeneration]))
+		u32 sound = sounds[self->mGeneration];
+		if (gpMSound->gateCheck(sound))
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    sounds[self->mGeneration], &self->mPosition, 0, nullptr, 0,
-			    4);
+			    sound, &self->mPosition, 0, nullptr, 0, 4);
 	}
 
 	TBossMantaParams* params = (TBossMantaParams*)self->getSaveParam();
