@@ -1817,18 +1817,20 @@ void TBossPakkunMtxCalc::calcBellyScale(u16 joint_no)
 		static JGeometry::TVec3<f32> targetScale(1.4f, 1.4f, 1.6f);
 		static JGeometry::TVec3<f32> startScale(1.0f, 0.8f, 0.8f);
 
-		PSMTXScale(scaleMtx,
-		           blend * (targetScale.x - startScale.x) + startScale.x,
-		           blend * (targetScale.y - startScale.y) + startScale.y,
-		           blend * (targetScale.z - startScale.z) + startScale.z);
+		JGeometry::TVec3<f32> delta;
+		delta.sub(targetScale, startScale);
+		JGeometry::TVec3<f32> scale;
+		scale.scaleAdd(blend, startScale, delta);
+		PSMTXScale(scaleMtx, scale.x, scale.y, scale.z);
 	} else {
 		static JGeometry::TVec3<f32> targetScale(1.3f, 1.7f, 1.7f);
 		static JGeometry::TVec3<f32> startScale(1.0f, 0.9f, 0.9f);
 
-		PSMTXScale(scaleMtx,
-		           blend * (targetScale.x - startScale.x) + startScale.x,
-		           blend * (targetScale.y - startScale.y) + startScale.y,
-		           blend * (targetScale.z - startScale.z) + startScale.z);
+		JGeometry::TVec3<f32> delta;
+		delta.sub(targetScale, startScale);
+		JGeometry::TVec3<f32> scale;
+		scale.scaleAdd(blend, startScale, delta);
+		PSMTXScale(scaleMtx, scale.x, scale.y, scale.z);
 	}
 
 	PSMTXConcat(jointMtx, scaleMtx, jointMtx);
