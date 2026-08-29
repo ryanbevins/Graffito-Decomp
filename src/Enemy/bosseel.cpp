@@ -1449,7 +1449,8 @@ void TBossEelVortex::perform(u32 flags, JDrama::TGraphics* graphics)
 						velocity.z = unk68->mPosition.z - gpMarioPos->z;
 						MsVECNormalize(&velocity, &velocity);
 
-						f32 power = params->mSLBreathInPower.get();
+						f32 power
+						    = unk68->unk1E8->mSLBreathInPower.get();
 						f32 pulse = fabsf(JMASin(unk70 * 0.9f));
 						if (pulse > 1.0f)
 							pulse = 1.0f;
