@@ -2,6 +2,7 @@
 
 [![Repository check](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/build.yml/badge.svg)](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/build.yml)
 [![Lint](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/lint.yml/badge.svg)](https://github.com/ryanbevins/Graffito-Decomp/actions/workflows/lint.yml)
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/m8zQ3qfHyR)
 
 ![Graffito Decomp matching progress](assets/progress.svg)
 
@@ -13,12 +14,6 @@ The project descends from [doldecomp/sms](https://github.com/doldecomp/sms) and
 continues as a standalone research effort. The goal is readable C and C++ that
 reproduces the original object code exactly wherever possible, with
 instruction-level evidence for any code classified as functionally equivalent.
-
-## Community
-
-<a href="https://discord.gg/m8zQ3qfHyR">
-  <img src="assets/discord-community.svg" alt="Join the Graffito Workshop on Discord" width="100%">
-</a>
 
 ## Project status
 
