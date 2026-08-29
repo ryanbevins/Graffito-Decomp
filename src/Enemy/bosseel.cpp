@@ -2221,13 +2221,15 @@ TBEelTearsDrop::TBEelTearsDrop(TBEelTears* tears, int index,
 	group->getChildren().push_back(this);
 	unk6C = FALSE;
 
-	TScreenTexture* texture
-	    = JDrama::TNameRefGen::search<TScreenTexture>("スクリーンテクスチャ");
+	const ResTIMG* texInfo
+	    = JDrama::TNameRefGen::search<TScreenTexture>("スクリーンテクスチャ")
+	          ->getTexture()
+	          ->getTexInfo();
 	new J3DSkinDeform;
 
 	MActor* actor = unk68->getMActor();
 	SMS_ChangeTextureAll(actor->getModel()->getModelData(), "M_dummy",
-	                     *texture->getTexture()->getTexInfo());
+	                     *texInfo);
 	actor->setBckFromIndex(0);
 	actor->setLightType(3);
 }
