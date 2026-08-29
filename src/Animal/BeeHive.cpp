@@ -87,13 +87,6 @@ static inline void setBeeHiveRotate(JGeometry::TQuat4<f32>& quat,
 {
 	quat.setRotate(from, to, sign);
 }
-
-static inline void setBeeHiveSQ(TRotation3f& mtx,
-	                            const JGeometry::TVec3<f32>& scale,
-	                            const JGeometry::TQuat4<f32>& quat)
-{
-	mtx.setSQ(scale, quat);
-}
 }
 
 DEFINE_NERVE(TNerveBeeHiveReset, TLiveActor)
@@ -400,7 +393,7 @@ void TBeeHive::calcRootMatrix()
 	quat.mul(quat, roll);
 
 	TRotation3f mtx;
-	setBeeHiveSQ(mtx, mScaling, quat);
+	mtx.setSQ(mScaling, quat);
 	mtx.mMtx[0][3] = mPosition.x;
 	mtx.mMtx[1][3] = mPosition.y + 120.0f;
 	mtx.mMtx[2][3] = mPosition.z;
