@@ -1178,18 +1178,26 @@ void JPADrawExecStripe::exec(const JPADrawContext* dc)
 		params->unk0.cross(local_BC, f29_f30_f31);
 		params->unk0.normalize();
 
-		JGeometry::TVec3<f32> u1(params->unk0.x, f29_f30_f31.x, local_BC.x);
-		JGeometry::TVec3<f32> u2(params->unk0.y, f29_f30_f31.y, local_BC.y);
-		JGeometry::TVec3<f32> u3(params->unk0.z, f29_f30_f31.z, local_BC.z);
-		(void)&u1;
-		(void)&u2;
-		(void)&u3;
+		JGeometry::TVec3<f32> basis[3];
+		basis[0].set(f29_f30_f31);
+		basis[1].set(local_BC);
+		basis[2].set(params->unk0);
 
-		GXPosition3f32(pt0.x + v1.dot(u1), pt0.y + v1.dot(u2),
-		               pt0.z + v1.dot(u3));
+		GXPosition3f32(
+		    v1.z * basis[1].x + v1.y * basis[0].x
+		        + v1.x * basis[2].x + pt0.x,
+		    v1.z * basis[1].y + v1.y * basis[0].y
+		        + v1.x * basis[2].y + pt0.y,
+		    v1.z * basis[1].z + v1.y * basis[0].z
+		        + v1.x * basis[2].z + pt0.z);
 		GXTexCoord2f32(0.0f, fVar2);
-		GXPosition3f32(pt0.x + v2.dot(u1), pt0.y + v2.dot(u2),
-		               pt0.z + v2.dot(u3));
+		GXPosition3f32(
+		    v2.z * basis[1].x + v2.y * basis[0].x
+		        + v2.x * basis[2].x + pt0.x,
+		    v2.z * basis[1].y + v2.y * basis[0].y
+		        + v2.x * basis[2].y + pt0.y,
+		    v2.z * basis[1].z + v2.y * basis[0].z
+		        + v2.x * basis[2].z + pt0.z);
 		GXTexCoord2f32(1.0f, fVar2);
 	}
 	GXEnd();
