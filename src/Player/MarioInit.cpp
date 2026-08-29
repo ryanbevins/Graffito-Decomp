@@ -54,7 +54,7 @@ TMario::TAutoDemoParams::TAutoDemoParams()
     , PARAM_INIT(mWarpInTremble, 15.0f)
     , PARAM_INIT(mWarpInVecBase, 0.3f)
     , PARAM_INIT(mWarpTransTremble, 50.0f)
-    , PARAM_INIT(mReadRotSp, 0x400f)
+	, PARAM_INIT(mReadRotSp, 0x400)
 {
 	TParams::load(mPrmPath);
 }
