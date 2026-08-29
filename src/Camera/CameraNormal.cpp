@@ -166,7 +166,7 @@ void CPolarSubCamera::ctrlNormalOrTowerCamera_()
 						                      sf);
 					}
 				} else {
-					s16 sVar9 = *gpMarioAngleY - 0x8000;
+					int sVar9 = *gpMarioAngleY - 0x8000;
 					f32 f29;
 					f32 f30;
 
