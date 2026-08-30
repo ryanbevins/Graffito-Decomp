@@ -534,14 +534,17 @@ void TBWHit::perform(u32 flags, JDrama::TGraphics* graphics)
 void TBWBinder::bind(TLiveActor* actor)
 {
 	TBossWanwan* self = (TBossWanwan*)actor;
-	JGeometry::TVec3<f32> nextPos = actor->mPosition;
-	nextPos += actor->mLinearVelocity;
+	JGeometry::TVec3<f32> linearVelocity = actor->mLinearVelocity;
+	JGeometry::TVec3<f32> nextPos        = actor->mPosition;
+	nextPos += linearVelocity;
 
 	if (actor->isAirborne()) {
-		nextPos += actor->mVelocity;
-		actor->mVelocity.y -= actor->getGravityY();
-		if (actor->mVelocity.y < TLiveActor::mVelocityMinY)
-			actor->mVelocity.y = TLiveActor::mVelocityMinY;
+		JGeometry::TVec3<f32> velocity = actor->mVelocity;
+		nextPos += velocity;
+		velocity.y -= actor->getGravityY();
+		if (velocity.y < TLiveActor::mVelocityMinY)
+			velocity.y = TLiveActor::mVelocityMinY;
+		actor->mVelocity = velocity;
 	}
 
 	if (actor->mSpine->getLatestNerve() == &TNerveBWJumpToBath::theNerve()
