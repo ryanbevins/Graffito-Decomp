@@ -89,8 +89,8 @@ void TMarDirector::movement_game()
 	bool isDemoCamera = demoCamera ? true : false;
 
 	if (!isDemoCamera) {
-		TBaseNPC* takeNpc = findNearestTakeNPC();
-		if (takeNpc != nullptr) {
+		TBaseNPC* takeNpc;
+		if (takeNpc = findNearestTakeNPC()) {
 			unk84->associateNPC(takeNpc);
 		} else {
 			TBaseNPC* talkNpc = findNearestTalkNPC();
