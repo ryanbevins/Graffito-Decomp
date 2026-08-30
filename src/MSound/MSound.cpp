@@ -942,7 +942,12 @@ u32 MSound::startMarioVoice(u32 id, s16 param2, u8 param3)
 			id = 0x781B;
 		break;
 	case 0x7865:
-		if (unkA8 & 2)
+		bool canPlay;
+		if (!(unkA8 & 2))
+			canPlay = false;
+		else
+			canPlay = true;
+		if (canPlay)
 			MSoundSESystem::MSRandPlay::startSeRandPlay(0x7865, 0);
 		if (unk8C[0] != nullptr)
 			return unk8C[0]->unk8;
