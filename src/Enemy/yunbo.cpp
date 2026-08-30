@@ -389,7 +389,7 @@ void TYumbo::shotSeeds()
 	}
 
 	f32 yawDeg = MsGetRotFromZaxisY(dir);
-	f32 yawRad = -(0.017453294f * 0.5f * yawDeg);
+	f32 yawRad = 0.5f * -(0.017453294f * yawDeg);
 	f32 sinY   = sinf(yawRad);
 	f32 cosY   = cosf(yawRad);
 
