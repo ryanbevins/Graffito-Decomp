@@ -318,18 +318,14 @@ static void evSetTalkMsgID(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evGetTalkMode(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(0, &arg_num);
-	TSpcSlice result;
-	result.mData.asInt = gpTalk2D->getTalkMode();
-	interp->push(result);
+	interp->push((int)gpTalk2D->getTalkMode());
 }
 
 static void evGetTalkSelectedValue(TSpcTypedInterp<TEventWatcher>* interp,
                                    u32 arg_num)
 {
 	interp->verifyArgNum(0, &arg_num);
-	TSpcSlice result;
-	result.mData.asInt = gpTalk2D->getSelectedValue();
-	interp->push(result);
+	interp->push((int)gpTalk2D->getSelectedValue());
 }
 
 static void evSetValue2TalkVariable(TSpcTypedInterp<TEventWatcher>* interp,
@@ -1029,7 +1025,7 @@ static void evStartBGM(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
 	MSBgm::startBGM(interp->pop().getDataInt());
-	interp->push(TSpcSlice(0));
+	interp->push(TSpcSlice());
 }
 
 static void evEggYoshiStartFruit(TSpcTypedInterp<TEventWatcher>* interp,
@@ -1054,7 +1050,7 @@ static void evStopBGM(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 {
 	interp->verifyArgNum(1, &arg_num);
 	MSBgm::stopBGM(interp->pop().getDataInt(), 10);
-	interp->push(TSpcSlice(0));
+	interp->push(TSpcSlice());
 }
 
 static void evStartSE(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
@@ -1062,7 +1058,7 @@ static void evStartSE(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 	interp->verifyArgNum(1, &arg_num);
 	SMSGetMSound()->startSoundSystemSE((u32)interp->pop().getDataInt(), 0,
 	                                   nullptr, 0);
-	interp->push(TSpcSlice(0));
+	interp->push(TSpcSlice());
 }
 
 static void evStartEventSE(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
@@ -1078,7 +1074,7 @@ static void evStartEventSE(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 		break;
 	}
 	SMSGetMSound()->startSoundSystemSE(se, 0, nullptr, 0);
-	interp->push(TSpcSlice(0));
+	interp->push(TSpcSlice());
 }
 
 static void evStartMiss(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
