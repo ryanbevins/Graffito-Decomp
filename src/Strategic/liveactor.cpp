@@ -393,7 +393,7 @@ TLiveActor::calcVelocityToJumpToY(const JGeometry::TVec3<f32>& param_1,
                                   f32 speed, f32 gravity) const
 {
 	JGeometry::TVec3<f32> vec;
-	SMSCalcJumpVelocityY(param_1, mPosition, speed, gravity, -3.0625f, &vec);
+	SMSCalcJumpVelocityY(param_1, mPosition, speed, gravity, -40.0f, &vec);
 	return vec;
 }
 
