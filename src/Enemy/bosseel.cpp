@@ -1444,9 +1444,7 @@ void TBossEelVortex::perform(u32 flags, JDrama::TGraphics* graphics)
 				for (int i = 0; i < mColCount; ++i) {
 					if (mCollisions[i]->isActorTypeOf(ACTOR_TYPE_PLAYER)) {
 						JGeometry::TVec3<f32> velocity;
-						velocity.x = unk68->mPosition.x - gpMarioPos->x;
-						velocity.y = unk68->mPosition.y - gpMarioPos->y;
-						velocity.z = unk68->mPosition.z - gpMarioPos->z;
+						velocity.sub(unk68->mPosition, *gpMarioPos);
 						MsVECNormalize(&velocity, &velocity);
 
 						f32 power
