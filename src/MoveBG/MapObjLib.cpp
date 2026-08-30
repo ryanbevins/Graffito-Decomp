@@ -615,7 +615,7 @@ void TMapObjBase::getVerticalVecToTargetXZ(
 	JGeometry::TRotation3<
 	    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >
 	    rot;
-	rot.setEular(0.0f, M_PI / 2.0f, 0.0f);
+	rot.setEular(0.0f, 1.5707963f, 0.0f);
 
 	out->set(out->x * rot.at(0, 0) + out->y * rot.at(0, 1)
 	             + out->z * rot.at(0, 2),
@@ -634,7 +634,7 @@ void TMapObjBase::getVerticalVecFromOffsetXZ(
 	JGeometry::TRotation3<
 	    JGeometry::TMatrix33<JGeometry::SMatrix33C<f32> > >
 	    rot;
-	rot.setEular(0.0f, M_PI / 2.0f, 0.0f);
+	rot.setEular(0.0f, 1.5707963f, 0.0f);
 
 	f32 x = out->x;
 	f32 y = out->y;
