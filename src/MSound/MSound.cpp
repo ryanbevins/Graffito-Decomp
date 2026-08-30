@@ -1112,13 +1112,11 @@ u32 MSound::getWallSound(u32 param1, f32 param2)
 void MSound::startBeeSe(Vec* pos, u32 id)
 {
 	if (id > 3) {
-		JAISound* sound;
-		if (!gateCheck(0x2106)) {
-			sound = nullptr;
-		} else {
-			sound = MSoundSESystem::MSoundSE::startSoundActor(
-			    0x2106, pos, 0, nullptr, 0, 4);
-		}
+		JAISound* sound
+		    = !gateCheck(0x2106)
+		          ? nullptr
+		          : MSoundSESystem::MSoundSE::startSoundActor(
+		                0x2106, pos, 0, nullptr, 0, 4);
 
 		if (sound != nullptr) {
 			f32 volume = JALCalc::linearTransform((f32)id, 3.0f, 50.0f,
