@@ -2555,9 +2555,9 @@ bool TGCConsole2::startAppearBalloon(u32 messageID, bool param_2)
 
 	JUTRect contents(getWindowContentsRect(unk3B0));
 	JUTRect contentBounds(contents);
-	int contentHeight = contentBounds.getHeight();
-	unk3B0->resize(unk3BC.getWidth(), unk3BC.getHeight() - contentHeight);
-	unk3B0->add(0, contentHeight);
+	unk3B0->resize(unk3BC.getWidth(),
+	               unk3BC.getHeight() - contentBounds.getHeight());
+	unk3B0->add(0, contentBounds.getHeight());
 
 	((JSUMemoryOutputStream*)unk3D8)
 	    ->setBuffer(unk3B4->getStringPtr(), 0x400);
