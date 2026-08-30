@@ -360,14 +360,20 @@ void TWaterHitPictureHideObj::loadAfter()
 			unk150 = 0;
 			break;
 		}
-		unk160 = unk150 ? unk168 : unk164;
+		if (unk150)
+			unk160 = unk168;
+		else
+			unk160 = unk164;
 		if (unk138) {
 			if (TMapObjBase::isCoin(unk138))
 				unk138->unkF8 &= ~0x10000000;
 			bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
 			if (isShine
 			    && TFlagManager::smInstance->getShineFlag((u8)unk138->unk134)) {
-				unk160 = unk150 ? unk164 : unk168;
+				if (unk150)
+					unk160 = unk164;
+				else
+					unk160 = unk168;
 				unk172 = (u16)(u8)(s32)unk160;
 				mState = 3;
 			}
