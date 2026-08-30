@@ -458,7 +458,7 @@ void TSelectShine::move()
 		}
 	} else {
 		unk3C = (s16)capped;
-		if (unk3C < 0) {
+		if ((s16)capped < 0) {
 			unk3C = 0;
 		}
 		s16 maxF = mAnmColor->mMaxFrame;
