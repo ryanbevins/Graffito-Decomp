@@ -651,12 +651,13 @@ void TBWBinder::bind(TLiveActor* actor)
 	}
 
 	if (self->unk17C != 0) {
+		TBWLeash* leash = self->mLeash;
 		JGeometry::TVec3<f32> oldPos = actor->mPosition;
 		JGeometry::TVec3<f32> clampedPos = oldPos;
 		clampedPos += movement;
 
 		JGeometry::TVec3<f32> ropePos
-		    = self->mLeash->mRope->mPoints[3].mPosition;
+		    = leash->mRope->mPoints[3].mPosition;
 		clampedPos -= ropePos;
 		if (PSVECMag(&clampedPos) > 860.0f) {
 			PSVECNormalize(&clampedPos, &clampedPos);
