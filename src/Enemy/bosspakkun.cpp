@@ -921,7 +921,7 @@ DEFINE_NERVE(TNerveBPPreDie, TLiveActor)
 		}
 
 		TEnemyManager* nameKuriManager
-		    = JDrama::TNameRefGen::search<TEnemyManager>("ナメクリマネージャ");
+		    = JDrama::TNameRefGen::search<TEnemyManager>("ナメクリマネージャー");
 		if (nameKuriManager != nullptr)
 			nameKuriManager->killChildren();
 
