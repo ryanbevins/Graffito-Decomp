@@ -1768,10 +1768,8 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 		if (!params[i]->isVisible.get())
 			continue;
 
-		TBathWater* water = waters[i];
-
-		for (TBathWater::TDrop* drop = water->unk88;
-		     drop < water->unk88 + water->unk74; ++drop) {
+		for (TBathWater::TDrop* drop = waters[i]->unk88;
+		     drop < waters[i]->unk88 + waters[i]->unk74; ++drop) {
 			TBathWaterParams* param = params[i];
 			f32 dropRadius          = param->dropRadius.get();
 			f32 modelScale
