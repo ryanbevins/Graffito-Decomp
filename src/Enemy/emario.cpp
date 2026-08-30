@@ -207,15 +207,15 @@ void TEMario::load(JSUMemoryInputStream& stream)
 		unk160 = 0;
 	mEnemyMario = new TEnemyMario;
 	*(TEMario**)((u8*)mEnemyMario + 0x42a0) = this;
-	if (strcmp(mName, "マリオ@1") == 0) {
+	if (strcmp(mName, "マリオ２Ｐ") == 0) {
 		mEnemyMario->setGamePad(gpMarDirector->unk18[1]);
 		*(u8*)((u8*)mEnemyMario + 0x388) = 3;
 	}
-	if (strcmp(mName, "マリオ@2") == 0) {
+	if (strcmp(mName, "マリオ３Ｐ") == 0) {
 		mEnemyMario->setGamePad(gpMarDirector->unk18[2]);
 		*(u8*)((u8*)mEnemyMario + 0x388) = 4;
 	}
-	if (strcmp(mName, "マリオ@3") == 0) {
+	if (strcmp(mName, "マリオ４Ｐ") == 0) {
 		mEnemyMario->setGamePad(gpMarDirector->unk18[3]);
 		*(u8*)((u8*)mEnemyMario + 0x388) = 5;
 	}
