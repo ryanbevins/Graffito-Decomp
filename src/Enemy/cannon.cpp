@@ -837,12 +837,12 @@ void TCannon::bombSet()
 		int choice = choiceRange.rand();
 		if (choice % 2 == 1) {
 			spawned = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
-			    mPosition, "ポポマネージャ", 1);
+			    mPosition, "ポポマネージャー", 1);
 			if (spawned != nullptr)
 				((TPopo*)spawned)->thrownByChorobei();
 		} else {
 			spawned = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
-			    mPosition, "ハムクリマネージャ", 1);
+			    mPosition, "ハムクリマネージャー", 1);
 		}
 	}
 
