@@ -1549,9 +1549,8 @@ void TMammaMirrorMapOperator::loadAfter()
 		const Vec& min = joint->getMin();
 		const Vec& max = joint->getMax();
 
-		unk30[i].x = 0.5f * (max.x + min.x);
-		unk30[i].y = 0.5f * (max.y + min.y);
-		unk30[i].z = 0.5f * (max.z + min.z);
+		unk30[i].set(0.5f * (max.x + min.x), 0.5f * (max.y + min.y),
+		             0.5f * (max.z + min.z));
 
 		f32 radX = 0.5f * (max.x - min.x);
 		f32 radZ = 0.5f * (max.z - min.z);
