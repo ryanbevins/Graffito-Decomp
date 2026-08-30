@@ -665,7 +665,9 @@ void TBossGesso::rumblePad(int param_1, const JGeometry::TVec3<f32>& param_2)
 		return;
 
 	JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
-	delta -= param_2;
+	delta.x -= param_2.x;
+	delta.y -= param_2.y;
+	delta.z -= param_2.z;
 	f32 fVar2 = delta.length();
 	f32 fVar1 = (3000.0f - fVar2) / 1000.0f;
 
