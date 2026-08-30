@@ -207,7 +207,7 @@ void TTailRubber::restrict()
 	if (avgHorLen <= mMaxLength)
 		return;
 
-	avgHorLen /= (f32)(unk0.mSize - 1);
+	avgHorLen /= (f32)((s32)unk0.mSize - 1);
 
 	if (mFixTailPos) {
 		for (Node *e = unk0.begin() - 1, *it = unk0.end() - 2; it != e; --it) {
