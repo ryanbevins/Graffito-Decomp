@@ -113,7 +113,7 @@ BOOL TNerveAnimalBirdLanding::execute(TSpineBase<TLiveActor>* spine) const
 		          != 0;
 	}
 
-	if (inSight) {
+	if ((u8)inSight) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdGraphWander::theNerve());
 		return TRUE;
 	}
