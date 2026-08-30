@@ -961,11 +961,10 @@ void TSamboFlowerCoinUnit::checkGenCoin()
 			if (!flower->unk168)
 				continue;
 
-			TSamboFlowerSaveLoadParams* params
-			    = flower->getSamboFlowerParams();
 			f32 ratio = spawned / (f32)coinFlowerCount;
-			JGeometry::TVec3<f32> offset(0.0f, 0.0f,
-			                             params->mSLCoinCircleR.get());
+			JGeometry::TVec3<f32> offset(
+			    0.0f, 0.0f,
+			    flower->getSamboFlowerParams()->mSLCoinCircleR.get());
 			Mtx rot;
 			s16 angle = DEG2SHORTANGLE(360.0f * ratio);
 			f32 sinY  = JMASSin(angle);
@@ -997,6 +996,8 @@ void TSamboFlowerCoinUnit::checkGenCoin()
 			coin->mPosition = coinPos;
 
 			MsVECNormalize((Vec*)&offset, (Vec*)&offset);
+			TSamboFlowerSaveLoadParams* params
+			    = mFlowers[i]->getSamboFlowerParams();
 			coin->mVelocity.x
 			    = offset.x * params->mSLCoinVelocityXZ.get();
 			coin->mVelocity.y
