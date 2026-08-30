@@ -933,9 +933,9 @@ bool TTalk2D2::eraseBoardWindow()
 bool TTalk2D2::eraseNormalWindow()
 {
 	bool result = false;
-	int alpha   = unk90->mAlpha - 0x10;
+	s16 alpha   = unk90->mAlpha - 0x10;
 
-	if ((s16)alpha < 0) {
+	if (alpha < 0) {
 		alpha  = 0xff;
 		unk234 = 1.0f;
 		unk3C[0]->mVisible = false;
