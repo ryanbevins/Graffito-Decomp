@@ -1,7 +1,5 @@
 #define MSL_STDFMODF_OUT_OF_LINE
-#define ENEMYMANAGER_GETSAVEPARAM_OUT_OF_LINE
 #include <Enemy/Koopa.hpp>
-#undef ENEMYMANAGER_GETSAVEPARAM_OUT_OF_LINE
 #include <Camera/CameraShake.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>

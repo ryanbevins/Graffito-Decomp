@@ -61,12 +61,7 @@ public:
 	void createCopyAnmMtx(int);
 	bool copyAnmMtx(TSpineEnemy*);
 
-#ifdef ENEMYMANAGER_GETSAVEPARAM_OUT_OF_LINE
 	TSpineEnemyParams* getSaveParam() const;
-#else
-	// fabricated
-	TSpineEnemyParams* getSaveParam() const { return unk38; }
-#endif
 	TSpineEnemy* getObj(int i) { return (TSpineEnemy*)TLiveManager::getObj(i); }
 	const TSpineEnemy* getObj(int i) const
 	{
