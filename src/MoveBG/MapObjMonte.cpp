@@ -198,8 +198,10 @@ void TFluffManager::control()
 				f32 dx   = unk168[i]->mPosition.x - gpMarioPos->x;
 				f32 dy   = unk168[i]->mPosition.y - gpMarioPos->y;
 				f32 dz   = unk168[i]->mPosition.z - gpMarioPos->z;
-				f32 dist = JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy
-				                                       + dz * dz);
+				f32 dxSq = dx * dx;
+				f32 dySq = dy * dy;
+				f32 dzSq = dz * dz;
+				f32 dist = JGeometry::TUtil<f32>::sqrt(dxSq + dySq + dzSq);
 				if (dist > 3000.0f) {
 					unk15C = unk168[i];
 					unk168[i]->kill();
