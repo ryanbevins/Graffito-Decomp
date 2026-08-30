@@ -187,9 +187,8 @@ DEFINE_NERVE(TNerveIgaigaWaterHit, TLiveActor)
 	if (self->isReachedToGoalXZ()) {
 		if (self->jumpToNextGraphNode() >= 0)
 			self->flagJump();
-		if (self->getTracer()->getCurrent().checkFlag(0x40))
-			return FALSE;
-		self->goToRandomNextGraphNode();
+		if (!self->getTracer()->getCurrent().checkFlag(0x40))
+			self->goToRandomNextGraphNode();
 	}
 	self->walkBehavior(2, 1.0f);
 
