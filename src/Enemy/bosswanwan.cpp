@@ -579,7 +579,8 @@ void TBWBinder::bind(TLiveActor* actor)
 		    && !groundPlane->checkFlag(BG_CHECK_FLAG_ILLEGAL)
 		    && !groundPlane->isEnemyThrough()) {
 			nextPos.y = groundY;
-			actor->mVelocity.zero();
+			actor->mVelocity
+			    = JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
 			actor->offLiveFlag(LIVE_FLAG_AIRBORNE);
 			actor->offLiveFlag(LIVE_FLAG_UNK8000);
 		} else {
