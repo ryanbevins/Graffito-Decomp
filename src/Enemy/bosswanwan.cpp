@@ -667,11 +667,12 @@ void TBWBinder::bind(TLiveActor* actor)
 
 	if (!actor->isAirborne()) {
 		TGraphTracer* tracer = self->unk124;
-		TGraphWeb* graph     = tracer->unk0;
+		TGraphNode& currNode = tracer->getCurrent();
+		TGraphNode& prevNode = tracer->getPrevious();
 		JGeometry::TVec3<f32> currPoint;
 		JGeometry::TVec3<f32> prevPoint;
-		graph->getGraphNode(tracer->mCurrIdx).getPoint(&currPoint);
-		graph->getGraphNode(tracer->mPrevIdx).getPoint(&prevPoint);
+		currNode.getPoint(&currPoint);
+		prevNode.getPoint(&prevPoint);
 
 		JGeometry::TVec3<f32> foot
 		    = MsPerpendicFootToLineR(prevPoint, currPoint, actor->mPosition);
