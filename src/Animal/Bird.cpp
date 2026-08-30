@@ -204,7 +204,7 @@ BOOL TNerveAnimalBirdComeback::execute(TSpineBase<TLiveActor>* spine) const
 		                               scale * *angle, scale * *aware)
 		          != 0;
 	}
-	if (inSight) {
+	if ((u8)inSight) {
 		spine->pushAfterCurrent(&TNerveAnimalBirdGraphWander::theNerve());
 		return TRUE;
 	}
