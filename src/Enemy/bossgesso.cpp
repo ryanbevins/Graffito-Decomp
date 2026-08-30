@@ -1,6 +1,8 @@
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/BossGesso.hpp>
+#undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/BossGessoTentacle.hpp>
 #include <Enemy/BossGessoPolDrop.hpp>
 #include <Enemy/Conductor.hpp>
@@ -444,7 +446,7 @@ void TBGBinder::bind(TLiveActor* param_1)
 
 		// TODO: defo an inline
 		JGeometry::TVec3<f32> local_b4 = nextPos;
-		local_b4 -= gesso->mPosition;
+		local_b4.sub(gesso->mPosition);
 		gesso->mLinearVelocity = local_b4;
 
 		if (gpMarDirector->mMap != 9
@@ -464,7 +466,7 @@ void TBGBinder::bind(TLiveActor* param_1)
 			    &pTStack_50);
 			dVar8 += 1.0f;
 
-			if (dVar7 < dVar8) {
+			if (dVar8 > dVar7) {
 				TEffectColumWater* enemy
 				    = (TEffectColumWater*)gpConductor->makeOneEnemyAppear(
 				        gesso->mPosition, "エフェクト水柱マネージャー", 1);
@@ -522,7 +524,7 @@ void TBGBinder::bind(TLiveActor* param_1)
 
 		// TODO: defo an inline
 		JGeometry::TVec3<f32> local_c0 = nextPos;
-		local_c0 -= gesso->mPosition;
+		local_c0.sub(gesso->mPosition);
 		gesso->mLinearVelocity = local_c0;
 	}
 }
