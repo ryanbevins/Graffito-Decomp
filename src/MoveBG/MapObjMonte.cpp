@@ -728,8 +728,7 @@ void THangingBridge::loadAfter()
 		unk3C.x = 315.0f;
 	}
 
-	unk30.x = unk24.x - unk18.x;
-	unk30.y = unk24.z - unk18.z;
+	unk30.set(unk24.x - unk18.x, unk24.z - unk18.z);
 	unk30.normalize();
 	f32 cosRot = cosf(1.5707964f);
 	f32 sinRot = sinf(1.5707964f);
