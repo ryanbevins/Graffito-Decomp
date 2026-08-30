@@ -303,8 +303,9 @@ void TWaterHitPictureHideObj::loadAfter()
 	if (unk138) {
 		bool isBlueCoin = (unk138->mActorType == 0x20000010) ? true : false;
 		if (isBlueCoin) {
+			const u8 mapNo = gpMarDirector->mMap;
 			if (TFlagManager::smInstance->getBlueCoinFlag(
-			        gpMarDirector->mMap, (u8)unk134))
+			        mapNo, (u8)unk134))
 				unk14C = 0;
 		}
 		bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
