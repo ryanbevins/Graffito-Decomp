@@ -264,7 +264,7 @@ int TSelectDir::direct()
 	if ((TMarioGamePad::mResetFlag.check(1 << mGamePad->getPortNum()))
 	    && !mResetTriggered) {
 		mResetTriggered = 1;
-		gpApplication.mFader->startWipe(4, 0.4f, 0.0f);
+		gpApplication.mFader->startWipe(4, 1.0f, 0.0f);
 		MSound* sound = gpMSound;
 		sound->fadeOutAllSound(
 		    (u32)((f32)SMSGetVSyncTimesPerSec() * 0.4f));
