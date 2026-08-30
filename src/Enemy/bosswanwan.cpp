@@ -556,15 +556,16 @@ void TBWBinder::bind(TLiveActor* actor)
 
 	if (actor->isAirborne()) {
 		const TBGCheckData* groundPlane;
+		f32 nextY = nextPos.y;
+		f32 nextZ = nextPos.z;
 		f32 groundY = gpMap->checkGround(
-		    nextPos.x, nextPos.y + actor->mHeadHeight, nextPos.z, &groundPlane);
+		    nextPos.x, nextY + actor->mHeadHeight, nextZ, &groundPlane);
 		groundY += 1.0f;
 
-		if (actor->mPosition.y - nextPos.y > 0.0f
-		    && !groundPlane->isEnemyThrough()) {
+		if (actor->mPosition.y > nextY && !groundPlane->isEnemyThrough()) {
 			const TBGCheckData* groundPlane2;
 			f32 groundY2 = gpMap->checkGround(
-			    nextPos.x, actor->mPosition.y + actor->mHeadHeight, nextPos.z,
+			    nextPos.x, actor->mPosition.y + actor->mHeadHeight, nextZ,
 			    &groundPlane2);
 			groundY2 += 1.0f;
 			if (groundY2 > groundY) {
