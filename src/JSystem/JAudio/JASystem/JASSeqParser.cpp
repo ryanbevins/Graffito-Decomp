@@ -791,16 +791,16 @@ int TSeqParser::cmdNoteOn(TTrack* track, u8 note)
 
 	u32 r28;
 	u8 r26;
-	u8 r27;
+	u8 r27 = r25_or_0x1C & 0x7;
 
-	if (!(r25_or_0x1C & 0x7)) {
+	if (!r27) {
 		r27 = 0;
 		r26 = track->mSeqCtrl.readByte();
 		if (r26 >= 0x80)
 			r26 = track->exchangeRegisterValue(r26 - 0x80);
 
 		r28 = 0;
-		for (u8 i = 0; i < ((r25_or_0x1C >> 3) & 0x3); ++i) {
+		for (s32 i = 0; i < ((r25_or_0x1C >> 3) & 0x3); ++i) {
 			r28 <<= 8;
 			r28 |= track->mSeqCtrl.readByte();
 		}
@@ -810,8 +810,6 @@ int TSeqParser::cmdNoteOn(TTrack* track, u8 note)
 				r28 = track->exchangeRegisterValue(r28 - 0x80);
 
 	} else {
-		r27 = r25_or_0x1C & 0x7;
-
 		if ((r25_or_0x1C >> 3) & 0x3)
 			r27 = track->exchangeRegisterValue(r27 - 1);
 
