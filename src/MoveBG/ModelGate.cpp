@@ -125,7 +125,7 @@ void TModelGate::screenBlur(JDrama::TGraphics* graphics)
 	if (relAngle < -0x2AAA || relAngle > 0x2AAA) {
 		mult = 0.0f;
 	}
-	unkE4 = unkE8 * (mult - unkE4) + unkE4;
+	unkE4 += unkE8 * (mult - unkE4);
 
 	f32 blurFactor = unkE4 * (1.0f - gpCamera->unk270);
 	f32 blurTarget = unkEC;
