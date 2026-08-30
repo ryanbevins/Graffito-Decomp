@@ -97,7 +97,7 @@ void TMapObjPlane::draw()
 	}
 }
 
-f32 TMapObjPlane::getTexPos(f32 v) const { return mTexScale * v; }
+f32 TMapObjPlane::getTexPos(f32 v) const { return v * mTexScale; }
 
 void TMapObjPlane::updateCheckData(int x, int z)
 {
