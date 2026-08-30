@@ -596,10 +596,12 @@ void TBWBinder::bind(TLiveActor* actor)
 		TGraphTracer* tracer = self->unk124;
 		if (tracer->unk0 != nullptr && tracer->mCurrIdx >= 0
 		    && tracer->mPrevIdx >= 0 && tracer->mCurrIdx != tracer->mPrevIdx) {
+			TGraphNode& currNode = tracer->getCurrent();
+			TGraphNode& prevNode = tracer->getPrevious();
 			JGeometry::TVec3<f32> currPoint;
 			JGeometry::TVec3<f32> prevPoint;
-			tracer->unk0->getGraphNode(tracer->mCurrIdx).getPoint(&currPoint);
-			tracer->unk0->getGraphNode(tracer->mPrevIdx).getPoint(&prevPoint);
+			currNode.getPoint(&currPoint);
+			prevNode.getPoint(&prevPoint);
 
 			currPoint -= prevPoint;
 			PSVECNormalize(&currPoint, &currPoint);
