@@ -1712,19 +1712,22 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 
 	MtxPtr oldProjection = (MtxPtr)((u8*)gpCamera + 0x16C);
 	j3dSys.drawInit();
-	s16 renderWidth  = SMSGetGameRenderWidth();
-	s16 renderHeight = SMSGetGameRenderHeight();
-	GXSetViewport(0.0f, 0.0f, (f32)renderWidth, (f32)renderHeight, 0.0f,
-	              1.0f);
+	GXSetViewport(0.0f, 0.0f, (f32)(u16)SMSGetGameRenderWidth(),
+	              (f32)(u16)SMSGetGameRenderHeight(), 0.0f, 1.0f);
 
 	TProjection3f projection;
 	f32 halfWidth = 0.5f * unk80134->meshWidth.get();
 	projection.orthographic(
 	    halfWidth,
 	    halfWidth
-	        - unk800B0 * (unk80134->meshWidth.get() * (f32)renderHeight),
+	        - unk800B0
+	              * (unk80134->meshWidth.get()
+	                 * (f32)(u16)SMSGetGameRenderHeight()),
 	    -halfWidth,
-	    unk800B0 * (unk80134->meshWidth.get() * (f32)renderWidth) - halfWidth,
+	    unk800B0
+	            * (unk80134->meshWidth.get()
+	               * (f32)(u16)SMSGetGameRenderWidth())
+	        - halfWidth,
 	    0.0f, R3 - negR);
 
 	GXSetProjection(projection.mMtx, GX_ORTHOGRAPHIC);
@@ -1823,7 +1826,8 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 	GXCopyTex(unk800A4, GX_FALSE);
 	GXSetPixelFmt(GX_PF_RGBA6_Z24, GX_ZC_LINEAR);
 	GXSetProjection(oldProjection, GX_PERSPECTIVE);
-	GXSetScissor(0, 0, renderWidth, renderHeight);
+	GXSetScissor(0, 0, (u16)SMSGetGameRenderWidth(),
+	             (u16)SMSGetGameRenderHeight());
 }
 
 f32 TBathWaterMeshRenderer::getHeight(f32 x, f32 z) const
