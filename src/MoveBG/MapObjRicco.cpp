@@ -356,8 +356,8 @@ void TRiccoWatermill::loadAfter()
 	    JDrama::TNameRef::calcKeyCode("submarine"), "submarine");
 	root = JDrama::TNameRefGen::instance->mRootNameRef;
 	unk148 = (TMapObjBase*)root->searchF(
-	    JDrama::TNameRef::calcKeyCode("水中スイッチ・押す擬似"),
-	    "水中スイッチ・押す擬似");
+	    JDrama::TNameRef::calcKeyCode("青コイン（潜水艦用）"),
+	    "青コイン（潜水艦用）");
 	unk148->makeObjDead();
 	unk13C->mPosition.y = mSubmarineBottomTransY;
 	unk13C->removeMapCollision();
