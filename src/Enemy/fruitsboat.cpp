@@ -39,6 +39,8 @@ static inline JGeometry::TVec3<f32> makeVec3(f32 x, f32 y, f32 z)
 
 static const f32 dummy2333[3] = { 0.0f, 0.0f, 0.0f };
 static const f32 dummy2335[3] = { 1.0f, 1.0f, 1.0f };
+static f32 sMaxRotationStep = 1.0f;
+static f32 sMinRotationStep = -1.0f;
 
 DEFINE_NERVE(TNerveFruitsBoatBckTrace, TLiveActor)
 {
@@ -540,12 +542,10 @@ void TFruitsBoat::moveObject()
 	                         mRotation.x + 180.0f);
 	f32 diffAng = wrapped - mRotation.x;
 	f32 clamped;
-	if (diffAng > 1.0f)
-		clamped = 1.0f;
-	else if (diffAng < -1.0f)
-		clamped = -1.0f;
+	if (diffAng >= 0.0f)
+		clamped = diffAng > sMaxRotationStep ? sMaxRotationStep : diffAng;
 	else
-		clamped = diffAng;
+		clamped = diffAng > sMinRotationStep ? diffAng : sMinRotationStep;
 	mRotation.x = mRotation.x + clamped;
 
 	// 2) Mario-on-boat detection / wave-normal update.
