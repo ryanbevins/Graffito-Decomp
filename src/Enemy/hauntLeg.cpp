@@ -258,7 +258,7 @@ void THauntLeg::calcRootMatrix()
 		mHauntedObject->mPosition.z = m[2][3];
 	}
 
-	for (u16 i = 0; i < mHauntedObject->mColCount; ++i) {
+	for (int i = 0; i < mHauntedObject->mColCount; ++i) {
 		// loop body intentionally empty (matches asm bdnz with empty body)
 	}
 }
