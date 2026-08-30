@@ -213,8 +213,8 @@ BOOL TSphereLink::setDegreeZAndRevisionPosXZ(int index, f32 newDeg)
 		if (index == 0) {
 			baseAngle = mAngleOffset;
 		} else {
-			JGeometry::TVec3<f32> delta = mPoints[index - 1].mPos;
-			delta.sub(p.mPos);
+			JGeometry::TVec3<f32> delta
+			    = mPoints[index - 1].mPos - p.mPos;
 			baseAngle = MsGetRotFromZaxisY(delta);
 			while (baseAngle >= 360.0f)
 				baseAngle -= 360.0f;
