@@ -197,7 +197,7 @@ public:
 
 	void resize(size_t new_size, const T& value = T())
 	{
-		size_t sz = size();
+		const size_t sz = size();
 		if (new_size > sz) {
 			insert(end(), new_size - sz, value);
 		} else if (new_size != size()) {
