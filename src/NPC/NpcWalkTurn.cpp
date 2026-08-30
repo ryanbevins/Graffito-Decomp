@@ -11,84 +11,77 @@
 
 void TBaseNPC::execWalk(bool param_1)
 {
-	if (unk1E2 == 0) {
-		TMarDirector* dir = gpMarDirector;
-		bool blocked = dir->isThing();
-		if (blocked || unk178 != 0.0f || (mActionFlag & 0x200) != 0) {
-			mMarchSpeed = 0.0f;
-			mTurnSpeed  = 0.0f;
-		} else {
-			if (param_1 && (unk1DA & 1)) {
-				f32 turnRate = (mActionFlag & 0x8) ? 6.0f : 4.0f;
-				SMS_GoRotate(mPosition, unkF4.getPoint(), turnRate,
-				             &mRotation.y);
-
-				JGeometry::TVec3<f32> diff = unkF4.getPoint();
-				diff.x -= mPosition.x;
-				diff.y -= mPosition.y;
-				diff.z -= mPosition.z;
-				JGeometry::TVec3<f32> tmp1 = diff;
-				JGeometry::TVec3<f32> tmp2 = tmp1;
-				f32 targetYaw              = MsGetRotFromZaxisY(tmp2);
-
-				f32 raw   = mRotation.y - targetYaw;
-				f32 delta = __fabsf(raw);
-				while (delta >= 360.0f)
-					delta -= 360.0f;
-				while (delta < 0.0f)
-					delta += 360.0f;
-				if (delta < 0.001f) {
-					unk1DA = (unk1DA & ~1);
-				}
-			} else {
-				if (param_1) {
-					TLodAnm* lod = unkD0;
-					f32 target  = mNpcSaveIndividual->mSLMinMarchSpeed.get();
-					f32 accel   = mNpcSaveIndividual->mMarchAccel.get();
-					int kind    = lod->getCurrentAnmKind();
-
-					switch (kind) {
-					case 0:
-						target = mNpcSaveIndividual->mMaxMarchSpeed.get();
-						break;
-					case 8:
-						target = mNpcSaveIndividual->mSLMaxRunSpeed.get();
-						accel  = mNpcSaveIndividual->mSLRunAccel.get();
-						if (mActionFlag & 0x4000) {
-							f32 scale
-							    = TBaseNPC::mPtrSaveNormal->mSLSmokeRunMagnif.get();
-							target *= scale;
-							accel *= scale;
-						}
-						break;
-					}
-					CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, target,
-					                                          accel);
-				} else {
-					CLBChaseGeneralConstantSpecifySpeed<f32>(
-					    &mMarchSpeed, 0.0f,
-					    mNpcSaveIndividual->mMarchDecrease.get());
-				}
-
-				if (mMarchSpeed < 0.001f)
-					mTurnSpeed = mNpcSaveIndividual->mWaitTurnSpeed.get();
-				else
-					mTurnSpeed = mNpcSaveIndividual->mWalkTurnSpeed.get();
-
-				JGeometry::TVec3<f32> point = unkF4.getPoint();
-				JGeometry::TVec3<f32> diff;
-				diff.set(point.x - mPosition.x, 0.0f, point.z - mPosition.z);
-				bool shouldWalk = true;
-				if (diff.squared() < CLBSquared<f32>(10.0f))
-					shouldWalk = false;
-				if (shouldWalk) {
-					walkToCurPathNode(mMarchSpeed, mTurnSpeed, 0.0f);
-				}
-			}
-		}
-	} else {
+	if (unk1E2 != 0 || gpMarDirector->isThing() || unk178 != 0.0f
+	    || (mActionFlag & 0x200) != 0) {
 		mMarchSpeed = 0.0f;
 		mTurnSpeed  = 0.0f;
+	} else {
+		if (param_1 && (unk1DA & 1)) {
+			f32 turnRate = (mActionFlag & 0x8) ? 6.0f : 4.0f;
+			SMS_GoRotate(mPosition, unkF4.getPoint(), turnRate, &mRotation.y);
+
+			JGeometry::TVec3<f32> diff = unkF4.getPoint();
+			diff.x -= mPosition.x;
+			diff.y -= mPosition.y;
+			diff.z -= mPosition.z;
+			JGeometry::TVec3<f32> tmp1 = diff;
+			JGeometry::TVec3<f32> tmp2 = tmp1;
+			f32 targetYaw              = MsGetRotFromZaxisY(tmp2);
+
+			f32 raw   = mRotation.y - targetYaw;
+			f32 delta = __fabsf(raw);
+			while (delta >= 360.0f)
+				delta -= 360.0f;
+			while (delta < 0.0f)
+				delta += 360.0f;
+			if (delta < 0.001f) {
+				unk1DA = (unk1DA & ~1);
+			}
+		} else {
+			if (param_1) {
+				TLodAnm* lod = unkD0;
+				f32 target = mNpcSaveIndividual->mSLMinMarchSpeed.get();
+				f32 accel  = mNpcSaveIndividual->mMarchAccel.get();
+				int kind   = lod->getCurrentAnmKind();
+
+				switch (kind) {
+				case 0:
+					target = mNpcSaveIndividual->mMaxMarchSpeed.get();
+					break;
+				case 8:
+					target = mNpcSaveIndividual->mSLMaxRunSpeed.get();
+					accel  = mNpcSaveIndividual->mSLRunAccel.get();
+					if (mActionFlag & 0x4000) {
+						f32 scale
+						    = TBaseNPC::mPtrSaveNormal->mSLSmokeRunMagnif.get();
+						target *= scale;
+						accel *= scale;
+					}
+					break;
+				}
+				CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, target,
+				                                          accel);
+			} else {
+				CLBChaseGeneralConstantSpecifySpeed<f32>(
+				    &mMarchSpeed, 0.0f,
+				    mNpcSaveIndividual->mMarchDecrease.get());
+			}
+
+			if (mMarchSpeed < 0.001f)
+				mTurnSpeed = mNpcSaveIndividual->mWaitTurnSpeed.get();
+			else
+				mTurnSpeed = mNpcSaveIndividual->mWalkTurnSpeed.get();
+
+			JGeometry::TVec3<f32> point = unkF4.getPoint();
+			JGeometry::TVec3<f32> diff;
+			diff.set(point.x - mPosition.x, 0.0f, point.z - mPosition.z);
+			bool shouldWalk = true;
+			if (diff.squared() < CLBSquared<f32>(10.0f))
+				shouldWalk = false;
+			if (shouldWalk) {
+				walkToCurPathNode(mMarchSpeed, mTurnSpeed, 0.0f);
+			}
+		}
 	}
 }
 
