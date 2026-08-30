@@ -793,9 +793,13 @@ void TLeanMirror::release()
 
 static s32 startCameraShakeSE(u32 pos, u32 time)
 {
-	if (time == 0 && gpMSound->gateCheck(0x3008)) {
-		MSoundSESystem::MSoundSE::startSoundActor(0x3008, (const Vec*)pos, 0,
-		                                          nullptr, 0, 4);
+	if (time == 0) {
+		MSound* sound = gpMSound;
+		const Vec* position = (const Vec*)pos;
+		if (sound->gateCheck(0x3008)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x3008, position, 0, nullptr, 0, 4);
+		}
 	}
 
 	return 0;
