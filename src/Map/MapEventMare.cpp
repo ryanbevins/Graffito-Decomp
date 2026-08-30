@@ -190,9 +190,9 @@ void TMareWallRock::loadAfter()
 	J3DJoint* joint = mJointObj->getJoint();
 	const Vec& min = joint->mMin;
 	const Vec& max = joint->mMax;
-	mPosition.x             = (min.x + max.x) * 0.5f;
-	mPosition.y             = (min.y + max.y) * 0.5f;
-	mPosition.z             = (min.z + max.z) * 0.5f;
+	mPosition.x             = (max.x + min.x) * 0.5f;
+	mPosition.y             = (max.y + min.y) * 0.5f;
+	mPosition.z             = (max.z + min.z) * 0.5f;
 	mSinkDepth              = 100.0f + (max.z - min.z);
 
 	TMapObjBase::moveJoint(mJointObj->getJoint(), 0.0f, 0.0f, mSinkDepth);
