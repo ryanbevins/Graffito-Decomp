@@ -51,8 +51,12 @@ private:
 
 TDrawSyncManager* TDrawSyncManager::start(u32 param_1, u32 param_2, s32 param_3)
 {
+	u32 callbackCapacity = param_1;
+	u32 fifoCapacity     = param_2;
+	s32 threadPriority   = param_3;
 	if (smInstance == nullptr)
-		smInstance = new TDrawSyncManager(param_1, param_2, param_3);
+		smInstance = new TDrawSyncManager(callbackCapacity, fifoCapacity,
+		                                    threadPriority);
 	return smInstance;
 }
 
