@@ -1069,15 +1069,15 @@ void TBossEelHeartCoin::perform(u32 flags, JDrama::TGraphics* graphics)
 	u32 calcFlag = flags & 2;
 
 	if (calcFlag) {
-		MActor* bossActor = unk7C->mMActor;
-		int jointIndex = bossActor->getModel()
+		int jointIndex = unk7C->mMActor->getModel()
 		                     ->getModelData()
 		                     ->getJointName()
 		                     ->getIndex("ha7");
-		MtxPtr mtx = bossActor->getModel()->mNodeMatrices[jointIndex];
+		MtxPtr mtx
+		    = unk7C->mMActor->getModel()->mNodeMatrices[jointIndex];
 
-		if (bossActor->checkCurBckFromIndex(3)
-		    && bossActor->getFrameCtrl(0)->getFrame() < 700.0f) {
+		if (unk7C->mMActor->checkCurBckFromIndex(3)
+		    && unk7C->mMActor->getFrameCtrl(0)->getFrame() < 700.0f) {
 			unk70.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 		}
 
