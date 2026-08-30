@@ -349,7 +349,7 @@ bool TKumokun::checkOnMovingFloor(JGeometry::TVec3<f32>* param_1,
 
 	JGeometry::TVec3<f32> local_1C = param_3;
 	JGeometry::TVec3<f32> local_98 = local_1C;
-	JGeometry::TVec3<f32> local_8C = local_98;
+	JGeometry::TVec3<f32> local_8C = local_1C;
 
 	local_8C += param_4;
 
