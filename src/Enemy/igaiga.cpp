@@ -1205,7 +1205,7 @@ void TGorogoroManager::loadAfter()
 {
 	unk64 = (TMapEventSink*)JDrama::TNameRefGen::getInstance()
 	           ->getRootNameRef()
-	           ->search("イベント（寝込むビアンコ）");
+	           ->search("イベント（地形沈むビアンコ）");
 	unk70 = (TAreaCylinderManager*)gpConductor->search("ゴロゴロ発生マネージャー");
 }
 
