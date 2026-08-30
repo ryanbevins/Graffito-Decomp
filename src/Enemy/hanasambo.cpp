@@ -68,62 +68,62 @@ static TSamboHead* gpCurSamboHead;
 
 static int SamboHeadRollCallback(J3DNode* node, int timing)
 {
-	if (timing != 0)
-		return 1;
+	if (timing == 0) {
+		TSamboHead* head = gpCurSamboHead;
+		if (!head)
+			return 1;
 
-	TSamboHead* head = gpCurSamboHead;
-	if (!head)
-		return 1;
+		if (head->mSpine->getCurrentNerve()
+		        != &TNerveSamboHeadAttack::theNerve()
+		    && head->mSpine->getCurrentNerve()
+		           != &TNerveSamboHeadHitWater::theNerve()
+		    && head->mSpine->getCurrentNerve()
+		           != &TNerveSamboHeadRecoverWater::theNerve())
+			return 1;
 
-	if (head->mSpine->getCurrentNerve() != &TNerveSamboHeadAttack::theNerve()
-	    && head->mSpine->getCurrentNerve()
-	           != &TNerveSamboHeadHitWater::theNerve()
-	    && head->mSpine->getCurrentNerve()
-	           != &TNerveSamboHeadRecoverWater::theNerve())
-		return 1;
+		J3DJoint* joint = (J3DJoint*)node;
+		MtxPtr jointMtx = head->getModel()->mNodeMatrices[joint->getJntNo()];
 
-	J3DJoint* joint = (J3DJoint*)node;
-	MtxPtr jointMtx = head->getModel()->mNodeMatrices[joint->getJntNo()];
+		JGeometry::TVec3<f32> velocity(head->mVelocity);
+		if (velocity.x == 0.0f && velocity.z == 0.0f)
+			velocity.x = 0.001f;
 
-	JGeometry::TVec3<f32> velocity(head->mVelocity);
-	if (velocity.x == 0.0f && velocity.z == 0.0f)
-		velocity.x = 0.001f;
+		JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+		JGeometry::TVec3<f32> cross;
+		PSVECCrossProduct(&up, &velocity, &cross);
 
-	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
-	JGeometry::TVec3<f32> cross;
-	PSVECCrossProduct(&up, &velocity, &cross);
+		f32 xLen = jointMtx[0][0] * jointMtx[0][0]
+		           + jointMtx[1][0] * jointMtx[1][0]
+		           + jointMtx[2][0] * jointMtx[2][0];
+		f32 yLen = jointMtx[0][1] * jointMtx[0][1]
+		           + jointMtx[1][1] * jointMtx[1][1]
+		           + jointMtx[2][1] * jointMtx[2][1];
+		f32 zLen = jointMtx[0][2] * jointMtx[0][2]
+		           + jointMtx[1][2] * jointMtx[1][2]
+		           + jointMtx[2][2] * jointMtx[2][2];
 
-	f32 xLen = jointMtx[0][0] * jointMtx[0][0]
-	           + jointMtx[1][0] * jointMtx[1][0]
-	           + jointMtx[2][0] * jointMtx[2][0];
-	f32 yLen = jointMtx[0][1] * jointMtx[0][1]
-	           + jointMtx[1][1] * jointMtx[1][1]
-	           + jointMtx[2][1] * jointMtx[2][1];
-	f32 zLen = jointMtx[0][2] * jointMtx[0][2]
-	           + jointMtx[1][2] * jointMtx[1][2]
-	           + jointMtx[2][2] * jointMtx[2][2];
+		JGeometry::TVec3<f32> axis(
+		    xLen != 0.0f
+		        ? (cross.x * jointMtx[0][0] + cross.y * jointMtx[1][0]
+		           + cross.z * jointMtx[2][0])
+		              / xLen
+		        : 0.0f,
+		    yLen != 0.0f
+		        ? (cross.x * jointMtx[0][1] + cross.y * jointMtx[1][1]
+		           + cross.z * jointMtx[2][1])
+		              / yLen
+		        : 0.0f,
+		    zLen != 0.0f
+		        ? (cross.x * jointMtx[0][2] + cross.y * jointMtx[1][2]
+		           + cross.z * jointMtx[2][2])
+		              / zLen
+		        : 0.0f);
 
-	JGeometry::TVec3<f32> axis(
-	    xLen != 0.0f
-	        ? (cross.x * jointMtx[0][0] + cross.y * jointMtx[1][0]
-	           + cross.z * jointMtx[2][0])
-	              / xLen
-	        : 0.0f,
-	    yLen != 0.0f
-	        ? (cross.x * jointMtx[0][1] + cross.y * jointMtx[1][1]
-	           + cross.z * jointMtx[2][1])
-	              / yLen
-	        : 0.0f,
-	    zLen != 0.0f
-	        ? (cross.x * jointMtx[0][2] + cross.y * jointMtx[1][2]
-	           + cross.z * jointMtx[2][2])
-	              / zLen
-	        : 0.0f);
-
-	Mtx roll;
-	PSMTXRotAxisRad(roll, &axis, 0.017453292f * head->mRollAngle);
-	PSMTXConcat(jointMtx, roll, jointMtx);
-	PSMTXConcat(J3DSys::mCurrentMtx, roll, J3DSys::mCurrentMtx);
+		Mtx roll;
+		PSMTXRotAxisRad(roll, &axis, 0.017453292f * head->mRollAngle);
+		PSMTXConcat(jointMtx, roll, jointMtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, roll, J3DSys::mCurrentMtx);
+	}
 	return 1;
 }
 
