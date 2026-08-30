@@ -1716,19 +1716,16 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 	              (f32)(u16)SMSGetGameRenderHeight(), 0.0f, 1.0f);
 
 	TProjection3f projection;
-	f32 halfWidth = 0.5f * unk80134->meshWidth.get();
-	projection.orthographic(
-	    halfWidth,
-	    halfWidth
-	        - unk800B0
-	              * (unk80134->meshWidth.get()
-	                 * (f32)(u16)SMSGetGameRenderHeight()),
-	    -halfWidth,
-	    unk800B0
-	            * (unk80134->meshWidth.get()
-	               * (f32)(u16)SMSGetGameRenderWidth())
-	        - halfWidth,
-	    0.0f, R3 - negR);
+	f32 meshWidth = unk80134->meshWidth.get();
+	f32 halfWidth = 0.5f * meshWidth;
+	f32 bottom = halfWidth
+	             - unk800B0
+	                   * (meshWidth * (f32)(u16)SMSGetGameRenderHeight());
+	f32 right = unk800B0
+	                * (meshWidth * (f32)(u16)SMSGetGameRenderWidth())
+	            - halfWidth;
+	projection.orthographic(halfWidth, bottom, -halfWidth, right, 0.0f,
+	                        R3 - negR);
 
 	GXSetProjection(projection.mMtx, GX_ORTHOGRAPHIC);
 	GXSetScissor(0, 0, unk800AC, unk800AC);
@@ -1812,9 +1809,9 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 		GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_U8, 7);
 
+		JGeometry::TVec3<f32> capCenter = data.getThing();
 		f32 radiusSq = data.unk3C * data.unk3C - data.unk44 * data.unk44;
 		f32 capRadius = JGeometry::TUtil<f32>::sqrt(radiusSq);
-		JGeometry::TVec3<f32> capCenter = data.getThing();
 		drawCap(capCenter, capRadius);
 		capCenter.y += 0.5f * negR;
 		drawCap(capCenter, capRadius + unk800B0 * unk80134->meshWidth.get());
