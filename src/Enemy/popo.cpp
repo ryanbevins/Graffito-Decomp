@@ -185,7 +185,7 @@ DEFINE_NERVE(TNervePopoFly, TLiveActor)
 			if (velocity.x >= 0.0f)
 				rotation = 90.0f;
 			else
-				rotation = 270.0f;
+				rotation = -90.0f;
 		} else if (velocity.z >= 0.0f) {
 			rotation = (360.0f / 65536.0f) * matan(velocity.z, velocity.x);
 		} else {
