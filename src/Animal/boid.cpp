@@ -239,12 +239,13 @@ JGeometry::TVec3<f32> TBoidLeader::calcForces(const TBoid* boid) const
 
 	result.setLength(1.0f);
 
-	if (mRepelRange > 0.0f) {
+	f32 repelRange = mRepelRange;
+	if (repelRange > 0.0f) {
 		JGeometry::TVec3<f32> away = boid->mPosition;
 		away.sub(mRepelTarget.getPoint());
 
 		f32 repelLen2 = away.squared();
-		if (repelLen2 > 0.0f && repelLen2 < mRepelRange * mRepelRange) {
+		if (repelLen2 > 0.0f && repelLen2 < repelRange * repelRange) {
 			away.setLength(mRepelForce);
 			result = away;
 		}
