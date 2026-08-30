@@ -508,8 +508,8 @@ void TGesso::setPolluteGoal()
 		    SMS_GetMarioPos().x + offsetRange.rand(), SMS_GetMarioPos().y,
 		    SMS_GetMarioPos().z + offsetRange.rand());
 
-		JGeometry::TVec3<f32> local;
-		calcVelocityToJumpToY(local, polluteObjSpeed, polluteObjGravity);
+		JGeometry::TVec3<f32> local = calcVelocityToJumpToY(
+		    mPolluteVelocity, polluteObjSpeed, polluteObjGravity);
 		mPolluteVelocity = local;
 	} else {
 		mPolluteVelocity = SMS_GetMarioPos();
