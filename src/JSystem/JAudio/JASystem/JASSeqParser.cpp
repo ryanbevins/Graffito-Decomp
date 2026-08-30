@@ -891,7 +891,7 @@ bool TSeqParser::conditionCheck(TTrack* track, u8 condition)
 int TSeqParser::mainProc(TTrack* track, TSeqCtrl* ctrl)
 {
 	while (true) {
-		u8 flag     = track->mSeqCtrl.readByte();
+		u8 flag     = ctrl->readByte();
 		u32 retCode = 0;
 		if (!(flag & 0x80)) {
 			retCode = cmdNoteOn(track, flag);
