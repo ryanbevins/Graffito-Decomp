@@ -1786,9 +1786,10 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 			dropMtx.concat(unk80020, local);
 			GXLoadPosMtxImm(dropMtx.mMtx, GX_PNMTX0);
 
-			for (u16 shapeIndex = 0; shapeIndex < unk80144->getShapeNum();
+			J3DModelData* modelData = unk80144;
+			for (u16 shapeIndex = 0; shapeIndex < modelData->getShapeNum();
 			     ++shapeIndex) {
-				J3DShape* shape = unk80144->getShapeNodePointer(shapeIndex);
+				J3DShape* shape = modelData->getShapeNodePointer(shapeIndex);
 				for (u16 drawIndex = 0; drawIndex < shape->getMtxGroupNum();
 				     ++drawIndex) {
 					J3DShapeDraw* draw = shape->getShapeDraw(drawIndex);
