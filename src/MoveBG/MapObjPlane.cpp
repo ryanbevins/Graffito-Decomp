@@ -123,11 +123,10 @@ void TMapObjPlane::calcNrm(int x, int z)
 	if (x < 0 || mExtents <= x || z < 0 || mExtents <= z)
 		return;
 
-	f32 fVar1 = unkFC;
-	f32 fVar7 = -unkFC;
-
 	f32 h00 = heightAt(x, z);
 	f32 h0N = heightAt(x, MsWrap(z - 1, 0, mExtents));
+	f32 fVar1 = unkFC;
+	f32 fVar7 = -unkFC;
 	f32 h0P = heightAt(x, MsWrap(z + 1, 0, mExtents));
 	f32 hN0 = heightAt(MsWrap(x - 1, 0, mExtents), z);
 	f32 hP0 = heightAt(MsWrap(x + 1, 0, mExtents), z);
