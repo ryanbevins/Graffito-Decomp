@@ -1115,8 +1115,9 @@ static inline void resetBossEelEyeMotionBlend(TBossEelEye* eye)
 
 	eye->unk18->setBckFromIndex(0);
 
+	f32 blendRatio = eye->unk64;
 	if (eye->unk18->unkC)
-		eye->unk18->unkC->setMotionBlendRatio(eye->unk64);
+		eye->unk18->unkC->setMotionBlendRatio(blendRatio);
 }
 
 void TBossEelEye::perform(u32 flags, JDrama::TGraphics* graphics)
