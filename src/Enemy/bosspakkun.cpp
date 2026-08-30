@@ -1372,7 +1372,7 @@ void TBossPakkun::init(TLiveManager* manager)
 		                       100.0f, 500.0f);
 		mHeadHit->offHitFlag(HIT_FLAG_NO_COLLISION);
 
-		mNavel = new TBPNavel(this, "ボスパックンおへそ");
+		mNavel = new TBPNavel(this, "ボスパックンへそ");
 		mNavel->initHitActor(0x8000011, 1, 0x80000000, 200.0f, 100.0f,
 		                     200.0f, 100.0f);
 		mNavel->offHitFlag(HIT_FLAG_NO_COLLISION);
