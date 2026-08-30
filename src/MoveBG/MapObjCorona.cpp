@@ -622,10 +622,10 @@ void TBathtub::tumble(f32 angle, f32 power)
 		return;
 
 	s16 shortAngle = angle * (65536.0f / 360.0f);
-	f32 scaled     = power * 0.1f;
+	f32 scaled     = power * 0.0001f;
 	f32 cosine     = JMASCos(shortAngle);
 	f32 sine       = -JMASSin(shortAngle);
-	JGeometry::TVec3<f32> impulse(scaled * cosine, 0.5f, scaled * sine);
+	JGeometry::TVec3<f32> impulse(scaled * cosine, 0.0f, scaled * sine);
 	unk1E8.add(impulse);
 }
 
