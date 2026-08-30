@@ -214,8 +214,9 @@ void TTailRubber::restrict()
 			JGeometry::TVec3<f32> diff = (it + 1)->mPos;
 			diff -= it->mPos;
 			diff.y = 0.0f;
-			if (avgHorLen < diff.length()) {
-				diff.setLength(diff.length() - avgHorLen);
+			f32 length = diff.length();
+			if (avgHorLen < length) {
+				diff.setLength(length - avgHorLen);
 				it->mPos += diff;
 			}
 		}
@@ -224,8 +225,9 @@ void TTailRubber::restrict()
 			JGeometry::TVec3<f32> diff = (it - 1)->mPos;
 			diff -= it->mPos;
 			diff.y = 0.0f;
-			if (avgHorLen < diff.length()) {
-				diff.setLength(diff.length() - avgHorLen);
+			f32 length = diff.length();
+			if (avgHorLen < length) {
+				diff.setLength(length - avgHorLen);
 				it->mPos += diff;
 			}
 		}
