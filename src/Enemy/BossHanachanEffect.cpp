@@ -189,10 +189,12 @@ void TBossHanachan::emitParticle_()
 			for (int j = 0; j < 2; j++) {
 				if (!fc->checkPass(sEmitSandFrameFoot[j]))
 					continue;
+				const f32* particleProbability
+				    = &mChangeParams->mSLParticleProbability.value;
 				TFootHitActor* foot
 				    = ((TBossHanachanPartsBody*)mBody[i])->mFeet[j];
 				MtxPtr footMtx = foot->unk6C;
-				if (MsRandF() >= mChangeParams->mSLParticleProbability.value)
+				if (MsRandF() >= *particleProbability)
 					continue;
 
 				if (footMtx[1][3] < waterY) {
