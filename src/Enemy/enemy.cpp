@@ -547,7 +547,7 @@ void TSpineEnemy::zigzagToCurPathNode(f32 march_speed, f32 turn_speed,
 		}
 	}
 
-	f32 fVar2;
+	f32 fVar2 = fVar1;
 	if (dVar9 > fVar3 * 2.0f) {
 		if (fVar1 > 0.0f) {
 			fVar2 = fVar1 > turn_speed ? fVar1 : turn_speed;
