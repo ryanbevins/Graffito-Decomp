@@ -154,12 +154,11 @@ void TRailFence::control()
 
 void TRailFence::goOnRail()
 {
-	TGraphTracer* tracer = unk13C;
-	TGraphWeb* graph     = tracer->unk0;
-	if (!graph)
+	if (!unk13C->unk0)
 		return;
 
-	JGeometry::TVec3<f32> diff = graph->indexToPoint(tracer->mCurrIdx);
+	JGeometry::TVec3<f32> diff
+	    = unk13C->unk0->indexToPoint(unk13C->mCurrIdx);
 	diff.x -= mPosition.x;
 	diff.y -= mPosition.y;
 	diff.z -= mPosition.z;
@@ -167,8 +166,9 @@ void TRailFence::goOnRail()
 	f32 distSquared
 	    = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 	if (distSquared < 50.0f) {
+		TGraphTracer* tracer = unk13C;
 		const TRailNode* railNode
-		    = graph->getGraphNode(tracer->mCurrIdx).getRailNode();
+		    = tracer->unk0->getGraphNode(tracer->mCurrIdx).getRailNode();
 		if (railNode->mConnectionNum == 0 && (railNode->mFlags & 0x8)) {
 			if (gpMSound->gateCheck(0x3863))
 				MSoundSESystem::MSoundSE::startSoundActor(
@@ -179,10 +179,9 @@ void TRailFence::goOnRail()
 			return;
 		}
 
-		tracer->moveTo(graph->getShortestNextIndex(tracer->mCurrIdx,
-		                                           tracer->mPrevIdx,
-		                                           0xffffffff));
-		diff.set(graph->indexToPoint(tracer->mCurrIdx));
+		tracer->moveTo(tracer->unk0->getShortestNextIndex(
+		    tracer->mCurrIdx, tracer->mPrevIdx, 0xffffffff));
+		diff.set(unk13C->unk0->indexToPoint(unk13C->mCurrIdx));
 	}
 
 	if (gpMSound->gateCheck(0x3065))
