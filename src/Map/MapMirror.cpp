@@ -367,12 +367,12 @@ void TMirrorModelManager::loadAfter()
 		findMirrorCamera();
 
 	for (int i = 0; i < unk10; ++i) {
-		ResTIMG* src = unk24->unk94;
 		ResTIMG* dst = unk1C[i]
 		                   ->unk4->getModel()
 		                   ->getModelData()
 		                   ->getTexture()
 		                   ->mResources;
+		ResTIMG* src = unk24->unk94;
 		*dst                 = *src;
 		dst->imageDataOffset = src->imageDataOffset + (u32)src - (u32)dst;
 	}
