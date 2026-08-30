@@ -266,9 +266,10 @@ void MsMtxSetRotRPH(MtxPtr param_1, f32 r, f32 p, f32 h)
 
 void MsMtxSetXYZRPH(MtxPtr param_1, f32 x, f32 y, f32 z, s16 r, s16 p, s16 h)
 {
-	f32 sx = JMASSin(r), cx = JMASCos(r);
+	f32 sx = JMASSin(r);
 	f32 sy = JMASSin(p), cy = JMASCos(p);
 	f32 sz = JMASSin(h), cz = JMASCos(h);
+	f32 cx = JMASCos(r);
 
 	param_1[2][0] = -sy;
 	param_1[0][0] = cz * cy;
