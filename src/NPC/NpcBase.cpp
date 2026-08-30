@@ -850,11 +850,11 @@ bool TBaseNPC::isSmallNpc() const
 	if (!partA) {
 		bool helper    = true;
 		bool mareMatch = true;
-		if (mActorType != 0x0400000E && !isNormalMareW())
+		if (mActorType != 0x0400000E && !isNormalMareM())
 			helper = false;
 		if (!helper) {
 			helper = true;
-			if (!isSpecialMareM() && !isSpecialMareW())
+			if (!isNormalMareW() && !isSpecialMareM())
 				helper = false;
 			if (!helper)
 				mareMatch = false;
