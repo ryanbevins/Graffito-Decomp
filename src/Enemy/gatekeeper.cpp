@@ -287,7 +287,7 @@ DEFINE_NERVE(TNerveBGKDie, TLiveActor)
 
 		if (!((gatekeeper->unk292 == 3 || gatekeeper->unk292 == 4)
 		      && gatekeeper->unk296 == 0)) {
-			snprintf((char*)gatekeeper->unk188, 0x100, "%s撃退カメラ",
+			snprintf((char*)gatekeeper->unk188, 0x100, "%s撃沈カメラ",
 			         gatekeeper->getName());
 			TMarDirector* director = gpMarDirector;
 			director->fireStartDemoCamera(
