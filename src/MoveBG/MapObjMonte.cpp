@@ -805,15 +805,14 @@ void THangingBridge::loadAfter()
 	}
 
 	for (int i = 0; i < unk10; ++i) {
-		THangingBridgeBoard* board = unk14[i];
 		if (i > 0)
-			board->unk194 = unk14[i - 1];
+			unk14[i]->unk194 = unk14[i - 1];
 		if (i > 1)
-			board->unk19C = unk14[i - 2];
+			unk14[i]->unk19C = unk14[i - 2];
 		if (i < unk10 - 1)
-			board->unk198 = unk14[i + 1];
+			unk14[i]->unk198 = unk14[i + 1];
 		if (i < unk10 - 2)
-			board->unk1A0 = unk14[i + 2];
+			unk14[i]->unk1A0 = unk14[i + 2];
 	}
 
 	unk38 = new f32[mPointNumBetweenBoards];
