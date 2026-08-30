@@ -1535,9 +1535,18 @@ void TMammaMirrorMapOperator::perform(u32 flags, JDrama::TGraphics* graphics)
 
 void TMammaMirrorMapOperator::loadAfter()
 {
-	unkB8[0].set(findMapObj("mirrorS")->mPosition);
-	unkB8[1].set(findMapObj("mirrorM")->mPosition);
-	unkB8[2].set(findMapObj("mirrorL")->mPosition);
+	TMapObjBase* mirror = findMapObj("mirrorS");
+	unkB8[0].x          = mirror->mPosition.x;
+	unkB8[0].y          = mirror->mPosition.y;
+	unkB8[0].z          = mirror->mPosition.z;
+	mirror              = findMapObj("mirrorM");
+	unkB8[1].x          = mirror->mPosition.x;
+	unkB8[1].y          = mirror->mPosition.y;
+	unkB8[1].z          = mirror->mPosition.z;
+	mirror              = findMapObj("mirrorL");
+	unkB8[2].x          = mirror->mPosition.x;
+	unkB8[2].y          = mirror->mPosition.y;
+	unkB8[2].z          = mirror->mPosition.z;
 
 	J3DJoint* joint = ((TMapStaticObj*)findMapObj("鏡内地形"))
 	                      ->getModelData()
