@@ -1342,7 +1342,7 @@ void TChorobei::perform(u32 flags, JDrama::TGraphics* graphics)
 	if ((unk68->mLiveFlag & 0x7) != 0)
 		return;
 
-	if (unk70 != 0.0f)
+	if (unk70)
 		return;
 
 	if (flags & 2) {
