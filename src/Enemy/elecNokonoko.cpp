@@ -788,20 +788,24 @@ void TElecCarapace::perform(u32 flags, JDrama::TGraphics* graphics)
 			return;
 		if (unk16C->checkLiveFlag(LIVE_FLAG_DEAD))
 			return;
-		if (checkLiveFlag(LIVE_FLAG_DEAD | LIVE_FLAG_HIDDEN))
-			return;
+		switch (mLiveFlag & (LIVE_FLAG_DEAD | LIVE_FLAG_HIDDEN)) {
+		case 0: {
+			TCircleShadowRequest request;
 
-		TCircleShadowRequest request;
+			request.unk0 = mPosition;
+			if (!isAirborne()) {
+				request.unk0.y = mGroundHeight;
+				request.unk1D  = 0;
+			}
 
-		request.unk0 = mPosition;
-		if (!isAirborne()) {
-			request.unk0.y = mGroundHeight;
-			request.unk1D  = 0;
+			request.unkC = request.unk10 = unk16C->mScaledBodyRadius;
+			request.unk14 = mRotation.y;
+			gpBindShadowManager->request(request, getActorType());
+			break;
 		}
-
-		request.unkC = request.unk10 = unk16C->mScaledBodyRadius;
-		request.unk14 = mRotation.y;
-		gpBindShadowManager->request(request, getActorType());
+		default:
+			break;
+		}
 	}
 }
 BOOL TElecCarapace::receiveMessage(THitActor* sender, u32 message)
