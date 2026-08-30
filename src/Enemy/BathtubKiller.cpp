@@ -770,9 +770,11 @@ bool TBathtubKiller::isAboided()
 	f32 diffX = toMario.x - selfPos.x;
 	f32 diffY = toMario.y - selfPos.y;
 	f32 diffZ = toMario.z - selfPos.z;
+	f32 diffXSq = diffX * diffX;
+	f32 diffYSq = diffY * diffY;
+	f32 diffZSq = diffZ * diffZ;
 	f32 horizDist
-	    = JGeometry::TUtil<f32>::sqrt(diffX * diffX + diffY * diffY
-	                                  + diffZ * diffZ);
+	    = JGeometry::TUtil<f32>::sqrt(diffXSq + diffYSq + diffZSq);
 
 	if (vertDist > getSaveParam2()->mSLAboidDistanceY.value
 	    && horizDist <= getSaveParam2()->mSLAboidDistance.value)
