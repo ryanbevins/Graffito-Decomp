@@ -949,7 +949,7 @@ DEFINE_NERVE(TNerveChuuHanaForceJumped, TLiveActor)
 
 DEFINE_NERVE(TNerveChuuHanaKeepBalance, TLiveActor)
 {
-	TChuuHana* self = chuuHana(spine);
+	TChuuHana* self = (TChuuHana*)spine->getBody();
 	if (spine->getTime() == 0) {
 		self->setBckAnm(2);
 		self->mPosition.x -= 10.0f * self->unk1EC.x;
