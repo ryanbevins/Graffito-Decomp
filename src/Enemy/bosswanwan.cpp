@@ -601,16 +601,15 @@ void TBWBinder::bind(TLiveActor* actor)
 			tracer->unk0->getGraphNode(tracer->mCurrIdx).getPoint(&currPoint);
 			tracer->unk0->getGraphNode(tracer->mPrevIdx).getPoint(&prevPoint);
 
-			JGeometry::TVec3<f32> linkDir = currPoint;
-			linkDir -= prevPoint;
-			PSVECNormalize(&linkDir, &linkDir);
+			currPoint -= prevPoint;
+			PSVECNormalize(&currPoint, &currPoint);
 
-			f32 len = linkDir.squared();
+			f32 len = currPoint.squared();
 			f32 step;
 			if (len == 0.0f) {
 				step = 0.0f;
 			} else {
-				step = movement.dot(linkDir) / len;
+				step = movement.dot(currPoint) / len;
 			}
 
 			if (step < 0.0f) {
@@ -621,7 +620,7 @@ void TBWBinder::bind(TLiveActor* actor)
 					step = 3.0f;
 			}
 
-			movement = linkDir;
+			movement = currPoint;
 			movement *= step;
 		}
 	}
