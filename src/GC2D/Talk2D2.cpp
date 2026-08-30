@@ -1103,7 +1103,8 @@ void TTalk2D2::moveTalkWindow()
 		int textIndex = i * 30 + lineCount;
 
 		if (lineCount != 0 && lineCount <= unk228[i]) {
-			J2DTextBox* textBox = unk9C[textIndex];
+			J2DTextBox** textBoxSlot = &unk9C[textIndex];
+			J2DTextBox* textBox      = *textBoxSlot;
 
 			if (textBox->mVisible) {
 				int alpha = textBox->mAlpha + unk340;
@@ -1116,9 +1117,9 @@ void TTalk2D2::moveTalkWindow()
 				if ((s16)alpha >= 0xff)
 					++lineCount;
 			} else if (unk2DC <= 0) {
-				unk2DC            = unk281[textIndex];
-				textBox->mVisible = true;
-				textBox->mAlpha   = 0;
+				unk2DC                     = unk281[textIndex];
+				(*textBoxSlot)->mVisible = true;
+				(*textBoxSlot)->mAlpha   = 0;
 			} else {
 				--unk2DC;
 			}
