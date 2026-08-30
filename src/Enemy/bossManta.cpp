@@ -702,24 +702,24 @@ void TBossManta::calcRootMatrix()
 	if (unk154 < 49)
 		++unk154;
 
-	Mtx root;
-	root[0][3] = mPosition.x;
-	root[1][3] = mPosition.y;
-	root[2][3] = mPosition.z;
+	TMtx34f root;
+	root.ref(0, 3) = mPosition.x;
+	root.ref(1, 3) = mPosition.y;
+	root.ref(2, 3) = mPosition.z;
 
 	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 	JGeometry::TVec3<f32> side;
 	side.cross(up, mDirection);
 
-	root[0][0] = side.x;
-	root[1][0] = side.y;
-	root[2][0] = side.z;
-	root[0][1] = up.x;
-	root[1][1] = up.y;
-	root[2][1] = up.z;
-	root[0][2] = mDirection.x;
-	root[1][2] = mDirection.y;
-	root[2][2] = mDirection.z;
+	root.ref(0, 0) = side.x;
+	root.ref(1, 0) = side.y;
+	root.ref(2, 0) = side.z;
+	root.ref(0, 1) = up.x;
+	root.ref(1, 1) = up.y;
+	root.ref(2, 1) = up.z;
+	root.ref(0, 2) = mDirection.x;
+	root.ref(1, 2) = mDirection.y;
+	root.ref(2, 2) = mDirection.z;
 
 	MtxPtr center = getModel()->getAnmMtx(sCenterJointIndex);
 	mCenterPos.set(center[0][3], mPosition.y, center[2][3]);
