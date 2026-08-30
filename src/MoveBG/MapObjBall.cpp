@@ -1716,7 +1716,7 @@ void TBigWatermelon::startEvent()
 		TMarDirector* director = gpMarDirector;
 		JDrama::TFlagT<u16> flagT;
 		flagT.set(0);
-		director->fireStartDemoCamera("スイカコールカメラ", &mPosition, -1,
+		director->fireStartDemoCamera("スイカゴールカメラ", &mPosition, -1,
 		                              0.0f, true, nullptr, 0, nullptr, flagT);
 		gpItemManager->makeShineAppearWithDemoOffset(
 		    "シャイン（お化けスイカ用）", "スイカシャインカメラ", 0.0f,
