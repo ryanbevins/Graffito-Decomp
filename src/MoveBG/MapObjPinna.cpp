@@ -387,12 +387,10 @@ void TMerrygoround::initMapObj()
 	}
 
 	unk1A0 = makePinnaObj("ChangeStageMerrygoround");
-	if (unk1A0 != nullptr) {
-		((TMapObjChangeStage*)unk1A0)->unk138 = 0x29;
-		unk1A0->mScaling.x                  = 1.5f;
-		unk1A0->appear();
-		TMapObjBase::joinToGroup("マップグループ", unk1A0);
-	}
+	((TMapObjChangeStage*)unk1A0)->unk138 = 0x29;
+	unk1A0->mScaling.y *= 1.5f;
+	unk1A0->makeObjAppeared();
+	TMapObjBase::joinToGroup("マップグループ", unk1A0);
 }
 
 void TMerrygoround::draw() const { }
