@@ -648,7 +648,8 @@ TBossHanachanPartsHead::TBossHanachanPartsHead(TBossHanachan* owner,
 {
 	J3DModel* model = getModel();
 	JUTNameTab* tab = model->mModelData->unkB0;
-	u16 idxL        = tab->getIndex(cNoseHallJointName_L);
+	const char* leftJointName = cNoseHallJointName_L;
+	u16 idxL                 = tab->getIndex(leftJointName);
 	mLeftNoseHallJointMtx
 	    = (MtxPtr)((u8*)model->mNodeMatrices + idxL * 0x30);
 	u16 idxR = tab->getIndex(cNoseHallJointName_R);
