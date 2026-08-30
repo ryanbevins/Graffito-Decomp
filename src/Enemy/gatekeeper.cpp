@@ -36,6 +36,9 @@ static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 	return MsWrap<f32>(t, l, r);
 }
 
+static f32 sMaxTurnStep = 3.0f;
+static f32 sMinTurnStep = -3.0f;
+
 DEFINE_NERVE(TNerveBGKSleep, TLiveActor)
 {
 	TBiancoGateKeeper* gatekeeper
@@ -1139,12 +1142,10 @@ void TBGKMtxCalc::calc(u16 joint_no)
 			f32 diff = targetYaw
 			           - callMsWrap(currentYaw, targetYaw - 180.0f,
 			                        targetYaw + 180.0f);
-			if (diff > 0.0f) {
-				if (diff > 3.0f)
-					diff = 3.0f;
+			if (0.0f < diff) {
+				diff = sMaxTurnStep < diff ? sMaxTurnStep : diff;
 			} else {
-				if (diff < -3.0f)
-					diff = -3.0f;
+				diff = sMinTurnStep < diff ? diff : sMinTurnStep;
 			}
 
 			unk64->unk180
