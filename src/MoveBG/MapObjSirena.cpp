@@ -100,7 +100,7 @@ void TPictureTelesa::touchActor(THitActor* sender)
 {
 	TWaterHitPictureHideObj::touchActor(sender);
 	u8 r1, r2, r3v;
-	if ((sender->mActorType - 0x40000000) == 0x1A2)
+	if ((mActorType - 0x40000000) == 0x1A2)
 		r1 = 1;
 	else
 		r1 = 0;
