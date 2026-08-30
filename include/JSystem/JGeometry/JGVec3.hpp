@@ -325,7 +325,12 @@ public:
 		f32 dx = x - other.x;
 		f32 dy = y - other.y;
 		f32 dz = z - other.z;
-		return TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+		f32 dxSq = dx * dx;
+		f32 dySq = dy * dy;
+		f32 dzSq = dz * dz;
+		f32 xySq = dxSq + dySq;
+		f32 mag  = dzSq + xySq;
+		return TUtil<f32>::sqrt(mag);
 	}
 
 	f32 squared() const { return dot(*this); }
