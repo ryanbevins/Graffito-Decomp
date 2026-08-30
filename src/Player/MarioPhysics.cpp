@@ -307,7 +307,7 @@ int TMario::waitProcess()
 
 	f32 posY = mPosition.y;
 	f32 floorY = mFloorPosition.y;
-	if (fabsf(posY - floorY) > 4.0f) {
+	if (fabsf(posY - floorY) > 100000.0f) {
 		mPosition = mLastSafePos;
 		changePlayerStatus(0x088D, 0, false);
 	} else {
