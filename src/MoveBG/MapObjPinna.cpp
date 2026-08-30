@@ -208,7 +208,7 @@ void TAmiKing::moveObject()
 			if (enemy != nullptr)
 				enemy->generate(mPosition, scale);
 
-			gpItemManager->makeShineAppearWithDemo("シャイン（観覧車シャインwp）",
+			gpItemManager->makeShineAppearWithDemo("シャイン（観覧車シャイン用）",
 			                                      "観覧車シャインカメラ",
 			                                      mPosition.x, mPosition.y,
 			                                      mPosition.z);
@@ -237,7 +237,7 @@ void TAmiKing::moveObject()
 			setAnmSound(nullptr);
 			TMarDirector* director = gpMarDirector;
 			director->fireStartDemoCamera(
-			    "観覧ボス撃沈カメラ", &mPosition, -1, 0.0f, true, nullptr, 0,
+			    "観覧車ボス撃沈カメラ", &mPosition, -1, 0.0f, true, nullptr, 0,
 			    nullptr, JDrama::TFlagT<u16>(0));
 		}
 	}
