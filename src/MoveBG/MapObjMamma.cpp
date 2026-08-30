@@ -686,7 +686,7 @@ void TLeanMirror::draw() const
 	dir.y = mtx[1][1];
 	dir.z = mtx[2][1];
 	JGeometry::TVec3<f32> start = dir;
-	start.scale(350.0f * 0.001f * mBodyRadius);
+	start.scale(350.0f * (0.001f * mBodyRadius));
 	start.add(mPosition);
 
 	JGeometry::TVec3<f32> end = dir;
