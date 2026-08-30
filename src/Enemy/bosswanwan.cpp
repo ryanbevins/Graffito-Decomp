@@ -1840,7 +1840,7 @@ DEFINE_NERVE(TNerveBWDie, TLiveActor)
 	if (spine->getTime() > 0x3C && (s8)self->unk18D == 0
 	    && gpMarDirector->unk124 != 3) {
 		gpItemManager->makeShineAppearWithDemo(
-		    "シャイン（ボス用）", "ボスシャイカメラ", self->mPosition.x,
+		    "シャイン（ボス用）", "ボスシャインカメラ", self->mPosition.x,
 		    self->mPosition.y, self->mPosition.z);
 		self->unk18D = 1;
 	}
