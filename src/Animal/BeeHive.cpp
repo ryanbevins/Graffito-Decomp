@@ -89,7 +89,19 @@ static inline void setBeeHiveRotate(JGeometry::TQuat4<f32>& quat,
 }
 }
 
-DEFINE_NERVE(TNerveBeeHiveReset, TLiveActor)
+const TNerveBeeHiveWait& TNerveBeeHiveWait::theNerve()
+{
+	static TNerveBeeHiveWait instance;
+	return instance;
+}
+
+const TNerveBeeHiveReset& TNerveBeeHiveReset::theNerve()
+{
+	static TNerveBeeHiveReset instance;
+	return instance;
+}
+
+BOOL TNerveBeeHiveReset::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
 	if (spine->getTime() == 0) {
@@ -231,7 +243,7 @@ DEFINE_NERVE(TNerveBeeHiveFall, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveBeeHiveWait, TLiveActor)
+BOOL TNerveBeeHiveWait::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
 	if (spine->getTime() == 0) {
