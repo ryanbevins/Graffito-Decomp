@@ -54,6 +54,18 @@ TBaseNPC* TMarDirector::findNearestTalkNPC()
 	return result;
 }
 
+TBaseNPC* TMarDirector::findNearestTakeNPC()
+{
+	TBaseNPC* result = nullptr;
+	JGadget::TVector_pointer<TBaseNPC>::iterator it;
+	for (it = unk88.begin(); it != unk88.end(); ++it) {
+		TBaseNPC* npc = *it;
+		if (npc->isNowCanTaken() && gpMarioOriginal->isTakeSituation(npc))
+			result = npc;
+	}
+	return result;
+}
+
 void TMarDirector::movement_game()
 {
 	unk84->associateNPC(nullptr);
@@ -77,14 +89,7 @@ void TMarDirector::movement_game()
 	bool isDemoCamera = demoCamera ? true : false;
 
 	if (!isDemoCamera) {
-		TBaseNPC* takeNpc = nullptr;
-		JGadget::TVector_pointer<TBaseNPC>::iterator it;
-		for (it = unk88.begin(); it != unk88.end(); ++it) {
-			TBaseNPC* npc = *it;
-			if (npc->isNowCanTaken() && gpMarioOriginal->isTakeSituation(npc))
-				takeNpc = npc;
-		}
-
+		TBaseNPC* takeNpc = findNearestTakeNPC();
 		if (takeNpc != nullptr) {
 			unk84->associateNPC(takeNpc);
 		} else {
