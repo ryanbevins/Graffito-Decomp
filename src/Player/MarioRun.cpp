@@ -1922,7 +1922,7 @@ void TMario::slippingBasic(int statusOnStop, int slipStatus, int slipArg)
 				const TBGCheckData* wall = mWallPlane;
 				if (wall != nullptr) {
 					const JGeometry::TVec3<f32>* normal = &wall->mNormal;
-					s32 wallAngle = matan(normal->z, normal->x);
+					s16 wallAngle = matan(normal->z, normal->x);
 
 					f32 velSq = mSlideVelX * mSlideVelX
 					            + mSlideVelZ * mSlideVelZ;
