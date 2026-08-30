@@ -653,17 +653,15 @@ void TBWBinder::bind(TLiveActor* actor)
 		JGeometry::TVec3<f32> clampedPos = oldPos;
 		clampedPos += movement;
 
-		JGeometry::TVec3<f32> toRope = clampedPos;
 		JGeometry::TVec3<f32> ropePos
 		    = self->mLeash->mRope->mPoints[3].mPosition;
-		toRope -= ropePos;
-		if (PSVECMag(&toRope) > 860.0f) {
-			PSVECNormalize(&toRope, &toRope);
-			toRope *= 860.0f;
-			clampedPos = ropePos;
-			clampedPos += toRope;
+		clampedPos -= ropePos;
+		if (PSVECMag(&clampedPos) > 860.0f) {
+			PSVECNormalize(&clampedPos, &clampedPos);
+			clampedPos *= 860.0f;
+			clampedPos += ropePos;
+			clampedPos -= oldPos;
 			movement = clampedPos;
-			movement -= oldPos;
 		}
 	}
 
