@@ -203,8 +203,14 @@ void TMapObjWave::updateHeightAndAlpha()
 
 	bool inWater = SMS_CheckMarioFlag(0x10000);
 
-	if (inWater || isWaterBg(groundExact->mBGType)
-	    || isWaterBg(groundBelow->mBGType)) {
+	if (inWater || groundExact->mBGType == 0x100
+	    || groundExact->mBGType == 0x101
+	    || (u16)(groundExact->mBGType - 0x102) <= 3
+	    || groundExact->mBGType == 0x4104
+	    || groundBelow->mBGType == 0x100
+	    || groundBelow->mBGType == 0x101
+	    || (u16)(groundBelow->mBGType - 0x102) <= 3
+	    || groundBelow->mBGType == 0x4104) {
 		f32 groundY = gpMap->checkGroundIgnoreWaterSurface(
 		    gpMarioPos->x, 0.0f, gpMarioPos->z, &groundExact);
 		f32 dist = unk4C + groundY;
