@@ -677,6 +677,7 @@ void TBWBinder::bind(TLiveActor* actor)
 
 		JGeometry::TVec3<f32> foot
 		    = MsPerpendicFootToLineR(prevPoint, currPoint, actor->mPosition);
+		currPoint -= prevPoint;
 		JGeometry::TVec3<f32> correction = foot;
 		correction -= actor->mPosition;
 		f32 dist = PSVECMag(&correction);
