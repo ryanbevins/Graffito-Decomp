@@ -776,8 +776,8 @@ void TEnemyMario::drawHPMeter(MtxPtr mtx)
 	GXSetChanMatColor(GX_COLOR0A0, backColor);
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 	GXPosition3f32(left - 5.0f, top - 5.0f, z);
-	GXPosition3f32(left + 101.0f, top - 5.0f, z);
-	GXPosition3f32(left + 101.0f, bottom + 5.0f, z);
+	GXPosition3f32(left + 96.0f, top - 5.0f, z);
+	GXPosition3f32(left + 96.0f, bottom + 5.0f, z);
 	GXPosition3f32(left - 5.0f, bottom + 5.0f, z);
 	GXEnd();
 
