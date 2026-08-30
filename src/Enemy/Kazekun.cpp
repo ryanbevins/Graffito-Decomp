@@ -489,9 +489,8 @@ void TKazekun::behaveToWater(THitActor*)
 // When `decide` is true the orientation is recomputed from Mario's position
 // (the windup); the spin + velocity reorient run every frame regardless.
 // NOTE(INVESTIGATION): block1 (the decide branch: aim + pose-speed velocity)
-// is byte-decoded; the per-frame spin's rotation axis is best-effort (the asm
-// inlines TQuat4::rotate of a basis the hand-decode couldn't pin -- see
-// notes/Kazekun.md). Lands low fuzzy until the frame/inline cascade is cracked.
+// is byte-decoded. The per-frame spin rotates the negative X basis; its
+// expanded target arithmetic is still hidden by the current inline cascade.
 void TKazekun::doAttackPose(bool decide)
 {
 	JGeometry::TVec3<f32> dir(*gpMarioPos);
@@ -522,7 +521,7 @@ void TKazekun::doAttackPose(bool decide)
 		mVelocity = vel;
 	}
 
-	JGeometry::TVec3<f32> spinAxis(0.0f, 1.0f, 0.0f);
+	JGeometry::TVec3<f32> spinAxis(-1.0f, 0.0f, 0.0f);
 	mQuat.rotate(spinAxis);
 	JGeometry::TQuat4<f32> spin;
 	spin.setRotate(spinAxis,
