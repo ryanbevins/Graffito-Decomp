@@ -335,8 +335,9 @@ void TResetFruit::breaking()
 	concatOnlyRotFromLeft(scaleMtx, modelMtx, modelMtx);
 	mScaling.y     = mScaling.y * mBreakingScaleSpeed;
 	modelMtx[1][3] = mBodyRadius * mScaling.y + mPosition.y;
+	f32 collapseScale = 3.0f;
 	if (mScaling.y < 0.2f) {
-		mPosition.y += mBodyRadius * 3.0f;
+		mPosition.y += mBodyRadius * collapseScale;
 		mScaling.x  = mInitialScaling.x;
 		mScaling.y  = mInitialScaling.y;
 		mScaling.z  = mInitialScaling.z;
