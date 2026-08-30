@@ -590,8 +590,7 @@ void TBWBinder::bind(TLiveActor* actor)
 		actor->mGroundPlane  = groundPlane;
 	}
 
-	JGeometry::TVec3<f32> movement = nextPos;
-	movement -= actor->mPosition;
+	JGeometry::TVec3<f32> movement = nextPos - actor->mPosition;
 
 	if (!actor->isAirborne()) {
 		TGraphTracer* tracer = self->unk124;
