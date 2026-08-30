@@ -248,7 +248,7 @@ DEFINE_NERVE(TNerveAmiNokoWalkOnFence, TLiveActor)
 	f32 dist = JGeometry::TUtil<f32>::sqrt(
 	    toGoal.x * toGoal.x + toGoal.y * toGoal.y + toGoal.z * toGoal.z);
 
-	if (dist < 150.0f) {
+	if (dist < 1.5f) {
 		if (self->checkCurAnmEnd(0)) {
 			if (self->isBckAnm(3) || self->isBckAnm(6)) {
 				self->goToRandomNextGraphNode();
