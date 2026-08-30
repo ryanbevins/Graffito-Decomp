@@ -601,7 +601,7 @@ BOOL TMapObjSwitch::receiveMessage(THitActor*, u32 message)
 			unk144[i]->action(unk140);
 
 		gpMarDirector->fireStartDemoCamera("オブジェスイッチ用カメラ",
-		                                   &mPosition, -1, 0.0f, true, nullptr,
+		                                   nullptr, -1, 0.0f, true, nullptr,
 		                                   0, nullptr, JDrama::TFlagT<u16>(0));
 		mLifeTimer = unk140;
 		onHitFlag(HIT_FLAG_NO_COLLISION);
