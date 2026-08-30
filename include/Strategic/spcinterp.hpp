@@ -68,7 +68,6 @@ public:
 	TSpcSlice()
 	    : mType(TYPE_INT)
 	{
-		(int&)mData = 0;
 	}
 
 	TSpcSlice(int value)
@@ -432,7 +431,7 @@ public:
 	}
 
 	void push(const TSpcSlice& slice) { mProcessStack.push(slice); }
-	void push() { push(TSpcSlice()); }
+	void push() { push(TSpcSlice(0)); }
 	TSpcSlice pop() { return mProcessStack.pop(); }
 
 public:
