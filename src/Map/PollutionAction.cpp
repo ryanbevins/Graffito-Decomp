@@ -96,28 +96,17 @@ void TPollutionLayer::fire()
 		if ((int)unk8C > (int)mFireEffectWaitTime) {
 			gpMSound->startSoundSet(0x3803, (Vec*)&unk98[unk90], 0, 0.0f, 0,
 			                        0, 4);
+			JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
 
 			JPABaseEmitter* emitter
 			    = gpMarioParticleManager->emit(0x1DC, &unk98[unk90], 2, this);
-			if (emitter) {
-				emitter->unk154.x = 1.5f;
-				emitter->unk154.y = 1.5f;
-				emitter->unk154.z = 1.5f;
-				emitter->unk174.x = 1.5f;
-				emitter->unk174.y = 1.5f;
-				emitter->unk174.z = 1.5f;
-			}
+			if (emitter)
+				emitter->setScale(scale);
 
 			emitter
 			    = gpMarioParticleManager->emit(0x65, &unk98[unk90], 0, this);
-			if (emitter) {
-				emitter->unk154.x = 1.5f;
-				emitter->unk154.y = 1.5f;
-				emitter->unk154.z = 1.5f;
-				emitter->unk174.x = 1.5f;
-				emitter->unk174.y = 1.5f;
-				emitter->unk174.z = 1.5f;
-			}
+			if (emitter)
+				emitter->setScale(scale);
 
 			unk90++;
 			if ((int)unk90 >= (int)unk94)
