@@ -14,7 +14,7 @@
 #include <System/Application.hpp>
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
-#include <System/StageUtil.hpp>
+bool SMS_isDivingMap();
 #include <Player/ModelWaterManager.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -1321,34 +1321,38 @@ static const s32 scNozzleSoundList[] = {
 	0x88B6, 0x88B7, 0x88B8, 0x88B9, 0x88BA, -1,
 };
 
-static const u32 scDolpicNewsDolpic0[] = { 0x000E0000, 0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic1[] = { 0x000E0001, 0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic5_1[] = { 0x000E0009, 0x000E0011,
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
+static u32 scDolpicNewsDolpic0[] = { 0x000E0000, 0xFFFFFFFF };
+static u32 scDolpicNewsDolpic1[] = { 0x000E0001, 0xFFFFFFFF };
+static u32 scDolpicNewsDolpic5_1[] = { 0x000E0009, 0x000E0011,
 	                                          0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic5_2[] = { 0x000E0012, 0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic5_3[] = { 0x000E0013, 0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic5_4[] = { 0x000E0012, 0x000E0013,
+static u32 scDolpicNewsDolpic5_2[] = { 0x000E0012, 0xFFFFFFFF };
+static u32 scDolpicNewsDolpic5_3[] = { 0x000E0013, 0xFFFFFFFF };
+static u32 scDolpicNewsDolpic5_4[] = { 0x000E0012, 0x000E0013,
 	                                          0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic6[] = { 0x000E0002, 0x000E0004,
+static u32 scDolpicNewsDolpic6[] = { 0x000E0002, 0x000E0004,
 	                                       0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic7[] = { 0x000E0005, 0x000E0006,
+static u32 scDolpicNewsDolpic7[] = { 0x000E0005, 0x000E0006,
 	                                       0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic8_1[] = { 0x000E0003, 0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic8_2[] = { 0x000E0007, 0x000E0003,
+static u32 scDolpicNewsDolpic8_1[] = { 0x000E0003, 0xFFFFFFFF };
+static u32 scDolpicNewsDolpic8_2[] = { 0x000E0007, 0x000E0003,
 	                                          0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic8_3[] = { 0x000E0008, 0x000E0003,
+static u32 scDolpicNewsDolpic8_3[] = { 0x000E0008, 0x000E0003,
 	                                          0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic8_4[] = { 0x000E000E, 0x000E0003,
+static u32 scDolpicNewsDolpic8_4[] = { 0x000E000E, 0x000E0003,
 	                                          0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic8_5[] = { 0x000E000F, 0x000E0003,
+static u32 scDolpicNewsDolpic8_5[] = { 0x000E000F, 0x000E0003,
 	                                          0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic8_6[] = { 0x000E000E, 0x000E000F,
+static u32 scDolpicNewsDolpic8_6[] = { 0x000E000E, 0x000E000F,
 	                                          0x000E0003, 0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic8_7[] = { 0x000E0010, 0x000E0003,
+static u32 scDolpicNewsDolpic8_7[] = { 0x000E0010, 0x000E0003,
 	                                          0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic9[] = { 0x000E000A, 0x000E000B,
+static u32 scDolpicNewsDolpic9[] = { 0x000E000A, 0x000E000B,
 	                                       0xFFFFFFFF };
-static const u32 scDolpicNewsDolpic10[] = { 0x000E000C, 0x000E000D,
+static u32 scDolpicNewsDolpic10[] = { 0x000E000C, 0x000E000D,
 	                                        0xFFFFFFFF };
 static const char* MtxCalcTypeName[] = {
 	"MActorMtxCalcType_Basic クラシックスケールＯＮ",
@@ -3556,14 +3560,14 @@ void TGCConsole2::checkChangeTelopArray()
 		case 5:
 			if (TFlagManager::smInstance->getBool(0x50001)) {
 				if (TFlagManager::smInstance->getBool(0x50002))
-					unk570 = scDolpicNewsDolpic5_1;
+					unk570 = scDolpicNewsDolpic5_4;
 				else
 					unk570 = scDolpicNewsDolpic5_2;
 			} else {
 				if (TFlagManager::smInstance->getBool(0x50002))
 					unk570 = scDolpicNewsDolpic5_3;
 				else
-					unk570 = scDolpicNewsDolpic5_4;
+					unk570 = scDolpicNewsDolpic5_1;
 			}
 			break;
 		case 8: {
