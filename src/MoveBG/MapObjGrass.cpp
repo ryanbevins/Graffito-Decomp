@@ -80,7 +80,7 @@ void TMapObjGrassGroup::drawFar() const
 		GXColor1x8(1);
 		GXPosition3s16(topX, unk74[i], z);
 		GXColor1x8(0);
-		GXPosition3s16(rightX, pos.y, topZ);
+		GXPosition3s16(rightX, unk70[i].y, topZ);
 		GXColor1x8(1);
 
 		++iVar7;
