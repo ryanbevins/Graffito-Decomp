@@ -397,7 +397,7 @@ void TKoopa::init(TLiveManager* manager)
 	if (mMActor->getCurAnmIdx(3) != 1)
 		mMActor->setBtpFromIndex(1);
 
-	mMActor->getFrameCtrl(0)->setRate(0.5f * 2.0f * SMSGetAnmFrameRate());
+	mMActor->getFrameCtrl(0)->setRate(2.0f * SMSGetAnmFrameRate() * 0.5f);
 	changeAnm(6, 0, 2.0f);
 
 	if (mMActor->getAnmBck())
