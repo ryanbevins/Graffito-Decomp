@@ -741,7 +741,7 @@ bool MSound::resetAudioAll(u16 param)
 		return true;
 	}
 
-	gain *= powf(0.0002f, 1.0f / (f32)param);
+	gain *= powf(0.00020000001f, 1.0f / (f32)param);
 	JASystem::Driver::setMixerLevel(0.802f, gain);
 	JAIGlobalParameter::setParamOutputGainUp(gain);
 	return false;
