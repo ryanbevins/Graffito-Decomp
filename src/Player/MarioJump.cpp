@@ -497,7 +497,7 @@ BOOL TMario::catchStop()
 BOOL TMario::slipFalling()
 {
 	u16 t = mActionTimer; mActionTimer = t + 1;
-	if (mActionTimer > 120 && mPosition.y - mFloorPosition.y > 0.0f) {
+	if (mActionTimer > 120 && mPosition.y - mFloorPosition.y > 500.0f) {
 		return changePlayerStatus(0x088C, 1, false);
 	}
 	mForwardVel *= mJumpParams.mJumpSpeedBrake.value;
