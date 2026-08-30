@@ -526,7 +526,7 @@ void TFruitLauncher::fireObj()
 		obj->mLiveFlag &= ~0x10;
 		TMarDirector* director = gpMarDirector;
 		director->fireStartDemoCamera(
-		    "フルーツスイッチメラメラ",
+		    "フルーツタンクカメラカメラ",
 		    (JGeometry::TVec3<f32>*)&obj->mPosition, -1, 0.0f, true,
 		    (s32 (*)(u32, u32))NULL, 0, (JDrama::TActor*)NULL,
 		    JDrama::TFlagT<u16>(0));
