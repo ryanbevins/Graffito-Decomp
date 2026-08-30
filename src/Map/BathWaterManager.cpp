@@ -1777,7 +1777,7 @@ void TBathWaterMeshRenderer::prerender(JDrama::TGraphics* graphics,
 			      * (drop->unk48 * param->modelScale.get()
 			         + (1.0f - drop->unk48) * param->modelScale2.get());
 			JGeometry::TVec3<f32> pos = drop->unk0;
-			pos.y += param->modelScaleY.get() * dropRadius - modelScale;
+			pos.y += -modelScale + param->modelScaleY.get() * dropRadius;
 
 			TPosition3f local;
 			local.set(modelScale, 0.0f, 0.0f, pos.x, 0.0f, modelScale,
