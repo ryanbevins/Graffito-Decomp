@@ -335,7 +335,7 @@ void TLimitKoopa::loadAfter()
 
 	for (int i = 0; i < 2; i++) {
 		TLimitKoopaHand* p
-		    = new TLimitKoopaHand("\x83\x4E\x83\x62\x83\x70\x8E\xE8");
+		    = new TLimitKoopaHand("\x83\x4E\x83\x62\x83\x70\x82\xCC\x8E\xE8");
 		p->mOwner = this;
 		registerToGroup(p);
 		p->initHitActor(0x08000032, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
@@ -348,7 +348,7 @@ void TLimitKoopa::loadAfter()
 
 	{
 		TLimitKoopaHead* p
-		    = new TLimitKoopaHead("\x83\x4E\x83\x62\x83\x70\x93\xAA");
+		    = new TLimitKoopaHead("\x83\x4E\x83\x62\x83\x70\x82\xCC\x93\xAA");
 		p->mOwner = this;
 		registerToGroup(p);
 		p->initHitActor(0x08000031, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
@@ -361,7 +361,7 @@ void TLimitKoopa::loadAfter()
 
 	{
 		TLimitKoopaBody* p
-		    = new TLimitKoopaBody("\x83\x4E\x83\x62\x83\x70\x91\xCC");
+		    = new TLimitKoopaBody("\x83\x4E\x83\x62\x83\x70\x82\xCC\x91\xCC");
 		p->mOwner = this;
 		registerToGroup(p);
 		p->initHitActor(0x08000033, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
