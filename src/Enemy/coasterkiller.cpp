@@ -41,7 +41,16 @@
 f32 cCoasterSpeedInOrder = 20.0f;
 f32 cCoasterSpeedReverse = 16.0f;
 
-#include <M3DUtil/InfectiousStrings.hpp>
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
+static const char MtxCalcTypeName0[]
+    = "MActorMtxCalcType_Basic クラシックスケールＯＮ";
+static const char MtxCalcTypeName1[]
+    = "MActorMtxCalcType_Softimage クラシックスケールＯＦＦ";
+static const char MtxCalcTypeName2[]
+    = "MActorMtxCalcType_MotionBlend モーションブレンド";
+static const char MtxCalcTypeName3[]
+    = "MActorMtxCalcType_User ユーザー定義";
 
 const char* killer_bastable[] = {
 	"/scene/killer/bas/downkiller_down1.bas", nullptr, nullptr,
