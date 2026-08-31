@@ -229,7 +229,10 @@ DEFINE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor)
 	}
 
 	JGeometry::TVec3<f32> offset;
-	if (!self->isAirborne() || self->mTouchedWall)
+	bool useRecoveryOffset = true;
+	if (self->isAirborne() && !self->mTouchedWall)
+		useRecoveryOffset = false;
+	if (useRecoveryOffset)
 		offset.set(0.0f, 10000.0f, 0.0f);
 	else
 		offset.set(0.0f, 0.0f, 0.0f);
