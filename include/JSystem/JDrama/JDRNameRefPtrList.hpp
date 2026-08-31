@@ -38,8 +38,8 @@ public:
 	virtual void loadAfter()
 	{
 		TNameRef::loadAfter();
-		typename JGadget::TList_pointer<T*>::iterator it = this->begin();
-		for (; it != this->end(); ++it)
+		typedef typename JGadget::TList_pointer<T*>::iterator I;
+		for (I it = getChildren().begin(); it != getChildren().end(); ++it)
 			(*it)->loadAfter();
 	}
 
