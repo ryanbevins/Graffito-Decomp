@@ -29,6 +29,8 @@
 #include <dolphin/mtx.h>
 #include <math.h>
 
+template <class T> static inline T max(T a, T b) { return a < b ? b : a; }
+
 #pragma dont_inline on
 
 void TBaseNPC::setBalloonMessage(u32 msg, long timer)
@@ -784,13 +786,13 @@ f32 TBaseNPC::getAnmOffDist_()
 		f32 v = mNpcSaveIndividual->mWaitAnmOffDist0.value;
 		result = v;
 		if (useOff) {
-			result = camDist > v ? camDist : v;
+			result = max<f32>(camDist, v);
 		}
 	} else if (isNerveMaybeDontCalcAnim1()) {
 		f32 v = mNpcSaveIndividual->mWaitAnmOffDist1.value;
 		result = v;
 		if (useOff) {
-			result = camDist > v ? camDist : v;
+			result = max<f32>(camDist, v);
 		}
 	}
 	return result;
