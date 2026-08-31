@@ -63,7 +63,8 @@ static inline f32 calcBossPakkunYaw(f32 x, f32 z)
 	if (z >= 0.0f)
 		return matan(z, x) * (360.0f / 65536.0f);
 
-	return 180.0f - matan(-z, x) * (360.0f / 65536.0f);
+	f32 yaw = matan(-z, x) * (360.0f / 65536.0f);
+	return 180.0f - yaw;
 }
 
 static f32 sMaxRotationStep = 1.0f;
