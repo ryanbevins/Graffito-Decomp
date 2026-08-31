@@ -29,7 +29,10 @@
 #include <dolphin/mtx.h>
 #include <math.h>
 
-template <class T> static inline T max(T a, T b) { return a < b ? b : a; }
+template <class T> static inline T max(const T& a, const T& b)
+{
+	return a > b ? a : b;
+}
 
 #pragma dont_inline on
 
