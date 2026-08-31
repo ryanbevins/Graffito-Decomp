@@ -9,7 +9,6 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JMath.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
-#include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -30,6 +29,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
 
 static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 {
