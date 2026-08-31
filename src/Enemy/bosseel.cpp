@@ -1867,7 +1867,7 @@ void TBEelTearsManager::createEnemies(int count)
 
 void TBEelTearsManager::createModelData()
 {
-	static const TModelDataLoadEntry entry[] = {
+	static TModelDataLoadEntry entry[] = {
 		{ "tears.bmd", 0x11240000, 0 },
 		{ "tears_waterhit.bmd", 0x11240000, 0 },
 		{ nullptr, 0, 0 },
