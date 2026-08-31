@@ -805,11 +805,11 @@ void TMBindShadowManager::drawShadowGD(u32 flags, JDrama::TGraphics* graphics)
 			GXColor color = { 0x1E, 0x32, 0x73, 0xB4 };
 			GDSetChanMatColor(GX_COLOR0A0, color);
 			GDSetCurrentMtx(GX_PNMTX0, 60, 60, 60, 60, 60, 60, 60, 60);
-			static const GXVtxDescList vl[] = {
+			static GXVtxDescList vl[] = {
 				{ GX_VA_POS, GX_DIRECT }, { GX_VA_NULL, GX_NONE }
 			};
 			GDSetVtxDescv(vl);
-			static const GXVtxAttrFmtList fl[] = {
+			static GXVtxAttrFmtList fl[] = {
 				{ GX_VA_POS, GX_POS_XYZ, GX_F32, 0 },
 				{ GX_VA_NULL, GX_POS_XY, GX_U8, 0 }
 			};
