@@ -1731,7 +1731,7 @@ void TBossPakkunMtxCalc::calcHeadDir(u16 joint_no)
 	toMario.y -= jointMtx[1][3];
 	toMario.z -= jointMtx[2][3];
 
-	f32 matrixYaw = calcBossPakkunYaw(jointMtx[0][1], jointMtx[2][0]);
+	f32 matrixYaw = calcBossPakkunYaw(jointMtx[0][1], jointMtx[2][1]);
 	f32 headYaw   = mOwner->unk184;
 
 	f32 targetYaw;
