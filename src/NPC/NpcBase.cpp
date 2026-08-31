@@ -776,8 +776,9 @@ bool TBaseNPC::isNeedNeckStraight() const
 f32 TBaseNPC::getAnmOffDist_()
 {
 	bool useOff = false;
-	int  state   = *(int*)((u8*)unkD0 + 0x14);
+	u8*  stateObj = (u8*)unkD0;
 	f32  result  = gpCamera->mFar;
+	int  state   = *(int*)(stateObj + 0x14);
 	f32  camDist = mPtrSaveNormal->mSLDanceAnmOffDist.value;
 	if ((mActionFlag & 0x204) || mActorType == 0x0400000D || state == 0xA
 	    || state == 0x17)
