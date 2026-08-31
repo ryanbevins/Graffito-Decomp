@@ -1826,7 +1826,7 @@ void TBossTelesaManager::perform(u32 flags, JDrama::TGraphics* gfx)
 
 void TBossTelesaManager::createModelData()
 {
-	static const TModelDataLoadEntry entry[] = {
+	static TModelDataLoadEntry entry[] = {
 		{ "btelesa.bmd", 0x15300000, 0 },
 		{ nullptr, 0, 0 },
 	};
@@ -2019,7 +2019,7 @@ TBubbleManager::TBubbleManager(const char* name)
 
 void TBubbleManager::createModelData()
 {
-	static const TModelDataLoadEntry entry[] = {
+	static TModelDataLoadEntry entry[] = {
 		{ "btelesa_osenbubbles_ind.bmd", 0x11020000, 0 },
 		{ nullptr, 0, 0 },
 	};
