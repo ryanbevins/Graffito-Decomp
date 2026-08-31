@@ -11,10 +11,10 @@
 #include <Player/MarioAccess.hpp>
 #include <JSystem/JAudio/JAInterface/JAISound.hpp>
 
-static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
-static const char* SMS_NO_MEMORY_MESSAGE    = "メモリが足りません\n";
-static const char* cSunSceneName            = "/scene/sun";
-static const char* cSunsetSceneName         = "/scene/sunset";
+static const char dummyMactorStringValue1[] = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char SMS_NO_MEMORY_MESSAGE[]   = "メモリが足りません\n";
+static const char cSunSceneName[]            = "/scene/sun";
+static const char cSunsetSceneName[]         = "/scene/sunset";
 const char* cSunWarpPointName               = "太陽ワープポイント";
 
 TSunMgr* gpSunMgr;
