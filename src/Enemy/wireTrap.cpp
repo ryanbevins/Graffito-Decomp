@@ -430,7 +430,10 @@ BOOL TWireTrap::receiveMessage(THitActor* sender, u32 message)
 		delta.z -= gpMarioPos->z;
 
 		JGeometry::TVec3<f32> dir = getWireBinderDirect()->getDirDirect();
-		dir.scale(mWireDir);
+		f32 wireDir = mWireDir;
+		dir.x *= wireDir;
+		dir.y *= wireDir;
+		dir.z *= wireDir;
 		if (0.0f <= delta.x * dir.x + delta.y * dir.y + delta.z * dir.z)
 			mShakeWidth = getSaveParam2()->mInWaterPowerRate.get();
 		else
