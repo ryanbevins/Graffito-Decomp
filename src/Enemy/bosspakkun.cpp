@@ -66,6 +66,9 @@ static inline f32 calcBossPakkunYaw(f32 x, f32 z)
 	return 180.0f - matan(-z, x) * (360.0f / 65536.0f);
 }
 
+static f32 sMaxRotationStep = 1.0f;
+static f32 sMinRotationStep = -1.0f;
+
 static const char* bosspakkun_bastable[] = {
 	nullptr,
 	nullptr,
@@ -1747,26 +1750,28 @@ void TBossPakkunMtxCalc::calcHeadDir(u16 joint_no)
 	    = callMsWrap(matrixYaw, targetYaw - 180.0f, targetYaw + 180.0f);
 	f32 desiredOffset = targetYaw - wrappedMatrix;
 	f32 homingLimit = owner->getBossPakkunSaveParam()->mSLHeadHomingLimit.value;
+	f32 clampedOffset;
 	if (desiredOffset > 0.0f) {
-		if (desiredOffset > homingLimit)
-			desiredOffset = homingLimit;
+		clampedOffset
+		    = desiredOffset > homingLimit ? homingLimit : desiredOffset;
 	} else {
-		if (desiredOffset <= -homingLimit)
-			desiredOffset = -homingLimit;
+		clampedOffset = desiredOffset > -homingLimit ? desiredOffset
+		                                                : -homingLimit;
 	}
 
 	f32 wrappedHead
-	    = callMsWrap(headYaw, desiredOffset - 180.0f, desiredOffset + 180.0f);
-	f32 delta = desiredOffset - wrappedHead;
+	    = callMsWrap(headYaw, clampedOffset - 180.0f, clampedOffset + 180.0f);
+	f32 delta = clampedOffset - wrappedHead;
+	f32 clampedDelta;
 	if (delta > 0.0f) {
-		if (delta > 1.0f)
-			delta = 1.0f;
+		clampedDelta
+		    = delta > sMaxRotationStep ? sMaxRotationStep : delta;
 	} else {
-		if (delta <= -1.0f)
-			delta = -1.0f;
+		clampedDelta
+		    = delta > sMinRotationStep ? delta : sMinRotationStep;
 	}
 
-	headYaw += delta;
+	headYaw += clampedDelta;
 	owner->unk184 = headYaw;
 
 	Mtx headMtx;
