@@ -1723,8 +1723,7 @@ void TBossPakkunMtxCalc::calcHeadDir(u16 joint_no)
 	if (joint_no != 0x12)
 		return;
 
-	TBossPakkun* owner = mOwner;
-	J3DModel* model    = owner->getModel();
+	J3DModel* model    = mOwner->getModel();
 	MtxPtr jointMtx    = model->mNodeMatrices[joint_no];
 
 	JGeometry::TVec3<f32> toMario = *gpMarioPos;
@@ -1733,10 +1732,10 @@ void TBossPakkunMtxCalc::calcHeadDir(u16 joint_no)
 	toMario.z -= jointMtx[2][3];
 
 	f32 matrixYaw = calcBossPakkunYaw(jointMtx[0][1], jointMtx[2][0]);
-	f32 headYaw   = owner->unk184;
+	f32 headYaw   = mOwner->unk184;
 
 	f32 targetYaw;
-	if (owner->mMActor->checkCurBckFromIndex(0x19)) {
+	if (mOwner->mMActor->checkCurBckFromIndex(0x19)) {
 		targetYaw = headYaw + calcBossPakkunYaw(toMario.x, toMario.z);
 		while (targetYaw >= 360.0f)
 			targetYaw -= 360.0f;
@@ -1749,7 +1748,7 @@ void TBossPakkunMtxCalc::calcHeadDir(u16 joint_no)
 	f32 wrappedMatrix
 	    = callMsWrap(matrixYaw, targetYaw - 180.0f, targetYaw + 180.0f);
 	f32 desiredOffset = targetYaw - wrappedMatrix;
-	f32 homingLimit = owner->getBossPakkunSaveParam()->mSLHeadHomingLimit.value;
+	f32 homingLimit = mOwner->getBossPakkunSaveParam()->mSLHeadHomingLimit.value;
 	f32 clampedOffset;
 	if (desiredOffset > 0.0f) {
 		clampedOffset
@@ -1772,7 +1771,7 @@ void TBossPakkunMtxCalc::calcHeadDir(u16 joint_no)
 	}
 
 	headYaw += clampedDelta;
-	owner->unk184 = headYaw;
+	mOwner->unk184 = headYaw;
 
 	Mtx headMtx;
 	f32 sin = JMASin(headYaw);
