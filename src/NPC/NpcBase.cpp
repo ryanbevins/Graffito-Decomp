@@ -782,18 +782,16 @@ f32 TBaseNPC::getAnmOffDist_()
 	f32  camDist = mPtrSaveNormal->mSLDanceAnmOffDist.value;
 	if ((mActionFlag & 0x204) || mActorType == 0x0400000D || state == 0xA
 	    || state == 0x17)
-		useOff = true;
+	useOff = true;
 	if (isNerveMaybeDontCalcAnim0()) {
-		f32 v = mNpcSaveIndividual->mWaitAnmOffDist0.value;
-		result = v;
+		result = mNpcSaveIndividual->mWaitAnmOffDist0.value;
 		if (useOff) {
-			result = max<f32>(camDist, v);
+			result = max<f32>(camDist, result);
 		}
 	} else if (isNerveMaybeDontCalcAnim1()) {
-		f32 v = mNpcSaveIndividual->mWaitAnmOffDist1.value;
-		result = v;
+		result = mNpcSaveIndividual->mWaitAnmOffDist1.value;
 		if (useOff) {
-			result = max<f32>(camDist, v);
+			result = max<f32>(camDist, result);
 		}
 	}
 	return result;
