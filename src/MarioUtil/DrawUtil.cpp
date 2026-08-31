@@ -882,7 +882,7 @@ void SMS_UnifyMaterial(J3DModel* param_1)
 		mat->unk18       = thing;
 		param_1->getMatPacket(i)->unk3C = thing;
 
-		u16 texNo = unifier->getTevBlock()->getTexNo(0);
+		u16 texNo = unifier->getTexNo(0);
 		mat->getTevBlock()->setTexNo(0, texNo);
 	}
 }
