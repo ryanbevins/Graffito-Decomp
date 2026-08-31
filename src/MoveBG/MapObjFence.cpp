@@ -167,8 +167,9 @@ void TRailFence::goOnRail()
 	    = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 	if (distSquared < 50.0f) {
 		TGraphTracer* tracer = unk13C;
-		const TRailNode* railNode
-		    = tracer->unk0->getGraphNode(tracer->mCurrIdx).getRailNode();
+		TGraphNode* nodes         = tracer->unk0->unk0;
+		TGraphNode* node          = nodes + tracer->mCurrIdx;
+		const TRailNode* railNode = node->unk0;
 		if (railNode->mConnectionNum == 0 && (railNode->mFlags & 0x8)) {
 			if (gpMSound->gateCheck(0x3863))
 				MSoundSESystem::MSoundSE::startSoundActor(
