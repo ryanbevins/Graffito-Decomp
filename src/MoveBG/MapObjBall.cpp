@@ -372,7 +372,12 @@ void TResetFruit::checkGroundCollision(JGeometry::TVec3<f32>* pos)
 		mGroundHeight = gpMap->checkGround(pos->x, pos->y + mHeadHeight,
 		                                   pos->z, &mGroundPlane);
 		u16 type = mGroundPlane->mBGType;
-		if ((type == 0x801 || type == 0x203) ? true : false) {
+		bool needsExactY;
+		if (type == 0x801 || type == 0x203)
+			needsExactY = true;
+		else
+			needsExactY = false;
+		if (needsExactY) {
 			mGroundHeight = gpMap->checkGroundExactY(
 			    pos->x, mGroundHeight - 200.0f, pos->z, &mGroundPlane);
 		}
