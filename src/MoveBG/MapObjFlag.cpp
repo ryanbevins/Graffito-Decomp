@@ -184,6 +184,7 @@ void TMapObjFlagManager::initDraw()
 TMapObjFlag::TMapObjFlag(const char* name)
     : THitActor(name)
 {
+	mStepSize     = 1;
 	mScaledHeight = 0.0f;
 	mScaledWidth  = 0.0f;
 	mNumRows      = 0;
@@ -192,7 +193,6 @@ TMapObjFlag::TMapObjFlag(const char* name)
 	mFlagHeight   = 125.0f;
 	mFlagWidth    = 130.0f;
 	mSegmentSize  = 20.0f;
-	mStepSize     = 1;
 	mPhase        = 360.0f * ((f32)rand() * 0.000030517578f);
 
 	mLocalMtx[0][3] = mLocalMtx[1][3] = mLocalMtx[2][3] = 0.0f;
