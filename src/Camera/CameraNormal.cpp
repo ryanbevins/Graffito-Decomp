@@ -197,7 +197,7 @@ void CPolarSubCamera::ctrlNormalOrTowerCamera_()
 						    mCurrentTarget.unk28);
 					}
 
-					int uVar1 = pad->mCompSPos[2];
+					int uVar1 = unk120->mCompSPos[2];
 					if (uVar1 & 0xff) {
 						f29 *= CLBLinearInbetween<f32>(
 						    *(f32*)(*(u8**)((u8*)this + 0x68) + 0x8C),
