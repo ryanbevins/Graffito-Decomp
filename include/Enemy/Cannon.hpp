@@ -54,7 +54,7 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor*, u32);
 
-	BOOL checkHit();
+	void checkHit();
 
 public:
 	/* 0x68 */ TCannon* unk68;

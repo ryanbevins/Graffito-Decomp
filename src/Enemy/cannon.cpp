@@ -1307,7 +1307,7 @@ BOOL TChorobei::receiveMessage(THitActor*, u32)
 	return FALSE;
 }
 
-BOOL TChorobei::checkHit()
+void TChorobei::checkHit()
 {
 	for (int i = 0; i < mColCount; ++i) {
 		THitActor* actor = mCollisions[i];
@@ -1326,15 +1326,12 @@ BOOL TChorobei::checkHit()
 		}
 
 		if (actor->isActorType(0x1000001f)) {
-			TKiller* killer = (TKiller*)actor;
-			if (killer->isRollFly()) {
+			if (((TKiller*)actor)->isRollFly()) {
 				unk68->mSpine->pushNerve(&TNerveCannonDamage::theNerve());
-				killer->kill();
+				((TKiller*)actor)->kill();
 			}
 		}
 	}
-
-	return FALSE;
 }
 
 void TChorobei::perform(u32 flags, JDrama::TGraphics* graphics)
