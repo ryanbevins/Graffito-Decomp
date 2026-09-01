@@ -969,8 +969,8 @@ void THamuKuri::makeCapFly(TMapObjBase* param_1)
 		getManager()->unk70 = capHolder;
 
 		// TODO: this is an inline
-		int uVar10 = -1;
 		int uVar11 = unk124->getCurrentIndex();
+		int uVar10 = -1;
 
 		TMsRange<s32> countRange(2, 3);
 		int count = countRange.rand();
