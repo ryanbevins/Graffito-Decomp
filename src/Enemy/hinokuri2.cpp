@@ -350,10 +350,11 @@ void THino2Mask::perform(u32 param_1, JDrama::TGraphics* param_2)
 			afStack_58[1][3] = unk28.y;
 			afStack_58[2][3] = unk28.z;
 			MsMtxSetRotRPH(afStack_88, 0.0f, 360.0f - unk8, 0.0f);
+			MtxPtr transformMtx;
 			MtxPtr baseMtx = getUnk4C();
 			MTXConcat(baseMtx, afStack_58, afStack_58);
 			MTXConcat(afStack_58, afStack_88, afStack_58);
-			MtxPtr transformMtx = afStack_58;
+			transformMtx = afStack_58;
 			unk14->getModel()->setBaseTRMtx(transformMtx);
 
 			PSMTXIdentity(transformMtx);
