@@ -65,7 +65,9 @@ namespace BankMgr {
 		if (tableAddr == 0xFFFF)
 			return;
 
-		sVir2PhyTable[tableAddr] = size;
+		u16* entry = sVir2PhyTable;
+		entry += tableAddr;
+		*entry = size;
 	}
 
 	bool assignWaveBank(int bankIndex, int waveBankIndex)
