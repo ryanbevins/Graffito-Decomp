@@ -2078,7 +2078,7 @@ void TCardLoad::setSelected(u8 param_1)
 
 void TCardLoad::changeScene()
 {
-	u32 prevUnk1C = unk1C;
+	TEProgress prevUnk1C = unk1C;
 	int prevUnk0  = unk10;
 	switch (prevUnk1C) {
 	case PROGRESS_UNK30:
