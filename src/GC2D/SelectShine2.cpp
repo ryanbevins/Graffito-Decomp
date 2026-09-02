@@ -32,6 +32,12 @@ static inline JGeometry::TVec3<f32> makeShinePos(f32 x, f32 y, f32 z)
 	return JGeometry::TVec3<f32>(x, y, z);
 }
 
+static inline f32 calcBezier(f32 t, f32 p0, f32 p1, f32 p2)
+{
+	f32 omt = 1.0f - t;
+	return p0 * (omt * omt) + p1 * (2.0f * omt * t) + p2 * (t * t);
+}
+
 TSelectShineManager::TSelectShineManager(const char* name)
     : JDrama::TViewObj(name)
     , mDrawBufOpa(nullptr)
@@ -401,32 +407,24 @@ void TSelectShine::move()
 	f32 t = unk28;
 	f32 splineY;
 	if (t < 1.0f) {
-		f32 omt  = 1.0f - t;
 		f32 amp  = unk2C;
 		f32 amp9 = amp * 0.9f;
-		splineY  = 0.0f * (omt * omt) + amp9 * (2.0f * omt * t)
-		         + amp * (t * t);
+		splineY  = calcBezier(t, 0.0f, amp9, amp);
 	} else if (t < 2.0f) {
 		f32 u    = t - 1.0f;
-		f32 omu  = 1.0f - u;
 		f32 amp  = unk2C;
 		f32 amp9 = amp * 0.9f;
-		splineY  = amp * (omu * omu) + amp9 * (2.0f * omu * u)
-		         + 0.0f * (u * u);
+		splineY  = calcBezier(u, amp, amp9, 0.0f);
 	} else if (t < 3.0f) {
 		f32 u    = t - 2.0f;
-		f32 omu  = 1.0f - u;
 		f32 amp  = -unk2C;
 		f32 amp9 = amp * 0.9f;
-		splineY  = 0.0f * (omu * omu) + amp9 * (2.0f * omu * u)
-		         + amp * (u * u);
+		splineY  = calcBezier(u, 0.0f, amp9, amp);
 	} else if (t < 4.0f) {
 		f32 u    = t - 3.0f;
-		f32 omu  = 1.0f - u;
 		f32 amp  = -unk2C;
 		f32 amp9 = amp * 0.9f;
-		splineY  = amp * (omu * omu) + amp9 * (2.0f * omu * u)
-		         + 0.0f * (u * u);
+		splineY  = calcBezier(u, amp, amp9, 0.0f);
 	} else {
 		splineY = unk18.y;
 	}
