@@ -2373,8 +2373,8 @@ void TMario::boxDrawPrepare(MtxPtr mtx)
 
 void TMario::addDirty()
 {
-
-	for (u16 i = 0; i < mBodyModelData->getMaterialNum(); ++i) {
+	u16 i;
+	for (i = 0; i < mBodyModelData->getMaterialNum(); ++i) {
 		J3DGXColor* konstColor = mBodyModelData->getMaterialNodePointer(i)
 		                             ->getTevBlock()
 		                             ->getTevKColor(0);
@@ -2386,7 +2386,7 @@ void TMario::addDirty()
 			for (int modelIdx = 0; modelIdx < 2; ++modelIdx) {
 				J3DModelData* mHandModelData
 				    = mHandModels[handIdx][modelIdx]->getModelData();
-				for (u16 i = 0; i < mHandModelData->getMaterialNum(); ++i) {
+				for (i = 0; i < mHandModelData->getMaterialNum(); ++i) {
 					J3DGXColor* konstColor
 					    = mHandModelData->getMaterialNodePointer(i)
 					          ->getTevBlock()
