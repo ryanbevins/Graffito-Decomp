@@ -97,6 +97,7 @@ TObjHitCheck::checkWaterWithActorsInList(const JGeometry::TVec3<f32>& pos,
 void TObjHitCheck::checkWater()
 {
 	f32 fVar2 = TModelWaterManager::mStaticHitActor.getEntryRadius();
+	const JGeometry::TVec3<f32>* pos;
 
 	const JGeometry::TVec3<f32>* particlePositions
 	    = gpModelWaterManager->getParticlePositions();
@@ -106,15 +107,16 @@ void TObjHitCheck::checkWater()
 		if (!gpModelWaterManager->checkFlagBottom4Bits(i, 0x1))
 			continue;
 
-		const JGeometry::TVec3<f32>& pos = particlePositions[i];
+		pos = &particlePositions[i];
 
 		u32 e;
-		u32 j = getTableIndex(pos, fVar2, &e);
+		u32 j = getTableIndex(*pos, fVar2, &e);
 
 		TObjCheckList& list = unk0[j];
 
 		if (j != e)
-			particleHitActors[i] = checkWaterWithActorsInList(pos, list.unk0);
+			particleHitActors[i]
+			    = checkWaterWithActorsInList(*pos, list.unk0);
 	}
 }
 #pragma dont_inline off
