@@ -43,10 +43,10 @@ void TBaseNPC::setHappyEffectMtxPtr_(const JUTNameTab* nameTab)
 	if (isMonte) {
 		jntName = sKoshiNull;
 	} else {
-		bool isMare = true;
+		isMonte = true;
 		if (!isNormalMareM() && !isNormalMareW())
-			isMare = false;
-		if (isMare) {
+			isMonte = false;
+		if (isMonte) {
 			jntName = sKoshi;
 		} else if (mActorType == 0x04000016) {
 			jntName = sJntBody;
