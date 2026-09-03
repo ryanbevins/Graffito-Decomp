@@ -420,6 +420,7 @@ BOOL TTinKoopa::hasMapCollision() const { return true; }
 
 void TTinKoopa::launchKiller(int direction)
 {
+	u32 jointIndex;
 	TCoasterKiller* killer = (TCoasterKiller*)unk1F0->getDeadEnemy();
 	if (!killer)
 		return;
@@ -432,7 +433,7 @@ void TTinKoopa::launchKiller(int direction)
 	else
 		jointNo = 14 - unk174;
 
-	u32 jointIndex = TTinKoopa_jointIndexTable[jointNo];
+	jointIndex = TTinKoopa_jointIndexTable[jointNo];
 	getJointTransByIndex(jointIndex, &killer->mPosition);
 	killer->mPathDir = direction;
 
