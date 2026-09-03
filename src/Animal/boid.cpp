@@ -194,8 +194,9 @@ void TBoidLeader::perform(u32 flags, JDrama::TGraphics*)
 			mGraphGoal.add(node);
 		}
 
-		calcBoids();
 	}
+
+	calcBoids();
 }
 
 JGeometry::TVec3<f32>
