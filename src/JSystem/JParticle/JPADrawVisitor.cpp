@@ -126,6 +126,7 @@ void JPADrawExecGenIdtMtx::exec(const JPADrawContext*)
 
 void JPADrawExecSetTexMtx::exec(const JPADrawContext* dc)
 {
+	Mtx mtx;
 	s32 tick = dc->mBaseEmitter->unk10.getFrame();
 
 	f32 tilingX = 0.5f * dc->mBaseShape->getTilingX();
@@ -142,7 +143,6 @@ void JPADrawExecSetTexMtx::exec(const JPADrawContext* dc)
 	f32 sin   = JMASSin(angle);
 	f32 cos   = JMASCos(angle);
 
-	Mtx mtx;
 	mtx[0][0] = scaleX * cos;
 	mtx[0][1] = -scaleX * sin;
 	mtx[0][2] = 0.0f;
