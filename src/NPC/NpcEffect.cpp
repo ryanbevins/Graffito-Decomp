@@ -86,11 +86,11 @@ void TBaseNPC::setNoteEffectMtxPtr_(const JUTNameTab* nameTab)
 void TBaseNPC::setPollutionEffectMtxPtr_(const JUTNameTab* nameTab)
 {
 	const char* sKoshiNull = "koshi_null";
+	bool isMonte           = true;
+	const char* sKoshi     = "koshi";
 	const char* sJntBody   = "jnt_body";
 	const char* sFootL     = "footL_jnt";
 	const char* sFootR     = "footR_jnt";
-	const char* sKoshi     = "koshi";
-	bool isMonte           = true;
 	if (!isNormalMonteM() && !isNormalMonteW())
 		isMonte = false;
 	const char* jntName;
