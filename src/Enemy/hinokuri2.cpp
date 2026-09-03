@@ -1129,6 +1129,7 @@ DEFINE_NERVE(TNerveHino2Fly, TLiveActor)
 
 DEFINE_NERVE(TNerveHino2JumpIn, TLiveActor)
 {
+	const JGeometry::TVec3<f32>* point;
 	THinokuri2* self = (THinokuri2*)spine->getBody();
 
 	if (spine->getTime() == 0)
@@ -1137,7 +1138,6 @@ DEFINE_NERVE(TNerveHino2JumpIn, TLiveActor)
 	if (self->getMActor()->curAnmEndsNext()) {
 		TPathNode& node = self->unk104;
 		THitActor* pathActor = node.unk0;
-		const JGeometry::TVec3<f32>* point;
 		if (pathActor)
 			point = &pathActor->mPosition;
 		else
