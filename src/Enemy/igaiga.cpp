@@ -348,8 +348,7 @@ void TRollEnemy::walkBehavior(int mode, f32 speed)
 	if (!unk1A8)
 		TWalkerEnemy::walkBehavior(mode, speed);
 
-	if (checkLiveFlag(LIVE_FLAG_AIRBORNE)
-	    && mPosition.y > mGroundHeight + 20.0f) {
+	if (isAirborne() && mPosition.y > mGroundHeight + 20.0f) {
 		f32 bounce = (mPosition.y - mGroundHeight) / mBoundVal;
 		TRollEnemySaveLoadParams* params = (TRollEnemySaveLoadParams*)unk1A4;
 		f32 wrapped
