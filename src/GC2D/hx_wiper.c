@@ -660,7 +660,6 @@ static void Hxs2_Circle(u8 color, f32 inner, f32 outer) {
 		f32 innerRoot;
 		f32 y0;
 		f32 y1;
-		f32 cx;
 		volatile f32 rootOut;
 
 		dy = (f32)(hx.imgHHalf - i);
@@ -677,17 +676,16 @@ static void Hxs2_Circle(u8 color, f32 inner, f32 outer) {
 
 		y0 = (f32)i;
 		y1 = (f32)(hx.imgH - i);
-		cx = (f32)hx.imgWHalf;
 
 		if (dy >= inner) {
 			GXBegin(0xA8, GX_VTXFMT0, 4);
-			GXPosition3f32(cx - outerRoot, y0, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf - outerRoot, y0, 1.0f);
 			GXColor1u32(col);
-			GXPosition3f32(cx + outerRoot, y0, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf + outerRoot, y0, 1.0f);
 			GXColor1u32(col);
-			GXPosition3f32(cx - outerRoot, y1, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf - outerRoot, y1, 1.0f);
 			GXColor1u32(col);
-			GXPosition3f32(cx + outerRoot, y1, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf + outerRoot, y1, 1.0f);
 			GXColor1u32(col);
 		} else {
 			innerRoot = inner2 - dy2;
@@ -701,21 +699,21 @@ static void Hxs2_Circle(u8 color, f32 inner, f32 outer) {
 			}
 
 			GXBegin(0xA8, GX_VTXFMT0, 8);
-			GXPosition3f32(cx - outerRoot, y0, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf - outerRoot, y0, 1.0f);
 			GXColor1u32(col);
-			GXPosition3f32(cx - innerRoot, y0, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf - innerRoot, y0, 1.0f);
 			GXColor1u32(col);
-			GXPosition3f32(cx + innerRoot, y0, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf + innerRoot, y0, 1.0f);
 			GXColor1u32(col);
-			GXPosition3f32(cx + outerRoot, y0, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf + outerRoot, y0, 1.0f);
 			GXColor1u32(col);
-			GXPosition3f32(cx + innerRoot, y1, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf + innerRoot, y1, 1.0f);
 			GXColor1u32(col);
-			GXPosition3f32(cx + outerRoot, y1, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf + outerRoot, y1, 1.0f);
 			GXColor1u32(col);
-			GXPosition3f32(cx - outerRoot, y1, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf - outerRoot, y1, 1.0f);
 			GXColor1u32(col);
-			GXPosition3f32(cx - innerRoot, y1, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf - innerRoot, y1, 1.0f);
 			GXColor1u32(col);
 		}
 		i++;
