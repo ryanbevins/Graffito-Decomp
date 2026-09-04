@@ -266,7 +266,7 @@ void JPABaseEmitter::calcEmitterGlobalParams()
 	if (local_90 == local_84) {
 		MTXIdentity(JPAEmitterInfoObj.unk12C);
 	} else {
-		JPAVecToRotaMtx(JPAEmitterInfoObj.unk12C, local_84, local_90);
+		JPAVecToRotaMtx(JPAEmitterInfoObj.unk12C, local_90, local_84);
 	}
 }
 
