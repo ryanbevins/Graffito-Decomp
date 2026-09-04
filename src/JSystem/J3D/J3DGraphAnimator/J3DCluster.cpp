@@ -79,7 +79,7 @@ void J3DDeformer::deform(J3DModel* model, u16 idx, float* weightList)
 		for (u16 i = 0; i < posNum; i++) {
 			for (u16 j = 0; j < keyNum; j++) {
 				u16 flag = (u16)key[j].mPosFlag[i];
-				f32* src = &vtxPosSrc[(flag & 0x1FFF) * 3];
+				f32* src = &vtxPosSrc[(flag & ~0xE000) * 3];
 				f32* dst = &vtxPosDst[cluster->mPosDstIdx[i] * 3];
 				f32 srcX = src[0];
 				f32 srcY = src[1];
@@ -107,7 +107,7 @@ void J3DDeformer::deform(J3DModel* model, u16 idx, float* weightList)
 
 				for (u16 j = 0; j < cluster->mKeyNum; j++) {
 					u16 flag = key[j].mNrmFlag[i];
-					f32* src = &vtxNrmSrc[(flag & 0x1FFF) * 3];
+					f32* src = &vtxNrmSrc[(flag & ~0xE000) * 3];
 
 					f32 srcX = src[0];
 					f32 srcY = src[1];
