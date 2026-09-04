@@ -75,7 +75,7 @@ bool CPolarSubCamera::execGroundCheck_(Vec p)
 	JGeometry::TVec3<f32>* track = getTrackPos(this);
 	f32 baseGap                  = *(f32*)((u8*)opt + 0xA4);
 	f32 interp                   = CLBLinearInbetween<f32>(
-        *(f32*)((u8*)opt + 0xCC), *(f32*)((u8*)opt + 0xB8), track->z);
+        *(f32*)((u8*)opt + 0xB8), *(f32*)((u8*)opt + 0xCC), track->z);
 	if (mMode == 0x2A) {
 		f32 a = 200.0f;
 		if (baseGap > a)
