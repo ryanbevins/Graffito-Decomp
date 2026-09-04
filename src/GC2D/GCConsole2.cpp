@@ -4103,9 +4103,17 @@ void TGCConsole2::drawWater(J2DOrthoGraph& graph)
 		GXSetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP1,
 		               GX_COLOR_NULL);
 
-		int top = unk29C->getPane()->mGlobalBounds.y1 + topDiff[layer - 1];
-		int bottom = top + unk2A0[layer]->mBounds.getHeight();
-		drawGaugeQuad(unk2BC[layer], top, bottom);
+		f32 top = unk29C->getPane()->mGlobalBounds.y1 + topDiff[layer - 1];
+		f32 bottom = top + unk2A0[layer]->mBounds.getHeight();
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition2f32((f32)unk2BC[layer].x1, top);
+		GXTexCoord2s8(0, 0);
+		GXPosition2f32((f32)unk2BC[layer].x2, top);
+		GXTexCoord2s8(1, 0);
+		GXPosition2f32((f32)unk2BC[layer].x2, bottom);
+		GXTexCoord2s8(1, 1);
+		GXPosition2f32((f32)unk2BC[layer].x1, bottom);
+		GXTexCoord2s8(0, 1);
 	}
 
 	graph.setup2D();
