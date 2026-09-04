@@ -1221,11 +1221,9 @@ void TEnemyMario::startGateDrawing()
 
 void TEnemyMario::emWaitingToInviteMario()
 {
-	Vec invitePos;
+	JGeometry::TVec3<f32> invitePos;
 	getOwnerGraphPoint(this, 7, &invitePos);
-	mPosition.x = invitePos.x;
-	mPosition.y = invitePos.y;
-	mPosition.z = invitePos.z;
+	mPosition = invitePos;
 
 	s16 diff     = emTargetYaw(this) - mFaceAngle.y;
 	mFaceAngle.y = emTargetYaw(this) - IConverge(diff, 0, 0x180, 0x180);
