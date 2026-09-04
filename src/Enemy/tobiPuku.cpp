@@ -163,11 +163,7 @@ BOOL TNerveTobiPukuReturnLaunch::execute(TSpineBase<TLiveActor>* spine) const
 	self->mPosition.x += toPad.x * self->mMarchSpeed - self->mLaunchVelocity.x;
 	self->mPosition.z += toPad.z * self->mMarchSpeed - self->mLaunchVelocity.z;
 
-	self->unk1EC += 1.0f;
-	if (self->unk1EC > 180.0f)
-		self->unk1EC = 180.0f;
-	else if (self->unk1EC < 0.0f)
-		self->unk1EC = 0.0f;
+	self->unk1EC = MsClamp(1.0f + self->unk1EC, 0.0f, 180.0f);
 
 	return FALSE;
 }
