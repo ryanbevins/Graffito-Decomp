@@ -322,7 +322,7 @@ void TNozzleBase::emit(int param_1)
 			refEmitFlag = (refEmitFlag | 0x80);
 		}
 
-		s32 emittedWater = gpModelWaterManager->emitRequest(*emitInfo);
+		s32 emittedWater = (u8)gpModelWaterManager->emitRequest(*emitInfo);
 
 		mFludd->updateUnk1C88(emittedWater);
 		if (emittedWater != 0) {
