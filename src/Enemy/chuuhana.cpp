@@ -632,8 +632,7 @@ void TChuuHana::calcRootMatrix()
 
 void TChuuHana::attackToMario()
 {
-	const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
-	if (nerve == &TNerveChuuHanaObject::theNerve()) {
+	if (mSpine->getCurrentNerve() == &TNerveChuuHanaObject::theNerve()) {
 		unk215 = 1;
 		return;
 	}
@@ -643,7 +642,7 @@ void TChuuHana::attackToMario()
 		return;
 	}
 
-	if (nerve == &TNerveChuuHanaAttack::theNerve()) {
+	if (mSpine->getCurrentNerve() == &TNerveChuuHanaAttack::theNerve()) {
 		if (!SMS_IsMarioTouchGround4cm())
 			return;
 
