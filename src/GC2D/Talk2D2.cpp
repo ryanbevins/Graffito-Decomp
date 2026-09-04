@@ -1412,10 +1412,8 @@ void TTalk2D2::makeBoxLine(s8 line, char* text)
 	f32 t     = 0.0f;
 
 	for (int i = 0; i < 30; ++i) {
-		J2DTextBox* textBox = unk9C[baseIndex + i];
-
 		if (text) {
-			char* dst = textBox->getStringPtr();
+			char* dst = unk9C[baseIndex + i]->getStringPtr();
 			u8 c      = text[textIndex];
 			dst[0]    = c;
 			if (c >= 0x80) {
@@ -1427,7 +1425,7 @@ void TTalk2D2::makeBoxLine(s8 line, char* text)
 			}
 		}
 
-		char* string = textBox->getStringPtr();
+		char* string = unk9C[baseIndex + i]->getStringPtr();
 		u8 c         = string[0];
 		if ((s8)c == 0)
 			return;
@@ -1464,10 +1462,10 @@ void TTalk2D2::makeBoxLine(s8 line, char* text)
 
 		int moveX = mvX > 0.0f ? mvX + 0.5f : mvX - 0.5f;
 		int moveY = mvY > 0.0f ? mvY + 0.5f : mvY - 0.5f;
-		textBox->move((s16)moveX, -0x25 - (s16)moveY);
-		textBox->setBasePosition(J2DBasePosition_4);
-		textBox->mRotation = angle * 180.0f / 3.1415927f;
-		linePane->mPaneTree.appendChild(&textBox->mPaneTree);
+		unk9C[baseIndex + i]->move((s16)moveX, -0x25 - (s16)moveY);
+		unk9C[baseIndex + i]->setBasePosition(J2DBasePosition_4);
+		unk9C[baseIndex + i]->mRotation = angle * 180.0f / 3.1415927f;
+		linePane->mPaneTree.appendChild(&unk9C[baseIndex + i]->mPaneTree);
 
 		if (t > 1.1f) {
 			if (unk228[lineIndex] > i)
