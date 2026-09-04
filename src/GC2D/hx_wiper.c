@@ -668,9 +668,9 @@ static void Hxs2_Circle(u8 color, f32 inner, f32 outer) {
 		outerRoot = outer2 - dy2;
 		if (outerRoot > 0.0f) {
 			f64 guess = __frsqrte(outerRoot);
-			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
-			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
-			guess = 0.5 * guess * (3.0 - outerRoot * guess * guess);
+			guess = 0.5 * guess * (3.0 - (guess * guess) * outerRoot);
+			guess = 0.5 * guess * (3.0 - (guess * guess) * outerRoot);
+			guess = 0.5 * guess * (3.0 - (guess * guess) * outerRoot);
 			rootOut = (f32)(outerRoot * guess);
 			outerRoot = rootOut;
 		}
@@ -693,9 +693,9 @@ static void Hxs2_Circle(u8 color, f32 inner, f32 outer) {
 			innerRoot = inner2 - dy2;
 			if (innerRoot > 0.0f) {
 				f64 guess = __frsqrte(innerRoot);
-				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
-				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
-				guess = 0.5 * guess * (3.0 - innerRoot * guess * guess);
+				guess = 0.5 * guess * (3.0 - (guess * guess) * innerRoot);
+				guess = 0.5 * guess * (3.0 - (guess * guess) * innerRoot);
+				guess = 0.5 * guess * (3.0 - (guess * guess) * innerRoot);
 				rootOut = (f32)(innerRoot * guess);
 				innerRoot = rootOut;
 			}
