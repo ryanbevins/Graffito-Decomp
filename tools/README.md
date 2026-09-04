@@ -40,3 +40,10 @@ python tools/agent/find_structural_near_match.py --min-pct 95 --prefix mario/Mov
 
 Use it only for target selection; read the complete function diff before
 editing.
+
+`report_delta.py BASELINE CURRENT` compares two canonical non-matching objdiff
+JSON reports, showing overall and per-unit fuzzy, exact-code, function, and
+data changes. It exits nonzero if overall exact code or functions decrease,
+and rejects reports with different code/function populations or unit sets.
+Generate fresh reports after the full non-matching build; this helper does
+not build or replace the push gate.
