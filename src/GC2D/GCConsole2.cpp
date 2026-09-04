@@ -2575,7 +2575,7 @@ bool TGCConsole2::startAppearBalloon(u32 messageID, bool param_2)
 	unk3F8 = param_2;
 	unk3E4 = (s32)(strlen((const char*)messageText) + unk3E8 * unk3EC);
 
-	if (messageID - 0x000e0000 <= 0x2f)
+	if (unk3E0 == 0x000e002f)
 		unk3E4 = 0x96;
 
 	if (unk3E4 <= 0)
