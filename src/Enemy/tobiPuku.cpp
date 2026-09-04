@@ -158,10 +158,11 @@ BOOL TNerveTobiPukuReturnLaunch::execute(TSpineBase<TLiveActor>* spine) const
 	toPad.y = 0.0f;
 	MsVECNormalize((Vec*)&toPad, (Vec*)&toPad);
 
+	f32 marchSpeed = self->mMarchSpeed;
 	self->mLaunchVelocity.x *= 0.99f;
 	self->mLaunchVelocity.z *= 0.99f;
-	self->mPosition.x += toPad.x * self->mMarchSpeed - self->mLaunchVelocity.x;
-	self->mPosition.z += toPad.z * self->mMarchSpeed - self->mLaunchVelocity.z;
+	self->mPosition.x += toPad.x * marchSpeed - self->mLaunchVelocity.x;
+	self->mPosition.z += toPad.z * marchSpeed - self->mLaunchVelocity.z;
 
 	self->unk1EC = MsClamp(1.0f + self->unk1EC, 0.0f, 180.0f);
 
