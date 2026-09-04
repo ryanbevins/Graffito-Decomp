@@ -270,7 +270,7 @@ void JAIBasic::checkInitDataOnMemory()
 				data->unk104.unk28 = d[i + 5];
 				data->unk104.unk78
 				    = (u8*)transInitDataFile(buffer1, data->unk104.unk28);
-				data->unk1B0 = 0;
+				data->unk1B0 = 1;
 
 				i += 6;
 			}
