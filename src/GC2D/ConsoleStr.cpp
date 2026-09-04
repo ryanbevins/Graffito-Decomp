@@ -463,14 +463,13 @@ bool TConsoleStr::processGo(float param_1)
 		int parity = frame % 2;
 
 		for (int i = 0; i < 3; ++i) {
-			J2DPane* pane = unk28[i]->getPane();
-			s32 alpha     = pane->getAlpha() - 4;
+			s32 alpha     = unk28[i]->getPane()->getAlpha() - 4;
 			if (alpha < 0)
 				alpha = 0;
 
-			JUTRect b = pane->getGlobalBounds();
-			pane->setAlpha(alpha);
-			pane->resize(b.getWidth() + 2, b.getHeight() + 2);
+			JUTRect b = unk28[i]->getPane()->getGlobalBounds();
+			unk28[i]->getPane()->setAlpha(alpha);
+			unk28[i]->getPane()->resize(b.getWidth() + 2, b.getHeight() + 2);
 
 			JPABaseEmitter* emitter = (JPABaseEmitter*)(&unk2AC)[i];
 			emitter->unk160.set(b.x1 + b.getWidth() * 0.5f,
