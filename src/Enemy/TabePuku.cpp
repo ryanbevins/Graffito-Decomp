@@ -594,7 +594,6 @@ void TTPHitActor::updateTerrainCollsion()
 	JGeometry::TVec3<f32> up;
 	JGeometry::TQuat4<f32> quat(mOwner->mQuat);
 	quat.getYDir(up);
-	up.x = -up.x;
 
 	mCheckHeight = mAttackHeight;
 	mCheckRadius = mAttackRadius;
