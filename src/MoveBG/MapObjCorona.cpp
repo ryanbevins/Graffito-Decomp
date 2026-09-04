@@ -1056,57 +1056,59 @@ bool TBathtub::allowsTumble() const
 {
 	JGeometry::TVec3<f32> marioPos = *gpMarioPos;
 	f32 nearGripAngle;
-	if (!getNearGrip(marioPos, 18.0f, &nearGripAngle))
-		return false;
+	if (getNearGrip(marioPos, 18.0f, &nearGripAngle)) {
+		f32 diffX = marioPos.x - unk170.x;
+		f32 diffY = marioPos.y - unk170.y;
+		f32 diffZ = marioPos.z - unk170.z;
 
-	f32 diffX = marioPos.x - unk170.x;
-	f32 diffY = marioPos.y - unk170.y;
-	f32 diffZ = marioPos.z - unk170.z;
+		f32 localX = unk188[0] * diffX + unk188[1] * diffY
+		             + unk188[2] * diffZ;
+		f32 localY = unk188[3] * diffX + unk188[4] * diffY
+		             + unk188[5] * diffZ;
+		f32 localZ = unk188[6] * diffX + unk188[7] * diffY
+		             + unk188[8] * diffZ;
 
-	f32 localX = unk188[0] * diffX + unk188[1] * diffY
-	             + unk188[2] * diffZ;
-	f32 localY = unk188[3] * diffX + unk188[4] * diffY
-	             + unk188[5] * diffZ;
-	f32 localZ = unk188[6] * diffX + unk188[7] * diffY
-	             + unk188[8] * diffZ;
+		JGeometry::TVec3<f32> local;
+		local.set(localX, localY, localZ);
+		JGeometry::TVec3<f32> horizontal(local);
+		horizontal.y = 0.0f;
 
-	JGeometry::TVec3<f32> local;
-	local.set(localX, localY, localZ);
-	JGeometry::TVec3<f32> horizontal(local);
-	horizontal.y = 0.0f;
+		f32 dist = horizontal.length();
+		if (dist < 4200.0f)
+			return false;
 
-	f32 dist = horizontal.length();
-	if (dist < 4200.0f)
-		return false;
+		if (4700.0f < dist) {
+			if (unk188[4] > 0.99f) {
+				TBathtubKillerManager* manager
+				    = JDrama::TNameRefGen::search<TBathtubKillerManager>(
+				        "バスタブキラーマネージャー");
 
-	if (!(4700.0f < dist))
-		return true;
+				u32 status = SMS_GetMarioStatus();
+				if (status == 0x8008A9)
+					return false;
+				if (status == 0x88B)
+					return false;
+				if (status == 0x88D)
+					return false;
 
-	if (!(unk188[4] > 0.99f))
-		return false;
+				TWaterGun* waterGun
+				    = *(TWaterGun**)((u8*)gpMarioOriginal + 0x3E4);
+				if (waterGun != nullptr) {
+					TNozzleBase* nozzle = waterGun->getCurrentNozzle();
+					if (nozzle != nullptr
+					    && nozzle->getNozzleKind() == 1) {
+						if (*(f32*)((u8*)nozzle + 0x388) > 0.0f)
+							return false;
+					}
+				}
 
-	TBathtubKillerManager* manager
-	    = JDrama::TNameRefGen::search<TBathtubKillerManager>(
-	        "バスタブキラーマネージャー");
-
-	u32 status = SMS_GetMarioStatus();
-	if (status == 0x8008A9)
-		return false;
-	if (status == 0x88B)
-		return false;
-	if (status == 0x88D)
-		return false;
-
-	TWaterGun* waterGun = *(TWaterGun**)((u8*)gpMarioOriginal + 0x3E4);
-	if (waterGun != nullptr) {
-		TNozzleBase* nozzle = waterGun->getCurrentNozzle();
-		if (nozzle != nullptr && nozzle->getNozzleKind() == 1) {
-			if (*(f32*)((u8*)nozzle + 0x388) > 0.0f)
-				return false;
+				return manager->countActiveKillers() == 0;
+			}
+			return false;
 		}
+		return true;
 	}
-
-	return manager->countActiveKillers() == 0;
+	return false;
 }
 
 void TBathtub::calcRootMatrix()
