@@ -634,7 +634,7 @@ bool TConsoleStr::processMiss(int param_1)
 			}
 		} else {
 			if (param_1 < i * 10 + 60) {
-				unk268[i]->getPane()->mRotation = (i - param_1) * 6;
+				unk268[i]->getPane()->mRotation = (i * 10 - param_1) * 6;
 			}
 
 			result = false;
