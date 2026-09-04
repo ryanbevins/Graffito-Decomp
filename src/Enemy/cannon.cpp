@@ -790,10 +790,8 @@ void TCannon::bombShoot()
 	if (unk1A4 == nullptr)
 		return;
 
-	JGeometry::TVec3<f32> velocity;
-	velocity.x = gpMarioPos->x - mPosition.x;
-	velocity.y = 0.0f;
-	velocity.z = gpMarioPos->z - mPosition.z;
+	JGeometry::TVec3<f32> velocity(gpMarioPos->x - mPosition.x, 0.0f,
+	                             gpMarioPos->z - mPosition.z);
 	if (velocity.x == 0.0f && velocity.z == 0.0f)
 		velocity.x = 1.0f;
 	MsVECNormalize(&velocity, &velocity);
