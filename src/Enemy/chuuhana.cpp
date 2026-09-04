@@ -632,41 +632,40 @@ void TChuuHana::calcRootMatrix()
 
 void TChuuHana::attackToMario()
 {
-	if (mSpine->getCurrentNerve() == &TNerveChuuHanaObject::theNerve()) {
-		unk215 = 1;
-		return;
-	}
-
-	if (mDamageSw != 0) {
-		SMS_SendMessageToMario(this, 0xe);
-		return;
-	}
-
-	if (mSpine->getCurrentNerve() == &TNerveChuuHanaAttack::theNerve()) {
-		if (!SMS_IsMarioTouchGround4cm())
+	if (mSpine->getCurrentNerve() != &TNerveChuuHanaObject::theNerve()) {
+		if (mDamageSw != 0) {
+			SMS_SendMessageToMario(this, 0xe);
 			return;
+		}
 
-		SMS_SendMessageToMario(this, 7);
+		if (mSpine->getCurrentNerve() == &TNerveChuuHanaAttack::theNerve()) {
+			if (!SMS_IsMarioTouchGround4cm())
+				return;
 
-		JGeometry::TVec3<f32> diff = mPosition;
-		diff.sub(*gpMarioPos);
-		f32 yaw = MsGetRotFromZaxisY(diff);
+			SMS_SendMessageToMario(this, 7);
 
-		Mtx mtx;
-		MsMtxSetRotRPH(mtx, 0.0f, yaw, 0.0f);
+			JGeometry::TVec3<f32> diff = mPosition;
+			diff.sub(*gpMarioPos);
+			f32 yaw = MsGetRotFromZaxisY(diff);
 
-		JGeometry::TVec3<f32> dir;
-		dir.x = 0.0f;
-		dir.y = 1.0f;
-		dir.z = -1.0f;
-		PSMTXMultVec(mtx, (Vec*)&dir, (Vec*)&dir);
+			Mtx mtx;
+			MsMtxSetRotRPH(mtx, 0.0f, yaw, 0.0f);
 
-		SMS_ThrowMario(dir, getChuuHanaParams()->mSLTacklePow.get());
-		*unk21C = 0;
-		return;
+			JGeometry::TVec3<f32> dir;
+			dir.x = 0.0f;
+			dir.y = 1.0f;
+			dir.z = -1.0f;
+			PSMTXMultVec(mtx, (Vec*)&dir, (Vec*)&dir);
+
+			SMS_ThrowMario(dir, getChuuHanaParams()->mSLTacklePow.get());
+			*unk21C = 0;
+			return;
+		}
+
+		SMS_SendMessageToMario(this, 0xe);
+	} else {
+		unk215 = 1;
 	}
-
-	SMS_SendMessageToMario(this, 0xe);
 }
 
 BOOL TChuuHana::receiveMessage(THitActor* sender, u32 message)
