@@ -891,8 +891,8 @@ void TGuide::resetObjects()
 		if (stage != 0 && stage != 1) {
 			for (int i = 0; i < 8; i++) {
 				s16 sid = getShineID(stage, i, false);
-				u8 got  = (sid == -1)
-				             ? 0
+				bool got  = (sid == -1)
+				             ? false
 				             : TFlagManager::getInstance()->getShineFlag((u8)sid);
 				if (got)
 					shineCount++;
@@ -905,15 +905,15 @@ void TGuide::resetObjects()
 		int redCoin = 0;
 		if (stage != 0 && stage != 1) {
 			s16 sid1 = getShineID(stage, 1, true);
-			u8 got1  = (sid1 == -1)
-			              ? (u8)redCoin
+			bool got1  = (sid1 == -1)
+			              ? false
 			              : TFlagManager::getInstance()->getShineFlag((u8)sid1);
 			if (got1)
 				redCoin = 1;
 
 			s16 sid2 = getShineID(stage, 2, true);
-			u8 got2  = (sid2 == -1)
-			              ? 0
+			bool got2  = (sid2 == -1)
+			              ? false
 			              : TFlagManager::getInstance()->getShineFlag((u8)sid2);
 			if (got2)
 				redCoin++;
@@ -929,8 +929,8 @@ void TGuide::resetObjects()
 		*(s16*)(stageData + 0x18) = (s16)deaths;
 
 		s16 bossID  = getShineID(stage, 0, true);
-		u8 bossFlag = (bossID == -1)
-		                 ? 0
+		bool bossFlag = (bossID == -1)
+		                 ? false
 		                 : TFlagManager::getInstance()->getShineFlag((u8)bossID);
 		stageData[0x1A] = bossFlag;
 		if (stageData[0x1A] != 0)
