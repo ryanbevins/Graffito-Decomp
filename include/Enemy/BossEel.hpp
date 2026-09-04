@@ -294,7 +294,7 @@ public:
 	/* 0x84 */ s32 unk84;
 	/* 0x88 */ Mtx unk88;
 	/* 0xB8 */ GXColor unkB8;
-	/* 0xBC */ u8 unkBC;
+	/* 0xBC */ bool unkBC;
 	/* 0xBD */ u8 unkBD[0x3];
 };
 
