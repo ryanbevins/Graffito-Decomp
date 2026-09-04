@@ -1082,7 +1082,7 @@ bool TBathtub::allowsTumble() const
 	if (!(4700.0f < dist))
 		return true;
 
-	if (unk188[4] <= 0.99f)
+	if (!(unk188[4] > 0.99f))
 		return false;
 
 	TBathtubKillerManager* manager
