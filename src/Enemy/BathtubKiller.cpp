@@ -643,7 +643,8 @@ BOOL TBathtubKiller::receiveMessage(THitActor* sender, u32 msg)
 		const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
 		bool isBroken
 		    = nerve == &TNerveBathtubKillerExplosion::theNerve()
-		      || nerve == &TNerveBathtubKillerBreak::theNerve();
+		      || mSpine->getCurrentNerve()
+		             == &TNerveBathtubKillerBreak::theNerve();
 		if (!isBroken)
 			mSpine->pushNerve(&TNerveBathtubKillerBreak::theNerve());
 		return TRUE;
@@ -651,7 +652,8 @@ BOOL TBathtubKiller::receiveMessage(THitActor* sender, u32 msg)
 		const TNerveBase<TLiveActor>* nerve = mSpine->getCurrentNerve();
 		bool isBroken
 		    = nerve == &TNerveBathtubKillerExplosion::theNerve()
-		      || nerve == &TNerveBathtubKillerBreak::theNerve();
+		      || mSpine->getCurrentNerve()
+		             == &TNerveBathtubKillerBreak::theNerve();
 		if (!isBroken)
 			mSpine->pushNerve(&TNerveBathtubKillerExplosion::theNerve());
 		return TRUE;
