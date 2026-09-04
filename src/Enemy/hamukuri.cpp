@@ -1224,9 +1224,10 @@ bool THamuKuri::isCollidMove(THitActor* param_1)
 	    && actorType >= 0x40000390 && actorType <= 0x40000394) {
 		TLiveActor* enemy         = (TLiveActor*)param_1;
 		JGeometry::TVec3<f32> vel = enemy->mVelocity;
-		if (abs(vel.x) > 2.0f && abs(vel.y) > 2.0f && abs(vel.z) > 2.0f) {
+		if (abs(vel.y) > 2.0f
+		    && (abs(vel.x) > 2.0f || abs(vel.z) > 2.0f)) {
 			if (mSpine->getCurrentNerve() != &TNerveHamuKuriJitabata::theNerve()
-			    && isAirborne()) {
+			    && !isAirborne()) {
 				mSpine->pushNerve(&TNerveHamuKuriJitabata::theNerve());
 			}
 		}
