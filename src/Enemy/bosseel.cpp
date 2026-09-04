@@ -1623,7 +1623,8 @@ BOOL TBossEelTooth::receiveMessage(THitActor* sender, u32 message)
 	unk68->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
 	unk6C->unk1FC = TRUE;
 
-	unkB8.a = (unk70 * 255) / unk6C->unk1E8->mSLToothMaxHitPoint.value;
+	unkB8.a = (f32)(unk70 * 255)
+	          / (f32)unk6C->unk1E8->mSLToothMaxHitPoint.value;
 
 	if (unk74 == 1 && unk70 % 20 == 1)
 		unk6C->forceShedTears(unkBC);
