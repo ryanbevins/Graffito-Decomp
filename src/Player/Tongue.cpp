@@ -353,7 +353,7 @@ THitActor* TYoshiTongue::findTarget(bool flagB1, bool flagB2)
 		JGeometry::TVec3<f32> diff = targetMid - mTipPos;
 
 		f32 lsq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-		if (lsq > 0.0000038146973f) {
+		if (!(lsq <= 0.0000038146973f)) {
 			f32 dist = JGeometry::TUtil<f32>::sqrt(lsq);
 
 			if (lsq <= 0.0000038146973f) {
