@@ -155,9 +155,16 @@ void JAISystemInterface::outerInit(JAISeqUpdateData* param_1, void* param_2,
 	param_1->unk4C[param_3].unk2C.addPortCmdOnce();
 }
 
-void JAISystemInterface::setPortParameter(JASystem::Kernel::TPortArgs*,
-                                          JASystem::TTrack*, u32, u32)
+void JAISystemInterface::setPortParameter(JASystem::Kernel::TPortArgs* args,
+                                          JASystem::TTrack* track,
+                                          u32 value_index, u32 param_index)
 {
+	u32 flag = 1 << value_index;
+	if (args->mFlags & flag) {
+		track->getOuterParam()->setParam(
+		    1 << param_index, ((f32*)&args->mTrackVolume)[value_index]);
+		args->mFlags ^= flag;
+	}
 }
 
 void JAISystemInterface::setSePortParameter(
@@ -167,34 +174,12 @@ void JAISystemInterface::setSePortParameter(
 	if (!track)
 		return;
 
-	// TODO: some weird stuff is happening here and with setSeqPortargsF32/U32,
-	// they seem to have a union somewhere making the params accessible by index
-	// and these 6 ifs seem to be setPortParameter called w/ different args and
-	// accessing the union
-	if ((param_1->mFlags & 1) != 0) {
-		track->getOuterParam()->setParam(0x1, param_1->mTrackVolume);
-		param_1->mFlags ^= 1;
-	}
-	if ((param_1->mFlags & 2) != 0) {
-		track->getOuterParam()->setParam(0x2, param_1->mTrackPitch);
-		param_1->mFlags ^= 2;
-	}
-	if ((param_1->mFlags & 4) != 0) {
-		track->getOuterParam()->setParam(0x8, param_1->mTrackPan);
-		param_1->mFlags ^= 4;
-	}
-	if ((param_1->mFlags & 8) != 0) {
-		track->getOuterParam()->setParam(0x4, param_1->mTrackFxmix);
-		param_1->mFlags ^= 8;
-	}
-	if ((param_1->mFlags & 0x80) != 0) {
-		track->getOuterParam()->setParam(0x40, param_1->mTrackTempo);
-		param_1->mFlags ^= 0x80;
-	}
-	if ((param_1->mFlags & 0x10) != 0) {
-		track->getOuterParam()->setParam(0x10, param_1->mTrackDolby);
-		param_1->mFlags ^= 0x10;
-	}
+	setPortParameter(param_1, track, 0, 0);
+	setPortParameter(param_1, track, 1, 1);
+	setPortParameter(param_1, track, 2, 3);
+	setPortParameter(param_1, track, 3, 2);
+	setPortParameter(param_1, track, 7, 6);
+	setPortParameter(param_1, track, 4, 4);
 	if ((param_1->mFlags & 0x40) != 0 && param_1->unk20 != 0) {
 		track->setInterrupt(5);
 	}
