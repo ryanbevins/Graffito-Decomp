@@ -502,20 +502,12 @@ void TTinKoopa::reset()
 		params       = (TTinKoopaParams*)getSaveParam();
 		f32 height   = params->mSLDamageHeight0.get();
 		params       = (TTinKoopaParams*)getSaveParam();
-		mAttackRadius = 0.0f;
-		mAttackHeight = 0.0f;
-		mDamageRadius = params->mSLDamageRadius.get();
-		mDamageHeight = height;
-		calcEntryRadius();
+		setHitParams(0.0f, 0.0f, params->mSLDamageRadius.get(), height);
 	} else if (unk150 == 1) {
 		params       = (TTinKoopaParams*)getSaveParam();
 		f32 height   = params->mSLDamageHeight1.get();
 		params       = (TTinKoopaParams*)getSaveParam();
-		mAttackRadius = 0.0f;
-		mAttackHeight = 0.0f;
-		mDamageRadius = params->mSLDamageRadius.get();
-		mDamageHeight = height;
-		calcEntryRadius();
+		setHitParams(0.0f, 0.0f, params->mSLDamageRadius.get(), height);
 	}
 
 	flame = unk160;
@@ -523,20 +515,14 @@ void TTinKoopa::reset()
 		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
 		f32 height   = params->mSLFlameDamageHeight0.get();
 		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
-		flame->mAttackRadius = 0.0f;
-		flame->mAttackHeight = 0.0f;
-		flame->mDamageRadius = params->mSLFlameDamageRadius0.get();
-		flame->mDamageHeight = height;
-		flame->calcEntryRadius();
+		flame->setHitParams(0.0f, 0.0f,
+		                    params->mSLFlameDamageRadius0.get(), height);
 	} else if (flame->unk68->unk150 == 1) {
 		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
 		f32 height   = params->mSLFlameDamageHeight1.get();
 		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
-		flame->mAttackRadius = 0.0f;
-		flame->mAttackHeight = 0.0f;
-		flame->mDamageRadius = params->mSLFlameDamageRadius1.get();
-		flame->mDamageHeight = height;
-		flame->calcEntryRadius();
+		flame->setHitParams(0.0f, 0.0f,
+		                    params->mSLFlameDamageRadius1.get(), height);
 	}
 
 	resetTinKoopa();
