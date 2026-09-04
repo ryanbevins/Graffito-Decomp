@@ -575,7 +575,7 @@ void TTPHitActor::bind()
 		mIsAirborne = true;
 	}
 
-	if (0.0f >= next.y + mCheckHeight)
+	if (0.0f <= next.y + mCheckHeight)
 		next.y = -mCheckHeight;
 
 	TBGWallCheckRecord record(next.x, next.y, next.z, mCheckRadius, 1, 0);
