@@ -316,7 +316,7 @@ void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 		}
 	}
 
-	if (unk18 != -1) {
+	if (isUnk18Present()) {
 		if (param_1 & 2)
 			unk1C[unk18]->calc();
 
