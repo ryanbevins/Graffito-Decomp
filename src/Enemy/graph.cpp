@@ -891,8 +891,8 @@ f32 TGraphTracer::calcSplineSpeed(f32 param_1)
 		fVar2 = unk0->getSplineRail()->getNthT(1);
 	} else if (unk0->getSplineRail()->isUnk4() && mPrevIdx == 0
 	           && mCurrIdx == unk0->unk8 - 1) {
-		fVar1 = unk0->getSplineRail()->getNthT(mPrevIdx + 1);
-		fVar2 = unk0->getSplineRail()->getNthT(mPrevIdx);
+		fVar1 = unk0->getSplineRail()->getNthT(unk0->unk8 + 1);
+		fVar2 = unk0->getSplineRail()->getNthT(unk0->unk8);
 	} else {
 		u32 uVar10 = mPrevIdx;
 		if (unk0->getSplineRail()->isUnk4())
