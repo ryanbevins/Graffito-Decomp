@@ -348,14 +348,13 @@ void TRollEnemy::walkBehavior(int mode, f32 speed)
 	if (!unk1A8)
 		TWalkerEnemy::walkBehavior(mode, speed);
 
-	if (checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
-		if (mPosition.y > mGroundHeight + 20.0f) {
-			f32 bounce = (mPosition.y - mGroundHeight) / mBoundVal;
-			f32 wrapped
-			    = MsWrap(bounce, 0.0f, getRollParams()->mSLBoundVYMax.get());
-			if (unk1A0 < wrapped)
-				unk1A0 = wrapped;
-		}
+	if (checkLiveFlag(LIVE_FLAG_AIRBORNE)
+	    && mPosition.y > mGroundHeight + 20.0f) {
+		f32 bounce = (mPosition.y - mGroundHeight) / mBoundVal;
+		f32 wrapped
+		    = MsWrap(bounce, 0.0f, getRollParams()->mSLBoundVYMax.get());
+		if (unk1A0 < wrapped)
+			unk1A0 = wrapped;
 	} else {
 		if (!mGroundPlane->isWaterSurface()) {
 			unk1A8 = false;
