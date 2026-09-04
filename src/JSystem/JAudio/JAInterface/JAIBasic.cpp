@@ -238,7 +238,7 @@ void JAIBasic::checkInitDataOnMemory()
 	JAIData* data = unk0;
 	u32* d        = (u32*)unk4C;
 
-	bool shouldContinue = true;
+	u32 shouldContinue = true;
 	u32 i               = 0;
 	while (shouldContinue) {
 		u32 command = d[i];
