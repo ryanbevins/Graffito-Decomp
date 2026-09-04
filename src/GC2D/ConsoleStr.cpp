@@ -424,13 +424,8 @@ bool TConsoleStr::processGo(float param_1)
 			JUTRect bounds = unk28[i]->getPane()->getBounds();
 			(void)bounds;
 			if (unk28[i]->update()) {
-				J2DPane* pane = unk28[i]->getPane();
-				bool atOrigin;
-				if (pane->getBounds().x1 != 0)
-					atOrigin = false;
-				else if (pane->getBounds().y1 != 0)
-					atOrigin = false;
-				else
+				bool atOrigin = false;
+				if (unk28[i]->unk14.x1 == 0 && unk28[i]->unk14.y1 == 0)
 					atOrigin = true;
 
 				if (!atOrigin) {
