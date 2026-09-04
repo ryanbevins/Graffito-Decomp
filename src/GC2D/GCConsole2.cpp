@@ -2662,8 +2662,6 @@ void TGCConsole2::drawWaterBack()
 	if (gpMarioOriginal->mHealth == 0 || (s16)gpMarioOriginal->unk12C == 0)
 		return;
 
-	TWaterGun* waterGun = gpMarioOriginal->mWaterGun;
-
 	Mtx mtx;
 	setupConsoleGaugeGXFloatTex(mtx);
 	setupConsoleGaugeTevStage0();
@@ -2679,6 +2677,7 @@ void TGCConsole2::drawWaterBack()
 	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0,
 	               GX_COLOR_NULL);
 
+	TWaterGun* waterGun = gpMarioOriginal->mWaterGun;
 	JUTRect bounds(unk26C->getPane()->mBounds);
 	GXSetTevColor(GX_TEVREG0, JUtility::TColor(0x0000ff78));
 	GXSetTevColor(GX_TEVREG1, JUtility::TColor(0x0000ff00));
