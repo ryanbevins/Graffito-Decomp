@@ -438,12 +438,12 @@ bool TConsoleStr::processGo(float param_1)
 	} else if (param_1 < 95.0f) {
 		// nothing
 	} else if (param_1 == 95.0f) {
-		unk28[0]->setPanePosition(0x50, JUTPoint(0, 0), JUTPoint(-0x168, -0xB4),
-		                          JUTPoint(-0x154, -0xAA));
-		unk28[1]->setPanePosition(0x50, JUTPoint(0, 0), JUTPoint(-0x1B8, -0xDC),
-		                          JUTPoint(0, 0));
-		unk28[2]->setPanePosition(0x50, JUTPoint(0, 0), JUTPoint(0x140, 0xA0),
-		                          JUTPoint(-0x168, -0xB4));
+		unk28[0]->setPanePosition(0x50, JUTPoint(0, 0), JUTPoint(-0xAA, -0xB4),
+		                          JUTPoint(-0x154, -0x168));
+		unk28[1]->setPanePosition(0x50, JUTPoint(0, 0), JUTPoint(0, -0xDC),
+		                          JUTPoint(0, -0x1B8));
+		unk28[2]->setPanePosition(0x50, JUTPoint(0, 0), JUTPoint(0xA0, -0xB4),
+		                          JUTPoint(0x140, -0x168));
 
 		for (int i = 0; i < 3; ++i) {
 			for (int j = 0; j < 16; ++j) {
