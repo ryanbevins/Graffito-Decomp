@@ -1079,7 +1079,7 @@ bool TBathtub::allowsTumble() const
 	if (dist < 4200.0f)
 		return false;
 
-	if (4700.0f >= dist)
+	if (!(4700.0f < dist))
 		return true;
 
 	if (unk188[4] <= 0.99f)
