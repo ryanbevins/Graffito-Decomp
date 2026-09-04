@@ -284,8 +284,10 @@ void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 		unk18 = gpCubeMirror->getDataNo(gpCubeMirror->getInCubeNo(local_44));
 		if (!(unk18 != -1 ? true : false)
 		    && !gpMarioGroundPlane[0]->checkFlag(BG_CHECK_FLAG_ILLEGAL)) {
-			unk24->unk84 = gpMarioGroundPlane[0]->mNormal;
-			unk24->unk90 = gpMarioGroundPlane[0]->mPlaneDistance;
+			unk24->setUnk84AndUnk90(gpMarioGroundPlane[0]->mNormal.x,
+			                       gpMarioGroundPlane[0]->mNormal.y,
+			                       gpMarioGroundPlane[0]->mNormal.z,
+			                       gpMarioGroundPlane[0]->mPlaneDistance);
 
 			TMirrorCamera* camera = unk24;
 			JGeometry::TVec3<f32> normal;
