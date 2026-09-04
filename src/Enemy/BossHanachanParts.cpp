@@ -515,8 +515,8 @@ void TBossHanachanPartsBase::changeTumbleAnmRate_()
 	case 0x11:
 		if (!(fc->getFrame() <= 40.0f)) {
 			f32 remain = (f32)fc->getEnd() - fc->getFrame();
-			f32 rate   = SMSGetAnmFrameRate();
 			f32 cur    = fc->getRate();
+			f32 rate   = SMSGetAnmFrameRate();
 			CLBChaseConstantSpecifyFrame<f32>(&cur, rate, remain);
 			fc->setRate(cur);
 		}
