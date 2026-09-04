@@ -918,10 +918,10 @@ BOOL TGraphTracer::traceSpline(f32 param_1)
 
 	f32 dVar10;
 	if (unk0->unk14->unk4 && mPrevIdx == unk0->unk8 - 1 && mCurrIdx == 0) {
-		dVar10 = unk0->unk14->getNthT(mPrevIdx + 1);
+		dVar10 = unk0->unk14->getNthT(unk0->unk8 + 1);
 	} else if (unk0->unk14->unk4 && mPrevIdx == 0
 	           && mCurrIdx == unk0->unk8 - 1) {
-		dVar10 = unk0->unk14->getNthT(mPrevIdx);
+		dVar10 = unk0->unk14->getNthT(unk0->unk8);
 	} else {
 		u32 uVar7 = mCurrIdx;
 		if (unk0->unk14->unk4)
