@@ -1299,7 +1299,7 @@ static void Hxs_PenDraw(u32 count, LogoPath* path, f32 bx, f32 by) {
 		}
 	}
 
-	ratio = (f32)(path->time - (s32)hx.unk3C) / (f32)path->time;
+	ratio = (f32)(path->time - hx.unk3C) / (f32)path->time;
 	x     = bx + (path->x - bx) * ratio;
 	y     = by + (path->y - by) * ratio;
 	Hxs_Logo_TexDraw(bx, by, x, y, (f32)img_wx, (f32)img_wy);
