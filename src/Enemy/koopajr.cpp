@@ -1041,15 +1041,15 @@ void TKoopaJrSubmarine::moveSwing()
 	if (unk18C) {
 		unk18C = 0;
 		unk190 += 0.06283186f;
+		f32 swing = unk190;
 		f32 maxSwing = getSaveParam2()->mSLSwingAmplitudeMax.get();
-		if (maxSwing < unk190)
-			unk190 = maxSwing;
+		unk190 = maxSwing >= swing ? swing : maxSwing;
 	}
 
 	unk190 -= 0.009424779f;
+	f32 swing = unk190;
 	f32 minSwing = getSaveParam2()->mSLSwingAmplitudeMin.get();
-	if (minSwing > unk190)
-		unk190 = minSwing;
+	unk190 = minSwing >= swing ? minSwing : swing;
 
 	if (unk190 <= 0.0f)
 		unk194 = 0.0f;
@@ -1066,22 +1066,22 @@ void TKoopaJrSubmarine::moveSwing()
 
 	if (unk150 > 0) {
 		unk198 += 0.03141593f;
+		f32 wave = unk198;
 		f32 maxLaunchWave = getSaveParam2()->mSLWaveAmplitudeMaxLaunch.get();
-		if (maxLaunchWave < unk198)
-			unk198 = maxLaunchWave;
+		unk198 = maxLaunchWave >= wave ? wave : maxLaunchWave;
 	}
 
 	if (ratio > 0.5f) {
 		unk198 += 0.03141593f;
+		f32 wave = unk198;
 		f32 maxWave = getSaveParam2()->mSLWaveAmplitudeMax.get();
-		if (maxWave < unk198)
-			unk198 = maxWave;
+		unk198 = maxWave >= wave ? wave : maxWave;
 	}
 
 	unk198 -= 0.018849557f;
+	f32 wave = unk198;
 	f32 minWave = getSaveParam2()->mSLWaveAmplitudeMin.get();
-	if (minWave > unk198)
-		unk198 = minWave;
+	unk198 = minWave >= wave ? minWave : wave;
 
 	if (unk198 <= 0.0f)
 		unk19C = 0.0f;
