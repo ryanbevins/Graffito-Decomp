@@ -128,21 +128,21 @@ void TSelectShineManager::initData(u8* shineTypes, u8 count, u8 startIdx,
 			yaw = -yaw;
 		}
 
-		TSelectShine* shine = nullptr;
 		if (*typePtr == 3) {
-			shine = new TSelectShine(
+			mShines[i] = new TSelectShine(
 			    mdShine, anmShine, emitterMgr, pos, yaw, 0,
 			    (f32)(s32)((f32)rand() * (1.0f / 32768.0f) * 4000.0f)
 			        / 1000.0f,
 			    0.01f, 10.0f);
 		} else if ((u8)(*typePtr - 1) <= 1) {
-			shine = new TSelectShine(
+			mShines[i] = new TSelectShine(
 			    mdEmpty, anmEmpty, emitterMgr, pos, yaw, 1,
 			    (f32)(s32)((f32)rand() * (1.0f / 32768.0f) * 4000.0f)
 			        / 1000.0f,
 			    0.01f, 10.0f);
+		} else {
+			mShines[i] = nullptr;
 		}
-		mShines[i] = shine;
 		typePtr++;
 		offset += 40;
 	}
