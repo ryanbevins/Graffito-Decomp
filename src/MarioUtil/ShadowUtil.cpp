@@ -167,18 +167,13 @@ void TMBindShadowParts::calc(f32 ground_y)
 	request.unkC  = extentX;
 	request.unk10 = extentZ;
 
-	if (!unk15) {
-		u32 actorType = actor->mActorType;
-		if (actorType != ACTOR_TYPE_SHADOW_MARIO
-		    && actorType != ACTOR_TYPE_SHADOW_B) {
-			f32 angle = matan(childZ - jointZ, childX - jointX)
-			            * (360.0f / 65536.0f);
-			if (extentX > extentZ)
-				angle -= 90.0f;
-			request.unk14 = angle;
-		} else {
-			request.unk14 = 0.0f;
-		}
+	if (!unk15 && actor->mActorType != ACTOR_TYPE_SHADOW_MARIO
+	    && actor->mActorType != ACTOR_TYPE_SHADOW_B) {
+		f32 angle = matan(childZ - jointZ, childX - jointX)
+		            * (360.0f / 65536.0f);
+		if (extentX > extentZ)
+			angle -= 90.0f;
+		request.unk14 = angle;
 	} else {
 		request.unk14 = 0.0f;
 	}
