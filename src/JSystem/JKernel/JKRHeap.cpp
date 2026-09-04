@@ -149,23 +149,21 @@ JKRHeap* JKRHeap::find(void* memory) const
 void JKRHeap::dispose_subroutine(u32 begin, u32 end)
 {
 	JSUListIterator<JKRDisposer> last_iterator;
-	JSUListIterator<JKRDisposer> next_iterator;
 	JSUListIterator<JKRDisposer> iterator;
 	for (iterator = mDisposerList.getFirst();
-	     iterator != mDisposerList.getEnd(); iterator = next_iterator) {
+	     iterator != mDisposerList.getEnd();) {
 		if ((void*)begin <= iterator.getObject()
 		    && iterator.getObject() < (void*)end) {
 			iterator.getObject()->~JKRDisposer();
 			if (last_iterator == nullptr) {
-				next_iterator = mDisposerList.getFirst();
+				iterator = mDisposerList.getFirst();
 			} else {
-				next_iterator = last_iterator;
-				next_iterator++;
+				iterator = last_iterator;
+				iterator++;
 			}
 		} else {
 			last_iterator = iterator;
-			next_iterator = iterator;
-			next_iterator++;
+			iterator++;
 		}
 	}
 }
