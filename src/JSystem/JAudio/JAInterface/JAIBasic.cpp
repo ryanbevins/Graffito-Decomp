@@ -236,11 +236,11 @@ BOOL JAIBasic::checkInitDataFile()
 void JAIBasic::checkInitDataOnMemory()
 {
 	JAIData* data = unk0;
-	u32* d        = (u32*)unk4C;
 
 	u32 shouldContinue = true;
 	u32 i               = 0;
 	while (shouldContinue) {
+		u32* d = (u32*)unk4C;
 		u32 command = d[i];
 		++i;
 		switch (command) {
