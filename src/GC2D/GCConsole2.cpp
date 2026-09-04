@@ -239,7 +239,7 @@ static inline u32 getPressureFlashColor(u8 frame)
 	} else if (frame < 15) {
 		color = 0xffff0000;
 	} else if (frame < 25) {
-		u8 fade = 25 - frame;
+		s32 fade = 25 - frame;
 		color += ((u32)(s16)(s32)((f32)fade * -6.3f)) << 8;
 		color += ((u32)(s32)((f32)fade * 19.2f)) << 16;
 	}
