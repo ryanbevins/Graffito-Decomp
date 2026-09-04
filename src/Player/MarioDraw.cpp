@@ -827,7 +827,7 @@ int MarioFootDirRCtrl(J3DNode* param_1, int param_2)
 				Vec currentNormalCross2;
 				PSVECCrossProduct(&currentMtxDir, &normalDir,
 				                  &currentNormalCross1);
-				PSVECCrossProduct(&normalDir, &currentMtxDir,
+				PSVECCrossProduct(&normalDir, &currentNormalCross1,
 				                  &currentNormalCross2);
 				PSVECNormalize(&currentNormalCross1, &currentNormalCross1);
 				PSVECNormalize(&currentNormalCross2, &currentNormalCross2);
@@ -850,7 +850,8 @@ int MarioFootDirRCtrl(J3DNode* param_1, int param_2)
 
 				footMtx[0][1] = normalDir.x;
 				footMtx[1][1] = normalDir.y;
-				footMtx[2][1] = normalDir.z;
+				// Retail writes this component to column 2 before replacing it.
+				footMtx[2][2] = normalDir.z;
 
 				footMtx[0][2] = currentNormalCross1.x;
 				footMtx[1][2] = currentNormalCross1.y;
@@ -955,7 +956,7 @@ int MarioFootDirLCtrl(J3DNode* param_1, int param_2)
 				Vec currentNormalCross2;
 				PSVECCrossProduct(&currentMtxDir, &normalDir,
 				                  &currentNormalCross1);
-				PSVECCrossProduct(&normalDir, &currentMtxDir,
+				PSVECCrossProduct(&normalDir, &currentNormalCross1,
 				                  &currentNormalCross2);
 				PSVECNormalize(&currentNormalCross1, &currentNormalCross1);
 				PSVECNormalize(&currentNormalCross2, &currentNormalCross2);
@@ -978,7 +979,8 @@ int MarioFootDirLCtrl(J3DNode* param_1, int param_2)
 
 				footMtx[0][1] = normalDir.x;
 				footMtx[1][1] = normalDir.y;
-				footMtx[2][1] = normalDir.z;
+				// Retail writes this component to column 2 before replacing it.
+				footMtx[2][2] = normalDir.z;
 
 				footMtx[0][2] = currentNormalCross1.x;
 				footMtx[1][2] = currentNormalCross1.y;
