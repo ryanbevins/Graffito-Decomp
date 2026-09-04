@@ -45,7 +45,7 @@ public:
 	/* 0x20 */ u32 unk20;
 	/* 0x24 */ u32 unk24;
 	/* 0x28 */ TBoundPane* unk28[3];
-	/* 0x34 */ JUTPoint unk34[66];
+	/* 0x34 */ JUTPoint unk34[3][22];
 	/* 0x244 */ TBoundPane* unk244[9];
 	/* 0x268 */ TBoundPane* unk268[5];
 	/* 0x27C */ TExPane* unk27C[5];

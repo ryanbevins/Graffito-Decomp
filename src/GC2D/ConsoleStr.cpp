@@ -240,7 +240,7 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 				for (int j = 0; j < 3; ++j) {
 					int iVar9 = local_b0[j];
-					if (unk34[22 * i + iVar9].x != 0) {
+					if (unk34[i][iVar9].x != 0) {
 						unk28[i]->getPane()->setAlpha((u8)(uVar13 * 0.7f));
 
 						unk28[i]->getPane()->resize(
@@ -249,8 +249,8 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 						JUTRect b2 = unk28[i]->getPane()->getBounds();
 						((J2DPicture*)unk28[i]->getPane())
-						    ->draw(unk34[22 * i + iVar9].x,
-						           unk34[22 * i + iVar9].y, b2.getWidth(),
+						    ->draw(unk34[i][iVar9].x,
+						           unk34[i][iVar9].y, b2.getWidth(),
 						           b2.getHeight(), false, false, false);
 					}
 				}
@@ -448,8 +448,8 @@ bool TConsoleStr::processGo(float param_1)
 		for (int i = 0; i < 3; ++i) {
 			for (int j = 0; j < 16; ++j) {
 				JUTRect b = unk28[i]->getPane()->getGlobalBounds();
-				unk34[22 * i + j].x = b.x1;
-				unk34[22 * i + j].y = b.y1;
+				unk34[i][j].x = b.x1;
+				unk34[i][j].y = b.y1;
 			}
 
 			JUTRect b = unk28[i]->getPane()->getBounds();
@@ -480,10 +480,10 @@ bool TConsoleStr::processGo(float param_1)
 
 			if (parity == 0) {
 				for (int j = 14; j >= 0; --j) {
-					unk34[22 * i + j + 1] = unk34[22 * i + j];
+					unk34[i][j + 1] = unk34[i][j];
 				}
-				unk34[22 * i + 0].x = b.x1;
-				unk34[22 * i + 0].y = b.y1;
+				unk34[i][0].x = b.x1;
+				unk34[i][0].y = b.y1;
 			}
 		}
 	} else if (param_1 == 175.0f) {
