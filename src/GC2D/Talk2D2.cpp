@@ -1403,7 +1403,7 @@ void TTalk2D2::makeBoxLine(s8 line, char* text)
 
 	f32 startX = start->mBounds.x1;
 	f32 startY = start->mBounds.y1;
-	f32 ctrlX  = control->mBounds.x1;
+	f32 ctrlX  = 0.0f;
 	f32 ctrlY  = control->mBounds.y1 - unk220;
 	f32 endX   = end->mBounds.x2 - 10;
 	f32 endY   = end->mBounds.y1;
