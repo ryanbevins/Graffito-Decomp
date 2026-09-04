@@ -370,7 +370,7 @@ THitActor* TYoshiTongue::findTarget(bool flagB1, bool flagB2)
 			if (flagB2) {
 				f32 dot = diff.x * mHeadDir.x + diff.y * mHeadDir.y
 				          + diff.z * mHeadDir.z;
-				if (dot <= 0.5f) continue;
+				if (!(dot > 0.5f)) continue;
 			}
 
 			if (dist < bestDist) {
