@@ -221,15 +221,18 @@ void J3DMtxCalcMaya::calcTransform(u16 param_1, const J3DTransformInfo& param_2)
 		f32 x = 1.0f / J3DSys::mParentS.x;
 		f32 y = 1.0f / J3DSys::mParentS.y;
 		f32 z = 1.0f / J3DSys::mParentS.z;
-		mtx[0][0] *= x;
-		mtx[0][1] *= x;
-		mtx[0][2] *= x;
-		mtx[1][0] *= y;
-		mtx[1][1] *= y;
-		mtx[1][2] *= y;
-		mtx[2][0] *= z;
-		mtx[2][1] *= z;
-		mtx[2][2] *= z;
+		f32* p = (f32*)mtx;
+		*p++ *= x;
+		*p++ *= x;
+		*p++ *= x;
+		++p;
+		*p++ *= y;
+		*p++ *= y;
+		*p++ *= y;
+		++p;
+		*p++ *= z;
+		*p++ *= z;
+		*p *= z;
 	}
 	MTXConcat(J3DSys::mCurrentMtx, mtx, J3DSys::mCurrentMtx);
 	model = j3dSys.getModel();
