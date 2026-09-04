@@ -351,8 +351,9 @@ void TRollEnemy::walkBehavior(int mode, f32 speed)
 	if (checkLiveFlag(LIVE_FLAG_AIRBORNE)
 	    && mPosition.y > mGroundHeight + 20.0f) {
 		f32 bounce = (mPosition.y - mGroundHeight) / mBoundVal;
+		TRollEnemySaveLoadParams* params = (TRollEnemySaveLoadParams*)unk1A4;
 		f32 wrapped
-		    = MsWrap(bounce, 0.0f, getRollParams()->mSLBoundVYMax.get());
+		    = MsWrap(bounce, 0.0f, params->mSLBoundVYMax.get());
 		if (unk1A0 < wrapped)
 			unk1A0 = wrapped;
 	} else {
