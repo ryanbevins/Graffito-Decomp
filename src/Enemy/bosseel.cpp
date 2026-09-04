@@ -1606,54 +1606,48 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 
 BOOL TBossEelTooth::receiveMessage(THitActor* sender, u32 message)
 {
-	if (message != HIT_MESSAGE_SPRAYED_BY_WATER)
-		return FALSE;
+	BOOL result = FALSE;
+	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
+		if (unk84 == 0 && !unk6C->unk1FD && unk70 > 1) {
+			unk84 = 2;
+			--unk70;
+			unk68->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
+			unk6C->unk1FC = TRUE;
 
-	if (unk84 != 0)
-		return TRUE;
+			unkB8.a = (f32)(unk70 * 255)
+			          / (f32)unk6C->unk1E8->mSLToothMaxHitPoint.value;
 
-	if (unk6C->unk1FD)
-		return TRUE;
+			if (unk74 == 1 && unk70 % 20 == 1)
+				unk6C->forceShedTears(unkBC);
 
-	if (unk70 <= 1)
-		return TRUE;
+			if (unk70 == 1) {
+				unkB8.a = 0;
+				PSMTXCopy(unk68->getConnectedMtx(), unk88);
 
-	unk84 = 2;
-	--unk70;
-	unk68->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
-	unk6C->unk1FC = TRUE;
+				if (unk74 == 1) {
+					playBossEelSound(0x8928, &mPosition);
+					if (unkBC)
+						playBossEelSound(0x892A, &unk6C->mPosition);
+					else
+						playBossEelSound(0x892B, &unk6C->mPosition);
 
-	unkB8.a = (f32)(unk70 * 255)
-	          / (f32)unk6C->unk1E8->mSLToothMaxHitPoint.value;
+					unk6C->unk1FD = TRUE;
+					JPABaseEmitter* emitter
+					    = gpMarioParticleManager->emit(0xD3, &mPosition, 0, nullptr);
+					setBossEelParticleScale(emitter, unk6C);
+				} else {
+					playBossEelSound(0x8929, &mPosition);
+					if (unkBC)
+						playBossEelSound(0x892C, &unk6C->mPosition);
+					else
+						playBossEelSound(0x892D, &unk6C->mPosition);
+				}
+			}
 
-	if (unk74 == 1 && unk70 % 20 == 1)
-		unk6C->forceShedTears(unkBC);
-
-	if (unk70 == 1) {
-		unkB8.a = 0;
-		PSMTXCopy(unk68->getConnectedMtx(), unk88);
-
-		if (unk74 == 1) {
-			playBossEelSound(0x8928, &mPosition);
-			if (unkBC)
-				playBossEelSound(0x892A, &unk6C->mPosition);
-			else
-				playBossEelSound(0x892B, &unk6C->mPosition);
-
-			unk6C->unk1FD = TRUE;
-			JPABaseEmitter* emitter
-			    = gpMarioParticleManager->emit(0xD3, &mPosition, 0, nullptr);
-			setBossEelParticleScale(emitter, unk6C);
-		} else {
-			playBossEelSound(0x8929, &mPosition);
-			if (unkBC)
-				playBossEelSound(0x892C, &unk6C->mPosition);
-			else
-				playBossEelSound(0x892D, &unk6C->mPosition);
 		}
+		result = TRUE;
 	}
-
-	return TRUE;
+	return result;
 }
 
 TBossEelTooth::TBossEelTooth(u8 tooth_id, TBossEel* boss,
