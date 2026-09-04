@@ -2572,8 +2572,9 @@ bool TGCConsole2::startAppearBalloon(u32 messageID, bool param_2)
 	((JSUMemoryInputStream*)unk3D4)->setBuffer(messageText, 0x400);
 
 	unk3E0 = messageID;
+	size_t length = strlen((const char*)messageText);
 	unk3F8 = param_2;
-	unk3E4 = (s32)(strlen((const char*)messageText) * unk3EC + unk3E8);
+	unk3E4 = (s32)(length * unk3EC + unk3E8);
 
 	if (unk3E0 == 0x000e002f)
 		unk3E4 = 0x96;
