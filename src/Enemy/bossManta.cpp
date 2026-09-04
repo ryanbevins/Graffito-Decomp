@@ -658,7 +658,7 @@ void TBossManta::control()
 		f32 cross  = mDirection.z * dir.x - mDirection.x * dir.z;
 		f32 target = 0.5f - 0.4f * cross;
 		f32 rate   = blendRate[mGeneration];
-		unk150     = rate * target + (1.0f - rate) * unk150;
+		unk150     = (1.0f - rate) * unk150 + rate * target;
 
 		f32 blendWave[50] = {
 			0.0f,           0.0460000001f, 0.107000001f,  0.177000001f,
