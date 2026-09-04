@@ -371,14 +371,7 @@ bool TConsoleStr::processReady(int param_1)
 			JUTRect b = unk27C[i]->getPane()->getBounds();
 			s32 w     = b.getWidth();
 			s32 h     = b.getHeight();
-			s32 initW = unk27C[i]->getInitialBounds().getWidth();
-			s32 initH = unk27C[i]->getInitialBounds().getHeight();
-
-			unk27C[i]->setPaneSize(0x1E, w, h, w + 0x50, h + 0x50);
-			unk27C[i]->setPaneOffset(
-			    0x1E, (s32)((w - initW) * 0.5f), (s32)((h - initH) * 0.5f),
-			    (s32)((w + 0x50 - initW) * 0.5f),
-			    (s32)((h + 0x50 - initH) * 0.5f));
+			unk27C[i]->setCenteredSize(0x1E, w, h, w + 0x50, h + 0x50);
 
 			unk27C[i]->getPane()->show();
 			unk27C[i]->getPane()->setAlpha(0);
@@ -395,14 +388,7 @@ bool TConsoleStr::processReady(int param_1)
 			JUTRect b = unk27C[i]->getPane()->getBounds();
 			s32 w     = b.getWidth();
 			s32 h     = b.getHeight();
-			s32 initW = unk27C[i]->getInitialBounds().getWidth();
-			s32 initH = unk27C[i]->getInitialBounds().getHeight();
-
-			unk27C[i]->setPaneSize(0x1E, w - 0x14, h - 0x14, w, h);
-			unk27C[i]->setPaneOffset(
-			    0x1E, (s32)((w - 0x14 - initW) * 0.5f),
-			    (s32)((h - 0x14 - initH) * 0.5f), (s32)((w - initW) * 0.5f),
-			    (s32)((h - initH) * 0.5f));
+			unk27C[i]->setCenteredSize(0x1E, w - 0x14, h - 0x14, w, h);
 		} else if (param_1 < i * 10 + 160) {
 			unk27C[i]->update();
 			s16 alpha = unk27C[i]->getPane()->getAlpha();
