@@ -778,8 +778,7 @@ void TTalk2D2::setupTextBox(const void* data, JMSMesgEntry* entry)
 	unk2DE       = 0;
 
 	while (line < 3) {
-		J2DTextBox* textBox = unk9C[line * 30 + charIndex];
-		char* out           = textBox->getStringPtr();
+		char* out = unk9C[line * 30 + charIndex]->getStringPtr();
 
 		u8 c;
 		input.read(&c, 1);
@@ -803,7 +802,7 @@ void TTalk2D2::setupTextBox(const void* data, JMSMesgEntry* entry)
 			unk26A = 1;
 			break;
 		case 0x1a:
-			setTagParam(input, *textBox, &charIndex, &line);
+			setTagParam(input, *unk9C[line * 30 + charIndex], &charIndex, &line);
 			break;
 		default: {
 			if (unk274 != line)
@@ -820,10 +819,10 @@ void TTalk2D2::setupTextBox(const void* data, JMSMesgEntry* entry)
 				out[1] = 0;
 			}
 
-			textBox->mCharColor = unk27C;
-			textBox->mGradColor = unk27C;
-			textBox->mWhite = unk27C;
-			textBox->mBlack.set((*(u32*)&unk27C) & 0xffffff00);
+			unk9C[line * 30 + charIndex]->mCharColor = unk27C;
+			unk9C[line * 30 + charIndex]->mGradColor = unk27C;
+			unk9C[line * 30 + charIndex]->mWhite = unk27C;
+			unk9C[line * 30 + charIndex]->mBlack.set((*(u32*)&unk27C) & 0xffffff00);
 
 			unk281[unk2DE] = unk280;
 			unk2DE         = line * 30 + charIndex;
