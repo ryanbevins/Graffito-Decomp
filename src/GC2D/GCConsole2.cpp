@@ -4104,7 +4104,7 @@ void TGCConsole2::drawWater(J2DOrthoGraph& graph)
 		               GX_COLOR_NULL);
 
 		int top = unk29C->getPane()->mGlobalBounds.y1 + topDiff[layer - 1];
-		int bottom = top + unk2BC[layer].getHeight();
+		int bottom = top + unk2A0[layer]->mBounds.getHeight();
 		drawGaugeQuad(unk2BC[layer], top, bottom);
 	}
 
