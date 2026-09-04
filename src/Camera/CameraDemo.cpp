@@ -74,28 +74,24 @@ void CPolarSubCamera::updateDemoCamera_(bool flag)
 					origin = *mCameraDemo->unk0;
 
 				{
+					JGeometry::TVec3<f32> delta;
+					delta.sub(unk124, origin);
+					f32 dx = delta.x;
+					delta.x = dx * JMASCos(angle) + delta.z * JMASSin(angle);
+					delta.z = -dx * JMASSin(angle) + delta.z * JMASCos(angle);
 					JGeometry::TVec3<f32> result = origin;
-					f32 dx                       = unk124.x - origin.x;
-					f32 dy                       = unk124.y - origin.y;
-					f32 dz                       = unk124.z - origin.z;
-					f32 sn                       = JMASSin(angle);
-					f32 cs                       = JMASCos(angle);
-					result.x += dx * cs + dz * sn;
-					result.y += dy;
-					result.z += -dx * sn + dz * cs;
+					result.add(delta);
 					unk124 = result;
 				}
 
 				{
+					JGeometry::TVec3<f32> delta;
+					delta.sub(unk148, origin);
+					f32 dx = delta.x;
+					delta.x = dx * JMASCos(angle) + delta.z * JMASSin(angle);
+					delta.z = -dx * JMASSin(angle) + delta.z * JMASCos(angle);
 					JGeometry::TVec3<f32> result = origin;
-					f32 dx                       = unk148.x - origin.x;
-					f32 dy                       = unk148.y - origin.y;
-					f32 dz                       = unk148.z - origin.z;
-					f32 sn                       = JMASSin(angle);
-					f32 cs                       = JMASCos(angle);
-					result.x += dx * cs + dz * sn;
-					result.y += dy;
-					result.z += -dx * sn + dz * cs;
+					result.add(delta);
 					unk148 = result;
 				}
 
