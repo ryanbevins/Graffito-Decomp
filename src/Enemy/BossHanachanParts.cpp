@@ -513,7 +513,7 @@ void TBossHanachanPartsBase::changeTumbleAnmRate_()
 	switch (mCurAnm) {
 	case 0x10:
 	case 0x11:
-		if (fc->getFrame() > 40.0f) {
+		if (!(fc->getFrame() <= 40.0f)) {
 			f32 remain = (f32)fc->getEnd() - fc->getFrame();
 			f32 rate   = SMSGetAnmFrameRate();
 			f32 cur    = fc->getRate();
