@@ -116,8 +116,8 @@ void TSelectShineManager::initData(u8* shineTypes, u8 count, u8 startIdx,
 		JGeometry::TVec2<f32> ref;
 		ref.x = 300.0f;
 		ref.y = 1300.0f;
-		diff.x -= ref.x;
-		diff.y -= ref.y;
+		diff.x = ref.x - diff.x;
+		diff.y = ref.y - diff.y;
 
 		f32 a   = diff.x;
 		f32 b   = diff.y;
