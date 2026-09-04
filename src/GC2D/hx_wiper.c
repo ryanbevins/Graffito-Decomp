@@ -613,9 +613,9 @@ static void Hxs1_Circle(f32 r) {
 			root = r2 - dy * dy;
 			if (root > 0.0f) {
 				f64 guess = __frsqrte(root);
-				guess = 0.5 * guess * (3.0 - root * guess * guess);
-				guess = 0.5 * guess * (3.0 - root * guess * guess);
-				guess = 0.5 * guess * (3.0 - root * guess * guess);
+				guess = 0.5 * guess * (3.0 - (guess * guess) * root);
+				guess = 0.5 * guess * (3.0 - (guess * guess) * root);
+				guess = 0.5 * guess * (3.0 - (guess * guess) * root);
 				rootOut = (f32)(root * guess);
 				root = rootOut;
 			}
