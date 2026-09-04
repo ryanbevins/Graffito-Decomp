@@ -371,8 +371,8 @@ void TRollEnemy::walkBehavior(int mode, f32 speed)
 		}
 	}
 
-	if (mPosition.y < mGroundHeight + 5.0f)
-		flagJump();
+	if (mPosition.y < mGroundHeight + 30.0f)
+		rollSE();
 
 	if (unk128 > 300) {
 		onLiveFlag(LIVE_FLAG_UNK10000);
