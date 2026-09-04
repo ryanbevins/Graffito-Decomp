@@ -139,22 +139,8 @@ void JAIData::initSeqParameter(JAISeqParameter* param)
 
 		param->unk1790[i] = 0;
 
-		param->unk1354[i][0]  = 0;
-		param->unk1354[i][1]  = 0;
-		param->unk1354[i][2]  = 0;
-		param->unk1354[i][3]  = 0;
-		param->unk1354[i][4]  = 0;
-		param->unk1354[i][5]  = 0;
-		param->unk1354[i][6]  = 0;
-		param->unk1354[i][7]  = 0;
-		param->unk1354[i][8]  = 0;
-		param->unk1354[i][9]  = 0;
-		param->unk1354[i][10] = 0;
-		param->unk1354[i][11] = 0;
-		param->unk1354[i][12] = 0;
-		param->unk1354[i][13] = 0;
-		param->unk1354[i][14] = 0;
-		param->unk1354[i][15] = 0;
+		for (u32 j = 0; j < 16; ++j)
+			param->unk1354[i][j] = 0;
 	}
 
 	for (i = 0; i < 16; ++i) {
