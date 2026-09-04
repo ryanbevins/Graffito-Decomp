@@ -809,7 +809,7 @@ void TCannon::bombShoot()
 	velocity.z *= speed;
 
 	if (unk21C) {
-		unk1A4->mVelocity = velocity;
+		unk1A4->mVelocity.set(velocity.x, velocity.y, velocity.z);
 		unk1A4->offLiveFlag(LIVE_FLAG_UNK10);
 	} else {
 		unk1A4->mVelocity = velocity;
