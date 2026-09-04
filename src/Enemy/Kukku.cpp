@@ -412,7 +412,8 @@ void TKukkuBall::perform(u32 action, JDrama::TGraphics* graphics)
 	}
 
 	if (action & 1) {
-		for (THitActor** c = mCollisions; c != mCollisions + mColCount; ++c) {
+		THitActor** end = mCollisions + mColCount;
+		for (THitActor** c = mCollisions; c != end; ++c) {
 			if ((*c)->getActorType() == 0x80000001) {
 				SMS_SendMessageToMario(this, 0xe);
 				onHitFlag(1);
