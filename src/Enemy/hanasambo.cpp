@@ -872,33 +872,34 @@ void TSamboFlowerManager::dropLeaf(JGeometry::TVec3<f32>& position,
 	const f32 angles[] = { 0.0f, 120.0f, 240.0f };
 	int dropped               = 0;
 
-	for (int i = 0; i < 18 && dropped < 3; ++i) {
+	for (int i = 0; i < 18; ++i) {
 		TSamboLeaf* leaf = mLeaves[i];
-		if (leaf->mActive)
-			continue;
+		if (!leaf->mActive) {
+			leaf->mPosition = position;
+			leaf->mPosition.y += 10.0f;
+			leaf->mActive = true;
 
-		leaf->mPosition = position;
-		leaf->mPosition.y += 10.0f;
-		leaf->mActive = true;
+			TSamboFlowerSaveLoadParams* params
+			    = (TSamboFlowerSaveLoadParams*)getSaveParam();
+			f32 minXZ = params->mSLLeafVelocityXZ.get();
+			f32 minY  = params->mSLLeafVelocityY.get();
+			TMsRange<f32> yRange(minY, minY * 1.2f);
+			TMsRange<f32> xzRange(minXZ, minXZ * 1.2f);
+			f32 randXZ = xzRange.rand();
+			f32 randY  = yRange.rand();
 
-		TSamboFlowerSaveLoadParams* params
-		    = (TSamboFlowerSaveLoadParams*)getSaveParam();
-		f32 minXZ = params->mSLLeafVelocityXZ.get();
-		f32 minY  = params->mSLLeafVelocityY.get();
-		TMsRange<f32> yRange(minY, minY * 1.2f);
-		TMsRange<f32> xzRange(minXZ, minXZ * 1.2f);
-		f32 randXZ = xzRange.rand();
-		f32 randY  = yRange.rand();
+			JGeometry::TVec3<f32> velocity(0.0f, randY, randXZ);
+			Mtx rot;
+			MsMtxSetRotRPH(rot, 0.0f, angles[i], 0.0f);
+			PSMTXMultVec(rot, (Vec*)&velocity, (Vec*)&velocity);
+			leaf->mVelocity = velocity;
 
-		JGeometry::TVec3<f32> velocity(0.0f, randY, randXZ);
-		Mtx rot;
-		MsMtxSetRotRPH(rot, 0.0f, angles[i], 0.0f);
-		PSMTXMultVec(rot, (Vec*)&velocity, (Vec*)&velocity);
-		leaf->mVelocity = velocity;
-
-		leaf->mRotation.set(0.0f, angles[i] - 90.0f, 0.0f);
-		leaf->mScale = scale;
-		++dropped;
+			leaf->mRotation.set(0.0f, angles[i] - 90.0f, 0.0f);
+			leaf->mScale = scale;
+			++dropped;
+		}
+		if (dropped >= 3)
+			break;
 	}
 }
 
