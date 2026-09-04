@@ -218,7 +218,7 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 		s16 ang = matan(dz - mCurrentTarget.mTarget.z, dx - mCurrentTarget.mTarget.x);
 
 		s16 diffAng = mCurrentTarget.mYaw - ang;
-		s16 absAng;
+		s32 absAng;
 		if ((s16)diffAng >= 0)
 			absAng = (s16)diffAng;
 		else
