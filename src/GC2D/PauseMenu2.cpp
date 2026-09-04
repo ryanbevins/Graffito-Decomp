@@ -234,8 +234,8 @@ void TPauseMenu2::disappearWindow()
 
 		for (int i = 0; i < 5; i++) {
 			JUTRect r = unk20[i]->mBounds;
-			r.add(0.025f * -r.y1 + 0.01f * r.getWidth(),
-			      0.025f * -r.x1 + 0.01f * r.getHeight());
+			r.add(0.025f * -r.x1 + 0.01f * r.getWidth(),
+			      0.025f * -r.y1 + 0.01f * r.getHeight());
 			r.resize((s32)(0.98f * (f32)(r.x2 - r.x1)),
 			         (s32)(0.98f * (f32)(r.y2 - r.y1)));
 			unk20[i]->mBounds = r;
@@ -243,8 +243,8 @@ void TPauseMenu2::disappearWindow()
 
 		for (int i = 0; i < unk104; i++) {
 			JUTRect r = unk98[i]->mBounds;
-			r.add(0.025f * -r.y1 + 0.01f * r.getWidth(),
-			      0.025f * -r.x1 + 0.01f * r.getHeight());
+			r.add(0.025f * -r.x1 + 0.01f * r.getWidth(),
+			      0.025f * -r.y1 + 0.01f * r.getHeight());
 			r.resize((s32)(0.98f * (f32)(r.x2 - r.x1)),
 			         (s32)(0.98f * (f32)(r.y2 - r.y1)));
 			unk98[i]->mBounds = r;
