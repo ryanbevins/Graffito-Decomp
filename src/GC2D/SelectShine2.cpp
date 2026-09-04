@@ -103,7 +103,7 @@ void TSelectShineManager::initData(u8* shineTypes, u8 count, u8 startIdx,
 	s32 offset  = 0;
 	for (int i = 0; i < 8; ++i) {
 		s16 angle = (s16)(57.295776f * (f32)(s16)(unk9C + offset));
-		u16 tblIdx = static_cast<u16>(angle) >> jmaSinShift;
+		int tblIdx = static_cast<u16>(angle) >> jmaSinShift;
 		f32 cosA  = jmaCosTable[tblIdx];
 		f32 sinA  = jmaSinTable[tblIdx];
 		JGeometry::TVec3<f32> pos
