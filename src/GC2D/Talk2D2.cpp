@@ -1464,7 +1464,7 @@ void TTalk2D2::makeBoxLine(s8 line, char* text)
 
 		int moveX = mvX > 0.0f ? mvX + 0.5f : mvX - 0.5f;
 		int moveY = mvY > 0.0f ? mvY + 0.5f : mvY - 0.5f;
-		textBox->move((s16)moveX, (s16)(-0x25 - moveY));
+		textBox->move((s16)moveX, -0x25 - (s16)moveY);
 		textBox->setBasePosition(J2DBasePosition_4);
 		textBox->mRotation = angle * 180.0f / 3.1415927f;
 		linePane->mPaneTree.appendChild(&textBox->mPaneTree);
