@@ -617,7 +617,7 @@ bool TConsoleStr::processMiss(int param_1)
 			                           JUTPoint(0, 150));
 		}
 
-		if (param_1 < i * 10) {
+		if (param_1 < i * 10 + 60) {
 			u16 alpha = unk268[i]->getPane()->getAlpha();
 			alpha += 12;
 			if (alpha > 0xff)
@@ -633,7 +633,7 @@ bool TConsoleStr::processMiss(int param_1)
 				result = false;
 			}
 		} else {
-			if (param_1 < i * 10) {
+			if (param_1 < i * 10 + 60) {
 				unk268[i]->getPane()->mRotation = (i - param_1) * 6;
 			}
 
