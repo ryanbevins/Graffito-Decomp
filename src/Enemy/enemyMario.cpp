@@ -1230,7 +1230,7 @@ void TEnemyMario::emWaitingToInviteMario()
 	changePlayerStatus(ACTION_IDLE, 0, false);
 	changeMontemanWaitingAnim();
 
-	if (distanceFromMario(mPosition) < emSettingF32(this, 0x18)
+	if (mPosition.distance(*gpMarioPos) < emSettingF32(this, 0x18)
 	    && gpMarioPos->y < mPosition.y + emSettingF32(this, 0x2C)) {
 		Vec nextPos;
 		getOwnerGraphPoint(this, 8, &nextPos);
