@@ -497,10 +497,10 @@ void TWireTrap::load(JSUMemoryInputStream& stream)
 	mSpine->setNext(getNerveFromMode(mColorType));
 
 	u16 ang = (u16)(182.04445f * mRotation.y);
+	const JGeometry::TVec3<f32>& wdir = getWireBinderDirect()->getDirDirect();
 	JGeometry::TVec3<f32> v = makeWireTrapDir(
 	    1.0f * jmaSinTable[(ang >> jmaSinShift)],
 	    1.0f * jmaCosTable[(ang >> jmaSinShift)]);
-	JGeometry::TVec3<f32> wdir = getWireBinderDirect()->getDirDirect();
 	if (0.0f <= v.x * wdir.x + v.y * wdir.y + v.z * wdir.z)
 		mWireDir = 1.0f;
 	else
