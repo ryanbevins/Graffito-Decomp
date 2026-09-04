@@ -215,7 +215,7 @@ public:
 	/* 0x3DC */ JSUOutputStream* unk3DC;
 	/* 0x3E0 */ u32 unk3E0;
 	/* 0x3E4 */ int unk3E4;
-	/* 0x3E8 */ u16 unk3E8;
+	/* 0x3E8 */ s16 unk3E8;
 	/* 0x3EC */ f32 unk3EC;
 	/* 0x3F0 */ s16 unk3F0;
 	/* 0x3F4 */ u32 unk3F4;
