@@ -468,27 +468,11 @@ void JAIBasic::sendSeAllParameter(JAISound* sound)
 
 		f32 panCenter = 0.5f;
 		pan           = 0.0f;
-		f32 panValue  = seParamF32(param, 0x1A8);
-		if (panCenter != panValue)
-			pan += panValue - panCenter;
-		panValue = seParamF32(param, 0x1B8);
-		if (panCenter != panValue)
-			pan += panValue - panCenter;
-		panValue = seParamF32(param, 0x1C8);
-		if (panCenter != panValue)
-			pan += panValue - panCenter;
-		panValue = seParamF32(param, 0x1D8);
-		if (panCenter != panValue)
-			pan += panValue - panCenter;
-		panValue = seParamF32(param, 0x1E8);
-		if (panCenter != panValue)
-			pan += panValue - panCenter;
-		panValue = seParamF32(param, 0x1F8);
-		if (panCenter != panValue)
-			pan += panValue - panCenter;
-		panValue = seParamF32(param, 0x208);
-		if (panCenter != panValue)
-			pan += panValue - panCenter;
+		for (int i = 0; i < 7; ++i) {
+			f32 panValue = seParamF32(param, 0x1A8 + i * 0x10);
+			if (panCenter != panValue)
+				pan += panValue - panCenter;
+		}
 		pan += 0.5f;
 		if (pan < 0.0f)
 			pan = 0.0f;
