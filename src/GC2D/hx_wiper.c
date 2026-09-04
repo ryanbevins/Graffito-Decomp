@@ -592,13 +592,11 @@ static void Hxs1_Circle(f32 r) {
 		f32 root;
 		f32 y0;
 		f32 y1;
-		f32 cx;
 		volatile f32 rootOut;
 
 		dy = (f32)(hx.imgHHalf - i);
 		y0 = (f32)i;
 		y1 = (f32)(hx.imgH - i);
-		cx = (f32)hx.imgWHalf;
 		if (dy >= r) {
 			GXBegin(0xA8, GX_VTXFMT0, 4);
 			GXPosition3f32(0.0f, y0, 1.0f);
@@ -623,19 +621,19 @@ static void Hxs1_Circle(f32 r) {
 			GXBegin(0xA8, GX_VTXFMT0, 8);
 			GXPosition3f32(0.0f, y0, 1.0f);
 			GXColor1u32(0xFF);
-			GXPosition3f32(cx - root, y0, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf - root, y0, 1.0f);
 			GXColor1u32(0xFF);
-			GXPosition3f32(cx + root, y0, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf + root, y0, 1.0f);
 			GXColor1u32(0xFF);
 			GXPosition3f32((f32)hx.imgW, y0, 1.0f);
 			GXColor1u32(0xFF);
-			GXPosition3f32(cx + root, y1, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf + root, y1, 1.0f);
 			GXColor1u32(0xFF);
 			GXPosition3f32((f32)hx.imgW, y1, 1.0f);
 			GXColor1u32(0xFF);
 			GXPosition3f32(0.0f, y1, 1.0f);
 			GXColor1u32(0xFF);
-			GXPosition3f32(cx - root, y1, 1.0f);
+			GXPosition3f32((f32)hx.imgWHalf - root, y1, 1.0f);
 			GXColor1u32(0xFF);
 		}
 		i++;
