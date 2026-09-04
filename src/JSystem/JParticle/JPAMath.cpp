@@ -110,15 +110,13 @@ void JPAVecToRotaMtx(MtxPtr dst, JGeometry::TVec3<f32> a,
 		crossLen *= estimate;
 	}
 
-	if (crossLen > 3.8146973e-06f) {
+	if (crossLen <= 3.8146973e-06f) {
+		cross.zero();
+	} else {
 		f32 inv = __fres(crossLen);
 		cross.x *= inv;
 		cross.y *= inv;
 		cross.z *= inv;
-	} else {
-		cross.x = 0.0f;
-		cross.y = 0.0f;
-		cross.z = 0.0f;
 	}
 
 	f32 oneMinusDot = 1.0f - dot;
