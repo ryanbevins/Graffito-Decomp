@@ -1029,9 +1029,11 @@ void TBathWaterManager::throwMario(f32 jump)
 			frames += 1;
 		}
 
-		throwSpeed.x = (target.x - gpMarioPos->x) / (f32)frames;
+		f32 deltaX = target.x - gpMarioPos->x;
+		f32 deltaZ = target.z - gpMarioPos->z;
+		throwSpeed.x = deltaX / (f32)frames;
 		throwSpeed.y = 100.0f;
-		throwSpeed.z = (target.z - gpMarioPos->z) / (f32)frames;
+		throwSpeed.z = deltaZ / (f32)frames;
 	} else {
 		throwSpeed.x = 0.0f;
 		throwSpeed.y = jump;
