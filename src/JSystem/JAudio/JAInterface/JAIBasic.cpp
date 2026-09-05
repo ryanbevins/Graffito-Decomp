@@ -274,15 +274,16 @@ void JAIBasic::checkInitDataOnMemory()
 			}
 			break;
 		case 2: {
+			u8* buffer = (u8*)&d[i];
+			u8 k = 0;
 			u32 uVar7 = 0;
 			while (d[i + uVar7] != 0)
 				uVar7 += 3;
 
 			unk50 = (FabricatedUnk50Struct*)transInitDataFile(
-			    (u8*)&d[i], (uVar7 / 3) * 0xC + 4);
+			    buffer, (uVar7 / 3) * 0xC + 4);
 
 			u32 size = (uVar7 / 3) * 0xC + 4;
-			u8 k     = 0;
 			while (((u32*)unk4C)[i] != 0) {
 				unk50[k].unk0 = (void*)((u8*)unk4C + (u32)unk50[k].unk0);
 				++k;
@@ -292,15 +293,16 @@ void JAIBasic::checkInitDataOnMemory()
 			break;
 		}
 		case 3: {
+			u8* buffer = (u8*)&d[i];
+			u8 k = 0;
 			u32 uVar7 = 0;
 			while (d[i + uVar7] != 0)
 				uVar7 += 3;
 
 			unk54 = (FabricatedUnk54Struct*)transInitDataFile(
-			    (u8*)&d[i], (uVar7 / 3) * 0xC + 4);
+			    buffer, (uVar7 / 3) * 0xC + 4);
 
 			u32 size = (uVar7 / 3) * 0xC + 4;
-			u8 k     = 0;
 			while (((u32*)unk4C)[i] != 0) {
 				unk54[k].unk0 = (void*)((u8*)unk4C + (u32)unk54[k].unk0);
 				++k;
