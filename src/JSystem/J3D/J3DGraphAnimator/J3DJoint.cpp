@@ -235,8 +235,9 @@ void J3DMtxCalcMaya::calcTransform(u16 param_1, const J3DTransformInfo& param_2)
 		*p *= z;
 	}
 	MTXConcat(J3DSys::mCurrentMtx, mtx, J3DSys::mCurrentMtx);
+	MtxPtr currentMtx = J3DSys::mCurrentMtx;
 	model = j3dSys.getModel();
-	MTXCopy(J3DSys::mCurrentMtx, model->getAnmMtx(param_1));
+	MTXCopy(currentMtx, model->getAnmMtx(param_1));
 	J3DSys::mParentS.x = param_2.mScale.x;
 	J3DSys::mParentS.y = param_2.mScale.y;
 	J3DSys::mParentS.z = param_2.mScale.z;
