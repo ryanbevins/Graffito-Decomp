@@ -768,19 +768,24 @@ void TLeanMirror::release()
 	unkF8 &= ~2;
 	SMS_MarioMoveRequest(unk1A0);
 
-	JDrama::TFlagT<u16> flag(0);
 	if (strcmp(unkF4, "mirrorS") == 0) {
-		gpMarDirector->fireStartDemoCamera(
+		TMarDirector* director = gpMarDirector;
+		JDrama::TFlagT<u16> flag(0);
+		director->fireStartDemoCamera(
 		    "ぐらぐら鏡Ｓカメラ", &unk17C->mPosition,
 		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
 		    flag);
 	} else if (strcmp(unkF4, "mirrorM") == 0) {
-		gpMarDirector->fireStartDemoCamera(
+		TMarDirector* director = gpMarDirector;
+		JDrama::TFlagT<u16> flag(0);
+		director->fireStartDemoCamera(
 		    "ぐらぐら鏡Ｍカメラ", &unk17C->mPosition,
 		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
 		    flag);
 	} else if (strcmp(unkF4, "mirrorL") == 0) {
-		gpMarDirector->fireStartDemoCamera(
+		TMarDirector* director = gpMarDirector;
+		JDrama::TFlagT<u16> flag(0);
+		director->fireStartDemoCamera(
 		    "ぐらぐら鏡Ｌカメラ", &unk17C->mPosition,
 		    mGoTargetTime + mDemoWaitTime, 0.0f, true, nullptr, 0, nullptr,
 		    flag);
