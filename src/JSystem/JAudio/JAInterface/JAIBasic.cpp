@@ -248,31 +248,29 @@ void JAIBasic::checkInitDataOnMemory()
 			shouldContinue = false;
 			break;
 		case 1:
-			if (d[i + 2] == 0) {
-				u8* buffer        = (u8*)unk4C + d[i];
-				data->unk88.unk28 = d[i + 1];
-				data->unk88.unk78
-				    = (u8*)transInitDataFile(buffer, data->unk88.unk28);
-				data->unk1B0 = 0;
-				i += 3;
-			} else {
-				u8* buffer0       = (u8*)unk4C + d[i];
-				data->unk88.unk28 = d[i + 1];
+			if (d[i + 2] != 0) {
+				u8* buffer0 = (u8*)unk4C + ((u32*)unk4C)[i++];
+				data->unk88.unk28 = ((u32*)unk4C)[i++];
 				data->unk88.unk78
 				    = (u8*)transInitDataFile(buffer0, data->unk88.unk28);
 
-				u8* buffer1      = (u8*)unk4C + d[i + 2];
-				data->unkC.unk28 = d[i + 3];
+				u8* buffer1 = (u8*)unk4C + ((u32*)unk4C)[i++];
+				data->unkC.unk28 = ((u32*)unk4C)[i++];
 				data->unkC.unk78
 				    = (u8*)transInitDataFile(buffer1, data->unkC.unk28);
 
-				data->unk104.unk78 = (u8*)((u8*)unk4C + d[i + 4]);
-				data->unk104.unk28 = d[i + 5];
+				data->unk104.unk78 = (u8*)unk4C + ((u32*)unk4C)[i++];
+				data->unk104.unk28 = ((u32*)unk4C)[i++];
 				data->unk104.unk78
 				    = (u8*)transInitDataFile(buffer1, data->unk104.unk28);
 				data->unk1B0 = 1;
-
-				i += 6;
+			} else {
+				u8* buffer = (u8*)unk4C + ((u32*)unk4C)[i++];
+				data->unk88.unk28 = ((u32*)unk4C)[i++];
+				data->unk88.unk78
+				    = (u8*)transInitDataFile(buffer, data->unk88.unk28);
+				data->unk1B0 = 0;
+				++i;
 			}
 			break;
 		case 2: {
