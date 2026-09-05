@@ -283,7 +283,7 @@ void JAIBasic::checkInitDataOnMemory()
 
 			u32 size = (uVar7 / 3) * 0xC + 4;
 			u8 k     = 0;
-			while (d[i] != 0) {
+			while (((u32*)unk4C)[i] != 0) {
 				unk50[k].unk0 = (void*)((u8*)unk4C + (u32)unk50[k].unk0);
 				++k;
 				i += 3;
@@ -301,7 +301,7 @@ void JAIBasic::checkInitDataOnMemory()
 
 			u32 size = (uVar7 / 3) * 0xC + 4;
 			u8 k     = 0;
-			while (d[i] != 0) {
+			while (((u32*)unk4C)[i] != 0) {
 				unk54[k].unk0 = (void*)((u8*)unk4C + (u32)unk54[k].unk0);
 				++k;
 				i += 3;
