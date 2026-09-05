@@ -823,11 +823,12 @@ void TCannon::bombSet()
 {
 	TMsRange<f32> rateRange(0.0f, 1.0f);
 	f32 rate = rateRange.rand();
+	f32 generateRate = unk28C->mSLBombHeiGenerateRate.get();
 	unk21C = false;
 	unk1A4 = nullptr;
 
 	TSmallEnemy* spawned = nullptr;
-	if (rate < unk28C->mSLBombHeiGenerateRate.get()) {
+	if (rate < generateRate) {
 		spawned = (TSmallEnemy*)gpConductor->makeOneEnemyAppear(
 		    mPosition, "ボム兵マネージャー", 1);
 	} else {
