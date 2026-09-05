@@ -1,9 +1,9 @@
 #ifndef ENEMY_PAKKUN_HPP
 #define ENEMY_PAKKUN_HPP
 
-#include <Enemy/BossPakkun.hpp>
 #include <Enemy/EnemyAttachment.hpp>
 #include <Enemy/SmallEnemy.hpp>
+#include <Strategic/Nerve.hpp>
 
 class TWaterEmitInfo;
 
@@ -149,5 +149,14 @@ public:
 	/* 0x64 */ TWaterEmitInfo* mWaterEmitInfo;
 	/* 0x68 */ TWaterEmitInfo* mHideWaterEmitInfo;
 };
+
+DECLARE_NERVE(TNervePakkunGenerate, TLiveActor);
+DECLARE_NERVE(TNervePakkunStay, TLiveActor);
+DECLARE_NERVE(TNervePakkunAppear, TLiveActor);
+DECLARE_NERVE(TNervePakkunHide, TLiveActor);
+DECLARE_NERVE(TNervePakkunShoot, TLiveActor);
+DECLARE_NERVE(TNervePakkunFreeze, TLiveActor);
+DECLARE_NERVE(TNerveStayPakkunHide, TLiveActor);
+DECLARE_NERVE(TNerveStayPakkunAppear, TLiveActor);
 
 #endif

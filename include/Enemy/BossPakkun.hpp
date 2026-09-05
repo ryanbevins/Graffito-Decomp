@@ -230,13 +230,5 @@ DECLARE_NERVE(TNerveBPSleep, TLiveActor);
 DECLARE_NERVE(TNerveBPBreakSleep, TLiveActor);
 DECLARE_NERVE(TNerveBPWaitL, TLiveActor);
 DECLARE_NERVE(TNerveBPCannonL, TLiveActor);
-DECLARE_NERVE(TNervePakkunGenerate, TLiveActor);
-DECLARE_NERVE(TNervePakkunStay, TLiveActor);
-DECLARE_NERVE(TNervePakkunAppear, TLiveActor);
-DECLARE_NERVE(TNervePakkunHide, TLiveActor);
-DECLARE_NERVE(TNervePakkunShoot, TLiveActor);
-DECLARE_NERVE(TNervePakkunFreeze, TLiveActor);
-DECLARE_NERVE(TNerveStayPakkunHide, TLiveActor);
-DECLARE_NERVE(TNerveStayPakkunAppear, TLiveActor);
 
 #endif

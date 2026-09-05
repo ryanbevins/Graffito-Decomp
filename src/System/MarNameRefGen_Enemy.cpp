@@ -384,6 +384,9 @@ public:
 	char _stub[0x58];
 };
 
+// The fountain factories inline their two effect constructors, then call
+// TRotation3 directly (retail offsets 0x2014 and 0x208c).
+#pragma inline_depth(2)
 JDrama::TNameRef* TMarNameRefGen::getNameRef_Enemy(const char* name) const
 {
 	if (strcmp(name, "TypicalEnemy") == 0)
@@ -644,11 +647,8 @@ JDrama::TNameRef* TMarNameRefGen::getNameRef_Enemy(const char* name) const
 		return new TTamaNokoManager("タマノコマネージャー");
 	if (strcmp(name, "TamaNoko") == 0)
 		return new TTamaNoko("タマノコ");
-	if (strcmp(name, "BeamManager") == 0) {
-		TBeamManager* manager = new TBeamManager("ビームマネージャ");
-		gpBeamManager         = manager;
-		return manager;
-	}
+	if (strcmp(name, "BeamManager") == 0)
+		return gpBeamManager = new TBeamManager("ビームマネージャ");
 	if (strcmp(name, "KukkuManager") == 0)
 		return new TKukkuManager("クックマネージャー");
 	if (strcmp(name, "Kukku") == 0)
