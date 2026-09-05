@@ -676,11 +676,8 @@ void TBossManta::control()
 			0.0149999997f,  0.00700000022f,
 		};
 
-		f32 blend = unk150 + blendWave[unk154];
-		if (blend < 0.0f)
-			blend = 0.0f;
-		else if (blend > 1.0f)
-			blend = 1.0f;
+		f32 blend = JGeometry::TUtil<f32>::clamp(
+		    unk150 + blendWave[unk154], 0.0f, 1.0f);
 
 		if (mMActor->unkC)
 			mMActor->unkC->setMotionBlendRatio(blend);
