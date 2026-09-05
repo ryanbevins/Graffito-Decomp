@@ -855,7 +855,7 @@ void TCannon::bombSet()
 	if (unk1A4 != nullptr) {
 		unk1A4->mPosition = unk1A8->mPosition;
 		unk220 = unk1A4->mScaling.x;
-		unk1A4->mScaling.zero();
+		unk1A4->mScaling.set(0.0f, 0.0f, 0.0f);
 		unk1A4->mRotation = mRotation;
 		if (unk1A4->receiveMessage(this, HIT_MESSAGE_TAKE))
 			mHeldObject = unk1A4;
