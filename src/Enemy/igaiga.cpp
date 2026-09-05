@@ -396,7 +396,7 @@ void TRollEnemy::reset()
 	unk124->getGraph()->getGraphNode(1).getPoint((Vec*)&point);
 	JGeometry::TVec3<f32> dir;
 	dir.sub(point, mPosition);
-	mRotation.y = MsAngleWrap(MsGetRotFromZaxisY(dir));
+	mRotation.y = MsWrap(MsGetRotFromZaxisY(dir), 0.0f, 360.0f);
 
 	unk198 = mMarchSpeed * 1.5f;
 	unk19C = mMarchSpeed;
