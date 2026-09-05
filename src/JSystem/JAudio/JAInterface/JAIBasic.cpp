@@ -325,7 +325,7 @@ void JAIBasic::checkInitDataOnMemory()
 			void* res   = transInitDataFile(buffer, ((u32*)unk4C)[i + 1]);
 			*(void**)unk5C = res;
 			i += 3;
-			data->unk1F8 = (JAIData::FabricatedUnk1F8Struct*)*(void**)unk5C;
+			unk0->unk1F8 = (JAIData::FabricatedUnk1F8Struct*)*(void**)unk5C;
 			break;
 		}
 		case 6: {
