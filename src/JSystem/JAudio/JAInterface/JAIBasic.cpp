@@ -313,16 +313,16 @@ void JAIBasic::checkInitDataOnMemory()
 		}
 		case 4: {
 			unk58       = (u8**)transInitDataFile((u8*)&d[i], 8);
-			u8* buffer  = (u8*)unk4C + d[i];
-			void* res   = transInitDataFile(buffer, d[i + 1]);
+			u8* buffer  = (u8*)unk4C + ((u32*)unk4C)[i];
+			void* res   = transInitDataFile(buffer, ((u32*)unk4C)[i + 1]);
 			*(void**)unk58 = res;
 			i += 3;
 			break;
 		}
 		case 5: {
 			unk5C       = (u32)transInitDataFile((u8*)&d[i], 8);
-			u8* buffer  = (u8*)unk4C + d[i];
-			void* res   = transInitDataFile(buffer, d[i + 1]);
+			u8* buffer  = (u8*)unk4C + ((u32*)unk4C)[i];
+			void* res   = transInitDataFile(buffer, ((u32*)unk4C)[i + 1]);
 			*(void**)unk5C = res;
 			i += 3;
 			data->unk1F8 = (JAIData::FabricatedUnk1F8Struct*)*(void**)unk5C;
