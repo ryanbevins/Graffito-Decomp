@@ -408,8 +408,7 @@ void TTrembleModelEffect::movement()
 		JGeometry::TVec3<s16>* original
 		    = (JGeometry::TVec3<s16>*)unk4;
 
-		u32 vtxNum = unk0->mModelData->getVtxNum();
-		for (u32 i = 0; i < vtxNum; ++i) {
+		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
 			JGeometry::TVec3<s16> displacement = original[i];
 			displacement.sub(unk14[i]);
 
@@ -429,7 +428,8 @@ void TTrembleModelEffect::movement()
 		}
 
 		JGeometry::TVec3<s16>* current = unk18[unk9];
-		DCFlushRange(current, vtxNum * sizeof(JGeometry::TVec3<s16>));
+		DCFlushRange(current, unk0->mModelData->getVtxNum()
+		                          * sizeof(JGeometry::TVec3<s16>));
 		unk0->mVertexBuffer->unk4[0] = current;
 
 		for (int i = 0; i < unk0->mModelData->getShapeNum(); ++i)
@@ -440,8 +440,7 @@ void TTrembleModelEffect::movement()
 		JGeometry::TVec3<f32>* original
 		    = (JGeometry::TVec3<f32>*)unk4;
 
-		u32 vtxNum = unk0->mModelData->getVtxNum();
-		for (u32 i = 0; i < vtxNum; ++i) {
+		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
 			JGeometry::TVec3<f32> displacement = original[i];
 			displacement.sub(unk28[i]);
 
@@ -461,7 +460,8 @@ void TTrembleModelEffect::movement()
 		}
 
 		JGeometry::TVec3<f32>* current = unk2C[unk9];
-		DCFlushRange(current, vtxNum * sizeof(JGeometry::TVec3<f32>));
+		DCFlushRange(current, unk0->mModelData->getVtxNum()
+		                          * sizeof(JGeometry::TVec3<f32>));
 		unk0->mVertexBuffer->unk4[0] = current;
 
 		for (int i = 0; i < unk0->mModelData->getShapeNum(); ++i)
