@@ -487,52 +487,50 @@ JAISound* MSoundSE::startSoundSystemSE(u32 p1, u32 p2, JAISound** p3, u32 p4)
 	return sound;
 }
 
-void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
+void MSoundSE::startSoundActorWithInfo(u32 sound_id, const Vec* p2, Vec* p3, f32 gate_param,
                                        u32 p5, u32 p6, JAISound** p7, u32 p8,
                                        u8 p9)
 {
-	u32 soundID     = p1;
-	f32 gateParam   = p4;
-	f32 volumeParam = gateParam;
+	f32 volumeParam = gate_param;
 
-	switch ((s32)soundID) {
+	switch ((s32)sound_id) {
 	case 0x3048:
 		return;
 	case 0x2052:
-		gateParam = p2->y;
+		gate_param = p2->y;
 		break;
 	case 0x381C:
 	case 0x381D:
 	case 0x381E:
 	case 0x381F:
 	case 0x3820:
-		gateParam = ::fabs(gateParam);
+		gate_param = ::fabs(gate_param);
 		break;
 	case 0x305B:
-		gateParam = p2->y;
+		gate_param = p2->y;
 		break;
 	case 0x3804:
 	case 0x3862:
-		gateParam
+		gate_param
 		    = ::fabs(std::sqrtf(p3->x * p3->x + p3->y * p3->y + p3->z * p3->z));
 		break;
 	case 0x1818:
 		if (p5 < 4)
-			soundID += p5;
+			sound_id += p5;
 		else
-			soundID += 4;
+			sound_id += 4;
 		break;
 	}
 
-	if (JALSystem::gateCheckFunc(soundID, gateParam) == true)
+	if (JALSystem::gateCheckFunc(sound_id, gate_param) == true)
 		return;
 
 	JAIActor actor(p2, p2, p2, p6);
-	JAISound* sound = startSoundActorInner(soundID, p7, &actor, p8, p9);
+	JAISound* sound = startSoundActorInner(sound_id, p7, &actor, p8, p9);
 	if (sound == nullptr)
 		return;
 
-	switch ((s32)soundID) {
+	switch ((s32)sound_id) {
 	case 0x2007: {
 		f32 pitch = SeInfo::smSeSetting.unk4;
 		for (u32 i = 0; i < sound->unk14; ++i)
@@ -548,7 +546,7 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 	}
 	}
 
-	JALSystem::processModFunc(sound, gateParam, 0, 0);
+	JALSystem::processModFunc(sound, gate_param, 0, 0);
 }
 
 bool MSoundSE::checkSoundArea(u32 param, const Vec& vec)
