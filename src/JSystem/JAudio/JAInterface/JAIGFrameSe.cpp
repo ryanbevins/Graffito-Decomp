@@ -285,7 +285,7 @@ void JAIBasic::sendPlayingSeCommand()
 	for (u8 category = 0; category < JAIGlobalParameter::getParamSeCategoryMax();
 	     ++category) {
 		for (u8 i = 0; i < getSeCategoryLimit(unk0, unk10, category);
-		     ++i, ++globalIndex) {
+		     ++globalIndex, ++i) {
 			JAISound* sound = *getSeRegistSlot(unk0, category, i);
 			if (sound == nullptr)
 				continue;
