@@ -149,8 +149,8 @@ void TMapWarp::init(JSUMemoryInputStream& stream)
 		unk4[2 * i + 1].unk8.y = -unk4[2 * i].getUnk8().y;
 		unk4[2 * i + 1].unk8.z = -unk4[2 * i].getUnk8().z;
 
-		unk4[2 * i + 1].unk0 = local_180[i];
-		unk4[2 * i + 1].unk4 = local_1d0[i];
+		unk4[2 * i + 1].unk0 = local_1d0[i];
+		unk4[2 * i + 1].unk4 = local_180[i];
 	}
 
 	if (gpMarDirector->mMap == 4) {
