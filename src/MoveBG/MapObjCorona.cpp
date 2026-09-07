@@ -870,11 +870,8 @@ void TBathtub::calcBathtubData()
 	unk170.y = rootMtx[1][3];
 	unk170.z = rootMtx[2][3];
 
-	f32 upright = 1.0f - unk188[4] * unk188[4];
-	if (upright > 0.0f)
-		upright = JGeometry::TUtil<f32>::sqrt(upright);
-	else
-		upright = 0.0f;
+	f32 upright
+	    = JGeometry::TUtil<f32>::sqrt(1.0f - unk188[4] * unk188[4]);
 
 	f32 waterLevel = unk16C->watermark.get();
 	if (waterLevel < upright)
