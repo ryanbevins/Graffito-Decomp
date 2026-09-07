@@ -244,9 +244,8 @@ void TGuide::placeMario()
 	JGeometry::TVec3<f32> mpos = *gpMarioPos;
 	int rangeX                 = _434.x2 - _434.x1;
 	int rangeY                 = _434.y2 - _434.y1;
-	mpos.x                     = mpos.x * (f32)rangeX / 25000.0f;
-	mpos.y                     = 0.0f;
-	mpos.z                     = mpos.z * (f32)rangeY / 21200.0f;
+	mpos.set(mpos.x * (f32)rangeX / 25000.0f, 0.0f,
+	         mpos.z * (f32)rangeY / 21200.0f);
 
 	J2DPane* pane = _430;
 	int paneW     = pane->mBounds.x2 - pane->mBounds.x1;
