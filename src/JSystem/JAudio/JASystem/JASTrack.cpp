@@ -917,10 +917,6 @@ void TTrack::writeRegParam(u8 param)
 	case 0xB: // subtract
 		r24 = uVar5 - r24;
 		break;
-	case 0xA: // table load
-		r25 = loadTbl(r25, (s16)r24, r26);
-		r24 = (u16)r25;
-		break;
 	case 0x10: // shift (unsigned source)
 		if (bVar9 == 4)
 			r24 = Player::extend8to16(r24);
@@ -952,6 +948,10 @@ void TTrack::writeRegParam(u8 param)
 	case 0x90: // random modulo
 		r25 = Player::getRandomS32();
 		r24 = (s16)(r25 - (r25 / (u16)r24) * (u16)r24);
+		break;
+	case 0xA: // table load
+		r25 = loadTbl(r25, (s16)r24, r26);
+		r24 = (u16)r25;
 		break;
 	}
 
