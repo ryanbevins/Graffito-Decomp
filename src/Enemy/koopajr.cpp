@@ -822,8 +822,8 @@ void TKoopaJrSubmarine::makeRoundVelocity()
 	JGeometry::TVec3<f32> round = unk164.calcDirectionVector();
 	round.scale(unk168);
 
-	JGeometry::TVec3<f32> target = unk1A0->unk15C->mPosition;
-	target.add(round);
+	JGeometry::TVec3<f32> target;
+	target.add(unk1A0->unk15C->mPosition, round);
 
 	JGeometry::TVec3<f32> toTarget(target.x - mPosition.x, 0.0f,
 	                               target.z - mPosition.z);
