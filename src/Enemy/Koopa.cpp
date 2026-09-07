@@ -715,7 +715,8 @@ BOOL TKoopa::allowsLaunch() const
 f32 TKoopa::getNeckFocus() const
 {
 	int idx            = mMActor->getCurAnmIdx(0);
-	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+	MActor* actor      = mMActor;
+	J3DFrameCtrl* ctrl = actor->getFrameCtrl(0);
 	f32 end            = ctrl->getEnd();
 	f32 frame          = ctrl->getFrame();
 	f32 focus          = 1.0f;
