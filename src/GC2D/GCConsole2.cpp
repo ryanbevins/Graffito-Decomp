@@ -4036,9 +4036,9 @@ void TGCConsole2::drawJuice(J2DOrthoGraph& graph, u32 color)
 		unk334[unk330]->hide();
 
 	if ((u8)selected < 0x17) {
-		J2DPane* pane = unk334[selected - 1];
-		((J2DPicture*)pane)->mWhite.set(color);
-		pane->show();
+		((J2DPicture*)unk334[selected - 1])->mWhite
+		    = JUtility::TColor(color);
+		unk334[selected - 1]->show();
 		unk330 = selected - 1;
 	}
 }
