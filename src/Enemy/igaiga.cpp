@@ -605,8 +605,7 @@ void TIgaiga::setMeltAnm()
 	manager->mWaterEmitInfo->mPos.value = mPosition;
 	gpModelWaterManager->emitRequest(*manager->mWaterEmitInfo);
 
-	JGeometry::TVec3<f32> scale = mScaling;
-	scale *= 0.5f;
+	JGeometry::TVec3<f32> scale = mScaling * 0.5f;
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(0xa1, &unk1C0, 0, nullptr);
 	if (emitter)
