@@ -80,6 +80,24 @@ TBWParams::TBWParams(const char* path)
 	TParams::load(mPrmPath);
 }
 
+inline TBWLeashNode::TBWLeashNode(TBWLeash* leash, int index, const char* name)
+    : THitActor(name)
+    , mLeash(leash)
+    , mMActor(nullptr)
+    , unk74(0.0f)
+    , mIndex(index)
+{
+	TBossWanwan* owner = mLeash->mOwner;
+	mMActor = owner->mMActorKeeper->createMActor("bwanwan_chain.bmd", 0);
+	mMActor->setBrkFromIndex(2);
+
+	TBWParams* params = (TBWParams*)owner->getSaveParam();
+	f32 radius = params->mSLChainHitRadius.get();
+	f32 height = params->mSLChainHitHeight.get();
+	initHitActor(0x0800000C, 1, 0x80000000, radius * 1.2f,
+	             height * 1.2f, radius, height);
+}
+
 void TBWLeashNode::calcTemperature()
 {
 	if (mIndex == 0)
@@ -223,15 +241,7 @@ TBWLeash::TBWLeash(TBossWanwan* owner, int node_count, const char* name)
 	mNodes = new TBWLeashNode*[node_count];
 	for (int i = 0; i < node_count; ++i) {
 		TBWLeashNode* node = new TBWLeashNode(this, i, "鎖部");
-		node->mMActor = mOwner->mMActorKeeper->createMActor(
-		    "bwanwan_chain.bmd", 0);
-		node->mMActor->setBrkFromIndex(2);
 
-		TBWParams* params = (TBWParams*)mOwner->getSaveParam();
-		f32 radius        = params->mSLChainHitRadius.get();
-		f32 height        = params->mSLChainHitHeight.get();
-		node->initHitActor(0x0800000C, 1, 0x80000000, radius * 1.2f,
-		                   height * 1.2f, radius, height);
 		mNodes[i] = node;
 	}
 

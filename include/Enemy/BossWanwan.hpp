@@ -96,14 +96,7 @@ public:
 
 class TBWLeashNode : public THitActor {
 public:
-	TBWLeashNode(TBWLeash* leash, int index, const char* name)
-	    : THitActor(name)
-	    , mLeash(leash)
-	    , mMActor(nullptr)
-	    , unk74(0.0f)
-	    , mIndex(index)
-	{
-	}
+	TBWLeashNode(TBWLeash* leash, int index, const char* name);
 
 	virtual void perform(u32, JDrama::TGraphics*);
 
