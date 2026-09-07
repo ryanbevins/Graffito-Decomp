@@ -356,7 +356,7 @@ void JAIBasic::sendPlayingSeCommand()
 
 				sendSeAllParameter(sound);
 
-				u32 wait = sound->unk8 & 0x3ff;
+				u16 wait = sound->unk8 & 0x3ff;
 				if (sound->checkSwBit(0x800))
 					wait += getMapInfoGround(sound->unk18);
 
