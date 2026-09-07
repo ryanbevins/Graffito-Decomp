@@ -924,7 +924,7 @@ void TEnemyMario::checkReturn()
 	    mPosition, 0xffffffff);
 	BOOL searching   = TRUE;
 
-	do {
+	while (searching) {
 		JGeometry::TVec3<f32> point;
 		getOwnerGraphPoint(this, node, &point);
 
@@ -934,7 +934,7 @@ void TEnemyMario::checkReturn()
 		}
 
 		node = (node + 1) % emOwner(this)->unk124->getGraph()->getNodeNum();
-	} while (searching);
+	}
 }
 
 void TEnemyMario::reachGoal()
