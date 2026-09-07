@@ -883,9 +883,7 @@ void TBathtub::calcBathtubData()
 	unk17C.x = unk188[3];
 	unk17C.y = unk188[4];
 	unk17C.z = unk188[5];
-	unk1C8.x = 0.0f;
-	unk1C8.y = 0.0f;
-	unk1C8.z = 0.0f;
+	unk1C8.zero();
 
 	if (getKoopa()->effectsTumble() || unk24C > 0) {
 		JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
