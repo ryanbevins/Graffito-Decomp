@@ -474,9 +474,9 @@ void TShine::calc()
 		bowRate   = mBowRate[3];
 	}
 
-	JPABaseEmitter* emitter = unk194;
-	if (emitter) {
-		emitter->mBaseLifetime = promiLife;
+	if (unk194) {
+		unk194->mBaseLifetime = promiLife;
+		JPABaseEmitter* emitter = unk194;
 		emitter->unk154.x      = unk1A8;
 		emitter->unk154.y      = unk1AC;
 		emitter->unk154.z      = unk1B0;
@@ -484,9 +484,9 @@ void TShine::calc()
 		emitter->unk174.y      = unk1AC;
 		emitter->unk174.z      = unk1B0;
 	}
-	emitter = unk198;
-	if (emitter) {
-		emitter->mChildSpawnRate = senkoRate;
+	if (unk198) {
+		unk198->mChildSpawnRate = senkoRate;
+		JPABaseEmitter* emitter = unk198;
 		emitter->unk154.x        = unk1A8;
 		emitter->unk154.y        = unk1AC;
 		emitter->unk154.z        = unk1B0;
@@ -494,9 +494,9 @@ void TShine::calc()
 		emitter->unk174.y        = unk1AC;
 		emitter->unk174.z        = unk1B0;
 	}
-	emitter = unk19C;
-	if (emitter) {
-		emitter->mChildSpawnRate = kiraRate;
+	if (unk19C) {
+		unk19C->mChildSpawnRate = kiraRate;
+		JPABaseEmitter* emitter = unk19C;
 		emitter->unk154.x        = unk1A8;
 		emitter->unk154.y        = unk1AC;
 		emitter->unk154.z        = unk1B0;
@@ -504,9 +504,9 @@ void TShine::calc()
 		emitter->unk174.y        = unk1AC;
 		emitter->unk174.z        = unk1B0;
 	}
-	emitter = unk1A0;
-	if (emitter) {
-		emitter->mChildSpawnRate = bowRate;
+	if (unk1A0) {
+		unk1A0->mChildSpawnRate = bowRate;
+		JPABaseEmitter* emitter = unk1A0;
 		emitter->unk154.x        = unk1A8;
 		emitter->unk154.y        = unk1AC;
 		emitter->unk154.z        = unk1B0;
