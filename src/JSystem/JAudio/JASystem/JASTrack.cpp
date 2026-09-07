@@ -955,7 +955,6 @@ void TTrack::writeRegParam(u8 param)
 		break;
 	}
 
-	u32 uVar10 = bVar1;
 	u16 storeVal;
 	switch (bVar1) {
 	case 0:
@@ -966,26 +965,26 @@ void TTrack::writeRegParam(u8 param)
 		break;
 	case 0x21:
 		r24    = (r24 & 0xff) | ((mRegisterParam.getBankNumber() & 0xff) << 8);
-		uVar10 = 6;
+		bVar1 = 6;
 		break;
 	case 0x20:
 		r24    = ((s16)r24 << 8) | (mRegisterParam.getProgramNumber() & 0xff);
-		uVar10 = 6;
+		bVar1 = 6;
 		break;
 	case 0x2E:
 		r24    = (r24 & 0xff) | (mRegisterParam.unk1A & 0xff00);
-		uVar10 = 0xd;
+		bVar1 = 0xd;
 		break;
 	case 0x2F:
 		r24    = (mRegisterParam.unk1A & 0xff) | ((s16)r24 << 8);
-		uVar10 = 0xd;
+		bVar1 = 0xd;
 		break;
 	case 0x22:
 		uVar5 = (s16)r24;
 		writeRegDirect(0, (u16)(uVar5 >> 8));
 		r24      = (s16)(uVar5 & 0xff);
 		storeVal = r24;
-		uVar10   = 1;
+		bVar1   = 1;
 		break;
 	case 0x28:
 	case 0x29:
@@ -997,20 +996,20 @@ void TTrack::writeRegParam(u8 param)
 		storeVal = r24;
 	}
 
-	mRegisterParam.unk0[uVar10] = r24;
+	mRegisterParam.unk0[bVar1] = r24;
 	mRegisterParam.unk0[3]      = storeVal;
 
-	if ((u8)uVar10 == 6) {
+	if ((u8)bVar1 == 6) {
 		if (unk3A0[0] != 0xE)
 			unk3A0[0] = 0xF;
 		if (unk3A0[1] != 0xE)
 			unk3A0[1] = 0xF;
 	}
 
-	if ((u8)uVar10 == 7)
+	if ((u8)bVar1 == 7)
 		unk3B4 |= 2;
 
-	if ((u8)uVar10 == 0xD) {
+	if ((u8)bVar1 == 0xD) {
 		mChannelUpdater.unk68 = mRegisterParam.unk1A | 0x10000;
 		mChannelUpdater.unk6C = 0;
 	}
