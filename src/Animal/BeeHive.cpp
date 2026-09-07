@@ -479,7 +479,8 @@ void TBeeHive::bind()
 	if (mVelocity.y < TLiveActor::mVelocityMinY)
 		mVelocity.y = TLiveActor::mVelocityMinY;
 
-	f32 swingOffset = -60.0f * (-1.0f + JMACos(mAngularVelocity.x));
+	f32 swingOffset
+	    = -60.0f * (-1.0f + JMACos((180.0f / M_PI) * mAngularVelocity.x));
 	mGroundHeight   = gpMap->checkGround(next.x, next.y + mHeadHeight + swingOffset,
 	                                    next.z, &mGroundPlane);
 	mGroundHeight += 1.0f;
