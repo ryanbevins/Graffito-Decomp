@@ -21,6 +21,7 @@
 #include <JSystem/JUtility/JUTNameTab.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
 #include <JSystem/JGadget/std-list.hpp>
+#include <JSystem/JGeometry/JGQuat4.hpp>
 #include <dolphin/mtx.h>
 #include <stdlib.h>
 
@@ -393,23 +394,8 @@ void TYumbo::shotSeeds()
 	f32 sinY   = sinf(yawRad);
 	f32 cosY   = cosf(yawRad);
 
-	f32 qx = 0.0f;
-	f32 qy = sinY;
-	f32 qz = 0.0f;
-	f32 qw = cosY;
-	f32 x  = dir.x;
-	f32 y  = dir.y;
-	f32 z  = dir.z;
-
-	dir.x = (1.0f - 2.0f * (qy * qy + qz * qz)) * x
-	        + 2.0f * (qx * qy - qz * qw) * y
-	        + 2.0f * (qx * qz + qy * qw) * z;
-	dir.y = 2.0f * (qx * qy + qz * qw) * x
-	        + (1.0f - 2.0f * (qx * qx + qz * qz)) * y
-	        + 2.0f * (qy * qz - qx * qw) * z;
-	dir.z = 2.0f * (qx * qz - qy * qw) * x
-	        + 2.0f * (qy * qz + qx * qw) * y
-	        + (1.0f - 2.0f * (qx * qx + qy * qy)) * z;
+	JGeometry::TQuat4<f32> yaw(0.0f, sinY, 0.0f, cosY);
+	yaw.rotate(dir, dir);
 
 	f32 randomHalf = 0.5f * (6.2831855f * ((f32)rand() * (1.0f / 32768.0f)));
 	f32 randSin    = sinf(randomHalf);
@@ -419,13 +405,13 @@ void TYumbo::shotSeeds()
 	f32 spreadSin  = sinf(spreadHalf);
 	f32 spreadCos  = cosf(spreadHalf);
 
-	qx = randCos * spreadSin;
-	qy = randSin * spreadCos;
-	qz = -randSin * spreadSin;
-	qw = randCos * spreadCos;
-	x  = dir.x;
-	y  = dir.y;
-	z  = dir.z;
+	f32 qx = randCos * spreadSin;
+	f32 qy = randSin * spreadCos;
+	f32 qz = -randSin * spreadSin;
+	f32 qw = randCos * spreadCos;
+	f32 x  = dir.x;
+	f32 y  = dir.y;
+	f32 z  = dir.z;
 
 	JGeometry::TVec3<f32> dir4;
 	dir4.x = (1.0f - 2.0f * (qy * qy + qz * qz)) * x
