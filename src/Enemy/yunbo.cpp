@@ -405,29 +405,15 @@ void TYumbo::shotSeeds()
 	f32 spreadSin  = sinf(spreadHalf);
 	f32 spreadCos  = cosf(spreadHalf);
 
-	f32 qx = randCos * spreadSin;
-	f32 qy = randSin * spreadCos;
-	f32 qz = -randSin * spreadSin;
-	f32 qw = randCos * spreadCos;
-	f32 x  = dir.x;
-	f32 y  = dir.y;
-	f32 z  = dir.z;
-
-	JGeometry::TVec3<f32> dir4;
-	dir4.x = (1.0f - 2.0f * (qy * qy + qz * qz)) * x
-	         + 2.0f * (qx * qy - qz * qw) * y
-	         + 2.0f * (qx * qz + qy * qw) * z;
-	dir4.y = 2.0f * (qx * qy + qz * qw) * x
-	         + (1.0f - 2.0f * (qx * qx + qz * qz)) * y
-	         + 2.0f * (qy * qz - qx * qw) * z;
-	dir4.z = 2.0f * (qx * qz - qy * qw) * x
-	         + 2.0f * (qy * qz + qx * qw) * y
-	         + (1.0f - 2.0f * (qx * qx + qy * qy)) * z;
+	JGeometry::TQuat4<f32> spread(0.0f, randSin, 0.0f, randCos);
+	JGeometry::TQuat4<f32> pitch(spreadSin, 0.0f, 0.0f, spreadCos);
+	spread.mul(spread, pitch);
+	spread.rotate(dir, dir);
 
 	s32 seedLife = getSaveParam2()->mSeedLife.get();
 	seed->mState &= ~1;
 	seed->mPosition = mPosition;
-	seed->mVelocity.set(dir4.x, dir4.y, dir4.z);
+	seed->mVelocity = dir;
 	seed->mLife = seedLife;
 	seed->mScaling.set(2.0f, 2.0f, 2.0f);
 	seed->unk64 &= ~1;
