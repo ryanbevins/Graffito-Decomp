@@ -481,6 +481,11 @@ void TBossEel::collideToMario()
 		u16 jointIndex = *(u16*)((u8*)this + 0x1A0 + i * 2);
 		MtxPtr mtx     = mMActor->getModel()->mNodeMatrices[jointIndex];
 
+		JGeometry::TVec3<f32> jointPos;
+		jointPos.x = mtx[0][3];
+		jointPos.y = mtx[1][3];
+		jointPos.z = mtx[2][3];
+
 		JGeometry::TVec3<f32> normal;
 		normal.x = mtx[0][1];
 		normal.y = mtx[1][1];
@@ -488,11 +493,6 @@ void TBossEel::collideToMario()
 		if (i == 0)
 			normal.negate();
 		normal.normalize();
-
-		JGeometry::TVec3<f32> jointPos;
-		jointPos.x = mtx[0][3];
-		jointPos.y = mtx[1][3];
-		jointPos.z = mtx[2][3];
 
 		JGeometry::TVec3<f32> delta = marioPos;
 		delta.sub(jointPos);
