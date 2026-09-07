@@ -721,6 +721,17 @@ f32 TKoopa::getNeckFocus() const
 	f32 focus          = 1.0f;
 
 	switch (idx) {
+	case 6:
+		if (frame >= 164.0f)
+			focus = (frame - 164.0f) / (end - 164.0f);
+		else
+			focus = 0.0f;
+		break;
+
+	case 2:
+		focus = 0.0f;
+		break;
+
 	case 0:
 		if (frame <= 40.0f)
 			focus = 1.0f - frame / 40.0f;
@@ -729,27 +740,7 @@ f32 TKoopa::getNeckFocus() const
 		break;
 
 	case 1:
-	case 2:
-	case 4:
 		focus = 0.0f;
-		break;
-
-	case 3:
-		focus = frame / end;
-		break;
-
-	case 5:
-		if (frame <= 103.0f)
-			focus = 1.0f - frame / 103.0f;
-		else
-			focus = 0.0f;
-		break;
-
-	case 6:
-		if (frame >= 164.0f)
-			focus = (frame - 164.0f) / (end - 164.0f);
-		else
-			focus = 0.0f;
 		break;
 
 	case 7:
@@ -757,6 +748,15 @@ f32 TKoopa::getNeckFocus() const
 			focus = (frame - 125.0f) / (end - 125.0f);
 		else
 			focus = 0.0f;
+		break;
+
+	case 9:
+		if (frame <= 30.0f)
+			focus = 1.0f - frame / 30.0f;
+		else if (frame <= 65.0f)
+			focus = 0.0f;
+		else
+			focus = (frame - 65.0f) / (end - 65.0f);
 		break;
 
 	case 8:
@@ -768,13 +768,28 @@ f32 TKoopa::getNeckFocus() const
 			focus = (frame - 170.0f) / (end - 170.0f);
 		break;
 
-	case 9:
-		if (frame <= 30.0f)
-			focus = 1.0f - frame / 30.0f;
-		else if (frame <= 65.0f)
+	case 14:
+		if (frame <= 20.0f)
+			focus = 1.0f - frame / 20.0f;
+		else if (frame <= 40.0f)
 			focus = 0.0f;
 		else
-			focus = (frame - 65.0f) / (end - 65.0f);
+			focus = (frame - 40.0f) / (end - 40.0f);
+		break;
+
+	case 4:
+		focus = 0.0f;
+		break;
+
+	case 5:
+		if (frame <= 103.0f)
+			focus = 1.0f - frame / 103.0f;
+		else
+			focus = 0.0f;
+		break;
+
+	case 3:
+		focus = frame / end;
 		break;
 
 	case 12:
@@ -797,15 +812,6 @@ f32 TKoopa::getNeckFocus() const
 		} else {
 			focus = 1.0f;
 		}
-		break;
-
-	case 14:
-		if (frame <= 20.0f)
-			focus = 1.0f - frame / 20.0f;
-		else if (frame <= 40.0f)
-			focus = 0.0f;
-		else
-			focus = (frame - 40.0f) / (end - 40.0f);
 		break;
 	}
 
