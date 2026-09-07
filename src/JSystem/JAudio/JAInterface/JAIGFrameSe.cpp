@@ -360,7 +360,7 @@ void JAIBasic::sendPlayingSeCommand()
 				if (sound->checkSwBit(0x800))
 					wait += getMapInfoGround(sound->unk18);
 
-				u16 distanceWait = 0;
+				u16 distanceWait;
 				if (JAIGlobalParameter::audioCameraMax == 1
 				    && sound->checkSwBit(0x1000)) {
 					f32 distance = sound->unk1C[0].unk18;
@@ -373,6 +373,8 @@ void JAIBasic::sendPlayingSeCommand()
 						distanceWait
 						    = JAIGlobalParameter::seDistanceWaitMax;
 					}
+				} else {
+					distanceWait = 0;
 				}
 
 				JAISystemInterface::writePortApp(seq, portBase + 0x30000,
