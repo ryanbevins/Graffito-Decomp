@@ -531,15 +531,20 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 	if (sound == nullptr)
 		return;
 
-	if (soundID == 0x2007) {
+	switch ((s32)soundID) {
+	case 0x2007: {
 		f32 pitch = SeInfo::smSeSetting.unk4;
 		for (u32 i = 0; i < sound->unk14; ++i)
 			pitch *= SeInfo::smSeSetting.unk0;
 		sound->setSeInterPitch(0, pitch, 0, 0.0f);
-	} else if (soundID == 0x305B) {
+		break;
+	}
+	case 0x305B: {
 		f32 volume = JALCalc::linearTransform(volumeParam, 0.0f, 20.0f, 0.0f,
 		                                      1.0f, true);
 		sound->setVolume(volume, 0, 0);
+		break;
+	}
 	}
 
 	JALSystem::processModFunc(sound, gateParam, 0, 0);
