@@ -519,6 +519,7 @@ const char** TKiller::getBasNameTable() const { return killer_bastable; }
 void TKiller::genEventCoin()
 {
 	Mtx rotMtx;
+	MtxPtr rotPtr = rotMtx;
 	JGeometry::TVec3<f32> dir;
 
 	int count = mColorVariant ? 8 : 2;
@@ -542,7 +543,7 @@ void TKiller::genEventCoin()
 		rotMtx[2][2] = cos;
 		rotMtx[2][3] = 0.0f;
 
-		PSMTXMultVec(rotMtx, &dir, &dir);
+		PSMTXMultVec(rotPtr, &dir, &dir);
 
 		TMapObjBase* obj = gpItemManager->makeObjAppear(
 		    mPosition.x + dir.x, mPosition.y, mPosition.z + dir.z, 0x2000000e,
