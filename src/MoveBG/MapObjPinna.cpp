@@ -619,9 +619,10 @@ void TPinnaShell::control()
 	}
 
 	TMapObjBase* parent = unk8C;
-	mPosition.x = parent->mPosition.x + 0.7f * (unk74[0][3] - parent->mPosition.x);
-	mPosition.y = unk74[1][3] - 100.0f;
-	mPosition.z = parent->mPosition.z + 0.7f * (unk74[2][3] - parent->mPosition.z);
+	mPosition.set(
+	    parent->mPosition.x + 0.7f * (unk74[0][3] - parent->mPosition.x),
+	    unk74[1][3] - 100.0f,
+	    parent->mPosition.z + 0.7f * (unk74[2][3] - parent->mPosition.z));
 
 	unk88->mPosition.x = mPosition.x;
 	unk88->mPosition.y = mPosition.y;
