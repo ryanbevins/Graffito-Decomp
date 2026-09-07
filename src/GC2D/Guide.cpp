@@ -816,7 +816,7 @@ void TGuide::resetScore()
 		u22++;
 
 	((J2DPicture*)unkBC->search('0s_1'))
-	    ->changeTexture(_C8[u22]->mTexInfo, 0);
+	    ->changeTexture(_C8[u22]->getTexInfo(), 0);
 	totalAccum += u22;
 
 	s32 totalFlag = TFlagManager::smInstance->getFlag(0x40000);
@@ -825,9 +825,9 @@ void TGuide::resetScore()
 		remaining = 99;
 
 	((J2DPicture*)unkBC->search('1s_1'))
-	    ->changeTexture(_C8[(u8)remaining / 10]->mTexInfo, 0);
+	    ->changeTexture(_C8[(u8)remaining / 10]->getTexInfo(), 0);
 	((J2DPicture*)unkBC->search('1s_2'))
-	    ->changeTexture(_C8[(u8)remaining % 10]->mTexInfo, 0);
+	    ->changeTexture(_C8[(u8)remaining % 10]->getTexInfo(), 0);
 
 	s32 totalClamped = totalFlag;
 	if (totalClamped > 999)
