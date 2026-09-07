@@ -818,7 +818,7 @@ BOOL TMario::hipAttacking()
 		}
 		if (mActionTimer < 40) {
 			f32 f = (f32)(40 - mActionTimer) * 0.5f;
-			if (160.0f + mPosition.y + f < mFloorPosition.x) {
+			if (160.0f + (mPosition.y + f) < mFloorPosition.x) {
 				mPosition.y += f * 0.25f;
 				// Pointer math slop
 				*(f32*)((u8*)this + 0x104) = mPosition.y;
