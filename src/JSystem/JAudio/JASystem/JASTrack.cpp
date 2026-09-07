@@ -948,7 +948,7 @@ void TTrack::writeRegParam(u8 param)
 		break;
 	case 0x90: // random modulo
 		r25 = Player::getRandomS32();
-		r24 = (s16)(r25 - (r25 / (u16)r24) * (u16)r24);
+		r24 = r25 % (u16)r24;
 		break;
 	case 0xA: // table load
 		r25 = loadTbl(r25, (s16)r24, r26);
