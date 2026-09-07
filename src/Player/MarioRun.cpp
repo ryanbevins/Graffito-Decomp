@@ -1713,13 +1713,11 @@ rotateDone:
 		shouldTurn = 0;
 	} else {
 		s16 yawDiff = (s16)(mIntendedYaw - mFaceAngle.y);
-		shouldTurn = 1;
-		if (yawDiff >= -18204 && yawDiff <= 18204)
-			shouldTurn = 0;
+		bool angleOutside = yawDiff < -18204 || yawDiff > 18204;
+		shouldTurn = angleOutside;
 	}
 
-	u32 shouldTurnCheck = (u8)shouldTurn;
-	if (!shouldTurnCheck) {
+	if (!shouldTurn) {
 		changePlayerStatus(0x04000440, 0, false);
 		return;
 	}
