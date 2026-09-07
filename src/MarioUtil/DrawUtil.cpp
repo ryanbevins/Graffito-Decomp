@@ -409,8 +409,9 @@ void TTrembleModelEffect::movement()
 		    = (JGeometry::TVec3<s16>*)unk4;
 
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
+			const JGeometry::TVec3<s16>& currentPosition = unk14[i];
 			JGeometry::TVec3<s16> displacement = original[i];
-			displacement.sub(unk14[i]);
+			displacement.sub(currentPosition);
 
 			unk20[i].x += (s16)((displacement.x * unk26) >> unkA);
 			unk20[i].y += (s16)((displacement.y * unk26) >> unkA);
@@ -440,8 +441,9 @@ void TTrembleModelEffect::movement()
 		    = (JGeometry::TVec3<f32>*)unk4;
 
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
+			const JGeometry::TVec3<f32>& currentPosition = unk28[i];
 			JGeometry::TVec3<f32> displacement = original[i];
-			displacement.sub(unk28[i]);
+			displacement.sub(currentPosition);
 
 			unk34[i].x += displacement.x * unk3C;
 			unk34[i].y += displacement.y * unk3C;
