@@ -427,13 +427,12 @@ void TTrembleModelEffect::movement()
 			unk18[unk9][i] = unk14[i];
 		}
 
-		JGeometry::TVec3<s16>* current = unk18[unk9];
-		DCFlushRange(current, unk0->mModelData->getVtxNum()
+		DCFlushRange(unk18[unk9], unk0->mModelData->getVtxNum()
 		                          * sizeof(JGeometry::TVec3<s16>));
-		unk0->mVertexBuffer->unk4[0] = current;
+		unk0->mVertexBuffer->unk4[0] = unk18[unk9];
 
 		for (int i = 0; i < unk0->mModelData->getShapeNum(); ++i)
-			unk0->mShapePackets->unk24 = current;
+			unk0->mShapePackets->unk24 = unk18[unk9];
 		break;
 	}
 	case 2: {
@@ -459,13 +458,12 @@ void TTrembleModelEffect::movement()
 			unk2C[unk9][i] = unk28[i];
 		}
 
-		JGeometry::TVec3<f32>* current = unk2C[unk9];
-		DCFlushRange(current, unk0->mModelData->getVtxNum()
+		DCFlushRange(unk2C[unk9], unk0->mModelData->getVtxNum()
 		                          * sizeof(JGeometry::TVec3<f32>));
-		unk0->mVertexBuffer->unk4[0] = current;
+		unk0->mVertexBuffer->unk4[0] = unk2C[unk9];
 
 		for (int i = 0; i < unk0->mModelData->getShapeNum(); ++i)
-			unk0->mShapePackets->unk24 = current;
+			unk0->mShapePackets->unk24 = unk2C[unk9];
 		break;
 	}
 	}
