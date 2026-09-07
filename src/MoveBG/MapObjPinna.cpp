@@ -359,10 +359,8 @@ void TMerrygoround::initMapObj()
 
 	int eggNo  = 0;
 	int poleNo = 0;
-	J3DModelData* data = getModel()->mModelData;
-	JUTNameTab* names  = data->getJointName();
-	for (u16 i = 1; i < data->getJointNum(); ++i) {
-		const char* name = names->getName(i);
+	for (u16 i = 1; i < getModel()->mModelData->getJointNum(); ++i) {
+		const char* name = getModel()->mModelData->getJointName()->getName(i);
 		if (strstr(name, "egg") != nullptr) {
 			unk140[eggNo++] = i;
 		} else if (strcmp(name, "yoshi_warp") == 0) {
