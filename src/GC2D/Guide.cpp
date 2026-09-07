@@ -777,10 +777,10 @@ void TGuide::resetScore()
 
 		u8* stageData = (u8*)this + stage * 8;
 		u16 deaths    = *(u16*)(stageData + 0x18);
+		u32 cTag = '0c_1' + (stage << 24);
 		if (deaths > 999)
 			deaths = 999;
 
-		u32 cTag = '0c_1' + (stage << 24);
 		J2DPicture* h = (J2DPicture*)unkBC->search(cTag);
 		J2DPicture* t = (J2DPicture*)unkBC->search(cTag + 1);
 		J2DPicture* o = (J2DPicture*)unkBC->search(cTag + 2);
