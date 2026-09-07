@@ -375,12 +375,12 @@ void TMerrygoround::initMapObj()
 
 	for (int i = 0; i < 2; ++i) {
 		unk138[i] = makePinnaObj("merry_egg");
-		unk138[i]->initMapObj();
+		unk138[i]->appear();
 	}
 
 	for (int i = 0; i < 9; ++i) {
 		unk144[i] = makePinnaObj("merry_pole");
-		unk144[i]->initMapObj();
+		unk144[i]->appear();
 		unk168[i] = new TMapCollisionMove;
 		unk168[i]->init("/scene/mapObj/merry_yoshi.col", 0, this);
 		unk168[i]->setUp();
