@@ -512,7 +512,7 @@ void TKazekun::doAttackPose(bool decide)
 		JGeometry::TQuat4<f32> rot;
 		rot.setRotate(axis, 1.5707964f);
 
-		quat.mul(rot, quat);
+		quat.mul(quat, rot);
 		mQuat = quat;
 
 		JGeometry::TVec3<f32> vel(0.0f, 0.0f,
@@ -561,7 +561,7 @@ void TKazekun::flyAroundMario()
 	JGeometry::TQuat4<f32> rot;
 	rot.setRotate(axis, (2.0f - ratio) * 1.5707964f);
 
-	quat.mul(rot, quat);
+	quat.mul(quat, rot);
 	mQuat = quat;
 
 	JGeometry::TVec3<f32> vel(0.0f, 0.0f, 1.0f);
