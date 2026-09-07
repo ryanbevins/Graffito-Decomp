@@ -241,14 +241,14 @@ BOOL TMario::changePlayerTriJump()
 			s16 oppAngle = (s16)(mSlopeAngle + 0x8000);
 			u16 diff = (u16)(mFaceAngle.y - oppAngle);
 
-			f32 sinDiff = JMASSin(diff);
 			f32 cosDiff = JMASCos(diff);
+			f32 sinDiff = JMASSin(diff);
 
 			f32 fwd = mForwardVel;
-			f32 sinComp = fwd * sinDiff;
 			f32 cosComp = fwd * cosDiff;
-			f32 scaledSin = 0.75f * sinComp;
-			f32 sqSum = cosComp * cosComp + scaledSin * scaledSin;
+			f32 sinComp = fwd * sinDiff;
+			f32 scaledCos = 0.75f * cosComp;
+			f32 sqSum = sinComp * sinComp + scaledCos * scaledCos;
 
 			if (sqSum > 0.0f) {
 				double guess = __frsqrte((double)sqSum);
@@ -265,7 +265,7 @@ BOOL TMario::changePlayerTriJump()
 			mVel.x = mSlideVelX;
 			mVel.z = mSlideVelZ;
 
-			s16 newAngle = matan(scaledSin, cosComp);
+			s16 newAngle = matan(scaledCos, sinComp);
 			mFaceAngle.y = oppAngle + newAngle;
 		}
 
