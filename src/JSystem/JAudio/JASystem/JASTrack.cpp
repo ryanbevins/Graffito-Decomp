@@ -961,7 +961,7 @@ void TTrack::writeRegParam(u8 param)
 	case 0:
 	case 1:
 	case 2:
-		r24 &= 0xff;
+		r24 = (u8)r24;
 		storeVal = Player::extend8to16(r24);
 		break;
 	case 0x21:
