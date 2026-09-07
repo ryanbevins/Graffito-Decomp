@@ -718,7 +718,7 @@ BOOL TGraphWeb::isDummy() const
 JGeometry::TVec3<f32>
 TGraphWeb::getNearestPosOnGraphLink(const JGeometry::TVec3<f32>& param_1) const
 {
-	bool bVar9 = true;
+	BOOL bVar9 = TRUE;
 
 	JGeometry::TVec3<f32> local_48 = param_1;
 	f32 min;
