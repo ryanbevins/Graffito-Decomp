@@ -181,7 +181,7 @@ public:
 	bool isFlaming() const;
 	f32 getFlameDirDegree() const;
 	BOOL allowsLaunch() const;
-	BOOL effectsTumble() const;
+	bool effectsTumble() const;
 	f32 getFlameDirRate() const;
 	void changeAnm(int, int, f32);
 	f32 getNeckFocus() const;

@@ -678,7 +678,7 @@ BOOL TKoopa::getShowered()
 	return TRUE;
 }
 
-BOOL TKoopa::effectsTumble() const
+bool TKoopa::effectsTumble() const
 {
 	if (&TNerveKoopaTumble::theNerve() == mSpine->getCurrentNerve()) {
 		int time = mSpine->getTime();
