@@ -840,7 +840,7 @@ void TTrack::writeTimeParam(u8 param)
 
 void TTrack::writeRegParam(u8 param)
 {
-	u8 bVar9 = param & 0xC;
+	u32 bVar9 = param & 0xC;
 	u32 bVar8 = param & 0x3;
 
 	u32 r26;
