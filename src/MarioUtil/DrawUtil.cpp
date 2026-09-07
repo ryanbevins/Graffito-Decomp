@@ -451,9 +451,9 @@ void TTrembleModelEffect::movement()
 			unk34[i].y += displacement.y * unk3C;
 			unk34[i].z += displacement.z * unk3C;
 
-			unk34[i].x *= unk38;
-			unk34[i].y *= unk38;
-			unk34[i].z *= unk38;
+			unk34[i].x = unk38 * unk34[i].x;
+			unk34[i].y = unk38 * unk34[i].y;
+			unk34[i].z = unk38 * unk34[i].z;
 
 			const JGeometry::TVec3<f32>& velocity = unk34[i];
 			JGeometry::TVec3<f32>& position = unk28[i];
