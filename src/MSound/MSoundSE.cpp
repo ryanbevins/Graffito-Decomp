@@ -9,6 +9,7 @@
 #include <MarioUtil/MapUtil.hpp>
 #include <System/MSoundMainSide.hpp>
 #include <math.h>
+#include <fake_tgmath.h>
 
 #undef MSL_STDSQRTF_OUT_OF_LINE
 
@@ -505,7 +506,7 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 	case 0x381E:
 	case 0x381F:
 	case 0x3820:
-		gateParam = __fabsf(gateParam);
+		gateParam = ::fabs(gateParam);
 		break;
 	case 0x305B:
 		gateParam = p2->y;
@@ -513,7 +514,7 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 	case 0x3804:
 	case 0x3862:
 		gateParam
-		    = __fabsf(std::sqrtf(p3->x * p3->x + p3->y * p3->y + p3->z * p3->z));
+		    = ::fabs(std::sqrtf(p3->x * p3->x + p3->y * p3->y + p3->z * p3->z));
 		break;
 	case 0x1818:
 		if (p5 < 4)
