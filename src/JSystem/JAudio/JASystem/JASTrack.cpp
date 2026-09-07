@@ -899,6 +899,8 @@ void TTrack::writeRegParam(u8 param)
 	s32 uVar5 = readRegDirect(bVar1);
 
 	switch (bVar8) {
+	case 0x0: // move
+		break;
 	case 0x1: // add
 		if (bVar9 == 4)
 			r24 = Player::extend8to16(r24);
