@@ -964,13 +964,21 @@ void TTrack::writeRegParam(u8 param)
 		r24 &= 0xff;
 		storeVal = Player::extend8to16(r24);
 		break;
+	case 0x21:
+		r24    = (r24 & 0xff) | ((mRegisterParam.getBankNumber() & 0xff) << 8);
+		uVar10 = 6;
+		break;
 	case 0x20:
 		r24    = ((s16)r24 << 8) | (mRegisterParam.getProgramNumber() & 0xff);
 		uVar10 = 6;
 		break;
-	case 0x21:
-		r24    = (r24 & 0xff) | ((mRegisterParam.getBankNumber() & 0xff) << 8);
-		uVar10 = 6;
+	case 0x2E:
+		r24    = (r24 & 0xff) | (mRegisterParam.unk1A & 0xff00);
+		uVar10 = 0xd;
+		break;
+	case 0x2F:
+		r24    = (mRegisterParam.unk1A & 0xff) | ((s16)r24 << 8);
+		uVar10 = 0xd;
 		break;
 	case 0x22:
 		uVar5 = (s16)r24;
@@ -985,14 +993,6 @@ void TTrack::writeRegParam(u8 param)
 	case 0x2B:
 		mRegisterParam.unk20[bVar1 - 0x28] = r25;
 		return;
-	case 0x2E:
-		r24    = (r24 & 0xff) | (mRegisterParam.unk1A & 0xff00);
-		uVar10 = 0xd;
-		break;
-	case 0x2F:
-		r24    = (mRegisterParam.unk1A & 0xff) | ((s16)r24 << 8);
-		uVar10 = 0xd;
-		break;
 	default:
 		storeVal = r24;
 	}
