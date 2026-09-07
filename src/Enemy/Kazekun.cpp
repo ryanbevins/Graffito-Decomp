@@ -541,11 +541,12 @@ void TKazekun::doAttackPose(bool decide)
 	JGeometry::TQuat4<f32> spin;
 	spin.setRotate(spinAxis,
 	               3.1415927f * getKazekunParam()->mPoseOmegaRate.get());
-	mQuat.mul(spin, mQuat);
+	spin.mul(spin, mQuat);
+	mQuat = spin;
 
 	f32 speed = JGeometry::TUtil<f32>::sqrt(mVelocity.dot(mVelocity));
 	JGeometry::TVec3<f32> newVel(0.0f, 0.0f, speed);
-	mQuat.rotate(newVel, newVel);
+	spin.rotate(newVel, newVel);
 	mVelocity = newVel;
 }
 
