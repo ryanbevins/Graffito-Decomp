@@ -757,8 +757,7 @@ void TAnimalBird::moveObject()
 
 	if (inGroundState && (mLiveFlag & 0x80)) {
 		TAnimalBirdParams* p = (TAnimalBirdParams*)getSaveParam();
-		unk17C++;
-		if (p->mFloatingTimerMax.value < unk17C) {
+		if (p->mFloatingTimerMax.value < ++unk17C) {
 			mSpine->reset();
 			mSpine->setNext(&TNerveAnimalBirdTakeoff::theNerve());
 		}
