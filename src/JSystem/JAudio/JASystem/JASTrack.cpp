@@ -854,7 +854,7 @@ void TTrack::writeRegParam(u8 param)
 		bVar8 = 10;
 		param = mSeqCtrl.readByte();
 		bVar9 = param & 0xC;
-		r26   = (param >> 4) + 4;
+		r26   = ((param >> 4) & 0xF) + 4;
 	}
 
 	if ((param & 0xF) == 0x9) {
