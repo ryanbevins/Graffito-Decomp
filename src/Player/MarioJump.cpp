@@ -867,7 +867,7 @@ BOOL TMario::hipAttacking()
 				// Pointer math slop
 				if (!onYoshi() && *(u32*)((u8*)mGroundPlane->getActor() + 0x4C) == 0x4000006A) {
 					emitParticle(57, (const JGeometry::TVec3<f32>*)&mPosition);
-					mPosition.y -= 5.0f;
+					mPosition.y -= 160.0f;
 					((TLiveActor*)mGroundPlane->getActor())->receiveMessage(this, 3);
 					startVoice(0x78D3);
 					return changePlayerStatus(0x00200346, 0, false);
