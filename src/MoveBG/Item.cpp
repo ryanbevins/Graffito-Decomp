@@ -454,24 +454,24 @@ void TShine::calc()
 	f32 bowRate;
 	if (distance < 2000.0f) {
 		promiLife = (s16)mPromiLife[0];
-		senkoRate = mSenkoRate[0];
 		kiraRate  = mKiraRate[0];
 		bowRate   = mBowRate[0];
+		senkoRate = mSenkoRate[0];
 	} else if (distance < 4000.0f) {
 		promiLife = (s16)mPromiLife[1];
-		senkoRate = mSenkoRate[1];
 		kiraRate  = mKiraRate[1];
 		bowRate   = mBowRate[1];
+		senkoRate = mSenkoRate[1];
 	} else if (distance < 6000.0f) {
 		promiLife = (s16)mPromiLife[2];
-		senkoRate = mSenkoRate[2];
 		kiraRate  = mKiraRate[2];
 		bowRate   = mBowRate[2];
+		senkoRate = mSenkoRate[2];
 	} else {
 		promiLife = (s16)mPromiLife[3];
-		senkoRate = mSenkoRate[3];
 		kiraRate  = mKiraRate[3];
 		bowRate   = mBowRate[3];
+		senkoRate = mSenkoRate[3];
 	}
 
 	if (unk194) {
