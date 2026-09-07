@@ -870,7 +870,7 @@ void TLeanMirror::controlShake()
 	rotateVecByAxisY(&axis, 1.5707963f);
 
 	f32 speedXZ
-	    = JGeometry::TUtil<f32>::sqrt(unk14C.x * unk14C.x + unk14C.z * unk14C.z);
+	    = MsSqrtf(unk14C.x * unk14C.x + unk14C.z * unk14C.z);
 	f32 angle   = speedXZ * unk158.x;
 	JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > rotMtx;
 	rotMtx.identity();
