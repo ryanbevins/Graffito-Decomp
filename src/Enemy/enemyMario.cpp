@@ -920,20 +920,20 @@ void TEnemyMario::checkReturn()
 	if (!mGroundPlane->checkFlag(0x10))
 		return;
 
-	int node = emOwner(this)->unk124->getGraph()->findNearestNodeIndex(
+	int node = owner()->unk124->getGraph()->findNearestNodeIndex(
 	    mPosition, 0xffffffff);
 	BOOL searching   = TRUE;
 
 	while (searching) {
 		JGeometry::TVec3<f32> point;
-		getOwnerGraphPoint(this, node, &point);
+		owner()->unk124->getGraph()->getGraphNode(node).getPoint(&point);
 
 		if (point.distance(*gpMarioPos) > 1000.0f) {
 			*(Vec*)&mPosition = point;
 			searching = FALSE;
 		}
 
-		node = (node + 1) % emOwner(this)->unk124->getGraph()->getNodeNum();
+		node = (node + 1) % owner()->unk124->getGraph()->getNodeNum();
 	}
 }
 
