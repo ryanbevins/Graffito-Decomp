@@ -576,7 +576,7 @@ void TPinnaShell::control()
 	case 0:
 		if (unk6C < 0.0f) {
 			unk6C += TShellCup::mCloseAccel
-			         * (0.5f + (f32)rand() * (1.0f / 32768.0f));
+			         * (0.5f + 0.5f * ((f32)rand() * (1.0f / 32768.0f)));
 		} else {
 			unk6C = 0.0f;
 		}
