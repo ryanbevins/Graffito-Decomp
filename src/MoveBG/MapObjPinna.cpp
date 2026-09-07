@@ -363,12 +363,12 @@ void TMerrygoround::initMapObj()
 	JUTNameTab* names  = data->getJointName();
 	for (u16 i = 1; i < data->getJointNum(); ++i) {
 		const char* name = names->getName(i);
-		if (strstr(name, "egg") != nullptr && eggNo < 2) {
+		if (strstr(name, "egg") != nullptr) {
 			unk140[eggNo++] = i;
 		} else if (strcmp(name, "yoshi_warp") == 0) {
 			unk1A4 = i;
 		} else if (strcmp(name, "up") != 0 && strcmp(name, "down") != 0
-		           && strcmp(name, "KAGE_2") != 0 && poleNo < 9) {
+		           && strcmp(name, "KAGE_2") != 0) {
 			unk18C[poleNo++] = i;
 		}
 	}
