@@ -1000,10 +1000,10 @@ void TTrack::writeRegParam(u8 param)
 	mRegisterParam.unk0[3]      = storeVal;
 
 	if ((u8)bVar1 == 6) {
-		if (unk3A0[0] != 0xE)
-			unk3A0[0] = 0xF;
-		if (unk3A0[1] != 0xE)
-			unk3A0[1] = 0xF;
+		for (int i = 0; i < 2; ++i) {
+			if (unk3A0[i] != 0xE)
+				unk3A0[i] = 0xF;
+		}
 	}
 
 	if ((u8)bVar1 == 7)
