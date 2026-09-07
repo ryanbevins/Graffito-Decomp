@@ -3,6 +3,7 @@
 #include <JSystem/JAudio/JAInterface/JAISystemInterface.hpp>
 #include <JSystem/JAudio/JAInterface/JAIParameters.hpp>
 #include <JSystem/JAudio/JAInterface/JAIConst.hpp>
+#include <math.h>
 
 static inline u8 getSeCategoryLimit(JAIData* data, u8 scene, u8 category)
 {
@@ -304,7 +305,7 @@ void JAIBasic::sendPlayingSeCommand()
 			for (u8 camera = 0; camera < JAIGlobalParameter::audioCameraMax;
 			     ++camera) {
 				f32* distance = &positions[camera].unk18;
-				*distance     = calcSeDistance(*distance);
+				*distance     = std::sqrtf(*distance);
 			}
 
 			if (sound->unk1 == 2) {
