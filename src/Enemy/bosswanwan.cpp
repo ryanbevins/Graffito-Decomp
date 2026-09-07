@@ -1911,7 +1911,7 @@ DEFINE_NERVE(TNerveBWShake, TLiveActor)
 
 		actor->getAnmBck()->setFrameCtrl(2);
 		J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(0);
-		self->unk178 = (360.0f / 65536.0f) / (f32)frameCtrl->getEnd();
+		self->unk178 = 10.0f / (f32)frameCtrl->getEnd();
 		self->setAnmSound(bwanwan_bastable[2]);
 	}
 
@@ -1920,12 +1920,12 @@ DEFINE_NERVE(TNerveBWShake, TLiveActor)
 			JPABaseEmitter* emitter = gpMarioParticleManager->emit(
 			    0xAE, &self->mPicket->mPosition, 0, nullptr);
 			if (emitter != nullptr) {
-				emitter->unk154.x = 0.03125f;
-				emitter->unk154.y = 10000.0f;
-				emitter->unk154.z = 0.03125f;
-				emitter->unk174.x = 0.03125f;
-				emitter->unk174.y = 10000.0f;
-				emitter->unk174.z = 0.03125f;
+				emitter->unk154.x = 0.3f;
+				emitter->unk154.y = 0.5f;
+				emitter->unk154.z = 0.3f;
+				emitter->unk174.x = 0.3f;
+				emitter->unk174.y = 0.5f;
+				emitter->unk174.z = 0.3f;
 			}
 		}
 
