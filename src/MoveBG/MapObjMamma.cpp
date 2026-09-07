@@ -876,15 +876,10 @@ void TLeanMirror::controlShake()
 	makeMtxRotByAxis(axis, angle, rotMtx);
 	concatOnlyRotFromLeft(rotMtx, mtx, mtx);
 
-	bool hitLimit = false;
-	if (getModel()->getAnmMtx(0)[1][1] < unk174) {
-		f32 dot = unk14C.x * getModel()->getAnmMtx(0)[0][1]
-		          + unk14C.z * getModel()->getAnmMtx(0)[2][1];
-		if (dot > 0.0f)
-			hitLimit = true;
-	}
-
-	if (hitLimit) {
+	if (getModel()->getAnmMtx(0)[1][1] < unk174
+	    && unk14C.x * getModel()->getAnmMtx(0)[0][1]
+	               + unk14C.z * getModel()->getAnmMtx(0)[2][1]
+	           > 0.0f) {
 		f32 volume = __fabsf(vecLength(unk14C));
 		if (gpMSound->gateCheck(0x3849)) {
 			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
