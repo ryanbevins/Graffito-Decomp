@@ -871,7 +871,7 @@ void TTrack::writeRegParam(u8 param)
 	if (bVar8 == 10)
 		r25 = readReg32(mSeqCtrl.readByte());
 
-	s32 r24;
+	s16 r24;
 
 	switch (bVar9) {
 	case 0:
