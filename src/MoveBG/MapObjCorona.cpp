@@ -674,16 +674,16 @@ void TBathtub::perform(u32 flags, JDrama::TGraphics* graphics)
 		PSMTXCopy(mMActor->unk4->getAnmMtx(unk264),
 		          unk29C->unk4->getBaseTRMtx());
 		Vec scale;
-		scale.x = 1.5f;
-		scale.y = 1.5f;
-		scale.z = 1.5f;
+		scale.x = 3.0f;
+		scale.y = 3.0f;
+		scale.z = 3.0f;
 		unk29C->unk4->setBaseScale(scale);
 	}
 
 	if (flags & 1) {
 		TMarDirector* director = gpMarDirector;
-		s32 deadCount = getNumGripsDead();
 		s32 frame     = director->unk58;
+		s32 deadCount = getNumGripsDead();
 		switch (deadCount) {
 		case 0:
 			if (frame >= 7200) {
