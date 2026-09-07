@@ -734,7 +734,7 @@ void TGuide::resetScore()
 			unkBC->search('0_mn' + (stage << 24))->hide();
 		}
 
-		if (stage <= 1)
+		if (stage == 0 || stage == 1)
 			continue;
 
 		u8* stageData = (u8*)this + stage * 8;
