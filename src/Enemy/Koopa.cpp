@@ -722,10 +722,9 @@ f32 TKoopa::getNeckFocus() const
 
 	switch (idx) {
 	case 6:
+		focus = 0.0f;
 		if (frame >= 164.0f)
 			focus = (frame - 164.0f) / (end - 164.0f);
-		else
-			focus = 0.0f;
 		break;
 
 	case 2:
