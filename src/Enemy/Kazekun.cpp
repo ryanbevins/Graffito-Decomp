@@ -562,9 +562,10 @@ void TKazekun::flyAroundMario()
 	f32 tilt = JGeometry::TUtil<f32>::clamp(dir.y, -400.0f, 400.0f) * 0.0025f;
 	dir.y    = 0.0f;
 
+	TKazekunParams* params = getKazekunParam();
 	f32 dist  = JGeometry::TUtil<f32>::sqrt(dir.dot(dir));
 	f32 ratio = JGeometry::TUtil<f32>::clamp(
-	    dist / getKazekunParam()->mAroundDist.get(), 0.0f, 2.0f);
+	    dist / params->mAroundDist.get(), 0.0f, 2.0f);
 
 	TPosition3f mtx;
 	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
