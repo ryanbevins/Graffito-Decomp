@@ -3,6 +3,7 @@
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
 #include <MarioUtil/MathUtil.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorData.hpp>
 #include <MoveBG/MapObjWave.hpp>
@@ -376,7 +377,7 @@ void TYumbo::shotSeeds()
 	dir.x -= mPosition.x;
 	dir.y -= mPosition.y;
 	dir.z -= mPosition.z;
-	dir.y += 200.0f * (0.5f + (f32)rand() * (1.0f / 32768.0f));
+	dir.y += 200.0f * (0.5f + MsRandF());
 
 	f32 speed = getSaveParam2()->mShootSpeed.get();
 	dir.setLength(speed);
