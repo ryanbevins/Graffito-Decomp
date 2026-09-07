@@ -498,8 +498,9 @@ void TBeeHive::bind()
 
 	gpMap->isTouchedOneWallAndMoveXZ(&next.x, next.y + mHeadHeight, &next.z,
 	                                 mBodyRadius);
-	mLinearVelocity = next;
-	mLinearVelocity -= mPosition;
+	JGeometry::TVec3<f32> velocity = next;
+	velocity.sub(mPosition);
+	mLinearVelocity = velocity;
 }
 
 #pragma dont_inline on
