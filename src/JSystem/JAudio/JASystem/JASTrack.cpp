@@ -896,7 +896,7 @@ void TTrack::writeRegParam(u8 param)
 		break;
 	}
 
-	s32 uVar5 = readRegDirect(bVar1);
+	s16 uVar5 = readRegDirect(bVar1);
 
 	switch (bVar8) {
 	case 0x0: // move
@@ -906,11 +906,12 @@ void TTrack::writeRegParam(u8 param)
 			r24 = Player::extend8to16(r24);
 		r24 = uVar5 + r24;
 		break;
-	case 0x2: // multiply -> reg4/reg5
-		uVar5 = (s16)uVar5 * (s16)r24;
-		writeRegDirect(4, (u32)uVar5 >> 0x10);
-		writeRegDirect(5, uVar5);
+	case 0x2: { // multiply -> reg4/reg5
+		s32 product = (s16)uVar5 * (s16)r24;
+		writeRegDirect(4, (u32)product >> 0x10);
+		writeRegDirect(5, product);
 		return;
+	}
 	case 0x3: // subtract -> reg3
 		mRegisterParam.unk0[3] = uVar5 - r24;
 		return;
