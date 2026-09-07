@@ -1136,13 +1136,13 @@ void TTalk2D2::moveTalkWindow()
 		pane = unk6C[line];
 
 		if (unk26A) {
-			unk78[line]->mVisible = false;
-			cursor                = unk84[line];
-			unk84[line]->mVisible = true;
+			cursor                 = unk84[line];
+			unk78[unk274]->mVisible = false;
+			unk84[unk274]->mVisible = true;
 		} else {
-			cursor                = unk78[line];
-			unk78[line]->mVisible = true;
-			unk84[line]->mVisible = false;
+			cursor                 = unk78[line];
+			unk78[unk274]->mVisible = true;
+			unk84[unk274]->mVisible = false;
 		}
 	} else {
 		pane   = unk204;
