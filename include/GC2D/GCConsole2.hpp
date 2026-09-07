@@ -130,7 +130,11 @@ public:
 	/* 0x90 */ THelpActor** unk90;
 	/* 0x94 */ TConsoleStr* unk94;
 	/* 0x98 */ s16 unk98;
-	/* 0x9A */ u8 unk9A[20];
+	/* 0x9A */ JUtility::TColor unk9A;
+	/* 0x9E */ JUtility::TColor unk9E;
+	/* 0xA2 */ JUtility::TColor unkA2;
+	/* 0xA6 */ JUtility::TColor unkA6;
+	/* 0xAA */ JUtility::TColor unkAA;
 	/* 0xB0 */ J2DSetScreen* unkB0;
 	/* 0xB4 */ u8 unkB4;
 	/* 0xB6 */ s16 unkB6;

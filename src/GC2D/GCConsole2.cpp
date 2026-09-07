@@ -1401,6 +1401,11 @@ TGCConsole2::TGCConsole2(const char* name)
     , unk8C(0)
     , unk90(nullptr)
     , unk98(20)
+    , unk9A(0x64, 0xDC, 0xFF, 0xFF)
+    , unk9E(0, 0xB4, 0xF0, 0xFF)
+    , unkA2(0xFF, 0xCF, 0, 0x7F)
+    , unkA6(0xFF, 0, 0xFF, 0x7F)
+    , unkAA(0xFF, 0x7F, 0x7F, 0x7F)
     , unkB0(nullptr)
     , unkB4(0)
     , unkB6(0)
@@ -1475,27 +1480,6 @@ TGCConsole2::TGCConsole2(const char* name)
 {
 	for (int i = 0; i < 30; ++i)
 		unk34[i] = 0;
-
-	unk9A[0]  = 0x64;
-	unk9A[1]  = 0xDC;
-	unk9A[2]  = 0xFF;
-	unk9A[3]  = 0xFF;
-	unk9A[4]  = 0x00;
-	unk9A[5]  = 0xB4;
-	unk9A[6]  = 0xF0;
-	unk9A[7]  = 0xFF;
-	unk9A[8]  = 0xFF;
-	unk9A[9]  = 0xCF;
-	unk9A[10] = 0x00;
-	unk9A[11] = 0x7F;
-	unk9A[12] = 0xFF;
-	unk9A[13] = 0x00;
-	unk9A[14] = 0xFF;
-	unk9A[15] = 0x7F;
-	unk9A[16] = 0xFF;
-	unk9A[17] = 0x7F;
-	unk9A[18] = 0x7F;
-	unk9A[19] = 0x7F;
 
 	for (int i = 0; i < 3; ++i)
 		unkD4[i] = nullptr;
@@ -4067,14 +4051,14 @@ void TGCConsole2::drawWater(J2DOrthoGraph& graph)
 	Mtx mtx;
 	setupConsoleGaugeGX(mtx, 2);
 
-	unk2EC[1].set(((u32)unk9A[0] << 24) | ((u32)unk9A[1] << 16)
-	              | ((u32)unk9A[2] << 8));
-	unk2EC[2].set(((u32)unk9A[4] << 24) | ((u32)unk9A[5] << 16)
-	              | ((u32)unk9A[6] << 8));
+	unk2EC[1].set(((u32)unk9A.r << 24) | ((u32)unk9A.g << 16)
+	              | ((u32)unk9A.b << 8));
+	unk2EC[2].set(((u32)unk9E.r << 24) | ((u32)unk9E.g << 16)
+	              | ((u32)unk9E.b << 8));
 
 	u8 alpha[3];
-	alpha[1] = unk9A[3];
-	alpha[2] = unk9A[7];
+	alpha[1] = unk9A.a;
+	alpha[2] = unk9E.a;
 
 	for (int layer = 2; layer > 0; --layer) {
 		GXSetTevColor(GX_TEVREG0, unk2EC[layer]);
@@ -4498,16 +4482,16 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 			u32 color = 0;
 			switch (gpModelWaterManager->unk5D5F) {
 			case 1:
-				color = ((u32)unk9A[8] << 24) | ((u32)unk9A[9] << 16)
-				        | ((u32)unk9A[10] << 8) | unk9A[11];
+				color = ((u32)unkA2.r << 24) | ((u32)unkA2.g << 16)
+				        | ((u32)unkA2.b << 8) | unkA2.a;
 				break;
 			case 2:
-				color = ((u32)unk9A[12] << 24) | ((u32)unk9A[13] << 16)
-				        | ((u32)unk9A[14] << 8) | unk9A[15];
+				color = ((u32)unkA6.r << 24) | ((u32)unkA6.g << 16)
+				        | ((u32)unkA6.b << 8) | unkA6.a;
 				break;
 			case 3:
-				color = ((u32)unk9A[16] << 24) | ((u32)unk9A[17] << 16)
-				        | ((u32)unk9A[18] << 8) | unk9A[19];
+				color = ((u32)unkAA.r << 24) | ((u32)unkAA.g << 16)
+				        | ((u32)unkAA.b << 8) | unkAA.a;
 				break;
 			}
 			drawJuice(graph, color);
