@@ -523,7 +523,7 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 		break;
 	}
 
-	if (JALSystem::gateCheckFunc(soundID, gateParam))
+	if (JALSystem::gateCheckFunc(soundID, gateParam) == true)
 		return;
 
 	JAIActor actor(p2, p2, p2, p6);
