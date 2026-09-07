@@ -975,7 +975,7 @@ void TTrack::writeRegParam(u8 param)
 		bVar1 = 6;
 		break;
 	case 0x2E:
-		r24    = (r24 & 0xff) | (mRegisterParam.unk1A & 0xff00);
+		r24    = (mRegisterParam.unk1A & 0xff00) | (r24 & 0xff);
 		bVar1 = 0xd;
 		break;
 	case 0x2F:
