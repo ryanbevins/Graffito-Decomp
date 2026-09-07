@@ -565,7 +565,7 @@ void TKazekun::flyAroundMario()
 	mQuat = quat;
 
 	JGeometry::TVec3<f32> vel(0.0f, 0.0f, 1.0f);
-	quat.rotate(vel);
+	quat.rotate(vel, vel);
 	vel.y = tilt;
 	vel.scale(1.0f + __fabsf(tilt));
 	vel.scale(getKazekunParam()->mAroundSpeed.get());
