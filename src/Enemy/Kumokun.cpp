@@ -314,9 +314,8 @@ bool TKumokun::checkOnMovingWall(JGeometry::TVec3<f32>* param_1,
 		local_3C.y = dVar10;
 	}
 
-	JGeometry::TVec3<f32> local_70 = getPlaneNormal();
-	JGeometry::TVec3<f32> local_48;
-	local_48.scaleAdd(-10.0f, local_3C, local_70);
+	JGeometry::TVec3<f32> local_48 = getPlaneNormal();
+	local_48.scaleAdd(-10.0f, local_3C, local_48);
 
 	const TBGCheckData* wall = checkWallPlane(&local_48, mHeadHeight, 100.0f);
 
