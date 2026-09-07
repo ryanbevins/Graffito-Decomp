@@ -790,16 +790,22 @@ BOOL TMario::rocketing()
 
 BOOL TMario::hipAttacking()
 {
-	s32 i = 0; f32 md = 70.0f;
-	// Pointer math slop
-	while (i < *(u16*)((u8*)this + 0x48)) {
-		// Pointer math slop
-		THitActor* a = ((THitActor**)*(u32*)((u8*)this + 0x44))[i];
-		u32 at = *(u32*)((u8*)a + 0x4C);
-		u8 it; if (at == 0x4000000B) it = 1; else it = 0;
+	s32 i = 0;
+	f32 md = 70.0f;
+	while (i < mColCount) {
+		THitActor* a = mCollisions[i];
+		u32 at = a->mActorType;
+		u8 it;
+		if (at == 0x4000000B)
+			it = 1;
+		else
+			it = 0;
 		if (it) {
 			f32 d = a->mPosition.distance(mPosition);
-			if (d > md) { mPosition.x = *(f32*)((u8*)a + 0x10); mPosition.z = *(f32*)((u8*)a + 0x18); }
+			if (d > md) {
+				mPosition.x = mCollisions[i]->mPosition.x;
+				mPosition.z = mCollisions[i]->mPosition.z;
+			}
 		}
 		i++;
 	}
