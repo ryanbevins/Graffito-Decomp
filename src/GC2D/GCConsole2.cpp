@@ -4479,22 +4479,27 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 		graph.setup2D();
 
 		if (isMountedYoshi(gpMarioOriginal)) {
-			u32 color = 0;
 			switch (gpModelWaterManager->unk5D5F) {
 			case 1:
-				color = ((u32)unkA2.r << 24) | ((u32)unkA2.g << 16)
-				        | ((u32)unkA2.b << 8) | unkA2.a;
+				drawJuice(graph, ((u32)unkA2.r << 24)
+				                     + (((u32)unkA2.g << 16)
+				                        + ((u32)unkA2.b << 8) + unkA2.a));
 				break;
 			case 2:
-				color = ((u32)unkA6.r << 24) | ((u32)unkA6.g << 16)
-				        | ((u32)unkA6.b << 8) | unkA6.a;
+				drawJuice(graph, ((u32)unkA6.r << 24)
+				                     + (((u32)unkA6.g << 16)
+				                        + ((u32)unkA6.b << 8) + unkA6.a));
 				break;
 			case 3:
-				color = ((u32)unkAA.r << 24) | ((u32)unkAA.g << 16)
-				        | ((u32)unkAA.b << 8) | unkAA.a;
+				drawJuice(graph, ((u32)unkAA.r << 24)
+				                     + (((u32)unkAA.g << 16)
+				                        + ((u32)unkAA.b << 8) + unkAA.a));
+				break;
+			case 0:
+			default:
+				drawJuice(graph, 0);
 				break;
 			}
-			drawJuice(graph, color);
 		} else if (unk2F8->getPane()->isVisible()) {
 			drawWater(graph);
 		}
