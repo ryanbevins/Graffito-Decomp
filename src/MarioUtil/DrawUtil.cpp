@@ -347,8 +347,9 @@ void TTrembleModelEffect::clash(f32 power)
 	switch (unk8 & 2) {
 	case 0:
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
+			const JGeometry::TVec3<s16>& velocity = unk20[i];
 			JGeometry::TVec3<s16> position = unk14[i];
-			position.add(unk20[i]);
+			position.add(velocity);
 
 			unk14[i] = position;
 			unk18[0][i] = position;
@@ -357,8 +358,9 @@ void TTrembleModelEffect::clash(f32 power)
 		break;
 	case 2:
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
+			const JGeometry::TVec3<f32>& velocity = unk34[i];
 			JGeometry::TVec3<f32> position = unk28[i];
-			position.add(unk34[i]);
+			position.add(velocity);
 
 			unk28[i] = position;
 			unk2C[0][i] = position;
