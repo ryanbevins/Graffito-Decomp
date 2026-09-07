@@ -888,14 +888,12 @@ void TBathtub::calcBathtubData()
 	unk1C8.z = 0.0f;
 
 	if (getKoopa()->effectsTumble() || unk24C > 0) {
+		JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 		JGeometry::TVec3<f32> axis;
-		axis.x = unk17C.z;
-		axis.y = 0.0f;
-		axis.z = -unk17C.x;
+		axis.cross(up, unk17C);
+		axis.normalize();
 
-		f32 lengthSq = axis.x * axis.x + axis.y * axis.y + axis.z * axis.z;
-		if (lengthSq > 0.0f) {
-			axis.scale(1.0f * JGeometry::TUtil<f32>::inv_sqrt(lengthSq));
+		if (!axis.isZero()) {
 
 			f32 angle = 0.5f * (unk16C->maxAngle.get() * 6.2831855f / 360.0f);
 			f32 sinAngle = sinf(angle);
