@@ -87,6 +87,7 @@ void JAIAnimeSound::setAnimSoundActor(JAIBasic* basic, JAIActor* actor,
 
 	u8* data       = mData;
 	u16 soundCount = *(u16*)data;
+	JAIAnimeFrameSoundData* soundData;
 	if ((u32)mDataCounterInc == 1) {
 		if (mCurrentTime > param1) {
 			while (
@@ -106,8 +107,7 @@ void JAIAnimeSound::setAnimSoundActor(JAIBasic* basic, JAIActor* actor,
 			Slot& slot = mSlots[i];
 			JAISound** slotSound = &slot.mSound;
 			if (slot.mIsPlaying) {
-				JAIAnimeFrameSoundData* soundData
-				    = (JAIAnimeFrameSoundData*)slot.mData;
+				soundData = (JAIAnimeFrameSoundData*)slot.mData;
 				u32 soundID = soundData->mSoundID;
 				if ((soundID & 0xC00) == 0) {
 					if (param2 != 0.0f || (soundData->unk10 & 0x20) == 0) {
@@ -163,8 +163,7 @@ void JAIAnimeSound::setAnimSoundActor(JAIBasic* basic, JAIActor* actor,
 			Slot& slot = mSlots[i];
 			JAISound** slotSound = &slot.mSound;
 			if (slot.mIsPlaying) {
-				JAIAnimeFrameSoundData* soundData
-				    = (JAIAnimeFrameSoundData*)slot.mData;
+				soundData = (JAIAnimeFrameSoundData*)slot.mData;
 				u32 soundID = soundData->mSoundID;
 				if ((soundID & 0xC00) == 0) {
 					if (param2 != 0.0f || (soundData->unk10 & 0x20) == 0) {
