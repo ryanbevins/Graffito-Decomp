@@ -843,7 +843,7 @@ BOOL TMario::hipAttacking()
 	case 2: case 3: {
 		setAnimation(61, 1.0f);
 		u16 tt = mActionTimer; mActionTimer = tt + 1;
-		if ((s16)mActionTimer > mJumpParams.mSuperHipAttackCt.value) mActionState = 3;
+		if (mActionTimer > mJumpParams.mSuperHipAttackCt.value) mActionState = 3;
 		if (mActionState == 2) { mVel.y = mJumpParams.mHipAttackSpeedY.value; emitBlurHipDrop(); }
 		else { mVel.y = mJumpParams.mSuperHipAttackSpeedY.value; emitBlurHipDropSuper(); }
 		// Pointer math slop
