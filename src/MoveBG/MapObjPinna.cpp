@@ -608,9 +608,9 @@ void TPinnaShell::control()
 		break;
 	case 3:
 		unk6C += unk70;
-		if (!(unk6C < -TShellCup::mShellDamageRot))
+		if (unk6C >= -TShellCup::mShellDamageRot)
 			unk88->offHitFlag(HIT_FLAG_NO_COLLISION);
-		if (!(unk6C < 0.0f)) {
+		if (unk6C >= 0.0f) {
 			unk6C = 0.0f;
 			unk68 = 0;
 			unk88->onHitFlag(HIT_FLAG_NO_COLLISION);
