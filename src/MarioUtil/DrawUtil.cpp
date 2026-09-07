@@ -421,9 +421,11 @@ void TTrembleModelEffect::movement()
 			unk20[i].y = (s16)((unk24 * unk20[i].y) >> unkA);
 			unk20[i].z = (s16)((unk24 * unk20[i].z) >> unkA);
 
-			unk14[i].x += unk20[i].x;
-			unk14[i].y += unk20[i].y;
-			unk14[i].z += unk20[i].z;
+			const JGeometry::TVec3<s16>& velocity = unk20[i];
+			JGeometry::TVec3<s16>& position = unk14[i];
+			position.x += velocity.x;
+			position.y += velocity.y;
+			position.z += velocity.z;
 
 			unk18[unk9][i] = unk14[i];
 		}
@@ -453,9 +455,11 @@ void TTrembleModelEffect::movement()
 			unk34[i].y *= unk38;
 			unk34[i].z *= unk38;
 
-			unk28[i].x += unk34[i].x;
-			unk28[i].y += unk34[i].y;
-			unk28[i].z += unk34[i].z;
+			const JGeometry::TVec3<f32>& velocity = unk34[i];
+			JGeometry::TVec3<f32>& position = unk28[i];
+			position.x += velocity.x;
+			position.y += velocity.y;
+			position.z += velocity.z;
 
 			unk2C[unk9][i] = unk28[i];
 		}
