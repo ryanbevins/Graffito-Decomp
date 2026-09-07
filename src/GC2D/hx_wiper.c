@@ -1494,7 +1494,6 @@ static void Hxs1_Test1(f32 x, f32 y, f32 r) {
 	color = 0xff;
 	while (i <= (u32)r) {
 		f32 root;
-		f32 iy;
 		f32 x0;
 		f32 x1;
 		f32 y0;
@@ -1510,11 +1509,10 @@ static void Hxs1_Test1(f32 x, f32 y, f32 r) {
 			root = rootOut;
 		}
 
-		iy = (f32)i;
 		if (y < (f32)hx.imgHHalf)
-			y0 = y + iy;
+			y0 = y + (f32)i;
 		else
-			y0 = y - iy;
+			y0 = y - (f32)i;
 
 		if (x < (f32)hx.imgWHalf) {
 			x0 = x;
