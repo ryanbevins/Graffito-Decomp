@@ -925,14 +925,10 @@ void TEnemyMario::checkReturn()
 	BOOL searching   = TRUE;
 
 	do {
-		Vec point;
+		JGeometry::TVec3<f32> point;
 		getOwnerGraphPoint(this, node, &point);
 
-		f32 dx = point.x - gpMarioPos->x;
-		f32 dy = point.y - gpMarioPos->y;
-		f32 dz = point.z - gpMarioPos->z;
-		if (JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz)
-		    > 1000.0f) {
+		if (point.distance(*gpMarioPos) > 1000.0f) {
 			*(Vec*)&mPosition = point;
 			searching = FALSE;
 		}
