@@ -205,12 +205,10 @@ public:
 		mIsEmitWater = emittedWater;
 
 		TNozzleBase* nozzle = getCurrentNozzle();
-		u32 current         = (u32)unk1C88;
-		f32 emitted         = emittedWater;
-		f32 decRate         = nozzle->mEmitParams.mDecRate.get();
-		f32 currentF        = current;
-		unk1C88 += nozzle->mEmitParams.mEmitPowScale.get()
-		           * (emitted * decRate / currentF);
+		s32 maxWater = mNozzleList[0]->mEmitParams.mAmountMax.get();
+		f32 emitted = (u32)emittedWater;
+		f32 decRate = nozzle->mEmitParams.mDecRate.get();
+		unk1C88 += 10.0f * (emitted * decRate / (f32)maxWater);
 	}
 
 	// Fabricated
