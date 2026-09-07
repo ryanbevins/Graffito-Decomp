@@ -228,6 +228,21 @@ DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 		dir.z -= self->mPosition.z;
 		dir.setLength(self->getKazekunParam()->mAttackSpeed.get());
 		self->mVelocity = dir;
+
+		JGeometry::TQuat4<f32> cur = self->mQuat;
+		JGeometry::TVec3<f32> velocity = self->mVelocity;
+		TPosition3f mtx;
+		SMS_CalcToDirMatrix(mtx, velocity, makeVec3(0.0f, 1.0f, 0.0f));
+
+		JGeometry::TQuat4<f32> aim;
+		mtx.getQuat(aim);
+		JGeometry::TVec3<f32> axis = getYDirVec(mtx);
+		JGeometry::TQuat4<f32> rot;
+		rot.setRotate(axis, 0.0f);
+		aim.mul(aim, rot);
+		cur.slerp(cur, aim, 0.1f);
+		cur.normalize();
+		self->mQuat = cur;
 	}
 
 	TPosition3f mtx;
@@ -242,7 +257,7 @@ DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 
 	JGeometry::TQuat4<f32> cur;
 	cur = self->mQuat;
-	cur.slerp(aim, 0.1f);
+	cur.slerp(cur, aim, 0.1f);
 	cur.normalize();
 	self->mQuat = cur;
 
