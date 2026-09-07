@@ -347,5 +347,5 @@ void TAnimalBase::initNoLoad_(TAnimalBase* pNew)
 
 	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")
 	    ->getChildren()
-	    .push_back(pNew);
+	    .push_back(this);
 }
