@@ -1503,9 +1503,9 @@ static void Hxs1_Test1(f32 x, f32 y, f32 r) {
 		root = r2 - (f32)(i * i);
 		if (root > 0.0f) {
 			f64 guess = __frsqrte(root);
-			guess = 0.5 * guess * (3.0 - root * guess * guess);
-			guess = 0.5 * guess * (3.0 - root * guess * guess);
-			guess = 0.5 * guess * (3.0 - root * guess * guess);
+			guess = 0.5 * guess * (3.0 - (guess * guess) * root);
+			guess = 0.5 * guess * (3.0 - (guess * guess) * root);
+			guess = 0.5 * guess * (3.0 - (guess * guess) * root);
 			rootOut = (f32)(root * guess);
 			root = rootOut;
 		}
