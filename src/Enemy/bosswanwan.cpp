@@ -239,7 +239,7 @@ TBWLeash::TBWLeash(TBossWanwan* owner, int node_count, const char* name)
 	                 0.7f, -2.0f);
 	mNodes = new TBWLeashNode*[node_count];
 	for (int i = 0; i < node_count; ++i) {
-		TBWLeashNode* node = new TBWLeashNode(this, i, "鎖部");
+		TBWLeashNode* node = new TBWLeashNode(this, i, "鎖部品");
 
 		mNodes[i] = node;
 	}
