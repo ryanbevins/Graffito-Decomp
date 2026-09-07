@@ -885,9 +885,10 @@ void TLeanMirror::controlShake()
 	}
 
 	if (hitLimit) {
+		f32 volume = __fabsf(vecLength(unk14C));
 		if (gpMSound->gateCheck(0x3849)) {
 			MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-			    0x3849, &mPosition, nullptr, vecLength(unk14C), 0, 0, nullptr,
+			    0x3849, &mPosition, nullptr, volume, 0, 0, nullptr,
 			    0, 4);
 		}
 		unk14C.scale(-unk178);
