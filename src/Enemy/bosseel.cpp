@@ -501,12 +501,12 @@ void TBossEel::collideToMario()
 		if (dist == 0.0f || dist >= unk1D4)
 			continue;
 
+		f32 penetration = unk1D4 - dist;
 		f32 dot = delta.dot(normal);
 		if (dot >= 0.0f)
 			continue;
 
 		JGeometry::TVec3<f32> localCorrection;
-		f32 penetration = unk1D4 - dist;
 		if (-dot < penetration) {
 			localCorrection = normal;
 			localCorrection.scale(-dot);
