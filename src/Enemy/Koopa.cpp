@@ -743,10 +743,10 @@ f32 TKoopa::getNeckFocus() const
 		break;
 
 	case 7:
-		if (frame > 125.0f)
-			focus = (frame - 125.0f) / (end - 125.0f);
-		else
+		if (frame <= 125.0f)
 			focus = 0.0f;
+		else
+			focus = (frame - 125.0f) / (end - 125.0f);
 		break;
 
 	case 9:
