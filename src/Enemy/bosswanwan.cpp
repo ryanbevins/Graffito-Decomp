@@ -91,9 +91,8 @@ inline TBWLeashNode::TBWLeashNode(TBWLeash* leash, int index, const char* name)
 	mMActor = owner->mMActorKeeper->createMActor("bwanwan_chain.bmd", 0);
 	mMActor->setBrkFromIndex(2);
 
-	TBWParams* params = (TBWParams*)owner->getSaveParam();
-	f32 radius = params->mSLChainHitRadius.get();
-	f32 height = params->mSLChainHitHeight.get();
+	f32 radius = ((TBWParams*)owner->getSaveParam())->mSLChainHitRadius.get();
+	f32 height = ((TBWParams*)owner->getSaveParam())->mSLChainHitHeight.get();
 	initHitActor(0x0800000C, 1, 0x80000000, radius * 1.2f,
 	             height * 1.2f, radius, height);
 }
