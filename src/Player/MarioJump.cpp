@@ -830,8 +830,14 @@ BOOL TMario::hipAttacking()
 		if (mActionTimer >= 60) { mActionTimer = 0; mActionState = 2; }
 		mVel.y = 0.0f;
 		int r = jumpProcess(0);
-		if (r == 1) { changePlayerStatus(0x0C000230, 0, false); break; }
-		if (r == 2) { setPlayerVelocity(-16.0f); if (mVel.y > 0.0f) mVel.y = 0.0f; changePlayerStatus(0x000208B0, 0, false); break; }
+		if (r == 1)
+			return changePlayerStatus(0x0C000230, 0, false);
+		if (r == 2) {
+			setPlayerVelocity(-16.0f);
+			if (mVel.y > 0.0f)
+				mVel.y = 0.0f;
+			return changePlayerStatus(0x000208B0, 0, false);
+		}
 		break;
 	}
 	case 2: case 3: {
@@ -855,7 +861,8 @@ BOOL TMario::hipAttacking()
 					emitParticle(57, (const JGeometry::TVec3<f32>*)&mPosition);
 					mPosition.y -= 5.0f;
 					((TLiveActor*)mGroundPlane->getActor())->receiveMessage(this, 3);
-					startVoice(0x78D3); changePlayerStatus(0x00200346, 0, false); break;
+					startVoice(0x78D3);
+					return changePlayerStatus(0x00200346, 0, false);
 				}
 				if (mActionState == 2) ((TLiveActor*)mGroundPlane->getActor())->receiveMessage(this, 1);
 				else { ((TLiveActor*)mGroundPlane->getActor())->receiveMessage(this, 3); ((TLiveActor*)mGroundPlane->getActor())->receiveMessage(this, 1); }
