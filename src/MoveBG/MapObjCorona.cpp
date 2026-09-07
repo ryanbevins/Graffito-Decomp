@@ -923,7 +923,10 @@ void TBathtub::calcBathtubData()
 		unk17C.z = 0.0f;
 	}
 
-	unk1D4 = (unk250 < unk254 / 2 && unk258 > 0) ? 1 : 0;
+	if (unk250 < unk254 / 2 && unk258 > 0)
+		unk1D4 = 1;
+	else
+		unk1D4 = 0;
 	unk1D5[0] = unk29A;
 	JGeometry::TVec3<f32> pos(unk170.x, unk170.y - unk1B4, unk170.z);
 	unk1F4 = pos;
