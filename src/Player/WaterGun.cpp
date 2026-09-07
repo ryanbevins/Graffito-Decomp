@@ -333,11 +333,10 @@ void TNozzleBase::emit(int param_1)
 
 			// TODO: This section doesn't quite match here nor in derived
 			// classes. There may be some weird inlining going on here?
-			s16 faceAngleY     = mFludd->mMario->mFaceAngle.y;
 			f32 dirX           = emitInfo->mDir.get().x;
 			f32 dirZ           = emitInfo->mDir.get().z;
-			f32 cosAngle       = JMASCos(faceAngleY);
-			f32 sinAngle       = JMASSin(faceAngleY);
+			f32 cosAngle       = JMASCos(mFludd->mMario->mFaceAngle.y);
+			f32 sinAngle       = JMASSin(mFludd->mMario->mFaceAngle.y);
 			f32 directionScale = (-dirX * sinAngle - dirZ * cosAngle);
 
 			f32 velocity = reactionPow * directionScale;
