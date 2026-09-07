@@ -486,7 +486,7 @@ void TBossEel::collideToMario()
 		normal.y = mtx[1][1];
 		normal.z = mtx[2][1];
 		if (i == 0)
-			normal.scale(-1.0f);
+			normal.negate();
 		normal.normalize();
 
 		JGeometry::TVec3<f32> jointPos;
