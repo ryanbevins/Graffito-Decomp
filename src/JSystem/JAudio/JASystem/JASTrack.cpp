@@ -907,7 +907,8 @@ void TTrack::writeRegParam(u8 param)
 		r24 = uVar5 + r24;
 		break;
 	case 0x2: { // multiply -> reg4/reg5
-		s32 product = (s16)uVar5 * (s16)r24;
+		s32 product = (s16)uVar5;
+		product *= (s16)r24;
 		writeRegDirect(4, (u32)product >> 0x10);
 		writeRegDirect(5, product);
 		return;
