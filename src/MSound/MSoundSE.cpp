@@ -494,13 +494,22 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 	f32 gateParam   = p4;
 	f32 volumeParam = gateParam;
 
-	switch (soundID) {
+	switch ((s32)soundID) {
+	case 0x3048:
+		return;
 	case 0x2052:
+		gateParam = p2->y;
+		break;
+	case 0x381C:
+	case 0x381D:
+	case 0x381E:
+	case 0x381F:
+	case 0x3820:
+		gateParam = __fabsf(gateParam);
+		break;
 	case 0x305B:
 		gateParam = p2->y;
 		break;
-	case 0x3048:
-		return;
 	case 0x3804:
 	case 0x3862:
 		gateParam
@@ -511,10 +520,6 @@ void MSoundSE::startSoundActorWithInfo(u32 p1, const Vec* p2, Vec* p3, f32 p4,
 			soundID += p5;
 		else
 			soundID += 4;
-		break;
-	default:
-		if (soundID >= 0x381C && soundID < 0x3821)
-			gateParam = __fabsf(gateParam);
 		break;
 	}
 
