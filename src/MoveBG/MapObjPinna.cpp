@@ -624,9 +624,7 @@ void TPinnaShell::control()
 	    unk74[1][3] - 100.0f,
 	    parent->mPosition.z + 0.7f * (unk74[2][3] - parent->mPosition.z));
 
-	unk88->mPosition.x = mPosition.x;
-	unk88->mPosition.y = mPosition.y;
-	unk88->mPosition.z = mPosition.z;
+	unk88->mPosition.set(mPosition);
 
 	if (mColCount != 0) {
 		Mtx rot;
