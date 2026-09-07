@@ -844,8 +844,14 @@ BOOL TMario::hipAttacking()
 		setAnimation(61, 1.0f);
 		u16 tt = mActionTimer; mActionTimer = tt + 1;
 		if (mActionTimer > mJumpParams.mSuperHipAttackCt.value) mActionState = 3;
-		if (mActionState == 2) { mVel.y = mJumpParams.mHipAttackSpeedY.value; emitBlurHipDrop(); }
-		else { mVel.y = mJumpParams.mSuperHipAttackSpeedY.value; emitBlurHipDropSuper(); }
+		if (mActionState == 2)
+			mVel.y = mJumpParams.mHipAttackSpeedY.value;
+		else
+			mVel.y = mJumpParams.mSuperHipAttackSpeedY.value;
+		if (mActionState == 2)
+			emitBlurHipDrop();
+		else
+			emitBlurHipDropSuper();
 		// Pointer math slop
 		*(f32*)((u8*)this + 0x50) = mDeParams.mHipdropRadius.value; calcEntryRadius();
 		*(f32*)((u8*)this + 0x54) = mDeParams.mAttackHeight.value; calcEntryRadius();
