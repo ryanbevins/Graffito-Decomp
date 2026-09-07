@@ -810,7 +810,10 @@ BOOL TMario::hipAttacking()
 	switch (mActionState) {
 	case 0: startVoice(0x788F); mActionState = 1;
 	case 1: {
-		if (mFloorPosition.y > mPosition.y) { mPosition.y = 1.0f + mFloorPosition.y; changePlayerStatus(0x0080023C, 0, false); break; }
+		if (mFloorPosition.y > mPosition.y) {
+			mPosition.y = 1.0f + mFloorPosition.y;
+			changePlayerStatus(0x0080023C, 0, false);
+		}
 		if (mActionTimer < 40) {
 			f32 f = (f32)(40 - mActionTimer) * 0.5f;
 			if (160.0f + mPosition.y + f < mFloorPosition.x) {
