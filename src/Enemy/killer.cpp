@@ -524,11 +524,10 @@ void TKiller::genEventCoin()
 
 	int count = mColorVariant ? 8 : 2;
 	for (int i = 0; i < count; i++) {
+		dir.set(0.0f, 0.0f, 30.0f);
 		f32 angle = 360.0f * (1.0f / count) * (i + 1);
 		f32 sin   = JMASin(angle);
 		f32 cos   = JMACos(angle);
-
-		dir.set(0.0f, 0.0f, 30.0f);
 
 		rotMtx[0][0] = cos;
 		rotMtx[0][1] = 0.0f;
