@@ -863,8 +863,7 @@ void TLeanMirror::controlShake()
 
 	unk14C.scale(unk158.y);
 
-	J3DModel* model = getModel();
-	MtxPtr mtx      = model->getAnmMtx(0);
+	MtxPtr mtx = getModel()->getAnmMtx(0);
 
 	JGeometry::TVec3<f32> axis(unk14C.x, 0.0f, unk14C.z);
 	rotateVecByAxisY(&axis, 1.5707963f);
@@ -878,8 +877,9 @@ void TLeanMirror::controlShake()
 	concatOnlyRotFromLeft(rotMtx, mtx, mtx);
 
 	bool hitLimit = false;
-	if (mtx[1][1] < unk174) {
-		f32 dot = unk14C.x * mtx[0][1] + unk14C.z * mtx[2][1];
+	if (getModel()->getAnmMtx(0)[1][1] < unk174) {
+		f32 dot = unk14C.x * getModel()->getAnmMtx(0)[0][1]
+		          + unk14C.z * getModel()->getAnmMtx(0)[2][1];
 		if (dot > 0.0f)
 			hitLimit = true;
 	}
@@ -892,9 +892,11 @@ void TLeanMirror::controlShake()
 			    0, 4);
 		}
 		unk14C.scale(-unk178);
-		PSMTXCopy(model->getBaseTRMtx(), mtx);
+		MtxPtr jointMtx = getModel()->getAnmMtx(0);
+		PSMTXCopy(getModel()->getBaseTRMtx(), jointMtx);
 	} else {
-		PSMTXCopy(mtx, model->getBaseTRMtx());
+		MtxPtr jointMtx = getModel()->getAnmMtx(0);
+		PSMTXCopy(jointMtx, getModel()->getBaseTRMtx());
 	}
 }
 
