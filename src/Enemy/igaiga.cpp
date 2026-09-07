@@ -588,9 +588,7 @@ void TIgaiga::setMeltAnm()
 		unk1C0 = mPosition;
 	} else {
 		MtxPtr mtx = getMActor()->getModel()->getAnmMtx(0);
-		unk1C0.x   = mtx[0][3];
-		unk1C0.y   = mtx[1][3];
-		unk1C0.z   = mtx[2][3];
+		unk1C0.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 	}
 
 	if (!checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)
