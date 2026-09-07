@@ -379,15 +379,7 @@ void TYumbo::shotSeeds()
 	dir.y += 200.0f * (0.5f + (f32)rand() * (1.0f / 32768.0f));
 
 	f32 speed = getSaveParam2()->mShootSpeed.get();
-	f32 lenSq = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
-	if (lenSq <= 0.0000038146973f) {
-		dir.set(0.0f, 0.0f, 0.0f);
-	} else {
-		f32 inv = speed * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
-		dir.x  *= inv;
-		dir.y  *= inv;
-		dir.z  *= inv;
-	}
+	dir.setLength(speed);
 
 	f32 yawDeg = MsGetRotFromZaxisY(dir);
 	f32 yawRad = 0.5f * -(0.017453294f * yawDeg);
