@@ -113,8 +113,7 @@ void TMBindShadowParts::calc(f32 ground_y)
 		return;
 
 	TMBindShadowBody* body = unk4;
-	THitActor* actor       = body->unk4;
-	f32 heightOffset       = __fabsf(actor->mPosition.y - ground_y);
+	f32 heightOffset       = __fabsf(body->unk4->mPosition.y - ground_y);
 
 	f32 jointY = unkC[1][3] - heightOffset - ground_y;
 	f32 childY = unk10[1][3] - heightOffset - ground_y;
@@ -167,8 +166,8 @@ void TMBindShadowParts::calc(f32 ground_y)
 	request.unkC  = extentX;
 	request.unk10 = extentZ;
 
-	if (!unk15 && actor->mActorType != ACTOR_TYPE_SHADOW_MARIO
-	    && actor->mActorType != ACTOR_TYPE_SHADOW_B) {
+	if (!unk15 && unk4->unk4->mActorType != ACTOR_TYPE_SHADOW_MARIO
+	    && unk4->unk4->mActorType != ACTOR_TYPE_SHADOW_B) {
 		f32 angle = matan(childZ - jointZ, childX - jointX)
 		            * (360.0f / 65536.0f);
 		if (extentX > extentZ)
@@ -178,7 +177,7 @@ void TMBindShadowParts::calc(f32 ground_y)
 		request.unk14 = 0.0f;
 	}
 
-	gpBindShadowManager->request(request, actor->mActorType);
+	gpBindShadowManager->request(request, unk4->unk4->mActorType);
 }
 
 TMBindShadowBody::TMBindShadowBody(THitActor* actor, J3DModel* model, f32 scale)
