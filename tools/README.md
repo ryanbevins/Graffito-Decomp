@@ -47,3 +47,7 @@ data changes. It exits nonzero if overall exact code or functions decrease,
 and rejects reports with different code/function populations or unit sets.
 Generate fresh reports after the full non-matching build; this helper does
 not build or replace the push gate.
+
+`download_tool.py TOOL OUTPUT --tag TAG` downloads build dependencies. A GitHub
+release request that returns HTTP 504 is retried once with `download=1` to avoid
+a stale gateway response. Other errors and a failed retry remain build failures.

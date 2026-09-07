@@ -122,7 +122,18 @@ def main() -> None:
     print(f"Downloading {url} to {output}")
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     try:
-        with urllib.request.urlopen(req) as response:
+        try:
+            response = urllib.request.urlopen(req)
+        except urllib.error.HTTPError as e:
+            if e.code != 504 or not url.startswith("https://github.com/"):
+                raise
+            # Retry a stale release-download gateway response once.
+            retry_url = url + ("&" if "?" in url else "?") + "download=1"
+            retry = urllib.request.Request(
+                retry_url, headers={"User-Agent": "Mozilla/5.0"}
+            )
+            response = urllib.request.urlopen(retry)
+        with response:
             download(url, response, output)
     except urllib.error.URLError as e:
         if str(e).find("CERTIFICATE_VERIFY_FAILED") == -1:
