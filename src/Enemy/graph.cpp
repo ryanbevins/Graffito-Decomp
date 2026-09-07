@@ -727,7 +727,8 @@ TGraphWeb::getNearestPosOnGraphLink(const JGeometry::TVec3<f32>& param_1) const
 		JGeometry::TVec3<f32> point;
 		node.getPoint(&point);
 		const TRailNode* railNode = node.getRailNode();
-		for (int i = 0; i < railNode->mConnectionNum; ++i) {
+		int connectionCount = railNode->mConnectionNum;
+		for (int i = 0; i < connectionCount; ++i) {
 			int conn               = railNode->mConnections[i];
 			const TGraphNode& node = getGraphNode(conn);
 			JGeometry::TVec3<f32> point2;
