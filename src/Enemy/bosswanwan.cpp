@@ -214,12 +214,12 @@ TBWLeash::TBWLeash(TBossWanwan* owner, int node_count, const char* name)
     , mRope(nullptr)
     , mNodes(nullptr)
 {
-	mRope = new TRope(node_count, mOwner->mPosition,
-	                  ((TBWParams*)mOwner->getSaveParam())
-	                      ->mSLLeashNodeLen.get(),
-	                  ((TBWParams*)mOwner->getSaveParam())
-	                      ->mSLChainGroundRadius.get(),
-	                  0.7f, -2.0f);
+	f32 nodeLength
+	    = ((TBWParams*)mOwner->getSaveParam())->mSLLeashNodeLen.get();
+	f32 groundRadius
+	    = ((TBWParams*)mOwner->getSaveParam())->mSLChainGroundRadius.get();
+	mRope = new TRope(node_count, mOwner->mPosition, nodeLength, groundRadius,
+	                 0.7f, -2.0f);
 	mNodes = new TBWLeashNode*[node_count];
 	for (int i = 0; i < node_count; ++i) {
 		TBWLeashNode* node = new TBWLeashNode(this, i, "鎖部");
