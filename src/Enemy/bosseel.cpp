@@ -494,10 +494,8 @@ void TBossEel::collideToMario()
 		jointPos.y = mtx[1][3];
 		jointPos.z = mtx[2][3];
 
-		JGeometry::TVec3<f32> delta;
-		delta.x = marioPos.x - jointPos.x;
-		delta.y = marioPos.y - jointPos.y;
-		delta.z = marioPos.z - jointPos.z;
+		JGeometry::TVec3<f32> delta = marioPos;
+		delta.sub(jointPos);
 
 		f32 dist = delta.length();
 		if (dist == 0.0f || dist >= unk1D4)
