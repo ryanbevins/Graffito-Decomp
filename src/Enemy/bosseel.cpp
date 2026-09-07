@@ -511,7 +511,8 @@ void TBossEel::collideToMario()
 			localCorrection = normal;
 			localCorrection.scale(-dot);
 		} else {
-			localCorrection.normalize(delta);
+			localCorrection = delta;
+			localCorrection.normalize();
 			localCorrection.scale(penetration);
 		}
 
