@@ -1924,17 +1924,14 @@ void TGCConsole2::startCameraDemo()
 
 		int offset = getOffsetForBelowScreen(unk2F8) + 60;
 		unk2F8->updatePaneOffset(40, 0, offset);
+		JUTPoint start(0, 0);
+		JUTPoint middle(0, offset >> 1);
+		JUTPoint end(0, offset);
 		unk34[20] = 0;
 
-		unk274->setPanePosition(40, JUTPoint(0, 0),
-		                         JUTPoint(0, offset >> 1),
-		                         JUTPoint(0, offset));
-		unk270->setPanePosition(40, JUTPoint(0, 0),
-		                         JUTPoint(0, offset >> 1),
-		                         JUTPoint(0, offset));
-		unk26C->setPanePosition(40, JUTPoint(0, 0),
-		                         JUTPoint(0, offset >> 1),
-		                         JUTPoint(0, offset));
+		unk274->setPanePosition(40, start, middle, end);
+		unk270->setPanePosition(40, start, middle, end);
+		unk26C->setPanePosition(40, start, middle, end);
 	}
 
 	if (unk3A8->getPane()->isVisible() && !unk34[7]) {
