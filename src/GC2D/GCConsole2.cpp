@@ -4028,7 +4028,16 @@ void TGCConsole2::drawJuice(J2DOrthoGraph& graph, u32 color)
 	                   GX_FALSE, GX_PTIDENTITY);
 	GXSetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR_NULL);
 
-	drawGaugeQuad(unk328->mBounds, unk328->mBounds.y1, unk328->mBounds.y2);
+	JUTRect bounds(unk328->mBounds);
+	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+	GXPosition2f32(bounds.x1, bounds.y1);
+	GXTexCoord2s8(0, 0);
+	GXPosition2f32(bounds.x2, bounds.y1);
+	GXTexCoord2s8(1, 0);
+	GXPosition2f32(bounds.x2, bounds.y2);
+	GXTexCoord2s8(1, 1);
+	GXPosition2f32(bounds.x1, bounds.y2);
+	GXTexCoord2s8(0, 1);
 
 	graph.setup2D();
 
