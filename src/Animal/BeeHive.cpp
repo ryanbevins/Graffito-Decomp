@@ -595,21 +595,19 @@ void TBeeHive::load(JSUMemoryInputStream& stream)
 	TMapObjBase** coinObj = mCoinObjs;
 	TMapObjBase** endObj  = coinObj + count - 1;
 	while (coinObj != endObj) {
-		JGeometry::TVec3<f32> pos(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> rot(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-		*coinObj = TMapObjBaseManager::newAndRegisterObj("coin", pos, rot,
-		                                                 scale);
+		*coinObj = TMapObjBaseManager::newAndRegisterObj(
+		    "coin", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		coinObj += 1;
 	}
 
 	*coinObj = TMapObjBaseManager::newAndRegisterObjByEventID(lastEventID, "");
 	if (!*coinObj) {
-		JGeometry::TVec3<f32> pos(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> rot(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
-		*coinObj = TMapObjBaseManager::newAndRegisterObj("coin", pos, rot,
-		                                                 scale);
+		*coinObj = TMapObjBaseManager::newAndRegisterObj(
+		    "coin", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 	}
 
 	mMActorKeeper->createMActor("bee_nest_break.bmd", 3);
