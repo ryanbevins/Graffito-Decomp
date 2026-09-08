@@ -4063,7 +4063,7 @@ void TGCConsole2::drawWater(J2DOrthoGraph& graph)
 	alpha[2] = unk9E.a;
 
 	for (int layer = 2; layer > 0; --layer) {
-		GXSetTevColor(GX_TEVREG0, unk2EC[layer]);
+		GXSetTevColor(GX_TEVREG0, JUtility::TColor((u32)unk2EC[layer]));
 		GXSetTevColor(GX_TEVREG1,
 		               JUtility::TColor((u32)unk2EC[layer] + alpha[layer]));
 
