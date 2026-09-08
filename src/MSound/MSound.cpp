@@ -104,12 +104,26 @@ void MSSeCallBack::setWaterCameraFir(bool enabled)
 u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
 {
 	switch (param) {
-	case 0: {
-		u16 result = JAIBasic::setParameterSeqSync(track, param);
-		track->unk3C1 = 0x4A;
-		if (track->unk2C0->unk2C4[15] == track)
-			track->unk3C2 = 1;
-		return result;
+	case 0xF:
+		return MSGMSound->unk94;
+	case 0x14: {
+		for (u16 i = 0; i < 2; ++i) {
+			JASystem::TTrack* parent = track->unk2C4[i];
+			for (u16 j = 0; j < 16; ++j) {
+				JASystem::TTrack* child = parent->unk2C4[j];
+				if (child == nullptr)
+					break;
+
+				u16* category = &smTrackCategory[i * 16 + j];
+				child->readPortAppDirect(9, category);
+				++smPolifonic[*category];
+			}
+		}
+
+		for (u16 i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); ++i) {
+		}
+
+		return 0;
 	}
 	case 0xC: {
 		u16 parentValue;
@@ -162,26 +176,12 @@ u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
 		track->writePortAppDirect(0xF, value);
 		return 0x7F - value;
 	}
-	case 0xF:
-		return MSGMSound->unk94;
-	case 0x14: {
-		for (u16 i = 0; i < 2; ++i) {
-			JASystem::TTrack* parent = track->unk2C4[i];
-			for (u16 j = 0; j < 16; ++j) {
-				JASystem::TTrack* child = parent->unk2C4[j];
-				if (child == nullptr)
-					break;
-
-				u16* category = &smTrackCategory[i * 16 + j];
-				child->readPortAppDirect(9, category);
-				++smPolifonic[*category];
-			}
-		}
-
-		for (u16 i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); ++i) {
-		}
-
-		return 0;
+	case 0: {
+		u16 result = JAIBasic::setParameterSeqSync(track, param);
+		track->unk3C1 = 0x4A;
+		if (track->unk2C0->unk2C4[15] == track)
+			track->unk3C2 = 1;
+		return result;
 	}
 	case 0x1E: {
 		u16 result = JAIBasic::setParameterSeqSync(track, 0);
