@@ -123,9 +123,8 @@ void MSStageCubeFadeMonte::proc()
 	if (track1 == nullptr)
 		return;
 
-	TCubeGeneralInfo** cubes = gpCubeSoundChange->unk14->begin();
 	Vec pos                 = *gpMarioPos;
-	pos.y                   = 75.0f + cubes[0]->unkC.y;
+	pos.y                   = 75.0f + (*gpCubeSoundChange->unk14)[0].unkC.y;
 	mCurrentCube            = gpCubeSoundChange->getInCubeNo(pos);
 
 	unk10 = SMS_GetMonteVillageAreaInMario();
@@ -136,7 +135,8 @@ void MSStageCubeFadeMonte::proc()
 		f32 ratioY = 0.0f;
 		f32 ratioZ = 0.0f;
 		Vec ratioPos = *gpMarioPos;
-		ratioPos.y   = 75.0f + cubes[mCurrentCube]->unkC.y;
+		ratioPos.y = 75.0f
+		             + gpCubeSoundChange->unk14->begin()[mCurrentCube]->unkC.y;
 		gpCubeSoundChange->calcPointInCubeRatio(
 		    ratioPos, mCurrentCube, &ratioX, &ratioY, &ratioZ);
 
@@ -185,7 +185,8 @@ void MSStageCubeFadeMonte::proc()
 
 		if (mCurrentCube != -1
 		    && MSMainProc::MSStageInfo::cubeFadeUsePan) {
-			TCubeGeneralInfo* info = cubes[mCurrentCube];
+			TCubeGeneralInfo* info
+			    = &(*gpCubeSoundChange->unk14)[mCurrentCube];
 			Vec cubePos            = info->unkC;
 			Vec marioPos           = *gpMarioPos;
 			cubePos.y              = marioPos.y;
