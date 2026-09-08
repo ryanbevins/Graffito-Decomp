@@ -130,7 +130,7 @@ void MSStageCubeFadeMonte::proc()
 
 	unk10 = SMS_GetMonteVillageAreaInMario();
 
-	f32 fade = 0.0f;
+	f32 fade;
 	if (mCurrentCube != -1) {
 		f32 ratioX = 0.0f;
 		f32 ratioY = 0.0f;
@@ -148,6 +148,8 @@ void MSStageCubeFadeMonte::proc()
 			fade = 1.0f;
 		else
 			fade = (0.5f - edge) / (0.5f - mFadeRatio);
+	} else {
+		fade = 0.0f;
 	}
 
 	if (unk10 == 0) {
