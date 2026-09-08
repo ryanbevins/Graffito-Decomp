@@ -202,7 +202,10 @@ void MSStageCubeFadeMonte::proc()
 			f32 dx     = cubePos.x - marioPos.x;
 			f32 dy     = cubePos.y - marioPos.y;
 			f32 dz     = cubePos.z - marioPos.z;
-			f32 distSq = dx * dx + dy * dy + dz * dz;
+			dx *= dx;
+			dy *= dy;
+			dz *= dz;
+			f32 distSq = dx + dy + dz;
 			f32 dist   = sqrtf(distSq);
 
 			Vec cameraPos;
