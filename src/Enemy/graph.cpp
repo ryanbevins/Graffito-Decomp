@@ -880,10 +880,8 @@ f32 TGraphTracer::calcSplineSpeed(f32 param_1)
 	if (mPrevIdx < 0)
 		return 0.001f;
 
-	JGeometry::TVec3<f32> v1;
-	unk0->unk0[mCurrIdx].getPoint(&v1);
-	JGeometry::TVec3<f32> v2;
-	unk0->unk0[mPrevIdx].getPoint(&v2);
+	JGeometry::TVec3<f32> v1 = unk0->unk0[mCurrIdx].getPoint();
+	JGeometry::TVec3<f32> v2 = unk0->unk0[mPrevIdx].getPoint();
 
 	JGeometry::TVec3<f32> diff = v1;
 	diff -= v2;
