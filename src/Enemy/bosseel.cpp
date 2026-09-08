@@ -2127,11 +2127,16 @@ void TBEelTears::moveObject()
 		}
 	}
 
-	f32 scale      = mScaling.x;
-	mAttackRadius  = unk15C->mSLTearsAttackRadius.get() * scale;
-	mAttackHeight  = unk15C->mSLTearsAttackHeight.get() * scale;
-	mDamageRadius  = unk15C->mSLTearsDamageRadius.get() * scale;
-	mDamageHeight  = unk15C->mSLTearsDamageHeight.get() * scale;
+	TBEelTearsSaveLoadParams* params = unk15C;
+	f32 scale                       = mScaling.x;
+	s32 attackRadius = params->mSLTearsAttackRadius.get();
+	s32 attackHeight = params->mSLTearsAttackHeight.get();
+	s32 damageRadius = params->mSLTearsDamageRadius.get();
+	s32 damageHeight = params->mSLTearsDamageHeight.get();
+	mAttackRadius    = attackRadius * scale;
+	mAttackHeight    = attackHeight * scale;
+	mDamageRadius    = damageRadius * scale;
+	mDamageHeight    = damageHeight * scale;
 	calcEntryRadius();
 
 	for (int i = 0; i < mColCount; ++i) {
