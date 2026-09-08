@@ -1518,9 +1518,8 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 		bossToMario -= gpMarioOriginal->mPosition;
 		PSVECNormalize(&bossToMario, &bossToMario);
 
-		f32 speedScale = 1.0f
-		                 - (0.03125f * gpMarioOriginal->mIntendedMag * 0.75f)
-		                       * -(bossToMario.dot(intendedDir));
+		f32 pullScale = (0.03125f * gpMarioOriginal->mIntendedMag) * 0.75;
+		f32 speedScale = 1.0f - pullScale * -(bossToMario.dot(intendedDir));
 		if (speedScale < 0.0f)
 			speedScale = 0.0f;
 		else if (speedScale > 1.5f)
