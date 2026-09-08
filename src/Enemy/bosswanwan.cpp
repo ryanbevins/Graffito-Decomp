@@ -1585,12 +1585,12 @@ DEFINE_NERVE(TNerveBWBark, TLiveActor)
 				JPABaseEmitter* emitter = gpMarioParticleManager->emit(
 				    0xAE, &self->mPicket->mPosition, 0, nullptr);
 				if (emitter != nullptr) {
-					emitter->unk154.x = 0.03125f;
-					emitter->unk154.y = 10000.0f;
-					emitter->unk154.z = 0.03125f;
-					emitter->unk174.x = 0.03125f;
-					emitter->unk174.y = 10000.0f;
-					emitter->unk174.z = 0.03125f;
+					emitter->unk154.x = 0.3f;
+					emitter->unk154.y = 0.5f;
+					emitter->unk154.z = 0.3f;
+					emitter->unk174.x = 0.3f;
+					emitter->unk174.y = 0.5f;
+					emitter->unk174.z = 0.3f;
 				}
 			}
 
