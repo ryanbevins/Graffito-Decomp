@@ -626,8 +626,7 @@ bool TAnimalBird::doLanding(bool initFrame)
 	JGeometry::TVec3<f32> forward(0.0f, 0.0f, mag);
 	f32 fric = ((TAnimalBirdParams*)getSaveParam())->mLandingFric.value;
 	forward.scale(fric);
-	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(mRotation);
-	q.rotate(forward, forward);
+	SMS_Eular2Quat(mRotation).rotate(forward, forward);
 	mVelocity = forward;
 
 	bool ret = false;
