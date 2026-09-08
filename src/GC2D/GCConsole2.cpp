@@ -4102,7 +4102,7 @@ void TGCConsole2::drawWater(J2DOrthoGraph& graph)
 	graph.setup2D();
 
 	JUTRect bounds(unk2A0[0]->mBounds);
-	f32 hidden = 0.5f - 64.0f * (1.0f - unk2B8);
+	f32 hidden = 47.0f * (1.0f - unk2B8) - 0.5f;
 	int y = unk29C->getPane()->mGlobalBounds.y1 + (int)hidden + 1;
 	if (y < 0)
 		y = 0;
