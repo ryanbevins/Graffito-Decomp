@@ -895,7 +895,7 @@ void TBathtub::calcBathtubData()
 			rotation.setRotate(axis, angle);
 			rotation.rotate(unk17C, unk17C);
 
-			unk1C8.y = unk16C->shake.get();
+			unk1C8.set(0.0f, unk16C->shake.get(), 0.0f);
 		}
 	} else {
 		unk17C.x = 0.0f;
