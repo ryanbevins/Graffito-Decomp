@@ -1750,12 +1750,12 @@ DEFINE_NERVE(TNerveBWJumpToBath, TLiveActor)
 		        self->mPosition, "エフェクト水柱マネージャー", 1);
 		if (water != nullptr) {
 			JGeometry::TVec3<f32> scale;
-			scale.x = 500.0f;
-			scale.y = 500.0f;
-			scale.z = 500.0f;
+			scale.x = 5.0f;
+			scale.y = 5.0f;
+			scale.z = 5.0f;
 			JGeometry::TVec3<f32> position;
 			position.x = self->mPosition.x;
-			position.y = self->mPosition.y + 0.2f - 8.0f;
+			position.y = 500.0f + self->mPosition.y - 30.0f;
 			position.z = self->mPosition.z;
 			water->generate(position, scale);
 			self->unk195 = 1;
@@ -1769,7 +1769,7 @@ DEFINE_NERVE(TNerveBWJumpToBath, TLiveActor)
 	JGeometry::TVec3<f32> bathPos = BW_BATH_POS;
 	JGeometry::TVec3<f32> bathDelta = bathPos;
 	bathDelta.sub(self->mPosition);
-	if (bathDelta.squared() < 38.0f && self->mPosition.y <= BW_BATH_POS.y) {
+	if (bathDelta.squared() < 10000.0f && self->mPosition.y <= BW_BATH_POS.y) {
 		self->mPosition = bathPos;
 		spine->pushAfterCurrent(&TNerveBWDie::theNerve());
 		return true;
