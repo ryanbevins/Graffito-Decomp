@@ -883,8 +883,8 @@ void TSamboFlowerManager::dropLeaf(JGeometry::TVec3<f32>& position,
 			    = (TSamboFlowerSaveLoadParams*)getSaveParam();
 			f32 minXZ = params->mSLLeafVelocityXZ.get();
 			f32 minY  = params->mSLLeafVelocityY.get();
-			TMsRange<f32> yRange(minY, minY * 1.2f);
 			TMsRange<f32> xzRange(minXZ, minXZ * 1.2f);
+			TMsRange<f32> yRange(minY, minY * 1.2f);
 			f32 randXZ = xzRange.rand();
 			f32 randY  = yRange.rand();
 
