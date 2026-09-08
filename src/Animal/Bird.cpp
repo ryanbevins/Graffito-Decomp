@@ -584,7 +584,8 @@ bool TAnimalBird::doLanding(bool initFrame)
 	BOOL grounded = FALSE;
 	JGeometry::TVec3<f32> deltaV(0.0f, 0.0f, 0.0f);
 	if (mBinder2 != NULL) {
-		((TWireBinder*)mBinder2)->getPoint(&deltaV, unk158);
+		JGeometry::TVec3<f32> wirePoint;
+		((TWireBinder*)mBinder2)->getPoint(&wirePoint, unk158);
 	} else {
 		gpMap->checkGround(mPosition, &mGroundPlane);
 	}
