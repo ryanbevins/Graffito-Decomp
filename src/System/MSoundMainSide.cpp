@@ -249,38 +249,36 @@ void MSStageCubeFade::proc()
 	if (mCurrentCube == -1) {
 		if (mPreviousCube != -1)
 			((MSBgmXFade*)gpMSound->unk9C)->mLastTiming = 0.0f;
-		mPreviousCube = mCurrentCube;
-		return;
-	}
+	} else {
+		f32 fade = calcParamRatioInCube(mCurrentCube);
 
-	f32 fade = calcParamRatioInCube(mCurrentCube);
+		((MSBgmXFade*)gpMSound->unk9C)->xFadeBgm(fade);
 
-	((MSBgmXFade*)gpMSound->unk9C)->xFadeBgm(fade);
+		if (MSMainProc::MSStageInfo::cubeFadeUsePan) {
+			TCubeGeneralInfo* info
+			    = &(*gpCubeSoundChange->unk14)[mCurrentCube];
+			Vec cubePos            = info->unkC;
+			Vec marioPos           = *gpMarioPos;
+			cubePos.y              = marioPos.y;
 
-	if (MSMainProc::MSStageInfo::cubeFadeUsePan) {
-		TCubeGeneralInfo* info
-		    = &(*gpCubeSoundChange->unk14)[mCurrentCube];
-		Vec cubePos            = info->unkC;
-		Vec marioPos           = *gpMarioPos;
-		cubePos.y              = marioPos.y;
+			f32 dx     = cubePos.x - marioPos.x;
+			f32 dy     = cubePos.y - marioPos.y;
+			f32 dz     = cubePos.z - marioPos.z;
+			dx *= dx;
+			dy *= dy;
+			dz *= dz;
+			f32 distSq = dx + dy + dz;
+			f32 dist   = sqrtf(distSq);
 
-		f32 dx     = cubePos.x - marioPos.x;
-		f32 dy     = cubePos.y - marioPos.y;
-		f32 dz     = cubePos.z - marioPos.z;
-		dx *= dx;
-		dy *= dy;
-		dz *= dz;
-		f32 distSq = dx + dy + dz;
-		f32 dist   = sqrtf(distSq);
-
-		Vec soundPos = cubePos;
-		Vec cameraPos;
-		PSMTXMultVec(gpMSound->unk8->unk8, &soundPos, &cameraPos);
-		Vec bgmPos = cameraPos;
-		f32 pan = MSHandle::calcPan(bgmPos, dist, 10000.0f);
-		f32 dolby = MSHandle::calcDolby(bgmPos, dist);
-		MSBgm::setPan(1, pan, 1, 0);
-		MSBgm::setDolby(1, dolby, 1, 0);
+			Vec soundPos = cubePos;
+			Vec cameraPos;
+			PSMTXMultVec(gpMSound->unk8->unk8, &soundPos, &cameraPos);
+			Vec bgmPos = cameraPos;
+			f32 pan = MSHandle::calcPan(bgmPos, dist, 10000.0f);
+			f32 dolby = MSHandle::calcDolby(bgmPos, dist);
+			MSBgm::setPan(1, pan, 1, 0);
+			MSBgm::setDolby(1, dolby, 1, 0);
+		}
 	}
 
 	mPreviousCube = mCurrentCube;
