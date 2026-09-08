@@ -106,10 +106,10 @@ static inline void calcTobiPukuRootMatrix(TTobiPuku* self)
 	if (self->mRotation.x != 0.0f) {
 		if (self->isEaten())
 			return;
-		f32 rotX = self->mRotation.x;
-		f32 y    = self->mPosition.y + 70.0f * rotX / TTobiPuku::mLandAngle;
+		f32 y = self->mPosition.y
+		        + 70.0f * self->mRotation.x / TTobiPuku::mLandAngle;
 		MsMtxSetXYZRPH(self->getModel()->getBaseTRMtx(), self->mPosition.x, y,
-		                self->mPosition.z, rotX, self->mRotation.y,
+		                self->mPosition.z, self->mRotation.x, self->mRotation.y,
 		                self->mRotation.z);
 	}
 
