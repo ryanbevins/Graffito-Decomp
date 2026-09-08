@@ -13,6 +13,7 @@
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <math.h>
+#include <fake_tgmath.h>
 
 #undef JGADGET_TVECTOR_BEGIN_OUT_OF_LINE
 #undef MSL_STDSQRTF_OUT_OF_LINE
@@ -140,8 +141,8 @@ void MSStageCubeFadeMonte::proc()
 		gpCubeSoundChange->calcPointInCubeRatio(
 		    ratioPos, mCurrentCube, &ratioX, &ratioY, &ratioZ);
 
-		f32 edgeX = __fabsf(ratioX - 0.5f);
-		f32 edgeZ = __fabsf(ratioZ - 0.5f);
+		f32 edgeX = fabs(ratioX - 0.5f);
+		f32 edgeZ = fabs(ratioZ - 0.5f);
 		f32 edge  = edgeX > edgeZ ? edgeX : edgeZ;
 		if (edge < mFadeRatio)
 			fade = 1.0f;
