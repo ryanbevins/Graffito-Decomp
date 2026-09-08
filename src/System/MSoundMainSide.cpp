@@ -343,8 +343,9 @@ void MSStageDistFadeMonte::proc()
 		Vec pos = *unk10;
 		Vec cameraPos;
 		PSMTXMultVec(gpMSound->unk8->unk8, &pos, &cameraPos);
-		f32 pan   = MSHandle::calcPan(cameraPos, dist, 10000.0f);
-		f32 dolby = MSHandle::calcDolby(cameraPos, dist);
+		Vec bgmPos = cameraPos;
+		f32 pan   = MSHandle::calcPan(bgmPos, dist, 10000.0f);
+		f32 dolby = MSHandle::calcDolby(bgmPos, dist);
 
 		if (unk4 < unk14) {
 			pan   = 0.5f + ((pan - 0.5f) * unk4) / unk14;
