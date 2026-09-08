@@ -569,7 +569,8 @@ void TKukku::calcRootMatrix()
 	if (mSpine->getLatestNerve() == &TNerveSmallEnemyDie::theNerve()) {
 		JGeometry::TVec3<f32> normal;
 		if (getGroundPlane()) {
-			normal.normalize(getGroundPlane()->getNormal());
+			normal.set(getGroundPlane()->getNormal());
+			normal.normalize();
 		} else {
 			normal.set(0.0f, 1.0f, 0.0f);
 		}
