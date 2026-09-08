@@ -642,10 +642,12 @@ void TMoePuku::calcRootMatrix()
 
 	if (mSpine->getCurrentNerve() == &TNerveTobiPukuFly::theNerve()) {
 		startTobiPukuSound(0x20C3, mPosition);
-		MtxPtr mtx = mMActor->unk4->mNodeMatrices[1];
-		gpMarioParticleManager->emitAndBindToMtxPtr(0x1D1, mtx, 1, this);
-		gpMarioParticleManager->emitAndBindToMtxPtr(0x1D2, mtx, 1, this);
-		gpMarioParticleManager->emitAndBindToMtxPtr(0x1F8, mtx, 3, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1D1, mMActor->unk4->mNodeMatrices[1], 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1D2, mMActor->unk4->mNodeMatrices[1], 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1F8, mMActor->unk4->mNodeMatrices[1], 3, this);
 	}
 }
 
