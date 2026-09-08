@@ -1525,7 +1525,7 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 		else if (speedScale > 1.5f)
 			speedScale = 1.5f;
 
-		self->slideToCurPathNode(speedScale * hpRatio * self->mMarchSpeed,
+		self->slideToCurPathNode(speedScale * (hpRatio * self->mMarchSpeed),
 		                         self->mTurnSpeed);
 	} else {
 		self->slideToCurPathNode(hpRatio * self->mMarchSpeed + 0.2f,
