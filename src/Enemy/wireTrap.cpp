@@ -296,16 +296,13 @@ void TWireTrap::checkHitActors()
 			otDir.scale(o->mWireDir * os);
 			otDir.scale(o->mScaleSpeed);
 
-			f32 dot = myDir.x * otDir.x + myDir.y * otDir.y
-			          + myDir.z * otDir.z;
-
 			if (mBiriTimer <= 0 && mColorType == 0) {
 				mBiriTimer = 0x1e;
 				JGeometry::TVec3<f32> a = getWireDir();
 				a.scale(mWireDir * ms);
 				JGeometry::TVec3<f32> b = o->getWireDir();
 				b.scale(o->mWireDir * os);
-				if (dot < 0.0f)
+				if (myDir.dot(otDir) < 0.0f)
 					mWireDir *= -1.0f;
 				mSpine->pushNerve(&TNerveWireTrapWait::theNerve());
 			}
@@ -315,7 +312,7 @@ void TWireTrap::checkHitActors()
 				a.scale(o->mWireDir * os);
 				JGeometry::TVec3<f32> b = o->getWireDir();
 				b.scale(o->mWireDir * os);
-				if (dot < 0.0f)
+				if (otDir.dot(myDir) < 0.0f)
 					o->mWireDir *= -1.0f;
 				o->mSpine->pushNerve(&TNerveWireTrapWait::theNerve());
 			}
