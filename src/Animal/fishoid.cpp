@@ -193,8 +193,8 @@ void TRealoid::perform(u32 flags, JDrama::TGraphics* gfx)
 			else
 				mActors[i]->unk74 |= 1;
 		}
-		for (int i = 0; i < mBoidLeader->mNumActors; i++)
-			mActors[i]->calcRootMatrix(&mBoidLeader->mBoidData[i]);
+		for (int i = 0; i < mBoidLeader->getBoidNum(); i++)
+			mActors[i]->calcRootMatrix(mBoidLeader->getBoid(i));
 	}
 
 	for (int i = 0; i < mBoidLeader->mNumActors; i++)
