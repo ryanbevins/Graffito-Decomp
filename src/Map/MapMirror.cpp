@@ -346,6 +346,7 @@ void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 			C_MTXLookAt(camera->unk30, &camera->unk98, &up, &target);
 
+			camera = mirror->unk8;
 			Mtx lightMtx;
 			C_MTXLightPerspective(lightMtx, camera->unk80 * gpCamera->mFovy,
 			                      gpCamera->mAspect, 0.5f, -0.5f, 0.5f,
