@@ -4058,7 +4058,7 @@ void TGCConsole2::drawWater(J2DOrthoGraph& graph)
 	    ((u32)unk9E.r << 24)
 	    + (((u32)unk9E.g << 16) + ((u32)unk9E.b << 8)));
 
-	u8 alpha[3];
+	u8 alpha[3] = { 0, 0, 0 };
 	alpha[1] = unk9A.a;
 	alpha[2] = unk9E.a;
 
