@@ -1546,7 +1546,7 @@ DEFINE_NERVE(TNerveBWRoll, TLiveActor)
 	}
 
 	if (self->isReachedToGoal()) {
-		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		spine->pushAfterCurrent(&TNerveBWGraphWander::theNerve());
 		J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
 		frameCtrl->setRate(SMSGetAnmFrameRate());
 		return true;
