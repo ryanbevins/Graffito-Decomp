@@ -196,13 +196,14 @@ void TAnimalBase::execWalk(bool moving)
 	TAnimalSaveIndividual* save = ((TAnimalManagerBase*)mManager)->mAnimalSave;
 
 	if (moving) {
-		f32 speed = save->mSLMaxMarchSpeed.get() * SMSGetAnmFrameRate();
-		f32 accel = save->mSLMarchAccel.get() * SMSGetAnmFrameRate()
-		            * SMSGetAnmFrameRate();
+		f32 accel = save->mSLMarchAccel.get();
+		accel = accel * SMSGetAnmFrameRate() * SMSGetAnmFrameRate();
+		f32 speed = save->mSLMaxMarchSpeed.get();
+		speed *= SMSGetAnmFrameRate();
 		CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, speed, accel);
 	} else {
-		f32 decel = save->mSLMarchDecrease.get() * SMSGetAnmFrameRate()
-		            * SMSGetAnmFrameRate();
+		f32 decel = save->mSLMarchDecrease.get();
+		decel = decel * SMSGetAnmFrameRate() * SMSGetAnmFrameRate();
 		CLBChaseGeneralConstantSpecifySpeed<f32>(&mMarchSpeed, 0.0f, decel);
 	}
 
