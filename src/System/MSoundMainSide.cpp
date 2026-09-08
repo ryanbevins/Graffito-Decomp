@@ -340,6 +340,8 @@ void MSStageDistFadeMonte::proc()
 			((MSBgmXFade*)gpMSound->unk9C)->xFadeBgm(fade);
 		}
 
+		u32 duration = unk14;
+		u32 elapsed = unk4;
 		Vec pos = *unk10;
 		Vec cameraPos;
 		PSMTXMultVec(gpMSound->unk8->unk8, &pos, &cameraPos);
@@ -347,9 +349,9 @@ void MSStageDistFadeMonte::proc()
 		f32 pan   = MSHandle::calcPan(bgmPos, dist, 10000.0f);
 		f32 dolby = MSHandle::calcDolby(bgmPos, dist);
 
-		if (unk4 < unk14) {
-			pan   = 0.5f + ((pan - 0.5f) * unk4) / unk14;
-			dolby = dolby * unk4 / unk14;
+		if (elapsed < duration) {
+			pan   = 0.5f + ((pan - 0.5f) * elapsed) / duration;
+			dolby = dolby * elapsed / duration;
 		}
 
 		MSBgm::setPan(1, pan, 1, 0);
