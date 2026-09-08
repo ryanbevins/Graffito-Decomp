@@ -160,8 +160,9 @@ void TMapObjPlane::calcNrm(int x, int z)
 	             - (h0P - hP0) * (fVar1 - 0.0f);
 	local_c0.normalize();
 
-	mNormalMap[x + z * mExtents] = local_9c + local_a8 + local_b4 + local_c0;
-	mNormalMap[x + z * mExtents].scale(0.25f);
+	JGeometry::TVec3<f32>& normal = mNormalMap[x + z * mExtents];
+	normal = local_9c + local_a8 + local_b4 + local_c0;
+	normal.scale(0.25f);
 }
 
 void TMapObjPlane::movement() { }
