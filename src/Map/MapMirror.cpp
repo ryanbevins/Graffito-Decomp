@@ -324,8 +324,8 @@ void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 			unk1C[unk18]->unk4->viewCalc();
 
 		if (param_1 & 0x200) {
+			unk1C[unk18]->setPlane();
 			TMirrorModel* mirror = unk1C[unk18];
-			mirror->setPlane();
 
 			TMirrorCamera* camera = mirror->unk8;
 			JGeometry::TVec3<f32> normal;
