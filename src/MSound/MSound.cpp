@@ -229,6 +229,8 @@ u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
 	case 0x79: {
 		return ukuleleFlag;
 	}
+	case 1:
+	case 0x7F:
 	default:
 		return JAIBasic::setParameterSeqSync(track, param);
 	}
