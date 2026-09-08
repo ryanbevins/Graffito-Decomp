@@ -208,10 +208,12 @@ void MSStageCubeFadeMonte::proc()
 			f32 distSq = dx + dy + dz;
 			f32 dist   = sqrtf(distSq);
 
+			Vec soundPos = cubePos;
 			Vec cameraPos;
-			PSMTXMultVec(gpMSound->unk8->unk8, &cubePos, &cameraPos);
-			f32 pan   = MSHandle::calcPan(cameraPos, dist, 10000.0f);
-			f32 dolby = MSHandle::calcDolby(cameraPos, dist);
+			PSMTXMultVec(gpMSound->unk8->unk8, &soundPos, &cameraPos);
+			Vec bgmPos = cameraPos;
+			f32 pan   = MSHandle::calcPan(bgmPos, dist, 10000.0f);
+			f32 dolby = MSHandle::calcDolby(bgmPos, dist);
 			MSBgm::setPan(1, pan, 1, 0);
 			MSBgm::setDolby(1, dolby, 1, 0);
 		}
