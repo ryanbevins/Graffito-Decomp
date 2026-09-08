@@ -1575,7 +1575,7 @@ DEFINE_NERVE(TNerveBWBark, TLiveActor)
 
 		self->mMActor->getAnmBck()->setFrameCtrl(0);
 		J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
-		self->unk178 = (360.0f / 65536.0f) / (f32)frameCtrl->getEnd();
+		self->unk178 = 10.0f / (f32)frameCtrl->getEnd();
 		self->setAnmSound(bwanwan_bastable[0]);
 		self->unk16C = 0;
 		self->unk168 = 0.0f;
@@ -1713,7 +1713,7 @@ DEFINE_NERVE(TNerveBWWakeup, TLiveActor)
 
 		self->mMActor->getAnmBck()->setFrameCtrl(6);
 		J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
-		self->unk178 = (360.0f / 65536.0f) / (f32)frameCtrl->getEnd();
+		self->unk178 = 10.0f / (f32)frameCtrl->getEnd();
 		self->setAnmSound(bwanwan_bastable[6]);
 		self->mMActor->setBtpFromIndex(2);
 		self->unk16C = 0;
