@@ -545,17 +545,14 @@ void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (flags & 2) {
-		BOOL emitFlame = FALSE;
-		int idx        = mMActor->getCurAnmIdx(0);
-		if (idx == 4) {
-			emitFlame = TRUE;
-		} else if (idx == 5) {
-			if (mMActor->getFrameCtrl(0)->getFrame() >= 85.0f)
-				emitFlame = TRUE;
-		} else if (idx == 6) {
-			f32 frame = mMActor->getFrameCtrl(0)->getFrame();
-			if (frame >= 68.0f && frame <= 164.0f)
-				emitFlame = TRUE;
+		bool emitFlame = mMActor->getCurAnmIdx(0) == 4
+		    || (mMActor->getCurAnmIdx(0) == 5
+		        && mMActor->getFrameCtrl(0)->getFrame() >= 85.0f);
+		if (!emitFlame) {
+			if (mMActor->getCurAnmIdx(0) == 6) {
+				f32 frame = mMActor->getFrameCtrl(0)->getFrame();
+				emitFlame = 68.0f <= frame && frame <= 164.0f;
+			}
 		}
 
 		if (emitFlame) {
