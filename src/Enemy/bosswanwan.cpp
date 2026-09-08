@@ -1383,22 +1383,41 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 		self->unk16C = 0;
 
 		if (!self->mMActor->checkCurBckFromIndex(4)) {
-			s32 waitIndex = self->mHitPoints == 0 ? 5 : 4;
-			TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
-			J3DAnmTransform* waitAnm
-			    = mtxCalc->mOwner->mMActorKeeper->getMActorAnmData()
-			          ->getUnk2C()
-			          ->getAnmPtr(waitIndex);
-			if (mtxCalc->unk54 != waitAnm) {
-				mtxCalc->unk58 = mtxCalc->unk54;
-				mtxCalc->unk54 = waitAnm;
-				mtxCalc->unk50 = 1.0f;
+			if (self->mHitPoints == 0) {
+				TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
+				J3DAnmTransform* waitAnm
+				    = mtxCalc->mOwner->mMActorKeeper->getMActorAnmData()
+				          ->getUnk2C()
+				          ->getAnmPtr(5);
+				if (mtxCalc->unk54 != waitAnm) {
+					mtxCalc->unk58 = mtxCalc->unk54;
+					mtxCalc->unk54 = waitAnm;
+					mtxCalc->unk50 = 1.0f;
+				}
+
+				self->mMActor->getAnmBck()->setFrameCtrl(5);
+				J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
+				self->unk178            = 10.0f / (f32)frameCtrl->getEnd();
+				self->setAnmSound(bwanwan_bastable[5]);
+			} else {
+				TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
+				J3DAnmTransform* waitAnm
+				    = mtxCalc->mOwner->mMActorKeeper->getMActorAnmData()
+				          ->getUnk2C()
+				          ->getAnmPtr(4);
+				if (mtxCalc->unk54 != waitAnm) {
+					mtxCalc->unk58 = mtxCalc->unk54;
+					mtxCalc->unk54 = waitAnm;
+					mtxCalc->unk50 = 1.0f;
+				}
+
+				self->mMActor->getAnmBck()->setFrameCtrl(4);
+				J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
+				self->unk178            = 10.0f / (f32)frameCtrl->getEnd();
+				self->setAnmSound(bwanwan_bastable[4]);
 			}
 
-			self->mMActor->getAnmBck()->setFrameCtrl(waitIndex);
 			J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
-			self->unk178            = 10.0f / (f32)frameCtrl->getEnd();
-			self->setAnmSound(bwanwan_bastable[waitIndex]);
 			frameCtrl->setFrame(0.0f);
 			frameCtrl->setRate(SMSGetAnmFrameRate());
 		}
