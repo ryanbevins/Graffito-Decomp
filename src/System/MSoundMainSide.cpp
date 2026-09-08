@@ -249,22 +249,7 @@ void MSStageCubeFade::proc()
 		return;
 	}
 
-	f32 ratioX = 0.0f;
-	f32 ratioY = 0.0f;
-	f32 ratioZ = 0.0f;
-	Vec ratioPos = *gpMarioPos;
-	ratioPos.y   = 75.0f + cubes[mCurrentCube]->unkC.y;
-	gpCubeSoundChange->calcPointInCubeRatio(
-	    ratioPos, mCurrentCube, &ratioX, &ratioY, &ratioZ);
-
-	f32 edgeX = __fabsf(ratioX - 0.5f);
-	f32 edgeZ = __fabsf(ratioZ - 0.5f);
-	f32 edge  = edgeX > edgeZ ? edgeX : edgeZ;
-	f32 fade;
-	if (edge < mFadeRatio)
-		fade = 1.0f;
-	else
-		fade = (0.5f - edge) / (0.5f - mFadeRatio);
+	f32 fade = calcParamRatioInCube(mCurrentCube);
 
 	((MSBgmXFade*)gpMSound->unk9C)->xFadeBgm(fade);
 
