@@ -1890,9 +1890,9 @@ void TGCConsole2::startCameraDemo()
 		unk34[24] = 1;
 		int offset = -(unk1C4->unk4.y2 + 1
 		               + unk174->getPane()->getBounds().getHeight());
-		unk1C4->setPanePosition(40, JUTPoint(0, offset),
+		unk1C4->setPanePosition(40, JUTPoint(0, 0),
 		                         JUTPoint(0, offset >> 1),
-		                         JUTPoint(0, 0));
+		                         JUTPoint(0, offset));
 		unk84 = 0x78;
 	}
 
