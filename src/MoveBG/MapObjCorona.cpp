@@ -892,25 +892,10 @@ void TBathtub::calcBathtubData()
 
 		if (!axis.isZero()) {
 
-			f32 angle = 0.5f * (unk16C->maxAngle.get() * 6.2831855f / 360.0f);
-			f32 sinAngle = sinf(angle);
-			f32 cosAngle = cosf(angle);
-			f32 oneMinusCos = 1.0f - cosAngle;
-			JGeometry::TVec3<f32> normal = unk17C;
-
-			JGeometry::TVec3<f32> cross;
-			cross.x = axis.y * normal.z - axis.z * normal.y;
-			cross.y = axis.z * normal.x - axis.x * normal.z;
-			cross.z = axis.x * normal.y - axis.y * normal.x;
-			f32 dot = axis.x * normal.x + axis.y * normal.y
-			          + axis.z * normal.z;
-
-			unk17C.x = normal.x * cosAngle + cross.x * sinAngle
-			           + axis.x * dot * oneMinusCos;
-			unk17C.y = normal.y * cosAngle + cross.y * sinAngle
-			           + axis.y * dot * oneMinusCos;
-			unk17C.z = normal.z * cosAngle + cross.z * sinAngle
-			           + axis.z * dot * oneMinusCos;
+			f32 angle = unk16C->maxAngle.get() * 6.2831855f / 360.0f;
+			JGeometry::TQuat4<f32> rotation;
+			rotation.setRotate(axis, angle);
+			rotation.rotate(unk17C, unk17C);
 
 			unk1C8.y = unk16C->shake.get();
 		}
