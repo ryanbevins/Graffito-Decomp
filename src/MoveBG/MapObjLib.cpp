@@ -1181,8 +1181,9 @@ void TMapObjTurn::control()
 	}
 
 	mtx[0][3] = mPosition.x;
-	mtx[1][3] = mPosition.y - mYOffset;
+	mtx[1][3] = mPosition.y;
 	mtx[2][3] = mPosition.z;
+	mtx[1][3] -= mYOffset;
 	MTXCopy(mtx, getModel()->getAnmMtx(0));
 }
 
