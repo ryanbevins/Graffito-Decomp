@@ -288,11 +288,12 @@ void TAnimalBase::init(TLiveManager* mgr)
 	unk124->mPrevIdx = -1;
 	goToShortestNextGraphNode();
 
-	mFrameTimer = new int[2];
-	if (mFrameTimer) {
-		mFrameTimer[0] = 0;
-		mFrameTimer[1] = 1;
+	int* timer = new int[2];
+	if (timer) {
+		timer[0] = 0;
+		timer[1] = 1;
 	}
+	mFrameTimer = timer;
 
 	mMActor->setBckFromIndex(0);
 	mMarchSpeed = 0.0f;
