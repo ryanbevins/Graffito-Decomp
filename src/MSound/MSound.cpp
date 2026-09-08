@@ -113,7 +113,8 @@ u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
 				if (child == nullptr)
 					break;
 
-				u16* category = &smTrackCategory[i * 16 + j];
+				u16 trackId = (i << 4) | j;
+				u16* category = &smTrackCategory[trackId];
 				child->readPortAppDirect(9, category);
 				++smPolifonic[*category];
 			}
