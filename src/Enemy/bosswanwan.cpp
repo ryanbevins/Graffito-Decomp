@@ -1666,10 +1666,10 @@ DEFINE_NERVE(TNerveBWStun, TLiveActor)
 					return true;
 				}
 
-				JGeometry::TVec3<f32> marioDelta = *gpMarioPos;
-				marioDelta.sub(self->mPosition);
 				TGraphTracer* nextTracer = self->unk124;
 				int oldPrevIndex         = nextTracer->mPrevIdx;
+				JGeometry::TVec3<f32> marioDelta = *gpMarioPos;
+				marioDelta.sub(self->mPosition);
 				int nextIndex = nextTracer->getGraph()->getAimToDirNextIndex(
 				    oldPrevIndex, nextTracer->mCurrIdx, marioDelta,
 				    self->mPosition, -1);
