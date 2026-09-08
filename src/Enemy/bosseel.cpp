@@ -2146,10 +2146,10 @@ void TBEelTears::moveObject()
 			JGeometry::TVec3<f32> velocity;
 			velocity.zero();
 
-			JGeometry::TVec3<f32> direction;
-			direction.x = mPosition.x - hitActor->mPosition.x;
-			direction.y = mPosition.y - hitActor->mPosition.y;
-			direction.z = mPosition.z - hitActor->mPosition.z;
+			JGeometry::TVec3<f32> direction(
+			    mPosition.x - hitActor->mPosition.x,
+			    mPosition.y - hitActor->mPosition.y,
+			    mPosition.z - hitActor->mPosition.z);
 
 			if (direction.x == 0.0f && direction.y == 0.0f
 			    && direction.z == 0.0f)
