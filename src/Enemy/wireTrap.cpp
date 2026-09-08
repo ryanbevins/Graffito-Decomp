@@ -269,7 +269,11 @@ void TWireTrap::checkHitActors()
 	THitActor** end = mCollisions + mColCount;
 	for (THitActor** it = mCollisions; it != end; ++it) {
 		THitActor* other = *it;
-		if (other->mActorType == 0x10000026) {
+		switch ((s32)other->mActorType) {
+		case (s32)0x80000001:
+			SMS_SendMessageToMario(this, 9);
+			break;
+		case 0x10000026: {
 			if (other == this)
 				continue;
 
@@ -315,8 +319,8 @@ void TWireTrap::checkHitActors()
 					o->mWireDir *= -1.0f;
 				o->mSpine->pushNerve(&TNerveWireTrapWait::theNerve());
 			}
-		} else if (other->mActorType == 0x80000001) {
-			SMS_SendMessageToMario(this, 9);
+			break;
+		}
 		}
 	}
 }
