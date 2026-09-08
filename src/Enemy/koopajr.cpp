@@ -542,7 +542,7 @@ void TKoopaJr::perform(u32 flags, JDrama::TGraphics* graphics)
 			JGeometry::TVec3<f32> toMario;
 			toMario.sub(*gpMarioPos, mPosition);
 			toMario.y = 0.0f;
-			mRotation.y = 180.0f * atan2f(toMario.z, toMario.x) / 3.1415927f;
+			mRotation.y = 180.0f * atan2f(toMario.x, toMario.z) / 3.1415927f;
 		}
 	}
 
