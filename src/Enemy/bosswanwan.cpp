@@ -1450,11 +1450,16 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 	}
 
 	if (self->unk17C == 0 && self->mPicket->isTaken()) {
-		f32 pull = self->unk15C.x * self->unk15C.x
-		           + self->unk15C.y * self->unk15C.y
-		           + self->unk15C.z * self->unk15C.z;
-		TBWParams* params = (TBWParams*)self->getSaveParam();
-		if (pull >= params->mSLPullLimit.get()) {
+		BOOL pulled;
+		if (self->unk15C.x * self->unk15C.x
+		        + self->unk15C.y * self->unk15C.y
+		        + self->unk15C.z * self->unk15C.z
+		    < ((TBWParams*)self->getSaveParam())->mSLPullLimit.get())
+			pulled = false;
+		else
+			pulled = true;
+
+		if (pulled) {
 			TGraphTracer* tracer = self->unk124;
 			TGraphWeb* graph     = tracer->unk0;
 			s32 prevIndex        = tracer->mPrevIdx;
