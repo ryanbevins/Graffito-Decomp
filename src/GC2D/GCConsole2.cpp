@@ -2688,10 +2688,19 @@ void TGCConsole2::drawWaterBack()
 			if (unk34[21])
 				unk34[21] = 0;
 
-			if (unk30C >= 25)
+			u32 color = 0xff3f3f00;
+			if (unk30C < 10) {
+				color += ((u32)(s16)(s32)((f32)unk30C * -6.3f)) << 8;
+				color += ((u32)(s32)((f32)unk30C * 19.2f)) << 16;
+			} else if (unk30C < 15) {
+				color = 0xffff0000;
+			} else if (unk30C < 25) {
+				s32 fade = 25 - unk30C;
+				color += ((u32)(s16)(s32)((f32)fade * -6.3f)) << 8;
+				color += ((u32)(s32)((f32)fade * 19.2f)) << 16;
+			} else {
 				unk30C = 0;
-
-			u32 color = getPressureFlashColor(unk30C);
+			}
 			GXSetTevColor(GX_TEVREG0, JUtility::TColor(color + 0xc8));
 			GXSetTevColor(GX_TEVREG1, JUtility::TColor(color));
 			++unk30C;
