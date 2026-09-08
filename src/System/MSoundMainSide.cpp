@@ -237,9 +237,8 @@ void MSStageCubeFade::proc()
 	if (track1 == nullptr)
 		return;
 
-	TCubeGeneralInfo** cubes = gpCubeSoundChange->unk14->begin();
 	Vec pos                 = *gpMarioPos;
-	pos.y                   = 75.0f + cubes[0]->unkC.y;
+	pos.y                   = 75.0f + (*gpCubeSoundChange->unk14)[0].unkC.y;
 	mCurrentCube = gpCubeSoundChange->getInCubeNo(pos);
 
 	if (mCurrentCube == -1) {
@@ -254,7 +253,8 @@ void MSStageCubeFade::proc()
 	((MSBgmXFade*)gpMSound->unk9C)->xFadeBgm(fade);
 
 	if (MSMainProc::MSStageInfo::cubeFadeUsePan) {
-		TCubeGeneralInfo* info = cubes[mCurrentCube];
+		TCubeGeneralInfo* info
+		    = &(*gpCubeSoundChange->unk14)[mCurrentCube];
 		Vec cubePos            = info->unkC;
 		Vec marioPos           = *gpMarioPos;
 		cubePos.y              = marioPos.y;
