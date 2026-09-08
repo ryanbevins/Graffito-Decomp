@@ -883,9 +883,8 @@ f32 TGraphTracer::calcSplineSpeed(f32 param_1)
 	JGeometry::TVec3<f32> v1 = unk0->unk0[mCurrIdx].getPoint();
 	JGeometry::TVec3<f32> v2 = unk0->unk0[mPrevIdx].getPoint();
 
-	JGeometry::TVec3<f32> diff = v1;
-	diff -= v2;
-	f32 fVar13 = VECMag(&diff);
+	v1 -= v2;
+	f32 fVar13 = VECMag(&v1);
 
 	f32 fVar1;
 	f32 fVar2;
