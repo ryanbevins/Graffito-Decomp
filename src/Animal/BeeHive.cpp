@@ -590,10 +590,9 @@ void TBeeHive::load(JSUMemoryInputStream& stream)
 
 	mBreakObj = TMapObjBaseManager::newAndRegisterObjByEventID(firstEventID, "");
 
-	int count = mBoidLeader->mNumActors;
-	mCoinObjs = new TMapObjBase*[count];
+	mCoinObjs = new TMapObjBase*[mBoidLeader->mNumActors];
 	TMapObjBase** coinObj = mCoinObjs;
-	TMapObjBase** endObj  = coinObj + count - 1;
+	TMapObjBase** endObj  = coinObj + mBoidLeader->mNumActors - 1;
 	while (coinObj != endObj) {
 		*coinObj = TMapObjBaseManager::newAndRegisterObj(
 		    "coin", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
@@ -613,7 +612,7 @@ void TBeeHive::load(JSUMemoryInputStream& stream)
 	mMActorKeeper->createMActor("bee_nest_break.bmd", 3);
 	mMActor = mMActorKeeper->createMActor("bee_nest.bmd", 3);
 
-	for (int i = 0; i < count; ++i) {
+	for (int i = 0; i < mBoidLeader->mNumActors; ++i) {
 		TRealoidActor* actor = mActors[i];
 		actor->init();
 		actor->unk74 |= 2;
