@@ -880,7 +880,7 @@ void TSamboFlowerManager::dropLeaf(JGeometry::TVec3<f32>& position,
 			leaf->mActive = true;
 
 			TSamboFlowerSaveLoadParams* params
-			    = (TSamboFlowerSaveLoadParams*)getSaveParam();
+			    = (TSamboFlowerSaveLoadParams*)unk38;
 			f32 minXZ = params->mSLLeafVelocityXZ.get();
 			f32 minY  = params->mSLLeafVelocityY.get();
 			TMsRange<f32> xzRange(minXZ, minXZ * 1.2f);
