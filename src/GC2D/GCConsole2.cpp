@@ -2669,7 +2669,15 @@ void TGCConsole2::drawWaterBack()
 		f32 hiddenRatio = 1.0f - pressure / pressureMax;
 		int fillTop = bounds.y1 + (int)(hiddenRatio * bounds.getHeight());
 
-		drawGaugeQuadF32(bounds, bounds.y1, fillTop, 0.0f, hiddenRatio);
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition2f32(bounds.x1, bounds.y1);
+		GXTexCoord2f32(0.0f, 0.0f);
+		GXPosition2f32(bounds.x2, bounds.y1);
+		GXTexCoord2f32(1.0f, 0.0f);
+		GXPosition2f32(bounds.x2, fillTop);
+		GXTexCoord2f32(1.0f, hiddenRatio);
+		GXPosition2f32(bounds.x1, fillTop);
+		GXTexCoord2f32(0.0f, hiddenRatio);
 
 		if (!unk34[28] && pressure != 0.0f && !unk34[20]) {
 			unk14      = 1;
@@ -2694,7 +2702,15 @@ void TGCConsole2::drawWaterBack()
 			GXSetTevColor(GX_TEVREG1, JUtility::TColor(0xff3f3f00));
 		}
 
-		drawGaugeQuadF32(bounds, fillTop, bounds.y2, hiddenRatio, 1.0f);
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition2f32(bounds.x1, fillTop);
+		GXTexCoord2f32(0.0f, hiddenRatio);
+		GXPosition2f32(bounds.x2, fillTop);
+		GXTexCoord2f32(1.0f, hiddenRatio);
+		GXPosition2f32(bounds.x2, bounds.y2);
+		GXTexCoord2f32(1.0f, 1.0f);
+		GXPosition2f32(bounds.x1, bounds.y2);
+		GXTexCoord2f32(0.0f, 1.0f);
 	} else {
 		if (unk34[20] && unk30C != 0) {
 			unk274->setPanePosition(90, JUTPoint(0, 0), JUTPoint(0, -100),
