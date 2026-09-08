@@ -266,11 +266,9 @@ const TNerveBase<TLiveActor>* TWireTrap::getNerveFromMode(int mode)
 
 void TWireTrap::checkHitActors()
 {
-	int max            = mColCount;
-	THitActor** actors = mCollisions;
-
-	for (int i = 0; i < max; i++) {
-		THitActor* other = actors[i];
+	THitActor** end = mCollisions + mColCount;
+	for (THitActor** it = mCollisions; it != end; ++it) {
+		THitActor* other = *it;
 		if (other->mActorType == 0x10000026) {
 			if (other == this)
 				continue;
