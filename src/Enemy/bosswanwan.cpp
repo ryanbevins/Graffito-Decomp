@@ -1400,14 +1400,14 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 			J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(0);
 			self->unk178            = 10.0f / (f32)frameCtrl->getEnd();
 			self->setAnmSound(bwanwan_bastable[waitIndex]);
-			frameCtrl->setFrame(30.0f);
+			frameCtrl->setFrame(0.0f);
 			frameCtrl->setRate(SMSGetAnmFrameRate());
 		}
 
 		actor->setBtpFromIndex(0);
 		J3DFrameCtrl* btpCtrl = actor->getFrameCtrl(3);
-		btpCtrl->setFrame(30.0f);
-		btpCtrl->setRate(30.0f);
+		btpCtrl->setFrame(0.0f);
+		btpCtrl->setRate(0.0f);
 	}
 
 	if (actor->curAnmEndsNext(0, nullptr) && self->mHitPoints == 0
@@ -1427,7 +1427,7 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 		J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(0);
 		self->unk178            = 10.0f / (f32)frameCtrl->getEnd();
 		self->setAnmSound(bwanwan_bastable[5]);
-		frameCtrl->setFrame(30.0f);
+		frameCtrl->setFrame(0.0f);
 		frameCtrl->setRate(SMSGetAnmFrameRate());
 	}
 
@@ -1461,12 +1461,12 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 				tracer2->mCurrIdx = oldPrev;
 				self->setGoalPathFromGraph();
 				self->unk128 = 0;
-				self->unk12C = 30.0f;
+				self->unk12C = 0.0f;
 			}
 
 			f32 ratio = (f32)self->mHitPoints
 			            / (f32)params->mSLBWHitPointMax.get();
-			self->slideToCurPathNode(400.0f * ratio * self->mMarchSpeed,
+			self->slideToCurPathNode(3.0f * (ratio * self->mMarchSpeed),
 			                         self->mTurnSpeed);
 			return false;
 		}
@@ -1495,14 +1495,14 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 		}
 
 		JGeometry::TVec3<f32> escapeDir(
-		    JMASSin((s16)(self->mRotation.y * (65536.0f / 360.0f))), 30.0f,
+		    JMASSin((s16)(self->mRotation.y * (65536.0f / 360.0f))), 0.0f,
 		    JMASCos((s16)(self->mRotation.y * (65536.0f / 360.0f))));
 		s32 next = graph->getEscapeDirLimited(currIndex, prevIndex, escapeDir,
-		                                      self->mPosition, 1.1f, -1);
+		                                      self->mPosition, 100.0f, -1);
 		tracer->moveTo(next);
 		self->setGoalPathFromGraph();
 		self->unk128 = 0;
-		self->unk12C = 30.0f;
+		self->unk12C = 0.0f;
 		return true;
 	}
 
@@ -1512,7 +1512,7 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 	f32 hpRatio = (f32)self->mHitPoints / (f32)params->mSLBWHitPointMax.get();
 	if (self->mPicket->isTaken()) {
 		f32 marioAngle = SHORTANGLE2DEG(gpMarioOriginal->mIntendedYaw);
-		JGeometry::TVec3<f32> intendedDir(JMASin(marioAngle), 30.0f,
+		JGeometry::TVec3<f32> intendedDir(JMASin(marioAngle), 0.0f,
 		                                  JMACos(marioAngle));
 		JGeometry::TVec3<f32> bossToMario = self->mPosition;
 		bossToMario -= gpMarioOriginal->mPosition;
