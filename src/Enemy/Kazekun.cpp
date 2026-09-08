@@ -236,9 +236,8 @@ DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 
 		JGeometry::TQuat4<f32> aim;
 		mtx.getQuat(aim);
-		JGeometry::TVec3<f32> axis = getYDirVec(mtx);
 		JGeometry::TQuat4<f32> rot;
-		rot.setRotate(axis, 0.0f);
+		rot.setRotate(getYDirVec(mtx), 0.0f);
 		aim.mul(aim, rot);
 		cur.slerp(cur, aim, 0.1f);
 		cur.normalize();
@@ -250,9 +249,8 @@ DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 
 	JGeometry::TQuat4<f32> aim;
 	mtx.getQuat(aim);
-	JGeometry::TVec3<f32> axis = getYDirVec(mtx);
 	JGeometry::TQuat4<f32> rot;
-	rot.setRotate(axis, 0.0f);
+	rot.setRotate(getYDirVec(mtx), 0.0f);
 	aim.mul(rot, aim);
 
 	JGeometry::TQuat4<f32> cur;
