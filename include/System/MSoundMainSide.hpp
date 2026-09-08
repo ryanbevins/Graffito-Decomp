@@ -34,7 +34,7 @@ class MSStageCubeFade : public MSStage {
 public:
 	MSStageCubeFade();
 
-	void calcParamRatioInCube(long);
+	f32 calcParamRatioInCube(long);
 	virtual void proc();
 
 	/* 0x04 */ s32 mCurrentCube;

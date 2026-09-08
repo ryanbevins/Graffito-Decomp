@@ -116,6 +116,26 @@ void MSStageCubeSwitch::proc()
 	mPreviousCube = mCurrentCube;
 }
 
+f32 MSStageCubeFade::calcParamRatioInCube(long cubeIndex)
+{
+	f32 ratioX = 0.0f;
+	f32 ratioY = 0.0f;
+	f32 ratioZ = 0.0f;
+	Vec ratioPos = *gpMarioPos;
+	ratioPos.y = 75.0f
+	             + gpCubeSoundChange->unk14->begin()[cubeIndex]->unkC.y;
+	gpCubeSoundChange->calcPointInCubeRatio(
+	    ratioPos, cubeIndex, &ratioX, &ratioY, &ratioZ);
+
+	f32 edgeX = fabs(ratioX - 0.5f);
+	f32 edgeZ = fabs(ratioZ - 0.5f);
+	f32 edge  = edgeX > edgeZ ? edgeX : edgeZ;
+	if (edge < mFadeRatio)
+		return 1.0f;
+	else
+		return (0.5f - edge) / (0.5f - mFadeRatio);
+}
+
 void MSStageCubeFadeMonte::proc()
 {
 	JAISound* track1 = MSBgm::getHandle(1);
@@ -132,22 +152,7 @@ void MSStageCubeFadeMonte::proc()
 
 	f32 fade;
 	if (mCurrentCube != -1) {
-		f32 ratioX = 0.0f;
-		f32 ratioY = 0.0f;
-		f32 ratioZ = 0.0f;
-		Vec ratioPos = *gpMarioPos;
-		ratioPos.y = 75.0f
-		             + gpCubeSoundChange->unk14->begin()[mCurrentCube]->unkC.y;
-		gpCubeSoundChange->calcPointInCubeRatio(
-		    ratioPos, mCurrentCube, &ratioX, &ratioY, &ratioZ);
-
-		f32 edgeX = fabs(ratioX - 0.5f);
-		f32 edgeZ = fabs(ratioZ - 0.5f);
-		f32 edge  = edgeX > edgeZ ? edgeX : edgeZ;
-		if (edge < mFadeRatio)
-			fade = 1.0f;
-		else
-			fade = (0.5f - edge) / (0.5f - mFadeRatio);
+		fade = calcParamRatioInCube(mCurrentCube);
 	} else {
 		fade = 0.0f;
 	}
