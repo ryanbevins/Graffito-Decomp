@@ -892,9 +892,8 @@ void TSamboFlowerManager::dropLeaf(JGeometry::TVec3<f32>& position,
 			Mtx rot;
 			MsMtxSetRotRPH(rot, 0.0f, angles[i], 0.0f);
 			PSMTXMultVec(rot, (Vec*)&velocity, (Vec*)&velocity);
-			leaf->mVelocity = velocity;
-
 			leaf->mRotation.set(0.0f, angles[i] - 90.0f, 0.0f);
+			leaf->mVelocity = velocity;
 			leaf->mScale = scale;
 			++dropped;
 		}
