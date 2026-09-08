@@ -523,20 +523,22 @@ void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 	mBodyHitActor->perform(flags, graphics);
 
 	if (flags & 1) {
-		TKoopaParams* prm
-		    = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
 		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
-		f32 frame          = ctrl->getFrame();
-		BOOL shouldTumble  = FALSE;
-		if (mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve()
-		    && frame >= prm->tumbleStartFrame.get()) {
-			if (frame <= prm->tumbleEndFrame.get())
-				shouldTumble = TRUE;
-		}
+		f32 frame         = ctrl->getFrame();
+		bool started
+		    = mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve()
+		      && frame >= ((TKoopaParams*)((TEnemyManager*)mManager)->unk38)
+		                      ->tumbleStartFrame.get();
+		bool shouldTumble
+		    = started
+		      && frame <= ((TKoopaParams*)((TEnemyManager*)mManager)->unk38)
+		                      ->tumbleEndFrame.get();
 
 		if (shouldTumble) {
 			TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
-			bathtub->tumble(mRotation.y, prm->tumbleWeight.get());
+			bathtub->tumble(mRotation.y,
+			                ((TKoopaParams*)((TEnemyManager*)mManager)->unk38)
+			                    ->tumbleWeight.get());
 		}
 
 		setUpHitActors();
