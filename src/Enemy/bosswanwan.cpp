@@ -1784,7 +1784,7 @@ DEFINE_NERVE(TNerveBWDie, TLiveActor)
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
 	MActor* actor     = self->mMActor;
 	if (spine->getTime() == 0) {
-		JGeometry::TVec3<f32> velocity(30.0f, 30.0f, 30.0f);
+		JGeometry::TVec3<f32> velocity(0.0f, 0.0f, 0.0f);
 		self->mVelocity       = velocity;
 		self->mLinearVelocity = velocity;
 		self->onLiveFlag(LIVE_FLAG_UNK10);
@@ -1797,8 +1797,8 @@ DEFINE_NERVE(TNerveBWDie, TLiveActor)
 			--self->mHitPoints;
 
 		J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(0);
-		frameCtrl->setFrame(30.0f);
-		frameCtrl->setRate(30.0f);
+		frameCtrl->setFrame(0.0f);
+		frameCtrl->setRate(0.0f);
 		spine->pushAfterCurrent(&TNerveBWDie::theNerve());
 		return true;
 	}
@@ -1807,10 +1807,10 @@ DEFINE_NERVE(TNerveBWDie, TLiveActor)
 		JDrama::TFlagT<u16> flag(0);
 		TMarDirector* director = gpMarDirector;
 		director->fireStartDemoCamera(
-		    "bwanwan_down_camera", nullptr, -1, 30.0f, true, nullptr, 0,
+		    "bwanwan_down_camera", nullptr, -1, 0.0f, true, nullptr, 0,
 		    nullptr, flag);
 		self->unk16C = 0;
-		self->unk168 = 30.0f;
+		self->unk168 = 0.0f;
 		self->unk18C = 1;
 		self->mPosition = BW_BATH_POS;
 
@@ -1862,7 +1862,7 @@ DEFINE_NERVE(TNerveBWDie, TLiveActor)
 
 	if (actor->curAnmEndsNext(5, nullptr)) {
 		J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(5);
-		frameCtrl->setRate(30.0f);
+		frameCtrl->setRate(0.0f);
 	}
 
 	return false;
