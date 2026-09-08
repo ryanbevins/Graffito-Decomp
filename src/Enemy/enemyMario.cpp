@@ -991,9 +991,9 @@ void TEnemyMario::hitWater(THitActor* sender)
 		if (doing() == 0xC) {
 			sleepingEffectKill();
 
-			TGraphWeb* graph = emOwner(this)->unk124->getGraph();
-			int node = graph->findNearestNodeIndex(mPosition, 0xffffffff);
-			if (graph->getGraphNode(node).checkFlag(2)) {
+			int node = emOwner(this)->unk124->getGraph()->findNearestNodeIndex(
+			    mPosition, 0xffffffff);
+			if (emOwner(this)->unk124->getGraph()->getGraphNode(node).checkFlag(2)) {
 				mFaceAngle.y = emTargetYaw(this);
 				emControllerFlags2(this) |= 0x100;
 				emControllerFlags(this) |= 0x100;
