@@ -108,9 +108,8 @@ u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
 		return MSGMSound->unk94;
 	case 0x14: {
 		for (u16 i = 0; i < 2; ++i) {
-			JASystem::TTrack* parent = track->unk2C4[i];
 			for (u16 j = 0; j < 16; ++j) {
-				JASystem::TTrack* child = parent->unk2C4[j];
+				JASystem::TTrack* child = track->unk2C4[i]->unk2C4[j];
 				if (child == nullptr)
 					break;
 
