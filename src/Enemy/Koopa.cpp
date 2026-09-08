@@ -518,8 +518,8 @@ void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 		mFlameHitActors[i]->perform(flags, graphics);
 
 	mHeadHitActor->perform(flags, graphics);
-	for (int i = 0; i < 2; ++i)
-		mHandHitActors[i]->perform(flags, graphics);
+	mHandHitActors[0]->perform(flags, graphics);
+	mHandHitActors[1]->perform(flags, graphics);
 	mBodyHitActor->perform(flags, graphics);
 
 	if (flags & 1) {
