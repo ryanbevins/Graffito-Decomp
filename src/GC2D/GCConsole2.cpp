@@ -2703,7 +2703,15 @@ void TGCConsole2::drawWaterBack()
 			unk34[21] = 1;
 		}
 
-		drawGaugeQuadF32(bounds, bounds.y1, bounds.y2, 0.0f, 1.0f);
+		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+		GXPosition2f32(bounds.x1, bounds.y1);
+		GXTexCoord2f32(0.0f, 0.0f);
+		GXPosition2f32(bounds.x2, bounds.y1);
+		GXTexCoord2f32(1.0f, 0.0f);
+		GXPosition2f32(bounds.x2, bounds.y2);
+		GXTexCoord2f32(1.0f, 1.0f);
+		GXPosition2f32(bounds.x1, bounds.y2);
+		GXTexCoord2f32(0.0f, 1.0f);
 	}
 
 	if (unk334[unk330]->isVisible())
