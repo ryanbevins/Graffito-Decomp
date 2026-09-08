@@ -564,10 +564,10 @@ void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 			scale.y = flameScale;
 			scale.z = flameScale;
 
-			MtxPtr mtx = mMActor->getModel()->getAnmMtx(mNeckJointIndex);
 			JPABaseEmitter* emitter
-			    = gpMarioParticleManager->emitAndBindToMtxPtr(0x1F3, mtx, 3,
-			                                                  this);
+			    = gpMarioParticleManager->emitAndBindToMtxPtr(
+			        0x1F3, mMActor->getModel()->getAnmMtx(mNeckJointIndex), 3,
+			        this);
 			if (emitter) {
 				emitter->unk154.x = scale.x;
 				emitter->unk154.y = scale.y;
@@ -577,29 +577,29 @@ void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 				emitter->unk174.z = scale.z;
 			}
 
-			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(0x1C3, mtx, 1,
-			                                                      this);
+			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x1C3, mMActor->getModel()->getAnmMtx(mNeckJointIndex), 1, this);
 			if (emitter) {
 				emitter->unk154.set(scale);
 				emitter->unk174.set(scale);
 			}
 
-			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(0x1C2, mtx, 1,
-			                                                      this);
+			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x1C2, mMActor->getModel()->getAnmMtx(mNeckJointIndex), 1, this);
 			if (emitter) {
 				emitter->unk154.set(scale);
 				emitter->unk174.set(scale);
 			}
 
-			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(0x1C1, mtx, 1,
-			                                                      this);
+			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x1C1, mMActor->getModel()->getAnmMtx(mNeckJointIndex), 1, this);
 			if (emitter) {
 				emitter->unk154.set(scale);
 				emitter->unk174.set(scale);
 			}
 
-			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(0x1C0, mtx, 1,
-			                                                      this);
+			emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x1C0, mMActor->getModel()->getAnmMtx(mNeckJointIndex), 1, this);
 			if (emitter) {
 				emitter->unk154.set(scale);
 				emitter->unk174.set(scale);
