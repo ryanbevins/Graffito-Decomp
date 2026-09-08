@@ -196,14 +196,7 @@ void MSStageCubeFadeMonte::proc()
 			f32 dy     = cubePos.y - marioPos.y;
 			f32 dz     = cubePos.z - marioPos.z;
 			f32 distSq = dx * dx + dy * dy + dz * dz;
-			f32 dist   = distSq;
-			if (distSq > 0.0f) {
-				f64 root = __frsqrte(distSq);
-				root = 0.5 * root * (3.0 - distSq * (root * root));
-				root = 0.5 * root * (3.0 - distSq * (root * root));
-				root = 0.5 * root * (3.0 - distSq * (root * root));
-				dist = (f32)(distSq * root);
-			}
+			f32 dist   = sqrtf(distSq);
 
 			Vec cameraPos;
 			PSMTXMultVec(gpMSound->unk8->unk8, &cubePos, &cameraPos);
