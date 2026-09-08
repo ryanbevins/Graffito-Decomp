@@ -1647,10 +1647,10 @@ DEFINE_NERVE(TNerveBWStun, TLiveActor)
 		if (self->unk15C.x * self->unk15C.x
 		        + self->unk15C.y * self->unk15C.y
 		        + self->unk15C.z * self->unk15C.z
-		    >= ((TBWParams*)self->getSaveParam())->mSLPullLimit.get())
-			pulled = true;
-		else
+		    < ((TBWParams*)self->getSaveParam())->mSLPullLimit.get())
 			pulled = false;
+		else
+			pulled = true;
 
 		if (pulled) {
 			TGraphWeb* graph = self->unk124->getGraph();
