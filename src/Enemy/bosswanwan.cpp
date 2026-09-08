@@ -1482,8 +1482,9 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 				self->unk12C = 0.0f;
 			}
 
+			TBWParams* slideParams = (TBWParams*)self->getSaveParam();
 			f32 ratio = (f32)self->mHitPoints
-			            / (f32)params->mSLBWHitPointMax.get();
+			            / (f32)slideParams->mSLBWHitPointMax.get();
 			self->slideToCurPathNode(3.0f * (ratio * self->mMarchSpeed),
 			                         self->mTurnSpeed);
 			return false;
