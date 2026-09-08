@@ -1609,7 +1609,7 @@ DEFINE_NERVE(TNerveBWBark, TLiveActor)
 		                       ->mSLBWHitPointMax.get();
 
 	if (self->mMActor->curAnmEndsNext(0, nullptr)) {
-		spine->pushAfterCurrent(&TNerveBWFall::theNerve());
+		spine->pushAfterCurrent(&TNerveBWGraphWander::theNerve());
 		if (!(self->unk198 & 2))
 			gpMarDirector->mConsole->startAppearBalloon(0xE001B, true);
 		self->unk198 |= 2;
