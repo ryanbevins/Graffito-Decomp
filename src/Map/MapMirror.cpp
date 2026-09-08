@@ -57,6 +57,15 @@ void TMirrorCamera::drawSetting(MtxPtr param_1)
 	GXLoadTexMtxImm(afStack_98, 0x1E, GX_MTX3x4);
 }
 
+inline void TMirrorCamera::calcEffectMtx(MtxPtr effect_mtx)
+{
+	Mtx lightMtx;
+	f32 fovy = gpCamera->mFovy;
+	C_MTXLightPerspective(lightMtx, unk80 * fovy, gpCamera->mAspect,
+	                      0.5f, -0.5f, 0.5f, 0.5f);
+	MTXConcat(lightMtx, unk30, effect_mtx);
+}
+
 TMirrorCamera::TMirrorCamera(const char* name)
     : JDrama::TCamera(10.0f, 300000.0f, name)
     , unk80(1.3f)
@@ -346,13 +355,8 @@ void TMirrorModelManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 			C_MTXLookAt(camera->unk30, &camera->unk98, &up, &target);
 
-			camera = mirror->unk8;
-			Mtx lightMtx;
-			C_MTXLightPerspective(lightMtx, camera->unk80 * gpCamera->mFovy,
-			                      gpCamera->mAspect, 0.5f, -0.5f, 0.5f,
-			                      0.5f);
 			Mtx effectMtx;
-			MTXConcat(lightMtx, camera->unk30, effectMtx);
+			mirror->unk8->calcEffectMtx(effectMtx);
 
 			J3DMaterial* material = mirror->unk4->getModel()
 			                            ->getModelData()
