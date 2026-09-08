@@ -277,6 +277,7 @@ void TWireTrap::checkHitActors()
 			if (other == this)
 				continue;
 
+			TWireTrap* o = (TWireTrap*)other;
 			JGeometry::TVec3<f32> myDir = getWireBinder()->getDir();
 			f32 ms;
 			if (mShakeTimer > 0)
@@ -286,7 +287,6 @@ void TWireTrap::checkHitActors()
 			myDir.scale(mWireDir * ms);
 			myDir.scale(mScaleSpeed);
 
-			TWireTrap* o = (TWireTrap*)other;
 			JGeometry::TVec3<f32> otDir = o->getWireBinder()->getDir();
 			f32 os;
 			if (o->mShakeTimer > 0)
