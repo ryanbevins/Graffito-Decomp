@@ -2112,9 +2112,9 @@ void TBEelTears::calcRootMatrix()
 
 void TBEelTears::moveObject()
 {
+	f32 liveHeight = unk15C->mSLTearsLiveHeight.get();
 	mVelocity.x *= 0.9f;
 	mVelocity.z *= 0.9f;
-	f32 liveHeight = unk15C->mSLTearsLiveHeight.get();
 
 	mPosition.x += mVelocity.x;
 	mPosition.z += mVelocity.z;
