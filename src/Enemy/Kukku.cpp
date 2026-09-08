@@ -579,7 +579,7 @@ void TKukku::calcRootMatrix()
 		                   0.017453294f * mRotation.y);
 
 		JGeometry::TQuat4<f32> q;
-		q.setRotate(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f), normal);
+		q.setRotate(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f), normal, 1.0f);
 		q.mul(q, qHeading);
 
 		TPosition3f mtx;
