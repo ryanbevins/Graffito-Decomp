@@ -118,14 +118,15 @@ void TMBindShadowParts::calc(f32 ground_y)
 	f32 jointY = unkC[1][3] - heightOffset - ground_y;
 	f32 childY = unk10[1][3] - heightOffset - ground_y;
 
+	const JGeometry::TVec3<f32>& lightDirection = gpBindShadowManager->unk30;
 	f32 jointX
-	    = unkC[0][3] - gpBindShadowManager->unk30.x * jointY;
+	    = unkC[0][3] - lightDirection.x * jointY;
 	f32 childX
-	    = unk10[0][3] - gpBindShadowManager->unk30.x * childY;
+	    = unk10[0][3] - lightDirection.x * childY;
 	f32 childZ
-	    = unk10[2][3] - gpBindShadowManager->unk30.z * childY;
+	    = unk10[2][3] - lightDirection.z * childY;
 	f32 jointZ
-	    = unkC[2][3] - gpBindShadowManager->unk30.z * jointY;
+	    = unkC[2][3] - lightDirection.z * jointY;
 
 	f32 centerX = (jointX + childX) * 0.5f;
 	f32 centerZ = (jointZ + childZ) * 0.5f;
