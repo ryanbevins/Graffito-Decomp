@@ -749,11 +749,14 @@ void TAnimalBird::moveObject()
 	if (unk178 > 0)
 		unk178--;
 
-	const TNerveBase<TLiveActor>* cur = mSpine->getLatestNerve();
+	TSpineBase<TLiveActor>* spine = mSpine;
 
-	bool inGroundState = (cur == &TNerveAnimalBirdWaitOnGround::theNerve()
-	                      || cur == &TNerveAnimalBirdActionOnGround::theNerve()
-	                      || cur == &TNerveAnimalBirdWalkOnGround::theNerve());
+	bool inGroundState
+	    = (spine->getLatestNerve() == &TNerveAnimalBirdWaitOnGround::theNerve()
+	       || spine->getLatestNerve()
+	              == &TNerveAnimalBirdActionOnGround::theNerve()
+	       || spine->getLatestNerve()
+	              == &TNerveAnimalBirdWalkOnGround::theNerve());
 
 	if (inGroundState && (mLiveFlag & 0x80)) {
 		TAnimalBirdParams* p = (TAnimalBirdParams*)getSaveParam();
