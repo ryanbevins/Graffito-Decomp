@@ -1006,7 +1006,10 @@ void TEnemyMario::hitWater(THitActor* sender)
 		return;
 	}
 
-	if (mAction == ACTION_RUNNING && canSleep()) {
+	if (mAction == ACTION_RUNNING) {
+		u8 canSleepResult = canSleep();
+		if (!canSleepResult)
+			return;
 		if (mHeldObject != nullptr) {
 			*(u32*)((u8*)mHeldObject + 0xF0) &= ~0x100000;
 			dropObject();
