@@ -51,3 +51,10 @@ not build or replace the push gate.
 `download_tool.py TOOL OUTPUT --tag TAG` downloads build dependencies. A GitHub
 release request that returns HTTP 504 is retried once with `download=1` to avoid
 a stale gateway response. Other errors and a failed retry remain build failures.
+
+Relocation operands in objdiff JSON are placeholders, and their target IDs do
+not index the exported symbol array. `decomp-diff.py` uses objdiff's resolved
+instruction text for these rows (braces enclose the whole changed instruction).
+`check-diff-noise.py` treats relocation argument difference flags as structural,
+including changed constant values and callees. Run their regression tests with
+`python3 -m unittest discover -s tools/tests`.

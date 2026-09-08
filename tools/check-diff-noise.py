@@ -188,6 +188,17 @@ def is_commutative_source_swap(left_op, left_args, right_args):
     )
 
 
+def has_relocation_difference(entry):
+    # Relocation arguments are boolean placeholders, not target identities.
+    # Objdiff compares their targets/data and records differences in arg_diff.
+    operands = [part["arg"] for part in
+                entry.get("instruction", {}).get("parts", []) if "arg" in part]
+    differences = entry.get("arg_diff", [])
+    return any("reloc" in operand and index < len(differences)
+               and differences[index].get("diff_index") is not None
+               for index, operand in enumerate(operands))
+
+
 def classify_pair(left_entry, right_entry):
     left_inst = left_entry.get("instruction")
     right_inst = right_entry.get("instruction")
@@ -198,6 +209,9 @@ def classify_pair(left_entry, right_entry):
     right_op = opcode(right_entry)
     if left_op != right_op:
         return "structural:opcode"
+
+    if has_relocation_difference(left_entry) or has_relocation_difference(right_entry):
+        return "structural:relocation"
 
     if left_entry.get("diff_kind") is None and right_entry.get("diff_kind") is None:
         return "exact"

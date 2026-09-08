@@ -180,6 +180,14 @@ def render_instruction(
     parts = inst.get("parts", [])
     arg_diffs = inst_entry.get("arg_diff", [])
 
+    # Relocation IDs do not index the exported symbols array. Objdiff's
+    # formatted instruction already resolves the correct symbol and addend.
+    if any("reloc" in part.get("arg", {}) for part in parts):
+        formatted = inst.get("formatted", "<unformatted relocation>")
+        if is_diff and any(arg.get("diff_index") is not None for arg in arg_diffs):
+            return "{" + formatted + "}"
+        return formatted
+
     text_parts = []
     arg_idx = 0  # Index into arg_diff array
 
@@ -212,18 +220,6 @@ def render_instruction(
                     pass
             elif "branch_dest" in arg:
                 val = f"0x{int(arg['branch_dest']):x}"
-            elif "reloc" in arg:
-                # Resolve relocation target from instruction.relocation
-                reloc_info = inst.get("relocation", {})
-                ts = reloc_info.get("target_symbol")
-                index = ts if ts is not None else -1
-                if 0 <= index < len(all_syms):
-                    target_sym = all_syms[index]
-                    val = target_sym.get("demangled_name", target_sym.get("name", "?"))
-                else:
-                    # Fallback: extract from formatted text
-                    formatted = inst.get("formatted", "")
-                    val = formatted.split()[-1] if formatted else "?"
             else:
                 val = str(arg)
 
