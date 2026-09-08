@@ -946,25 +946,24 @@ void TAnimalBird::load(JSUMemoryInputStream& stream)
 
 	TMapObjBase* item = unk150;
 	s32 actorType = item->mActorType;
-	if (actorType != 0x20000010) {
-		if (actorType >= 0x20000010) {
-			if (actorType == 0x20000013) {
-				*(int*)((char*)this + 0x180) = 2;
-			} else {
-				*(int*)((char*)this + 0x180) = 1;
-			}
-		} else if (actorType >= 0x2000000F) {
-			*(int*)((char*)this + 0x180) = 3;
-		} else {
-			*(int*)((char*)this + 0x180) = 1;
-		}
-	} else {
+	switch (actorType) {
+	default:
+		*(int*)((char*)this + 0x180) = 1;
+		break;
+	case 0x20000013:
+		*(int*)((char*)this + 0x180) = 2;
+		break;
+	case 0x2000000F:
+		*(int*)((char*)this + 0x180) = 3;
+		break;
+	case 0x20000010:
 		*(int*)((char*)this + 0x180) = 0;
 		bool flag = TFlagManager::smInstance->getBlueCoinFlag(
 		    gpMarDirector->mMap, (u8)itemId);
 		if (flag) {
 			mLiveFlag |= 1;
 		}
+		break;
 	}
 
 	const GXColorS10* color
