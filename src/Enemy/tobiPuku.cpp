@@ -103,7 +103,9 @@ static inline void calcTobiPukuRootMatrix(TTobiPuku* self)
 	gpCurTobiPuku = self;
 	self->TSpineEnemy::calcRootMatrix();
 
-	if (self->mRotation.x != 0.0f && !self->isEaten()) {
+	if (self->mRotation.x != 0.0f) {
+		if (self->isEaten())
+			return;
 		f32 rotX = self->mRotation.x;
 		f32 y    = self->mPosition.y + 70.0f * rotX / TTobiPuku::mLandAngle;
 		MsMtxSetXYZRPH(self->getModel()->getBaseTRMtx(), self->mPosition.x, y,
