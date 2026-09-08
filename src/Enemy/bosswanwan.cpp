@@ -1378,12 +1378,11 @@ void TBossWanwanManager::load(JSUMemoryInputStream& stream)
 DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 {
 	TBossWanwan* self = (TBossWanwan*)spine->getBody();
-	MActor* actor = self->mMActor;
 
 	if (spine->getTime() == 0) {
 		self->unk16C = 0;
 
-		if (!actor->checkCurBckFromIndex(4)) {
+		if (!self->mMActor->checkCurBckFromIndex(4)) {
 			s32 waitIndex = self->mHitPoints == 0 ? 5 : 4;
 			TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
 			J3DAnmTransform* waitAnm
@@ -1396,22 +1395,22 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 				mtxCalc->unk50 = 1.0f;
 			}
 
-			actor->getAnmBck()->setFrameCtrl(waitIndex);
-			J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(0);
+			self->mMActor->getAnmBck()->setFrameCtrl(waitIndex);
+			J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
 			self->unk178            = 10.0f / (f32)frameCtrl->getEnd();
 			self->setAnmSound(bwanwan_bastable[waitIndex]);
 			frameCtrl->setFrame(0.0f);
 			frameCtrl->setRate(SMSGetAnmFrameRate());
 		}
 
-		actor->setBtpFromIndex(0);
-		J3DFrameCtrl* btpCtrl = actor->getFrameCtrl(3);
+		self->mMActor->setBtpFromIndex(0);
+		J3DFrameCtrl* btpCtrl = self->mMActor->getFrameCtrl(3);
 		btpCtrl->setFrame(0.0f);
 		btpCtrl->setRate(0.0f);
 	}
 
-	if (actor->curAnmEndsNext(0, nullptr) && self->mHitPoints == 0
-	    && !actor->checkCurBckFromIndex(5)) {
+	if (self->mMActor->curAnmEndsNext(0, nullptr) && self->mHitPoints == 0
+	    && !self->mMActor->checkCurBckFromIndex(5)) {
 		TBossWanwanMtxCalc* mtxCalc = self->mMtxCalc;
 		J3DAnmTransform* waitAnm
 		    = mtxCalc->mOwner->mMActorKeeper->getMActorAnmData()
@@ -1423,8 +1422,8 @@ DEFINE_NERVE(TNerveBWGraphWander, TLiveActor)
 			mtxCalc->unk50 = 1.0f;
 		}
 
-		actor->getAnmBck()->setFrameCtrl(5);
-		J3DFrameCtrl* frameCtrl = actor->getFrameCtrl(0);
+		self->mMActor->getAnmBck()->setFrameCtrl(5);
+		J3DFrameCtrl* frameCtrl = self->mMActor->getFrameCtrl(0);
 		self->unk178            = 10.0f / (f32)frameCtrl->getEnd();
 		self->setAnmSound(bwanwan_bastable[5]);
 		frameCtrl->setFrame(0.0f);
