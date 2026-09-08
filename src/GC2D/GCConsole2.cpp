@@ -2648,10 +2648,7 @@ void TGCConsole2::drawWaterBack()
 	setupConsoleGaugeTevStage0();
 
 	J2DPicture* background = (J2DPicture*)unk26C->getPane();
-	JUTTexture* backgroundTexture = nullptr;
-	if (background->mTextureNum > 0)
-		backgroundTexture = background->mTextures[0];
-	backgroundTexture->load(GX_TEXMAP0);
+	background->getTexture(0)->load(GX_TEXMAP0);
 	GXLoadTexMtxImm(mtx, GX_TEXMTX0, GX_MTX2x4);
 	GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0,
 	                   GX_TEXMTX0, GX_FALSE, GX_PTIDENTITY);
