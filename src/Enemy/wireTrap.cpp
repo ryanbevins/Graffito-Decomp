@@ -305,7 +305,7 @@ void TWireTrap::checkHitActors()
 				b.scale(o->mWireDir * os);
 				if (dot < 0.0f)
 					mWireDir *= -1.0f;
-				mSpine->initWith(&TNerveWireTrapWait::theNerve());
+				mSpine->pushNerve(&TNerveWireTrapWait::theNerve());
 			}
 			if (o->mBiriTimer <= 0 && o->mColorType == 0) {
 				o->mBiriTimer = 0x1e;
@@ -315,7 +315,7 @@ void TWireTrap::checkHitActors()
 				b.scale(o->mWireDir * os);
 				if (dot < 0.0f)
 					o->mWireDir *= -1.0f;
-				o->mSpine->initWith(&TNerveWireTrapWait::theNerve());
+				o->mSpine->pushNerve(&TNerveWireTrapWait::theNerve());
 			}
 		} else if (other->mActorType == 0x80000001) {
 			SMS_SendMessageToMario(this, 9);
