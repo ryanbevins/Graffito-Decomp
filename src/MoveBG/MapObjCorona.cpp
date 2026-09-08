@@ -866,9 +866,7 @@ void TBathtub::calcBathtubData()
 	unk188[7] = rootMtx[1][2];
 	unk188[8] = rootMtx[2][2];
 
-	unk170.x = rootMtx[0][3];
-	unk170.y = rootMtx[1][3];
-	unk170.z = rootMtx[2][3];
+	unk170.set(rootMtx[0][3], rootMtx[1][3], rootMtx[2][3]);
 
 	f32 upright
 	    = JGeometry::TUtil<f32>::sqrt(1.0f - unk188[4] * unk188[4]);
