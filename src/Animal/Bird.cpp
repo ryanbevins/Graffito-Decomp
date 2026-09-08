@@ -968,8 +968,8 @@ void TAnimalBird::load(JSUMemoryInputStream& stream)
 
 	const GXColorS10* color
 	    = &cColorTable[*(int*)((char*)this + 0x180)];
-	u16 matIdx
-	    = (u16)getModel()->getModelData()->getMaterialName()->getIndex(cMatName);
+	s32 matIdx
+	    = getModel()->getModelData()->getMaterialName()->getIndex(cMatName);
 	SMS_InitPacket_OneTevColor(getModel(), matIdx, GX_TEVREG1, color);
 }
 
