@@ -615,7 +615,7 @@ bool TAnimalBird::doLanding(bool initFrame)
 	else
 		clamped = delta;
 
-	mRotation.y     = MsWrap<f32>(wrappedY + clamped, 0.0f, 360.0f);
+	mRotation.y     = MsWrap<f32>(mRotation.y + clamped, 0.0f, 360.0f);
 	mLinearVelocity = deltaV;
 
 	JGeometry::TVec3<f32> velCopy = mVelocity;
