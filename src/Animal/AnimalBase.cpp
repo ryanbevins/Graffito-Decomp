@@ -305,7 +305,7 @@ void TAnimalBase::init(TLiveManager* mgr)
 	J3DFrameCtrl* fc = mMActor->getFrameCtrl(0);
 	if (fc) {
 		f32 frac;
-		int n = save->mSLSharedAnmNum.value;
+		int n = ((TAnimalManagerBase*)mgr)->mAnimalSave->mSLSharedAnmNum.value;
 		if (n == 0) {
 			frac = MsRandF();
 		} else {
