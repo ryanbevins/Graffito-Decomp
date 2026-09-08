@@ -1660,7 +1660,7 @@ DEFINE_NERVE(TNerveBWStun, TLiveActor)
 			graph->getGraphNode(prevIndex).getPoint(&nodeDelta);
 			nodeDelta.sub(self->mPosition);
 
-			if (PSVECMag((Vec*)&nodeDelta) < 1.1f) {
+			if (PSVECMag((Vec*)&nodeDelta) < 100.0f) {
 				if (prevIndex == graph->unk10) {
 					spine->pushAfterCurrent(
 					    &TNerveBWJumpToBath::theNerve());
