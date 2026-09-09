@@ -1034,7 +1034,7 @@ void TBossHanachan::init(TLiveManager* manager)
 
 	unk17C = mPosition;
 	JGeometry::TVec3<f32> linkPos = unk17C;
-	s16 angle = CLBRoundf<s16>(mRotation.y * (65536.0f / 360.0f));
+	s16 angle = mRotation.y * (65536.0f / 360.0f);
 	f32 sinV = jmaSinTable[(u16)angle >> jmaSinShift];
 	f32 cosV = jmaCosTable[(u16)angle >> jmaSinShift];
 	linkPos.x -= sinV * mParams->mSLHeadLength.value;
