@@ -987,10 +987,8 @@ void TBossHanachan::throwMario_(THitActor* hit_actor)
 		throwVec.y = mChangeParams->mSLThrowVecY.value;
 	}
 
-	if (throwPower > mChangeParams->mSLThrowSpeedMax.value)
-		throwPower = mChangeParams->mSLThrowSpeedMax.value;
-	else if (throwPower < mChangeParams->mSLThrowSpeedMin.value)
-		throwPower = mChangeParams->mSLThrowSpeedMin.value;
+	throwPower = MsClamp(throwPower, mChangeParams->mSLThrowSpeedMin.value,
+	                     mChangeParams->mSLThrowSpeedMax.value);
 
 	SMS_SendMessageToMario(mHead, HIT_MESSAGE_ATTACK);
 	SMS_SendMessageToMario(mHead, HIT_MESSAGE_UNK7);
