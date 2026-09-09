@@ -184,9 +184,12 @@ void TBossHanachan::execSlip()
 		f32 sinV = jmaSinTable[(u16)angle >> jmaSinShift];
 		f32 cosV = jmaCosTable[(u16)angle >> jmaSinShift];
 		f32 speed = 0.005f * mMarchSpeed;
-		dir.x += (xSide * cosV + yForce * sinV) * speed;
-		dir.y += yForce * speed;
-		dir.z += (-xSide * sinV + yForce * cosV) * speed;
+		JGeometry::TVec3<f32> sideForce;
+		sideForce.x = xSide * cosV + yForce * sinV;
+		sideForce.y = yForce;
+		sideForce.z = -xSide * sinV + yForce * cosV;
+		sideForce.scale(speed);
+		dir.add(sideForce);
 	}
 
 	if (!dir.isZero()) {
