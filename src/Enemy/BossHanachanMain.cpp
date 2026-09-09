@@ -744,7 +744,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 				TBossHanachanPartsHead* head
 				    = (TBossHanachanPartsHead*)mHead;
 				MtxPtr mtx = head->mCenterJointMtx;
-				JGeometry::TVec3<f32> hitPos = makeVec3(
+				JGeometry::TVec3<f32> hitPos(
 				    mtx[0][3], mtx[1][3], mtx[2][3]);
 				head->mWaterHit->mPosition.set(
 				    hitPos.x,
