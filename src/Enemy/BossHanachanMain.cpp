@@ -167,7 +167,7 @@ void TBossHanachan::execSlip()
 	    &mMarchSpeed, 0.0f, mChangeParams->mSLMarchDecrease.value);
 	mTurnSpeed = 0.1f;
 
-	if (mMarchSpeed <= 0.001f)
+	if (!(mMarchSpeed > 0.001f))
 		return;
 
 	JGeometry::TVec3<f32> dir = unk188;
