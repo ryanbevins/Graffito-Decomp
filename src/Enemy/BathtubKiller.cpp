@@ -408,18 +408,20 @@ void TBathtubKiller::bind()
 	target.add(mVelocity);
 	mVelocity.add(unk1BC);
 
-	if (mSpine->getCurrentNerve()
-	        != &TNerveBathtubKillerExplosion::theNerve()
-	    && mSpine->getCurrentNerve()
-	           != &TNerveBathtubKillerBreak::theNerve()) {
+	bool isBroken = mSpine->getCurrentNerve()
+	                    == &TNerveBathtubKillerExplosion::theNerve()
+	                || mSpine->getCurrentNerve()
+	                       == &TNerveBathtubKillerBreak::theNerve();
+	if (!isBroken) {
 		mGroundHeight = gpMap->checkGround(target.x, target.y + mHeadHeight,
 		                                   target.z, &mGroundPlane);
 		mGroundHeight += 1.0f;
 		if (target.y <= 0.05f + mGroundHeight) {
-			if (mSpine->getCurrentNerve()
-			        != &TNerveBathtubKillerExplosion::theNerve()
-			    && mSpine->getCurrentNerve()
-			           != &TNerveBathtubKillerBreak::theNerve())
+			bool isBroken = mSpine->getCurrentNerve()
+			                    == &TNerveBathtubKillerExplosion::theNerve()
+			                || mSpine->getCurrentNerve()
+			                       == &TNerveBathtubKillerBreak::theNerve();
+			if (!isBroken)
 				mSpine->pushNerve(
 				    &TNerveBathtubKillerExplosion::theNerve());
 			unk1BC.x    = 0.0f;
@@ -434,10 +436,11 @@ void TBathtubKiller::bind()
 		if (gpMap->isTouchedOneWallAndMoveXZ(&target.x,
 		                                     target.y + mHeadHeight,
 		                                     &target.z, mBodyRadius)) {
-			if (mSpine->getCurrentNerve()
-			        != &TNerveBathtubKillerExplosion::theNerve()
-			    && mSpine->getCurrentNerve()
-			           != &TNerveBathtubKillerBreak::theNerve())
+			bool isBroken = mSpine->getCurrentNerve()
+			                    == &TNerveBathtubKillerExplosion::theNerve()
+			                || mSpine->getCurrentNerve()
+			                       == &TNerveBathtubKillerBreak::theNerve();
+			if (!isBroken)
 				mSpine->pushNerve(
 				    &TNerveBathtubKillerExplosion::theNerve());
 		}
