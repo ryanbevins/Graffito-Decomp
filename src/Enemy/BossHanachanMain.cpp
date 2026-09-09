@@ -321,9 +321,8 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (mLiveFlag & (LIVE_FLAG_DEAD | LIVE_FLAG_UNK200))
 		return;
 
-	bool graphicsDrawn = (graphics->unk0 & 2) != 0;
 	if (mLiveFlag & LIVE_FLAG_UNK40000) {
-		if ((flags & 1) && graphicsDrawn) {
+		if ((flags & 1) && (graphics->unk0 & 2)) {
 			if (gpMSound->gateCheck(0x6010))
 				MSoundSESystem::MSoundSE::startSoundActor(
 				    0x6010, &mPosition, 0, nullptr, 0, 4);
@@ -353,7 +352,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 			mLinearVelocity.set(0.0f, 0.0f, 0.0f);
 			mAngularVelocity.set(0.0f, 0.0f, 0.0f);
 
-			if (graphicsDrawn
+			if ((graphics->unk0 & 2)
 			    && mSpine->getLatestNerve()
 			           == &TNerveBossHanachanDead::theNerve()
 			    && !(mLiveFlag & LIVE_FLAG_UNK100000)) {
@@ -716,7 +715,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 				}
 			}
 
-			if (graphicsDrawn
+			if ((graphics->unk0 & 2)
 			    && latestNerve == &TNerveBossHanachanDead::theNerve()) {
 				if (gpMSound->gateCheck(0x6010))
 					MSoundSESystem::MSoundSE::startSoundActor(
