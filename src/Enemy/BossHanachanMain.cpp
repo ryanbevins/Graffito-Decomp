@@ -123,8 +123,14 @@ void TBossHanachan::execDamage()
 		mChangeParams                 = manager->mChangeParams[3 - mHitPoints];
 
 		const char* railName = cHitPoint1_RailName;
-		if (mHitPoints == 2)
+		switch (mHitPoints) {
+		case 1:
+			railName = cHitPoint1_RailName;
+			break;
+		case 2:
 			railName = cHitPoint2_RailName;
+			break;
+		}
 
 		unk124->setGraph(gpConductor->getGraphByName(railName));
 		mLiveFlag |= 0x20000;
