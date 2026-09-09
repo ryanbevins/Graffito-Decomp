@@ -166,9 +166,10 @@ void TSphereLink::moveHead(const JGeometry::TVec3<f32>& head)
 	}
 
 	for (int i = 1; i < mCount; i++) {
+		TSpherePoint& prev = mPoints[i - 1];
 		TSpherePoint& sp           = mPoints[i];
 		JGeometry::TVec3<f32> diff = sp.mPos;
-		diff.sub(mPoints[i - 1].mPos);
+		diff.sub(prev.mPos);
 		JGeometry::TVec3<f32> dir = diff;
 		if (dir.squared() <= 3.81469727e-06f) {
 			dir.x = 0.0f;
@@ -179,7 +180,7 @@ void TSphereLink::moveHead(const JGeometry::TVec3<f32>& head)
 		}
 		dir.scale(sp.mSegLen);
 
-		JGeometry::TVec3<f32> newPos = mPoints[i - 1].mPos;
+		JGeometry::TVec3<f32> newPos = prev.mPos;
 		newPos.add(dir);
 		sp.mPos = newPos;
 
