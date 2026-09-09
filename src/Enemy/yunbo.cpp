@@ -463,8 +463,8 @@ void TYumboSeed::perform(u32 action, JDrama::TGraphics* graphics)
 		mVelocity.y *= fric;
 		mVelocity.z *= fric;
 
+		THitActor** collisionEnd = mCollisions + mColCount;
 		THitActor** collision = mCollisions;
-		THitActor** collisionEnd = collision + mColCount;
 		for (; collision != collisionEnd; ++collision) {
 			switch ((*collision)->mActorType) {
 			case 0x80000001:
