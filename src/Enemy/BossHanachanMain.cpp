@@ -817,23 +817,8 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 			((TNpcInbetween*)mBody[i]->mPalFrame)
 			    ->execMotionBlend(mBody[i]->mMActor);
 
-		JGeometry::TVec3<f32> headPos = mPosition;
-		CalcRevisionPosByRotateZ(mRotation, mParams->mSLHeadPlusYByRotateZ.value,
-		                         &headPos);
-		CLBCalcRotateZXYTranslateMatrix(
-		    mHead->mMActor->getModel()->getBaseTRMtx(), mRotation, headPos);
-		mHead->mMActor->calc();
-
-		for (int i = 0; i < 8; ++i) {
-			TBossHanachanPartsBody* body = (TBossHanachanPartsBody*)mBody[i];
-			JGeometry::TVec3<f32> pos   = body->mPosition;
-			CalcRevisionPosByRotateZ(body->mRotation,
-			                         mParams->mSLBodyPlusYByRotateZ.value, &pos);
-			Mtx mtx;
-			CLBCalcRotateZXYTranslateMatrix(mtx, body->mRotation, pos);
-			PSMTXCopy(mtx, body->mMActor->getModel()->getBaseTRMtx());
-			body->mMActor->calc();
-		}
+		execHeadCalcAnim_();
+		execBodyCalcAnim_();
 
 		if (!isBossHanachanDirectorBlocked()) {
 			const TNerveBase<TLiveActor>* curNerve = mSpine->getLatestNerve();
