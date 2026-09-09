@@ -43,13 +43,18 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 			mHead->mPalFrame->unk28 = 0.0f;
 			for (int i = 0; i < 8; i++)
 				mBody[i]->mPalFrame->unk28 = 0.0f;
-			if (mHead->mCurAnm == 0) {
+			switch (mHead->mCurAnm) {
+			case BHANM_KIND_00:
 				setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_OFF);
 				mHead->copyFrameFromOldAnmToNewAnm_();
 				for (int i = 0; i < 8; i++)
 					mBody[i]->copyFrameFromOldAnmToNewAnm_();
-			} else if (mHead->mCurAnm != 1) {
+				break;
+			case BHANM_KIND_01:
+				break;
+			default:
 				setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_ON);
+				break;
 			}
 		} else {
 			f32 ratio = CLBCalcRatio<f32>(walkSpeed,
