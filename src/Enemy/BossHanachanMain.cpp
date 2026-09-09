@@ -439,11 +439,13 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 				body->mPosition.z -= revZ;
 			}
 
-			bool isTumble
-			    = latestNerve == &TNerveBossHanachanTumble::theNerve();
+			bool isTumble = false;
 			f32 waveTarget = 0.0f;
-			if (isTumble)
+			if (mSpine->getLatestNerve()
+			    == &TNerveBossHanachanTumble::theNerve()) {
+				isTumble = true;
 				waveTarget = getBodyMaxRotateZ();
+			}
 
 			for (int i = 0; i < 8; ++i) {
 				TBossHanachanPartsBody* body
