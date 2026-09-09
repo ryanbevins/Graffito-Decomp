@@ -942,6 +942,16 @@ void TBossHanachan::bind()
 
 void TBossHanachan::kill() { }
 
+void TBossHanachan::execHeadCalcAnim_()
+{
+	JGeometry::TVec3<f32> headPos = mPosition;
+	CalcRevisionPosByRotateZ(mRotation, mParams->mSLHeadPlusYByRotateZ.value,
+	                         &headPos);
+	CLBCalcRotateZXYTranslateMatrix(
+	    mHead->mMActor->getModel()->getBaseTRMtx(), mRotation, headPos);
+	mHead->mMActor->calc();
+}
+
 static void CalcRevisionPosByRotateZ(const JGeometry::TVec3<f32>& rot,
                                      f32 scale, Vec* pos)
 {
@@ -1063,12 +1073,7 @@ void TBossHanachan::init(TLiveManager* manager)
 
 	setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_OFF);
 
-	JGeometry::TVec3<f32> headPos = mPosition;
-	CalcRevisionPosByRotateZ(mRotation, mParams->mSLHeadPlusYByRotateZ.value,
-	                         &headPos);
-	CLBCalcRotateZXYTranslateMatrix(
-	    mHead->mMActor->getModel()->getBaseTRMtx(), mRotation, headPos);
-	mHead->mMActor->calc();
+	execHeadCalcAnim_();
 
 	for (int i = 0; i < 8; ++i) {
 		TBossHanachanPartsBody* body = (TBossHanachanPartsBody*)mBody[i];
