@@ -890,7 +890,7 @@ void TBossHanachan::bind()
 	if (mVelocity.y < TLiveActor::mVelocityMinY)
 		mVelocity.y = TLiveActor::mVelocityMinY;
 
-	unk17C = next;
+	unk17C.set(next);
 	f32 revX;
 	f32 revZ;
 	BHSCalcRevisionDistXZByRotateZ(mRotation.y, mSphereLink->m14,
