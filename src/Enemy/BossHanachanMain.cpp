@@ -208,7 +208,7 @@ bool TBossHanachan::isCanWalk() const
 {
 	bool shouldWalk = true;
 	JGeometry::TVec3<f32> point = unkF4.getPoint();
-	JGeometry::TVec3<f32> diff
+	const JGeometry::TVec3<f32>& diff
 	    = makeVec3(point.x - mPosition.x, 0.0f, point.z - mPosition.z);
 
 	if (diff.squared() < CLBSquared<f32>(10.0f))
