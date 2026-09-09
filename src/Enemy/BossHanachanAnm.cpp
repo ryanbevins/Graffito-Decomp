@@ -24,8 +24,7 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 		switch (mHead->mCurAnm) {
 		case BHANM_KIND_00:
 		case BHANM_KIND_01: {
-			f32 walkSpeed = mChangeParams->mSLWalkAnmMarchSpeed.value;
-			if (mMarchSpeed <= walkSpeed) {
+			if (mMarchSpeed <= mChangeParams->mSLWalkAnmMarchSpeed.value) {
 				mHead->mPalFrame->unk28 = 0.0f;
 				for (int i = 0; i < 8; i++)
 					mBody[i]->mPalFrame->unk28 = 0.0f;
@@ -60,7 +59,7 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 					break;
 				}
 			} else {
-				f32 ratio = CLBCalcRatio<f32>(walkSpeed,
+				f32 ratio = CLBCalcRatio<f32>(mChangeParams->mSLWalkAnmMarchSpeed.value,
 				                              mChangeParams->mSLRunAnmMarchSpeed.value,
 				                              mMarchSpeed);
 				switch (mHead->mCurAnm) {
