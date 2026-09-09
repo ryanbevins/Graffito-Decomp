@@ -972,9 +972,9 @@ void TBossHanachan::throwMario_(THitActor* hit_actor)
 		throwPower = mMarchSpeed * mChangeParams->mSLThrowTotalPower.value;
 	} else {
 		s16 oldShort = CLBRoundf<s16>(
-		    getRotFromXZ(unk188.x, unk188.z) * (65536.0f / 360.0f));
+		    MsGetRotFromZaxisY(unk188) * (65536.0f / 360.0f));
 		s16 newShort = CLBRoundf<s16>(
-		    getRotFromXZ(throwVec.x, throwVec.z) * (65536.0f / 360.0f));
+		    MsGetRotFromZaxisY(throwVec) * (65536.0f / 360.0f));
 		s16 diff     = oldShort - newShort;
 		int absDiff  = diff >= 0 ? diff : -diff;
 
