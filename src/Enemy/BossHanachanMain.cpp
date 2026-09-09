@@ -942,6 +942,20 @@ void TBossHanachan::bind()
 
 void TBossHanachan::kill() { }
 
+void TBossHanachan::execBodyCalcAnim_()
+{
+	for (int i = 0; i < 8; ++i) {
+		TBossHanachanPartsBody* body = (TBossHanachanPartsBody*)mBody[i];
+		JGeometry::TVec3<f32> pos   = body->mPosition;
+		CalcRevisionPosByRotateZ(body->mRotation,
+		                         mParams->mSLBodyPlusYByRotateZ.value, &pos);
+		Mtx mtx;
+		CLBCalcRotateZXYTranslateMatrix(mtx, body->mRotation, pos);
+		PSMTXCopy(mtx, body->mMActor->getModel()->getBaseTRMtx());
+		body->mMActor->calc();
+	}
+}
+
 void TBossHanachan::execHeadCalcAnim_()
 {
 	JGeometry::TVec3<f32> headPos = mPosition;
@@ -1075,16 +1089,7 @@ void TBossHanachan::init(TLiveManager* manager)
 
 	execHeadCalcAnim_();
 
-	for (int i = 0; i < 8; ++i) {
-		TBossHanachanPartsBody* body = (TBossHanachanPartsBody*)mBody[i];
-		JGeometry::TVec3<f32> pos   = body->mPosition;
-		CalcRevisionPosByRotateZ(body->mRotation,
-		                         mParams->mSLBodyPlusYByRotateZ.value, &pos);
-		Mtx mtx;
-		CLBCalcRotateZXYTranslateMatrix(mtx, body->mRotation, pos);
-		PSMTXCopy(mtx, body->mMActor->getModel()->getBaseTRMtx());
-		body->mMActor->calc();
-	}
+	execBodyCalcAnim_();
 
 	TIdxGroupObj* group
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");

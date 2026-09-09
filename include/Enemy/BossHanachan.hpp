@@ -41,6 +41,7 @@ public:
 	void goToInitialRecoverGraphNode();
 	bool checkFallDecideAndSetup();
 	bool isTumbleCompletelyAllBody() const;
+	void execBodyCalcAnim_();
 	void execHeadCalcAnim_();
 	void throwMario_(THitActor*);
 	void setRandomWeakBodyIndex();
