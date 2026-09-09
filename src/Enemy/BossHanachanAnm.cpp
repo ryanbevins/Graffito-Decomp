@@ -26,13 +26,18 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 			mHead->mPalFrame->unk28 = 0.0f;
 			for (int i = 0; i < 8; i++)
 				mBody[i]->mPalFrame->unk28 = 0.0f;
-			if (mHead->mCurAnm == 0) {
+			switch (mHead->mCurAnm) {
+			case BHANM_KIND_00:
+				break;
+			case BHANM_KIND_01:
 				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_OFF);
 				mHead->copyFrameFromOldAnmToNewAnm_();
 				for (int i = 0; i < 8; i++)
 					mBody[i]->copyFrameFromOldAnmToNewAnm_();
-			} else {
+				break;
+			default:
 				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
+				break;
 			}
 		} else if (mMarchSpeed >= mChangeParams->mSLRunAnmMarchSpeed.value) {
 			mHead->mPalFrame->unk28 = 0.0f;
