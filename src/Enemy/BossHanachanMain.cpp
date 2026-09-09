@@ -975,11 +975,10 @@ void TBossHanachan::throwMario_(THitActor* hit_actor)
 		s16 newShort = CLBRoundf<s16>(
 		    getRotFromXZ(throwVec.x, throwVec.z) * (65536.0f / 360.0f));
 		s16 diff     = oldShort - newShort;
-		if (diff < 0)
-			diff = -diff;
+		int absDiff  = diff >= 0 ? diff : -diff;
 
 		throwPower = mMarchSpeed * mChangeParams->mSLThrowTotalPower.value;
-		f32 ratio  = 1.0f - (diff * (1.0f / 32768.0f));
+		f32 ratio  = 1.0f - (absDiff * (1.0f / 32768.0f));
 		throwPower *= ratio;
 		f32 scale  = ratio * mChangeParams->mSLThrowMoveDirPower.value;
 		JGeometry::TVec3<f32> add = unk188;
