@@ -349,8 +349,8 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (flags & 1) {
 		if (isBossHanachanDirectorBlocked()) {
-			mLinearVelocity.set(0.0f, 0.0f, 0.0f);
-			mAngularVelocity.set(0.0f, 0.0f, 0.0f);
+			mLinearVelocity.zero();
+			mAngularVelocity.zero();
 
 			if ((graphics->unk0 & 2)
 			    && mSpine->getLatestNerve()
