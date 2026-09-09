@@ -475,10 +475,12 @@ void TBathtubKiller::perform(u32 param1, JDrama::TGraphics* graphics)
 				unk218--;
 
 			if (unk208 <= 0) {
-				if (mSpine->getCurrentNerve()
-				        != &TNerveBathtubKillerExplosion::theNerve()
-				    && mSpine->getCurrentNerve()
-				           != &TNerveBathtubKillerBreak::theNerve())
+				bool isBroken
+				    = mSpine->getCurrentNerve()
+				          == &TNerveBathtubKillerExplosion::theNerve()
+				      || mSpine->getCurrentNerve()
+				             == &TNerveBathtubKillerBreak::theNerve();
+				if (!isBroken)
 					mSpine->pushNerve(
 					    &TNerveBathtubKillerExplosion::theNerve());
 			}
@@ -499,10 +501,12 @@ void TBathtubKiller::perform(u32 param1, JDrama::TGraphics* graphics)
 
 	if (param1 & 2) {
 		if (!checkLiveFlag(LIVE_FLAG_DEAD)) {
-			if (mSpine->getCurrentNerve()
-			        != &TNerveBathtubKillerExplosion::theNerve()
-			    && mSpine->getCurrentNerve()
-			           != &TNerveBathtubKillerBreak::theNerve()) {
+			bool isBroken
+			    = mSpine->getCurrentNerve()
+			          == &TNerveBathtubKillerExplosion::theNerve()
+			      || mSpine->getCurrentNerve()
+			             == &TNerveBathtubKillerBreak::theNerve();
+			if (!isBroken) {
 				if (unk194 == 2) {
 					unk1FC += unk1F8;
 					if (unk1FC > 1.0f) {
