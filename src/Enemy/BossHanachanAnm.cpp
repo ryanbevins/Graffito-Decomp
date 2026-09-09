@@ -99,9 +99,8 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 			}
 			rate = SMSGetAnmFrameRate() * mMarchSpeed
 			       * mChangeParams->mSLWalkBckRateMagnif.value;
-			f32 minRate = mChangeParams->mSLWalkBckRateMin.value;
-			if (rate < minRate)
-				rate = minRate;
+			if (rate < mChangeParams->mSLWalkBckRateMin.value)
+				rate = mChangeParams->mSLWalkBckRateMin.value;
 			break;
 		}
 		default:
