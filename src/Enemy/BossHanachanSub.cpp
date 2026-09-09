@@ -160,7 +160,7 @@ void TSphereLink::moveHead(const JGeometry::TVec3<f32>& head)
 	f32 groundY                = gpMap->checkGroundIgnoreWaterSurface(
         headPos.x, headPos.y + m10, headPos.z, &ground);
 	if (ground != nullptr) {
-		bool validGround = ground->isIllegalData() != true;
+		bool validGround = ground->isIllegalData() == true ? false : true;
 		if (validGround && headPos.y < groundY)
 			headPos.y = groundY;
 	}
@@ -191,7 +191,7 @@ void TSphereLink::moveHead(const JGeometry::TVec3<f32>& head)
 		f32 groundY2                = gpMap->checkGroundIgnoreWaterSurface(
             spPos.x, spPos.y + m10, spPos.z, &ground2);
 		if (ground2 != nullptr) {
-			bool validGround = ground2->isIllegalData() != true;
+			bool validGround = ground2->isIllegalData() == true ? false : true;
 			if (validGround && spPos.y < groundY2)
 				spPos.y = groundY2;
 		}
