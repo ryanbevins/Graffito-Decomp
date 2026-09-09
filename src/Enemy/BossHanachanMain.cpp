@@ -555,8 +555,9 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 					f32 oldScale   = 1.0f - waveDecay;
 					f32 velocityTerm
 					    = 0.008333334f
-					      * (mChangeParams->mSLWaveVelocity.value
-					         * mChangeParams->mSLWaveVelocity.value);
+					      * (0.008333334f
+					         * (mChangeParams->mSLWaveVelocity.value
+					            * mChangeParams->mSLWaveVelocity.value));
 
 					for (int i = 0; i < 8; ++i) {
 						TBossHanachanPartsBody* body
