@@ -60,7 +60,8 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 			f32 ratio = CLBCalcRatio<f32>(walkSpeed,
 			                              mChangeParams->mSLRunAnmMarchSpeed.value,
 			                              mMarchSpeed);
-			if (mHead->mCurAnm == 0) {
+			switch (mHead->mCurAnm) {
+			case BHANM_KIND_00:
 				if (mHead->mPrevAnm != 1) {
 					setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_OFF);
 					mHead->copyFrameFromOldAnmToNewAnm_();
@@ -71,7 +72,8 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 				mHead->mPalFrame->unk28 = ratio;
 				for (int i = 0; i < 8; i++)
 					mBody[i]->mPalFrame->unk28 = ratio;
-			} else if (mHead->mCurAnm == 1) {
+				break;
+			case BHANM_KIND_01:
 				if (mHead->mPrevAnm == 0) {
 					ratio = 1.0f - ratio;
 				} else {
@@ -83,11 +85,13 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 				mHead->mPalFrame->unk28 = ratio;
 				for (int i = 0; i < 8; i++)
 					mBody[i]->mPalFrame->unk28 = ratio;
-			} else {
+				break;
+			default:
 				mHead->mPalFrame->unk28 = 0.0f;
 				for (int i = 0; i < 8; i++)
 					mBody[i]->mPalFrame->unk28 = 0.0f;
 				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
+				break;
 			}
 		}
 		rate = SMSGetAnmFrameRate() * mMarchSpeed
