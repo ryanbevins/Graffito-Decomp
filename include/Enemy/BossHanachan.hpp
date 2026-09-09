@@ -35,6 +35,7 @@ public:
 	void execDamage();
 	void execSlip();
 	void execWalk(bool);
+	bool isCanWalk() const;
 	f32 getBodyMaxRotateZ() const;
 	void removeAllMapCollision();
 	void goToInitialRecoverGraphNode();

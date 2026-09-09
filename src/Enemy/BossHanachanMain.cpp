@@ -198,6 +198,18 @@ void TBossHanachan::execSlip()
 		SMSRumbleMgr->start(0x16, (f32*)nullptr);
 }
 
+bool TBossHanachan::isCanWalk() const
+{
+	bool shouldWalk = true;
+	JGeometry::TVec3<f32> point = unkF4.getPoint();
+	JGeometry::TVec3<f32> diff(point.x - mPosition.x, 0.0f,
+	                              point.z - mPosition.z);
+
+	if (diff.squared() < CLBSquared<f32>(10.0f))
+		shouldWalk = false;
+	return shouldWalk;
+}
+
 void TBossHanachan::execWalk(bool walk)
 {
 	if (walk) {
@@ -210,14 +222,7 @@ void TBossHanachan::execWalk(bool walk)
 	}
 	mTurnSpeed = mChangeParams->mSLWalkTurnSpeed.value;
 
-	bool shouldWalk = true;
-	const JGeometry::TVec3<f32>& point = unkF4.getPoint();
-	JGeometry::TVec3<f32> diff(point.x - mPosition.x, 0.0f,
-	                              point.z - mPosition.z);
-
-	if (diff.squared() < CLBSquared<f32>(10.0f))
-		shouldWalk = false;
-	if (shouldWalk)
+	if (isCanWalk())
 		walkToCurPathNode(mMarchSpeed, mTurnSpeed, 0.0f);
 
 	const JGeometry::TVec3<f32>& curPoint = unkF4.getPoint();
