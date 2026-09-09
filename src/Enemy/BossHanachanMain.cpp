@@ -595,6 +595,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 						         + velocityTerm
 						               * (invLenSq * neighborAcc
 						                  + body->unk148));
+						target = MsClamp(target, -179.0f, 179.0f);
 						CLBChaseGeneralConstantSpecifySpeed<f32>(
 						    &body->mRotation.z, target,
 						    mChangeParams->mSLRotateZLeanSpeed.value);
