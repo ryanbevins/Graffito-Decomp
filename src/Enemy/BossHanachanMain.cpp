@@ -1049,7 +1049,7 @@ void TBossHanachan::init(TLiveManager* manager)
 	mHead->mGroundPlane = mGroundPlane;
 
 	for (int i = 0; i < 8; ++i) {
-		TSpherePoint& point = mSphereLink->mPoints[i + 1];
+		TSpherePoint& point = mSphereLink->mPoints[i];
 		TBossHanachanPartsBody* body = (TBossHanachanPartsBody*)mBody[i];
 		body->mPosition              = point.mPos;
 		body->unk124                 = point.mPos.x;
