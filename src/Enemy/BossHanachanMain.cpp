@@ -462,10 +462,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 				CLBChaseGeneralConstantSpecifySpeed<f32>(
 				    &body->unk144, waveTarget,
 				    mChangeParams->mSLCentrifugalSpeed.value);
-				if (body->unk144 > 179.0f)
-					body->unk144 = 179.0f;
-				else if (body->unk144 < -179.0f)
-					body->unk144 = -179.0f;
+				body->unk144 = MsClamp(body->unk144, -179.0f, 179.0f);
 			}
 
 			if (latestNerve != &TNerveBossHanachanDown::theNerve()) {
