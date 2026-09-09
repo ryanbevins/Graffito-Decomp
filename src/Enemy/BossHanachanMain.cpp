@@ -104,10 +104,9 @@ void TBossHanachan::execDamage()
 	if (mHitPoints == 0) {
 		((TBossHanachanPartsHead*)mHead)->mWaterHit->onHitFlag(1);
 		for (int i = 0; i < 8; ++i) {
-			TBossHanachanPartsBody* body = (TBossHanachanPartsBody*)mBody[i];
-			body->mWaterHit->onHitFlag(1);
-			body->mFeet[0]->onHitFlag(1);
-			body->mFeet[1]->onHitFlag(1);
+			((TBossHanachanPartsBody*)mBody[i])->mWaterHit->onHitFlag(1);
+			((TBossHanachanPartsBody*)mBody[i])->mFeet[0]->onHitFlag(1);
+			((TBossHanachanPartsBody*)mBody[i])->mFeet[1]->onHitFlag(1);
 		}
 
 		mSpine->setNext(&TNerveBossHanachanDead::theNerve());
