@@ -414,8 +414,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 				    i, mBody[i]->mRotation.z);
 
 			JGeometry::TVec3<f32> headTarget = mPosition;
-			s16 headAngle = CLBRoundf<s16>(
-			    mRotation.y * (65536.0f / 360.0f));
+			s16 headAngle = mRotation.y * (65536.0f / 360.0f);
 			f32 sinHead = jmaSinTable[(u16)headAngle >> jmaSinShift];
 			f32 cosHead = jmaCosTable[(u16)headAngle >> jmaSinShift];
 			headTarget.x -= sinHead * mParams->mSLHeadLength.value;
