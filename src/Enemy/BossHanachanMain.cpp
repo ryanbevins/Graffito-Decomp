@@ -405,7 +405,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 				JGeometry::TVec3<f32> diff = mSphereLink->mPoints[i - 1].mPos;
 				diff.sub(mSphereLink->mPoints[i].mPos);
 				mBody[i]->mRotation.y
-				    = callMsWrap(getRotFromXZ(diff.x, diff.z), 0.0f, 360.0f);
+				    = callMsWrap(MsGetRotFromZaxisY(diff), 0.0f, 360.0f);
 			}
 
 			mSphereLink->mAngleOffset = mBody[0]->mRotation.y;
