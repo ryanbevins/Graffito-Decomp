@@ -20,90 +20,97 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 		for (int i = 0; i < 8; i++)
 			mBody[i]->changeTumbleAnmRate_();
 		shouldSetRate = false;
-	} else if (mHead->mCurAnm < 2 && mHead->mCurAnm >= 0) {
-		f32 walkSpeed = mChangeParams->mSLWalkAnmMarchSpeed.value;
-		if (mMarchSpeed <= walkSpeed) {
-			mHead->mPalFrame->unk28 = 0.0f;
-			for (int i = 0; i < 8; i++)
-				mBody[i]->mPalFrame->unk28 = 0.0f;
-			switch (mHead->mCurAnm) {
-			case BHANM_KIND_00:
-				break;
-			case BHANM_KIND_01:
-				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_OFF);
-				mHead->copyFrameFromOldAnmToNewAnm_();
+	} else {
+		switch (mHead->mCurAnm) {
+		case BHANM_KIND_00:
+		case BHANM_KIND_01: {
+			f32 walkSpeed = mChangeParams->mSLWalkAnmMarchSpeed.value;
+			if (mMarchSpeed <= walkSpeed) {
+				mHead->mPalFrame->unk28 = 0.0f;
 				for (int i = 0; i < 8; i++)
-					mBody[i]->copyFrameFromOldAnmToNewAnm_();
-				break;
-			default:
-				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
-				break;
-			}
-		} else if (mMarchSpeed >= mChangeParams->mSLRunAnmMarchSpeed.value) {
-			mHead->mPalFrame->unk28 = 0.0f;
-			for (int i = 0; i < 8; i++)
-				mBody[i]->mPalFrame->unk28 = 0.0f;
-			switch (mHead->mCurAnm) {
-			case BHANM_KIND_00:
-				setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_OFF);
-				mHead->copyFrameFromOldAnmToNewAnm_();
-				for (int i = 0; i < 8; i++)
-					mBody[i]->copyFrameFromOldAnmToNewAnm_();
-				break;
-			case BHANM_KIND_01:
-				break;
-			default:
-				setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_ON);
-				break;
-			}
-		} else {
-			f32 ratio = CLBCalcRatio<f32>(walkSpeed,
-			                              mChangeParams->mSLRunAnmMarchSpeed.value,
-			                              mMarchSpeed);
-			switch (mHead->mCurAnm) {
-			case BHANM_KIND_00:
-				if (mHead->mPrevAnm != 1) {
-					setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_OFF);
-					mHead->copyFrameFromOldAnmToNewAnm_();
-					for (int i = 0; i < 8; i++)
-						mBody[i]->copyFrameFromOldAnmToNewAnm_();
-					ratio = 1.0f - ratio;
-				}
-				mHead->mPalFrame->unk28 = ratio;
-				for (int i = 0; i < 8; i++)
-					mBody[i]->mPalFrame->unk28 = ratio;
-				break;
-			case BHANM_KIND_01:
-				if (mHead->mPrevAnm == 0) {
-					ratio = 1.0f - ratio;
-				} else {
+					mBody[i]->mPalFrame->unk28 = 0.0f;
+				switch (mHead->mCurAnm) {
+				case BHANM_KIND_00:
+					break;
+				case BHANM_KIND_01:
 					setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_OFF);
 					mHead->copyFrameFromOldAnmToNewAnm_();
 					for (int i = 0; i < 8; i++)
 						mBody[i]->copyFrameFromOldAnmToNewAnm_();
+					break;
+				default:
+					setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
+					break;
 				}
-				mHead->mPalFrame->unk28 = ratio;
-				for (int i = 0; i < 8; i++)
-					mBody[i]->mPalFrame->unk28 = ratio;
-				break;
-			default:
+			} else if (mMarchSpeed >= mChangeParams->mSLRunAnmMarchSpeed.value) {
 				mHead->mPalFrame->unk28 = 0.0f;
 				for (int i = 0; i < 8; i++)
 					mBody[i]->mPalFrame->unk28 = 0.0f;
-				setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
-				break;
+				switch (mHead->mCurAnm) {
+				case BHANM_KIND_00:
+					setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_OFF);
+					mHead->copyFrameFromOldAnmToNewAnm_();
+					for (int i = 0; i < 8; i++)
+						mBody[i]->copyFrameFromOldAnmToNewAnm_();
+					break;
+				case BHANM_KIND_01:
+					break;
+				default:
+					setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_ON);
+					break;
+				}
+			} else {
+				f32 ratio = CLBCalcRatio<f32>(walkSpeed,
+				                              mChangeParams->mSLRunAnmMarchSpeed.value,
+				                              mMarchSpeed);
+				switch (mHead->mCurAnm) {
+				case BHANM_KIND_00:
+					if (mHead->mPrevAnm != 1) {
+						setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_OFF);
+						mHead->copyFrameFromOldAnmToNewAnm_();
+						for (int i = 0; i < 8; i++)
+							mBody[i]->copyFrameFromOldAnmToNewAnm_();
+						ratio = 1.0f - ratio;
+					}
+					mHead->mPalFrame->unk28 = ratio;
+					for (int i = 0; i < 8; i++)
+						mBody[i]->mPalFrame->unk28 = ratio;
+					break;
+				case BHANM_KIND_01:
+					if (mHead->mPrevAnm == 0) {
+						ratio = 1.0f - ratio;
+					} else {
+						setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_OFF);
+						mHead->copyFrameFromOldAnmToNewAnm_();
+						for (int i = 0; i < 8; i++)
+							mBody[i]->copyFrameFromOldAnmToNewAnm_();
+					}
+					mHead->mPalFrame->unk28 = ratio;
+					for (int i = 0; i < 8; i++)
+						mBody[i]->mPalFrame->unk28 = ratio;
+					break;
+				default:
+					mHead->mPalFrame->unk28 = 0.0f;
+					for (int i = 0; i < 8; i++)
+						mBody[i]->mPalFrame->unk28 = 0.0f;
+					setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
+					break;
+				}
 			}
+			rate = SMSGetAnmFrameRate() * mMarchSpeed
+			       * mChangeParams->mSLWalkBckRateMagnif.value;
+			f32 minRate = mChangeParams->mSLWalkBckRateMin.value;
+			if (rate < minRate)
+				rate = minRate;
+			break;
 		}
-		rate = SMSGetAnmFrameRate() * mMarchSpeed
-		       * mChangeParams->mSLWalkBckRateMagnif.value;
-		f32 minRate = mChangeParams->mSLWalkBckRateMin.value;
-		if (rate < minRate)
-			rate = minRate;
-	} else {
-		mHead->mPalFrame->unk28 = 0.0f;
-		for (int i = 0; i < 8; i++)
-			mBody[i]->mPalFrame->unk28 = 0.0f;
-		rate = SMSGetAnmFrameRate();
+		default:
+			mHead->mPalFrame->unk28 = 0.0f;
+			for (int i = 0; i < 8; i++)
+				mBody[i]->mPalFrame->unk28 = 0.0f;
+			rate = SMSGetAnmFrameRate();
+			break;
+		}
 	}
 
 	{
