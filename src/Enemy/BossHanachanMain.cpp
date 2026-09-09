@@ -56,7 +56,8 @@ static f32 getRotFromXZ(f32 x, f32 z)
 	}
 	if (z >= 0.0f)
 		return matan(z, x) * (360.0f / 65536.0f);
-	return 180.0f - matan(-z, x) * (360.0f / 65536.0f);
+	f32 angle = matan(-z, x) * (360.0f / 65536.0f);
+	return 180.0f - angle;
 }
 
 static inline f32 callMsWrap(f32 t, f32 l, f32 r)
