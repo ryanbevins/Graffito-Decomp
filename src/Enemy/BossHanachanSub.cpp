@@ -197,9 +197,8 @@ void TSphereLink::moveHead(const JGeometry::TVec3<f32>& head)
 	}
 
 	for (int i = 0; i < mCount; i++) {
-		TSpherePoint& sp = mPoints[i];
-		sp.mVel          = (sp.mPos - sp.mPrev) * m08;
-		sp.mPrev         = sp.mPos;
+		mPoints[i].mVel = (mPoints[i].mPos - mPoints[i].mPrev) * m08;
+		mPoints[i].mPrev = mPoints[i].mPos;
 	}
 }
 
