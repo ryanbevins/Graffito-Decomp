@@ -765,13 +765,13 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 				TBossHanachanPartsBody* body
 				    = (TBossHanachanPartsBody*)mBody[i];
 				MtxPtr mtx = body->mCenterJointMtx;
-				body->unk154 = mtx[0][3];
-				body->unk158 = mtx[1][3];
-				body->unk15C = mtx[2][3];
-				body->mWaterHit->mPosition.x = body->unk154;
+				body->unk154.x = mtx[0][3];
+				body->unk154.y = mtx[1][3];
+				body->unk154.z = mtx[2][3];
+				body->mWaterHit->mPosition.x = body->unk154.x;
 				body->mWaterHit->mPosition.y
-				    = body->unk158 - mParams->mSLBodyHitOffsetY.value;
-				body->mWaterHit->mPosition.z = body->unk15C;
+				    = body->unk154.y - mParams->mSLBodyHitOffsetY.value;
+				body->mWaterHit->mPosition.z = body->unk154.z;
 
 				if (attackHits) {
 					if (!body->mWaterHit->checkHitFlag(0x80000000)) {
@@ -780,7 +780,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 					}
 				} else if (body->mWaterHit->checkHitFlag(0x80000000)) {
 					body->mWaterHit->offHitFlag(0x80000000);
-					body->mMapCollision->setUpTrans(body->mWaterHit->mPosition);
+					body->mMapCollision->setUpTrans(body->unk154);
 				}
 
 				for (int j = 0; j < 2; ++j) {

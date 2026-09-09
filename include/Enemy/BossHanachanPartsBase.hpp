@@ -134,9 +134,7 @@ public:
 	/* 0x148 */ f32 unk148;
 	/* 0x14C */ MtxPtr mLeftLegJointMtx;
 	/* 0x150 */ MtxPtr mRightLegJointMtx;
-	/* 0x154 */ f32 unk154;
-	/* 0x158 */ f32 unk158;
-	/* 0x15C */ f32 unk15C;
+	/* 0x154 */ JGeometry::TVec3<f32> unk154;
 };
 
 

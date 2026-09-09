@@ -673,9 +673,9 @@ TBossHanachanPartsBody::TBossHanachanPartsBody(TBossHanachan* owner,
 	unk140 = 0.0f;
 	unk144 = 0.0f;
 	unk148 = 0.0f;
-	unk154 = 0.0f;
-	unk158 = 0.0f;
-	unk15C = 0.0f;
+	unk154.x = 0.0f;
+	unk154.y = 0.0f;
+	unk154.z = 0.0f;
 
 	J3DModel* model = getModel();
 	JUTNameTab* tab = model->mModelData->unkB0;
