@@ -980,6 +980,7 @@ void TBossHanachan::throwMario_(THitActor* hit_actor)
 
 		throwPower = mMarchSpeed * mChangeParams->mSLThrowTotalPower.value;
 		f32 ratio  = 1.0f - (diff * (1.0f / 32768.0f));
+		throwPower *= ratio;
 		f32 scale  = ratio * mChangeParams->mSLThrowMoveDirPower.value;
 		JGeometry::TVec3<f32> add = unk188;
 		add.scale(scale);
