@@ -189,7 +189,7 @@ void TBossHanachan::execSlip()
 		dir.z += (-xSide * sinV + yForce * cosV) * speed;
 	}
 
-	if (dir.squared() > 0.0000038146973f) {
+	if (!dir.isZero()) {
 		MsVECNormalize(&dir, &dir);
 		dir.scale(500.0f);
 
