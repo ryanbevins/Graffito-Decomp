@@ -882,7 +882,6 @@ void TBossHanachan::bind()
 		return;
 	}
 
-	JGeometry::TVec3<f32> oldPosition = mPosition;
 	JGeometry::TVec3<f32> next        = mPosition;
 	next.add(mLinearVelocity);
 	next.add(mVelocity);
@@ -898,6 +897,8 @@ void TBossHanachan::bind()
 	                               mRotation.z, &revX, &revZ);
 	unk17C.x += revX;
 	unk17C.z += revZ;
+
+	JGeometry::TVec3<f32> beforeCollision = unk17C;
 
 	mGroundHeight = gpMap->checkGroundIgnoreWaterSurface(
 	    unk17C.x, unk17C.y + mHeadHeight, unk17C.z, &mGroundPlane);
@@ -917,8 +918,8 @@ void TBossHanachan::bind()
 	                                 &unk17C.z, mBodyRadius);
 
 	JGeometry::TVec3<f32> moved = unk17C;
-	moved.sub(oldPosition);
-	JGeometry::TVec3<f32> oldToCur = oldPosition;
+	moved.sub(beforeCollision);
+	JGeometry::TVec3<f32> oldToCur = next;
 	oldToCur.sub(mPosition);
 	mLinearVelocity = oldToCur;
 	mLinearVelocity.add(moved);
