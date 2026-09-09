@@ -635,9 +635,9 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 						if (curNerve
 						    == &TNerveBossHanachanGraphWander::theNerve()) {
 							if (mSpine->getTime()
-							        >= mChangeParams->mSLNotFallDownFrames
-							               .value
-							    && !sandActorFound) {
+							        < mChangeParams->mSLNotFallDownFrames
+							              .value
+							    || !sandActorFound) {
 								f32 maxNotSand
 								    = mChangeParams->mSLMaxRotateZNotSand.value;
 								if (body->mRotation.z < -maxNotSand) {
