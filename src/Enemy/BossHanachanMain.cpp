@@ -1037,8 +1037,8 @@ void TBossHanachan::init(TLiveManager* manager)
 	s16 angle = CLBRoundf<s16>(mRotation.y * (65536.0f / 360.0f));
 	f32 sinV = jmaSinTable[(u16)angle >> jmaSinShift];
 	f32 cosV = jmaCosTable[(u16)angle >> jmaSinShift];
-	linkPos.x -= sinV * mParams->mSLBodyLength.value;
-	linkPos.z -= cosV * mParams->mSLBodyLength.value;
+	linkPos.x -= sinV * mParams->mSLHeadLength.value;
+	linkPos.z -= cosV * mParams->mSLHeadLength.value;
 
 	mSphereLink = new TSphereLink(8, linkPos, mParams->mSLBodyLength.value,
 	                              mParams->mSLBodyAttackRadius.value, 0.2f,
