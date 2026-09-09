@@ -239,7 +239,7 @@ void TBossHanachan::execWalk(bool walk)
 
 	if (curDiff.squared() < CLBSquared<f32>(100.0f)) {
 		if (!unk114.empty()) {
-			unkF4 = unk114.pop();
+			switchNextGoalPath();
 		} else {
 			goToDirLimitedNextGraphNode(90.0f);
 		}
