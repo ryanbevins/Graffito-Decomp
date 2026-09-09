@@ -489,7 +489,7 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 							f32 diff
 							    = callMsWrap(sandAngle - bossAngle, -180.0f,
 							             180.0f);
-							f32 absDiff = __fabsf(diff);
+							f32 absDiff = diff >= 0.0f ? diff : -diff;
 							if (absDiff <= 15.0f || absDiff >= 165.0f) {
 								body->unk120 = 0.0f;
 							} else {
