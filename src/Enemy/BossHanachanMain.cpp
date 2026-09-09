@@ -590,11 +590,11 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 						f32 curRot      = body->unk13C;
 						f32 neighborAcc = prevRot + nextRot - 2.0f * curRot;
 						f32 target
-						    = decayScale
-						      * (2.0f * curRot - body->unk140 * oldScale
-						         + velocityTerm
-						               * (invLenSq * neighborAcc
-						                  + body->unk148));
+						    = (2.0f * curRot) * decayScale
+						      + decayScale
+						            * (velocityTerm
+						               * (invLenSq * neighborAcc + body->unk148))
+						      - decayScale * (body->unk140 * oldScale);
 						target = MsClamp(target, -179.0f, 179.0f);
 						CLBChaseGeneralConstantSpecifySpeed<f32>(
 						    &body->mRotation.z, target,
