@@ -521,10 +521,11 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 						    body->mPosition.z - sideZ, &ground);
 						f32 diffA = groundA - centerGround;
 						f32 diffB = groundB - centerGround;
-						if (__fabsf(diffA) < 0.001f
-						    && __fabsf(diffB) < 0.001f) {
+						f32 absDiffA = __fabsf(diffA);
+						f32 absDiffB = __fabsf(diffB);
+						if (absDiffA < 0.001f && absDiffB < 0.001f) {
 							body->unk120 = 0.0f;
-						} else if (__fabsf(diffA) > __fabsf(diffB)) {
+						} else if (absDiffA > absDiffB) {
 							body->unk120
 							    = matan(200.0f, diffA)
 							      * (360.0f / 65536.0f);
