@@ -381,12 +381,12 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 			for (int i = 0; i < 8; ++i) {
 				TBossHanachanPartsBody* body
 				    = (TBossHanachanPartsBody*)mBody[i];
-				body->unk130 = body->unk124;
-				body->unk134 = body->unk128;
-				body->unk138 = body->unk12C;
-				body->unk124 = body->mPosition.x;
-				body->unk128 = body->mPosition.y;
-				body->unk12C = body->mPosition.z;
+				body->unk130.x = body->unk124.x;
+				body->unk130.y = body->unk124.y;
+				body->unk130.z = body->unk124.z;
+				body->unk124.x = body->mPosition.x;
+				body->unk124.y = body->mPosition.y;
+				body->unk124.z = body->mPosition.z;
 				body->unk140 = body->unk13C;
 				body->unk13C = body->mRotation.z;
 				body->unk148 = body->unk144;
@@ -451,8 +451,8 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 					waveTarget
 					    = BHSCalcCentrifugalForce(
 					          body->mPosition,
-					          *(JGeometry::TVec3<f32>*)&body->unk124,
-					          *(JGeometry::TVec3<f32>*)&body->unk130,
+					          body->unk124,
+					          body->unk130,
 					          body->mRotation.y)
 					      * mChangeParams->mSLCentrifugalForce.value;
 				}
@@ -1076,12 +1076,8 @@ void TBossHanachan::init(TLiveManager* manager)
 		TSpherePoint& point = mSphereLink->mPoints[i];
 		TBossHanachanPartsBody* body = (TBossHanachanPartsBody*)mBody[i];
 		body->mPosition              = point.mPos;
-		body->unk124                 = point.mPos.x;
-		body->unk128                 = point.mPos.y;
-		body->unk12C                 = point.mPos.z;
+		body->unk124                 = body->mPosition;
 		body->unk130                 = body->unk124;
-		body->unk134                 = body->unk128;
-		body->unk138                 = body->unk12C;
 		body->mRotation              = mRotation;
 	}
 

@@ -663,12 +663,12 @@ TBossHanachanPartsBody::TBossHanachanPartsBody(TBossHanachan* owner,
 {
 	unk114 = 0;
 	unk120 = 0.0f;
-	unk124 = 0.0f;
-	unk128 = 0.0f;
-	unk12C = 0.0f;
-	unk130 = 0.0f;
-	unk134 = 0.0f;
-	unk138 = 0.0f;
+	unk124.x = 0.0f;
+	unk124.y = 0.0f;
+	unk124.z = 0.0f;
+	unk130.x = 0.0f;
+	unk130.y = 0.0f;
+	unk130.z = 0.0f;
 	unk13C = 0.0f;
 	unk140 = 0.0f;
 	unk144 = 0.0f;

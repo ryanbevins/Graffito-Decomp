@@ -126,12 +126,8 @@ public:
 	/* 0x114 */ int unk114;
 	/* 0x118 */ TFootHitActor* mFeet[2];
 	/* 0x120 */ f32 unk120;
-	/* 0x124 */ f32 unk124;
-	/* 0x128 */ f32 unk128;
-	/* 0x12C */ f32 unk12C;
-	/* 0x130 */ f32 unk130;
-	/* 0x134 */ f32 unk134;
-	/* 0x138 */ f32 unk138;
+	/* 0x124 */ JGeometry::TVec3<f32> unk124;
+	/* 0x130 */ JGeometry::TVec3<f32> unk130;
 	/* 0x13C */ f32 unk13C;
 	/* 0x140 */ f32 unk140;
 	/* 0x144 */ f32 unk144;
