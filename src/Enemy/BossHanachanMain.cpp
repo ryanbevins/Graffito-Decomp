@@ -910,10 +910,14 @@ void TBossHanachan::bind()
 	mGroundHeight += 1.0f;
 
 	if (unk17C.y <= mGroundHeight + 0.05f) {
-		if (mGroundPlane && !mGroundPlane->isIllegalData()) {
-			offLiveFlag(LIVE_FLAG_AIRBORNE);
-			mVelocity.set(0.0f, 0.0f, 0.0f);
-			unk17C.y = mGroundHeight;
+		if (mGroundPlane) {
+			bool validGround
+			    = mGroundPlane->isIllegalData() == true ? false : true;
+			if (validGround) {
+				offLiveFlag(LIVE_FLAG_AIRBORNE);
+				mVelocity.set(0.0f, 0.0f, 0.0f);
+				unk17C.y = mGroundHeight;
+			}
 		}
 	} else {
 		onLiveFlag(LIVE_FLAG_AIRBORNE);
