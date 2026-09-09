@@ -137,6 +137,20 @@ TSphereLink::TSphereLink(u16 count, const JGeometry::TVec3<f32>& pos,
 	}
 }
 
+void TSphereLink::execMapCollision_(JGeometry::TVec3<f32>* pos)
+{
+	gpMap->isTouchedOneWallAndMoveXZ(&pos->x, pos->y, &pos->z, m10);
+
+	const TBGCheckData* ground;
+	f32 groundY = gpMap->checkGroundIgnoreWaterSurface(
+	    pos->x, pos->y + m10, pos->z, &ground);
+	if (ground != nullptr) {
+		bool validGround = ground->isIllegalData() == true ? false : true;
+		if (validGround && pos->y < groundY)
+			pos->y = groundY;
+	}
+}
+
 #pragma dont_inline on
 bool TBGCheckData::isIllegalData() const
 {
@@ -153,17 +167,7 @@ void TSphereLink::moveHead(const JGeometry::TVec3<f32>& head)
 
 	mPoints[0].mPos = head;
 
-	JGeometry::TVec3<f32>& headPos = mPoints[0].mPos;
-	gpMap->isTouchedOneWallAndMoveXZ(&headPos.x, headPos.y, &headPos.z, m10);
-
-	const TBGCheckData* ground;
-	f32 groundY                = gpMap->checkGroundIgnoreWaterSurface(
-        headPos.x, headPos.y + m10, headPos.z, &ground);
-	if (ground != nullptr) {
-		bool validGround = ground->isIllegalData() == true ? false : true;
-		if (validGround && headPos.y < groundY)
-			headPos.y = groundY;
-	}
+	execMapCollision_(&mPoints[0].mPos);
 
 	for (int i = 1; i < mCount; i++) {
 		TSpherePoint& prev = mPoints[i - 1];
@@ -184,17 +188,7 @@ void TSphereLink::moveHead(const JGeometry::TVec3<f32>& head)
 		newPos.add(dir);
 		sp.mPos = newPos;
 
-		JGeometry::TVec3<f32>& spPos = sp.mPos;
-		gpMap->isTouchedOneWallAndMoveXZ(&spPos.x, spPos.y, &spPos.z, m10);
-
-		const TBGCheckData* ground2;
-		f32 groundY2                = gpMap->checkGroundIgnoreWaterSurface(
-            spPos.x, spPos.y + m10, spPos.z, &ground2);
-		if (ground2 != nullptr) {
-			bool validGround = ground2->isIllegalData() == true ? false : true;
-			if (validGround && spPos.y < groundY2)
-				spPos.y = groundY2;
-		}
+		execMapCollision_(&sp.mPos);
 	}
 
 	for (int i = 0; i < mCount; i++) {

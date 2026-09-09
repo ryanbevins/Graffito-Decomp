@@ -19,6 +19,7 @@ public:
 	TSphereLink(u16 count, const JGeometry::TVec3<f32>& pos, f32 radius,
 	            f32 a, f32 b, f32 c, f32 d, f32 angleDeg);
 
+	void execMapCollision_(JGeometry::TVec3<f32>* pos);
 	void moveHead(const JGeometry::TVec3<f32>& head);
 	BOOL setDegreeZAndRevisionPosXZ(int index, f32 newDeg);
 
