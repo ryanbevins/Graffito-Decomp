@@ -220,10 +220,10 @@ public:
 		if (bVar9)
 			param_2 = -param_2;
 
-		this->x = fVar92 * q1.x + param_2 * q2.x;
-		this->y = fVar92 * q1.y + param_2 * q2.y;
-		this->z = fVar92 * q1.z + param_2 * q2.z;
-		this->w = fVar92 * q1.w + param_2 * q2.w;
+		this->set(fVar92 * q1.x + param_2 * q2.x,
+		          fVar92 * q1.y + param_2 * q2.y,
+		          fVar92 * q1.z + param_2 * q2.z,
+		          fVar92 * q1.w + param_2 * q2.w);
 	}
 };
 
