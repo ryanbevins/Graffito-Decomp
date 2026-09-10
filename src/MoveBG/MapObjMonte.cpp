@@ -1170,15 +1170,15 @@ void THangingBridgeBoard::control()
 void THangingBridgeBoard::drawOneRope(const JGeometry::TVec3<f32>& bottom) const
 {
 	f32 y      = bottom.y;
-	f32 topY   = y + THangingBridge::mRopeHeight;
 	f32 x      = bottom.x;
 	f32 xPlus  = x + mRopeWidthX;
 	f32 xMinus = x - mRopeWidthX;
 	f32 z      = bottom.z;
 	f32 zPlus  = z + mRopeWidthZ;
 	f32 zMinus = z - mRopeWidthZ;
-	f32 texBot = mTexPosRate * (y - y);
+	f32 topY   = y + THangingBridge::mRopeHeight;
 	f32 texTop = mTexPosRate * (topY - y);
+	f32 texBot = mTexPosRate * (y - y);
 
 	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 8);
 	GXPosition3f32(bottom.x, topY, zPlus);
