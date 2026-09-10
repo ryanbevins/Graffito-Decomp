@@ -788,11 +788,10 @@ void THangingBridge::loadAfter()
 			if (data.x == -1.0f)
 				break;
 
-			THangingBridgeBoard* board = unk14[i];
-			board->mInitialPosition.set(data.x, data.y, data.z);
-			board->mPosition.set(board->mInitialPosition);
-			board->mRotation.x = data.rotX;
-			board->calcDefaultMtx();
+			unk14[i]->mInitialPosition.set(data.x, data.y, data.z);
+			unk14[i]->mPosition.set(unk14[i]->mInitialPosition);
+			unk14[i]->mRotation.x = data.rotX;
+			unk14[i]->calcDefaultMtx();
 		}
 	}
 
