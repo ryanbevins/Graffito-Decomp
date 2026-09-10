@@ -13,6 +13,7 @@
 #include <Map/Map.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
+#include <MarioUtil/MathUtil.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
 #include <Player/MarioAccess.hpp>
@@ -261,20 +262,7 @@ BOOL TNerveTabePukuFound::execute(TSpineBase<TLiveActor>* spine) const
 	velocity.add(forward);
 	self->mVelocity = velocity;
 
-	f32 rotation;
-	if (velocity.z == 0.0f) {
-		if (velocity.x >= 0.0f)
-			rotation = 90.0f;
-		else
-			rotation = -90.0f;
-	} else if (velocity.z >= 0.0f) {
-		rotation = matan(velocity.z, velocity.x) * (360.0f / 65536.0f);
-	} else {
-		rotation
-		    = 180.0f
-		      - matan(-velocity.z, velocity.x) * (360.0f / 65536.0f);
-	}
-	self->mRotation.y = rotation;
+	self->mRotation.y = MsGetRotFromZaxisY(velocity);
 
 	if (self->checkCurAnmEnd(0)) {
 		spine->pushAfterCurrent(&TNerveTabePukuAttack::theNerve());
