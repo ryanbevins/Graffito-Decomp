@@ -450,7 +450,7 @@ void TSelectShine::move()
 		}
 	} else if (unk49 != 0) {
 		unk3C        = (s16)(unk3C + 8);
-		s16 maxFrame = (s16)(mAnmColor->mMaxFrame - 1);
+		s32 maxFrame = mAnmColor->mMaxFrame - 1;
 		if (unk3C > maxFrame) {
 			unk3C = maxFrame;
 		}
