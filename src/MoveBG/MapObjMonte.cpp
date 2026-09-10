@@ -249,10 +249,10 @@ void TFluffManager::control()
 			windZ = 0.0f;
 
 			unk158 = unk15C;
-			unk158->mRotation        = mRotation;
+			unk158->mRotation.set(mRotation);
 			unk158->mInitialRotation = mRotation;
 			unk158->appear();
-			unk158->mPosition        = mPosition;
+			unk158->mPosition.set(mPosition);
 			unk158->mInitialPosition = mPosition;
 			zeroVec(unk158->mRotation);
 			unk158->mInitialRotation = unk158->mRotation;
