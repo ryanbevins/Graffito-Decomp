@@ -332,12 +332,11 @@ void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 
 	JGeometry::TVec3<f32> forward;
 	mQuat.getZDir(forward);
+	forward.scale(mMarchSpeed);
 
 	JGeometry::TVec3<f32> velocity(mVelocity);
 	velocity.scale(getSaveParam2()->mWaterFric.get());
-	velocity.x += forward.x * mMarchSpeed;
-	velocity.y += forward.y * mMarchSpeed;
-	velocity.z += forward.z * mMarchSpeed;
+	velocity.add(forward);
 	mVelocity = velocity;
 
 	f32 rotation;
