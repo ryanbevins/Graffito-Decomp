@@ -1379,9 +1379,9 @@ void TEnemyMario::findRunAwayNearestNode()
 	JGeometry::TVec3<f32> nearestPoint;
 	JGeometry::TVec3<f32> secondPoint;
 
-	for (int i = 0; i < emOwner(this)->unk124->getGraph()->getNodeNum(); ++i) {
+	for (int i = 0; i < owner()->unk124->getGraph()->getNodeNum(); ++i) {
 		JGeometry::TVec3<f32> point;
-		emOwner(this)->unk124->getGraph()->getGraphNode(i).getPoint(&point);
+		owner()->unk124->getGraph()->getGraphNode(i).getPoint(&point);
 		f32 dist = distanceFromPos(point, mPosition);
 
 		if (dist < nearestDist) {
