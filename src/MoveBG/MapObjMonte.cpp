@@ -239,15 +239,14 @@ void TFluffManager::control()
 
 	case 3: {
 		TMapObjManager* manager = gpMapObjManager;
-		f32 windX              = manager->unkD0.x * unk154;
-		f32 windY              = manager->unkD0.y * unk154;
-		f32 windZ              = manager->unkD0.z * unk154;
+		JGeometry::TVec3<f32> wind(manager->unkD0);
+		wind.scale(unk154);
 
-		if (fabsf(windX) < mWindMin && fabsf(windY) < mWindMin
-		    && fabsf(windZ) < mWindMin) {
-			windX = 0.0f;
-			windY = 0.0f;
-			windZ = 0.0f;
+		if (fabsf(wind.x) < mWindMin && fabsf(wind.y) < mWindMin
+		    && fabsf(wind.z) < mWindMin) {
+			wind.x = 0.0f;
+			wind.y = 0.0f;
+			wind.z = 0.0f;
 
 			unk158 = unk15C;
 			unk158->mRotation.set(mRotation);
@@ -264,9 +263,9 @@ void TFluffManager::control()
 			mState                   = 1;
 		}
 
-		gpMapObjManager->unkD0.x = windX;
-		gpMapObjManager->unkD0.y = windY;
-		gpMapObjManager->unkD0.z = windZ;
+		gpMapObjManager->unkD0.x = wind.x;
+		gpMapObjManager->unkD0.y = wind.y;
+		gpMapObjManager->unkD0.z = wind.z;
 		break;
 	}
 	}
