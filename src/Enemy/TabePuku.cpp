@@ -321,7 +321,24 @@ TTabePuku::TTabePuku(const char* name)
 void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 {
 	JGeometry::TVec3<f32> dir(target);
-	if (!dir.isZero()) {
+	f32 epsilon = JGeometry::TUtil<f32>::epsilon();
+	f32 lengthDiff = target.squared() - 0.0f;
+	bool isZero = false;
+	if (-epsilon <= lengthDiff && lengthDiff <= epsilon)
+		isZero = true;
+	if (isZero) {
+		JGeometry::TVec3<f32> forward;
+		mQuat.getZDir(forward);
+		forward.scale(mMarchSpeed);
+		JGeometry::TVec3<f32> velocity(mVelocity);
+		velocity.scale(getSaveParam2()->mWaterFric.get());
+		velocity.add(forward);
+		mVelocity = velocity;
+		mRotation.y = MsGetRotFromZaxisY(velocity);
+		return;
+	}
+
+	{
 		dir.normalize();
 
 		JGeometry::TQuat4<f32> targetQuat;
