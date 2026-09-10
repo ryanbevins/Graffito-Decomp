@@ -173,21 +173,18 @@ void TBossHanachan::execSlip()
 	JGeometry::TVec3<f32> dir = unk188;
 	if (mMarchSpeed > 4.0f) {
 		f32 maxRot = getBodyMaxRotateZ();
-		f32 yForce = 0.0f;
-		f32 xSide  = 1.0f;
-		if (maxRot > 0.0f) {
-			yForce = -0.0f;
-			xSide  = -1.0f;
-		}
+		JGeometry::TVec3<f32> sideForce(1.0f, 0.0f, 0.0f);
+		if (maxRot > 0.0f)
+			sideForce.negate();
 
 		s16 angle = CLBRoundf<s16>(mRotation.y * (65536.0f / 360.0f));
 		f32 sinV = jmaSinTable[(u16)angle >> jmaSinShift];
 		f32 cosV = jmaCosTable[(u16)angle >> jmaSinShift];
 		f32 speed = 0.005f * mMarchSpeed;
-		JGeometry::TVec3<f32> sideForce;
-		sideForce.x = xSide * cosV + yForce * sinV;
-		sideForce.y = yForce;
-		sideForce.z = -xSide * sinV + yForce * cosV;
+		f32 sideX = sideForce.x;
+		f32 sideZ = sideForce.z;
+		sideForce.x = sideX * cosV + sideZ * sinV;
+		sideForce.z = -sideX * sinV + sideZ * cosV;
 		sideForce.scale(speed);
 		dir.add(sideForce);
 	}
