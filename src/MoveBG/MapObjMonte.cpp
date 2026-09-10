@@ -1181,9 +1181,9 @@ void THangingBridgeBoard::drawOneRope(const JGeometry::TVec3<f32>& bottom) const
 	f32 texTop = mTexPosRate * (topY - y);
 
 	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 8);
-	GXPosition3f32(x, topY, zPlus);
+	GXPosition3f32(bottom.x, topY, zPlus);
 	GXTexCoord2f32(0.0f, texTop);
-	GXPosition3f32(x, y, zPlus);
+	GXPosition3f32(bottom.x, y, zPlus);
 	GXTexCoord2f32(0.0f, texBot);
 	GXPosition3f32(xMinus, topY, zMinus);
 	GXTexCoord2f32(1.0f, texTop);
@@ -1193,9 +1193,9 @@ void THangingBridgeBoard::drawOneRope(const JGeometry::TVec3<f32>& bottom) const
 	GXTexCoord2f32(2.0f, texTop);
 	GXPosition3f32(xPlus, y, zMinus);
 	GXTexCoord2f32(2.0f, texBot);
-	GXPosition3f32(x, topY, zPlus);
+	GXPosition3f32(bottom.x, topY, zPlus);
 	GXTexCoord2f32(3.0f, texTop);
-	GXPosition3f32(x, y, zPlus);
+	GXPosition3f32(bottom.x, y, zPlus);
 	GXTexCoord2f32(3.0f, texBot);
 }
 #pragma dont_inline off
