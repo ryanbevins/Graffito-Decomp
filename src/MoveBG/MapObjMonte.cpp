@@ -744,15 +744,15 @@ void THangingBridge::loadAfter()
 		                           unk18.z + (unk24.z - unk18.z) * rate);
 		JGeometry::TVec3<f32> rot(15.0f, rotY, 0.0f);
 		if (gpMarDirector->mMap == 0x08) {
-			JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 			unk14[i]
 			    = (THangingBridgeBoard*)TMapObjBaseManager::newAndRegisterObj(
-			        "HangingBridgeBoard", pos, rot, scale);
+			        "HangingBridgeBoard", pos, rot,
+			        JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		} else {
-			JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 			unk14[i]
 			    = (THangingBridgeBoard*)TMapObjBaseManager::newAndRegisterObj(
-			        "PinnaHangingBridgeBoard", pos, rot, scale);
+			        "PinnaHangingBridgeBoard", pos, rot,
+			        JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		}
 		unk14[i]->unk1BC = this;
 		unk14[i]->appear();
