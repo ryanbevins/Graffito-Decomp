@@ -254,12 +254,11 @@ BOOL TNerveTabePukuFound::execute(TSpineBase<TLiveActor>* spine) const
 
 	JGeometry::TVec3<f32> forward;
 	self->mQuat.getZDir(forward);
+	forward.scale(self->mMarchSpeed);
 
 	JGeometry::TVec3<f32> velocity(self->mVelocity);
 	velocity.scale(self->getSaveParam2()->mWaterFric.get());
-	velocity.x += forward.x * self->mMarchSpeed;
-	velocity.y += forward.y * self->mMarchSpeed;
-	velocity.z += forward.z * self->mMarchSpeed;
+	velocity.add(forward);
 	self->mVelocity = velocity;
 
 	f32 rotation;
