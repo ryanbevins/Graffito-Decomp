@@ -211,9 +211,10 @@ void TFluffManager::control()
 		}
 
 		if (unk158->mPosition.y < mPosition.y - unk138.z) {
+			const Vec* soundPos = &unk158->mPosition;
 			if (gpMSound->gateCheck(0x3884)) {
 				MSoundSESystem::MSoundSE::startSoundActor(
-				    0x3884, (Vec*)&unk158->mPosition, 0, 0, 0, 4);
+				    0x3884, soundPos, 0, 0, 0, 4);
 			}
 			mLifeTimer = unk144;
 			mState     = 2;
