@@ -662,16 +662,16 @@ void TSwingBoard::initDraw() const
 void TSwingBoard::drawOneRope(const JGeometry::TVec3<f32>& top,
                               const JGeometry::TVec3<f32>& bottom) const
 {
-	f32 texTop = unk138 * mTexPosRate;
-	f32 texBot = 0.0f;
-	f32 topXPlus = top.x + mRopeWidthX;
-	f32 topXMinus = top.x - mRopeWidthX;
 	f32 bottomXPlus = bottom.x + mRopeWidthX;
 	f32 bottomXMinus = bottom.x - mRopeWidthX;
-	f32 topZPlus = top.z + mRopeWidthZ;
-	f32 topZMinus = top.z - mRopeWidthZ;
 	f32 bottomZPlus = bottom.z + mRopeWidthZ;
 	f32 bottomZMinus = bottom.z - mRopeWidthZ;
+	f32 topXPlus = top.x + mRopeWidthX;
+	f32 topXMinus = top.x - mRopeWidthX;
+	f32 topZPlus = top.z + mRopeWidthZ;
+	f32 topZMinus = top.z - mRopeWidthZ;
+	f32 texTop = unk138 * mTexPosRate;
+	f32 texBot = 0.0f;
 
 	GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 8);
 	GXPosition3f32(top.x, top.y, topZPlus);
