@@ -350,7 +350,7 @@ void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 		if (opposite)
 			targetQuat.setEulerY(JGeometry::TUtil<f32>::PI());
 		else
-			targetQuat.setRotate(front, dir);
+			targetQuat.setRotate(front, dir, 1.0f);
 		mQuat.slerp(targetQuat, getSaveParam2()->mTurnSlerpRate.get());
 		mQuat.normalize();
 	}
