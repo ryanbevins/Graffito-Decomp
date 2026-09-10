@@ -738,10 +738,11 @@ void THangingBridge::loadAfter()
 	unk14 = new THangingBridgeBoard*[unk10];
 	for (int i = 0; i < unk10; ++i) {
 		f32 rate = (f32)i / (f32)(unk10 - 1);
-		sinf(3.14f * rate);
-		JGeometry::TVec3<f32> pos(unk18.x + (unk24.x - unk18.x) * rate,
-		                           unk18.y + (unk24.y - unk18.y) * rate,
-		                           unk18.z + (unk24.z - unk18.z) * rate);
+		JGeometry::TVec3<f32> pos;
+		pos.x = unk18.x + (unk24.x - unk18.x) * rate;
+		pos.y = unk18.y + (unk24.y - unk18.y) * rate
+		        - 0.0f * sinf(3.14f * rate);
+		pos.z = unk18.z + (unk24.z - unk18.z) * rate;
 		JGeometry::TVec3<f32> rot(15.0f, rotY, 0.0f);
 		if (gpMarDirector->mMap == 0x08) {
 			unk14[i]
