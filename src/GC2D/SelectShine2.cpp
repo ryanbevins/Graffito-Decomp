@@ -498,15 +498,12 @@ void TSelectShine::move()
 		f32 rate    = SMSGetAnmFrameRate();
 		s16 advance = (s16)((f32)((s8)unk38) * rate);
 		unk34 += advance;
-		s16 useAngle;
 		if (unk34 > 360) {
-			useAngle = (s16)(360 - (unk34 - advance));
-			unk34    = 0;
-		} else {
-			useAngle = advance;
+			advance = (s16)(advance - unk34 + 360);
+			unk34   = 0;
 		}
 		Mtx rotMtx;
-		PSMTXRotRad(rotMtx, 'y', 0.017453292f * (f32)useAngle);
+		PSMTXRotRad(rotMtx, 'y', 0.017453292f * (f32)advance);
 		PSMTXConcat(modelMtx, rotMtx, modelMtx);
 	}
 
