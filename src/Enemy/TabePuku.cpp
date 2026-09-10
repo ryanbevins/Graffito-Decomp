@@ -364,20 +364,7 @@ void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 	velocity.add(forward);
 	mVelocity = velocity;
 
-	f32 rotation;
-	if (velocity.z == 0.0f) {
-		if (velocity.x >= 0.0f)
-			rotation = 90.0f;
-		else
-			rotation = -90.0f;
-	} else if (velocity.z >= 0.0f) {
-		rotation = matan(velocity.z, velocity.x) * (360.0f / 65536.0f);
-	} else {
-		rotation
-		    = 180.0f
-		      - matan(-velocity.z, velocity.x) * (360.0f / 65536.0f);
-	}
-	mRotation.y = rotation;
+	mRotation.y = MsGetRotFromZaxisY(velocity);
 }
 
 bool TTabePuku::doKeepDistance()
