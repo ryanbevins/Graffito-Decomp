@@ -196,13 +196,7 @@ void TFluffManager::control()
 					continue;
 
 				const JGeometry::TVec3<f32>& point = unk168[i]->mPosition;
-				f32 dx   = point.x - gpMarioPos->x;
-				f32 dy   = point.y - gpMarioPos->y;
-				f32 dz   = point.z - gpMarioPos->z;
-				f32 dxSq = dx * dx;
-				f32 dySq = dy * dy;
-				f32 dzSq = dz * dz;
-				f32 dist = JGeometry::TUtil<f32>::sqrt(dxSq + dySq + dzSq);
+				f32 dist = point.distance(*gpMarioPos);
 				if (dist > 3000.0f) {
 					unk15C = unk168[i];
 					unk168[i]->kill();
