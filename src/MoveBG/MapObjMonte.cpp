@@ -240,7 +240,8 @@ void TFluffManager::control()
 
 	case 3: {
 		TMapObjManager* manager = gpMapObjManager;
-		JGeometry::TVec3<f32> wind(manager->unkD0);
+		const Vec& windSource = manager->unkD0;
+		JGeometry::TVec3<f32> wind(windSource);
 		wind.scale(unk154);
 
 		if (fabsf(wind.x) < mWindMin && fabsf(wind.y) < mWindMin
