@@ -430,9 +430,9 @@ void TSelectShine::move()
 	}
 	unk18.y = splineY;
 
+	MtxPtr modelMtx = mModel->unk20;
 	JGeometry::TVec3<f32> world;
 	world = mPos + unk18;
-	MtxPtr modelMtx = mModel->unk20;
 	modelMtx[0][3]  = world.x;
 	modelMtx[1][3]  = world.y;
 	modelMtx[2][3]  = world.z;
