@@ -92,8 +92,7 @@ DEFINE_NERVE(TNerveTabePukuDrag, TLiveActor)
 	if (spine->getTime() == 0) {
 		self->mDragDirection.set(0.0f, 0.0f, 1.0f);
 		JGeometry::TQuat4<f32> rot;
-		rot.setRotate(self->mDragDirection,
-		              (rand() * (1.0f / 32768.0f)) * 6.2831855f);
+		rot.setEulerY((rand() * (1.0f / 32768.0f)) * 6.2831855f);
 		rot.rotate(self->mDragDirection);
 		self->setGoalPath(TPathNode(self->mPosition));
 		self->mMarchSpeed = self->getSaveParam2()->mDiveSpeed.get();
