@@ -705,11 +705,13 @@ THangingBridge::THangingBridge(const char* name)
 void THangingBridge::loadAfter()
 {
 	JDrama::TNameRef::loadAfter();
+	f32 rotY = 0.0f;
 
 	if (gpMarDirector->mMap == 0x0D) {
 		unk10       = 14;
 		unk18.set(1550.0f, 2980.0f, -9410.0f);
 		unk24.set(3570.0f, 2455.0f, -9410.0f);
+		rotY = 90.0f;
 		mRopeHeight = 200.0f;
 		unk3C.y = 0.8f;
 		unk3C.z = 0.5f;
@@ -736,7 +738,6 @@ void THangingBridge::loadAfter()
 	unk14 = new THangingBridgeBoard*[unk10];
 	for (int i = 0; i < unk10; ++i) {
 		f32 rate = (f32)i / (f32)(unk10 - 1);
-		f32 rotY = gpMarDirector->mMap == 0x0D ? 90.0f : 0.0f;
 		sinf(3.14f * rate);
 		JGeometry::TVec3<f32> pos(unk18.x + (unk24.x - unk18.x) * rate,
 		                           unk18.y + (unk24.y - unk18.y) * rate,
