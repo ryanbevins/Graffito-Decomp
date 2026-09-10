@@ -195,9 +195,10 @@ void TFluffManager::control()
 				if (unk168[i]->unk16C != 0 || unk168[i]->mHeldObject != 0)
 					continue;
 
-				f32 dx   = unk168[i]->mPosition.x - gpMarioPos->x;
-				f32 dy   = unk168[i]->mPosition.y - gpMarioPos->y;
-				f32 dz   = unk168[i]->mPosition.z - gpMarioPos->z;
+				const JGeometry::TVec3<f32>& point = unk168[i]->mPosition;
+				f32 dx   = point.x - gpMarioPos->x;
+				f32 dy   = point.y - gpMarioPos->y;
+				f32 dz   = point.z - gpMarioPos->z;
 				f32 dxSq = dx * dx;
 				f32 dySq = dy * dy;
 				f32 dzSq = dz * dz;
