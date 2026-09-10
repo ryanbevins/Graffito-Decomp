@@ -265,9 +265,10 @@ void TFluffManager::control()
 			mState                   = 1;
 		}
 
-		gpMapObjManager->unkD0.x = wind.x;
-		gpMapObjManager->unkD0.y = wind.y;
-		gpMapObjManager->unkD0.z = wind.z;
+		manager = gpMapObjManager;
+		manager->unkD0.x = wind.x;
+		manager->unkD0.y = wind.y;
+		manager->unkD0.z = wind.z;
 		break;
 	}
 	}
