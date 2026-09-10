@@ -225,12 +225,11 @@ void TFluffManager::control()
 	case 2:
 	{
 		TMapObjManager* manager = gpMapObjManager;
-		f32 windX              = manager->unkD0.x + unk148.x;
-		f32 windY              = manager->unkD0.y + unk148.y;
-		f32 windZ              = manager->unkD0.z + unk148.z;
-		manager->unkD0.x       = windX;
-		manager->unkD0.y       = windY;
-		manager->unkD0.z       = windZ;
+		JGeometry::TVec3<f32> wind(manager->unkD0);
+		wind.add(unk148);
+		manager->unkD0.x = wind.x;
+		manager->unkD0.y = wind.y;
+		manager->unkD0.z = wind.z;
 		bool timerActive = mLifeTimer > 0 ? true : false;
 		if (timerActive)
 			break;
