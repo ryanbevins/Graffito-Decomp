@@ -540,12 +540,12 @@ inline f32 distanceFromMario(const JGeometry::TVec3<f32>& pos)
 	return JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-inline f32 distanceFromPos(const JGeometry::TVec3<f32>& pos, const Vec& point)
+inline f32 distanceFromPos(const JGeometry::TVec3<f32>& pos,
+                           const JGeometry::TVec3<f32>& point)
 {
-	f32 dx = pos.x - point.x;
-	f32 dy = pos.y - point.y;
-	f32 dz = pos.z - point.z;
-	return JGeometry::TUtil<f32>::sqrt(dx * dx + dy * dy + dz * dz);
+	JGeometry::TVec3<f32> delta(pos);
+	delta.sub(point);
+	return delta.length();
 }
 
 inline void normalizeDir(Vec* dir)
@@ -1376,13 +1376,13 @@ void TEnemyMario::findRunAwayNearestNode()
 	f32 secondDist   = 100000.0f;
 	int nearestIdx   = 0;
 	int secondIdx    = 0;
-	Vec nearestPoint;
-	Vec secondPoint;
+	JGeometry::TVec3<f32> nearestPoint;
+	JGeometry::TVec3<f32> secondPoint;
 
 	for (int i = 0; i < emOwner(this)->unk124->getGraph()->getNodeNum(); ++i) {
-		Vec point;
+		JGeometry::TVec3<f32> point;
 		emOwner(this)->unk124->getGraph()->getGraphNode(i).getPoint(&point);
-		f32 dist = distanceFromPos(mPosition, point);
+		f32 dist = distanceFromPos(point, mPosition);
 
 		if (dist < nearestDist) {
 			secondDist   = nearestDist;
