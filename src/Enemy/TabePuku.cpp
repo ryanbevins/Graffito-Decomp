@@ -322,7 +322,7 @@ void TTabePuku::swimTo(const JGeometry::TVec3<f32>& target)
 {
 	JGeometry::TVec3<f32> dir(target);
 	f32 epsilon = JGeometry::TUtil<f32>::epsilon();
-	f32 lengthDiff = target.squared() - 0.0f;
+	f32 lengthDiff = target.squared() - JGeometry::TUtil<f32>::zero();
 	bool isZero = false;
 	if (-epsilon <= lengthDiff && lengthDiff <= epsilon)
 		isZero = true;
