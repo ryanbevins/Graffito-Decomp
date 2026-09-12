@@ -223,6 +223,7 @@ class TBigWindmill : public TMapObjBase {
 public:
 	TBigWindmill(const char* name)
 	    : TMapObjBase(name)
+	    , unk148(nullptr)
 	{
 	}
 	virtual ~TBigWindmill() { }

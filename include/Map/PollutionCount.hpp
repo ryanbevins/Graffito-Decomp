@@ -24,8 +24,9 @@ public:
 	void drawSyncCallback(u16);
 	void initCounters(int);
 
-	virtual int getTokenNo(int) const   = 0;
-	virtual u16 getCounterNo(u32) const = 0;
+	// Retail vtable order: token -> counter, then counter -> token.
+	virtual int getCounterNo(u32) const = 0;
+	virtual u16 getTokenNo(int) const   = 0;
 
 public:
 	/* 0x4 */ int unk4;
@@ -38,8 +39,8 @@ class TPollutionCounterObj : public TPollutionCounterBase {
 public:
 	TPollutionCounterObj();
 
-	virtual int getTokenNo(int param_1) const { return param_1 + 0x92; }
-	virtual u16 getCounterNo(u32 param_1) const { return param_1 - 0x92; }
+	virtual int getCounterNo(u32 param_1) const { return param_1 - 0x92; }
+	virtual u16 getTokenNo(int param_1) const { return param_1 + 0x92; }
 
 	void draw(int) const;
 	void countObjDegree() const;
@@ -133,8 +134,8 @@ class TPollutionCounterLayer : public TPollutionCounterBase {
 public:
 	TPollutionCounterLayer();
 
-	virtual int getTokenNo(int param_1) const { return param_1 + 0x7E; }
-	virtual u16 getCounterNo(u32 param_1) const { return param_1 - 0x7E; }
+	virtual int getCounterNo(u32 param_1) const { return param_1 - 0x7E; }
+	virtual u16 getTokenNo(int param_1) const { return param_1 + 0x7E; }
 
 	void drawPollutionLayer(int) const;
 	void drawJointObjStamp(int) const;

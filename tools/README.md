@@ -16,6 +16,11 @@ Run a helper with `--help` for its full command-line interface.
 
 ## Investigation helpers
 
+For a frozen running Sunshine game on Windows, double-click
+`capture-freeze.cmd` or run `python tools/capture-freeze.py`. This read-only helper
+saves symbolized thread stacks and raw memory without rebuilding the game.
+See [Bianco freeze diagnostics](../docs/BIANCO_FREEZE.md) for usage and findings.
+
 `tools/agent/` contains optional scripts for ranking candidates, examining
 symbols, and testing recurring MWCC code-generation patterns. They are not
 required for a normal build.

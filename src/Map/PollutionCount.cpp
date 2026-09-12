@@ -50,14 +50,14 @@ static void drawBlack(u16 param_1, u16 param_2)
 void TPollutionCounterBase::setCallback(int param_1) const
 {
 	TDrawSyncManager::smInstance->pushBreakPoint();
-	GXSetDrawSync(getCounterNo(param_1));
+	GXSetDrawSync(getTokenNo(param_1));
 	TDrawSyncManager::smInstance->pushBreakPoint();
 	GXSetDrawSync(0);
 }
 
 void TPollutionCounterBase::drawSyncCallback(u16 param_1)
 {
-	int token = getTokenNo(param_1);
+	int token = getCounterNo(param_1);
 	u32 discard;
 	GXReadPixMetric(&discard, &discard, &discard, &discard, unkC[token],
 	                &discard);
