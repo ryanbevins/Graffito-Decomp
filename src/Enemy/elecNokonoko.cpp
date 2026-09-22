@@ -1,4 +1,5 @@
 #define JG_TUTIL_SQRT_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/ElecNokonoko.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Camera/Camera.hpp>
@@ -499,6 +500,8 @@ void TElecNokonoko::load(JSUMemoryInputStream& stream)
 
 BOOL TElecNokonoko::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x8);
+
 	if (message == HIT_MESSAGE_UNKD || message == HIT_MESSAGE_UNKB) {
 		onLiveFlag(LIVE_FLAG_DEAD);
 		kill();

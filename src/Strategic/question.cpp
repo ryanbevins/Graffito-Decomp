@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Strategic/question.hpp>
 #include <MarioUtil/DLUtil.hpp>
 #include <MarioUtil/DrawUtil.hpp>
@@ -95,6 +96,8 @@ void TQuestionManager::draw() const
 
 void TQuestionManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
+	PAD_STACK(0x8);
+
 	if ((param_1 & 4) != 0) {
 		if (gpSilhouetteManager->isUnk48Positive()) {
 			unk20->reset();

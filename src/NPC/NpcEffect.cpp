@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <NPC/NpcBase.hpp>
 #include <NPC/NpcParts.hpp>
 
@@ -32,6 +33,8 @@ static BOOL IsCheckPassFrame(J3DFrameCtrl* fc, const f32* table)
 
 void TBaseNPC::setHappyEffectMtxPtr_(const JUTNameTab* nameTab)
 {
+	PAD_STACK(0x10);
+
 	bool isMonte;
 	const char* sKoshiNull = "koshi_null";
 	const char* sKoshi     = "koshi";
@@ -64,6 +67,8 @@ void TBaseNPC::setHappyEffectMtxPtr_(const JUTNameTab* nameTab)
 
 void TBaseNPC::setNoteEffectMtxPtr_(const JUTNameTab* nameTab)
 {
+	PAD_STACK(0x8);
+
 	const char* sNoseJnt = "nose_jnt";
 	const char* sKuchi   = "kuchi";
 	const char* jntName  = (const char*)NULL;
@@ -85,6 +90,8 @@ void TBaseNPC::setNoteEffectMtxPtr_(const JUTNameTab* nameTab)
 
 void TBaseNPC::setPollutionEffectMtxPtr_(const JUTNameTab* nameTab)
 {
+	PAD_STACK(0x20);
+
 	const char* sKoshiNull = "koshi_null";
 	bool isMonte;
 	const char* sKoshi     = "koshi";
@@ -127,6 +134,8 @@ void TBaseNPC::setPollutionEffectMtxPtr_(const JUTNameTab* nameTab)
 
 void TBaseNPC::setSmokeEffectMtxPtr_(bool isSmoke)
 {
+	PAD_STACK(0x10);
+
 	J3DModel* mdl;
 	const char* jntName;
 	if (isSmoke) {
@@ -162,6 +171,8 @@ void TBaseNPC::emitSinkEffect_()
 	JGeometry::TVec3<f32>* planeNormal
 	    = (JGeometry::TVec3<f32>*)((u8*)mGroundPlane + 0x34);
 	SMS_EmitSinkInPollutionEffect(pos, *planeNormal, flag);
+
+	PAD_STACK(0x8);
 }
 
 void TBaseNPC::emitHappyEffect_()

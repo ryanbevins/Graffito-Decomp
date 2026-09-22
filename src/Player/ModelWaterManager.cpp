@@ -1,4 +1,5 @@
 #define JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Player/ModelWaterManager.hpp>
 #undef JGEOMETRY_MODELWATERMANAGER_TVEC3_OUT_OF_LINE
 #include <Player/MarioAccess.hpp>
@@ -293,6 +294,8 @@ void TModelWaterManager::makeEmit(const TWaterEmitInfo& param_1)
 
 int TModelWaterManager::emitRequest(const TWaterEmitInfo& param_1)
 {
+	PAD_STACK(0x8);
+
 	int particlesToSpawn = param_1.mNum.get();
 	if (particlesToSpawn == 0)
 		return 0;

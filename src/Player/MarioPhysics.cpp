@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 
 #include <Map/Map.hpp>
@@ -368,6 +369,8 @@ int TMario::walkProcess()
 	if (result == 3)
 		return 2;
 	return result;
+
+	PAD_STACK(0x10);
 }
 
 // barProcess: pole/bar climbing physics

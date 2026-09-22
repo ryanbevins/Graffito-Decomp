@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <NPC/NpcParts.hpp>
 
 #include <NPC/NpcBase.hpp>
@@ -186,6 +187,8 @@ TNpcParts::TNpcParts(u32 mask, const J3DGXColorS10* color_info,
 
 void TNpcParts::addJellyFishParts(f32 frame)
 {
+	PAD_STACK(0x8);
+
 	TSharedParts** dest = &unk0[0][11];
 	int numData = gpMareJellyFishManager->getModelDataKeeper()
 	    ->getModelDataNum();
@@ -205,6 +208,8 @@ void TNpcParts::addJellyFishParts(f32 frame)
 
 void TNpcParts::setPartsAnmFrame(f32 frame)
 {
+	PAD_STACK(0x68);
+
 	MActor* m;
 	J3DFrameCtrl* fc;
 
@@ -267,6 +272,8 @@ MActor* TNpcParts::getPartsMActor(int joint, int layer)
 
 void TNpcParts::partsFrameUpdate()
 {
+	PAD_STACK(0x20);
+
 	int i                = 0;
 	TSharedParts** parts = &unk0[unk60->unkD0->unk8][0];
 	for (; i < 12; i++) {

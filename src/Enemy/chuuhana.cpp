@@ -1,4 +1,5 @@
 #define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/ChuuHana.hpp>
 #undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/Conductor.hpp>
@@ -102,6 +103,8 @@ TChuuHanaSaveLoadParams::TChuuHanaSaveLoadParams(const char* path)
 TChuuHanaManager::TChuuHanaManager(const char* name)
     : TSmallEnemyManager(name)
 {
+	PAD_STACK(0x10);
+
 	gpCurChuuHana = nullptr;
 	unk60         = 0;
 	unk61         = 0;
@@ -248,6 +251,8 @@ void TChuuHana::reset()
 
 void TChuuHana::setBckAnm(int index)
 {
+	PAD_STACK(0x18);
+
 	unk194 = 1.0f;
 	f32 blend = unk194;
 	if (mMActor->unkC != nullptr)
@@ -765,6 +770,8 @@ void TChuuHana::behaveToWater(THitActor* actor)
 
 void TChuuHanaAseParCallback::execute(JPABaseEmitter* emitter, JPABaseParticle*)
 {
+		PAD_STACK(0x28);
+
 	TChuuHana* owner = mOwner;
 	if (!owner->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
 			emitter->setGlobalRTMatrix(

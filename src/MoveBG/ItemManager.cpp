@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/Item.hpp>
 #include <System/EmitterViewObj.hpp>
@@ -14,6 +15,8 @@ TItemManager* gpItemManager;
 
 void TItemManager::resetNozzleBoxesModel(int param_1)
 {
+	PAD_STACK(0x20);
+
 	for (int i = 0; i < getObjNum(); ++i) {
 		THitActor* maybeBox = getObj(i);
 		if (!maybeBox->isActorType(0x20000068))

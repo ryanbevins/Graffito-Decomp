@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JDrama/JDRDisplay.hpp>
 #include <JSystem/JDrama/JDRVideo.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
@@ -26,6 +27,8 @@ TDisplay::TDisplay(u16 param_1, void* param_2, void* param_3,
 
 void TDisplay::startRendering()
 {
+	PAD_STACK(0x8);
+
 	unk60->mNextRenderMode = unk10;
 	unk60->setNextXFB(unk4[unkC]);
 	GXSetDispCopyGamma(unk50);

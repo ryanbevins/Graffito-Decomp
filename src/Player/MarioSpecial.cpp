@@ -2,6 +2,7 @@
 #define JGEOMETRY_MARIOMOVE_TVEC3_SUB_OUT_OF_LINE
 #define JGEOMETRY_MARIOSPECIAL_TVEC3_ADD_SCALE_OUT_OF_LINE
 #define JGEOMETRY_MARIOSPECIAL_TVEC3_LENGTH_INLINE
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 #include <MSound/MSoundBGM.hpp>
 
@@ -1926,6 +1927,8 @@ BOOL TMario::moveRoof()
 
 BOOL TMario::roofCommonEvents()
 {
+	PAD_STACK(0x8);
+
 	u32 input = mInput;
 	if (input & 0x8000) {
 		mInput = input & ~0x8000;

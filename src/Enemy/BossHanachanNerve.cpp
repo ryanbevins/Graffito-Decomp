@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/BossHanachan.hpp>
 #include <Enemy/BossHanachanSaveParams.hpp>
 
@@ -45,6 +46,8 @@ DEFINE_NERVE(TNerveBossHanachanSnort, TLiveActor)
 
 DEFINE_NERVE(TNerveBossHanachanDamage, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	TBossHanachan* boss = (TBossHanachan*)spine->getBody();
 	boss->considerSetAnm(BHANM_NERVE_3);
 	boss->execSlip();
@@ -72,6 +75,8 @@ DEFINE_NERVE(TNerveBossHanachanGetUp, TLiveActor)
 
 DEFINE_NERVE(TNerveBossHanachanDown, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	TBossHanachan* boss = (TBossHanachan*)spine->getBody();
 	boss->considerSetAnm(BHANM_NERVE_1);
 	if (spine->getTime() >= boss->mChangeParams->mSLDownFrames.value) {

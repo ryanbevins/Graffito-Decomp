@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MSound/MSModBgm.hpp>
 #include <MSound/MSSetSound.hpp>
 #include <JSystem/JAudio/JAInterface/JAISound.hpp>
@@ -10,6 +11,8 @@ static u32 dummy1210[4] = { 0, 2, 1, 3 };
 
 void MSBgmXFade::xFadeBgmForce(f32 timing)
 {
+	PAD_STACK(0x8);
+
 	u8 idx = getTimingForce(timing);
 	if (idx != 0xff) {
 		MSBgm::setTrackVolume(0, scExp[0x11 - idx], 0, 0);

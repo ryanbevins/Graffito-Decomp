@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JUtility/JUTException.hpp>
 #include <JSystem/JUtility/JUTConsole.hpp>
 #include <JSystem/JUtility/JUTDirectFile.hpp>
@@ -670,6 +671,8 @@ OSErrorHandler JUTException::setPreUserCallback(OSErrorHandler callback)
 
 void JUTException::appendMapFile(char* path)
 {
+	PAD_STACK(0x10);
+
 	if (!path) {
 		return;
 	}

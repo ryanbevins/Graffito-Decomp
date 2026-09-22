@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Strategic/MirrorActor.hpp>
 #include <Map/MapMirror.hpp>
 #include <M3DUtil/SDLModel.hpp>
@@ -57,6 +58,8 @@ void TMirrorActor::checkIsInMirror()
 	} else {
 		unk18 = 1;
 	}
+
+	PAD_STACK(0x20);
 }
 
 void TMirrorActor::perform(u32 param_1, JDrama::TGraphics* param_2)

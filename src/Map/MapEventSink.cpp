@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/MapEventSink.hpp>
 #include <Map/PollutionManager.hpp>
 #include <Map/MapCollisionEntry.hpp>
@@ -115,6 +116,8 @@ bool TMapEventSink::control()
 
 void TMapEventSink::startControl()
 {
+	PAD_STACK_TEMP(0x18);
+
 	unk18 = 2;
 	unk2C = getBuilding(unk28);
 	unk2C->alive();
@@ -182,6 +185,8 @@ void TMapEventSink::load(JSUMemoryInputStream& stream)
 	} else if (gpMarDirector->mMap == 2) {
 		mCleanedDegree = 30;
 	}
+
+	PAD_STACK_TEMP(0x18);
 }
 
 TMapEventSink::TMapEventSink(const char* name)
@@ -209,6 +214,8 @@ TMapEventSink::TMapEventSink(const char* name)
 
 bool TMapEventSinkInPollution::watch()
 {
+	PAD_STACK(0x18);
+
 	for (int i = 0; i < mBuildingNum; ++i) {
 		if (!unk54[i]
 		    && gpPollution->getLayer(unk60[i].unk0)
@@ -224,6 +231,8 @@ bool TMapEventSinkInPollution::watch()
 #pragma dont_inline on
 void TMapEventSinkInPollution::initBuriedBuilding()
 {
+	PAD_STACK(0x18);
+
 	for (int i = 0; i < mBuildingNum; ++i) {
 		if (gpPollution->getLayer(unk60[i].unk0)
 		        ->getObj(unk60[i].unk2)
@@ -236,6 +245,8 @@ void TMapEventSinkInPollution::initBuriedBuilding()
 
 void TMapEventSinkInPollution::loadAfter()
 {
+	PAD_STACK_ARRAY(0x70);
+
 	TMapEventSink::loadAfter();
 	for (int i = 0; i < mBuildingNum; ++i) {
 		TPollutionObj* obj
@@ -250,6 +261,8 @@ void TMapEventSinkInPollutionReset::getResetPollutionObj(int) { }
 
 void TMapEventSinkInPollutionReset::makeBuildingRecovered(int i)
 {
+	PAD_STACK(0x48);
+
 	TMapEventSinkInPollution::makeBuildingRecovered(i);
 	gpPollution->getLayer(unk60[i].unk0)->getObj(unk60[i].unk2)->kill();
 	gpPollution->getLayer(unk60[i].unk0)->getObj(unk60[i].unk2 + 1)->alive();
@@ -260,6 +273,8 @@ void TMapEventSinkInPollutionReset::makeBuildingRecovered(int i)
 
 void TMapEventSinkInPollutionReset::loadAfter()
 {
+	PAD_STACK(0xD0);
+
 	TMapEventSinkInPollution::loadAfter();
 	for (int i = 0; i < mBuildingNum; ++i) {
 		gpPollution->getLayer(unk60[i].unk0)->getObj(unk60[i].unk2)->alive();
@@ -302,6 +317,8 @@ void TMapEventSinkBianco::finishControl()
 
 void TMapEventSinkBianco::rising()
 {
+	PAD_STACK(0x18);
+
 	TMapEventSinkInPollutionReset::rising();
 	if (unk28 == 0)
 		TMapObjBase::moveJoint(unk64, 0.0f, unk3C, 0.0f);
@@ -309,6 +326,8 @@ void TMapEventSinkBianco::rising()
 
 bool TMapEventSinkBianco::control()
 {
+	PAD_STACK(0x10);
+
 	if (unk28 == 0 && unk4C == unk7C) {
 		gpItemManager->makeShineAppearWithTime("シャイン（坂上げ用）", 300,
 		                                       unk50[unk28].x, unk50[unk28].y,
@@ -356,6 +375,8 @@ void TMapEventSinkBianco::startControl()
 
 bool TMapEventSinkBianco::watch()
 {
+	PAD_STACK(0x30);
+
 	if (!unk54[0]
 	    && ((TLiveActor*)mGateKeeper)->mLiveFlag & LIVE_FLAG_DEAD) {
 		unk28 = 0;
@@ -414,10 +435,14 @@ void TMapEventSinkBianco::load(JSUMemoryInputStream& stream)
 
 	SMS_LoadParticle("/scene/map/map/ms_objup_slope_a.jpa", 0x59);
 	SMS_LoadParticle("/scene/map/map/ms_objup_slope_b.jpa", 0x1E1);
+
+	PAD_STACK(0x10);
 }
 
 void TMapEventSinkShadowMario::rising()
 {
+	PAD_STACK(0x18);
+
 	TMapEventSink::rising();
 	((TLiveActor*)unk64[unk28])->mPosition.y += unk3C;
 }

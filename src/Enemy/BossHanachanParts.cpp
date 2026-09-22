@@ -1,4 +1,5 @@
 #define TSPINEBASE_GETLATESTNERVE_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/BossHanachan.hpp>
 #include <Enemy/BossHanachanPartsBase.hpp>
 #include <Enemy/BossHanachanSaveParams.hpp>
@@ -171,6 +172,8 @@ BOOL TBossHanachanPartsBody::setAnm_(
     EnumBossHanachanAnmKind anmKind,
     EnumBossHanachanStopMotionBlendOnOff stopMotionBlend)
 {
+	PAD_STACK(0x10);
+
 	static const int sBodyBckIndex[18] = { 0x13, 0x0F, 0x0A, 0x0D, 0x00, 0x0C,
 		                                   0x09, 0x02, 0x03, 0x04, 0x05, 0x06,
 		                                   0x07, 0x08, 0x10, 0x01, 0x11, 0x12 };
@@ -646,6 +649,8 @@ TBossHanachanPartsHead::TBossHanachanPartsHead(TBossHanachan* owner,
                                                const char* name)
     : TBossHanachanPartsBase(owner, 0x08000014, 1, name)
 {
+	PAD_STACK(0x28);
+
 	J3DModel* model = getModel();
 	JUTNameTab* tab = model->mModelData->unkB0;
 	const char* leftJointName = cNoseHallJointName_L;

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Animal/AnimalManager.hpp>
 #include <Animal/AnimalSave.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -20,12 +21,16 @@ void TMewManager::createModelData()
 
 void TMewManager::loadAfter()
 {
+	PAD_STACK(0x10);
+
 	JDrama::TNameRef::loadAfter();
 	MSoundSESystem::MSRandPlay::createRandPlayVec(0x3813, mObjNum);
 }
 
 void TMewManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x28);
+
 	TEnemyManager::load(stream);
 	mAnimalSave     = new TAnimalSaveIndividual("/Animal/mew.prm");
 	mViewClipNear   = mAnimalSave->mSLViewClipNear.value;

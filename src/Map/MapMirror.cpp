@@ -1,4 +1,5 @@
 #define JGEOMETRY_MAPMIRROR_TVEC3_SCALEADD_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Map/MapMirror.hpp>
 #include <Map/MapData.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -26,6 +27,8 @@ static inline void setEffectMtxOnTex0(J3DMaterial* material, MtxPtr mtx)
 
 void TMirrorCamera::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
+	PAD_STACK(0x40);
+
 	if (param_1 & 0x14) {
 		MtxPtr projMtx = param_2->mProjMtx.mMtx;
 		f32 fovy = gpCamera->mFovy;
@@ -110,6 +113,8 @@ inline static u8 getVertexFormat(const J3DModelData* model_data, GXAttr attr)
 
 void TMirrorModel::setPlane()
 {
+	PAD_STACK(0x18);
+
 	MtxPtr mtx = unk4->unk4->unk20;
 	MTXMultVec(mtx, &unkC, &unkC);
 	MTXMultVecSR(mtx, &unk18, &unk18);

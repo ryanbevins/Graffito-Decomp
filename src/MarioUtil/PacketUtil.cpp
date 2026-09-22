@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MarioUtil/PacketUtil.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
@@ -349,6 +350,8 @@ struct PacketUserData_Fog {
 
 void SMS_InitPacket_Fog(J3DModel* param_1, u16 param_2)
 {
+	PAD_STACK(0x28);
+
 	J3DMaterial* mat = param_1->getModelData()->getMaterialNodePointer(param_2);
 	J3DPEBlock* pe  = mat->getPEBlock();
 	J3DShapePacket* packet

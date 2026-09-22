@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjEx.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/Item.hpp>
@@ -22,6 +23,8 @@ f32 TMapObjNail::mDownHeight = 50.0f;
 
 BOOL TMapObjNail::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x8);
+
 	if (message == HIT_MESSAGE_HIP_DROP && !isLifeTimerActive() && unk150 < 3) {
 		mPosition.y -= mDownHeight;
 		removeMapCollision();
@@ -54,6 +57,8 @@ TMapObjNail::TMapObjNail(const char* name)
 
 void TJointCoin::control()
 {
+	PAD_STACK(0x8);
+
 	unk138->frameUpdate();
 	unk138->calc();
 	MtxPtr mtx = unk138->getModel()->getAnmMtx(0);

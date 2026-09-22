@@ -1,5 +1,6 @@
 #define JG_TUTIL_SQRT_OUT_OF_LINE
 
+#include <StackPadding.h>
 #include <Camera/Camera.hpp>
 #include <Camera/cameralib.hpp>
 #include <Enemy/Conductor.hpp>
@@ -350,6 +351,8 @@ const GXColor* TBaseNPC::getPtrInitPollutionColor() const
 
 void TBaseNPC::execMotionBlend_()
 {
+	PAD_STACK(0x20);
+
 	bool blending;
 	if (((TNpcInbetween*)mUnk18C)->mMotionBlendTimer > 0)
 		blending = true;
@@ -371,6 +374,8 @@ void TBaseNPC::execMotionBlend_()
 
 void TBaseNPC::calcRootMatrix()
 {
+	PAD_STACK(0x20);
+
 	if (mActorType == 0x0400001D) {
 		TLiveActor::calcRootMatrix();
 		return;
@@ -624,6 +629,8 @@ TBaseNPC::~TBaseNPC() { }
 
 void TBaseNPC::loadAfter()
 {
+	PAD_STACK(0x28);
+
 	JDrama::TNameRef::loadAfter();
 	if (mActorType == 0x04000018) {
 		if (gpMarDirector->mMap == 1 && gpMarDirector->unk7D == 1) {
@@ -778,6 +785,8 @@ bool TBaseNPC::isNeedNeckStraight() const
 
 f32 TBaseNPC::getAnmOffDist_()
 {
+	PAD_STACK(0x38);
+
 	bool useOff = false;
 	u8*  stateObj = (u8*)unkD0;
 	f32  result  = gpCamera->mFar;

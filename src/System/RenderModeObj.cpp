@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include "dolphin/os/OSRtc.h"
 #include <System/RenderModeObj.hpp>
 #include <dolphin/vi.h>
@@ -44,6 +45,8 @@ inline void SMSSetupGCLogoRenderMode(GXRenderModeObj* rmo)
 
 void SMSSetupGCLogoRenderingInfo(JDrama::TDisplay* param_1)
 {
+	PAD_STACK(0x8);
+
 	SMSSetupGCLogoRenderMode(&param_1->getRenderMode());
 	param_1->offFlag(0x8);
 }
@@ -70,12 +73,16 @@ void SMSSetupTitleRenderMode(GXRenderModeObj* rmo)
 
 void SMSSetupTitleRenderingInfo(JDrama::TDisplay* param_1)
 {
+	PAD_STACK(0x8);
+
 	SMSSetupTitleRenderMode(&param_1->getRenderMode());
 	param_1->offFlag(0x8);
 }
 
 void SMSSetupGameRenderingInfo(JDrama::TDisplay* param_1, bool param_2)
 {
+	PAD_STACK(0x10);
+
 	GXRenderModeObj& rmo = param_1->getRenderMode();
 
 	bool noFilter = VIGetTvFormat() == 0 && OSGetProgressiveMode() == 1;
@@ -110,6 +117,8 @@ void SMSSetupGameRenderingInfo(JDrama::TDisplay* param_1, bool param_2)
 
 void SMSSetupMovieRenderingInfo(JDrama::TDisplay* param_1)
 {
+	PAD_STACK(0x8);
+
 	GXRenderModeObj& rmo = param_1->getRenderMode();
 
 	bool noFilter = VIGetTvFormat() == 0 && OSGetProgressiveMode() == 1;

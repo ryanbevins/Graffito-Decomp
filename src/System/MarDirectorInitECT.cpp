@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <System/MarDirector.hpp>
 #include <System/EmitterViewObj.hpp>
 #include <System/PerformList.hpp>
@@ -91,6 +92,8 @@ JDrama::TViewObj* TMarDirector::initECTMir(
 	mirrorTex->setSrcRect(rect);
 
 	return mirrorTex;
+
+	PAD_STACK(0x28);
 }
 
 void TMarDirector::initECDisp(

@@ -1,4 +1,5 @@
 #define MSL_STDFMODF_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/Koopa.hpp>
 #include <Camera/CameraShake.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
@@ -872,6 +873,8 @@ f32 TKoopa::getFlameDirRate() const
 
 f32 TKoopa::getFlameDirDegree() const
 {
+	PAD_STACK(0x8);
+
 	f32 rate              = getFlameDirRate();
 	TEnemyManager* manager = (TEnemyManager*)mManager;
 	bool reverse           = unk154;

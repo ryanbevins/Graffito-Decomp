@@ -1,4 +1,5 @@
 #define JALLIST_DECLARE_CTOR_ONLY
+#include <StackPadding.h>
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <MSound/MSound.hpp>
@@ -32,6 +33,8 @@ void MSBgm::init()
 
 JAISound* MSBgm::startBGM(u32 param)
 {
+	PAD_STACK(0x8);
+
 	MSBgm* iVar1 = JALListS<MSBgm, u32>::search(param & 0x3FF);
 	if (iVar1) {
 		if ((param == 0x8001000a) || (param == 0x8001000c)
@@ -93,6 +96,8 @@ void MSBgm::stopBGM(u32 param1, u32 param2)
 
 void MSBgm::stopTrackBGM(u8 param1, u32 param2)
 {
+	PAD_STACK(0x10);
+
 	// Todo: Disable Inlining properly.
 	(void)0;
 	(void)0;

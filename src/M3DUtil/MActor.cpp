@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <M3DUtil/MActor.hpp>
 #include <M3DUtil/MActorAnm.hpp>
 #include <MarioUtil/LightUtil.hpp>
@@ -155,6 +156,8 @@ void MActor::setModel(J3DModel* param_1, u32 param_2)
 
 bool MActor::isCurAnmAlreadyEnd(int param_1)
 {
+	PAD_STACK(0x8);
+
 	bool result = true;
 
 	J3DFrameCtrl* ctrl = getFrameCtrl(param_1);
@@ -287,6 +290,8 @@ void MActor::updateOutSubBck()
 
 void MActor::calcAnm()
 {
+	PAD_STACK_ARRAY(0x18);
+
 	frameUpdate();
 
 	updateIn();
@@ -296,6 +301,8 @@ void MActor::calcAnm()
 
 void MActor::calc()
 {
+	PAD_STACK(0x10);
+
 	if (!unk39)
 		return;
 
@@ -319,6 +326,8 @@ void MActor::setLightID(short light_id)
 void MActor::setLightData(const TBGCheckData* param_1,
                           const JGeometry::TVec3<f32>& param_2)
 {
+	PAD_STACK(0x20);
+
 	if (unk40 == 0)
 		return;
 
@@ -348,6 +357,8 @@ void MActor::setLightType(int param_1)
 
 void MActor::entry()
 {
+	PAD_STACK_ARRAY(0x8);
+
 	if (!unk39)
 		return;
 
@@ -371,6 +382,8 @@ void MActor::entry()
 
 void MActor::frameUpdate()
 {
+	PAD_STACK_ARRAY(0x8);
+
 	for (int i = 0; i < 6; ++i)
 		if (unk28[i] && unk28[i]->getUnk0() >= 0)
 			unk28[i]->getFrameCtrl()->update();
@@ -390,6 +403,8 @@ void MActor::matAnmFrameUpdate()
 
 void MActor::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
+	PAD_STACK(0x10);
+
 	if (param_1 & 0x2)
 		calcAnm();
 
@@ -564,6 +579,8 @@ void MActor::setBrkFromIndex(int index)
 
 void MActor::updateIn()
 {
+	PAD_STACK_ARRAY(0x8);
+
 	if (unk28[0] && unk28[0]->getUnk0() >= 0)
 		unk28[0]->updateIn();
 
@@ -575,6 +592,8 @@ void MActor::updateIn()
 
 void MActor::updateOut()
 {
+	PAD_STACK_ARRAY(0x8);
+
 	if (unk28[0] && unk28[0]->getUnk0() >= 0)
 		unk28[0]->updateOut();
 
@@ -600,6 +619,8 @@ void MActor::entryOut()
 
 void MActor::updateMatAnm()
 {
+	PAD_STACK(0x8);
+
 	j3dSys.setTexture(unk4->getModelData()->getTexture());
 	for (u16 i = 0; i < unk34; ++i)
 		if (unk30[i] != 0x32 || unk2C[i] != 0x32)

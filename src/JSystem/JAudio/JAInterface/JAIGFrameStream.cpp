@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JAInterface/JAIBasic.hpp>
 #include <JSystem/JAudio/JAInterface/JAIInter.hpp>
 #include <JSystem/JAudio/JAInterface/JAIParameters.hpp>
@@ -152,6 +153,8 @@ void JAIBasic::checkRequestStream()
 
 void JAIBasic::checkPlayingStream()
 {
+	PAD_STACK(0x8);
+
 	JAIStreamUpdateParameter* streamData = unk0->unk184;
 	JAISound* sound                      = streamData->unk14;
 	if (sound == nullptr)

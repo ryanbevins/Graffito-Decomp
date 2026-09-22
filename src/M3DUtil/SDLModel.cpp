@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <M3DUtil/SDLModel.hpp>
 #include <Camera/Camera.hpp>
 #include <Enemy/Conductor.hpp>
@@ -10,6 +11,8 @@
 
 void SDLModelData::entrySameMat(J3DMaterial* param_1, SDLDrawBufToken* param_2)
 {
+	PAD_STACK(0x8);
+
 	SDLModel* model = param_2->unk8;
 	while (model != nullptr) {
 		if (model->unkA8 & 1)
@@ -287,6 +290,8 @@ void SDLModel::entry()
 
 void SDLModel::viewCalcSimple()
 {
+	PAD_STACK(0x8);
+
 	swapDrawMtx();
 	MtxPtr viewMtx = gpCamera->getUnk1EC();
 	for (int i = 0; i < mModelData->getDrawMtxNum(); ++i)

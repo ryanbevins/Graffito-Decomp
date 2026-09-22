@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Strategic/LiveManager.hpp>
 #include <Strategic/LiveActor.hpp>
 #include <Strategic/spcinterp.hpp>
@@ -97,6 +98,8 @@ void TLiveManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 	}
 
 	TObjManager::perform(param_1, param_2);
+
+	PAD_STACK_TEMP(0x10);
 }
 
 const TLiveActor* TLiveManager::getActorByFlag(u32 flag) const

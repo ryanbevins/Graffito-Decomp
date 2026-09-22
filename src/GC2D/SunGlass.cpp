@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <GC2D/SunGlass.hpp>
 #include <Camera/SunMgr.hpp>
 #include <Player/MarioAccess.hpp>
@@ -117,6 +118,8 @@ void TSunGlass::loadAfter()
 
 void TSunGlass::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x18);
+
 	JDrama::TNameRef::load(stream);
 	unk10 = gpMarDirector->unk18[1];
 }
@@ -146,6 +149,8 @@ void TSunShine::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 void TSunShine::loadAfter()
 {
+	PAD_STACK(0x10);
+
 	JDrama::TNameRef::loadAfter();
 	if (gpMarDirector->mMap == 6) {
 		unk14.r = 72;

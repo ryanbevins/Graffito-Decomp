@@ -1,4 +1,5 @@
 #define JGEOMETRY_GEKKO_PS_COPY12_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MoveBG/MapObjFence.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <MoveBG/MapObjMessenger.hpp>
@@ -195,6 +196,8 @@ void TRailFence::goOnRail()
 
 BOOL TRailFence::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x8);
+
 	if (message == 3) {
 		if (gpMSound->gateCheck(0x3864))
 			MSoundSESystem::MSoundSE::startSoundActor(
@@ -217,6 +220,8 @@ void TFenceWaterH::changeStatusToWait()
 
 void TFenceWaterH::changeStatusToGo()
 {
+	PAD_STACK(0x8);
+
 	MSound* sound = gpMSound;
 	if (sound->gateCheck(0x3838))
 		MSoundSESystem::MSoundSE::startSoundActor(
@@ -333,6 +338,8 @@ void TFenceWater::changeStatusToWait()
 
 void TFenceWater::changeStatusToGo()
 {
+	PAD_STACK(0x8);
+
 	MSound* sound = gpMSound;
 	if (sound->gateCheck(0x3838))
 		MSoundSESystem::MSoundSE::startSoundActor(

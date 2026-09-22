@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 #include <MSound/MSoundBGM.hpp>
 
@@ -383,6 +384,8 @@ f32 TMario::getChangeAngleSpeed()
 // getSlideStickMult - 0x8013B8E8
 f32 TMario::getSlideStickMult()
 {
+	PAD_STACK(0x20);
+
 	if ((u8)isForceSlip()) {
 		return mSlipParamsAll.mStickSlideMult.get();
 	}
@@ -1873,6 +1876,8 @@ rotateDone:
 	s16 modelAngle = mModelFaceAngle;
 	mModelFaceAngle = (s16)(modelAngle + 0x8000);
 	return false;
+
+	PAD_STACK(0x8);
 }
 
 // slippingBasic - 0x80138DF8

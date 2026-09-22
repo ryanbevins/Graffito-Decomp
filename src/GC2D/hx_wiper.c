@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <GC2D/hx_wiper.h>
 #include <dolphin/gx.h>
 #include <dolphin/mtx.h>
@@ -843,6 +844,8 @@ static void Hx_Door() {
 		hx.state = 3;
 		break;
 	}
+
+	PAD_STACK(0x8);
 }
 static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
 	GXTexObj tobj;

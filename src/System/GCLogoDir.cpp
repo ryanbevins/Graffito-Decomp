@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <System/GCLogoDir.hpp>
 #include <dolphin/vi.h>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -123,7 +124,9 @@ void TGCLogoDir::setup(JDrama::TDisplay* param_1, TMarioGamePad* param_2)
 	gpApplication.mFader->startWipe(14, 0.4f, 0.0f);
 }
 
-TGCLogoDir::~TGCLogoDir() { mGamePad->offFlag(0x1); }
+TGCLogoDir::~TGCLogoDir() {
+	PAD_STACK(0x8);
+ mGamePad->offFlag(0x1); }
 
 int TGCLogoDir::direct()
 {

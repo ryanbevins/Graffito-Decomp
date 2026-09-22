@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include "Enemy/PathNode.hpp"
 #include "Strategic/SolidStack.hpp"
 #include <Enemy/Graph.hpp>
@@ -277,6 +278,8 @@ DEFINE_NERVE(TNerveNPCRecoverFromSink, TLiveActor)
 
 DEFINE_NERVE(TNerveNPCRecoverAfter, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
 	if (spine->getTime() == 0)
 		npc->npcRecoverAfterIn();
@@ -296,6 +299,8 @@ DEFINE_NERVE(TNerveNPCSetPosAfterSinkBottom, TLiveActor)
 
 DEFINE_NERVE(TNerveNPCTalk, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TBaseNPC* npc = (TBaseNPC*)spine->getBody();
 
 	bool canTalk = gpMarDirector->isThing();

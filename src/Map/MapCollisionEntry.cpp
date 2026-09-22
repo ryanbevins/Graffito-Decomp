@@ -2,6 +2,7 @@
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
+#include <StackPadding.h>
 #include <Map/MapCollisionEntry.hpp>
 #define MAP_COLLISION_ENTRY_DEFINE_SET_UP_TRANS
 #include <Map/MapCollisionEntry.hpp>
@@ -127,6 +128,8 @@ TMapCollisionStatic::TMapCollisionStatic()
 
 void TMapCollisionMove::move()
 {
+	PAD_STACK(0x4);
+
 	if (checkFlag(0x1))
 		return;
 
@@ -162,6 +165,8 @@ void TMapCollisionMove::moveTrans(const JGeometry::TVec3<f32>& param_1)
 void TMapCollisionMove::init(u32 param_1, u16 bg_type, s16 data,
                              const TLiveActor* actor)
 {
+	PAD_STACK(0x8);
+
 	unk8 = 1;
 	unkC = param_1;
 	unk4 = gpMapCollisionData->allocCheckData(getUnkC());

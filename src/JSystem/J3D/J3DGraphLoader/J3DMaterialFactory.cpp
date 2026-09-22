@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/J3D/J3DGraphLoader/J3DMaterialFactory.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphBase/Blocks/J3DColorBlocks.hpp>
@@ -486,4 +487,6 @@ J3DNBTScale J3DMaterialFactory::newNBTScale(int idx) const
 		return J3DNBTScale(mpNBTScaleInfo[initData->mNBTScaleIdx]);
 	else
 		return dflt;
+
+	PAD_STACK(0x8);
 }

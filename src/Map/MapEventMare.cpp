@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/MapEventMare.hpp>
 #include <Camera/CameraShake.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
@@ -56,6 +57,8 @@ void TMareWallRock::appear()
 	}
 
 	mState = 2;
+
+	PAD_STACK(0x30);
 }
 
 void TMareWallRock::movement()
@@ -683,6 +686,8 @@ void TMareEventBumpyWall::bumpDownZ()
 		SMSRumbleMgr->stop(0x13);
 		kill();
 	}
+
+	PAD_STACK(0x8);
 }
 
 void TMareEventBumpyWall::bumpUpZ()
@@ -744,6 +749,8 @@ void TMareEventBumpyWall::bumpDownX()
 		SMSRumbleMgr->stop(0x13);
 		kill();
 	}
+
+	PAD_STACK(0x8);
 }
 
 void TMareEventBumpyWall::bumpUpX()

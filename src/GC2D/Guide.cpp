@@ -1,4 +1,5 @@
 #define EXPANE_SET_HELPERS_OUT_OF_LINE
+#include <StackPadding.h>
 #include <GC2D/Guide.hpp>
 #include <GC2D/BoundPane.hpp>
 #include <GC2D/ExPane.hpp>
@@ -428,6 +429,8 @@ int TGuide::checkPoint(int x, int y)
 			result = -1;
 	}
 	return result;
+
+	PAD_STACK(0x18);
 }
 
 void TGuide::linkSelect()

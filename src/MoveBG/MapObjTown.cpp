@@ -1,4 +1,5 @@
 #define JDRAMA_TFLAG_CTOR_DECL_ONLY
+#include <StackPadding.h>
 #include <MoveBG/MapObjTown.hpp>
 #undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <MoveBG/Item.hpp>
@@ -80,6 +81,8 @@ void TDoor::load(JSUMemoryInputStream& stream)
 
 void TDoor::touchPlayer(THitActor* player)
 {
+	PAD_STACK(0x10);
+
 	if (!player->isActorTypeOf(ACTOR_TYPE_PLAYER))
 		return;
 
@@ -130,6 +133,8 @@ void TManhole::loadAfter()
 
 void TManhole::makeManholeUnuseful(const TMapObjBase* obj)
 {
+	PAD_STACK(0x10);
+
 	if (unk154 != nullptr)
 		return;
 
@@ -306,6 +311,8 @@ void TManhole::touchPlayer(THitActor*)
 
 void TMapObjBillboard::touchActor(THitActor* actor)
 {
+	PAD_STACK(0x10);
+
 	if (!animIsFinished()) {
 		J3DFrameCtrl* frameCtrl = mMActor->getFrameCtrl(0);
 		if (frameCtrl->getFrame() < 33.0f)
@@ -376,6 +383,8 @@ void TMapObjChangeStage::load(JSUMemoryInputStream& stream)
 
 void TMapObjChangeStage::touchPlayer(THitActor*)
 {
+	PAD_STACK(0x10);
+
 	gpMarDirector->setNextStage(unk138, nullptr);
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 	mColCount = 0;
@@ -390,6 +399,8 @@ void TMapObjChangeStageHipDrop::initMapObj()
 
 void TMapObjChangeStageHipDrop::touchPlayer(THitActor*)
 {
+	PAD_STACK(0x10);
+
 	if (SMS_IsMarioStatusHipDrop()
 	    && gpMarioPos->y + *gpMarioSpeedY < SMS_GetMarioGrLevel()) {
 		gpMarDirector->setNextStage(unk138, nullptr);
@@ -499,6 +510,8 @@ void TMapObjWaterSpray::load(JSUMemoryInputStream& stream)
 
 void TMapObjWaterSpray::calc()
 {
+	PAD_STACK(0x10);
+
 	JPABaseEmitter* emitter = gpMarioParticleManager->emit(unk138, &mPosition,
 	                                                       1, this);
 	if (emitter == nullptr)
@@ -648,6 +661,8 @@ void TRedCoinSwitch::load(JSUMemoryInputStream& stream)
 		if (!flagManager->getShineFlag(shine))
 			makeObjDead();
 	}
+
+	PAD_STACK(0x10);
 }
 
 void TRedCoinSwitch::loadAfter()
@@ -706,6 +721,8 @@ void TBasketReverse::initMapObj()
 
 void TBasketReverse::kill()
 {
+	PAD_STACK(0x10);
+
 	gpMarioParticleManager->emitAndBindToPosPtr(0xe5, &mPosition, 0, nullptr);
 	gpMarioParticleManager->emitAndBindToPosPtr(0xe6, &mPosition, 0, nullptr);
 	START_MAP_OBJ_SOUND(0x380a, mPosition);

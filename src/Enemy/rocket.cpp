@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/Rocket.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
@@ -382,6 +383,8 @@ TRocket::TRocket(const char* name)
 
 void TRocketManager::perform(u32 param, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x8);
+
 	if (param & 1) {
 		for (int i = 0; i < getActiveObjNum(); i++) {
 			TRocket* a = (TRocket*)unk18[i];

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 #include <MSound/MSoundBGM.hpp>
 
@@ -109,6 +110,8 @@ BOOL TMario::canPut()
 // waitingCommonEvents - 0x801458A8
 BOOL TMario::waitingCommonEvents()
 {
+	PAD_STACK(0x18);
+
 	u32 input = mInput;
 
 	if (input & 0x02) {
@@ -207,6 +210,8 @@ void TMario::changeMontemanWaitingAnim()
 // waiting - 0x8014552C
 BOOL TMario::waiting()
 {
+	PAD_STACK(0x28);
+
 	if (waitingCommonEvents())
 		return 1;
 

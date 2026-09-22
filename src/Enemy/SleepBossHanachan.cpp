@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/SleepBossHanachan.hpp>
 #include <Enemy/BossHanachan.hpp>
 #include <Strategic/Spine.hpp>
@@ -49,6 +50,8 @@ const char** TSleepBossHanachan::getBasNameTable() const
 
 void TSleepBossHanachan::startFall(f32 x, f32 y, f32 z)
 {
+	PAD_STACK(0x8);
+
 	TFlagManager* fm = TFlagManager::smInstance;
 	fm->setBool(true, 0x5000B);
 	mFallPos.x = x;

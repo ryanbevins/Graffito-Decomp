@@ -1,5 +1,6 @@
 #define JG_TUTIL_SQRT_OUT_OF_LINE
 #define JSULIST_DTOR_DECL_ONLY
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 #include <Map/MapData.hpp>
 #include <MSound/MSoundBGM.hpp>
@@ -43,6 +44,8 @@ TMarioSoundValues::TMarioSoundValues()
 
 void TMario::startSoundActor(u32 soundID)
 {
+	PAD_STACK(0x8);
+
 	gpMSound->startSoundActor(soundID, (const Vec*)&mPosition, 0, nullptr, 0,
 	                          4);
 }
@@ -55,6 +58,8 @@ void TMario::stopVoice()
 
 u32 TMario::startVoiceIfNoVoice(u32 soundID)
 {
+	PAD_STACK(0x8);
+
 	MSound* sound = gpMSound;
 	if (sound->getMarioVoiceID(0) == 0xffffffff) {
 		if (onYoshi())
@@ -69,6 +74,8 @@ u32 TMario::startVoiceIfNoVoice(u32 soundID)
 
 u32 TMario::startVoice(u32 soundID)
 {
+	PAD_STACK(0x8);
+
 	if (onYoshi())
 		return 0;
 

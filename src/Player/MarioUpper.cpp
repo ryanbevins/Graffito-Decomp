@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 
 #include <Player/Watergun.hpp>
@@ -54,6 +55,8 @@ void TMario::checkPumping()
 // checkPumpEnable: 0x80141ACC, size 0x1CC
 BOOL TMario::checkPumpEnable()
 {
+	PAD_STACK(0x28);
+
 	if (mWaterGun != NULL) {
 		if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 			if (gMarioAnimeData[mAnimationId].isPumpOK()) {
@@ -117,6 +120,8 @@ BOOL TMario::checkPumpEnable()
 // stateMachineUpper: 0x80141854, size 0x278
 void TMario::stateMachineUpper()
 {
+	PAD_STACK(0x38);
+
 	switch (mPumpState) {
 	case 0: {
 		if (!checkPumpEnable()) {

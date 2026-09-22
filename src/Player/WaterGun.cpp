@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Player/WaterGun.hpp>
 #include <Player/NozzleTrigger.hpp>
 #include <Player/NozzleBase.hpp>
@@ -1418,6 +1419,8 @@ void TWaterGun::initInLoadAfter() { }
 #pragma dont_inline on
 MtxPtr TWaterGun::getEmitMtx(int jointIndex)
 {
+	PAD_STACK(0x60);
+
 	MtxPtr result = nullptr;
 	if (mMario->onYoshi()) {
 		result = getYoshiMtx();

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/BossPakkun.hpp>
 #include <Enemy/AreaCylinder.hpp>
 #include <Enemy/Conductor.hpp>
@@ -194,6 +195,8 @@ DEFINE_NERVE(TNerveBPFall, TLiveActor)
 
 DEFINE_NERVE(TNerveBPJumpReact, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
 	MActor* actor      = boss->mMActor;
 
@@ -276,6 +279,8 @@ DEFINE_NERVE(TNerveBPStompReact, TLiveActor)
 
 DEFINE_NERVE(TNerveBPSwing, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TBossPakkun* boss = (TBossPakkun*)spine->getBody();
 	MActor* actor      = boss->mMActor;
 
@@ -1651,6 +1656,8 @@ void TBossPakkun::gotHipDropDamage()
 #pragma dont_inline on
 void TBossPakkun::showMessage(u32 message)
 {
+	PAD_STACK(0x8);
+
 	u32 bit = message - 0xE0000 == 1 ? 0 : 1 << (message - 0xE0000);
 
 	if ((unk1C0 & bit) == 0)
@@ -1870,6 +1877,8 @@ BOOL TBPNavel::receiveMessage(THitActor* sender, u32 message)
 
 void TBPHeadHit::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x8);
+
 	if ((flags & 1) && (s8)mOwner->unk16C != 1) {
 		for (int i = 0; i < mColCount; ++i) {
 			THitActor* actor = mCollisions[i];

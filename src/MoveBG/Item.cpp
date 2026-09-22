@@ -1,4 +1,5 @@
 #define JGEOMETRY_ITEM_TVEC3_CTOR_SET_VEC
+#include <StackPadding.h>
 #include <MoveBG/Item.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <Camera/Camera.hpp>
@@ -41,6 +42,8 @@ f32 TItem::mAppearedScaleSpeed = 0.01f;
 
 void TItem::appeared()
 {
+	PAD_STACK(0x8);
+
 	if (checkMapObjFlag(0x40000) && !isLifeTimerActive()) {
 		if (unk148)
 			unk148->receiveMessage(this, HIT_MESSAGE_UNK5);
@@ -93,6 +96,8 @@ void TItem::calcRootMatrix()
 
 void TItem::calc()
 {
+	PAD_STACK(0x20);
+
 	if (!checkMapObjFlag(0x4000000) && !isState(6)) {
 		MtxPtr src = gpItemManager->unk40;
 
@@ -197,6 +202,8 @@ TItem::TItem(const char* name)
 
 void TCoin::taken(THitActor* param_1)
 {
+	PAD_STACK(0x8);
+
 	u8 thing = gpApplication.mCurrArea.unk0;
 	TFlagManager::getInstance()->incGoldCoinFlag(SMS_getShineStage(thing), 1);
 
@@ -229,6 +236,8 @@ void TCoin::makeObjDead()
 
 void TCoin::appearWithoutSound()
 {
+	PAD_STACK_ARRAY(0x10);
+
 	TItem::appear();
 	gpMarioParticleManager->emitAndBindToMtxPtr(0x58, getModel()->getAnmMtx(0),
 	                                            0, this);
@@ -238,6 +247,8 @@ void TCoin::appearWithoutSound()
 
 void TCoin::appear()
 {
+	PAD_STACK(0x20);
+
 	if (isActorType(0x20000010)) {
 		if (!TFlagManager::smInstance->getBlueCoinFlag(
 		        gpMarDirector->getCurrentMap(), unk134))
@@ -321,6 +332,8 @@ void TCoin::loadAfter()
 
 	unk154 = new TMirrorActor("コインin鏡");
 	unk154->init(getModel(), 0x18);
+
+	PAD_STACK(0x8);
 }
 
 void TCoin::initMapObj()
@@ -354,6 +367,8 @@ TCoinEmpty::TCoinEmpty(const char* name)
 
 void TCoinRed::taken(THitActor* param_1)
 {
+	PAD_STACK(0x8);
+
 	TFlagManager::getInstance()->incFlag(0x60000, 1);
 
 	if (gpMSound->gateCheck(0x4846))
@@ -374,6 +389,8 @@ TCoinRed::TCoinRed(const char* name)
 
 void TCoinBlue::makeObjAppeared()
 {
+	PAD_STACK(0x8);
+
 	if (TFlagManager::getInstance()->getBlueCoinFlag(
 	        gpMarDirector->getCurrentMap(), getUnk134()))
 		return;
@@ -383,6 +400,8 @@ void TCoinBlue::makeObjAppeared()
 
 void TCoinBlue::taken(THitActor* param_1)
 {
+	PAD_STACK(0x8);
+
 	TMarDirector* director = gpMarDirector;
 	director->fireGetBlueCoin(this);
 
@@ -403,6 +422,8 @@ void TCoinBlue::loadBeforeInit(JSUMemoryInputStream& stream)
 
 void TCoinBlue::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x8);
+
 	TCoin::load(stream);
 	if (TFlagManager::getInstance()->getBlueCoinFlag(
 	        gpMarDirector->getCurrentMap(), getUnk134()))
@@ -841,6 +862,8 @@ void TShine::kill()
 
 void TShine::makeMActors()
 {
+	PAD_STACK(0x8);
+
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
 	mMActorKeeper->mModelLoaderFlags = 0x10220000;
 
@@ -1016,6 +1039,8 @@ void TEggYoshi::touchFruit(THitActor* fruit)
 
 void TEggYoshi::touchActor(THitActor* actor)
 {
+	PAD_STACK(0x8);
+
 	if (isState(1) || isState(0xD)) {
 		if (actor->isActorType(0x80000001)) {
 			TTakeActor* taker = (TTakeActor*)actor;
@@ -1095,6 +1120,8 @@ void TEggYoshi::perform(u32 flags, JDrama::TGraphics* graphics)
 
 void TEggYoshi::startFruit()
 {
+	PAD_STACK(0x8);
+
 	receiveMessage(nullptr, HIT_MESSAGE_UNK10);
 
 	if (isState(0) || isState(0xE) || isState(0xF) || isState(0x10))
@@ -1181,6 +1208,8 @@ TEggYoshi::TEggYoshi(const char* name)
 
 void TItemNozzle::touchPlayer(THitActor* actor)
 {
+	PAD_STACK(0x10);
+
 	if (isState(6))
 		return;
 
@@ -1317,6 +1346,8 @@ BOOL TNozzleBox::receiveMessage(THitActor* sender, u32 message)
 
 void TNozzleBox::touchPlayer(THitActor*)
 {
+	PAD_STACK(0x30);
+
 	if (unk148 == 4
 	    && !TFlagManager::smInstance->getNozzleRight(
 	        gpMarDirector->getCurrentMap(), 0)

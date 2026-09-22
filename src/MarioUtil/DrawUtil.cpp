@@ -1,4 +1,5 @@
 #define JGEOMETRY_DRAWUTIL_OWNER_HELPERS
+#include <StackPadding.h>
 #include <MarioUtil/DrawUtil.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <Player/MarioAccess.hpp>
@@ -869,6 +870,8 @@ void TRotation3<TMatrix34<SMatrix34C<f32> > >::identity33()
 
 void SMS_CalcMatAnmAndMakeDL(J3DModel* param_1, u16 param_2)
 {
+	PAD_STACK(0x8);
+
 	J3DMaterial* mat = param_1->getModelData()->getMaterialNodePointer(param_2);
 	param_1->getModelData()
 	    ->getMaterialNodePointer(param_2)

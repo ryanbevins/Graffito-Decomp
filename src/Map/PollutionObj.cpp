@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/PollutionObj.hpp>
 #include <Map/PollutionLayer.hpp>
 #include <Map/Map.hpp>
@@ -59,10 +60,14 @@ u8 TPollutionObj::getDepthFromMap(int x, int y)
 	}
 
 	return 0xff;
+
+	PAD_STACK(0x30);
 }
 
 void TPollutionObj::updateDepthMap()
 {
+	PAD_STACK(0x10);
+
 	for (int y = unk28; y < unk2C; ++y)
 		for (int x = unk20; x < unk24; ++x)
 			unk34->unk5C.setDepth(x, y, getDepthFromMap(x, y));
@@ -77,6 +82,8 @@ bool TPollutionObj::isCleaned() const
 
 void TPollutionObj::initAreaInfo(TPollutionLayer* layer)
 {
+	PAD_STACK(0x38);
+
 	unk34          = layer;
 	const Vec& min = mJoint->getMin();
 	const Vec& max = mJoint->getMax();

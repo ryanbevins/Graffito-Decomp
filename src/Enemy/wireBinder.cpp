@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/WireBinder.hpp>
 #include <Map/MapWire.hpp>
 
@@ -107,6 +108,8 @@ TWireBinder::getDirAtPos(const JGeometry::TVec3<f32>& param_1,
 
 	vec2.sub(vec1);
 	return vec2;
+
+	PAD_STACK(0x18);
 }
 
 void TWireBinder::getPoint(JGeometry::TVec3<f32>* param_1, f32 param_2) const
@@ -118,6 +121,8 @@ void TWireBinder::getPoint(JGeometry::TVec3<f32>* param_1, f32 param_2) const
 void TWireBinder::getPoint(JGeometry::TVec3<float>* param_1,
                            const JGeometry::TVec3<float>& param_2) const
 {
+	PAD_STACK_ARRAY(0x10);
+
 	f32 posInWire
 	    = TMapWireManager::getGlobalWire(mWireNumber)->getPosInWire(param_2);
 	getPoint(param_1, posInWire);
@@ -126,6 +131,8 @@ void TWireBinder::getPoint(JGeometry::TVec3<float>* param_1,
 bool TWireBinder::isEndWire(const JGeometry::TVec3<float>& param_1,
                             f32 param_2) const
 {
+	PAD_STACK(0x10);
+
 	f32 posInWire
 	    = TMapWireManager::getGlobalWire(mWireNumber)->getPosInWire(param_1);
 	f32 targetPos = 0.0f < param_2 ? 1.0f : 0.0f;

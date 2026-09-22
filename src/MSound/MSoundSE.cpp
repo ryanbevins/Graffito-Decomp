@@ -1,5 +1,6 @@
 #define MSL_STDSQRTF_OUT_OF_LINE
 
+#include <StackPadding.h>
 #include <MSound/MSoundSE.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSRandVol.hpp>
@@ -45,6 +46,8 @@ MSRandVol::MSRandVol(u32 param)
     , unk44(0.75f)
     , unk48(1.0f)
 {
+	PAD_STACK(0x8);
+
 }
 
 f32 MSRandVol::getRandVol(u32 param)
@@ -88,6 +91,8 @@ s32 MSRandPlay::registerTrans(u32 param, const Vec* vec)
 
 void MSRandPlay::createRandPlayVec(u32 param1, u16 param2)
 {
+	PAD_STACK(0x30);
+
 	for (JSULink<MSRandPlay>* link = smList.getFirst(); link != nullptr;
 	     link = link->getNext()) {
 		MSRandPlay* play = link->getObject();
@@ -124,6 +129,8 @@ MSRandPlay::MSRandPlay(u32 param_1, s32 param_2, s32 param_3, f32 param_4,
     , unk28(param_4)
     , unk2C(param_5)
 {
+	PAD_STACK(0x8);
+
 }
 
 void MSRandPlay::randPlay(u32 param)
@@ -547,6 +554,8 @@ void MSoundSE::startSoundActorWithInfo(u32 sound_id, const Vec* p2, Vec* p3, f32
 	}
 
 	JALSystem::processModFunc(sound, gate_param, 0, 0);
+
+	PAD_STACK_TEMP(0x8);
 }
 
 bool MSoundSE::checkSoundArea(u32 param, const Vec& vec)

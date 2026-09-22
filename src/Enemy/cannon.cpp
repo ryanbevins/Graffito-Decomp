@@ -1,4 +1,5 @@
 #define JGEOMETRY_DRAWUTIL_OWNER_HELPERS
+#include <StackPadding.h>
 #include <Enemy/Cannon.hpp>
 #include <Enemy/Bombhei.hpp>
 #include <Enemy/Conductor.hpp>
@@ -870,6 +871,8 @@ bool TCannon::isHitVallid(u32)
 
 MtxPtr TCannon::getTakingMtx()
 {
+	PAD_STACK(0x28);
+
 	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
 		return unk1A8->unk6C->getMActor()->getModel()->getBaseTRMtx();
 
@@ -1228,6 +1231,8 @@ void TCannon::loadAfter()
 
 void TCannon::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x8);
+
 	TSmallEnemy::load(stream);
 	reset();
 	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;

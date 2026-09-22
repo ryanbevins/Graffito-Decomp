@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/HanaSambo.hpp>
 #include <Enemy/Conductor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -204,6 +205,8 @@ DEFINE_NERVE(TNerveHanaSamboWait, TLiveActor)
 
 DEFINE_NERVE(TNerveHanaSamboAttack, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	THanaSambo* self = (THanaSambo*)spine->getBody();
 	if (spine->getTime() == 0) {
 		self->setBckAnm(3);

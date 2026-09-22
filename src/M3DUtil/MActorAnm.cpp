@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <M3DUtil/MActorAnm.hpp>
 #include <M3DUtil/MActorData.hpp>
 #include <M3DUtil/MotionBlendCtrl.hpp>
@@ -128,6 +129,8 @@ void MActorAnmBck::updateOut()
 
 void MActorAnmBck::setAnmFromIndex(int param_1, u16*)
 {
+	PAD_STACK(0x8);
+
 	if (unk2A == 2 && unk0 != -1)
 		unk34->keepCurAnm(getData()->getAnmPtr(unk0), unk4.getFrame());
 
@@ -156,6 +159,8 @@ void MActorAnmBtp::setTexNoAnmFullPtr()
 
 void MActorAnmBtp::checkUseMaterialIDInit(u16* param_1)
 {
+	PAD_STACK(0x8);
+
 	for (int i = 0; i < getData()->getAnmNum(); ++i) {
 		J3DAnmTexPattern* anm = getData()->getAnmPtr(i);
 		for (u16 j = 0; j < anm->getUpdateMaterialNum(); ++j) {

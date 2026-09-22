@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Camera/SunMgr.hpp>
 #include <Camera/SunModel.hpp>
 #include <Camera/Camera.hpp>
@@ -113,6 +114,8 @@ void TSunMgr::perform(unsigned long flags, JDrama::TGraphics* gfx)
 
 s32 TSunMgr::getAddColor() const
 {
+	PAD_STACK(0x8);
+
 	s32 alpha = 0;
 	if (unk14)
 		alpha = (s32)gpSunModel->unkAC;

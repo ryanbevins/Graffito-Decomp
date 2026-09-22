@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjHide.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <MoveBG/ItemManager.hpp>
@@ -125,6 +126,8 @@ void TBreakHideObj::control()
 
 BOOL TBreakHideObj::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x8);
+
 	if (message == 1) {
 		bool isWaterMelon = (mActorType == 0x400002c3) ? true : false;
 		if (isWaterMelon) {
@@ -484,6 +487,8 @@ void TWaterHitPictureHideObj::forward(f32 amt)
 
 void TWaterHitPictureHideObj::afterFinishedAnim()
 {
+	PAD_STACK(0x10);
+
 	bool is1a1 = (mActorType == 0x400001a1) ? true : false;
 	if (is1a1) {
 		if (gpMSound->gateCheck(0x296f))
@@ -517,6 +522,8 @@ void THipDropHideObj::touchPlayer(THitActor* sender)
 TFruitBasketEvent::TFruitBasketEvent(const char* name)
     : TFruitBasket(name)
 {
+	PAD_STACK(0x8);
+
 	reset();
 }
 
@@ -740,6 +747,8 @@ void THideObjBase::emitEffect()
 
 void THideObjBase::appearObjFromPoint(const JGeometry::TVec3<f32>& pt)
 {
+	PAD_STACK(0x8);
+
 	if (unk138 && unk14C) {
 		bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
 		if (isShine) {

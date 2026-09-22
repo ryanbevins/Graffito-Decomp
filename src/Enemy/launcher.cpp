@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/Launcher.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
@@ -66,6 +67,8 @@ void TLauncher::init(TLiveManager* param_1)
 
 BOOL TLauncher::receiveMessage(THitActor* param_1, u32 param_2)
 {
+	PAD_STACK(0x8);
+
 	if (checkLiveFlag(LIVE_FLAG_DEAD))
 		return false;
 
@@ -267,6 +270,8 @@ void TCommonLauncher::stateInitial() { changeState(STATE_NORMAL); }
 
 void TCommonLauncher::stateHitByWater()
 {
+	PAD_STACK(0x8);
+
 	if (mTicksSpentInCurState == 0) {
 		changeBck(1);
 		decHitPoints();
@@ -374,6 +379,8 @@ const char** TCommonLauncher::getBasNameTable() const
 
 void TCommonLauncher::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
+	PAD_STACK(0x10);
+
 	TSpineEnemy::perform(param_1, param_2);
 	if ((param_1 & 2) && mMActor->checkCurBckFromIndex(1)) {
 		MtxPtr mtx = mMActor->getModel()->getAnmMtx(0);

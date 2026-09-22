@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/BossGessoTentacle.hpp>
 #include <Enemy/BossGesso.hpp>
 #include <Enemy/Spline.hpp>
@@ -546,6 +547,8 @@ void TBGTentacle::TNode::calcPosition(TBGTentacle* param_1)
 	}
 
 	mPosition += mVelocity;
+
+	PAD_STACK(0x20);
 }
 
 TBGTentacle::TBGTentacle(TBossGesso* owner, int node_num, int index)
@@ -653,6 +656,8 @@ void TBGTentacle::continuousRumble()
 
 void TBGTentacle::beatNode(int index, const JGeometry::TVec3<f32>& param_2)
 {
+	PAD_STACK(0x8);
+
 	mNodes[index].setVelocity(param_2);
 
 	f32 fVar1;

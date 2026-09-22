@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Camera/CameraShake.hpp>
 #include <Enemy/TinKoopa.hpp>
 #include <Enemy/Conductor.hpp>
@@ -420,6 +421,8 @@ BOOL TTinKoopa::hasMapCollision() const { return true; }
 
 void TTinKoopa::launchKiller(int direction)
 {
+	PAD_STACK(0x8);
+
 	u32 jointIndex;
 	TCoasterKiller* killer = (TCoasterKiller*)unk1F0->getDeadEnemy();
 	if (!killer)
@@ -1072,6 +1075,8 @@ void TTinKoopaPartsBase::reset()
 
 BOOL TTinKoopaFlame::receiveMessage(THitActor*, u32 message)
 {
+	PAD_STACK(0x18);
+
 	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
 		if (unk68->unk17C <= 0) {
 			if (unk70 > 0)

@@ -1,6 +1,7 @@
 #ifndef JG_MATRIX34_HPP
 #define JG_MATRIX34_HPP
 
+#include <StackPadding.h>
 #include <dolphin/types.h>
 #include <JSystem/JGeometry/JGVec3.hpp>
 
@@ -49,6 +50,8 @@ public:
 	void set(f32 m00, f32 m01, f32 m02, f32 m03, f32 m10, f32 m11, f32 m12,
 	         f32 m13, f32 m20, f32 m21, f32 m22, f32 m23)
 	{
+		PAD_STACK_ARRAY(0x30);
+
 		mMtx[0][0] = m00;
 		mMtx[0][1] = m01;
 		mMtx[0][2] = m02;

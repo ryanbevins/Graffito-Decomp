@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Strategic/LiveActor.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <Strategic/question.hpp>
@@ -29,6 +30,8 @@ f32 TLiveActor::mVelocityMinY = -40.0f;
 TLiveActor::TLiveActor(const char* name)
     : TTakeActor(name)
 {
+	PAD_STACK(0x10);
+
 	mManager       = nullptr;
 	mMActor        = nullptr;
 	mMActorKeeper  = nullptr;

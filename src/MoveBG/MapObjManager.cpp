@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjManager.hpp>
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/Item.hpp>
@@ -92,6 +93,8 @@ J3DMaterialTable* TMapObjManager::loadMatTable(const char* name)
 
 void TMapObjManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x78);
+
 	TMapObjBaseManager::load(stream);
 	unk40 = new MActorAnmData;
 

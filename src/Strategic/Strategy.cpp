@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Strategic/Strategy.hpp>
 #include <Strategic/ObjHitCheck.hpp>
 #include <macros.h>
@@ -20,6 +21,8 @@ TStrategy::TStrategy(const char* name)
 
 void TStrategy::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x8);
+
 	JDrama::TViewObj::load(stream);
 	new TObjHitCheck();
 

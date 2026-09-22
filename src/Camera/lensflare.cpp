@@ -1,5 +1,6 @@
 #define JGEOMETRY_EVENTWATCHER_TVEC3_SET_VEC_OUT_OF_LINE
 #define JMATH_SELECTSHINE2_TRIG_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Camera/LensFlare.hpp>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMarioData.hpp>
@@ -50,6 +51,8 @@ TLensFlare::TLensFlare(const char* name)
 	void* res = JKRFileLoader::getGlbResource(buf);
 	unk10     = (J3DModelData*)J3DModelLoaderDataBase::load(res, 0x10020000);
 	unk14 = new J3DModel(unk10, 0, 1);
+
+	PAD_STACK(0x8);
 }
 
 void TLensFlare::perform(u32 flags, JDrama::TGraphics* gfx)

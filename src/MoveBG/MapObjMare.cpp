@@ -1,6 +1,7 @@
 #define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #define JGEOMETRY_TVEC3_SCALE_OUT_OF_LINE
 #define LIVEACTOR_GETMACTOR_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MoveBG/MapObjMare.hpp>
 #undef LIVEACTOR_GETMACTOR_OUT_OF_LINE
 #undef JGEOMETRY_TVEC3_SCALE_OUT_OF_LINE
@@ -118,6 +119,8 @@ void TCogwheelScale::touchPlayer(THitActor*)
 }
 void TCogwheelScale::control()
 {
+	PAD_STACK(0x8);
+
 	unk148 = 0.0f;
 	TMapObjBase::control();
 
@@ -811,6 +814,8 @@ void TMuddyBoat::moveByWater()
 void TMuddyBoat::calcRootMatrix() { }
 void TMuddyBoat::kill()
 {
+	PAD_STACK_TEMP(0x10);
+
 	unk140 = 0.0f;
 	unk14C = 0.0f;
 
@@ -999,6 +1004,8 @@ void TMuddyBoat::calc()
 u32 TMuddyBoat::getSDLModelFlag() const { return 0; }
 void TMuddyBoat::initMapObj()
 {
+	PAD_STACK(0x10);
+
 	TMapObjBase::initMapObj();
 
 	unk138 = 0.04f;
@@ -1046,6 +1053,8 @@ TMuddyBoat::TMuddyBoat(const char* name)
 }
 void TMareFall::calc()
 {
+	PAD_STACK(0x10);
+
 	MSound* sound = gpMSound;
 	if (sound->gateCheck(0x3007))
 		MSoundSESystem::MSoundSE::startSoundActor(
@@ -1123,6 +1132,8 @@ void TMareCork::calcRootMatrix()
 MtxPtr TMareCork::getTakingMtx() { return mMActor->unk4->mNodeMatrices[2]; }
 void TMareCork::drawObject(JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x8);
+
 	TLiveActor::drawObject(graphics);
 
 	if (unk154) {
@@ -1144,6 +1155,8 @@ void TMareCork::drawObject(JDrama::TGraphics* graphics)
 }
 BOOL TMareEventPoint::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x8);
+
 	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
 		if (!gpModelWaterManager->checkFlagBottom4Bits(
 		        TMapObjBase::getWaterID(sender), 1)) {

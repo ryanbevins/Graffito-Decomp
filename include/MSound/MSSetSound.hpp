@@ -1,6 +1,7 @@
 #ifndef MSSETSOUNDTL_HPP
 #define MSSETSOUNDTL_HPP
 
+#include <StackPadding.h>
 #include <JSystem/JAudio/JALibrary/JALModSe.hpp>
 #include <JSystem/JAudio/JALibrary/JALCalc.hpp>
 #include <JSystem/JAudio/JADebug/JADPrm.hpp>
@@ -54,6 +55,8 @@ public:
 	    , unk54(0)
 	    , unk58(0)
 	{
+		PAD_STACK_ARRAY(0x70);
+
 		unkAC.x = 0.0f;
 		unkAC.y = 0.0f;
 		unkAC.z = 0.0f;

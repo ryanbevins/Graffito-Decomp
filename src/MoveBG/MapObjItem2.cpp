@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjItem2.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
@@ -42,6 +43,8 @@ TMushroom1up::TMushroom1up(int type, const char* name)
 
 void TMushroom1up::touchPlayer(THitActor* sender)
 {
+	PAD_STACK(0x8);
+
 	if (mTaken == 1)
 		return;
 	if (!sender->receiveMessage(this, 0xe))
@@ -56,6 +59,8 @@ void TMushroom1up::touchPlayer(THitActor* sender)
 
 void TMushroom1up::makeObjAppeared()
 {
+	PAD_STACK(0x8);
+
 	TMapObjBase::makeObjAppeared();
 	mLifeTimer = 0x4b0;
 	mState     = 0;
@@ -182,6 +187,8 @@ void TMushroom1up::control()
 
 void TMushroom1up::perform(u32 param_1, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x18);
+
 	if (mType != 2 && mLifeTimer < 0xf0 && (param_1 & 0x200)) {
 		if (gpMarDirector->unk58 % 6 > 2)
 			param_1 &= ~0x200;
@@ -200,6 +207,8 @@ TJumpBase::TJumpBase(const char* name)
 
 void TJumpBase::initMapObj()
 {
+	PAD_STACK(0x8);
+
 	TMapObjBase::initMapObj();
 	if (mMapCollisionManager) {
 		TMapCollisionBase* col = mMapCollisionManager->unk8;
@@ -277,6 +286,8 @@ Mtx* TJumpBase::getRootJointMtx() const
 
 void TJumpBase::calcRootMatrix()
 {
+	PAD_STACK(0x8);
+
 	if (mHolder) {
 		J3DModel* model    = getModel();
 		TTakeActor* holder = mHolder;

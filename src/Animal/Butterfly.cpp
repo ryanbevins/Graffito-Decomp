@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Animal/Realoid.hpp>
 #include <Animal/BoidLeader.hpp>
 #include <Enemy/EnemyManager.hpp>
@@ -139,6 +140,8 @@ TButterfloid::TButterfloid(int count, const char* name)
 
 BOOL TButterfly::receiveMessage(THitActor* sender, u32 msg)
 {
+	PAD_STACK(0x18);
+
 	switch (msg) {
 	case 4:
 		if (mHolder == nullptr) {

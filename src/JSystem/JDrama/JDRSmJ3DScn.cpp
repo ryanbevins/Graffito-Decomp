@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JDrama/JDRSmJ3DScn.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DDrawBuffer.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
@@ -19,6 +20,8 @@ TSmJ3DScn::TSmJ3DScn(const char* name, s32 draw_bufs)
 
 void TSmJ3DScn::perform(u32 param_1, TGraphics* param_2)
 {
+	PAD_STACK(0x8);
+
 	if ((param_1 & 3)) {
 		TViewObjPtrListT::perform(param_1, param_2);
 	}

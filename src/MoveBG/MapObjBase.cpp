@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/MapObjGeneral.hpp>
 #include <Map/Map.hpp>
@@ -161,6 +162,8 @@ void TMapObjBase::setUpMapCollision(u16 param_1)
 
 void TMapObjBase::soundBas(u32 param_1, f32 param_2, f32 param_3)
 {
+	PAD_STACK(0x10);
+
 	f32 currFrame = mMActor->getFrameCtrl(0)->getFrame();
 	if (currFrame <= param_2 && param_2 < currFrame + param_3) {
 		if (gpMSound->gateCheck(param_1))
@@ -171,6 +174,8 @@ void TMapObjBase::soundBas(u32 param_1, f32 param_2, f32 param_3)
 
 void TMapObjBase::startSound(u16 param_1)
 {
+	PAD_STACK(0x10);
+
 	if (unk100 != param_1)
 		unk100 = param_1;
 
@@ -289,6 +294,8 @@ void TMapObjBase::startAnim(u16 param_1)
 
 void TMapObjBase::makeObjDefault()
 {
+	PAD_STACK(0x28);
+
 	mPosition.set(mInitialPosition.x, mInitialPosition.y + mYOffset,
 	              mInitialPosition.z);
 
@@ -641,6 +648,8 @@ Mtx* TMapObjBase::getRootJointMtx() const
 
 void TMapObjBase::calcRootMatrix()
 {
+	PAD_STACK(0x8);
+
 	J3DModel* model = getModel();
 	MsMtxSetXYZRPH(model->getBaseTRMtx(), mPosition.x, mPosition.y - mYOffset,
 	               mPosition.z, mRotation.x, mRotation.y, mRotation.z);
@@ -695,6 +704,8 @@ void TMapObjBase::load(JSUMemoryInputStream& stream)
 		unk64 &= ~4;
 		unk64 &= ~2;
 	}
+
+	PAD_STACK(0x8);
 }
 
 TMapObjBase::TMapObjBase(const char* name)

@@ -1,4 +1,5 @@
 #define JDRAMA_TFLAG_COPY_CTOR_DECL_ONLY
+#include <StackPadding.h>
 #include <System/MarDirector.hpp>
 #include <System/TalkCursor.hpp>
 #include <System/MarioGamePad.hpp>
@@ -108,6 +109,8 @@ void TMarDirector::movement_game()
 
 void TMarDirector::fireGetBlueCoin(TCoin* coin)
 {
+	PAD_STACK(0x10);
+
 	if (!coin)
 		return;
 
@@ -122,6 +125,8 @@ void TMarDirector::fireGetBlueCoin(TCoin* coin)
 
 void TMarDirector::fireGetNozzle(TItemNozzle* nozzle)
 {
+	PAD_STACK(0x8);
+
 	if (!nozzle)
 		return;
 
@@ -153,6 +158,8 @@ void TMarDirector::fireGetStar(TShine* shine)
 
 void TMarDirector::fireRideYoshi(TYoshi* yoshi)
 {
+	PAD_STACK(0x10);
+
 	if (!yoshi)
 		return;
 

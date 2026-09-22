@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/Graph.hpp>
 #include <Enemy/Spline.hpp>
 #include <MarioUtil/MathUtil.hpp>
@@ -637,6 +638,8 @@ int TGraphWeb::findNearestVisibleIndex(const JGeometry::TVec3<f32>& param_1,
 #pragma dont_inline on
 void TGraphWeb::calcGraphDirection(int n)
 {
+	PAD_STACK(0x28);
+
 	TGraphNode& graphNode = getGraphNode(n);
 	TRailNode* railNode   = graphNode.getRailNode();
 	for (int i = 0; i < railNode->mConnectionNum; ++i) {
@@ -857,6 +860,8 @@ inline void TGraphTracer::setParamFromGraph()
 
 void TGraphTracer::setTo(int node_idx)
 {
+	PAD_STACK(0x48);
+
 	mPrevIdx = -1;
 	mCurrIdx = node_idx;
 	setParamFromGraph();
@@ -864,6 +869,8 @@ void TGraphTracer::setTo(int node_idx)
 
 int TGraphTracer::moveTo(int node_idx)
 {
+	PAD_STACK(0x48);
+
 	if (node_idx < 0)
 		return node_idx;
 

@@ -1,4 +1,5 @@
 #define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/Bombhei.hpp>
 #undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/Conductor.hpp>
@@ -385,6 +386,8 @@ bool TBombHei::isCollidMove(THitActor* other)
 
 void TBombHei::moveObject()
 {
+	PAD_STACK(0x8);
+
 	TWalkerEnemy::moveObject();
 
 	if (mSpine->getCurrentNerve() == &TNerveBombHeiThrown::theNerve())
@@ -407,6 +410,8 @@ void TBombHei::moveObject()
 
 void TBombHei::walkBehavior(int param_1, f32 param_2)
 {
+	PAD_STACK(0x8);
+
 	if (SMSGetMSound()->gateCheck(0x2068))
 		MSoundSESystem::MSoundSE::startSoundActor(0x2068, &mPosition, 0, nullptr,
 		                                          0, 4);
@@ -548,6 +553,8 @@ bool TBombHei::isHitValid(u32 message)
 
 void TBombHei::changeOut()
 {
+	PAD_STACK(0x10);
+
 	MSound* sound = gpMSound;
 	if (sound->gateCheck(0x293d))
 		MSoundSESystem::MSoundSE::startSoundActor(0x293d, &mPosition, 0, nullptr,
@@ -568,6 +575,8 @@ void TBombHei::changeOut()
 
 void TBombHei::behaveToWater(THitActor*)
 {
+	PAD_STACK(0x8);
+
 	if (isBckAnm(4) || isBckAnm(3)) {
 		if (mHitPoints == 0)
 			mSpine->pushNerve(&TNerveBombHeiWaitExplosion::theNerve());

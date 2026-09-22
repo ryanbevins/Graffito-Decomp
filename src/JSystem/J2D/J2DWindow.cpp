@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/J2D/J2DWindow.hpp>
 #include <JSystem/JSupport/JSURandomInputStream.hpp>
 #include <JSystem/JKernel/JKRHeap.hpp>
@@ -184,6 +185,8 @@ void J2DWindow::draw_private(const JUTRect& param_1, const JUTRect& param_2,
 
 void J2DWindow::resize(int width, int height)
 {
+	PAD_STACK(0x28);
+
 	int oldW = mBounds.getWidth();
 	int oldH = mBounds.getHeight();
 	mBounds.resize(width, height);

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Camera/CameraMarioData.hpp>
 #include <Map/MapData.hpp>
 #include <Player/MarioAccess.hpp>
@@ -60,6 +61,8 @@ bool TCameraMarioData::isMarioClimb(u32 status) const
 
 bool TCameraMarioData::isMarioLeanMirror() const
 {
+	PAD_STACK(0x8);
+
 	bool result = false;
 	if (SMS_GetMarioGrPlane() != nullptr) {
 		const TLiveActor* actor = SMS_GetMarioGrPlane()->mActor;

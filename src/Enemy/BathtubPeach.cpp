@@ -1,5 +1,6 @@
 #define MSL_STDFMODF_OUT_OF_LINE
 
+#include <StackPadding.h>
 #include <Enemy/BathtubPeach.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JMath.hpp>
@@ -241,6 +242,8 @@ BOOL TBathtubPeach::receiveMessage(THitActor* sender, u32 message)
 
 void TBathtubPeach::calcRootMatrix()
 {
+	PAD_STACK(0x18);
+
 	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
 	Mtx* dst;
 	JDrama::TNameRef* bathtubRef = root->searchF(

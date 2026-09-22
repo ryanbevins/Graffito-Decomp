@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjDolpic.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <Player/MarioAccess.hpp>
@@ -539,6 +540,8 @@ void TDemoCannon::startDemo()
 
 void TDemoCannon::perform(u32 flags, JDrama::TGraphics* gfx)
 {
+	PAD_STACK(0x30);
+
 	TMapObjBase::perform(flags, gfx);
 
 	if (!unk14C)

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjCloud.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/MapCollisionManager.hpp>
@@ -97,6 +98,8 @@ void TRideCloud::load(JSUMemoryInputStream& stream)
 	                           &unk176);
 	offLiveFlag(LIVE_FLAG_UNK400);
 	onLiveFlag(LIVE_FLAG_UNK8);
+
+	PAD_STACK(0x30);
 }
 
 u32 TRideCloud::getShadowType() { return 0; }

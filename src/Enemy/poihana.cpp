@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/PoiHana.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/JUtility/JUTNameTab.hpp>
@@ -82,6 +83,8 @@ void TPoiHanaManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 void TPoiHanaManager::initSetEnemies()
 {
+	PAD_STACK(0xA0);
+
 	int bodyIdx
 	    = getObj(0)->getModel()->getModelData()->getMaterialName()->getIndex(
 	        "_body");
@@ -188,6 +191,8 @@ void TPoiHana::reset()
 
 void TPoiHana::moveObject()
 {
+	PAD_STACK(0x10);
+
 	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
 		unk1BC->mPosition = mPosition;
 	} else {
@@ -556,6 +561,8 @@ void TSleepPoiHana::load(JSUMemoryInputStream& stream)
 
 DEFINE_NERVE(TNervePoihanaSleep, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	TPoiHana* self = (TPoiHana*)spine->getBody();
 
 	if (spine->getTime() == 0) {
@@ -614,6 +621,8 @@ DEFINE_NERVE(TNervePoihanaSleep, TLiveActor)
 
 DEFINE_NERVE(TNervePoihanaFreeze, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	TPoiHana* self = (TPoiHana*)spine->getBody();
 
 	if (spine->getTime() == 0) {
@@ -690,6 +699,8 @@ DEFINE_NERVE(TNervePoihanaThrow, TLiveActor)
 		return true;
 
 	return false;
+
+	PAD_STACK(0x10);
 }
 
 DEFINE_NERVE(TNervePoihanaTrapped, TLiveActor)

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JAInterface/JAIBasic.hpp>
 #include <JSystem/JAudio/JAInterface/JAISound.hpp>
 #include <JSystem/JAudio/JAInterface/JAIData.hpp>
@@ -1184,6 +1185,8 @@ JAISound* JAIBasic::makeSound(u32 param)
 
 void* JAIBasic::loadDVDFile(char* filename)
 {
+	PAD_STACK(0x8);
+
 	u32 size = JASystem::Dvd::checkFile(filename);
 	if (!size) {
 		return nullptr;

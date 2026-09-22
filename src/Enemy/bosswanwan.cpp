@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/BossWanwan.hpp>
 #include <Camera/CameraShake.hpp>
 #include <Camera/cameralib.hpp>
@@ -525,6 +526,8 @@ BOOL TBWHit::receiveMessage(THitActor* sender, u32 message)
 
 void TBWHit::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x8);
+
 	if (flags & 1) {
 		if (mJointIndex >= 0)
 			mOwner->getJointTransByIndex(mJointIndex, &mPosition);

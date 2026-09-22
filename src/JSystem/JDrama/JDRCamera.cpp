@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JDrama/JDRCamera.hpp>
 #include <dolphin/mtx.h>
 #include <dolphin/gx.h>
@@ -68,6 +69,8 @@ void TPolarCamera::JSGSetProjectionAspect(float aspect) { mAspect = aspect; }
 
 void TLookAtCamera::perform(u32 param_1, TGraphics* param_2)
 {
+	PAD_STACK(0x8);
+
 	if (!(param_1 & 0x14))
 		return;
 
@@ -101,6 +104,8 @@ void TLookAtCamera::JSGSetViewTargetPosition(const Vec& tgt)
 
 void TOrthoProj::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x18);
+
 	TPlacement::load(stream);
 	stream.read(&mField[0], sizeof(float));
 	stream.read(&mField[1], sizeof(float));
@@ -109,6 +114,8 @@ void TOrthoProj::load(JSUMemoryInputStream& stream)
 }
 void TOrthoProj::perform(u32 param_1, TGraphics* param_2)
 {
+	PAD_STACK(0x8);
+
 	if (!(param_1 & 0x14))
 		return;
 

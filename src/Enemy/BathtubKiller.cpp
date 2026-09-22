@@ -1,5 +1,6 @@
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/BathtubKiller.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/DirectionCalc.hpp>
@@ -186,6 +187,8 @@ void TBathtubKiller::reset()
 #pragma dont_inline on
 void TBathtubKiller::resetBathtubKiller()
 {
+	PAD_STACK(0x90);
+
 	mSpine->initWith(&TNerveBathtubKillerWander::theNerve());
 	onLiveFlag(LIVE_FLAG_AIRBORNE);
 
@@ -1031,6 +1034,8 @@ TBathtubKillerManager::TBathtubKillerManager(const char* name)
 
 void TBathtubKillerManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x30);
+
 	ASSERT_TEST(unk38);
 	TSmallEnemyManager::load(stream);
 	unk38 = new TBathtubKillerParams("/enemy/bathtubkiller.prm");

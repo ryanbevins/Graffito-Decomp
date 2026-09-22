@@ -9,6 +9,7 @@
 // TUtil<f32>::sqrt is called out-of-line in this TU (owner lives elsewhere).
 #define JG_TUTIL_SQRT_OUT_OF_LINE
 
+#include <StackPadding.h>
 #include <System/EventWatcher.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -684,6 +685,8 @@ static void evStopTimer(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 	interp->verifyArgNum(0, &arg_num);
 	gpMarDirector->getConsole()->stopMoveTimer();
 	interp->push();
+
+	PAD_STACK_TEMP(0x8);
 }
 
 static void evMonteManReachFlag(TSpcTypedInterp<TEventWatcher>* interp,
@@ -714,6 +717,8 @@ static void evKillShine(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evKillMushroom1up(TSpcTypedInterp<TEventWatcher>* interp,
                               u32 arg_num)
 {
+	PAD_STACK_TEMP(0x8);
+
 	interp->verifyArgNum(1, &arg_num);
 	get_name_ref<TMushroom1up>(interp->pop())->kill();
 	interp->push();
@@ -1019,6 +1024,8 @@ static void evManiCoinDown(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 	interp->verifyArgNum(0, &arg_num);
 	gpMarDirector->getConsole()->startAppearStar();
 	interp->push();
+
+	PAD_STACK_TEMP(0x8);
 }
 
 static void evStartBGM(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
@@ -1087,6 +1094,8 @@ static void evStartMiss(TSpcTypedInterp<TEventWatcher>* interp, u32 arg_num)
 static void evChangeSunglass(TSpcTypedInterp<TEventWatcher>* interp,
                              u32 arg_num)
 {
+	PAD_STACK_TEMP(0x8);
+
 	interp->verifyArgNum(1, &arg_num);
 	int value = interp->pop().getDataInt();
 	TSunGlass* glass
@@ -1157,6 +1166,8 @@ static void evStartAppearJetBalloon(TSpcTypedInterp<TEventWatcher>* interp,
 	}
 
 	interp->push();
+
+	PAD_STACK_TEMP(0x18);
 }
 
 static void evSetEventForWaterMelon(TSpcTypedInterp<TEventWatcher>* interp,

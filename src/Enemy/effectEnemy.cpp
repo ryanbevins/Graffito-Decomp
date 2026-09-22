@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/EffectEnemy.hpp>
 #include <Enemy/WalkerEnemy.hpp>
 #include <Map/Map.hpp>
@@ -60,6 +61,8 @@ void TEffectEnemy::sendAttackMsgToMario()
 
 void TEffectEnemy::setDeadAnm()
 {
+	PAD_STACK(0x8);
+
 	gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &mPosition, 0, nullptr);
 	if (gpMSound->gateCheck(0x28C5)) {
 		MSoundSESystem::MSoundSE::startSoundActor(0x28C5, (const Vec*)&mPosition,

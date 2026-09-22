@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <GC2D/CardSave.hpp>
 #include <stdio.h>
 #include <dolphin/gx/GXCull.h>
@@ -119,6 +120,8 @@ TCardSave::TCardSave(const char* name, bool param_2)
 
 void TCardSave::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	JDrama::TViewObj::load(stream);
 	initData(gpMarDirector->unk18[0]);
 }

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjWave.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapData.hpp>
@@ -142,6 +143,8 @@ void TMapObjWave::load(JSUMemoryInputStream& stream)
 
 void TMapObjWave::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x20);
+
 	if (mTexInfo == nullptr)
 		return;
 

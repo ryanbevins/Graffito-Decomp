@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Strategic/spcinterp.hpp>
 #include <macros.h>
 
@@ -105,6 +106,8 @@ TSpcBinary::~TSpcBinary() { }
 
 void TSpcBinary::init()
 {
+	PAD_STACK(0x8);
+
 	calcAndStoreKeys();
 	initSystemBuiltin();
 	initUserBuiltin();

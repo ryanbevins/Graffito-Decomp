@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Player/MarioEffect.hpp>
 #include <Enemy/Conductor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DAnimation.hpp>
@@ -150,6 +151,8 @@ void TMarioEffect::setJumpIntoWaterEffectSmall()
 
 void TMarioEffect::perform(u32 flags, JDrama::TGraphics* gfx)
 {
+	PAD_STACK(0x40);
+
 	if (flags & 1) {
 		switch (unk7C) {
 		case 0:

@@ -1,5 +1,6 @@
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 #undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
@@ -1645,6 +1646,8 @@ void TMario::initMirrorModel()
 
 void TMario::finalDrawInitialize()
 {
+	PAD_STACK(0x28);
+
 	// volatile u32 padding[10];
 	TMario* mario = this;
 	mario->changeHand(0);
@@ -1995,6 +1998,8 @@ void TMario::calcBaseMtx(MtxPtr mtx)
 
 void TMario::addCallBack(JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x70);
+
 	// volatile u32 padding[27];
 	gpMarioForCallBack      = this;
 	J3DModelData* modelData = mModel->unk8->getModelData();
@@ -2224,6 +2229,8 @@ void TMario::calcAnim(u32 param_1, JDrama::TGraphics* graphics)
 
 void TMario::calcView(JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x10);
+
 	// volatile u32 padding[4];
 	MTXCopy(graphics->mViewMtx, j3dSys.mViewMtx);
 	mModel->unk8->viewCalc();

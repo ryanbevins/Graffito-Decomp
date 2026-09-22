@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjTree.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <Map/MapCollisionManager.hpp>
@@ -199,6 +200,8 @@ int TMapObjTree::controlLeaf(int i)
 
 void TMapObjTree::touchPlayer(THitActor* sender)
 {
+	PAD_STACK(0x20);
+
 	mIsResting = false;
 	const TBGCheckData* gp = *gpMarioGroundPlane;
 	s16 leafIdx            = gp->mData;

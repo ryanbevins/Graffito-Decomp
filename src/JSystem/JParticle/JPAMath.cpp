@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JParticle/JPAMath.hpp>
 #include <JSystem/JMath.hpp>
 #include <math.h>
@@ -156,6 +157,8 @@ f32 JPAConvertFixToFloat(s16 param_1)
 void JPAConvertFixVecToFloatVec(JGeometry::TVec3<f32>& param_1,
                                 const JGeometry::TVec3<s16>& param_2)
 {
+	PAD_STACK(0x10);
+
 	param_1.x = JPAConvertFixToFloat(param_2.x);
 	param_1.y = JPAConvertFixToFloat(param_2.y);
 	param_1.z = JPAConvertFixToFloat(param_2.z);

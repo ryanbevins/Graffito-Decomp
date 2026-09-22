@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/NpcSave.hpp>
 #include <Enemy/EnemyManager.hpp>
@@ -102,6 +103,8 @@ void TConductor::init()
 			(*it)->createEnemies((*it)->getCapacity());
 
 	unkF8 = (TAreaCylinderManager*)search("ナメクリ出現エリアマネージャー");
+
+	PAD_STACK_TEMP(0x8);
 }
 
 static void dummy(JDrama::TNameRef* v) { v->search("ナメクリマネージャー"); }

@@ -1,4 +1,5 @@
 #define JG_TUTIL_SQRT_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MoveBG/MapObjMonte.hpp>
 #include <MoveBG/MapObjManager.hpp>
 #include <Map/Map.hpp>
@@ -452,6 +453,8 @@ void TGoalFlag::initMapObj() { TMapObjBase::initMapObj(); }
 
 void TGoalFlag::touchActor(THitActor* actor)
 {
+	PAD_STACK(0x8);
+
 	if (actor->isActorType(0x80000001)) {
 		if (!TFlagManager::smInstance->getBool(0x50005))
 			TFlagManager::smInstance->setBool(true, 0x50005);
@@ -837,6 +840,8 @@ void THangingBridge::perform(unsigned long flags, JDrama::TGraphics*)
 	}
 	drawRopeBetweenBoards(0.0f, mPointNumBetweenBoards);
 	drawRopeBetweenBoards(mRopeHeight, 1);
+
+	PAD_STACK(0x10);
 }
 
 #pragma dont_inline on
@@ -1207,6 +1212,8 @@ void TJumpMushroom::load(JSUMemoryInputStream& stream)
 	stream.read(&bgType, 4);
 	if (mMapCollisionManager != 0)
 		mMapCollisionManager->unk8->setAllData((s16)bgType);
+
+	PAD_STACK(0x8);
 }
 
 BOOL TJumpMushroom::receiveMessage(THitActor*, unsigned long)

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Camera/CameraShake.hpp>
 #include <Camera/Camera.hpp>
 #include <Camera/CubeManagerBase.hpp>
@@ -1048,6 +1049,8 @@ TBossEelHeartCoin::TBossEelHeartCoin(TBossEel* boss, int index,
 
 void TBossEelHeartCoin::generate(JGeometry::TVec3<f32>& position)
 {
+	PAD_STACK(0x10);
+
 	unk70.set(position.x, position.y, position.z);
 	unk1C = TRUE;
 
@@ -1253,6 +1256,8 @@ void TBossEelManager::createModelData()
 
 void TBossEelCollision::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x18);
+
 	if (flags & 1) {
 		calcEntryRadius();
 
@@ -1315,6 +1320,8 @@ void TBossEelCollision::initCollision()
 void TBossEelTearsRecoverCollision::perform(u32 flags,
                                             JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x18);
+
 	if (flags & 1) {
 		calcEntryRadius();
 

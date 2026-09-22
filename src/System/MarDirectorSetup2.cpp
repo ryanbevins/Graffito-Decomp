@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <System/MarDirector.hpp>
 #include <System/Application.hpp>
 #include <System/MarioGamePad.hpp>
@@ -131,6 +132,8 @@ void TMarDirector::setup2()
 
 TMarDirector::~TMarDirector()
 {
+	PAD_STACK(0x18);
+
 	gpMSound->exitStage();
 	if (gpApplication.mCurrArea.unk0 == 15) {
 		if (JKRMemArchive* arch

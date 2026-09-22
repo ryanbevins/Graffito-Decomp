@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/BossTelesa.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/HamuKuri.hpp>
@@ -746,6 +747,8 @@ void TBossTelesa::forceHide()
 #pragma dont_inline on
 void TBossTelesa::forceAllItemKill()
 {
+	PAD_STACK(0x10);
+
 	f32 zero = 0.0f;
 
 	for (int i = 0; i < unk274; ++i) {
@@ -1481,6 +1484,8 @@ int TTelesaSlot::getForcastResult(int idx)
 #pragma dont_inline on
 int TTelesaSlot::getSlotResult()
 {
+	PAD_STACK(0x8);
+
 	int result = getResultFromAng(unk13C[0]);
 	for (int i = 1; i < 3; ++i) {
 		if (getResultFromAng(unk13C[i]) != result)

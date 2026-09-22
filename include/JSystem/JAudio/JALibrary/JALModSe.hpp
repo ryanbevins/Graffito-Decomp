@@ -1,6 +1,7 @@
 #ifndef JALMODSE_HPP
 #define JALMODSE_HPP
 
+#include <StackPadding.h>
 #include <dolphin/types.h>
 #include <JSystem/JAudio/JALibrary/JALCalc.hpp>
 #include <JSystem/JAudio/JADebug/JADPrm.hpp>
@@ -198,6 +199,8 @@ JALLinkD<T, U>::JALLinkD(T* param_1, U param_2, JALListD<T, U>* param_3)
     , unk4(param_1)
     , unk14(param_3)
 {
+	PAD_STACK_ARRAY(0x8);
+
 	if (param_3)
 		param_3->append(this);
 }

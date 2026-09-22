@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 #include <Player/MarioEffect.hpp>
 #include <Player/Watergun.hpp>
@@ -514,6 +515,8 @@ void TMario::inOutWaterEffect(f32)
 
 void TMario::rippleEffect()
 {
+	PAD_STACK(0x8);
+
 	if (checkFlag(MARIO_FLAG_IN_SHALLOW_WATER)) {
 		SMS_EmitRipplePool(mJointMtx2, this);
 	} else {
@@ -607,6 +610,8 @@ void TMario::surfingEffect()
 
 void TMario::frontSlipEffect()
 {
+	PAD_STACK(0x8);
+
 	u16 bgType = mGroundPlane->mBGType;
 	bool waterSlip;
 	if (bgType == BG_TYPE_WET_GROUND || bgType == BG_TYPE_SHADED_WET_GROUND
@@ -690,6 +695,8 @@ void TMario::emitSweat(short rotY)
 	pos.y = mtx[1][3];
 	pos.z = mtx[2][3];
 	gpMarioParticleManager->emitWithRotate(0xD, &pos, 0, rotY, 0, 0, nullptr);
+
+	PAD_STACK(0x8);
 }
 #pragma dont_inline off
 
@@ -728,6 +735,8 @@ bool TMario::emitParticle(int id)
 
 void TMario::moveParticle()
 {
+	PAD_STACK(0x8);
+
 	if (mWaterWakeAlpha > 0) {
 		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
 		    0x109, mJointMtx2, 1, this);

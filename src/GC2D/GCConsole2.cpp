@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <GC2D/GCConsole2.hpp>
 #include <GC2D/BoundPane.hpp>
 #include <GC2D/BlendPane.hpp>
@@ -3541,6 +3542,8 @@ bool TGCConsole2::processDrawTelop(u32)
 
 void TGCConsole2::checkChangeTelopArray()
 {
+	PAD_STACK(0x30);
+
 	const u32* oldArray = unk570;
 
 	if (gpMarDirector->mMap == 1) {

@@ -1,5 +1,6 @@
 #define MSL_STDFMODF_OUT_OF_LINE
 
+#include <StackPadding.h>
 #include "MoveBG/MapObjCorona.hpp"
 #include "MoveBG/MapObjBase.hpp"
 
@@ -36,6 +37,8 @@ namespace std {
 #pragma dont_inline on
 float fmodf(float x, float y)
 {
+	PAD_STACK(0x8);
+
 	if (fabsf(y) > fabsf(x))
 		return x;
 	return x - y * (f32)(s64)(x / y);
@@ -240,6 +243,8 @@ TBathtubParams::TBathtubParams()
 
 Mtx* TBathtubGripParts::getRootJointMtx() const
 {
+	PAD_STACK(0x10);
+
 	return (Mtx*)unkF4->getModel()->getAnmMtx(unkF4->unk200[unkF8]);
 }
 

@@ -1,6 +1,7 @@
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #define TSPINEBASE_GETLATESTNERVE_OUT_OF_LINE
+#include <StackPadding.h>
 #include <NPC/NpcEvent.hpp>
 #include <stdio.h>
 #include <MSound/MSoundBGM.hpp>
@@ -371,6 +372,8 @@ void TNpcEvent::initDownSunflowerNum()
 
 static s32 ReviveSunflowerCallBack(u32 npc_u, u32 phase)
 {
+	PAD_STACK(0x10);
+
 	if (phase == 0) {
 		TBaseNPC* npc = (TBaseNPC*)npc_u;
 		npc->sunflowerReviveIn();

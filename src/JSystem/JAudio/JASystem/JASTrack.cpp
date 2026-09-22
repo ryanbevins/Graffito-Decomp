@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JASystem/JASTrack.hpp>
 #include <JSystem/JAudio/JASystem/JASPlayer_impl.hpp>
 #include <JSystem/JAudio/JASystem/JASCalc.hpp>
@@ -269,6 +270,8 @@ void TTrack::checkNoteStop(s32 param) { }
 
 void TTrack::oscSetupFull(u8 param_1, u32 param_2, u32 param_3)
 {
+	PAD_STACK(0x8);
+
 	u32 var1  = (param_1 & 0x10) >> 4;
 	int var2  = param_1 & 0x0f;
 	bool var3 = param_1 & 0x80 ? true : false;
@@ -594,6 +597,8 @@ void TTrack::updateTrack(u32 param)
 
 void TTrack::updateTempo()
 {
+	PAD_STACK(0x10);
+
 	if (unk2C0 == 0) {
 		unk3B0 = unk3BA;
 		unk3B0 *= unk3B8;
@@ -840,6 +845,8 @@ void TTrack::writeTimeParam(u8 param)
 
 void TTrack::writeRegParam(u8 param)
 {
+	PAD_STACK(0x10);
+
 	u32 bVar9 = param & 0xC;
 	u32 bVar8 = param & 0x3;
 
@@ -1260,6 +1267,8 @@ int TTrack::loadTbl(u32 param_1, u32 param_2, u32 param_3)
 
 u32 TTrack::readReg32(u8 reg)
 {
+	PAD_STACK_ARRAY(0x8);
+
 	u32 result;
 	switch (reg) {
 	case 0x28:
@@ -1284,6 +1293,8 @@ u32 TTrack::readReg32(u8 reg)
 
 u32 TTrack::exchangeRegisterValue(u8 reg)
 {
+	PAD_STACK_ARRAY(0x8);
+
 	if (reg < 0x40)
 		return readReg32(reg);
 	else {
@@ -1354,6 +1365,8 @@ u16 TTrack::readRegDirect(u8 reg)
 
 void TTrack::writeRegDirect(u8 reg, u16 value)
 {
+	PAD_STACK(0x8);
+
 	u16 top;
 	u16 uVar1;
 	u8 r30 = reg;

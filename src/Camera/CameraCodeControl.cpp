@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMapTool.hpp>
 #include <Camera/CameraMarioData.hpp>
@@ -43,4 +44,6 @@ bool CPolarSubCamera::controlByCameraCode_(int* outCode)
 	}
 
 	return result;
+
+	PAD_STACK(0x28);
 }

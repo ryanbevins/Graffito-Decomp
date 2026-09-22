@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JParticle/JPAField.hpp>
 #include <JSystem/JParticle/JPAParticle.hpp>
 #include <JSystem/JParticle/JPADataBlock.hpp>
@@ -213,6 +214,8 @@ void JPAMagnetField::set()
 }
 void JPAMagnetField::affect(JPAParticle* particle)
 {
+	PAD_STACK(0x8);
+
 	if (!checkStatus(STATUS_USE_GLOBAL_COORDS))
 		unk7C.sub(unk58, particle->mLocalPosition);
 	else
@@ -402,6 +405,8 @@ void JPADragField::affect(JPAParticle* particle)
 	} else {
 		particle->mCurrentDragForce *= particle->getDragForce();
 	}
+
+	PAD_STACK_TEMP(0x8);
 }
 
 JPAFieldManager::JPAFieldManager() { }
@@ -415,6 +420,8 @@ void JPAFieldManager::deleteField(JPABaseField* field)
 
 void JPAFieldManager::deleteAllField()
 {
+	PAD_STACK(0x8);
+
 	if (unk0.getNumLinks() == 0)
 		return;
 
@@ -494,6 +501,8 @@ JPABaseField* JPAFieldManager::setField(u8 param_1)
 
 JPAGravityField* JPAFieldManager::setGravityField()
 {
+	PAD_STACK(0x10);
+
 	JPAGravityField* result = nullptr;
 
 	if (unkC->getNumLinks()) {
@@ -508,6 +517,8 @@ JPAGravityField* JPAFieldManager::setGravityField()
 
 JPAAirField* JPAFieldManager::setAirField()
 {
+	PAD_STACK(0x10);
+
 	JPAAirField* result = nullptr;
 
 	if (unkC->getNumLinks()) {
@@ -522,6 +533,8 @@ JPAAirField* JPAFieldManager::setAirField()
 
 JPAMagnetField* JPAFieldManager::setMagnetField()
 {
+	PAD_STACK(0x10);
+
 	JPAMagnetField* result = nullptr;
 
 	if (unkC->getNumLinks()) {
@@ -536,6 +549,8 @@ JPAMagnetField* JPAFieldManager::setMagnetField()
 
 JPANewtonField* JPAFieldManager::setNewtonField()
 {
+	PAD_STACK(0x10);
+
 	JPANewtonField* result = nullptr;
 
 	if (unkC->getNumLinks()) {
@@ -550,6 +565,8 @@ JPANewtonField* JPAFieldManager::setNewtonField()
 
 JPAVortexField* JPAFieldManager::setVortexField()
 {
+	PAD_STACK(0x10);
+
 	JPAVortexField* result = nullptr;
 
 	if (unkC->getNumLinks()) {
@@ -564,6 +581,8 @@ JPAVortexField* JPAFieldManager::setVortexField()
 
 JPAConvectionField* JPAFieldManager::setConvectionField()
 {
+	PAD_STACK(0x10);
+
 	JPAConvectionField* result = nullptr;
 
 	if (unkC->getNumLinks()) {
@@ -578,6 +597,8 @@ JPAConvectionField* JPAFieldManager::setConvectionField()
 
 JPARandomField* JPAFieldManager::setRandomField()
 {
+	PAD_STACK(0x10);
+
 	JPARandomField* result = nullptr;
 
 	if (unkC->getNumLinks()) {
@@ -592,6 +613,8 @@ JPARandomField* JPAFieldManager::setRandomField()
 
 JPADragField* JPAFieldManager::setDragField()
 {
+	PAD_STACK(0x10);
+
 	JPADragField* result = nullptr;
 
 	if (unkC->getNumLinks()) {

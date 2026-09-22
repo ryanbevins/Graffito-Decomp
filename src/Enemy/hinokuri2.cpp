@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/Hinokuri2.hpp>
 #include <Enemy/Walker.hpp>
 #include <Enemy/Graph.hpp>
@@ -560,6 +561,8 @@ void THinokuri2::init(TLiveManager* param_1)
 
 void THinokuri2::reset()
 {
+	PAD_STACK(0x28);
+
 	TSpineEnemy::reset();
 	onLiveFlag(LIVE_FLAG_UNK8);
 	resetPolInterval();
@@ -689,6 +692,8 @@ void THinokuri2::generateEnemy()
 
 BOOL THinokuri2::updateAnmSound()
 {
+	PAD_STACK(0x8);
+
 	TSpineEnemy::updateAnmSound();
 	if (unk158 > 0)
 		if (gpMSound->gateCheck(0x2007))
@@ -764,6 +769,8 @@ BOOL THinokuri2::receiveMessageLv0(THitActor* param_1, u32 param_2)
 
 BOOL THinokuri2::receiveMessageLv1(THitActor* param_1, u32 param_2)
 {
+	PAD_STACK(0x10);
+
 	if (mJointIdxMessageCameFrom == 0x13 && param_1->getActorType() == 0x1000001
 	    && param_2 == HIT_MESSAGE_SPRAYED_BY_WATER)
 		return true;
@@ -980,6 +987,8 @@ void THinokuri2::moveObject()
 
 void THinokuri2::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
+	PAD_STACK_TEMP(0x8);
+
 	gpCurHinokuri = this;
 
 	mHead->perform(param_1, param_2);
@@ -1308,6 +1317,8 @@ DEFINE_NERVE(TNerveHino2Pollute, TLiveActor)
 
 DEFINE_NERVE(TNerveHino2Damage, TLiveActor)
 {
+	PAD_STACK(0x48);
+
 	THinokuri2* self = (THinokuri2*)spine->getBody();
 
 	if (spine->getTime() == 0) {
@@ -1362,6 +1373,8 @@ DEFINE_NERVE(TNerveHino2Damage, TLiveActor)
 
 DEFINE_NERVE(TNerveHino2Squat, TLiveActor)
 {
+	PAD_STACK(0x20);
+
 	THinokuri2* self = (THinokuri2*)spine->getBody();
 
 	self->unk188 = 0;
@@ -1434,6 +1447,8 @@ DEFINE_NERVE(TNerveHino2Die, TLiveActor)
 
 DEFINE_NERVE(TNerveHino2Stamp, TLiveActor)
 {
+	PAD_STACK(0x40);
+
 	THinokuri2* self = (THinokuri2*)spine->getBody();
 	if (spine->getTime() == 0) {
 		self->changeBck(0xB);

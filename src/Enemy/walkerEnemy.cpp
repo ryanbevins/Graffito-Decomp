@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/WalkerEnemy.hpp>
 #include <Enemy/Walker.hpp>
 #include <Enemy/Graph.hpp>
@@ -230,6 +231,8 @@ DEFINE_NERVE(TNerveWalkerGraphWander, TLiveActor)
 
 DEFINE_NERVE(TNerveWalkerAttack, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	TWalkerEnemy* self = (TWalkerEnemy*)spine->getBody();
 
 	if (spine->getTime() == 0)

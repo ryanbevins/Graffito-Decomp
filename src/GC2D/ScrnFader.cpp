@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <GC2D/ScrnFader.hpp>
 #include <GC2D/hx_wiper.h>
 #include <JSystem/JKernel/JKRFileLoader.hpp>
@@ -147,6 +148,8 @@ void TSMSFader::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 void TSMSFader::update()
 {
+	PAD_STACK(0x10);
+
 	updateRequest();
 
 	if (mFadeStatus == TSMSFader::FADE_STATUS_FULLY_FADED_OUT)

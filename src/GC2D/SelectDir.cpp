@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <System/SelectDir.hpp>
 #include <GC2D/SelectMenu.hpp>
 #include <GC2D/SelectShine2.hpp>
@@ -50,6 +51,8 @@ TSelectDir::TSelectDir()
 
 TSelectDir::~TSelectDir()
 {
+	PAD_STACK(0x10);
+
 	JKRMemArchive* arc = (JKRMemArchive*)JKRFileLoader::getVolume("select");
 	if (arc)
 		arc->unmountFixed();

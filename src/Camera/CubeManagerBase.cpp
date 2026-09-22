@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Camera/CubeManagerBase.hpp>
 #include <Camera/cameralib.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
@@ -42,6 +43,8 @@ TCubeManagerBase::TCubeManagerBase(const char* name, u8 param_2)
 
 void TCubeManagerBase::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x8);
+
 	JDrama::TNameRef::load(stream);
 	JDrama::TNameRef* root
 	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
@@ -79,6 +82,8 @@ int TCubeManagerBase::getInCubeNo(const Vec& v) const
 
 bool TCubeManagerBase::isInCube(const Vec& v, s32 i) const
 {
+	PAD_STACK(0x8);
+
 	bool result = false;
 	if (i >= 0 && i < unk10) {
 		TCubeGeneralInfo& info = (*unk14)[i];
@@ -100,6 +105,8 @@ void TCubeManagerBase::calcPointInCubeRatio(const Vec& param_1, s32 param_2,
 
 bool TCubeManagerArea::isInAreaCube(const Vec& pos) const
 {
+	PAD_STACK(0x20);
+
 	bool result = false;
 	s32 cubeNo  = getInCubeNo(pos);
 
@@ -125,6 +132,8 @@ bool TCubeManagerArea::isInAreaCube(const Vec& pos) const
 
 bool SMS_IsInOtherFastCube(const Vec& pos)
 {
+	PAD_STACK(0x8);
+
 	bool result = false;
 	if (!gpMarDirector->checkUnk124Thing2()) {
 		if (gpCubeFastA->isInOtherCube(pos) || gpCubeFastB->isInOtherCube(pos)

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
@@ -52,6 +53,8 @@ J3DModelData::~J3DModelData() { }
 void J3DModelData::makeHierarchy(J3DNode* root_node,
                                  const J3DModelHierarchy** hierarchy)
 {
+	PAD_STACK(0x8);
+
 	enum {
 		kTypeEnd        = 0x00,
 		kTypeBeginChild = 0x01,
@@ -222,6 +225,8 @@ int J3DModelData::entryTexMtxAnimator(J3DAnmTextureSRTKey* anm)
 
 int J3DModelData::entryTevRegAnimator(J3DAnmTevRegKey* anm)
 {
+	PAD_STACK(0x18);
+
 	int ret             = 0;
 	u16 cRegMaterialNum = anm->getCRegUpdateMaterialNum();
 	u16 kRegMaterialNum = anm->getKRegUpdateMaterialNum();
@@ -374,6 +379,8 @@ int J3DModelData::setMatColorAnimator(J3DAnmColor* anm, J3DMatColorAnm* anm_r)
 
 int J3DModelData::setTexNoAnimator(J3DAnmTexPattern* anm, J3DTexNoAnm* anm_r)
 {
+	PAD_STACK(0x8);
+
 	int ret         = 0;
 	u16 materialNum = anm->getUpdateMaterialNum();
 
@@ -774,6 +781,8 @@ void J3DModel::calcWeightEnvelopeMtx()
 
 void J3DModel::update()
 {
+	PAD_STACK(0x20);
+
 	j3dSys.setModel(this);
 
 	if (checkFlag(4)) {
@@ -819,6 +828,8 @@ void J3DModel::update()
 
 void J3DModel::calc()
 {
+	PAD_STACK(0x20);
+
 	j3dSys.setModel(this);
 
 	if (checkFlag(4)) {
@@ -885,6 +896,8 @@ void J3DModel::entry()
 
 void J3DModel::viewCalc()
 {
+	PAD_STACK(0x10);
+
 	swapDrawMtx();
 	swapNrmMtx();
 

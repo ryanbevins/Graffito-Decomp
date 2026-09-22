@@ -1,4 +1,5 @@
 #define MSCLAMP_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraInbetween.hpp>
 #include <Camera/CameraKindParam.hpp>
@@ -389,6 +390,8 @@ bool CPolarSubCamera::isChangeToCancanCamera_() const
 
 bool CPolarSubCamera::isChangeToBossGesoCamera_() const
 {
+	PAD_STACK(0x10);
+
 	bool result = false;
 	TTakeActor* held = gpMarioOriginal->mHeldObject;
 	if (held != nullptr) {
@@ -407,6 +410,8 @@ bool CPolarSubCamera::isChangeToBossGesoCamera_() const
 
 void CPolarSubCamera::doLButtonCameraOff_(bool flag)
 {
+	PAD_STACK(0x8);
+
 	bool ready = false;
 	if (isLButtonCameraSpecifyMode(mMode)) {
 		if (!isNowInbetween()) {
@@ -435,6 +440,8 @@ void CPolarSubCamera::doLButtonCameraOff_(bool flag)
 
 void CPolarSubCamera::execFrontRotate_()
 {
+	PAD_STACK(0x28);
+
 	if (isLButtonCameraSpecifyMode(mMode))
 		return;
 	if (SMS_GetMarioStatus() == 0x8008A9)
@@ -472,6 +479,8 @@ void CPolarSubCamera::changeCamModeSpecifyCamMapToolAndFrame_(
 
 void CPolarSubCamera::changeCamModeSpecifyCamMapTool_(const TCameraMapTool* tool)
 {
+	PAD_STACK(0x8);
+
 	int newMode = tool->mCameraMode;
 	if (mMode == newMode && unk70 == tool) {
 		return;

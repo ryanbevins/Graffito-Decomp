@@ -1,4 +1,5 @@
 #define LIVEACTOR_GETMACTOR_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MoveBG/MapObjRicco.hpp>
 #include <MoveBG/MapObjBall.hpp>
 #include <MoveBG/MapObjManager.hpp>
@@ -54,6 +55,8 @@ void TCraneRotY::calc()
 
 void TCraneRotY::control()
 {
+	PAD_STACK(0x18);
+
 	TMapObjBase::control();
 	switch (mState) {
 	case 0:
@@ -223,6 +226,8 @@ void TCraneCargo::calc()
 
 u32 TRiccoWatermill::touchWater(THitActor* sender)
 {
+	PAD_STACK(0x8);
+
 	if ((mState == 5) ? true : false) {
 		return 1;
 	}
@@ -350,6 +355,8 @@ void TRiccoWatermill::calc()
 
 void TRiccoWatermill::loadAfter()
 {
+	PAD_STACK(0x30);
+
 	TMapObjBase::loadAfter();
 	JDrama::TNameRef* root = JDrama::TNameRefGen::instance->mRootNameRef;
 	unk13C = (TMapObjBase*)root->searchF(
@@ -367,6 +374,8 @@ void TRiccoWatermill::loadAfter()
 TRiccoWatermill::TRiccoWatermill(const char* name)
     : TMapObjBase(name)
 {
+	PAD_STACK(0x10);
+
 	unk138 = 0.0f;
 	unk13C = 0;
 	unk140 = 0;
@@ -379,6 +388,8 @@ TRiccoWatermill::TRiccoWatermill(const char* name)
 
 void TSurfGesoObj::initMapObj()
 {
+	PAD_STACK(0x8);
+
 	TMapObjBase::initMapObj();
 	if (strcmp(unkF4, "SurfGesoRed") == 0) {
 		unk154.r = 0xFF;

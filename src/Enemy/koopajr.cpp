@@ -1,6 +1,7 @@
 #define MSL_STDFMODF_OUT_OF_LINE
 #define JGEOMETRY_ROTATION3_IDENTITY33_OUT_OF_LINE
 
+#include <StackPadding.h>
 #include <Enemy/Koopa.hpp>
 #include <Enemy/BathtubBinder.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
@@ -71,6 +72,8 @@ DEFINE_NERVE(TNerveKoopaJrWait, TLiveActor)
 
 DEFINE_NERVE(TNerveKoopaJrSubmarineLaunchKiller, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TKoopaJrSubmarine* actor = (TKoopaJrSubmarine*)spine->getBody();
 	if (actor->unk180 == actor->unk184 && actor->unk150 <= 0) {
 		J3DFrameCtrl* ctrl = actor->mMActor->getFrameCtrl(0);
@@ -213,6 +216,8 @@ f32 TDirectionCalc::absDirection(f32 direction)
 
 JGeometry::TVec3<f32> TDirectionCalc::calcDirectionVector()
 {
+	PAD_STACK(0x10);
+
 	f32 z = cosf(mDirection);
 	f32 angle = mDirection;
 	f32 x = sinf(angle);
@@ -221,6 +226,8 @@ JGeometry::TVec3<f32> TDirectionCalc::calcDirectionVector()
 
 void TDirectionCalc::makeDirection(JGeometry::TVec3<f32> direction)
 {
+	PAD_STACK(0x4);
+
 	f32 z = direction.z;
 	f32 x = direction.x;
 	mDirection = atan2f(x, z);
@@ -436,6 +443,8 @@ TSpineEnemy* TKoopaJrSubmarineManager::createEnemyInstance()
 
 void TKoopaJrSubmarineManager::loadAfter()
 {
+	PAD_STACK(0x20);
+
 	JDrama::TNameRef::loadAfter();
 	if (!unk38)
 		return;
@@ -553,6 +562,8 @@ const char** TKoopaJr::getBasNameTable() const { return koopajr_bastable; }
 
 void TKoopaJr::reset()
 {
+	PAD_STACK(0x8);
+
 	TSpineEnemy::reset();
 	mSpine->reset();
 	unk150 = 0;
@@ -809,6 +820,8 @@ void TKoopaJrSubmarine::checkNerve()
 namespace JGeometry {
 f32 TUtil<f32>::mod(f32 value, f32 modulus)
 {
+	PAD_STACK(0x8);
+
 	if (__fabsf(modulus) > __fabsf(value))
 		return value;
 

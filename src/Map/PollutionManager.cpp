@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/PollutionManager.hpp>
 #include <Map/PollutionLayer.hpp>
 #include <Map/MapEventSink.hpp>
@@ -30,6 +31,8 @@ void TPollutionManager::stamp(u16 param_1, f32 x, f32 y, f32 z, f32 range)
 void TPollutionManager::clean(f32 param_1, f32 param_2, f32 param_3,
                               f32 param_4)
 {
+	PAD_STACK(0x10);
+
 	if (gpMarDirector->mMap == 1 && param_2 < -10.0f)
 		return;
 

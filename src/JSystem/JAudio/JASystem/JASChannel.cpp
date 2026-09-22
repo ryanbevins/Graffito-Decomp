@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JASystem/JASChannel.hpp>
 #include <JSystem/JAudio/JASystem/JASDSPInterface.hpp>
 #include <JSystem/JAudio/JASystem/JASDSPChannel.hpp>
@@ -143,6 +144,8 @@ namespace Driver {
 
 	static void __UpdateJcToDSP(TChannel* channel)
 	{
+		PAD_STACK(0x10);
+
 		DSPInterface::DSPBuffer* buf = channel->unk20->unkC;
 		if (channel->unkD0) {
 			for (u8 i = 0; i < 6; ++i)
@@ -216,6 +219,8 @@ namespace Driver {
 
 	static BOOL updatecallLogicalChannel(TChannel* channel, u32 param)
 	{
+		PAD_STACK(0x8);
+
 		TChannelMgr* mgr = channel->unk4;
 
 		if (param == 0) {
@@ -374,6 +379,8 @@ namespace Driver {
 
 	int updatecallDSPChannel(TDSPChannel* dspChannel, u32 param)
 	{
+		PAD_STACK(0x18);
+
 		TChannel* channel = dspChannel->getLogicalChannel();
 		TChannelMgr* mgr  = channel->unk4;
 
@@ -761,6 +768,8 @@ BOOL TChannel::forceStopLogicalChannel()
 
 BOOL TChannel::stopLogicalChannel()
 {
+	PAD_STACK(0x8);
+
 	if (!unk20)
 		return FALSE;
 

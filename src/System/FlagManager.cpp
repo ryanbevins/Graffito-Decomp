@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <System/FlagManager.hpp>
 #include <System/StageUtil.hpp>
 #include <dolphin/os.h>
@@ -6,6 +7,8 @@ TFlagManager* TFlagManager::smInstance = 0;
 
 TFlagManager* TFlagManager::start(JKRHeap* heap)
 {
+	PAD_STACK(0x8);
+
 	if (smInstance == nullptr)
 		smInstance = new (heap, 0) TFlagManager;
 
@@ -479,6 +482,8 @@ void TFlagManager::correctFlag()
 
 void TFlagManager::save(JSUMemoryOutputStream& out)
 {
+	PAD_STACK(0x8);
+
 	mLastSaveTimeBackup = mLastSaveTime;
 	mLastSaveTime       = OSGetTime();
 

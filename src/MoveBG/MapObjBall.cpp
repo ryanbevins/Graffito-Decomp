@@ -1,4 +1,5 @@
 #define JG_TUTIL_SQRT_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MoveBG/MapObjBall.hpp>
 #include <MoveBG/MapObjBase.hpp>
 #include <Strategic/HitActor.hpp>
@@ -140,6 +141,8 @@ void TCoverFruit::loadAfter()
 
 BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x30);
+
 	if (message == 0xB) {
 		if (isState(1) || isState(6) || isState(0xB)) {
 			mState = 0xB;
@@ -197,6 +200,8 @@ BOOL TResetFruit::receiveMessage(THitActor* sender, u32 message)
 
 void TResetFruit::touchActor(THitActor* actor)
 {
+	PAD_STACK(0x10);
+
 	if (isState(2))
 		return;
 	if (isState(3))
@@ -286,6 +291,8 @@ void TResetFruit::appearing()
 		makeObjAppeared();
 		mState = 1;
 	}
+
+	PAD_STACK(0x10);
 }
 
 void TResetFruit::kicked()
@@ -392,6 +399,8 @@ void TResetFruit::checkGroundCollision(JGeometry::TVec3<f32>* pos)
 
 void TResetFruit::touchGround(JGeometry::TVec3<f32>* pos)
 {
+	PAD_STACK(0x10);
+
 	if (mGroundPlane->isDeathPlane()) {
 		mState = 0xB;
 		makeObjDefault();
@@ -414,6 +423,8 @@ void TResetFruit::touchGround(JGeometry::TVec3<f32>* pos)
 
 void TResetFruit::makeObjWaitingToAppear()
 {
+	PAD_STACK(0x10);
+
 	mState = 0xB;
 	makeObjDefault();
 	makeObjDead();
@@ -452,6 +463,8 @@ u32 TResetFruit::touchWater(THitActor* actor)
 
 void TResetFruit::touchPollution()
 {
+	PAD_STACK(0x20);
+
 	gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &mPosition, 0, nullptr);
 	if (gpMSound->gateCheck(0x3881)) {
 		MSoundSESystem::MSoundSE::startSoundActor(0x3881, (Vec*)&mPosition, 0,
@@ -473,6 +486,8 @@ void TResetFruit::touchPollution()
 
 void TResetFruit::touchWaterSurface()
 {
+	PAD_STACK(0x18);
+
 	emitColumnWater();
 	if (gpMSound->gateCheck(0x3875)) {
 		MSoundSESystem::MSoundSE::startSoundActor(0x3875, (Vec*)&mPosition, 0,
@@ -724,6 +739,8 @@ void TResetFruit::initMapObj()
 
 void TMapObjBall::makeObjDefault()
 {
+	PAD_STACK(0x10);
+
 	TMapObjBase::makeObjDefault();
 	Mtx* m = getModel()->mNodeMatrices;
 	(*m)[0][3] = mPosition.x;
@@ -1747,6 +1764,8 @@ void TBigWatermelon::startEvent()
 
 void TBigWatermelon::touchWaterSurface()
 {
+	PAD_STACK(0x8);
+
 	emitColumnWater();
 	if (gpMSound->gateCheck(0x3875)) {
 		MSoundSESystem::MSoundSE::startSoundActor(0x3875, (Vec*)&mPosition, 0,

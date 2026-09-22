@@ -1,5 +1,6 @@
 #define JGEOMETRY_GEKKO_PS_COPY12_OUT_OF_LINE
 #define J3D_TEXMTXINFO_SETEFFECTMTX_DECL_ONLY
+#include <StackPadding.h>
 #include <MoveBG/MapObjBlock.hpp>
 #include <MoveBG/MapObjHide.hpp>
 #include <MoveBG/MapObjGeneral.hpp>
@@ -188,6 +189,8 @@ void JGeometry::gekko_ps_copy12(register void* dst, register void* src)
 
 void TLeanBlock::calcDefaultMtx()
 {
+	PAD_STACK(0x10);
+
 	Mtx* matrices = getModel()->mNodeMatrices;
 	JGeometry::gekko_ps_copy12(unk164, matrices);
 }
@@ -232,6 +235,8 @@ u32 TIceBlock::getSDLModelFlag() const { return 0; }
 
 u32 TIceBlock::touchWater(THitActor* sender)
 {
+	PAD_STACK(0x18);
+
 	((TMapObjBase*)sender)->getWaterSpeed(sender);
 	int waterId = getWaterID(sender);
 	if (gpModelWaterManager->checkFlagBottom4Bits(waterId, 1)) {
@@ -255,6 +260,8 @@ u32 TIceBlock::touchWater(THitActor* sender)
 
 void TIceBlock::control()
 {
+	PAD_STACK(0x10);
+
 	JPABaseEmitter* emt = gpMarioParticleManager->emit(
 	    0x157, &mPosition, 1, this);
 	if (emt) {
@@ -289,6 +296,8 @@ void TIceBlock::control()
 
 void TIceBlock::calc()
 {
+	PAD_STACK(0x10);
+
 	Mtx mtx;
 	SMS_GetLightPerspectiveForEffectMtx(mtx);
 	J3DModelData* data = getModel()->getModelData();
@@ -306,6 +315,8 @@ void TIceBlock::initMapObj()
 
 void TBrickBlock::kill()
 {
+	PAD_STACK(0x8);
+
 	makeObjDead();
 	emitAndScale(0x60, 0, &mPosition);
 	emitAndScale(0x61, 0, &mPosition);
@@ -382,6 +393,8 @@ void TTelesaBlock::perform(u32 param, JDrama::TGraphics* graphics)
 		mtx.setScale(unk140.y, unk140.y, unk140.z);
 		PSMTXConcat(getModel()->getAnmMtx(0), mtx, getModel()->getAnmMtx(0));
 	}
+
+	PAD_STACK(0x8);
 }
 
 void TTelesaBlock::setGroundCollision()
@@ -397,6 +410,8 @@ void TTelesaBlock::setGroundCollision()
 
 BOOL TSuperHipDropBlock::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x8);
+
 	if (message == HIT_MESSAGE_UNK3) {
 		kill();
 		if (mMonteBlockBroken)

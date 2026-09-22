@@ -1,6 +1,7 @@
 #define JGEOMETRY_TONGUE_TVEC3_MUL_RET_REF
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#include <StackPadding.h>
 #include "MoveBG/Item.hpp"
 #include <Enemy/HamuKuri.hpp>
 #include <Enemy/Graph.hpp>
@@ -298,6 +299,8 @@ void THamuKuriManager::setSearchHamuKuri()
 
 void THamuKuriManager::requestSerialKill(THamuKuri* param_1)
 {
+	PAD_STACK_ARRAY(0x8);
+
 	int trampled = 1;
 
 	THamuKuriSaveLoadParams* params = (THamuKuriSaveLoadParams*)unk38;
@@ -441,6 +444,8 @@ TSpineEnemy* TDangoHamuKuriManager::createEnemyInstance()
 void TDangoHamuKuriManager::createModelDataArray(
     const TModelDataLoadEntry* param_1)
 {
+	PAD_STACK(0x8);
+
 	THamuKuriManager* manager
 	    = (THamuKuriManager*)gpConductor->getManagerByName(
 	        "ハムクリマネージャー");
@@ -679,6 +684,8 @@ void THamuKuri::init(TLiveManager* param_1)
 
 void THamuKuri::setMActorAndKeeper()
 {
+	PAD_STACK(0x8);
+
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
 	mMActor       = mMActorKeeper->createMActor("default.bmd", 3);
 	int idx       = getModel()->getModelData()->getMaterialName()->getIndex(
@@ -837,6 +844,8 @@ void THamuKuri::jumpToSearchActor()
 
 void THamuKuri::behaveToFindMario()
 {
+	PAD_STACK(0x8);
+
 	TWalkerEnemy::behaveToFindMario();
 
 	if (gpMSound->gateCheck(0x2826))
@@ -858,6 +867,8 @@ void THamuKuri::attackToMario()
 
 void THamuKuri::moveObject()
 {
+	PAD_STACK(0x8);
+
 	if (unk198) {
 		offLiveFlag(LIVE_FLAG_CLIPPED_OUT);
 		if (!isAirborne()) {
@@ -904,6 +915,8 @@ void THamuKuri::moveObject()
 
 void THamuKuri::setBehavior()
 {
+	PAD_STACK(0x8);
+
 	if (isAirborne() && mPosition.y > mGroundHeight + 250.0f
 	    && mSpine->getCurrentNerve() != &TNerveWalkerGenerate::theNerve()) {
 		unk1F0 = 1;
@@ -919,6 +932,8 @@ void THamuKuri::setBehavior()
 #pragma dont_inline on
 void THamuKuri::selectCapHolder()
 {
+	PAD_STACK(0x8);
+
 	if (!gpMarioOriginal->isWearingCap()) {
 		sendAttackMsgToMario();
 	} else {
@@ -1014,6 +1029,8 @@ void THamuKuri::genRandomItem() { TSmallEnemy::genRandomItem(); }
 
 void THamuKuri::setAfterDeadEffect()
 {
+	PAD_STACK(0x8);
+
 	if (unk198) {
 		TMapObjBase* obj = gpItemManager->makeObjAppear(
 		    mPosition.x, mPosition.y, mPosition.z, 0x2000003c, true);
@@ -1063,6 +1080,8 @@ void THamuKuri::setWalkAnm() { setBckAnm(4); }
 
 void THamuKuri::setDeadAnm()
 {
+	PAD_STACK(0x18);
+
 	if (unk198 && mHeldObject != nullptr
 	    && mHeldObject->receiveMessage(this, HIT_MESSAGE_UNK6)) {
 		TMapObjBase* heldObj = (TMapObjBase*)mHeldObject;
@@ -1096,6 +1115,8 @@ void THamuKuri::setRollAnm() { setBckAnm(7); }
 
 void THamuKuri::setCrashAnm()
 {
+	PAD_STACK(0x8);
+
 	if (unk198 && mHeldObject != nullptr
 	    && mHeldObject->receiveMessage(this, HIT_MESSAGE_UNK6)) {
 		TMapObjBase* heldObj = (TMapObjBase*)mHeldObject;
@@ -1511,6 +1532,8 @@ BOOL THaneHamuKuri::isReachedToGoal() const
 
 void THaneHamuKuri::attackToMario()
 {
+	PAD_STACK(0x8);
+
 	MSound* sound = gpMSound;
 	if (sound->gateCheck(0x2965))
 		MSoundSESystem::MSoundSE::startSoundActor(0x2965, &mPosition, 0,
@@ -1538,6 +1561,8 @@ void THaneHamuKuri::setCrashAnm() { setBckAnm(0); }
 
 void THaneHamuKuri::setDeadAnm()
 {
+	PAD_STACK(0x18);
+
 	if (unk198 && mHeldObject != nullptr
 	    && mHeldObject->receiveMessage(this, HIT_MESSAGE_UNK6)) {
 		TMapObjBase* heldObj = (TMapObjBase*)mHeldObject;
@@ -1578,6 +1603,8 @@ TDoroHaneKuri::TDoroHaneKuri(const char* name)
 
 void TDoroHaneKuri::init(TLiveManager* param_1)
 {
+	PAD_STACK(0x8);
+
 	THaneHamuKuri::init(param_1);
 
 	mSpine->initWith(&TNerveWalkerGraphWander::theNerve());
@@ -1639,6 +1666,8 @@ void TDoroHaneKuri::behaveToWater(THitActor*)
 
 void TDoroHaneKuri::setBehavior()
 {
+	PAD_STACK(0x18);
+
 	if (mSpine->getCurrentNerve() == &TNerveSmallEnemyDie::theNerve()
 	    && mHeldObject && mHeldObject->receiveMessage(this, HIT_MESSAGE_UNK6)) {
 		TMapObjBase* held = (TMapObjBase*)mHeldObject;
@@ -1669,6 +1698,8 @@ bool TDoroHaneKuri::isCollidMove(THitActor* param_1)
 	}
 
 	return true;
+
+	PAD_STACK(0x8);
 }
 
 THaneHamuKuri2::THaneHamuKuri2(const char* name)
@@ -1701,6 +1732,8 @@ void THaneHamuKuri2::sendAttackMsgToMario()
 
 void THaneHamuKuri2::walkBehavior(int param_1, f32 param_2)
 {
+	PAD_STACK(0x8);
+
 	f32 flyBaseFrequency = unk22C->mSLFlyBaseFrequency.get();
 	f32 flyBaseAmplitude = unk22C->mSLFlyBaseAmplitude.get();
 
@@ -1834,6 +1867,8 @@ MtxPtr TDangoHamuKuri::getTakingMtx()
 	MtxPtr result = unk1B0;
 	MTXConcat(pos.mMtx, afSstack_84, result);
 	return result;
+
+	PAD_STACK(0x8);
 }
 
 void TDangoHamuKuri::setRunAnm()
@@ -1893,6 +1928,8 @@ void TDangoHamuKuri::reset()
 
 BOOL TDangoHamuKuri::receiveMessage(THitActor* param_1, u32 param_2)
 {
+	PAD_STACK(0x28);
+
 	if (param_2 == HIT_MESSAGE_TAKE && mHolder == nullptr && mBoss != this) {
 		onHitFlag(HIT_FLAG_NO_COLLISION);
 		mHolder = (TLiveActor*)param_1;
@@ -2202,6 +2239,8 @@ void TFireHamuKuri::behaveToWater(THitActor* param_1)
 
 void TFireHamuKuri::reset()
 {
+	PAD_STACK(0x8);
+
 	THamuKuri::reset();
 	mHitPoints = getSaveParam() ? getSaveParam()->mSLHitPointMax.get() : 1;
 	unk150 &= ~0x2;
@@ -2212,6 +2251,8 @@ void TFireHamuKuri::reset()
 
 void TFireHamuKuri::setMActorAndKeeper()
 {
+	PAD_STACK(0x8);
+
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
 	mMActor       = mMActorKeeper->createMActor("default.bmd", 3);
 	ResTIMG* img
@@ -2229,6 +2270,8 @@ void TFireHamuKuri::moveObject()
 
 void TFireHamuKuri::calcRootMatrix()
 {
+	PAD_STACK(0x10);
+
 	TSpineEnemy::calcRootMatrix();
 	if (unk210 && !checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)) {
 		if (JPABaseEmitter* emitter
@@ -2319,6 +2362,8 @@ void TFireHamuKuri::sendAttackMsgToMario()
 #pragma dont_inline on
 void TFireHamuKuri::changeTevColor()
 {
+	PAD_STACK(0x8);
+
 	if (recoverFire()) {
 		unk21C.r = (mFireHamNoseColorDiff.r * unk218) / 30
 		           + mFireHamNoseColorStart.r;
@@ -2344,6 +2389,8 @@ TDoroHamuKuri::TDoroHamuKuri(const char* name)
 
 void TDoroHamuKuri::init(TLiveManager* param_1)
 {
+	PAD_STACK(0x8);
+
 	THamuKuri::init(param_1);
 	mActorType = 0x10000013;
 	mSpine->initWith(&TNerveWalkerGenerate::theNerve());
@@ -2539,6 +2586,8 @@ DEFINE_NERVE(TNerveHamuKuriBoundFreeze, TLiveActor)
 
 DEFINE_NERVE(TNerveHamuKuriWallDie, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	THamuKuri* self = (THamuKuri*)spine->getBody();
 
 	if (spine->getTime() == 0) {
@@ -2760,6 +2809,8 @@ DEFINE_NERVE(TNerveFireHamuKuriRecover, TLiveActor)
 
 DEFINE_NERVE(TNerveDoroHaneRise, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TDoroHaneKuri* self = (TDoroHaneKuri*)spine->getBody();
 
 	if (self->mPosition.y < self->mGroundHeight + 800.0f)

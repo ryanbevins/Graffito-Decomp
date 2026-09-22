@@ -1,9 +1,12 @@
+#include <StackPadding.h>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
 
 static bool checkLinesCollision(f32 ax, f32 ay, f32 bx, f32 by, f32 cx, f32 cy,
                                 f32 dx, f32 dy)
 {
+	PAD_STACK(0x8);
+
 	f32 dabx    = bx - ax;
 	f32 daby    = by - ay;
 	f32 cross_c = daby * (cx - bx) - dabx * (cy - by);

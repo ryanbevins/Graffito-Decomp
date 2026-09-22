@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MarioUtil/ShadowUtil.hpp>
 #include <MarioUtil/GDUtil.hpp>
 #include <Camera/Camera.hpp>
@@ -97,6 +98,8 @@ TMBindShadowParts::TMBindShadowParts(J3DModel* model, u8 joint_no,
     , unk15(0)
     , unk16(0)
 {
+	PAD_STACK(0x8);
+
 	unk8 = model->getModelData()->getJointName()->getName(joint_no);
 	unkC = model->getAnmMtx(joint_no);
 

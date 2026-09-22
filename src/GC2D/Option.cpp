@@ -1,4 +1,5 @@
 #define JUTRECT_CTOR_OUT_OF_LINE
+#include <StackPadding.h>
 #include <GC2D/Option.hpp>
 #undef JUTRECT_CTOR_OUT_OF_LINE
 #include <macros.h>
@@ -803,6 +804,8 @@ void TOptionControl::load()
 #pragma dont_inline on
 void TOptionControl::loadSetting()
 {
+	PAD_STACK(0x8);
+
 	switch (TFlagManager::getInstance()->getFlag(0xA0000)) {
 	case 0:
 		mSoundOption->setValue(0);
@@ -835,6 +838,8 @@ void TOptionControl::draw(J2DOrthoGraph* graph) { mScreen->draw(0, 0, graph); }
 // mario walks from the card select screen to the options screen
 bool TOptionControl::movementCard2Option()
 {
+	PAD_STACK(0x8);
+
 	if (gpCameraOption->unk12 == 0) {
 		mRumbleOption->mShouldRumble = false;
 		mScreen->search('oya0')->show();
@@ -877,6 +882,8 @@ static inline void fake(TOptionSoundUnit* unit) { int v = unit->getValue(); }
 // mario walks back from the options screen to the card select screen
 bool TOptionControl::movementOption2Card()
 {
+	PAD_STACK(0x8);
+
 	if (gpCameraOption->unk12 == 0) {
 		mScreen->search('oya0')->hide();
 		mScreen->search('oya1')->hide();
@@ -895,6 +902,8 @@ bool TOptionControl::movementOption2Card()
 void TOptionControl::setType(TOptionControl::SelectType type,
                              bool initial_options_entry)
 {
+	PAD_STACK(0x8);
+
 	if (mSelectedOption != type || initial_options_entry) {
 		mSelectedOption = type;
 		switch (type) {

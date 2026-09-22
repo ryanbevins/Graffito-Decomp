@@ -1,4 +1,5 @@
 
+#include <StackPadding.h>
 #include <Player/Yoshi.hpp>
 #include <Player/MarioMain.hpp>
 #include <Player/MarioAccess.hpp>
@@ -411,6 +412,8 @@ bool TYoshi::appearFromEgg(const JGeometry::TVec3<f32>& pos, f32 angle, TEggYosh
 
 // disappear - 0x8014F94C
 bool TYoshi::disappear() {
+	PAD_STACK(0x8);
+
 	u8 state = (u8)mState;
 	if (isHatched()) {
 		if (state == MOUNTED) {
@@ -438,6 +441,8 @@ bool TYoshi::disappear() {
 
 // kill - 0x8014F834
 void TYoshi::kill() {
+	PAD_STACK(0x8);
+
 	u8 state = (u8)mState;
 	if (isHatched()) {
 		if (state == MOUNTED) {
@@ -465,6 +470,8 @@ void TYoshi::kill() {
 
 // ride - 0x8014F744
 void TYoshi::ride() {
+	PAD_STACK(0x20);
+
 	mState = MOUNTED;
 	changeAnimation(22);
 	gpModelWaterManager->unk5D5F = mType;
@@ -478,6 +485,8 @@ void TYoshi::ride() {
 
 // getOff - 0x8014F594
 void TYoshi::getOff(bool knockedOff) {
+	PAD_STACK(0x20);
+
 	if ((u8)mState != MOUNTED)
 		return;
 

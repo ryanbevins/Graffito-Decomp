@@ -1,4 +1,5 @@
 #define JG_TUTIL_SQRT_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 #include <MSound/MSoundBGM.hpp>
 
@@ -24,6 +25,8 @@
 
 BOOL TMario::startJumpWall()
 {
+	PAD_STACK(0x8);
+
 	if (mWallPlane != nullptr) {
 		const JGeometry::TVec3<f32>& normal = mWallPlane->getNormal();
 		s16 angle = matan(normal.z, normal.x) + 0x8000;
@@ -599,6 +602,8 @@ BOOL TMario::thrownDowning()
 
 BOOL TMario::boardJumping()
 {
+	PAD_STACK(0x10);
+
 	setAnimation(109, 1.0f);
 	if (mVel.y < 0.0f) {
 		// Pointer math slop

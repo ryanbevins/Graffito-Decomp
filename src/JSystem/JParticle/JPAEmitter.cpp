@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JGeometry/JGUtil.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JParticle/JPAEmitterManager.hpp>
@@ -16,6 +17,8 @@ JPABaseEmitter::JPABaseEmitter()
     : unk0(this)
     , mRng(0)
 {
+	PAD_STACK(0x8);
+
 	MTXIdentity(unk124);
 
 	unk154.set(1.0f, 1.0f, 1.0f);
@@ -922,6 +925,8 @@ void JPABaseEmitter::calcKeyFrameAnime()
 
 void JPABaseEmitter::calc()
 {
+	PAD_STACK(0x8);
+
 	JPAEmitterInfoObj.mEmitCount = 0;
 
 	if (!checkStatus(STATUS_STOP_CALC))

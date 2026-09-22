@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MSound/MSound.hpp>
 #include <MSound/MSRandVol.hpp>
 #include <MSound/MSHandle.hpp>
@@ -515,6 +516,8 @@ void MSound::startSoundSetGrp(u32 id, const Vec* pos, u32 param3, f32 volume,
 
 void MSound::initSound()
 {
+	PAD_STACK(0x8);
+
 	unkA8 |= 2;
 
 	for (u8 i = 0; i < 16; ++i) {
@@ -661,6 +664,8 @@ void MSound::demoModeOut(bool param)
 
 void MSound::talkModeIn(bool param)
 {
+	PAD_STACK(0x18);
+
 	if (param) {
 		bool canPlay;
 		if (!(unkA8 & 2))
@@ -716,6 +721,8 @@ void MSound::talkModeOut()
 
 void MSound::setCategoryVOLs(u16 param1, f32 volume)
 {
+	PAD_STACK(0x8);
+
 	u8 rawVolume = 127.0f * volume;
 	u8 categoryVolume;
 	if (rawVolume > 127)
@@ -831,6 +838,8 @@ void MSound::setSeExtParameter(JAISound* sound)
 
 void MSound::playTimer(u32 time)
 {
+	PAD_STACK(0x8);
+
 	bool canPlay;
 	if (!(unkA8 & 1))
 		canPlay = false;

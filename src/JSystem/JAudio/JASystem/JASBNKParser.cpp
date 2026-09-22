@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JASystem/JASBNKParser.hpp>
 #include <JSystem/JAudio/JASystem/JASBasicInst.hpp>
 #include <JSystem/JAudio/JASystem/JASCalc.hpp>
@@ -15,6 +16,8 @@ namespace BNKParser {
 
 	TBasicBank* createBasicBank(void* data)
 	{
+		PAD_STACK(0x40);
+
 		JKRHeap* heap      = TBank::getCurrentHeap();
 		const u32 freeSize = heap->getFreeSize();
 		THeader* header    = (THeader*)data;

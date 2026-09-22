@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/PollutionLayer.hpp>
 #include <Map/PollutionManager.hpp>
 #include <MoveBG/MapObjWave.hpp>
@@ -115,6 +116,8 @@ ResTIMG* TPollutionLayerWave::getTexResource(const char* name)
 void TPollutionLayerWave::initJointModel(TJointModelManager* manager,
                                          const char* name, MActorAnmData*)
 {
+	PAD_STACK(0x18);
+
 	mManager = manager;
 
 	const TPollutionLayerInfo* info
@@ -337,6 +340,8 @@ void TPollutionLayer::initTexImage(const char* param_1)
 
 void TPollutionLayer::initLayerInfo(const TPollutionLayerInfo* param_1)
 {
+	PAD_STACK(0x8);
+
 	unk30 = param_1->unk0;
 	unk32 = param_1->unk2;
 	unk38 = param_1->unk10;
@@ -365,6 +370,8 @@ void TPollutionLayer::initJointModel(TJointModelManager* param_1,
                                      const char* param_2,
                                      MActorAnmData* param_3)
 {
+	PAD_STACK(0x18);
+
 	TJointModel::initJointModel(param_1, param_2, param_3);
 	u32 index = mIndexInParent;
 	TPollutionLayer* layer = this;

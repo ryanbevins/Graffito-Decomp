@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/MameGesso.hpp>
 #include <Strategic/Spine.hpp>
 #include <Strategic/ObjModel.hpp>
@@ -86,6 +87,8 @@ void TMameGessoManager::initSetEnemies() { }
 
 void TMameGessoManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
+	PAD_STACK(0x8);
+
 	for (int i = 0; i < mObjNum; i++) {
 		if (!(param_1 & 1))
 			continue;
@@ -477,6 +480,8 @@ DEFINE_NERVE(TNerveMameGessoDamage, TLiveActor)
 		}
 	}
 	return false;
+
+	PAD_STACK(0x8);
 }
 
 DEFINE_NERVE(TNerveMameGessoJitabata, TLiveActor)
@@ -590,6 +595,8 @@ DEFINE_NERVE(TNerveMameGessoThrown, TLiveActor)
 
 DEFINE_NERVE(TNerveMameGessoObject, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	TMameGesso* self = (TMameGesso*)spine->getBody();
 
 	if (SMS_IsMarioStatusTypeSwimming()) {
@@ -645,6 +652,8 @@ DEFINE_NERVE(TNerveMameGessoObject, TLiveActor)
 
 DEFINE_NERVE(TNerveMameGessoWait, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TMameGesso* self = (TMameGesso*)spine->getBody();
 
 	if (spine->getTime() == 0)

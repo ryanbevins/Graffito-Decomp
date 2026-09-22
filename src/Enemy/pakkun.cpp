@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/Pakkun.hpp>
 #include <Camera/Camera.hpp>
 #include <Enemy/Conductor.hpp>
@@ -572,6 +573,8 @@ void TStayPakkun::load(JSUMemoryInputStream& stream)
 
 void TPakkunSeed::forceKill()
 {
+	PAD_STACK(0x8);
+
 	if (mGroundPlane->isPool() || mGroundPlane->checkFlag(0x10)
 	    || !gpMap->isInArea(mPosition.x, mPosition.z)) {
 		kill();
@@ -704,6 +707,8 @@ void TPakkunSeed::behaveToHitGround()
 
 void TPakkunSeed::calcRootMatrix()
 {
+	PAD_STACK(0x8);
+
 	MSound* sound = gpMSound;
 	if (sound->gateCheck(0x2169))
 		MSoundSESystem::MSoundSE::startSoundActor(0x2169, &mPosition, 0,

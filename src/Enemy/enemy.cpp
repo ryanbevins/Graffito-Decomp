@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/Enemy.hpp>
 #include <Enemy/Graph.hpp>
 #include <Enemy/EnemyManager.hpp>
@@ -152,6 +153,8 @@ void TSpineEnemy::calcEnemyRootMatrix()
 
 void TSpineEnemy::calcRootMatrix()
 {
+	PAD_STACK(0x8);
+
 	if (mHolder && mHolder->getHeldObject() == this) {
 		MtxPtr src = mHolder->getTakingMtx();
 		if (src) {
@@ -276,6 +279,8 @@ void TSpineEnemy::setGoalPathFromGraph()
 	unkF4  = local_3c;
 	unk104 = local_3c;
 	unk114.clear();
+
+	PAD_STACK_ARRAY(0x18);
 }
 
 void TSpineEnemy::goToInitialVisibleNode(f32, f32) { }
@@ -319,6 +324,7 @@ int TSpineEnemy::jumpToNextGraphNode()
 		return idx;
 	}
 
+	PAD_STACK_TEMP(0x58);
 	return -1;
 }
 
@@ -389,6 +395,8 @@ void TSpineEnemy::goToDirectedNextGraphNode(
 	setGoalPathFromGraph();
 	unk128 = 0;
 	unk12C = 0.0f;
+
+	PAD_STACK_TEMP(0x50);
 }
 
 // TODO: fake
@@ -631,6 +639,8 @@ BOOL TSpineEnemy::checkCurAnmEnd(int param_1) const
 
 void TSpineEnemy::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
+	PAD_STACK(0x8);
+
 	TEnemyManager* mgr = (TEnemyManager*)getManager();
 
 	if (mgr != nullptr) {

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/BossHanachan.hpp>
 #include <Enemy/BossHanachanSaveParams.hpp>
 #include <Enemy/BossHanachanSub.hpp>
@@ -1115,6 +1116,8 @@ void TBossHanachanManager::clipEnemies(JDrama::TGraphics* graphics)
 
 void TBossHanachanManager::loadAfter()
 {
+	PAD_STACK(0x10);
+
 	J3DMaterialTable* table = gpMapObjManager->unkC0;
 	int index              = table->getTextureName()->getIndex(cSandTextureName);
 	ResTIMG* texture       = table->getTexture()->getResTIMG(index);

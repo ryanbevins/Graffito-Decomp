@@ -1,5 +1,6 @@
 // NPC/NpcAnm.cpp -- TBaseNPC animation dispatch.
 
+#include <StackPadding.h>
 #include <NPC/NpcBase.hpp>
 #include <NPC/NpcCoin.hpp>
 #include <NPC/NpcInbetween.hpp>
@@ -432,6 +433,8 @@ EnumNpcAnmKind TBaseNPC::getNpcWaitAnmBase_()
 
 void TBaseNPC::npcWaitIn()
 {
+	PAD_STACK(0x28);
+
 	EnumNpcAnmKind kind = asKind(1);
 	u32 flag = mActionFlag;
 	if (!(flag & 0x400)) {
@@ -462,6 +465,8 @@ void TBaseNPC::npcWaitIn()
 
 void TBaseNPC::npcFallIn()
 {
+	PAD_STACK(0x18);
+
 	requestNpcAnm_(NPC_ANM_KIND_UNK2, NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
@@ -510,6 +515,8 @@ bool TBaseNPC::npcRecoverFromSinking()
 
 void TBaseNPC::npcRecoverAfterIn()
 {
+	PAD_STACK(0x18);
+
 	requestNpcAnm_(NPC_ANM_KIND_UNK3, NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
@@ -519,6 +526,8 @@ void TBaseNPC::npcRecoverAfterIn()
 
 void TBaseNPC::npcStepIn()
 {
+	PAD_STACK_ARRAY(0x18);
+
 	requestNpcAnm_((EnumNpcAnmKind)0x4,
 	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
@@ -529,6 +538,8 @@ void TBaseNPC::npcStepIn()
 
 void TBaseNPC::npcTalkIn()
 {
+	PAD_STACK(0x28);
+
 	mLiveFlag |= 0x00080000;
 	if (mActorType != 0x0400001C && mActorType != 0x0400001D) {
 		if (!isSunflowerReviving()) {
@@ -548,6 +559,8 @@ void TBaseNPC::npcTalkIn()
 
 void TBaseNPC::npcTalking()
 {
+	PAD_STACK(0x20);
+
 	if (isSunflowerReviving()) {
 		sunflowerReviving();
 		return;
@@ -567,6 +580,8 @@ void TBaseNPC::npcTalking()
 
 void TBaseNPC::npcTalkOut()
 {
+	PAD_STACK_TEMP(0x20);
+
 	unk1E0 = 0x3C;
 
 	if (checkLiveFlag(0x00080000)) {
@@ -597,6 +612,8 @@ void TBaseNPC::npcTalkOut()
 
 void TBaseNPC::npcTakenIn()
 {
+	PAD_STACK(0x10);
+
 	requestNpcAnm_((EnumNpcAnmKind)0x9,
 	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
@@ -607,6 +624,8 @@ void TBaseNPC::npcTakenIn()
 
 void TBaseNPC::npcDanceIn()
 {
+	PAD_STACK(0x18);
+
 	onActionFlag(NPC_ACTION_DANCE);
 	requestNpcAnm_((EnumNpcAnmKind)0x16,
 	               (EnumNpcStopMotionBlendOnOff)1);
@@ -618,6 +637,8 @@ void TBaseNPC::npcDanceIn()
 
 void TBaseNPC::npcHappyIn(unsigned char arg)
 {
+	PAD_STACK(0x18);
+
 	unk1D9        = arg;
 	onActionFlag(NPC_ACTION_HAPPY);
 	requestNpcAnm_((EnumNpcAnmKind)0x11,
@@ -812,6 +833,8 @@ bool TBaseNPC::npcWetting()
 
 void TBaseNPC::npcSinking()
 {
+	PAD_STACK(0x10);
+
 	f32 targetY = mSinkBaseY - mNpcSaveIndividual->mSinkHeight.get();
 	if (mPosition.y != targetY) {
 		f32 sinkSpeed = mNpcSaveIndividual->mSinkSpeed.get();
@@ -830,6 +853,8 @@ void TBaseNPC::npcSinking()
 
 void TBaseNPC::npcThrowIn()
 {
+	PAD_STACK(0x18);
+
 	requestNpcAnm_(NPC_ANM_KIND_THROW, NPC_STOP_MOTION_BLEND_ON);
 	mMarchSpeed = 0.0f;
 	mTurnSpeed  = *(f32*)((u8*)mNpcSaveIndividual + 0x144);
@@ -855,6 +880,8 @@ bool TBaseNPC::npcThrowing()
 
 void TBaseNPC::npcMadIn()
 {
+	PAD_STACK(0x18);
+
 	mLiveFlag |= 0x02000000;
 	if (mActorType == 0x04000007 || checkActionFlag(NPC_ACTION_UNK1)) {
 		requestNpcAnm_((EnumNpcAnmKind)0xA,
@@ -902,6 +929,8 @@ bool TBaseNPC::npcMadding()
 
 void TBaseNPC::npcBlownIn()
 {
+	PAD_STACK(0x18);
+
 	requestNpcAnm_((EnumNpcAnmKind)0xE,
 	               (EnumNpcStopMotionBlendOnOff)1);
 	mMarchSpeed = 0.0f;
@@ -946,6 +975,8 @@ void TBaseNPC::npcMareStandIn()
 
 bool TBaseNPC::npcMareStanding()
 {
+	PAD_STACK(0x10);
+
 	bool finished = false;
 	int k         = unkD0->mCurrentAnmKind;
 	switch (k) {
@@ -1064,6 +1095,8 @@ bool TBaseNPC::sunflowerReviving()
 
 void TBaseNPC::monteMESetAnmWhenFar()
 {
+	PAD_STACK(0x28);
+
 	switch (unkD0->mCurrentAnmKind) {
 	case 1:
 		break;
@@ -1089,6 +1122,8 @@ void TBaseNPC::monteMESetAnmWhenFar()
 
 void TBaseNPC::monteMESetAnmWhenNear()
 {
+	PAD_STACK(0x28);
+
 	switch (unkD0->mCurrentAnmKind) {
 	case 4:
 		break;

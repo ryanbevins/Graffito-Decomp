@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjOption.hpp>
 #include <Map/MapCollisionEntry.hpp>
 #include <MarioUtil/RumbleMgr.hpp>
@@ -48,6 +49,8 @@ void TFileLoadBlock::pushed()
 
 void TFileLoadBlock::touchPlayer(THitActor* param_1)
 {
+	PAD_STACK(0x10);
+
 	if (isState(1) && marioHeadAttack() && !isLifeTimerActive()) {
 		pushed();
 	}
@@ -55,6 +58,8 @@ void TFileLoadBlock::touchPlayer(THitActor* param_1)
 
 BOOL TFileLoadBlock::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x10);
+
 
 	if (isState(1) && message == HIT_MESSAGE_UNK2 && !isLifeTimerActive()) {
 		pushed();

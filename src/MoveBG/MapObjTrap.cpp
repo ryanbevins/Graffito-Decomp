@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjTrap.hpp>
 #include <Map/MapData.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -40,6 +41,8 @@ BOOL TLampTrapSpikeHit::receiveMessage(THitActor* sender, u32 message)
 
 void TLampTrapSpikeHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
+	PAD_STACK(0x18);
+
 	THitActor::perform(param_1, param_2);
 	if (param_1 & 1) {
 		mPosition = unk68->mPosition;
@@ -254,6 +257,8 @@ void TLampTrapIron::loadAfter()
 
 BOOL TLampTrapIron::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x8);
+
 	if (sender->isActorType(0x1000001)) {
 		if (unk13C > 0) {
 			--unk13C;

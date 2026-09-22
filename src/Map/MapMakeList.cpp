@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapData.hpp>
 #include <types.h>
@@ -285,6 +286,8 @@ void TMapCollisionData::removeCheckListNode(s32, s32) { }
 void TMapCollisionData::updateCheckListNode(s32 param_1, s32 param_2,
                                             s32 param_3)
 {
+	PAD_STACK(0x18);
+
 	TBGCheckListWarp* l   = &unk30[param_3];
 	TBGCheckListWarp* r   = &unk30[param_1];
 	TBGCheckListWarp* end = &unk30[param_3 + param_2];

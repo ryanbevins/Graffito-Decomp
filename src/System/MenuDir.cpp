@@ -1,4 +1,5 @@
 #define JDRAMA_TFLAG_CTOR_DECL_ONLY
+#include <StackPadding.h>
 #include <System/MenuDir.hpp>
 #undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <stdio.h>
@@ -45,6 +46,8 @@ TMenuDirector::TMenuDirector()
 
 TMenuDirector::~TMenuDirector()
 {
+	PAD_STACK(0x8);
+
 	unk2C->offFlag(0x1);
 	JKRMemArchive* arc = (JKRMemArchive*)JKRFileLoader::getVolume("title");
 	if (arc)

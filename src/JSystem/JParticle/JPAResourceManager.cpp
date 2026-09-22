@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
 #include <JSystem/JParticle/JPAEmitterLoader.hpp>
 #include <JSystem/JKernel/JKRHeap.hpp>
@@ -13,6 +14,8 @@ JPATextureResource::JPATextureResource(u32 count, JKRHeap* heap)
 
 int JPATextureResource::registration(const u8* data, JKRHeap* heap)
 {
+	PAD_STACK(0x10);
+
 	const char* incomingName = (const char*)(data + 0xC);
 	for (int i = 0; i < unk24; ++i) {
 		const char* name = (const char*)((u8*)unk2C[i]->mRawData + 0xC);
@@ -65,6 +68,8 @@ int JPAResourceManager::load(const char* param_1, u16 param_2)
 
 int JPAResourceManager::load(const void* param_1, u16 param_2)
 {
+	PAD_STACK_ARRAY(0x8);
+
 	return unk4->registration(
 	    JPAEmitterLoaderDataBase::load((const u8*)param_1, unk0, unk8),
 	    param_2);

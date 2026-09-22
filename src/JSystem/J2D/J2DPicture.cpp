@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/J2D/J2DPicture.hpp>
 #include <JSystem/JUtility/JUTPalette.hpp>
 #include <JSystem/JUtility/JUTTexture.hpp>
@@ -429,6 +430,8 @@ void J2DPicture::drawTexCoord(int x, int y, int w, int h, float u1, float v1,
 
 void J2DPicture::setTevMode()
 {
+	PAD_STACK_TEMP(0x8);
+
 	u8 i;
 	for (i = 0; i < mTextureNum; ++i) {
 		GXSetTexCoordGen2((GXTexCoordID)i, GX_TG_MTX2x4, GX_TG_TEX0, 0x3c, 0,

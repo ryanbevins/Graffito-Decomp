@@ -1,5 +1,6 @@
 #define JGADGET_TLIST_POINTER_END_OUT_OF_LINE
 #define JGADGET_TLIST_POINTER_ITERATOR_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MarioUtil/LightUtil.hpp>
 #undef JGADGET_TLIST_POINTER_END_OUT_OF_LINE
 #undef JGADGET_TLIST_POINTER_ITERATOR_OUT_OF_LINE
@@ -293,6 +294,8 @@ void TLightDrawBuffer::setLight(TLightCommon* light)
 
 void TLightWithDBSet::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x20);
+
 	if (flags & 0x20) {
 		for (int i = 0; i < unk1C; ++i) {
 			unk10[i]->perform(0x20, graphics);
@@ -340,6 +343,8 @@ void TLightWithDBSet::resetLightDrawBuffer()
 
 void TPlayerLightWithDBSet::makeDrawBuffer()
 {
+	PAD_STACK(0x58);
+
 	static const char lightName[] = "太陽（プレイヤー）";
 	static const char ambName[]   = "太陽アンビエント（プレイヤー）";
 
@@ -360,6 +365,8 @@ void TPlayerLightWithDBSet::makeDrawBuffer()
 
 void TObjectLightWithDBSet::makeDrawBuffer()
 {
+	PAD_STACK(0x58);
+
 	static const char lightName[] = "太陽（オブジェクト）";
 	static const char ambName[]   = "太陽アンビエント（オブジェクト）";
 
@@ -380,6 +387,8 @@ void TObjectLightWithDBSet::makeDrawBuffer()
 
 void TMapObjectLightWithDBSet::makeDrawBuffer()
 {
+	PAD_STACK(0x50);
+
 	static const char lightName[] = "太陽（オブジェクト）";
 	static const char ambName[]   = "太陽アンビエント（オブジェクト）";
 	static const char* className[] = { "マップオブジェ太陽",
@@ -401,6 +410,8 @@ void TMapObjectLightWithDBSet::makeDrawBuffer()
 
 void TIndirectLightWithDBSet::makeDrawBuffer()
 {
+	PAD_STACK(0x50);
+
 	static const char lightName[] = "太陽（オブジェクト）";
 	static const char ambName[]   = "太陽アンビエント（オブジェクト）";
 	static const char* className[]
@@ -462,6 +473,8 @@ void TLightWithDBSetManager::loadAfter()
 
 void TLightWithDBSetManager::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x8);
+
 	if (flags & 0x20) {
 		int begin;
 		int end;

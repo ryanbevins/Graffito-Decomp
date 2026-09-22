@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/Telesa.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DCluster.hpp>
@@ -111,6 +112,8 @@ TSmallEnemy* TTelesaManager::createEnemyInstance() { return new TTelesa; }
 
 void TTelesaManager::createEnemies(int param_1)
 {
+	PAD_STACK(0x8);
+
 	TEnemyManager::createEnemies(param_1);
 	int bodyMatIdx = getObj(0)
 	                     ->getMActor()
@@ -216,6 +219,8 @@ TTelesa::TTelesa(const char* name)
 
 void TTelesa::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK_ARRAY(0x8);
+
 	TSmallEnemy::load(stream);
 	reset();
 	mDampenedGroundHeight = mPosition.y;
@@ -580,6 +585,8 @@ void TTelesa::scalingChangeActor()
 
 void TTelesa::changeOut()
 {
+	PAD_STACK(0x10);
+
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 	if (gpMSound->gateCheck(0x293D))
 		MSoundSESystem::MSoundSE::startSoundActor(0x293D, &mPosition, 0,
@@ -889,6 +896,8 @@ TSeeTelesa::TSeeTelesa(const char* name)
 
 void TSeeTelesa::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x8);
+
 	TTelesa::load(stream);
 	setTypeCanSee();
 }
@@ -900,6 +909,8 @@ TLoopTelesa::TLoopTelesa(const char* name)
 
 void TLoopTelesa::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x8);
+
 	TTelesa::load(stream);
 	setTypeLoop();
 }
@@ -1239,6 +1250,8 @@ void TKageMarioModoki::load(JSUMemoryInputStream& stream)
 
 void TKageMarioModoki::init(TLiveManager* manager)
 {
+	PAD_STACK(0x8);
+
 	TWalkerEnemy::init(manager);
 	mSpine->initWith(&TNerveKageMarioModokiWait::theNerve());
 	mMActor->resetDL();

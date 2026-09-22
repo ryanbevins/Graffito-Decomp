@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JParticle/JPADraw.hpp>
 #include <JSystem/JParticle/JPABaseShape.hpp>
 #include <JSystem/JParticle/JPAExtraShape.hpp>
@@ -731,6 +732,8 @@ void JPADraw::setDrawCalcVisitors(const JPADraw::JPADrawVisitorDefFlags& flags)
 
 void JPADraw::setParticleClipBoard()
 {
+	PAD_STACK(0x38);
+
 	switch (mDrawCtx.mBaseShape->getType()) {
 	case 2:
 	case 9:
@@ -937,6 +940,8 @@ void JPADraw::setChildClipBoard()
 
 void JPADraw::drawParticle()
 {
+	PAD_STACK(0x10);
+
 	unkC2 &= ~0x2;
 	setParticleClipBoard();
 	mDrawCtx.unk18 = &mDrawCtx.mBaseEmitter->mParticleList;
@@ -989,6 +994,8 @@ void JPADraw::drawParticle()
 
 void JPADraw::drawChild()
 {
+	PAD_STACK(0x10);
+
 	unkC2 |= 0x2;
 	setChildClipBoard();
 	mDrawCtx.unk18 = &mDrawCtx.mBaseEmitter->mChildParticleList;
@@ -1063,6 +1070,8 @@ void JPADraw::zDraw()
 
 void JPADraw::zDrawParticle()
 {
+	PAD_STACK(0x8);
+
 	unkC2 &= ~0x2;
 	setParticleClipBoard();
 	mDrawCtx.unk18 = mDrawCtx.mBaseEmitter->getParticleList();
@@ -1110,6 +1119,8 @@ void JPADraw::zDrawParticle()
 
 void JPADraw::zDrawChild()
 {
+	PAD_STACK(0x8);
+
 	unkC2 |= 0x2;
 	setChildClipBoard();
 	mDrawCtx.unk18 = mDrawCtx.mBaseEmitter->getChildParticleList();
@@ -1178,6 +1189,8 @@ s16 JPADraw::getMainTextureID(u8 i)
 
 void JPADraw::loadYBBMtx(MtxPtr mtx)
 {
+	PAD_STACK(0x8);
+
 	JGeometry::TVec3<f32> v;
 	v.set(0.0f, mtx[1][1], mtx[2][1]);
 	v.normalize();

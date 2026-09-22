@@ -1,6 +1,7 @@
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #define JGEOMETRY_MARIOCOLLISION_TVEC3_MUL_ASSIGN_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 #undef J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #undef J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
@@ -25,6 +26,8 @@ void TMario::rumbleStart(int channelDataIdx, int repeatCount)
 
 void TMario::incHP(int hp)
 {
+	PAD_STACK(0x28);
+
 	// volatile u32 padding[10];
 	if (isUnderWater() || checkFlag(MARIO_FLAG_HELMET_FLW_CAMERA)) {
 		unk12C += hp;
@@ -46,6 +49,8 @@ void TMario::incHP(int hp)
 
 void TMario::decHP(int hp)
 {
+	PAD_STACK(0x8);
+
 	// volatile u32 padding[2];
 	if (isUnderWater() || checkFlag(MARIO_FLAG_HELMET_FLW_CAMERA)) {
 		unk12C -= hp;
@@ -207,6 +212,8 @@ void TMario::resetNozzle() { }
 
 void TMario::normalizeNozzle()
 {
+	PAD_STACK(0x8);
+
 	// volatile u32 padding[2];
 	if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 		mWaterGun->changeNozzle(TWaterGun::Spray, true);
@@ -217,6 +224,8 @@ void TMario::normalizeNozzle()
 
 void TMario::loserExec()
 {
+	PAD_STACK(0x8);
+
 	// volatile u32 padding[2];
 	if (mAction != 0x224e0 && mAction != 0x21313 && mAction != 0x224e1
 	    && mAction != 0x1000192a) {
@@ -425,6 +434,8 @@ void TMario::damageExec(THitActor* hittingActor, int damage, int damageAnimType,
 
 void TMario::considerTake()
 {
+	PAD_STACK(0x18);
+
 	// volatile u32 missingStack[6];
 	bool check = false;
 

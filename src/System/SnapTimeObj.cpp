@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <System/SnapTimeObj.hpp>
 #include <System/TimeRec.hpp>
 
@@ -13,4 +14,6 @@ void TSnapTimeObj::perform(u32 param_1, JDrama::TGraphics* param_2)
 			TTimeRec::snapGxTimeStatic(unk10);
 		}
 	}
+
+	PAD_STACK_TEMP(0x10);
 }

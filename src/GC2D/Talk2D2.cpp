@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <GC2D/Talk2D2.hpp>
 #include <Camera/Camera.hpp>
 #include <GC2D/BoundPane.hpp>
@@ -1013,6 +1014,8 @@ bool TTalk2D2::closeNormalWindow()
 }
 void TTalk2D2::checkControler()
 {
+	PAD_STACK(0x90);
+
 	if (unk6C[unk274]->mVisible) {
 		if (unk26A) {
 			if (!unk26D) {
@@ -1367,6 +1370,8 @@ bool TTalk2D2::openNormalWindow()
 }
 bool TTalk2D2::openBoardWindow()
 {
+	PAD_STACK_TEMP(0x8);
+
 	bool result = false;
 
 	switch (unk29[0]) {
@@ -1537,6 +1542,8 @@ void TTalk2D2::openTalkWindow(TBaseNPC* npc)
 }
 void TTalk2D2::forceCloseTalk()
 {
+	PAD_STACK(0x18);
+
 	gpCamera->makeMtxForPrevTalk();
 
 	if (unk28) {

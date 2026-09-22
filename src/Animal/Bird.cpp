@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Animal/Bird.hpp>
 #include <Animal/AnimalSave.hpp>
 #include <Strategic/ObjModel.hpp>
@@ -521,6 +522,8 @@ void TAnimalBirdManager::createModelData()
 
 void TAnimalBirdManager::loadAfter()
 {
+	PAD_STACK(0x20);
+
 	JDrama::TNameRef::loadAfter();
 	MSoundSESystem::MSRandPlay::createRandPlayVec(0x3869, (u16)mObjNum);
 	MSoundSESystem::MSRandPlay::createRandPlayVec(0x3870, (u16)mObjNum);
@@ -843,6 +846,8 @@ public:
 
 void TAnimalBird::calcRootMatrix()
 {
+	PAD_STACK(0x8);
+
 	TBirdMount* mount;
 	if ((mount = (TBirdMount*)mHolder) != NULL) {
 		MtxPtr m = mount->getRiderMtx();
@@ -925,6 +930,8 @@ BOOL TAnimalBird::receiveMessage(THitActor* sender, u32 msg)
 
 void TAnimalBird::loadAfter()
 {
+	PAD_STACK(0x18);
+
 	JDrama::TNameRef::loadAfter();
 	MSoundSESystem::MSRandPlay::registerTrans(0x3869, &mPosition);
 	MSoundSESystem::MSRandPlay::registerTrans(0x3870, &mPosition);

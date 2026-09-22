@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <M3DUtil/InfectiousStrings.hpp>
 
 #define JDRAMA_TFLAG_CTOR_DECL_ONLY
@@ -710,6 +711,8 @@ void TIgaiga::rollSE()
 
 void TIgaiga::boundSE()
 {
+	PAD_STACK(0x10);
+
 	f32 volume = __fabsf(mGroundPlane->getNormal().y);
 	if (gpMSound->gateCheck(0x28ad))
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
@@ -736,6 +739,8 @@ TGorogoro::TGorogoro(const char* name)
 
 void TGorogoro::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x10);
+
 	TSmallEnemy::perform(flags, graphics);
 
 	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT)
@@ -889,6 +894,8 @@ void TGorogoro::behaveToWater(THitActor*)
 
 void TGorogoro::setDeadAnm()
 {
+	PAD_STACK(0x8);
+
 	JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
 	    0xbf, getMActor()->getModel()->getAnmMtx(1), 0, nullptr);
 	if (emitter)
@@ -903,6 +910,8 @@ void TGorogoro::setDeadAnm()
 
 void TGorogoro::setMeltAnm()
 {
+	PAD_STACK(0x8);
+
 	setBckAnm(1);
 	unk130 = 0;
 	MtxPtr meltMtx = unk1B4.mMtx;
@@ -1028,6 +1037,8 @@ bool TGorogoro::isRolling()
 
 void TGorogoro::rollSE()
 {
+	PAD_STACK(0x10);
+
 	f32 volume = __fabsf(mGroundPlane->getNormal().y);
 	if (gpMSound->gateCheck(0x2054))
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
@@ -1036,6 +1047,8 @@ void TGorogoro::rollSE()
 
 void TGorogoro::boundSE()
 {
+	PAD_STACK(0x10);
+
 	f32 volume = __fabsf(mGroundPlane->getNormal().y);
 	if (gpMSound->gateCheck(0x2844))
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(

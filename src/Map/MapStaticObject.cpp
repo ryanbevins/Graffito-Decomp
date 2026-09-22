@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/MapStaticObject.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapModel.hpp>
@@ -228,6 +229,8 @@ void TMapStaticObj::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 void TMapStaticObj::initUnique()
 {
+	PAD_STACK(0x28);
+
 	switch (getActorType()) {
 	case 0x40000024:
 		if (gpMarDirector->mMap == 4)

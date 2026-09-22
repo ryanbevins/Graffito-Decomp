@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/Killer.hpp>
 #include <Enemy/EnemyManager.hpp>
 #include <Enemy/Conductor.hpp>
@@ -571,6 +572,8 @@ void TKiller::behaveToWater(THitActor* sender)
 
 void TKiller::changeOut()
 {
+	PAD_STACK(0x10);
+
 	MSound* sound = gpMSound;
 	if (sound->gateCheck(0x293d))
 		MSoundSESystem::MSoundSE::startSoundActor(0x293d, &mPosition, 0, nullptr,
@@ -604,6 +607,8 @@ void TKiller::setDeadAnm()
 
 void TKiller::attackToMario()
 {
+	PAD_STACK(0x8);
+
 	if (gpMarioPos->y < mPosition.y) {
 		if (mSpine->getCurrentNerve() != &TNerveKillerExplosion::theNerve()) {
 			mSpine->pushNerve(&TNerveKillerExplosion::theNerve());

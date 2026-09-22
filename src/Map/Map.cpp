@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionData.hpp>
 #include <Map/MapModel.hpp>
@@ -107,6 +108,8 @@ static void initMare()
 
 static void initPinnaParco()
 {
+	PAD_STACK(0x8);
+
 	J3DModel* model = new J3DModel(
 	    gpMap->getModelManager()->getJointModel(0)->getModelData(), 0, 1);
 	MActor* actor = new MActor(gpMap->getModelManager()->getMActorAnmData());

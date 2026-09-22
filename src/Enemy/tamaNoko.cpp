@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/TamaNoko.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
 #include <System/Particles.hpp>
@@ -371,6 +372,8 @@ void TTamaNoko::behaveToRelease()
 
 BOOL TTamaNoko::receiveMessage(THitActor* param_1, u32 param_2)
 {
+	PAD_STACK(0x20);
+
 	if (param_2 == HIT_MESSAGE_TRAMPLE || param_2 == HIT_MESSAGE_HIP_DROP) {
 		if (isHitValid(param_2)) {
 			unk184 = 0;
@@ -594,6 +597,8 @@ void TTamaNoko::forceSleep()
 
 void TTamaNoko::setAfterDeadEffect()
 {
+	PAD_STACK(0x8);
+
 	TSmallEnemy::setAfterDeadEffect();
 	unk19C->unk34 = 1;
 	unk19C->setBckAnm(0);
@@ -609,6 +614,8 @@ const char** TTamaNoko::getBasNameTable() const { return tamaNoko_bastable; }
 
 f32 TTamaNoko::getGravityY() const
 {
+	PAD_STACK(0x8);
+
 	if (mSpine->getCurrentNerve() == &TNerveTamaNokoAttack::theNerve())
 		return unk198->mSLAttackGravityY.get();
 
@@ -916,6 +923,8 @@ DEFINE_NERVE(TNerveTamaNokoSink, TLiveActor)
 // NOTE: lil shaking when mario sprays water on a sleeping tamanoko
 DEFINE_NERVE(TNerveTamaNokoHitWater, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TTamaNoko* self = (TTamaNoko*)spine->getBody();
 
 	if (spine->getTime() < 2) {
@@ -952,6 +961,8 @@ DEFINE_NERVE(TNerveTamaNokoHitWater, TLiveActor)
 
 DEFINE_NERVE(TNerveTamaNokoWait, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TTamaNoko* self = (TTamaNoko*)spine->getBody();
 
 	if (spine->getTime() < 2) {

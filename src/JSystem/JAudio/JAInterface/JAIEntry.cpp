@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JAInterface/JAIEntry.hpp>
 #include <JSystem/JAudio/JAInterface/JAIBasic.hpp>
 #include <JSystem/JAudio/JAInterface/JAIConst.hpp>
@@ -5,6 +6,8 @@
 
 u32 JAIEntry::checkSoundHandle(JAISound** sound_ptr, u32 param, void* data)
 {
+	PAD_STACK(0x10);
+
 	u32 result = 0;
 
 	if (sound_ptr) {

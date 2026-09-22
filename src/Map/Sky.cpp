@@ -1,4 +1,5 @@
 #define JDRAMA_TFLAG_CTOR_DECL_ONLY
+#include <StackPadding.h>
 #include <Map/Sky.hpp>
 #undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Map/Map.hpp>
@@ -94,6 +95,8 @@ void TSky::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 void TSky::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x18);
+
 	JDrama::TActor::load(stream);
 	unk44 = SMS_MakeMActorWithAnmData(
 	    "/scene/map/map/sky.bmd", gpMap->getModelManager()->getMActorAnmData(),

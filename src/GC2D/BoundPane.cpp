@@ -1,8 +1,11 @@
+#include <StackPadding.h>
 #include <GC2D/BoundPane.hpp>
 #include <JSystem/J2D/J2DScreen.hpp>
 
 TBoundPane::TBoundPane(J2DScreen* param_1, u32 param_2)
 {
+	PAD_STACK(0x8);
+
 	unk0  = param_1->search(param_2);
 	unk4  = unk0->mBounds;
 	unk28 = 0.0f;

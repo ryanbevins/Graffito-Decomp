@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Strategic/ObjManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoaderFlags.hpp>
@@ -77,6 +78,8 @@ void TObjManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 	if (unk30 & 1)
 		TTimeRec::endTimer();
+
+	PAD_STACK_TEMP(0x10);
 }
 
 void TObjManager::createModelDataArray(const TModelDataLoadEntry* entries)

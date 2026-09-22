@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/SmallEnemy.hpp>
 #include <Enemy/Graph.hpp>
 #include <Enemy/Conductor.hpp>
@@ -165,6 +166,8 @@ TSmallEnemy::TSmallEnemy(const char* name)
 
 void TSmallEnemy::setMActorAndKeeper()
 {
+	PAD_STACK(0x8);
+
 	mMActorKeeper = new TMActorKeeper(getManager(), 1);
 	mMActor       = getActorKeeper()->createMActorFromNthData(0, 0);
 }
@@ -418,6 +421,8 @@ void TSmallEnemy::genEventCoin()
 
 void TSmallEnemy::setAfterDeadEffect()
 {
+	PAD_STACK(0x8);
+
 	if (JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(0xE4, &mPosition, 0, nullptr)) {
 		emitter->unk154.set(mScaling);
@@ -535,6 +540,8 @@ BOOL TSmallEnemy::updateAnmSound() { TSpineEnemy::updateAnmSound(); }
 
 BOOL TSmallEnemy::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x30);
+
 	if (isEatenByYosshi() && message == HIT_MESSAGE_TAKE && !mHolder) {
 		onHitFlag(HIT_FLAG_NO_COLLISION);
 		mHolder = (TTakeActor*)sender;
@@ -585,6 +592,8 @@ BOOL TSmallEnemy::receiveMessage(THitActor* sender, u32 message)
 
 bool TSmallEnemy::changeByJuice()
 {
+	PAD_STACK(0x18);
+
 	if (gpModelWaterManager->unk5D5F == 1 || gpModelWaterManager->unk5D5F == 2
 	    || gpModelWaterManager->unk5D5F == 3
 	    || TSmallEnemyManager::mTestJuiceType != 0) {
@@ -747,6 +756,8 @@ void TSmallEnemy::scalingChangeActor()
 
 void TSmallEnemy::changeOut()
 {
+	PAD_STACK(0x10);
+
 	MSound* sound = gpMSound;
 	if (sound->gateCheck(0x293D))
 		MSoundSESystem::MSoundSE::startSoundActor(0x293D, &mPosition, 0,
@@ -858,6 +869,8 @@ bool TSmallEnemy::isFindMarioFromParam(float param_1) const
 
 void TSmallEnemy::generateEffectColumWater()
 {
+	PAD_STACK(0x8);
+
 	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
 		return;
 
@@ -902,6 +915,8 @@ void TSmallEnemy::expandCollision()
 
 bool TSmallEnemy::isEaten()
 {
+	PAD_STACK(0x8);
+
 	MtxPtr mtx;
 	if (mHolder && mHolder->getHeldObject() == this
 	    && (mtx = mHolder->getTakingMtx())) {
@@ -1083,6 +1098,8 @@ DEFINE_NERVE(TNerveSmallEnemyJump, TLiveActor)
 		return true;
 	else
 		return false;
+
+	PAD_STACK(0x8);
 }
 
 DEFINE_NERVE(TNerveSmallEnemyHitWaterJump, TLiveActor)

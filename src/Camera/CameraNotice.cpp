@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMarioData.hpp>
 #include <Camera/cameralib.hpp>
@@ -251,6 +252,8 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 
 void CPolarSubCamera::getNozzleTopPos_(JGeometry::TVec3<f32>* out) const
 {
+	PAD_STACK_ARRAY(0x18);
+
 	if (SMS_GetMarioWaterGun() == nullptr) {
 		TCameraMarioData* mario = gpCameraMario;
 		out->x                  = mario->mPosX;

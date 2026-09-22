@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/DebuTelesa.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Camera/CubeManagerBase.hpp>
@@ -70,6 +71,8 @@ void TDebuTelesa::kill() { TSmallEnemy::kill(); }
 
 BOOL TDebuTelesa::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x8);
+
 	switch (message) {
 	case 0:
 	case 1:
@@ -153,6 +156,8 @@ void TDebuTelesaManager::clipEnemies(JDrama::TGraphics* graphics)
 			actor->onLiveFlag(LIVE_FLAG_CLIPPED_OUT);
 		}
 	}
+
+	PAD_STACK(0x8);
 }
 
 DEFINE_NERVE(TNerveDebuTelesaWait, TLiveActor)

@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <NPC/NpcManager.hpp>
 #include <Strategic/ObjModel.hpp>
 #include <M3DUtil/MActorData.hpp>
@@ -98,6 +99,8 @@ void TMareJellyFishManager::createModelData()
 TNPCManager::TNPCManager(const char* name)
     : TEnemyManager(name)
 {
+	PAD_STACK(0x10);
+
 	unk54 = 350.0f;
 	unk58 = (const f32*)NULL;
 	unk5C = (TModelDataKeeper*)NULL;
@@ -240,6 +243,8 @@ void TNPCManager::clipEnemies(JDrama::TGraphics* gfx)
 
 void TNPCManager::perform(u32 flags, JDrama::TGraphics* gfx)
 {
+	PAD_STACK(0x8);
+
 	if (flags & 0x200) {
 		for (int i = 0, e = mObjNum; i < e; ++i) {
 			TBaseNPC* npc = (TBaseNPC*)unk18[i];
@@ -352,6 +357,8 @@ void TMonteWSpecialManager::createAnmData()
 
 void TMonteMFManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -360,6 +367,8 @@ void TMonteMFManager::load(JSUMemoryInputStream& stream)
 
 void TMonteMGManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -368,6 +377,8 @@ void TMonteMGManager::load(JSUMemoryInputStream& stream)
 
 void TMonteMHManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -376,6 +387,8 @@ void TMonteMHManager::load(JSUMemoryInputStream& stream)
 
 void TMonteWCManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -384,6 +397,8 @@ void TMonteWCManager::load(JSUMemoryInputStream& stream)
 
 void TMareMAManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -392,6 +407,8 @@ void TMareMAManager::load(JSUMemoryInputStream& stream)
 
 void TMareMBManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -400,6 +417,8 @@ void TMareMBManager::load(JSUMemoryInputStream& stream)
 
 void TMareMCManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -408,6 +427,8 @@ void TMareMCManager::load(JSUMemoryInputStream& stream)
 
 void TMareMDManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -416,6 +437,8 @@ void TMareMDManager::load(JSUMemoryInputStream& stream)
 
 void TMareWAManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -424,6 +447,8 @@ void TMareWAManager::load(JSUMemoryInputStream& stream)
 
 void TMareWBManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -432,6 +457,8 @@ void TMareWBManager::load(JSUMemoryInputStream& stream)
 
 void TKinopioManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -440,6 +467,8 @@ void TKinopioManager::load(JSUMemoryInputStream& stream)
 
 void TKinojiiManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -448,6 +477,8 @@ void TKinojiiManager::load(JSUMemoryInputStream& stream)
 
 void TPeachManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);
@@ -456,6 +487,8 @@ void TPeachManager::load(JSUMemoryInputStream& stream)
 
 void TRaccoonDogManager::load(JSUMemoryInputStream& stream)
 {
+	PAD_STACK(0x10);
+
 	TEnemyManager::load(stream);
 	unk3C = 250.0f;
 	unk60 = new TModelDataKeeper(unk1C->mFolder);

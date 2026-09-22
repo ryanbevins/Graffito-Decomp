@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/PollutionLayer.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <Map/PollutionManager.hpp>
@@ -36,6 +37,8 @@ int TPollutionLayer::getTexPosS(f32 x) const
 
 bool TPollutionLayer::getPollutedPosNear(f32 range, JGeometry::TVec3<f32>* pos)
 {
+	PAD_STACK(0x28);
+
 	TPollutionPos* pollutionPos = &unk5C;
 
 	for (int i = 0; i < 5; ++i) {
@@ -75,6 +78,8 @@ bool TPollutionLayer::getPollutedPosNear(f32 range, JGeometry::TVec3<f32>* pos)
 
 bool TPollutionLayer::getPollutedPos(f32 range, JGeometry::TVec3<f32>* pos)
 {
+	PAD_STACK(0x8);
+
 	for (int i = 0; i < 5; ++i) {
 		pos->x = gpMarioPos->x + range * (MsRandF() - 0.5f);
 		pos->y = gpMarioPos->y;

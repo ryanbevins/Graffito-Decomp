@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/BossManta.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
@@ -316,6 +317,8 @@ BOOL TNerveMantaSpawn::execute(TSpineBase<TLiveActor>* spine) const
 }
 BOOL TNerveMantaDeath::execute(TSpineBase<TLiveActor>* spine) const
 {
+	PAD_STACK(0x10);
+
 	TBossManta* self = (TBossManta*)spine->getBody();
 
 	if (spine->getTime() == 0) {
@@ -340,6 +343,8 @@ BOOL TNerveMantaDeath::execute(TSpineBase<TLiveActor>* spine) const
 }
 BOOL TNerveMantaAppearDemo::execute(TSpineBase<TLiveActor>* spine) const
 {
+	PAD_STACK(0x18);
+
 	TBossManta* self = (TBossManta*)spine->getBody();
 	int time         = spine->getTime();
 
@@ -726,6 +731,8 @@ void TBossManta::calcRootMatrix()
 #pragma dont_inline on
 f32 TBossManta::getPolluteRadius()
 {
+	PAD_STACK(0x10);
+
 	switch (mGeneration) {
 	case 0:
 	case 1:

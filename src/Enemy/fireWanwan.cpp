@@ -1,6 +1,7 @@
 #define ARRAYWRAPPER_FIREWANWAN_ACCESSORS_OUT_OF_LINE
 #define JGEOMETRY_FIREWANWAN_TVEC4_CTOR_OUT_OF_LINE
 #define TAKEACTOR_ISTAKEN_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/FireWanwan.hpp>
 #undef TAKEACTOR_ISTAKEN_OUT_OF_LINE
 #undef JGEOMETRY_FIREWANWAN_TVEC4_CTOR_OUT_OF_LINE
@@ -803,6 +804,8 @@ void TFireWanwan::setMActorAndKeeper()
 
 void TFireWanwan::reset()
 {
+	PAD_STACK(0x20);
+
 	mPosition = mInitialPosition;
 
 	unk194->mIsOnFire = true;
@@ -2196,6 +2199,8 @@ DEFINE_NERVE(TNerveFireWanwanFreeze, TLiveActor)
 
 DEFINE_NERVE(TNerveFireWanwanEscape, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	TFireWanwan* self = (TFireWanwan*)spine->getBody();
 
 	if (spine->getTime() == 0) {

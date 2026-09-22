@@ -1,4 +1,5 @@
 #define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MoveBG/MapObjGeneral.hpp>
 #undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <System/FlagManager.hpp>
@@ -172,12 +173,16 @@ void TMapObjGeneral::touchingPlayer()
 
 void TMapObjGeneral::holding()
 {
+	PAD_STACK(0x8);
+
 	mPosition     = mHolder->mPosition;
 	mGroundHeight = gpMap->checkGround(mPosition, &mGroundPlane);
 }
 
 void TMapObjGeneral::recovering()
 {
+	PAD_STACK(0x28);
+
 	startSound(9);
 	if (hasModelOrAnimData(6)) {
 		J3DModel* model = getModel();
@@ -202,6 +207,8 @@ void TMapObjGeneral::recovering()
 
 void TMapObjGeneral::sinking()
 {
+	PAD_STACK(0x8);
+
 	mPosition.y -= mMapObjData->mSink->unk0;
 
 	for (int i = 0; i < getColNum(); ++i) {
@@ -235,6 +242,8 @@ void TMapObjGeneral::breaking()
 
 void TMapObjGeneral::appearing()
 {
+	PAD_STACK(0x8);
+
 	// TODO: uuuuuuuh...
 	if (hasAnim(1)) {
 		if (animIsFinished())
@@ -340,6 +349,8 @@ void TMapObjGeneral::hold(TTakeActor* actor)
 
 void TMapObjGeneral::ensureTakeSituation()
 {
+	PAD_STACK(0x8);
+
 	TMapObjBase::ensureTakeSituation();
 	if (isState(6) && mHolder == nullptr) {
 		mState = 1;
@@ -361,6 +372,8 @@ void TMapObjGeneral::kill()
 
 void TMapObjGeneral::appear()
 {
+	PAD_STACK(0x8);
+
 	makeObjAppeared();
 	startAnim(1);
 	if (checkMapObjFlag(0x800000)) {
@@ -440,6 +453,8 @@ void TMapObjGeneral::checkWallCollision(JGeometry::TVec3<f32>* param_1)
 	} else {
 		mWallPlane = 0;
 	}
+
+	PAD_STACK(0x18);
 }
 
 void TMapObjGeneral::touchRoof(JGeometry::TVec3<f32>* param_1)
@@ -498,6 +513,8 @@ void TMapObjGeneral::checkGroundCollision(JGeometry::TVec3<f32>* param_1)
 
 void TMapObjGeneral::calcVelocity()
 {
+	PAD_STACK(0x28);
+
 	if (isAirborne()) {
 		mVelocity.y -= getGravityY();
 		mVelocity.y = MsClamp(mVelocity.y, -mBodyRadius, mBodyRadius);
@@ -560,6 +577,8 @@ void TMapObjGeneral::bind()
 
 void TMapObjGeneral::control()
 {
+	PAD_STACK(0x8);
+
 	TMapObjBase::control();
 	if (checkMapObjFlag(0x1000000) && isState(1) && !isAirborne()
 	    && isPollutedGround(mPosition))
@@ -617,6 +636,8 @@ void TMapObjGeneral::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 BOOL TMapObjGeneral::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK_TEMP(0x18);
+
 	int ret = TMapObjBase::receiveMessage(sender, message);
 	if (ret)
 		return true;

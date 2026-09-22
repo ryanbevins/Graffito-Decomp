@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JKernel/JKRDvdAramRipper.hpp>
 #include <JSystem/JKernel/JKRAram.hpp>
 #include <JSystem/JKernel/JKRAramPiece.hpp>
@@ -199,6 +200,8 @@ JKRADCommand* JKRDvdAramRipper::callCommand_Async(JKRADCommand* command)
 
 bool JKRDvdAramRipper::syncAram(JKRADCommand* command, int param_1)
 {
+	PAD_STACK(0x8);
+
 	JKRDvdFile* dvdFile = command->mDvdFile;
 	OSLockMutex(&dvdFile->mAramMutex);
 
@@ -374,6 +377,8 @@ static int decompSZS_subroutine(u8* src, u32 dest)
 
 static u8* firstSrcData()
 {
+	PAD_STACK(0x8);
+
 	srcLimit    = szpEnd - 0x19;
 	u8* buffer  = szpBuf;
 	u32 bufSize = szpEnd - buffer;

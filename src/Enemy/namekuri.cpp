@@ -1,5 +1,6 @@
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/NameKuri.hpp>
 #include <Enemy/Walker.hpp>
 #include <Enemy/Graph.hpp>
@@ -136,6 +137,8 @@ static const GXColorS10 nameKuriTevColorData[7] = {
 
 void TNameKuriManager::initSetEnemies()
 {
+	PAD_STACK(0x10);
+
 	void* brainBmd = JKRGetResource("/scene/namekuri2/brain.bmd");
 	SDLModelData* brainModel
 	    = new SDLModelData(J3DModelLoaderDataBase::load(brainBmd, 0x10210000));
@@ -328,6 +331,8 @@ TNameKuri::TNameKuri(const char* name)
 
 void TNameKuri::init(TLiveManager* param_1)
 {
+	PAD_STACK(0x28);
+
 	JKRHeap::getCurrentHeap()->getTotalFreeSize();
 
 	TWalkerEnemy::init(param_1);
@@ -504,6 +509,8 @@ void TNameKuri::moveObject()
 		if (unk194 > aliveTime)
 			kill();
 	}
+
+	PAD_STACK(0x10);
 }
 
 void TNameKuri::setBehavior() { }
@@ -574,6 +581,8 @@ void TNameKuri::setDeadAnm()
 
 void TNameKuri::setAfterDeadEffect()
 {
+	PAD_STACK(0x8);
+
 	if (unk198) {
 		TWaterGun* waterGun = (TWaterGun*)SMS_GetMarioWaterGun();
 		s32 maxAmount
@@ -881,5 +890,6 @@ DEFINE_NERVE(TNerveNKFollowMario, TLiveActor)
 		return true;
 	}
 
+	PAD_STACK_TEMP(0x10);
 	return false;
 }

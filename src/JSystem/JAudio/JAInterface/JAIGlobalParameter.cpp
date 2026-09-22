@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JAInterface/JAIGlobalParameter.hpp>
 #include <JSystem/JAudio/JAInterface/JAIBasic.hpp>
 #include <JSystem/JAudio/JASystem/JASDriverIF.hpp>
@@ -56,6 +57,8 @@ f32 JAIGlobalParameter::minDistanceVolume          = 0.0f;
 
 void JAIGlobalParameter::setParamSoundOutputMode(u32 value)
 {
+	PAD_STACK(0x8);
+
 	int r31 = 1;
 	int r30 = 0;
 	switch (value) {

@@ -1,4 +1,5 @@
 #define TBGCHECKDATA_ISILLEGAL_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/BossHanachanSub.hpp>
 
 #include <Camera/cameralib.hpp>
@@ -136,6 +137,8 @@ TSphereLink::TSphereLink(u16 count, const JGeometry::TVec3<f32>& pos,
 		sp.mSegLen       = radius;
 		sp.mDegree       = 0.0f;
 	}
+
+	PAD_STACK(0x20);
 }
 
 void TSphereLink::execMapCollision_(JGeometry::TVec3<f32>* pos)

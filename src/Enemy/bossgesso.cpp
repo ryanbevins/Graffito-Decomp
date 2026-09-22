@@ -1,6 +1,7 @@
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/BossGesso.hpp>
 #undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <Enemy/BossGessoTentacle.hpp>
@@ -1354,6 +1355,8 @@ void TBossGesso::moveObject()
 
 void TBossGesso::reset()
 {
+	PAD_STACK(0x8);
+
 	for (int i = 0; i < TENTACLE_NUM; ++i) {
 		mTentacles[i]->resetAllNodes(mPosition);
 		mTentacles[i]->getFirstNode()->onUnk24();

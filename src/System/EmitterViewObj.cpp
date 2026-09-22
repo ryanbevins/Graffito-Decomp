@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <System/EmitterViewObj.hpp>
 #include <JSystem/JParticle/JPAEmitterManager.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
@@ -202,12 +203,16 @@ void TMarioParticleManager::perform(u32 param_1, JDrama::TGraphics* param_2)
 			unk3B8->draw(&drawInfo, 1);
 		}
 	}
+
+	PAD_STACK(0x30);
 }
 
 JPABaseEmitter*
 TMarioParticleManager::emit(s32 param_1, const JGeometry::TVec3<f32>* param_2,
                             u8 param_3, const void* param_4)
 {
+	PAD_STACK(0x8);
+
 	if (param_3 == 0)
 		if (JPABaseEmitter* emitter = unk3B8->createSimpleEmitterID(
 		        *param_2, param_1, param_3, 0, nullptr, nullptr))
@@ -261,6 +266,8 @@ JPABaseEmitter* TMarioParticleManager::emitWithRotate(
     s32 param_1, const JGeometry::TVec3<f32>* param_2, s16 param_3, s16 param_4,
     s16 param_5, u8 param_6, const void* param_7)
 {
+	PAD_STACK(0x20);
+
 	JPABaseEmitter* emitter;
 
 	if (param_6 == 0)
@@ -288,6 +295,8 @@ TMarioParticleManager::emitAndBindToPosPtr(s32 param_1,
                                            const JGeometry::TVec3<f32>* param_2,
                                            u8 param_3, const void* param_4)
 {
+	PAD_STACK(0x8);
+
 	if (param_3 == 0)
 		if (JPABaseEmitter* emitter = unk3B8->createSimpleEmitterID(
 		        *param_2, param_1, param_3, 0, nullptr, nullptr)) {
@@ -509,6 +518,8 @@ JPABaseEmitter* TMarioParticleManager::emitParticleCallBack(
     JPACallBackBase2<JPABaseEmitter*, JPABaseParticle*>* param_4,
     const void* param_5)
 {
+	PAD_STACK(0x8);
+
 	if (param_3 == 1) {
 		int type    = param_1 - 253;
 		int idx     = getAvailableIdx(type, param_3, param_5);
@@ -591,6 +602,8 @@ void TMarioParticleManager::emitTry(s32 param_1,
 		emitter->mDraw.swapImage(gpScreenTexture->getTexture()->getTexInfo(),
 		                         emitter->mDraw.getMainTextureID(0));
 	}
+
+	PAD_STACK(0x20);
 }
 
 int TMarioParticleManager::getAvailableIdx(s32 param_1, u8 param_2,

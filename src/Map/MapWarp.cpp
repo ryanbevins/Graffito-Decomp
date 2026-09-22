@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/MapWarp.hpp>
 #include <Map/MapModel.hpp>
 #include <Map/Map.hpp>
@@ -14,6 +15,8 @@
 
 void TMapWarp::changeModel(int i)
 {
+	PAD_STACK(0x18);
+
 	if (unk8 == i)
 		return;
 

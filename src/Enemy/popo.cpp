@@ -1,4 +1,5 @@
 #define JGEOMETRY_ROTATION3_IDENTITY33_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/Popo.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/Graph.hpp>
@@ -1087,6 +1088,8 @@ BOOL TPopoCollision::receiveMessage(THitActor* sender, u32 message)
 
 void TPopoManager::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x8);
+
 	if (flags & 1) {
 		for (int i = 0; i < getActiveObjNum(); ++i) {
 			TPopo* popo = (TPopo*)unk18[i];

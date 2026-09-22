@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
@@ -285,6 +286,8 @@ void J3DJoint::addMesh(J3DMaterial* material)
 
 void J3DJoint::updateIn()
 {
+	PAD_STACK(0x8);
+
 	if (mMtxCalc) {
 		mOldMtxCalc = j3dSys.getCurrentMtxCalc();
 		mMtxCalc->calc(mJntNo);
@@ -357,6 +360,8 @@ void J3DJoint::calcOut()
 
 void J3DJoint::entryIn()
 {
+	PAD_STACK(0x8);
+
 	j3dSys.getDrawBuffer(0)->setZMtx(j3dSys.getModel()->getAnmMtx(mJntNo));
 	j3dSys.getDrawBuffer(1)->setZMtx(j3dSys.getModel()->getAnmMtx(mJntNo));
 

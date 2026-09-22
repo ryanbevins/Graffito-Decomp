@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjManager.hpp>
 #include <MoveBG/MapObjGeneral.hpp>
 #include <MoveBG/MapObjBase.hpp>
@@ -10825,6 +10826,8 @@ void TMapObjBase::setMatTableTex(J3DMaterialTable* table)
 
 void TMapObjBase::initUnique()
 {
+	PAD_STACK(0x1E8);
+
 	// TODO: I hate switches, someone fix this please...
 	switch (getActorType()) {
 	case 0x2000003C:
@@ -10982,6 +10985,8 @@ void TMapObjBase::initMapCollisionData()
 
 void TMapObjBase::initObjCollisionData()
 {
+	PAD_STACK(0x10);
+
 	if (getMapObjData()->mHit != nullptr) {
 		initHitActor(getMapObjData()->unk4, getHitObjNumMax(),
 		             getMapObjData()->mHit->unk4, 0.0f, 0.0f, 0.0f, 0.0f);

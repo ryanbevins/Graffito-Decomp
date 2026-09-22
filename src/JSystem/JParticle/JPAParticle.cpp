@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JParticle/JPAParticle.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
@@ -126,6 +127,8 @@ void JPABaseParticle::getCurrentPositionZ() { }
 
 bool JPAParticle::checkCreateChildParticle()
 {
+	PAD_STACK(0x10);
+
 	bool result          = false;
 	JPAEmitterInfo* info = JPAGetEmitterInfoPtr();
 

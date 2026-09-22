@@ -1,4 +1,5 @@
 #define JDRAMA_TFLAG_CTOR_DECL_ONLY
+#include <StackPadding.h>
 #include <Enemy/Gesso.hpp>
 #undef JDRAMA_TFLAG_CTOR_DECL_ONLY
 #include <Enemy/Conductor.hpp>
@@ -450,6 +451,8 @@ void TGesso::attackToMario()
 
 void TGesso::setBehavior()
 {
+	PAD_STACK(0x10);
+
 	if (mAttackCooldown > 0)
 		mAttackCooldown += 1;
 
@@ -549,6 +552,8 @@ void TGesso::pollute()
 	mPolluteObj->mPosition.x = mtx[0][3] + local_2c.x;
 	mPolluteObj->mPosition.y = mtx[1][3];
 	mPolluteObj->mPosition.z = mtx[2][3] + local_2c.z;
+
+	PAD_STACK(0x10);
 }
 
 void TGesso::setAfterDeadEffect()
@@ -751,6 +756,8 @@ void TGesso::behaveToFindMario()
 
 void TGesso::rollCheck()
 {
+	PAD_STACK(0x8);
+
 	if (mAttackCooldown != 0)
 		return;
 
@@ -932,6 +939,8 @@ void TGessoPolluteObj::pollute()
 
 void TGessoPolluteObj::rebirth()
 {
+	PAD_STACK(0x8);
+
 	if (unk158 == 0) {
 		gpMarioParticleManager->emit(0xBC, &mPosition, 0, nullptr);
 		gpMarioParticleManager->emit(0xBD, &mPosition, 0, nullptr);
@@ -997,6 +1006,8 @@ void TGessoPolluteObj::set()
 
 void TGessoPolluteObj::calcRootMatrix()
 {
+	PAD_STACK(0x8);
+
 	TEnemyAttachment::calcRootMatrix();
 	if (unk168 != 0)
 		return;
@@ -1022,6 +1033,8 @@ void TGessoPolluteObj::sendMessage()
 
 DEFINE_NERVE(TNerveGessoStay, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TGesso* self = (TGesso*)spine->getBody();
 	if (spine->getTime() == 0)
 		self->setWaitAnm();

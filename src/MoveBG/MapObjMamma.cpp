@@ -1,4 +1,5 @@
 #define LIVEACTOR_GETMACTOR_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MoveBG/MapObjMamma.hpp>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraShake.hpp>
@@ -368,6 +369,8 @@ void TSandBombBase::exploding()
 
 void TSandBombBase::explode()
 {
+	PAD_STACK(0x8);
+
 	startControlAnim(1);
 	mScaling.y = 1.0f;
 
@@ -580,6 +583,8 @@ void TSandCastle::expanded()
 
 void TSandCastle::explode()
 {
+	PAD_STACK(0x8);
+
 	startControlAnim(1);
 	mScaling.y = 1.0f;
 
@@ -650,11 +655,15 @@ void TSandCastle::calcRootMatrix()
 
 TMapObjBase* TSandCastle::findTriggerActor()
 {
+	PAD_STACK(0x18);
+
 	return findMapObj("砂の城爆発の芽");
 }
 
 void TSandCastle::loadAfter()
 {
+	PAD_STACK(0x10);
+
 	unk144 = findTriggerActor();
 	((TSandLeaf*)unk144)->unk138 = this;
 	unk144->appear();
@@ -699,6 +708,8 @@ void TLeanMirror::draw() const
 
 BOOL TLeanMirror::receiveMessage(THitActor* sender, u32 message)
 {
+	PAD_STACK(0x18);
+
 	if (message == 0) {
 		sendMsg(0x10000016, message);
 		addLeanMirrorImpulse(this, sender, unk164.x);
@@ -728,6 +739,8 @@ BOOL TLeanMirror::receiveMessage(THitActor* sender, u32 message)
 
 void TLeanMirror::touchPlayer(THitActor* actor)
 {
+	PAD_STACK(0x8);
+
 	bool canTouch = mState == 1 ? true : false;
 	if (!canTouch)
 		return;
@@ -796,6 +809,8 @@ void TLeanMirror::release()
 
 static s32 startCameraShakeSE(u32 pos, u32 time)
 {
+	PAD_STACK(0x8);
+
 	if (time == 0) {
 		MSound* sound = gpMSound;
 		const Vec* position = (const Vec*)pos;
@@ -934,6 +949,8 @@ void TLeanMirror::control()
 
 void TLeanMirror::loadAfter()
 {
+	PAD_STACK(0x10);
+
 	TMapObjBase::loadAfter();
 	unk17C = (TShiningStone*)findLiveActor("ShiningStone");
 
@@ -1022,6 +1039,8 @@ TLeanMirror::TLeanMirror(const char* name)
 
 void TShiningStone::putOnLight(TLiveActor* actor)
 {
+	PAD_STACK(0x20);
+
 	if (strcmp(actor->getName(), "mirrorS") == 0) {
 		unk68[0]->setBck("shiningstonegreen");
 		unk68[0]->setBrk("shiningstonegreen");
@@ -1209,6 +1228,8 @@ void TMammaBlockRotate::control()
 	default:
 		break;
 	}
+
+	PAD_STACK(0x8);
 }
 
 void TMammaBlockRotate::initMapObj()
@@ -1240,6 +1261,8 @@ void TMammaBlockRotate::initMapObj()
 	unk148->moveTrans(vec);
 
 	unk138->getModel()->calc();
+
+	PAD_STACK(0x70);
 }
 
 void TMammaBlockRotate::load(JSUMemoryInputStream& stream)
@@ -1456,6 +1479,8 @@ void TGoalWatermelon::control()
 
 void TGoalWatermelon::loadAfter()
 {
+	PAD_STACK(0x10);
+
 	TMapObjBase::loadAfter();
 	unk64 |= 4;
 	unk138 = findMapObj("シャイン（お化けスイカ用）");
@@ -1471,6 +1496,8 @@ void TGoalWatermelon::load(JSUMemoryInputStream& stream)
 	stream.read(&unk140.x, 4);
 	stream.read(&unk140.y, 4);
 	stream.read(&unk140.z, 4);
+
+	PAD_STACK(0x10);
 }
 
 TGoalWatermelon::TGoalWatermelon(const char* name)

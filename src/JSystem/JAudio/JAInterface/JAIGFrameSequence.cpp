@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JAInterface/JAIBasic.hpp>
 #include <JSystem/JAudio/JAInterface/JAIGlobalParameter.hpp>
 #include <JSystem/JAudio/JAInterface/JAISystemInterface.hpp>
@@ -639,6 +640,8 @@ void JAIBasic::checkReadSeq()
 
 void JAIBasic::checkSeqWave()
 {
+	PAD_STACK(0x8);
+
 	for (int i = 0; i < JAIGlobalParameter::seqPlayTrackMax; ++i) {
 		JAISeqUpdateData* sud = &unk0->unk180[i];
 		JAISound** sound      = &sud->unk48;

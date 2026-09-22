@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include "Camera/CameraShake.hpp"
 #include "Enemy/Enemy.hpp"
 #include "Enemy/SmallEnemy.hpp"
@@ -398,6 +399,8 @@ void TCoasterKillerManager::load(JSUMemoryInputStream& stream)
 
 void TCoasterKillerManager::loadAfter()
 {
+	PAD_STACK(0x18);
+
 	TSmallEnemyManager::loadAfter();
 	ASSERT_TEST(unk38);
 }

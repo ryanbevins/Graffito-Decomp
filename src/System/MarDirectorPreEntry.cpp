@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <System/MarDirector.hpp>
 #include <System/PerformList.hpp>
 #include <System/RenderModeObj.hpp>
@@ -13,6 +14,8 @@ static const char cDirtyTexName[]        = "H_ma_rak_dummy";
 
 void TMarDirector::preEntry(TPerformList* list)
 {
+	PAD_STACK_TEMP(0x38);
+
 	JDrama::TViewObj* setViewMtx
 	    = JDrama::TNameRefGen::search<JDrama::TViewObj>(
 	        "J3D System Set View Mtx");

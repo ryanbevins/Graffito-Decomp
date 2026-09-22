@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/MapObjRailBlock.hpp>
 #include <Map/MapCollisionManager.hpp>
 #include <Map/MapCollisionEntry.hpp>
@@ -33,6 +34,8 @@ TRailMapObj::TRailMapObj(const char* name)
 // TODO: weird stack frame issues here D:
 void TRailMapObj::initGraphTracer(TGraphWeb* graph)
 {
+	PAD_STACK(0x10);
+
 	unk138 = new TGraphTracer;
 
 	unk138->unk0 = graph;
@@ -163,6 +166,8 @@ BOOL TRailMapObj::calcRecycle()
 
 void TRailMapObj::resetPosition()
 {
+	PAD_STACK_ARRAY(0x10);
+
 	mPosition = mInitialPosition;
 	mRotation = mInitialRotation;
 	unk148    = 0;
@@ -253,6 +258,8 @@ TNormalLift::TNormalLift(const char* name)
 
 void TNormalLift::resetPosition()
 {
+	PAD_STACK(0x10);
+
 	TRailMapObj::resetPosition();
 	unk158 = 1;
 }
@@ -272,6 +279,8 @@ void TNormalLift::load(JSUMemoryInputStream& stream)
 
 void TNormalLift::readRailFlag()
 {
+	PAD_STACK(0x18);
+
 	TRailMapObj::readRailFlag();
 
 	TGraphWeb* graph = unk138->getGraph();
@@ -298,6 +307,8 @@ void TNormalLift::initMapObj() { TRailMapObj::initMapObj(); }
 
 void TNormalLift::control()
 {
+	PAD_STACK(0x10);
+
 	TMapObjBase::control();
 	checkMarioRiding();
 	if (unk158 != 0 && unk152 != 0) {
@@ -589,6 +600,8 @@ TWoodBlock::TWoodBlock(const char* name)
 
 BOOL TWoodBlock::calcRecycle()
 {
+	PAD_STACK(0x38);
+
 	switch (unk148) {
 	case 0:
 		unk14C = 1;

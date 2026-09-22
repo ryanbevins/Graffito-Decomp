@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <GC2D/ConsoleStr.hpp>
 #include <GC2D/BoundPane.hpp>
 #include <GC2D/ExPane.hpp>
@@ -99,6 +100,8 @@ void TConsoleStr::load(JSUMemoryInputStream& stream)
 
 void TConsoleStr::loadAfter()
 {
+	PAD_STACK(0x8);
+
 	JDrama::TViewObj::loadAfter();
 	unk2AC = 0;
 	unk2B0 = 0;

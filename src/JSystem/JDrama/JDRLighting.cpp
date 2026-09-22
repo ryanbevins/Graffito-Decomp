@@ -1,5 +1,6 @@
 #define JDRAMA_NO_INLINE_VIEWOBJ_CTOR
 #define JUTILITY_NO_INLINE_COLOR_SET
+#include <StackPadding.h>
 #include <JSystem/JDrama/JDRLighting.hpp>
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <dolphin/gx.h>
@@ -93,6 +94,8 @@ TNameRef* TLightAry::searchF(u16 key, const char* name)
 
 void TLightAry::setLightNum(s32 num)
 {
+	PAD_STACK(0x8);
+
 	mLightCount = num;
 	if (num > 0)
 		mLights = new TIdxLight[mLightCount];
@@ -136,7 +139,9 @@ void TAmbColor::perform(u32 param_1, TGraphics* param_2)
 
 GXColor TAmbColor::JSGGetColor() const { return mColor; }
 
-void TAmbColor::JSGSetColor(GXColor color) { mColor = color; }
+void TAmbColor::JSGSetColor(GXColor color) {
+	PAD_STACK(0x8);
+ mColor = color; }
 
 void TAmbAry::load(JSUMemoryInputStream& stream)
 {

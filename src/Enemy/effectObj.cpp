@@ -1,4 +1,5 @@
 #define JGEOMETRY_TVEC3_SCALE_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/EffectObj.hpp>
 #undef JGEOMETRY_TVEC3_SCALE_OUT_OF_LINE
 #include <Enemy/Conductor.hpp>
@@ -47,6 +48,8 @@ void TEffectPinnaFunsui::loadAfter()
 
 void TEffectPinnaFunsui::emitEffect()
 {
+	PAD_STACK(0x8);
+
 	MsMtxSetXYZRPH(getUnk48(), mPosition.x, mPosition.y, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
 
@@ -65,6 +68,8 @@ void TEffectBiancoFunsui::loadAfter()
 
 void TEffectBiancoFunsui::emitEffect()
 {
+	PAD_STACK(0x8);
+
 	MsMtxSetXYZRPH(getUnk48(), mPosition.x, mPosition.y, mPosition.z,
 	               mRotation.x, mRotation.y, mRotation.z);
 
@@ -180,6 +185,8 @@ void TEffectObjBase::moveObject()
 
 void TEffectObjBase::behaveToWater(THitActor* param_1)
 {
+	PAD_STACK(0x8);
+
 	if (unk68 != 2)
 		return;
 
@@ -280,6 +287,8 @@ void TEffectModel::calcRootMatrix()
 	mtx.translation(mPosition.x, mPosition.y, mPosition.z);
 	mMActor->getModel()->setBaseTRMtx(mtx);
 	mMActor->getModel()->setBaseScale(mScaling);
+
+	PAD_STACK(0x8);
 }
 
 TEffectColumWaterManager::TEffectColumWaterManager(const char* name)
@@ -517,6 +526,8 @@ void TEffectColumSand::reset()
 void TEffectColumSand::generate(JGeometry::TVec3<f32>& param_1,
                                 JGeometry::TVec3<f32>& param_2)
 {
+	PAD_STACK(0x18);
+
 	reset();
 	mScaling  = param_2;
 	f32 fVar1 = param_2.x;
@@ -593,6 +604,8 @@ void TEffectExplosion::reset()
 void TEffectExplosion::generate(JGeometry::TVec3<f32>& param_1,
                                 JGeometry::TVec3<f32>& param_2)
 {
+	PAD_STACK(0x18);
+
 	reset();
 	mScaling  = param_2;
 	f32 fVar1 = param_2.x;

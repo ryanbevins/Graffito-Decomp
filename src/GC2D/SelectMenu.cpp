@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <GC2D/SelectMenu.hpp>
 #include <GC2D/SelectShine2.hpp>
 #include <GC2D/ExPane.hpp>
@@ -700,6 +701,8 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 
 void TSelectMenu::startMove()
 {
+	PAD_STACK(0x10);
+
 	JPAEmitterManager* em = mDir->mEmitterMgr1;
 	mShineManager->initData(&mStageStates[0], _13C, mScenarioIndex, em);
 	mShineManager->mShines[mScenarioIndex]->unk24 = 1;

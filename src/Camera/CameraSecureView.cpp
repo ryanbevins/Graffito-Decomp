@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Camera/Camera.hpp>
 #include <MarioUtil/MathUtil.hpp>
 #include <Camera/cameralib.hpp>
@@ -13,6 +14,8 @@ template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
 
 void CPolarSubCamera::calcSecureViewTarget_(s16 angle, f32* outX, f32* outZ)
 {
+	PAD_STACK_ARRAY(0x8);
+
 	s16 base = *gpMarioAngleY - 0x8000;
 	s16 diff = angle - base;
 
@@ -38,6 +41,8 @@ void CPolarSubCamera::calcSecureViewTarget_(s16 angle, f32* outX, f32* outZ)
 
 void CPolarSubCamera::execSecureView_(s16 angle, Vec* out)
 {
+	PAD_STACK(0x30);
+
 	f32 px;
 	f32 pz;
 	calcSecureViewTarget_(angle, &px, &pz);

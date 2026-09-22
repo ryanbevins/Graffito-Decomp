@@ -1,4 +1,5 @@
 #define TBGCHECKDATA_ISWATERSURFACE_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Enemy/EnemyAttachment.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Strategic/ObjModel.hpp>
@@ -159,6 +160,8 @@ void TEnemyAttachment::calcRootMatrix()
 
 void TEnemyAttachment::perform(u32 param_1, JDrama::TGraphics* param_2)
 {
+	PAD_STACK(0x10);
+
 	if (unk150 == nullptr) {
 		if (param_1 & 2)
 			behaveToHost();

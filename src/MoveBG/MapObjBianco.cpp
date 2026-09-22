@@ -1,4 +1,5 @@
 #define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MoveBG/MapObjBianco.hpp>
 #undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #include <MoveBG/ItemManager.hpp>
@@ -835,6 +836,8 @@ TBiancoWatermillVertical::TBiancoWatermillVertical(const char* name)
     , unk148(nullptr)
     , unk14C(nullptr)
 {
+	PAD_STACK(0x10);
+
 }
 
 void TBiancoWatermillVertical::load(JSUMemoryInputStream& stream)
@@ -904,6 +907,8 @@ void TBiancoWatermillVertical::control()
 
 void TBiancoWatermillVertical::setGroundCollision()
 {
+	PAD_STACK(0x8);
+
 	if (unk144 != 0 || mColCount != 0) {
 		MtxPtr mtx = getModel()->getAnmMtx(0);
 		if (TMapCollisionBase* base = mMapCollisionManager->unk8)
@@ -966,6 +971,8 @@ void TBiancoWatermill::initMapObj()
 
 void TBiancoWatermill::control()
 {
+	PAD_STACK(0x8);
+
 	mRotation.z -= unk138;
 	f32 volume = __fabsf(unk138);
 	if (gpMSound->gateCheck(0x3043)) {

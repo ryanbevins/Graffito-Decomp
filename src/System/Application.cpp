@@ -1,4 +1,5 @@
 #define TIMEREC_CRTIMEARY_OUT_OF_LINE
+#include <StackPadding.h>
 #include <System/Application.hpp>
 #include <stdio.h>
 #include <stdlib.h>
@@ -165,6 +166,8 @@ void SMSLoadArchiveARAM(TARAMBlock* param_1, const char* param_2)
 
 void SMSMountAramArchive(JKRMemArchive* param_1, TARAMBlock& param_2)
 {
+	PAD_STACK_ARRAY(0x20);
+
 	if (param_2.unk4) {
 		JKRAram::aramToMainRam(param_2.unk0, (u8*)gpMarDirector->getUnkD4(), 0,
 		                       0, EXPAND_SWITCH_DECOMPRESS, 0x64000, nullptr,
@@ -179,6 +182,8 @@ void SMSMountAramArchive(JKRMemArchive* param_1, TARAMBlock& param_2)
 
 JKRArchive* SMSSwitch2DArchive(const char* param_1, TARAMBlock& param_2)
 {
+	PAD_STACK(0x20);
+
 	JKRMemArchive* arch = (JKRMemArchive*)JKRFileLoader::getVolume(param_1);
 	arch->unmountFixed();
 	SMSMountAramArchive(arch, param_2);
@@ -421,6 +426,8 @@ void TApplication::finalize()
 
 bool TApplication::checkAdditionalMovie()
 {
+	PAD_STACK(0x38);
+
 	bool result = false;
 
 	const TGameSequence& currArea = gpApplication.mCurrArea;

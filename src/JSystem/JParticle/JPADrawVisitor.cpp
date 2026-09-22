@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JParticle/JPADrawVisitor.hpp>
 #include <JSystem/JParticle/JPAExTexShape.hpp>
 #include <JSystem/JParticle/JPAResourceManager.hpp>
@@ -493,6 +494,8 @@ void dirTypeEmtrDir(JPABaseParticle*, JPABaseEmitter* emitter,
 void dirTypePrevPtcl(JPABaseParticle* particle, JPABaseEmitter* emitter,
                      JGeometry::TVec3<f32>& result)
 {
+	PAD_STACK(0x10);
+
 	JGeometry::TVec3<f32> pos;
 	particle->getGlobalPosition(pos);
 	JSULink<JPABaseParticle>* prev = particle->getLinkBufferPtr()->getPrev();
@@ -1068,6 +1071,8 @@ void JPADrawExecRotationCross::exec(const JPADrawContext* dc,
 	GXPosition3f32(pt[7].x + x, pt[7].y + y, pt[7].z + z);
 	GXTexCoord2f32(dc->pcb->mTexCoords[3].x, dc->pcb->mTexCoords[3].y);
 	GXEnd();
+
+	PAD_STACK(0x10);
 }
 
 void JPADrawExecPoint::exec(const JPADrawContext* dc, JPABaseParticle* particle)
@@ -1840,6 +1845,8 @@ void JPADrawCalcChildAlphaOut::calc(const JPADrawContext*,
 void JPADrawCalcChildScaleOut::calc(const JPADrawContext*,
                                     JPABaseParticle* particles)
 {
+	PAD_STACK(0x8);
+
 	JPADrawParams* params = particles->getDrawParamCPtr();
 
 	params->unk10 = params->unkC * (1.0f - particles->mLifeProgress);

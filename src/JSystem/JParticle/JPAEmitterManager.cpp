@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JParticle/JPAEmitterManager.hpp>
 #include <JSystem/JParticle/JPAParticle.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
@@ -131,6 +132,8 @@ void JPAEmitterManager::drawBase(JPADrawInfo* info, u8 group_id)
 
 void JPAEmitterManager::draw(JPADrawInfo* info)
 {
+	PAD_STACK(0x8);
+
 	for (int i = 0; i < 8; ++i)
 		drawBase(info, i);
 }
@@ -230,6 +233,8 @@ bool JPAEmitterManager::createEmitter(
     JPACallBackBase<JPABaseEmitter*>* param_3,
     JPACallBackBase2<JPABaseEmitter*, JPABaseParticle*>* param_4)
 {
+	PAD_STACK(0x8);
+
 	JPABaseEmitter* result
 	    = createSimpleEmitterID(param_1, param_2, 0, 0, param_3, param_4);
 

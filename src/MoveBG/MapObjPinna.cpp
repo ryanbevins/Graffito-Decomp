@@ -1,4 +1,5 @@
 #define JG_TUTIL_SQRT_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MoveBG/MapObjPinna.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EffectObj.hpp>
@@ -299,6 +300,8 @@ void TBalloonKoopaJr::load(JSUMemoryInputStream& stream)
 
 void TBalloonKoopaJr::kill()
 {
+	PAD_STACK(0x8);
+
 	TMapObjGeneral::kill();
 
 	emitAndScale(0x5a, 0, &unk148);
@@ -322,6 +325,8 @@ void TChangeStageMerrygoround::calc()
 
 void TChangeStageMerrygoround::touchPlayer(THitActor* sender)
 {
+	PAD_STACK(0x10);
+
 	bool timerActive = mLifeTimer > 0 ? true : false;
 	if (timerActive)
 		return;

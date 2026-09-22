@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JASystem/JASDSPInterface.hpp>
 #include <JSystem/JAudio/JASystem/JASChannel.hpp>
 #include <JSystem/JAudio/JASystem/JASCalc.hpp>
@@ -86,6 +87,8 @@ namespace DSPInterface {
 
 	BOOL FXBuffer::setFXLine(s16* buffer, FxlineConfig_* config)
 	{
+		PAD_STACK(0x8);
+
 		BOOL enable = OSDisableInterrupts();
 		unk0        = 0;
 

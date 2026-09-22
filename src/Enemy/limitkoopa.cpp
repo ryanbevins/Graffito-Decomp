@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/LimitKoopa.hpp>
 #include <Enemy/EnemyManager.hpp>
 #include <Strategic/ObjManager.hpp>
@@ -176,6 +177,8 @@ BOOL TLimitKoopaHand::receiveMessage(THitActor* sender, u32 message) { return TR
 
 void TLimitKoopaFlame::attack_(THitActor* actor)
 {
+	PAD_STACK(0x18);
+
 	if (actor->receiveMessage(this, 0xA)) {
 		TLimitKoopa* owner = (TLimitKoopa*)mOwner;
 		TLimitKoopaParams* params
@@ -228,6 +231,8 @@ BOOL TLimitKoopa::receiveMessage(THitActor* sender, u32 message)
 
 void TLimitKoopa::calcRootMatrix()
 {
+	PAD_STACK(0x10);
+
 	f32 scale = getSaveParam2()->bodyScale.get();
 	mScaling.x = scale;
 	mScaling.y = scale;

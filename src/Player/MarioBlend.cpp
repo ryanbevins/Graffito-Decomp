@@ -1,4 +1,5 @@
 
+#include <StackPadding.h>
 #include <M3DUtil/M3UModelMario.hpp>
 #include <M3DUtil/M3UJoint.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
@@ -18,6 +19,8 @@ void M3UModelMario::changeMtxCalcSIAnmBQAnmTransform(int param_1, int param_2,
 
 void M3UModelMario::updateInMotion()
 {
+	PAD_STACK(0x30);
+
 	// volatile u32 unused[12];
 	for (int i = 0; i < unk10; ++i) {
 		M3UMarioMtxCalcSetInfo& info = unk24[i];

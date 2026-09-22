@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JASystem/JASHardStream.hpp>
 #include <dolphin/ai.h>
 #include <dolphin/dvd.h>
@@ -33,6 +34,8 @@ namespace HardStream {
 
 	void main()
 	{
+		PAD_STACK(0x18);
+
 		static DVDFileInfo finfo[3];
 		static u32 cur_finfo   = 0;
 		static u8 cur_addr_cmd = 0;
@@ -188,6 +191,8 @@ namespace HardStream {
 
 	static void firstBgmCallback(s32, DVDFileInfo*)
 	{
+		PAD_STACK(0x8);
+
 		if (strCtrl.unkA == 0) {
 			u8 vol = strCtrl.getCurVol();
 			AISetStreamVolLeft(vol);
@@ -206,6 +211,8 @@ namespace HardStream {
 
 	static void getAddrCallback(s32 param_1, DVDCommandBlock*)
 	{
+		PAD_STACK(0x10);
+
 		static BOOL last_frame = 0;
 		if (strCtrl.unk8 == 3) {
 			if (param_1 == strCtrl.unk44[strCtrl.unk4C ^ 1]) {
@@ -280,6 +287,8 @@ namespace HardStream {
 
 	inline BOOL TControl::fileOpen(u16 param_1, DVDFileInfo* param_2)
 	{
+		PAD_STACK_TEMP(0x18);
+
 		char buffer[64];
 		char* ptr = streamFiles + param_1 * 0x24;
 		strcpy(buffer, rootDir);

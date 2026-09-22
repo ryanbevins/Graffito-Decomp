@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraMarioData.hpp>
 #include <NPC/NpcBase.hpp>
@@ -37,6 +38,8 @@ void CPolarSubCamera::makeMtxForTalk(const TBaseNPC* npc)
 
 void CPolarSubCamera::makeMtxForPrevTalk()
 {
+	PAD_STACK(0x10);
+
 	if (isTalkCameraSpecifyMode(mMode)) {
 		mCurrentTarget.mYaw        = mCurrentTarget.unk2C;
 		int oldMode  = unk58;

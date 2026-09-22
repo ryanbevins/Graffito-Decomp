@@ -1,5 +1,6 @@
 #define MSOUND_EMIT_START_FORCE_JUMP_SOUND
 #define JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
+#include <StackPadding.h>
 #include <Player/MarioMain.hpp>
 #undef JGEOMETRY_TVEC3_SUB_OUT_OF_LINE
 #define PLAYER_YOSHI_DEFINE_ON_YOSHI
@@ -1668,6 +1669,8 @@ void TMario::checkGraffitoSlip()
 
 void TMario::checkGraffitoElec()
 {
+	PAD_STACK(0x30);
+
 	u8 bit25;
 	if (mState & 0x40)
 		bit25 = 1;
@@ -2083,6 +2086,8 @@ BOOL TMario::considerRotateJumpStart()
 
 bool TMario::canSquat() const
 {
+	PAD_STACK(0x10);
+
 	u8 hasFludd;
 	if (getState() & 0x8000)
 		hasFludd = 1;

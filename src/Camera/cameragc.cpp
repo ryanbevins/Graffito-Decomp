@@ -8,6 +8,7 @@
 //   calcNowTargetFromPosAndAt_, calcSlopeAngleX_, rotateX/Y_ByStickXY_,
 //   __ct__, ~CPolarSubCamera, loadAfter
 
+#include <StackPadding.h>
 #include <Camera/Camera.hpp>
 #include <Camera/CameraBck.hpp>
 #include <Camera/CameraInbetween.hpp>
@@ -516,6 +517,8 @@ void CPolarSubCamera::ctrlGameCamera_()
 }
 void CPolarSubCamera::calcFinalPosAndAt_()
 {
+	PAD_STACK(0x8);
+
 	if (mMode != 0x49) {
 		gpCameraShake->execShake(unk124, &unk148, &mUp);
 		if (mMode != 0x2E) {
@@ -1004,11 +1007,15 @@ static inline bool isMarioReadyGun()
 
 bool CPolarSubCamera::isMarioCrabWalk_() const
 {
+	PAD_STACK(0x10);
+
 	return isMarioReadyGun() && (unk120->mMeaning & TMarioGamePad::MEANING_0x8000);
 }
 
 bool CPolarSubCamera::isMarioAimWithGun_() const
 {
+	PAD_STACK(0x10);
+
 	return isMarioReadyGun() && (unk120->mMeaning & TMarioGamePad::MEANING_0x400);
 }
 

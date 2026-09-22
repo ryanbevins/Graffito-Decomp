@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JKernel/JKRExpHeap.hpp>
 #include <JSystem/JUtility/JUTConsole.hpp>
 #include <JSystem/JUtility/JUTAssert.hpp>
@@ -770,6 +771,8 @@ void JKRExpHeap::recycleFreeBlock(JKRExpHeap::CMemBlock* block)
 // it's the same https://decomp.me/scratch/UOwNi
 void JKRExpHeap::joinTwoBlocks(CMemBlock* block)
 {
+	PAD_STACK(0x8);
+
 	// for some reason this gets rid of regswaps for the debug version, however
 	// is most likely incorrect u32 endAddr; u32 nextAddr; CMemBlock *next;
 

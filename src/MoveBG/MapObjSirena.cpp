@@ -1,5 +1,6 @@
 #define J3DMTXCALC_BASIC_INIT_OUT_OF_LINE
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
+#include <StackPadding.h>
 #include <MoveBG/MapObjSirena.hpp>
 #include <Map/Map.hpp>
 #include <Map/MapCollisionEntry.hpp>
@@ -137,6 +138,8 @@ void TPictureTelesa::touchActor(THitActor* sender)
 
 void TPictureTelesa::afterFinishedAnim()
 {
+	PAD_STACK(0x10);
+
 	TWaterHitPictureHideObj::afterFinishedAnim();
 	u8 result;
 	if ((mActorType - 0x40000000) == 0x1A2)
@@ -171,6 +174,8 @@ void TChestRevolve::control()
 
 u32 TChestRevolve::touchWater(THitActor* sender)
 {
+	PAD_STACK(0x8);
+
 	if (isState(1)) {
 		mState = 2;
 		startAnim(1);
@@ -181,6 +186,8 @@ u32 TChestRevolve::touchWater(THitActor* sender)
 
 void TPanelRevolve::touchPlayer(THitActor* sender)
 {
+	PAD_STACK(0x10);
+
 	if (marioHipAttack() && isState(1)) {
 		if (gpMSound->gateCheck(0x385D)) {
 			MSoundSESystem::MSoundSE::startSoundActor(0x385D, mPosition, 0,
@@ -194,6 +201,8 @@ void TPanelRevolve::touchPlayer(THitActor* sender)
 
 BOOL TPanelRevolve::receiveMessage(THitActor* sender, u32 msg)
 {
+	PAD_STACK(0x8);
+
 	if (isState(1)) {
 		if (gpMSound->gateCheck(0x385D)) {
 			MSoundSESystem::MSoundSE::startSoundActor(0x385D, mPosition, 0,
@@ -248,6 +257,8 @@ void TWarpAreaActor::load(JSUMemoryInputStream& stream)
 
 void TWarpAreaActor::perform(u32 flags, JDrama::TGraphics* graphics)
 {
+	PAD_STACK(0x8);
+
 	THitActor::perform(flags, graphics);
 
 	if (!(flags & 1))

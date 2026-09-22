@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <M3DUtil/MActorUtil.hpp>
 #include <M3DUtil/SDLModel.hpp>
 #include <M3DUtil/MActor.hpp>
@@ -48,6 +49,8 @@ MActor** SMS_MakeMActorsWithAnmData(const char* param_1, MActorAnmData* param_2,
 MActor* SMS_MakeMActorWithAnmData(const char* param_1, MActorAnmData* param_2,
                                   u32 param_3, u32 param_4)
 {
+	PAD_STACK(0x10);
+
 	SDLModelData* sdlData;
 	void* res             = JKRGetResource(param_1);
 	J3DModelData* j3dData = J3DModelLoaderDataBase::load(res, param_4);
@@ -61,6 +64,8 @@ MActor* SMS_MakeMActorWithAnmData(const char* param_1, MActorAnmData* param_2,
 MActor* SMS_MakeMActor(const char* param_1, const char* param_2, u32 param_3,
                        u32 param_4)
 {
+	PAD_STACK(0x8);
+
 	MActorAnmData* anm = new MActorAnmData;
 	anm->init(param_1, nullptr);
 	MActor** actors = SMS_MakeMActorsWithAnmData(param_2, anm, 1, param_3,

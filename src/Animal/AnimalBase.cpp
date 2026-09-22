@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Animal/AnimalBase.hpp>
 #include <MSound/MSoundBGM.hpp>
 #include <Enemy/PathNode.hpp>
@@ -72,6 +73,8 @@ void TAnimalBase::load(JSUMemoryInputStream& stream)
 
 void TAnimalBase::loadAfter()
 {
+	PAD_STACK(0x10);
+
 	JDrama::TNameRef::loadAfter();
 	if (mActorType == 0x00800001) {
 		MSoundSESystem::MSRandPlay::registerTrans(0x3813, &mPosition);

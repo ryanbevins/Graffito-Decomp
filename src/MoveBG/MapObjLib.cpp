@@ -2,6 +2,7 @@
 #define J3DMTXCALC_MAYA_INIT_OUT_OF_LINE
 #define JGEOMETRY_MAPOBJLIB_OWNER_HELPERS
 
+#include <StackPadding.h>
 #include <MoveBG/MapObjBase.hpp>
 #include <MoveBG/ItemManager.hpp>
 #include <MoveBG/MapObjTurn.hpp>
@@ -513,6 +514,8 @@ void TMapObjBase::setRootMtxTrans() { }
 
 void TMapObjBase::updateObjMtx()
 {
+	PAD_STACK(0x8);
+
 	MsMtxSetXYZRPH(getModel()->getAnmMtx(0), mPosition.x,
 	               mPosition.y - mYOffset, mPosition.z, mRotation.x,
 	               mRotation.y, mRotation.z);
@@ -829,6 +832,8 @@ bool TMapObjBase::marioHeadAttack() const
 
 bool TMapObjBase::marioHipAttack() const
 {
+	PAD_STACK(0x8);
+
 	if (SMS_GetMarioGrPlane()->getActor() == this && SMS_IsMarioStatusHipDrop()
 	    && gpMarioPos->y + *gpMarioSpeedY < SMS_GetMarioGrLevel())
 		return true;
@@ -850,6 +855,8 @@ void TMapObjBase::emitAndSRT(s32 param_1, u8 param_2,
                              const JGeometry::TVec3<f32>& param_4,
                              const JGeometry::TVec3<f32>& param_5)
 {
+	PAD_STACK(0x8);
+
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(param_1, param_3, param_2, param_3);
 
@@ -876,6 +883,8 @@ void TMapObjBase::emitAndSRT(s32 param_1, u8 param_2,
 void TMapObjBase::emitAndRotateScale(
     s32 param_1, u8 param_2, const JGeometry::TVec3<f32>* param_3) const
 {
+	PAD_STACK(0x10);
+
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emit(param_1, param_3, param_2, this);
 

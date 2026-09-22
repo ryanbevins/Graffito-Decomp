@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Map/MapEventSink.hpp>
 #include <Map/PollutionManager.hpp>
 #include <Map/PollutionLayer.hpp>
@@ -52,6 +53,8 @@ bool TMapEventSirenaSink::watch()
 
 void TMapEventSirenaSink::loadAfter()
 {
+	PAD_STACK(0x8);
+
 	JDrama::TNameRef::loadAfter();
 	TJointModel* model
 	    = (TJointModel*)JDrama::TNameRefGen::getInstance()
@@ -79,6 +82,8 @@ void TMapEventSirenaSink::load(JSUMemoryInputStream& stream)
 
 	SMS_LoadParticle("/scene/map/map/ms_objup_hotel_a.jpa", 0x68);
 	SMS_LoadParticle("/scene/map/map/ms_objup_hotel_b.jpa", 0x1E4);
+
+	PAD_STACK(0x10);
 }
 
 TMapEventSirenaSink::TMapEventSirenaSink(const char* name)

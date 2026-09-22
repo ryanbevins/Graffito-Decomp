@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/Kumokun.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
@@ -496,6 +497,8 @@ void TKumokun::bindOnFlying()
 
 void TKumokun::moveObject()
 {
+	PAD_STACK(0x8);
+
 	if (getWaterHitCooldown() > 0)
 		unk1D0 -= 1;
 
@@ -613,6 +616,8 @@ void TKumokun::pushNextAnm(const char* name, bool start)
 
 void TKumokun::changeBck(const char* name)
 {
+	PAD_STACK_ARRAY(0x8);
+
 	mMActor->setBck(name);
 	setCurAnmSound();
 
@@ -628,6 +633,8 @@ void TKumokun::changeBck(const char* name)
 
 void TKumokun::setDeadAnm()
 {
+	PAD_STACK(0x8);
+
 	switch (unk1EC) {
 	case 0:
 		changeBck("kumo_down1");
@@ -1077,6 +1084,8 @@ DEFINE_NERVE(TNerveKumokunWalk, TLiveActor)
 
 DEFINE_NERVE(TNerveKumokunPostWalk, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TKumokun* self = (TKumokun*)spine->getBody();
 	if (spine->getTime() == 0)
 		self->changeBck("kumo_run1_end");
@@ -1142,6 +1151,8 @@ DEFINE_NERVE(TNerveKumokunWait, TLiveActor)
 
 DEFINE_NERVE(TNerveKumokunFreeze, TLiveActor)
 {
+	PAD_STACK(0x10);
+
 	TKumokun* self = (TKumokun*)spine->getBody();
 	if (spine->getTime() == 0) {
 		self->clearAnmStack();
@@ -1164,6 +1175,8 @@ DEFINE_NERVE(TNerveKumokunFreeze, TLiveActor)
 
 DEFINE_NERVE(TNerveKumokunPostFreeze, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TKumokun* self = (TKumokun*)spine->getBody();
 	if (spine->getTime() == 0)
 		self->changeBck("kumo_hit_end");

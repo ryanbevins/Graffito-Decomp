@@ -1,5 +1,6 @@
 #define JGEOMETRY_DRAWUTIL_OWNER_HELPERS
 #define JGEOMETRY_TVEC3_IMPLICIT_COPY_CTOR
+#include <StackPadding.h>
 #include <System/TalkCursor.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DModel.hpp>
 #include <JSystem/J3D/J3DGraphLoader/J3DModelLoader.hpp>
@@ -12,6 +13,8 @@
 
 void TTalkCursor::loadAfter()
 {
+	PAD_STACK(0x8);
+
 	MActorAnmData* anmData = new MActorAnmData;
 	anmData->init("/common/cursor_b", nullptr);
 

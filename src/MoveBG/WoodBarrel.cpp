@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <MoveBG/WoodBarrel.hpp>
 #include <MSound/MSound.hpp>
 #include <MSound/MSoundSE.hpp>
@@ -36,6 +37,8 @@ void TWoodBarrel::put()
 
 void TWoodBarrel::hold(TTakeActor* param_1)
 {
+	PAD_STACK(0x8);
+
 	TMapObjGeneral::hold(param_1);
 	if (isActorType(0x4000005c))
 		mLifeTimer = mBreakTime;
@@ -82,6 +85,8 @@ void TWoodBarrel::appeared()
 
 void TWoodBarrel::appear()
 {
+	PAD_STACK(0x8);
+
 	makeObjAppeared();
 	gpMarioParticleManager->emitAndBindToPosPtr(0xE5, &mPosition, 0, nullptr);
 	if (gpMSound->gateCheck(0x387D))

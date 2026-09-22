@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <System/PositionHolder.hpp>
 
 TNameRefAryT<TStagePositionInfo>* gpPositionHolder;
@@ -21,4 +22,6 @@ void TStagePositionInfo::load(JSUMemoryInputStream& stream)
 	stream.read(&unused3, sizeof(f32));
 	stream.read(&unused4, sizeof(f32));
 	stream.read(&unused5, sizeof(f32));
+
+	PAD_STACK(0x10);
 }

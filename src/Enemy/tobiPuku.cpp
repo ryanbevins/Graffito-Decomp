@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <Enemy/TobiPuku.hpp>
 #include <Enemy/Conductor.hpp>
 #include <Enemy/EffectObj.hpp>
@@ -704,6 +705,8 @@ void TTobiPuku::initAttacker(THitActor* actor)
 
 void TTobiPuku::changeOut()
 {
+	PAD_STACK(0x8);
+
 	offLiveFlag(LIVE_FLAG_HIDDEN);
 	mPosition = mJuiceBlock->mPosition;
 	gpMarioParticleManager->emitAndBindToPosPtr(0xCD, &mPosition, 0, nullptr);
@@ -825,6 +828,8 @@ bool TTobiPuku::isReachedToGoalXZ()
 
 void TTobiPuku::swimEffect()
 {
+	PAD_STACK(0x18);
+
 	if (checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
 		return;
 

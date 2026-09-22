@@ -1,3 +1,4 @@
+#include <StackPadding.h>
 #include <JSystem/JAudio/JALibrary/JALModSe.hpp>
 #include <JSystem/JAudio/JALibrary/JALSystem.hpp>
 #include <JSystem/JAudio/JAInterface/JAISound.hpp>
@@ -213,6 +214,8 @@ void JALSystem::appendGrpMember(JALSystem::ModType param_1, u32 param_2,
 
 JALSystem::TFlagManager::TFlagManager()
 {
+	PAD_STACK(0x8);
+
 	u16 size;
 	u8 i;
 	u16 j;
