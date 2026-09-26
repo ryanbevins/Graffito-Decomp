@@ -442,7 +442,7 @@ inline JGeometry::TVec3<f32>& emDisappearPos(TEnemyMario* mario)
 
 inline JGeometry::TVec3<f32>& emGateBasePos(TEnemyMario* mario)
 {
-	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x178);
+	return mario->unk178;
 }
 
 inline u8*& emSettings(TEnemyMario* mario)
@@ -482,7 +482,7 @@ inline u16& emInputReplayCanPlay(TMarioInputReplay* replay)
 
 inline u8* emController(TEnemyMario* mario)
 {
-	return *(u8**)((u8*)mario + 0x108);
+	return *(u8**)&mario->unk108;
 }
 
 inline TMarioControllerWork* emControllerWork(TEnemyMario* mario)
@@ -578,12 +578,12 @@ inline JGeometry::TVec3<f32>& emDownPos(TEnemyMario* mario)
 
 inline s16& marioUnk14C(TMario* mario)
 {
-	return *(s16*)((u8*)mario + 0x14C);
+	return mario->unk14C;
 }
 
 inline s16& marioUnk14E(TMario* mario)
 {
-	return *(s16*)((u8*)mario + 0x14E);
+	return *(s16*)&mario->unk14E;
 }
 
 inline BOOL isEnemyModelDrawState(TEnemyMario* mario)
@@ -797,7 +797,7 @@ void TEnemyMario::damageExec(THitActor*, int, int, int, f32, int, f32, s16) { }
 void TEnemyMario::playerControl(JDrama::TGraphics* graphics)
 {
 	unk9C = mFaceAngle.y;
-	*(Vec*)((u8*)this + 0x29C) = *(Vec*)&mPosition;
+	*(Vec*)&mLastSafePos = *(Vec*)&mPosition;
 	mSubState &= ~8;
 	checkPlayerAction(graphics);
 	stateMachine();
@@ -1127,7 +1127,7 @@ void TEnemyMario::consider()
 		unk64 |= 1;
 		emOwner(this)->unk64 |= 1;
 		emFlags(this) &= ~2;
-		*(u16*)((u8*)this + 0x114) &= ~2;
+		mSubState &= ~2;
 		changePlayerStatus(0x133E, 0, false);
 		break;
 	case 0xA:
