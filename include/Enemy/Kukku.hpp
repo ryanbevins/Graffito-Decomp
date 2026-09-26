@@ -18,6 +18,14 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void init();
 
+	void shoot(JGeometry::TVec3<f32> pos, const JGeometry::TVec3<f32>& vel)
+	{
+		offHitFlag(1);
+		mFlags &= ~1;
+		mPosition = pos;
+		mVelocity = vel;
+	}
+
 public:
 	/* 0x68 */ MActor* mMActor;
 	/* 0x6C */ u32 mFlags;
@@ -72,6 +80,18 @@ public:
 
 	// fabricated
 	TKukkuBall** getKukkuBalls() { return mKukkuBalls; }
+	TKukkuBall* getFreeBall()
+	{
+		for (TKukkuBall** p = mKukkuBalls; p != (TKukkuBall**)&unk1A0; ++p) {
+			TKukkuBall* ball = *p;
+			bool isFree = false;
+			if ((ball->mFlags & 1) && ball->mState == 0)
+				isFree = true;
+			if (isFree)
+				return ball;
+		}
+		return nullptr;
+	}
 	s32 getUnk1A4() const { return unk1A4; }
 	TKukkuParams* getSaveParam2() const { return (TKukkuParams*)getSaveParam(); }
 

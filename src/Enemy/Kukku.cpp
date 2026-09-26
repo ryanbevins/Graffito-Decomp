@@ -177,34 +177,14 @@ DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor)
 		if (self->unk1AC >= 0) {
 			self->unk1AC -= 1;
 		} else {
-			TKukkuBall* found = nullptr;
-			for (TKukkuBall** p = self->mKukkuBalls;
-			     p != (TKukkuBall**)&self->unk1A0; ++p) {
-				TKukkuBall* ball = *p;
-				bool isFree = false;
-				if ((ball->mFlags & 1) && ball->mState == 0)
-					isFree = true;
-				if (isFree) {
-					found = ball;
-					break;
-				}
-			}
+			TKukkuBall* found = self->getFreeBall();
 			if (found) {
 				JGeometry::TVec3<f32> dir;
 				dir.set(0.0f, 1.0f, 0.0f);
-				f32 speed = self->getSaveParam2()->mShootSpeed.get();
-				f32 d     = dir.dot(dir);
-				if (d <= 0.0000038146973f) {
-					dir.set(0.0f, 0.0f, 0.0f);
-				} else {
-					dir.scale(speed * JGeometry::TUtil<f32>::inv_sqrt(d), dir);
-				}
+				dir.setLength(self->getSaveParam2()->mShootSpeed.get());
 				self->getModel()->getModelData()->getJointName()->getIndex(
 				    "null_osen");
-				found->offHitFlag(1);
-				found->mFlags &= ~1;
-				found->mPosition = self->mPosition;
-				found->mVelocity = dir;
+				found->shoot(self->mPosition, dir);
 				self->unk1AC = self->getSaveParam2()->mShootInterval.get();
 				if (gpMSound->gateCheck(0x28f3)) {
 					MSoundSESystem::MSoundSE::startSoundActor(
