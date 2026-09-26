@@ -59,19 +59,22 @@ DEFINE_NERVE(TNerveKukkuFall, TLiveActor)
 		J3DFrameCtrl* fc = self->getMActor()->getFrameCtrl(0);
 		fc->setRate(2.0f * SMSGetAnmFrameRate());
 
-		JGeometry::TVec3<f32> vel(0.0f, -self->getSaveParam2()->mWaterPowerY.get(),
-		                          0.0f);
+		TKukkuParams* params = self->getSaveParam2();
+		JGeometry::TVec3<f32> vel;
+		vel.x = 0.0f;
+		vel.y = -params->mWaterPowerY.get();
+		vel.z = 0.0f;
 		self->mVelocity = vel;
 		self->dropCoins();
 	}
 
 	if (!self->checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
-		    (E_SMS_EFFECT_ONETIME_NORMAL)0xA1, &self->mPosition, nullptr, scale);
-		JGeometry::TVec3<f32> scale2(1.0f, 1.0f, 1.0f);
+		    (E_SMS_EFFECT_ONETIME_NORMAL)0xA1, &self->mPosition, nullptr,
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
-		    (E_SMS_EFFECT_ONETIME_NORMAL)0xA2, &self->mPosition, nullptr, scale2);
+		    (E_SMS_EFFECT_ONETIME_NORMAL)0xA2, &self->mPosition, nullptr,
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		spine->pushAfterCurrent(&TNerveSmallEnemyDie::theNerve());
 		return TRUE;
 	}
