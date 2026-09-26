@@ -545,8 +545,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 						s32 na = a - 4;
 						if (na < 0) {
 							na = 0;
-							(*(J2DPane**)((u8*)this
-							              + 0x108))
+							(*(J2DPane**)&_104[4])
 							    ->mVisible
 							    = false;
 						}
@@ -809,35 +808,30 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 	if (coins < 100) {
 		s32 d10 = (s32)(coins * 0.1f);
 		((J2DPicture*)scenarioPics[1])
-		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
-		                                                    + 0xA8))[d10]
+		    ->changeTexture((const ResTIMG*)((JUTTexture**)_A8)[d10]
 		                        ->mTexInfo,
 		                    0);
 		s32 d1 = coins % 10;
 		((J2DPicture*)scenarioPics[2])
-		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
-		                                                    + 0xA8))[d1]
+		    ->changeTexture((const ResTIMG*)((JUTTexture**)_A8)[d1]
 		                        ->mTexInfo,
 		                    0);
 		((J2DPicture*)scenarioPics[0])->mVisible = false;
 	} else {
 		s32 d100 = (s32)(coins * 0.01f);
 		((J2DPicture*)scenarioPics[0])
-		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
-		                                                    + 0xA8))[d100]
+		    ->changeTexture((const ResTIMG*)((JUTTexture**)_A8)[d100]
 		                        ->mTexInfo,
 		                    0);
 		s32 rem  = coins - d100 * 100;
 		s32 d10  = (s32)(rem * 0.1f);
 		((J2DPicture*)scenarioPics[1])
-		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
-		                                                    + 0xA8))[d10]
+		    ->changeTexture((const ResTIMG*)((JUTTexture**)_A8)[d10]
 		                        ->mTexInfo,
 		                    0);
 		s32 d1 = rem % 10;
 		((J2DPicture*)scenarioPics[2])
-		    ->changeTexture((const ResTIMG*)((JUTTexture**)((u8*)this
-		                                                    + 0xA8))[d1]
+		    ->changeTexture((const ResTIMG*)((JUTTexture**)_A8)[d1]
 		                        ->mTexInfo,
 		                    0);
 		if (flagMgr->getShineFlag(stageShineTables[_13A][0])) {
