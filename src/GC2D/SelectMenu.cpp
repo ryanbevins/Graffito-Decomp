@@ -1180,18 +1180,11 @@ void TSelectGrad::perform(u32 flags, JDrama::TGraphics* gfx)
 		}
 
 		if (changed) {
-			s32* p = &_10;
-			(*p)++;
-			if (*p >= 6)
-				*p = 0;
-			p = &_14;
-			(*p)++;
-			if (*p >= 6)
-				*p = 0;
-			p = &_18;
-			(*p)++;
-			if (*p >= 6)
-				*p = 0;
+			for (i = 0; i < 3; i++) {
+				(&_10)[i]++;
+				if ((&_10)[i] >= 6)
+					(&_10)[i] = 0;
+			}
 		}
 	}
 
