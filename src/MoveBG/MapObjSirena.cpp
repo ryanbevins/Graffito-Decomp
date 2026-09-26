@@ -939,7 +939,7 @@ void TSlotDrum::moveObject()
 		f32 cur = unk138[i];
 		if (cur == 0.0f)
 			continue;
-		f32* abs_counter = (f32*)((u8*)this + 0x188 + i * 4);
+		f32* abs_counter = &unk188[i];
 		*abs_counter += fabsf(cur);
 		if (*abs_counter > 360.0f / (f32)unk168) {
 			*abs_counter = 0.0f;
@@ -1094,7 +1094,7 @@ void TItemSlotDrum::moveObject()
 			unk1A4 = 0;
 			TMsRange<s32> indexRange(0, 2);
 			s32 r = indexRange.rand();
-			*((u8*)this + 0x19C + r) = 1;
+			unk19C[r] = 1;
 
 			TMsRange<f32> resultRange(0.0f, 100.0f);
 			f32 picked = resultRange.rand();
@@ -1111,10 +1111,10 @@ void TItemSlotDrum::moveObject()
 		}
 	}
 	for (s32 i = 0; i < unk148; ++i) {
-		if (*((u8*)this + 0x19C + i) != 0) {
+		if (unk19C[i] != 0) {
 			if ((u32)getForcastResult(i) == unk198) {
-				*((u8*)this + 0x19C + i) = 0;
-				*((u8*)this + 0x19F + i) = 0;
+				unk19C[i] = 0;
+				unk19F[i] = 0;
 			}
 		}
 		f32 cur = unk138[i];
@@ -1122,7 +1122,7 @@ void TItemSlotDrum::moveObject()
 			continue;
 		if (fabsf(cur) > unk160) {
 			unk13C[i] += cur;
-			if (*((u8*)this + 0x19F + i) == 0) {
+			if (unk19F[i] == 0) {
 				if (cur > 0.0f)
 					unk138[i] = cur - unk15C;
 				else
@@ -1139,7 +1139,7 @@ void TItemSlotDrum::moveObject()
 			unk13C[i] -= 360.0f;
 		if (unk13C[i] < 0.0f)
 			unk13C[i] += 360.0f;
-		if (*((u8*)this + 0x19F + i) != 0)
+		if (unk19F[i] != 0)
 			continue;
 		s32 angInt = (s32)fabsf(unk13C[i]);
 		if ((angInt % unk168) != 0)
@@ -1156,15 +1156,15 @@ void TItemSlotDrum::moveObject()
 			generateItem();
 		}
 		for (s32 j = 0; j < unk148; ++j) {
-			if (*((u8*)this + 0x19F + j) == 0)
+			if (unk19F[j] == 0)
 				continue;
 			TMsRange<f32> retryRange(0.0f, 1.0f);
 			f32 picked = retryRange.rand();
 			if (picked < 0.9f) {
-				*((u8*)this + 0x19C + j) = 1;
+				unk19C[j] = 1;
 				continue;
 			}
-			*((u8*)this + 0x19F + j) = 0;
+			unk19F[j] = 0;
 		}
 		if (unk13C[i] < (f32)unk168) {
 			unk170[i].r = 0xFF;
@@ -1206,8 +1206,8 @@ u32 TItemSlotDrum::touchWater(THitActor* sender)
 
 	unk1A4 = TMsRange<s32>(100, 150).rand();
 	for (s32 i = 0; i < unk148; ++i) {
-		*((u8*)this + 0x19F + i) = 1;
-		*((u8*)this + 0x19C + i) = 0;
+		unk19F[i] = 1;
+		unk19C[i] = 0;
 		unk138[i] = unk158 * TMsRange<f32>(0.5f, 0.8f).rand();
 	}
 	unk1A2 = 0;
@@ -1467,11 +1467,11 @@ TItemSlotDrum::TItemSlotDrum(const char* name)
     , unk1A4(0)
     , unk1A8(5.0f)
 {
-	unk19C = 0;
-	unk19F = 1;
-	unk19D = 0;
-	unk1A0 = 1;
-	unk19E = 0;
-	unk1A1 = 1;
+	unk19C[0] = 0;
+	unk19F[0] = 1;
+	unk19C[1] = 0;
+	unk19F[1] = 1;
+	unk19C[2] = 0;
+	unk19F[2] = 1;
 	unk1A2 = 1;
 }
