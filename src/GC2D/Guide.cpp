@@ -460,8 +460,7 @@ void TGuide::linkSelect()
 	}
 
 	if (idx != -1 && idx < 10) {
-		J2DPane*& slot = _44C[idx];
-		u8 alpha = slot->mAlpha;
+		u8 alpha = _44C[idx]->mAlpha;
 		int newAlpha;
 		if (unk164 != 0) {
 			newAlpha = alpha + 4;
@@ -475,7 +474,7 @@ void TGuide::linkSelect()
 			unk164   = 0;
 			newAlpha = 0xff;
 		}
-		slot->mAlpha = newAlpha;
+		_44C[idx]->mAlpha = newAlpha;
 	}
 
 	{
