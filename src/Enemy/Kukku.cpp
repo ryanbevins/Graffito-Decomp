@@ -400,8 +400,10 @@ void TKukkuBall::perform(u32 action, JDrama::TGraphics* graphics)
 				SMS_SendMessageToMario(this, 0xe);
 				onHitFlag(1);
 				mFlags |= 1;
-				gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z,
-				                   500.0f);
+				f32 z = mPosition.z;
+				f32 y = mPosition.y;
+				f32 x = mPosition.x;
+				gpPollution->stamp(1, x, y, z, 500.0f);
 				break;
 			}
 		}
@@ -421,7 +423,10 @@ void TKukkuBall::perform(u32 action, JDrama::TGraphics* graphics)
 		if (next.y <= groundY + 0.05f) {
 			onHitFlag(1);
 			mFlags |= 1;
-			gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z, 500.0f);
+			f32 z = mPosition.z;
+			f32 y = mPosition.y;
+			f32 x = mPosition.x;
+			gpPollution->stamp(1, x, y, z, 500.0f);
 		}
 
 		gpMap->isTouchedOneWallAndMoveXZ(&next.x, next.y + mAttackHeight,
