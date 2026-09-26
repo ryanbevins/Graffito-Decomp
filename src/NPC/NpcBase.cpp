@@ -592,32 +592,31 @@ TBaseNPC::TBaseNPC(u32 actorType, const char* name)
 	unk174.a                = 0;
 	mActorType              = actorType;
 
-	if (actorType == 0x0400001C)
-		return;
+	if (actorType != 0x0400001C) {
+		mKeepAnmCtrl = new TNpcKeepAnm;
 
-	mKeepAnmCtrl = new TNpcKeepAnm;
-
-	bool wantTrample = false;
-	bool isLock      = false;
-	switch (mActorType) {
-	case 0x0400000F:
-	case 0x04000014:
-		isLock = true;
-	}
-	if (!isLock) {
-		if (isMonte() || isMare()) {
-			wantTrample = true;
-		} else {
-			switch (mActorType) {
-			case 0x04000016:
-			case 0x04000017:
+		bool wantTrample = false;
+		bool isLock      = false;
+		switch (mActorType) {
+		case 0x0400000F:
+		case 0x04000014:
+			isLock = true;
+		}
+		if (!isLock) {
+			if (isMonte() || isMare()) {
 				wantTrample = true;
+			} else {
+				switch (mActorType) {
+				case 0x04000016:
+				case 0x04000017:
+					wantTrample = true;
+				}
 			}
 		}
-	}
 
-	if (wantTrample) {
-		mNpcTrample = new TNpcTrample;
+		if (wantTrample) {
+			mNpcTrample = new TNpcTrample;
+		}
 	}
 }
 
