@@ -892,7 +892,7 @@ void TGuide::resetObjects()
 
 		int shineCount = 0;
 		if (stage != 0 && stage != 1) {
-			for (int i = 0; i < 8; i++) {
+			for (u32 i = 0; i < 8; i++) {
 				s16 sid = getShineID(stage, i, false);
 				bool got  = (sid == -1)
 				             ? false
@@ -901,7 +901,7 @@ void TGuide::resetObjects()
 					shineCount++;
 			}
 		}
-		int clampedShine = (shineCount >= 100) ? 99 : shineCount;
+		int clampedShine = (shineCount < 100) ? shineCount : 99;
 		stageData[0x15] = (u8)clampedShine;
 		totalAccum += clampedShine;
 
@@ -921,14 +921,12 @@ void TGuide::resetObjects()
 			if (got2)
 				redCoin++;
 		}
-		if (redCoin >= 10)
-			redCoin = 9;
+		redCoin = (redCoin < 10) ? redCoin : 9;
 		stageData[0x16] = (u8)redCoin;
 		totalAccum += redCoin;
 
-		u16 deaths = (u16)TFlagManager::smInstance->getFlag(stage + 0x20005);
-		if (deaths >= 1000)
-			deaths = 999;
+		u16 deaths = TFlagManager::smInstance->getFlag(stage + 0x20005);
+		deaths     = (deaths < 1000) ? deaths : 999;
 		*(s16*)(stageData + 0x18) = (s16)deaths;
 
 		s16 bossID  = getShineID(stage, 0, true);
