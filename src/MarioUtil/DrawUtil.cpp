@@ -341,6 +341,20 @@ void TVec3<f32>::add(const TVec3<f32>& operand)
 }
 #pragma dont_inline off
 
+static inline JGeometry::TVec3<s16>
+clashVtxS16(JGeometry::TVec3<s16> pos, const JGeometry::TVec3<s16>& vel)
+{
+	pos.add(vel);
+	return pos;
+}
+
+static inline JGeometry::TVec3<f32>
+clashVtxF32(JGeometry::TVec3<f32> pos, const JGeometry::TVec3<f32>& vel)
+{
+	pos.add(vel);
+	return pos;
+}
+
 void TTrembleModelEffect::clash(f32 power)
 {
 	tremble(power, 0.0f, 0.0f, 0);
@@ -348,9 +362,7 @@ void TTrembleModelEffect::clash(f32 power)
 	switch (unk8 & 2) {
 	case 0:
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
-			const JGeometry::TVec3<s16>& velocity = unk20[i];
-			JGeometry::TVec3<s16> position = unk14[i];
-			position.add(velocity);
+			JGeometry::TVec3<s16> position = clashVtxS16(unk14[i], unk20[i]);
 
 			unk14[i] = position;
 			unk18[0][i] = position;
@@ -359,9 +371,7 @@ void TTrembleModelEffect::clash(f32 power)
 		break;
 	case 2:
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
-			const JGeometry::TVec3<f32>& velocity = unk34[i];
-			JGeometry::TVec3<f32> position = unk28[i];
-			position.add(velocity);
+			JGeometry::TVec3<f32> position = clashVtxF32(unk28[i], unk34[i]);
 
 			unk28[i] = position;
 			unk2C[0][i] = position;
