@@ -179,9 +179,7 @@ static inline int absDist(int a, int b)
 {
 	int d = a;
 	d -= b;
-	if (d < 0)
-		d = -d;
-	return d;
+	return d >= 0 ? d : -d;
 }
 
 void TBossHanachan::setAnmTimerWhenDead()
