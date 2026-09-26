@@ -189,7 +189,7 @@ DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor)
 	f32 range = self->getSaveParam2()->mSearchRange.get();
 	if (toMario.x * toMario.x + toMario.y * toMario.y + toMario.z * toMario.z
 	    < range * range) {
-		if (self->unk1AC >= 0) {
+		if (self->isShootWaiting()) {
 			self->unk1AC -= 1;
 		} else {
 			TKukkuBall* found = self->getFreeBall();

@@ -94,6 +94,7 @@ public:
 		return nullptr;
 	}
 	s32 getUnk1A4() const { return unk1A4; }
+	bool isShootWaiting() const { return unk1AC >= 0; }
 	TKukkuParams* getSaveParam2() const { return (TKukkuParams*)getSaveParam(); }
 
 public:
