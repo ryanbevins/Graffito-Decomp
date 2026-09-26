@@ -28,6 +28,7 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JKernel/JKRArchive.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
+#include <MSound/MSoundBGM.hpp>
 
 JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
 
