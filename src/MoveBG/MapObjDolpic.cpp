@@ -74,10 +74,6 @@ void TMonumentShine::initMapObj()
 	unk64 &= ~1;
 }
 
-static JGeometry::TVec3<f32> sUpHBW;
-static s8 sInitHBW;
-static JGeometry::TVec3<f32> sUpRing;
-static s8 sInitRing;
 
 void TMonumentShine::hitByWater(THitActor* actor)
 {
@@ -110,16 +106,11 @@ void TMonumentShine::hitByWater(THitActor* actor)
 	if (lenSq2 <= 0.0000038146973f)
 		return;
 
-	if (!sInitHBW) {
-		sUpHBW.x = 0.0f;
-		sUpHBW.y = 1.0f;
-		sUpHBW.z = 0.0f;
-		sInitHBW = true;
-	}
+	static JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 
-	f32 cx = sUpHBW.y * marioDir.z - sUpHBW.z * marioDir.y;
-	f32 cy = sUpHBW.z * marioDir.x - sUpHBW.x * marioDir.z;
-	f32 cz = sUpHBW.x * marioDir.y - sUpHBW.y * marioDir.x;
+	f32 cx = up.y * marioDir.z - up.z * marioDir.y;
+	f32 cy = up.z * marioDir.x - up.x * marioDir.z;
+	f32 cz = up.x * marioDir.y - up.y * marioDir.x;
 
 	f32 dot = cx * waterDir.x + cy * waterDir.y + cz * waterDir.z;
 	if (dot > 0.0f) {
@@ -289,18 +280,13 @@ void TBellDolpic::ring(const JGeometry::TVec3<f32>& pos)
 	diff.z -= pos.z;
 	diff.y = 0.0f;
 
-	if (!sInitRing) {
-		sUpRing.x = 0.0f;
-		sUpRing.y = 1.0f;
-		sUpRing.z = 0.0f;
-		sInitRing = true;
-	}
+	static JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 
 	f32 dy = diff.y;
-	f32 uz = sUpRing.z;
-	f32 ux = sUpRing.x;
+	f32 uz = up.z;
+	f32 ux = up.x;
 	f32 dz = diff.z;
-	f32 uy = sUpRing.y;
+	f32 uy = up.y;
 	f32 dx = diff.x;
 	unk140 = uy * dz - uz * dy;
 	unk144 = uz * dx - ux * dz;
