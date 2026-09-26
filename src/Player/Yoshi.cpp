@@ -97,22 +97,22 @@ MtxPtr TYoshi::getMtxPtrFootR() const {
 void TYoshi::init(TMario* mario) {
 	mMario = mario;
 	mState = EGG;
-	*(u8*)((u8*)this + 0x01) = 0;
-	s16 unk06 = *(s16*)((u8*)this + 0x06);
+	*(u8*)((u8*)&mState + 0x1) = 0;
+	s16 unk06 = *(s16*)((u8*)&_01 + 0x2);
 	mSubState = unk06;
-	*(s16*)((u8*)this + 0x04) = 7200;
-	*(s16*)((u8*)this + 0x06) = 7200;
+	*(s16*)((u8*)&_01) = 7200;
+	*(s16*)((u8*)&_01 + 0x2) = 7200;
 	mMaxJuice = 21300;
 	mCurJuice = mMaxJuice;
 	mTranslation.x = 0.0f;
 	mTranslation.y = 0.0f;
-	*(f32*)((u8*)this + 0x28) = 0.0f;
-	*(f32*)((u8*)this + 0x2C) = 0.0f;
-	*(s16*)((u8*)this + 0x70) = 0;
-	*(s16*)((u8*)this + 0x72) = 384;
+	*(f32*)((u8*)&mTranslation + 0x8) = 0.0f;
+	*(f32*)((u8*)_03) = 0.0f;
+	*(s16*)((u8*)&mEggRotSpeed) = 0;
+	*(s16*)((u8*)&_72) = 384;
 
 	MActorAnmData* anmData = new MActorAnmData();
-	*(MActorAnmData**)((u8*)this + 0x30) = anmData;
+	*(MActorAnmData**)((u8*)_03 + 0x4) = anmData;
 	anmData->init("yoshi", 0);
 
 	mActor = new MActor(anmData);
@@ -157,23 +157,23 @@ void TYoshi::init(TMario* mario) {
 		DCFlushRange(dst, 0x20);
 	}
 
-	*(J3DAnmTransform**)((u8*)this + 0x4C)
+	*(J3DAnmTransform**)((u8*)_04)
 	    = (J3DAnmTransform*)J3DAnmLoaderDataBase::load(
 	        JKRFileLoader::getGlbResource("/yoshi/yoshi_eat.bck"));
-	*(J3DMtxCalc**)((u8*)this + 0x54) = J3DNewMtxCalcAnm(
+	*(J3DMtxCalc**)((u8*)_04 + 0x8) = J3DNewMtxCalcAnm(
 	    mActor->unk4->getModelData()->getUnkC(),
-	    *(J3DAnmTransform**)((u8*)this + 0x4C));
-	*(J3DAnmTransform**)((u8*)this + 0x50)
+	    *(J3DAnmTransform**)((u8*)_04));
+	*(J3DAnmTransform**)((u8*)_04 + 0x4)
 	    = (J3DAnmTransform*)J3DAnmLoaderDataBase::load(
 	        JKRFileLoader::getGlbResource("/yoshi/yoshi_eat_end.bck"));
-	*(J3DMtxCalc**)((u8*)this + 0x58) = J3DNewMtxCalcAnm(
+	*(J3DMtxCalc**)((u8*)_04 + 0xC) = J3DNewMtxCalcAnm(
 	    mActor->unk4->getModelData()->getUnkC(),
-	    *(J3DAnmTransform**)((u8*)this + 0x50));
+	    *(J3DAnmTransform**)((u8*)_04 + 0x4));
 
-	*(f32*)((u8*)this + 0x6C) = (f32)*(s16*)((u8*)this + 0x62);
-	*(f32*)((u8*)this + 0x68) = 1.0f;
-	*(u8*)((u8*)this + 0x60) = 0;
-	*(f32*)((u8*)this + 0x68) = 0.0f;
+	*(f32*)((u8*)&mFrameCtrl + 0x10) = (f32)*(s16*)((u8*)&mFrameCtrl + 0x6);
+	*(f32*)((u8*)&mFrameCtrl + 0xC) = 1.0f;
+	*(u8*)((u8*)&mFrameCtrl + 0x4) = 0;
+	*(f32*)((u8*)&mFrameCtrl + 0xC) = 0.0f;
 
 	TYoshiTongue* tongue = (TYoshiTongue*)::operator new(sizeof(TYoshiTongue));
 	if (tongue) {
@@ -188,11 +188,11 @@ void TYoshi::init(TMario* mario) {
 	mTongue = tongue;
 	tongue->init(this);
 
-	*(f32*)((u8*)this + 0x80) = 0.01f;
+	*(f32*)((u8*)_04b + 0xC) = 0.01f;
 	mRedComponent = 0x40;
 	mGreenComponent = 0xA1;
 	mBlueComponent = 0x24;
-	*(f32*)((u8*)this + 0x90) = 160.0f;
+	*(f32*)((u8*)&mTongueSearchLength) = 160.0f;
 
 	TRidingInfo* ridingInfo = new TRidingInfo;
 	ridingInfo->unk0 = 0;
@@ -200,18 +200,18 @@ void TYoshi::init(TMario* mario) {
 	ridingInfo->localPos.y = 0.0f;
 	ridingInfo->localPos.z = 0.0f;
 	ridingInfo->unk10 = 0.0f;
-	*(TRidingInfo**)((u8*)this + 0x94) = ridingInfo;
+	*(TRidingInfo**)((u8*)&mRidingInfo) = ridingInfo;
 
-	*(f32*)((u8*)this + 0x98) = 20.0f;
-	*(f32*)((u8*)this + 0x9C) = 30.0f;
-	*(f32*)((u8*)this + 0xA0) = 0.1f;
-	*(f32*)((u8*)this + 0xA4) = 0.045f;
-	*(J3DDrawBuffer**)((u8*)this + 0xA8) = new J3DDrawBuffer(0x20);
-	*(J3DDrawBuffer**)((u8*)this + 0xAC) = new J3DDrawBuffer(0x20);
-	*(u32*)((u8*)this + 0xB0) = 0;
-	*(u32*)((u8*)this + 0xB4) = 0;
-	(*(J3DDrawBuffer**)((u8*)this + 0xA8))->frameInit();
-	(*(J3DDrawBuffer**)((u8*)this + 0xAC))->frameInit();
+	*(f32*)((u8*)&_98) = 20.0f;
+	*(f32*)((u8*)&_9C) = 30.0f;
+	*(f32*)((u8*)&_A0) = 0.1f;
+	*(f32*)((u8*)&_A4) = 0.045f;
+	*(J3DDrawBuffer**)((u8*)&mOpaDrawBuffer) = new J3DDrawBuffer(0x20);
+	*(J3DDrawBuffer**)((u8*)&mXluDrawBuffer) = new J3DDrawBuffer(0x20);
+	*(u32*)((u8*)&_B0) = 0;
+	*(u32*)((u8*)&_B4) = 0;
+	(*(J3DDrawBuffer**)((u8*)&mOpaDrawBuffer))->frameInit();
+	(*(J3DDrawBuffer**)((u8*)&mXluDrawBuffer))->frameInit();
 
 	mFlutterState = 2;
 	mFlutterTimer = 0;
@@ -219,15 +219,15 @@ void TYoshi::init(TMario* mario) {
 	mMaxVSpdStartFlutter = -5.0f;
 	mFlutterAcceleration = 1.2f;
 	mType = GREEN;
-	*(u32*)((u8*)this + 0xD8) = 2000;
-	*(u32*)((u8*)this + 0xD4) = *(u32*)((u8*)this + 0xD8);
-	*(u8*)((u8*)this + 0xDC) = 0;
-	*(u16*)((u8*)this + 0xDE) = 0;
-	*(u16*)((u8*)this + 0xE0) = 0;
-	*(f32*)((u8*)this + 0xE4) = 0.1f;
-	*(u16*)((u8*)this + 0xE8) = 120;
-	*(u16*)((u8*)this + 0xEA) = 240;
-	*(f32*)((u8*)this + 0xEC) = 4.0f;
+	*(u32*)((u8*)&mSearch._D8) = 2000;
+	*(u32*)((u8*)&mSearch._D4) = *(u32*)((u8*)&mSearch._D8);
+	*(u8*)((u8*)&mSearch.mState) = 0;
+	*(u16*)((u8*)&mSearch.mWait) = 0;
+	*(u16*)((u8*)&mSearch.mTargetAngle) = 0;
+	*(f32*)((u8*)&mSearch.mTurnRate) = 0.1f;
+	*(u16*)((u8*)&mSearch.mWaitMin) = 120;
+	*(u16*)((u8*)&mSearch.mWaitMax) = 240;
+	*(f32*)((u8*)&mSearch._EC) = 4.0f;
 	mCurBtpIdx = 4;
 	mEgg = 0;
 
@@ -388,10 +388,10 @@ void TYoshi::setEggYoshiPtr(TEggYoshi* egg) {
 
 // appearFromEgg - 0x8014FA60
 bool TYoshi::appearFromEgg(const JGeometry::TVec3<f32>& pos, f32 angle, TEggYoshi* egg) {
-	*(JGeometry::TVec3<f32>*)((u8*)this + 0x14) = pos;
+	*(JGeometry::TVec3<f32>*)((u8*)_02) = pos;
 	mTranslation                                  = pos;
 	mTranslation.y += 1.0f;
-	*(s16*)((u8*)this + 0x70) = angle * (65536.0f / 360.0f);
+	*(s16*)((u8*)&mEggRotSpeed) = angle * (65536.0f / 360.0f);
 	mState                    = (State)2;
 
 	changeAnimation(0);
@@ -406,7 +406,7 @@ bool TYoshi::appearFromEgg(const JGeometry::TVec3<f32>& pos, f32 angle, TEggYosh
 	doEat(fruit->getActorType());
 	mCurJuice = mMaxJuice;
 	mEgg      = egg;
-	*(s16*)((u8*)this + 0x02) = *(s16*)((u8*)this + 0x04);
+	*(s16*)((u8*)&mSubState) = *(s16*)((u8*)&_01);
 	return true;
 }
 
@@ -490,9 +490,9 @@ void TYoshi::getOff(bool knockedOff) {
 	if ((u8)mState != MOUNTED)
 		return;
 
-	*(f32*)((u8*)this + 0x2C) = 0.0f;
+	*(f32*)((u8*)_03) = 0.0f;
 	mState = UNMOUNTED;
-	*(s16*)((u8*)this + 0x02) = *(s16*)((u8*)this + 0x04);
+	*(s16*)((u8*)&mSubState) = *(s16*)((u8*)&_01);
 
 	if ((u8)knockedOff == 1) {
 		changeAnimation(1);
@@ -506,7 +506,7 @@ void TYoshi::getOff(bool knockedOff) {
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x7924, (Vec*)&mTranslation, 0, nullptr, 0, 4);
 	}
-	SMS_RideMoveCalcLocalPos(*(TRidingInfo**)((u8*)this + 0x94), mTranslation);
+	SMS_RideMoveCalcLocalPos(*(TRidingInfo**)((u8*)&mRidingInfo), mTranslation);
 	*(u8*)((u8*)gpMSound + 0x88) = 1;
 	MSBgm::setStageBgmYoshiPercussion(false);
 }
@@ -623,9 +623,9 @@ void TYoshi::thinkAnimation()
 	}
 
 	if ((u16)nextAnim == 0xF) {
-		f32 blend = (mMario->mForwardVel - *(f32*)((u8*)this + 0x98))
-		            / (*(f32*)((u8*)this + 0x9C)
-		               - *(f32*)((u8*)this + 0x98));
+		f32 blend = (mMario->mForwardVel - *(f32*)((u8*)&_98))
+		            / (*(f32*)((u8*)&_9C)
+		               - *(f32*)((u8*)&_98));
 		if (blend < 0.0f)
 			blend = 0.0f;
 		if (blend > 1.0f)
@@ -645,8 +645,8 @@ void TYoshi::thinkAnimation()
 		if (mMario->mAction == 0x0004045C) {
 			frameRate = mMario->getMotionFrameCtrl().getRate();
 		} else {
-			frameRate = *(f32*)((u8*)this + 0xA4) * mMario->mForwardVel
-			            + *(f32*)((u8*)this + 0xA0);
+			frameRate = *(f32*)((u8*)&_A4) * mMario->mForwardVel
+			            + *(f32*)((u8*)&_A0);
 		}
 	} else if (mActor->unkC != nullptr) {
 		mActor->unkC->setMotionBlendRatio(0.0f);
@@ -661,7 +661,7 @@ void TYoshi::thinkUpper()
 	if ((u8)mState != MOUNTED)
 		return;
 
-	((J3DFrameCtrl*)((u8*)this + 0x5C))->update();
+	((J3DFrameCtrl*)((u8*)&mFrameCtrl))->update();
 
 	J3DJoint* upperAnm = mActor->unk4->getModelData()->getJointNodePointer(18);
 
@@ -693,29 +693,29 @@ void TYoshi::thinkUpper()
 	}
 
 	if (active) {
-		if (upperAnm->getMtxCalc() != *(J3DMtxCalc**)((u8*)this + 0x54)) {
-			*(f32*)((u8*)this + 0x6C) = *(s16*)((u8*)this + 0x62);
-			*(f32*)((u8*)this + 0x68) = 1.0f;
-			*(s16*)((u8*)this + 0x64)
-			    = *(s16*)(*(u32*)((u8*)this + 0x4C) + 0x2);
-			*(f32*)((u8*)this + 0x6C) = 0.0f;
-			upperAnm->setMtxCalc(*(J3DMtxCalc**)((u8*)this + 0x54));
+		if (upperAnm->getMtxCalc() != *(J3DMtxCalc**)((u8*)_04 + 0x8)) {
+			*(f32*)((u8*)&mFrameCtrl + 0x10) = *(s16*)((u8*)&mFrameCtrl + 0x6);
+			*(f32*)((u8*)&mFrameCtrl + 0xC) = 1.0f;
+			*(s16*)((u8*)&mFrameCtrl + 0x8)
+			    = *(s16*)(*(u32*)((u8*)_04) + 0x2);
+			*(f32*)((u8*)&mFrameCtrl + 0x10) = 0.0f;
+			upperAnm->setMtxCalc(*(J3DMtxCalc**)((u8*)_04 + 0x8));
 			mBckPlayer2->initAnmSound(mAnimFrameRates[3], 1, 0.0f);
 		}
-		*(f32*)(*(u32*)((u8*)this + 0x4C) + 0x4)
-		    = *(f32*)((u8*)this + 0x6C);
+		*(f32*)(*(u32*)((u8*)_04) + 0x4)
+		    = *(f32*)((u8*)&mFrameCtrl + 0x10);
 	} else {
-		if (upperAnm->getMtxCalc() == *(J3DMtxCalc**)((u8*)this + 0x54)) {
-			*(f32*)((u8*)this + 0x6C) = *(s16*)((u8*)this + 0x62);
-			*(f32*)((u8*)this + 0x68) = 1.0f;
-			*(s16*)((u8*)this + 0x64)
-			    = *(s16*)(*(u32*)((u8*)this + 0x50) + 0x2);
-			*(f32*)((u8*)this + 0x6C) = 0.0f;
-			upperAnm->setMtxCalc(*(J3DMtxCalc**)((u8*)this + 0x58));
+		if (upperAnm->getMtxCalc() == *(J3DMtxCalc**)((u8*)_04 + 0x8)) {
+			*(f32*)((u8*)&mFrameCtrl + 0x10) = *(s16*)((u8*)&mFrameCtrl + 0x6);
+			*(f32*)((u8*)&mFrameCtrl + 0xC) = 1.0f;
+			*(s16*)((u8*)&mFrameCtrl + 0x8)
+			    = *(s16*)(*(u32*)((u8*)_04 + 0x4) + 0x2);
+			*(f32*)((u8*)&mFrameCtrl + 0x10) = 0.0f;
+			upperAnm->setMtxCalc(*(J3DMtxCalc**)((u8*)_04 + 0xC));
 			mBckPlayer2->initAnmSound(mAnimFrameRates[4], 1, 0.0f);
-		} else if (upperAnm->getMtxCalc() == *(J3DMtxCalc**)((u8*)this + 0x58)) {
+		} else if (upperAnm->getMtxCalc() == *(J3DMtxCalc**)((u8*)_04 + 0xC)) {
 			int ended;
-			if (*(u8*)((u8*)this + 0x61) & 3) {
+			if (*(u8*)((u8*)&mFrameCtrl + 0x5) & 3) {
 				ended = 1;
 			} else {
 				ended = 0;
@@ -723,8 +723,8 @@ void TYoshi::thinkUpper()
 			if (ended)
 				upperAnm->setMtxCalc(nullptr);
 		}
-		*(f32*)(*(u32*)((u8*)this + 0x50) + 0x4)
-		    = *(f32*)((u8*)this + 0x6C);
+		*(f32*)(*(u32*)((u8*)_04 + 0x4) + 0x4)
+		    = *(f32*)((u8*)&mFrameCtrl + 0x10);
 	}
 }
 
@@ -914,7 +914,7 @@ void TYoshi::movement()
 			mActor->setBckFromIndex(23);
 
 		f32 angle = mEggRotSpeed * (360.0f / 65536.0f);
-		SMS_RideMoveByGroundActor(*(TRidingInfo**)((u8*)this + 0x94),
+		SMS_RideMoveByGroundActor(*(TRidingInfo**)((u8*)&mRidingInfo),
 		                          &mTranslation, &angle);
 		mEggRotSpeed = angle * (65536.0f / 360.0f);
 
@@ -924,9 +924,9 @@ void TYoshi::movement()
 		    = gpMap->checkGround(trans.x, 200.0f + trans.y, trans.z, &ground);
 		mActor->setLightData(ground, mTranslation);
 
-		*(f32*)((u8*)this + 0x2c)
+		*(f32*)((u8*)_03)
 		    -= *(f32*)((u8*)mMario + 0xb18);
-		mTranslation.y += *(f32*)((u8*)this + 0x2c);
+		mTranslation.y += *(f32*)((u8*)_03);
 
 		if (groundY > mTranslation.y) {
 			if (ground->isIllegalData() || ground->isWaterSurface()
@@ -941,12 +941,12 @@ void TYoshi::movement()
 						mState = (State)4;
 					}
 					mType = 0;
-					*(s16*)((u8*)this + 0x02) = 30;
+					*(s16*)((u8*)&mSubState) = 30;
 				}
 				break;
 			}
 			mTranslation.y                 = groundY;
-			*(f32*)((u8*)this + 0x2c) = 0.0f;
+			*(f32*)((u8*)_03) = 0.0f;
 		}
 
 		doSearch();
@@ -961,7 +961,7 @@ void TYoshi::movement()
 				mState = (State)4;
 			}
 			mType = 0;
-			*(s16*)((u8*)this + 0x02) = 30;
+			*(s16*)((u8*)&mSubState) = 30;
 		}
 		break;
 	}
@@ -969,7 +969,7 @@ void TYoshi::movement()
 		s16 curAngle = mEggRotSpeed;
 		s16 target   = mMario->mFaceAngle.y;
 		mEggRotSpeed
-		    = curAngle + (s16)(*(f32*)((u8*)this + 0xe4)
+		    = curAngle + (s16)(*(f32*)((u8*)&mSearch.mTurnRate)
 		                       * (s16)(target - curAngle));
 		break;
 	}
@@ -991,32 +991,32 @@ void TYoshi::movement()
 				mState = (State)4;
 			}
 			mType = 0;
-			*(s16*)((u8*)this + 0x02) = 30;
+			*(s16*)((u8*)&mSubState) = 30;
 		}
 		break;
 	case 1:
-		--*(s16*)((u8*)this + 0x02);
-		if (*(s16*)((u8*)this + 0x02) <= 0) {
+		--*(s16*)((u8*)&mSubState);
+		if (*(s16*)((u8*)&mSubState) <= 0) {
 			mState = (State)6;
 			changeAnimation(23);
-			*(s16*)((u8*)this + 0x02) = *(s16*)((u8*)this + 0x04);
+			*(s16*)((u8*)&mSubState) = *(s16*)((u8*)&_01);
 		}
 		break;
 	case 3:
 		if (mActor->getFrameCtrl(0)->checkPass(60.0f)) {
 			gpMarioParticleManager->emitAndBindToPosPtr(
-			    0x3f, (JGeometry::TVec3<f32>*)((u8*)this + 0x74), 0, this);
+			    0x3f, (JGeometry::TVec3<f32>*)((u8*)_04b), 0, this);
 		}
 		if (mActor->curAnmEndsNext(0, nullptr)) {
 			mState = (State)5;
-			*(s16*)((u8*)this + 0x02) = 30;
+			*(s16*)((u8*)&mSubState) = 30;
 		}
 		break;
 	case 4:
 		gpMarioParticleManager->emitAndBindToPosPtr(
-		    0x3f, (JGeometry::TVec3<f32>*)((u8*)this + 0x74), 0, this);
+		    0x3f, (JGeometry::TVec3<f32>*)((u8*)_04b), 0, this);
 		mState = (State)5;
-		*(s16*)((u8*)this + 0x02) = 30;
+		*(s16*)((u8*)&mSubState) = 30;
 		break;
 	case 5:
 		mState = EGG;
@@ -1026,7 +1026,7 @@ void TYoshi::movement()
 	}
 
 	if ((u8)mState != 0) {
-		f32 blend = *(f32*)((u8*)this + 0x80);
+		f32 blend = *(f32*)((u8*)_04b + 0xC);
 		f32 redBlend = blend * ((f32)bodyColor[mType].r - mRedComponent);
 		mRedComponent += redBlend;
 		f32 greenBlend
@@ -1054,11 +1054,11 @@ void TYoshi::movement()
 						mState = (State)4;
 					}
 					mType = 0;
-					*(s16*)((u8*)this + 0x02) = 30;
+					*(s16*)((u8*)&mSubState) = 30;
 				}
 			} else {
 				mTranslation.y                 = groundY;
-				*(f32*)((u8*)this + 0x2c) = 0.0f;
+				*(f32*)((u8*)_03) = 0.0f;
 			}
 		}
 
@@ -1075,9 +1075,9 @@ void TYoshi::movement()
 		gpModelWaterManager->unk5D5F = mType;
 
 	MtxPtr mtx = mActor->unk4->getAnmMtx(mJointCenter);
-	*(f32*)((u8*)this + 0x74) = mtx[0][3];
-	*(f32*)((u8*)this + 0x78) = mtx[1][3];
-	*(f32*)((u8*)this + 0x7c) = mtx[2][3];
+	*(f32*)((u8*)_04b) = mtx[0][3];
+	*(f32*)((u8*)_04b + 0x4) = mtx[1][3];
+	*(f32*)((u8*)_04b + 0x8) = mtx[2][3];
 }
 
 // calcAnim - 0x8014D6B8
@@ -1091,7 +1091,7 @@ void TYoshi::calcAnim()
 	case 3:
 	case 6:
 	case 7:
-		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
+		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)&mEggRotSpeed), 0,
 		                         mTranslation.x, mTranslation.y,
 		                         mTranslation.z, rootMtx);
 		break;
@@ -1100,14 +1100,14 @@ void TYoshi::calcAnim()
 		PSMTXCopy(mMario->getTakenMtx(), rootMtx);
 		break;
 	case 1:
-		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
+		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)&mEggRotSpeed), 0,
 		                         mTranslation.x,
 		                         mTranslation.y
-		                             + 100.0f * *(s16*)((u8*)this + 0x02),
+		                             + 100.0f * *(s16*)((u8*)&mSubState),
 		                         mTranslation.z, rootMtx);
 		break;
 	case 5:
-		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)this + 0x70), 0,
+		J3DGetTranslateRotateMtx(0, *(s16*)((u8*)&mEggRotSpeed), 0,
 		                         mTranslation.x, mTranslation.y,
 		                         mTranslation.z, rootMtx);
 		break;
@@ -1165,8 +1165,8 @@ void TYoshi::calcAnim()
 	                      mActor->getFrameCtrl(0)->getFrame(),
 	                      mActor->getFrameCtrl(0)->getRate(),
 	                      soundFlags + 0x10000000, 4);
-	mBckPlayer2->animeLoop((Vec*)&mMtxTrans, *(f32*)((u8*)this + 0x6c),
-	                       *(f32*)((u8*)this + 0x68),
+	mBckPlayer2->animeLoop((Vec*)&mMtxTrans, *(f32*)((u8*)&mFrameCtrl + 0x10),
+	                       *(f32*)((u8*)&mFrameCtrl + 0xC),
 	                       soundFlags + 0x10000000, 4);
 }
 
@@ -1245,8 +1245,8 @@ void TYoshi::entry()
 	    2, color);
 
 	mActor->entry();
-	(*(J3DModel**)((u8*)this + 0x44))->entry();
-	(*(J3DModel**)((u8*)this + 0x48))->entry();
+	(*(J3DModel**)((u8*)&mHandL))->entry();
+	(*(J3DModel**)((u8*)&mHandR))->entry();
 	mTongue->entry();
 
 	TCircleShadowRequest request;
