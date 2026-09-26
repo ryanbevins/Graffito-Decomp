@@ -312,7 +312,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 
 			J2DPicture* p70
 			    = *(J2DPicture**)(&_6C[0x4]);
-			JUTTexture* tNew = *(JUTTexture**)((u8*)this + 0x80
+			JUTTexture* tNew = *(JUTTexture**)((u8*)&_6C[0x14]
 			                                   + (u32)(u8)newIdx * 4);
 			p70->insert(tNew, 0, 1.0f);
 			p70->remove(1);
@@ -323,7 +323,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			J2DPicture* p48
 			    = *(J2DPicture**)(&_44[0x4]);
 			JUTTexture* tCur = *(JUTTexture**)(
-			    (u8*)this + 0x80 + (u32)mScenarioIndex * 4);
+			    (u8*)&_6C[0x14] + (u32)mScenarioIndex * 4);
 			p48->insert(tCur, 0, 1.0f);
 			p48->remove(1);
 			J2DPicture* p4C
@@ -339,11 +339,11 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			    (*(J2DTextBox**)(&_44[0x0]))->getStringPtr(),
 			    msgCur, 0x7F);
 
-			*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			*(s32*)((u8*)(*(J2DPane**)((u8*)&_A8[0x34]
 			                            + (u32)mScenarioIndex * 4))
 			        + 0x13C)
 			    = _144;
-			*(u8*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			*(u8*)((u8*)(*(J2DPane**)((u8*)&_A8[0x34]
 			                           + (u32)mScenarioIndex * 4))
 			       + 0xCC)
 			    = _149;
@@ -359,11 +359,11 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			    (*(J2DTextBox**)(&_6C[0x0]))->getStringPtr(),
 			    msgNew, 0x7F);
 
-			*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			*(s32*)((u8*)(*(J2DPane**)((u8*)&_A8[0x34]
 			                            + (u32)mScenarioIndex * 4))
 			        + 0x13C)
 			    = _140;
-			*(u8*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			*(u8*)((u8*)(*(J2DPane**)((u8*)&_A8[0x34]
 			                           + (u32)mScenarioIndex * 4))
 			       + 0xCC)
 			    = _148;
@@ -408,7 +408,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 
 			J2DPicture* p70
 			    = *(J2DPicture**)(&_6C[0x4]);
-			JUTTexture* tNew = *(JUTTexture**)((u8*)this + 0x80
+			JUTTexture* tNew = *(JUTTexture**)((u8*)&_6C[0x14]
 			                                   + (u32)(u8)newIdx * 4);
 			p70->insert(tNew, 0, 1.0f);
 			p70->remove(1);
@@ -419,7 +419,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			J2DPicture* p48
 			    = *(J2DPicture**)(&_44[0x4]);
 			JUTTexture* tCur = *(JUTTexture**)(
-			    (u8*)this + 0x80 + (u32)mScenarioIndex * 4);
+			    (u8*)&_6C[0x14] + (u32)mScenarioIndex * 4);
 			p48->insert(tCur, 0, 1.0f);
 			p48->remove(1);
 			J2DPicture* p4C
@@ -436,11 +436,11 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			    msgCur, 0x7F);
 
 			mShineManager->mShines[mScenarioIndex]->unk24 = 0;
-			*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			*(s32*)((u8*)(*(J2DPane**)((u8*)&_A8[0x34]
 			                            + (u32)mScenarioIndex * 4))
 			        + 0x13C)
 			    = _144;
-			*(u8*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			*(u8*)((u8*)(*(J2DPane**)((u8*)&_A8[0x34]
 			                           + (u32)mScenarioIndex * 4))
 			       + 0xCC)
 			    = _149;
@@ -456,11 +456,11 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			    msgNew, 0x7F);
 
 			mShineManager->mShines[mScenarioIndex]->unk24 = 1;
-			*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			*(s32*)((u8*)(*(J2DPane**)((u8*)&_A8[0x34]
 			                            + (u32)mScenarioIndex * 4))
 			        + 0x13C)
 			    = _140;
-			*(u8*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
+			*(u8*)((u8*)(*(J2DPane**)((u8*)&_A8[0x34]
 			                           + (u32)mScenarioIndex * 4))
 			       + 0xCC)
 			    = _148;
@@ -579,7 +579,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 
 		{
 			J2DPane* pn = *(J2DPane**)(
-			    (u8*)this + 0xDC + (u32)mScenarioIndex * 4);
+			    (u8*)&_A8[0x34] + (u32)mScenarioIndex * 4);
 			u8 a = pn->mAlpha;
 			if (*(&_A8[0x30]) != 0) {
 				s32 na = a + 6;
@@ -587,7 +587,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 					*(&_A8[0x30]) = 0;
 					na                  = _148;
 				}
-				(*(J2DPane**)((u8*)this + 0xDC
+				(*(J2DPane**)((u8*)&_A8[0x34]
 				              + (u32)mScenarioIndex * 4))
 				    ->mAlpha
 				    = na;
@@ -597,7 +597,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 					*(&_A8[0x30]) = 1;
 					na                  = 0x40;
 				}
-				(*(J2DPane**)((u8*)this + 0xDC
+				(*(J2DPane**)((u8*)&_A8[0x34]
 				              + (u32)mScenarioIndex * 4))
 				    ->mAlpha
 				    = na;
@@ -1024,19 +1024,19 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 	*(u8*)((u8*)mScreen->search(0x695F6F30) + 0xCC)
 	    = *(u8*)(&_149);
 
-	*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC + mScenarioIndex * 4))
+	*(s32*)((u8*)(*(J2DPane**)((u8*)&_A8[0x34] + mScenarioIndex * 4))
 	        + 0x13C)
 	    = _140;
-	*(u8*)((u8*)(*(J2DPane**)((u8*)this + 0xDC + mScenarioIndex * 4))
+	*(u8*)((u8*)(*(J2DPane**)((u8*)&_A8[0x34] + mScenarioIndex * 4))
 	       + 0xCC)
 	    = *(u8*)(&_148);
 
 	((J2DPicture*)*(J2DPane**)(&_44[0x4]))
-	    ->insert(*(JUTTexture**)((u8*)this + 0x80 + mScenarioIndex * 4),
+	    ->insert(*(JUTTexture**)((u8*)&_6C[0x14] + mScenarioIndex * 4),
 	             0, 1.0f);
 	((J2DPicture*)*(J2DPane**)(&_44[0x4]))->remove(1);
 	((J2DPicture*)*(J2DPane**)(&_44[0x8]))
-	    ->insert(*(JUTTexture**)((u8*)this + 0x80 + mScenarioIndex * 4),
+	    ->insert(*(JUTTexture**)((u8*)&_6C[0x14] + mScenarioIndex * 4),
 	             0, 1.0f);
 	((J2DPicture*)*(J2DPane**)(&_44[0x8]))->remove(1);
 
