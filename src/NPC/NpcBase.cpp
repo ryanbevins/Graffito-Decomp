@@ -547,10 +547,6 @@ TBaseNPC::TBaseNPC(u32 actorType, const char* name)
 	mNpcParts             = nullptr;
 	_16C                  = 0;
 	mActionFlag           = 0;
-	unk174.r              = 0xFF;
-	unk174.g              = 0xFF;
-	unk174.b              = 0xFF;
-	unk174.a              = 0;
 	unk178                = 0.0f;
 	unk17C                = nullptr;
 	mNpcTrample           = nullptr;
@@ -590,9 +586,13 @@ TBaseNPC::TBaseNPC(u32 actorType, const char* name)
 	mNeckAngles             = nullptr;
 	gpCurrentNpc            = nullptr;
 	mAngleYDiffWhenTaken    = 0;
+	unk174.r                = 0xFF;
+	unk174.g                = 0xFF;
+	unk174.b                = 0xFF;
+	unk174.a                = 0;
 	mActorType              = actorType;
 
-	if (mActorType == 0x0400001C)
+	if (actorType == 0x0400001C)
 		return;
 
 	mKeepAnmCtrl = new TNpcKeepAnm;
@@ -617,14 +617,7 @@ TBaseNPC::TBaseNPC(u32 actorType, const char* name)
 	}
 
 	if (wantTrample) {
-		TNpcTrample* tr = new TNpcTrample;
-		if (tr != nullptr) {
-			tr->unk0 = 0.0f;
-			tr->unk4 = 0;
-			tr->unk6 = 0;
-			TNpcTrample::msAmpDecrease = 0.0f;
-		}
-		mNpcTrample = tr;
+		mNpcTrample = new TNpcTrample;
 	}
 }
 
