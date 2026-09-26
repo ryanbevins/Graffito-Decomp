@@ -317,127 +317,127 @@ public:
 
 inline u16& emFlags(TEnemyMario* mario)
 {
-	return *(u16*)((u8*)mario + 0x4290);
+	return *(u16*)&mario->unk4290[0];
 }
 
 inline u16& emDoing(TEnemyMario* mario)
 {
-	return *(u16*)((u8*)mario + 0x4292);
+	return *(u16*)&mario->unk4290[0x2];
 }
 
 inline u32& emTimer(TEnemyMario* mario)
 {
-	return *(u32*)((u8*)mario + 0x42A4);
+	return *(u32*)&mario->unk4290[0x14];
 }
 
 inline u32& emReplayIndex(TEnemyMario* mario)
 {
-	return *(u32*)((u8*)mario + 0x42A8);
+	return *(u32*)&mario->unk4290[0x18];
 }
 
 inline s16& emTargetYaw(TEnemyMario* mario)
 {
-	return *(s16*)((u8*)mario + 0x4296);
+	return *(s16*)&mario->unk4290[0x6];
 }
 
 inline u16& emRandomYaw(TEnemyMario* mario)
 {
-	return *(u16*)((u8*)mario + 0x4298);
+	return *(u16*)&mario->unk4290[0x8];
 }
 
 inline f32& emDistToMario(TEnemyMario* mario)
 {
-	return *(f32*)((u8*)mario + 0x429C);
+	return *(f32*)&mario->unk4290[0xC];
 }
 
 inline s16& emWaterCount(TEnemyMario* mario)
 {
-	return *(s16*)((u8*)mario + 0x4294);
+	return *(s16*)&mario->unk4290[0x4];
 }
 
 inline TEMario*& emOwner(TEnemyMario* mario)
 {
-	return *(TEMario**)((u8*)mario + 0x42A0);
+	return *(TEMario**)&mario->unk4290[0x10];
 }
 
 inline s16& emWaterTimer(TEnemyMario* mario)
 {
-	return *(s16*)((u8*)mario + 0x42B4);
+	return *(s16*)&mario->unk4290[0x24];
 }
 
 inline s16& emWaterTimerReset(TEnemyMario* mario)
 {
-	return *(s16*)((u8*)mario + 0x42B6);
+	return *(s16*)&mario->unk4290[0x26];
 }
 
 inline s16& emTrampleTimer(TEnemyMario* mario)
 {
-	return *(s16*)((u8*)mario + 0x42B8);
+	return *(s16*)&mario->unk4290[0x28];
 }
 
 inline s16& emRunAwayNode(TEnemyMario* mario)
 {
-	return *(s16*)((u8*)mario + 0x42CC);
+	return *(s16*)&mario->unk4290[0x3C];
 }
 
 inline f32& emRunAwaySpeed(TEnemyMario* mario)
 {
-	return *(f32*)((u8*)mario + 0x42D0);
+	return *(f32*)&mario->unk4290[0x40];
 }
 
 inline s16& emWaterCooldown(TEnemyMario* mario)
 {
-	return *(s16*)((u8*)mario + 0x42BA);
+	return *(s16*)&mario->unk4290[0x2A];
 }
 
 inline f32& emJumpSpeedCap(TEnemyMario* mario)
 {
-	return *(f32*)((u8*)mario + 0x42BC);
+	return *(f32*)&mario->unk4290[0x2C];
 }
 
 inline f32& emTremblePower(TEnemyMario* mario)
 {
-	return *(f32*)((u8*)mario + 0x42AC);
+	return *(f32*)&mario->unk4290[0x1C];
 }
 
 inline f32& emWaterRange(TEnemyMario* mario)
 {
-	return *(f32*)((u8*)mario + 0x42B0);
+	return *(f32*)&mario->unk4290[0x20];
 }
 
 inline u8& emScenarioType(TEnemyMario* mario)
 {
-	return *(u8*)((u8*)mario + 0x42D4);
+	return *(u8*)&mario->unk4290[0x44];
 }
 
 inline u8*& emReplayLinkTable(TEnemyMario* mario)
 {
-	return *(u8**)((u8*)mario + 0x4304);
+	return *(u8**)&mario->unk4290[0x74];
 }
 
 inline J3DModel*& emEnemyModel(TEnemyMario* mario)
 {
-	return *(J3DModel**)((u8*)mario + 0x42DC);
+	return *(J3DModel**)&mario->unk4290[0x4C];
 }
 
 inline MActor*& emEnemyMActor(TEnemyMario* mario)
 {
-	return *(MActor**)((u8*)mario + 0x42F0);
+	return *(MActor**)&mario->unk4290[0x60];
 }
 
 inline J3DModel*& emEnemyShadowModel(TEnemyMario* mario)
 {
-	return *(J3DModel**)((u8*)mario + 0x42EC);
+	return *(J3DModel**)&mario->unk4290[0x5C];
 }
 
 inline f32& emEnemyModelScale(TEnemyMario* mario)
 {
-	return *(f32*)((u8*)mario + 0x42F4);
+	return *(f32*)&mario->unk4290[0x64];
 }
 
 inline JGeometry::TVec3<f32>& emDisappearPos(TEnemyMario* mario)
 {
-	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x42E0);
+	return *(JGeometry::TVec3<f32>*)&mario->unk4290[0x50];
 }
 
 inline JGeometry::TVec3<f32>& emGateBasePos(TEnemyMario* mario)
@@ -447,7 +447,7 @@ inline JGeometry::TVec3<f32>& emGateBasePos(TEnemyMario* mario)
 
 inline u8*& emSettings(TEnemyMario* mario)
 {
-	return *(u8**)((u8*)mario + 0x430C);
+	return *(u8**)&mario->unk4290[0x7C];
 }
 
 inline f32& emSettingF32(TEnemyMario* mario, u32 offset)
@@ -462,17 +462,17 @@ inline s16& emSettingS16(TEnemyMario* mario, u32 offset)
 
 inline TMarioInputReplay*& emInputReplay(TEnemyMario* mario)
 {
-	return *(TMarioInputReplay**)((u8*)mario + 0x4300);
+	return *(TMarioInputReplay**)&mario->unk4290[0x70];
 }
 
 inline TMarioInputReplay**& emInputReplayArray(TEnemyMario* mario)
 {
-	return *(TMarioInputReplay***)((u8*)mario + 0x42F8);
+	return *(TMarioInputReplay***)&mario->unk4290[0x68];
 }
 
 inline TMarioInputReplay**& emInputReplayArrayBackup(TEnemyMario* mario)
 {
-	return *(TMarioInputReplay***)((u8*)mario + 0x42FC);
+	return *(TMarioInputReplay***)&mario->unk4290[0x6C];
 }
 
 inline u16& emInputReplayCanPlay(TMarioInputReplay* replay)
@@ -573,7 +573,7 @@ inline void playInputReplay(TEnemyMario* mario, TMarioInputReplay* replay)
 
 inline JGeometry::TVec3<f32>& emDownPos(TEnemyMario* mario)
 {
-	return *(JGeometry::TVec3<f32>*)((u8*)mario + 0x42C0);
+	return *(JGeometry::TVec3<f32>*)&mario->unk4290[0x30];
 }
 
 inline s16& marioUnk14C(TMario* mario)
@@ -1795,9 +1795,8 @@ BOOL TEnemyMario::tryTake()
 	if (mHeldObject != nullptr && mAction != 0x383)
 		return TRUE;
 
-	TEMario* owner = emOwner(this);
-	for (int i = 0; i < owner->mColCount; ++i) {
-		THitActor* actor = owner->mCollisions[i];
+	for (int i = 0; i < emOwner(this)->mColCount; ++i) {
+		THitActor* actor = emOwner(this)->mCollisions[i];
 		u32 type         = actor->mActorType;
 		if (type == 0x04000018 || type == 0x2000002A
 		    || type == 0x20000022 || type == 0x20000009) {
