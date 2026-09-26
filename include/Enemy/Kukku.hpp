@@ -18,6 +18,14 @@ public:
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void init();
 
+	bool isFree() const
+	{
+		bool ret = false;
+		if ((mFlags & 1) && mState == 0)
+			ret = true;
+		return ret;
+	}
+
 	void shoot(JGeometry::TVec3<f32> pos, const JGeometry::TVec3<f32>& vel)
 	{
 		offHitFlag(1);
@@ -85,10 +93,7 @@ public:
 	{
 		for (TKukkuBall** p = mKukkuBalls; p != (TKukkuBall**)&unk1A0; ++p) {
 			TKukkuBall* ball = *p;
-			bool isFree = false;
-			if ((ball->mFlags & 1) && ball->mState == 0)
-				isFree = true;
-			if (isFree)
+			if (ball->isFree())
 				return ball;
 		}
 		return nullptr;
