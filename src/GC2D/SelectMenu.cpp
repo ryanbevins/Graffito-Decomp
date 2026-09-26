@@ -297,12 +297,12 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			s8  newIdx = getPrevIndex();
 			s32 dist   = (s32)mScenarioIndex - (s32)(u8)newIdx;
 			mShineManager->startDecrease(dist);
-			*(u8*)((u8*)this + 0x54) = 0;
+			*(u8*)(&_44[0x10]) = 0;
 
 			m68ExPane->mPane->mVisible = true;
 			m68ExPane->mPane->mAlpha   = 0;
 			m68ExPane->setPaneAlpha(10, 255, 0);
-			s16 d = *(s16*)((u8*)this + 0x7C);
+			s16 d = *(s16*)(&_6C[0x10]);
 			m68ExPane->setPaneOffset(10, -d, 0, -2 * d, 0);
 
 			m40ExPane->mPane->mVisible = true;
@@ -311,23 +311,23 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			m40ExPane->setPaneOffset(10, d, 0, 0, 0);
 
 			J2DPicture* p70
-			    = *(J2DPicture**)((u8*)this + 0x70);
+			    = *(J2DPicture**)(&_6C[0x4]);
 			JUTTexture* tNew = *(JUTTexture**)((u8*)this + 0x80
 			                                   + (u32)(u8)newIdx * 4);
 			p70->insert(tNew, 0, 1.0f);
 			p70->remove(1);
 			J2DPicture* p74
-			    = *(J2DPicture**)((u8*)this + 0x74);
+			    = *(J2DPicture**)(&_6C[0x8]);
 			p74->insert(tNew, 0, 1.0f);
 			p74->remove(1);
 			J2DPicture* p48
-			    = *(J2DPicture**)((u8*)this + 0x48);
+			    = *(J2DPicture**)(&_44[0x4]);
 			JUTTexture* tCur = *(JUTTexture**)(
 			    (u8*)this + 0x80 + (u32)mScenarioIndex * 4);
 			p48->insert(tCur, 0, 1.0f);
 			p48->remove(1);
 			J2DPicture* p4C
-			    = *(J2DPicture**)((u8*)this + 0x4C);
+			    = *(J2DPicture**)(&_44[0x8]);
 			p4C->insert(tCur, 0, 1.0f);
 			p4C->remove(1);
 
@@ -336,7 +336,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			const char* msgCur = (const char*)SMSGetMessageData(
 			    (void*)_15C, (u16)scScenarioNameTable[shineCur]);
 			strncpy(
-			    (*(J2DTextBox**)((u8*)this + 0x44))->getStringPtr(),
+			    (*(J2DTextBox**)(&_44[0x0]))->getStringPtr(),
 			    msgCur, 0x7F);
 
 			*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
@@ -356,7 +356,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			const char* msgNew = (const char*)SMSGetMessageData(
 			    (void*)_15C, (u16)scScenarioNameTable[shineNew]);
 			strncpy(
-			    (*(J2DTextBox**)((u8*)this + 0x6C))->getStringPtr(),
+			    (*(J2DTextBox**)(&_6C[0x0]))->getStringPtr(),
 			    msgNew, 0x7F);
 
 			*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC
@@ -371,13 +371,13 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			if (_13C > 1) {
 				if (mScenarioIndex != 0) {
 					u8* p
-					    = (u8*)*(u32*)((u8*)this + 0x104) + 0xC;
+					    = (u8*)*(u32*)(&_104[0x0]) + 0xC;
 					if (*p == 0)
 						*p = 1;
 				}
 				if (mScenarioIndex != _13C - 1) {
 					u8* p
-					    = (u8*)*(u32*)((u8*)this + 0x108) + 0xC;
+					    = (u8*)*(u32*)(&_104[0x4]) + 0xC;
 					if (*p == 0)
 						*p = 1;
 				}
@@ -393,12 +393,12 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			s8  newIdx = getNextIndex();
 			s32 dist   = (s32)(u8)newIdx - (s32)mScenarioIndex;
 			mShineManager->startIncrease(dist);
-			*(u8*)((u8*)this + 0x54) = 1;
+			*(u8*)(&_44[0x10]) = 1;
 
 			m68ExPane->mPane->mVisible = true;
 			m68ExPane->mPane->mAlpha   = 0;
 			m68ExPane->setPaneAlpha(10, 255, 0);
-			s16 d = *(s16*)((u8*)this + 0x7C);
+			s16 d = *(s16*)(&_6C[0x10]);
 			m68ExPane->setPaneOffset(10, -d, 0, 0, 0);
 
 			m40ExPane->mPane->mVisible = true;
@@ -407,23 +407,23 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			m40ExPane->setPaneOffset(10, -d, 0, 0, 0);
 
 			J2DPicture* p70
-			    = *(J2DPicture**)((u8*)this + 0x70);
+			    = *(J2DPicture**)(&_6C[0x4]);
 			JUTTexture* tNew = *(JUTTexture**)((u8*)this + 0x80
 			                                   + (u32)(u8)newIdx * 4);
 			p70->insert(tNew, 0, 1.0f);
 			p70->remove(1);
 			J2DPicture* p74
-			    = *(J2DPicture**)((u8*)this + 0x74);
+			    = *(J2DPicture**)(&_6C[0x8]);
 			p74->insert(tNew, 0, 1.0f);
 			p74->remove(1);
 			J2DPicture* p48
-			    = *(J2DPicture**)((u8*)this + 0x48);
+			    = *(J2DPicture**)(&_44[0x4]);
 			JUTTexture* tCur = *(JUTTexture**)(
 			    (u8*)this + 0x80 + (u32)mScenarioIndex * 4);
 			p48->insert(tCur, 0, 1.0f);
 			p48->remove(1);
 			J2DPicture* p4C
-			    = *(J2DPicture**)((u8*)this + 0x4C);
+			    = *(J2DPicture**)(&_44[0x8]);
 			p4C->insert(tCur, 0, 1.0f);
 			p4C->remove(1);
 
@@ -432,7 +432,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			const char* msgCur = (const char*)SMSGetMessageData(
 			    (void*)_15C, (u16)scScenarioNameTable[shineCur]);
 			strncpy(
-			    (*(J2DTextBox**)((u8*)this + 0x44))->getStringPtr(),
+			    (*(J2DTextBox**)(&_44[0x0]))->getStringPtr(),
 			    msgCur, 0x7F);
 
 			mShineManager->mShines[mScenarioIndex]->unk24 = 0;
@@ -452,7 +452,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			const char* msgNew = (const char*)SMSGetMessageData(
 			    (void*)_15C, (u16)scScenarioNameTable[shineNew]);
 			strncpy(
-			    (*(J2DTextBox**)((u8*)this + 0x6C))->getStringPtr(),
+			    (*(J2DTextBox**)(&_6C[0x0]))->getStringPtr(),
 			    msgNew, 0x7F);
 
 			mShineManager->mShines[mScenarioIndex]->unk24 = 1;
@@ -468,13 +468,13 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			if (_13C > 1) {
 				if (mScenarioIndex != _13C - 1) {
 					u8* p
-					    = (u8*)*(u32*)((u8*)this + 0x108) + 0xC;
+					    = (u8*)*(u32*)(&_104[0x4]) + 0xC;
 					if (*p == 0)
 						*p = 1;
 				}
 				if (mScenarioIndex != 0) {
 					u8* p
-					    = (u8*)*(u32*)((u8*)this + 0x104) + 0xC;
+					    = (u8*)*(u32*)(&_104[0x0]) + 0xC;
 					if (*p == 0)
 						*p = 1;
 				}
@@ -485,35 +485,35 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 	}
 	case 7: {
 		if (_13C > 1) {
-			J2DPane* p104 = *(J2DPane**)((u8*)this + 0x104);
+			J2DPane* p104 = *(J2DPane**)(&_104[0x0]);
 			if (p104->mVisible) {
 				f32 fr = SMSGetAnmFrameRate();
-				u8 phase = *((u8*)this + 0x10D);
+				u8 phase = *(&_104[0x9]);
 				s32 d    = (s32)(0.5f * (f32)(u32)phase * fr);
-				JUTRect* rc = (JUTRect*)((u8*)this + 0x110);
+				JUTRect* rc = (JUTRect*)(&_110[0x0]);
 				p104->move(rc->x1 - d, rc->y1);
 			}
-			J2DPane* p108 = *(J2DPane**)((u8*)this + 0x108);
+			J2DPane* p108 = *(J2DPane**)(&_104[0x4]);
 			if (p108->mVisible) {
 				f32 fr = SMSGetAnmFrameRate();
-				u8 phase = *((u8*)this + 0x10D);
+				u8 phase = *(&_104[0x9]);
 				s32 d    = (s32)(0.5f * (f32)(u32)phase * fr);
-				JUTRect* rc = (JUTRect*)((u8*)this + 0x120);
+				JUTRect* rc = (JUTRect*)(&_120[0x0]);
 				p108->move(rc->x1 + d, rc->y1);
 			}
 
-			if (*((u8*)this + 0x10C) != 0) {
-				*((u8*)this + 0x10D) += 1;
-				if (*((u8*)this + 0x10D) > 10)
-					*((u8*)this + 0x10C) = 0;
+			if (*(&_104[0x8]) != 0) {
+				*(&_104[0x9]) += 1;
+				if (*(&_104[0x9]) > 10)
+					*(&_104[0x8]) = 0;
 			} else {
-				*((u8*)this + 0x10D) -= 1;
-				if (*((u8*)this + 0x10D) == 0)
-					*((u8*)this + 0x10C) = 1;
+				*(&_104[0x9]) -= 1;
+				if (*(&_104[0x9]) == 0)
+					*(&_104[0x8]) = 1;
 			}
 
 			{
-				J2DPane* pn = *(J2DPane**)((u8*)this + 0x104);
+				J2DPane* pn = *(J2DPane**)(&_104[0x0]);
 				u8       a  = pn->mAlpha;
 				if (mScenarioIndex == 0) {
 					if (a != 0) {
@@ -522,7 +522,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 							na           = 0;
 							pn->mVisible = false;
 						}
-						(*(J2DPane**)((u8*)this + 0x104))
+						(*(J2DPane**)(&_104[0x0]))
 						    ->mAlpha
 						    = na;
 					}
@@ -537,7 +537,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			}
 
 			{
-				J2DPane* pn  = *(J2DPane**)((u8*)this + 0x108);
+				J2DPane* pn  = *(J2DPane**)(&_104[0x4]);
 				u8       a   = pn->mAlpha;
 				s8       nxt = getNextIndex();
 				if (nxt == -1) {
@@ -550,7 +550,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 							    ->mVisible
 							    = false;
 						}
-						(*(J2DPane**)((u8*)this + 0x108))
+						(*(J2DPane**)(&_104[0x4]))
 						    ->mAlpha
 						    = na;
 					}
@@ -559,7 +559,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 						s32 na = a + 4;
 						if (na > _149)
 							na = _149;
-						(*(J2DPane**)((u8*)this + 0x108))
+						(*(J2DPane**)(&_104[0x4]))
 						    ->mAlpha
 						    = na;
 					}
@@ -581,10 +581,10 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			J2DPane* pn = *(J2DPane**)(
 			    (u8*)this + 0xDC + (u32)mScenarioIndex * 4);
 			u8 a = pn->mAlpha;
-			if (*((u8*)this + 0xD8) != 0) {
+			if (*(&_A8[0x30]) != 0) {
 				s32 na = a + 6;
 				if (na > _148) {
-					*((u8*)this + 0xD8) = 0;
+					*(&_A8[0x30]) = 0;
 					na                  = _148;
 				}
 				(*(J2DPane**)((u8*)this + 0xDC
@@ -594,7 +594,7 @@ void TSelectMenu::perform(u32 flags, JDrama::TGraphics* gfx)
 			} else {
 				s32 na = a - 6;
 				if (na < 0x40) {
-					*((u8*)this + 0xD8) = 1;
+					*(&_A8[0x30]) = 1;
 					na                  = 0x40;
 				}
 				(*(J2DPane**)((u8*)this + 0xDC
@@ -735,12 +735,12 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 	m68ExPane->mPane->mVisible = false;
 	*(JUTRect*)_58             = m40ExPane->mPane->mBounds;
 
-	*(J2DPane**)((u8*)this + 0x48) = mScreen->search('s_2a');
-	*(J2DPane**)((u8*)this + 0x4C) = mScreen->search('s_2b');
-	*(J2DPane**)((u8*)this + 0x70) = mScreen->search('0_2a');
-	*(J2DPane**)((u8*)this + 0x74) = mScreen->search('0_2b');
-	*(J2DPane**)((u8*)this + 0x50) = mScreen->search('s_2b');
-	*(J2DPane**)((u8*)this + 0x78) = mScreen->search('0_2b');
+	*(J2DPane**)(&_44[0x4]) = mScreen->search('s_2a');
+	*(J2DPane**)(&_44[0x8]) = mScreen->search('s_2b');
+	*(J2DPane**)(&_6C[0x4]) = mScreen->search('0_2a');
+	*(J2DPane**)(&_6C[0x8]) = mScreen->search('0_2b');
+	*(J2DPane**)(&_44[0xC]) = mScreen->search('s_2b');
+	*(J2DPane**)(&_6C[0xC]) = mScreen->search('0_2b');
 
 	for (s32 i = 0; i < 8; i++) {
 		char buf[256];
@@ -750,12 +750,12 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 		*(JUTTexture**)((u8*)this + 0x80 + i * 4) = tex;
 	}
 
-	*(J2DTextBox**)((u8*)this + 0x44) = (J2DTextBox*)mScreen->search('sttx');
-	SMSMakeTextBuffer(*(J2DTextBox**)((u8*)this + 0x44), 0x80);
-	*(J2DTextBox**)((u8*)this + 0x6C) = (J2DTextBox*)mScreen->search('0ttx');
-	SMSMakeTextBuffer(*(J2DTextBox**)((u8*)this + 0x6C), 0x80);
+	*(J2DTextBox**)(&_44[0x0]) = (J2DTextBox*)mScreen->search('sttx');
+	SMSMakeTextBuffer(*(J2DTextBox**)(&_44[0x0]), 0x80);
+	*(J2DTextBox**)(&_6C[0x0]) = (J2DTextBox*)mScreen->search('0ttx');
+	SMSMakeTextBuffer(*(J2DTextBox**)(&_6C[0x0]), 0x80);
 
-	*(s16*)((u8*)this + 0x7C)
+	*(s16*)(&_6C[0x10])
 	    = (s16)(m68ExPane->mPane->mBounds.x1 - m40ExPane->mPane->mBounds.x1);
 
 	mA0Pane = mScreen->search('i_0');
@@ -865,11 +865,11 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 	JUTTexture* tex1 = new JUTTexture(
 	    (const ResTIMG*)JKRFileLoader::getGlbResource(
 	        "/select/timg/sc_mark_1.bti"));
-	*(JUTTexture**)((u8*)this + 0xD0) = tex1;
+	*(JUTTexture**)(&_A8[0x28]) = tex1;
 	JUTTexture* tex0 = new JUTTexture(
 	    (const ResTIMG*)JKRFileLoader::getGlbResource(
 	        "/select/timg/sc_mark_0.bti"));
-	*(JUTTexture**)((u8*)this + 0xD4) = tex0;
+	*(JUTTexture**)(&_A8[0x2C]) = tex0;
 
 	*(u8*)((u8*)this + 0x160) = 0xFF;
 	*(u8*)((u8*)this + 0x161) = 0;
@@ -879,9 +879,9 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 	*(u8*)((u8*)this + 0x165) = 0xFF;
 	*(u8*)((u8*)this + 0x166) = 0;
 	*(u8*)((u8*)this + 0x167) = 0xFF;
-	*(s32*)((u8*)this + 0x14) = 2;
-	*(s32*)((u8*)this + 0x18) = 0;
-	*(s32*)((u8*)this + 0x1C) = 4;
+	*(s32*)(&_14[0x0]) = 2;
+	*(s32*)(&_14[0x4]) = 0;
+	*(s32*)(&_14[0x8]) = 4;
 
 	mScreen->search(0x62695F30)->mVisible = false;
 
@@ -950,31 +950,31 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 
 	if (_13C > 1) {
 		J2DPane* paneL = mScreen->search(0x615F6C30 + _13C);
-		*(J2DPane**)((u8*)this + 0x104) = paneL;
+		*(J2DPane**)(&_104[0x0]) = paneL;
 		J2DPane* paneR = mScreen->search(0x615F7230 + _13C);
-		*(J2DPane**)((u8*)this + 0x108) = paneR;
-		*(u32*)((u8*)this + 0x110) = *(u32*)((u8*)paneL + 0x14);
-		*(u32*)((u8*)this + 0x114) = *(u32*)((u8*)paneL + 0x18);
-		*(u32*)((u8*)this + 0x118) = *(u32*)((u8*)paneL + 0x1C);
-		*(u32*)((u8*)this + 0x11C) = *(u32*)((u8*)paneL + 0x20);
-		*(u32*)((u8*)this + 0x120) = *(u32*)((u8*)paneR + 0x14);
-		*(u32*)((u8*)this + 0x124) = *(u32*)((u8*)paneR + 0x18);
-		*(u32*)((u8*)this + 0x128) = *(u32*)((u8*)paneR + 0x1C);
-		*(u32*)((u8*)this + 0x12C) = *(u32*)((u8*)paneR + 0x20);
+		*(J2DPane**)(&_104[0x4]) = paneR;
+		*(u32*)(&_110[0x0]) = *(u32*)((u8*)paneL + 0x14);
+		*(u32*)(&_110[0x4]) = *(u32*)((u8*)paneL + 0x18);
+		*(u32*)(&_110[0x8]) = *(u32*)((u8*)paneL + 0x1C);
+		*(u32*)(&_110[0xC]) = *(u32*)((u8*)paneL + 0x20);
+		*(u32*)(&_120[0x0]) = *(u32*)((u8*)paneR + 0x14);
+		*(u32*)(&_120[0x4]) = *(u32*)((u8*)paneR + 0x18);
+		*(u32*)(&_120[0x8]) = *(u32*)((u8*)paneR + 0x1C);
+		*(u32*)(&_120[0xC]) = *(u32*)((u8*)paneR + 0x20);
 		if (mScenarioIndex != 0)
 			paneL->mVisible = true;
 		if ((s32)mScenarioIndex != (s32)_13C - 1)
 			paneR->mVisible = true;
 	}
 
-	*(u32*)((u8*)this + 0xDC) = 0;
-	*(u32*)((u8*)this + 0xE0) = 0;
-	*(u32*)((u8*)this + 0xE4) = 0;
-	*(u32*)((u8*)this + 0xE8) = 0;
-	*(u32*)((u8*)this + 0xEC) = 0;
-	*(u32*)((u8*)this + 0xF0) = 0;
-	*(u32*)((u8*)this + 0xF4) = 0;
-	*(u32*)((u8*)this + 0xF8) = 0;
+	*(u32*)(&_A8[0x34]) = 0;
+	*(u32*)(&_A8[0x38]) = 0;
+	*(u32*)(&_A8[0x3C]) = 0;
+	*(u32*)(&_A8[0x40]) = 0;
+	*(u32*)(&_A8[0x44]) = 0;
+	*(u32*)(&_A8[0x48]) = 0;
+	*(u32*)(&_A8[0x4C]) = 0;
+	*(u32*)(&_A8[0x50]) = 0;
 	if (_13C & 1) {
 		s32 start   = (7 - _13C) / 2;
 		s32 end     = start + (_13C - 1);
@@ -986,7 +986,7 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 			u8 state = mStageStates[paneIdx];
 			if (state == 2 || state == 1) {
 				((J2DPicture*)pane)
-				    ->insert(*(JUTTexture**)((u8*)this + 0xD4), 0,
+				    ->insert(*(JUTTexture**)(&_A8[0x2C]), 0,
 				             1.0f);
 				((J2DPicture*)pane)->remove(1);
 			} else if (state == 0) {
@@ -1005,7 +1005,7 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 			u8 state = mStageStates[paneIdx];
 			if (state == 2 || state == 1) {
 				((J2DPicture*)pane)
-				    ->insert(*(JUTTexture**)((u8*)this + 0xD4), 0,
+				    ->insert(*(JUTTexture**)(&_A8[0x2C]), 0,
 				             1.0f);
 				((J2DPicture*)pane)->remove(1);
 			} else if (state == 0) {
@@ -1016,38 +1016,38 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 	}
 
 	_140 = *(s32*)((u8*)mScreen->search(0x695F6F30) + 0x13C);
-	*(u8*)((u8*)this + 0x148) = 0xFF;
+	*(u8*)(&_148) = 0xFF;
 	_144 = *(s32*)((u8*)mScreen->search(0x695F6F32) + 0x13C);
-	*(u8*)((u8*)this + 0x149)
+	*(u8*)(&_149)
 	    = *(u8*)((u8*)mScreen->search(0x695F6F32) + 0xCC);
 	*(s32*)((u8*)mScreen->search(0x695F6F30) + 0x13C) = _144;
 	*(u8*)((u8*)mScreen->search(0x695F6F30) + 0xCC)
-	    = *(u8*)((u8*)this + 0x149);
+	    = *(u8*)(&_149);
 
 	*(s32*)((u8*)(*(J2DPane**)((u8*)this + 0xDC + mScenarioIndex * 4))
 	        + 0x13C)
 	    = _140;
 	*(u8*)((u8*)(*(J2DPane**)((u8*)this + 0xDC + mScenarioIndex * 4))
 	       + 0xCC)
-	    = *(u8*)((u8*)this + 0x148);
+	    = *(u8*)(&_148);
 
-	((J2DPicture*)*(J2DPane**)((u8*)this + 0x48))
+	((J2DPicture*)*(J2DPane**)(&_44[0x4]))
 	    ->insert(*(JUTTexture**)((u8*)this + 0x80 + mScenarioIndex * 4),
 	             0, 1.0f);
-	((J2DPicture*)*(J2DPane**)((u8*)this + 0x48))->remove(1);
-	((J2DPicture*)*(J2DPane**)((u8*)this + 0x4C))
+	((J2DPicture*)*(J2DPane**)(&_44[0x4]))->remove(1);
+	((J2DPicture*)*(J2DPane**)(&_44[0x8]))
 	    ->insert(*(JUTTexture**)((u8*)this + 0x80 + mScenarioIndex * 4),
 	             0, 1.0f);
-	((J2DPicture*)*(J2DPane**)((u8*)this + 0x4C))->remove(1);
+	((J2DPicture*)*(J2DPane**)(&_44[0x8]))->remove(1);
 
 	{
 		char buf[256];
 		snprintf(buf, 0xFE, "/common/2d/scenarioname.bmg");
 		_15C = (s32)JKRFileLoader::getGlbResource(buf);
 	}
-	((J2DTextBox*)*(J2DPane**)((u8*)this + 0x44))
+	((J2DTextBox*)*(J2DPane**)(&_44[0x0]))
 	    ->setFont((JUTFont*)gpSystemFont);
-	((J2DTextBox*)*(J2DPane**)((u8*)this + 0x6C))
+	((J2DTextBox*)*(J2DPane**)(&_6C[0x0]))
 	    ->setFont((JUTFont*)gpSystemFont);
 
 	{
@@ -1056,7 +1056,7 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 		    = SMS_getShineID(SMS_getShineStage(_13A), (u32)scIdx, false);
 		const char* scName = SMSGetMessageData(
 		    (void*)_15C, (u16)scScenarioNameTable[shineId]);
-		strncpy(((J2DTextBox*)*(J2DPane**)((u8*)this + 0x44))
+		strncpy(((J2DTextBox*)*(J2DPane**)(&_44[0x0]))
 		            ->getStringPtr(),
 		        scName, 0x7F);
 	}
@@ -1072,30 +1072,30 @@ TSelectMenu::TSelectMenu(const char* name)
 	m2CPane                   = nullptr;
 	m30ExPane                 = nullptr;
 	m38ExPane                 = nullptr;
-	*(u32*)((u8*)this + 0x3C) = 0;
+	*(u32*)(&_3C[0x0]) = 0;
 	m40ExPane                 = nullptr;
-	*(u32*)((u8*)this + 0x44) = 0;
-	*(u32*)((u8*)this + 0x48) = 0;
-	*(u32*)((u8*)this + 0x4C) = 0;
-	*(u32*)((u8*)this + 0x50) = 0;
-	*(u8*)((u8*)this + 0x54)  = 0;
+	*(u32*)(&_44[0x0]) = 0;
+	*(u32*)(&_44[0x4]) = 0;
+	*(u32*)(&_44[0x8]) = 0;
+	*(u32*)(&_44[0xC]) = 0;
+	*(u8*)(&_44[0x10])  = 0;
 	((JUTRect*)_58)->set(0, 0, 0, 0);
 
 	*(u32*)((u8*)this + 0x68) = 0;
-	*(u32*)((u8*)this + 0x6C) = 0;
-	*(u32*)((u8*)this + 0x70) = 0;
-	*(u32*)((u8*)this + 0x74) = 0;
-	*(u32*)((u8*)this + 0x78) = 0;
-	*(u16*)((u8*)this + 0x7C) = 0;
+	*(u32*)(&_6C[0x0]) = 0;
+	*(u32*)(&_6C[0x4]) = 0;
+	*(u32*)(&_6C[0x8]) = 0;
+	*(u32*)(&_6C[0xC]) = 0;
+	*(u16*)(&_6C[0x10]) = 0;
 	mA0Pane                   = nullptr;
 	mA4Pane                   = nullptr;
-	*(u32*)((u8*)this + 0xD0) = 0;
-	*(u32*)((u8*)this + 0xD4) = 0;
-	*(u8*)((u8*)this + 0xD8)  = 1;
-	*(u32*)((u8*)this + 0x104) = 0;
-	*(u32*)((u8*)this + 0x108) = 0;
-	*(u8*)((u8*)this + 0x10C)  = 1;
-	*(u8*)((u8*)this + 0x10D)  = 0;
+	*(u32*)(&_A8[0x28]) = 0;
+	*(u32*)(&_A8[0x2C]) = 0;
+	*(u8*)(&_A8[0x30])  = 1;
+	*(u32*)(&_104[0x0]) = 0;
+	*(u32*)(&_104[0x4]) = 0;
+	*(u8*)(&_104[0x8])  = 1;
+	*(u8*)(&_104[0x9])  = 0;
 	((JUTRect*)_110)->set(0, 0, 0, 0);
 
 	((JUTRect*)_120)->set(0, 0, 0, 0);
