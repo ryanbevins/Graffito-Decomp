@@ -39,8 +39,8 @@ f32 TMapWireActor::getPosInWire() const
 	JGeometry::TVec3<f32> foot
 	    = MsPerpendicFootToLineR(flatStart, flatEnd, mPosition);
 
-	f32 totalLength = (flatEnd - flatStart).length();
-	f32 partLength  = (foot - flatStart).length();
+	f32 totalLength = JGeometry::TVec3<f32>(flatEnd - flatStart).length();
+	f32 partLength  = JGeometry::TVec3<f32>(foot - flatStart).length();
 	return partLength / totalLength;
 }
 
