@@ -133,7 +133,7 @@ DEFINE_NERVE(TNerveKukkuRecoverGraph, TLiveActor)
 		return TRUE;
 	}
 
-	self->walk();
+	self->recover();
 	return FALSE;
 }
 

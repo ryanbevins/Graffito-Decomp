@@ -86,6 +86,7 @@ public:
 	JGeometry::TVec3<f32> calcMomentum(f32);
 	void dropCoins();
 	void shootBall(TKukkuBall*);
+	void recover() { walk(); }
 	void walk()
 	{
 		updateRotation();
