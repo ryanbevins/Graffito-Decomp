@@ -861,9 +861,14 @@ bool TBaseNPC::isSmallNpc() const
 	if (mScaling.x < 0.7f && mScaling.y < 0.7f && mScaling.z < 0.7f)
 		partA = true;
 	if (!partA) {
-		bool helper    = true;
+		bool mareM = false;
+		switch (mActorType) {
+		case 0x0400000E:
+			mareM = true;
+		}
 		bool mareMatch = true;
-		if (mActorType != 0x0400000E && !isNormalMareW())
+		bool helper    = true;
+		if (!mareM && !isNormalMareW())
 			helper = false;
 		if (!helper) {
 			helper = true;
