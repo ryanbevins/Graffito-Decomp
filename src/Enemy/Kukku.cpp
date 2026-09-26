@@ -417,7 +417,8 @@ void TKukkuBall::perform(u32 action, JDrama::TGraphics* graphics)
 		next.add(mVelocity);
 
 		const TBGCheckData* ground;
-		f32 groundY = gpMap->checkGround(next.x, mAttackHeight + next.y, next.z,
+		f32 attackHeight = mAttackHeight;
+		f32 groundY = gpMap->checkGround(next.x, next.y + attackHeight, next.z,
 		                                 &ground);
 		groundY += 1.0f;
 		if (next.y <= groundY + 0.05f) {
