@@ -777,15 +777,15 @@ void TGuide::resetScore()
 
 		if (deaths < 100) {
 			h->mVisible = false;
-			t->changeTexture(_C8[deaths / 10]->mTexInfo, 0);
-			o->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
+			t->changeTexture(_C8[deaths / 10]->getTexInfo(), 0);
+			o->changeTexture(_C8[deaths % 10]->getTexInfo(), 0);
 		} else {
 			h->mVisible    = true;
 			int hundreds = deaths / 100;
-			h->changeTexture(_C8[hundreds]->mTexInfo, 0);
+			h->changeTexture(_C8[hundreds]->getTexInfo(), 0);
 			deaths -= hundreds * 100;
-			t->changeTexture(_C8[deaths / 10]->mTexInfo, 0);
-			o->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
+			t->changeTexture(_C8[deaths / 10]->getTexInfo(), 0);
+			o->changeTexture(_C8[deaths % 10]->getTexInfo(), 0);
 		}
 
 		if (stageData[0x1A] != 0) {
@@ -829,15 +829,15 @@ void TGuide::resetScore()
 
 	if (totalClamped < 100) {
 		lh->mVisible = false;
-		lt->changeTexture(_C8[totalClamped / 10]->mTexInfo, 0);
-		lo->changeTexture(_C8[totalClamped % 10]->mTexInfo, 0);
+		lt->changeTexture(_C8[totalClamped / 10]->getTexInfo(), 0);
+		lo->changeTexture(_C8[totalClamped % 10]->getTexInfo(), 0);
 	} else {
 		lh->mVisible    = true;
 		s32 lhundreds = totalClamped / 100;
-		lh->changeTexture(_C8[lhundreds]->mTexInfo, 0);
+		lh->changeTexture(_C8[lhundreds]->getTexInfo(), 0);
 		s32 lrem = totalClamped - lhundreds * 100;
-		lt->changeTexture(_C8[lrem / 10]->mTexInfo, 0);
-		lo->changeTexture(_C8[lrem % 10]->mTexInfo, 0);
+		lt->changeTexture(_C8[lrem / 10]->getTexInfo(), 0);
+		lo->changeTexture(_C8[lrem % 10]->getTexInfo(), 0);
 	}
 
 	switch (gpApplication.mSaveFile) {
