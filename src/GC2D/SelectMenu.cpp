@@ -747,7 +747,7 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 		snprintf(buf, 0xfe, "/select/timg/sc_number_%d.bti", i + 1);
 		JUTTexture* tex = new JUTTexture(
 		    (const ResTIMG*)JKRFileLoader::getGlbResource(buf));
-		*(JUTTexture**)((u8*)this + 0x80 + i * 4) = tex;
+		((JUTTexture**)&_6C[0x14])[i] = tex;
 	}
 
 	*(J2DTextBox**)(&_44[0x0]) = (J2DTextBox*)mScreen->search('sttx');
@@ -766,7 +766,7 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 		snprintf(buf, 0x100, "/select/timg/coin_number_%d.bti", i);
 		JUTTexture* tex = new JUTTexture(
 		    (const ResTIMG*)JKRFileLoader::getGlbResource(buf));
-		*(JUTTexture**)((u8*)this + 0xA8 + i * 4) = tex;
+		((JUTTexture**)_A8)[i] = tex;
 	}
 
 	J2DPicture* scenarioPics[3];
@@ -981,7 +981,7 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 		s32 paneIdx = 0;
 		for (s32 i = start; i <= end; i++) {
 			J2DPane* pane = mScreen->search(0x695F6F30 + i);
-			*(J2DPane**)((u8*)this + 0xDC + paneIdx * 4) = pane;
+			((J2DPane**)&_A8[0x34])[paneIdx] = pane;
 			pane->mVisible = true;
 			u8 state = mStageStates[paneIdx];
 			if (state == 2 || state == 1) {
@@ -1000,7 +1000,7 @@ void TSelectMenu::initData(u8 cup, JKRArchive* archive,
 		s32 paneIdx = 0;
 		for (s32 i = start; i <= end; i++) {
 			J2DPane* pane = mScreen->search(0x695F6530 + i);
-			*(J2DPane**)((u8*)this + 0xDC + paneIdx * 4) = pane;
+			((J2DPane**)&_A8[0x34])[paneIdx] = pane;
 			pane->mVisible = true;
 			u8 state = mStageStates[paneIdx];
 			if (state == 2 || state == 1) {
