@@ -814,14 +814,14 @@ void TGuide::resetScore()
 	totalAccum += u22;
 
 	s32 totalFlag = TFlagManager::smInstance->getFlag(0x40000);
-	s32 remaining = totalFlag - (u8)totalAccum;
-	if ((u8)remaining > 99)
+	u8 remaining = totalFlag - (u8)totalAccum;
+	if (remaining > 99)
 		remaining = 99;
 
 	((J2DPicture*)unkBC->search('1s_1'))
-	    ->changeTexture(_C8[(u8)remaining / 10]->getTexInfo(), 0);
+	    ->changeTexture(_C8[remaining / 10]->getTexInfo(), 0);
 	((J2DPicture*)unkBC->search('1s_2'))
-	    ->changeTexture(_C8[(u8)remaining % 10]->getTexInfo(), 0);
+	    ->changeTexture(_C8[remaining % 10]->getTexInfo(), 0);
 
 	s32 totalClamped = totalFlag;
 	if (totalClamped > 999)
