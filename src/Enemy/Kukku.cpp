@@ -502,19 +502,19 @@ void TKukku::dropCoins()
 		unk1B0++;
 		unk1A0->appear();
 		unk1A0->JSGSetTranslation(mPosition);
-		unk1A0->mVelocity.set(0.0f, 0.0f, 0.0f);
-		unk1A0->offLiveFlag(LIVE_FLAG_UNK10);
+		TMapObjBase* coin = unk1A0;
+		coin->mVelocity.set(0.0f, 0.0f, 0.0f);
+		coin->offLiveFlag(LIVE_FLAG_UNK10);
 		return;
 	}
 
 	f32 rnd = 4.0f * MsRandF();
-	s32 idx;
-	if ((s32)rnd < 1)
+	s32 lo  = (s32)rnd;
+	s32 idx = (s32)rnd;
+	if (lo < 1)
 		idx = 1;
-	else if ((s32)rnd > 3)
+	else if (idx > 3)
 		idx = 3;
-	else
-		idx = (s32)rnd;
 	s32 numCoins = cDropCoinNumTable[idx];
 
 	JGeometry::TQuat4<f32> qSpin;
