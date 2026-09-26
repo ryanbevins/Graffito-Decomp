@@ -327,8 +327,8 @@ void TResetFruit::kicked()
 		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
 		if (fabsf(mVelocity.x) < thresh
 		    && fabsf(mVelocity.z) < thresh) {
-			mVelocity.x = (MsRandF() - 0.5f) * 2.0f;
-			mVelocity.z = (MsRandF() - 0.5f) * 2.0f;
+			mVelocity.x = 2.0f * MsRandF() - 1.0f;
+			mVelocity.z = 2.0f * MsRandF() - 1.0f;
 		}
 		unk194 = 10;
 		mLiveFlag &= ~0x10;
