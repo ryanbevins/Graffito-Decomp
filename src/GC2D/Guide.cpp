@@ -644,15 +644,11 @@ void TGuide::linkSelect()
 	{
 		TBoundPane* bp = _444;
 		if ((u32)_F0 % 90 == 0) {
-			JUTPoint p1(0, 0);
-			JUTPoint p2(0, -5);
-			JUTPoint p3(0, 0);
-			bp->setPanePosition(45, p1, p2, p3);
+			bp->setPanePosition(45, JUTPoint(0, 0), JUTPoint(0, -5),
+			                    JUTPoint(0, 0));
 		} else if ((u32)_F0 % 90 == 45) {
-			JUTPoint p1(0, 0);
-			JUTPoint p2(0, 5);
-			JUTPoint p3(0, 0);
-			bp->setPanePosition(45, p1, p2, p3);
+			bp->setPanePosition(45, JUTPoint(0, 0), JUTPoint(0, 5),
+			                    JUTPoint(0, 0));
 		}
 
 		_448->mAlpha = ((u32)_F0 % 180 < 0x82) ? 0xff : 0;
