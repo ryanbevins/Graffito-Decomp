@@ -856,18 +856,18 @@ bool TBaseNPC::isBeTrampledNpc() const
 
 bool TBaseNPC::isSmallNpc() const
 {
-	bool result = false;
 	bool partA  = false;
+	bool result = false;
 	if (mScaling.x < 0.7f && mScaling.y < 0.7f && mScaling.z < 0.7f)
 		partA = true;
+	bool mareMatch = true;
 	if (!partA) {
 		bool mareM = false;
 		switch (mActorType) {
 		case 0x0400000E:
 			mareM = true;
 		}
-		bool mareMatch = true;
-		bool helper    = true;
+		bool helper = true;
 		if (!mareM && !isNormalMareW())
 			helper = false;
 		if (!helper) {
@@ -877,15 +877,15 @@ bool TBaseNPC::isSmallNpc() const
 			if (!helper)
 				mareMatch = false;
 		}
-		if (mareMatch) {
-			result = true;
-		} else {
-			if ((s32)mActorType < 0x04000018
-			    && (s32)mActorType >= 0x04000016)
-				result = true;
-		}
-	} else {
+	}
+	if (mareMatch) {
 		result = true;
+	} else {
+		switch (mActorType) {
+		case 0x04000016:
+		case 0x04000017:
+			result = true;
+		}
 	}
 	return result;
 }
