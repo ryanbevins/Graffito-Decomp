@@ -44,11 +44,6 @@ namespace {
 const int cDropCoinNumTable[] = { 3, 3, 1, 2 };
 }
 
-static inline JGeometry::TVec3<f32> makeForwardVec(f32 speed)
-{
-	return JGeometry::TVec3<f32>(0.0f, 0.0f, speed);
-}
-
 static inline JGeometry::TVec3<f32> makeHorizontalVec(f32 x, f32 z)
 {
 	return JGeometry::TVec3<f32>(x, 0.0f, z);
@@ -220,11 +215,8 @@ DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor)
 	}
 
 	self->updateRotation();
-	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(self->mRotation);
-	JGeometry::TVec3<f32> fwd
-	    = makeForwardVec(self->getSaveParam2()->mMarchSpeed.get());
-	q.rotate(fwd, fwd);
-	self->mLinearVelocity = fwd;
+	self->mLinearVelocity
+	    = self->calcMomentum(self->getSaveParam2()->mMarchSpeed.get());
 	return FALSE;
 }
 
@@ -455,7 +447,6 @@ void TKukkuBall::perform(u32 action, JDrama::TGraphics* graphics)
 		mMActor->perform(action, graphics);
 }
 
-#pragma dont_inline on
 JGeometry::TVec3<f32> TKukku::calcMomentum(f32 speed)
 {
 	JGeometry::TQuat4<f32> q = SMS_Eular2Quat(mRotation);
@@ -463,7 +454,6 @@ JGeometry::TVec3<f32> TKukku::calcMomentum(f32 speed)
 	q.rotate(v, v);
 	return v;
 }
-#pragma dont_inline off
 
 bool TKukku::isFalling() const
 {
