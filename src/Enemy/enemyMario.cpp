@@ -1831,7 +1831,9 @@ void TEnemyMario::startMonteReplay(u32 node_id)
 
 	Vec next;
 	emOwner(this)->unk124->getGraph()->getGraphNode(node + 1).getPoint(&next);
-	mFaceAngle.y = matan(next.z - current.z, next.x - current.x);
+	f32 dx       = next.x - current.x;
+	f32 dz       = next.z - current.z;
+	mFaceAngle.y = matan(dz, dx);
 
 	f32 zero    = 0.0f;
 	mVel.x      = zero;
