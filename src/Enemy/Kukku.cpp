@@ -133,9 +133,7 @@ DEFINE_NERVE(TNerveKukkuRecoverGraph, TLiveActor)
 		return TRUE;
 	}
 
-	self->updateRotation();
-	self->mLinearVelocity
-	    = self->calcMomentum(self->getSaveParam2()->mMarchSpeed.get());
+	self->walk();
 	return FALSE;
 }
 
@@ -198,9 +196,7 @@ DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor)
 		}
 	}
 
-	self->updateRotation();
-	self->mLinearVelocity
-	    = self->calcMomentum(self->getSaveParam2()->mMarchSpeed.get());
+	self->walk();
 	return FALSE;
 }
 

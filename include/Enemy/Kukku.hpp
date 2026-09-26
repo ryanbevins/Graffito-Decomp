@@ -86,6 +86,11 @@ public:
 	JGeometry::TVec3<f32> calcMomentum(f32);
 	void dropCoins();
 	void shootBall(TKukkuBall*);
+	void walk()
+	{
+		updateRotation();
+		mLinearVelocity = calcMomentum(getSaveParam2()->mMarchSpeed.get());
+	}
 
 	// fabricated
 	TKukkuBall** getKukkuBalls() { return mKukkuBalls; }
