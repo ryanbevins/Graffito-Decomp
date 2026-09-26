@@ -304,7 +304,7 @@ void TGuide::changeBotStatus(int idx)
 			_FC->changeTexture(_C8[shineCount % 10]->mTexInfo, 0);
 		}
 
-		if (idx <= 1 || stageData[0x16] == 0) {
+		if (idx == 0 || idx == 1 || stageData[0x16] == 0) {
 			_100->mVisible = false;
 			_104->mVisible = false;
 			_108->mVisible = false;
