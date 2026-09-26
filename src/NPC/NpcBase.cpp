@@ -326,25 +326,31 @@ const GXColor* TBaseNPC::getPtrInitPollutionColor() const
 		result = (const GXColor*)&unk174;
 	} else if (mActorType != 0x04000006) {
 		bool inMonteRange = false;
-		if ((s32)mActorType < 0x0400000A
-		    && (s32)mActorType >= 0x04000006)
+		switch (mActorType) {
+		case 0x04000006:
+		case 0x04000007:
+		case 0x04000008:
+		case 0x04000009:
 			inMonteRange = true;
-		bool isMonte = true;
-		if (!inMonteRange && !isSpecialMonteW())
-			isMonte = false;
-		if (isMonte) {
-			result = (const GXColor*)&unk174;
-		} else {
-			bool inMareRange = false;
-			if ((s32)mActorType < 0x04000013
-			    && (s32)mActorType >= 0x0400000F)
-				inMareRange = true;
-			bool isMare = true;
-			if (!inMareRange && !isSpecialMareW())
-				isMare = false;
-			if (isMare)
-				result = (const GXColor*)&unk174;
 		}
+		bool isMonteOrMare = true;
+		if (!inMonteRange && !isSpecialMonteW())
+			isMonteOrMare = false;
+		if (!isMonteOrMare) {
+			bool inMareRange = false;
+			switch (mActorType) {
+			case 0x0400000F:
+			case 0x04000010:
+			case 0x04000011:
+			case 0x04000012:
+				inMareRange = true;
+			}
+			isMonteOrMare = true;
+			if (!inMareRange && !isSpecialMareW())
+				isMonteOrMare = false;
+		}
+		if (isMonteOrMare)
+			result = (const GXColor*)&unk174;
 	}
 	return result;
 }
