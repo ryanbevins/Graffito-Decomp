@@ -102,8 +102,8 @@ void* CPolarSubCamera::getNoticeActor_()
 				f32 tan
 				    = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x54);
 				CLBCalc2DFPos(
-				    &screen, (MtxPtr)((u8*)this + 0x1EC),
-				    (MtxPtr)((u8*)this + 0x16C),
+				    &screen, (MtxPtr)((u8*)&unk1EC),
+				    (MtxPtr)((u8*)&unk16C),
 				    *(const Vec*)((u8*)this->unk2A4 + 0x10),
 				    nullptr, false);
 				if (inViewCone(screen, tan))
@@ -116,7 +116,7 @@ void* CPolarSubCamera::getNoticeActor_()
 	f32 bestDistSq = CLBSquared<f32>(
 	    *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x18));
 	for (int i = 0; i < unk29C; i++) {
-		void* a = (*(void***)((u8*)this + 0x2A0))[i];
+		void* a = (*(void***)((u8*)&unk2A0))[i];
 		u32 status = *(u32*)((u8*)a + 0xF0);
 		if ((status & 1) != 0)
 			continue;
@@ -139,8 +139,8 @@ void* CPolarSubCamera::getNoticeActor_()
 			f32 tan = *(f32*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x40);
 			JGeometry::TVec2<f32> screen;
 			CLBCalc2DFPos(&screen,
-			              (MtxPtr)((u8*)this + 0x1EC),
-			              (MtxPtr)((u8*)this + 0x16C),
+			              (MtxPtr)((u8*)&unk1EC),
+			              (MtxPtr)((u8*)&unk16C),
 			              *(const Vec*)((u8*)a + 0x10),
 			              nullptr, false);
 			if (!inViewCone(screen, tan))
@@ -156,7 +156,7 @@ void* CPolarSubCamera::getNoticeActor_()
 			                                                + 0x2A0))[i]
 			                                         + 0x10),
 			        distSq, farClip, -1.0f)) {
-				picked     = (*(void***)((u8*)this + 0x2A0))[i];
+				picked     = (*(void***)((u8*)&unk2A0))[i];
 				bestDistSq = distSq;
 			}
 		}
@@ -240,7 +240,7 @@ void CPolarSubCamera::calcNoticeTargetYrot_(const Vec& target)
 		f32 deg
 		    = (f32) * (s16*)((u8*)*(void**)((u8*)this + 0x2D0) + 0x7C);
 		f32 speed = fAbsAng * deg * ratio * inb
-		           * *(f32*)((u8*)this + 0x288);
+		           * *(f32*)((u8*)&unk288);
 		if (speed > 32766.998f)
 			speed = 32766.998f;
 
@@ -289,8 +289,8 @@ void CPolarSubCamera::ctrlLButtonCamera_()
 		}
 	}
 
-	if (*(u32*)((u8*)this + 0x78) == 0) {
-		u16& flags = *(u16*)((u8*)this + 0x64);
+	if (*(u32*)((u8*)&unk78) == 0) {
+		u16& flags = *(u16*)((u8*)&unk64);
 		if ((flags & 0x20) != 0) {
 			if (stickX != 0.0f) {
 				rotateY_ByStickX_(stickX);

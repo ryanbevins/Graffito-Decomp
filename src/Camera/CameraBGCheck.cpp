@@ -88,14 +88,14 @@ bool CPolarSubCamera::execGroundCheck_(Vec p)
 		interp = b;
 	}
 
-	f32 camBaseY            = *(f32*)((u8*)this + 0xB8);
+	f32 camBaseY            = *(f32*)((u8*)&mPreviousTarget + 0x4);
 	const TBGCheckData* gnd;
 	f32 groundY             = gpMap->checkGroundIgnoreWaterSurface(
         p.x, camBaseY + baseGap, p.z, &gnd);
 	if (isValidCamClip(gnd)) {
 		f32 newY = groundY + interp;
-		if (*(f32*)((u8*)this + 0x84) < newY) {
-			*(f32*)((u8*)this + 0x84) = newY;
+		if (*(f32*)((u8*)&mCurrentTarget + 0x4) < newY) {
+			*(f32*)((u8*)&mCurrentTarget + 0x4) = newY;
 			didSnap                   = true;
 		}
 	}
@@ -113,7 +113,7 @@ bool CPolarSubCamera::execRoofCheck_(Vec p)
 		inMonte = true;
 	} else {
 		void* opt    = getKindOpt(this);
-		f32 camBaseY = *(f32*)((u8*)this + 0xB8);
+		f32 camBaseY = *(f32*)((u8*)&mPreviousTarget + 0x4);
 		f32& offset  = *(f32*)((u8*)opt + 0xE0);
 		roofY        = gpMap->checkRoof(p.x, camBaseY - offset, p.z, &roof);
 	}
@@ -186,7 +186,7 @@ bool CPolarSubCamera::isNeedWallCheck_() const
 	    || isLButtonCameraInbetween() || isTalkCameraSpecifyMode(mMode)
 	    || isTalkCameraInbetween() || isRailCameraSpecifyMode(mMode)
 	    || mMode == 2 || mMode == 0xD
-	    || (*(u16*)((u8*)this + 0x64) & 4) != 0) {
+	    || (*(u16*)((u8*)&unk64) & 4) != 0) {
 		result = false;
 	}
 	return result;
@@ -199,7 +199,7 @@ bool CPolarSubCamera::isNeedRoofCheck_() const
 	    || (isLButtonCameraSpecifyMode(mMode) && !isNowInbetween() ? true
 	                                                               : false)
 	    || isRailCameraSpecifyMode(mMode) || mMode == 2
-	    || *(u16*)((u8*)this + 0x27A) != 0) {
+	    || *(u16*)((u8*)&unk27A) != 0) {
 		result = false;
 	}
 	return result;
@@ -238,18 +238,18 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 {
 	bool needsRecalc = true;
 	if (!flag) {
-		bool match1 = (*(f32*)((u8*)this + 0x13C) == *(f32*)((u8*)this + 0x124)
-		               && *(f32*)((u8*)this + 0x140)
-		                      == *(f32*)((u8*)this + 0x128)
-		               && *(f32*)((u8*)this + 0x144)
-		                      == *(f32*)((u8*)this + 0x12C));
+		bool match1 = (*(f32*)((u8*)&unk13C) == *(f32*)((u8*)&unk124)
+		               && *(f32*)((u8*)&unk13C + 0x4)
+		                      == *(f32*)((u8*)&unk124 + 0x4)
+		               && *(f32*)((u8*)&unk13C + 0x8)
+		                      == *(f32*)((u8*)&unk124 + 0x8));
 		if (match1) {
 			bool match2
-			    = (*(f32*)((u8*)this + 0x160) == *(f32*)((u8*)this + 0x148)
-			       && *(f32*)((u8*)this + 0x164)
-			              == *(f32*)((u8*)this + 0x14C)
-			       && *(f32*)((u8*)this + 0x168)
-			              == *(f32*)((u8*)this + 0x150));
+			    = (*(f32*)((u8*)&unk160) == *(f32*)((u8*)&unk148)
+			       && *(f32*)((u8*)&unk160 + 0x4)
+			              == *(f32*)((u8*)&unk148 + 0x4)
+			       && *(f32*)((u8*)&unk160 + 0x8)
+			              == *(f32*)((u8*)&unk148 + 0x8));
 			if (match2)
 				needsRecalc = false;
 		}
@@ -267,7 +267,7 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 		}
 
 		if (skip) {
-			*(s16*)((u8*)this + 0x2CA) = -1;
+			*(s16*)((u8*)&unk2CA) = -1;
 			updateInHouseTimer(this);
 			return;
 		}
@@ -289,37 +289,37 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 
 		S16Vec rotBuf[6];
 		CLBCalcNearNinePos(samples, rotBuf,
-		                   *(JGeometry::TVec3<f32>*)((u8*)this + 0x124),
-		                   *(JGeometry::TVec3<f32>*)((u8*)this + 0x148),
+		                   *(JGeometry::TVec3<f32>*)((u8*)&unk124),
+		                   *(JGeometry::TVec3<f32>*)((u8*)&unk148),
 		                   angleZ, nearClip, halfPlane);
 
-		f32 sampleOffset                 = *(f32*)((u8*)this + 0x2C4);
+		f32 sampleOffset                 = *(f32*)((u8*)&unk2C4);
 		JGeometry::TVec3<f32>* srcSample = samples;
 		JGeometry::TVec3<f32>* dstSample = samples + 9;
 		for (int i = 0; i < 3; ++i) {
 			dstSample[0].x = srcSample[0].x
-			                 + *(f32*)((u8*)this + 0x25C) * sampleOffset;
+			                 + *(f32*)((u8*)&unk25C) * sampleOffset;
 			dstSample[0].y = srcSample[0].y
-			                 + *(f32*)((u8*)this + 0x260) * sampleOffset;
+			                 + *(f32*)((u8*)&unk25C + 0x4) * sampleOffset;
 			dstSample[0].z = srcSample[0].z
-			                 + *(f32*)((u8*)this + 0x264) * sampleOffset;
+			                 + *(f32*)((u8*)&unk25C + 0x8) * sampleOffset;
 			dstSample[1].x = srcSample[1].x
-			                 + *(f32*)((u8*)this + 0x25C) * sampleOffset;
+			                 + *(f32*)((u8*)&unk25C) * sampleOffset;
 			dstSample[1].y = srcSample[1].y
-			                 + *(f32*)((u8*)this + 0x260) * sampleOffset;
+			                 + *(f32*)((u8*)&unk25C + 0x4) * sampleOffset;
 			dstSample[1].z = srcSample[1].z
-			                 + *(f32*)((u8*)this + 0x264) * sampleOffset;
+			                 + *(f32*)((u8*)&unk25C + 0x8) * sampleOffset;
 			dstSample[2].x = srcSample[2].x
-			                 + *(f32*)((u8*)this + 0x25C) * sampleOffset;
+			                 + *(f32*)((u8*)&unk25C) * sampleOffset;
 			dstSample[2].y = srcSample[2].y
-			                 + *(f32*)((u8*)this + 0x260) * sampleOffset;
+			                 + *(f32*)((u8*)&unk25C + 0x4) * sampleOffset;
 			dstSample[2].z = srcSample[2].z
-			                 + *(f32*)((u8*)this + 0x264) * sampleOffset;
+			                 + *(f32*)((u8*)&unk25C + 0x8) * sampleOffset;
 			srcSample += 3;
 			dstSample += 3;
 		}
 
-		f32 stepY  = *(f32*)((u8*)this + 0x2C0);
+		f32 stepY  = *(f32*)((u8*)&unk2C0);
 		f32 baseY  = -78.0f;
 
 		JGeometry::TVec3<f32>* baseSample = samples;
@@ -338,7 +338,7 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 					if (hit != nullptr) {
 						bool inHouse = hit->mBGType == 0x600 ? true : false;
 						if (inHouse) {
-							*(s16*)((u8*)this + 0x2CA) = hit->mData;
+							*(s16*)((u8*)&unk2CA) = hit->mData;
 							updateInHouseTimer(this);
 							return;
 						}
@@ -348,7 +348,7 @@ void CPolarSubCamera::calcInHouseNo_(bool flag)
 			}
 		}
 
-		*(s16*)((u8*)this + 0x2CA) = -1;
+		*(s16*)((u8*)&unk2CA) = -1;
 	}
 	updateInHouseTimer(this);
 }
