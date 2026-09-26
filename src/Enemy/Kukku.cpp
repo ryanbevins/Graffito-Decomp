@@ -49,6 +49,11 @@ static inline JGeometry::TVec3<f32> makeForwardVec(f32 speed)
 	return JGeometry::TVec3<f32>(0.0f, 0.0f, speed);
 }
 
+static inline JGeometry::TVec3<f32> makeHorizontalVec(f32 x, f32 z)
+{
+	return JGeometry::TVec3<f32>(x, 0.0f, z);
+}
+
 DEFINE_NERVE(TNerveKukkuFall, TLiveActor)
 {
 	TKukku* self = (TKukku*)spine->getBody();
@@ -518,37 +523,38 @@ void TKukku::dropCoins()
 	if (unk1B0 > 10)
 		return;
 
-	if (unk1B0 == 0 && unk1A0 != nullptr) {
-		unk1B0              = 1;
-		TMapObjBase* mapObj = (TMapObjBase*)unk1A0;
-		mapObj->appear();
-		mapObj->JSGSetTranslation(mPosition);
-		mapObj->mVelocity.set(0.0f, 0.0f, 0.0f);
-		mapObj->offLiveFlag(LIVE_FLAG_UNK10);
+	if (unk1B0 == 10 && unk1A0 != nullptr) {
+		unk1B0++;
+		unk1A0->appear();
+		unk1A0->JSGSetTranslation(mPosition);
+		unk1A0->mVelocity.set(0.0f, 0.0f, 0.0f);
+		unk1A0->offLiveFlag(LIVE_FLAG_UNK10);
 		return;
 	}
 
-	s32 idx = (s32)(4.0f * MsRandF());
-	if (idx < 1)
+	f32 rnd = 4.0f * MsRandF();
+	s32 idx;
+	if ((s32)rnd < 1)
 		idx = 1;
-	else if (idx > 3)
+	else if ((s32)rnd > 3)
 		idx = 3;
+	else
+		idx = (s32)rnd;
 	s32 numCoins = cDropCoinNumTable[idx];
 
 	JGeometry::TQuat4<f32> qSpin;
-	qSpin.setRotate(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f),
-	                6.2831855f / numCoins);
+	qSpin.setEulerY(6.2831855f / numCoins);
 
 	JGeometry::TQuat4<f32> qTilt;
-	qTilt.setRotate(JGeometry::TVec3<f32>(1.0f, 0.0f, 0.0f),
-	                3.1415927f * getSaveParam2()->mDropAngleX.get());
+	qTilt.setEulerX(3.1415927f * getSaveParam2()->mDropAngleX.get());
 
+	f32 rotY  = mRotation.y;
 	f32 speed = getSaveParam2()->mDropSpeed.get();
 	JGeometry::TVec3<f32> dir;
-	dir.set(speed * JMASin(mRotation.y), 0.0f, speed * JMACos(mRotation.y));
+	dir = makeHorizontalVec(speed * JMASin(rotY), speed * JMACos(rotY));
 
-	qTilt.rotate(dir);
-	qSpin.rotate(dir);
+	qTilt.rotate(dir, dir);
+	qSpin.rotate(dir, dir);
 
 	for (s32 i = 0; i < numCoins; ++i) {
 		TMapObjBase* coin = gpItemManager->makeObjAppear(0x2000000e);
@@ -560,7 +566,7 @@ void TKukku::dropCoins()
 		coin->offLiveFlag(LIVE_FLAG_UNK10);
 		if (++unk1B0 == 10)
 			return;
-		qSpin.rotate(dir);
+		qSpin.rotate(dir, dir);
 	}
 }
 

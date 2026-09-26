@@ -9,6 +9,7 @@
 #include <Strategic/Nerve.hpp>
 
 class MActor;
+class TMapObjBase;
 
 class TKukkuBall : public THitActor {
 public:
@@ -76,7 +77,7 @@ public:
 
 public:
 	/* 0x194 */ TKukkuBall* mKukkuBalls[3];
-	/* 0x1A0 */ void* unk1A0;
+	/* 0x1A0 */ TMapObjBase* unk1A0;
 	/* 0x1A4 */ s32 unk1A4;
 	/* 0x1A8 */ s32 unk1A8;
 	/* 0x1AC */ s32 unk1AC;
