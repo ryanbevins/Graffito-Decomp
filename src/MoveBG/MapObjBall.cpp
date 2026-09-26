@@ -302,34 +302,40 @@ void TResetFruit::kicked()
 	if (isState(6))
 		return;
 	f32 marioY = *gpMarioSpeedY;
-	if (marioY >= 0.0f) {
-		JGeometry::TVec3<f32> v = mVelocity;
-		JGeometry::TVec3<f32> w = v;
-		if (w.y <= 0.0f) {
-			f32 dot = w.z * (gpMarioPos->z - mPosition.z)
-			          + w.x * (gpMarioPos->x - mPosition.x);
-			if ((mLiveFlag & 0x80) && dot > 0.0f)
-				return;
-			if (v.y == 0.0f) {
-				mVelocity.y = unk178;
-			} else {
-				mVelocity.y = unk174 * marioY - unk160 * v.y;
-			}
-			mVelocity.x = unk170 * (*gpMarioSpeedX) + mVelocity.x;
-			mVelocity.z = unk170 * (*gpMarioSpeedZ) + mVelocity.z;
-			f32 thresh = mMapObjData->mPhysical->unk4->unkC;
-			if (fabsf(mVelocity.x) < thresh
-			    && fabsf(mVelocity.z) < thresh) {
-				mVelocity.x = (MsRandF() - 0.5f) * 2.0f;
-				mVelocity.z = (MsRandF() - 0.5f) * 2.0f;
-			}
-			unk194 = 10;
-			mLiveFlag &= ~0x10;
-			SMS_GetMarioHitActor()->receiveMessage(this, 0xE);
-			if (gpMSound->gateCheck(0x194F)) {
-				MSoundSESystem::MSoundSE::startSoundActor(
-				    0x194F, (Vec*)&mPosition, 0, nullptr, 0, 4);
-			}
+	if (marioY < 0.0f)
+		return;
+
+	JGeometry::TVec3<f32> v = mVelocity;
+	JGeometry::TVec3<f32> w = v;
+	if (w.y <= 0.0f) {
+		JGeometry::TVec3<f32> a = v;
+		JGeometry::TVec3<f32> d(gpMarioPos->x - mPosition.x, 0.0f,
+		                        gpMarioPos->z - mPosition.z);
+		f32 dot  = a.dot(d);
+		BOOL hit = mLiveFlag & 0x80 ? TRUE : FALSE;
+		if (hit && dot > 0.0f)
+			return;
+		JGeometry::TVec3<f32> b = v;
+		if (0.0f == b.y) {
+			mVelocity.y = unk178;
+		} else {
+			JGeometry::TVec3<f32> c = v;
+			mVelocity.y = unk174 * marioY - unk160 * c.y;
+		}
+		mVelocity.x = unk170 * (*gpMarioSpeedX) + mVelocity.x;
+		mVelocity.z = unk170 * (*gpMarioSpeedZ) + mVelocity.z;
+		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
+		if (fabsf(mVelocity.x) < thresh
+		    && fabsf(mVelocity.z) < thresh) {
+			mVelocity.x = (MsRandF() - 0.5f) * 2.0f;
+			mVelocity.z = (MsRandF() - 0.5f) * 2.0f;
+		}
+		unk194 = 10;
+		mLiveFlag &= ~0x10;
+		SMS_GetMarioHitActor()->receiveMessage(this, 0xE);
+		if (gpMSound->gateCheck(0x194F)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x194F, (Vec*)&mPosition, 0, nullptr, 0, 4);
 		}
 	}
 }
