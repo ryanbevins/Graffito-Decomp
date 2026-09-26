@@ -401,6 +401,20 @@ void TVec3<f32>::sub(const TVec3<f32>& operand)
 }
 #pragma dont_inline off
 
+static inline JGeometry::TVec3<s16>
+trembleVtxDispS16(JGeometry::TVec3<s16> pos, const JGeometry::TVec3<s16>& cur)
+{
+	pos.sub(cur);
+	return pos;
+}
+
+static inline JGeometry::TVec3<f32>
+trembleVtxDispF32(JGeometry::TVec3<f32> pos, const JGeometry::TVec3<f32>& cur)
+{
+	pos.sub(cur);
+	return pos;
+}
+
 void TTrembleModelEffect::movement()
 {
 	if ((unk8 & 1) == 0)
@@ -420,9 +434,7 @@ void TTrembleModelEffect::movement()
 		    = (JGeometry::TVec3<s16>*)unk4;
 
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
-			const JGeometry::TVec3<s16>& currentPosition = unk14[i];
-			JGeometry::TVec3<s16> displacement = original[i];
-			displacement.sub(currentPosition);
+			JGeometry::TVec3<s16> displacement = trembleVtxDispS16(original[i], unk14[i]);
 
 			unk20[i].x += (s16)((displacement.x * unk26) >> unkA);
 			unk20[i].y += (s16)((displacement.y * unk26) >> unkA);
@@ -454,9 +466,7 @@ void TTrembleModelEffect::movement()
 		    = (JGeometry::TVec3<f32>*)unk4;
 
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
-			const JGeometry::TVec3<f32>& currentPosition = unk28[i];
-			JGeometry::TVec3<f32> displacement = original[i];
-			displacement.sub(currentPosition);
+			JGeometry::TVec3<f32> displacement = trembleVtxDispF32(original[i], unk28[i]);
 
 			unk34[i].x += displacement.x * unk3C;
 			unk34[i].y += displacement.y * unk3C;
