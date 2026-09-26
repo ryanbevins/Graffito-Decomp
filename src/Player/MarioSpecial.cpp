@@ -487,17 +487,17 @@ BOOL TMario::fencePunch()
 	mModelFaceAngle = mFaceAngle.y;
 
 	if (getMotionFrameCtrl().checkPass(5.0f)) {
-		emitParticle(0x39, (JGeometry::TVec3<f32>*)((u8*)this + 0x184));
+		emitParticle(0x39, (JGeometry::TVec3<f32>*)((u8*)&unk184));
 		rumbleStart(0x15, mMotorParams.mMotorWall.value);
 
-		TLiveActor* actor = *(TLiveActor**)((u8*)this + 0x2C0);
+		TLiveActor* actor = *(TLiveActor**)((u8*)&mRidingActor);
 		if (actor != 0) {
 			actor->receiveMessage(this, 3);
 			startVoice(0x7890);
 
 			if (actor->mActorType - 0x40000000 == 0x6a) {
-				f32 val1 = *(f32*)((u8*)this + 0x2F4);
-				f32 val2 = *(f32*)((u8*)this + 0x2F8);
+				f32 val1 = *(f32*)((u8*)&mRideLocalPos);
+				f32 val2 = *(f32*)((u8*)&mRideLocalPos + 0x4);
 				if (val1 < -120.0f)
 					val1 = -120.0f;
 				if (120.0f < val1)
@@ -506,12 +506,12 @@ BOOL TMario::fencePunch()
 					val2 = -190.0f;
 				if (60.0f < val2)
 					val2 = 60.0f;
-				*(f32*)((u8*)this + 0x2F4) = val1;
-				*(f32*)((u8*)this + 0x2F8) = val2;
+				*(f32*)((u8*)&mRideLocalPos) = val1;
+				*(f32*)((u8*)&mRideLocalPos + 0x4) = val2;
 
 				Mtx ridingMtx;
 				getRidingMtx(ridingMtx);
-				PSMTXMultVec(ridingMtx, (Vec*)((u8*)this + 0x2F4),
+				PSMTXMultVec(ridingMtx, (Vec*)((u8*)&mRideLocalPos),
 				             (Vec*)&mPosition);
 			}
 		}
@@ -688,13 +688,13 @@ BOOL TMario::fenceMove()
 	} else {
 		s16 faceAngle = mFaceAngle.y;
 		f32 angleFloat = (f32)faceAngle;
-		f32 rotAngle = *(f32*)((u8*)this + 0x30C);
+		f32 rotAngle = *(f32*)((u8*)&mRidePrevRotY);
 
-		f32 yTop = *(f32*)((u8*)this + 0x2F8);
-		f32 yBot = *(f32*)((u8*)this + 0x304);
-		f32 xTop = *(f32*)((u8*)this + 0x2F4);
-		f32 xBot = *(f32*)((u8*)this + 0x300);
-		f32 zBot = *(f32*)((u8*)this + 0x308);
+		f32 yTop = *(f32*)((u8*)&mRideLocalPos + 0x4);
+		f32 yBot = *(f32*)((u8*)&mRidePrevLocalPos + 0x4);
+		f32 xTop = *(f32*)((u8*)&mRideLocalPos);
+		f32 xBot = *(f32*)((u8*)&mRidePrevLocalPos);
+		f32 zBot = *(f32*)((u8*)&mRidePrevLocalPos + 0x8);
 
 		f30 = yTop - yBot;
 		f31 = xTop - xBot;
@@ -703,7 +703,7 @@ BOOL TMario::fenceMove()
 		if (relAngle != 0)
 			f31 = -f31;
 
-		JGeometry::TVec3<f32> fencePos(*(JGeometry::TVec3<f32>*)((u8*)this + 0x2F4));
+		JGeometry::TVec3<f32> fencePos(*(JGeometry::TVec3<f32>*)((u8*)&mRideLocalPos));
 		fencePos.x -= xBot;
 		fencePos.y -= yBot;
 		fencePos.z -= zBot;
@@ -751,7 +751,7 @@ void TMario::pulling()
 	}
 
 	// Check if held object is still valid (flag check at 0x108 offset field)
-	u32* ptr108 = *(u32**)((u8*)this + 0x108);
+	u32* ptr108 = *(u32**)((u8*)&unk108);
 	if (!(*(u32*)((u8*)ptr108 + 0x4) & 0x200)) {
 		mHeldObject->receiveMessage(this, 8);
 		mHeldObject = 0;
@@ -832,7 +832,7 @@ void TMario::pulling()
 		animSpeed = 5.0f;
 	}
 
-	u16 currentAnim = *(u16*)((u8*)this + 0xFA);
+	u16 currentAnim = *(u16*)((u8*)&unkFA);
 	if (currentAnim == 0xf2 || currentAnim == 0xea) {
 		if (isLast1AnimeFrame()) {
 			setAnimation(0xeb, 1.0f);
@@ -911,18 +911,18 @@ void TMario::getCurrentPullParams(f32* outSpeed, f32* outAccel)
 
 	switch (actorType) {
 	case 0x08000008:
-		params = (f32*)((u8*)this + 0x147c);
+		params = (f32*)((u8*)&mDeParams + 0xF08);
 		break;
 	case 0x08000007:
 		break;
 	case 0x08000006:
-		params = (f32*)((u8*)this + 0x14d4);
+		params = (f32*)((u8*)&mDeParams + 0xF60);
 		break;
 	case 0x0800000d:
-		params = (f32*)((u8*)this + 0x152c);
+		params = (f32*)((u8*)&mDeParams + 0xFB8);
 		break;
 	case 0x10000028:
-		params = (f32*)((u8*)this + 0x1584);
+		params = (f32*)((u8*)&mDeParams + 0x1010);
 		break;
 	}
 
@@ -1455,9 +1455,9 @@ BOOL TMario::wireWait()
 		mVel.y = mVel.y + mWireParams.mWireJumpBase.value;
 
 		u32 soundId;
-		if (mWireBounceVel < *(f32*)((u8*)this + 0x544)) {
+		if (mWireBounceVel < *(f32*)((u8*)&mWireSfx1MinVel)) {
 			soundId = 0x1812;
-		} else if (mWireBounceVel < *(f32*)((u8*)this + 0x540)) {
+		} else if (mWireBounceVel < *(f32*)((u8*)&mWireSfx0MinVel)) {
 			soundId = 0x1811;
 		} else {
 			soundId = 0x1810;
