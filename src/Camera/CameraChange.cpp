@@ -68,7 +68,7 @@ void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 {
 	if (SMS_isMultiPlayerMap()) {
 		s16 frame = (s16)getCameraInbetweenFrame_(2);
-		*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+		*(TCameraMapTool**)((u8*)&unk74) = unk70;
 		unk70 = nullptr;
 		changeCamModeSub_(2, frame, false);
 		return;
@@ -76,7 +76,7 @@ void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 
 	if (SMS_GetMarioStatus() == 0x800447) {
 		s16 frame = (s16)getCameraInbetweenFrame_(0x2E);
-		*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+		*(TCameraMapTool**)((u8*)&unk74) = unk70;
 		unk70 = nullptr;
 		changeCamModeSub_(0x2E, frame, false);
 		return;
@@ -327,7 +327,7 @@ void CPolarSubCamera::execCameraModeChangeProc_(int mode)
 	}
 
 	s16 frame = (s16)getCameraInbetweenFrame_(newMode);
-	*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+	*(TCameraMapTool**)((u8*)&unk74) = unk70;
 	unk70 = nullptr;
 	changeCamModeSub_(newMode, frame, false);
 }
@@ -397,7 +397,7 @@ bool CPolarSubCamera::isChangeToBossGesoCamera_() const
 	if (held != nullptr) {
 		u32 type = held->getActorType();
 		if (type == 0x08000006 || type == 0x08000008) {
-			TBossGesso* gesso = *(TBossGesso**)((u8*)this + 0x2A8);
+			TBossGesso* gesso = *(TBossGesso**)((u8*)&unk2A8);
 			if (gesso != nullptr) {
 				if (gesso->beakHeld() || gesso->tentacleHeld()) {
 					result = true;
@@ -420,19 +420,19 @@ void CPolarSubCamera::doLButtonCameraOff_(bool flag)
 	}
 	bool go = ready ? true : false;
 	if (go) {
-		*(s16*)((u8*)this + 0x282) = 0x3C;
+		*(s16*)((u8*)&unk282) = 0x3C;
 		if (flag) {
-			*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+			*(TCameraMapTool**)((u8*)&unk74) = unk70;
 			unk70 = nullptr;
 			changeCamModeSub_(-1, 1, false);
 		} else {
 			gpMSound->startSoundSystemSE(0x4825, 0, nullptr, 0);
 			s16 frame = (s16)getCameraInbetweenFrame_(-1);
-			*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+			*(TCameraMapTool**)((u8*)&unk74) = unk70;
 			unk70 = nullptr;
 			changeCamModeSub_(-1, frame, false);
 		}
-		if (*(u16*)((u8*)this + 0x64) & 0x20) {
+		if (*(u16*)((u8*)&unk64) & 0x20) {
 			execNoticeOnOffProc_((EnumNoticeOnOffMode)0);
 		}
 	}
@@ -450,16 +450,16 @@ void CPolarSubCamera::execFrontRotate_()
 	unk64 &= ~0x10;
 	unk64 |= 0x4;
 
-	*(s16*)((u8*)this + 0x274) = *gpMarioAngleY + (s16)0x8000;
+	*(s16*)((u8*)unk274) = *gpMarioAngleY + (s16)0x8000;
 
 	u32 m = unk120->mEnabledFrameMeaning;
 	if (m & 0x4000) {
 		s16 v = *(s16*)((u8*)*(void**)((u8*)this + 0x2D4) + 0x11C);
-		*(s16*)((u8*)this + 0x276) = v;
+		*(s16*)((u8*)unk274 + 0x2) = v;
 		unk64 |= 0x8;
 	} else if (m & 0x8000) {
 		s16 v = *(s16*)((u8*)*(void**)((u8*)this + 0x2D4) + 0x130);
-		*(s16*)((u8*)this + 0x276) = v;
+		*(s16*)((u8*)unk274 + 0x2) = v;
 		unk64 &= ~0x8;
 		gpMSound->startSoundSystemSE(0x4826, 0, nullptr, 0);
 	}
@@ -472,7 +472,7 @@ void CPolarSubCamera::changeCamModeSpecifyCamMapToolAndFrame_(
 	if (mMode == newMode && unk70 == tool) {
 		return;
 	}
-	*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+	*(TCameraMapTool**)((u8*)&unk74) = unk70;
 	unk70 = const_cast<TCameraMapTool*>(tool);
 	changeCamModeSub_(newMode, frame, true);
 }
@@ -485,7 +485,7 @@ void CPolarSubCamera::changeCamModeSpecifyCamMapTool_(const TCameraMapTool* tool
 	if (mMode == newMode && unk70 == tool) {
 		return;
 	}
-	*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+	*(TCameraMapTool**)((u8*)&unk74) = unk70;
 	unk70 = const_cast<TCameraMapTool*>(tool);
 	s16 frame = (s16)getCameraInbetweenFrame_(newMode);
 	changeCamModeSub_(newMode, frame, true);
@@ -493,7 +493,7 @@ void CPolarSubCamera::changeCamModeSpecifyCamMapTool_(const TCameraMapTool* tool
 
 void CPolarSubCamera::changeCamModeSpecifyFrame_(int mode, int frame)
 {
-	*(TCameraMapTool**)((u8*)this + 0x74) = unk70;
+	*(TCameraMapTool**)((u8*)&unk74) = unk70;
 	unk70 = nullptr;
 	changeCamModeSub_(mode, frame, false);
 }
@@ -502,7 +502,7 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 {
 	bool wasMinusOne = false;
 	if (newMode == -1) {
-		u8* hist = *(u8**)((u8*)this + 0x60);
+		u8* hist = *(u8**)((u8*)&unk60);
 		int top  = *(int*)(hist + 0x4);
 		int* p;
 		if (top <= 0) {
@@ -525,13 +525,13 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 
 	*(int*)((u8*)this + 0x54) = mMode;
 	if (wasMinusOne) {
-		u8* hist = *(u8**)((u8*)this + 0x60);
+		u8* hist = *(u8**)((u8*)&unk60);
 		int top  = *(int*)(hist + 0x4);
 		if (top > 0) {
 			*(int*)(hist + 0x4) = top - 1;
 		}
 	} else {
-		u8* hist = *(u8**)((u8*)this + 0x60);
+		u8* hist = *(u8**)((u8*)&unk60);
 		int top  = *(int*)(hist + 0x4);
 		int cap  = *(int*)(hist + 0x0);
 		if (top >= cap) {
@@ -557,15 +557,15 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 	if (newMode < 0x49) {
 		int curMode = mMode;
 		if (curMode == 0x14 && newMode == 0x42) {
-			*(f32*)((u8*)this + 0xA8) = 0.0f;
-			*(f32*)((u8*)this + 0xDC) = 0.0f;
+			*(f32*)((u8*)&mCurrentTarget + 0x28) = 0.0f;
+			*(f32*)((u8*)&mPreviousTarget + 0x28) = 0.0f;
 		} else if (curMode == 0x33 && newMode == 0x3E) {
-			*(f32*)((u8*)this + 0xA8) = 0.0f;
-			*(f32*)((u8*)this + 0xDC) = 0.0f;
+			*(f32*)((u8*)&mCurrentTarget + 0x28) = 0.0f;
+			*(f32*)((u8*)&mPreviousTarget + 0x28) = 0.0f;
 		} else if (!isLButtonCameraSpecifyMode(curMode)) {
 			if (isLButtonCameraSpecifyMode(newMode)) {
-				*(f32*)((u8*)this + 0xB0)
-				    = *(f32*)((u8*)this + 0xA8);
+				*(f32*)((u8*)&mCurrentTarget + 0x30)
+				    = *(f32*)((u8*)&mCurrentTarget + 0x28);
 
 				TCameraKindParam buf;
 				u8* p = (u8*)this + newMode * 4;
@@ -575,20 +575,20 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 				f32 ratio
 				    = CLBCalcRatio<s16>(buf.unk18, buf.unk1A, -buf.unk58);
 				f32 v = MsClamp<f32>(ratio, 0.0f, 1.0f);
-				*(f32*)((u8*)this + 0xA8) = v;
-				*(f32*)((u8*)this + 0xDC) = v;
+				*(f32*)((u8*)&mCurrentTarget + 0x28) = v;
+				*(f32*)((u8*)&mPreviousTarget + 0x28) = v;
 				unk120->onNeutralMarioKey();
 			}
 		} else {
 			if (!isLButtonCameraSpecifyMode(newMode)) {
-				f32 v = *(f32*)((u8*)this + 0xB0);
-				*(f32*)((u8*)this + 0xA8) = v;
-				*(f32*)((u8*)this + 0xDC) = v;
+				f32 v = *(f32*)((u8*)&mCurrentTarget + 0x30);
+				*(f32*)((u8*)&mCurrentTarget + 0x28) = v;
+				*(f32*)((u8*)&mPreviousTarget + 0x28) = v;
 				unk120->onNeutralMarioKey();
 			}
 		}
 
-		(*(TCameraInbetween**)((u8*)this + 0x6C))->startCameraInbetween(frame);
+		(*(TCameraInbetween**)((u8*)&unk6C))->startCameraInbetween(frame);
 	}
 
 	mMode       = newMode;
@@ -613,36 +613,36 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 		}
 
 		if (!isFixOrDefOld && fixNewWithTool) {
-			*(int*)((u8*)this + 0xE8) = *(int*)((u8*)this + 0x80);
-			*(int*)((u8*)this + 0xEC) = *(int*)((u8*)this + 0x84);
-			*(int*)((u8*)this + 0xF0) = *(int*)((u8*)this + 0x88);
-			*(int*)((u8*)this + 0xF4) = *(int*)((u8*)this + 0x8C);
-			*(int*)((u8*)this + 0xF8) = *(int*)((u8*)this + 0x90);
-			*(int*)((u8*)this + 0xFC) = *(int*)((u8*)this + 0x94);
-			*(int*)((u8*)this + 0x100) = *(int*)((u8*)this + 0x98);
-			*(int*)((u8*)this + 0x104) = *(int*)((u8*)this + 0x9C);
-			*(int*)((u8*)this + 0x108) = *(int*)((u8*)this + 0xA0);
-			*(s16*)((u8*)this + 0x10C) = *(s16*)((u8*)this + 0xA4);
-			*(s16*)((u8*)this + 0x10E) = *(s16*)((u8*)this + 0xA6);
-			*(f32*)((u8*)this + 0x110) = *(f32*)((u8*)this + 0xA8);
-			*(s16*)((u8*)this + 0x114) = *(s16*)((u8*)this + 0xAC);
-			*(f32*)((u8*)this + 0x118) = *(f32*)((u8*)this + 0xB0);
-			*(int*)((u8*)this + 0x11C) = *(int*)((u8*)unk70 + 0x28);
+			*(int*)((u8*)&unkE8) = *(int*)((u8*)&mCurrentTarget);
+			*(int*)((u8*)&unkE8 + 0x4) = *(int*)((u8*)&mCurrentTarget + 0x4);
+			*(int*)((u8*)&unkE8 + 0x8) = *(int*)((u8*)&mCurrentTarget + 0x8);
+			*(int*)((u8*)&unkF4) = *(int*)((u8*)&mCurrentTarget + 0xC);
+			*(int*)((u8*)&unkF4 + 0x4) = *(int*)((u8*)&mCurrentTarget + 0x10);
+			*(int*)((u8*)&unkF4 + 0x8) = *(int*)((u8*)&mCurrentTarget + 0x14);
+			*(int*)((u8*)&unk100) = *(int*)((u8*)&mCurrentTarget + 0x18);
+			*(int*)((u8*)&unk100 + 0x4) = *(int*)((u8*)&mCurrentTarget + 0x1C);
+			*(int*)((u8*)&unk100 + 0x8) = *(int*)((u8*)&mCurrentTarget + 0x20);
+			*(s16*)((u8*)&unk10C) = *(s16*)((u8*)&mCurrentTarget + 0x24);
+			*(s16*)((u8*)&unk10E) = *(s16*)((u8*)&mCurrentTarget + 0x26);
+			*(f32*)((u8*)&unk110) = *(f32*)((u8*)&mCurrentTarget + 0x28);
+			*(s16*)((u8*)&unk114) = *(s16*)((u8*)&mCurrentTarget + 0x2C);
+			*(f32*)((u8*)&unk118) = *(f32*)((u8*)&mCurrentTarget + 0x30);
+			*(int*)((u8*)&unk11C) = *(int*)((u8*)unk70 + 0x28);
 		}
 
 		if (isFixOrDefOld) {
-			if (*(int*)((u8*)this + 0x11C) & 1) {
-				TTargetCamera& dst = *(TTargetCamera*)((u8*)this + 0x80);
-				dst = *(TTargetCamera*)((u8*)this + 0xE8);
+			if (*(int*)((u8*)&unk11C) & 1) {
+				TTargetCamera& dst = *(TTargetCamera*)((u8*)&mCurrentTarget);
+				dst = *(TTargetCamera*)((u8*)&unkE8);
 
-				*(Vec*)((u8*)this + 0xB4) = *(Vec*)&dst.mPos;
-				*(Vec*)((u8*)this + 0xC0) = *(Vec*)&dst.mTgt;
-				*(Vec*)((u8*)this + 0xCC) = *(Vec*)&dst.mUp;
-				*(s16*)((u8*)this + 0xD8) = dst.unk24;
-				*(s16*)((u8*)this + 0xDA) = dst.unk26;
-				*(f32*)((u8*)this + 0xDC) = dst.unk28;
-				*(s16*)((u8*)this + 0xE0) = dst.unk2C;
-				*(f32*)((u8*)this + 0xE4) = dst.unk30;
+				*(Vec*)((u8*)&mPreviousTarget) = *(Vec*)&dst.mPos;
+				*(Vec*)((u8*)&mPreviousTarget + 0xC) = *(Vec*)&dst.mTgt;
+				*(Vec*)((u8*)&mPreviousTarget + 0x18) = *(Vec*)&dst.mUp;
+				*(s16*)((u8*)&mPreviousTarget + 0x24) = dst.unk24;
+				*(s16*)((u8*)&mPreviousTarget + 0x26) = dst.unk26;
+				*(f32*)((u8*)&mPreviousTarget + 0x28) = dst.unk28;
+				*(s16*)((u8*)&mPreviousTarget + 0x2C) = dst.unk2C;
+				*(f32*)((u8*)&mPreviousTarget + 0x30) = dst.unk30;
 				killHeightPan_();
 			} else {
 				calcNowTargetFromPosAndAt_(*(const Vec*)((u8*)this + 0x10),
@@ -658,20 +658,20 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 			case 16: /* 0x19 */
 			case 22: /* 0x1F */
 			case 24: /* 0x21 */
-				warpPosAndAt(*(f32*)((u8*)this + 0xA8),
-				    *(s16*)((u8*)this + 0xA6));
+				warpPosAndAt(*(f32*)((u8*)&mCurrentTarget + 0x28),
+				    *(s16*)((u8*)&mCurrentTarget + 0x26));
 				break;
 			case 20: /* 0x1D */
 			case 28: /* 0x25 */
-				*(s16*)((u8*)this + 0xA6)
+				*(s16*)((u8*)&mCurrentTarget + 0x26)
 				    = *gpMarioAngleY + (s16)0x8000;
 				break;
 			case 49: /* 0x3A */
 			case 50: /* 0x3B */
-				*(s16*)((u8*)this + 0xA6)
+				*(s16*)((u8*)&mCurrentTarget + 0x26)
 				    = *gpMarioAngleY + (s16)0x8000;
-				warpPosAndAt(*(f32*)((u8*)this + 0xA8),
-				    *(s16*)((u8*)this + 0xA6));
+				warpPosAndAt(*(f32*)((u8*)&mCurrentTarget + 0x28),
+				    *(s16*)((u8*)&mCurrentTarget + 0x26));
 				break;
 			}
 		}
@@ -695,15 +695,15 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 			Vec tmp;
 			if (useBlock1) {
 				if (useVecB) {
-					tmp = *(Vec*)((u8*)this + 0x80);
+					tmp = *(Vec*)((u8*)&mCurrentTarget);
 				}
 				tool->calcPosAndAt(
-				    (JGeometry::TVec3<f32>*)((u8*)this + 0x80),
-				    (JGeometry::TVec3<f32>*)((u8*)this + 0x8C));
+				    (JGeometry::TVec3<f32>*)((u8*)&mCurrentTarget),
+				    (JGeometry::TVec3<f32>*)((u8*)&mCurrentTarget + 0xC));
 				if (useVecB) {
-					*(f32*)((u8*)this + 0x80) = tmp.x;
-					*(f32*)((u8*)this + 0x84) = tmp.y;
-					*(f32*)((u8*)this + 0x88) = tmp.z;
+					*(f32*)((u8*)&mCurrentTarget) = tmp.x;
+					*(f32*)((u8*)&mCurrentTarget + 0x4) = tmp.y;
+					*(f32*)((u8*)&mCurrentTarget + 0x8) = tmp.z;
 				}
 			} else {
 				if (useVecB) {
@@ -722,8 +722,8 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 			}
 		}
 
-		*(int*)((u8*)this + 0x78) = 0;
-		*(int*)((u8*)this + 0x7C) = 0;
+		*(int*)((u8*)&unk78) = 0;
+		*(int*)((u8*)&unk7C) = 0;
 		int pm                    = *(int*)((u8*)this + 0x54);
 		if (pm == 0x1C || pm == 0x24) {
 			onMoveApproach_();
@@ -734,23 +734,23 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 
 	if (!isNormalCameraSpecifyMode(mMode)
 	    && !isTowerCameraSpecifyMode(mMode)) {
-		*(u16*)((u8*)this + 0x64) &= ~0x1C;
+		*(u16*)((u8*)&unk64) &= ~0x1C;
 	}
 
 	int pm = *(int*)((u8*)this + 0x54);
 	if (pm == 0x33 && mMode == 0x3E) {
-		u16* p = (u16*)((u8*)this + 0x278);
+		u16* p = (u16*)((u8*)&unk278);
 		if (*p < 0x78)
 			*p = 0x78;
 	} else if (pm == 0x3E && mMode == 0x33) {
-		u16* p = (u16*)((u8*)this + 0x27A);
+		u16* p = (u16*)((u8*)&unk27A);
 		if (*p < 0x78)
 			*p = 0x78;
 	}
 
 	killHeightPanWhenChangeCamMode_();
 	{
-		u8* p           = *(u8**)((u8*)this + 0x2AC);
+		u8* p           = *(u8**)((u8*)&unk2AC);
 		*(s16*)(p + 0x0) = 0;
 		*(f32*)(p + 0x4) = 1.0f;
 		*(f32*)(p + 0x8) = 1.0f;
@@ -760,14 +760,14 @@ void CPolarSubCamera::changeCamModeSub_(int newMode, int frame, bool flag)
 
 void CPolarSubCamera::setUpFromLButtonCamera_()
 {
-	f32 v = *(f32*)((u8*)this + 0xB0);
-	*(f32*)((u8*)this + 0xA8) = v;
-	*(f32*)((u8*)this + 0xDC) = v;
+	f32 v = *(f32*)((u8*)&mCurrentTarget + 0x30);
+	*(f32*)((u8*)&mCurrentTarget + 0x28) = v;
+	*(f32*)((u8*)&mPreviousTarget + 0x28) = v;
 }
 
 void CPolarSubCamera::setUpToLButtonCamera_(int mode)
 {
-	*(f32*)((u8*)this + 0xB0) = mCurrentTarget.unk28;
+	*(f32*)((u8*)&mCurrentTarget + 0x30) = mCurrentTarget.unk28;
 
 	TCameraKindParam buf;
 	u8* p = (u8*)this + mode * 4;
@@ -781,13 +781,13 @@ void CPolarSubCamera::setUpToLButtonCamera_(int mode)
 		ratio = 0.0f;
 	}
 	mCurrentTarget.unk28 = ratio;
-	*(f32*)((u8*)this + 0xDC) = ratio;
+	*(f32*)((u8*)&mPreviousTarget + 0x28) = ratio;
 }
 
 int CPolarSubCamera::getCameraInbetweenFrame_(int newMode)
 {
 	if (newMode == -1) {
-		u8* hist = *(u8**)((u8*)this + 0x60);
+		u8* hist = *(u8**)((u8*)&unk60);
 		int top  = *(int*)(hist + 0x4);
 		int* p;
 		if (top <= 0) {
@@ -801,7 +801,7 @@ int CPolarSubCamera::getCameraInbetweenFrame_(int newMode)
 	int mode  = mMode;
 	int frame = 1;
 	if (mode < 0x49 && newMode < 0x49) {
-	TCamSaveKindParam** saveTable = (TCamSaveKindParam**)((u8*)this + 0x2D8);
+	TCamSaveKindParam** saveTable = (TCamSaveKindParam**)((u8*)unk2D8);
 	u8* save = (u8*)saveTable[mode];
 	switch (newMode) {
 	case 0:  frame = *(s16*)(save + 0x3C4); break;
