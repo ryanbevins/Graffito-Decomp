@@ -405,15 +405,20 @@ MtxPtr TTabePuku::getTakingMtx()
 	f32* row1 = mTakingMtx[1];
 	f32* row2 = mTakingMtx[2];
 
-	mTakingMtx[0][0] = 1.0f - 2.0f * y * y - 2.0f * z * z;
-	mTakingMtx[0][1] = 2.0f * x * y - 2.0f * w * z;
-	mTakingMtx[0][2] = 2.0f * x * z + 2.0f * w * y;
-	row1[0] = 2.0f * x * y + 2.0f * w * z;
-	row1[1] = 1.0f - 2.0f * x * x - 2.0f * z * z;
-	row1[2] = 2.0f * y * z - 2.0f * w * x;
-	row2[0] = 2.0f * x * z - 2.0f * w * y;
-	row2[1] = 2.0f * y * z + 2.0f * w * x;
-	row2[2] = 1.0f - 2.0f * x * x - 2.0f * y * y;
+	f32 ty = 2.0f * y;
+	f32 tz = 2.0f * z;
+	f32 tx = 2.0f * x;
+	f32 tw = 2.0f * w;
+
+	mTakingMtx[0][0] = 1.0f - ty * y - tz * z;
+	mTakingMtx[0][1] = tx * y - tw * z;
+	mTakingMtx[0][2] = tx * z + tw * y;
+	row1[0] = tx * y + tw * z;
+	row1[1] = 1.0f - tx * x - tz * z;
+	row1[2] = ty * z - tw * x;
+	row2[0] = tx * z - tw * y;
+	row2[1] = ty * z + tw * x;
+	row2[2] = 1.0f - tx * x - ty * y;
 
 	f32 zAxisZ = row2[2];
 	f32 zAxisY = row1[2];
