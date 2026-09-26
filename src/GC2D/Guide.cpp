@@ -274,16 +274,15 @@ void TGuide::placeMario()
 void TGuide::changeBotStatus(int idx)
 {
 	if (idx == -1 || idx >= 10) {
-		_124->mVisible = false;
+		_124->hide();
 		return;
 	}
 
 	if (mStageInfo[idx]._0 == 0) {
-		_124->mVisible = true;
-		_F4->mVisible  = true;
+		_124->show();
+		_F4->show();
 
-		const char* msg = SMSGetMessageData(_474, idx);
-		strncpy(_124->getStringPtr(), msg, 0x1A);
+		strncpy(_124->getStringPtr(), SMSGetMessageData(_474, idx), 0x1A);
 
 		s32 shineCount = mStageInfo[idx].mShineNum;
 		if (shineCount < 0)
@@ -292,26 +291,26 @@ void TGuide::changeBotStatus(int idx)
 			shineCount = 99;
 
 		if (shineCount < 10) {
-			_FC->mVisible = false;
-			_F8->changeTexture(_C8[shineCount]->mTexInfo, 0);
+			_FC->hide();
+			_F8->changeTexture(_C8[shineCount]->getTexInfo(), 0);
 		} else {
-			_FC->mVisible = true;
-			_F8->changeTexture(_C8[shineCount / 10]->mTexInfo, 0);
-			_FC->changeTexture(_C8[shineCount % 10]->mTexInfo, 0);
+			_FC->show();
+			_F8->changeTexture(_C8[shineCount / 10]->getTexInfo(), 0);
+			_FC->changeTexture(_C8[shineCount % 10]->getTexInfo(), 0);
 		}
 
 		if (idx == 0 || idx == 1 || mStageInfo[idx].mRedCoin == 0) {
-			_100->mVisible = false;
-			_104->mVisible = false;
-			_108->mVisible = false;
+			_100->hide();
+			_104->hide();
+			_108->hide();
 		} else if (mStageInfo[idx].mRedCoin == 1) {
-			_100->mVisible = true;
-			_104->mVisible = true;
-			_108->mVisible = false;
+			_100->show();
+			_104->show();
+			_108->hide();
 		} else {
-			_100->mVisible = true;
-			_104->mVisible = true;
-			_108->mVisible = true;
+			_100->show();
+			_104->show();
+			_108->show();
 		}
 
 		s32 deaths = mStageInfo[idx].mDeaths;
@@ -321,22 +320,22 @@ void TGuide::changeBotStatus(int idx)
 			deaths = 999;
 
 		if (deaths < 100) {
-			_114->mVisible = false;
-			_10C->changeTexture(_C8[deaths / 10]->mTexInfo, 0);
-			_110->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
+			_114->hide();
+			_10C->changeTexture(_C8[deaths / 10]->getTexInfo(), 0);
+			_110->changeTexture(_C8[deaths % 10]->getTexInfo(), 0);
 		} else {
-			_114->mVisible = true;
+			_114->show();
 			s32 hundreds = deaths / 100;
-			_10C->changeTexture(_C8[hundreds]->mTexInfo, 0);
+			_10C->changeTexture(_C8[hundreds]->getTexInfo(), 0);
 			deaths -= hundreds * 100;
-			_110->changeTexture(_C8[deaths / 10]->mTexInfo, 0);
-			_114->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
+			_110->changeTexture(_C8[deaths / 10]->getTexInfo(), 0);
+			_114->changeTexture(_C8[deaths % 10]->getTexInfo(), 0);
 		}
 
 		if (mStageInfo[idx].mBossFlag != 0) {
-			_118->mVisible = true;
+			_118->show();
 		} else {
-			_118->mVisible = false;
+			_118->hide();
 		}
 
 		s32 blueCount = mStageInfo[idx].mBlueCoin;
@@ -354,16 +353,16 @@ void TGuide::changeBotStatus(int idx)
 		}
 
 		if (blueCount < 10) {
-			_120->mVisible = false;
-			_11C->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
+			_120->hide();
+			_11C->changeTexture(_C8[blueCount % 10]->getTexInfo(), 0);
 		} else {
-			_120->mVisible = true;
-			_11C->changeTexture(_C8[blueCount / 10]->mTexInfo, 0);
-			_120->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
+			_120->show();
+			_11C->changeTexture(_C8[blueCount / 10]->getTexInfo(), 0);
+			_120->changeTexture(_C8[blueCount % 10]->getTexInfo(), 0);
 		}
 	} else {
-		_124->mVisible = true;
-		_F4->mVisible  = false;
+		_124->show();
+		_F4->hide();
 
 		s32 blueCount = mStageInfo[idx].mBlueCoin;
 		if (blueCount < 0)
@@ -372,20 +371,19 @@ void TGuide::changeBotStatus(int idx)
 			blueCount = 99;
 
 		if (blueCount < 10) {
-			_120->mVisible = false;
-			_11C->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
+			_120->hide();
+			_11C->changeTexture(_C8[blueCount % 10]->getTexInfo(), 0);
 		} else {
-			_120->mVisible = true;
-			_11C->changeTexture(_C8[blueCount / 10]->mTexInfo, 0);
-			_120->changeTexture(_C8[blueCount % 10]->mTexInfo, 0);
+			_120->show();
+			_11C->changeTexture(_C8[blueCount / 10]->getTexInfo(), 0);
+			_120->changeTexture(_C8[blueCount % 10]->getTexInfo(), 0);
 		}
 
 		unkBC->search('sb_i')->show();
 		unkBC->search('sc_t')->hide();
 		unkBC->search('sq_i')->hide();
 
-		const char* msg = SMSGetMessageData(_474, idx);
-		strncpy(_124->getStringPtr(), msg, 0x1A);
+		strncpy(_124->getStringPtr(), SMSGetMessageData(_474, idx), 0x1A);
 	}
 }
 
