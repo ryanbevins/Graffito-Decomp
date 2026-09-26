@@ -748,36 +748,35 @@ bool TBaseNPC::isNeedNeckStraight() const
 	bool  result = false;
 	void* holder = (void*)mHolder;
 	int   cur14  = *(int*)((u8*)unkD0 + 0x14);
-	if (holder != nullptr && holder == (void*)gpMarioAddress) {
-		result = true;
-	} else if (unk178 != 0.0f) {
+	if ((holder != nullptr && holder == (void*)gpMarioAddress)
+	    || unk178 != 0.0f || mActorType == 0x04000012
+	    || (mActorType == 0x04000019 && cur14 == 0x5)) {
 		result = true;
 	} else {
-		if (mActorType == 0x04000012) {
-			result = true;
-		} else if (mActorType == 0x04000019 && cur14 == 0x5) {
+		bool mareM = false;
+		switch (mActorType) {
+		case 0x0400000E:
+			mareM = true;
+		}
+		bool mareMatch = true;
+		bool helper    = true;
+		if (!mareM && !isNormalMareW())
+			helper = false;
+		if (!helper) {
+			helper = true;
+			if (!isSpecialMareM() && !isSpecialMareW())
+				helper = false;
+			if (!helper)
+				mareMatch = false;
+		}
+		if (mareMatch && cur14 == 0xC) {
 			result = true;
 		} else {
-			bool helper    = true;
-			bool mareMatch = true;
-			if (mActorType != 0x0400000E && !isNormalMareM())
-				helper = false;
-			if (!helper) {
-				helper = true;
-				if (!isNormalMareW() && !isSpecialMareM())
-					helper = false;
-				if (!helper)
-					mareMatch = false;
-			}
-			if (mareMatch && cur14 == 0xC) {
+			bool isUnk1D8Bit = (unk1D8 & 0x2) != 0;
+			bool flagged     = isUnk1D8Bit || cur14 == 0x5;
+			bool actorIs18   = (mActorType == 0x04000018);
+			if (actorIs18 & flagged)
 				result = true;
-			} else {
-				bool isUnk1D8Bit = (unk1D8 & 0x2) != 0;
-				bool flagged     = isUnk1D8Bit || cur14 == 0x5;
-				bool actorIs18   = (mActorType == 0x04000018);
-				if (flagged && actorIs18)
-					result = true;
-			}
 		}
 	}
 	return result;
