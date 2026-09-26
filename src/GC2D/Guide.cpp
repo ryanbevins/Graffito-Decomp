@@ -674,7 +674,7 @@ void TGuide::linkSelect()
 		}
 	}
 
-	int alpha;
+	u8 alpha;
 	if ((int)unk160 < 0x1e) {
 		alpha = 0x1e;
 	} else if ((int)unk160 > 0xff) {
