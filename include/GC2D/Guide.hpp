@@ -14,6 +14,16 @@ class TBoundPane;
 class TExPane;
 class TMarioGamePad;
 
+struct TGuideStageInfo {
+	/* 0x0 */ u8 _0;
+	/* 0x1 */ u8 mShineNum;
+	/* 0x2 */ u8 mRedCoin;
+	/* 0x3 */ u8 _3;
+	/* 0x4 */ u16 mDeaths;
+	/* 0x6 */ u8 mBossFlag;
+	/* 0x7 */ u8 mBlueCoin;
+};
+
 class TGuide : public JDrama::TViewObj {
 public:
 	TGuide(const char* name = "<Guide>");
@@ -33,7 +43,7 @@ public:
 
 public:
 	/* 0x10 */ u32 mState;
-	/* 0x14 */ u8 _14[0xBC - 0x14];
+	/* 0x14 */ TGuideStageInfo mStageInfo[21];
 	/* 0xBC */ J2DScreen* unkBC;
 	/* 0xC0 */ TMarioGamePad* unkC0;
 	/* 0xC4 */ u8 unkC4;

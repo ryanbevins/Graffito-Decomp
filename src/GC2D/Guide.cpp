@@ -280,16 +280,14 @@ void TGuide::changeBotStatus(int idx)
 		return;
 	}
 
-	u8* stageData = (u8*)this + idx * 8;
-
-	if (stageData[0x14] == 0) {
+	if (mStageInfo[idx]._0 == 0) {
 		_124->mVisible = true;
 		_F4->mVisible  = true;
 
 		const char* msg = SMSGetMessageData(_474, idx);
 		strncpy(_124->getStringPtr(), msg, 0x1A);
 
-		s32 shineCount = stageData[0x15];
+		s32 shineCount = mStageInfo[idx].mShineNum;
 		if (shineCount < 0)
 			shineCount = 0;
 		if (shineCount > 99)
@@ -304,11 +302,11 @@ void TGuide::changeBotStatus(int idx)
 			_FC->changeTexture(_C8[shineCount % 10]->mTexInfo, 0);
 		}
 
-		if (idx == 0 || idx == 1 || stageData[0x16] == 0) {
+		if (idx == 0 || idx == 1 || mStageInfo[idx].mRedCoin == 0) {
 			_100->mVisible = false;
 			_104->mVisible = false;
 			_108->mVisible = false;
-		} else if (stageData[0x16] == 1) {
+		} else if (mStageInfo[idx].mRedCoin == 1) {
 			_100->mVisible = true;
 			_104->mVisible = true;
 			_108->mVisible = false;
@@ -318,7 +316,7 @@ void TGuide::changeBotStatus(int idx)
 			_108->mVisible = true;
 		}
 
-		s32 deaths = *(u16*)(stageData + 0x18);
+		s32 deaths = mStageInfo[idx].mDeaths;
 		if (deaths < 0)
 			deaths = 0;
 		if (deaths > 999)
@@ -337,24 +335,24 @@ void TGuide::changeBotStatus(int idx)
 			_114->changeTexture(_C8[deaths % 10]->mTexInfo, 0);
 		}
 
-		if (stageData[0x1A] != 0) {
+		if (mStageInfo[idx].mBossFlag != 0) {
 			_118->mVisible = true;
 		} else {
 			_118->mVisible = false;
 		}
 
-		s32 blueCount = stageData[0x1B];
+		s32 blueCount = mStageInfo[idx].mBlueCoin;
 		if (blueCount < 0)
 			blueCount = 0;
 		if (blueCount > 99)
 			blueCount = 99;
 
-		if (idx != 0) {
-			unkBC->search('sb_i')->show();
-			unkBC->search('sc_t')->show();
-		} else {
+		if (idx == 0) {
 			unkBC->search('sb_i')->hide();
 			unkBC->search('sc_t')->hide();
+		} else {
+			unkBC->search('sb_i')->show();
+			unkBC->search('sc_t')->show();
 		}
 
 		if (blueCount < 10) {
@@ -369,7 +367,7 @@ void TGuide::changeBotStatus(int idx)
 		_124->mVisible = true;
 		_F4->mVisible  = false;
 
-		s32 blueCount = stageData[0x1B];
+		s32 blueCount = mStageInfo[idx].mBlueCoin;
 		if (blueCount < 0)
 			blueCount = 0;
 		if (blueCount > 99)
