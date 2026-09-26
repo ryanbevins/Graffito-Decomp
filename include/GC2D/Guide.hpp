@@ -42,7 +42,7 @@ public:
 	void appearGuidePane(int);
 
 public:
-	/* 0x10 */ u32 mState;
+	/* 0x10 */ s32 mState;
 	/* 0x14 */ TGuideStageInfo mStageInfo[21];
 	/* 0xBC */ J2DScreen* unkBC;
 	/* 0xC0 */ TMarioGamePad* unkC0;

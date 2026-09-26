@@ -79,8 +79,6 @@ void TGuide::perform(unsigned long flags, JDrama::TGraphics* gfx)
 
 	if (flags & 0x1) {
 		bool ok = true;
-		if (mState > 0xB)
-			return;
 		switch (mState) {
 		case 9: {
 			if (unkC5 != 0 && gpApplication.mFader->mFadeStatus == 0) {
