@@ -811,8 +811,8 @@ f32 TBaseNPC::getAnmOffDist_()
 
 bool TBaseNPC::isBeTrampledNpc() const
 {
-	bool result = false;
 	bool partA  = false;
+	bool result = false;
 	switch (mActorType) {
 	case 0x0400000F:
 	case 0x04000014:
@@ -820,20 +820,25 @@ bool TBaseNPC::isBeTrampledNpc() const
 	}
 	if (!partA) {
 		bool isMonte = true;
+		bool monteHelper = true;
 		if (!isNormalMonteM() && !isNormalMonteW())
-			isMonte = false;
-		if (!isMonte) {
-			isMonte = true;
+			monteHelper = false;
+		if (!monteHelper) {
+			monteHelper = true;
 			if (!isSpecialMonteM() && !isSpecialMonteW())
+				monteHelper = false;
+			if (!monteHelper)
 				isMonte = false;
 		}
-		bool isMare = false;
-		if (isMonte) {
-			result = true;
-		} else {
-			bool mareMatch = true;
-			bool helper    = true;
-			if (mActorType != 0x0400000E && !isNormalMareW())
+		bool mareMatch = true;
+		if (!isMonte) {
+			bool mareM = false;
+			switch (mActorType) {
+			case 0x0400000E:
+				mareM = true;
+			}
+			bool helper = true;
+			if (!mareM && !isNormalMareW())
 				helper = false;
 			if (!helper) {
 				helper = true;
@@ -842,12 +847,14 @@ bool TBaseNPC::isBeTrampledNpc() const
 				if (!helper)
 					mareMatch = false;
 			}
-			if (mareMatch) {
+		}
+		if (mareMatch) {
+			result = true;
+		} else {
+			switch (mActorType) {
+			case 0x04000016:
+			case 0x04000017:
 				result = true;
-			} else {
-				if ((s32)mActorType < 0x04000018
-				    && (s32)mActorType >= 0x04000016)
-					result = true;
 			}
 		}
 	}
