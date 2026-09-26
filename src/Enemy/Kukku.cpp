@@ -139,6 +139,21 @@ DEFINE_NERVE(TNerveKukkuRecoverGraph, TLiveActor)
 	return FALSE;
 }
 
+inline void TKukku::shootBall(TKukkuBall* ball)
+{
+	JGeometry::TVec3<f32> dir;
+	dir.set(0.0f, 1.0f, 0.0f);
+	dir.setLength(getSaveParam2()->mShootSpeed.get());
+	getModel()->getModelData()->getJointName()->getIndex(
+	    "null_osen");
+	ball->shoot(mPosition, dir);
+	unk1AC = getSaveParam2()->mShootInterval.get();
+	if (gpMSound->gateCheck(0x28f3)) {
+		MSoundSESystem::MSoundSE::startSoundActor(
+		    0x28f3, &mPosition, 0, nullptr, 0, 4);
+	}
+}
+
 DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor)
 {
 	TKukku* self = (TKukku*)spine->getBody();
@@ -178,19 +193,8 @@ DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor)
 			self->unk1AC -= 1;
 		} else {
 			TKukkuBall* found = self->getFreeBall();
-			if (found) {
-				JGeometry::TVec3<f32> dir;
-				dir.set(0.0f, 1.0f, 0.0f);
-				dir.setLength(self->getSaveParam2()->mShootSpeed.get());
-				self->getModel()->getModelData()->getJointName()->getIndex(
-				    "null_osen");
-				found->shoot(self->mPosition, dir);
-				self->unk1AC = self->getSaveParam2()->mShootInterval.get();
-				if (gpMSound->gateCheck(0x28f3)) {
-					MSoundSESystem::MSoundSE::startSoundActor(
-					    0x28f3, &self->mPosition, 0, nullptr, 0, 4);
-				}
-			}
+			if (found)
+				self->shootBall(found);
 		}
 	}
 
