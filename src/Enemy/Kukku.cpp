@@ -417,7 +417,7 @@ void TKukkuBall::perform(u32 action, JDrama::TGraphics* graphics)
 		next.add(mVelocity);
 
 		const TBGCheckData* ground;
-		f32 groundY = gpMap->checkGround(next.x, next.y + mAttackHeight, next.z,
+		f32 groundY = gpMap->checkGround(next.x, mAttackHeight + next.y, next.z,
 		                                 &ground);
 		groundY += 1.0f;
 		if (next.y <= groundY + 0.05f) {
@@ -429,7 +429,7 @@ void TKukkuBall::perform(u32 action, JDrama::TGraphics* graphics)
 			gpPollution->stamp(1, x, y, z, 500.0f);
 		}
 
-		gpMap->isTouchedOneWallAndMoveXZ(&next.x, next.y + mAttackHeight,
+		gpMap->isTouchedOneWallAndMoveXZ(&next.x, mAttackHeight + next.y,
 		                                 &next.z, mAttackRadius);
 		mPosition = next;
 	}
