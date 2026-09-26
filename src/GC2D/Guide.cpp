@@ -1065,9 +1065,8 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	}
 
 	for (int i = 0; i < 2; i++) {
-		TExPane* p = new TExPane(unkBC, 'cu_a' + i);
-		*(TExPane**)((u8*)this + 0x128 + i * 4) = p;
-		J2DPicture* pic = (J2DPicture*)p->getPane();
+		(&_128)[i] = new TExPane(unkBC, 'cu_a' + i);
+		J2DPicture* pic = (J2DPicture*)(&_128)[i]->getPane();
 		pic->insert(cuiTex, pic->mTextureNum, 0.0f);
 	}
 
@@ -1075,21 +1074,20 @@ void TGuide::load(JSUMemoryInputStream& stream)
 		int hi      = i / 10;
 		int lo      = i % 10;
 		u32 ddTag   = (hi << 8) + lo + 0x3030;
-		u32 baseTag = ddTag << 16;
 
 		_168[i] = (TBoundPane*)unkBC->search(ddTag);
 
-		_1C0[i] = new TExPane(unkBC, baseTag + 0x5f30);
+		_1C0[i] = new TExPane(unkBC, (ddTag << 16) + 0x5f30);
 		_218[i] = _1C0[i]->getPane()->mBounds;
 
-		_378[i] = new TExPane(unkBC, baseTag + 0x5f31);
+		_378[i] = new TExPane(unkBC, (ddTag << 16) + 0x5f31);
 
 		J2DTextBox* tb1
-		    = (J2DTextBox*)unkBC->search(baseTag + 0x5f33);
+		    = (J2DTextBox*)unkBC->search((ddTag << 16) + 0x5f33);
 		tb1->setFont(gpSystemFont);
 
 		J2DTextBox* tb2
-		    = (J2DTextBox*)unkBC->search(baseTag + 0x5f35);
+		    = (J2DTextBox*)unkBC->search((ddTag << 16) + 0x5f35);
 		tb2->setFont(gpSystemFont);
 	}
 
@@ -1110,58 +1108,28 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	_474 = JKRFileLoader::getGlbResource("/common/2d/stagename.bmg");
 
 	_134 = (J2DPicture*)unkBC->search('10');
-	JUTTexture* texSun = (JUTTexture*)::operator new(sizeof(JUTTexture));
-	if (texSun != nullptr) {
-		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
-		    "/guide/timg/guide_draw_sun_2.bti");
-		texSun->mEmbPalette = nullptr;
-		texSun->storeTIMG(img);
-		texSun->unk50 = 0;
-	}
+	JUTTexture* texSun = new JUTTexture(
+	    (ResTIMG*)JKRFileLoader::getGlbResource("/guide/timg/guide_draw_sun_2.bti"));
 	_134->insert(texSun, _134->mTextureNum, 0.0f);
 
 	_138 = (J2DPicture*)unkBC->search('13');
-	JUTTexture* texShip = (JUTTexture*)::operator new(sizeof(JUTTexture));
-	if (texShip != nullptr) {
-		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
-		    "/guide/timg/guide_draw_ship_2.bti");
-		texShip->mEmbPalette = nullptr;
-		texShip->storeTIMG(img);
-		texShip->unk50 = 0;
-	}
+	JUTTexture* texShip = new JUTTexture(
+	    (ResTIMG*)JKRFileLoader::getGlbResource("/guide/timg/guide_draw_ship_2.bti"));
 	_138->insert(texShip, _138->mTextureNum, 0.0f);
 
 	_13C = (J2DPicture*)unkBC->search('16');
-	JUTTexture* texPalm2 = (JUTTexture*)::operator new(sizeof(JUTTexture));
-	if (texPalm2 != nullptr) {
-		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
-		    "/guide/timg/guide_draw_palmtree_2.bti");
-		texPalm2->mEmbPalette = nullptr;
-		texPalm2->storeTIMG(img);
-		texPalm2->unk50 = 0;
-	}
+	JUTTexture* texPalm2 = new JUTTexture(
+	    (ResTIMG*)JKRFileLoader::getGlbResource("/guide/timg/guide_draw_palmtree_2.bti"));
 	_13C->insert(texPalm2, _13C->mTextureNum, 0.0f);
 
 	_140 = (J2DPicture*)unkBC->search('17');
-	JUTTexture* texPalm1 = (JUTTexture*)::operator new(sizeof(JUTTexture));
-	if (texPalm1 != nullptr) {
-		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
-		    "/guide/timg/guide_draw_palmtree_1.bti");
-		texPalm1->mEmbPalette = nullptr;
-		texPalm1->storeTIMG(img);
-		texPalm1->unk50 = 0;
-	}
+	JUTTexture* texPalm1 = new JUTTexture(
+	    (ResTIMG*)JKRFileLoader::getGlbResource("/guide/timg/guide_draw_palmtree_1.bti"));
 	_140->insert(texPalm1, _140->mTextureNum, 0.0f);
 
 	_144 = (J2DPicture*)unkBC->search('18');
-	JUTTexture* texFish = (JUTTexture*)::operator new(sizeof(JUTTexture));
-	if (texFish != nullptr) {
-		const ResTIMG* img = (ResTIMG*)JKRFileLoader::getGlbResource(
-		    "/guide/timg/guide_draw_fish_2.bti");
-		texFish->mEmbPalette = nullptr;
-		texFish->storeTIMG(img);
-		texFish->unk50 = 0;
-	}
+	JUTTexture* texFish = new JUTTexture(
+	    (ResTIMG*)JKRFileLoader::getGlbResource("/guide/timg/guide_draw_fish_2.bti"));
 	_144->insert(texFish, _144->mTextureNum, 0.0f);
 
 	_148 = unkBC->search('11');
@@ -1177,18 +1145,17 @@ void TGuide::load(JSUMemoryInputStream& stream)
 	for (int i = 0; i < 13; i++) {
 		int hi      = i / 10;
 		int lo      = i % 10;
-		u32 ddTag   = (hi << 8) + lo + 0x3030;
-		u32 baseTag = ddTag << 16;
+		u32 baseTag = (hi << 24) + 0x30300000 + (lo << 16) + 0x5f30;
 
 		J2DTextBox* tb1
-		    = (J2DTextBox*)unkBC->search(baseTag + 0x5f33);
+		    = (J2DTextBox*)unkBC->search(baseTag + 3);
 		SMSMakeTextBuffer(tb1, 0x1e);
 		tb1->setFont(gpSystemFont);
 		const char* msg1 = SMSGetMessageData(msgData, i + 0xd);
 		strncpy(tb1->getStringPtr(), msg1, 0x1e);
 
 		J2DTextBox* tb2
-		    = (J2DTextBox*)unkBC->search(baseTag + 0x5f35);
+		    = (J2DTextBox*)unkBC->search(baseTag + 5);
 		SMSMakeTextBuffer(tb2, 0x200);
 		tb2->setFont(gpSystemFont);
 		const char* msg2 = SMSGetMessageData(msgData, i);
