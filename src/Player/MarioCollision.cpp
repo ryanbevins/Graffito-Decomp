@@ -335,7 +335,11 @@ void TMario::damageExec(THitActor* hittingActor, int damage, int damageAnimType,
 		return;
 	}
 
-	u32 animOffset1 = checkActionFlag(0x800) ? 1 : 0;
+	u32 animOffset1;
+	if (checkActionFlag(0x800))
+		animOffset1 = 1;
+	else
+		animOffset1 = 0;
 	if (onYoshi()) {
 		animOffset1 = true;
 	}
@@ -376,7 +380,7 @@ void TMario::damageExec(THitActor* hittingActor, int damage, int damageAnimType,
 			canPlayAnimation = false;
 		}
 
-		if (canPlayAnimation) {
+		if (canPlayAnimation == true) {
 			// I don't think this is correct, but was the closest i could get
 			u32 animationIdx
 			    = animationTypes[animOffset2][animOffset1][damageAnimType];
