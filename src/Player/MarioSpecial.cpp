@@ -434,14 +434,9 @@ BOOL TMario::specMain()
 
 BOOL TMario::fencePunch()
 {
-	JGeometry::TVec3<f32> nextPos;
-	nextPos.x = mPosition.x;
-	nextPos.y = mPosition.y;
-	nextPos.z = mPosition.z;
-	f32 sinVal = JMASSin(mFaceAngle.y);
-	f32 cosVal = JMASCos(mFaceAngle.y);
-	nextPos.x += 0.5f * (50.0f * sinVal);
-	nextPos.z += 0.5f * (50.0f * cosVal);
+	JGeometry::TVec3<f32> nextPos = mPosition;
+	nextPos.x += 0.5f * (50.0f * JMASSin(mFaceAngle.y));
+	nextPos.z += 0.5f * (50.0f * JMASCos(mFaceAngle.y));
 	const TBGCheckData* wall = checkWallPlane((Vec*)&nextPos, 80.0f, 50.0f);
 
 	if (mInput & 0x2) {
@@ -480,14 +475,13 @@ BOOL TMario::fencePunch()
 		emitParticle(0x39, (JGeometry::TVec3<f32>*)((u8*)&unk184));
 		rumbleStart(0x15, mMotorParams.mMotorWall.value);
 
-		TLiveActor* actor = *(TLiveActor**)((u8*)&mRidingActor);
-		if (actor != 0) {
-			actor->receiveMessage(this, 3);
+		if (mRidingActor != nullptr) {
+			mRidingActor->receiveMessage(this, 3);
 			startVoice(0x7890);
 
-			if (actor->mActorType - 0x40000000 == 0x6a) {
-				f32 val1 = *(f32*)((u8*)&mRideLocalPos);
-				f32 val2 = *(f32*)((u8*)&mRideLocalPos + 0x4);
+			if (mRidingActor->mActorType - 0x40000000 == 0x6a) {
+				f32 val1 = mRideLocalPos.x;
+				f32 val2 = mRideLocalPos.y;
 				if (val1 < -120.0f)
 					val1 = -120.0f;
 				if (120.0f < val1)
@@ -496,8 +490,8 @@ BOOL TMario::fencePunch()
 					val2 = -190.0f;
 				if (60.0f < val2)
 					val2 = 60.0f;
-				*(f32*)((u8*)&mRideLocalPos) = val1;
-				*(f32*)((u8*)&mRideLocalPos + 0x4) = val2;
+				mRideLocalPos.x = val1;
+				mRideLocalPos.y = val2;
 
 				Mtx ridingMtx;
 				getRidingMtx(ridingMtx);
