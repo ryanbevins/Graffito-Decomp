@@ -946,7 +946,8 @@ void CPolarSubCamera::calcSlopeAngleX_(s16* out)
 
 				JGeometry::TVec3<f32> sample = SMS_GetMarioPos();
 				sample += forwardOffset;
-				JGeometry::TVec3<f32> checkPos = sample;
+				JGeometry::TVec3<f32> checkPos;
+				checkPos = sample;
 				JGeometry::TVec3<f32> checkPos2 = checkPos;
 
 				const TBGCheckData* checkData;

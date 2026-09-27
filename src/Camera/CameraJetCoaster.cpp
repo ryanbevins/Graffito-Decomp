@@ -155,9 +155,11 @@ void CPolarSubCamera::ctrlJetCoasterCamera_()
 		mCurrentTarget.unk18 += lookUp;
 		newTarget += lookUp;
 
-		JGeometry::TVec3<f32> offsetUp = mUp;
+		JGeometry::TVec3<f32> offsetUp;
+		offsetUp = mUp;
 		JGeometry::TRotation3<TMtx33f> rotation(toTarget, -1.570796f);
-		JGeometry::TVec3<f32> offsetUpTmp = offsetUp;
+		JGeometry::TVec3<f32> offsetUpTmp;
+		offsetUpTmp = offsetUp;
 		rotation.mult33(offsetUpTmp, offsetUp);
 		offsetUp *= mCurrentParams->mOffsetLookatXZ;
 

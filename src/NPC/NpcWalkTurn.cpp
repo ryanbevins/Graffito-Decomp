@@ -24,7 +24,8 @@ void TBaseNPC::execWalk(bool param_1)
 			diff.x -= mPosition.x;
 			diff.y -= mPosition.y;
 			diff.z -= mPosition.z;
-			JGeometry::TVec3<f32> tmp1 = diff;
+			JGeometry::TVec3<f32> tmp1;
+			tmp1 = diff;
 			JGeometry::TVec3<f32> tmp2 = tmp1;
 			f32 targetYaw              = MsGetRotFromZaxisY(tmp2);
 

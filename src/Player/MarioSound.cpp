@@ -102,7 +102,8 @@ void TMario::soundTorocco()
 {
 	JGeometry::TVec3<f32> diff = mPosition;
 	diff.sub(mToroccoPos);
-	JGeometry::TVec3<f32> distVec = diff;
+	JGeometry::TVec3<f32> distVec;
+	distVec = diff;
 	f32 dist = distVec.length();
 
 	if (gpMSound->gateCheck(0x305a)) {

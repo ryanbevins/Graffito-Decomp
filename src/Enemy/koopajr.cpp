@@ -761,7 +761,8 @@ void TKoopaJrSubmarine::calcRootMatrix()
 		TPosition3f centerMtx;
 		centerMtx.translation(centerOffset);
 
-		JGeometry::TVec3<f32> origin = centerOffset;
+		JGeometry::TVec3<f32> origin;
+		origin = centerOffset;
 		origin.negate();
 		origin.add(mPosition);
 
@@ -944,7 +945,8 @@ void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
 	if (queuedType == 2) {
 		direction.set(0.0f, 1.0f, 0.0f);
 
-		JGeometry::TVec3<f32> toMario = *gpMarioPos;
+		JGeometry::TVec3<f32> toMario;
+		toMario = *gpMarioPos;
 		toMario.sub(killer->mPosition);
 		toMario.y = 0.0f;
 		toMario.normalize();

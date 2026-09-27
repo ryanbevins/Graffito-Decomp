@@ -147,7 +147,8 @@ bool CPolarSubCamera::execWallCheck_(Vec* p)
 				if (!isValidCamClip(wall))
 					continue;
 
-				JGeometry::TVec3<f32> cam = mCurrentTarget.mPosition;
+				JGeometry::TVec3<f32> cam;
+				cam = mCurrentTarget.mPosition;
 				JGeometry::TVec3<f32> trg = cam;
 
 				f32 nx    = wall->mNormal.x;

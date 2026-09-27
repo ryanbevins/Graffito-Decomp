@@ -165,7 +165,8 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 			rel.x                      -= mPosition.x;
 			rel.y                      -= mPosition.y;
 			rel.z                      -= mPosition.z;
-			JGeometry::TVec3<f32> sqv  = rel;
+			JGeometry::TVec3<f32> sqv;
+			sqv = rel;
 			f32 dist
 			    = JGeometry::TUtil<f32>::sqrt(sqv.x * sqv.x + sqv.y * sqv.y + sqv.z * sqv.z);
 			if (dist < 1000.0f) {

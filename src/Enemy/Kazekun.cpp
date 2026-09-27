@@ -542,7 +542,8 @@ void TKazekun::doAttackPose(bool decide)
 	spin.mul(spin, mQuat);
 	mQuat = spin;
 
-	JGeometry::TVec3<f32> velocity = mVelocity;
+	JGeometry::TVec3<f32> velocity;
+	velocity = mVelocity;
 	f32 speed = velocity.length();
 	JGeometry::TVec3<f32> newVel(0.0f, 0.0f, speed);
 	spin.rotate(newVel, newVel);

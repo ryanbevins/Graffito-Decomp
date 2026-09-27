@@ -903,7 +903,8 @@ bool TBaseNPC::npcMadding()
 			             *(f32*)((u8*)mNpcSaveIndividual + 0x2ac), &mRotation.y);
 			JGeometry::TVec3<f32> axis = *gpMarioPos;
 			axis -= mPosition;
-			JGeometry::TVec3<f32> copy  = axis;
+			JGeometry::TVec3<f32> copy;
+			copy = axis;
 			JGeometry::TVec3<f32> copy2 = copy;
 			JGeometry::TVec3<f32> copy3;
 			copy3.set(copy2);
