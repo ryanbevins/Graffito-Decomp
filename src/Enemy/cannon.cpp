@@ -901,7 +901,7 @@ void TCannon::calcRootMatrix()
 		mHeadHeight = 50.0f;
 		JGeometry::TVec3<f32> base = mPosition;
 		MtxPtr chorobeiMtx
-		    = getMActor()->getModel()->getAnmMtx(mChorobeiJntIdx);
+		    = getMActor()->getModel()->getAnmMtx(4);
 		base.y = chorobeiMtx[1][3];
 
 		for (int i = 0; i < 4; ++i) {
