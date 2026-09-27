@@ -961,18 +961,18 @@ static int PopoPossessedCallback(J3DNode* node, int timing)
 		u16 jointIndex = ((J3DJoint*)node)->getJntNo();
 		MtxPtr mtx     = gpCurPopo->getModel()->mNodeMatrices[jointIndex];
 		Mtx scaleMtx;
+		scaleMtx[0][3] = 0.0f;
+		scaleMtx[1][3] = 0.0f;
+		scaleMtx[2][3] = 0.0f;
 		scaleMtx[0][0] = scale;
 		scaleMtx[0][1] = 0.0f;
 		scaleMtx[0][2] = 0.0f;
-		scaleMtx[0][3] = 0.0f;
 		scaleMtx[1][0] = 0.0f;
 		scaleMtx[1][1] = scale;
 		scaleMtx[1][2] = 0.0f;
-		scaleMtx[1][3] = 0.0f;
 		scaleMtx[2][0] = 0.0f;
 		scaleMtx[2][1] = 0.0f;
 		scaleMtx[2][2] = scale;
-		scaleMtx[2][3] = 0.0f;
 		PSMTXConcat(mtx, scaleMtx, mtx);
 		PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx,
 		            J3DSys::mCurrentMtx);
