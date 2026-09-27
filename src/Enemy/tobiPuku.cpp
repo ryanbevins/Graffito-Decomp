@@ -76,16 +76,6 @@ static inline void startTobiPukuSound(u32 sound_id,
 		                                          0, 4);
 }
 
-static inline void copyMtxTrans(JGeometry::TVec3<f32>& dst, MtxPtr mtx)
-{
-	f32 z = mtx[2][3];
-	f32 y = mtx[1][3];
-	f32 x = mtx[0][3];
-	dst.x = x;
-	dst.y = y;
-	dst.z = z;
-}
-
 static inline void emitPichiEffect(TTobiPuku* self)
 {
 	Mtx* matrices = self->mMActor->unk4->mNodeMatrices;
@@ -624,15 +614,13 @@ void TMoePuku::hitWater()
 {
 	TTobiPuku::hitWater();
 
-	MtxPtr mtx = mMActor->unk4->mNodeMatrices[1];
-	copyMtxTrans(unk1A0, mtx);
+	MtxPtr mtx = mMActor->unk4->getAnmMtx(1);
+	unk1A0.set(JGeometry::TVec3<f32>(mtx[0][3], mtx[1][3], mtx[2][3]));
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emitAndBindToPosPtr(0x8B, &mPosition, 0,
 	                                                  nullptr);
-	if (emitter) {
-		emitter->unk154.set(2.0f, 2.0f, 2.0f);
-		emitter->unk174.set(2.0f, 2.0f, 2.0f);
-	}
+	if (emitter)
+		emitter->setScale(JGeometry::TVec3<f32>(2.0f, 2.0f, 2.0f));
 
 	startTobiPukuSound(0x28C5, mPosition);
 }
