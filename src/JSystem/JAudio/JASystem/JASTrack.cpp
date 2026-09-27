@@ -655,7 +655,8 @@ void TTrack::incSelfOsc()
 s8 TTrack::mainProc()
 {
 	if (unk2C0 && unk3BD == 1) {
-		f32 thing = (f32)unk3B8 / unk2C0->unk3B8;
+		f32 thing = (f32)unk3B8;
+		thing /= unk2C0->unk3B8;
 		if (thing > 1.0f)
 			thing = 1.0f;
 		unk3AC += thing;
