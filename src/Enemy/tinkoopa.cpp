@@ -81,7 +81,11 @@ static u32 partsHitActorTypeTable[] = {
 	0x0800001D, 0x0800001C, 0x0800001E,
 };
 
-static int waitBckTable[] = { 12, 13, 14, 15, 16 };
+static inline int getWaitBck(int index)
+{
+	static int table[] = { 12, 13, 14, 15, 16 };
+	return table[index];
+}
 
 static int breakBckTable[] = { 0, 1, 2, 3, 16 };
 
@@ -136,7 +140,7 @@ BOOL TNerveTinKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TTinKoopa* self = (TTinKoopa*)spine->getBody();
 	if (spine->getTime() == 0) {
-		int bck = waitBckTable[self->unk150];
+		int bck = getWaitBck(self->unk150);
 		self->mMActor->setBckFromIndex(bck);
 		const char** bas = self->getBasNameTable();
 		self->setAnmSound(!bas ? nullptr : bas[bck]);
@@ -169,7 +173,7 @@ BOOL TNerveTinKoopaDamage::execute(TSpineBase<TLiveActor>* spine) const
 	int damageBck = damageBckTable[self->unk150];
 	if (self->mMActor->checkCurBckFromIndex(damageBck)
 	    && self->mMActor->curAnmEndsNext(0, 0)) {
-		int waitBck = waitBckTable[self->unk150];
+		int waitBck = getWaitBck(self->unk150);
 		self->mMActor->setBckFromIndex(waitBck);
 		const char** bas = self->getBasNameTable();
 		self->setAnmSound(!bas ? nullptr : bas[waitBck]);
@@ -255,7 +259,7 @@ BOOL TNerveTinKoopaBreak::execute(TSpineBase<TLiveActor>* spine) const
 				flame->calcEntryRadius();
 			}
 
-			int waitBck = waitBckTable[self->unk150];
+			int waitBck = getWaitBck(self->unk150);
 			self->mMActor->setBckFromIndex(waitBck);
 			const char** bas = self->getBasNameTable();
 			self->setAnmSound(!bas ? nullptr : bas[waitBck]);
@@ -534,7 +538,7 @@ void TTinKoopa::reset()
 
 	resetTinKoopa();
 
-	int bck = waitBckTable[unk150];
+	int bck = getWaitBck(unk150);
 	mMActor->setBckFromIndex(bck);
 	const char** bas = getBasNameTable();
 	setAnmSound(!bas ? nullptr : bas[bck]);
