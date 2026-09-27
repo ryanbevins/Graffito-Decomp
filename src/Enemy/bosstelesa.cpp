@@ -174,18 +174,34 @@ void TBossTelesa::loadAfter()
 	JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
 	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 	int fruitIndex = 0;
-	for (int i = 0; i < 6; ++i)
+	for (int i = 0; i < 6; ++i) {
+		JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		unk2A8[fruitIndex++] = TMapObjBaseManager::newAndRegisterObj(
 		    "FruitCoconut", position, rotation, scale);
-	for (int i = 0; i < 6; ++i)
+	}
+	for (int i = 0; i < 6; ++i) {
+		JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		unk2A8[fruitIndex++] = TMapObjBaseManager::newAndRegisterObj(
 		    "FruitPapaya", position, rotation, scale);
-	for (int i = 0; i < 2; ++i)
+	}
+	for (int i = 0; i < 2; ++i) {
+		JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		unk2A8[fruitIndex++] = TMapObjBaseManager::newAndRegisterObj(
 		    "FruitPine", position, rotation, scale);
-	for (int i = 0; i < 6; ++i)
+	}
+	for (int i = 0; i < 6; ++i) {
+		JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
+		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		unk2A8[fruitIndex++] = TMapObjBaseManager::newAndRegisterObj(
 		    "FruitDurian", position, rotation, scale);
+	}
 
 	for (int i = 0; i < 20; ++i) {
 		TMapObjBase* actor = (TMapObjBase*)unk2A8[i];
