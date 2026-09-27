@@ -403,11 +403,7 @@ bool TMapEventSinkBianco::watch()
 
 void TMapEventSinkBianco::loadAfter()
 {
-	TMapEventSinkInPollution::loadAfter();
-	for (int i = 0; i < mBuildingNum; ++i) {
-		gpPollution->getLayer(unk60[i].unk0)->getObj(unk60[i].unk2)->alive();
-		gpPollution->getLayer(unk60[i].unk0)->getObj(unk60[i].unk2 + 1)->kill();
-	}
+	TMapEventSinkInPollutionReset::loadAfter();
 
 	TMapStaticObj* ref
 	    = (TMapStaticObj*)JDrama::TNameRefGen::getInstance()
