@@ -452,7 +452,6 @@ s32 TCardManager::filledInitData_(CARDFileInfo* file)
 s32 TCardManager::setCardStat_(CARDFileInfo* file)
 {
 	s32 fileNo = CARDGetFileNo(file);
-
 	CARDStat stat;
 
 	int result = CARDGetStatus(mChannel, fileNo, &stat);
@@ -462,12 +461,12 @@ s32 TCardManager::setCardStat_(CARDFileInfo* file)
 		CARDSetBannerFormat(&stat, CARD_STAT_BANNER_C8);
 		CARDSetIconAnim(&stat, CARD_STAT_ANIM_LOOP);
 
-		CARDSetIconFormat(&stat, 0, CARD_STAT_ICON_C8);
-		CARDSetIconSpeed(&stat, 0, CARD_STAT_SPEED_SLOW);
-		CARDSetIconFormat(&stat, 1, CARD_STAT_ICON_C8);
-		CARDSetIconSpeed(&stat, 1, CARD_STAT_SPEED_SLOW);
-
-		for (u16 i = 2; i < CARD_ICON_MAX; ++i) {
+		int i;
+		for (i = 0; i < 2; ++i) {
+			CARDSetIconFormat(&stat, i, CARD_STAT_ICON_C8);
+			CARDSetIconSpeed(&stat, i, CARD_STAT_SPEED_SLOW);
+		}
+		for (; i < CARD_ICON_MAX; ++i) {
 			CARDSetIconFormat(&stat, i, CARD_STAT_ICON_NONE);
 			CARDSetIconSpeed(&stat, i, CARD_STAT_SPEED_END);
 		}
