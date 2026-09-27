@@ -158,7 +158,7 @@ BOOL TNerveTinKoopaDamage::execute(TSpineBase<TLiveActor>* spine) const
 		int bck = damageBckTable[self->unk150];
 		self->mMActor->setBckFromIndex(bck);
 		const char** bas = self->getBasNameTable();
-		self->setAnmSound(bas ? bas[bck] : nullptr);
+		self->setAnmSound(!bas ? nullptr : bas[bck]);
 
 		u32 jointIndex = TTinKoopa_jointIndexTable[0];
 		MtxPtr mtx     = self->getModel()->getAnmMtx(jointIndex);
@@ -172,7 +172,7 @@ BOOL TNerveTinKoopaDamage::execute(TSpineBase<TLiveActor>* spine) const
 		int waitBck = waitBckTable[self->unk150];
 		self->mMActor->setBckFromIndex(waitBck);
 		const char** bas = self->getBasNameTable();
-		self->setAnmSound(bas ? bas[waitBck] : nullptr);
+		self->setAnmSound(!bas ? nullptr : bas[waitBck]);
 		return true;
 	}
 
