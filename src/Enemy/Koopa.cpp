@@ -1287,56 +1287,70 @@ BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 	return FALSE;
 }
 
+static inline void turnKoopa(TKoopa* self, f32 turn)
+{
+	if (turn > 0.0f)
+		self->changeAnm(11, 0, turn * self->getSaveParam2()->turnAnim.get());
+	else
+		self->changeAnm(10, 0, -turn * self->getSaveParam2()->turnAnim.get());
+	self->mRotation.y
+	    = -180.0f
+	      + JGeometry::TUtil<f32>::mod(
+	          360.0f + ((self->mRotation.y + turn) - -180.0f), 360.0f);
+}
+
 BOOL TNerveKoopaTurnL::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	TKoopaParams* prm = self->getSaveParam2();
 
-	f32 turn = std::fmodf(
-	    360.0f + ((self->unk150 - self->mRotation.y) - -180.0f), 360.0f);
-	turn += -180.0f;
-	if (turn < -prm->turnSpeed.get())
-		turn = -prm->turnSpeed.get();
+	f32 turn = -180.0f
+	           + std::fmodf(
+	               360.0f + ((self->unk150 - self->mRotation.y) - -180.0f),
+	               360.0f);
 
-	if (turn >= 0.0f)
-		return TRUE;
+	bool turning;
+	if (turn < -((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+	               ->turnSpeed.get()) {
+		turn = -self->getSaveParam2()->turnSpeed.get();
+		turnKoopa(self, turn);
+		turning = true;
+	} else if (turn < 0.0f) {
+		turnKoopa(self, turn);
+		turning = true;
+	} else {
+		turning = false;
+	}
 
-	if (turn > 0.0f)
-		self->changeAnm(11, 0, turn * prm->turnAnim.get());
-	else
-		self->changeAnm(10, 0, -turn * prm->turnAnim.get());
-
-	self->mRotation.y = JGeometry::TUtil<f32>::mod(
-	                        360.0f + ((self->mRotation.y + turn) - -180.0f),
-	                        360.0f)
-	                    + -180.0f;
-	return FALSE;
+	if (turning)
+		return FALSE;
+	return TRUE;
 }
 
 BOOL TNerveKoopaTurnR::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	TKoopaParams* prm = self->getSaveParam2();
 
-	f32 turn = std::fmodf(
-	    360.0f + ((self->unk150 - self->mRotation.y) - -180.0f), 360.0f);
-	turn += -180.0f;
-	if (turn > prm->turnSpeed.get())
-		turn = prm->turnSpeed.get();
+	f32 turn = -180.0f
+	           + std::fmodf(
+	               360.0f + ((self->unk150 - self->mRotation.y) - -180.0f),
+	               360.0f);
 
-	if (turn <= 0.0f)
-		return TRUE;
+	bool turning;
+	if (turn > ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+	               ->turnSpeed.get()) {
+		turn = self->getSaveParam2()->turnSpeed.get();
+		turnKoopa(self, turn);
+		turning = true;
+	} else if (turn > 0.0f) {
+		turnKoopa(self, turn);
+		turning = true;
+	} else {
+		turning = false;
+	}
 
-	if (turn > 0.0f)
-		self->changeAnm(11, 0, turn * prm->turnAnim.get());
-	else
-		self->changeAnm(10, 0, -turn * prm->turnAnim.get());
-
-	self->mRotation.y = JGeometry::TUtil<f32>::mod(
-	                        360.0f + ((self->mRotation.y + turn) - -180.0f),
-	                        360.0f)
-	                    + -180.0f;
-	return FALSE;
+	if (turning)
+		return FALSE;
+	return TRUE;
 }
 
 BOOL TNerveKoopaGetDown::execute(TSpineBase<TLiveActor>* spine) const
