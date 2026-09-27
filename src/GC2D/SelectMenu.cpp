@@ -80,12 +80,14 @@ s8 TSelectMenu::getPrevIndex()
 	s8 result = -1;
 	if (idx == 0)
 		return -1;
-	for (s32 i = idx - 1; i >= 0; i--) {
-		u8 state = mStageStates[i];
+	idx--;
+	for (s32 i = idx; i >= 0; i--) {
+		u8 state = mStageStates[idx];
 		if (state == 2 || state == 3) {
-			result = i;
+			result = idx;
 			break;
 		}
+		idx--;
 	}
 	return result;
 }
