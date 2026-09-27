@@ -249,6 +249,24 @@ TMBindShadowBody::TMBindShadowBody(THitActor* actor, J3DModel* model, f32 scale)
 	gpBindShadowManager->unk4C.push_back(this);
 }
 
+void TMBindShadowBody::calc()
+{
+	JGeometry::TVec3<f32> pos = unk4->mPosition;
+
+	const TBGCheckData* checkData;
+	f32 groundY = gpMap->checkGround(pos.x, pos.y + gpBindShadowManager->unk60,
+	                                 pos.z, &checkData);
+	if (checkData->isWaterSurface()) {
+		groundY = gpMap->checkGround(pos.x, pos.y - 50.0f, pos.z, &checkData);
+	}
+
+	if (checkData->checkFlag(BG_CHECK_FLAG_ILLEGAL))
+		return;
+
+	for (int i = 0; i < unk8; ++i)
+		unk0[i]->calc(groundY);
+}
+
 void TMBindShadowBody::entryDrawShadow()
 {
 	const JGeometry::TVec3<f32>& pos = unk4->mPosition;
@@ -268,20 +286,10 @@ void TMBindShadowBody::entryDrawShadow()
 		if (gpBindShadowManager->unk65)
 			return;
 		gpBindShadowManager->unk65 = 1;
+		calc();
+	} else {
+		calc();
 	}
-
-	const TBGCheckData* checkData;
-	f32 groundY = gpMap->checkGround(pos.x, pos.y + gpBindShadowManager->unk60,
-	                                 pos.z, &checkData);
-	if (checkData->isWaterSurface()) {
-		groundY = gpMap->checkGround(pos.x, pos.y - 50.0f, pos.z, &checkData);
-	}
-
-	if (checkData->checkFlag(BG_CHECK_FLAG_ILLEGAL))
-		return;
-
-	for (int i = 0; i < unk8; ++i)
-		unk0[i]->calc(groundY);
 }
 
 TSquareShadowInfo::TSquareShadowInfo()
