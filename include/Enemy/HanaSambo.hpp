@@ -65,7 +65,6 @@ class TSamboFlowerCoinUnit {
 public:
 	TSamboFlowerCoinUnit(int capacity)
 	    : mFlowers(nullptr)
-	    , mCenter(0.0f, 0.0f, 0.0f)
 	    , mFlowerCount(0)
 	    , mCapacity(capacity)
 	    , mCoin(nullptr)
