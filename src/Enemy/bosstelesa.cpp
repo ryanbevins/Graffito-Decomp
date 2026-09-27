@@ -600,12 +600,12 @@ void TBossTelesa::moveObject()
 	unk19C.z += 0.67f * cameraDiff.z;
 
 	int movingRoulettes = 0;
-	if (unk178->unk13C != 0.0f)
-		++movingRoulettes;
-	if (unk17C->unk13C != 0.0f)
-		++movingRoulettes;
-	if (unk180->unk13C != 0.0f)
-		++movingRoulettes;
+	for (int i = 0; i < 3; ++i) {
+		TRoulette* roulette = (&unk178)[i];
+		f32 speed           = roulette->unk13C;
+		if (speed != 0.0f)
+			++movingRoulettes;
+	}
 
 	switch (movingRoulettes) {
 	case 1:
