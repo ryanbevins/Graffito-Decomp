@@ -1193,12 +1193,12 @@ BOOL TBossTelesa::slotFall()
 
 	if (unk184->mPosition.y < unk178->mPosition.y - 900.0f) {
 		int rolling = 0;
-		if (unk178->unk13C != 0.0f)
-			rolling = 1;
-		if (unk17C->unk13C != 0.0f)
-			++rolling;
-		if (unk180->unk13C != 0.0f)
-			++rolling;
+		for (int i = 0; i < 3; ++i) {
+			TRoulette* roulette = (&unk178)[i];
+			f32 speed           = roulette->unk13C;
+			if (speed != 0.0f)
+				++rolling;
+		}
 
 		if (rolling != 3)
 			rouletteStart();
