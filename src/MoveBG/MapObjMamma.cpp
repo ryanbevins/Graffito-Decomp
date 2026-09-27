@@ -127,7 +127,7 @@ u32 TSandLeaf::touchWater(THitActor*)
 void TSandLeaf::control()
 {
 	TMapObjBase::control();
-	mGroundHeight = gpMap->checkGround(mPosition.x, mPosition.y + 50.0f,
+	mGroundHeight = gpMap->checkGround(mPosition.x, mPosition.y + 200.0f,
 	                                   mPosition.z, &mGroundPlane);
 	mPosition.y = mGroundHeight;
 }
@@ -675,7 +675,7 @@ void TSandCastle::loadAfter()
 void TSandCastle::initMapObj()
 {
 	TSandBombBase::initMapObj();
-	unk13C = 0.2f;
+	unk13C = 0.11f;
 	unk148 = 120;
 	sleep();
 }
