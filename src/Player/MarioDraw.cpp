@@ -1491,10 +1491,14 @@ void TMario::initModel()
 	modelMario->unk10               = 2;
 	modelMario->unk24               = setInfo;
 
-	u8* unk           = new u8[2];
-	unk[0]            = 0;
-	unk[1]            = 2;
-	modelMario->unk1C = unk;
+	struct AnmIdx {
+		u8 unk0;
+		u8 unk1;
+	};
+	AnmIdx* unk       = new AnmIdx;
+	AnmIdx init       = { 0, 2 };
+	*unk              = init;
+	modelMario->unk1C = (u8*)unk;
 
 	modelMario->changeMtxCalcSIAnmBQAnmTransform(0, 0, 0x3e);
 	modelMario->changeMtxCalcSIAnmBQAnmTransform(1, 0, 0x41);
