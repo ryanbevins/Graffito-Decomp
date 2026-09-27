@@ -715,7 +715,7 @@ BOOL TMario::fenceMove()
 	return 0;
 }
 
-void TMario::pulling()
+BOOL TMario::pulling()
 {
 	u32 input = mInput;
 
@@ -724,8 +724,7 @@ void TMario::pulling()
 		mHeldObject->receiveMessage(this, 8);
 		mHeldObject = 0;
 		startVoice(0x78e0);
-		changePlayerStatus(0x88c, 0, false);
-		return;
+		return changePlayerStatus(0x88c, 0, false);
 	}
 
 	// Check if held object is still valid (flag check at 0x108 offset field)
@@ -734,15 +733,14 @@ void TMario::pulling()
 		mHeldObject->receiveMessage(this, 8);
 		mHeldObject = 0;
 		startVoice(0x78e0);
-		changePlayerStatus(0x0C00022F, 0, false);
-		return;
+		return changePlayerStatus(0x0C00022F, 0, false);
 	}
 
 	// Check A button (bit 30 = 0x2)
 	if (input & 0x2) {
 		setAnimation(0xf0, 1.0f);
 		changePlayerJumping(0x894, 0);
-		return;
+		return FALSE;
 	}
 
 	// Check if action is 0x40561 and specific flag
@@ -807,12 +805,13 @@ void TMario::pulling()
 		animSpeed = 5.0f;
 	}
 
-	u16 currentAnim = *(u16*)((u8*)&unkFA);
-	if (currentAnim == 0xf2 || currentAnim == 0xea) {
+	switch (mAnimationId) {
+	case 0xf2:
+	case 0xea:
 		if (isLast1AnimeFrame()) {
 			setAnimation(0xeb, 1.0f);
 		}
-		return;
+		return FALSE;
 	}
 
 	// Check actor type for pull direction
@@ -854,7 +853,7 @@ void TMario::pulling()
 
 	if (dist < 1.0f) {
 		setAnimation(0xeb, animSpeed);
-		return;
+		return FALSE;
 	}
 
 	// Determine pull animation based on angle difference
@@ -875,6 +874,7 @@ void TMario::pulling()
 	if (faceDiff > 0x2000 && faceDiff < 0x6000) {
 		setAnimation(0xee, animSpeed);
 	}
+	return FALSE;
 }
 
 void TMario::getCurrentPullParams(f32* outSpeed, f32* outAccel)

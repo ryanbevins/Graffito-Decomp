@@ -1160,7 +1160,7 @@ public:
 	void fenceJumpCatch();
 	void fenceCatch();
 	void fenceFootCheck();
-	void pulling();
+	BOOL pulling();
 	void setPullingAnm(const JGeometry::TVec3<f32>&, f32);
 	void getCurrentPullParams(f32*, f32*);
 	BOOL wireSWaitToWaitR();
