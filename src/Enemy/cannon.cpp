@@ -938,9 +938,10 @@ void TCannon::calcRootMatrix()
 	    && unk1A8->unk6C->getMActor()->checkCurBckFromIndex(14)
 	    && unk1A8->unk6C->getMActor()->getFrameCtrl(0)->checkPass(2.0f)) {
 		for (int i = 0; i < 3; ++i) {
-			TCannonDom* dom = unk1AC[i];
-			MtxPtr mtx      = dom->getConnectedMtx();
+			MtxPtr mtx = unk1AC[i]->getConnectedMtx();
 			unk294.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+
+			TCannonDom* dom = unk1AC[i];
 
 			dom->getMActor()->setBckFromIndex(2);
 			const char** bas = dom->unk10->getBasNameTable();
