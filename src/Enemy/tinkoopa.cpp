@@ -186,7 +186,7 @@ BOOL TNerveTinKoopaBreak::execute(TSpineBase<TLiveActor>* spine) const
 		int bck = breakBckTable[self->unk150];
 		self->mMActor->setBckFromIndex(bck);
 		const char** bas = self->getBasNameTable();
-		self->setAnmSound(bas ? bas[bck] : nullptr);
+		self->setAnmSound(!bas ? nullptr : bas[bck]);
 
 		u32 jointIndex = TTinKoopa_jointIndexTable[0];
 		MtxPtr mtx     = self->getModel()->getAnmMtx(jointIndex);
@@ -258,7 +258,7 @@ BOOL TNerveTinKoopaBreak::execute(TSpineBase<TLiveActor>* spine) const
 			int waitBck = waitBckTable[self->unk150];
 			self->mMActor->setBckFromIndex(waitBck);
 			const char** bas = self->getBasNameTable();
-			self->setAnmSound(bas ? bas[waitBck] : nullptr);
+			self->setAnmSound(!bas ? nullptr : bas[waitBck]);
 
 			TTinKoopaParams* params = (TTinKoopaParams*)self->getSaveParam();
 			self->unk1C8            = params->mSLPartsHP.get();
@@ -537,7 +537,7 @@ void TTinKoopa::reset()
 	int bck = waitBckTable[unk150];
 	mMActor->setBckFromIndex(bck);
 	const char** bas = getBasNameTable();
-	setAnmSound(bas ? bas[bck] : nullptr);
+	setAnmSound(!bas ? nullptr : bas[bck]);
 }
 
 void TTinKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
