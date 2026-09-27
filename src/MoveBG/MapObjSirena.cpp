@@ -1278,57 +1278,63 @@ void TItemSlotDrum::generateItem()
 			break;
 		}
 	}
-	if (result == -1) {
+	if (result != -1) {
+		int count = 1;
+		f32 angIncr = 0.0f;
+		result = getResultFromAng(unk13C[0]);
+		for (int i = 1; i < 3; ++i) {
+			if (getResultFromAng(unk13C[i]) != result) {
+				result = -1;
+				break;
+			}
+		}
+		if (result == 2) {
+			count = 3;
+			angIncr = 20.0f;
+		}
+		for (int i = 0; i < count; ++i) {
+			f32 ang = mRotation.y + angIncr * ((f32)i - 1.0f);
+			s16 angleY = (s16)(ang * 182.04445f);
+			f32 sinY = JMASSin(angleY);
+			f32 cosY = JMASCos(angleY);
+			Mtx rot;
+			rot[0][0] = cosY;
+			rot[0][1] = 0.0f;
+			rot[0][2] = sinY;
+			rot[0][3] = 0.0f;
+			rot[1][0] = 0.0f;
+			rot[1][1] = 1.0f;
+			rot[1][2] = 0.0f;
+			rot[1][3] = 0.0f;
+			rot[2][0] = -sinY;
+			rot[2][1] = 0.0f;
+			rot[2][2] = cosY;
+			rot[2][3] = 0.0f;
+			Vec offset;
+			offset.x = 0.0f;
+			offset.y = -350.0f;
+			offset.z = 200.0f;
+			PSMTXMultVec(rot, &offset, &offset);
+			TMapObjBase* item = (TMapObjBase*)gpItemManager->makeObjAppear(
+			    mPosition.x + offset.x, mPosition.y,
+			    mPosition.z + offset.z, 0x2000000E, false);
+			if (!item)
+				continue;
+			item->mPosition.x += offset.x;
+			item->mPosition.y += offset.y;
+			item->mPosition.z += offset.z;
+			MsVECNormalize(&offset, &offset);
+			TMsRange<f32> ySpeedRange(5.0f, 10.0f);
+			f32 vz = offset.z * 12.0f;
+			item->mVelocity.x = offset.x * 12.0f;
+			item->mVelocity.y = ySpeedRange.rand();
+			item->mVelocity.z = vz;
+			item->mLiveFlag &= ~0x10;
+		}
+	} else {
 		if (gpMSound->gateCheck(0x483D))
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x483D, mPosition, 0, nullptr, 0, 4);
-		return;
-	}
-
-	int count = 1;
-	f32 angIncr = 0.0f;
-	if (result == 2) {
-		count = 3;
-		angIncr = 20.0f;
-	}
-	for (int i = 0; i < count; ++i) {
-		f32 ang = mRotation.y + angIncr * ((f32)i - 1.0f);
-		s16 angleY = (s16)(ang * 182.04445f);
-		f32 sinY = JMASSin(angleY);
-		f32 cosY = JMASCos(angleY);
-		Mtx rot;
-		rot[0][0] = cosY;
-		rot[0][1] = 0.0f;
-		rot[0][2] = sinY;
-		rot[0][3] = 0.0f;
-		rot[1][0] = 0.0f;
-		rot[1][1] = 1.0f;
-		rot[1][2] = 0.0f;
-		rot[1][3] = 0.0f;
-		rot[2][0] = -sinY;
-		rot[2][1] = 0.0f;
-		rot[2][2] = cosY;
-		rot[2][3] = 0.0f;
-		Vec offset;
-		offset.x = 0.0f;
-		offset.y = -350.0f;
-		offset.z = 200.0f;
-		PSMTXMultVec(rot, &offset, &offset);
-		TMapObjBase* item = (TMapObjBase*)gpItemManager->makeObjAppear(
-		    mPosition.x + offset.x, mPosition.y,
-		    mPosition.z + offset.z, 0x2000000E, false);
-		if (!item)
-			continue;
-		item->mPosition.x += offset.x;
-		item->mPosition.y += offset.y;
-		item->mPosition.z += offset.z;
-		MsVECNormalize(&offset, &offset);
-		TMsRange<f32> ySpeedRange(5.0f, 10.0f);
-		f32 vz = offset.z * 12.0f;
-		item->mVelocity.x = offset.x * 12.0f;
-		item->mVelocity.y = ySpeedRange.rand();
-		item->mVelocity.z = vz;
-		item->mLiveFlag &= ~0x10;
 	}
 }
 int TItemSlotDrum::getForcastResult(int idx)
