@@ -211,37 +211,37 @@ void TMario::warpOutEffect(int type, f32 angle)
 	case 0:
 		gpMarioParticleManager->emitWithRotate(
 		    0x40, &mPosition, 0, (s16)(angle * 182.04445f), 0, 0, this);
-		return;
+		break;
 	case 1:
 		gpMarioParticleManager->emitWithRotate(
 		    0x41, &mPosition, 0, (s16)(angle * 182.04445f), 0, 0, this);
-		return;
-	default:
 		break;
-	}
-
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x24, mModel->getModel()->getAnmMtx(unk3C4), 0, this);
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x25, mModel->getModel()->getAnmMtx(mBoneIDs[10]), 0, this);
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x26, mModel->getModel()->getAnmMtx(mBoneIDs[10]), 0, this);
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x27, mModel->getModel()->getAnmMtx(mBoneIDs[4]), 0, this);
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x28, mModel->getModel()->getAnmMtx(mBoneIDs[5]), 0, this);
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x29, mModel->getModel()->getAnmMtx(mBoneIDs[6]), 0, this);
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x2A, mModel->getModel()->getAnmMtx(mBoneIDs[7]), 0, this);
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x2B, mModel->getModel()->getAnmMtx(mBoneIDs[8]), 0, this);
-	gpMarioParticleManager->emitAndBindToMtxPtr(
-	    0x2C, mModel->getModel()->getAnmMtx(mBoneIDs[9]), 0, this);
-
-	if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+	case 2:
+	default:
 		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x2D, mModel->getModel()->getAnmMtx(unk3C4), 0, this);
+		    0x24, mModel->getModel()->getAnmMtx(unk3C4), 0, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x25, mModel->getModel()->getAnmMtx(mBoneIDs[10]), 0, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x26, mModel->getModel()->getAnmMtx(mBoneIDs[10]), 0, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x27, mModel->getModel()->getAnmMtx(mBoneIDs[4]), 0, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x28, mModel->getModel()->getAnmMtx(mBoneIDs[5]), 0, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x29, mModel->getModel()->getAnmMtx(mBoneIDs[6]), 0, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x2A, mModel->getModel()->getAnmMtx(mBoneIDs[7]), 0, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x2B, mModel->getModel()->getAnmMtx(mBoneIDs[8]), 0, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x2C, mModel->getModel()->getAnmMtx(mBoneIDs[9]), 0, this);
+
+		if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
+			gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0x2D, mModel->getModel()->getAnmMtx(unk3C4), 0, this);
+		}
+		break;
 	}
 }
 
