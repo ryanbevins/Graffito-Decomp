@@ -823,10 +823,9 @@ void TSamboFlowerManager::loadAfter()
 		counts[i] = 0;
 
 	for (int i = 0; i < getObjNum(); ++i) {
-		TSamboFlower* flower = (TSamboFlower*)getObj(i);
-		if (strstr(flower->getName(), "フラワー（コイン用）")
-		    && flower->unk158 < mCoinUnitCount) {
-			++counts[flower->unk158];
+		if (strstr(getObj(i)->getName(), "フラワー（コイン用）")
+		    && ((TSamboFlower*)getObj(i))->unk158 < mCoinUnitCount) {
+			++counts[((TSamboFlower*)getObj(i))->unk158];
 		}
 	}
 
@@ -834,25 +833,24 @@ void TSamboFlowerManager::loadAfter()
 		mCoinUnits[i] = new TSamboFlowerCoinUnit(counts[i]);
 
 	for (int i = 0; i < gpItemManager->getObjNum(); ++i) {
-		TMapObjBase* coin = (TMapObjBase*)gpItemManager->getObj(i);
-		if (!strstr(coin->getName(), "コイン（フラワー用）"))
+		if (!strstr(gpItemManager->getObj(i)->getName(), "コイン（フラワー用）"))
 			continue;
 
-		int unitIndex = ((TFlowerCoin*)coin)->unk158;
+		TMapObjBase* coin = (TMapObjBase*)gpItemManager->getObj(i);
+		int unitIndex     = ((TFlowerCoin*)coin)->unk158;
 		if (unitIndex >= mCoinUnitCount)
 			continue;
 
-		TSamboFlowerCoinUnit* unit = mCoinUnits[unitIndex];
-		unit->mCoin                = coin;
-		unit->mCenter              = coin->mPosition;
+		mCoinUnits[unitIndex]->mCoin   = coin;
+		mCoinUnits[unitIndex]->mCenter = coin->mPosition;
 		coin->kill();
 	}
 
 	for (int i = 0; i < getObjNum(); ++i) {
-		TSamboFlower* flower = (TSamboFlower*)getObj(i);
-		if (!strstr(flower->getName(), "フラワー（コイン用）"))
+		if (!strstr(getObj(i)->getName(), "フラワー（コイン用）"))
 			continue;
 
+		TSamboFlower* flower = (TSamboFlower*)getObj(i);
 		int unitIndex = flower->unk158;
 		if (unitIndex >= mCoinUnitCount)
 			continue;
