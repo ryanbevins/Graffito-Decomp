@@ -926,9 +926,7 @@ void TCannon::calcRootMatrix()
 			mPosition.set(takingMtx[0][3], takingMtx[1][3], takingMtx[2][3]);
 			MsMtxSetXYZRPH(getMActor()->getModel()->getBaseTRMtx(),
 			                mPosition.x, mPosition.y, mPosition.z,
-			                (s16)(mRotation.x * 182.04445f),
-			                (s16)(mRotation.y * 182.04445f),
-			                (s16)(mRotation.z * 182.04445f));
+			                mRotation.x, mRotation.y, mRotation.z);
 		}
 	} else {
 		TSpineEnemy::calcRootMatrix();
