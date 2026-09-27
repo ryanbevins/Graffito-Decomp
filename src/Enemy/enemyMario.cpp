@@ -2174,8 +2174,8 @@ void TEnemyMario::initModel()
 	unk39C = 0;
 	unk3A0 = 0;
 
-	M3UModelMario* originalModel = gpMarioOriginal->mModel;
-	mBodyModelData              = originalModel->getModel()->getModelData();
+	TMario* original = gpMarioOriginal;
+	mBodyModelData   = original->mModel->getModel()->getModelData();
 	unk3C4       = mBodyModelData->getJointName()->getIndex("center");
 	mBoneIDs[1]  = mBodyModelData->getJointName()->getIndex("chn_chest");
 	mBoneIDs[0]  = mBodyModelData->getJointName()->getIndex("jnt_chest");
@@ -2223,10 +2223,10 @@ void TEnemyMario::initModel()
 	J3DFrameCtrl* frameCtrl = new J3DFrameCtrl[3];
 
 	M3UModelCommonMario* marioCommon = new M3UModelCommonMario;
-	marioCommon->unk4                = originalModel->unk4->unk4;
+	marioCommon->unk4                = original->mModel->unk4->unk4;
 	marioCommon->unk18               = anmBlendQuat;
 	marioCommon->unk8                = anmTexPattern;
-	marioCommon->unk8                = originalModel->unk4->unk8;
+	marioCommon->unk8                = original->mModel->unk4->unk8;
 	marioCommon->unkC                = anmTexNoAnm;
 
 	M3UModelMario* modelMario = new M3UModelMario;
