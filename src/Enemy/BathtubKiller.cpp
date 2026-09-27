@@ -1056,10 +1056,14 @@ void TBathtubKillerManager::loadAfter()
 	static const char* loopFilenames[] = {
 		"/scene/map/map/ms_kp_kill_smoke.jpa",
 	};
-	bool* particleFlag = &gParticleFlagLoaded[0x1bd];
-	if (!*particleFlag) {
-		gpResourceManager->load(loopFilenames[0], 0x1bd);
-		*particleFlag = true;
+	for (int i = 0; i < 1; ++i) {
+		u16 id = 0x1bd + i;
+		const char* filename = loopFilenames[i];
+		bool* particleFlag = &gParticleFlagLoaded[id];
+		if (!*particleFlag) {
+			gpResourceManager->load(filename, id);
+			*particleFlag = true;
+		}
 	}
 }
 
