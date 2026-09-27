@@ -13,7 +13,7 @@ void JAIBasic::stopSeq(JAISound* param_1)
 	if (param_1->getSwBit() & 1) {
 		for (int i = 0; i < JAIGlobalParameter::seqPlayTrackMax; ++i) {
 			JAISound* sound = unk0->unk180[i].unk48;
-			if (sound != param_1 && sound) {
+			if (param_1 != sound && sound) {
 				if (sound->unk1 >= 3 && !(sound->getSwBit() & 2)) {
 					sound->setSeqInterVolume(10, 1.0f, 10);
 					JASystem::TrackMgr::handleToSeq(
