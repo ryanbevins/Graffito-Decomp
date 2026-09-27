@@ -406,9 +406,14 @@ void TKoopaJrManager::loadAfter()
 	static const char* onetimeFilenames[] = {
 		"/scene/koopajr/jpa/ms_koopajr_killer.jpa",
 	};
-	if (!gParticleFlagLoaded[0xef]) {
-		gpResourceManager->load(onetimeFilenames[0], 0xef);
-		gParticleFlagLoaded[0xef] = true;
+	for (int i = 0; i < 1; ++i) {
+		u16 id = 0xef + i;
+		const char* filename = onetimeFilenames[i];
+		bool* particleFlag = &gParticleFlagLoaded[id];
+		if (!*particleFlag) {
+			gpResourceManager->load(filename, id);
+			*particleFlag = true;
+		}
 	}
 }
 
