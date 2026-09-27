@@ -351,10 +351,14 @@ void TTinKoopaManager::loadAfter()
 		}
 	}
 
-	const char* filename = loopIndirectFilenames[0];
-	if (!gParticleFlagLoaded[0x1f2]) {
-		gpResourceManager->load(filename, 0x1f2);
-		gParticleFlagLoaded[0x1f2] = true;
+	for (int i = 0; i < 1; ++i) {
+		u16 id = 0x1f2 + i;
+		const char* filename = loopIndirectFilenames[i];
+		bool* particleFlag = &gParticleFlagLoaded[id];
+		if (!*particleFlag) {
+			gpResourceManager->load(filename, id);
+			*particleFlag = true;
+		}
 	}
 }
 
