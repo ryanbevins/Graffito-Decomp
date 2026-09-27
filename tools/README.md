@@ -46,6 +46,16 @@ python tools/agent/find_structural_near_match.py --min-pct 95 --prefix mario/Mov
 Use it only for target selection; read the complete function diff before
 editing.
 
+`tvec3_copy_sweep.py UNIT SRC [--apply]` tries, one site at a time, rewriting
+`TVec3<f32> v = src;` as `TVec3<f32> v; v = src;` (assignment copy keeps the
+local address-taken, so later squares stay unfused like retail). It rebuilds the
+object and keeps a rewrite only when the containing function's match rises.
+Check the full report afterwards, since only the containing function is scored:
+
+```sh
+python tools/agent/tvec3_copy_sweep.py mario/MoveBG/MapObjBall src/MoveBG/MapObjBall.cpp --apply
+```
+
 `report_delta.py BASELINE CURRENT` compares two canonical non-matching objdiff
 JSON reports, showing overall and per-unit fuzzy, exact-code, function, and
 data changes. It exits nonzero if overall exact code or functions decrease,
