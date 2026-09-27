@@ -564,9 +564,11 @@ void TMapObjGeneral::bind()
 	} else {
 		if (!isAirborne()) {
 			JGeometry::TVec3<f32> v(mVelocity);
-			if (JGeometry::TVec3<f32>(v).x == 0.0f
-			    && JGeometry::TVec3<f32>(v).y == 0.0f
-			    && JGeometry::TVec3<f32>(v).z == 0.0f)
+			JGeometry::TVec3<f32> tx;
+			JGeometry::TVec3<f32> ty;
+			JGeometry::TVec3<f32> tz;
+			if ((tx = v).x == 0.0f && (ty = v).y == 0.0f
+			    && (tz = v).z == 0.0f)
 				onLiveFlag(LIVE_FLAG_UNK10);
 		}
 		JGeometry::TVec3<f32> diff = result;
