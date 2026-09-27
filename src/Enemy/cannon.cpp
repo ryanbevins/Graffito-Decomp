@@ -940,9 +940,7 @@ void TCannon::calcRootMatrix()
 		for (int i = 0; i < 3; ++i) {
 			TCannonDom* dom = unk1AC[i];
 			MtxPtr mtx      = dom->getConnectedMtx();
-			unk294.x        = mtx[0][3];
-			unk294.y        = mtx[1][3];
-			unk294.z        = mtx[2][3];
+			unk294.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 
 			dom->getMActor()->setBckFromIndex(2);
 			const char** bas = dom->unk10->getBasNameTable();
