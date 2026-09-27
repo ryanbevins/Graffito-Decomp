@@ -1584,12 +1584,11 @@ void TTelesaSlot::moveObject()
 	TLiveActor::moveObject();
 
 	for (int i = 0; i < unk148; ++i) {
-		u8* isRolling = &unk198 + i;
 		u8* doStop    = &unk1A8 + i;
 
 		if (*doStop) {
 			if (getForcastResult(i) == unk1A4) {
-				*isRolling = 0;
+				(&unk198)[i] = 0;
 				*doStop    = 0;
 			}
 		}
@@ -1601,7 +1600,7 @@ void TTelesaSlot::moveObject()
 		if (fabsf(speed) > unk160) {
 			unk13C[i] += speed;
 
-			if (!*isRolling) {
+			if (!(&unk198)[i]) {
 				if (unk138[i] > 0.0f)
 					unk138[i] -= unk15C;
 				else
@@ -1620,7 +1619,7 @@ void TTelesaSlot::moveObject()
 			if (unk13C[i] <= 0.0f)
 				unk13C[i] += 360.0f;
 
-			if (*isRolling)
+			if ((&unk198)[i])
 				continue;
 
 			if ((int)fabsf(unk13C[i]) % unk168 != 0)
