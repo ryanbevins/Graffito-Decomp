@@ -882,9 +882,7 @@ void TMuddyBoat::bind()
 		    = (TCubeStreamInfo*)&(*gpCubeStream->unk14)[cubeNo];
 		Mtx streamMtx;
 		MsMtxSetXYZRPH(streamMtx, 0.0f, 0.0f, 0.0f,
-		               (s16)(stream->unk18.x * 182.04445f),
-		               (s16)(stream->unk18.y * 182.04445f),
-		               (s16)(stream->unk18.z * 182.04445f));
+		               stream->unk18.x, stream->unk18.y, stream->unk18.z);
 
 		f32 dot = 0.0f;
 		dot     = mtx[0][2] * streamMtx[0][2] + dot;
