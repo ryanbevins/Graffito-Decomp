@@ -369,10 +369,7 @@ BOOL TMario::specMain()
 		// fence walk anim
 		{
 			setAnimation(0xf9, 1.0f);
-			JGeometry::TVec3<f32> nextPos;
-			nextPos.x = mPosition.x;
-			nextPos.y = mPosition.y;
-			nextPos.z = mPosition.z;
+			JGeometry::TVec3<f32> nextPos = mPosition;
 			nextPos.x += 50.0f * JMASSin(mFaceAngle.y) * 0.8f;
 			nextPos.z += 50.0f * JMASCos(mFaceAngle.y) * 0.8f;
 			const TBGCheckData* wall = checkWallPlane(&nextPos, 20.0f, 50.0f);
@@ -400,10 +397,7 @@ BOOL TMario::specMain()
 		// fence walk anim 2
 		{
 			setAnimation(0xfa, 1.0f);
-			JGeometry::TVec3<f32> nextPos;
-			nextPos.x = mPosition.x;
-			nextPos.y = mPosition.y;
-			nextPos.z = mPosition.z;
+			JGeometry::TVec3<f32> nextPos = mPosition;
 			nextPos.x += 50.0f * JMASSin(mFaceAngle.y) * 0.8f;
 			nextPos.z += 50.0f * JMASCos(mFaceAngle.y) * 0.8f;
 			const TBGCheckData* wall = checkWallPlane(&nextPos, 20.0f, 50.0f);
