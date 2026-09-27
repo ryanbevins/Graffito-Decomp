@@ -379,11 +379,9 @@ BOOL TMario::specMain()
 			nextPos.x = mPosition.x;
 			nextPos.y = mPosition.y;
 			nextPos.z = mPosition.z;
-			f32 sinVal = JMASSin(mFaceAngle.y);
-			f32 cosVal = JMASCos(mFaceAngle.y);
-			nextPos.x += 50.0f * sinVal * 1.0f;
-			nextPos.z += 50.0f * cosVal * 1.0f;
-			const TBGCheckData* wall = checkWallPlane(&nextPos, 0.0f, 0.0f);
+			nextPos.x += 50.0f * JMASSin(mFaceAngle.y) * 0.8f;
+			nextPos.z += 50.0f * JMASCos(mFaceAngle.y) * 0.8f;
+			const TBGCheckData* wall = checkWallPlane(&nextPos, 20.0f, 50.0f);
 			if (wall == NULL) {
 				s16 angle = mFaceAngle.y;
 				mFaceAngle.y = angle + 0x8000;
@@ -412,11 +410,9 @@ BOOL TMario::specMain()
 			nextPos.x = mPosition.x;
 			nextPos.y = mPosition.y;
 			nextPos.z = mPosition.z;
-			f32 sinVal = JMASSin(mFaceAngle.y);
-			f32 cosVal = JMASCos(mFaceAngle.y);
-			nextPos.x += 50.0f * sinVal * 1.0f;
-			nextPos.z += 50.0f * cosVal * 1.0f;
-			const TBGCheckData* wall = checkWallPlane(&nextPos, 0.0f, 0.0f);
+			nextPos.x += 50.0f * JMASSin(mFaceAngle.y) * 0.8f;
+			nextPos.z += 50.0f * JMASCos(mFaceAngle.y) * 0.8f;
+			const TBGCheckData* wall = checkWallPlane(&nextPos, 20.0f, 50.0f);
 			if (wall == NULL) {
 				s16 angle = mFaceAngle.y;
 				mFaceAngle.y = angle + 0x8000;
