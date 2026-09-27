@@ -258,8 +258,8 @@ void THauntLeg::calcRootMatrix()
 		mHauntedObject->mPosition.z = m[2][3];
 	}
 
-	for (int i = 0; i < mHauntedObject->mColCount; ++i) {
-		// loop body intentionally empty (matches asm bdnz with empty body)
+	for (int i = 0; i < mHauntedObject->getColNum(); ++i) {
+		THitActor* col = mHauntedObject->getCollision(i);
 	}
 }
 
