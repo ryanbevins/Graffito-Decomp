@@ -1375,29 +1375,40 @@ void TMario::initModel()
 	    = SMS_CreatePartsModel("/mario/bmd/ma_hnd4r.bmd", 0x10100000);
 
 	// possible inlines around setting ResTIMG through J3DTexture?
-	mHandModels[0][0]->getModelData()->getTexture()->setResTIMG(
-	    0, *mBodyModelData->getTexture()->getResTIMG(0));
-	DCFlushRange(mHandModels[0][0]->getModelData()->getTexture()->getResTIMG(0),
-	             0x20);
+	{
+		const ResTIMG* img = mBodyModelData->getTexture()->getResTIMG(0);
+		J3DModelData* data = mHandModels[0][0]->getModelData();
+		data->getTexture()->setResTIMG(0, *img);
+		DCFlushRange(data->getTexture()->getResTIMG(0), 0x20);
+	}
 
-	mHandModels[0][1]->getModelData()->getTexture()->setResTIMG(
-	    0, *mBodyModelData->getTexture()->getResTIMG(0));
-	DCFlushRange(mHandModels[0][1]->getModelData()->getTexture()->getResTIMG(0),
-	             0x20);
+	{
+		const ResTIMG* img = mBodyModelData->getTexture()->getResTIMG(0);
+		J3DModelData* data = mHandModels[0][1]->getModelData();
+		data->getTexture()->setResTIMG(0, *img);
+		DCFlushRange(data->getTexture()->getResTIMG(0), 0x20);
+	}
 
-	mHandModels[1][0]->getModelData()->getTexture()->setResTIMG(
-	    0, *mBodyModelData->getTexture()->getResTIMG(0));
-	DCFlushRange(mHandModels[1][0]->getModelData()->getTexture()->getResTIMG(0),
-	             0x20);
-	mHandModels[1][1]->getModelData()->getTexture()->setResTIMG(
-	    0, *mBodyModelData->getTexture()->getResTIMG(0));
-	DCFlushRange(mHandModels[1][1]->getModelData()->getTexture()->getResTIMG(0),
-	             0x20);
+	{
+		const ResTIMG* img = mBodyModelData->getTexture()->getResTIMG(0);
+		J3DModelData* data = mHandModels[1][0]->getModelData();
+		data->getTexture()->setResTIMG(0, *img);
+		DCFlushRange(data->getTexture()->getResTIMG(0), 0x20);
+	}
 
-	mRHand4ndModel->getModelData()->getTexture()->setResTIMG(
-	    0, *mBodyModelData->getTexture()->getResTIMG(0));
-	DCFlushRange(mRHand4ndModel->getModelData()->getTexture()->getResTIMG(0),
-	             0x20);
+	{
+		const ResTIMG* img = mBodyModelData->getTexture()->getResTIMG(0);
+		J3DModelData* data = mHandModels[1][1]->getModelData();
+		data->getTexture()->setResTIMG(0, *img);
+		DCFlushRange(data->getTexture()->getResTIMG(0), 0x20);
+	}
+
+	{
+		const ResTIMG* img = mBodyModelData->getTexture()->getResTIMG(0);
+		J3DModelData* data = mRHand4ndModel->getModelData();
+		data->getTexture()->setResTIMG(0, *img);
+		DCFlushRange(data->getTexture()->getResTIMG(0), 0x20);
+	}
 
 	mBodyModelData->getShapeNodePointer(4)->onFlag(1);
 
