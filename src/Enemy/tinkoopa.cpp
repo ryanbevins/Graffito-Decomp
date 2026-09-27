@@ -26,6 +26,11 @@
 #include <System/FlagManager.hpp>
 #include <System/MarDirector.hpp>
 #include <System/Particles.hpp>
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
+#include <M3DUtil/InfectiousStrings.hpp>
 
 static const char* tinkoopa_bastable[] = {
 	"/scene/tinkoopa/bas/tinkoopa_break1.bas",
