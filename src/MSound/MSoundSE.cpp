@@ -355,14 +355,14 @@ void MSoundSE::construct()
 		    0xf, 200.0f, 0xb4, 1.0f, 1.0f, 0.0f, false);
 		// clang-format off
 		grp->append(new MSSetSoundMember(0x3813, nullptr, 60.0f));
-		grp->append(new MSSetSoundMember(0x3813, nullptr, 60.0f));
-		grp->append(new MSSetSoundMember(0x3813, nullptr, 60.0f));
-		grp->append(new MSSetSoundMember(0x3813, nullptr, 60.0f));
-		grp->append(new MSSetSoundMember(0x3813, nullptr, 60.0f));
-		grp->append(new MSSetSoundMember(0x3813, nullptr, 60.0f));
-		grp->append(new MSSetSoundMember(0x3813, nullptr, 60.0f));
-		grp->append(new MSSetSoundMember(0x3813, nullptr, 60.0f));
-		grp->append(new MSSetSoundMember(0x3813, nullptr, 60.0f));
+		grp->append(new MSSetSoundMember(0x3814, nullptr, 60.0f));
+		grp->append(new MSSetSoundMember(0x3815, nullptr, 60.0f));
+		grp->append(new MSSetSoundMember(0x3816, nullptr, 60.0f));
+		grp->append(new MSSetSoundMember(0x3817, nullptr, 60.0f));
+		grp->append(new MSSetSoundMember(0x3818, nullptr, 60.0f));
+		grp->append(new MSSetSoundMember(0x3819, nullptr, 180.0f));
+		grp->append(new MSSetSoundMember(0x381a, nullptr, 180.0f));
+		grp->append(new MSSetSoundMember(0x381b, nullptr, 180.0f));
 		// clang-format on
 	}
 }
