@@ -1495,6 +1495,8 @@ int TTelesaSlot::getSlotResult()
 }
 #pragma dont_inline off
 
+#pragma push
+#pragma dont_inline on
 bool TTelesaSlot::isRollDrum()
 {
 	if (unk198)
@@ -1507,6 +1509,7 @@ bool TTelesaSlot::isRollDrum()
 	unk19B = 0;
 	return FALSE;
 }
+#pragma pop
 
 #pragma dont_inline on
 void TTelesaSlot::forceStopSlot(int idx)
