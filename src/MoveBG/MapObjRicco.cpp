@@ -140,7 +140,7 @@ void TCraneUpDown::control()
 		JGeometry::TVec3<f32>* pos = (JGeometry::TVec3<f32>*)&unk138->mPosition;
 		pos->x                     = 0.0f;
 		pos->y                     = 0.0f;
-		pos->z                     = 100.0f;
+		pos->z                     = 1500.0f;
 		MtxPtr rotY                = getModel()->mNodeMatrices[0];
 		Mtx scratch;
 		PSMTXIdentity(scratch);
@@ -300,8 +300,8 @@ void TRiccoWatermill::control()
 				}
 				if (!unk144) {
 					JGeometry::TVec3<f32> target(
-					    50.0f, mSubmarineMaxTransY + 200.0f, 100.0f);
-					throwObjToFrontFromPoint(unk148, target, 0.0f, 0.0f);
+					    2008.0f, mSubmarineMaxTransY + 500.0f, 7066.0f);
+					throwObjToFrontFromPoint(unk148, target, 20.0f, 20.0f);
 				}
 				unk144 = 1;
 			}
