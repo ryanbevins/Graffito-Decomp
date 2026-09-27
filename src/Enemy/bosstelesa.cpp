@@ -1010,6 +1010,14 @@ void TBossTelesa::generateSlotItem()
 
 void TBossTelesa::rouletteStart()
 {
+	int rolling = 0;
+	for (int i = 0; i < 3; ++i) {
+		TRoulette* roulette = (&unk178)[i];
+		f32 speed           = roulette->unk13C;
+		if (speed != 0.0f)
+			++rolling;
+	}
+
 	TMsRange<f32> speedRange(0.05f, 0.1f);
 	TMsRange<f32> directionRange(-1.0f, 1.0f);
 	f32 dir = directionRange.rand();
