@@ -75,7 +75,8 @@ void TWalker::bind(TLiveActor* param_1)
 	TSpineEnemy* enemy = (TSpineEnemy*)param_1;
 
 	JGeometry::TVec3<f32> lv       = enemy->mLinearVelocity;
-	JGeometry::TVec3<f32> local_30 = enemy->mPosition;
+	JGeometry::TVec3<f32> local_30;
+	local_30 = enemy->mPosition;
 	local_30 += lv;
 	unk1C = 0;
 	if (enemy->checkLiveFlag2(LIVE_FLAG_AIRBORNE)) {

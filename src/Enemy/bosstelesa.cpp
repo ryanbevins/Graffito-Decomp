@@ -558,7 +558,8 @@ void TBossTelesa::moveObject()
 
 	JGeometry::TVec3<f32> cameraPos;
 	cameraPos.set(gpCamera->unk124);
-	JGeometry::TVec3<f32> marioDiff = *gpMarioPos;
+	JGeometry::TVec3<f32> marioDiff;
+	marioDiff = *gpMarioPos;
 	marioDiff.sub(cameraPos);
 	f32 cameraDist = marioDiff.length();
 

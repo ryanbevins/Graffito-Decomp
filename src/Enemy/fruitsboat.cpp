@@ -520,11 +520,13 @@ void TFruitsBoat::moveObject()
 
 	JGeometry::TVec3<f32> dirCopy = dirVec;
 	(void)dirCopy;
-	JGeometry::TVec3<f32> p1 = mPosition;
+	JGeometry::TVec3<f32> p1;
+	p1 = mPosition;
 	p1.x += dirVec.x;
 	p1.y += dirVec.y;
 	p1.z += dirVec.z;
-	JGeometry::TVec3<f32> p2 = mPosition;
+	JGeometry::TVec3<f32> p2;
+	p2 = mPosition;
 	p2.x -= dirVec.x;
 	p2.y -= dirVec.y;
 	p2.z -= dirVec.z;

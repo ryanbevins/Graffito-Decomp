@@ -1236,7 +1236,8 @@ void TMBindShadowManager::calcVtx()
 
 			if (original.x >= groundPos.x
 			    && !(original.z < groundPos.z)) {
-				JGeometry::TVec3<f32> shapeBase = original;
+				JGeometry::TVec3<f32> shapeBase;
+				shapeBase = original;
 				f32 dx                    = groundPos.x - shapeBase.x;
 				f32 dz                    = groundPos.z - shapeBase.z;
 				madeShape                = true;
