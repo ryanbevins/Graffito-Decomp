@@ -293,10 +293,8 @@ BOOL TMario::specMain()
 		return hanging();
 	case 0x3000054c:
 		// hang landing wait
-		if (mInput & 0x4) {
-			startHangLanding(0x208b6);
-			break;
-		}
+		if (mInput & 0x4)
+			return startHangLanding(0x208b6);
 		waitProcess();
 		setAnimation(0, 1.0f);
 		if (isLast1AnimeFrame()) {
@@ -305,10 +303,8 @@ BOOL TMario::specMain()
 		return 0;
 	case 0x3000054e:
 		// hang landing wait 2
-		if (mInput & 0x4) {
-			startHangLanding(0x208b6);
-			break;
-		}
+		if (mInput & 0x4)
+			return startHangLanding(0x208b6);
 		waitProcess();
 		setAnimation(0x1c, 1.0f);
 		if (isLast1AnimeFrame()) {
@@ -317,10 +313,8 @@ BOOL TMario::specMain()
 		return 0;
 	case 0x3000054F:
 		// hang landing wait 3
-		if (mInput & 0x4) {
-			startHangLanding(0x208b6);
-			break;
-		}
+		if (mInput & 0x4)
+			return startHangLanding(0x208b6);
 		waitProcess();
 		setAnimation(0x34, 1.0f);
 		if (isLast1AnimeFrame()) {
