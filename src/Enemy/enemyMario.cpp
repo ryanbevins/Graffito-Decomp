@@ -2253,10 +2253,14 @@ void TEnemyMario::initModel()
 	modelMario->unk10              = 2;
 	modelMario->unk24              = setInfo;
 
-	u8* blendFlags      = new u8[2];
-	blendFlags[0]       = 0;
-	blendFlags[1]       = 2;
-	modelMario->unk1C   = blendFlags;
+	struct BlendFlags {
+		u8 unk0;
+		u8 unk1;
+	};
+	BlendFlags* blendFlags = new BlendFlags;
+	BlendFlags init        = { 0, 2 };
+	*blendFlags            = init;
+	modelMario->unk1C      = (u8*)blendFlags;
 	modelMario->changeMtxCalcSIAnmBQAnmTransform(0, 0, 0x3E);
 	modelMario->changeMtxCalcSIAnmBQAnmTransform(1, 0, 0x41);
 	modelMario->getFrameCtrl(1).setRate(0.0f);
@@ -2289,14 +2293,16 @@ void TEnemyMario::initModel()
 
 	mMultiMtxEffect              = new TMultiMtxEffect;
 	mMultiMtxEffect->mNumBones   = 3;
-	mMultiMtxEffect->mBoneIDs    = new u16[3];
-	mMultiMtxEffect->mBoneIDs[0] = mBoneIDs[0];
-	mMultiMtxEffect->mBoneIDs[1] = mBoneIDs[2];
-	mMultiMtxEffect->mBoneIDs[2] = mBoneIDs[3];
-	mMultiMtxEffect->mMtxEffectType    = new u8[3];
-	mMultiMtxEffect->mMtxEffectType[0] = 0;
-	mMultiMtxEffect->mMtxEffectType[1] = 0;
-	mMultiMtxEffect->mMtxEffectType[2] = 0;
+	u16* boneIDs                 = new u16[3];
+	boneIDs[0]                   = mBoneIDs[0];
+	boneIDs[1]                   = mBoneIDs[2];
+	boneIDs[2]                   = mBoneIDs[3];
+	mMultiMtxEffect->mBoneIDs    = boneIDs;
+	u8* mtxEffectTypes           = new u8[3];
+	mtxEffectTypes[0]            = 0;
+	mtxEffectTypes[1]            = 0;
+	mtxEffectTypes[2]            = 0;
+	mMultiMtxEffect->mMtxEffectType = mtxEffectTypes;
 	mMultiMtxEffect->setup(mModel->getModel(), "Mario");
 }
 
