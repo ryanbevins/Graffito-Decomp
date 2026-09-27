@@ -909,6 +909,8 @@ void TTalk2D2::setupBoardTextBox(const void* data, JMSMesgEntry* entry)
 
 	unk278 += input.getPosition();
 }
+#pragma push
+#pragma dont_inline on
 bool TTalk2D2::eraseBoardWindow()
 {
 	bool result = false;
@@ -930,6 +932,7 @@ bool TTalk2D2::eraseBoardWindow()
 	unk18->mAlpha = alpha;
 	return result;
 }
+#pragma pop
 bool TTalk2D2::eraseNormalWindow()
 {
 	bool result = false;
@@ -1368,6 +1371,8 @@ bool TTalk2D2::openNormalWindow()
 
 	return result;
 }
+#pragma push
+#pragma dont_inline on
 bool TTalk2D2::openBoardWindow()
 {
 	PAD_STACK_TEMP(0x8);
@@ -1394,6 +1399,7 @@ bool TTalk2D2::openBoardWindow()
 
 	return result;
 }
+#pragma pop
 void TTalk2D2::makeBoxLine(s8 line, char* text)
 {
 	int lineIndex = line;
