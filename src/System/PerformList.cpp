@@ -40,10 +40,10 @@ void TPerformList::push_back(const char* param_1, u32 param_2)
 	JDrama::TViewObj* obj
 	    = JDrama::TNameRefGen::search<JDrama::TViewObj>(param_1);
 
-	getChildren().Push_back(new TPerformLink(obj, param_2));
+	Push_back(new TPerformLink(obj, param_2));
 }
 
 void TPerformList::push_back(JDrama::TViewObj* param_1, u32 param_2)
 {
-	getChildren().Push_back(new TPerformLink(param_1, param_2));
+	Push_back(new TPerformLink(param_1, param_2));
 }
