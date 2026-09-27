@@ -854,13 +854,7 @@ void TSamboFlowerManager::loadAfter()
 		if (unitIndex >= mCoinUnitCount)
 			continue;
 
-		TSamboFlowerCoinUnit* unit = mCoinUnits[unitIndex];
-		if (unit->mFlowerCount >= unit->mCapacity)
-			continue;
-
-		unit->mFlowers[unit->mFlowerCount] = flower;
-		flower->unk164                    = &unit->unk1C;
-		++unit->mFlowerCount;
+		mCoinUnits[unitIndex]->addFlower(flower);
 	}
 
 	JDrama::TNameRef::loadAfter();

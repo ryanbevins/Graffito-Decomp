@@ -75,6 +75,15 @@ public:
 	}
 
 	void checkGenCoin();
+	void addFlower(TSamboFlower* flower)
+	{
+		if (mFlowerCount >= mCapacity)
+			return;
+
+		mFlowers[mFlowerCount] = flower;
+		flower->unk164         = &unk1C;
+		++mFlowerCount;
+	}
 
 	/* 0x00 */ TSamboFlower** mFlowers;
 	/* 0x04 */ JGeometry::TVec3<f32> mCenter;
