@@ -108,18 +108,9 @@ bool TMapObjBase::isHideObj(THitActor* param_1)
 
 bool TMapObjBase::isDemo()
 {
-	bool b1 = true;
-	if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
-		b1 = false;
-
-	if (!b1) {
-		bool b2 = true;
-		if (gpMarDirector->unk124 != 3 && gpMarDirector->unk124 != 4)
-			b2 = false;
-		if (!b2)
-			return false;
-	}
-	return true;
+	if (gpMarDirector->isTalkModeNow() || gpMarDirector->checkUnk124Thing2())
+		return true;
+	return false;
 }
 
 void TMapObjBase::loadHideObjInfo(JSUMemoryInputStream& stream, s32* param_2,
