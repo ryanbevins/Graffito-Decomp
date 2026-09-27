@@ -823,8 +823,9 @@ void TMapObjBall::control()
 		tmp[1][3] = tmp[1][3] + unk190;
 		PSMTXCopy(tmp, getModel()->mNodeMatrices[0]);
 	} else {
-		JGeometry::TVec3<f32> v = mVelocity;
-		f32 sq                  = v.x * v.x + v.y * v.y + v.z * v.z;
+		JGeometry::TVec3<f32> v;
+		v        = mVelocity;
+		f32 sq   = v.x * v.x + v.y * v.y + v.z * v.z;
 		if (sq <= 0.0000038146973f && mGroundPlane->mActor == nullptr)
 			return;
 		calcCurrentMtx();
