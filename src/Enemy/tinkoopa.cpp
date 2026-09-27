@@ -89,7 +89,11 @@ static inline int getWaitBck(int index)
 
 static int breakBckTable[] = { 0, 1, 2, 3, 16 };
 
-static int damageBckTable[] = { 5, 6, 7, 8, 16 };
+static inline int getDamageBck(int index)
+{
+	static int table[] = { 5, 6, 7, 8, 16 };
+	return table[index];
+}
 
 static int breakStartFrameTable[] = { 100, 134, 134, 100, 0 };
 
@@ -159,7 +163,7 @@ BOOL TNerveTinKoopaDamage::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TTinKoopa* self = (TTinKoopa*)spine->getBody();
 	if (spine->getTime() == 0) {
-		int bck = damageBckTable[self->unk150];
+		int bck = getDamageBck(self->unk150);
 		self->mMActor->setBckFromIndex(bck);
 		const char** bas = self->getBasNameTable();
 		self->setAnmSound(!bas ? nullptr : bas[bck]);
@@ -170,7 +174,7 @@ BOOL TNerveTinKoopaDamage::execute(TSpineBase<TLiveActor>* spine) const
 		gpCameraShake->startShake(CAM_SHAKE_MODE_UNK6, 1.0f);
 	}
 
-	int damageBck = damageBckTable[self->unk150];
+	int damageBck = getDamageBck(self->unk150);
 	if (self->mMActor->checkCurBckFromIndex(damageBck)
 	    && self->mMActor->curAnmEndsNext(0, 0)) {
 		int waitBck = getWaitBck(self->unk150);
