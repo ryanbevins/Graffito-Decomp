@@ -282,6 +282,14 @@ DEFINE_NERVE(TNerveHanaSamboHide, TLiveActor)
 	return FALSE;
 }
 
+static inline void emitPollenEffect(THanaSambo* self, s32 id, int i)
+{
+	JPABaseEmitter* emitter
+	    = gpMarioParticleManager->emit(id, &self->mPollenPositions[i], 0, nullptr);
+	if (emitter)
+		emitter->setScale(self->mScaling);
+}
+
 DEFINE_NERVE(TNerveHanaSamboDie, TLiveActor)
 {
 	THanaSambo* self = (THanaSambo*)spine->getBody();
@@ -293,18 +301,11 @@ DEFINE_NERVE(TNerveHanaSamboDie, TLiveActor)
 
 		for (int i = 0; i < 4; ++i) {
 			MtxPtr mtx
-			    = self->mMActor->getModel()->mNodeMatrices[jIndexTable[i]];
+			    = self->mMActor->getModel()->getAnmMtx(jIndexTable[i]);
 			self->mPollenPositions[i].set(mtx[0][3], mtx[1][3], mtx[2][3]);
 
-			JPABaseEmitter* emitter = gpMarioParticleManager->emit(
-			    0xE4, &self->mPollenPositions[i], 0, nullptr);
-			if (emitter)
-				emitter->setScale(self->mScaling);
-
-			emitter = gpMarioParticleManager->emit(
-			    0xE6, &self->mPollenPositions[i], 0, nullptr);
-			if (emitter)
-				emitter->setScale(self->mScaling);
+			emitPollenEffect(self, 0xE4, i);
+			emitPollenEffect(self, 0xE6, i);
 		}
 
 		self->onLiveFlag(LIVE_FLAG_DEAD);
