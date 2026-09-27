@@ -1354,9 +1354,9 @@ void TTinKoopaPartsBase::initTinKoopaPartsBase()
 	JGeometry::TVec3<f32> zero(0.0f);
 	unkF4->setUpTrans(zero);
 
-	if (partsBreakModelTable[unkFC] != nullptr) {
-		unk104 = unk100->getActorKeeper()->createMActor(
-		    partsBreakModelTable[unkFC], 0);
+	const char* breakModel = partsBreakModelTable[unkFC];
+	if (breakModel != nullptr) {
+		unk104 = unk100->getActorKeeper()->createMActor(breakModel, 0);
 		unk104->setLightType(1);
 	}
 
