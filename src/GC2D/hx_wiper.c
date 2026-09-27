@@ -2007,6 +2007,7 @@ static void Hx_Test5() {
 		}
 		break;
 	}
+	case 2:
 	default:
 		hx.state = 3;
 		break;
