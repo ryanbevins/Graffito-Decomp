@@ -370,7 +370,11 @@ void TRollEnemy::walkBehavior(int mode, f32 speed)
 
 			if (unk1A0 > unk1B0) {
 				bound();
-				mVelocity = JGeometry::TVec3<f32>(0.0f, unk1A0, 0.0f);
+				JGeometry::TVec3<f32> boundVel;
+				boundVel.x = 0.0f;
+				boundVel.y = unk1A0;
+				boundVel.z = 0.0f;
+				mVelocity  = boundVel;
 				onLiveFlag(LIVE_FLAG_AIRBORNE);
 				mPosition.y += 5.0f;
 				unk1A0 = 0.0f;
