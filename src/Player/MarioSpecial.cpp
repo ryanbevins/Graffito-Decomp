@@ -774,10 +774,7 @@ void TMario::pulling()
 	mModelFaceAngle = mFaceAngle.y;
 
 	// Build next position
-	JGeometry::TVec3<f32> nextPos;
-	nextPos.x = mPosition.x;
-	nextPos.y = mPosition.y;
-	nextPos.z = mPosition.z;
+	JGeometry::TVec3<f32> nextPos = mPosition;
 
 	// Compute pull direction
 	s16 pullAngle = mFaceAngle.y + 0x8000;
@@ -845,9 +842,7 @@ void TMario::pulling()
 		diff = nextPos;
 		diff.sub(mLastSafePos);
 	} else {
-		diff.x = mPosition.x;
-		diff.y = mPosition.y;
-		diff.z = mPosition.z;
+		diff = mPosition;
 		diff.sub(mLastSafePos);
 	}
 
