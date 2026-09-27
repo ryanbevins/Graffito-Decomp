@@ -916,7 +916,8 @@ BOOL TMario::wireRolling()
 	JGeometry::TVec3<f32> diff = mWireEndPos;
 	diff.sub(startPos);
 
-	JGeometry::TVec3<f32> dir = diff;
+	JGeometry::TVec3<f32> dir;
+	dir = diff;
 
 	JGeometry::TVec3<f32> wirePos = startPos;
 	wirePos.add(dir * mWirePosRatio);
@@ -1147,7 +1148,8 @@ BOOL TMario::wireHanging()
 	JGeometry::TVec3<f32> diff = mWireEndPos;
 	diff.sub(startPos);
 
-	JGeometry::TVec3<f32> dir = diff;
+	JGeometry::TVec3<f32> dir;
+	dir = diff;
 
 	JGeometry::TVec3<f32> wirePos = startPos;
 	wirePos.add(dir * mWirePosRatio);
@@ -1359,7 +1361,8 @@ BOOL TMario::wireWait()
 		JGeometry::TVec3<f32> diff     = mWireEndPos;
 		diff.sub(startPos);
 
-		JGeometry::TVec3<f32> dir = diff;
+		JGeometry::TVec3<f32> dir;
+		dir = diff;
 
 		JGeometry::TVec3<f32> wirePos = startPos;
 		wirePos.add(dir * mWirePosRatio);
@@ -1479,7 +1482,8 @@ BOOL TMario::wireSWait()
 		JGeometry::TVec3<f32> diff     = mWireEndPos;
 		diff.sub(startPos);
 
-		JGeometry::TVec3<f32> dir = diff;
+		JGeometry::TVec3<f32> dir;
+		dir = diff;
 
 		JGeometry::TVec3<f32> wirePos = startPos;
 		wirePos.add(dir * mWirePosRatio);
@@ -1858,7 +1862,8 @@ BOOL TMario::moveRoof()
 	diff.y -= mLastSafePos.y;
 	diff.z -= mLastSafePos.z;
 
-	JGeometry::TVec3<f32> dir = diff;
+	JGeometry::TVec3<f32> dir;
+	dir = diff;
 	f32 dist = JGeometry::TUtil<f32>::sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
 
 	f32 speed = dist * mHangRoofParams.mAnmMult.value;
