@@ -65,6 +65,7 @@ static int KillerBodyCallback(J3DNode* node, int when)
 		MtxPtr jointMtx = gpCurKiller->getModel()->getAnmMtx(idx);
 
 		Mtx scaleMtx;
+		Mtx rollMtx;
 		scaleMtx[0][3] = 0.0f;
 		scaleMtx[1][3] = 0.0f;
 		scaleMtx[2][3] = 0.0f;
@@ -82,7 +83,6 @@ static int KillerBodyCallback(J3DNode* node, int when)
 		f32 s = JMASin(gpCurKiller->mRollAnim);
 		f32 c = JMACos(gpCurKiller->mRollAnim);
 
-		Mtx rollMtx;
 		MtxPtr rollMtxPtr = rollMtx;
 		rollMtx[0][0] = c;
 		rollMtx[0][1] = -s;
