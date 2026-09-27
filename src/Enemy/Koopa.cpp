@@ -398,7 +398,7 @@ void TKoopa::init(TLiveManager* manager)
 	if (!mMActor->checkCurBckFromIndex(12)) {
 		mMActor->setBckFromIndex(12);
 		const char** bas = getBasNameTable();
-		setAnmSound(bas ? bas[12] : nullptr);
+		setAnmSound(!bas ? nullptr : bas[12]);
 	}
 
 	if (mMActor->getCurAnmIdx(3) != 1)
