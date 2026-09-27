@@ -975,6 +975,8 @@ void TEnemyMario::hitWater(THitActor* sender)
 	case 0xC:
 	case 0xD:
 		break;
+	case 0x19:
+		return;
 	default:
 		return;
 	}
