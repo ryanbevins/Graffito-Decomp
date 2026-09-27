@@ -407,40 +407,38 @@ bool TPopo::isHitValid(u32 message)
 
 void TPopo::bind()
 {
-	for (int i = 0; i < mCollision->getColNum(); ++i) {
-		THitActor* other = mCollision->getCollision(i);
+	TPopoCollision* col = mCollision;
+	for (int i = 0; i < col->getColNum(); ++i) {
+		THitActor* other = col->getCollision(i);
 		if (other->isActorTypeOf(ACTOR_TYPE_PLAYER))
-			attackToMario();
+			col->mOwner->attackToMario();
 		else
-			behaveToHitOthers(other);
+			col->mOwner->behaveToHitOthers(other);
 	}
 
 	if (checkLiveFlag(LIVE_FLAG_UNK10))
 		return;
 
-	BOOL shouldCheckExplosion = FALSE;
-	if (mSpine->getCurrentNerve() == &TNervePopoPossessedNozzle::theNerve()
-	    && unk198 > 1.2f && mExplosionSw)
-		shouldCheckExplosion = TRUE;
-	else if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
-		shouldCheckExplosion = TRUE;
-	else {
+	if ((mSpine->getCurrentNerve() == &TNervePopoPossessedNozzle::theNerve()
+	     && unk198 > 1.2f && mExplosionSw)
+	    || mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()) {
+		mGroundHeight
+		    = gpMap->checkGround(mPosition.x, mPosition.y + mHeadHeight,
+		                         mPosition.z, &mGroundPlane);
+		if (mPosition.y <= mGroundHeight + 30.0f
+		    || (fabsf(JGeometry::TVec3<f32>(mVelocity).x) < 1.0f
+		        && fabsf(JGeometry::TVec3<f32>(mVelocity).z) < 1.0f))
+			mSpine->pushNerve(&TNervePopoExplosion::theNerve());
+
+		TBGWallCheckRecord record(mPosition.x, mPosition.y, mPosition.z,
+		                          unk198 * (mBodyScale * mWallRadius), 1, 0);
+		if (gpMap->isTouchedWallsAndMoveXZ(&record))
+			mSpine->pushNerve(&TNervePopoExplosion::theNerve());
+		else if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
+			TLiveActor::bind();
+	} else {
 		TLiveActor::bind();
-		return;
 	}
-
-	mGroundHeight = gpMap->checkGround(mPosition.x, mPosition.y + mHeadHeight,
-	                                   mPosition.z, &mGroundPlane);
-	if (mPosition.y <= mGroundHeight + 30.0f
-	    || (fabsf(mVelocity.x) < 1.0f && fabsf(mVelocity.z) < 1.0f))
-		mSpine->pushNerve(&TNervePopoExplosion::theNerve());
-
-	TBGWallCheckRecord record(mPosition.x, mPosition.y, mPosition.z,
-	                          unk198 * (mBodyScale * mWallRadius), 1, 0);
-	if (gpMap->isTouchedWallsAndMoveXZ(&record))
-		mSpine->pushNerve(&TNervePopoExplosion::theNerve());
-	else if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve())
-		TLiveActor::bind();
 }
 
 void TPopo::forceKill()
