@@ -561,12 +561,14 @@ DEFINE_NERVE(TNerveMameGessoThrown, TLiveActor)
 
 		f32 thrownRateXZ = params->mSLThrownRateXZ.get();
 
-		// TODO: ugly matching
-		s16 angle = *gpMarioAngleY & 0xffff;
-		JGeometry::TVec3<f32> vel(
-		    thrownRateXZ * (*gpMarioThrowPower * JMASSin(angle)),
-		    params->mSLThrownVY.get(),
-		    thrownRateXZ * (*gpMarioThrowPower * JMASCos(angle)));
+		int throwAngle   = *gpMarioAngleY;
+		u16 wrappedAngle = (u16)throwAngle;
+		f32 throwPower   = *gpMarioThrowPower;
+		f32 throwSin     = throwPower * JMASSin(wrappedAngle);
+		f32 throwCos     = throwPower * JMASCos(throwAngle);
+		JGeometry::TVec3<f32> vel(thrownRateXZ * throwSin,
+		                          params->mSLThrownVY.get(),
+		                          thrownRateXZ * throwCos);
 
 		self->setVelocity(vel);
 

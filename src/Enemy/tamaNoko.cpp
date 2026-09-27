@@ -863,7 +863,7 @@ DEFINE_NERVE(TNerveTamaNokoThrown, TLiveActor)
 		u16 wrappedAngle = (u16)throwAngle;
 		f32 throwPower   = *gpMarioThrowPower;
 		f32 throwSin     = throwPower * JMASSin(wrappedAngle);
-		f32 throwCos     = throwPower * JMASCos(wrappedAngle);
+		f32 throwCos     = throwPower * JMASCos(throwAngle);
 		f32 thrownRate = params->mSLThrownRateXZ.get();
 		JGeometry::TVec3<f32> velocity(thrownRate * throwSin,
 		                                params->mSLThrownVY.get(),

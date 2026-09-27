@@ -181,7 +181,7 @@ DEFINE_NERVE(TNerveBombHeiThrown, TLiveActor)
 		u16 wrappedAngle          = (u16)throwAngle;
 		f32 throwPower            = *gpMarioThrowPower;
 		f32 throwSin              = throwPower * JMASSin(wrappedAngle);
-		f32 throwCos              = throwPower * JMASCos(wrappedAngle);
+		f32 throwCos              = throwPower * JMASCos(throwAngle);
 		f32 rateXZ                = p->mSLThrownRateXZ.get();
 		JGeometry::TVec3<f32> vel(rateXZ * throwSin, p->mSLThrownVY.get(),
 		                            rateXZ * throwCos);
