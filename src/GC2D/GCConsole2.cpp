@@ -2034,6 +2034,8 @@ void TGCConsole2::endCameraDemo()
 		startAppearCoin();
 }
 
+#pragma push
+#pragma dont_inline on
 void TGCConsole2::startAppearTank()
 {
 	if (unk34[17] || TFlagManager::smInstance->getBool(0x30002)) {
@@ -2054,6 +2056,7 @@ void TGCConsole2::startAppearTank()
 	unk274->getPane()->hide();
 	unk29C->getPane()->hide();
 }
+#pragma pop
 
 void TGCConsole2::startAppearCoin()
 {
