@@ -380,9 +380,12 @@ bool TPopo::isFindMario(float length)
 			TSmallEnemyParams* params = (TSmallEnemyParams*)getSaveParam();
 			JGeometry::TVec3<f32> marioPos;
 			marioPos.set(gpMarioPos->x, gpMarioPos->y, gpMarioPos->z);
-			f32 searchLength = params->getSLSearchLength() * length;
-			f32 searchAngle  = params->getSLSearchAngle() * length;
-			f32 searchAware  = params->getSLSearchAware() * length;
+			f32 searchLength = params->getSLSearchLength();
+			f32 searchAngle  = params->getSLSearchAngle();
+			f32 searchAware  = params->getSLSearchAware();
+			searchLength *= length;
+			searchAngle *= length;
+			searchAware *= length;
 			if (isInSight(marioPos, searchLength, searchAngle, searchAware))
 				return true;
 		}
