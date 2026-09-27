@@ -275,7 +275,7 @@ bool TRollEnemy::isReachedToGoalXZ()
 	if (!unk1A8)
 		diff.y = 0.0f;
 
-	if (MsVECMag2((Vec*)&diff) < 90000.0f)
+	if (MsVECMag2((Vec*)&diff) < 200.0f)
 		return true;
 	return false;
 }
@@ -657,7 +657,7 @@ void TIgaiga::walkBehavior(int mode, f32 speed)
 	}
 
 	f32 rollSpeed = JGeometry::TUtil<f32>::sqrt(x * x + z * z);
-	unk194 += 100.0f * (rollSpeed / (mBodyRadius * unk1CC * unk1E4));
+	unk194 += 4.0f * (rollSpeed / (mBodyRadius * unk1CC * unk1E4));
 
 	if (unk1B4 != 0) {
 		unk1B4++;
