@@ -1361,6 +1361,7 @@ void TTinKoopaPartsBase::initTinKoopaPartsBase()
 	}
 
 	unkF8 = 0;
-	unkF4->setUpTrans(zero);
+	JGeometry::TVec3<f32> zero2(0.0f);
+	unkF4->setUpTrans(zero2);
 }
 #pragma dont_inline off
