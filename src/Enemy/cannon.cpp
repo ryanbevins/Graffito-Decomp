@@ -925,9 +925,7 @@ void TCannon::calcRootMatrix()
 			if (gpMarDirector->checkUnk124Thing2())
 				mRotation.y = -80.0f;
 
-			mPosition.x = takingMtx[0][3];
-			mPosition.y = takingMtx[1][3];
-			mPosition.z = takingMtx[2][3];
+			mPosition.set(takingMtx[0][3], takingMtx[1][3], takingMtx[2][3]);
 			MsMtxSetXYZRPH(getMActor()->getModel()->getBaseTRMtx(),
 			                mPosition.x, mPosition.y, mPosition.z,
 			                (s16)(mRotation.x * 182.04445f),
