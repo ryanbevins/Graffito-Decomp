@@ -521,7 +521,8 @@ void TResetFruit::perform(u32 flags, JDrama::TGraphics* graphics)
 				offLiveFlag(LIVE_FLAG_UNK200);
 			}
 		} else {
-			JGeometry::TVec3<f32> velocity = mVelocity;
+			JGeometry::TVec3<f32> velocity;
+			velocity = mVelocity;
 			if (!velocity.isZero()) {
 				if (checkLiveFlag(LIVE_FLAG_UNK200)) {
 					offLiveFlag(LIVE_FLAG_UNK200);
@@ -670,7 +671,8 @@ void TResetFruit::control()
 			tmp[1][3] = tmp[1][3] + unk190;
 			PSMTXCopy(tmp, getModel()->mNodeMatrices[0]);
 		} else {
-			JGeometry::TVec3<f32> v = mVelocity;
+			JGeometry::TVec3<f32> v;
+			v = mVelocity;
 			f32 sq = v.x * v.x + v.y * v.y + v.z * v.z;
 			if (sq > 0.0000038146973f
 			    || mGroundPlane->mActor != nullptr) {
@@ -1192,7 +1194,8 @@ void TMapObjBall::boundByActor(THitActor* actor)
 		}
 	}
 	if (actor->isActorType(0x80000001) && !(unkF8 & 0x02000000)) {
-		JGeometry::TVec3<f32> vc  = mVelocity;
+		JGeometry::TVec3<f32> vc;
+		vc = mVelocity;
 		JGeometry::TVec3<f32> vc2 = vc;
 		if (vc2.y < 0.0f) {
 			if (mPosition.y + mBodyRadius > 130.0f + gpMarioPos->y) {
@@ -1266,7 +1269,8 @@ void TMapObjBall::checkWallCollision(JGeometry::TVec3<f32>* pos)
 
 void TMapObjBall::touchGround(JGeometry::TVec3<f32>* pos)
 {
-	JGeometry::TVec3<f32> v = mVelocity;
+	JGeometry::TVec3<f32> v;
+	v = mVelocity;
 	f32 mag = JGeometry::TUtil<f32>::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 	f32 absMag              = fabsf(mag);
 	if (absMag > 0.05f) {
@@ -1377,7 +1381,8 @@ void TMapObjBall::touchWall(JGeometry::TVec3<f32>* pos,
                             TBGWallCheckRecord* record)
 {
 	if (!(mLiveFlag & 0x80) && !isActorType(0x400000D0)) {
-		JGeometry::TVec3<f32> v = mVelocity;
+		JGeometry::TVec3<f32> v;
+		v = mVelocity;
 		f32 mag
 		    = JGeometry::TUtil<f32>::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 		mVelocity.y = unk184 * mag + mVelocity.y;
@@ -1399,7 +1404,8 @@ void TMapObjBall::touchWall(JGeometry::TVec3<f32>* pos,
 		mVelocity.z = bd * wall->mNormal.z + mVelocity.z;
 		if (isActorType(0x400000D0)) {
 			if (mScaling.y >= 5.0f) {
-				JGeometry::TVec3<f32> v2 = mVelocity;
+				JGeometry::TVec3<f32> v2;
+				v2 = mVelocity;
 				f32 absMag = __fabsf(JGeometry::TUtil<f32>::sqrt(
 				    v2.x * v2.x + v2.y * v2.y + v2.z * v2.z));
 				if (gpMSound->gateCheck(0x308A)) {
@@ -1408,7 +1414,8 @@ void TMapObjBall::touchWall(JGeometry::TVec3<f32>* pos,
 					    nullptr, 0, 4);
 				}
 			} else {
-				JGeometry::TVec3<f32> v2 = mVelocity;
+				JGeometry::TVec3<f32> v2;
+				v2 = mVelocity;
 				f32 absMag = __fabsf(JGeometry::TUtil<f32>::sqrt(
 				    v2.x * v2.x + v2.y * v2.y + v2.z * v2.z));
 				if (gpMSound->gateCheck(0x308B)) {
@@ -1685,7 +1692,8 @@ void TBigWatermelon::control()
 		tmp[1][3] = tmp[1][3] + unk190;
 		PSMTXCopy(tmp, getModel()->mNodeMatrices[0]);
 	} else {
-		JGeometry::TVec3<f32> v = mVelocity;
+		JGeometry::TVec3<f32> v;
+		v = mVelocity;
 		f32 sq = v.x * v.x + v.y * v.y + v.z * v.z;
 		if (sq > 0.0000038146973f || mGroundPlane->mActor != nullptr) {
 			calcCurrentMtx();
