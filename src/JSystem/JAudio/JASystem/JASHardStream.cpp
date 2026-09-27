@@ -446,7 +446,8 @@ namespace HardStream {
 		if (param_1 < 0.0f)
 			param_1 = 0.0f;
 
-		return param_1 * 255.0f;
+		u8 vol = param_1 * 255.0f;
+		return vol;
 	}
 
 } // namespace HardStream
