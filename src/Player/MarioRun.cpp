@@ -1591,8 +1591,8 @@ BOOL TMario::surfing()
 				s32 hpMax = mDeParams.mHpMax.value;
 				decHP(hpMax);
 				changePlayerStatus(0x000208b3, 0, true);
-				mForwardVel = -mForwardVel * 0.03125f;
-				mVel.y = 0.0f;
+				mForwardVel = -mForwardVel * 0.8f;
+				mVel.y = 50.0f;
 				return;
 			}
 		}
@@ -2077,8 +2077,8 @@ BOOL TMario::catching()
 	}
 
 	J3DFrameCtrl& frameCtrl = getMotionFrameCtrl();
-	if (frameCtrl.getFrame() > 45.0f) {
-		getMotionFrameCtrl().setFrame(45.0f);
+	if (frameCtrl.getFrame() > 50.0f) {
+		getMotionFrameCtrl().setFrame(50.0f);
 	}
 	return false;
 }
@@ -2342,8 +2342,8 @@ int TMario::jumpSlipCommon(short anmId, u32 status)
 		if (mForwardVel * mForwardVel < 1.0f) {
 			setPlayerVelocity(0.0f);
 		}
-	} else if (mForwardVel >= 0.5f) {
-		mForwardVel = FConverge(mForwardVel, 0.0f, 100.0f, 100.0f);
+	} else if (mForwardVel >= 16.0f) {
+		mForwardVel = FConverge(mForwardVel, 0.0f, 4.0f, 4.0f);
 		slopeProcess();
 	} else {
 		mVel.y = 0.0f;
