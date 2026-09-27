@@ -488,7 +488,7 @@ void TAmiNoko::attackToMario()
 		if (!SMS_GetMarioGrPlane()) {
 			break;
 		}
-		if (20.0f + gpMarioPos->y > mPosition.y) {
+		if (5.0f + gpMarioPos->y > mPosition.y) {
 			doAttack = 0;
 		}
 		break;
@@ -567,13 +567,13 @@ void TAmiNoko::calcRootMatrix()
 		    gpMarioParticleManager->emitAndBindToMtxPtr(
 		        0x17D, (MtxPtr)mMActor->unk4->mNodeMatrices, 1, this);
 		if (emitter) {
-			f32 zero = 0.0f;
-			emitter->unk154.x = zero;
-			emitter->unk154.y = zero;
-			emitter->unk154.z = zero;
-			emitter->unk174.x = zero;
-			emitter->unk174.y = zero;
-			emitter->unk174.z = zero;
+			f32 scale = 2.0f;
+			emitter->unk154.x = scale;
+			emitter->unk154.y = scale;
+			emitter->unk154.z = scale;
+			emitter->unk174.x = scale;
+			emitter->unk174.y = scale;
+			emitter->unk174.z = scale;
 		}
 
 		// Extract joint translation for position-bound particle
@@ -584,13 +584,13 @@ void TAmiNoko::calcRootMatrix()
 		JPABaseEmitter* emitter2 =
 		    gpMarioParticleManager->emitAndBindToPosPtr(0x17E, &unk1FC, 1, this);
 		if (emitter2) {
-			f32 zero2 = 0.0f;
-			emitter2->unk154.x = zero2;
-			emitter2->unk154.y = zero2;
-			emitter2->unk154.z = zero2;
-			emitter2->unk174.x = zero2;
-			emitter2->unk174.y = zero2;
-			emitter2->unk174.z = zero2;
+			f32 scale2 = 2.0f;
+			emitter2->unk154.x = scale2;
+			emitter2->unk154.y = scale2;
+			emitter2->unk154.z = scale2;
+			emitter2->unk174.x = scale2;
+			emitter2->unk174.y = scale2;
+			emitter2->unk174.z = scale2;
 		}
 	}
 
@@ -903,7 +903,7 @@ void TAmiNoko::calcRootMatrix()
 
 	Vec rphVec;
 	rphVec.x = 0.0f;
-	rphVec.y = 1.5707963f;
+	rphVec.y = -200.0f;
 	rphVec.z = 0.0f;
 	MsMtxSetRotRPH(*baseMtx, up2.x, up2.y, up2.z);
 	PSMTXMultVec(*baseMtx, &rphVec, &rphVec);
@@ -930,7 +930,7 @@ void TAmiHit::perform(u32 flags, JDrama::TGraphics* graphics)
 
 		offset.normalize();
 
-		f32 scale = 30.0f;
+		f32 scale = 100.0f;
 		offset.x *= scale;
 		offset.y *= scale;
 		offset.z *= scale;
