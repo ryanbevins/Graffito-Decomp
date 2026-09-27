@@ -161,16 +161,16 @@ void TBellWatermill::loadAfter()
 	TMapObjTurn::loadAfter();
 
 	unk150 = 2;
-	unk15C = -7.0f;
-	unk160 = -3.5f;
+	unk15C = -0.02f;
+	unk160 = -0.008f;
 	unk164 = 10.0f;
 	unk18C = 10.0f;
 	unk174 = 1000.0f;
-	unk180 = 4.0f;
-	unk184 = 0.5f;
-	unk16C = 5.0f;
-	unk188 = 1.0f;
-	unk17C = 360.0f;
+	unk180 = 0.15f;
+	unk184 = 0.1f;
+	unk16C = 4.0f;
+	unk188 = 0.5f;
+	unk17C = 1.0f;
 
 	unk194 = (TBiancoBell*)findMapObj("BiaBell 0");
 	unk198 = (TBiancoBell*)findMapObj("BiaBell 1");
@@ -1000,7 +1000,7 @@ void TMapObjRootPakkun::drawObject(JDrama::TGraphics* graphics)
 {
 	TLiveActor::drawObject(graphics);
 
-	if (fabsf(gpMarioPos->z - mPosition.z) < 500.0f) {
+	if (fabsf(gpMarioPos->z - mPosition.z) < 10000.0f) {
 		unk138->movement();
 		bool active;
 		if (mLifeTimer > 0)
