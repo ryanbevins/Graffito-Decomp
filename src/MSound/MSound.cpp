@@ -135,7 +135,7 @@ u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
 		track->unk2C0->readPortAppDirect(8, &parentValue);
 		track->readPortAppDirect(0xF, &targetValue);
 
-		u16 limit = parentValue > smWaterFilter ? parentValue : smWaterFilter;
+		u32 limit = parentValue > smWaterFilter ? parentValue : smWaterFilter;
 		if (limit != targetValue) {
 			track->readPortAppDirect(0xE, &current);
 			if (current > limit)
@@ -172,7 +172,7 @@ u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
 	case 0xD: {
 		u16 parentValue;
 		track->unk2C0->readPortAppDirect(8, &parentValue);
-		u16 value = parentValue > smWaterFilter ? parentValue : smWaterFilter;
+		u32 value = parentValue > smWaterFilter ? parentValue : smWaterFilter;
 		track->writePortAppDirect(0xE, value);
 		track->writePortAppDirect(0xF, value);
 		return 0x7F - value;
