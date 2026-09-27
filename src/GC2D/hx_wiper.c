@@ -1844,6 +1844,8 @@ static void Hx_Test4() {
 			hx.unk38++;
 		}
 		break;
+	case 2:
+		break;
 	}
 }
 static void Hx_Test5() {
