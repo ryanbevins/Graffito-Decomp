@@ -611,8 +611,8 @@ void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
 	if ((param_1 & 4) && mMActor && (unkF8 & 0x400)) {
 		J3DModel* model = getModel();
 		((SDLModel*)model)->viewCalcSimple();
-		requestShadow();
 		param_1 &= ~4;
+		requestShadow();
 	}
 	TLiveActor::perform(param_1, gfx);
 }
