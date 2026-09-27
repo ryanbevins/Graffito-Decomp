@@ -1938,7 +1938,7 @@ void TBPHeadHit::throwActor(THitActor* actor)
 
 	SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
 	SMS_SendMessageToMario(this, HIT_MESSAGE_UNK7);
-	SMS_ThrowMario(throwVec, 60.0f);
+	SMS_ThrowMario(throwVec, 100.0f);
 }
 
 BOOL TBPHeadHit::receiveMessage(THitActor* sender, u32 message)
@@ -2082,7 +2082,7 @@ void TBPTornado::perform(u32 flags, JDrama::TGraphics* graphics)
 
 			JGeometry::TVec3<f32> toTarget = unk70;
 			toTarget -= unk7C;
-			if (PSVECMag((Vec*)&toTarget) < 60.0f) {
+			if (PSVECMag((Vec*)&toTarget) < 100.0f) {
 				onHitFlag(HIT_FLAG_NO_COLLISION);
 				unk98 = 2;
 				J3DFrameCtrl* ctrl = mActor->getFrameCtrl(5);
@@ -2125,7 +2125,7 @@ void TBPTornado::perform(u32 flags, JDrama::TGraphics* graphics)
 					static JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 					SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
 					SMS_SendMessageToMario(this, HIT_MESSAGE_UNK7);
-					SMS_ThrowMario(up, 60.0f);
+					SMS_ThrowMario(up, 100.0f);
 
 					onHitFlag(HIT_FLAG_NO_COLLISION);
 					unk98 = 2;
