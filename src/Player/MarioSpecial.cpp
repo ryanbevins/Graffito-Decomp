@@ -1371,15 +1371,13 @@ BOOL TMario::wireWait()
 	// getOnWirePosAngle inlined
 	{
 		JGeometry::TVec3<f32> startPos = mWireStartPos;
-		JGeometry::TVec3<f32> diff = mWireEndPos;
+		JGeometry::TVec3<f32> diff     = mWireEndPos;
 		diff.sub(startPos);
 
 		JGeometry::TVec3<f32> dir = diff;
-		JGeometry::TVec3<f32> scaled = dir;
-		scaled.scale(mWirePosRatio);
 
 		JGeometry::TVec3<f32> wirePos = startPos;
-		wirePos.add(scaled);
+		wirePos.add(dir * mWirePosRatio);
 
 		mPosition = wirePos;
 		mPosition.y = mPosition.y - 160.0f;
@@ -1391,16 +1389,17 @@ BOOL TMario::wireWait()
 		Mtx mtxResult;
 		PSMTXConcat(mtxY, mtxX, mtxResult);
 
-		Vec sagOffset;
-		sagOffset.x = 0.0f;
-		sagOffset.y = -mWireSag * 1.0f;
-		sagOffset.z = 0.0f;
-		Vec sagResult;
-		PSMTXMultVec(mtxResult, &sagOffset, &sagResult);
+		f32 sagY  = -mWireSag;
+		f32 scale = 1.0f;
+		Vec sag;
+		sag.x = 0.0f;
+		sag.y = sagY * scale;
+		sag.z = 0.0f;
+		PSMTXMultVec(mtxResult, &sag, &sag);
 
-		mPosition.x = mPosition.x + sagResult.x;
-		mPosition.y = mPosition.y + sagResult.y;
-		mPosition.z = mPosition.z + sagResult.z;
+		mPosition.x = mPosition.x + sag.x;
+		mPosition.y = mPosition.y + sag.y;
+		mPosition.z = mPosition.z + sag.z;
 
 		angle = matan(dir.z, dir.x);
 	}
@@ -1492,15 +1491,13 @@ BOOL TMario::wireSWait()
 	// getOnWirePosAngle inlined
 	{
 		JGeometry::TVec3<f32> startPos = mWireStartPos;
-		JGeometry::TVec3<f32> diff = mWireEndPos;
+		JGeometry::TVec3<f32> diff     = mWireEndPos;
 		diff.sub(startPos);
 
 		JGeometry::TVec3<f32> dir = diff;
-		JGeometry::TVec3<f32> scaled = dir;
-		scaled.scale(mWirePosRatio);
 
 		JGeometry::TVec3<f32> wirePos = startPos;
-		wirePos.add(scaled);
+		wirePos.add(dir * mWirePosRatio);
 
 		mPosition = wirePos;
 		mPosition.y = mPosition.y - 160.0f;
@@ -1512,16 +1509,17 @@ BOOL TMario::wireSWait()
 		Mtx mtxResult;
 		PSMTXConcat(mtxY, mtxX, mtxResult);
 
-		Vec sagOffset;
-		sagOffset.x = 0.0f;
-		sagOffset.y = -mWireSag * 1.0f;
-		sagOffset.z = 0.0f;
-		Vec sagResult;
-		PSMTXMultVec(mtxResult, &sagOffset, &sagResult);
+		f32 sagY  = -mWireSag;
+		f32 scale = 1.0f;
+		Vec sag;
+		sag.x = 0.0f;
+		sag.y = sagY * scale;
+		sag.z = 0.0f;
+		PSMTXMultVec(mtxResult, &sag, &sag);
 
-		mPosition.x = mPosition.x + sagResult.x;
-		mPosition.y = mPosition.y + sagResult.y;
-		mPosition.z = mPosition.z + sagResult.z;
+		mPosition.x = mPosition.x + sag.x;
+		mPosition.y = mPosition.y + sag.y;
+		mPosition.z = mPosition.z + sag.z;
 
 		angle = matan(dir.z, dir.x);
 	}
