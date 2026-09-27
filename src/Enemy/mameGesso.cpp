@@ -566,9 +566,10 @@ DEFINE_NERVE(TNerveMameGessoThrown, TLiveActor)
 		f32 throwPower   = *gpMarioThrowPower;
 		f32 throwSin     = throwPower * JMASSin(wrappedAngle);
 		f32 throwCos     = throwPower * JMASCos(throwAngle);
-		JGeometry::TVec3<f32> vel(thrownRateXZ * throwSin,
-		                          params->mSLThrownVY.get(),
-		                          thrownRateXZ * throwCos);
+		JGeometry::TVec3<f32> vel;
+		vel.x = thrownRateXZ * throwSin;
+		vel.y = params->mSLThrownVY.get();
+		vel.z = thrownRateXZ * throwCos;
 
 		self->setVelocity(vel);
 
