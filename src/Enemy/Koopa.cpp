@@ -262,17 +262,25 @@ void TKoopaHand::attack_(THitActor* actor) { actor->receiveMessage(this, 0xE); }
 
 BOOL TKoopaHand::receiveMessage(THitActor* sender, u32 message) { return TRUE; }
 
+static inline void changeKoopaAnm(TKoopa* koopa, int bck, int btp, f32 rate)
+{
+	koopa->changeAnm(bck, btp, rate);
+}
+
 void TKoopaFlame::attack_(THitActor* actor)
 {
 	if (actor->receiveMessage(this, 0xA)) {
 		if (actor == (THitActor*)gpMarioAddress) {
-			TKoopaParams* params
-			    = (TKoopaParams*)((TEnemyManager*)mOwner->mManager)->unk38;
-			f32 jump = params->flameJump.value;
+			f32 jump
+			    = ((TKoopaParams*)((TEnemyManager*)mOwner->mManager)->unk38)
+			          ->flameJump.value;
 			JGeometry::TVec3<f32> throwVec(0.0f, 1.0f, 0.0f);
 			SMS_ThrowMario(throwVec, jump);
 			mOwner->unk155 = 1;
-			mOwner->changeAnm(3, 0, params->fireSpeed.value);
+			changeKoopaAnm(
+			    mOwner, 3, 0,
+			    ((TKoopaParams*)((TEnemyManager*)mOwner->mManager)->unk38)
+			        ->fireSpeed.value);
 			mOwner->unk19C = 240;
 		}
 	}
