@@ -87,7 +87,11 @@ static inline int getWaitBck(int index)
 	return table[index];
 }
 
-static int breakBckTable[] = { 0, 1, 2, 3, 16 };
+static inline int getBreakBck(int index)
+{
+	static int table[] = { 0, 1, 2, 3, 16 };
+	return table[index];
+}
 
 static inline int getDamageBck(int index)
 {
@@ -95,9 +99,17 @@ static inline int getDamageBck(int index)
 	return table[index];
 }
 
-static int breakStartFrameTable[] = { 100, 134, 134, 100, 0 };
+static inline int getBreakStartFrame(int index)
+{
+	static int table[] = { 100, 134, 134, 100, 0 };
+	return table[index];
+}
 
-static int breakPartIndexTable[] = { 2, 3, 4, 1, 2 };
+static inline int getBreakPartIndex(int index)
+{
+	static int table[] = { 2, 3, 4, 1, 2 };
+	return table[index];
+}
 
 static const char* breastTrackJointNameTable[] = {
 	"breast_1", "breast_2", "breast_3", "breast_4", "breast_5", "breast_6",
@@ -191,7 +203,7 @@ BOOL TNerveTinKoopaBreak::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TTinKoopa* self = (TTinKoopa*)spine->getBody();
 	if (spine->getTime() == 0) {
-		int bck = breakBckTable[self->unk150];
+		int bck = getBreakBck(self->unk150);
 		self->mMActor->setBckFromIndex(bck);
 		const char** bas = self->getBasNameTable();
 		self->setAnmSound(!bas ? nullptr : bas[bck]);
@@ -207,10 +219,10 @@ BOOL TNerveTinKoopaBreak::execute(TSpineBase<TLiveActor>* spine) const
 		}
 	}
 
-	int breakBck = breakBckTable[self->unk150];
+	int breakBck = getBreakBck(self->unk150);
 	if (self->mMActor->checkCurBckFromIndex(breakBck)) {
 		TTinKoopaPartsBase* part
-		    = self->unk1CC[breakPartIndexTable[self->unk150]];
+		    = self->unk1CC[getBreakPartIndex(self->unk150)];
 		if (self->mMActor->curAnmEndsNext(0, 0)) {
 			part->unkF4->remove();
 			++self->unk150;
@@ -274,7 +286,7 @@ BOOL TNerveTinKoopaBreak::execute(TSpineBase<TLiveActor>* spine) const
 		}
 
 		if (!part->unkF8) {
-			int frame = breakStartFrameTable[self->unk150];
+			int frame = getBreakStartFrame(self->unk150);
 			if (self->mMActor->getFrameCtrl(0)->checkPass((f32)frame)) {
 				self->unk1E4 = part;
 				self->unk1E4->startBreaking();
