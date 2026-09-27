@@ -1699,12 +1699,12 @@ void TTelesaSlot::calcRootMatrix()
 {
 	u8 rolling = 0;
 
-	if (getDrumSpeeds()[0] != 0.0f)
-		rolling = 1;
-	if (getDrumSpeeds()[1] != 0.0f)
-		rolling = 1;
-	if (getDrumSpeeds()[2] != 0.0f)
-		rolling = 1;
+	for (int i = 0; i < 3; ++i)
+	{
+		f32 speed = getDrumSpeeds()[i];
+		if (speed != 0.0f)
+			rolling = 1;
+	}
 
 	if (rolling) {
 		if (unk1E0) {
