@@ -179,9 +179,7 @@ void TMario::checkDescent()
 	const TBGCheckData* groundPlane;
 	checkGroundPlane(wallRecord.mCenter.x, 30.0f + mPosition.y, wallRecord.mCenter.z, &groundY, &groundPlane);
 
-	if (!(groundPlane->mFlags & 0x10)) {
-		isOnIllegal = zero;
-	}
+	isOnIllegal = (groundPlane->mFlags & 0x10) ? isOnIllegal : zero;
 
 	if (isOnIllegal)
 		return;
