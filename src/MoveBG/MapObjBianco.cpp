@@ -954,7 +954,7 @@ u32 TBiancoWatermillVertical::touchWater(THitActor* water)
 
 TBiancoWatermill::TBiancoWatermill(const char* name)
     : TMapObjBase(name)
-    , unk138(10000.0f)
+    , unk138(0.3f)
     , unk13C(nullptr)
 {
 }
