@@ -311,7 +311,7 @@ static inline void updateWaterGaugeFill(TGCConsole2* console)
 	u8 currentNozzle    = waterGun->mCurrentNozzle;
 	f32 fill;
 
-	if (console->unk2F8->isInterpolatorAtZero() && !console->unk34[17]
+	if (console->unk2F8->isInterpolatorAtZero() && !console->unk45
 	    && currentNozzle != console->unk310)
 		SET_CURRENT_NOZZLE_PANES(console, currentNozzle);
 
@@ -488,10 +488,10 @@ static inline void processBalloonTextStep(TGCConsole2* console)
 
 static inline bool startLifeMeterDisappear(TGCConsole2* console, u16 frame)
 {
-	if (console->unk34[4] || console->unk34[24])
+	if (console->unk38 || console->unk4C)
 		return false;
 
-	console->unk34[24] = 1;
+	console->unk4C = 1;
 	int offset = -(console->unk1C4->unk4.y2 + 1
 	               + console->unk174->getPane()->getBounds().getHeight());
 	console->unk1C4->setPanePosition(40, JUTPoint(0, offset),
@@ -631,7 +631,7 @@ static inline void updateLifeMeterState(TGCConsole2* console)
 	case 1:
 		if (console->processAppearLife(console->unk84++)) {
 			console->unk18    = 2;
-			console->unk34[4] = 0;
+			console->unk38 = 0;
 		}
 		if (airTimeout
 		    && startLifeMeterDisappear(console, console->unk84 == 0 ? 0 : 1))
@@ -649,7 +649,7 @@ static inline void updateLifeMeterState(TGCConsole2* console)
 	case 3:
 		if (console->unk84 > 0x78) {
 			if (console->unk1C4->update()) {
-				console->unk34[24] = 0;
+				console->unk4C = 0;
 				console->unk18     = 0;
 			}
 		} else {
@@ -667,7 +667,7 @@ static inline void updateLifeMeterState(TGCConsole2* console)
 	case 6:
 		if (console->processAppearLife(console->unk84)) {
 			console->unk18    = 5;
-			console->unk34[4] = 0;
+			console->unk38 = 0;
 		}
 		if (!underwater && console->unk84 == 0)
 			console->unk84 = 1;
@@ -691,7 +691,7 @@ static inline void updateLifeMeterState(TGCConsole2* console)
 	case 8:
 		if (console->unk84 > 0x78) {
 			if (console->unk1C4->update()) {
-				console->unk34[24] = 0;
+				console->unk4C = 0;
 				if (mario->mHealth == 8) {
 					console->unk18 = 0;
 				} else {
@@ -707,9 +707,9 @@ static inline void updateLifeMeterState(TGCConsole2* console)
 		}
 		break;
 	case 10:
-		if (console->unk34[28]) {
+		if (console->unk50) {
 			if (console->unk1C4->update())
-				console->unk34[24] = 0;
+				console->unk4C = 0;
 		} else if (mario->mHealth != 8) {
 			console->startInsertLife(0);
 			console->unk18 = 7;
@@ -940,7 +940,7 @@ static inline void updateCoinCounterAnimation(TGCConsole2* console)
 	}
 
 	bool done = true;
-	if (!console->unk34[0]) {
+	if (!console->unk34) {
 		for (int i = 0; i < 3; ++i)
 			done = console->unkD4[i]->update() && done;
 	}
@@ -1047,7 +1047,7 @@ static inline void updateCounterState(TGCConsole2* console)
 
 	bool waitForStarHud = gpMarioOriginal->mAction == 0xC400201
 	                      && gpMarDirector->mState != TMarDirector::STATE_UNK5
-	                      && !console->unk34[28]
+	                      && !console->unk50
 	                      && !console->unk140->isInterpolatorAtZero();
 	if (waitForStarHud) {
 		++console->unk30;
@@ -1146,7 +1146,7 @@ static inline void updateCounterState(TGCConsole2* console)
 				++console->unk64;
 				console->unk8A = 0xFB;
 			}
-		} else if (!console->unk34[0] && !console->unk34[1]) {
+		} else if (!console->unk34 && !console->unk35) {
 			console->unk134[0]->update();
 			console->unk134[1]->update();
 			console->unk134[2]->update();
@@ -1158,7 +1158,7 @@ static inline void updateCounterState(TGCConsole2* console)
 
 static inline void updateStarHudAutoHide(TGCConsole2* console)
 {
-	if (console->unk34[0])
+	if (console->unk34)
 		return;
 	if (!console->unk140->isInterpolatorAtZero())
 		return;
@@ -1167,13 +1167,13 @@ static inline void updateStarHudAutoHide(TGCConsole2* console)
 	if (gpMarDirector->mState == TMarDirector::STATE_UNK5
 	    || gpMarDirector->mState == TMarDirector::STATE_UNK11)
 		return;
-	if (console->unk34[28] || console->unk16C != 0 || console->unk8A != 0)
+	if (console->unk50 || console->unk16C != 0 || console->unk8A != 0)
 		return;
 	if (gpMarDirector->unk124 == 2)
 		return;
 
 	console->startDisappearStar();
-	if (console->unk3A8->getPane()->isVisible() && !console->unk34[7])
+	if (console->unk3A8->getPane()->isVisible() && !console->unk3B)
 		console->startDisappearMario();
 	console->unk5A = 0;
 }
@@ -1383,6 +1383,36 @@ TGCConsole2::TGCConsole2(const char* name)
     , unk28(0)
     , unk2C(0)
     , unk30(0xfffffe70)
+    , unk34(0)
+    , unk35(0)
+    , unk36(0)
+    , unk37(0)
+    , unk38(0)
+    , unk39(0)
+    , unk3A(0)
+    , unk3B(0)
+    , unk3C(0)
+    , unk3D(0)
+    , unk3E(0)
+    , unk3F(0)
+    , unk40(0)
+    , unk41(0)
+    , unk42(0)
+    , unk43(0)
+    , unk44(0)
+    , unk45(0)
+    , unk46(0)
+    , unk47(0)
+    , unk48(0)
+    , unk49(0)
+    , unk4A(0)
+    , unk4B(0)
+    , unk4C(0)
+    , unk4D(0)
+    , unk4E(0)
+    , unk4F(0)
+    , unk50(0)
+    , unk51(0)
     , unk54(0)
     , unk58(0)
     , unk59(0)
@@ -1479,9 +1509,6 @@ TGCConsole2::TGCConsole2(const char* name)
     , unk56D(1)
     , unk570(nullptr)
 {
-	for (int i = 0; i < 30; ++i)
-		unk34[i] = 0;
-
 	for (int i = 0; i < 3; ++i)
 		unkD4[i] = nullptr;
 
@@ -1760,7 +1787,7 @@ void TGCConsole2::loadAfter()
 	unk3AC[0] = lives;
 	setTwoDigits(unk39C, unkE0, lives);
 
-	unk34[5] = 1;
+	unk39 = 1;
 
 	unk2F8->getPane()->hide();
 	unk3A8->getPane()->hide();
@@ -1867,28 +1894,28 @@ void TGCConsole2::startCameraDemo()
 		unk44C->getPane()->hide();
 		unk3FC->getPane()->hide();
 		unk428->getPane()->hide();
-		unk34[18] = 0;
+		unk46 = 0;
 		unk59     = 0;
 		unk5A     = 0;
 		return;
 	}
 
-	if (unk34[28])
+	if (unk50)
 		return;
 
-	if (!TFlagManager::smInstance->getBool(0x30002) && unk34[5])
+	if (!TFlagManager::smInstance->getBool(0x30002) && unk39)
 		return;
 
-	unk34[28] = 1;
+	unk50 = 1;
 
-	if (!unk34[15] && unk520->getPane()->isVisible()) {
-		unk34[15] = 1;
+	if (!unk43 && unk520->getPane()->isVisible()) {
+		unk43 = 1;
 		unk5A     = 1;
 		unk520->updatePaneOffset(80, 0, getOffsetForBelowScreen(unk520));
 	}
 
-	if (!unk34[4] && !unk34[24]) {
-		unk34[24] = 1;
+	if (!unk38 && !unk4C) {
+		unk4C = 1;
 		int offset = -(unk1C4->unk4.y2 + 1
 		               + unk174->getPane()->getBounds().getHeight());
 		unk1C4->setPanePosition(40, JUTPoint(0, 0),
@@ -1898,7 +1925,7 @@ void TGCConsole2::startCameraDemo()
 	}
 
 	unk18     = 10;
-	unk34[20] = 0;
+	unk48 = 0;
 
 	unk274->setPanePosition(1, JUTPoint(0, 0), JUTPoint(0, 0),
 	                         JUTPoint(0, 0));
@@ -1920,7 +1947,7 @@ void TGCConsole2::startCameraDemo()
 	}
 
 	if (hideTank) {
-		unk34[23] = 1;
+		unk4B = 1;
 		unk5A     = 1;
 
 		int offset = getOffsetForBelowScreen(unk2F8) + 60;
@@ -1928,16 +1955,16 @@ void TGCConsole2::startCameraDemo()
 		JUTPoint start(0, 0);
 		JUTPoint middle(0, offset >> 1);
 		JUTPoint end(0, offset);
-		unk34[20] = 0;
+		unk48 = 0;
 
 		unk274->setPanePosition(40, start, middle, end);
 		unk270->setPanePosition(40, start, middle, end);
 		unk26C->setPanePosition(40, start, middle, end);
 	}
 
-	if (unk3A8->getPane()->isVisible() && !unk34[7]) {
+	if (unk3A8->getPane()->isVisible() && !unk3B) {
 		unk3A8->updatePaneOffset(50, 0, getOffsetForAboveScreen(unk3A8));
-		unk34[7] = 1;
+		unk3B = 1;
 	}
 
 	startDownLeftBot();
@@ -1962,9 +1989,9 @@ void TGCConsole2::startCameraDemo()
 
 	unk144->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
 	unk164->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
-	unk34[1]  = 1;
+	unk35  = 1;
 	unk5A     = 1;
-	unk34[25] = 1;
+	unk4D = 1;
 	unk5A     = 1;
 
 	if (unk140->isInterpolatorAtZero()) {
@@ -1983,7 +2010,7 @@ void TGCConsole2::startCameraDemo()
 
 void TGCConsole2::endCameraDemo()
 {
-	if (unk34[5] || !unk34[28])
+	if (unk39 || !unk50)
 		return;
 
 	if (unkB6 < 3) {
@@ -1991,11 +2018,11 @@ void TGCConsole2::endCameraDemo()
 		return;
 	}
 
-	unk34[28] = 0;
+	unk50 = 0;
 
-	if (!unk2F8->isInterpolatorAtZero() && !unk34[17]
+	if (!unk2F8->isInterpolatorAtZero() && !unk45
 	    && !TFlagManager::smInstance->getBool(0x30002)) {
-		unk34[17] = 1;
+		unk45 = 1;
 		unk59     = 1;
 		unk7C     = 0;
 
@@ -2010,8 +2037,8 @@ void TGCConsole2::endCameraDemo()
 		unk29C->getPane()->hide();
 	}
 
-	unk34[12] = 1;
-	unk34[13] = 0;
+	unk40 = 1;
+	unk41 = 0;
 	unk59     = 1;
 
 	if (unk51C) {
@@ -2038,12 +2065,12 @@ void TGCConsole2::endCameraDemo()
 #pragma dont_inline on
 void TGCConsole2::startAppearTank()
 {
-	if (unk34[17] || TFlagManager::smInstance->getBool(0x30002)) {
+	if (unk45 || TFlagManager::smInstance->getBool(0x30002)) {
 		return;
 	}
 
 	// Codegen note: register allocation differs, but the raw offsets match.
-	unk34[17] = 1;
+	unk45 = 1;
 	unk59     = 1;
 	unk7C     = 0;
 
@@ -2064,7 +2091,7 @@ void TGCConsole2::startAppearCoin()
 		return;
 	}
 
-	unk34[27] = 1;
+	unk4F = 1;
 	unk59     = 1;
 	unk88     = 0;
 
@@ -2084,7 +2111,7 @@ void TGCConsole2::startAppearCoin()
 
 void TGCConsole2::startDisappearCoin()
 {
-	unk34[25] = true;
+	unk4D = true;
 	unk5A     = true;
 
 	if (unk140->isInterpolatorAtZero()) {
@@ -2153,7 +2180,7 @@ void TGCConsole2::startInsertLife(int param_1)
 		}
 	}
 
-	unk34[29] = 1;
+	unk51 = 1;
 	unk84     = 0;
 
 	TBoundPane* lifePane = unk1C4;
@@ -2190,7 +2217,7 @@ void TGCConsole2::resetLife(int param_1)
 
 bool TGCConsole2::startAppearLife(int param_1)
 {
-	if (unk34[4] || unk34[28] || gpMarioOriginal->mHealth == 0)
+	if (unk38 || unk50 || gpMarioOriginal->mHealth == 0)
 		return false;
 
 	if (param_1 == 0) {
@@ -2245,7 +2272,7 @@ bool TGCConsole2::startAppearLife(int param_1)
 		}
 	}
 
-	unk34[4] = 1;
+	unk38 = 1;
 	unk84    = 0;
 	unk1C4->getPane()->add(unk1C8, unk1CA);
 	return true;
@@ -2253,12 +2280,12 @@ bool TGCConsole2::startAppearLife(int param_1)
 
 void TGCConsole2::startDownLeftBot()
 {
-	if (unk34[13]) {
+	if (unk41) {
 		return;
 	}
 
-	unk34[13] = 1;
-	unk34[12] = 0;
+	unk41 = 1;
+	unk40 = 0;
 	unk5A     = 1;
 
 	if (unk44C->getPane()->isVisible() && unk44C->isInterpolatorAtZero()) {
@@ -2279,7 +2306,7 @@ void TGCConsole2::startDownLeftBot()
 
 void TGCConsole2::startAppearTelop(bool param_1)
 {
-	if (unk34[28]) {
+	if (unk50) {
 		return;
 	}
 	if (unk530->unk4 == nullptr) {
@@ -2288,11 +2315,11 @@ void TGCConsole2::startAppearTelop(bool param_1)
 	if (unk570 == 0 || unk44C->getPane()->isVisible()) {
 		return;
 	}
-	if (!(param_1 || unk34[16])) {
+	if (!(param_1 || unk44)) {
 		return;
 	}
 
-	unk34[14] = 1;
+	unk42 = 1;
 	unk59     = 1;
 	unk56D    = 1;
 	unk520->getPane()->show();
@@ -2319,11 +2346,11 @@ void TGCConsole2::startAppearTelop(bool param_1)
 
 void TGCConsole2::startDisappearTelop()
 {
-	if (unk34[15] || !unk520->getPane()->isVisible()) {
+	if (unk43 || !unk520->getPane()->isVisible()) {
 		return;
 	}
 
-	unk34[15] = 1;
+	unk43 = 1;
 	unk5A     = 1;
 
 	unk520->updatePaneOffset(80, 0, getOffsetForBelowScreen(unk520));
@@ -2332,7 +2359,7 @@ void TGCConsole2::startDisappearTelop()
 void TGCConsole2::startDisappearTimer()
 {
 	unk44C->updatePaneOffset(40, 0, getOffsetForBelowScreen(unk44C) + 60);
-	unk34[11] = 1;
+	unk3F = 1;
 	unk5A     = 1;
 }
 
@@ -2370,7 +2397,7 @@ void TGCConsole2::startAppearTimer(int param_1, s32 param_2)
 
 void TGCConsole2::startInsertTimer()
 {
-	unk34[10] = 1;
+	unk3E = 1;
 
 	for (int i = 0; i < 10; i++) {
 		unk458[i]->getPane()->hide();
@@ -2417,7 +2444,7 @@ void TGCConsole2::startAppearJetBalloon(int nozzleKind, int count)
 
 void TGCConsole2::startInsertJetBalloon()
 {
-	unk34[9] = 1;
+	unk3D = 1;
 	unk59    = 1;
 
 	unk3FC->getPane()->show();
@@ -2441,7 +2468,7 @@ void TGCConsole2::startInsertJetBalloon()
 
 void TGCConsole2::startAppearRedCoin()
 {
-	unk34[8] = 1;
+	unk3C = 1;
 	unk59    = 1;
 
 	unk428->getPane()->show();
@@ -2477,8 +2504,8 @@ void TGCConsole2::pauseOut()
 {
 	startAppearTelop(false);
 
-	unk34[12] = 1;
-	unk34[13] = 0;
+	unk40 = 1;
+	unk41 = 0;
 	unk59     = 1;
 
 	if (unk51C) {
@@ -2508,7 +2535,7 @@ bool TGCConsole2::startDisappearBalloon(u32 param_1, bool param_2)
 		return false;
 
 	unk3B8->hide();
-	unk34[20] = 0;
+	unk48 = 0;
 	unk10     = 4;
 	return true;
 }
@@ -2527,7 +2554,7 @@ bool TGCConsole2::startAppearBalloon(u32 messageID, bool param_2)
 			unk3F4 = messageID;
 			if (unk3F4 != 0xffffffff || unk3E4 == 0) {
 				unk3B8->hide();
-				unk34[20] = 0;
+				unk48 = 0;
 				unk10     = 4;
 			}
 			return true;
@@ -2535,7 +2562,7 @@ bool TGCConsole2::startAppearBalloon(u32 messageID, bool param_2)
 		return false;
 	}
 
-	if (gpMarDirector->mState == TMarDirector::STATE_UNK5 || !unk34[18])
+	if (gpMarDirector->mState == TMarDirector::STATE_UNK5 || !unk46)
 		return false;
 
 	unk3F0         = entry->unk4;
@@ -2567,7 +2594,7 @@ bool TGCConsole2::startAppearBalloon(u32 messageID, bool param_2)
 	if (unk3E4 <= 0)
 		unk3E4 = 1;
 
-	unk34[20] = 1;
+	unk48 = 1;
 	unk14     = 0;
 	unk10     = 1;
 
@@ -2589,23 +2616,23 @@ void TGCConsole2::startDisappearStar()
 	unk144->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
 	unk164->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
 
-	unk34[1] = 1;
+	unk35 = 1;
 	unk5A    = 1;
 }
 
 void TGCConsole2::startAppearStar()
 {
-	if (unk34[0] || unk140->isInterpolatorAtZero())
+	if (unk34 || unk140->isInterpolatorAtZero())
 		return;
 
 	unk59 = 1;
 
-	if (unk34[1]) {
+	if (unk35) {
 		unk140->getPane()->hide();
 		unk160->getPane()->hide();
 		unk144->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
 		unk164->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
-		unk34[1] = 0;
+		unk35 = 0;
 	}
 
 	unk140->setPaneOffset(40, 0, 0, 0, getOffsetForAboveScreen(unk140));
@@ -2639,7 +2666,7 @@ void TGCConsole2::startAppearStar()
 	unk164->clearStatus(JPABaseEmitter::STATUS_STOP_EMIT);
 
 	unk5C    = 0;
-	unk34[0] = 1;
+	unk34 = 1;
 }
 
 void TGCConsole2::drawWaterBack()
@@ -2680,14 +2707,14 @@ void TGCConsole2::drawWaterBack()
 		GXPosition2f32(bounds.x1, fillTop);
 		GXTexCoord2f32(0.0f, hiddenRatio);
 
-		if (!unk34[28] && pressure != 0.0f && !unk34[20]) {
+		if (!unk50 && pressure != 0.0f && !unk48) {
 			unk14      = 1;
-			unk34[20] = 1;
+			unk48 = 1;
 		}
 
 		if (pressure == pressureMax) {
-			if (unk34[21])
-				unk34[21] = 0;
+			if (unk49)
+				unk49 = 0;
 
 			u32 color = 0xff3f3f00;
 			if (unk30C < 10) {
@@ -2722,11 +2749,11 @@ void TGCConsole2::drawWaterBack()
 		GXPosition2f32(bounds.x1, bounds.y2);
 		GXTexCoord2f32(0.0f, 1.0f);
 	} else {
-		if (unk34[20] && unk30C != 0) {
+		if (unk48 && unk30C != 0) {
 			unk274->setPanePosition(90, JUTPoint(0, 0), JUTPoint(0, -100),
 			                         JUTPoint(0, 0));
 			unk30C    = 0;
-			unk34[21] = 1;
+			unk49 = 1;
 		}
 
 		GXBegin(GX_QUADS, GX_VTXFMT0, 4);
@@ -2746,16 +2773,16 @@ void TGCConsole2::drawWaterBack()
 
 void TGCConsole2::startDisappearMario()
 {
-	if (!unk3A8->getPane()->isVisible() || unk34[7])
+	if (!unk3A8->getPane()->isVisible() || unk3B)
 		return;
 
 	unk3A8->updatePaneOffset(50, 0, getOffsetForAboveScreen(unk3A8));
-	unk34[7] = 1;
+	unk3B = 1;
 }
 
 void TGCConsole2::startAppearMario(bool param_1)
 {
-	if (unk3A8->getPane()->isVisible() && !unk34[7])
+	if (unk3A8->getPane()->isVisible() && !unk3B)
 		return;
 
 	unk3A8->getPane()->show();
@@ -2780,9 +2807,9 @@ void TGCConsole2::startAppearMario(bool param_1)
 		    ->changeTexture(unkE0[lives % 10]->getTexInfo(), 0);
 	}
 
-	unk34[6]  = 1;
+	unk3A  = 1;
 	unk3AC[1] = param_1;
-	unk34[7]  = 0;
+	unk3B  = 0;
 	unk59     = 1;
 	unk70     = 0;
 }
@@ -2792,7 +2819,7 @@ void TGCConsole2::processMoveNozzle()
 	if (!unk274->update())
 		return;
 
-	if (!unk34[20])
+	if (!unk48)
 		return;
 
 	switch (unk14) {
@@ -2811,7 +2838,7 @@ void TGCConsole2::processMoveNozzle()
 	case 2:
 		unk274->setPanePosition(30, JUTPoint(0, 0), JUTPoint(0, -25),
 		                         JUTPoint(0, 0));
-		unk34[20] = 0;
+		unk48 = 0;
 		break;
 	}
 }
@@ -2890,16 +2917,16 @@ void TGCConsole2::setTimer(s32 param_1)
 
 void TGCConsole2::startMoveTimer(int param_1)
 {
-	unk34[22] = 1;
+	unk4A = 1;
 	unk518    = param_1 * 100;
 }
 
 void TGCConsole2::stopMoveTimer()
 {
-	if (unk34[22] == 0)
+	if (unk4A == 0)
 		return;
 
-	unk34[22] = 0;
+	unk4A = 0;
 }
 
 int TGCConsole2::getFinishedTime() { return unk4FC; }
@@ -3016,8 +3043,8 @@ bool TGCConsole2::processAppearStar(int param_1)
 	for (int i = 0; i < 3; ++i) {
 		if (param_1 == i * 6 + 28) {
 			if (i == 2) {
-				if ((!unk34[28] && shines >= 100)
-				    || (shines > 100 && unk34[28]))
+				if ((!unk50 && shines >= 100)
+				    || (shines > 100 && unk50))
 					unk134[i]->getPane()->show();
 			} else {
 				unk134[i]->getPane()->show();
@@ -4015,7 +4042,7 @@ bool TGCConsole2::processDisappearBalloon()
 
 void TGCConsole2::drawJuice(J2DOrthoGraph& graph, u32 color)
 {
-	if (unk34[0x1C])
+	if (unk50)
 		return;
 
 	Mtx mtx;
@@ -4167,7 +4194,7 @@ void TGCConsole2::drawWater(J2DOrthoGraph& graph)
 void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if (flags & 1) {
-		if (!unk34[28]) {
+		if (!unk50) {
 			if (isConsoleDemoCameraActive() || SMS_CheckMarioFlag(0x400)
 			    || (!unk3AC[1]
 			        && TFlagManager::smInstance->getBool(0x30002)))
@@ -4177,9 +4204,9 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 			endCameraDemo();
 		}
 
-		if (unk34[12]) {
+		if (unk40) {
 			bool done = true;
-			if (!unk34[11] && unk44C->getPane()->isVisible()
+			if (!unk3F && unk44C->getPane()->isVisible()
 			    && !unk44C->update())
 				done = false;
 			if (unk428->getPane()->isVisible() && !unk428->update())
@@ -4187,10 +4214,10 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 			if (unk3FC->getPane()->isVisible() && !unk3FC->update())
 				done = false;
 			if (done)
-				unk34[12] = 0;
+				unk40 = 0;
 		}
 
-		if (unk34[13]) {
+		if (unk41) {
 			bool done = true;
 			if (unk44C->getPane()->isVisible() && !unk44C->update())
 				done = false;
@@ -4199,10 +4226,10 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 			if (unk3FC->getPane()->isVisible() && !unk3FC->update())
 				done = false;
 			if (done)
-				unk34[13] = 0;
+				unk41 = 0;
 		}
 
-		if (unk34[5]) {
+		if (unk39) {
 			if (unkB4 == 1 && unk6C < 100)
 				unkD4[2]->getPane()->hide();
 
@@ -4217,26 +4244,26 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 
 			++unkB4;
 			if (unkB4 > 0xa0)
-				unk34[5] = 0;
+				unk39 = 0;
 		}
 
 		updateLifeMeterState(this);
 		updateCounterState(this);
 		updateStarHudAutoHide(this);
 
-		if (unk34[0]) {
+		if (unk34) {
 			bool done = processAppearStar(unk5C);
 			done      = processDownCoin(unk5C) && done;
 			if (done) {
 				int shines = TFlagManager::smInstance->getFlag(0x40000);
 				if ((int)unk24 != shines)
 					unk24 = shines;
-				unk34[0] = 0;
+				unk34 = 0;
 			}
 			++unk5C;
 		}
 
-		if (unk34[1]) {
+		if (unk35) {
 			bool done = true;
 			if (!unk140->update())
 				done = false;
@@ -4254,56 +4281,56 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 				unk160->getPane()->hide();
 				unk144->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
 				unk164->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
-				unk34[1] = 0;
+				unk35 = 0;
 			}
 		}
 
 		updateWaterGaugeFill(this);
 
-		if (unk34[9]) {
+		if (unk3D) {
 			if (processAppearJet(unk72++)) {
-				unk34[9] = 0;
+				unk3D = 0;
 				unk72    = 0;
 			}
 		}
 
 		updateRedCoinCounter(this);
 
-		if (unk34[8]) {
+		if (unk3C) {
 			if (processAppearRed(unk74++)) {
-				unk34[8] = 0;
+				unk3C = 0;
 				unk74    = 0;
 			}
 		}
 
-		if (unk34[10]) {
+		if (unk3E) {
 			if (processAppearTimer(unk76++)) {
-				unk34[10] = 0;
+				unk3E = 0;
 				unk76     = 0;
 			}
 		}
 
-		if (unk34[11]) {
+		if (unk3F) {
 			if (unk44C->update()) {
 				unk44C->getPane()->hide();
-				unk34[11] = 0;
+				unk3F = 0;
 			}
 		}
 
-		if (unk34[14]) {
+		if (unk42) {
 			if (unk520->update()) {
-				unk34[14] = 0;
-				unk34[16] = 1;
+				unk42 = 0;
+				unk44 = 1;
 				unk80     = 0;
 			}
-		} else if (unk34[15]) {
+		} else if (unk43) {
 			if (unk520->update()) {
-				unk34[15] = 0;
+				unk43 = 0;
 				unk520->getPane()->hide();
 			}
 		}
 
-		if (unk34[16] && unk520->getPane()->isVisible()) {
+		if (unk44 && unk520->getPane()->isVisible()) {
 			++unk80;
 			if (processDrawTelop(flags)) {
 				unk534 = unk524->getPane()->mBounds;
@@ -4313,16 +4340,16 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 				if (unk56D) {
 					unk56D = 0;
 				} else {
-					unk34[16] = 0;
+					unk44 = 0;
 					unk55C    = 0;
-					if (!unk34[15] && unk520->getPane()->isVisible())
+					if (!unk43 && unk520->getPane()->isVisible())
 						startDisappearTelop();
 				}
 			}
 		}
 
 		u16 telopWait = unk56C ? unk562 : unk560;
-		if (!unk34[16] && !unk34[14] && !unk34[15] && unk530->unk4 != nullptr
+		if (!unk44 && !unk42 && !unk43 && unk530->unk4 != nullptr
 		    && unk55C >= (u32)((s16)telopWait * 120)
 		    && gpMarioOriginal->mAction == 0xC400201) {
 			if (unk56C)
@@ -4340,20 +4367,20 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 		    && gpMarDirector->unk124 == 0 && unk55C < 0xffffffff)
 			++unk55C;
 
-		if (!unk34[18] && gpMarioOriginal->checkFlag(MARIO_FLAG_HAS_FLUDD)
-		    && !unk34[17]
-		    && !unk34[28])
+		if (!unk46 && gpMarioOriginal->checkFlag(MARIO_FLAG_HAS_FLUDD)
+		    && !unk45
+		    && !unk50)
 			startAppearTank();
 
-		if (unk34[17]) {
+		if (unk45) {
 			if (processAppearTank(unk7C++)) {
-				unk34[17] = 0;
-				unk34[18] = 1;
+				unk45 = 0;
+				unk46 = 1;
 				unk7C     = 0;
 			}
 		}
 
-		if (unk34[18]) {
+		if (unk46) {
 			if (gpMarDirector->mState == TMarDirector::STATE_UNK5)
 				unk7C = 0;
 
@@ -4368,7 +4395,7 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 			++unk7C;
 		}
 
-		if (unk34[23]) {
+		if (unk4B) {
 			bool done = true;
 			if (!unk2F8->update())
 				done = false;
@@ -4382,30 +4409,30 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 				unk2F8->getPane()->hide();
 				unk274->getPane()->hide();
 				unk29C->getPane()->hide();
-				unk34[23] = 0;
-				unk34[18] = 0;
+				unk4B = 0;
+				unk46 = 0;
 			}
 		}
 
 		updateLifeMeterBlink(this);
 
-		if (unk34[27]) {
+		if (unk4F) {
 			if (processAppearCoin(unk88++)) {
-				unk34[27] = 0;
+				unk4F = 0;
 			}
 		}
 
-		if (unk34[25]) {
+		if (unk4D) {
 			if (unk108->update() && unk140->update()) {
 				unk108->getPane()->hide();
-				unk34[25] = 0;
+				unk4D = 0;
 			}
 		}
 
-		if (!unk34[17])
+		if (!unk45)
 			processMoveNozzle();
 
-		if (unk34[6]) {
+		if (unk3A) {
 			if (processAppearMario(unk70++)) {
 				if (unk3AC[1]) {
 					if (unk70 == 0xc8) {
@@ -4415,7 +4442,7 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 						setTwoDigits(unk39C, unkE0, lives);
 						TFlagManager::smInstance->setBool(false, 0x30002);
 						endCameraDemo();
-						unk34[6] = 0;
+						unk3A = 0;
 					}
 				} else {
 					unk3AC[1] = 0;
@@ -4424,23 +4451,23 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 			}
 		}
 
-		if (!unk34[6] && !unk34[7] && unk3A8->getPane()->isVisible()
+		if (!unk3A && !unk3B && unk3A8->getPane()->isVisible()
 		    && gpMarioOriginal->mAction != 0xC400201
 		    && gpMarDirector->mState != TMarDirector::STATE_UNK5) {
 			if (++unk70 > 0x190)
 				startDisappearMario();
 		}
 
-		if (unk34[7]) {
+		if (unk3B) {
 			if (unk3A8->update()) {
-				unk34[7] = 0;
+				unk3B = 0;
 				unk3A8->getPane()->hide();
 			}
 		}
 
 		updateMarioLifeCounter(this);
 
-		if (!unk34[11] && unk34[22])
+		if (!unk3F && unk4A)
 			setTimer(-1);
 
 		if (unk59) {
@@ -4499,14 +4526,14 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 		J2DOrthoGraph graph(graphics->mViewportRect);
 		graph.setup2D();
 
-		if (unk34[18] || unk34[17])
+		if (unk46 || unk45)
 			drawWaterBack();
 
 		graph.setup2D();
 
 		unkB0->draw(0, 0, &graph);
 
-		if (unk34[16] && !unk34[15] && !unk34[14]
+		if (unk44 && !unk43 && !unk42
 		    && unk520->getPane()->isVisible()) {
 			graphics->setScissor(
 			    JDrama::TRect(unk544.x1, unk544.y1, unk544.x2, unk544.y2));
