@@ -153,10 +153,7 @@ void TBossTelesa::loadAfter()
 		int found = 0;
 		for (int i = 0; i < gpMapObjManager->getObjNum(); ++i) {
 			TMapObjBase* actor = gpMapObjManager->getObj(i);
-			bool isRoulette = false;
-			if (actor->mActorType == rouletteType)
-				isRoulette = true;
-			if (isRoulette) {
+			if (actor->isActorType(rouletteType)) {
 				unk178[found] = (TRoulette*)actor;
 				found++;
 			}
@@ -167,10 +164,7 @@ void TBossTelesa::loadAfter()
 	if ((u32)gpMapObjManager->getObjNumWithActorType(slotType) != 0) {
 		for (int i = 0; i < gpMapObjManager->getObjNum(); ++i) {
 			TMapObjBase* actor = gpMapObjManager->getObj(i);
-			bool isSlot = false;
-			if (actor->mActorType == slotType)
-				isSlot = true;
-			if (isSlot) {
+			if (actor->isActorType(slotType)) {
 				unk184       = (TTelesaSlot*)actor;
 				unk184->unk1A0 = this;
 			}
