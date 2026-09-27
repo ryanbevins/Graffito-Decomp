@@ -11,6 +11,10 @@
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <JSystem/JMath.hpp>
 #include <JSystem/JParticle/JPAEmitter.hpp>
+static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
+static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
+static u32 dummy1210[4] = { 0, 2, 1, 3 };
+
 #include <M3DUtil/InfectiousStrings.hpp>
 #include <M3DUtil/MActor.hpp>
 #include <Map/Map.hpp>
