@@ -1403,7 +1403,7 @@ BOOL TMario::wireWait()
 		onWire = 0;
 	}
 
-	if (onWire && mWireSag <= 0.0f) {
+	if (onWire == 1 && mWireSag <= 0.0f) {
 		mHolder->receiveMessage(this, 8);
 		mHolder = 0;
 		BOOL ret = changePlayerStatus(0x892, 0, false);
@@ -1523,7 +1523,7 @@ BOOL TMario::wireSWait()
 		onWire = 0;
 	}
 
-	if (onWire && mWireSag < 0.0f) {
+	if (onWire == 1 && mWireSag < 0.0f) {
 		mHolder->receiveMessage(this, 8);
 		mHolder = 0;
 		BOOL ret = changePlayerStatus(0x892, 0, false);
