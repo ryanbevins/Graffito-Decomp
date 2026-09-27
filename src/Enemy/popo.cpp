@@ -994,8 +994,7 @@ static int PopoPossessedCallback(J3DNode* node, int timing)
 			    = gpMarioParticleManager->emitAndBindToMtxPtr(
 			        0x13C, gpCurPopo->unk1D0, 1, gpCurPopo);
 			if (emitter) {
-				emitter->unk154.set(gpCurPopo->unk230);
-				emitter->unk174.set(gpCurPopo->unk230);
+				emitter->setScale(gpCurPopo->unk230);
 			}
 		}
 	}
