@@ -607,7 +607,7 @@ void TBathtub::quake(const JGeometry::TVec3<f32>& pos)
 	throwDir.x = 0.0f;
 	throwDir.y = 1.0f;
 	throwDir.z = 0.0f;
-	SMS_ThrowMario(throwDir, 60.0f);
+	SMS_ThrowMario(throwDir, 10.0f);
 	koopa->getDown();
 }
 
