@@ -98,7 +98,7 @@ void TCraneRotY::load(JSUMemoryInputStream& stream)
 	TMapObjBase::load(stream);
 	stream.read(&unk140, 4);
 	unk138 = mRotation.y;
-	unk144 = 0.5f + MsRandF() * 0.3f;
+	unk144 = 0.05f + MsRandF() * 0.1f;
 	if (strcmp(mName, "crane90 0") == 0) {
 		unk148 = 0x3034;
 	} else {
