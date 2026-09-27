@@ -695,15 +695,14 @@ void TAnimalBird::doFlyToCurPathNode()
 BOOL TAnimalBird::isFindMario() const
 {
 	f32 diffY = __fabsf(gpMarioPos->y - mPosition.y);
-	if (((TAnimalBirdParams*)getSaveParam())->mSearchHeight.value < diffY)
+	if (((TAnimalBirdParams*)getSaveParam())->mSearchHeight.get() < diffY)
 		return FALSE;
 
-	f32* aware  = &((TAnimalBirdParams*)getSaveParam())->mSearchAware.value;
-	f32* angle  = &((TAnimalBirdParams*)getSaveParam())->mSearchAngle.value;
-	f32* length = &((TAnimalBirdParams*)getSaveParam())->mSearchLength.value;
-	f32 scale   = unk174;
-	return isInSight(*gpMarioPos, scale * *length, scale * *angle,
-	                 scale * *aware)
+	const f32& aware  = getSaveParam2()->mSearchAware.get();
+	const f32& angle  = getSaveParam2()->mSearchAngle.get();
+	const f32& length = getSaveParam2()->mSearchLength.get();
+	f32 scale         = unk174;
+	return isInSight(*gpMarioPos, scale * length, scale * angle, scale * aware)
 	    != 0;
 }
 

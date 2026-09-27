@@ -56,6 +56,11 @@ public:
 	virtual void moveObject();
 	virtual const char** getBasNameTable() const;
 
+	TAnimalBirdParams* getSaveParam2() const
+	{
+		return (TAnimalBirdParams*)getSaveParam();
+	}
+
 	void initParams();
 	BOOL isFindMario() const;
 	void doFlyToCurPathNode();
