@@ -83,9 +83,7 @@ public:
 	/* 0x16C */ THitActor* unk16C;
 	/* 0x170 */ THitActor* unk170;
 	/* 0x174 */ THitActor* unk174;
-	/* 0x178 */ TRoulette* unk178;
-	/* 0x17C */ TRoulette* unk17C;
-	/* 0x180 */ TRoulette* unk180;
+	/* 0x178 */ TRoulette* unk178[3];
 	/* 0x184 */ TTelesaSlot* unk184;
 	/* 0x188 */ JDrama::TViewObj* unk188;
 	/* 0x18C */ u8 unk18C;

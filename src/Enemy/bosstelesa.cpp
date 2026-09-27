@@ -157,7 +157,7 @@ void TBossTelesa::loadAfter()
 			if (actor->mActorType == rouletteType)
 				isRoulette = true;
 			if (isRoulette) {
-				((TRoulette**)&unk178)[found] = (TRoulette*)actor;
+				unk178[found] = (TRoulette*)actor;
 				found++;
 			}
 		}
@@ -303,8 +303,8 @@ BOOL TBossTelesa::receiveMessage(THitActor*, u32) { return FALSE; }
 
 MtxPtr TBossTelesa::getTakingMtx()
 {
-	unk278.set(unk178->mMActor->unk4->mNodeMatrices[1]);
-	unk278.mMtx[1][3] = unk178->mPosition.y - 120.0f;
+	unk278.set(unk178[0]->mMActor->unk4->mNodeMatrices[1]);
+	unk278.mMtx[1][3] = unk178[0]->mPosition.y - 120.0f;
 	return unk278.mMtx;
 }
 
@@ -565,9 +565,9 @@ void TBossTelesa::moveObject()
 	}
 
 	if (mSpine->getCurrentNerve() == &TNerveBossTelesaFallDemo::theNerve()) {
-		if (unk178 && unk17C
-		    && unk178->mPosition.y > unk17C->mPosition.y + 5.0f) {
-			unk184->mPosition = unk178->mPosition;
+		if (unk178[0] && unk178[1]
+		    && unk178[0]->mPosition.y > unk178[1]->mPosition.y + 5.0f) {
+			unk184->mPosition = unk178[0]->mPosition;
 			unk184->mPosition.y += 300.0f;
 		}
 	}
@@ -595,13 +595,13 @@ void TBossTelesa::moveObject()
 
 	JGeometry::TVec3<f32> cameraDiff = *gpMarioPos;
 	cameraDiff.sub(gpCamera->unk124);
-	unk19C = unk178->mPosition;
+	unk19C = unk178[0]->mPosition;
 	unk19C.x += 0.67f * cameraDiff.x;
 	unk19C.z += 0.67f * cameraDiff.z;
 
 	int movingRoulettes = 0;
 	for (int i = 0; i < 3; ++i) {
-		TRoulette* roulette = (&unk178)[i];
+		TRoulette* roulette = unk178[i];
 		f32 speed           = roulette->unk13C;
 		if (speed != 0.0f)
 			++movingRoulettes;
@@ -1012,7 +1012,7 @@ void TBossTelesa::rouletteStart()
 {
 	int rolling = 0;
 	for (int i = 0; i < 3; ++i) {
-		TRoulette* roulette = (&unk178)[i];
+		TRoulette* roulette = unk178[i];
 		f32 speed           = roulette->unk13C;
 		if (speed != 0.0f)
 			++rolling;
@@ -1040,7 +1040,7 @@ void TBossTelesa::rouletteStart()
 		}
 
 		f32 speed = speedRange.rand();
-		((TRoulette**)&unk178)[i]->unk144
+		unk178[i]->unk144
 		    = direction * (speed + hpSpeed);
 
 		speed = speedRange.rand();
@@ -1048,7 +1048,7 @@ void TBossTelesa::rouletteStart()
 	}
 
 	for (int i = 0; i < 3; ++i)
-		((TRoulette**)&unk178)[i]->setRollSp(unk184->unk1E4[i]);
+		unk178[i]->setRollSp(unk184->unk1E4[i]);
 
 	SMSRumbleMgr->start(0x14, 0xf, (f32*)nullptr);
 	gpCameraShake->startShake((EnumCamShakeMode)0x23, 1.0f);
@@ -1192,17 +1192,17 @@ void TBossTelesa::flashItem(int result)
 
 BOOL TBossTelesa::slotFall()
 {
-	if (unk184->mPosition.y > unk178->mPosition.y - 800.0f) {
+	if (unk184->mPosition.y > unk178[0]->mPosition.y - 800.0f) {
 		unk184->mPosition.y -= 5.0f;
 		return FALSE;
 	}
 
 	unk184->mPosition.y -= 1.0f;
 
-	if (unk184->mPosition.y < unk178->mPosition.y - 900.0f) {
+	if (unk184->mPosition.y < unk178[0]->mPosition.y - 900.0f) {
 		int rolling = 0;
 		for (int i = 0; i < 3; ++i) {
-			TRoulette* roulette = (&unk178)[i];
+			TRoulette* roulette = unk178[i];
 			f32 speed           = roulette->unk13C;
 			if (speed != 0.0f)
 				++rolling;
@@ -1212,17 +1212,17 @@ BOOL TBossTelesa::slotFall()
 			rouletteStart();
 	}
 
-	if (unk184->mPosition.y < unk178->mPosition.y - 1100.0f)
+	if (unk184->mPosition.y < unk178[0]->mPosition.y - 1100.0f)
 		return TRUE;
 
-	THitActor* switchActor = unk178->unk150;
+	THitActor* switchActor = unk178[0]->unk150;
 	switchActor->mAttackRadius = 280.0f;
 	switchActor->mAttackHeight = 100.0f;
 	switchActor->mDamageRadius = 280.0f;
 	switchActor->mDamageHeight = 100.0f;
 	switchActor->calcEntryRadius();
 
-	switchActor = unk17C->unk150;
+	switchActor = unk178[1]->unk150;
 	switchActor->mAttackRadius = 280.0f;
 	switchActor->mAttackHeight = 100.0f;
 	switchActor->mDamageRadius = 280.0f;
@@ -1234,13 +1234,13 @@ BOOL TBossTelesa::slotFall()
 
 BOOL TBossTelesa::rouletteFall()
 {
-	if (((TRoulette*)unk178)->mPosition.y
-	    > ((TRoulette*)unk17C)->mPosition.y) {
-		((TRoulette*)unk178)->mPosition.y -= 1.0f;
-		((TRoulette*)unk178)->mMActor->setBck("rulet00");
+	if (((TRoulette*)unk178[0])->mPosition.y
+	    > ((TRoulette*)unk178[1])->mPosition.y) {
+		((TRoulette*)unk178[0])->mPosition.y -= 1.0f;
+		((TRoulette*)unk178[0])->mMActor->setBck("rulet00");
 
-		if (((TRoulette*)unk178)->mPosition.y
-		    > ((TRoulette*)unk17C)->mPosition.y + 3.0f) {
+		if (((TRoulette*)unk178[0])->mPosition.y
+		    > ((TRoulette*)unk178[1])->mPosition.y + 3.0f) {
 			if (SMS_SendMessageToMario(this, HIT_MESSAGE_TAKE))
 				mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
 		} else {
@@ -1266,8 +1266,8 @@ BOOL TBossTelesa::rouletteFall()
 		gpMarioOriginal->mGamePad->onNeutralMarioKey();
 		return FALSE;
 	} else {
-		((TRoulette*)unk178)->mPosition.y
-		    = ((TRoulette*)unk17C)->mPosition.y;
+		((TRoulette*)unk178[0])->mPosition.y
+		    = ((TRoulette*)unk178[1])->mPosition.y;
 		return TRUE;
 	}
 }
@@ -2831,15 +2831,15 @@ DEFINE_NERVE(TNerveBossTelesaDie, TLiveActor)
 				}
 
 				boss->forceAllItemKill();
-				boss->unk178->unk144     = 0.0f;
+				boss->unk178[0]->unk144     = 0.0f;
 				boss->unk184->unk1E4[0] = 0.0f;
-				boss->unk17C->unk144     = 0.0f;
+				boss->unk178[1]->unk144     = 0.0f;
 				boss->unk184->unk1E4[1] = 0.0f;
-				boss->unk180->unk144     = 0.0f;
+				boss->unk178[2]->unk144     = 0.0f;
 				boss->unk184->unk1E4[2] = 0.0f;
-				boss->unk178->setRollSp(boss->unk184->unk1E4[0]);
-				boss->unk17C->setRollSp(boss->unk184->unk1E4[1]);
-				boss->unk180->setRollSp(boss->unk184->unk1E4[2]);
+				boss->unk178[0]->setRollSp(boss->unk184->unk1E4[0]);
+				boss->unk178[1]->setRollSp(boss->unk184->unk1E4[1]);
+				boss->unk178[2]->setRollSp(boss->unk184->unk1E4[2]);
 			}
 
 			if (boss->unk388 > 240) {
