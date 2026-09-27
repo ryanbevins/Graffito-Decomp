@@ -436,10 +436,7 @@ void CPolarSubCamera::ctrlGameCamera_()
 
 	if (gpMarDirector->mState == 4 && !(unk64 & 0x400)) {
 		if (isTalkCameraSpecifyMode(mMode)) {
-			bool inTalkEvent = true;
-			if (gpMarDirector->unk124 != 1 && gpMarDirector->unk124 != 2)
-				inTalkEvent = false;
-			if (!inTalkEvent) {
+			if (!gpMarDirector->isTalkModeNow()) {
 				int oldMode = unk5C;
 				s16 frames  = (s16)getCameraInbetweenFrame_(oldMode);
 				changeCamModeSpecifyFrame_(oldMode, frames);
