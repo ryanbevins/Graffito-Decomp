@@ -348,9 +348,10 @@ public:
 		                     + getHeader()->mSymbolNum * sizeof(TSpcSymbol)
 		                     + symbol->mNameOffset);
 	}
+	u32 getDataTableOffset() { return getHeader()->mDataOffset; }
 	u32 getDataOffset(u32 idx)
 	{
-		return *(u32*)(mData + getHeader()->mDataOffset + idx * sizeof(u32));
+		return *(u32*)(mData + getDataTableOffset() + idx * sizeof(u32));
 	}
 	void* getData(u32 offset)
 	{
@@ -428,7 +429,7 @@ public:
 	const char* fetchString()
 	{
 		return (const char*)mBinary->getData(
-		    mBinary->getDataOffset(fetchU32_5()));
+		    mBinary->getDataOffset(fetchU32_3()));
 	}
 
 	void push(const TSpcSlice& slice) { mProcessStack.push(slice); }
