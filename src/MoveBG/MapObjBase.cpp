@@ -557,15 +557,17 @@ void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
 		if (isLifeTimerActive())
 			mLifeTimer -= 1;
 		if (unk100 == 0) {
-			u32 sound;
 			if (mMapObjData->mSound == nullptr) {
-				sound = TMapObjGeneral::mDefaultSound.unk0[unk100];
+				u32 sound = TMapObjGeneral::mDefaultSound.unk0[unk100];
+				if (sound != 0xffffffff && gpMSound->gateCheck(sound))
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    sound, &mPosition, 0, nullptr, 0, 4);
 			} else {
-				sound = mMapObjData->mSound->unk4->unk0[unk100];
+				u32 sound = mMapObjData->mSound->unk4->unk0[unk100];
+				if (sound != 0xffffffff && gpMSound->gateCheck(sound))
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    sound, &mPosition, 0, nullptr, 0, 4);
 			}
-			if (sound != 0xffffffff && gpMSound->gateCheck(sound))
-				MSoundSESystem::MSoundSE::startSoundActor(
-				    sound, mPosition, 0, nullptr, 0, 4);
 		}
 		if (mLiveFlag & 1)
 			dead();
