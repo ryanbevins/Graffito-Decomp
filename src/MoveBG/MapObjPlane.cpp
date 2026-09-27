@@ -235,13 +235,16 @@ void TMapObjPlane::perform(u32 param_1, JDrama::TGraphics*)
 	}
 }
 
+static inline int readLittleEndianInt(const u8* p, int offset)
+{
+	return (p[offset + 3] << 24) + (p[offset + 2] << 16)
+	       + (p[offset + 1] << 8) + p[offset];
+}
+
 void TMapObjPlane::makeMountain()
 {
-	int width = (unk118[0x15] << 24) + (unk118[0x14] << 16)
-	            + (unk118[0x13] << 8) + unk118[0x12];
-
-	int height = (unk118[0x19] << 24) + (unk118[0x18] << 16)
-	             + (unk118[0x17] << 8) + unk118[0x16];
+	int width  = readLittleEndianInt(unk118, 0x12);
+	int height = readLittleEndianInt(unk118, 0x16);
 
 	for (int z = 0; z < mExtents; z = z + 1) {
 		for (int x = 0; x < mExtents; x = x + 1) {
