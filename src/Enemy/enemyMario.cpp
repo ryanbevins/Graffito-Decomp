@@ -1822,7 +1822,7 @@ void TEnemyMario::changeEMDoing(u16 doing)
 
 void TEnemyMario::startMonteReplay(u32 node_id)
 {
-	int node = emOwner(this)->unk124->getGraph()->findNearestNodeIndex(
+	int node = emOwner(this)->getTracer()->getGraph()->findNearestNodeIndex(
 	    mPosition, 0xffffffff);
 
 	Vec current;
