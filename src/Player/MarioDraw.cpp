@@ -735,30 +735,30 @@ int MarioWaistCtrl(J3DNode* param_1, int param_2)
 	return 1;
 }
 
+static inline bool isFootIdleLook()
+{
+	bool result = true;
+	if (gpMarioForCallBack->mAction != 0xC400202
+	    && gpMarioForCallBack->mAction != 0xC000203)
+		result = false;
+	return result;
+}
+
+static inline BOOL isFootCtrlEnable()
+{
+	if ((gpMarioForCallBack->mAction & 0x1C0) == 0
+	    && gpMarioForCallBack->mAction != 0xC00023D
+	    && !gpMarioForCallBack->onYoshi() && !isFootIdleLook())
+		return TRUE;
+	return FALSE;
+}
+
 int MarioFootPosRCtrl(J3DNode* param_1, int param_2)
 {
 	// volatile u32 padding[9];
 	if (param_2 == 0) {
 
-		BOOL check2;
-		BOOL check = FALSE;
-
-		// Definitely some inline shenanigans
-		// And this is wrong
-		if ((gpMarioForCallBack->mAction & 0x1C0) == 0
-		    && gpMarioForCallBack->mAction != 0xC00023D
-		    && gpMarioForCallBack->onYoshi() == 0) {
-
-			check2 = !(gpMarioForCallBack->mAction != 0xC400202
-			           && gpMarioForCallBack->mAction != 0xC000203)
-			             ? TRUE
-			             : FALSE;
-			if (!check2) {
-				check = TRUE;
-			}
-		}
-
-		if (check) {
+		if (isFootCtrlEnable()) {
 
 			MtxPtr footMtx = gpMarioForCallBack->mModel->getModel()->getAnmMtx(
 			    gpMarioForCallBack->mBoneIDs[6]);
@@ -786,25 +786,7 @@ int MarioFootDirRCtrl(J3DNode* param_1, int param_2)
 {
 	if (param_2 == 0) {
 
-		BOOL check2;
-		BOOL check = FALSE;
-
-		// Definitely some inline shenanigans
-		// And this is wrong
-		if ((gpMarioForCallBack->mAction & 0x1C0) == 0
-		    && gpMarioForCallBack->mAction != 0xC00023D
-		    && gpMarioForCallBack->onYoshi() == 0) {
-
-			check2 = !(gpMarioForCallBack->mAction != 0xC400202
-			           && gpMarioForCallBack->mAction != 0xC000203)
-			             ? TRUE
-			             : FALSE;
-			if (!check2) {
-				check = TRUE;
-			}
-		}
-
-		if (check) {
+		if (isFootCtrlEnable()) {
 
 			MtxPtr footMtx = gpMarioForCallBack->mModel->getModel()->getAnmMtx(
 			    gpMarioForCallBack->mBoneIDs[7]);
@@ -869,25 +851,7 @@ int MarioFootPosLCtrl(J3DNode* param_1, int param_2)
 	// volatile u32 padding[9];
 	if (param_2 == 0) {
 
-		BOOL check2;
-		BOOL check = FALSE;
-
-		// Definitely some inline shenanigans
-		// And this is wrong
-		if ((gpMarioForCallBack->mAction & 0x1C0) == 0
-		    && gpMarioForCallBack->mAction != 0xC00023D
-		    && gpMarioForCallBack->onYoshi() == 0) {
-
-			check2 = !(gpMarioForCallBack->mAction != 0xC400202
-			           && gpMarioForCallBack->mAction != 0xC000203)
-			             ? TRUE
-			             : FALSE;
-			if (!check2) {
-				check = TRUE;
-			}
-		}
-
-		if (check) {
+		if (isFootCtrlEnable()) {
 
 			MtxPtr footMtx = gpMarioForCallBack->mModel->getModel()->getAnmMtx(
 			    gpMarioForCallBack->mBoneIDs[8]);
@@ -915,25 +879,7 @@ int MarioFootDirLCtrl(J3DNode* param_1, int param_2)
 {
 	if (param_2 == 0) {
 
-		BOOL check2;
-		BOOL check = FALSE;
-
-		// Definitely some inline shenanigans
-		// And this is wrong
-		if ((gpMarioForCallBack->mAction & 0x1C0) == 0
-		    && gpMarioForCallBack->mAction != 0xC00023D
-		    && gpMarioForCallBack->onYoshi() == 0) {
-
-			check2 = !(gpMarioForCallBack->mAction != 0xC400202
-			           && gpMarioForCallBack->mAction != 0xC000203)
-			             ? TRUE
-			             : FALSE;
-			if (!check2) {
-				check = TRUE;
-			}
-		}
-
-		if (check) {
+		if (isFootCtrlEnable()) {
 
 			MtxPtr footMtx = gpMarioForCallBack->mModel->getModel()->getAnmMtx(
 			    gpMarioForCallBack->mBoneIDs[9]);
