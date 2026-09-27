@@ -942,7 +942,7 @@ void TLeanMirror::control()
 			mState = 4;
 		}
 		break;
-	default:
+	case 4:
 		break;
 	}
 }
