@@ -1652,12 +1652,11 @@ void TTelesaSlot::moveObject()
 			}
 
 			u8 allStopped = 1;
-			if (unk138[0] != 0.0f)
-				allStopped = 0;
-			if (unk138[1] != 0.0f)
-				allStopped = 0;
-			if (unk138[2] != 0.0f)
-				allStopped = 0;
+			for (int k = 0; k < 3; ++k) {
+				f32 speed = getDrumSpeeds()[k];
+				if (speed != 0.0f)
+					allStopped = 0;
+			}
 
 			if (allStopped) {
 				TBossTelesa* owner = getSlotOwner(this);
