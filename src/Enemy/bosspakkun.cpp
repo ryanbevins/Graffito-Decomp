@@ -1371,19 +1371,19 @@ void TBossPakkun::init(TLiveManager* manager)
 	TIdxGroupObj* group
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
 
-	initHitActor(0x800000F, 1, 0x80000000, 2.5f, 100.0f, 2.5f,
-	             100.0f);
+	initHitActor(0x800000F, 1, 0x80000000, 80.0f, 300.0f, 80.0f,
+	             300.0f);
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	if (isLight == 0) {
 		mHeadHit = new TBPHeadHit(this, "ボスパックン頭部");
-		mHeadHit->initHitActor(0x8000010, 5, 0x81000000, 100.0f, 500.0f,
-		                       100.0f, 500.0f);
+		mHeadHit->initHitActor(0x8000010, 5, 0x81000000, 300.0f, 500.0f,
+		                       300.0f, 500.0f);
 		mHeadHit->offHitFlag(HIT_FLAG_NO_COLLISION);
 
 		mNavel = new TBPNavel(this, "ボスパックンへそ");
-		mNavel->initHitActor(0x8000011, 1, 0x80000000, 200.0f, 100.0f,
-		                     200.0f, 100.0f);
+		mNavel->initHitActor(0x8000011, 1, 0x80000000, 200.0f, 300.0f,
+		                     200.0f, 300.0f);
 		mNavel->offHitFlag(HIT_FLAG_NO_COLLISION);
 
 		group->getChildren().push_back(mHeadHit);

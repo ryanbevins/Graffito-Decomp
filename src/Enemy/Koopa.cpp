@@ -378,7 +378,7 @@ void TKoopa::loadAfter()
 
 void TKoopa::init(TLiveManager* manager)
 {
-	mBodyRadius = 300.0f;
+	mBodyRadius = 800.0f;
 	mHeadHeight = 2000.0f;
 
 	TSpineEnemy::init(manager);
