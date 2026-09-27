@@ -388,23 +388,10 @@ static inline void writeBalloonTextByte(TGCConsole2* console, u8 value)
 static inline bool getBalloonTextColor(u16 code, u8* color)
 {
 	switch (code) {
-	case 0x817B:
-		color[0] = 0xDC;
-		color[1] = 0xDC;
-		color[2] = 0xDC;
-		color[3] = 0xFF;
-		return true;
-	case 0x8184:
-	case 0x8185:
-		color[0] = 0xFF;
+	case 0x8197:
+		color[0] = 0x64;
 		color[1] = 0xFF;
-		color[2] = 0x00;
-		color[3] = 0xFF;
-		return true;
-	case 0x8191:
-		color[0] = 0x6E;
-		color[1] = 0xE6;
-		color[2] = 0xFF;
+		color[2] = 0x64;
 		color[3] = 0xFF;
 		return true;
 	case 0x8194:
@@ -413,11 +400,25 @@ static inline bool getBalloonTextColor(u16 code, u8* color)
 		color[2] = 0x64;
 		color[3] = 0xFF;
 		return true;
-	case 0x8196:
-	case 0x8197:
-		color[0] = 0x64;
+	case 0x8193:
+		color[0] = 0xFF;
 		color[1] = 0xFF;
-		color[2] = 0x64;
+		color[2] = 0x00;
+		color[3] = 0xFF;
+		return true;
+	case 0x817B:
+	case 0x8183:
+	case 0x8184:
+	case 0x818F:
+		color[0] = 0xDC;
+		color[1] = 0xDC;
+		color[2] = 0xDC;
+		color[3] = 0xFF;
+		return true;
+	case 0x8190:
+		color[0] = 0x6E;
+		color[1] = 0xE6;
+		color[2] = 0xFF;
 		color[3] = 0xFF;
 		return true;
 	default:
