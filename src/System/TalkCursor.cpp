@@ -42,9 +42,8 @@ void TTalkCursor::perform(u32 flags, JDrama::TGraphics* gfx)
 void TTalkCursor::associateNPC(TBaseNPC* npc)
 {
 	if (npc) {
-		JGeometry::TVec3<f32> pos = npc->getCursorPos();
 		TPosition3f mtx;
-		mtx.translation(pos.x, pos.y, pos.z);
+		mtx.translation(npc->getCursorPos());
 		PSMTXCopy(mtx, unk10->getModel()->unk20);
 		unkC.off(0x204);
 	} else {
