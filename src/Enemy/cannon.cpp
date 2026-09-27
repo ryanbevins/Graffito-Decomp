@@ -922,7 +922,7 @@ void TCannon::calcRootMatrix()
 			mPosition.y = takingMtx[1][3];
 			mPosition.z = takingMtx[2][3];
 		} else {
-			if (gpMarDirector->unk124 == 3 || gpMarDirector->unk124 == 4)
+			if (gpMarDirector->checkUnk124Thing2())
 				mRotation.y = -80.0f;
 
 			mPosition.x = takingMtx[0][3];
