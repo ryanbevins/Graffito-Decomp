@@ -901,14 +901,12 @@ static int PopoNonScaleCallback(J3DNode* node, int timing)
 {
 	if (timing == 0) {
 		TPopo* popo = gpCurPopo;
-		if (!popo)
-			return 1;
-
 		bool doScale;
-		if (popo->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()
-		    || popo->mSpine->getCurrentNerve()
-		           == &TNervePopoExplosion::theNerve()
-		    || popo->unk1B4)
+		if (popo
+		    && (popo->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()
+		        || popo->mSpine->getCurrentNerve()
+		               == &TNervePopoExplosion::theNerve()
+		        || popo->unk1B4))
 			doScale = true;
 		else
 			doScale = false;
