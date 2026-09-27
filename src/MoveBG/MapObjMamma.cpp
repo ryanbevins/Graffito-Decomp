@@ -248,8 +248,8 @@ void TSandLeafBase::control()
 
 void TSandLeafBase::initMapObj()
 {
-	unk138 = 0.03f;
-	unk13C = 0.0001f;
+	unk138 = 0.003f;
+	unk13C = 0.001f;
 	unk140 = 0;
 	mScaling.y = mScaleMin;
 	TMapObjBase::initMapObj();
