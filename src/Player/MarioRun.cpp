@@ -2277,9 +2277,9 @@ f32 TMario::downingCommon(int anmId, f32 threshold, int nextState)
 			setPlayerVelocity(0.0f);
 		}
 	} else if (mForwardVel >= 0.0f) {
-		setPlayerVelocity(3.0f);
+		setPlayerVelocity(0.1f);
 	} else {
-		setPlayerVelocity(-3.0f);
+		setPlayerVelocity(-0.1f);
 	}
 
 	if (walkProcess() == 0) {
