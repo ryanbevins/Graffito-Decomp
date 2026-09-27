@@ -711,14 +711,16 @@ void TBGTentacle::setAttackTarget()
 			break;
 		}
 
-		JGeometry::TVec3<f32> local_148 = unk84;
+		JGeometry::TVec3<f32> local_148;
+		local_148 = unk84;
 		local_148 -= mOwner->mPosition;
 
 		JGeometry::TVec3<f32> local_3c;
 		local_3c.cross(local_148, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
 		local_3c.normalize();
 
-		JGeometry::TVec3<f32> local_cc = local_3c;
+		JGeometry::TVec3<f32> local_cc;
+		local_cc = local_3c;
 		local_cc.scale(iVar9);
 		JGeometry::TVec3<f32> local_ac = local_3c;
 		local_ac.scale(80.0f);

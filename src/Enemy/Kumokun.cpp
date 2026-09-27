@@ -261,7 +261,8 @@ void TKumokun::bind()
 		bVar7 = checkOnMovingRoof(&local_150, &floor, local_134, local_168);
 		bVar7 |= checkOnMovingRoof(&local_15C, &floor, mPosition, local_168);
 	} else {
-		JGeometry::TVec3<f32> local_128 = local_168;
+		JGeometry::TVec3<f32> local_128;
+		local_128 = local_168;
 		local_128.setLength(0.5f * mHeadHeight);
 
 		local_128 += mPosition;
