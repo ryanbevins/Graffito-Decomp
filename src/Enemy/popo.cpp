@@ -901,31 +901,40 @@ static int PopoNonScaleCallback(J3DNode* node, int timing)
 {
 	if (timing == 0) {
 		TPopo* popo = gpCurPopo;
-		if (popo
-		    && (popo->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()
-		        || popo->mSpine->getCurrentNerve()
-		               == &TNervePopoExplosion::theNerve()
-		        || popo->unk1B4)) {
-			u16 jointIndex = ((J3DJoint*)node)->getJntNo();
-			MtxPtr mtx
-			    = gpCurPopo->getModel()->mNodeMatrices[jointIndex];
-			Mtx scaleMtx;
-			scaleMtx[0][3] = 0.0f;
-			scaleMtx[1][3] = 0.0f;
-			scaleMtx[2][3] = 0.0f;
-			f32 scale = 0.9f * gpCurPopo->mBodyScale;
-			scaleMtx[0][0] = scale;
-			scaleMtx[0][1] = 0.0f;
-			scaleMtx[0][2] = 0.0f;
-			scaleMtx[1][0] = 0.0f;
-			scaleMtx[1][1] = scale;
-			scaleMtx[1][2] = 0.0f;
-			scaleMtx[2][0] = 0.0f;
-			scaleMtx[2][1] = 0.0f;
-			scaleMtx[2][2] = scale;
-			PSMTXConcat(mtx, scaleMtx, mtx);
-			PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
-		}
+		if (!popo)
+			return 1;
+
+		bool doScale;
+		if (popo->mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()
+		    || popo->mSpine->getCurrentNerve()
+		           == &TNervePopoExplosion::theNerve()
+		    || popo->unk1B4)
+			doScale = true;
+		else
+			doScale = false;
+
+		if (!doScale)
+			return 1;
+
+		u16 jointIndex = ((J3DJoint*)node)->getJntNo();
+		MtxPtr mtx
+		    = gpCurPopo->getModel()->mNodeMatrices[jointIndex];
+		Mtx scaleMtx;
+		scaleMtx[0][3] = 0.0f;
+		scaleMtx[1][3] = 0.0f;
+		scaleMtx[2][3] = 0.0f;
+		f32 scale = 0.9f * gpCurPopo->mBodyScale;
+		scaleMtx[0][0] = scale;
+		scaleMtx[0][1] = 0.0f;
+		scaleMtx[0][2] = 0.0f;
+		scaleMtx[1][0] = 0.0f;
+		scaleMtx[1][1] = scale;
+		scaleMtx[1][2] = 0.0f;
+		scaleMtx[2][0] = 0.0f;
+		scaleMtx[2][1] = 0.0f;
+		scaleMtx[2][2] = scale;
+		PSMTXConcat(mtx, scaleMtx, mtx);
+		PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
 	}
 	return 1;
 }
