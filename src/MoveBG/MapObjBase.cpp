@@ -523,19 +523,8 @@ void TMapObjBase::setGroundCollision()
 
 void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
 {
-	u8 state1;
-	if (gpMarDirector->unk124 == 1 || gpMarDirector->unk124 == 2)
-		state1 = 1;
-	else
-		state1 = 0;
-	if (state1) {
-		u8 state2;
-		if (gpMarDirector->unk124 == 3 || gpMarDirector->unk124 == 4)
-			state2 = 1;
-		else
-			state2 = 0;
-
-		if (!state2) {
+	if (gpMarDirector->isTalkModeNow()) {
+		if (!gpMarDirector->checkUnk124Thing2()) {
 			if (mLiveFlag & 1)
 				return;
 			u8 isType3B;
@@ -565,7 +554,7 @@ void TMapObjBase::perform(u32 param_1, JDrama::TGraphics* gfx)
 		}
 	}
 	if (param_1 & 1) {
-		if (mLifeTimer > 0)
+		if (isLifeTimerActive())
 			mLifeTimer -= 1;
 		if (unk100 == 0) {
 			u32 sound;
