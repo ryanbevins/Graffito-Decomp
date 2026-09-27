@@ -1153,18 +1153,16 @@ void TMario::wireRolling()
 	setAnimation(0x33, 1.0f);
 }
 
-void TMario::wireHanging()
+BOOL TMario::wireHanging()
 {
 	JGeometry::TVec3<f32> startPos = mWireStartPos;
 	JGeometry::TVec3<f32> diff = mWireEndPos;
 	diff.sub(startPos);
 
 	JGeometry::TVec3<f32> dir = diff;
-	JGeometry::TVec3<f32> scaled = dir;
-	scaled.scale(mWirePosRatio);
 
 	JGeometry::TVec3<f32> wirePos = startPos;
-	wirePos.add(scaled);
+	wirePos.add(dir * mWirePosRatio);
 
 	mPosition = wirePos;
 	mPosition.y = mPosition.y - 160.0f;
@@ -1176,24 +1174,25 @@ void TMario::wireHanging()
 	Mtx mtxResult;
 	PSMTXConcat(mtxY, mtxX, mtxResult);
 
-	Vec sagOffset;
-	sagOffset.x = 0.0f;
-	sagOffset.y = -mWireSag * 1.0f;
-	sagOffset.z = 0.0f;
-	Vec sagResult;
-	PSMTXMultVec(mtxResult, &sagOffset, &sagResult);
+	f32 sagY  = -mWireSag;
+	f32 scale = 1.0f;
+	Vec sag;
+	sag.x = 0.0f;
+	sag.y = sagY * scale;
+	sag.z = 0.0f;
+	PSMTXMultVec(mtxResult, &sag, &sag);
 
-	mPosition.x = mPosition.x + sagResult.x;
-	mPosition.y = mPosition.y + sagResult.y;
-	mPosition.z = mPosition.z + sagResult.z;
+	mPosition.x = mPosition.x + sag.x;
+	mPosition.y = mPosition.y + sag.y;
+	mPosition.z = mPosition.z + sag.z;
 
 	s16 angle;
 	angle = matan(dir.z, dir.x);
 
-	if ((mInput & 0x2) && (mFloorPosition.x - mFloorPosition.y >= 160.0f)) {
+	BOOL onCeil = mFloorPosition.x - mFloorPosition.y >= 160.0f;
+	if ((mInput & 0x2) && onCeil) {
 		mWireBounceVel = 5.0f;
-		changePlayerStatus(0x10000556, 0, false);
-		return;
+		return changePlayerStatus(0x10000556, 0, false);
 	}
 
 	if (mInput & 0x8000) {
@@ -1217,8 +1216,7 @@ void TMario::wireHanging()
 			mPosition.y = groundY;
 		}
 
-		changePlayerStatus(0x208ba, 0, false);
-		return;
+		return changePlayerStatus(0x208ba, 0, false);
 	}
 
 	u8 canSpray = 0;
@@ -1252,8 +1250,7 @@ void TMario::wireHanging()
 
 		if (angleDiff >= -0x6000 && angleDiff <= -0x2000) {
 			mWireBounceVel = 5.0f;
-			changePlayerStatus(0x10000556, 0, false);
-			return;
+			return changePlayerStatus(0x10000556, 0, false);
 		}
 
 		if (angleDiff >= 0x3555 && angleDiff <= 0x4AAA) {
@@ -1341,14 +1338,14 @@ void TMario::wireHanging()
 					}
 
 					unkF6 = unkF6 + rotSpeed2;
-					changePlayerStatus(0x10000358, 0, false);
-					return;
+					return changePlayerStatus(0x10000358, 0, false);
 				}
 			}
 		}
 
 		setAnimation(0xe3, 1.0f);
 	}
+	return FALSE;
 }
 
 void TMario::changeWireHanging()

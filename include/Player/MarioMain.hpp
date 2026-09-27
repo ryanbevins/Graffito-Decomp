@@ -1167,7 +1167,7 @@ public:
 	BOOL wireSWaitToWaitL();
 	void wireRolling();
 	void getNozzleEmitVX(); // UNUSED
-	void wireHanging();
+	BOOL wireHanging();
 	BOOL wireReturn();
 	BOOL wireSWaitToHang();
 	BOOL wireWaitToHang();
