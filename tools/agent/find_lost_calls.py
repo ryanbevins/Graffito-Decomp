@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# usage: python tools/agent/find_lost_calls.py [--prefix Enemy/]
+# usage: python tools/agent/find_lost_calls.py [--prefix Enemy/] [--reverse]
 """List same-TU functions that retail calls via `bl` more often than our object does.
 
 Typical cause: MWCC auto-inlined the callee in our build, while retail reached it
@@ -10,6 +10,7 @@ import argparse, collections, glob, os, re, subprocess
 B = "build/binutils/powerpc-eabi-objdump"
 ap = argparse.ArgumentParser()
 ap.add_argument("--prefix", default="")
+ap.add_argument("--reverse", action="store_true", help="list callees ours calls via bl more than retail (retail inlined)")
 args = ap.parse_args()
 
 for asm in sorted(glob.glob(f"build/GMSJ01/asm/{args.prefix}**/*.s", recursive=True)):
@@ -20,16 +21,21 @@ for asm in sorted(glob.glob(f"build/GMSJ01/asm/{args.prefix}**/*.s", recursive=T
     text = open(asm, errors="ignore").read()
     defined = set(re.findall(r"^\.fn (\S+), global", text, re.M))
     retail = collections.Counter()
-    for m in re.finditer(r"\tbl (\S+)$", text, re.M):
+    for m in re.finditer(r"\tbl? (\S+)$", text, re.M):
         name = m.group(1).strip('"')
         if name in defined:
             retail[name] += 1
-    if not retail:
+    if not retail and not args.reverse:
         continue
     out = subprocess.run([B, "-dr", obj], capture_output=True, text=True).stdout
     ours = collections.Counter()
     for m in re.finditer(r"R_PPC_REL24\s+(\S+)", out):
         ours[m.group(1)] += 1
+    if args.reverse:
+        for name, n in ours.items():
+            if name in defined and n > retail[name]:
+                print(f"{rel}: {name} retail={retail[name]} ours={n}")
+        continue
     for name, n in retail.items():
         if ours[name] < n:
             print(f"{rel}: {name} retail={n} ours={ours[name]}")
