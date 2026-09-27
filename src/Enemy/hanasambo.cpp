@@ -805,9 +805,7 @@ void TSamboFlowerManager::loadAfter()
 
 	mLeaves = new TSamboLeaf*[18];
 	for (int i = 0; i < 18; ++i) {
-		TSamboLeaf* leaf = new TSamboLeaf("サンボリーフ", nullptr, this);
-		leaf->mModel    = new SDLModel(leafModelData, 3, 1);
-		mLeaves[i]      = leaf;
+		mLeaves[i] = new TSamboLeaf("サンボリーフ", leafModelData, this);
 	}
 
 	mCoinUnitCount = 0;
@@ -823,9 +821,10 @@ void TSamboFlowerManager::loadAfter()
 		counts[i] = 0;
 
 	for (int i = 0; i < getObjNum(); ++i) {
-		if (strstr(getObj(i)->getName(), "フラワー（コイン用）")
-		    && ((TSamboFlower*)getObj(i))->unk158 < mCoinUnitCount) {
-			++counts[((TSamboFlower*)getObj(i))->unk158];
+		if (strstr(getObj(i)->getName(), "フラワー（コイン用）")) {
+			TSamboFlower* flower = (TSamboFlower*)getObj(i);
+			if (flower->unk158 < mCoinUnitCount)
+				++counts[flower->unk158];
 		}
 	}
 

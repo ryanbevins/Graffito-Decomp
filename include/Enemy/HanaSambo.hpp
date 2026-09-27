@@ -3,6 +3,7 @@
 
 #include <Enemy/WalkerEnemy.hpp>
 #include <JSystem/JDrama/JDRViewObj.hpp>
+#include <M3DUtil/SDLModel.hpp>
 
 class J3DMaterialTable;
 class SDLModel;
@@ -85,12 +86,14 @@ public:
 
 class TSamboLeaf : public JDrama::TViewObj {
 public:
-	TSamboLeaf(const char* name, SDLModel* model, TSamboFlowerManager* manager)
+	TSamboLeaf(const char* name, SDLModelData* modelData,
+	           TSamboFlowerManager* manager)
 	    : JDrama::TViewObj(name)
-	    , mModel(model)
+	    , mModel(nullptr)
 	    , mActive(false)
 	    , mManager(manager)
 	{
+		mModel = new SDLModel(modelData, 3, 1);
 	}
 
 	virtual void perform(u32, JDrama::TGraphics*);
