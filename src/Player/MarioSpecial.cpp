@@ -1602,17 +1602,10 @@ int TMario::wireMove(f32 rate)
 void TMario::getOnWirePosAngle(JGeometry::TVec3<f32>* outPos, short* outAngle)
 {
 	JGeometry::TVec3<f32> startPos = mWireStartPos;
-	JGeometry::TVec3<f32> diff = mWireEndPos;
-	diff.sub(startPos);
+	JGeometry::TVec3<f32> diff     = mWireEndPos - startPos;
+	JGeometry::TVec3<f32> dir      = diff;
 
-	JGeometry::TVec3<f32> dir = diff;
-	JGeometry::TVec3<f32> scaled = dir;
-	scaled.scale(mWirePosRatio);
-
-	JGeometry::TVec3<f32> wirePos = startPos;
-	wirePos.add(scaled);
-
-	*outPos = wirePos;
+	*outPos = startPos + diff * mWirePosRatio;
 	outPos->y = outPos->y - 160.0f;
 
 	Mtx mtxX;
@@ -1622,16 +1615,17 @@ void TMario::getOnWirePosAngle(JGeometry::TVec3<f32>* outPos, short* outAngle)
 	Mtx mtxResult;
 	PSMTXConcat(mtxY, mtxX, mtxResult);
 
-	Vec sagOffset;
-	sagOffset.x = 0.0f;
-	sagOffset.y = -mWireSag * 1.0f;
-	sagOffset.z = 0.0f;
-	Vec sagResult;
-	PSMTXMultVec(mtxResult, &sagOffset, &sagResult);
+	f32 sagY  = -mWireSag;
+	f32 scale = 1.0f;
+	Vec sag;
+	sag.x = 0.0f;
+	sag.y = sagY * scale;
+	sag.z = 0.0f;
+	PSMTXMultVec(mtxResult, &sag, &sag);
 
-	outPos->x = outPos->x + sagResult.x;
-	outPos->y = outPos->y + sagResult.y;
-	outPos->z = outPos->z + sagResult.z;
+	outPos->x = outPos->x + sag.x;
+	outPos->y = outPos->y + sag.y;
+	outPos->z = outPos->z + sag.z;
 
 	*outAngle = matan(dir.z, dir.x);
 }
