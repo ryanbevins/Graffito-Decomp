@@ -432,6 +432,21 @@ BOOL TFruitSwitch::receiveMessage(THitActor* sender, u32 message)
 MActor* TLiveActor::getMActor() const { return mMActor; }
 #pragma dont_inline off
 
+static inline TMapObjBase* makeRandomFruit(const JGeometry::TVec3<f32>& pos)
+{
+	f32 r = MsRandF() * 100.0f;
+	return r < 20.0f   ? gpItemManager->makeObjAppear(pos.x, pos.y, pos.z,
+	                                                  0x40000390, false)
+	       : r < 40.0f ? gpItemManager->makeObjAppear(pos.x, pos.y, pos.z,
+	                                                  0x40000391, false)
+	       : r < 60.0f ? gpItemManager->makeObjAppear(pos.x, pos.y, pos.z,
+	                                                  0x40000392, false)
+	       : r < 80.0f ? gpItemManager->makeObjAppear(pos.x, pos.y, pos.z,
+	                                                  0x40000393, false)
+	                   : gpItemManager->makeObjAppear(pos.x, pos.y, pos.z,
+	                                                  0x40000394, false);
+}
+
 void TFruitLauncher::fireObj()
 {
 	gpMarioParticleManager->emitAndBindToPosPtr(
@@ -457,73 +472,11 @@ void TFruitLauncher::fireObj()
 	PSMTXCopy(matrix, collision->unk20);
 	collision->setUp();
 
-	TMapObjBase* obj = (TMapObjBase*)NULL;
-	{
-		f32 r1 = MsRandF() * 100.0f;
-		obj = r1 < 20.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000390, false)
-		      : r1 < 40.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000391, false)
-		      : r1 < 60.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000392, false)
-		      : r1 < 80.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000393, false)
-		          : gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000394, false);
-	}
-	if (obj == NULL) {
-		f32 r2 = MsRandF() * 100.0f;
-		obj = r2 < 20.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000390, false)
-		      : r2 < 40.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000391, false)
-		      : r2 < 60.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000392, false)
-		      : r2 < 80.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000393, false)
-		          : gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000394, false);
-	}
-	if (obj == NULL) {
-		f32 r3 = MsRandF() * 100.0f;
-		obj = r3 < 20.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000390, false)
-		      : r3 < 40.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000391, false)
-		      : r3 < 60.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000392, false)
-		      : r3 < 80.0f
-		          ? gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000393, false)
-		          : gpItemManager->makeObjAppear(
-		                mPosition.x, mPosition.y, mPosition.z,
-		                0x40000394, false);
-	}
+	TMapObjBase* obj = makeRandomFruit(mPosition);
+	if (obj == NULL)
+		obj = makeRandomFruit(mPosition);
+	if (obj == NULL)
+		obj = makeRandomFruit(mPosition);
 	if (obj != NULL) {
 		obj->mPosition.x = mPosition.x;
 		obj->mPosition.y = mPosition.y;
@@ -531,9 +484,7 @@ void TFruitLauncher::fireObj()
 		f32 speedZ       = mObjSpeedXZ * (MsRandF() - 0.5f);
 		f32 speedY       = -mObjSpeedY;
 		f32 speedX       = mObjSpeedXZ * (MsRandF() - 0.5f);
-		obj->mVelocity.x = speedX;
-		obj->mVelocity.y = speedY;
-		obj->mVelocity.z = speedZ;
+		obj->mVelocity.set(JGeometry::TVec3<f32>(speedX, speedY, speedZ));
 		obj->mLiveFlag &= ~0x10;
 		TMarDirector* director = gpMarDirector;
 		director->fireStartDemoCamera(
