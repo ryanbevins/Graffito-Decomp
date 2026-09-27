@@ -1262,8 +1262,9 @@ void TTinKoopaPartsBase::emitPartsDisappearEffects()
 	if (!unk104->checkCurBckFromIndex(partsBreakBckTable[unkFC]))
 		return;
 
-	s32 frame = 60;
-	if (!unk104->getFrameCtrl(0)->checkPass((f32)frame))
+	J3DFrameCtrl* ctrl = unk104->getFrameCtrl(0);
+	s32 frame          = 60;
+	if (!ctrl->checkPass((f32)frame))
 		return;
 
 	if (unkFC == 1) {
