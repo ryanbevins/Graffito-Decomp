@@ -196,6 +196,19 @@ DEFINE_NERVE(TNerveIgaigaWaterHit, TLiveActor)
 	return FALSE;
 }
 
+// fabricated: retail shares the early-out with the nerve's single return block
+static inline void rollOnGraph(TIgaiga* self)
+{
+	if (self->isReachedToGoalXZ()) {
+		if (self->jumpToNextGraphNode() >= 0)
+			self->flagJump();
+		if (self->getTracer()->getCurrent().checkFlag(0x40))
+			return;
+		self->goToRandomNextGraphNode();
+	}
+	self->walkBehavior(2, 1.0f);
+}
+
 DEFINE_NERVE(TNerveIgaigaRollOnGraph, TLiveActor)
 {
 	TIgaiga* self = (TIgaiga*)spine->getBody();
@@ -206,14 +219,7 @@ DEFINE_NERVE(TNerveIgaigaRollOnGraph, TLiveActor)
 	if (self->checkCurAnmEnd(0) && self->isBckAnm(2))
 		self->setBckAnm(3);
 
-	if (self->isReachedToGoalXZ()) {
-		if (self->jumpToNextGraphNode() >= 0)
-			self->flagJump();
-		if (self->getTracer()->getCurrent().checkFlag(0x40))
-			return FALSE;
-		self->goToRandomNextGraphNode();
-	}
-	self->walkBehavior(2, 1.0f);
+	rollOnGraph(self);
 
 	return FALSE;
 }
