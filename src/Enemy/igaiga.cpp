@@ -659,8 +659,8 @@ void TIgaiga::walkBehavior(int mode, f32 speed)
 	f32 z = mLinearVelocity.z;
 	if (unk1A8) {
 		JGeometry::TVec3<f32> velocity = mVelocity;
-		x                               = velocity.x;
-		z                               = velocity.z;
+		z = JGeometry::TVec3<f32>(velocity).z;
+		x = JGeometry::TVec3<f32>(velocity).x;
 	}
 
 	f32 rollSpeed = JGeometry::TUtil<f32>::sqrt(x * x + z * z);
@@ -672,7 +672,7 @@ void TIgaiga::walkBehavior(int mode, f32 speed)
 			unk1B4 = 0;
 	}
 
-	if (!checkLiveFlag(LIVE_FLAG_AIRBORNE) && mGroundPlane) {
+	if (!isAirborne() && mGroundPlane) {
 		const TLiveActor* actor = mGroundPlane->getActor();
 		if (actor)
 			((THitActor*)actor)->receiveMessage(this, HIT_MESSAGE_ATTACK);
