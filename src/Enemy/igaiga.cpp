@@ -339,9 +339,10 @@ void TRollEnemy::flagJump()
 	    .getPoint((Vec*)&target);
 	mPosition.y += 30.0f;
 	f32 jumpTime = unk124->unkC;
-	f32 gravity  = getGravityY();
-	mVelocity    = calcVelocityToJumpToY(target, jumpTime, gravity);
+	JGeometry::TVec3<f32> vel
+	    = calcVelocityToJumpToY(target, jumpTime, getGravityY());
 	unk1A8    = true;
+	mVelocity = vel;
 	onLiveFlag(LIVE_FLAG_AIRBORNE);
 }
 
@@ -1010,9 +1011,10 @@ void TGorogoro::flagJump()
 	    .getPoint((Vec*)&target);
 	mPosition.y += 30.0f;
 	f32 jumpTime = unk124->unkC;
-	f32 gravity  = getGravityY();
-	mVelocity    = calcVelocityToJumpToY(target, jumpTime, gravity);
+	JGeometry::TVec3<f32> vel
+	    = calcVelocityToJumpToY(target, jumpTime, getGravityY());
 	unk1A8    = true;
+	mVelocity = vel;
 	onLiveFlag(LIVE_FLAG_AIRBORNE);
 }
 
