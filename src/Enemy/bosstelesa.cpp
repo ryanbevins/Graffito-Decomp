@@ -154,8 +154,7 @@ void TBossTelesa::loadAfter()
 		for (int i = 0; i < gpMapObjManager->getObjNum(); ++i) {
 			TMapObjBase* actor = gpMapObjManager->getObj(i);
 			if (actor->isActorType(rouletteType)) {
-				unk178[found] = (TRoulette*)actor;
-				found++;
+				unk178[found++] = (TRoulette*)actor;
 			}
 		}
 	}
