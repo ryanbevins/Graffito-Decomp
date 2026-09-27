@@ -711,7 +711,7 @@ BOOL TBaseNPC::receiveMessage(THitActor* sender, u32 message)
 			}
 
 			bool shouldHit = false;
-			if (isBeTrampledNpc()) {
+			if (isMadNpc()) {
 				shouldHit = true;
 			} else {
 				switch (mActorType) {
