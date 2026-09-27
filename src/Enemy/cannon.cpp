@@ -918,9 +918,7 @@ void TCannon::calcRootMatrix()
 		MtxPtr takingMtx = mHolder->getTakingMtx();
 		if (mSpine->getCurrentNerve() == &TNerveCannonObject::theNerve()) {
 			PSMTXCopy(takingMtx, getModel()->getBaseTRMtx());
-			mPosition.x = takingMtx[0][3];
-			mPosition.y = takingMtx[1][3];
-			mPosition.z = takingMtx[2][3];
+			mPosition.set(takingMtx[0][3], takingMtx[1][3], takingMtx[2][3]);
 		} else {
 			if (gpMarDirector->checkUnk124Thing2())
 				mRotation.y = -80.0f;
