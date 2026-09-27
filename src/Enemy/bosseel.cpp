@@ -2511,13 +2511,14 @@ DEFINE_NERVE(TNerveBossEelSlowBack, TLiveActor)
 DEFINE_NERVE(TNerveBossEelQuickBack, TLiveActor)
 {
 	if (ExecBackNerve_Sub(spine, 40.0f)) {
+		int i;
 		TBossEel* eel = (TBossEel*)spine->getBody();
 		TBossEelTooth** teeth = (TBossEelTooth**)((u8*)eel + 0x16C);
 
-		for (int i = 0; i < 8; ++i, ++teeth) {
+		for (i = 0; i < 8; ++i, ++teeth) {
 			TBossEelTooth* tooth = *teeth;
 			if (tooth && tooth->unk70 > 1) {
-				tooth->unk70 = tooth->unk6C->unk1E8->mSLToothMaxHitPoint.value;
+				tooth->unk70 = tooth->unk6C->unk1E8->mSLToothMaxHitPoint.get();
 				tooth->unkB8.a = 0xff;
 			}
 		}
