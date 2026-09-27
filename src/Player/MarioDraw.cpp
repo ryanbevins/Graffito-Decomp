@@ -1433,7 +1433,7 @@ void TMario::initModel()
 		u16 matCount   = anmTexPattern[i]->getUpdateMaterialNum();
 		anmTexNoAnm[i] = new J3DTexNoAnm[matCount];
 
-		for (int j = 0; j < matCount; ++j) {
+		for (int j = 0; j < anmTexPattern[i]->getUpdateMaterialNum(); ++j) {
 			anmTexNoAnm[i][j].setAnmIndex(j);
 			anmTexNoAnm[i][j].setAnmTexPattern(anmTexPattern[i]);
 		}
