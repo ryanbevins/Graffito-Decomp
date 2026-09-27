@@ -990,10 +990,11 @@ void TGessoPolluteObj::set()
 
 		JGeometry::TVec3<f32> local_54 = getVelocity();
 
-		// TODO: awful things happening with the stack frame here
+		// TODO: frame is 8 bytes too large; retail places local_C lowest
 		JGeometry::TVec3<f32> local_C = getVelocity();
-		if (JGeometry::TVec3<f32>(local_C).x != 0.0f
-		    || JGeometry::TVec3<f32>(local_C).z != 0.0f)
+		JGeometry::TVec3<f32> t1;
+		JGeometry::TVec3<f32> t2;
+		if ((t1 = local_C).x != 0.0f || (t2 = local_C).z != 0.0f)
 			MsVECNormalize(&local_54, &local_54);
 
 		mPosition.x = local_54.x * 100.0f + mtx[0][3];
