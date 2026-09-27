@@ -911,7 +911,7 @@ void TMario::getCurrentPullParams(f32* outSpeed, f32* outAccel)
 	}
 }
 
-void TMario::wireRolling()
+BOOL TMario::wireRolling()
 {
 	s16 savedAngle = mFaceAngle.x;
 
@@ -920,17 +920,11 @@ void TMario::wireRolling()
 	diff.sub(startPos);
 
 	JGeometry::TVec3<f32> dir = diff;
-	f32 ratio = mWirePosRatio;
-
-	JGeometry::TVec3<f32> scaled = dir;
-	scaled.scale(ratio);
 
 	JGeometry::TVec3<f32> wirePos = startPos;
-	wirePos.add(scaled);
+	wirePos.add(dir * mWirePosRatio);
 
-	mPosition.x = wirePos.x;
-	mPosition.y = wirePos.y;
-	mPosition.z = wirePos.z;
+	mPosition = wirePos;
 	mPosition.y = mPosition.y - 160.0f;
 
 	Mtx mtxX;
@@ -940,17 +934,17 @@ void TMario::wireRolling()
 	Mtx mtxResult;
 	PSMTXConcat(mtxY, mtxX, mtxResult);
 
-	Vec sagOffset;
-	sagOffset.x = 0.0f;
-	f32 negSag = -mWireSag;
-	sagOffset.y = negSag * 1.0f;
-	sagOffset.z = 0.0f;
-	Vec sagResult;
-	PSMTXMultVec(mtxResult, &sagOffset, &sagResult);
+	f32 sagY  = -mWireSag;
+	f32 scale = 1.0f;
+	Vec sag;
+	sag.x = 0.0f;
+	sag.y = sagY * scale;
+	sag.z = 0.0f;
+	PSMTXMultVec(mtxResult, &sag, &sag);
 
-	mPosition.x = mPosition.x + sagResult.x;
-	mPosition.y = mPosition.y + sagResult.y;
-	mPosition.z = mPosition.z + sagResult.z;
+	mPosition.x = mPosition.x + sag.x;
+	mPosition.y = mPosition.y + sag.y;
+	mPosition.z = mPosition.z + sag.z;
 
 	u32 wireAngle = matan(dir.z, dir.x);
 
@@ -964,14 +958,12 @@ void TMario::wireRolling()
 
 	if (bit0 && (s16)unkF6 < 0 && mFaceAngle.x > -8192
 	    && mFaceAngle.x <= maxRotSpeed - 8192) {
-		changePlayerStatus(0x893, 0, false);
-		return;
+		return changePlayerStatus(0x893, 0, false);
 	}
 
 	if (bit0 && (s16)unkF6 > 0 && (24576 - maxRotSpeed) <= mFaceAngle.x
 	    && mFaceAngle.x < 24576) {
-		changePlayerStatus(0x893, 1, false);
-		return;
+		return changePlayerStatus(0x893, 1, false);
 	}
 
 	if (mInput & 0x1) {
@@ -1141,16 +1133,15 @@ void TMario::wireRolling()
 				canHang = 1;
 		}
 		if (canHang) {
-			changePlayerStatus(0x10000357, 0, false);
-			return;
+			return changePlayerStatus(0x10000357, 0, false);
 		}
-		changePlayerStatus(0x88c, 0, false);
-		return;
+		return changePlayerStatus(0x88c, 0, false);
 	}
 
 	mFaceAngle.y = wireAngle + 0x4000;
 	mModelFaceAngle = mFaceAngle.y;
 	setAnimation(0x33, 1.0f);
+	return FALSE;
 }
 
 BOOL TMario::wireHanging()

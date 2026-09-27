@@ -1165,7 +1165,7 @@ public:
 	void getCurrentPullParams(f32*, f32*);
 	BOOL wireSWaitToWaitR();
 	BOOL wireSWaitToWaitL();
-	void wireRolling();
+	BOOL wireRolling();
 	void getNozzleEmitVX(); // UNUSED
 	BOOL wireHanging();
 	BOOL wireReturn();
