@@ -288,7 +288,7 @@ TFluff::TFluff(const char* name)
 void TFluff::initMapObj()
 {
 	TMapObjBase::initMapObj();
-	unk138 = 4800.0f;
+	unk138 = 300.0f;
 	unk13C = 0.5f;
 }
 
