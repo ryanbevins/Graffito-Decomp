@@ -26,6 +26,7 @@ public:
 	void setYounger(J3DNode* pYounger) { mYounger = pYounger; }
 	void setCallBack(J3DNodeCallBack callback) { mCallBack = callback; }
 	void setCallBackUserData(void* data) { mCallBackUserData = data; }
+	void* getCallBackUserData() { return mCallBackUserData; }
 	J3DNodeCallBack getCallBack() { return mCallBack; }
 	J3DNode* getChild() { return mChild; }
 

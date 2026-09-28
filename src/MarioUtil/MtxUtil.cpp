@@ -276,7 +276,7 @@ inline void TMtxSwingRZ::calc(MtxPtr mtx)
 int TMtxSwingRZCallBack(J3DNode* node, int param)
 {
 	if (param == 0)
-		((TMtxSwingRZ*)node->mCallBackUserData)->calc(J3DSys::mCurrentMtx);
+		((TMtxSwingRZ*)node->getCallBackUserData())->calc(J3DSys::mCurrentMtx);
 	return 1;
 }
 
@@ -298,7 +298,7 @@ inline void TMtxSwingRZReverseXZ::calc(MtxPtr mtx)
 int TMtxSwingRZReverseXZCallBack(J3DNode* node, int param)
 {
 	if (param == 0)
-		((TMtxSwingRZReverseXZ*)node->mCallBackUserData)
+		((TMtxSwingRZReverseXZ*)node->getCallBackUserData())
 		    ->calc(J3DSys::mCurrentMtx);
 	return 1;
 }
