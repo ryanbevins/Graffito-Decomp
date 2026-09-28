@@ -168,7 +168,7 @@ void TCogwheel::initDraw() const
 	static const GXColor sCogwheelColor = { 0x00, 0x00, 0x64, 0xFF };
 	GXColor color;
 	volatile GXColor temp;
-	temp  = sCogwheelColor;
+	*(GXColor*)&temp = sCogwheelColor;
 	color = *(GXColor*)&temp;
 	GXSetChanMatColor(GX_COLOR0A0, color);
 	GXSetNumTexGens(1);
@@ -406,7 +406,7 @@ void TMapObjElasticCode::draw() const
 	static const GXColor sElasticColor = { 0x00, 0x00, 0x64, 0xFF };
 	GXColor color;
 	volatile GXColor temp;
-	temp  = sElasticColor;
+	*(GXColor*)&temp = sElasticColor;
 	color = *(GXColor*)&temp;
 	GXSetChanMatColor(GX_COLOR0A0, color);
 	GXSetNumTexGens(0);
@@ -620,7 +620,7 @@ void TWireBell::initDraw() const
 	static const GXColor sWireBellColor = { 0x00, 0x00, 0x64, 0xFF };
 	GXColor color;
 	volatile GXColor temp;
-	temp  = sWireBellColor;
+	*(GXColor*)&temp = sWireBellColor;
 	color = *(GXColor*)&temp;
 	GXSetChanMatColor(GX_COLOR0A0, color);
 	GXSetNumTexGens(1);
