@@ -341,13 +341,17 @@ void TBGTakeHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 			unk80.mMtx[1][2] = vec3.y;
 			unk80.mMtx[2][2] = vec3.z;
 
-			unk80.mMtx[0][3] = mtx[0][3] + vec3.x * mDamageRadius;
-			unk80.mMtx[1][3] = mtx[1][3] + vec3.y * mDamageRadius;
-			unk80.mMtx[2][3] = mtx[2][3] + vec3.z * mDamageRadius;
+			vec3.scale(mDamageRadius);
+			f32 transX = mtx[0][3] + vec3.x;
+			f32 transY = mtx[1][3] + vec3.y;
+			f32 transZ = mtx[2][3] + vec3.z;
+			unk80.mMtx[0][3] = transX;
+			unk80.mMtx[1][3] = transY;
+			unk80.mMtx[2][3] = transZ;
 
-			const JGeometry::TVec3<f32>& lastVel
-			    = mOwner->getLastNode()->getVelocity();
-			JGeometry::TVec3<f32> local_8c(lastVel.x, 0.0f, lastVel.z);
+			JGeometry::TVec3<f32> local_8c = mOwner->getLastNode()->getVelocity();
+			local_8c.y = 0.0f;
+			local_8c.scale(0.1f);
 
 			if (!unk74.isZero()) {
 				// TODO: one more inlining layer?!
