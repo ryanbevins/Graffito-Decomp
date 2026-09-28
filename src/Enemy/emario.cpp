@@ -65,16 +65,13 @@ void TEMario::perform(u32 flags, JDrama::TGraphics* gfx)
 			relevant = false;
 		if (relevant) {
 			for (int i = 0; i < mColCount; i++) {
-				THitActor* coll = mCollisions[i];
-				u32 type        = coll->mActorType;
-				switch (type) {
+				switch (mCollisions[i]->mActorType) {
 				case 0x80000001: {
-					JGeometry::TVec3<f32> diff = mPosition - coll->mPosition;
+					JGeometry::TVec3<f32> diff = mPosition - mCollisions[i]->mPosition;
 					f32 dist = calcLength(diff);
 					f32 range = *(f32*)((u8*)mEnemyMario + 0x42b0);
-					if (dist >= range)
-						break;
-					coll->receiveMessage(this, 0xe);
+					if (dist < range)
+						mCollisions[i]->receiveMessage(this, 0xe);
 					break;
 				}
 				case 0x400000BC: {
@@ -86,13 +83,13 @@ void TEMario::perform(u32 flags, JDrama::TGraphics* gfx)
 					if (airborne)
 						break;
 					f32 damageR = mEnemyMario->mDamageRadius;
-					f32 attackR = coll->mAttackRadius;
-					JGeometry::TVec3<f32> diff = coll->mPosition - mPosition;
+					f32 attackR = mCollisions[i]->mAttackRadius;
+					JGeometry::TVec3<f32> diff = mCollisions[i]->mPosition - mPosition;
 					f32 dist = calcLength(diff);
-					if (dist >= attackR + damageR)
-						break;
-					mEnemyMario->changePlayerStatus(0x810446, 0, false);
-					mEnemyMario->emitGetEffect();
+					if (dist < attackR + damageR) {
+						mEnemyMario->changePlayerStatus(0x810446, 0, false);
+						mEnemyMario->emitGetEffect();
+					}
 					break;
 				}
 				}
