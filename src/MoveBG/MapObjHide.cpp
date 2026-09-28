@@ -704,6 +704,11 @@ void THideObjBase::load(JSUMemoryInputStream& stream)
 	SMS_LoadParticle("/scene/mapObj/ms_watcoin_hit.jpa", 0x57);
 }
 
+static inline bool isBlueCoinTaken(u8 map, u8 id)
+{
+	return TFlagManager::smInstance->getBlueCoinFlag(map, id);
+}
+
 void THideObjBase::loadAfter()
 {
 	TMapObjBase::loadAfter();
@@ -716,8 +721,7 @@ void THideObjBase::loadAfter()
 	if (unk138) {
 		bool isBlueCoin = (unk138->mActorType == 0x20000010) ? true : false;
 		if (isBlueCoin) {
-			if (TFlagManager::smInstance->getBlueCoinFlag(
-			        gpMarDirector->mMap, (u8)unk134))
+			if (isBlueCoinTaken(gpMarDirector->mMap, unk134))
 				unk14C = 0;
 		}
 		bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
