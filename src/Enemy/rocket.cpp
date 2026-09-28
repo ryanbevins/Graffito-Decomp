@@ -163,6 +163,21 @@ void TRocket::setMActorAndKeeper()
 	mMActor       = mMActorKeeper->createMActor("rocket.bmd", 3);
 }
 
+// fabricated
+static inline f32 calcRocketAxisLength(const JGeometry::TVec3<f32>& v)
+{
+	f32 xSq  = v.x * v.x;
+	f32 ySq  = v.y * v.y;
+	f32 zSq  = v.z * v.z;
+	f32 xySq = xSq + ySq;
+	f32 mag  = zSq + xySq;
+	if (mag <= 0.0f)
+		return mag;
+
+	f32 root = __frsqrte(mag);
+	return 0.5f * root * (3.0f - mag * (root * root)) * mag;
+}
+
 void TRocket::calcRootMatrix()
 {
 	if (mUnk1A0) {
@@ -177,23 +192,19 @@ void TRocket::calcRootMatrix()
 			MtxPtr emit   = wg->getEmitMtx(0);
 			PSMTXCopy(emit, tmp);
 
-			f32 len0 = tmp.at(0, 0) * tmp.at(0, 0)
-			           + tmp.at(1, 0) * tmp.at(1, 0)
-			           + tmp.at(2, 0) * tmp.at(2, 0);
-			if (len0 > 0.0f)
-				len0 = JGeometry::TUtil<f32>::sqrt(len0);
-
-			f32 len1 = tmp.at(0, 1) * tmp.at(0, 1)
-			           + tmp.at(1, 1) * tmp.at(1, 1)
-			           + tmp.at(2, 1) * tmp.at(2, 1);
-			if (len1 > 0.0f)
-				len1 = JGeometry::TUtil<f32>::sqrt(len1);
-
-			f32 len2 = tmp.at(0, 2) * tmp.at(0, 2)
-			           + tmp.at(1, 2) * tmp.at(1, 2)
-			           + tmp.at(2, 2) * tmp.at(2, 2);
-			if (len2 > 0.0f)
-				len2 = JGeometry::TUtil<f32>::sqrt(len2);
+			JGeometry::TVec3<f32> axis[3];
+			axis[0].x = tmp.at(0, 0);
+			axis[0].y = tmp.at(1, 0);
+			axis[0].z = tmp.at(2, 0);
+			f32 len0 = calcRocketAxisLength(axis[0]);
+			axis[1].x = tmp.at(0, 1);
+			axis[1].y = tmp.at(1, 1);
+			axis[1].z = tmp.at(2, 1);
+			f32 len1 = calcRocketAxisLength(axis[1]);
+			axis[2].x = tmp.at(0, 2);
+			axis[2].y = tmp.at(1, 2);
+			axis[2].z = tmp.at(2, 2);
+			f32 len2 = calcRocketAxisLength(axis[2]);
 
 			// Target guards the normalized columns in this cross order.
 			if (len2 != 0.0f) {
