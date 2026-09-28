@@ -170,40 +170,33 @@ void TBossTelesa::loadAfter()
 		}
 	}
 
-	JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
-	JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
-	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 	int fruitIndex = 0;
 	for (int i = 0; i < 6; ++i) {
-		JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		unk2A8[fruitIndex] = TMapObjBaseManager::newAndRegisterObj(
-		    "FruitCoconut", position, rotation, scale);
+		    "FruitCoconut", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		fruitIndex++;
 	}
 	for (int i = 0; i < 6; ++i) {
-		JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		unk2A8[fruitIndex] = TMapObjBaseManager::newAndRegisterObj(
-		    "FruitPapaya", position, rotation, scale);
+		    "FruitPapaya", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		fruitIndex++;
 	}
 	for (int i = 0; i < 2; ++i) {
-		JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		unk2A8[fruitIndex] = TMapObjBaseManager::newAndRegisterObj(
-		    "FruitPine", position, rotation, scale);
+		    "FruitPine", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		fruitIndex++;
 	}
 	for (int i = 0; i < 6; ++i) {
-		JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		unk2A8[fruitIndex] = TMapObjBaseManager::newAndRegisterObj(
-		    "FruitDurian", position, rotation, scale);
+		    "FruitDurian", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		fruitIndex++;
 	}
 
@@ -246,6 +239,9 @@ void TBossTelesa::loadAfter()
 
 	unk354 = JDrama::TNameRefGen::search<TObjManager>("テレサマネージャー");
 
+	JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
+	JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
+	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 	for (int i = 0; i < 5; ++i)
 		TMapObjBaseManager::newAndRegisterObj("bottle_large", position,
 		                                      rotation, scale);
