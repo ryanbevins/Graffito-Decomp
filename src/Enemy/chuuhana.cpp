@@ -787,15 +787,18 @@ void TChuuHanaAseParCallback::execute(JPABaseEmitter* emitter, JPABaseParticle*)
 
 void TChuuHanaAseParCallback::draw(JPABaseEmitter*, JPABaseParticle*) { }
 
+// fabricated
+static inline bool isChuuHanaRolling(TChuuHana* chuuhana)
+{
+	if (chuuhana->mSpine->getCurrentNerve() == &TNerveChuuHanaRoll::theNerve())
+		return true;
+	return false;
+}
+
 static int ChuuHanaBodyCallback(J3DNode* node, int timing)
 {
 	if (timing == 0) {
-		TChuuHana* owner = gpCurChuuHana;
-		if (owner == nullptr)
-			return 1;
-		bool isRoll = owner->mSpine->getCurrentNerve()
-		              == &TNerveChuuHanaRoll::theNerve();
-		if (!isRoll)
+		if (!gpCurChuuHana || !isChuuHanaRolling(gpCurChuuHana))
 			return 1;
 
 		u16 jointIndex = ((J3DJoint*)node)->getJntNo();
@@ -817,9 +820,9 @@ static int ChuuHanaBodyCallback(J3DNode* node, int timing)
 		identity[2][3] = 0.0f;
 
 		Vec dir;
-		dir.x = owner->unk204.x;
+		dir.x = gpCurChuuHana->unk204.x;
 		dir.y = 0.0f;
-		dir.z = owner->unk204.z;
+		dir.z = gpCurChuuHana->unk204.z;
 		if (dir.x == 0.0f && dir.z == 0.0f)
 			dir.x = 0.001f;
 
@@ -863,7 +866,7 @@ static int ChuuHanaBodyCallback(J3DNode* node, int timing)
 		localAxis.z = z;
 		Mtx rot;
 		PSMTXRotAxisRad(rot, &localAxis,
-		                0.017453292f * owner->unk210);
+		                0.017453292f * gpCurChuuHana->unk210);
 		PSMTXConcat(jointMtx, rot, jointMtx);
 		PSMTXConcat(jointMtx, identity, jointMtx);
 		PSMTXConcat(J3DSys::mCurrentMtx, rot, J3DSys::mCurrentMtx);
