@@ -421,7 +421,7 @@ BOOL MActor::checkCurAnm(const char* param_1, int param_2)
 		return false;
 
 	int idx = unk28[param_2]->findName2(param_1);
-	if (idx == unk28[param_2]->unk0)
+	if (idx == unk28[param_2]->getUnk0())
 		return true;
 
 	return false;
