@@ -626,13 +626,13 @@ void TRevolvingFenceOuter::initMapCollisionData()
 
 	TMapObjBase* inner;
 	if (unk138) {
-		JGeometry::TVec3<f32> ones(1.0f, 1.0f, 1.0f);
 		inner = TMapObjBaseManager::newAndRegisterObj(
-		    "bambooFence_revolve_inner", mPosition, mRotation, ones);
+		    "bambooFence_revolve_inner", mPosition, mRotation,
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 	} else {
-		JGeometry::TVec3<f32> ones(1.0f, 1.0f, 1.0f);
 		inner = TMapObjBaseManager::newAndRegisterObj(
-		    "fence_revolve_inner", mPosition, mRotation, ones);
+		    "fence_revolve_inner", mPosition, mRotation,
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 	}
 	unk13C = inner;
 	unk13C->appear();
