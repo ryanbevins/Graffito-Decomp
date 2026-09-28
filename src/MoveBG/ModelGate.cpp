@@ -138,6 +138,14 @@ void TModelGate::screenBlur(JDrama::TGraphics* graphics)
 	effect->unk5C        = tmp;
 }
 
+static inline f32 calcLength(JGeometry::TVec3<f32> v)
+{
+	f32 xSq = v.x * v.x;
+	f32 ySq = v.y * v.y;
+	f32 zSq = v.z * v.z;
+	return JGeometry::TUtil<f32>::sqrt(zSq + (xSq + ySq));
+}
+
 void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 {
 	if (!(unk70 & 1))
@@ -165,10 +173,7 @@ void TModelGate::perform(u32 perf_flags, JDrama::TGraphics* graphics)
 			rel.x                      -= mPosition.x;
 			rel.y                      -= mPosition.y;
 			rel.z                      -= mPosition.z;
-			JGeometry::TVec3<f32> sqv;
-			sqv = rel;
-			f32 dist
-			    = JGeometry::TUtil<f32>::sqrt(sqv.x * sqv.x + sqv.y * sqv.y + sqv.z * sqv.z);
+			f32 dist = calcLength(rel);
 			if (dist < 1000.0f) {
 				unkD0 += 0.01f;
 				if (unkD0 > 1.0f) {
