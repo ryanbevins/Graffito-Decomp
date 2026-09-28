@@ -864,9 +864,9 @@ BOOL TAnimalBird::receiveMessage(THitActor* sender, u32 msg)
 		return FALSE;
 
 	if (msg == 0xF) {
-		JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 		SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xE7,
-		                     &sender->mPosition, (const void*)NULL, scale);
+		                     &sender->mPosition, (const void*)NULL,
+		                     JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		gpMSound->startSoundSet(0x6802, &sender->mPosition, 0, 0.0f, 0, 0, 4);
 
 		if (unk178 <= 0) {
