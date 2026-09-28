@@ -509,7 +509,7 @@ void TBossPakkun::setGroundCollision()
 
 	J3DModel* model = getModel();
 	TMtx34f mtx;
-	mtx.set(model->mNodeMatrices[2]);
+	mtx.set(model->getAnmMtx(2));
 
 	if (getMapCollisionManager()->unk8 != nullptr) {
 		getMapCollisionManager()->unk8->moveMtx(mtx);
