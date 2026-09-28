@@ -121,10 +121,10 @@ void TPictureTelesa::touchActor(THitActor* sender)
 		r3v = 0;
 	if (r3v)
 		return;
-	f32 dx = sender->mPosition.x - mPosition.x;
-	f32 dy = sender->mPosition.y - mPosition.y;
-	f32 dz = sender->mPosition.z - mPosition.z;
-	f32 sq = dz * dz + (dx * dx + dy * dy);
+	JGeometry::TVec3<f32> diff(sender->mPosition.x - mPosition.x,
+	                           sender->mPosition.y - mPosition.y,
+	                           sender->mPosition.z - mPosition.z);
+	f32 sq = diff.squared();
 	if (sq > 0.0f)
 		sq = JGeometry::TUtil<f32>::sqrt(sq);
 	if (sq < 200.0f) {
