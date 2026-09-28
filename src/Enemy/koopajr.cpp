@@ -70,15 +70,69 @@ DEFINE_NERVE(TNerveKoopaJrWait, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveKoopaJrSubmarineLaunchKiller, TLiveActor)
+DEFINE_NERVE(TNerveKoopaJrDamage, TLiveActor)
 {
-	PAD_STACK(0x8);
+	TKoopaJr* actor = (TKoopaJr*)spine->getBody();
+	if (spine->getTime() == 0) {
+		actor->mMActor->setBckFromIndex(0);
 
-	TKoopaJrSubmarine* actor = (TKoopaJrSubmarine*)spine->getBody();
-	if (actor->unk180 == actor->unk184 && actor->unk150 <= 0) {
-		J3DFrameCtrl* ctrl = actor->mMActor->getFrameCtrl(0);
-		ctrl->setRate(actor->unk188);
+		const char** bas = actor->getBasNameTable();
+		actor->setAnmSound(!bas ? nullptr : bas[0]);
+	}
+
+	if (actor->unk150 <= 0 && actor->mMActor->isCurAnmAlreadyEnd(0))
 		return TRUE;
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveKoopaJrDemo, TLiveActor)
+{
+	TKoopaJr* actor = (TKoopaJr*)spine->getBody();
+	if (spine->getTime() == 0) {
+		actor->mMActor->setBckFromIndex(0);
+
+		const char** bas = actor->getBasNameTable();
+		actor->setAnmSound(!bas ? nullptr : bas[0]);
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveKoopaJrLaunch, TLiveActor)
+{
+	TKoopaJr* actor = (TKoopaJr*)spine->getBody();
+	if (spine->getTime() == 0) {
+		actor->mMActor->setBckFromIndex(1);
+
+		const char** bas = actor->getBasNameTable();
+		actor->setAnmSound(!bas ? nullptr : bas[1]);
+	}
+
+	return actor->mMActor->isCurAnmAlreadyEnd(0) ? TRUE : FALSE;
+}
+
+DEFINE_NERVE(TNerveKoopaJrYahoo, TLiveActor)
+{
+	TKoopaJr* actor = (TKoopaJr*)spine->getBody();
+	if (spine->getTime() == 0) {
+		actor->mMActor->setBckFromIndex(3);
+
+		const char** bas = actor->getBasNameTable();
+		actor->setAnmSound(!bas ? nullptr : bas[3]);
+	}
+
+	return actor->mMActor->isCurAnmAlreadyEnd(0) ? TRUE : FALSE;
+}
+
+DEFINE_NERVE(TNerveKoopaJrSubmarineWait, TLiveActor)
+{
+	TKoopaJrSubmarine* actor = (TKoopaJrSubmarine*)spine->getBody();
+	if (spine->getTime() == 0) {
+		actor->mMActor->setBckFromIndex(0);
+
+		const char** bas = actor->getBasNameTable();
+		actor->setAnmSound(!bas ? nullptr : bas[0]);
+		actor->mMActor->getFrameCtrl(0)->setRate(0.0f);
 	}
 
 	return FALSE;
@@ -99,72 +153,18 @@ DEFINE_NERVE(TNerveKoopaJrSubmarineCannonOpenClose, TLiveActor)
 	return actor->mMActor->isCurAnmAlreadyEnd(0) ? TRUE : FALSE;
 }
 
-DEFINE_NERVE(TNerveKoopaJrSubmarineWait, TLiveActor)
+DEFINE_NERVE(TNerveKoopaJrSubmarineLaunchKiller, TLiveActor)
 {
+	PAD_STACK(0x8);
+
 	TKoopaJrSubmarine* actor = (TKoopaJrSubmarine*)spine->getBody();
-	if (spine->getTime() == 0) {
-		actor->mMActor->setBckFromIndex(0);
-
-		const char** bas = actor->getBasNameTable();
-		actor->setAnmSound(!bas ? nullptr : bas[0]);
-		actor->mMActor->getFrameCtrl(0)->setRate(0.0f);
-	}
-
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveKoopaJrLaunch, TLiveActor)
-{
-	TKoopaJr* actor = (TKoopaJr*)spine->getBody();
-	if (spine->getTime() == 0) {
-		actor->mMActor->setBckFromIndex(1);
-
-		const char** bas = actor->getBasNameTable();
-		actor->setAnmSound(!bas ? nullptr : bas[1]);
-	}
-
-	return actor->mMActor->isCurAnmAlreadyEnd(0) ? TRUE : FALSE;
-}
-
-DEFINE_NERVE(TNerveKoopaJrDemo, TLiveActor)
-{
-	TKoopaJr* actor = (TKoopaJr*)spine->getBody();
-	if (spine->getTime() == 0) {
-		actor->mMActor->setBckFromIndex(0);
-
-		const char** bas = actor->getBasNameTable();
-		actor->setAnmSound(!bas ? nullptr : bas[0]);
-	}
-
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveKoopaJrDamage, TLiveActor)
-{
-	TKoopaJr* actor = (TKoopaJr*)spine->getBody();
-	if (spine->getTime() == 0) {
-		actor->mMActor->setBckFromIndex(0);
-
-		const char** bas = actor->getBasNameTable();
-		actor->setAnmSound(!bas ? nullptr : bas[0]);
-	}
-
-	if (actor->unk150 <= 0 && actor->mMActor->isCurAnmAlreadyEnd(0))
+	if (actor->unk180 == actor->unk184 && actor->unk150 <= 0) {
+		J3DFrameCtrl* ctrl = actor->mMActor->getFrameCtrl(0);
+		ctrl->setRate(actor->unk188);
 		return TRUE;
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveKoopaJrYahoo, TLiveActor)
-{
-	TKoopaJr* actor = (TKoopaJr*)spine->getBody();
-	if (spine->getTime() == 0) {
-		actor->mMActor->setBckFromIndex(3);
-
-		const char** bas = actor->getBasNameTable();
-		actor->setAnmSound(!bas ? nullptr : bas[3]);
 	}
 
-	return actor->mMActor->isCurAnmAlreadyEnd(0) ? TRUE : FALSE;
+	return FALSE;
 }
 
 TDirectionCalc::TDirectionCalc()
