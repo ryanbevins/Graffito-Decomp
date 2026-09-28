@@ -41,535 +41,6 @@ static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 static f32 sMaxTurnStep = 3.0f;
 static f32 sMinTurnStep = -3.0f;
 
-DEFINE_NERVE(TNerveBGKSleep, TLiveActor)
-{
-	TBiancoGateKeeper* gatekeeper
-	    = (TBiancoGateKeeper*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		gatekeeper->changeBck(0x0A);
-		gatekeeper->offHitFlag(HIT_FLAG_NO_COLLISION);
-		gatekeeper->mMActor->setBpkFromIndex(0);
-
-		J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(2);
-		if (ctrl) {
-			ctrl->setFrame(0.0f);
-			ctrl->setRate(0.0f);
-		}
-	}
-
-	if (gpMarDirector->mMap == 2) {
-		if (gatekeeper->unk298 > 0)
-			--gatekeeper->unk298;
-
-		if (gatekeeper->unk298 == 0) {
-			TBiancoGateKeeperParams* params
-			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
-			s32 timer = params->mSLLaunchTimerNormal.get();
-			timer += (s32)(240.0f * (0.000030517578f * rand())) - 0x78;
-			gatekeeper->unk298 = timer;
-
-			spine->pushAfterCurrent(&TNerveBGKLaunchGoro::theNerve());
-			return true;
-		}
-	}
-
-	if (gatekeeper->mMActor->checkBckPass(18.0f)) {
-		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1E0, (MtxPtr)gatekeeper->getModel()->mNodeMatrices, 2,
-		    nullptr);
-	}
-
-	if (gatekeeper->unk17C >= 0xFF) {
-		spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
-		return true;
-	}
-
-	if (gatekeeper->unk154 > 0) {
-		spine->pushAfterCurrent(&TNerveBGKSleepDamage::theNerve());
-		return true;
-	}
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBGKAppear, TLiveActor)
-{
-	TBiancoGateKeeper* gatekeeper
-	    = (TBiancoGateKeeper*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		gatekeeper->changeBck(0);
-
-		if (gatekeeper->unk28A == 0) {
-			snprintf((char*)gatekeeper->unk188, 0x100, "%s出現カメラ",
-			         gatekeeper->getName());
-			TMarDirector* director = gpMarDirector;
-			director->fireStartDemoCamera(
-			    (char*)gatekeeper->unk188, &gatekeeper->mPosition, -1, 0.0f,
-			    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
-			MSBgm::setTrackVolume(0, 0.0f, 10, 0);
-			MSBgm::startBGM(0x8001000B);
-		}
-
-		if (gatekeeper->unk28A < 0xFF)
-			++gatekeeper->unk28A;
-
-		if (gatekeeper->unk28A == 2)
-			gpMarDirector->mConsole->startAppearBalloon(0xE0047, true);
-	}
-
-	if (spine->getTime() == 8) {
-		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1DF,
-		    (MtxPtr)((u8*)gatekeeper->getModel()->mNodeMatrices + 0x240), 2,
-		    nullptr);
-
-		if (SMS_IsMarioTouchGround4cm()) {
-			gatekeeper->unk29C = gatekeeper->getRumblePow();
-			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
-		}
-	}
-
-	if (gatekeeper->mMActor->curAnmEndsNext()) {
-		if (gpMarDirector->mMap == 0)
-			spine->pushAfterCurrent(&TNerveBGKWait2::theNerve());
-		else
-			spine->pushAfterCurrent(&TNerveBGKWait::theNerve());
-
-		return true;
-	}
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBGKAwakeDamage, TLiveActor)
-{
-	TBiancoGateKeeper* gatekeeper
-	    = (TBiancoGateKeeper*)spine->getBody();
-
-	if (spine->getTime() == 0)
-		gatekeeper->changeBck(3);
-
-	J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(0);
-	BOOL animEnd;
-	if (ctrl == nullptr)
-		animEnd = true;
-	else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
-	         || ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
-	         || 0.1f + ctrl->getFrame() >= ctrl->getEnd())
-		animEnd = true;
-	else
-		animEnd = false;
-
-	if (animEnd) {
-		if (gpMarDirector->mMap == 0)
-			spine->pushAfterCurrent(&TNerveBGKWait2::theNerve());
-		else
-			spine->pushAfterCurrent(&TNerveBGKWait::theNerve());
-
-		return true;
-	}
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBGKLaunchGoro, TLiveActor)
-{
-	TBiancoGateKeeper* gatekeeper
-	    = (TBiancoGateKeeper*)spine->getBody();
-
-	if (spine->getTime() == 0)
-		gatekeeper->changeBck(8);
-
-	if (spine->getTime() == 0x34) {
-		TGorogoro* goro
-		    = (TGorogoro*)gpConductor->makeOneEnemyAppear(
-		        gatekeeper->mPosition, "ゴロゴロマネージャー", 0);
-		if (goro)
-			goro->generateByGateKeeper(gatekeeper->mPosition,
-			                           gatekeeper->mRotation);
-
-		if (SMS_IsMarioTouchGround4cm()) {
-			gatekeeper->unk29C = gatekeeper->getRumblePow();
-			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
-		}
-	}
-
-	if (gatekeeper->unk17C >= 0xFF) {
-		spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
-		return true;
-	}
-
-	if (gatekeeper->mMActor->curAnmEndsNext()) {
-		spine->pushAfterCurrent(&TNerveBGKSleep::theNerve());
-		return true;
-	}
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBGKLaunchName, TLiveActor)
-{
-	TBiancoGateKeeper* gatekeeper
-	    = (TBiancoGateKeeper*)spine->getBody();
-
-	if (spine->getTime() == 0)
-		gatekeeper->changeBck(8);
-
-	if (spine->getTime() == 0x34) {
-		gatekeeper->launchNamekuri();
-
-		if (SMS_IsMarioTouchGround4cm()) {
-			gatekeeper->unk29C = gatekeeper->getRumblePow();
-			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
-		}
-	}
-
-	if (gatekeeper->mMActor->curAnmEndsNext()) {
-		spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
-		return true;
-	}
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBGKDive, TLiveActor)
-{
-	TBiancoGateKeeper* gatekeeper
-	    = (TBiancoGateKeeper*)spine->getBody();
-
-	if (spine->getTime() == 0)
-		gatekeeper->changeBck(6);
-
-	if (spine->getTime() == 0xF0) {
-		J3DModel* model = gatekeeper->getModel();
-		MtxPtr mtx      = (MtxPtr)model->mNodeMatrices;
-		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1DF, mtx, 2, nullptr);
-
-		if (SMS_IsMarioTouchGround4cm()) {
-			gatekeeper->unk29C = gatekeeper->getRumblePow();
-			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
-		}
-	}
-
-	if (gatekeeper->mMActor->curAnmEndsNext()) {
-		if (gatekeeper->unk292 == 1) {
-			TBiancoGateKeeperParams* params
-			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
-			s32 timer = params->mSLLaunchTimerNormal.get();
-			timer += (s32)(240.0f * (0.000030517578f * rand())) - 0x78;
-			gatekeeper->unk298 = timer;
-
-			TGorogoro* goro
-			    = (TGorogoro*)gpConductor->makeOneEnemyAppear(
-			        gatekeeper->mPosition, "ゴロゴロマネージャー", 0);
-			if (goro)
-				goro->generateByGateKeeper(gatekeeper->mPosition,
-				                           gatekeeper->mRotation);
-
-			if (SMS_IsMarioTouchGround4cm()) {
-				gatekeeper->unk29C = gatekeeper->getRumblePow();
-				SMSRumbleMgr->start(8, &gatekeeper->unk29C);
-			}
-		}
-
-		spine->pushAfterCurrent(&TNerveBGKSleep::theNerve());
-		return true;
-	}
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBGKDie, TLiveActor)
-{
-	TBiancoGateKeeper* gatekeeper
-	    = (TBiancoGateKeeper*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		gatekeeper->changeBck(5);
-
-		if (!((gatekeeper->unk292 == 3 || gatekeeper->unk292 == 4)
-		      && gatekeeper->unk296 == 0)) {
-			snprintf((char*)gatekeeper->unk188, 0x100, "%s撃沈カメラ",
-			         gatekeeper->getName());
-			TMarDirector* director = gpMarDirector;
-			director->fireStartDemoCamera(
-			    (char*)gatekeeper->unk188, &gatekeeper->mPosition, -1, 0.0f,
-			    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
-			MSBgm::stopTrackBGM(1, 10);
-
-			gatekeeper->mMActor->setBpkFromIndex(0);
-			J3DFrameCtrl* bpkCtrl = gatekeeper->mMActor->getFrameCtrl(2);
-			if (bpkCtrl) {
-				bpkCtrl->setFrame(0.0f);
-				bpkCtrl->setRate(SMSGetAnmFrameRate());
-			}
-
-			MtxPtr mtx = (MtxPtr)((u8*)gatekeeper->getModel()->mNodeMatrices
-			                         + 0x120);
-			JPABaseEmitter* emit = gpMarioParticleManager->emitAndBindToMtxPtr(
-			    0xA7, mtx, 0, nullptr);
-			if (emit)
-				SMSSetEmitterPolColor(emit, 6);
-
-			MtxPtr mtx2
-			    = (MtxPtr)gatekeeper->getModel()->mNodeMatrices;
-			gpMarioParticleManager->emitAndBindToMtxPtr(0xA8, mtx2, 0,
-			                                               nullptr);
-		}
-	}
-
-	if (spine->getTime() == 0x154) {
-		MtxPtr mtx
-		    = (MtxPtr)gatekeeper->getModel()->mNodeMatrices;
-		gpMarioParticleManager->emitAndBindToMtxPtr(
-		    0x1DF, mtx, 2, nullptr);
-
-		if (gpMSound->gateCheck(0x38B0))
-			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x38B0, &gatekeeper->mPosition, 0, nullptr, 0, 4);
-
-		if (SMS_IsMarioTouchGround4cm()) {
-			gatekeeper->unk29C = gatekeeper->getRumblePow();
-			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
-		}
-	}
-
-	if (SMS_IsMarioTouchGround4cm()) {
-		J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(0);
-		if (ctrl) {
-			f32 ratio = 1.0f - ctrl->getFrame() / ctrl->getEnd();
-			gatekeeper->unk29C = ratio * gatekeeper->getRumblePow();
-			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
-		}
-	}
-
-	if (gatekeeper->mMActor->curAnmEndsNext()) {
-		if ((gatekeeper->unk292 == 3 || gatekeeper->unk292 == 4)
-		    && gatekeeper->unk296 == 0) {
-			++gatekeeper->unk296;
-			gatekeeper->mHitPoints = 3;
-
-			if (gatekeeper->unk292 == 4)
-				spine->pushAfterCurrent(&TNerveBGKLaunchName::theNerve());
-			else
-				spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
-
-			return true;
-		}
-
-		gatekeeper->unk160 = 0;
-		gatekeeper->kill();
-		return true;
-	}
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBGKSleepDamage, TLiveActor)
-{
-	TBiancoGateKeeper* gatekeeper
-	    = (TBiancoGateKeeper*)spine->getBody();
-
-	if (spine->getTime() == 0)
-		gatekeeper->changeBck(4);
-
-	if (gatekeeper->unk292 == 1) {
-		if (gatekeeper->unk298 > 0)
-			--gatekeeper->unk298;
-
-		if (gatekeeper->unk298 == 0) {
-			TBiancoGateKeeperParams* params
-			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
-			s32 timer = params->mSLLaunchTimerDamage.get();
-			timer += (s32)(240.0f * (0.000030517578f * rand())) - 0x78;
-			gatekeeper->unk298 = timer;
-
-			TGorogoro* goro
-			    = (TGorogoro*)gpConductor->makeOneEnemyAppear(
-			        gatekeeper->mPosition, "ゴロゴロマネージャー", 0);
-			if (goro)
-				goro->generateByGateKeeper(gatekeeper->mPosition,
-				                           gatekeeper->mRotation);
-
-			if (SMS_IsMarioTouchGround4cm()) {
-				gatekeeper->unk29C = gatekeeper->getRumblePow();
-				SMSRumbleMgr->start(8, &gatekeeper->unk29C);
-			}
-		}
-	}
-
-	if (gatekeeper->mMActor->curAnmEndsNext()) {
-		spine->pushAfterCurrent(&TNerveBGKSleep::theNerve());
-		return true;
-	}
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBGKWait, TLiveActor)
-{
-	TBiancoGateKeeper* gatekeeper
-	    = (TBiancoGateKeeper*)spine->getBody();
-	MActor* actor = gatekeeper->mMActor;
-
-	if (spine->getTime() == 0)
-		gatekeeper->changeBck(0x11);
-
-	if (gatekeeper->unk154 > 0 && actor->checkCurBckFromIndex(0x12)
-	    && !gatekeeper->isHeadHitActive()) {
-		gatekeeper->changeBck(7);
-		return false;
-	}
-
-	if (gatekeeper->unk154 > 0 && !actor->checkCurBckFromIndex(0x0B)
-	    && !actor->checkCurBckFromIndex(7)
-	    && !actor->checkCurBckFromIndex(0x11)
-	    && !actor->checkCurBckFromIndex(0x0D)) {
-		if (gatekeeper->mHitPoints != 0)
-			--gatekeeper->mHitPoints;
-
-		if (gatekeeper->mHitPoints == 0)
-			spine->pushAfterCurrent(&TNerveBGKDie::theNerve());
-		else
-			spine->pushAfterCurrent(&TNerveBGKAwakeDamage::theNerve());
-
-		return true;
-	}
-
-	if (gatekeeper->unk154 > 0 && actor->checkCurBckFromIndex(0x0B)) {
-		gatekeeper->changeBck(7);
-		return false;
-	}
-
-	if (gatekeeper->unk154 > 0 && actor->checkCurBckFromIndex(7))
-		gatekeeper->unk290 = 0;
-
-	TBiancoGateKeeperParams* params
-	    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
-	if (spine->getTime() > params->mSLDiveTimer.get()
-	    && !actor->checkCurBckFromIndex(0x0D)) {
-		J3DFrameCtrl* ctrl = actor->getFrameCtrl(0);
-		BOOL diveReady;
-		if (ctrl == nullptr)
-			diveReady = true;
-		else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
-		         || ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
-		         || 0.1f + ctrl->getFrame() >= ctrl->getEnd())
-			diveReady = true;
-		else
-			diveReady = false;
-
-		if (diveReady)
-			gatekeeper->changeBck(0x0D);
-	}
-
-	J3DFrameCtrl* ctrl = actor->getFrameCtrl(0);
-	BOOL animEnd;
-	if (ctrl == nullptr)
-		animEnd = true;
-	else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
-	         || ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
-	         || 0.1f + ctrl->getFrame() >= ctrl->getEnd())
-		animEnd = true;
-	else
-		animEnd = false;
-
-	if (animEnd) {
-		if (actor->checkCurBckFromIndex(0x11) && gatekeeper->unk28A == 1
-		    && gatekeeper->mHitPoints == 3) {
-			gatekeeper->changeBck(0x0B);
-		} else if (actor->checkCurBckFromIndex(0x11)) {
-			gatekeeper->changeBck(0x12);
-		} else if (actor->checkCurBckFromIndex(0x0B)) {
-			gatekeeper->changeBck(0x12);
-		} else if (actor->checkCurBckFromIndex(0x12)) {
-			gatekeeper->changeBck(0x12);
-		} else if (actor->checkCurBckFromIndex(7)) {
-			if (gatekeeper->unk154 > 0) {
-				gatekeeper->unk290 = 0;
-				gatekeeper->changeBck(7);
-			} else {
-				gatekeeper->unk17C = 0;
-				if (gatekeeper->unk290 >= 0) {
-					gatekeeper->unk290 = 0;
-					gatekeeper->changeBck(0x12);
-				} else {
-					++gatekeeper->unk290;
-					gatekeeper->changeBck(7);
-				}
-			}
-		} else if (actor->checkCurBckFromIndex(0x0D)) {
-			spine->pushAfterCurrent(&TNerveBGKDive::theNerve());
-			return true;
-		}
-	}
-
-	return false;
-}
-
-DEFINE_NERVE(TNerveBGKWait2, TLiveActor)
-{
-	TBiancoGateKeeper* gatekeeper
-	    = (TBiancoGateKeeper*)spine->getBody();
-
-	if (spine->getTime() == 0)
-		gatekeeper->changeBck(0x11);
-
-	if (gatekeeper->unk154 > 0) {
-		if (gatekeeper->mHitPoints != 0)
-			--gatekeeper->mHitPoints;
-
-		if (gatekeeper->mHitPoints == 0)
-			spine->pushAfterCurrent(&TNerveBGKDie::theNerve());
-		else
-			spine->pushAfterCurrent(&TNerveBGKAwakeDamage::theNerve());
-
-		return true;
-	}
-
-	BOOL animEnd = true;
-	J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(0);
-	if (ctrl) {
-		if (!ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
-		    && !ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
-		    && 0.1f + ctrl->getFrame() < ctrl->getEnd())
-			animEnd = false;
-	}
-
-	if (animEnd) {
-		MActor* actor = gatekeeper->mMActor;
-		if (actor->checkCurBckFromIndex(0x11)) {
-			gatekeeper->changeBck(0x0F);
-		} else if (actor->checkCurBckFromIndex(0x0F)) {
-			gatekeeper->changeBck(0x10);
-		} else if (actor->checkCurBckFromIndex(0x10)) {
-			++gatekeeper->unk288;
-
-			if (gatekeeper->unk288 == 2 && gatekeeper->unk28A == 1
-			    && gpMarDirector->mMap == 0)
-				gpMarDirector->mConsole->startAppearBalloon(0xE0000,
-				                                            true);
-
-			TBiancoGateKeeperParams* params
-			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
-			if (gatekeeper->unk288 > params->mSLLoop2Dive.get()) {
-				gatekeeper->changeBck(0x0C);
-				gatekeeper->unk288 = 0;
-			}
-		} else if (actor->checkCurBckFromIndex(0x0C)) {
-			gatekeeper->changeBck(0x0D);
-		} else if (actor->checkCurBckFromIndex(0x0D)) {
-			spine->pushAfterCurrent(&TNerveBGKDive::theNerve());
-			return true;
-		}
-	}
-
-	return false;
-}
-
 const char* gatekeeper_bastable[] = {
 	"/scene/gatekeeper/bas/gene_pakkun_appear1.bas",
 	nullptr,
@@ -1299,4 +770,533 @@ BOOL TGKHitObj::receiveMessage(THitActor* sender, u32 message)
 	}
 
 	return unk68->receiveMessage(sender, message);
+}
+
+DEFINE_NERVE(TNerveBGKSleep, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		gatekeeper->changeBck(0x0A);
+		gatekeeper->offHitFlag(HIT_FLAG_NO_COLLISION);
+		gatekeeper->mMActor->setBpkFromIndex(0);
+
+		J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(2);
+		if (ctrl) {
+			ctrl->setFrame(0.0f);
+			ctrl->setRate(0.0f);
+		}
+	}
+
+	if (gpMarDirector->mMap == 2) {
+		if (gatekeeper->unk298 > 0)
+			--gatekeeper->unk298;
+
+		if (gatekeeper->unk298 == 0) {
+			TBiancoGateKeeperParams* params
+			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
+			s32 timer = params->mSLLaunchTimerNormal.get();
+			timer += (s32)(240.0f * (0.000030517578f * rand())) - 0x78;
+			gatekeeper->unk298 = timer;
+
+			spine->pushAfterCurrent(&TNerveBGKLaunchGoro::theNerve());
+			return true;
+		}
+	}
+
+	if (gatekeeper->mMActor->checkBckPass(18.0f)) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1E0, (MtxPtr)gatekeeper->getModel()->mNodeMatrices, 2,
+		    nullptr);
+	}
+
+	if (gatekeeper->unk17C >= 0xFF) {
+		spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
+		return true;
+	}
+
+	if (gatekeeper->unk154 > 0) {
+		spine->pushAfterCurrent(&TNerveBGKSleepDamage::theNerve());
+		return true;
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKAppear, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		gatekeeper->changeBck(0);
+
+		if (gatekeeper->unk28A == 0) {
+			snprintf((char*)gatekeeper->unk188, 0x100, "%s出現カメラ",
+			         gatekeeper->getName());
+			TMarDirector* director = gpMarDirector;
+			director->fireStartDemoCamera(
+			    (char*)gatekeeper->unk188, &gatekeeper->mPosition, -1, 0.0f,
+			    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
+			MSBgm::setTrackVolume(0, 0.0f, 10, 0);
+			MSBgm::startBGM(0x8001000B);
+		}
+
+		if (gatekeeper->unk28A < 0xFF)
+			++gatekeeper->unk28A;
+
+		if (gatekeeper->unk28A == 2)
+			gpMarDirector->mConsole->startAppearBalloon(0xE0047, true);
+	}
+
+	if (spine->getTime() == 8) {
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1DF,
+		    (MtxPtr)((u8*)gatekeeper->getModel()->mNodeMatrices + 0x240), 2,
+		    nullptr);
+
+		if (SMS_IsMarioTouchGround4cm()) {
+			gatekeeper->unk29C = gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		if (gpMarDirector->mMap == 0)
+			spine->pushAfterCurrent(&TNerveBGKWait2::theNerve());
+		else
+			spine->pushAfterCurrent(&TNerveBGKWait::theNerve());
+
+		return true;
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKWait, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+	MActor* actor = gatekeeper->mMActor;
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(0x11);
+
+	if (gatekeeper->unk154 > 0 && actor->checkCurBckFromIndex(0x12)
+	    && !gatekeeper->isHeadHitActive()) {
+		gatekeeper->changeBck(7);
+		return false;
+	}
+
+	if (gatekeeper->unk154 > 0 && !actor->checkCurBckFromIndex(0x0B)
+	    && !actor->checkCurBckFromIndex(7)
+	    && !actor->checkCurBckFromIndex(0x11)
+	    && !actor->checkCurBckFromIndex(0x0D)) {
+		if (gatekeeper->mHitPoints != 0)
+			--gatekeeper->mHitPoints;
+
+		if (gatekeeper->mHitPoints == 0)
+			spine->pushAfterCurrent(&TNerveBGKDie::theNerve());
+		else
+			spine->pushAfterCurrent(&TNerveBGKAwakeDamage::theNerve());
+
+		return true;
+	}
+
+	if (gatekeeper->unk154 > 0 && actor->checkCurBckFromIndex(0x0B)) {
+		gatekeeper->changeBck(7);
+		return false;
+	}
+
+	if (gatekeeper->unk154 > 0 && actor->checkCurBckFromIndex(7))
+		gatekeeper->unk290 = 0;
+
+	TBiancoGateKeeperParams* params
+	    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
+	if (spine->getTime() > params->mSLDiveTimer.get()
+	    && !actor->checkCurBckFromIndex(0x0D)) {
+		J3DFrameCtrl* ctrl = actor->getFrameCtrl(0);
+		BOOL diveReady;
+		if (ctrl == nullptr)
+			diveReady = true;
+		else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+		         || ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+		         || 0.1f + ctrl->getFrame() >= ctrl->getEnd())
+			diveReady = true;
+		else
+			diveReady = false;
+
+		if (diveReady)
+			gatekeeper->changeBck(0x0D);
+	}
+
+	J3DFrameCtrl* ctrl = actor->getFrameCtrl(0);
+	BOOL animEnd;
+	if (ctrl == nullptr)
+		animEnd = true;
+	else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+	         || ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+	         || 0.1f + ctrl->getFrame() >= ctrl->getEnd())
+		animEnd = true;
+	else
+		animEnd = false;
+
+	if (animEnd) {
+		if (actor->checkCurBckFromIndex(0x11) && gatekeeper->unk28A == 1
+		    && gatekeeper->mHitPoints == 3) {
+			gatekeeper->changeBck(0x0B);
+		} else if (actor->checkCurBckFromIndex(0x11)) {
+			gatekeeper->changeBck(0x12);
+		} else if (actor->checkCurBckFromIndex(0x0B)) {
+			gatekeeper->changeBck(0x12);
+		} else if (actor->checkCurBckFromIndex(0x12)) {
+			gatekeeper->changeBck(0x12);
+		} else if (actor->checkCurBckFromIndex(7)) {
+			if (gatekeeper->unk154 > 0) {
+				gatekeeper->unk290 = 0;
+				gatekeeper->changeBck(7);
+			} else {
+				gatekeeper->unk17C = 0;
+				if (gatekeeper->unk290 >= 0) {
+					gatekeeper->unk290 = 0;
+					gatekeeper->changeBck(0x12);
+				} else {
+					++gatekeeper->unk290;
+					gatekeeper->changeBck(7);
+				}
+			}
+		} else if (actor->checkCurBckFromIndex(0x0D)) {
+			spine->pushAfterCurrent(&TNerveBGKDive::theNerve());
+			return true;
+		}
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKWait2, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(0x11);
+
+	if (gatekeeper->unk154 > 0) {
+		if (gatekeeper->mHitPoints != 0)
+			--gatekeeper->mHitPoints;
+
+		if (gatekeeper->mHitPoints == 0)
+			spine->pushAfterCurrent(&TNerveBGKDie::theNerve());
+		else
+			spine->pushAfterCurrent(&TNerveBGKAwakeDamage::theNerve());
+
+		return true;
+	}
+
+	BOOL animEnd = true;
+	J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(0);
+	if (ctrl) {
+		if (!ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+		    && !ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+		    && 0.1f + ctrl->getFrame() < ctrl->getEnd())
+			animEnd = false;
+	}
+
+	if (animEnd) {
+		MActor* actor = gatekeeper->mMActor;
+		if (actor->checkCurBckFromIndex(0x11)) {
+			gatekeeper->changeBck(0x0F);
+		} else if (actor->checkCurBckFromIndex(0x0F)) {
+			gatekeeper->changeBck(0x10);
+		} else if (actor->checkCurBckFromIndex(0x10)) {
+			++gatekeeper->unk288;
+
+			if (gatekeeper->unk288 == 2 && gatekeeper->unk28A == 1
+			    && gpMarDirector->mMap == 0)
+				gpMarDirector->mConsole->startAppearBalloon(0xE0000,
+				                                            true);
+
+			TBiancoGateKeeperParams* params
+			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
+			if (gatekeeper->unk288 > params->mSLLoop2Dive.get()) {
+				gatekeeper->changeBck(0x0C);
+				gatekeeper->unk288 = 0;
+			}
+		} else if (actor->checkCurBckFromIndex(0x0C)) {
+			gatekeeper->changeBck(0x0D);
+		} else if (actor->checkCurBckFromIndex(0x0D)) {
+			spine->pushAfterCurrent(&TNerveBGKDive::theNerve());
+			return true;
+		}
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKSleepDamage, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(4);
+
+	if (gatekeeper->unk292 == 1) {
+		if (gatekeeper->unk298 > 0)
+			--gatekeeper->unk298;
+
+		if (gatekeeper->unk298 == 0) {
+			TBiancoGateKeeperParams* params
+			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
+			s32 timer = params->mSLLaunchTimerDamage.get();
+			timer += (s32)(240.0f * (0.000030517578f * rand())) - 0x78;
+			gatekeeper->unk298 = timer;
+
+			TGorogoro* goro
+			    = (TGorogoro*)gpConductor->makeOneEnemyAppear(
+			        gatekeeper->mPosition, "ゴロゴロマネージャー", 0);
+			if (goro)
+				goro->generateByGateKeeper(gatekeeper->mPosition,
+				                           gatekeeper->mRotation);
+
+			if (SMS_IsMarioTouchGround4cm()) {
+				gatekeeper->unk29C = gatekeeper->getRumblePow();
+				SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+			}
+		}
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		spine->pushAfterCurrent(&TNerveBGKSleep::theNerve());
+		return true;
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKAwakeDamage, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(3);
+
+	J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(0);
+	BOOL animEnd;
+	if (ctrl == nullptr)
+		animEnd = true;
+	else if (ctrl->checkState(J3DFrameCtrl::STATE_COMPLETED_ONCE)
+	         || ctrl->checkState(J3DFrameCtrl::STATE_LOOPED_ONCE)
+	         || 0.1f + ctrl->getFrame() >= ctrl->getEnd())
+		animEnd = true;
+	else
+		animEnd = false;
+
+	if (animEnd) {
+		if (gpMarDirector->mMap == 0)
+			spine->pushAfterCurrent(&TNerveBGKWait2::theNerve());
+		else
+			spine->pushAfterCurrent(&TNerveBGKWait::theNerve());
+
+		return true;
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKDie, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		gatekeeper->changeBck(5);
+
+		if (!((gatekeeper->unk292 == 3 || gatekeeper->unk292 == 4)
+		      && gatekeeper->unk296 == 0)) {
+			snprintf((char*)gatekeeper->unk188, 0x100, "%s撃沈カメラ",
+			         gatekeeper->getName());
+			TMarDirector* director = gpMarDirector;
+			director->fireStartDemoCamera(
+			    (char*)gatekeeper->unk188, &gatekeeper->mPosition, -1, 0.0f,
+			    true, nullptr, 0, nullptr, JDrama::TFlagT<u16>(0));
+			MSBgm::stopTrackBGM(1, 10);
+
+			gatekeeper->mMActor->setBpkFromIndex(0);
+			J3DFrameCtrl* bpkCtrl = gatekeeper->mMActor->getFrameCtrl(2);
+			if (bpkCtrl) {
+				bpkCtrl->setFrame(0.0f);
+				bpkCtrl->setRate(SMSGetAnmFrameRate());
+			}
+
+			MtxPtr mtx = (MtxPtr)((u8*)gatekeeper->getModel()->mNodeMatrices
+			                         + 0x120);
+			JPABaseEmitter* emit = gpMarioParticleManager->emitAndBindToMtxPtr(
+			    0xA7, mtx, 0, nullptr);
+			if (emit)
+				SMSSetEmitterPolColor(emit, 6);
+
+			MtxPtr mtx2
+			    = (MtxPtr)gatekeeper->getModel()->mNodeMatrices;
+			gpMarioParticleManager->emitAndBindToMtxPtr(0xA8, mtx2, 0,
+			                                               nullptr);
+		}
+	}
+
+	if (spine->getTime() == 0x154) {
+		MtxPtr mtx
+		    = (MtxPtr)gatekeeper->getModel()->mNodeMatrices;
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1DF, mtx, 2, nullptr);
+
+		if (gpMSound->gateCheck(0x38B0))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x38B0, &gatekeeper->mPosition, 0, nullptr, 0, 4);
+
+		if (SMS_IsMarioTouchGround4cm()) {
+			gatekeeper->unk29C = gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (SMS_IsMarioTouchGround4cm()) {
+		J3DFrameCtrl* ctrl = gatekeeper->mMActor->getFrameCtrl(0);
+		if (ctrl) {
+			f32 ratio = 1.0f - ctrl->getFrame() / ctrl->getEnd();
+			gatekeeper->unk29C = ratio * gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		if ((gatekeeper->unk292 == 3 || gatekeeper->unk292 == 4)
+		    && gatekeeper->unk296 == 0) {
+			++gatekeeper->unk296;
+			gatekeeper->mHitPoints = 3;
+
+			if (gatekeeper->unk292 == 4)
+				spine->pushAfterCurrent(&TNerveBGKLaunchName::theNerve());
+			else
+				spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
+
+			return true;
+		}
+
+		gatekeeper->unk160 = 0;
+		gatekeeper->kill();
+		return true;
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKDive, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(6);
+
+	if (spine->getTime() == 0xF0) {
+		J3DModel* model = gatekeeper->getModel();
+		MtxPtr mtx      = (MtxPtr)model->mNodeMatrices;
+		gpMarioParticleManager->emitAndBindToMtxPtr(
+		    0x1DF, mtx, 2, nullptr);
+
+		if (SMS_IsMarioTouchGround4cm()) {
+			gatekeeper->unk29C = gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		if (gatekeeper->unk292 == 1) {
+			TBiancoGateKeeperParams* params
+			    = (TBiancoGateKeeperParams*)gatekeeper->getSaveParam();
+			s32 timer = params->mSLLaunchTimerNormal.get();
+			timer += (s32)(240.0f * (0.000030517578f * rand())) - 0x78;
+			gatekeeper->unk298 = timer;
+
+			TGorogoro* goro
+			    = (TGorogoro*)gpConductor->makeOneEnemyAppear(
+			        gatekeeper->mPosition, "ゴロゴロマネージャー", 0);
+			if (goro)
+				goro->generateByGateKeeper(gatekeeper->mPosition,
+				                           gatekeeper->mRotation);
+
+			if (SMS_IsMarioTouchGround4cm()) {
+				gatekeeper->unk29C = gatekeeper->getRumblePow();
+				SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+			}
+		}
+
+		spine->pushAfterCurrent(&TNerveBGKSleep::theNerve());
+		return true;
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKLaunchGoro, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(8);
+
+	if (spine->getTime() == 0x34) {
+		TGorogoro* goro
+		    = (TGorogoro*)gpConductor->makeOneEnemyAppear(
+		        gatekeeper->mPosition, "ゴロゴロマネージャー", 0);
+		if (goro)
+			goro->generateByGateKeeper(gatekeeper->mPosition,
+			                           gatekeeper->mRotation);
+
+		if (SMS_IsMarioTouchGround4cm()) {
+			gatekeeper->unk29C = gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (gatekeeper->unk17C >= 0xFF) {
+		spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
+		return true;
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		spine->pushAfterCurrent(&TNerveBGKSleep::theNerve());
+		return true;
+	}
+
+	return false;
+}
+
+DEFINE_NERVE(TNerveBGKLaunchName, TLiveActor)
+{
+	TBiancoGateKeeper* gatekeeper
+	    = (TBiancoGateKeeper*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		gatekeeper->changeBck(8);
+
+	if (spine->getTime() == 0x34) {
+		gatekeeper->launchNamekuri();
+
+		if (SMS_IsMarioTouchGround4cm()) {
+			gatekeeper->unk29C = gatekeeper->getRumblePow();
+			SMSRumbleMgr->start(8, &gatekeeper->unk29C);
+		}
+	}
+
+	if (gatekeeper->mMActor->curAnmEndsNext()) {
+		spine->pushAfterCurrent(&TNerveBGKAppear::theNerve());
+		return true;
+	}
+
+	return false;
 }
