@@ -23,8 +23,6 @@
 #include <MSound/MSoundBGM.hpp>
 #include <M3DUtil/InfectiousStrings.hpp>
 
-extern "C" void* __vt__7TAmiHit[];
-
 DEFINE_NERVE(TNerveAmiNokoFreeze, TLiveActor)
 {
 	TAmiNoko* self = (TAmiNoko*)spine->getBody();
@@ -394,12 +392,9 @@ void TAmiNoko::init(TLiveManager* manager)
 		unk210 = 0;
 	}
 
-	TAmiHit* hit = (TAmiHit*)::operator new(sizeof(TAmiHit));
+	TAmiHit* hit = new TAmiHit(
+	    "\x83\x41\x83\x7E\x83\x6D\x83\x52\x93\x96\x82\xE8\x94\xBB\x92\xE8");
 	if (hit) {
-		new ((THitActor*)hit) THitActor(
-		    "\x83\x41\x83\x7E\x83\x6D\x83\x52\x93\x96\x82\xE8\x94\xBB\x92\xE8");
-		*(void**)hit                 = __vt__7TAmiHit;
-		*(void**)((u8*)hit + 0x20)   = (u8*)__vt__7TAmiHit + 0x24;
 		hit->mOwner = this;
 
 		TIdxGroupObj* enemyGroup
