@@ -1375,11 +1375,10 @@ void TNozzleBox::loadAfter()
 {
 	TMapObjGeneral::loadAfter();
 
-	JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
-	JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
-	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 	unk14C = (TItem*)TMapObjBaseManager::newAndRegisterObj(
-	    unk158, position, rotation, scale);
+	    unk158, JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+	    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+	    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 	unk14C->unk148 = this;
 
 	switch (unk148) {
