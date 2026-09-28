@@ -469,6 +469,21 @@ void TPopo::kill()
 	TSmallEnemy::kill();
 }
 
+// fabricated
+static inline f32 calcPopoAxisLength(const JGeometry::TVec3<f32>& v)
+{
+	f32 xSq  = v.x * v.x;
+	f32 ySq  = v.y * v.y;
+	f32 zSq  = v.z * v.z;
+	f32 xySq = xSq + ySq;
+	f32 mag  = zSq + xySq;
+	if (mag <= 0.0f)
+		return mag;
+
+	f32 root = __frsqrte(mag);
+	return 0.5f * root * (3.0f - mag * (root * root)) * mag;
+}
+
 void TPopo::calcRootMatrix()
 {
 	gpCurPopo = this;
@@ -492,16 +507,19 @@ void TPopo::calcRootMatrix()
 			MtxPtr emit    = gun->getEmitMtx(0);
 			PSMTXCopy(emit, rootMtx);
 
-			JGeometry::TVec3<f32> axis;
-			axis.set(rootMtx.at(0, 0), rootMtx.at(1, 0),
-			         rootMtx.at(2, 0));
-			f32 xLength = axis.length();
-			axis.set(rootMtx.at(0, 1), rootMtx.at(1, 1),
-			         rootMtx.at(2, 1));
-			f32 yLength = axis.length();
-			axis.set(rootMtx.at(0, 2), rootMtx.at(1, 2),
-			         rootMtx.at(2, 2));
-			f32 zLength = axis.length();
+			JGeometry::TVec3<f32> axis[3];
+			axis[0].x = rootMtx.at(0, 0);
+			axis[0].y = rootMtx.at(1, 0);
+			axis[0].z = rootMtx.at(2, 0);
+			f32 xLength = calcPopoAxisLength(axis[0]);
+			axis[1].x = rootMtx.at(0, 1);
+			axis[1].y = rootMtx.at(1, 1);
+			axis[1].z = rootMtx.at(2, 1);
+			f32 yLength = calcPopoAxisLength(axis[1]);
+			axis[2].x = rootMtx.at(0, 2);
+			axis[2].y = rootMtx.at(1, 2);
+			axis[2].z = rootMtx.at(2, 2);
+			f32 zLength = calcPopoAxisLength(axis[2]);
 
 			if (zLength != 0.0f) {
 				rootMtx.ref(0, 0) /= xLength;
@@ -935,21 +953,6 @@ static int PopoNonScaleCallback(J3DNode* node, int timing)
 		PSMTXConcat(J3DSys::mCurrentMtx, scaleMtx, J3DSys::mCurrentMtx);
 	}
 	return 1;
-}
-
-// fabricated
-static inline f32 calcPopoAxisLength(const JGeometry::TVec3<f32>& v)
-{
-	f32 xSq  = v.x * v.x;
-	f32 ySq  = v.y * v.y;
-	f32 zSq  = v.z * v.z;
-	f32 xySq = xSq + ySq;
-	f32 mag  = zSq + xySq;
-	if (mag <= 0.0f)
-		return mag;
-
-	f32 root = __frsqrte(mag);
-	return 0.5f * root * (3.0f - mag * (root * root)) * mag;
 }
 
 static int PopoPossessedCallback(J3DNode* node, int timing)
