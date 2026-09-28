@@ -253,16 +253,9 @@ const char** TLimitKoopaJr::getBasNameTable() const { return koopajr_bastable; }
 
 void TLimitKoopaJr::calcRootMatrix()
 {
-	f32 half = 0.5f * mDirection2.mDirection;
-	f32 s    = sinf(half);
-	f32 c    = cosf(half);
-
-	Mtx tmp;
 	JGeometry::TQuat4<f32> q;
-	q.x = 0.0f;
-	q.y = s;
-	q.z = 0.0f;
-	q.w = c;
+	Mtx tmp;
+	q.setEulerY(mDirection2.mDirection);
 	((JGeometry::TRotation3<JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >*)
 	    &tmp)
 	    ->setQuat(q);
