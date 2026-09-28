@@ -242,7 +242,7 @@ public:
 		/* 0x04 */ u32 mLength;
 		/* 0x08 */ u8* mPattern;
 		/* 0x0C */ u32 mFrameCount;
-	}; // Size: 0x14
+	}; // Size: 0x10
 
 	void startMotorWave(void* data, CRumble::ERumble rumble, u32 length)
 	{
@@ -266,12 +266,12 @@ public:
 	/* 0x48 */ CStick mMainStick;
 	/* 0x58 */ CStick mSubStick;
 	/* 0x68 */ CRumble mRumble;
-	/* 0x7C */ s16 mPortNum;
-	/* 0x7E */ s8 mErrorStatus;
-	/* 0x80 */ JSULink<JUTGamePad> mLink;
-	/* 0x90 */ JUTGamePadRecord* mPadRecord;
-	/* 0x94 */ JUTGamePadRecord* mPadReplay;
-	/* 0x94 */ u8 field_0x9c[4];
+	/* 0x78 */ s16 mPortNum;
+	/* 0x7A */ s8 mErrorStatus;
+	/* 0x7C */ JSULink<JUTGamePad> mLink;
+	/* 0x8C */ JUTGamePadRecord* mPadRecord;
+	/* 0x90 */ JUTGamePadRecord* mPadReplay;
+	/* 0x94 */ u8 field_0x94[4];
 	/* 0x98 */ C3ButtonReset mButtonReset;
 	/* 0xA0 */ OSTime mResetHoldStartTime;
 };
