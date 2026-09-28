@@ -1940,7 +1940,7 @@ int TMario::doRoofMovingProcess()
 
 int TMario::hangingCheckRoof(JGeometry::TVec3<f32>* pos)
 {
-	TBGCheckData* wall = checkWallPlane(pos, 50.0f, 50.0f);
+	const TBGCheckData* wall = checkWallPlane(pos, 50.0f, 50.0f);
 	if (wall != nullptr && wall->isFence()) {
 		mFaceAngle.y = matan(wall->getNormal().z, wall->getNormal().x) + 0x8000;
 		mModelFaceAngle = mFaceAngle.y;

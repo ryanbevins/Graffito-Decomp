@@ -2421,7 +2421,7 @@ void TMario::thinkParams()
 				belowThreshold = 0;
 			}
 			if (!belowThreshold) {
-				TBGCheckData* waterFloor = mWaterFloor;
+				const TBGCheckData* waterFloor = mWaterFloor;
 				u16 bgType = waterFloor->mBGType;
 				u8 isWaterGround;
 				if (bgType == 0x0B || bgType == 0x800B || bgType == 0x103
