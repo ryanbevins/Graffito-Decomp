@@ -107,11 +107,13 @@ void TTailRubber::reset(const JGeometry::TVec3<f32>& param_1,
 
 	for (int i = 1; i < unk0.mSize - 1; ++i) {
 		JGeometry::TVec3<f32> pos;
-		pos.scaleAdd(f32(i) / f32(unk0.mSize), param_1, diff);
+		f32 t = f32(i) / f32(unk0.mSize);
+		pos.set(param_1.x + t * diff.x, param_1.y + t * diff.y,
+		        param_1.z + t * diff.z);
 
 		Node& node = unk0[i];
 		node.mPos.set(pos);
-		node.mVel.set(0.0f, 0.0f, 0.0f);
+		node.mVel.zero();
 	}
 }
 
@@ -119,14 +121,14 @@ void TTailRubber::setHeadPos(const JGeometry::TVec3<f32>& param_1)
 {
 	Node& node = unk0.front();
 	node.mPos  = param_1;
-	node.mVel.set(0.0f, 0.0f, 0.0f);
+	node.mVel.zero();
 }
 
 void TTailRubber::setTailPos(const JGeometry::TVec3<f32>& param_1)
 {
 	Node& node = *(unk0.end() - 1);
 	node.mPos  = param_1;
-	node.mVel.set(0.0f, 0.0f, 0.0f);
+	node.mVel.zero();
 }
 
 void TTailRubber::movement()
