@@ -319,7 +319,7 @@ public:
 	/* 0x19F */ u8 unk19F[3];
 	/* 0x1A2 */ u8 unk1A2;
 	/* 0x1A3 */ u8 unk1A3;
-	/* 0x1A4 */ u32 unk1A4;
+	/* 0x1A4 */ s32 unk1A4;
 	/* 0x1A8 */ f32 unk1A8;
 };
 

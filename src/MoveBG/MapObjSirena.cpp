@@ -1115,27 +1115,26 @@ void TItemSlotDrum::moveObject()
 				unk19F[i] = 0;
 			}
 		}
-		f32 cur = unk138[i];
-		if (cur == 0.0f)
+		if (unk138[i] == 0.0f)
 			continue;
-		if (fabsf(cur) > unk160) {
-			unk13C[i] += cur;
+		if (fabsf(unk138[i]) > unk160) {
+			unk13C[i] += unk138[i];
 			if (unk19F[i] == 0) {
-				if (cur > 0.0f)
-					unk138[i] = cur - unk15C;
+				if (unk138[i] > 0.0f)
+					unk138[i] -= unk15C;
 				else
-					unk138[i] = cur + unk15C;
+					unk138[i] += unk15C;
 			}
 			if (unk13C[i] >= 360.0f)
 				unk13C[i] -= 360.0f;
-			if (unk13C[i] < 0.0f)
+			if (unk13C[i] <= 0.0f)
 				unk13C[i] += 360.0f;
 			continue;
 		}
-		unk13C[i] += cur;
+		unk13C[i] += unk138[i];
 		if (unk13C[i] >= 360.0f)
 			unk13C[i] -= 360.0f;
-		if (unk13C[i] < 0.0f)
+		if (unk13C[i] <= 0.0f)
 			unk13C[i] += 360.0f;
 		if (unk19F[i] != 0)
 			continue;
@@ -1144,9 +1143,7 @@ void TItemSlotDrum::moveObject()
 			continue;
 		unk13C[i] = (f32)((s32)(unk13C[i] / (f32)unk168) * unk168);
 		unk138[i] = 0.0f;
-		if (gpMSound->gateCheck(0x292C))
-			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x292C, mPosition, 0, nullptr, 0, 4);
+		gpMSound->startSoundActor(0x292C, &mPosition, 0, nullptr, 0, 4);
 		bool allStopped = (unk138[0] == 0.0f) && (unk138[1] == 0.0f)
 		    && (unk138[2] == 0.0f);
 		if (allStopped) {
