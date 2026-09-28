@@ -843,6 +843,8 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		mForwardVel = -mJumpParams.mFireBackVelocity.get();
 		break;
 	}
+	case 0x000208B8:
+		break;
 	case 0x0080088A: {
 		// Dive recovery
 		startVoice(0x7884);
@@ -935,37 +937,21 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 	case 0x0893: {
 		// Pole jump
 		if (arg == 0) {
-			s16 poleAngle = unkF6;
-			s32 fixedAngle = -0x2000;
-			f32 paramSpeed = mWireParams.mJumpRate.get();
-			f32 fAngle = (f32)poleAngle;
-			f32 sinVal = jmaSinTable[fixedAngle >> jmaSinShift];
-			mVel.y = fAngle * paramSpeed * 1.0f * sinVal;
-			f32 cosVal = jmaCosTable[fixedAngle >> jmaSinShift];
-			mForwardVel = -(fAngle * paramSpeed * 1.0f) * cosVal;
-
-			u16 faceAngle = mFaceAngle.y;
-			mSlideVelX
-			    = mForwardVel * jmaSinTable[faceAngle >> jmaSinShift];
-			mSlideVelZ
-			    = mForwardVel * jmaCosTable[faceAngle >> jmaSinShift];
+			f32 rate  = 1.0f;
+			f32 speed = (f32)unkF6 * mWireParams.mJumpRate.get() * rate;
+			mVel.y      = speed * JMASSin(-0x2000);
+			mForwardVel = speed * -JMASCos(-0x2000);
+			mSlideVelX  = mForwardVel * JMASSin(mFaceAngle.y);
+			mSlideVelZ  = mForwardVel * JMASCos(mFaceAngle.y);
 			mVel.x = mSlideVelX;
 			mVel.z = mSlideVelZ;
 		} else {
-			s16 poleAngle = unkF6;
-			f32 fAngle = (f32)poleAngle;
-			s32 fixedAngle = 0x6000;
-			f32 paramSpeed = mWireParams.mJumpRate.get();
-			f32 sinVal = jmaSinTable[fixedAngle >> jmaSinShift];
-			mVel.y = fAngle * paramSpeed * 1.0f * sinVal;
-			f32 cosVal = jmaCosTable[fixedAngle >> jmaSinShift];
-			mForwardVel = -(fAngle * paramSpeed * 1.0f) * cosVal;
-
-			u16 faceAngle = mFaceAngle.y;
-			mSlideVelX
-			    = mForwardVel * jmaSinTable[faceAngle >> jmaSinShift];
-			mSlideVelZ
-			    = mForwardVel * jmaCosTable[faceAngle >> jmaSinShift];
+			f32 rate  = 1.0f;
+			f32 speed = (f32)unkF6 * mWireParams.mJumpRate.get() * rate;
+			mVel.y      = speed * JMASSin(0x6000);
+			mForwardVel = speed * -JMASCos(0x6000);
+			mSlideVelX  = mForwardVel * JMASSin(mFaceAngle.y);
+			mSlideVelZ  = mForwardVel * JMASCos(mFaceAngle.y);
 			mVel.x = mSlideVelX;
 			mVel.z = mSlideVelZ;
 		}
