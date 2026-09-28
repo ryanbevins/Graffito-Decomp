@@ -716,7 +716,7 @@ void TBWBinder::bind(TLiveActor* actor)
 void TBossWanwanMtxCalc::calc(u16 joint_no)
 {
 	if (joint_no == 0) {
-		bool airborne;
+		BOOL airborne;
 		if (mOwner->checkLiveFlag(LIVE_FLAG_AIRBORNE))
 			airborne = true;
 		else
