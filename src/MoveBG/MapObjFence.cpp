@@ -531,6 +531,9 @@ void TRevolvingFenceInner::controlWall()
 		m[2][3] = mPosition.z;
 		break;
 	}
+	case 1:
+	case 2:
+		break;
 	}
 }
 
