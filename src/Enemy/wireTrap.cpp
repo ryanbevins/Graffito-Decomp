@@ -316,10 +316,8 @@ void TWireTrap::load(JSUMemoryInputStream& stream)
 
 	const JGeometry::TVec3<f32>& wdir = getWireBinderDirect()->getDirDirect();
 	JGeometry::TVec3<f32> v = makeWireTrapDir(mRotation.y, 1.0f);
-	if (0.0f <= v.x * wdir.x + v.y * wdir.y + v.z * wdir.z)
-		mWireDir = 1.0f;
-	else
-		mWireDir = -1.0f;
+	mWireDir = 0.0f <= v.x * wdir.x + v.y * wdir.y + v.z * wdir.z ? 1.0f
+	                                                             : -1.0f;
 	mScaleRate = 1.0f;
 }
 
