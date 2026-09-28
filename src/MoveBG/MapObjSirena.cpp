@@ -959,10 +959,10 @@ void TSlotDrum::moveObject()
 		}
 		if (fabsf(cur) > unk160) {
 			unk13C[i] += cur;
-			if (cur > 0.0f)
-				unk138[i] = cur - unk15C;
+			if (unk138[i] > 0.0f)
+				unk138[i] -= unk15C;
 			else
-				unk138[i] = cur + unk15C;
+				unk138[i] += unk15C;
 			if (unk13C[i] >= 360.0f)
 				unk13C[i] -= 360.0f;
 			if (unk13C[i] < 0.0f)
