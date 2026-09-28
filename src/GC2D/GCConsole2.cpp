@@ -787,21 +787,6 @@ static inline void setThreeDigits(Pane** panes, JUTTexture** textures,
 		panes[0]->getPane()->hide();
 }
 
-#define SET_THREE_DIGITS(PANES, TEXTURES, VALUE, SHOW_HUNDREDS)                \
-	do {                                                                       \
-		int _value    = (VALUE);                                               \
-		int _hundreds = _value / 100;                                          \
-		int _tens     = (_value / 10) % 10;                                    \
-		int _ones     = _value % 10;                                           \
-		setDigitPane((PANES)[0], (TEXTURES), _hundreds);                       \
-		setDigitPane((PANES)[1], (TEXTURES), _tens);                           \
-		setDigitPane((PANES)[2], (TEXTURES), _ones);                           \
-		if ((SHOW_HUNDREDS) && _value >= 100)                                  \
-			(PANES)[0]->getPane()->show();                                     \
-		else                                                                   \
-			(PANES)[0]->getPane()->hide();                                     \
-	} while (0)
-
 static inline void setTwoDigits(TBoundPane** panes, JUTTexture** textures,
                                 int value)
 {
@@ -825,14 +810,14 @@ static inline void updateMarioLifeCounter(TGCConsole2* console)
 	do {                                                                       \
 		int _value = (VALUE);                                                  \
 		if (_value < 100) {                                                    \
-			setDigitPane((PANES)[0], (TEXTURES), _value / 10);                 \
+			setDigitPane((PANES)[0], (TEXTURES), (int)(0.1f * _value));        \
 			setDigitPane((PANES)[1], (TEXTURES), _value % 10);                 \
 			(PANES)[2]->getPane()->hide();                                     \
 		} else {                                                               \
-			int _hundreds  = _value / 100;                                     \
+			int _hundreds  = 0.01f * _value;                                   \
 			int _remainder = _value - _hundreds * 100;                         \
 			setDigitPane((PANES)[0], (TEXTURES), _hundreds);                   \
-			setDigitPane((PANES)[1], (TEXTURES), _remainder / 10);             \
+			setDigitPane((PANES)[1], (TEXTURES), (int)(0.1f * _remainder));    \
 			setDigitPane((PANES)[2], (TEXTURES), _remainder % 10);             \
 			(PANES)[2]->getPane()->show();                                     \
 		}                                                                      \
@@ -1783,8 +1768,21 @@ void TGCConsole2::loadAfter()
 	SET_COUNTER_DIGITS(unkD4, unkE0, unk20);
 
 	unk24 = flags->getFlag(0x40000);
+	if (unk24 > 999)
+		unk24 = 999;
+	else if (unk24 < 0)
+		unk24 = 0;
 	unk64 = unk24;
-	SET_THREE_DIGITS(unk134, unkE0, unk24, true);
+	if (unk24 < 100) {
+		setDigitPane(unk134[0], unkE0, (int)(0.1f * unk24));
+		setDigitPane(unk134[1], unkE0, unk24 % 10);
+	} else {
+		unk134[2]->getPane()->show();
+		setDigitPane(unk134[0], unkE0, (int)(0.01f * unk24));
+		int remainder = unk24 - (int)(0.01f * unk24) * 100;
+		setDigitPane(unk134[1], unkE0, (int)(0.1f * remainder));
+		setDigitPane(unk134[2], unkE0, remainder % 10);
+	}
 
 	int lives = clampRange(flags->getFlag(0x20001), 0, 99);
 	unk3AC[0] = lives;
