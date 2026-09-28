@@ -1461,8 +1461,7 @@ BOOL TMario::surfing()
 		f32 posY = mPosition.y;
 		f32 up = 1.0f;
 		mPosition.y = posY + up;
-		changePlayerStatus(0x0281089a, 0, false);
-		return;
+		return changePlayerStatus(0x0281089a, 0, false);
 	}
 
 	doSurfing();
@@ -1565,10 +1564,10 @@ BOOL TMario::surfing()
 			if (mForwardVel > clashSpeed) {
 				s32 hpMax = mDeParams.mHpMax.value;
 				decHP(hpMax);
-				changePlayerStatus(0x000208b3, 0, true);
+				BOOL changed = changePlayerStatus(0x000208b3, 0, true);
 				mForwardVel = -mForwardVel * 0.8f;
 				mVel.y = 50.0f;
-				return;
+				return changed;
 			}
 		}
 
