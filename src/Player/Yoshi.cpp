@@ -51,9 +51,6 @@ public:
 	TNozzleBase* getCurrentNozzle() const;
 };
 
-extern "C" void* __vt__10TTakeActor[];
-extern "C" void* __vt__12TYoshiTongue[];
-
 static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
 static const char cDirtyTexName[]  = "H_ma_rak_dummy";
 static const GXColor bodyColor[]   = {
@@ -175,16 +172,7 @@ void TYoshi::init(TMario* mario) {
 	*(u8*)((u8*)&mFrameCtrl + 0x4) = 0;
 	*(f32*)((u8*)&mFrameCtrl + 0xC) = 0.0f;
 
-	TYoshiTongue* tongue = (TYoshiTongue*)::operator new(sizeof(TYoshiTongue));
-	if (tongue) {
-		new ((THitActor*)tongue) THitActor("HitActor");
-		*(void**)tongue = __vt__10TTakeActor;
-		*(void**)((u8*)tongue + 0x20) = (u8*)__vt__10TTakeActor + 0x24;
-		*(u32*)((u8*)tongue + 0x68) = 0;
-		*(u32*)((u8*)tongue + 0x6C) = 0;
-		*(void**)tongue = __vt__12TYoshiTongue;
-		*(void**)((u8*)tongue + 0x20) = (u8*)__vt__12TYoshiTongue + 0x24;
-	}
+	TYoshiTongue* tongue = new TYoshiTongue("HitActor");
 	mTongue = tongue;
 	tongue->init(this);
 
