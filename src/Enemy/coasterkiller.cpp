@@ -233,15 +233,13 @@ void TCoasterKiller::perform(u32 param_1, JDrama::TGraphics* param_2)
 	TCoasterEnemy::perform(param_1, param_2);
 
 	if ((param_1 & 2) && !checkLiveFlag(LIVE_FLAG_DEAD)) {
-		mParticlePos.setQT(getQuat(), mPosition);
+		mParticlePos.setQT(mQuat, mPosition);
 		gpMarioParticleManager->emitAndBindToMtxPtr(0x174, mParticlePos.mMtx, 1,
 		                                            this);
 
 		if (mSpine->getCurrentNerve()
 		    != &TNerveCoasterKillerExplosion::theNerve()) {
-			JGeometry::TVec3<f32> dist;
-			dist.sub(getPosition(), *gpMarioPos);
-			f32 len = dist.length2();
+			f32 len = mPosition.distance(*gpMarioPos);
 			if (gpMSound->gateCheck(0x20FF)) {
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
 				    0x20FF, &mPosition, nullptr, len, 0, 0, nullptr, 0, 4);
