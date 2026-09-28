@@ -704,7 +704,8 @@ void TBGTentacle::setAttackTarget()
 {
 	unk84 = SMS_GetMarioPos();
 
-	if (mOwner->getAttackMode() == 2) {
+	TBossGesso* owner = mOwner;
+	if (owner->getAttackMode() == 2) {
 		int iVar9;
 		switch (mIndex) {
 		case 0:
@@ -726,7 +727,7 @@ void TBGTentacle::setAttackTarget()
 
 		JGeometry::TVec3<f32> local_148;
 		local_148 = unk84;
-		local_148 -= mOwner->mPosition;
+		local_148 -= owner->mPosition;
 
 		JGeometry::TVec3<f32> local_3c;
 		local_3c.cross(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f), local_148);
