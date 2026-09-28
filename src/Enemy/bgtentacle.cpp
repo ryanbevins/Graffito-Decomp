@@ -119,12 +119,12 @@ void TBGTentacleMtxCalc::calc(u16 param_1)
 		local_74.set(0.0f, 1.0f, 0.0f);
 	} else {
 		MtxPtr mtx1 = mOwner->getUnk2C()->getModel()->getAnmMtx(param_1 - 1);
-		JGeometry::TVec3<f32> vec1(mtx1[0][3], mtx1[1][3], mtx1[2][3]);
+		JGeometry::TVec3<f32> vec1(mtx1[0][2], mtx1[1][2], mtx1[2][2]);
 
 		local_74.cross(local_68, vec1);
 
 		if (local_74.squared() < 0.01f) {
-			local_74.set(mtx1[0][3], mtx1[1][3], mtx1[2][3]);
+			local_74.set(mtx1[0][1], mtx1[1][1], mtx1[2][1]);
 		}
 
 		VECNormalize(&local_74, &local_74);
@@ -139,8 +139,14 @@ void TBGTentacleMtxCalc::calc(u16 param_1)
 			fVar1   = mOwner->getNodeLen() / tmp;
 		}
 
-		JGeometry::TVec3<f32> tmp1(mtx1[0][0], mtx1[1][0], mtx1[2][0]);
-		JGeometry::TVec3<f32> tmp2(mtx1[0][1], mtx1[1][1], mtx1[2][1]);
+		JGeometry::TVec3<f32> tmp1;
+		tmp1.x = mtx1[0][0];
+		tmp1.y = mtx1[1][0];
+		tmp1.z = mtx1[2][0];
+		JGeometry::TVec3<f32> tmp2;
+		tmp2.x = mtx1[0][1];
+		tmp2.y = mtx1[1][1];
+		tmp2.z = mtx1[2][1];
 		if (param_1 < iVar8 && tmp1.dot(local_68) > 0.0f
 		    && tmp2.dot(local_74) < 0.0f) {
 			local_74.negate();
