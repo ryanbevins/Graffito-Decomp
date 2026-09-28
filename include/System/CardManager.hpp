@@ -133,8 +133,8 @@ public:
 };
 
 struct HeaderData {
-	/* 0x04 */ char mTitle[0x20];
-	/* 0x24 */ char mComment[0x20];
+	/* 0x00 */ char mTitle[0x20];
+	/* 0x20 */ char mComment[0x20];
 	/* 0x40 */ char mBanner[0xE00];
 	/* 0xE40 */ char mIcons[0xA00];
 };

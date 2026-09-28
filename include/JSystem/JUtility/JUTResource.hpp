@@ -8,9 +8,9 @@ class JSUInputStream;
 
 class JUTResReference {
 private:
-	/* 0x001 */ u8 mType;
-	/* 0x002 */ u8 mNameLength;
-	/* 0x003 */ char mName[0x100];
+	/* 0x000 */ u8 mType;
+	/* 0x001 */ u8 mNameLength;
+	/* 0x002 */ char mName[0x100];
 
 public:
 	enum ResType {
