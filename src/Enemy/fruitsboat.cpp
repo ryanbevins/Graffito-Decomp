@@ -42,139 +42,6 @@ static const f32 dummy2335[3] = { 1.0f, 1.0f, 1.0f };
 static f32 sMaxRotationStep = 1.0f;
 static f32 sMinRotationStep = -1.0f;
 
-DEFINE_NERVE(TNerveFruitsBoatBckTrace, TLiveActor)
-{
-	TFruitsBoat* self = (TFruitsBoat*)spine->getBody();
-
-	self->mBckFrameCtrl->update();
-	self->mBckAnm->setFrame(self->mBckFrameCtrl->getFrame());
-
-	J3DTransformInfo info1;
-	J3DTransformInfo info0;
-
-	self->mBckAnm->getTransform(0, &info0);
-	self->mBckAnm->getTransform(1, &info1);
-
-	self->mPosition.x = info0.mTranslate.x + info1.mTranslate.x;
-	self->mPosition.y = info0.mTranslate.y + info1.mTranslate.y;
-	self->mPosition.z = info0.mTranslate.z + info1.mTranslate.z;
-
-	self->mRotation.x
-	    = (info0.mRotation.x + info1.mRotation.x) * (1.0f / 182.04445f);
-	self->mRotation.y
-	    = (info0.mRotation.y + info1.mRotation.y) * (1.0f / 182.04445f);
-	self->mRotation.z
-	    = (info0.mRotation.z + info1.mRotation.z) * (1.0f / 182.04445f);
-
-	self->mScaling.x = info0.mScale.x * info1.mScale.x;
-	self->mScaling.y = info0.mScale.y * info1.mScale.y;
-	self->mScaling.z = info0.mScale.z * info1.mScale.z;
-
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveFruitsBoatGraphWander, TLiveActor)
-{
-	TFruitsBoat* self = (TFruitsBoat*)spine->getBody();
-	TGraphWeb* graph  = self->getTracer()->getGraph();
-
-	if (!graph || graph->isDummy())
-		return FALSE;
-
-	if (self->isReachedToGoal()) {
-		TGraphTracer* tr  = self->getTracer();
-		TGraphNode& node  = tr->getCurrent();
-		TRailNode* rn     = node.unk0;
-
-		if (rn->mFlags & 0x100)
-			self->mLiveFlag |= 0x10000;
-
-		if (rn->mFlags & 0x400) {
-			s16 v             = self->mAttrFlag;
-			self->mAttrFlag   = (u16)(v ^ 1);
-		}
-
-		JGeometry::TVec3<f32> dir(1.0f * JMASin(self->mRotation.y), 0.0f,
-		                          1.0f * JMACos(self->mRotation.y));
-		self->goToDirectedNextGraphNode(dir);
-
-		if (self->mLiveFlag & 0x10000) {
-			// skip
-		} else if (graph->unk14) {
-			f32 sp    = tr->calcSplineSpeed(self->mMarchSpeed);
-			f32 saved = sp;
-			tr->traceSpline(sp);
-
-			JGeometry::TVec3<f32> p;
-			JGeometry::TVec3<f32> r;
-			graph->unk14->getPosAndRot(*(f32*)((u8*)tr + 0x14), &p, &r);
-			p.x -= self->mPosition.x;
-			p.y -= self->mPosition.y;
-			p.z -= self->mPosition.z;
-
-			self->mLinearVelocity.x += p.x;
-			self->mLinearVelocity.y += p.y;
-			self->mLinearVelocity.z += p.z;
-
-			self->mRotation.y = r.x;
-
-			if (saved < 0.0f) {
-				f32 w = callMsWrap(self->mRotation.y + 180.0f, 0.0f,
-				                    360.0f);
-				self->mRotation.y = w;
-			}
-		} else {
-			self->walkToCurPathNode(self->mMarchSpeed, self->mTurnSpeed, 0.0f);
-		}
-
-		if (gpMSound->gateCheck(0x302e))
-			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x302e, (Vec*)&self->mPosition.x, 0, nullptr, 0, 4);
-
-		spine->pushAfterCurrent(&TNerveFruitsBoatGraphWander::theNerve());
-		return TRUE;
-	}
-
-	if (self->mLiveFlag & 0x10000)
-		return FALSE;
-
-	{
-		TGraphTracer* tr = self->getTracer();
-		if (graph->unk14) {
-			f32 sp    = tr->calcSplineSpeed(self->mMarchSpeed);
-			f32 saved = sp;
-			tr->traceSpline(sp);
-
-			JGeometry::TVec3<f32> p;
-			JGeometry::TVec3<f32> r;
-			graph->unk14->getPosAndRot(*(f32*)((u8*)tr + 0x14), &p, &r);
-			p.x -= self->mPosition.x;
-			p.y -= self->mPosition.y;
-			p.z -= self->mPosition.z;
-
-			self->mLinearVelocity.x += p.x;
-			self->mLinearVelocity.y += p.y;
-			self->mLinearVelocity.z += p.z;
-
-			self->mRotation.y = r.x;
-
-			if (saved < 0.0f) {
-				f32 w = callMsWrap(self->mRotation.y + 180.0f, 0.0f,
-				                    360.0f);
-				self->mRotation.y = w;
-			}
-		} else {
-			self->walkToCurPathNode(self->mMarchSpeed, self->mTurnSpeed, 0.0f);
-		}
-	}
-
-	if (gpMSound->gateCheck(0x302e))
-		MSoundSESystem::MSoundSE::startSoundActor(
-		    0x302e, (Vec*)&self->mPosition.x, 0, nullptr, 0, 4);
-
-	return FALSE;
-}
-
 TFruitsBoatParams::TFruitsBoatParams(const char* path)
     : TSpineEnemyParams(path)
     , PARAM_INIT(mSLMoveSpeed, 4.0f)
@@ -688,4 +555,137 @@ void TFruitsBoat::moveObject()
 	mSwayVel *= 0.99f;
 
 	TLiveActor::moveObject();
+}
+
+DEFINE_NERVE(TNerveFruitsBoatGraphWander, TLiveActor)
+{
+	TFruitsBoat* self = (TFruitsBoat*)spine->getBody();
+	TGraphWeb* graph  = self->getTracer()->getGraph();
+
+	if (!graph || graph->isDummy())
+		return FALSE;
+
+	if (self->isReachedToGoal()) {
+		TGraphTracer* tr  = self->getTracer();
+		TGraphNode& node  = tr->getCurrent();
+		TRailNode* rn     = node.unk0;
+
+		if (rn->mFlags & 0x100)
+			self->mLiveFlag |= 0x10000;
+
+		if (rn->mFlags & 0x400) {
+			s16 v             = self->mAttrFlag;
+			self->mAttrFlag   = (u16)(v ^ 1);
+		}
+
+		JGeometry::TVec3<f32> dir(1.0f * JMASin(self->mRotation.y), 0.0f,
+		                          1.0f * JMACos(self->mRotation.y));
+		self->goToDirectedNextGraphNode(dir);
+
+		if (self->mLiveFlag & 0x10000) {
+			// skip
+		} else if (graph->unk14) {
+			f32 sp    = tr->calcSplineSpeed(self->mMarchSpeed);
+			f32 saved = sp;
+			tr->traceSpline(sp);
+
+			JGeometry::TVec3<f32> p;
+			JGeometry::TVec3<f32> r;
+			graph->unk14->getPosAndRot(*(f32*)((u8*)tr + 0x14), &p, &r);
+			p.x -= self->mPosition.x;
+			p.y -= self->mPosition.y;
+			p.z -= self->mPosition.z;
+
+			self->mLinearVelocity.x += p.x;
+			self->mLinearVelocity.y += p.y;
+			self->mLinearVelocity.z += p.z;
+
+			self->mRotation.y = r.x;
+
+			if (saved < 0.0f) {
+				f32 w = callMsWrap(self->mRotation.y + 180.0f, 0.0f,
+				                    360.0f);
+				self->mRotation.y = w;
+			}
+		} else {
+			self->walkToCurPathNode(self->mMarchSpeed, self->mTurnSpeed, 0.0f);
+		}
+
+		if (gpMSound->gateCheck(0x302e))
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x302e, (Vec*)&self->mPosition.x, 0, nullptr, 0, 4);
+
+		spine->pushAfterCurrent(&TNerveFruitsBoatGraphWander::theNerve());
+		return TRUE;
+	}
+
+	if (self->mLiveFlag & 0x10000)
+		return FALSE;
+
+	{
+		TGraphTracer* tr = self->getTracer();
+		if (graph->unk14) {
+			f32 sp    = tr->calcSplineSpeed(self->mMarchSpeed);
+			f32 saved = sp;
+			tr->traceSpline(sp);
+
+			JGeometry::TVec3<f32> p;
+			JGeometry::TVec3<f32> r;
+			graph->unk14->getPosAndRot(*(f32*)((u8*)tr + 0x14), &p, &r);
+			p.x -= self->mPosition.x;
+			p.y -= self->mPosition.y;
+			p.z -= self->mPosition.z;
+
+			self->mLinearVelocity.x += p.x;
+			self->mLinearVelocity.y += p.y;
+			self->mLinearVelocity.z += p.z;
+
+			self->mRotation.y = r.x;
+
+			if (saved < 0.0f) {
+				f32 w = callMsWrap(self->mRotation.y + 180.0f, 0.0f,
+				                    360.0f);
+				self->mRotation.y = w;
+			}
+		} else {
+			self->walkToCurPathNode(self->mMarchSpeed, self->mTurnSpeed, 0.0f);
+		}
+	}
+
+	if (gpMSound->gateCheck(0x302e))
+		MSoundSESystem::MSoundSE::startSoundActor(
+		    0x302e, (Vec*)&self->mPosition.x, 0, nullptr, 0, 4);
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveFruitsBoatBckTrace, TLiveActor)
+{
+	TFruitsBoat* self = (TFruitsBoat*)spine->getBody();
+
+	self->mBckFrameCtrl->update();
+	self->mBckAnm->setFrame(self->mBckFrameCtrl->getFrame());
+
+	J3DTransformInfo info1;
+	J3DTransformInfo info0;
+
+	self->mBckAnm->getTransform(0, &info0);
+	self->mBckAnm->getTransform(1, &info1);
+
+	self->mPosition.x = info0.mTranslate.x + info1.mTranslate.x;
+	self->mPosition.y = info0.mTranslate.y + info1.mTranslate.y;
+	self->mPosition.z = info0.mTranslate.z + info1.mTranslate.z;
+
+	self->mRotation.x
+	    = (info0.mRotation.x + info1.mRotation.x) * (1.0f / 182.04445f);
+	self->mRotation.y
+	    = (info0.mRotation.y + info1.mRotation.y) * (1.0f / 182.04445f);
+	self->mRotation.z
+	    = (info0.mRotation.z + info1.mRotation.z) * (1.0f / 182.04445f);
+
+	self->mScaling.x = info0.mScale.x * info1.mScale.x;
+	self->mScaling.y = info0.mScale.y * info1.mScale.y;
+	self->mScaling.z = info0.mScale.z * info1.mScale.z;
+
+	return FALSE;
 }
