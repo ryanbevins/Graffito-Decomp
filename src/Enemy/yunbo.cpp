@@ -30,10 +30,6 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
-extern "C" {
-s16 matan(f32, f32);
-}
-
 static char* sambohead_bastable[] = {
 	(char*)"/scene/sambohead/bas/flower_shoot.bas",
 	(char*)"/scene/sambohead/bas/samboHead_crash.bas",

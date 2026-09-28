@@ -51,10 +51,6 @@ JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>& rot)
 	return result;
 }
 
-extern "C" {
-f32 SMSGetAnmFrameRate();
-}
-
 TAnimalBase::TAnimalBase(u32 type, const char* name)
     : TSpineEnemy(name)
 {
