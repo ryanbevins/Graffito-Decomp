@@ -352,20 +352,9 @@ THitActor* TYoshiTongue::findTarget(bool flagB1, bool flagB2)
 		targetMid.y += 0.5f * h->mDamageHeight;
 		JGeometry::TVec3<f32> diff = targetMid - mTipPos;
 
-		f32 lsq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-		if (!(lsq <= 0.0000038146973f)) {
-			f32 dist = JGeometry::TUtil<f32>::sqrt(lsq);
-
-			if (lsq <= 0.0000038146973f) {
-				diff.x = 0.0f;
-				diff.y = 0.0f;
-				diff.z = 0.0f;
-			} else {
-				f32 invl = JGeometry::TUtil<f32>::inv_sqrt(lsq) * 1.0f;
-				diff.x *= invl;
-				diff.y *= invl;
-				diff.z *= invl;
-			}
+		if (!diff.isZero()) {
+			f32 dist = diff.length();
+			diff.normalize();
 
 			if (flagB2) {
 				f32 dot = diff.x * mHeadDir.x + diff.y * mHeadDir.y
