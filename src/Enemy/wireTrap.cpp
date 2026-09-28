@@ -92,6 +92,20 @@ const TNerveBase<TLiveActor>* TWireTrap::getNerveFromMode(int mode)
 }
 #pragma dont_inline off
 
+static inline JGeometry::TVec3<f32>
+calcWireVelocity(const TWireTrap* self, const JGeometry::TVec3<f32>& dir)
+{
+	JGeometry::TVec3<f32> vel = dir;
+	f32 s;
+	if (self->mShakeTimer > 0)
+		s = 1.0f + self->mShakeWidth * (f32)self->mShakeTimer / 30.0f;
+	else
+		s = 1.0f;
+	vel.scale(self->mWireDir * s);
+	vel.scale(self->mScaleSpeed);
+	return vel;
+}
+
 void TWireTrap::checkHitActors()
 {
 	THitActor** end = mCollisions + mColCount;
@@ -106,40 +120,23 @@ void TWireTrap::checkHitActors()
 				continue;
 
 			TWireTrap* o = (TWireTrap*)other;
-			JGeometry::TVec3<f32> myDir = getWireBinder()->getDir();
-			f32 ms;
-			if (mShakeTimer > 0)
-				ms = 1.0f + mShakeWidth * (f32)mShakeTimer / 30.0f;
-			else
-				ms = 1.0f;
-			myDir.scale(mWireDir * ms);
-			myDir.scale(mScaleSpeed);
-
-			JGeometry::TVec3<f32> otDir = o->getWireBinder()->getDir();
-			f32 os;
-			if (o->mShakeTimer > 0)
-				os = 1.0f + o->mShakeWidth * (f32)o->mShakeTimer / 30.0f;
-			else
-				os = 1.0f;
-			otDir.scale(o->mWireDir * os);
-			otDir.scale(o->mScaleSpeed);
+			JGeometry::TVec3<f32> myDir
+			    = calcWireVelocity(this, getWireBinder()->getDir());
+			JGeometry::TVec3<f32> otDir
+			    = calcWireVelocity(o, o->getWireBinder()->getDir());
 
 			if (mBiriTimer <= 0 && mColorType == 0) {
 				mBiriTimer = 0x1e;
-				JGeometry::TVec3<f32> a = getWireDir();
-				a.scale(mWireDir * ms);
-				JGeometry::TVec3<f32> b = o->getWireDir();
-				b.scale(o->mWireDir * os);
+				JGeometry::TVec3<f32> a = calcWireVelocity(this, getWireDir());
+				JGeometry::TVec3<f32> b = calcWireVelocity(o, o->getWireDir());
 				if (myDir.dot(otDir) < 0.0f)
 					mWireDir *= -1.0f;
 				mSpine->pushNerve(&TNerveWireTrapWait::theNerve());
 			}
 			if (o->mBiriTimer <= 0 && o->mColorType == 0) {
 				o->mBiriTimer = 0x1e;
-				JGeometry::TVec3<f32> a = o->getWireDir();
-				a.scale(o->mWireDir * os);
-				JGeometry::TVec3<f32> b = o->getWireDir();
-				b.scale(o->mWireDir * os);
+				JGeometry::TVec3<f32> a = calcWireVelocity(o, o->getWireDir());
+				JGeometry::TVec3<f32> b = calcWireVelocity(o, o->getWireDir());
 				if (otDir.dot(myDir) < 0.0f)
 					o->mWireDir *= -1.0f;
 				o->mSpine->pushNerve(&TNerveWireTrapWait::theNerve());
