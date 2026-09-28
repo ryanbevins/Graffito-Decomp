@@ -439,8 +439,7 @@ BOOL TMario::fencePunch()
 			    0x193a, (Vec*)&mPosition, 0, (JAISound**)0, 0, 4);
 		}
 		rumbleStart(0x15, mMotorParams.mMotorWall.value);
-		startJumpWall();
-		return;
+		return startJumpWall();
 	}
 
 	if (wall != 0) {
@@ -569,8 +568,7 @@ BOOL TMario::fenceMove()
 		mFaceAngle.y = angle + 0x8000;
 		mModelFaceAngle = mFaceAngle.y;
 		setPlayerVelocity(0.0f);
-		changePlayerStatus(0x88c, 0, false);
-		return;
+		return changePlayerStatus(0x88c, 0, false);
 	}
 
 	mModelFaceAngle = mFaceAngle.y;
@@ -1887,7 +1885,7 @@ BOOL TMario::roofCommonEvents()
 	u32 input = mInput;
 	if (input & 0x8000) {
 		mInput = input & ~0x8000;
-		changePlayerStatus(0x88c, 0, false);
+		return changePlayerStatus(0x88c, 0, false);
 	} else if (input & 0x2) {
 		TLiveActor* actor = (TLiveActor*)mRoofPlane->mActor;
 		if (actor != 0) {
@@ -1898,7 +1896,7 @@ BOOL TMario::roofCommonEvents()
 				return changePlayerStatus(0x00200345, 0, false);
 			}
 		}
-		changePlayerStatus(0x00200347, 0, false);
+		return changePlayerStatus(0x00200347, 0, false);
 	} else {
 		return FALSE;
 	}
@@ -1942,7 +1940,7 @@ int TMario::doRoofMovingProcess()
 
 int TMario::hangingCheckRoof(JGeometry::TVec3<f32>* pos)
 {
-	TBGCheckData* wall = checkWallPlane(pos, 50.0f, 50.0f);
+	const TBGCheckData* wall = checkWallPlane(pos, 50.0f, 50.0f);
 	if (wall != nullptr && wall->isFence()) {
 		mFaceAngle.y = matan(wall->getNormal().z, wall->getNormal().x) + 0x8000;
 		mModelFaceAngle = mFaceAngle.y;

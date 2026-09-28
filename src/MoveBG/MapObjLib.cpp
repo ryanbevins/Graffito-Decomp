@@ -277,6 +277,7 @@ TMapObjBase::newAndInitBuildingCollisionMove(int param_1, TLiveActor* param_2)
 TMapCollisionStatic* TMapObjBase::newAndInitBuildingCollisionStatic(int,
                                                                     TLiveActor*)
 {
+	return nullptr;
 }
 
 J3DJoint* TMapObjBase::getBuildingJoint(int i)
@@ -961,6 +962,7 @@ TMapObjBase::emitAndScale(s32 param_1, u8 param_2,
 JPABaseEmitter* TMapObjBase::emitAndRotate(s32, u8,
                                            const JGeometry::TVec3<f32>*) const
 {
+	return nullptr;
 }
 
 void TMapObjVibration::startSlowly(f32) { }

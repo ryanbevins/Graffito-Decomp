@@ -141,7 +141,7 @@ DEFINE_NERVE(TNerveRHGraphWander, TLiveActor)
 
 	if (spine->getTime() == 0) {
 		f32 y                        = self->getRotation().y;
-		JGeometry::TVec3<f32>& polar = polarXZ(y, 1.0f);
+		const JGeometry::TVec3<f32>& polar = polarXZ(y, 1.0f);
 
 		self->goToDirectedNextGraphNode(polar);
 	}

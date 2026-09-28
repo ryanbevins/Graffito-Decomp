@@ -2698,7 +2698,7 @@ DEFINE_NERVE(TNerveDangoHamuKuriWait, TLiveActor)
 	return false;
 }
 
-DEFINE_NERVE(TNerveDangoHamuKuriAttack, TLiveActor) { }
+DEFINE_NERVE(TNerveDangoHamuKuriAttack, TLiveActor) { return FALSE; }
 
 DEFINE_NERVE(TNerveHaneHamuKuriUpWait, TLiveActor)
 {

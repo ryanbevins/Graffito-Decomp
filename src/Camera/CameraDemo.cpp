@@ -16,11 +16,7 @@
 #include <System/MarioGamePad.hpp>
 #include <dolphin/mtx.h>
 
-extern "C" int snprintf(char*, unsigned long, const char*, ...);
-
 extern const char* cCameraBckNameGate;
-
-template <> s16 CLBRoundf<s16>(f32);
 
 #define mInbetween unk6C
 #define mPosFreezeFrames unk78

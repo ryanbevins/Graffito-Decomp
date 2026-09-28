@@ -10865,10 +10865,11 @@ void TMapObjBase::initUnique()
 		setMatTable(gpMapObjManager->unk94);
 		SMS_UnifyMaterial(getModel());
 		break;
-	case 0x40000263:
+	case 0x40000263: {
 		const char* animName = unkF4;
 		startAllAnim(mMActor, animName);
 		break;
+	}
 	case 0x4000003C:
 		if (mMActor->unkC)
 			mMActor->unkC->initSimpleMotionBlend(0x14);

@@ -9,8 +9,6 @@
 		                &mSubAngleY);                                          \
 	} while (0)
 
-template <> s16 CLBRoundf<s16>(f32);
-
 inline void CLBChaseConstantSpecifyFrame(s16* value, s16 target, f32 frames)
 {
 	if (frames < 0.001f) {

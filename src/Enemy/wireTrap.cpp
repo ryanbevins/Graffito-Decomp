@@ -31,8 +31,6 @@
 #undef WIRETRAP_GETWIREBINDER_OUT_OF_LINE
 #undef JGEOMETRY_TVEC3_SCALE_OUT_OF_LINE
 
-extern "C" bool SMS_IsMarioOnWire();
-
 namespace std {
 float fmodf(float, float);
 }

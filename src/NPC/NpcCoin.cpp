@@ -9,8 +9,6 @@
 #include <MoveBG/MapObjManager.hpp>
 #include <System/MarDirector.hpp>
 
-template <> s16 CLBRoundf<s16>(f32);
-
 static inline bool isCoinAppearBlocked(const TMarDirector* director)
 {
 	bool blocked = true;
@@ -71,7 +69,7 @@ void TNpcCoin::requestAppearCoin(const Vec& pos, f32 yawDeg, int count)
 	}
 
 	if (unk0 != nullptr) {
-		(*(void (**)(TMapObjBase*))(*(u8**)unk0 + 0xFC))(unk0);
+		unk0->appear();
 
 		TMapObjBase* obj                           = unk0;
 		*(JGeometry::TVec3<f32>*)((u8*)obj + 0x10) = unk8;

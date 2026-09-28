@@ -29,7 +29,6 @@ extern void* gpMarioOriginal;
 extern TStagePositionHolder* gpPositionHolder;
 
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
-template <> s16 CLBRoundf<s16>(f32);
 template <> s16 CLBTwoDegreeGeneralInbetween<s16>(s16, s16, f32, f32);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
 

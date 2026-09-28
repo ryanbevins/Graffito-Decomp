@@ -81,7 +81,7 @@ public:
 	/* 0x44 */ u16 mMinLOD;
 	/* 0x46 */ u16 mMaxLOD;
 	/* 0x48 */ s16 mLODBias;
-	/* 0x4B */ u8 mFlags;
+	/* 0x4A */ u8 mFlags;
 	/* 0x4C */ void* field_0x4c;
 	/* 0x50 */ u8 unk50;
 };

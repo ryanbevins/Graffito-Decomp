@@ -900,7 +900,7 @@ bool TKumokun::isFlying() const
 	return mSpine->getLatestNerve() == &TNerveKumokunFly::theNerve();
 }
 
-bool TKumokun::isCrashing() const { }
+bool TKumokun::isCrashing() const { return false; }
 
 bool TKumokun::isHitPlane() const { return mHitPlaneCounter > 0; }
 

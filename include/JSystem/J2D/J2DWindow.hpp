@@ -78,8 +78,8 @@ protected:
 	/* 0x110 */ Texture* unk110;
 	/* 0x114 */ int unk114;
 	/* 0x118 */ JUtility::TColor unk118;
-	/* 0x120 */ JUtility::TColor unk120;
 	/* 0x11C */ JUtility::TColor unk11C;
+	/* 0x120 */ JUtility::TColor unk120;
 	/* 0x124 */ JUtility::TColor unk124;
 	/* 0x128 */ JUtility::TColor unk128;
 	/* 0x12C */ JUtility::TColor unk12C;

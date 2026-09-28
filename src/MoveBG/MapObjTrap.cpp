@@ -77,7 +77,7 @@ void TLampTrapSpike::loadAfter()
 
 BOOL TLampTrapSpike::receiveMessage(THitActor* sender, u32 message)
 {
-	TMapObjBase::receiveMessage(sender, message);
+	return TMapObjBase::receiveMessage(sender, message);
 }
 
 void TLampTrapSpike::control()
@@ -189,7 +189,7 @@ void TLampTrapSpike::control()
 	}
 
 	TMapObjBase::control();
-	TBGCheckData* plane = SMS_GetMarioGrPlane();
+	const TBGCheckData* plane = SMS_GetMarioGrPlane();
 	if (bVar1 && plane && plane->getActor() == this
 	    && SMS_IsMarioTouchGround4cm())
 		SMS_SendMessageToMario(this, 0xA);
@@ -278,7 +278,7 @@ void TLampTrapIron::control()
 {
 	TMapObjBase::control();
 	if (unk140 <= 0) {
-		TBGCheckData* plane = SMS_GetMarioGrPlane();
+		const TBGCheckData* plane = SMS_GetMarioGrPlane();
 		if (plane && plane->getActor() == this && SMS_IsMarioTouchGround4cm())
 			SMS_SendMessageToMario(this, 10);
 	} else {

@@ -26,7 +26,6 @@ template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
 template <> f32 CLBEaseOutInbetween<f32>(f32, f32, f32);
 template <> f32 CLBTwoDegreeGeneralInbetween<f32>(f32, f32, f32, f32);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<f32>(f32*, f32, f32);
-template <> s16 CLBRoundf<s16>(f32);
 
 extern const char* cSunVolumeName;
 extern const char* cSunsetVolumeName;
@@ -124,13 +123,11 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 	}
 	mModelData->entryTexMtxAnimator(mAnmTexSRT);
 
-	// Two indirect virtual calls copy 8 bytes each into mUnk8C..0x98
-	// (likely material-related render data); store as int pairs.
+	// Save the first two materials' TEV colour 0 (8-byte J3DGXColorS10s)
+	// into _8C/mUnk92 and _94/mUnk9A; copied as int pairs.
 	{
 		J3DMaterial* mat0 = mModelData->getMaterialNodePointer(0);
-		void* sub = *(void**)((u8*)mat0 + 0x28);
-		typedef u32* (*F)(void*, u32);
-		u32* p0 = ((F)(*(void***)sub)[13])(sub, 0);
+		u32* p0 = (u32*)mat0->getTevColor(0);
 		u32 word0 = p0[0];
 		u32 word1 = p0[1];
 		*(u32*)((u8*)this + 0x8C) = word0;
@@ -138,9 +135,7 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 	}
 	{
 		J3DMaterial* mat1 = mModelData->getMaterialNodePointer(1);
-		void* sub = *(void**)((u8*)mat1 + 0x28);
-		typedef u32* (*F)(void*, u32);
-		u32* p1 = ((F)(*(void***)sub)[13])(sub, 0);
+		u32* p1 = (u32*)mat1->getTevColor(0);
 		u32 word0 = p1[0];
 		u32 word1 = p1[1];
 		*(u32*)((u8*)this + 0x94) = word0;
@@ -154,7 +149,7 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 	mUnkA8    = color1;
 	mUnkA0    = color1;
 
-	mFrameCtrl.init(*(s16*)((u8*)mAnmTexSRT + 2));
+	mFrameCtrl.init(mAnmTexSRT->getFrameMax());
 	mFrameCtrl.setRate(SMSGetAnmFrameRate());
 	mFrameCtrl.setAttribute(J3DFrameCtrl::ATTR_LOOP);
 
@@ -347,17 +342,11 @@ void TSunModel::perform(u32 flags, JDrama::TGraphics* gfx)
 
 	if ((flags & 0x200) != 0) {
 		if (inMode) {
-			*(f32*)((u8*)mAnmTexSRT + 4) = mFrameCtrl.getFrame();
-			{
-				void* sub = *(void**)((u8*)mModelData->getMaterialNodePointer(0) + 0x28);
-				typedef void (*F)(void*, u32, void*);
-				((F)(*(void***)sub)[11])(sub, 0, (u8*)this + 0x8C);
-			}
-			{
-				void* sub = *(void**)((u8*)mModelData->getMaterialNodePointer(1) + 0x28);
-				typedef void (*F)(void*, u32, void*);
-				((F)(*(void***)sub)[11])(sub, 0, (u8*)this + 0x94);
-			}
+			mAnmTexSRT->setFrame(mFrameCtrl.getFrame());
+			mModelData->getMaterialNodePointer(0)->getTevBlock()->setTevColor(
+			    0, (J3DGXColorS10*)_8C);
+			mModelData->getMaterialNodePointer(1)->getTevBlock()->setTevColor(
+			    0, (J3DGXColorS10*)_94);
 			mModel->entry();
 		}
 	}

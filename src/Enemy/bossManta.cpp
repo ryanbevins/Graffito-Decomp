@@ -737,9 +737,10 @@ f32 TBossManta::getPolluteRadius()
 	case 0:
 	case 1:
 	case 2:
-	case 3:
+	case 3: {
 		TBossMantaParams* params = (TBossMantaParams*)getSaveParam();
 		return params->mSLPolluteRadius.value * mScaling.x;
+	}
 	case 4:
 	case 5:
 		return 100.0f;

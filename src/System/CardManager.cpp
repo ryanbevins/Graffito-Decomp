@@ -164,7 +164,7 @@ void TCardManager::copyTo(TCardManager::TCriteria* param_1,
 	}
 }
 
-static void* cardmain(void* param_1) { ((TCardManager*)param_1)->cmdLoop(); }
+static void* cardmain(void* param_1) { return (void*)((TCardManager*)param_1)->cmdLoop(); }
 
 TCardManager::TCardManager(void* sector_work_area, void* card_work_area,
                            s32 channel, s32 thread_prio, void* thread_stack,

@@ -99,7 +99,7 @@ private:
 	u32 _74;                  // _70
 	CMemBlock* mHead;         // _74, free list
 	CMemBlock* mTail;         // _78, free list
-	CMemBlock* mHeadUsedList; // _8C
+	CMemBlock* mHeadUsedList; // _7C
 	CMemBlock* mTailUsedList; // _80
 };
 

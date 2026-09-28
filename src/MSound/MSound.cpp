@@ -217,12 +217,13 @@ u16 MSSeCallBack::setParameterSeqSync(JASystem::TTrack* track, u16 param)
 	case 0x28:
 		MSGMSound->unkD1 = 1;
 		return 0;
-	case 0x6E:
+	case 0x6E: {
 		u8 area = MSGMSound->unkCD;
 		u8 episode = MSGMSound->unkCE;
 		if (area == 8 && episode == 6)
 			return 0xFFFF;
 		return area;
+	}
 	case 0x78:
 		static bool ukuleleFlag = 0;
 		ukuleleFlag ^= true;

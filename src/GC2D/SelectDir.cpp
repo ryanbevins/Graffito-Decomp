@@ -73,7 +73,7 @@ void TSelectDir::setup(JDrama::TDisplay* display, TMarioGamePad* pad, u8 cup)
 void* TSelectDir::setupThreadFunc(void* param)
 {
 	// BUG: return missing in original
-	((TSelectDir*)param)->rsetup();
+	return (void*)((TSelectDir*)param)->rsetup();
 }
 
 int TSelectDir::rsetup()

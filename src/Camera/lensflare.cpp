@@ -19,7 +19,6 @@
 #undef JMATH_SELECTSHINE2_TRIG_OUT_OF_LINE
 
 template <> f32 CLBTwoDegreeGeneralInbetween<f32>(f32, f32, f32, f32);
-template <> s16 CLBRoundf<s16>(f32);
 
 extern const char* cSunVolumeName;
 

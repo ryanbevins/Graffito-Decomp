@@ -1859,7 +1859,7 @@ void TGCConsole2::loadAfter()
 	unk144->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
 
 	TNozzleBase* nozzle = gpMarioOriginal->mWaterGun->getCurrentNozzle();
-	unk28 = *(u32*)((u8*)nozzle + 0xCC);
+	unk28 = nozzle->mEmitParams.mAmountMax.get();
 
 	unkBC = JDrama::TNameRefGen::search<JDrama::TNameRef>(bathName);
 	unkC0 = JDrama::TNameRefGen::search<JDrama::TNameRef>(bossEelName);

@@ -41,8 +41,8 @@ J2DWindow::J2DWindow(J2DPane* parent, JSURandomInputStream* stream, bool is_ex)
 
 		unk114 = stream->readU8();
 		unk118.set(stream->readU32());
-		unk120.set(stream->readU32());
 		unk11C.set(stream->readU32());
+		unk120.set(stream->readU32());
 		unk124.set(stream->readU32());
 		fields -= 14;
 
@@ -82,8 +82,8 @@ J2DWindow::J2DWindow(J2DPane* parent, JSURandomInputStream* stream, bool is_ex)
 
 		unk114 = stream->readU8();
 		unk118.set(stream->readU32());
-		unk120.set(stream->readU32());
 		unk11C.set(stream->readU32());
+		unk120.set(stream->readU32());
 		unk124.set(stream->readU32());
 
 		stream->align(4);
@@ -235,8 +235,8 @@ void J2DWindow::drawContents(const JUTRect& rect)
 		              GX_COLOR0A0);
 		GXSetChanCtrl(GX_COLOR0A0, 0, GX_SRC_REG, GX_SRC_VTX, 0, GX_DF_NONE,
 		              GX_AF_NONE);
-		if ((unk118 & 0xff) == 0xff && (unk120 & 0xff) == 0xff
-		    && (unk11C & 0xff) == 0xff && (unk124 & 0xff) == 0xff
+		if ((unk118 & 0xff) == 0xff && (unk11C & 0xff) == 0xff
+		    && (unk120 & 0xff) == 0xff && (unk124 & 0xff) == 0xff
 		    && mColorAlpha == 0xff) {
 			GXSetBlendMode(GX_BM_NONE, GX_BL_ONE, GX_BL_ZERO, GX_LO_SET);
 		} else {
@@ -244,8 +244,8 @@ void J2DWindow::drawContents(const JUTRect& rect)
 			               GX_LO_SET);
 		}
 		JUtility::TColor col1 = unk118;
-		JUtility::TColor col2 = unk11C;
-		JUtility::TColor col3 = unk120;
+		JUtility::TColor col2 = unk120;
+		JUtility::TColor col3 = unk11C;
 		JUtility::TColor col4 = unk124;
 		if (mColorAlpha != 0xff) {
 			col1.a = (u8)((col1.a * mColorAlpha) / 0xff);

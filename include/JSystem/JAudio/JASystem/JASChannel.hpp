@@ -18,6 +18,7 @@ namespace Driver {
 		/* 0x0 */ u8 unk0;
 		/* 0x1 */ u8 unk1;
 		/* 0x2 */ u8 unk2;
+		/* 0x3 */ u8 unk3;
 		/* 0x4 */ char unk4[0xC];
 		/* 0x10 */ int unk10;
 		/* 0x14 */ int unk14;

@@ -50,9 +50,9 @@ namespace DSPInterface {
 
 		struct Channel {
 			/* 0x0 */ u16 id;
-			/* 0x4 */ u16 targetVolume;
-			/* 0x8 */ u16 currentVolume;
-			/* 0xC */ u16 unkC;
+			/* 0x2 */ u16 targetVolume;
+			/* 0x4 */ u16 currentVolume;
+			/* 0x6 */ u16 unkC;
 		};
 
 		// TODO: verify whether this struct is this & label:
@@ -71,7 +71,7 @@ namespace DSPInterface {
 		/* 0x0C */ u16 unkC;
 		/* 0x0E */ u16 unkE;
 		/* 0x10 */ Channel unk10[6];
-		/* 0x18 */ u8 unk18[0x50 - 0x40];
+		/* 0x40 */ u8 unk40[0x50 - 0x40];
 		/* 0x50 */ u16 unk50;
 		/* 0x52 */ u16 unk52;
 		/* 0x54 */ u16 unk54;
@@ -89,7 +89,7 @@ namespace DSPInterface {
 		/* 0x78 */ short unk78[4];
 		/* 0x80 */ u16 unk80[20];
 		/* 0xA8 */ short unkA8[4];
-		/* 0xB8 */ u16 unkB0[16];
+		/* 0xB0 */ u16 unkB0[16];
 		/* 0xD0 */ u8 unkD0[0x100 - 0xd0];
 		/* 0x100 */ u16 unk100;
 		/* 0x102 */ u16 unk102;

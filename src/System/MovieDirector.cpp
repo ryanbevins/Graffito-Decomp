@@ -51,7 +51,7 @@ TMovieDirector::TMovieDirector()
 
 void* TMovieDirector::setupThreadFunc(void* self)
 {
-	((TMovieDirector*)self)->rsetup();
+	return (void*)((TMovieDirector*)self)->rsetup();
 }
 
 extern OSThread gSetupThread;

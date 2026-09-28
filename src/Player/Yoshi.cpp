@@ -25,6 +25,7 @@
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <JSystem/J3D/J3DGraphBase/Components/J3DGXColorS10.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
@@ -50,9 +51,6 @@ class TWaterGun {
 public:
 	TNozzleBase* getCurrentNozzle() const;
 };
-
-extern "C" void* __vt__10TTakeActor[];
-extern "C" void* __vt__12TYoshiTongue[];
 
 static const char cDirtyFileName[] = "/scene/map/pollution/H_ma_rak.bti";
 static const char cDirtyTexName[]  = "H_ma_rak_dummy";
@@ -137,9 +135,9 @@ void TYoshi::init(TMario* mario) {
 	mHandR = handR;
 
 	{
-		u8* dst = *(u8**)((u8*)handL->getModelData()->getTexture() + 4);
+		u8* dst = (u8*)handL->getModelData()->getTexture()->getResTIMG(0);
 		u8* src
-		    = *(u8**)((u8*)mActor->unk4->getModelData()->getTexture() + 4);
+		    = (u8*)mActor->unk4->getModelData()->getTexture()->getResTIMG(0);
 		for (int j = 0; j < 8; ++j)
 			((u32*)dst)[j] = ((u32*)src)[j];
 		*(u32*)(dst + 0x1C) = (u32)((src + *(u32*)(dst + 0x1C)) - dst);
@@ -147,9 +145,9 @@ void TYoshi::init(TMario* mario) {
 		DCFlushRange(dst, 0x20);
 	}
 	{
-		u8* dst = *(u8**)((u8*)handR->getModelData()->getTexture() + 4);
+		u8* dst = (u8*)handR->getModelData()->getTexture()->getResTIMG(0);
 		u8* src
-		    = *(u8**)((u8*)mActor->unk4->getModelData()->getTexture() + 4);
+		    = (u8*)mActor->unk4->getModelData()->getTexture()->getResTIMG(0);
 		for (int j = 0; j < 8; ++j)
 			((u32*)dst)[j] = ((u32*)src)[j];
 		*(u32*)(dst + 0x1C) = (u32)((src + *(u32*)(dst + 0x1C)) - dst);
@@ -175,16 +173,7 @@ void TYoshi::init(TMario* mario) {
 	*(u8*)((u8*)&mFrameCtrl + 0x4) = 0;
 	*(f32*)((u8*)&mFrameCtrl + 0xC) = 0.0f;
 
-	TYoshiTongue* tongue = (TYoshiTongue*)::operator new(sizeof(TYoshiTongue));
-	if (tongue) {
-		new ((THitActor*)tongue) THitActor("HitActor");
-		*(void**)tongue = __vt__10TTakeActor;
-		*(void**)((u8*)tongue + 0x20) = (u8*)__vt__10TTakeActor + 0x24;
-		*(u32*)((u8*)tongue + 0x68) = 0;
-		*(u32*)((u8*)tongue + 0x6C) = 0;
-		*(void**)tongue = __vt__12TYoshiTongue;
-		*(void**)((u8*)tongue + 0x20) = (u8*)__vt__12TYoshiTongue + 0x24;
-	}
+	TYoshiTongue* tongue = new TYoshiTongue("HitActor");
 	mTongue = tongue;
 	tongue->init(this);
 
@@ -571,15 +560,15 @@ void TYoshi::thinkAnimation()
 				mMario->getSideWalkValues(&sideType, &frameRate,
 				                           &sideStick);
 				switch (sideType) {
-				case (E_SIDEWALK_TYPE)0:
+				case 0:
 					nextAnim = 0x16;
 					pumpSelected = 1;
 					break;
-				case (E_SIDEWALK_TYPE)1:
+				case 1:
 					nextAnim = 0x10;
 					pumpSelected = 1;
 					break;
-				case (E_SIDEWALK_TYPE)2:
+				case 2:
 					nextAnim = 0x11;
 					pumpSelected = 1;
 					break;
@@ -640,7 +629,7 @@ void TYoshi::thinkAnimation()
 		} else {
 			oldAnm = mActor->unkC->getOldMotionBlendAnmPtr();
 		}
-		*(f32*)((u8*)oldAnm + 0x4) = mActor->getFrameCtrl(0)->getFrame();
+		oldAnm->setFrame(mActor->getFrameCtrl(0)->getFrame());
 
 		if (mMario->mAction == 0x0004045C) {
 			frameRate = mMario->getMotionFrameCtrl().getRate();
@@ -671,10 +660,7 @@ void TYoshi::thinkUpper()
 		TWaterGun* waterGun = mMario->mWaterGun;
 		if (*(s32*)((u8*)waterGun + 0x1C80) != 0) {
 			TNozzleBase* nozzle = waterGun->getCurrentNozzle();
-			typedef s32 (*GetNozzleKind)(TNozzleBase*);
-			GetNozzleKind getNozzleKind
-			    = *(GetNozzleKind*)(*(u32*)((u8*)nozzle + 0x364) + 0xC);
-			if (getNozzleKind(nozzle) == 1) {
+			if (nozzle->getNozzleKind() == 1) {
 				nozzle = waterGun->getCurrentNozzle();
 				if (*(s8*)((u8*)nozzle + 0x385) == 1) {
 					active = 1;
@@ -697,19 +683,19 @@ void TYoshi::thinkUpper()
 			*(f32*)((u8*)&mFrameCtrl + 0x10) = *(s16*)((u8*)&mFrameCtrl + 0x6);
 			*(f32*)((u8*)&mFrameCtrl + 0xC) = 1.0f;
 			*(s16*)((u8*)&mFrameCtrl + 0x8)
-			    = *(s16*)(*(u32*)((u8*)_04) + 0x2);
+			    = (*(J3DAnmTransform**)((u8*)_04))->getFrameMax();
 			*(f32*)((u8*)&mFrameCtrl + 0x10) = 0.0f;
 			upperAnm->setMtxCalc(*(J3DMtxCalc**)((u8*)_04 + 0x8));
 			mBckPlayer2->initAnmSound(mAnimFrameRates[3], 1, 0.0f);
 		}
-		*(f32*)(*(u32*)((u8*)_04) + 0x4)
-		    = *(f32*)((u8*)&mFrameCtrl + 0x10);
+		(*(J3DAnmTransform**)((u8*)_04))
+		    ->setFrame(*(f32*)((u8*)&mFrameCtrl + 0x10));
 	} else {
 		if (upperAnm->getMtxCalc() == *(J3DMtxCalc**)((u8*)_04 + 0x8)) {
 			*(f32*)((u8*)&mFrameCtrl + 0x10) = *(s16*)((u8*)&mFrameCtrl + 0x6);
 			*(f32*)((u8*)&mFrameCtrl + 0xC) = 1.0f;
 			*(s16*)((u8*)&mFrameCtrl + 0x8)
-			    = *(s16*)(*(u32*)((u8*)_04 + 0x4) + 0x2);
+			    = (*(J3DAnmTransform**)((u8*)_04 + 0x4))->getFrameMax();
 			*(f32*)((u8*)&mFrameCtrl + 0x10) = 0.0f;
 			upperAnm->setMtxCalc(*(J3DMtxCalc**)((u8*)_04 + 0xC));
 			mBckPlayer2->initAnmSound(mAnimFrameRates[4], 1, 0.0f);
@@ -723,8 +709,8 @@ void TYoshi::thinkUpper()
 			if (ended)
 				upperAnm->setMtxCalc(nullptr);
 		}
-		*(f32*)(*(u32*)((u8*)_04 + 0x4) + 0x4)
-		    = *(f32*)((u8*)&mFrameCtrl + 0x10);
+		(*(J3DAnmTransform**)((u8*)_04 + 0x4))
+		    ->setFrame(*(f32*)((u8*)&mFrameCtrl + 0x10));
 	}
 }
 

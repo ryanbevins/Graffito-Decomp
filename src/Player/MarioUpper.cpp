@@ -74,8 +74,8 @@ BOOL TMario::checkPumpEnable()
 						if (pumpState != 4 && pumpState != 3
 						    && pumpState != 2) {
 							if (mAction != 0x88D
-							    || *(u8*)((u8*)mWaterGun->getCurrentNozzle()
-							              + 0x18)
+							    || mWaterGun->getCurrentNozzle()
+							              ->mEmitParams.mRocketType.value
 							           != 1) {
 								TWaterGun* wg2 = mWaterGun;
 								TNozzleBase* nozzle2
