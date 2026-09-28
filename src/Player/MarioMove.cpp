@@ -991,14 +991,9 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		mForwardVel *= scale;
 
 		// Decay speed bonus
-		f32 decayParam = mGraffitoParams.mSinkRecover.get();
-		f32 bonus2 = unk368;
-		f32 fAge2 = (f32)maxAge;
-		f32 ratio2 = bonus2 / fAge2;
-		f32 invRatio = 1.0f - ratio2;
-		f32 decay = fAge2 * decayParam;
-		f32 newBonus = bonus2 - invRatio * decay;
-		unk368 = newBonus;
+		unk368 -= (1.0f - unk368 / (f32)mGraffitoParams.mSinkTime.get())
+		          * ((f32)mGraffitoParams.mSinkTime.get()
+		             * mGraffitoParams.mSinkRecover.get());
 		if (unk368 < 0.0f)
 			unk368 = 0.0f;
 	}
