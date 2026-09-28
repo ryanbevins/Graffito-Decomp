@@ -740,7 +740,7 @@ void TEnemyMario::perform(u32 flags, JDrama::TGraphics* graphics)
 void TEnemyMario::drawHPMeter(MtxPtr mtx)
 {
 	Vec worldPos = mPosition;
-	worldPos.y += 64.0f;
+	worldPos.y += 210.0f;
 
 	Vec screenPos;
 	PSMTXMultVec(mtx, &worldPos, &screenPos);
@@ -767,28 +767,32 @@ void TEnemyMario::drawHPMeter(MtxPtr mtx)
 	GXSetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
 	GXSetCullMode(GX_CULL_NONE);
 
-	f32 left   = screenPos.x - 48.0f;
 	f32 top    = screenPos.y - 10.0f;
 	f32 bottom = screenPos.y + 10.0f;
-	f32 z      = screenPos.z;
-
+	f32 left   = screenPos.x - 48.0f;
 	GXColor backColor = { 0, 0, 0, 0xC0 };
+	f32 right  = left + 96.0f;
+	f32 x0     = left - 5.0f;
+	f32 y0     = top - 5.0f;
+	f32 x1     = right + 5.0f;
+	f32 y1     = bottom + 5.0f;
+
 	GXSetChanMatColor(GX_COLOR0A0, backColor);
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32(left - 5.0f, top - 5.0f, z);
-	GXPosition3f32(left + 96.0f, top - 5.0f, z);
-	GXPosition3f32(left + 96.0f, bottom + 5.0f, z);
-	GXPosition3f32(left - 5.0f, bottom + 5.0f, z);
+	GXPosition3f32(x0, y0, screenPos.z);
+	GXPosition3f32(x1, y0, screenPos.z);
+	GXPosition3f32(x1, y1, screenPos.z);
+	GXPosition3f32(x0, y1, screenPos.z);
 	GXEnd();
 
-	f32 gaugeRight = left + (f32)emWaterCount(this) * 1.5f;
 	GXColor gaugeColor = { 0x40, 0x40, 0xFF, 0xFF };
+	f32 gaugeRight     = left + (f32)emWaterCount(this) * 1.5f;
 	GXSetChanMatColor(GX_COLOR0A0, gaugeColor);
 	GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-	GXPosition3f32(left, top, z);
-	GXPosition3f32(gaugeRight, top, z);
-	GXPosition3f32(gaugeRight, bottom, z);
-	GXPosition3f32(left, bottom, z);
+	GXPosition3f32(left, top, screenPos.z);
+	GXPosition3f32(gaugeRight, top, screenPos.z);
+	GXPosition3f32(gaugeRight, bottom, screenPos.z);
+	GXPosition3f32(left, bottom, screenPos.z);
 	GXEnd();
 }
 
