@@ -873,62 +873,61 @@ u32 TCasinoPanelGate::touchWater(THitActor* sender)
 {
 	if (unk16D != 0)
 		return 1;
-	if (fabsf(mPosition.z - sender->mPosition.z) >= 50.0f)
-		return 0;
-	unk164 = 1;
-	f32 hY = unk144;
-	int dir;
-	if (sender->mPosition.y > mPosition.y + 3.0f * hY) {
-		if (sender->mPosition.x < mPosition.x - unk140)
-			dir = 0xC;
-		else if (sender->mPosition.x < mPosition.x)
-			dir = 0xD;
-		else if (sender->mPosition.x > mPosition.x + unk140)
-			dir = 0xF;
-		else
-			dir = 0xE;
-		if (sender->mPosition.y < mPosition.y + 3.5f * hY)
-			unk164 = -1;
-	} else if (sender->mPosition.y > mPosition.y + 2.0f * hY) {
-		if (sender->mPosition.x < mPosition.x - unk140)
-			dir = 8;
-		else if (sender->mPosition.x < mPosition.x)
-			dir = 9;
-		else if (sender->mPosition.x > mPosition.x + unk140)
-			dir = 0xB;
-		else
-			dir = 0xA;
-		if (sender->mPosition.y < mPosition.y + 2.5f * hY)
-			unk164 = -1;
-	} else if (sender->mPosition.y > mPosition.y + hY) {
-		if (sender->mPosition.x < mPosition.x - unk140)
-			dir = 4;
-		else if (sender->mPosition.x < mPosition.x)
-			dir = 5;
-		else if (sender->mPosition.x > mPosition.x + unk140)
-			dir = 7;
-		else
-			dir = 6;
-		if (sender->mPosition.y < mPosition.y + 1.5f * hY)
-			unk164 = -1;
-	} else {
-		if (sender->mPosition.x < mPosition.x - unk140)
-			dir = 0;
-		else if (sender->mPosition.x < mPosition.x)
-			dir = 1;
-		else if (sender->mPosition.x > mPosition.x + unk140)
-			dir = 3;
-		else
-			dir = 2;
-		if (sender->mPosition.y < mPosition.y + 0.5f * hY)
-			unk164 = -1;
+	if (fabsf(mPosition.z - sender->mPosition.z) < 50.0f) {
+		unk164 = 1;
+		int dir;
+		if (sender->mPosition.y > mPosition.y + 3.0f * unk144) {
+			if (sender->mPosition.x < mPosition.x - unk140)
+				dir = 0xC;
+			else if (sender->mPosition.x < mPosition.x)
+				dir = 0xD;
+			else if (sender->mPosition.x > mPosition.x + unk140)
+				dir = 0xF;
+			else
+				dir = 0xE;
+			if (sender->mPosition.y < mPosition.y + 3.5f * unk144)
+				unk164 = -1;
+		} else if (sender->mPosition.y > mPosition.y + 2.0f * unk144) {
+			if (sender->mPosition.x < mPosition.x - unk140)
+				dir = 8;
+			else if (sender->mPosition.x < mPosition.x)
+				dir = 9;
+			else if (sender->mPosition.x > mPosition.x + unk140)
+				dir = 0xB;
+			else
+				dir = 0xA;
+			if (sender->mPosition.y < mPosition.y + 2.5f * unk144)
+				unk164 = -1;
+		} else if (sender->mPosition.y > mPosition.y + unk144) {
+			if (sender->mPosition.x < mPosition.x - unk140)
+				dir = 4;
+			else if (sender->mPosition.x < mPosition.x)
+				dir = 5;
+			else if (sender->mPosition.x > mPosition.x + unk140)
+				dir = 7;
+			else
+				dir = 6;
+			if (sender->mPosition.y < mPosition.y + 1.5f * unk144)
+				unk164 = -1;
+		} else {
+			if (sender->mPosition.x < mPosition.x - unk140)
+				dir = 0;
+			else if (sender->mPosition.x < mPosition.x)
+				dir = 1;
+			else if (sender->mPosition.x > mPosition.x + unk140)
+				dir = 3;
+			else
+				dir = 2;
+			if (sender->mPosition.y < mPosition.y + 0.5f * unk144)
+				unk164 = -1;
+		}
+		unk138[dir] += unk154 * unk164;
+		if (fabsf(unk138[dir]) > unk158) {
+			unk138[dir] = unk158 * unk164;
+		}
+		return 1;
 	}
-	f32 sign = (f32)(s16)unk164;
-	unk138[dir] += unk154 * sign;
-	if (fabsf(unk138[dir]) > unk158) {
-		unk138[dir] = unk158 * sign;
-	}
-	return 1;
+	return 0;
 }
 
 void TSlotDrum::moveObject()
