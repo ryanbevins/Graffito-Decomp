@@ -70,67 +70,6 @@ static const char* gorogoro_bastable[] = {
 };
 
 
-DEFINE_NERVE(TNerveGorogoroDie, TLiveActor)
-{
-	TGorogoro* self = (TGorogoro*)spine->getBody();
-
-	if (spine->getTime() < 2) {
-		self->onHitFlag(0x1);
-
-		if (self->mGroundPlane->isWaterSurface()
-		    && !self->isAirborne())
-			self->generateEffectColumWater();
-
-		if (self->checkLiveFlag(LIVE_FLAG_UNK10000)) {
-			self->setMeltAnm();
-		} else {
-			((TGorogoroManager*)self->mManager)
-			    ->mPolluteModelManager->generatePolluteModel(
-			        self->mPosition, self->mScaling);
-			self->setDeadAnm();
-			self->setDeadEffect();
-		}
-	} else if (self->checkCurAnmEnd(0) || spine->getTime() > 360) {
-		self->onHitFlag(0x1);
-		self->onLiveFlag(LIVE_FLAG_DEAD);
-		self->onLiveFlag(LIVE_FLAG_UNK8);
-		self->offLiveFlag(LIVE_FLAG_HIDDEN);
-		self->offLiveFlag(LIVE_FLAG_UNK10000);
-		self->mHolder = 0;
-		self->stopAnmSound();
-		spine->reset();
-		spine->setNext(&TNerveSmallEnemyDie::theNerve());
-		spine->pushAfterCurrent(spine->getDefault());
-		self->genRandomItem();
-		return TRUE;
-	}
-
-	if (self->checkLiveFlag(LIVE_FLAG_UNK10000))
-		self->walkBehavior(2, 0.5f);
-
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveGorogoroRollOnGraph, TLiveActor)
-{
-	TGorogoro* self = (TGorogoro*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->goToShortestNextGraphNode();
-		self->setBckAnm(2);
-	}
-
-	if (self->isReachedToGoalXZ()) {
-		if (self->jumpToNextGraphNode() >= 0)
-			self->flagJump();
-		else
-			self->goToShortestNextGraphNode();
-	}
-	self->walkBehavior(2, 1.0f);
-
-	return FALSE;
-}
-
 DEFINE_NERVE(TNerveIgaigaShootFromCannon, TLiveActor)
 {
 	TIgaiga* self = (TIgaiga*)spine->getBody();
@@ -152,6 +91,34 @@ DEFINE_NERVE(TNerveIgaigaShootFromCannon, TLiveActor)
 	}
 
 	self->walkBehavior(2, 1.0f);
+	return FALSE;
+}
+
+// fabricated: retail shares the early-out with the nerve's single return block
+static inline void rollOnGraph(TIgaiga* self)
+{
+	if (self->isReachedToGoalXZ()) {
+		if (self->jumpToNextGraphNode() >= 0)
+			self->flagJump();
+		if (self->getTracer()->getCurrent().checkFlag(0x40))
+			return;
+		self->goToRandomNextGraphNode();
+	}
+	self->walkBehavior(2, 1.0f);
+}
+
+DEFINE_NERVE(TNerveIgaigaRollOnGraph, TLiveActor)
+{
+	TIgaiga* self = (TIgaiga*)spine->getBody();
+
+	if (spine->getTime() == 0)
+		self->setWalkAnm();
+
+	if (self->checkCurAnmEnd(0) && self->isBckAnm(2))
+		self->setBckAnm(3);
+
+	rollOnGraph(self);
+
 	return FALSE;
 }
 
@@ -192,34 +159,6 @@ DEFINE_NERVE(TNerveIgaigaWaterHit, TLiveActor)
 			self->goToRandomNextGraphNode();
 	}
 	self->walkBehavior(2, 1.0f);
-
-	return FALSE;
-}
-
-// fabricated: retail shares the early-out with the nerve's single return block
-static inline void rollOnGraph(TIgaiga* self)
-{
-	if (self->isReachedToGoalXZ()) {
-		if (self->jumpToNextGraphNode() >= 0)
-			self->flagJump();
-		if (self->getTracer()->getCurrent().checkFlag(0x40))
-			return;
-		self->goToRandomNextGraphNode();
-	}
-	self->walkBehavior(2, 1.0f);
-}
-
-DEFINE_NERVE(TNerveIgaigaRollOnGraph, TLiveActor)
-{
-	TIgaiga* self = (TIgaiga*)spine->getBody();
-
-	if (spine->getTime() == 0)
-		self->setWalkAnm();
-
-	if (self->checkCurAnmEnd(0) && self->isBckAnm(2))
-		self->setBckAnm(3);
-
-	rollOnGraph(self);
 
 	return FALSE;
 }
@@ -1381,4 +1320,65 @@ int RollEnemyBodyCallback(J3DNode* node, int timing)
 		            J3DSys::mCurrentMtx);
 	}
 	return 1;
+}
+
+DEFINE_NERVE(TNerveGorogoroRollOnGraph, TLiveActor)
+{
+	TGorogoro* self = (TGorogoro*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->goToShortestNextGraphNode();
+		self->setBckAnm(2);
+	}
+
+	if (self->isReachedToGoalXZ()) {
+		if (self->jumpToNextGraphNode() >= 0)
+			self->flagJump();
+		else
+			self->goToShortestNextGraphNode();
+	}
+	self->walkBehavior(2, 1.0f);
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveGorogoroDie, TLiveActor)
+{
+	TGorogoro* self = (TGorogoro*)spine->getBody();
+
+	if (spine->getTime() < 2) {
+		self->onHitFlag(0x1);
+
+		if (self->mGroundPlane->isWaterSurface()
+		    && !self->isAirborne())
+			self->generateEffectColumWater();
+
+		if (self->checkLiveFlag(LIVE_FLAG_UNK10000)) {
+			self->setMeltAnm();
+		} else {
+			((TGorogoroManager*)self->mManager)
+			    ->mPolluteModelManager->generatePolluteModel(
+			        self->mPosition, self->mScaling);
+			self->setDeadAnm();
+			self->setDeadEffect();
+		}
+	} else if (self->checkCurAnmEnd(0) || spine->getTime() > 360) {
+		self->onHitFlag(0x1);
+		self->onLiveFlag(LIVE_FLAG_DEAD);
+		self->onLiveFlag(LIVE_FLAG_UNK8);
+		self->offLiveFlag(LIVE_FLAG_HIDDEN);
+		self->offLiveFlag(LIVE_FLAG_UNK10000);
+		self->mHolder = 0;
+		self->stopAnmSound();
+		spine->reset();
+		spine->setNext(&TNerveSmallEnemyDie::theNerve());
+		spine->pushAfterCurrent(spine->getDefault());
+		self->genRandomItem();
+		return TRUE;
+	}
+
+	if (self->checkLiveFlag(LIVE_FLAG_UNK10000))
+		self->walkBehavior(2, 0.5f);
+
+	return FALSE;
 }
