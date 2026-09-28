@@ -1040,8 +1040,11 @@ void TBGTentacle::moveConstraint()
 			int iVar15          = jntidx[mIndex];
 			for (int i = 0; i < mNodeNum; ++i) {
 				MtxPtr mtx = mOwner->getModel()->getAnmMtx(i + iVar15);
-				mNodes[i].setUnk18(
-				    JGeometry::TVec3<f32>(mtx[0][3], mtx[1][3], mtx[2][3]));
+				JGeometry::TVec3<f32> trans;
+				trans.x = mtx[0][3];
+				trans.y = mtx[1][3];
+				trans.z = mtx[2][3];
+				mNodes[i].setUnk18(trans);
 			}
 		}
 		break;
