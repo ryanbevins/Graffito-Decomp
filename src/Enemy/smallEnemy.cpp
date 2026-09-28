@@ -536,7 +536,7 @@ void TSmallEnemy::moveObject()
 		calcRidePos();
 }
 
-BOOL TSmallEnemy::updateAnmSound() { TSpineEnemy::updateAnmSound(); }
+BOOL TSmallEnemy::updateAnmSound() { return TSpineEnemy::updateAnmSound(); }
 
 BOOL TSmallEnemy::receiveMessage(THitActor* sender, u32 message)
 {
