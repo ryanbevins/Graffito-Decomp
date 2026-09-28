@@ -1219,8 +1219,8 @@ void TBossMantaManager::updateMantaEscape()
 {
 	TBossManta::sEscapeFromMario = 0;
 
-	JGeometry::TVec3<f32> marioPos2 = SMS_GetMarioPos();
-	JGeometry::TVec3<f32> marioPos(marioPos2.x, 0.0f, marioPos2.z);
+	JGeometry::TVec3<f32> marioPos = SMS_GetMarioPos();
+	marioPos.y                     = 0.0f;
 
 	for (int i = 0; i < 7; ++i) {
 		if (mPalmPositions[i].distance(marioPos) < 350.0f)
