@@ -60,7 +60,7 @@ TMarDirector::TMarDirector()
 
 void* TMarDirector::setupThreadFunc(void* param_1)
 {
-	((TMarDirector*)param_1)->loadResource();
+	return (void*)((TMarDirector*)param_1)->loadResource();
 }
 
 extern OSThread gSetupThread;

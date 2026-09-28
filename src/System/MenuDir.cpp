@@ -57,7 +57,7 @@ TMenuDirector::~TMenuDirector()
 void* TMenuDirector::setupThreadFunc(void* param_1)
 {
 	// BUG: return missing
-	((TMenuDirector*)param_1)->rsetup();
+	return (void*)((TMenuDirector*)param_1)->rsetup();
 }
 
 extern OSThread gSetupThread;
