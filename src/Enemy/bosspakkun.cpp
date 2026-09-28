@@ -1024,28 +1024,18 @@ BOOL TBPHeadHit::receiveMessage(THitActor* sender, u32 message)
 	JGeometry::TVec3<f32> toMario = *gpMarioPos;
 	toMario -= mPosition;
 
-	f32 targetYaw;
-	if (toMario.z == 0.0f) {
-		if (toMario.x >= 0.0f)
-			targetYaw = 90.0f;
-		else
-			targetYaw = -90.0f;
-	} else if (toMario.z >= 0.0f) {
-		targetYaw = matan(toMario.z, toMario.x) * (360.0f / 65536.0f);
-	} else {
-		f32 yaw = matan(-toMario.z, toMario.x) * (360.0f / 65536.0f);
-		targetYaw = 180.0f - yaw;
-	}
-
+	f32 targetYaw = MsGetRotFromZaxisY(toMario);
 	while (targetYaw >= 360.0f)
 		targetYaw -= 360.0f;
 	while (targetYaw < 0.0f)
 		targetYaw += 360.0f;
 
-	f32 wrappedYaw = callMsWrap(boss->mRotation.y, targetYaw - 180.0f,
+	targetYaw = MsGetRotFromZaxisY(toMario);
+	f32 wrappedYaw = callMsWrap(mOwner->mRotation.y, targetYaw - 180.0f,
 	                            targetYaw + 180.0f);
-	if (fabsf(targetYaw - wrappedYaw)
-	    < 0.5f * boss->getBossPakkunSaveParam()->mSLDamageAngle.value) {
+	f32 yawDiff = targetYaw - wrappedYaw;
+	if (fabsf(yawDiff)
+	    < 0.5f * mOwner->getBossPakkunSaveParam()->mSLDamageAngle.value) {
 		if ((s8)boss->unk17C == 0) {
 			boss->unk170++;
 
