@@ -87,11 +87,10 @@ BOOL TMario::considerRotateStart()
 
 	if (canSpray) {
 		if (stickDir > 0) {
-			changePlayerStatus(0x0441, 0, false);
+			return changePlayerStatus(0x0441, 0, false);
 		} else {
-			changePlayerStatus(0x0442, 0, false);
+			return changePlayerStatus(0x0442, 0, false);
 		}
-		return;
 	} else {
 		goto fail;
 	}
@@ -1085,24 +1084,21 @@ jumpFail:
 	doJump = 0;
 jumpCheck:
 	if (doJump != 0) {
-		changePlayerStatus(0x50, 0, false);
-		return;
+		return changePlayerStatus(0x50, 0, false);
 	}
 
 	// Check crouch (0x10)
 	if (mInput & 0x10) {
 		if (mActionState == 1) {
 			mFaceAngle.y = (s16)mActionArg;
-			changePlayerStatus(0x0C400209, 0, false);
-			return;
+			return changePlayerStatus(0x0C400209, 0, false);
 		}
 		if (mActionTimer > 0xF0 && mForwardVel >= 16.0f
 		    && mGroundPlane->mNormal.y >= 0.17364818f) {
-			changePlayerStatus(0x04000445, 0, false);
+			return changePlayerStatus(0x04000445, 0, false);
 		} else {
-			changePlayerStatus(0x0400044A, 0, false);
+			return changePlayerStatus(0x0400044A, 0, false);
 		}
-		return;
 	}
 
 	// Check dash jump while in water-jet state (0x4000)
@@ -1113,14 +1109,12 @@ jumpCheck:
 		inJetState = 0;
 	if (inJetState && (mInput & 0x2)
 	    && mForwardVel > mDeParams.mDashMax.value - 1.0f) {
-		changePlayerJumping(0x0888, 0);
-		return;
+		return changePlayerJumping(0x0888, 0);
 	}
 
 	// Check B button (0x2) for tri jump
 	if (mInput & 0x2) {
-		changePlayerTriJump();
-		return;
+		return changePlayerTriJump();
 	}
 
 	// Check spray jump (0x8000) unless on Yoshi
@@ -1145,16 +1139,14 @@ jumpCheck:
 	if (mInput & 0x20) {
 		if (mActionState == 1) {
 			mFaceAngle.y = (s16)mActionArg;
-			changePlayerStatus(0x0C400209, 0, false);
-			return;
+			return changePlayerStatus(0x0C400209, 0, false);
 		}
 		if (mActionTimer > 0xF0 && mForwardVel >= 16.0f
 		    && mGroundPlane->mNormal.y >= 0.17364818f) {
-			changePlayerStatus(0x04000445, 0, false);
+			return changePlayerStatus(0x04000445, 0, false);
 		} else {
-			changePlayerStatus(0x0400044A, 0, false);
+			return changePlayerStatus(0x0400044A, 0, false);
 		}
-		return;
 	}
 
 	// Check turn
@@ -1181,23 +1173,20 @@ jumpCheck:
 			emitParticle(0x15, (s16)(mFaceAngle.y + 0x8000));
 			emitParticle(0x17, (s16)(mFaceAngle.y + 0x8000));
 			emitParticle(0x16, (s16)(mFaceAngle.y + 0x8000));
-			changePlayerStatus(0x0443, 0, false);
-			return;
+			return changePlayerStatus(0x0443, 0, false);
 		}
 	}
 
 	// Check squat slip start
 	if ((u8)canSquat()) {
 		setPlayerVelocity(0.0f);
-		changePlayerStatus(0x0C008220, 0, false);
-		return;
+		return changePlayerStatus(0x0C008220, 0, false);
 	}
 
 	// Check rocket start
 	if (rocketCheck()) {
 		mRocketTargetY = mFloorPosition.y + *(f32*)((u8*)mWaterGun + 0x1D40);
-		changePlayerStatus(0x088B, 0, false);
-		return;
+		return changePlayerStatus(0x088B, 0, false);
 	}
 
 	// Main running logic
@@ -1230,8 +1219,7 @@ jumpCheck:
 
 		if (mForwardVel > mDeParams.mClashSpeed.value) {
 			emitParticle(12);
-			changePlayerDropping(0x000208B0, 0);
-			return;
+			return changePlayerDropping(0x000208B0, 0);
 		}
 
 		if (mInput & 0x2) {
@@ -1240,8 +1228,7 @@ jumpCheck:
 				mVel.y = 52.0f;
 				mFaceAngle.y = (s16)(mFaceAngle.y + 0x8000);
 				setPlayerVelocity(50.0f);
-				changePlayerStatus(0x02000886, 0, false);
-				return;
+				return changePlayerStatus(0x02000886, 0, false);
 			}
 		}
 
@@ -1256,8 +1243,7 @@ jumpCheck:
 			s32 wallAngle = matan(normal->z, normal->x);
 			mFaceAngle.y = (s16)(wallAngle + 0x8000);
 			mModelFaceAngle = mFaceAngle.y;
-			changePlayerStatus(0x3000036B, 0, false);
-			return;
+			return changePlayerStatus(0x3000036B, 0, false);
 		}
 
 		doPushingAnimation(prevPos);
@@ -1288,11 +1274,9 @@ BOOL TMario::rotating()
 {
 	if (mInput & 0x2) {
 		if (mAction == 0x0441) {
-			changePlayerStatus(0x0896, 0, false);
-			return;
+			return changePlayerStatus(0x0896, 0, false);
 		} else {
-			changePlayerStatus(0x0895, 0, false);
-			return;
+			return changePlayerStatus(0x0895, 0, false);
 		}
 	}
 
@@ -1302,8 +1286,7 @@ BOOL TMario::rotating()
 
 	mActionTimer++;
 	if (mActionTimer > 120) {
-		changePlayerStatus(0x0C400201, 0, false);
-		return;
+		return changePlayerStatus(0x0C400201, 0, false);
 	}
 
 	doRunning();
@@ -1324,15 +1307,13 @@ BOOL TMario::rotating()
 BOOL TMario::fireDashing()
 {
 	if (mInput & 0x02) {
-		changePlayerStatus(0x000208b4, 0, false);
-		return;
+		return changePlayerStatus(0x000208b4, 0, false);
 	}
 
 	u16 timer = mActionTimer;
 	mActionTimer = timer + 1;
 	if (timer > 160) {
-		changePlayerStatus(0x04000440, 0, false);
-		return;
+		return changePlayerStatus(0x04000440, 0, false);
 	}
 
 	u8 isWallHit;
@@ -1341,8 +1322,7 @@ BOOL TMario::fireDashing()
 	else
 		isWallHit = 0;
 	if (isWallHit) {
-		changePlayerStatus(0x04000440, 0, false);
-		return;
+		return changePlayerStatus(0x04000440, 0, false);
 	}
 
 	if (mForwardVel < 0.0f)
@@ -1391,24 +1371,20 @@ BOOL TMario::walkEnd()
 	jumpCheck:
 
 		if (doJump) {
-			changePlayerStatus(0x50, 0, false);
-			return;
+			return changePlayerStatus(0x50, 0, false);
 		}
 
 		input = mInput;
 		if (input & 0x02) {
-			changePlayerTriJump();
-			return;
+			return changePlayerTriJump();
 		}
 
 		if (input & 0x01) {
-			changePlayerStatus(0x04000440, 0, false);
-			return;
+			return changePlayerStatus(0x04000440, 0, false);
 		}
 
 		if (input & 0x8000) {
-			changePlayerStatus(0x384, 0, false);
-			return;
+			return changePlayerStatus(0x384, 0, false);
 		}
 	}
 
@@ -1448,8 +1424,7 @@ rotateDone:
 	setPlayerVelocity(mForwardVel);
 
 	if (stopped) {
-		changePlayerStatus(0x0C400201, 0, false);
-		return;
+		return changePlayerStatus(0x0C400201, 0, false);
 	}
 
 	int walkResult = walkProcess();
@@ -1661,14 +1636,12 @@ throwDone:
 
 	// Check jump
 	if (mInput & 0x08) {
-		changePlayerStatus(0x50, 0, false);
-		return;
+		return changePlayerStatus(0x50, 0, false);
 	}
 
 	// Check B press
 	if (mInput & 0x02) {
-		changePlayerJumping(0x0887, 0);
-		return;
+		return changePlayerJumping(0x0887, 0);
 	}
 
 	// Check stick rotate
@@ -1698,8 +1671,7 @@ rotateDone:
 
 	// Check crouch
 	if (mInput & 0x20) {
-		changePlayerStatus(0x04000445, 0, false);
-		return;
+		return changePlayerStatus(0x04000445, 0, false);
 	}
 
 	// Check turn state
@@ -1721,8 +1693,7 @@ rotateDone:
 	}
 
 	if (!shouldTurn) {
-		changePlayerStatus(0x04000440, 0, false);
-		return;
+		return changePlayerStatus(0x04000440, 0, false);
 	}
 
 	// Decelerate
@@ -1737,8 +1708,7 @@ rotateDone:
 	if (stopped) {
 		mFaceAngle.y = mIntendedYaw;
 		setPlayerVelocity(8.0f);
-		changePlayerStatus(0x0444, 0, false);
-		return;
+		return changePlayerStatus(0x0444, 0, false);
 	}
 
 	switch (walkProcess()) {
@@ -1825,13 +1795,11 @@ throwDone:
 	// Part 2: check input flags
 	u32 input = mInput;
 	if (input & 0x08) {
-		changePlayerStatus(0x50, 0, false);
-		return;
+		return changePlayerStatus(0x50, 0, false);
 	}
 
 	if (input & 0x02) {
-		changePlayerJumping(0x887, 0);
-		return;
+		return changePlayerJumping(0x887, 0);
 	}
 
 	// Part 3: check stick rotate
@@ -1991,8 +1959,7 @@ BOOL TMario::slipForeCommon(int statusOnStop, int jumpStatus, int slipStatus, in
 {
 	if (mActionTimer > 20 && canSlipJump()) {
 		if (mInput & 0x2) {
-			changePlayerJumping(jumpStatus, 0);
-			return;
+			return changePlayerJumping(jumpStatus, 0);
 		}
 	} else {
 		mActionTimer++;
@@ -2016,8 +1983,7 @@ BOOL TMario::slipBackCommon(int statusOnStop, int slipStatus, int slipArg)
 		if (!(input & 0x8)) {
 			if (input & 0x2) {
 				if (canSlipJump()) {
-					changePlayerDropping(0x08A6, 0);
-					return;
+					return changePlayerDropping(0x08A6, 0);
 				}
 			}
 		}
@@ -2043,11 +2009,9 @@ BOOL TMario::catching()
 	if (!(input & 0x8)) {
 		if (input & 0x2) {
 			if (mForwardVel > mJumpParams.mRotBroadEnableV.get()) {
-				changePlayerStatus(0x02000889, 0, false);
-				return;
+				return changePlayerStatus(0x02000889, 0, false);
 			} else {
-				changePlayerStatus(0x08A6, 0, false);
-				return;
+				return changePlayerStatus(0x08A6, 0, false);
 			}
 		}
 	}
@@ -2065,8 +2029,7 @@ BOOL TMario::catching()
 	f32 slideStop = getSlideStopCatch();
 	if (doSliding(slideStop)) {
 		setPlayerVelocity(0.0f);
-		changePlayerStatus(902, 0, false);
-		return;
+		return changePlayerStatus(902, 0, false);
 	}
 
 	slippingBasic(902, 0x088C, 136);
@@ -2091,15 +2054,13 @@ BOOL TMario::oilRun()
 	// Check B button for jump
 	if (input & 0x2) {
 		setPlayerVelocity(0.0f);
-		changePlayerJumping(0x02000880, 0);
-		return;
+		return changePlayerJumping(0x02000880, 0);
 	}
 
 	// Check L trigger for water landing
 	if (input & 0x8000) {
 		mVel.y = 20.0f;
-		changePlayerStatus(0x0080088A, 1, false);
-		return;
+		return changePlayerStatus(0x0080088A, 1, false);
 	}
 
 	// Check if velocity is very small
@@ -2109,8 +2070,7 @@ BOOL TMario::oilRun()
 		f32 velZ;
 		if (negThresh < (velZ = mVel.z) && velZ < 1.0f) {
 			setPlayerVelocity(0.0f);
-			changePlayerStatus(0x0C400201, 0, false);
-			return;
+			return changePlayerStatus(0x0C400201, 0, false);
 		}
 	}
 
@@ -2180,8 +2140,7 @@ BOOL TMario::oilRun()
 
 	switch (walkProcess()) {
 	case 0:
-		changePlayerStatus(0x088C, 0, false);
-		return;
+		return changePlayerStatus(0x088C, 0, false);
 	case 1:
 	case 2:
 		break;
@@ -2193,8 +2152,7 @@ BOOL TMario::oilSlip()
 {
 	if (mInput & 0x02) {
 		setPlayerVelocity(0.0f);
-		changePlayerJumping(0x02000880, 0);
-		return;
+		return changePlayerJumping(0x02000880, 0);
 	}
 
 	// Convert s16 rotation speed param to float
@@ -2243,14 +2201,12 @@ BOOL TMario::oilSlip()
 	// Check if speed is near zero (between -1 and 1)
 	if (-1.0f < mForwardVel && mForwardVel < 1.0f) {
 		setPlayerVelocity(0.0f);
-		changePlayerStatus(0x386, 0, false);
-		return;
+		return changePlayerStatus(0x386, 0, false);
 	}
 
 	switch (walkProcess()) {
 	case 0:
-		changePlayerStatus(0x088c, 0, false);
-		return;
+		return changePlayerStatus(0x088c, 0, false);
 	case 1:
 	case 2:
 	default:
@@ -2369,14 +2325,12 @@ int TMario::jumpSlipCommon(short anmId, u32 status)
 BOOL TMario::jumpSlipEvents(TMario::JumpSlipRecord* record)
 {
 	if (mInput & 0x10) {
-		changePlayerStatus(record->mStatus, 0, false);
-		return;
+		return changePlayerStatus(record->mStatus, 0, false);
 	}
 
 	mActionTimer++;
 	if (mActionTimer >= record->mTimer) {
-		changePlayerStatus(record->mStatus, 0, false);
-		return;
+		return changePlayerStatus(record->mStatus, 0, false);
 	}
 
 	u32 input = mInput;
@@ -2384,25 +2338,20 @@ BOOL TMario::jumpSlipEvents(TMario::JumpSlipRecord* record)
 		u32 jumpStatus = record->mJumpStatus;
 		if ((jumpStatus - 0x02000000) == 0x0881) {
 			if (mForwardVel >= mJumpParams.mSecJumpEnableSp.get()) {
-				changePlayerJumping(0x02000881, 0);
-				return;
+				return changePlayerJumping(0x02000881, 0);
 			}
 		}
 		if (jumpStatus == 0x0882) {
 			if (mForwardVel >= mJumpParams.mTriJumpEnableSp.get()) {
-				changePlayerJumping(0x0882, 0);
-				return;
+				return changePlayerJumping(0x0882, 0);
 			}
 		}
-		changePlayerJumping(0x02000880, 0);
-		return;
+		return changePlayerJumping(0x02000880, 0);
 	} else if (input & 0x8000) {
 		mVel.y = 0.0f;
-		changePlayerStatus(0x0080088A, 1, false);
-		return;
+		return changePlayerStatus(0x0080088A, 1, false);
 	} else if (input & 0x4) {
-		changePlayerStatus(record->mFallbackStatus, 0, false);
-		return;
+		return changePlayerStatus(record->mFallbackStatus, 0, false);
 	}
 	return 0;
 }
