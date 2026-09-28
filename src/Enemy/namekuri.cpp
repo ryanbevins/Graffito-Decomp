@@ -199,6 +199,21 @@ TNameIndParCallback::TNameIndParCallback(TNameKuri* owner)
 {
 }
 
+// fabricated
+static inline f32 calcNameKuriAxisLength(const JGeometry::TVec3<f32>& v)
+{
+	f32 xSq  = v.x * v.x;
+	f32 ySq  = v.y * v.y;
+	f32 zSq  = v.z * v.z;
+	f32 xySq = xSq + ySq;
+	f32 mag  = zSq + xySq;
+	if (mag <= 0.0f)
+		return mag;
+
+	f32 root = __frsqrte(mag);
+	return 0.5f * root * (3.0f - mag * (root * root)) * mag;
+}
+
 void TNameIndParCallback::execute(JPABaseEmitter* param_1,
                                   JPABaseParticle* param_2)
 {
@@ -228,12 +243,19 @@ void TNameIndParCallback::execute(JPABaseEmitter* param_1,
 
 		JGeometry::TVec3<f32> local_7c;
 
-		JGeometry::TVec3<f32> tmp1(mA[0][0], mA[1][0], mA[2][0]);
-		local_7c.y = tmp1.length();
-		JGeometry::TVec3<f32> tmp2(mA[0][1], mA[1][1], mA[2][1]);
-		local_7c.z = tmp2.length();
-		JGeometry::TVec3<f32> tmp3(mA[0][2], mA[1][2], mA[2][2]);
-		local_7c.x = tmp3.length();
+		JGeometry::TVec3<f32> axis[3];
+		axis[0].x  = mA[0][0];
+		axis[0].y  = mA[1][0];
+		axis[0].z  = mA[2][0];
+		local_7c.y = calcNameKuriAxisLength(axis[0]);
+		axis[1].x  = mA[0][1];
+		axis[1].y  = mA[1][1];
+		axis[1].z  = mA[2][1];
+		local_7c.z = calcNameKuriAxisLength(axis[1]);
+		axis[2].x  = mA[0][2];
+		axis[2].y  = mA[1][2];
+		axis[2].z  = mA[2][2];
+		local_7c.x = calcNameKuriAxisLength(axis[2]);
 
 		param_1->setGlobalRTMatrix(mA);
 
