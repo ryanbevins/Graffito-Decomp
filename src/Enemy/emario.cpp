@@ -42,6 +42,14 @@ TEMario::TEMario(const char* name)
 {
 }
 
+static inline f32 calcLength(JGeometry::TVec3<f32> v)
+{
+	f32 xSq = v.x * v.x;
+	f32 ySq = v.y * v.y;
+	f32 zSq = v.z * v.z;
+	return JGeometry::TUtil<f32>::sqrt(zSq + (xSq + ySq));
+}
+
 void TEMario::perform(u32 flags, JDrama::TGraphics* gfx)
 {
 	if (mLiveFlag & LIVE_FLAG_UNK40)
@@ -61,11 +69,8 @@ void TEMario::perform(u32 flags, JDrama::TGraphics* gfx)
 				u32 type        = coll->mActorType;
 				switch (type) {
 				case 0x80000001: {
-					JGeometry::TVec3<f32> diff
-					    = mPosition - coll->mPosition;
-					f32 dist = JGeometry::TUtil<f32>::sqrt(
-					    diff.x * diff.x + diff.y * diff.y
-					    + diff.z * diff.z);
+					JGeometry::TVec3<f32> diff = mPosition - coll->mPosition;
+					f32 dist = calcLength(diff);
 					f32 range = *(f32*)((u8*)mEnemyMario + 0x42b0);
 					if (dist >= range)
 						break;
@@ -82,11 +87,8 @@ void TEMario::perform(u32 flags, JDrama::TGraphics* gfx)
 						break;
 					f32 damageR = mEnemyMario->mDamageRadius;
 					f32 attackR = coll->mAttackRadius;
-					JGeometry::TVec3<f32> diff
-					    = coll->mPosition - mPosition;
-					f32 dist = JGeometry::TUtil<f32>::sqrt(
-					    diff.x * diff.x + diff.y * diff.y
-					    + diff.z * diff.z);
+					JGeometry::TVec3<f32> diff = coll->mPosition - mPosition;
+					f32 dist = calcLength(diff);
 					if (dist >= attackR + damageR)
 						break;
 					mEnemyMario->changePlayerStatus(0x810446, 0, false);
