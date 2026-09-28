@@ -944,19 +944,16 @@ void TSlotDrum::moveObject()
 			*abs_counter = 0.0f;
 			switch (i) {
 			case 0:
-				if (gpMSound->gateCheck(0x388E))
-					MSoundSESystem::MSoundSE::startSoundActor(
-					    0x388E, mPosition, 0, nullptr, 0, 4);
+				gpMSound->startSoundActor(0x388E, &mPosition, 0, nullptr, 0,
+				                          4);
 				break;
 			case 1:
-				if (gpMSound->gateCheck(0x3890))
-					MSoundSESystem::MSoundSE::startSoundActor(
-					    0x3890, mPosition, 0, nullptr, 0, 4);
+				gpMSound->startSoundActor(0x3890, &mPosition, 0, nullptr, 0,
+				                          4);
 				break;
 			case 2:
-				if (gpMSound->gateCheck(0x388F))
-					MSoundSESystem::MSoundSE::startSoundActor(
-					    0x388F, mPosition, 0, nullptr, 0, 4);
+				gpMSound->startSoundActor(0x388F, &mPosition, 0, nullptr, 0,
+				                          4);
 				break;
 			}
 		}
@@ -968,14 +965,14 @@ void TSlotDrum::moveObject()
 				unk138[i] += unk15C;
 			if (unk13C[i] >= 360.0f)
 				unk13C[i] -= 360.0f;
-			if (unk13C[i] < 0.0f)
+			if (unk13C[i] <= 0.0f)
 				unk13C[i] += 360.0f;
 			continue;
 		}
 		unk13C[i] += unk138[i];
 		if (unk13C[i] >= 360.0f)
 			unk13C[i] -= 360.0f;
-		if (unk13C[i] < 0.0f)
+		if (unk13C[i] <= 0.0f)
 			unk13C[i] += 360.0f;
 		s32 angInt = (s32)fabsf(unk13C[i]);
 		if ((angInt % unk168) != 0)
@@ -985,9 +982,7 @@ void TSlotDrum::moveObject()
 			unk170[i].r = 0xFF;
 			unk170[i].g = 0xFF;
 			unk170[i].b = 0x46;
-			if (gpMSound->gateCheck(0x4849))
-				MSoundSESystem::MSoundSE::startSoundActor(
-				    0x4849, mPosition, 0, nullptr, 0, 4);
+			gpMSound->startSoundActor(0x4849, &mPosition, 0, nullptr, 0, 4);
 		} else {
 			unk170[i].r = 0x78;
 			unk170[i].g = 0xE6;
