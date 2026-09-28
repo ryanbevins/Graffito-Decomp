@@ -1816,7 +1816,7 @@ void TGCConsole2::loadAfter()
 	unk534 = unk528->mBounds;
 	unk534.add(unk544.x2, unk544.y1 + unk528->mBounds.getHeight());
 
-	unk544.resize(unk544.getWidth() * 0.5f, unk544.getHeight());
+	unk544.resize(unk544.getWidth() * 1.0666667f, unk544.getHeight());
 	unk544.add(0, -16);
 	unk568 = unk544.x2;
 
