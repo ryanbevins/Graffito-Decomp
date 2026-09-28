@@ -153,7 +153,7 @@ void TSunModel::load(JSUMemoryInputStream& stream)
 	mUnkA8    = color1;
 	mUnkA0    = color1;
 
-	mFrameCtrl.init(*(s16*)((u8*)mAnmTexSRT + 2));
+	mFrameCtrl.init(mAnmTexSRT->getFrameMax());
 	mFrameCtrl.setRate(SMSGetAnmFrameRate());
 	mFrameCtrl.setAttribute(J3DFrameCtrl::ATTR_LOOP);
 
@@ -346,7 +346,7 @@ void TSunModel::perform(u32 flags, JDrama::TGraphics* gfx)
 
 	if ((flags & 0x200) != 0) {
 		if (inMode) {
-			*(f32*)((u8*)mAnmTexSRT + 4) = mFrameCtrl.getFrame();
+			mAnmTexSRT->setFrame(mFrameCtrl.getFrame());
 			{
 				void* sub = *(void**)((u8*)mModelData->getMaterialNodePointer(0) + 0x28);
 				typedef void (*F)(void*, u32, void*);
