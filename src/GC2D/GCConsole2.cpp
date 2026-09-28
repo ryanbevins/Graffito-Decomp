@@ -790,7 +790,7 @@ static inline void setThreeDigits(Pane** panes, JUTTexture** textures,
 static inline void setTwoDigits(TBoundPane** panes, JUTTexture** textures,
                                 int value)
 {
-	setDigitPane(panes[0], textures, value / 10);
+	setDigitPane(panes[0], textures, (int)(0.1f * value));
 	setDigitPane(panes[1], textures, value % 10);
 }
 
