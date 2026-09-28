@@ -99,36 +99,12 @@ public:
 	/* 0x1E4 */ JGeometry::TVec3<f32> mDragDirection;
 };
 
-class TNerveTabePukuGraphWander : public TNerveBase<TLiveActor> {
-public:
-	virtual BOOL execute(TSpineBase<TLiveActor>*) const;
-	static const TNerveTabePukuGraphWander& theNerve()
-	{
-		static TNerveTabePukuGraphWander instance;
-		return instance;
-	}
-};
+DECLARE_NERVE(TNerveTabePukuGraphWander, TLiveActor);
 
-class TNerveTabePukuFound : public TNerveBase<TLiveActor> {
-public:
-	virtual BOOL execute(TSpineBase<TLiveActor>*) const;
-	static const TNerveTabePukuFound& theNerve()
-	{
-		static TNerveTabePukuFound instance;
-		return instance;
-	}
-};
+DECLARE_NERVE(TNerveTabePukuFound, TLiveActor);
 
 DECLARE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor);
-class TNerveTabePukuAttack : public TNerveBase<TLiveActor> {
-public:
-	virtual BOOL execute(TSpineBase<TLiveActor>*) const;
-	static const TNerveTabePukuAttack& theNerve()
-	{
-		static TNerveTabePukuAttack instance;
-		return instance;
-	}
-};
+DECLARE_NERVE(TNerveTabePukuAttack, TLiveActor);
 
 DECLARE_NERVE(TNerveTabePukuBite, TLiveActor);
 DECLARE_NERVE(TNerveTabePukuDive, TLiveActor);

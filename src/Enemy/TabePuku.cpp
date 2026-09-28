@@ -86,217 +86,6 @@ static inline const JGeometry::TVec3<f32>& getTabePukuGoalRef(TTabePuku* self)
 	return self->unk104.unk4;
 }
 
-DEFINE_NERVE(TNerveTabePukuDrag, TLiveActor)
-{
-	TTabePuku* self = (TTabePuku*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->mDragDirection.set(0.0f, 0.0f, 1.0f);
-		JGeometry::TQuat4<f32> rot;
-		rot.setEulerY((rand() * (1.0f / 32768.0f)) * 6.2831855f);
-		rot.rotate(self->mDragDirection);
-		self->setGoalPath(TPathNode(self->mPosition));
-		self->mMarchSpeed = self->getSaveParam2()->mDiveSpeed.get();
-	}
-
-	self->swimTo(self->mDragDirection);
-
-	bool shouldRelease = self->mTouchedWall || !self->isAirborne();
-	if (!shouldRelease) {
-		JGeometry::TVec3<f32> base = getTabePukuGoalRef(self);
-		base.sub(self->mPosition);
-		shouldRelease = JGeometry::TUtil<f32>::sqrt(base.dot(base))
-		                > self->getSaveParam2()->mDragLength.get();
-	}
-
-	if (shouldRelease) {
-		SMS_SendMessageToMario(self, HIT_MESSAGE_UNK8);
-		self->mHeldObject = nullptr;
-		spine->pushAfterCurrent(&TNerveTabePukuRecoverGraph::theNerve());
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveTabePukuDive, TLiveActor)
-{
-	TTabePuku* self = (TTabePuku*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->mDiveStartY = self->mPosition.y;
-		self->setBckAnm(2);
-		self->getMActor()->getFrameCtrl(0)->setRate(2.0f * SMSGetAnmFrameRate());
-		self->mMarchSpeed = self->getSaveParam2()->mDiveSpeed.get();
-	}
-
-	JGeometry::TVec3<f32> towardGround(0.0f, self->mGroundHeight - self->mPosition.y,
-	                                   0.0f);
-	self->swimTo(towardGround);
-
-	bool keepDiving;
-	if (self->mPosition.y - self->mDiveStartY
-	    < -self->getSaveParam2()->mApartHeight.get()) {
-		keepDiving = true;
-	} else if (self->mPosition.y - self->mGroundHeight < 200.0f) {
-		keepDiving = true;
-	} else if (!self->isAirborne()) {
-		keepDiving = true;
-	} else {
-		keepDiving = false;
-	}
-
-	if (keepDiving) {
-		spine->pushAfterCurrent(&TNerveTabePukuDrag::theNerve());
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveTabePukuBite, TLiveActor)
-{
-	TTabePuku* self = (TTabePuku*)spine->getBody();
-
-	self->setBckAnm(2);
-	if (gpMSound->gateCheck(0x2922))
-		MSoundSESystem::MSoundSE::startSoundActor(0x2922, &self->mPosition, 0,
-		                                          nullptr, 0, 4);
-
-	spine->pushAfterCurrent(&TNerveTabePukuDive::theNerve());
-	return TRUE;
-}
-
-BOOL TNerveTabePukuAttack::execute(TSpineBase<TLiveActor>* spine) const
-{
-	TTabePuku* self = (TTabePuku*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->setBckAnm(0);
-		self->setGoalPath(TPathNode((THitActor*)gpMarioAddress));
-		self->mMarchSpeed = self->getSaveParam2()->mAttackSpeed.get();
-	}
-
-	bool giveUp = false;
-	if (fabsf(gpMarioPos->y - self->mPosition.y)
-	    > self->getSaveParam2()->getSLGiveUpHeight()) {
-		giveUp = true;
-	} else {
-		f32 giveUpLength = self->getSaveParam2()->getSLGiveUpLength();
-		JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
-		goal.sub(self->mPosition);
-		if (JGeometry::TUtil<f32>::sqrt(goal.dot(goal)) > giveUpLength) {
-			giveUp = true;
-		} else {
-			JGeometry::TVec3<f32> graphPos
-			    = self->getTracer()->getGraph()->getNearestPosOnGraphLink(
-			        self->mPosition);
-			graphPos.sub(self->mPosition);
-			f32 territory = self->getSaveParam2()->mTerritoryRange.get();
-			if (territory * territory <= graphPos.dot(graphPos))
-				giveUp = true;
-		}
-	}
-
-	if (giveUp || self->mTouchedWall) {
-		spine->pushAfterCurrent(&TNerveTabePukuRecoverGraph::theNerve());
-		return TRUE;
-	}
-
-	JGeometry::TVec3<f32> towardMario = getTabePukuGoalRef(self);
-	towardMario.sub(self->mPosition);
-	{
-		JGeometry::TVec3<f32> offset(0.0f, 150.0f, 0.0f);
-		towardMario.add(offset);
-	}
-	self->swimTo(towardMario);
-	return FALSE;
-}
-DEFINE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor)
-{
-	TTabePuku* self = (TTabePuku*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->getTracer()->mPrevIdx = -1;
-		self->getTracer()->mCurrIdx = -1;
-		self->goToShortestNextGraphNode();
-		self->mMarchSpeed = self->getSaveParam2()->mMarchSpeed.get();
-	}
-
-	if (self->isReachedToGoal()) {
-		spine->pushAfterCurrent(&TNerveTabePukuGraphWander::theNerve());
-		return TRUE;
-	}
-
-	JGeometry::TVec3<f32> offset;
-	bool useRecoveryOffset = true;
-	if (self->isAirborne() && !self->mTouchedWall)
-		useRecoveryOffset = false;
-	if (useRecoveryOffset)
-		offset.set(0.0f, 10000.0f, 0.0f);
-	else
-		offset.set(0.0f, 0.0f, 0.0f);
-
-	JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
-	goal.sub(self->mPosition);
-	goal.add(offset);
-	self->swimTo(goal);
-	return FALSE;
-}
-
-BOOL TNerveTabePukuFound::execute(TSpineBase<TLiveActor>* spine) const
-{
-	TTabePuku* self = (TTabePuku*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->setBckAnm(1);
-		self->mMarchSpeed = 0.0f;
-	}
-
-	JGeometry::TVec3<f32> forward;
-	self->mQuat.getZDir(forward);
-	forward.scale(self->mMarchSpeed);
-
-	JGeometry::TVec3<f32> velocity(self->mVelocity);
-	velocity.scale(self->getSaveParam2()->mWaterFric.get());
-	velocity.add(forward);
-	self->mVelocity = velocity;
-
-	self->mRotation.y = MsGetRotFromZaxisY(velocity);
-
-	if (self->checkCurAnmEnd(0)) {
-		spine->pushAfterCurrent(&TNerveTabePukuAttack::theNerve());
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-BOOL TNerveTabePukuGraphWander::execute(TSpineBase<TLiveActor>* spine) const
-{
-	TTabePuku* self = (TTabePuku*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->getTracer()->mPrevIdx = -1;
-		self->goToShortestNextGraphNode();
-		self->setBckAnm(2);
-		self->mMarchSpeed = self->getSaveParam2()->mMarchSpeed.get();
-	}
-
-	if (self->isReachedToGoal())
-		self->goToRandomNextGraphNode();
-
-	if (self->isFindMario(1.0f)) {
-		spine->pushAfterCurrent(&TNerveTabePukuFound::theNerve());
-		return TRUE;
-	}
-
-	JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
-	goal.sub(self->mPosition);
-	self->swimTo(goal);
-	return FALSE;
-}
-
 void TTabePukuManager::createModelData()
 {
 	static const TModelDataLoadEntry entry[] = {
@@ -660,4 +449,216 @@ void TTabePukuManager::load(JSUMemoryInputStream& stream)
 {
 	unk38 = new TTabePukuSaveLoadParams("/enemy/tabepuku.prm");
 	TSmallEnemyManager::load(stream);
+}
+
+DEFINE_NERVE(TNerveTabePukuGraphWander, TLiveActor)
+{
+	TTabePuku* self = (TTabePuku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->getTracer()->mPrevIdx = -1;
+		self->goToShortestNextGraphNode();
+		self->setBckAnm(2);
+		self->mMarchSpeed = self->getSaveParam2()->mMarchSpeed.get();
+	}
+
+	if (self->isReachedToGoal())
+		self->goToRandomNextGraphNode();
+
+	if (self->isFindMario(1.0f)) {
+		spine->pushAfterCurrent(&TNerveTabePukuFound::theNerve());
+		return TRUE;
+	}
+
+	JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
+	goal.sub(self->mPosition);
+	self->swimTo(goal);
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveTabePukuFound, TLiveActor)
+{
+	TTabePuku* self = (TTabePuku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->setBckAnm(1);
+		self->mMarchSpeed = 0.0f;
+	}
+
+	JGeometry::TVec3<f32> forward;
+	self->mQuat.getZDir(forward);
+	forward.scale(self->mMarchSpeed);
+
+	JGeometry::TVec3<f32> velocity(self->mVelocity);
+	velocity.scale(self->getSaveParam2()->mWaterFric.get());
+	velocity.add(forward);
+	self->mVelocity = velocity;
+
+	self->mRotation.y = MsGetRotFromZaxisY(velocity);
+
+	if (self->checkCurAnmEnd(0)) {
+		spine->pushAfterCurrent(&TNerveTabePukuAttack::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor)
+{
+	TTabePuku* self = (TTabePuku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->getTracer()->mPrevIdx = -1;
+		self->getTracer()->mCurrIdx = -1;
+		self->goToShortestNextGraphNode();
+		self->mMarchSpeed = self->getSaveParam2()->mMarchSpeed.get();
+	}
+
+	if (self->isReachedToGoal()) {
+		spine->pushAfterCurrent(&TNerveTabePukuGraphWander::theNerve());
+		return TRUE;
+	}
+
+	JGeometry::TVec3<f32> offset;
+	bool useRecoveryOffset = true;
+	if (self->isAirborne() && !self->mTouchedWall)
+		useRecoveryOffset = false;
+	if (useRecoveryOffset)
+		offset.set(0.0f, 10000.0f, 0.0f);
+	else
+		offset.set(0.0f, 0.0f, 0.0f);
+
+	JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
+	goal.sub(self->mPosition);
+	goal.add(offset);
+	self->swimTo(goal);
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveTabePukuAttack, TLiveActor)
+{
+	TTabePuku* self = (TTabePuku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->setBckAnm(0);
+		self->setGoalPath(TPathNode((THitActor*)gpMarioAddress));
+		self->mMarchSpeed = self->getSaveParam2()->mAttackSpeed.get();
+	}
+
+	bool giveUp = false;
+	if (fabsf(gpMarioPos->y - self->mPosition.y)
+	    > self->getSaveParam2()->getSLGiveUpHeight()) {
+		giveUp = true;
+	} else {
+		f32 giveUpLength = self->getSaveParam2()->getSLGiveUpLength();
+		JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
+		goal.sub(self->mPosition);
+		if (JGeometry::TUtil<f32>::sqrt(goal.dot(goal)) > giveUpLength) {
+			giveUp = true;
+		} else {
+			JGeometry::TVec3<f32> graphPos
+			    = self->getTracer()->getGraph()->getNearestPosOnGraphLink(
+			        self->mPosition);
+			graphPos.sub(self->mPosition);
+			f32 territory = self->getSaveParam2()->mTerritoryRange.get();
+			if (territory * territory <= graphPos.dot(graphPos))
+				giveUp = true;
+		}
+	}
+
+	if (giveUp || self->mTouchedWall) {
+		spine->pushAfterCurrent(&TNerveTabePukuRecoverGraph::theNerve());
+		return TRUE;
+	}
+
+	JGeometry::TVec3<f32> towardMario = getTabePukuGoalRef(self);
+	towardMario.sub(self->mPosition);
+	{
+		JGeometry::TVec3<f32> offset(0.0f, 150.0f, 0.0f);
+		towardMario.add(offset);
+	}
+	self->swimTo(towardMario);
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveTabePukuBite, TLiveActor)
+{
+	TTabePuku* self = (TTabePuku*)spine->getBody();
+
+	self->setBckAnm(2);
+	if (gpMSound->gateCheck(0x2922))
+		MSoundSESystem::MSoundSE::startSoundActor(0x2922, &self->mPosition, 0,
+		                                          nullptr, 0, 4);
+
+	spine->pushAfterCurrent(&TNerveTabePukuDive::theNerve());
+	return TRUE;
+}
+
+DEFINE_NERVE(TNerveTabePukuDive, TLiveActor)
+{
+	TTabePuku* self = (TTabePuku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->mDiveStartY = self->mPosition.y;
+		self->setBckAnm(2);
+		self->getMActor()->getFrameCtrl(0)->setRate(2.0f * SMSGetAnmFrameRate());
+		self->mMarchSpeed = self->getSaveParam2()->mDiveSpeed.get();
+	}
+
+	JGeometry::TVec3<f32> towardGround(0.0f, self->mGroundHeight - self->mPosition.y,
+	                                   0.0f);
+	self->swimTo(towardGround);
+
+	bool keepDiving;
+	if (self->mPosition.y - self->mDiveStartY
+	    < -self->getSaveParam2()->mApartHeight.get()) {
+		keepDiving = true;
+	} else if (self->mPosition.y - self->mGroundHeight < 200.0f) {
+		keepDiving = true;
+	} else if (!self->isAirborne()) {
+		keepDiving = true;
+	} else {
+		keepDiving = false;
+	}
+
+	if (keepDiving) {
+		spine->pushAfterCurrent(&TNerveTabePukuDrag::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveTabePukuDrag, TLiveActor)
+{
+	TTabePuku* self = (TTabePuku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->mDragDirection.set(0.0f, 0.0f, 1.0f);
+		JGeometry::TQuat4<f32> rot;
+		rot.setEulerY((rand() * (1.0f / 32768.0f)) * 6.2831855f);
+		rot.rotate(self->mDragDirection);
+		self->setGoalPath(TPathNode(self->mPosition));
+		self->mMarchSpeed = self->getSaveParam2()->mDiveSpeed.get();
+	}
+
+	self->swimTo(self->mDragDirection);
+
+	bool shouldRelease = self->mTouchedWall || !self->isAirborne();
+	if (!shouldRelease) {
+		JGeometry::TVec3<f32> base = getTabePukuGoalRef(self);
+		base.sub(self->mPosition);
+		shouldRelease = JGeometry::TUtil<f32>::sqrt(base.dot(base))
+		                > self->getSaveParam2()->mDragLength.get();
+	}
+
+	if (shouldRelease) {
+		SMS_SendMessageToMario(self, HIT_MESSAGE_UNK8);
+		self->mHeldObject = nullptr;
+		spine->pushAfterCurrent(&TNerveTabePukuRecoverGraph::theNerve());
+		return TRUE;
+	}
+
+	return FALSE;
 }
