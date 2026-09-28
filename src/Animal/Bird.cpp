@@ -882,9 +882,9 @@ BOOL TAnimalBird::receiveMessage(THitActor* sender, u32 msg)
 	if (msg == 4 && mHolder == NULL) {
 		unk64 |= 1;
 		mHolder = (TTakeActor*)sender;
-		JGeometry::TVec3<f32> scale2(1.0f, 1.0f, 1.0f);
 		SMS_EasyEmitParticle((E_SMS_EFFECT_ONETIME_NORMAL)0xE7,
-		                     &sender->mPosition, (const void*)NULL, scale2);
+		                     &sender->mPosition, (const void*)NULL,
+		                     JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 		return TRUE;
 	}
 
