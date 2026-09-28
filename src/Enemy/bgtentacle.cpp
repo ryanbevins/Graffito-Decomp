@@ -988,8 +988,11 @@ void TBGTentacle::moveConstraint()
 	case 1:
 		for (int i = 0; i < mNodeNum; ++i) {
 			MtxPtr mtx = unk80->getModel()->getAnmMtx(i);
-			mNodes[i].setUnk18(
-			    JGeometry::TVec3<f32>(mtx[0][3], mtx[1][3], mtx[2][3]));
+			JGeometry::TVec3<f32> trans;
+			trans.x = mtx[0][3];
+			trans.y = mtx[1][3];
+			trans.z = mtx[2][3];
+			mNodes[i].setUnk18(trans);
 		}
 		int iVar10;
 		if (mOwner->beakHeld()) {
@@ -1011,8 +1014,11 @@ void TBGTentacle::moveConstraint()
 	case 10:
 		for (int i = 0; i < mNodeNum; ++i) {
 			MtxPtr mtx = unk80->getModel()->getAnmMtx(i);
-			mNodes[i].setUnk18(
-			    JGeometry::TVec3<f32>(mtx[0][3], mtx[1][3], mtx[2][3]));
+			JGeometry::TVec3<f32> trans;
+			trans.x = mtx[0][3];
+			trans.y = mtx[1][3];
+			trans.z = mtx[2][3];
+			mNodes[i].setUnk18(trans);
 		}
 		break;
 
