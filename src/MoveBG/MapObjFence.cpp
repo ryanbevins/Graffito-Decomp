@@ -571,7 +571,7 @@ BOOL TRevolvingFenceInner::receiveMessage(THitActor* sender, u32 message)
 		}
 	}
 	if (message == 3 && unk140 != 0) {
-		f32 angle = getRotYFromAxisZ(*gpMarioPos);
+		f32 angle = getRotYFromAxisZ(SMS_GetMarioPos());
 		f32 deg   = 180.0f * (angle / 3.14f) + mInitialRotation.y;
 		deg       = MsWrap(deg, -180.0f, 180.0f);
 		if ((-180.0f < deg && deg < -90.0f)
